@@ -1721,6 +1721,7 @@ BackgroundGui::BackgroundGui(
   /* Image */
 
   pictureEdit = new QLineEdit(picture,parent);
+  pictureEdit->setToolTip("Enter image path");
   connect(pictureEdit,SIGNAL(textEdited(   QString const &)),
           this,       SLOT(  pictureChange(QString const &)));
   grid->addWidget(pictureEdit,1,0);

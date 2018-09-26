@@ -79,6 +79,8 @@ GlobalPageDialog::GlobalPageDialog(
   pageHeaderMeta->size.setValue(0, pW);
   PageFooterMeta *pageFooterMeta = &data->meta.LPub.page.pageFooter;
   pageFooterMeta->size.setValue(0, pW);
+  PageAttributeTextGui *childTextGui;
+  PageAttributePictureGui *chilPicdGui;
 
   setLayout(layout);
   layout->addWidget(tab);
@@ -177,6 +179,8 @@ GlobalPageDialog::GlobalPageDialog(
   titleBoxFront = new QGroupBox(tr("Display Title Front Cover"));
   grid->addWidget(titleBoxFront, 0, 0);
   titleChildFront = new PageAttributeTextGui(&pageMeta->titleFront,titleBoxFront);
+  childTextGui = static_cast<PageAttributeTextGui*>(titleChildFront);
+  childTextGui->contentEdit->setToolTip("Enter model title");
   data->children.append(titleChildFront);
   connect(titleChildFront, SIGNAL(indexChanged(int)),
           SLOT(indexChanged(int)));
@@ -185,6 +189,8 @@ GlobalPageDialog::GlobalPageDialog(
   grid->addWidget(titleBoxBack, 0, 0);
   titleBoxBack->hide();
   titleChildBack = new PageAttributeTextGui(&pageMeta->titleBack,titleBoxBack);
+  childTextGui = static_cast<PageAttributeTextGui*>(titleChildBack);
+  childTextGui->contentEdit->setToolTip("Enter model title");
   data->children.append(titleChildBack);
   connect(titleChildBack, SIGNAL(indexChanged(int)),
           SLOT(indexChanged(int)));
@@ -194,6 +200,8 @@ GlobalPageDialog::GlobalPageDialog(
   box = new QGroupBox(tr("Display Cover Image"));
   grid->addWidget(box, 1, 0);
   child = new PageAttributePictureGui(&pageMeta->coverImage,box);
+  chilPicdGui = static_cast<PageAttributePictureGui*>(child);
+  chilPicdGui->pictureEdit->setToolTip("Enter image path");
   data->children.append(child);
   //child body end
 
@@ -214,6 +222,8 @@ GlobalPageDialog::GlobalPageDialog(
   box = new QGroupBox(tr("Display Model Description"));
   grid->addWidget(box, 0, 0);
   child = new PageAttributeTextGui(&pageMeta->modelDesc,box);
+  childTextGui = static_cast<PageAttributeTextGui*>(child);
+  childTextGui->contentEdit->setToolTip("Enter model description");
   data->children.append(child);
   // child body end
 
@@ -234,6 +244,8 @@ GlobalPageDialog::GlobalPageDialog(
   box = new QGroupBox(tr("Display Model Identification"));
   grid->addWidget(box, 0, 0);
   child = new PageAttributeTextGui(&pageMeta->modelName,box);
+  childTextGui = static_cast<PageAttributeTextGui*>(child);
+  childTextGui->contentEdit->setToolTip("Enter model identification");
   data->children.append(child);
   // child body end
 
@@ -241,6 +253,8 @@ GlobalPageDialog::GlobalPageDialog(
   box = new QGroupBox(tr("Display Pieces"));
   grid->addWidget(box, 1, 0);
   child = new PageAttributeTextGui(&pageMeta->pieces,box);
+  childTextGui = static_cast<PageAttributeTextGui*>(child);
+  childTextGui->contentEdit->setToolTip(" Enter number of parts - e.g. 420 Pieces");
   data->children.append(child);
   // child body end
 
@@ -300,6 +314,8 @@ GlobalPageDialog::GlobalPageDialog(
   authorBoxFront = new QGroupBox(tr("Display Author Front Cover"));
   grid->addWidget(authorBoxFront, 0, 0);
   authorChildFront = new PageAttributeTextGui(&pageMeta->authorFront,authorBoxFront);
+  childTextGui = static_cast<PageAttributeTextGui*>(authorChildFront);
+  childTextGui->contentEdit->setToolTip("Enter model author");
   data->children.append(authorChildFront);
   connect(authorChildFront, SIGNAL(indexChanged(int)),
           SLOT(indexChanged(int)));
@@ -308,6 +324,8 @@ GlobalPageDialog::GlobalPageDialog(
   grid->addWidget(authorBoxBack, 0, 0);
   authorBoxBack->hide();
   authorChildBack = new PageAttributeTextGui(&pageMeta->authorBack,authorBoxBack);
+  childTextGui = static_cast<PageAttributeTextGui*>(authorChildBack);
+  childTextGui->contentEdit->setToolTip("Enter model author");
   data->children.append(authorChildBack);
   connect(authorChildBack, SIGNAL(indexChanged(int)),
           SLOT(indexChanged(int)));
@@ -316,6 +334,8 @@ GlobalPageDialog::GlobalPageDialog(
   grid->addWidget(authorBox, 0, 0);
   authorBox->hide();
   authorChild = new PageAttributeTextGui(&pageMeta->author,authorBox);
+  childTextGui = static_cast<PageAttributeTextGui*>(authorChild);
+  childTextGui->contentEdit->setToolTip("Enter model author");
   data->children.append(authorChild);
   connect(authorChild, SIGNAL(indexChanged(int)),
           SLOT(indexChanged(int)));
@@ -323,6 +343,8 @@ GlobalPageDialog::GlobalPageDialog(
   emailBoxBack = new QGroupBox(tr("Display Email Back Cover"));
   grid->addWidget(emailBoxBack, 1, 0);
   emailChildBack = new PageAttributeTextGui(&pageMeta->emailBack,emailBoxBack);
+  childTextGui = static_cast<PageAttributeTextGui*>(emailChildBack);
+  childTextGui->contentEdit->setToolTip("Enter email address");
   data->children.append(emailChildBack);
   connect(emailChildBack, SIGNAL(indexChanged(int)),
           SLOT(indexChanged(int)));
@@ -331,6 +353,8 @@ GlobalPageDialog::GlobalPageDialog(
   grid->addWidget(emailBox, 1, 0);
   emailBox->hide();
   emailChild = new PageAttributeTextGui(&pageMeta->email,emailBox);
+  childTextGui = static_cast<PageAttributeTextGui*>(emailChild);
+  childTextGui->contentEdit->setToolTip("");
   data->children.append(emailChild);
   connect(emailChild, SIGNAL(indexChanged(int)),
           SLOT(indexChanged(int)));
@@ -347,6 +371,8 @@ GlobalPageDialog::GlobalPageDialog(
   urlBoxBack = new QGroupBox(tr("Display URL Back Cover"));
   grid->addWidget(urlBoxBack, 0, 0);
   urlChildBack = new PageAttributeTextGui(&pageMeta->urlBack,urlBoxBack);
+  childTextGui = static_cast<PageAttributeTextGui*>(urlChildBack);
+  childTextGui->contentEdit->setToolTip("Enter website URL");
   data->children.append(urlChildBack);
   connect(urlChildBack, SIGNAL(indexChanged(int)),
          SLOT(indexChanged(int)));
@@ -355,6 +381,8 @@ GlobalPageDialog::GlobalPageDialog(
   grid->addWidget(urlBox, 0, 0);
   urlBox->hide();
   urlChild = new PageAttributeTextGui(&pageMeta->url,urlBox);
+  childTextGui = static_cast<PageAttributeTextGui*>(urlChild);
+  childTextGui->contentEdit->setToolTip("Enter website URL");
   data->children.append(urlChild);
   connect(urlChild, SIGNAL(indexChanged(int)),
          SLOT(indexChanged(int)));
@@ -362,6 +390,8 @@ GlobalPageDialog::GlobalPageDialog(
   box = new QGroupBox(tr("Publisher Description"));
   grid->addWidget(box, 1, 0);
   child = new PageAttributeTextGui(&pageMeta->publishDesc,box);
+  childTextGui = static_cast<PageAttributeTextGui*>(child);
+  childTextGui->contentEdit->setToolTip("Enter model publisher");
   data->children.append(child);
 
   childtab->addTab(widget,tr("URL/Description"));
@@ -376,6 +406,8 @@ GlobalPageDialog::GlobalPageDialog(
   copyrightBoxBack = new QGroupBox(tr("Display Copyright Back Cover"));
   grid->addWidget(copyrightBoxBack, 0, 0);
   copyrightChildBack = new PageAttributeTextGui(&pageMeta->copyrightBack,copyrightBoxBack);
+  childTextGui = static_cast<PageAttributeTextGui*>(copyrightChildBack);
+  childTextGui->contentEdit->setToolTip("Enter copyright - Copyright © 2018");
   data->children.append(copyrightChildBack);
   connect(copyrightChildBack, SIGNAL(indexChanged(int)),
          SLOT(indexChanged(int)));
@@ -384,6 +416,8 @@ GlobalPageDialog::GlobalPageDialog(
   grid->addWidget(copyrightBox, 0, 0);
   copyrightBox->hide();
   copyrightChild = new PageAttributeTextGui(&pageMeta->copyright,copyrightBox);
+  childTextGui = static_cast<PageAttributeTextGui*>(copyrightChild);
+  childTextGui->contentEdit->setToolTip("Enter copyright - Copyright © 2018");
   data->children.append(copyrightChild);
   connect(copyrightChild, SIGNAL(indexChanged(int)),
          SLOT(indexChanged(int)));
@@ -391,6 +425,8 @@ GlobalPageDialog::GlobalPageDialog(
   documentLogoBoxFront = new QGroupBox(tr("Display Logo Front Cover"));
   grid->addWidget(documentLogoBoxFront, 1, 0);
   documentLogoChildFront = new PageAttributePictureGui(&pageMeta->documentLogoFront,documentLogoBoxFront);
+  chilPicdGui = static_cast<PageAttributePictureGui*>(documentLogoChildFront);
+  chilPicdGui->pictureEdit->setToolTip("Enter logo image path");
   data->children.append(documentLogoChildFront);
   connect(documentLogoChildFront, SIGNAL(indexChanged(int)),
          SLOT(indexChanged(int)));
@@ -399,6 +435,8 @@ GlobalPageDialog::GlobalPageDialog(
   grid->addWidget(documentLogoBoxBack, 1, 0);
   documentLogoBoxBack->hide();
   documentLogoChildBack = new PageAttributePictureGui(&pageMeta->documentLogoBack,documentLogoBoxBack);
+  chilPicdGui = static_cast<PageAttributePictureGui*>(documentLogoChildBack);
+  chilPicdGui->pictureEdit->setToolTip("Enter logo image path");
   data->children.append(documentLogoChildBack);
   connect(documentLogoChildBack, SIGNAL(indexChanged(int)),
          SLOT(indexChanged(int)));
@@ -423,7 +461,9 @@ GlobalPageDialog::GlobalPageDialog(
   box = new QGroupBox(tr("Display LEGO Disclaimer"));
   grid->addWidget(box, 0, 0);
   child = new PageAttributeTextGui(&pageMeta->disclaimer,box);
-  data->children.append(child);
+  childTextGui = static_cast<PageAttributeTextGui*>(child);
+  childTextGui->contentEdit->setToolTip("Enter disclaimer paragraph");
+  data->children.append(child); 
   childtab->addTab(widget,tr("Disclaimer"));
 
   widget = new QWidget();
@@ -436,23 +476,21 @@ GlobalPageDialog::GlobalPageDialog(
   box = new QGroupBox(tr("Display LPub3D Plug"));
   grid->addWidget(box, 1, 0);
   child = new PageAttributeTextGui(&pageMeta->plug,box);
-  data->children.append(child);
-
   QPalette readOnlyPalette;
   readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
-  PageAttributeTextGui *childTextGui = static_cast<PageAttributeTextGui*>(child);
+  childTextGui = static_cast<PageAttributeTextGui*>(child);
   childTextGui->contentEdit->setReadOnly(true);
   childTextGui->contentEdit->setPalette(readOnlyPalette);
+  data->children.append(child);
 
   box = new QGroupBox(tr("Display LPub3D Logo"));
   grid->addWidget(box, 2, 0);
   child = new PageAttributePictureGui(&pageMeta->plugImage,box);
-  data->children.append(child);
-
   readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
-  PageAttributePictureGui *chilPicdGui = static_cast<PageAttributePictureGui*>(child);
+  chilPicdGui = static_cast<PageAttributePictureGui*>(child);
   chilPicdGui->pictureEdit->setReadOnly(true);
   chilPicdGui->pictureEdit->setPalette(readOnlyPalette);
+  data->children.append(child);
 
   childtab->addTab(widget,tr("LPub3D PLug"));
 
