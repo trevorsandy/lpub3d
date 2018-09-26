@@ -65,7 +65,8 @@ public:
 
   QAction *marginMenu(
           QMenu   &menu, 
-    const QString  name = "");
+    const QString  name = "",
+    const QString  whatsThis = "");
 
   QString naturalLanguagePlacement(
           PlacementType  type,
@@ -107,6 +108,15 @@ public:
 
   QAction *scaleMenu(  
           QMenu   &menu, 
+    const QString  name = "",
+    const QString  whatsThis = "");
+
+  QAction *cameraFoVMenu(
+          QMenu   &menu,
+    const QString  name = "");
+
+  QAction *cameraAnglesMenu(
+          QMenu   &menu,
     const QString  name = "");
 
   QAction *removeMenu(

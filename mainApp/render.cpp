@@ -67,7 +67,7 @@ POVRay  povray;
 Native  native;
 
 //#define LduDistance 5729.57
-#define _CA "-ca0.01"
+//#define _CA "-ca0.01"
 #define USE_ALPHA "+UA"
 
 //Enable LDView single call -SaveSnapshotsList flag
@@ -311,7 +311,7 @@ int Render::executeLDViewProcess(QStringList &arguments, Mt module) {
  *
  * LDGLite produces 72 DPI
  *
- * Camera angle is 0.01
+ * Camera default FoV angle is 0.01
  *
  * What distance do we need to put the camera, given a user chosen DPI,
  * to get zoom factor of 1.0?
@@ -357,13 +357,12 @@ int POVRay::renderCsi(
   /* determine camera distance */
   int cd = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
 
-      //QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
   QString cg = QString("-cg%1,%2,%3")
-      .arg(meta.LPub.assem.angle.value(0))
-      .arg(meta.LPub.assem.angle.value(1))
+      .arg(meta.LPub.assem.cameraAngles.value(0))
+      .arg(meta.LPub.assem.cameraAngles.value(1))
       .arg(cd);
 
-  QString CA = QString("-ca%1") .arg(meta.LPub.assem.cameraAngle.value());
+  QString CA = QString("-ca%1") .arg(meta.LPub.assem.cameraFoV.value());
   QString w  = QString("-SaveWidth=%1") .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
   QString f  = QString("-ExportFile=%1") .arg(povName);
@@ -570,12 +569,12 @@ int POVRay::renderPli(
   /* determine camera distance */
   int cd = cameraDistance(meta,metaType.modelScale.value())*1700/1000;
 
-  //QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
+  QString CA = QString("-ca%1") .arg(metaType.cameraFoV.value());
   QString cg = QString("-cg%1,%2,%3")
-      .arg(metaType.angle.value(0))
-      .arg(metaType.angle.value(1))
+      .arg(metaType.cameraAngles.value(0))
+      .arg(metaType.cameraAngles.value(1))
       .arg(cd);
-  QString CA = QString(_CA);
+
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
   QString f  = QString("-ExportFile=%1") .arg(povName);  // -ExportSuffix not required
@@ -808,14 +807,13 @@ int LDGLite::renderCsi(
 
   QString w  = QString("-W%1")      .arg(lineThickness); // ldglite always deals in 72 DPI
 
-  //QString cg = QString("-cg0.0,0.0,%1") .arg(cd);
-  QString CA = QString("-ca%1") .arg(meta.LPub.assem.cameraAngle.value());
-  QString cg = QString("-cg%1,%2,%3") .arg(meta.LPub.assem.angle.value(0))
-                                      .arg(meta.LPub.assem.angle.value(1))
+  QString CA = QString("-ca%1") .arg(meta.LPub.assem.cameraFoV.value());
+  QString cg = QString("-cg%1,%2,%3") .arg(meta.LPub.assem.cameraAngles.value(0))
+                                      .arg(meta.LPub.assem.cameraAngles.value(1))
                                       .arg(cd);
 
   QStringList arguments;
-  arguments << CA;                  // camera FOV angle in degrees
+  arguments << CA;                  // camera FOV cameraAngles in degrees
   arguments << cg;                  // camera globe - scale factor
   arguments << v;                   // display in X wide by Y high window
   arguments << o;                   // changes the center X across and Y down
@@ -905,9 +903,9 @@ int LDGLite::renderPli(
 
   int cd = cameraDistance(meta,metaType.modelScale.value());
 
-  QString CA = QString(_CA);
-  QString cg = QString("-cg%1,%2,%3") .arg(metaType.angle.value(0))
-                                      .arg(metaType.angle.value(1))
+  QString CA = QString("-ca%1") .arg(metaType.cameraFoV.value());
+  QString cg = QString("-cg%1,%2,%3") .arg(metaType.cameraAngles.value(0))
+                                      .arg(metaType.cameraAngles.value(1))
                                       .arg(cd);
 
   QString v  = QString("-v%1,%2")   .arg(width)
@@ -918,7 +916,7 @@ int LDGLite::renderPli(
   QString w  = QString("-W%1")      .arg(lineThickness);  // ldglite always deals in 72 DPI
 
   QStringList arguments;
-  arguments << CA;                  // camera FOV angle in degrees
+  arguments << CA;                  // camera FOV cameraAngles in degrees
   arguments << cg;                  // camera globe - scale factor
   arguments << v;                   // display in X wide by Y high window
   arguments << o;                   // changes the center X across and Y down
@@ -1109,9 +1107,9 @@ int LDView::renderCsi(
   }
 
   // Build (Native) arguments
-  QString CA = QString("-ca%1") .arg(meta.LPub.assem.cameraAngle.value());
-  QString cg = QString("-cg%1,%2,%3") .arg(meta.LPub.assem.angle.value(0))
-                                      .arg(meta.LPub.assem.angle.value(1))
+  QString CA = QString("-ca%1") .arg(meta.LPub.assem.cameraFoV.value());
+  QString cg = QString("-cg%1,%2,%3") .arg(meta.LPub.assem.cameraAngles.value(0))
+                                      .arg(meta.LPub.assem.cameraAngles.value(1))
                                       .arg(cd);
   QString a  = QString("-AutoCrop=1");
   QString w  = QString("-SaveWidth=%1")  .arg(width);
@@ -1122,7 +1120,7 @@ int LDView::renderCsi(
   QString v  = QString("-vv");
 
   QStringList arguments;
-  arguments << CA;                        // 00. Camera angle
+  arguments << CA;                        // 00. Camera cameraAngles
   arguments << cg;                        // 01. Camera globe
   arguments << w;                         // 03. SaveWidth
   arguments << h;                         // 04. SaveHeight
@@ -1178,7 +1176,7 @@ int LDView::renderCsi(
   QStringList im_arguments;
   if (enableIM && haveLdrNamesIM) {
       QString a  = QString("-AutoCrop=0");
-      im_arguments << CA;                         // 00. Camera angle
+      im_arguments << CA;                         // 00. Camera cameraAngles
       im_arguments << cg;                         // 01. Camera globe
       im_arguments << a;                          // 02. AutoCrop off - to create same size IM pair files
       im_arguments << w;                          // 03. SaveWidth
@@ -1314,9 +1312,9 @@ int LDView::renderPli(
       f  = QString("-SaveSnapShot=%1") .arg(pngName);
   }
 
-  QString CA = QString(_CA);
-  QString cg = QString("-cg%1,%2,%3") .arg(metaType.angle.value(0))
-                                      .arg(metaType.angle.value(1))
+  QString CA = QString("-ca%1") .arg(metaType.cameraFoV.value());
+  QString cg = QString("-cg%1,%2,%3") .arg(metaType.cameraAngles.value(0))
+                                      .arg(metaType.cameraAngles.value(1))
                                       .arg(cd);
 
   QString w  = QString("-SaveWidth=%1")  .arg(width);
@@ -1443,8 +1441,9 @@ int Native::renderCsi(
   Options.OutputFileName    = pngName;
   Options.ImageWidth        = gui->pageSize(meta.LPub.page, 0);
   Options.ImageHeight       = gui->pageSize(meta.LPub.page, 1);
-  Options.Latitude          = meta.LPub.assem.angle.value(0);
-  Options.Longitude         = meta.LPub.assem.angle.value(1);
+  Options.FoV               = meta.LPub.assem.cameraFoV.value();
+  Options.Latitude          = meta.LPub.assem.cameraAngles.value(0);
+  Options.Longitude         = meta.LPub.assem.cameraAngles.value(1);
   Options.HighlightNewParts = gui->suppressColourMeta(); //Preferences::enableHighlightStep;
   Options.CameraDistance    = cameraDistance(meta,meta.LPub.assem.modelScale.value());
   Options.LineWidth         = lineThickness;
@@ -1488,8 +1487,9 @@ int Native::renderPli(
   Options.OutputFileName    = pngName;
   Options.ImageWidth        = gui->pageSize(meta.LPub.page, 0);
   Options.ImageHeight       = gui->pageSize(meta.LPub.page, 1);
-  Options.Latitude          = metaType.angle.value(0);
-  Options.Longitude         = metaType.angle.value(1);
+  Options.FoV               = metaType.cameraFoV.value();
+  Options.Latitude          = metaType.cameraAngles.value(0);
+  Options.Longitude         = metaType.cameraAngles.value(1);
   Options.CameraDistance    = cameraDistance(meta,metaType.modelScale.value());
   Options.LineWidth         = HIGHLIGHT_LINE_WIDTH_DEFAULT;
 

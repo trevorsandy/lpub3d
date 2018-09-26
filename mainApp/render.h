@@ -138,10 +138,12 @@ public:
     ImageType       = Render::CSI;
     Orthographic    = true;
     CameraDistance  = -260.0f;
+    FoV             = 30.0f;
   }
   QString ViewerCsiName;
   Render::Mt ImageType;
   float CameraDistance;
+  float FoV;
   float Latitude;
   float Longitude;
   bool Orthographic;
@@ -153,11 +155,12 @@ public:
   NativeOptions()
   {
     ImageType         = Render::CSI;
-    Orthographic      = true;
     TransBackground   = true;
     HighlightNewParts = false;
+    Orthographic      = true;
     CameraDistance    = -260.0f;
-    LineWidth         = 1.0;
+    FoV               = 30.0f;
+    LineWidth         = 1.0;    
   }
   QString InputFileName;
   QString OutputFileName;
@@ -165,6 +168,7 @@ public:
   Render::Mt ImageType;
   float ImageWidth;
   float ImageHeight;
+  float FoV;
   float Latitude;
   float Longitude;
   float CameraDistance;

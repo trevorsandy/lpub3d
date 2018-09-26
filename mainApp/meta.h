@@ -2233,18 +2233,17 @@ public:
   StringMeta    ldgliteParms;
   StringMeta    povrayParms;
   BoolMeta      showStepNumber;
-  FloatMeta     cameraAngle;
 
   // image generation
-  FloatPairMeta angle;
+  FloatMeta     cameraFoV;
+  FloatPairMeta cameraAngles;
   IntMeta       distance;
-  FloatMeta     fov;
   FloatMeta     znear;
   FloatMeta     zfar;
   // display step
-  FloatPairMeta v_angle;
+  FloatMeta     v_cameraFoV;
+  FloatPairMeta v_cameraAngles;
   IntMeta       v_distance;
-  FloatMeta     v_fov;
   FloatMeta     v_znear;
   FloatMeta     v_zfar;
 
@@ -2287,9 +2286,9 @@ public:
   PliSortMeta       sortBy;
   PliAnnotationMeta annotation;
 
-  FloatPairMeta     angle;
+  FloatMeta         cameraFoV;
+  FloatPairMeta     cameraAngles;
   IntMeta           distance;
-  FloatMeta         fov;
   FloatMeta         znear;
   FloatMeta         zfar;
 

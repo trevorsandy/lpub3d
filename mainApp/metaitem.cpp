@@ -1626,7 +1626,7 @@ void MetaItem::changeUnits(
   }
 }
 
-void MetaItem::changeViewAngle(
+void MetaItem::changeCameraAngles(
   QString        title,
   const Where   &topOfStep,
   const Where   &bottomOfStep,

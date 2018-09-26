@@ -141,7 +141,8 @@ QAction* CommonMenus::colorMenu(
 
 QAction* CommonMenus::marginMenu(
         QMenu   &menu, 
-  const QString  name)
+  const QString  name,
+  const QString  whatsThis)
 {
   QAction *action;
 
@@ -335,7 +336,8 @@ return action;
 
 QAction* CommonMenus::scaleMenu(
         QMenu   &menu,
-  const QString  name)
+  const QString  name,
+  const QString  whatsThis)
 {
   QString formatted = QString("Change %1 Scale") .arg(name);
 
@@ -343,12 +345,41 @@ QAction* CommonMenus::scaleMenu(
   action = menu.addAction(formatted);
   action->setIcon(QIcon(":/resources/scale.png"));
 
+  formatted = whatsThis.isEmpty() ? QString("You can change the size of this %1 using the scale dialog.\n"
+                                            "A scale of 1.0 is true size. A scale of 2.0 doubles the size of your model.\n"
+                                            "A scale of 0.5 makes your model half real size\n").arg(name) : whatsThis;
+  action->setWhatsThis(formatted);
+
+  return action;
+}
+
+QAction* CommonMenus::cameraFoVMenu(
+        QMenu   &menu,
+  const QString  name)
+{
+  QString formatted = QString("Change %1 Camera FOV Angle") .arg(name);
+
+  QAction *action;
+  action = menu.addAction(formatted);
+  action->setIcon(QIcon(":/resources/camerafov.png"));
+
   action->setWhatsThis(
+    "Change the camera FOV angle in degrees for this %1\n");
+  return action;
+}
 
-    "You can make %1look bigger or smaller on the page by changing the scale."
+QAction* CommonMenus::cameraAnglesMenu(
+        QMenu   &menu,
+  const QString  name)
+{
+  QString formatted = QString("Change %1 Camera Angles") .arg(name);
 
-    "A scale of 1 is true size.  A scale of 2 is double true size\n");
+  QAction *action;
+  action = menu.addAction(formatted);
+  action->setIcon(QIcon(":/resources/cameraviewangles.png"));
 
+  action->setWhatsThis(
+    "Change the camera longitude and latitude view angles for this %1`.\n");
   return action;
 }
 

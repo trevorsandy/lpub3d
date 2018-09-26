@@ -82,6 +82,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
   QString name = "Step";
+  QString whatsThis = QString();
 
   int numOfSteps          = numSteps(step->top.modelName);
   bool fullContextMenu  = ! step->modelDisplayOnlyStep;
@@ -193,59 +194,47 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   QAction *placementAction = NULL;
   if (fullContextMenu  && parentRelativeType == SingleStepType) {
-      placementAction = menu.addAction("Move This Step");
-      placementAction->setIcon(QIcon(":/resources/placement.png"));
-      placementAction->setWhatsThis(
+      whatsThis = QString(
             "Move This Step:\n"
             "  Move this assembly step image using a dialog (window)\n"
             "  with buttons.  You can also move this step image around\n"
             "  by clicking and dragging it using the mouse.");
+      placementAction = commonMenus.placementMenu(menu, name, whatsThis);
     }
 
-  QAction *scaleAction = menu.addAction("Change Scale");
-  scaleAction->setIcon(QIcon(":/resources/scale.png"));
-  scaleAction->setWhatsThis("Change Scale:\n"
-                            "  You can change the size of this assembly image using the scale\n"
-                            "  dialog (window).  A scale of 1.0 is true size.  A scale of 2.0\n"
-                            "  doubles the size of your model.  A scale of 0.5 makes your model\n"
-                            "  half real size\n");
+  QString pl = "Assembly";
+  QAction *scaleAction        = commonMenus.scaleMenu(menu, pl);
+  QAction *cameraFoVAction    = commonMenus.cameraFoVMenu(menu, pl);
+  QAction *cameraAnglesAction = commonMenus.cameraAnglesMenu(menu, pl);
 
-  QAction *cameraAngleAction = menu.addAction("Change Camera Angle");
-  cameraAngleAction->setIcon(QIcon(":/resources/cameraangle.png"));
-  cameraAngleAction->setWhatsThis("Change camera angle:\n"
-                            "  Change the camera angle of this assembly image\n");
-
-  QAction *viewAngleAction = menu.addAction("Change Camera View Angles");
-  viewAngleAction->setIcon(QIcon(":/resources/cameraviewangle.png"));
-  viewAngleAction->setWhatsThis("Change camera view angles:\n"
-                            "  Change the camera longitude and latitude view angles of this assembly image\n");
-
-  QAction *marginsAction = menu.addAction("Change Assembly Margins");
-  marginsAction->setIcon(QIcon(":/resources/margins.png"));
+  QAction *marginsAction = NULL;
   switch (parentRelativeType) {
     case SingleStepType:
-      marginsAction->setWhatsThis("Change Assembly Margins:\n"
-                                  "  Margins are the empty space around this assembly picture.\n"
-                                  "  You can change the margins if things are too close together,\n"
-                                  "  or too far apart. ");
+      whatsThis = QString("Change Assembly Margins:\n"
+                          "  Margins are the empty space around this assembly picture.\n"
+                          "  You can change the margins if things are too close together,\n"
+                          "  or too far apart. ");
+      marginsAction = commonMenus.marginMenu(menu, pl, whatsThis);
       break;
     case StepGroupType:
-      marginsAction->setWhatsThis("Change Assembly Margins:\n"
-                                  "  Margins are the empty space around this assembly picture.\n"
-                                  "  You can change the margins if things are too close together,\n"
-                                  "  or too far apart. You can change the margins around the\n"
-                                  "  whole group of steps, by clicking the menu button with your\n"
-                                  "  cursor near this assembly image, and using that\n"
-                                  "  \"Change Step Group Margins\" menu");
+      whatsThis = QString("Change Assembly Margins:\n"
+                          "  Margins are the empty space around this assembly picture.\n"
+                          "  You can change the margins if things are too close together,\n"
+                          "  or too far apart. You can change the margins around the\n"
+                          "  whole group of steps, by clicking the menu button with your\n"
+                          "  cursor near this assembly image, and using that\n"
+                          "  \"Change Step Group Margins\" menu");
+      marginsAction = commonMenus.scaleMenu(menu, pl, whatsThis);
       break;
     case CalloutType:
-      marginsAction->setWhatsThis("Change Assembly Margins:\n"
-                                  "  Margins are the empty space around this assembly picture.\n"
-                                  "  You can change the margins if things are too close together,\n"
-                                  "  or too far apart. You can change the margins around callout\n"
-                                  "  this step is in, by putting your cursor on the background\n"
-                                  "  of the callout, clicking the menu button, and using that\n"
-                                  "  \"Change Callout Margins\" menu");
+      whatsThis = QString("Change Assembly Margins:\n"
+                          "  Margins are the empty space around this assembly picture.\n"
+                          "  You can change the margins if things are too close together,\n"
+                          "  or too far apart. You can change the margins around callout\n"
+                          "  this step is in, by putting your cursor on the background\n"
+                          "  of the callout, clicking the menu button, and using that\n"
+                          "  \"Change Callout Margins\" menu");
+      marginsAction = commonMenus.scaleMenu(menu, pl, whatsThis);
       break;
     default:
       break;
@@ -298,23 +287,23 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         } else {
           deleteLastMultiStep(topOfSteps,bottomOfSteps);
         }
-    } else if (selectedAction == cameraAngleAction) {
+    } else if (selectedAction == cameraFoVAction) {
       bool allowLocal = parentRelativeType != StepGroupType &&
           parentRelativeType != CalloutType;
-      changeFloatSpin("Assembly",
-                      "Camera Angle",
+      changeFloatSpin(pl+" Camera Angle",
+                      "Camera FOV",
                       topOfStep,
                       bottomOfStep,
-                      &meta->LPub.assem.cameraAngle,
+                      &meta->LPub.assem.cameraFoV,
                       0.01,
                       1,allowLocal);
-    } else if (selectedAction == viewAngleAction) {
+    } else if (selectedAction == cameraAnglesAction) {
       bool allowLocal = parentRelativeType != StepGroupType &&
             parentRelativeType != CalloutType;
-        changeViewAngle( "Camera View Angeles",
+        changeCameraAngles(pl+" Camera Angles",
                           topOfStep,
                           bottomOfStep,
-                          &meta->LPub.assem.angle,
+                          &meta->LPub.assem.cameraAngles,
                          1,allowLocal);
      } else if (selectedAction == movePrevAction) {
 

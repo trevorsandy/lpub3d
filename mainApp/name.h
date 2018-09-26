@@ -51,9 +51,15 @@ enum Theme { ThemeDark, ThemeDefault };
 
 #define LIBPNG_MACOS_VERSION                    "1.6.35"
 
-#define LPUB3D_CAMERA_VIEW_DEFAULT              0.01f // Global camera angle -ca0.01
+#define CAMERA_FOV_DEFAULT                      0.01f    // LPub3D (L3P) default
+#define CAMERA_ZNEAR_DEFAULT                    10.0f    // LPub3D (L3P) default
+#define CAMERA_ZFAR_DEFAULT                     4000.0f  // LPub3D (L3P) default
 
-#define UPDATE_CHECK_FREQUENCY_DEFAULT          0     //0=Never,1=Daily,2=Weekly,3=Monthly
+#define CAMERA_FOV_NATIVE_DEFAULT               30.0f    // Native (LeoCAD) defaults
+#define CAMERA_ZNEAR_NATIVE_DEFAULT             25.0f    // Native (LeoCAD) defaults
+#define CAMERA_ZFAR_NATIVE_DEFAULT              50000.0f // Native (LeoCAD) defaults
+
+#define UPDATE_CHECK_FREQUENCY_DEFAULT          0        //0=Never,1=Daily,2=Weekly,3=Monthly
 
 #define PAGE_HEIGHT_DEFAULT                     800
 #define PAGE_WIDTH_DEFAULT                      600

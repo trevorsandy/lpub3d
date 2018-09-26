@@ -207,13 +207,16 @@ int Step::createCsi(
   QString csiFilePath = QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir);
   QString csiFullFilePath = QString("%1/csi.ldr").arg(csiFilePath);
 
-  QString key = QString("%1_%2_%3_%4_%5_%6")
+  QString key = QString("%1_%2_%3_%4_%5_%6_%7_%8_%9")
       .arg(csi_Name+orient)
       .arg(stepNumber.number)
       .arg(gui->pageSize(meta.LPub.page, 0))
       .arg(resolution())
       .arg(resolutionType() == DPI ? "DPI" : "DPCM")
-      .arg(modelScale);
+      .arg(modelScale)
+      .arg(meta.LPub.assem.cameraFoV.value())
+      .arg(meta.LPub.assem.cameraAngles.value(0))
+      .arg(meta.LPub.assem.cameraAngles.value(1));;
 
   // populate png name
   pngName = QString("%1/%2/%3.png").arg(QDir::currentPath()).arg(Paths::assemDir).arg(key);
@@ -333,8 +336,9 @@ int Step::createCsi(
 
       // set viewer camera options
       viewerOptions.ViewerCsiName  = viewerCsiName;
-      viewerOptions.Latitude       = meta.LPub.assem.angle.value(0);
-      viewerOptions.Longitude      = meta.LPub.assem.angle.value(1);
+      viewerOptions.FoV            = meta.LPub.assem.cameraFoV.value();
+      viewerOptions.Latitude       = meta.LPub.assem.cameraAngles.value(0);
+      viewerOptions.Longitude      = meta.LPub.assem.cameraAngles.value(1);
       //viewerOptions.CameraDistance = renderer->cameraDistance(meta,meta.LPub.assem.modelScale.value());
 
       if (! renderer->LoadViewer(viewerOptions)) {

@@ -36,10 +36,10 @@
 class GlobalPliPrivate
 {
 public:
-  Meta      meta;
-  QString    topLevelFile;
+  Meta     meta;
+  QString  topLevelFile;
   QList<MetaGui *> children;
-  MetaGui *viewAngle;
+  MetaGui *cameraAngles;
   MetaGui *scale;
   bool     bom;
 
@@ -125,7 +125,7 @@ GlobalPliDialog::GlobalPliDialog(
   widget->setLayout(grid);
 
   box = new QGroupBox("Part Images");
-  grid->addWidget(box);
+  grid->addWidget(box,0,0);
   box->setLayout(childlayout);
 
   child = new DoubleSpinGui("Scale",
@@ -141,11 +141,27 @@ GlobalPliDialog::GlobalPliDialog(
   data->children.append(child);
   childlayout->addWidget(child);
 
-  box = new QGroupBox("Part Orientation");
-  grid->addWidget(box);
-  child = new FloatsGui("Lattitude","Longitude",&pliMeta->angle,box);
-  data->viewAngle = child;
+  /* Camera settings */
+
+  box = new QGroupBox("Default Part Orientation");
+  grid->addWidget(box,1,0);
+  QGridLayout *boxGrid = new QGridLayout();
+  box->setLayout(boxGrid);
+
+  // camera field ov view
+  child = new DoubleSpinGui("Camera FOV",
+                            &pliMeta->cameraFoV,
+                            pliMeta->cameraFoV._min,
+                            pliMeta->cameraFoV._max,
+                            pliMeta->cameraFoV.value());
   data->children.append(child);
+  boxGrid->addWidget(child,0,0,1,2);
+
+  // view angles
+  child = new FloatsGui("Lattitude","Longitude",&pliMeta->cameraAngles);
+  data->cameraAngles = child;
+  data->children.append(child);
+  boxGrid->addWidget(child,1,0);
 
   if ( ! bom) {
     box = new QGroupBox("Submodels");
@@ -239,7 +255,7 @@ void GlobalPliDialog::getBomGlobals(
 void GlobalPliDialog::accept()
 {
   if (data->scale->modified ||
-      data->viewAngle->modified) {
+      data->cameraAngles->modified) {
     clearPliCache();
   }
 

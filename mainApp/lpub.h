@@ -637,6 +637,24 @@ public:
     return ThemeDefault;
   }
 
+  float getDefaultCameraFoV(){
+      return (Preferences::preferredRenderer == RENDERER_NATIVE ?
+                  CAMERA_FOV_NATIVE_DEFAULT :
+                  CAMERA_FOV_DEFAULT);
+  }
+
+  float getDefaultCameraZNear(){
+      return (Preferences::preferredRenderer == RENDERER_NATIVE ?
+                  CAMERA_ZNEAR_NATIVE_DEFAULT :
+                  CAMERA_ZNEAR_DEFAULT);
+  }
+
+  float getDefaultCameraZFar(){
+      return (Preferences::preferredRenderer == RENDERER_NATIVE ?
+                  CAMERA_ZFAR_NATIVE_DEFAULT :
+                  CAMERA_ZFAR_DEFAULT);
+  }
+
 public slots:
   //**3D Viewer Manage Step Rotation
 

@@ -255,7 +255,7 @@ public:
                         bool checkLocal = true,
                         bool rotateArrow = false);
 
-  void changeViewAngle( QString, 
+  void changeCameraAngles( QString,
                         const Where &, 
                         const Where &, 
                         FloatPairMeta *,

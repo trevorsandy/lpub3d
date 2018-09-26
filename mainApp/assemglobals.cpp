@@ -98,17 +98,17 @@ GlobalAssemDialog::GlobalAssemDialog(
   boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
 
-  // camera angle
-  child = new DoubleSpinGui("Camera Angle",
-                            &assem->cameraAngle,
-                            assem->cameraAngle._min,
-                            assem->cameraAngle._max,
-                            assem->cameraAngle.value());
+  // camera field ov view
+  child = new DoubleSpinGui("Camera FOV",
+                            &assem->cameraFoV,
+                            assem->cameraFoV._min,
+                            assem->cameraFoV._max,
+                            assem->cameraFoV.value());
   data->children.append(child);
   boxGrid->addWidget(child,0,0,1,2);
 
-  // orientation angles
-  child = new FloatsGui("Lattitude","Longitude",&assem->angle);
+  // view angles
+  child = new FloatsGui("Lattitude","Longitude",&assem->cameraAngles);
   data->children.append(child);
   boxGrid->addWidget(child,1,0);
 

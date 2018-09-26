@@ -363,7 +363,7 @@ Rc FloatPairMeta::parse(QStringList &argv, int index,Where &here)
     }
 
   if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected two floating point numbers but got \"%1\" \"%2\" %3") .arg(argv[index]) .arg(argv[index+1]) .arg(argv.join(" ")));
+       emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected two floating point numbers but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
     }
 
   return FailureRc;
@@ -2218,7 +2218,7 @@ PageAttributePictureMeta::PageAttributePictureMeta() : BranchMeta()
   placement.setValue(TopLeftInsideCorner,PageType);
   display.setValue(Preferences::displayAllAttributes);
   picScale.setRange(-10000.0,10000.0);
-  picScale.setFormats(7,4,"99999.9");
+  picScale.setFormats(7,4,"#99999.9");
   picScale.setValue(1.0);
   margin.setValuesInches(0.0f,0.0f);
   placement.value().placement     = TopLeft;
@@ -2559,7 +2559,7 @@ RotateIconMeta::RotateIconMeta() : BranchMeta()
   size.setRange(0.1f,3.0f);
   size.setFormats(6,4,"9.9999");
   picScale.setRange(-10000.0,10000.0);
-  picScale.setFormats(7,4,"99999.9");
+  picScale.setFormats(7,4,"#99999.9");
   picScale.setValue(1.0);
   subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_01);
   subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_02);
@@ -2887,36 +2887,32 @@ AssemMeta::AssemMeta() : BranchMeta()
 {
   placement.setValue(CenterCenter,PageType);
   modelScale.setRange(-10000.0,10000.0);
-  modelScale.setFormats(7,4,"99999.9");
+  modelScale.setFormats(7,4,"#99999.9");
   modelScale.setValue(1.0);
   ldgliteParms.setValue("-fh");  // change removed -w1 duplicate on 01-25-16 v1.3.3 r578
   ldviewParms.setValue("");
   povrayParms.setValue("+A");
   showStepNumber.setValue(true);
 
-  // cameraAngle
-  cameraAngle.setFormats(6,4,"9.999");
-  cameraAngle.setRange(-1.000,1.000);
-  cameraAngle.setValue(LPUB3D_CAMERA_VIEW_DEFAULT);
-
   // image generation
-  angle.setFormats(7,4,"999.9");
-  angle.setRange(-360.0,360.0);
-  angle.setValues(23,45);        // using LPub3D Default 0.0,0.0f
+  cameraFoV.setFormats(6,4,"9.999");
+  cameraFoV.setRange(0.0,360.0);
+  cameraFoV.setValue(gui->getDefaultCameraFoV());  // using LPub3D Default 0.01f
+  cameraAngles.setFormats(7,4,"#999.9");
+  cameraAngles.setRange(-360.0,360.0);
+  cameraAngles.setValues(23,45);                   // using LPub3D Default 0.0,0.0f
+  znear.setValue(gui->getDefaultCameraZNear());    // using LPub3D Default 10.0f
+  zfar.setValue(gui->getDefaultCameraZFar());      // using LPub3D Default 4000.0f
 
-  fov.setRange(0.0,360.0);
-  fov.setValue(0.01);            // using LPub3D Default 0.01f
-  znear.setValue(10.0);          // using LPub3D Default 10.0f
-  zfar.setValue(4000.0);         // using LPub3D Default 4000.0f
-
-  // display step
-  v_angle.setFormats(6,4,"999.9");
-  v_angle.setRange(-360.0,360.0);
-  v_angle.setValues(23,45);      // using LeoCAD defaults
-  v_fov.setRange(0.0,360.0);
-  v_fov.setValue(30.0);          // using LPub3D Default 30.0f
-  v_znear.setValue(25.0);        // using LeoCAD default 25.0f
-  v_zfar.setValue(50000.0);      // using LeoCAD default 50000 (old 12500.0)
+  // image display
+  v_cameraFoV.setFormats(6,4,"9.999");
+  v_cameraFoV.setRange(0.0,360.0);
+  v_cameraFoV.setValue(CAMERA_FOV_NATIVE_DEFAULT);
+  v_cameraAngles.setFormats(7,4,"#999.9");
+  v_cameraAngles.setRange(-360.0,360.0);
+  v_cameraAngles.setValues(23,45);
+  v_znear.setValue(CAMERA_ZNEAR_NATIVE_DEFAULT);
+  v_zfar.setValue(CAMERA_ZFAR_NATIVE_DEFAULT);
 }
 
 void AssemMeta::init(BranchMeta *parent, QString name)
@@ -2930,19 +2926,17 @@ void AssemMeta::init(BranchMeta *parent, QString name)
   povrayParms .init  (this,"POVRAY_PARMS");
   showStepNumber.init(this,"SHOW_STEP_NUMBER");
 
-  cameraAngle.init   (this,"CAMERA_ANGLE");
+  cameraFoV.init     (this,"CAMERA_FOV");
+  cameraAngles.init  (this,"CAMERA_ANGLES");
+  distance.init      (this,"CAMERA_DISTANCE");
+  znear.init         (this,"CAMERA_ZNEAR");
+  zfar.init          (this,"CAMERA_ZFAR");
 
-  angle.init         (this,"IMAGE_ANGLE");
-  distance.init      (this,"IMAGE_DISTANCE");
-  fov.init           (this,"IMAGE_FOV");
-  znear.init         (this,"IMAGE_ZNEAR");
-  zfar.init          (this,"IMAGE_ZFAR");
-
-  v_angle.init       (this,"VIEW_ANGLE");
-  v_distance.init    (this,"VIEW_DISTANCE");
-  v_fov.init         (this,"VIEW_FOV");
-  v_znear.init       (this,"VIEW_ZNEAR");
-  v_zfar.init        (this,"VIEW_ZFAR");
+  v_cameraFoV.init   (this,"VIEWER_CAMERA_FOV");
+  v_cameraAngles.init(this,"VIEWER_CAMERA_ANGLES");
+  v_distance.init    (this,"VIEWER_CAMERA_DISTANCE");
+  v_znear.init       (this,"VIEWER_CAMERA_ZNEAR");
+  v_zfar.init        (this,"VIEWER_CAMERA_ZFAR");
 }
 
 /* ------------------ */
@@ -2964,7 +2958,7 @@ PliMeta::PliMeta() : BranchMeta()
   // instance - default
   // annotate - default
   modelScale.setRange(-10000.0,10000.0);
-  modelScale.setFormats(7,4,"99999.9");
+  modelScale.setFormats(7,4,"#99999.9");
   modelScale.setValue(1.0);
   show.setValue(true);
   ldgliteParms.setValue("-l3");
@@ -2987,44 +2981,45 @@ PliMeta::PliMeta() : BranchMeta()
   sort.setValue(false);
   sortBy.setValue(SortOptionName[PartSize]);
 
-  angle.setFormats(6,4,"999.9");
-  angle.setRange(-360.0,360.0);
-  angle.setValues(23,-45);       // using LPub3D Default 0.0,0.0f (old 23,-45)
-  fov.setRange(0.0,360.0);
-  fov.setValue(0.01);            // using LPub3D Default 0.01f
-  znear.setValue(10.0);          // using LPub3D Default 10.0f
-  zfar.setValue(4000.0);         // using LPub3D Default 4000.0f
+  // image generation
+  cameraFoV.setFormats(6,4,"9.999");
+  cameraFoV.setRange(0.0,360.0);
+  cameraFoV.setValue(gui->getDefaultCameraFoV());
+  cameraAngles.setFormats(7,4,"#999.9");
+  cameraAngles.setRange(-360.0,360.0);
+  cameraAngles.setValues(23,-45);
+  znear.setValue(gui->getDefaultCameraZNear());
+  zfar.setValue(gui->getDefaultCameraZFar());
 }
 
 void PliMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  placement       .init(this,"PLACEMENT");
-  constrain       .init(this,"CONSTRAIN");
-  border          .init(this,"BORDER");
-  background      .init(this,"BACKGROUND");
-  margin          .init(this,"MARGINS");
-  instance        .init(this,"INSTANCE_COUNT");
-  annotate        .init(this,"ANNOTATE");
-  modelScale      .init(this,"MODEL_SCALE");
-  show            .init(this,"SHOW");
-  ldviewParms     .init(this,"LDVIEW_PARMS");
-  ldgliteParms    .init(this,"LDGLITE_PARMS");
-  povrayParms     .init(this,"POVRAY_PARMS");
-  includeSubs     .init(this,"INCLUDE_SUBMODELS");
-  subModelColor   .init(this,"SUBMODEL_BACKGROUND_COLOR");
-  part            .init(this,"PART");
-  begin           .init(this,"BEGIN");
-  end             .init(this,"END",           PliEndRc);
-  sort            .init(this,"SORT");
-  sortBy          .init(this,"SORT_BY");
-  annotation      .init(this,"ANNOTATION");
-
-  angle.init         (this,"IMAGE_ANGLE");
-  distance.init      (this,"IMAGE_DISTANCE");
-  fov.init           (this,"IMAGE_FOV");
-  znear.init         (this,"IMAGE_ZNEAR");
-  zfar.init          (this,"IMAGE_ZFAR");
+  placement    .init(this,"PLACEMENT");
+  constrain    .init(this,"CONSTRAIN");
+  border       .init(this,"BORDER");
+  background   .init(this,"BACKGROUND");
+  margin       .init(this,"MARGINS");
+  instance     .init(this,"INSTANCE_COUNT");
+  annotate     .init(this,"ANNOTATE");
+  modelScale   .init(this,"MODEL_SCALE");
+  show         .init(this,"SHOW");
+  ldviewParms  .init(this,"LDVIEW_PARMS");
+  ldgliteParms .init(this,"LDGLITE_PARMS");
+  povrayParms  .init(this,"POVRAY_PARMS");
+  includeSubs  .init(this,"INCLUDE_SUBMODELS");
+  subModelColor.init(this,"SUBMODEL_BACKGROUND_COLOR");
+  part         .init(this,"PART");
+  begin        .init(this,"BEGIN");
+  end          .init(this,"END",           PliEndRc);
+  sort         .init(this,"SORT");
+  sortBy       .init(this,"SORT_BY");
+  annotation   .init(this,"ANNOTATION");
+  cameraFoV    .init(this,"CAMERA_FOV");
+  cameraAngles .init(this,"CAMERA_ANGLES");
+  distance     .init(this,"CAMERA_DISTANCE");
+  znear        .init(this,"CAMERA_ZNEAR");
+  zfar         .init(this,"CAMERA_ZFAR");
 }
 
 /* ------------------ */ 
@@ -3046,7 +3041,7 @@ BomMeta::BomMeta() : PliMeta()
   // instance - default
   // annotate - default
   modelScale.setRange(-10000.0,10000.0);
-  modelScale.setFormats(7,4,"99999.9");
+  modelScale.setFormats(7,4,"#99999.9");
   modelScale.setValue(1.0);
   show.setValue(true);
   ldgliteParms.setValue("-l3");
@@ -3069,13 +3064,15 @@ BomMeta::BomMeta() : PliMeta()
   sortBy.setValue("Part Size");
   sortBy.setValue(SortOptionName[PartColour]);
 
-  angle.setFormats(6,4,"999.9");
-  angle.setRange(-360.0,360.0);
-  angle.setValues(23,-45);
-  fov.setRange(0.0,360.0);
-  fov.setValue(30.0);            // using LeoCAD default 30.0f
-  znear.setValue(25.0);          // using LeoCAD default 25.0f
-  zfar.setValue(50000.0);        // using LeoCAD default 12500.0f
+  // image generation
+  cameraFoV.setFormats(6,4,"9.999");
+  cameraFoV.setRange(0.0,360.0);
+  cameraFoV.setValue(gui->getDefaultCameraFoV());
+  cameraAngles.setFormats(6,4,"#999.9");
+  cameraAngles.setRange(-360.0,360.0);
+  cameraAngles.setValues(23,-45);
+  znear.setValue(gui->getDefaultCameraZNear());
+  zfar.setValue(gui->getDefaultCameraZFar());
 }
 
 void BomMeta::init(BranchMeta *parent, QString name)
@@ -3103,11 +3100,11 @@ void BomMeta::init(BranchMeta *parent, QString name)
   sortBy          .init(this,"SORT_BY");
   annotation      .init(this,"ANNOTATION");
 
-  angle.init         (this,"VIEW_ANGLE");
-  distance.init      (this,"VIEW_DISTANCE");
-  fov.init           (this,"VIEW_FOV");
-  znear.init         (this,"VIEW_ZNEAR");
-  zfar.init          (this,"VIEW_ZFAR");
+  cameraFoV       .init(this,"CAMERA_FOV");
+  cameraAngles    .init(this,"CAMERA_ANGLES");
+  distance        .init(this,"CAMERA_DISTANCE");
+  znear           .init(this,"CAMERA_ZNEAR");
+  zfar            .init(this,"CAMERA_ZFAR");
 }
 
 /* ------------------ */ 

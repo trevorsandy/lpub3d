@@ -179,8 +179,8 @@ void Pli::setParts(
               .arg(resolution())
               .arg(resolutionType() == DPI ? "DPI" : "DPCM")
               .arg(modelScale)
-              .arg(pliMeta.angle.value(0))
-              .arg(pliMeta.angle.value(1));
+              .arg(pliMeta.cameraAngles.value(0))
+              .arg(pliMeta.cameraAngles.value(1));
           // assemble image name
           QString imageName = QDir::currentPath() + "/" +
               Paths::partsDir + "/" + nameKey + ".png";
@@ -442,14 +442,15 @@ int Pli::createPartImage(
 
   float modelScale = pliMeta.modelScale.value();
 
-  QString key = QString("%1_%2_%3_%4_%5_%6_%7")
+  QString key = QString("%1_%2_%3_%4_%5_%6_%7_%8")
       .arg(partialKey)
       .arg(pageSizeP(meta, 0))
       .arg(resolution())
       .arg(resolutionType() == DPI ? "DPI" : "DPCM")
       .arg(modelScale)
-      .arg(pliMeta.angle.value(0))
-      .arg(pliMeta.angle.value(1));
+      .arg(pliMeta.cameraFoV.value())
+      .arg(pliMeta.cameraAngles.value(0))
+      .arg(pliMeta.cameraAngles.value(1));
   QString imageName = QDir::currentPath() + "/" +
       Paths::partsDir + "/" + key + ".png";
   QStringList ldrNames = (QStringList() << QDir::currentPath() + "/" +
@@ -1959,7 +1960,9 @@ void PliBackgroundItem::contextMenuEvent(
       QAction *marginAction        = commonMenus.marginMenu(menu,pl);
       QAction *sortAction          = commonMenus.sortMenu(menu,pl);
       QAction *annotationAction    = commonMenus.annotationMenu(menu,pl);
-
+      QAction *scaleAction         = commonMenus.scaleMenu(menu,pl);
+      QAction *cameraFoVAction     = commonMenus.cameraFoVMenu(menu,pl);
+      QAction *cameraAnglesAction  = commonMenus.cameraAnglesMenu(menu,pl);
 
       QAction *splitBomAction  = NULL;
       QAction *deleteBomAction = NULL;
@@ -2067,6 +2070,23 @@ void PliBackgroundItem::contextMenuEvent(
                        top,
                        bottom,
                        &pli->pliMeta.border);
+        } else if (selectedAction == scaleAction) {
+          changeFloatSpin(me+" Scale",
+                          "Model Size",
+                          top,
+                          bottom,
+                          &pli->pliMeta.modelScale);
+        } else if (selectedAction == cameraFoVAction) {
+          changeFloatSpin(me+" Camera Angle",
+                          "Camera FOV",
+                          top,
+                          bottom,
+                          &pli->pliMeta.cameraFoV);
+        } else if (selectedAction == cameraAnglesAction) {
+            changeCameraAngles(me+" Camera Angles",
+                            top,
+                            bottom,
+                            &pli->pliMeta.cameraAngles);
         } else if (selectedAction == deleteBomAction) {
           deleteBOM();
         } else if (selectedAction == splitBomAction){
@@ -2180,7 +2200,6 @@ void AnnotateTextItem::contextMenuEvent(
   
   Where top;
   Where bottom;
-  
   switch (parentRelativeType) {
     case CalloutType:
       top    = pli->topOfCallout();
@@ -2252,19 +2271,30 @@ void PGraphicsPixmapItem::contextMenuEvent(
     QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
-  QString pl = "Part ";
-  QAction *hideAction = menu.addAction("Hide Part(s) from Parts List");
+  QString pl = "Part";
+  QAction *hideAction = menu.addAction("Hide Part from Parts List");
   hideAction->setIcon(QIcon(":/resources/display.png"));
 
-  QAction *marginAction = commonMenus.marginMenu(menu,pl);
+  QAction *marginAction      = commonMenus.marginMenu(menu,pl);
 
-#if 0
-  QAction *scaleAction  = commonMenus.scaleMenu(menu,pl);
+  /*
+  QAction *scaleAction        = commonMenus.scaleMenu(menu,pl);
+  QAction *cameraFoVAction    = commonMenus.cameraFoVMenu(menu,pl);
+  QAction *cameraAnglesAction = commonMenus.cameraAnglesMenu(menu,pl);
+  */
 
-  QAction *orientationAction= menu.addAction("Change Part Orientation");
-  orientationAction->setDisabled(true);
-  orientationAction->setWhatsThis("This doesn't work right now");
-#endif
+  Where top;
+  Where bottom;
+  switch (parentRelativeType) {
+    case CalloutType:
+      top    = pli->topOfCallout();
+      bottom = pli->bottomOfCallout();
+      break;
+    default:
+      top    = pli->topOfStep();
+      bottom = pli->bottomOfStep();
+      break;
+    }
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
@@ -2274,24 +2304,30 @@ void PGraphicsPixmapItem::contextMenuEvent(
 
   if (selectedAction == marginAction) {
 
-      changeMargins("Parts List Part Margins",
-                    pli->topOfStep(),
-                    pli->bottomOfStep(),
+      changeMargins(pl+" Margins",
+                    top,
+                    bottom,
                     &pli->pliMeta.part.margin);
     } else if (selectedAction == hideAction) {
       hidePLIParts(this->part->instances);
-#if 0
-    } else if (selectedAction == scaleAction) {
-      changeFloatSpinTop(
-            "Parts List",
-            "Model Size",
-            pli->topOfStep(),
-            pli->bottomOfStep(),
-            &meta->LPub.pli.modelScale,
-            0.01,0); // value set as do not append (why?)
-      gui->clearPLICache();
-#endif
-    }
+    } /* else if (selectedAction == scaleAction) {
+        changeFloatSpin(pl,
+                        "Model Size",
+                        top,
+                        bottom,
+                        &pli->pliMeta.modelScale);
+  } else if (selectedAction == cameraFoVAction) {
+    changeFloatSpin(pl,
+                    "Camera FOV",
+                    top,
+                    bottom,
+                    &pli->pliMeta.cameraFoV);
+  } else if (selectedAction == cameraAnglesAction) {
+      changeCameraAngles(pl+" Camera Angles",
+                      top,
+                      bottom,
+                      &pli->pliMeta.cameraAngles);
+   } */
 }
 
 
