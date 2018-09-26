@@ -993,6 +993,7 @@ void Gui::loadTheme(){
       reloadViewer();
 
       QMessageBox box;
+      box.setMinimumSize(40,20);
       box.setIcon (QMessageBox::Question);
       box.setDefaultButton   (QMessageBox::Ok);
       box.setStandardButtons (QMessageBox::Ok | QMessageBox::Close | QMessageBox::Cancel);
@@ -1002,11 +1003,13 @@ void Gui::loadTheme(){
       box.setInformativeText (QString("Click \"OK\" to close and restart %1 or \"Close\" set the Theme without restart.\n\n"
                                   "You can suppress this message in Preferences, Themes")
                               .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
-      if (box.exec() == QMessageBox::Ok) {
+
+      int result = box.exec();
+      if (result == QMessageBox::Ok) {
           restartApplication();
         }
       else
-      if (box.exec() == QMessageBox::Close){
+      if (result == QMessageBox::Close) {
           reloadCurrentModelFile();
         }
     }
