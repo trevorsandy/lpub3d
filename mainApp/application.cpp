@@ -338,7 +338,7 @@ void Application::initialize()
       {
         QString Message = QMessageBox::tr("Failed to set log level %1.\n"
                                           "Logging is off - level set to OffLevel")
-            .arg(Preferences::loggingLevel);
+                                          .arg(Preferences::loggingLevel);
         if (modeGUI())
           QMessageBox::critical(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR), Message);
         else

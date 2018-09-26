@@ -1783,44 +1783,28 @@ void Gui::preferences()
                 logger.setErrorLevel(Preferences::errorLevel);
                 logger.setFatalLevel(Preferences::fatalLevel);
 
-              } else if (Preferences::logLevel){
+            } else if (Preferences::logLevel){
 
                 bool ok;
                 Level logLevel = logger.fromLevelString(Preferences::loggingLevel,&ok);
                 if (!ok)
-                  emit messageSig(LOG_ERROR,QMessageBox::tr("Failed to set log level %1.\n"
-                                                            "Logging is off - level set to OffLevel")
-                                                            .arg(Preferences::loggingLevel));
+                {
+                    QString Message = QMessageBox::tr("Failed to set log level %1.\n"
+                                                      "Logging is off - level set to OffLevel")
+                                                      .arg(Preferences::loggingLevel);
+                    if (Preferences::modeGUI)
+                        QMessageBox::critical(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR), Message);
+                    else
+                        fprintf(stderr, "%s", Message.toLatin1().constData());
+                }
                 logger.setLoggingLevel(logLevel);
-              }
+            }
 
             logger.setIncludeLogLevel(Preferences::includeLogLevel);
             logger.setIncludeTimestamp(Preferences::includeTimestamp);
             logger.setIncludeLineNumber(Preferences::includeLineNumber);
             logger.setIncludeFileName(Preferences::includeFileName);
             logger.setIncludeFunctionInfo(Preferences::includeFunction);
-
-            // logging examples
-            bool showLogExamples = false;
-            if (showLogExamples){
-                logStatus() << "[Pref] Uh-oh! - this level is not displayed in the console only the log";
-                logInfo()   << "[Pref] LPub3D logging reloaded";
-                logInfo()   << "[Pref] Built with Qt" << QT_VERSION_STR << "running on" << qVersion();
-                logTrace()  << "[Pref] Here's a" << QString("trace") << "message";
-                logDebug()  << "[Pref] Here's a" << static_cast<int>(QsLogging::DebugLevel) << "message";
-                logNotice() << "[Pref] Here's a" << QString("Notice") << "message";
-                qDebug()    << "[Pref] This message won't be picked up by the logger";
-                logError()  << "[Pref] An error has occurred";
-                qWarning()  << "[Pref] Neither will this one";
-                logFatal()  << "[Pref] Fatal error!";
-
-                Level level = logger.loggingLevel();
-                logger.setLoggingLevel(QsLogging::OffLevel);
-                for (int i = 0;i < 10;++i) {
-                    logError() << QString::fromUtf8("[Pref] This message should not be visible");
-                }
-                logger.setLoggingLevel(level);
-            } // end init logging
 
           } else {
             logger.setLoggingLevel(OffLevel);
@@ -3371,58 +3355,106 @@ void Gui::statusMessage(LogType logType, QString message) {
      * LOG_QWARNING: - visible in Qt debug mode
      * LOG_QDEBUG:   - visible in Qt debug mode
      */
-    bool guiEnabled = (Preferences::modeGUI && Preferences::lpub3dLoaded);
-    if (logType == LOG_STATUS ){
 
-        logStatus() << message;
+    // Set StatusMessage Logging options
+    using namespace QsLogging;
+    Logger& logger = Logger::instance();
+    if (Preferences::logging) {
 
-        if (guiEnabled) {
-           statusBarMsg(message);
-        } else {
-           fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
-           fflush(stdout);
+        // Set logging Level
+        bool ok;
+        Level logLevel = logger.fromLevelString(Preferences::loggingLevel,&ok);
+        if (!ok)
+        {
+            QString Message = QMessageBox::tr("Failed to set log level %1.\n"
+                                              "Logging is off - level set to OffLevel")
+                    .arg(Preferences::loggingLevel);
+            fprintf(stderr, "%s", Message.toLatin1().constData());
         }
-    } else
-      if (logType == LOG_INFO) {
+        logger.setLoggingLevel(logLevel);
 
-          logInfo() << message;
+        logger.setIncludeLogLevel(Preferences::includeLogLevel);
+        logger.setIncludeTimestamp(Preferences::includeTimestamp);
+        logger.setIncludeLineNumber(false);
+        logger.setIncludeFileName(false);
+        logger.setColorizeFunctionInfo(false);
+        logger.setIncludeFunctionInfo(false);
 
-          if (!guiEnabled) {
-              fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
-              fflush(stdout);
-          }
 
-     } else
-       if (logType == LOG_NOTICE) {
+        bool guiEnabled = (Preferences::modeGUI && Preferences::lpub3dLoaded);
+        if (logType == LOG_STATUS ){
 
-            logNotice() << message;
+            logStatus() << message;
 
-            if (!guiEnabled) {
+            if (guiEnabled) {
+                statusBarMsg(message);
+            } else {
                 fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
                 fflush(stdout);
             }
+        } else
+            if (logType == LOG_INFO) {
 
-     } else
-       if (logType == LOG_TRACE) {
+                logInfo() << message;
 
-              logTrace() << message;
+                if (!guiEnabled) {
+                    fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
+                    fflush(stdout);
+                }
 
-              if (!guiEnabled) {
-                  fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
-                  fflush(stdout);
-              }
+            } else
+              if (logType == LOG_NOTICE) {
 
-     } else
-       if (logType == LOG_ERROR) {
+                  logNotice() << message;
 
-        logError() << message;
+                  if (!guiEnabled) {
+                      fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
+                      fflush(stdout);
+                  }
 
-        if (guiEnabled) {
-            QMessageBox::warning(this,tr(VER_PRODUCTNAME_STR),tr(message.toLatin1()));
-        } else {
-            fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
-            fflush(stdout);
+            } else
+              if (logType == LOG_TRACE) {
+
+                  logTrace() << message;
+
+                  if (!guiEnabled) {
+                      fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
+                      fflush(stdout);
+                  }
+
+            } else
+              if (logType == LOG_ERROR) {
+
+                  logError() << message;
+
+                  if (guiEnabled) {
+                      QMessageBox::warning(this,tr(VER_PRODUCTNAME_STR),tr(message.toLatin1()));
+                  } else {
+                      fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
+                      fflush(stdout);
+                  }
+            }
+
+        // Reset Logging to default settings
+        if (Preferences::logLevels){
+
+            logger.setLoggingLevels();
+            logger.setDebugLevel(Preferences::debugLevel);
+            logger.setTraceLevel(Preferences::traceLevel);
+            logger.setNoticeLevel(Preferences::noticeLevel);
+            logger.setInfoLevel(Preferences::infoLevel);
+            logger.setStatusLevel(Preferences::statusLevel);
+            logger.setErrorLevel(Preferences::errorLevel);
+            logger.setFatalLevel(Preferences::fatalLevel);
         }
+
+        logger.setIncludeLineNumber(Preferences::includeLineNumber);
+        logger.setIncludeFileName(Preferences::includeFileName);
+        logger.setIncludeFunctionInfo(Preferences::includeFunction);
+        logger.setColorizeFunctionInfo(true);
+
+    } else {
+        logger.setLoggingLevel(OffLevel);
     }
 }
 

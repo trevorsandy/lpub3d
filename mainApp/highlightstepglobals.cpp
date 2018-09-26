@@ -80,7 +80,7 @@ GlobalHighlightStepDialog::GlobalHighlightStepDialog(
   grid = new QGridLayout();
   setLayout(grid);
 
-  box = new QGroupBox("Highlight Step");
+  box = new QGroupBox("Highlight Current Step (read only)");
   grid->addWidget(box,0,0);
 
   boxGrid = new QGridLayout();

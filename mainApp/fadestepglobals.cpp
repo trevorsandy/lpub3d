@@ -79,7 +79,7 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
   grid = new QGridLayout();
   setLayout(grid);
 
-  box = new QGroupBox("Fade Step");
+  box = new QGroupBox("Fade Previous Step(s) (read only)");
   grid->addWidget(box,0,0);
 
   boxGrid = new QGridLayout();
