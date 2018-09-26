@@ -107,7 +107,8 @@ class Step : public AbstractRangeElement
            QString      const &addLine,
            QStringList  const &csiParts,
            QPixmap            *pixmap,
-           Meta               &meta);
+           Meta               &meta,
+           bool               bfxLoad = false);
 
     int viewerCSI(QStringList &csiParts,
                   bool doFadeStep,

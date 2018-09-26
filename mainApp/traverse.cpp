@@ -1084,17 +1084,18 @@ int Gui::drawPage(
                       range->append(step);
                     }
 
-                  emit messageSig(LOG_STATUS, "Processing bfx model (CSI) for " + topOfStep.modelName + "...");
+                  emit messageSig(LOG_INFO, "Processing CSI bfx load special case for " + topOfStep.modelName + "...");
                   csiName = step->csiName();
                   (void) step->createCsi(
                         isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
                         saveCsiParts = configureModelStep(csiParts, stepNum, topOfStep),
                         &step->csiPixmap,
-                        steps->meta);
+                        steps->meta,
+                        bfxLoad);
 
                   if (renderer->useLDViewSCall() && ! step->ldrName.isNull()) {
                       ldrStepFiles << step->ldrName;
-                      csiKeys << step->csiKey;
+                      csiKeys << step->csiKey; // No parts to process
                       //qDebug() << "CSI ldr file #"<< ldrStepFiles.count() <<"added: " << step->ldrName;
                       //qDebug() << "CSI key #"<< csiKeys.count() <<"added: " << step->csiKey;
                     }

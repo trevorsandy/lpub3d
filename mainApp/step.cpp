@@ -177,20 +177,19 @@ int Step::createCsi(
     QString     const &addLine,
     QStringList const &csiParts,  // the partially assembles model
     QPixmap           *pixmap,
-    Meta              &meta)
+    Meta              &meta,
+    bool               bfxLoad)   // Bfx load special case (no parts added)
 {
+  bool    csiExist        = false;
   bool    nativeRenderer  = (Preferences::preferredRenderer == RENDERER_NATIVE ||
                             (Preferences::preferredRenderer == RENDERER_POVRAY &&
                              Preferences::povFileGenerator == RENDERER_NATIVE));
-  QString csi_Name        = modelDisplayOnlyStep ? csiName()+"_fm" : csiName();
+  QString csi_Name        = modelDisplayOnlyStep ? csiName()+"_fm" : bfxLoad ? csiName()+"_bfx" : csiName();
   qreal   modelScale      = meta.LPub.assem.modelScale.value();
   bool    doFadeStep      = meta.LPub.fadeStep.fadeStep.value();
   bool    doHighlightStep = meta.LPub.highlightStep.highlightStep.value() && !gui->suppressColourMeta();
-  bool    csiExist        = false;
   bool    invalidIMStep   = ((modelDisplayOnlyStep) || (stepNumber.number == 1));
-  // Change camera view angles to 0 if ROTSTEP is ABS
-  if (meta.rotStep.value().type == "ABS")
-    meta.LPub.assem.cameraAngles.setValues(0.0f,0.0f);
+  if (meta.rotStep.value().type == "ABS") meta.LPub.assem.cameraAngles.setValues(0.0f,0.0f);
 
   QString viewerCsiName;
 
