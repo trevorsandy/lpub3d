@@ -438,10 +438,21 @@ GlobalPageDialog::GlobalPageDialog(
   child = new PageAttributeTextGui(&pageMeta->plug,box);
   data->children.append(child);
 
+  QPalette readOnlyPalette;
+  readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
+  PageAttributeTextGui *childTextGui = static_cast<PageAttributeTextGui*>(child);
+  childTextGui->contentEdit->setReadOnly(true);
+  childTextGui->contentEdit->setPalette(readOnlyPalette);
+
   box = new QGroupBox(tr("Display LPub3D Logo"));
   grid->addWidget(box, 2, 0);
   child = new PageAttributePictureGui(&pageMeta->plugImage,box);
   data->children.append(child);
+
+  readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
+  PageAttributePictureGui *chilPicdGui = static_cast<PageAttributePictureGui*>(child);
+  chilPicdGui->pictureEdit->setReadOnly(true);
+  chilPicdGui->pictureEdit->setPalette(readOnlyPalette);
 
   childtab->addTab(widget,tr("LPub3D PLug"));
 

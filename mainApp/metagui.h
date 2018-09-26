@@ -335,6 +335,8 @@ public slots:
   void placementChanged(bool);
   void toggled(bool toggled);
 
+  friend class GlobalPageDialog;
+
 };
 /***********************************************************************
  *
@@ -420,6 +422,8 @@ public slots:
 
   void placementChanged(bool);
   void toggled(bool toggled);
+
+  friend class GlobalPageDialog;
 };
 
 /***********************************************************************
