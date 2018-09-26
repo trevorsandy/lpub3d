@@ -2212,7 +2212,7 @@ void MetaItem::insertFinalModel(int atLine)
   appendMeta(here,step);
   appendMeta(here+1,modelMeta);
   appendMeta(here+2,pageMeta);
-  logStatus() << "Final model inserted at lines:" << here.lineNumber+1 << "to" << here.lineNumber+3 ;
+  emit gui->messageSig(LOG_STATUS, QString("Final model inserted at lines: %1 to %2").arg(here.lineNumber+1).arg(here.lineNumber+3));
   endMacro();
 }
 
@@ -3422,19 +3422,13 @@ QPointF MetaItem::defaultPointerTip(
       if (argv.size() > 0 && argv[0] == "0") {
         Where here(modelName,i);
         Rc rc = meta.parse(line,here,false);
-#ifdef QT_DEBUG_MODE
         if (rc == RotStepRc) {
-          RotStepData rotStepData = meta.rotStep.value();
-          QString rotsComment = QString("%1 %2 %3 %4")
-                  .arg(rotStepData.type)
-                  .arg(rotStepData.rots[0])
-                  .arg(rotStepData.rots[1])
-                  .arg(rotStepData.rots[2]);
+#ifdef QT_DEBUG_MODE
           gui->messageSig(LOG_DEBUG,QString("Called out subModel %1 ROTSTEP %2")
                           .arg(subModel)
-                          .arg(rotsComment));
-        }
+                          .arg(renderer->getRotstepMeta(meta.rotStep)));
 #endif
+        }
       }
     }
 
@@ -3488,7 +3482,7 @@ QPointF MetaItem::defaultPointerTip(
 #ifdef QT_DEBUG_MODE
   monoOutPngName =   QString("mono_%1").arg(QFileInfo(subModel).baseName());
 #else
-  monoOutPngName = "mono"
+  monoOutPngName = "mono";
 #endif
   QStringList ldrNames, csiKeys;
   if (renderer->useLDViewSCall()) {
