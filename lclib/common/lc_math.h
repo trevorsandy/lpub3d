@@ -460,6 +460,16 @@ inline float lcLengthSquared(const lcVector3& a)
 	return a.LengthSquared();
 }
 
+/*** LPub3D Mod - Normalize rotation angles ***/
+//Normalizes number to an arbitrary range by assuming the range wraps around when going below min or above max
+inline float normaliseRotation( const float value, const float start, const float end )
+{
+  const float width       = end - start   ;
+  const float offsetValue = value - start ;   // value relative to 0
+  return ( offsetValue - ( floor( offsetValue / width ) * width ) ) + start ; // + start to reset back to start of original range
+}
+/*** LPub3D Mod end ***/
+
 inline lcVector3 lcNormalize(const lcVector3& a)
 {
 	lcVector3 Ret(a);
@@ -613,6 +623,16 @@ inline lcVector3 lcVector3LDrawToLeoCAD(const lcVector3& Vector)
 {
 	return lcVector3(Vector[0], Vector[2], -Vector[1]);
 }
+
+/*** LPub3D Mod - LeoCAD to LDraw conversion ***/
+inline lcVector3 lcVector3LeoCADToLDraw(const lcVector3& Vector)
+{
+    // Switch Y and Z coordinates to match LDraw
+    // LDraw Y (LeoCAD Z) axis is vertical, with negative value in the up direction
+    //              ld_X[lc_X] ld_Y[-lc_Z] ld_Z[lc_Y]
+    return lcVector3(Vector[0], -Vector[2], Vector[1]);
+}
+/*** LPub3D Mod end ***/
 
 inline lcVector3 lcVector3FromColor(quint32 Color)
 {

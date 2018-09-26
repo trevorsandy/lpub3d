@@ -783,43 +783,36 @@ void Gui::zoomOut()
   KpageView->zoomOut();
 }
 
-void Gui::SetRotStepMeta(QString &value, bool propagate)
+void Gui::SetRotStepMeta(QString &TransformType, bool propagate)
 {
+    QString mTransformType   = TransformType.toUpper();
+
+    mStepRotation[0] = mRotStepAngleX;
+    mStepRotation[1] = mRotStepAngleY;
+    mStepRotation[2] = mRotStepAngleZ;
+
     if (propagate && getCurFile() != "") {
+
+        bool transformOk = (mTransformType == "REL" ||
+                            mTransformType == "ABS" ||
+                            mTransformType == "ADD" ||
+                            mTransformType.isEmpty());
 
         ShowStepRotationStatus();
 
-        mStepRotation[0] = mRotStepAngleX;
-        mStepRotation[1] = mRotStepAngleY;
-        mStepRotation[2] = mRotStepAngleZ;
+        if (!transformOk) {
+            messageSig(LOG_ERROR, QString("ROTSTEP Transform [%1] is invalid.").arg(mTransformType));
+            return;
+        }
 
         QString rotationValue = QString("%1 %2 %3 %4 %5")
                                         .arg(getViewerCsiName())
                                         .arg(QString::number(mStepRotation[0], 'f', 2))
                                         .arg(QString::number(mStepRotation[1], 'f', 2))
                                         .arg(QString::number(mStepRotation[2], 'f', 2))
-                                        .arg(value);
-
+                                        .arg(mTransformType);
         MetaItem mi;
         mi.writeRotateStep(rotationValue);
-
-    } else {
-
-        QStringList argv = value.split(QRegExp("\\s"));
-
-        bool ok[3];
-        float x = argv[0].toFloat(&ok[0]);
-        float y = argv[1].toFloat(&ok[1]);
-        float z = argv[2].toFloat(&ok[2]);
-
-        if (ok[0] && ok[1] && ok[2]){
-            mStepRotation[0] = x;
-            mStepRotation[1] = y;
-            mStepRotation[2] = z;
-        } else {
-            emit messageSig(LOG_ERROR, QString("Invalid ROTSTEP entry %1.")
-                            .arg(value));
-        }
     }
 }
 

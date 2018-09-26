@@ -79,7 +79,7 @@ class LDrawSubFile {
 class ViewerStep {
   public:
     QStringList _contents;
-    QString	_filePath;
+    QString   	_filePath;
     bool        _modified;
     bool        _multiStep;
     bool        _calledOut;

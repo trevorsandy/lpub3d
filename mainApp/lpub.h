@@ -845,7 +845,7 @@ public:
   ParmsWindow           *parmsWindow;                 // the parametrer file editor
 
 protected:
-  // capture camera rotation from LeoCad module
+  // capture camera rotation from 3DViewer module
   lcVector3              mStepRotation;
   float                  mRotStepAngleX;
   float                  mRotStepAngleY;

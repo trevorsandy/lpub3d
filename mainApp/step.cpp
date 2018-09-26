@@ -249,7 +249,9 @@ int Step::createCsi(
       viewerCsiName = QString("%1_fm").arg(viewerCsiName);
 
   // Generage 3DViewer CSI
-  if ( ! gui->viewerStepContentExist(viewerCsiName) || csiOutOfDate ) {
+  if ( ! gui->viewerStepContentExist(viewerCsiName) ||
+       csiOutOfDate ||
+       (viewerCsiName == gui->getViewerCsiName()) ) {   // Something changed, rebuild
 
       // set rotated parts
       QStringList rotatedParts = csiParts;

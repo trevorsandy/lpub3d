@@ -627,6 +627,9 @@ bool lcApplication::Initialize(QList<QPair<QString, bool>>& LibraryPaths, QMainW
     }
 
     gMainWindow->CreateWidgets();
+/*** LPub3D Mod - coord format ***/
+    gMainWindow->SetRotateStepCoordType(gMainWindow->GetRotateStepCoordType());
+/*** LPub3D Mod end ***/
 
     Project* NewProject = new Project();
     SetProject(NewProject);

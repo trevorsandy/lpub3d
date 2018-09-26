@@ -524,8 +524,8 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	// LC_EDIT_TRANSFORM
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Transform"),
-		QT_TRANSLATE_NOOP("Menu", "Transform"),
-		QT_TRANSLATE_NOOP("Status", "Apply transform to selected objects and ROTSTEP meta"),
+        QT_TRANSLATE_NOOP("Menu", "Rotation Transform"),
+        QT_TRANSLATE_NOOP("Status", "Apply ROTSTEP rotation transform to selected objects"),
 		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
 	// LC_EDIT_TRANSFORM_ABSOLUTE_TRANSLATION
@@ -556,6 +556,29 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Status", "Switch to relative rotation mode when applying transforms"),
 		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
+/*** LPub3D Mod - coord format commands ***/
+    // LC_EDIT_ROTATESTEP_COORD_FORMAT
+    {
+        QT_TRANSLATE_NOOP("Action", "Edit.Coord.Format"),
+        QT_TRANSLATE_NOOP("Menu", "Coordinate Format"),
+        QT_TRANSLATE_NOOP("Status", "3DViewer and LPub3D use different XYZ coordinates - select format"),
+        QT_TRANSLATE_NOOP("Shortcut", "")
+    },
+    // LC_EDIT_ROTATESTEP_COORD_FORMAT_LDRAW
+    {
+        QT_TRANSLATE_NOOP("Action","Edit.Ldraw.Coord.Format"),
+        QT_TRANSLATE_NOOP("Menu", "Set LDraw XYZ Foramt"),
+        QT_TRANSLATE_NOOP("Status", "Enter rotation using LDraw XYZ coordinates"),
+        QT_TRANSLATE_NOOP("Shortcut", "")
+    },
+    // LC_EDIT_ROTATESTEP_COORD_FORMAT_LEOCAD
+    {
+         QT_TRANSLATE_NOOP("Action","Edit.Leocad.Coord.Format"),
+         QT_TRANSLATE_NOOP("Menu", "Set LeoCAD XYZ Format"),
+         QT_TRANSLATE_NOOP("Status", "Enter rotation using 3DViewer XYZ coordinates. It will be translated to LDraw format"),
+         QT_TRANSLATE_NOOP("Shortcut", "")
+    },
+/*** LPub3D Mod end ***/
 	// LC_EDIT_ACTION_INSERT
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Insert"),
@@ -654,28 +677,21 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Status", "Zoom into a region of the screen"),
 		QT_TRANSLATE_NOOP("Shortcut", "")
 	},
-/*** LPub3D Mod - commands ***/
+/*** LPub3D Mod - rotatestep command ***/
 	 // LC_EDIT_ACTION_ROTATESTEP
 	{
-		"Edit.Tool.RotateStep",
-		QT_TRANSLATE_NOOP("Menu", "ROTSTEP"),
+        QT_TRANSLATE_NOOP("Action","Edit.Tool.RotateStep"),
+        QT_TRANSLATE_NOOP("Menu", "Update ROTSTEP meta"),
 		QT_TRANSLATE_NOOP("Status", "Insert or update LPub3D ROTSTEP meta"),
 		QT_TRANSLATE_NOOP("Shortcut", "")
-	},
-	// LC_EDIT_ROTATESTEP_ABSOLUTE_ROTATION
-	{
-		"Edit.RotateStepAbsoluteRotation",
-		QT_TRANSLATE_NOOP("Menu", "Set Absolute Rotation"),
-		QT_TRANSLATE_NOOP("Status", "Switch to absolute rotation mode when applying step rotation"),
-		QT_TRANSLATE_NOOP("Shortcut", "")
-	},
-	// LC_EDIT_ROTATESTEP_RELATIVE_ROTATION
-	{
-		"Edit.RotateStepRelativeRotation",
-		 QT_TRANSLATE_NOOP("Menu", "Set Relative Rotation"),
-		 QT_TRANSLATE_NOOP("Status", "Switch to relative rotation mode when applying step rotation"),
-		 QT_TRANSLATE_NOOP("Shortcut", "")
-	},
+    },
+    // LC_EDIT_ACTION_CLEAR_TRANSFORM
+    {
+        QT_TRANSLATE_NOOP("Action","Edit.Tool.Clear.Transform"),
+        QT_TRANSLATE_NOOP("Menu", "Clear Transform"),
+        QT_TRANSLATE_NOOP("Status", "Clear the transform dialogues"),
+        QT_TRANSLATE_NOOP("Shortcut", "")
+    },
 /*** LPub3D Mod end ***/
 	// LC_EDIT_CANCEL
 	{

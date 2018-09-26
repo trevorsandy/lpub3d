@@ -40,11 +40,11 @@ enum lcTransformType
 	LC_TRANSFORM_RELATIVE_ROTATION
 };
 
-/*** LPub3D Mod - rotate step ***/
-enum lcRotateStepType
+/*** LPub3D Mod - coord format ***/
+enum lcRotateStepCoordType
 {
-    LC_ROTATESTEP_ABSOLUTE_ROTATION,
-    LC_ROTATESTEP_RELATIVE_ROTATION
+    LC_ROTATESTEP_COORD_FORMAT_LDRAW,
+    LC_ROTATESTEP_COORD_FORMAT_LEOCAD
 };
 /*** LPub3D Mod end ***/
 

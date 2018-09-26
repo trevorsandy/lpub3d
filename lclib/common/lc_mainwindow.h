@@ -136,25 +136,14 @@ public:
 	lcTransformType GetTransformType() const
 	{
 		return mTransformType;
-	}
+    }
 
-/*** LPub3D Mod - Rotate Step [deprecated] ***/
-        QString GetRotateStep() const
-        {
-            //only for status bar
-            switch(mRotateStepType)
-            {
-            case LC_ROTATESTEP_ABSOLUTE_ROTATION:
-          return tr("ABS");
-          break;
-            case LC_ROTATESTEP_RELATIVE_ROTATION:
-          return tr("REL");
-          break;
-            default:
-          return tr("N/A");
-          break;
-            }
-        }
+/*** LPub3D Mod - coord format ***/
+    lcRotateStepCoordType GetRotateStepCoordType() const
+    {
+        return mRotateStepCoordType;
+    }
+/*** LPub3D Mod end ***/
 
 	bool GetAddKeys() const
 	{
@@ -286,6 +275,7 @@ public:
 /***	void UpdateAllViews();                 // LPub3D Mod - moved to public slots ***/
 	void SetTool(lcTool Tool);
 	void SetTransformType(lcTransformType TransformType);
+    void SetRotateStepCoordType(lcRotateStepCoordType RotateStepCoordType);
 
 	void SetColorIndex(int ColorIndex);
 	void SetMoveSnapEnabled(bool Enabled);
@@ -346,6 +336,9 @@ public:
 /*** LPub3D Mod - parse and set rotstep line on model file load ***/
 	void ParseAndSetRotStep(QTextStream& LineStream);
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - rotstep transform ***/
+    lcVector3 GetRotStepTransformAmount();
+/*** LPub3D Mod end ***/
 	lcVector3 GetTransformAmount();
 
 	QString mRecentFiles[LC_MAX_RECENT_FILES];
@@ -380,7 +373,7 @@ public slots:
 
 /*** LPub3D Mod - roate step signals ***/
 signals:
-        lcVector3 GetRotStepMeta();
+        lcVector3 GetRotStepMeta();   // used to capture step meta angles
         void SetRotStepMeta(QString&, bool);
         void SetRotStepAngleX(float);
         void SetRotStepAngleY(float);
@@ -452,8 +445,10 @@ protected:
 	lcTabWidget* mModelTabWidget;
 	QToolBar* mStandardToolBar;
 
-/*** LPub3D Mod - rotate step [deprecated] ***/
-	lcRotateStepType mRotateStepType;
+/*** LPub3D Mod - coord format ***/
+    lcRotateStepCoordType mRotateStepCoordType;
+    lcVector3 mExistingRotStep;
+    QString mRotStepTransform;
 /*** LPub3D Mod end ***/
 
 /*** QToolBar* mToolsToolBar;     LPub3D Mod -  move to public ***/

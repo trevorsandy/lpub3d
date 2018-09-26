@@ -28,6 +28,7 @@
         <file alias="action_zoom_extents.png">action_zoom_extents.png</file>
         <file alias="action_zoom_region.png">action_zoom_region.png</file>
         <file alias="application-vnd.leocad.svg">application-vnd.leocad.svg</file>
+        <file alias="clear_transform.png">clear_transform.png</file>
         <file alias="cursor_camera.png">cursor_camera.png</file>
         <file alias="cursor_delete.png">cursor_delete.png</file>
         <file alias="cursor_insert.png">cursor_insert.png</file>
@@ -55,10 +56,10 @@
         <file alias="edit_paste_16.png">edit_paste_16.png</file>
         <file alias="edit_redo.png">edit_redo.png</file>
         <file alias="edit_redo_16.png">edit_redo_16.png</file>
-        <file alias="edit_rotatestep_absolute_rotation.png">edit_rotatestep_absolute_rotation.png</file>
-        <file alias="edit_rotatestep_absolute_rotation_16.png">edit_rotatestep_absolute_rotation_16.png</file>
-        <file alias="edit_rotatestep_relative_rotation.png">edit_rotatestep_relative_rotation.png</file>
-        <file alias="edit_rotatestep_relative_rotation_16.png">edit_rotatestep_relative_rotation_16.png</file>
+        <file alias="edit_rotatestep.png">edit_rotatestep.png</file>
+        <file alias="edit_rotatestep_16.png">edit_rotatestep_16.png</file>
+        <file alias="edit_rotatestep_coord_format_ldraw.png">edit_rotatestep_coord_format_ldraw.png</file>
+        <file alias="edit_rotatestep_coord_format_leocad.png">edit_rotatestep_coord_format_leocad.png</file>
         <file alias="edit_snap_angle.png">edit_snap_angle.png</file>
         <file alias="edit_snap_move.png">edit_snap_move.png</file>
         <file alias="edit_transform_absolute_rotation.png">edit_transform_absolute_rotation.png</file>
