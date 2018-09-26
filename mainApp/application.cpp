@@ -197,17 +197,16 @@ void Application::initialize()
   for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
   {
     const QString& Param = Arguments[ArgIdx];
-    if (Param == QLatin1String("-icr") || Param == QLatin1String("--ignore-console-redirect"))
+    if (Param == QLatin1String("-cr") || Param == QLatin1String("--console-redirect"))
     {
 #ifdef Q_OS_WIN
-        consoleRedirectTreated = true;
-        continue;
+        if (!consoleRedirectTreated) {
+            consoleRedirectTreated = true;
+            RedirectIOToConsole();
+        }
     }
     else
-    if (!consoleRedirectTreated)
     {
-        RedirectIOToConsole();
-        consoleRedirectTreated = true;
 #else
          continue;
 #endif
@@ -222,7 +221,7 @@ void Application::initialize()
     if (! headerPrinted)
     {
       m_console_mode = true;
-      fprintf(stdout, "\n%s for %s\n",VER_PRODUCTNAME_STR,VER_COMPILED_FOR);
+      fprintf(stdout, "\n%s %s for %s\n",VER_PRODUCTNAME_STR,VER_PRODUCTVERSION_STR,VER_COMPILED_FOR);
       fprintf(stdout, "==========================\n");
       fprintf(stdout, "Arguments: %s\n",QString(ListArgs.join(" ")).toLatin1().constData());
       fflush(stdout);
@@ -267,6 +266,7 @@ void Application::initialize()
       fprintf(stdout, "  -hc, --highlight-step-colour <Hex colour code>: Set the step highlight colour. Colour code optional. Format is #RRGGBB. Default is %s.\n",HIGHLIGHT_COLOUR_DEFAULT);
       fprintf(stdout, "  -of, --pdf-output-file <path>: Designate the pdf document save file using absolute path.\n");
       fprintf(stdout, "  -rs, --reset-search-dirs: Reset the LDraw parts directories to those searched by default. Default is off.\n");
+      fprintf(stdout, "  -cr, --console-redirect: Create (or use existing) command console to redirect standard output standard error and standard input. Default is off.\n");
       fprintf(stdout, "  -x, --clear-cache: Turn off reset the LDraw file and image caches. Used with export-option change. Default is off.\n");
       fprintf(stdout, "  -r, --range <page range>: Set page range - e.g. 1,2,9,10-42. Default is all pages.\n");
       fprintf(stdout, "  -o, --export-option <option>: Set output format pdf, png, jpeg or bmp. Used with process-export. Default is pdf.\n");
