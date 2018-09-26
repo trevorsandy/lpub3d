@@ -610,29 +610,26 @@ void PreferencesDialog::on_povGenLDViewRadio_clicked(bool checked)
 
 void PreferencesDialog::on_ldvPreferencesBtn_clicked()
 {
-    ldvWidget = new LDVWidget(this);
-    ldvWidget->setIniFlag(LDViewIni);
+    ldvWidget = new LDVWidget(LDViewIni,this);
     ldvWidget->showLDVPreferences();
 }
 
 void PreferencesDialog::on_ldvPoVFileGenOptBtn_clicked()
 {
-     ldvWidget = new LDVWidget(this);
-     if (ui.povGenNativeRadio->isChecked())
-         ldvWidget->setIniFlag(NativePOVIni);
-     else if (ui.povGenLDViewRadio->isChecked())
-         ldvWidget->setIniFlag(LDViewPOVIni);
-     ldvWidget->showLDVExportOptions();
+    if (ui.povGenNativeRadio->isChecked())
+        ldvWidget = new LDVWidget(NativePOVIni,this);
+    else if (ui.povGenLDViewRadio->isChecked())
+        ldvWidget = new LDVWidget(LDViewPOVIni,this);
+    ldvWidget->showLDVExportOptions();
 }
 
 void PreferencesDialog::on_ldvPoVFileGenPrefBtn_clicked()
 {
-     ldvWidget = new LDVWidget(this);
-     if (ui.povGenNativeRadio->isChecked())
-         ldvWidget->setIniFlag(NativePOVIni);
-     else if (ui.povGenLDViewRadio->isChecked())
-         ldvWidget->setIniFlag(LDViewPOVIni);
-     ldvWidget->showLDVPreferences();
+    if (ui.povGenNativeRadio->isChecked())
+        ldvWidget = new LDVWidget(NativePOVIni,this);
+    else if (ui.povGenLDViewRadio->isChecked())
+        ldvWidget = new LDVWidget(LDViewPOVIni,this);
+    ldvWidget->showLDVPreferences();
 }
 
 void PreferencesDialog::on_loggingGrpBox_clicked(bool checked)

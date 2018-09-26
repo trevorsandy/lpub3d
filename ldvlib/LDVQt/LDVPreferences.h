@@ -36,7 +36,7 @@ class LDVPreferences : public QDialog, Ui::LDVPreferencesPanel
 {
 	Q_OBJECT
 public:
-	LDVPreferences(QWidget *parent, LDVWidget *modelWidget);
+    LDVPreferences(LDVWidget *modelWidget);
 	~LDVPreferences(void);
 
 	void setModelViewer(LDrawModelViewer *_modelViewer) {modelViewer = _modelViewer;}
@@ -93,8 +93,8 @@ public:
 	void setUseSeams(bool);
 	bool getUseSeams(void);
 
-	static char *getLastOpenPath(char *pathKey = NULL);
-	static void setLastOpenPath(const char *path, char *pathKey = NULL);
+    static char *getLastOpenPath(char *pathKey = nullptr);
+    static void setLastOpenPath(const char *path, char *pathKey = nullptr);
 	static char *getLDrawDir(void);
 	static void setLDrawDir(const char *path);
 	static long getMaxRecentFiles(void);
@@ -225,7 +225,7 @@ protected:
 	void setupSaveDirs(void);
 	const char *getPrefSet(int);
 	const char *getSelectedPrefSet(void);
-	void selectPrefSet(const char *prefSet = NULL, bool force = false);
+    void selectPrefSet(const char *prefSet = nullptr, bool force = false);
 	char *getHotKey(int);
 	int getHotKey(const char*);
 	int getCurrentHotKey(void);

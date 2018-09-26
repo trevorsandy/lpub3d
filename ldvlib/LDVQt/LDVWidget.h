@@ -39,12 +39,13 @@ class LDVWidget : public QGLWidget, protected QGLFunctions
   Q_OBJECT
 
 public:
-  LDVWidget(QWidget *parent=NULL);
+  LDVWidget(IniFlag iniflag, QWidget *parent=nullptr);
   ~LDVWidget(void);
 
-  bool setIniFlag(IniFlag iniflag = NativePOVIni, IniStat iniStat = AfterInit);
-
   LDrawModelViewer *getModelViewer(void) { return modelViewer; }
+  IniFlag getIniFlag(void) { return iniFlag; }
+  QString getIniTitle(void) {return iniFiles[iniFlag].Title; }
+  QString getIniFile(void) {return iniFiles[iniFlag].File; }
 
   static bool staticFileCaseCallback(char *filename);
   static bool staticFileCaseLevel(QDir &dir, char *filename);
@@ -57,11 +58,11 @@ public:
 
   bool doCommand(QStringList &arguments);
 
-  static IniFlag iniFlag;
-
 protected:
+  bool setIniFile(void);
   void setupLDVFormat(void);
   void setupLDVContext(void);
+  void setupLDVUI(void);
   void displayGLExtensions(void);
 
   // GL Widget overrides
@@ -72,6 +73,7 @@ protected:
   bool getUseFBO();
   void setupSnapshotBackBuffer(int width, int height);
 
+  IniFlag iniFlag;
   QGLFormat ldvFormat;
   QGLContext *ldvContext;
 
@@ -81,6 +83,14 @@ protected:
   QString programPath;
 
   LDVPreferences *ldvPreferences;
+
+  struct IniFile
+  {
+      QString Title;
+      QString File;
+  };
+  struct IniFile iniFiles[3];
+
 };
 extern LDVWidget* ldvWidget;
 

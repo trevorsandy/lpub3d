@@ -40,12 +40,13 @@
 
 #define DEFAULT_PREF_SET TCLocalStrings::get("DefaultPrefSet")
 
-LDVPreferences::LDVPreferences(QWidget *parent, LDVWidget* modelWidget)
-	:QDialog(parent),LDVPreferencesPanel(),
+LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
+    :QDialog(qobject_cast<QWidget*>(modelWidget)),
+    LDVPreferencesPanel(),
 	modelWidget(modelWidget),
 	modelViewer(modelWidget->getModelViewer()),
 	ldPrefs(new LDPreferences(modelViewer)),
-        checkAbandon(true)
+    checkAbandon(true)
 {
         setupUi(this);
         connect( fsaaModeBox, SIGNAL( activated(int) ), this, SLOT( enableApply() ) );
@@ -166,7 +167,7 @@ LDVPreferences::LDVPreferences(QWidget *parent, LDVWidget* modelWidget)
 	reflectSettings();
 
 	QStyle *style = defaultColorButton->style();
-	if (style != NULL)
+    if (style != nullptr)
 	{
 	     QString styleName = style->metaObject()->className();
 	     if (styleName == "QGtkStyle")
@@ -181,22 +182,8 @@ LDVPreferences::LDVPreferences(QWidget *parent, LDVWidget* modelWidget)
 	     }
 	}
 
-	QString title;
-	bool enableNativeSettings = false;
-	switch (LDVWidget::iniFlag)
-	{
-	    case LDViewIni:
-		title = "LDView ";
-		break;
-	    case NativePOVIni:
-		title = "Native POV ";
-		enableNativeSettings = true;
-		break;
-	    case LDViewPOVIni:
-		title = "LDView POV ";
-		break;
-	}
-	this->setWindowTitle(title.append("Preferences"));
+    bool enableNativeSettings = modelWidget->getIniFlag() == NativePOVIni;
+    this->setWindowTitle(modelWidget->getIniTitle().append(" Preferences"));
 
 	// Hide these
 	frameRateButton->hide();
@@ -227,6 +214,8 @@ LDVPreferences::LDVPreferences(QWidget *parent, LDVWidget* modelWidget)
 #else // DEBUG
 	setDebugLevel((int)TCUserDefaults::longForKey(DEBUG_LEVEL_KEY, 0, false));
 #endif // DEBUG
+
+    setMinimumSize(50,50);
 }
 
 LDVPreferences::~LDVPreferences(void)
@@ -247,7 +236,7 @@ void LDVPreferences::doPrefSetsApply(void)
 	int i;
 	int b;
 	int count = oldPrefSetNames->getCount();
-//	char *prefSetName = NULL;
+//	char *prefSetName = nullptr;
 	const char *sessionName = TCUserDefaults::getSessionName();
 	bool changed = false;
 
@@ -282,7 +271,7 @@ void LDVPreferences::doPrefSetsApply(void)
 	{
 		if (sessionName && sessionName[0])
         {
-			TCUserDefaults::setSessionName(NULL, PREFERENCE_SET_KEY);
+            TCUserDefaults::setSessionName(nullptr, PREFERENCE_SET_KEY);
 			changed = true;
 		}
 	}
@@ -321,7 +310,7 @@ void LDVPreferences::doGeneralApply(void)
 {
 	int r, g, b;
 
-        ldPrefs->setFsaaMode(fsaaModeBox->currentIndex());
+    ldPrefs->setFsaaMode(fsaaModeBox->currentIndex());
 	ldPrefs->setLineSmoothing(aaLinesButton->checkState());
 	ldPrefs->setShowFps(frameRateButton->checkState());
 	ldPrefs->setShowAxes(showAxesButton->checkState());
@@ -990,7 +979,7 @@ void LDVPreferences::reflectGeneralSettings(void)
 	setButtonState(showAxesButton, ldPrefs->getShowAxes());
 	setButtonState(showErrorsButton, ldPrefs->getShowErrors());
 	setButtonState(processLdconfigLdrButton,
-		ldPrefs->getProcessLdConfig());
+        ldPrefs->getProcessLdConfig());
 	setButtonState(randomColorsButton,ldPrefs->getRandomColors());
 
 /*** LPub3D Mod - use button icon image ***/
@@ -1003,7 +992,7 @@ void LDVPreferences::reflectGeneralSettings(void)
 	defaultColorButton->setIcon(pix);
 /*** LPub3D Mod end ***/
 
-	setRangeValue(fieldOfViewSpin, (int)ldPrefs->getFov());
+    setDoubleRangeValue(fieldOfViewDoubleSpin, (float)ldPrefs->getFov());
 	setButtonState(transparentButton, ldPrefs->getTransDefaultColor());
 	memoryUsageBox->setCurrentIndex(ldPrefs->getMemoryUsage());
 	setupSaveDirs();
@@ -1218,7 +1207,7 @@ char *LDVPreferences::getLastOpenPath(char *pathKey)
 	{
 		constPathKey = LAST_OPEN_PATH_KEY;
 	}
-	path = TCUserDefaults::stringForKey(constPathKey, NULL, false);
+    path = TCUserDefaults::stringForKey(constPathKey, nullptr, false);
 	if (!path)
 	{
 		path = copyString("/dos/c/ldraw");
@@ -1243,7 +1232,7 @@ void LDVPreferences::setLastOpenPath(const char *path, char *pathKey)
 
 char *LDVPreferences::getLDrawDir(void)
 {
-	return TCUserDefaults::stringForKey(LDRAWDIR_KEY, NULL, false);
+    return TCUserDefaults::stringForKey(LDRAWDIR_KEY, nullptr, false);
 }
 
 void LDVPreferences::setLDrawDir(const char *path)
@@ -1266,7 +1255,7 @@ const QString &LDVPreferences::getRecentFileKey(int index)
 
 char *LDVPreferences::getRecentFile(int index)
 {
-	return TCUserDefaults::stringForKey(getRecentFileKey(index).toLatin1().constData(), NULL, false);
+    return TCUserDefaults::stringForKey(getRecentFileKey(index).toLatin1().constData(), nullptr, false);
 }
 
 void LDVPreferences::setRecentFile(int index, char *filename)
@@ -1611,7 +1600,7 @@ char *LDVPreferences::getHotKey(int index)
     char key[128];
 
     sprintf(key, "%s/Key%d", HOT_KEYS_KEY, index);
-    return TCUserDefaults::stringForKey(key, NULL, false);
+    return TCUserDefaults::stringForKey(key, nullptr, false);
 }
 
 int LDVPreferences::getHotKey(const char *currentPrefSetName)
@@ -1661,7 +1650,7 @@ void LDVPreferences::performHotKey(int hotKeyIndex)
 
             if (hotKeyIsDefault)
             {
-                TCUserDefaults::setSessionName(NULL, PREFERENCE_SET_KEY);
+                TCUserDefaults::setSessionName(nullptr, PREFERENCE_SET_KEY);
                 changed = true;
             }
             else
@@ -1742,7 +1731,7 @@ const char *LDVPreferences::getSelectedPrefSet(void)
 	{
 		return copyString(preferenceSetList->currentItem()->text().toLatin1().constData());
 	}
-	return NULL;
+    return nullptr;
 }
 bool LDVPreferences::doPrefSetSelected(bool force)
 {
@@ -1762,7 +1751,7 @@ bool LDVPreferences::doPrefSetSelected(bool force)
         if (selectedPrefSet && (strcmp(savedSession, selectedPrefSet) != 0))
         {
             needToReselect = true;
-            selectPrefSet(NULL, true);
+            selectPrefSet(nullptr, true);
 			QMessageBox::warning(this,QString::fromWCharArray(TCLocalStrings::get(L"Error")),
 				"You have made changes to the current preference set.  You must either apply those changes or abandon them before you can select a new preference set.");
 		}

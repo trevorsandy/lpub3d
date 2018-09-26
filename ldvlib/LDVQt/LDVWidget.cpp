@@ -66,14 +66,14 @@
 #define WIN_HEIGHT 480
 
 LDVWidget* ldvWidget;
-IniFlag LDVWidget::iniFlag;
 
-LDVWidget::LDVWidget(QWidget *parent)
+LDVWidget::LDVWidget(IniFlag iniflag, QWidget *parent)
         : QGLWidget(parent),
-        ldvFormat(NULL),
-        ldvContext(NULL),
-        modelViewer(new LDrawModelViewer(100, 100)),
-        snapshotTaker(NULL),
+        iniFlag(iniflag),
+        ldvFormat(nullptr),
+        ldvContext(nullptr),
+        modelViewer(nullptr),
+        snapshotTaker(nullptr),
         ldvAlertHandler(new LDVAlertHandler(this)),
         programPath(QCoreApplication::applicationFilePath())
 {
@@ -81,58 +81,26 @@ LDVWidget::LDVWidget(QWidget *parent)
 
   setupLDVContext();
 
-  QString appName = Preferences::lpub3dAppName;
-  TCUserDefaults::setAppName(appName.toLatin1().constData());
-
-  modelViewer->setProgramPath(programPath.toLatin1().constData());
-
   QString messagesPath = QDir::toNativeSeparators(QString("%1%2")
                                                   .arg(Preferences::dataLocation)
                                                   .arg(VER_LDVMESSAGESINI_FILE));
- //fprintf(stdout, "SETTING %s file PATH TO %s.\n", VER_LDVMESSAGESINI_FILE, messagesPath.toLatin1().constData());
-
   if (!TCLocalStrings::loadStringTable(messagesPath.toLatin1().constData()))
   {
-        fprintf(stdout, "Could not load  %s file %s.\n", VER_LDVMESSAGESINI_FILE, messagesPath.toLatin1().constData());
+        fprintf(stdout, "ERROR - Could not load  %s file %s.\n", VER_LDVMESSAGESINI_FILE, messagesPath.toLatin1().constData());
         fflush(stdout);
   }
 
-  QFile fontFile(":/resources/SansSerif.fnt");
-  if (fontFile.exists())
-  {
-      int len = fontFile.size();
-      if (len > 0)
-      {
-          char *buffer = (char*)malloc(len);
-          if ( fontFile.open( QIODevice::ReadOnly ))
-          {
-              QDataStream stream( &fontFile );
-              stream.readRawData(buffer,len);
-              modelViewer->setFontData((TCByte*)buffer,len);
-          }
-          delete buffer;
-      }
-  }
-
-  QImage fontImage2x(":/resources/SansSerif@2x.png");
-  long len = fontImage2x.byteCount();
-  modelViewer->setRawFont2xData(fontImage2x.bits(),len);
-
-  // Needed to display preferences
-  char *sessionName;
-  sessionName = TCUserDefaults::getSavedSessionNameFromKey(PREFERENCE_SET_KEY);
-  if (sessionName && sessionName[0])
-  {
-        TCUserDefaults::setSessionName(sessionName, NULL, false);
-  }
-  delete sessionName;
-
-  setIniFlag(NativePOVIni, BeforeInit);
-
-  ldvPreferences = new LDVPreferences(parent, this);
-  ldvPreferences->doApply();
-
   LDLModel::setFileCaseCallback(staticFileCaseCallback);
+
+  iniFiles[NativePOVIni] = { "Native POV", Preferences::nativePOVIni };
+  iniFiles[LDViewPOVIni] = { "LDView POV", Preferences::ldviewPOVIni };
+  iniFiles[LDViewIni] = { "LDView", Preferences::ldviewIni } ;
+
+  QString initArgs = QString("%1 -IniFile=%2").arg(programPath).arg(getIniFile());
+
+  TCUserDefaults::setCommandLine(initArgs.toLatin1().constData());
+
+  TCUserDefaults::setAppName(Preferences::lpub3dAppName.toLatin1().constData());
 
   setFocusPolicy(Qt::StrongFocus);
 
@@ -143,76 +111,81 @@ LDVWidget::LDVWidget(QWidget *parent)
 LDVWidget::~LDVWidget(void)
 {
     makeCurrent();
-    TCObject::release(snapshotTaker);
-    TCObject::release(modelViewer);
-    delete ldvPreferences;
-
-    TCObject::release(ldvAlertHandler);
-    ldvAlertHandler = NULL;
+    TCAutoreleasePool::processReleases();
 
     doneCurrent();
-    ldvWidget = NULL;
+    ldvWidget = nullptr;
 }
 
-bool LDVWidget::setIniFlag(IniFlag iniflag, IniStat iniStat)
-{
-    iniFlag = iniflag;
-    if (!TCUserDefaults::isIniFileSet())
+void LDVWidget::setupLDVUI(){
+
+    modelViewer = new LDrawModelViewer(100, 100);
+
+    QFile fontFile(":/resources/SansSerif.fnt");
+    if (fontFile.exists())
     {
-           QString iniFile;
-           QString title;
-           switch (iniFlag)
-           {
-                case NativePOVIni:
-                    iniFile = Preferences::nativePOVIni;
-                    title = "Native POV";
-                    break;
-                case LDViewPOVIni:
-                    iniFile = Preferences::ldviewPOVIni;
-                    title = "LDView POV";
-                    break;
-                case LDViewIni:
-                    iniFile = Preferences::ldviewIni;
-                    title = "LDView";
-                    break;
-                default:
-                    fprintf(stdout, "Ini file not specified!\n");
-                    fflush(stdout);
-                    return false;
-           }
-           if (!TCUserDefaults::setIniFile(iniFile.toLatin1().constData()))
-           {
-                fprintf(stdout, "Could not set %s INI file: %s\n",
-                        title.toLatin1().constData(),
-                        iniFile.toLatin1().constData());
-                fflush(stdout);
-                return false;
-           }
-           else
-           if (iniStat == AfterInit)
-           {
-                ldvPreferences->doApply();
-           }
+        int len = fontFile.size();
+        if (len > 0)
+        {
+            char *buffer = (char*)malloc(len);
+            if ( fontFile.open( QIODevice::ReadOnly ))
+            {
+                QDataStream stream( &fontFile );
+                stream.readRawData(buffer,len);
+                modelViewer->setFontData((TCByte*)buffer,len);
+            }
+            delete buffer;
+        }
     }
 
+    QImage fontImage2x(":/resources/SansSerif@2x.png");
+    long len = fontImage2x.byteCount();
+    modelViewer->setRawFont2xData(fontImage2x.bits(),len);
+
+    // Saved session
+    char *sessionName = TCUserDefaults::getSavedSessionNameFromKey(PREFERENCE_SET_KEY);
+    if (sessionName && sessionName[0])
+    {
+          TCUserDefaults::setSessionName(sessionName, nullptr, false);
+    }
+    delete sessionName;
+}
+
+bool LDVWidget::setIniFile()
+{    
+    if (!TCUserDefaults::isIniFileSet())
+    {
+        if (getIniTitle().isEmpty()){
+            fprintf(stdout, "ERROR - Ini file not specified!\n");
+            fflush(stdout);
+            return false;
+        }
+        if (!TCUserDefaults::setIniFile(getIniFile().toLatin1().constData()))
+        {
+            fprintf(stdout, "ERROR - Could not set %s INI file: %s\n",
+                    getIniTitle().toLatin1().constData(),
+                    getIniFile().toLatin1().constData());
+            fflush(stdout);
+            return false;
+        }
+    }
     return true;
 }
 
 bool LDVWidget::doCommand(QStringList &arguments)
 {	
-    std::string ldvArgs = arguments.join(" ").toStdString();
+    TCUserDefaults::setCommandLine(arguments.join(" ").toLatin1().constData());
+
+    setIniFile();
 
     QImage studImage(":/resources/StudLogo.png");
     TREMainModel::setRawStudTextureData(studImage.bits(),studImage.byteCount());
 
-    TCUserDefaults::setCommandLine(ldvArgs.c_str());
-
-    LDLModel::setFileCaseCallback(staticFileCaseCallback);
-
     bool retValue = LDSnapshotTaker::doCommandLine(false, true);
     if (!retValue)
     {
-         fprintf(stdout, "Failed to processs Native command arguments: %s\n", ldvArgs.c_str());
+         fprintf(stdout, "ERROR - Failed to processs Native command arguments: %s\n",
+                 arguments.join(" ").toLatin1().constData());
          fflush(stdout);
     }
     return retValue;
@@ -220,6 +193,8 @@ bool LDVWidget::doCommand(QStringList &arguments)
 
 void LDVWidget::showLDVExportOptions()
 {
+    setupLDVUI();
+
     LDViewExportOption exportOption(this,modelViewer);
 
     if (exportOption.exec() == QDialog::Rejected)
@@ -230,7 +205,9 @@ void LDVWidget::showLDVExportOptions()
 
 void LDVWidget::showLDVPreferences()
 {
-  ldvPreferences = new LDVPreferences(this, this);
+  setupLDVUI();
+
+  ldvPreferences = new LDVPreferences(this);
 
   if (ldvPreferences->exec() == QDialog::Rejected)
     ldvPreferences->doCancel();
@@ -263,7 +240,7 @@ void LDVWidget::setupLDVContext()
         setFormat(ldvFormat);
         needsInitialize = true;
     } else {
-        fprintf(stdout, "The OpenGL context is not valid!");
+        fprintf(stdout, "ERROR - The OpenGL context is not valid!");
     }
 
     if (needsInitialize) {
@@ -302,7 +279,7 @@ void LDVWidget::modelViewerAlertCallback(TCAlert *alert)
 
 bool LDVWidget::getUseFBO()
 {
-    return snapshotTaker != NULL && snapshotTaker->getUseFBO();
+    return snapshotTaker != nullptr && snapshotTaker->getUseFBO();
 }
 
 void LDVWidget::snapshotTakerAlertCallback(TCAlert *alert)

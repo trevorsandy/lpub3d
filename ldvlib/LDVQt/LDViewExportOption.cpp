@@ -30,15 +30,15 @@
 #include "lpub_preferences.h"
 #include "name.h"
 
-TCStringArray* LDViewExportOption::extraSearchDirs = NULL;
+TCStringArray* LDViewExportOption::extraSearchDirs = nullptr;
 
 #define	MAX_EXTRA_DIR	10
 
 LDViewExportOption::LDViewExportOption(QWidget *parent,LDrawModelViewer *modelViewer,LDrawModelViewer::ExportType type)
     :QDialog(parent),LDVExportOptionPanel(),
     m_modelViewer(modelViewer),
-    m_exporter(NULL),
-    m_box(NULL),
+    m_exporter(nullptr),
+    m_box(nullptr),
     m_origType(type)
 {
     ui.setupUi(this);
@@ -52,21 +52,9 @@ LDViewExportOption::LDViewExportOption(QWidget *parent,LDrawModelViewer *modelVi
         populateExtraSearchDirs();
     }
 
-    QString title;
-    bool enableLightingBox = false;
-    switch (LDVWidget::iniFlag)
-    {
-        case LDViewIni:
-            break;
-        case NativePOVIni:
-            title = "Native POV ";
-            enableLightingBox = true;
-            break;
-        case LDViewPOVIni:
-            title = "LDView POV ";
-            break;
-    }
-    this->setWindowTitle(title.append("Export Options"));
+    LDVWidget* modelWidget = qobject_cast<LDVWidget*>(parent);
+    bool enableLightingBox  = modelWidget->getIniFlag() == NativePOVIni;
+    this->setWindowTitle(modelWidget->getIniTitle().append("Export Options"));
 
     if (enableLightingBox)
     {
@@ -97,7 +85,7 @@ void LDViewExportOption::populate(void)
     LDExporterSettingList &settings = m_exporter->getSettings();
     LDExporterSettingList::iterator it;
 
-    if (m_box != NULL)
+    if (m_box != nullptr)
     {
         ui.scrollArea->adjustSize();
         delete m_box;
@@ -109,7 +97,7 @@ void LDViewExportOption::populate(void)
     m_lay->setMargin(11);
     m_lay->setSpacing(4);
     m_box->setLayout(m_lay);
-    QVBoxLayout *vbl= NULL;
+    QVBoxLayout *vbl= nullptr;
     std::stack<int> groupSizes;
     std::stack<QWidget *> parents;
     int groupSize = 0;
@@ -214,7 +202,7 @@ void LDViewExportOption::populate(void)
                 check->setObjectName(qstmp);
                 hbox->addWidget(check);
                 m_settings[&*it] = check;
-                if (vbl != NULL)
+                if (vbl != nullptr)
                 {
                     m_groups[vbl][&*it] = check;
                 }
@@ -231,7 +219,7 @@ void LDViewExportOption::populate(void)
                 ucstringtoqstring(qstmp,it->getStringValue());
                 li->setText(qstmp);
                 m_settings[&*it] = li;
-                if (vbl != NULL)
+                if (vbl != nullptr)
                 {
                     m_groups[vbl][&*it] = li;
                 }
@@ -250,7 +238,7 @@ void LDViewExportOption::populate(void)
                 ucstringtoqstring(qstmp,it->getStringValue());
                 li->setText(qstmp);
                 m_settings[&*it] = li;
-                if (vbl != NULL)
+                if (vbl != nullptr)
                 {
                     m_groups[vbl][&*it] = li;
                 }
@@ -279,7 +267,7 @@ void LDViewExportOption::populate(void)
                 }
                 combo->setCurrentIndex(it->getSelectedOption());
                 m_settings[&*it] = combo;
-                if (vbl != NULL)
+                if (vbl != nullptr)
                 {
                     m_groups[vbl][&*it] = combo;
                 }
@@ -315,6 +303,8 @@ void LDViewExportOption::populate(void)
     ui.scrollArea->adjustSize();
 //  resize(width() + m_box->width() - scrollArea->visibleWidth(), height());
     setFixedWidth(width());
+
+    setMinimumSize(50,50);
 }
 
 LDViewExportOption::~LDViewExportOption() { }
@@ -432,7 +422,7 @@ void LDViewExportOption::populateTypeBox(void)
         const LDExporter *exporter = m_modelViewer->getExporter(
             (LDrawModelViewer::ExportType)i);
 
-        if (exporter != NULL)
+        if (exporter != nullptr)
         {
             ucstring fileType = exporter->getTypeDescription();
             QString qsFileType;
@@ -518,7 +508,7 @@ void LDViewExportOption::populateExtraSearchDirs(void)
         char *extraSearchDir;
 
         sprintf(key, "%s/Dir%03d", EXTRA_SEARCH_DIRS_KEY, i);
-        extraSearchDir = TCUserDefaults::stringForKey(key, NULL, false);
+        extraSearchDir = TCUserDefaults::stringForKey(key, nullptr, false);
         if (extraSearchDir && extraSearchDir[0])
         {
             extraSearchDirs->addString(extraSearchDir);
