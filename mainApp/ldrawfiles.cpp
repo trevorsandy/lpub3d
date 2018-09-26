@@ -331,15 +331,15 @@ QStringList LDrawFile::subFileOrder() {
 }
 
 QString LDrawFile::readLine(const QString &mcFileName, int lineNumber)
-{                   ;
+{
   QString fileName = mcFileName.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
 
   if (i != _subFiles.end()) {
-    return i.value()._contents[lineNumber];
+      if (lineNumber < i.value()._contents.size())
+          return i.value()._contents[lineNumber];
   }
-  QString empty;
-  return empty;
+  return QString();
 }
 
 void LDrawFile::insertLine(const QString &mcFileName, int lineNumber, const QString &line)
