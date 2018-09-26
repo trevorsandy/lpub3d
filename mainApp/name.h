@@ -49,6 +49,7 @@ enum Theme { ThemeDark, ThemeDefault };
 
 #define LOGGING_LEVEL_DEFAULT                   "STATUS"
 
+#define LIBPNG_MACOS_VERSION                    "1.6.35"
 
 #define UPDATE_CHECK_FREQUENCY_DEFAULT          0     //0=Never,1=Daily,2=Weekly,3=Monthly
 

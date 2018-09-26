@@ -41,6 +41,23 @@
 #include "lc_profile.h"
 //**
 
+#ifdef Q_OS_MAC
+using namespace std;
+
+vector<string> splitVersion(const string& s, char d) {
+    vector<string> r;
+    int j = 0;
+    for (int i = 0; i < s.length(); i ++) {
+        if (s[i] == d) {
+            r.push_back(s.substr(j, i - j));
+            j = i + 1;
+        }
+    }
+    r.push_back(s.substr(j));
+    return r;
+}
+#endif
+
 Preferences preferences;
 QDate date = QDate::currentDate();
 
@@ -1314,71 +1331,131 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
 #ifdef Q_OS_MAC
 
         // Check macOS LDView Libraries
+        QString invalidLibPngMsg = QString();
+
         if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"LDViewMissingLibs"))) {
-          QVariant eValue(ldviewMissingLibs);
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDViewMissingLibs"),eValue);
+            QVariant eValue(ldviewMissingLibs);
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDViewMissingLibs"),eValue);
         } else {
-          ldviewMissingLibs = Settings.value(QString("%1/%2").arg(SETTINGS,"LDViewMissingLibs")).toBool();
+            ldviewMissingLibs = Settings.value(QString("%1/%2").arg(SETTINGS,"LDViewMissingLibs")).toBool();
         }
 
         if (ldviewMissingLibs) {
             ldviewMissingLibs = false;
             QFileInfo libInfo("/usr/local/opt/libpng/lib/libpng.dylib");
+
             if (!libInfo.exists()){
                 if (!ldviewMissingLibs)
-                  ldviewMissingLibs = true;
+                    ldviewMissingLibs = true;
                 missingLibs << libInfo.absoluteFilePath();
+            } else {
+                int result = 0;
+                QString _v1 = LIBPNG_MACOS_VERSION;
+
+                // Get libpng version
+                QStringList args;
+                args << "$(brew info libpng) | sed \"s/^.*stable \\([^(]*\\).*/\\1/\"";
+                QProcess pr;
+                pr.start("echo",args);
+                pr.waitForFinished(-1);
+
+                QString _v2 = pr.readAllStandardOutput();
+                QString p_stderr = pr.readAllStandardError();
+
+                logInfo() << _v2;
+                logError() << p_stderr;
+
+                // Compare two string versions.
+                // Return  1 if v2 is smaller
+                // Return -1 if v1 is smaller
+                // Return  0 if v1 and v2 are equal
+                std::string version1 = _v1.toLatin1().constData();
+                std::string version2 = _v2.toLatin1().constData();
+
+                auto v1 = splitVersion(version1, '.');
+                auto v2 = splitVersion(version2, '.');
+
+                int max = v1.size() > v2.size() ? v1.size() : v2.size();
+                // pad the shorter version string
+                if (v1.size() != max) {
+                    for (int i = max - v1.size(); i --; ) {
+                        v1.push_back("0");
+                    }
+                } else {
+                    for (int i = max - v2.size(); i --; ) {
+                        v2.push_back("0");
+                    }
+                }
+                for (int i = 0; i < max; i ++) {
+                    int n1 = stoi(v1[i]);
+                    int n2 = stoi(v2[i]);
+                    if (n1 > n2) {
+                        result = 1;
+                    } else if (n1 < n2) {
+                        result = -1;
+                    }
+                }
+                if (result == -1) {
+                    ldviewMissingLibs = true;
+                    missingLibs << libInfo.absoluteFilePath();
+                    invalidLibPngMsg = QString("libPng found but its version [%1] "
+                                               "is less than the required version [%2]\n\n.")
+                            .arg(_v2).arg(_v1);
+                }
             }
             libInfo.setFile("/usr/local/opt/gl2ps/lib/libgl2ps.dylib");
             if (!libInfo.exists()){
                 if (!ldviewMissingLibs)
-                  ldviewMissingLibs = true;
+                    ldviewMissingLibs = true;
                 missingLibs << libInfo.absoluteFilePath();
             }
             libInfo.setFile("/usr/local/opt/libjpg/lib/libjpeg.dylib");
             if (!libInfo.exists()){
                 if (!ldviewMissingLibs)
-                  ldviewMissingLibs = true;
+                    ldviewMissingLibs = true;
                 missingLibs << libInfo.absoluteFilePath();
             }
             libInfo.setFile("/usr/local/opt/tinyxml/lib/libtinyxml.dylib");
             if (!libInfo.exists()){
                 if (!ldviewMissingLibs)
-                  ldviewMissingLibs = true;
+                    ldviewMissingLibs = true;
                 missingLibs << libInfo.absoluteFilePath();
             }
             libInfo.setFile("/usr/local/opt/minizip/lib/libminizip.dylib");
             if (!libInfo.exists()){
                 if (!ldviewMissingLibs)
-                  ldviewMissingLibs = true;
+                    ldviewMissingLibs = true;
                 missingLibs << libInfo.absoluteFilePath();
             }
 
             QVariant eValue(ldviewMissingLibs);
             if (!ldviewMissingLibs)
-              Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDViewMissingLibs"),eValue);
+                Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDViewMissingLibs"),eValue);
 
+            QString body;
             if (ldviewMissingLibs){
-              QString header = "<b> " + QMessageBox::tr ("Required libraries for the LDView renderer were not found!!") + "</b>";
-              QString body = QMessageBox::tr ("The following libraries were not found:\n\n -%1\n\n"
-                                              "See %2/assets/docs/lpub3d/macOS_libs.html for install details.")
-                                              .arg(missingLibs.join("\n -"))
-                                              .arg(VER_COMPANYDOMAIN_STR);
-              box.setText (header);
-              box.setInformativeText (body);
+                QString header = "<b> " + QMessageBox::tr ("Required libraries for the LDView renderer were not found!!") + "</b>";
+                body = QMessageBox::tr ("The following libraries were not found:\n\n -%1\n\n%2"
+                                                "See %3/assets/docs/lpub3d/macOS_libs.html for install details.")
+                        .arg(missingLibs.join("\n -"))
+                        .arg(invalidLibPngMsg)
+                        .arg(VER_COMPANYDOMAIN_STR);
+                box.setText (header);
+                box.setInformativeText (body);
 
-              if (modeGUI) {
-                  if (!lpub3dLoaded && Application::instance()->splash->isVisible())
-                    Application::instance()->splash->hide();
-                  if (box.exec() == QMessageBox::Close) {
-                      if (! lpub3dLoaded && modeGUI && Application::instance()->splash->isHidden())
-                        Application::instance()->splash->show();
+                if (modeGUI) {
+                    if (!lpub3dLoaded && Application::instance()->splash->isVisible())
+                        Application::instance()->splash->hide();
+                    if (box.exec() == QMessageBox::Close) {
+                        if (! lpub3dLoaded && modeGUI && Application::instance()->splash->isHidden())
+                            Application::instance()->splash->show();
                     }
                 } else {
-                  fprintf(stdout,"%s",body.toLatin1().constData());
-                  fflush(stdout);
+                    fprintf(stdout,"%s",body.toLatin1().constData());
+                    fflush(stdout);
                 }
             }
+            logInfo() << qPrintable(QString("DEBUG LIB_PNG_CHECK %1").arg(body));
         }
 #endif
     } else {
