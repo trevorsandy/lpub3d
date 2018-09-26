@@ -587,13 +587,22 @@ int Pli::createPartImage(
                 return -1;
             }
 
-            // generate PLI Part
-            QStringList pliFile = configurePLIPart(
-                        ptn[pT].partColor,
-                        type,
-                        (PartType)pT,
-                        fadeSteps,
-                        highlightStep);
+            // create ldr file
+            QStringList pliFile;
+            if (isSubModel) {
+                // use model file generated durin 'write-to-temp' call
+                QString iconImageType = QFileInfo(type).baseName() += (ptn[pT].typeName + ".ldr");
+                pliFile << orient(ptn[pT].partColor, iconImageType);
+            } else {
+                // generate PLI Part file
+                pliFile = configurePLIPart(
+                          ptn[pT].partColor,
+                          type,
+                          (PartType)pT,
+                          fadeSteps,
+                          highlightStep);
+            }
+
             QTextStream out(&part);
             if (Preferences::preferredRenderer == RENDERER_NATIVE) {
                 QString modelName = QFileInfo(type).baseName().toLower();
@@ -1618,11 +1627,11 @@ int Pli::partSizeLDViewSCall() {
                     // create ldr file
                     QStringList pliFile;
                     if (isSubModel) {
-                        // use previously generated file
+                        // use model file generated durin 'write-to-temp' call
                         QString iconImageType = QFileInfo(pliPart->type).baseName() += (ptn[pT].typeName + ".ldr");
                         pliFile << orient(ptn[pT].partColor, iconImageType);
                     } else {
-                        // generate PLI Part
+                        // generate PLI Part file
                         pliFile = configurePLIPart(
                                   ptn[pT].partColor,
                                   pliPart->type,
@@ -1630,6 +1639,7 @@ int Pli::partSizeLDViewSCall() {
                                   fadeSteps,
                                   highlightStep);
                     }
+
                     QTextStream out(&part);
                     foreach (QString line, pliFile)
                         out << line << endl;
