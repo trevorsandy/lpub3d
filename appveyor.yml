@@ -38,8 +38,8 @@ configuration: release
 matrix:
   fast_finish: true
 
-# The following variables/actions can be manipulated from the AppVeyor site->Project->Settings->Environment Variables
-# Variables ending with '_VAR' are designated to be only defined at the AppVeyor site
+# The following variables/actions can be manipulated from AppVeyor via site->Project->Settings->Environment Variables
+# Variables ending with '_VAR' are designated to be defined at the AppVeyor site only
 # LP3D_BUILD_PKG = "yes"            ; trigger build
 # LP3D_TEST_SF_DEPLOY_VAR = "true"  ; deploy SourceForge
 # LP3D_SKIP_SF_DEPLOY_VAR = "true"  ; skip SourceForge deploy
