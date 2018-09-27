@@ -98,12 +98,12 @@ AbstractRangeElement *AbstractStepsElement::nextElement(
         if (range) {
           return range->list[0];
         } else {
-          return NULL;
+          return nullptr;
         }
       }
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 

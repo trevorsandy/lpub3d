@@ -104,12 +104,12 @@ Pli::Pli(bool _bom) : bom(_bom)
 {
   relativeType = PartsListType;
   initAnnotationString();
-  steps = NULL;
-  step = NULL;
-  meta = NULL;
+  steps = nullptr;
+  step = nullptr;
+  meta = nullptr;
   widestPart = 1;
   tallestPart = 1;
-  background = NULL;
+  background = nullptr;
   splitBom = false;
 
   ptn.append( { FADE_PART, "-fade" } );

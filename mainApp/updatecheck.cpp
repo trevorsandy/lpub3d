@@ -145,7 +145,7 @@ void DoInitialUpdateCheck()
             return;
     }
 
-    new UpdateCheck(NULL, (void*)SoftwareUpdate);
+    new UpdateCheck(nullptr, (void*)SoftwareUpdate);
 }
 
 

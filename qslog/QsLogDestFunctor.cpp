@@ -29,14 +29,14 @@
 #include <QtGlobal>
 
 QsLogging::FunctorDestination::FunctorDestination(LogFunction f)
-    : QObject(NULL)
+    : QObject(nullptr)
     , mLogFunction(f)
 {
 }
 
 QsLogging::FunctorDestination::FunctorDestination(QObject *receiver, const char *member)
-    : QObject(NULL)
-    , mLogFunction(NULL)
+    : QObject(nullptr)
+    , mLogFunction(nullptr)
 {
     connect(this, SIGNAL(logMessageReady(QString,int)), receiver, member, Qt::QueuedConnection);
 }

@@ -64,7 +64,7 @@ bool LDPartsDirs::verifyExtraDir(const char *value)
         {
           qDebug("Error going back to original directory.\n");
           qDebug("currentDir before: <%s>\n", currentDir);
-          if (getcwd(currentDir, sizeof(currentDir)) != NULL)
+          if (getcwd(currentDir, sizeof(currentDir)) != nullptr)
             {
               qDebug("currentDir  after: <%s>\n", currentDir);
             }

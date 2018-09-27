@@ -251,9 +251,9 @@ int Gui::drawPage(
   QStringList saveCsiParts;
   bool        global = true;
   QString     line, csiName;
-  Callout    *callout     = NULL;
-  Range      *range       = NULL;
-  Step       *step        = NULL;
+  Callout    *callout     = nullptr;
+  Range      *range       = nullptr;
+  Step       *step        = nullptr;
   bool        pliIgnore   = false;
   bool        partIgnore  = false;
   bool        synthBegin  = false;
@@ -267,7 +267,7 @@ int Gui::drawPage(
   bool        noStep      = false;
   bool        rotateIcon  = false;
 
-  PagePointer *pagePointer= NULL;
+  PagePointer *pagePointer= nullptr;
   QMap<Positions, PagePointer*> pagePointers;
 
   steps->isMirrored = isMirrored;
@@ -348,8 +348,8 @@ int Gui::drawPage(
 
           /* since we have a part usage, we have a valid STEP */
 
-          if (step == NULL  && ! noStep) {
-              if (range == NULL) {
+          if (step == nullptr  && ! noStep) {
+              if (range == nullptr) {
                   range = newRange(steps,calledOut);
                   steps->append(range);
                 }
@@ -544,8 +544,8 @@ int Gui::drawPage(
           /* we've got a line, triangle or polygon, so add it to the list */
           /* and make sure we know we have a step */
 
-          if (step == NULL && ! noStep) {
-              if (range == NULL) {
+          if (step == nullptr && ! noStep) {
+              if (range == nullptr) {
                   range = newRange(steps,calledOut);
                   steps->append(range);
                 }
@@ -627,8 +627,8 @@ int Gui::drawPage(
                   pliParts << Pli::partLine(addPart,current,curMeta);
                 }
 
-              if (step == NULL && ! noStep) {
-                  if (range == NULL) {
+              if (step == nullptr && ! noStep) {
+                  if (range == nullptr) {
                       range = newRange(steps,calledOut);
                       steps->append(range);
                     }
@@ -659,8 +659,8 @@ int Gui::drawPage(
                   pliParts << Pli::partLine(addPart,current,curMeta);
                 }
 
-              if (step == NULL && ! noStep) {
-                  if (range == NULL) {
+              if (step == nullptr && ! noStep) {
+                  if (range == nullptr) {
                       range = newRange(steps,calledOut);
                       steps->append(range);
                     }
@@ -739,8 +739,8 @@ int Gui::drawPage(
                   }
                 csiParts = newCSIParts;
 
-                if (step == NULL && ! noStep) {
-                    if (range == NULL) {
+                if (step == nullptr && ! noStep) {
+                    if (range == nullptr) {
                         range = newRange(steps,calledOut);
                         steps->append(range);
                       }
@@ -759,9 +759,9 @@ int Gui::drawPage(
             case ReserveSpaceRc:
               /* since we have a part usage, we have a valid step */
               if (calledOut || multiStep) {
-                  step = NULL;
+                  step = nullptr;
                   Reserve *reserve = new Reserve(current,steps->meta.LPub);
-                  if (range == NULL) {
+                  if (range == nullptr) {
                       range = newRange(steps,calledOut);
                       steps->append(range);
                     }
@@ -777,8 +777,8 @@ int Gui::drawPage(
                     // do this before creating the step so we can use in the file name during
                     // csi generation to indicate this step file is not an actual step - just a model display
                     stepNum--;
-                    if (step == NULL) {
-                        if (range == NULL) {
+                    if (step == nullptr) {
+                        if (range == nullptr) {
                             range = newRange(steps,calledOut);
                             steps->append(range);
                           }
@@ -893,7 +893,7 @@ int Gui::drawPage(
                         pagePointer->placement = pointerPlacement;
                         pagePointer->appendPointer(current,curMeta.LPub.pagePointer.pointer);
                         pagePointers.insert(position,pagePointer);
-                        pagePointer = NULL;
+                        pagePointer = nullptr;
                       }
                   }
               }
@@ -911,8 +911,8 @@ int Gui::drawPage(
             case CalloutDividerRc:
               if (range) {
                   range->sepMeta = curMeta.LPub.callout.sep;
-                  range = NULL;
-                  step = NULL;
+                  range = nullptr;
+                  step = nullptr;
                 }
               break;
 
@@ -943,7 +943,7 @@ int Gui::drawPage(
                   callout->pli.clear();
                   callout->placement = curMeta.LPub.callout.placement;
                   callout->setBottomOfCallout(current);
-                  callout = NULL;
+                  callout = nullptr;
                 }
               break;
 
@@ -962,8 +962,8 @@ int Gui::drawPage(
             case StepGroupDividerRc:
               if (range) {
                   range->sepMeta = steps->meta.LPub.multiStep.sep;
-                  range = NULL;
-                  step = NULL;
+                  range = nullptr;
+                  step = nullptr;
                 }
               break;
 
@@ -1065,8 +1065,8 @@ int Gui::drawPage(
 
               // STEP - special case of no parts added, but BFX load and not NOSTEP
               if (! partsAdded && bfxLoad && ! noStep) {
-                  if (step == NULL) {
-                      if (range == NULL) {
+                  if (step == nullptr) {
+                      if (range == nullptr) {
                           range = newRange(steps,calledOut);
                           steps->append(range);
                         }
@@ -1285,7 +1285,7 @@ int Gui::drawPage(
                   coverPage = false;
                   rotateIcon = false;
 //                supressRotateIcon = false;
-                  step = NULL;
+                  step = nullptr;
                   bfxStore2 = bfxStore1;
                   bfxStore1 = false;
                   bfxLoad = false;
@@ -1300,7 +1300,7 @@ int Gui::drawPage(
               break;
             case RangeErrorRc:
               showLine(current);
-              QMessageBox::critical(NULL,
+              QMessageBox::critical(nullptr,
                                     QMessageBox::tr("LPub3D"),
                                     QMessageBox::tr("Parameter(s) out of range: %1:%2\n%3")
                                     .arg(current.modelName)
@@ -1313,7 +1313,7 @@ int Gui::drawPage(
             }
         } else if (line != "") {
           showLine(current);
-          QMessageBox::critical(NULL,
+          QMessageBox::critical(nullptr,
                                 QMessageBox::tr("LPub3D"),
                                 QMessageBox::tr("Invalid LDraw Line Type: %1:%2\n  %3")
                                 .arg(current.modelName)
@@ -2336,7 +2336,7 @@ void Gui::skipHeader(Where &current)
       if (line[p] >= '1' && line[p] <= '5') {
           if (current.lineNumber == 0) {
               QString empty = "0 ";
-              gui->insertLine(current,empty,NULL);
+              gui->insertLine(current,empty,nullptr);
             } else if (current > 0) {
               --current;
             }
@@ -2366,7 +2366,7 @@ void Gui::include(Meta &meta)
       if (fileInfo.exists()) {
           QFile file(fileName);
           if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-              QMessageBox::warning(NULL,
+              QMessageBox::warning(nullptr,
                                    QMessageBox::tr(VER_PRODUCTNAME_STR),
                                    QMessageBox::tr("Cannot read file %1:\n%2.")
                                    .arg(fileName)
@@ -2429,7 +2429,7 @@ void Gui::writeToTmp(const QString &fileName,
     }
   QFile file(fname);
   if ( ! file.open(QFile::WriteOnly|QFile::Text)) {
-      QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
+      QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),
                            QMessageBox::tr("Failed to open %1 for writing: %2")
                            .arg(fname) .arg(file.errorString()));
     } else {

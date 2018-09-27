@@ -68,7 +68,7 @@ void Gui::clearPage(
 
   if (view->pageBackgroundItem) {
       delete view->pageBackgroundItem;
-      view->pageBackgroundItem = NULL;
+      view->pageBackgroundItem = nullptr;
     }
   scene->clear();
 }
@@ -122,7 +122,7 @@ void SubmodelInstanceCount::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
   Where bottomOfSteps       = page->bottomOfSteps();
   bool  useTop              = parentRelativeType != StepGroupType;
 
-  if (selectedAction == NULL) {
+  if (selectedAction == nullptr) {
     return;
   } else if (selectedAction == fontAction) {
 
@@ -448,7 +448,7 @@ int Gui::addGraphicsPageItems(
 
       // Process Content Page Attriutes - without page number and end of submodel
 
-      addContentPageAttributes(page,pageBg,pageHeader,pageFooter,NULL,plPage,endOfSubmodel);
+      addContentPageAttributes(page,pageBg,pageHeader,pageFooter,nullptr,plPage,endOfSubmodel);
     }
 
   /* Create any graphics items in the insert list */
@@ -597,7 +597,7 @@ int Gui::addGraphicsPageItems(
                         pageBg,
                         page->relativeType);
 
-                  if (step->csiItem == NULL) {
+                  if (step->csiItem == nullptr) {
                       exit(-1);
                     }
                   step->csiItem->assign(&step->csiPlacement);
@@ -931,7 +931,7 @@ int Gui::addContentPageAttributes(
           url->size[YY]     = (int) url->document()->size().height();
         } else {
           delete url;
-          url               = NULL;
+          url               = nullptr;
         }
       //  Content Page Email
       bool displayEmail       = page->meta.LPub.page.email.display.value();
@@ -940,7 +940,7 @@ int Gui::addContentPageAttributes(
           email->size[YY]     = (int) email->document()->size().height();
         }else {
           delete email;
-          email               = NULL;
+          email               = nullptr;
         }
       //  Content Page Copyright
       bool displayCopyright       = page->meta.LPub.page.copyright.display.value();
@@ -949,7 +949,7 @@ int Gui::addContentPageAttributes(
           copyright->size[YY]     = (int) copyright->document()->size().height();
         }else {
           delete copyright;
-          copyright               = NULL;
+          copyright               = nullptr;
         }
       //  Content Page Author
       bool displayAuthor       = page->meta.LPub.page.author.display.value();
@@ -958,7 +958,7 @@ int Gui::addContentPageAttributes(
           author->size[YY]     = (int) author->document()->size().height();
         }else {
           delete author;
-          author               = NULL;
+          author               = nullptr;
         }
 
       // Allocations...
@@ -1233,7 +1233,7 @@ int Gui::addCoverPageAttributes(
           breakTitleFrontRelativeTo  = titleFrontPld.relativeTo != PageType;
       } else {
           delete titleFront;
-          titleFront                 = NULL;
+          titleFront                 = nullptr;
         }
 
       // Front Cover Model Name
@@ -1245,7 +1245,7 @@ int Gui::addCoverPageAttributes(
           modelNameFrontPld = modelNameFront->placement.value();
         } else {
           delete modelNameFront;
-          modelNameFront               = NULL;
+          modelNameFront               = nullptr;
         }
 
        // Front Cover Author
@@ -1259,7 +1259,7 @@ int Gui::addCoverPageAttributes(
           breakAuthorFrontRelativeTo  = authorFrontPld.relativeTo != PageTitleType;
       } else {
           delete authorFront;
-          authorFront                 = NULL;
+          authorFront                 = nullptr;
         }
 
       // Front Page Pieces Count
@@ -1273,7 +1273,7 @@ int Gui::addCoverPageAttributes(
           breakPiecesFrontRelativeTo  = piecesFrontPld.relativeTo != PageAuthorType;
       } else {
           delete  piecesFront;
-          piecesFront                 = NULL;
+          piecesFront                 = nullptr;
         }
 
       // Front Page Model Description,
@@ -1287,7 +1287,7 @@ int Gui::addCoverPageAttributes(
           breakModelDescFrontRelativeTo  = modelDescFrontPld.relativeTo != PagePiecesType;
       } else {
           delete modelDescFront;
-          modelDescFront                 = NULL;
+          modelDescFront                 = nullptr;
         }
 
       // Front Page Publish Description,
@@ -1299,7 +1299,7 @@ int Gui::addCoverPageAttributes(
           publishDescFrontPld = publishDescFront->placement.value();
       } else {
           delete publishDescFront;
-          publishDescFront               = NULL;
+          publishDescFront               = nullptr;
         }
 
       // Front Page Category,
@@ -1314,7 +1314,7 @@ int Gui::addCoverPageAttributes(
           breakCategoryFrontRelativeTo  = categoryFrontPld.relativeTo != PagePiecesType;
       } else {
           delete  categoryFront;
-          categoryFront                 = NULL;
+          categoryFront                 = nullptr;
         } */
 
       // Front Cover Document Logo
@@ -1532,7 +1532,7 @@ int Gui::addCoverPageAttributes(
           breakTitleBackRelativeTo = titleBackPld.relativeTo != PageType;
       } else {
           delete titleBack;
-          titleBack               = NULL;
+          titleBack               = nullptr;
         }
 
       // Back Cover Author
@@ -1546,7 +1546,7 @@ int Gui::addCoverPageAttributes(
           breakAuthorBackRelativeTo = authorBackPld.relativeTo != PageTitleType;
       } else {
           delete authorBack;
-          authorBack               = NULL;
+          authorBack               = nullptr;
         }
 
       // Back Cover Copyright
@@ -1560,7 +1560,7 @@ int Gui::addCoverPageAttributes(
           breakCopyrightBackRelativeTo = copyrightBackPld.relativeTo != PageAuthorType;
       } else {
           delete copyrightBack;
-          copyrightBack               = NULL;
+          copyrightBack               = nullptr;
         }
 
       // Back Cover URL
@@ -1574,7 +1574,7 @@ int Gui::addCoverPageAttributes(
           breakURLBackRelativeTo = urlBackPld.relativeTo != PageCopyrightType;
       } else {
           delete urlBack;
-          urlBack               = NULL;
+          urlBack               = nullptr;
         }
 
       // Back Cover Email
@@ -1588,7 +1588,7 @@ int Gui::addCoverPageAttributes(
           breakEmailBackRelativeTo = emailBackPld.relativeTo != PageURLType;
       } else {
           delete emailBack;
-          emailBack               = NULL;
+          emailBack               = nullptr;
         }
 
       // Back Cover Disclaimer
@@ -1602,7 +1602,7 @@ int Gui::addCoverPageAttributes(
           breakDisclaimerBackRelativeTo = disclaimerBackPld.relativeTo != PageEmailType;
       } else {
           delete disclaimerBack;
-          disclaimerBack               = NULL;
+          disclaimerBack               = nullptr;
         }
 
       // Back Cover Plug
@@ -1614,7 +1614,7 @@ int Gui::addCoverPageAttributes(
           plugBackPld = plugBack->placement.value();
       } else {
           delete plugBack;
-          plugBack               = NULL;
+          plugBack               = nullptr;
         }
 
       // Back Cover DocumentLogo

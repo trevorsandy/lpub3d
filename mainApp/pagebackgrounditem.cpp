@@ -80,24 +80,24 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   // figure out if first step step number is greater than 1
 
-  QAction *addNextAction        = NULL;
-  QAction *addPrevAction        = NULL;
-  QAction *calloutAction        = NULL;
-  QAction *assembledAction      = NULL;
-  QAction *ignoreAction         = NULL;
-  QAction *partAction           = NULL;
-  QAction *perStepAction        = NULL;
-  QAction *clearPageCacheAction = NULL;
+  QAction *addNextAction        = nullptr;
+  QAction *addPrevAction        = nullptr;
+  QAction *calloutAction        = nullptr;
+  QAction *assembledAction      = nullptr;
+  QAction *ignoreAction         = nullptr;
+  QAction *partAction           = nullptr;
+  QAction *perStepAction        = nullptr;
+  QAction *clearPageCacheAction = nullptr;
 
-  QAction *borderAction         = NULL;
-  QAction *backgroundAction     = NULL;
-  QAction *subModelColorAction  = NULL;
+  QAction *borderAction         = nullptr;
+  QAction *backgroundAction     = nullptr;
+  QAction *subModelColorAction  = nullptr;
 
-  QAction *sizeAndOrientationAction = NULL;
-  QAction *cameraDistFactorAction = NULL;
+  QAction *sizeAndOrientationAction = nullptr;
+  QAction *cameraDistFactorAction = nullptr;
 
-  Step    *lastStep = NULL;
-  Step    *firstStep = NULL;
+  Step    *lastStep = nullptr;
+  Step    *firstStep = nullptr;
 
   if (fullContextMenu) {
       AbstractStepsElement *range = page->list[page->list.size()-1];
@@ -186,7 +186,7 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   QAction *selectedAction     = menu.exec(event->screenPos());
 
-  if (selectedAction == NULL) {
+  if (selectedAction == nullptr) {
       return;
     }
 

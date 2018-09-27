@@ -101,8 +101,8 @@ void CalloutBackgroundItem::contextMenuEvent(
   QAction *placementAction  = commonMenus.placementMenu(menu,name,
                               commonMenus.naturalLanguagePlacementWhatsThis(CalloutType,placementData,name));
 
-  QAction *allocAction = NULL;
-  QAction *perStepAction = NULL;
+  QAction *allocAction = nullptr;
+  QAction *perStepAction = nullptr;
 
   if (calloutMeta.begin.value() == CalloutBeginMeta::Unassembled) {
 
@@ -123,7 +123,7 @@ void CalloutBackgroundItem::contextMenuEvent(
   QAction *editBorderAction        = commonMenus.borderMenu(menu,name);
   QAction *editSubModelColorAction = commonMenus.subModelColorMenu(menu,name);
   QAction *marginAction            = commonMenus.marginMenu(menu,name);
-  QAction *rotateAction            = NULL;
+  QAction *rotateAction            = nullptr;
 
   QAction *unCalloutAction;
 
@@ -148,7 +148,7 @@ void CalloutBackgroundItem::contextMenuEvent(
 
   QAction *selectedAction = menu.exec(event->screenPos());
 
-  if (selectedAction == NULL) {
+  if (selectedAction == nullptr) {
       return;
   } else if (selectedAction == addPointerAction) {
     Pointer *pointer = new Pointer(callout->topOfCallout(),calloutMeta.pointer);

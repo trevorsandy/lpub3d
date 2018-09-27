@@ -301,7 +301,7 @@ void ParmsWindow::displayParmsFile(
     }
 
     if (! file.open(QIODevice::ReadOnly | QIODevice::Text)){
-        QMessageBox::warning(NULL,
+        QMessageBox::warning(nullptr,
                  QMessageBox::tr("Parmeter Editor"),
                  QMessageBox::tr("Cannot read file %1:\n%2.")
                  .arg(fileName)
@@ -361,7 +361,7 @@ bool ParmsWindow::saveFile()
     {
         QFile file(fileName);
         if (! file.open(QFile::WriteOnly | QFile::Text)) {
-            QMessageBox::warning(NULL,
+            QMessageBox::warning(nullptr,
                                  QMessageBox::tr("%1 Editor")
                                  .arg(title),
                                  QMessageBox::tr("Cannot write file %1:\n%2.")
@@ -391,7 +391,7 @@ bool ParmsWindow::saveCopyAsFile()
     QFileInfo fileInfo(fileName);
     QString fileSaveName = QString("%1_%2.txt").arg(fileInfo.baseName()).arg(QDateTime::currentDateTime().toString(QLatin1String("yyyyMMdd-hhmmsszzz")));
     QString filter(QFileDialog::tr("All Files (*.*)"));
-    QString saveCopyAsFileName = QFileDialog::getSaveFileName(NULL,
+    QString saveCopyAsFileName = QFileDialog::getSaveFileName(nullptr,
                                  QFileDialog::tr("Save %1 log").arg(VER_PRODUCTNAME_STR),
                                  fileSaveName,
                                  filter);
@@ -442,7 +442,7 @@ void ParmsWindow::openFile()
     qDebug() << fileInfo.absoluteFilePath();
     QString filter(QFileDialog::tr("stderr (stderr-*);;stdout (stdout-*)"));
     if (maybeSave()) {
-        QString fileName = QFileDialog::getOpenFileName(NULL,
+        QString fileName = QFileDialog::getOpenFileName(nullptr,
                            QFileDialog::tr("Select stderr or stdout file"),
                            fileInfo.absolutePath(),
                            filter);

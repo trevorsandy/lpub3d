@@ -86,7 +86,7 @@ public:
   CheckBoxGui(
     QString const  &heading,
     BoolMeta       *meta,
-    QGroupBox      *parent = NULL);
+    QGroupBox      *parent = nullptr);
   ~CheckBoxGui() {}
 
   void setEnabled(bool enabled);
@@ -117,7 +117,7 @@ public:
     QString const &trueHeading,
     QString const &falseHeading,
     BoolMeta      *meta,
-    QGroupBox     *parent = NULL);
+    QGroupBox     *parent = nullptr);
 
   ~BoolRadioGui() {}
 
@@ -150,7 +150,7 @@ public:
   UnitsGui(
     QString const  &heading,
     UnitsMeta      *meta,
-    QGroupBox      *parent = NULL);
+    QGroupBox      *parent = nullptr);
   ~UnitsGui() {}
 
   void setEnabled(bool enabled);
@@ -184,7 +184,7 @@ public:
     QString const &heading0,
     QString const &heading1,
     FloatPairMeta *meta,
-    QGroupBox     *parent = NULL);
+    QGroupBox     *parent = nullptr);
   ~FloatsGui() {}
 
   void setEnabled(bool enabled);
@@ -219,7 +219,7 @@ public:
 
   NumberGui(
     NumberMeta *meta,
-    QGroupBox  *parent = NULL);
+    QGroupBox  *parent = nullptr);
   ~NumberGui() {}
 
   virtual void apply(QString &modelName);
@@ -273,7 +273,7 @@ public:
 
   PageAttributeTextGui(
     PageAttributeTextMeta *meta,
-    QGroupBox  *parent = NULL);
+    QGroupBox  *parent = nullptr);
 
   ~PageAttributeTextGui() {}
 
@@ -359,7 +359,7 @@ public:
 
   PageAttributePictureGui(
     PageAttributePictureMeta *meta,
-    QGroupBox         *parent = NULL);
+    QGroupBox         *parent = nullptr);
 
   ~PageAttributePictureGui() {}
 
@@ -443,7 +443,7 @@ public:
   HeaderFooterHeightGui(
     QString const  &heading,
     UnitsMeta      *meta,
-    QGroupBox      *parent = NULL);
+    QGroupBox      *parent = nullptr);
   ~HeaderFooterHeightGui() {}
 
   void setEnabled(bool enabled);
@@ -477,7 +477,7 @@ public:
   FadeStepGui(
     QString const &heading,
     FadeStepMeta *meta,
-    QGroupBox  *parent = NULL);
+    QGroupBox  *parent = nullptr);
   ~FadeStepGui() {}
 
   virtual void apply(QString &modelName);
@@ -512,7 +512,7 @@ public:
   HighlightStepGui(
     QString const &heading,
     HighlightStepMeta *meta,
-    QGroupBox  *parent = NULL);
+    QGroupBox  *parent = nullptr);
   ~HighlightStepGui() {}
 
   virtual void apply(QString &modelName);
@@ -546,7 +546,7 @@ public:
   CameraDistFactorGui(
     QString const &heading,
     CameraDistFactorMeta *meta,
-    QGroupBox  *parent = NULL);
+    QGroupBox  *parent = nullptr);
   ~CameraDistFactorGui() {}
 
   virtual void apply(QString &modelName);
@@ -582,7 +582,7 @@ public:
     float          min,
     float          max,
     float          step,
-    QGroupBox     *parent = NULL);
+    QGroupBox     *parent = nullptr);
   ~DoubleSpinGui() {}
 
   virtual void apply(QString &modelName);
@@ -618,7 +618,7 @@ public:
 
   BackgroundGui(
     BackgroundMeta  *meta,
-    QGroupBox       *parent = NULL);
+    QGroupBox       *parent = nullptr);
 
   ~BackgroundGui() {}
 
@@ -667,7 +667,7 @@ public:
 
   BorderGui(
     BorderMeta *meta,
-    QGroupBox  *parent  = NULL,
+    QGroupBox  *parent  = nullptr,
     bool rotateArrow = false);
   ~BorderGui() {}
 
@@ -717,7 +717,7 @@ public:
   ConstrainGui(
     QString const &heading,
     ConstrainMeta *meta,
-    QGroupBox     *parent = NULL);
+    QGroupBox     *parent = nullptr);
   ~ConstrainGui() {}
 
   virtual void apply(QString &modelName);
@@ -752,7 +752,7 @@ public:
 
   SepGui(
     SepMeta *meta,
-    QGroupBox     *parent = NULL);
+    QGroupBox     *parent = nullptr);
   ~SepGui() {}
 
   virtual void apply(QString &modelName);
@@ -783,7 +783,7 @@ public:
 
   ResolutionGui(
     ResolutionMeta *meta,
-    QGroupBox      *parent = NULL);
+    QGroupBox      *parent = nullptr);
   ~ResolutionGui() {}
 
   virtual void apply(QString &modelName);
@@ -816,7 +816,7 @@ class RendererGui : public MetaGui
 public:
 
   RendererGui(CameraDistFactorMeta *_meta,
-              QGroupBox *parent = NULL);
+              QGroupBox *parent = nullptr);
   ~RendererGui() {}
 
   virtual void apply(QString &topLevelFile);
@@ -870,7 +870,7 @@ public:
   PliSortGui(
       QString const &heading,
       PliSortMeta   *meta,
-      QGroupBox     *parent = NULL);
+      QGroupBox     *parent = nullptr);
   ~PliSortGui() {}
 
   virtual void apply(QString &topLevelFile);
@@ -906,7 +906,7 @@ public:
   PliAnnotationGui(
       QString const       &heading,
       PliAnnotationMeta   *meta,
-      QGroupBox           *parent = NULL);
+      QGroupBox           *parent = nullptr);
   ~PliAnnotationGui() {}
 
   virtual void apply(QString &topLevelFile);
@@ -943,7 +943,7 @@ public:
   PageOrientationGui(
     QString const           &heading,
     PageOrientationMeta    *_meta,
-    QGroupBox              *parent = NULL);
+    QGroupBox              *parent = nullptr);
   ~PageOrientationGui() {}
 
   virtual void apply(QString &topLevelFile);
@@ -976,7 +976,7 @@ public:
   RotateIconSizeGui(
     QString const           &heading,
     UnitsMeta              *_meta,
-    QGroupBox              *parent = NULL);
+    QGroupBox              *parent = nullptr);
   ~RotateIconSizeGui() {}
 
   void updateRotateIconSize();
@@ -1018,7 +1018,7 @@ public:
   PageSizeGui(
     QString const           &heading,
     PageSizeMeta           *_meta,
-    QGroupBox              *parent = NULL);
+    QGroupBox              *parent = nullptr);
   ~PageSizeGui() {}
 
   int  getTypeIndex(float &pgWidth, float &pgHeight);
@@ -1064,7 +1064,7 @@ public:
     QString const           &heading,
     PageSizeMeta           *_smeta,
     PageOrientationMeta    *_ometa,
-    QGroupBox              *parent = NULL);
+    QGroupBox              *parent = nullptr);
   ~SizeAndOrientationGui() {}
 
   void setEnabled(bool enabled);
@@ -1122,7 +1122,7 @@ public:
 
   SubModelColorGui(
   StringListMeta *meta,
-  QGroupBox  *parent = NULL);
+  QGroupBox  *parent = nullptr);
   ~SubModelColorGui() {}
 
   virtual void apply(QString &modelName);

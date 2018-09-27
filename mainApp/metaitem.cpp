@@ -68,7 +68,7 @@ void MetaItem::setGlobalMeta(
   QString  &topLevelFile,
   LeafMeta *leaf)
 {
-  if (leaf == NULL)
+  if (leaf == nullptr)
     return;
 
   QString newMeta = leaf->format(false,true);
@@ -982,7 +982,7 @@ void MetaItem::setMetaTopOf(
     } else {
 
         if (askLocal) {
-            local = LocalDialog::getLocal(VER_PRODUCTNAME_STR, "Change only this step?",NULL);
+            local = LocalDialog::getLocal(VER_PRODUCTNAME_STR, "Change only this step?",nullptr);
         }
 
         QString newMetaString = meta->format(local,global);
@@ -1050,7 +1050,7 @@ void MetaItem::setMetaBottomOf(
     replaceMeta(meta->here(),line);
   } else {
     if (askLocal) {
-      local = LocalDialog::getLocal(VER_PRODUCTNAME_STR, "Change only this step?",NULL); // changed from gui error(QLayout: Attempting to add QLayout "" to Gui "", which already has a layout)
+      local = LocalDialog::getLocal(VER_PRODUCTNAME_STR, "Change only this step?",nullptr); // changed from gui error(QLayout: Attempting to add QLayout "" to Gui "", which already has a layout)
     }
     QString line = meta->format(local, global);
 
@@ -1136,7 +1136,7 @@ void MetaItem::changePlacement(
   PlacementData placementData = placement->value();
   bool ok;
   ok = PlacementDialog
-       ::getPlacement(parentType,relativeType,placementData,title,onPageType,NULL,pliPerStep);
+       ::getPlacement(parentType,relativeType,placementData,title,onPageType,nullptr,pliPerStep);
 
   if (ok) {
     placement->setValue(placementData);
@@ -1552,7 +1552,7 @@ void MetaItem::changeColor(
   bool        useTop)
 {
   QColor _color = LDrawColor::color(color->value());
-  _color = QColorDialog::getColor(_color,NULL);
+  _color = QColorDialog::getColor(_color,nullptr);
 
   if (_color.isValid()) {
     color->setValue(_color.name());
@@ -2067,7 +2067,7 @@ void MetaItem::insertPicture()
   QString title = QFileDialog::tr("Open Image");
   QString cwd = QDir::currentPath();
   QString filter = QFileDialog::tr("Image Files (*.png *.jpg *.jpeg *.bmp)");
-  QString fileName = QFileDialog::getOpenFileName(NULL,title, cwd, filter);
+  QString fileName = QFileDialog::getOpenFileName(nullptr,title, cwd, filter);
 
   if (fileName != "") {
     QString meta = QString("0 !LPUB INSERT PICTURE \"%1\" OFFSET 0.5 0.5") .arg(fileName);
@@ -2080,7 +2080,7 @@ void MetaItem::insertPicture()
 void MetaItem::insertText()
 {
   bool ok;
-  QString text = QInputDialog::getText(NULL, QInputDialog::tr("Text"),
+  QString text = QInputDialog::getText(nullptr, QInputDialog::tr("Text"),
                                        QInputDialog::tr("Input:"),
                                        QLineEdit::Normal,
                                        QString(""), &ok);

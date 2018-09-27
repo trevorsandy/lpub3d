@@ -187,7 +187,7 @@ class Placement {
       relativeToLoc[1] = 0;
       relativeToSize[0] = 1;
       relativeToSize[1] = 1;
-      relativeToParent = NULL;
+      relativeToParent = nullptr;
       boundingSize[0] = 0;
       boundingSize[1] = 0;
       boundingLoc[0] = 0;

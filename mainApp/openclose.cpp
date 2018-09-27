@@ -215,7 +215,7 @@ void Gui::saveAs()
     openFile(fileName);
     displayPage();
   } else {
-    QMessageBox::warning(NULL,QMessageBox::tr(VER_PRODUCTNAME_STR),
+    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),
                               QMessageBox::tr("Invalid LDraw suffix %1.  File not saved.")
                                 .arg(suffix));
 
@@ -497,7 +497,7 @@ void Gui::fileChanged(const QString &path)
 //      QString fileName = urlList.at(0).toLocalFile();
 
 //      if (urlList.size() > 1) {
-//          QMessageBox::warning(NULL,
+//          QMessageBox::warning(nullptr,
 //                               QMessageBox::tr(VER_PRODUCTNAME_STR),
 //                               QMessageBox::tr("%1 files selected.\nOnly file %2 will be opened.")
 //                               .arg(urlList.size())

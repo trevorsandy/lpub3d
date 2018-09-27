@@ -32,7 +32,7 @@ PliSubstituteParts::PliSubstituteParts()
         QString substitutePartsFile = Preferences::pliSubstitutePartsFile;
         QFile file(substitutePartsFile);
         if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-            QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
+            QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),
                                  QMessageBox::tr("Failed to open pliSubstituteParts.lst file: %1:\n%2")
                                  .arg(substitutePartsFile)
                                  .arg(file.errorString()));

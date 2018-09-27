@@ -77,10 +77,10 @@ void NumberItem::setAttributes(
 NumberItem::NumberItem()
 {
   relativeType = PageNumberType;
-  meta = NULL;
-  font = NULL;
-  color = NULL;
-  margin = NULL;
+  meta = nullptr;
+  font = nullptr;
+  color = nullptr;
+  margin = nullptr;
 }
 
 NumberItem::NumberItem(
@@ -218,7 +218,7 @@ void PageNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   Where bottomOfSteps       = page->bottomOfSteps();                //Trevor@vers303 add
   bool  useTop              = parentRelativeType != StepGroupType;  //Trevor@vers303 add
 
-  if (selectedAction == NULL) {
+  if (selectedAction == nullptr) {
     return;
   } else if (selectedAction == placementAction) {
 
@@ -317,7 +317,7 @@ void StepNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
-  if (selectedAction == NULL) {
+  if (selectedAction == nullptr) {
     return;
   }
 

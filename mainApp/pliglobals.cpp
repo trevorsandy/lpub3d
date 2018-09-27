@@ -65,9 +65,9 @@ GlobalPliDialog::GlobalPliDialog(
     setWindowTitle(tr("Parts List Setup"));
   }
 
-  QTabWidget  *tab = new QTabWidget(NULL);
-  QVBoxLayout *layout = new QVBoxLayout(NULL);
-  QVBoxLayout *childlayout = new QVBoxLayout(NULL);
+  QTabWidget  *tab = new QTabWidget(nullptr);
+  QVBoxLayout *layout = new QVBoxLayout(nullptr);
+  QVBoxLayout *childlayout = new QVBoxLayout(nullptr);
   setLayout(layout);
   layout->addWidget(tab);
 
@@ -83,8 +83,8 @@ GlobalPliDialog::GlobalPliDialog(
    * Background/Border tab
    */
 
-  widget = new QWidget(NULL);
-  grid = new QGridLayout(NULL);
+  widget = new QWidget(nullptr);
+  grid = new QGridLayout(nullptr);
   widget->setLayout(grid);
 
   if ( ! bom) {
@@ -120,8 +120,8 @@ GlobalPliDialog::GlobalPliDialog(
    * Contents tab
    */
 
-  widget = new QWidget(NULL);
-  grid = new QGridLayout(NULL);
+  widget = new QWidget(nullptr);
+  grid = new QGridLayout(nullptr);
   widget->setLayout(grid);
 
   box = new QGroupBox("Part Images");
@@ -186,8 +186,8 @@ GlobalPliDialog::GlobalPliDialog(
    * PLI Sort
    */
 
-  widget = new QWidget(NULL);
-  QVBoxLayout *vlayout = new QVBoxLayout(NULL);
+  widget = new QWidget(nullptr);
+  QVBoxLayout *vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
   box = new QGroupBox("Annotation Options");
@@ -211,7 +211,7 @@ GlobalPliDialog::GlobalPliDialog(
    */
 
   widget = new QWidget();
-  vlayout = new QVBoxLayout(NULL);
+  vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
   box = new QGroupBox(tr("Sub-Model Level Colors"));
@@ -226,7 +226,7 @@ GlobalPliDialog::GlobalPliDialog(
 
   QDialogButtonBox *buttonBox;
 
-  buttonBox = new QDialogButtonBox(NULL);
+  buttonBox = new QDialogButtonBox(nullptr);
   buttonBox->addButton(QDialogButtonBox::Ok);
   connect(buttonBox,SIGNAL(accepted()),SLOT(accept()));
   buttonBox->addButton(QDialogButtonBox::Cancel);

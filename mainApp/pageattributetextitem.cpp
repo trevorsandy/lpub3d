@@ -179,7 +179,7 @@ void PageAttributeTextItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
 
   //temporary until I figure a way to hide dependent attributes w/o crashing
   //TODO redesign attribute placement relativeTo scheme to allow hide w/o crash
-  QAction *displayTextAction = NULL;
+  QAction *displayTextAction = nullptr;
   if (onPageType == FrontCoverPage){
       if (relativeType == PageModelNameType || relativeType == PagePublishDescType){
           displayTextAction  = commonMenus.displayMenu(menu,name);
@@ -208,7 +208,7 @@ void PageAttributeTextItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
   Where bottomOfSteps         = page->bottomOfSteps();
   bool  useTop                = parentRelativeType != StepGroupType;
 
-  if (selectedAction == NULL) {
+  if (selectedAction == nullptr) {
     return;
   } else if (selectedAction == placementAction) {
 

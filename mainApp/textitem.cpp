@@ -77,7 +77,7 @@ void TextItem::contextMenuEvent(
 
   QAction *selectedAction  = menu.exec(event->screenPos());
 
-  if (selectedAction == NULL) {
+  if (selectedAction == nullptr) {
     return;
   }
 

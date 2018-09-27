@@ -47,7 +47,7 @@ void ResizeRect::placeGrabbers()
   points[2] = QPointF(left + width, top + height);
   points[3] = QPointF(left, top + height);
   
-  if (grabbers[0] == NULL) {
+  if (grabbers[0] == nullptr) {
     for (int i = 0; i < numGrabbers; i++) {
       grabbers[i] = new Grabber(constAspectRatioResizePlacement[i],
                                this,myParentItem());
@@ -293,7 +293,7 @@ void InsertPixmapItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
-  if (selectedAction == NULL) {
+  if (selectedAction == nullptr) {
     return;
   }
 

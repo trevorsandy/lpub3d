@@ -2595,7 +2595,7 @@ public:
   Meta (const Meta &rhs) : BranchMeta(rhs)
   {
     QString empty;
-    init(NULL,empty);
+    init(nullptr,empty);
     LPub    = rhs.LPub;
     step    = rhs.step;
     clear   = rhs.clear;

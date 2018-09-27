@@ -33,7 +33,7 @@ ExcludedParts::ExcludedParts()
         QString excludedPartsFile = Preferences::excludedPartsFile;
         QFile file(excludedPartsFile);
         if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-            QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
+            QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),
                                  QMessageBox::tr("Failed to open excludedParts.lst file: %1:\n%2")
                                  .arg(excludedPartsFile)
                                  .arg(file.errorString()));

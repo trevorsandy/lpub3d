@@ -27,12 +27,12 @@ LGraphicsScene::LGraphicsScene(QObject *parent)
     guidePen(QPen(Qt::darkGray, 1)),
     mPageGuides(false),
     mObjCornerSet(false),
-    mQGItem(NULL),
-    mQGPixmapItem(NULL),
-    mQGTextItem(NULL),
-    mQGRectItem(NULL),
-    mQGLineItem(NULL),
-    mQGPolyItem(NULL)
+    mQGItem(nullptr),
+    mQGPixmapItem(nullptr),
+    mQGTextItem(nullptr),
+    mQGRectItem(nullptr),
+    mQGLineItem(nullptr),
+    mQGPolyItem(nullptr)
 {}
 
 const QString LGraphicsScene::GItemNames[LGraphicsScene::GNumItems] =

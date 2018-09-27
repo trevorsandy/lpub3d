@@ -60,7 +60,7 @@ CsiItem::CsiItem(
   } else if (parentRelativeType == CalloutType) {
     divider = &meta->LPub.callout.divider;
   } else {
-    divider = NULL;
+    divider = nullptr;
   }
 
   setTransformationMode(Qt::SmoothTransformation);
@@ -89,7 +89,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   Boundary boundary = step->boundary();
 
-  QAction *addNextAction = NULL;
+  QAction *addNextAction = nullptr;
   if (fullContextMenu  &&
       step->stepNumber.number != numOfSteps &&
       (parentRelativeType == SingleStepType ||
@@ -99,7 +99,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       addNextAction->setWhatsThis("Add Next Step:\n  Add the first step of the next page to this page");
     }
 
-  QAction *addPrevAction = NULL;
+  QAction *addPrevAction = nullptr;
   if ( fullContextMenu  &&
        step->stepNumber.number > 1 &&
        (parentRelativeType == SingleStepType ||
@@ -109,7 +109,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       addPrevAction->setWhatsThis("Add Previous Step:\n  Add the last step of the previous page to this page");
     }
 
-  QAction *removeAction = NULL;
+  QAction *removeAction = nullptr;
   if (parentRelativeType == StepGroupType &&
       (boundary & (StartOfSteps | EndOfSteps))) {
       removeAction = menu.addAction("Remove this Step");
@@ -121,17 +121,17 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         }
     }
 
-  QAction *clearStepCacheAction = NULL;
+  QAction *clearStepCacheAction = nullptr;
   if (parentRelativeType == StepGroupType){
       clearStepCacheAction = menu.addAction("Reset Step Assembly Image Cache");
       clearStepCacheAction->setIcon(QIcon(":/resources/clearstepcache.png"));
       clearStepCacheAction->setWhatsThis("Clear the CSI image and ldr cache files for this step.");
     }
 
-  QAction *movePrevAction = NULL;
-  QAction *moveNextAction = NULL;
-  QAction *addDividerAction = NULL;
-  QAction *allocAction = NULL;
+  QAction *movePrevAction = nullptr;
+  QAction *moveNextAction = nullptr;
+  QAction *addDividerAction = nullptr;
+  QAction *allocAction = nullptr;
 
   AllocEnc allocType = step->parent->allocType();
   if (parentRelativeType == StepGroupType || parentRelativeType == CalloutType) {
@@ -192,7 +192,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   addPointerAction->setWhatsThis("Add pointer from the page to this CSI image");
   addPointerAction->setIcon(QIcon(":/resources/addpointer.png"));
 
-  QAction *placementAction = NULL;
+  QAction *placementAction = nullptr;
   if (fullContextMenu  && parentRelativeType == SingleStepType) {
       whatsThis = QString(
             "Move This Step:\n"
@@ -207,7 +207,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QAction *cameraFoVAction    = commonMenus.cameraFoVMenu(menu, pl);
   QAction *cameraAnglesAction = commonMenus.cameraAnglesMenu(menu, pl);
 
-  QAction *marginsAction = NULL;
+  QAction *marginsAction = nullptr;
   switch (parentRelativeType) {
     case SingleStepType:
       whatsThis = QString("Change Assembly Margins:\n"
@@ -240,7 +240,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       break;
     }
 
-  QAction *insertRotateIconAction = NULL;
+  QAction *insertRotateIconAction = nullptr;
   if (fullContextMenu) {
       if (! step->placeRotateIcon) { // rotate icon already in place so don't show menu item
           if (parentRelativeType != CalloutType) {

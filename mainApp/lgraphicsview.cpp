@@ -31,11 +31,11 @@
 typedef QList<QObject*> LDVQObjectList;
 
 LGraphicsView::LGraphicsView(LGraphicsScene *scene)
-  : pageBackgroundItem(NULL),
+  : pageBackgroundItem(nullptr),
     fitMode(FitVisible),
     mPageRect(QRectF(0,0,0,0)),
     mGridLayoutSet(false),
-    mGridLayout(NULL)
+    mGridLayout(nullptr)
 {
   setScene(scene);
   setAcceptDrops(true);

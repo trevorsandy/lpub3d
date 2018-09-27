@@ -511,7 +511,7 @@ GlobalPageDialog::GlobalPageDialog(
 
   //~~~~~~~~~ page number tab ~~~~~~~~~~~~//
   widget = new QWidget();
-  QVBoxLayout *vLayout = new QVBoxLayout(NULL);
+  QVBoxLayout *vLayout = new QVBoxLayout(nullptr);
   widget->setLayout(vLayout);
 
   box = new QGroupBox(tr("Display"));

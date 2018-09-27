@@ -95,8 +95,8 @@ MultiStepRangeBackgroundItem::MultiStepRangeBackgroundItem(
   page = _steps;
 
   MultiStepMeta *multiStep = &_meta->LPub.multiStep;
-  background        = NULL;
-  border            = NULL;
+  background        = nullptr;
+  border            = nullptr;
   margin            = &multiStep->margin; 
   placement         = &multiStep->placement;
   freeform          = &multiStep->freeform;
@@ -267,7 +267,7 @@ void DividerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   
   QAction *selectedAction = menu.exec(event->screenPos());
 
-  if (selectedAction == NULL) {
+  if (selectedAction == nullptr) {
     return;
   }
   

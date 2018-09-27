@@ -167,7 +167,7 @@ void PageAttributePixmapItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *e
   else
       onPageType = ContentPage;
 
-  if (selectedAction == NULL) {
+  if (selectedAction == nullptr) {
     return;
   } else if (selectedAction == placementAction) {
 

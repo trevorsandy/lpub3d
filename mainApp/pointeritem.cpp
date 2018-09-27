@@ -212,7 +212,7 @@ void PointerItem::addShaftSegment(){
         shaftOrig = shaftSegments[0];
         shaftOrig->setLine(linefOrig);
         centerPos = shaftOrig->boundingRect().center();
-        shaftOrig = NULL;
+        shaftOrig = nullptr;
         delete shaftOrig;
         points[MidBase] = centerPos;
     }
@@ -224,7 +224,7 @@ void PointerItem::addShaftSegment(){
         shaftOrig = shaftSegments[1];
         shaftOrig->setLine(linefOrig);
         centerPos = shaftOrig->boundingRect().center();
-        shaftOrig = NULL;
+        shaftOrig = nullptr;
         delete shaftOrig;
         points[MidTip] = centerPos;
         if (points[MidTip].y() == points[MidBase].y()){
@@ -259,7 +259,7 @@ void PointerItem::addShaftSegment(){
     addToGroup(shaft);
 
     for (int i = 0; i < NumGrabbers; i++) {
-      grabbers[i] = NULL;
+      grabbers[i] = nullptr;
     }
 
     drawPointerPoly();
@@ -352,7 +352,7 @@ void PointerItem::placeGrabbers()
       break;
   }
 
-  if (grabbers[0] == NULL) {
+  if (grabbers[0] == nullptr) {
     for (int i = 0; i < numGrabbers; i++) {
       grabbers[i] = new Grabber(i,this,myParentItem());
     }
@@ -533,7 +533,7 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   removeAction->setWhatsThis(            "Delete this Pointer:\n"
                                          "Deletes this pointer");
 
-  QAction *addSegmentAction = NULL;
+  QAction *addSegmentAction = nullptr;
   if (segments() < 3) {
       addSegmentAction = menu.addAction("Add Pointer Segment");
       addSegmentAction->setIcon(QIcon(":/resources/addpointersegment.png"));
@@ -541,7 +541,7 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                                              "Introduce a new pointer shaft segment.");
   }
 
-  QAction *removeSegmentAction = NULL;
+  QAction *removeSegmentAction = nullptr;
   if (segments() > 1) {
       removeSegmentAction = menu.addAction("Remove Pointer Segment");
       removeSegmentAction->setIcon(QIcon(":/resources/removepointersegment.png"));

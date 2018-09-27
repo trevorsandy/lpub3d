@@ -123,7 +123,7 @@ class ResizeRect : public AbstractResize, public Placement
     ResizeRect()
     {
       for (int i = 0; i < numGrabbers; i++) {
-        grabbers[i] = NULL;  
+        grabbers[i] = nullptr;  
       }
     }
     virtual ~ResizeRect()

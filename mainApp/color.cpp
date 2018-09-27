@@ -61,7 +61,7 @@ LDrawColor::LDrawColor ()
           file.setFileName(":/resources/ldconfig.ldr");
           // try resource location
           if (! file.open(QFile::ReadOnly | QFile::Text)){
-              QMessageBox::warning(NULL,QMessageBox::tr("LDrawColor"),
+              QMessageBox::warning(nullptr,QMessageBox::tr("LDrawColor"),
                                    QMessageBox::tr("LDConfig load: Cannot read disc file %1,\ndisc file %2"
                                                    "\nor resource file %3.")
                                    .arg(ldrawFileName)

@@ -113,11 +113,11 @@ AbstractStepsElement *Steps::nextRange(
       if (i < size - 1) {
         return list[i+1];
       } else {
-        return NULL;
+        return nullptr;
       }
     }
   }
-  return NULL;
+  return nullptr;
 }
   
 

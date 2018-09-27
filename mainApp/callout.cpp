@@ -491,7 +491,7 @@ void CalloutInstanceItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
-  if (selectedAction == NULL) {
+  if (selectedAction == nullptr) {
     return;
   }
 

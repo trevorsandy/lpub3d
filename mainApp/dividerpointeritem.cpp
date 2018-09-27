@@ -136,7 +136,7 @@ DividerPointerItem::DividerPointerItem(
   addToGroup(head);
 
   for (int i = 0; i < NumGrabbers; i++) {
-    grabbers[i] = NULL;
+    grabbers[i] = nullptr;
   }
 
   drawPointerPoly();

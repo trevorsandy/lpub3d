@@ -365,7 +365,7 @@ OsType AboutDialog::checkOS()
     fnIsWow64Process = (LPFN_ISWOW64PROCESS)
             GetProcAddress(GetModuleHandle(TEXT("kernel32")),"IsWow64Process");
     // No way it's a 64 bit OS if it doesn't have this API.
-    if (fnIsWow64Process == NULL) return Win_32;
+    if (fnIsWow64Process == nullptr) return Win_32;
     // Note that GetCurrentProcess() can't fail.
     if (!IsWow64Process(GetCurrentProcess(), &is64)) return OsError; // The check has failed.
     return is64 ? Win_64 : Win_32;

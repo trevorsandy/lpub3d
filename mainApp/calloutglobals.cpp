@@ -130,7 +130,7 @@ GlobalCalloutDialog::GlobalCalloutDialog(QString &topLevelFile, Meta &meta)
    */
 
   widget = new QWidget();
-  QVBoxLayout *vlayout = new QVBoxLayout(NULL);
+  QVBoxLayout *vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
   box = new QGroupBox(tr("Sub-Model Level Colors"));

@@ -3441,7 +3441,7 @@ void LSynthMeta::init(BranchMeta *parent, QString name)
 Meta::Meta() : BranchMeta()
 {
   QString empty;
-  init(NULL,empty);
+  init(nullptr,empty);
 }
 
 Meta::~Meta()

@@ -108,9 +108,9 @@ class PliPart {
     PliPart()
     {
       placed       = false;
-      instanceText = NULL;
-      annotateText = NULL;
-      pixmap       = NULL;
+      instanceText = nullptr;
+      annotateText = nullptr;
+      pixmap       = nullptr;
     }
 
     PliPart(QString _type, QString _color)
@@ -118,9 +118,9 @@ class PliPart {
       type         = _type;
       color        = _color;
       placed       = false;
-      instanceText = NULL;
-      annotateText = NULL;
-      pixmap       = NULL;
+      instanceText = nullptr;
+      annotateText = nullptr;
+      pixmap       = nullptr;
     }
 
     float maxMargin();
@@ -311,8 +311,8 @@ class PGraphicsTextItem : public QGraphicsTextItem, public MetaItem
 public:
   PGraphicsTextItem()
   {
-    pli = NULL;
-    part = NULL;
+    pli = nullptr;
+    part = nullptr;
   }
   PGraphicsTextItem(
     Pli     *_pli,

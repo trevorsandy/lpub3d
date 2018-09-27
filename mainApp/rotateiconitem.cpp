@@ -106,8 +106,8 @@ void RotateIconItem::setAttributes(
 
 RotateIconItem::RotateIconItem(){
   relativeType       = RotateIconType;
-  step               = NULL;
-  pixmap             = NULL;
+  step               = nullptr;
+  pixmap             = nullptr;
 }
 
 RotateIconItem::RotateIconItem(
@@ -441,7 +441,7 @@ void RotateIconItem::contextMenuEvent(
   PlacementData placementData = placement.value();
 
   QString pl = "Rotate Icon";
-  QAction *placementAction = NULL;
+  QAction *placementAction = nullptr;
   bool singleStep = parentRelativeType == SingleStepType;
   if (! singleStep) {
       placementAction  = commonMenus.placementMenu(menu,pl,
@@ -468,7 +468,7 @@ void RotateIconItem::contextMenuEvent(
 
   QAction *selectedAction  = menu.exec(event->screenPos());
 
-  if (selectedAction == NULL) {
+  if (selectedAction == nullptr) {
       return;
     }
 

@@ -29,7 +29,7 @@ Annotations::Annotations()
         QString annotations = Preferences::titleAnnotationsFile;
         QFile file(annotations);
         if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-            QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
+            QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),
                                  QMessageBox::tr("Failed to open Title Annotations file: %1:\n%2")
                                  .arg(annotations)
                                  .arg(file.errorString()));
@@ -50,7 +50,7 @@ Annotations::Annotations()
         QString annotations = Preferences::freeformAnnotationsFile;
         QFile file(annotations);
         if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-            QMessageBox::warning(NULL,QMessageBox::tr("LPub3D"),
+            QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),
                                  QMessageBox::tr("Failed to open Freeform Annotations file: %1:\n%2")
                                  .arg(annotations)
                                  .arg(file.errorString()));
