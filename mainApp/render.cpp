@@ -1598,22 +1598,22 @@ bool Render::RenderNativeImage(const NativeOptions &Options)
 
 bool Render::LoadViewer(const ViewerOptions &Options){
 
-    QString viewerCsiName = Options.ViewerCsiName;
+    QString viewerCsiKey = Options.ViewerCsiKey;
 
     Project* StepProject = new Project();
-    if (LoadStepProject(StepProject, viewerCsiName)){
+    if (LoadStepProject(StepProject, viewerCsiKey)){
         gApplication->SetProject(StepProject);
         gMainWindow->UpdateAllViews();
     }
     else
     {
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load 3DViewer model file %1.")
-                             .arg(viewerCsiName));
+                             .arg(viewerCsiKey));
         delete StepProject;
         return false;
     }
 
-    gui->setViewerCsiName(viewerCsiName);
+    gui->setViewerCsiKey(viewerCsiKey);
 
     View* ActiveView = gMainWindow->GetActiveView();
 
@@ -1627,9 +1627,9 @@ bool Render::LoadViewer(const ViewerOptions &Options){
     return true;
 }
 
-bool Render::LoadStepProject(Project* StepProject, const QString& viewerCsiName)
+bool Render::LoadStepProject(Project* StepProject, const QString& viewerCsiKey)
 {
-    QString FileName = gui->getViewerStepFilePath(viewerCsiName);
+    QString FileName = gui->getViewerStepFilePath(viewerCsiKey);
 
     if (FileName.isEmpty())
     {
@@ -1637,7 +1637,7 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerCsiName)
         return false;
     }
 
-    QStringList CsiContent = gui->getViewerStepContents(viewerCsiName);
+    QStringList CsiContent = gui->getViewerStepContents(viewerCsiKey);
     if (CsiContent.isEmpty())
     {
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Did not receive 3DViewer CSI content for %1.").arg(FileName));
@@ -1645,11 +1645,24 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerCsiName)
     }
 
 #ifdef QT_DEBUG_MODE
+    bool inside = (viewerCsiKey.at(0) == "\"");                                       // true if the first character is "
+    QStringList tmpList = viewerCsiKey.split(QRegExp("\""), QString::SkipEmptyParts); // Split by "
+    QStringList argv01;
+    foreach (QString s, tmpList) {
+        if (inside) {                                                                 // If 's' is inside quotes ...
+            argv01.append(s);                                                         // ... get the whole string
+        } else {                                                                      // If 's' is outside quotes ...
+            argv01.append(s.split(" ", QString::SkipEmptyParts));                     // ... get the split string
+        }
+        inside = !inside;
+    }
+    QString modelName  = argv01[0];                                                   //0=modelName
+
     QFileInfo outFileInfo(FileName);
     QString outfileName = QString("%1/viewer_%2_%3.ldr")
             .arg(outFileInfo.absolutePath())
             .arg(outFileInfo.baseName().replace(".ldr",""))
-            .arg(QString(viewerCsiName).replace(";","_"));
+            .arg(QFileInfo(modelName).baseName());
     QFile file(outfileName);
     if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open 3DViewer file %1 for writing: %2")

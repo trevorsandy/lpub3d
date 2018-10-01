@@ -801,7 +801,7 @@ void Gui::SetRotStepMeta()
     if (getCurFile() != "") {
         ShowStepRotationStatus();
         QString rotationValue = QString("%1 %2 %3 %4 %5")
-                                        .arg(getViewerCsiName())
+                                        .arg(getViewerCsiKey())
                                         .arg(QString::number(mStepRotation[0], 'f', 2))
                                         .arg(QString::number(mStepRotation[1], 'f', 2))
                                         .arg(QString::number(mStepRotation[2], 'f', 2))

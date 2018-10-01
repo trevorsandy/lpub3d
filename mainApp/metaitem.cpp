@@ -3673,14 +3673,33 @@ void MetaItem::writeRotateStep(QString &value)
     QString prefix     = "0 ROTSTEP ";
     bool rotStep       = false;
 
-    QStringList argv01 = value.split(QRegExp("\\s"));
-    QStringList argv02 = argv01[0].split(";");            //0=modelName; 1=lineNumber; 2=stepNumber
+    //QStringList argv01 = value.split(QRegExp("\\s"));
 
-    QString modelName  = argv02[0];
-    int lineNumber     = argv02[1].toInt(&ok);
+    bool inside = (value.at(0) == "\"");                                       // true if the first character is "
+    QStringList tmpList = value.split(QRegExp("\""), QString::SkipEmptyParts); // Split by "
+    QStringList argv01;
+    foreach (QString s, tmpList) {
+        if (inside) {                                                          // If 's' is inside quotes ...
+            argv01.append(s);                                                  // ... get the whole string
+        } else {                                                               // If 's' is outside quotes ...
+            argv01.append(s.split(" ", QString::SkipEmptyParts));              // ... get the split string
+        }
+        inside = !inside;
+    }
+
+    QString modelName  = argv01[0];                             //0=modelName
+
+    QStringList argv02 = argv01[1].split(";");                  //0=lineNumber; 1=stepNumber[_fm]
+
+    int lineNumber = argv02[0].toInt(&ok);
+
+    if (!ok) {
+        emit gui->messageSig(LOG_ERROR,QString("Line number is not an integer [%1]").arg(argv02[0]));
+        return;
+    }
 
     QString meta("%1 %2 %3 %4 %5");
-    meta = meta.arg(prefix,argv01[1],argv01[2],argv01[3],argv01[4]);
+    meta = meta.arg(prefix,argv01[2],argv01[3],argv01[4],argv01[5]);
 
     bool multiStep = gui->isViewerStepMultiStep(argv01[0]);
     if (multiStep) {

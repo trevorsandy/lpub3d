@@ -138,7 +138,7 @@ public:
   {
     ImageType       = Render::CSI;
   }
-  QString ViewerCsiName;
+  QString ViewerCsiKey;
   Render::Mt ImageType;
   float CameraDistance;
   float FoV;

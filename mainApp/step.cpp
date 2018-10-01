@@ -251,17 +251,17 @@ int Step::createCsi(
 
   int rc;
 
-  // Populate viewerCsiName variable
-  viewerCsiName = QString("%1;%2;%3%4")
+  // Populate viewerCsiKey variable
+  viewerCsiKey = QString("\"%1\"%2;%3%4")
                           .arg(top.modelName)
                           .arg(top.lineNumber)
                           .arg(stepNumber.number)
                           .arg(modelDisplayOnlyStep ? "_fm" : "");
 
   // Viewer Csi does not yet exist in repository
-  bool addViewerStepContent = !gui->viewerStepContentExist(viewerCsiName);
+  bool addViewerStepContent = !gui->viewerStepContentExist(viewerCsiKey);
   // We are processing again the current step so Csi must have been updated by from viewer
-  bool viewerUpdate = viewerCsiName == gui->getViewerCsiName();
+  bool viewerUpdate = viewerCsiKey == gui->getViewerCsiKey();
 
   // Generate 3DViewer CSI entry
   if ( addViewerStepContent || csiOutOfDate || viewerUpdate ) {
@@ -288,7 +288,7 @@ int Step::createCsi(
       // consolidate subfiles and parts into single file - I don't think this is still needed but I keep it anyway
       createViewerCSI(rotatedParts, doFadeStep, doHighlightStep);
 
-      gui->insertViewerStep(viewerCsiName,rotatedParts,csiLdrFile,multiStep,calledOut);
+      gui->insertViewerStep(viewerCsiKey,rotatedParts,csiLdrFile,multiStep,calledOut);
   }
 
   // Generate renderer CSI file
@@ -317,7 +317,7 @@ int Step::createCsi(
          // render the partially assembled model
          QStringList csiKeys;
          if (nativeRenderer)
-             csiKeys = (QStringList() << viewerCsiName);
+             csiKeys = (QStringList() << viewerCsiKey);
          else
              csiKeys = (QStringList() << csiKey); // adding just a single key
 
@@ -341,7 +341,7 @@ int Step::createCsi(
   }
 
   // set viewer camera options
-  viewerOptions.ViewerCsiName  = viewerCsiName;
+  viewerOptions.ViewerCsiKey  = viewerCsiKey;
   viewerOptions.FoV            = meta.LPub.assem.cameraFoV.value();
   viewerOptions.Latitude       = meta.LPub.assem.cameraAngles.value(0);
   viewerOptions.Longitude      = meta.LPub.assem.cameraAngles.value(1);
@@ -365,7 +365,7 @@ bool Step::loadTheViewer(){
 
         if (! renderer->LoadViewer(viewerOptions)) {
             emit gui->messageSig(LOG_ERROR,QString("Could not load 3D Viewer with CSI key: %1")
-                                 .arg(viewerCsiName));
+                                 .arg(viewerCsiKey));
             return false;
         }
     }

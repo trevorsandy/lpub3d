@@ -663,14 +663,14 @@ public slots:
 
   void ShowStepRotationStatus();
   void SetRotStepMeta();
-  void setViewerCsiName(QString &csiName)
+  void setViewerCsiKey(QString &csiName)
   {
-      viewerCsiName = csiName;
+      viewerCsiKey = csiName;
   }
 
-  QString getViewerCsiName()
+  QString getViewerCsiKey()
   {
-      return viewerCsiName;
+      return viewerCsiKey;
   }
 
   QString GetPliIconsPath(QString& key)
@@ -902,7 +902,7 @@ protected:
   float                  mRotStepAngleY;
   float                  mRotStepAngleZ;
   QString                mRotStepTransform;
-  QString                viewerCsiName;      // currently loaded CSI in 3DViewer
+  QString                viewerCsiKey;      // currently loaded CSI in 3DViewer
   QMap<QString, QString> mPliIconsPath;       // used to set an icon image in the 3DViewer timeline view
 
   QMap<int, PgSizeData>  pageSizes;          // page size and orientation object
