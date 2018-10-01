@@ -287,7 +287,7 @@ void Gui::closeFile()
   undoStack->clear();
   subModelImagesLoaded = gMainWindow->mSubModelPieceIconsLoaded = false;
   if (!curFile.isEmpty())
-      emit messageSig(LOG_INFO, QString("File %1 closed.").arg(curFile));
+      emit messageSig(LOG_DEBUG, QString("File closed - %1.").arg(curFile));
 }
 
 void Gui::closeModelFile(){
@@ -383,7 +383,7 @@ void Gui::openFile(QString &fileName)
   }
 #endif
   defaultResolutionType(Preferences::preferCentimeters);
-  emit messageSig(LOG_STATUS,"File opened.");
+  emit messageSig(LOG_DEBUG, QString("File opened - %1.").arg(fileName));
 }
 
 void Gui::updateRecentFileActions()

@@ -479,7 +479,7 @@ protected:
 /*** LPub3D Mod - disable position/time status ***
 	QLabel* mStatusPositionLabel;
 	QLabel* mStatusTimeLabel;
-*** LPub3D modification end ***/
+*** LPub3D Mod end ***/
 
 	QMenu* mToolsMenu;
 	QMenu* mViewpointMenu;
@@ -488,7 +488,9 @@ protected:
 	QMenu* mShadingMenu;
 	QMenu* mSelectionModeMenu;
 
+/*** LPub3D Mod - designate friend class ***/
 	friend class Gui;
+/**** LPub3D Mod end ***/
 };
 
 extern class lcMainWindow* gMainWindow;

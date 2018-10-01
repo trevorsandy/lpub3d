@@ -685,7 +685,12 @@ public slots:
   {
       if (!mPliIconsPath.contains(key)) {
           mPliIconsPath.insert(key,value);
+          emit messageSig(LOG_NOTICE, QString("Icon Inserted: Key [%1] Value [%2]")
+                                              .arg(key).arg(value));
+          return;
       }
+//      emit messageSig(LOG_DEBUG, QString("Icon Exist (Insert Ignored): Key [%1] Value [%2]")
+//                                         .arg(key).arg(value));
   }
 
   lcVector3 GetRotStepMeta() const

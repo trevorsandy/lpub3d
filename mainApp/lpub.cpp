@@ -1795,11 +1795,12 @@ void Gui::preferences()
             emit messageSig(LOG_INFO,QString("Enable LDView Snapshots List is %1").arg(Preferences::enableLDViewSnaphsotList ? "ON" : "OFF"));
 
         if (rendererChanged) {
-            emit messageSig(LOG_INFO,QString("Renderer preference changed from %1 to %2 %3")
-                            .arg(Preferences::preferredRenderer)
+            emit messageSig(LOG_INFO,QString("Renderer preference changed from %1 to %2")
                             .arg(preferredRendererCompare)
-                            .arg(preferredRendererCompare == RENDERER_POVRAY ? QString("(POV file generator is %1)").arg(Preferences::povFileGenerator) :
-                                                                               preferredRendererCompare == RENDERER_LDVIEW ? Preferences::enableLDViewSingleCall ? "(Single Call)" : "" : ""));
+                            .arg(QString("%1%2").arg(Preferences::preferredRenderer)
+                                                .arg(Preferences::preferredRenderer == RENDERER_POVRAY ? QString("(POV file generator is %1)").arg(Preferences::povFileGenerator) :
+                                                     Preferences::preferredRenderer == RENDERER_LDVIEW ? Preferences::enableLDViewSingleCall ? "(Single Call)" : "" : "")));
+
             Render::setRenderer(Preferences::preferredRenderer);
             if (Preferences::preferredRenderer == RENDERER_LDGLITE)
                 partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();

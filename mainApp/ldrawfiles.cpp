@@ -478,12 +478,12 @@ void LDrawFile::loadFile(const QString &fileName)
     while ( ! in.atEnd()) {
         QString line = in.readLine(0);
         if (line.contains(sof)) {
-            emit gui->messageSig(LOG_STATUS, QString("Loading MPD %1").arg(line.remove("0 ")));
+            emit gui->messageSig(LOG_INFO_STATUS, QString("Loading MPD %1...").arg(line.remove("0 ")));
             mpd = true;
             break;
         }
         if (line.contains(part)) {
-            emit gui->messageSig(LOG_STATUS, QString("Loading LDR %1").arg(line.remove("0 ")));
+            emit gui->messageSig(LOG_INFO_STATUS, QString("Loading LDR %1...").arg(line.remove("0 ")));
             mpd = false;
             break;
         }
@@ -520,7 +520,7 @@ void LDrawFile::loadFile(const QString &fileName)
                                                  .arg(p ? "these are custom" : "this is a custom")
                                                  .arg(p ? "their" : "its"));
 
-    emit gui->messageSig(LOG_STATUS, QString("%1 model file %2 loaded. Count %3 parts.%4")
+    emit gui->messageSig(LOG_INFO_STATUS, QString("%1 model file %2 loaded. Count %3 parts.%4")
                                              .arg(mpd ? "MPD" : "LDR")
                                              .arg(fileInfo.fileName())
                                              .arg(_parts)

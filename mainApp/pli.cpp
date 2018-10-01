@@ -496,7 +496,7 @@ int Pli::createPartImages()
                 parts.insert(key,part);
             }
         }
-        partSizeLDViewSCall();
+        rc = partSizeLDViewSCall();
 
     } else {
 
@@ -584,7 +584,7 @@ int Pli::createPartImage(
             // create ldr file
             QStringList pliFile;
             if (isSubModel) {
-                // use model file generated durin 'write-to-temp' call
+                // use model file generated during 'write-to-temp' call
                 QString iconImageType = QFileInfo(type).baseName() += (ptn[pT].typeName + ".ldr");
                 pliFile << orient(ia.partColor[pT], iconImageType);
             } else {
@@ -1600,7 +1600,7 @@ int Pli::partSizeLDViewSCall() {
                     // create ldr file
                     QStringList pliFile;
                     if (isSubModel) {
-                        // use model file generated durin 'write-to-temp' call
+                        // use model file generated during 'write-to-temp' call
                         QString iconImageType = QFileInfo(pliPart->type).baseName() += (ptn[pT].typeName + ".ldr");
                         pliFile << orient(ia.partColor[pT], iconImageType);
                     } else {
