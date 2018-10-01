@@ -290,12 +290,6 @@ int Step::createCsi(
       createViewerCSI(rotatedParts, doFadeStep, doHighlightStep);
 
       gui->insertViewerStep(viewerCsiName,rotatedParts,csiLdrFile,multiStep,calledOut);
-
-      // set viewer camera options
-      viewerOptions.ViewerCsiName  = viewerCsiName;
-      viewerOptions.FoV            = meta.LPub.assem.cameraFoV.value();
-      viewerOptions.Latitude       = meta.LPub.assem.cameraAngles.value(0);
-      viewerOptions.Longitude      = meta.LPub.assem.cameraAngles.value(1);
   }
 
   // Generate renderer CSI file
@@ -347,6 +341,12 @@ int Step::createCsi(
      }
   }
 
+  // set viewer camera options
+  viewerOptions.ViewerCsiName  = viewerCsiName;
+  viewerOptions.FoV            = meta.LPub.assem.cameraFoV.value();
+  viewerOptions.Latitude       = meta.LPub.assem.cameraAngles.value(0);
+  viewerOptions.Longitude      = meta.LPub.assem.cameraAngles.value(1);
+
   // Load the 3DViewer
   loadTheViewer();
 
@@ -365,7 +365,7 @@ bool Step::loadTheViewer(){
     if (! gui->exporting() /* && !Preferences::preferredRenderer == RENDERER_NATIVE */) {
 
         if (! renderer->LoadViewer(viewerOptions)) {
-            emit gui->messageSig(LOG_ERROR,QString("Could not load 3D Viewer with CSI name: %1")
+            emit gui->messageSig(LOG_ERROR,QString("Could not load 3D Viewer with CSI key: %1")
                                  .arg(viewerCsiName));
             return false;
         }

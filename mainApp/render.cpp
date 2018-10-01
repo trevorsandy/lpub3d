@@ -1607,7 +1607,7 @@ bool Render::LoadViewer(const ViewerOptions &Options){
     }
     else
     {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not 3DViewer with %1.")
+        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load 3DViewer model file %1.")
                              .arg(viewerCsiName));
         delete StepProject;
         return false;
