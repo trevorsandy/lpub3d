@@ -39,11 +39,10 @@ public:
       const QDir &dir,
       QStringList &list);
 
-    static bool RecurseZipArchive(
+    static bool GetExistingArchiveFileList(
             QStringList &zipDirFileList,
-            QString &zipDirPath,
-      const QString &zipArchive,
-      const QDir &dir);
+            QStringList &validDirFiles,
+            const QString &zipArchive);
 
 public slots:
 
