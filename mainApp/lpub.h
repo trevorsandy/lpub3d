@@ -746,7 +746,7 @@ public slots:
       }
   }
 
-  /* Fade colour processing */
+  /* Fade color processing */
   QString createColourEntry(
     const QString &colourCode,
     const PartType partType);
@@ -885,8 +885,8 @@ public:
 // multi-thread worker classes
   PartWorker             partWorkerLDSearchDirs;     // part worker to process search directories and fade and or highlight color parts
   PartWorker             partWorkerLdgLiteSearchDirs; // part worker to process temp directory parts
-  PartWorker            *partWorkerCustomColour;      // part worker to process colour part fade and or highlight
-  ColourPartListWorker  *colourPartListWorker;        // create static colour parts list in separate thread
+  PartWorker            *partWorkerCustomColour;      // part worker to process color part fade and or highlight
+  ColourPartListWorker  *colourPartListWorker;        // create static color parts list in separate thread
   ParmsWindow           *parmsWindow;                 // the parametrer file editor
   Preferences            lpub3dPreferences;           // lpub3D Preferences
 
@@ -915,7 +915,7 @@ private:
   QProgressBar          *progressBarPerm;    // Right side progress bar
   QLabel                *progressLabel;
   QLabel                *progressLabelPerm;  //
-  LDrawColourParts       ldrawColourParts;   // load the LDraw colour parts list
+  LDrawColourParts       ldrawColourParts;   // load the LDraw color parts list
 
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
   bool                   m_exportingContent; // indicate export/pring underway

@@ -105,7 +105,7 @@ GlobalFadeStepDialog::GlobalFadeStepDialog(
   label->setDisabled(true);
   boxGrid->addWidget(label,0,1);
 
-  child = new CheckBoxGui("Use Fade Colour", &fadeStepMeta->fadeUseColor);
+  child = new CheckBoxGui("Use Fade Color", &fadeStepMeta->fadeUseColor);
   child->setDisabled(true);
   boxGrid->addWidget(child,1,0);
 

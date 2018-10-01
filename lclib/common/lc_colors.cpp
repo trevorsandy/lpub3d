@@ -193,7 +193,7 @@ bool lcLoadColorFile(lcFile& File)
 	gColorGroups[0].Name = QApplication::tr("Solid Colors", "Colors");
 	gColorGroups[1].Name = QApplication::tr("Translucent Colors", "Colors");
 	gColorGroups[2].Name = QApplication::tr("Special Colors", "Colors");
-/*** LPub3D Mod - load colour entry - add LPub3D colour group ***/
+/*** LPub3D Mod - load color entry - add LPub3D color group ***/
 	gColorGroups[3].Name = QApplication::tr("LPub3D Colors", "Colors");
 /*** LPub3D Mod end ***/
 
@@ -383,10 +383,10 @@ bool lcLoadColorFile(lcFile& File)
 	return Colors.GetSize() > 2;
 }
 
-/*** LPub3D Mod - load colour entry ***/
+/*** LPub3D Mod - load color entry ***/
 bool lcLoadColorEntry(const char* ColorEntry)
 {
-//        qDebug() << qPrintable(QString("DEBUG Load colour entry %1.")
+//        qDebug() << qPrintable(QString("DEBUG Load color entry %1.")
 //                               .arg(ColorEntry));
 	char Line[1024], Token[1024];
 	lcArray<lcColor>& Colors = gColorList;

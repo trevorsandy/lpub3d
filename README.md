@@ -51,7 +51,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
  - Fade previous step's parts (Fadestep)
  - Unlimited part list (PLI) annotations
  - Split the BOM (divide parts over number of BOM occurrences)
- - Sort PLI/BOM by part size, colour and category
+ - Sort PLI/BOM by part size, color and category
  - "Go To" page navigation and submodel display via drop-down dialogue
  - Automatically generate formatted cover pages
  - POV-Ray high-quality rendered instructions
@@ -143,9 +143,9 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [univention-icon]:     https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/univention.png
 [windows-icon]:        https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/windows.png
 
-[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.3.1/LPub3D-2.3.1.0.949_20180927.exe
-[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.3.1/LPub3D-2.3.1.0.949_20180927-macos.dmg
-[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.3.1/LPub3D-2.3.1.0.949_20180927-x86_64.AppImage
+[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.3.1/LPub3D-2.3.1.1.950_20181002.exe
+[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.3.1/LPub3D-2.3.1.1.950_20181002-macos.dmg
+[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.3.1/LPub3D-2.3.1.1.950_20181002-x86_64.AppImage
 
 [arch-url]:            https://download.opensuse.org/repositories/home:/trevorsandy/Arch_Extra/
 [centos-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/CentOS_7/

@@ -1949,11 +1949,11 @@ bool lcPiecesLibrary::ReadMeshData(lcFile& File, const lcMatrix44& CurrentTransf
 		{
 			char* Token = Line;
 
-/*** LPub3D Mod - process part colour entry ***/
+/*** LPub3D Mod - process part color entry ***/
                         if (strstr(Token, "!COLOUR") != nullptr)
                         {
                             if (!lcLoadColorEntry(Line))
-                                    logError() << qPrintable(QString("Could not load fade part colour entry %1.")
+                                    logError() << qPrintable(QString("Could not load fade part color entry %1.")
                                                              .arg(Line));
                             continue;
                         }

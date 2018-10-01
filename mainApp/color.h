@@ -72,20 +72,20 @@ class LDrawColor {
     static QString ldColorCode(QString name);
     /*
      * This function provides the translate from LDraw color code to
-     * alpha value and returns the colour alpha value if it exist.
+     * alpha value and returns the color alpha value if it exist.
      * If there is no color alpha value, 255 (fully opaque) is returned.
      */
     static int alpha(QString code);
     /*
      * This function provides the translate from LDraw color code to
-     * color value and returns the colour value if it exist.
+     * color value and returns the color value if it exist.
      * If there is no color value, FFFF80 (material main_colour) - is returned.
      */
     static QString value(QString code);
     /*
      * This function provides the translate from LDraw color code to
-     * color edge value and returns the colour edge value if it exist.
-     * If there is no color edge value, 333333 (default edge colour) is returned.
+     * color edge value and returns the color edge value if it exist.
+     * If there is no color edge value, 333333 (default edge color) is returned.
      */
     static QString edge(QString code);
     /*

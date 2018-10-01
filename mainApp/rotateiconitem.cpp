@@ -151,7 +151,7 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
 
   /* BORDER */
 
-  // set icon border pen colour
+  // set icon border pen color
   QPen borderPen;
   QColor borderPenColor;
   if (borderData.type == BorderData::BdrNone) {
@@ -206,7 +206,7 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
 
         /* BACKGROUND */
 
-  // set icon background colour
+  // set icon background color
   bool useGradient = false;
   QColor brushColor;
   switch(backgroundData.type) {

@@ -641,14 +641,14 @@ int Render::splitIMParts(const QStringList &rotatedParts,
          }
      }
 
-   // add the colour list
+   // add the color list
    if (!colourList.isEmpty()) {
        colourList.removeDuplicates(); // remove dupes
 
        imPrevious.prepend("0");
        for (int i = 0; i < colourList.size(); ++i)
          imPrevious.prepend(colourList.at(i));
-         imPrevious.prepend("0 // LPub3D step custom colours");  // colour comment
+         imPrevious.prepend("0 // LPub3D step custom colours");  // color comment
        imPrevious.prepend("0");
      }
 

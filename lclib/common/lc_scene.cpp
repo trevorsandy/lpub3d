@@ -424,7 +424,7 @@ void lcScene::Draw(lcContext* Context) const
 				 // 03 of 07 - Draw translucent mesh triangles to update the z buffer
 				 DrawRenderMeshes(Context, LC_MESH_TRIANGLES, true, true, false);
 
-				 // 04 of 07 - Enable colour writes
+				 // 04 of 07 - Enable color writes
 				 glEnable(GL_BLEND);
 				 glDepthMask(GL_FALSE);
 				 glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);

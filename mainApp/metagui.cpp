@@ -832,7 +832,7 @@ PageAttributeTextGui::PageAttributeTextGui(
           this,      SLOT(  browseFont(bool)));
   grid->addWidget(fontButton,1,2);
 
-  // colour
+  // color
   colorLabel = new QLabel("Color",parent);
   grid->addWidget(colorLabel,2,0);
 
@@ -1555,7 +1555,7 @@ HighlightStepGui::HighlightStepGui(
     grid->addWidget(colorExample,1,0);
 
     colorButton = new QPushButton(parent);
-    colorButton->setText("Highlight Colour...");
+    colorButton->setText("Highlight Color...");
 
     if (! Preferences::enableHighlightStep)
         colorButton->setDisabled(true);
@@ -1712,7 +1712,7 @@ BackgroundGui::BackgroundGui(
   /* Color and Gradient button */
 
   colorButton = new QPushButton("Change",parent);
-  colorButton->setToolTip(tr("Change Colour"));
+  colorButton->setToolTip(tr("Change Color"));
   connect(colorButton,SIGNAL(clicked(    bool)),
           this,       SLOT(  browseColor(bool)));
   grid->addWidget(colorButton,0,1);

@@ -2906,7 +2906,7 @@ void Preferences::setLPub3DLoaded(){
  * Set the LDView extra search directories. This function is called on the following occasions
  * - LPub3D Initialize: Gui::initialize() -> Preferences::setLDViewExtraSearchDirs(...)
  * - Preference Dialog if search directories change: Preferences::getPreferences()
- * - Archiving Custom Colour parts where Custom dirs were not in search dirs list: PartWorker::processCustomColourParts()
+ * - Archiving Custom Color parts where Custom dirs were not in search dirs list: PartWorker::processCustomColourParts()
  */
 bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile) {
     bool retVal = true;

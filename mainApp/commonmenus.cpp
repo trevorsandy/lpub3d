@@ -393,7 +393,7 @@ QAction* CommonMenus::sortMenu(
   action = menu.addAction(formatted);
   action->setIcon(QIcon(":/resources/sortPli.png"));
 
-  formatted = QString("You can sort the %1 by part colour, part category or image size") .arg(name);
+  formatted = QString("You can sort the %1 by part color, part category or image size") .arg(name);
   action->setWhatsThis(formatted);
 
   return action;

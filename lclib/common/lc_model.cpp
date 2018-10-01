@@ -551,11 +551,11 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 				 gMainWindow->ParseAndSetRotStep(LineStream);
 			 }
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - process colour entry ***/
+/*** LPub3D Mod - process color entry ***/
                         else if (Token == QLatin1String("!COLOUR"))
                         {
                                 if (!lcLoadColorEntry(OriginalLine.toLatin1().constData()))
-                                        emit gui->messageSig(LOG_ERROR,QString("Could not load colour entry %1.")
+                                        emit gui->messageSig(LOG_ERROR,QString("Could not load color entry %1.")
                                                              .arg(OriginalLine));
                         }
 /*** LPub3D Mod end ***/

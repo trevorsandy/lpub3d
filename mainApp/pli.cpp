@@ -241,7 +241,7 @@ void Pli::setParts(
       sortedKeys = tempParts.keys();
 
       if (pliMeta.sortBy.value() == SortOptionName[PartColour]){
-          // Sort tempParts by colour
+          // Sort tempParts by color
           for (int i = 0; i < tempParts.size() - 1; i++) {
               for (int j = i+1; j < tempParts.size(); j++) {
                   if (tempParts[sortedKeys[i]]->sortColour < tempParts[sortedKeys[j]]->sortColour) {
@@ -455,7 +455,7 @@ int Pli::createPartImages()
 {
     int rc = 0;
     QString key   = "";
-    QString color = "0"; // static submodel colour code
+    QString color = "0"; // static submodel color code
 
     Meta         _meta;
     meta       = &_meta;
@@ -1292,7 +1292,7 @@ int Pli::sortPli()
       if (! bom)
         pliMeta.sort.setValue(true);
 
-      // Sort parts by colour
+      // Sort parts by color
       for (int i = 0; i < parts.size() - 1; i++) {
           for (int j = i+1; j < parts.size(); j++) {
               if (parts[sortedKeys[i]]->sortColour < parts[sortedKeys[j]]->sortColour) {
@@ -1303,7 +1303,7 @@ int Pli::sortPli()
             }
         }
 
-      // Sort colour-sorted parts by size
+      // Sort color-sorted parts by size
       for (int i = 0; i < parts.size() - 1; i++) {
           for (int j = i+1; j < parts.size(); j++) {
               if (parts[sortedKeys[i]]->sortColour == parts[sortedKeys[j]]->sortColour) {

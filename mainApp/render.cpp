@@ -832,7 +832,7 @@ int LDGLite::renderCsi(
       }
   }
 
-  // add custom colour file if exist
+  // add custom color file if exist
   if (!Preferences::altLDConfigPath.isEmpty()) {
     arguments << "-ldcF" + Preferences::altLDConfigPath;
     //logDebug() << qPrintable("=" + Preferences::altLDConfigPath);
@@ -935,7 +935,7 @@ int LDGLite::renderPli(
       }
   }
 
-  // add custom colour file if exist
+  // add custom color file if exist
   if (!Preferences::altLDConfigPath.isEmpty()) {
     arguments << "-ldcF" + Preferences::altLDConfigPath;
     //logDebug() << qPrintable("=" + Preferences::altLDConfigPath);

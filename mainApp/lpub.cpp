@@ -105,7 +105,7 @@ void clearTempCache()
 /****************************************************************************
  * 
  * The Gui constructor and destructor are at the bottom of the file with
- * the code that creates the basic GUI framekwork 
+ * the code that creates the basic GUI framework
  *
  ***************************************************************************/
 
@@ -417,7 +417,7 @@ void Gui::previousPageContinuous()
         setPageContinuousIsRunning(false, PAGE_NEXT);
         continuousPageDialog(PAGE_PREVIOUS);
       }
-    // User wants to continue running Next page process so stop Pevious
+    // User wants to continue running Next page process so stop Previous
     else {
         setPageContinuousIsRunning(false, PAGE_PREVIOUS);
         return;
@@ -1116,7 +1116,7 @@ void Gui::clearCustomPartCache(bool silent)
                                          .arg(count)
                                          .arg(count == 1 ? "item": "items"));
   } else {
-      emit messageSig(LOG_ERROR,QString("Unable to remeove custom parts cache directory: %1").arg(dirName));
+      emit messageSig(LOG_ERROR,QString("Unable to remove custom parts cache directory: %1").arg(dirName));
       return;
   }
 
@@ -1148,7 +1148,7 @@ void Gui::clearPLICache()
         QFileInfo fileInfo = list.at(i);
         QFile     file(dirName + "/" + fileInfo.fileName());
         if (!file.remove()) {
-            emit messageSig(LOG_ERROR,QString("Unable to remeove %1")
+            emit messageSig(LOG_ERROR,QString("Unable to remove %1")
                                               .arg(dirName + "/" + fileInfo.fileName()));
             count--;
           } else
@@ -1176,7 +1176,7 @@ void Gui::clearCSICache()
         QFileInfo fileInfo = list.at(i);
         QFile     file(dirName + "/" + fileInfo.fileName());
         if (!file.remove()) {
-            emit messageSig(LOG_ERROR,QString("Unable to remeove %1")
+            emit messageSig(LOG_ERROR,QString("Unable to remove %1")
                                               .arg(dirName + "/" + fileInfo.fileName()));
             count--;
           } else
@@ -1204,7 +1204,7 @@ void Gui::clearTempCache()
         QFileInfo fileInfo = list.at(i);
         QFile     file(tmpDirName + "/" + fileInfo.fileName());
         if (!file.remove()) {
-            emit messageSig(LOG_ERROR,QString("Unable to remeove %1")
+            emit messageSig(LOG_ERROR,QString("Unable to remove %1")
                                               .arg(tmpDirName + "/" + fileInfo.fileName()));
             count1--;
           } else
@@ -1257,7 +1257,7 @@ void Gui::clearStepCSICache(QString &pngName) {
     }
   file.setFileName(ldrName);
   if (!file.remove()) {
-      emit messageSig(LOG_ERROR,QString("Unable to remeove %1")
+      emit messageSig(LOG_ERROR,QString("Unable to remove %1")
                                         .arg(ldrName));
     }
   if (Preferences::enableFadeSteps) {
@@ -1299,7 +1299,7 @@ void Gui::clearPageCSICache(PlacementType relativeType, Page *page) {
 /*
  * Clear step image graphics items
  * This function recurses the step's model to clear images and associated model files.
- * Call only if using LDView Single Call (useLDViewsCall=true)
+ * Call only if using LDView Single Call (useLDViewSCall=true)
  */
 void Gui::clearPageCSIGraphicsItems(Step *step) {
   // Capture ldr and image names
@@ -1318,19 +1318,19 @@ void Gui::clearPageCSIGraphicsItems(Step *step) {
       ldrName = tmpDirName + "/" + fileInfo.completeBaseName() + ".ldr";
       file.setFileName(ldrName);
       if (!file.remove()) {
-         emit messageSig(LOG_ERROR,QString("Unable to remeove %1")
+         emit messageSig(LOG_ERROR,QString("Unable to remove %1")
                                            .arg(ldrName));
       }
   } else if (! itemsCleared){
       ldrName = tmpDirName + "/csi.ldr";
       file.setFileName(ldrName);
       if (!file.remove()) {
-          emit messageSig(LOG_ERROR,QString("Unable to remeove %1")
+          emit messageSig(LOG_ERROR,QString("Unable to remove %1")
                                             .arg(ldrName));
       }
       itemsCleared = true;
   }
-  // process callout's step(s) image(s)
+  // process callout step(s) image(s)
   for (int k = 0; k < step->list.size(); k++) {
       if (step->list[k]->relativeType == CalloutType) {
           Callout *callout = dynamic_cast<Callout *>(step->list[k]);
@@ -1416,7 +1416,7 @@ void Gui::editFreeFormAnnitations()
 void Gui::editLDrawColourParts()
 {
     displayParmsFile(Preferences::ldrawColourPartsFile);
-    parmsWindow->setWindowTitle(tr("LDraw Colour Parts","Edit/add LDraw static coulour parts"));
+    parmsWindow->setWindowTitle(tr("LDraw Color Parts","Edit/add LDraw static color parts"));
     parmsWindow->show();
 }
 
@@ -1546,7 +1546,7 @@ void Gui::preferences()
     QString preferredRendererCompare    = Preferences::preferredRenderer;
     QString displayThemeCompare         = Preferences::displayTheme;
 
-    // Native Pov file generation settings
+    // Native POV file generation settings
     QString selectedAspectRatioCompare;
     switch (int(TCUserDefaults::longForKey(SELECTED_ASPECT_RATIO_KEY, SELECTED_ASPECT_RATIO_DEFAULT)))
     {
@@ -1651,7 +1651,7 @@ void Gui::preferences()
         bool lgeoPathChanged               = QString(Preferences::lgeoPath).toLower()            != lgeoPathCompare.toLower();
         bool displayThemeChanged           = Preferences::displayTheme.toLower()                 != displayThemeCompare.toLower();
 
-        // Native Pov file generation settings
+        // Native POV file generation settings
         QString selectedAspectRatio;
         switch (int(TCUserDefaults::longForKey(SELECTED_ASPECT_RATIO_KEY, SELECTED_ASPECT_RATIO_DEFAULT)))
         {
@@ -1729,7 +1729,7 @@ void Gui::preferences()
             emit messageSig(LOG_INFO,QString("Fade Previous Steps is %1.").arg(Preferences::enableFadeSteps ? "ON" : "OFF"));
 
         if (fadeStepsUseColourChanged && Preferences::enableFadeSteps)
-            emit messageSig(LOG_INFO,QString("Use Global Fade Colour is %1").arg(Preferences::fadeStepsUseColour ? "ON" : "OFF"));
+            emit messageSig(LOG_INFO,QString("Use Global Fade Color is %1").arg(Preferences::fadeStepsUseColour ? "ON" : "OFF"));
 
         if (fadeStepsOpacityChanged && Preferences::enableFadeSteps)
             emit messageSig(LOG_INFO,QString("Fade Step Transparency changed from %1 to %2 percent")
@@ -1737,7 +1737,7 @@ void Gui::preferences()
                             .arg(Preferences::fadeStepsOpacity));
 
         if (fadeStepsColourChanged && Preferences::enableFadeSteps && Preferences::fadeStepsUseColour)
-            emit messageSig(LOG_INFO,QString("Fade Step Colour preference changed from %1 to %2")
+            emit messageSig(LOG_INFO,QString("Fade Step Color preference changed from %1 to %2")
                             .arg(fadeStepsColourCompare.replace("_"," "))
                             .arg(QString(Preferences::fadeStepsColour).replace("_"," ")));
 
@@ -1750,7 +1750,7 @@ void Gui::preferences()
                             .arg(Preferences::highlightStepLineWidth));
 
         if (highlightStepColorChanged && Preferences::enableHighlightStep)
-            emit messageSig(LOG_INFO,QString("Highlight Step Colour preference changed from %1 to %2")
+            emit messageSig(LOG_INFO,QString("Highlight Step Color preference changed from %1 to %2")
                             .arg(highlightStepColourCompare)
                             .arg(Preferences::highlightStepColour));
 
@@ -1798,7 +1798,7 @@ void Gui::preferences()
             emit messageSig(LOG_INFO,QString("Renderer preference changed from %1 to %2 %3")
                             .arg(Preferences::preferredRenderer)
                             .arg(preferredRendererCompare)
-                            .arg(preferredRendererCompare == RENDERER_POVRAY ? QString("(PoV file generator is %1)").arg(Preferences::povFileGenerator) :
+                            .arg(preferredRendererCompare == RENDERER_POVRAY ? QString("(POV file generator is %1)").arg(Preferences::povFileGenerator) :
                                                                                preferredRendererCompare == RENDERER_LDVIEW ? Preferences::enableLDViewSingleCall ? "(Single Call)" : "" : ""));
             Render::setRenderer(Preferences::preferredRenderer);
             if (Preferences::preferredRenderer == RENDERER_LDGLITE)
@@ -1905,7 +1905,7 @@ void Gui::preferences()
             logger.setLoggingLevel(OffLevel);
         }
 
-        // Native Pov file generation settings
+        // Native POV file generation settings
         if (qualityChanged && nativePovRendererConfig)
             emit messageSig(LOG_INFO,QString("Quality changed from %1 to %2.")
                             .arg(qualityCompare)
@@ -2024,7 +2024,7 @@ void Gui::preferences()
             emit messageSig(LOG_INFO,QString("Xml map is %1.").arg(TCUserDefaults::boolForKey(XML_MAP_KEY, true) ? "ON" : "OFF"));
 
         if (inlinePovChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Inline Pov is %1.").arg(TCUserDefaults::boolForKey(INLINE_POV_KEY, true) ? "ON" : "OFF"));
+            emit messageSig(LOG_INFO,QString("Inline POV is %1.").arg(TCUserDefaults::boolForKey(INLINE_POV_KEY, true) ? "ON" : "OFF"));
 
         if (smoothCurvesChanged && nativePovRendererConfig)
             emit messageSig(LOG_INFO,QString("Smooth curves is %1.").arg(TCUserDefaults::boolForKey(SMOOTH_CURVES_KEY, true) ? "ON" : "OFF"));
@@ -2299,7 +2299,7 @@ void Gui::generateCustomColourPartsList()
 {
     QMessageBox::StandardButton ret;
     ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
-            tr("Generating the colour parts list may take a long time.\n"
+            tr("Generating the color parts list may take a long time.\n"
                 "Are you sure you want to generate this list?"),
             QMessageBox::Yes | QMessageBox::Cancel);
     if (ret == QMessageBox::Yes) {
@@ -2949,8 +2949,8 @@ void Gui::createActions()
     editFreeFormAnnitationsAct->setStatusTip(tr("Add/Edit freeform PLI part annotations"));
     connect(editFreeFormAnnitationsAct, SIGNAL(triggered()), this, SLOT(editFreeFormAnnitations()));
 
-    editLDrawColourPartsAct = new QAction(QIcon(":/resources/editldrawcolourparts.png"),tr("Edit LDraw Static Colour Parts List"), this);
-    editLDrawColourPartsAct->setStatusTip(tr("Add/Edit the list of LDraw static colour parts used to process fade and highlight steps"));
+    editLDrawColourPartsAct = new QAction(QIcon(":/resources/editldrawcolourparts.png"),tr("Edit LDraw Static Color Parts List"), this);
+    editLDrawColourPartsAct->setStatusTip(tr("Add/Edit the list of LDraw static color parts used to process fade and highlight steps"));
     connect(editLDrawColourPartsAct, SIGNAL(triggered()), this, SLOT(editLDrawColourParts()));
 
     editPliBomSubstitutePartsAct = new QAction(QIcon(":/resources/editplisubstituteparts.png"),tr("Edit PLI/BOM Substitute Parts List"), this);
@@ -2993,7 +2993,7 @@ void Gui::createActions()
     editPovrayConfAct->setStatusTip(tr("Edit Raytracer (POV-Ray) file access configuration file"));
     connect(editPovrayConfAct, SIGNAL(triggered()), this, SLOT(editPovrayConf()));
 
-    generateCustomColourPartsAct = new QAction(QIcon(":/resources/generatecolourparts.png"),tr("Generate Static Colour Parts List"), this);
+    generateCustomColourPartsAct = new QAction(QIcon(":/resources/generatecolourparts.png"),tr("Generate Static Color Parts List"), this);
     generateCustomColourPartsAct->setStatusTip(tr("Generate list of all static coloured parts"));
     connect(generateCustomColourPartsAct, SIGNAL(triggered()), this, SLOT(generateCustomColourPartsList()));
 

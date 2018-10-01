@@ -118,13 +118,13 @@ int Gui::processCommandLine()
       if (Param == QLatin1String("-fo") || Param == QLatin1String("--fade-step-opacity"))
         ParseInteger(fadeStepsOpacity);
       else
-      if (Param == QLatin1String("-fc") || Param == QLatin1String("--fade-steps-colour"))
+      if (Param == QLatin1String("-fc") || Param == QLatin1String("--fade-steps-color"))
         ParseString(fadeStepsColour, false);
       else
       if (Param == QLatin1String("-hs") || Param == QLatin1String("--highlight-step"))
         highlightStep = true;
       else
-      if (Param == QLatin1String("-hc") || Param == QLatin1String("--highlight-step-colour"))
+      if (Param == QLatin1String("-hc") || Param == QLatin1String("--highlight-step-color"))
         ParseString(highlightStepColour, false);
       else
 //      if (Param == QLatin1String("-im") || Param == QLatin1String("--image-matte"))
@@ -209,7 +209,7 @@ int Gui::processCommandLine()
       if (fadeStepsColour.isEmpty()) {
           if (Preferences::fadeStepsUseColour){
               Preferences::fadeStepsUseColour = false;
-              QString message = QString("Use Global Fade Colour set to OFF.");
+              QString message = QString("Use Global Fade Color set to OFF.");
               emit messageSig(LOG_INFO,message);
             }
         }
@@ -227,7 +227,7 @@ int Gui::processCommandLine()
   if (!fadeStepsColour.isEmpty() && Preferences::enableFadeSteps) {
       if (!Preferences::fadeStepsUseColour){
           Preferences::fadeStepsUseColour = true;
-          QString message = QString("Use Global Fade Colour set to ON.");
+          QString message = QString("Use Global Fade Color set to ON.");
           emit messageSig(LOG_INFO,message);
           fadeStepsOpacity = 100;
           if (fadeStepsOpacity != Preferences::fadeStepsOpacity ) {
@@ -239,7 +239,7 @@ int Gui::processCommandLine()
             }
         }
       if (LDrawColor::name(fadeStepsColour) != Preferences::fadeStepsColour) {
-          QString message = QString("Fade Step Colour preference changed from %1 to %2.")
+          QString message = QString("Fade Step Color preference changed from %1 to %2.")
               .arg(QString(Preferences::fadeStepsColour).replace("_"," "))
               .arg(QString(LDrawColor::name(fadeStepsColour)).replace("_"," "));
           emit messageSig(LOG_INFO,message);
@@ -279,7 +279,7 @@ int Gui::processCommandLine()
   if ((highlightStepColour != Preferences::highlightStepColour) &&
       !highlightStepColour.isEmpty() &&
       Preferences::enableHighlightStep) {
-      QString message = QString("Highlight Step Colour preference changed from %1 to %2.")
+      QString message = QString("Highlight Step Color preference changed from %1 to %2.")
           .arg(Preferences::highlightStepColour)
           .arg(highlightStepColour);
       emit messageSig(LOG_INFO,message);

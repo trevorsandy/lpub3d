@@ -30,7 +30,7 @@ LDrawColourParts::LDrawColourParts()
     QFile file(colorPartsFile);
     if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
         QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                             QMessageBox::tr("Failed to open LDraw colour parts file %1: %2:\n%3")
+                             QMessageBox::tr("Failed to open LDraw color parts file %1: %2:\n%3")
                              .arg(VER_LDRAW_COLOR_PARTS_FILE)
                              .arg(colorPartsFile)
                              .arg(file.errorString()));
@@ -45,7 +45,7 @@ LDrawColourParts::LDrawColourParts()
             QString partFile = rx.cap(1).toLower().trimmed();
             QString partLibType = rx.cap(2).toLower().trimmed();
             ldrawColourParts.insert(partFile, QString("%1:::%2").arg(partLibType).arg(partFile));
-            //qDebug() << "** Colour part loaded: " << partFile << " Lib: " << QString("%1:::%2").arg(partLibType).arg(partFile);
+            //qDebug() << "** Color part loaded: " << partFile << " Lib: " << QString("%1:::%2").arg(partLibType).arg(partFile);
         }
     }
 }

@@ -535,7 +535,7 @@
          <item>
           <widget class="QRadioButton" name="viewColorIconsRadio">
            <property name="text">
-            <string>Show Timeline colour icons</string>
+            <string>Show Timeline color icons</string>
            </property>
           </widget>
          </item>

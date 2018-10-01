@@ -85,7 +85,7 @@ LDrawColor::LDrawColor ()
           QString name;
           QRgb hex = rx.cap(3).toLong(&ok,16);
           QColor color(hex);
-          QString code = rx.cap(2);               // colour code - e.g. 219
+          QString code = rx.cap(2);               // color code - e.g. 219
           int alpha = rx.cap(5).toInt(&ok);       //0(0) = colourless, 255(0xff) = fully opaque
           if (ok && alpha >= 0 && alpha <= 256 ) {
               color2alpha.insert(code,alpha);
@@ -93,19 +93,19 @@ LDrawColor::LDrawColor ()
           } else {
               color.setAlpha(255);
           }
-          QString value = rx.cap(3);              // colour value
+          QString value = rx.cap(3);              // color value
           color2value.insert(code,value);
 
-          QString edge = rx.cap(4);               // colour edge
+          QString edge = rx.cap(4);               // color edge
           color2edge.insert(code,edge);
 
-          name = rx.cap(1).toLower();             // colour name (lower) - e.g. dark_nougat
+          name = rx.cap(1).toLower();             // color name (lower) - e.g. dark_nougat
           name2color.insert(name,color);
           name2color.insert(code,color);
 
           ldname2ldcolor.insert(name,code);       // using name (lower) and code
 
-          name = rx.cap(1);                       // colour name (normal) - e.g. Dark_Nougat
+          name = rx.cap(1);                       // color name (normal) - e.g. Dark_Nougat
           color2name.insert(code,name);
           color2name.insert(color.name(),name);
         }
@@ -136,7 +136,7 @@ QColor LDrawColor::color(QString nickname)
 
 /*
  * This function provides the translate from LDraw color code to
- * alpha value and returns the colour alpha value if it exist.
+ * alpha value and returns the color alpha value if it exist.
  * If there is no color alpha value, 255 (fully opaque) is returned.
  */
 int LDrawColor::alpha(QString code)
@@ -148,7 +148,7 @@ int LDrawColor::alpha(QString code)
 
 /*
  * This function provides the translate from LDraw color code to
- * color value and returns the colour value if it exist.
+ * color value and returns the color value if it exist.
  * If there is no color value, FFFF80 (material main_colour) - is returned.
  */
 QString LDrawColor::value(QString code)
@@ -160,8 +160,8 @@ QString LDrawColor::value(QString code)
 
 /*
  * This function provides the translate from LDraw color code to
- * color edge value and returns the colour edge value if it exist.
- * If there is no color edge value, 333333 (default edge colour) is returned.
+ * color edge value and returns the color edge value if it exist.
+ * If there is no color edge value, 333333 (default edge color) is returned.
  */
 QString LDrawColor::edge(QString code)
 {

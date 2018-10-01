@@ -167,7 +167,7 @@ enum Theme { ThemeDark, ThemeDefault };
                                                 ASPECT_RATIO_3 "," ASPECT_RATIO_4 "," ASPECT_RATIO_5 "," \
                                                 ASPECT_RATIO_6 "," ASPECT_RATIO_7 "," ASPECT_RATIO_8
 
-// Team colour suppliments
+// Team color suppliments
 #define THEME_DEFAULT                   "Default" // Default Theme
 #define THEME_TICK_PEN_DEFAULT          "#35322f" // Qt Dark gray
 #define THEME_NML_PEN_DEFAULT           "#1e1b18" // Qt Double dark gray

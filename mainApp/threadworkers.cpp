@@ -404,7 +404,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
           if (tokens.size() == 15 && tokens[0] == "1") {
               // check if colored part and create custom version if yes
               QString fileNameStr = gui->ldrawColourParts.getLDrawColourPartInfo(tokens[tokens.size()-1]);
-              // validate part is static colour part;
+              // validate part is static color part;
               if (!fileNameStr.isEmpty()){
                   bool entryExists = false;
                   QString dirName = fileNameStr.section(":::",1,1).split("\\").first();
@@ -456,7 +456,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
   if (colourPartList.size() > 0) {
       // check if part has children color part(s)
       if (!processColourParts(colourPartList, partType)) {
-          QString error = QString("Process %1 colour parts failed!.").arg(nameMod);
+          QString error = QString("Process %1 color parts failed!.").arg(nameMod);
           emit messageSig(LOG_ERROR,error);
           emit progressStatusRemoveSig();
           emit customColourFinishedSig();
@@ -511,7 +511,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
   // Archive custom parts
   if (colourPartList.size() > 0 || (existingCustomParts > 0 && overwriteCustomParts)){
       // Process archive files
-      QString comment = QString("colour %1").arg(nameMod);
+      QString comment = QString("color %1").arg(nameMod);
       if (!processPartsArchive(customPartsDirs, comment, overwriteCustomParts)){
           QString error = QString("Process %1 parts archive failed!.").arg(nameMod);
           emit messageSig(LOG_ERROR,error);
@@ -573,7 +573,7 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
     }
 
     emit progressResetSig();
-    emit progressMessageSig("Process Colour Parts...");
+    emit progressMessageSig("Process Color Parts...");
     emit progressRangeSig(1, colourPartList.size());
 
     int partCount = 0;
@@ -622,13 +622,13 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
                     QString line = in.readLine(0);
                     _partFileContents << line.toLower();
 
-                    // check if line is a colour part
+                    // check if line is a color part
                     QStringList tokens;
                     split(line,tokens);
                     if (tokens.size() == 15 && tokens[0] == "1") {
-                        // validate part is static colour part;
+                        // validate part is static color part;
                         QString childFileNameStr = gui->ldrawColourParts.getLDrawColourPartInfo(tokens[tokens.size()-1]);
-                        // validate part is static colour part;
+                        // validate part is static color part;
                         if (!childFileNameStr.isEmpty()){
                             bool entryExists = false;
                             QString dirName = childFileNameStr.section(":::",1,1).split("\\").first();
@@ -708,11 +708,11 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
     }
     emit progressSetValueSig(colourPartList.size());
 
-    // recurse part file content to check if any children are colour parts
+    // recurse part file content to check if any children are color parts
     if (childrenColourParts.size() > 0)
         processColourParts(childrenColourParts, partType);
 
-    QString message = QString("%1 Colour %2 content processed.")
+    QString message = QString("%1 Color %2 content processed.")
         .arg(partsProcessed)
         .arg(partsProcessed > 1 ? "parts" : "part");
     emit messageSig(LOG_STATUS,message);
@@ -735,7 +735,7 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
 
     int maxValue            = _partList.size();
     emit progressResetSig();
-    emit progressMessageSig("Creating Costom Colour Parts");
+    emit progressMessageSig("Creating Costom Color Parts");
     emit progressRangeSig(1, maxValue);
 
     QStringList customPartContent, customPartColourList;
@@ -805,7 +805,7 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
                     }
                     fileNameStr = tokens[tokens.size()-1].toLower();
                     QString searchFileNameStr = fileNameStr;
-                    // check if part at this line has a matching colour part in the colourPart list - if yes, rename with '-fade' or '-highlight'
+                    // check if part at this line has a matching color part in the colourPart list - if yes, rename with '-fade' or '-highlight'
                     searchFileNameStr = searchFileNameStr.split("\\").last();
                     QMap<QString, ColourPart>::iterator cpc = _colourParts.find(searchFileNameStr);
                     if (cpc != _colourParts.end()){
@@ -820,27 +820,27 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
                     tokens[0] >= "1" && tokens[0] <= "5")     &&
                     (tokens[1] != LDRAW_MAIN_MATERIAL_COLOUR) &&
                     (tokens[1] != LDRAW_EDGE_MATERIAL_COLOUR)) {
-                    //QString oldColour(tokens[1]);          //logging only: show colour lines
+                    //QString oldColour(tokens[1]);          //logging only: show color lines
                     QString colourCode;
                     // Insert color code for fade part
                     if (partType == FADE_PART){
-                        // generate costom colour entry - if fadeStepsUseColour, set colour to material colour (16), without prefix
+                        // generate costom color entry - if fadeStepsUseColour, set color to material color (16), without prefix
                         colourCode = Preferences::fadeStepsUseColour ? LDRAW_MAIN_MATERIAL_COLOUR : tokens[1];
-                        // add colour line to local list - if fadeStepsUseColour, no need to create entry
+                        // add color line to local list - if fadeStepsUseColour, no need to create entry
                         if (!Preferences::fadeStepsUseColour && !gui->colourEntryExist(customPartColourList,colourCode,partType))
                             customPartColourList << gui->createColourEntry(colourCode,partType);
-                        // set costom colour - if fadeStepsUseColour, do not add costom colour prefix
+                        // set costom color - if fadeStepsUseColour, do not add costom color prefix
                         tokens[1] = Preferences::fadeStepsUseColour ? colourCode : QString("%1%2").arg(colourPrefix).arg(colourCode);
                         //logTrace() << "D. CHANGE CHILD PART COLOUR: " << fileNameStr << " NewColour: " << tokens[1] << " OldColour: " << oldColour;
                     }
                     // Insert color code for silhouette part
                     if (partType == HIGHLIGHT_PART){
-                        // generate costom colour entry - always
+                        // generate costom color entry - always
                         colourCode = tokens[1];
-                        // add colour line to local list - always request to create entry
+                        // add color line to local list - always request to create entry
                         if (!gui->colourEntryExist(customPartColourList,colourCode,partType))
                             customPartColourList << gui->createColourEntry(colourCode,partType);
-                        // set costom colour - if fadeStepsUseColour, do not add costom colour prefix
+                        // set costom color - if fadeStepsUseColour, do not add costom color prefix
                         tokens[1] = QString("%1%2").arg(colourPrefix).arg(colourCode);
                     }
                 }
@@ -858,7 +858,7 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
                 }
             }
 
-            // add the costom part colour list to the header of the costom part contents
+            // add the costom part color list to the header of the costom part contents
             customPartColourList.toSet().toList(); // remove dupes
 
             int insertionPoint = 0; // skip the first line (title)
@@ -882,7 +882,7 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
                 if (!isHeader(customPartContent[i]) && !QString(customPartContent[i]).isEmpty())
                   break;
             }
-            // insert colour entries after header
+            // insert color entries after header
             customPartContent.insert(insertionPoint,"0 // LPub3D part custom colours");
             for (int i = 0; i < customPartColourList.size(); i++) {
                 insertionPoint++;
@@ -1120,7 +1120,7 @@ ColourPartListWorker::ColourPartListWorker(QObject *parent) : QObject(parent)
 }
 
 /*
- * build colour part listing
+ * build color part listing
  *
  */
 
@@ -1164,7 +1164,7 @@ void ColourPartListWorker::generateCustomColourPartsList()
     emit progressBarInitSig();
     foreach (QString archiveFile, archiveFiles) {
        if(!processArchiveParts(archiveFile)){
-           QString error = QString("Process colour parts list failed!.");
+           QString error = QString("Process color parts list failed!.");
            emit messageSig(LOG_ERROR,error);
            emit progressStatusRemoveSig();
            emit colourPartListFinishedSig();
@@ -1186,7 +1186,7 @@ void ColourPartListWorker::generateCustomColourPartsList()
     .arg(secs,  2, 10, QLatin1Char('0'))
     .arg(msecs,  3, 10, QLatin1Char('0'));
 
-    QString fileStatus = QString("Colour parts list successfully created with %1 entries. %2.").arg(QString::number(_cpLines)).arg(time);
+    QString fileStatus = QString("Color parts list successfully created with %1 entries. %2.").arg(QString::number(_cpLines)).arg(time);
     fileSectionHeader(FADESTEP_FILE_STATUS, QString("# %1").arg(fileStatus));
     bool append = true;
     writeLDrawColourPartFile(append);
@@ -1216,7 +1216,7 @@ bool ColourPartListWorker::processArchiveParts(const QString &archiveFile) {
 
     // get part count
     emit progressRangeSig(0, 0);
-    emit progressMessageSig("Generating " + library + " Colour Parts...");
+    emit progressMessageSig("Generating " + library + " Color Parts...");
 
     int partCount = 1;
     for(bool f=zip.goToFirstFile(); f; f=zip.goToNextFile()) {
@@ -1282,15 +1282,15 @@ bool ColourPartListWorker::processArchiveParts(const QString &archiveFile) {
 }
 
 /*
- * parse colour part file to determine children parts with static colour.
+ * parse color part file to determine children parts with static color.
  */
 void ColourPartListWorker::processFileContents(const QString &libFileName, const bool isUnOffLib){
 
-    QString materialColor  ="16";  // Internal Common Material Colour (main)
+    QString materialColor  ="16";  // Internal Common Material Color (main)
     QString edgeColor      ="24";  // Internal Common Material Color (edge)
     QString fileEntry;
     QString fileName;
-    QString colour;
+    QString color;
     QString libType        = isUnOffLib ? "U" : "O";
     QString libEntry       = libFileName;
     QString libFilePath    = libEntry.remove("/" + libEntry.split("/").last());
@@ -1312,22 +1312,22 @@ void ColourPartListWorker::processFileContents(const QString &libFileName, const
             (tokens.size() == 11 && tokens[0] == "3") ||
             (tokens.size() == 14 && tokens[0] == "4") ||
             (tokens.size() == 14 && tokens[0] == "5")) {
-            colour = tokens[1];
-            if (colour == edgeColor || colour == materialColor){
+            color = tokens[1];
+            if (color == edgeColor || color == materialColor){
                 continue;
 
             } else {
                 hasColour = true;
-                //emit messageSig(LOG_INFO,QString("File contents VERIFY: %1  COLOUR: %2 %3").arg(line).arg(colour));
+                //emit messageSig(LOG_INFO,QString("File contents VERIFY: %1  COLOUR: %2 %3").arg(line).arg(color));
                 if (fileName.isEmpty()){
                     fileName = libFileName.split("/").last();
                     emit messageSig(LOG_ERROR,QString("Part: %1 \nhas no 'Name:' attribute. Using library path name %2 instead.\n"
-                                                      "You may want to update the part content and costom colour parts list.")
+                                                      "You may want to update the part content and costom color parts list.")
                                                       .arg(fileName).arg(libFileName));
                 }
                 fileEntry = QString("%1:::%2:::%3").arg(fileName).arg(libType).arg(_partFileContents[0].remove(0,2));
                 remove(libFileName);
-                //logNotice() << "Remove from list as it is a known colour part: " << libFileName;
+                //logNotice() << "Remove from list as it is a known color part: " << libFileName;
                 break;
             }
         } // token size
@@ -1342,16 +1342,16 @@ void ColourPartListWorker::processFileContents(const QString &libFileName, const
         _ldrawStaticColourParts  << fileEntry.toLower();
         if (fileName.size() > _colWidthFileName)
             _colWidthFileName = fileName.size();
-        //logNotice() << "ADD COLOUR PART: " << fileName << " libFileName: " << libFileName << " Colour: " << colour;
+        //logNotice() << "ADD COLOUR PART: " << fileName << " libFileName: " << libFileName << " Color: " << color;
     }
 }
 
 void ColourPartListWorker::processChildren(){
 
     emit progressResetSig();
-    emit progressMessageSig("Processing Child Colour Parts...");
+    emit progressMessageSig("Processing Child Color Parts...");
     emit progressRangeSig(1, _partList.size());
-    emit messageSig(LOG_INFO,QString("Processing Child Colour Parts - Count: %1").arg(_partList.size()));
+    emit messageSig(LOG_INFO,QString("Processing Child Color Parts - Count: %1").arg(_partList.size()));
 
     QString     filePath = "";
     for(int part = 0; part < _partList.size() && endThreadNotRequested(); part++){
@@ -1402,7 +1402,7 @@ void ColourPartListWorker::processChildren(){
         }
     }
     emit progressSetValueSig(_partList.size());
-    emit messageSig(LOG_INFO,QString("Finished Processing Child Colour Parts."));
+    emit messageSig(LOG_INFO,QString("Finished Processing Child Color Parts."));
 }
 
 void ColourPartListWorker::writeLDrawColourPartFile(bool append){
@@ -1501,32 +1501,32 @@ void ColourPartListWorker::fileSectionHeader(const int &option, const QString &h
                                     .arg(VER_LDRAW_COLOR_PARTS_FILE)
                                     .arg(QDateTime::currentDateTime().toString(fmtDateTime));
         _ldrawStaticColourParts  << "";
-        _ldrawStaticColourParts  << "# This list captures the LDraw static colour parts (and their subfiles) to support step fade";
+        _ldrawStaticColourParts  << "# This list captures the LDraw static color parts (and their subfiles) to support step fade";
         _ldrawStaticColourParts  << "# and step highlight.";
         _ldrawStaticColourParts  << "# Parts on this list are identified in the LDraw library and copied to their respective";
         _ldrawStaticColourParts  << "# custom directory.";
         _ldrawStaticColourParts  << "# Copied files are modified as described in the following lines.";
-        _ldrawStaticColourParts  << "# If fade step is enabled, colour codes are replaced with a custom code using the standard";
-        _ldrawStaticColourParts  << "# colour code prefixed with " << LPUB3D_COLOUR_FADE_PREFIX << ".";
-        _ldrawStaticColourParts  << "# If using a single fade step colour, colour codes are replaced with main material colour";
-        _ldrawStaticColourParts  << "# code 16 using the fade colour set in Preferences";
-        _ldrawStaticColourParts  << "# If part highlight is enabled, edge colour values are replaced with the colour value set";
+        _ldrawStaticColourParts  << "# If fade step is enabled, color codes are replaced with a custom code using the standard";
+        _ldrawStaticColourParts  << "# color code prefixed with " << LPUB3D_COLOUR_FADE_PREFIX << ".";
+        _ldrawStaticColourParts  << "# If using a single fade step color, color codes are replaced with main material color";
+        _ldrawStaticColourParts  << "# code 16 using the fade color set in Preferences";
+        _ldrawStaticColourParts  << "# If part highlight is enabled, edge color values are replaced with the color value set";
         _ldrawStaticColourParts  << "# in Preferences";
-        _ldrawStaticColourParts  << "# If part highlight is enabled, colour codes are replaced with a custom code using the standard";
-        _ldrawStaticColourParts  << "# colour code prefixed with " << LPUB3D_COLOUR_HIGHLIGHT_PREFIX << ".";
+        _ldrawStaticColourParts  << "# If part highlight is enabled, color codes are replaced with a custom code using the standard";
+        _ldrawStaticColourParts  << "# color code prefixed with " << LPUB3D_COLOUR_HIGHLIGHT_PREFIX << ".";
         _ldrawStaticColourParts  << "# When fade step is enabled, custom generated files are appended with '-fade',";
         _ldrawStaticColourParts  << "# for example, ...\\custom\\parts\\99499-fade.dat";
         _ldrawStaticColourParts  << "# When highlight step is enabled, custom generated files are appended with '-highlight',";
         _ldrawStaticColourParts  << "# for example, ...\\custom\\parts\\99499-highlight.dat";
         _ldrawStaticColourParts  << "# Part identifiers with spaces will not be properly recoginzed.";
-        _ldrawStaticColourParts  << "# This file is automatically generated from Configuration=>Generate Static Colour Parts List";
-        _ldrawStaticColourParts  << "# However, it can also be modified manually from Configuration=>Edit Static Colour Parts List";
+        _ldrawStaticColourParts  << "# This file is automatically generated from Configuration=>Generate Static Color Parts List";
+        _ldrawStaticColourParts  << "# However, it can also be modified manually from Configuration=>Edit Static Color Parts List";
         _ldrawStaticColourParts  << "# There are three defined columns in this file:";
         _ldrawStaticColourParts  << "# 1. File Name: The part file name as defined in the LDraw Library.";
         _ldrawStaticColourParts  << "# 2. Lib Type: Indicator 'U'=Unofficial Library and 'O'= Official Library.";
         _ldrawStaticColourParts  << "# 3. Description: The part file description taken from the first line of the part file.";
         _ldrawStaticColourParts  << "";
-        _ldrawStaticColourParts  << "# LDraw static colour parts were generated from the following list of libraries and directories:";
+        _ldrawStaticColourParts  << "# LDraw static color parts were generated from the following list of libraries and directories:";
         _ldrawStaticColourParts  << "";
         break;
       case FADESTEP_FILE_HEADER:
@@ -1536,13 +1536,13 @@ void ColourPartListWorker::fileSectionHeader(const int &option, const QString &h
           break;
     case FADESTEP_COLOUR_PARTS_HEADER:
         _ldrawStaticColourParts  << "";
-        _ldrawStaticColourParts  << "# Static colour parts";
+        _ldrawStaticColourParts  << "# Static color parts";
         _ldrawStaticColourParts  << heading;
         _ldrawStaticColourParts  << "";
         break;
     case FADESTEP_COLOUR_CHILDREN_PARTS_HEADER:
         _ldrawStaticColourParts  << "";
-        _ldrawStaticColourParts  << "# Parts with no static colour element but has subparts or primitives with static colour elements";
+        _ldrawStaticColourParts  << "# Parts with no static color element but has subparts or primitives with static color elements";
         _ldrawStaticColourParts  << heading;
         _ldrawStaticColourParts  << "";
         break;

@@ -21,7 +21,7 @@ enum
 	LC_COLORGROUP_SOLID,
 	LC_COLORGROUP_TRANSLUCENT,
 	LC_COLORGROUP_SPECIAL,
-	LC_COLORGROUP_LPUB3D,          /*** LPub3D Mod - LPub3D colour group ***/
+	LC_COLORGROUP_LPUB3D,          /*** LPub3D Mod - LPub3D color group ***/
 	LC_NUM_COLORGROUPS
 };
 
@@ -53,7 +53,7 @@ extern int gDefaultColor;
 
 void lcLoadDefaultColors();
 bool lcLoadColorFile(lcFile& File);
-/*** LPub3D Mod - load colour entry ***/
+/*** LPub3D Mod - load color entry ***/
 bool lcLoadColorEntry(const char* ColorEntry);
 /*** LPub3D Mod end ***/
 int lcGetColorIndex(quint32 ColorCode);

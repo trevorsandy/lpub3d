@@ -353,9 +353,9 @@ void Gui::openFile(QString &fileName)
   emit messageSig(LOG_STATUS, "Loading LDraw model file...");
   ldrawFile.loadFile(fileName);
   bool overwriteCustomParts = false;
-  emit messageSig(LOG_STATUS, "Loading fade colour parts...");
+  emit messageSig(LOG_STATUS, "Loading fade color parts...");
   processFadeColourParts(overwriteCustomParts);
-  emit messageSig(LOG_STATUS, "Loading highlight colour parts...");
+  emit messageSig(LOG_STATUS, "Loading highlight color parts...");
   processHighlightColourParts(overwriteCustomParts);
   emit messageSig(LOG_STATUS, "Loading user interface items...");
   attitudeAdjustment();

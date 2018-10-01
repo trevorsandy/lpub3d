@@ -214,10 +214,10 @@
                </size>
               </property>
               <property name="toolTip">
-               <string>Select to use this colour for all faded parts, otherwise fade existing colour.</string>
+               <string>Select to use this color for all faded parts, otherwise fade existing color.</string>
               </property>
               <property name="title">
-               <string>Use Global Fade Colour</string>
+               <string>Use Global Fade Color</string>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -463,7 +463,7 @@
                    </sizepolicy>
                   </property>
                   <property name="text">
-                   <string>Highlight Colour...</string>
+                   <string>Highlight Color...</string>
                   </property>
                  </widget>
                 </item>
