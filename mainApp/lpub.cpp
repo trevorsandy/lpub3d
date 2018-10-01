@@ -1095,7 +1095,7 @@ void Gui::clearCustomPartCache(bool silent)
   QMessageBox::StandardButton ret = QMessageBox::Ok;
   QString message = QString("All existing custom part files will be deleted and regenerated.\n"
                             "Warning: Only custom part files for the currently loaded model file will be updated in %1.")
-                            .arg(FILE_LPUB3D_UNOFFICIAL_ARCHIVE);
+                            .arg(VER_LPUB3D_UNOFFICIAL_ARCHIVE);
   if (silent || !Preferences::modeGUI) {
       emit messageSig(LOG_INFO,message);
   } else {
@@ -2493,7 +2493,7 @@ void Gui::refreshLDrawUnoffParts(){
     wait->exec();
 
     // Automatically extract unofficial archive
-    QString archive = tr("%1/%2").arg(archivePath).arg(FILE_LPUB3D_UNOFFICIAL_ARCHIVE);
+    QString archive = tr("%1/%2").arg(archivePath).arg(VER_LPUB3D_UNOFFICIAL_ARCHIVE);
     QString destination = tr("%1/unofficial").arg(Preferences::ldrawPath);
     QStringList result = JlCompress::extractDir(archive,destination);
     if (result.isEmpty()){

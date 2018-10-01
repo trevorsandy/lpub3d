@@ -4,10 +4,6 @@
 #include "lc_mesh.h"
 #include "lc_math.h"
 #include "lc_array.h"
-/*** LPub3D Mod - Includes ***/
-#include "name.h"
-#include "QsLog.h"
-/*** LPub3D Mod end ***/
 
 class PieceInfo;
 class lcZipFile;

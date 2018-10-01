@@ -743,9 +743,11 @@ void Preferences::lpub3dLibPreferences(bool force)
             QString body = QMessageBox::tr ("Note: The LDraw library archives are not provided and <u>must be downloaded</u> - or selected.\n"
                                             "Would you like to download or select the library archives?");
             QString detail = QMessageBox::tr ("You must select or create your LDraw library archive files.\n"
-                                              "The location of your official archive file (complete.zip) should "
-                                              "also have the unofficial archive file (lpub3dldrawunf.zip).\n"
+                                              "The location of your official archive file (%1) should "
+                                              "also have the unofficial archive file (%2).\n"
                                               "LDraw library archive files can be copied, downloaded or selected to your '%1/%2/' folder now.")
+                                              .arg(VER_LDRAW_OFFICIAL_ARCHIVE)
+                                              .arg(VER_LPUB3D_UNOFFICIAL_ARCHIVE)
                     .arg(lpubDataPath, "libraries");
             box.setText (header);
             box.setInformativeText (body);

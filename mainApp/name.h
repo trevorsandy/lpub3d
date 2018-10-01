@@ -64,17 +64,8 @@ enum Theme { ThemeDark, ThemeDefault };
 #define PAGE_WIDTH_DEFAULT                      600
 #define LINE_WRAP_WIDTH                         160      //Text browser line width (change log)
 
-#define PLAINTEXT_CHANGE_LOG_CUTOFF_VERSION    "2.2.2"  // last versoion of LPub3D to use html change notes
+#define PLAINTEXT_CHANGE_LOG_CUTOFF_VERSION    "2.2.2"  // last version of LPub3D to use html change notes
 
-// filenames
-#define URL_LDRAW_UNOFFICIAL_ARCHIVE            "http://www.ldraw.org/library/unofficial/ldrawunf.zip"
-#define URL_LDRAW_OFFICIAL_ARCHIVE              "http://www.ldraw.org/library/updates/complete.zip"
-
-#define FILE_LDRAW_OFFICIAL_ARCHIVE             "complete.zip"
-#define FILE_LDRAW_UNOFFICIAL_ARCHIVE           "ldrawunf.zip"
-#define FILE_LPUB3D_UNOFFICIAL_ARCHIVE          "lpub3dldrawunf.zip"
-
-#define FILE_LDRAW_LDCONFIG                     "ldconfig.ldr"
 #define DURAT_LGEO_STL_LIB_INFO                 "LGEO Stl library is available"
 
 #define SPLASH_FONT_COLOUR                      "#aa0000" // Maroon
@@ -96,7 +87,7 @@ enum Theme { ThemeDark, ThemeDefault };
 #define LDRAW_MAIN_MATERIAL_COLOUR              "16"
 
 #define FADE_COLOUR_DEFAULT                     "Very_Light_Bluish_Grey"
-#define FADE_OPACITY_DEFAULT                    50         // 50 percent transarency
+#define FADE_OPACITY_DEFAULT                    50         // 50 percent transparency
 
 #define LPUB3D_COLOUR_FADE_PREFIX               "100"
 #define LPUB3D_COLOUR_HIGHLIGHT_PREFIX          "110"
@@ -111,7 +102,7 @@ enum Theme { ThemeDark, ThemeDefault };
 #define HIGHLIGHT_COLOUR_DEFAULT                "#FFFF00"  // Bright Yellow
 #define HIGHLIGHT_LINE_WIDTH_DEFAULT            1.0        // line width 1 - 5
 
-// Native pov file generation defaults
+// Native POV file generation defaults
 #define SEAM_WIDTH_DEFAULT                      0.5
 #define QUALITY_EXPORT_DEFAULT                  3
 #define SELECTED_ASPECT_RATIO_DEFAULT          -1          // ASPECT_RATIO_0 "Automatic"
@@ -167,12 +158,12 @@ enum Theme { ThemeDark, ThemeDefault };
                                                 ASPECT_RATIO_3 "," ASPECT_RATIO_4 "," ASPECT_RATIO_5 "," \
                                                 ASPECT_RATIO_6 "," ASPECT_RATIO_7 "," ASPECT_RATIO_8
 
-// Team color suppliments
+// Team color supplements
 #define THEME_DEFAULT                   "Default" // Default Theme
-#define THEME_TICK_PEN_DEFAULT          "#35322f" // Qt Dark gray
-#define THEME_NML_PEN_DEFAULT           "#1e1b18" // Qt Double dark gray
-#define THEME_GUIDE_PEN_DEFAULT         "#1e1b18" // Qt Double dark gray
-#define THEME_MAIN_BGCOLOR_DEFAULT      "#aeadac" // Qt Light gray
+#define THEME_TICK_PEN_DEFAULT          "#35322f" // Qt Dark grey
+#define THEME_NML_PEN_DEFAULT           "#1e1b18" // Qt Double dark grey
+#define THEME_GUIDE_PEN_DEFAULT         "#1e1b18" // Qt Double dark grey
+#define THEME_MAIN_BGCOLOR_DEFAULT      "#aeadac" // Qt Light Gray
 #define THEME_VIEWER_BGCOLOR_DEFAULT    "#ffffff" // Qt White
 
 #define THEME_HIGHLIGHT_01_DEFAULT      "#006325" // Qt 01 Dark green
@@ -186,10 +177,10 @@ enum Theme { ThemeDark, ThemeDefault };
 #define THEME_DARK                      "Dark"    // Dark Theme
 #define THEME_TICK_PEN_DARK             "#eff0f1" // Custom pale grey
 #define THEME_NML_PEN_DARK              "#ffffff" // Qt White
-#define THEME_GUIDEL_PEN_DARK           "#5d5b59" // Qt Medium gray
+#define THEME_GUIDEL_PEN_DARK           "#5d5b59" // Qt Medium Gray
 #define THEME_MAIN_BGCOLOR_DARK         "#31363b" // Custom dark dark grey
 #define THEME_VIEWER_BGCOLOR_DARK       "#808B96" // Custom grey
-#define THEME_EDIT_MARGIN_DARK          "#ABB2B9" // Custom gray
+#define THEME_EDIT_MARGIN_DARK          "#ABB2B9" // Custom Gray
 
 #define THEME_HIGHLIGHT_01_DARK         "#17c723" // 01 Custom green
 #define THEME_HIGHLIGHT_02_DARK         "#0079cf" // 02 Custom blue
@@ -197,7 +188,7 @@ enum Theme { ThemeDark, ThemeDefault };
 #define THEME_HIGHLIGHT_04_DARK         "#14aaff" // 04 Qt Blue
 #define THEME_HIGHLIGHT_05_DARK         "#ff9900" // 05 Custom Red-Orange
 #define THEME_HIGHLIGHT_06_DARK         "#ff5227" // 06 Custom Orange
-#define THEME_HIGHLIGHT_07_DARK         "#bbbfff" // 07 Custom Voilet
+#define THEME_HIGHLIGHT_07_DARK         "#bbbfff" // 07 Custom Violet
 
-#define THEME_EDITWINDOW_LINE_DARK      "#5d5b59" // 06 Qt Medium gray
+#define THEME_EDITWINDOW_LINE_DARK      "#5d5b59" // 06 Qt Medium Gray
 #endif

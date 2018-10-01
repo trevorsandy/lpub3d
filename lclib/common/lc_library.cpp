@@ -14,12 +14,13 @@
 #include <ctype.h>
 #include <locale.h>
 #include <zlib.h>
-/*** LPub3D Mod - Includes ***/
-#include "lpub.h"
-/*** LPub3D Mod end ***/
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 #include <QtConcurrent>
 #endif
+/*** LPub3D Mod - Includes ***/
+#include "lpub.h"
+#include "version.h"
+/*** LPub3D Mod end ***/
 
 #if MAX_MEM_LEVEL >= 8
 #  define DEF_MEM_LEVEL 8
@@ -342,7 +343,7 @@ bool lcPiecesLibrary::Load(const QString& LibraryPath, bool ShowProgress)
 
 		mLibraryDir = QFileInfo(LibraryPath).absoluteDir();
 /*** LPub3D Mod - unoffical library file name ***/
-		QString UnofficialFileName = mLibraryDir.absoluteFilePath(QLatin1String(FILE_LPUB3D_UNOFFICIAL_ARCHIVE));
+        QString UnofficialFileName = mLibraryDir.absoluteFilePath(QLatin1String(VER_LPUB3D_UNOFFICIAL_ARCHIVE));
 /*** LPub3D Mod end ***/
 
 
