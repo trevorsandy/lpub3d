@@ -3682,12 +3682,13 @@ void Gui::createDockWindows()
 
     tabifyDockWidget(gMainWindow->mTimelineToolBar, gMainWindow->mPropertiesToolBar);
 
-#ifdef Q_OS_MAC
-    // modelDock window Hack is not stable on macOS so start with fileEdit Window until I figure out what's wrong.
+    // launching with viewerDockWindow raised is not stable so start with fileEdit until I figure out what's wrong.
     fileEditDockWindow->raise();
-#else
-    viewerDockWindow->raise();
-#endif
+//#ifdef Q_OS_MACOS
+//    fileEditDockWindow->raise();
+//#else
+//    viewerDockWindow->raise();
+//#endif
 
     connect(viewerDockWindow, SIGNAL (topLevelChanged(bool)), this, SLOT (toggleLCStatusBar()));
     //**
