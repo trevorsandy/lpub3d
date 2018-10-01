@@ -146,10 +146,6 @@ signals:
 
      void progressResetSig();
 
-     void messageSig(
-            LogType             logType,
-            QString             message);
-
      void progressStatusRemoveSig();
 
      void customColourFinishedSig();

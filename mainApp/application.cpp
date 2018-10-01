@@ -446,21 +446,21 @@ void Application::initialize()
   setlocale(LC_NUMERIC, "C");
 
 /* load sequence
+* Gui::gui()                                             (gui)           [LPub3D]
 * lcApplication::lcApplication()                         (gApplication)  [3DViewer]
 * lcApplication::LoadDefaults                            (gApplication)
-* Gui::gui()                                             (gui)           [LPub3D]
 * lcApplication::Initialize()                            (gApplication->Initialize)
 * Initialize::gMainWindow                                (gApplication->gMainWindow)
 * Initialize::lcLoadDefaultKeyboardShortcuts()           (gApplication->Initialize)
 * Initialize::lcLoadDefaultMouseShortcuts()              (gApplication->Initialize)
 * Initialize::LoadPartsLibrary()                         (gApplication->Initialize)
 * LoadPartsLibrary::ldsearchDirPreferences()             (gApplication->Initialize)
-* ldsearchDirPreferences::setLDViewExtraSearchDirs()     (gApplication->Initialize) [LDView Renderer]
+* ldsearchDirPreferences::setLDViewExtraSearchDirs()     (gApplication->Initialize) [LDView Renderer], [LDGLite Renderer]
 * Initialize::CreateWidgets()                            (gApplication->Initialize)
 * gMainWindow::SetColorIndex()                           (gApplication->gMainWindow)
 * gMainWindow::GetPartSelectionWidget()                  (gApplication->gMainWindow)
 * Gui::initialize()                                      (gui->initialize)
-* initialize::populateLdgLiteSearchDirs()                (gui->initialize)          [LDGLite Renderer]
+* initialize::populateLdgLiteSearchDirs()                (gui->initialize)          [LDGLite Renderer] Moved
 * initialize::createActions                              (gui->initialize)
 * initialize::createToolBars                             (gui->initialize)
 * initialize::createStatusBar                            (gui->initialize)
@@ -597,5 +597,6 @@ void restartApplication()
 void messageSig(LogType logType, QString message){
     gui->messageSig(logType, message);
 }
+
 // Implements the main function here.
 ENTRY_POINT

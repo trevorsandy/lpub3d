@@ -198,6 +198,7 @@ bool lcApplication::LoadPartsLibrary(const QList<QPair<QString, bool>>& LibraryP
     // load search directories
     PartWorker partWorkerLDSearchDirs;
     partWorkerLDSearchDirs.ldsearchDirPreferences();
+
     // process search directories to update library archive
     partWorkerLDSearchDirs.processLDSearchDirParts();
 

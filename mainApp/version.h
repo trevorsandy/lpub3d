@@ -122,7 +122,7 @@
   #define VER_COMPILED_ON                "Micorsoft Visual C++ 2015"
   #define VER_COMPILED_FOR               "MS Windows " VER_BUILD_ARCH_STR "bit"
   #define VER_COMPILED_WITH              "Qt qtver (MSVC2015 " VER_BUILD_ARCH_STR "bit)"
-  #define VER_IDE                        "Qt Creator 4.6.2 on Qt 5.10.1 (MSVC 2015, x32)" // "Visual Studio 2015 v14.0.25424.00 Update 3"
+  #define VER_IDE                        "Qt Creator 4.7.1 on Qt 5.11.2 (MSVC 2015, x32)" // "Visual Studio 2015 v14.0.25424.00 Update 3"
 #endif
 
 #endif // VERSION_H

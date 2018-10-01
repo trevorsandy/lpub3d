@@ -883,11 +883,11 @@ public:
   Page                  page;                         // the abstract version of page contents
 
 // multi-thread worker classes
-  PartWorker             partWorkerLDSearchDirs;     // part worker to process search directories and fade and or highlight color parts
+  PartWorker             partWorkerLDSearchDirs;      // part worker to process search directories and fade and or highlight color parts
   PartWorker             partWorkerLdgLiteSearchDirs; // part worker to process temp directory parts
   PartWorker            *partWorkerCustomColour;      // part worker to process color part fade and or highlight
   ColourPartListWorker  *colourPartListWorker;        // create static color parts list in separate thread
-  ParmsWindow           *parmsWindow;                 // the parametrer file editor
+  ParmsWindow           *parmsWindow;                 // the parameter file editor
   Preferences            lpub3dPreferences;           // lpub3D Preferences
 
 protected:
@@ -1353,6 +1353,11 @@ extern class Gui *gui;
 inline Preferences& lpub3DGetPreferences()
 {
     return gui->lpub3dPreferences;
+}
+
+inline PartWorker& partWorkerLDSearchDirs()
+{
+    return gui->partWorkerLDSearchDirs;
 }
 
 void clearPliCache();

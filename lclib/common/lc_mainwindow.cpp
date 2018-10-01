@@ -2409,8 +2409,6 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged)
 	}
 
 /*** LPub3D Mod - replace mStatusBarLabel    ***/
-/***	mStatusBarLabel->setText(Message);   ***/
-    //gui->messageSig(LOG_STATUS, Message);
     statusBar()->showMessage(Message);
 /*** LPub3D Mod end ***/
 

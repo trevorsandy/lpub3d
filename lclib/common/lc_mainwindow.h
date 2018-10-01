@@ -8,6 +8,7 @@
 /*** LPub3D Mod - status and logging ***/
 #include <QToolBar>
 #include <QStatusBar>
+#include <name.h>
 /*** LPub3D Mod end ***/
 
 class View;
@@ -334,7 +335,7 @@ public:
     const QString GetPliIconsPath(QString &key);
     const QString GetFadeStepsColor();
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - Roate Angles ***/
+/*** LPub3D Mod - Rotate Angles ***/
 	void GetRotStepMetaAngles();
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - parse and set rotstep line on model file load ***/
@@ -375,12 +376,12 @@ public slots:
         void SetStepRotStepMeta(lcCommandId CommandId);
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - roate step signals ***/
+/*** LPub3D Mod - rotate step signals ***/
 signals:
-        lcVector3 GetRotStepMeta();   // used to capture step meta angles
-        void SetRotStepMeta();
-        void SetRotStepAngleX(float, bool=false);
-        void SetRotStepAngleY(float, bool=false);
+   lcVector3 GetRotStepMeta();   // used to capture step meta angles
+   void SetRotStepMeta();
+   void SetRotStepAngleX(float, bool=false);
+   void SetRotStepAngleY(float, bool=false);
         void SetRotStepAngleZ(float, bool=false);
         void SetRotStepTransform(QString&, bool=false);
 /*** LPub3D Mod end ***/

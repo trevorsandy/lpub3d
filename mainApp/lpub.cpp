@@ -2376,7 +2376,6 @@ void Gui::processHighlightColourParts(bool overwriteCustomParts)
 
 // Update parts archive from LDSearch directories
 void Gui::processLDSearchDirParts(){
-  PartWorker partWorkerLDSearchDirs;
   partWorkerLDSearchDirs.processLDSearchDirParts();
 }
 

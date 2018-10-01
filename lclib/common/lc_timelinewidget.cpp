@@ -5,10 +5,6 @@
 #include "pieceinf.h"
 #include "lc_mainwindow.h"
 
-/*** LPub3D Mod - Timeline part icons ***/
-#include "name.h"
-/*** LPub3D Mod end ***/
-
 lcTimelineWidget::lcTimelineWidget(QWidget* Parent)
 	: QTreeWidget(Parent)
 {

@@ -57,8 +57,8 @@ void PartWorker::ldsearchDirPreferences(){
   if (!_resetSearchDirSettings) {
       emit Application::instance()->splashMsgSig("50% - Search directory preferences loading...");
     } else {
-      emit messageSig(LOG_INFO,"Reset search directories...");
-      emit messageSig(LOG_INFO,"Reset - search directory preferences loading...");
+      emit gui->messageSig(LOG_INFO,"Reset search directories...");
+      emit gui->messageSig(LOG_INFO,"Reset - search directory preferences loading...");
     }
 
   QSettings Settings;
@@ -89,7 +89,7 @@ void PartWorker::ldsearchDirPreferences(){
           //qDebug() << QString(tr("  -Failed to get Ldraw.ini, valid file (from Preferences) does not exist."));
         }
     } else {
-      emit messageSig(LOG_STATUS, QString("Unable to initialize Ldrawini. Using default search directories."));
+      emit gui->messageSig(LOG_STATUS, QString("Unable to initialize Ldrawini. Using default search directories."));
     }
 
   if (!doFadeStep() && !doHighlightStep()) {
@@ -99,12 +99,12 @@ void PartWorker::ldsearchDirPreferences(){
       Paths::mkCustomDirs();
   }
 
-  emit messageSig(LOG_INFO,(doFadeStep() ? QString("Fade Previous Steps is ON.") : QString("Fade Previous Steps is OFF.")));
-  emit messageSig(LOG_INFO,(doHighlightStep() ? QString("Highlight Current Step is ON.") : QString("Highlight Current Step is OFF.")));
+  emit gui->messageSig(LOG_INFO,(doFadeStep() ? QString("Fade Previous Steps is ON.") : QString("Fade Previous Steps is OFF.")));
+  emit gui->messageSig(LOG_INFO,(doHighlightStep() ? QString("Highlight Current Step is ON.") : QString("Highlight Current Step is OFF.")));
 
   if (!Preferences::ldrawiniFound && !_resetSearchDirSettings &&
       Settings.contains(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey))) {    // ldrawini not found and not reset so load registry key
-      emit messageSig(LOG_STATUS, QString("ldraw.ini not found, loading ldSearch directories from registry key..."));
+      emit gui->messageSig(LOG_STATUS, QString("ldraw.ini not found, loading ldSearch directories from registry key..."));
       QStringList searchDirs = Settings.value(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey)).toStringList();
       bool customDirsIncluded = false;
       foreach (QString searchDir, searchDirs){
@@ -120,9 +120,9 @@ void PartWorker::ldsearchDirPreferences(){
                                       customDir.toLower() == _customPrimDir.toLower());
                 }
               Preferences::ldSearchDirs << searchDir;
-              emit messageSig(LOG_STATUS, QString("Add search directory: %1").arg(searchDir));
+              emit gui->messageSig(LOG_STATUS, QString("Add search directory: %1").arg(searchDir));
           } else {
-              emit messageSig(LOG_STATUS, QString("Search directory is empty and will be ignored: %1").arg(searchDir));
+              emit gui->messageSig(LOG_STATUS, QString("Search directory is empty and will be ignored: %1").arg(searchDir));
           }
       }
       // If fade step enabled but custom directories not defined in ldSearchDirs, add custom directories
@@ -130,24 +130,24 @@ void PartWorker::ldsearchDirPreferences(){
           // We must force the custom directories for LDView as they are needed by ldview ini files
           if (Preferences::preferredRenderer == RENDERER_LDVIEW) {
               Preferences::ldSearchDirs << _customPartDir;
-              emit messageSig(LOG_STATUS, QString("Add custom part directory: %1").arg(_customPartDir));
+              emit gui->messageSig(LOG_STATUS, QString("Add custom part directory: %1").arg(_customPartDir));
               Preferences::ldSearchDirs << _customPrimDir;
-              emit messageSig(LOG_STATUS, QString("Add custom primitive directory %1").arg(_customPrimDir));
+              emit gui->messageSig(LOG_STATUS, QString("Add custom primitive directory %1").arg(_customPrimDir));
               customDirsIncluded = true;
           } else {
               if (QDir(_customPartDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
                 Preferences::ldSearchDirs << _customPartDir;
                 customDirsIncluded = true;
-                emit messageSig(LOG_STATUS, QString("Add custom part directory: %1").arg(_customPartDir));
+                emit gui->messageSig(LOG_STATUS, QString("Add custom part directory: %1").arg(_customPartDir));
               } else {
-                emit messageSig(LOG_STATUS, QString("Custom part directory is empty and will be ignored: %1").arg(_customPartDir));
+                emit gui->messageSig(LOG_STATUS, QString("Custom part directory is empty and will be ignored: %1").arg(_customPartDir));
               }
               if (QDir(_customPrimDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
                 Preferences::ldSearchDirs << _customPrimDir;
                 customDirsIncluded = true;
-                emit messageSig(LOG_STATUS, QString("Add custom primitive directory: %1").arg(_customPrimDir));
+                emit gui->messageSig(LOG_STATUS, QString("Add custom primitive directory: %1").arg(_customPrimDir));
               } else {
-                emit messageSig(LOG_STATUS, QString("custom primitive directory is empty and will be ignored: %1").arg(_customPrimDir));
+                emit gui->messageSig(LOG_STATUS, QString("custom primitive directory is empty and will be ignored: %1").arg(_customPrimDir));
               }
           }
           // update the registry if custom directory included
@@ -158,19 +158,19 @@ void PartWorker::ldsearchDirPreferences(){
        }
     } else if (loadLDrawSearchDirs()){                                        //ldraw.ini found or reset so load local paths
       Settings.setValue(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey), Preferences::ldSearchDirs);
-      emit messageSig(LOG_STATUS, QString("Ldraw.ini found or search directory reset selected, loading ldSearch directories..."));
+      emit gui->messageSig(LOG_STATUS, QString("Ldraw.ini found or search directory reset selected, loading ldSearch directories..."));
     } else {
       Settings.remove(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey));
-      emit messageSig(LOG_ERROR, QString("Unable to load search directories."));
+      emit gui->messageSig(LOG_ERROR, QString("Unable to load search directories."));
     }
 
     // Update LDView extra search directories
     if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni))
-       emit messageSig(LOG_ERROR, qPrintable(QString("Could not update %1").arg(Preferences::ldviewIni)));
+       emit gui->messageSig(LOG_ERROR, qPrintable(QString("Could not update %1").arg(Preferences::ldviewIni)));
     if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni))
-       emit messageSig(LOG_ERROR, qPrintable(QString("Could not update %1").arg(Preferences::ldviewPOVIni)));
+       emit gui->messageSig(LOG_ERROR, qPrintable(QString("Could not update %1").arg(Preferences::ldviewPOVIni)));
     if (!Preferences::setLDViewExtraSearchDirs(Preferences::nativePOVIni))
-       emit messageSig(LOG_ERROR, qPrintable(QString("Could not update %1").arg(Preferences::nativePOVIni)));
+       emit gui->messageSig(LOG_ERROR, qPrintable(QString("Could not update %1").arg(Preferences::nativePOVIni)));
 
     // Update LDGLite extra search directories
     if (Preferences::preferredRenderer == RENDERER_LDGLITE)
@@ -185,7 +185,7 @@ bool PartWorker::loadLDrawSearchDirs(){
   if (!_resetSearchDirSettings) {
       emit Application::instance()->splashMsgSig("60% - Search directories loading...");
     } else {
-      emit messageSig(LOG_INFO,"Reset - search directories loading...");
+      emit gui->messageSig(LOG_INFO,"Reset - search directories loading...");
     }
 
   setDoFadeStep(gui->page.meta.LPub.fadeStep.fadeStep.value());
@@ -216,7 +216,7 @@ bool PartWorker::loadLDrawSearchDirs(){
               // check if empty
               if (QDir(ldrawSearchDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
                   Preferences::ldSearchDirs << ldrawSearchDir;
-                  emit messageSig(LOG_STATUS, QString("Add search directory: %1").arg(ldrawSearchDir));
+                  emit gui->messageSig(LOG_STATUS, QString("Add search directory: %1").arg(ldrawSearchDir));
                 }
             }
           // Check if custom directories included
@@ -229,15 +229,15 @@ bool PartWorker::loadLDrawSearchDirs(){
       if ((doFadeStep() || doHighlightStep()) && !customDirsIncluded) {
           if (QDir(_customPartDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
               Preferences::ldSearchDirs << _customPartDir;
-              emit messageSig(LOG_STATUS, QString("Add custom part directory: %1").arg(_customPartDir));
+              emit gui->messageSig(LOG_STATUS, QString("Add custom part directory: %1").arg(_customPartDir));
             } else {
-              emit messageSig(LOG_STATUS, QString("Custom part directory is empty and will be ignored: %1").arg(_customPartDir));
+              emit gui->messageSig(LOG_STATUS, QString("Custom part directory is empty and will be ignored: %1").arg(_customPartDir));
             }
           if (QDir(_customPrimDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
               Preferences::ldSearchDirs << _customPrimDir;
-              emit messageSig(LOG_STATUS, QString("Add custom primitive directory: %1").arg(_customPrimDir));
+              emit gui->messageSig(LOG_STATUS, QString("Add custom primitive directory: %1").arg(_customPrimDir));
             } else {
-              emit messageSig(LOG_STATUS, QString("Custom primitive directory is empty and will be ignored: %1").arg(_customPrimDir));
+              emit gui->messageSig(LOG_STATUS, QString("Custom primitive directory is empty and will be ignored: %1").arg(_customPrimDir));
             }
         }
       // Add subdirectories from Unofficial root directory
@@ -262,7 +262,7 @@ bool PartWorker::loadLDrawSearchDirs(){
                       // check if empty
                       if (QDir(unofficialSubDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
                           Preferences::ldSearchDirs << unofficialSubDir;
-                          emit messageSig(LOG_STATUS, QString("Add search directory: %1").arg(unofficialSubDir));
+                          emit gui->messageSig(LOG_STATUS, QString("Add search directory: %1").arg(unofficialSubDir));
                         } else if (QDir(unofficialSubDir).entryInfoList(QDir::Dirs|QDir::NoSymLinks).count() > 0) {
                           QDir subSubDir(unofficialSubDir);
                           QStringList subSubDirs = subSubDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs, QDir::SortByMask);
@@ -270,13 +270,13 @@ bool PartWorker::loadLDrawSearchDirs(){
                               QString unofficialSubSubDir = QDir::toNativeSeparators(QString("%1/%2").arg(unofficialSubDir).arg(subSubDirName));
                               if (QDir(unofficialSubSubDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
                                   Preferences::ldSearchDirs << unofficialSubSubDir;
-                                  emit messageSig(LOG_STATUS, QString("Add search directory: %1").arg(unofficialSubSubDir));
+                                  emit gui->messageSig(LOG_STATUS, QString("Add search directory: %1").arg(unofficialSubSubDir));
                                 } else {
-                                  emit messageSig(LOG_STATUS, QString("Search directory is empty and will be ignored: %1").arg( unofficialSubSubDir));
+                                  emit gui->messageSig(LOG_STATUS, QString("Search directory is empty and will be ignored: %1").arg( unofficialSubSubDir));
                                 }
                             }
                         } else {
-                          emit messageSig(LOG_STATUS, QString("Search directory is empty and will be ignored: %1").arg( unofficialSubDir));
+                          emit gui->messageSig(LOG_STATUS, QString("Search directory is empty and will be ignored: %1").arg( unofficialSubDir));
                         }
                     }
                 }
@@ -288,7 +288,7 @@ bool PartWorker::loadLDrawSearchDirs(){
         }
 
     } else {
-      emit messageSig(LOG_ERROR, QString("ldPartsDirs.loadLDrawSearchDirs("") failed."));
+      emit gui->messageSig(LOG_ERROR, QString("ldPartsDirs.loadLDrawSearchDirs("") failed."));
       return false;
     }
   return true;
@@ -304,7 +304,7 @@ void PartWorker::populateLdgLiteSearchDirs() {
 
         emit Application::instance()->splashMsgSig("85% - LDGlite Search directories loading...");
         //logDebug() << "SEARCH DIRECTORIES TO PROCESS" << Preferences::ldSearchDirs ;
-        emit messageSig(LOG_STATUS, QString("LDGlite Search Directories..."));
+        emit gui->messageSig(LOG_STATUS, QString("LDGlite Search Directories..."));
 
         // Define excluded directories
         QStringList ldgliteExcludedDirs = _excludedSearchDirs;
@@ -330,9 +330,9 @@ void PartWorker::populateLdgLiteSearchDirs() {
                     count++;
                     count > 1 ? Preferences::ldgliteSearchDirs.append(QString("|%1").arg(ldgliteSearchDir)):
                                 Preferences::ldgliteSearchDirs.append(ldgliteSearchDir);
-                    emit messageSig(LOG_STATUS, QString("Add ldglite search directory: %1").arg(ldgliteSearchDir));
+                    emit gui->messageSig(LOG_STATUS, QString("Add ldglite search directory: %1").arg(ldgliteSearchDir));
                 }else {
-                    emit messageSig(LOG_STATUS, QString("Ldglite search directory is empty and will be ignored: %1").arg(ldgliteSearchDir));
+                    emit gui->messageSig(LOG_STATUS, QString("Ldglite search directory is empty and will be ignored: %1").arg(ldgliteSearchDir));
                 }
             }
         }
@@ -396,7 +396,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
       QString subfileNameStr = ldrawFile._subFileOrder[i].toLower();
       contents = ldrawFile.contents(subfileNameStr);
       emit progressSetValueSig(i);
-      emit messageSig(LOG_INFO,QString("00 PROCESSING SUBFILE: %1").arg(subfileNameStr));
+      emit gui->messageSig(LOG_INFO,QString("00 PROCESSING SUBFILE: %1").arg(subfileNameStr));
       for (int i = 0; i < contents.size() && endThreadNotRequested(); i++) {
           QString line = contents[i];
           QStringList tokens;
@@ -457,7 +457,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
       // check if part has children color part(s)
       if (!processColourParts(colourPartList, partType)) {
           QString error = QString("Process %1 color parts failed!.").arg(nameMod);
-          emit messageSig(LOG_ERROR,error);
+          emit gui->messageSig(LOG_ERROR,error);
           emit progressStatusRemoveSig();
           emit customColourFinishedSig();
           return;
@@ -495,11 +495,11 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
                   Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"), Preferences::ldSearchDirs);
 
                   if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni))
-                     emit messageSig(LOG_ERROR, qPrintable(QString("Could not update %1").arg(Preferences::ldviewIni)));
+                     emit gui->messageSig(LOG_ERROR, qPrintable(QString("Could not update %1").arg(Preferences::ldviewIni)));
                   if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni))
-                     emit messageSig(LOG_ERROR, qPrintable(QString("Could not update %1").arg(Preferences::ldviewPOVIni)));
+                     emit gui->messageSig(LOG_ERROR, qPrintable(QString("Could not update %1").arg(Preferences::ldviewPOVIni)));
                   if (!Preferences::setLDViewExtraSearchDirs(Preferences::nativePOVIni))
-                     emit messageSig(LOG_ERROR, qPrintable(QString("Could not update %1").arg(Preferences::nativePOVIni)));
+                     emit gui->messageSig(LOG_ERROR, qPrintable(QString("Could not update %1").arg(Preferences::nativePOVIni)));
                   updateLDGLiteSearchDirs = true;
               }
           }
@@ -514,7 +514,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
       QString comment = QString("color %1").arg(nameMod);
       if (!processPartsArchive(customPartsDirs, comment, overwriteCustomParts)){
           QString error = QString("Process %1 parts archive failed!.").arg(nameMod);
-          emit messageSig(LOG_ERROR,error);
+          emit gui->messageSig(LOG_ERROR,error);
           emit progressStatusRemoveSig();
           emit customColourFinishedSig();
           return;
@@ -544,9 +544,9 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
 
   emit progressStatusRemoveSig();
   emit customColourFinishedSig();
-  emit messageSig(LOG_STATUS,fileStatus);
+  emit gui->messageSig(LOG_STATUS,fileStatus);
 
-  emit messageSig(LOG_INFO,fileStatus);
+  emit gui->messageSig(LOG_INFO,fileStatus);
 }
 
 bool PartWorker::processColourParts(const QStringList &colourPartList, const PartType partType) {
@@ -568,7 +568,7 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
         unofficialLib = QString("%1/%2").arg(archiveFileInfo.absolutePath(),VER_LPUB3D_UNOFFICIAL_ARCHIVE);
     } else {
         fileStatus = QString("Archive file does not exist: %1. The process will terminate.").arg(archiveFileInfo.absoluteFilePath());
-        emit messageSig(LOG_ERROR, fileStatus);
+        emit gui->messageSig(LOG_ERROR, fileStatus);
         return false;
     }
 
@@ -586,10 +586,10 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
 
         QString cpPartEntry = partEntry;
         bool unOffLib = cpPartEntry.section(":::",0,0) == "u";
-        //emit messageSig(LOG_INFO,QString("Library Type: %1").arg((unOffLib ? "Unofficial Library" : "Official Library"));
+        //emit gui->messageSig(LOG_INFO,QString("Library Type: %1").arg((unOffLib ? "Unofficial Library" : "Official Library"));
 
         QString libPartName = cpPartEntry.section(":::",1,1).split("\\").last();
-        //emit messageSig(LOG_INFO,QString("Lib Part Name: %1").arg(libPartName));
+        //emit gui->messageSig(LOG_INFO,QString("Lib Part Name: %1").arg(libPartName));
 
         QString libDirName = cpPartEntry.section(":::",1,1).split("\\").first();
 
@@ -597,7 +597,7 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
 
         QuaZip zip(unOffLib ? unofficialLib : officialLib);
         if (!zip.open(QuaZip::mdUnzip)) {
-            emit messageSig(LOG_ERROR, QString("Failed to open archive: %1 @ %2").arg(zip.getZipError()).arg(unOffLib ? unofficialLib : officialLib));
+            emit gui->messageSig(LOG_ERROR, QString("Failed to open archive: %1 @ %2").arg(zip.getZipError()).arg(unOffLib ? unofficialLib : officialLib));
             return false;
         }
 
@@ -613,7 +613,7 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
                     qba = zipFile.readAll();
                     zipFile.close();
                 } else {
-                    emit messageSig(LOG_ERROR, QString("Failed to OPEN Part file :%1").arg(zip.getCurrentFileName()));
+                    emit gui->messageSig(LOG_ERROR, QString("Failed to OPEN Part file :%1").arg(zip.getCurrentFileName()));
                     return false;
                 }
                 // extract content
@@ -696,13 +696,13 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
         }
         if (!partFound) {
             fileStatus = QString("Part file %1 not found in %2. Be sure the fadeStepColorParts.lst file is up to date.").arg(libPartName).arg(unOffLib ? "Unofficial Library" : "Official Library");
-            emit messageSig(LOG_ERROR, fileStatus);
+            emit gui->messageSig(LOG_ERROR, fileStatus);
         }
 
         zip.close();
 
         if (zip.getZipError() != UNZ_OK) {
-            emit messageSig(LOG_ERROR, QString("zip close error: %1").arg(zip.getZipError()));
+            emit gui->messageSig(LOG_ERROR, QString("zip close error: %1").arg(zip.getZipError()));
             return false;
         }
     }
@@ -715,8 +715,8 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
     QString message = QString("%1 Color %2 content processed.")
         .arg(partsProcessed)
         .arg(partsProcessed > 1 ? "parts" : "part");
-    emit messageSig(LOG_STATUS,message);
-    emit messageSig(LOG_INFO,message);
+    emit gui->messageSig(LOG_STATUS,message);
+    emit gui->messageSig(LOG_INFO,message);
 
     return true;
 }
@@ -913,7 +913,7 @@ bool PartWorker::saveCustomFile(
     QFile file(fileName);
     if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
         QString message = QString("Failed to open %1 for writing: %2").arg(fileName).arg(file.errorString());
-        emit messageSig(LOG_ERROR, message);
+        emit gui->messageSig(LOG_ERROR, message);
         return false;
 
     } else {
@@ -1025,12 +1025,12 @@ void PartWorker::requestEndThreadNow(){
 
 bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QString &comment, bool overwriteCustomParts){
 
-  // Append costom parts to unofficial library for 3D Viewer's consumption
+  // Append custom parts to unofficial library for 3D Viewer's consumption
   QFileInfo libFileInfo(Preferences::lpub3dLibFile);
   QString archiveFile = QDir::toNativeSeparators(QString("%1/%2").arg(libFileInfo.absolutePath(),VER_LPUB3D_UNOFFICIAL_ARCHIVE));
   QString returnMessage = QString("Archiving %1 parts to : %2.").arg(comment,archiveFile);
-  emit messageSig(LOG_INFO,"Archive parts...");
-  emit messageSig(LOG_INFO,QString("Archiving %1 parts to %2.").arg(comment,archiveFile));
+  emit gui->messageSig(LOG_INFO,"Archiving local parts...");
+  emit gui->messageSig(LOG_INFO,QString("Archiving %1 parts to %2.").arg(comment,archiveFile));
 
   if (okToEmitToProgressBar()) {
       emit progressResetSig();
@@ -1054,7 +1054,7 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
                                  QString("Append %1 parts").arg(comment),
                                  overwriteCustomParts))
       {
-         emit messageSig(LOG_ERROR,returnMessage);
+         emit gui->messageSig(LOG_ERROR,returnMessage);
          continue;
       }
       bool ok;
@@ -1067,7 +1067,7 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
                                           tr("[Total %1] parts").arg(totalPartCount);
 
       }
-      emit messageSig(LOG_INFO,tr("Archived %1 %2 from %3").arg(partCount).arg(summary).arg(foo.absolutePath()));
+      emit gui->messageSig(LOG_INFO,tr("Archived %1 %2 from %3").arg(partCount).arg(summary).arg(foo.absolutePath()));
   }
 
   // Reload unofficial library parts into memory - only if initial library load already done !
@@ -1076,12 +1076,12 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
 
       if (!gApplication->mLibrary->ReloadUnoffLib()){
           returnMessage = tr("Failed to reload unofficial parts library into memory.");
-          emit messageSig(LOG_ERROR,returnMessage);
+          emit gui->messageSig(LOG_ERROR,returnMessage);
           return false;
       } else {
           partsLabel = totalPartCount == 1 ? "part" : "parts";
           returnMessage = tr("Reloaded unofficial library into memory with %1 new %2.").arg(totalPartCount).arg(partsLabel);
-          emit messageSig(LOG_INFO,returnMessage);
+          emit gui->messageSig(LOG_INFO,returnMessage);
       }
   } else if (totalPartCount > 0) {
       partsLabel = totalPartCount == 1 ? "part" : "parts";
@@ -1092,7 +1092,7 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
       _partsArchived = false;
   }
 
-  emit messageSig(LOG_INFO,returnMessage);
+  emit gui->messageSig(LOG_INFO,returnMessage);
   if (!okToEmitToProgressBar()) {
       emit Application::instance()->splashMsgSig(tr("70% - Finished archiving %1 parts.").arg(comment));
   }
@@ -1165,7 +1165,7 @@ void ColourPartListWorker::generateCustomColourPartsList()
     foreach (QString archiveFile, archiveFiles) {
        if(!processArchiveParts(archiveFile)){
            QString error = QString("Process color parts list failed!.");
-           emit messageSig(LOG_ERROR,error);
+           emit emit messageSig(LOG_ERROR,error);
            emit progressStatusRemoveSig();
            emit colourPartListFinishedSig();
            return;
@@ -1193,9 +1193,9 @@ void ColourPartListWorker::generateCustomColourPartsList()
 
     emit progressStatusRemoveSig();
     emit colourPartListFinishedSig();
-    emit messageSig(LOG_STATUS, fileStatus);
+    emit emit messageSig(LOG_STATUS, fileStatus);
 
-    emit messageSig(LOG_INFO,fileStatus);
+    emit emit messageSig(LOG_INFO,fileStatus);
 }
 
 bool ColourPartListWorker::processArchiveParts(const QString &archiveFile) {
@@ -1210,7 +1210,7 @@ bool ColourPartListWorker::processArchiveParts(const QString &archiveFile) {
 
     QuaZip zip(archiveFile);
     if (!zip.open(QuaZip::mdUnzip)) {
-        emit messageSig(LOG_ERROR, QString("! zip.open(): %1 @ %2").arg(zip.getZipError()).arg(archiveFile));
+        emit emit messageSig(LOG_ERROR, QString("! zip.open(): %1 @ %2").arg(zip.getZipError()).arg(archiveFile));
         return false;
     }
 
@@ -1227,7 +1227,7 @@ bool ColourPartListWorker::processArchiveParts(const QString &archiveFile) {
             partCount++;
         }
     }
-    emit messageSig(LOG_INFO,QString("Processing %1 - Parts Count: %2").arg(library).arg(partCount));
+    emit emit messageSig(LOG_INFO,QString("Processing %1 - Parts Count: %2").arg(library).arg(partCount));
 
     emit progressResetSig();
     emit progressRangeSig(1, partCount);
@@ -1250,7 +1250,7 @@ bool ColourPartListWorker::processArchiveParts(const QString &archiveFile) {
                 qba = zipFile.readAll();
                 zipFile.close();
             } else {
-                emit messageSig(LOG_ERROR, QString("Failed to OPEN Part file :%1").arg(libFileName));
+                emit emit messageSig(LOG_ERROR, QString("Failed to OPEN Part file :%1").arg(libFileName));
                 return false;
             }
 
@@ -1271,11 +1271,11 @@ bool ColourPartListWorker::processArchiveParts(const QString &archiveFile) {
         }
     }
     emit progressSetValueSig(partCount);
-    emit messageSig(LOG_INFO,QString("Finished %1").arg(library));
+    emit emit messageSig(LOG_INFO,QString("Finished %1").arg(library));
 
     zip.close();
     if (zip.getZipError() != UNZ_OK) {
-        emit messageSig(LOG_ERROR, QString("zip.close() zipError(): %1").arg(zip.getZipError()));
+        emit emit messageSig(LOG_ERROR, QString("zip.close() zipError(): %1").arg(zip.getZipError()));
         return false;
     }
     return true;
@@ -1301,7 +1301,7 @@ void ColourPartListWorker::processFileContents(const QString &libFileName, const
         QString line = _partFileContents[i];
         QStringList tokens;
 
-        //emit messageSig(LOG_INFO, QString("File contents CHECK: %1").arg(line));
+        //emit emit messageSig(LOG_INFO, QString("File contents CHECK: %1").arg(line));
         split(line,tokens);
         if (tokens.size() == 3 && line.contains("Name:", Qt::CaseInsensitive))
             fileName  = tokens[tokens.size()-1];
@@ -1318,10 +1318,10 @@ void ColourPartListWorker::processFileContents(const QString &libFileName, const
 
             } else {
                 hasColour = true;
-                //emit messageSig(LOG_INFO,QString("File contents VERIFY: %1  COLOUR: %2 %3").arg(line).arg(color));
+                //emit emit messageSig(LOG_INFO,QString("File contents VERIFY: %1  COLOUR: %2 %3").arg(line).arg(color));
                 if (fileName.isEmpty()){
                     fileName = libFileName.split("/").last();
-                    emit messageSig(LOG_ERROR,QString("Part: %1 \nhas no 'Name:' attribute. Using library path name %2 instead.\n"
+                    emit emit messageSig(LOG_ERROR,QString("Part: %1 \nhas no 'Name:' attribute. Using library path name %2 instead.\n"
                                                       "You may want to update the part content and costom color parts list.")
                                                       .arg(fileName).arg(libFileName));
                 }
@@ -1351,7 +1351,7 @@ void ColourPartListWorker::processChildren(){
     emit progressResetSig();
     emit progressMessageSig("Processing Child Color Parts...");
     emit progressRangeSig(1, _partList.size());
-    emit messageSig(LOG_INFO,QString("Processing Child Color Parts - Count: %1").arg(_partList.size()));
+    emit emit messageSig(LOG_INFO,QString("Processing Child Color Parts - Count: %1").arg(_partList.size()));
 
     QString     filePath = "";
     for(int part = 0; part < _partList.size() && endThreadNotRequested(); part++){
@@ -1393,7 +1393,7 @@ void ColourPartListWorker::processChildren(){
                             _ldrawStaticColourParts  << fileEntry.toLower();
                             if (parentFileNameStr.size() > _colWidthFileName)
                                 _colWidthFileName = parentFileNameStr.size();
-                            //emit messageSig(LOG_INFO,QString("ADD CHILD COLOUR PART: %1").arg(libFileName));
+                            //emit emit messageSig(LOG_INFO,QString("ADD CHILD COLOUR PART: %1").arg(libFileName));
                             gotoMainLoop = true;
                         }
                     }
@@ -1402,7 +1402,7 @@ void ColourPartListWorker::processChildren(){
         }
     }
     emit progressSetValueSig(_partList.size());
-    emit messageSig(LOG_INFO,QString("Finished Processing Child Color Parts."));
+    emit emit messageSig(LOG_INFO,QString("Finished Processing Child Color Parts."));
 }
 
 void ColourPartListWorker::writeLDrawColourPartFile(bool append){
@@ -1412,7 +1412,7 @@ void ColourPartListWorker::writeLDrawColourPartFile(bool append){
         QFileInfo colourFileList(Preferences::ldrawColourPartsFile);
         QFile file(colourFileList.absoluteFilePath());
         if ( ! file.open(append ? QFile::Append | QFile::Text : QFile::WriteOnly | QFile::Text)) {
-            emit messageSig(LOG_ERROR,QString("Failed to OPEN colourFileList %1 for writing:\n%2").arg(file.fileName()).arg(file.errorString()));
+            emit emit messageSig(LOG_ERROR,QString("Failed to OPEN colourFileList %1 for writing:\n%2").arg(file.fileName()).arg(file.errorString()));
             return;
         }
         QTextStream out(&file);
