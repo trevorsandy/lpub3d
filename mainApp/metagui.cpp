@@ -1622,7 +1622,7 @@ CameraDistFactorGui::CameraDistFactorGui(
     }
 
   bool nativeRenderer = (Render::getRenderer() == RENDERER_NATIVE);
-  QString tipMessage = QString("Native renderer camera distance factor - this control is enabled when Renderer set to Native.");
+  QString tipMessage = QString("Native renderer camera distance factor - enabled when Renderer is set to Native.");
   if (nativeRenderer)
       tipMessage = QString("Native renderer camera distance factor, adjust by 10, to scale renderings.");
   parent->setToolTip(tipMessage);
@@ -2600,7 +2600,7 @@ RendererGui::RendererGui(
   cameraDistFactorGrpBox = new QGroupBox("Native Renderer Camera Distance",parent);
 
   bool nativeRenderer = (Render::getRenderer() == RENDERER_NATIVE);
-  QString tipMessage = QString("Native renderer camera distance factor - this control is enabled when Renderer set to Native.");
+  QString tipMessage = QString("Native renderer camera distance factor - enabled when Renderer is set to Native.");
   if (nativeRenderer)
       tipMessage = QString("Native renderer camera distance factor, adjust by 10, to scale renderings.");
   cameraDistFactorGrpBox->setToolTip(tipMessage);
@@ -2673,7 +2673,7 @@ void RendererGui::typeChange(QString const &type)
   if (pick != RENDERER_LDVIEW) {
       ldvSingleCallBox->setChecked(false);
     }
-  QString tipMessage = QString("Native renderer camera distance factor - this control is enabled when Renderer set to Native.");
+  QString tipMessage = QString("Native renderer camera distance factor - enabled when Renderer is set to Native.");
   if (pick == RENDERER_NATIVE) {
       cameraDistFactorDefaultBox->setEnabled(true);
       cameraDistFactorMetatBox->setEnabled(true);

@@ -108,7 +108,7 @@ GlobalAssemDialog::GlobalAssemDialog(
   boxGrid->addWidget(child,0,0,1,2);
 
   // view angles
-  child = new FloatsGui("Lattitude","Longitude",&assem->cameraAngles);
+  child = new FloatsGui("Latitude","Longitude",&assem->cameraAngles);
   data->children.append(child);
   boxGrid->addWidget(child,1,0);
 

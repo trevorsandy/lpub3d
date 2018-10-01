@@ -86,6 +86,7 @@ GlobalPageDialog::GlobalPageDialog(
   layout->addWidget(tab);
   widget->setLayout(grid);
 
+
   //~~~~~~~~~~~~ page tab ~~~~~~~~~~~~~~~~//
 //  box = new QGroupBox(tr("Size"));
 //  grid->addWidget(box,0,0);
@@ -151,8 +152,6 @@ GlobalPageDialog::GlobalPageDialog(
   grid->addWidget(box,6,0);
   child = new HeaderFooterHeightGui("",&pageFooterMeta->size,box);
   data->children.append(child);
-
-
 
   tab->addTab(widget,"Page");
 
@@ -548,7 +547,13 @@ GlobalPageDialog::GlobalPageDialog(
 
   layout->addWidget(buttonBox);
   setModal(true);
-  setMinimumSize(40,20);
+  setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+  if (Preferences::displayTheme == THEME_DARK)
+    setMinimumHeight(780);
+  else
+    setMinimumSize(40,20);
+
 }
 
 void GlobalPageDialog::indexChanged(int selection){

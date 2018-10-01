@@ -15,7 +15,7 @@
 #ifndef MESSAGEBOXRESIZABLE_H
 #define MESSAGEBOXRESIZABLE_H
 
-// Resizable QMessageBox Hack
+// Resizeable QMessageBox Hack
 #include <QWidget>
 #include <QMessageBox>
 #include <QTextBrowser>
