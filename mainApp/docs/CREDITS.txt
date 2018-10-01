@@ -19,7 +19,7 @@ LPub4
 Author:
 Kevin Clague <kevin.clague@gmail.com>
 
-LeoCAD 18.2 commit 8697d57
+LeoCAD 18.2 commit 85d9788
 Author:
 Leonardo Zide <leozide@gmail.com>
 
