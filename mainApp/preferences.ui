@@ -877,6 +877,13 @@
            </property>
           </widget>
          </item>
+         <item>
+          <widget class="QLabel" name="timeoutLbl">
+           <property name="text">
+            <string>seconds</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item>
