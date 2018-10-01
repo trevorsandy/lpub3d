@@ -3,7 +3,7 @@
 # Travis-ci build [install] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: August 10, 2018
+#  Last Update: September 30 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -104,9 +104,9 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
   fi;
   # Manage 3rd party repository cache - deleting a component will trigger that component's rebuild
   if [ -n "$LP3D_BUILD_3RD" ]; then
-    LP3D_LDGLITE_DIR=${LP3D_DIST_DIR_PATH}/${LP3D_LDGLITE_BIN};
-    LP3D_LDVIEW_DIR=${LP3D_DIST_DIR_PATH}/${LP3D_LDVIEW_BIN};
-    LP3D_POVRAY_DIR=${LP3D_DIST_DIR_PATH}/${LP3D_POVRAY_BIN};
+    LP3D_LDGLITE_DIR=${LP3D_DIST_DIR_PATH}/${LP3D_VER_LDGLITE};
+    LP3D_LDVIEW_DIR=${LP3D_DIST_DIR_PATH}/${LP3D_VER_LDVIEW};
+    LP3D_POVRAY_DIR=${LP3D_DIST_DIR_PATH}/${LP3D_VER_POVRAY};
     if [[ "$LP3D_BUILD_LDGLITE" = 1 && -d "$LP3D_LDGLITE_DIR" ]]; then
       sudo rm -rf "$LP3D_LDGLITE_DIR" && echo "cached $LP3D_LDGLITE_DIR deleted";
     fi;
