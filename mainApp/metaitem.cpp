@@ -3675,7 +3675,8 @@ void MetaItem::writeRotateStep(QString &value)
 
     //QStringList argv01 = value.split(QRegExp("\\s"));
 
-    bool inside = (value.at(0) == "\"");                                       // true if the first character is "
+    QString valueAt0 = value.at(0);
+    bool inside = (valueAt0 == "\"");                                          // true if the first character is "
     QStringList tmpList = value.split(QRegExp("\""), QString::SkipEmptyParts); // Split by "
     QStringList argv01;
     foreach (QString s, tmpList) {

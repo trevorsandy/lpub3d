@@ -1645,7 +1645,8 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerCsiKey)
     }
 
 #ifdef QT_DEBUG_MODE
-    bool inside = (viewerCsiKey.at(0) == "\"");                                       // true if the first character is "
+    QString valueAt0 = viewerCsiKey.at(0);
+    bool inside = (valueAt0 == "\"");                                                 // true if the first character is "
     QStringList tmpList = viewerCsiKey.split(QRegExp("\""), QString::SkipEmptyParts); // Split by "
     QStringList argv01;
     foreach (QString s, tmpList) {
