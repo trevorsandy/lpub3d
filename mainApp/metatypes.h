@@ -111,33 +111,33 @@ enum PrepositionEnc {
   Outside
 };
 
-enum PlacementType {          //  placement dialog codes:
-  PageType,                   // 0 page
+enum PlacementType {          // placement dialogue codes:
+  PageType,                   // 0 Page
   CsiType,                    // 1 Csi  (Assem)
   StepGroupType,              // 2 Ms   (Multi-Step)
   StepNumberType,             // 3 Sn
   PartsListType,              // 4 Pli
   CalloutType,                // 5 Callout
-  PageNumberType,             // 6 pn
+  PageNumberType,             // 6 Pn
 
-  PageTitleType,              // 7 tt
-  PageModelNameType,          // 8 mnt
-  PageAuthorType,             // 9 at
-  PageURLType,                //10 urlt
-  PageModelDescType,          //11 mdt
-  PagePublishDescType,        //12 pdt
-  PageCopyrightType,          //13 ct
-  PageEmailType,              //14 et
-  PageDisclaimerType,         //15 dt
-  PagePiecesType,             //16 pt
-  PagePlugType,               //17 plt
-  SubmodelInstanceCountType,  //18 sic
-  PageDocumentLogoType,       //19 dlt
-  PageCoverImageType,         //20 cit
-  PagePlugImageType,          //21 pit
-  PageHeaderType,             //22 ph
-  PageFooterType,             //23 pf
-  PageCategoryType,           //24 cat
+  PageTitleType,              // 7 Tt
+  PageModelNameType,          // 8 Mnt
+  PageAuthorType,             // 9 At
+  PageURLType,                //10 Urlt
+  PageModelDescType,          //11 Mdt
+  PagePublishDescType,        //12 Pdt
+  PageCopyrightType,          //13 Ct
+  PageEmailType,              //14 Et
+  PageDisclaimerType,         //15 Dt
+  PagePartsType,              //16 Pt
+  PagePlugType,               //17 Plt
+  SubmodelInstanceCountType,  //18 Sic
+  PageDocumentLogoType,       //19 Dlt
+  PageCoverImageType,         //20 Cit
+  PagePlugImageType,          //21 Pit
+  PageHeaderType,             //22 Ph
+  PageFooterType,             //23 Pf
+  PageCategoryType,           //24 Cat
   RotateIconType,             //25 Ri
   BomType,                    //26
 
@@ -438,7 +438,7 @@ const QString SortOptionName[SortByType] =
 
 // testing and diagnostics only
 const QString RectNames[NumSpots] =
- {                                //  placement dialog codes:
+ {                                //  placement dialogue codes:
     "TopLeftOutsideCorner",       //00
     "TopLeftOutside",             //01
     "TopOutside",                 //02
@@ -471,7 +471,7 @@ const QString RectNames[NumSpots] =
 };	//NumSpots
 
 const QString RelNames[NumRelatives] =
-{                              	 //  placement dialog codes:
+{                              	 //  placement dialogue codes:
    "PageType",                 	 // 0 page
    "CsiType",                    // 1 Csi  (Assem)
    "StepGroupType",              // 2 Ms   (Multi-Step)
@@ -489,7 +489,7 @@ const QString RelNames[NumRelatives] =
    "PageCopyrightType",          //13 ct
    "PageEmailType",              //14 et
    "PageDisclaimerType",         //15 dt
-   "PagePiecesType",             //16 pt
+   "PagePartsType",              //16 pt
    "PagePlugType",               //17 plt
    "SubmodelInstanceCountType",  //18 sic
    "PageDocumentLogoType",       //19 dlt

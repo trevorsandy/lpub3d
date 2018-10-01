@@ -232,7 +232,7 @@ int Step::createCsi(
           LDVImageMatte::insertMatteCSIImage(csiKey, pngName);
     }
 
-  // Check if png file date modified is older than madel file (on the stack) date modified
+  // Check if png file date modified is older than model file (on the stack) date modified
   csiOutOfDate = false;
 
   QFile csi(pngName);
@@ -263,7 +263,7 @@ int Step::createCsi(
   // We are processing again the current step so Csi must have been updated by from viewer
   bool viewerUpdate = viewerCsiName == gui->getViewerCsiName();
 
-  // Generage 3DViewer CSI entry
+  // Generate 3DViewer CSI entry
   if ( addViewerStepContent || csiOutOfDate || viewerUpdate ) {
 
       // set rotated parts
@@ -599,7 +599,7 @@ int Step::mergeViewerCSISubModels(QStringList &subModels,
  *
  * size - allocate step sub-components into sub-rows or sub-columns.
  * place - determine the rectangle that is needed to totally contain
- *   the subcomponents (CSI, step number, PLI, roitateIcon, step-relative callouts.)
+ *   the subcomponents (CSI, step number, PLI, rotateIcon, step-relative callouts.)
  *   Also place the CSI, step number, PLI, rotateIcon and step-relative callouts
  *   within the step's rectangle.
  *
@@ -655,7 +655,7 @@ int Step::mergeViewerCSISubModels(QStringList &subModels,
  *  CCCCCCCCCCCCCCC
 
  *  C0 - callout relative to rotateIcon
- *  R0 - rotateIcon relateive to csi
+ *  R0 - rotateIcon relative to csi
  *  C1 - callout relative to step number
  *  S0 - step number relative to csi
  *  C2 - callout relative to PLI
@@ -667,7 +667,7 @@ int Step::mergeViewerCSISubModels(QStringList &subModels,
  *  C5 - callout relative to PLI
  *  S1 - step number relative to csi
  *  C6 - callout relative to step number
- *  R1 - rotateIcon relateive to csi
+ *  R1 - rotateIcon relative to csi
  *  C7 - callout relative to rotateIcon
  */
 
@@ -785,7 +785,7 @@ int marginCols[][2])
  * This is the first pass of sizing a step.
  *
  *   locate the proper row/col in the placement table (see above)
- *   for each component (csi, pli, stepNumber, roateIcon, callout) in the step
+ *   for each component (csi, pli, stepNumber, rotateIcon, callout) in the step
  *
  *     locate the proper row/col for those relative to CSI (absolute)
  *

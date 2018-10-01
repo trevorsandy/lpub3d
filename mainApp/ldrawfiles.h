@@ -123,10 +123,10 @@ class LDrawFile {
     static QString              _author;
     static QString              _description;
     static QString              _category;
-    static int                  _pieces;
+    static int                  _parts;
 
     int getPartCount(){
-      return _pieces;
+      return _parts;
     }
 
     bool saveFile(const QString &fileName);

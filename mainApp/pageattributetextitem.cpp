@@ -122,9 +122,9 @@ PageAttributeTextItem::PageAttributeTextItem(
       name              = tr("LEGO Disclaimer");
       toolTip           = tr("Disclaimer - click to edit, right-click to modify");
       break;
-  case PagePiecesType:
-      name              = tr("Pieces");
-      toolTip           = tr("Pieces - click to edit, right-click to modify");
+  case PagePartsType:
+      name              = tr("Parts");
+      toolTip           = tr("Parts - click to edit, right-click to modify");
       break;
   case PagePlugType:
       name              = tr("Plug");

@@ -289,7 +289,7 @@ void Application::initialize()
       fprintf(stdout, "  --viewpoint <front|back|left|right|top|bottom|home>: Set the viewpoint.\n");
       fprintf(stdout, "  --camera-angles <latitude> <longitude>: Set the camera angles in degrees around the model.\n");
       fprintf(stdout, "  --orthographic: Make the view orthographic.\n");
-      fprintf(stdout, "  --highlight: Highlight pieces in the steps they appear.\n");
+      fprintf(stdout, "  --highlight: Highlight parts in the steps they appear.\n");
       fprintf(stdout, "  --shading <wireframe|flat|default|full>: Select shading mode for rendering.\n");
       fprintf(stdout, "  --line-width <width>: Set the with of the edge lines.\n");
       fprintf(stdout, "  --html-parts-width <width>: Set the HTML part pictures width.\n");

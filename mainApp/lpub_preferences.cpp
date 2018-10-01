@@ -1626,12 +1626,12 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
     }
 
     // povray generation renderer
-    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"PovFileGenerator"))) {
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"POVFileGenerator"))) {
         QVariant cValue(RENDERER_NATIVE);
         povFileGenerator = RENDERER_NATIVE;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"PovFileGenerator"),cValue);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"POVFileGenerator"),cValue);
     } else {
-        povFileGenerator = Settings.value(QString("%1/%2").arg(SETTINGS,"PovFileGenerator")).toString();
+        povFileGenerator = Settings.value(QString("%1/%2").arg(SETTINGS,"POVFileGenerator")).toString();
     }
 
     // display povray image during rendering
@@ -2560,7 +2560,7 @@ bool Preferences::getPreferences()
         if (povFileGenerator != dialog->povFileGenerator())
         {
             povFileGenerator = dialog->povFileGenerator();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"PovFileGenerator"),povFileGenerator);
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"POVFileGenerator"),povFileGenerator);
         }
 
         if (povrayDisplay != dialog->povrayDisplay())

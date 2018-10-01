@@ -594,9 +594,9 @@ QString type2english(PlacementType type)
 
         break;
 
-    case PagePiecesType:
+    case PagePartsType:
 
-        return "number of pieces";
+        return "number of parts";
 
         break;
 
@@ -735,9 +735,9 @@ QString type2english2(PlacementType type)
 
       break;
 
-  case PagePiecesType:
+  case PagePartsType:
 
-      return "the number of pieces";
+      return "the number of parts";
 
       break;
 

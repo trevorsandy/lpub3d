@@ -553,7 +553,7 @@ QString relativeNames[] =
   "PAGE","ASSEM","MULTI_STEP","STEP_NUMBER","PLI","CALLOUT","PAGE_NUMBER",
   "DOCUMENT_TITLE","MODEL_ID","DOCUMENT_AUTHOR","PUBLISH_URL","MODEL_DESCRIPTION",
   "PUBLISH_DESCRIPTION","PUBLISH_COPYRIGHT","PUBLISH_EMAIL","LEGO_DISCLAIMER",
-  "MODEL_PIECES","APP_PLUG","SUBMODEL_INST_COUNT","DOCUMENT_LOGO","DOCUMENT_COVER_IMAGE",
+  "MODEL_PARTS","APP_PLUG","SUBMODEL_INST_COUNT","DOCUMENT_LOGO","DOCUMENT_COVER_IMAGE",
   "APP_PLUG_IMAGE","PAGE_HEADER","PAGE_FOOTER","MODEL_CATEGORY","ROTATE_ICON",
   "PAGE_POINTER","SINGLE_STEP","STEP","RANGE","RESERVE","COVER_PAGE"
 };
@@ -591,7 +591,7 @@ Rc PlacementMeta::parse(QStringList &argv, int index,Where &here)
   QString relativeTos = "^(PAGE|ASSEM|MULTI_STEP|STEP_NUMBER|PLI|CALLOUT|PAGE_NUMBER|"
                         "DOCUMENT_TITLE|MODEL_ID|DOCUMENT_AUTHOR|PUBLISH_URL|MODEL_DESCRIPTION|"
                         "PUBLISH_DESCRIPTION|PUBLISH_COPYRIGHT|PUBLISH_EMAIL|LEGO_DISCLAIMER|"
-                        "MODEL_PIECES|APP_PLUG|MODEL_CATEGORY|DOCUMENT_LOGO|DOCUMENT_COVER_IMAGE|"
+                        "MODEL_PARTS|APP_PLUG|MODEL_CATEGORY|DOCUMENT_LOGO|DOCUMENT_COVER_IMAGE|"
                         "APP_PLUG_IMAGE|PAGE_HEADER|PAGE_FOOTER|MODEL_CATEGORY|ROTATE_ICON|"
                         "PAGE_POINTER|SINGLE_STEP|STEP|RANGE|RESERVE|COVER_PAGE)$";
 
@@ -2632,8 +2632,8 @@ PageMeta::PageMeta() : BranchMeta()
    *   ModelName                       *  (Top Left of Title) [Dependent]
    *   Title                           *  (Left of Page) [Anchor]
    *   Author                          *  (Bottom Left of Title) [Dependent]
-   *   Pieces                          *  (Bottom Left of Author) [Dependent]
-   *   Model Description               *  (Bottom Left of Pieces) [Dependent]
+   *   Parts                           *  (Bottom Left of Author) [Dependent]
+   *   Model Description               *  (Bottom Left of Parts) [Dependent]
    *   Publsiher Description           *  (Bottom Left of Model Description) [Dependent]
    *
    *   Cover Image                     *  (Center of page) [Independent]
@@ -2676,8 +2676,8 @@ PageMeta::PageMeta() : BranchMeta()
    *  modelName.placement          (TopLeftOutside,	PageTitleType)
    *  titleFront.placement         (LeftInside,         PageType)
    *  authorFront.placement        (BottomLeftOutside,	PageTitleType)
-   *  pieces.placement             (BottomLeftOutside,	PageAuthorType)
-   *  modelDesc.placement          (BottomLeftOutside,	PagePiecesType)
+   *  Parts.placement              (BottomLeftOutside,	PageAuthorType)
+   *  modelDesc.placement          (BottomLeftOutside,	PagePartsType)
    *  publishDesc.placement        (BottomLeftOutside,	PageModelDescType)
    *
    *  BACK COVER PAGE
@@ -2728,14 +2728,14 @@ PageMeta::PageMeta() : BranchMeta()
   authorFront.textFont.setValuePoints("Arial,20,-1,255,75,0,0,0,0,0");
   authorFront.setValue(QString("Model instructions by %1").arg(Preferences::defaultAuthor));
 
-  //model number of pieces text
-  pieces.placement.setValue(BottomLeftOutside,PageAuthorType);
-  pieces.type = PagePiecesType;
-  pieces.textFont.setValuePoints("Arial,20,-1,255,75,0,0,0,0,0");
-  pieces.setValue(QString("%1 Pieces").arg(QString::number(LDrawFile::_pieces)));
+  //model number of Parts text
+  parts.placement.setValue(BottomLeftOutside,PageAuthorType);
+  parts.type = PagePartsType;
+  parts.textFont.setValuePoints("Arial,20,-1,255,75,0,0,0,0,0");
+  parts.setValue(QString("%1 Parts").arg(QString::number(LDrawFile::_parts)));
 
   //model description text
-  modelDesc.placement.setValue(BottomLeftOutside,PagePiecesType);
+  modelDesc.placement.setValue(BottomLeftOutside,PagePartsType);
   modelDesc.type = PageModelDescType;
   modelDesc.textFont.setValuePoints("Arial,18,-1,255,75,0,0,0,0,0");
   modelDesc.setValue(LDrawFile::_description);
@@ -2861,7 +2861,7 @@ void PageMeta::init(BranchMeta *parent, QString name)
   titleBack.init          (this, "DOCUMENT_TITLE_BACK");
   modelName.init          (this, "MODEL_ID");
   modelDesc.init          (this, "MODEL_DESCRIPTION");
-  pieces.init             (this, "MODEL_PIECES");
+  parts.init              (this, "MODEL_PARTS");
   authorFront.init        (this, "DOCUMENT_AUTHOR_FRONT");
   authorBack.init         (this, "DOCUMENT_AUTHOR_BACK");
   author.init             (this, "DOCUMENT_AUTHOR");
@@ -3461,79 +3461,79 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
   LSynth .init(this,"SYNTH");
 
   if (tokenMap.size() == 0) {
-      tokenMap["TOP_LEFT"]         	= TopLeft;
-      tokenMap["TOP"]              	= Top;
-      tokenMap["TOP_RIGHT"]        	= TopRight;
-      tokenMap["RIGHT"]            	= Right;
-      tokenMap["BOTTOM_RIGHT"]     	= BottomRight;
-      tokenMap["BOTTOM"]           	= Bottom;
-      tokenMap["BOTTOM_LEFT"]      	= BottomLeft;
-      tokenMap["LEFT"]             	= Left;
-      tokenMap["CENTER"]           	= Center;
+      tokenMap["TOP_LEFT"]         	   = TopLeft;
+      tokenMap["TOP"]              	   = Top;
+      tokenMap["TOP_RIGHT"]        	   = TopRight;
+      tokenMap["RIGHT"]            	   = Right;
+      tokenMap["BOTTOM_RIGHT"]     	   = BottomRight;
+      tokenMap["BOTTOM"]           	   = Bottom;
+      tokenMap["BOTTOM_LEFT"]      	   = BottomLeft;
+      tokenMap["LEFT"]             	   = Left;
+      tokenMap["CENTER"]           	   = Center;
 
-      tokenMap["INSIDE"]           	= Inside;
-      tokenMap["OUTSIDE"]          	= Outside;
+      tokenMap["INSIDE"]           	   = Inside;
+      tokenMap["OUTSIDE"]          	   = Outside;
 
-      tokenMap["PAGE"]             	= PageType;
-      tokenMap["ASSEM"]            	= CsiType;
-      tokenMap["MULTI_STEP"]       	= StepGroupType;
-      tokenMap["STEP_GROUP"]       	= StepGroupType;
-      tokenMap["STEP_NUMBER"]      	= StepNumberType;
-      tokenMap["PLI"]              	= PartsListType;
-      tokenMap["PAGE_NUMBER"]      	= PageNumberType;
-      tokenMap["CALLOUT"]          	= CalloutType;
+      tokenMap["PAGE"]             	   = PageType;
+      tokenMap["ASSEM"]            	   = CsiType;
+      tokenMap["MULTI_STEP"]       	   = StepGroupType;
+      tokenMap["STEP_GROUP"]       	   = StepGroupType;
+      tokenMap["STEP_NUMBER"]      	   = StepNumberType;
+      tokenMap["PLI"]              	   = PartsListType;
+      tokenMap["PAGE_NUMBER"]      	   = PageNumberType;
+      tokenMap["CALLOUT"]          	   = CalloutType;
 
-      tokenMap["DOCUMENT_TITLE"]    	= PageTitleType;
-      tokenMap["MODEL_ID"]    		= PageModelNameType;
-      tokenMap["DOCUMENT_AUTHOR"]    	= PageAuthorType;
-      tokenMap["PUBLISH_URL"]    	= PageURLType;
-      tokenMap["MODEL_DESCRIPTION"]     = PageModelDescType;
-      tokenMap["PUBLISH_DESCRIPTION"]	= PagePublishDescType;
-      tokenMap["PUBLISH_COPYRIGHT"]     = PageCopyrightType;
-      tokenMap["PUBLISH_EMAIL"]    	= PageEmailType;
-      tokenMap["LEGO_DISCLAIMER"]    	= PageDisclaimerType;
-      tokenMap["MODEL_PIECES"]    	= PagePiecesType;
-      tokenMap["APP_PLUG"]    		= PagePlugType;
-      tokenMap["SUBMODEL_INST_COUNT"]   = SubmodelInstanceCountType;
-      tokenMap["DOCUMENT_LOGO"]    	= PageDocumentLogoType;
-      tokenMap["DOCUMENT_COVER_IMAGE"]  = PageCoverImageType;
-      tokenMap["APP_PLUG_IMAGE"]    	= PagePlugImageType;
-      tokenMap["PAGE_HEADER"]    	= PageHeaderType;
-      tokenMap["PAGE_FOOTER"]    	= PageFooterType;
-      tokenMap["MODEL_CATEGORY"]    	= PageCategoryType;
-      tokenMap["ROTATE_ICON"]           = RotateIconType;
+      tokenMap["DOCUMENT_TITLE"]       = PageTitleType;
+      tokenMap["MODEL_ID"]    		   = PageModelNameType;
+      tokenMap["DOCUMENT_AUTHOR"]      = PageAuthorType;
+      tokenMap["PUBLISH_URL"]    	   = PageURLType;
+      tokenMap["MODEL_DESCRIPTION"]    = PageModelDescType;
+      tokenMap["PUBLISH_DESCRIPTION"]  = PagePublishDescType;
+      tokenMap["PUBLISH_COPYRIGHT"]    = PageCopyrightType;
+      tokenMap["PUBLISH_EMAIL"]    	   = PageEmailType;
+      tokenMap["LEGO_DISCLAIMER"]      = PageDisclaimerType;
+      tokenMap["MODEL_PARTS"]    	   = PagePartsType;
+      tokenMap["APP_PLUG"]    		   = PagePlugType;
+      tokenMap["SUBMODEL_INST_COUNT"]  = SubmodelInstanceCountType;
+      tokenMap["DOCUMENT_LOGO"]    	   = PageDocumentLogoType;
+      tokenMap["DOCUMENT_COVER_IMAGE"] = PageCoverImageType;
+      tokenMap["APP_PLUG_IMAGE"]       = PagePlugImageType;
+      tokenMap["PAGE_HEADER"]    	   = PageHeaderType;
+      tokenMap["PAGE_FOOTER"]    	   = PageFooterType;
+      tokenMap["MODEL_CATEGORY"]       = PageCategoryType;
+      tokenMap["ROTATE_ICON"]          = RotateIconType;
 
-      tokenMap["PAGE_POINTER"]          = PagePointerType;
-      tokenMap["SINGLE_STEP"]           = SingleStepType; 
-      tokenMap["STEP"]                  = StepType;       
-      tokenMap["RANGE"]                 = RangeType;      
-      tokenMap["RESERVE"]               = ReserveType;    
-      tokenMap["COVER_PAGE"]            = CoverPageType; 
+      tokenMap["PAGE_POINTER"]         = PagePointerType;
+      tokenMap["SINGLE_STEP"]          = SingleStepType;
+      tokenMap["STEP"]                 = StepType;
+      tokenMap["RANGE"]                = RangeType;
+      tokenMap["RESERVE"]              = ReserveType;
+      tokenMap["COVER_PAGE"]           = CoverPageType;
 
-      tokenMap["AREA"]                  = ConstrainData::PliConstrainArea;
-      tokenMap["SQUARE"]                = ConstrainData::PliConstrainSquare;
-      tokenMap["WIDTH"]                 = ConstrainData::PliConstrainWidth;
-      tokenMap["HEIGHT"]                = ConstrainData::PliConstrainHeight;
-      tokenMap["COLS"]                  = ConstrainData::PliConstrainColumns;
+      tokenMap["AREA"]                 = ConstrainData::PliConstrainArea;
+      tokenMap["SQUARE"]               = ConstrainData::PliConstrainSquare;
+      tokenMap["WIDTH"]                = ConstrainData::PliConstrainWidth;
+      tokenMap["HEIGHT"]               = ConstrainData::PliConstrainHeight;
+      tokenMap["COLS"]                 = ConstrainData::PliConstrainColumns;
 
-      tokenMap["HORIZONTAL"]            = Horizontal;
-      tokenMap["VERTICAL"]              = Vertical;
+      tokenMap["HORIZONTAL"]           = Horizontal;
+      tokenMap["VERTICAL"]             = Vertical;
 
-      tokenMap["PORTRAIT"]              = Portrait;
-      tokenMap["LANDSCAPE"]             = Landscape;
+      tokenMap["PORTRAIT"]             = Portrait;
+      tokenMap["LANDSCAPE"]            = Landscape;
 
-      tokenMap["SORT_BY"]               = SortByType;
-      tokenMap["ANNOTATION"]            = AnnotationType;
+      tokenMap["SORT_BY"]              = SortByType;
+      tokenMap["ANNOTATION"]           = AnnotationType;
 
-      tokenMap["BASE_TOP_LEFT"]         = TopLeftInsideCorner;
-      tokenMap["BASE_TOP"]              = TopInside;
-      tokenMap["BASE_TOP_RIGHT"]        = TopRightInsideCorner;
-      tokenMap["BASE_LEFT"]             = LeftInside;
-      tokenMap["BASE_CENTER"]           = CenterCenter;
-      tokenMap["BASE_RIGHT"]            = RightInside;
-      tokenMap["BASE_BOTTOM_LEFT"]      = BottomLeftInsideCorner;
-      tokenMap["BASE_BOTTOM"]           = BottomInside;
-      tokenMap["BASE_BOTTOM_RIGHT"]     = BottomRightInsideCorner;
+      tokenMap["BASE_TOP_LEFT"]        = TopLeftInsideCorner;
+      tokenMap["BASE_TOP"]             = TopInside;
+      tokenMap["BASE_TOP_RIGHT"]       = TopRightInsideCorner;
+      tokenMap["BASE_LEFT"]            = LeftInside;
+      tokenMap["BASE_CENTER"]          = CenterCenter;
+      tokenMap["BASE_RIGHT"]           = RightInside;
+      tokenMap["BASE_BOTTOM_LEFT"]     = BottomLeftInsideCorner;
+      tokenMap["BASE_BOTTOM"]          = BottomInside;
+      tokenMap["BASE_BOTTOM_RIGHT"]    = BottomRightInsideCorner;
     }
 }
 

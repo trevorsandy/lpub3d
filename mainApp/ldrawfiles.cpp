@@ -52,7 +52,7 @@ QString LDrawFile::_author      = "";
 QString LDrawFile::_description = "";
 QString LDrawFile::_category    = "";
 int     LDrawFile::_emptyInt;
-int     LDrawFile::_pieces      = 0;
+int     LDrawFile::_parts      = 0;
 
 LDrawSubFile::LDrawSubFile(
   const QStringList &contents,
@@ -93,7 +93,7 @@ void LDrawFile::empty()
   _subFileOrder.clear();
   _viewerSteps.clear();
   _mpd = false;
-  _pieces = 0;
+  _parts = 0;
 }
 
 /* Add a new subFile */
@@ -464,7 +464,7 @@ void LDrawFile::loadFile(const QString &fileName)
     // get rid of what's there before we load up new stuff
 
     empty();
-    _pieces = 0;
+    _parts = 0;
     
     // allow files ldr suffix to allow for MPD
     
@@ -523,7 +523,7 @@ void LDrawFile::loadFile(const QString &fileName)
     emit gui->messageSig(LOG_STATUS, QString("%1 model file %2 loaded. Count %3 parts.%4")
                                              .arg(mpd ? "MPD" : "LDR")
                                              .arg(fileInfo.fileName())
-                                             .arg(_pieces)
+                                             .arg(_parts)
                                              .arg(mpc > 0 ?
                                                   p ? QString(" %1 parts missing.").arg(mpc) :
                                                       QString(" 1 part missing.") : ""));
@@ -534,7 +534,7 @@ void LDrawFile::loadFile(const QString &fileName)
 //              << ", Author:"      << _author
 //              << ", Description:" << _description
 //              << ", Category:"    << _category
-//              << ", Pieces:"      << _pieces
+//              << ", Parts:"      << _parts
 //                 ;
 
 }
@@ -1033,9 +1033,9 @@ void LDrawFile::countParts(const QString &fileName){
                     QFileInfo info(tokens[14]);
                     PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.fileName().toUpper().toLatin1().constData(), nullptr, false, false);
                     if (pieceInfo && pieceInfo->IsPartType()) {
-                        _pieces++; sfCount++;
-                        //logTrace() << QString(" Part Line: [%2] %3 Item No %1").arg(_pieces).arg(fileName).arg(line);
-                        emit gui->messageSig(LOG_NOTICE,QString("Piece No %1 [%2] validated.").arg(_pieces).arg(tokens[14]));
+                        _parts++; sfCount++;
+                        //logTrace() << QString(" Part Line: [%2] %3 Item No %1").arg(_parts).arg(fileName).arg(line);
+                        emit gui->messageSig(LOG_NOTICE,QString("Piece No %1 [%2] validated.").arg(_parts).arg(tokens[14]));
                     } else if (lcGetPiecesLibrary()->IsPrimitive(info.fileName().toUpper().toLatin1().constData())) {
                         emit gui->messageSig(LOG_NOTICE,QString("Piece [%1] is a primitive type part").arg(tokens[14]));
                     } else {

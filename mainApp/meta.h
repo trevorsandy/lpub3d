@@ -2203,7 +2203,7 @@ public:
   PageAttributePictureMeta  documentLogoFront;       //from preferences
   PageAttributePictureMeta  documentLogoBack;        //from preferences
   PageAttributePictureMeta  coverImage;              //from Globals setup
-  PageAttributeTextMeta     pieces;                  //from LDrawFile - count .dat during load
+  PageAttributeTextMeta     parts;                   //from LDrawFile - count .dat during load
   PageAttributeTextMeta     copyrightBack;           //from preferences static
   PageAttributeTextMeta     copyright;               //from preferences static
   PageAttributeTextMeta     plug;                    //from preferences static

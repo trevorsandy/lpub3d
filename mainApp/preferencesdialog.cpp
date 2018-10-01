@@ -48,7 +48,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
     ldrawPath = ".";
   }
 
-  // hide 3rd party applicaton browse buttons
+  // hide 3rd party application browse buttons
   ui.browseLDGLite->hide();
   ui.browseLDView->hide();
   ui.browsePOVRAY->hide();
@@ -58,7 +58,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 
   bool useLDViewSCall = (Preferences::enableLDViewSingleCall && Preferences::preferredRenderer == RENDERER_LDVIEW);
 
-  // set 3rd party application dialogs to read-only
+  // set 3rd party application dialogues to read-only
   ui.ldglitePath->setReadOnly(true);
   ui.ldglitePath->setPalette(readOnlyPalette);
   ui.ldviewPath->setReadOnly(true);
@@ -211,7 +211,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   }
 
   connect(ui.textEditSearchDirs, SIGNAL(textChanged()),this, SLOT(pushButtonReset_SetState()));
-  //end search dirs
+  //end search Dirs
 
   ui.preferredRenderer->setMaxCount(0);
   ui.preferredRenderer->setMaxCount(4);
@@ -329,7 +329,7 @@ void PreferencesDialog::on_browseAltLDConfig_clicked()
     QString filter(tr("All Files (*.*)"));
 #endif
 
-    QString result = QFileDialog::getOpenFileName(this, tr("Select LDRaw LDConfig file"),
+    QString result = QFileDialog::getOpenFileName(this, tr("Select LDraw LDConfig file"),
                                                   ui.altLDConfigPath->text().isEmpty() ? Preferences::ldrawPath : ui.altLDConfigPath->text(),
                                                   filter);
 
@@ -895,7 +895,7 @@ bool PreferencesDialog::includeAllLogAttrib()
 }
 bool PreferencesDialog::loggingGrpBox()
 {
-  return ui.loggingGrpBox->isChecked(); //offlevel
+  return ui.loggingGrpBox->isChecked(); //off-level
 }
 bool PreferencesDialog::logLevelGrpBox()
 {
@@ -1037,7 +1037,7 @@ void PreferencesDialog::accept(){
             ui.ldglitePath->setPlaceholderText("At lease one renderer must be defined");
             ui.ldviewPath->setPlaceholderText("At lease one renderer must be defined");
             ui.povrayPath->setPlaceholderText("At lease one renderer must be defined");
-            ui.ldrawPath->setPlaceholderText("LDRaw path must be defined");
+            ui.ldrawPath->setPlaceholderText("LDraw path must be defined");
         }
       }
     if (ui.includesGrpBox->isChecked() &&
@@ -1065,7 +1065,7 @@ void PreferencesDialog::accept(){
         ui.logValiationLbl->setStyleSheet("QLabel { background-color : red; color : blue; }");
       }
     if (missingParms){
-        if (QMessageBox::Yes == QMessageBox::question(this, "Close Dialog?",
+        if (QMessageBox::Yes == QMessageBox::question(this, "Close Dialogue?",
                               "Required settings are missing.\n Are you sure you want to exit?",
                               QMessageBox::Yes|QMessageBox::No)){
             QDialog::reject(); //keep open

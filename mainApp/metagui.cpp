@@ -282,8 +282,8 @@ FloatsGui::FloatsGui(
 
   val = meta->value(0);
   a = val - (int)val;
-  dec = (a <= 0 ? 0 : QString::number(a).size() - 2);                  // shameless hack for the numer of input decimals
-  numStr = dec > 0 ? QString::number(val): QString::number(val,'f',1); // add 1 decmal place for even numbers
+  dec = (a <= 0 ? 0 : QString::number(a).size() - 2);                  // shameless hack for the number of input decimals
+  numStr = dec > 0 ? QString::number(val): QString::number(val,'f',1); // add 1 decimal place for even numbers
   for (int i = 0; i < numStr.size(); i++) dynMask.append("x");         // dynamically create the input mask
 
   string = QString("%1") .arg(val,
@@ -306,7 +306,7 @@ FloatsGui::FloatsGui(
   val = meta->value(1);
   dynMask.clear();
   a = val - (int)val;
-  dec = (a <= 0 ? 0 : QString::number(a).size() - 2);                  // shameless hack for the numer of input decimals
+  dec = (a <= 0 ? 0 : QString::number(a).size() - 2);                  // shameless hack for the number of input decimals
   numStr = dec > 0 ? QString::number(val): QString::number(val,'f',1);
   for (int i = 0; i < numStr.size(); i++) dynMask.append("x");         // dynamically create the input mask
   string = QString("%1") .arg(val,
@@ -701,33 +701,33 @@ void NumberGui::apply(
  **********************************************************************/
 const QString pageAttributeName[25] =
 {
-    "Page",                "Assemembly", "Step Group",  "Step Number",
+    "Page",                "Assembly",   "Step Group",  "Step Number",
     "Parts List",          "Callout",    "Page Number", "Title",
-    "Model ID",            "Author",      "URL",        "Model Description",
+    "Model ID",            "Author",     "URL",         "Model Description",
     "Publish Description", "Copyright",  "Email",       "Disclaimer",
-    "Pieces",              "Plug",       "Category",    "Logo",
+    "Parts",               "Plug",       "Category",    "Logo",
     "Cover Image",         "Plug Image", "Header",      "Footer",
     "BOM",
 };
 
 const int attributeKeysOk[16] =
 {
-    /*  0 page           0,*/
-    /*  0 title */       fc | bc,
-    /*  1 modelName */   fc,
-    /*  2 author */      fc | bc | ph | pf,
-    /*  3 url */              bc | ph | pf,
-    /*  4 modelDesc */   fc,
-    /*  5 publishDesc */ fc,
-    /*  6 copyright */        bc | ph | pf,
-    /*  7 email */            bc | ph | pf,
-    /*  8 disclaimer */       bc,
-    /*  9 pieces */      fc,
-    /* 10 plug */             bc,
-    /* 11 category */    fc | bc,
-    /* 12 documentLogo */fc | bc,
-    /* 13 coverImage */  fc,
-    /* 14 plugImage */        bc
+    /*  0 Page           0,*/
+    /*  0 Title */       fc | bc,
+    /*  1 ModelName */   fc,
+    /*  2 Author */      fc | bc | ph | pf,
+    /*  3 Url */              bc | ph | pf,
+    /*  4 ModelDesc */   fc,
+    /*  5 PublishDesc */ fc,
+    /*  6 Copyright */        bc | ph | pf,
+    /*  7 Email */            bc | ph | pf,
+    /*  8 Disclaimer */       bc,
+    /*  9 Parts */       fc,
+    /* 10 Plug */             bc,
+    /* 11 Category */    fc | bc,
+    /* 12 DocumentLogo */fc | bc,
+    /* 13 CoverImage */  fc,
+    /* 14 PlugImage */        bc
 };
 
 const QString sectionName[4] =
@@ -765,7 +765,7 @@ PageAttributeTextGui::PageAttributeTextGui(
   }
 
   int attributeType;
-  attributeType = meta->type - 7; // adjust PlacementType to match smaller PagAttributeType Enum
+  attributeType = meta->type - 7; // adjust PlacementType to match smaller PageAttributeType Enum
   int oks;
   oks = attributeKeysOk[attributeType];
 
@@ -867,7 +867,7 @@ PageAttributeTextGui::PageAttributeTextGui(
           this,  SLOT(  value1Changed(QString const &)));
   grid->addWidget(value1,3,2);
 
-  //Content Dialog
+  //Content Dialogue
   gbContentEdit = new QGroupBox("Content",parent);
   hLayout = new QHBoxLayout();
   gbContentEdit->setLayout(hLayout);
@@ -880,13 +880,13 @@ PageAttributeTextGui::PageAttributeTextGui(
         this,  SLOT(  editChanged(QString const &)));
   hLayout->addWidget(contentEdit);
 
-  //Description Dialog
-  gbDescDialog = new QGroupBox("Description Dialog Content",parent);
+  //Description Dialogue
+  gbDescDialog = new QGroupBox("Description Dialogue Content",parent);
   gbDescDialog->hide();
   QVBoxLayout *vLayout = new QVBoxLayout(nullptr);
   //hLayout = new QHBoxLayout();
   gbDescDialog->setLayout(vLayout);
-  //gbDescDialog->setLayout(hLayout);
+  //gbDescDialogue->setLayout(hLayout);
   grid->addWidget(gbDescDialog,4,0,1,3);
 
   editDesc = new QTextEdit(parent);
@@ -909,13 +909,13 @@ PageAttributeTextGui::PageAttributeTextGui(
       editDesc->setText(string);
   }
 
-  //Disclaimer Dialog
-  gbDiscDialog = new QGroupBox("Disclaimer Dialog Content",parent);
+  //Disclaimer Dialogue
+  gbDiscDialog = new QGroupBox("Disclaimer Dialogue Content",parent);
   gbDiscDialog->hide();
   vLayout = new QVBoxLayout(nullptr);
   //hLayout = new QHBoxLayout();
   gbDiscDialog->setLayout(vLayout);
-  //gbDiscDialog->setLayout(hLayout);
+  //gbDiscDialogue->setLayout(hLayout);
   grid->addWidget(gbDiscDialog,4,0,1,3);
 
   editDisc = new QTextEdit(parent);
@@ -1083,7 +1083,7 @@ void PageAttributeTextGui::apply(
   }
 
   int attributeType;
-  attributeType = meta->type - 7; // adjust PlacementType to match smaller PagAttributeType Enum
+  attributeType = meta->type - 7; // adjust PlacementType to match smaller PageAttributeType Enum
   int oks;
   oks = attributeKeysOk[attributeType];
 
@@ -2465,7 +2465,7 @@ ResolutionGui::ResolutionGui(
 
   combo = new QComboBox(parent);
   combo->addItem("Dots Per Inch");
-  combo->addItem("Dots Per Centimeter");
+  combo->addItem("Dots Per Centimetre");
   combo->setCurrentIndex(int(type));
   connect(combo,SIGNAL(currentIndexChanged(QString const &)),
           this, SLOT(  unitsChange(        QString const &)));
@@ -2520,7 +2520,7 @@ void ResolutionGui::differences()
     meta->setValue(type,value);
     modified = true;
   } else {
-    // We must convert all units in project to centimeters
+    // We must convert all units in project to centimetres
     meta->setValue(type,value);
     modified = true;
   }
@@ -2699,7 +2699,7 @@ void RendererGui::apply(QString &topLevelFile)
       changeMessage = QString("Renderer preference changed from %1 to %2 %3")
                      .arg(Preferences::preferredRenderer)
                      .arg(pick)
-                     .arg(pick == RENDERER_POVRAY ? QString("(PoV file generator is %1)").arg(Preferences::povFileGenerator) :
+                     .arg(pick == RENDERER_POVRAY ? QString("(POV file generator is %1)").arg(Preferences::povFileGenerator) :
                           pick == RENDERER_LDVIEW ? Preferences::enableLDViewSingleCall ? "(Single Call)" : "" : "");
       emit gui->messageSig(LOG_INFO, changeMessage);
       Preferences::preferredRenderer = pick;
@@ -2720,7 +2720,7 @@ void RendererGui::apply(QString &topLevelFile)
                       .arg(povFileGenChoice);
       emit gui->messageSig(LOG_INFO, changeMessage);
       Preferences::povFileGenerator = povFileGenChoice;
-      Settings.setValue(QString("%1/%2").arg(SETTINGS,"PovFileGenerator"),povFileGenChoice);
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,"POVFileGenerator"),povFileGenChoice);
     }
   if (cameraDistFactorModified) {
       changeMessage = QString("Native camera distance factor changed from %1 to %2")

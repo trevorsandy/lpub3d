@@ -1,4 +1,4 @@
-/**************************************************************************** 
+/****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
 ** Copyright (C) 2015 - 2018 Trevor SANDY. All rights reserved.
@@ -192,7 +192,7 @@ void SubmodelInstanceCount::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
  * addGraphicsPageItems - this function is given the page contents in tree
  * data structure form, with all the CSI and PLI images rendered.  This function
  * then creates Qt graphics view items for each of the components of the page.
- * Sinple things like page number, page background, inserts and the like are
+ * Simple things like page number, page background, inserts and the like are
  * handled here. For things like callouts, page pointers and step groups, there is a bunch
  * of packing and placing things relative to things that must go on, these
  * operations are handled elsewhere (step.cpp, steps.cpp, callout.cpp, placement.cpp
@@ -206,7 +206,7 @@ int Gui::addGraphicsPageItems(
     Steps          *steps,
     bool            coverPage,
     bool            endOfSubmodel,
-    LGraphicsView *view,
+    LGraphicsView  *view,
     LGraphicsScene *scene,
     bool            printing)
 {
@@ -1215,7 +1215,7 @@ int Gui::addCoverPageAttributes(
       PageAttributeTextItem   *titleFront            = new PageAttributeTextItem(page,page->meta.LPub.page.titleFront,pageBg);
       PageAttributeTextItem   *modelNameFront        = new PageAttributeTextItem(page,page->meta.LPub.page.modelName,pageBg);
       PageAttributeTextItem   *authorFront           = new PageAttributeTextItem(page,page->meta.LPub.page.authorFront,pageBg);
-      PageAttributeTextItem   *piecesFront           = new PageAttributeTextItem(page,page->meta.LPub.page.pieces,pageBg);
+      PageAttributeTextItem   *partsFront           = new PageAttributeTextItem(page,page->meta.LPub.page.parts,pageBg);
       PageAttributeTextItem   *modelDescFront        = new PageAttributeTextItem(page,page->meta.LPub.page.modelDesc,pageBg);
       PageAttributeTextItem   *publishDescFront      = new PageAttributeTextItem(page,page->meta.LPub.page.publishDesc,pageBg);
       PageAttributePixmapItem *pixmapLogoFront;
@@ -1262,18 +1262,18 @@ int Gui::addCoverPageAttributes(
           authorFront                 = nullptr;
         }
 
-      // Front Page Pieces Count
-      bool displayPiecesFront         = page->meta.LPub.page.pieces.display.value();
-      bool breakPiecesFrontRelativeTo = false;
-      PlacementData piecesFrontPld;
-      if (displayPiecesFront) {
-          piecesFront->size[XX]       = (int) piecesFront->document()->size().width();
-          piecesFront->size[YY]       = (int) piecesFront->document()->size().height();
-          piecesFrontPld = piecesFront->placement.value();
-          breakPiecesFrontRelativeTo  = piecesFrontPld.relativeTo != PageAuthorType;
+      // Front Page Parts Count
+      bool displayPartsFront         = page->meta.LPub.page.parts.display.value();
+      bool breakPartsFrontRelativeTo = false;
+      PlacementData PartsFrontPld;
+      if (displayPartsFront) {
+          partsFront->size[XX]       = (int) partsFront->document()->size().width();
+          partsFront->size[YY]       = (int) partsFront->document()->size().height();
+          PartsFrontPld = partsFront->placement.value();
+          breakPartsFrontRelativeTo  = PartsFrontPld.relativeTo != PageAuthorType;
       } else {
-          delete  piecesFront;
-          piecesFront                 = nullptr;
+          delete  partsFront;
+          partsFront                 = nullptr;
         }
 
       // Front Page Model Description,
@@ -1284,7 +1284,7 @@ int Gui::addCoverPageAttributes(
           modelDescFront->size[XX]       = (int) modelDescFront->document()->size().width();
           modelDescFront->size[YY]       = (int) modelDescFront->document()->size().height();
           modelDescFrontPld = modelDescFront->placement.value();
-          breakModelDescFrontRelativeTo  = modelDescFrontPld.relativeTo != PagePiecesType;
+          breakModelDescFrontRelativeTo  = modelDescFrontPld.relativeTo != PagePartsType;
       } else {
           delete modelDescFront;
           modelDescFront                 = nullptr;
@@ -1311,7 +1311,7 @@ int Gui::addCoverPageAttributes(
           categoryFront->size[YY]       = (int) categoryFront->document()->size().height();
 
           categoryFrontPld = categoryFront->placement.value();
-          breakCategoryFrontRelativeTo  = categoryFrontPld.relativeTo != PagePiecesType;
+          breakCategoryFrontRelativeTo  = categoryFrontPld.relativeTo != PagePartsType;
       } else {
           delete  categoryFront;
           categoryFront                 = nullptr;
@@ -1366,37 +1366,37 @@ int Gui::addCoverPageAttributes(
           authorFront->setPos(authorFront->loc[XX],authorFront->loc[YY]);
         }
 
-      // Pieces (Front Cover) //~~~~~~~~~~~~~~~~
-      if (displayPiecesFront) {
-          if (breakAuthorFrontRelativeTo && piecesFrontPld.relativeTo == PageAuthorType) {
-              piecesFront->placement.setValue(RightInside,PageType);
-              plPage.appendRelativeTo(piecesFront);
-              plPage.placeRelative(piecesFront);
-            } else if (displayAuthorFront && piecesFrontPld.relativeTo == PageAuthorType) {
-              authorFront->appendRelativeTo(piecesFront);
-              authorFront->placeRelative(piecesFront);
+      // Parts (Front Cover) //~~~~~~~~~~~~~~~~
+      if (displayPartsFront) {
+          if (breakAuthorFrontRelativeTo && PartsFrontPld.relativeTo == PageAuthorType) {
+              partsFront->placement.setValue(RightInside,PageType);
+              plPage.appendRelativeTo(partsFront);
+              plPage.placeRelative(partsFront);
+            } else if (displayAuthorFront && PartsFrontPld.relativeTo == PageAuthorType) {
+              authorFront->appendRelativeTo(partsFront);
+              authorFront->placeRelative(partsFront);
             } else {
-              piecesFront->placement.setValue(RightInside,PageType);
-              plPage.appendRelativeTo(piecesFront);
-              plPage.placeRelative(piecesFront);
+              partsFront->placement.setValue(RightInside,PageType);
+              plPage.appendRelativeTo(partsFront);
+              plPage.placeRelative(partsFront);
             }
-          piecesFront->setPos(piecesFront->loc[XX],piecesFront->loc[YY]);
+          partsFront->setPos(partsFront->loc[XX],partsFront->loc[YY]);
         }
 
       // ModelDesc (Front Cover) //~~~~~~~~~~~~~~~~
       if (displayModelDescFront) {
-          if ((breakPiecesFrontRelativeTo && modelDescFrontPld.relativeTo == PagePiecesType)    /* ||
+          if ((breakPartsFrontRelativeTo && modelDescFrontPld.relativeTo == PagePartsType)    /* ||
               (breakCategoryFrontRelativeTo && modelDescFrontPld.relativeTo == PageCategoryType) */) {
               modelDescFront->placement.setValue(RightInside,PageType);
               plPage.appendRelativeTo(modelDescFront);
               plPage.placeRelative(modelDescFront);
-          } else if (displayPiecesFront && modelDescFrontPld.relativeTo == PagePiecesType) {
-              piecesFront->appendRelativeTo(modelDescFront);
-              piecesFront->placeRelative(modelDescFront);
+          } else if (displayPartsFront && modelDescFrontPld.relativeTo == PagePartsType) {
+              partsFront->appendRelativeTo(modelDescFront);
+              partsFront->placeRelative(modelDescFront);
           /*
           } else if (displayCategoryFront && modelDescFrontPld.relativeTo == PageCategoryType) {
-              piecesFront->appendRelativeTo(modelDescFront);
-              piecesFront->placeRelative(modelDescFront);
+              partsFront->appendRelativeTo(modelDescFront);
+              partsFront->placeRelative(modelDescFront);
           */
           } else {
               modelDescFront->placement.setValue(RightInside,PageType);
@@ -1425,13 +1425,13 @@ int Gui::addCoverPageAttributes(
 
       // Category (Front Cover) //~~~~~~~~~~~~~~~~
       /* if (displayCategoryFront) {
-          if (breakPiecesFrontRelativeTo && categoryFrontPld.relativeTo == PagePiecesType) {
+          if (breakPartsFrontRelativeTo && categoryFrontPld.relativeTo == PagePartsType) {
               categoryFront->placement.setValue(RightInside,PageType);
               plPage.appendRelativeTo(categoryFront);
               plPage.placeRelative(categoryFront);
-          } else if (displayPiecesFront && categoryFrontPld.relativeTo == PagePiecesType) {
-              piecesFront->appendRelativeTo(categoryFront);
-              piecesFront->placeRelative(categoryFront);
+          } else if (displayPartsFront && categoryFrontPld.relativeTo == PagePartsType) {
+              partsFront->appendRelativeTo(categoryFront);
+              partsFront->placeRelative(categoryFront);
           } else {
               categoryFront->placement.setValue(RightInside,PageType);
               plPage.appendRelativeTo(categoryFront);

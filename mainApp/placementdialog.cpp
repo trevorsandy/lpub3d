@@ -75,7 +75,7 @@ QString labels[5][5] =
 };
 
 const  QList<int> PlacementDialog::relativeToOks[NumRelatives] =
-{ //                               {Page , Csi , Pli , Pn , Sn , Callout , Ph , Pf, Ms}
+{ //                               {Page , Csi , Pli , Pn , Sn , Callout , PhD , Pf, Ms}
   /*  0 Page             Page    */{0},
   /*  1 Csi (Assem)      Csi     */{Page},
   /*  2 MultiStep        Ms      */{Page       , Pli},
@@ -93,7 +93,7 @@ const  QList<int> PlacementDialog::relativeToOks[NumRelatives] =
   /* 13 copyright        Ct      */{Page             , Pn                , Ph , Pf      , At ,      Et , Urlt},
   /* 14 email            Et      */{Page             , Pn                , Ph , Pf      , At , Ct ,      Urlt},
   /* 15 disclaimer       dt      */{Page                                                          , Et},
-  /* 16 pieces           pt      */{Page                                                , At},
+  /* 16 Parts            pt      */{Page                                                , At},
   /* 17 plug             plt     */{Page                                                                          , Dt},
   /* 18 submodelInsCount sic     */{Page , Csi , Pli , Pn , Sn},
   /* 19 documentLogo     dlt     */{Page                                 , Ph , Pf},
@@ -127,25 +127,25 @@ const int PlacementDialog::prepositionOks[NumRelatives] = // indexed by them
   /*  5 Callout                  */ OutsideOk,
   /*  6 PageNum                  */ OutsideOk,
 
-  /*  7 title                    */ OutsideOk,
-  /*  8 modelName                */ OutsideOk,
-  /*  9 author                   */ OutsideOk,
-  /* 10 url                      */ OutsideOk,
-  /* 11 modelDesc                */ OutsideOk,
-  /* 12 publishDesc              */ OutsideOk,
-  /* 13 copyright                */ OutsideOk,
-  /* 14 email                    */ OutsideOk,
-  /* 15 disclaimer               */ OutsideOk,
-  /* 16 pieces                   */ OutsideOk,
-  /* 17 plug                     */ OutsideOk,
-  /* 18 submodelInsCount         */ OutsideOk,
-  /* 19 documentLogo             */ OutsideOk,
-  /* 20 coverImage               */ OutsideOk,
-  /* 21 plugImage                */ OutsideOk,
-  /* 22 pageHeader               */ InsideOk|OutsideOk,
-  /* 23 pageFooter               */ InsideOk|OutsideOk,
-  /* 24 category                 */ OutsideOk,
-  /* 25 rotateIcon               */ OutsideOk,
+  /*  7 Title                    */ OutsideOk,
+  /*  8 ModelName                */ OutsideOk,
+  /*  9 Author                   */ OutsideOk,
+  /* 10 Url                      */ OutsideOk,
+  /* 11 ModelDesc                */ OutsideOk,
+  /* 12 PublishDesc              */ OutsideOk,
+  /* 13 Copyright                */ OutsideOk,
+  /* 14 Email                    */ OutsideOk,
+  /* 15 Disclaimer               */ OutsideOk,
+  /* 16 Parts                    */ OutsideOk,
+  /* 17 Plug                     */ OutsideOk,
+  /* 18 SubmodelInsCount         */ OutsideOk,
+  /* 19 DocumentLogo             */ OutsideOk,
+  /* 20 CoverImage               */ OutsideOk,
+  /* 21 PlugImage                */ OutsideOk,
+  /* 22 PageHeader               */ InsideOk|OutsideOk,
+  /* 23 PageFooter               */ InsideOk|OutsideOk,
+  /* 24 Category                 */ OutsideOk,
+  /* 25 RotateIcon               */ OutsideOk,
   /* 26 Bom                      */ OutsideOk,
 
   /* 27 PagePointer              */ OutsideOk,
@@ -176,7 +176,7 @@ const QString relativeNames[NumRelatives] =
   "Copyright",                  //13 Ct
   "Email",                      //14 Et
   "Disclaimer",                 //15 dt
-  "Pieces",                     //16 pt
+  "Parts",                      //16 pt
   "Plug",                       //17 plt
   "Submodel Instance Count",    //18 sic
   "Logo",                       //19 dlt
@@ -511,7 +511,7 @@ PlacementDialog::PlacementDialog(
   outsideGrid->addWidget(buttonBox,7,0,1,5);
 
   setLayout(outsideGrid);
-  setWindowTitle(tr("%1 %2 Dialog").arg(QString::fromLatin1(VER_PRODUCTNAME_STR),title));
+  setWindowTitle(tr("%1 %2 Dialogue").arg(QString::fromLatin1(VER_PRODUCTNAME_STR),title));
   
   setEnabled(prepositionOks[goods->relativeTo]);
   highlightPlacement(goods);

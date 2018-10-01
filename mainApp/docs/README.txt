@@ -1,4 +1,4 @@
-LPub3D 2.3.1.1.950 (02 10 2018 01:27:51)
+LPub3D 2.3.1.1.951 (02 10 2018 01:29:37)
 
 Features, enhancements, fixes and changes
 ------------
@@ -648,8 +648,8 @@ Fix: Front and back cover page attribute placement (r802)
   *   ModelName                       *  (Top Left of Title) [Dependent]
   *   Title                           *  (Left of Page) [Anchor]
   *   Author                          *  (Bottom of Title) [Dependent]
-  *   Pieces                          *  (Bottom of Author) [Dependent]
-  *   Model Description               *  (Bottom of Pieces) [Dependent]
+  *   Parts                          *  (Bottom of Author) [Dependent]
+  *   Model Description               *  (Bottom of Parts) [Dependent]
   *   Publisher Description           *  (Bottom of Model Description) [Dependent]
   *                                   *
   *            Cover Image            *  (Centre of page) [Independent]

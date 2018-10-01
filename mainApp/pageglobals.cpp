@@ -98,7 +98,7 @@ GlobalPageDialog::GlobalPageDialog(
 //  data->children.append(child);
 
   bool dpi = gui->page.meta.LPub.resolution.type() == DPI;
-  QString header = (dpi ? "Size and Orientation (Inches) " : "Size and Orientation (Centimeters)" );
+  QString header = (dpi ? "Size and Orientation (Inches) " : "Size and Orientation (Centimetres)" );
 
   box = new QGroupBox(tr("%1").arg(header));
   grid->addWidget(box,0,0);
@@ -158,7 +158,7 @@ GlobalPageDialog::GlobalPageDialog(
 
   //~~~~~~~~~~~~ model tab ~~~~~~~~~~~~~~~//
   childwidget = new QWidget();                  //START DO THIS FOR MODEL, PUBLISHER AND DISCLAIMER
-  childlayout = new QVBoxLayout;                //new QVBox layout - to apply tabl later
+  childlayout = new QVBoxLayout;                //new QVBox layout - to apply table later
   childwidget->setLayout(childlayout);          //new 'model' widget - tab not yet added
 
   childtab = new QTabWidget();                  // new tab object
@@ -224,7 +224,7 @@ GlobalPageDialog::GlobalPageDialog(
   // child header end
   /*
     Description,
-    Description Dialog,
+    Description Dialogue,
   */
   // child body (many) start
   box = new QGroupBox(tr("Display Model Description"));
@@ -246,7 +246,7 @@ GlobalPageDialog::GlobalPageDialog(
   // child header end
   /*
     Model ID,
-    Pieces,
+    Parts,
   */
   // child body (many) start
   box = new QGroupBox(tr("Display Model Identification"));
@@ -258,16 +258,16 @@ GlobalPageDialog::GlobalPageDialog(
   // child body end
 
   // child body (many) start
-  box = new QGroupBox(tr("Display Pieces"));
+  box = new QGroupBox(tr("Display Parts"));
   grid->addWidget(box, 1, 0);
-  child = new PageAttributeTextGui(&pageMeta->pieces,box);
+  child = new PageAttributeTextGui(&pageMeta->parts,box);
   childTextGui = static_cast<PageAttributeTextGui*>(child);
-  childTextGui->contentEdit->setToolTip(" Enter number of parts - e.g. 420 Pieces");
+  childTextGui->contentEdit->setToolTip(" Enter number of parts - e.g. 420 Parts");
   data->children.append(child);
   // child body end
 
   // child footer (one) end
-  childtab->addTab(widget,tr("Model ID/Pieces"));
+  childtab->addTab(widget,tr("Model ID/Parts"));
   // child footer end
 
   /*
@@ -373,7 +373,7 @@ GlobalPageDialog::GlobalPageDialog(
   grid = new QGridLayout();
   widget->setLayout(grid);
   /*
-    Publish desription
+    Publish description
     URL
   */
   urlBoxBack = new QGroupBox(tr("Display URL Back Cover"));
@@ -507,7 +507,7 @@ GlobalPageDialog::GlobalPageDialog(
   //spacer
   childlayout->addSpacerItem(vSpacer);
 
-  childtab->addTab(widget,tr("LPub3D PLug"));
+  childtab->addTab(widget,tr("LPub3D Plug"));
 
   //~~~~~~~~~ page number tab ~~~~~~~~~~~~//
   widget = new QWidget();

@@ -33,7 +33,7 @@
 /****************************************************************************
 
  *
- * This class implements a dialog that lets the user pick the placement for
+ * This class implements a dialogue that lets the user pick the placement for
  * something relative to other things.
  *
  * Please see lpub.h for an overall description of how the files in LPub
@@ -95,7 +95,7 @@ public:
       /* 13 Copyright       */ Ct,
       /* 14 Email           */ Et,
       /* 15 Disclaimer      */ Dt,
-      /* 16 Pieces          */ Pt,
+      /* 16 Parts           */ Pt,
       /* 17 Plug            */ Plt,
       /* 18 SubmodelInsCount*/ Sic,
       /* 19 DocumentLogo    */ Dlt,
