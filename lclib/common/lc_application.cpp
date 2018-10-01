@@ -259,7 +259,8 @@ int lcApplication::Process3DViewerCommandLine()
       int ImageEnd = 0;
       int PartImagesWidth = -1;
       int PartImagesHeight = -1;
-      float CameraLatitude, CameraLongitude;
+      float CameraLatitude = 0.0f;
+      float CameraLongitude = 0.0f;
       QString ImageName;
       QString ModelName;
       QString CameraName;
@@ -736,9 +737,9 @@ void lcApplication::ShowPreferencesDialog()
     bool AAChanged = CurrentAASamples != Options.AASamples;
 
 /*** LPub3D Mod - preference refresh ***/
-    bool drawEdgeLinesChanged;
-    bool shadingModeChanged;
-    bool lineWidthChanged;
+    bool drawEdgeLinesChanged = false;
+    bool shadingModeChanged = false;
+    bool lineWidthChanged = false;
     if (Preferences::preferredRenderer == RENDERER_NATIVE)
     {
         float mLineWidth  = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);

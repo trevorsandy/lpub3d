@@ -3673,8 +3673,6 @@ void MetaItem::writeRotateStep(QString &value)
     QString prefix     = "0 ROTSTEP ";
     bool rotStep       = false;
 
-    //QStringList argv01 = value.split(QRegExp("\\s"));
-
     QString valueAt0 = value.at(0);
     bool inside = (valueAt0 == "\"");                                          // true if the first character is "
     QStringList tmpList = value.split(QRegExp("\""), QString::SkipEmptyParts); // Split by "
@@ -3688,9 +3686,9 @@ void MetaItem::writeRotateStep(QString &value)
         inside = !inside;
     }
 
-    QString modelName  = argv01[0];                             //0=modelName
+    QString modelName  = argv01[0];                                            //0=modelName
 
-    QStringList argv02 = argv01[1].split(";");                  //0=lineNumber; 1=stepNumber[_fm]
+    QStringList argv02 = argv01[1].split(";");                                 //0=lineNumber; 1=stepNumber[_fm]
 
     int lineNumber = argv02[0].toInt(&ok);
 

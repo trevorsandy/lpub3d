@@ -8,7 +8,7 @@
 #
 cd $LP3D_BUILD_FOLDER
 
-# Build checks...
+# Compile source only build checks (package checks are in Create shell scripts)...
 if [[  "$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG" ]]; then
   if [ "$TRAVIS_OS_NAME" = "osx" ]; then
      echo "- build check LPub3D macOS..."

@@ -1,8 +1,9 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update August 10, 2018
+# Last Update October 1, 2018
 # LPub3D Unix checks - for remote CI (Trevis, OBS) 
 # NOTE: Source with variables as appropriate:
+#       $XMING = true,
 #       $LP3D_COMPILE_SOURCE = true,
 #       $LP3D_BUILD_APPIMAGE = true,
 #       $SOURCE_DIR = <lpub3d source folder>
@@ -18,9 +19,32 @@ if [[ "${LP3D_TARGET_ARCH}" = "x86_64" || "${LP3D_TARGET_ARCH}" = "aarch64" ]] ;
 fi
 
 # Initialize XVFB 
-if [[ "${XMING}" != "true" && ("${DOCKER}" = "true" || "${LP3D_OS_NAME}" != "Darwin") ]]; then
+if [[ "${XMING}" != "true" && ("${DOCKER}" = "true" || ("${LP3D_OS_NAME}" != "Darwin")) ]]; then
     echo && echo "- Using XVFB from working directory: ${PWD}"
     USE_XVFB="true"
+fi
+
+# Initialize build paths and libraries
+if [[ "${LP3D_OS_NAME}" = "Darwin" && "$BUILD_OPT" = "compile" ]]; then
+    cd ${SOURCE_DIR}/mainApp/${LP3D_RELEASE}
+
+    echo "- set macOS LPub3D executable..."
+    LPUB3D_EXE="LPub3D.app/Contents/MacOS/LPub3D"
+
+    echo "- install library links..."
+    /usr/bin/install_name_tool -id @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Libs/libLDrawIni.16.dylib
+    /usr/bin/install_name_tool -id @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/Libs/libQuaZIP.0.dylib
+
+    echo "- change mapping to LPub3D..."
+    /usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/MacOS/LPub3D
+    /usr/bin/install_name_tool -change libQuaZIP.0.dylib @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/MacOS/LPub3D
+
+    echo "- bundle LPub3D..."
+    macdeployqt LPub3D.app -verbose=1 -executable=LPub3D.app/Contents/MacOS/LPub3D -always-overwrite
+
+    echo "- change library dependency mapping..."
+    /usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
+    /usr/bin/install_name_tool -change libQuaZIP.0.dylib @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
 fi
 
 # Initialize OBS if not in command line input
@@ -28,34 +52,15 @@ if [[ "${OBS}" = "" && "${DOCKER}" = "" &&  "${TRAVIS}" = "" ]]; then
   LP3D_OBS=true
 fi
 
-# Initialize build paths and libraries
-if [[ "${LP3D_OS_NAME}" = "Darwin" && "$BUILD_OPT" = "compile" ]]; then
-    cd ${SOURCE_DIR}/mainApp/${LP3D_RELEASE}
-    
-    echo "- set macOS LPub3D executable..."
-    LPUB3D_EXE="LPub3D.app/Contents/MacOS/LPub3D"
-    
-    echo "- install library links..."
-    /usr/bin/install_name_tool -id @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Libs/libLDrawIni.16.dylib
-    /usr/bin/install_name_tool -id @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/Libs/libQuaZIP.0.dylib
-    
-    echo "- change mapping to LPub3D..."
-    /usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/MacOS/LPub3D
-    /usr/bin/install_name_tool -change libQuaZIP.0.dylib @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/MacOS/LPub3D
-    
-    echo "- bundle LPub3D..."
-    macdeployqt LPub3D.app -verbose=1 -executable=LPub3D.app/Contents/MacOS/LPub3D -always-overwrite
-    
-    echo "- change library dependency mapping..."
-    /usr/bin/install_name_tool -change libLDrawIni.16.dylib @executable_path/../Libs/libLDrawIni.16.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
-    /usr/bin/install_name_tool -change libQuaZIP.0.dylib @executable_path/../Libs/libQuaZIP.0.dylib LPub3D.app/Contents/Frameworks/QtCore.framework/Versions/5/QtCore
-    
-elif [[ ("${TRAVIS_OS_NAME}" = "linux" && "${LP3D_COMPILE_SOURCE}" = "true") || \
-        ("${LP3D_OBS}" = "true" && "${LP3D_BUILD_APPIMAGE}" != "true") || \
-        ("${DOCKER}" = "true" && -z "${LP3D_INSTALL_PKG}") ]]; then
+# Travis CI 'Compile Only' [disabled] and OBS build check
+if [[ ("${TRAVIS_OS_NAME}" = "linux" && "${LP3D_COMPILE_SOURCE}" = "true") || \
+      ("${LP3D_OBS}" = "true" && "${LP3D_BUILD_APPIMAGE}" != "true") ]]; then
     cd ${SOURCE_DIR}
-    
-    echo "- set Linux ${LP3D_BUILD_ARCH} LPub3D executable..."
+
+    [ "${TRAVIS_OS_NAME}" = "linux" ] && echo "- Travis-CI 'Compile' build check..."
+    [ "${LP3D_OBS}" = "true" ] && echo "- OBS build check..."
+
+    echo "- set Linux ${LP3D_TARGET_ARCH} LPub3D executable..."
     LPUB3D_VER="lpub3d${LP3D_APP_VER_SUFFIX}"
     LPUB3D_EXE="mainApp/${LP3D_RELEASE}/${LPUB3D_VER}"
 
@@ -114,6 +119,7 @@ elif [[ ("${TRAVIS_OS_NAME}" = "linux" && "${LP3D_COMPILE_SOURCE}" = "true") || 
         echo "ERROR - LDD check failed for $(realpath ${LPUB3D_EXE})"
     fi
 elif [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
+    echo "- AppImage build check..."
     cd ${SOURCE_DIR}
      
     echo "- set $(realpath ${LPUB3D_EXE}) execute permissions..."
@@ -123,8 +129,7 @@ elif [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
 fi
 
 if [[ ("${TRAVIS_OS_NAME}" = "linux" && "${LP3D_COMPILE_SOURCE}" = "true") || \
-      ("${LP3D_OBS}" = "true" && "${LP3D_BUILD_APPIMAGE}" != "true") || \
-      ("${DOCKER}" = "true" && -z "${LP3D_INSTALL_PKG}") ]]; then
+      ("${LP3D_OBS}" = "true" && "${LP3D_BUILD_APPIMAGE}" != "true") ]]; then
     echo "- ldraw libraries..."
     if [ ! -f "mainApp/extras/complete.zip" ]
     then

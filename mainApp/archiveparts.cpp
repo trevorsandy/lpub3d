@@ -22,7 +22,6 @@
 
 ArchiveParts::ArchiveParts(QObject *parent) : QObject(parent)
 {
-
 }
 
 /*
@@ -48,8 +47,6 @@ bool ArchiveParts::Archive(
   // We get the list of part directory files and folders recursively
   QStringList dirFileList;
   RecurseAddDir(dir, dirFileList);
-
-  // Cut here-----
 
   // Check if file list is empty
   if (dirFileList.isEmpty()) {
@@ -109,6 +106,7 @@ bool ArchiveParts::Archive(
       }
 
       QTime t; t.start();
+
       // Populate the list of existing zip files
       QStringList zipFileList;
       GetExistingArchiveFileList(zipFileList, validDirFiles, zipArchive);
@@ -334,6 +332,7 @@ void ArchiveParts::RecurseAddDir(const QDir &dir, QStringList &list) {
         emit gui->messageSig(LOG_ERROR, QString("Encountered a symbolic link: %1").arg(finfo.absoluteFilePath()));
         continue;
       }
+
       if (finfo.isDir()) {
           //emit gui->messageSig(LOG_INFO, "FILE INFO DIR PATH: " << finfo.fileName());
           QDir subDir(finfo.filePath());

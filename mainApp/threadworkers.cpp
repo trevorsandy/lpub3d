@@ -147,7 +147,7 @@ void PartWorker::ldsearchDirPreferences(){
                 customDirsIncluded = true;
                 emit gui->messageSig(LOG_STATUS, QString("Add custom primitive directory: %1").arg(_customPrimDir));
               } else {
-                emit gui->messageSig(LOG_STATUS, QString("custom primitive directory is empty and will be ignored: %1").arg(_customPrimDir));
+                emit gui->messageSig(LOG_STATUS, QString("Custom primitive directory is empty and will be ignored: %1").arg(_customPrimDir));
               }
           }
           // update the registry if custom directory included
@@ -158,7 +158,7 @@ void PartWorker::ldsearchDirPreferences(){
        }
     } else if (loadLDrawSearchDirs()){                                        //ldraw.ini found or reset so load local paths
       Settings.setValue(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey), Preferences::ldSearchDirs);
-      emit gui->messageSig(LOG_STATUS, QString("Ldraw.ini found or search directory reset selected, loading ldSearch directories..."));
+      emit gui->messageSig(LOG_STATUS, QString("Loading LDraw parts search directories..."));
     } else {
       Settings.remove(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey));
       emit gui->messageSig(LOG_ERROR, QString("Unable to load search directories."));
@@ -1026,16 +1026,16 @@ void PartWorker::requestEndThreadNow(){
 bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QString &comment, bool overwriteCustomParts){
 
   // Append custom parts to unofficial library for 3D Viewer's consumption
+  QTime t, tf;
   QFileInfo libFileInfo(Preferences::lpub3dLibFile);
   QString archiveFile = QDir::toNativeSeparators(QString("%1/%2").arg(libFileInfo.absolutePath(),VER_LPUB3D_UNOFFICIAL_ARCHIVE));
   QString returnMessage = QString("Archiving %1 parts to : %2.").arg(comment,archiveFile);
-  emit gui->messageSig(LOG_INFO,"Archiving local parts...");
   emit gui->messageSig(LOG_INFO,QString("Archiving %1 parts to %2.").arg(comment,archiveFile));
 
   if (okToEmitToProgressBar()) {
       emit progressResetSig();
     } else {
-      emit Application::instance()->splashMsgSig(QString("60% - Archiving %1 parts...").arg(comment));
+      emit Application::instance()->splashMsgSig(QString("60% - Archiving %1 parts, please wait...").arg(comment));
     }
 
   if (okToEmitToProgressBar())
@@ -1044,7 +1044,9 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
   int partCount = 0;
   int totalPartCount = 0;
 
+  tf.start();
   for (int i = 0; i < ldPartsDirs.size(); i++){
+      t.start();
 
       QDir foo = ldPartsDirs[i];
 
@@ -1067,7 +1069,9 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
                                           tr("[Total %1] parts").arg(totalPartCount);
 
       }
-      emit gui->messageSig(LOG_INFO,tr("Archived %1 %2 from %3").arg(partCount).arg(summary).arg(foo.absolutePath()));
+      emit gui->messageSig(LOG_INFO,tr("Archived %1 %2 from %3. %4")
+                                       .arg(partCount).arg(summary).arg(foo.absolutePath())
+                                       .arg(gui->elapsedTime(t.elapsed())));
   }
 
   // Reload unofficial library parts into memory - only if initial library load already done !
@@ -1085,10 +1089,11 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
       }
   } else if (totalPartCount > 0) {
       partsLabel = totalPartCount == 1 ? "part" : "parts";
-      returnMessage = tr("Finished. Archived and loaded %1 %2 %3 into memory.").arg(totalPartCount).arg(comment).arg(partsLabel);
+      returnMessage = tr("Finished. Archived and loaded %1 %2 %3 into memory. %4")
+                         .arg(totalPartCount).arg(comment).arg(partsLabel).arg(gui->elapsedTime(tf.elapsed()));
       _partsArchived = true;
   } else {
-      returnMessage = tr("Finished. No %1 parts archived. Unofficial library not reloaded.").arg(comment);
+      returnMessage = tr("Finished. No new %1 parts archived. Unofficial library not reloaded.").arg(comment);
       _partsArchived = false;
   }
 

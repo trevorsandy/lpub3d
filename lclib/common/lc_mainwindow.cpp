@@ -3572,6 +3572,7 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - coord format ***/
+    case LC_EDIT_ROTATESTEP_COORD_FORMAT:
     case LC_EDIT_ROTATESTEP_COORD_FORMAT_LDRAW:
     case LC_EDIT_ROTATESTEP_COORD_FORMAT_LEOCAD:
         SetRotateStepCoordType((lcRotateStepCoordType)(CommandId - LC_EDIT_ROTATESTEP_COORD_FORMAT_LDRAW));
