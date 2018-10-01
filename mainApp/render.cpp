@@ -408,7 +408,7 @@ int POVRay::renderCsi(
           //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
         }
 
-      arguments << ldrName;
+      arguments << QDir::toNativeSeparators(ldrName);
 
       emit gui->messageSig(LOG_STATUS, "LDView POV CSI file generation...");
 
@@ -442,7 +442,7 @@ int POVRay::renderCsi(
 
       QString workingDirectory = QDir::currentPath();
 
-      arguments << ldrName;
+      arguments << QDir::toNativeSeparators(ldrName);
 
       emit gui->messageSig(LOG_STATUS, "Native POV CSI file generation...");
 
@@ -612,7 +612,7 @@ int POVRay::renderPli(
           arguments << ini;
         }
 
-      arguments << ldrNames.first();
+      arguments << QDir::toNativeSeparators(ldrNames.first());
 
       emit gui->messageSig(LOG_STATUS, "LDView POV PLI file generation...");
 
@@ -646,7 +646,7 @@ int POVRay::renderPli(
 
       QString workingDirectory = QDir::currentPath();
 
-      arguments << ldrNames.first();
+      arguments << QDir::toNativeSeparators(ldrNames.first());
 
       emit gui->messageSig(LOG_STATUS, "Native POV PLI file generation...");
 
@@ -812,7 +812,7 @@ int LDGLite::renderCsi(
   arguments << CA;                  // camera FOV cameraAngles in degrees
   arguments << cg;                  // camera globe - scale factor
   arguments << v;                   // display in X wide by Y high window
-  arguments << o;                   // changes the center X across and Y down
+  arguments << o;                   // changes the centre X across and Y down
   arguments << w;                   // line thickness
 
   QStringList list;
@@ -838,23 +838,23 @@ int LDGLite::renderCsi(
     //logDebug() << qPrintable("=" + Preferences::altLDConfigPath);
   }
 
-  arguments << mf;                  // .png file name
-  arguments << ldrFile;             // csi.ldr (input file)
+  arguments << QDir::toNativeSeparators(mf);                  // .png file name
+  arguments << QDir::toNativeSeparators(ldrFile);             // csi.ldr (input file)
 
   emit gui->messageSig(LOG_STATUS, "Executing LDGLite render CSI - please wait...");
 
   QProcess    ldglite;
   QStringList env = QProcess::systemEnvironment();
   env << "LDRAWDIR=" + Preferences::ldrawPath;
-  //logDebug() << qPrintable("LDRAWDIR=" + Preferences::ldrawPath);
+  //emit gui->messageSig(LOG_DEBUG,qPrintable("LDRAWDIR=" + Preferences::ldrawPath));
 
   if (!Preferences::ldgliteSearchDirs.isEmpty()) {
     env << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
-    //logDebug() << qPrintable("LDSEARCHDIRS: " + Preferences::ldgliteSearchDirs);
+    //emit gui->messageSig(LOG_DEBUG,qPrintable("LDSEARCHDIRS: " + Preferences::ldgliteSearchDirs));
   }
 
   ldglite.setEnvironment(env);
-  //logDebug() << qPrintable("ENV: " + env);
+  //emit gui->messageSig(LOG_DEBUG,qPrintable("ENV: " + env.join(" ")));
 
   ldglite.setWorkingDirectory(QDir::currentPath() + "/" + Paths::tmpDir);
   ldglite.setStandardErrorFile(QDir::currentPath() + "/stderr-ldglite");
@@ -915,7 +915,7 @@ int LDGLite::renderPli(
   arguments << CA;                  // camera FOV cameraAngles in degrees
   arguments << cg;                  // camera globe - scale factor
   arguments << v;                   // display in X wide by Y high window
-  arguments << o;                   // changes the center X across and Y down
+  arguments << o;                   // changes the centre X across and Y down
   arguments << w;                   // line thickness
 
   QStringList list;
@@ -941,19 +941,19 @@ int LDGLite::renderPli(
     //logDebug() << qPrintable("=" + Preferences::altLDConfigPath);
   }
 
-  arguments << mf;
-  arguments << ldrNames.first();
+  arguments << QDir::toNativeSeparators(mf);
+  arguments << QDir::toNativeSeparators(ldrNames.first());
 
   emit gui->messageSig(LOG_STATUS, "Executing LDGLite render PLI - please wait...");
 
   QProcess    ldglite;
   QStringList env = QProcess::systemEnvironment();
   env << "LDRAWDIR=" + Preferences::ldrawPath;
-  //logDebug() << qPrintable("LDRAWDIR=" + Preferences::ldrawPath);
+  //emit gui->messageSig(LOG_DEBUG,qPrintable("LDRAWDIR=" + Preferences::ldrawPath));
 
   if (!Preferences::ldgliteSearchDirs.isEmpty()){
     env << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
-    //logDebug() << qPrintable("LDSEARCHDIRS: " + Preferences::ldgliteSearchDirs);
+    //emit gui->messageSig(LOG_DEBUG,qPrintable("LDSEARCHDIRS: " + Preferences::ldgliteSearchDirs));
   }
 
   ldglite.setEnvironment(env);
