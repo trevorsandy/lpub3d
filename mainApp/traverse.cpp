@@ -2582,12 +2582,16 @@ void Gui::writeToTmp()
           }
       }
   }
+
   if (Preferences::modeGUI && !subModelImagesLoaded) {
       // generate submodel images...
-      emit messageSig(LOG_STATUS, "Creating submodel images in parts subfolder...");
+      emit messageSig(LOG_INFO_STATUS, "Creating submodel images in parts subfolder...");
       Pli pli;
-      pli.createPartImages();
-      subModelImagesLoaded = true;
+      int rc = pli.createPartImages();
+      if (rc == 0)
+          gMainWindow->mSubModelPieceIconsLoaded = subModelImagesLoaded = true;
+      else
+          emit messageSig(LOG_ERROR, "Could not create submodel images in parts subfolder...");
   }
 
   if (! exporting()) {

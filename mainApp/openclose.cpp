@@ -285,6 +285,7 @@ void Gui::closeFile()
   setPageLineEdit->clear();
   pageSizes.clear();
   undoStack->clear();
+  subModelImagesLoaded = gMainWindow->mSubModelPieceIconsLoaded = false;
   if (!curFile.isEmpty())
       emit messageSig(LOG_INFO, QString("File %1 closed.").arg(curFile));
 }
@@ -346,7 +347,6 @@ void Gui::openFile(QString &fileName)
   if (Preferences::enableFadeSteps && Preferences::enableImageMatting)
     LDVImageMatte::clearMatteCSIImages();
   displayPageNum = 1;
-  subModelImagesLoaded = false;
   QFileInfo info(fileName);
   QDir::setCurrent(info.absolutePath());
   Paths::mkDirs();

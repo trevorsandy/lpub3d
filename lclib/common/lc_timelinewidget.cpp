@@ -187,7 +187,7 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
             int Size = rowHeight(indexFromItem(PieceItem));
 
 /*** LPub3D Mod - Timeline part icons ***/
-            if (lcGetPreferences().mViewPieceIcons) {
+            if (lcGetPreferences().mViewPieceIcons && gMainWindow->mSubModelPieceIconsLoaded) {
 
                 bool IsModel = Piece->mPieceInfo->IsModel();
                 QString baseName = QFileInfo(Piece->GetID()).baseName();
@@ -226,6 +226,7 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 
                 GetIcon(Size,ColorIndex);
                 PieceItem->setIcon(0, mIcons[ColorIndex]);
+
             }
 /*** LPub3D Mod end ***/
 

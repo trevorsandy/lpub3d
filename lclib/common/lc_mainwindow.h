@@ -349,10 +349,12 @@ public:
 	QString mRecentFiles[LC_MAX_RECENT_FILES];
 	int mColorIndex;
 	lcSearchOptions mSearchOptions;
-	QAction* mActions[LC_NUM_COMMANDS];
-
+	QAction* mActions[LC_NUM_COMMANDS]; 
 /*** LPub3D Mod - relocate toolbar ***/
 	QToolBar* mToolsToolBar;       //moved from protected:
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - Timeline part icons ***/
+    bool mSubModelPieceIconsLoaded;
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - status bar ***/
