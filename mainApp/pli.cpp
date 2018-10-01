@@ -601,7 +601,6 @@ int Pli::createPartImage(
             if (Preferences::preferredRenderer == RENDERER_NATIVE) {
                 QString modelName = QFileInfo(type).baseName().toLower();
                 modelName = modelName.replace(modelName.at(0),modelName.at(0).toUpper());
-                out << QString("0 FILE %1").arg(type) << endl;
                 out << QString("0 %1").arg(modelName) << endl;
                 out << QString("0 Name: %1").arg(type) << endl;
                 out << QString("0 !LEOCAD MODEL NAME %1").arg(modelName) << endl;

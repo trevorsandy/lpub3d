@@ -2502,7 +2502,6 @@ void Gui::writeToTmp(const QString &fileName,
       csiParts.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(modelName));
       csiParts.prepend(QString("0 Name: %1").arg(fileName));
       csiParts.prepend(QString("0 %1").arg(modelName));
-      csiParts.prepend(QString("0 FILE %1").arg(fileName));
 
       QTextStream out(&file);
       for (int i = 0; i < csiParts.size(); i++) {

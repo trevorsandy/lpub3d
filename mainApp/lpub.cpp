@@ -899,13 +899,12 @@ void Gui::deployExportBanner(bool b)
 bool Gui::installExportBanner(const int &type, const QString &printFile, const QString &imageFile){
 
     QList<QString> bannerData;
-    bannerData << "0 FILE printbanner.ldr";
     bannerData << "0 Print Banner";
     bannerData << "0 Name: printbanner.ldr";
     bannerData << "0 Author: Trevor SANDY";
     bannerData << "0 Unofficial Model";
     bannerData << "0 !LEOCAD MODEL NAME Printbanner";
-    bannerData << "0 !LEOCAD MODEL AUTHOR Trevor SANDY";
+    bannerData << "0 !LEOCAD MODEL AUTHOR LPub3D";
     bannerData << "0 !LEOCAD MODEL DESCRIPTION Graphic displayed during pdf printing";
     bannerData << "0 !LEOCAD MODEL BACKGROUND IMAGE NAME " + imageFile;
     bannerData << "1 71 0 0 0 1 0 0 0 1 0 0 0 1 3020.dat";

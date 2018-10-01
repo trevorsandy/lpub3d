@@ -283,7 +283,6 @@ int Step::createCsi(
       rotatedParts.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(modelName));
       rotatedParts.prepend(QString("0 Name: %1").arg(top.modelName));
       rotatedParts.prepend(QString("0 %1").arg(modelName));
-      rotatedParts.prepend(QString("0 FILE %1").arg(top.modelName));
       rotatedParts.append("0 NOFILE");
 
       // consolidate subfiles and parts into single file - I don't think this is still needed but I keep it anyway

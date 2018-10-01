@@ -184,7 +184,6 @@ int Render::rotateParts(
   if (nativeRenderer) {
       QString _modelName = QFileInfo(modelName).baseName().toLower();
       _modelName = _modelName.replace(_modelName.at(0),_modelName.at(0).toUpper());
-      out << QString("0 FILE %1").arg(modelName) << endl;
       out << QString("0 %1").arg(_modelName) << endl;
       out << QString("0 Name: %1").arg(modelName) << endl;
       out << QString("0 !LEOCAD MODEL NAME %1").arg(_modelName) << endl;
