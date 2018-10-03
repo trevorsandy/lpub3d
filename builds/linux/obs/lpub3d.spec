@@ -8,6 +8,8 @@
 #
 # please send bugfixes or comments to Trevor SANDY <trevor.sandy@gmail.com>
 #
+# Last Update October 02, 2018
+#
 
 # set packing platform
 %if %(if [[ "%{vendor}" == obs://* ]]; then echo 1; else echo 0; fi)

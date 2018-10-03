@@ -1,5 +1,5 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
-# Last Update August 10, 2018
+# Last Update October 02, 2018
 pkgname=lpub3d
 pkgver=2.1.0.313
 pkgrel=1
@@ -61,9 +61,9 @@ build() {
 		LP3D_RELEASE="64bit_release"
 	fi
 	versuffix=$(cat builds/utilities/version.info | cut -d " " -f 1-2 | sed s/" "//g)
-	validExe="${LP3D_RELEASE}/lpub3d${versuffix}"
+	validExe="mainApp/${LP3D_RELEASE}/lpub3d${versuffix}"
 	if [ -f "${validExe}" ] ; then
-		echo "LDD check lpub3d${versuffix}..."
+		echo "LDD check ${validExe}..."
 		ldd ${validExe} 2>/dev/null
 	else
 		echo "ERROR - LDD check failed for ${PWD}/${validExe}"

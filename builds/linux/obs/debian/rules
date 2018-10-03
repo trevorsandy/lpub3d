@@ -1,5 +1,6 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
+# Last Update October 03, 2018
 # Copyright 2017-2018 Trevor SANDY
 
 # output every command that modifies files on the build system.
@@ -13,9 +14,6 @@ export LP3D_BUILD_PKG=yes
 
 # get target arch
 LP3D_TARGET_ARCH=`uname -m`
-
-# set build arch value
-LP3D_BUILD_ARCH=32 && [[ "${LP3D_TARGET_ARCH}" = "x86_64" || "${LP3D_TARGET_ARCH}" = "aarch64" ]] && LP3D_BUILD_ARCH=64
 
 %:
 	dh $@
@@ -66,21 +64,17 @@ override_dh_auto_configure:
 	# End custom configuration commands
 	touch configure-stamp
 
-build: build-stamp
-build-stamp: configure-stamp
-	dh_testdir
-
-	# Start custom configuration commands
-	versuffix=$(cat builds/utilities/version.info | cut -d " " -f 1-2 | sed s/" "//g)
-	validExe="${LP3D_BUILD_ARCH}bit_release/lpub3d${versuffix}"
-	if [ -f "${validExe}" ]; then \
-		echo "LDD check lpub3d${versuffix}..."; \
-		ldd ${validExe} 2>/dev/null; \
+build: configure-stamp
+override_dh_auto_test:
+	# Start custom test commands
+	if [ -f "validExe" ]; then \
+		echo "LDD check validExe..."; \
+		ldd validExe 2>/dev/null; \
 	else \
-		echo "ERROR - LDD check failed for $(realpath ${validExe})"; \
+		echo "ERROR - LDD check failed for $$(realpath validExe)"; \
 	fi
-	# End custom build commands
-	touch build-stamp
+	# End custom test commands
+	dh_auto_test
 
 # override and shut down shared library dependency checks
 override_dh_shlibdeps:
@@ -89,7 +83,7 @@ override_dh_shlibdeps:
 clean:
 	dh_testdir
 	dh_testroot
-	rm -f configure-stamp build-stamp
+	rm -f configure-stamp
 	dh_lintian
 
 	dh_clean

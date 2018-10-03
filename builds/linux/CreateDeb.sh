@@ -150,7 +150,7 @@ then
     if [ -f "/usr/bin/${LPUB3D_EXE}" ]; then
         # Check commands
         LP3D_INSTALL_PKG="true"
-        source ${SOURCE_DIR}/builds/check/build_checks.sh
+#        source ${SOURCE_DIR}/builds/check/build_checks.sh
        # Cleanup - here we use the package name
         echo "      11-2. Build-check uninstall ${LPUB3D}..."
         sudo dpkg -r ${LPUB3D}

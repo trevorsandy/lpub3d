@@ -49,6 +49,7 @@ fi
 
 # Initialize OBS if not in command line input
 if [[ "${OBS}" = "" && "${DOCKER}" = "" &&  "${TRAVIS}" = "" ]]; then
+  echo "- OBS build check..."
   LP3D_OBS=true
 fi
 
@@ -58,7 +59,6 @@ if [[ ("${TRAVIS_OS_NAME}" = "linux" && "${LP3D_COMPILE_SOURCE}" = "true") || \
     cd ${SOURCE_DIR}
 
     [ "${TRAVIS_OS_NAME}" = "linux" ] && echo "- Travis-CI 'Compile' build check..."
-    [ "${LP3D_OBS}" = "true" ] && echo "- OBS build check..."
 
     echo "- set Linux ${LP3D_TARGET_ARCH} LPub3D executable..."
     LPUB3D_VER="lpub3d${LP3D_APP_VER_SUFFIX}"
@@ -118,7 +118,9 @@ if [[ ("${TRAVIS_OS_NAME}" = "linux" && "${LP3D_COMPILE_SOURCE}" = "true") || \
     else
         echo "ERROR - LDD check failed for $(realpath ${LPUB3D_EXE})"
     fi
-elif [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
+fi
+
+if [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
     echo "- AppImage build check..."
     cd ${SOURCE_DIR}
      
