@@ -89,7 +89,7 @@ jobs:
     os: linux
     compiler: gcc
   - stage: Build and Package
-    env: LP3D_BUILD_XENIAL=true
+    env: LP3D_BUILD_UBUNTU=true
     os: linux
     compiler: gcc
   - stage: Build and Package

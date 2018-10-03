@@ -121,9 +121,9 @@ to the Qt install path. Also be sure to **not** select the **-all** install para
 
 **Note:** Be sure to set C as a Shared Drive available to your containers  
 **Note:** Compose instructions below are quite likely the same for Docker on Linux or macOS  
-**Note:** [Docker-compose.yml][dockercomposefile] and Docker yml files for [archlinux][dockerarch], [Ubuntu Xenial][dockerxenial] and [Fedora 25][dockerfedora] are available.  
+**Note:** [Docker-compose.yml][dockercomposefile] and Docker yml files for [archlinux][dockerarch], [Ubuntu][dockerubuntu] and [Fedora 25][dockerfedora] are available.
 **Note:** [WSL - Windows Subsystem for Linux][wsl] is not essential and can be substitued with Git Bash.  
-**Note:** You can substitue [Fedora 25][dockerfedora] with [archlinux][dockerarch] or [Ubuntu Xenial][dockerxenial] in the steps below.
+**Note:** You can substitue [Fedora 25][dockerfedora] with [archlinux][dockerarch] or [Ubuntu][dockerubuntu] in the steps below.
 
 **Steps:**
 - [ ] 1. make and enter build direcories  
@@ -154,7 +154,7 @@ to the Qt install path. Also be sure to **not** select the **-all** install para
 [dockercompose]:     https://docs.docker.com/compose/install/
 [dockercomposefile]: https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/docker-compose/docker-compose-cibuild-linux.yml
 [dockerarch]:        https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-archlinux
-[dockerxenial]:      https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-ubuntu_xenial
+[dockerubuntu]:      https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-ubuntu
 [dockerfedora]:      https://github.com/trevorsandy/lpub3d/blob/master/builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-fedora
 [dockerrepo]:        https://hub.docker.com/r/trevorsandy/lpub3d/
 [wsl]:               https://docs.microsoft.com/en-us/windows/wsl/install-win10

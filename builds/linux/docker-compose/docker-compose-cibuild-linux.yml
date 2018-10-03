@@ -18,11 +18,11 @@ services:
      - .:/buildpkg
      - ./lpub3d_linux_3rdparty:/user/rpmbuild/BUILD/lpub3d_linux_3rdparty
 
-  ubuntu_xenial:
-    image: "trevorsandy/lpub3d:ubuntu_xenial"
+  ubuntu:
+    image: "trevorsandy/lpub3d:ubuntu"
     build:
       context: ./dockerfiles
-      dockerfile: Dockerfile-cibuild-ubuntu_xenial
+      dockerfile: Dockerfile-cibuild-ubuntu
     volumes:
      - .:/buildpkg
      - ./lpub3d_linux_3rdparty:/user/debbuild/lpub3d_linux_3rdparty

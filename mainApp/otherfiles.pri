@@ -23,7 +23,7 @@ docs/RELEASE_NOTES.html \
 ../builds/linux/docker-compose/docker-compose-cibuild-linux.yml \
 ../builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-archlinux \
 ../builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-fedora \
-../builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-ubuntu_xenial \
+../builds/linux/docker-compose/dockerfiles/Dockerfile-cibuild-ubuntu \
 ../builds/linux/obs/alldeps/appimage.yml \
 ../builds/linux/obs/alldeps/debian/changelog \
 ../builds/linux/obs/alldeps/debian/control \

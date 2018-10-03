@@ -15,7 +15,7 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
     # build linux packages
     if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       # setup Docker compose directory
-      if [[ "$LP3D_BUILD_ARCH" = "true" || "$LP3D_BUILD_FEDORA" = "true" || "$LP3D_BUILD_XENIAL" = "true" ]]; then
+      if [[ "$LP3D_BUILD_ARCH" = "true" || "$LP3D_BUILD_FEDORA" = "true" || "$LP3D_BUILD_UBUNTU" = "true" ]]; then
         if [ ! -d "${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}" ]; then
           ln -sf "$LP3D_DIST_DIR_PATH" "${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}" && \
           if test -d "${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}"; then echo "$LP3D_DIST_DIR_PATH linked to ${LP3D_COMPOSE_DIR}/${LP3D_DIST_DIR}"; fi;
@@ -32,8 +32,8 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
         docker-compose -f $LP3D_COMPOSE_DIR/docker-compose-cibuild-linux.yml run --rm fedora;
       fi;
       # Docker builds - Ubuntu
-      if [ "$LP3D_BUILD_XENIAL" = "true" ]; then
-        docker-compose -f $LP3D_COMPOSE_DIR/docker-compose-cibuild-linux.yml run --rm ubuntu_xenial;
+      if [ "$LP3D_BUILD_UBUNTU" = "true" ]; then
+        docker-compose -f $LP3D_COMPOSE_DIR/docker-compose-cibuild-linux.yml run --rm ubuntu;
       fi;
       echo "Package Files " && find $LP3D_COMPOSE_DIR -type f -not -name "*ocker*";
     fi;
