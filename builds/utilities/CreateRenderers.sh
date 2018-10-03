@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: April 02, 2018
+#  Last Update: October 02, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 
@@ -442,7 +442,7 @@ BuildPOVRay() {
   fi
 }
 
-# **************** Script Logic *****************************
+# **************** Begin Main Script *****************************
 
 # Grab the script name
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
@@ -450,10 +450,10 @@ ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 # Start message and set sourced flag
 if [ "${ME}" = "CreateRenderers.sh" ]; then
   SOURCED="false"
-  Info "Start $ME execution at $PWD..."
+  Info && Info "Start $ME execution at $PWD..."
 else
   SOURCED="true"
-  Info "Start CreateRenderers execution at $PWD..."
+  Info && Info "Start CreateRenderers execution at $PWD..."
 fi
 
 # Grab the calling dir
@@ -532,6 +532,7 @@ fi
 TARGET_CPU=$(uname -m)
 
 # Display platform settings
+Info "Working Directory........[${CallDir}]"
 Info "Platform ID..............[${platform_id}]"
 if [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
   platform_pretty="AppImage (using $platform_pretty)"
