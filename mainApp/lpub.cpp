@@ -55,6 +55,7 @@
 #include "piece.h"
 #include "lc_profile.h"
 #include "application.h"
+#include "lc_partselectionwidget.h"
 
 #include <ui_progress_dialog.h>
 
@@ -3204,6 +3205,12 @@ void Gui::disableActions2()
     addTextAct->setEnabled(false);
 }
 
+void Gui::partsWidgetVisibilityChanged(bool visible)
+{
+    QSettings Settings;
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,VIEW_PARTS_WIDGET),visible);
+}
+
 void Gui::createMenus()
 {
   // Editor Menus
@@ -3640,7 +3647,7 @@ void Gui::parseError(QString errorMsg,Where &here)
 
 void Gui::createDockWindows()
 {
-    fileEditDockWindow = new QDockWidget(trUtf8(wCharToUtf8("LDraw\u2122 File Editor")), this);
+    fileEditDockWindow = new QDockWidget(trUtf8(wCharToUtf8("LDraw\u2122 Editor")), this);
     fileEditDockWindow->setObjectName("LDrawFileDockWindow");
     fileEditDockWindow->setAllowedAreas(
                 Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
@@ -3651,7 +3658,7 @@ void Gui::createDockWindows()
 
     //3D Viewer
 
-    viewerDockWindow = new QDockWidget(trUtf8(wCharToUtf8("3DViewer - by LeoCAD\u00A9")), this);
+    viewerDockWindow = new QDockWidget(trUtf8(wCharToUtf8("3DViewer")), this);
     viewerDockWindow->setObjectName("ModelDockWindow");
     viewerDockWindow->setAllowedAreas(
                 Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
@@ -3663,10 +3670,9 @@ void Gui::createDockWindows()
     tabifyDockWidget(viewerDockWindow, fileEditDockWindow);
 
     //timeline
-    gMainWindow->mTimelineToolBar->setWindowTitle(trUtf8(wCharToUtf8("Timeline - by LeoCAD\u00A9")));
+    gMainWindow->mTimelineToolBar->setWindowTitle(trUtf8(wCharToUtf8("Timeline")));
     gMainWindow->mTimelineToolBar->setObjectName("TimelineToolbar");
-    gMainWindow->mTimelineToolBar->setAllowedAreas(
-         Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    gMainWindow->mTimelineToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     gMainWindow->mTimelineToolBar->setAcceptDrops(true);
     addDockWidget(Qt::RightDockWidgetArea, gMainWindow->mTimelineToolBar);
     viewMenu->addAction(gMainWindow->mTimelineToolBar->toggleViewAction());
@@ -3674,13 +3680,28 @@ void Gui::createDockWindows()
     tabifyDockWidget(viewerDockWindow, gMainWindow->mTimelineToolBar);
 
     //Properties
-    gMainWindow->mPropertiesToolBar->setWindowTitle(trUtf8(wCharToUtf8("Properties - by LeoCAD\u00A9")));
+    gMainWindow->mPropertiesToolBar->setWindowTitle(trUtf8(wCharToUtf8("Properties")));
     gMainWindow->mPropertiesToolBar->setObjectName("PropertiesToolbar");
     gMainWindow->mPropertiesToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     addDockWidget(Qt::RightDockWidgetArea, gMainWindow->mPropertiesToolBar);
     viewMenu->addAction(gMainWindow->mPropertiesToolBar->toggleViewAction());
 
     tabifyDockWidget(gMainWindow->mTimelineToolBar, gMainWindow->mPropertiesToolBar);
+
+    //Part Selection
+    gMainWindow->mPartsToolBar->setWindowTitle(trUtf8(wCharToUtf8("Parts")));
+    gMainWindow->mPartsToolBar->setObjectName("PartsToolbar");
+    gMainWindow->mPartsToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->mPartsToolBar);
+    viewMenu->addAction(gMainWindow->mPartsToolBar->toggleViewAction());
+
+    bool viewable = false;
+    QSettings Settings;
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,VIEW_PARTS_WIDGET)))
+        viewable = Settings.value(QString("%1/%2").arg(SETTINGS,VIEW_PARTS_WIDGET)).toBool();
+    viewMenu->actions().last()->setChecked(viewable);
+
+    tabifyDockWidget(gMainWindow->mPropertiesToolBar, gMainWindow->mPartsToolBar);
 
     // launching with viewerDockWindow raised is not stable so start with fileEdit until I figure out what's wrong.
     fileEditDockWindow->raise();
@@ -3691,6 +3712,7 @@ void Gui::createDockWindows()
 //#endif
 
     connect(viewerDockWindow, SIGNAL (topLevelChanged(bool)), this, SLOT (toggleLCStatusBar(bool)));
+    connect (gMainWindow->mPartsToolBar, SIGNAL (visibilityChanged(bool)), this, SLOT (partsWidgetVisibilityChanged(bool)));
     //**
 }
 
@@ -3720,6 +3742,7 @@ void Gui::readSettings()
         restoreGeometry(geometry);
     }
     resize(size);
+    gMainWindow->mPartSelectionWidget->LoadState(Settings);
     Settings.endGroup();
 }
 
@@ -3730,5 +3753,8 @@ void Gui::writeSettings()
     Settings.setValue("Geometry", saveGeometry());
     Settings.setValue("State", saveState());
     Settings.setValue("Size", size());
+    gMainWindow->mPartSelectionWidget->SaveState(Settings);
     Settings.endGroup();
+
+    gApplication->SaveTabLayout();
 }

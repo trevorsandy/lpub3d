@@ -1144,6 +1144,8 @@ private slots:
     void disableActions();
     void disableActions2();
 
+    void partsWidgetVisibilityChanged(bool);
+
     /******************************************************************
      * File management functions
      *****************************************************************/

@@ -437,7 +437,9 @@ lcPartSelectionListView::lcPartSelectionListView(QWidget* Parent)
 	setUniformItemSizes(true);
 	setResizeMode(QListView::Adjust);
 	setWordWrap(false);
-	setDragEnabled(true);
+/*** LPub3D Mod - disable drag event ***/
+    setDragEnabled(false);
+/*** LPub3D Mod end ***/
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
 	mListModel = new lcPartSelectionListModel(this);
@@ -564,7 +566,9 @@ void lcPartSelectionListView::UpdateViewMode()
 {
 	setViewMode(mListModel->GetIconSize() && !mListModel->IsListMode() ? QListView::IconMode : QListView::ListMode);
 	setWordWrap(mListModel->IsListMode());
-	setDragEnabled(true);
+/*** LPub3D Mod - disable drag event ***/
+    setDragEnabled(false);
+/*** LPub3D Mod end ***/
 }
 
 void lcPartSelectionListView::SetIconSize(int Size)
@@ -725,7 +729,7 @@ void lcPartSelectionWidget::FilterChanged(const QString& Text)
 		if (Text.isEmpty())
 			mFilterAction->setIcon(QIcon(":/resources/parts_search.png"));
 		else
-			mFilterAction->setIcon(QIcon(":/resources/parts_cancel.png"));
+            mFilterAction->setIcon(QIcon(":/resources/parts_cancel.png"));
 	}
 
 	mPartsWidget->GetListModel()->SetFilter(Text);

@@ -220,7 +220,6 @@ void lcMainWindow::CreateWidgets()
 	Settings.endGroup();
 ***/
 /*** LPub3D Mod end ***/
-
 }
 
 void lcMainWindow::CreateActions()
@@ -975,7 +974,7 @@ void lcMainWindow::closeEvent(QCloseEvent* Event)
 //		Settings.endGroup();
 
 //		gApplication->SaveTabLayout();
-/*** LPub3D modification end ***/
+/*** LPub3D Mod end ***/
 	}
 	else
 		Event->ignore();
@@ -1014,6 +1013,9 @@ QMenu* lcMainWindow::createPopupMenu()
 	Menu->removeAction(mColorsToolBar->toggleViewAction());
 	Menu->removeAction(mStandardToolBar->toggleViewAction());
 	Menu->removeAction(mTimeToolBar->toggleViewAction());
+    Menu->removeAction(mStandardToolBar->toggleViewAction());
+    Menu->removeAction(mToolsToolBar->toggleViewAction());
+    Menu->removeAction(mTimeToolBar->toggleViewAction());
 /*** LPub3D Mod end ***/
 	return Menu;
 }

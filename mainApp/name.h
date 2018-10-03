@@ -38,7 +38,9 @@ enum Theme { ThemeDark, ThemeDefault };
 #define PARMSWINDOW             "ParmsWindow"
 #define UPDATES                 "Updates"
 #define LOGGING                 "Logging"
+
 #define SAVE_DISPLAY_PAGE_NUM   "SaveDisplayPageNum"
+#define VIEW_PARTS_WIDGET       "ViewPartsWidget"
 
 
 #define MAX_NUM_POV_GEN_ARGS (128)

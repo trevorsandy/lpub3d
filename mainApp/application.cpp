@@ -558,11 +558,11 @@ int Application::run()
     delete gMainWindow;
     gMainWindow = nullptr;
 
-    delete gApplication;
-    gApplication = nullptr;
-
     delete gui;
     gui = nullptr;
+
+    delete gApplication;
+    gApplication = nullptr;
 
     delete availableVersions;
     availableVersions = nullptr;
