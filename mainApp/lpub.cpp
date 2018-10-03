@@ -2286,7 +2286,7 @@ void Gui::initialize()
   createToolBars();
   createStatusBar();
   createDockWindows();
-  toggleLCStatusBar();
+  toggleLCStatusBar(true);
 
   emit disable3DActionsSig();
   setCurrentFile("");
@@ -3690,11 +3690,13 @@ void Gui::createDockWindows()
 //    viewerDockWindow->raise();
 //#endif
 
-    connect(viewerDockWindow, SIGNAL (topLevelChanged(bool)), this, SLOT (toggleLCStatusBar()));
+    connect(viewerDockWindow, SIGNAL (topLevelChanged(bool)), this, SLOT (toggleLCStatusBar(bool)));
     //**
 }
 
-void Gui::toggleLCStatusBar(){
+void Gui::toggleLCStatusBar(bool topLevel){
+
+    Q_UNUSED(topLevel);
 
     if(viewerDockWindow->isFloating())
         gMainWindow->statusBar()->show();

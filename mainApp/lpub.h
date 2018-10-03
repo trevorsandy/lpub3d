@@ -1073,7 +1073,7 @@ private slots:
     void generateCustomColourPartsList();
     void viewLog();
 
-    void toggleLCStatusBar();
+    void toggleLCStatusBar(bool);
     void showLCStatusMessage();
 
     // Begin Jaco's code
