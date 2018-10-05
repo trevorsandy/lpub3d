@@ -1684,16 +1684,10 @@ BackgroundGui::BackgroundGui(
 
   BackgroundData background = meta->value();
 
-  switch (background.type) {
-    case BackgroundData::BgImage:
+  if (background.type == BackgroundData::BgImage)
       picture = background.string;
-    break;
-    case BackgroundData::BgColor:
+  else
       color = background.string;
-    break;
-    default:
-    break;
-  }
 
   grid = new QGridLayout(parent);
   parent->setLayout(grid);
@@ -1730,8 +1724,10 @@ BackgroundGui::BackgroundGui(
   colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
   QColor c = QColor(color);
   QString styleSheet =
-      QString("QLabel { background-color: rgb(%1, %2, %3); }").
-      arg(c.red()).arg(c.green()).arg(c.blue());
+      QString("QLabel { background-color: %1; }")
+      .arg(color.isEmpty() ? "transparent" :
+           QString("rgb(%1, %2, %3)")
+           .arg(c.red()).arg(c.green()).arg(c.blue()));
   colorExample->setAutoFillBackground(true);
   colorExample->setStyleSheet(styleSheet);
   grid->addWidget(colorExample,0,2);

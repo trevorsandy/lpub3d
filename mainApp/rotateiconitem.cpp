@@ -69,7 +69,7 @@ void RotateIconItem::setAttributes(
   margin         = _rotateIconMeta.margin;
   relativeType   = RotateIconType;
 
-  // initialize pixmap using icon demensions
+  // initialize pixmap using icon dimensions
   pixmap         = new QPixmap(size.valuePixels(XX),
                                size.valuePixels(YY));
 
@@ -140,7 +140,7 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
       backgroundData.stretch = true;
     }
 
-  // set rectangle size and demensions parameters
+  // set rectangle size and dimensions parameters
   int ibt = int(borderData.thickness);
   QRectF irect(ibt/2,ibt/2,pixmap->width()-ibt,pixmap->height()-ibt);
 
@@ -149,9 +149,67 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
   painter.begin(pixmap);
   painter.setRenderHints(QPainter::Antialiasing,true);
 
-  /* BORDER */
+  // set the background then set the border and paint both in one go.
 
-  // set icon border pen color
+  /* BACKGROUND */
+  bool useGradient = false;
+  QColor brushColor;
+  switch(backgroundData.type) {
+    case BackgroundData::BgTransparent:
+      brushColor = Qt::transparent;
+      break;
+    case BackgroundData::BgGradient:
+      useGradient = true;
+      brushColor = Qt::transparent;
+      break;
+    case BackgroundData::BgColor:
+    case BackgroundData::BgSubmodelColor:
+      if (backgroundData.type == BackgroundData::BgColor) {
+          brushColor = LDrawColor::color(backgroundData.string);
+        } else {
+          brushColor = LDrawColor::color(subModelColor.value(0));
+        }
+      break;
+    case BackgroundData::BgImage:
+      {
+        // confirm valid file path
+        QFileInfo fileInfo(backgroundData.string);                             // set 'default path'
+        if (!fileInfo.exists()) {                                              // check 'default path'
+            fileInfo.setFile(QDir::currentPath() + "/" + fileInfo.fileName()); // check 'current path'
+            if (!fileInfo.exists()) {
+                emit lpubAlert->messageSig(LOG_ERROR, QString("Unable to locate 'rotate icon' image %1. Be sure image file "
+                                                   "is relative to model file or define using an absolute path.").arg(fileInfo.fileName()));
+                return;
+            }
+        }
+
+        QImage _image(fileInfo.absoluteFilePath());
+        QImage image = _image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+        if (backgroundData.stretch) {
+            QSize psize = pixmap->size();
+            QSize isize = image.size();
+            qreal sx = psize.width();
+            qreal sy = psize.height();
+            sx /= isize.width();
+            sy /= isize.height();
+            painter.scale(sx,sy);
+            painter.drawImage(0,0,image);
+          } else {
+            for (int y = 0; y < pixmap->height(); y += image.height()) {
+                for (int x = 0; x < pixmap->width(); x += image.width()) {
+                    painter.drawImage(x,y,image);
+                  }
+              }
+          }
+        brushColor = Qt::transparent;
+      }
+      break;
+    }
+
+  useGradient ? painter.setBrush(QBrush(setGradient())) :
+  painter.setBrush(brushColor);
+
+  /* BORDER */
   QPen borderPen;
   QColor borderPenColor;
   if (borderData.type == BorderData::BdrNone) {
@@ -181,7 +239,7 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
 
   painter.setPen(borderPen);
 
-  // set icon border demensions
+  // set icon border dimensions
   qreal rx = borderData.radius;
   qreal ry = borderData.radius;
   qreal dx = pixmap->width();
@@ -197,80 +255,14 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
       }
   }
 
-  // draw icon rectangle
+  // draw icon rectangle - background and border
   if (borderData.type == BorderData::BdrRound) {
     painter.drawRoundRect(irect,int(rx),int(ry));
   } else {
     painter.drawRect(irect);
   }
 
-        /* BACKGROUND */
-
-  // set icon background color
-  bool useGradient = false;
-  QColor brushColor;
-  switch(backgroundData.type) {
-    case BackgroundData::BgTransparent:
-      brushColor = Qt::transparent;
-      break;
-    case BackgroundData::BgGradient:
-      useGradient = true;
-      brushColor = Qt::transparent;
-      break;
-    case BackgroundData::BgColor:
-    case BackgroundData::BgSubmodelColor:
-      if (backgroundData.type == BackgroundData::BgColor) {
-          brushColor = LDrawColor::color(backgroundData.string);
-        } else {
-          brushColor = LDrawColor::color(subModelColor.value(0));
-        }
-      break;
-    case BackgroundData::BgImage:
-      {
-        QFileInfo fileInfo, imageInfo;
-        imageInfo.setFile(backgroundData.string);
-        QString filename(imageInfo.fileName());
-
-        fileInfo.setFile(QDir::currentPath() + "/" + filename); // relative path
-
-        if (!fileInfo.exists()) {
-            fileInfo.setFile(imageInfo.absoluteFilePath());     // insert path
-        } else {
-          backgroundData.string = fileInfo.absoluteFilePath();  // update insert path
-        }
-
-        if (!fileInfo.exists()) {
-            emit lpubAlert->messageSig(LOG_ERROR, QString("Unable to locate rotateincon image %1. Be sure image file "
-                                               "is relative to model file or use absolute path.").arg(filename));
-            return;
-        }
-        QImage image(fileInfo.absoluteFilePath());
-        image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
-        if (backgroundData.stretch) {
-            QSize psize = pixmap->size();
-            QSize isize = image.size();
-            qreal sx = psize.width();
-            qreal sy = psize.height();
-            sx /= isize.width();
-            sy /= isize.height();
-            painter.scale(sx,sy);
-            painter.drawImage(0,0,image);
-          } else {
-            for (int y = 0; y < pixmap->height(); y += image.height()) {
-                for (int x = 0; x < pixmap->width(); x += image.width()) {
-                    painter.drawImage(x,y,image);
-                  }
-              }
-          }
-        brushColor = Qt::transparent;
-      }
-      break;
-    }
-
-  useGradient ? painter.setBrush(QBrush(setGradient())) :
-  painter.setBrush(brushColor);
-
-        /* ARROWS */
+  /* ARROWS */
   if (!arrowData.hideArrows) {
 
       // set arrow parts (head, tips etc...)
@@ -526,7 +518,7 @@ void RotateIconItem::contextMenuEvent(
                        bottom,
                        &background);
     } else if (selectedAction == subModelColorAction) {
-      changeSubModelColor("SubModel Color",
+      changeSubModelColor(pl+" SubModel Color",
                           top,
                           bottom,
                        &subModelColor,0,false,false);
