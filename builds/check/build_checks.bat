@@ -3,7 +3,7 @@
 Title LPub3D Windows build check script
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: September 07, 2018
+rem  Last Update: October 05, 2018
 rem  Copyright (c) 2018 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -24,6 +24,9 @@ SET PKG_CHECK_NATIVE_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 SET PKG_CHECK_OPTIONS=--ignore-console-redirect --process-file --clear-cache --preferred-renderer ldview
 SET PKG_CHECK_LDVIEW_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 
+SET PKG_CHECK_OPTIONS=--ignore-console-redirect --process-file --clear-cache --preferred-renderer ldview-sc
+SET PKG_CHECK_LDVIEW_SINGLE_CALL_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
+
 SET PKG_CHECK_OPTIONS=--ignore-console-redirect --process-export --range 1-3 --clear-cache --preferred-renderer ldglite
 SET PKG_CHECK_RANGE_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 
@@ -40,7 +43,8 @@ ECHO   PKG_PRODUCT_DIR...........[%PKG_PRODUCT_DIR%]
 ECHO   PKG_TARGET_DIR............[%PKG_TARGET_DIR%]
 ECHO   PKG_TARGET................[%PKG_TARGET%]
 ECHO.
-ECHO -Check for executable file...
+ECHO   Build checks start...
+ECHO ------------------------------------------------
 ECHO.
 IF NOT EXIST "%PKG_TARGET%" (
   ECHO -ERROR - %PKG_TARGET% does not exist, build check will exit.
@@ -49,7 +53,7 @@ IF NOT EXIST "%PKG_TARGET%" (
   ECHO -%PKG_TARGET% found.
   IF EXIST "Check.out" DEL /Q "Check.out"
   ECHO.
-  ECHO   1. PKG_CHECK_NATIVE_COMMAND...[%PKG_CHECK_NATIVE_COMMAND%]
+  ECHO   1 OF 5. PKG_CHECK_NATIVE_COMMAND...[%PKG_CHECK_NATIVE_COMMAND%]
   CALL %PKG_CHECK_NATIVE_COMMAND% > Check.out 2>&1
   FOR %%R IN (Check.out) DO (
     IF NOT %%~zR LSS 1 (
@@ -63,7 +67,7 @@ IF NOT EXIST "%PKG_TARGET%" (
     )
   )
   ECHO.
-  ECHO   2. PKG_CHECK_LDVIEW_COMMAND...[%PKG_CHECK_LDVIEW_COMMAND%]
+  ECHO   2 OF 5. PKG_CHECK_LDVIEW_COMMAND...[%PKG_CHECK_LDVIEW_COMMAND%]
   CALL %PKG_CHECK_LDVIEW_COMMAND% > Check.out 2>&1
   FOR %%R IN (Check.out) DO (
     IF NOT %%~zR LSS 1 (
@@ -77,7 +81,21 @@ IF NOT EXIST "%PKG_TARGET%" (
     )
   )
   ECHO.
-  ECHO   3. PKG_CHECK_RANGE_COMMAND....[%PKG_CHECK_RANGE_COMMAND%]
+  ECHO   3 OF 5. PKG_CHECK_LDVIEW_SINGLE_CALL_COMMAND...[%PKG_CHECK_LDVIEW_COMMAND%]
+  CALL %PKG_CHECK_LDVIEW_SINGLE_CALL_COMMAND% > Check.out 2>&1
+  FOR %%R IN (Check.out) DO (
+    IF NOT %%~zR LSS 1 (
+      ECHO -BUILD_CHECK_LDVIEW_SINGLE_CALL Output...
+      TYPE "Check.out"
+      ECHO.
+      DEL /Q "Check.out"
+      ECHO.
+    ) ELSE (
+      ECHO. -ERROR - BUILD_CHECK_LDVIEW_SINGLE_CALL failed.
+    )
+  )
+  ECHO.
+  ECHO   4 OF 5. PKG_CHECK_RANGE_COMMAND....[%PKG_CHECK_RANGE_COMMAND%]
   CALL %PKG_CHECK_RANGE_COMMAND% > Check.out 2>&1
   FOR %%R IN (Check.out) DO (
     IF NOT %%~zR LSS 1 (
@@ -91,7 +109,7 @@ IF NOT EXIST "%PKG_TARGET%" (
     )
   )
   ECHO.
-  ECHO   4. PKG_CHECK_POV_COMMAND......[%PKG_CHECK_POV_COMMAND%]
+  ECHO   5 OF 5. PKG_CHECK_POV_COMMAND......[%PKG_CHECK_POV_COMMAND%]
   CALL %PKG_CHECK_POV_COMMAND% > Check.out 2>&1
   FOR %%R IN (Check.out) DO (
     IF NOT %%~zR LSS 1 (
