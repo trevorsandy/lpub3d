@@ -372,9 +372,9 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
 {
   QString nameMod;
   if (partType == FADE_PART)
-    nameMod = "fade";
+    nameMod = LPUB3D_COLOUR_FADE_SUFFIX;
   else if (partType == HIGHLIGHT_PART)
-    nameMod = "highlight";
+    nameMod = LPUB3D_COLOUR_HIGHLIGHT_SUFFIX;
 
   _timer.start();
   _customParts = 0;
@@ -553,9 +553,9 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
 
     QString nameMod;
     if (partType == FADE_PART)
-      nameMod = "fade";
+      nameMod = LPUB3D_COLOUR_FADE_SUFFIX;
     else if (partType == HIGHLIGHT_PART)
-      nameMod = "highlight";
+      nameMod = LPUB3D_COLOUR_HIGHLIGHT_SUFFIX;
 
     // Archive library files
     QString fileStatus;
@@ -726,16 +726,16 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
 
      QString nameMod, colourPrefix;
      if (partType == FADE_PART){
-       nameMod = "fade";
+       nameMod = LPUB3D_COLOUR_FADE_SUFFIX;
        colourPrefix = LPUB3D_COLOUR_FADE_PREFIX;
      } else if (partType == HIGHLIGHT_PART) {
-       nameMod = "highlight";
+       nameMod = LPUB3D_COLOUR_HIGHLIGHT_SUFFIX;
        colourPrefix = LPUB3D_COLOUR_HIGHLIGHT_PREFIX;
      }
 
     int maxValue            = _partList.size();
     emit progressResetSig();
-    emit progressMessageSig("Creating Costom Color Parts");
+    emit progressMessageSig("Creating Custom Color Parts");
     emit progressRangeSig(1, maxValue);
 
     QStringList customPartContent, customPartColourList;

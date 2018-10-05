@@ -191,8 +191,8 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 
                 bool IsModel = Piece->mPieceInfo->IsModel();
                 QString baseName = QFileInfo(Piece->GetID()).baseName();
-                bool fPiece = (baseName.right(4) == QString("fade"));
-                bool hPiece = (baseName.right(9) == QString("highlight"));
+                bool fPiece = (baseName.right(4) == QString(LPUB3D_COLOUR_FADE_SUFFIX));
+                bool hPiece = (baseName.right(9) == QString(LPUB3D_COLOUR_HIGHLIGHT_SUFFIX));
 
                 QString IconUID;
                 if (IsModel || fPiece || hPiece) {

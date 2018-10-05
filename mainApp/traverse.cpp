@@ -2611,10 +2611,10 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
 {
   QString nameMod, colourPrefix;
   if (partType == FADE_PART){
-    nameMod = "fade";
+    nameMod = LPUB3D_COLOUR_FADE_SUFFIX;
     colourPrefix = LPUB3D_COLOUR_FADE_PREFIX;
   } else if (partType == HIGHLIGHT_PART) {
-    nameMod = "highlight";
+    nameMod = LPUB3D_COLOUR_HIGHLIGHT_SUFFIX;
     colourPrefix = LPUB3D_COLOUR_HIGHLIGHT_PREFIX;
   }
 
