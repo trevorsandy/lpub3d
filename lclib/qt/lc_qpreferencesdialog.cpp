@@ -118,9 +118,8 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
 	ui->checkForUpdates->hide();
 	ui->label_10->hide();                   //label check for updates
 	ui->fixedDirectionKeys->hide(); 
-	ui->tabWidget->removeTab(2);            //hide tabCategories
-	ui->tabWidget->removeTab(2);            //hide tabKeyboard
-	ui->tabWidget->removeTab(2);            //hide mouse
+    ui->tabWidget->removeTab(3);            //hide tabKeyboard
+    ui->tabWidget->removeTab(3);            //hide mouse
 /*** LPub3D Mod end ***/
 
 }
