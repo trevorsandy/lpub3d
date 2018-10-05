@@ -539,7 +539,7 @@ int Application::run()
 #ifdef Q_OS_WIN
       if (m_allocated_console)
         Sleep(2000);
-      SetConsoleTextAttribute (       //return the console to the original atrributes
+      SetConsoleTextAttribute (       //return the console to the original attributes
         ConsoleOutput,
         m_currentConsoleAttr);
 #endif

@@ -290,7 +290,7 @@ void Preferences::lpubPreferences()
 
     lpub3dPath = cwd.absolutePath();
 
-    // Default onfiguration path
+    // Default configuration path
     QStringList configPathList = QStandardPaths::standardLocations(QStandardPaths::ConfigLocation);
     lpubConfigPath = configPathList.first();
 
@@ -637,7 +637,7 @@ void Preferences::lpub3dLibPreferences(bool force)
         Settings.setValue(QString("%1/%2").arg(SETTINGS, LPub3DLibKey), lpub3dLibFile);
     }
 
-    // If we have a valid library archive file, update the 3DViewer's parts_library variable, else clear the registry value
+    // If we have a valid library archive file, update the 3DViewer parts_library variable, else clear the registry value
     if (! lpub3dLibFile.isEmpty() && ! force) {
         validFile.setFile(lpub3dLibFile);
 
@@ -851,7 +851,7 @@ void Preferences::lpub3dLibPreferences(bool force)
             if (! lpub3dLoaded && modeGUI && Application::instance()->splash->isHidden())
                 Application::instance()->splash->show();
 #endif
-        } else {              // If we get here, inform the user that required archive libraries do not exsit (performing build check or they were probably removed)
+        } else {              // If we get here, inform the user that required archive libraries do not exist (performing build check or they were probably removed)
 
             QString officialArchive = validFile.absoluteFilePath();
             validFile.setFile(dataLocation + VER_LPUB3D_UNOFFICIAL_ARCHIVE);
@@ -962,7 +962,7 @@ void Preferences::ldrawPreferences(bool force)
                                     QString body;
                                     QString detail;
 
-                                    if (isAppImagePayload ) { // For AppImage, autimatically install LDraw library if not found
+                                    if (isAppImagePayload ) { // For AppImage, automatically install LDraw library if not found
 
                                         if (extractLDrawLib()) {
 
@@ -1002,7 +1002,7 @@ void Preferences::ldrawPreferences(bool force)
                                             emit Application::instance()->splashMsgSig("10% - Selecting LDraw folder...");
 
                                             ldrawPath = QFileDialog::getExistingDirectory(nullptr,
-                                                                                          QFileDialog::tr("Select LDraw libray folder"),
+                                                                                          QFileDialog::tr("Select LDraw library folder"),
                                                                                           "/",
                                                                                           QFileDialog::ShowDirsOnly |
                                                                                           QFileDialog::DontResolveSymlinks);
@@ -1020,7 +1020,7 @@ void Preferences::ldrawPreferences(bool force)
                                         }
                                     }
 
-                                } else {                  // Console mode so extract and install LDraw Library atutomatically if not exist in searched paths.
+                                } else {                  // Console mode so extract and install LDraw Library automatically if not exist in searched paths.
                                     QString message = QString("LDraw library was not found. The following locations were searched for the LDraw library:\n%1.\n").arg(searchDetail);
                                     fprintf(stdout,"%s",message.toLatin1().constData());
                                     if (extractLDrawLib()) {
@@ -1491,7 +1491,7 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
 
         preferredRenderer = RENDERER_NATIVE;
 
-// -- pervious setting default
+// -- previous setting default
 //#ifdef Q_OS_MAC
 //        if (!ldviewMissingLibs)
 //          preferredRenderer = RENDERER_LDVIEW;
@@ -1562,7 +1562,7 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
     }
 
     // display povray image during rendering
-    QString const povrayDisplayKey("PovRayDisplay");
+    QString const povrayDisplayKey("POVRayDisplay");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,povrayDisplayKey))) {
         QVariant uValue(false);
         povrayDisplay = false;
@@ -2034,7 +2034,7 @@ void Preferences::pliPreferences()
     QSettings Settings;
     pliFile = Settings.value(QString("%1/%2").arg(SETTINGS,"PliControl")).toString();
     pliSubstitutePartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"PliSubstitutePartsFile")).toString();
-    excludedPartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"ExlcudedPartsFile")).toString();
+    excludedPartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"ExcludedPartsFile")).toString();
 
     QFileInfo fileInfo(pliFile);
     if (! fileInfo.exists()) {
@@ -2050,7 +2050,7 @@ void Preferences::pliPreferences()
 
     QFileInfo excludeFileInfo(excludedPartsFile);
     if (! excludeFileInfo.exists()) {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,"ExlcudedPartsFile"));
+        Settings.remove(QString("%1/%2").arg(SETTINGS,"ExcludedPartsFile"));
         allIsWell = false;
     }
 
@@ -2076,7 +2076,7 @@ void Preferences::pliPreferences()
     QFileInfo popExlcudedFileInfo(excludedPartsFile);
     popExlcudedFileInfo.setFile(excludedPartsFile);
     if (popExlcudedFileInfo.exists()) {
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"ExlcudedPartsFile"),excludedPartsFile);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"ExcludedPartsFile"),excludedPartsFile);
     }
 }
 
@@ -2493,7 +2493,7 @@ bool Preferences::getPreferences()
         if (povrayDisplay != dialog->povrayDisplay())
         {
             povrayDisplay = dialog->povrayDisplay();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"PovRayDisplay"),povrayDisplay);
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"POVRayDisplay"),povrayDisplay);
         }
 
         if (ldSearchDirs != dialog->searchDirSettings()) {
@@ -2832,7 +2832,7 @@ void Preferences::setLPub3DLoaded(){
 /*
  * Set the LDView extra search directories. This function is called on the following occasions
  * - LPub3D Initialize: Gui::initialize() -> Preferences::setLDViewExtraSearchDirs(...)
- * - Preference Dialog if search directories change: Preferences::getPreferences()
+ * - Preference Dialogue if search directories change: Preferences::getPreferences()
  * - Archiving Custom Color parts where Custom dirs were not in search dirs list: PartWorker::processCustomColourParts()
  */
 bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile) {
@@ -2958,7 +2958,7 @@ bool Preferences::extractLDrawLib() {
     // archive library exist so let's proceed...
     if (validFile.exists()) {
 
-        // extract compplete.zip
+        // extract complete.zip
         QString destination = ldrawDir.absolutePath();
         QStringList result = JlCompress::extractDir(validFile.absoluteFilePath(),destination);
         if (result.isEmpty()){
@@ -3070,7 +3070,7 @@ bool Preferences::copyRecursively(const QString &srcFilePath,
 void Preferences::nativePovGenPreferences()
 {
 
-  emit Application::instance()->splashMsgSig("25% - NativePoV default settings...");
+  emit Application::instance()->splashMsgSig("25% - NativePOV default settings...");
 
     QSettings Settings;
 

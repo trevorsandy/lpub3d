@@ -188,7 +188,7 @@ int Gui::processCommandLine()
           QString message = QString("Renderer preference changed from %1 to %2 %3.")
                             .arg(Preferences::preferredRenderer)
                             .arg(renderer)
-                            .arg(renderer == RENDERER_POVRAY ? QString("(PoV file generator is %1)").arg(Preferences::povFileGenerator) :
+                            .arg(renderer == RENDERER_POVRAY ? QString("(POV file generator is %1)").arg(Preferences::povFileGenerator) :
                                  renderer == RENDERER_LDVIEW ? Preferences::enableLDViewSingleCall ? "(Single Call)" : "" : "");
           emit messageSig(LOG_INFO,message);
           Preferences::preferredRenderer = renderer;
