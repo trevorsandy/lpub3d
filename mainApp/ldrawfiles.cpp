@@ -461,13 +461,15 @@ void LDrawFile::loadFile(const QString &fileName)
         return;
     }
 
+    QTime t; t.start();
+
     // get rid of what's there before we load up new stuff
 
     empty();
     _parts = 0;
     
     // allow files ldr suffix to allow for MPD
-    
+
     bool mpd = false;
 
     QTextStream in(&file);
@@ -509,7 +511,7 @@ void LDrawFile::loadFile(const QString &fileName)
     int mpc = _missingParts.count();
     if (mpc > 0)
         emit gui->messageSig(LOG_ERROR,  QString("LDrawfiles load: %1 %2 [%3] %4 not found in %5 or %6 archive. "
-                                                 "If %7 %2, be sure %8 location "
+                                                 "If %7 %2, be sure %8 location"
                                                  "is captured in the LDraw search directory list.")
                                                  .arg(mpc)
                                                  .arg(p ? "parts" : "part")
@@ -520,13 +522,14 @@ void LDrawFile::loadFile(const QString &fileName)
                                                  .arg(p ? "these are custom" : "this is a custom")
                                                  .arg(p ? "their" : "its"));
 
-    emit gui->messageSig(LOG_INFO_STATUS, QString("%1 model file %2 loaded. Count %3 parts.%4")
+    emit gui->messageSig(LOG_INFO_STATUS, QString("%1 model file %2 loaded. Count %3 parts.%4 %5")
                                              .arg(mpd ? "MPD" : "LDR")
                                              .arg(fileInfo.fileName())
                                              .arg(_parts)
                                              .arg(mpc > 0 ?
                                                   p ? QString(" %1 parts missing.").arg(mpc) :
-                                                      QString(" 1 part missing.") : ""));
+                                                      QString(" 1 part missing.") : "")
+                                             .arg(gui->elapsedTime(t.elapsed())));
 
 //    logInfo() << (mpd ? "MPD" : "LDR")
 //              << " File:"         << _file
@@ -1035,13 +1038,13 @@ void LDrawFile::countParts(const QString &fileName){
                     if (pieceInfo && pieceInfo->IsPartType()) {
                         _parts++; sfCount++;
                         //logTrace() << QString(" Part Line: [%2] %3 Item No %1").arg(_parts).arg(fileName).arg(line);
-                        emit gui->messageSig(LOG_NOTICE,QString("Piece No %1 [%2] validated.").arg(_parts).arg(tokens[14]));
+                        emit gui->messageSig(LOG_NOTICE,QString("Part %1 [%2] validated.").arg(_parts).arg(tokens[14]));
                     } else if (lcGetPiecesLibrary()->IsPrimitive(info.fileName().toUpper().toLatin1().constData())) {
-                        emit gui->messageSig(LOG_NOTICE,QString("Piece [%1] is a primitive type part").arg(tokens[14]));
+                        emit gui->messageSig(LOG_NOTICE,QString("Part [%1] is a primitive type part").arg(tokens[14]));
                     } else {
                         if (!_missingParts.contains(tokens[14])) {
                             _missingParts << tokens[14];
-                            emit gui->messageSig(LOG_ERROR,QString("Piece [%1] was not found in the %2 library archives.")
+                            emit gui->messageSig(LOG_ERROR,QString("Part [%1] was not found in the %2 library archives.")
                                           .arg(tokens[14])
                                           .arg(VER_PRODUCTNAME_STR));
                         }

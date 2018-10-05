@@ -1543,7 +1543,7 @@ int Pli::partSizeLDViewSCall() {
                 pliPart->color = "0";
             }
 
-            emit gui->messageSig(LOG_INFO, QString("Processing part for key [%1]").arg(pliPart->nameKey));
+            emit gui->messageSig(LOG_INFO, QString("Processing PLI part for nameKey [%1]").arg(pliPart->nameKey));
             QStringList partialKeys = pliPart->nameKey.split("_");
 
             for (int pT = 0; pT < ptn.size(); pT++ ) {
