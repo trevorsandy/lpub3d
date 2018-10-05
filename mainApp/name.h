@@ -91,6 +91,7 @@ enum Theme { ThemeDark, ThemeDefault };
 #define FADE_COLOUR_DEFAULT                     "Very_Light_Bluish_Grey"
 #define FADE_OPACITY_DEFAULT                    50         // 50 percent transparency
 
+#define SUBMODEL_ICON_INDEX_BASE                1000
 #define LPUB3D_COLOUR_FADE_SUFFIX               "fade"
 #define LPUB3D_COLOUR_FADE_PREFIX               "100"
 #define LPUB3D_COLOUR_HIGHLIGHT_SUFFIX          "highlight"

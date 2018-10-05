@@ -25,7 +25,7 @@ protected:
 	virtual void mousePressEvent(QMouseEvent* Event);
 	void UpdateModel();
 /*** LPub3D Mod - Timeline part icons ***/
-    void GetIcon(int Size, int ColorIndex);
+    void GetIcon(int Size, int ColorIndex, bool IsModel);
     bool GetPieceIcon(int Size, QString IconUID);
 
     QMap<QString, QIcon> mPieceIcons;

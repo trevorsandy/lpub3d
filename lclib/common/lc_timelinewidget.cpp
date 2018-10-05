@@ -187,9 +187,12 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
             int Size = rowHeight(indexFromItem(PieceItem));
 
 /*** LPub3D Mod - Timeline part icons ***/
+            bool IsModel = Piece->mPieceInfo->IsModel();
+
+            int IconIndex = IsModel ? SUBMODEL_ICON_INDEX_BASE + ColorIndex : ColorIndex;
+
             if (lcGetPreferences().mViewPieceIcons && gMainWindow->mSubModelPieceIconsLoaded) {
 
-                bool IsModel = Piece->mPieceInfo->IsModel();
                 QString baseName = QFileInfo(Piece->GetID()).baseName();
                 bool fPiece = (baseName.right(4) == QString(LPUB3D_COLOUR_FADE_SUFFIX));
                 bool hPiece = (baseName.right(9) == QString(LPUB3D_COLOUR_HIGHLIGHT_SUFFIX));
@@ -212,8 +215,8 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 
                 } else {
 
-                    GetIcon(Size,ColorIndex);
-                    PieceItem->setIcon(0, mIcons[ColorIndex]);
+                    GetIcon(Size,ColorIndex,IsModel);
+                    PieceItem->setIcon(0, mIcons[IconIndex]);
 #ifdef QT_DEBUG_MODE
                     qDebug() << qPrintable(QString("ALERT - Could Not Insert %1 Icon - UID [%2]")
                                                    .arg(IsModel ? "Submodel" : "Piece")
@@ -224,8 +227,8 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 
             } else {
 
-                GetIcon(Size,ColorIndex);
-                PieceItem->setIcon(0, mIcons[ColorIndex]);
+                GetIcon(Size,ColorIndex,IsModel);
+                PieceItem->setIcon(0, mIcons[IconIndex]);
 
             }
 /*** LPub3D Mod end ***/
@@ -268,18 +271,26 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 	blockSignals(Blocked);
 }
 
-void lcTimelineWidget::GetIcon(int Size, int ColorIndex){
-    if (!mIcons.contains(ColorIndex))
+/*** LPub3D Mod - Timeline part icons ***/
+void lcTimelineWidget::GetIcon(int Size, int ColorIndex, bool IsModel){
+
+    int IconIndex = IsModel ? SUBMODEL_ICON_INDEX_BASE + ColorIndex : ColorIndex;
+
+    if (!mIcons.contains(IconIndex))
     {
+
+
         QImage Image(Size, Size, QImage::Format_ARGB32);
         Image.fill(0);
         float* Color = gColorList[ColorIndex].Value;
         QPainter Painter(&Image);
         Painter.setPen(Qt::darkGray);
         Painter.setBrush(QColor::fromRgbF(Color[0], Color[1], Color[2]));
+        IsModel ?
+        Painter.drawRect(0, 0, Size - 1, Size - 1) :
         Painter.drawEllipse(0, 0, Size - 1, Size - 1);
 
-        mIcons[ColorIndex] = QIcon(QPixmap::fromImage(Image));
+        mIcons[IconIndex] = QIcon(QPixmap::fromImage(Image));
     }
 }
 
@@ -304,6 +315,7 @@ bool lcTimelineWidget::GetPieceIcon(int Size, QString IconUID){
     }
     return true;
 }
+/*** LPub3D Mod end ***/
 
 void lcTimelineWidget::UpdateSelection()
 {
