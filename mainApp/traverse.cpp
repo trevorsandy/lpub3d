@@ -2516,7 +2516,7 @@ void Gui::writeToTmp()
   if (! exporting()) {
       emit progressBarPermInitSig();
       emit progressPermRangeSig(1, ldrawFile._subFileOrder.size());
-      emit progressPermMessageSig("Processing submodels...");
+      emit progressPermMessageSig("Writing submodels...");
     }
   emit messageSig(LOG_STATUS, "Writing submodels to temp directory...");
 
@@ -2580,6 +2580,10 @@ void Gui::writeToTmp()
             writeToTmp(highlightFileName,configuredContent);
           }
       }
+  }
+
+  if (! exporting()) {
+      emit progressPermMessageSig("Rendering submodel images...");
   }
 
   if (Preferences::modeGUI && !subModelImagesLoaded) {

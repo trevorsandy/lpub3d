@@ -3478,22 +3478,22 @@ QPointF MetaItem::defaultPointerTip(
    */
 
   bool ok[2];
-  QString pngName, ldrName, monoOutPngName;
+  QString pngName, ldrName, monoOutPngBaseName;
 #ifdef QT_DEBUG_MODE
-  monoOutPngName =   QString("mono_%1").arg(QFileInfo(subModel).baseName());
+  monoOutPngBaseName =   QString("mono_%1").arg(QFileInfo(subModel).baseName());
 #else
-  monoOutPngName = "mono";
+  monoOutPngBaseName = "mono";
 #endif
-  QStringList ldrNames, csiKeys;
+  QStringList csiKeys, ldrNames;
   if (renderer->useLDViewSCall()) {
-      ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + monoOutName + ".ldr";
-      pngName = QDir::currentPath() + "/" + Paths::assemDir + "/" + monoOutPngName + ".png";
-      ldrNames << ldrName;
       csiKeys << "mono";
+      ldrNames << monoOutName;
+      ldrName = ldrNames.first();
+      pngName = QDir::currentPath() + "/" + Paths::assemDir + "/" + monoOutPngBaseName + ".png";
       ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName) == 0);
       ok[1] = (renderer->renderCsi(addLine,ldrNames,csiKeys,pngName,meta) == 0);
     } else {
-      pngName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + monoOutPngName + ".png";
+      pngName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + monoOutPngBaseName + ".png";
       ok[0] = ok[1] = (renderer->renderCsi(addLine,csiParts,csiKeys,pngName,meta) == 0);
     }
 
