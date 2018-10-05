@@ -2732,7 +2732,7 @@ PageMeta::PageMeta() : BranchMeta()
   parts.placement.setValue(BottomLeftOutside,PageAuthorType);
   parts.type = PagePartsType;
   parts.textFont.setValuePoints("Arial,20,-1,255,75,0,0,0,0,0");
-  parts.setValue(QString("%1 Parts").arg(QString::number(LDrawFile::_parts)));
+  parts.setValue(QString("%1 Parts").arg(QString::number(LDrawFile::_partCount)));
 
   //model description text
   modelDesc.placement.setValue(BottomLeftOutside,PagePartsType);

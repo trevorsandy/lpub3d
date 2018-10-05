@@ -30,14 +30,11 @@
 #ifndef LDRAWFILES_H
 #define LDRAWFILES_H
 
-#include <QMessageBox>
 #include <QStringList>
 #include <QString>
 #include <QMap>
 #include <QDateTime>
 #include <QList>
-#include <QRegExp>
-#include <QHash>
 
 #include "excludedparts.h"
 #include "QsLog.h"
@@ -117,16 +114,17 @@ class LDrawFile {
     }
 
     QStringList                 _subFileOrder;
+    static QStringList          _uniqueParts;
     static QStringList          _missingParts;
     static QString              _file;
     static QString              _name;
     static QString              _author;
     static QString              _description;
     static QString              _category;
-    static int                  _parts;
+    static int                  _partCount;
 
     int getPartCount(){
-      return _parts;
+      return _partCount;
     }
 
     bool saveFile(const QString &fileName);

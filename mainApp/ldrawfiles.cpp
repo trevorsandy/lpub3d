@@ -35,9 +35,11 @@
 #include <QtGui>
 #endif
 
+#include <QMessageBox>
 #include <QFile>
-#include <QList>
 #include <QRegExp>
+#include <QHash>
+
 #include "paths.h"
 
 #include "lpub.h"
@@ -45,6 +47,7 @@
 #include "lc_library.h"
 #include "pieceinf.h"
 
+QStringList LDrawFile::_uniqueParts;
 QStringList LDrawFile::_missingParts;
 QString LDrawFile::_file        = "";
 QString LDrawFile::_name        = "";
@@ -52,7 +55,7 @@ QString LDrawFile::_author      = "";
 QString LDrawFile::_description = "";
 QString LDrawFile::_category    = "";
 int     LDrawFile::_emptyInt;
-int     LDrawFile::_parts      = 0;
+int     LDrawFile::_partCount   = 0;
 
 LDrawSubFile::LDrawSubFile(
   const QStringList &contents,
@@ -92,8 +95,9 @@ void LDrawFile::empty()
   _subFiles.clear();
   _subFileOrder.clear();
   _viewerSteps.clear();
+  _uniqueParts.clear();
   _mpd = false;
-  _parts = 0;
+  _partCount = 0;
 }
 
 /* Add a new subFile */
@@ -466,7 +470,6 @@ void LDrawFile::loadFile(const QString &fileName)
     // get rid of what's there before we load up new stuff
 
     empty();
-    _parts = 0;
     
     // allow files ldr suffix to allow for MPD
 
@@ -507,28 +510,32 @@ void LDrawFile::loadFile(const QString &fileName)
 
     countParts(topLevelFile());
 
-    bool p = (_missingParts.count() > 1);
     int mpc = _missingParts.count();
+    bool mp = (mpc > 1);
+    int upc = _uniqueParts.count();
+    bool up = (upc > 1);
     if (mpc > 0)
         emit gui->messageSig(LOG_ERROR,  QString("LDrawfiles load: %1 %2 [%3] %4 not found in %5 or %6 archive. "
                                                  "If %7 %2, be sure %8 location"
                                                  "is captured in the LDraw search directory list.")
                                                  .arg(mpc)
-                                                 .arg(p ? "parts" : "part")
-                                                 .arg(p ? _missingParts.join(" ") : _missingParts.first())
-                                                 .arg(p ? "were" : "was")
+                                                 .arg(mp ? "parts" : "part")
+                                                 .arg(mp ? _missingParts.join(" ") : _missingParts.first())
+                                                 .arg(mp ? "were" : "was")
                                                  .arg(VER_LPUB3D_UNOFFICIAL_ARCHIVE)
                                                  .arg(VER_LDRAW_OFFICIAL_ARCHIVE)
-                                                 .arg(p ? "these are custom" : "this is a custom")
-                                                 .arg(p ? "their" : "its"));
+                                                 .arg(mp ? "these are custom" : "this is a custom")
+                                                 .arg(mp ? "their" : "its"));
 
-    emit gui->messageSig(LOG_INFO_STATUS, QString("%1 model file %2 loaded. Count %3 parts.%4 %5")
+    emit gui->messageSig(LOG_INFO_STATUS, QString("%1 model file %2 loaded. Count %3 parts. %4%5 %6")
                                              .arg(mpd ? "MPD" : "LDR")
                                              .arg(fileInfo.fileName())
-                                             .arg(_parts)
+                                             .arg(_partCount)
+                                             .arg(up ? QString("%1 Unique parts.").arg(upc) :
+                                                       QString("1 Unique part."))
                                              .arg(mpc > 0 ?
-                                                  p ? QString(" %1 parts missing.").arg(mpc) :
-                                                      QString(" 1 part missing.") : "")
+                                                  mp ? QString(" %1 Missing parts.").arg(mpc) :
+                                                       QString(" 1 Missing part.") : "")
                                              .arg(gui->elapsedTime(t.elapsed())));
 
 //    logInfo() << (mpd ? "MPD" : "LDR")
@@ -537,7 +544,7 @@ void LDrawFile::loadFile(const QString &fileName)
 //              << ", Author:"      << _author
 //              << ", Description:" << _description
 //              << ", Category:"    << _category
-//              << ", Parts:"      << _parts
+//              << ", Parts:"      << _partCount
 //                 ;
 
 }
@@ -1028,28 +1035,34 @@ void LDrawFile::countParts(const QString &fileName){
                 doCountParts = true;
             }
 
-            if (doCountParts && tokens.size() == 15 && tokens[0] == "1" && (tokens[14].contains(validEXT))){
+            if (doCountParts && tokens.size() == 15 && tokens[0] == "1" && (tokens[14].contains(validEXT))) {
                 bool containsSubFile = contains(tokens[14].toLower());
                 if (containsSubFile) {
                     countParts(tokens[14]);
-                } else if (! ExcludedParts::hasExcludedPart(tokens[14])){
+                } else if (! ExcludedParts::hasExcludedPart(tokens[14])) {
+                    bool partVaidated = false;
+                    PieceInfo* pieceInfo;
                     QFileInfo info(tokens[14]);
-                    PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.fileName().toUpper().toLatin1().constData(), nullptr, false, false);
-                    if (pieceInfo && pieceInfo->IsPartType()) {
-                        _parts++; sfCount++;
-                        //logTrace() << QString(" Part Line: [%2] %3 Item No %1").arg(_parts).arg(fileName).arg(line);
-                        emit gui->messageSig(LOG_NOTICE,QString("Part %1 [%2] validated.").arg(_parts).arg(tokens[14]));
+                    if (!(partVaidated = _uniqueParts.contains(tokens[14]))) {
+                        pieceInfo = lcGetPiecesLibrary()->FindPiece(info.fileName().toUpper().toLatin1().constData(), nullptr, false, false);
+                        if ((partVaidated = pieceInfo && pieceInfo->IsPartType()))
+                            _uniqueParts.append(tokens[14]);
+                    }
+                    if (partVaidated) {
+                        _partCount++; sfCount++;
+                        //logTrace() << QString(" Part Line: [%2] %3 Item No %1").arg(_partCount).arg(fileName).arg(line);
+                        emit gui->messageSig(LOG_NOTICE,QString("Part %1 [%2] validated.").arg(_partCount).arg(tokens[14]));
                     } else if (lcGetPiecesLibrary()->IsPrimitive(info.fileName().toUpper().toLatin1().constData())) {
                         emit gui->messageSig(LOG_NOTICE,QString("Part [%1] is a primitive type part").arg(tokens[14]));
                     } else {
                         if (!_missingParts.contains(tokens[14])) {
                             _missingParts << tokens[14];
                             emit gui->messageSig(LOG_ERROR,QString("Part [%1] was not found in the %2 library archives.")
-                                          .arg(tokens[14])
-                                          .arg(VER_PRODUCTNAME_STR));
+                                                 .arg(tokens[14])
+                                    .arg(VER_PRODUCTNAME_STR));
                         }
                     }
-                }
+                }  // check excluded
             }
         }
     }
