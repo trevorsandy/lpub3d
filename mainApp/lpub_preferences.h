@@ -17,7 +17,10 @@
 #ifndef LPUB_PREFERENCES_H
 #define LPUB_PREFERENCES_H
 
+#include <QObject>
+
 enum UpdateFlag { UpdateExisting, SkipExisting };
+
 class QString;
 class QStringList;
 

@@ -2085,6 +2085,10 @@ Gui::Gui()
 {
     emit Application::instance()->splashMsgSig(QString("25% - %1 window defaults loading...").arg(VER_PRODUCTNAME_STR));
 
+    lpubAlert = new LPubAlert();
+    connect(lpubAlert, SIGNAL(messageSig(LogType,QString)),   this, SLOT(statusMessage(LogType,QString)));
+    connect(this,      SIGNAL(messageSig(LogType,QString)),   this, SLOT(statusMessage(LogType,QString)));
+
     Preferences::lgeoPreferences();
     Preferences::rendererPreferences(SkipExisting);
     Preferences::nativePovGenPreferences();
@@ -2170,10 +2174,6 @@ Gui::Gui()
             this,           SLOT(  canUndoChanged(bool)));
     connect(undoStack,      SIGNAL(cleanChanged(bool)),
             this,           SLOT(  cleanChanged(bool)));
-
-    lpubAlert = new LPubAlert();
-    connect(lpubAlert, SIGNAL(messageSig(LogType,QString)),   this, SLOT(statusMessage(LogType,QString)));
-    connect(this,      SIGNAL(messageSig(LogType,QString)),   this, SLOT(statusMessage(LogType,QString)));
 
     progressLabel = new QLabel(this);
     progressLabel->setMinimumWidth(200);

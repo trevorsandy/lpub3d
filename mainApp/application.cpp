@@ -488,7 +488,7 @@ void Application::initialize()
   if (gApplication->Initialize(LibraryPaths, gui)) {
     gui->initialize();
   } else {
-    logError() << QString("Unable to initialize 3D Viewer.");
+    emit gui->messageSig(LOG_ERROR, QString("Unable to initialize 3D Viewer."));
     throw InitException{};
   }
 }
@@ -525,15 +525,15 @@ int Application::run()
   try
   {
     // Call the main function
-    logInfo() << QString("Run: Starting application...");
+    emit gui->messageSig(LOG_INFO, QString("Run: Starting application..."));
 
     mainApp();
 
     if (modeGUI()) {
-      logInfo() << QString("Run: Application started.");
+      emit gui->messageSig(LOG_INFO, QString("Run: Application started."));
       ExecReturn = m_application.exec();
     } else {
-      logInfo() << QString("Run: Application started.");
+      emit gui->messageSig(LOG_INFO, QString("Run: Application started."));
       ExecReturn = gui->processCommandLine();
     }
 #ifdef Q_OS_WIN
@@ -546,12 +546,14 @@ int Application::run()
   }
   catch(const std::exception& ex)
   {
-    logError() << QString("Run: Exception %2 has been thrown.").arg(ex.what());
+    emit gui->messageSig(LOG_ERROR, QString("Run: Exception %2 has been thrown.").arg(ex.what()));
   }
   catch(...)
   {
-    logError() << QString("Run: An unhandled exception has been thrown.");
+    emit gui->messageSig(LOG_ERROR, QString("Run: An unhandled exception has been thrown."));
   }
+
+  emit gui->messageSig(LOG_INFO, QString("Run: Application terminated with return code %1.").arg(ExecReturn));
 
   if (!m_print_output)
   {
@@ -569,8 +571,6 @@ int Application::run()
 
     ldvWidget = nullptr;
   }
-
-  logInfo() << QString("Run: Application terminated with return code %1.").arg(ExecReturn);
 
   return ExecReturn;
 }
