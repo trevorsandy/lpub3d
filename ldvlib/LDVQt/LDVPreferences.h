@@ -116,6 +116,12 @@ public:
 	void browseForDir(QString prompt, QLineEdit *textField, QString &dir);
 	QString getSaveDir(LDPreferences::SaveOp saveOp,const std::string &filename) { return QString(ldPrefs->getDefaultSaveDir(saveOp, filename).c_str()); }
 
+#ifdef WIN32
+    int getFSAAFactor(void);
+    bool getUseNvMultisampleFilter(void);
+    void setupAntialiasing(void);
+#endif
+
 public slots:
 	void doApply(void);
 	void doOk(void);
@@ -156,6 +162,9 @@ public slots:
 	void doAnisotropicSlider(int);
 	void doDrawLightDats();
 	void doSaveDefaultViewAngle();
+#ifdef WIN32	
+    void fsaaModeBoxChanged(const QString&);
+#endif // WIN32	
 	void snapshotSaveDirBoxChanged();
 	void partsListsSaveDirBoxChanged();
 	void exportsListsSaveDirBoxChanged();

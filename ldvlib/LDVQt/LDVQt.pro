@@ -144,6 +144,11 @@ SOURCES += \
     $$PWD/LDVPreferences.cpp \
     $$PWD/LDVWidget.cpp
 
+win32-msvc* {
+SOURCES += \
+    $$PWD/LDVExtensionsSetup.cpp
+}
+
 HEADERS += \
     $$PWD/LDVAlertHandler.h \
     $$PWD/LDViewExportOption.h \
@@ -152,6 +157,11 @@ HEADERS += \
     $$PWD/LDVPovUserDefaultsKeys.h \
     $$PWD/LDVPreferences.h \
     $$PWD/LDVWidget.h
+
+win32-msvc* {
+HEADERS += \
+    $$PWD/LDVExtensionsSetup.h
+}
 
 FORMS += \
     $$PWD/LDVExportOptionPanel.ui \

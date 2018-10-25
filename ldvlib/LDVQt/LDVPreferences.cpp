@@ -34,6 +34,10 @@
 #include <TCFoundation/TCLocalStrings.h>
 #include <LDLib/LDPreferences.h>
 #include <LDLib/LDrawModelViewer.h>
+#ifdef WIN32
+#include <TCFoundation/TCTypedValueArray.h>
+#include <LDVExtensionsSetup.h>
+#endif // WIN32
 
 #include "LDVPreferences.h"
 #include "LDVWidget.h"
@@ -49,7 +53,7 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
     checkAbandon(true)
 {
         setupUi(this);
-        connect( fsaaModeBox, SIGNAL( activated(int) ), this, SLOT( enableApply() ) );
+    connect( aaLinesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
         connect( applyButton, SIGNAL( pressed() ), this, SLOT( doApply() ) );
         connect( okButton, SIGNAL( clicked() ), this, SLOT( doOk() ) );
         connect( cancelButton, SIGNAL( clicked() ), this, SLOT( doCancel() ) );
@@ -79,13 +83,12 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
         connect( showErrorsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
         connect( processLdconfigLdrButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
         connect( randomColorsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( frameRateButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( showAxesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( partBoundingBoxOnlyBox, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( aaLinesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( qualityLightingButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( subduedLightingButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( specularLightingButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+    connect( frameRateButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+    connect( showAxesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+    connect( partBoundingBoxOnlyBox, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+    connect( qualityLightingButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+    connect( subduedLightingButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+    connect( specularLightingButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
         connect( alternateLightingButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
         connect( crossEyedStereoButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
         connect( parallelStereoButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
@@ -157,14 +160,20 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
         connect( updatesProxyButton, SIGNAL( toggled(bool) ), this, SLOT( enableProxy() ) );
         connect( updatesMissingpartsButton, SIGNAL( toggled(bool) ), this, SLOT( doUpdateMissingparts(bool) ) );
         connect( updatesMissingpartsButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( drawTransparentTexturesLastButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( transparentOffsetSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
+    connect( drawTransparentTexturesLastButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+    connect( transparentOffsetSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
 
-	modelViewer = modelWidget->getModelViewer();
-
-	loadSettings();
-	ldPrefs->applySettings();
-	reflectSettings();
+    loadSettings();
+#ifdef WIN32
+    setupAntialiasing();
+    connect( fsaaModeBox, SIGNAL( currentIndexChanged(const QString &) ), this, SLOT( fsaaModeBoxChanged(const QString &) ) );
+#else
+    fsaaModeBox->setDisabled(true);
+    fsaaModeBox->hide();
+    fsaaModeLabel->hide();
+#endif // WIN32
+    ldPrefs->applySettings();
+    reflectSettings();
 
 	QStyle *style = defaultColorButton->style();
     if (style != nullptr)
@@ -310,8 +319,8 @@ void LDVPreferences::doGeneralApply(void)
 {
 	int r, g, b;
 
-    ldPrefs->setFsaaMode(fsaaModeBox->currentIndex());
-	ldPrefs->setLineSmoothing(aaLinesButton->checkState());
+    ldPrefs->setLineSmoothing(aaLinesButton->checkState());
+
 	ldPrefs->setShowFps(frameRateButton->checkState());
 	ldPrefs->setShowAxes(showAxesButton->checkState());
 //	if (modelWidget)
@@ -973,8 +982,8 @@ void LDVPreferences::reflectGeneralSettings(void)
 	int r, g, b;
 	QPixmap pix(12, 12);
 
-        fsaaModeBox->setCurrentIndex(ldPrefs->getFsaaMode());
-	setButtonState(aaLinesButton, ldPrefs->getLineSmoothing());
+    setButtonState(aaLinesButton, ldPrefs->getLineSmoothing());
+
 	setButtonState(frameRateButton, ldPrefs->getShowFps());
 	setButtonState(showAxesButton, ldPrefs->getShowAxes());
 	setButtonState(showErrorsButton, ldPrefs->getShowErrors());
@@ -2238,6 +2247,136 @@ bool LDVPreferences::getShowError(int errorNumber)
 {
 	return TCUserDefaults::longForKey(getErrorKey(errorNumber), 1, false) != 0;
 }
+
+#ifdef WIN32
+
+int LDVPreferences::getFSAAFactor(void)
+{
+    int fsaaMode = ldPrefs->getFsaaMode();
+
+    if (fsaaMode && LDVExtensionsSetup::haveMultisampleExtension())
+    {
+        if (fsaaMode <= 5)
+        {
+            return fsaaMode & 0x6; // Mask off bottom bit
+        }
+        else
+        {
+            return fsaaMode >> 3;
+        }
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+bool LDVPreferences::getUseNvMultisampleFilter(void)
+{
+    int fsaaMode = ldPrefs->getFsaaMode();
+
+    if ((fsaaMode & 0x1) &&
+        TREGLExtensions::haveNvMultisampleFilterHintExtension())
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void LDVPreferences::setupAntialiasing(void)
+{
+    HWND hWnd = (HWND)this->winId();
+    HINSTANCE hInstance = (HINSTANCE)this->winId();
+
+    LDVExtensionsSetup::setup(hWnd, hInstance);
+    TCIntArray *fsaaModes = LDVExtensionsSetup::getFSAAModes();
+
+    UCCHAR modeString[1024];
+
+    // Remove all items from FSAA combo box list.
+    fsaaModeBox->clear();
+    // Add "None" to FSAA combo box list as only item.
+    fsaaModeBox->addItem(QString::fromWCharArray(TCObject::ls(_UC("FsaaNone"))));
+    // Select "None", just in case something else doesn't get selected later.
+    fsaaModeBox->setCurrentIndex(0);
+    // The following array should always exist, even if it is empty, but check
+    // just to be sure.
+    if (fsaaModes)
+    {
+        int i;
+        int count = fsaaModes->getCount();
+
+        // Note that fsaaModes contains a sorted array of unique FSAA factors.
+        for (i = 0; i < count; i++)
+        {
+            int value = (*fsaaModes)[i];
+
+            sucprintf(modeString, COUNT_OF(modeString),
+                      TCObject::ls(_UC("FsaaNx")), value);
+            fsaaModeBox->addItem(QString::fromWCharArray(modeString));
+            // nVidia hardware supports Quincunx and 9-box pattern, so add an
+            // "Enhanced" item to the list if the extension is supported and
+            // the current factor is 2 or 4.
+            if ((value == 2 || value == 4) &&
+                    TREGLExtensions::haveNvMultisampleFilterHintExtension())
+            {
+                sucprintf(modeString, COUNT_OF(modeString),
+                          TCObject::ls(_UC("FsaaNx")), value);
+                ucstrcat(modeString, _UC(" "));
+                ucstrcat(modeString, TCObject::ls(_UC("FsaaEnhanced")));
+                fsaaModeBox->addItem(QString::fromWCharArray(modeString));
+            }
+        }
+    }
+    if (ldPrefs->getFsaaMode())
+    {
+        sucprintf(modeString, COUNT_OF(modeString),
+                  TCObject::ls(_UC("FsaaNx")), getFSAAFactor());
+        if (getUseNvMultisampleFilter())
+        {
+            ucstrcat(modeString, _UC(" "));
+            ucstrcat(modeString, TCObject::ls(_UC("FsaaEnhanced")));
+        }
+
+        int vv;
+        if ((vv = fsaaModeBox->findText(QString::fromWCharArray(modeString))) == -1) {
+            vv = 0;
+            ldPrefs->setFsaaMode(vv);
+        }
+        fsaaModeBox->setCurrentIndex(vv);
+    }
+}
+
+void LDVPreferences::fsaaModeBoxChanged(const QString &controlString)
+{
+    ucstring selectedString = controlString.toStdWString().c_str();
+    int fsaaMode;
+
+    if (selectedString == TCObject::ls(_UC("FsaaNone")))
+    {
+        fsaaMode = 0;
+    }
+    else
+    {
+        sucscanf(selectedString.c_str(), _UC("%d"), &fsaaMode);
+        if (fsaaMode > 4)
+        {
+            fsaaMode = fsaaMode << 3;
+        }
+        else if (selectedString.find(TCObject::ls(_UC("FsaaEnhanced"))) <
+            selectedString.size())
+        {
+            fsaaMode |= 1;
+        }
+    }
+    ldPrefs->setFsaaMode(fsaaMode);
+    enableApply();
+}
+
+#endif // WIN32
 
 void LDVPreferences::setupDefaultRotationMatrix(void)
 {
