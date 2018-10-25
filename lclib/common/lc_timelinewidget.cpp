@@ -187,31 +187,26 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
             int Size = rowHeight(indexFromItem(PieceItem));
 
 /*** LPub3D Mod - Timeline part icons ***/
-            bool IsModel = Piece->mPieceInfo->IsModel();
+            QFileInfo p = QFileInfo(Piece->GetID());
+            bool fPiece = (p.baseName().right(4) == QString(LPUB3D_COLOUR_FADE_SUFFIX));
+            bool hPiece = (p.baseName().right(9) == QString(LPUB3D_COLOUR_HIGHLIGHT_SUFFIX));
+            QString pieceName = p.baseName().left(p.baseName().size() - (fPiece ? 5 : hPiece ? 10 : 0)).append("." + p.suffix());
 
+            bool IsModel = gMainWindow->IsLPub3DSubModel(pieceName);
             int IconIndex = IsModel ? SUBMODEL_ICON_INDEX_BASE + ColorIndex : ColorIndex;
 
             if (lcGetPreferences().mViewPieceIcons && gMainWindow->mSubModelPieceIconsLoaded) {
 
-                QString baseName = QFileInfo(Piece->GetID()).baseName();
-                bool fPiece = (baseName.right(4) == QString(LPUB3D_COLOUR_FADE_SUFFIX));
-                bool hPiece = (baseName.right(9) == QString(LPUB3D_COLOUR_HIGHLIGHT_SUFFIX));
+                bool UseFColor = gApplication->UseFadeColour();
+                bool Use0Code = IsModel && (hPiece || (fPiece && !gApplication->UseFadeColour()) || (!hPiece && !fPiece));
 
-                QString IconUID;
-                if (IsModel || fPiece || hPiece) {
-                    bool fColor = gApplication->UseFadeColour();
-                    IconUID = QString("%1_%2").arg(baseName).toLower()
-                                              .arg((fPiece ? QString("%1%2")
-                                                                     .arg(LPUB3D_COLOUR_FADE_PREFIX)
-                                                                     .arg(fColor ? gMainWindow->GetFadeStepsColor() : QString("0")) :
-                                                   (hPiece ? QString("%10").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX) : QString("0"))));
-                } else {
-                    IconUID = QString("%1_%2").arg(baseName).arg(Piece->mColorCode);
-                }
+                QString colorCode = fPiece && UseFColor ? gMainWindow->GetFadeStepsColor() : QString("%1").arg(Piece->mColorCode);
+                QString colorPrefix = IsModel ? fPiece ? LPUB3D_COLOUR_FADE_PREFIX : hPiece ? LPUB3D_COLOUR_HIGHLIGHT_PREFIX : QString() : fPiece && UseFColor ? LPUB3D_COLOUR_FADE_PREFIX : QString();
+                QString ImageKey = QString("%1_%2").arg(p.baseName()).toLower().arg(QString("%1%2").arg(colorPrefix).arg(Use0Code ? QString("0") : colorCode));
 
-                if (GetPieceIcon(Size, IconUID)) {
+                if (GetPieceIcon(Size, ImageKey)) {
 
-                    PieceItem->setIcon(0, mPieceIcons[IconUID]);
+                    PieceItem->setIcon(0, mPieceIcons[ImageKey]);
 
                 } else {
 
@@ -220,9 +215,13 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 #ifdef QT_DEBUG_MODE
                     qDebug() << qPrintable(QString("ALERT - Could Not Insert %1 Icon - UID [%2]")
                                                    .arg(IsModel ? "Submodel" : "Piece")
-                                                   .arg(IconUID));
+                                                   .arg(ImageKey));
+//#else
+//                    fprintf(stdout, "%s", QString(QString("ALERT - Could Not Insert %1 Icon - UID [%2]")
+//                                            .arg(IsModel ? "Submodel" : "Piece")
+//                                            .arg(ImageKey)).toLatin1().constData());
+//                    fflush(stdout);
 #endif
-                    fflush(stdout);
                 }
 
             } else {
@@ -294,11 +293,11 @@ void lcTimelineWidget::GetIcon(int Size, int ColorIndex, bool IsModel){
     }
 }
 
-bool lcTimelineWidget::GetPieceIcon(int Size, QString IconUID){
+bool lcTimelineWidget::GetPieceIcon(int Size, QString ImageKey){
 
-    if (!mPieceIcons.contains(IconUID))
+    if (!mPieceIcons.contains(ImageKey))
     {
-        QFileInfo iconFile(gMainWindow->GetPliIconsPath(IconUID));
+        QFileInfo iconFile(gMainWindow->GetPliIconsPath(ImageKey));
 
         if (!iconFile.exists())
             return false;
@@ -311,7 +310,7 @@ bool lcTimelineWidget::GetPieceIcon(int Size, QString IconUID){
         QPainter Painter(&Image);
         Painter.setRenderHints(QPainter::Antialiasing,true);
 
-        mPieceIcons[IconUID] = QIcon(QPixmap::fromImage(Image));
+        mPieceIcons[ImageKey] = QIcon(QPixmap::fromImage(Image));
     }
     return true;
 }

@@ -332,6 +332,7 @@ public:
 	void UpdateRecentFiles();
 	void UpdateShortcuts();
 /*** LPub3D Mod - Timeline part icons ***/
+    bool IsLPub3DSubModel(QString &Piece);
     const QString GetPliIconsPath(QString &key);
     const QString GetFadeStepsColor();
 /*** LPub3D Mod end ***/

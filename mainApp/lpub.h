@@ -894,6 +894,7 @@ public:
   ColourPartListWorker  *colourPartListWorker;        // create static color parts list in separate thread
   ParmsWindow           *parmsWindow;                 // the parameter file editor
   Preferences            lpub3dPreferences;           // lpub3D Preferences
+  LDrawColourParts       ldrawColourParts;            // load the LDraw color parts list
 
 protected:
   // capture camera rotation from 3DViewer module
@@ -920,7 +921,6 @@ private:
   QProgressBar          *progressBarPerm;    // Right side progress bar
   QLabel                *progressLabel;
   QLabel                *progressLabelPerm;  //
-  LDrawColourParts       ldrawColourParts;   // load the LDraw color parts list
 
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
   bool                   m_exportingContent; // indicate export/pring underway
