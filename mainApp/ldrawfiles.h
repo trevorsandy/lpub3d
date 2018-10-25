@@ -103,6 +103,7 @@ class LDrawFile {
     QStringList                 _emptyList;
     QString                     _emptyString;
     bool                        _mpd;
+    bool                        _currFileIsUTF;
     static int                  _emptyInt;
 
     ExcludedParts               excludedParts; // internal list of part count excluded parts

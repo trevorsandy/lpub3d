@@ -302,7 +302,7 @@ void ParmsWindow::displayParmsFile(
 
     if (! file.open(QIODevice::ReadOnly | QIODevice::Text)){
         QMessageBox::warning(nullptr,
-                 QMessageBox::tr("Parmeter Editor"),
+                 QMessageBox::tr("Parameter Editor"),
                  QMessageBox::tr("Cannot read file %1:\n%2.")
                  .arg(fileName)
                  .arg(file.errorString()));
@@ -310,8 +310,19 @@ void ParmsWindow::displayParmsFile(
         _textEdit->document()->clear();
         return;
     }
+    QByteArray qba(file.readAll());
+    file.close();
 
-    QTextStream ss(&file);
+    // check file encoding
+    QTextCodec::ConverterState state;
+    QTextCodec *codec = QTextCodec::codecForName("UTF-8");
+    QString utfTest = codec->toUnicode(qba.constData(), qba.size(), &state);
+    _fileIsUTF = state.invalidChars == 0;
+    utfTest = QString();
+
+    QTextStream ss(&qba);
+    ss.setCodec(_fileIsUTF ? codec : QTextCodec::codecForName("System"));
+
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
@@ -320,7 +331,7 @@ void ParmsWindow::displayParmsFile(
     _textEdit->blockSignals(false);
     _textEdit->document()->setModified(false);
 
-    file.close();
+
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
 #endif
@@ -339,7 +350,7 @@ bool ParmsWindow::maybeSave()
 
   if (_textEdit->document()->isModified()) {
     QMessageBox::StandardButton ret;
-    ret = QMessageBox::warning(this, tr("Parmeter Editor"),
+    ret = QMessageBox::warning(this, tr("Parameter Editor"),
             tr("The document has been modified.\n"
                 "Do you want to save your changes?"),
             QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
@@ -371,6 +382,7 @@ bool ParmsWindow::saveFile()
         }
 
         QTextDocumentWriter writer(fileName, "plaintext");
+        writer.setCodec(_fileIsUTF ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
         rc = writer.write(_textEdit->document());
 
         if (rc){
@@ -408,6 +420,7 @@ bool ParmsWindow::saveCopyAsFile()
     }
 
     QTextStream out(&file);
+    out.setCodec(_fileIsUTF ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif

@@ -73,6 +73,7 @@ private:
     bool              _fadeStepFile;
     bool              _fileModified;
     bool              _restartRequired;
+    bool              _fileIsUTF;
     QString           title;
     ParmsHighlighter *highlighter;
     QString           fileName;  // file currently being displayed
