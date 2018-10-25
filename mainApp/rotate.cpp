@@ -161,7 +161,8 @@ int Render::rotateParts(
   bool  nativeRenderer = Preferences::preferredRenderer == RENDERER_NATIVE;
   QStringList rotatedParts = parts;
 
-  rotateParts(addLine,rotStep,rotatedParts,ca);
+  // do not apply camera angles for native renderer
+  rotateParts(addLine,rotStep,rotatedParts,ca,!nativeRenderer);
 
   QFile file(ldrName);
   if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
