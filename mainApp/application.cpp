@@ -325,7 +325,7 @@ void Application::initialize()
                 fprintf(stdout, "  -r, --range <page range>: Set page range - e.g. 1,2,9,10-42. Default is all pages.\n");
                 fprintf(stdout, "  -rs, --reset-search-dirs: Reset the LDraw parts directories to those searched by default. Default is off.\n");
                 fprintf(stdout, "  -v, --version: Output LPub3D version information and exit.\n");
-                fprintf(stdout, "  -x, --clear-cache: Turn off reset the LDraw file and image caches. Used with export-option change. Default is off.\n");
+                fprintf(stdout, "  -x, --clear-cache: Reset the LDraw file and image caches. Used with export-option change. Default is off.\n");
 //              fprintf(stdout, "  -im, --image-matte: [Experimental] Turn on image matting for fade previous step. Combine current and previous images using pixel blending - LDView only. Default is off.\n");
                 fprintf(stdout, "\n");
                 fprintf(stdout, "[3DViewer commands - Not tested]\n");
@@ -605,18 +605,14 @@ int Application::run()
   int ExecReturn = EXIT_FAILURE;
   try
   {
-      // Call the main function
-      emit gui->messageSig(LOG_INFO, QString("Run: Starting application..."));
-
-      if (!modeGUI())
-          ExecReturn = gui->processCommandLine();
+      mainApp();
 
       emit gui->messageSig(LOG_INFO, QString("Run: Application started."));
 
-      mainApp();
-
       if (modeGUI())
           ExecReturn = m_application.exec();
+      else
+          ExecReturn = gui->processCommandLine();
 
 #ifdef Q_OS_WIN
     if (m_allocated_console)

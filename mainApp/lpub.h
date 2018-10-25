@@ -829,6 +829,7 @@ public slots:
   void reloadViewer();
   void loadTheme(bool restart = true);
   void restartApplication(bool changeLibrary = false);
+  void resetModelCache(QString file = QString());
 
   bool removeDir(int &count,const QString &dirName);
 

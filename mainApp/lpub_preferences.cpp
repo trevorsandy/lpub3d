@@ -1117,7 +1117,7 @@ void Preferences::ldrawPreferences(bool force)
                             if ( ! QDir(ldrawPath).exists()) { // manual prompt for LDraw Library location
 
                                 QString searchDetail;
-                                searchDetail = QMessageBox::tr ("%1\n %2\n %3\n %4")
+                                searchDetail = QMessageBox::tr ("\t%1\n\t%2\n\t%3\n\t%4")
                                         .arg(QDir::toNativeSeparators(QString("%1/%2").arg(homePath).arg(validLDrawDir)))
                                         .arg(QDir::toNativeSeparators(QString("%1/%2").arg(userDocumentsPath).arg(validLDrawDir)))
 #if defined Q_OS_WIN || defined Q_OS_MAC

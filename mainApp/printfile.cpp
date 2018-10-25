@@ -432,10 +432,8 @@ bool Gui::exportAsDialog(Mode t)
         }
     }
 
-  if(resetCache){
-      clearCustomPartCache(true);
-      clearAndRedrawPage();
-    }
+  if(resetCache)
+      resetModelCache();
 
   if (! m_previewDialog){
       if (t == EXPORT_PDF)

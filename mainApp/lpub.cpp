@@ -543,10 +543,8 @@ bool Gui::continuousPageDialog(Direction d)
   // Process is running - configure to stop
   setContinuousPageAct(SET_STOP_ACTION);
 
-  if(resetCache){
-      clearCustomPartCache(true);
-      clearAndRedrawPage();
-    }
+  if(resetCache)
+      resetModelCache();
 
   // store current display page number
   logStatus() << QString("Continuous %1 page processing start...").arg(direction);
@@ -1062,6 +1060,17 @@ void Gui::reloadCurrentModelFile(){
     }
 }
 
+void Gui::resetModelCache(QString file)
+{
+    if (resetCache) {
+        if (!file.isEmpty())
+            curFile = file;
+        clearCustomPartCache(true);
+        clearAllCaches();
+        resetCache = false;
+    }
+}
+
 void Gui::clearAllCaches()
 {
     if (getCurFile().isEmpty()) {
@@ -1095,15 +1104,19 @@ void Gui::clearAllCaches()
 
 void Gui::clearCustomPartCache(bool silent)
 {
+  if (Paths::customDir.isEmpty())
+      return;
+
   QMessageBox::StandardButton ret = QMessageBox::Ok;
-  QString message = QString("All existing custom part files will be deleted and regenerated.\n"
-                            "Warning: Only custom part files for the currently loaded model file will be updated in %1.")
-                            .arg(VER_LPUB3D_UNOFFICIAL_ARCHIVE);
+  QString message = QString("Fade and highlight parts in %1 will be deleted. The current model parts will be regenerated. "
+                            "Regenerated files will be updated in %2.")
+                            .arg(Paths::customDir)
+                            .arg(Preferences::validLDrawCustomArchive);
   if (silent || !Preferences::modeGUI) {
       emit messageSig(LOG_INFO,message);
   } else {
       ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
-                                 tr("%1\nDo you want to delete the custom file cache?").arg(message),
+                                 tr("%1 Do you want to delete the custom file cache?").arg(message),
                                  QMessageBox::Yes | QMessageBox::Discard | QMessageBox::Cancel);
   }
 
@@ -1113,8 +1126,9 @@ void Gui::clearCustomPartCache(bool silent)
   QString dirName = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customDir));
 
   int count = 0;
+  emit messageSig(LOG_INFO,QString("-Removing folder %1").arg(dirName));
   if (removeDir(count, dirName)){
-      emit messageSig(LOG_STATUS,QString("Custom parts cache cleaned.  %1 %2 removed.")
+      emit messageSig(LOG_INFO,QString("Custom parts cache cleaned.  %1 %2 removed.")
                                          .arg(count)
                                          .arg(count == 1 ? "item": "items"));
   } else {
@@ -1151,12 +1165,12 @@ void Gui::clearPLICache()
         QFile     file(dirName + "/" + fileInfo.fileName());
         if (!file.remove()) {
             emit messageSig(LOG_ERROR,QString("Unable to remove %1")
-                                              .arg(dirName + "/" + fileInfo.fileName()));
-            count--;
-          } else
-          count++;
-      }
-
+                            .arg(dirName + "/" + fileInfo.fileName()));
+        } else {
+            emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.absolutePath()));
+            count++;
+        }
+    }
     emit messageSig(LOG_STATUS,QString("Parts content cache cleaned. %1 items removed.").arg(count));
 }
 
@@ -1179,11 +1193,12 @@ void Gui::clearCSICache()
         QFile     file(dirName + "/" + fileInfo.fileName());
         if (!file.remove()) {
             emit messageSig(LOG_ERROR,QString("Unable to remove %1")
-                                              .arg(dirName + "/" + fileInfo.fileName()));
-            count--;
-          } else
-          count++;
-      }
+                            .arg(dirName + "/" + fileInfo.fileName()));
+        } else {
+            emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.absolutePath()));
+            count++;
+        }
+    }
 
     emit messageSig(LOG_STATUS,QString("Assembly content cache cleaned. %1 items removed.").arg(count));
 }
@@ -1208,9 +1223,10 @@ void Gui::clearTempCache()
         if (!file.remove()) {
             emit messageSig(LOG_ERROR,QString("Unable to remove %1")
                                               .arg(tmpDirName + "/" + fileInfo.fileName()));
-            count1--;
-          } else
-          count1++;
+          } else {
+            emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.absolutePath()));
+            count1++;
+        }
       }
 
     ldrawFile.tempCacheCleared();
@@ -1224,20 +1240,25 @@ bool Gui::removeDir(int &count, const QString & dirName)
     QDir dir(dirName);
 
     if (dir.exists(dirName)) {
-        Q_FOREACH(QFileInfo info, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::AllDirs | QDir::Files, QDir::DirsFirst)) {
+        QList<QFileInfo> entryInfoList = dir.entryInfoList(QDir::NoDotAndDotDot | QDir::AllDirs | QDir::Files, QDir::DirsFirst);
+        Q_FOREACH(QFileInfo info, entryInfoList) {
             if (info.isDir()) {
-                result = removeDir(count,info.absoluteFilePath());
+                QString subDir = info.absoluteFilePath();
+                result = removeDir(count,subDir);
             }
-            else {
-                result = QFile::remove(info.absoluteFilePath());
-                count++;
+            else
+            if (info.isFile()){
+                if ((result = QFile::remove(info.absoluteFilePath()))) {
+                    emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(info.absoluteFilePath()));
+                    count++;
+                }
             }
-
             if (!result) {
                 return result;
             }
         }
-        result = dir.rmdir(dirName);
+        if ((result = dir.rmdir(dir.absolutePath())))
+            emit messageSig(LOG_TRACE,QString("-Folder %1 cleaned").arg(dir.absolutePath()));
     }
     return result;
 }

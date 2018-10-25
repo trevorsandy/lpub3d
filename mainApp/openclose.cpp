@@ -368,7 +368,7 @@ void Gui::openFile(QString &fileName)
   undoStack->setClean();
   curFile = fileName;
   insertFinalModel();    //insert final fully coloured model if fadeStep turned on
-  generateCoverPages();  //autogenerate cover page
+  generateCoverPages();  //auto-generate cover page
 
 #ifdef WATCHER
   if (isMpd()) {

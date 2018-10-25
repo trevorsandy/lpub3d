@@ -189,11 +189,11 @@ int Gui::processCommandLine()
           return 1;
       }
       if (Preferences::preferredRenderer != renderer) {
-          QString message = QString("Renderer preference changed from %1 to %2 %3.")
+          QString message = QString("Renderer preference changed from %1 to %2%3.")
                             .arg(Preferences::preferredRenderer)
                             .arg(renderer)
-                            .arg(renderer == RENDERER_POVRAY ? QString("(POV file generator is %1)").arg(Preferences::povFileGenerator) :
-                                 renderer == RENDERER_LDVIEW ? Preferences::enableLDViewSingleCall ? "(Single Call)" : "" : "");
+                            .arg(renderer == RENDERER_POVRAY ? QString(" (POV file generator is %1)").arg(Preferences::povFileGenerator) :
+                                 renderer == RENDERER_LDVIEW ? Preferences::enableLDViewSingleCall ? " (Single Call)" : "" : "");
           emit messageSig(LOG_INFO,message);
           Preferences::preferredRenderer = renderer;
           Render::setRenderer(Preferences::preferredRenderer);
@@ -316,11 +316,15 @@ int Gui::processCommandLine()
 
   QElapsedTimer commandTimer;
   if (!commandlineFile.isEmpty()) {
+      if(resetCache) {
+          emit messageSig(LOG_INFO,QString("Reset cache specified. This function is destructive!"));
+          resetModelCache(QFileInfo(commandlineFile).absoluteFilePath());
+      }
       commandTimer.start();
       if (!loadFile(commandlineFile)) {
           return 1;
-        }
-    }
+      }
+  }
 
   if (processPageRange(pageRange)) {
       if (processFile){

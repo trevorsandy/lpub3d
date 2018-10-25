@@ -46,12 +46,12 @@ QString Paths::logsDir    = "logs";
 QString Paths::extrasDir  = "extras";
 QString Paths::libraryDir = "libraries";
 
-QString Paths::customDir       = "";
-QString Paths::customPartDir   = "";
-QString Paths::customSubDir    = "";
-QString Paths::customPrimDir   = "";
-QString Paths::customPrim8Dir  = "";
-QString Paths::customPrim48Dir = "";
+QString Paths::customDir       = QString();
+QString Paths::customPartDir   = QString();
+QString Paths::customSubDir    = QString();
+QString Paths::customPrimDir   = QString();
+QString Paths::customPrim8Dir  = QString();
+QString Paths::customPrim48Dir = QString();
 
 QStringList Paths::customDirs;
 
