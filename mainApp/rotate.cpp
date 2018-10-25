@@ -180,8 +180,6 @@ int Render::rotateParts(
   gui->messageSig(LOG_DEBUG,QString("ROTSTEP command: %1").arg(rotsComment));
 
   QTextStream out(&file);
-  out << rotsComment << endl;
-
   if (nativeRenderer) {
       QString _modelName = QFileInfo(modelName).baseName().toLower();
       _modelName = _modelName.replace(_modelName.at(0),_modelName.at(0).toUpper());
@@ -189,6 +187,7 @@ int Render::rotateParts(
       out << QString("0 Name: %1").arg(modelName) << endl;
       out << QString("0 !LEOCAD MODEL NAME %1").arg(_modelName) << endl;
   }
+  out << rotsComment << endl;
 
   for (int i = 0; i < rotatedParts.size(); i++) {
     QString line = rotatedParts[i];

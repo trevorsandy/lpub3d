@@ -505,9 +505,14 @@ void lcPartSelectionListView::CustomContextMenuRequested(QPoint Pos)
 		ListMode->setCheckable(true);
 		ListMode->setChecked(mListModel->IsListMode());
 
+        /*** LPub3D Mod - Disable preview color lock ***/
+        /*
 		QAction* FixedColor = Menu->addAction(tr("Lock Preview Color"), this, SLOT(ToggleFixedColor()));
 		FixedColor->setCheckable(true);
 		FixedColor->setChecked(mListModel->IsColorLocked());
+        FixedColor->setDisabled(true);
+        */
+        /*** LPub3D Mod end ***/
 	}
 
 	Menu->popup(viewport()->mapToGlobal(Pos));

@@ -2513,7 +2513,7 @@ void Gui::writeToTmp(const QString &fileName,
 
 void Gui::writeToTmp()
 {
-  if (! exporting()) {
+  if (Preferences::modeGUI && ! exporting()) {
       emit progressBarPermInitSig();
       emit progressPermRangeSig(1, ldrawFile._subFileOrder.size());
       emit progressPermMessageSig("Writing submodels...");
@@ -2582,11 +2582,10 @@ void Gui::writeToTmp()
       }
   }
 
-  if (! exporting()) {
-      emit progressPermMessageSig("Rendering submodel images...");
-  }
-
   if (Preferences::modeGUI && !subModelImagesLoaded) {
+      if (Preferences::modeGUI && ! exporting())
+          emit progressPermSetValueSig(ldrawFile._subFileOrder.size());
+
       // generate submodel images...
       emit messageSig(LOG_INFO_STATUS, "Creating submodel images in parts subfolder...");
       Pli pli;
@@ -2595,9 +2594,10 @@ void Gui::writeToTmp()
           gMainWindow->mSubModelPieceIconsLoaded = subModelImagesLoaded = true;
       else
           emit messageSig(LOG_ERROR, "Could not create submodel images in parts subfolder...");
-  }
-
-  if (! exporting()) {
+      if (Preferences::modeGUI && ! exporting())
+          emit progressPermStatusRemoveSig();
+  } else
+  if (Preferences::modeGUI && ! exporting()) {
       emit progressPermSetValueSig(ldrawFile._subFileOrder.size());
       emit progressPermStatusRemoveSig();
     }

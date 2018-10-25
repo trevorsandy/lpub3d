@@ -668,7 +668,7 @@ bool lcApplication::Initialize(QList<QPair<QString, bool>>& LibraryPaths, QMainW
 
     if (ShowWindow)
     {
-        gMainWindow->SetColorIndex(lcGetColorIndex(4));
+        gMainWindow->SetColorIndex(lcGetColorIndex(7)); // was 4 (Red)
         gMainWindow->GetPartSelectionWidget()->SetDefaultPart();
 /*** LPub3D Mod - suppress recent files and mainwindow show ***/
 //        gMainWindow->UpdateRecentFiles();

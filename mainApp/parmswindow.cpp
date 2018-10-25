@@ -147,8 +147,8 @@ void ParmsWindow::createActions()
     connect(redoAct, SIGNAL(triggered()), _textEdit, SLOT(redo()));
 
     openAct->setVisible(false);
-    refreshAct->setVisible(false);
 
+    refreshAct->setVisible(false);
     saveAct->setEnabled(false);
     cutAct->setEnabled(false);
     copyAct->setEnabled(false);
@@ -204,8 +204,6 @@ void ParmsWindow::displayParmsFile(
     // Automatically hide open file action - show for logs only
     if (openAct->isVisible())
       openAct->setVisible(false);
-    if (refreshAct->isVisible())
-      refreshAct->setVisible(false);
 
     fileName = _fileName;
 
@@ -336,6 +334,7 @@ void ParmsWindow::displayParmsFile(
     QApplication::restoreOverrideCursor();
 #endif
 
+    refreshAct->setVisible(true);
     selAllAct->setEnabled(true);
     findAct->setEnabled(true);
     topAct->setEnabled(true);
@@ -494,8 +493,6 @@ void ParmsWindow::viewLogWindowSettings(){
 
   if (! openAct->isVisible())
     openAct->setVisible(true);
-  if (! refreshAct->isVisible())
-    refreshAct->setVisible(true);
 
   disconnect(delAct, SIGNAL(triggered()),
              _textEdit, SLOT(cut()));

@@ -500,7 +500,16 @@ int Pli::createPartImages()
 
     } else {
 
+        if (Preferences::modeGUI && ! gui->exporting()) {
+            emit gui->progressPermResetSig();
+            emit gui->progressPermMessageSig("Rendering submodel images...");
+            emit gui->progressPermRangeSig(1, gui->fileList().size());
+          }
+
         for (int i = 0; i < gui->fileList().size(); i++) {
+
+            if (Preferences::modeGUI && ! gui->exporting())
+                emit gui->progressPermSetValueSig(i);
 
             QString type = gui->fileList()[i].toLower();
 
@@ -509,6 +518,9 @@ int Pli::createPartImages()
             if ((rc = createPartImage(key,type,color,nullptr)) != 0) {
                 emit gui->messageSig(LOG_ERROR, QString("Failed to create PLI part image for key %1").arg(key));
             }
+        }
+        if (Preferences::modeGUI && ! gui->exporting()) {
+          emit gui->progressPermSetValueSig(gui->fileList().size());
         }
 
     }
@@ -1629,7 +1641,16 @@ int Pli::partSizeLDViewSCall() {
         }
     }            // for every part
 
+    if (isSubModel && Preferences::modeGUI && ! gui->exporting()) {
+        emit gui->progressPermResetSig();
+        emit gui->progressPermMessageSig("Rendering submodel images...");
+        emit gui->progressPermRangeSig(1, ptn.size());
+    }
+
     for (int pT = 0; pT < ptn.size(); pT++ ) {   // for every part type
+
+        if (isSubModel && Preferences::modeGUI && ! gui->exporting())
+            emit gui->progressPermSetValueSig(pT);
 
 #ifdef QT_DEBUG_MODE
         QString CurrentPartType = PartTypeNames[pT];
@@ -1662,6 +1683,10 @@ int Pli::partSizeLDViewSCall() {
                                      .arg(timer.elapsed())
                                      .arg(ia.ldrNames[pT].size())
                                      .arg(ia.ldrNames[pT].size() == 1 ? "image" : "images")));
+    }
+
+    if (isSubModel && Preferences::modeGUI && ! gui->exporting()) {
+      emit gui->progressPermSetValueSig(ptn.size());
     }
 
     if (rc != 0)
