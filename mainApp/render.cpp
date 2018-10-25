@@ -53,6 +53,7 @@
 #include "project.h"
 #include "pieceinf.h"
 #include "view.h"
+#include "lc_partselectionwidget.h"
 
 #ifdef Q_OS_WIN
 #include <Windows.h>
@@ -1615,6 +1616,8 @@ bool Render::LoadViewer(const ViewerOptions &Options){
     gui->setViewerCsiKey(viewerCsiKey);
 
     View* ActiveView = gMainWindow->GetActiveView();
+
+    gMainWindow->GetPartSelectionWidget()->SetDefaultPart();
 
     if (gApplication->mPreferences.mNativeViewpoint <= 6) {// ViewPoints (Front, Back, Top, Bottom, Left, Right, Home)
         ActiveView->SetViewpoint((lcViewpoint)gApplication->mPreferences.mNativeViewpoint);

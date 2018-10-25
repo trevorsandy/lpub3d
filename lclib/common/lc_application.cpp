@@ -668,8 +668,12 @@ bool lcApplication::Initialize(QList<QPair<QString, bool>>& LibraryPaths, QMainW
 
     if (ShowWindow)
     {
+/*** LPub3D Mod - set default part lookup color ***/
         gMainWindow->SetColorIndex(lcGetColorIndex(7)); // was 4 (Red)
-        gMainWindow->GetPartSelectionWidget()->SetDefaultPart();
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - moved to Render::LoadViewer(const ViewerOptions &Options) ***/
+//        gMainWindow->GetPartSelectionWidget()->SetDefaultPart();
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - suppress recent files and mainwindow show ***/
 //        gMainWindow->UpdateRecentFiles();
 //        gMainWindow->show();

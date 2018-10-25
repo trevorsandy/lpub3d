@@ -780,8 +780,9 @@ void lcPartSelectionWidget::SetDefaultPart()
 	for (int CategoryIdx = 0; CategoryIdx < mCategoriesWidget->topLevelItemCount(); CategoryIdx++)
 	{
 		QTreeWidgetItem* CategoryItem = mCategoriesWidget->topLevelItem(CategoryIdx);
-
-		if (CategoryItem->text(0) == "Brick")
+/*** LPub3D Mod - Set part lookup default ***/
+        if (CategoryItem->text(0) == "Parts In Use") // was Brick
+/*** LPub3D Mod end ***/
 		{
 			mCategoriesWidget->setCurrentItem(CategoryItem);
 			break;
@@ -797,11 +798,12 @@ void lcPartSelectionWidget::UpdateCategories()
 
 	mAllPartsCategoryItem = new QTreeWidgetItem(mCategoriesWidget, QStringList(tr("All Parts")));
 	mCurrentModelCategoryItem = new QTreeWidgetItem(mCategoriesWidget, QStringList(tr("Parts In Use")));
+/*** LPub3D Mod - Set part lookup default, moved from after gCategories ***/
+    mModelsCategoryItem = new QTreeWidgetItem(mCategoriesWidget, QStringList(tr("Submodels")));
+/*** LPub3D Mod end ***/
 
 	for (int CategoryIdx = 0; CategoryIdx < gCategories.GetSize(); CategoryIdx++)
 		new QTreeWidgetItem(mCategoriesWidget, QStringList(gCategories[CategoryIdx].Name));
-
-	mModelsCategoryItem = new QTreeWidgetItem(mCategoriesWidget, QStringList(tr("Submodels")));
 
 	if (CurrentIndex != -1)
 		mCategoriesWidget->setCurrentItem(mCategoriesWidget->topLevelItem(CurrentIndex));
