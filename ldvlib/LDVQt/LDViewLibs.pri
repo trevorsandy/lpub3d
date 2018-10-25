@@ -30,6 +30,7 @@ contains(LOAD_LDVHEADERS,True) {
     }
 
     LDVHDRDIR = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/include )
+    LDVSRCDIR = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW )
 
 #    message("~~~ lib$${TARGET} Headers path: $$LDVINCLUDE ~~~ ")
 #    message("~~~ lib$${TARGET} Headers source: $$LDVHDRDIR ~~~ ")
@@ -89,7 +90,7 @@ contains(LOAD_LDVLIBS,True) {
 
         # library name
         LDLIB_LIB         = -lLDLib
-        LDEXPORTER_LIB 	  = -lLDExporter
+        LDEXPORTER_LIB    = -lLDExporter
         LDLOADER_LIB      = -lLDLoader
         TRE_LIB           = -lTRE
         TCFOUNDATION_LIB  = -lTCFoundation
@@ -104,7 +105,7 @@ contains(LOAD_LDVLIBS,True) {
 
         # local library paths
         LDLIB_DEP         = $$system_path( $${LDVLIBRARY}/LDLib.lib )
-        LDEXPORTER_DEP 	  = $$system_path( $${LDVLIBRARY}/LDExporter.lib )
+        LDEXPORTER_DEP    = $$system_path( $${LDVLIBRARY}/LDExporter.lib )
         LDLOADER_DEP      = $$system_path( $${LDVLIBRARY}/LDLoader.lib )
         TRE_DEP           = $$system_path( $${LDVLIBRARY}/TRE.lib )
         TCFOUNDATION_DEP  = $$system_path( $${LDVLIBRARY}/TCFoundation.lib )
@@ -138,7 +139,7 @@ contains(LOAD_LDVLIBS,True) {
 
         # library name
         LDLIB_LIB        = -lLDraw-osmesa
-        LDEXPORTER_LIB 	 = -lLDExporter-osmesa
+        LDEXPORTER_LIB   = -lLDExporter-osmesa
         LDLOADER_LIB     = -lLDLoader-osmesa
         TRE_LIB          = -lTRE-osmesa
         TCFOUNDATION_LIB = -lTCFoundation-osmesa
@@ -153,7 +154,7 @@ contains(LOAD_LDVLIBS,True) {
 
         # local paths
         LDLIB_DEP        = $$system_path( $${LDVLIBRARY}/libLDraw-osmesa.a )
-        LDEXPORTER_DEP 	 = $$system_path( $${LDVLIBRARY}/libLDExporter-osmesa.a )
+        LDEXPORTER_DEP   = $$system_path( $${LDVLIBRARY}/libLDExporter-osmesa.a )
         LDLOADER_DEP     = $$system_path( $${LDVLIBRARY}/libLDLoader-osmesa.a )
         TRE_DEP          = $$system_path( $${LDVLIBRARY}/libTRE-osmesa.a )
         TCFOUNDATION_DEP = $$system_path( $${LDVLIBRARY}/libTCFoundation-osmesa.a )
@@ -189,107 +190,123 @@ contains(LOAD_LDVLIBS,True) {
     !exists($${_ZLIB_DEP}):  USE_LOCAL_ZLIB_LIB = False
 #    else:message("~~~ Local z library $${_ZLIB_DEP} detected ~~~")
 
-    # Copy libraries from LDView
-    LDLIB_LIB_cmd             = $$COPY_CMD $${_LDLIB_DEP} $${LDVLIBRARY}
-    LDEXPORTER_LIB_cmd        = $$COPY_CMD $${_LDEXPORTER_DEP} $${LDVLIBRARY}
-    LDLOADER_LIB_cmd          = $$COPY_CMD $${_LDLOADER_DEP} $${LDVLIBRARY}
-    TRE_LIB_cmd               = $$COPY_CMD $${_TRE_DEP} $${LDVLIBRARY}
-    TCFOUNDATION_LIB_cmd      = $$COPY_CMD $${_TCFOUNDATION_DEP} $${LDVLIBRARY}
-
-    TINYXML_LIB_cmd           = $$COPY_CMD $${_TINYXML_DEP} $${LDVLIBRARY}
-    GL2PS_LIB_cmd             = $$COPY_CMD $${_GL2PS_DEP} $${LDVLIBRARY}
-    3DS_LIB_cmd               = $$COPY_CMD $${_3DS_DEP} $${LDVLIBRARY}
-    MINIZIP_LIB_cmd           = $$COPY_CMD $${_MINIZIP_DEP} $${LDVLIBRARY}
-    PNG_LIB_cmd               = $$COPY_CMD $${_PNG_DEP} $${LDVLIBRARY}
-    JPEG_LIB_cmd              = $$COPY_CMD $${_JPEG_DEP} $${LDVLIBRARY}
-    ZLIB_LIB_cmd              = $$COPY_CMD $${_ZLIB_DEP} $${LDVLIBRARY}
-
-    LDLib_lib.target          = $$LDLIB_DEP
-    LDLib_lib.commands        = $$LDLIB_LIB_cmd
-    LDLib_lib.depends         = LDLib_lib_msg LDExporter_lib
-    LDLib_lib_msg.commands    = @echo Copying LDLib library...
-
-    LDExporter_lib.target     = $$LDEXPORTER_DEP
-    LDExporter_lib.commands   = $$LDEXPORTER_LIB_cmd
-    LDExporter_lib.depends    = LDExporter_lib_msg LDLoader_lib
-    LDExporter_lib_msg.commands = @echo Copying LDExporter library...
-
-    LDLoader_lib.target       = $$LDLOADER_DEP
-    LDLoader_lib.commands     = $$LDLOADER_LIB_cmd
-    LDLoader_lib.depends      = LDLoader_lib_msg TRE_lib
-    LDLoader_lib_msg.commands = @echo Copying LDLoader library...
-
-    TRE_lib.target            = $$TRE_DEP
-    TRE_lib.commands          = $$TRE_LIB_cmd
-    TRE_lib.depends           = TRE_lib_msg TCFoundation_lib
-    TRE_lib_msg.commands      = @echo Copying TRE library...
-
-    TCFoundation_lib.target   = $$TCFOUNDATION_DEP
-    TCFoundation_lib.commands = $$TCFOUNDATION_LIB_cmd
-    TCFoundation_lib.depends  = TCFoundation_lib_msg
-    TCFoundation_lib_msg.commands = @echo Copying TCFoundation library...
-
-    QMAKE_EXTRA_TARGETS += \
-        LDLib_lib LDLib_lib_msg \
-        LDExporter_lib LDExporter_lib_msg \
-        LDLoader_lib LDLoader_lib_msg \
-        TRE_lib TRE_lib_msg \
-        TCFoundation_lib TCFoundation_lib_msg
-
-    if (!contains(USE_LOCAL_TINYXML_LIB,False)) {
-      Tinyxml_lib.target       = $$TINYXML_DEP
-      Tinyxml_lib.commands     = $$TINYXML_LIB_cmd
-      Tinyxml_lib.depends      = Tinyxml_lib_msg
-      Tinyxml_lib_msg.commands = @echo Copying Tinyxml library...
-      QMAKE_EXTRA_TARGETS     += Tinyxml_lib Tinyxml_lib_msg
-    }
-
-    if (!contains(USE_LOCAL_GL2PS_LIB,False)) {
-      Gl2ps_lib.target       = $$GL2PS_DEP
-      Gl2ps_lib.commands     = $$GL2PS_LIB_cmd
-      Gl2ps_lib.depends      = Gl2ps_lib_msg
-      Gl2ps_lib_msg.commands = @echo Copying Gl2ps library...
-      QMAKE_EXTRA_TARGETS   += Gl2ps_lib Gl2ps_lib_msg
-    }
-
-    if (!contains(USE_LOCAL_3DS_LIB,False)) {
-      3ds_lib.target       = $$3DS_DEP
-      3ds_lib.commands     = $$3DS_LIB_cmd
-      3ds_lib.depends      = 3ds_lib_msg
-      3ds_lib_msg.commands = @echo Copying 3ds library...
-      QMAKE_EXTRA_TARGETS += 3ds_lib 3ds_lib_msg
-    }
-
-    if (!contains(USE_LOCAL_MINIZIP_LIB,False):!contains(IS_LINUX,True)) {
-      Minizip_lib.target       = $$MINIZIP_DEP
-      Minizip_lib.commands     = $$MINIZIP_LIB_cmd
-      Minizip_lib.depends      = Minizip_lib_msg
-      Minizip_lib_msg.commands = @echo Copying Minizip library...
-      QMAKE_EXTRA_TARGETS     += Minizip_lib Minizip_lib_msg
-    }
-
-    if (!contains(USE_LOCAL_PNG_LIB,False)) {
-      Png_lib.target       = $$PNG_DEP
-      Png_lib.commands     = $$PNG_LIB_cmd
-      Png_lib.depends      = Png_lib_msg
-      Png_lib_msg.commands = @echo Copying Png library...
-      QMAKE_EXTRA_TARGETS += Png_lib Png_lib_msg
-    }
-
-    if (!contains(USE_LOCAL_JPEG_LIB,False)) {
-      Jpeg_lib.target       = $$JPEG_DEP
-      Jpeg_lib.commands     = $$JPEG_LIB_cmd
-      Jpeg_lib.depends      = Jpeg_lib_msg
-      Jpeg_lib_msg.commands = @echo Copying Jpeg library...
-      QMAKE_EXTRA_TARGETS  += Jpeg_lib Jpeg_lib_msg
-    }
-
-    if (!contains(USE_LOCAL_ZLIB_LIB,False)) {
-      Zlib_lib.target       = $$ZLIB_DEP
-      Zlib_lib.commands     = $$ZLIB_LIB_cmd
-      Zlib_lib.depends      = Zlib_lib_msg
-      Zlib_lib_msg.commands = @echo Copying Zlib library...
-      QMAKE_EXTRA_TARGETS  += Zlib_lib Zlib_lib_msg
+contains(DO_COPY_LDVLIBS,True) {
+        # Copy libraries from LDView
+        LDLIB_LIB_cmd             = $$COPY_CMD $${_LDLIB_DEP} $${LDVLIBRARY}
+        LDEXPORTER_LIB_cmd        = $$COPY_CMD $${_LDEXPORTER_DEP} $${LDVLIBRARY}
+        LDLOADER_LIB_cmd          = $$COPY_CMD $${_LDLOADER_DEP} $${LDVLIBRARY}
+        TRE_LIB_cmd               = $$COPY_CMD $${_TRE_DEP} $${LDVLIBRARY}
+        TCFOUNDATION_LIB_cmd      = $$COPY_CMD $${_TCFOUNDATION_DEP} $${LDVLIBRARY}
+    
+        TINYXML_LIB_cmd           = $$COPY_CMD $${_TINYXML_DEP} $${LDVLIBRARY}
+        GL2PS_LIB_cmd             = $$COPY_CMD $${_GL2PS_DEP} $${LDVLIBRARY}
+        3DS_LIB_cmd               = $$COPY_CMD $${_3DS_DEP} $${LDVLIBRARY}
+        MINIZIP_LIB_cmd           = $$COPY_CMD $${_MINIZIP_DEP} $${LDVLIBRARY}
+        PNG_LIB_cmd               = $$COPY_CMD $${_PNG_DEP} $${LDVLIBRARY}
+        JPEG_LIB_cmd              = $$COPY_CMD $${_JPEG_DEP} $${LDVLIBRARY}
+        ZLIB_LIB_cmd              = $$COPY_CMD $${_ZLIB_DEP} $${LDVLIBRARY}
+    
+        LDLib_lib.target          = $$LDLIB_DEP
+        LDLib_lib.commands        = $$LDLIB_LIB_cmd
+        LDLib_lib.depends         = LDLib_lib_msg LDExporter_lib
+        LDLib_lib_msg.commands    = @echo Copying LDLib library...
+    
+        LDExporter_lib.target     = $$LDEXPORTER_DEP
+        LDExporter_lib.commands   = $$LDEXPORTER_LIB_cmd
+        LDExporter_lib.depends    = LDExporter_lib_msg LDLoader_lib
+        LDExporter_lib_msg.commands = @echo Copying LDExporter library...
+    
+        LDLoader_lib.target       = $$LDLOADER_DEP
+        LDLoader_lib.commands     = $$LDLOADER_LIB_cmd
+        LDLoader_lib.depends      = LDLoader_lib_msg TRE_lib
+        LDLoader_lib_msg.commands = @echo Copying LDLoader library...
+    
+        TRE_lib.target            = $$TRE_DEP
+        TRE_lib.commands          = $$TRE_LIB_cmd
+        TRE_lib.depends           = TRE_lib_msg TCFoundation_lib
+        TRE_lib_msg.commands      = @echo Copying TRE library...
+    
+        TCFoundation_lib.target   = $$TCFOUNDATION_DEP
+        TCFoundation_lib.commands = $$TCFOUNDATION_LIB_cmd
+        TCFoundation_lib.depends  = TCFoundation_lib_msg
+        TCFoundation_lib_msg.commands = @echo Copying TCFoundation library...
+    
+        QMAKE_EXTRA_TARGETS += \
+            LDLib_lib LDLib_lib_msg \
+            LDExporter_lib LDExporter_lib_msg \
+            LDLoader_lib LDLoader_lib_msg \
+            TRE_lib TRE_lib_msg \
+            TCFoundation_lib TCFoundation_lib_msg
+    
+        if (!contains(USE_LOCAL_TINYXML_LIB,False)) {
+        Tinyxml_lib.target       = $$TINYXML_DEP
+        Tinyxml_lib.commands     = $$TINYXML_LIB_cmd
+        Tinyxml_lib.depends      = Tinyxml_lib_msg
+        Tinyxml_lib_msg.commands = @echo Copying Tinyxml library...
+        QMAKE_EXTRA_TARGETS     += Tinyxml_lib Tinyxml_lib_msg
+        }
+    
+        if (!contains(USE_LOCAL_GL2PS_LIB,False)) {
+        Gl2ps_lib.target       = $$GL2PS_DEP
+        Gl2ps_lib.commands     = $$GL2PS_LIB_cmd
+        Gl2ps_lib.depends      = Gl2ps_lib_msg
+        Gl2ps_lib_msg.commands = @echo Copying Gl2ps library...
+        QMAKE_EXTRA_TARGETS   += Gl2ps_lib Gl2ps_lib_msg
+        }
+    
+        if (!contains(USE_LOCAL_3DS_LIB,False)) {
+        3ds_lib.target       = $$3DS_DEP
+        3ds_lib.commands     = $$3DS_LIB_cmd
+        3ds_lib.depends      = 3ds_lib_msg
+        3ds_lib_msg.commands = @echo Copying 3ds library...
+        QMAKE_EXTRA_TARGETS += 3ds_lib 3ds_lib_msg
+        }
+    
+        if (!contains(USE_LOCAL_MINIZIP_LIB,False):!contains(IS_LINUX,True)) {
+        Minizip_lib.target       = $$MINIZIP_DEP
+        Minizip_lib.commands     = $$MINIZIP_LIB_cmd
+        Minizip_lib.depends      = Minizip_lib_msg
+        Minizip_lib_msg.commands = @echo Copying Minizip library...
+        QMAKE_EXTRA_TARGETS     += Minizip_lib Minizip_lib_msg
+        }
+    
+        if (!contains(USE_LOCAL_PNG_LIB,False)) {
+        Png_lib.target       = $$PNG_DEP
+        Png_lib.commands     = $$PNG_LIB_cmd
+        Png_lib.depends      = Png_lib_msg
+        Png_lib_msg.commands = @echo Copying Png library...
+        QMAKE_EXTRA_TARGETS += Png_lib Png_lib_msg
+        }
+    
+        if (!contains(USE_LOCAL_JPEG_LIB,False)) {
+        Jpeg_lib.target       = $$JPEG_DEP
+        Jpeg_lib.commands     = $$JPEG_LIB_cmd
+        Jpeg_lib.depends      = Jpeg_lib_msg
+        Jpeg_lib_msg.commands = @echo Copying Jpeg library...
+        QMAKE_EXTRA_TARGETS  += Jpeg_lib Jpeg_lib_msg
+        }
+    
+        if (!contains(USE_LOCAL_ZLIB_LIB,False)) {
+        Zlib_lib.target       = $$ZLIB_DEP
+        Zlib_lib.commands     = $$ZLIB_LIB_cmd
+        Zlib_lib.depends      = Zlib_lib_msg
+        Zlib_lib_msg.commands = @echo Copying Zlib library...
+        QMAKE_EXTRA_TARGETS  += Zlib_lib Zlib_lib_msg
+        }
+        
+        PRE_TARGETDEPS += \
+        $${LDLIB_DEP} \
+        $${LDEXPORTER_DEP} \
+        $${LDLOADER_DEP} \
+        $${TRE_DEP} \
+        $${TCFOUNDATION_DEP}
+        
+        QMAKE_CLEAN += \
+        $${LDLIB_DEP} \
+        $${LDEXPORTER_DEP} \
+        $${LDLOADER_DEP} \
+        $${TRE_DEP} \
+        $${TCFOUNDATION_DEP}
     }
 
     LIBS += \
@@ -298,20 +315,6 @@ contains(LOAD_LDVLIBS,True) {
         $${LDLOADER_LIB} \
         $${TRE_LIB} \
         $${TCFOUNDATION_LIB}
-
-    PRE_TARGETDEPS += \
-        $${LDLIB_DEP} \
-        $${LDEXPORTER_DEP} \
-        $${LDLOADER_DEP} \
-        $${TRE_DEP} \
-        $${TCFOUNDATION_DEP}
-
-    QMAKE_CLEAN += \
-        $${LDLIB_DEP} \
-        $${LDEXPORTER_DEP} \
-        $${LDLOADER_DEP} \
-        $${TRE_DEP} \
-        $${TCFOUNDATION_DEP}
 
     # 3rd party libraries should come after main libraries
 

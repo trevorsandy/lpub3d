@@ -3086,15 +3086,18 @@ bool Preferences::copyRecursively(const QString &srcFilePath,
 void Preferences::nativePovGenPreferences()
 {
 
-  emit Application::instance()->splashMsgSig("25% - NativePOV default settings...");
+    emit Application::instance()->splashMsgSig("25% - NativePOV settings...");
 
     QSettings Settings;
 
+    ldvLights = LIGHTS_COMBO_DEFAULT;
     if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"LDVLights"))) {
-            QVariant cValue(LIGHTS_COMBO_DEFAULT);
-            ldvLights = LIGHTS_COMBO_DEFAULT;
-            Settings.setValue(QString("%1/%2").arg(POVRAY,"LDVLights"),cValue);
+        Settings.setValue(QString("%1/%2").arg(POVRAY,"LDVLights"),ldvLights);
     } else {
-            ldvLights = Settings.value(QString("%1/%2").arg(POVRAY,"LDVLights")).toString();
+        ldvLights = Settings.value(QString("%1/%2").arg(POVRAY,"LDVLights")).toString();
+        if (ldvLights.isEmpty()) {
+            ldvLights = LIGHTS_COMBO_DEFAULT;
+            Settings.setValue(QString("%1/%2").arg(POVRAY,"LDVLights"),ldvLights);
+        }
     }
 }

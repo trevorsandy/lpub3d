@@ -40,10 +40,6 @@ if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarc
     LIB_ARCH =
 }
 
-# Setup LDVQt headers
-LOAD_LDVHEADERS = True
-include(LDViewLibs.pri)
-
 unix: !macx: TARGET = ldvqt
 else:        TARGET = LDVQt
 
@@ -69,13 +65,22 @@ CONFIG(debug, debug|release) {
     macx: TARGET = $$join(TARGET,,,_debug)
     win32: TARGET = $$join(TARGET,,,d$${VER_MAJ}$${VER_MIN})
     unix:!macx: TARGET = $$join(TARGET,,,d)
+    # The next 4 lines adds the LDView source files in my local Dev env
+    ADD_LDV_SOURCE_FILES = True
+    LOAD_LDVHEADERS      = #True
+    VER_LDVSRC           = ldview_vsbuild
+    LDVSRCPATH           = $$system_path( $$absolute_path( $$PWD/../../../$${VER_LDVSRC} ) )
 } else {
     BUILD_CONF = Release
     ARCH_BLD = bit_release
     win32: TARGET = $$join(TARGET,,,$${VER_MAJ}$${VER_MIN})
+    LOAD_LDVHEADERS = True
 }
 BUILD += $$BUILD_CONF Build
 DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
+
+contains(LOAD_LDVHEADERS,True): \
+include(LDViewLibs.pri)
 
 message("~~~ lib$${TARGET} $$join(ARCH,,,bit) $$BUILD_ARCH $${BUILD} ~~~")
 
@@ -166,6 +171,18 @@ HEADERS += \
 FORMS += \
     $$PWD/LDVExportOptionPanel.ui \
     $$PWD/LDVPreferencesPanel.ui
+
+OTHER_FILES += \
+    $$PWD/../../mainApp/extras/LDVMessages.ini
+
+# These includes are only processed in debug mode
+win32-msvc*:contains(ADD_LDV_SOURCE_FILES,True) {
+    include(include/LDExporter/LDExporter.pri)
+    include(include/LDLib/LDLib.pri)
+    include(include/LDLoader/LDLoader.pri)
+    include(include/TCFoundation/TCFoundation.pri)
+    include(include/TRE/TRE.pri)
+}
 
 # suppress warnings
 !win32-msvc* {

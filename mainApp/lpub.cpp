@@ -1548,76 +1548,125 @@ void Gui::preferences()
     QString displayThemeCompare         = Preferences::displayTheme;
 
     // Native POV file generation settings
-    QString selectedAspectRatioCompare;
-    switch (int(TCUserDefaults::longForKey(SELECTED_ASPECT_RATIO_KEY, SELECTED_ASPECT_RATIO_DEFAULT)))
-    {
-    case -1:
-        selectedAspectRatioCompare = ASPECT_RATIO_0;
-        break;
-    case 0:
-        selectedAspectRatioCompare = ASPECT_RATIO_1;
-        break;
-    case 2:
-        selectedAspectRatioCompare = ASPECT_RATIO_2;
-        break;
-    case 3:
-        selectedAspectRatioCompare = ASPECT_RATIO_3;
-        break;
-    case 4:
-        selectedAspectRatioCompare = ASPECT_RATIO_4;
-        break;
-    case 5:
-        selectedAspectRatioCompare = ASPECT_RATIO_5;
-        break;
-    case 6:
-        selectedAspectRatioCompare = ASPECT_RATIO_6;
-        break;
-    case 7:
-        selectedAspectRatioCompare = ASPECT_RATIO_7;
-        break;
-    default:
-        selectedAspectRatioCompare = ASPECT_RATIO_8;
+    bool showLDVSettings = false;
+    if (Preferences::preferredRenderer == RENDERER_POVRAY) {
+        if (Preferences::povFileGenerator == RENDERER_NATIVE )
+            TCUserDefaults::setIniFile(Preferences::nativePOVIni.toLatin1().constData());
+        else
+            TCUserDefaults::setIniFile(Preferences::ldviewPOVIni.toLatin1().constData());
+        showLDVSettings = true;
+    } else if (Preferences::preferredRenderer == RENDERER_LDVIEW) {
+        TCUserDefaults::setIniFile(Preferences::ldviewIni.toLatin1().constData());
+        showLDVSettings = true;
     }
+    long qualityCompare;
+    float customAspectRatioCompare;
+    float edgeRadiusCompare;
+    float seamWidthCompare;
+    float ambientCompare;
+    float diffuseCompare;
+    float reflCompare;
+    float phongCompare;
+    float phongSizeCompare;
+    float transReflCompare;
+    float transFilterCompare;
+    float transIoRCompare;
+    float rubberReflCompare;
+    float rubberPhongCompare;
+    float rubberPhongSizeCompare;
+    float chromeReflCompare;
+    float chromeBrilCompare;
+    float chromeSpecularCompare;
+    float chromeRoughnessCompare;
+    float fileVersionCompare;
 
-    long qualityCompare               = TCUserDefaults::longForKey(QUALITY_EXPORT_KEY, QUALITY_EXPORT_DEFAULT);
-    float customAspectRatioCompare    = TCUserDefaults::floatForKey(CUSTOM_ASPECT_RATIO_KEY, CUSTOM_ASPECT_RATIO_DEFAULT);
-    float edgeRadiusCompare           = TCUserDefaults::floatForKey(EDGE_RADIUS_KEY, EDGE_RADIUS_DEFAULT);
-    float seamWidthCompare            = TCUserDefaults::floatForKey(SEAM_WIDTH_KEY, EDGE_RADIUS_DEFAULT);
-    float ambientCompare              = TCUserDefaults::floatForKey(AMBIENT_KEY, AMBIENT_DEFAULT);
-    float diffuseCompare              = TCUserDefaults::floatForKey(DIFFUSE_KEY, DIFFUSE_DEFAULT);
-    float reflCompare                 = TCUserDefaults::floatForKey(REFLECTION_KEY, REFLECTION_DEFAULT);
-    float phongCompare                = TCUserDefaults::floatForKey(PHONG_KEY, PHONG_DEFAULT);
-    float phongSizeCompare            = TCUserDefaults::floatForKey(PHONG_SIZE_KEY, PHONG_SIZE_DEFAULT);
-    float transReflCompare            = TCUserDefaults::floatForKey(TRANS_REFLECTION_KEY, TRANS_REFLECTION_DEFAULT);
-    float transFilterCompare          = TCUserDefaults::floatForKey(TRANS_FILTER_KEY, TRANS_FILTER_DEFAULT);
-    float transIoRCompare             = TCUserDefaults::floatForKey(TRANS_IOR_KEY, TRANS_IOR_DEFAULT);
-    float rubberReflCompare           = TCUserDefaults::floatForKey(RUBBER_REFLECTION_KEY, RUBBER_REFLECTION_DEFAULT);
-    float rubberPhongCompare          = TCUserDefaults::floatForKey(RUBBER_PHONG_KEY, RUBBER_PHONG_DEFAULT);
-    float rubberPhongSizeCompare      = TCUserDefaults::floatForKey(RUBBER_PHONG_SIZE_KEY, RUBBER_PHONG_SIZE_DEFAULT);
-    float chromeReflCompare           = TCUserDefaults::floatForKey(CHROME_REFLECTION_KEY, CHROME_REFLECTION_DEFAULT);
-    float chromeBrilCompare           = TCUserDefaults::floatForKey(CHROME_BRILLIANCE_KEY, CHROME_BRILLIANCE_DEFAULT);
-    float chromeSpecularCompare       = TCUserDefaults::floatForKey(CHROME_SPECULAR_KEY, CHROME_SPECULAR_DEFAULT);
-    float chromeRoughnessCompare      = TCUserDefaults::floatForKey(CHROME_ROUGHNESS_KEY, CHROME_ROUGHNESS_DEFAULT);
-    float fileVersionCompare          = TCUserDefaults::floatForKey(FILE_VERSION_KEY, FILE_VERSION_DEFAULT);
+    bool seamsCompare;
+    bool reflectionsCompare;
+    bool shadowsCompare;
+    bool xmlMapCompare;
+    bool inlinePovCompare;
+    bool smoothCurvesCompare;
+    bool hideStudsCompare;
+    bool unmirrorStudsCompare;
+    bool findReplacementsCompare;
+    bool conditionalEdgeLinesCompare;
+    bool primitiveSubstitutionCompare;
+    //
+    QString selectedAspectRatioCompare;
+    QString xmlMapPathCompare;
+    QString topIncludeCompare;
+    QString bottomIncludeCompare;
+    QString lightsCompare;
 
-    bool seamsCompare                 = TCUserDefaults::boolForKey(SEAMS_KEY, true);
-    bool reflectionsCompare           = TCUserDefaults::boolForKey(REFLECTIONS_KEY, true);
-    bool shadowsCompare               = TCUserDefaults::boolForKey(SHADOWS_KEY, true);
-    bool xmlMapCompare                = TCUserDefaults::boolForKey(XML_MAP_KEY, true);
-    bool inlinePovCompare             = TCUserDefaults::boolForKey(INLINE_POV_KEY, true);
-    bool smoothCurvesCompare          = TCUserDefaults::boolForKey(SMOOTH_CURVES_KEY, true);
-    bool hideStudsCompare             = TCUserDefaults::boolForKey(HIDE_STUDS_KEY, false);
-    bool unmirrorStudsCompare         = TCUserDefaults::boolForKey(UNMIRROR_STUDS_KEY, true);
-    bool findReplacementsCompare      = TCUserDefaults::boolForKey(FIND_REPLACEMENTS_KEY, false);
-    bool conditionalEdgeLinesCompare  = TCUserDefaults::boolForKey(CONDITIONAL_EDGE_LINES_KEY, false);
-    bool primitiveSubstitutionCompare = TCUserDefaults::boolForKey(PRIMITIVE_SUBSTITUTION_KEY, true);
-    //                                  TCUserDefaults::boolForKey(DRAW_EDGES_KEY, false);
+    if (showLDVSettings) {
+        switch (int(TCUserDefaults::longForKey(SELECTED_ASPECT_RATIO_KEY, SELECTED_ASPECT_RATIO_DEFAULT)))
+        {
+        case -1:
+            selectedAspectRatioCompare = ASPECT_RATIO_0;
+            break;
+        case 0:
+            selectedAspectRatioCompare = ASPECT_RATIO_1;
+            break;
+        case 2:
+            selectedAspectRatioCompare = ASPECT_RATIO_2;
+            break;
+        case 3:
+            selectedAspectRatioCompare = ASPECT_RATIO_3;
+            break;
+        case 4:
+            selectedAspectRatioCompare = ASPECT_RATIO_4;
+            break;
+        case 5:
+            selectedAspectRatioCompare = ASPECT_RATIO_5;
+            break;
+        case 6:
+            selectedAspectRatioCompare = ASPECT_RATIO_6;
+            break;
+        case 7:
+            selectedAspectRatioCompare = ASPECT_RATIO_7;
+            break;
+        default:
+            selectedAspectRatioCompare = ASPECT_RATIO_8;
+        }
+        qualityCompare              = TCUserDefaults::longForKey(QUALITY_EXPORT_KEY, QUALITY_EXPORT_DEFAULT);
+        customAspectRatioCompare    = TCUserDefaults::floatForKey(CUSTOM_ASPECT_RATIO_KEY, CUSTOM_ASPECT_RATIO_DEFAULT);
+        edgeRadiusCompare           = TCUserDefaults::floatForKey(EDGE_RADIUS_KEY, EDGE_RADIUS_DEFAULT);
+        seamWidthCompare            = TCUserDefaults::floatForKey(SEAM_WIDTH_KEY, EDGE_RADIUS_DEFAULT);
+        ambientCompare              = TCUserDefaults::floatForKey(AMBIENT_KEY, AMBIENT_DEFAULT);
+        diffuseCompare              = TCUserDefaults::floatForKey(DIFFUSE_KEY, DIFFUSE_DEFAULT);
+        reflCompare                 = TCUserDefaults::floatForKey(REFLECTION_KEY, REFLECTION_DEFAULT);
+        phongCompare                = TCUserDefaults::floatForKey(PHONG_KEY, PHONG_DEFAULT);
+        phongSizeCompare            = TCUserDefaults::floatForKey(PHONG_SIZE_KEY, PHONG_SIZE_DEFAULT);
+        transReflCompare            = TCUserDefaults::floatForKey(TRANS_REFLECTION_KEY, TRANS_REFLECTION_DEFAULT);
+        transFilterCompare          = TCUserDefaults::floatForKey(TRANS_FILTER_KEY, TRANS_FILTER_DEFAULT);
+        transIoRCompare             = TCUserDefaults::floatForKey(TRANS_IOR_KEY, TRANS_IOR_DEFAULT);
+        rubberReflCompare           = TCUserDefaults::floatForKey(RUBBER_REFLECTION_KEY, RUBBER_REFLECTION_DEFAULT);
+        rubberPhongCompare          = TCUserDefaults::floatForKey(RUBBER_PHONG_KEY, RUBBER_PHONG_DEFAULT);
+        rubberPhongSizeCompare      = TCUserDefaults::floatForKey(RUBBER_PHONG_SIZE_KEY, RUBBER_PHONG_SIZE_DEFAULT);
+        chromeReflCompare           = TCUserDefaults::floatForKey(CHROME_REFLECTION_KEY, CHROME_REFLECTION_DEFAULT);
+        chromeBrilCompare           = TCUserDefaults::floatForKey(CHROME_BRILLIANCE_KEY, CHROME_BRILLIANCE_DEFAULT);
+        chromeSpecularCompare       = TCUserDefaults::floatForKey(CHROME_SPECULAR_KEY, CHROME_SPECULAR_DEFAULT);
+        chromeRoughnessCompare      = TCUserDefaults::floatForKey(CHROME_ROUGHNESS_KEY, CHROME_ROUGHNESS_DEFAULT);
+        fileVersionCompare          = TCUserDefaults::floatForKey(FILE_VERSION_KEY, FILE_VERSION_DEFAULT);
 
-    QString xmlMapPathCompare         = QString(TCUserDefaults::pathForKey(XML_MAP_PATH_KEY));
-    QString topIncludeCompare         = QString(TCUserDefaults::stringForKey(TOP_INCLUDE_KEY));
-    QString bottomIncludeCompare      = QString(TCUserDefaults::stringForKey(BOTTOM_INCLUDE_KEY));
+        seamsCompare                 = TCUserDefaults::boolForKey(SEAMS_KEY, true);
+        reflectionsCompare           = TCUserDefaults::boolForKey(REFLECTIONS_KEY, true);
+        shadowsCompare               = TCUserDefaults::boolForKey(SHADOWS_KEY, true);
+        xmlMapCompare                = TCUserDefaults::boolForKey(XML_MAP_KEY, true);
+        inlinePovCompare             = TCUserDefaults::boolForKey(INLINE_POV_KEY, true);
+        smoothCurvesCompare          = TCUserDefaults::boolForKey(SMOOTH_CURVES_KEY, true);
+        hideStudsCompare             = TCUserDefaults::boolForKey(HIDE_STUDS_KEY, false);
+        unmirrorStudsCompare         = TCUserDefaults::boolForKey(UNMIRROR_STUDS_KEY, true);
+        findReplacementsCompare      = TCUserDefaults::boolForKey(FIND_REPLACEMENTS_KEY, false);
+        conditionalEdgeLinesCompare  = TCUserDefaults::boolForKey(CONDITIONAL_EDGE_LINES_KEY, false);
+        primitiveSubstitutionCompare = TCUserDefaults::boolForKey(PRIMITIVE_SUBSTITUTION_KEY, true);
+        //                                  TCUserDefaults::boolForKey(DRAW_EDGES_KEY, false);
 
-    QString lightsCompare             = Preferences::ldvLights;
+        xmlMapPathCompare            = QString(TCUserDefaults::pathForKey(XML_MAP_PATH_KEY));
+        topIncludeCompare            = QString(TCUserDefaults::stringForKey(TOP_INCLUDE_KEY));
+        bottomIncludeCompare         = QString(TCUserDefaults::stringForKey(BOTTOM_INCLUDE_KEY));
+        lightsCompare                = Preferences::ldvLights;
+    }
 
     if (Preferences::getPreferences()) {
 
@@ -1652,80 +1701,6 @@ void Gui::preferences()
         bool ldrawPathChanged              = QString(Preferences::ldrawPath).toLower()           != ldrawPathCompare.toLower();
         bool lgeoPathChanged               = QString(Preferences::lgeoPath).toLower()            != lgeoPathCompare.toLower();
         bool displayThemeChanged           = Preferences::displayTheme.toLower()                 != displayThemeCompare.toLower();
-
-        // Native POV file generation settings
-        QString selectedAspectRatio;
-        switch (int(TCUserDefaults::longForKey(SELECTED_ASPECT_RATIO_KEY, SELECTED_ASPECT_RATIO_DEFAULT)))
-        {
-        case -1:
-            selectedAspectRatio = ASPECT_RATIO_0;
-            break;
-        case 0:
-            selectedAspectRatio = ASPECT_RATIO_1;
-            break;
-        case 2:
-            selectedAspectRatio = ASPECT_RATIO_2;
-            break;
-        case 3:
-            selectedAspectRatio = ASPECT_RATIO_3;
-            break;
-        case 4:
-            selectedAspectRatio = ASPECT_RATIO_4;
-            break;
-        case 5:
-            selectedAspectRatio = ASPECT_RATIO_5;
-            break;
-        case 6:
-            selectedAspectRatio = ASPECT_RATIO_6;
-            break;
-        case 7:
-            selectedAspectRatio = ASPECT_RATIO_7;
-            break;
-        default:
-            selectedAspectRatio = ASPECT_RATIO_8;
-        }
-        bool qualityChanged               = TCUserDefaults::longForKey(QUALITY_EXPORT_KEY, QUALITY_EXPORT_DEFAULT)            != qualityCompare;
-        bool selectedAspectRatioChanged   = selectedAspectRatio                                                               != selectedAspectRatioCompare;
-        bool customAspectRatioChanged     = TCUserDefaults::floatForKey(CUSTOM_ASPECT_RATIO_KEY, CUSTOM_ASPECT_RATIO_DEFAULT) != customAspectRatioCompare;
-        bool edgeRadiusChanged            = TCUserDefaults::floatForKey(EDGE_RADIUS_KEY, EDGE_RADIUS_DEFAULT)                 != edgeRadiusCompare;
-        bool seamWidthChanged             = TCUserDefaults::floatForKey(SEAM_WIDTH_KEY, EDGE_RADIUS_DEFAULT)                  != seamWidthCompare;
-        bool ambientChanged               = TCUserDefaults::floatForKey(AMBIENT_KEY, AMBIENT_DEFAULT)                         != ambientCompare;
-        bool diffuseChanged               = TCUserDefaults::floatForKey(DIFFUSE_KEY, DIFFUSE_DEFAULT)                         != diffuseCompare;
-        bool reflChanged                  = TCUserDefaults::floatForKey(REFLECTION_KEY, REFLECTION_DEFAULT)                   != reflCompare;
-        bool phongChanged                 = TCUserDefaults::floatForKey(PHONG_KEY, PHONG_DEFAULT)                             != phongCompare;
-        bool phongSizeChanged             = TCUserDefaults::floatForKey(PHONG_SIZE_KEY, PHONG_SIZE_DEFAULT)                   != phongSizeCompare;
-        bool transReflChanged             = TCUserDefaults::floatForKey(TRANS_REFLECTION_KEY, TRANS_REFLECTION_DEFAULT)       != transReflCompare;
-        bool transFilterChanged           = TCUserDefaults::floatForKey(TRANS_FILTER_KEY, TRANS_FILTER_DEFAULT)               != transFilterCompare;
-        bool transIoRChanged              = TCUserDefaults::floatForKey(TRANS_IOR_KEY, TRANS_IOR_DEFAULT)                     != transIoRCompare;
-        bool rubberReflChanged            = TCUserDefaults::floatForKey(RUBBER_REFLECTION_KEY, RUBBER_REFLECTION_DEFAULT)     != rubberReflCompare;
-        bool rubberPhongChanged           = TCUserDefaults::floatForKey(RUBBER_PHONG_KEY, RUBBER_PHONG_DEFAULT)               != rubberPhongCompare;
-        bool rubberPhongSizeChanged       = TCUserDefaults::floatForKey(RUBBER_PHONG_SIZE_KEY, RUBBER_PHONG_SIZE_DEFAULT)     != rubberPhongSizeCompare;
-        bool chromeReflChanged            = TCUserDefaults::floatForKey(CHROME_REFLECTION_KEY, CHROME_REFLECTION_DEFAULT)     != chromeReflCompare;
-        bool chromeBrilChanged            = TCUserDefaults::floatForKey(CHROME_BRILLIANCE_KEY, CHROME_BRILLIANCE_DEFAULT)     != chromeBrilCompare;
-        bool chromeSpecularChanged        = TCUserDefaults::floatForKey(CHROME_SPECULAR_KEY, CHROME_SPECULAR_DEFAULT)         != chromeSpecularCompare;
-        bool chromeRoughnessChanged       = TCUserDefaults::floatForKey(CHROME_ROUGHNESS_KEY, CHROME_ROUGHNESS_DEFAULT)       != chromeRoughnessCompare;
-        bool fileVersionChanged           = TCUserDefaults::floatForKey(FILE_VERSION_KEY, FILE_VERSION_DEFAULT)               != fileVersionCompare;
-
-        bool seamsChanged                 = TCUserDefaults::boolForKey(SEAMS_KEY, true)                                       != seamsCompare;
-        bool reflectionsChanged           = TCUserDefaults::boolForKey(REFLECTIONS_KEY, true)                                 != reflectionsCompare;
-        bool shadowsChanged               = TCUserDefaults::boolForKey(SHADOWS_KEY, true)                                     != shadowsCompare;
-        bool xmlMapChanged                = TCUserDefaults::boolForKey(XML_MAP_KEY, true)                                     != xmlMapCompare;
-        bool inlinePovChanged             = TCUserDefaults::boolForKey(INLINE_POV_KEY, true)                                  != inlinePovCompare;
-        bool smoothCurvesChanged          = TCUserDefaults::boolForKey(SMOOTH_CURVES_KEY, true)                               != smoothCurvesCompare;
-        bool hideStudsChanged             = TCUserDefaults::boolForKey(HIDE_STUDS_KEY, false)                                 != hideStudsCompare;
-        bool unmirrorStudsChanged         = TCUserDefaults::boolForKey(UNMIRROR_STUDS_KEY, true)                              != unmirrorStudsCompare;
-        bool findReplacementsChanged      = TCUserDefaults::boolForKey(FIND_REPLACEMENTS_KEY, false)                          != findReplacementsCompare;
-        bool conditionalEdgeLinesChanged  = TCUserDefaults::boolForKey(CONDITIONAL_EDGE_LINES_KEY, false)                     != conditionalEdgeLinesCompare;
-        bool primitiveSubstitutionChanged = TCUserDefaults::boolForKey(PRIMITIVE_SUBSTITUTION_KEY, true)                      != primitiveSubstitutionCompare;
-        //                                  TCUserDefaults::boolForKey(DRAW_EDGES_KEY, false)
-
-        bool xmlMapPathChanged            = QString(TCUserDefaults::pathForKey(XML_MAP_PATH_KEY))                             != xmlMapPathCompare;
-        bool topIncludeChanged            = QString(TCUserDefaults::stringForKey(TOP_INCLUDE_KEY))                            != topIncludeCompare;
-        bool bottomIncludeChanged         = QString(TCUserDefaults::stringForKey(BOTTOM_INCLUDE_KEY))                         != bottomIncludeCompare;
-
-        bool lightsChanged                = QString(Preferences::ldvLights).toLower()                                               != lightsCompare.toLower();
-
-        bool nativePovRendererConfig      = Preferences::preferredRenderer == RENDERER_POVRAY && Preferences::povFileGenerator == RENDERER_NATIVE;
 
         if (enableFadeStepsChanged)
             emit messageSig(LOG_INFO,QString("Fade Previous Steps is %1.").arg(Preferences::enableFadeSteps ? "ON" : "OFF"));
@@ -1910,165 +1885,240 @@ void Gui::preferences()
         }
 
         // Native POV file generation settings
-        if (qualityChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Quality changed from %1 to %2.")
-                            .arg(qualityCompare)
-                            .arg(TCUserDefaults::longForKey(QUALITY_EXPORT_KEY, QUALITY_EXPORT_DEFAULT)));
+        if (showLDVSettings) {
+            QString selectedAspectRatio;
+            switch (int(TCUserDefaults::longForKey(SELECTED_ASPECT_RATIO_KEY, SELECTED_ASPECT_RATIO_DEFAULT)))
+            {
+            case -1:
+                selectedAspectRatio = ASPECT_RATIO_0;
+                break;
+            case 0:
+                selectedAspectRatio = ASPECT_RATIO_1;
+                break;
+            case 2:
+                selectedAspectRatio = ASPECT_RATIO_2;
+                break;
+            case 3:
+                selectedAspectRatio = ASPECT_RATIO_3;
+                break;
+            case 4:
+                selectedAspectRatio = ASPECT_RATIO_4;
+                break;
+            case 5:
+                selectedAspectRatio = ASPECT_RATIO_5;
+                break;
+            case 6:
+                selectedAspectRatio = ASPECT_RATIO_6;
+                break;
+            case 7:
+                selectedAspectRatio = ASPECT_RATIO_7;
+                break;
+            default:
+                selectedAspectRatio = ASPECT_RATIO_8;
+            }
 
-        if (selectedAspectRatioChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Selected aspect ratio changed from %1 to %2.")
-                            .arg(selectedAspectRatioCompare)
-                            .arg(selectedAspectRatio));
+            bool qualityChanged               = TCUserDefaults::longForKey(QUALITY_EXPORT_KEY, QUALITY_EXPORT_DEFAULT)            != qualityCompare;
+            bool selectedAspectRatioChanged   = selectedAspectRatio                                                               != selectedAspectRatioCompare;
+            bool customAspectRatioChanged     = TCUserDefaults::floatForKey(CUSTOM_ASPECT_RATIO_KEY, CUSTOM_ASPECT_RATIO_DEFAULT) != customAspectRatioCompare;
+            bool edgeRadiusChanged            = TCUserDefaults::floatForKey(EDGE_RADIUS_KEY, EDGE_RADIUS_DEFAULT)                 != edgeRadiusCompare;
+            bool seamWidthChanged             = TCUserDefaults::floatForKey(SEAM_WIDTH_KEY, EDGE_RADIUS_DEFAULT)                  != seamWidthCompare;
+            bool ambientChanged               = TCUserDefaults::floatForKey(AMBIENT_KEY, AMBIENT_DEFAULT)                         != ambientCompare;
+            bool diffuseChanged               = TCUserDefaults::floatForKey(DIFFUSE_KEY, DIFFUSE_DEFAULT)                         != diffuseCompare;
+            bool reflChanged                  = TCUserDefaults::floatForKey(REFLECTION_KEY, REFLECTION_DEFAULT)                   != reflCompare;
+            bool phongChanged                 = TCUserDefaults::floatForKey(PHONG_KEY, PHONG_DEFAULT)                             != phongCompare;
+            bool phongSizeChanged             = TCUserDefaults::floatForKey(PHONG_SIZE_KEY, PHONG_SIZE_DEFAULT)                   != phongSizeCompare;
+            bool transReflChanged             = TCUserDefaults::floatForKey(TRANS_REFLECTION_KEY, TRANS_REFLECTION_DEFAULT)       != transReflCompare;
+            bool transFilterChanged           = TCUserDefaults::floatForKey(TRANS_FILTER_KEY, TRANS_FILTER_DEFAULT)               != transFilterCompare;
+            bool transIoRChanged              = TCUserDefaults::floatForKey(TRANS_IOR_KEY, TRANS_IOR_DEFAULT)                     != transIoRCompare;
+            bool rubberReflChanged            = TCUserDefaults::floatForKey(RUBBER_REFLECTION_KEY, RUBBER_REFLECTION_DEFAULT)     != rubberReflCompare;
+            bool rubberPhongChanged           = TCUserDefaults::floatForKey(RUBBER_PHONG_KEY, RUBBER_PHONG_DEFAULT)               != rubberPhongCompare;
+            bool rubberPhongSizeChanged       = TCUserDefaults::floatForKey(RUBBER_PHONG_SIZE_KEY, RUBBER_PHONG_SIZE_DEFAULT)     != rubberPhongSizeCompare;
+            bool chromeReflChanged            = TCUserDefaults::floatForKey(CHROME_REFLECTION_KEY, CHROME_REFLECTION_DEFAULT)     != chromeReflCompare;
+            bool chromeBrilChanged            = TCUserDefaults::floatForKey(CHROME_BRILLIANCE_KEY, CHROME_BRILLIANCE_DEFAULT)     != chromeBrilCompare;
+            bool chromeSpecularChanged        = TCUserDefaults::floatForKey(CHROME_SPECULAR_KEY, CHROME_SPECULAR_DEFAULT)         != chromeSpecularCompare;
+            bool chromeRoughnessChanged       = TCUserDefaults::floatForKey(CHROME_ROUGHNESS_KEY, CHROME_ROUGHNESS_DEFAULT)       != chromeRoughnessCompare;
+            bool fileVersionChanged           = TCUserDefaults::floatForKey(FILE_VERSION_KEY, FILE_VERSION_DEFAULT)               != fileVersionCompare;
 
-        if (customAspectRatioChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Custom aspect ratio changed from %1 to %2.")
-                            .arg(customAspectRatioCompare)
-                            .arg(TCUserDefaults::floatForKey(CUSTOM_ASPECT_RATIO_KEY, CUSTOM_ASPECT_RATIO_DEFAULT)));
+            bool seamsChanged                 = TCUserDefaults::boolForKey(SEAMS_KEY, true)                                       != seamsCompare;
+            bool reflectionsChanged           = TCUserDefaults::boolForKey(REFLECTIONS_KEY, true)                                 != reflectionsCompare;
+            bool shadowsChanged               = TCUserDefaults::boolForKey(SHADOWS_KEY, true)                                     != shadowsCompare;
+            bool xmlMapChanged                = TCUserDefaults::boolForKey(XML_MAP_KEY, true)                                     != xmlMapCompare;
+            bool inlinePovChanged             = TCUserDefaults::boolForKey(INLINE_POV_KEY, true)                                  != inlinePovCompare;
+            bool smoothCurvesChanged          = TCUserDefaults::boolForKey(SMOOTH_CURVES_KEY, true)                               != smoothCurvesCompare;
+            bool hideStudsChanged             = TCUserDefaults::boolForKey(HIDE_STUDS_KEY, false)                                 != hideStudsCompare;
+            bool unmirrorStudsChanged         = TCUserDefaults::boolForKey(UNMIRROR_STUDS_KEY, true)                              != unmirrorStudsCompare;
+            bool findReplacementsChanged      = TCUserDefaults::boolForKey(FIND_REPLACEMENTS_KEY, false)                          != findReplacementsCompare;
+            bool conditionalEdgeLinesChanged  = TCUserDefaults::boolForKey(CONDITIONAL_EDGE_LINES_KEY, false)                     != conditionalEdgeLinesCompare;
+            bool primitiveSubstitutionChanged = TCUserDefaults::boolForKey(PRIMITIVE_SUBSTITUTION_KEY, true)                      != primitiveSubstitutionCompare;
+            //                                  TCUserDefaults::boolForKey(DRAW_EDGES_KEY, false)
 
-        if (edgeRadiusChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Edge radius changed from %1 to %2.")
-                            .arg(edgeRadiusCompare)
-                            .arg(TCUserDefaults::floatForKey(EDGE_RADIUS_KEY, EDGE_RADIUS_DEFAULT)));
+            bool xmlMapPathChanged            = QString(TCUserDefaults::pathForKey(XML_MAP_PATH_KEY))                             != xmlMapPathCompare;
+            bool topIncludeChanged            = QString(TCUserDefaults::stringForKey(TOP_INCLUDE_KEY))                            != topIncludeCompare;
+            bool bottomIncludeChanged         = QString(TCUserDefaults::stringForKey(BOTTOM_INCLUDE_KEY))                         != bottomIncludeCompare;
+            bool lightsChanged                = QString(Preferences::ldvLights).toLower()                                         != lightsCompare.toLower();
 
-        if (seamWidthChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Seam width changed from %1 to %2.")
-                            .arg(seamWidthCompare)
-                            .arg(TCUserDefaults::floatForKey(SEAM_WIDTH_KEY, EDGE_RADIUS_DEFAULT)));
+            bool nativePovRendererConfig      = Preferences::preferredRenderer == RENDERER_POVRAY && Preferences::povFileGenerator == RENDERER_NATIVE;
 
-        if (ambientChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Ambient changed from %1 to %2.")
-                            .arg(ambientCompare)
-                            .arg(TCUserDefaults::floatForKey(AMBIENT_KEY, AMBIENT_DEFAULT)));
+            if (qualityChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Quality changed from %1 to %2.")
+                                .arg(qualityCompare)
+                                .arg(TCUserDefaults::longForKey(QUALITY_EXPORT_KEY, QUALITY_EXPORT_DEFAULT)));
 
-        if (diffuseChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Diffuse changed from %1 to %2.")
-                            .arg(diffuseCompare)
-                            .arg(TCUserDefaults::floatForKey(DIFFUSE_KEY, DIFFUSE_DEFAULT)));
+            if (selectedAspectRatioChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Selected aspect ratio changed from %1 to %2.")
+                                .arg(selectedAspectRatioCompare)
+                                .arg(selectedAspectRatio));
 
-        if (reflChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Reflection changed from %1 to %2.")
-                            .arg(reflCompare)
-                            .arg(TCUserDefaults::floatForKey(REFLECTION_KEY, REFLECTION_DEFAULT) ));
+            if (customAspectRatioChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Custom aspect ratio changed from %1 to %2.")
+                                .arg(customAspectRatioCompare)
+                                .arg(TCUserDefaults::floatForKey(CUSTOM_ASPECT_RATIO_KEY, CUSTOM_ASPECT_RATIO_DEFAULT)));
 
-        if (phongChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Phong changed from %1 to %2.")
-                            .arg(phongCompare)
-                            .arg(TCUserDefaults::floatForKey(PHONG_KEY, PHONG_DEFAULT)));
+            if (edgeRadiusChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Edge radius changed from %1 to %2.")
+                                .arg(edgeRadiusCompare)
+                                .arg(TCUserDefaults::floatForKey(EDGE_RADIUS_KEY, EDGE_RADIUS_DEFAULT)));
 
-        if (phongSizeChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Phong size changed from %1 to %2.")
-                            .arg(phongSizeCompare)
-                            .arg(TCUserDefaults::floatForKey(PHONG_SIZE_KEY, PHONG_SIZE_DEFAULT)));
+            if (seamWidthChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Seam width changed from %1 to %2.")
+                                .arg(seamWidthCompare)
+                                .arg(TCUserDefaults::floatForKey(SEAM_WIDTH_KEY, EDGE_RADIUS_DEFAULT)));
 
-        if (transReflChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Trans reflection changed from %1 to %2.")
-                            .arg(transReflCompare)
-                            .arg(TCUserDefaults::floatForKey(TRANS_REFLECTION_KEY, TRANS_REFLECTION_DEFAULT)));
+            if (ambientChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Ambient changed from %1 to %2.")
+                                .arg(ambientCompare)
+                                .arg(TCUserDefaults::floatForKey(AMBIENT_KEY, AMBIENT_DEFAULT)));
 
-        if (transFilterChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Trans filter changed from %1 to %2.")
-                            .arg(transFilterCompare)
-                            .arg(TCUserDefaults::floatForKey(TRANS_FILTER_KEY, TRANS_FILTER_DEFAULT)));
+            if (diffuseChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Diffuse changed from %1 to %2.")
+                                .arg(diffuseCompare)
+                                .arg(TCUserDefaults::floatForKey(DIFFUSE_KEY, DIFFUSE_DEFAULT)));
 
-        if (transIoRChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Trans IoR changed from %1 to %2.")
-                            .arg(transIoRCompare)
-                            .arg(TCUserDefaults::floatForKey(TRANS_IOR_KEY, TRANS_IOR_DEFAULT)));
+            if (reflChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Reflection changed from %1 to %2.")
+                                .arg(reflCompare)
+                                .arg(TCUserDefaults::floatForKey(REFLECTION_KEY, REFLECTION_DEFAULT) ));
 
-        if (rubberReflChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Rubber reflection changed from %1 to %2.")
-                            .arg(rubberReflCompare)
-                            .arg(TCUserDefaults::floatForKey(RUBBER_REFLECTION_KEY, RUBBER_REFLECTION_DEFAULT)));
+            if (phongChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Phong changed from %1 to %2.")
+                                .arg(phongCompare)
+                                .arg(TCUserDefaults::floatForKey(PHONG_KEY, PHONG_DEFAULT)));
 
-        if (rubberPhongChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Rubber phong changed from %1 to %2.")
-                            .arg(rubberPhongCompare)
-                            .arg(TCUserDefaults::floatForKey(RUBBER_PHONG_KEY, RUBBER_PHONG_DEFAULT)));
+            if (phongSizeChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Phong size changed from %1 to %2.")
+                                .arg(phongSizeCompare)
+                                .arg(TCUserDefaults::floatForKey(PHONG_SIZE_KEY, PHONG_SIZE_DEFAULT)));
 
-        if (rubberPhongSizeChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Rubber phong size changed from %1 to %2.")
-                            .arg(rubberPhongSizeCompare)
-                            .arg(TCUserDefaults::floatForKey(RUBBER_PHONG_SIZE_KEY, RUBBER_PHONG_SIZE_DEFAULT)));
+            if (transReflChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Trans reflection changed from %1 to %2.")
+                                .arg(transReflCompare)
+                                .arg(TCUserDefaults::floatForKey(TRANS_REFLECTION_KEY, TRANS_REFLECTION_DEFAULT)));
 
-        if (chromeReflChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Chrome reflection changed from %1 to %2.")
-                            .arg(chromeReflCompare)
-                            .arg(TCUserDefaults::floatForKey(CHROME_REFLECTION_KEY, CHROME_REFLECTION_DEFAULT)));
+            if (transFilterChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Trans filter changed from %1 to %2.")
+                                .arg(transFilterCompare)
+                                .arg(TCUserDefaults::floatForKey(TRANS_FILTER_KEY, TRANS_FILTER_DEFAULT)));
 
-        if (chromeBrilChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Chrome brilliance changed from %1 to %2.")
-                            .arg(chromeBrilCompare)
-                            .arg(TCUserDefaults::floatForKey(CHROME_BRILLIANCE_KEY, CHROME_BRILLIANCE_DEFAULT)));
+            if (transIoRChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Trans IoR changed from %1 to %2.")
+                                .arg(transIoRCompare)
+                                .arg(TCUserDefaults::floatForKey(TRANS_IOR_KEY, TRANS_IOR_DEFAULT)));
 
-        if (chromeSpecularChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Chrome specular changed from %1 to %2.")
-                            .arg(chromeSpecularCompare)
-                            .arg(TCUserDefaults::floatForKey(CHROME_SPECULAR_KEY, CHROME_SPECULAR_DEFAULT)));
+            if (rubberReflChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Rubber reflection changed from %1 to %2.")
+                                .arg(rubberReflCompare)
+                                .arg(TCUserDefaults::floatForKey(RUBBER_REFLECTION_KEY, RUBBER_REFLECTION_DEFAULT)));
 
-        if (chromeRoughnessChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Chrome roughness changed from %1 to %2.")
-                            .arg(chromeRoughnessCompare)
-                            .arg(TCUserDefaults::floatForKey(CHROME_ROUGHNESS_KEY, CHROME_ROUGHNESS_DEFAULT)));
+            if (rubberPhongChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Rubber phong changed from %1 to %2.")
+                                .arg(rubberPhongCompare)
+                                .arg(TCUserDefaults::floatForKey(RUBBER_PHONG_KEY, RUBBER_PHONG_DEFAULT)));
 
-        if (fileVersionChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("File version changed from %1 to %2.")
-                            .arg(fileVersionCompare)
-                            .arg(TCUserDefaults::floatForKey(FILE_VERSION_KEY, FILE_VERSION_DEFAULT)));
+            if (rubberPhongSizeChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Rubber phong size changed from %1 to %2.")
+                                .arg(rubberPhongSizeCompare)
+                                .arg(TCUserDefaults::floatForKey(RUBBER_PHONG_SIZE_KEY, RUBBER_PHONG_SIZE_DEFAULT)));
 
-        if (seamsChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Seams is %1.").arg(TCUserDefaults::boolForKey(SEAMS_KEY, true) ? "ON" : "OFF"));
+            if (chromeReflChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Chrome reflection changed from %1 to %2.")
+                                .arg(chromeReflCompare)
+                                .arg(TCUserDefaults::floatForKey(CHROME_REFLECTION_KEY, CHROME_REFLECTION_DEFAULT)));
 
-        if (reflectionsChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Reflections is %1.").arg(TCUserDefaults::boolForKey(REFLECTIONS_KEY, true) ? "ON" : "OFF"));
+            if (chromeBrilChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Chrome brilliance changed from %1 to %2.")
+                                .arg(chromeBrilCompare)
+                                .arg(TCUserDefaults::floatForKey(CHROME_BRILLIANCE_KEY, CHROME_BRILLIANCE_DEFAULT)));
 
-        if (shadowsChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Shadows is %1.").arg(TCUserDefaults::boolForKey(SHADOWS_KEY, true) ? "ON" : "OFF"));
+            if (chromeSpecularChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Chrome specular changed from %1 to %2.")
+                                .arg(chromeSpecularCompare)
+                                .arg(TCUserDefaults::floatForKey(CHROME_SPECULAR_KEY, CHROME_SPECULAR_DEFAULT)));
 
-        if (xmlMapChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Xml map is %1.").arg(TCUserDefaults::boolForKey(XML_MAP_KEY, true) ? "ON" : "OFF"));
+            if (chromeRoughnessChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Chrome roughness changed from %1 to %2.")
+                                .arg(chromeRoughnessCompare)
+                                .arg(TCUserDefaults::floatForKey(CHROME_ROUGHNESS_KEY, CHROME_ROUGHNESS_DEFAULT)));
 
-        if (inlinePovChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Inline POV is %1.").arg(TCUserDefaults::boolForKey(INLINE_POV_KEY, true) ? "ON" : "OFF"));
+            if (fileVersionChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("File version changed from %1 to %2.")
+                                .arg(fileVersionCompare)
+                                .arg(TCUserDefaults::floatForKey(FILE_VERSION_KEY, FILE_VERSION_DEFAULT)));
 
-        if (smoothCurvesChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Smooth curves is %1.").arg(TCUserDefaults::boolForKey(SMOOTH_CURVES_KEY, true) ? "ON" : "OFF"));
+            if (seamsChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Seams is %1.").arg(TCUserDefaults::boolForKey(SEAMS_KEY, true) ? "ON" : "OFF"));
 
-        if (hideStudsChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Hide studs is %1.").arg(TCUserDefaults::boolForKey(HIDE_STUDS_KEY, false) ? "ON" : "OFF"));
+            if (reflectionsChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Reflections is %1.").arg(TCUserDefaults::boolForKey(REFLECTIONS_KEY, true) ? "ON" : "OFF"));
 
-        if (unmirrorStudsChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Unmirror Studs is %1.").arg(TCUserDefaults::boolForKey(UNMIRROR_STUDS_KEY, true) ? "ON" : "OFF"));
+            if (shadowsChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Shadows is %1.").arg(TCUserDefaults::boolForKey(SHADOWS_KEY, true) ? "ON" : "OFF"));
 
-        if (findReplacementsChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Find POV replacements is %1.").arg(TCUserDefaults::boolForKey(FIND_REPLACEMENTS_KEY, false) ? "ON" : "OFF"));
+            if (xmlMapChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Xml map is %1.").arg(TCUserDefaults::boolForKey(XML_MAP_KEY, true) ? "ON" : "OFF"));
 
-        if (conditionalEdgeLinesChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Conditional edge lines is %1.").arg(TCUserDefaults::boolForKey(CONDITIONAL_EDGE_LINES_KEY, false) ? "ON" : "OFF"));
+            if (inlinePovChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Inline POV is %1.").arg(TCUserDefaults::boolForKey(INLINE_POV_KEY, true) ? "ON" : "OFF"));
 
-        if (primitiveSubstitutionChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Primitive Substitution is %1.").arg(TCUserDefaults::boolForKey(PRIMITIVE_SUBSTITUTION_KEY, true) ? "ON" : "OFF"));
+            if (smoothCurvesChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Smooth curves is %1.").arg(TCUserDefaults::boolForKey(SMOOTH_CURVES_KEY, true) ? "ON" : "OFF"));
 
-        //                                   TCUserDefaults::boolForKey(DRAW_EDGES_KEY, false)
+            if (hideStudsChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Hide studs is %1.").arg(TCUserDefaults::boolForKey(HIDE_STUDS_KEY, false) ? "ON" : "OFF"));
 
-        if (xmlMapPathChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("XmlMapPath changed from %1 to %2.")
-                            .arg(xmlMapPathCompare)
-                            .arg(TCUserDefaults::pathForKey(XML_MAP_PATH_KEY)));
+            if (unmirrorStudsChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Unmirror Studs is %1.").arg(TCUserDefaults::boolForKey(UNMIRROR_STUDS_KEY, true) ? "ON" : "OFF"));
 
-        if (topIncludeChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Top Include changed from %1 to %2.")
-                            .arg(topIncludeCompare)
-                            .arg(TCUserDefaults::stringForKey(TOP_INCLUDE_KEY)));
+            if (findReplacementsChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Find POV replacements is %1.").arg(TCUserDefaults::boolForKey(FIND_REPLACEMENTS_KEY, false) ? "ON" : "OFF"));
 
-        if (bottomIncludeChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Bottom Include changed from %1 to %2.")
-                            .arg(bottomIncludeCompare)
-                            .arg(TCUserDefaults::stringForKey(BOTTOM_INCLUDE_KEY)));
+            if (conditionalEdgeLinesChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Conditional edge lines is %1.").arg(TCUserDefaults::boolForKey(CONDITIONAL_EDGE_LINES_KEY, false) ? "ON" : "OFF"));
 
-        if (lightsChanged && nativePovRendererConfig)
-            emit messageSig(LOG_INFO,QString("Lights changed from %1 to %2.")
-                            .arg(lightsCompare)
-                            .arg(Preferences::ldvLights));
+            if (primitiveSubstitutionChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Primitive Substitution is %1.").arg(TCUserDefaults::boolForKey(PRIMITIVE_SUBSTITUTION_KEY, true) ? "ON" : "OFF"));
+
+            //                                   TCUserDefaults::boolForKey(DRAW_EDGES_KEY, false)
+
+            if (xmlMapPathChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("XmlMapPath changed from %1 to %2.")
+                                .arg(xmlMapPathCompare)
+                                .arg(TCUserDefaults::pathForKey(XML_MAP_PATH_KEY)));
+
+            if (topIncludeChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Top Include changed from %1 to %2.")
+                                .arg(topIncludeCompare)
+                                .arg(TCUserDefaults::stringForKey(TOP_INCLUDE_KEY)));
+
+            if (bottomIncludeChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Bottom Include changed from %1 to %2.")
+                                .arg(bottomIncludeCompare)
+                                .arg(TCUserDefaults::stringForKey(BOTTOM_INCLUDE_KEY)));
+
+            if (lightsChanged && nativePovRendererConfig)
+                emit messageSig(LOG_INFO,QString("Lights changed from %1 to %2.")
+                                .arg(lightsCompare)
+                                .arg(Preferences::ldvLights));
+        }
 
         if (displayThemeRestart || altLDConfigPathRestart) {
             restartApplication();

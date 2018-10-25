@@ -243,7 +243,6 @@ protected:
 	char *getErrorKey(int errorNumber);
 	static const QString &getRecentFileKey(int index);
 
-	LDVWidget *modelWidget;
 	LDrawModelViewer *modelViewer;
 	LDPreferences *ldPrefs;
 

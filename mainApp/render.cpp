@@ -451,7 +451,7 @@ int POVRay::renderCsi(
       emit gui->messageSig(LOG_STATUS, "Native POV CSI file generation...");
 
       bool retError = false;
-      ldvWidget = new LDVWidget(NativePOVIni,gui);
+      ldvWidget = new LDVWidget(nullptr,NativePOVIni,true);
       if (! ldvWidget->doCommand(arguments))  {
           emit gui->messageSig(LOG_ERROR, QString("Failed to generate CSI POV file for command: %1").arg(arguments.join(" ")));
           retError = true;
@@ -655,7 +655,7 @@ int POVRay::renderPli(
       emit gui->messageSig(LOG_STATUS, "Native POV PLI file generation...");
 
       bool retError = false;
-      ldvWidget = new LDVWidget(NativePOVIni,gui);
+      ldvWidget = new LDVWidget(nullptr,NativePOVIni,true);
       if (! ldvWidget->doCommand(arguments)) {
           emit gui->messageSig(LOG_ERROR, QString("Failed to generate PLI POV file for command: %1").arg(arguments.join(" ")));
           retError = true;

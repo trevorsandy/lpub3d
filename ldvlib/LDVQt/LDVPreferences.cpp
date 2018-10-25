@@ -46,120 +46,119 @@
 
 LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
     :QDialog(qobject_cast<QWidget*>(modelWidget)),
-    LDVPreferencesPanel(),
-	modelWidget(modelWidget),
-	modelViewer(modelWidget->getModelViewer()),
-	ldPrefs(new LDPreferences(modelViewer)),
-    checkAbandon(true)
+      LDVPreferencesPanel(),
+      modelViewer(modelWidget->getModelViewer() ? ((LDrawModelViewer*)modelWidget->getModelViewer()->retain()) : nullptr),
+      ldPrefs(new LDPreferences(modelViewer)),
+      checkAbandon(true)
 {
-        setupUi(this);
+    setupUi(this);
     connect( aaLinesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( applyButton, SIGNAL( pressed() ), this, SLOT( doApply() ) );
-        connect( okButton, SIGNAL( clicked() ), this, SLOT( doOk() ) );
-        connect( cancelButton, SIGNAL( clicked() ), this, SLOT( doCancel() ) );
-        connect( primitvesResetButton, SIGNAL( clicked() ), this, SLOT( doResetPrimitives() ) );
-        connect( seamWidthButton, SIGNAL( clicked() ), this, SLOT( enableApply() ) );
-        connect( seamWidthSpin, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
-        connect( fieldOfViewDoubleSpin, SIGNAL( valueChanged(double) ), this, SLOT( enableApply() ) );
-        connect( memoryUsageBox, SIGNAL( activated(int) ), this, SLOT( enableApply() ) );
-        connect( snapshotSaveDirBox, SIGNAL( activated(int) ), this, SLOT( snapshotSaveDirBoxChanged() ) );
-        connect( partsListsSaveDirBox, SIGNAL( activated(int) ), this, SLOT( partsListsSaveDirBoxChanged() ) );
-        connect( exportsListsSaveDirBox, SIGNAL( activated(int) ), this, SLOT( exportsListsSaveDirBoxChanged() ) );
-        connect( snapshotSaveDirButton, SIGNAL( clicked() ), this, SLOT( snapshotSaveDirBrowse() ) );
-        connect( partsListsSaveDirButton, SIGNAL( clicked() ), this, SLOT( partsListsSaveDirBrowse() ) );
-        connect( exportsSaveDirButton, SIGNAL( clicked() ), this, SLOT( exportsSaveDirBrowse() ) );
-        connect( transparentButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( wireframeThicknessSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
-        connect( edgesOnlyButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( conditionalLinesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( conditionalLinesButton, SIGNAL( toggled(bool) ), this, SLOT( doConditionalShow(bool) ) );
-        connect( conditionalShowAllButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( conditionalShowControlPtsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( wireframeFogButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( wireframeRemoveHiddenLineButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( highQualityLinesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( alwaysBlackLinesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( edgeThicknessSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
-        connect( showErrorsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( processLdconfigLdrButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( randomColorsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+    connect( applyButton, SIGNAL( pressed() ), this, SLOT( doApply() ) );
+    connect( okButton, SIGNAL( clicked() ), this, SLOT( doOk() ) );
+    connect( cancelButton, SIGNAL( clicked() ), this, SLOT( doCancel() ) );
+    connect( primitvesResetButton, SIGNAL( clicked() ), this, SLOT( doResetPrimitives() ) );
+    connect( seamWidthButton, SIGNAL( clicked() ), this, SLOT( enableApply() ) );
+    connect( seamWidthSpin, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
+    connect( fieldOfViewDoubleSpin, SIGNAL( valueChanged(double) ), this, SLOT( enableApply() ) );
+    connect( memoryUsageBox, SIGNAL( activated(int) ), this, SLOT( enableApply() ) );
+    connect( snapshotSaveDirBox, SIGNAL( activated(int) ), this, SLOT( snapshotSaveDirBoxChanged() ) );
+    connect( partsListsSaveDirBox, SIGNAL( activated(int) ), this, SLOT( partsListsSaveDirBoxChanged() ) );
+    connect( exportsListsSaveDirBox, SIGNAL( activated(int) ), this, SLOT( exportsListsSaveDirBoxChanged() ) );
+    connect( snapshotSaveDirButton, SIGNAL( clicked() ), this, SLOT( snapshotSaveDirBrowse() ) );
+    connect( partsListsSaveDirButton, SIGNAL( clicked() ), this, SLOT( partsListsSaveDirBrowse() ) );
+    connect( exportsSaveDirButton, SIGNAL( clicked() ), this, SLOT( exportsSaveDirBrowse() ) );
+    connect( transparentButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+    connect( wireframeThicknessSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
+    connect( edgesOnlyButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+    connect( conditionalLinesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+    connect( conditionalLinesButton, SIGNAL( toggled(bool) ), this, SLOT( doConditionalShow(bool) ) );
+    connect( conditionalShowAllButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+    connect( conditionalShowControlPtsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+    connect( wireframeFogButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+    connect( wireframeRemoveHiddenLineButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+    connect( highQualityLinesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+    connect( alwaysBlackLinesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+    connect( edgeThicknessSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
+    connect( showErrorsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+    connect( processLdconfigLdrButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+    connect( randomColorsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
     connect( frameRateButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
     connect( showAxesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
     connect( partBoundingBoxOnlyBox, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
     connect( qualityLightingButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
     connect( subduedLightingButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
     connect( specularLightingButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( alternateLightingButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( crossEyedStereoButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( parallelStereoButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( stereoAmountSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
-        connect( colorCutawayButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( monochromeCutawayButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( sortTransparencyButton, SIGNAL( toggled(bool) ), this, SLOT( doSortTransparency(bool) ) );
-        connect( cutawayOpacitySlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
-        connect( cutawayThicknessSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
-        connect( stippleTransparencyButton, SIGNAL( toggled(bool) ), this, SLOT( doStippleTransparency(bool) ) );
-        connect( flatShadingButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( smoothCurvesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( nearestFilteringButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( bilinearFilteringButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( trilinearFilteringButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( anisotropicFilteringButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( anisotropicFilteringButton, SIGNAL( toggled(bool) ), this, SLOT( doAnisotropic() ) );
-        connect( anisotropicFilteringSlider, SIGNAL( valueChanged(int) ), this, SLOT( doAnisotropicSlider(int) ) );
-        connect( anisotropicFilteringSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
-        connect( curveQualitySlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
-        connect( lowQualityStudsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( hiresPrimitivesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( generalResetButton, SIGNAL( clicked() ), this, SLOT( doResetGeneral() ) );
-        connect( geometryResetButton, SIGNAL( clicked() ), this, SLOT( doResetGeometry() ) );
-        connect( effectsResetButton, SIGNAL( clicked() ), this, SLOT( doResetEffects() ) );
-        connect( updatesResetButton, SIGNAL( clicked() ), this, SLOT( doResetUpdates() ) );
-        connect( updatesResetTimesButton, SIGNAL( clicked () ), this, SLOT (doResetTimesUpdates() ) );
-        connect( wireframeButton, SIGNAL( toggled(bool) ), this, SLOT( doWireframe(bool) ) );
-        connect( enableBFCButton, SIGNAL( toggled(bool) ), this, SLOT( doBFC(bool) ) );
-        connect( enableBFCButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( bfcRedBackFaceButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( bfcGreenFrontFaceButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( bfcBlueNeutralFaceButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( wireframeButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( edgeLinesButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( edgeLinesButton, SIGNAL( toggled(bool) ), this, SLOT( doEdgeLines(bool) ) );
-        connect( lightingButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( lightingButton, SIGNAL( toggled(bool) ), this, SLOT( doLighting(bool) ) );
-        connect( lightingDir11, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( lightingDir12, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( lightingDir13, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( lightingDir21, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( lightingDir22, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( lightingDir23, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( lightingDir31, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( lightingDir32, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( lightingDir33, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( effectsUseLIGHTDATButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( effectsUseLIGHTDATButton, SIGNAL( toggled(bool) ), this, SLOT( doDrawLightDats() ) );
-        connect( effectsReplaceStandarLightButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( effectsHideLIGHTButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( stereoButton, SIGNAL( toggled(bool) ), this, SLOT( doStereo(bool) ) );
-        connect( stereoButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( wireframeCutawayButton, SIGNAL( toggled(bool) ), this, SLOT( doWireframeCutaway(bool) ) );
-        connect( wireframeCutawayButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( primitiveSubstitutionButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-        connect( primitiveSubstitutionButton, SIGNAL( toggled(bool) ), this, SLOT( doPrimitiveSubstitution(bool) ) );
-        connect( textureStudsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( textureStudsButton, SIGNAL( toggled(bool) ), this, SLOT( doTextureStuds(bool) ) );
-        connect( useTextureMapsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-        connect( useTextureMapsButton, SIGNAL( toggled(bool) ), this, SLOT( doTextureStuds(bool) ) );
-        connect( newPreferenceSetButton, SIGNAL( clicked() ), this, SLOT( doNewPreferenceSet() ) );
-        connect( delPreferenceSetButton, SIGNAL( clicked() ), this, SLOT( doDelPreferenceSet() ) );
-        connect( hotkeyPreferenceSetButton, SIGNAL( clicked() ), this, SLOT( doHotkeyPreferenceSet() ) );
-        connect( preferenceSetList, SIGNAL( currentItemChanged(QListWidgetItem *,QListWidgetItem *) ), this, SLOT( doPrefSetSelected(QListWidgetItem *,QListWidgetItem *) ) );
-        connect( backgroundColorButton, SIGNAL( clicked() ), this, SLOT( doBackgroundColor() ) );
-        connect( defaultColorButton, SIGNAL( clicked() ), this, SLOT( doDefaultColor() ) );
-        connect( updatesNoproxyButton, SIGNAL( toggled(bool) ), this, SLOT( disableProxy() ) );
-        connect( updatesProxyButton, SIGNAL( toggled(bool) ), this, SLOT( enableProxy() ) );
-        connect( updatesMissingpartsButton, SIGNAL( toggled(bool) ), this, SLOT( doUpdateMissingparts(bool) ) );
-        connect( updatesMissingpartsButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( alternateLightingButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+    connect( crossEyedStereoButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( parallelStereoButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( stereoAmountSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
+    connect( colorCutawayButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( monochromeCutawayButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( sortTransparencyButton, SIGNAL( toggled(bool) ), this, SLOT( doSortTransparency(bool) ) );
+    connect( cutawayOpacitySlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
+    connect( cutawayThicknessSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
+    connect( stippleTransparencyButton, SIGNAL( toggled(bool) ), this, SLOT( doStippleTransparency(bool) ) );
+    connect( flatShadingButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+    connect( smoothCurvesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+    connect( nearestFilteringButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( bilinearFilteringButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( trilinearFilteringButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( anisotropicFilteringButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( anisotropicFilteringButton, SIGNAL( toggled(bool) ), this, SLOT( doAnisotropic() ) );
+    connect( anisotropicFilteringSlider, SIGNAL( valueChanged(int) ), this, SLOT( doAnisotropicSlider(int) ) );
+    connect( anisotropicFilteringSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
+    connect( curveQualitySlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
+    connect( lowQualityStudsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+    connect( hiresPrimitivesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+    connect( generalResetButton, SIGNAL( clicked() ), this, SLOT( doResetGeneral() ) );
+    connect( geometryResetButton, SIGNAL( clicked() ), this, SLOT( doResetGeometry() ) );
+    connect( effectsResetButton, SIGNAL( clicked() ), this, SLOT( doResetEffects() ) );
+    connect( updatesResetButton, SIGNAL( clicked() ), this, SLOT( doResetUpdates() ) );
+    connect( updatesResetTimesButton, SIGNAL( clicked () ), this, SLOT (doResetTimesUpdates() ) );
+    connect( wireframeButton, SIGNAL( toggled(bool) ), this, SLOT( doWireframe(bool) ) );
+    connect( enableBFCButton, SIGNAL( toggled(bool) ), this, SLOT( doBFC(bool) ) );
+    connect( enableBFCButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( bfcRedBackFaceButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( bfcGreenFrontFaceButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( bfcBlueNeutralFaceButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( wireframeButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( edgeLinesButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( edgeLinesButton, SIGNAL( toggled(bool) ), this, SLOT( doEdgeLines(bool) ) );
+    connect( lightingButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( lightingButton, SIGNAL( toggled(bool) ), this, SLOT( doLighting(bool) ) );
+    connect( lightingDir11, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( lightingDir12, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( lightingDir13, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( lightingDir21, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( lightingDir22, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( lightingDir23, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( lightingDir31, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( lightingDir32, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( lightingDir33, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( effectsUseLIGHTDATButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( effectsUseLIGHTDATButton, SIGNAL( toggled(bool) ), this, SLOT( doDrawLightDats() ) );
+    connect( effectsReplaceStandarLightButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( effectsHideLIGHTButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( stereoButton, SIGNAL( toggled(bool) ), this, SLOT( doStereo(bool) ) );
+    connect( stereoButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( wireframeCutawayButton, SIGNAL( toggled(bool) ), this, SLOT( doWireframeCutaway(bool) ) );
+    connect( wireframeCutawayButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( primitiveSubstitutionButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+    connect( primitiveSubstitutionButton, SIGNAL( toggled(bool) ), this, SLOT( doPrimitiveSubstitution(bool) ) );
+    connect( textureStudsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+    connect( textureStudsButton, SIGNAL( toggled(bool) ), this, SLOT( doTextureStuds(bool) ) );
+    connect( useTextureMapsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+    connect( useTextureMapsButton, SIGNAL( toggled(bool) ), this, SLOT( doTextureStuds(bool) ) );
+    connect( newPreferenceSetButton, SIGNAL( clicked() ), this, SLOT( doNewPreferenceSet() ) );
+    connect( delPreferenceSetButton, SIGNAL( clicked() ), this, SLOT( doDelPreferenceSet() ) );
+    connect( hotkeyPreferenceSetButton, SIGNAL( clicked() ), this, SLOT( doHotkeyPreferenceSet() ) );
+    connect( preferenceSetList, SIGNAL( currentItemChanged(QListWidgetItem *,QListWidgetItem *) ), this, SLOT( doPrefSetSelected(QListWidgetItem *,QListWidgetItem *) ) );
+    connect( backgroundColorButton, SIGNAL( clicked() ), this, SLOT( doBackgroundColor() ) );
+    connect( defaultColorButton, SIGNAL( clicked() ), this, SLOT( doDefaultColor() ) );
+    connect( updatesNoproxyButton, SIGNAL( toggled(bool) ), this, SLOT( disableProxy() ) );
+    connect( updatesProxyButton, SIGNAL( toggled(bool) ), this, SLOT( enableProxy() ) );
+    connect( updatesMissingpartsButton, SIGNAL( toggled(bool) ), this, SLOT( doUpdateMissingparts(bool) ) );
+    connect( updatesMissingpartsButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
     connect( drawTransparentTexturesLastButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
     connect( transparentOffsetSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
 
@@ -175,53 +174,69 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
     ldPrefs->applySettings();
     reflectSettings();
 
-	QStyle *style = defaultColorButton->style();
+    QStyle *style = defaultColorButton->style();
     if (style != nullptr)
-	{
-	     QString styleName = style->metaObject()->className();
-	     if (styleName == "QGtkStyle")
-	     {
-		  // QGtkStyle uses an image for the background, and doesn't show
-		  // the background color at all, so update the color buttons to use
-		  // the QWindowsStyle instead.
-		  // In Qt5 no need for changing the style, background color can be
-		  // set
-		  defaultColorButton->setStyle(QStyleFactory::create("Windows"));
-		  backgroundColorButton->setStyle(QStyleFactory::create("Windows"));
-	     }
-	}
+    {
+        QString styleName = style->metaObject()->className();
+        if (styleName == "QGtkStyle")
+        {
+            // QGtkStyle uses an image for the background, and doesn't show
+            // the background color at all, so update the color buttons to use
+            // the QWindowsStyle instead.
+            // In Qt5 no need for changing the style, background color can be
+            // set
+            defaultColorButton->setStyle(QStyleFactory::create("Windows"));
+            backgroundColorButton->setStyle(QStyleFactory::create("Windows"));
+        }
+    }
 
     bool enableNativeSettings = modelWidget->getIniFlag() == NativePOVIni;
     this->setWindowTitle(modelWidget->getIniTitle().append(" Preferences"));
 
-	// Hide these
-	frameRateButton->hide();
-	showAxesButton->hide();
-	showErrorsButton->hide();
+    QPalette readOnlyPalette;
+    readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
+    QString iniFileMessage;
+    if (TCUserDefaults::isIniFileSet())
+    {
+        iniFileMessage = QString("%1").arg(modelWidget->getIniFile());
+        iniBox->setTitle(QString("%1 INI file").arg(modelWidget->getIniTitle()));
+    } else {
+        iniFileMessage = QString("INI file not specified. Using built-in default settings.");
+        iniFileEdit->setStyleSheet("QLineEdit { background-color : red; color : white; }");
+    }
 
-	if (enableNativeSettings)
-	{
-	      // Default Save Directories
-	      defaultSnapshotDirLabel->hide();
-	      snapshotSaveDirBox->hide();
-	      snapshotSaveDirEdit->hide();
-	      snapshotSaveDirButton->hide();
+    iniFileEdit->setReadOnly(true);
+    iniFileEdit->setPalette(readOnlyPalette);
+    iniFileEdit->setText(iniFileMessage);
 
-	      defaultPartlistDirLabel->hide();
-	      partsListsSaveDirBox->hide();
-	      partsListsSaveDirEdit->hide();
-	      partsListsSaveDirButton->hide();
+    // Hide these
+    frameRateButton->hide();
+    showAxesButton->hide();
+    showErrorsButton->hide();
 
-	      // Remove Updates Tab
-	      tabs->removeTab(tabs->indexOf(updateTab));
-	}
+    if (enableNativeSettings)
+    {
+        // Default Save Directories
+        defaultSnapshotDirLabel->hide();
+        snapshotSaveDirBox->hide();
+        snapshotSaveDirEdit->hide();
+        snapshotSaveDirButton->hide();
 
-	applyButton->setEnabled(false);
+        defaultPartlistDirLabel->hide();
+        partsListsSaveDirBox->hide();
+        partsListsSaveDirEdit->hide();
+        partsListsSaveDirButton->hide();
+
+        // Remove Updates Tab
+        tabs->removeTab(tabs->indexOf(updateTab));
+    }
+
+    applyButton->setEnabled(false);
 
 #ifdef DEBUG
-	setDebugLevel((int)TCUserDefaults::longForKey(DEBUG_LEVEL_KEY, 1, false));
+    setDebugLevel((int)TCUserDefaults::longForKey(DEBUG_LEVEL_KEY, 1, false));
 #else // DEBUG
-	setDebugLevel((int)TCUserDefaults::longForKey(DEBUG_LEVEL_KEY, 0, false));
+    setDebugLevel((int)TCUserDefaults::longForKey(DEBUG_LEVEL_KEY, 0, false));
 #endif // DEBUG
 
     setMinimumSize(50,50);
@@ -304,11 +319,15 @@ void LDVPreferences::doPrefSetsApply(void)
     	doEffectsApply();
     	doPrimitivesApply();
     	applyButton->setEnabled(false);
-        if (modelWidget)
-        {
+//        if (modelWidget)
+//        {
 //        	modelWidget->reflectSettings();
 //        	modelWidget->doApply();
-                setupDefaultRotationMatrix();
+//                setupDefaultRotationMatrix();
+//        }
+        if (modelViewer)
+        {
+            setupDefaultRotationMatrix();
         }
     	checkAbandon = true;
 
@@ -704,8 +723,8 @@ void LDVPreferences::doApply(void)
 //		modelWidget->doApply();
 //		setupDefaultRotationMatrix();
 //	}
-        if (modelViewer)
-                setupDefaultRotationMatrix();
+    if (modelViewer)
+        setupDefaultRotationMatrix();
 	checkAbandon = true;
 }
 
@@ -717,8 +736,6 @@ void LDVPreferences::doOk(void)
 
 void LDVPreferences::doCancel(void)
 {
-	loadSettings();
-	reflectSettings();
 	QDialog::close();
 }
 
@@ -796,7 +813,7 @@ void LDVPreferences::setRangeValue(QSlider *rangeControl, int value)
 void LDVPreferences::loadSettings(void)
 {
 	ldPrefs->loadSettings();
-	loadOtherSettings();
+    //loadOtherSettings();
 }
 
 void LDVPreferences::loadOtherSettings(void)

@@ -68,15 +68,17 @@
 
 LDVWidget* ldvWidget;
 
-LDVWidget::LDVWidget(IniFlag iniflag, QWidget *parent)
+LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
         : QGLWidget(parent),
         iniFlag(iniflag),
+        forceIni(forceIni),
         ldvFormat(nullptr),
         ldvContext(nullptr),
         modelViewer(nullptr),
         snapshotTaker(nullptr),
-        ldvAlertHandler(new LDVAlertHandler(this)),
-        programPath(QCoreApplication::applicationFilePath())
+        ldvPreferences(nullptr),
+        ldvExportOption(nullptr),
+        ldvAlertHandler(new LDVAlertHandler(this))
 {
   setupLDVFormat();
 
@@ -153,7 +155,7 @@ void LDVWidget::setupLDVUI(){
 
 bool LDVWidget::setIniFile()
 {    
-    if (!TCUserDefaults::isIniFileSet())
+    if (!TCUserDefaults::isIniFileSet() || forceIni)
     {
         if (getIniTitle().isEmpty()){
             emit lpubAlert->messageSig(LOG_ERROR, QString("INI file was not specified").arg(getIniTitle()).arg(getIniFile()));
@@ -164,8 +166,8 @@ bool LDVWidget::setIniFile()
             emit lpubAlert->messageSig(LOG_ERROR, QString("Could not set %1 INI %2").arg(getIniTitle()).arg(getIniFile()));
             return false;
         }
-        if (TCUserDefaults::isIniFileSet())
-            emit lpubAlert->messageSig(LOG_INFO, QString("%1 INI set: %2").arg(getIniTitle()).arg(getIniFile()));
+//        if (TCUserDefaults::isIniFileSet())
+//            emit lpubAlert->messageSig(LOG_INFO, QString("%1 INI set: %2").arg(getIniTitle()).arg(getIniFile()));
     }
     return true;
 }
@@ -193,24 +195,36 @@ void LDVWidget::showLDVExportOptions()
 {
     setupLDVUI();
 
-    LDViewExportOption exportOption(this,modelViewer);
+    ldvExportOption = new LDViewExportOption(this);
 
-    if (exportOption.exec() == QDialog::Rejected)
-    {
-        modelViewer->getExporter((LDrawModelViewer::ExportType)0, true);
-    }
+    if (ldvExportOption->exec() == QDialog::Rejected)
+        ldvExportOption->doCancel();
+    else
+        ldvExportOption->doOk();
+}
+
+void LDVWidget::closeLDVExportOptions()
+{
+    if (ldvExportOption)
+        ldvExportOption->doOk();
 }
 
 void LDVWidget::showLDVPreferences()
 {
-  setupLDVUI();
+    setupLDVUI();
 
-  ldvPreferences = new LDVPreferences(this);
+    ldvPreferences = new LDVPreferences(this);
 
-  if (ldvPreferences->exec() == QDialog::Rejected)
-    ldvPreferences->doCancel();
-  else
-    ldvPreferences->doApply();
+    if (ldvPreferences->exec() == QDialog::Rejected)
+        ldvPreferences->doCancel();
+    else
+        ldvPreferences->doOk();
+}
+
+void LDVWidget::closeLDVPreferences()
+{
+    if (ldvPreferences)
+        ldvPreferences->doOk();
 }
 
 void LDVWidget::setupLDVFormat(void)

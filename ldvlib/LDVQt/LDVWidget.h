@@ -31,6 +31,7 @@
 class LDrawModelViewer;
 class LDVAlertHandler;
 class LDVPreferences;
+class LDViewExportOption;
 class LDSnapshotTaker;
 
 class LDVWidget : public QGLWidget, protected QGLFunctions
@@ -39,7 +40,7 @@ class LDVWidget : public QGLWidget, protected QGLFunctions
   Q_OBJECT
 
 public:
-  LDVWidget(IniFlag iniflag, QWidget *parent=nullptr);
+  LDVWidget(QWidget *parent = nullptr, IniFlag iniflag = LDViewIni, bool forceIni = false);
   ~LDVWidget(void);
 
   LDrawModelViewer *getModelViewer(void) { return modelViewer; }
@@ -54,7 +55,9 @@ public:
   void snapshotTakerAlertCallback(TCAlert *alert);
 
   void showLDVExportOptions(void);
+  void closeLDVExportOptions(void);
   void showLDVPreferences(void);
+  void closeLDVPreferences(void);
 
   bool doCommand(QStringList &arguments);
 
@@ -74,15 +77,15 @@ protected:
   void setupSnapshotBackBuffer(int width, int height);
 
   IniFlag iniFlag;
+  bool    forceIni;
   QGLFormat ldvFormat;
   QGLContext *ldvContext;
 
   LDrawModelViewer *modelViewer;
   LDSnapshotTaker *snapshotTaker;
-  LDVAlertHandler *ldvAlertHandler;
-  QString programPath;
-
   LDVPreferences *ldvPreferences;
+  LDViewExportOption *ldvExportOption;
+  LDVAlertHandler *ldvAlertHandler;
 
   struct IniFile
   {

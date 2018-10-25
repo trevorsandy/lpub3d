@@ -275,11 +275,18 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.ldvPoVFileGenPrefBtn->setEnabled(renderPOVRay);
   ui.povGenNativeRadio->setChecked(nativePovFileGen);
   ui.povGenLDViewRadio->setChecked(!nativePovFileGen);
-  if (ui.povGenNativeRadio->isChecked())
+  if (ui.povGenNativeRadio->isChecked()) {
       ui.ldvPOVSettingsBox->setTitle("Native POV file generation settings");
-  else
-  if (ui.povGenLDViewRadio->isChecked())
+      ui.ldvPoVFileGenOptBtn->setToolTip("Open LDView POV generation dialogue");
+      ui.ldvPoVFileGenPrefBtn->setToolTip("Open LDView preferences dialogue");
+  } else {
+      ui.ldvPoVFileGenOptBtn->setToolTip("Open LDView POV generation dialogue");
+      ui.ldvPoVFileGenPrefBtn->setToolTip("Open LDView preferences dialogue");
       ui.ldvPOVSettingsBox->setTitle("LDView POV file generation settings");
+  }
+
+  connect(ui.ldvPoVFileGenOptBtn, SIGNAL(clicked()), SLOT(ldvPoVFileGenOptBtn_clicked()));
+  connect(ui.ldvPoVFileGenPrefBtn, SIGNAL(clicked()), SLOT(ldvPoVFileGenPrefBtn_clicked()));
 
   ui.ldvPreferencesBtn->setEnabled(Preferences::preferredRenderer == RENDERER_LDVIEW);
 
@@ -600,39 +607,54 @@ void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &
       ui.imageMattingChk->setEnabled(ldviewEnabled && Preferences::enableFadeSteps);
 }
 
+void PreferencesDialog::on_ldvPreferencesBtn_clicked()
+{
+    ldvWidget = new LDVWidget(this);
+    ldvWidget->showLDVPreferences();
+}
+
 void PreferencesDialog::on_povGenNativeRadio_clicked(bool checked)
 {
-    if (checked)
+    if (checked) {
         ui.ldvPOVSettingsBox->setTitle("Native POV file generation settings");
+        ui.ldvPoVFileGenOptBtn->setToolTip("Open Native POV generation dialogue");
+        ui.ldvPoVFileGenPrefBtn->setToolTip("Open Native preferences dialogue");
+    }
 }
 
 void PreferencesDialog::on_povGenLDViewRadio_clicked(bool checked)
 {
-    if (checked)
+    if (checked) {
         ui.ldvPOVSettingsBox->setTitle("LDView POV file generation settings");
+        ui.ldvPoVFileGenOptBtn->setToolTip("Open LDView POV generation dialogue");
+        ui.ldvPoVFileGenPrefBtn->setToolTip("Open LDView preferences dialogue");
+    }
+
 }
 
-void PreferencesDialog::on_ldvPreferencesBtn_clicked()
+void PreferencesDialog::ldvPoVFileGenOptBtn_clicked()
 {
-    ldvWidget = new LDVWidget(LDViewIni,this);
-    ldvWidget->showLDVPreferences();
-}
+    if (ldvWidget)
+        ldvWidget->closeLDVExportOptions();
 
-void PreferencesDialog::on_ldvPoVFileGenOptBtn_clicked()
-{
     if (ui.povGenNativeRadio->isChecked())
-        ldvWidget = new LDVWidget(NativePOVIni,this);
-    else if (ui.povGenLDViewRadio->isChecked())
-        ldvWidget = new LDVWidget(LDViewPOVIni,this);
+        ldvWidget = new LDVWidget(this,NativePOVIni,true);
+    else
+        ldvWidget = new LDVWidget(this,LDViewPOVIni,true);
+
     ldvWidget->showLDVExportOptions();
 }
 
-void PreferencesDialog::on_ldvPoVFileGenPrefBtn_clicked()
+void PreferencesDialog::ldvPoVFileGenPrefBtn_clicked()
 {
+    if (ldvWidget)
+        ldvWidget->closeLDVPreferences();
+
     if (ui.povGenNativeRadio->isChecked())
-        ldvWidget = new LDVWidget(NativePOVIni,this);
-    else if (ui.povGenLDViewRadio->isChecked())
-        ldvWidget = new LDVWidget(LDViewPOVIni,this);
+        ldvWidget = new LDVWidget(this,NativePOVIni,true);
+    else
+        ldvWidget = new LDVWidget(this,LDViewPOVIni,true);
+
     ldvWidget->showLDVPreferences();
 }
 
@@ -709,10 +731,10 @@ QString const PreferencesDialog::preferredRenderer()
 
 QString const PreferencesDialog::povFileGenerator()
 {
-    if (ui.povGenLDViewRadio->isChecked())
-      return RENDERER_LDVIEW;
-    else
+    if (ui.povGenNativeRadio->isChecked())
       return RENDERER_NATIVE;
+    else
+      return RENDERER_LDVIEW;
 }
 
 bool PreferencesDialog::povrayDisplay()
