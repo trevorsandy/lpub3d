@@ -59,6 +59,7 @@
 
 //#include "lpub_messages.h" // not used
 #include "lpub_preferences.h"
+#include "lpubalert.h"
 #include "version.h"
 #include "paths.h"
 
@@ -86,8 +87,8 @@ LDVWidget::LDVWidget(IniFlag iniflag, QWidget *parent)
                                                   .arg(VER_LDVMESSAGESINI_FILE));
   if (!TCLocalStrings::loadStringTable(messagesPath.toLatin1().constData()))
   {
-        fprintf(stdout, "ERROR - Could not load  %s file %s.\n", VER_LDVMESSAGESINI_FILE, messagesPath.toLatin1().constData());
-        fflush(stdout);
+      emit lpubAlert->messageSig(LOG_ERROR, QString("Could not load  %1 file %2")
+                                 .arg(VER_LDVMESSAGESINI_FILE).arg(messagesPath));
   }
 
   LDLModel::setFileCaseCallback(staticFileCaseCallback);
@@ -96,13 +97,10 @@ LDVWidget::LDVWidget(IniFlag iniflag, QWidget *parent)
   iniFiles[LDViewPOVIni] = { "LDView POV", Preferences::ldviewPOVIni };
   iniFiles[LDViewIni] = { "LDView", Preferences::ldviewIni } ;
 
-  QString initArgs = QString("%1 -IniFile=%2").arg(programPath).arg(getIniFile());
-
-  TCUserDefaults::setCommandLine(initArgs.toLatin1().constData());
+  QString programPath = QCoreApplication::applicationFilePath();
+  TCUserDefaults::setCommandLine(programPath.toLatin1().constData());
 
   TCUserDefaults::setAppName(Preferences::lpub3dAppName.toLatin1().constData());
-
-  setFocusPolicy(Qt::StrongFocus);
 
   ldvWidget = this;
 
@@ -118,6 +116,8 @@ LDVWidget::~LDVWidget(void)
 }
 
 void LDVWidget::setupLDVUI(){
+
+    setIniFile();
 
     modelViewer = new LDrawModelViewer(100, 100);
 
@@ -156,18 +156,16 @@ bool LDVWidget::setIniFile()
     if (!TCUserDefaults::isIniFileSet())
     {
         if (getIniTitle().isEmpty()){
-            fprintf(stdout, "ERROR - Ini file not specified!\n");
-            fflush(stdout);
+            emit lpubAlert->messageSig(LOG_ERROR, QString("INI file was not specified").arg(getIniTitle()).arg(getIniFile()));
             return false;
         }
         if (!TCUserDefaults::setIniFile(getIniFile().toLatin1().constData()))
         {
-            fprintf(stdout, "ERROR - Could not set %s INI file: %s\n",
-                    getIniTitle().toLatin1().constData(),
-                    getIniFile().toLatin1().constData());
-            fflush(stdout);
+            emit lpubAlert->messageSig(LOG_ERROR, QString("Could not set %1 INI %2").arg(getIniTitle()).arg(getIniFile()));
             return false;
         }
+        if (TCUserDefaults::isIniFileSet())
+            emit lpubAlert->messageSig(LOG_INFO, QString("%1 INI set: %2").arg(getIniTitle()).arg(getIniFile()));
     }
     return true;
 }
@@ -184,7 +182,7 @@ bool LDVWidget::doCommand(QStringList &arguments)
     bool retValue = LDSnapshotTaker::doCommandLine(false, true);
     if (!retValue)
     {
-         fprintf(stdout, "ERROR - Failed to processs Native command arguments: %s\n",
+         fprintf(stdout, "ERROR - Failed to process Native command arguments: %s\n",
                  arguments.join(" ").toLatin1().constData());
          fflush(stdout);
     }
