@@ -10,7 +10,7 @@ It uses the LDraw parts library and reads the LDraw DAT, LDR and MPD model file 
 LPub3D supports standard and high definition **part libraries** and do not require the LDraw library to be preinstalled. Archive (.zip) packages for both official and unofficial parts are bundled with LPub3D. Follow the linked image below to acquire the LGEO part library.
 
 :-----------------|:------------------------------------:|:--------------------
-[LDraw][ldraw-url]|[![LDraw-Logo][ldraw-logo]][ldraw-url]|LDraw™ ([LDraw.org][ldraw-url]) parts is an open standard library that allow users to create virtual LEGO® models and scenes.
+[LDraw][ldraw-url]|[![LDraw-Logo][ldraw-logo]][ldraw-url]|LDraw™ ([LDraw.org][ldraw-url]) parts is an open standard library that allow users to create virtual models and scenes. Three LDraw part libraries are bundled with LPub3D.<br>![LEGO][lego-logo] LDraw.org official and unofficial LEGO® part library<br>![TENTE][tente-logo] TENTE® unofficial LDraw part library created by (Jasolo) <br>![VEXIQ][vexiq-logo] VEX IQ® unofficial LDraw library created by Philippe Hurbain (Philo).
 [LGEO][lgeo-url]  |[![LGEO-Logo][lgeo-logo]][lgeo-url]   |POV-Ray high-fedility parts library created by Lutz Uhlmann (El Lutzo), updated by Owen Burgoyne (C3POwen) and extended with STL object files by Damien Roux (Darats).
 
 LPub3D provides "native" imbedded rendering for image and POV file generation plus three popular stand-alone **LDraw image renderers** - console applications custom adapted for tight integration, optimum configurability and robust performance.
@@ -61,8 +61,10 @@ LPub3D is also available as a Linux 'no-install', multi-platform [AppImage][appi
 :--------------------------------------|:-------------------------------------------------------------------------------------------
 [![GPLv3-logo][gplv3-logo]][lgplv3-url]|LPub3D is available for free under the [GNU Public License version 3.0 (GPLv3)][lgplv3-url].
 
-### Disclaimer
-LEGO® is a trademark of the LEGO Group of companies which does not sponsor, authorize or endorse this application.
+### Disclaimers
+LEGO® is a trademark of the LEGO Group of companies which does not sponsor, authorize or endorse this application.<br>
+TENTE® is a construction game owned by Educa-Borrás SA which does not sponsor, authorize or endorse this application.<br>
+VEX IQ® is a trademarks or service mark of Innovation First International, Inc, which does not sponsor, authorize or endorse this application.
 
 ### Documents
  - [LPub3D Metacommands][docs-lpub3d-meta]
@@ -77,6 +79,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
  - [LPub3D par J.C Tchang (en français)][jctchang-lpub3d]
 
 ### Features
+ - Pre-bundled and fully integrated LDraw part libraries for LEGO, TENTE and VEXIQ models [#132]("https://github.com/trevorsandy/lpub3d/issues/132) <span style="color:red">(NEW!)</span>
  - Continuous page processing - step through your model with one click [#76]("https://github.com/trevorsandy/lpub3d/issues/76) <span style="color:red">(NEW!)</span>
  - Go Dark - Dark mode theme, switch on the fly [#73](https://github.com/trevorsandy/lpub3d/issues/73) <span style="color:red">(NEW!)</span>
  - Multi-segment page, divider and callout pointers [#67](https://github.com/trevorsandy/lpub3d/issues/67) <span style="color:red">(NEW!)</span>
@@ -140,6 +143,9 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [obs-logo]:            {{ '/assets/images/obs_logo.png' | relative_url }}
 
 [ldraw-logo]:          {{ '/assets/images/ldraw_logo.png' | relative_url }}
+[lego-logo]:           {{ '/assets/images/lego_logo.png' | relative_url }}
+[tente-logo]:          {{ '/assets/images/tente_logo.png' | relative_url }}
+[vexiq-logo]:          {{ '/assets/images/vexiq_logo.png' | relative_url }}
 [lgeo-logo]:           {{ '/assets/images/lgeo_logo.png' | relative_url }}
 [gplv3-logo]:          {{ '/assets/images/gplv3_logo.png' | relative_url }}
 
@@ -159,9 +165,9 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [macos-icon]:          https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/macos.png "macOS OSX 10.13"
 [windows-icon]:        https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/windows.png "Windows 10"
 
-[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.3.2/LPub3D-2.3.2.0.988_20181005.exe
-[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.3.2/LPub3D-2.3.2.0.988_20181005-macos.dmg
-[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.3.2/LPub3D-2.3.2.0.988_20181005-x86_64.AppImage
+[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.3.3/LPub3D-2.3.3.0.1024_20181027.exe
+[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.3.3/LPub3D-2.3.3.0.1024_20181027-macos.dmg
+[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.3.3/LPub3D-2.3.3.0.1024_20181027-x86_64.AppImage
 
 [arch-icon]:           https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/arch.png "Arch"
 [centos-icon]:         https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/centos.png "CentOS 7"
@@ -172,7 +178,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [rhel-icon]:           https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/rhel.png "Red Hat Enterprise Linux 7"
 [sl-icon]:             https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/sl.png "Scientific Linux 7"
 [sle-icon]:            https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/sle.png "SUSE Enterprise Linux 12 SP3"
-[ubuntu-icon]:         https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/ubuntu.png "Ubuntu 18.04"
+[ubuntu-icon]:         https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/ubuntu.png "Ubuntu 18.10"
 [univention-icon]:     https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/univention.png "Univention 4.2"
 
 [arch-url]:            https://download.opensuse.org/repositories/home:/trevorsandy/Arch_Extra/
@@ -184,14 +190,14 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [rhel-url]:            https://download.opensuse.org/repositories/home:/trevorsandy/RHEL_7/
 [sl-url]:              https://download.opensuse.org/repositories/home:/trevorsandy/ScientificLinux_7/
 [sle-url]:             https://download.opensuse.org/repositories/home:/trevorsandy/SLE_12_SP3/
-[ubuntu-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/xUbuntu_17.10/
+[ubuntu-url]:          https://download.opensuse.org/repositories/home:/trevorsandy/xUbuntu_18.10/
 [univention-url]:      https://download.opensuse.org/repositories/home:/trevorsandy/Univention_4.2/
 
 [lgplv3-url]:          https://www.gnu.org/licenses/gpl-3.0.en.html
 [buildfromsource]:     https://github.com/trevorsandy/lpub3d/blob/master/builds/utilities/README.md
 
-[sfreleases]:          https://sourceforge.net/projects/lpub3d/files/2.3.2
-[githubreleases]:      https://github.com/trevorsandy/lpub3d/releases/tag/v2.3.2
+[sfreleases]:          https://sourceforge.net/projects/lpub3d/files/2.3.3
+[githubreleases]:      https://github.com/trevorsandy/lpub3d/releases/tag/v2.3.3
 [obsreleases]:         https://software.opensuse.org/download.html?project=home:trevorsandy&package=lpub3d
 
 [sf_releases]:         https://sourceforge.net/projects/lpub3d/files

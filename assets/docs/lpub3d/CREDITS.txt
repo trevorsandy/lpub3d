@@ -63,8 +63,17 @@ Michael Klement <mklement0@gmail.com>
 Dmg License script
 Jared Hobbs
 
+LEGO LDraw Library content
+LDraw.org
+
 NsisMultiUser Plugin <https://github.com/Drizin/NsisMultiUser>
 Ricardo Drizin, Alex Mitev
+
+TENTE LDraw Library content
+[Jasolo]
+
+VEXIQ LDraw Library content
+Philippe Hurbain <philo@philohome.com> [Philo]
 
 Linux Porting suggestion
 Milan Vancura
