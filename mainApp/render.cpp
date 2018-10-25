@@ -816,7 +816,7 @@ int LDGLite::renderCsi(
                                       .arg(cd);
 
   QStringList arguments;
-  arguments << CA;                  // camera FOV cameraAngles in degrees
+  arguments << CA;                  // camera FOV in degrees
   arguments << cg;                  // camera globe - scale factor
   arguments << v;                   // display in X wide by Y high window
   arguments << o;                   // changes the centre X across and Y down
@@ -919,7 +919,7 @@ int LDGLite::renderPli(
   QString w  = QString("-W%1")      .arg(lineThickness);  // ldglite always deals in 72 DPI
 
   QStringList arguments;
-  arguments << CA;                  // camera FOV cameraAngles in degrees
+  arguments << CA;                  // Camera FOV in degrees
   arguments << cg;                  // camera globe - scale factor
   arguments << v;                   // display in X wide by Y high window
   arguments << o;                   // changes the centre X across and Y down
@@ -1042,9 +1042,6 @@ int LDView::renderCsi(
     int width  = gui->pageSize(meta.LPub.page, 0);
     int height = gui->pageSize(meta.LPub.page, 1);
 
-    /* edge thickness */
-    int edgeThickness = 1;
-
     bool hasLDViewIni = Preferences::ldviewIni != "";
 
     // initialize ImageMatte flag
@@ -1139,18 +1136,16 @@ int LDView::renderCsi(
   QString h  = QString("-SaveHeight=%1") .arg(height);
   QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
   QString o  = QString("-HaveStdOut=1");
-  QString e  = QString("-EdgeThickness=%1").arg(edgeThickness);
   QString v  = QString("-vv");
 
   QStringList arguments;
-  arguments << CA;                        // 00. Camera cameraAngles
+  arguments << CA;                        // 00. Camera FOV in degrees
   arguments << cg;                        // 01. Camera globe
   arguments << w;                         // 03. SaveWidth
   arguments << h;                         // 04. SaveHeight
   arguments << f;                         // 05. SaveSnapshot/SaveSnapshots/SaveSnapshotsList
   arguments << l;                         // 06. LDrawDir
   arguments << o;                         // 07. HaveStdOut
-  arguments << e;                         // 08. EdgeThickness
   arguments << v;                         // 09. Verbose
   if (!enableIM)
     arguments.insert(2,a);                // 02. AutoCrop On if IM Off
@@ -1193,7 +1188,7 @@ int LDView::renderCsi(
   QStringList im_arguments;
   if (enableIM && haveLdrNamesIM) {
       QString a  = QString("-AutoCrop=0");
-      im_arguments << CA;                         // 00. Camera cameraAngles
+      im_arguments << CA;                         // 00. Camera FOV in degrees
       im_arguments << cg;                         // 01. Camera globe
       im_arguments << a;                          // 02. AutoCrop off - to create same size IM pair files
       im_arguments << w;                          // 03. SaveWidth
@@ -1201,7 +1196,6 @@ int LDView::renderCsi(
       im_arguments << f;                          // 05. SaveSnapshot/SaveSnapshots/SaveSnapshotsList
       im_arguments << l;                          // 06. LDrawDir
       im_arguments << o;                          // 07. HaveStdOut
-      im_arguments << e;                          // 08. EdgeThickness
       im_arguments << v;                          // 09. Verbose
       for (int i = 0; i < ldviewParmslist.size(); i++) {
           if (ldviewParmslist[i] != "" &&
@@ -1283,9 +1277,6 @@ int LDView::renderPli(
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
 
-  /* edge thickness */
-  int edgeThickness = 1;
-
   bool hasLDViewIni = Preferences::ldviewIni != "";
 
   QString tempPath = QDir::currentPath() + "/" + Paths::tmpDir;
@@ -1333,7 +1324,6 @@ int LDView::renderPli(
   QString h  = QString("-SaveHeight=%1") .arg(height);
   QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
   QString o  = QString("-HaveStdOut=1");
-  QString e  = QString("-EdgeThickness=%1").arg(edgeThickness);
   QString v  = QString("-vv");
 
   QStringList arguments;
@@ -1344,7 +1334,6 @@ int LDView::renderPli(
   arguments << f;
   arguments << l;
   arguments << o;
-  arguments << e;
   arguments << v;
 
   QStringList ldviewParmslist;
