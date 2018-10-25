@@ -68,7 +68,7 @@ CONFIG(debug, debug|release) {
     # The next 4 lines adds the LDView source files in my local Dev env
     ADD_LDV_SOURCE_FILES = True
     LOAD_LDVHEADERS      = #True
-    VER_LDVSRC           = ldview_vsbuild
+    VER_LDVSRC           = ldview
     LDVSRCPATH           = $$system_path( $$absolute_path( $$PWD/../../../$${VER_LDVSRC} ) )
 } else {
     BUILD_CONF = Release

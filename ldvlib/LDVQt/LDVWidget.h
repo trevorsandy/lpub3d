@@ -68,11 +68,6 @@ protected:
   void setupLDVUI(void);
   void displayGLExtensions(void);
 
-  // GL Widget overrides
-  void initializeGL(void);
-  void resizeGL(int width, int height);
-  void paintGL(void);
-
   bool getUseFBO();
   void setupSnapshotBackBuffer(int width, int height);
 

@@ -421,46 +421,6 @@ bool LDVWidget::staticFileCaseCallback(char *filename)
 	return staticFileCaseLevel(dir, shortName);
 }
 
-void LDVWidget::initializeGL(void)
-{
-    makeCurrent();
-    TREGLExtensions::setup();
-    ldvPreferences->doCancel();
-}
-
-void LDVWidget::resizeGL(int width, int height)
-{
-    width =  TCUserDefaults::longForKey(SAVE_ACTUAL_SIZE_KEY, 1, false) ?
-             TCUserDefaults::longForKey(WINDOW_WIDTH_KEY, WIN_WIDTH, false) :
-             TCUserDefaults::longForKey(SAVE_WIDTH_KEY, 1024, false);
-    height = TCUserDefaults::longForKey(SAVE_ACTUAL_SIZE_KEY, 1, false) ?
-             TCUserDefaults::longForKey(WINDOW_HEIGHT_KEY, WIN_HEIGHT, false) :
-             TCUserDefaults::longForKey(SAVE_HEIGHT_KEY, 768, false);
-
-    resize(width, height);
-
-    modelViewer->setWidth(width);
-    modelViewer->setHeight(height);
-
-    glViewport(0, 0, width, height);
-
-    QSize surfaceWindowSize = size();
-    ldvPreferences->setWindowSize(surfaceWindowSize.width(),
-                                  surfaceWindowSize.height());
-}
-
-void LDVWidget::paintGL(void)
-{
-    glEnable(GL_DEPTH_TEST);
-    makeCurrent();
-    if (!TREGLExtensions::haveFramebufferObjectExtension())
-    {
-         glDrawBuffer(GL_BACK);
-         glReadBuffer(GL_BACK);
-    }
-    modelViewer->update();
-}
-
 void LDVWidget::setupSnapshotBackBuffer(int width, int height)
 {
     modelViewer->setSlowClear(true);
