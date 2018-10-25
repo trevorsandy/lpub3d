@@ -2,7 +2,7 @@
 Title Update LPub3D files with build version number
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: September 27, 2018
+rem  Last Update: October 19, 2018
 rem  Copyright (c) 2015 - 2018 by Trevor SANDY
 rem --
 rem --
@@ -25,7 +25,7 @@ SET LINE_README_TXT=1
 SET LINE_README_MD_VER=70
 SET LINE_RELEASE_NOTES_HTM=12
 
-SET LP3D_GIT_DEPTH=1000
+SET LP3D_GIT_DEPTH=1500
 SET LP3D_PAST_RELEASES=1.3.5,1.2.3,1.0.0
 SET LP3D_BUILDS_DIR=%LP3D_BUILDS_DIR:"=%
 SET LP3D_CALL_DIR=%CD%

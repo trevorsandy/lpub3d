@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update October 03, 2018
+# Last Update October 19, 2018
 # This script is automatically executed by qmake from mainApp.pro
 # It is also called by other config scripts accordingly
 #
@@ -16,7 +16,7 @@ LP3D_DATE_TIME=`date +%d\ %m\ %Y\ %H:%M:%S`
 LP3D_BUILD_DATE=`date "+%Y%m%d"`
 LP3D_CALL_DIR=`pwd`
 LP3D_OS=`uname`
-GIT_DEPTH=1000
+LP3D_GIT_DEPTH=1500
 
 if [ "$1" = "" ]; then SOURCED="true"; LP3D_PWD=${_PRO_FILE_PWD_}; else SOURCED="false"; LP3D_PWD=$1; fi
 cd $LP3D_PWD/.. && basedir=$PWD && cd $LP3D_CALL_DIR
@@ -85,7 +85,7 @@ then
     then
         # Update refs and tags and populate committer email, name
         Info "1. update git tags and capture version info using git queries"
-        git fetch -qfup --depth=${GIT_DEPTH} origin +${TRAVIS_BRANCH} +refs/tags/*:refs/tags/*
+        git fetch -qfup --depth=${LP3D_GIT_DEPTH} origin +${TRAVIS_BRANCH} +refs/tags/*:refs/tags/*
         git checkout -qf ${TRAVIS_COMMIT}
         lp3d_git_ver_author="$(git log -1 ${TRAVIS_COMMIT} --pretty="%aN")"
         lp3d_git_ver_committer_email="$(git log -1 ${TRAVIS_COMMIT} --pretty="%cE")"
@@ -127,7 +127,7 @@ LP3D_APP_VERSION_TAG="v"${LP3D_VERSION}
 
 Info "   LPUB3D_DIR.............${LPUB3D}"
 Info "   UPDATE_OBS_CONFIG......${UPDATE_OBS_CONFIG}"
-Info "   GIT_DEPTH..............${GIT_DEPTH}"
+Info "   GIT_DEPTH..............${LP3D_GIT_DEPTH}"
 
 Info "   LP3D_PWD...............${LP3D_PWD}"
 Info "   LP3D_CALL_DIR..........${LP3D_CALL_DIR}"

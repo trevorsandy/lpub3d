@@ -3,7 +3,7 @@
 # Travis build [script] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: July 28, 2018
+#  Last Update: October 19, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -35,7 +35,7 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
       if [ "$LP3D_BUILD_UBUNTU" = "true" ]; then
         docker-compose -f $LP3D_COMPOSE_DIR/docker-compose-cibuild-linux.yml run --rm ubuntu;
       fi;
-      echo "Package Files " && find $LP3D_COMPOSE_DIR -type f -not -name "*ocker*";
+      echo "Package Files: " && find $LP3D_COMPOSE_DIR -type f -not -name "*ocker*";
     fi;
     # build macOS packages
     if [ "$LP3D_BUILD_MACOS" = "true" ]; then

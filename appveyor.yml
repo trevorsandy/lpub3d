@@ -1,4 +1,8 @@
 # Build and check LPub3D x86 and x86_64 architectures unsing Qt/MinGW/VS2017 platforms
+# Trevor SANDY <trevor.sandy@gmail.com>
+# Last Update: October 19, 2018
+# Copyright (c) 2017 - 2018 by Trevor SANDY
+#
 version: 'LPub3D-AV-Build-{build}'
 
 clone_folder: c:\projects\lpub3d
@@ -41,6 +45,7 @@ matrix:
 # The following variables/actions can be manipulated from AppVeyor via site->Project->Settings->Environment Variables
 # Variables ending with '_VAR' are designated to be defined at the AppVeyor site only
 # LP3D_BUILD_PKG = "yes"            ; trigger build
+# LP3D_BUILD_PKG_VAR = "true"       ; trigger build
 # LP3D_TEST_SF_DEPLOY_VAR = "true"  ; deploy SourceForge
 # LP3D_SKIP_SF_DEPLOY_VAR = "true"  ; skip SourceForge deploy
 # LP3D_CLEAR_AVCACHE_VAR = "true"   ; delete cache
@@ -51,6 +56,7 @@ matrix:
 #
 environment:
   LP3D_PACKAGE: LPub3D
+  LP3D_GIT_DEPTH: 1500
   LP3D_PACKAGE_PATH: builds\windows\$(configuration)
   LP3D_DIST_DIR: lpub3d_windows_3rdparty
   LP3D_DIST_DIR_PATH: $(APPVEYOR_BUILD_FOLDER)\$(LP3D_DIST_DIR)
@@ -88,7 +94,12 @@ init:
       }
  - ps: |
       If ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower() -Like "*build pkg*") {
-        write-host "[build pkg] detected."
+        write-host "[build pkg] detected in commit message."
+        $env:LP3D_BUILD_PKG = "yes"
+      }
+ - ps: |
+      If ($env:LP3D_BUILD_PKG_VAR -eq "true") {
+        write-host "'Build package' detected in environment variable."
         $env:LP3D_BUILD_PKG = "yes"
       }
  - ps: |
@@ -150,7 +161,7 @@ install:
  - cmd: git init %APPVEYOR_BUILD_FOLDER%
  - cmd: cd %APPVEYOR_BUILD_FOLDER%
  - cmd: git remote add origin https://github.com/%APPVEYOR_REPO_NAME%.git
- - cmd: git fetch -qfup --depth=200 origin +%APPVEYOR_REPO_BRANCH% +refs/tags/*:refs/tags/*
+ - cmd: git fetch -qfup --depth=%LP3D_GIT_DEPTH% origin +%APPVEYOR_REPO_BRANCH% +refs/tags/*:refs/tags/*
  - cmd: git checkout -qf %APPVEYOR_REPO_COMMIT%
  - cmd: bash -lc "if test \"$LP3D_BUILD_LDGLITE\" = \"1\" && test -d \"$LP3D_LDGLITE\"; then rm -rf $LP3D_LDGLITE; if ! test -d \"$LP3D_LDGLITE\"; then echo cached $LP3D_LDGLITE deleted; fi; fi"
  - cmd: bash -lc "if test \"$LP3D_BUILD_LDVIEW\" = \"1\" && test -d \"$LP3D_LDVIEW\"; then rm -rf $LP3D_LDVIEW; if ! test -d \"$LP3D_LDVIEW\"; then echo cached $LP3D_LDVIEW deleted; fi; fi"

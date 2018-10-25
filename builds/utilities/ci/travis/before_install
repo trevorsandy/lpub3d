@@ -3,7 +3,7 @@
 # Travis build [before_install] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: July 22, 2018
+#  Last Update: October 19, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 
@@ -12,10 +12,12 @@ echo "$TRAVIS_COMMIT_MESSAGE" | awk '{print tolower($0)}' | grep -E '\[(skip tra
 && echo "[skip travis] detected, exiting." \
 && exit 0 || true
 
-# Build package if commit message contains [build pkg]
+# Build package if commit message contains [build pkg] or environment var contains LP3D_BUILD_PKG_VAR
 echo "$TRAVIS_COMMIT_MESSAGE" | awk '{print tolower($0)}' | grep -E '\[build pkg.*\]' \
 && export LP3D_BUILD_PKG=yes \
-&& echo "[build pkg] detected." || true
+&& echo "[build pkg] detected in commit message." || [ "$LP3D_BUILD_PKG_VAR" = "true" ] \
+&& export LP3D_BUILD_PKG=yes \
+&& echo "'Build package' detected in environment variable." || true
 
 # Deploy package if pushed tag exists and has a valid format (vN.N.N[_A])
 # Automatically deploy to GitHub Release and Sourceforge.net.

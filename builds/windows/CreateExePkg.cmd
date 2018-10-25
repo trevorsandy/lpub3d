@@ -821,11 +821,6 @@ EXIT /b
 ECHO.
 ECHO - Download LDraw archive libraries...
 
-SET OfficialCONTENT=complete.zip
-SET UnofficialCONTENT=ldrawunf.zip
-SET Lpub3dCONTENT=lpub3dldrawunf.zip
-SET TENTECONTENT=tenteparts.zip
-SET VEXIQCONTENT=vexiqparts.zip
 IF "%APPVEYOR%" EQU "True" (
   SET LDRAW_OFFICIAL_LIBRARY_DIR=%APPVEYOR_BUILD_FOLDER%
 ) ELSE (
@@ -903,25 +898,10 @@ ECHO.
 ECHO - LDraw archive library download path: %OutputPATH%
 
 SET LibraryOPTION=Unofficial
+SET UnofficialCONTENT=ldrawunf.zip
+SET LPub3DCONTENT=lpub3dldrawunf.zip
 SET WebCONTENT="%OutputPATH%\%UnofficialCONTENT%"
-SET WebNAME=http://www.ldraw.org/library/unofficial/ldrawunf.zip
-
-ECHO.
-ECHO - Download LDraw %LibraryOPTION% library archive...
-
-ECHO.
-ECHO - Web URL: "%WebNAME%"
-ECHO.
-ECHO - Download file: %WebCONTENT%
-
-IF EXIST %WebCONTENT% (
- DEL %WebCONTENT%
-)
-
-SET LibraryOPTION=TENTE
-SET WebCONTENT="%OutputPATH%\%TENTECONTENT%"
-SET WebNAME=https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip
-
+SET WebNAME=http://www.ldraw.org/library/unofficial/%UnofficialCONTENT%
 ECHO.
 ECHO - Download LDraw %LibraryOPTION% library archive...
 
@@ -936,84 +916,125 @@ IF EXIST %WebCONTENT% (
 
 ECHO.
 cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
-IF "%LibraryOPTION%" EQU "TENTE" (
+ECHO.
+ECHO - Rename archive file %UnofficialCONTENT% to %LPub3DCONTENT%
+REN %UnofficialCONTENT% %LPub3DCONTENT%
+IF %UNIVERSAL_BUILD% EQU 1 (
   ECHO.
-  ECHO - Rename archive file %TENTECONTENT% to %Lpub3dCONTENT%
-  REN %TENTECONTENT% %Lpub3dCONTENT%
-  IF %UNIVERSAL_BUILD% EQU 1 (
-    ECHO.
-    ECHO - Copy and move archive file %Lpub3dCONTENT% to extras directory...
-    COPY /V /Y ".\%Lpub3dCONTENT%"  "%LP3D_PRODUCT%_x86_64\extras\" | findstr /i /v /r /c:"copied\>"
-    MOVE /y ".\%Lpub3dCONTENT%"  "%LP3D_PRODUCT%_x86\extras\" | findstr /i /v /r /c:"moved\>"
-  ) ELSE (
-    ECHO.
-    ECHO - Move archive file %Lpub3dCONTENT% to extras directory...
-    MOVE /y ".\%Lpub3dCONTENT%"  "%PKG_DISTRO_DIR%\extras\" | findstr /i /v /r /c:"moved\>"
-  )
-)
-ECHO.
-ECHO - LDraw archive library %TENTECONTENT% downloaded
-
-SET LibraryOPTION=VEXIQ
-SET WebCONTENT="%OutputPATH%\%VEXIQCONTENT%"
-SET WebNAME=https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip
-
-ECHO.
-ECHO - Download LDraw %LibraryOPTION% library archive...
-
-ECHO.
-ECHO - Web URL: "%WebNAME%"
-ECHO.
-ECHO - Download file: %WebCONTENT%
-
-IF EXIST %WebCONTENT% (
- DEL %WebCONTENT%
-)
-
-ECHO.
-cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
-IF "%LibraryOPTION%" EQU "VEXIQ" (
+  ECHO - Copy and move archive file %LPub3DCONTENT% to extras directory...
+  COPY /V /Y ".\%LPub3DCONTENT%"  "%LP3D_PRODUCT%_x86_64\extras\" | findstr /i /v /r /c:"copied\>"
+  MOVE /y ".\%LPub3DCONTENT%"  "%LP3D_PRODUCT%_x86\extras\" | findstr /i /v /r /c:"moved\>"
+) ELSE (
   ECHO.
-  ECHO - Rename archive file %VEXIQCONTENT% to %Lpub3dCONTENT%
-  REN %VEXIQCONTENT% %Lpub3dCONTENT%
-  IF %UNIVERSAL_BUILD% EQU 1 (
-    ECHO.
-    ECHO - Copy and move archive file %Lpub3dCONTENT% to extras directory...
-    COPY /V /Y ".\%Lpub3dCONTENT%"  "%LP3D_PRODUCT%_x86_64\extras\" | findstr /i /v /r /c:"copied\>"
-    MOVE /y ".\%Lpub3dCONTENT%"  "%LP3D_PRODUCT%_x86\extras\" | findstr /i /v /r /c:"moved\>"
-  ) ELSE (
-    ECHO.
-    ECHO - Move archive file %Lpub3dCONTENT% to extras directory...
-    MOVE /y ".\%Lpub3dCONTENT%"  "%PKG_DISTRO_DIR%\extras\" | findstr /i /v /r /c:"moved\>"
-  )
-)
-ECHO.
-ECHO - LDraw archive library %VEXIQCONTENT% downloaded
-
-ECHO.
-cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
-IF "%LibraryOPTION%" EQU "Unofficial" (
-  ECHO.
-  ECHO - Rename archive file %UnofficialCONTENT% to %Lpub3dCONTENT%
-  REN %UnofficialCONTENT% %Lpub3dCONTENT%
-  IF %UNIVERSAL_BUILD% EQU 1 (
-    ECHO.
-    ECHO - Copy and move archive file %Lpub3dCONTENT% to extras directory...
-    COPY /V /Y ".\%Lpub3dCONTENT%"  "%LP3D_PRODUCT%_x86_64\extras\" | findstr /i /v /r /c:"copied\>"
-    MOVE /y ".\%Lpub3dCONTENT%"  "%LP3D_PRODUCT%_x86\extras\" | findstr /i /v /r /c:"moved\>"
-  ) ELSE (
-    ECHO.
-    ECHO - Move archive file %Lpub3dCONTENT% to extras directory...
-    MOVE /y ".\%Lpub3dCONTENT%"  "%PKG_DISTRO_DIR%\extras\" | findstr /i /v /r /c:"moved\>"
-  )
+  ECHO - Move archive file %LPub3DCONTENT% to extras directory...
+  MOVE /y ".\%LPub3DCONTENT%"  "%PKG_DISTRO_DIR%\extras\" | findstr /i /v /r /c:"moved\>"
 )
 ECHO.
 ECHO - LDraw archive library %UnofficialCONTENT% downloaded
 
+SET LibraryOPTION=TENTE
+SET TenteCONTENT=tenteparts.zip
+SET WebCONTENT="%OutputPATH%\%TenteCONTENT%"
+SET WebNAME=https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/%TenteCONTENT%
+IF EXIST "%LDRAW_OFFICIAL_LIBRARY_DIR%\%TenteCONTENT%" (
+  ECHO.
+  ECHO - Copy LDraw %LibraryOPTION% library archive...
+  IF %UNIVERSAL_BUILD% EQU 1 (
+    ECHO.
+    ECHO - Copy archive file %TenteCONTENT% to extras directory
+    COPY /V /Y "%TenteCONTENT%"  "%LP3D_PRODUCT%_x86_64\extras\" | findstr /i /v /r /c:"copied\>"
+    COPY /V /Y "%TenteCONTENT%"  "%LP3D_PRODUCT%_x86\extras\" | findstr /i /v /r /c:"copied\>"
+  ) ELSE (
+    ECHO.
+    ECHO - Copy archive file %TenteCONTENT% to extras directory
+    COPY /V /Y "%TenteCONTENT%"  "%PKG_DISTRO_DIR%\extras\" | findstr /i /v /r /c:"moved\>"
+  )
+  ECHO.
+  ECHO - LDraw archive libraries download and copy finshed
+) ELSE (
+  ECHO.
+  ECHO - Download LDraw %LibraryOPTION% library archive...
+
+  ECHO.
+  ECHO - Web URL: "%WebNAME%"
+  ECHO.
+  ECHO - Download archive file: %WebCONTENT%
+
+  IF EXIST %WebCONTENT% (
+    DEL %WebCONTENT%
+  )
+
+  ECHO.
+  cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
+  IF %UNIVERSAL_BUILD% EQU 1 (
+    ECHO.
+    ECHO - Copy and move archive file %TenteCONTENT% to extras directory
+    COPY /V /Y ".\%TenteCONTENT%"  "%LP3D_PRODUCT%_x86_64\extras\" | findstr /i /v /r /c:"copied\>"
+    MOVE /y ".\%TenteCONTENT%"  "%LP3D_PRODUCT%_x86\extras\" | findstr /i /v /r /c:"moved\>"
+  ) ELSE (
+    ECHO.
+    ECHO - Move archive file %TenteCONTENT% to extras directory
+    MOVE /y ".\%TenteCONTENT%"  "%PKG_DISTRO_DIR%\extras\" | findstr /i /v /r /c:"moved\>"
+  )
+
+  ECHO.
+  ECHO - LDraw archive library %TenteCONTENT% downloaded
+)
+
+SET LibraryOPTION=VEXIQ
+SET VexiqCONTENT=vexiqparts.zip
+SET WebCONTENT="%OutputPATH%\%VexiqCONTENT%"
+SET WebNAME=https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/%VexiqCONTENT%
+IF EXIST "%LDRAW_OFFICIAL_LIBRARY_DIR%\%VexiqCONTENT%" (
+  ECHO.
+  ECHO - Copy LDraw %LibraryOPTION% library archive...
+  IF %UNIVERSAL_BUILD% EQU 1 (
+    ECHO.
+    ECHO - Copy archive file %VexiqCONTENT% to extras directory
+    COPY /V /Y "%VexiqCONTENT%"  "%LP3D_PRODUCT%_x86_64\extras\" | findstr /i /v /r /c:"copied\>"
+    COPY /V /Y "%VexiqCONTENT%"  "%LP3D_PRODUCT%_x86\extras\" | findstr /i /v /r /c:"copied\>"
+  ) ELSE (
+    ECHO.
+    ECHO - Copy archive file %VexiqCONTENT% to extras directory
+    COPY /V /Y "%VexiqCONTENT%"  "%PKG_DISTRO_DIR%\extras\" | findstr /i /v /r /c:"moved\>"
+  )
+  ECHO.
+  ECHO - LDraw archive libraries download and copy finshed
+) ELSE (
+  ECHO.
+  ECHO - Download LDraw %LibraryOPTION% library archive...
+
+  ECHO.
+  ECHO - Web URL: "%WebNAME%"
+  ECHO.
+  ECHO - Download archive file: %WebCONTENT%
+
+  IF EXIST %WebCONTENT% (
+    DEL %WebCONTENT%
+  )
+
+  ECHO.
+  cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
+  IF %UNIVERSAL_BUILD% EQU 1 (
+    ECHO.
+    ECHO - Copy and move archive file %VexiqCONTENT% to extras directory
+    COPY /V /Y ".\%VexiqCONTENT%"  "%LP3D_PRODUCT%_x86_64\extras\" | findstr /i /v /r /c:"copied\>"
+    MOVE /y ".\%VexiqCONTENT%"  "%LP3D_PRODUCT%_x86\extras\" | findstr /i /v /r /c:"moved\>"
+  ) ELSE (
+    ECHO.
+    ECHO - Move archive file %VexiqCONTENT% to extras directory
+    MOVE /y ".\%VexiqCONTENT%"  "%PKG_DISTRO_DIR%\extras\" | findstr /i /v /r /c:"moved\>"
+  )
+
+  ECHO.
+  ECHO - LDraw archive library %VexiqCONTENT% downloaded
+)
+
 SET LibraryOPTION=Official
+SET OfficialCONTENT=complete.zip
 SET WebCONTENT="%OutputPATH%\%OfficialCONTENT%"
-SET WebNAME=http://www.ldraw.org/library/updates/complete.zip
-IF EXIST "%LDRAW_OFFICIAL_LIBRARY_DIR%\complete.zip" (
+SET WebNAME=http://www.ldraw.org/library/updates/%OfficialCONTENT%
+IF EXIST "%LDRAW_OFFICIAL_LIBRARY_DIR%\%OfficialCONTENT%" (
   ECHO.
   ECHO - Copy LDraw %LibraryOPTION% library archive...
   IF %UNIVERSAL_BUILD% EQU 1 (
@@ -1056,9 +1077,9 @@ IF EXIST "%LDRAW_OFFICIAL_LIBRARY_DIR%\complete.zip" (
 
   ECHO.
   ECHO - LDraw archive library %OfficialCONTENT% downloaded
-  ECHO.
-  ECHO - LDraw archive libraries download finshed
 )
+ECHO.
+ECHO - LDraw archive libraries download finshed
 EXIT /b 0
 
 :CREATE_LP3D_PS_VARS_FILE

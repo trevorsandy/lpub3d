@@ -3,7 +3,7 @@
 # Travis build [after_script] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: August 10, 2018
+#  Last Update: October 19, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -43,7 +43,8 @@ cd $LP3D_BUILD_FOLDER
 # Gather up and move build artefacts and logs to releases directory
 if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_STORAGE" && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
   if [ "$TRAVIS_OS_NAME" = "linux" ]; then
-    echo "Capturing Docker-generated assets..."
+    echo "Docker-generated Assets:" && find $LP3D_COMPOSE_DIR -type f -not -name "*ocker*";
+    echo "Copying Docker-generated assets to release locations..."
     if [ "$LP3D_BUILD_ARCH" = "true" ]; then
       file_DPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-${LP3D_APP_VERSION_LONG}*.pkg.tar.xz -type f);
       file_UPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-UpdateMaster_${LP3D_VERSION}*.pkg.tar.xz -type f);
@@ -59,7 +60,7 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_
     file_Logs=$(find $LP3D_COMPOSE_DIR -name *.log -type f);
   fi;
   if [ "$LP3D_BUILD_MACOS" = "true" ]; then
-    echo "Capturing macOS-generated assets..."
+    echo "Copying macOS-generated assets to release locations..."
     file_DPkg=$(find $DmgBuildPath/DMGS -name LPub3D-${LP3D_APP_VERSION_LONG}*.dmg -type f);
     file_UPkg=$(find $DmgBuildPath/DMGS -name LPub3D-UpdateMaster_${LP3D_VERSION}*.dmg -type f);
     file_Logs=$(find $DmgBuildPath/lpub3d -name CreateDmg.sh.log -type f);
@@ -67,7 +68,7 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_
     file_Logs=$(find $DmgBuildPath -name CreateRenderers.sh*.log -type f);
   fi;
   if [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
-    echo "Capturing AppImage-generated assets..."
+    echo "Copying AppImage-generated assets to release locations..."
     file_DPkg=$(find $AppImageBuildPath/AppImage -name LPub3D-${LP3D_APP_VERSION_LONG}*.AppImage -type f);
     file_UPkg=$(find $AppImageBuildPath/AppImage -name LPub3D-UpdateMaster_${LP3D_VERSION}*.AppImage -type f);
     file_Logs=$(find ${LP3D_BUILD_FOLDER} -name CreateAppImage.log -type f);
@@ -77,7 +78,7 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_
   [ -n "$file_Logs" ] && cp -f $file_Logs $LP3D_LOGS_DIR || echo "ERROR - Logs folder empty, nothing copied";
   [ -n "$file_UPkg" ] && cp -f $file_UPkg $LP3D_UPDATE_ASSETS || echo "ERROR - Update assets folder empty, nothing copied";
   [ -n "$file_DPkg" ] && cp -f $file_DPkg $LP3D_DOWNLOAD_ASSETS || echo "ERROR - Download assets folder empty, nothing copied";
-  echo "Release Files:" && find $LP3D_RELEASES_DIR -type f;
+  echo "Release Assets:" && find $LP3D_RELEASES_DIR -type f;
 
   # Set release or build Dropbox storage path
   if [ "$LP3D_DEPLOY_PKG" = "yes" ]; then

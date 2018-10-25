@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update July 10 2018
+# Last Update October 19, 2018
 # To run:
 # $ chmod 755 CreateDeb.sh
 # $ [options] && ./builds/linux/CreateRpm.sh
@@ -168,10 +168,19 @@ then
     RPM_EXTENSION="${DISTRO_FILE##*-}"
 
     cp -f ${DISTRO_FILE} "LPub3D-${LP3D_APP_VERSION_LONG}-${RPM_EXTENSION}"
-    echo "    Download package..: LPub3D-${LP3D_APP_VERSION_LONG}-${RPM_EXTENSION}"
+    if [ -f "LPub3D-${LP3D_APP_VERSION_LONG}-${RPM_EXTENSION}" ]; then
+        echo "    Download package..: LPub3D-${LP3D_APP_VERSION_LONG}-${RPM_EXTENSION}"
+    else
+        echo "    ERROR - file not copied: LPub3D-${LP3D_APP_VERSION_LONG}-${RPM_EXTENSION}"
+    fi
 
     mv -f ${DISTRO_FILE} "LPub3D-UpdateMaster_${LP3D_VERSION}-${RPM_EXTENSION}"
-    echo "    Update package....: LPub3D-UpdateMaster_${LP3D_VERSION}-${RPM_EXTENSION}"
+    if [ -f "LPub3D-UpdateMaster_${LP3D_VERSION}-${RPM_EXTENSION}" ]; then
+        echo "    Update package....: LPub3D-UpdateMaster_${LP3D_VERSION}-${RPM_EXTENSION}"
+    else
+        echo "    ERROR - file not renamed: LPub3D-UpdateMaster_${LP3D_VERSION}-${RPM_EXTENSION}"
+    fi
+
 else
     echo "15. package ${DISTRO_FILE} not found."
 fi
