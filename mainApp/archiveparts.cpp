@@ -330,8 +330,8 @@ bool ArchiveParts::GetExistingArchiveFileList(
 /* Recursively searches for all files on the disk \ a, and adds to the list of \ b */
 void ArchiveParts::RecurseAddDir(const QDir &dir, QStringList &list) {
 
-  QStringList filters = QStringList() << "*.dat" << "*.ldr";
-  QStringList entryList = dir.entryList(filters,QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files);
+  QStringList filters = QStringList() << "*";
+  QStringList entryList = dir.entryList(filters, QDir::NoDotAndDotDot | QDir::Dirs | QDir::Files);
   QStringList excludedPaths = QStringList() << "unofficial/parts" << "unofficial/p" << "parts" << "p";
 
   foreach (QString file, entryList) {
