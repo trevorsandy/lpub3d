@@ -42,7 +42,7 @@ class PreferencesDialog : public QDialog
     QString const ldrawLibPath();
     QString const altLDConfigPath();
     QString const lgeoPath();
-    QString const pliFile();
+    QString const pliControlFile();
     QString const povrayExe();
     QString const ldgliteExe();
     QString const ldviewExe();

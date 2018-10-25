@@ -80,10 +80,10 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.ldrawLibPathEdit->setText(                  mLDrawLibPath);
   ui.ldrawLibPathBox->setTitle(                  ldrawLibPathTitle);
   ui.fadeStepsUseColourBox->setTitle(            fadeStepsColorTitle);
-  ui.pliName->setText(                           Preferences::pliFile);
+  ui.pliControlEdit->setText(                    Preferences::pliControlFile);
   ui.altLDConfigPath->setText(                   Preferences::altLDConfigPath);
   ui.altLDConfigBox->setChecked(                 Preferences::altLDConfigPath != "");
-  ui.pliBox->setChecked(                         Preferences::pliFile != "");
+  ui.pliControlBox->setChecked(                  Preferences::pliControlFile != "");
   ui.ldglitePath->setText(                       Preferences::ldgliteExe);
   ui.ldgliteBox->setChecked(                     Preferences::ldgliteExe != "");
   ui.povrayPath->setText(                        Preferences::povrayExe);
@@ -420,12 +420,12 @@ void PreferencesDialog::on_browsePli_clicked()
 #endif
 
     QString result = QFileDialog::getOpenFileName(this, tr("Locate Parts List orientation/size file"),
-                                                  ui.pliName->text().isEmpty() ? Preferences::lpubDataPath + "/extras" : ui.pliName->text(),
+                                                  ui.pliControlEdit->text().isEmpty() ? Preferences::lpubDataPath + "/extras" : ui.pliControlEdit->text(),
                                                   filter);
 
     if (!result.isEmpty()) {
-      ui.pliName->setText(QDir::toNativeSeparators(result));
-      ui.pliBox->setChecked(true);
+      ui.pliControlEdit->setText(QDir::toNativeSeparators(result));
+      ui.pliControlBox->setChecked(true);
     }
 }
 
@@ -736,10 +736,10 @@ QString const PreferencesDialog::lgeoPath()
     return "";
 }
 
-QString const PreferencesDialog::pliFile()
+QString const PreferencesDialog::pliControlFile()
 {
-  if (ui.pliBox->isChecked()) {
-    return ui.pliName->displayText();
+  if (ui.pliControlBox->isChecked()) {
+    return ui.pliControlEdit->displayText();
   }
   return "";
 }

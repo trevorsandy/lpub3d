@@ -644,7 +644,7 @@
         </spacer>
        </item>
        <item>
-        <widget class="QGroupBox" name="pliBox">
+        <widget class="QGroupBox" name="pliControlBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
            <horstretch>0</horstretch>
@@ -672,7 +672,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="pliName">
+           <widget class="QLineEdit" name="pliControlEdit">
             <property name="minimumSize">
              <size>
               <width>200</width>
@@ -2566,8 +2566,8 @@ p, li { white-space: pre-wrap; }
   <tabstop>highlightStepLineWidthSpin</tabstop>
   <tabstop>highlightStepBtn</tabstop>
   <tabstop>browseAltLDConfig</tabstop>
-  <tabstop>pliBox</tabstop>
-  <tabstop>pliName</tabstop>
+  <tabstop>pliControlBox</tabstop>
+  <tabstop>pliControlEdit</tabstop>
   <tabstop>browsePli</tabstop>
   <tabstop>Centimeters</tabstop>
   <tabstop>Inches</tabstop>

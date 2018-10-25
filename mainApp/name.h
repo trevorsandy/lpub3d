@@ -95,9 +95,9 @@ enum Theme { ThemeDark, ThemeDefault };
 #define TENTE_LDRAW_LIB_PATH_KEY                "TENTELDrawLibPath"
 #define VEXIQ_LDRAW_LIB_PATH_KEY                "VEXIQLDrawLibPath"
 
-#define FADE_COLOUR_LEGO_DEFAULT                "Light_Blue"
-#define FADE_COLOUR_TENTE_DEFAULT               "Light_Orange"
-#define FADE_COLOUR_VEXIQ_DEFAULT               "VEX_Sky_Blue"
+#define LEGO_FADE_COLOUR_DEFAULT                "Light_Blue"
+#define TENTE_FADE_COLOUR_DEFAULT               "Light_Orange"
+#define VEXIQ_FADE_COLOUR_DEFAULT               "VEX_Sky_Blue"
 
 #define CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT   260  // Native camera distance factor for A4 portrait; factor is about 450 for A4 landscape
 

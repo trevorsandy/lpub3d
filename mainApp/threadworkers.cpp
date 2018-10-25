@@ -1229,7 +1229,7 @@ bool ColourPartListWorker::processArchiveParts(const QString &archiveFile) {
    bool isUnOffLib = true;
    QString library = Preferences::usingDefaultLibrary ? "Unofficial "+lib+" Library"  : lib+" Custom Library";
 
-    if (archiveFile.contains(Preferences::validLDrawArchive)) {
+    if (archiveFile.contains(Preferences::validLDrawPartsArchive)) {
         library = Preferences::usingDefaultLibrary ? "Official "+lib+" Library" : lib+" Library";
         isUnOffLib = false;
     }

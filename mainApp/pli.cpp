@@ -397,7 +397,7 @@ QString Pli::orient(QString &color, QString type)
   QString *cached = orientation[type];
 
   if ( ! cached) {
-      QString name(Preferences::pliFile);
+      QString name(Preferences::pliControlFile);
       QFile file(name);
 
       if (file.open(QFile::ReadOnly | QFile::Text)) {
