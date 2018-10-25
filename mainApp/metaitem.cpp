@@ -3108,7 +3108,7 @@ QPointF MetaItem::pointerTip(
       pngName = QDir::currentPath() + "/" + Paths::assemDir + "/pointerMono.png";
       ldrNames << ldrName;
       csiKeys << "pointerMono";
-      ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName) == 0);
+      ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles) == 0);
       ok[1] = (renderer->renderCsi(addLine,ldrNames,csiKeys,pngName,meta) == 0);
     } else {
       pngName = QDir::currentPath() + "/" + Paths::tmpDir + "/pointerMono.png";
@@ -3490,7 +3490,7 @@ QPointF MetaItem::defaultPointerTip(
       ldrNames << monoOutName;
       ldrName = ldrNames.first();
       pngName = QDir::currentPath() + "/" + Paths::assemDir + "/" + monoOutPngBaseName + ".png";
-      ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName) == 0);
+      ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles) == 0);
       ok[1] = (renderer->renderCsi(addLine,ldrNames,csiKeys,pngName,meta) == 0);
     } else {
       pngName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + monoOutPngBaseName + ".png";

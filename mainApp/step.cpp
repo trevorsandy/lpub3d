@@ -269,8 +269,8 @@ int Step::createCsi(
       // set rotated parts
       QStringList rotatedParts = csiParts;
 
-      // rotate parts for 3DViewer display
-      if ((rc = renderer->rotateParts(addLine,meta.rotStep,rotatedParts)) != 0)
+      // rotate parts for 3DViewer display - do not apply camera angles
+      if ((rc = renderer->rotateParts(addLine,meta.rotStep,rotatedParts,meta.LPub.assem.cameraAngles,false)) != 0)
         emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer CSI parts"));
 
       // add ROTSTEP command
@@ -306,7 +306,7 @@ int Step::createCsi(
          if (nativeRenderer)
             ldrName = csiLdrFile;
 
-         if ((rc = renderer->rotateParts(addLine, meta.rotStep, csiParts, ldrName, top.modelName)) != 0) {
+         if ((rc = renderer->rotateParts(addLine, meta.rotStep, csiParts, ldrName, top.modelName, meta.LPub.assem.cameraAngles)) != 0) {
              emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate CSI ldr file: %1.")
                                                    .arg(ldrName));
              return rc;

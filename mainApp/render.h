@@ -38,6 +38,7 @@ class AssemMeta;
 class LPubMeta;
 class UnitsMeta;
 class RotStepMeta;
+class FloatPairMeta;
 class NativeOptions;
 class ViewerOptions;
 class NativePov;
@@ -64,10 +65,13 @@ public:
                                      RotStepMeta &rotStep,
                                      const QStringList &parts,
                                      QString &ldrName,
-                                     const QString &modelName);
+                                     const QString &modelName,
+                                     FloatPairMeta &ca);
   static int             rotateParts(const QString &addLine,
                                      RotStepMeta &rotStep,
-                                     QStringList &parts);
+                                     QStringList &parts,
+                                     FloatPairMeta &ca,
+                                     bool  applyCA = true);
   static int             splitIMParts(const QStringList &rotatedParts,
                                       const QString &rotsComment,
                                       const QString &ldrName,

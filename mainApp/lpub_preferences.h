@@ -130,6 +130,7 @@ class Preferences
     static bool    generateCoverPages;
     static bool    printDocumentTOC;
     static bool    doNotShowPageProcessDlg;
+    static bool    applyCALocally;
     static bool    preferCentimeters;
     static bool    showAllNotifications;
     static bool    showUpdateNotifications;

@@ -1534,6 +1534,7 @@ void Gui::preferences()
     int fadeStepsOpacityCompare         = Preferences::fadeStepsOpacity;
     bool enableHighlightStepCompare     = Preferences::enableHighlightStep;
     bool enableImageMattingCompare      = Preferences::enableImageMatting;
+    bool applyCALocallyCompare          = Preferences::applyCALocally;
     int  highlightStepLineWidthCompare  = Preferences::highlightStepLineWidth;
     bool doNotShowPageProcessDlgCompare = Preferences::doNotShowPageProcessDlg;
     int  pageDisplayPauseCompare        = Preferences::pageDisplayPause;
@@ -1638,6 +1639,7 @@ void Gui::preferences()
         bool highlightStepColorChanged     = QString(Preferences::highlightStepColour).toLower() != highlightStepColourCompare.toLower();
         bool highlightStepLineWidthChanged = Preferences::highlightStepLineWidth                 != highlightStepLineWidthCompare;
         bool enableImageMattingChanged     = Preferences::enableImageMatting                     != enableImageMattingCompare;
+        bool applyCALocallyChanged         = Preferences::applyCALocally                         != applyCALocallyCompare;
         bool enableLDViewSCallChanged      = Preferences::enableLDViewSingleCall                 != enableLDViewSCallCompare;
         bool enableLDViewSListChanged      = Preferences::enableLDViewSnaphsotList               != enableLDViewSListCompare;
         bool displayAttributesChanged      = Preferences::displayAllAttributes                   != displayAllAttributesCompare;
@@ -1784,9 +1786,10 @@ void Gui::preferences()
             clearCustomPartCache(true);    // true = silent
 
         if (enableImageMattingChanged && Preferences::enableImageMatting)
-            emit messageSig(LOG_INFO,QString("Enable image matting preference changed from %1 to %2")
-                            .arg(enableImageMattingCompare)
-                            .arg(Preferences::enableImageMatting));
+            emit messageSig(LOG_INFO,QString("Enable image matting is %1").arg(Preferences::enableImageMatting ? "ON" : "OFF"));
+
+        if (applyCALocallyChanged)
+            emit messageSig(LOG_INFO,QString("Apply camera angles locally is %1").arg(Preferences::applyCALocally ? "ON" : "OFF"));
 
         if (enableLDViewSCallChanged)
             emit messageSig(LOG_INFO,QString("Enable LDView Single Call is %1").arg(Preferences::enableLDViewSingleCall ? "ON" : "OFF"));

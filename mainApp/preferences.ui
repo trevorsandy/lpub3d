@@ -714,7 +714,7 @@
         </spacer>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_18">
+        <layout class="QHBoxLayout" name="horizontalLayout_29">
          <item>
           <widget class="QGroupBox" name="groupBox">
            <property name="sizePolicy">
@@ -745,6 +745,35 @@
           </widget>
          </item>
          <item>
+          <widget class="QGroupBox" name="applyCameraAnglesBox">
+           <property name="title">
+            <string>Apply Camera Angles</string>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_14">
+            <item>
+             <widget class="QRadioButton" name="applyCALocallyRadio">
+              <property name="toolTip">
+               <string>Apply camera angles before passing content to the renderer - not applicable to Native renderer</string>
+              </property>
+              <property name="text">
+               <string>Locally</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="applyCARendererRadio">
+              <property name="toolTip">
+               <string>Pass camera angles to renderer; camera angles applied by renderer</string>
+              </property>
+              <property name="text">
+               <string>Renderer</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
           <widget class="QGroupBox" name="showParseErrorGrpBox">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
@@ -754,36 +783,23 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>220</width>
+             <width>0</width>
              <height>0</height>
             </size>
            </property>
            <property name="title">
             <string>Model Meta Parse Errors</string>
            </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_14">
+           <layout class="QHBoxLayout" name="horizontalLayout_18">
             <item>
              <widget class="QCheckBox" name="showParseErrorsChkBox">
               <property name="toolTip">
                <string>Display all meta command parse errors including MLCAD and LSynth errors</string>
               </property>
               <property name="text">
-               <string>Show all meta parse errors</string>
+               <string>Show all</string>
               </property>
              </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_18">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>106</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
             </item>
            </layout>
           </widget>
@@ -2555,7 +2571,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>browsePli</tabstop>
   <tabstop>Centimeters</tabstop>
   <tabstop>Inches</tabstop>
-  <tabstop>showParseErrorsChkBox</tabstop>
   <tabstop>POVRayBox</tabstop>
   <tabstop>lgeoBox</tabstop>
   <tabstop>lgeoPath</tabstop>

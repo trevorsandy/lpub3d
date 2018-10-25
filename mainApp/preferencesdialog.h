@@ -65,6 +65,7 @@ class PreferencesDialog : public QDialog
     bool          printDocumentTOC();
     bool          doNotShowPageProcessDlg();
     bool          centimeters();
+    bool          applyCALocally();
     bool          enableFadeSteps();
     bool          fadeStepsUseColour();
     bool          enableHighlightStep();

@@ -263,6 +263,10 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.Centimeters->setChecked(centimeters);
   ui.Inches->setChecked(! centimeters);
 
+  bool applyCALocally = Preferences::applyCALocally;
+  ui.applyCALocallyRadio->setChecked(applyCALocally);
+  ui.applyCARendererRadio->setChecked(! applyCALocally);
+
   bool nativePovFileGen = Preferences::povFileGenerator  == RENDERER_NATIVE;
   bool renderPOVRay     = Preferences::preferredRenderer == RENDERER_POVRAY;
   ui.povNativeGenBox->setEnabled(renderPOVRay);
@@ -752,6 +756,11 @@ bool PreferencesDialog::enableImageMatting()
 bool PreferencesDialog::centimeters()
 {
   return ui.Centimeters->isChecked();
+}
+
+bool PreferencesDialog::applyCALocally()
+{
+  return ui.applyCALocallyRadio->isChecked();
 }
 
 bool  PreferencesDialog::enableFadeSteps()

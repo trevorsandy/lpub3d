@@ -585,8 +585,8 @@ QString Callout::wholeSubmodel(
 
   if ( ! isMirrored && meta.LPub.callout.begin.value() == CalloutBeginMeta::Rotated && depth == 0) {
     //Render::rotateParts(addLine,meta.rotStep,csiParts,false);
-    RotStepMeta emptyRotStep;
-    Render::rotateParts(addLine,emptyRotStep,csiParts);
+    RotStepMeta emptyRotStep; FloatPairMeta emptyCameraAngles;
+    Render::rotateParts(addLine,emptyRotStep,csiParts,emptyCameraAngles,false);
     logDebug() << "Called rotateParts for Called out 'Rotated' parts;";
   }
 

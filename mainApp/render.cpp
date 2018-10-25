@@ -348,16 +348,19 @@ int POVRay::renderCsi(
   int height = gui->pageSize(meta.LPub.page, 1);
 
   int rc;
-  if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrName, QString())) < 0) {
+  if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrName, QString(),meta.LPub.assem.cameraAngles)) < 0) {
       return rc;
    }
 
   /* determine camera distance */
   int cd = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
 
+  /* apply camera angle */
+  bool applyCA = Preferences::applyCALocally;
+
   QString cg = QString("-cg%1,%2,%3")
-      .arg(meta.LPub.assem.cameraAngles.value(0))
-      .arg(meta.LPub.assem.cameraAngles.value(1))
+      .arg(applyCA ? 0.0f : meta.LPub.assem.cameraAngles.value(0))
+      .arg(applyCA ? 0.0f : meta.LPub.assem.cameraAngles.value(1))
       .arg(cd);
 
   QString CA = QString("-ca%1") .arg(meta.LPub.assem.cameraFoV.value());
@@ -780,13 +783,17 @@ int LDGLite::renderCsi(
   ldrName = "csi.ldr";
   ldrPath = QDir::currentPath() + "/" + Paths::tmpDir;
   ldrFile = ldrPath + "/" + ldrName;
-  if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrFile,QString())) < 0) {
+  if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrFile,QString(),meta.LPub.assem.cameraAngles)) < 0) {
      return rc;
   }
 
   /* determine camera distance */
 
   int cd = cameraDistance(meta,meta.LPub.assem.modelScale.value());
+
+  /* apply camera angle */
+
+  bool applyCA = Preferences::applyCALocally;
 
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
@@ -804,8 +811,8 @@ int LDGLite::renderCsi(
   QString w  = QString("-W%1")      .arg(lineThickness); // ldglite always deals in 72 DPI
 
   QString CA = QString("-ca%1") .arg(meta.LPub.assem.cameraFoV.value());
-  QString cg = QString("-cg%1,%2,%3") .arg(meta.LPub.assem.cameraAngles.value(0))
-                                      .arg(meta.LPub.assem.cameraAngles.value(1))
+  QString cg = QString("-cg%1,%2,%3") .arg(applyCA ? 0.0f : meta.LPub.assem.cameraAngles.value(0))
+                                      .arg(applyCA ? 0.0f : meta.LPub.assem.cameraAngles.value(1))
                                       .arg(cd);
 
   QStringList arguments;
@@ -1028,6 +1035,9 @@ int LDView::renderCsi(
     /* determine camera distance */
     int cd = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
 
+    /* apply camera angle */
+    bool applyCA = Preferences::applyCALocally;
+
     /* page size */
     int width  = gui->pageSize(meta.LPub.page, 0);
     int height = gui->pageSize(meta.LPub.page, 1);
@@ -1104,7 +1114,7 @@ int LDView::renderCsi(
 
         ldrNames << tempPath + "/csi.ldr";
 
-        if ((rc = rotateParts(addLine, meta.rotStep, csiParts,ldrNames.first(), csiKey)) < 0) {
+        if ((rc = rotateParts(addLine, meta.rotStep, csiParts,ldrNames.first(), csiKey, meta.LPub.assem.cameraAngles)) < 0) {
             emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView (Single Call) CSI rotate parts failed!"));
             return rc;
         } else
@@ -1121,8 +1131,8 @@ int LDView::renderCsi(
 
   // Build (Native) arguments
   QString CA = QString("-ca%1") .arg(meta.LPub.assem.cameraFoV.value());
-  QString cg = QString("-cg%1,%2,%3") .arg(meta.LPub.assem.cameraAngles.value(0))
-                                      .arg(meta.LPub.assem.cameraAngles.value(1))
+  QString cg = QString("-cg%1,%2,%3") .arg(applyCA ? 0.0f : meta.LPub.assem.cameraAngles.value(0))
+                                      .arg(applyCA ? 0.0f : meta.LPub.assem.cameraAngles.value(1))
                                       .arg(cd);
   QString a  = QString("-AutoCrop=1");
   QString w  = QString("-SaveWidth=%1")  .arg(width);

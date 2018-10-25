@@ -143,6 +143,7 @@ bool    Preferences::logLevel                   = false;
 bool    Preferences::logging                    = false;   // logging on/off offLevel (grp box)
 bool    Preferences::logLevels                  = false;   // individual logging levels (grp box)
 
+bool    Preferences::applyCALocally             = true;
 bool    Preferences::preferCentimeters          = false;   // default is false, to use DPI
 bool    Preferences::showAllNotifications       = true;
 bool    Preferences::showUpdateNotifications    = true;
@@ -1572,6 +1573,14 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
         povrayDisplay = Settings.value(QString("%1/%2").arg(SETTINGS,povrayDisplayKey)).toBool();
     }
 
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"ApplyCALocally"))) {
+        QVariant uValue(true);
+        applyCALocally = true;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"ApplyCALocally"),uValue);
+    } else {
+        applyCALocally = Settings.value(QString("%1/%2").arg(SETTINGS,"ApplyCALocally")).toBool();
+    }
+
     QString const enableImageMattingKey("EnableImageMatting");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,enableImageMattingKey))) {
         QVariant uValue(false);
@@ -2648,6 +2657,12 @@ bool Preferences::getPreferences()
             preferCentimeters = dialog->centimeters();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"Centimeters"),preferCentimeters);
             defaultResolutionType(preferCentimeters);
+        }
+
+        if (applyCALocally != dialog->applyCALocally())
+        {
+            applyCALocally = dialog->applyCALocally();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ApplyCALocally"),applyCALocally);
         }
 
         if (enableDownloader != dialog->enableDownloader()) {

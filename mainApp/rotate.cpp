@@ -151,16 +151,17 @@ void rotateMatrix(
 }
 
 int Render::rotateParts(
-         const QString      &addLine,
+          const QString     &addLine,
           RotStepMeta       &rotStep,
           const QStringList &parts,
           QString           &ldrName,
-          const QString     &modelName)
+          const QString     &modelName,
+          FloatPairMeta     &ca)
 {
   bool  nativeRenderer = Preferences::preferredRenderer == RENDERER_NATIVE;
   QStringList rotatedParts = parts;
 
-  rotateParts(addLine,rotStep,rotatedParts);
+  rotateParts(addLine,rotStep,rotatedParts,ca);
 
   QFile file(ldrName);
   if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
@@ -223,7 +224,9 @@ int Render::rotateParts(
 int Render::rotateParts(
         const QString &addLine,
         RotStepMeta   &rotStep,
-        QStringList   &parts)
+        QStringList   &parts,
+        FloatPairMeta &ca,
+        bool          applyCA /* default true */)
 {
   double min[3], max[3];
 
@@ -233,9 +236,15 @@ int Render::rotateParts(
 
   double defaultViewMatrix[3][3], defaultViewRots[3];
 
-  defaultViewRots[0] = 0;
-  defaultViewRots[1] = 0;
-  defaultViewRots[2] = 0;
+  if (Preferences::applyCALocally && applyCA) {
+    defaultViewRots[0] = ca.value(0);
+    defaultViewRots[1] = ca.value(1);
+    defaultViewRots[2] = 0;
+  } else {
+    defaultViewRots[0] = 0;
+    defaultViewRots[1] = 0;
+    defaultViewRots[2] = 0;
+  }
 
   matrixMakeRot(defaultViewMatrix,defaultViewRots);
 
