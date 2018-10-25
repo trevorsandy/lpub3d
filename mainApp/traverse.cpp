@@ -455,9 +455,11 @@ int Gui::drawPage(
                             }
                         }
                     }
+
                   if (mode == CalloutBeginMeta::Rotated) {
-                      // Set camera angles 0, use only ROTSTEP angles
-                      callout->meta.LPub.assem.cameraAngles.setValues(0.0, 0.0);
+                      // When renderers apply CA rotation, set cameraAngles to 0 so only ROTSTEP is sent to renderers.
+                      if (! Preferences::applyCALocally)
+                          callout->meta.LPub.assem.cameraAngles.setValues(0.0, 0.0);
                   }
                   callout->meta.rotStep = tmpMeta.rotStep;
                   callout->meta.LPub.assem.modelScale = tmpMeta.LPub.assem.modelScale;
