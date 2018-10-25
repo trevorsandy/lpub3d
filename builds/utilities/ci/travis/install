@@ -3,7 +3,7 @@
 # Travis-ci build [install] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: September 30 2018
+#  Last Update: October 24 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -58,8 +58,8 @@ if [ "$TRAVIS_OS_NAME" = "osx" ]; then
     fi;
     wget http://www.ldraw.org/library/updates/complete.zip -O ../complete.zip && cp -f ../complete.zip mainApp/extras;
     wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O mainApp/extras/lpub3dldrawunf.zip;
-    wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O mainApp/extras;
-    wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip -O mainApp/extras;
+    wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O mainApp/extras/tenteparts.zip;
+    wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip -O mainApp/extras/vexiqparts.zip;
     if [ ! -d ${HOME}/Library/ldraw ]; then
       ln -sf "$LP3D_LDRAW_DIR" "${HOME}/Library/ldraw" &&
       if test -d "${HOME}/Library/ldraw"; then echo "$LP3D_LDRAW_DIR linked to ${HOME}/Library/ldraw"; fi;
@@ -84,6 +84,13 @@ if [ "$TRAVIS_OS_NAME" = "linux" ]; then
     docker-compose version;
   fi;
   if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
+    LP3D_DL_DIR="${LP3D_DIST_DIR_BASE}/trusty"
+    LP3D_GH_DL_URL="https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1"
+    LP3D_LD_DL_URL="http://www.ldraw.org/library"
+    wget ${LP3D_LD_DL_URL}/unofficial/ldrawunf.zip -O ${LP3D_DL_DIR}/lpub3dldrawunf.zip;
+    [ ! -f "${LP3D_DL_DIR}/complete.zip" ] &&  wget ${LP3D_LD_DL_URL}/updates/complete.zip -O ${LP3D_DL_DIR}/complete.zip;
+    [ ! -f "${LP3D_DL_DIR}/tenteparts.zip" ] &&  wget ${LP3D_GH_DL_URL}/tenteparts.zip -O ${LP3D_DL_DIR}/tenteparts.zip;
+    [ ! -f "${LP3D_DL_DIR}/vexiqparts.zip" ] &&  wget ${LP3D_GH_DL_URL}/vexiqparts.zip -O ${LP3D_DL_DIR}/vexiqparts.zip;
     [ ! -d "../appimagebuild" ] && mkdir -p ../appimagebuild;
     export AppImageBuildPath=$(cd ../ && echo "$PWD/appimagebuild");
   fi;
