@@ -317,7 +317,7 @@ int Gui::processCommandLine()
   QElapsedTimer commandTimer;
   if (!commandlineFile.isEmpty()) {
       if(resetCache) {
-          emit messageSig(LOG_INFO,QString("Reset cache specified. This function is destructive!"));
+          emit messageSig(LOG_INFO,QString("Reset parts cache specified."));
           resetModelCache(QFileInfo(commandlineFile).absoluteFilePath());
       }
       commandTimer.start();

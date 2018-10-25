@@ -1063,11 +1063,20 @@ void Gui::reloadCurrentModelFile(){
 
 void Gui::resetModelCache(QString file)
 {
-    if (resetCache) {
-        if (!file.isEmpty())
-            curFile = file;
+    if (resetCache && !file.isEmpty()) {
+        emit messageSig(LOG_TRACE, QString("Reset parts cache is destructive!"));
+        curFile = file;
+        QString fileDir = QFileInfo(file).absolutePath();
+        emit messageSig(LOG_INFO, QString("Reset parts cache directory %1").arg(fileDir));
+        QString saveCurrentDir = QDir::currentPath();
+        if (! QDir::setCurrent(fileDir))
+            emit messageSig(LOG_ERROR, QString("Reset cache failed to set current directory %1").arg(fileDir));
+
         clearCustomPartCache(true);
         clearAllCaches();
+
+        if (! QDir::setCurrent(saveCurrentDir))
+            emit messageSig(LOG_ERROR, QString("Reset cache failed to restore current directory %1").arg(saveCurrentDir));
         resetCache = false;
     }
 }
@@ -1129,9 +1138,9 @@ void Gui::clearCustomPartCache(bool silent)
   int count = 0;
   emit messageSig(LOG_INFO,QString("-Removing folder %1").arg(dirName));
   if (removeDir(count, dirName)){
-      emit messageSig(LOG_INFO,QString("Custom parts cache cleaned.  %1 %2 removed.")
-                                         .arg(count)
-                                         .arg(count == 1 ? "item": "items"));
+      emit messageSig(LOG_INFO_STATUS,QString("Custom parts cache cleaned.  %1 %2 removed.")
+                                              .arg(count)
+                                              .arg(count == 1 ? "item": "items"));
   } else {
       emit messageSig(LOG_ERROR,QString("Unable to remove custom parts cache directory: %1").arg(dirName));
       return;
@@ -1154,25 +1163,25 @@ void Gui::clearPLICache()
         return;
     }
 
-    QString dirName = QDir::currentPath() + "/" + Paths::partsDir;
-    QDir dir(dirName);
-
-    dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot | QDir::NoSymLinks);
+    QDir dir(QDir::currentPath() + "/" + Paths::partsDir);
+    dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
 
     QFileInfoList list = dir.entryInfoList();
     int count = 0;
     for (int i = 0; i < list.size(); i++) {
         QFileInfo fileInfo = list.at(i);
-        QFile     file(dirName + "/" + fileInfo.fileName());
+        QFile     file(fileInfo.absoluteFilePath());
         if (!file.remove()) {
             emit messageSig(LOG_ERROR,QString("Unable to remove %1")
-                            .arg(dirName + "/" + fileInfo.fileName()));
+                            .arg(fileInfo.absoluteFilePath()));
         } else {
-            emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.absolutePath()));
+#ifdef QT_DEBUG_MODE
+            emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.absoluteFilePath()));
+#endif
             count++;
         }
     }
-    emit messageSig(LOG_STATUS,QString("Parts content cache cleaned. %1 items removed.").arg(count));
+    emit messageSig(LOG_INFO_STATUS,QString("Parts content cache cleaned. %1 items removed.").arg(count));
 }
 
 void Gui::clearCSICache()
@@ -1182,26 +1191,26 @@ void Gui::clearCSICache()
         return;
     }
 
-    QString dirName = QDir::currentPath() + "/" + Paths::assemDir;
-    QDir dir(dirName);
-
-    dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot | QDir::NoSymLinks);
+    QDir dir(QDir::currentPath() + "/" + Paths::assemDir);
+    dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
 
     QFileInfoList list = dir.entryInfoList();
     int count = 0;
     for (int i = 0; i < list.size(); i++) {
         QFileInfo fileInfo = list.at(i);
-        QFile     file(dirName + "/" + fileInfo.fileName());
+        QFile     file(fileInfo.absoluteFilePath());
         if (!file.remove()) {
             emit messageSig(LOG_ERROR,QString("Unable to remove %1")
-                            .arg(dirName + "/" + fileInfo.fileName()));
+                            .arg(fileInfo.absoluteFilePath()));
         } else {
-            emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.absolutePath()));
+#ifdef QT_DEBUG_MODE
+            emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.absoluteFilePath()));
+#endif
             count++;
         }
     }
 
-    emit messageSig(LOG_STATUS,QString("Assembly content cache cleaned. %1 items removed.").arg(count));
+    emit messageSig(LOG_INFO_STATUS,QString("Assembly content cache cleaned. %1 items removed.").arg(count));
 }
 
 void Gui::clearTempCache()
@@ -1211,28 +1220,28 @@ void Gui::clearTempCache()
         return;
     }
 
-    QString tmpDirName = QDir::currentPath() + "/" + Paths::tmpDir;
-    QDir tmpDir(tmpDirName);
-
-    tmpDir.setFilter(QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot | QDir::NoSymLinks);
+    QDir tmpDir(QDir::currentPath() + "/" + Paths::tmpDir);
+    tmpDir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
 
     QFileInfoList list = tmpDir.entryInfoList();
     int count1 = 0;
     for (int i = 0; i < list.size(); i++) {
         QFileInfo fileInfo = list.at(i);
-        QFile     file(tmpDirName + "/" + fileInfo.fileName());
+        QFile     file(fileInfo.absoluteFilePath());
         if (!file.remove()) {
             emit messageSig(LOG_ERROR,QString("Unable to remove %1")
-                                              .arg(tmpDirName + "/" + fileInfo.fileName()));
+                                              .arg(fileInfo.absoluteFilePath()));
           } else {
-            emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.absolutePath()));
+#ifdef QT_DEBUG_MODE
+            emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.absoluteFilePath()));
+#endif
             count1++;
         }
       }
 
     ldrawFile.tempCacheCleared();
 
-    emit messageSig(LOG_STATUS,QString("Temporary model file cache cleaned. %1 items removed.").arg(count1));
+    emit messageSig(LOG_INFO_STATUS,QString("Temporary model file cache cleaned. %1 items removed.").arg(count1));
 }
 
 bool Gui::removeDir(int &count, const QString & dirName)
@@ -1242,15 +1251,17 @@ bool Gui::removeDir(int &count, const QString & dirName)
 
     if (dir.exists(dirName)) {
         QList<QFileInfo> entryInfoList = dir.entryInfoList(QDir::NoDotAndDotDot | QDir::AllDirs | QDir::Files, QDir::DirsFirst);
-        Q_FOREACH(QFileInfo info, entryInfoList) {
-            if (info.isDir()) {
-                QString subDir = info.absoluteFilePath();
+        Q_FOREACH(QFileInfo fileInfo, entryInfoList) {
+            if (fileInfo.isDir()) {
+                QString subDir = fileInfo.absoluteFilePath();
                 result = removeDir(count,subDir);
             }
             else
-            if (info.isFile()){
-                if ((result = QFile::remove(info.absoluteFilePath()))) {
-                    emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(info.absoluteFilePath()));
+            if (fileInfo.isFile()){
+                if ((result = QFile::remove(fileInfo.absoluteFilePath()))) {
+#ifdef QT_DEBUG_MODE
+                    emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.absoluteFilePath()));
+#endif
                     count++;
                 }
             }
