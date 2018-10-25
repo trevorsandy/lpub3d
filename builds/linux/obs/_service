@@ -122,6 +122,18 @@
    <param name="filename">glu-9.0.0.tar.bz2</param>
   </service>
   <service name="download_url">
+   <param name="protocol">https</param>
+   <param name="host">github.com</param>
+   <param name="path">/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip</param>
+   <param name="filename">tenteparts.zip</param>
+  </service>
+  <service name="download_url">
+   <param name="protocol">https</param>
+   <param name="host">github.com</param>
+   <param name="path">/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip</param>
+   <param name="filename">vexiqparts.zip</param>
+  </service>
+  <service name="download_url">
    <param name="protocol">http</param>
    <param name="host">www.ldraw.org</param>
    <param name="path">/library/unofficial/ldrawunf.zip</param>

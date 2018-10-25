@@ -124,6 +124,12 @@ unix:!macx {
     ldraw_official_library.files += $$_PRO_FILE_PWD_/extras/complete.zip
     ldraw_official_library.path = $$RESOURCE_DIR
 
+    ldraw_tente_library.files += $$_PRO_FILE_PWD_/extras/tenteparts.zip
+    ldraw_tente_library.path = $$RESOURCE_DIR
+
+    ldraw_vexiq_library.files += $$_PRO_FILE_PWD_/extras/vexiqparts.zip
+    ldraw_vexiq_library.path = $$RESOURCE_DIR
+
     ldglite_ini.files += $$_PRO_FILE_PWD_/extras/ldglite.ini
     ldglite_ini.path = $$RESOURCE_DIR
 
@@ -151,6 +157,8 @@ unix:!macx {
     pli_substitution_parts \
     ldraw_unofficial_library \
     ldraw_official_library \
+    ldraw_tente_library \
+    ldraw_vexiq_library \
     ldglite_ini \
     nativepov_ini \
     ldv_messages_ini

@@ -310,6 +310,8 @@ File "${WinBuildDir}\extras\LDVMessages.ini"
 ;ldraw libraries - data/portable location
 File "${WinBuildDir}\extras\complete.zip"
 File "${WinBuildDir}\extras\lpub3dldrawunf.zip"
+File "${WinBuildDir}\extras\tenteparts.zip"
+File "${WinBuildDir}\extras\vexiqparts.zip"
 
 ;documents
 CreateDirectory "$INSTDIR\docs"

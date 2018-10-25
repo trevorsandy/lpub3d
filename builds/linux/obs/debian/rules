@@ -35,6 +35,16 @@ configure-stamp:
 	else \
 		echo "LDraw archive library lpub3dldrawunf.zip not found at $$(readlink -e ../SOURCES)!"; \
 	fi
+        if [ -f ../SOURCES/tenteparts.zip ]; then \
+                cp ../SOURCES/tenteparts.zip mainApp/extras && echo "LDraw archive library tenteparts.zip copied to $$(readlink -e mainApp/extras)"; \
+        else \
+                echo "LDraw archive library tenteparts.zip not found at $$(readlink -e ../SOURCES)!"; \
+        fi
+        if [ -f ../SOURCES/vexiqparts.zip ]; then \
+                cp ../SOURCES/vexiqparts.zip mainApp/extras && echo "LDraw archive library vexiqparts.zip copied to $$(readlink -e mainApp/extras)"; \
+        else \
+                echo "LDraw archive library vexiqparts.zip not found at $$(readlink -e ../SOURCES)!"; \
+        fi
 	for TarballFile in \
 		../SOURCES/ldglite.tar.gz \
 		../SOURCES/ldview.tar.gz \

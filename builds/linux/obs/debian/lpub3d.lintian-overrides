@@ -29,5 +29,7 @@ lpub3d: executable-not-elf-or-script usr/share/lpub3d/excludedParts.lst
 lpub3d: executable-not-elf-or-script usr/share/icons/hicolor/scalable/mimetypes/x-multipart-ldraw.svg
 lpub3d: executable-not-elf-or-script usr/share/icons/hicolor/scalable/mimetypes/x-multi-part-ldraw.svg
 lpub3d: executable-not-elf-or-script usr/share/lpub3d/complete.zip
+lpub3d: executable-not-elf-or-script usr/share/lpub3d/tenteparts.zip
+lpub3d: executable-not-elf-or-script usr/share/lpub3d/vexiqparts.zip
 lpub3d: non-dev-pkg-with-shlib-symlink usr/lib/x86_64-linux-gnu/libldrawini.so.16.1.8 usr/lib/x86_64-linux-gnu/libldrawini.so
 lpub3d: non-dev-pkg-with-shlib-symlink usr/lib/x86_64-linux-gnu/libquazip.so.0.7.2 usr/lib/x86_64-linux-gnu/libquazip.so

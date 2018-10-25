@@ -168,6 +168,33 @@ then
 else
   echo "-  ldraw unofficial library exist. skipping download"
 fi
+if [ ! -f "mainApp/extras/tenteparts.zip" ]
+then
+  if [ -f "${DIST_DIR}/tenteparts.zip" ]
+  then
+    echo "-  copy Tente library archive from ${DIST_DIR}/ to $(realpath mainApp/extras/)..."
+    cp -f "${DIST_DIR}/tenteparts.zip" "mainApp/extras/tenteparts.zip"
+  else
+    echo "-  download ldraw Tente library archive to $(realpath mainApp/extras/)..."
+    curl $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -o mainApp/extras/tenteparts.zip
+  fi
+else
+  echo "-  TENTE library exist. skipping download"
+fi
+
+if [ ! -f "mainApp/extras/vexiqparts.zip" ]
+then
+  if [ -f "${DIST_DIR}/vexiqparts.zip" ]
+  then
+    echo "-  copy VEXIQ library archive from ${DIST_DIR}/ to $(realpath mainApp/extras/)..."
+    cp -f "${DIST_DIR}/vexiqparts.zip" "mainApp/extras/vexiqparts.zip"
+  else
+    echo "-  download ldraw VEXIQ library archive to $(realpath mainApp/extras/)..."
+    curl $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip -o mainApp/extras/vexiqparts.zip
+  fi
+else
+  echo "-  VEXIQ library exist. skipping download"
+fi
 
 echo && echo "-  configure and build source from $(realpath .)..."
 #qmake LPub3D.pro -spec macx-clang CONFIG+=x86_64 /usr/bin/make qmake_all

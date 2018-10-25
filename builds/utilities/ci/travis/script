@@ -76,6 +76,16 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
         else
           echo "ERROR - could not copy LDraw lpub3dldrawunf.zip.zip archive."
         fi
+        if [ -f "${WD}/${LP3D_DIST_DIR}/tenteparts.zip" ]; then
+          cp -f "${WD}/${LP3D_DIST_DIR}/tenteparts.zip" "mainApp/extras"
+        else
+          echo "ERROR - could not copy LDraw tenteparts.zip archive."
+        fi
+        if [ -f "${WD}/${LP3D_DIST_DIR}/vexiqparts.zip" ]; then
+          cp -f "${WD}/${LP3D_DIST_DIR}/vexiqparts.zip" "mainApp/extras"
+        else
+          echo "ERROR - could not copy LDraw vexiqparts.zip archive."
+        fi
         qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=api;
         make -j$(nproc);
         make INSTALL_ROOT=$AppImageBuildPath -j$(nproc) install;

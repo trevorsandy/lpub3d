@@ -101,6 +101,14 @@ if [ ! -f complete.zip ]
 then
     curl -O $curlopts http://www.ldraw.org/library/updates/complete.zip
 fi
+if [ ! -f tenteparts.zip ]
+then
+    curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip
+fi
+if [ ! -f vexiqparts.zip ]
+then
+    curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip
+fi
 
 # file copy and downloads above must happen before we make the tarball
 echo "11. create tarball ${WORK_DIR}.tar.gz from ${WORK_DIR}/..."

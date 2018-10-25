@@ -115,7 +115,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d
 Icon: lpub3d.xpm
-Version: 2.3.3.998
+Version: 2.3.3.999
 Release: <B_CNT>%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -489,6 +489,8 @@ echo "Current working directory: $PWD"
 # copy ldraw archive libraries
 LDrawLibOffical=../../SOURCES/complete.zip
 LDrawLibUnofficial=../../SOURCES/lpub3dldrawunf.zip
+LDrawLibTENTE=../../SOURCES/tenteparts.zip
+LDrawLibVEXIQ=../../SOURCES/vexiqparts.zip
 if [ -f ${LDrawLibOffical} ] ; then
   cp ${LDrawLibOffical} mainApp/extras && echo "LDraw archive library complete.zip copied to $(readlink -e mainApp/extras)"
   cp ${LDrawLibOffical} ../ && echo "LDraw archive library complete.zip copied to $(readlink -e ../)"
@@ -499,6 +501,16 @@ if [ -f ${LDrawLibUnofficial} ] ; then
   cp ${LDrawLibUnofficial} mainApp/extras && echo "LDraw archive library complete.zip copied to $(readlink -e mainApp/extras)"
 else
   echo "LDraw archive library lpub3dldrawunf.zip not found at $(readlink -e ../SOURCES)!"
+fi
+if [ -f ${LDrawLibTENTE} ] ; then
+  cp ${LDrawLibTENTE} mainApp/extras && echo "LDraw archive library tenteparts.zip copied to $(readlink -e mainApp/extras)"
+else
+  echo "LDraw archive library tenteparts.zip not found at $(readlink -e ../SOURCES)!"
+fi
+if [ -f ${LDrawLibVEXIQ} ] ; then
+  cp ${LDrawLibVEXIQ} mainApp/extras && echo "LDraw archive library vexiqparts.zip copied to $(readlink -e mainApp/extras)"
+else
+  echo "LDraw archive library vexiqparts.zip not found at $(readlink -e ../SOURCES)!"
 fi
 # Copy 3rd party renderer source archives and Qt5 libraries
 for TarballFile in \
@@ -699,5 +711,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Thu Oct 25 2018 - trevor.dot.sandy.at.gmail.dot.com 2.3.3.998
+* Thu Oct 25 2018 - trevor.dot.sandy.at.gmail.dot.com 2.3.3.999
 - LPub3D Linux package (rpm) release

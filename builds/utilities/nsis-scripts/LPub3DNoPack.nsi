@@ -769,6 +769,8 @@ Function fnInstallLibraries
   SetOutPath "${INSTDIR_AppDataProduct}\libraries"
   File "${WinBuildDir}\extras\complete.zip"
   File "${WinBuildDir}\extras\lpub3dldrawunf.zip"
+  File "${WinBuildDir}\extras\tenteparts.zip"
+  File "${WinBuildDir}\extras\vexiqparts.zip"
 FunctionEnd
 
 Function fnCopyLibraries
@@ -784,14 +786,28 @@ Function fnCopyLibraries
   File "${WinBuildDir}\extras\complete.zip"
     Next:
     IfFileExists "${INSTDIR_AppDataProduct}\libraries\lpub3dldrawunf.zip" 0 +2
-    goto Finish
+    goto CopyTente_lib
     IfFileExists "$LPub3DViewerLibPath\ldrawunf.zip" 0 Install_new_unoff_Lib
     ${If} $OldLibraryDirectoryExist == 1
         CopyFiles "$LPub3DViewerLibPath\ldrawunf.zip" "${INSTDIR_AppDataProduct}\libraries\lpub3dldrawunf.zip"
     ${EndIf}
-    goto Finish
+    goto CopyTente_lib
     Install_new_unoff_Lib:
   File "${WinBuildDir}\extras\lpub3dldrawunf.zip"
+    CopyTente_lib:
+    IfFileExists "${INSTDIR_AppDataProduct}\libraries\tenteparts.zip" 0 +2
+    goto CopyVEXIQ_lib
+    IfFileExists "$LPub3DViewerLibPath\tenteparts.zip" 0 Install_new_tente_Lib
+    goto CopyVEXIQ_lib
+    Install_new_tente_Lib:
+  File "${WinBuildDir}\extras\tenteparts.zip"
+    CopyVEXIQ_lib:
+    IfFileExists "${INSTDIR_AppDataProduct}\libraries\vexiqparts.zip" 0 +2
+    goto Finish
+    IfFileExists "$LPub3DViewerLibPath\vexiqparts.zip" 0 Install_new_vexiq_Lib
+    goto Finish
+    Install_new_vexiq_Lib:
+  File "${WinBuildDir}\extras\vexiqparts.zip"
     Finish:
 FunctionEnd
 

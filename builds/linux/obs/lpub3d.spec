@@ -187,6 +187,8 @@ echo "Current working directory: $PWD"
 # download ldraw archive libraries
 LDrawLibOffical=../../SOURCES/complete.zip
 LDrawLibUnofficial=../../SOURCES/lpub3dldrawunf.zip
+LDrawLibTENTE=../../SOURCES/tenteparts.zip
+LDrawLibVEXIQ=../../SOURCES/vexiqparts.zip
 if [ -f ${LDrawLibOffical} ] ; then
   cp ${LDrawLibOffical} mainApp/extras && echo "LDraw archive library complete.zip copied to $(readlink -e mainApp/extras)"
   cp ${LDrawLibOffical} ../ && echo "LDraw archive library complete.zip copied to $(readlink -e ../)"
@@ -194,9 +196,19 @@ else
   echo "LDraw archive library complete.zip not found at $(readlink -e ../SOURCES)!"
 fi
 if [ -f ${LDrawLibUnofficial} ] ; then
-  cp ${LDrawLibUnofficial} mainApp/extras && echo "LDraw archive library complete.zip copied to $(readlink -e mainApp/extras)"
+  cp ${LDrawLibUnofficial} mainApp/extras && echo "LDraw archive library lpub3dldrawunf.zip copied to $(readlink -e mainApp/extras)"
 else
   echo "LDraw archive library lpub3dldrawunf.zip not found at $(readlink -e ../SOURCES)!"
+fi
+if [ -f ${LDrawLibTENTE} ] ; then
+  cp ${LDrawLibTENTE} mainApp/extras && echo "LDraw archive library tenteparts.zip copied to $(readlink -e mainApp/extras)"
+else
+  echo "LDraw archive library tenteparts.zip not found at $(readlink -e ../SOURCES)!"
+fi
+if [ -f ${LDrawLibVEXIQ} ] ; then
+  cp ${LDrawLibVEXIQ} mainApp/extras && echo "LDraw archive library vexiqparts.zip copied to $(readlink -e mainApp/extras)"
+else
+  echo "LDraw archive library vexiqparts.zip not found at $(readlink -e ../SOURCES)!"
 fi
 # Copy 3rd party renderer source archives and build renderers
 for TarballFile in \

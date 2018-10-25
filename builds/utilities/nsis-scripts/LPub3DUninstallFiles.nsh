@@ -86,6 +86,8 @@ Delete "$INSTDIR\data\LDVMessages.ini"
 ;ldraw libraries - data/portable location
 Delete "$INSTDIR\data\complete.zip"
 Delete "$INSTDIR\data\lpub3dldrawunf.zip"
+Delete "$INSTDIR\data\tenteparts.zip"
+Delete "$INSTDIR\data\vexiqparts.zip"
 
 ;documents
 Delete "$INSTDIR\docs\COPYING.txt"

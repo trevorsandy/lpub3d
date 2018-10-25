@@ -1,7 +1,7 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
 # Last Update October 02, 2018
 pkgname=lpub3d
-pkgver=2.3.3.998
+pkgver=2.3.3.999
 pkgrel=1
 pkgdesc="An LDraw Building Instruction Editor"
 url="https://github.com/trevorsandy/lpub3d.git"
@@ -12,9 +12,9 @@ makedepends=('unzip' 'qt5-tools')
 conflicts=()
 replaces=()
 backup=()
-source=("lpub3d-git.tar.gz" "complete.zip" "lpub3dldrawunf.zip" "povray.tar.gz" "ldview.tar.gz" "ldglite.tar.gz")
-noextract=("complete.zip" "lpub3dldrawunf.zip" "povray.tar.gz" "ldview.tar.gz" "ldglite.tar.gz")
-md5sums=(SKIP SKIP SKIP SKIP SKIP SKIP)
+source=("lpub3d-git.tar.gz" "complete.zip" "lpub3dldrawunf.zip" "tenteparts.zip" "vexiqparts.zip" "povray.tar.gz" "ldview.tar.gz" "ldglite.tar.gz")
+noextract=("complete.zip" "lpub3dldrawunf.zip" "tenteparts.zip" "vexiqparts.zip" "povray.tar.gz" "ldview.tar.gz" "ldglite.tar.gz")
+md5sums=(SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP)
 
 prepare() {
 	# location is ../src
@@ -41,6 +41,18 @@ prepare() {
 	else
 		echo "lpub3dldrawunf.zip not found at $PWD"
 	fi
+        if [ -f ../tenteparts.zip ] ; then
+                cp ../tenteparts.zip mainApp/extras
+                echo "LDraw archive library tenteparts.zip copied"
+        else
+                echo "tenteparts.zip not found at $PWD"
+        fi
+        if [ -f ../vexiqparts.zip ] ; then
+                cp ../vexiqparts.zip mainApp/extras
+                echo "LDraw archive library vexiqparts.zip copied"
+        else
+                echo "vexiqparts.zip not found at $PWD"
+        fi
 	export QT_SELECT=qt5
 	export LP3D_BUILD_PKG=yes
 	export LDRAWDIR=${HOME}/ldraw
