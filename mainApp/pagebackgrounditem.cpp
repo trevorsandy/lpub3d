@@ -80,8 +80,9 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   // figure out if first step step number is greater than 1
 
-  QAction *addNextAction        = nullptr;
-  QAction *addPrevAction        = nullptr;
+  QAction *addNextStepAction    = nullptr;
+  QAction *addNextStepsAction   = nullptr;
+  QAction *addPrevStepAction    = nullptr;
   QAction *calloutAction        = nullptr;
   QAction *assembledAction      = nullptr;
   QAction *ignoreAction         = nullptr;
@@ -99,18 +100,24 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   Step    *lastStep = nullptr;
   Step    *firstStep = nullptr;
 
+  int maxSteps;
   if (fullContextMenu) {
       AbstractStepsElement *range = page->list[page->list.size()-1];
       if (range->relativeType == RangeType) {
           AbstractRangeElement *rangeElement = range->list[range->list.size()-1];
           if (rangeElement->relativeType == StepType) {
               lastStep = dynamic_cast<Step *> (rangeElement);
-              int numOfSteps = numSteps(lastStep->topOfStep().modelName);
-              if (lastStep->stepNumber.number != numOfSteps) {
-                  addNextAction = menu.addAction("Add Next Step");
-                  addNextAction->setIcon(QIcon(":/resources/nextstep.png"));
-                  addNextAction->setWhatsThis("Add Next Step:\n Add the first step of the next page to this page\n");
+              maxSteps = numSteps(lastStep->topOfStep().modelName);
+              if (lastStep->stepNumber.number != maxSteps) {
+                  addNextStepAction = menu.addAction("Add Next Step");
+                  addNextStepAction->setIcon(QIcon(":/resources/nextstep.png"));
+                  addNextStepAction->setWhatsThis("Add Next Step:\n Add the first step of the next page to this page\n");
                 }
+              if ((maxSteps - lastStep->stepNumber.number) >= 2) {
+                  addNextStepsAction = menu.addAction("Add Next Steps");
+                  addNextStepsAction->setIcon(QIcon(":/resources/nextsteps.png"));
+                  addNextStepsAction->setWhatsThis("Add Next Steps:\n Add a specified number of next steps to this page\n");
+              }
             }
         }
 
@@ -122,9 +129,9 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
           if (rangeElement->relativeType == StepType) {
               firstStep = dynamic_cast<Step *> (rangeElement);
               if (firstStep->stepNumber.number > 1) {
-                  addPrevAction = menu.addAction("Add Previous Step");
-                  addPrevAction->setIcon(QIcon(":/resources/previousstep.png"));
-                  addPrevAction->setWhatsThis("Add Previous Step:\n Add the last step of the previous page to this page\n");
+                  addPrevStepAction = menu.addAction("Add Previous Step");
+                  addPrevStepAction->setIcon(QIcon(":/resources/previousstep.png"));
+                  addPrevStepAction->setWhatsThis("Add Previous Step:\n Add the last step of the previous page to this page\n");
                 }
             }
         }
@@ -216,9 +223,14 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
           convertToIgnore(&page->meta);
         } else if (selectedAction == partAction) {
           convertToPart(&page->meta);
-        } else if (selectedAction == addNextAction) {
+        } else if (selectedAction == addNextStepAction) {
           addNextMultiStep(lastStep->topOfSteps(),lastStep->bottomOfSteps());
-        } else if (selectedAction == addPrevAction) {
+        } else if (selectedAction == addNextStepsAction) {
+          bool ok;
+          int numOfSteps = QInputDialog::getInt(gui,"Next Steps","Number of next steps",maxSteps,1,maxSteps,1,&ok);
+          if (ok)
+              addNextStepsMultiStep(lastStep->topOfSteps(),lastStep->bottomOfSteps(),numOfSteps);
+        } else if (selectedAction == addPrevStepAction) {
           addPrevMultiStep(firstStep->topOfSteps(),firstStep->bottomOfSteps());
         } else if (selectedAction == clearPageCacheAction){
           gui->clearPageCSICache(relativeType,page);

@@ -96,6 +96,7 @@
         <file alias="new.png">resources/new.png</file>
         <file alias="next.png">resources/next.png</file>
         <file alias="nextstep.png">resources/nextstep.png</file>
+        <file alias="nextsteps.png">resources/nextsteps.png</file>
         <file alias="nextpagecontinuous.png">resources/nextpagecontinuous.png</file>
         <file alias="nextpagecontinuousstop.png">resources/nextpagecontinuousstop.png</file>
         <file alias="nopartslist.png">resources/nopartslist.png</file>

@@ -315,6 +315,77 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
   return instanceCount;
 }
 
+void MetaItem::addNextStepsMultiStep(
+  const Where &topOfSteps,
+  const Where &bottomOfSteps,
+  const int   &numOfSteps)
+{
+  Rc rc1;
+  Where startTopOfSteps = topOfSteps;
+  Where startWalking = bottomOfSteps;
+  bool firstChange = true;
+
+  for (int stepNum = 1; (stepNum <= numOfSteps) && (numOfSteps > 0); stepNum++) {
+    bool lastStep = stepNum == numOfSteps;
+    bool partsAdded;
+
+    Where walk = startWalking + 1;
+    Where finalTopOfSteps = startTopOfSteps;
+
+    rc1 = scanForward(walk,StepMask|StepGroupMask,partsAdded);
+    Where end;
+
+    if (rc1 == StepGroupEndRc) {                             // END
+      end = walk++;
+      rc1 = scanForward(walk,StepMask|StepGroupMask,partsAdded);
+    }
+
+    if (rc1 == StepGroupBeginRc) {                          // BEGIN
+      firstChange = false;
+      beginMacro("addNextStep1");
+      removeFirstStep(bottomOfSteps);                      // remove BEGIN
+      partsAdded = false;
+      rc1 = scanForwardStepGroup(walk,partsAdded);
+    }
+
+    if (firstChange) {
+      beginMacro("addNextStep2");
+      firstChange = false;
+    }
+
+    if (rc1 == EndOfFileRc && partsAdded) {
+      lastStep = true;
+      insertMeta(walk,step);
+    }
+
+    startWalking = walk;
+
+    if (lastStep)
+      appendMeta(walk,stepGroupEnd);
+
+    if (end.lineNumber) {
+      deleteMeta(end);
+    } else {
+      walk = topOfSteps + 1;
+      rc1 = scanForward(walk,StepMask|StepGroupMask);
+      if (rc1 == StepGroupEndRc) {
+        finalTopOfSteps = walk+1;
+        if (lastStep)
+          appendMeta(walk,stepGroupBegin);
+      } else {
+        walk = topOfSteps;
+        scanPastGlobal(walk);
+        finalTopOfSteps = walk+1;
+        if (lastStep)
+          appendMeta(walk,stepGroupBegin);
+      }
+    }
+    startTopOfSteps = finalTopOfSteps;
+  }
+  endMacro();
+
+}
+
 void MetaItem::addNextMultiStep(
   const Where &topOfSteps,
   const Where &bottomOfSteps)  // always add at end

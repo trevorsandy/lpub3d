@@ -89,8 +89,9 @@ public:
 
   int countInstancesInStep(     Meta *, const QString &);
   void addNextMultiStep(       const Where &topOfSteps, const Where &bottomOfSteps);
-  void addPrevMultiStep(       const Where &topOfSteps, const Where &bottomOfSteps); 
-  
+  void addPrevMultiStep(       const Where &topOfSteps, const Where &bottomOfSteps);
+  void addNextStepsMultiStep(  const Where &topOfSteps, const Where &bottomOfSteps, const int &numOfSteps);
+
   void movePageToEndOfStepGroup(const Where &topOfSteps);
   void movePageToBeginOfStepGroup(const Where &topOfSteps);
 
