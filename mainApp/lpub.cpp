@@ -2342,8 +2342,6 @@ void Gui::processFadeColourParts(bool overwriteCustomParts)
 
       connect(this,                   SIGNAL(operateFadeParts(bool)),    partWorkerCustomColour, SLOT(processFadeColourParts(bool)));
 
-      connect(partWorkerCustomColour, SIGNAL(messageSig(LogType,QString)),                 this, SLOT(statusMessage(LogType,QString)));
-
       connect(partWorkerCustomColour, SIGNAL(progressBarInitSig()),                       this, SLOT(progressBarInit()));
       connect(partWorkerCustomColour, SIGNAL(progressMessageSig(QString)),                this, SLOT(progressBarSetText(QString)));
       connect(partWorkerCustomColour, SIGNAL(progressRangeSig(int,int)),                  this, SLOT(progressBarSetRange(int,int)));
@@ -2363,8 +2361,6 @@ void Gui::processHighlightColourParts(bool overwriteCustomParts)
       partWorkerCustomColour = new PartWorker();
 
       connect(this,                   SIGNAL(operateHighlightParts(bool)), partWorkerCustomColour, SLOT(processHighlightColourParts(bool)));
-
-      connect(partWorkerCustomColour, SIGNAL(messageSig(LogType,QString)),                this, SLOT(statusMessage(LogType,QString)));
 
       connect(partWorkerCustomColour, SIGNAL(progressBarInitSig()),                       this, SLOT(progressBarInit()));
       connect(partWorkerCustomColour, SIGNAL(progressMessageSig(QString)),                this, SLOT(progressBarSetText(QString)));

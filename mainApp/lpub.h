@@ -83,7 +83,7 @@
  *          A callout can contain multiple rows or columns.
  *   Pointer - a visual indicator starting at a callout, and ending at the
  *          assembly image to which the callout belongs.
- *   ranges.h - the interal representation for both multi-steps and callouts.
+ *   ranges.h - the internal representation for both multi-steps and callouts.
  *          A ranges is a list of one or more individual range(s).
  *   Range - one row or column in a multi-step or callout. A range contains
  *          one or more steps.
@@ -437,11 +437,11 @@ public:
   QList<Where>    topOfPages;
 
   int             boms;            // the number of pli BOMs in the document
-  int             bomOccurrence;   // the acutal occurenc of each pli BOM
+  int             bomOccurrence;   // the actual occurrence of each pli BOM
 
   int             exportType;       // export Type
   int             processOption;     // export Option
-  int             pageDirection;    // continusou page processing direction
+  int             pageDirection;    // continuous page processing direction
   QString         pageRangeText;    // page range parameters
   bool            subModelImagesLoaded; // load submodel images
   bool            resetCache;       // reset model, fade and highlight parts
@@ -449,7 +449,7 @@ public:
   QString         saveDirectoryName; // user specified output directory name [commandline only]
 
   bool             m_previewDialog;
-  ProgressDialog  *m_progressDialog; // general use progress dialog
+  ProgressDialog  *m_progressDialog; // general use progress dialogue
   QLabel          *m_progressDlgMessageLbl;
   QProgressBar    *m_progressDlgProgressBar;
 
@@ -474,7 +474,7 @@ public:
 
   bool continuousPageDialog(Direction d);
 
-  /* We need to send ourselved these, to eliminate resursion and the model
+  /* We need to send ourselves these, to eliminate recursion and the model
    * changing under foot */
   void drawPage(                   // this is the workhorse for preparing a
     LGraphicsView *view,           // page for viewing.  It depends heavily
@@ -924,7 +924,7 @@ private:
 
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
   bool                   m_exportingContent; // indicate export/pring underway
-  bool                   m_contPageProcessing;// indicate continusou page processing underway
+  bool                   m_contPageProcessing;// indicate continuous page processing underway
 
   bool                   okToInvokeProgressBar()
   {
