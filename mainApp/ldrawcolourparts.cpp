@@ -13,26 +13,20 @@
 ****************************************************************************/
 
 #include "ldrawcolourparts.h"
-#include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
-#include <QDebug>
 #include "lpub_preferences.h"
-#include "QsLog.h"
-#include "version.h"
 
 QHash<QString, QString>  LDrawColourParts::ldrawColourParts;
 
-LDrawColourParts::LDrawColourParts()
+bool LDrawColourParts::LDrawColorPartsLoad(QString &result)
 {
     ldrawColourParts.clear();
     QString colorPartsFile = Preferences::ldrawColourPartsFile;
     QFile file(colorPartsFile);
     if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-        QString message = QString("Failed to open %1 LDraw color parts file [%2], Error: %3")
-                          .arg(Preferences::ldrawLibrary).arg(colorPartsFile).arg(file.errorString());
-        logError() << message;
-        return;
+        result = file.errorString();
+        return false;
     }
 
     QTextStream in(&file);
@@ -47,6 +41,11 @@ LDrawColourParts::LDrawColourParts()
             //qDebug() << "** Color part loaded: " << partFile << " Lib: " << QString("%1:::%2").arg(partLibType).arg(partFile);
         }
     }
+    return true;
+}
+
+bool LDrawColourParts::ldrawColorPartsIsLoaded() {
+    return ldrawColourParts.size() > 0;
 }
 
 bool LDrawColourParts::isLDrawColourPart(QString part)

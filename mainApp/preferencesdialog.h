@@ -117,6 +117,7 @@ class PreferencesDialog : public QDialog
     void on_pushButtonReset_clicked();
     void on_checkForUpdates_btn_clicked();
     void on_highlightStepBtn_clicked();
+    void on_ldrawPath_editingFinished();
 
     void on_altLDConfigBox_clicked(bool checked);
     void on_includeAllLogAttribBox_clicked(bool checked);
@@ -139,6 +140,7 @@ class PreferencesDialog : public QDialog
     void on_ldvPreferencesBtn_clicked();
     void on_povGenNativeRadio_clicked(bool checked);
     void on_povGenLDViewRadio_clicked(bool checked);
+    void on_ldviewSingleCall_Chk_clicked(bool checked);
 
     void ldvPoVFileGenOptBtn_clicked();
     void ldvPoVFileGenPrefBtn_clicked();
@@ -146,8 +148,6 @@ class PreferencesDialog : public QDialog
     void pushButtonReset_SetState();
     void updateChangelog (QString url);
     void checkForUpdates();
-
-    void on_ldviewSingleCall_Chk_clicked(bool checked);
 
 private:
     Ui::PreferencesDialog ui;
@@ -157,6 +157,7 @@ private:
     QSimpleUpdater  *m_updater;
     static QString   DEFS_URL;
     QString ldrawLibPathTitle;
+    QString ldrawLibPath;
 };
 
 #endif

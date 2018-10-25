@@ -42,10 +42,10 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 {
   ui.setupUi(this);
 
-  QString ldrawPath = Preferences::ldrawPath;
+  ldrawLibPath = Preferences::ldrawPath;
 
-  if (ldrawPath.isEmpty()) {
-    ldrawPath = ".";
+  if (ldrawLibPath.isEmpty()) {
+    ldrawLibPath = ".";
   }
 
   // hide 3rd party application browse buttons
@@ -56,7 +56,9 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   QPalette readOnlyPalette;
   readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
 
-  ldrawLibPathTitle = QString("LDraw Library Path for %1").arg(Preferences::validLDrawPartsLibrary);
+  ldrawLibPathTitle            = QString("LDraw Library Path for %1").arg(Preferences::validLDrawPartsLibrary);
+  QString fadeStepsColorTitle  = QString("Use %1® Global Fade Color").arg(Preferences::validLDrawLibrary);
+  QString ldrawSearchDirsTitle = QString("LDraw Content Search Directories for %1").arg(Preferences::validLDrawPartsLibrary);
   bool useLDViewSCall = (Preferences::enableLDViewSingleCall && Preferences::preferredRenderer == RENDERER_LDVIEW);
 
   // set 3rd party application dialogues to read-only
@@ -75,8 +77,9 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.imageMatteBox->setEnabled(false);
   ui.imageMattingChk->setEnabled(false);
 
-  ui.ldrawPath->setText(                         ldrawPath);
+  ui.ldrawPath->setText(                         ldrawLibPath);
   ui.ldrawBox->setTitle(                         ldrawLibPathTitle);
+  ui.fadeStepsUseColourBox->setTitle(            fadeStepsColorTitle);
   ui.pliName->setText(                           Preferences::pliFile);
   ui.altLDConfigPath->setText(                   Preferences::altLDConfigPath);
   ui.altLDConfigBox->setChecked(                 Preferences::altLDConfigPath != "");
@@ -208,6 +211,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
       ui.pushButtonReset->setEnabled(Preferences::ldSearchDirs.size() > 0);
   }
 
+  ui.groupBoxSearchDirs->setTitle(ldrawSearchDirsTitle);
   if (Preferences::ldSearchDirs.size() > 0){
       foreach (QString searchDir, Preferences::ldSearchDirs)
         ui.textEditSearchDirs->append(searchDir);
@@ -329,28 +333,49 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 PreferencesDialog::~PreferencesDialog()
 {}
 
+void PreferencesDialog::on_ldrawPath_editingFinished()
+{
+    QString newPath = QDir::toNativeSeparators(ui.ldrawPath->text().trimmed().toLower());
+    QString oldPath = QDir::toNativeSeparators(ldrawLibPath.toLower());
+    if (newPath != oldPath) {
+        QMessageBox box;
+        if (!Preferences::checkLDrawLibrary(ui.ldrawPath->text())) {
+            box.setIcon (QMessageBox::Warning);
+            box.setWindowTitle(tr ("Suspicious LDraw Directory!"));
+            box.setDefaultButton   (QMessageBox::Ok);
+            box.setStandardButtons (QMessageBox::Ok);
+            box.setText (tr("The selected path [%1] does not "
+                            "appear to be a valid LDraw Library.")
+                            .arg(ui.ldrawPath->text()));
+            box.exec();
+        } else {
+            if (Preferences::ldrawLibrary != Preferences::validLDrawLibrary) {
+                ui.lgeoBox->setEnabled(Preferences::validLDrawLibrary == LEGO_LIBRARY);
+                QString ldrawTitle = QString("LDraw Library Path for %1® Parts")
+                                             .arg(Preferences::validLDrawLibrary);
+                ui.ldrawBox->setTitle(ldrawTitle);
+                ui.ldrawBox->setStyleSheet("QGroupBox::title { color : red; }");
+            }
+        }
+    } else {
+        ui.ldrawBox->setTitle(ldrawLibPathTitle);
+        ui.ldrawBox->setStyleSheet("");
+    }
+}
+
 void PreferencesDialog::on_browseLDraw_clicked()
 {
-    QString saveLibrary = Preferences::validLDrawPartsLibrary;
-
     Preferences::ldrawPreferences(true);
     ui.ldrawPath->setText(Preferences::ldrawPath);
-    ui.ldrawBox->setTitle(ldrawLibPathTitle);
-    ui.lgeoBox->setEnabled(Preferences::usingDefaultLibrary);
-
-    if (saveLibrary != Preferences::validLDrawPartsLibrary &&
-            ui.textEditSearchDirs->document()->blockCount() > 0) {
-        QMessageBox box;
-        box.setIcon (QMessageBox::Question);
-        box.setWindowTitle(tr ("Update Search Directories?"));
-        box.setDefaultButton   (QMessageBox::Yes);
-        box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
-        box.setText (tr("You changed your LDraw library from %1 to %2. \n"
-                        "Would you like to update your search directory list?")
-                     .arg(saveLibrary).arg(Preferences::validLDrawPartsLibrary));
-        if (box.exec() == QMessageBox::Yes) {
-            ui.preferencesTabWidget->setCurrentIndex(4);
-        }
+    if (Preferences::ldrawLibrary != Preferences::validLDrawLibrary) {
+        ui.lgeoBox->setEnabled(Preferences::validLDrawLibrary == LEGO_LIBRARY);
+        QString ldrawTitle = QString("LDraw Library Path for %1® Parts")
+                                     .arg(Preferences::validLDrawLibrary);
+        ui.ldrawBox->setTitle(ldrawTitle);
+        ui.ldrawBox->setStyleSheet("QGroupBox::title { color : red; }");
+    } else {
+        ui.ldrawBox->setTitle(ldrawLibPathTitle);
+        ui.ldrawBox->setStyleSheet("");
     }
 }
 

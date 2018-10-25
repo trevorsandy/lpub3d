@@ -17,15 +17,16 @@
 
 #include <QHash>
 #include <QString>
-#include <QStringList>
 
 class LDrawColourParts
 {
   private:
     static QHash<QString, QString>   ldrawColourParts;
   public:
-    LDrawColourParts();
-    bool isLDrawColourPart(QString part);
+    LDrawColourParts(){}
+    static bool ldrawColorPartsIsLoaded();
+    static bool LDrawColorPartsLoad(QString &result);
+    static bool isLDrawColourPart(QString part);
     static QString getLDrawColourPartInfo(QString part);
 };
 

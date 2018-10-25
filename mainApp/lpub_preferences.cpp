@@ -73,7 +73,6 @@ QString Preferences::preferredRenderer;
 QString Preferences::pliFile;
 QString Preferences::titleAnnotationsFile;
 QString Preferences::freeformAnnotationsFile;
-QString Preferences::fadeStepsColour            = FADE_COLOUR_DEFAULT;
 QString Preferences::highlightStepColour        = HIGHLIGHT_COLOUR_DEFAULT;
 QString Preferences::pliSubstitutePartsFile;
 QString Preferences::ldrawColourPartsFile;
@@ -108,16 +107,22 @@ QString Preferences::plug                       = QString(QObject::trUtf8("Instr
                                                                QString::fromLatin1(VER_COMPANYDOMAIN_STR)));
 QString Preferences::displayTheme               = THEME_DEFAULT;
 
+QString Preferences::ldrawLibrary               = LEGO_LIBRARY;            // the currently loaded library
+QString Preferences::validLDrawLibrary          = LEGO_LIBRARY;            // the result of a library test - initialized to the currently loaded library
+
 QString Preferences::validLDrawDir              = LDRAWDIR_STR;
 QString Preferences::validLDrawPart             = LDRAWLEGOPART_STR;
-QString Preferences::validLDrawArchive          = VER_LDRAW_OFFICIAL_ARCHIVE;
+QString Preferences::validLDrawArchive          = VER_LDRAW_OFFICIAL_ARCHIVE;       
 QString Preferences::validLDrawCustomArchive    = VER_LPUB3D_UNOFFICIAL_ARCHIVE;
 QString Preferences::validLDrawColorParts       = VER_LPUB3D_LEGO_COLOR_PARTS;
-
-QString Preferences::ldrawLibrary               = LEGO_LIBRARY;
+QString Preferences::validLDrawSearchDirsKey    = LEGO_SEARCH_DIR_KEY;
 QString Preferences::validLDrawPartsLibrary     = LEGO_LIBRARY "® Parts";
 
+QString Preferences::fadeStepsColourKey         = FADE_COLOUR_LEGO_KEY;
+QString Preferences::fadeStepsColour            = FADE_COLOUR_LEGO_DEFAULT;
+
 bool    Preferences::usingDefaultLibrary        = true;
+bool    Preferences::portableDistribution       = false;
 
 bool    Preferences::themeAutoRestart           = false;
 bool    Preferences::lgeoStlLib                 = false;
@@ -159,7 +164,7 @@ bool    Preferences::showAllNotifications       = true;
 bool    Preferences::showUpdateNotifications    = true;
 bool    Preferences::enableDownloader           = true;
 bool    Preferences::ldrawiniFound              = false;
-bool    Preferences::portableDistribution       = false;
+//bool    Preferences::portableDistribution       = false;
 bool    Preferences::povrayDisplay              = false;
 bool    Preferences::isAppImagePayload          = false;
 bool    Preferences::modeGUI                    = true;
@@ -172,6 +177,7 @@ bool    Preferences::enableImageMatting         = false;
 bool    Preferences::pageRuler                  = false;
 bool    Preferences::pageGuides                 = false;
 bool    Preferences::showParseErrors            = true;
+bool    Preferences::suppressStdOutToLog        = false;
 
 #ifdef Q_OS_MAC
 bool    Preferences::ldviewMissingLibs          = true;
@@ -197,23 +203,27 @@ Preferences::Preferences()
 {
 }
 
+void Preferences::setStdOutToLogPreference(bool option)
+{
+    suppressStdOutToLog = option;
+}
+
 bool Preferences::checkLDrawLibrary(const QString &libPath) {
 
-    QString foo = "foo";
     QStringList validLDrawLibs = QStringList() << LEGO_LIBRARY << TENTE_LIBRARY << VEXIQ_LIBRARY;
     QStringList validLDrawParts = QStringList() << LDRAWLEGOPART_STR << LDRAWTENTEPART_STR << LDRAWVEXIQPART_STR;
 
-    for ( int i = 1; i < NumLibs; i++ )
+    for ( int i = 0; i < NumLibs; i++ )
     {
        if (QFileInfo(QString("%1%2").arg(libPath).arg(validLDrawParts[i])).exists()) {
-           lpub3dAltLibPreferences(validLDrawLibs[i]);
+           validLDrawLibrary = validLDrawLibs[i];
            return true;
        }
     }
     return false;
 }
 
-void Preferences::lpub3dAltLibPreferences(const QString &library)
+void Preferences::setLPub3DAltLibPreferences(const QString &library)
 {
     QSettings Settings;
     if (! library.isEmpty()) {
@@ -227,25 +237,66 @@ void Preferences::lpub3dAltLibPreferences(const QString &library)
         }
     }
 
-    usingDefaultLibrary = ldrawLibrary == LEGO_LIBRARY;
+    usingDefaultLibrary         = ldrawLibrary ==  LEGO_LIBRARY;
 
+    if (ldrawLibrary ==  LEGO_LIBRARY) {
+        validLDrawLibrary       = LEGO_LIBRARY;
+
+        validLDrawDir           = LDRAWDIR_STR;
+        validLDrawPart          = LDRAWLEGOPART_STR;
+        validLDrawArchive       = VER_LDRAW_OFFICIAL_ARCHIVE;
+        validLDrawColorParts    = VER_LPUB3D_LEGO_COLOR_PARTS;
+        validLDrawCustomArchive = VER_LPUB3D_UNOFFICIAL_ARCHIVE;
+        validLDrawSearchDirsKey = LEGO_SEARCH_DIR_KEY;
+        validLDrawPartsLibrary  = LEGO_LIBRARY "® Parts";
+
+        fadeStepsColourKey      = FADE_COLOUR_LEGO_KEY;
+        fadeStepsColour         = FADE_COLOUR_LEGO_DEFAULT;
+    }
+    else
     if (ldrawLibrary == TENTE_LIBRARY) {
-        validLDrawDir     = LDRAWTENTEDIR_STR;
-        validLDrawPart    = LDRAWTENTEPART_STR;
-        validLDrawArchive = VER_LPUB3D_TENTE_ARCHIVE;
-        validLDrawColorParts = VER_LPUB3D_TENTE_COLOR_PARTS;
+        validLDrawLibrary       = TENTE_LIBRARY;
+
+        validLDrawDir           = LDRAWTENTEDIR_STR;
+        validLDrawPart          = LDRAWTENTEPART_STR;
+        validLDrawArchive       = VER_LPUB3D_TENTE_ARCHIVE;
+        validLDrawColorParts    = VER_LPUB3D_TENTE_COLOR_PARTS;
         validLDrawCustomArchive = VER_LPUB3D_TENTE_CUSTOM_ARCHIVE;
-        validLDrawPartsLibrary = TENTE_LIBRARY "® Construction Parts";
+        validLDrawSearchDirsKey = TENTE_SEARCH_DIR_KEY;
+        validLDrawPartsLibrary  = TENTE_LIBRARY "® Construction Parts";
+
+        fadeStepsColourKey      = FADE_COLOUR_TENTE_KEY;
+        fadeStepsColour         = FADE_COLOUR_TENTE_DEFAULT;
     }
     else
     if (ldrawLibrary == VEXIQ_LIBRARY) {
-        validLDrawDir     = LDRAWVEXIQDIR_STR;
-        validLDrawPart    = LDRAWVEXIQPART_STR;
-        validLDrawArchive = VER_LPUB3D_VEXIQ_ARCHIVE;
-        validLDrawColorParts = VER_LPUB3D_VEXIQ_COLOR_PARTS;
+        validLDrawLibrary       = VEXIQ_LIBRARY;
+
+        validLDrawDir           = LDRAWVEXIQDIR_STR;
+        validLDrawPart          = LDRAWVEXIQPART_STR;
+        validLDrawArchive       = VER_LPUB3D_VEXIQ_ARCHIVE;
+        validLDrawColorParts    = VER_LPUB3D_VEXIQ_COLOR_PARTS;
         validLDrawCustomArchive = VER_LPUB3D_VEXIQ_CUSTOM_ARCHIVE;
-        validLDrawPartsLibrary = VEXIQ_LIBRARY "® Parts";
+        validLDrawSearchDirsKey = VEXIQ_SEARCH_DIR_KEY;
+        validLDrawPartsLibrary  = VEXIQ_LIBRARY "® Parts";
+
+        fadeStepsColourKey      = FADE_COLOUR_VEXIQ_KEY;
+        fadeStepsColour         = FADE_COLOUR_VEXIQ_DEFAULT;
     }
+}
+
+void Preferences::setDistribution(){
+#ifdef Q_OS_WIN
+    if ((portableDistribution = QDir(QCoreApplication::applicationDirPath()+"/extras").exists())){
+        QDir configDir(QCoreApplication::applicationDirPath()+"/config");
+        if(!QDir(configDir).exists())
+            configDir.mkpath(".");
+        QSettings::setDefaultFormat(QSettings::IniFormat);
+        QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, configDir.absolutePath());
+    }
+#else
+    ;
+#endif
 }
 
 void Preferences::lpubPreferences()
@@ -381,16 +432,7 @@ void Preferences::lpubPreferences()
 
 #ifdef Q_OS_WIN //... Windows portable or installed
 
-    portableDistribution = QDir(lpub3dPath + "/extras").exists();
-
     if (portableDistribution) { // we have a portable distribution
-
-        // Write settings to ini file at <LPub3D Path>\config\LPub3D Software\LPub3D<ver>.ini
-        QDir configDir(lpub3dPath + "/config");
-        if(!QDir(configDir).exists())
-            configDir.mkpath(".");
-        QSettings::setDefaultFormat(QSettings::IniFormat);
-        QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, configDir.absolutePath());
 
         bool programFolder = QCoreApplication::applicationDirPath().contains("Program Files") ||
                 QCoreApplication::applicationDirPath().contains("Program Files (x86)");
@@ -1072,7 +1114,6 @@ void Preferences::ldrawPreferences(bool force)
 
                             ldrawPath = QDir::toNativeSeparators(QString("%1/%2").arg(userLocalDataPath).arg(validLDrawDir));
 
-
                             if ( ! QDir(ldrawPath).exists()) { // manual prompt for LDraw Library location
 
                                 QString searchDetail;
@@ -1085,7 +1126,6 @@ void Preferences::ldrawPreferences(bool force)
                                         .arg(QDir::toNativeSeparators(QString("%1/%2").arg(dataPathList.at(2)).arg(validLDrawDir)))
 #endif
                                         .arg(QDir::toNativeSeparators(QString("%1/%2").arg(userLocalDataPath).arg(validLDrawDir)));
-
 
                                 if (modeGUI) {
 #ifdef Q_OS_MAC
@@ -1104,11 +1144,11 @@ void Preferences::ldrawPreferences(bool force)
                                     QString body;
                                     QString detail;
 
-                                    if (isAppImagePayload ) { // For AppImage, automatically install LDraw library if not found
+                                    if (isAppImagePayload ) { // For AppImage, automatically install LDraw library (and notify user) if library not found
 
                                         if (extractLDrawLib()) {
 
-                                            header = "<b> " + ldrawLibrary + QMessageBox::tr (" LDraw library installed") + "</b>";
+                                            header = "<b> " + QMessageBox::tr ("%1 LDraw library installed").arg(ldrawLibrary) + "</b>";
                                             body = QMessageBox::tr ("LDraw library was not found. The bundled library archives were installed at\n"
                                                                     "%1").arg(ldrawPath);
                                             detail = QMessageBox::tr ("The following locations were searched for the LDraw library.\n%1\n"
@@ -1121,7 +1161,7 @@ void Preferences::ldrawPreferences(bool force)
 
                                         }
 
-                                    } else {                  // For all except AppImage, prompt user to select or install LDraw library if not found
+                                    } else { // For all except AppImage, prompt user to select or install LDraw library if not found
 
                                         QAbstractButton* extractButton = box.addButton(QMessageBox::tr("Extract Archive"),QMessageBox::YesRole);
                                         QAbstractButton* selectButton  = box.addButton(QMessageBox::tr("Select Folder"),QMessageBox::YesRole);
@@ -1158,8 +1198,9 @@ void Preferences::ldrawPreferences(bool force)
                                                     Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawKey),ldrawPath);
                                                 } else {
                                                     ldrawPath.clear();
-                                                    returnMessage = QMessageBox::tr ("The specified path is not a valid LPub3D-supported LDraw Library.\n"
-                                                                                     "%1").arg(ldrawPath);
+                                                    returnMessage = QMessageBox::tr ("The selected path [%1] does not "
+                                                                                     "appear to be a valid LDraw Library.")
+                                                                                     .arg(ldrawPath);
                                                 }
                                             }
 
@@ -1173,11 +1214,12 @@ void Preferences::ldrawPreferences(bool force)
                                     }
 
                                 } else {                  // Console mode so extract and install LDraw Library automatically if not exist in searched paths.
-                                    QString message = QString("LDraw library was not found. The following locations were searched for the LDraw library:\n%1.\n").arg(searchDetail);
+                                    QString message = QString("The %1 LDraw library was not found.\n"
+                                                              "The following locations were searched for the LDraw library:\n%2.\n").arg(ldrawLibrary).arg(searchDetail);
                                     fprintf(stdout,"%s\n",message.toLatin1().constData());
                                     if (extractLDrawLib()) {
-                                        message = QString("The bundled library archives were installed at:\n%1\n"
-                                                          "You can change the library path in the Preferences dialogue.\n").arg(ldrawPath);
+                                        message = QString("The bundled %1 LDraw archive library was extracted to:\n%2\n"
+                                                          "You can edit the library path in the Preferences dialogue.\n").arg(ldrawLibrary).arg(ldrawPath);
                                         fprintf(stdout,"%s\n",message.toLatin1().constData());
                                     }
                                     fflush(stdout);
@@ -2398,13 +2440,10 @@ void Preferences::fadestepPreferences()
         fadeStepsUseColour = Settings.value(QString("%1/%2").arg(SETTINGS,"FadeStepsUseColour")).toBool();
     }
 
-    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"FadeStepColor"))) {
-        fadeStepsColour = FADE_COLOUR_DEFAULT;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepColor"),fadeStepsColour);
+    if (! Settings.contains(QString("%1/%2").arg(SETTINGS,fadeStepsColourKey))) {
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,fadeStepsColourKey),fadeStepsColour);
     } else {
-        if (fadeStepsColour.isEmpty())
-            fadeStepsColour = FADE_COLOUR_DEFAULT;
-        fadeStepsColour = Settings.value(QString("%1/%2").arg(SETTINGS,"FadeStepColor")).toString();
+        fadeStepsColour = Settings.value(QString("%1/%2").arg(SETTINGS,fadeStepsColourKey)).toString();
     }
 
     if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"FadeStepsOpacity"))) {
@@ -2708,14 +2747,13 @@ bool Preferences::getPreferences()
                         fprintf(stdout,"%s\n",message.toLatin1().constData());
                         fflush(stdout);
                     }
-
                 }
                 if (! ldSearchDirs.isEmpty())
-                    Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"),ldSearchDirs);
+                    Settings.setValue(QString("%1/%2").arg(SETTINGS,validLDrawSearchDirsKey),ldSearchDirs);
                 else
-                    Settings.remove(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"));
+                    Settings.remove(QString("%1/%2").arg(SETTINGS,validLDrawSearchDirsKey));
             } else {
-                Settings.remove(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"));
+                Settings.remove(QString("%1/%2").arg(SETTINGS,validLDrawSearchDirsKey));
             }
             // update LDView ExtraSearchDirs in ini files
             if (!setLDViewExtraSearchDirs(Preferences::ldviewIni))
@@ -2807,11 +2845,8 @@ bool Preferences::getPreferences()
 
         if (fadeStepsColour != dialog->fadeStepsColour())
         {
-            if (dialog->fadeStepsColour().isEmpty())
-                fadeStepsColour = FADE_COLOUR_DEFAULT;
-            else
-                fadeStepsColour = dialog->fadeStepsColour();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepColor"),fadeStepsColour);
+            fadeStepsColour = dialog->fadeStepsColour();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,fadeStepsColourKey),fadeStepsColour);
         }
 
         if (highlightStepColour != dialog->highlightStepColour())

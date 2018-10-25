@@ -83,6 +83,19 @@ enum Theme { ThemeDark, ThemeDefault };
 #define TENTE_LIBRARY                           "TENTE"
 #define VEXIQ_LIBRARY                           "VEXIQ"
 
+#define LEGO_SEARCH_DIR_KEY                     "LEGOLDSearchDirs"
+#define TENTE_SEARCH_DIR_KEY                    "TENTELDSearchDirs"
+#define VEXIQ_SEARCH_DIR_KEY                    "VEXIQLDSearchDirs"
+
+#define FADE_COLOUR_LEGO_KEY                    "LEGOFadeStepColour"
+#define FADE_COLOUR_TENTE_KEY                   "TENTEFadeStepColour"
+#define FADE_COLOUR_VEXIQ_KEY                   "VEXIQFadeStepColour"
+
+#define FADE_COLOUR_LEGO_DEFAULT                "Light_Blue"
+#define FADE_COLOUR_TENTE_DEFAULT               "Light_Orange"
+#define FADE_COLOUR_VEXIQ_DEFAULT               "VEX_Sky_Blue"
+
+
 #define CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT   260  // Native camera distance factor for A4 portrait; factor is about 450 for A4 landscape
 
 #define RENDERER_TIMEOUT_DEFAULT                6    // measured in seconds
@@ -93,7 +106,6 @@ enum Theme { ThemeDark, ThemeDefault };
 #define LDRAW_EDGE_MATERIAL_COLOUR              "24"
 #define LDRAW_MAIN_MATERIAL_COLOUR              "16"
 
-#define FADE_COLOUR_DEFAULT                     "Light_Blue"
 #define FADE_OPACITY_DEFAULT                    50         // 50 percent transparency
 
 #define SUBMODEL_ICON_INDEX_BASE                1000

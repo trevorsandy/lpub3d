@@ -14,6 +14,11 @@ struct lcColor
 	lcVector4 Edge;
 	char Name[LC_MAX_COLOR_NAME];
 	char SafeName[LC_MAX_COLOR_NAME];
+/*** LPub3D Mod - use 3DViewer colors ***/
+    int CValue;
+    int EValue;
+    int Alpha;
+/*** LPub3D Mod end ***/
 };
 
 enum

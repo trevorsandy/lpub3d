@@ -1009,20 +1009,20 @@ void Gui::loadTheme(bool restart){
     }
 }
 
-void  Gui::restartApplication(bool restoreOpenFile){
-  QStringList args;
-  if (! getCurFile().isEmpty() && restoreOpenFile){
-      args << QString("%1").arg(getCurFile());
-      QSettings Settings;
-      Settings.setValue(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM),displayPageNum);
+void  Gui::restartApplication(bool changeLibrary){
+    QStringList args;
+    if (! getCurFile().isEmpty() && ! changeLibrary){
+        args << QString("%1").arg(getCurFile());
+        QSettings Settings;
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM),displayPageNum);
     } else {
-      QString restartArgs = Preferences::ldrawLibrary == TENTE_LIBRARY ? "++libtente" :
-                            Preferences::ldrawLibrary == VEXIQ_LIBRARY ? "++libvexiq" : QString();
-      args << restartArgs;
+        args << (Preferences::validLDrawLibrary == LEGO_LIBRARY  ? "++liblego" :
+                 Preferences::validLDrawLibrary == TENTE_LIBRARY ? "++libtente" : "++libvexiq");
     }
-  QProcess::startDetached(QApplication::applicationFilePath(), args);
-  messageSig(LOG_INFO, QString("Restarted LPub3D with Arguments: %1 %2").arg(QApplication::applicationFilePath()).arg(args.join(" ")));
-  QCoreApplication::quit();
+    QProcess::startDetached(QApplication::applicationFilePath(), args);
+    messageSig(LOG_INFO, QString("Restarted LPub3D with Command: %1 %2")
+               .arg(QApplication::applicationFilePath()).arg(args.join(" ")));
+    QCoreApplication::quit();
 }
 
 void Gui::reloadCurrentPage(){
@@ -1401,40 +1401,6 @@ void Gui::highlightStepSetup()
   GlobalHighlightStepDialog::getHighlightStepGlobals(ldrawFile.topLevelFile(),page.meta);
 }
 
-bool Gui::checkFadeStetpColorFile(){
-    bool prompt = false;
-    QString colorPartsFile = Preferences::ldrawColourPartsFile;
-    QFile file(colorPartsFile);
-    if ( ! file.exists()) {
-        QString message = QString("Could not find the %1 LDraw Color Parts File: [%2].")
-                                  .arg(Preferences::ldrawLibrary).arg(colorPartsFile);
-        if (Preferences::modeGUI) {
-            QPixmap _icon = QPixmap(":/icons/lpub96.png");
-            QMessageBoxResizable box;
-            box.setWindowIcon(QIcon());
-            box.setIconPixmap (_icon);
-            box.setTextFormat (Qt::RichText);
-
-            box.setWindowTitle(QMessageBox::tr ("%1 Color Parts File.").arg(Preferences::ldrawLibrary));
-            box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-            box.setMinimumSize(40,20);
-
-            QString body = QMessageBox::tr ("Would you like to generate it now ?");
-            box.setText (message);
-            box.setInformativeText (body);
-            box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
-            box.setDefaultButton   (QMessageBox::Yes);
-            if (box.exec() == QMessageBox::Yes) {
-                generateCustomColourPartsList(prompt); /* false */
-            }
-        } else {
-            generateCustomColourPartsList(prompt); /* false */
-        }
-    }
-
-    return true;
-}
-
 void Gui::editTitleAnnotations()
 {
     displayParmsFile(Preferences::titleAnnotationsFile);
@@ -1560,7 +1526,7 @@ void Gui::viewLog()
 void Gui::preferences()
 {
     bool displayThemeRestart            = false;
-    bool restoreOpenFile                = true;
+    bool libraryChangeRestart           = false;
     bool enableLDViewSCallCompare       = Preferences::enableLDViewSingleCall;
     bool enableLDViewSListCompare       = Preferences::enableLDViewSnaphsotList;
     bool displayAllAttributesCompare    = Preferences::displayAllAttributes;
@@ -1582,7 +1548,6 @@ void Gui::preferences()
     QString lgeoPathCompare             = Preferences::lgeoPath;
     QString preferredRendererCompare    = Preferences::preferredRenderer;
     QString displayThemeCompare         = Preferences::displayTheme;
-    QString ldrawLibraryCompare         = Preferences::ldrawLibrary;
 
     // Native POV file generation settings
     bool showLDVSettings = false;
@@ -1596,44 +1561,44 @@ void Gui::preferences()
         TCUserDefaults::setIniFile(Preferences::ldviewIni.toLatin1().constData());
         showLDVSettings = true;
     }
-    long qualityCompare;
-    float customAspectRatioCompare;
-    float edgeRadiusCompare;
-    float seamWidthCompare;
-    float ambientCompare;
-    float diffuseCompare;
-    float reflCompare;
-    float phongCompare;
-    float phongSizeCompare;
-    float transReflCompare;
-    float transFilterCompare;
-    float transIoRCompare;
-    float rubberReflCompare;
-    float rubberPhongCompare;
-    float rubberPhongSizeCompare;
-    float chromeReflCompare;
-    float chromeBrilCompare;
-    float chromeSpecularCompare;
-    float chromeRoughnessCompare;
-    float fileVersionCompare;
+    long qualityCompare = 0.0f;
+    float customAspectRatioCompare = 0.0f;
+    float edgeRadiusCompare = 0.0f;
+    float seamWidthCompare = 0.0f;
+    float ambientCompare = 0.0f;
+    float diffuseCompare = 0.0f;
+    float reflCompare = 0.0f;
+    float phongCompare = 0.0f;
+    float phongSizeCompare = 0.0f;
+    float transReflCompare = 0.0f;
+    float transFilterCompare = 0.0f;
+    float transIoRCompare = 0.0f;
+    float rubberReflCompare = 0.0f;
+    float rubberPhongCompare = 0.0f;
+    float rubberPhongSizeCompare = 0.0f;
+    float chromeReflCompare = 0.0f;
+    float chromeBrilCompare = 0.0f;
+    float chromeSpecularCompare = 0.0f;
+    float chromeRoughnessCompare = 0.0f;
+    float fileVersionCompare = 0.0f;
 
-    bool seamsCompare;
-    bool reflectionsCompare;
-    bool shadowsCompare;
-    bool xmlMapCompare;
-    bool inlinePovCompare;
-    bool smoothCurvesCompare;
-    bool hideStudsCompare;
-    bool unmirrorStudsCompare;
-    bool findReplacementsCompare;
-    bool conditionalEdgeLinesCompare;
-    bool primitiveSubstitutionCompare;
-    //
-    QString selectedAspectRatioCompare;
-    QString xmlMapPathCompare;
-    QString topIncludeCompare;
-    QString bottomIncludeCompare;
-    QString lightsCompare;
+    bool seamsCompare = false;
+    bool reflectionsCompare = false;
+    bool shadowsCompare = false;
+    bool xmlMapCompare = false;
+    bool inlinePovCompare = false;
+    bool smoothCurvesCompare = false;
+    bool hideStudsCompare = false;
+    bool unmirrorStudsCompare = false;
+    bool findReplacementsCompare = false;
+    bool conditionalEdgeLinesCompare = false;
+    bool primitiveSubstitutionCompare = false;
+
+    QString selectedAspectRatioCompare = "";
+    QString xmlMapPathCompare = "";
+    QString topIncludeCompare = "";
+    QString bottomIncludeCompare = "";
+    QString lightsCompare = "";
 
     if (showLDVSettings) {
         switch (int(TCUserDefaults::longForKey(SELECTED_ASPECT_RATIO_KEY, SELECTED_ASPECT_RATIO_DEFAULT)))
@@ -1665,26 +1630,26 @@ void Gui::preferences()
         default:
             selectedAspectRatioCompare = ASPECT_RATIO_8;
         }
-        qualityCompare              = TCUserDefaults::longForKey(QUALITY_EXPORT_KEY, QUALITY_EXPORT_DEFAULT);
-        customAspectRatioCompare    = TCUserDefaults::floatForKey(CUSTOM_ASPECT_RATIO_KEY, CUSTOM_ASPECT_RATIO_DEFAULT);
-        edgeRadiusCompare           = TCUserDefaults::floatForKey(EDGE_RADIUS_KEY, EDGE_RADIUS_DEFAULT);
-        seamWidthCompare            = TCUserDefaults::floatForKey(SEAM_WIDTH_KEY, EDGE_RADIUS_DEFAULT);
-        ambientCompare              = TCUserDefaults::floatForKey(AMBIENT_KEY, AMBIENT_DEFAULT);
-        diffuseCompare              = TCUserDefaults::floatForKey(DIFFUSE_KEY, DIFFUSE_DEFAULT);
-        reflCompare                 = TCUserDefaults::floatForKey(REFLECTION_KEY, REFLECTION_DEFAULT);
-        phongCompare                = TCUserDefaults::floatForKey(PHONG_KEY, PHONG_DEFAULT);
-        phongSizeCompare            = TCUserDefaults::floatForKey(PHONG_SIZE_KEY, PHONG_SIZE_DEFAULT);
-        transReflCompare            = TCUserDefaults::floatForKey(TRANS_REFLECTION_KEY, TRANS_REFLECTION_DEFAULT);
-        transFilterCompare          = TCUserDefaults::floatForKey(TRANS_FILTER_KEY, TRANS_FILTER_DEFAULT);
-        transIoRCompare             = TCUserDefaults::floatForKey(TRANS_IOR_KEY, TRANS_IOR_DEFAULT);
-        rubberReflCompare           = TCUserDefaults::floatForKey(RUBBER_REFLECTION_KEY, RUBBER_REFLECTION_DEFAULT);
-        rubberPhongCompare          = TCUserDefaults::floatForKey(RUBBER_PHONG_KEY, RUBBER_PHONG_DEFAULT);
-        rubberPhongSizeCompare      = TCUserDefaults::floatForKey(RUBBER_PHONG_SIZE_KEY, RUBBER_PHONG_SIZE_DEFAULT);
-        chromeReflCompare           = TCUserDefaults::floatForKey(CHROME_REFLECTION_KEY, CHROME_REFLECTION_DEFAULT);
-        chromeBrilCompare           = TCUserDefaults::floatForKey(CHROME_BRILLIANCE_KEY, CHROME_BRILLIANCE_DEFAULT);
-        chromeSpecularCompare       = TCUserDefaults::floatForKey(CHROME_SPECULAR_KEY, CHROME_SPECULAR_DEFAULT);
-        chromeRoughnessCompare      = TCUserDefaults::floatForKey(CHROME_ROUGHNESS_KEY, CHROME_ROUGHNESS_DEFAULT);
-        fileVersionCompare          = TCUserDefaults::floatForKey(FILE_VERSION_KEY, FILE_VERSION_DEFAULT);
+        qualityCompare               = TCUserDefaults::longForKey(QUALITY_EXPORT_KEY, QUALITY_EXPORT_DEFAULT);
+        customAspectRatioCompare     = TCUserDefaults::floatForKey(CUSTOM_ASPECT_RATIO_KEY, CUSTOM_ASPECT_RATIO_DEFAULT);
+        edgeRadiusCompare            = TCUserDefaults::floatForKey(EDGE_RADIUS_KEY, EDGE_RADIUS_DEFAULT);
+        seamWidthCompare             = TCUserDefaults::floatForKey(SEAM_WIDTH_KEY, EDGE_RADIUS_DEFAULT);
+        ambientCompare               = TCUserDefaults::floatForKey(AMBIENT_KEY, AMBIENT_DEFAULT);
+        diffuseCompare               = TCUserDefaults::floatForKey(DIFFUSE_KEY, DIFFUSE_DEFAULT);
+        reflCompare                  = TCUserDefaults::floatForKey(REFLECTION_KEY, REFLECTION_DEFAULT);
+        phongCompare                 = TCUserDefaults::floatForKey(PHONG_KEY, PHONG_DEFAULT);
+        phongSizeCompare             = TCUserDefaults::floatForKey(PHONG_SIZE_KEY, PHONG_SIZE_DEFAULT);
+        transReflCompare             = TCUserDefaults::floatForKey(TRANS_REFLECTION_KEY, TRANS_REFLECTION_DEFAULT);
+        transFilterCompare           = TCUserDefaults::floatForKey(TRANS_FILTER_KEY, TRANS_FILTER_DEFAULT);
+        transIoRCompare              = TCUserDefaults::floatForKey(TRANS_IOR_KEY, TRANS_IOR_DEFAULT);
+        rubberReflCompare            = TCUserDefaults::floatForKey(RUBBER_REFLECTION_KEY, RUBBER_REFLECTION_DEFAULT);
+        rubberPhongCompare           = TCUserDefaults::floatForKey(RUBBER_PHONG_KEY, RUBBER_PHONG_DEFAULT);
+        rubberPhongSizeCompare       = TCUserDefaults::floatForKey(RUBBER_PHONG_SIZE_KEY, RUBBER_PHONG_SIZE_DEFAULT);
+        chromeReflCompare            = TCUserDefaults::floatForKey(CHROME_REFLECTION_KEY, CHROME_REFLECTION_DEFAULT);
+        chromeBrilCompare            = TCUserDefaults::floatForKey(CHROME_BRILLIANCE_KEY, CHROME_BRILLIANCE_DEFAULT);
+        chromeSpecularCompare        = TCUserDefaults::floatForKey(CHROME_SPECULAR_KEY, CHROME_SPECULAR_DEFAULT);
+        chromeRoughnessCompare       = TCUserDefaults::floatForKey(CHROME_ROUGHNESS_KEY, CHROME_ROUGHNESS_DEFAULT);
+        fileVersionCompare           = TCUserDefaults::floatForKey(FILE_VERSION_KEY, FILE_VERSION_DEFAULT);
 
         seamsCompare                 = TCUserDefaults::boolForKey(SEAMS_KEY, true);
         reflectionsCompare           = TCUserDefaults::boolForKey(REFLECTIONS_KEY, true);
@@ -1734,14 +1699,42 @@ void Gui::preferences()
         bool doNotShowPageProcessDlgChanged= Preferences::doNotShowPageProcessDlg                != doNotShowPageProcessDlgCompare;
         bool povFileGeneratorChanged       = Preferences::povFileGenerator                       != povFileGeneratorCompare;
         bool altLDConfigPathChanged        = Preferences::altLDConfigPath                        != altLDConfigPathCompare;
-        bool ldrawLibraryChanged           = Preferences::ldrawLibrary                           != ldrawLibraryCompare;
 
         bool ldrawPathChanged              = QString(Preferences::ldrawPath).toLower()           != ldrawPathCompare.toLower();
         bool lgeoPathChanged               = QString(Preferences::lgeoPath).toLower()            != lgeoPathCompare.toLower();
         bool displayThemeChanged           = Preferences::displayTheme.toLower()                 != displayThemeCompare.toLower();
 
-        if (enableFadeStepsChanged)
+        if (ldrawPathChanged) {
+            emit messageSig(LOG_INFO,QString("LDraw Library path changed from %1 to %2")
+                            .arg(ldrawPathCompare)
+                            .arg(Preferences::ldrawPath));
+            if (Preferences::ldrawLibrary != Preferences::validLDrawLibrary) {
+                libraryChangeRestart = true;
+                emit messageSig(LOG_INFO,QString("LDraw parts library changed from %1 to %2")
+                                .arg(Preferences::ldrawLibrary)
+                                .arg(Preferences::validLDrawLibrary));
+                box.setText (QString("%1 will restart to properly load the %2 parts library.")
+                                     .arg(VER_PRODUCTNAME_STR).arg(Preferences::validLDrawLibrary));
+                box.exec();
+            }
+        }
+
+        if (lgeoPathChanged && !ldrawPathChanged)
+            emit messageSig(LOG_INFO,QString("LGEO path preference changed from %1 to %2")
+                            .arg(lgeoPathCompare)
+                            .arg(Preferences::lgeoPath));
+
+        if (enableFadeStepsChanged) {
             emit messageSig(LOG_INFO,QString("Fade Previous Steps is %1.").arg(Preferences::enableFadeSteps ? "ON" : "OFF"));
+            if (Preferences::enableFadeSteps && !ldrawColourParts.ldrawColorPartsIsLoaded()) {
+                QString result;
+                if (!LDrawColourParts::LDrawColorPartsLoad(result)){
+                    QString message = QString("Could not open %1 LDraw color parts file [%2], Error: %3")
+                                      .arg(Preferences::ldrawLibrary).arg(Preferences::ldrawColourPartsFile).arg(result);
+                    emit messageSig(LOG_ERROR, message);
+                }
+            }
+        }
 
         if (fadeStepsUseColourChanged && Preferences::enableFadeSteps)
             emit messageSig(LOG_INFO,QString("Use Global Fade Color is %1").arg(Preferences::fadeStepsUseColour ? "ON" : "OFF"));
@@ -1768,16 +1761,6 @@ void Gui::preferences()
             emit messageSig(LOG_INFO,QString("Highlight Step Color preference changed from %1 to %2")
                             .arg(highlightStepColourCompare)
                             .arg(Preferences::highlightStepColour));
-
-        if (ldrawPathChanged)
-            emit messageSig(LOG_INFO,QString("LDraw Library path changed from %1 to %2")
-                            .arg(ldrawPathCompare)
-                            .arg(Preferences::ldrawPath));
-
-        if (lgeoPathChanged && !ldrawPathChanged)
-            emit messageSig(LOG_INFO,QString("LGEO path preference changed from %1 to %2")
-                            .arg(lgeoPathCompare)
-                            .arg(Preferences::lgeoPath));
 
         if (generateCoverPagesChanged)
             emit messageSig(LOG_INFO,QString("Generate Cover Pages preference is %1").arg(Preferences::generateCoverPages ? "ON" : "OFF"));
@@ -1826,16 +1809,6 @@ void Gui::preferences()
             emit messageSig(LOG_INFO,QString("POV file generation renderer changed from %1 to %2")
                             .arg(povFileGeneratorCompare)
                             .arg(Preferences::povFileGenerator));
-
-        if (ldrawLibraryChanged) {
-            emit messageSig(LOG_INFO,QString("LDraw parts library changed from %1 to %2")
-                            .arg(ldrawLibraryCompare)
-                            .arg(Preferences::ldrawLibrary));
-            box.setText (QString("%1 will restart to properly load the %2 parts library.")
-                                 .arg(VER_PRODUCTNAME_STR).arg(Preferences::ldrawLibrary));
-            restoreOpenFile = false;
-            box.exec();
-        }
 
         if (altLDConfigPathChanged) {
             emit messageSig(LOG_INFO,QString("Use Alternate LDConfig (Restart Required) %1.").arg(Preferences::altLDConfigPath));
@@ -2161,8 +2134,8 @@ void Gui::preferences()
                                 .arg(Preferences::ldvLights));
         }
 
-        if (displayThemeRestart || altLDConfigPathChanged || ldrawLibraryChanged) {
-            restartApplication(restoreOpenFile);
+        if (displayThemeRestart || altLDConfigPathChanged || libraryChangeRestart) {
+            restartApplication(libraryChangeRestart);
         }
     }
 }
@@ -2384,22 +2357,86 @@ void Gui::initialize()
   createDockWindows();
   toggleLCStatusBar(true);
 
+  emit Application::instance()->splashMsgSig(QString("95% - LDraw colors loading..."));
+
+  LDrawColor::LDrawColorInit();
+
   emit disable3DActionsSig();
   setCurrentFile("");
   readSettings();
 }
 
+void Gui::ldrawColorPartsLoad()
+{
+    if (Preferences::enableFadeSteps && !ldrawColourParts.ldrawColorPartsIsLoaded()) {
+        QString result;
+        if (!LDrawColourParts::LDrawColorPartsLoad(result)){
+            QString message = QString("Could not open the %1 LDraw color parts file [%2], Error: %3")
+                    .arg(Preferences::ldrawLibrary).arg(Preferences::ldrawColourPartsFile).arg(result);
+            emit messageSig(LOG_NOTICE, message);
+            bool prompt = false;
+            if (Preferences::modeGUI) {
+                QPixmap _icon = QPixmap(":/icons/lpub96.png");
+                QMessageBoxResizable box;
+                box.setWindowIcon(QIcon());
+                box.setIconPixmap (_icon);
+                box.setTextFormat (Qt::RichText);
+
+                box.setWindowTitle(QMessageBox::tr ("%1 Color Parts File.").arg(Preferences::ldrawLibrary));
+                box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+                box.setMinimumSize(40,20);
+
+                QString body = QMessageBox::tr ("Would you like to generate it now ?");
+                box.setText (message);
+                box.setInformativeText (body);
+                box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
+                box.setDefaultButton   (QMessageBox::Yes);
+                if (box.exec() == QMessageBox::Yes) {
+                    generateCustomColourPartsList(prompt); /* false */
+                }
+            } else {
+                generateCustomColourPartsList(prompt); /* false */
+            }
+        }
+    }
+}
+
+void Gui::reloadModelFileAfterColorFileGen(){
+    if (Preferences::modeGUI) {
+        QPixmap _icon = QPixmap(":/icons/lpub96.png");
+        QMessageBoxResizable box;
+        box.setWindowIcon(QIcon());
+        box.setIconPixmap (_icon);
+        box.setTextFormat (Qt::RichText);
+        box.setWindowTitle(QMessageBox::tr ("%1 Color Parts File.").arg(Preferences::ldrawLibrary));
+        box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+        box.setMinimumSize(10,10);
+        QString message = QString("The %1 LDraw Color Parts File has finished building.")
+                .arg(Preferences::ldrawLibrary);
+        QString body = QMessageBox::tr ("The opened model must be reloaded.");
+        box.setText (message);
+        box.setInformativeText (body);
+        box.setStandardButtons (QMessageBox::Ok);
+        box.setDefaultButton   (QMessageBox::Ok);
+        box.exec();
+    }
+    if (!getCurFile().isEmpty())
+        clearAndRedrawPage();
+}
+
 void Gui::generateCustomColourPartsList(bool prompt)
 {
     QMessageBox::StandardButton ret;
-    if (Preferences::modeGUI && prompt) {
-    ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
-            tr("Generating the %1 color parts list may take a long time.\n"
-                "Are you sure you want to generate this list?").arg(Preferences::ldrawLibrary),
-            QMessageBox::Yes | QMessageBox::Cancel);
+    QString message = QString("Generate the %1 color parts list. This may take some time.").arg(Preferences::ldrawLibrary);
+
+    if (Preferences::modeGUI && prompt && Preferences::lpub3dLoaded) {
+            ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
+                                   tr("%1 Do you want to continue ?").arg(message),
+                                   QMessageBox::Yes | QMessageBox::Cancel);
     }
 
-    if (ret == QMessageBox::Yes || !prompt) {
+    if (ret == QMessageBox::Yes || ! prompt || !Preferences::lpub3dLoaded) {
+        emit messageSig(LOG_INFO,message);
 
         QThread *listThread   = new QThread();
         colourPartListWorker  = new ColourPartListWorker();
@@ -2407,6 +2444,7 @@ void Gui::generateCustomColourPartsList(bool prompt)
 
         connect(listThread,           SIGNAL(started()),                     colourPartListWorker, SLOT(generateCustomColourPartsList()));
         connect(listThread,           SIGNAL(finished()),                              listThread, SLOT(deleteLater()));
+        connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),                   this, SLOT(reloadModelFileAfterColorFileGen()));
         connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),             listThread, SLOT(quit()));
         connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),   colourPartListWorker, SLOT(deleteLater()));
         connect(this,                 SIGNAL(requestEndThreadNowSig()),      colourPartListWorker, SLOT(requestEndThreadNow()));
@@ -2421,6 +2459,12 @@ void Gui::generateCustomColourPartsList(bool prompt)
         connect(colourPartListWorker, SIGNAL(progressStatusRemoveSig()),                     this, SLOT(progressStatusRemove()));
 
         listThread->start();
+
+        if (!Preferences::modeGUI) {
+            QEventLoop  *wait = new QEventLoop();
+            wait->connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),         wait, SLOT(quit()));
+            wait->exec();
+        }
 
     } else {
       return;
@@ -3623,7 +3667,7 @@ void Gui::statusMessage(LogType logType, QString message) {
 
                 logInfo() << message;
 
-                if (!guiEnabled) {
+                if (!guiEnabled && !Preferences::suppressStdOutToLog) {
                     fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
                     fflush(stdout);
                 }
@@ -3633,7 +3677,7 @@ void Gui::statusMessage(LogType logType, QString message) {
 
                   logNotice() << message;
 
-                  if (!guiEnabled) {
+                  if (!guiEnabled && !Preferences::suppressStdOutToLog) {
                       fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
                       fflush(stdout);
                   }
@@ -3643,7 +3687,7 @@ void Gui::statusMessage(LogType logType, QString message) {
 
                   logTrace() << message;
 
-                  if (!guiEnabled) {
+                  if (!guiEnabled && !Preferences::suppressStdOutToLog) {
                       fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
                       fflush(stdout);
                   }
@@ -3654,7 +3698,7 @@ void Gui::statusMessage(LogType logType, QString message) {
                   logDebug() << message;
 
 
-                  if (!guiEnabled) {
+                  if (!guiEnabled && !Preferences::suppressStdOutToLog) {
                       fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
                       fflush(stdout);
                   }
@@ -3666,7 +3710,7 @@ void Gui::statusMessage(LogType logType, QString message) {
 
                   logInfo() << message;
 
-                  if (!guiEnabled) {
+                  if (!guiEnabled && !Preferences::suppressStdOutToLog) {
                       fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
                       fflush(stdout);
                   }
@@ -3681,7 +3725,7 @@ void Gui::statusMessage(LogType logType, QString message) {
                       } else {
                           QMessageBox::warning(this,tr(VER_PRODUCTNAME_STR),tr(message.toLatin1()));
                       }
-                  } else {
+                  } else if (!Preferences::suppressStdOutToLog) {
                       fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
                       fflush(stdout);
                   }

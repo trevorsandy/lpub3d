@@ -249,6 +249,11 @@ bool lcLoadColorFile(lcFile& File)
 		Color.Edge[1] = FLT_MAX;
 		Color.Edge[2] = FLT_MAX;
 		Color.Edge[3] = 1.0f;
+/*** LPub3D Mod - use 3DViewer colors ***/
+        Color.CValue = ~0U;
+        Color.EValue = ~0U;
+        Color.Alpha = 255;
+/*** LPub3D Mod end ***/
 
 		GetToken(Ptr, Token);
 		strncpy(Color.Name, Token, sizeof(Color.Name));
@@ -273,10 +278,12 @@ bool lcLoadColorFile(lcFile& File)
 				if (Token[0] == '#')
 					Token[0] = ' ';
 
-				int Value;
-				if (sscanf(Token, "%x", &Value) != 1)
-					Value = 0;
-
+                int Value;
+                if (sscanf(Token, "%x", &Value) != 1)
+                    Value = 0;
+/*** LPub3D Mod - use 3DViewer colors ***/
+                Color.CValue = Value;
+/*** LPub3D Mod end ***/
 				Color.Value[2] = (float)(Value & 0xff) / 255.0f;
 				Value >>= 8;
 				Color.Value[1] = (float)(Value & 0xff) / 255.0f;
@@ -292,6 +299,9 @@ bool lcLoadColorFile(lcFile& File)
 				int Value;
 				if (sscanf(Token, "%x", &Value) != 1)
 					Value = 0;
+/*** LPub3D Mod - use 3DViewer colors ***/
+                Color.EValue = Value;
+/*** LPub3D Mod end ***/
 
 				Color.Edge[2] = (float)(Value & 0xff) / 255.0f;
 				Value >>= 8;
@@ -306,7 +316,9 @@ bool lcLoadColorFile(lcFile& File)
 				Color.Value[3] = (float)(Value & 0xff) / 255.0f;
 				if (Value != 255)
 					Color.Translucent = true;
-
+/*** LPub3D Mod - use 3DViewer colors ***/
+                Color.Alpha = Value;
+/*** LPub3D Mod end ***/
 				if (Value == 128)
 					GroupTranslucent = true;
 				else if (Value != 0)
@@ -417,6 +429,9 @@ bool lcLoadColorEntry(const char* ColorEntry)
 	Color.Edge[1] = FLT_MAX;
 	Color.Edge[2] = FLT_MAX;
 	Color.Edge[3] = 1.0f;
+    Color.CValue = ~0U;
+    Color.EValue = ~0U;
+    Color.Alpha = 255;
 
 	GetToken(Ptr, Token);
 	strncpy(Color.Name, Token, sizeof(Color.Name));
@@ -444,6 +459,7 @@ bool lcLoadColorEntry(const char* ColorEntry)
 			int Value;
 			if (sscanf(Token, "%x", &Value) != 1)
 				Value = 0;
+            Color.EValue = Value;
 
 			Color.Value[2] = (float)(Value & 0xff) / 255.0f;
 			Value >>= 8;
@@ -460,6 +476,7 @@ bool lcLoadColorEntry(const char* ColorEntry)
 			int Value;
 			if (sscanf(Token, "%x", &Value) != 1)
 				Value = 0;
+            Color.EValue = Value;
 
 			Color.Edge[2] = (float)(Value & 0xff) / 255.0f;
 			Value >>= 8;
@@ -471,6 +488,7 @@ bool lcLoadColorEntry(const char* ColorEntry)
 		{
 			GetToken(Ptr, Token);
 			int Value = atoi(Token);
+            Color.Alpha = Value;
 			Color.Value[3] = (float)(Value & 0xff) / 255.0f;
 			if (Value != 255)
 			{

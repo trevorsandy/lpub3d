@@ -3497,6 +3497,8 @@ bool lcPiecesLibrary::ReloadUnoffLib()
     mZipFiles[LC_ZIPFILE_UNOFFICIAL] = NULL;
 
     //load unofficial library content
+    if (mUnofficialFileName.isEmpty())
+        mUnofficialFileName = mLibraryDir.absoluteFilePath(Preferences::validLDrawCustomArchive);
     if (OpenArchive(mUnofficialFileName, LC_ZIPFILE_UNOFFICIAL)){
         ReadArchiveDescriptions(mLibraryFileName, mUnofficialFileName);
     } else

@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: July 12, 2018
+rem  Last Update: October 21, 2018
 rem  Copyright (c) 2017 - 2018 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -56,9 +56,6 @@ SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
 SET LP3D_WIN_GIT_MSG=%LP3D_WIN_GIT%
 SET SYS_DIR=%SystemRoot%\System32
 SET zipWin64=C:\program files\7-zip
-SET OfficialCONTENT=complete.zip
-SET UnOfficialCONTENT=ldrawunf.zip
-SET LPub3DCONTENT=lpub3dldrawunf.zip
 
 SET BUILD_THIRD=unknown
 SET INSTALL=unknown
@@ -344,127 +341,6 @@ ECHO.
 rem Perform build and stage package components
 nmake.exe %LPUB3D_MAKE_ARGS% install
 EXIT /b
-
-:DOWNLOAD_LDRAW_LIBS
-ECHO.
-ECHO - Download LDraw archive libraries...
-
-SET OutputPATH=%LDRAW_DOWNLOAD_DIR%
-
-ECHO.
-ECHO - Prepare BATCH to VBS to Web Content Downloader...
-
-IF NOT EXIST "%TEMP%\$" (
-  MD "%TEMP%\$"
-)
-
-SET vbs=WebContentDownload.vbs
-SET t=%TEMP%\$\%vbs% ECHO
-
-IF EXIST %TEMP%\$\%vbs% (
- DEL %TEMP%\$\%vbs%
-)
-
-:WEB CONTENT SAVE-AS Download-- VBS
->%t% Option Explicit
->>%t% On Error Resume Next
->>%t%.
->>%t% Dim args, http, fileSystem, adoStream, url, target, status
->>%t%.
->>%t% Set args = Wscript.Arguments
->>%t% Set http = CreateObject("WinHttp.WinHttpRequest.5.1")
->>%t% url = args(0)
->>%t% target = args(1)
->>%t% WScript.Echo "- Getting '" ^& target ^& "' from '" ^& url ^& "'...", vbLF
->>%t%.
->>%t% http.Open "GET", url, False
->>%t% http.Send
->>%t% status = http.Status
->>%t%.
->>%t% If status ^<^> 200 Then
->>%t% WScript.Echo "- FAILED to download: HTTP Status " ^& status, vbLF
->>%t% WScript.Quit 1
->>%t% End If
->>%t%.
->>%t% Set adoStream = CreateObject("ADODB.Stream")
->>%t% adoStream.Open
->>%t% adoStream.Type = 1
->>%t% adoStream.Write http.ResponseBody
->>%t% adoStream.Position = 0
->>%t%.
->>%t% Set fileSystem = CreateObject("Scripting.FileSystemObject")
->>%t% If fileSystem.FileExists(target) Then fileSystem.DeleteFile target
->>%t% If Err.Number ^<^> 0 Then
->>%t%   WScript.Echo "- Error - CANNOT DELETE: '" ^& target ^& "', " ^& Err.Description
->>%t%   WScript.Echo "  The file may be in use by another process.", vbLF
->>%t%   adoStream.Close
->>%t%   Err.Clear
->>%t% Else
->>%t%  adoStream.SaveToFile target
->>%t%  adoStream.Close
->>%t%  WScript.Echo "- Download successful!"
->>%t% End If
->>%t%.
->>%t% 'WebContentDownload.vbs
->>%t% 'Title: BATCH to VBS to Web Content Downloader
->>%t% 'CMD ^> cscript //Nologo %TEMP%\$\%vbs% WebNAME WebCONTENT
->>%t% 'VBS Created on %date% at %time%
->>%t%.
-
-ECHO.
-ECHO - VBS file "%vbs%" is done compiling
-ECHO.
-ECHO - LDraw archive library download path: %OutputPATH%
-
-IF "%1" EQU "for_build_check" (
-  CALL :GET_OFFICIAL_LIBRARY
-  CALL :GET_UNOFFICIAL_LIBRARY
-) ELSE (
-  CALL :GET_OFFICIAL_LIBRARY
-)
-EXIT /b
-
-:GET_OFFICIAL_LIBRARY
-SET WebCONTENT="%OutputPATH%\%OfficialCONTENT%"
-SET WebNAME=http://www.ldraw.org/library/updates/complete.zip
-
-ECHO.
-ECHO - Download archive file: %WebCONTENT%...
-
-IF EXIST %WebCONTENT% (
- DEL %WebCONTENT%
-)
-
-ECHO.
-cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
-
-IF EXIST %OfficialCONTENT% (
-  ECHO.
-  ECHO - LDraw archive library %OfficialCONTENT% availble
-)
-EXIT /b
-
-:GET_UNOFFICIAL_LIBRARY
-SET WebCONTENT="%OutputPATH%\%UnofficialCONTENT%"
-SET WebNAME=http://www.ldraw.org/library/unofficial/ldrawunf.zip
-
-ECHO.
-ECHO - Download archive file: %WebCONTENT%...
-
-IF EXIST %WebCONTENT% (
- DEL %WebCONTENT%
-)
-
-ECHO.
-cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
-
-REN %UnofficialCONTENT% %LPub3DCONTENT%
-IF EXIST %LPub3DCONTENT% (
-  ECHO.
-  ECHO - LDraw archive library %LPub3DCONTENT% availble
-)
-EXIT /b
-
 
 :WD_REL_TO_ABS
 IF [%1] EQU [] (EXIT /b) ELSE (SET REL_WD=%1)

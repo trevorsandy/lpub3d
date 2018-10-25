@@ -24,6 +24,10 @@
 #include <QTextStream>
 #include <QRegExp>
 #include "lpub_preferences.h"
+
+#include "lc_global.h"
+#include "lc_colors.h"
+
 #include "QsLog.h"
 
 QHash<QString, int> LDrawColor::color2alpha;
@@ -34,80 +38,114 @@ QHash<QString, QString> LDrawColor::color2name;
 QHash<QString, QString> LDrawColor::ldname2ldcolor;
 
 /*
- * This constructor reads in the LDraw ldconfig.ldr file and extracts
- * the color codes, color names, and color values and puts them in
- * the xlate (name to color translate) hash table.
+ * This function extracts colours loaded by the 3DViewer and,
+ * alternatively, reads in the alternate LDraw ldconfig.ldr file to
+ * extract the color codes, color names, and color values and puts
+ * them in the xlate (name to color translate) hash table.
  */
-LDrawColor::LDrawColor ()
+void LDrawColor::LDrawColorInit()
 {
-  name2color.clear();
-  color2name.clear();
+    name2color.clear();
+    color2name.clear();
 //  color2alpha.clear();
 //  color2edge.clear();
 //  color2value.clear();
 //  ldname2ldcolor.clear();
-  QString ldrawFileName;
-  // fist, check if there is an alternative LDConfig defined
-  if (!Preferences::altLDConfigPath.isEmpty())
-    ldrawFileName = Preferences::altLDConfigPath;
-  else
-    ldrawFileName = Preferences::ldrawPath + "/LDConfig.ldr";
-  QFile file(ldrawFileName);
-  if (! file.open(QFile::ReadOnly | QFile::Text)) {
-      QString extrasFileName(Preferences::lpubDataPath + "/extras/ldconfig.ldr");
-      file.setFileName(extrasFileName);
-      // try extras location
-      if (! file.open(QFile::ReadOnly | QFile::Text)){
-          file.setFileName(":/resources/ldconfig.ldr");
-          // try resource location
-          if (! file.open(QFile::ReadOnly | QFile::Text)){
-              QMessageBox::warning(nullptr,QMessageBox::tr("LDrawColor"),
-                                   QMessageBox::tr("LDConfig load: Cannot read disc file %1,\ndisc file %2"
-                                                   "\nor resource file %3.")
-                                   .arg(ldrawFileName)
-                                   .arg(extrasFileName)
-                                   .arg(file.fileName()));
-              return;
+
+    // fist, check if there is an alternative LDConfig defined
+    if (!Preferences::altLDConfigPath.isEmpty())
+    {
+        QString ldrawFileName = Preferences::altLDConfigPath;
+        QFile file(ldrawFileName);
+        if (! file.open(QFile::ReadOnly | QFile::Text)) {
+            logError() << QString("Failed to open altLDConfig file: %1, Error: [%2]")
+                                  .arg(file.fileName()).arg(file.errorString());
+            QString extrasFileName(Preferences::ldrawPath + "/LDConfig.ldr");
+            file.setFileName(extrasFileName);
+            // try extras location
+            if (! file.open(QFile::ReadOnly | QFile::Text)){
+                file.setFileName(":/resources/ldconfig.ldr");
+                // try resource location
+                if (! file.open(QFile::ReadOnly | QFile::Text)){
+                    QMessageBox::warning(nullptr,QMessageBox::tr("LDrawColor"),
+                                         QMessageBox::tr("LDConfig load: Cannot read disc file %1,\ndisc file %2"
+                                                         "\nor resource file %3.")
+                                         .arg(ldrawFileName)
+                                         .arg(extrasFileName)
+                                         .arg(file.fileName()));
+                    return;
+                } else
+                    logTrace() << "WARNING - LDConfig loaded from resource cache.";
             } else
-              logTrace() << "LDConfig loaded from resource cache.";
-        } else
-          logTrace() << "LDConfig loaded from extras directory.";
+                logTrace() << QString("WARNING - LDConfig loaded from LDraw directory.").arg(Preferences::ldrawPath);
+        }
+
+        QRegExp rx("^\\s*0\\s+!COLOUR\\s+(\\w+)\\s+CODE\\s+(\\d+)\\s+VALUE\\s+"
+                   "#([\\da-fA-F]+)\\s+EDGE\\s+#([\\da-fA-F]+)(?:.*ALPHA\\s+(\\d+))?");
+
+        QTextStream in(&file);
+        while ( ! in.atEnd()) {
+            QString line = in.readLine(0);
+            if (line.contains(rx)) {
+                bool ok;
+                QString name;
+                QRgb hex = rx.cap(3).toLong(&ok,16);
+                QColor color(hex);
+                QString code = rx.cap(2);               // color code - e.g. 219
+                int alpha = rx.cap(5).toInt(&ok);       //0(0) = colourless, 255(0xff) = fully opaque
+
+                if (ok && alpha >= 0 && alpha <= 256 ) {
+                    color2alpha.insert(code,alpha);
+                    color.setAlpha(alpha);
+                } else {
+                    color.setAlpha(255);
+                }
+                QString value = rx.cap(3);              // color value
+                color2value.insert(code,value);
+
+                QString edge = rx.cap(4);               // color edge
+                color2edge.insert(code,edge);
+
+                name = rx.cap(1).toLower();             // color name (lower) - e.g. dark_nougat
+                name2color.insert(name,color);
+                name2color.insert(code,color);
+
+                ldname2ldcolor.insert(name,code);       // using name (lower) and code
+
+                name = rx.cap(1);                       // color name (normal) - e.g. Dark_Nougat
+                color2name.insert(code,name);
+                color2name.insert(color.name(),name);
+            }
+        }
+
     }
+    // Load the LDConfig from the loaded parts archive
+    else
+    {
+        for (int ColorIdx = 0; ColorIdx < gColorList.GetSize(); ColorIdx++)
+        {
+            bool ok;
+            lcColor* Color = &gColorList[ColorIdx];
+            QString name  = Color->SafeName;
+            QString code  = QString::number(Color->Code);
+            QString value = QString("%1").arg(Color->CValue, 2, 16, QChar('0')).toUpper();
+            QString edge  = QString("%1").arg(Color->EValue, 2, 16, QChar('0')).toUpper();
+            int alpha     = Color->Alpha;
+            QRgb hex      = value.toLong(&ok,16);
+            QColor color(hex);
 
-  QRegExp rx("^\\s*0\\s+!COLOUR\\s+(\\w+)\\s+CODE\\s+(\\d+)\\s+VALUE\\s+"
-             "#([\\da-fA-F]+)\\s+EDGE\\s+#([\\da-fA-F]+)(?:.*ALPHA\\s+(\\d+))?");
+//            logDebug() << QString("0 !COLOUR %1 CODE %2 VALUE #%3 EDGE #%4 ALPHA %5")
+//                          .arg(name).arg(code).arg(value).arg(edge).arg(alpha);
 
-  QTextStream in(&file);
-  while ( ! in.atEnd()) {
-      QString line = in.readLine(0);
-      if (line.contains(rx)) {
-          bool ok;
-          QString name;
-          QRgb hex = rx.cap(3).toLong(&ok,16);
-          QColor color(hex);
-          QString code = rx.cap(2);               // color code - e.g. 219
-          int alpha = rx.cap(5).toInt(&ok);       //0(0) = colourless, 255(0xff) = fully opaque
-          if (ok && alpha >= 0 && alpha <= 256 ) {
-              color2alpha.insert(code,alpha);
-              color.setAlpha(alpha);
-          } else {
-              color.setAlpha(255);
-          }
-          QString value = rx.cap(3);              // color value
-          color2value.insert(code,value);
-
-          QString edge = rx.cap(4);               // color edge
-          color2edge.insert(code,edge);
-
-          name = rx.cap(1).toLower();             // color name (lower) - e.g. dark_nougat
-          name2color.insert(name,color);
-          name2color.insert(code,color);
-
-          ldname2ldcolor.insert(name,code);       // using name (lower) and code
-
-          name = rx.cap(1);                       // color name (normal) - e.g. Dark_Nougat
-          color2name.insert(code,name);
-          color2name.insert(color.name(),name);
+            color.setAlpha(alpha);
+            color2alpha.insert(code,alpha);             // color alpha
+            color2value.insert(code,value);             // color value
+            color2edge.insert(code,edge);               // color edge
+            name2color.insert(code,color);
+            name2color.insert(name.toLower(),color);    // color name (lower) - e.g. dark_nougat
+            ldname2ldcolor.insert(name.toLower(),code); // using name (lower) and code
+            color2name.insert(code,name);               // color name (normal) - e.g. Dark_Nougat
+            color2name.insert(color.name(),name);       // color name (normal)
         }
     }
 }

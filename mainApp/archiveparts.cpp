@@ -28,10 +28,10 @@ ArchiveParts::ArchiveParts(QObject *parent) : QObject(parent)
  * Insert static coloured fade parts into unofficial ldraw library
  *
  */
-bool ArchiveParts::Archive(
-    const QString &zipArchive,
+bool ArchiveParts::Archive(const QString &zipArchive,
     const QDir &dir,
     QString &result,
+    int &resultSeverity,
     const QString &comment,
     bool overwriteCustomPart) {
 
@@ -40,7 +40,6 @@ bool ArchiveParts::Archive(
   // Check if part directory exist
   if (!dir.exists()) {
       result = QString("Archive directory does not exist: %1").arg(dir.absolutePath());
-      emit gui->messageSig(LOG_ERROR, result);
       return false;
     }
 
@@ -50,7 +49,8 @@ bool ArchiveParts::Archive(
 
   // Check if file list is empty
   if (dirFileList.isEmpty()) {
-      result = QString("File directory is empty: %1").arg(dir.absolutePath());
+      result = QString("Directory is empty and will be ignored: %1").arg(dir.absolutePath());
+      resultSeverity = 2; // Warning
       return false;
   }
 

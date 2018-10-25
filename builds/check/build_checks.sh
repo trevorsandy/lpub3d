@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update October 5, 2018
+# Last Update October 21, 2018
 # LPub3D Unix checks - for remote CI (Trevis, OBS) 
 # NOTE: Source with variables as appropriate:
 #       $BUILD_OPT = compile
@@ -55,27 +55,37 @@ echo && echo "------------Build checks start--------------" && echo
 
 LP3D_CHECK_FILE="$(realpath ${SOURCE_DIR})/builds/check/build_checks.mpd"
 
-for LP3D_BUILD_CHECK in CHECK01 CHECK02 CHECK03 CHECK04 CHECK05; do
+for LP3D_BUILD_CHECK in CHECK01 CHECK02 CHECK03 CHECK04 CHECK05 CHECK06 CHECK07; do
     case ${LP3D_BUILD_CHECK} in
     CHECK01)
-        LP3D_CHECK_HDR="- Check 1 of 5: Native File Process Check..."
-        LP3D_CHECK_OPTIONS="--process-file --preferred-renderer native"
+        LP3D_CHECK_HDR="- Check 1 of 7: Native File Process Check..."
+        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --liblego --preferred-renderer native"
         ;;
     CHECK02)
-        LP3D_CHECK_HDR="- Check 2 of 5: LDView File Process Check..."
-        LP3D_CHECK_OPTIONS="--process-file --clear-cache --preferred-renderer ldview"
+        LP3D_CHECK_HDR="- Check 2 of 7: LDView File Process Check..."
+        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --liblego --preferred-renderer ldview"
         ;;
     CHECK03)
-        LP3D_CHECK_HDR="- Check 3 of 5: LDView (Single Call) File Process Check..."
-        LP3D_CHECK_OPTIONS="--process-file --clear-cache --preferred-renderer ldview-sc"
+        LP3D_CHECK_HDR="- Check 3 of 7: LDView (Single Call) File Process Check..."
+        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --liblego --preferred-renderer ldview-sc"
         ;;
     CHECK04)
-        LP3D_CHECK_HDR="- Check 4 of 5: LDGLite Export Range Check..."
-        LP3D_CHECK_OPTIONS="--process-export --range 1-3 --clear-cache --preferred-renderer ldglite"
+        LP3D_CHECK_HDR="- Check 4 of 7: LDGLite Export Range Check..."
+        LP3D_CHECK_OPTIONS="--no-stdout-log --process-export --range 1-3 --clear-cache --liblego --preferred-renderer ldglite"
         ;;
     CHECK05)
-        LP3D_CHECK_HDR="- Check 5 of 5: Native POV Generation Check..."
-        LP3D_CHECK_OPTIONS="--process-file --clear-cache --preferred-renderer povray"
+        LP3D_CHECK_HDR="- Check 5 of 7: Native POV Generation Check..."
+        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --liblego --preferred-renderer povray"
+        ;;
+    CHECK06)
+        LP3D_CHECK_HDR="- Check 6 of 7: LDView TENTE Model Check..."
+        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --libtente --preferred-renderer ldview"
+        LP3D_CHECK_FILE="$(realpath ${SOURCE_DIR})/builds/check/TENTE/astromovil.ldr"
+        ;;
+    CHECK07)
+        LP3D_CHECK_HDR="- Check 7 of 7: Native VEXIQ Model Check..."
+        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --libvexiq --preferred-renderer native"
+        LP3D_CHECK_FILE="$(realpath ${SOURCE_DIR})/builds/check/VEXIQ/spider.mpd"
         ;;
       esac
 

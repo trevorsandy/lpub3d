@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: October 25, 2018
+rem  Last Update: October 21, 2018
 rem  Copyright (c) 2015 - 2018 by Trevor SANDY
 rem --
 SETLOCAL

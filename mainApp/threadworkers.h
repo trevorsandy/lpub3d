@@ -168,6 +168,7 @@ private:
     QString                   _customPartDir;
     QString                   _customPrimDir;
     QString                   _ldrawCustomArchive;
+    QString                   _ldSearchDirsKey;
     QElapsedTimer             _timer;
     bool                      _partsArchived;
     bool                      _doFadeStep;

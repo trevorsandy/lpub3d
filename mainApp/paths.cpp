@@ -1,4 +1,3 @@
- 
 
 /****************************************************************************
 
@@ -32,7 +31,6 @@
 
 ****************************************************************************/
 
-#include <QSettings>
 #include <QDir>
 #include "paths.h"
 #include "lpub_preferences.h"
@@ -48,12 +46,12 @@ QString Paths::logsDir    = "logs";
 QString Paths::extrasDir  = "extras";
 QString Paths::libraryDir = "libraries";
 
-QString Paths::customDir       = "custom";
-QString Paths::customPartDir   = "custom/parts";
-QString Paths::customSubDir    = "custom/parts/s";
-QString Paths::customPrimDir   = "custom/p";
-QString Paths::customPrim8Dir  = "custom/p/8";
-QString Paths::customPrim48Dir = "custom/p/48";
+QString Paths::customDir       = "";
+QString Paths::customPartDir   = "";
+QString Paths::customSubDir    = "";
+QString Paths::customPrimDir   = "";
+QString Paths::customPrim8Dir  = "";
+QString Paths::customPrim48Dir = "";
 
 QStringList Paths::customDirs;
 
@@ -68,6 +66,13 @@ void Paths::mkDirs(){
 }
 
 void Paths::mkCustomDirs(){
+
+  customDir       = Preferences::ldrawLibrary+"custom";
+  customPartDir   = Preferences::ldrawLibrary+"custom/parts";
+  customSubDir    = Preferences::ldrawLibrary+"custom/parts/s";
+  customPrimDir   = Preferences::ldrawLibrary+"custom/p";
+  customPrim8Dir  = Preferences::ldrawLibrary+"custom/p/8";
+  customPrim48Dir = Preferences::ldrawLibrary+"custom/p/48";
 
   QDir dir;
 

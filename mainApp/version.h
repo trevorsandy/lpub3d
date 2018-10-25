@@ -92,7 +92,7 @@
 #define LDRAWVEXIQDIR_STR                   "vexiqparts"
 #endif
 
-#define LDRAWLEGOPART_STR                   "/parts/906.dat"
+#define LDRAWLEGOPART_STR                   "/parts/1.dat"
 #define LDRAWTENTEPART_STR                  "/parts/4circulo.dat"
 #define LDRAWVEXIQPART_STR                  "/parts/228-2500-001.dat"
 

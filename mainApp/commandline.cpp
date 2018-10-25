@@ -55,8 +55,12 @@ int Gui::processCommandLine()
           continue;
       }
 
-      if (Param == QLatin1String("-icr") ||
-          Param == QLatin1String("--ignore-console-redirect"))
+      if (  /* These are treated in Application::initialize() so ignore here */
+            (Param == QLatin1String("-ns") || Param == QLatin1String("--no-stdout-log")) ||
+            (Param == QLatin1String("-ll") || Param == QLatin1String("--liblego"))  ||
+            (Param == QLatin1String("-lt") || Param == QLatin1String("--libtente")) ||
+            (Param == QLatin1String("-lv") || Param == QLatin1String("--libvexiq"))
+         )
       {
           continue;
       }

@@ -41,9 +41,10 @@ PartWorker::PartWorker(QObject *parent) : QObject(parent)
       _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("unofficial/parts"));
       _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("unofficial/p"));
   }
-  _customPartDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPartDir));
-  _customPrimDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPrimDir));
+  _customPartDir = QDir::toNativeSeparators(QString("%1/%2custom/parts").arg(Preferences::lpubDataPath).arg(Preferences::ldrawLibrary));
+  _customPrimDir = QDir::toNativeSeparators(QString("%1/%2custom/p").arg(Preferences::lpubDataPath).arg(Preferences::ldrawLibrary));
 
+  _ldSearchDirsKey = Preferences::validLDrawSearchDirsKey;
   _ldrawCustomArchive = Preferences::validLDrawCustomArchive;
 }
 
@@ -65,7 +66,6 @@ void PartWorker::ldsearchDirPreferences(){
 
   QSettings Settings;
   QString const LdrawiniFilePathKey("LDrawIniFile");
-  QString const LdSearchDirsKey("LDSearchDirs");
 
   // qDebug() << QString(tr("01 ldrawIniFoundReg(Original) = %1").arg((ldrawIniFoundReg ? "True" : "False")));
 
@@ -77,7 +77,7 @@ void PartWorker::ldsearchDirPreferences(){
           Preferences::ldrawiniFound = true;
         } else {
           Settings.remove(QString("%1/%2").arg(SETTINGS,LdrawiniFilePathKey));
-          Settings.remove(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey));
+          Settings.remove(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey));
         }
     } else if (ldPartsDirs.initLDrawSearchDirs()) {
       QFileInfo ldrawiniInfo(ldPartsDirs.getSearchDirsOrigin());
@@ -107,7 +107,7 @@ void PartWorker::ldsearchDirPreferences(){
   if (!Preferences::ldrawiniFound && !_resetSearchDirSettings &&
       Settings.contains(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey))) {    // LDrawINI not found and not reset so load registry key
       emit gui->messageSig(LOG_INFO, QString("LDrawINI not found, loading LDSearch directories from registry key..."));
-      QStringList searchDirs = Settings.value(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey)).toStringList();
+      QStringList searchDirs = Settings.value(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey)).toStringList();
       bool customDirsIncluded = false;
       foreach (QString searchDir, searchDirs){
           if (QDir(searchDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
@@ -155,14 +155,14 @@ void PartWorker::ldsearchDirPreferences(){
           // update the registry if custom directory included
           if (customDirsIncluded){
               QSettings Settings;
-              Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"), Preferences::ldSearchDirs);
+              Settings.setValue(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey), Preferences::ldSearchDirs);
           }
        }
     } else if (loadLDrawSearchDirs()){                                        //ldraw.ini found or reset so load local paths
-      Settings.setValue(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey), Preferences::ldSearchDirs);
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey), Preferences::ldSearchDirs);
       emit gui->messageSig(LOG_INFO, QString("Loading LDraw parts search directories..."));
     } else {
-      Settings.remove(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey));
+      Settings.remove(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey));
       emit gui->messageSig(LOG_ERROR, QString("Unable to load search directories."));
     }
 
@@ -500,7 +500,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
                   Preferences::ldSearchDirs << QDir::toNativeSeparators(customPartDir);
                   logDebug() << "Add " + nameMod + " part directory to ldSearchDirs:" << customPartDir;
                   QSettings Settings;
-                  Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"), Preferences::ldSearchDirs);
+                  Settings.setValue(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey), Preferences::ldSearchDirs);
 
                   if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni))
                      emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::ldviewIni));
@@ -1040,6 +1040,7 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
   QFileInfo libFileInfo(Preferences::lpub3dLibFile);
   QString archiveFile = QDir::toNativeSeparators(QString("%1/%2").arg(libFileInfo.absolutePath(),_ldrawCustomArchive));
   QString returnMessage = QString("Archiving %1 parts to : %2.").arg(comment,archiveFile);
+  int returnMessageSeverity = 1; // 1=Error, 2=Notice
   emit gui->messageSig(LOG_INFO,QString("Archiving %1 parts to %2.").arg(comment,archiveFile));
 
   if (okToEmitToProgressBar()) {
@@ -1063,10 +1064,14 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
       if (!archiveParts.Archive( archiveFile,
                                  foo.absolutePath(),
                                  returnMessage,
+                                 returnMessageSeverity,
                                  QString("Append %1 parts").arg(comment),
                                  overwriteCustomParts))
       {
-         emit gui->messageSig(LOG_ERROR,returnMessage);
+         if (returnMessageSeverity == 1)
+             emit gui->messageSig(LOG_ERROR,returnMessage);
+         else
+             emit gui->messageSig(LOG_NOTICE,returnMessage);
          continue;
       }
       bool ok;
@@ -1294,7 +1299,7 @@ bool ColourPartListWorker::processArchiveParts(const QString &archiveFile) {
         }
     }
     emit progressSetValueSig(partCount);
-    emit messageSig(LOG_INFO,QString("Finished %1").arg(library));
+    emit messageSig(LOG_INFO,QString("Finished Processing %1 Parent Color Parts").arg(library));
 
     zip.close();
     if (zip.getZipError() != UNZ_OK) {
@@ -1341,7 +1346,9 @@ void ColourPartListWorker::processFileContents(const QString &libFileName, const
 
             } else {
                 hasColour = true;
-                //emit messageSig(LOG_INFO,QString("File contents VERIFY: %1  COLOUR: %2 %3").arg(line).arg(color));
+#ifdef QT_DEBUG_MODE
+                //emit messageSig(LOG_TRACE,QString("CONTENTS COLOUR LINE: %1 FILE: %2").arg(line).arg(libFileName));
+#endif
                 if (fileName.isEmpty()){
                     fileName = libFileName.split("/").last();
                     emit messageSig(LOG_ERROR,QString("Part: %1 \nhas no 'Name:' attribute. Using library path name %2 instead.\n"

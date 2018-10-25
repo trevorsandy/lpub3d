@@ -32,6 +32,7 @@ public:
   static bool Archive(const QString &zipArchive,
       const QDir &dir,
             QString &result,
+            int &resultSeverity, /* 1=error,2=warning */
       const QString &comment = QString(),
             bool overwriteCustomPart = false);
 

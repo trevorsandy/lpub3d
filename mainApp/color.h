@@ -46,11 +46,17 @@ class LDrawColor {
   public:
 
     /*
-     * This constructor reads in the LDraw ldconfig.ldr file and extracts
-     * the color codes, color names, and color values and puts them in
-     * the xlate (name to color translate) hash table.
+     * This constructor does nothing.
      */
-    LDrawColor ();
+    LDrawColor()
+    {}
+    /*
+     * This function extracts colours loaded by the 3DViewer and,
+     * alternatively, reads in the alternate LDraw ldconfig.ldr file to
+     * extract the color codes, color names, and color values and puts
+     * them in the xlate (name to color translate) hash table.
+     */
+    static void LDrawColorInit();
     /*
      * This function provides the translate from LDraw color names and codes
      * to QColor.

@@ -51,22 +51,23 @@ class Preferences
     static bool getPreferences();
     static void setLPub3DLoaded();
     static void setLDGLiteIniParams();
+    static void setDistribution();
     static void updateNativePOVIniFile(UpdateFlag);
     static void updateLDViewIniFile(UpdateFlag);
     static void updateLDViewPOVIniFile(UpdateFlag);
     static void updatePOVRayConfFile(UpdateFlag);
     static void updatePOVRayIniFile(UpdateFlag);
 
-    static void lpub3dAltLibPreferences(const QString &);
+    static void setLPub3DAltLibPreferences(const QString &);
     static bool checkLDrawLibrary(const QString &);
     static bool setLDViewExtraSearchDirs(const QString &);
     static bool copyRecursively(const QString &,const QString &);
 
     static void setOverwriteCustomParts(bool);
-
     static void setPageGuidesPreference(bool);
     static void setPageRulerPreference(bool);
     static void setShowParseErrorsPreference(bool);
+    static void setStdOutToLogPreference(bool);
 
     static QString lpub3dAppName;
     static QString ldrawPath;
@@ -85,6 +86,7 @@ class Preferences
     static QString lpub3dDocsResourcePath;
     static QString lpub3d3rdPartyConfigDir;
     static QString lpub3d3rdPartyAppDir;
+    static QString fadeStepsColourKey;
     static QString fadeStepsColour;
     static QString ldrawColourPartsFile;
     static QString highlightStepColour;
@@ -108,8 +110,6 @@ class Preferences
     static QString logPath;
     static QString loggingLevel;
     static QString availableVersions;
-    static QStringList ldSearchDirs;
-    static QStringList ldgliteParms;
     static QString povrayConf;
     static QString povrayIni;
     static QString ldgliteIni;
@@ -130,9 +130,14 @@ class Preferences
     static QString validLDrawDir;
     static QString validLDrawPart;
     static QString validLDrawArchive;
+    static QString validLDrawLibrary;
     static QString validLDrawCustomArchive;
     static QString validLDrawPartsLibrary;
     static QString validLDrawColorParts;
+    static QString validLDrawSearchDirsKey;
+
+    static QStringList ldgliteParms;
+    static QStringList ldSearchDirs;
 
     static bool    usingDefaultLibrary;
     static bool    themeAutoRestart;
@@ -196,6 +201,7 @@ class Preferences
     static bool    pageRuler;
     static bool    pageGuides;
     static bool    showParseErrors;
+    static bool    suppressStdOutToLog;
 
 #ifdef Q_OS_MAC
     static bool    ldviewMissingLibs;

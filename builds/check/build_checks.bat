@@ -3,7 +3,7 @@
 Title LPub3D Windows build check script
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: October 05, 2018
+rem  Last Update: October 21, 2018
 rem  Copyright (c) 2018 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -14,27 +14,32 @@ rem Construct the staged files path
 SET PKG_DISTRO_DIR=%PACKAGE%_%PKG_PLATFORM%
 SET PKG_PRODUCT_DIR=%PACKAGE%-Any-%LP3D_APP_VERSION_LONG%
 SET PKG_TARGET_DIR=builds\windows\%CONFIGURATION%\%PKG_PRODUCT_DIR%\%PKG_DISTRO_DIR%
-SET PKG_CHECK_FILE=%ABS_WD%\builds\check\build_checks.mpd
 SET PKG_TARGET=%PKG_TARGET_DIR%\%PACKAGE%.exe
 
 rem Checks
-SET PKG_CHECK_OPTIONS=--ignore-console-redirect --process-file --preferred-renderer native
+SET PKG_CHECK_FILE=%ABS_WD%\builds\check\build_checks.mpd
+SET PKG_CHECK_OPTIONS=--process-file --liblego --preferred-renderer native
 SET PKG_CHECK_NATIVE_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 
-SET PKG_CHECK_OPTIONS=--ignore-console-redirect --process-file --clear-cache --preferred-renderer ldview
+SET PKG_CHECK_OPTIONS=--process-file --clear-cache --liblego --preferred-renderer ldview
 SET PKG_CHECK_LDVIEW_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 
-SET PKG_CHECK_OPTIONS=--ignore-console-redirect --process-file --clear-cache --preferred-renderer ldview-sc
+SET PKG_CHECK_OPTIONS=--process-file --clear-cache --liblego --preferred-renderer ldview-sc
 SET PKG_CHECK_LDVIEW_SINGLE_CALL_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 
-SET PKG_CHECK_OPTIONS=--ignore-console-redirect --process-export --range 1-3 --clear-cache --preferred-renderer ldglite
+SET PKG_CHECK_OPTIONS=--process-export --range 1-3 --clear-cache --liblego --preferred-renderer ldglite
 SET PKG_CHECK_RANGE_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 
-SET PKG_CHECK_OPTIONS=--ignore-console-redirect --process-file --clear-cache --preferred-renderer povray
+SET PKG_CHECK_OPTIONS=--process-file --clear-cache --liblego --preferred-renderer povray
 SET PKG_CHECK_POV_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 
-CALL :CHECK_LDRAW_DIR
-CALL :SET_LDRAW_LIBS
+SET PKG_CHECK_FILE=%ABS_WD%\builds\check\TENTE\astromovil.ldr
+SET PKG_CHECK_OPTIONS=--process-file --clear-cache --libtente --preferred-renderer ldview
+SET PKG_CHECK_TENTE_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
+
+SET PKG_CHECK_FILE=%ABS_WD%\builds\check\VEXIQ\spider.mpd
+SET PKG_CHECK_OPTIONS=--process-file --clear-cache --libvexiq --preferred-renderer native
+SET PKG_CHECK_VEXIQ_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 
 ECHO.
 ECHO   PKG_CHECK_OPTIONS.........[%PKG_CHECK_OPTIONS%]
@@ -42,6 +47,9 @@ ECHO   PKG_DISTRO_DIR............[%PKG_DISTRO_DIR%]
 ECHO   PKG_PRODUCT_DIR...........[%PKG_PRODUCT_DIR%]
 ECHO   PKG_TARGET_DIR............[%PKG_TARGET_DIR%]
 ECHO   PKG_TARGET................[%PKG_TARGET%]
+
+CALL :CHECK_LDRAW_DIR
+
 ECHO.
 ECHO   Build checks start...
 ECHO ------------------------------------------------
@@ -53,7 +61,7 @@ IF NOT EXIST "%PKG_TARGET%" (
   ECHO -%PKG_TARGET% found.
   IF EXIST "Check.out" DEL /Q "Check.out"
   ECHO.
-  ECHO   1 OF 5. PKG_CHECK_NATIVE_COMMAND...[%PKG_CHECK_NATIVE_COMMAND%]
+  ECHO   1 OF 7. PKG_CHECK_NATIVE_COMMAND...[%PKG_CHECK_NATIVE_COMMAND%]
   CALL %PKG_CHECK_NATIVE_COMMAND% > Check.out 2>&1
   FOR %%R IN (Check.out) DO (
     IF NOT %%~zR LSS 1 (
@@ -67,7 +75,7 @@ IF NOT EXIST "%PKG_TARGET%" (
     )
   )
   ECHO.
-  ECHO   2 OF 5. PKG_CHECK_LDVIEW_COMMAND...[%PKG_CHECK_LDVIEW_COMMAND%]
+  ECHO   2 OF 7. PKG_CHECK_LDVIEW_COMMAND...[%PKG_CHECK_LDVIEW_COMMAND%]
   CALL %PKG_CHECK_LDVIEW_COMMAND% > Check.out 2>&1
   FOR %%R IN (Check.out) DO (
     IF NOT %%~zR LSS 1 (
@@ -81,7 +89,7 @@ IF NOT EXIST "%PKG_TARGET%" (
     )
   )
   ECHO.
-  ECHO   3 OF 5. PKG_CHECK_LDVIEW_SINGLE_CALL_COMMAND...[%PKG_CHECK_LDVIEW_COMMAND%]
+  ECHO   3 OF 7. PKG_CHECK_LDVIEW_SINGLE_CALL_COMMAND...[%PKG_CHECK_LDVIEW_COMMAND%]
   CALL %PKG_CHECK_LDVIEW_SINGLE_CALL_COMMAND% > Check.out 2>&1
   FOR %%R IN (Check.out) DO (
     IF NOT %%~zR LSS 1 (
@@ -95,7 +103,7 @@ IF NOT EXIST "%PKG_TARGET%" (
     )
   )
   ECHO.
-  ECHO   4 OF 5. PKG_CHECK_RANGE_COMMAND....[%PKG_CHECK_RANGE_COMMAND%]
+  ECHO   4 OF 7. PKG_CHECK_RANGE_COMMAND....[%PKG_CHECK_RANGE_COMMAND%]
   CALL %PKG_CHECK_RANGE_COMMAND% > Check.out 2>&1
   FOR %%R IN (Check.out) DO (
     IF NOT %%~zR LSS 1 (
@@ -109,7 +117,7 @@ IF NOT EXIST "%PKG_TARGET%" (
     )
   )
   ECHO.
-  ECHO   5 OF 5. PKG_CHECK_POV_COMMAND......[%PKG_CHECK_POV_COMMAND%]
+  ECHO   5 OF 7. PKG_CHECK_POV_COMMAND......[%PKG_CHECK_POV_COMMAND%]
   CALL %PKG_CHECK_POV_COMMAND% > Check.out 2>&1
   FOR %%R IN (Check.out) DO (
     IF NOT %%~zR LSS 1 (
@@ -120,6 +128,34 @@ IF NOT EXIST "%PKG_TARGET%" (
       ECHO.
     ) ELSE (
       ECHO. -ERROR - BUILD_CHECK_POV failed.
+    )
+  )
+  ECHO.
+  ECHO   6 OF 7. PKG_CHECK_TENTE_COMMAND......[%PKG_CHECK_TENTE_COMMAND%]
+  CALL %PKG_CHECK_TENTE_COMMAND% > Check.out 2>&1
+  FOR %%R IN (Check.out) DO (
+    IF NOT %%~zR LSS 1 (
+      ECHO -BUILD_CHECK_TENTE Output...
+      TYPE "Check.out"
+      ECHO.
+      DEL /Q "Check.out"
+      ECHO.
+    ) ELSE (
+      ECHO. -ERROR - BUILD_CHECK_TENTE failed.
+    )
+  )
+  ECHO.
+  ECHO   7 OF 7. PKG_CHECK_VEXIQ_COMMAND......[%PKG_CHECK_VEXIQ_COMMAND%]
+  CALL %PKG_CHECK_VEXIQ_COMMAND% > Check.out 2>&1
+  FOR %%R IN (Check.out) DO (
+    IF NOT %%~zR LSS 1 (
+      ECHO -BUILD_CHECK_VEXIQ Output...
+      TYPE "Check.out"
+      ECHO.
+      DEL /Q "Check.out"
+      ECHO.
+    ) ELSE (
+      ECHO. -ERROR - BUILD_CHECK_VEXIQ failed.
     )
   )
   ECHO.
@@ -137,20 +173,25 @@ IF NOT EXIST "%PKG_TARGET%" (
 
 :CHECK_LDRAW_DIR
 ECHO.
-ECHO -Check for LDraw library...
+ECHO -Check for LDraw archive libraries
+
+SET OfficialCONTENT=complete.zip
+SET UnOfficialCONTENT=ldrawunf.zip
+SET LPub3DCONTENT=lpub3dldrawunf.zip
+SET TenteCONTENT=tenteparts.zip
+SET VexiqCONTENT=vexiqparts.zip
+
+CALL :SET_LDRAW_LIBS
+
+ECHO.
+ECHO -Check for LDraw LEGO disk library...
 IF NOT EXIST "%LDRAW_DIR%\parts" (
   ECHO.
   ECHO -LDraw directory %LDRAW_DIR% does not exist - creating...
   REM SET CHECK=0
-  IF NOT EXIST "%LDRAW_LIBS%\%OfficialCONTENT%" (
-    ECHO.
-    ECHO -LDraw archive library %LDRAW_LIBS%\%OfficialCONTENT% does not exist - Downloading...
 
-    CALL :DOWNLOAD_LDRAW_LIBS
+  COPY /V /Y "%LDRAW_LIBS%\%OfficialCONTENT%" "%LDRAW_DOWNLOAD_DIR%\" /A | findstr /i /v /r /c:"copied\>"
 
-  ) ELSE (
-    COPY /V /Y "%LDRAW_LIBS%\%OfficialCONTENT%" "%LDRAW_DOWNLOAD_DIR%\" /A | findstr /i /v /r /c:"copied\>"
-  )
   IF EXIST "%LDRAW_DOWNLOAD_DIR%\%OfficialCONTENT%" (
     IF EXIST "%zipWin64%" (
       ECHO.
@@ -188,33 +229,199 @@ IF NOT EXIST "%LDRAW_DIR%\parts" (
 EXIT /b
 
 :SET_LDRAW_LIBS
-IF NOT EXIST "%LDRAW_LIBS%\%OfficialCONTENT%" (
+ECHO.
+ECHO -Requesting LDraw archive libraries download...
+
+CALL :DOWNLOAD_LDRAW_LIBS for_build_check
+
+IF NOT EXIST "%LDRAW_LIBS%\" (
   ECHO.
-  ECHO -LDraw archive libs does not exist - Downloading...
-
-  CALL :DOWNLOAD_LDRAW_LIBS for_build_check
-
-  IF NOT EXIST "%LDRAW_LIBS%\" (
-    ECHO.
-    ECHO -Create LDraw archive libs store %LDRAW_LIBS%
-    MKDIR "%LDRAW_LIBS%\"
-  )
+  ECHO -Create LDraw archive libs store %LDRAW_LIBS%
+  MKDIR "%LDRAW_LIBS%\"
+)
+IF NOT EXIST "%LDRAW_LIBS%\%OfficialCONTENT%" (
   IF EXIST "%LDRAW_DOWNLOAD_DIR%\%OfficialCONTENT%" (
     MOVE /Y %LDRAW_DOWNLOAD_DIR%\%OfficialCONTENT% %LDRAW_LIBS%\%OfficialCONTENT% | findstr /i /v /r /c:"moved\>"
   ) ELSE (
     ECHO.
-    ECHO -ERROR - LDraw archive libs %LDRAW_DOWNLOAD_DIR%\%OfficialCONTENT% does not exist.
+    ECHO -ERROR - LDraw archive libs does not exist at %LDRAW_DOWNLOAD_DIR%\%OfficialCONTENT%.
   )
+)
+IF NOT EXIST "%LDRAW_LIBS%\%TenteCONTENT%" (
+  IF EXIST "%LDRAW_DOWNLOAD_DIR%\%TenteCONTENT%" (
+    MOVE /Y %LDRAW_DOWNLOAD_DIR%\%TenteCONTENT% %LDRAW_LIBS%\%TenteCONTENT% | findstr /i /v /r /c:"moved\>"
+  ) ELSE (
+    ECHO.
+    ECHO -ERROR - LDraw archive libs does not exist at %LDRAW_DOWNLOAD_DIR%\%TenteCONTENT%.
+  )
+)
+IF NOT EXIST "%LDRAW_LIBS%\%VexiqCONTENT%" (
+  IF EXIST "%LDRAW_DOWNLOAD_DIR%\%VexiqCONTENT%" (
+    MOVE /Y %LDRAW_DOWNLOAD_DIR%\%VexiqCONTENT% %LDRAW_LIBS%\%VexiqCONTENT% | findstr /i /v /r /c:"moved\>"
+  ) ELSE (
+    ECHO.
+    ECHO -ERROR - LDraw archive libs does not exist at %LDRAW_DOWNLOAD_DIR%\%VexiqCONTENT%.
+  )
+)
+IF NOT EXIST "%LDRAW_LIBS%\%LPub3DCONTENT%" (
   IF EXIST "%LDRAW_DOWNLOAD_DIR%\%LPub3DCONTENT%" (
     MOVE /Y %LDRAW_DOWNLOAD_DIR%\%LPub3DCONTENT% %LDRAW_LIBS%\%LPub3DCONTENT% | findstr /i /v /r /c:"moved\>"
   ) ELSE (
-    ECHO -ERROR - LDraw archive libs %LDRAW_DOWNLOAD_DIR%\%LPub3DCONTENT% does not exist.
+    ECHO -ERROR - LDraw archive libs does not exist at %LDRAW_DOWNLOAD_DIR%\%LPub3DCONTENT%.
   )
 )
 IF EXIST "%LDRAW_LIBS%\%OfficialCONTENT%" (
   COPY /V /Y "%LDRAW_LIBS%\%OfficialCONTENT%" "%PKG_TARGET_DIR%\extras\" /A | findstr /i /v /r /c:"copied\>"
 )
+IF EXIST "%LDRAW_LIBS%\%TenteCONTENT%" (
+  COPY /V /Y "%LDRAW_LIBS%\%TenteCONTENT%" "%PKG_TARGET_DIR%\extras\" /A | findstr /i /v /r /c:"copied\>"
+)
+IF EXIST "%LDRAW_LIBS%\%VexiqCONTENT%" (
+  COPY /V /Y "%LDRAW_LIBS%\%VexiqCONTENT%" "%PKG_TARGET_DIR%\extras\" /A | findstr /i /v /r /c:"copied\>"
+)
 IF EXIST "%LDRAW_LIBS%\%LPub3DCONTENT%" (
   COPY /V /Y "%LDRAW_LIBS%\%LPub3DCONTENT%" "%PKG_TARGET_DIR%\extras\" /A | findstr /i /v /r /c:"copied\>"
+)
+EXIT /b
+
+:DOWNLOAD_LDRAW_LIBS
+ECHO.
+ECHO - Download LDraw archive libraries...
+
+SET OutputPATH=%LDRAW_DOWNLOAD_DIR%
+
+ECHO.
+ECHO - Prepare BATCH to VBS to Web Content Downloader...
+
+IF NOT EXIST "%TEMP%\$" (
+  MD "%TEMP%\$"
+)
+
+SET vbs=WebContentDownload.vbs
+SET t=%TEMP%\$\%vbs% ECHO
+
+IF EXIST %TEMP%\$\%vbs% (
+ DEL %TEMP%\$\%vbs%
+)
+
+:WEB CONTENT SAVE-AS Download-- VBS
+>%t% Option Explicit
+>>%t% On Error Resume Next
+>>%t%.
+>>%t% Dim args, http, fileSystem, adoStream, url, target, status
+>>%t%.
+>>%t% Set args = Wscript.Arguments
+>>%t% Set http = CreateObject("WinHttp.WinHttpRequest.5.1")
+>>%t% url = args(0)
+>>%t% target = args(1)
+>>%t% WScript.Echo "- Getting '" ^& target ^& "' from '" ^& url ^& "'...", vbLF
+>>%t%.
+>>%t% http.Open "GET", url, False
+>>%t% http.Send
+>>%t% status = http.Status
+>>%t%.
+>>%t% If status ^<^> 200 Then
+>>%t% WScript.Echo "- FAILED to download: HTTP Status " ^& status, vbLF
+>>%t% WScript.Quit 1
+>>%t% End If
+>>%t%.
+>>%t% Set adoStream = CreateObject("ADODB.Stream")
+>>%t% adoStream.Open
+>>%t% adoStream.Type = 1
+>>%t% adoStream.Write http.ResponseBody
+>>%t% adoStream.Position = 0
+>>%t%.
+>>%t% Set fileSystem = CreateObject("Scripting.FileSystemObject")
+>>%t% If fileSystem.FileExists(target) Then fileSystem.DeleteFile target
+>>%t% If Err.Number ^<^> 0 Then
+>>%t%   WScript.Echo "- Error - CANNOT DELETE: '" ^& target ^& "', " ^& Err.Description
+>>%t%   WScript.Echo "  The file may be in use by another process.", vbLF
+>>%t%   adoStream.Close
+>>%t%   Err.Clear
+>>%t% Else
+>>%t%  adoStream.SaveToFile target
+>>%t%  adoStream.Close
+>>%t%  WScript.Echo "- Download successful!"
+>>%t% End If
+>>%t%.
+>>%t% 'WebContentDownload.vbs
+>>%t% 'Title: BATCH to VBS to Web Content Downloader
+>>%t% 'CMD ^> cscript //Nologo %TEMP%\$\%vbs% WebNAME WebCONTENT
+>>%t% 'VBS Created on %date% at %time%
+>>%t%.
+
+ECHO.
+ECHO - VBS file "%vbs%" is done compiling
+ECHO.
+ECHO - LDraw archive library download path: %OutputPATH%
+
+IF NOT EXIST "%OutputPATH%\%OfficialCONTENT%" (
+  CALL :GET_OFFICIAL_LIBRARY
+)
+IF NOT EXIST "%OutputPATH%\%UnOfficialCONTENT%" (
+  CALL :GET_UNOFFICIAL_LIBRARY
+)
+IF NOT EXIST "%OutputPATH%\%TenteCONTENT%" (
+  CALL :GET_TENTE_LIBRARY
+)
+IF NOT EXIST "%OutputPATH%\%VexiqCONTENT%" (
+  CALL :GET_VEXIQ_LIBRARY
+)
+EXIT /b
+
+:GET_OFFICIAL_LIBRARY
+SET WebCONTENT="%OutputPATH%\%OfficialCONTENT%"
+SET WebNAME=http://www.ldraw.org/library/updates/%OfficialCONTENT%
+
+ECHO.
+ECHO - Download archive file: %WebCONTENT%...
+ECHO.
+cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
+IF EXIST %OfficialCONTENT% (
+  ECHO.
+  ECHO - LDraw archive library %OfficialCONTENT% availble
+)
+EXIT /b
+
+:GET_TENTE_LIBRARY
+SET WebCONTENT="%OutputPATH%\%TenteCONTENT%"
+SET WebNAME=https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/%TenteCONTENT%
+
+ECHO.
+ECHO - Download archive file: %WebCONTENT%...
+ECHO.
+cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
+IF EXIST %TenteCONTENT% (
+  ECHO.
+  ECHO - LDraw archive library %TenteCONTENT% availble
+)
+EXIT /b
+
+:GET_VEXIQ_LIBRARY
+SET WebCONTENT="%OutputPATH%\%VexiqCONTENT%"
+SET WebNAME=https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/%VexiqCONTENT%
+
+ECHO.
+ECHO - Download archive file: %WebCONTENT%...
+ECHO.
+cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
+IF EXIST %VexiqCONTENT% (
+  ECHO.
+  ECHO - LDraw archive library %VexiqCONTENT% availble
+)
+EXIT /b
+
+:GET_UNOFFICIAL_LIBRARY
+SET WebCONTENT="%OutputPATH%\%UnofficialCONTENT%"
+SET WebNAME=http://www.ldraw.org/library/unofficial/%UnofficialCONTENT%
+
+ECHO.
+ECHO - Download archive file: %WebCONTENT%...
+ECHO.
+cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
+REN %UnofficialCONTENT% %LPub3DCONTENT%
+IF EXIST %LPub3DCONTENT% (
+  ECHO.
+  ECHO - LDraw archive library %LPub3DCONTENT% availble
 )
 EXIT /b
