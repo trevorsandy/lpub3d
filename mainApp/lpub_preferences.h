@@ -57,6 +57,8 @@ class Preferences
     static void updatePOVRayConfFile(UpdateFlag);
     static void updatePOVRayIniFile(UpdateFlag);
 
+    static void lpub3dAltLibPreferences(const QString &);
+    static bool checkLDrawLibrary(const QString &);
     static bool setLDViewExtraSearchDirs(const QString &);
     static bool copyRecursively(const QString &,const QString &);
 
@@ -65,7 +67,6 @@ class Preferences
     static void setPageGuidesPreference(bool);
     static void setPageRulerPreference(bool);
     static void setShowParseErrorsPreference(bool);
-
 
     static QString lpub3dAppName;
     static QString ldrawPath;
@@ -121,6 +122,19 @@ class Preferences
     static QString dataLocation;
     static QString povFileGenerator;
     static QString displayTheme;
+    static QString ldvLights;
+    static QString xmlMapPath;
+
+    static QString ldrawLibrary;
+
+    static QString validLDrawDir;
+    static QString validLDrawPart;
+    static QString validLDrawArchive;
+    static QString validLDrawCustomArchive;
+    static QString validLDrawPartsLibrary;
+    static QString validLDrawColorParts;
+
+    static bool    usingDefaultLibrary;
     static bool    themeAutoRestart;
     static bool    ldrawiniFound;
     static bool    enableDocumentLogo;
@@ -178,9 +192,6 @@ class Preferences
     static bool    povrayDisplay;
     static bool    isAppImagePayload;
     static bool    modeGUI;
-
-    static QString ldvLights;
-    static QString xmlMapPath;
 
     static bool    pageRuler;
     static bool    pageGuides;

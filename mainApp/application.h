@@ -85,13 +85,17 @@ public slots:
           logInfo() << message;
           return;
       }
+#ifdef QT_DEBUG_MODE
+      logInfo() << message;
+#else
       logStatus() << message;
+#endif
       splash->showMessage(QSplashScreen::tr(message.toLatin1().constData()),Qt::AlignBottom | Qt::AlignLeft, QColor(QString(SPLASH_FONT_COLOUR)));
       m_application.processEvents();
     }
 
 signals:
-    /// Splash message sinal to pass messages
+    /// Splash message signal to pass messages
     void splashMsgSig(QString message);
 
 private:

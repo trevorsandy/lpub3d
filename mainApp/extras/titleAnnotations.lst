@@ -112,3 +112,23 @@ VEX:        ^VEX Plate  4 x\s+(\d+)\s*$
 VEX:        ^VEX Axle\s+(\d+)\s*.*$
 VEX:        ^VEX-2 Smart Cable\s+([0-9].*)$
 #VEX:       ^VEX-2 Rubber Belt\s+([0-9].*)Diameter
+
+Bitbeam:    ^Bitbeam Beam  1 x\s+(\d+)\s*$
+Bitbeam:    ^Bitbeam Beam  2 x\s+(\d+)\s*$
+Bitbeam:    ^Bitbeam Beam  8 x\s+(\d+)\s*$
+Bitbeam:    ^Bitbeam Beam 10 x\s+(\d+)\s*$
+Bitbeam:    ^Bitbeam Beam 12 x\s+(\d+)\s*$
+Bitbeam:    ^Bitbeam Beam 16 x\s+(\d+)\s*$
+Bitbeam:    ^Bitbeam Beam 20 x\s+(\d+)\s*$
+Bitbeam:    ^Bitbeam Beam L90\s+([0-9].*)$
+Bitbeam:    ^Bitbeam Beam L45\s+([0-9].*)$
+Bitbeam:    ^Bitbeam Beam T\s+([0-9].*)$
+Bitbeam:    ^Bitbeam Beam X\s+([0-9].*)$
+Bitbeam:    ^Bitbeam Axle\s+([0-9].*)$
+Bitbeam:    ^Bitbeam Wheel Tire\s+([0-9].*)$
+Bitbeam:    ^Bitbeam Wheel\s+([0-9].*)$
+Bitbeam:    ^Bitbeam Screw Nut\s+(.[0-9].*)$
+Bitbeam:    ^Bitbeam Screw Pad\s+(.[0-9].*)$
+Bitbeam:    ^Bitbeam Screw\s+(.[0-9].*)$
+Bitbeam:    ^Bitbeam Case for Breadboard\s+(.[0-9].*)$
+

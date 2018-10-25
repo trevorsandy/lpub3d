@@ -60,7 +60,6 @@
 
 #define VER_LOGGING_LEVELS_STR              "STATUS,INFO,TRACE,DEBUG,NOTICE,ERROR,FATAL,OFF"
 
-#define VER_LDRAW_COLOR_PARTS_FILE          "fadeStepColorParts.lst"
 #define VER_FREEFOM_ANNOTATIONS_FILE        "freeformAnnotations.lst"
 #define VER_EXTRAS_LDCONFIG_FILE            "LDConfig.ldr"
 #define VER_PDFPRINT_IMAGE_FILE             "PDFPrint.jpg"
@@ -70,9 +69,32 @@
 #define VER_EXCLUDED_PARTS_FILE             "excludedParts.lst"
 #define VER_LDVMESSAGESINI_FILE             "LDVMessages.ini"
 
+#define VER_LPUB3D_LEGO_COLOR_PARTS         "fadeStepColorParts.lst"
+#define VER_LPUB3D_TENTE_COLOR_PARTS        "tenteFadeStepColorParts.lst"
+#define VER_LPUB3D_VEXIQ_COLOR_PARTS        "vexiqFadeStepColorParts.lst"
+
 #define VER_LDRAW_OFFICIAL_ARCHIVE          "complete.zip"
 #define VER_LDRAW_UNOFFICIAL_ARCHIVE        "ldrawunf.zip"
 #define VER_LPUB3D_UNOFFICIAL_ARCHIVE       "lpub3dldrawunf.zip"
+
+#define VER_LPUB3D_TENTE_ARCHIVE            "tenteparts.zip"
+#define VER_LPUB3D_VEXIQ_ARCHIVE            "vexiqparts.zip"
+#define VER_LPUB3D_TENTE_CUSTOM_ARCHIVE     "tentecustomparts.zip"
+#define VER_LPUB3D_VEXIQ_CUSTOM_ARCHIVE     "vexiqcustomparts.zip"
+
+#if defined Q_OS_WIN || defined Q_OS_MAC
+#define LDRAWDIR_STR                        "LDraw"
+#define LDRAWTENTEDIR_STR                   "TENTEParts"
+#define LDRAWVEXIQDIR_STR                   "VEXIQParts"
+#else
+#define LDRAWDIR_STR                        "ldraw"
+#define LDRAWTENTEDIR_STR                   "tenteparts"
+#define LDRAWVEXIQDIR_STR                   "vexiqparts"
+#endif
+
+#define LDRAWLEGOPART_STR                   "/parts/906.dat"
+#define LDRAWTENTEPART_STR                  "/parts/4circulo.dat"
+#define LDRAWVEXIQPART_STR                  "/parts/228-2500-001.dat"
 
 #define VER_FADE_PART_COLOURS_FILE          "fadePartColours.lst"
 

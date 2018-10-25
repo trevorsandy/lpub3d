@@ -342,10 +342,9 @@ bool lcPiecesLibrary::Load(const QString& LibraryPath, bool ShowProgress)
 /*** LPub3D Mod end ***/
 
 		mLibraryDir = QFileInfo(LibraryPath).absoluteDir();
-/*** LPub3D Mod - unoffical library file name ***/
-        QString UnofficialFileName = mLibraryDir.absoluteFilePath(QLatin1String(VER_LPUB3D_UNOFFICIAL_ARCHIVE));
+/*** LPub3D Mod - custom parts archive name ***/
+        QString UnofficialFileName = mLibraryDir.absoluteFilePath(Preferences::validLDrawCustomArchive);
 /*** LPub3D Mod end ***/
-
 
 		if (!OpenArchive(UnofficialFileName, LC_ZIPFILE_UNOFFICIAL))
 			UnofficialFileName.clear();
@@ -354,7 +353,7 @@ bool lcPiecesLibrary::Load(const QString& LibraryPath, bool ShowProgress)
 	}
 	else
 	{
-		mLibraryDir = LibraryPath;
+        mLibraryDir = LibraryPath;
 
 /*** LPub3D Mod - add alt LDConfig load flag ***/
 		if (!loadAltLDConfig && OpenDirectory(mLibraryDir, ShowProgress))
@@ -3490,7 +3489,7 @@ bool lcPiecesLibrary::LoadBuiltinPieces()
 	return true;
 }
 
-/*** LPub3D Mod - reload unofficial libray function ***/
+/*** LPub3D Mod - reload unofficial library ***/
 bool lcPiecesLibrary::ReloadUnoffLib()
 {
     //unload unofficial library content

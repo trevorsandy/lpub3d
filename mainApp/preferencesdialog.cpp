@@ -56,6 +56,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   QPalette readOnlyPalette;
   readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
 
+  ldrawLibPathTitle = QString("LDraw Library Path for %1").arg(Preferences::validLDrawPartsLibrary);
   bool useLDViewSCall = (Preferences::enableLDViewSingleCall && Preferences::preferredRenderer == RENDERER_LDVIEW);
 
   // set 3rd party application dialogues to read-only
@@ -75,6 +76,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.imageMattingChk->setEnabled(false);
 
   ui.ldrawPath->setText(                         ldrawPath);
+  ui.ldrawBox->setTitle(                         ldrawLibPathTitle);
   ui.pliName->setText(                           Preferences::pliFile);
   ui.altLDConfigPath->setText(                   Preferences::altLDConfigPath);
   ui.altLDConfigBox->setChecked(                 Preferences::altLDConfigPath != "");
@@ -83,6 +85,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.ldgliteBox->setChecked(                     Preferences::ldgliteExe != "");
   ui.povrayPath->setText(                        Preferences::povrayExe);
   ui.POVRayBox->setChecked(                      Preferences::povrayExe != "");
+  ui.lgeoBox->setEnabled(                        Preferences::usingDefaultLibrary);
   ui.lgeoPath->setText(                          Preferences::lgeoPath);
   ui.lgeoBox->setChecked(                        Preferences::lgeoPath != "");
   ui.lgeoStlLibLbl->setText(                     Preferences::lgeoStlLib ? DURAT_LGEO_STL_LIB_INFO : "");
@@ -131,7 +134,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.fadeStepsOpacitySlider->setValue(           Preferences::fadeStepsOpacity);
 
   ui.showParseErrorsChkBox->setChecked(          Preferences::showParseErrors);
-
+  QString test = Preferences::fadeStepsColour;
   ui.fadeStepsColoursCombo->addItems(LDrawColor::names());
   ui.fadeStepsColoursCombo->setCurrentIndex(int(ui.fadeStepsColoursCombo->findText(Preferences::fadeStepsColour)));
   QColor fadeColor = LDrawColor::color(Preferences::fadeStepsColour);
@@ -257,7 +260,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
     ui.preferredRenderer->setEnabled(false);
   }
 
-  ui.tabWidget->setCurrentIndex(0);
+  ui.preferencesTabWidget->setCurrentIndex(0);
 
   bool centimeters = Preferences::preferCentimeters;
   ui.Centimeters->setChecked(centimeters);
@@ -319,7 +322,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   //populate readme from the web
   m_updater->setChangelogOnly(DEFS_URL, true);
   m_updater->checkForUpdates (DEFS_URL);
-
+  setMinimumSize(100, 100);
   setSizeGripEnabled(true);
 }
 
@@ -328,8 +331,27 @@ PreferencesDialog::~PreferencesDialog()
 
 void PreferencesDialog::on_browseLDraw_clicked()
 {
-  Preferences::ldrawPreferences(true);
-  ui.ldrawPath->setText(Preferences::ldrawPath);
+    QString saveLibrary = Preferences::validLDrawPartsLibrary;
+
+    Preferences::ldrawPreferences(true);
+    ui.ldrawPath->setText(Preferences::ldrawPath);
+    ui.ldrawBox->setTitle(ldrawLibPathTitle);
+    ui.lgeoBox->setEnabled(Preferences::usingDefaultLibrary);
+
+    if (saveLibrary != Preferences::validLDrawPartsLibrary &&
+            ui.textEditSearchDirs->document()->blockCount() > 0) {
+        QMessageBox box;
+        box.setIcon (QMessageBox::Question);
+        box.setWindowTitle(tr ("Update Search Directories?"));
+        box.setDefaultButton   (QMessageBox::Yes);
+        box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
+        box.setText (tr("You changed your LDraw library from %1 to %2. \n"
+                        "Would you like to update your search directory list?")
+                     .arg(saveLibrary).arg(Preferences::validLDrawPartsLibrary));
+        if (box.exec() == QMessageBox::Yes) {
+            ui.preferencesTabWidget->setCurrentIndex(4);
+        }
+    }
 }
 
 void PreferencesDialog::on_browseAltLDConfig_clicked()

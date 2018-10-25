@@ -167,6 +167,7 @@ private:
     QStringList               _excludedSearchDirs;
     QString                   _customPartDir;
     QString                   _customPrimDir;
+    QString                   _ldrawCustomArchive;
     QElapsedTimer             _timer;
     bool                      _partsArchived;
     bool                      _doFadeStep;
@@ -176,7 +177,7 @@ private:
 
     LDPartsDirs                ldPartsDirs;     // automatically load LDraw.ini parameters
     LDrawFile                  ldrawFile;       // contains MPD or all files used in model
-    ArchiveParts               archiveParts;    // add contente to unofficial zip archive (for 3DViewer)
+    ArchiveParts               archiveParts;    // add contents to unofficial zip archive (for 3DViewer)
 
     bool endThreadNotRequested(){ return ! _endThreadNowRequested;}
     QStringList contents(
@@ -287,6 +288,7 @@ private:
     QStringList               _partFileContents;
     QElapsedTimer             _timer;
     QString                   _filePath;
+    QString                   _ldrawCustomArchive;
     LDPartsDirs                ldPartsDirs;                     // automatically load LDraw.ini parameters
 
     bool endThreadNotRequested(){ return ! _endThreadNowRequested;}

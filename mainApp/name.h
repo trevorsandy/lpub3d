@@ -28,6 +28,7 @@ extern LDVWidget *ldvWidget;
 enum PartType { FADE_PART, HIGHLIGHT_PART, NORMAL_PART, NUM_PART_TYPES };
 enum LogType { LOG_STATUS, LOG_INFO, LOG_TRACE, LOG_DEBUG, LOG_NOTICE, LOG_ERROR, LOG_INFO_STATUS, LOG_FATAL, LOG_QWARNING, LOG_QDEBUG };
 enum IniFlag { NativePOVIni, LDViewPOVIni, LDViewIni, NumIniFiles };
+enum LibType { LibLEGO, LibTENTE, LibVEXIQ, NumLibs };
 enum Theme { ThemeDark, ThemeDefault };
 
 // registry sections
@@ -78,6 +79,10 @@ enum Theme { ThemeDark, ThemeDefault };
 #define RENDERER_LDVIEW                         "LDView"
 #define RENDERER_NATIVE                         "Native"
 
+#define LEGO_LIBRARY                            "LEGO"
+#define TENTE_LIBRARY                           "TENTE"
+#define VEXIQ_LIBRARY                           "VEXIQ"
+
 #define CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT   260  // Native camera distance factor for A4 portrait; factor is about 450 for A4 landscape
 
 #define RENDERER_TIMEOUT_DEFAULT                6    // measured in seconds
@@ -88,7 +93,7 @@ enum Theme { ThemeDark, ThemeDefault };
 #define LDRAW_EDGE_MATERIAL_COLOUR              "24"
 #define LDRAW_MAIN_MATERIAL_COLOUR              "16"
 
-#define FADE_COLOUR_DEFAULT                     "Very_Light_Bluish_Grey"
+#define FADE_COLOUR_DEFAULT                     "Light_Blue"
 #define FADE_OPACITY_DEFAULT                    50         // 50 percent transparency
 
 #define SUBMODEL_ICON_INDEX_BASE                1000

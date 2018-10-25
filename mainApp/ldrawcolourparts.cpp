@@ -13,12 +13,12 @@
 ****************************************************************************/
 
 #include "ldrawcolourparts.h"
-
-#include <QMessageBox>
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
+#include <QDebug>
 #include "lpub_preferences.h"
+#include "QsLog.h"
 #include "version.h"
 
 QHash<QString, QString>  LDrawColourParts::ldrawColourParts;
@@ -29,13 +29,12 @@ LDrawColourParts::LDrawColourParts()
     QString colorPartsFile = Preferences::ldrawColourPartsFile;
     QFile file(colorPartsFile);
     if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                             QMessageBox::tr("Failed to open LDraw color parts file %1: %2:\n%3")
-                             .arg(VER_LDRAW_COLOR_PARTS_FILE)
-                             .arg(colorPartsFile)
-                             .arg(file.errorString()));
+        QString message = QString("Failed to open %1 LDraw color parts file [%2], Error: %3")
+                          .arg(Preferences::ldrawLibrary).arg(colorPartsFile).arg(file.errorString());
+        logError() << message;
         return;
     }
+
     QTextStream in(&file);
 
     QRegExp rx("^\\b([\\d\\w\\-\\_\\+\\\\.]+)\\b\\s*(u|o)\\s*(.*)\\s*$");    // 4 groups (file, libtype, path, desc)

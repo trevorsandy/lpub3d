@@ -725,6 +725,7 @@ public slots:
       if (display)
           ShowStepRotationStatus();
   }
+
   //**
 
   /* The undoStack needs access to these */
@@ -792,6 +793,7 @@ public slots:
 
   void preferences();
   void fadeStepSetup();
+  bool checkFadeStetpColorFile();
   void highlightStepSetup();
   void generateCoverPages();
   void insertFinalModel();
@@ -825,7 +827,7 @@ public slots:
   void reloadCurrentPage();
   void reloadViewer();
   void loadTheme(bool restart = true);
-  void restartApplication();
+  void restartApplication(bool restoreOpenFile = true);
 
   bool removeDir(int &count,const QString &dirName);
 
@@ -834,7 +836,6 @@ public slots:
   void processFadeColourParts(bool overwriteCustomParts);
   void processHighlightColourParts(bool overwriteCustomParts);
   void processLDSearchDirParts();
-
   bool loadFile(const QString &file);
   int processCommandLine();
 
@@ -1070,7 +1071,7 @@ private slots:
     void editLdviewPovIni();
     void editPovrayIni();
     void editPovrayConf();
-    void generateCustomColourPartsList();
+    void generateCustomColourPartsList(bool prompt = true);
     void viewLog();
 
     void toggleLCStatusBar(bool);
