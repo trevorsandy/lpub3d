@@ -67,12 +67,12 @@ void Paths::mkDirs(){
 
 void Paths::mkCustomDirs(){
 
-  customDir       = Preferences::ldrawLibrary+"custom";
-  customPartDir   = Preferences::ldrawLibrary+"custom/parts";
-  customSubDir    = Preferences::ldrawLibrary+"custom/parts/s";
-  customPrimDir   = Preferences::ldrawLibrary+"custom/p";
-  customPrim8Dir  = Preferences::ldrawLibrary+"custom/p/8";
-  customPrim48Dir = Preferences::ldrawLibrary+"custom/p/48";
+  customDir       = Preferences::validLDrawLibrary+"custom";
+  customPartDir   = Preferences::validLDrawLibrary+"custom/parts";
+  customSubDir    = Preferences::validLDrawLibrary+"custom/parts/s";
+  customPrimDir   = Preferences::validLDrawLibrary+"custom/p";
+  customPrim8Dir  = Preferences::validLDrawLibrary+"custom/p/8";
+  customPrim48Dir = Preferences::validLDrawLibrary+"custom/p/48";
 
   QDir dir;
 

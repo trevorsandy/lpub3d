@@ -1058,7 +1058,7 @@ const QString lcMainWindow::GetPliIconsPath(QString &key)
 }
 const QString lcMainWindow::GetFadeStepsColor()
 {
-    return LDrawColor::ldColorCode(Preferences::fadeStepsColour);
+    return LDrawColor::ldColorCode(Preferences::validFadeStepsColour);
 }
 /*** LPub3D Mod end ***/
 

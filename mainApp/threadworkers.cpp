@@ -35,16 +35,16 @@ PartWorker::PartWorker(QObject *parent) : QObject(parent)
   _endThreadNowRequested  = false;
 
   _excludedSearchDirs << ".";
-  _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("parts"));
-  _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("p"));
+  _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawLibPath).arg("parts"));
+  _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawLibPath).arg("p"));
   if (Preferences::usingDefaultLibrary) {
-      _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("unofficial/parts"));
-      _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("unofficial/p"));
+      _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawLibPath).arg("unofficial/parts"));
+      _excludedSearchDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawLibPath).arg("unofficial/p"));
   }
-  _customPartDir = QDir::toNativeSeparators(QString("%1/%2custom/parts").arg(Preferences::lpubDataPath).arg(Preferences::ldrawLibrary));
-  _customPrimDir = QDir::toNativeSeparators(QString("%1/%2custom/p").arg(Preferences::lpubDataPath).arg(Preferences::ldrawLibrary));
+  _customPartDir = QDir::toNativeSeparators(QString("%1/%2custom/parts").arg(Preferences::lpubDataPath).arg(Preferences::validLDrawLibrary));
+  _customPrimDir = QDir::toNativeSeparators(QString("%1/%2custom/p").arg(Preferences::lpubDataPath).arg(Preferences::validLDrawLibrary));
 
-  _ldSearchDirsKey = Preferences::validLDrawSearchDirsKey;
+  _ldSearchDirsKey = Preferences::ldrawSearchDirsKey;
   _ldrawCustomArchive = Preferences::validLDrawCustomArchive;
 }
 
@@ -199,9 +199,9 @@ bool PartWorker::loadLDrawSearchDirs(){
       bool customDirsIncluded = false;
       QString unofficialRootDir;
       if (Preferences::usingDefaultLibrary)
-          unofficialRootDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("unofficial"));
+          unofficialRootDir = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawLibPath).arg("unofficial"));
       else
-         unofficialRootDir = QDir::toNativeSeparators(QString("%1").arg(Preferences::ldrawPath));
+         unofficialRootDir = QDir::toNativeSeparators(QString("%1").arg(Preferences::ldrawLibPath));
       for (StringList::const_iterator it = ldrawSearchDirs.begin();
            it != ldrawSearchDirs.end(); it++)
         {
@@ -315,9 +315,9 @@ void PartWorker::populateLdgLiteSearchDirs() {
         // Define excluded directories
         QStringList ldgliteExcludedDirs = _excludedSearchDirs;
         if (Preferences::usingDefaultLibrary) {
-            ldgliteExcludedDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("models"))
-                                << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("unofficial"))
-                                << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawPath).arg("unofficial/lsynth"));
+            ldgliteExcludedDirs << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawLibPath).arg("models"))
+                                << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawLibPath).arg("unofficial"))
+                                << QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::ldrawLibPath).arg("unofficial/lsynth"));
         }
         // Clear directories
         Preferences::ldgliteSearchDirs.clear();
@@ -703,7 +703,7 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
         if (!partFound) {
             QString lib = Preferences::usingDefaultLibrary ? "Unofficial" : "Custom Parts";
             fileStatus = QString("Part file %1 not found in %2. Be sure the %3 fadeStepColorParts.lst file is up to date.")
-                    .arg(libPartName).arg(unOffLib ? lib+" Library" : "Official Library").arg(Preferences::ldrawLibrary);
+                    .arg(libPartName).arg(unOffLib ? lib+" Library" : "Official Library").arg(Preferences::validLDrawLibrary);
             emit gui->messageSig(LOG_ERROR, fileStatus);
         }
 
@@ -1095,13 +1095,13 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
 
       if (!gApplication->mLibrary->ReloadUnoffLib()){
           returnMessage = tr("Failed to reload custom %1 parts library into memory.")
-                  .arg(Preferences::ldrawLibrary);
+                  .arg(Preferences::validLDrawLibrary);
           emit gui->messageSig(LOG_ERROR,returnMessage);
           return false;
       } else {
           partsLabel = totalPartCount == 1 ? "part" : "parts";
           returnMessage = tr("Reloaded custom %1 library into memory with %2 new %3.")
-                  .arg(Preferences::ldrawLibrary).arg(totalPartCount).arg(partsLabel);
+                  .arg(Preferences::validLDrawLibrary).arg(totalPartCount).arg(partsLabel);
       }
   } else if (totalPartCount > 0) {
       partsLabel = totalPartCount == 1 ? "part" : "parts";
@@ -1110,7 +1110,7 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
       _partsArchived = true;
   } else {
       returnMessage = tr("Finished. No new %1 parts archived. Custom %2 library not reloaded.")
-              .arg(comment).arg(Preferences::ldrawLibrary);
+              .arg(comment).arg(Preferences::validLDrawLibrary);
       _partsArchived = false;
   }
   emit gui->messageSig(LOG_INFO,returnMessage);
@@ -1172,7 +1172,7 @@ void ColourPartListWorker::generateCustomColourPartsList()
 
     fileSectionHeader(FADESTEP_INTRO_HEADER);
     _ldrawStaticColourParts  << "# Archive Libraries:";
-    QString lib = Preferences::ldrawLibrary;
+    QString lib = Preferences::validLDrawLibrary;
     QString unoffLib = Preferences::usingDefaultLibrary ? "Unofficial "+lib  : lib+" Custom";
     QString offLib = Preferences::usingDefaultLibrary ? "Official "+lib : lib;
     foreach (QString archiveFile, archiveFiles) {
@@ -1213,7 +1213,7 @@ void ColourPartListWorker::generateCustomColourPartsList()
     .arg(msecs,  3, 10, QLatin1Char('0'));
 
     QString fileStatus = QString("%1 Color Parts List successfully created with %2 entries. %3.")
-                                   .arg(Preferences::ldrawLibrary).arg(QString::number(_cpLines)).arg(time);
+                                   .arg(Preferences::validLDrawLibrary).arg(QString::number(_cpLines)).arg(time);
     fileSectionHeader(FADESTEP_FILE_STATUS, QString("# %1").arg(fileStatus));
     bool append = true;
     writeLDrawColourPartFile(append);
@@ -1225,7 +1225,7 @@ void ColourPartListWorker::generateCustomColourPartsList()
 
 bool ColourPartListWorker::processArchiveParts(const QString &archiveFile) {
 
-   QString lib = Preferences::ldrawLibrary;
+   QString lib = Preferences::validLDrawLibrary;
    bool isUnOffLib = true;
    QString library = Preferences::usingDefaultLibrary ? "Unofficial "+lib+" Library"  : lib+" Custom Library";
 
@@ -1523,7 +1523,7 @@ void ColourPartListWorker::remove(const QString &fileNameStr)
 void ColourPartListWorker::fileSectionHeader(const int &option, const QString &heading){
 
     static const QString fmtDateTime("MM-dd-yyyy hh:mm:ss");
-    QString lib = Preferences::ldrawLibrary;
+    QString lib = Preferences::validLDrawLibrary;
     QString unoffLib = Preferences::usingDefaultLibrary ? "Unofficial "+lib  : lib+" Custom";
     QString offLib = Preferences::usingDefaultLibrary ? "Official "+lib : lib;
 

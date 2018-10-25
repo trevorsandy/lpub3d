@@ -537,7 +537,7 @@ int Pli::createPartImage(
 
     fadeSteps = Preferences::enableFadeSteps ;
     displayIcons = gApplication->mPreferences.mViewPieceIcons;
-    fadeColour = LDrawColor::ldColorCode(Preferences::fadeStepsColour);
+    fadeColour = LDrawColor::ldColorCode(Preferences::validFadeStepsColour);
     highlightStep = Preferences::enableHighlightStep && !gui->suppressColourMeta();
 
     QStringList partialKeys = partialKey.split("_");
@@ -1539,7 +1539,7 @@ int Pli::partSizeLDViewSCall() {
 
     fadeSteps = Preferences::enableFadeSteps ;
     displayIcons = gApplication->mPreferences.mViewPieceIcons;
-    fadeColour = LDrawColor::ldColorCode(Preferences::fadeStepsColour);
+    fadeColour = LDrawColor::ldColorCode(Preferences::validFadeStepsColour);
     highlightStep = Preferences::enableHighlightStep && !gui->suppressColourMeta();
 
     // 1. generate ldr files

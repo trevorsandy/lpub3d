@@ -368,7 +368,7 @@ int POVRay::renderCsi(
   QString w  = QString("-SaveWidth=%1") .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
   QString f  = QString("-ExportFile=%1") .arg(povName);
-  QString l  = QString("-LDrawDir=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldrawPath)));
+  QString l  = QString("-LDrawDir=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldrawLibPath)));
   QString o  = QString("-HaveStdOut=1");
   QString v  = QString("-vv");
 
@@ -579,7 +579,7 @@ int POVRay::renderPli(
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
   QString f  = QString("-ExportFile=%1") .arg(povName);  // -ExportSuffix not required
-  QString l  = QString("-LDrawDir=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldrawPath)));
+  QString l  = QString("-LDrawDir=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldrawLibPath)));
   QString o  = QString("-HaveStdOut=1");
   QString v  = QString("-vv");
 
@@ -853,8 +853,8 @@ int LDGLite::renderCsi(
 
   QProcess    ldglite;
   QStringList env = QProcess::systemEnvironment();
-  env << "LDRAWDIR=" + Preferences::ldrawPath;
-  //emit gui->messageSig(LOG_DEBUG,qPrintable("LDRAWDIR=" + Preferences::ldrawPath));
+  env << "LDRAWDIR=" + Preferences::ldrawLibPath;
+  //emit gui->messageSig(LOG_DEBUG,qPrintable("LDRAWDIR=" + Preferences::ldrawLibPath));
 
   if (!Preferences::ldgliteSearchDirs.isEmpty()) {
     env << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
@@ -956,8 +956,8 @@ int LDGLite::renderPli(
 
   QProcess    ldglite;
   QStringList env = QProcess::systemEnvironment();
-  env << "LDRAWDIR=" + Preferences::ldrawPath;
-  //emit gui->messageSig(LOG_DEBUG,qPrintable("LDRAWDIR=" + Preferences::ldrawPath));
+  env << "LDRAWDIR=" + Preferences::ldrawLibPath;
+  //emit gui->messageSig(LOG_DEBUG,qPrintable("LDRAWDIR=" + Preferences::ldrawLibPath));
 
   if (!Preferences::ldgliteSearchDirs.isEmpty()){
     env << "LDSEARCHDIRS=" + Preferences::ldgliteSearchDirs;
@@ -1135,7 +1135,7 @@ int LDView::renderCsi(
   QString a  = QString("-AutoCrop=1");
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
-  QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
+  QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawLibPath);
   QString o  = QString("-HaveStdOut=1");
   QString v  = QString("-vv");
 
@@ -1323,7 +1323,7 @@ int LDView::renderPli(
 
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
-  QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawPath);
+  QString l  = QString("-LDrawDir=%1").arg(Preferences::ldrawLibPath);
   QString o  = QString("-HaveStdOut=1");
   QString v  = QString("-vv");
 

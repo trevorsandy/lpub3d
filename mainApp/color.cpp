@@ -60,7 +60,7 @@ void LDrawColor::LDrawColorInit()
         if (! file.open(QFile::ReadOnly | QFile::Text)) {
             logError() << QString("Failed to open altLDConfig file: %1, Error: [%2]")
                                   .arg(file.fileName()).arg(file.errorString());
-            QString extrasFileName(Preferences::ldrawPath + "/LDConfig.ldr");
+            QString extrasFileName(Preferences::ldrawLibPath + "/LDConfig.ldr");
             file.setFileName(extrasFileName);
             // try extras location
             if (! file.open(QFile::ReadOnly | QFile::Text)){
@@ -77,7 +77,7 @@ void LDrawColor::LDrawColorInit()
                 } else
                     logTrace() << "WARNING - LDConfig loaded from resource cache.";
             } else
-                logTrace() << QString("WARNING - LDConfig loaded from LDraw directory.").arg(Preferences::ldrawPath);
+                logTrace() << QString("WARNING - LDConfig loaded from LDraw directory.").arg(Preferences::ldrawLibPath);
         }
 
         QRegExp rx("^\\s*0\\s+!COLOUR\\s+(\\w+)\\s+CODE\\s+(\\d+)\\s+VALUE\\s+"

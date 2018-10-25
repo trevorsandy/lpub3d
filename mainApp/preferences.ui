@@ -47,7 +47,7 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_18">
        <item>
-        <widget class="QGroupBox" name="ldrawBox">
+        <widget class="QGroupBox" name="ldrawLibPathBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
            <horstretch>0</horstretch>
@@ -75,7 +75,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="ldrawPath">
+           <widget class="QLineEdit" name="ldrawLibPathEdit">
             <property name="minimumSize">
              <size>
               <width>200</width>
@@ -2556,7 +2556,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>fadeStepBox</tabstop>
   <tabstop>fadeStepsUseColourBox</tabstop>
   <tabstop>fadeStepsColoursCombo</tabstop>
-  <tabstop>ldrawPath</tabstop>
+  <tabstop>ldrawLibPathEdit</tabstop>
   <tabstop>browseLDraw</tabstop>
   <tabstop>altLDConfigBox</tabstop>
   <tabstop>altLDConfigPath</tabstop>

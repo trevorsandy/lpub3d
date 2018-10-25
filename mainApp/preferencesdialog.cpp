@@ -42,10 +42,10 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 {
   ui.setupUi(this);
 
-  ldrawLibPath = Preferences::ldrawPath;
+  mLDrawLibPath = Preferences::ldrawLibPath;
 
-  if (ldrawLibPath.isEmpty()) {
-    ldrawLibPath = ".";
+  if (mLDrawLibPath.isEmpty()) {
+    mLDrawLibPath = ".";
   }
 
   // hide 3rd party application browse buttons
@@ -57,7 +57,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
 
   ldrawLibPathTitle            = QString("LDraw Library Path for %1").arg(Preferences::validLDrawPartsLibrary);
-  QString fadeStepsColorTitle  = QString("Use %1® Global Fade Color").arg(Preferences::validLDrawLibrary);
+  QString fadeStepsColorTitle  = QString("Use %1® Global Fade Color").arg(Preferences::validLDrawLibraryChange);
   QString ldrawSearchDirsTitle = QString("LDraw Content Search Directories for %1").arg(Preferences::validLDrawPartsLibrary);
   bool useLDViewSCall = (Preferences::enableLDViewSingleCall && Preferences::preferredRenderer == RENDERER_LDVIEW);
 
@@ -77,8 +77,8 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.imageMatteBox->setEnabled(false);
   ui.imageMattingChk->setEnabled(false);
 
-  ui.ldrawPath->setText(                         ldrawLibPath);
-  ui.ldrawBox->setTitle(                         ldrawLibPathTitle);
+  ui.ldrawLibPathEdit->setText(                  mLDrawLibPath);
+  ui.ldrawLibPathBox->setTitle(                  ldrawLibPathTitle);
   ui.fadeStepsUseColourBox->setTitle(            fadeStepsColorTitle);
   ui.pliName->setText(                           Preferences::pliFile);
   ui.altLDConfigPath->setText(                   Preferences::altLDConfigPath);
@@ -137,10 +137,10 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.fadeStepsOpacitySlider->setValue(           Preferences::fadeStepsOpacity);
 
   ui.showParseErrorsChkBox->setChecked(          Preferences::showParseErrors);
-  QString test = Preferences::fadeStepsColour;
+  QString test = Preferences::validFadeStepsColour;
   ui.fadeStepsColoursCombo->addItems(LDrawColor::names());
-  ui.fadeStepsColoursCombo->setCurrentIndex(int(ui.fadeStepsColoursCombo->findText(Preferences::fadeStepsColour)));
-  QColor fadeColor = LDrawColor::color(Preferences::fadeStepsColour);
+  ui.fadeStepsColoursCombo->setCurrentIndex(int(ui.fadeStepsColoursCombo->findText(Preferences::validFadeStepsColour)));
+  QColor fadeColor = LDrawColor::color(Preferences::validFadeStepsColour);
   if(fadeColor.isValid() ) {
       ui.fadeStepsColourLabel->setAutoFillBackground(true);
       QString styleSheet =
@@ -333,49 +333,49 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 PreferencesDialog::~PreferencesDialog()
 {}
 
-void PreferencesDialog::on_ldrawPath_editingFinished()
+void PreferencesDialog::ldrawLibPathEdit_editingFinished()
 {
-    QString newPath = QDir::toNativeSeparators(ui.ldrawPath->text().trimmed().toLower());
-    QString oldPath = QDir::toNativeSeparators(ldrawLibPath.toLower());
+    QString newPath = QDir::toNativeSeparators(ui.ldrawLibPathEdit->text().trimmed().toLower());
+    QString oldPath = QDir::toNativeSeparators(mLDrawLibPath.toLower());
     if (newPath != oldPath) {
         QMessageBox box;
-        if (!Preferences::checkLDrawLibrary(ui.ldrawPath->text())) {
+        if (!Preferences::checkLDrawLibrary(ui.ldrawLibPathEdit->text())) {
             box.setIcon (QMessageBox::Warning);
             box.setWindowTitle(tr ("Suspicious LDraw Directory!"));
             box.setDefaultButton   (QMessageBox::Ok);
             box.setStandardButtons (QMessageBox::Ok);
             box.setText (tr("The selected path [%1] does not "
                             "appear to be a valid LDraw Library.")
-                            .arg(ui.ldrawPath->text()));
+                            .arg(ui.ldrawLibPathEdit->text()));
             box.exec();
         } else {
-            if (Preferences::ldrawLibrary != Preferences::validLDrawLibrary) {
-                ui.lgeoBox->setEnabled(Preferences::validLDrawLibrary == LEGO_LIBRARY);
+            if (Preferences::validLDrawLibrary != Preferences::validLDrawLibraryChange) {
+                ui.lgeoBox->setEnabled(Preferences::validLDrawLibraryChange == LEGO_LIBRARY);
                 QString ldrawTitle = QString("LDraw Library Path for %1® Parts")
-                                             .arg(Preferences::validLDrawLibrary);
-                ui.ldrawBox->setTitle(ldrawTitle);
-                ui.ldrawBox->setStyleSheet("QGroupBox::title { color : red; }");
+                                             .arg(Preferences::validLDrawLibraryChange);
+                ui.ldrawLibPathBox->setTitle(ldrawTitle);
+                ui.ldrawLibPathBox->setStyleSheet("QGroupBox::title { color : red; }");
             }
         }
     } else {
-        ui.ldrawBox->setTitle(ldrawLibPathTitle);
-        ui.ldrawBox->setStyleSheet("");
+        ui.ldrawLibPathBox->setTitle(ldrawLibPathTitle);
+        ui.ldrawLibPathBox->setStyleSheet("");
     }
 }
 
 void PreferencesDialog::on_browseLDraw_clicked()
 {
     Preferences::ldrawPreferences(true);
-    ui.ldrawPath->setText(Preferences::ldrawPath);
-    if (Preferences::ldrawLibrary != Preferences::validLDrawLibrary) {
-        ui.lgeoBox->setEnabled(Preferences::validLDrawLibrary == LEGO_LIBRARY);
+    ui.ldrawLibPathEdit->setText(Preferences::ldrawLibPath);
+    if (Preferences::validLDrawLibrary != Preferences::validLDrawLibraryChange) {
+        ui.lgeoBox->setEnabled(Preferences::validLDrawLibraryChange == LEGO_LIBRARY);
         QString ldrawTitle = QString("LDraw Library Path for %1® Parts")
-                                     .arg(Preferences::validLDrawLibrary);
-        ui.ldrawBox->setTitle(ldrawTitle);
-        ui.ldrawBox->setStyleSheet("QGroupBox::title { color : red; }");
+                                     .arg(Preferences::validLDrawLibraryChange);
+        ui.ldrawLibPathBox->setTitle(ldrawTitle);
+        ui.ldrawLibPathBox->setStyleSheet("QGroupBox::title { color : red; }");
     } else {
-        ui.ldrawBox->setTitle(ldrawLibPathTitle);
-        ui.ldrawBox->setStyleSheet("");
+        ui.ldrawLibPathBox->setTitle(ldrawLibPathTitle);
+        ui.ldrawLibPathBox->setStyleSheet("");
     }
 }
 
@@ -388,7 +388,7 @@ void PreferencesDialog::on_browseAltLDConfig_clicked()
 #endif
 
     QString result = QFileDialog::getOpenFileName(this, tr("Select LDraw LDConfig file"),
-                                                  ui.altLDConfigPath->text().isEmpty() ? Preferences::ldrawPath : ui.altLDConfigPath->text(),
+                                                  ui.altLDConfigPath->text().isEmpty() ? Preferences::ldrawLibPath : ui.altLDConfigPath->text(),
                                                   filter);
 
     if (!result.isEmpty()) {
@@ -402,7 +402,7 @@ void PreferencesDialog::on_browseLGEO_clicked()
 {
 
     QString result = QFileDialog::getExistingDirectory(this, tr("Locate LGEO Directory"),
-                                                       ui.lgeoPath->text().isEmpty() ? Preferences::ldrawPath : ui.lgeoPath->text(),
+                                                       ui.lgeoPath->text().isEmpty() ? Preferences::ldrawLibPath : ui.lgeoPath->text(),
                                                        QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
     if (!result.isEmpty()) {
@@ -715,9 +715,9 @@ void PreferencesDialog::pushButtonReset_SetState()
   ui.pushButtonReset->setEnabled(true);
 }
 
-QString const PreferencesDialog::ldrawPath()
+QString const PreferencesDialog::ldrawLibPath()
 {
-  return ui.ldrawPath->displayText();
+  return ui.ldrawLibPathEdit->displayText();
 }
 
 QString const PreferencesDialog::altLDConfigPath()
@@ -1109,13 +1109,13 @@ void PreferencesDialog::accept(){
             emit gui->messageSig(LOG_ERROR,QString("LDView path entered is not valid: %1").arg(ui.ldviewPath->text()));
         }
     }
-    if(ui.preferredRenderer->count() == 0 || ui.ldrawPath->text().isEmpty()){
+    if(ui.preferredRenderer->count() == 0 || ui.ldrawLibPathEdit->text().isEmpty()){
         missingParms = true;
         if (ui.preferredRenderer->count() == 0){
             ui.ldglitePath->setPlaceholderText("At lease one renderer must be defined");
             ui.ldviewPath->setPlaceholderText("At lease one renderer must be defined");
             ui.povrayPath->setPlaceholderText("At lease one renderer must be defined");
-            ui.ldrawPath->setPlaceholderText("LDraw path must be defined");
+            ui.ldrawLibPathEdit->setPlaceholderText("LDraw path must be defined");
         }
       }
     if (ui.includesGrpBox->isChecked() &&

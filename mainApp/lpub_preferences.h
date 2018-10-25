@@ -1,4 +1,4 @@
-/**************************************************************************** 
+/****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
 ** Copyright (C) 2015 - 2018 Trevor SANDY. All rights reserved.
@@ -70,7 +70,7 @@ class Preferences
     static void setStdOutToLogPreference(bool);
 
     static QString lpub3dAppName;
-    static QString ldrawPath;
+    static QString ldrawLibPath;
     static QString altLDConfigPath;
     static QString lpub3dLibFile;
     static QString lgeoPath;
@@ -86,8 +86,6 @@ class Preferences
     static QString lpub3dDocsResourcePath;
     static QString lpub3d3rdPartyConfigDir;
     static QString lpub3d3rdPartyAppDir;
-    static QString fadeStepsColourKey;
-    static QString fadeStepsColour;
     static QString ldrawColourPartsFile;
     static QString highlightStepColour;
     static QString pliSubstitutePartsFile;
@@ -125,16 +123,19 @@ class Preferences
     static QString ldvLights;
     static QString xmlMapPath;
 
-    static QString ldrawLibrary;
-
+    static QString validLDrawLibrary;
     static QString validLDrawDir;
     static QString validLDrawPart;
     static QString validLDrawArchive;
-    static QString validLDrawLibrary;
+    static QString validLDrawLibraryChange;
     static QString validLDrawCustomArchive;
     static QString validLDrawPartsLibrary;
     static QString validLDrawColorParts;
-    static QString validLDrawSearchDirsKey;
+    static QString validFadeStepsColour;
+
+    static QString fadeStepsColourKey;
+    static QString ldrawSearchDirsKey;
+    static QString ldrawLibPathKey;
 
     static QStringList ldgliteParms;
     static QStringList ldSearchDirs;

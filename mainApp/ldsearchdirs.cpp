@@ -30,7 +30,7 @@ LDPartsDirs::LDPartsDirs(){}
 bool LDPartsDirs::initLDrawSearchDirs()
 {
   // set default ldraw Directory
-  setLDrawDir(Preferences::ldrawPath.toLatin1().constData());
+  setLDrawDir(Preferences::ldrawLibPath.toLatin1().constData());
 
   LDLModel::setFileCaseCallback(LDVWidget::staticFileCaseCallback);
 

@@ -2284,7 +2284,7 @@ void PageFooterMeta::init(BranchMeta *parent, QString name)
 FadeStepMeta::FadeStepMeta() : BranchMeta()
 {
   fadeStep.setValue(Preferences::enableFadeSteps);                   // inherited from properties
-  fadeColor.setValue(Preferences::fadeStepsColour);                  // inherited from properties
+  fadeColor.setValue(Preferences::validFadeStepsColour);                  // inherited from properties
   fadeUseColor.setValue(Preferences::fadeStepsUseColour);            // inherited from properties
   fadeOpacity.setValue(Preferences::fadeStepsOpacity);               // inherited from properties
 }

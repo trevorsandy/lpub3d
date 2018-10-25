@@ -39,7 +39,7 @@ class PreferencesDialog : public QDialog
     explicit PreferencesDialog(QWidget *parent = 0);
     ~PreferencesDialog();
 	
-    QString const ldrawPath();
+    QString const ldrawLibPath();
     QString const altLDConfigPath();
     QString const lgeoPath();
     QString const pliFile();
@@ -117,7 +117,7 @@ class PreferencesDialog : public QDialog
     void on_pushButtonReset_clicked();
     void on_checkForUpdates_btn_clicked();
     void on_highlightStepBtn_clicked();
-    void on_ldrawPath_editingFinished();
+    void ldrawLibPathEdit_editingFinished();
 
     void on_altLDConfigBox_clicked(bool checked);
     void on_includeAllLogAttribBox_clicked(bool checked);
@@ -157,7 +157,7 @@ private:
     QSimpleUpdater  *m_updater;
     static QString   DEFS_URL;
     QString ldrawLibPathTitle;
-    QString ldrawLibPath;
+    QString mLDrawLibPath;
 };
 
 #endif

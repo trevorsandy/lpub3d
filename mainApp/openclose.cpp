@@ -38,7 +38,7 @@ void Gui::open()
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,"ProjectsPath"))) {
       modelDir = Settings.value(QString("%1/%2").arg(SETTINGS,"ProjectsPath")).toString();
     } else {
-      modelDir = Preferences::ldrawPath + "/models";
+      modelDir = Preferences::ldrawLibPath + "/models";
     }
 
     QString fileName = QFileDialog::getOpenFileName(

@@ -242,12 +242,12 @@ int Gui::processCommandLine()
               Preferences::fadeStepsOpacity = fadeStepsOpacity;
             }
         }
-      if (LDrawColor::name(fadeStepsColour) != Preferences::fadeStepsColour) {
+      if (LDrawColor::name(fadeStepsColour) != Preferences::validFadeStepsColour) {
           QString message = QString("Fade Step Color preference changed from %1 to %2.")
-              .arg(QString(Preferences::fadeStepsColour).replace("_"," "))
+              .arg(QString(Preferences::validFadeStepsColour).replace("_"," "))
               .arg(QString(LDrawColor::name(fadeStepsColour)).replace("_"," "));
           emit messageSig(LOG_INFO,message);
-          Preferences::fadeStepsColour = LDrawColor::name(fadeStepsColour);
+          Preferences::validFadeStepsColour = LDrawColor::name(fadeStepsColour);
         }
     }
 

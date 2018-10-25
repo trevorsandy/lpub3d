@@ -1014,8 +1014,8 @@ void  Gui::restartApplication(bool changeLibrary){
         QSettings Settings;
         Settings.setValue(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM),displayPageNum);
     } else {
-        args << (Preferences::validLDrawLibrary == LEGO_LIBRARY  ? "++liblego" :
-                 Preferences::validLDrawLibrary == TENTE_LIBRARY ? "++libtente" : "++libvexiq");
+        args << (Preferences::validLDrawLibraryChange == LEGO_LIBRARY  ? "++liblego" :
+                 Preferences::validLDrawLibraryChange == TENTE_LIBRARY ? "++libtente" : "++libvexiq");
     }
     QProcess::startDetached(QApplication::applicationFilePath(), args);
     messageSig(LOG_INFO, QString("Restarted LPub3D with Command: %1 %2")
@@ -1563,9 +1563,9 @@ void Gui::preferences()
     int  pageDisplayPauseCompare        = Preferences::pageDisplayPause;
     QString altLDConfigPathCompare      = Preferences::altLDConfigPath;
     QString povFileGeneratorCompare     = Preferences::povFileGenerator;
-    QString fadeStepsColourCompare      = Preferences::fadeStepsColour;
+    QString fadeStepsColourCompare      = Preferences::validFadeStepsColour;
     QString highlightStepColourCompare  = Preferences::highlightStepColour;
-    QString ldrawPathCompare            = Preferences::ldrawPath;
+    QString ldrawPathCompare            = Preferences::ldrawLibPath;
     QString lgeoPathCompare             = Preferences::lgeoPath;
     QString preferredRendererCompare    = Preferences::preferredRenderer;
     QString displayThemeCompare         = Preferences::displayTheme;
@@ -1705,7 +1705,7 @@ void Gui::preferences()
         bool rendererChanged               = QString(Preferences::preferredRenderer).toLower()   != preferredRendererCompare.toLower();
         bool enableFadeStepsChanged        = Preferences::enableFadeSteps                        != enableFadeStepsCompare;
         bool fadeStepsUseColourChanged     = Preferences::fadeStepsUseColour                     != fadeStepsUseColourCompare;
-        bool fadeStepsColourChanged        = QString(Preferences::fadeStepsColour).toLower()     != fadeStepsColourCompare.toLower();
+        bool fadeStepsColourChanged        = QString(Preferences::validFadeStepsColour).toLower()     != fadeStepsColourCompare.toLower();
         bool fadeStepsOpacityChanged       = Preferences::fadeStepsOpacity                       != fadeStepsOpacityCompare;
         bool enableHighlightStepChanged    = Preferences::enableHighlightStep                    != enableHighlightStepCompare;
         bool highlightStepColorChanged     = QString(Preferences::highlightStepColour).toLower() != highlightStepColourCompare.toLower();
@@ -1721,21 +1721,21 @@ void Gui::preferences()
         bool povFileGeneratorChanged       = Preferences::povFileGenerator                       != povFileGeneratorCompare;
         bool altLDConfigPathChanged        = Preferences::altLDConfigPath                        != altLDConfigPathCompare;
 
-        bool ldrawPathChanged              = QString(Preferences::ldrawPath).toLower()           != ldrawPathCompare.toLower();
+        bool ldrawPathChanged              = QString(Preferences::ldrawLibPath).toLower()           != ldrawPathCompare.toLower();
         bool lgeoPathChanged               = QString(Preferences::lgeoPath).toLower()            != lgeoPathCompare.toLower();
         bool displayThemeChanged           = Preferences::displayTheme.toLower()                 != displayThemeCompare.toLower();
 
         if (ldrawPathChanged) {
             emit messageSig(LOG_INFO,QString("LDraw Library path changed from %1 to %2")
                             .arg(ldrawPathCompare)
-                            .arg(Preferences::ldrawPath));
-            if (Preferences::ldrawLibrary != Preferences::validLDrawLibrary) {
+                            .arg(Preferences::ldrawLibPath));
+            if (Preferences::validLDrawLibrary != Preferences::validLDrawLibraryChange) {
                 libraryChangeRestart = true;
                 emit messageSig(LOG_INFO,QString("LDraw parts library changed from %1 to %2")
-                                .arg(Preferences::ldrawLibrary)
-                                .arg(Preferences::validLDrawLibrary));
+                                .arg(Preferences::validLDrawLibrary)
+                                .arg(Preferences::validLDrawLibraryChange));
                 box.setText (QString("%1 will restart to properly load the %2 parts library.")
-                                     .arg(VER_PRODUCTNAME_STR).arg(Preferences::validLDrawLibrary));
+                                     .arg(VER_PRODUCTNAME_STR).arg(Preferences::validLDrawLibraryChange));
                 box.exec();
             }
         }
@@ -1751,7 +1751,7 @@ void Gui::preferences()
                 QString result;
                 if (!LDrawColourParts::LDrawColorPartsLoad(result)){
                     QString message = QString("Could not open %1 LDraw color parts file [%2], Error: %3")
-                                      .arg(Preferences::ldrawLibrary).arg(Preferences::ldrawColourPartsFile).arg(result);
+                                      .arg(Preferences::validLDrawLibrary).arg(Preferences::ldrawColourPartsFile).arg(result);
                     emit messageSig(LOG_ERROR, message);
                 }
             }
@@ -1768,7 +1768,7 @@ void Gui::preferences()
         if (fadeStepsColourChanged && Preferences::enableFadeSteps && Preferences::fadeStepsUseColour)
             emit messageSig(LOG_INFO,QString("Fade Step Color preference changed from %1 to %2")
                             .arg(fadeStepsColourCompare.replace("_"," "))
-                            .arg(QString(Preferences::fadeStepsColour).replace("_"," ")));
+                            .arg(QString(Preferences::validFadeStepsColour).replace("_"," ")));
 
         if (enableHighlightStepChanged)
             emit messageSig(LOG_INFO,QString("Highlight Current Step is %1.").arg(Preferences::enableHighlightStep ? "ON" : "OFF"));
@@ -2393,7 +2393,7 @@ void Gui::ldrawColorPartsLoad()
         QString result;
         if (!LDrawColourParts::LDrawColorPartsLoad(result)){
             QString message = QString("Could not open the %1 LDraw color parts file [%2], Error: %3")
-                    .arg(Preferences::ldrawLibrary).arg(Preferences::ldrawColourPartsFile).arg(result);
+                    .arg(Preferences::validLDrawLibrary).arg(Preferences::ldrawColourPartsFile).arg(result);
             emit messageSig(LOG_NOTICE, message);
             bool prompt = false;
             if (Preferences::modeGUI) {
@@ -2403,7 +2403,7 @@ void Gui::ldrawColorPartsLoad()
                 box.setIconPixmap (_icon);
                 box.setTextFormat (Qt::RichText);
 
-                box.setWindowTitle(QMessageBox::tr ("%1 Color Parts File.").arg(Preferences::ldrawLibrary));
+                box.setWindowTitle(QMessageBox::tr ("%1 Color Parts File.").arg(Preferences::validLDrawLibrary));
                 box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
                 box.setMinimumSize(40,20);
 
@@ -2429,11 +2429,11 @@ void Gui::reloadModelFileAfterColorFileGen(){
         box.setWindowIcon(QIcon());
         box.setIconPixmap (_icon);
         box.setTextFormat (Qt::RichText);
-        box.setWindowTitle(QMessageBox::tr ("%1 Color Parts File.").arg(Preferences::ldrawLibrary));
+        box.setWindowTitle(QMessageBox::tr ("%1 Color Parts File.").arg(Preferences::validLDrawLibrary));
         box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
         box.setMinimumSize(10,10);
         QString message = QString("The %1 LDraw Color Parts File has finished building.")
-                .arg(Preferences::ldrawLibrary);
+                .arg(Preferences::validLDrawLibrary);
         QString body = QMessageBox::tr ("The opened model must be reloaded.");
         box.setText (message);
         box.setInformativeText (body);
@@ -2448,7 +2448,7 @@ void Gui::reloadModelFileAfterColorFileGen(){
 void Gui::generateCustomColourPartsList(bool prompt)
 {
     QMessageBox::StandardButton ret;
-    QString message = QString("Generate the %1 color parts list. This may take some time.").arg(Preferences::ldrawLibrary);
+    QString message = QString("Generate the %1 color parts list. This may take some time.").arg(Preferences::validLDrawLibrary);
 
     if (Preferences::modeGUI && prompt && Preferences::lpub3dLoaded) {
             ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR),
@@ -2654,7 +2654,7 @@ void Gui::refreshLDrawUnoffParts(){
 
     // Automatically extract unofficial archive
     QString archive = tr("%1/%2").arg(archivePath).arg(VER_LPUB3D_UNOFFICIAL_ARCHIVE);
-    QString destination = tr("%1/unofficial").arg(Preferences::ldrawPath);
+    QString destination = tr("%1/unofficial").arg(Preferences::ldrawLibPath);
     QStringList result = JlCompress::extractDir(archive,destination);
     if (result.isEmpty()){
         emit messageSig(LOG_ERROR,tr("Failed to extract %1 to %2").arg(archive).arg(destination));
@@ -2678,7 +2678,7 @@ void Gui::refreshLDrawOfficialParts(){
 
     // Automatically extract official archive
     QString archive = tr("%1/%2").arg(archivePath).arg(VER_LDRAW_OFFICIAL_ARCHIVE);
-    QString destination = Preferences::ldrawPath;
+    QString destination = Preferences::ldrawLibPath;
     destination = destination.remove(destination.size() - 6,6);
     QStringList result = JlCompress::extractDir(archive,destination);
     if (result.isEmpty()){

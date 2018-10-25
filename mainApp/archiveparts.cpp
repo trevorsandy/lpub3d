@@ -92,7 +92,7 @@ bool ArchiveParts::Archive(const QString &zipArchive,
           QString fileDir(QDir::toNativeSeparators(QFileInfo(dirFile).absolutePath()));
           bool isExcludedPath = false;
           foreach(QString excludedPath, excludedPaths) {
-              QString excludedDir = QDir::toNativeSeparators(QString("%1/%2/").arg(Preferences::ldrawPath).arg(excludedPath));
+              QString excludedDir = QDir::toNativeSeparators(QString("%1/%2/").arg(Preferences::ldrawLibPath).arg(excludedPath));
               if ((isExcludedPath = (fileDir.indexOf(excludedDir,0,Qt::CaseInsensitive)) != -1)) {
                   break;
               }
@@ -338,7 +338,7 @@ void ArchiveParts::RecurseAddDir(const QDir &dir, QStringList &list) {
       QString filePath = QDir::toNativeSeparators(QString("%1/%2").arg(dir.absolutePath()).arg(file));
       bool isExcludedPath = false;
       foreach(QString excludedPath, excludedPaths) {
-          QString excludedDir = QDir::toNativeSeparators(QString("%1/%2/").arg(Preferences::ldrawPath).arg(excludedPath));
+          QString excludedDir = QDir::toNativeSeparators(QString("%1/%2/").arg(Preferences::ldrawLibPath).arg(excludedPath));
           if ((isExcludedPath = (filePath.indexOf(excludedDir,0,Qt::CaseInsensitive)) != -1)) {
               break;
           }

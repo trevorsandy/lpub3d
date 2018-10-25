@@ -122,9 +122,9 @@ void lcResetCategories(lcArray<lcLibraryCategory>& Categories, bool BuiltInLibra
 /*** LPub3D Mod - support TENTE and VEX Categories ***/
     if (BuiltInLibrary)
         Buffer.append(BuiltInCategories, sizeof(BuiltInCategories));
-    else if (Preferences::ldrawLibrary == TENTE_LIBRARY)
+    else if (Preferences::validLDrawLibrary == TENTE_LIBRARY)
         Buffer.append(TENTEDefaultCategories, sizeof(TENTEDefaultCategories));
-    else if (Preferences::ldrawLibrary == VEXIQ_LIBRARY)
+    else if (Preferences::validLDrawLibrary == VEXIQ_LIBRARY)
         Buffer.append(VEXIQDefaultCategories, sizeof(VEXIQDefaultCategories));
     else
         Buffer.append(DefaultCategories, sizeof(DefaultCategories));
