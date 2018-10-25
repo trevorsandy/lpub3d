@@ -265,8 +265,7 @@ THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
 }
 message("~~~ 3RD PARTY DISTRIBUTION REPO $$THIRD_PARTY_DIST_DIR_PATH ~~~")
 
-# If you wish to build and install on Linux or Windows, then
-# set deb|rpm|pkg|exe respectively.
+# To build and install, set CONFIG+=deb|rpm|pkg|exe respectively.
 macx: build_package = $$(INSTALL_3RD_PARTY)       # INSTALL_3RD_PARTY no longer used
 else: build_package = $$(LP3D_BUILD_PKG)
 if(deb|rpm|pkg|dmg|exe|contains(build_package, yes)) {

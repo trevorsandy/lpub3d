@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: October 21, 2018
+rem  Last Update: October 22, 2018
 rem  Copyright (c) 2017 - 2018 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -19,7 +19,7 @@ SET start=%time%
 
 FOR %%* IN (.) DO SET SCRIPT_DIR=%%~nx*
 IF "%SCRIPT_DIR%" EQU "windows" (
-  CALL :WD_REL_TO_ABS ../../
+  CALL :WD_REL_TO_ABS ..\..\
 ) ELSE (
   SET ABS_WD=%CD%
 )
@@ -37,14 +37,14 @@ IF "%APPVEYOR%" EQU "True" (
   )
   SET ABS_WD=%APPVEYOR_BUILD_FOLDER%
   SET DIST_DIR=%LP3D_DIST_DIR_PATH%
-  SET LDRAW_DOWNLOAD_DIR=%APPVEYOR_BUILD_FOLDER%
+  SET LDRAW_INSTALL_ROOT=%APPVEYOR_BUILD_FOLDER%
   SET LDRAW_LIBS=%APPVEYOR_BUILD_FOLDER%\LDrawLibs
   SET LDRAW_DIR=%APPVEYOR_BUILD_FOLDER%\LDraw
   SET PACKAGE=%LP3D_PACKAGE%
   SET CONFIGURATION=%configuration%
 ) ELSE (
-  SET DIST_DIR=..\lpub3d_windows_3rdparty
-  SET LDRAW_DOWNLOAD_DIR=%USERPROFILE%
+  CALL :DIST_DIR_REL_TO_ABS ..\lpub3d_windows_3rdparty
+  SET LDRAW_INSTALL_ROOT=%USERPROFILE%
   SET LDRAW_LIBS=%USERPROFILE%
   SET LDRAW_DIR=%USERPROFILE%\LDraw
   SET LP3D_QT32_MSVC=C:\Qt\IDE\5.11.1\msvc2015\bin
@@ -56,6 +56,12 @@ SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
 SET LP3D_WIN_GIT_MSG=%LP3D_WIN_GIT%
 SET SYS_DIR=%SystemRoot%\System32
 SET zipWin64=C:\program files\7-zip
+
+SET OfficialCONTENT=complete.zip
+SET UnOfficialCONTENT=ldrawunf.zip
+SET LPub3DCONTENT=lpub3dldrawunf.zip
+SET TenteCONTENT=tenteparts.zip
+SET VexiqCONTENT=vexiqparts.zip
 
 SET BUILD_THIRD=unknown
 SET INSTALL=unknown
@@ -173,9 +179,9 @@ ECHO   CONFIGURATION..................[%CONFIGURATION%]
 ECHO   LP3D_QT32_MSVC.................[%LP3D_QT32_MSVC%]
 ECHO   LP3D_QT64_MSVC.................[%LP3D_QT64_MSVC%]
 ECHO   WORKING_DIRECTORY_LPUB3D.......[%ABS_WD%]
-ECHO   DISTRIBUTION_DIRECTORY.........[%DIST_DIR:/=\%]
+ECHO   DISTRIBUTION_DIRECTORY.........[%DIST_DIR%]
 ECHO   LDRAW_DIRECTORY................[%LDRAW_DIR%]
-ECHO   LDRAW_DOWNLOAD_DIR.............[%LDRAW_DOWNLOAD_DIR%]
+ECHO   LDRAW_INSTALL_ROOT.............[%LDRAW_INSTALL_ROOT%]
 ECHO   LDRAW_LIBS.....................[%LDRAW_LIBS%]
 ECHO.
 
@@ -330,6 +336,7 @@ IF NOT EXIST "%DIST_DIR%" (
   EXIT /b
 )
 SET PKG_PLATFORM=%1
+CALL :REQUEST_LDRAW_DIR
 rem run build checks
 CALL builds\check\build_checks.bat
 EXIT /b
@@ -342,12 +349,232 @@ rem Perform build and stage package components
 nmake.exe %LPUB3D_MAKE_ARGS% install
 EXIT /b
 
+:REQUEST_LDRAW_DIR
+ECHO.
+ECHO -Request LDraw archive libraries download...
+
+CALL :DOWNLOAD_LDRAW_LIBS
+
+ECHO.
+ECHO -Check for LDraw LEGO disk library...
+IF NOT EXIST "%LDRAW_DIR%\parts" (
+  ECHO.
+  ECHO -LDraw directory %LDRAW_DIR% does not exist - creating...
+  REM SET CHECK=0
+  IF NOT EXIST "%LDRAW_INSTALL_ROOT%\%OfficialCONTENT%" (
+    IF EXIST "%LDRAW_LIBS%\%OfficialCONTENT%" (
+      COPY /V /Y "%LDRAW_LIBS%\%OfficialCONTENT%" "%LDRAW_INSTALL_ROOT%\" /A | findstr /i /v /r /c:"copied\>"
+    ) ELSE (
+      ECHO.
+      ECHO -[WARNING] Could not find %LDRAW_LIBS%\%OfficialCONTENT%.
+      SET CHECK=0
+    )
+  )
+  IF EXIST "%zipWin64%" (
+    ECHO.
+    ECHO -7zip exectutable found at "%zipWin64%"
+    ECHO.
+    ECHO -Extracting %OfficialCONTENT%...
+    ECHO.
+    "%zipWin64%\7z.exe" x -o"%LDRAW_INSTALL_ROOT%\" "%LDRAW_INSTALL_ROOT%\%OfficialCONTENT%" | findstr /i /r /c:"^Extracting\>" /c:"^Everything\>"
+    IF EXIST "%LDRAW_DIR%\parts" (
+      ECHO.
+      ECHO -LDraw directory %LDRAW_DIR% extracted.
+      ECHO.
+      ECHO -Cleanup %OfficialCONTENT%...
+      DEL /Q "%LDRAW_INSTALL_ROOT%\%OfficialCONTENT%"
+      ECHO.
+      ECHO -Set LDRAWDIR to %LDRAW_DIR%.
+      SET LDRAWDIR=%LDRAW_DIR%
+    )
+  ) ELSE (
+    ECHO [WARNING] Could not find 7zip executable.
+    SET CHECK=0
+  )
+) ELSE (
+  ECHO.
+  ECHO -LDraw directory exist at [%LDRAW_DIR%].
+  ECHO.
+  ECHO -Set LDRAWDIR to %LDRAW_DIR%.
+  SET LDRAWDIR=%LDRAW_DIR%
+)
+EXIT /b
+
+:DOWNLOAD_LDRAW_LIBS
+ECHO.
+ECHO - Download LDraw archive libraries...
+
+IF NOT EXIST "%LDRAW_LIBS%\" (
+  ECHO.
+  ECHO - Create LDraw archive libs store %LDRAW_LIBS%
+  MKDIR "%LDRAW_LIBS%\"
+)
+
+SET OutputPATH=%LDRAW_LIBS%
+
+ECHO.
+ECHO - Prepare BATCH to VBS to Web Content Downloader...
+
+IF NOT EXIST "%TEMP%\$" (
+  MD "%TEMP%\$"
+)
+
+SET vbs=WebContentDownload.vbs
+SET t=%TEMP%\$\%vbs% ECHO
+
+IF EXIST %TEMP%\$\%vbs% (
+ DEL %TEMP%\$\%vbs%
+)
+
+:WEB CONTENT SAVE-AS Download-- VBS
+>%t% Option Explicit
+>>%t% On Error Resume Next
+>>%t%.
+>>%t% Dim args, http, fileSystem, adoStream, url, target, status
+>>%t%.
+>>%t% Set args = Wscript.Arguments
+>>%t% Set http = CreateObject("WinHttp.WinHttpRequest.5.1")
+>>%t% url = args(0)
+>>%t% target = args(1)
+>>%t% WScript.Echo "- Getting '" ^& target ^& "' from '" ^& url ^& "'...", vbLF
+>>%t%.
+>>%t% http.Open "GET", url, False
+>>%t% http.Send
+>>%t% status = http.Status
+>>%t%.
+>>%t% If status ^<^> 200 Then
+>>%t% WScript.Echo "- FAILED to download: HTTP Status " ^& status, vbLF
+>>%t% WScript.Quit 1
+>>%t% End If
+>>%t%.
+>>%t% Set adoStream = CreateObject("ADODB.Stream")
+>>%t% adoStream.Open
+>>%t% adoStream.Type = 1
+>>%t% adoStream.Write http.ResponseBody
+>>%t% adoStream.Position = 0
+>>%t%.
+>>%t% Set fileSystem = CreateObject("Scripting.FileSystemObject")
+>>%t% If fileSystem.FileExists(target) Then fileSystem.DeleteFile target
+>>%t% If Err.Number ^<^> 0 Then
+>>%t%   WScript.Echo "- Error - CANNOT DELETE: '" ^& target ^& "', " ^& Err.Description
+>>%t%   WScript.Echo "  The file may be in use by another process.", vbLF
+>>%t%   adoStream.Close
+>>%t%   Err.Clear
+>>%t% Else
+>>%t%  adoStream.SaveToFile target
+>>%t%  adoStream.Close
+>>%t%  WScript.Echo "- Download successful!"
+>>%t% End If
+>>%t%.
+>>%t% 'WebContentDownload.vbs
+>>%t% 'Title: BATCH to VBS to Web Content Downloader
+>>%t% 'CMD ^> cscript //Nologo %TEMP%\$\%vbs% WebNAME WebCONTENT
+>>%t% 'VBS Created on %date% at %time%
+>>%t%.
+
+ECHO.
+ECHO - VBS file "%vbs%" is done compiling
+ECHO.
+ECHO - LDraw archive library download path: %OutputPATH%
+
+IF NOT EXIST "%OutputPATH%\%OfficialCONTENT%" (
+  CALL :GET_OFFICIAL_LIBRARY
+)  ELSE (
+  ECHO.
+  ECHO - LDraw archive library %OfficialCONTENT% exist. Nothing to do.
+)
+IF NOT EXIST "%OutputPATH%\%TenteCONTENT%" (
+  CALL :GET_TENTE_LIBRARY
+) ELSE (
+  ECHO.
+  ECHO - LDraw archive library %TenteCONTENT% exist. Nothing to do.
+)
+IF NOT EXIST "%OutputPATH%\%VexiqCONTENT%" (
+  CALL :GET_VEXIQ_LIBRARY
+) ELSE (
+  ECHO.
+  ECHO - LDraw archive library %VexiqCONTENT% exist. Nothing to do.
+)
+IF NOT EXIST "%OutputPATH%\%LPub3DCONTENT%" (
+  CALL :GET_UNOFFICIAL_LIBRARY
+) ELSE (
+  ECHO.
+  ECHO - LDraw archive library %UnOfficialCONTENT% exist. Nothing to do.
+)
+EXIT /b
+
+:GET_OFFICIAL_LIBRARY
+SET WebCONTENT="%OutputPATH%\%OfficialCONTENT%"
+SET WebNAME=http://www.ldraw.org/library/updates/%OfficialCONTENT%
+
+ECHO.
+ECHO - Download archive file: %WebCONTENT%...
+ECHO.
+cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
+IF EXIST "%OutputPATH%\%OfficialCONTENT%" (
+  ECHO.
+  ECHO - LDraw archive library %OfficialCONTENT% is availble
+)
+EXIT /b
+
+:GET_TENTE_LIBRARY
+SET WebCONTENT="%OutputPATH%\%TenteCONTENT%"
+SET WebNAME=https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/%TenteCONTENT%
+
+ECHO.
+ECHO - Download archive file: %WebCONTENT%...
+ECHO.
+cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
+IF EXIST "%OutputPATH%\%TenteCONTENT%" (
+  ECHO.
+  ECHO - LDraw archive library %TenteCONTENT% is availble
+)
+EXIT /b
+
+:GET_VEXIQ_LIBRARY
+SET WebCONTENT="%OutputPATH%\%VexiqCONTENT%"
+SET WebNAME=https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/%VexiqCONTENT%
+
+ECHO.
+ECHO - Download archive file: %WebCONTENT%...
+ECHO.
+cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
+IF EXIST "%OutputPATH%\%VexiqCONTENT%" (
+  ECHO.
+  ECHO - LDraw archive library %VexiqCONTENT% is availble
+)
+EXIT /b
+
+:GET_UNOFFICIAL_LIBRARY
+SET WebCONTENT="%OutputPATH%\%UnofficialCONTENT%"
+SET WebNAME=http://www.ldraw.org/library/unofficial/%UnofficialCONTENT%
+
+ECHO.
+ECHO - Download archive file: %WebCONTENT%...
+ECHO.
+cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
+REN "%WebCONTENT%" %LPub3DCONTENT%
+IF EXIST "%OutputPATH%\%LPub3DCONTENT%" (
+  ECHO.
+  ECHO - LDraw archive library %LPub3DCONTENT% is availble
+)
+EXIT /b
+
 :WD_REL_TO_ABS
 IF [%1] EQU [] (EXIT /b) ELSE (SET REL_WD=%1)
 SET REL_WD=%REL_WD:/=\%
 SET ABS_WD=
 PUSHD %REL_WD%
 SET ABS_WD=%CD%
+POPD
+EXIT /b
+
+:DIST_DIR_REL_TO_ABS
+IF [%1] EQU [] (EXIT /b) ELSE (SET REL_DIST_DIR=%1)
+SET REL_DIST_DIR=%REL_DIST_DIR:/=\%
+SET DIST_DIR=
+PUSHD %REL_DIST_DIR%
+SET DIST_DIR=%CD%
 POPD
 EXIT /b
 
