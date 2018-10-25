@@ -319,7 +319,7 @@ void Application::initialize()
                 fprintf(stdout, "  -ns, --no-stdout-log: Do not enable standard output for logged entries. Useful on Linux to prevent double (stdout and QSLog) output. Default is off.\n");
                 fprintf(stdout, "  -o, --export-option <option>: Set output format pdf, png, jpeg or bmp. Used with process-export. Default is pdf.\n");
                 fprintf(stdout, "  -of, --pdf-output-file <path>: Designate the pdf document save file using absolute path.\n");
-                fprintf(stdout, "  -p, --preferred-renderer <renderer>: Set renderer native, ldglite, ldview, ldview-sc or povray. Default is native.\n ");
+                fprintf(stdout, "  -p, --preferred-renderer <renderer>: Set renderer native, ldglite, ldview, ldview-sc, ldview-scsl or povray. Default is native.\n ");
                 fprintf(stdout, "  -pe, --process-export: Export instruction document or images. Used with export-option. Default is pdf document.\n");
                 fprintf(stdout, "  -pf, --process-file: Process ldraw file and generate images in png format.\n");
                 fprintf(stdout, "  -r, --range <page range>: Set page range - e.g. 1,2,9,10-42. Default is all pages.\n");
@@ -607,7 +607,7 @@ int Application::run()
   {
       mainApp();
 
-      emit gui->messageSig(LOG_INFO, QString("Run: Application started."));
+      emit gui->messageSig(LOG_INFO, QString("Run: Application ready."));
 
       if (modeGUI())
           ExecReturn = m_application.exec();

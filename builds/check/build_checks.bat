@@ -38,7 +38,7 @@ SET PKG_CHECK_OPTIONS=--process-file --clear-cache --libtente --preferred-render
 SET PKG_CHECK_TENTE_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 rem Check 7 of 7
 SET PKG_CHECK_FILE=%ABS_WD%\builds\check\VEXIQ\spider.mpd
-SET PKG_CHECK_OPTIONS=--process-file --clear-cache --libvexiq --preferred-renderer native
+SET PKG_CHECK_OPTIONS=--process-file --clear-cache --libvexiq --preferred-renderer ldview-scsl
 SET PKG_CHECK_VEXIQ_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 
 ECHO.
