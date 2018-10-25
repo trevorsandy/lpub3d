@@ -630,11 +630,19 @@ int Gui::addGraphicsPageItems(
                         } // if callout
                     } // callouts
 
-                  // optional PLI placement
+                  // optional PLI placement relative to CSI
 
                   if (step->pli.placement.value().relativeTo == CsiType) {
+                      step->csiItem->appendRelativeTo(&step->pli);
                       step->csiItem->placeRelative(&step->pli);
                     }
+
+                  // optional PLI placement relative to Page Number
+
+                  if (step->pli.placement.value().relativeTo == PageNumberType) {
+                      pageNumber->appendRelativeTo(&step->pli);
+                      pageNumber->placeRelative(&step->pli);
+                  }
 
                   // place the CSI relative to the entire step's box
                   step->csiItem->setPos(step->csiItem->loc[XX],

@@ -80,7 +80,7 @@ const  QList<int> PlacementDialog::relativeToOks[NumRelatives] =
   /*  1 Csi (Assem)      Csi     */{Page},
   /*  2 MultiStep        Ms      */{Page       , Pli},
   /*  3 StepNum          Sn      */{Page , Csi , Pli                     , Ph , Pf},
-  /*  4 Pli              Pli     */{Page , Csi            , Sn           , Ph , Pf},
+  /*  4 Pli              Pli     */{Page , Csi       , Pn , Sn           , Ph , Pf},
   /*  5 Callout          Callout */{Page , Csi , Pli      , Sn           , Ph , Pf},
   /*  6 PageNum          Pn      */{Page , Csi , Pli , Pn , Sn , Callout , Ph , Pf},
 
