@@ -479,7 +479,6 @@ bool Gui::continuousPageDialog(Direction d)
   exportType = PAGE_PROCESS;
 
   if (Preferences::modeGUI) {
-      continuousTimer.start();
       setContinuousPageSig(true);
       if (Preferences::doNotShowPageProcessDlg) {
           if (!processPageRange(setPageLineEdit->displayText())) {
@@ -494,6 +493,7 @@ bool Gui::continuousPageDialog(Direction d)
           DialogExportPages *dialog = new DialogExportPages();
 
           if (dialog->exec() == QDialog::Accepted) {
+              continuousTimer.start();
 
               if(dialog->allPages()){
                   processOption = EXPORT_ALL_PAGES;
@@ -527,6 +527,7 @@ bool Gui::continuousPageDialog(Direction d)
         }
     }
   else { // command line mode
+      continuousTimer.start();
       // This effectively acts like a toggle. If true, it sets false and vice versa.
       nextPageContinuousIsRunning = !nextPageContinuousIsRunning;
     }

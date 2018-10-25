@@ -614,7 +614,7 @@ public:
 
   void displayFile(LDrawFile *ldrawFile, const QString &modelName);
   void displayParmsFile(const QString &fileName);
-  QString elapsedTime(const qint64 &time);
+  QString elapsedTime(const qint64 &duration);
 
   int             maxPages;
   

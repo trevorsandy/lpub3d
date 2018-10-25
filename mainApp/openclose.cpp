@@ -528,23 +528,30 @@ void Gui::fileChanged(const QString &path)
 //  event->accept();
 //}
 
-QString Gui::elapsedTime(const qint64 &time){
+QString Gui::elapsedTime(const qint64 &duration){
 
-    int secs = time / 1000;
-    int mins = (secs / 60) % 60;
-    secs = secs % 60;
-    int msecs = time % 1000;
+    qint64 elapsed = duration;
+    int milliseconds = (int) (elapsed % 1000);
+    elapsed /= 1000;
+    int seconds = (int) (elapsed % 60);
+    elapsed /= 60;
+    int minutes = (int) (elapsed % 60);
+    elapsed /= 60;
+    int hours = (int) (elapsed % 24);
 
-    return QString("Elapsed time: %1%2")
-                   .arg(mins > 0 ?
-                                 QString("%1 %2 ")
-                                         .arg(mins,2,10,QLatin1Char('0'))
-                                         .arg(mins > 1 ? "minutes" : "minute")
-                                 : QString())
-                   .arg(QString("%1")
-                                .arg(QString("%1.%2 %3")
-                                             .arg(secs,2,10,QLatin1Char('0'))
-                                             .arg(msecs,3,10,QLatin1Char('0'))
-                                             .arg(secs > 1 ? "seconds" : "second"))
-                        );
+    return QString("Elapsed time: %1%2%3")
+                   .arg(hours >   0 ?
+                                  QString("%1 %2 ")
+                                          .arg(hours)
+                                          .arg(hours > 1 ? "hours" : "hour")
+                                  : QString())
+                   .arg(minutes > 0 ?
+                                  QString("%1 %2 ")
+                                          .arg(minutes)
+                                          .arg(minutes > 1 ? "minutes" : "minute")
+                                  : QString())
+                   .arg(QString("%1.%2 %3")
+                                .arg(seconds)
+                                .arg(milliseconds,3,10,QLatin1Char('0'))
+                                .arg(seconds > 1 ? "seconds" : "second"));
 }
