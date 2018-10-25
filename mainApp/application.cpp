@@ -225,12 +225,18 @@ void Application::initialize()
 
             // Set library type from loaded library
             if (!loadedLibrary.isEmpty()) {
-                if (!ldrawLibrary.isEmpty() && consoleRedirectTreated) {
+                if (!ldrawLibrary.isEmpty()) {
+#ifdef Q_OS_WIN
+                    if(consoleRedirectTreated) {
+#endif
                     fprintf(stdout, "%s library already loaded. Only one library type can be loaded,\n"
                                     "The %s library will be ignored\n",
                             ldrawLibrary.toLatin1().constData(),
                             loadedLibrary.toLatin1().constData());
                     fflush(stdout);
+#ifdef Q_OS_WIN
+                    }
+#endif
                 } else {
                     ldrawLibrary = loadedLibrary;
                     loadedLibrary.clear();

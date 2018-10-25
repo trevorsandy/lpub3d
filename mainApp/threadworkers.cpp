@@ -88,10 +88,10 @@ void PartWorker::ldsearchDirPreferences(){
           //qDebug() << QString(tr("01 Using LDraw.ini file form loadLDrawSearchDirs(): ").arg(Preferences::ldrawiniFile));
         } else {
           Settings.remove(QString("%1/%2").arg(SETTINGS,LdrawiniFilePathKey));
-          //qDebug() << QString(tr("  -Failed to get Ldraw.ini, valid file (from Preferences) does not exist."));
+          //qDebug() << QString(tr("  -Failed to get LDraw.ini, valid file (from Preferences) does not exist."));
         }
     } else {
-      emit gui->messageSig(LOG_INFO, QString("Unable to initialize Ldrawini. Using default search directories."));
+      emit gui->messageSig(LOG_INFO, QString("Unable to initialize LDrawINI. Using default search directories."));
     }
 
   if (!doFadeStep() && !doHighlightStep()) {
@@ -105,8 +105,8 @@ void PartWorker::ldsearchDirPreferences(){
   emit gui->messageSig(LOG_INFO,(doHighlightStep() ? QString("Highlight Current Step is ON.") : QString("Highlight Current Step is OFF.")));
 
   if (!Preferences::ldrawiniFound && !_resetSearchDirSettings &&
-      Settings.contains(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey))) {    // ldrawini not found and not reset so load registry key
-      emit gui->messageSig(LOG_INFO, QString("ldraw.ini not found, loading ldSearch directories from registry key..."));
+      Settings.contains(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey))) {    // LDrawINI not found and not reset so load registry key
+      emit gui->messageSig(LOG_INFO, QString("LDrawINI not found, loading LDSearch directories from registry key..."));
       QStringList searchDirs = Settings.value(QString("%1/%2").arg(SETTINGS,LdSearchDirsKey)).toStringList();
       bool customDirsIncluded = false;
       foreach (QString searchDir, searchDirs){
@@ -168,11 +168,11 @@ void PartWorker::ldsearchDirPreferences(){
 
     // Update LDView extra search directories
     if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni))
-       emit gui->messageSig(LOG_ERROR, qPrintable(QString("Could not update %1").arg(Preferences::ldviewIni)));
+       emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::ldviewIni));
     if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni))
-       emit gui->messageSig(LOG_ERROR, qPrintable(QString("Could not update %1").arg(Preferences::ldviewPOVIni)));
+       emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::ldviewPOVIni));
     if (!Preferences::setLDViewExtraSearchDirs(Preferences::nativePOVIni))
-       emit gui->messageSig(LOG_ERROR, qPrintable(QString("Could not update %1").arg(Preferences::nativePOVIni)));
+       emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::nativePOVIni));
 
     // Update LDGLite extra search directories
     if (Preferences::preferredRenderer == RENDERER_LDGLITE)
@@ -361,7 +361,7 @@ void PartWorker::processLDSearchDirParts(){
  */
 void PartWorker::processFadeColourParts(bool overwriteCustomParts)
 {
-  //qDebug() << qPrintable(QString("Received overwrite fade parts = %1").arg(overwriteCustomParts ? "True" : "False"));
+  //qDebug() << QString("Received overwrite fade parts = %1").arg(overwriteCustomParts ? "True" : "False");
   if (doFadeStep())
     processCustomColourParts(FADE_PART, overwriteCustomParts);
 }
@@ -371,7 +371,7 @@ void PartWorker::processFadeColourParts(bool overwriteCustomParts)
  */
 void PartWorker::processHighlightColourParts(bool overwriteCustomParts)
 {
-  //qDebug() << qPrintable(QString("Received overwrite highlight parts = %1").arg(overwriteCustomParts ? "True" : "False"));
+  //qDebug() << QString("Received overwrite highlight parts = %1").arg(overwriteCustomParts ? "True" : "False");
   if (doHighlightStep())
     processCustomColourParts(HIGHLIGHT_PART, overwriteCustomParts);
 }
@@ -503,11 +503,11 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
                   Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDSearchDirs"), Preferences::ldSearchDirs);
 
                   if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni))
-                     emit gui->messageSig(LOG_ERROR, qPrintable(QString("Could not update %1").arg(Preferences::ldviewIni)));
+                     emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::ldviewIni));
                   if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni))
-                     emit gui->messageSig(LOG_ERROR, qPrintable(QString("Could not update %1").arg(Preferences::ldviewPOVIni)));
+                     emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::ldviewPOVIni));
                   if (!Preferences::setLDViewExtraSearchDirs(Preferences::nativePOVIni))
-                     emit gui->messageSig(LOG_ERROR, qPrintable(QString("Could not update %1").arg(Preferences::nativePOVIni)));
+                     emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::nativePOVIni));
                   updateLDGLiteSearchDirs = true;
               }
           }

@@ -37,46 +37,42 @@ ParmsHighlighter::ParmsHighlighter(QTextDocument *parent)
 
     QBrush br01; // Qt Dark green
     QBrush br02; // Qt Dark blue
-    QBrush br06; // Custom  blue
-    QBrush br07; // Custom  orange/voilet
+    QBrush br03; // Custom  blue
+    QBrush br04; // Custom  orange/violet
     if (Preferences::displayTheme == THEME_DEFAULT) {
-        br01 = QBrush(QColor(THEME_HIGHLIGHT_01_DEFAULT));
-        br02 = QBrush(QColor(THEME_HIGHLIGHT_02_DEFAULT));
-        br06 = QBrush(QColor(THEME_HIGHLIGHT_06_DEFAULT));
-        br07 = QBrush(QColor(THEME_HIGHLIGHT_07_DEFAULT));
+        br01 = QBrush(QColor(THEME_HIGHLIGHT_A_DEFAULT));
+        br02 = QBrush(QColor(THEME_HIGHLIGHT_B_DEFAULT));
+        br03 = QBrush(QColor(THEME_HIGHLIGHT_C_DEFAULT));
+        br04 = QBrush(QColor(THEME_HIGHLIGHT_D_DEFAULT));
       }
     else
     if (Preferences::displayTheme == THEME_DARK)  {
-        br01 = QBrush(QColor(THEME_HIGHLIGHT_01_DARK));
-        br02 = QBrush(QColor(THEME_HIGHLIGHT_02_DARK));
-        br06 = QBrush(QColor(THEME_HIGHLIGHT_06_DARK));
-        br07 = QBrush(QColor(THEME_HIGHLIGHT_07_DARK));
+        br01 = QBrush(QColor(THEME_HIGHLIGHT_A_DARK));
+        br02 = QBrush(QColor(THEME_HIGHLIGHT_B_DARK));
+        br03 = QBrush(QColor(THEME_HIGHLIGHT_C_DARK));
+        br04 = QBrush(QColor(THEME_HIGHLIGHT_D_DARK));
       }
 
     LPubParmsFormat.setForeground(br01);
     LPubParmsFormat.setFontWeight(QFont::Bold);
-
     rule.pattern = QRegExp("[#|;][^\n]*");
     rule.format = LPubParmsFormat;
     highlightingRules.append(rule);
 
     LPubParmsHdrFormat.setForeground(br02);
     LPubParmsHdrFormat.setFontWeight(QFont::Bold);
-
     rule.pattern = QRegExp("^\\[.*[^\n]\\]$");
     rule.format = LPubParmsHdrFormat;
     highlightingRules.append(rule);
 
-    LPubParmsValueFormat.setForeground(br07);
+    LPubParmsValueFormat.setForeground(br04);
     LPubParmsValueFormat.setFontWeight(QFont::Normal);
-
     rule.pattern = QRegExp("\\=(.*)");
     rule.format = LPubParmsValueFormat;
     highlightingRules.append(rule);
 
-    LPubParmsEqualFormat.setForeground(br06);
+    LPubParmsEqualFormat.setForeground(br03);
     LPubParmsEqualFormat.setFontWeight(QFont::Bold);
-
     rule.pattern = QRegExp("=");
     rule.format = LPubParmsEqualFormat;
     highlightingRules.append(rule);

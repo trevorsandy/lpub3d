@@ -71,7 +71,7 @@ enum Theme { ThemeDark, ThemeDefault };
 
 #define DURAT_LGEO_STL_LIB_INFO                 "LGEO Stl library is available"
 
-#define SPLASH_FONT_COLOUR                      "#aa0000" // Maroon
+#define SPLASH_FONT_COLOUR                      "#aa0000" // LPub3D Maroon
 
 // Renderers
 #define RENDERER_POVRAY                         "POVRay"
@@ -170,35 +170,93 @@ enum Theme { ThemeDark, ThemeDefault };
 
 // Team color supplements
 #define THEME_DEFAULT                   "Default" // Default Theme
-#define THEME_TICK_PEN_DEFAULT          "#35322f" // Qt Dark grey
-#define THEME_NML_PEN_DEFAULT           "#1e1b18" // Qt Double dark grey
-#define THEME_GUIDE_PEN_DEFAULT         "#1e1b18" // Qt Double dark grey
+#define THEME_TICK_PEN_DEFAULT          "#35322f" // Qt Dark Grey
+#define THEME_NML_PEN_DEFAULT           "#1e1b18" // Qt Double Dark Grey
+#define THEME_GUIDE_PEN_DEFAULT         "#1e1b18" // Qt Double Dark Grey
 #define THEME_MAIN_BGCOLOR_DEFAULT      "#aeadac" // Qt Light Gray
 #define THEME_VIEWER_BGCOLOR_DEFAULT    "#ffffff" // Qt White
 
-#define THEME_HIGHLIGHT_01_DEFAULT      "#006325" // Qt 01 Dark green
-#define THEME_HIGHLIGHT_02_DEFAULT      "#14148c" // Qt 02 Dark blue
-#define THEME_HIGHLIGHT_03_DEFAULT      "#aa0000" // 03 LPub3D Maroon
-#define THEME_HIGHLIGHT_04_DEFAULT      "#0000FF" // Qt 04 Blue
-#define THEME_HIGHLIGHT_05_DEFAULT      "#b40000" // Qt 05 Red
-#define THEME_HIGHLIGHT_06_DEFAULT      "#0057ff" // 06 Custom Blue
-#define THEME_HIGHLIGHT_07_DEFAULT      "#b25a2f" // 07 Custom Orange
+#define THEME_HIGHLIGHT_01_DEFAULT      "#006325" // 01 [LDraw Comments]
+#define THEME_HIGHLIGHT_02_DEFAULT      "#4f97ba" // 02 [LDraw Header]
+#define THEME_HIGHLIGHT_03_DEFAULT      "#005af6" // 03 [LDraw Body]
+#define THEME_HIGHLIGHT_04_DEFAULT      "#609cff" // 04 [LPub3D Local]
+#define THEME_HIGHLIGHT_05_DEFAULT      "#57649b" // 05 [LPub3D Global]
+
+#define THEME_HIGHLIGHT_06_DEFAULT      "#816288" // 06 [LDraw Line type 1]
+#define THEME_HIGHLIGHT_07_DEFAULT      "#f46105" // 07 [LDraw Colour code]
+#define THEME_HIGHLIGHT_08_DEFAULT      "#ed3d63" // 08 [LDraw Part Position]
+#define THEME_HIGHLIGHT_09_DEFAULT      "#8bc3f6" // 09 [LDraw Part Transform1]
+#define THEME_HIGHLIGHT_10_DEFAULT      "#51acff" // 10 [LDraw Part Transform2]
+#define THEME_HIGHLIGHT_11_DEFAULT      "#2f86ff" // 11 [LDraw Part Transform3]
+#define THEME_HIGHLIGHT_12_DEFAULT      "#084575" // 12 [LDraw Part File]
+#define THEME_HIGHLIGHT_13_DEFAULT      "#7d5e18" // 13 [LDraw Line Types 2_5]
+#define THEME_HIGHLIGHT_14_DEFAULT      "#fc9b14" // 14 [LPub3D Number]
+#define THEME_HIGHLIGHT_15_DEFAULT      "#b87620" // 15 [LPub3D Hex Number]
+#define THEME_HIGHLIGHT_16_DEFAULT      "#c15317" // 16 [LPub3D Page Size]
+
+#define THEME_HIGHLIGHT_17_DEFAULT      "#14148c" // 17 [LeoCAD]
+#define THEME_HIGHLIGHT_18_DEFAULT      "#b40000" // 18 [LSynth]
+#define THEME_HIGHLIGHT_19_DEFAULT      "#b40000" // 19 [LDCad]
+#define THEME_HIGHLIGHT_20_DEFAULT      "#0079cf" // 20 [MLCad]
+#define THEME_HIGHLIGHT_21_DEFAULT      "#9421a6" // 21 [MLCad Body]
+#define THEME_HIGHLIGHT_22_DEFAULT      "#ff1818" // 22 [LPub3D False]
+#define THEME_HIGHLIGHT_23_DEFAULT      "#008000" // 23 [LPub3D True]
+#define THEME_HIGHLIGHT_24_DEFAULT      "#cc5980" // 24 [LPub3D]
+#define THEME_HIGHLIGHT_25_DEFAULT      "#aa0000" // 25 [LPub3D Body]
+#define THEME_HIGHLIGHT_26_DEFAULT      "#545454" // 26 [LDraw Header Value]
+#define THEME_HIGHLIGHT_27_DEFAULT      "#231aff" // 27 [LPub3D Quoted Text]
+#define THEME_HIGHLIGHT_28_DEFAULT      "#000000" // 28 [LDraw Line Type 0 First Character]
+
+#define THEME_HIGHLIGHT_A_DEFAULT       "#006325" // Qt
+#define THEME_HIGHLIGHT_B_DEFAULT       "#14148c" // Qt
+#define THEME_HIGHLIGHT_C_DEFAULT       "#0057ff" // 06
+#define THEME_HIGHLIGHT_D_DEFAULT       "#b25a2f" // 07
+
+// -----------------------------------------------//
 
 #define THEME_DARK                      "Dark"    // Dark Theme
-#define THEME_TICK_PEN_DARK             "#eff0f1" // Custom pale grey
+#define THEME_TICK_PEN_DARK             "#eff0f1" // Custom Pale Grey
 #define THEME_NML_PEN_DARK              "#ffffff" // Qt White
 #define THEME_GUIDEL_PEN_DARK           "#5d5b59" // Qt Medium Gray
-#define THEME_MAIN_BGCOLOR_DARK         "#31363b" // Custom dark dark grey
-#define THEME_VIEWER_BGCOLOR_DARK       "#808B96" // Custom grey
+#define THEME_MAIN_BGCOLOR_DARK         "#31363b" // Custom Dark Grey
+#define THEME_VIEWER_BGCOLOR_DARK       "#808B96" // Custom Grey
 #define THEME_EDIT_MARGIN_DARK          "#ABB2B9" // Custom Gray
 
-#define THEME_HIGHLIGHT_01_DARK         "#17c723" // 01 Custom green
-#define THEME_HIGHLIGHT_02_DARK         "#0079cf" // 02 Custom blue
-#define THEME_HIGHLIGHT_03_DARK         "#aa0000" // 03 LPub3D Maroon, old(#d20117)
-#define THEME_HIGHLIGHT_04_DARK         "#14aaff" // 04 Qt Blue
-#define THEME_HIGHLIGHT_05_DARK         "#ff9900" // 05 Custom Red-Orange
-#define THEME_HIGHLIGHT_06_DARK         "#ff5227" // 06 Custom Orange
-#define THEME_HIGHLIGHT_07_DARK         "#bbbfff" // 07 Custom Violet
+#define THEME_HIGHLIGHT_01_DARK         "#17c723" // 01 [LDraw Comment]
+#define THEME_HIGHLIGHT_02_DARK         "#fb743e" // 02 [LDraw Header]
+#define THEME_HIGHLIGHT_03_DARK         "#14aaff" // 03 [LDraw Body]
+#define THEME_HIGHLIGHT_04_DARK         "#609cff" // 04 [LPub3D Local]
+#define THEME_HIGHLIGHT_05_DARK         "#a0b2e2" // 05 [LPub3D Global]
+
+#define THEME_HIGHLIGHT_06_DARK         "#c2a4c0" // 06 [LDraw Line Type 1]
+#define THEME_HIGHLIGHT_07_DARK         "#f46105" // 07 [LDraw Colour Code]
+#define THEME_HIGHLIGHT_08_DARK         "#ed3d63" // 08 [LDraw Part Position]
+#define THEME_HIGHLIGHT_09_DARK         "#ddffef" // 09 [LDraw Part Transform1]
+#define THEME_HIGHLIGHT_10_DARK         "#a2ffd2" // 10 [LDraw Part Transform2]
+#define THEME_HIGHLIGHT_11_DARK         "#5cffb0" // 11 [LDraw Part Transform3]
+#define THEME_HIGHLIGHT_12_DARK         "#c3f6fe" // 12 [LDraw Part File]
+#define THEME_HIGHLIGHT_13_DARK         "#7d5e18" // 13 [LDraw Line Types 2_5]
+#define THEME_HIGHLIGHT_14_DARK         "#fc9b14" // 14 [LPub3D Number]
+#define THEME_HIGHLIGHT_15_DARK         "#b87620" // 15 [LPub3D Hex Number]
+#define THEME_HIGHLIGHT_16_DARK         "#c15317" // 16 [LPub3D Page Size]
+
+#define THEME_HIGHLIGHT_17_DARK         "#0079cf" // 17 [LeoCAD]
+#define THEME_HIGHLIGHT_18_DARK         "#ff9900" // 18 [LSynth]
+#define THEME_HIGHLIGHT_19_DARK         "#ff9900" // 19 [LDCad]
+#define THEME_HIGHLIGHT_20_DARK         "#0079cf" // 20 [MLCad]
+#define THEME_HIGHLIGHT_21_DARK         "#9421a6" // 21 [MLCad Body]
+#define THEME_HIGHLIGHT_22_DARK         "#ff1818" // 22 [LPub3D False]
+#define THEME_HIGHLIGHT_23_DARK         "#adff2f" // 23 [LPub3D True]
+#define THEME_HIGHLIGHT_24_DARK         "#ff3366" // 24 [LPub3D]
+#define THEME_HIGHLIGHT_25_DARK         "#aa0000" // 25 [LPub3D Body]
+#define THEME_HIGHLIGHT_26_DARK         "#aeaeae" // 26 [LDraw Header Value]
+#define THEME_HIGHLIGHT_27_DARK         "#81d4fa" // 27 [LPub3D Quoted text]
+#define THEME_HIGHLIGHT_28_DARK         "#ffffff" // 28 [LDraw Line type 0 First Character]
+
+#define THEME_HIGHLIGHT_A_DARK          "#17c723" // 01 Custom Green
+#define THEME_HIGHLIGHT_B_DARK          "#0079cf" // 02 Custom Blue
+#define THEME_HIGHLIGHT_C_DARK          "#ff5227" // 06 Custom Orange
+#define THEME_HIGHLIGHT_D_DARK          "#bbbfff" // 07 Custom Violet
 
 #define THEME_EDITWINDOW_LINE_DARK      "#5d5b59" // 06 Qt Medium Gray
 #endif

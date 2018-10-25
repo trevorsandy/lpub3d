@@ -1010,18 +1010,18 @@ void Gui::loadTheme(bool restart){
 }
 
 void  Gui::restartApplication(bool restoreOpenFile){
-  QStringList args = QApplication::arguments();
+  QStringList args;
   if (! getCurFile().isEmpty() && restoreOpenFile){
       args << QString("%1").arg(getCurFile());
       QSettings Settings;
       Settings.setValue(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM),displayPageNum);
     } else {
-      QString restartArgs = Preferences::usingDefaultLibrary ? QString() :
-                                                               Preferences::ldrawLibrary == TENTE_LIBRARY ? "++libtente" : "++libvexiq";
+      QString restartArgs = Preferences::ldrawLibrary == TENTE_LIBRARY ? "++libtente" :
+                            Preferences::ldrawLibrary == VEXIQ_LIBRARY ? "++libvexiq" : QString();
       args << restartArgs;
     }
   QProcess::startDetached(QApplication::applicationFilePath(), args);
-  messageSig(LOG_INFO, QString("Restarted LPub3D: %1, args: %2").arg(QApplication::applicationFilePath()).arg(args.join(" ")));
+  messageSig(LOG_INFO, QString("Restarted LPub3D with Arguments: %1 %2").arg(QApplication::applicationFilePath()).arg(args.join(" ")));
   QCoreApplication::quit();
 }
 

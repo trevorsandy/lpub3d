@@ -206,7 +206,7 @@ bool Preferences::checkLDrawLibrary(const QString &libPath) {
     for ( int i = 1; i < NumLibs; i++ )
     {
        if (QFileInfo(QString("%1%2").arg(libPath).arg(validLDrawParts[i])).exists()) {
-           Preferences::lpub3dAltLibPreferences(validLDrawLibs[i]);
+           lpub3dAltLibPreferences(validLDrawLibs[i]);
            return true;
        }
     }
@@ -257,8 +257,8 @@ void Preferences::lpubPreferences()
     qDebug() << "";
     qDebug() << "--------------------------";
 #else
-    fprintf(stdout, "");
-    fprintf(stdout, "--------------------------");
+    fprintf(stdout, "\n");
+    fprintf(stdout, "--------------------------\n");
 #endif
 #ifdef Q_OS_MAC
 
@@ -266,7 +266,7 @@ void Preferences::lpubPreferences()
 #ifdef QT_DEBUG_MODE
     qDebug() << QString(QString("macOS Binary Directory.......(%1)").arg(cwd.dirName()));
 #else
-    fprintf(stdout, "%s", QString(QString("macOS Binary Directory.......(%1)").arg(cwd.dirName())).toLatin1().constData());
+    fprintf(stdout, "%s\n", QString(QString("macOS Binary Directory.......(%1)").arg(cwd.dirName())).toLatin1().constData());
 #endif
     if (cwd.dirName() == "MacOS") {   // MacOS/         (app bundle executable folder)
         cwd.cdUp();                   // Contents/      (app bundle contents folder)
@@ -277,7 +277,7 @@ void Preferences::lpubPreferences()
 #ifdef QT_DEBUG_MODE
     qDebug() << QString(QString("macOS Base Directory.........(%1)").arg(cwd.dirName()));
 #else
-    fprintf(stdout, "%s", QString(QString("macOS Base Directory.........(%1)").arg(cwd.dirName())).toLatin1().constData());
+    fprintf(stdout, "%s\n", QString(QString("macOS Base Directory.........(%1)").arg(cwd.dirName())).toLatin1().constData());
 #endif
 
     lpub3dExtrasResourcePath = QString("%1/%2.app/Contents/Resources").arg(cwd.absolutePath(),lpub3dAppName);
@@ -288,7 +288,7 @@ void Preferences::lpubPreferences()
 #ifdef QT_DEBUG_MODE
         qDebug() << QString(QString("macOS Info.plist update......(%1)").arg(lpub3dAppName));
 #else
-        fprintf(stdout, "%s", QString(QString("macOS Info.plist update......(%1)").arg(lpub3dAppName)).toLatin1().constData());
+        fprintf(stdout, "%s\n", QString(QString("macOS Info.plist update......(%1)").arg(lpub3dAppName)).toLatin1().constData());
 #endif
         QFileInfo plbInfo("/usr/libexec/PlistBuddy");
         QString plistCmd = QString("%1 -c").arg(plbInfo.absoluteFilePath());
@@ -306,7 +306,7 @@ void Preferences::lpubPreferences()
 #ifdef QT_DEBUG_MODE
             qDebug() << QString(QString("ERROR - %1 not found, cannot update Info.Plist").arg(plbInfo.absoluteFilePath()));
 #else
-            fprintf(stdout, "%s", QString(QString("ERROR - %1 not found, cannot update Info.Plist").arg(plbInfo.absoluteFilePath())).toLatin1().constData());
+            fprintf(stdout, "%s\n", QString(QString("ERROR - %1 not found, cannot update Info.Plist").arg(plbInfo.absoluteFilePath())).toLatin1().constData());
 #endif
         }
     }
@@ -346,13 +346,13 @@ void Preferences::lpubPreferences()
 #ifdef QT_DEBUG_MODE
         qDebug() << QString(QString("LPub3D Application Folder....(%1)").arg(lpub3dAppName));
 #else
-        fprintf(stdout, "%s", QString(QString("LPub3D Application Folder....(%1)").arg(lpub3dAppName)).toLatin1().constData());
+        fprintf(stdout, "%s\n", QString(QString("LPub3D Application Folder....(%1)").arg(lpub3dAppName)).toLatin1().constData());
 #endif
     } else {
 #ifdef QT_DEBUG_MODE
         qDebug() << QString(QString("ERROR - Application Folder Not Found."));
 #else
-        fprintf(stdout, "%s", QString(QString("ERROR - Application Folder Not Found.")).toLatin1().constData());
+        fprintf(stdout, "%s\n", QString(QString("ERROR - Application Folder Not Found.")).toLatin1().constData());
 #endif
     }
 
@@ -487,19 +487,19 @@ void Preferences::lpubPreferences()
 #ifdef QT_DEBUG_MODE
     qDebug() << QString(QString("LPub3D App Data Path.........(%1)").arg(lpubDataPath));
 #else
-    fprintf(stdout, "%s", QString(QString("LPub3D App Data Path.........(%1)").arg(lpubDataPath)).toLatin1().constData());
+    fprintf(stdout, "%s\n", QString(QString("LPub3D App Data Path.........(%1)").arg(lpubDataPath)).toLatin1().constData());
 #endif
 #ifdef Q_OS_MAC
 #ifdef QT_DEBUG_MODE
     qDebug() << QString(QString("LPub3D Bundle App Path.......(%1)").arg(lpub3dPath));
 #else
-    fprintf(stdout, "%s", QString(QString("LPub3D Bundle App Path.......(%1)").arg(lpub3dPath)).toLatin1().constData());
+    fprintf(stdout, "%s\n", QString(QString("LPub3D Bundle App Path.......(%1)").arg(lpub3dPath)).toLatin1().constData());
 #endif
 #else
 #ifdef QT_DEBUG_MODE
     qDebug() << QString(QString("LPub3D Executable Path.......(%1)").arg(lpub3dPath));
 #else
-    fprintf(stdout, "%s", QString(QString("LPub3D Executable Path.......(%1)").arg(lpub3dPath)).toLatin1().constData());
+    fprintf(stdout, "%s\n", QString(QString("LPub3D Executable Path.......(%1)").arg(lpub3dPath)).toLatin1().constData());
 #endif
 #endif
 
@@ -511,7 +511,7 @@ void Preferences::lpubPreferences()
 #ifdef QT_DEBUG_MODE
         qDebug() << QString("LPub3D Portable Distribution.(Yes)");
 #else
-        fprintf(stdout, "%s", QString("LPub3D Portable Distribution.(Yes)").toLatin1().constData());
+        fprintf(stdout, "%s\n", QString("LPub3D Portable Distribution.(Yes)").toLatin1().constData());
 #endif
     }
     dataLocation = QString("%1/%2/").arg(lpub3dPath,dataDir);
@@ -519,7 +519,7 @@ void Preferences::lpubPreferences()
 #ifdef QT_DEBUG_MODE
     qDebug() << QString(QString("LPub3D Extras Resource Path..(%1)").arg(lpub3dExtrasResourcePath));
 #else
-    fprintf(stdout, "%s", QString(QString("LPub3D Extras Resource Path..(%1)").arg(lpub3dExtrasResourcePath)).toLatin1().constData());
+    fprintf(stdout, "%s\n", QString(QString("LPub3D Extras Resource Path..(%1)").arg(lpub3dExtrasResourcePath)).toLatin1().constData());
 #endif
   // On Linux 'dataLocation' folder is /usr/share/lpub3d
   // On macOS 'dataLocation' folder is /Applications/LPub3D.app/Contents/Resources
@@ -529,7 +529,7 @@ void Preferences::lpubPreferences()
 #ifdef QT_DEBUG_MODE
     qDebug() << QString(QString("LPub3D Renderers Exe Path....(%1/3rdParty)").arg(rendererDir.absolutePath()));
 #else
-    fprintf(stdout, "%s", QString(QString("LPub3D Renderers Exe Path....(%1/3rdParty)").arg(rendererDir.absolutePath())).toLatin1().constData());
+    fprintf(stdout, "%s\n", QString(QString("LPub3D Renderers Exe Path....(%1/3rdParty)").arg(rendererDir.absolutePath())).toLatin1().constData());
 #endif
 #endif
 #endif
@@ -572,9 +572,9 @@ void Preferences::lpubPreferences()
     qDebug() << "--------------------------";
     qDebug() << "";
 #else
-    fprintf(stdout, "%s", QString(QString("LPub3D Loaded LDraw Library..(%1)").arg(validLDrawPartsLibrary)).toLatin1().constData());
-    fprintf(stdout, "--------------------------");
-    fprintf(stdout, "");
+    fprintf(stdout, "%s\n", QString(QString("LPub3D Loaded LDraw Library..(%1 Parts)").arg(ldrawLibrary)).toLatin1().constData());
+    fprintf(stdout, "--------------------------\n");
+    fprintf(stdout, "\n");
     fflush(stdout);
 #endif
 }
@@ -1174,11 +1174,11 @@ void Preferences::ldrawPreferences(bool force)
 
                                 } else {                  // Console mode so extract and install LDraw Library automatically if not exist in searched paths.
                                     QString message = QString("LDraw library was not found. The following locations were searched for the LDraw library:\n%1.\n").arg(searchDetail);
-                                    fprintf(stdout,"%s",message.toLatin1().constData());
+                                    fprintf(stdout,"%s\n",message.toLatin1().constData());
                                     if (extractLDrawLib()) {
                                         message = QString("The bundled library archives were installed at:\n%1\n"
                                                           "You can change the library path in the Preferences dialogue.\n").arg(ldrawPath);
-                                        fprintf(stdout,"%s",message.toLatin1().constData());
+                                        fprintf(stdout,"%s\n",message.toLatin1().constData());
                                     }
                                     fflush(stdout);
                                 }
@@ -1543,7 +1543,7 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
                             Application::instance()->splash->show();
                     }
                 } else {
-                    fprintf(stdout,"%s",body.toLatin1().constData());
+                    fprintf(stdout,"%s\n",body.toLatin1().constData());
                     fflush(stdout);
                 }
             }
@@ -1618,7 +1618,7 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
                       Application::instance()->splash->show();
                 }
               } else {
-                fprintf(stdout,"%s",body.toLatin1().constData());
+                fprintf(stdout,"%s\n",body.toLatin1().constData());
                 fflush(stdout);
               }
            }
@@ -2402,6 +2402,8 @@ void Preferences::fadestepPreferences()
         fadeStepsColour = FADE_COLOUR_DEFAULT;
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepColor"),fadeStepsColour);
     } else {
+        if (fadeStepsColour.isEmpty())
+            fadeStepsColour = FADE_COLOUR_DEFAULT;
         fadeStepsColour = Settings.value(QString("%1/%2").arg(SETTINGS,"FadeStepColor")).toString();
     }
 
@@ -2805,12 +2807,11 @@ bool Preferences::getPreferences()
 
         if (fadeStepsColour != dialog->fadeStepsColour())
         {
-            fadeStepsColour = dialog->fadeStepsColour();
-            if (fadeStepsColour.isEmpty()) {
-                Settings.remove(QString("%1/%2").arg(SETTINGS,"FadeStepColor"));
-            } else {
-                Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepColor"),fadeStepsColour);
-            }
+            if (dialog->fadeStepsColour().isEmpty())
+                fadeStepsColour = FADE_COLOUR_DEFAULT;
+            else
+                fadeStepsColour = dialog->fadeStepsColour();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"FadeStepColor"),fadeStepsColour);
         }
 
         if (highlightStepColour != dialog->highlightStepColour())
