@@ -44,15 +44,14 @@ matrix:
 
 # The following variables/actions can be manipulated from AppVeyor via site->Project->Settings->Environment Variables
 # Variables ending with '_VAR' are designated to be defined at the AppVeyor site only
-# LP3D_BUILD_PKG = "yes"            ; trigger build
-# LP3D_BUILD_PKG_VAR = "true"       ; trigger build
-# LP3D_TEST_SF_DEPLOY_VAR = "true"  ; deploy SourceForge
-# LP3D_SKIP_SF_DEPLOY_VAR = "true"  ; skip SourceForge deploy
-# LP3D_CLEAR_AVCACHE_VAR = "true"   ; delete cache
-# LP3D_BUILD_RENDERERS_VAR = "true" ; rebuld renderers [NOTE: requires one or more of LP3D_BUILD_<render> variables]
-#   LP3D_BUILD_LDGLITE = 1          ; rebuild LDGLite
-#   LP3D_BUILD_LDVIEW = 1           ; rebuild LDView
-#   LP3D_BUILD_TRACE = 1            ; rebuild LPub3D-Trace (POV-Ray)
+# LP3D_BUILD_PKG = "yes"           ; trigger build
+# LP3D_BUILD_PKG_VAR = "true"      ; trigger build
+# LP3D_TEST_SF_DEPLOY_VAR = "true" ; deploy SourceForge
+# LP3D_SKIP_SF_DEPLOY_VAR = "true" ; skip SourceForge deploy
+# LP3D_CLEAR_AVCACHE_VAR = "true"  ; delete cache
+# LP3D_BUILD_LDGLITE_VAR = "true"  ; rebuild LDGLite
+# LP3D_BUILD_LDVIEW_VAR = "true"   ; rebuild LDView
+# LP3D_BUILD_POVRAY_VAR = "true"   ; rebuild LPub3D-Trace (POV-Ray)
 #
 environment:
   LP3D_PACKAGE: LPub3D
@@ -89,9 +88,6 @@ init:
       If ($env:LP3D_TEST_SF_DEPLOY_VAR -eq "true") {
          write-host "Test Sourceforge deploy detected."
       }
-      If ($env:LP3D_BUILD_RENDERERS_VAR -eq "true") {
-         write-host "Build renderers detected."
-      }
  - ps: |
       If ($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower() -Like "*build pkg*") {
         write-host "[build pkg] detected in commit message."
@@ -115,14 +111,30 @@ init:
  - ps: |
       If ($env:LP3D_BUILD_PKG -eq "yes") {
         If ($env:APPVEYOR_REPO_COMMIT_MESSAGE -Match '[^\S]\s?([0-1]?\s?[0-1]?\s?[0-1]?)\].*$') {
-          If ($env:LP3D_BUILD_RENDERERS_VAR -ne "true") {
-            $env:LP3D_BUILD_LDGLITE = $matches[1].substring(0,1)
-            $env:LP3D_BUILD_LDVIEW = $matches[1].substring(2,1)
-            $env:LP3D_BUILD_TRACE = $matches[1].substring(4,1)
-          }
+          $env:LP3D_BUILD_LDGLITE = $matches[1].substring(0,1)
+          $env:LP3D_BUILD_LDVIEW = $matches[1].substring(2,1)
+          $env:LP3D_BUILD_POVRAY = $matches[1].substring(4,1)
+        }
+        If ($env:LP3D_BUILD_LDGLITE_VAR -eq "true") {
+          write-host "'Build LDGLite' detected in environment variable."
+          $env:LP3D_BUILD_LDGLITE = "1"
+        }
+        If ($env:LP3D_BUILD_LDVIEW_VAR -eq "true") {
+          write-host "'Build LDView' detected in environment variable."
+          $env:LP3D_BUILD_LDVIEW = "1"
+        }
+        If ($env:LP3D_BUILD_POVRAY_VAR -eq "true") {
+          write-host "'Build LPub3D-Trace' detected in environment variable."
+          $env:LP3D_BUILD_POVRAY = "1"
+        }
+        If ($env:LP3D_BUILD_LDGLITE -eq "1") {
           $env:LP3D_LDGLITE = "${env:LP3D_DIST_DIR_PATH}\ldglite-1.3"
+        }
+        If ($env:LP3D_BUILD_LDVIEW -eq "1") {
           $env:LP3D_LDVIEW = "${env:LP3D_DIST_DIR_PATH}\ldview-4.3"
-          $env:LP3D_LPUB3D_TRACE = "${env:LP3D_DIST_DIR_PATH}\lpub3d_trace_cui-3.8"
+        }
+        If ($env:LP3D_BUILD_POVRAY -eq "1") {
+          $env:LP3D_POVRAY = "${env:LP3D_DIST_DIR_PATH}\lpub3d_trace_cui-3.8"
         }
       }
  - ps: |
@@ -165,7 +177,7 @@ install:
  - cmd: git checkout -qf %APPVEYOR_REPO_COMMIT%
  - cmd: bash -lc "if test \"$LP3D_BUILD_LDGLITE\" = \"1\" && test -d \"$LP3D_LDGLITE\"; then rm -rf $LP3D_LDGLITE; if ! test -d \"$LP3D_LDGLITE\"; then echo cached $LP3D_LDGLITE deleted; fi; fi"
  - cmd: bash -lc "if test \"$LP3D_BUILD_LDVIEW\" = \"1\" && test -d \"$LP3D_LDVIEW\"; then rm -rf $LP3D_LDVIEW; if ! test -d \"$LP3D_LDVIEW\"; then echo cached $LP3D_LDVIEW deleted; fi; fi"
- - cmd: bash -lc "if test \"$LP3D_BUILD_TRACE\" = \"1\" && test -d \"$LP3D_LPUB3D_TRACE\"; then rm -rf $LP3D_LPUB3D_TRACE; if ! test -d \"$LP3D_LPUB3D_TRACE\"; then echo cached $LP3D_LPUB3D_TRACE deleted; fi; fi"
+ - cmd: bash -lc "if test \"$LP3D_BUILD_POVRAY\" = \"1\" && test -d \"$LP3D_POVRAY\"; then rm -rf $LP3D_POVRAY; if ! test -d \"$LP3D_POVRAY\"; then echo cached $LP3D_POVRAY deleted; fi; fi"
  - cmd: C:\msys64\usr\bin\bash -lc "pacman -S --needed --noconfirm openssh rsync > InstallSecureTransfer.log 2>&1"
 
 # There are 2 modes of execution 1. build the full package or 2. compile the source.
