@@ -45,7 +45,7 @@ quazipnobuild {
 }
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-LDVMESSAGESINI = LDVMessages.ini
+LDVMESSAGESINI = ldvMessages.ini
 HOST_VERSION   = $$(PLATFORM_VER)
 BUILD_TARGET   = $$(TARGET_VENDOR)
 BUILD_ARCH     = $$(TARGET_CPU)

@@ -81,7 +81,7 @@ Delete "$INSTDIR\data\PDFPrint.jpg"
 Delete "$INSTDIR\data\pli.mpd"
 Delete "$INSTDIR\data\pliSubstituteParts.lst"
 Delete "$INSTDIR\data\titleAnnotations.lst"
-Delete "$INSTDIR\data\LDVMessages.ini"
+Delete "$INSTDIR\data\ldvMessages.ini"
 
 ;ldraw libraries - data/portable location
 Delete "$INSTDIR\data\complete.zip"

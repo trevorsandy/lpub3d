@@ -173,7 +173,7 @@ FORMS += \
     $$PWD/LDVPreferencesPanel.ui
 
 OTHER_FILES += \
-    $$PWD/../../mainApp/extras/LDVMessages.ini
+    $$PWD/../../mainApp/extras/ldvMessages.ini
 
 # These includes are only processed in debug mode
 win32-msvc*:contains(ADD_LDV_SOURCE_FILES,True) {

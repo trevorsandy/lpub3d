@@ -305,7 +305,7 @@ File "${WinBuildDir}\extras\PDFPrint.jpg"
 File "${WinBuildDir}\extras\pli.mpd"
 File "${WinBuildDir}\extras\pliSubstituteParts.lst"
 File "${WinBuildDir}\extras\titleAnnotations.lst"
-File "${WinBuildDir}\extras\LDVMessages.ini"
+File "${WinBuildDir}\extras\ldvMessages.ini"
 
 ;ldraw libraries - data/portable location
 File "${WinBuildDir}\extras\complete.zip"

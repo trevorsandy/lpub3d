@@ -62,7 +62,7 @@
 
 #define VER_EXTRAS_LDCONFIG_FILE            "LDConfig.ldr"
 #define VER_PDFPRINT_IMAGE_FILE             "PDFPrint.jpg"
-#define VER_LDVMESSAGESINI_FILE             "LDVMessages.ini"
+#define VER_LDVMESSAGESINI_FILE             "ldvMessages.ini"
 
 #define VER_PLI_CONTROL_FILE                "pli.mpd"
 #define VER_LEGO_PLI_CONTROL_FILE           "LEGOPliControl.ldr"
