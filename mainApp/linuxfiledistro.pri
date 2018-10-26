@@ -133,7 +133,7 @@ unix:!macx {
     ldglite_ini.files += $$_PRO_FILE_PWD_/extras/ldglite.ini
     ldglite_ini.path = $$RESOURCE_DIR
 
-    nativepov_ini.files += $$_PRO_FILE_PWD_/extras/nativePOV.ini
+    nativepov_ini.files += $$_PRO_FILE_PWD_/extras/ldvPOV.ini
     nativepov_ini.path = $$RESOURCE_DIR
 
     ldv_messages_ini.files += $$_PRO_FILE_PWD_/extras/$$LDVMESSAGESINI

@@ -52,7 +52,7 @@ class Preferences
     static void setLPub3DLoaded();
     static void setLDGLiteIniParams();
     static void setDistribution();
-    static void updateNativePOVIniFile(UpdateFlag);
+    static void updateLDVPOVIniFile(UpdateFlag);
     static void updateLDViewIniFile(UpdateFlag);
     static void updateLDViewPOVIniFile(UpdateFlag);
     static void updatePOVRayConfFile(UpdateFlag);
@@ -86,6 +86,7 @@ class Preferences
     static QString lpub3dDocsResourcePath;
     static QString lpub3d3rdPartyConfigDir;
     static QString lpub3d3rdPartyAppDir;
+    static QString lpub3dLDVConfigDir;
     static QString highlightStepColour;
     static QString defaultAuthor;
     static QString defaultURL;

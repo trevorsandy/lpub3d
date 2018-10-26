@@ -226,7 +226,7 @@ void ParmsWindow::displayParmsFile(
     else if (fileInfo.fileName() == VER_FREEFOM_ANNOTATIONS_FILE)
       title = "Freeform";
     else if (fileInfo.fileName() == VER_LDVIEW_INI_FILE) {
-      title = "LDView ini";
+      title = "LDView INI Settings";
       _restartRequired = false;
     }
     else if (fileInfo.fileName() == VER_LDVIEW_POV_INI_FILE) {

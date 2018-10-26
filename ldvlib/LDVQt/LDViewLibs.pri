@@ -9,7 +9,7 @@ win32 {
     COPY_CMD = cp -f
 }
 
-contains(LOAD_LDVHEADERS,True) {
+contains(LOAD_LDV_HEADERS,True) {
     isEmpty(LDVINCLUDE):LDVINCLUDE = $$system_path( $$absolute_path( $$PWD/include ) )
 
     VER_LDVIEW                = ldview-4.3

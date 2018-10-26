@@ -66,20 +66,20 @@ CONFIG(debug, debug|release) {
     win32: TARGET = $$join(TARGET,,,d$${VER_MAJ}$${VER_MIN})
     unix:!macx: TARGET = $$join(TARGET,,,d)
     # The next 4 lines adds the LDView source files in my local Dev env
-    ADD_LDV_SOURCE_FILES = True
-    LOAD_LDVHEADERS      = #True
-    VER_LDVSRC           = ldview
-    LDVSRCPATH           = $$system_path( $$absolute_path( $$PWD/../../../$${VER_LDVSRC} ) )
+    LOAD_LDV_HEADERS      = #True
+    LOAD_LDV_SOURCE_FILES = True
+    VER_LDVSRC            = ldview
+    LDVSRCPATH            = $$system_path( $$absolute_path( $$PWD/../../../$${VER_LDVSRC} ) )
 } else {
     BUILD_CONF = Release
     ARCH_BLD = bit_release
     win32: TARGET = $$join(TARGET,,,$${VER_MAJ}$${VER_MIN})
-    LOAD_LDVHEADERS = True
+    LOAD_LDV_HEADERS = True
 }
 BUILD += $$BUILD_CONF Build
 DESTDIR = $$join(ARCH,,,$$ARCH_BLD)
 
-contains(LOAD_LDVHEADERS,True): \
+contains(LOAD_LDV_HEADERS,True): \
 include(LDViewLibs.pri)
 
 message("~~~ lib$${TARGET} $$join(ARCH,,,bit) $$BUILD_ARCH $${BUILD} ~~~")
@@ -176,7 +176,7 @@ OTHER_FILES += \
     $$PWD/../../mainApp/extras/ldvMessages.ini
 
 # These includes are only processed in debug mode
-win32-msvc*:contains(ADD_LDV_SOURCE_FILES,True) {
+win32-msvc*:contains(LOAD_LDV_SOURCE_FILES,True) {
     include(include/LDExporter/LDExporter.pri)
     include(include/LDLib/LDLib.pri)
     include(include/LDLoader/LDLoader.pri)

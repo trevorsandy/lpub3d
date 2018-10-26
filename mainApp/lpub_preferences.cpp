@@ -54,6 +54,7 @@ QString Preferences::lpub3dExtrasResourcePath   = DOT_PATH_DEFAULT;
 QString Preferences::lpub3dDocsResourcePath     = DOT_PATH_DEFAULT;
 QString Preferences::lpub3d3rdPartyConfigDir    = DOT_PATH_DEFAULT;
 QString Preferences::lpub3d3rdPartyAppDir       = DOT_PATH_DEFAULT;
+QString Preferences::lpub3dLDVConfigDir         = DOT_PATH_DEFAULT;
 QString Preferences::lpubDataPath               = DOT_PATH_DEFAULT;
 QString Preferences::lpubConfigPath             = DOT_PATH_DEFAULT;
 QString Preferences::lpubExtrasPath             = DOT_PATH_DEFAULT;
@@ -209,7 +210,7 @@ QString Preferences::xmlMapPath                 = XML_MAP_PATH_DEFAULT;
 /*
  * [DATA PATHS]
  * dataLocation   - the data location at install
- * lpubDataPath   - the application use data location after install
+ * lpubDataPath   - the application user data location after install
  * lpubExtrasPath - not used
  *
  */
@@ -1739,8 +1740,7 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
         }
     }
 
-    /* Set use multiple files single call rendering option */
-
+    // LDView multiple files single call rendering
     if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall"))) {
         QVariant eValue(false);
         if (preferredRenderer == RENDERER_LDVIEW) {
@@ -1753,6 +1753,7 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
         enableLDViewSingleCall = Settings.value(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall")).toBool();
     }
 
+    //  LDView single call snapshots list
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"EnableLDViewSnapshotsList"))) {
         QVariant uValue(false);
         enableLDViewSnaphsotList = false;
@@ -1761,7 +1762,7 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
         enableLDViewSnaphsotList = Settings.value(QString("%1/%2").arg(SETTINGS,"EnableLDViewSnapshotsList")).toBool();
     }
 
-    //Renderer Timeout
+    // Renderer timeout
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"RendererTimeout"))) {
         rendererTimeout = RENDERER_TIMEOUT_DEFAULT;
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"RendererTimeout"),rendererTimeout);
@@ -1785,7 +1786,7 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
         povFileGenerator = Settings.value(QString("%1/%2").arg(SETTINGS,"POVFileGenerator")).toString();
     }
 
-    // display povray image during rendering
+    // Display povray image during rendering [experimental]
     QString const povrayDisplayKey("POVRayDisplay");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,povrayDisplayKey))) {
         QVariant uValue(false);
@@ -1795,6 +1796,7 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
         povrayDisplay = Settings.value(QString("%1/%2").arg(SETTINGS,povrayDisplayKey)).toBool();
     }
 
+    // Apply latitude and longitude camera angles locally
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"ApplyCALocally"))) {
         QVariant uValue(true);
         applyCALocally = true;
@@ -1803,6 +1805,7 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
         applyCALocally = Settings.value(QString("%1/%2").arg(SETTINGS,"ApplyCALocally")).toBool();
     }
 
+    // Image matting [future use]
     QString const enableImageMattingKey("EnableImageMatting");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,enableImageMattingKey))) {
         QVariant uValue(false);
@@ -1816,16 +1819,16 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
     logInfo() << QString("Processing renderer configuration files...");
 
     lpub3d3rdPartyConfigDir = QString("%1/3rdParty").arg(lpubDataPath);
+    lpub3dLDVConfigDir      = QString("%1/ldv").arg(lpubDataPath);
     setLDGLiteIniParams();
-    updateNativePOVIniFile(updateFlag);
+    updateLDVPOVIniFile(updateFlag);
     updateLDViewIniFile(updateFlag);
     updateLDViewPOVIniFile(updateFlag);
     updatePOVRayConfFile(updateFlag);
     updatePOVRayIniFile(updateFlag);
 
-    QFileInfo resourceFile;
-
     // Populate POVRay Library paths
+    QFileInfo resourceFile;
     resourceFile.setFile(QString("%1/%2/resources/ini/%3").arg(lpub3d3rdPartyAppDir, VER_POVRAY_STR, VER_POVRAY_INI_FILE));
     if (resourceFile.exists())
         povrayIniPath = resourceFile.absolutePath();
@@ -1853,36 +1856,47 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
 
 void Preferences::setLDGLiteIniParams()
 {
+    QString inFileName;
     QFileInfo resourceFile;
-    QFile confFileIn;
+    QFile confFileIn, confFileOut;
 
     resourceFile.setFile(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDGLITE_STR, VER_LDGLITE_INI_FILE));
     if (!resourceFile.exists()) {
-        logInfo() << QString("Reading %1...").arg(resourceFile.absoluteFilePath());
+        logInfo() << QString("Initializing %1...").arg(resourceFile.absoluteFilePath());
+        inFileName = QString("%1/%2").arg(dataLocation, resourceFile.fileName());
         if (!resourceFile.absoluteDir().exists())
             resourceFile.absoluteDir().mkpath(".");
-        QFile::copy(dataLocation + resourceFile.fileName(), resourceFile.absoluteFilePath());
     }
-    confFileIn.setFileName(resourceFile.absoluteFilePath());
-    if (confFileIn.open(QIODevice::ReadOnly))
+    confFileIn.setFileName(QDir::toNativeSeparators(inFileName));
+    confFileOut.setFileName(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDGLITE_STR, resourceFile.fileName()));
+    if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         ldgliteParms.clear();
         QTextStream input(&confFileIn);
+        QTextStream output(&confFileOut);
         while (!input.atEnd())
         {
             QString line = input.readLine();
+            // Remove Template note from used instance
+            if (line.contains(QRegExp("^__NOTE:"))){
+                continue;
+            }
             if (line.contains(QRegExp("^-.*")))
             {
                 //logDebug() << QString("Line PARAM: %1").arg(line);
                 ldgliteParms << line;
             }
+            output << line << endl;
         }
         confFileIn.close();
+        confFileOut.close();
     } else {
         QString confFileError;
         if (!confFileIn.errorString().isEmpty())
             confFileError.append(QString(" confFileInError: %1").arg(confFileIn.errorString()));
-        logError() << QString("Could not open input file: %1").arg(confFileError);
+        if (!confFileOut.errorString().isEmpty())
+            confFileError.append(QString(" confFileOutError: %1").arg(confFileOut.errorString()));
+        logError() << QString("Could not open ldglite.ini input or output file: %1").arg(confFileError);
     }
     if (preferredRenderer == RENDERER_LDGLITE)
         logInfo() << QString("LDGLite Parameters :%1").arg((ldgliteParms.isEmpty() ? "No parameters" : ldgliteParms.join(" ")));
@@ -1891,18 +1905,18 @@ void Preferences::setLDGLiteIniParams()
     logInfo() << QString("LDGLite.ini file   : %1").arg(ldgliteIni.isEmpty() ? "Not found" : ldgliteIni);
 }
 
-void Preferences::updateNativePOVIniFile(UpdateFlag updateFlag)
+void Preferences::updateLDVPOVIniFile(UpdateFlag updateFlag)
 {
     QString inFileName;
     QFileInfo resourceFile;
     QFile confFileIn, confFileOut, oldFile;
     QDateTime timeStamp = QDateTime::currentDateTime();
 
-    resourceFile.setFile(QString("%1/extras/%2").arg(lpubDataPath, VER_NATIVE_POV_INI_FILE));
+    resourceFile.setFile(QString("%1/%2").arg(lpub3dLDVConfigDir, VER_NATIVE_POV_INI_FILE));
     if (resourceFile.exists())
     {
         if (updateFlag == SkipExisting) {
-           nativePOVIni = resourceFile.absoluteFilePath(); // populate native pov ini file
+           nativePOVIni = resourceFile.absoluteFilePath(); // populate native POV ini file
            logInfo() << QString("NativePOV ini file : %1").arg(nativePOVIni);
            return;
         }
@@ -1910,24 +1924,28 @@ void Preferences::updateNativePOVIniFile(UpdateFlag updateFlag)
         inFileName = QString("%1.%2").arg(resourceFile.absoluteFilePath(),timeStamp.toString("ddMMyyhhmmss"));
         oldFile.setFileName(resourceFile.absoluteFilePath());
         oldFile.rename(inFileName);
-                confFileIn.setFileName(QDir::toNativeSeparators(inFileName));
     } else {
        logInfo() << QString("Initializing %1...").arg(resourceFile.absoluteFilePath());
+       inFileName = QString("%1/%2").arg(dataLocation, resourceFile.fileName());
        if (!resourceFile.absoluteDir().exists())
            resourceFile.absoluteDir().mkpath(".");
-       confFileIn.setFileName(dataLocation + resourceFile.fileName());
     }
-    confFileOut.setFileName(QString("%1/extras/%2").arg(lpubDataPath, VER_NATIVE_POV_INI_FILE));
-    if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly))
+    confFileIn.setFileName(QDir::toNativeSeparators(inFileName));
+    confFileOut.setFileName(QString("%1/%2").arg(lpub3dLDVConfigDir, resourceFile.fileName()));
+    if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         QTextStream input(&confFileIn);
         QTextStream output(&confFileOut);
         while (!input.atEnd())
         {
             QString line = input.readLine();
-            // strip EdgeThickness because set in renderer parms
+            // Remove Template note from used instance
+            if (line.contains(QRegExp("^__NOTE:"))){
+                continue;
+            }
+            // strip EdgeThickness because set in renderer parameters
             if (line.contains(QRegExp("^EdgeThickness="))){
-              continue;
+                continue;
             }
             //logDebug() << QString("Line INPUT: %1").arg(line);
             // set ldraw dir
@@ -1993,15 +2011,15 @@ void Preferences::updateLDViewIniFile(UpdateFlag updateFlag)
            resourceFile.absoluteDir().mkpath(".");
     }
     confFileIn.setFileName(QDir::toNativeSeparators(inFileName));
-    confFileOut.setFileName(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW_STR, VER_LDVIEW_INI_FILE));
-    if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly))
+    confFileOut.setFileName(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW_STR, resourceFile.fileName()));
+    if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         QTextStream input(&confFileIn);
         QTextStream output(&confFileOut);
         while (!input.atEnd())
         {
             QString line = input.readLine();
-            // strip EdgeThickness because set in renderer parms
+            // strip EdgeThickness because set in renderer parameters
             if (line.contains(QRegExp("^EdgeThickness="))){
                 continue;
             }
@@ -2021,7 +2039,6 @@ void Preferences::updateLDViewIniFile(UpdateFlag updateFlag)
             output << line << endl;
         }
         confFileIn.close();
-        confFileOut.flush();
         confFileOut.close();
     } else {
         QString confFileError;
@@ -2049,7 +2066,7 @@ void Preferences::updateLDViewPOVIniFile(UpdateFlag updateFlag)
     if (resourceFile.exists())
     {
         if (updateFlag == SkipExisting) {
-           ldviewPOVIni = resourceFile.absoluteFilePath(); // populate ldview pov ini file
+           ldviewPOVIni = resourceFile.absoluteFilePath(); // populate ldview POV ini file
            logInfo() << QString("LDViewPOV ini file : %1").arg(ldviewPOVIni);
            return;
         }
@@ -2064,15 +2081,15 @@ void Preferences::updateLDViewPOVIniFile(UpdateFlag updateFlag)
            resourceFile.absoluteDir().mkpath(".");
     }
     confFileIn.setFileName(QDir::toNativeSeparators(inFileName));
-    confFileOut.setFileName(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW_STR, VER_LDVIEW_POV_INI_FILE));
-    if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly))
+    confFileOut.setFileName(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDVIEW_STR, resourceFile.fileName()));
+    if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         QTextStream input(&confFileIn);
         QTextStream output(&confFileOut);
         while (!input.atEnd())
         {
             QString line = input.readLine();
-            // strip EdgeThickness because set in renderer parms
+            // strip EdgeThickness because set in renderer parameters
             if (line.contains(QRegExp("^EdgeThickness="))){
               continue;
             }
@@ -2108,7 +2125,7 @@ void Preferences::updateLDViewPOVIniFile(UpdateFlag updateFlag)
         logError() << QString("Could not open LDViewPOV.ini input or output file: %1").arg(confFileError);
     }
     if (resourceFile.exists())
-        ldviewPOVIni = resourceFile.absoluteFilePath(); // populate ldview pov ini file
+        ldviewPOVIni = resourceFile.absoluteFilePath(); // populate ldview POV ini file
     if (oldFile.exists())
         oldFile.remove();                               // delete old file
     logInfo() << QString("LDViewPOV ini file : %1").arg(ldviewPOVIni.isEmpty() ? "Not found" : ldviewPOVIni);
@@ -2141,8 +2158,8 @@ void Preferences::updatePOVRayConfFile(UpdateFlag updateFlag)
            resourceFile.absoluteDir().mkpath(".");
     }
     confFileIn.setFileName(QDir::toNativeSeparators(inFileName));
-    confFileOut.setFileName(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY_STR, VER_POVRAY_CONF_FILE));
-    if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly))
+    confFileOut.setFileName(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY_STR, resourceFile.fileName()));
+    if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         QTextStream input(&confFileIn);
         QTextStream output(&confFileOut);
@@ -2171,7 +2188,22 @@ void Preferences::updatePOVRayConfFile(UpdateFlag updateFlag)
                     }
                 }
             } else {
+                QString locations = QString("You can use %HOME%, %INSTALLDIR% and the working directory (e.g. %1) as the origin to define permitted paths:")
+                                            .arg(QDir::toNativeSeparators(QDir::homePath()+"/MOCs/myModel"));
+                QString homedir = QString("%HOME% is hard-coded to the %1 environment variable (%2).")
+#if defined Q_OS_WIN
+                                          .arg("%USERPROFILE%")
+#else
+                                          .arg("$USER")
+#endif
+                                          .arg(QDir::toNativeSeparators(QDir::homePath()));
+                QString workingdir = QString("The working directory (e.g. %1) is where LPub3D-Trace is called from.")
+                                             .arg(QDir::toNativeSeparators(QDir::homePath()+"/MOCs/myModel"));
+
                 // set application 3rd party renderers path
+                line.replace(QString("__USEFUL_LOCATIONS_COMMENT__"),locations);
+                line.replace(QString("__HOMEDIR_COMMENT__"),homedir);
+                line.replace(QString("__WORKINGDIR_COMMENT__"),workingdir);
                 line.replace(QString("__POVSYSDIR__"), QDir::toNativeSeparators(QString("%1/3rdParty/%2").arg(lpub3dPath, VER_POVRAY_STR)));
                 // set lgeo paths as required
                 if (lgeoPath != "")
@@ -2229,8 +2261,8 @@ void Preferences::updatePOVRayIniFile(UpdateFlag updateFlag)
            resourceFile.absoluteDir().mkpath(".");
     }
     confFileIn.setFileName(QDir::toNativeSeparators(inFileName));
-    confFileOut.setFileName(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY_STR, VER_POVRAY_INI_FILE));
-    if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly))
+    confFileOut.setFileName(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_POVRAY_STR, resourceFile.fileName()));
+    if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         QTextStream input(&confFileIn);
         QTextStream output(&confFileOut);
@@ -2677,7 +2709,7 @@ bool Preferences::getPreferences()
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawLibPathKey),ldrawLibPath);
             }
             // update LDView ini files
-            updateNativePOVIniFile(UpdateExisting);
+            updateLDVPOVIniFile(UpdateExisting);
             updateLDViewIniFile(UpdateExisting);       //ldraw path changed
             updateLDViewPOVIniFile(UpdateExisting);    //ldraw or lgeo paths changed
             updateLDViewConfigFiles = true;            //set flag to true
