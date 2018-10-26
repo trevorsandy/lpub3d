@@ -66,6 +66,18 @@ if [ -n "$LP3D_BUILD_3RD" ]; then
   export LP3D_BUILD_LDVIEW=$(echo "$LP3D_BUILD_3RD" | cut -d' ' -f 2);
   export LP3D_BUILD_POVRAY=$(echo "$LP3D_BUILD_3RD" | cut -d' ' -f 3);
 fi
+
+# Build 3rd party renderer if environment var contains:
+# LP3D_BUILD_LDGLITE_VAR=true
+# LP3D_BUILD_LDVIEW_VAR=true
+# LP3D_BUILD_POVRAY_VAR=true
+[ "$LP3D_BUILD_LDGLITE_VAR" = "true" ] && export LP3D_BUILD_LDGLITE=1 \
+&& echo "'Build LDGLite' detected in environment variable." || true
+[ "$LP3D_BUILD_LDVIEW_VAR" = "true" ] && export LP3D_BUILD_LDVIEW=1 \
+&& echo "'Build LDView' detected in environment variable." || true
+[ "$LP3D_BUILD_POVRAY_VAR" = "true" ] && export LP3D_BUILD_POVRAY=1 \
+&& echo "'Build POV-Ray' detected in environment variable." || true
+
 # Update repository index and download package build dependencies if required
 if [ "$TRAVIS_OS_NAME" = "linux" ]; then
   if [[ (("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG") || ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true")) && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
