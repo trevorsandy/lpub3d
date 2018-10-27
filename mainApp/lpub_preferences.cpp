@@ -1866,37 +1866,52 @@ void Preferences::setLDGLiteIniParams()
         inFileName = QString("%1/%2").arg(dataLocation, resourceFile.fileName());
         if (!resourceFile.absoluteDir().exists())
             resourceFile.absoluteDir().mkpath(".");
-    }
-    confFileIn.setFileName(QDir::toNativeSeparators(inFileName));
-    confFileOut.setFileName(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDGLITE_STR, resourceFile.fileName()));
-    if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly | QIODevice::Text))
-    {
-        ldgliteParms.clear();
-        QTextStream input(&confFileIn);
-        QTextStream output(&confFileOut);
-        while (!input.atEnd())
-        {
-            QString line = input.readLine();
-            // Remove Template note from used instance
-            if (line.contains(QRegExp("^__NOTE:"))){
-                continue;
-            }
-            if (line.contains(QRegExp("^-.*")))
+        confFileIn.setFileName(QDir::toNativeSeparators(inFileName));;
+        confFileOut.setFileName(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDGLITE_STR, resourceFile.fileName()));
+        if (confFileOut.open(QIODevice::WriteOnly | QIODevice::Text)){
+            QTextStream input(&confFileIn);
+            QTextStream output(&confFileOut);
+            while (!input.atEnd())
             {
-                //logDebug() << QString("Line PARAM: %1").arg(line);
-                ldgliteParms << line;
+                QString line = input.readLine();
+                // Remove Template note from used instance
+                if (line.contains(QRegExp("^__NOTE:"))){
+                    continue;
+                }
+                output << line << endl;
             }
-            output << line << endl;
+            confFileIn.close();
+            confFileOut.close();
+        } else {
+            QString confFileError;
+            if (!confFileIn.errorString().isEmpty())
+                confFileError.append(QString(" confFileInError: %1").arg(confFileIn.errorString()));
+            if (!confFileOut.errorString().isEmpty())
+                confFileError.append(QString(" confFileOutError: %1").arg(confFileOut.errorString()));
+            logError() << QString("Could not open ldglite.ini input or output file: %1").arg(confFileError);
         }
-        confFileIn.close();
-        confFileOut.close();
     } else {
-        QString confFileError;
-        if (!confFileIn.errorString().isEmpty())
-            confFileError.append(QString(" confFileInError: %1").arg(confFileIn.errorString()));
-        if (!confFileOut.errorString().isEmpty())
-            confFileError.append(QString(" confFileOutError: %1").arg(confFileOut.errorString()));
-        logError() << QString("Could not open ldglite.ini input or output file: %1").arg(confFileError);
+        confFileIn.setFileName(resourceFile.absoluteFilePath());
+        if (confFileIn.open(QIODevice::ReadOnly))
+        {
+            ldgliteParms.clear();
+            QTextStream input(&confFileIn);
+            while (!input.atEnd())
+            {
+                QString line = input.readLine();
+                if (line.contains(QRegExp("^-.*")))
+                {
+                    //logDebug() << QString("Line PARAM: %1").arg(line);
+                    ldgliteParms << line;
+                }
+            }
+            confFileIn.close();
+        } else {
+            QString confFileError;
+            if (!confFileIn.errorString().isEmpty())
+                confFileError.append(QString(" confFileInError: %1").arg(confFileIn.errorString()));
+            logError() << QString("Could not open ldglite.ini input file: %1").arg(confFileError);
+        }
     }
     if (preferredRenderer == RENDERER_LDGLITE)
         logInfo() << QString("LDGLite Parameters :%1").arg((ldgliteParms.isEmpty() ? "No parameters" : ldgliteParms.join(" ")));
