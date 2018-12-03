@@ -674,7 +674,8 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart) {
     if (! ldrNames.isEmpty()) {
 
         // feed DAT to renderer
-        int rc = renderer->renderPli(ldrNames,QString(),*meta,bom);
+        PliType pliType = isSubModel ? SUBMODEL: bom ? BOM : PART;
+        int rc = renderer->renderPli(ldrNames,QString(),*meta,pliType);
         if (rc != 0) {
             emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render failed for Pli images."));
             return -1;
