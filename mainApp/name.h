@@ -213,8 +213,8 @@ enum Theme { ThemeDark, ThemeDefault };
 #define THEME_HIGHLIGHT_16_DEFAULT      "#c15317" // 16 [LPub3D Page Size]
 
 #define THEME_HIGHLIGHT_17_DEFAULT      "#14148c" // 17 [LeoCAD]
-#define THEME_HIGHLIGHT_18_DEFAULT      "#b40000" // 18 [LSynth]
-#define THEME_HIGHLIGHT_19_DEFAULT      "#b40000" // 19 [LDCad]
+#define THEME_HIGHLIGHT_18_DEFAULT      "#d882f6" // 18 [LSynth]
+#define THEME_HIGHLIGHT_19_DEFAULT      "#ff9900" // 19 [LDCad]
 #define THEME_HIGHLIGHT_20_DEFAULT      "#0079cf" // 20 [MLCad]
 #define THEME_HIGHLIGHT_21_DEFAULT      "#9421a6" // 21 [MLCad Body]
 #define THEME_HIGHLIGHT_22_DEFAULT      "#ff1818" // 22 [LPub3D False]

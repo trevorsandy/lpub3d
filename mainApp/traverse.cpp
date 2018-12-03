@@ -75,9 +75,11 @@ static void remove_group(
   for (int i = 0; i < in.size(); i++) {
       QString line = in.at(i);
 
-      if (line.contains(bgt)) {
-          if (bgt.cap(bgt.captureCount()) == group ||
-              ldcg.cap(ldcg.captureCount()) == group) {
+      if (line.contains(bgt) ||
+          line.contains(ldcg)) {
+
+          if ((bgt.cap(bgt.captureCount()) == group) ||
+              (ldcg.cap(ldcg.captureCount()) == group)) {
               i++;
             } else {
               out << line;
@@ -620,6 +622,7 @@ int Gui::drawPage(
               break;
 
             case MLCadGroupRc:
+            case LDCadGroupRc:
               csiParts << line;
               break;
 
@@ -736,7 +739,6 @@ int Gui::drawPage(
                 }
               synthBegin = false;
               break;
-
 
               /* remove a group or all instances of a part type */
             case GroupRemoveRc:
@@ -2113,6 +2115,7 @@ int Gui::getBOMParts(
               break;
 
             case MLCadGroupRc:
+            case LDCadGroupRc:
               pliParts << Pli::partLine(line,current,meta);
               break;
 

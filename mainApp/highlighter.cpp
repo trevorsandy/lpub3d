@@ -423,6 +423,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bROTATION CONFIG\\b"
     << "\\bBUFEXCHG\\b"
     << "\\bGHOST\\b"
+    << "\\bBTG\\b"
     << "\\bGROUP\\b"
     << "\\bREL\\b"
     << "\\bABS\\b"
