@@ -2793,7 +2793,12 @@ void Gui::writeToTmp(const QString &fileName,
                     case BufferLoadRc:
                       csiParts = bfx[meta.bfx.value()];
                       break;
-
+                    case MLCadGroupRc:
+                    case LDCadGroupRc:
+                    case LeoCadGroupBeginRc:
+                    case LeoCadGroupEndRc:
+                      csiParts << line;
+                      break;
                       /* remove a group or all instances of a part type */
                     case GroupRemoveRc:
                     case RemoveGroupRc:
