@@ -1890,28 +1890,27 @@ void Preferences::setLDGLiteIniParams()
                 confFileError.append(QString(" confFileOutError: %1").arg(confFileOut.errorString()));
             logError() << QString("Could not open ldglite.ini input or output file: %1").arg(confFileError);
         }
-    } else {
-        confFileIn.setFileName(resourceFile.absoluteFilePath());
-        if (confFileIn.open(QIODevice::ReadOnly))
+    }
+    confFileIn.setFileName(resourceFile.absoluteFilePath());
+    if (confFileIn.open(QIODevice::ReadOnly))
+    {
+        ldgliteParms.clear();
+        QTextStream input(&confFileIn);
+        while (!input.atEnd())
         {
-            ldgliteParms.clear();
-            QTextStream input(&confFileIn);
-            while (!input.atEnd())
+            QString line = input.readLine();
+            if (line.contains(QRegExp("^-.*")))
             {
-                QString line = input.readLine();
-                if (line.contains(QRegExp("^-.*")))
-                {
-                    //logDebug() << QString("Line PARAM: %1").arg(line);
-                    ldgliteParms << line;
-                }
+                //logDebug() << QString("Line PARAM: %1").arg(line);
+                ldgliteParms << line;
             }
-            confFileIn.close();
-        } else {
-            QString confFileError;
-            if (!confFileIn.errorString().isEmpty())
-                confFileError.append(QString(" confFileInError: %1").arg(confFileIn.errorString()));
-            logError() << QString("Could not open ldglite.ini input file: %1").arg(confFileError);
         }
+        confFileIn.close();
+    } else {
+        QString confFileError;
+        if (!confFileIn.errorString().isEmpty())
+            confFileError.append(QString(" confFileInError: %1").arg(confFileIn.errorString()));
+        logError() << QString("Could not open ldglite.ini input file: %1").arg(confFileError);
     }
     if (preferredRenderer == RENDERER_LDGLITE)
         logInfo() << QString("LDGLite Parameters :%1").arg((ldgliteParms.isEmpty() ? "No parameters" : ldgliteParms.join(" ")));
