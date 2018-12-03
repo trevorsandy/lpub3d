@@ -3861,12 +3861,12 @@ void Gui::statusMessage(LogType logType, QString message) {
 
 void Gui::parseError(QString errorMsg,Where &here)
 {
-    QString parseMessage = QString("%1 (%2:%3)") .arg(errorMsg) .arg(here.modelName) .arg(here.lineNumber);
+    QString parseMessage = QString("%1 (file: %2, line: %3)") .arg(errorMsg) .arg(here.modelName) .arg(here.lineNumber);
     if (Preferences::modeGUI) {
         showLine(here);
         if (Preferences::showParseErrors) {
             QCheckBox *cb = new QCheckBox("Do not show this message again.");
-            QMessageBox box;
+            QMessageBoxResizable box;
             box.setText(parseMessage);
             box.setIcon(QMessageBox::Icon::Warning);
             box.addButton(QMessageBox::Ok);

@@ -2,7 +2,7 @@ Format: 1.0
 Source: lpub3d
 Binary: lpub3d
 Architecture: any
-Version: 2.3.4.1049
+Version: 2.3.4.1050
 Maintainer: Trevor SANDY <trevor.sandy@gmail.com>
 Homepage: https://trevorsandy.github.io/lpub3d/
 Standards-Version: 3.9.7
