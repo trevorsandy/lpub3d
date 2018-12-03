@@ -518,7 +518,7 @@ void RotateIconItem::contextMenuEvent(
                        bottom,
                        &background);
     } else if (selectedAction == subModelColorAction) {
-      changeSubModelColor(pl+" SubModel Color",
+      changeSubModelColor(pl+" Submodel Color",
                           top,
                           bottom,
                        &subModelColor,0,false,false);
@@ -545,14 +545,15 @@ void RotateIconItem::contextMenuEvent(
                    true,1,true,
                    true);   // indicate that this call is from rotate arrow
     } else if (selectedAction == rotateIconSizeAction) {
-      changeRotateIconSize(pl+" Size",
+      changeImageItemSize(pl+" Size",
                            top,
                            bottom,
                            &size,
                            true,1,true);
     } else if (selectedAction == deleteRotateIconAction) {
       beginMacro("DeleteRotateIcon");
-      deleteRotateIcon(top);
+      QString metaCommand = QString("ROTATE_ICON");
+      deleteImageItem(top,metaCommand);
       endMacro();
     }
 }

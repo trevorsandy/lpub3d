@@ -846,12 +846,12 @@ int Gui::drawPage(
 
                 if (insertData.type == InsertData::InsertRotateIcon) { // indicate that we have a rotate icon for this step
 
- //                   qDebug() << "CALLED OUT: " << calledOut << " SUPRESS ROTATE ICON: " << supressRotateIcon;
+ //                   qDebug() << "CALLED OUT: " << calledOut << " SUPRESS ROTATE ICON: " << unAssCallout;
 
-                    if (calledOut && supressRotateIcon) {
-                        rotateIcon = false;
-                      } else {
+                    if (calledOut && unAssCallout) {
                         rotateIcon = true;
+                      } else {
+                        rotateIcon = false;
                       }
                   }
                 if (insertData.type == InsertData::InsertBom){

@@ -2511,7 +2511,7 @@ void MetaItem::deleteBOM()
   }
 }
 
-void MetaItem::changeRotateIconSize(
+void MetaItem::changeImageItemSize(
   QString         title,
   const Where    &topOfStep,
   const Where    &bottomOfStep,
@@ -2539,13 +2539,13 @@ void MetaItem::changeRotateIconSize(
   }
 }
 
-void MetaItem::deleteRotateIcon(Where &topOfStep){
+void MetaItem::deleteImageItem(Where &topOfStep, QString &metaCommand){
   Rc rc;
   Meta meta;
   Where walk = topOfStep + 1;                                     // advance past STEP meta
   int numLines = gui->subFileSize(topOfStep.modelName);
   scanPastGlobal(topOfStep);
-  QRegExp rotateIconMeta("^\\s*0\\s+!LPUB\\s+.*ROTATE_ICON");
+  QRegExp rotateIconMeta("^\\s*0\\s+!LPUB\\s+.*"+metaCommand);
   for ( ; walk < numLines; walk++) {
       QString line = gui->readLine(walk);
       if (line.contains(rotateIconMeta)) {

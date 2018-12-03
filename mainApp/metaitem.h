@@ -229,7 +229,7 @@ public:
                         int   append = 1,
                         bool checkLocal = true);
 */
-  void changeRotateIconSize(QString,
+  void changeImageItemSize(QString,
                         const Where &,
                         const Where &,
                         UnitsMeta *,
@@ -422,7 +422,7 @@ public:
   void insertSplitBOM();
   void deleteBOM();
   void deletePage();
-  void deleteRotateIcon(Where &);
+  void deleteImageItem(Where &, QString &);
 
   Where firstLine(QString);
   void firstLine(Where &);
