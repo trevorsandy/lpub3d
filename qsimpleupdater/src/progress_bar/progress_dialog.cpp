@@ -24,6 +24,7 @@ ProgressDialog::ProgressDialog (QWidget *parent) : QDialog (parent), ui (new Ui:
     QIcon _blank;
     setWindowIcon (_blank);
     setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    autoHide = true;
 
     // Close dialog when cancel button is clicked
     connect (ui->progressDlgCancelBtn, SIGNAL (clicked()), this, SLOT (cancel()));
@@ -34,9 +35,23 @@ ProgressDialog::~ProgressDialog()
     delete ui;
 }
 
+void ProgressDialog::setBtnToClose()
+{
+    ui->progressDlgCancelBtn->setText(QApplication::translate("ProgressDialog", "Close", nullptr));
+    autoHide = true;
+}
+
+void ProgressDialog::setAutoHide(bool b)
+{
+    autoHide = b;
+}
+
 void ProgressDialog::cancel (void)
 {
-    hide();
+    if (autoHide) {
+        hide();
+        ui->progressDlgProgressBar->reset();
+    }
     emit cancelClicked();
 }
 

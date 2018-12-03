@@ -479,7 +479,6 @@ bool Gui::continuousPageDialog(Direction d)
   int _maxPages = 0;
   bool terminateProcess = false;
   QElapsedTimer continuousTimer;
-  QProgressDialog* ProgressDialog = nullptr;
   QString direction = d == PAGE_NEXT ? "Next" : "Previous";
 
   exportType = PAGE_PROCESS;
@@ -525,8 +524,9 @@ bool Gui::continuousPageDialog(Direction d)
               }
 
               // initialize progress dialogue
-              ProgressDialog = new QProgressDialog(nullptr);
-              ProgressDialog->setWindowFlags(ProgressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
+              m_progressDialog->setAutoHide(false);
+              disconnect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
+              connect (   m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelContinuousPage()));
 
           } else {
               setPageContinuousIsRunning(false);
@@ -558,23 +558,21 @@ bool Gui::continuousPageDialog(Direction d)
   if(resetCache)
       resetModelCache();
 
-  // store current display page number
-  logStatus() << QString("Continuous %1 page processing start...").arg(direction);
+  QString message = QString("Continuous %1 Page Processing").arg(direction);
 
-  QString message = QString("Continuous %1 Page Processing");
+  // store current display page number
+  logStatus() << QString("%1 start...").arg(message);
+
 
   if (processOption == EXPORT_ALL_PAGES){
 
       _maxPages = maxPages;
 
       if (Preferences::modeGUI) {
-          ProgressDialog->setWindowTitle(tr("%1 Page Processing").arg(direction));
-          ProgressDialog->setLabelText(tr("%1").arg(message));
-          ProgressDialog->setMaximum(_maxPages);
-          ProgressDialog->setMinimum(0);
-          ProgressDialog->setValue(0);
-          ProgressDialog->setAutoReset(false);
-          ProgressDialog->show();
+          m_progressDialog->setWindowTitle(tr("%1 Page Processing").arg(direction));
+          m_progressDlgMessageLbl->setText(tr("%1").arg(message));
+          m_progressDlgProgressBar->setRange(0,_maxPages);
+          m_progressDialog->show();
       }
       int progress = 0;
 
@@ -582,7 +580,7 @@ bool Gui::continuousPageDialog(Direction d)
 
       for (d == PAGE_NEXT ? displayPageNum = 1 : displayPageNum = maxPages ; d == PAGE_NEXT ? displayPageNum <= maxPages : displayPageNum >= 1 ; d == PAGE_NEXT ? displayPageNum++ : displayPageNum--) {
 
-          if (ProgressDialog && ProgressDialog->wasCanceled()) {
+          if (! ContinuousPage()) {
               setPageContinuousIsRunning(false,d);
             }
 
@@ -602,13 +600,11 @@ bool Gui::continuousPageDialog(Direction d)
               QApplication::restoreOverrideCursor();
               setContinuousPageAct(SET_DEFAULT_ACTION);
               emit setContinuousPageSig(false);
-              if (ProgressDialog && ProgressDialog->wasCanceled()) {
-                  ProgressDialog->setLabelText(tr("%1").arg(message));
-                  ProgressDialog->setCancelButton(nullptr);
-                  QApplication::processEvents();
-                  secSleeper::secSleep(4.0f);
-                  ProgressDialog->deleteLater();
-              }
+              m_progressDialog->setBtnToClose();
+              m_progressDlgMessageLbl->setText(tr("%1").arg(message));
+              disconnect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelContinuousPage()));
+              connect (   m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
+
               return false;
             }
 
@@ -620,8 +616,8 @@ bool Gui::continuousPageDialog(Direction d)
           emit messageSig(LOG_STATUS,message);
 
           if (Preferences::modeGUI) {
-              ProgressDialog->setValue(d == PAGE_NEXT ? displayPageNum : ++progress);
-              ProgressDialog->setLabelText(tr("%1").arg(message));
+              m_progressDlgProgressBar->setValue(d == PAGE_NEXT ? displayPageNum : ++progress);
+              m_progressDlgMessageLbl->setText(tr("%1").arg(message));
           }
 
           qApp->processEvents();
@@ -673,13 +669,10 @@ bool Gui::continuousPageDialog(Direction d)
       _maxPages = printPages.count();
 
       if (Preferences::modeGUI) {
-          ProgressDialog->setWindowTitle(tr("Page Processing"));
-          ProgressDialog->setWindowTitle(tr("%1 Page Processing").arg(direction));
-          ProgressDialog->setMaximum(_maxPages);
-          ProgressDialog->setMinimum(0);
-          ProgressDialog->setValue(0);
-          ProgressDialog->setAutoReset(false);
-          ProgressDialog->show();
+          m_progressDialog->setWindowTitle(tr("%1 Page Processing").arg(direction));
+          m_progressDlgMessageLbl->setText(tr("%1").arg(message));
+          m_progressDlgProgressBar->setRange(0,_maxPages);
+          m_progressDialog->show();
       }
 
       QApplication::setOverrideCursor(Qt::BusyCursor);
@@ -689,7 +682,7 @@ bool Gui::continuousPageDialog(Direction d)
 
           displayPageNum = printPage;
 
-          if (ProgressDialog && ProgressDialog->wasCanceled()) {
+          if (! ContinuousPage()) {
               setPageContinuousIsRunning(false,d);
           }
 
@@ -709,13 +702,11 @@ bool Gui::continuousPageDialog(Direction d)
               QApplication::restoreOverrideCursor();
               setContinuousPageAct(SET_DEFAULT_ACTION);
               emit setContinuousPageSig(false);
-              if (ProgressDialog && ProgressDialog->wasCanceled()) {
-                  ProgressDialog->setLabelText(tr("%1").arg(message));
-                  ProgressDialog->setCancelButton(nullptr);
-                  QApplication::processEvents();
-                  secSleeper::secSleep(3.0f);
-                  ProgressDialog->deleteLater();
-              }
+              m_progressDialog->setBtnToClose();
+              m_progressDlgMessageLbl->setText(tr("%1").arg(message));
+              disconnect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelContinuousPage()));
+              connect (   m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
+
               return false;
             }
 
@@ -732,8 +723,8 @@ bool Gui::continuousPageDialog(Direction d)
           emit messageSig(LOG_STATUS,message);
 
           if (Preferences::modeGUI) {
-              ProgressDialog->setValue(pageCount);
-              ProgressDialog->setLabelText(tr("%1").arg(message));
+              m_progressDlgProgressBar->setValue(pageCount);
+              m_progressDlgMessageLbl->setText(tr("%1").arg(message));
           }
 
           qApp->processEvents();
@@ -755,10 +746,11 @@ bool Gui::continuousPageDialog(Direction d)
   emit messageSig(LOG_INFO_STATUS,message);
 
   if (Preferences::modeGUI) {
-      ProgressDialog->setValue(_maxPages);
-      ProgressDialog->setLabelText(tr("%1").arg(message));
-      secSleeper::secSleep(4.0f);
-      ProgressDialog->deleteLater();
+      m_progressDialog->setBtnToClose();
+      m_progressDlgProgressBar->setValue(_maxPages);
+      m_progressDlgMessageLbl->setText(tr("%1").arg(message));
+      disconnect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelContinuousPage()));
+      connect (   m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
   }
   emit setContinuousPageSig(false);
 

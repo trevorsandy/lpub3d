@@ -31,6 +31,8 @@ public:
     ~ProgressDialog();
 
     void setDownloadInfo ();
+    void setAutoHide(bool);
+    void setBtnToClose();
 
 signals:
     void cancelClicked();
@@ -40,6 +42,7 @@ private slots:
 
 private:
     Ui::ProgressDialog *ui;
+    bool autoHide;
 };
 
 #endif // PROGRESS_DIALOG_H
