@@ -30,6 +30,7 @@ public:
     static QString tmpDir;
     static QString assemDir;
     static QString partsDir;
+    static QString submodelDir;
     static QString logsDir;
     static QString extrasDir;
     static QString libraryDir;

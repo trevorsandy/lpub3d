@@ -37,10 +37,11 @@
 
 Paths paths;
 
-QString Paths::lpubDir   = "LPub3D";
-QString Paths::tmpDir    = "LPub3D/tmp";
-QString Paths::assemDir  = "LPub3D/assem";
-QString Paths::partsDir  = "LPub3D/parts";
+QString Paths::lpubDir     = "LPub3D";
+QString Paths::tmpDir      = "LPub3D/tmp";
+QString Paths::assemDir    = "LPub3D/assem";
+QString Paths::partsDir    = "LPub3D/parts";
+QString Paths::submodelDir = "LPub3D/submodels";
 
 QString Paths::logsDir    = "logs";
 QString Paths::extrasDir  = "extras";
@@ -62,6 +63,7 @@ void Paths::mkDirs(){
     dir.mkdir(tmpDir);
     dir.mkdir(assemDir);
     dir.mkdir(partsDir);
+    dir.mkdir(submodelDir);
 
 }
 
