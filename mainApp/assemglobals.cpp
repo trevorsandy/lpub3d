@@ -35,6 +35,7 @@
 #include "meta.h"
 #include "metaitem.h"
 #include "metagui.h"
+#include "name.h"
 
 class GlobalAssemPrivate
 {
@@ -78,15 +79,23 @@ GlobalAssemDialog::GlobalAssemDialog(
 
   AssemMeta *assem = &data->meta.LPub.assem;
 
-  child = new DoubleSpinGui(
-    "Scale",&assem->modelScale,
-    assem->modelScale._min,
-    assem->modelScale._max,
-    0.01);
-  data->modelScale = child;
-  data->children.append(child);
-  boxGrid->addWidget(child,0,0);
-
+  // Scale/Native Camera Distance Factor
+  if (Preferences::preferredRenderer == RENDERER_NATIVE) {
+      child = new CameraDistFactorGui("Camera Distance Factor",
+                                      &assem->cameraDistNative,
+                                      box);
+      data->children.append(child);
+      boxGrid->addWidget(child,0,0);
+  } else {
+      child = new DoubleSpinGui("Scale",
+        &assem->modelScale,
+        assem->modelScale._min,
+        assem->modelScale._max,
+        0.01);
+      data->children.append(child);
+      data->modelScale = child;
+      boxGrid->addWidget(child,0,0);
+  }
   child = new UnitsGui("Margins",&assem->margin);
   data->children.append(child);
   boxGrid->addWidget(child,1,0);
@@ -98,7 +107,7 @@ GlobalAssemDialog::GlobalAssemDialog(
   boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
 
-  // camera field ov view
+  // camera field of view
   child = new DoubleSpinGui("Camera FOV",
                             &assem->cameraFoV,
                             assem->cameraFoV._min,
@@ -113,9 +122,8 @@ GlobalAssemDialog::GlobalAssemDialog(
   boxGrid->addWidget(child,1,0);
 
   /* Step Number */
-
   box = new QGroupBox("Step Number");
-  grid->addWidget(box,2,0);
+  grid->addWidget(box,3,0);
 
   NumberPlacementMeta *stepNumber = &data->meta.LPub.stepNumber;
 
@@ -124,7 +132,7 @@ GlobalAssemDialog::GlobalAssemDialog(
   boxGrid->addWidget(child);
 
   box = new QGroupBox("Display");
-  grid->addWidget(box,3,0);
+  grid->addWidget(box,4,0);
 
   child = new CheckBoxGui("Step Number",&assem->showStepNumber,box);
   data->children.append(child);

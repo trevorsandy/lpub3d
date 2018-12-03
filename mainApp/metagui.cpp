@@ -354,6 +354,70 @@ void FloatsGui::apply(QString &modelName)
 
 /***********************************************************************
  *
+ * Integer Spin
+ *
+ **********************************************************************/
+
+SpinGui::SpinGui(
+  QString const &heading,
+  IntMeta       *_meta,
+  int            min,
+  int            max,
+  int            step,
+  QGroupBox     *parent)
+{
+  meta = _meta;
+
+  QHBoxLayout *layout = new QHBoxLayout(parent);
+
+  if (parent) {
+    parent->setLayout(layout);
+  } else {
+    setLayout(layout);
+  }
+
+  if (heading == "") {
+    label = nullptr;
+  } else {
+    label = new QLabel(heading,parent);
+    layout->addWidget(label);
+  }
+
+  int val = meta->value();
+
+  spin = new QSpinBox(parent);
+  layout->addWidget(spin);
+  spin->setRange(min,max);
+  spin->setSingleStep(step);
+  spin->setValue(val);
+  connect(spin,SIGNAL(valueChanged(int)),
+          this,SLOT  (valueChanged(int)));
+}
+
+void SpinGui::valueChanged(int value)
+{
+  meta->setValue(value);
+  modified = true;
+}
+
+void SpinGui::setEnabled(bool enable)
+{
+  if (label) {
+    label->setEnabled(enable);
+  }
+  spin->setEnabled(enable);
+}
+
+void SpinGui::apply(QString &modelName)
+{
+  if (modified) {
+    MetaItem mi;
+    mi.setGlobalMeta(modelName,meta);
+  }
+}
+
+/***********************************************************************
+ *
  * Float Spin
  *
  **********************************************************************/
@@ -2683,19 +2747,31 @@ RendererGui::RendererGui(
   combo->setCurrentIndex(int(combo->findText(renderer)));
   connect(combo,SIGNAL(currentIndexChanged(QString const &)),
           this, SLOT(  typeChange(         QString const &)));
-  grid->addWidget(combo,0,0);
+  grid->addWidget(combo,0,0,2,1);
 
-  ldvSingleCallBox = new QCheckBox("Use Single Call Configuration",parent);
+  ldvSingleCallBox = new QCheckBox("Use LDView Single Call",parent);
+  ldvSingleCallBox->setToolTip("Process a page's part or assembly images in a single renderer call");
   ldvSingleCallBox->setChecked(Preferences::enableLDViewSingleCall);
   ldvSingleCallBox->setEnabled(renderer == RENDERER_LDVIEW);
   connect(ldvSingleCallBox,SIGNAL(clicked(bool)),
           this,            SLOT(singleCallChange(bool)));
   grid->addWidget(ldvSingleCallBox,0,1);
 
+
+  ldvSnapshotListBox = new QCheckBox("Use LDView Snapshot List",parent);
+  ldvSnapshotListBox->setToolTip("Capture Single Call images in a single list file");
+  ldvSnapshotListBox->setChecked(Preferences::enableLDViewSnaphsotList);
+  ldvSnapshotListBox->setEnabled(renderer == RENDERER_LDVIEW &&
+                                 (Preferences::enableLDViewSingleCall ||
+                                  ldvSingleCallBox->isChecked()));
+  connect(ldvSnapshotListBox,SIGNAL(clicked(bool)),
+          this,              SLOT(snapshotListChange(bool)));
+  grid->addWidget(ldvSnapshotListBox,1,1);
+
   povFileGeneratorGrpBox = new QGroupBox("POV File Generation Renderer",parent);
   povFileGeneratorGrpBox->setEnabled(renderer == RENDERER_POVRAY);
   povFileGeneratorGrpBox->setLayout(hLayout);
-  grid->addWidget(povFileGeneratorGrpBox,1,0,1,2);
+  grid->addWidget(povFileGeneratorGrpBox,2,0,1,2);
 
   nativeButton = new QRadioButton("Native",povFileGeneratorGrpBox);
   nativeButton->setChecked(Preferences::povFileGenerator == RENDERER_NATIVE);
@@ -2719,7 +2795,7 @@ RendererGui::RendererGui(
   cameraDistFactorGrpBox->setToolTip(tipMessage);
   cameraDistFactorGrpBox->setEnabled(nativeRenderer);
   cameraDistFactorGrpBox->setLayout(grpGrid);
-  grid->addWidget(cameraDistFactorGrpBox,2,0,1,2);
+  grid->addWidget(cameraDistFactorGrpBox,3,0,1,2);
 
   cameraDistFactorLabel = new QLabel("Factor", cameraDistFactorGrpBox);
   grpGrid->addWidget(cameraDistFactorLabel,0,0);
@@ -2741,15 +2817,16 @@ RendererGui::RendererGui(
   cameraDistFactorDefaultBox->setChecked(cameraDistFactorDefaulSettings);
   grpGrid->addWidget(cameraDistFactorDefaultBox,1,0);
 
-  cameraDistFactorMetatBox = new QCheckBox("Add meta command",cameraDistFactorGrpBox);
-  cameraDistFactorMetatBox->setEnabled(nativeRenderer);
-  cameraDistFactorMetatBox->setToolTip("Add a global meta command to the LDraw file.");
-  cameraDistFactorMetatBox->setChecked(true);
-  grpGrid->addWidget(cameraDistFactorMetatBox,1,1);
+  cameraDistFactorMetaBox = new QCheckBox("Add meta command",cameraDistFactorGrpBox);
+  cameraDistFactorMetaBox->setEnabled(nativeRenderer);
+  cameraDistFactorMetaBox->setToolTip("Add a global meta command to the LDraw file.");
+  cameraDistFactorMetaBox->setChecked(!cameraDistFactorDefaulSettings);
+  grpGrid->addWidget(cameraDistFactorMetaBox,1,1);
 
   clearCaches = false;
   rendererModified = false;
   singleCallModified = false;
+  snapshotListModified = false;
   povFileGenModified = false;
   cameraDistFactorModified = false;
 }
@@ -2775,6 +2852,14 @@ void RendererGui::singleCallChange(bool checked)
   if (Preferences::enableLDViewSingleCall != checked) {
        modified = singleCallModified = true;
     }
+  ldvSnapshotListBox->setEnabled(checked);
+}
+
+void RendererGui::snapshotListChange(bool checked)
+{
+  if (Preferences::enableLDViewSnaphsotList != checked) {
+       modified = snapshotListModified = true;
+    }
 }
 
 void RendererGui::typeChange(QString const &type)
@@ -2789,7 +2874,7 @@ void RendererGui::typeChange(QString const &type)
   QString tipMessage = QString("Native renderer camera distance factor - enabled when Renderer is set to Native.");
   if (pick == RENDERER_NATIVE) {
       cameraDistFactorDefaultBox->setEnabled(true);
-      cameraDistFactorMetatBox->setEnabled(true);
+      cameraDistFactorMetaBox->setEnabled(true);
       tipMessage = QString("Native renderer camera distance factor, adjust by 10, to scale renderings.");
     }
   cameraDistFactorGrpBox->setToolTip(tipMessage);
@@ -2807,7 +2892,6 @@ void RendererGui::cameraDistFactorChange(int factor)
 void RendererGui::apply(QString &topLevelFile)
 {
   QSettings Settings;
-  QString message;
   if (rendererModified) {
       changeMessage = QString("Renderer preference changed from %1 to %2 %3")
                      .arg(Preferences::preferredRenderer)
@@ -2827,6 +2911,14 @@ void RendererGui::apply(QString &topLevelFile)
       QVariant uValue(ldvSingleCallBox->isChecked());
       Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall"),uValue);
     }
+  if (snapshotListModified) {
+      changeMessage = QString("Use LDView Snapshot List is %1")
+                      .arg(Preferences::enableLDViewSnaphsotList ? "ON" : "OFF");
+      emit gui->messageSig(LOG_INFO, changeMessage);
+      Preferences::enableLDViewSnaphsotList = ldvSnapshotListBox->isChecked();
+      QVariant uValue(ldvSnapshotListBox->isChecked());
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableLDViewSnapshotsList"),uValue);
+    }
   if (povFileGenModified) {
       changeMessage = QString("POV file generation renderer changed from %1 to %2")
                       .arg(Preferences::povFileGenerator)
@@ -2840,16 +2932,16 @@ void RendererGui::apply(QString &topLevelFile)
                       .arg(cameraDistFactorNative)
                       .arg(meta->factor.value());
       emit gui->messageSig(LOG_INFO, changeMessage);
+      Preferences::cameraDistFactorNative = meta->factor.value();
       if (cameraDistFactorDefaultBox->isChecked()){
           changeMessage = QString("Factor added as application default.");
           emit gui->messageSig(LOG_INFO, changeMessage);
-          Preferences::cameraDistFactorNative = meta->factor.value();
           Settings.setValue(QString("%1/%2").arg(SETTINGS,"CameraDistFactorNative"),meta->factor.value());
         } else
         if (cameraDistFactorDefaulSettings) {
             Settings.remove(QString("%1/%2").arg(SETTINGS,"CameraDistFactorNative"));
          }
-      if (cameraDistFactorMetatBox->isChecked()){
+      if (cameraDistFactorMetaBox->isChecked()){
           MetaItem mi;
           mi.setGlobalMeta(topLevelFile,&meta->factor);
         }

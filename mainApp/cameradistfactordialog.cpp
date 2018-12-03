@@ -31,20 +31,21 @@
 #include "metagui.h"
 
 CameraDistFactorDialog::CameraDistFactorDialog(
+  QString   title,
+  QString   heading,
   int      &value,
-  QString  _name,
   QWidget  *parent)
   : QDialog(parent)
 {
-  setWindowTitle(_name);
+  setWindowTitle(title);
 
   QVBoxLayout *layout = new QVBoxLayout(this);
   setLayout(layout);
 
-  QGroupBox *box = new QGroupBox(_name,this);
+  QGroupBox *box = new QGroupBox(heading,this);
   layout->addWidget(box);
   meta.factor.setValue(value);
-  cameraDistFactor = new CameraDistFactorGui("Factor",&meta,box);
+  cameraDistFactor = new CameraDistFactorGui(heading+" Factor",&meta,box);
 
   QDialogButtonBox *buttonBox;
   buttonBox = new QDialogButtonBox(this);
@@ -63,11 +64,12 @@ CameraDistFactorDialog::~CameraDistFactorDialog()
 }
 
 bool CameraDistFactorDialog::getCameraDistFactor(
+  QString   title,
+  QString   heading,
   int      &value,
-  QString   name,
   QWidget  *parent)
 {
-  CameraDistFactorDialog *dialog = new CameraDistFactorDialog(value,name,parent);
+  CameraDistFactorDialog *dialog = new CameraDistFactorDialog(title,heading,value,parent);
 
   bool ok = dialog->exec() == QDialog::Accepted;
 

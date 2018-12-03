@@ -38,15 +38,17 @@ class CameraDistFactorDialog : public QDialog
 public:
 
   CameraDistFactorDialog(
+    QString   title,
+    QString   heading,
     int      &value,
-    QString   name,
     QWidget  *parent);
 
   virtual ~CameraDistFactorDialog();
 
   static bool getCameraDistFactor(
+    QString   title,
+    QString   heading,
     int      &value,
-    QString   name,
     QWidget  *parent = 0);
 
   CameraDistFactorMeta meta;

@@ -22,10 +22,10 @@
  * all the meta-commands that LPub supports.  Action metas such as STEP,
  * ROTSTEP, CALLOUT BEGIN, etc. return special return codes.  Configuration
  * metas that imply no action, but specify data for later use, retain
- * the onfiguration information, and return a generic OK return code.
+ * the configuration information, and return a generic OK return code.
  *
  * The top of tree is the Meta class that is the interface to the traverse
- * function that walks the LDraw model higherarchy.  Meta also tracks
+ * function that walks the LDraw model hierarchy.  Meta also tracks
  * locations in files like topOfModel, bottomOfModel, bottomOfSteps,topOfRange,
  * bottomOfRange, topOfStep, bottomOfStep, etc.
  *
@@ -484,29 +484,29 @@ void BoolMeta::doc(QStringList &out, QString preamble)
 
 QString placementOptions[][3] = 
 {
-  { "TOP_LEFT",    "",      "OUTSIDE" },
-  { "TOP",         "LEFT",  "OUTSIDE" },
-  { "TOP",         "CENTER","OUTSIDE" },
-  { "TOP",         "RIGHT", "OUTSIDE" },
-  { "TOP_RIGHT",   "",      "OUTSIDE" },
+  { "TOP_LEFT",    "",      "OUTSIDE"  },
+  { "TOP",         "LEFT",  "OUTSIDE"  },
+  { "TOP",         "CENTER","OUTSIDE"  },
+  { "TOP",         "RIGHT", "OUTSIDE"  },
+  { "TOP_RIGHT",   "",      "OUTSIDE"  },
 
-  { "LEFT",        "TOP",   "OUTSIDE" },
-  { "TOP_LEFT",    "",      "INSIDE"  },
-  { "TOP",         "",      "INSIDE"  },
-  { "TOP_RIGHT",   "",      "INSIDE"  },
-  { "RIGHT",       "TOP",   "OUTSIDE" },
+  { "LEFT",        "TOP",   "OUTSIDE"  },
+  { "TOP_LEFT",    "",      "INSIDE"   },
+  { "TOP",         "",      "INSIDE"   },
+  { "TOP_RIGHT",   "",      "INSIDE"   },
+  { "RIGHT",       "TOP",   "OUTSIDE"  },
 
-  { "LEFT",        "CENTER","OUTSIDE" },
-  { "LEFT",        "",      "INSIDE"  },
-  { "CENTER",      "",      "INSIDE"  },
-  { "RIGHT",       "",      "INSIDE"  },
-  { "RIGHT",       "CENTER","OUTSIDE" },
+  { "LEFT",        "CENTER","OUTSIDE"  },
+  { "LEFT",        "",      "INSIDE"   },
+  { "CENTER",      "",      "INSIDE"   },
+  { "RIGHT",       "",      "INSIDE"   },
+  { "RIGHT",       "CENTER","OUTSIDE"  },
 
-  { "LEFT",        "BOTTOM", "OUTSIDE"},
-  { "BOTTOM_LEFT", "",       "INSIDE" },
-  { "BOTTOM",      "",       "INSIDE" },
-  { "BOTTOM_RIGHT","",       "INSIDE" },
-  { "RIGHT",       "BOTTOM", "OUTSIDE"},
+  { "LEFT",        "BOTTOM", "OUTSIDE" },
+  { "BOTTOM_LEFT", "",       "INSIDE"  },
+  { "BOTTOM",      "",       "INSIDE"  },
+  { "BOTTOM_RIGHT","",       "INSIDE"  },
+  { "RIGHT",       "BOTTOM", "OUTSIDE" },
 
   { "BOTTOM_LEFT", "",       "OUTSIDE" },
   { "BOTTOM",      "LEFT",   "OUTSIDE" },
@@ -517,7 +517,7 @@ QString placementOptions[][3] =
 
 int placementDecode[][3] =
 {
-  { TopLeft,     Center, Outside },	//00
+  { TopLeft,     Center, Outside },	    //00
   { Top,         Left,   Outside },     //01
   { Top,         Center, Outside },     //02
   { Top,         Right,  Outside },     //03
@@ -2301,7 +2301,7 @@ void PageFooterMeta::init(BranchMeta *parent, QString name)
 FadeStepMeta::FadeStepMeta() : BranchMeta()
 {
   fadeStep.setValue(Preferences::enableFadeSteps);                   // inherited from properties
-  fadeColor.setValue(Preferences::validFadeStepsColour);                  // inherited from properties
+  fadeColor.setValue(Preferences::validFadeStepsColour);             // inherited from properties
   fadeUseColor.setValue(Preferences::fadeStepsUseColour);            // inherited from properties
   fadeOpacity.setValue(Preferences::fadeStepsOpacity);               // inherited from properties
 }
@@ -2343,7 +2343,7 @@ void HighlightStepMeta::init(
 
 CameraDistFactorMeta::CameraDistFactorMeta() : BranchMeta()
 {
-    factor.setValue(CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT);
+    factor.setValue(Preferences::cameraDistFactorNative);
 }
 
 
@@ -2708,12 +2708,6 @@ PageMeta::PageMeta() : BranchMeta()
   instanceCount.color.setValue("black");
   instanceCount.font.setValuePoints("Arial,48,-1,255,75,0,0,0,0,0");
 
-  cameraDistNative.factor.setRange(100,5000);
-  if (Preferences::cameraDistFactorNative !=  CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT)
-    cameraDistNative.factor.setValue(Preferences::cameraDistFactorNative);
-  else
-    cameraDistNative.factor.setValue(CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT);
-
   subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_01);
   subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_02);
   subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_03);
@@ -2948,8 +2942,6 @@ void PageMeta::init(BranchMeta *parent, QString name)
   instanceCount.init      (this, "SUBMODEL_INSTANCE_COUNT");
   subModelColor.init      (this, "SUBMODEL_BACKGROUND_COLOR");
 
-  cameraDistNative.init   (this, "CAMERA_DISTANCE_NATIVE");
-
   pageHeader.init         (this, "PAGE_HEADER");
   pageFooter.init         (this, "PAGE_FOOTER");
 
@@ -3001,6 +2993,8 @@ AssemMeta::AssemMeta() : BranchMeta()
   zfar.setValue(gui->getDefaultCameraZFar());      // using LPub3D Default 4000.0f
 
   // image display
+  cameraDistNative.factor.setRange(100,5000);
+  cameraDistNative.factor.setValue(Preferences::cameraDistFactorNative);
   v_cameraFoV.setFormats(5,4,"9.999");
   v_cameraFoV.setRange(0.0,360.0);
   v_cameraFoV.setValue(CAMERA_FOV_NATIVE_DEFAULT);
@@ -3014,25 +3008,26 @@ AssemMeta::AssemMeta() : BranchMeta()
 void AssemMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  margin.init        (this,"MARGINS");
-  placement.init     (this,"PLACEMENT");
-  modelScale.init    (this,"MODEL_SCALE");
-  ldviewParms.init   (this,"LDGLITE_PARMS");
-  ldgliteParms.init  (this,"LDVIEW_PARMS");
-  povrayParms .init  (this,"POVRAY_PARMS");
-  showStepNumber.init(this,"SHOW_STEP_NUMBER");
+  margin.init          (this,"MARGINS");
+  placement.init       (this,"PLACEMENT");
+  modelScale.init      (this,"MODEL_SCALE");
+  ldviewParms.init     (this,"LDGLITE_PARMS");
+  ldgliteParms.init    (this,"LDVIEW_PARMS");
+  povrayParms .init    (this,"POVRAY_PARMS");
+  showStepNumber.init  (this,"SHOW_STEP_NUMBER");
 
-  cameraFoV.init     (this,"CAMERA_FOV");
-  cameraAngles.init  (this,"CAMERA_ANGLES");
-  distance.init      (this,"CAMERA_DISTANCE");
-  znear.init         (this,"CAMERA_ZNEAR");
-  zfar.init          (this,"CAMERA_ZFAR");
+  cameraDistNative.init(this, "CAMERA_DISTANCE_NATIVE");
+  cameraFoV.init       (this,"CAMERA_FOV");
+  cameraAngles.init    (this,"CAMERA_ANGLES");
+  distance.init        (this,"CAMERA_DISTANCE");
+  znear.init           (this,"CAMERA_ZNEAR");
+  zfar.init            (this,"CAMERA_ZFAR");
 
-  v_cameraFoV.init   (this,"VIEWER_CAMERA_FOV");
-  v_cameraAngles.init(this,"VIEWER_CAMERA_ANGLES");
-  v_distance.init    (this,"VIEWER_CAMERA_DISTANCE");
-  v_znear.init       (this,"VIEWER_CAMERA_ZNEAR");
-  v_zfar.init        (this,"VIEWER_CAMERA_ZFAR");
+  v_cameraFoV.init     (this,"VIEWER_CAMERA_FOV");
+  v_cameraAngles.init  (this,"VIEWER_CAMERA_ANGLES");
+  v_distance.init      (this,"VIEWER_CAMERA_DISTANCE");
+  v_znear.init         (this,"VIEWER_CAMERA_ZNEAR");
+  v_zfar.init          (this,"VIEWER_CAMERA_ZFAR");
 }
 
 /* ------------------ */
@@ -3078,6 +3073,7 @@ PliMeta::PliMeta() : BranchMeta()
   sortBy.setValue(SortOptionName[PartSize]);
 
   // image generation
+  cameraDistNative.factor.setValue(Preferences::cameraDistFactorNative);
   cameraFoV.setFormats(5,4,"9.999");
   cameraFoV.setRange(0.0,360.0);
   cameraFoV.setValue(gui->getDefaultCameraFoV());
@@ -3091,31 +3087,32 @@ PliMeta::PliMeta() : BranchMeta()
 void PliMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  placement    .init(this,"PLACEMENT");
-  constrain    .init(this,"CONSTRAIN");
-  border       .init(this,"BORDER");
-  background   .init(this,"BACKGROUND");
-  margin       .init(this,"MARGINS");
-  instance     .init(this,"INSTANCE_COUNT");
-  annotate     .init(this,"ANNOTATE");
-  modelScale   .init(this,"MODEL_SCALE");
-  show         .init(this,"SHOW");
-  ldviewParms  .init(this,"LDVIEW_PARMS");
-  ldgliteParms .init(this,"LDGLITE_PARMS");
-  povrayParms  .init(this,"POVRAY_PARMS");
-  includeSubs  .init(this,"INCLUDE_SUBMODELS");
-  subModelColor.init(this,"SUBMODEL_BACKGROUND_COLOR");
-  part         .init(this,"PART");
-  begin        .init(this,"BEGIN");
-  end          .init(this,"END",           PliEndRc);
-  sort         .init(this,"SORT");
-  sortBy       .init(this,"SORT_BY");
-  annotation   .init(this,"ANNOTATION");
-  cameraFoV    .init(this,"CAMERA_FOV");
-  cameraAngles .init(this,"CAMERA_ANGLES");
-  distance     .init(this,"CAMERA_DISTANCE");
-  znear        .init(this,"CAMERA_ZNEAR");
-  zfar         .init(this,"CAMERA_ZFAR");
+  placement       .init(this,"PLACEMENT");
+  constrain       .init(this,"CONSTRAIN");
+  border          .init(this,"BORDER");
+  background      .init(this,"BACKGROUND");
+  margin          .init(this,"MARGINS");
+  instance        .init(this,"INSTANCE_COUNT");
+  annotate        .init(this,"ANNOTATE");
+  modelScale      .init(this,"MODEL_SCALE");
+  show            .init(this,"SHOW");
+  ldviewParms     .init(this,"LDVIEW_PARMS");
+  ldgliteParms    .init(this,"LDGLITE_PARMS");
+  povrayParms     .init(this,"POVRAY_PARMS");
+  includeSubs     .init(this,"INCLUDE_SUBMODELS");
+  subModelColor   .init(this,"SUBMODEL_BACKGROUND_COLOR");
+  part            .init(this,"PART");
+  begin           .init(this,"BEGIN");
+  end             .init(this,"END",           PliEndRc);
+  sort            .init(this,"SORT");
+  sortBy          .init(this,"SORT_BY");
+  annotation      .init(this,"ANNOTATION");
+  cameraDistNative.init(this,"CAMERA_DISTANCE_NATIVE");
+  cameraFoV       .init(this,"CAMERA_FOV");
+  cameraAngles    .init(this,"CAMERA_ANGLES");
+  distance        .init(this,"CAMERA_DISTANCE");
+  znear           .init(this,"CAMERA_ZNEAR");
+  zfar            .init(this,"CAMERA_ZFAR");
 }
 
 /* ------------------ */ 
@@ -3161,8 +3158,6 @@ BomMeta::BomMeta() : PliMeta()
   sortBy.setValue(SortOptionName[PartColour]);
 
   // image generation
-  
-  
   cameraFoV.setFormats(5,4,"9.999");
   cameraFoV.setRange(0.0,360.0);
   cameraFoV.setValue(gui->getDefaultCameraFoV());
@@ -3198,6 +3193,7 @@ void BomMeta::init(BranchMeta *parent, QString name)
   sortBy          .init(this,"SORT_BY");
   annotation      .init(this,"ANNOTATION");
 
+  cameraDistNative.init(this,"CAMERA_DISTANCE_NATIVE");
   cameraFoV       .init(this,"CAMERA_FOV");
   cameraAngles    .init(this,"CAMERA_ANGLES");
   distance        .init(this,"CAMERA_DISTANCE");
@@ -3481,26 +3477,28 @@ LPubMeta::LPubMeta() : BranchMeta()
 void LPubMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  page                   .init(this,"PAGE");
-  assem                  .init(this,"ASSEM");
-  stepNumber             .init(this,"STEP_NUMBER");
-  callout                .init(this,"CALLOUT");
-  pagePointer            .init(this,"PAGE_POINTER");
-  multiStep              .init(this,"MULTI_STEP");
-  pli                    .init(this,"PLI");
-  bom                    .init(this,"BOM");
-  remove                 .init(this,"REMOVE");
-  reserve                .init(this,"RESERVE",ReserveSpaceRc);
-  partSub                .init(this,"PART");
-  resolution             .init(this,"RESOLUTION");
-  insert                 .init(this,"INSERT");
-  include                .init(this,"INCLUDE", IncludeRc);
-  nostep                 .init(this,"NOSTEP", NoStepRc);\
-  fadeStep               .init(this,"FADE_STEP");
-  highlightStep          .init(this,"HIGHLIGHT_STEP");
+  page              .init(this,"PAGE");
+  assem             .init(this,"ASSEM");
+  stepNumber        .init(this,"STEP_NUMBER");
+  callout           .init(this,"CALLOUT");
+  pagePointer       .init(this,"PAGE_POINTER");
+  multiStep         .init(this,"MULTI_STEP");
+  pli               .init(this,"PLI");
+  bom               .init(this,"BOM");
+  remove            .init(this,"REMOVE");
+  reserve           .init(this,"RESERVE",ReserveSpaceRc);
+  partSub           .init(this,"PART");
+  resolution        .init(this,"RESOLUTION");
+  insert            .init(this,"INSERT");
+  include           .init(this,"INCLUDE", IncludeRc);
+  nostep            .init(this,"NOSTEP", NoStepRc);\
+  fadeStep          .init(this,"FADE_STEP");
+  highlightStep     .init(this,"HIGHLIGHT_STEP");
   subModel          .init(this,"SUBMODEL_DISPLAY");
-  mergeInstanceCount     .init(this,"CONSOLIDATE_INSTANCE_COUNT");
-  stepPli                .init(this,"STEP_PLI");
+  rotateIcon        .init(this,"ROTATE_ICON");
+  mergeInstanceCount.init(this,"CONSOLIDATE_INSTANCE_COUNT");
+  stepPli           .init(this,"STEP_PLI");
+  cameraDistNative  .init(this,"CAMERA_DISTANCE_NATIVE");
   reserve.setRange(0.0,1000000.0);
 }
 

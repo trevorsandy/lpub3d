@@ -76,7 +76,6 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QMenu menu;
   QString name = "Page";
   bool fullContextMenu = page->list.size() && ! page->modelDisplayOnlyStep;
-  bool showCameraDistFactorItem = (Preferences::preferredRenderer == RENDERER_NATIVE && !page->coverPage);
 
   // figure out if first step step number is greater than 1
 
@@ -95,7 +94,6 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QAction *subModelColorAction  = nullptr;
 
   QAction *sizeAndOrientationAction = nullptr;
-  QAction *cameraDistFactorAction = nullptr;
 
   Step    *lastStep = nullptr;
   Step    *firstStep = nullptr;
@@ -187,9 +185,7 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       borderAction = commonMenus.borderMenu(menu,name);
     }
 
-  if (showCameraDistFactorItem){
-      cameraDistFactorAction = commonMenus.cameraDistFactorrMenu(menu,name);
-    }
+
 
   QAction *selectedAction     = menu.exec(event->screenPos());
 
@@ -237,15 +233,6 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         }
     }
 
-  if (showCameraDistFactorItem){
-      if (selectedAction == cameraDistFactorAction) {
-          changeCameraDistFactor("Native Renderer Camera Distance",
-                                 page->top,
-                                 page->bottom,
-                                 &page->meta.LPub.page.cameraDistNative.factor);
-        }
-    }
-
   if (selectedAction == perStepAction) {
       changeBool(page->top,
                  page->bottom,
@@ -261,7 +248,7 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                        page->bottom,
                        &page->meta.LPub.page.background, useTop);
     } else if (selectedAction == subModelColorAction) {
-      changeSubModelColor("SubModel Color",
+      changeSubModelColor("Submodel Color",
                           page->top,
                           page->bottom,
                           &page->meta.LPub.page.subModelColor,useTop);

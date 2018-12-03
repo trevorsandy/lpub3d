@@ -86,7 +86,8 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   int numOfSteps          = numSteps(step->top.modelName);
   bool fullContextMenu  = ! step->modelDisplayOnlyStep;
-
+  bool showCameraDistFactorItem = (Preferences::preferredRenderer == RENDERER_NATIVE);
+  bool allowLocal = (parentRelativeType != StepGroupType) && (parentRelativeType != CalloutType);
   Boundary boundary = step->boundary();
 
   QAction *addNextAction = nullptr;
@@ -192,22 +193,29 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   addPointerAction->setWhatsThis("Add pointer from the page to this CSI image");
   addPointerAction->setIcon(QIcon(":/resources/addpointer.png"));
 
+  QString pl = "Assembly";
   QAction *placementAction = nullptr;
   if (fullContextMenu  && parentRelativeType == SingleStepType) {
       whatsThis = QString(
-            "Move This Step:\n"
+            "Move This Assembly:\n"
             "  Move this assembly step image using a dialog (window)\n"
             "  with buttons.  You can also move this step image around\n"
             "  by clicking and dragging it using the mouse.");
-      placementAction = commonMenus.placementMenu(menu, name, whatsThis);
+      placementAction = commonMenus.placementMenu(menu, pl, whatsThis);
     }
 
-  QString pl = "Assembly";
-  QAction *scaleAction        = commonMenus.scaleMenu(menu, pl);
+
+  QAction *cameraDistFactorAction = nullptr;
+  QAction *scaleAction = nullptr;
+  if (showCameraDistFactorItem){
+      cameraDistFactorAction  = commonMenus.cameraDistFactorrMenu(menu, pl);
+  } else {
+      scaleAction             = commonMenus.scaleMenu(menu, pl);
+  }
   QAction *cameraFoVAction    = commonMenus.cameraFoVMenu(menu, pl);
   QAction *cameraAnglesAction = commonMenus.cameraAnglesMenu(menu, pl);
-
   QAction *marginsAction = nullptr;
+
   switch (parentRelativeType) {
     case SingleStepType:
       whatsThis = QString("Change Assembly Margins:\n"
@@ -268,11 +276,10 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   Where bottomOfStep  = step->bottomOfStep();
   Where topOfSteps    = step->topOfSteps();
   Where bottomOfSteps = step->bottomOfSteps();
-  Where begin         = topOfSteps;
   
   if (parentRelativeType == StepGroupType) {
       MetaItem mi;
-      mi.scanForward(begin,StepGroupMask);
+      mi.scanForward(topOfSteps,StepGroupMask);
     }
 
   if (selectedAction == addPrevAction) {
@@ -288,9 +295,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
           deleteLastMultiStep(topOfSteps,bottomOfSteps);
         }
     } else if (selectedAction == cameraFoVAction) {
-      bool allowLocal = parentRelativeType != StepGroupType &&
-          parentRelativeType != CalloutType;
-      changeFloatSpin(pl+" Camera Angle",
+      changeFloatSpin(pl+" Field Of View",
                       "Camera FOV",
                       topOfStep,
                       bottomOfStep,
@@ -298,8 +303,6 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                       0.01,
                       1,allowLocal);
     } else if (selectedAction == cameraAnglesAction) {
-      bool allowLocal = parentRelativeType != StepGroupType &&
-            parentRelativeType != CalloutType;
         changeCameraAngles(pl+" Camera Angles",
                           topOfStep,
                           bottomOfStep,
@@ -321,13 +324,13 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       bool ok = setPointerPlacement(&pointerPlacement,
                                     parentRelativeType,
                                     PagePointerType,
-                                    "Pointer Placement");
+                                    pl+" Pointer Placement");
       if (ok) {
           addPointerTip(meta,topOfStep,bottomOfStep,pointerPlacement.value().placement);
         }
     } else if (selectedAction == allocAction) {
       if (parentRelativeType == StepGroupType) {
-          changeAlloc(begin,
+          changeAlloc(topOfSteps,
                       bottomOfSteps,
                       step->allocMeta());
         } else {
@@ -339,20 +342,22 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     } else if (selectedAction == placementAction) {
       changePlacement(parentRelativeType,
                       CsiType,
-                      "Assembly Placement",
+                      pl+" Placement",
                       topOfStep,
                       bottomOfStep,
                       &meta->LPub.assem.placement);
-    } else if (selectedAction == scaleAction) {
-      bool allowLocal = parentRelativeType != StepGroupType &&
-          parentRelativeType != CalloutType;
-      changeFloatSpin("Assembly",
-                      "Model Size",
-                      begin,
-                      bottomOfSteps,
-                      &meta->LPub.assem.modelScale,
-                      0.01,
-                      1,allowLocal);
+    } else if (selectedAction == cameraDistFactorAction) {
+          changeCameraDistFactor(pl+" Camera Distance",
+                                 "Native Camera Distance",
+                                 topOfSteps,
+                                 bottomOfSteps,
+                                 &meta->LPub.assem.cameraDistNative.factor);
+    } else if (selectedAction == scaleAction){
+          changeFloatSpin(pl+" Scale",
+                          "Model Size",
+                          topOfSteps,
+                          bottomOfSteps,
+                          &meta->LPub.assem.modelScale);
     } else if (selectedAction == marginsAction) {
 
       MarginsMeta *margins;
@@ -368,7 +373,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
           margins = &meta->LPub.assem.margin;
           break;
         }
-      changeMargins("Assembly Margins",
+      changeMargins(pl+" Margins",
                     topOfStep,
                     bottomOfStep,
                     margins);

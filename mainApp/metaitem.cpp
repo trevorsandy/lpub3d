@@ -217,9 +217,6 @@ int MetaItem::removeFirstStep(
 
 int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
 
-    /* Scan the file and remove any multi-step stuff from the file
-       we're converting to callout*/
-
     int   numLines;
     Where walk(modelName,0);
 
@@ -1791,25 +1788,6 @@ void MetaItem::changeMargins(
   }
 }
 
-void MetaItem::changeCameraDistFactor(
-  QString       title,
-  const Where  &topOfStep,
-  const Where  &bottomOfStep,
-  IntMeta     *factor,
-  int           append,
-  bool          local)
-{
-  int value;
-  value = factor->value();
-
-  bool ok = CameraDistFactorDialog::getCameraDistFactor(value,title,gui);
-
-  if (ok) {
-    factor->setValue(value);
-    setMetaTopOf(topOfStep,bottomOfStep,factor,append,local);
-  }
-}
-
 void MetaItem::changeUnits(
   QString       title,
   const Where  &topOfStep,
@@ -1845,7 +1823,7 @@ void MetaItem::changeCameraAngles(
 
   bool ok = FloatPairDialog::getFloatPair(
               title,
-              "Lattitude",
+              "Latitude",
               "Longitude",
               floatPairMeta,
               data,
@@ -1919,7 +1897,28 @@ void MetaItem::changeFloatSpin(
   }
 }
 
-void MetaItem::changeBorder(QString      title,
+void MetaItem::changeCameraDistFactor(
+  QString       title,
+  QString       heading,
+  const Where  &topOfStep,
+  const Where  &bottomOfStep,
+  IntMeta      *factor,
+  int           append,
+  bool          local)
+{
+  int value;
+  value = factor->value();
+
+  bool ok = CameraDistFactorDialog::getCameraDistFactor(title,heading,value,gui);
+
+  if (ok) {
+    factor->setValue(value);
+    setMetaTopOf(topOfStep,bottomOfStep,factor,append,local);
+  }
+}
+
+void MetaItem::changeBorder(
+  QString      title,
   const Where &topOfStep,
   const Where &bottomOfStep,
   BorderMeta  *border,

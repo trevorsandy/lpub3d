@@ -2206,7 +2206,6 @@ public:
   NumberPlacementMeta       number;
   NumberPlacementMeta       instanceCount;
   StringListMeta            subModelColor;
-  CameraDistFactorMeta      cameraDistNative;
 
   PageHeaderMeta            pageHeader;
   PageFooterMeta            pageFooter;
@@ -2260,11 +2259,12 @@ public:
   BoolMeta      showStepNumber;
 
   // image generation
-  FloatMeta     cameraFoV;
-  FloatPairMeta cameraAngles;
-  IntMeta       distance;
-  FloatMeta     znear;
-  FloatMeta     zfar;
+  CameraDistFactorMeta cameraDistNative;
+  FloatMeta            cameraFoV;
+  FloatPairMeta        cameraAngles;
+  IntMeta              distance;
+  FloatMeta            znear;
+  FloatMeta            zfar;
   // display step
   FloatMeta     v_cameraFoV;
   FloatPairMeta v_cameraAngles;
@@ -2283,39 +2283,42 @@ public:
 
 /*------------------------*/
 
-
 class PliMeta  : public BranchMeta
 {
 public:
-  BorderMeta        border;
-  BackgroundMeta    background;
-  MarginsMeta       margin;
-  NumberMeta        instance;
-  NumberMeta        annotate;
-  PlacementMeta     placement;
-  ConstrainMeta     constrain;
-  FloatMeta         modelScale;
-  PartMeta          part;
-  PliBeginMeta      begin;
-  RcMeta            end;
-  BoolMeta          includeSubs;
-  BoolMeta          show;
-  StringListMeta    subModelColor;
-  FontListMeta      subModelFont;
-  StringListMeta    subModelFontColor;
-  StringMeta        ldviewParms;
-  StringMeta        ldgliteParms;
-  StringMeta        povrayParms;
-  BoolMeta          pack;
-  BoolMeta          sort;
-  PliSortMeta       sortBy;
-  PliAnnotationMeta annotation;
+  BorderMeta           border;
+  BackgroundMeta       background;
+  MarginsMeta          margin;
+  NumberMeta           instance;
+  NumberMeta           annotate;
+  PlacementMeta        placement;
+  ConstrainMeta        constrain;
+  FloatMeta            modelScale;
+  PartMeta             part;
+  PliBeginMeta         begin;
+  RcMeta               end;
+  BoolMeta             includeSubs;
+  BoolMeta             show;
+  StringListMeta       subModelColor;
+  FontListMeta         subModelFont;
+  StringListMeta       subModelFontColor;
+  StringMeta           ldviewParms;
+  StringMeta           ldgliteParms;
+  StringMeta           povrayParms;
+  BoolMeta             pack;
+  BoolMeta             sort;
+  PliSortMeta          sortBy;
+  PliAnnotationMeta    annotation;
 
-  FloatMeta         cameraFoV;
+  FloatMeta            cameraFoV;
+  FloatPairMeta        cameraAngles;
+  IntMeta              distance;
+  FloatMeta            znear;
+  FloatMeta            zfar;
+
+  CameraDistFactorMeta cameraDistNative;
   RotStepMeta          rotStep;
   BoolMeta             showTopModel;
-  FloatMeta         znear;
-  FloatMeta         zfar;
 
   PliMeta();
   PliMeta(const PliMeta &rhs) : BranchMeta(rhs)
@@ -2529,6 +2532,7 @@ public:
   SubModelMeta         subModel;
   BoolMeta             mergeInstanceCount;
   StepPliMeta          stepPli;
+  CameraDistFactorMeta cameraDistNative;
 
   LPubMeta();
   virtual ~LPubMeta() {}

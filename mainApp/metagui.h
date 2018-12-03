@@ -898,8 +898,9 @@ private:
 
   QComboBox    *combo;
   QCheckBox    *ldvSingleCallBox;
+  QCheckBox    *ldvSnapshotListBox;
   QCheckBox    *cameraDistFactorDefaultBox;
-  QCheckBox    *cameraDistFactorMetatBox;
+  QCheckBox    *cameraDistFactorMetaBox;
   QGroupBox    *povFileGeneratorGrpBox;
   QGroupBox    *cameraDistFactorGrpBox;
   QRadioButton *nativeButton;
@@ -915,6 +916,7 @@ private:
   bool          clearCaches;
   bool          rendererModified;
   bool          singleCallModified;
+  bool          snapshotListModified;
   bool          povFileGenModified;
   bool          cameraDistFactorModified;
   bool          cameraDistFactorDefaulSettings;
@@ -922,6 +924,7 @@ private:
 public slots:
   void typeChange(QString const &); 
   void singleCallChange(bool checked);
+  void snapshotListChange(bool checked);
   void povFileGenNativeChange(bool checked);
   void povFileGenLDViewChange(bool checked);
   void cameraDistFactorChange(int factor);

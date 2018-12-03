@@ -279,19 +279,9 @@ GlobalPageDialog::GlobalPageDialog(
   // child header end
 
   //child body (many) start
-  box = new QGroupBox(tr("Sub-Model Level Colors"));
+  box = new QGroupBox(tr("Submodel Level Colors"));
   childlayout->addWidget(box);
   child = new SubModelColorGui(&pageMeta->subModelColor,box);
-  data->children.append(child);
-  //child body end
-
-  /*
-    "Native Renderer Camera Distance",
-  */
-  //child body (many) start
-  box = new QGroupBox(tr("Native Renderer Camera Distance"));
-  childlayout->addWidget(box);
-  child = new CameraDistFactorGui("Factor",&pageMeta->cameraDistNative,box);
   data->children.append(child);
   //child body end
 
@@ -299,7 +289,7 @@ GlobalPageDialog::GlobalPageDialog(
   childlayout->addSpacerItem(vSpacer);
 
   // child footer (one) end
-  childtab->addTab(widget,"SubModel/Factor");
+  childtab->addTab(widget,"Colors");
   // child footer end
 
   //~~~~~~~~~~~~ publisher tab ~~~~~~~~~~~~//

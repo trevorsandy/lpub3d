@@ -26,6 +26,7 @@
 #include "meta.h"
 #include "metagui.h"
 #include "metaitem.h"
+#include "name.h"
 
 /*****************************************************************
  *
@@ -40,7 +41,7 @@ public:
   QString  topLevelFile;
   QList<MetaGui *> children;
   MetaGui *cameraAngles;
-  MetaGui *scale;
+  MetaGui *modelScale;
   bool     bom;
 
   GlobalPliPrivate(QString &_topLevelFile, Meta &_meta, bool _bom = false)
@@ -128,14 +129,23 @@ GlobalPliDialog::GlobalPliDialog(
   grid->addWidget(box,0,0);
   box->setLayout(childlayout);
 
-  child = new DoubleSpinGui("Scale",
-    &pliMeta->modelScale,
-    pliMeta->modelScale._min,
-    pliMeta->modelScale._max,
-    0.01);
-  data->children.append(child);
-  data->scale = child;
-  childlayout->addWidget(child);
+  // Scale/Native Camera Distance Factor
+  if (Preferences::preferredRenderer == RENDERER_NATIVE) {
+      child = new CameraDistFactorGui("Camera Distance Factor",
+                                      &pliMeta->cameraDistNative,
+                                      box);
+      data->children.append(child);
+      childlayout->addWidget(child);
+  } else {
+      child = new DoubleSpinGui("Scale",
+        &pliMeta->modelScale,
+        pliMeta->modelScale._min,
+        pliMeta->modelScale._max,
+        0.01);
+      data->children.append(child);
+      data->modelScale = child;
+      childlayout->addWidget(child);
+  }
 
   child = new UnitsGui("Margins",&pliMeta->part.margin);
   data->children.append(child);
@@ -158,7 +168,7 @@ GlobalPliDialog::GlobalPliDialog(
   boxGrid->addWidget(child,0,0,1,2);
 
   // view angles
-  child = new FloatsGui("Lattitude","Longitude",&pliMeta->cameraAngles);
+  child = new FloatsGui("Latitude","Longitude",&pliMeta->cameraAngles);
   data->cameraAngles = child;
   data->children.append(child);
   boxGrid->addWidget(child,1,0);
@@ -254,7 +264,7 @@ void GlobalPliDialog::getBomGlobals(
 
 void GlobalPliDialog::accept()
 {
-  if (data->scale->modified ||
+  if (data->modelScale->modified ||
       data->cameraAngles->modified) {
     clearPliCache();
   }

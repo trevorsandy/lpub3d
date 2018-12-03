@@ -1756,7 +1756,7 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
         enableLDViewSingleCall = Settings.value(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall")).toBool();
     }
 
-    //  LDView single call snapshots list
+    //  LDView single call snapshot list
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"EnableLDViewSnapshotsList"))) {
         QVariant uValue(false);
         enableLDViewSnaphsotList = false;
@@ -1774,10 +1774,11 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
     }
 
     // Native renderer camera distance factor
-    if (Settings.contains(QString("%1/%2").arg(SETTINGS,"cameraDistFactorNative"))) {
-        cameraDistFactorNative = Settings.value(QString("%1/%2").arg(SETTINGS,"cameraDistFactorNative")).toInt();
-    } else {
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"cameraDistFactorNative"))) {
         cameraDistFactorNative = CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"cameraDistFactorNative"),rendererTimeout);
+    } else {
+        cameraDistFactorNative = Settings.value(QString("%1/%2").arg(SETTINGS,"cameraDistFactorNative")).toInt();
     }
 
     // povray generation renderer
@@ -2397,6 +2398,7 @@ void Preferences::userInterfacePreferences()
   } else {
           themeAutoRestart = Settings.value(QString("%1/%2").arg(SETTINGS,themeAutoRestartKey)).toBool();
   }
+
   QString const pageRulerKey("PageRuler");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,pageRulerKey))) {
           QVariant uValue(false);

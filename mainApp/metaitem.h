@@ -290,7 +290,9 @@ public:
                         int   append = 1,   
                         bool checkLocal = true);
 
-  void changeCameraDistFactor(QString,
+  void changeCameraDistFactor(
+                        QString,
+                        QString,
                         const Where &,
                         const Where &,
                         IntMeta *,

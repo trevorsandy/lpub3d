@@ -2228,12 +2228,20 @@ void PliBackgroundItem::contextMenuEvent(
 {
   if (pli) {
       QMenu menu;
+      bool showCameraDistFactorItem = (Preferences::preferredRenderer == RENDERER_NATIVE);
 
       PlacementData placementData = pli->placement.value();
 
       QString pl = pli->bom ? "Bill Of Materials" : "Parts List";
       QAction *placementAction  = commonMenus.placementMenu(menu,pl,
                                                             commonMenus.naturalLanguagePlacementWhatsThis(PartsListType,placementData,pl));
+      QAction *cameraDistFactorAction = nullptr;
+      QAction *scaleAction = nullptr;
+      if (showCameraDistFactorItem){
+          cameraDistFactorAction  = commonMenus.cameraDistFactorrMenu(menu, pl);
+      } else {
+          scaleAction             = commonMenus.scaleMenu(menu, pl);
+      }
       QAction *constrainAction     = commonMenus.constrainMenu(menu,pl);
       QAction *backgroundAction    = commonMenus.backgroundMenu(menu,pl);
       QAction *subModelColorAction = commonMenus.subModelColorMenu(menu,pl);
@@ -2241,7 +2249,6 @@ void PliBackgroundItem::contextMenuEvent(
       QAction *marginAction        = commonMenus.marginMenu(menu,pl);
       QAction *sortAction          = commonMenus.sortMenu(menu,pl);
       QAction *annotationAction    = commonMenus.annotationMenu(menu,pl);
-      QAction *scaleAction         = commonMenus.scaleMenu(menu,pl);
       QAction *cameraFoVAction     = commonMenus.cameraFoVMenu(menu,pl);
       QAction *cameraAnglesAction  = commonMenus.cameraAnglesMenu(menu,pl);
 
@@ -2351,11 +2358,17 @@ void PliBackgroundItem::contextMenuEvent(
                        top,
                        bottom,
                        &pli->pliMeta.border);
-        } else if (selectedAction == scaleAction) {
-          changeFloatSpin(me+" Scale",
-                          "Model Size",
-                          top,
-                          bottom,
+        } else if (selectedAction == cameraDistFactorAction) {
+              changeCameraDistFactor(pl+" Camera Distance",
+                                     "Native Camera Distance",
+                                     top,
+                                     bottom,
+                                     &pli->pliMeta.cameraDistNative.factor);
+        } else if (selectedAction == scaleAction){
+              changeFloatSpin(pl+" Scale",
+                              "Model Size",
+                              top,
+                              bottom,
                           &pli->pliMeta.modelScale);
         } else if (selectedAction == cameraFoVAction) {
           changeFloatSpin(me+" Camera Angle",
