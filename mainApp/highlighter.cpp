@@ -105,13 +105,6 @@ Highlighter::Highlighter(QTextDocument *parent)
         br28 = QBrush(QColor(THEME_HIGHLIGHT_28_DARK));
       }
 
-    // LDraw Comment Format
-    LDrawCommentFormat.setForeground(br01);
-    LDrawCommentFormat.setFontWeight(QFont::Normal);
-    rule.pattern = QRegExp("0\\s+\\/\\/[^\n]*",Qt::CaseInsensitive);
-    rule.format = LDrawCommentFormat;
-    highlightingRules.append(rule);
-
     // LDraw Header Value Format
     LDrawHeaderValueFormat.setForeground(br26);
     LDrawHeaderValueFormat.setFontWeight(QFont::Normal);
@@ -305,6 +298,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bINCLUDE\\b"
     << "\\bINCLUDE_SUBMODELS\\b"
     << "\\bINSERT\\b"
+    << "\\bINSERT MODEL\\b"
     << "\\bINSIDE\\b"
     << "\\bINSTANCE_COUNT\\b"
     << "\\bLANDSCAPE\\b"
@@ -496,6 +490,13 @@ Highlighter::Highlighter(QTextDocument *parent)
     LDrawFileFormat.setForeground(br12);
     LDrawFileFormat.setFontWeight(QFont::Bold);
     lineType1Formats.append(LDrawFileFormat);
+
+    // LDraw Comment Format
+    LDrawCommentFormat.setForeground(br01);
+    LDrawCommentFormat.setFontWeight(QFont::Normal);
+    rule.pattern = QRegExp("0\\s+\\/\\/[^\n]*",Qt::CaseInsensitive);
+    rule.format = LDrawCommentFormat;
+    highlightingRules.append(rule);
 }
 
 void Highlighter::highlightBlock(const QString &text)
