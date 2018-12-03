@@ -20,7 +20,7 @@
 #include <QTextStream>
 
 #include "lpub_preferences.h"
-#include "lpubalert.h"
+#include "QsLog.h"
 
 bool                    PliSubstituteParts::result;
 QString                 PliSubstituteParts::empty;
@@ -32,15 +32,14 @@ PliSubstituteParts::PliSubstituteParts()
         QString substitutePartsFile = Preferences::pliSubstitutePartsFile;
         QFile file(substitutePartsFile);
         if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-            QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),
-                                 QMessageBox::tr("Failed to open pliSubstituteParts.lst file: %1:\n%2")
-                                 .arg(substitutePartsFile)
-                                 .arg(file.errorString()));
+           logError() << QMessageBox::tr("Failed to open pliSubstituteParts.lst file: %1:\n%2")
+                                       .arg(substitutePartsFile)
+                                       .arg(file.errorString());
             return;
         }
         QTextStream in(&file);
 
-        QRegExp rx("^\\b([\\d\\w\\-\\_\\+\\\\.]+)\\b\\s*\\b([\\d\\w\\:\\/\\-\\_\\+\\\\.]+)\\b\\s*(.*)\\s*$");
+        QRegExp rx("^(\\b.+\\b)\\s+\"(.*)\"\\s+(.*)$");
                 while ( ! in.atEnd()) {
             QString sLine = in.readLine(0);
             if (sLine.contains(rx)) {
@@ -67,7 +66,9 @@ const bool &PliSubstituteParts::hasSubstitutePart(QString part)
 const bool &PliSubstituteParts::getSubstitutePart(QString &part){
     if (substituteParts.contains(part.toLower().toLower().trimmed())) {
         part = substituteParts.value(part.toLower());
-        emit lpubAlert->messageSig(LOG_DEBUG, QString("Substitute Part: ").arg(part));
+#ifdef QT_DEBUG_MODE
+        logError() <<  QString("Substitute Part: ").arg(part);
+#endif
         result = true;
         return result;
     } else {

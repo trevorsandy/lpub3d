@@ -1560,7 +1560,7 @@ void ColourPartListWorker::fileSectionHeader(const int &option, const QString &h
         _ldrawStaticColourParts  << "# However, it can also be edited manually from:";
         _ldrawStaticColourParts  << "#    Configuration=>Edit Parameter Files=>Edit LDraw Static Color Parts List";
         _ldrawStaticColourParts  << "";
-        _ldrawStaticColourParts  << "# The RegExp used is ^\\b([\\d\\w\\-\\_\\+\\\\.]+)\\b\\s*(u|o)\\s*(.*)\\s*$";
+        _ldrawStaticColourParts  << "# The RegExp used is ^(\\b.*[^\\s]\\b)(?:\\s)\\s+(u|o)\\s+(.*)$";
         _ldrawStaticColourParts  << "";
         _ldrawStaticColourParts  << "# There are three defined columns in this file:";
         _ldrawStaticColourParts  << "# 1. File Name: The part file name as defined in the LDraw Library.";

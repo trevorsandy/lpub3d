@@ -534,18 +534,18 @@ void Highlighter::highlightBlock(const QString &text)
     for (int t = 14; t < tt.size(); t++)
         part += (tt[t]+" ");
     QStringList tokens;
-    tokens  << tt[0]                        // - part type
-            << tt[1]                        // - color
-            << tt[2]+" "+tt[3]+" "+tt[4]    // - position
-            << tt[5]+" "+tt[6]+" "+tt[7]    // - transform
-            << tt[8]+" "+tt[9]+" "+tt[10]   // - transform
-            << tt[11]+" "+tt[12]+" "+tt[13] // - transform
-            << part.trimmed();              // - part
+    tokens  << tt[0]                             // - part type
+            << tt[1]                             // - color
+            << tt[2]+" "+tt[3]+" "+tt[4]         // - position
+            << tt[5]+" "+tt[6]+" "+tt[7]         // - transform
+            << tt[8]+" "+tt[9]+" "+tt[10]        // - transform
+            << tt[11]+" "+tt[12]+" "+tt[13]      // - transform
+            << part.trimmed();                   // - part
 
     for (int i = 0; i < tokens.size(); i++) {
         if (index >= 0 && index < text.length()) {
             setFormat(index, tokens[i].length(), lineType1Formats[i]);
-            index += tokens[i].length() + 1;// add 1 position for the space
+            index += tokens[i].length() + 1;     // add 1 position for the space
         }
     }
 }

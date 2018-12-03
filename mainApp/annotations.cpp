@@ -36,7 +36,7 @@ Annotations::Annotations()
             return;
         }
         QTextStream in(&file);
-        QRegExp rx("^([\\w\\:]+)\\s+(\\^+\\b.*)\\B\\s*$");
+        QRegExp rx("^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$");
                 while ( ! in.atEnd()) {
             QString sLine = in.readLine(0);
             if (sLine.contains(rx)) {
@@ -57,7 +57,7 @@ Annotations::Annotations()
             return;
         }
         QTextStream in(&file);
-        QRegExp rx("^([\\d\\w\\.]+)\\s+~*\\b(.*)\\b\\s*$");
+        QRegExp rx("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
         while ( ! in.atEnd()) {
             QString sLine = in.readLine(0);
             if (sLine.contains(rx)) {

@@ -41,7 +41,7 @@ ExcludedParts::ExcludedParts()
         }
         QTextStream in(&file);
 
-        QRegExp rx("^\\b([\\d\\w\\-\\_\\+\\\\.]+)\\b\\s*(.*)\\s*$");
+        QRegExp rx("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
                 while ( ! in.atEnd()) {
             QString sLine = in.readLine(0);
             if (sLine.contains(rx)) {
