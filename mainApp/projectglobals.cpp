@@ -55,6 +55,8 @@ GlobalProjectDialog::GlobalProjectDialog(
 {
   data = new GlobalProjectPrivate(topLevelFile,meta);
 
+  LPubMeta *lpubMeta = &data->meta.LPub;
+
   setWindowTitle(tr("Project Globals Setup"));
 
   QVBoxLayout *layout = new QVBoxLayout(this);
@@ -62,17 +64,17 @@ GlobalProjectDialog::GlobalProjectDialog(
 
   QGroupBox *box = new QGroupBox("Renderer");
   layout->addWidget(box);
-  MetaGui *child = new RendererGui(&data->meta.LPub.page.cameraDistNative,box);
+  MetaGui *child = new RendererGui(&lpubMeta->cameraDistNative,box);
   data->children.append(child);
 
   box = new QGroupBox("Resolution");
   layout->addWidget(box);
-  child = new ResolutionGui(&data->meta.LPub.resolution,box);
+  child = new ResolutionGui(&lpubMeta->resolution,box);
   data->children.append(child);
   
   box = new QGroupBox("Submodel Instance Count");
   layout->addWidget(box);
-  child = new CheckBoxGui("Consolidate submodel instance count.",&data->meta.LPub.mergeInstanceCount,box);
+  child = new CheckBoxGui("Consolidate submodel instance count.",&lpubMeta->mergeInstanceCount,box);
   box->setToolTip("Consolidate submodel instance count at first occurrence in model.");
   data->children.append(child);
 
