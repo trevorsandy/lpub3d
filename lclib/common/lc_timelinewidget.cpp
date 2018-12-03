@@ -11,7 +11,9 @@ lcTimelineWidget::lcTimelineWidget(QWidget* Parent)
 	mIgnoreUpdates = false;
 
 	setSelectionMode(QAbstractItemView::ExtendedSelection);
-	setDragEnabled(true);
+/*** LPub3D Mod - suppress item drag ***/
+    setDragEnabled(false);
+/*** LPub3D Mod end ***/
 	setDragDropMode(QAbstractItemView::InternalMove);
 	setUniformRowHeights(true);
 	setHeaderHidden(true);
@@ -107,7 +109,10 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 	{
 /*** LPub3D Mod - Set Timeline title to loaded model name ***/
         QTreeWidgetItem* StepItem = new QTreeWidgetItem(this, QStringList(Model->GetName()));
- /*** LPub3D Mod end ***/
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - Set size hint ***/
+        //StepItem->setSizeHint(0,QSize(48,48));
+/*** LPub3D Mod end ***/
 		StepItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsDropEnabled);
 		addTopLevelItem(StepItem);
 		StepItem->setExpanded(true);

@@ -57,8 +57,8 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
 	ui->gridLines->setChecked(options->Preferences.mDrawGridLines);
 	ui->gridLineSpacing->setText(QString::number(options->Preferences.mGridLineSpacing));
 	ui->axisIcon->setChecked(options->Preferences.mDrawAxes);
-	ui->ViewCubeLocationCombo->setCurrentIndex((int)options->Preferences.mViewCubeLocation);
-	ui->ViewCubeSizeEdit->setText(QString::number(options->Preferences.mViewCubeSize));
+	ui->ViewSphereLocationCombo->setCurrentIndex((int)options->Preferences.mViewSphereLocation);
+	ui->ViewSphereSizeEdit->setText(QString::number(options->Preferences.mViewSphereSize));
 
 	if (!gSupportsShaderObjects)
 		ui->ShadingMode->removeItem(LC_SHADING_DEFAULT_LIGHTS);
@@ -117,7 +117,7 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
 	ui->lgeoPathBrowse->hide();
 	ui->checkForUpdates->hide();
 	ui->label_10->hide();                   //label check for updates
-	ui->fixedDirectionKeys->hide(); 
+	ui->fixedDirectionKeys->hide();
     ui->tabWidget->removeTab(3);            //hide tabKeyboard
     ui->tabWidget->removeTab(3);            //hide mouse
 /*** LPub3D Mod end ***/
@@ -165,8 +165,8 @@ void lcQPreferencesDialog::accept()
 	options->Preferences.mGridLineSpacing = gridLineSpacing;
 
 	options->Preferences.mDrawAxes = ui->axisIcon->isChecked();
-	options->Preferences.mViewCubeLocation = (lcViewCubeLocation)ui->ViewCubeLocationCombo->currentIndex();
-	options->Preferences.mViewCubeSize = ui->ViewCubeSizeEdit->text().toInt();
+	options->Preferences.mViewSphereLocation = (lcViewSphereLocation)ui->ViewSphereLocationCombo->currentIndex();
+	options->Preferences.mViewSphereSize = ui->ViewSphereSizeEdit->text().toInt();
 	options->Preferences.mShadingMode = (lcShadingMode)ui->ShadingMode->currentIndex();
 
 /*** LPub3D Mod - Native Renderer settings ***/

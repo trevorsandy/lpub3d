@@ -17,7 +17,7 @@ enum lcShadingMode
 	LC_NUM_SHADING_MODES
 };
 
-enum class lcViewCubeLocation
+enum class lcViewSphereLocation
 {
 	DISABLED,
 	TOP_LEFT,
@@ -43,8 +43,8 @@ public:
 	int mGridLineSpacing;
 	quint32 mGridLineColor;
 	bool mFixedAxes;
-	lcViewCubeLocation mViewCubeLocation;
-	int mViewCubeSize;
+	lcViewSphereLocation mViewSphereLocation;
+	int mViewSphereSize;
 
 /*** LPub3D Mod - Native Renderer settings ***/
     int mNativeViewpoint;

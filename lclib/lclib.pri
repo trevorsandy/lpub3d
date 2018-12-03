@@ -31,7 +31,7 @@ HEADERS += \
     $$PWD/common/lc_stringcache.h \
     $$PWD/common/lc_synth.h \
     $$PWD/common/lc_texture.h \
-    $$PWD/common/lc_viewcube.h \	
+    $$PWD/common/lc_viewsphere.h \
     $$PWD/common/lc_timelinewidget.h \
     $$PWD/common/lc_zipfile.h \
     $$PWD/common/light.h \
@@ -89,7 +89,7 @@ SOURCES +=  \
     $$PWD/common/lc_stringcache.cpp \
     $$PWD/common/lc_synth.cpp \
     $$PWD/common/lc_texture.cpp \
-    $$PWD/common/lc_viewcube.cpp \
+    $$PWD/common/lc_viewsphere.cpp \
     $$PWD/common/lc_timelinewidget.cpp \
     $$PWD/common/lc_zipfile.cpp \
     $$PWD/common/light.cpp \

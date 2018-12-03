@@ -17,7 +17,7 @@ lcVertexBuffer View::mRotateMoveVertexBuffer;
 lcIndexBuffer View::mRotateMoveIndexBuffer;
 
 View::View(lcModel* Model)
-	: mViewCube(this)
+  : mViewSphere(this)
 {
 	mModel = Model;
 	mActiveSubmodelInstance = nullptr;
@@ -900,7 +900,7 @@ void View::OnDraw()
 		else if (Tool == LC_TOOL_ROTATE_VIEW && mTrackButton == LC_TRACKBUTTON_NONE)
 			DrawRotateViewOverlay();
 
-		mViewCube.Draw();
+		mViewSphere.Draw();
 		DrawViewport();
 	}
 
@@ -1524,7 +1524,7 @@ void View::DrawRotateViewOverlay()
 	mContext->SetVertexBufferPointer(Verts);
 	mContext->SetVertexFormatPosition(2);
 
-	GLushort Indices[64 + 32] = 
+	GLushort Indices[64 + 32] =
 	{
 		0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16,
 		17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23, 23, 24, 24, 25, 25, 26, 26, 27, 27, 28, 28, 29, 29, 30, 30, 31, 31, 0,
@@ -1865,7 +1865,7 @@ lcTool View::GetCurrentTool() const
 		LC_TOOL_ROTATE_VIEW, // LC_TRACKTOOL_ORBIT_Y
 		LC_TOOL_ROTATE_VIEW, // LC_TRACKTOOL_ORBIT_XY
 		LC_TOOL_ROLL,        // LC_TRACKTOOL_ROLL
-		LC_TOOL_ZOOM_REGION, // LC_TRACKTOOL_ZOOM_REGION    
+		LC_TOOL_ZOOM_REGION, // LC_TRACKTOOL_ZOOM_REGION
 		LC_TOOL_ROTATESTEP   // LC_TRACKTOOL_NONE          /*** LPub3D Mod - rotate step tool ***/
 	};
 
@@ -2741,7 +2741,7 @@ void View::OnButtonDown(lcTrackButton TrackButton)
 	case LC_TRACKTOOL_CAMERA:
 		StartTracking(TrackButton);
 		break;
-		
+
 	case LC_TRACKTOOL_SELECT:
 		{
 			lcObjectSection ObjectSection = FindObjectUnderPointer(false, false);
@@ -2817,7 +2817,7 @@ void View::OnLeftButtonDown()
 
 	gMainWindow->SetActiveView(this);
 
-	if (mViewCube.OnLeftButtonDown())
+	if (mViewSphere.OnLeftButtonDown())
 		return;
 
 	lcTrackTool OverrideTool = GetOverrideTrackTool(Qt::LeftButton);
@@ -2835,7 +2835,7 @@ void View::OnLeftButtonUp()
 {
 	StopTracking(mTrackButton == LC_TRACKBUTTON_LEFT);
 
-	if (mViewCube.OnLeftButtonUp())
+	if (mViewSphere.OnLeftButtonUp())
 		return;
 }
 
@@ -2931,8 +2931,18 @@ void View::OnMouseMove()
 
 	if (mTrackButton == LC_TRACKBUTTON_NONE)
 	{
-		if (mViewCube.OnMouseMove())
+		if (mViewSphere.OnMouseMove())
+		{
+			lcTrackTool NewTrackTool = mViewSphere.IsDragging() ? LC_TRACKTOOL_ORBIT_XY : LC_TRACKTOOL_NONE;
+
+			if (NewTrackTool != mTrackTool)
+			{
+				mTrackTool = NewTrackTool;
+				OnUpdateCursor();
+			}
+
 			return;
+		}
 
 		UpdateTrackTool();
 
