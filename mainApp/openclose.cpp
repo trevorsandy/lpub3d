@@ -350,7 +350,7 @@ void Gui::openFile(QString &fileName)
   QFileInfo info(fileName);
   QDir::setCurrent(info.absolutePath());
   Paths::mkDirs();
-  emit messageSig(LOG_STATUS, "Loading LDraw model file...");
+  emit messageSig(LOG_INFO_STATUS, QString("Loading LDraw model file [%1]...").arg(fileName));
   ldrawFile.loadFile(fileName);
   bool overwriteCustomParts = false;
   emit messageSig(LOG_STATUS, "Loading fade color parts...");
@@ -363,7 +363,7 @@ void Gui::openFile(QString &fileName)
   mpdCombo->setMaxCount(1000);
   mpdCombo->addItems(ldrawFile.subFileOrder());
   setCurrentFile(fileName);
-  emit messageSig(LOG_STATUS, "Loading editor display...");
+  emit messageSig(LOG_INFO_STATUS, "Loading LDraw Editor display...");
   displayFile(&ldrawFile,ldrawFile.topLevelFile());
   undoStack->setClean();
   curFile = fileName;
@@ -433,7 +433,7 @@ void Gui::setCurrentFile(const QString &fileName)
     shownName = fileInfo.fileName();
   }
   
-  setWindowTitle(tr("%1[*] - %2").arg(shownName).arg(tr(VER_PRODUCTNAME_STR)));
+  setWindowTitle(tr("%1[*] - %2 v%3").arg(shownName).arg(tr(VER_PRODUCTNAME_STR)).arg(VER_PRODUCTVERSION_STR));
 
   if (fileName.size() > 0) {
     QSettings Settings;
