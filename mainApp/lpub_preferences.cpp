@@ -1868,7 +1868,7 @@ void Preferences::setLDGLiteIniParams()
             resourceFile.absoluteDir().mkpath(".");
         confFileIn.setFileName(QDir::toNativeSeparators(inFileName));;
         confFileOut.setFileName(QString("%1/%2/config/%3").arg(lpub3d3rdPartyConfigDir, VER_LDGLITE_STR, resourceFile.fileName()));
-        if (confFileOut.open(QIODevice::WriteOnly | QIODevice::Text)){
+        if (confFileIn.open(QIODevice::ReadOnly) && confFileOut.open(QIODevice::WriteOnly | QIODevice::Text)){
             QTextStream input(&confFileIn);
             QTextStream output(&confFileOut);
             while (!input.atEnd())
