@@ -3421,6 +3421,29 @@ Rc MLCadMeta::parse(QStringList &argv, int index,Where &here)
   return rc;
 }
 
+/* ------------------ */
+
+void LDCadMeta::init(BranchMeta *parent, QString name)
+{
+  AbstractMeta::init(parent, name);
+  LDCadGrp.init(this,"GROUP_NXT",        LDCadGroupRc);
+}
+
+/* ------------------ */
+
+Rc LDCadMeta::parse(QStringList &argv, int index,Where &here)
+{
+  Rc rc;
+
+  QHash<QString, AbstractMeta *>::iterator i = list.find(argv[index]);
+  if (i == list.end() || index == argv.size()) {
+      rc = OkRc;
+    } else {
+      rc = i.value()->parse(argv,index+1,here);
+    }
+  return rc;
+}
+
 /* ------------------ */ 
 
 void LSynthMeta::init(BranchMeta *parent, QString name)
@@ -3458,6 +3481,7 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
   rotStep.init(this,"ROTSTEP");
   bfx    .init(this,"BUFEXCHG");
   MLCad  .init(this,"MLCAD");
+  LDCad  .init(this,"LDCAD");
   LSynth .init(this,"SYNTH");
 
   if (tokenMap.size() == 0) {
@@ -3545,12 +3569,16 @@ Rc Meta::parse(
   QStringList argv;
   
   QRegExp bgt("^\\s*0\\s+(MLCAD)\\s+(BTG)\\s+(.*)$");
+  QRegExp ldcg("^\\s*0\\s+!?(LDCAD)\\s+(GROUP_NXT)\\s+\\[ids=(\\d[^\\]]*)");
 
   AbstractMeta::reportErrors = reportErrors;
 
   if (line.contains(bgt)) {
       argv << "MLCAD" << "BTG" << bgt.cap(3);
-    } else {
+  } else
+  if (line.contains(ldcg)) {
+      argv << "LDCAD" << "GROUP_NXT" << ldcg.cap(3);
+  } else {
 
       /* Parse the input line into argv[] */
 
@@ -3558,17 +3586,17 @@ Rc Meta::parse(
 
       if (argv.size() > 0) {
           argv.removeFirst();
-        }
+      }
       if (argv.size()) {
           if (argv[0] == "LPUB") {
               argv[0] = "!LPUB";
-            }
+          }
 
           if (argv[0] == "PLIST") {
               return  LPub.pli.parse(argv,1,here);
-            }
-        }
-    }
+          }
+      }
+  }
 
   if (argv.size() > 0 && list.contains(argv[0])) {
 

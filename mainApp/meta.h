@@ -22,10 +22,10 @@
  * all the meta-commands that LPub supports.  Action metas such as STEP,
  * ROTSTEP, CALLOUT BEGIN, etc. return special return codes.  Configuration
  * metas that imply no action, but specify data for later use, retain
- * the onfiguration information, and return a generic OK return code.
+ * the configuration information, and return a generic OK return code.
  *
  * The top of tree is the Meta class that is the interface to the traverse
- * function that walks the LDraw model higherarchy.  Meta also tracks
+ * function that walks the LDraw model hierarchy.  Meta also tracks
  * locations in files like topOfModel, bottomOfModel, bottomOfSteps,topOfRange,
  * bottomOfRange, topOfStep, bottomOfStep, etc.
  *
@@ -84,6 +84,7 @@ enum Rc {
          MLCadSkipBeginRc,
          MLCadSkipEndRc,
          MLCadGroupRc,
+         LDCadGroupRc,
 
          PliBeginIgnRc,
          PliBeginSub1Rc,
@@ -2515,6 +2516,21 @@ public:
 
 /*------------------------*/
 
+class LDCadMeta : public BranchMeta
+{
+public:
+  StringMeta LDCadGrp;
+  LDCadMeta() {}
+  virtual ~LDCadMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+  virtual Rc parse(QStringList &argv, int index, Where &here);
+  LDCadMeta(const LDCadMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+};
+
+/*------------------------*/
+
 class LSynthMeta : public BranchMeta
 {
 public:
@@ -2580,6 +2596,7 @@ public:
   RotStepMeta   rotStep;
   BuffExchgMeta bfx;
   MLCadMeta     MLCad;
+  LDCadMeta     LDCad;
   LSynthMeta    LSynth;
 
   QList<SubmodelStack>  submodelStack;
@@ -2607,7 +2624,7 @@ public:
 private:
 };
 
-const QString RcNames[47] =
+const QString RcNames[48] =
 {
      "InvalidLDrawLineRc = -3",
      "RangeErrorRc = -2",
@@ -2639,6 +2656,7 @@ const QString RcNames[47] =
      "MLCadSkipBeginRc",
      "MLCadSkipEndRc",
      "MLCadGroupRc",
+     "LDCadGroupRc",
 
      "PliBeginIgnRc",
      "PliBeginSub1Rc",

@@ -70,12 +70,14 @@ static void remove_group(
     QStringList &out)
 {
   QRegExp bgt("^\\s*0\\s+MLCAD\\s+BTG\\s+(.*)$");
+  QRegExp ldcg("^\\s*0\\s+!?LDCAD\\s+GROUP_NXT\\s+\\[ids=(\\d[^\\]]*)");
 
   for (int i = 0; i < in.size(); i++) {
       QString line = in.at(i);
 
       if (line.contains(bgt)) {
-          if (bgt.cap(bgt.captureCount()) == group) {
+          if (bgt.cap(bgt.captureCount()) == group ||
+              ldcg.cap(ldcg.captureCount()) == group) {
               i++;
             } else {
               out << line;
@@ -1753,6 +1755,7 @@ int Gui::findPage(
               break;
 
             case MLCadGroupRc:
+            case LDCadGroupRc:
               if (pageNum < displayPageNum) {
                   csiParts << line;
                   partsAdded = true;
