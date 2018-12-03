@@ -50,6 +50,7 @@ public:
 
   void fitVisible(const QRectF rect);
   void fitWidth(const QRectF rect);
+  void fitScene(const QRectF rect);
   void actualSize();
   void zoomIn();
   void zoomOut();

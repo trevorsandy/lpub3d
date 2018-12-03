@@ -142,6 +142,17 @@ void LGraphicsView::fitWidth(const QRectF rect)
   fitMode = FitWidth;
 }
 
+void LGraphicsView::fitScene(const QRectF rect)
+{
+  QRectF bounds = rect; // Scene->itemsBoundingRect()
+  int margin = 2;
+  bounds.setWidth(bounds.width()+margin*frameWidth());
+  bounds.setHeight(bounds.height()+margin*frameWidth());
+  fitInView(bounds, Qt::KeepAspectRatio);
+  centerOn(bounds.center());
+  fitMode = FitNone;
+}
+
 void LGraphicsView::actualSize(){
   resetMatrix();
   fitMode = FitNone;
@@ -167,6 +178,7 @@ void LGraphicsView::resizeEvent(QResizeEvent *event)
           fitWidth(mPageRect);
         }
     }
+  centerOn(viewport()->rect().center());
 }
 
 /* Theme related */

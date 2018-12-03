@@ -74,7 +74,8 @@
         <file alias="find.png">resources/find.png</file>
         <file alias="first.png">resources/first.png</file>
         <file alias="fitPage.png">resources/fitPage.png</file>
-        <file alias="fitVisible.png">resources/fitVisible.png</file>
+        <file alias="fitScene.png">resources/fitScene.png</file>
+        <file alias="fitVisible.png">resources/fitVisible.png</file>       
         <file alias="fitWidth.png">resources/fitWidth.png</file>
         <file alias="font.png">resources/font.png</file>
         <file alias="fontColour.png">resources/fontColour.png</file>

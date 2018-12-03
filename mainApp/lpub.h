@@ -811,6 +811,7 @@ public slots:
 
   void fitWidth();
   void fitVisible();
+  void fitScene();
   void actualSize();
   void zoomIn();
   void zoomOut();
@@ -1242,6 +1243,7 @@ private:
     
   QAction  *fitWidthAct;
   QAction  *fitVisibleAct;
+  QAction  *fitSceneAct;
   QAction  *actualSizeAct;
 
   QAction  *zoomInAct;

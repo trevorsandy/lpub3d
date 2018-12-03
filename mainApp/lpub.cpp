@@ -862,6 +862,12 @@ void Gui::fitVisible()
   KpageView->fitVisible(rect);
 }
 
+void Gui::fitScene()
+{
+  QRectF rect(KpageScene->itemsBoundingRect());
+  KpageView->fitScene(rect);
+}
+
 void Gui::pageGuides()
 {
   Preferences::setPageGuidesPreference(pageGuidesAct->isChecked());
@@ -3054,7 +3060,7 @@ void Gui::createActions()
     removeLPubFormattingAct->setEnabled(false);
     connect(removeLPubFormattingAct, SIGNAL(triggered()), this, SLOT(removeLPubFormatting()));
 
-    // fitWidth,fitVisible,actualSize
+    // fitWidth,fitVisible,actualSize,fitScene
 
     fitWidthAct = new QAction(QIcon(":/resources/fitWidth.png"), tr("Fit &Width"), this);
     fitWidthAct->setShortcut(tr("Alt+W"));
@@ -3067,6 +3073,12 @@ void Gui::createActions()
     fitVisibleAct->setStatusTip(tr("Fit document so whole page is visible - Alt+V"));
     fitVisibleAct->setEnabled(false);
     connect(fitVisibleAct, SIGNAL(triggered()), this, SLOT(fitVisible()));
+
+    fitSceneAct = new QAction(QIcon(":/resources/fitScene.png"), tr("Fit &Scene"), this);
+    fitSceneAct->setShortcut(tr("Alt+H"));
+    fitSceneAct->setStatusTip(tr("Fit document so whole scene is visible - Alt+H"));
+    fitSceneAct->setEnabled(false);
+    connect(fitSceneAct, SIGNAL(triggered()), this, SLOT(fitScene()));
 
     pageRulerAct = new QAction(QIcon(":/resources/pageruler.png"), tr("Page &Ruler"), this);
     pageRulerAct->setShortcut(tr("Alt+U"));
@@ -3421,6 +3433,7 @@ void Gui::enableActions()
 
   fitWidthAct->setEnabled(true);
   fitVisibleAct->setEnabled(true);
+  fitSceneAct->setEnabled(true);
   actualSizeAct->setEnabled(true);
   zoomInAct->setEnabled(true);
   zoomOutAct->setEnabled(true);
@@ -3485,6 +3498,7 @@ void Gui::disableActions()
 
   fitWidthAct->setEnabled(false);
   fitVisibleAct->setEnabled(false);
+  fitSceneAct->setEnabled(false);
   actualSizeAct->setEnabled(false);
   zoomInAct->setEnabled(false);
   zoomOutAct->setEnabled(false);
@@ -3595,6 +3609,7 @@ void Gui::createMenus()
     viewMenu->addAction(fitWidthAct);
     viewMenu->addAction(fitVisibleAct);
     viewMenu->addAction(actualSizeAct);
+    viewMenu->addAction(fitSceneAct);
     viewMenu->addAction(zoomInAct);
     viewMenu->addAction(zoomOutAct);
     viewMenu->addAction(pageRulerAct);
@@ -3771,7 +3786,8 @@ void Gui::createToolBars()
     zoomToolBar->setObjectName("ZoomToolbar");
     zoomToolBar->addAction(fitVisibleAct);
     zoomToolBar->addAction(fitWidthAct);
-// Jaco add actual size icon. Was missing.
+    zoomToolBar->addAction(fitSceneAct);
+
     zoomToolBar->addAction(actualSizeAct);
     zoomToolBar->addAction(zoomInAct);
     zoomToolBar->addAction(zoomOutAct);
