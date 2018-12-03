@@ -118,24 +118,24 @@ Highlighter::Highlighter(QTextDocument *parent)
 
     QStringList LDrawHeaderPatterns;
     LDrawHeaderPatterns
-    << "\\bAUTHOR\\b\\W"
+    << "\\bAUTHOR\\b:?"
     << "\\bBFC\\b"
-    << "\\W\\bCATEGORY\\b"
+    << "!?\\bCATEGORY\\b"
     << "\\bCLEAR\\b"
-    << "\\W\\bCMDLINE\\b"
-    << "\\W\\bCOLOUR\\b"
-    << "\\W\\bHELP\\b"
-    << "\\W\\bHISTORY\\b"
-    << "\\W\\bKEYWORDS\\b"
-    << "\\W\\bLDRAW_ORG\\b"
-    << "\\W\\bLICENSE\\b"
-    << "\\bNAME\\b\\W"
+    << "!?\\bCMDLINE\\b"
+    << "!?\\bCOLOUR\\b"
+    << "!?\\bHELP\\b"
+    << "!?\\bHISTORY\\b"
+    << "!?\\bKEYWORDS\\b"
+    << "!?\\bLDRAW_ORG\\b"
+    << "!?\\bLICENSE\\b"
+    << "\\bNAME\\b:?"
     << "\\bFILE\\b"
     << "\\bNOFILE\\b"
-    << "\\W\\bHELP\\b"
+    << "!?\\bHELP\\b"
     << "\\bOFFICIAL\\b"
     << "\\bORIGINAL LDRAW\\b"
-    << "\\W\\bTHEME\\b"
+    << "!?\\bTHEME\\b"
     << "\\bUNOFFICIAL MODEL\\b"
     << "\\bUN-OFFICIAL\\b"
     << "\\bUNOFFICIAL\\b"
@@ -190,7 +190,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     // LPub3D Meta Format
     LPubMetaFormat.setForeground(br24);
     LPubMetaFormat.setFontWeight(QFont::Bold);
-    rule.pattern = QRegExp("\\W\\bLPUB\\b");
+    rule.pattern = QRegExp("!?\\bLPUB\\b");
     rule.format = LPubMetaFormat;
     highlightingRules.append(rule);
 
@@ -250,7 +250,6 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bBOTTOM\\b"
     << "\\bBOTTOM_LEFT\\b"
     << "\\bBOTTOM_RIGHT\\b"
-    << "\\bBTG\\b"
     << "\\bCALLOUT\\b"
     << "\\bCAMERA_DISTANCE_NATIVE\\b"
     << "\\bCENTER\\b"
@@ -407,7 +406,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     // MLCad Meta Format
     MLCadMetaFormat.setForeground(br21);
     MLCadMetaFormat.setFontWeight(QFont::Bold);
-    rule.pattern = QRegExp("\\W\\bMLCAD\\b");
+    rule.pattern = QRegExp("!?\\bMLCAD\\b");
     rule.format = MLCadMetaFormat;
     highlightingRules.append(rule);
 
@@ -417,23 +416,23 @@ Highlighter::Highlighter(QTextDocument *parent)
 
     QStringList MLCadBodyMetaPatterns;
     MLCadBodyMetaPatterns
-    << "\\bROTSTEP\\b"
-    << "\\bROTATION\\b"
-    << "\\bROTSTEP END\\b"
-    << "\\bROTATION CENTER\\b"
-    << "\\bROTATION CONFIG\\b"
-    << "\\bBUFEXCHG\\b"
-    << "\\bGHOST\\b"
-    << "\\bBTG\\b"
-    << "\\bGROUP\\b"
-    << "\\bREL\\b"
     << "\\bABS\\b"
     << "\\bADD\\b"
-    << "\\bSTORE\\b"
-    << "\\bRETRIEVE\\b"
     << "\\bARROW\\b"
+    << "\\bBTG\\b"
+    << "\\bBUFEXCHG\\b"
+    << "\\bGHOST\\b"
+    << "\\bGROUP\\b"
+    << "\\bREL\\b"
+    << "\\bRETRIEVE\\b"
+    << "\\bROTATION CENTER\\b"
+    << "\\bROTATION CONFIG\\b"
+    << "\\bROTATION\\b"
+    << "\\bROTSTEP END\\b"
+    << "\\bROTSTEP\\b"
     << "\\bSKIP_BEGIN\\b"
-    << "\\bSKIP_END\\b";
+    << "\\bSKIP_END\\b"
+    << "\\bSTORE\\b";
 
     foreach (QString pattern, MLCadBodyMetaPatterns) {
         rule.pattern = QRegExp(pattern);
@@ -444,21 +443,21 @@ Highlighter::Highlighter(QTextDocument *parent)
     // LSynth Format
     LSynthMetaFormat.setForeground(br18);
     LSynthMetaFormat.setFontWeight(QFont::Bold);
-    rule.pattern = QRegExp("\\W\\bSYNTH\\b[^\n]*");
+    rule.pattern = QRegExp("!?\\bSYNTH\\b[^\n]*");
     rule.format = LSynthMetaFormat;
     highlightingRules.append(rule);
 
     // LDCad Format
     LDCadMetaFormat.setForeground(br19);
     LDCadMetaFormat.setFontWeight(QFont::Bold);
-    rule.pattern = QRegExp("\\W\\bLDCAD\\b[^\n]*");
+    rule.pattern = QRegExp("!?\\bLDCAD\\b[^\n]*");
     rule.format = LDCadMetaFormat;
     highlightingRules.append(rule);
 
     // LeoCAD Format
     LeoCADMetaFormat.setForeground(br20);
     LeoCADMetaFormat.setFontWeight(QFont::Bold);
-    rule.pattern = QRegExp("\\W\\bLEOCAD\\b[^\n]*");
+    rule.pattern = QRegExp("!?\\bLEOCAD\\b[^\n]*");
     rule.format = LeoCADMetaFormat;
     highlightingRules.append(rule);
 
@@ -520,25 +519,33 @@ void Highlighter::highlightBlock(const QString &text)
 
     setCurrentBlockState(0);
 
-    if (text.contains(QRegExp("^1"))) {
-        QStringList tt = text.split(" ");
-        QString part;
-        for (int t = 14; t < tt.size(); t++)
-            part += (tt[t]+" ");
-        QStringList tokens;
-        tokens  << tt[0]                        // - part type
-                << tt[1]                        // - color
-                << tt[2]+" "+tt[3]+" "+tt[4]    // - position
-                << tt[5]+" "+tt[6]+" "+tt[7]    // - transform
-                << tt[8]+" "+tt[9]+" "+tt[10]   // - transform
-                << tt[11]+" "+tt[12]+" "+tt[13] // - transform
-                << part.trimmed();              // - part
-        int index = 0;
-        for (int i = 0; i < tokens.size(); i++) {
-            if (index >= 0 && index < text.length()) {
-                setFormat(index, tokens[i].length(), lineType1Formats[i]);
-                index += tokens[i].length() + 1;// add 1 position for the space
-            }
+    int index = -1;
+    if (text.startsWith("1 "))
+        index = 0;
+    else if (text.startsWith("0 GHOST "))
+        index = 8;
+    else if (text.startsWith("0 MLCAD HIDE "))
+        index = 13;
+    else
+        return;
+
+    QStringList tt = text.mid(index).trimmed().split(" ",QString::SkipEmptyParts);
+    QString part;
+    for (int t = 14; t < tt.size(); t++)
+        part += (tt[t]+" ");
+    QStringList tokens;
+    tokens  << tt[0]                        // - part type
+            << tt[1]                        // - color
+            << tt[2]+" "+tt[3]+" "+tt[4]    // - position
+            << tt[5]+" "+tt[6]+" "+tt[7]    // - transform
+            << tt[8]+" "+tt[9]+" "+tt[10]   // - transform
+            << tt[11]+" "+tt[12]+" "+tt[13] // - transform
+            << part.trimmed();              // - part
+
+    for (int i = 0; i < tokens.size(); i++) {
+        if (index >= 0 && index < text.length()) {
+            setFormat(index, tokens[i].length(), lineType1Formats[i]);
+            index += tokens[i].length() + 1;// add 1 position for the space
         }
     }
 }

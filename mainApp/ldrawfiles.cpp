@@ -486,7 +486,7 @@ void LDrawFile::loadFile(const QString &fileName)
 
     QTextStream in(&qba);
 
-    QRegExp sof("^\\s*0\\s+FILE\\s+(.*)$",Qt::CaseInsensitive);
+    QRegExp sof("^0\\s+FILE\\s+(.*)$",Qt::CaseInsensitive);
     QRegExp part("^\\s*1\\s+.*$",Qt::CaseInsensitive);
 
     while ( ! in.atEnd()) {
@@ -574,12 +574,12 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     QStringList stageContents;
     QStringList contents;
     QString     mpdName;
-    QRegExp sofRE("^\\s*0\\s+FILE\\s+(.*)$",Qt::CaseInsensitive);
-    QRegExp eofRE("^\\s*0\\s+NOFILE\\s*$",Qt::CaseInsensitive);
+    QRegExp sofRE("^0\\s+FILE\\s+(.*)$",Qt::CaseInsensitive);
+    QRegExp eofRE("^0\\s+NOFILE\\s*$",Qt::CaseInsensitive);
 
-    QRegExp upAUT("^\\s*0\\s+AUTHOR(.*)$",Qt::CaseInsensitive);
-    QRegExp upNAM("^\\s*0\\s+Name(.*)$",Qt::CaseInsensitive);
-    QRegExp upCAT("^\\s*0\\s+!CATEGORY(.*)$",Qt::CaseInsensitive);
+    QRegExp upAUT("^0\\s+Author:?\\s+(.*)$",Qt::CaseInsensitive);
+    QRegExp upNAM("^0\\s+Name:?\\s+(.*)$",Qt::CaseInsensitive);
+    QRegExp upCAT("^0\\s+!?CATEGORY\\s+(.*)$",Qt::CaseInsensitive);
 
     bool topLevelFileNotCaptured        = true;
     bool topLevelNameNotCaptured        = true;
@@ -589,7 +589,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     bool unofficialPart                 = false;
     int  descriptionLine                = 0;
 
-    /* Read content into temperory content file the first time to put into fileList in order of
+    /* Read content into temporary content file the first time to put into fileList in order of
        appearance and stage for later processing */
     while ( ! in.atEnd()) {
       QString sLine = in.readLine(0);
@@ -721,9 +721,9 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName, bool t
       in.setCodec(_currFileIsUTF ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
       QStringList contents;
 
-      QRegExp upNAM("^\\s*0\\s+Name(.*)$",Qt::CaseInsensitive);
-      QRegExp upAUT("^\\s*0\\s+AUTHOR(.*)$",Qt::CaseInsensitive);
-      QRegExp upCAT("^\\s*0\\s+!CATEGORY(.*)$",Qt::CaseInsensitive);
+      QRegExp upAUT("^0\\s+Author:?\\s+(.*)$",Qt::CaseInsensitive);
+      QRegExp upNAM("^0\\s+Name:?\\s+(.*)$",Qt::CaseInsensitive);
+      QRegExp upCAT("^0\\s+!?CATEGORY\\s+(.*)$",Qt::CaseInsensitive);
 
       bool topLevelDescriptionNotCaptured = true;
       bool topLevelNameNotCaptured        = true;
@@ -1367,56 +1367,54 @@ LDrawFile::LDrawFile()
 {
   {
     LDrawHeaderRegExp
-        << QRegExp("^\\s*0\\s+AUTHOR[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+AUTHOR:[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+BFC[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!CATEGORY[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+CLEAR[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!COLOUR[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!CMDLINE[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!HELP[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!HISTORY[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!KEYWORDS[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!LDRAW_ORG[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+LDRAW_ORG[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!LICENSE[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+NAME:[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+OFFICIAL[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+ORIGINAL\\s+LDRAW[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+PAUSE[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+PRINT[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+ROTATION[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+SAVE[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+UNOFFICIAL[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+UN-OFFICIAL[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+WRITE[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+~MOVED\\s+TO[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+AUTHOR:?[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+BFC[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?CATEGORY[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+CLEAR[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?COLOUR[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?CMDLINE[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?HELP[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?HISTORY[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?KEYWORDS[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?LDRAW_ORG[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?LICENSE[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+NAME:?[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+OFFICIAL[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+ORIGINAL\\s+LDRAW[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+PAUSE[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+PRINT[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+ROTATION[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+SAVE[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+UNOFFICIAL[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+UN-OFFICIAL[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+WRITE[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+~MOVED\\s+TO[^\n]*",Qt::CaseInsensitive)
            ;
   }
 
   {
     LDrawUnofficialFileTypeRegExp
-        << QRegExp("^\\s*0\\s+UNOFFICIAL\\s+PART[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Part)[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Subpart)[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Shortcut)[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Primitive)[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_8_Primitive)[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_48_Primitive)[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Part Alias)[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Shortcut Alias)[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Part Physical_Colour)[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial_Shortcut Physical_Colour)[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Part)[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Subpart)[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Shortcut)[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Primitive)[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial 8_Primitive)[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial 48_Primitive)[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Part Alias)[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Shortcut Alias)[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Part Physical_Colour)[^\n]*",Qt::CaseInsensitive)
-        << QRegExp("^\\s*0\\s+!*(?:LDRAW_ORG)* (Unofficial Shortcut Physical_Colour)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?UNOFFICIAL\\s+PART[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Part)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Subpart)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Shortcut)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Primitive)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_8_Primitive)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_48_Primitive)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Part Alias)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Shortcut Alias)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Part Physical_Colour)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial_Shortcut Physical_Colour)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Part)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Subpart)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Shortcut)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Primitive)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial 8_Primitive)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial 48_Primitive)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Part Alias)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Shortcut Alias)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Part Physical_Colour)[^\n]*",Qt::CaseInsensitive)
+        << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Shortcut Physical_Colour)[^\n]*",Qt::CaseInsensitive)
            ;
   }
 
