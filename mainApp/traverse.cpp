@@ -65,28 +65,67 @@
  ********************************************/
 
 static void remove_group(
-    QStringList  in,
-    QString      group,
-    QStringList &out)
+    QStringList  in,      // csiParts
+    QString      group,   // steps->meta.LPub.remove.group.value()
+    QStringList &out)     // newCSIParts
 {
-  QRegExp bgt("^\\s*0\\s+MLCAD\\s+BTG\\s+(.*)$");
-  QRegExp ldcg("^\\s*0\\s+!?LDCAD\\s+GROUP_NXT\\s+\\[ids=(\\d[^\\]]*)");
+  QRegExp bgt(  "^\\s*0\\s+MLCAD\\s+BTG\\s+(.*)$");
+  QRegExp ldcg( "^\\s*0\\s+!?LDCAD\\s+GROUP_NXT\\s+\\[ids=(\\d[^\\]]*)");
+  QRegExp leogb("^\\s*0\\s+!?LEOCAD\\s+GROUP\\s+BEGIN\\s+Group\\s+(#\\d+)$",Qt::CaseInsensitive);
+  QRegExp leoge("^\\s*0\\s+!?LEOCAD\\s+GROUP\\s+END$");
 
+  bool leoRemove = false;
+  int leoNest = 0;
   for (int i = 0; i < in.size(); i++) {
-      QString line = in.at(i);
+    QString line = in.at(i);
 
+      // MLCad and LDCad Groups
       if (line.contains(bgt) ||
           line.contains(ldcg)) {
-
           if ((bgt.cap(bgt.captureCount()) == group) ||
               (ldcg.cap(ldcg.captureCount()) == group)) {
               i++;
             } else {
               out << line;
             }
-        } else {
-          out << line;
-        }
+      }
+      // LeoCAD	Group Begin
+      else
+      if (line.contains(leogb)) {
+          if ((leogb.cap(leogb.captureCount()) == group)){
+            leoRemove = true;
+            i++;
+          }
+          else
+          if (leoRemove) {
+              leoNest++;
+              i++;
+          }
+          else {
+             out << line;
+          }
+      }
+      // LeoCAD	Group End
+      else
+      if (line.contains(leoge)) {
+          if (leoRemove) {
+              if (leoNest == 0) {
+                leoRemove = false;
+              } else {
+                leoNest--;
+              }
+          }
+          else {
+              out << line;
+          }
+      }
+      else
+      if (leoRemove) {
+             i++;
+      }
+      else {
+         out << line;
+      }
     }
 
   return;
@@ -623,6 +662,8 @@ int Gui::drawPage(
 
             case MLCadGroupRc:
             case LDCadGroupRc:
+            case LeoCadGroupBeginRc:
+            case LeoCadGroupEndRc:
               csiParts << line;
               break;
 
@@ -634,7 +675,7 @@ int Gui::drawPage(
 
             case PliBeginSub1Rc:
               if (pliIgnore) {
-                  parseError("Nested PLI BEGIN/ENDS not allowed\n",current);
+                  parseError("Nested PLI BEGIN/ENDS not allowed",current);
                 }
               if (steps->meta.LPub.pli.show.value() &&
                   ! pliIgnore &&
@@ -666,7 +707,7 @@ int Gui::drawPage(
               /* substitute part/parts with this */
             case PliBeginSub2Rc:
               if (pliIgnore) {
-                  parseError("Nested PLI BEGIN/ENDS not allowed\n",current);
+                  parseError("Nested PLI BEGIN/ENDS not allowed",current);
                 }
               if (steps->meta.LPub.pli.show.value() &&
                   ! pliIgnore &&
@@ -698,7 +739,7 @@ int Gui::drawPage(
               /* do not put subsequent parts into PLI */
             case PliBeginIgnRc:
               if (pliIgnore) {
-                  parseError("Nested PLI BEGIN/ENDS not allowed\n",current);
+                  parseError("Nested PLI BEGIN/ENDS not allowed",current);
                 }
               pliIgnore = true;
               break;
@@ -713,7 +754,7 @@ int Gui::drawPage(
             case PartBeginIgnRc:
             case MLCadSkipBeginRc:
               if (partIgnore) {
-                  parseError("Nested BEGIN/ENDS not allowed\n",current);
+                  parseError("Nested BEGIN/ENDS not allowed",current);
                 }
               partIgnore = true;
               break;
@@ -728,7 +769,7 @@ int Gui::drawPage(
 
             case SynthBeginRc:
               if (synthBegin) {
-                  parseError("Nested LSynth BEGIN/ENDS not allowed\n",current);
+                  parseError("Nested LSynth BEGIN/ENDS not allowed",current);
                 }
               synthBegin = true;
               break;
@@ -1799,6 +1840,8 @@ int Gui::findPage(
 
             case MLCadGroupRc:
             case LDCadGroupRc:
+            case LeoCadGroupBeginRc:
+            case LeoCadGroupEndRc:
               if (pageNum < displayPageNum) {
                   csiParts << line;
                   partsAdded = true;
@@ -2116,6 +2159,8 @@ int Gui::getBOMParts(
 
             case MLCadGroupRc:
             case LDCadGroupRc:
+            case LeoCadGroupBeginRc:
+            case LeoCadGroupEndRc:
               pliParts << Pli::partLine(line,current,meta);
               break;
 

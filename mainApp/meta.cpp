@@ -3550,6 +3550,53 @@ Rc LDCadMeta::parse(QStringList &argv, int index,Where &here)
   return rc;
 }
 
+/* ------------------ */
+
+void LeoCadMeta::init(BranchMeta *parent, QString name)
+{
+  AbstractMeta::init(parent, name);
+  group .init(this,"GROUP");
+}
+
+/* ------------------ */
+
+Rc LeoCadMeta::parse(QStringList &argv, int index,Where &here)
+{
+  Rc rc;
+
+  QHash<QString, AbstractMeta *>::iterator i = list.find(argv[index]);
+  if (i == list.end() || index == argv.size()) {
+      rc = OkRc;
+    } else {
+      rc = i.value()->parse(argv,index+1,here);
+    }
+  return rc;
+}
+
+/* ------------------ */
+
+void LeoCadGroupMeta::init(BranchMeta *parent, QString name)
+{
+  AbstractMeta::init(parent, name);
+  begin .init(this,"BEGIN", LeoCadGroupBeginRc);
+  end   .init(this,"END",   LeoCadGroupEndRc);
+}
+
+/* ------------------ */
+
+Rc LeoCadGroupMeta::parse(QStringList &argv, int index,Where &here)   //
+{
+  Rc rc;
+
+  QHash<QString, AbstractMeta *>::iterator i = list.find(argv[index]);
+  if (i == list.end() || index == argv.size()) {
+      rc = OkRc;
+    } else {
+      rc = i.value()->parse(argv,index+1,here);
+    }
+  return rc;
+}
+
 /* ------------------ */ 
 
 void LSynthMeta::init(BranchMeta *parent, QString name)
@@ -3588,6 +3635,7 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
   bfx    .init(this,"BUFEXCHG");
   MLCad  .init(this,"MLCAD");
   LDCad  .init(this,"LDCAD");
+  LeoCad .init(this,"LEOCAD");
   LSynth .init(this,"SYNTH");
 
   if (tokenMap.size() == 0) {
@@ -3675,8 +3723,10 @@ Rc Meta::parse(
 {
   QStringList argv;
   
-  QRegExp bgt("^\\s*0\\s+(MLCAD)\\s+(BTG)\\s+(.*)$");
-  QRegExp ldcg("^\\s*0\\s+!?(LDCAD)\\s+(GROUP_NXT)\\s+\\[ids=(\\d[^\\]]*)");
+  QRegExp bgt(  "^\\s*0\\s+(MLCAD)\\s+(BTG)\\s+(.*)$");
+  QRegExp ldcg( "^\\s*0\\s+!?(LDCAD)\\s+(GROUP_NXT)\\s+\\[ids=(\\d[^\\]]*)");
+  QRegExp leogb("^\\s*0\\s+!?(LEOCAD)\\s+(GROUP)\\s+(BEGIN)\\s+Group\\s+(.*)$",Qt::CaseInsensitive);
+  QRegExp leoge("^\\s*0\\s+!?(LEOCAD)\\s+(GROUP)\\s+(END)$");
 
   AbstractMeta::reportErrors = reportErrors;
 
@@ -3685,7 +3735,13 @@ Rc Meta::parse(
   } else
   if (line.contains(ldcg)) {
       argv << "LDCAD" << "GROUP_NXT" << ldcg.cap(3);
-  } else {
+  } else
+  if (line.contains(leogb)) {
+      argv << "LEOCAD" << "GROUP" << "BEGIN" << ldcg.cap(4);
+  }  else
+  if (line.contains(leoge)) {
+      argv << "LEOCAD" << "GROUP" << "END";
+  }else {
 
       /* Parse the input line into argv[] */
 

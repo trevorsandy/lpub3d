@@ -85,6 +85,8 @@ enum Rc {
          MLCadSkipEndRc,
          MLCadGroupRc,
          LDCadGroupRc,
+         LeoCadGroupBeginRc,
+         LeoCadGroupEndRc,
 
          PliBeginIgnRc,
          PliBeginSub1Rc,
@@ -2577,6 +2579,38 @@ public:
 
 /*------------------------*/
 
+class LeoCadGroupMeta : public BranchMeta
+{
+public:
+  RcMeta     begin;
+  RcMeta     end;
+  LeoCadGroupMeta() {}
+  virtual ~LeoCadGroupMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+  virtual Rc parse(QStringList &argv, int index, Where &here);
+  LeoCadGroupMeta(const LeoCadGroupMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+};
+
+
+/*------------------------*/
+
+class LeoCadMeta : public BranchMeta
+{
+public:
+  LeoCadGroupMeta     group;
+  LeoCadMeta() {}
+  virtual ~LeoCadMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+  virtual Rc parse(QStringList &argv, int index, Where &here);
+  LeoCadMeta(const LeoCadMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+};
+
+/*------------------------*/
+
 class LSynthMeta : public BranchMeta
 {
 public:
@@ -2643,6 +2677,7 @@ public:
   BuffExchgMeta bfx;
   MLCadMeta     MLCad;
   LDCadMeta     LDCad;
+  LeoCadMeta    LeoCad;
   LSynthMeta    LSynth;
 
   QList<SubmodelStack>  submodelStack;
@@ -2670,7 +2705,7 @@ public:
 private:
 };
 
-const QString RcNames[48] =
+const QString RcNames[50] =
 {
      "InvalidLDrawLineRc = -3",
      "RangeErrorRc = -2",
@@ -2703,6 +2738,8 @@ const QString RcNames[48] =
      "MLCadSkipEndRc",
      "MLCadGroupRc",
      "LDCadGroupRc",
+     "LeoCadGroupBeginRc",
+     "LeoCadGroupEndRc",
 
      "PliBeginIgnRc",
      "PliBeginSub1Rc",
