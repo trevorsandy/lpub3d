@@ -665,7 +665,7 @@ bool Gui::continuousPageDialog(Direction d)
 
           displayPage();
 
-          emit messageSig(LOG_STATUS,QString("Processed page %1, %2 of %3 for page range %4")
+          emit messageSig(LOG_STATUS,QString("Processed page %1 (%2 of %3) from the range of %4")
                           .arg(displayPageNum)
                           .arg(pageCount)
                           .arg(_maxPages)

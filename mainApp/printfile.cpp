@@ -670,6 +670,8 @@ void Gui::exportAsPdf()
 
       foreach(int printPage,printPages){
 
+          _pageCount++;
+
           if (! exporting()) {
               painter.end();
               if (Preferences::modeGUI)
@@ -682,21 +684,27 @@ void Gui::exportAsPdf()
 
           displayPageNum = printPage;
 
-          m_progressDlgMessageLbl->setText(QString("Exporting page %1 of %2 for range %3").arg(displayPageNum).arg(printPages.count()).arg(pageRanges.join(" ")));
-          m_progressDlgProgressBar->setValue(_pageCount++);
+          m_progressDlgMessageLbl->setText(QString("Exporting page %1 (%2 of %3) from the range of %4...")
+                                                   .arg(displayPageNum)
+                                                   .arg(_pageCount)
+                                                   .arg(printPages.count())
+                                                   .arg(pageRanges.join(" ")));
+          m_progressDlgProgressBar->setValue(_pageCount);
           QApplication::processEvents();
 
           // determine size of output image, in pixels
           getExportPageSize(pageWidthPx, pageHeightPx);
 
           bool  ls = getPageOrientation() == Landscape;
-          logNotice() << QString("Exporting page %3 of %6 for range %4, size(in pixels) W %1 x H %2, orientation %5")
-                        .arg(pageWidthPx)
-                        .arg(pageHeightPx)
-                        .arg(displayPageNum)
-                        .arg(pageRanges.join(" "))
-                        .arg(ls ? "Landscape" : "Portrait")
-                        .arg(printPages.count());
+          logNotice() << QString("Exporting page %1 (%2 of %3) from the range of %4, size(in pixels) W %5 x H %6, orientation %7")
+                        .arg(displayPageNum)                  //1
+                        .arg(_pageCount)                      //2
+                        .arg(printPages.count())              //3
+                        .arg(pageRanges.join(" "))            //4
+                        .arg(pageWidthPx)                     //5
+                        .arg(pageHeightPx)                    //6
+                        .arg(ls ? "Landscape" : "Portrait");  //7
+
 
           // set up the view
           QRectF boundingRect(0.0, 0.0, pageWidthPx, pageHeightPx);
