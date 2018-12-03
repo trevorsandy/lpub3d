@@ -329,7 +329,6 @@ void ParmsWindow::displayParmsFile(
     _textEdit->blockSignals(false);
     _textEdit->document()->setModified(false);
 
-
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
 #endif
@@ -452,10 +451,10 @@ void ParmsWindow::openFile()
 {
     QFileInfo fileInfo(gui->getCurFile());
     qDebug() << fileInfo.absoluteFilePath();
-    QString filter(QFileDialog::tr("stderr (stderr-*);;stdout (stdout-*)"));
+    QString filter(QFileDialog::tr("log (LPub3DLog*);;stderr (stderr-*);;stdout (stdout-*)"));
     if (maybeSave()) {
         QString fileName = QFileDialog::getOpenFileName(nullptr,
-                           QFileDialog::tr("Select stderr or stdout file"),
+                           QFileDialog::tr("Select log, stderr or stdout file"),
                            fileInfo.absolutePath(),
                            filter);
 

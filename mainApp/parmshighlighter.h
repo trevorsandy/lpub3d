@@ -54,15 +54,19 @@ private:
 
     QVector<HighlightingRule> highlightingRules;
 
-    QRegExp commentStartExpression;
-    QRegExp commentEndExpression;
+    QList<QTextCharFormat> lineFormats;
 
-    QTextCharFormat officialMetaFormat;
-    QTextCharFormat LPubParmsFormat;
+    QTextCharFormat LPubParmsCommentFormat;
     QTextCharFormat LPubParmsHdrFormat;
-    QTextCharFormat multiLineCommentFormat;
     QTextCharFormat LPubParmsEqualFormat;
     QTextCharFormat LPubParmsValueFormat;
+
+    QTextCharFormat LPubVal1Format;   // br05 Part ID
+    QTextCharFormat LPubVal2Format;   // br06 Part Control
+    QTextCharFormat LPubVal3Format;   // br07 Part Description
+
+    int option;
+
 };
 
 #endif // PARMSHIGHLIGHTER_H

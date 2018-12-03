@@ -230,6 +230,10 @@ enum Theme { ThemeDark, ThemeDefault };
 #define THEME_HIGHLIGHT_C_DEFAULT       "#0057ff" // 06
 #define THEME_HIGHLIGHT_D_DEFAULT       "#b25a2f" // 07
 
+#define THEME_HIGHLIGHT_E_DEFAULT       "#084575" // br05 Part ID
+#define THEME_HIGHLIGHT_F_DEFAULT       "#9421a6" // br06 Part Control
+#define THEME_HIGHLIGHT_G_DEFAULT       "#aa0000" // br07 Part Description
+
 // -----------------------------------------------//
 
 #define THEME_DARK                      "Dark"    // Dark Theme
@@ -275,6 +279,10 @@ enum Theme { ThemeDark, ThemeDefault };
 #define THEME_HIGHLIGHT_B_DARK          "#0079cf" // 02 Custom Blue
 #define THEME_HIGHLIGHT_C_DARK          "#ff5227" // 06 Custom Orange
 #define THEME_HIGHLIGHT_D_DARK          "#bbbfff" // 07 Custom Violet
+
+#define THEME_HIGHLIGHT_E_DARK          "#c3f6fe" // br05 Part ID
+#define THEME_HIGHLIGHT_F_DARK          "#9421a6" // br06 Part Control
+#define THEME_HIGHLIGHT_G_DARK          "#aa0000" // br07 Part Description
 
 #define THEME_EDITWINDOW_LINE_DARK      "#5d5b59" // 06 Qt Medium Gray
 #endif

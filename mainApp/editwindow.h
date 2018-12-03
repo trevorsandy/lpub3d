@@ -74,6 +74,8 @@ private:
     QString       fileName;    // of file currently being displayed
 
     QMenu    *editMenu;
+    QAction  *topAct;
+    QAction  *bottomAct;
     QAction  *cutAct;
     QAction  *copyAct;
     QAction  *pasteAct;
@@ -91,6 +93,8 @@ private slots:
     // Maybe this helps resizing the editwindow (Jaco)
     void redraw();
     void highlightCurrentLine();
+    void topOfDocument();
+    void bottomOfDocument();
 
 public slots:
     void displayFile(LDrawFile *, const QString &fileName);

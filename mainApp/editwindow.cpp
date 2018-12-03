@@ -98,12 +98,24 @@ void EditWindow::createActions()
     selAllAct->setStatusTip(tr("Select all page content - Ctrl+A"));
     connect(selAllAct, SIGNAL(triggered()), _textEdit, SLOT(selectAll()));
 
+    topAct = new QAction(QIcon(":/resources/topofdocument.png"), tr("Top of document"), this);
+    topAct->setShortcut(tr("Ctrl+T"));
+    topAct->setStatusTip(tr("Navigate to the top of document - Ctrl+T"));
+    connect(topAct, SIGNAL(triggered()), this, SLOT(topOfDocument()));
+
+    bottomAct = new QAction(QIcon(":/resources/bottomofdocument.png"), tr("Bottom of document"), this);
+    bottomAct->setShortcut(tr("Ctrl+B"));
+    bottomAct->setStatusTip(tr("Navigate to the bottom of document - Ctrl+B"));
+    connect(bottomAct, SIGNAL(triggered()), this, SLOT(bottomOfDocument()));
+
     cutAct->setEnabled(false);
     copyAct->setEnabled(false);
     delAct->setEnabled(false);
     redrawAct->setEnabled(false);
     selAllAct->setEnabled(false);
     findAct->setEnabled(false);
+    topAct->setEnabled(false);
+    bottomAct->setEnabled(false);
     connect(_textEdit, SIGNAL(copyAvailable(bool)),
             cutAct,    SLOT(setEnabled(bool)));
     connect(_textEdit, SIGNAL(copyAvailable(bool)),
@@ -116,6 +128,8 @@ void EditWindow::createToolBars()
 {
     editToolBar = addToolBar(tr("Edit"));
     editToolBar->setObjectName("EditToolbar");
+    editToolBar->addAction(topAct);
+    editToolBar->addAction(bottomAct);
     editToolBar->addAction(selAllAct);
     editToolBar->addAction(cutAct);
     editToolBar->addAction(copyAct);
@@ -168,6 +182,14 @@ void EditWindow::highlightCurrentLine()
     }
 
      _textEdit->setExtraSelections(extraSelections);
+}
+
+void EditWindow::topOfDocument(){
+    _textEdit->moveCursor(QTextCursor::Start);
+}
+
+void EditWindow::bottomOfDocument(){
+    _textEdit->moveCursor(QTextCursor::End);
 }
 
 void EditWindow::pageUpDown(
@@ -230,17 +252,14 @@ void EditWindow::displayFile(
   selAllAct->setEnabled(true);
   redrawAct->setEnabled(true);
   findAct->setEnabled(true);
+  topAct->setEnabled(true);
+  bottomAct->setEnabled(true);
 
 }
-// Jaco is trying to get the edit window to resize...
 
 void EditWindow::redraw()
 {
   redrawSig();
-// QT manual says
-// void QWidget::adjustSize ()
-// Adjusts the size of the widget to fit its contents.
-//  adjustSize(); //Does not work.
 }
 
 QTextEditor::QTextEditor(QWidget *parent) :

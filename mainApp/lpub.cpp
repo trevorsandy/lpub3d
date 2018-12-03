@@ -717,15 +717,23 @@ bool Gui::processPageRange(const QString &range)
 
 void Gui::firstPage()
 {
-  displayPageNum = 1;
-  displayPage();
+  if (displayPageNum == 1) {
+    statusBarMsg("You are on the first page");
+  } else {
+    displayPageNum = 1;
+    displayPage();
+  }
 }
 
 void Gui::lastPage()
 {
-  countPages();
-  displayPageNum = maxPages;
-  displayPage();
+  if (displayPageNum == maxPages) {
+    statusBarMsg("You are on the last page");
+  } else {
+    countPages();
+    displayPageNum = maxPages;
+    displayPage();
+  }
 }
 
 void Gui::setPage()

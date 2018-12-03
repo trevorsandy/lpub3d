@@ -39,11 +39,20 @@ ParmsHighlighter::ParmsHighlighter(QTextDocument *parent)
     QBrush br02; // Qt Dark blue
     QBrush br03; // Custom  blue
     QBrush br04; // Custom  orange/violet
+
+    QBrush br05; //
+    QBrush br06; //
+    QBrush br07; //
+
     if (Preferences::displayTheme == THEME_DEFAULT) {
         br01 = QBrush(QColor(THEME_HIGHLIGHT_A_DEFAULT));
         br02 = QBrush(QColor(THEME_HIGHLIGHT_B_DEFAULT));
         br03 = QBrush(QColor(THEME_HIGHLIGHT_C_DEFAULT));
         br04 = QBrush(QColor(THEME_HIGHLIGHT_D_DEFAULT));
+
+        br05 = QBrush(QColor(THEME_HIGHLIGHT_E_DEFAULT));
+        br06 = QBrush(QColor(THEME_HIGHLIGHT_F_DEFAULT));
+        br07 = QBrush(QColor(THEME_HIGHLIGHT_G_DEFAULT));
       }
     else
     if (Preferences::displayTheme == THEME_DARK)  {
@@ -51,35 +60,60 @@ ParmsHighlighter::ParmsHighlighter(QTextDocument *parent)
         br02 = QBrush(QColor(THEME_HIGHLIGHT_B_DARK));
         br03 = QBrush(QColor(THEME_HIGHLIGHT_C_DARK));
         br04 = QBrush(QColor(THEME_HIGHLIGHT_D_DARK));
+
+        br05 = QBrush(QColor(THEME_HIGHLIGHT_E_DARK));
+        br06 = QBrush(QColor(THEME_HIGHLIGHT_F_DARK));
+        br07 = QBrush(QColor(THEME_HIGHLIGHT_G_DARK));
       }
 
-    LPubParmsFormat.setForeground(br01);
-    LPubParmsFormat.setFontWeight(QFont::Bold);
-    rule.pattern = QRegExp("[#|;][^\n]*");
-    rule.format = LPubParmsFormat;
-    highlightingRules.append(rule);
+    /* INI file formats */
 
+    // INI Header
     LPubParmsHdrFormat.setForeground(br02);
     LPubParmsHdrFormat.setFontWeight(QFont::Bold);
     rule.pattern = QRegExp("^\\[.*[^\n]\\]$");
     rule.format = LPubParmsHdrFormat;
     highlightingRules.append(rule);
 
+    // Right side value
     LPubParmsValueFormat.setForeground(br04);
     LPubParmsValueFormat.setFontWeight(QFont::Normal);
     rule.pattern = QRegExp("\\=(.*)");
     rule.format = LPubParmsValueFormat;
     highlightingRules.append(rule);
 
+    // Equal sign
     LPubParmsEqualFormat.setForeground(br03);
     LPubParmsEqualFormat.setFontWeight(QFont::Bold);
     rule.pattern = QRegExp("=");
     rule.format = LPubParmsEqualFormat;
     highlightingRules.append(rule);
 
-    multiLineCommentFormat.setForeground(br01);
-    commentStartExpression = QRegExp("\\b#\\b+[^\n]*");
-    commentEndExpression   = QRegExp("\\#!\\b+[^\n]*");
+    // Comment
+    LPubParmsCommentFormat.setForeground(br01);
+    LPubParmsCommentFormat.setFontWeight(QFont::Normal);
+    rule.pattern = QRegExp("^[#|;][^\n]*");
+    rule.format = LPubParmsCommentFormat;
+    highlightingRules.append(rule);
+
+    /* List file formats */
+
+    // br05 - Part ID
+    LPubVal1Format.setForeground(br05);
+    LPubVal1Format.setFontWeight(QFont::Bold);
+    lineFormats.append(LPubVal1Format);
+
+    // br06 - Part Control
+    LPubVal2Format.setForeground(br06);
+    LPubVal2Format.setFontWeight(QFont::Bold);
+
+
+    // br07 - Part Description
+    LPubVal3Format.setForeground(br07);
+    LPubVal3Format.setFontWeight(QFont::Normal);
+
+    option = 0;
+
 }
 
 void ParmsHighlighter::highlightBlock(const QString &text)
@@ -97,24 +131,103 @@ void ParmsHighlighter::highlightBlock(const QString &text)
 
     setCurrentBlockState(0);
 
-    int startIndex = 0;
-    if (previousBlockState() != 1)
-        startIndex = text.indexOf(commentStartExpression);
+    if (text.contains(QString::fromLatin1(VER_PLI_SUBSTITUTE_PARTS_FILE),Qt::CaseInsensitive))
+        option = 1;
+    else if (text.contains(QString::fromLatin1(VER_TITLE_ANNOTATIONS_FILE),Qt::CaseInsensitive))
+        option = 2;
+    else if (text.contains(QString::fromLatin1(VER_FREEFOM_ANNOTATIONS_FILE),Qt::CaseInsensitive))
+        option = 3;
+    else if (text.contains(QString::fromLatin1(VER_EXCLUDED_PARTS_FILE),Qt::CaseInsensitive))
+        option = 4;
+    else if (text.contains(QString::fromLatin1(VER_LPUB3D_LEGO_COLOR_PARTS),Qt::CaseInsensitive))
+        option = 5;
+    else if (!option)
+        return;
 
-    while (startIndex >= 0) {
-        int endIndex = text.indexOf(commentEndExpression, startIndex);
-        int commentLength;
-        if (endIndex == -1) {
-            setCurrentBlockState(1);
-            commentLength = text.length() - startIndex;
-        } else {
-            commentLength = endIndex - startIndex
-                            + commentEndExpression.matchedLength();
+    int index  = 0;
+
+    QStringList tokens;
+
+    switch (option)
+    {
+    case 1:
+    {
+        // VER_PLI_SUBSTITUTE_PARTS_FILE
+        QRegExp rx1("^(\\b.+\\b)\\s+\"(.*)\"\\s+(.*)$");
+        if (text.contains(rx1)) {
+            tokens
+            << rx1.cap(1).trimmed()
+            << "\""+rx1.cap(2).trimmed()+"\""
+            << rx1.cap(3).trimmed();
+            lineFormats.append(LPubVal2Format);
+            lineFormats.append(LPubVal3Format);
         }
+    }
+        break;
+    case 2:
+    {
+        // VER_TITLE_ANNOTATIONS_FILE
+        QRegExp rx2("^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$");
+        if (text.contains(rx2)) {
+            tokens
+            << rx2.cap(1).trimmed()
+            << rx2.cap(2).trimmed();
+            lineFormats.append(LPubVal3Format);
+        }
+    }
+        break;
+    case 3:
+    {
+        // VER_FREEFOM_ANNOTATIONS_FILE
+        QRegExp rx3("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
+        if (text.contains(rx3)) {
+            tokens
+            << rx3.cap(1).trimmed()
+            << rx3.cap(2).trimmed();
+            lineFormats.append(LPubVal3Format);
+        }
+    }
+        break;
+    case 4:
+    {
+        // VER_EXCLUDED_PARTS_FILE
+        QRegExp rx4("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
+        if (text.contains(rx4)) {
+            tokens
+            << rx4.cap(1).trimmed()
+            << rx4.cap(2).trimmed();
+            lineFormats.append(LPubVal3Format);
+        }
+    }
+        break;
+    case 5:
+    {
+        // VER_LPUB3D_LEGO_COLOR_PARTS
+        QRegExp rx5("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(u|o)\\s+(.*)$");
+        if (text.contains(rx5)) {
+            tokens
+            << rx5.cap(1).trimmed()
+            << rx5.cap(2).trimmed()
+            << rx5.cap(3).trimmed();
+            lineFormats.append(LPubVal2Format);
+            lineFormats.append(LPubVal3Format);
+        }
+    }
+        break;
+    default:
+        return;
+    }
 
-        setFormat(startIndex, commentLength, multiLineCommentFormat);
-        startIndex = text.indexOf(commentStartExpression,
-                                                startIndex + commentLength);
+    for (int i = 0; i < tokens.size(); i++) {
+        if (index >= 0 && index < text.length()) {
+            setFormat(index, tokens[i].length(), lineFormats[i]);
+            index += tokens[i].length();
+            for ( ; index < text.length(); index++) {  // move past blank spaces
+                if (text[index] != ' ') {
+                    break;
+                }
+            }
+        }
     }
 }
 
