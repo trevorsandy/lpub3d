@@ -541,7 +541,6 @@ int Pli::createPartImage(
     bool fadePartOK = fadeSteps && !highlightStep && displayIcons;
     bool highlightPartOK = highlightStep && !fadeSteps && displayIcons;
 
-    QStringList partialKeys = partialKey.split("_");
     bool isColorPart = gui->ldrawColourParts.isLDrawColourPart(type);
 
     for (int pT = 0; pT < ptn.size(); pT++ ) {
@@ -557,7 +556,7 @@ int Pli::createPartImage(
         bool showElapsedTime = false;
 
         // moved from enum to save weight
-        ia.baseName[pT] = partialKeys.first();
+        ia.baseName[pT] = QFileInfo(type).baseName();
         ia.partColor[pT] = (pT == FADE_PART && fadeSteps && Preferences::fadeStepsUseColour) ? fadeColour : color;
 
         emit gui->messageSig(LOG_STATUS, QString("Render PLI image for [%1] parts...").arg(PartTypeNames[pT]));
@@ -1567,7 +1566,6 @@ int Pli::partSizeLDViewSCall() {
             bool isColorPart = gui->ldrawColourParts.isLDrawColourPart(pliPart->type);
 
             emit gui->messageSig(LOG_INFO, QString("Processing PLI part for nameKey [%1]").arg(pliPart->nameKey));
-            QStringList partialKeys = pliPart->nameKey.split("_");
 
             for (int pT = 0; pT < ptn.size(); pT++ ) {
 
@@ -1578,7 +1576,7 @@ int Pli::partSizeLDViewSCall() {
                      continue;
 
                 // moved from enum to save weight
-                ia.baseName[pT] = partialKeys.first();
+                ia.baseName[pT] = QFileInfo(pliPart->type).baseName();
                 ia.partColor[pT] = (pT == FADE_PART && fadeSteps && Preferences::fadeStepsUseColour) ? fadeColour : pliPart->color;
 
                 // assemble ldr name
