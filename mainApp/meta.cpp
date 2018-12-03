@@ -3421,7 +3421,7 @@ CalloutMeta::CalloutMeta() : BranchMeta()
   stepNum.color.setValue("black");
   // stepNum.font - default
   stepNum.placement.setValue(LeftTopOutside,PartsListType);
-  sep.setValueInches("Black",DEFAULT_THICKNESS,DEFAULT_MARGINS, false);
+  sep.setValueInches("Black",DEFAULT_THICKNESS,DEFAULT_MARGINS);
   BorderData borderData;
   borderData.type = BorderData::BdrSquare;
   borderData.line = BorderData::BdrLnSolid;
@@ -3518,7 +3518,7 @@ MultiStepMeta::MultiStepMeta() : BranchMeta()
   stepNum.color.setValue("black");
   // stepNum.font - default
   placement.setValue(CenterCenter,PageType);
-  sep.setValue("black",DEFAULT_THICKNESS,DEFAULT_MARGINS,false);
+  sep.setValue("black",DEFAULT_THICKNESS,DEFAULT_MARGINS);
   // subModelFont - default
   subModelFontColor.setValue("black");
   // freeform

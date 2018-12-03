@@ -462,13 +462,11 @@ public:
   float   thickness;  // in units
   QString color;
   float   margin[2];  // in units
-  bool    haspointer;
   SepData()
   {
     thickness  = 0.125;
     margin[0]  = 0;
     margin[1]  = 0;
-    haspointer = false;
   }
 };
 

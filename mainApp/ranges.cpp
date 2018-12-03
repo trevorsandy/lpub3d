@@ -534,7 +534,8 @@ void Steps::addGraphicsItems(
 
               DividerItem *divider = new DividerItem(step,&meta,oX,oY);
               divider->setParentItem(parent);
-              //   add the divider pointers to the graphics scene
+
+              //   add divider pointers (if any) to the graphics scene
               for (int i = 0; i < range->dividerPointerList.size(); i++) {
                   Pointer *pointer = range->dividerPointerList[i];
                   divider->addGraphicsPointerItem(pointer,range->view);

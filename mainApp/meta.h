@@ -1634,8 +1634,7 @@ public:
   void setValue(QString color, 
                 float thickness,
                 float margin0,
-                float margin1,
-                bool  haspointer)
+                float margin1)
   {
     if (resolutionType() == DPCM) {
       thickness = centimeters2inches(thickness);
@@ -1646,7 +1645,6 @@ public:
     _value[pushed].thickness = thickness;
     _value[pushed].margin[0] = margin0;
     _value[pushed].margin[1] = margin1;
-    _value[pushed].haspointer= haspointer;
   }
   void setValue(SepData goods)
   {
@@ -1668,14 +1666,12 @@ public:
   void setValueInches(QString color, 
                 float thickness,
                 float margin0,
-                float margin1,
-                bool  haspointer)
+                float margin1)
   {
     _value[pushed].color = color;
     _value[pushed].thickness = thickness;
     _value[pushed].margin[0] = margin0;
     _value[pushed].margin[1] = margin1;
-    _value[pushed].haspointer= haspointer;
   }
   void setValueInches(SepData &sepData)
   {
