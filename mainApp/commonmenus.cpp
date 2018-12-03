@@ -261,11 +261,11 @@ QAction* CommonMenus::subModelColorMenu(
 {
   QAction *action;
 
-  QString formatted = QString("Change %1 SubModel Level Color") .arg(name);
+  QString formatted = QString("Change %1 Submodel Color") .arg(name);
   action = menu.addAction(formatted);
   action->setIcon(QIcon(":/resources/submodelcolor.png"));
 
-  formatted = QString("You can change the %1 subModel level background color.") .arg(name);
+  formatted = QString("You can change the %1 Submodel level background color.") .arg(name);
   action->setWhatsThis(formatted);
 
   return action;
@@ -643,25 +643,25 @@ QString type2english2(PlacementType type)
     case PageType:
       return "this page";
 
-    break;
+      break;
 
     case CsiType:
 
       return "a step assembly image";
 
-    break;
+      break;
 
     case StepGroupType:
 
       return "a group of steps";
 
-    break;
+      break;
 
     case StepNumberType:
 
       return "a step number";
 
-    break;
+      break;
 
     case PartsListType:
 
@@ -679,13 +679,13 @@ QString type2english2(PlacementType type)
 
       return "a callout";
 
-    break;
+      break;
 
     case PageNumberType:
 
       return "the page number";
 
-    break;
+      break;
 
   case PageTitleType:
 

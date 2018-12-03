@@ -44,7 +44,7 @@ SubModelColorDialog::SubModelColorDialog(
   QVBoxLayout *layout = new QVBoxLayout(this);
   setLayout(layout);
 
-  QGroupBox *box = new QGroupBox("Sub-Model Level Colors",this);
+  QGroupBox *box = new QGroupBox("Submodel Level Colors",this);
   layout->addWidget(box);
   subModelColor = new SubModelColorGui(&meta,box);
 

@@ -61,9 +61,9 @@ GlobalPliDialog::GlobalPliDialog(
   data = new GlobalPliPrivate(topLevelFile,meta,bom);
 
   if (bom) {
-    setWindowTitle(tr("Bill of Materials Setup"));
+    setWindowTitle(tr("Bill of Materials Globals Setup"));
   } else {
-    setWindowTitle(tr("Parts List Setup"));
+    setWindowTitle(tr("Parts List Globals Setup"));
   }
 
   QTabWidget  *tab = new QTabWidget(nullptr);
@@ -217,14 +217,14 @@ GlobalPliDialog::GlobalPliDialog(
   tab->addTab(widget,"Annotations/Sorting");
 
   /*
-   * Sub-Model colors
+   * Submodel colors
    */
 
   widget = new QWidget();
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
-  box = new QGroupBox(tr("Sub-Model Level Colors"));
+  box = new QGroupBox(tr("Submodel Level Colors"));
   vlayout->addWidget(box);
   child = new SubModelColorGui(&pliMeta->subModelColor,box);
   data->children.append(child);
@@ -232,7 +232,7 @@ GlobalPliDialog::GlobalPliDialog(
   //spacer
   vlayout->addSpacerItem(vSpacer);
 
-  tab->addTab(widget,"SubModel Colors");
+  tab->addTab(widget,"Submodel Colors");
 
   QDialogButtonBox *buttonBox;
 

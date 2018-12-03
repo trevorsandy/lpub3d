@@ -2348,7 +2348,7 @@ void PliBackgroundItem::contextMenuEvent(
                            bottom,
                            &pli->pliMeta.background);
         } else if (selectedAction == subModelColorAction) {
-          changeSubModelColor("SubModel Color",
+          changeSubModelColor(me+" Background Color",
                            top,
                            bottom,
                            &pli->pliMeta.subModelColor);

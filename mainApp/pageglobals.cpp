@@ -270,7 +270,7 @@ GlobalPageDialog::GlobalPageDialog(
   // child footer end
 
   /*
-    SubModel Color,
+    Submodel Color,
   */
   // child header (one) start
   widget = new QWidget();

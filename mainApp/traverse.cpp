@@ -1121,32 +1121,32 @@ int Gui::drawPage(
                   if (firstStep) {
                       steps->stepGroupMeta = curMeta;
                       firstStep = false;
-                    }
+                  }
 
                   if (pliIgnore) {
                       parseError("PLI BEGIN then STEP. Expected PLI END",current);
                       pliIgnore = false;
-                    }
+                  }
                   if (partIgnore) {
                       parseError("PART BEGIN then STEP. Expected PART END",current);
                       partIgnore = false;
-                    }
+                  }
                   if (synthBegin) {
                       parseError("SYNTH BEGIN then STEP. Expected SYNTH_END",current);
                       synthBegin = false;
-                    }
+                  }
 
                   bool pliPerStep;
 
                   if (multiStep && steps->meta.LPub.multiStep.pli.perStep.value()) {
                       pliPerStep = true;
-                    } else if (calledOut && steps->meta.LPub.callout.pli.perStep.value()) {
+                  } else if (calledOut && steps->meta.LPub.callout.pli.perStep.value()) {
                       pliPerStep = true;
-                    } else if ( ! multiStep && ! calledOut && steps->meta.LPub.stepPli.perStep.value()) {
+                  } else if ( ! multiStep && ! calledOut && steps->meta.LPub.stepPli.perStep.value()) {
                       pliPerStep = true;
-                    } else {
+                  } else {
                       pliPerStep = false;
-                    }
+                  }
 
                   if (step) {
                       Page *page = dynamic_cast<Page *>(steps);
@@ -1162,9 +1162,9 @@ int Gui::drawPage(
                               relativeType = StepGroupType;
                           } else if (calledOut) {
                               relativeType = CalloutType;
-                            } else {
+                          } else {
                               relativeType = SingleStepType;
-                            }
+                          }
 
                           step->pli.setParts(pliParts,steps->meta);
                           pliParts.clear();
@@ -1212,28 +1212,28 @@ int Gui::drawPage(
                       emit messageSig(LOG_STATUS, "Processing step (CSI) for " + topOfStep.modelName + "...");
                       csiName = step->csiName();
                       int rc = step->createCsi(
-                            isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
-                            saveCsiParts = configureModelStep(csiParts, step->modelDisplayOnlyStep ? -1 : stepNum, topOfStep),
-                            &step->csiPixmap,
-                            steps->meta);
+                                  isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
+                                  saveCsiParts = configureModelStep(csiParts, step->modelDisplayOnlyStep ? -1 : stepNum, topOfStep),
+                                  &step->csiPixmap,
+                                  steps->meta);
 
                       if (rc) {
                           emit messageSig(LOG_ERROR, QMessageBox::tr("Failed to create CSI file."));
                           return rc;
-                        }
+                      }
 
                       if (renderer->useLDViewSCall() && ! step->ldrName.isNull()) {
                           ldrStepFiles << step->ldrName;
                           csiKeys << step->csiKey;
                           //qDebug() << "CSI ldr file #"<< ldrStepFiles.count() <<"added: " << step->ldrName;
                           //qDebug() << "CSI key #"<< csiKeys.count() <<"added: " << step->csiKey;
-                        }
+                      }
 
-                    } else {
+                  } else {
 
                       if (pliPerStep) {
                           pliParts.clear();
-                        }
+                      }
 
                       // Only pages or step can have inserts and pointers... not callouts
                       if ( ! multiStep && ! calledOut) {
@@ -1241,9 +1241,9 @@ int Gui::drawPage(
                           if (page) {
                               page->inserts      = inserts;
                               page->pagePointers = pagePointers;
-                            }
-                        }
-                    }
+                          }
+                      }
+                  }
 
                   // STEP - Simple STEP
                   if ( ! multiStep && ! calledOut) {
@@ -1256,7 +1256,7 @@ int Gui::drawPage(
 
                       bool endOfSubmodel = numSteps == 0 || stepNum >= numSteps;
 
-                      // Get submodel instnce count
+                      // Get submodel instance count
                       int  instances = ldrawFile.instances(current.modelName, isMirrored);
                       if (instances > 1 && ! steps->meta.LPub.mergeInstanceCount.value()) {
                           MetaItem mi;
@@ -1277,9 +1277,9 @@ int Gui::drawPage(
                                       QString pliLine = pliParts[index];
                                       for (int i = 0; i < instances; i++) {
                                           instancesPliParts << pliLine;
-                                        }
-                                    }
-                                }
+                                      }
+                                  }
+                              }
 
                               step->pli.setParts(instancesPliParts,steps->meta);
                               instancesPliParts.clear();
@@ -1288,8 +1288,8 @@ int Gui::drawPage(
                               emit messageSig(LOG_STATUS, "Add PLI images for single-step page...");
 
                               step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
-                            }
-                        }
+                          }
+                      }
 
                       emit messageSig(LOG_STATUS, "Add CSI image for single-step page...");
 
@@ -1308,9 +1308,9 @@ int Gui::drawPage(
                                                QString("%1 CSI (Single Call) render took "
                                                        "%2 milliseconds to render %3 [Step %4] %5 for %6 "
                                                        "single step on page %7.")
-                                         .arg(Render::getRenderer())
-                                         .arg(timer.elapsed())
-                                         .arg(ldrStepFiles.size())
+                                               .arg(Render::getRenderer())
+                                               .arg(timer.elapsed())
+                                               .arg(ldrStepFiles.size())
                                                .arg(stepNum)
                                                .arg(ldrStepFiles.size() == 1 ? "image" : "images")
                                                .arg(calledOut ? "called out," : "simple,")
@@ -1322,7 +1322,7 @@ int Gui::drawPage(
                       steps->setBottomOfSteps(current);
 
                       return HitEndOfPage;
-                    }
+                  }
 
                   steps->meta.pop();
                   stepNum += partsAdded;
@@ -1336,7 +1336,7 @@ int Gui::drawPage(
                   bfxStore2 = bfxStore1;
                   bfxStore1 = false;
                   bfxLoad = false;
-                }
+              }
 
               if ( ! multiStep) {
                   inserts.clear();
@@ -2649,7 +2649,7 @@ void Gui::writeToTmp()
   if (Preferences::modeGUI && ! exporting()) {
       emit progressPermSetValueSig(ldrawFile._subFileOrder.size());
       emit progressPermStatusRemoveSig();
-    }
+  }
   emit messageSig(LOG_STATUS, upToDate ? "No submodels written; temp directory up to date." : "Submodels written to temp directory.");
 }
 

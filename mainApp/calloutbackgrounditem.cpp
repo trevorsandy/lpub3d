@@ -180,7 +180,7 @@ void CalloutBackgroundItem::contextMenuEvent(
                     &placement,false,0,false,false);
 
   } else if (selectedAction == editSubModelColorAction) {
-      changeSubModelColor("SubModel Color",
+      changeSubModelColor("Submodel Color",
                        callout->topOfCallout(),
                        callout->bottomOfCallout(),
                        &subModelColor,0,false,false);
