@@ -532,6 +532,7 @@ bool Gui::continuousPageDialog(Direction d)
       nextPageContinuousIsRunning = !nextPageContinuousIsRunning;
     }
 
+  // Validate the page range
   if (processOption == EXPORT_PAGE_RANGE){
       if (! validatePageRange()){
           setPageContinuousIsRunning(false);
@@ -589,11 +590,16 @@ bool Gui::continuousPageDialog(Direction d)
 
       QApplication::restoreOverrideCursor();
 
-    } else if (processOption == EXPORT_PAGE_RANGE) {
+    }
+  else
+  // Processing page range
+  if (processOption == EXPORT_PAGE_RANGE) {
 
       QStringList pageRanges = pageRangeText.split(",");
       QList<int> printPages;
+      // Split page range values
       foreach(QString ranges,pageRanges){
+          // If n-n range, split into start through end pages
           if (ranges.contains("-")){
               QStringList range = ranges.split("-");
               int startPage = range[0].toInt();
@@ -607,11 +613,15 @@ bool Gui::continuousPageDialog(Direction d)
                       printPages.append(i);
                     }
                 }
-            } else {
+            }
+          // Or just add the range value
+          else
+            {
               printPages.append(ranges.toInt());
             }
         }
 
+      // Sort the page numbers
       if (d == PAGE_NEXT)
         std::sort(printPages.begin(),printPages.end(),lt);    // Next - small to large
       else
@@ -623,6 +633,7 @@ bool Gui::continuousPageDialog(Direction d)
 
       QApplication::setOverrideCursor(Qt::BusyCursor);
 
+      // process each page
       foreach(int printPage,printPages){
 
           displayPageNum = printPage;

@@ -120,7 +120,7 @@
            </sizepolicy>
           </property>
           <property name="toolTip">
-           <string>Enter page numbers and/or page ranges. For example, 1,3,5,7-9</string>
+           <string>Enter comma-separated page numbers and/or page ranges. For example, 1,3,5,7-9</string>
           </property>
          </widget>
         </item>

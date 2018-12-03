@@ -139,7 +139,7 @@ OrientationEnc Gui::getPageOrientation(bool nextPage)
 #endif
       return i.value().orientation;
     }
-  emit messageSig(LOG_ERROR,tr("Could not load page %1 orientaiton parameter.").arg(pageNum));
+  emit messageSig(LOG_ERROR,tr("Could not load page %1 orientation parameter.").arg(pageNum));
   return InvalidOrientation;
 }
 
@@ -331,8 +331,8 @@ bool Gui::validatePageRange(){
           bool ok[2];
           QStringList range = ranges.split("-");
 
-          int startPage = range[0].toInt();
-          int endPage = range[1].toInt();
+          int startPage = range[0].toInt(&ok[0]);
+          int endPage = range[1].toInt(&ok[1]);
           if (!ok[0] || !ok[1]){
               message = QString("%1-%2").arg(startPage).arg(endPage);
               validEntry = false;
