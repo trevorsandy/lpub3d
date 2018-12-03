@@ -87,24 +87,67 @@ protected:
     void contextMenuEvent (QGraphicsSceneContextMenuEvent *event);
 };
 
-class DividerLine;
+#include "backgrounditem.h"
 
-class DividerItem : public QGraphicsRectItem, public MetaItem
+class DividerPointerBackgroundItem : public QGraphicsRectItem, public MetaItem /* public PlacementBackgroundItem */
 {
 public:
-    Step         *step;
-    PlacementType parentRelativeType;
-    DividerLine  *lineItem;
+  PlacementType   parentRelativeType;
+  QRect           dividerRect;
+  Meta           *meta;
+  BackgroundMeta *background;
+  BorderMeta     *border;
+  PlacementMeta  *placement;
+  MarginsMeta    *margin;
+
+  DividerPointerBackgroundItem(
+    QRect        &_dividerRect,
+    PlacementType  parentRelativeType,
+    Meta          *meta,
+    QGraphicsItem *parent);
+
+  void setPos(float x, float y)
+  {
+    QGraphicsRectItem::setPos(x,y);
+  }
+};
+
+class Step;
+class DividerLine;
+class DividerItem;
+class Pointer;
+class DividerPointerItem;
+class DividerPointerBackgroundItem;
+class DividerItem : public QGraphicsRectItem, public MetaItem, public Placement
+{
+public:
+    Step                         *step;
+    PlacementType                 parentRelativeType;
+    DividerLine                  *lineItem;
+    QList<DividerPointerItem *>   graphicsPointerList; /* Pointer and pointer tips graphics */
+    DividerPointerBackgroundItem *background;
 
     DividerItem() {}
     DividerItem(
       Step  *_step,
       Meta  *_meta,
-      int    _offset_x,
-      int    _offset_y);
-    
+      int    offsetX,
+      int    offsetY);
+    ~DividerItem();
+
     void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+
+    /******************************************************************************
+     * Divider pointer item routines
+     *****************************************************************************/
+
+    virtual void addGraphicsPointerItem(Pointer *pointer, QGraphicsView *view);
+
+    virtual void drawTips(QPoint &delta);
+
+    virtual void updatePointers(QPoint &delta);
 };
+
 class DividerLine : public QGraphicsLineItem, public MetaItem
 {
 public:

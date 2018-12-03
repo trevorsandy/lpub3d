@@ -775,6 +775,43 @@ public slots:
 
 /***********************************************************************
  *
+ * Pointer Attribute
+ *
+ **********************************************************************/
+
+class PointerAttribMeta;
+class PointerAttribGui : public MetaGui
+{
+  Q_OBJECT
+public:
+  PointerAttribGui(PointerAttribMeta *meta,
+    QGroupBox         *parent    = nullptr,
+    bool               _isCallout= false,
+    bool               _isLine   = true);
+  ~PointerAttribGui() {}
+
+  virtual void apply(QString &modelName);
+
+private:
+  bool        isLine;
+  PointerAttribMeta *meta;
+
+  QLineEdit   *thicknessEdit;
+  QLabel      *thicknessLabel;
+  QLabel      *colorExample;
+  QPushButton *colorButton;
+  QComboBox   *lineCombo;
+  QCheckBox   *hideTipBox;
+
+public slots:
+  void lineChange(QString const &);
+  void thicknessChange(QString const &);
+  void browseColor(bool);
+  void hideTipChange(bool);
+};
+
+/***********************************************************************
+ *
  * Constrain PLI
  *
  **********************************************************************/

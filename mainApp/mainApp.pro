@@ -425,7 +425,9 @@ HEADERS += \
     version.h \
     where.h \
     submodelitem.h \
-    rotstepdialog.h
+    rotstepdialog.h \
+    borderedlineitem.h \
+    pointerattribdialog.h
 
 SOURCES += \
     aboutdialog.cpp \
@@ -523,7 +525,9 @@ SOURCES += \
     updatecheck.cpp \
     submodelitem.cpp \
     submodelglobals.cpp \
-    rotstepdialog.cpp
+    rotstepdialog.cpp \
+    borderedlineitem.cpp \
+    pointerattribdialog.cpp
 
 FORMS += \
     aboutdialog.ui \

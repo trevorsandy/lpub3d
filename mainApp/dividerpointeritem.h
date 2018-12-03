@@ -39,18 +39,19 @@ class Steps;
 class DividerPointerItem  : public PointerItem
 {
 public:
-  DividerPointerItem(    DividerItem         *divider,
-                         Meta                *meta,
-                         Pointer             *pointer,
-                         QGraphicsItem       *parent,
-                         QGraphicsView       *view);
+  DividerPointerItem(DividerItem   *divider,
+                     Pointer       *pointer,
+                     QGraphicsItem *parent,
+                     QGraphicsView *view);
 
-  /* When the user "Add Pointer", we need to give a default/
-     reasonable pointer */
-
-  virtual void defaultPointer();
+  virtual ~DividerPointerItem();
 
 private:
+    DividerItem     *divider;
+    Meta            *meta;
+    Steps           *steps;
+    PlacementType    parentRelativeType;
+
   /*
    *   +--------------------------------------------++
    *   |                                             |
@@ -61,11 +62,16 @@ private:
    *  divider size defines the outside edge of the divider.
    *  When there is a border, the inside rectangle starts
    *  at +thickness,+thickness, and ends at size-thickness,
-   *  size-tickness.
+   *  size-thickness.
    */
 
-  DividerItem  *divider;
+public:
+  /* When the user "Add Pointer", we need to give a default/
+     reasonable pointer */
 
+  virtual void defaultPointer();
+
+private:
   /* Drag the tip of the pointer, and calculate a good
    * location for the pointer to connect to the callout. */
 
@@ -86,15 +92,6 @@ private:
   virtual void calculatePointerMetaLoc();
 
   virtual void calculatePointerMeta();
-
-  Meta            *meta;
-  Step            *step;
-  Steps           *steps;
-  SepData          sepData;
-  QPointF          dividerLoc;
-  QRectF           dividerSize;
-  PlacementType    parentRelativeType;
-
 };
 
 #endif // DIVIDERPOINTERITEM_H

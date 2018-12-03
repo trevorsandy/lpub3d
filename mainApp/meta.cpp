@@ -87,6 +87,22 @@ BranchMeta::~BranchMeta()
 
 Rc BranchMeta::parse(QStringList &argv, int index, Where &here)
 {
+  //debug - capture line contents
+#ifdef QT_DEBUG_MODE
+//    QStringList debugLine;
+//    for(int i=0;i<argv.size();i++){
+//        debugLine << argv[i];
+//        int size = argv.size();
+//        int incr = i;
+//        int result = size - incr;
+//        logNotice() << QString("LINE ARGV Pos:(%1), PosIndex:(%2) [%3 - %4 = %5], Value:(%6)")
+//                       .arg(i+1).arg(i).arg(size).arg(incr).arg(result).arg(argv[i]);
+//    }
+//    debugLine << QString(", Index (%7)[%8], LineNum (%9), ModelName (%10)")
+//                         .arg(index).arg(argv[index]).arg(here.modelName).arg(here.lineNumber);
+//    logTrace() << debugLine.join(" ");
+#endif
+
   Rc rc;
   int offset;
   int size = argv.size();
@@ -107,6 +123,11 @@ Rc BranchMeta::parse(QStringList &argv, int index, Where &here)
 
           if (size - index > 1) {
               if (i.value()) {
+#ifdef QT_DEBUG_MODE
+//                  QString iVal = QString("argv[index+offset] (%1) [Index: %2, Offset: %3]")
+//                                         .arg(argv[index+offset]).arg(index).arg(offset);
+//                  logTrace() << "I.value():" << &i.value() << iVal;
+#endif
                   if (argv[index+offset] == "LOCAL") {
                       i.value()->pushed = true;
                       offset++;
@@ -128,7 +149,7 @@ Rc BranchMeta::parse(QStringList &argv, int index, Where &here)
         } else if (size - index > 1) {
 
           /* Failed an explicit match.  Lets try to see if the value
-       * matches any of the keywords through regular expressions */
+           * matches any of the keywords through regular expressions */
           bool local  = argv[index] == "LOCAL";
           bool global = argv[index] == "GLOBAL";
 
@@ -268,6 +289,7 @@ void FloatMeta::init(
   AbstractMeta::init(parent,name);
   rc = _rc;
 }
+
 Rc FloatMeta::parse(QStringList &argv, int index,Where &here)
 {
   int size = argv.size();
@@ -751,23 +773,22 @@ QString prepositionNames[] =
 
 QString PlacementMeta::format(bool local, bool global)
 {
-#ifdef QT_DEBUG_MODE
   //debug logging
-  //qDebug() << " \nPLACEMENT META FORMAT: "
-  //           << " \nPUSHED VALUES: "
-  //           << " \nPlacement: "      << _value[pushed].placement
-  //           << " \nJustification: "  << _value[pushed].justification
-  //           << " \nRelativeTo: "     << _value[pushed].relativeTo
-  //           << " \nPreposition(*): " << _value[pushed].preposition
-  //           << " \nOffset[0]: "      << _value[pushed].offsets[0]
-  //           << " \nOffset[0]: "      << _value[pushed].offsets[1]
-  //           << " \nNAMES: "
-  //           << " \nPlacement: "      << placementNames  [_value[pushed].placement]
-  //           << " \nJustification: "  << placementNames  [_value[pushed].justification]
-  //           << " \nRelativeTo: "     << relativeNames   [_value[pushed].relativeTo]
-  //           << " \nPreposition(*): " << prepositionNames[_value[pushed].preposition]
-  //              ;
-  //end debug logging
+#ifdef QT_DEBUG_MODE
+//  logNotice() << " \nPLACEMENT META FORMAT: "
+//              << " \nPUSHED VALUES: "
+//              << " \nPlacement: "      << _value[pushed].placement
+//              << " \nJustification: "  << _value[pushed].justification
+//              << " \nRelativeTo: "     << _value[pushed].relativeTo
+//              << " \nPreposition(*): " << _value[pushed].preposition
+//              << " \nOffset[0]: "      << _value[pushed].offsets[0]
+//              << " \nOffset[0]: "      << _value[pushed].offsets[1]
+//              << " \nNAMES: "
+//              << " \nPlacement: "      << placementNames  [_value[pushed].placement]
+//              << " \nJustification: "  << placementNames  [_value[pushed].justification]
+//              << " \nRelativeTo: "     << relativeNames   [_value[pushed].relativeTo]
+//              << " \nPreposition(*): " << prepositionNames[_value[pushed].preposition]
+//                 ;
 #endif
   QString foo;
   
@@ -1213,19 +1234,117 @@ QString BorderMeta::text()
     case BorderData::BdrSquare:
       thickness = QString("%1")
           .arg(border.thickness,4,'f',3);
-      return "Square Corners, thickess " + thickness + " " + units2abbrev();
+      return "Square Corners, thickness " + thickness + " " + units2abbrev();
       break;
     default:
       break;
     }
   thickness = QString("%1") .arg(border.thickness,4,'f',3);
-  return "Round Corners, thickess " + thickness + " " + units2abbrev();
+  return "Round Corners, thickness " + thickness + " " + units2abbrev();
+}
+
+/* ------------------ */
+
+// Example: [LINE|BORDER] 1 Black 0.02
+
+Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
+{
+  //debug - capture line contents
+#ifdef QT_DEBUG_MODE
+//    QStringList debugLine;
+//    for(int i=0;i<argv.size();i++){
+//        debugLine << argv[i];
+//        int size = argv.size();
+//        int incr = i;
+//        int result = size - incr;
+//        logNotice() << QString("LINE ARGV Pos:(%1), PosIndex:(%2) [%3 - %4 = %5], Value:(%6)")
+//                       .arg(i+1).arg(i).arg(size).arg(incr).arg(result).arg(argv[i]);
+//    }
+//    debugLine << QString(", Index (%7)[%8], LineNum (%9), ModelName (%10)")
+//                         .arg(index).arg(argv[index]).arg(here.modelName).arg(here.lineNumber);
+//    logTrace() << debugLine.join(" ");
+//    logDebug() << "argv[index-1]: " << argv[index-1] << ", argv[index-2]: " << argv[index-2];
+#endif
+
+    bool isValid = argv[index-1] == "POINTER_ATTRIBUTE";
+    bool isLine  = argv[index] == "LINE";
+
+    Rc rc = FailureRc;
+    if (!isLine &&
+        !(argv[index] == "BORDER"))
+        isValid = false;
+
+    if (isValid && argv.size() - index >= (isLine ? 6 : 5)) {
+      bool ok[4];
+      argv[index+1].toInt(&ok[0]);     // line type
+      argv[index+3].toFloat(&ok[1]);   // thickness
+      argv[index+4].toInt(&ok[2]);     // if line (show/hide tip), if border (id)
+      if (isLine)
+          argv[index+5].toInt(&ok[3]); // if line id
+      if (ok[0] && ok[1] && ok[2] && (isLine ? ok[3] : true)) {
+        if (argv[index-2] == "CALLOUT")
+            rc = CalloutPointerAttribRc;
+        else
+        if (argv[index-2] == "PAGE")
+            rc = PagePointerAttribRc;
+        else
+        if (argv[index-2] == "MULTI_STEP")
+            rc = StepGroupPointerAttribRc;
+        else
+        if (argv[index-2] == "CALLOUT_DIVIDER")
+            rc = CalloutDividerPointerAttribRc;
+        else
+        if (argv[index-2] == "MULTI_STEP_DIVIDER")
+            rc = StepGroupDividerPointerAttribRc;
+      }
+    }
+    return rc;
+}
+
+QString PointerAttribMeta::format(bool local, bool global)
+{
+    QString foo,bar;
+    switch (_value[pushed].attribType)
+    {
+    case PointerAttribData::Line:
+        foo = QString("LINE %1 %2 %3 %4")
+            .arg(_value[pushed].lineData.line)
+            .arg(_value[pushed].lineData.color)
+            .arg(_value[pushed].lineData.thickness)
+            .arg(_value[pushed].lineData.hideArrows);
+        break;
+    case PointerAttribData::Border:
+        foo = QString("BORDER %1 %2 %3")
+            .arg(_value[pushed].borderData.line)
+            .arg(_value[pushed].borderData.color)
+            .arg(_value[pushed].borderData.thickness);
+        break;
+    default:
+        break;
+    }
+    bar = QString(" %1 %2")
+                  .arg(_value[pushed].id)
+                  .arg(_value[pushed].parent);
+    foo += bar;
+#ifdef QT_DEBUG_MODE
+//    logDebug() << "\n[FORMAT] PREAMBLE: " << preamble
+//               << " [FORMAT] PARENT   : " << _value[pushed].parent
+//               << " [FORMAT] ID       : " << _value[pushed].id
+//    logDebug() << "\n[FORMAT] LINE    : " << foo;
+//                  ;
+#endif
+    return LeafMeta::format(local,global,foo);
+}
+
+void PointerAttribMeta::doc(QStringList &out, QString preamble)
+{
+  out << preamble + " (LINE|BORDER <line type> <color> <thickness> <hide/show tip> <id> <base_position>)";
 }
 
 /* ------------------ */ 
 
 PointerMeta::PointerMeta() : LeafMeta()
-{
+{   
   _value[0].placement = TopLeft;
   _value[0].loc       = 0;      // BasePoint
   _value[0].x1        = 0.5;    // TipX
@@ -1255,29 +1374,54 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
   float           _x4 = 0, _y4 = 0;
   int   n_tokens = argv.size() - index;
   RectPlacement _bRect;
-  bool  fail        = true;
-  bool  pagePointer = false;
+  bool  fail              = true;
+  bool  pagePointer       = false;
+  bool  pagePointerLegacy = false;
 
   //logTrace() << "Pointer: " << argv.join(" ") << ", Index:" << index;
 
   if (argv.size() - index > 0) {
-      pagePointer = argv[1] == "PAGE_POINTER";
+
+      pagePointer = (argv[1] == "PAGE" && argv[2] == "POINTER");
+
+      // pagePointer legacy
+      if (argv[1] == "PAGE_POINTER") {
+          pagePointer     = true;
+          index += 1;
+          n_tokens = argv.size() - index;
+
+          QString message = QString("'%1' meta is deprecated. Use 'PAGE POINTER'").arg(argv[1]);
+          QString parseMessage = QString("%1 (file: %2, line: %3)") .arg(message) .arg(here.modelName) .arg(here.lineNumber);
+          if (Preferences::modeGUI)
+              QMessageBox::warning(nullptr,
+                                   QMessageBox::tr(VER_PRODUCTNAME_STR),
+                                   parseMessage);
+          else
+              emit gui->messageSig(LOG_STATUS, parseMessage);
+      }
+
+#ifdef QT_DEBUG_MODE
+//      logTrace() << "\nPARSE LINE: " << argv.join(" ") <<
+//                    "\n||| [index-1]: " << argv[index-1] << ", [index]: " << argv[index] <<
+//                    ", argv[1]: " << argv[1] << ", argv[2]: " << argv[2];
+#endif
+
       QRegExp rx("^(TOP_LEFT|TOP_RIGHT|BOTTOM_LEFT|BOTTOM_RIGHT)$");
 
       // single-segment patterns
       if (argv[index].contains(rx) && n_tokens == 4) {
           _loc = 0;
           bool ok[3];
-          _x1    = argv[index+1].toFloat(&ok[0]);
-          _y1    = argv[index+2].toFloat(&ok[1]);
+          _x1   = argv[index+1].toFloat(&ok[0]);
+          _y1   = argv[index+2].toFloat(&ok[1]);
           _base = argv[index+3].toFloat(&ok[2]);
           fail  = ! (ok[0] && ok[1] && ok[2]);
         }
       if (argv[index].contains(rx) && n_tokens == 3) {
           _loc = 0;
           bool ok[2];
-          _x1    = argv[index+1].toFloat(&ok[0]);
-          _y1    = argv[index+2].toFloat(&ok[1]);
+          _x1   = argv[index+1].toFloat(&ok[0]);
+          _y1   = argv[index+2].toFloat(&ok[1]);
           fail  = ! (ok[0] && ok[1]);
         }
       // new multi-segment patterns (+ 7 tokens: x2,y2,x3,y3,x4,y4,segments)
@@ -1297,7 +1441,7 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
           if (pagePointer)
             _bRect  = RectPlacement(tokenMap[argv[index+11]]);
           fail      = ! (ok[0] && ok[1] && ok[2] && ok[3] && ok[4] &&
-              ok[5] && ok[6] && ok[7] && ok[8] && ok[9]);
+                         ok[5] && ok[6] && ok[7] && ok[8] && ok[9]);
         }
       if (argv[index].contains(rx) && (pagePointer ? n_tokens == 11 : n_tokens == 10)) {
           _loc = 0;
@@ -1314,7 +1458,7 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
           if (pagePointer)
             _bRect  = RectPlacement(tokenMap[argv[index+10]]);
           fail      = ! (ok[0] && ok[1] && ok[2] && ok[3] && ok[4] &&
-              ok[5] && ok[6] && ok[7] && ok[8]);
+                         ok[5] && ok[6] && ok[7] && ok[8]);
         }
       rx.setPattern("^(TOP|BOTTOM|LEFT|RIGHT|CENTER)$");
       if (argv[index].contains(rx) && n_tokens == 5) {
@@ -1352,7 +1496,7 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
           if (pagePointer)
             _bRect  = RectPlacement(tokenMap[argv[index+12]]);
           fail      = ! (ok[0] && ok[1] && ok[2] && ok[3] && ok[4] && ok[5] &&
-              ok[6] && ok[7] && ok[8] && ok[9] && ok[10]);
+                         ok[6] && ok[7] && ok[8] && ok[9] && ok[10]);
         }
       if (argv[index].contains(rx) && (pagePointer ? n_tokens == 12 : n_tokens == 11)) {
           _loc = 0;
@@ -1370,7 +1514,7 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
           if (pagePointer)
             _bRect  = RectPlacement(tokenMap[argv[index+11]]);
           fail      = ! (ok[0] && ok[1] && ok[2] && ok[3] && ok[4] &&
-              ok[5] && ok[6] && ok[7] && ok[8] && ok[9]);
+                         ok[5] && ok[6] && ok[7] && ok[8] && ok[9]);
         }
     }
   if ( ! fail) {
@@ -1392,39 +1536,54 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
         } else if (_value[pushed].base == 0) {
           _value[pushed].base = 1.0/8;
         }
-//      qDebug()<< "\nPOINTER DATA " << argv[1] << " (Parsed)"
-//              << " \nPlacement:             "   << PlacNames[_value[pushed].placement]     << " (" << _value[pushed].placement << ")"
-//              << " \nLoc(fraction of side): "   << _value[pushed].loc
-//              << " \nx1 (Tip.x):            "   << _value[pushed].x1
-//              << " \ny1 (Tip.y):            "   << _value[pushed].y1
-//              << " \nx2 (Base.x):           "   << _value[pushed].x2
-//              << " \ny2 (Base.y):           "   << _value[pushed].y2
-//              << " \nx3 (MidBase.x):        "   << _value[pushed].x3
-//              << " \ny3 (MidBase.y):        "   << _value[pushed].y3
-//              << " \nx4 (MidTip.x):         "   << _value[pushed].x4
-//              << " \ny4 (MidTip.y):         "   << _value[pushed].y4
-//              << " \nBase:                  "   << _value[pushed].base
-//              << " \nSegments:              "   << _value[pushed].segments
-//              << " \n" << (pagePointer ? QString("PagePointer Rect:      %1 (%2)")
-//                                         .arg(RectNames[_value[pushed]
-//                                         .rectPlacement]).arg(_value[pushed].rectPlacement):"No PointerRect")
-//                 ;
-
+#ifdef QT_DEBUG_MODE
+//      logDebug()<< "\nPOINTER DATA " << argv[1] << " (Parsed)"
+//                << " \nPlacement:             "   << PlacNames[_value[pushed].placement]     << " (" << _value[pushed].placement << ")"
+//                << " \nLoc(fraction of side): "   << _value[pushed].loc
+//                << " \nx1 (Tip.x):            "   << _value[pushed].x1
+//                << " \ny1 (Tip.y):            "   << _value[pushed].y1
+//                << " \nx2 (Base.x):           "   << _value[pushed].x2
+//                << " \ny2 (Base.y):           "   << _value[pushed].y2
+//                << " \nx3 (MidBase.x):        "   << _value[pushed].x3
+//                << " \ny3 (MidBase.y):        "   << _value[pushed].y3
+//                << " \nx4 (MidTip.x):         "   << _value[pushed].x4
+//                << " \ny4 (MidTip.y):         "   << _value[pushed].y4
+//                << " \nBase:                  "   << _value[pushed].base
+//                << " \nSegments:              "   << _value[pushed].segments
+//                << " \nPagePointer Rect:      "   << (pagePointer ? QString("%1 (%2)")
+//                                                                            .arg(RectNames[_value[pushed]
+//                                                                            .rectPlacement]).arg(_value[pushed].rectPlacement) :
+//                                                                            "None - Not PagePointer")
+//                   ;
+#endif
       _here[0] = here;
       _here[1] = here;
 
-      if (     argv[1] == "CALLOUT") {
-//          logTrace() << "Return CalloutPointerRc";
-          return CalloutPointerRc;}
-      else if (argv[1] == "PAGE_POINTER") {
+      if ((argv[1] == "PAGE" && argv[2] == "POINTER") ||
+          (argv[1] == "PAGE_POINTER")) {
 //          logTrace() << "Return PagePointerRc";
-          return PagePointerRc;}
-      else if (argv[1] == "DIVIDER") {
-//          logTrace() << "Return DividerPointerRc";
-          return DividerPointerRc;         }
-      else if (argv[1] == "ILLUSTRATION") {
+          return PagePointerRc;
+      }
+      else
+      if (argv[1] == "CALLOUT" && argv[2] == "POINTER") {
+//          logTrace() << "Return CalloutPointerRc";
+          return CalloutPointerRc;
+      }
+      else
+      if (argv[1] == "CALLOUT" && argv[2] == "DIVIDER_POINTER") {
+//        logTrace() << "Return CalloutDividerPointerRc";
+          return CalloutDividerPointerRc;
+      }
+      else
+      if (argv[1] == "MULTI_STEP" && argv[2] == "DIVIDER_POINTER") {
+//        logTrace() << "Return StepGroupDividerPointerRc";
+          return StepGroupDividerPointerRc;
+      }
+      else
+      if (argv[1] == "ILLUSTRATION" && argv[2] == "POINTER") {
 //          logTrace() << "Return IllustrationPointerRc";
-          return IllustrationPointerRc;}
+          return IllustrationPointerRc;
+      }
 
       emit gui->messageSig(LOG_ERROR,"Pointer type not defined. Returning 0.");
 
@@ -1441,7 +1600,7 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
 
 QString PointerMeta::format(bool local, bool global)
 {
-  QRegExp rx("^\\s*0.*\\s+(PAGE_POINTER)\\s+.*$");
+  QRegExp rx("^\\s*0.*\\s+(PAGE POINTER|PAGE_POINTER)\\s+.*$");
   bool pagePointer = preamble.contains(rx);
   QString foo;
   switch(_value[pushed].placement) {
@@ -2943,6 +3102,8 @@ void PageMeta::init(BranchMeta *parent, QString name)
   number.init             (this, "NUMBER");
   instanceCount.init      (this, "SUBMODEL_INSTANCE_COUNT");
   subModelColor.init      (this, "SUBMODEL_BACKGROUND_COLOR");
+  pointer.init            (this, "POINTER");
+  pointerAttrib.init      (this, "POINTER_ATTRIBUTE");
 
   pageHeader.init         (this, "PAGE_HEADER");
   pageFooter.init         (this, "PAGE_FOOTER");
@@ -3018,7 +3179,7 @@ void AssemMeta::init(BranchMeta *parent, QString name)
   povrayParms .init    (this,"POVRAY_PARMS");
   showStepNumber.init  (this,"SHOW_STEP_NUMBER");
 
-  cameraDistNative.init(this, "CAMERA_DISTANCE_NATIVE");
+  cameraDistNative.init(this,"CAMERA_DISTANCE_NATIVE");
   cameraFoV.init       (this,"CAMERA_FOV");
   cameraAngles.init    (this,"CAMERA_ANGLES");
   distance.init        (this,"CAMERA_DISTANCE");
@@ -3257,7 +3418,7 @@ CalloutMeta::CalloutMeta() : BranchMeta()
   borderData.line = BorderData::BdrLnSolid;
   borderData.color = "Black";
   borderData.thickness = DEFAULT_THICKNESS;
-  borderData.radius = 15;
+  borderData.radius    = 15;
   borderData.margin[0] = DEFAULT_MARGIN;
   borderData.margin[1] = DEFAULT_MARGIN;
   border.setValueInches(borderData);
@@ -3300,6 +3461,9 @@ void CalloutMeta::init(BranchMeta *parent, QString name)
   freeform   .init(this,      "FREEFORM");
   alloc      .init(this,      "ALLOC");
   pointer    .init(this,      "POINTER");
+  divPointer .init(this,      "DIVIDER_POINTER");
+  pointerAttrib.init(this,    "POINTER_ATTRIBUTE");
+  divPointerAttrib.init(this, "DIVIDER_POINTER_ATTRIBUTE");
 
   begin      .init(this,      "BEGIN",   CalloutBeginRc);
   divider    .init(this,      "DIVIDER", CalloutDividerRc);
@@ -3312,35 +3476,29 @@ void CalloutMeta::init(BranchMeta *parent, QString name)
 
 /*------------------------*/
 
-PagePointerMeta::PagePointerMeta() : BranchMeta()
+PointerBaseMeta::PointerBaseMeta() : BranchMeta()
 {
   placement.setValue(LeftInside,PageType);
-  background.setValue(BackgroundData::BgSubmodelColor);
+  background.setValue(BackgroundData::BgTransparent);
   BorderData borderData;
-  borderData.type = BorderData::BdrSquare;
-  borderData.line = BorderData::BdrLnSolid;
-  borderData.color = "Black";
-  borderData.thickness = DEFAULT_THICKNESS;
-  borderData.radius = 15;
+  borderData.line      = BorderData::BdrLnNone;
+  borderData.type      = BorderData::BdrSquare;
+  borderData.color     = "Black";
+  borderData.thickness = 0.0f;
+  borderData.radius    = 0;
   borderData.margin[0] = 0;
   borderData.margin[1] = 0;
   border.setValueInches(borderData);
   margin.setValues(0,0);
-  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_01);
-  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_02);
-  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_03);
-  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_04);
 }
 
-void PagePointerMeta::init(BranchMeta *parent, QString name)
+void PointerBaseMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
   placement    .init(this, "PLACEMENT");
   border       .init(this, "BORDER");
   background   .init(this, "BACKGROUND");
   margin       .init(this, "MARGINS");
-  subModelColor.init(this, "SUBMODEL_BACKGROUND_COLOR");
-  pointer      .init(this, "POINTER");
 }
 
 /* ------------------ */ 
@@ -3372,9 +3530,14 @@ void MultiStepMeta::init(BranchMeta *parent, QString name)
   stepNum  .init(this,    "STEP_NUMBER");
   placement.init(this,    "PLACEMENT");
   sep      .init(this,    "SEPARATOR");
+
+  divPointer.init(this,   "DIVIDER_POINTER");
+  divPointerAttrib.init(this,
+                          "DIVIDER_POINTER_ATTRIBUTE");
+
   subModelFont.init (this,"SUBMODEL_FONT");
   subModelFontColor.init(this,
-                         "SUBMODEL_FONT_COLOR");
+                          "SUBMODEL_FONT_COLOR");
   freeform .init(this,    "FREEFORM");
   alloc    .init(this,    "ALLOC");
   csi      .init(this,    "ASSEM");
@@ -3479,28 +3642,28 @@ LPubMeta::LPubMeta() : BranchMeta()
 void LPubMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  page              .init(this,"PAGE");
-  assem             .init(this,"ASSEM");
-  stepNumber        .init(this,"STEP_NUMBER");
-  callout           .init(this,"CALLOUT");
-  pagePointer       .init(this,"PAGE_POINTER");
-  multiStep         .init(this,"MULTI_STEP");
-  pli               .init(this,"PLI");
-  bom               .init(this,"BOM");
-  remove            .init(this,"REMOVE");
-  reserve           .init(this,"RESERVE",ReserveSpaceRc);
-  partSub           .init(this,"PART");
-  resolution        .init(this,"RESOLUTION");
-  insert            .init(this,"INSERT");
-  include           .init(this,"INCLUDE", IncludeRc);
-  nostep            .init(this,"NOSTEP", NoStepRc);\
-  fadeStep          .init(this,"FADE_STEP");
-  highlightStep     .init(this,"HIGHLIGHT_STEP");
-  subModel          .init(this,"SUBMODEL_DISPLAY");
-  rotateIcon        .init(this,"ROTATE_ICON");
-  mergeInstanceCount.init(this,"CONSOLIDATE_INSTANCE_COUNT");
-  stepPli           .init(this,"STEP_PLI");
-  cameraDistNative  .init(this,"CAMERA_DISTANCE_NATIVE");
+  page               .init(this,"PAGE");
+  assem              .init(this,"ASSEM");
+  callout            .init(this,"CALLOUT");
+  multiStep          .init(this,"MULTI_STEP");
+  stepNumber         .init(this,"STEP_NUMBER");
+  pli                .init(this,"PLI");
+  bom                .init(this,"BOM");
+  pointerBase        .init(this,"POINTER_BASE");
+  remove             .init(this,"REMOVE");
+  reserve            .init(this,"RESERVE",ReserveSpaceRc);
+  partSub            .init(this,"PART");
+  resolution         .init(this,"RESOLUTION");
+  insert             .init(this,"INSERT");
+  include            .init(this,"INCLUDE", IncludeRc);
+  nostep             .init(this,"NOSTEP", NoStepRc);\
+  fadeStep           .init(this,"FADE_STEP");
+  highlightStep      .init(this,"HIGHLIGHT_STEP");
+  subModel           .init(this,"SUBMODEL_DISPLAY");
+  rotateIcon         .init(this,"ROTATE_ICON");
+  mergeInstanceCount .init(this,"CONSOLIDATE_INSTANCE_COUNT");
+  stepPli            .init(this,"STEP_PLI");
+  cameraDistNative   .init(this,"CAMERA_DISTANCE_NATIVE");
   reserve.setRange(0.0,1000000.0);
 }
 
@@ -3719,7 +3882,7 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
 Rc Meta::parse(
     QString  &line,
     Where    &here,
-    bool           reportErrors)
+    bool      reportErrors)
 {
   QStringList argv;
   
@@ -3741,7 +3904,7 @@ Rc Meta::parse(
   }  else
   if (line.contains(leoge)) {
       argv << "LEOCAD" << "GROUP" << "END";
-  }else {
+  } else {
 
       /* Parse the input line into argv[] */
 

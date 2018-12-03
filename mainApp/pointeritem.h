@@ -16,7 +16,7 @@
  *
  * This class implements the graphical pointers that extend from base objects
  * (e.g. a Callout) to assembly images as visual indicators to the builder
- * as to where to add the completed submodel into partially assembeled final model.
+ * as to where to add the completed submodel into partially assembled final model.
  *
  * Please see lpub.h for an overall description of how the files in LPub
  * make up the LPub program.
@@ -27,11 +27,11 @@
 #define POINTERITEMH
 
 #include "pointer.h"
+#include "borderedlineitem.h"
 #include "metaitem.h"
 #include "resize.h"
 
 class QGraphicsPolygonItem;
-//class QGraphicsLineItem;,/
 class QGraphicsItemGroup;
 class QGraphicsView;
 
@@ -44,20 +44,27 @@ public:
   enum SelectedPoint { Tip, Base, MidBase, MidTip, NumGrabbers };
   enum ShaftSegments { OneSegment = 1, TwoSegments, ThreeSegments};
 
-  QGraphicsView        *view;
-  QString               borderColor;
-  float                 borderThickness;
-  Pointer               pointer;
-  PlacementEnc          placement;
-  bool                  positionChanged;
-  int			baseX;
-  int			baseY;
-  QGraphicsLineItem    *shaft;
-  QGraphicsPolygonItem *head;
-  QList<QGraphicsLineItem *> shaftSegments;
-  
-  Grabber              *grabbers[NumGrabbers];
-  QPointF               points[NumGrabbers];  // the max points on the inside polygon
+  QGraphicsView             *view;
+
+  Meta                      *meta;
+
+  PlacementType              pointerParentType;
+
+  Where                      pointerTop, pointerBottom;
+
+  Pointer                    pointer;
+  PlacementEnc               placement;
+  bool                       positionChanged;
+  bool                       resizeRequested;
+  float                      thickness;       // only used by autoLocFromBase()
+  int			             baseX;
+  int			             baseY;
+  BorderedLineItem          *shaft;
+  QGraphicsPolygonItem      *head;
+  QList<BorderedLineItem *>  shaftSegments;
+
+  Grabber                   *grabbers[NumGrabbers];
+  QPointF                    points[NumGrabbers];  // the max points on the inside polygon
   
   virtual void placeGrabbers();
   virtual void resize(QPointF);

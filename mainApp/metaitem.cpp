@@ -59,6 +59,7 @@
 #include "rotateiconsizedialog.h"
 #include "submodelcolordialog.h"
 #include "cameradistfactordialog.h"
+#include "pointerattribdialog.h"
 #include "rotstepdialog.h"
 #include "paths.h"
 #include "render.h"
@@ -313,7 +314,7 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
   return instanceCount;
 }
 
-int MetaItem::countInstancesInBlock(Meta *meta, const QString &modelName, int mask){
+int MetaItem::countInstancesInBlock(Meta *meta, const QString &modelName, const int mask){
 
     int   numLines;
     Where walk(modelName,0);
@@ -1100,6 +1101,7 @@ void MetaItem::setMeta(
   bool         askLocal,
   bool         global)
 {
+#ifdef QT_DEBUG_MODE
 //    logNotice() << "\n MOVE (CHANGE PLACEMENT) SET META VALUES - "
 //                << "\n PAGE WHERE - "
 //                << "\nPAGE- "
@@ -1121,6 +1123,7 @@ void MetaItem::setMeta(
 //                << "\n7. AskLocal:                    "  << askLocal
 //                << "\n8. Global:                      "  << global
 //              ;
+#endif
   if (useTop) {
     setMetaTopOf(topOf,bottomOf,meta,append,local,askLocal,global);
 //    logNotice() << "\n SET META - USE TOP OF - ";
@@ -1148,6 +1151,22 @@ void MetaItem::setMetaTopOf(
     metaInRange = metaInRange
             && lineNumber >= topOf.lineNumber
             && lineNumber <= bottomOf.lineNumber;
+
+#ifdef QT_DEBUG_MODE
+//  logTrace() << "\nSET META TOP OF PAGE WHERE:"
+//             << "\nPage TopOf Model Name:    " << topOf.modelName
+//             << "\nPage TopOf Line Number:   " << topOf.lineNumber
+//             << "\nPage BottomOf Model Name: " << bottomOf.modelName
+//             << "\nPage BottomOf Line Number:" << bottomOf.lineNumber
+//             << "\nHere Model Name:          " << meta->here().modelName
+//             << "\nHere Line Number:         " << meta->here().lineNumber
+//             << "\n --- "
+//             << "\nAppend:                   " << (append == 0 ? "NO" : "YES")
+//             << "\nMeta In Range:            " << (metaInRange ? "YES - Can replace Meta" : "NO")
+//             << "\nLine (Meta in Range):     " <<  meta->format(meta->pushed,meta->global)
+//             << "\nLine:                     " <<  meta->format(local, global)
+//                ;
+#endif
 
     if (metaInRange) {
         QString line = meta->format(meta->pushed,meta->global);
@@ -1202,21 +1221,21 @@ void MetaItem::setMetaBottomOf(
    && lineNumber >= topOf.lineNumber 
    && lineNumber <= bottomOf.lineNumber;
 
-//  logTrace() << "\nSET META BOTTOM OF - "
-//            << "\nPAGE WHERE - "
-//            << " \nPage TopOf Model Name: "    << topOf.modelName
-//            << " \nPage TopOf Line Number: "   << topOf.lineNumber
-//            << " \nPage BottomOf Model Name: " << bottomOf.modelName
-//            << " \nPage BottomOf Line Number: "<< bottomOf.lineNumber
-//            << " \nHere Model Name: "          << meta->here().modelName
-//            << " \nHere Line Number: "         << meta->here().lineNumber
-//            << "\n --- "
-//            << " \nAppend: "                   << (append == 0 ? "NO" : "YES")
-//            << " \nMeta In Range: "            << (metaInRange ? "YES - Can replace Meta" : "NO")
-//            << " \nLine (Meta in Range): "     <<  meta->format(meta->pushed,meta->global)
-//            << " \nLine: "                     <<  meta->format(local, global)
-//            << "\n - "
-//               ;
+#ifdef QT_DEBUG_MODE
+//  logTrace() << "\nSET META BOTTOM OF PAGE WHERE:"
+//             << "\nPage TopOf Model Name:    " << topOf.modelName
+//             << "\nPage TopOf Line Number:   " << topOf.lineNumber
+//             << "\nPage BottomOf Model Name: " << bottomOf.modelName
+//             << "\nPage BottomOf Line Number:" << bottomOf.lineNumber
+//             << "\nHere Model Name:          " << meta->here().modelName
+//             << "\nHere Line Number:         " << meta->here().lineNumber
+//             << "\n --- "
+//             << "\nAppend:                   " << (append == 0 ? "NO" : "YES")
+//             << "\nMeta In Range:            " << (metaInRange ? "YES - Can replace Meta" : "NO")
+//             << "\nLine (Meta in Range):     " <<  meta->format(meta->pushed,meta->global)
+//             << "\nLine:                     " <<  meta->format(local, global)
+//                ;
+#endif
 
   if (metaInRange) {
     QString line = meta->format(meta->pushed,meta->global);
@@ -1469,6 +1488,27 @@ void MetaItem::changeConstraintStepGroup(
   int            append)
 {
   setMetaBottomOf(topOfStep,bottomOfStep,constraint,append,true,false);
+}
+
+void MetaItem::setPointerAttrib(
+  QString             title,
+  const Where        &topOfStep,
+  const Where        &bottomOfStep,
+  PointerAttribMeta  *pointerAttrib,
+  bool                useTop,
+  int                 append,
+  bool                local,
+  bool                isCallout,
+  bool                isLine)
+{
+  PointerAttribData pointerAttribData = pointerAttrib->value();
+  bool ok = PointerAttribDialog::getPointerAttrib(pointerAttribData,title,isCallout,isLine);
+
+  if (ok) {
+
+    pointerAttrib->setValue(pointerAttribData);
+    setMeta(topOfStep,bottomOfStep,pointerAttrib,useTop,append,local,false); // always local so askLocal = false.
+  }
 }
 
 void MetaItem::changeInsertOffset(
@@ -3133,7 +3173,7 @@ void MetaItem::addCalloutMetas(
       /* defaultPointerTip is the trick - it calculates the pointer tip
          for a given instance of a callout.  It does this by rendering
          the parent image with the non-called out parts color A and
-         the called out parts color B.  Then the resulatant image is
+         the called out parts color B.  Then the resultant image is
          searched for color B.  The parent model needs to be rotated
          by ROTSTEP for this to work. */
       //QPointF offset = defaultPointerTip(*meta, instances[i],isMirrored);
@@ -3190,12 +3230,13 @@ void MetaItem::addPointerTip(
     Meta *meta,
     const Where &fromHere,
     const Where &toHere,
-    PlacementEnc placement)
+    PlacementEnc placement,
+    Rc           rc)
 {
   gui->maxPages = -1;
 
   beginMacro("addPointerTip");
-  addPointerTipMetas(meta,fromHere,toHere,placement);
+  addPointerTipMetas(meta,fromHere,toHere,placement,rc);
   endMacro();
 }
 
@@ -3203,55 +3244,89 @@ void MetaItem::addPointerTipMetas(
     Meta *meta,
     const Where &fromHere,
     const Where &toHere,
-    PlacementEnc placement)
+    PlacementEnc placement,
+    Rc           rc)
 {
   QString pointerPlacement;
-  switch (placement){
-    case TopLeft:
-      pointerPlacement = "BASE_TOP_LEFT";
-      break;
-    case Top:
-      pointerPlacement = "BASE_TOP";
-      break;
-    case TopRight:
-      pointerPlacement = "BASE_TOP_RIGHT";
-      break;
-    case Left:
-      pointerPlacement = "BASE_LEFT";
-      break;
-    case Center:
-      pointerPlacement = "BASE_CENTER";
-      break;
-    case Right:
-      pointerPlacement = "BASE_RIGHT";
-      break;
-    case BottomLeft:
-      pointerPlacement = "BASE_BOTTOM_LEFT";
-      break;
-    case Bottom:
-      pointerPlacement = "BASE_BOTTOM";
-      break;
-    case BottomRight:
-      pointerPlacement = "BASE_BOTTOM_RIGHT";
-      break;
-    case NumPlacements:
-      break;
-    }
+  if (rc == PagePointerRc) {
+
+      switch (placement)
+      {
+      case TopLeft:
+          pointerPlacement = "BASE_TOP_LEFT";
+          break;
+      case Top:
+          pointerPlacement = "BASE_TOP";
+          break;
+      case TopRight:
+          pointerPlacement = "BASE_TOP_RIGHT";
+          break;
+      case Left:
+          pointerPlacement = "BASE_LEFT";
+          break;
+      case Center:
+          pointerPlacement = "BASE_CENTER";
+          break;
+      case Right:
+          pointerPlacement = "BASE_RIGHT";
+          break;
+      case BottomLeft:
+          pointerPlacement = "BASE_BOTTOM_LEFT";
+          break;
+      case Bottom:
+          pointerPlacement = "BASE_BOTTOM";
+          break;
+      case BottomRight:
+          pointerPlacement = "BASE_BOTTOM_RIGHT";
+          break;
+      case NumPlacements:
+          break;
+      }
+  }
 
   /* pointerTip is the trick - it calculates the pointer tip
      for a given step.  It does this by rendering
      the parent image with the model's non-step parts color A and
-     the step's parts color B.  Then the resulatant image is
+     the step's parts color B.  Then the resultant image is
      searched for color B.  The parent model needs to be rotated
      by ROTSTEP for this to work. */
 
   QPointF offset = pointerTip(*meta,fromHere,toHere);
 
-  QString line = QString("%1 %2 0 0 0 0 0 0 1 %3") .arg(offset.x()) .arg(offset.y()) .arg(pointerPlacement);
+  QString pointerType;
+  switch (rc)
+  {
+     case PagePointerRc:
+        pointerType = "PAGE POINTER";
+        break;
+    case CalloutDividerPointerRc:
+        pointerType = "CALLOUT DIVIDER_POINTER";
+        break;
+     case StepGroupDividerPointerRc:
+        pointerType = "MULTI_STEP DIVIDER_POINTER";
+        break;
+     default:
+         break;
+  }
 
-  logTrace() << "META" << meta->LPub.pagePointer.pointer.format(false,false);
+  QString preamble = QString("0 !LPUB %1 CENTER 0")
+                             .arg(pointerType);
 
-  insertMeta(toHere,"0 !LPUB PAGE_POINTER POINTER CENTER 0 " + line);
+  QString line = QString("%1 %2 %3 0 0 0 0 0 0 1 %4")
+                         .arg(preamble)
+                         .arg(offset.x())
+                         .arg(offset.y())
+                         .arg(pointerPlacement);
+
+  //logTrace() << "META" << meta->LPub.pointerBase.pointer.format(false,false);
+
+  logTrace() << "\nPAGE_POINTER LINE: " << line;
+
+  Where walk = toHere;
+  if (rc == StepGroupDividerPointerRc)
+      Rc mRc = scanForward(walk,StepMask);
+
+  insertMeta(walk,line);
 }
 
 QPointF MetaItem::pointerTip(

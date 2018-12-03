@@ -39,10 +39,10 @@ PagePointerBackgroundItem::PagePointerBackgroundItem(
   meta               = _meta;
   parentRelativeType = _parentRelativeType;
   pagePointerRect    = _pagePointerRect;
-  background         = &_meta->LPub.pagePointer.background;
-  border             = &_meta->LPub.pagePointer.border;
-  placement          = &_meta->LPub.pagePointer.placement;
-  margin             = &_meta->LPub.pagePointer.margin;
+  background         = &_meta->LPub.pointerBase.background;
+  border             = &_meta->LPub.pointerBase.border;
+  placement          = &_meta->LPub.pointerBase.placement;
+  margin             = &_meta->LPub.pointerBase.margin;
 
   setRect(0,0,_pagePointerRect.width(),_pagePointerRect.height());
   setToolTip("");
@@ -50,7 +50,5 @@ PagePointerBackgroundItem::PagePointerBackgroundItem(
   setBrush(QBrush(Qt::NoBrush));
   setParentItem(parent);
   setZValue(98);
-  setFlag(QGraphicsItem::ItemIsSelectable,false);
-  setFlag(QGraphicsItem::ItemIsMovable,false);
 }
 

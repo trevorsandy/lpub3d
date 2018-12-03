@@ -51,9 +51,9 @@ Callout::Callout(
   : view(view)
 {
   relativeType  = CalloutType;
-  meta = _meta;
-  instances = 1;
-  shared = false;
+  meta          = _meta;
+  instances     = 1;
+  shared        = false;
   if (meta.LPub.callout.begin.mode != CalloutBeginMeta::Unassembled) {
     meta.LPub.callout.pli.perStep.setValue(false);
   }
@@ -62,6 +62,10 @@ Callout::Callout(
 Callout::~Callout()
 {
   Steps::list.clear();
+  for (int i = 0; i < pointerList.size(); i++) {
+    Pointer *p = pointerList[i];
+    delete p;
+  }
   pointerList.clear();
 }
 
@@ -83,10 +87,13 @@ AllocMeta &Callout::allocMeta()
   }
 }
 
-void Callout::appendPointer(const Where &here, PointerMeta &pointerMeta)
+void Callout::appendPointer(const Where &here,
+                            PointerMeta &pointerMeta, PointerAttribMeta &pointerAttrib)
 {
-  Pointer *pointer = new Pointer(here,pointerMeta);
-  pointerList.append(pointer);
+    int id = pointerList.size() + 1;
+    Pointer *pointer = new Pointer(id,here,pointerMeta);
+    pointer->setPointerAttrib(pointerAttrib);
+    pointerList.append(pointer);
 }
 
 void Callout::sizeIt()
@@ -458,7 +465,6 @@ void Callout::addGraphicsPointerItem(
   CalloutPointerItem *t = 
     new CalloutPointerItem(
           this,
-         &meta,
           pointer,
            parent,
           view);

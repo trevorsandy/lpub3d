@@ -19,7 +19,8 @@
 /****************************************************************************
  *
  * This class describes the graphics independent representation of a pointer
- * extended from a callout to the assembly image where the called out submodel
+ * extended from a callout, divider or page
+ * to the assembly image where the called out submodel
  * is used.
  *
  * Please see lpub.h for an overall description of how the files in LPub
@@ -33,20 +34,29 @@
 #include "where.h"
 #include "meta.h"
 
+#include "QsLog.h"
+
 class Pointer {
-  public:
-    PointerMeta pointerMeta;
-    Where       here;
-
+public:
+    int                 id;
+    Where               here;
+    PointerMeta         pointerMeta;
+    PointerAttribMeta   pointerAttrib;
     Pointer() {}
-    Pointer(
-      Where        _here,
-      PointerMeta &_pointerMeta)
+    Pointer(int          _id,
+            Where        _here,
+            PointerMeta &_pointerMeta)
     {
-      here        = _here;
-      pointerMeta = _pointerMeta;
+        id            = _id;
+        here          = _here;
+        pointerMeta   = _pointerMeta;
     }
-
+    virtual PointerAttribData getPointerAttrib(){
+        return pointerAttrib.value();
+    }
+    virtual void setPointerAttrib(PointerAttribMeta pam){
+        pointerAttrib = pam;
+    }
     virtual ~Pointer()
     {
     }

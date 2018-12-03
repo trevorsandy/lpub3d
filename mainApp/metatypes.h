@@ -50,13 +50,13 @@ enum RectPlacement{
 
     /**************************************************************************************************************************
      *  TopLeftOutsideCorner    * TopLeftOutside         * TopOutside    * TopRightOutSide         * TopRightOutsideCorner    *
-     **************************** *********************************************************************************************
-     *  LeftTopOutside          * TopLeftInsideCorner    * TopInside     * TopRightInsideCorner    * RightTopOutside          *
-     **************************************************************************************************************************
-     *  LeftOutside             * LeftInside             * CenterCenter  * RightInside             * RightOutside             *
-     **************************************************************************************************************************
-     *  LeftBottomOutside       * BottomLeftInsideCorner * BottomInside  * BottomRightInsideCorner * RightBottomOutside       *
-     **************************************************************************************************************************
+     ***************************--------------------------------------------------------------------***************************
+     *  LeftTopOutside          - TopLeftInsideCorner    - TopInside     - TopRightInsideCorner    - RightTopOutside          *
+     ***************************--------------------------------------------------------------------***************************
+     *  LeftOutside             - LeftInside             - CenterCenter  - RightInside             - RightOutside             *
+     ***************************--------------------------------------------------------------------***************************
+     *  LeftBottomOutside       - BottomLeftInsideCorner - BottomInside  - BottomRightInsideCorner - RightBottomOutside       *
+     ***************************--------------------------------------------------------------------***************************
      *  BottomLeftOutsideCorner * BottomLeftOutside      * BottomOutside * BottomRightOutside      * BottomRightOutsideCorner *
      **************************************************************************************************************************/
 
@@ -367,7 +367,7 @@ public:
   float   thickness;  // in units 
   float   radius;     // in units
   float   margin[2];  // in units
-  int     line;
+  Line    line;
   bool    hideArrows;
   bool    useDefault;
   
@@ -383,6 +383,48 @@ public:
     hideArrows = false;
     useDefault = true;
   }
+};
+
+class PointerAttribData
+{
+   public:
+    enum Attribute {
+      Line,
+      Border
+    } attribType;
+    int id;
+    bool borderModified;
+    QString parent;
+    BorderData lineData;
+    BorderData borderData;
+
+    PointerAttribData()
+    {
+        lineData.color     = "Black";
+        lineData.type      = BorderData::BdrRound;
+        lineData.line      = BorderData::BdrLnSolid;
+        lineData.thickness = 1.0f/32.0f;
+        lineData.radius    = 15;
+        lineData.margin[0] = 0;
+        lineData.margin[1] = 0;
+        lineData.useDefault=false;
+        lineData.hideArrows=false;
+
+        borderData.color     = QString();;
+        borderData.type      = BorderData::BdrRound;
+        borderData.line      = BorderData::BdrLnSolid;
+        borderData.thickness = 1.0f/64.0f;
+        borderData.radius    = 15;
+        borderData.margin[0] = 0;
+        borderData.margin[1] = 0;
+        borderData.useDefault=false;
+        borderData.hideArrows=false;
+
+        attribType           = PointerAttribData::Line;
+        id                   = 0000;
+        borderModified       = false;
+        parent               = QString();
+    }
 };
 
 class SubData

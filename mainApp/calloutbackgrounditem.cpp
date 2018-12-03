@@ -151,7 +151,8 @@ void CalloutBackgroundItem::contextMenuEvent(
   if (selectedAction == nullptr) {
       return;
   } else if (selectedAction == addPointerAction) {
-    Pointer *pointer = new Pointer(callout->topOfCallout(),calloutMeta.pointer);
+    int pid = callout->pointerList.size()+1;
+    Pointer *pointer = new Pointer(pid,callout->topOfCallout(),calloutMeta.pointer);
     float _loc = 0, _x1 = 0, _y1 = 0, _base = -1, _segments = 1;
     float           _x2 = 0, _y2 = 0;
     float           _x3 = 0, _y3 = 0;
@@ -162,8 +163,9 @@ void CalloutBackgroundItem::contextMenuEvent(
     _base,
     _segments,
     _x1,_y1,_x2,_y2,_x3,_y3,_x4,_y4);
+    pointer->setPointerAttrib(calloutMeta.pointerAttrib);
     CalloutPointerItem *calloutPointer = 
-      new CalloutPointerItem(callout,&callout->meta,pointer,this,view);
+      new CalloutPointerItem(callout,pointer,this,view);
     calloutPointer->defaultPointer();
 
   } else if (selectedAction == perStepAction) {

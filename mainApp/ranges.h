@@ -52,16 +52,16 @@ class QGraphicsView;
 
 class Steps : public Placement {
   public:
-    Meta           meta;
-    Meta           stepGroupMeta;
-    QList<AbstractStepsElement *> list;         // of range
-    QMap<Positions,PagePointer *> pagePointers; // of pagePointers
-    QGraphicsView *view;
-    Pli            pli;
-    SubModel       subModel;
-    Where          top;                         // needed for non-step pages
-    Where          bottom;
-    bool           isMirrored;
+    Meta                           meta;
+    Meta                           stepGroupMeta;
+    QList<AbstractStepsElement *>  list;         // of range
+    QMap<Positions,PagePointer *>  pagePointers; // of pagePointers
+    QGraphicsView                 *view;
+    Pli                            pli;
+    SubModel                       subModel;
+    Where                          top;          // needed for non-step pages
+    Where                          bottom;
+    bool                           isMirrored;
 
     Steps();
     Steps(Meta &_meta,QGraphicsView *_view);

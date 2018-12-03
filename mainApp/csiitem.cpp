@@ -132,6 +132,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QAction *movePrevAction = nullptr;
   QAction *moveNextAction = nullptr;
   QAction *addDividerAction = nullptr;
+  QAction *addDividerPointerAction = nullptr;
   QAction *allocAction = nullptr;
 
   AllocEnc allocType = step->parent->allocType();
@@ -188,10 +189,6 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
           allocAction = commonMenus.displayColumnsMenu(menu, name);
         }
     }
-
-  QAction *addPointerAction = menu.addAction("Place Page Pointer");
-  addPointerAction->setWhatsThis("Add pointer from the page to this CSI image");
-  addPointerAction->setIcon(QIcon(":/resources/addpointer.png"));
 
   QString pl = "Assembly";
   QAction *placementAction = nullptr;
@@ -261,6 +258,34 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         }
     }
 
+  Where topOfStep     = step->topOfStep();
+  Where bottomOfStep  = step->bottomOfStep();
+  Where topOfSteps    = step->topOfSteps();
+  Where bottomOfSteps = step->bottomOfSteps();
+
+  QAction *addPagePointerAction = menu.addAction("Place Page Pointer");
+  addPagePointerAction->setWhatsThis("Add pointer from the page to this CSI image");
+  addPagePointerAction->setIcon(QIcon(":/resources/addpointer.png"));
+
+  bool dividerDetected = false;
+  if (parentRelativeType == StepGroupType) {
+      scanForward(topOfSteps,StepGroupMask);
+
+      Where walk = topOfStep + 1;
+      Rc rc = scanForward(walk,StepMask);
+      if (rc == StepRc || rc == RotStepRc) {
+        ++walk;
+        rc = scanForward(walk,StepGroupDividerMask);
+        dividerDetected = rc == StepGroupDividerRc;
+      }
+  }
+
+  if (dividerDetected) {
+      addDividerPointerAction = menu.addAction("Place Divider Pointer");
+      addDividerPointerAction->setWhatsThis("Add pointer from the step divider to this CSI image");
+      addDividerPointerAction->setIcon(QIcon(":/resources/addpointer.png"));
+  }
+
   QAction *noStepAction = menu.addAction(fullContextMenu ? "Don't Show This Page" : "Don't Show This Final Model");
   noStepAction->setIcon(QIcon(":/resources/display.png"));
 
@@ -271,16 +296,6 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     }
   
   Callout *callout = step->callout();
-  
-  Where topOfStep     = step->topOfStep();
-  Where bottomOfStep  = step->bottomOfStep();
-  Where topOfSteps    = step->topOfSteps();
-  Where bottomOfSteps = step->bottomOfSteps();
-  
-  if (parentRelativeType == StepGroupType) {
-      MetaItem mi;
-      mi.scanForward(topOfSteps,StepGroupMask);
-    }
 
   if (selectedAction == addPrevAction) {
       addPrevMultiStep(topOfSteps,bottomOfSteps);
@@ -318,16 +333,19 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
     } else if (selectedAction == addDividerAction) {
       addDivider(parentRelativeType,bottomOfStep,divider);
-    } else if (selectedAction == addPointerAction) {
+    } else if (selectedAction == addPagePointerAction) {
 
-      PlacementMeta pointerPlacement = meta->LPub.pagePointer.placement;
+      PlacementMeta pointerPlacement = meta->LPub.pointerBase.placement;
       bool ok = setPointerPlacement(&pointerPlacement,
                                     parentRelativeType,
                                     PagePointerType,
                                     pl+" Pointer Placement");
       if (ok) {
-          addPointerTip(meta,topOfStep,bottomOfStep,pointerPlacement.value().placement);
+          addPointerTip(meta,topOfStep,bottomOfStep,pointerPlacement.value().placement,PagePointerRc);
         }
+    } else if (selectedAction == addDividerPointerAction) {
+        PlacementEnc placement = Center;
+        addPointerTip(&step->grandparent()->meta,topOfStep,bottomOfStep,placement,StepGroupDividerPointerRc);
     } else if (selectedAction == allocAction) {
       if (parentRelativeType == StepGroupType) {
           changeAlloc(topOfSteps,

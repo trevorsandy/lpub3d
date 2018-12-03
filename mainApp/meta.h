@@ -58,24 +58,36 @@ enum Rc {
          RangeErrorRc = -2,
          FailureRc = -1,
          OkRc = 0,
+
          StepRc,
          RotStepRc,
+
+         CalloutBeginRc,
+         CalloutDividerRc,
+         CalloutEndRc,
 
          StepGroupBeginRc,
          StepGroupDividerRc,
          StepGroupEndRc,
 
-         CalloutBeginRc,
-         CalloutPointerRc,
-         CalloutDividerRc,
-         CalloutEndRc,             
-         
-         DividerPointerRc,
-         IllustrationPointerRc,
-
          InsertRc,
          InsertPageRc,
          InsertCoverPageRc,
+
+         CalloutPointerRc,
+         CalloutDividerPointerRc,
+         CalloutPointerAttribRc,
+         CalloutDividerPointerAttribRc,
+
+         StepGroupDividerPointerRc,
+         StepGroupPointerAttribRc,
+         StepGroupDividerPointerAttribRc,
+
+         PagePointerAttribRc,
+
+         PagePointerRc,
+         IllustrationPointerRc,
+
          InsertFinalModelRc,
 
          ClearRc,
@@ -95,8 +107,6 @@ enum Rc {
 
          PartBeginIgnRc,
          PartEndRc,
-
-         PagePointerRc,
 
          BomBeginIgnRc,
          BomEndRc,
@@ -118,7 +128,7 @@ enum Rc {
          StepPliPerStepRc,
 
          ResolutionRc,
-         
+
          IncludeRc,
 
          NoStepRc,
@@ -137,6 +147,7 @@ enum Positions {
 #define DEFAULT_MARGIN  0.05f
 #define DEFAULT_MARGINS DEFAULT_MARGIN,DEFAULT_MARGIN
 #define DEFAULT_MARGIN_RANGE 0.0f,100.0f
+#define DEFAULT_ROUND_RADIUS 15
 #define DEFAULT_THICKNESS 1.0f/32.0f
 
 #define DEFAULT_SUBMODEL_COLOR_01 "#ffffff"
@@ -146,7 +157,7 @@ enum Positions {
 
 /*
  * This abstract class is the root of all meta-command parsing
- * objects.  Each parsing object knows how to intialize itself,
+ * objects.  Each parsing object knows how to initialize itself,
  * parse from the current argv through the end of args, perform
  * a preamble match (used for recognizing meta commands when
  * making changes to the LDraw file, and it also knows how to
@@ -1064,7 +1075,6 @@ public:
   virtual QString text();
 };
 
-
 /* This leaf class is used to parse border metas */
 
 class BorderMeta : public LeafMeta
@@ -1100,7 +1110,7 @@ public:
   {
     _value[pushed] = borderData;
   }
-  int setBorderLine(const QString argvIndex)
+  BorderData::Line setBorderLine(const QString argvIndex)
   {
     if (argvIndex == "0"){
         return BorderData::BdrLnNone;
@@ -1153,6 +1163,157 @@ public:
   }
   virtual void doc(QStringList &out, QString preamble);
   virtual QString text();
+};
+
+/*
+ * This class parses pointer attribute
+ * meta commands
+ */
+
+#include "QsLog.h"
+
+class PointerAttribMeta  : public LeafMeta
+{
+private:
+  PointerAttribData _value[2];  // some of this is in units
+  PointerAttribData _result;
+public:
+
+  PointerAttribData &valuePixels()
+  {
+    _result = _value[pushed];
+    _result.lineData.thickness*=resolution();
+    _result.borderData.thickness*=resolution();
+    return _result;
+  }
+
+  PointerAttribData &value()
+  {
+    _result = _value[pushed];
+    if (resolutionType() == DPCM) {
+      _result.lineData.thickness = inches2centimeters(_result.lineData.thickness);
+      _result.borderData.thickness = inches2centimeters(_result.borderData.thickness);
+    }
+    return _result;
+  }
+
+  void setValue(PointerAttribData pointerAttribData)
+  {
+    if (resolutionType() == DPCM) {
+      pointerAttribData.lineData.thickness = inches2centimeters(pointerAttribData.lineData.thickness);
+      pointerAttribData.borderData.thickness = inches2centimeters(pointerAttribData.borderData.thickness);
+    }
+    _value[pushed] = pointerAttribData;
+  }
+
+  void setAltValue(PointerAttribData data)
+  {
+      if (_value[pushed].attribType    == PointerAttribData::Line) {
+          _value[pushed].borderData     = data.borderData;
+          _value[pushed].borderModified = data.borderModified;
+      } else
+      if (_value[pushed].attribType == PointerAttribData::Border) {
+          _value[pushed].lineData    = data.lineData;
+      }
+  }
+
+  PointerAttribData valueInches()
+  {
+    return _value[pushed];
+  }
+
+  void setValueInches(PointerAttribData &pointerAttribData)
+  {
+    _value[pushed] = pointerAttribData;
+  }
+
+  BorderData::Line setBorderLine(const QString argvIndex)
+  {
+    if (argvIndex == "1"){
+      return BorderData::BdrLnSolid;
+      }
+    else if (argvIndex == "2"){
+      return BorderData::BdrLnDash;
+      }
+    else if (argvIndex == "3"){
+      return BorderData::BdrLnDot;
+      }
+    else if (argvIndex == "4"){
+      return BorderData::BdrLnDashDot;
+      }
+    else {//"Dot-Dot-Dash Line"
+      return BorderData::BdrLnDashDotDot;
+      }
+  }
+
+  PointerAttribData &getAttributes(const QStringList &argv,Where &here)
+  {
+    int index = 4;
+
+    #ifdef QT_DEBUG_MODE
+//        QStringList debugLine;
+//        for(int i=0;i<argv.size();i++){
+//            debugLine << argv[i];
+//            int size = argv.size();
+//            int incr = i;
+//            int result = size - incr;
+//            qDebug() << QString("ATTRIBUTES LINE ARGV Pos:(%1), PosIndex:(%2) [%3 - %4 = %5], Value:(%6)")
+//                           .arg(i+1).arg(i).arg(size).arg(incr).arg(result).arg(argv[i]);
+//        }
+//        logTrace() << debugLine.join(" ");
+//        logDebug() << "argv[index-1]: " << argv[index-1] << ", argv[index-2]: " << argv[index-2]
+//                      ;
+    #endif
+
+        bool isLine = argv[index] == "LINE";
+
+        _result = _value[pushed];
+
+        if (isLine) {
+           _result.attribType            = PointerAttribData::Line;
+
+           _result.lineData.line         = setBorderLine(argv[index+1]);
+           _result.lineData.color        = argv[index+2];
+           _result.lineData.thickness    = argv[index+3].toFloat();
+           _result.lineData.hideArrows   = argv[index+4].toInt();   // used to show/hide arrow tip
+           if (resolutionType() == DPCM)
+             _result.lineData.thickness  = inches2centimeters(_result.lineData.thickness);
+
+           _result.lineData.useDefault   = false;
+        } else
+          if (argv[index] == "BORDER") {
+           _result.attribType            = PointerAttribData::Border;
+
+           _result.borderData.line       = setBorderLine(argv[index+1]);
+           _result.borderData.color      = argv[index+2];
+           _result.borderData.thickness  = argv[index+3].toFloat();
+           if (resolutionType() == DPCM)
+             _result.borderData.thickness= inches2centimeters(_result.borderData.thickness);
+
+           _result.borderData.useDefault = false;
+           _result.borderModified        = true;
+        }
+        _result.id                       = argv[isLine ? index+5 : index+4].toInt();
+        _result.parent                   = argv[index-2] == "CALLOUT" ? QString() : argv[isLine ? index+6 : index+5];
+
+        _here[pushed]                    = here;
+
+        return _result;
+  }
+
+  PointerAttribMeta() : LeafMeta() {}
+
+  PointerAttribMeta(const PointerAttribMeta &rhs) : LeafMeta(rhs)
+  {
+    _value[0] = rhs._value[0];
+    _value[1] = rhs._value[1];
+    _result = rhs._result;
+  }
+
+  virtual ~PointerAttribMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
 };
 
 /*
@@ -1229,7 +1390,7 @@ public:
     _value[pushed].x4        = x4;
     _value[pushed].y4        = y4;
   }
-  // used for page pointer - inclues rectPlacement
+  // used for page pointer - includes rectPlacement
   void setValuePage(
     RectPlacement rectPlacement,
     PlacementEnc placement,
@@ -1542,7 +1703,7 @@ public:
 };
 
 /*
- * This class parses (Portait|Landscape)
+ * This class parses (Portrait|Landscape)
  */
 
 class PageOrientationMeta : public LeafMeta
@@ -2190,6 +2351,27 @@ public:
   virtual void init(BranchMeta *parent, QString name);
 };
 
+/*------------------------*/
+
+/*
+ * PagePointer meta
+ */
+class PointerBaseMeta  : public BranchMeta
+{
+public:
+  PlacementMeta  placement;     // inside
+  BorderMeta     border;
+  BackgroundMeta background;
+  MarginsMeta    margin;
+  PointerBaseMeta();
+  PointerBaseMeta(const PointerBaseMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+
+  virtual ~PointerBaseMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+};
+
 /*---------------------------------------------------------------
  * The Top Level LPub3D Metas
  *---------------------------------------------------------------*/
@@ -2208,6 +2390,8 @@ public:
   NumberPlacementMeta       number;
   NumberPlacementMeta       instanceCount;
   StringListMeta            subModelColor;
+  PointerMeta               pointer;
+  PointerAttribMeta         pointerAttrib;
 
   PageHeaderMeta            pageHeader;
   PageFooterMeta            pageFooter;
@@ -2252,13 +2436,13 @@ class AssemMeta : public BranchMeta
 public:
   // top    == last step
   // bottom == cur step
-  MarginsMeta   margin;
-  PlacementMeta placement;
-  FloatMeta     modelScale;
-  StringMeta    ldviewParms;
-  StringMeta    ldgliteParms;
-  StringMeta    povrayParms;
-  BoolMeta      showStepNumber;
+  MarginsMeta     margin;
+  PlacementMeta   placement;
+  FloatMeta       modelScale;
+  StringMeta      ldviewParms;
+  StringMeta      ldgliteParms;
+  StringMeta      povrayParms;
+  BoolMeta        showStepNumber;
 
   // image generation
   CameraDistFactorMeta cameraDistNative;
@@ -2370,25 +2554,28 @@ public:
 
   PlacementMeta  placement;     // outside
 
-  MarginsMeta    margin;
-  CalloutCsiMeta csi;               
-  CalloutPliMeta pli;
+  MarginsMeta         margin;
+  CalloutCsiMeta      csi;
+  CalloutPliMeta      pli;
   CalloutSubModelMeta subModel;
-  RotateIconMeta rotateIcon;
+  RotateIconMeta      rotateIcon;
   NumberPlacementMeta stepNum;
-  SepMeta        sep;
-  FreeFormMeta   freeform;
-  CalloutBeginMeta begin;
-  RcMeta         divider;
-  RcMeta         end;
-  AllocMeta      alloc;
+  SepMeta             sep;
+  FreeFormMeta        freeform;
+  CalloutBeginMeta    begin;
+  RcMeta              divider;
+  RcMeta              end;
+  AllocMeta           alloc;
   NumberPlacementMeta instance;
-  BorderMeta     border;
-  BackgroundMeta background;
-  PointerMeta    pointer;
-  StringListMeta subModelColor;
-  FontListMeta   subModelFont;
-  StringListMeta subModelFontColor;
+  BorderMeta          border;
+  BackgroundMeta      background;
+  PointerMeta         pointer;
+  PointerAttribMeta   pointerAttrib;
+  PointerMeta         divPointer;
+  PointerAttribMeta   divPointerAttrib;
+  StringListMeta      subModelColor;
+  FontListMeta        subModelFont;
+  StringListMeta      subModelFontColor;
   CalloutMeta();
   CalloutMeta(const CalloutMeta &rhs) : BranchMeta(rhs)
   {
@@ -2400,49 +2587,28 @@ public:
 
 /*------------------------*/
 
-/*
- * PagePointer meta
- */
-class PagePointerMeta  : public BranchMeta
-{
-public:
-  PlacementMeta  placement;     // inside
-  BorderMeta     border;
-  BackgroundMeta background;
-  MarginsMeta    margin;
-  StringListMeta subModelColor;
-  PointerMeta    pointer;
-  PagePointerMeta();
-  PagePointerMeta(const PagePointerMeta &rhs) : BranchMeta(rhs)
-  {
-  }
-
-  virtual ~PagePointerMeta() {}
-  virtual void init(BranchMeta *parent, QString name);
-};
-
-/*------------------------*/
-
 class MultiStepMeta : public BranchMeta
 {
 public:
   // top    == start of multistep
   // bot    == bottom of multistep
-  PlacementMeta  placement;
-  MarginsMeta    margin;
-  CalloutCsiMeta csi;
-  CalloutPliMeta pli;
+  PlacementMeta       placement;
+  MarginsMeta         margin;
+  CalloutCsiMeta      csi;
+  CalloutPliMeta      pli;
   CalloutSubModelMeta subModel;
-  RotateIconMeta rotateIcon;
+  RotateIconMeta      rotateIcon;
   NumberPlacementMeta stepNum;
-  SepMeta        sep;
-  FreeFormMeta   freeform;
-  RcMeta         begin;
-  RcMeta         divider;
-  RcMeta         end;
-  AllocMeta      alloc;
-  FontListMeta   subModelFont;
-  StringListMeta subModelFontColor;
+  SepMeta             sep;
+  FreeFormMeta        freeform;
+  RcMeta              begin;
+  RcMeta              divider;
+  RcMeta              end;
+  PointerMeta         divPointer;
+  PointerAttribMeta   divPointerAttrib;
+  AllocMeta           alloc;
+  FontListMeta        subModelFont;
+  StringListMeta      subModelFontColor;
   MultiStepMeta();
   MultiStepMeta(const MultiStepMeta &rhs) : BranchMeta(rhs)
   {
@@ -2519,7 +2685,7 @@ public:
   AssemMeta            assem;
   NumberPlacementMeta  stepNumber;
   CalloutMeta          callout;
-  PagePointerMeta      pagePointer;
+  PointerBaseMeta      pointerBase;
   MultiStepMeta        multiStep;
   PliMeta              pli;
   BomMeta              bom;
@@ -2705,30 +2871,42 @@ public:
 private:
 };
 
-const QString RcNames[50] =
+const QString RcNames[57] =
 {
      "InvalidLDrawLineRc = -3",
      "RangeErrorRc = -2",
      "FailureRc = -1",
      "OkRc = 0",
+
      "StepRc",
      "RotStepRc",
+
+     "CalloutBeginRc",
+     "CalloutDividerRc",
+     "CalloutEndRc",
 
      "StepGroupBeginRc",
      "StepGroupDividerRc",
      "StepGroupEndRc",
 
-     "CalloutBeginRc",
-     "CalloutPointerRc",
-     "CalloutDividerRc",
-     "CalloutEndRc",
-
-     "DividerPointerRc",
-     "IllustrationPointerRc",
-
      "InsertRc",
      "InsertPageRc",
      "InsertCoverPageRc",
+
+     "CalloutPointerRc",
+     "CalloutDividerPointerRc",
+     "CalloutPointerAttribRc",
+     "CalloutDividerPointerAttribRc",
+
+     "StepGroupDividerPointerRc",
+     "StepGroupPointerAttribRc",
+     "StepGroupDividerPointerAttribRc",
+
+     "PagePointerAttribRc",
+
+     "PagePointerRc",
+     "IllustrationPointerRc",
+
      "InsertFinalModelRc",
 
      "ClearRc",
@@ -2748,8 +2926,6 @@ const QString RcNames[50] =
 
      "PartBeginIgnRc",
      "PartEndRc",
-
-     "PagePointerRc",
 
      "BomBeginIgnRc",
      "BomEndRc",

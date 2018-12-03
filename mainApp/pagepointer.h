@@ -39,7 +39,7 @@
 #include <QGraphicsItem>
 #include <QGraphicsRectItem>
 #include <QGraphicsPolygonItem>
-#include <QGraphicsLineItem>
+#include "borderedlineitem.h"
 #include <QGraphicsItemGroup>
 
 class Step;
@@ -55,15 +55,15 @@ class QGraphicsView;
 
 class PagePointer : public Steps {
   public:
-    Step                  *parentStep;
-    PlacementType          parentRelativeType;
-    QGraphicsView         *view;
+    Step                      *parentStep;
+    PlacementType              parentRelativeType;
+    QGraphicsView             *view;
 
-    QList<Pointer *>         pointerList; /* Pointers and pointer tips */
-    QList<PagePointerItem *> graphicsPointerList;
+    QList<Pointer *>           pointerList;         /* Pointers and pointer tips data */
+    QList<PagePointerItem *>   graphicsPointerList; /* Pointer and pointer tips graphics */
 
     PagePointerBackgroundItem *background;
-    Where  		       topPage,bottomPage;
+    Where  		               topPage,bottomPage;
 
     Where &topOfPagePointer()
     {
@@ -83,12 +83,12 @@ class PagePointer : public Steps {
     }
 
     PagePointer(
-      Meta                 &_meta,
+      Meta                 *_meta,
       QGraphicsView        *_view);
 
     virtual ~PagePointer();
 
-    virtual void appendPointer(const Where &here, PointerMeta &attrib);
+    virtual void appendPointer(const Where &here, PointerMeta &pointerMeta, PointerAttribMeta &pointerAttrib);
 
     virtual void sizeIt();
 

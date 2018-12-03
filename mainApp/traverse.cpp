@@ -47,6 +47,7 @@
 #include "metaitem.h"
 #include "pointer.h"
 #include "pagepointer.h"
+#include "ranges_item.h"
 
 #include "QsLog.h"
 
@@ -54,6 +55,26 @@
 #ifndef SIZE_DEBUG
 //#define SIZE_DEBUG
 #endif
+
+QString AttributeNames[] =
+{
+    "Line",
+    "Border"
+};
+
+QString PositionNames[] =
+{
+    "BASE_TOP",
+    "BASE_BOTTOM",
+    "BASE_LEFT",
+    "BASE_RIGHT"
+};
+
+//struct PAMItem
+//{
+//    PointerAttribMeta pam;
+//    Positions pos;
+//};
 
 /*********************************************
  *
@@ -211,6 +232,82 @@ static void remove_partname(
   return;
 }
 
+/*********************************************
+ *
+ * set_divider_pointers
+ *
+ * this processes step_group or callout divider
+ * pointers and pointer attributes
+ *
+ ********************************************/
+
+static void set_divider_pointers(Meta &curMeta, Where &current, Range *range, LGraphicsView *view, Rc rct){
+
+    QString sType = (rct == CalloutDividerRc ? "CALLOUT" : "STEPGROUP");
+
+    Rc pRc  = (rct == CalloutDividerRc ? CalloutDividerPointerRc : StepGroupDividerPointerRc);
+    Rc paRc = (rct == CalloutDividerRc ? CalloutDividerPointerAttribRc : StepGroupDividerPointerAttribRc);
+
+    PointerMeta ppm       = (rct == CalloutDividerRc ? curMeta.LPub.callout.divPointer : curMeta.LPub.multiStep.divPointer);
+    PointerAttribMeta pam = (rct == CalloutDividerRc ? curMeta.LPub.callout.divPointerAttrib : curMeta.LPub.multiStep.divPointerAttrib);
+
+    Where walk(current.modelName,current.lineNumber);
+    walk++;
+
+    int numLines = gui->subFileSize(walk.modelName);
+
+    for ( ; walk.lineNumber < numLines; walk++) {
+        QString stepLine = gui->readLine(walk);
+#ifdef QT_DEBUG_MODE
+//        logTrace() << "\n[DEBUG " + sType + " DIVIDER POINTER LINE]" << stepLine;
+#endif
+        Rc mRc = curMeta.parse(stepLine,walk);
+        if (mRc == StepRc || mRc == RotStepRc) {
+            break;
+        } else if (mRc == pRc) {
+            range->appendDividerPointer(walk,view,ppm,pam);
+#ifdef QT_DEBUG_MODE
+//            int pIndex = range->dividerPointerList.size() - 1;
+//            logTrace() << "\n[DEBUG " + sType + " DIVIDER POINTER PAM"
+//                       << "\ndividerItem.id             [" << range->dividerPointerList[pIndex]->pointerAttrib.value().id << "]"
+//                       << "\ndividerItem.parent         [" << range->dividerPointerList[pIndex]->pointerAttrib.value().parent << "]"
+//                       << "\ndividerItem.attribType     [" << AttributeNames[range->dividerPointerList[pIndex]->pointerAttrib.value().attribType] << "]"
+//                       << "\ndividerItem.borderModified [" << (range->dividerPointerList[pIndex]->pointerAttrib.value().borderModified ? "true" : "false") << "]"
+//                          ;
+#endif
+        } else if (mRc == paRc) {
+            QStringList argv;
+            split(stepLine,argv);
+            pam.setValue(pam.getAttributes(argv,walk));
+
+            int i               = pam.value().id - 1;
+            Pointer          *p = range->dividerPointerList[i];
+            if (pam.value().id == p->id) {
+                pam.setAltValue(p->getPointerAttrib());
+                p->setPointerAttrib(pam);
+                range->dividerPointerList.replace(i,p);
+#ifdef QT_DEBUG_MODE
+//                logTrace() << "\n[DEBUG " + sType + " POINTER ATTRIBUTE PAM]:"
+//                           << "\npam.id             [" << pam.value().id << "]"
+//                           << "\npam.parent         [" << pam.value().parent << "]"
+//                           << "\npam.attribType     [" << AttributeNames[pam.value().attribType] << "]"
+//                           << "\npam.borderModified [" << (pam.value().borderModified ? "true" : "false") << "]"
+//                           << "\np.id               [" << p->pointerAttrib.value().id << "]"
+//                           << "\np.parent           [" << p->pointerAttrib.value().parent << "]"
+//                           << "\np.attribType       [" << AttributeNames[p->pointerAttrib.value().attribType] << "]"
+//                           << "\np.borderModified   [" << (p->pointerAttrib.value().borderModified ? "true" : "false") << "]"
+//                           << "\nco.id              [" << range->dividerPointerList[i]->pointerAttrib.value().id << "]"
+//                           << "\nco.parent          [" << range->dividerPointerList[i]->pointerAttrib.value().parent << "]"
+//                           << "\nco.attribType      [" << AttributeNames[range->dividerPointerList[i]->pointerAttrib.value().attribType] << "]"
+//                           << "\nco.borderModified  [" << (range->dividerPointerList[i]->pointerAttrib.value().borderModified ? "true" : "false") << "]"
+//                           << "\npam.preamble       [" << pam.preamble << "]"
+//                              ;
+#endif
+            }
+        }
+    }
+}
+
 /*
  * This function, drawPage, is handed the parse state going into the page
  * that is to be displayed.  It gathers up a step group, or a single step,
@@ -250,7 +347,7 @@ static void remove_partname(
  * After drawPage finishes gathering the page and converting the tree to
  * graphics items, it returns to findPage, which discards the parse state,
  * but continues parsing through to the last page, so we know how many pages
- * are in the building instuctions.
+ * are in the building instructions.
  *
  */
 
@@ -310,7 +407,7 @@ int Gui::drawPage(
   bool     noStep          = false;
   bool     rotateIcon      = false;
 
-  PagePointer *pagePointer= nullptr;
+  PagePointer *pagePointer = nullptr;
   QMap<Positions, PagePointer*> pagePointers;
 
   steps->isMirrored = isMirrored;
@@ -908,7 +1005,7 @@ int Gui::drawPage(
                         rotateIcon = false;
                       }
                   }
-                if (insertData.type == InsertData::InsertBom){
+                if (insertData.type == InsertData::InsertBom) {
                     // nothing to display in 3D Window
                     if (! exporting())
                       emit clearViewerWindowSig();
@@ -918,53 +1015,126 @@ int Gui::drawPage(
 
             case PagePointerRc:
               {
-                if (pagePointer){
-                    parseError("Nested page pointers not allowed within the same file",current);
+                  if (pagePointer) {
+                      parseError("Nested page pointers not allowed within the same page",current);
                   } else {
-                    Positions position;
-                    bool pointerExist = false;
-                    if (curMeta.LPub.pagePointer.pointer.value().rectPlacement == TopInside) {
-                        position = PP_TOP;
-                        if (pagePointers[position])
-                          pointerExist = true;
-                      }
-                    else if (curMeta.LPub.pagePointer.pointer.value().rectPlacement == BottomInside) {
-                        position = PP_BOTTOM;
-                        if (pagePointers[position])
-                          pointerExist = true;
-                      }
-                    else if (curMeta.LPub.pagePointer.pointer.value().rectPlacement == LeftInside) {
-                        position = PP_LEFT;
-                        if (pagePointers[position])
-                          pointerExist = true;
-                      }
-                    else if (curMeta.LPub.pagePointer.pointer.value().rectPlacement == RightInside) {
-                        position = PP_RIGHT;
-                        if (pagePointers[position])
-                          pointerExist = true;
-                      }
+                      Positions position;
+                      PointerMeta ppm       = curMeta.LPub.page.pointer;
+                      PointerAttribMeta pam = curMeta.LPub.page.pointerAttrib;
+                      PointerAttribData pad = pam.value();
+                      RectPlacement currRp  = curMeta.LPub.page.pointer.value().rectPlacement;
 
-                    if (pointerExist) {
-                        pagePointers[position]->appendPointer(current,curMeta.LPub.pagePointer.pointer);
+                      if (currRp == TopInside)
+                          position = PP_TOP;
+                      else
+                      if (currRp == BottomInside)
+                          position = PP_BOTTOM;
+                      else
+                      if (currRp == LeftInside)
+                          position = PP_LEFT;
+                      else
+                      if (currRp == RightInside)
+                          position = PP_RIGHT;
+
+                      // DEBUG
+                      bool newPP = true;
+                      pagePointer = pagePointers.value(position);
+                      if (pagePointer) {
+                          newPP = false;
+                          pad.id     = pagePointer->pointerList.size() + 1;
+                          pad.parent = PositionNames[position];
+                          pam.setValue(pad);
+                          pagePointer->appendPointer(current,ppm,pam);
+                          pagePointers.remove(position);
+                          pagePointers.insert(position,pagePointer);
                       } else {
-                        pagePointer = new PagePointer(curMeta,view);
-                        pagePointer->parentStep = step;
-                        pagePointer->setTopOfPagePointer(current);
-                        pagePointer->setBottomOfPagePointer(current);
-                        if (multiStep){
-                            pagePointer->parentRelativeType = StepGroupType;
-                          } else if (calledOut){
-                            pagePointer->parentRelativeType = CalloutType;
+                          pagePointer = new PagePointer(&curMeta,view);
+                          pagePointer->parentStep = step;
+                          pagePointer->setTopOfPagePointer(current);
+                          pagePointer->setBottomOfPagePointer(current);
+                          if (multiStep){
+                              pagePointer->parentRelativeType = StepGroupType;
+                          } else
+                            if (calledOut){
+                              pagePointer->parentRelativeType = CalloutType;
                           } else {
-                            pagePointer->parentRelativeType = step->relativeType;
+                              pagePointer->parentRelativeType = step->relativeType;
                           }
-                        PlacementMeta pointerPlacement;
-                        pointerPlacement.setValue(curMeta.LPub.pagePointer.pointer.value().rectPlacement, PageType);
-                        pagePointer->placement = pointerPlacement;
-                        pagePointer->appendPointer(current,curMeta.LPub.pagePointer.pointer);
-                        pagePointers.insert(position,pagePointer);
-                        pagePointer = nullptr;
+                          PlacementMeta placementMeta;
+                          placementMeta.setValue(currRp, PageType);
+                          pagePointer->placement = placementMeta;
+
+                          pad.id     = 1;
+                          pad.parent = PositionNames[position];
+                          pam.setValue(pad);
+                          pagePointer->appendPointer(current,ppm,pam);
+                          pagePointers.insert(position,pagePointer);
                       }
+                      pagePointer = nullptr;
+#ifdef QT_DEBUG_MODE
+//                      logTrace() << "\n[DEBUG PAGE POINTER PAM " << (newPP ? "NEW" : "EXISTING") << " POSITION]"
+//                                 << "\npp[pos].id             [" << pagePointers[position]->pointerList[pad.id - 1]->pointerAttrib.value().id << "]"
+//                                 << "\npp[pos].parent         [" << pagePointers[position]->pointerList[pad.id - 1]->pointerAttrib.value().parent << "]"
+//                                 << "\npp[pos].attribType     [" << AttributeNames[pagePointers[position]->pointerList[pad.id - 1]->pointerAttrib.value().attribType] << "]"
+//                                 << "\npp[pos].borderModified [" << (pagePointers[position]->pointerList[pad.id - 1]->pointerAttrib.value().borderModified ? "true" : "false") << "]"
+//                                    ;
+#endif
+                  }
+              }
+              break;
+
+            case PagePointerAttribRc:
+              {
+                  PointerAttribMeta pam = curMeta.LPub.page.pointerAttrib;
+                  pam.setValue(pam.getAttributes(tokens,current));
+
+                  Positions position;
+                  if (pam.value().parent == "BASE_TOP")
+                      position = PP_TOP;
+                  else
+                  if (pam.value().parent == "BASE_BOTTOM")
+                      position = PP_BOTTOM;
+                  else
+                  if (pam.value().parent == "BASE_LEFT")
+                      position = PP_LEFT;
+                  else
+                  if (pam.value().parent == "BASE_RIGHT")
+                      position = PP_RIGHT;
+
+                  PagePointer *pp = pagePointers.value(position);
+                  if (pp) {
+                      int i               = pam.value().id - 1;
+                      Pointer          *p = pp->pointerList[i];
+                      if (pam.value().id == p->id) {
+                          pam.setAltValue(p->getPointerAttrib());
+                          p->setPointerAttrib(pam);
+                          pp->pointerList.replace(i,p);
+                          pagePointers.remove(position);
+                          pagePointers.insert(position,pp);
+#ifdef QT_DEBUG_MODE
+//                          logTrace() << "\n[DEBUG PAGE POINTER ATTRIBUTE PAM]:"
+//                                     << "\np.id                   [" << p->pointerAttrib.value().id << "]"
+//                                     << "\np.parent               [" << p->pointerAttrib.value().parent << "]"
+//                                     << "\np.attribType           [" << AttributeNames[p->pointerAttrib.value().attribType] << "]"
+//                                     << "\np.borderModified       [" << (p->pointerAttrib.value().borderModified ? "true" : "false") << "]"
+//                                     << "\np.borderData.color     [" << p->pointerAttrib.value().borderData.color << "]"
+//                                     << "\np.borderData.thickness [" << p->pointerAttrib.value().borderData.thickness << "]"
+//                                     << "\np.borderData.hideTip   [" << (p->pointerAttrib.value().borderData.hideArrows ? "true" : "false") << "]"
+//                                     << "\np.lineData.color       [" << p->pointerAttrib.value().lineData.color << "]"
+//                                     << "\np.lineData.thickness   [" << p->pointerAttrib.value().lineData.thickness << "]"
+//                                     << "\np.lineData.hideTip     [" << (p->pointerAttrib.value().lineData.hideArrows ? "true" : "false") << "]"
+//                                     << "\npp[pos].id             [" << pagePointers[position]->pointerList[i]->pointerAttrib.value().id << "]"
+//                                     << "\npp[pos].parent         [" << pagePointers[position]->pointerList[i]->pointerAttrib.value().parent << "]"
+//                                     << "\npp[pos].attribType     [" << AttributeNames[pagePointers[position]->pointerList[i]->pointerAttrib.value().attribType] << "]"
+//                                     << "\npp[pos].borderModified [" << (pagePointers[position]->pointerList[i]->pointerAttrib.value().borderModified ? "true" : "false") << "]"
+//                                     << "\npam.here().modelName   [" << pam.here().modelName << "]"
+//                                     << "\npam.here().lineNumber  [" << pam.here().lineNumber << "]"
+//                                     << "\npam.preamble           [" << pam.preamble << "]"
+//                                        ;
+#endif
+                      }
+                  } else {
+                      emit messageSig(LOG_ERROR, QString("Page Position %1 does not exist.").arg(PositionNames[position]));
                   }
               }
               break;
@@ -978,17 +1148,52 @@ int Gui::drawPage(
                 }
               break;
 
-            case CalloutDividerRc:
-              if (range) {
-                  range->sepMeta = curMeta.LPub.callout.sep;
-                  range = nullptr;
-                  step = nullptr;
+            case CalloutPointerRc:
+              if (callout) {
+                  callout->appendPointer(current,
+                                         curMeta.LPub.callout.pointer,
+                                         curMeta.LPub.callout.pointerAttrib);
                 }
               break;
 
-            case CalloutPointerRc:
+          case CalloutPointerAttribRc:
               if (callout) {
-                  callout->appendPointer(current,curMeta.LPub.callout.pointer);
+                  PointerAttribMeta pam = curMeta.LPub.callout.pointerAttrib;
+                  pam.setValue(pam.getAttributes(tokens,current));
+
+                  int i               = pam.value().id - 1;
+                  Pointer          *p = callout->pointerList[i];
+                  if (pam.value().id == p->id) {
+                      pam.setAltValue(p->getPointerAttrib());
+                      p->setPointerAttrib(pam);
+                      callout->pointerList.replace(i,p);
+#ifdef QT_DEBUG_MODE
+//                      logTrace() << "\n[DEBUG CALLOUT POINTER ATTRIBUTE PAM]:"
+//                                 << "\npam.id             [" << pam.value().id << "]"
+//                                 << "\npam.parent         [" << pam.value().parent << "]"
+//                                 << "\npam.attribType     [" << AttributeNames[pam.value().attribType] << "]"
+//                                 << "\npam.borderModified [" << (pam.value().borderModified ? "true" : "false") << "]"
+//                                 << "\np.id               [" << p->pointerAttrib.value().id << "]"
+//                                 << "\np.parent           [" << p->pointerAttrib.value().parent << "]"
+//                                 << "\np.attribType       [" << AttributeNames[p->pointerAttrib.value().attribType] << "]"
+//                                 << "\np.borderModified   [" << (p->pointerAttrib.value().borderModified ? "true" : "false") << "]"
+//                                 << "\nco.id              [" << callout->pointerList[i]->pointerAttrib.value().id << "]"
+//                                 << "\nco.parent          [" << callout->pointerList[i]->pointerAttrib.value().parent << "]"
+//                                 << "\nco.attribType      [" << AttributeNames[callout->pointerList[i]->pointerAttrib.value().attribType] << "]"
+//                                 << "\nco.borderModified  [" << (callout->pointerList[i]->pointerAttrib.value().borderModified ? "true" : "false") << "]"
+//                                 << "\npam.preamble       [" << pam.preamble << "]"
+//                                    ;
+#endif
+                  }
+              }
+            break;
+
+            case CalloutDividerRc:
+              if (range) {
+                  range->sepMeta = curMeta.LPub.callout.sep;
+                  set_divider_pointers(curMeta,current,range,view,CalloutDividerRc);
+                  range = nullptr;
+                  step = nullptr;
                 }
               break;
 
@@ -1032,6 +1237,7 @@ int Gui::drawPage(
             case StepGroupDividerRc:
               if (range) {
                   range->sepMeta = steps->meta.LPub.multiStep.sep;
+                  set_divider_pointers(curMeta,current,range,view,StepGroupDividerRc);
                   range = nullptr;
                   step = nullptr;
                 }
@@ -1203,6 +1409,7 @@ int Gui::drawPage(
                   }
 
                   if (step) {
+
                       Page *page = dynamic_cast<Page *>(steps);
                       if (page) {
                           page->inserts              = inserts;
@@ -1291,6 +1498,7 @@ int Gui::drawPage(
 
                       // Only pages or step can have inserts and pointers... not callouts
                       if ( ! multiStep && ! calledOut) {
+
                           Page *page = dynamic_cast<Page *>(steps);
                           if (page) {
                               page->inserts      = inserts;

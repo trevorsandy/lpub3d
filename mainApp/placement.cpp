@@ -232,8 +232,8 @@ int Placement::relativeToSg(
 
         if (placementData.relativeTo == relativeType) {
 
-            int size[2]   = {pagePointer->size[0],pagePointer->size[1]};
-            int margin[2] = {pagePointer->margin.valuePixels(0),pagePointer->margin.valuePixels(1)};
+            int size[2]   = { pagePointer->size[0], pagePointer->size[1] };
+            int margin[2] = { pagePointer->margin.valuePixels(0), pagePointer->margin.valuePixels(1) };
             placeRelative(pagePointer, size, margin);
 
             steps->appendRelativeTo(pagePointer);

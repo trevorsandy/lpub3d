@@ -16,7 +16,7 @@
  *
  * This class implements the graphical pointers that extend from pages to
  * assembly images as visual indicators to the builder as to where to
- * add the completed submodel into partially assembeled final model.
+ * add the completed submodel into partially assembled final model.
  *
  * Please see lpub.h for an overall description of how the files in LPub
  * make up the LPub program.
@@ -29,7 +29,7 @@
 #include "metaitem.h"
 
 class QGraphicsPolygonItem;
-class QGraphicsLineItem;
+class BorderedLineItem;
 class QGraphicsItemGroup;
 class PagePointer;
 class PagePointerBackgroundItem;
@@ -39,15 +39,14 @@ class PagePointerItem : public PointerItem
 public:
   PagePointerItem(
     PagePointer         *pp,
-    Meta                *meta,
     Pointer             *pointer,
-    QGraphicsItem       *parent,
+    QGraphicsItem       *parent,            // remove this (use 'this')
     QGraphicsView       *view);
 
   virtual ~PagePointerItem();
 
 private:
-  PagePointer              *pagePointer;
+  PagePointer           *pagePointer;
 
   /*
    *   +--------------------------------------------++
@@ -100,7 +99,6 @@ private:
   virtual void calculatePointerMetaLoc();
 
   virtual void calculatePointerMeta();
-
 };
 
 #endif // PAGEPOINTERITEM_H

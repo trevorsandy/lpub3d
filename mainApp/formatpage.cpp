@@ -606,7 +606,7 @@ int Gui::addGraphicsPageItems(
 
                   // Place the step relative to the page.
 
-                  plPage.relativeTo(step);      // place everything
+                  plPage.relativeTo(step);      // place everything - calculate placement for all the page's objects
 
                   // center the csi's bounding box relative to the page
                   // if there is no offset, otherwise place as is
@@ -769,15 +769,27 @@ int Gui::addGraphicsPageItems(
                   // add page pointer base and pointers to the scene
                   
                   for (auto i : page->pagePointers.keys()) {
-                      PagePointer *pagePointer = dynamic_cast<PagePointer *>(page->pagePointers[i]);
+                      PagePointer *pp = page->pagePointers[i];
+
+                      // override the default location
+                      if (pp->placement.value().placement == Left ||
+                          pp->placement.value().placement == Right)
+                          pp->loc[YY] = pp->loc[YY] - (plPage.size[YY]/2);
+                      else
+                      if (pp->placement.value().placement == Top ||
+                          pp->placement.value().placement == Bottom)
+                          pp->loc[XX] = pp->loc[XX] - (plPage.size[XX]/2);
+
+                      // size the pagePointer origin (hidden page rectangle)
+                      pp->sizeIt();
                   
-                      // add the pagePointer to the graphics scene
-                      pagePointer->addGraphicsItems(0,0,pageBg,false);
+                      // add the pagePointer origin (hidden page rectangle) to the graphics scene
+                      pp->addGraphicsItems(0,0,pageBg,true); // set true to make movable
                   
                       //   add the pagePointer pointers to the graphics scene
-                      for (int i = 0; i < pagePointer->pointerList.size(); i++) {
-                          Pointer *pointer = pagePointer->pointerList[i];
-                          pagePointer->addGraphicsPointerItem(pointer);
+                      for (int i = 0; i < pp->pointerList.size(); i++) {
+                          Pointer *pointer = pp->pointerList[i];
+                          pp->addGraphicsPointerItem(pointer);
                         }
                     }
 
@@ -839,11 +851,6 @@ int Gui::addGraphicsPageItems(
 
       page->sizeIt();             // size multi-step
 
-      for (auto i : page->pagePointers.keys()) {   // size pagePointers
-         PagePointer *pagePointer = dynamic_cast<PagePointer *>(page->pagePointers[i]);
-         pagePointer->sizeIt();
-      }
-
       plPage.relativeToSg(page);  // place callouts and page pointers relative to PAGE
       plPage.placeRelative(page); // place multi-step relative to the page
 
@@ -859,15 +866,27 @@ int Gui::addGraphicsPageItems(
       // add page pointers to the scene
 
       for (auto i : page->pagePointers.keys()) {
-          PagePointer *pagePointer = dynamic_cast<PagePointer *>(page->pagePointers[i]);
+          PagePointer *pp = page->pagePointers[i];
 
-          // add the pagePointer to the graphics scene
-          pagePointer->addGraphicsItems(0,0,pageBg,false);
+          // override the default location
+          if (pp->placement.value().placement == Left ||
+              pp->placement.value().placement == Right)
+              pp->loc[YY] = pp->loc[YY] - (plPage.size[YY]/2);
+          else
+          if (pp->placement.value().placement == Top ||
+              pp->placement.value().placement == Bottom)
+              pp->loc[XX] = pp->loc[XX] - (plPage.size[XX]/2);
+
+          // size the pagePointer origin (hidden page rectangle)
+          pp->sizeIt();
+
+          // add the pagePointer origin (page rectangle) to the graphics scene
+          pp->addGraphicsItems(0,0,pageBg,true); // set true to make movable
 
           //   add the pagePointer pointers to the graphics scene
-          for (int i = 0; i < pagePointer->pointerList.size(); i++) {
-              Pointer *pointer = pagePointer->pointerList[i];
-              pagePointer->addGraphicsPointerItem(pointer);
+          for (int i = 0; i < pp->pointerList.size(); i++) {
+              Pointer *pointer = pp->pointerList[i];
+              pp->addGraphicsPointerItem(pointer);
             }
         }
 

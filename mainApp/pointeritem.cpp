@@ -20,7 +20,7 @@
  *
  * This class implements the graphical pointers that extend from base objects
  * (e.g. a Callout) to assembly images as visual indicators to the builder
- * as to where to add the completed submodel into partially assembeled final model.
+ * as to where to add the completed submodel into partially assembled final model.
  *
  * Please see lpub.h for an overall description of how the files in LPub
  * make up the LPub program.
@@ -33,11 +33,11 @@
 #include <QGraphicsView>
 #include <QGraphicsRectItem>
 #include <QGraphicsPolygonItem>
-#include <QGraphicsLineItem>
 #include <QPolygonF>
 #include <QGraphicsSceneContextMenuEvent>
 #include <math.h>
 #include "pointeritem.h"
+#include "borderedlineitem.h"
 
 
 
@@ -63,6 +63,17 @@ PointerItem::~PointerItem(){
 
 void PointerItem::drawPointerPoly()
 {
+  // head
+  QPolygonF poly;
+
+  poly << QPointF(-2*grabSize(), 0);
+  poly << QPointF(-2*grabSize(),grabSize()/2);
+  poly << QPointF(grabSize()/2,0);
+  poly << QPointF(-2*grabSize(),-grabSize()/2);
+  poly << QPointF(-2*grabSize(),0);
+  float headWidth = poly.boundingRect().width();
+
+  enum Seg { first, second, third };
 
   for (int i = 0; i < segments(); i++) {
 
@@ -72,47 +83,71 @@ void PointerItem::drawPointerPoly()
       {
           linef = QLineF(points[Base],points[Tip]);
           removeFromGroup(shaftSegments[i]);
-          QGraphicsLineItem    *shaft = shaftSegments[i];
-          shaft->setLine(linef);
+          BorderedLineItem *shaft = shaftSegments[i];
+          shaft->setSegment(OneSegment);
+          shaft->setSegments(segments());
+          shaft->setHeadWidth(headWidth);
+          shaft->setBorderedLine(linef);
+          shaft->setZValue(10);
           addToGroup(shaft);
       }
           break;
       case TwoSegments:
       {
-          if (i == 0) {
+          if (i == Seg::first) {
               linef = QLineF(points[Base],points[MidBase]);
               removeFromGroup(shaftSegments[i]);
-              QGraphicsLineItem    *shaft = shaftSegments[i];
-              shaft->setLine(linef);
+              BorderedLineItem *shaft = shaftSegments[i];
+              shaft->setSegment(OneSegment);
+              shaft->setSegments(segments());
+              shaft->setHeadWidth(headWidth);
+              shaft->setBorderedLine(linef);
+              shaft->setZValue(20);
               addToGroup(shaft);
-          } else {
+          } else if (i == Seg::second) {
               linef = QLineF(points[MidBase],points[Tip]);
               removeFromGroup(shaftSegments[i]);
-              QGraphicsLineItem    *shaft = shaftSegments[i];
-              shaft->setLine(linef);
+              BorderedLineItem *shaft = shaftSegments[i];
+              shaft->setSegment(TwoSegments);
+              shaft->setSegments(segments());
+              shaft->setHeadWidth(headWidth);
+              shaft->setBorderedLine(linef);
+              shaft->setZValue(10);
               addToGroup(shaft);
           }
       }
           break;
       case ThreeSegments:
       {
-          if (i == 0) {
+          if (i == Seg::first) {
               linef = QLineF(points[Base],points[MidBase]);
               removeFromGroup(shaftSegments[i]);
-              QGraphicsLineItem    *shaft = shaftSegments[i];
-              shaft->setLine(linef);
+              BorderedLineItem *shaft = shaftSegments[i];
+              shaft->setSegment(OneSegment);
+              shaft->setSegments(segments());
+              shaft->setHeadWidth(headWidth);
+              shaft->setBorderedLine(linef);
+              shaft->setZValue(30);
               addToGroup(shaft);
-          } else if (i == 1){
+          } else if (i == Seg::second) {
               linef = QLineF(points[MidBase],points[MidTip]);
               removeFromGroup(shaftSegments[i]);
-              QGraphicsLineItem    *shaft = shaftSegments[i];
-              shaft->setLine(linef);
+              BorderedLineItem *shaft = shaftSegments[i];
+              shaft->setSegment(TwoSegments);
+              shaft->setSegments(segments());
+              shaft->setHeadWidth(headWidth);
+              shaft->setBorderedLine(linef);
+              shaft->setZValue(20);
               addToGroup(shaft);
-          } else {
+          } else if (i == Seg::third) {
               linef = QLineF(points[MidTip],points[Tip]);
               removeFromGroup(shaftSegments[i]);
-              QGraphicsLineItem    *shaft = shaftSegments[i];
-              shaft->setLine(linef);
+              BorderedLineItem *shaft = shaftSegments[i];
+              shaft->setSegment(ThreeSegments);
+              shaft->setSegments(segments());
+              shaft->setHeadWidth(headWidth);
+              shaft->setBorderedLine(linef);
+              shaft->setZValue(10);
               addToGroup(shaft);
           }
       }
@@ -121,17 +156,11 @@ void PointerItem::drawPointerPoly()
           break;
       }
 
-      if (shaftSegments.last()){
-          // head
-          QPolygonF poly;
-
-          poly << QPointF(-2*grabSize(), 0);
-          poly << QPointF(-2*grabSize(),grabSize()/2);
-          poly << QPointF(grabSize()/2,0);
-          poly << QPointF(-2*grabSize(),-grabSize()/2);
-          poly << QPointF(-2*grabSize(),0);
+      // head
+      if (i == (segments()-1)){
 
           removeFromGroup(head);
+
           head->setPolygon(poly);
 
           qreal x;
@@ -187,6 +216,7 @@ void PointerItem::drawPointerPoly()
             }
           }
 
+          head->setZValue(-1);
           head->resetTransform();
           head->setRotation(rotation() + angle);
           head->setPos(points[Tip]);
@@ -199,36 +229,23 @@ void PointerItem::drawPointerPoly()
 
 void PointerItem::addShaftSegment(){
 
-    // number of shafts indicated
-    QGraphicsLineItem *shaftOrig;
-    QLineF             linefOrig;
-    QPointF            centerPos;
+    QLineF linefNew;
 
     switch (segments()) {
     case OneSegment:
     {
         // get split target segment - first shaft
-        linefOrig = QLineF(points[Base],points[Tip]);
-        shaftOrig = shaftSegments[0];
-        shaftOrig->setLine(linefOrig);
-        centerPos = shaftOrig->boundingRect().center();
-        shaftOrig = nullptr;
-        delete shaftOrig;
-        points[MidBase] = centerPos;
+        points[MidBase] = QLineF(points[Base],points[Tip]).center();
+        linefNew        = QLineF(points[MidBase],points[Tip]);
     }
         break;
     case TwoSegments:
     {
         // get split target segment - second shaft
-        linefOrig = QLineF(points[MidBase],points[Tip]);
-        shaftOrig = shaftSegments[1];
-        shaftOrig->setLine(linefOrig);
-        centerPos = shaftOrig->boundingRect().center();
-        shaftOrig = nullptr;
-        delete shaftOrig;
-        points[MidTip] = centerPos;
+        points[MidTip] = QLineF(points[MidBase],points[Tip]).center();
+        linefNew       = QLineF(points[MidTip],points[Tip]);
         if (points[MidTip].y() == points[MidBase].y()){
-            emit gui->messageSig(LOG_ERROR, "Pointer segments are on the same line. Move an existing sigment before creating a new one.");
+            emit gui->messageSig(LOG_ERROR, "Pointer segments are on the same line. Move an existing segment before creating a new one.");
             return;
         }
     }
@@ -243,16 +260,41 @@ void PointerItem::addShaftSegment(){
         break;
     }
 
-    QColor qColor(borderColor);
+#ifdef QT_DEBUG_MODE
+//        logDebug() << "\n[DEBUG SEGMENTS]"
+//                      "\n[linefOrig]: " << linefOrig <<
+//                      "\n[centerPos]: " << centerPos <<
+//                      "\n[linefNew] : " << linefNew;
+#endif
 
-    QPen pen(qColor);
-    pen.setWidth(borderThickness);
+    PointerAttribData *pad = &pointer.pointerAttrib.valuePixels();
+    thickness = pad->lineData.thickness;
+
+    QColor penColor(pad->lineData.color);
+    QColor brushColor(pad->lineData.color);
+
+    QPen pen(penColor);
+    pen.setWidth(pad->lineData.thickness);
     pen.setCapStyle(Qt::RoundCap);
+    pen.setJoinStyle(Qt::RoundJoin);
+    if (pad->lineData.line == BorderData::BdrLnSolid){
+        pen.setStyle(Qt::SolidLine);
+    }
+    else if (pad->lineData.line == BorderData::BdrLnDash){
+        pen.setStyle(Qt::DashLine);
+    }
+    else if (pad->lineData.line == BorderData::BdrLnDot){
+        pen.setStyle(Qt::DotLine);
+    }
+    else if (pad->lineData.line == BorderData::BdrLnDashDot){
+        pen.setStyle(Qt::DashDotLine);
+    }
+    else if (pad->lineData.line == BorderData::BdrLnDashDotDot){
+        pen.setStyle(Qt::DashDotDotLine);
+    }
 
-    QLineF linef;
-    shaft = new QGraphicsLineItem(linef,this);
+    shaft = new BorderedLineItem(linefNew,pad,this);
     shaft->setPen(pen);
-    shaft->setZValue(-5);
     shaft->setFlag(QGraphicsItem::ItemIsSelectable,false);
     shaft->setToolTip(QString("Pointer segment %1 - drag to move; right click to modify").arg(segments()+1));
     shaftSegments.append(shaft);
@@ -263,14 +305,10 @@ void PointerItem::addShaftSegment(){
     }
 
     drawPointerPoly();
+
     setFlag(QGraphicsItem::ItemIsFocusable,true);
 
     placeGrabbers();
-
-    if (segments() == ThreeSegments) {
-       autoLocFromTip();
-       change();
-    }
 }
 
 void PointerItem::removeShaftSegment(){
@@ -307,7 +345,7 @@ bool PointerItem::autoLocFromBase(
   if (rectLineIntersect(point,
                         loc,
                         rect,
-                        borderThickness,
+                        thickness,
                         intersect,
                         tplacement)) {
     placement = tplacement;
@@ -401,7 +439,10 @@ void PointerItem::mousePressEvent  (QGraphicsSceneMouseEvent * /* unused */)
  * Mouse move.  What we do depends on what was selected by the mouse click.
  *
  * If pointer's tip is selected then allow the tip to move anywhere within the
- * CSI.
+ * CSI or page.
+ *
+ * If pointer's mid-base is selected then allow the mid-base to move anywhere
+ * within the CSI or page.
  *
  * If the pointer's location (where the pointer is attached to the base object)
  * is selected then allow the pointer to move to any valid edges or corner
@@ -416,6 +457,7 @@ void PointerItem::resize(QPointF grabbed)
     grabbed -= scenePos();
 
     bool changed = false;
+    resizeRequested = true;
 
     switch (selectedGrabber) {
     /*
@@ -467,6 +509,7 @@ void PointerItem::resize(QPointF grabbed)
   if (changed) {
     drawPointerPoly();
     positionChanged = true;
+    resizeRequested = false;
   }
   switch (segments()) {
   case OneSegment:
@@ -527,8 +570,22 @@ void PointerItem::addPointerMeta()
 void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
+  bool isCallout = pointerParentType == CalloutType;
+  Where pointerAttribTop, pointerAttribBottom;
+  pointerAttribTop    = pointer.pointerAttrib.here();
+  pointerAttribBottom = pointer.pointerAttrib.here();
 
-  QAction *removeAction = menu.addAction("Delete this Pointer");
+  QAction *setFillAttributesAction = menu.addAction("Set Line Attributes");
+  setFillAttributesAction->setIcon(QIcon(":/resources/fillattributes.png"));
+  setFillAttributesAction->setWhatsThis(     "Set pointer line attributes:\n"
+                                         "Set the pointer line color, thickness, and type");
+
+  QAction *setBorderAttributesAction = menu.addAction("Set Border Attributes");
+  setBorderAttributesAction->setIcon(QIcon(":/resources/borderattributes.png"));
+  setBorderAttributesAction->setWhatsThis(     "Set pointer fill attributes:\n"
+                                         "Set the pointer border color, thickness, and line type");
+
+  QAction *removeAction = menu.addAction("Delete Pointer");
   removeAction->setIcon(QIcon(":/resources/deletepointer.png"));
   removeAction->setWhatsThis(            "Delete this Pointer:\n"
                                          "Deletes this pointer");
@@ -545,7 +602,7 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   if (segments() > 1) {
       removeSegmentAction = menu.addAction("Remove Pointer Segment");
       removeSegmentAction->setIcon(QIcon(":/resources/removepointersegment.png"));
-      removeSegmentAction->setWhatsThis(     "Remvoe pointer segment:\n"
+      removeSegmentAction->setWhatsThis(     "Remove pointer segment:\n"
                                              "Remove pointer shaft segment.");
   }
 
@@ -555,11 +612,29 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       return;
     }
 
+  if (selectedAction == setFillAttributesAction) {
+      setPointerAttrib("Pointer Line Attributes",
+                        pointerAttribTop,
+                        pointerAttribBottom,
+                       &pointer.pointerAttrib,false,1,false,isCallout);
+  }
+  else
+  if (selectedAction == setBorderAttributesAction) {
+      setPointerAttrib("Pointer Border Attributes",
+                        pointerAttribTop,
+                        pointerAttribBottom,
+                       &pointer.pointerAttrib,false,1,false,isCallout,false);
+  }
+  else
   if (selectedAction == removeAction) {
     deletePointer(pointer.here);
-  } else if (selectedAction == addSegmentAction){
+  }
+  else
+  if (selectedAction == addSegmentAction) {
     addShaftSegment();
-  } else if (selectedAction == removeSegmentAction){
+  }
+  else
+  if (selectedAction == removeSegmentAction) {
     removeShaftSegment();
   }
 }

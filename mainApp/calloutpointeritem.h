@@ -16,7 +16,7 @@
  *
  * This class implements the graphical pointers that extend from callouts to
  * assembly images as visual indicators to the builder as to where to 
- * add the completed submodel into partially assembeled final model.
+ * add the completed submodel into partially assembled final model.
  *
  * Please see lpub.h for an overall description of how the files in LPub
  * make up the LPub program.
@@ -30,7 +30,7 @@
 #include "metaitem.h"
 
 class QGraphicsPolygonItem;
-class QGraphicsLineItem;
+class BorderedLineItem;
 class QGraphicsItemGroup;
 class Callout;
 
@@ -39,7 +39,6 @@ class CalloutPointerItem : public PointerItem
 public:
   CalloutPointerItem(
     Callout             *co,
-    Meta                *meta,
     Pointer             *pointer,
     QGraphicsItem       *parent,
     QGraphicsView       *view);

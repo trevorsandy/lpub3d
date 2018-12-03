@@ -45,31 +45,39 @@
 //---------------------------------------------------------------------------
 
 PagePointer::PagePointer(
-  Meta                 &_meta,
-  QGraphicsView        *view)
+  Meta           *_meta,
+  QGraphicsView  *view)
   : view(view)
 {
   relativeType  = PagePointerType;
-  meta = _meta;
+  meta          = *_meta;
+  margin.setValues(0,0);
 }
 
 PagePointer::~PagePointer()
 {
+  for (int i = 0; i < pointerList.size(); i++) {
+    Pointer *p = pointerList[i];
+    delete p;
+  }
   pointerList.clear();
 }
 
 
-void PagePointer::appendPointer(const Where &here, PointerMeta &pointerMeta)
+void PagePointer::appendPointer(const Where &here,
+        PointerMeta &pointerMeta, PointerAttribMeta &pointerAttrib)
 {
-  Pointer *pointer = new Pointer(here,pointerMeta);
+  int pid = pointerList.size()+1;
+  Pointer *pointer = new Pointer(pid,here,pointerMeta);
+  pointer->setPointerAttrib(pointerAttrib);
   pointerList.append(pointer);
 }
 
 void PagePointer::sizeIt()
 {
-  int dim = 5;
+  int dim = 1;
 
-  BorderData borderData = meta.LPub.pagePointer.border.valuePixels();
+  BorderData borderData = meta.LPub.pointerBase.border.valuePixels();
 
   size[XX] += int(borderData.margin[XX]);
   size[YY] += int(borderData.margin[YY]);
@@ -77,16 +85,14 @@ void PagePointer::sizeIt()
   size[XX] += int(borderData.thickness*0);
   size[YY] += int(borderData.thickness*0);
 
-  margin.setValues(0,0);
-
   if (placement.value().placement == Top ||
       placement.value().placement == Bottom) {
       size[XX] += gui->pageSize(meta.LPub.page, 0);
       size[YY] += dim;
-    } else {
-      size[XX] += dim;
+  } else {
       size[YY] += gui->pageSize(meta.LPub.page, 1);
-    }
+      size[XX] += dim;
+  }
 }
 
 // PagePointers that have round corners are tricky, trying to get the pointer to start/end on the
@@ -109,9 +115,10 @@ void PagePointer::addGraphicsItems(
     offsetY = 0;
   }
   int newLoc[2] = { offsetX + loc[XX], offsetY + loc[YY] };
+
   QRect pagePointerRect(newLoc[XX],newLoc[YY],size[XX],size[YY]);
 
-  // This is the background for the entire pagePointer.
+  // This is the background for the pagePointer origin rectangle.
 
   background = new PagePointerBackgroundItem(
                      pagePointerRect,
@@ -120,6 +127,7 @@ void PagePointer::addGraphicsItems(
                      parent);
   background->setPos(newLoc[XX],newLoc[YY]);
   background->setFlag(QGraphicsItem::ItemIsMovable, movable);
+  background->setFlag(QGraphicsItem::ItemIsSelectable, movable);
 }
 
 void PagePointer::addGraphicsPointerItem(
@@ -128,9 +136,8 @@ void PagePointer::addGraphicsPointerItem(
   PagePointerItem *t =
     new PagePointerItem(
           this,
-         &meta,
           pointer,
-          background,
+          background,                         // remove (use 'this')
           view);
   graphicsPointerList.append(t);
 }

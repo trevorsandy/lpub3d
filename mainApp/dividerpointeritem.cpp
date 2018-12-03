@@ -24,59 +24,52 @@
  ***************************************************************************/
 
 #include "dividerpointeritem.h"
+#include "ranges_item.h"
 #include "step.h"
 #include "range.h"
 #include "ranges.h"
 
+/*
+ * This is the constructor of a graphical pointer
+ */
 
 DividerPointerItem::DividerPointerItem(
-  DividerItem   *divider,
-  Meta          *_meta,
+  DividerItem   *div,
   Pointer       *_pointer,
   QGraphicsItem *parent,
   QGraphicsView *_view)
 
   : PointerItem(parent)
 {
-  meta                = _meta;
-  view                = _view;
-  pointer             = *_pointer;
-  step                = divider->step;
-  steps               = divider->step->grandparent();
-  dividerSize         = divider->boundingRect();
-  sepData             = step->range()->sepMeta.valuePixels();
-  parentRelativeType  = steps->placement.value().relativeTo;
-  QLineF  dividerLine = divider->lineItem->line();
-  dividerLoc          =  dividerLine.p1();
+  meta               = &div->step->grandparent()->meta;
+  view               = _view;
+  pointer            = *_pointer;
+  divider            = div;
+  steps              = div->step->grandparent();
+  pointerTop         = div->step->nextStep()->topOfStep();
+  pointerBottom      = div->step->nextStep()->bottomOfStep();
+  parentRelativeType = div->parentRelativeType;
+  pointerParentType  = parentRelativeType;
 
   PointerData pointerData = pointer.pointerMeta.value();
-  PlacementData dividerPlacement;
-  if (parentRelativeType == CalloutType){
-      dividerPlacement = meta->LPub.callout.placement.value();
-    } else {
-      dividerPlacement = meta->LPub.multiStep.placement.value();
-    }
-
-  borderColor     = sepData.color;
-  borderThickness = sepData.thickness;
 
   placement       = pointerData.placement;
 
-  baseX           = dividerSize.x();
-  baseY           = dividerSize.y();
+  baseX           = divider->size[XX];
+  baseY           = divider->size[YY];
 
   if (pointerData.segments == OneSegment) {
-      int cX = step->csiItem->loc[XX];
-      int cY = step->csiItem->loc[YY];
-      int dX = pointerData.x1*step->csiItem->size[XX];
-      int dY = pointerData.y1*step->csiItem->size[YY];
+      int cX = divider->step->csiItem->loc[XX];
+      int cY = divider->step->csiItem->loc[YY];
+      int dX = pointerData.x1*divider->step->csiItem->size[XX];
+      int dY = pointerData.y1*divider->step->csiItem->size[YY];
 
-      if (steps->placement.value().relativeTo == CalloutType) {
-          cX += step->loc[XX];
-          cY += step->loc[YY];
-          points[Tip] = QPoint(cX + dX - dividerLoc.x(), cY + dY - dividerLoc.y());
+      if (divider->placement.value().relativeTo == CalloutType) {
+          cX += divider->step->loc[XX];
+          cY += divider->step->loc[YY];
+          points[Tip] = QPoint(cX + dX - divider->loc[XX], cY + dY - divider->loc[YY]);
       } else {
-          points[Tip] = QPoint(cX + dX - dividerLoc.x(), cY + dY - dividerLoc.y());
+          points[Tip] = QPoint(cX + dX - divider->loc[XX], cY + dY - divider->loc[YY]);
       }
 
        /*
@@ -85,16 +78,16 @@ DividerPointerItem::DividerPointerItem(
        *   single step
        *   step group
        */
-      if ( ! step->onlyChild()) {
-          switch (dividerPlacement.relativeTo) {
+      if ( ! divider->step->onlyChild()) {
+          switch (divider->parentRelativeType) {
           case PageType:
           case StepGroupType:
-              points[Tip] += QPoint(step->grandparent()->loc[XX],
-                                    step->grandparent()->loc[YY]);
-              points[Tip] += QPoint(step->range()->loc[XX],
-                                    step->range()->loc[YY]);
-              points[Tip] += QPoint(step->loc[XX],
-                                    step->loc[YY]);
+              points[Tip] += QPoint(divider->step->grandparent()->loc[XX],
+                                    divider->step->grandparent()->loc[YY]);
+              points[Tip] += QPoint(divider->step->range()->loc[XX],
+                                    divider->step->range()->loc[YY]);
+              points[Tip] += QPoint(divider->step->loc[XX],
+                                    divider->step->loc[YY]);
               break;
           default:
               break;
@@ -107,17 +100,36 @@ DividerPointerItem::DividerPointerItem(
   points[MidBase] = QPointF(pointerData.x3,pointerData.y3);
   points[MidTip]  = QPointF(pointerData.x4,pointerData.y4);
 
-  QColor qColor(borderColor);
-  QPen pen(qColor);
-  pen.setWidth(borderThickness);
-  pen.setCapStyle(Qt::RoundCap);
+  PointerAttribData *pad = &pointer.pointerAttrib.valuePixels();
+
+  QColor shaftPenColor(pad->lineData.color);
+  QColor brushColor(pad->lineData.color);
+
+  QPen shaftPen(shaftPenColor);
+  shaftPen.setWidth(pad->lineData.thickness);
+  shaftPen.setCapStyle(Qt::RoundCap);
+  shaftPen.setJoinStyle(Qt::RoundJoin);
+  if (pad->lineData.line == BorderData::BdrLnSolid){
+      shaftPen.setStyle(Qt::SolidLine);
+  }
+  else if (pad->lineData.line == BorderData::BdrLnDash){
+      shaftPen.setStyle(Qt::DashLine);
+  }
+  else if (pad->lineData.line == BorderData::BdrLnDot){
+      shaftPen.setStyle(Qt::DotLine);
+  }
+  else if (pad->lineData.line == BorderData::BdrLnDashDot){
+      shaftPen.setStyle(Qt::DashDotLine);
+  }
+  else if (pad->lineData.line == BorderData::BdrLnDashDotDot){
+      shaftPen.setStyle(Qt::DashDotDotLine);
+  }
 
   // shaft segments
   for (int i = 0; i < pointerData.segments; i++) {
       QLineF linef;
-      shaft = new QGraphicsLineItem(linef,this);
-      shaft->setPen(pen);
-      shaft->setZValue(-5);
+      shaft = new BorderedLineItem(linef,pad,this);
+      shaft->setPen(shaftPen);
       shaft->setFlag(QGraphicsItem::ItemIsSelectable,false);
       shaft->setToolTip(QString("Pointer segment %1 - drag to move; right click to modify").arg(i+1));
       shaftSegments.append(shaft);
@@ -128,9 +140,33 @@ DividerPointerItem::DividerPointerItem(
 
   QPolygonF poly;
 
+  QColor tipPenColor(pad->lineData.color);
+  if (pad->borderModified)
+      tipPenColor.setNamedColor(pad->borderData.color);
+
+  QPen tipPen(tipPenColor);
+  tipPen.setWidth(pad->borderData.thickness);
+  tipPen.setCapStyle(Qt::RoundCap);
+  tipPen.setJoinStyle(Qt::RoundJoin);
+  if (pad->borderData.line == BorderData::BdrLnSolid){
+      tipPen.setStyle(Qt::SolidLine);
+  }
+  else if (pad->borderData.line == BorderData::BdrLnDash){
+      tipPen.setStyle(Qt::DashLine);
+  }
+  else if (pad->borderData.line == BorderData::BdrLnDot){
+      tipPen.setStyle(Qt::DotLine);
+  }
+  else if (pad->borderData.line == BorderData::BdrLnDashDot){
+      tipPen.setStyle(Qt::DashDotLine);
+  }
+  else if (pad->borderData.line == BorderData::BdrLnDashDotDot){
+      tipPen.setStyle(Qt::DashDotDotLine);
+  }
+
   head = new QGraphicsPolygonItem(poly, this);
-  head->setPen(qColor);
-  head->setBrush(qColor);
+  head->setPen(tipPen);
+  head->setBrush(brushColor);
   head->setFlag(QGraphicsItem::ItemIsSelectable,false);
   head->setToolTip("Pointer head - drag to move");
   addToGroup(head);
@@ -140,41 +176,12 @@ DividerPointerItem::DividerPointerItem(
   }
 
   drawPointerPoly();
+
   setFlag(QGraphicsItem::ItemIsFocusable,true);
 }
 
-void DividerPointerItem::defaultPointer(){
-  points[Tip] = QPointF(step->csiItem->loc[XX]+
-                        step->csiItem->size[XX]/2,
-                        step->csiItem->loc[YY]+
-                        step->csiItem->size[YY]/2);
-
-  if ( ! step->onlyChild()) {
-      PlacementData dividerPlacement;
-      if (parentRelativeType == CalloutType){
-          dividerPlacement = meta->LPub.callout.placement.value();
-        } else {
-          dividerPlacement = meta->LPub.multiStep.placement.value();
-        }
-    switch (dividerPlacement.relativeTo) {
-      case PageType:
-      case StepGroupType:
-        points[Tip] += QPoint(step->grandparent()->loc[XX],
-                              step->grandparent()->loc[YY]);
-        points[Tip] += QPoint(step->range()->loc[XX],
-                              step->range()->loc[YY]);
-        points[Tip] += QPoint(step->loc[XX],
-                              step->loc[YY]);
-        points[Tip] -= QPoint(dividerLoc.x(),dividerLoc.y());
-      break;
-      default:
-      break;
-    }
-  }
-  autoLocFromTip();
-  drawPointerPoly();
-  calculatePointerMeta();
-  addPointerMeta();
+DividerPointerItem::~DividerPointerItem(){
+    shaftSegments.clear();
 }
 
 /*
@@ -182,8 +189,8 @@ void DividerPointerItem::defaultPointer(){
  * calculate a reasonable placement and Loc for Base or MidTip points.
  */
 bool DividerPointerItem::autoLocFromTip(){
-  int width = dividerSize.x();
-  int height = dividerSize.y();
+  int width = divider->size[XX];
+  int height = divider->size[YY];
   int left = 0;
   int right = width;
   int top = 0;
@@ -197,17 +204,20 @@ bool DividerPointerItem::autoLocFromTip(){
 
   if (segments() != OneSegment) {
       PointerData pointerData = pointer.pointerMeta.value();
-      int mx = pointerData.x3;
-      points[Base] = QPointF(pointerData.x2,pointerData.y2);
       placement = pointerData.placement;
 
+      //if (!resizeRequested)
+      points[Base] = QPointF(pointerData.x2,pointerData.y2);
+
       if (segments() == ThreeSegments){
+          int mtx = pointerData.x3;
           points[MidTip].setY(ty);
-          points[MidTip].setX(mx);
+          points[MidTip].setX(mtx);
       }
   } else {
       /* Figure out which corner */
-      int radius = 10;
+      BorderData borderData = divider->background->border->valuePixels();
+      int radius = (int) borderData.radius;
 
       if (ty >= top+radius && ty <= bottom-radius) {
           if (tx < left) {
@@ -260,8 +270,8 @@ bool DividerPointerItem::autoLocFromTip(){
 }
 
 bool DividerPointerItem::autoLocFromMidBase(){
-  int width = dividerSize.x();
-  int height = dividerSize.y();
+  int width = divider->size[XX];
+  int height = divider->size[YY];
   int left = 0;
   int right = width;
   int top = 0;
@@ -274,7 +284,8 @@ bool DividerPointerItem::autoLocFromMidBase(){
   ty = points[MidBase].y();
 
   /* Figure out which corner */
-  int radius = 10;
+  BorderData borderData = divider->background->border->valuePixels();
+  int radius = (int) borderData.radius;
 
   if (ty >= top+radius && ty <= bottom-radius) {
       if (tx < left) {
@@ -326,6 +337,36 @@ bool DividerPointerItem::autoLocFromMidBase(){
 return true;
 }
 
+void DividerPointerItem::defaultPointer(){
+  points[Tip] = QPointF(divider->step->csiItem->loc[XX]+
+                        divider->step->csiItem->size[XX]/2,
+                        divider->step->csiItem->loc[YY]+
+                        divider->step->csiItem->size[YY]/2);
+
+  if ( ! divider->step->onlyChild()) {
+    PlacementData dividerPlacement = divider->placement.value();
+    switch (dividerPlacement.relativeTo) {
+      case PageType:
+      case StepGroupType:
+      case CalloutType:
+        points[Tip] += QPoint(divider->step->grandparent()->loc[XX],
+                              divider->step->grandparent()->loc[YY]);
+        points[Tip] += QPoint(divider->step->range()->loc[XX],
+                              divider->step->range()->loc[YY]);
+        points[Tip] += QPoint(divider->step->loc[XX],
+                              divider->step->loc[YY]);
+        points[Tip] -= QPoint(divider->loc[XX],divider->loc[YY]);
+      break;
+      default:
+      break;
+    }
+  }
+  autoLocFromTip();
+  drawPointerPoly();
+  calculatePointerMeta();
+  addPointerMeta();
+}
+
 void DividerPointerItem::calculatePointerMetaLoc(){
   float loc = 0;
 
@@ -340,7 +381,7 @@ void DividerPointerItem::calculatePointerMetaLoc(){
     case Bottom:
     {
       if (segments() == OneSegment)
-         loc = points[Base].x()/dividerSize.x();
+         loc = points[Base].x()/divider->size[XX];
       else
          loc = points[Base].x();
     }
@@ -349,7 +390,7 @@ void DividerPointerItem::calculatePointerMetaLoc(){
     case Right:
     {
       if (segments() == OneSegment)
-         loc = points[Base].y()/dividerSize.y();
+         loc = points[Base].y()/divider->size[YY];
       else
          loc = points[Base].y();
     }
@@ -373,46 +414,64 @@ void DividerPointerItem::calculatePointerMetaLoc(){
     pointerData.y4);
 }
 
-void DividerPointerItem::calculatePointerMeta(){
+void DividerPointerItem::calculatePointerMeta()
+{
   calculatePointerMetaLoc();
 
   PointerData pointerData = pointer.pointerMeta.value();
   if (segments() == OneSegment) {
-      if (step->onlyChild()) {
-          points[Tip] += QPoint(dividerLoc.x(),dividerLoc.y());
+      if (divider->step->onlyChild()) {
+          points[Tip] += QPoint(divider->loc[XX],divider->loc[YY]);
       } else {
-          PlacementData dividerPlacement;
-          if (parentRelativeType == CalloutType){
-              dividerPlacement = meta->LPub.callout.placement.value();
-            } else {
-              dividerPlacement = meta->LPub.multiStep.placement.value();
-            }
-          switch (dividerPlacement.relativeTo) {
-          case CsiType:
-          case PartsListType:
-          case StepNumberType:
-              points[Tip] += QPoint(dividerLoc.x(),dividerLoc.y());
-              break;
+          switch (divider->parentRelativeType) {
+          case StepType:
+              points[Tip] += QPoint(divider->loc[XX],divider->loc[YY]);
+               break;
           case PageType:
           case StepGroupType:
-              points[Tip] -= QPoint(step->grandparent()->loc[XX],
-                                    step->grandparent()->loc[YY]);
-              points[Tip] -= QPoint(step->loc[XX],
-                                    step->loc[YY]);
-              points[Tip] += QPoint(dividerLoc.x(),dividerLoc.y());
+              points[Tip] -= QPoint(divider->step->grandparent()->loc[XX],
+                                    divider->step->grandparent()->loc[YY]);
+              points[Tip] -= QPoint(divider->step->loc[XX],
+                                    divider->step->loc[YY]);
+              points[Tip] += QPoint(divider->loc[XX],divider->loc[YY]);
               break;
           default:
               break;
           }
       }
 
-      if (parentRelativeType == CalloutType) {
-          points[Tip] -= QPoint(step->loc[XX],
-                                step->loc[YY]);
+      /*
+      if (divider->step->onlyChild()) {
+          points[Tip] += QPoint(divider->loc[XX],divider->loc[YY]);
+      } else {
+          switch (divider->parentRelativeType) {
+          case CsiType:
+          case PartsListType:
+          case StepNumberType:
+              points[Tip] += QPoint(divider->loc[XX],divider->loc[YY]);
+              break;
+          case PageType:
+          case StepGroupType:
+              points[Tip] -= QPoint(divider->step->grandparent()->loc[XX],
+                                    divider->step->grandparent()->loc[YY]);
+              points[Tip] -= QPoint(divider->step->loc[XX],
+                                    divider->step->loc[YY]);
+              points[Tip] += QPoint(divider->loc[XX],divider->loc[YY]);
+              break;
+          default:
+              break;
+          }
+      }
+      */
+
+      if (parentRelativeType == StepGroupType ||
+          parentRelativeType == CalloutType) {
+          points[Tip] -= QPoint(divider->step->loc[XX],
+                                divider->step->loc[YY]);
       }
 
-      pointerData.x1 = (points[Tip].x() - step->csiItem->loc[XX])/step->csiItem->size[XX];
-      pointerData.y1 = (points[Tip].y() - step->csiItem->loc[YY])/step->csiItem->size[YY];
+      pointerData.x1 = (points[Tip].x() - divider->step->csiItem->loc[XX])/divider->step->csiItem->size[XX];
+      pointerData.y1 = (points[Tip].y() - divider->step->csiItem->loc[YY])/divider->step->csiItem->size[YY];
   } else {
       pointerData.x1 = points[Tip].x();
       pointerData.y1 = points[Tip].y();

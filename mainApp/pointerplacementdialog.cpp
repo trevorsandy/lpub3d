@@ -117,42 +117,22 @@ PointerPlacementDialog::PointerPlacementDialog(
 //                ;
 
   switch (parentType) {
-    case StepGroupType:                             //parent type
-      switch (placedType) {
-        default:                        //placed type
-          oks << page;
-          break;
-        }
+    case StepGroupType:  //parent type
+      oks << page;
       break;
-    case CalloutType:                               //parent type
-      switch (placedType) {
-        default:
-         oks << page;
-          break;
-        }
+    case CalloutType:    //parent type
+      oks << page;
       break;
-    case StepType:                                  //parent type
-      switch (placedType) {
-        default:                        //placed type
-         oks << page;
-          break;
-        }
+    case StepType:       //parent type
+      oks << page;
       break;
-    case CsiType:                                  //parent type
-      switch (placedType) {
-        default:                         //placed type
-          oks << page;
-          break;
-        }
+    case CsiType:        //parent type
+      oks << page;
       break;
-    case SingleStepType:                           //parent type
-      switch (placedType) {
-        default:                         //placed type
-          oks << page;
-          break;
-        }
+    case SingleStepType: //parent type
+      oks << page;
       break;
-    default:                                       //parent type
+    default:             //parent type
       oks << relativeToOks[placedType];
       break;
     }
@@ -283,12 +263,6 @@ void PointerPlacementDialog::setEnabled(int okPrepositions)
    *        0,1          0,0       0,2
    *   1,0       1;2          1;1
    *        2;1          2,0       2;2
-   *                    
-   *      ((y == 0 && x == 0) ||  // top left
-   *       (y == 2 && x == 0) ||  // bottom left
-   *       (y == 1 && x == 1) ||  // center
-   *       (y == 0 && x == 2) ||  // top right
-   *       (y == 2 && x == 2))    // bottom right
    *
    */
   for (int y = 0; y < 3; y++) {
@@ -297,7 +271,11 @@ void PointerPlacementDialog::setEnabled(int okPrepositions)
              _parentType == CsiType  ||
              _parentType == SingleStepType ||
              _parentType == StepGroupType) &&
-              (y == 1 && x == 1)) {
+             ((y == 0 && x == 0) ||
+              (y == 2 && x == 0) ||
+              (y == 1 && x == 1) ||
+              (y == 0 && x == 2) ||
+              (y == 2 && x == 2))) {
           if (okPrepositions & InsideOk) {
               buttons[y][x]->setVisible(false);
           }
@@ -349,7 +327,7 @@ void PointerPlacementDialog::topLeftI()
 void PointerPlacementDialog::top()
 {
   goods->placement     = Top;
-  goods->justification = Center;
+  goods->justification = Left;      // changed from Center
   goods->preposition   = Inside;
   goods->rectPlacement = TopInside;
   highlightPlacement(goods);
@@ -386,6 +364,7 @@ void PointerPlacementDialog::center()
 void PointerPlacementDialog::right()
 {
   goods->placement     = Right;
+  goods->justification = Center;
   goods->preposition   = Inside;
   goods->rectPlacement = RightInside;
   highlightPlacement(goods);

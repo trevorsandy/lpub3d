@@ -39,7 +39,7 @@
 #include <QGraphicsItem>
 #include <QGraphicsRectItem>
 #include <QGraphicsPolygonItem>
-#include <QGraphicsLineItem>
+#include "borderedlineitem.h"
 #include <QGraphicsItemGroup>
 
 class Step;
@@ -62,8 +62,8 @@ class Callout : public Steps {
     PlacementNum           instanceCount;
     bool                   shared;
 
-    QList<Pointer *>            pointerList; /* Pointers and pointer tips */
-    QList<CalloutPointerItem *> graphicsPointerList;
+    QList<Pointer *>            pointerList;         /* Pointers and pointer tips */
+    QList<CalloutPointerItem *> graphicsPointerList; /* Pointer and pointer tips graphics */
 
     CalloutBackgroundItem *background;
     QGraphicsRectItem     *underpinnings;
@@ -96,7 +96,9 @@ class Callout : public Steps {
 
     virtual ~Callout();
 
-    virtual void appendPointer(const Where &here, PointerMeta &attrib);
+    virtual void appendPointer(const Where &here,
+                               PointerMeta &pointerMeta,
+                               PointerAttribMeta &pointerAttrib);
 
     virtual void sizeIt();
             void sizeitFreeform(int xx, int yy);

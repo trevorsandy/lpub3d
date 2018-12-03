@@ -37,13 +37,15 @@
 class Step;
 class QGraphicsItem;
 class AbstractRangeElement;
-
+class Pointer;
 class Range : public AbstractStepsElement {
   public:
-    int          allocType;
-    FreeFormMeta freeform;
-    SepMeta      sepMeta;
-    int          leftAdjust;  // for freeform multi_step only
+    int                 allocType;
+    FreeFormMeta        freeform;
+    SepMeta             sepMeta;
+    int                 leftAdjust;         // for freeform multi_step only
+    QList<Pointer *>    dividerPointerList; // for divider pointers and pointer tips data
+    QGraphicsView      *view;               // for divider pointers
 
     Range(Steps        *_parent,
           AllocEnc      _allocType);
@@ -79,6 +81,13 @@ class Range : public AbstractStepsElement {
                    Meta *meta,
                    PlacementType,
                    QGraphicsItem *parent);
+
+    virtual void appendDividerPointer(
+                   const Where       &here,
+                   QGraphicsView     *_view,
+                   PointerMeta       &pointerMeta,
+                   PointerAttribMeta &pointerAttrib);
+
 };
 
 #endif

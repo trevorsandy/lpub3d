@@ -27,6 +27,8 @@
  ***************************************************************************/
 
 #include "range.h"
+#include "ranges_item.h"
+#include "pointer.h"
 #include "step.h"
 #include "reserve.h"
 #include "meta.h"
@@ -50,6 +52,11 @@ Range::~Range()
     delete re;
   }
   list.clear();
+  for (int i = 0; i < dividerPointerList.size(); i++) {
+    Pointer *p = dividerPointerList[i];
+    delete p;
+  }
+  dividerPointerList.clear();
 }
 
 void Range::append(AbstractRangeElement *gi)
@@ -444,6 +451,20 @@ void Range::placeitFreeform(
   }
   size[yy] = max;
   setBoundingSize();
+}
+
+/******************************************************************************
+ * Divider pointer item routines
+ *****************************************************************************/
+
+void Range::appendDividerPointer(const Where &here, QGraphicsView *_view,
+        PointerMeta &pointerMeta, PointerAttribMeta &pointerAttrib)
+{
+  view    = _view;
+  int pid = dividerPointerList.size() + 1;
+  Pointer *pointer = new Pointer(pid,here,pointerMeta);
+  pointer->setPointerAttrib(pointerAttrib);
+  dividerPointerList.append(pointer);
 }
 
 /******************************************************************************

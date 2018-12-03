@@ -46,10 +46,7 @@ enum ScanMask {
   StepGroupBeginMask = (1 << StepGroupBeginRc),
   StepGroupDividerMask = (1 << StepGroupDividerRc),
   StepGroupEndMask = (1 << StepGroupEndRc),
-
   StepGroupMask = StepGroupBeginMask|StepGroupDividerMask|StepGroupEndMask,
-
-  PagePointerMask = (1 << PagePointerRc),
 
   PageMask = (1 << InsertPageRc) | (1 << InsertCoverPageRc),
   InsertMask = (1 << InsertRc)
@@ -70,8 +67,8 @@ public:
   void convertToCallout(       Meta *, const QString &, bool isMirrored, bool assembled = false);
   void addCalloutMetas(        Meta *, const QString &, bool isMirrored, bool assembled = false);
 
-  void addPointerTip(          Meta *, const Where &, const Where &, PlacementEnc placement);
-  void addPointerTipMetas(     Meta *, const Where &, const Where &, PlacementEnc placement);
+  void addPointerTip(          Meta *, const Where &, const Where &, PlacementEnc placement, Rc rc);
+  void addPointerTipMetas(     Meta *, const Where &, const Where &, PlacementEnc placement, Rc rc);
   QPointF pointerTip(          Meta &, const Where &, const Where &);
 
   int  nestCallouts(           Meta *, const QString &, bool isMirrored);
@@ -87,8 +84,8 @@ public:
   void deletePointer(          const Where &);
   void changeRotation(         const Where &);
 
-  int countInstancesInStep(     Meta *, const QString &);
-  int countInstancesInBlock(  Meta *, const QString &, int);
+  int countInstancesInStep(    Meta *, const QString &);
+  int countInstancesInBlock(   Meta *, const QString &, int);
   void addNextMultiStep(       const Where &topOfSteps, const Where &bottomOfSteps);
   void addPrevMultiStep(       const Where &topOfSteps, const Where &bottomOfSteps);
   void addNextStepsMultiStep(  const Where &topOfSteps, const Where &bottomOfSteps, const int &numOfSteps);
@@ -377,6 +374,15 @@ public:
                                  const Where &,
                                  ConstrainMeta *constraint,
                                  int append = 1);
+  void setPointerAttrib(QString,
+                        const Where &,
+                        const Where &,
+                        PointerAttribMeta *,
+                        bool useTop = true,
+                        int  append = 1,
+                        bool local = true,
+                        bool isCallout = false,
+                        bool isLine = true);
 
   void changeInsertOffset(InsertMeta *placement);
   //void changePageAttributePictureOffset(Where default const,PageAttributePictureMeta *pictureMeta,bool local = false,bool global = true);

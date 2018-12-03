@@ -20,7 +20,7 @@
  *
  * This class implements the graphical pointers that extend from pages to
  * assembly images as visual indicators to the builder as to where to
- * add the completed submodel into partially assembeled final model.
+ * add the completed submodel into partially assembled final model.
  *
  * Please see lpub.h for an overall description of how the files in LPub
  * make up the LPub program.
@@ -29,7 +29,7 @@
 
 #include "pagepointeritem.h"
 #include "pagepointer.h"
-#include "pagepointerbackgrounditem.h"
+#include "pagepointerbackgrounditem.h"              // remove
 #include "step.h"
 #include "range.h"
 
@@ -41,22 +41,22 @@
 
 PagePointerItem::PagePointerItem(
   PagePointer   *pp,
-  Meta          *meta,
   Pointer       *_pointer,
   QGraphicsItem *parent,
   QGraphicsView *_view)
 
   : PointerItem(parent)
 {
-  view          = _view;
-  pagePointer   = pp;
-  pointer       = *_pointer;
+  meta              = &pp->meta;
+  view              = _view;
+  pointer           = *_pointer;
+  pagePointer       = pp;
+  pointerTop        = pp->topOfPagePointer();
+  pointerBottom     = pp->bottomOfPagePointer();
+  pointerParentType = PagePointerType;
+  resizeRequested   = false;
 
-  PointerData pointerData  = pointer.pointerMeta.value();
-  BorderData  border       = meta->LPub.pagePointer.border.valuePixels();
-
-  borderColor     = border.color;
-  borderThickness = border.thickness;
+  PointerData pointerData = pointer.pointerMeta.value();
 
   placement       = pointerData.placement;
 
@@ -104,17 +104,36 @@ PagePointerItem::PagePointerItem(
   points[MidBase] = QPointF(pointerData.x3,pointerData.y3);
   points[MidTip]  = QPointF(pointerData.x4,pointerData.y4);
 
-  QColor qColor(border.color);
-  QPen pen(qColor);
-  pen.setWidth(borderThickness);
-  pen.setCapStyle(Qt::RoundCap);
+  PointerAttribData *pad  = &pointer.pointerAttrib.valuePixels();
+
+  QColor shaftPenColor(pad->lineData.color);
+  QColor brushColor(pad->lineData.color);
+
+  QPen shaftPen(shaftPenColor);
+  shaftPen.setWidth(pad->lineData.thickness);
+  shaftPen.setCapStyle(Qt::RoundCap);
+  shaftPen.setJoinStyle(Qt::RoundJoin);
+  if (pad->lineData.line == BorderData::BdrLnSolid){
+      shaftPen.setStyle(Qt::SolidLine);
+  }
+  else if (pad->lineData.line == BorderData::BdrLnDash){
+      shaftPen.setStyle(Qt::DashLine);
+  }
+  else if (pad->lineData.line == BorderData::BdrLnDot){
+      shaftPen.setStyle(Qt::DotLine);
+  }
+  else if (pad->lineData.line == BorderData::BdrLnDashDot){
+      shaftPen.setStyle(Qt::DashDotLine);
+  }
+  else if (pad->lineData.line == BorderData::BdrLnDashDotDot){
+      shaftPen.setStyle(Qt::DashDotDotLine);
+  }
 
   // shaft segments
   for (int i = 0; i < pointerData.segments; i++) {
       QLineF linef;
-      shaft = new QGraphicsLineItem(linef,this);
-      shaft->setPen(pen);
-      shaft->setZValue(-5);
+      shaft = new BorderedLineItem(linef,pad,this);
+      shaft->setPen(shaftPen);
       shaft->setFlag(QGraphicsItem::ItemIsSelectable,false);
       shaft->setToolTip(QString("Pointer segment %1 - drag to move; right click to modify").arg(i+1));
       shaftSegments.append(shaft);
@@ -125,9 +144,38 @@ PagePointerItem::PagePointerItem(
 
   QPolygonF poly;
 
+  QColor tipPenColor(pad->lineData.color);
+  if (pad->borderModified)
+      tipPenColor.setNamedColor(pad->borderData.color);
+
+  if (pad->lineData.hideArrows) {
+      brushColor  = QColor(Qt::transparent);
+      tipPenColor = brushColor;
+  }
+
+  QPen tipPen(tipPenColor);
+  tipPen.setWidth(pad->borderData.thickness);
+  tipPen.setCapStyle(Qt::RoundCap);
+  tipPen.setJoinStyle(Qt::RoundJoin);
+  if (pad->borderData.line == BorderData::BdrLnSolid){
+      tipPen.setStyle(Qt::SolidLine);
+  }
+  else if (pad->borderData.line == BorderData::BdrLnDash){
+      tipPen.setStyle(Qt::DashLine);
+  }
+  else if (pad->borderData.line == BorderData::BdrLnDot){
+      tipPen.setStyle(Qt::DotLine);
+  }
+  else if (pad->borderData.line == BorderData::BdrLnDashDot){
+      tipPen.setStyle(Qt::DashDotLine);
+  }
+  else if (pad->borderData.line == BorderData::BdrLnDashDotDot){
+      tipPen.setStyle(Qt::DashDotDotLine);
+  }
+
   head = new QGraphicsPolygonItem(poly, this);
-  head->setPen(qColor);
-  head->setBrush(qColor);
+  head->setPen(tipPen);
+  head->setBrush(brushColor);
   head->setFlag(QGraphicsItem::ItemIsSelectable,false);
   head->setToolTip("Pointer head - drag to move");
   addToGroup(head);
@@ -137,6 +185,7 @@ PagePointerItem::PagePointerItem(
   }
 
   drawPointerPoly();
+
   setFlag(QGraphicsItem::ItemIsFocusable,true);
 }
 
@@ -166,13 +215,15 @@ bool PagePointerItem::autoLocFromTip()
 
     if (segments() != OneSegment) {
         PointerData pointerData = pointer.pointerMeta.value();
-        int mx = pointerData.x3;
-        points[Base] = QPointF(pointerData.x2,pointerData.y2);
         placement = pointerData.placement;
 
-        if (segments() == ThreeSegments){
+        if (!resizeRequested)
+            points[Base] = QPointF(pointerData.x2,pointerData.y2);
+
+        if (segments() == ThreeSegments) {
+            int mtx = pointerData.x3;
             points[MidTip].setY(ty);
-            points[MidTip].setX(mx);
+            points[MidTip].setX(mtx);
         }
     } else {
         /* Figure out which corner */
@@ -413,7 +464,7 @@ void PagePointerItem::calculatePointerMeta()
       if (pagePointer->parentStep->onlyChild()) {
           points[Tip] += QPoint(pagePointer->loc[XX],pagePointer->loc[YY]);
       } else {
-          PlacementData pagePointerPlacement = pagePointer->meta.LPub.pagePointer.placement.value();
+          PlacementData pagePointerPlacement = pagePointer->meta.LPub.pointerBase.placement.value();
 
           switch (pagePointerPlacement.relativeTo) {
           case CsiType:
@@ -435,7 +486,8 @@ void PagePointerItem::calculatePointerMeta()
       }
        */
 
-      if (pagePointer->placement.value().relativeTo == PageType) {
+      if (pagePointer->placement.value().relativeTo == PageType ||
+          pagePointer->placement.value().relativeTo == StepGroupType ) {
           points[Tip] -= QPoint(pagePointer->parentStep->loc[XX],
                                 pagePointer->parentStep->loc[YY]);
       }
@@ -483,4 +535,3 @@ void PagePointerItem::calculatePointerMeta()
     pointerData.x4,
     pointerData.y4);
 }
-

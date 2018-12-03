@@ -18,6 +18,7 @@
         <file alias="bomannotation.png">resources/bomannotation.png</file>
         <file alias="bomsetup.png">resources/bomsetup.png</file>
         <file alias="border.png">resources/border.png</file>
+        <file alias="borderattributes.png">resources/borderattributes.png</file>
         <file alias="bottomofdocument.png">resources/bottomofdocument.png</file>
         <file alias="calloutsetup.png">resources/calloutsetup.png</file>
         <file alias="changedivider.png">resources/changedivider.png</file>
@@ -68,6 +69,7 @@
         <file alias="exportpng.png">resources/exportpng.png</file>
         <file alias="exportjpeg.png">resources/exportjpeg.png</file>
         <file alias="fadestepsetup.png">resources/fadestepsetup.png</file>
+        <file alias="fillattributes.png">resources/fillattributes.png</file>
         <file alias="find.png">resources/find.png</file>
         <file alias="first.png">resources/first.png</file>
         <file alias="fitPage.png">resources/fitPage.png</file>
