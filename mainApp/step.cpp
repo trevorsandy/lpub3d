@@ -199,7 +199,10 @@ int Step::createCsi(
   bool    doFadeStep      = meta.LPub.fadeStep.fadeStep.value();
   bool    doHighlightStep = meta.LPub.highlightStep.highlightStep.value() && !gui->suppressColourMeta();
   bool    invalidIMStep   = ((modelDisplayOnlyStep) || (stepNumber.number == 1));
-  if (meta.rotStep.value().type == "ABS") meta.LPub.assem.cameraAngles.setValues(0.0f,0.0f);
+  bool    absRotstep      = meta.rotStep.value().type == "ABS";
+  FloatPairMeta absCA;
+  if (absRotstep)
+      absCA.setValues(0.0f,0.0f);
 
   ldrName.clear();
 
@@ -227,8 +230,8 @@ int Step::createCsi(
       .arg(resolutionType() == DPI ? "DPI" : "DPCM")
       .arg(modelScale)
       .arg(meta.LPub.assem.cameraFoV.value())
-      .arg(meta.LPub.assem.cameraAngles.value(0))
-      .arg(meta.LPub.assem.cameraAngles.value(1));;
+      .arg(absRotstep ? absCA.value(0) : meta.LPub.assem.cameraAngles.value(0))
+      .arg(absRotstep ? absCA.value(1) : meta.LPub.assem.cameraAngles.value(1));
 
   // populate png name
   pngName = QString("%1/%2.png").arg(csiPngFilePath).arg(key);
@@ -280,7 +283,7 @@ int Step::createCsi(
       QStringList rotatedParts = csiParts;
 
       // rotate parts for 3DViewer display - do not apply camera angles
-      if ((rc = renderer->rotateParts(addLine,meta.rotStep,rotatedParts,meta.LPub.assem.cameraAngles,false)) != 0)
+      if ((rc = renderer->rotateParts(addLine,meta.rotStep,rotatedParts,absRotstep ? absCA : meta.LPub.assem.cameraAngles,false)) != 0)
         emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer CSI parts"));
 
       // add ROTSTEP command
@@ -316,7 +319,7 @@ int Step::createCsi(
          if (nativeRenderer)
             ldrName = csiLdrFile;
 
-         if ((rc = renderer->rotateParts(addLine, meta.rotStep, csiParts, ldrName, top.modelName, meta.LPub.assem.cameraAngles)) != 0) {
+         if ((rc = renderer->rotateParts(addLine, meta.rotStep, csiParts, ldrName, top.modelName, absRotstep ? absCA : meta.LPub.assem.cameraAngles)) != 0) {
              emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate CSI ldr file: %1.")
                                                    .arg(ldrName));
              return rc;
@@ -353,8 +356,8 @@ int Step::createCsi(
   // set viewer camera options
   viewerOptions.ViewerCsiKey  = viewerCsiKey;
   viewerOptions.FoV            = meta.LPub.assem.cameraFoV.value();
-  viewerOptions.Latitude       = meta.LPub.assem.cameraAngles.value(0);
-  viewerOptions.Longitude      = meta.LPub.assem.cameraAngles.value(1);
+  viewerOptions.Latitude       = absRotstep ? absCA.value(0) : meta.LPub.assem.cameraAngles.value(0);
+  viewerOptions.Longitude      = absRotstep ? absCA.value(1) : meta.LPub.assem.cameraAngles.value(1);
 
   // Load the 3DViewer
   loadTheViewer();
