@@ -932,6 +932,48 @@ public slots:
 
 /***********************************************************************
  *
+ * Show Submodel
+ *
+ **********************************************************************/
+
+class QCheckBox;
+class ShowSubModelGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  ShowSubModelGui(
+          SubModelMeta *_meta,
+          QGroupBox    *parent = nullptr);
+  ~ShowSubModelGui() {}
+
+  virtual void apply(QString &topLevelFile);
+
+private:
+  SubModelMeta *meta;
+
+  QCheckBox    *showSubmodelsBox;
+  QCheckBox    *showTopModelBox;
+
+  QCheckBox    *showSubmodelsDefaultBox;
+  QCheckBox    *showSubmodelsMetaBox;
+
+  QCheckBox    *showTopModelDefaultBox;
+  QCheckBox    *showTopModelMetaBox;
+
+  bool          showSubmodelsModified;
+  bool          showTopModelModified;
+
+  bool          showSubmodelsDefaulSettings;
+  bool          showTopModelDefaulSettings;
+
+public slots:
+  void showSubmodelsChange(bool checked);
+  void showTopModelChange(bool checked);
+};
+
+/***********************************************************************
+ *
  * PliSort
  *
  **********************************************************************/
