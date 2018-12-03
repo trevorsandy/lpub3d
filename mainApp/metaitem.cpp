@@ -1534,7 +1534,7 @@ void MetaItem::changeSubModelColor(
   ok = SubModelColorDialog::getSubModelColor(_meta,title,gui);
 
   if (ok) {
-    meta->setValue(meta->value());
+    meta->setValue(_meta.value());
     setMeta(topOfStep,bottomOfStep,meta,useTop,append,local);
   }
 }

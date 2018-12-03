@@ -4276,7 +4276,7 @@ SubModelColorGui::SubModelColorGui(
 
   grid->addWidget(subModelColor3Button,3,2);
 
-  subModelColorModified = false;
+  modified = false;
 }
 
 void SubModelColorGui::browseSubModelColor0(bool clicked)
@@ -4290,7 +4290,7 @@ void SubModelColorGui::browseSubModelColor0(bool clicked)
         .arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
     subModelColor0Example->setStyleSheet(styleSheet);
     meta->setValue(Level1, newColor.name());
-    subModelColorModified = true;
+    modified = true;
   }
 }
 
@@ -4305,7 +4305,7 @@ void SubModelColorGui::browseSubModelColor1(bool clicked)
         .arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
     subModelColor1Example->setStyleSheet(styleSheet);
     meta->setValue(Level2, newColor.name());
-    subModelColorModified = true;
+    modified = true;
   }
 }
 
@@ -4320,7 +4320,7 @@ void SubModelColorGui::browseSubModelColor2(bool clicked)
         .arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
     subModelColor2Example->setStyleSheet(styleSheet);
     meta->setValue(Level3, newColor.name());
-    subModelColorModified = true;
+    modified = true;
   }
 }
 
@@ -4335,7 +4335,7 @@ void SubModelColorGui::browseSubModelColor3(bool clicked)
         .arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
     subModelColor3Example->setStyleSheet(styleSheet);
     meta->setValue(Level4, newColor.name());
-    subModelColorModified = true;
+    modified = true;
   }
 }
 
@@ -4345,7 +4345,7 @@ void SubModelColorGui::apply(
   MetaItem mi;
   mi.beginMacro("SubModelColor");
 
-  if (subModelColorModified) {
+  if (modified) {
     mi.setGlobalMeta(topLevelFile,meta);
   }
 
