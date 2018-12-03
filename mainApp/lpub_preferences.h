@@ -163,6 +163,7 @@ class Preferences
     static bool    showUpdateNotifications;
     static bool    showSubmodels;
     static bool    showTopModel;
+    static bool    showSubmodelInCallout;
     static bool    enableDownloader;
     static bool    portableDistribution;
     static bool    lpub3dLoaded;

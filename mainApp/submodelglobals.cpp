@@ -74,14 +74,14 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   SubModelMeta *subModelMeta = &data->meta.LPub.subModel;
 
   /*
-   * Background/Border tab
+   * Submodel tab
    */
 
   widget = new QWidget(nullptr);
   grid = new QGridLayout(nullptr);
   widget->setLayout(grid);
 
-  box = new QGroupBox("Submodel");
+  box = new QGroupBox("Display");
   grid->addWidget(box);
   box->setLayout(childlayout);
 
@@ -104,12 +104,7 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   child = new UnitsGui("",&subModelMeta->margin,box);
   data->children.append(child);
 
-  box = new QGroupBox("Constrain");
-  grid->addWidget(box);
-  child = new ConstrainGui("",&subModelMeta->constrain,box);
-  data->children.append(child);
-
-  tab->addTab(widget,"Background/Border");
+  tab->addTab(widget,"Submodel");
 
   /*
    * Contents tab
@@ -121,7 +116,7 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   childlayout = new QVBoxLayout(nullptr);
 
   box = new QGroupBox("Submodel Image");
-  grid->addWidget(box,0,0);
+  grid->addWidget(box);
   box->setLayout(childlayout);
 
   if (Preferences::preferredRenderer == RENDERER_NATIVE) {
@@ -145,9 +140,14 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   data->children.append(child);
   childlayout->addWidget(child);
 
-  /* Camera settings */
+  /* Constraints */
+  box = new QGroupBox("Constrain");
+  grid->addWidget(box);
+  child = new ConstrainGui("",&subModelMeta->constrain,box);
+  data->children.append(child);
+
   box = new QGroupBox("Default Submodel Orientation");
-  grid->addWidget(box,1,0);
+  grid->addWidget(box);
   QGridLayout *boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
 
@@ -168,7 +168,7 @@ GlobalSubModelDialog::GlobalSubModelDialog(
 
   box = new QGroupBox("Default Step Rotation");
   grid->addWidget(box);
-  child = new RotStepGui(&subModelMeta->rotStep, box);
+  child = new RotStepGui(&subModelMeta->rotStep,box);
   data->children.append(child);
 
   box = new QGroupBox("Submodel Count");

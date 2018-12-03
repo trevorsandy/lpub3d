@@ -2983,15 +2983,15 @@ ShowSubModelGui::ShowSubModelGui(
     grid->addWidget(showSubmodelsBox,0,0,1,2);
 
     QSettings Settings;
-    showSubmodelsDefaulSettings = Settings.contains(QString("%1/%2").arg(SETTINGS,"ShowSubmodels"));
+    showSubmodelsDefaultSettings = Settings.contains(QString("%1/%2").arg(SETTINGS,"ShowSubmodels"));
     showSubmodelsDefaultBox = new QCheckBox("Set as default",parent);
     showSubmodelsDefaultBox->setToolTip("Save show submodel to application settings.");
-    showSubmodelsDefaultBox->setChecked(showSubmodelsDefaulSettings);
+    showSubmodelsDefaultBox->setChecked(showSubmodelsDefaultSettings);
     grid->addWidget(showSubmodelsDefaultBox,1,0);
 
     showSubmodelsMetaBox = new QCheckBox("Add meta command",parent);
     showSubmodelsMetaBox->setToolTip("Add show submodel as a global meta command to the LDraw file.");
-    showSubmodelsMetaBox->setChecked(!showSubmodelsDefaulSettings);
+    showSubmodelsMetaBox->setChecked(!showSubmodelsDefaultSettings);
     grid->addWidget(showSubmodelsMetaBox,1,1);
 
     QFrame* line = new QFrame();
@@ -3005,19 +3005,42 @@ ShowSubModelGui::ShowSubModelGui(
             this,           SLOT(showTopModelChange(bool)));
     grid->addWidget(showTopModelBox,3,0,1,2);
 
-    showTopModelDefaulSettings = Settings.contains(QString("%1/%2").arg(SETTINGS,"ShowTopModel"));
+    showTopModelDefaultSettings = Settings.contains(QString("%1/%2").arg(SETTINGS,"ShowTopModel"));
     showTopModelDefaultBox = new QCheckBox("Set as default",parent);
     showTopModelDefaultBox->setToolTip("Save show top model to application settings.");
-    showTopModelDefaultBox->setChecked(showTopModelDefaulSettings);
+    showTopModelDefaultBox->setChecked(showTopModelDefaultSettings);
     grid->addWidget(showTopModelDefaultBox,4,0);
 
-    showSubmodelsMetaBox = new QCheckBox("Add meta command",parent);
-    showSubmodelsMetaBox->setToolTip("Add show top model  as a global meta command to the LDraw file.");
-    showSubmodelsMetaBox->setChecked(!showTopModelDefaulSettings);
-    grid->addWidget(showSubmodelsMetaBox,4,1);
+    showTopModelMetaBox = new QCheckBox("Add meta command",parent);
+    showTopModelMetaBox->setToolTip("Add show top model  as a global meta command to the LDraw file.");
+    showTopModelMetaBox->setChecked(!showTopModelDefaultSettings);
+    grid->addWidget(showTopModelMetaBox,4,1);
+
+    line = new QFrame();
+    line->setFrameShape(QFrame::HLine);
+    grid->addWidget(line,5,0,1,2);
+
+    showSubmodelInCalloutBox = new QCheckBox("Show submodel in callout",parent);
+    showSubmodelInCalloutBox->setToolTip("Show Submodel image in callout");
+    showSubmodelInCalloutBox->setChecked(meta->showSubmodelInCallout.value());
+    connect(showSubmodelInCalloutBox,SIGNAL(clicked(bool)),
+            this,            SLOT(showSubmodelInCalloutChange(bool)));
+    grid->addWidget(showSubmodelInCalloutBox,6,0,1,2);
+
+    showSubmodelInCalloutDefaultSettings = Settings.contains(QString("%1/%2").arg(SETTINGS,"ShowSubmodelInCallout"));
+    showSubmodelInCalloutDefaultBox = new QCheckBox("Set as default",parent);
+    showSubmodelInCalloutDefaultBox->setToolTip("Save show submodel in callout to application settings.");
+    showSubmodelInCalloutDefaultBox->setChecked(showSubmodelInCalloutDefaultSettings);
+    grid->addWidget(showSubmodelInCalloutDefaultBox,7,0);
+
+    showSubmodelInCalloutMetaBox = new QCheckBox("Add meta command",parent);
+    showSubmodelInCalloutMetaBox->setToolTip("Add show submodel in callout as a global meta command to the LDraw file.");
+    showSubmodelInCalloutMetaBox->setChecked(!showSubmodelInCalloutDefaultSettings);
+    grid->addWidget(showSubmodelInCalloutMetaBox,7,1);
 
     showSubmodelsModified = false;
     showTopModelModified = false;
+    showSubmodelInCalloutModified = false;
 }
 
 void ShowSubModelGui::showSubmodelsChange(bool checked)
@@ -3036,6 +3059,14 @@ void ShowSubModelGui::showTopModelChange(bool checked)
     }
 }
 
+void ShowSubModelGui::showSubmodelInCalloutChange(bool checked)
+{
+    if (meta->showSubmodelInCallout.value() != checked) {
+        meta->showSubmodelInCallout.setValue(checked);
+        modified = showSubmodelInCalloutModified = true;
+    }
+}
+
 void ShowSubModelGui::apply(QString &topLevelFile)
 {
     QSettings Settings;
@@ -3051,13 +3082,15 @@ void ShowSubModelGui::apply(QString &topLevelFile)
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowSubmodels"),meta->show.value());
         }
         else
-        if (showSubmodelsDefaulSettings) {
+        if (showSubmodelsDefaultSettings) {
             Settings.remove(QString("%1/%2").arg(SETTINGS,"ShowSubmodels"));
         }
 
         if (showSubmodelsMetaBox->isChecked()){
             MetaItem mi;
+            mi.beginMacro("SubModelMeta");
             mi.setGlobalMeta(topLevelFile,&meta->show);
+            mi.endMacro();
         }
     }
     if (showTopModelModified) {
@@ -3071,13 +3104,37 @@ void ShowSubModelGui::apply(QString &topLevelFile)
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowTopModel"),meta->showTopModel.value());
         }
         else
-        if (showTopModelDefaulSettings) {
+        if (showTopModelDefaultSettings) {
             Settings.remove(QString("%1/%2").arg(SETTINGS,"ShowTopModel"));
         }
 
         if (showTopModelMetaBox->isChecked()){
             MetaItem mi;
+            mi.beginMacro("TopModelMeta");
             mi.setGlobalMeta(topLevelFile,&meta->showTopModel);
+            mi.endMacro();
+        }
+    }
+    if (showSubmodelInCalloutModified) {
+        changeMessage = QString("Show submodel in callout is %1")
+                                .arg(meta->showSubmodelInCallout.value() ? "ON" : "OFF");
+        emit gui->messageSig(LOG_INFO, changeMessage);
+        if (showSubmodelInCalloutDefaultBox->isChecked()){
+            changeMessage = QString("Show submodel in callout added as application default.");
+            emit gui->messageSig(LOG_INFO, changeMessage);
+            Preferences::showSubmodelInCallout = meta->showSubmodelInCallout.value();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowSubmodelInCallout"),meta->showSubmodelInCallout.value());
+        }
+        else
+        if (showSubmodelInCalloutDefaultSettings) {
+            Settings.remove(QString("%1/%2").arg(SETTINGS,"ShowSubmodelInCallout"));
+        }
+
+        if (showSubmodelInCalloutMetaBox->isChecked()){
+            MetaItem mi;
+            mi.beginMacro("ShowSubmodelInCallout");
+            mi.setGlobalMeta(topLevelFile,&meta->showSubmodelInCallout);
+            mi.endMacro();
         }
     }
 }

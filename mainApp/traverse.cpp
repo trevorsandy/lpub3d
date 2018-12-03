@@ -538,9 +538,9 @@ int Gui::drawPage(
 
             } // STEP - Process called out submodel
 
-
           if (step && steps->meta.LPub.subModel.show.value()) {
-              bool calloutOk      = (calledOut ? unAssCallout : true );
+              bool calloutOk      = (calledOut ? unAssCallout : true ) &&
+                                    (calledOut ? steps->meta.LPub.subModel.showSubmodelInCallout.value(): true);
               bool topModel       = (topLevelFile() == topOfStep.modelName);
               bool showTopModel   = (steps->meta.LPub.subModel.showTopModel.value());
               step->placeSubModel = (calloutOk && (stepNum == 1) && (!topModel || showTopModel));
@@ -1180,7 +1180,7 @@ int Gui::drawPage(
                           emit messageSig(LOG_INFO, "Set first step submodel display for " + topOfStep.modelName + "...");
 
                           // Get submodel instance count
-                          int  instances;
+                          int  instances = 0;
                           if ( ! multiStep && ! calledOut) {
                               if (instances > 1 && ! steps->meta.LPub.mergeInstanceCount.value()) {
                                   MetaItem mi;

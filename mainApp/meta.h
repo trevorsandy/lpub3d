@@ -2319,6 +2319,7 @@ public:
   CameraDistFactorMeta cameraDistNative;
   RotStepMeta          rotStep;
   BoolMeta             showTopModel;
+  BoolMeta             showSubmodelInCallout;
 
   PliMeta();
   PliMeta(const PliMeta &rhs) : BranchMeta(rhs)

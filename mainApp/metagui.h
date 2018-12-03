@@ -954,22 +954,30 @@ private:
 
   QCheckBox    *showSubmodelsBox;
   QCheckBox    *showTopModelBox;
+  QCheckBox    *showSubmodelInCalloutBox;
 
   QCheckBox    *showSubmodelsDefaultBox;
   QCheckBox    *showSubmodelsMetaBox;
 
+
   QCheckBox    *showTopModelDefaultBox;
   QCheckBox    *showTopModelMetaBox;
 
+  QCheckBox    *showSubmodelInCalloutDefaultBox;
+  QCheckBox    *showSubmodelInCalloutMetaBox;
+
   bool          showSubmodelsModified;
   bool          showTopModelModified;
+  bool          showSubmodelInCalloutModified;
 
-  bool          showSubmodelsDefaulSettings;
-  bool          showTopModelDefaulSettings;
+  bool          showSubmodelsDefaultSettings;
+  bool          showTopModelDefaultSettings;
+  bool          showSubmodelInCalloutDefaultSettings;
 
 public slots:
   void showSubmodelsChange(bool checked);
   void showTopModelChange(bool checked);
+  void showSubmodelInCalloutChange(bool checked);
 };
 
 /***********************************************************************

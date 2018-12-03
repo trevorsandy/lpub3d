@@ -161,6 +161,7 @@ bool    Preferences::fatalLevel                 = false;
 
 bool    Preferences::showSubmodels              = false;
 bool    Preferences::showTopModel               = false;
+bool    Preferences::showSubmodelInCallout      = false;
 
 bool    Preferences::includeAllLogAttributes    = false;
 bool    Preferences::allLogLevels               = false;
@@ -2442,6 +2443,11 @@ void Preferences::userInterfacePreferences()
   QString const showTopModelKey("ShowTopModel");
   if (Settings.contains(QString("%1/%2").arg(SETTINGS,showTopModelKey))) {
       showTopModel = Settings.value(QString("%1/%2").arg(SETTINGS,showTopModelKey)).toBool();
+  }
+
+  QString const showSubmodelInCalloutKey("ShowSubmodelInCallout");
+  if (Settings.contains(QString("%1/%2").arg(SETTINGS,showSubmodelInCalloutKey))) {
+      showSubmodelInCallout = Settings.value(QString("%1/%2").arg(SETTINGS,showSubmodelInCalloutKey)).toBool();
   }
 }
 

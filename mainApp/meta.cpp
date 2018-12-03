@@ -2567,9 +2567,10 @@ SubModelMeta::SubModelMeta() : PliMeta()
   // annotate - default
   modelScale.setRange(-10000.0,10000.0);
   modelScale.setFormats(7,4,"#99999.9");
-  modelScale.setValue(1.0);
+  modelScale.setValue(.50);
   show.setValue(Preferences::showSubmodels);
   showTopModel.setValue(Preferences::showTopModel);
+  showSubmodelInCallout.setValue(Preferences::showSubmodelInCallout);
   ldgliteParms.setValue("-l3");
   ldviewParms.setValue("");
   povrayParms.setValue("+A");
@@ -2612,6 +2613,7 @@ void SubModelMeta::init(BranchMeta *parent, QString name)
   modelScale      .init(this,"MODEL_SCALE");
   show            .init(this,"SHOW");
   showTopModel    .init(this,"SHOW_TOP_MODEL");
+  showSubmodelInCallout   .init(this,"SHOW_SUBMODEL_IN_CALLOUT");
   ldviewParms     .init(this,"LDVIEW_PARMS");
   ldgliteParms    .init(this,"LDGLITE_PARMS");
   povrayParms     .init(this,"POVRAY_PARMS");
