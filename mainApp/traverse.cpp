@@ -389,6 +389,8 @@ int Gui::drawPage(
           csiParts << line;
           partsAdded = true;
 
+          // STEP - Allocate STEP
+
           /* since we have a part usage, we have a valid STEP */
 
           if (step == nullptr  && ! noStep) {
@@ -405,9 +407,17 @@ int Gui::drawPage(
                               multiStep);
 
               range->append(step);
-            } // STEP - Allocate STEP
+            }
+
+          // STEP - Allocate PLI
+
+          /* check if part is in excludedPart.lst */
+
+          if (ExcludedParts::hasExcludedPart(type))
+              pliIgnore = true;
 
           /* addition of ldraw parts */
+
           if (curMeta.LPub.pli.show.value()
               && ! pliIgnore
               && ! partIgnore
@@ -2020,6 +2030,11 @@ int Gui::getBOMParts(
 
       switch (line.toLatin1()[0]) {
         case '1':
+          /* check if part is in excludedPart.lst */
+          if (ExcludedParts::lineHasExcludedPart(line)) {
+              pliIgnore = true;
+          }
+
           if ( ! partIgnore && ! pliIgnore && ! synthBegin) {
 
               QStringList token,addToken;
@@ -2036,7 +2051,7 @@ int Gui::getBOMParts(
                     }
                 }
 
-              /*
+          /*
            * Automatically ignore parts added twice due to buffer exchange
            */
               bool removed = false;

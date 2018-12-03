@@ -64,4 +64,14 @@ const bool &ExcludedParts::hasExcludedPart(QString part)
     }
 }
 
+const bool &ExcludedParts::lineHasExcludedPart(const QString &line)
+{
+    QString part;
+    QStringList tt = line.split(" ",QString::SkipEmptyParts);
+    for (int t = 14; t < tt.size(); t++) // treat spaces
+        part += (tt[t]+" ");
+
+    return hasExcludedPart(part);
+}
+
 

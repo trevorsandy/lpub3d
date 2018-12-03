@@ -23,10 +23,11 @@ class ExcludedParts
   private:
     static bool     				result;
     static QString     				empty;
-    static QList<QString>               excludedParts;
+    static QList<QString>           excludedParts;
   public:
     ExcludedParts();
     static const bool &hasExcludedPart(QString part);
+    static const bool &lineHasExcludedPart(const QString &line);
 };
 
 #endif // EXCLUDEDPARTS_H
