@@ -1,6 +1,13 @@
-﻿#Enter free form part annotations on this list
-#Follow this format to define freeform annotations
-#The format is part ID followed free-form annotation (some special characters may not be supported) 
+﻿# File: freeformAnnotations.lst
+
+# Enter free form part annotations on this list.
+# Follow this format to define freeform annotations.
+# The format is part ID followed free-form annotation (some special characters may not be supported).
+
+# This file can be edited from LPub3D from:
+#    Configuration=>Edit Parameter Files=>Edit Freeform PLI Annotations
+
+# The RegExp used is ^(\b.*[^\s]\b)(?:\s)\s+(.*)$
 
 #ID         Annotation
 3024.dat    1x1

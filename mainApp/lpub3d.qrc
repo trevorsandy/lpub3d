@@ -144,8 +144,8 @@
         <file alias="sortPli.png">resources/sortPli.png</file>
         <file alias="splitbom.png">resources/splitbom.png</file>
         <file alias="stepgroupsetup.png">resources/stepgroupsetup.png</file>
-        <file alias="submodelsetup.png">resources/submodelsetup.png</file>
         <file alias="submodelcolor.png">resources/submodelcolor.png</file>
+        <file alias="submodelsetup.png">resources/submodelsetup.png</file>
         <file alias="topofdocument.png">resources/topofdocument.png</file>
         <file alias="treataspart.png">resources/treataspart.png</file>
         <file alias="unpackcallout.png">resources/unpackcallout.png</file>

@@ -1,4 +1,6 @@
-﻿# CAUTION: Editing this file requires some knowledge/experience using Regular Expressions.
+﻿# File: titleAnnotations.lst
+
+# CAUTION: Editing this file requires some knowledge/experience using Regular Expressions.
 # Additionally, you must be familiar with LDraw Parts.lst conventions.
 # Incorrectly changing the expressions below will at best, exclude some annotations from being captured
 # and at worst, exclude the entire category (e.g. Technic Axle) annotations from being captured.
@@ -9,6 +11,11 @@
 # The format is category followed by regex string
 # Annotations are extracted from the part title and further processed in LPub3D
 # For efficiency put most used parts first.
+
+# This file can be edited from LPub3D from:
+#    Configuration=>Edit Parameter Files=>Edit Part Title PLI Annotations
+
+# The RegExp used is ^(\b.*[^\s]\b:)\s+([\(|\^].*)$
 
 #Category   Regex (to identify and extract annotation)
 Technic:    ^Technic Axle\s+(\d+\.*\d*)\s*.*$

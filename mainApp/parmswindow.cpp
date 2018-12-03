@@ -541,8 +541,9 @@ void ParmsWindow::closeEvent(QCloseEvent *event)
 
           if (box.exec() == QMessageBox::Ok) {
               QStringList args = QApplication::arguments();
-              if (! fileLoaded){
-                  args << QString("%1").arg(gui->getCurFile());
+              if (fileLoaded){
+                  if (!args.contains(gui->getCurFile(),Qt::CaseInsensitive))
+                      args << QString("%1").arg(gui->getCurFile());
                   QSettings Settings;
                   Settings.setValue(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM),gui->displayPageNum);
                 } else {

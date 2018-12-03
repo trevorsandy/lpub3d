@@ -2639,6 +2639,10 @@ void Gui::writeToTmp()
 
   for (int i = 0; i < ldrawFile._subFileOrder.size(); i++) {
 
+      Where here(ldrawFile._subFileOrder[i],0);
+
+      normalizeHeader(here);
+
       QString fileName = ldrawFile._subFileOrder[i].toLower();
 
       if (Preferences::modeGUI && ! exporting())

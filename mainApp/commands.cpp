@@ -42,7 +42,8 @@ void InsertLineCommand::redo()
 {
   ldrawFile->insertLine(here.modelName,here.lineNumber,line);
   gui->showLine(here);
-  gui->displayPage();
+  if (!isHeader(line))
+     gui->displayPage();
 }
 
 AppendLineCommand::AppendLineCommand(

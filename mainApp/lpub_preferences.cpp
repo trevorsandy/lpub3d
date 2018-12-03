@@ -72,12 +72,6 @@ QString Preferences::povrayScenePath;
 QString Preferences::povrayExe;
 QString Preferences::preferredRenderer;
 QString Preferences::highlightStepColour        = HIGHLIGHT_COLOUR_DEFAULT;
-//page attributes dynamic
-QString Preferences::defaultAuthor;
-QString Preferences::defaultURL;
-QString Preferences::defaultEmail;
-QString Preferences::documentLogoFile;
-QString Preferences::publishDescription;
 QString Preferences::ldrawiniFile;
 QString Preferences::moduleVersion              = qApp->applicationVersion();
 QString Preferences::availableVersions;
@@ -97,6 +91,12 @@ QString Preferences::ldrawColourPartsFile;
 QStringList Preferences::ldSearchDirs;
 QStringList Preferences::ldgliteParms;
 
+//Dynamic page attributes
+QString Preferences::defaultAuthor;
+QString Preferences::publishDescription;
+QString Preferences::defaultURL;
+QString Preferences::defaultEmail;
+QString Preferences::documentLogoFile;
 //Static page attributes
 QString Preferences::disclaimer                 = QString(QObject::trUtf8("LEGO® is a registered trademark of the LEGO Group, \n"
                                                                           "which does not sponsor, endorse, or authorize these \n"

@@ -624,6 +624,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
         if (topLevelAuthorNotCaptured) {
            if (smLine.contains(upAUT)) {
                _author = upAUT.cap(1).replace(": ","");
+               Preferences::defaultAuthor = _author;
                topLevelAuthorNotCaptured = false;
             }
         }
@@ -644,6 +645,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 
         if (topLevelDescriptionNotCaptured && i == descriptionLine) {
             _description = smLine;
+            Preferences::publishDescription = _description;
             topLevelDescriptionNotCaptured = false;
         }
 

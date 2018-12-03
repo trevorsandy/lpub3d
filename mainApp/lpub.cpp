@@ -1025,15 +1025,17 @@ void Gui::loadTheme(bool restart){
 }
 
 void  Gui::restartApplication(bool changeLibrary){
-    QStringList args;
+    QStringList args = QApplication::arguments();
     if (! getCurFile().isEmpty() && ! changeLibrary){
-        args << QString("%1").arg(getCurFile());
+        if (!args.contains(getCurFile(),Qt::CaseInsensitive))
+            args << QString("%1").arg(getCurFile());
         QSettings Settings;
         Settings.setValue(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM),displayPageNum);
     } else {
         args << (Preferences::validLDrawLibraryChange == LEGO_LIBRARY  ? "++liblego" :
                  Preferences::validLDrawLibraryChange == TENTE_LIBRARY ? "++libtente" : "++libvexiq");
     }
+    args.removeFirst();
     QProcess::startDetached(QApplication::applicationFilePath(), args);
     messageSig(LOG_INFO, QString("Restarted LPub3D with Command: %1 %2")
                .arg(QApplication::applicationFilePath()).arg(args.join(" ")));

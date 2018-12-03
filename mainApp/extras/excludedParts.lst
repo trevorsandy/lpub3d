@@ -1,10 +1,13 @@
 # File: excludedParts.lst
 
-# This list captures excluded parts to support accurate part count
+# This list captures excluded parts to support accurate part count.
 # Excluded parts must be defined using the file name.
-# When loading your model, on this list are excluded from the part count.
-# Part identifiers with spaces will not be properly recoginzed.
-# This file can be modified in LPub3D from Configuration=>Edit excluded Parts
+# Parts on this list are excluded from the part count and PLI.
+
+# This file can be edited from LPub3D from:
+#    Configuration=>Edit Parameter Files=>Edit Part Count Excluded Parts List
+
+# The RegExp used is ^(\b.*[^\s]\b)(?:\s)\s+(.*)$
 
 # Part ID (LDraw Name:)  Part Description - for reference only
 

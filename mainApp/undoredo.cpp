@@ -52,6 +52,7 @@ void Gui::deleteLine(const Where &here, QUndoCommand *parent)
     undoStack->push(new DeleteLineCommand(&ldrawFile,here,parent));
   }
 }
+
 QString Gui::readLine(const Where &here)
 {
   return ldrawFile.readLine(here.modelName,here.lineNumber);
@@ -122,4 +123,38 @@ void Gui::canUndoChanged(bool enabled)
 void Gui::cleanChanged(bool cleanState)
 {
   saveAct->setDisabled( cleanState);
+}
+
+void Gui::normalizeHeader(const Where &here)
+{
+  Where current = here;
+
+  int numLines = ldrawFile.size(current.modelName);
+  for ( ; current.lineNumber < numLines; current.lineNumber++) {
+      QString line = gui->readLine(current);
+      int p;
+      for (p = 0; p < line.size(); ++p) {
+          if (line[p] != ' ') {
+              break;
+            }
+        }
+      if (line[p] >= '1' && line[p] <= '5') {
+          if (current.lineNumber == 0) {
+              QString attribute = QString("0 Name: %1").arg(current.modelName);
+              gui->insertLine(current,attribute,nullptr);
+              attribute = QString("0 Author: %1").arg(Preferences::defaultAuthor.isEmpty() ? "Undefined" :
+                                                      Preferences::defaultAuthor);
+              current.lineNumber++;
+              gui->insertLine(current,attribute,nullptr);
+            } else if (current > 0) {
+              --current;
+            }
+          break;
+        } else if ( ! isHeader(line)) {
+          if (current.lineNumber != 0) {
+              --current;
+              break;
+            }
+        }
+    }
 }

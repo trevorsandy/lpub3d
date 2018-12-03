@@ -604,6 +604,8 @@ public:
   void appendLine (const Where &here, const QString &line, QUndoCommand *parent = 0);
   void replaceLine(const Where &here, const QString &line, QUndoCommand *parent = 0);
   void deleteLine (const Where &here, QUndoCommand *parent = 0);
+  void normalizeHeader(const Where &here);
+
   QString topLevelFile();
 
   void beginMacro (QString name);
