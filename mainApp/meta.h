@@ -1266,7 +1266,6 @@ public:
     #endif
 
         bool isLine = argv[index] == "LINE";
-
         _result = _value[pushed];
 
         if (isLine) {
@@ -1293,9 +1292,9 @@ public:
            _result.borderData.useDefault = false;
            _result.borderModified        = true;
         }
+        bool noParent                    = argv[index-2] == "CALLOUT" || argv[index-1] == "DIVIDER_POINTER_ATTRIBUTE";
         _result.id                       = argv[isLine ? index+5 : index+4].toInt();
-        _result.parent                   = argv[index-2] == "CALLOUT" ? QString() : argv[isLine ? index+6 : index+5];
-
+        _result.parent                   = noParent ? QString() : argv[isLine ? index+6 : index+5];
         _here[pushed]                    = here;
 
         return _result;

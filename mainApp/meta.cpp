@@ -1249,7 +1249,10 @@ QString BorderMeta::text()
 
 Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
 {
-  //debug - capture line contents
+    QRegExp rx("^(POINTER_ATTRIBUTE|DIVIDER_POINTER_ATTRIBUTE)$");
+    bool isValid = argv[index-1].contains(rx);
+
+//debug - capture line contents
 #ifdef QT_DEBUG_MODE
 //    QStringList debugLine;
 //    for(int i=0;i<argv.size();i++){
@@ -1263,40 +1266,46 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
 //    debugLine << QString(", Index (%7)[%8], LineNum (%9), ModelName (%10)")
 //                         .arg(index).arg(argv[index]).arg(here.modelName).arg(here.lineNumber);
 //    logTrace() << debugLine.join(" ");
-//    logDebug() << "argv[index-1]: " << argv[index-1] << ", argv[index-2]: " << argv[index-2];
+//    logDebug() << "argv[index-1]: " << argv[index-1] << ", argv[index-2]: " << argv[index-2] << ", [" << (isValid ? "Valid ]" : "Not Valid ]");
 #endif
 
-    bool isValid = argv[index-1] == "POINTER_ATTRIBUTE";
     bool isLine  = argv[index] == "LINE";
-
     Rc rc = FailureRc;
     if (!isLine &&
-        !(argv[index] == "BORDER"))
+            !(argv[index] == "BORDER"))
         isValid = false;
 
     if (isValid && argv.size() - index >= (isLine ? 6 : 5)) {
-      bool ok[4];
-      argv[index+1].toInt(&ok[0]);     // line type
-      argv[index+3].toFloat(&ok[1]);   // thickness
-      argv[index+4].toInt(&ok[2]);     // if line (show/hide tip), if border (id)
-      if (isLine)
-          argv[index+5].toInt(&ok[3]); // if line id
-      if (ok[0] && ok[1] && ok[2] && (isLine ? ok[3] : true)) {
-        if (argv[index-2] == "CALLOUT")
-            rc = CalloutPointerAttribRc;
-        else
-        if (argv[index-2] == "PAGE")
-            rc = PagePointerAttribRc;
-        else
-        if (argv[index-2] == "MULTI_STEP")
-            rc = StepGroupPointerAttribRc;
-        else
-        if (argv[index-2] == "CALLOUT_DIVIDER")
-            rc = CalloutDividerPointerAttribRc;
-        else
-        if (argv[index-2] == "MULTI_STEP_DIVIDER")
-            rc = StepGroupDividerPointerAttribRc;
-      }
+
+        bool ok[4];
+        argv[index+1].toInt(&ok[0]);     // line type
+        argv[index+3].toFloat(&ok[1]);   // thickness
+        argv[index+4].toInt(&ok[2]);     // if line (show/hide tip), if border (id)
+
+        if (isLine)
+            argv[index+5].toInt(&ok[3]); // if line id
+
+        if (ok[0] && ok[1] && ok[2] && (isLine ? ok[3] : true)) {
+            if (argv[index-2] == "CALLOUT") {
+                if (argv[index-1] == "POINTER_ATTRIBUTE")
+                    rc = CalloutPointerAttribRc;
+                else
+                if (argv[index-1] == "DIVIDER_POINTER_ATTRIBUTE")
+                    rc = CalloutDividerPointerAttribRc;
+            }
+            else
+            if (argv[index-2] == "MULTI_STEP") {
+                if (argv[index-1] == "POINTER_ATTRIBUTE")
+                    rc = StepGroupPointerAttribRc;
+                else
+                if (argv[index-1] == "DIVIDER_POINTER_ATTRIBUTE")
+                    rc = StepGroupDividerPointerAttribRc;
+            }
+            else
+            if (argv[index-2] == "PAGE") {
+                rc = PagePointerAttribRc;
+            }
+        }
     }
     return rc;
 }
@@ -1338,7 +1347,7 @@ QString PointerAttribMeta::format(bool local, bool global)
 
 void PointerAttribMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (LINE|BORDER <line type> <color> <thickness> <hide/show tip> <id> <base_position>)";
+  out << preamble + " (LINE|BORDER <line type> <color> <thickness> <id> [<hide/show tip> <base_position>])";
 }
 
 /* ------------------ */ 

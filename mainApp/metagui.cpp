@@ -2565,7 +2565,8 @@ void BorderGui::apply(QString &modelName)
   string = thickness;
   thicknessEdit = new QLineEdit(string,parent);
   thicknessEdit->setInputMask("9.9000");
-  thicknessEdit->setToolTip("In inches");
+  thicknessEdit->setToolTip(QString("In %1)")
+                            .arg(Preferences::preferCentimeters ? "centimetres" : "inches"));
   connect(thicknessEdit,SIGNAL(textEdited(   QString const &)),
           this,         SLOT(thicknessChange(QString const &)));
   grid->addWidget(thicknessEdit,0,2);

@@ -39,26 +39,25 @@ BorderedLineItem::BorderedLineItem(const QLineF &line, PointerAttribData* paData
 
 void BorderedLineItem::setBorderedLine(const QLineF &bLine){
 
+    qreal ft        = (pad->lineData.thickness/2);
+    QLineF _bLine   = bLine;
+    QPolygonF nPolygon;
+
     if (pad->borderModified) {
 
-        qreal ft = (pad->lineData.thickness/2);
-
-        QLineF _bLine = bLine;
         if (segment == segments)
             _bLine.setLength(bLine.length() - (headWidth/1.33));
 
         setLine(_bLine);
-        qreal radAngle = line().angle()* M_PI / 180;
-
-        qreal dx = (ft) * sin(radAngle);
-        qreal dy = (ft) * cos(radAngle);
+        qreal radAngle  = line().angle()* M_PI / 180;
+        qreal dx        = (ft) * sin(radAngle);
+        qreal dy        = (ft) * cos(radAngle);
         QPointF offset1 = QPointF(dx, dy);
         QPointF offset2 = QPointF(-dx, -dy);
 
         QPointF p1offset = getLineP1Offset();
         QPointF p2offset = getLineP2Offset();
 
-        QPolygonF nPolygon;
         nPolygon << p1offset + offset1
                  << p1offset + offset2
                  << p2offset + offset2
@@ -77,10 +76,21 @@ void BorderedLineItem::setBorderedLine(const QLineF &bLine){
 //                   << p2offset + offset1;
 #endif
 
-        borderPolygon = nPolygon;
     } else {
-        setLine(bLine);
+        setLine(_bLine);
+        qreal radAngle  = line().angle()* M_PI / 180;
+        qreal dx        = (ft) * sin(radAngle);
+        qreal dy        = (ft) * cos(radAngle);
+        QPointF offset1 = QPointF(dx, dy);
+        QPointF offset2 = QPointF(-dx, -dy);
+
+        nPolygon << line().p1() + offset1
+                 << line().p1() + offset2
+                 << line().p2() + offset2
+                 << line().p2() + offset1;
     }
+
+    borderPolygon = nPolygon;
     update();
 }
 
@@ -181,7 +191,7 @@ QPainterPath BorderedLineItem::shape() const{
 }
 
 void BorderedLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
-                           QWidget *widget){
+                             QWidget *widget){
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
@@ -207,9 +217,15 @@ void BorderedLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
             borderPen.setStyle(Qt::DashDotDotLine);
         }
         painter->setPen(borderPen);
-        painter->drawPolygon(borderPolygon);
+
+    } else {
+
+        QPen borderPen(Qt::NoPen);
+        painter->setPen(borderPen);
+
     }
 
+    painter->drawPolygon(borderPolygon);
     painter->setPen(pen());
     painter->drawLine(line());
 }

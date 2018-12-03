@@ -42,7 +42,8 @@ RotateIconSizeDialog::RotateIconSizeDialog(
   QVBoxLayout *layout = new QVBoxLayout(this);
   setLayout(layout);
 
-  QGroupBox *box = new QGroupBox("Rotate Icon Size (in inches)",this);
+  QGroupBox *box = new QGroupBox(QString("Rotate Icon Size (in %1)")
+                                 .arg(Preferences::preferCentimeters ? "centimetres" : "inches"),this);
   layout->addWidget(box);
 
   rotateIconSize = new RotateIconSizeGui("",&meta,box);

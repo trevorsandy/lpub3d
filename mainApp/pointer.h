@@ -55,7 +55,10 @@ public:
         return pointerAttrib.value();
     }
     virtual void setPointerAttrib(PointerAttribMeta pam){
-        pointerAttrib = pam;
+        PointerAttribData pad  = pam.value();
+        pad.id                 = id;
+        pointerAttrib.preamble = pam.preamble;
+        pointerAttrib.setValue(pad);
     }
     virtual ~Pointer()
     {

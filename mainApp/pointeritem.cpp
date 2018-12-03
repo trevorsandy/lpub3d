@@ -574,9 +574,11 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
   bool isCallout = pointerParentType == CalloutType;
+  bool altWhere = pointer.pointerAttrib.here().lineNumber == 0 &&
+                  pointer.pointerAttrib.here().modelName == "undefined";
   Where pointerAttribTop, pointerAttribBottom;
-  pointerAttribTop    = pointer.pointerAttrib.here();
-  pointerAttribBottom = pointer.pointerAttrib.here();
+  pointerAttribTop    = altWhere ? pointer.here : pointer.pointerAttrib.here();
+  pointerAttribBottom = pointerAttribTop;
 
   QAction *setFillAttributesAction = menu.addAction("Set Line Attributes");
   setFillAttributesAction->setIcon(QIcon(":/resources/fillattributes.png"));
