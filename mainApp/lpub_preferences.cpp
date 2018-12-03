@@ -192,8 +192,8 @@ bool    Preferences::showParseErrors            = true;
 bool    Preferences::suppressStdOutToLog        = false;
 
 #ifdef Q_OS_MAC
-bool    Preferences::ldviewMissingLibs          = true;
-bool    Preferences::povrayMissingLibs          = true;
+bool    Preferences::ldviewMissingLibs          = false;
+bool    Preferences::povrayMissingLibs          = false;
 #endif
 
 int     Preferences::fadeStepsOpacity           = FADE_OPACITY_DEFAULT;              //Default = 50 percent (half opacity)
@@ -1560,6 +1560,7 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
         // Check macOS LDView Libraries
 
         if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"LDViewMissingLibs"))) {
+            ldviewMissingLibs = true;
             QVariant eValue(ldviewMissingLibs);
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDViewMissingLibs"),eValue);
         } else {
@@ -1568,43 +1569,43 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
 
         if (ldviewMissingLibs) {
             ldviewMissingLibs = false;
-            QFileInfo libInfo("/usr/local/opt/libpng/lib/libpng.dylib");
-
+            QFileInfo libInfo("/opt/X11/lib/libOSMesa.dylib");
             if (!libInfo.exists()){
-                if (!ldviewMissingLibs)
-                    ldviewMissingLibs = true;
+                ldviewMissingLibs = true;
+                missingLibs << libInfo.absoluteFilePath();
+            }
+            libInfo.setFile("/usr/local/opt/libpng/lib/libpng.dylib");
+            if (!libInfo.exists()){
+                ldviewMissingLibs = true;
                 missingLibs << libInfo.absoluteFilePath();
             }
             libInfo.setFile("/usr/local/opt/gl2ps/lib/libgl2ps.dylib");
             if (!libInfo.exists()){
-                if (!ldviewMissingLibs)
-                    ldviewMissingLibs = true;
+                ldviewMissingLibs = true;
                 missingLibs << libInfo.absoluteFilePath();
             }
             libInfo.setFile("/usr/local/opt/libjpg/lib/libjpeg.dylib");
             if (!libInfo.exists()){
-                if (!ldviewMissingLibs)
-                    ldviewMissingLibs = true;
+                ldviewMissingLibs = true;
                 missingLibs << libInfo.absoluteFilePath();
             }
             libInfo.setFile("/usr/local/opt/tinyxml/lib/libtinyxml.dylib");
             if (!libInfo.exists()){
-                if (!ldviewMissingLibs)
-                    ldviewMissingLibs = true;
+                ldviewMissingLibs = true;
                 missingLibs << libInfo.absoluteFilePath();
             }
             libInfo.setFile("/usr/local/opt/minizip/lib/libminizip.dylib");
             if (!libInfo.exists()){
-                if (!ldviewMissingLibs)
-                    ldviewMissingLibs = true;
+                ldviewMissingLibs = true;
                 missingLibs << libInfo.absoluteFilePath();
             }
 
             QVariant eValue(ldviewMissingLibs);
-            if (!ldviewMissingLibs)
+            if (!ldviewMissingLibs) {
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,"LDViewMissingLibs"),eValue);
-
-            if (ldviewMissingLibs){
+            }
+            else
+            {
                 QString header = "<b> " + QMessageBox::tr ("Required libraries for the LDView renderer were not found!!") + "</b>";
                 QString body = QMessageBox::tr ("The following libraries were not found:\n\n -%1\n\n"
                                                 "See %2/assets/docs/lpub3d/macOS_libs.html for install details.")
@@ -1641,6 +1642,7 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
 
         // Check POVRay libraries on macOS
         if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"POVRayMissingLibs"))) {
+          povrayMissingLibs = true;
           QVariant eValue(povrayMissingLibs);
           Settings.setValue(QString("%1/%2").arg(SETTINGS,"POVRayMissingLibs"),eValue);
         } else {
@@ -1652,34 +1654,31 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
             povrayMissingLibs = false;
             QFileInfo libInfo("/usr/local/opt/libtiff/lib/libtiff.dylib");
             if (!libInfo.exists()){
-                if (!povrayMissingLibs)
-                  povrayMissingLibs = true;
+                povrayMissingLibs = true;
                 missingLibs << libInfo.absoluteFilePath();
             }
             libInfo.setFile("/usr/local/opt/openexr/lib/libIlmImf.dylib");
             if (!libInfo.exists()){
-                if (!povrayMissingLibs)
-                  povrayMissingLibs = true;
+                povrayMissingLibs = true;
                 missingLibs << libInfo.absoluteFilePath();
             }
             libInfo.setFile("/usr/local/opt/ilmbase/lib/libHalf.dylib");
             if (!libInfo.exists()){
-                if (!povrayMissingLibs)
-                  povrayMissingLibs = true;
+                povrayMissingLibs = true;
                 missingLibs << libInfo.absoluteFilePath();
             }
             libInfo.setFile("/usr/local/opt/sdl2/lib/libSDL2.dylib");
             if (!libInfo.exists()){
-                if (!povrayMissingLibs)
-                  povrayMissingLibs = true;
+                povrayMissingLibs = true;
                 missingLibs << libInfo.absoluteFilePath();
             }
 
-            QVariant eValue(ldviewMissingLibs);
-            if (!ldviewMissingLibs)
-              Settings.setValue(QString("%1/%2").arg(SETTINGS,"POVRayMissingLibs"),eValue);
-
-            if (povrayMissingLibs){
+            QVariant eValue(povrayMissingLibs);
+            if (!povrayMissingLibs) {
+                Settings.setValue(QString("%1/%2").arg(SETTINGS,"POVRayMissingLibs"),eValue);
+            }
+            else
+            {
               QString header = "<b> " + QMessageBox::tr ("Required libraries for the POVRay renderer were not found!\n\n") + "</b>";
               QString body = QMessageBox::tr ("The following libraries were not found:\n\n -%1\n\n"
                                               "See %2/assets/docs/lpub3d/macOS_libs.html for install details.")
