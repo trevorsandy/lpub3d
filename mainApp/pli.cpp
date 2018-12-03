@@ -575,8 +575,10 @@ int Pli::createPartImage(
                 .arg(pliMeta.cameraAngles.value(0))
                 .arg(pliMeta.cameraAngles.value(1))
                 .arg(ptn[pT].typeName);
-        QString imageName = QDir::currentPath() + "/" + Paths::partsDir + "/" + key + ".png";
-        QStringList ldrNames = (QStringList() << QDir::currentPath() + "/" + Paths::tmpDir + "/pli.ldr");
+
+        QString imageDir = isSubModel ? Paths::submodelDir : Paths::partsDir;
+        imageName = QDir::currentPath() + "/" + imageDir + "/" + key.toLower() + ".png";
+        ldrNames  = (QStringList() << QDir::currentPath() + "/" + Paths::tmpDir + "/pli.ldr");
 
         QFile part(imageName);
 
@@ -1580,8 +1582,9 @@ int Pli::partSizeLDViewSCall() {
 
                 // assemble ldr name
                 QString key = !ptn[pT].typeName.isEmpty() ? pliPart->nameKey + ptn[pT].typeName : pliPart->nameKey;
-                QString ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + key + ".ldr";
-                QString imageName = QDir::currentPath() + "/" + Paths::partsDir + "/" + key + ".png";
+                QString ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + key.toLower() + ".ldr";
+                QString imageDir = isSubModel ? Paths::submodelDir : Paths::partsDir;
+                QString imageName = QDir::currentPath() + "/" + imageDir + "/" + key.toLower() + ".png";
 
                 // create icon path key - using actual color code
                 QString colourCode, imageKey;

@@ -372,6 +372,9 @@ void MetaItem::addNextStepsMultiStep(
         finalTopOfSteps = walk+1;
         if (lastStep)
           appendMeta(walk,stepGroupBegin);
+      } else
+      if (rc1 == StepGroupBeginRc) {
+          finalTopOfSteps = walk+1;
       } else {
         walk = topOfSteps;
         scanPastGlobal(walk);
