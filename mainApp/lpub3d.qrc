@@ -3,6 +3,7 @@
         <file alias="actual.png">resources/actual.png</file>
         <file alias="add.png">resources/add.png</file>
         <file alias="addpointer.png">resources/addpointer.png</file>
+        <file alias="adddividerpointer.png">resources/adddividerpointer.png</file>
         <file alias="addassembledimage.png">resources/addassembledimage.png</file>
         <file alias="addbom.png">resources/addbom.png</file>
         <file alias="addnext.png">resources/addnext.png</file>

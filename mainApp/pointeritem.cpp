@@ -235,14 +235,17 @@ void PointerItem::addShaftSegment(){
     case OneSegment:
     {
         // get split target segment - first shaft
-        points[MidBase] = QLineF(points[Base],points[Tip]).center();
+        points[MidBase] = (QLineF(points[Base],points[Tip]).p1() * 0.5 +
+                           QLineF(points[Base],points[Tip]).p2() * 0.5);
+
         linefNew        = QLineF(points[MidBase],points[Tip]);
     }
         break;
     case TwoSegments:
     {
         // get split target segment - second shaft
-        points[MidTip] = QLineF(points[MidBase],points[Tip]).center();
+        points[MidTip] = (QLineF(points[MidBase],points[Tip]).p1() * 0.5 +
+                          QLineF(points[MidBase],points[Tip]).p2() * 0.5);
         linefNew       = QLineF(points[MidTip],points[Tip]);
         if (points[MidTip].y() == points[MidBase].y()){
             emit gui->messageSig(LOG_ERROR, "Pointer segments are on the same line. Move an existing segment before creating a new one.");

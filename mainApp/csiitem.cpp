@@ -283,7 +283,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   if (dividerDetected) {
       addDividerPointerAction = menu.addAction("Place Divider Pointer");
       addDividerPointerAction->setWhatsThis("Add pointer from the step divider to this CSI image");
-      addDividerPointerAction->setIcon(QIcon(":/resources/addpointer.png"));
+      addDividerPointerAction->setIcon(QIcon(":/resources/adddividerpointer.png"));
   }
 
   QAction *noStepAction = menu.addAction(fullContextMenu ? "Don't Show This Page" : "Don't Show This Final Model");
