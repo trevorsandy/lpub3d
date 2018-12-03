@@ -337,7 +337,7 @@ int Step::createCsi(
              return rc;
          }
 
-         emit gui->messageSig(LOG_INFO, qPrintable(
+         emit gui->messageSig(LOG_INFO,
                                   QString("%1 CSI render call took %2 milliseconds "
                                           "to render %3 for %4 %5 %6 on page %7.")
                                           .arg(Render::getRenderer())
@@ -346,7 +346,7 @@ int Step::createCsi(
                                           .arg(calledOut ? "called out," : "simple,")
                                           .arg(multiStep ? "step group" : "single step")
                                           .arg(stepNumber.number)
-                                          .arg(gui->stepPageNum)));
+                                          .arg(gui->stepPageNum));
      }
   }
 
@@ -367,19 +367,6 @@ int Step::createCsi(
     }
 
   return 0;
-}
-
-bool Step::loadTheViewer(){
-    // Load the 3DViewer
-    if (! gui->exporting() /* && !Preferences::preferredRenderer == RENDERER_NATIVE */) {
-
-        if (! renderer->LoadViewer(viewerOptions)) {
-            emit gui->messageSig(LOG_ERROR,QString("Could not load 3D Viewer with CSI key: %1")
-                                 .arg(viewerCsiKey));
-            return false;
-        }
-    }
-    return true;
 }
 
 // create 3D Viewer version of the csi file
@@ -436,7 +423,7 @@ int Step::createViewerCSI(
 
               if (gui->isSubmodel(type) || gui->isUnofficialPart(type) || isCustomSubModel || isCustomPart) {
                   /* capture subfiles (full string) to be processed when finished */
-                  if (!csiSubModels.contains(type))
+                  if (!csiSubModels.contains(type.toLower()))
                        csiSubModels << type.toLower();
                 }
             }
@@ -540,7 +527,7 @@ int Step::mergeViewerCSISubModels(QStringList &subModels,
 
                   if (gui->isSubmodel(type) || gui->isUnofficialPart(type) || isCustomSubModel || isCustomPart) {
                       /* capture all subfiles (full string) to be processed when finished */
-                      if (!newSubModels.contains(type))
+                      if (!newSubModels.contains(type.toLower()))
                               newSubModels << type.toLower();
                     }
                 }
@@ -562,6 +549,19 @@ int Step::mergeViewerCSISubModels(QStringList &subModels,
       subModelParts = csiSubModelParts;
     }
   return 0;
+}
+
+bool Step::loadTheViewer(){
+    // Load the 3DViewer
+    if (! gui->exporting() /* && !Preferences::preferredRenderer == RENDERER_NATIVE */) {
+
+        if (! renderer->LoadViewer(viewerOptions)) {
+            emit gui->messageSig(LOG_ERROR,QString("Could not load 3D Viewer with CSI key: %1")
+                                 .arg(viewerCsiKey));
+            return false;
+        }
+    }
+    return true;
 }
 
 /*

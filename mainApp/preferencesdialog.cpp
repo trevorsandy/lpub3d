@@ -57,7 +57,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
 
   ldrawLibPathTitle            = QString("LDraw Library Path for %1").arg(Preferences::validLDrawPartsLibrary);
-  QString fadeStepsColorTitle  = QString("Use %1® Global Fade Color").arg(Preferences::validLDrawLibraryChange);
+  QString fadeStepsColorTitle  = QString("Use %1® Global Fade Color").arg(Preferences::validLDrawPartsLibrary);
   QString ldrawSearchDirsTitle = QString("LDraw Content Search Directories for %1").arg(Preferences::validLDrawPartsLibrary);
   bool useLDViewSCall = (Preferences::enableLDViewSingleCall && Preferences::preferredRenderer == RENDERER_LDVIEW);
 
@@ -333,7 +333,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 PreferencesDialog::~PreferencesDialog()
 {}
 
-void PreferencesDialog::ldrawLibPathEdit_editingFinished()
+void PreferencesDialog::on_ldrawLibPathEdit_editingFinished()
 {
     QString newPath = QDir::toNativeSeparators(ui.ldrawLibPathEdit->text().trimmed().toLower());
     QString oldPath = QDir::toNativeSeparators(mLDrawLibPath.toLower());

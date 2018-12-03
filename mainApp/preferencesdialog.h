@@ -117,7 +117,7 @@ class PreferencesDialog : public QDialog
     void on_pushButtonReset_clicked();
     void on_checkForUpdates_btn_clicked();
     void on_highlightStepBtn_clicked();
-    void ldrawLibPathEdit_editingFinished();
+    void on_ldrawLibPathEdit_editingFinished();
 
     void on_altLDConfigBox_clicked(bool checked);
     void on_includeAllLogAttribBox_clicked(bool checked);

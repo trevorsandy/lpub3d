@@ -1679,11 +1679,12 @@ CameraDistFactorGui::CameraDistFactorGui(
 
   QHBoxLayout *hLayout = new QHBoxLayout();
 
-  if (parent) {
-      parent->setLayout(hLayout);
-    } else {
-      setLayout(hLayout);
-    }
+//  if (parent) {
+//      parent->setLayout(hLayout);
+//    } else {
+//      setLayout(hLayout);
+//    }
+  setLayout(hLayout);
 
   bool nativeRenderer = (Render::getRenderer() == RENDERER_NATIVE);
   QString tipMessage = QString("Native renderer camera distance factor - enabled when Renderer is set to Native.");

@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: October 22, 2018
+rem  Last Update: November 11, 2018
 rem  Copyright (c) 2017 - 2018 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -606,7 +606,7 @@ GOTO :END
 ECHO.
 CALL :USAGE
 ECHO.
-ECHO -04. (LIBRARY ERROR) Qt MinGW library required for command not found [%~nx0 %*].
+ECHO -04. (LIBRARY ERROR) Qt MSVC library [%LP3D_QT32_MSVC%] or [%LP3D_QT64_MSVC%] required for command not found [%~nx0 %*].
 ECHO      See Usage.
 GOTO :END
 
@@ -616,9 +616,8 @@ ECHO.
 ECHO %PACKAGE% Windows auto build script.
 ECHO.
 ECHO NOTE: To successfully run all options of this script locally,
-ECHO you must have both Win32 and Win64 MinGW configured with Qt.
-ECHO For example, a single MSYS2 install could host both 32bit and
-ECHO 64bit Qt libraries
+ECHO you must have both Win32 and Win64 Qt for MSVC. Qt for MSVC 2015
+ECHO supports both 32 and 64bit so this version is a convenient choice.
 ECHO.
 ECHO ----------------------------------------------------------------
 ECHO Usage:

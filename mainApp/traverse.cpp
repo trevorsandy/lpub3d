@@ -371,6 +371,7 @@ int Gui::drawPage(
           split(line,tokens);
         }
 
+      // STEP - Process part type
       if (tokens.size() == 15 && tokens[0] == "1") {
 
           QString color = tokens[1];
@@ -468,7 +469,7 @@ int Gui::drawPage(
               if (bfxStore1 && (multiStep || calledOut)) {
                   bfxParts << colorType;
                 }
-            } // STEP - Process PLI parts
+            } // STEP - Process shown PLI parts
 
           /* if it is a called out sub-model, then process it */
 
@@ -596,7 +597,7 @@ int Gui::drawPage(
           }
 
         }
-      // STEP - Process line, triangle, or polygon
+      // STEP - Process line, triangle, or polygon type
       else if (tokens.size() > 0 &&
                    (tokens[0] == "2" ||
                     tokens[0] == "3" ||
@@ -1102,7 +1103,7 @@ int Gui::drawPage(
                           return rc;
                         }
 
-                      emit gui->messageSig(LOG_INFO, qPrintable(
+                      emit gui->messageSig(LOG_INFO,
                                           QString("%1 CSI (Single Call) render took "
                                                   "%2 milliseconds to render %3 [Step %4] %5 "
                                                   "for %6 step group on page %7.")
@@ -1112,7 +1113,7 @@ int Gui::drawPage(
                                              .arg(stepNum)
                                              .arg(ldrStepFiles.size() == 1 ? "image" : "images")
                                              .arg(calledOut ? "called out," : "simple,")
-                                             .arg(stepPageNum)));
+                                             .arg(stepPageNum));
                     }
 
                   addGraphicsPageItems(steps, coverPage, endOfSubmodel, view, scene, printing);
@@ -1410,7 +1411,9 @@ int Gui::drawPage(
             default:
               break;
             }
-        } else if (line != "") {
+        }
+      // STEP - Process invalid line
+      else if (line != "") {
           showLine(current);
           emit gui->messageSig(LOG_ERROR,
                                 QMessageBox::tr("Invalid LDraw Line Type: %1:%2\n  %3")
@@ -2605,13 +2608,6 @@ void Gui::writeToTmp(const QString &fileName,
             }
         }
 
-      // Here we override the removal of these attributes for the 3DViewer
-      QString modelName = QFileInfo(fileName).baseName().toLower();
-      modelName = modelName.replace(modelName.at(0),modelName.at(0).toUpper());
-      csiParts.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(modelName));
-      csiParts.prepend(QString("0 Name: %1").arg(fileName));
-      csiParts.prepend(QString("0 %1").arg(modelName));
-
       QTextStream out(&file);
       for (int i = 0; i < csiParts.size(); i++) {
           out << csiParts[i] << endl;
@@ -2653,7 +2649,7 @@ void Gui::writeToTmp()
       if (ldrawFile.changedSinceLastWrite(fileName)) {
           // write normal submodels...
           upToDate = false;
-          emit messageSig(LOG_STATUS, "Writing submodel to temp directory: " + fileName);
+          emit messageSig(LOG_STATUS, "Writing submodel to temp directory: " + fileName + "...");
           writeToTmp(fileName,content);
 
           // capture file name extensions

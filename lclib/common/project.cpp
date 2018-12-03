@@ -82,7 +82,9 @@ void lcHTMLExportOptions::SaveDefaults()
 Project::Project()
 {
 	mModified = false;
-	mActiveModel = new lcModel(tr("New Model.ldr"));
+/*** LPub3D Mod - default model name ***/
+    mActiveModel = new lcModel(tr("LPub3D Model.ldr"));
+/*** LPub3D Mod end ***/
 	mActiveModel->CreatePieceInfo(this);
 	mActiveModel->SetSaved();
 	mModels.Add(mActiveModel);
@@ -120,8 +122,9 @@ QString Project::GetTitle() const
 {
 	if (!mFileName.isEmpty())
 		return QFileInfo(mFileName).fileName();
-
-	return mModels.GetSize() == 1 ? tr("New Model.ldr") : tr("New Model.mpd");
+/*** LPub3D Mod - default model name ***/
+    return mModels.GetSize() == 1 ? tr("LPub3D Model.ldr") : tr("LPub3D Model.mpd");
+/*** LPub3D Mod end ***/
 }
 
 QString Project::GetImageFileName(bool AllowCurrentFolder) const

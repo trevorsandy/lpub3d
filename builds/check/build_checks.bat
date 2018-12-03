@@ -165,6 +165,8 @@ IF NOT EXIST "%PKG_TARGET%" (
   RMDIR /S /Q %PKG_TARGET_DIR%\logs
   RMDIR /S /Q %PKG_TARGET_DIR%\config
   RMDIR /S /Q %PKG_TARGET_DIR%\libraries
+  RMDIR /S /Q %PKG_TARGET_DIR%\VEXIQParts
+  RMDIR /S /Q %PKG_TARGET_DIR%\TENTEParts
 
   ECHO.
   ECHO   Build checks completed.
