@@ -285,7 +285,7 @@ void Gui::closeFile()
   setPageLineEdit->clear();
   pageSizes.clear();
   undoStack->clear();
-  subModelImagesLoaded = gMainWindow->mSubModelPieceIconsLoaded = false;
+  submodelIconsLoaded = gMainWindow->mSubmodelIconsLoaded = false;
   if (!curFile.isEmpty())
       emit messageSig(LOG_DEBUG, QString("File closed - %1.").arg(curFile));
 }

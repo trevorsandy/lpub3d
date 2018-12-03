@@ -451,7 +451,7 @@ QString Pli::orient(QString &color, QString type)
       .arg(type);
 }
 
-int Pli::createPartImages()
+int Pli::createSubModelIcons()
 {
     int rc = 0;
     QString key   = "";
@@ -474,7 +474,7 @@ int Pli::createPartImages()
 
             float modelScale = pliMeta.modelScale.value();
 
-            // assemble image name key
+            // assemble icon name key
             QString nameKey = QString("%1_%2_%3_%4_%5_%6_%7")
                     .arg(key)
                     .arg(gui->pageSize(meta->LPub.page, 0))
@@ -489,7 +489,7 @@ int Pli::createPartImages()
                 part->annotateMeta = pliMeta.annotate;
                 part->instanceMeta = pliMeta.instance;
                 part->csiMargin    = pliMeta.part.margin;
-                part->sortColour   = QString(i);
+                part->sortColour   = QString("%1").arg(color,5,'0');
                 part->sortCategory = QString();
                 part->nameKey      = nameKey;
                 part->imageName    = QString();
@@ -502,7 +502,7 @@ int Pli::createPartImages()
 
         if (Preferences::modeGUI && ! gui->exporting()) {
             emit gui->progressPermResetSig();
-            emit gui->progressPermMessageSig("Rendering submodel images...");
+            emit gui->progressPermMessageSig("Rendering submodel icons...");
             emit gui->progressPermRangeSig(1, gui->fileList().size());
           }
 
@@ -512,11 +512,10 @@ int Pli::createPartImages()
                 emit gui->progressPermSetValueSig(i);
 
             QString type = gui->fileList()[i].toLower();
-
             key = QString("%1_%2").arg(QFileInfo(type).baseName()).arg(color);
 
             if ((rc = createPartImage(key,type,color,nullptr)) != 0) {
-                emit gui->messageSig(LOG_ERROR, QString("Failed to create PLI part image for key %1").arg(key));
+                emit gui->messageSig(LOG_ERROR, QString("Failed to create submodel icon for key %1").arg(key));
             }
         }
         if (Preferences::modeGUI && ! gui->exporting()) {
@@ -539,6 +538,8 @@ int Pli::createPartImage(
     displayIcons = gApplication->mPreferences.mViewPieceIcons;
     fadeColour = LDrawColor::ldColorCode(Preferences::validFadeStepsColour);
     highlightStep = Preferences::enableHighlightStep && !gui->suppressColourMeta();
+    bool fadePartOK = fadeSteps && !highlightStep && displayIcons;
+    bool highlightPartOK = highlightStep && !fadeSteps && displayIcons;
 
     QStringList partialKeys = partialKey.split("_");
     bool isColorPart = gui->ldrawColourParts.isLDrawColourPart(type);
@@ -548,9 +549,7 @@ int Pli::createPartImage(
 #ifdef QT_DEBUG_MODE
         QString CurrentPartType = PartTypeNames[pT];
 #endif
-        if ((pT == FADE_PART && !fadeSteps) ||
-            (pT == HIGHLIGHT_PART && !highlightStep) ||
-           ((pT == FADE_PART || pT == HIGHLIGHT_PART) && !displayIcons))
+        if (((pT == FADE_PART) && !fadePartOK) || ((pT == HIGHLIGHT_PART) && !highlightPartOK))
             continue;
 
         QElapsedTimer timer;
@@ -625,7 +624,8 @@ int Pli::createPartImage(
             part.close();
 
             // feed DAT to renderer
-            int rc = renderer->renderPli(ldrNames,imageName,*meta, bom);
+            PliType pliType = isSubModel ? SUBMODEL: bom ? BOM : PART;
+            int rc = renderer->renderPli(ldrNames,imageName,*meta,pliType);
 
             if (rc != 0) {
                 emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render failed for %1").arg(imageName));
@@ -655,13 +655,12 @@ int Pli::createPartImage(
             pixmap->load(imageName);
 
         if (showElapsedTime)
-            emit gui->messageSig(LOG_INFO, qPrintable(
-                                     QString("%1 PLI [%2] render took %3 milliseconds "
-                                             "to render image [%4].")
-                                             .arg(Render::getRenderer())
-                                             .arg(PartTypeNames[pT])
-                                             .arg(timer.elapsed())
-                                             .arg(imageName)));
+            emit gui->messageSig(LOG_INFO, QString("%1 PLI [%2] render took %3 milliseconds "
+                                                   "to render image [%4].")
+                                                   .arg(Render::getRenderer())
+                                                   .arg(PartTypeNames[pT])
+                                                   .arg(timer.elapsed())
+                                                   .arg(imageName));
     }
 
   return 0;
@@ -1543,6 +1542,8 @@ int Pli::partSizeLDViewSCall() {
     displayIcons = gApplication->mPreferences.mViewPieceIcons;
     fadeColour = LDrawColor::ldColorCode(Preferences::validFadeStepsColour);
     highlightStep = Preferences::enableHighlightStep && !gui->suppressColourMeta();
+    bool fadePartOK = fadeSteps && !highlightStep && displayIcons;
+    bool highlightPartOK = highlightStep && !fadeSteps && displayIcons;
 
     // 1. generate ldr files
     foreach(key,parts.keys()) {
@@ -1571,9 +1572,7 @@ int Pli::partSizeLDViewSCall() {
 #ifdef QT_DEBUG_MODE
         QString CurrentPartType = PartTypeNames[pT];
 #endif
-                if ((pT == FADE_PART && !fadeSteps) ||
-                    (pT == HIGHLIGHT_PART && !highlightStep) ||
-                   ((pT == FADE_PART || pT == HIGHLIGHT_PART) && !displayIcons))
+                if (((pT == FADE_PART) && !fadePartOK) || ((pT == HIGHLIGHT_PART) && !highlightPartOK))
                      continue;
 
                 // moved from enum to save weight
@@ -1671,9 +1670,7 @@ int Pli::partSizeLDViewSCall() {
         QString CurrentPartType = PartTypeNames[pT];
 #endif
 
-        if ((pT == FADE_PART && !fadeSteps) ||
-            (pT == HIGHLIGHT_PART && !highlightStep) ||
-           ((pT == FADE_PART || pT == HIGHLIGHT_PART) && !displayIcons))
+        if (((pT == FADE_PART) && !fadePartOK) || ((pT == HIGHLIGHT_PART) && !highlightPartOK))
              continue;
 
         QElapsedTimer timer;
@@ -1692,12 +1689,13 @@ int Pli::partSizeLDViewSCall() {
         if (!ia.ldrNames[pT].isEmpty())
             emit gui->messageSig(LOG_INFO, qPrintable(
                                      QString("%1 PLI (Single Call) for [%2] render took "
-                                             "%3 milliseconds to render %4 %5.")
-                                     .arg(Render::getRenderer())
-                                     .arg(PartTypeNames[pT])
-                                     .arg(timer.elapsed())
-                                     .arg(ia.ldrNames[pT].size())
-                                     .arg(ia.ldrNames[pT].size() == 1 ? "image" : "images")));
+                                             "%3 milliseconds to render %4.")
+                                             .arg(Render::getRenderer())
+                                             .arg(PartTypeNames[pT])
+                                             .arg(timer.elapsed())
+                                             .arg(QString("%1 %2")
+                                                          .arg(ia.ldrNames[pT].size())
+                                                          .arg(ia.ldrNames[pT].size() == 1 ? "image" : "images"))));
     }
 
     if (isSubModel && Preferences::modeGUI && ! gui->exporting()) {

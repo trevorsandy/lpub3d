@@ -355,7 +355,7 @@ public:
 	QToolBar* mToolsToolBar;       //moved from protected:
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Timeline part icons ***/
-    bool mSubModelPieceIconsLoaded;
+    bool mSubmodelIconsLoaded;
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - status bar ***/

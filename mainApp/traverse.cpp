@@ -251,23 +251,23 @@ int Gui::drawPage(
     bool            calledOut)
 {
   QStringList saveCsiParts;
-  bool        global = true;
-  QString     line, csiName;
-  Callout    *callout     = nullptr;
-  Range      *range       = nullptr;
-  Step       *step        = nullptr;
-  bool        pliIgnore   = false;
-  bool        partIgnore  = false;
-  bool        synthBegin  = false;
-  bool        multiStep   = false;
-  bool        partsAdded  = false;
-  bool        coverPage   = false;
-  bool        bfxStore1   = false;
-  bool        bfxLoad     = false;
-  int         numLines    = ldrawFile.size(current.modelName);
-  bool        firstStep   = true;
-  bool        noStep      = false;
-  bool        rotateIcon  = false;
+  bool     global = true;
+  QString  line, csiName;
+  Callout *callout         = nullptr;
+  Range   *range           = nullptr;
+  Step    *step            = nullptr;
+  bool     pliIgnore       = false;
+  bool     partIgnore      = false;
+  bool     synthBegin      = false;
+  bool     multiStep       = false;
+  bool     partsAdded      = false;
+  bool     coverPage       = false;
+  bool     bfxStore1       = false;
+  bool     bfxLoad         = false;
+  int      numLines        = ldrawFile.size(current.modelName);
+  bool     firstStep       = true;
+  bool     noStep          = false;
+  bool     rotateIcon      = false;
 
   PagePointer *pagePointer= nullptr;
   QMap<Positions, PagePointer*> pagePointers;
@@ -409,6 +409,7 @@ int Gui::drawPage(
                       pliParts << Pli::partLine(line,current,steps->meta);
                     }
                 }
+
               // bfxStore1 goes true when we've seen BFX STORE the first time
               // in a sequence of steps.  This used to be commented out which
               // means it didn't work in some cases, but we need it in step
@@ -1301,19 +1302,19 @@ int Gui::drawPage(
                           if (rc != 0) {
                               emit messageSig(LOG_ERROR,QMessageBox::tr("Render CSI images failed."));
                               return rc;
-                            }
+                          }
 
-                          emit gui->messageSig(LOG_INFO, qPrintable(
-                                      QString("%1 CSI (Single Call) render took "
-                                              "%2 milliseconds to render %3 [Step %4] %5 for %6 "
-                                              "single step on page %7.")
+                          emit gui->messageSig(LOG_INFO,
+                                               QString("%1 CSI (Single Call) render took "
+                                                       "%2 milliseconds to render %3 [Step %4] %5 for %6 "
+                                                       "single step on page %7.")
                                          .arg(Render::getRenderer())
                                          .arg(timer.elapsed())
                                          .arg(ldrStepFiles.size())
-                                         .arg(stepNum)
-                                         .arg(ldrStepFiles.size() == 1 ? "image" : "images")
-                                         .arg(calledOut ? "called out," : "simple,")
-                                         .arg(stepPageNum)));
+                                               .arg(stepNum)
+                                               .arg(ldrStepFiles.size() == 1 ? "image" : "images")
+                                               .arg(calledOut ? "called out," : "simple,")
+                                               .arg(stepPageNum));
                       }
 
                       addGraphicsPageItems(steps,coverPage,endOfSubmodel,view,scene,printing);
@@ -1330,7 +1331,7 @@ int Gui::drawPage(
                   partsAdded = false;
                   coverPage = false;
                   rotateIcon = false;
-//                supressRotateIcon = false;
+                  //                unAssCallout = false;
                   step = nullptr;
                   bfxStore2 = bfxStore1;
                   bfxStore1 = false;
@@ -1346,8 +1347,7 @@ int Gui::drawPage(
               break;
             case RangeErrorRc:
               showLine(current);
-              QMessageBox::critical(nullptr,
-                                    QMessageBox::tr("LPub3D"),
+              emit gui->messageSig(LOG_ERROR,
                                     QMessageBox::tr("Parameter(s) out of range: %1:%2\n%3")
                                     .arg(current.modelName)
                                     .arg(current.lineNumber)
@@ -1359,8 +1359,7 @@ int Gui::drawPage(
             }
         } else if (line != "") {
           showLine(current);
-          QMessageBox::critical(nullptr,
-                                QMessageBox::tr("LPub3D"),
+          emit gui->messageSig(LOG_ERROR,
                                 QMessageBox::tr("Invalid LDraw Line Type: %1:%2\n  %3")
                                 .arg(current.modelName)
                                 .arg(current.lineNumber)
@@ -2629,18 +2628,21 @@ void Gui::writeToTmp()
       }
   }
 
-  if (Preferences::modeGUI && !subModelImagesLoaded) {
+  bool generateSubModelImages = Preferences::modeGUI &&
+                                gApplication->mPreferences.mViewPieceIcons &&
+                                ! submodelIconsLoaded;
+  if (generateSubModelImages) {
       if (Preferences::modeGUI && ! exporting())
           emit progressPermSetValueSig(ldrawFile._subFileOrder.size());
 
-      // generate submodel images...
-      emit messageSig(LOG_INFO_STATUS, "Creating submodel images in parts subfolder...");
+      // generate submodel icons...
+      emit messageSig(LOG_INFO_STATUS, "Creating submodel icons...");
       Pli pli;
-      int rc = pli.createPartImages();
+      int rc = pli.createSubModelIcons();
       if (rc == 0)
-          gMainWindow->mSubModelPieceIconsLoaded = subModelImagesLoaded = true;
+          gMainWindow->mSubmodelIconsLoaded = submodelIconsLoaded = true;
       else
-          emit messageSig(LOG_ERROR, "Could not create submodel images in parts subfolder...");
+          emit messageSig(LOG_ERROR, "Could not create submodel icons...");
       if (Preferences::modeGUI && ! exporting())
           emit progressPermStatusRemoveSig();
   } else

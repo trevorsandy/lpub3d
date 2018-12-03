@@ -1,4 +1,4 @@
- 
+
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
@@ -55,8 +55,8 @@
 class Pli;
 
 /****************************************************************************
- * Part List 
- ***************************************************************************/ 
+ * Part List
+ ***************************************************************************/
 
 class InstanceTextItem;
 class AnnotateTextItem;
@@ -66,7 +66,7 @@ class PliBackgroundItem;
 class PliPart {
   public:
     // where the file exist in an LDraw file
-    QList<Where>         instances; 
+    QList<Where>         instances;
     QString              type;
     QString              color;
     NumberMeta           instanceMeta;
@@ -81,7 +81,7 @@ class PliPart {
     QString              sortSize;
     QString              nameKey;
     QString              imageName;
-  
+
     int           width;
     int           height;
 
@@ -99,7 +99,7 @@ class PliPart {
 
     QList<int>    leftEdge;
     QList<int>    rightEdge;
-  
+
     // placement info
     bool          placed;
     int           left;
@@ -184,12 +184,15 @@ class Pli : public Placement {
     bool highlightStep;
     bool displayIcons;
     bool isSubModel;
-    
+
+    QString imageName;
+    QStringList ldrNames;
+
     ~Pli()
     {
       clear();
     }
-    
+
     const Where &topOfStep();
     const Where &bottomOfStep();
     const Where &topOfSteps();
@@ -197,7 +200,7 @@ class Pli : public Placement {
     const Where &topOfCallout();
     const Where &bottomOfCallout();
     bool  autoRange(Where &top, Where &bottom);
-    
+
     void setPos(float x, float y);
     void setFlag(QGraphicsItem::GraphicsItemFlag flag,bool value);
 
@@ -235,7 +238,7 @@ class Pli : public Placement {
     int  createPartImagesLDViewSCall(QStringList &, bool);      //LDView performance improvement
     QString orient(QString &color, QString part);
     QStringList configurePLIPart(QString &,QString &,PartType,bool,bool);
-    int createPartImages();
+    int createSubModelIcons();
 
     void operator= (Pli& from)
     {
@@ -262,7 +265,7 @@ public:
   bool           bom;
   bool           positionChanged;
   QPointF        position;
-  
+
   // resize
   Grabber       *grabber;
   QPointF        point;
@@ -273,9 +276,9 @@ public:
     int            width,
     int            height,
     PlacementType  _parentRelativeType,
-    int            submodelLevel, 
+    int            submodelLevel,
     QGraphicsItem *parent);
-    
+
   void setPos(float x, float y)
   {
     QGraphicsPixmapItem::setPos(x,y);
@@ -284,21 +287,21 @@ public:
   {
     QGraphicsItem::setFlag(flag,value);
   }
-  
+
   virtual void placeGrabbers();
   virtual QGraphicsItem *myParentItem()
   {
     return parentItem();
   }
-  
+
 protected:
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
-      
+
   //-----------------------------------------
-    
+
   virtual void resize(QPointF);
   virtual void change();
   virtual QRectF currentRect();
@@ -317,7 +320,7 @@ public:
   PGraphicsTextItem(
     Pli     *_pli,
     PliPart *_part,
-    QString &text, 
+    QString &text,
     QString &fontString,
     QString &toolTip)
   {
@@ -330,7 +333,7 @@ public:
   void setText(
     Pli     *_pli,
     PliPart *_part,
-    QString &text, 
+    QString &text,
     QString &fontString,
     QString &toolTip)
   {
@@ -359,7 +362,7 @@ public:
   AnnotateTextItem(
     Pli     *_pli,
     PliPart *_part,
-    QString &text, 
+    QString &text,
     QString &fontString,
     QString &colorString,
     PlacementType _parentRelativeType)
@@ -381,7 +384,7 @@ public:
   InstanceTextItem(
     Pli            *_pli,
     PliPart        *_part,
-    QString        &text, 
+    QString        &text,
     QString        &fontString,
     QString        &colorString,
     PlacementType _parentRelativeType)

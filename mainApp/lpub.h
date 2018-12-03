@@ -53,7 +53,7 @@
  *  recognition of the meaning of the lines implies how LPub should respond to
  *  them.  LDraw type 1 through 5 lines are obviously model content and eventually
  *  get fed to the renderer.  LDraw type 0 lines provide meta-commands like STEP.
- *  LPub specific meta-commands come in two flavors:  configuration metas, and
+ *  LPub specific meta-commands come in two flavours:  configuration metas, and
  *  action metas.  configuration metas values are retained, and action metas
  *  potentially use the values from configuration metas to do their jobs.
  *
@@ -242,7 +242,7 @@
  *   in Meta's, thus the name meta-item.  Meta's not only retain the values
  *   for configuration, but what file/line last set the current value.
  *
- *   Certain of these metas' values are changed via graphical dialogs. These
+ *   Certain of these metas' values are changed via graphical dialogues. These
  *   dialogs contain push buttons, check boxes, radio buttons, and such
  *   that let the user change values.  Some dialogs use Qt dialogs like,
  *   font or color.  After the user changes some value(s) and hits OK,
@@ -443,7 +443,7 @@ public:
   int             processOption;     // export Option
   int             pageDirection;    // continuous page processing direction
   QString         pageRangeText;    // page range parameters
-  bool            subModelImagesLoaded; // load submodel images
+  bool            submodelIconsLoaded; // load submodel images
   bool            resetCache;       // reset model, fade and highlight parts
   QString         saveFileName;      // user specified output file Name [commandline only]
   QString         saveDirectoryName; // user specified output directory name [commandline only]
@@ -1018,8 +1018,7 @@ private:
     PageBackgroundItem  *pageBg,
     PlacementHeader     *pageHeader,
     PlacementFooter     *pageFooter,
-    Placement           &plPage
-      );
+    Placement           &plPage);
 
   int getBOMParts(
     Where        current,

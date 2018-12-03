@@ -94,7 +94,7 @@ lcMainWindow::lcMainWindow(QMainWindow *parent) :
 	mCurrentPieceInfo = nullptr;
 	mSelectionMode = lcSelectionMode::SINGLE;
     mModelTabWidget = nullptr;
-    mSubModelPieceIconsLoaded = false;
+    mSubmodelIconsLoaded = false;
 
 	memset(&mSearchOptions, 0, sizeof(mSearchOptions));
 

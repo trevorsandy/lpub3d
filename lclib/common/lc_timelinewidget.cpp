@@ -200,7 +200,7 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
             bool IsModel = gMainWindow->IsLPub3DSubModel(pieceName);
             int IconIndex = IsModel ? SUBMODEL_ICON_INDEX_BASE + ColorIndex : ColorIndex;
 
-            if (lcGetPreferences().mViewPieceIcons && gMainWindow->mSubModelPieceIconsLoaded) {
+            if (lcGetPreferences().mViewPieceIcons && gMainWindow->mSubmodelIconsLoaded) {
 
                 bool UseFColor = gApplication->UseFadeColour();
                 bool Use0Code = IsModel && (hPiece || (fPiece && !gApplication->UseFadeColour()) || (!hPiece && !fPiece));
