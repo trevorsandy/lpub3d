@@ -100,7 +100,7 @@ void BackgroundItem::setBackground(
         }
 
         QImage image(fileInfo.absoluteFilePath());
-        image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+        image = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
         if (backgroundData.stretch) {
             QSize psize = pixmap->size();
             QSize isize = image.size();

@@ -648,6 +648,7 @@ int Pli::createPartImage(
             colourCode = ia.partColor[pT];
             imageKey = QString("%1_%2").arg(ia.baseName[pT]).arg(colourCode);
         }
+        imageKey = imageKey.toLower();
 
         emit gui->setPliIconPathSig(imageKey,imageName);
 
@@ -1603,8 +1604,8 @@ int Pli::partSizeLDViewSCall() {
                 }
 
                 // store imageName
-                ia.imageKeys[pT] << imageKey;
-                ia.imageNames[pT] << imageName;
+                ia.imageKeys[pT] << imageKey.toLower();
+                ia.imageNames[pT] << imageName.toLower();
 
                 QFile part(imageName);
 
@@ -2370,7 +2371,7 @@ void PliBackgroundItem::contextMenuEvent(
                               "Model Size",
                               top,
                               bottom,
-                          &pli->pliMeta.modelScale);
+                              &pli->pliMeta.modelScale);
         } else if (selectedAction == cameraFoVAction) {
           changeFloatSpin(me+" Camera Angle",
                           "Camera FOV",

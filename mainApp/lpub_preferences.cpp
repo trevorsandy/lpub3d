@@ -1117,11 +1117,11 @@ void Preferences::ldrawPreferences(bool force)
 #endif
                 ldrawLibPath = QDir::toNativeSeparators(QString("%1/%2").arg(homePath).arg(validLDrawDir));
 
-                if ( ! QDir(ldrawLibPath).exists()) {     // check user documents path
+                if ( ! QFileInfo(ldrawLibPath+validLDrawPart).exists()) {     // check user documents path
 
                     ldrawLibPath = QDir::toNativeSeparators(QString("%1/%2").arg(userDocumentsPath).arg(validLDrawDir));
 
-                    if ( ! QDir(ldrawLibPath).exists()) { // check system data path
+                    if ( ! QFileInfo(ldrawLibPath+validLDrawPart).exists()) { // check system data path
 
                         dataPathList = QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation);
 
@@ -1131,11 +1131,11 @@ void Preferences::ldrawPreferences(bool force)
                         ldrawLibPath = QDir::toNativeSeparators(QString("%1/%2").arg(dataPathList.at(2)).arg(validLDrawDir)); /* /usr/share/LDRAW" */
 #endif
 
-                        if ( ! QDir(ldrawLibPath).exists()) {     // check user data path
+                        if ( ! QFileInfo(ldrawLibPath+validLDrawPart).exists()) {     // check user data path
 
                             ldrawLibPath = QDir::toNativeSeparators(QString("%1/%2").arg(userLocalDataPath).arg(validLDrawDir));
 
-                            if ( ! QDir(ldrawLibPath).exists()) { // manual prompt for LDraw Library location
+                            if ( ! QFileInfo(ldrawLibPath+validLDrawPart).exists()) { // manual prompt for LDraw Library location
 
                                 QString searchDetail;
                                 searchDetail = QMessageBox::tr ("\t%1\n\t%2\n\t%3\n\t%4")

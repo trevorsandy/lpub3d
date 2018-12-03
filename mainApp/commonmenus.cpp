@@ -246,7 +246,7 @@ QAction* CommonMenus::placementMenu(
   const QString  whatsThis)
 {
   QAction *action;
-  QString formatted = QString("Move %1") .arg(name);
+  QString formatted = QString("Change %1 Placement") .arg(name);
 
   action = menu.addAction(formatted);
   action->setWhatsThis(whatsThis);
