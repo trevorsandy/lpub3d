@@ -40,7 +40,6 @@
 #include "calloutbackgrounditem.h"
 #include "pointer.h"
 #include "calloutpointeritem.h"
-#include "pli.h"
 #include "numberitem.h"
 #include "csiitem.h"
 #include "resolution.h"
@@ -77,6 +76,7 @@ Step::Step(
   csiPlacement.relativeType = CsiType;
   stepNumber.relativeType   = StepNumberType;
   rotateIcon.relativeType   = RotateIconType;
+  subModel.relativeType     = SubModelType;
 
   float pW, hH, fH;
   int which                   = _meta.LPub.page.orientation.value() == Landscape ? 1 : 0;
@@ -109,6 +109,8 @@ Step::Step(
       stepNumber.font         = _meta.LPub.callout.stepNum.font.valueFoo();
       stepNumber.color        = _meta.LPub.callout.stepNum.color.value();
       stepNumber.margin       = _meta.LPub.callout.stepNum.margin;
+      subModel.margin         = _meta.LPub.callout.subModel.margin;
+      subModel.placement      = _meta.LPub.callout.subModel.placement;
       pliPerStep              = _meta.LPub.callout.pli.perStep.value();
     } else if (multiStep) {
       csiPlacement.margin     = _meta.LPub.multiStep.csi.margin;
@@ -123,6 +125,8 @@ Step::Step(
       stepNumber.font         = _meta.LPub.multiStep.stepNum.font.valueFoo();
       stepNumber.color        = _meta.LPub.multiStep.stepNum.color.value();
       stepNumber.margin       = _meta.LPub.multiStep.stepNum.margin;
+      subModel.margin         = _meta.LPub.multiStep.subModel.margin;
+      subModel.placement      = _meta.LPub.multiStep.subModel.placement;
       pliPerStep              = _meta.LPub.multiStep.pli.perStep.value();
     } else {
       csiPlacement.margin     = _meta.LPub.assem.margin;
@@ -136,13 +140,18 @@ Step::Step(
       stepNumber.font         = _meta.LPub.stepNumber.font.valueFoo();
       stepNumber.color        = _meta.LPub.stepNumber.color.value();
       stepNumber.margin       = _meta.LPub.stepNumber.margin;
+      subModel.margin         = _meta.LPub.subModel.margin;
+      subModel.placement      = _meta.LPub.subModel.placement;
       pliPerStep              = false;
     }
   pli.steps                 = grandparent();
   pli.step                  = this;
+  subModel.steps            = grandparent();
+  subModel.step             = this;
   showStepNumber            = _meta.LPub.assem.showStepNumber.value();
   rotateIcon.setSize(         _meta.LPub.rotateIcon.size,
                               _meta.LPub.rotateIcon.border.valuePixels().thickness);
+  placeSubModel             = false;
   placeRotateIcon           = false;
 
 }
@@ -156,6 +165,7 @@ Step::~Step() {
     }
   list.clear();
   pli.clear();
+  subModel.clear();
 }
 Step *Step::nextStep()
 {
@@ -260,7 +270,7 @@ int Step::createCsi(
 
   // Viewer Csi does not yet exist in repository
   bool addViewerStepContent = !gui->viewerStepContentExist(viewerCsiKey);
-  // We are processing again the current step so Csi must have been updated by from viewer
+  // We are processing again the current step so Csi must have been updated in the viewer
   bool viewerUpdate = viewerCsiKey == gui->getViewerCsiKey();
 
   // Generate 3DViewer CSI entry
@@ -561,7 +571,7 @@ int Step::mergeViewerCSISubModels(QStringList &subModels,
  * commonality.  They are organized into rows or columns of steps.
  *
  * From this springs two algorithms, the first algorithm is based on
- * similarity between steps, in that that across steps sub-components
+ * similarity between steps, in that across steps sub-components
  * within steps are placed in sub-columns or sub-rows. This format
  * is common these days in LEGO building instructions.  For lack of
  * a better name, I refer to this modern algorithm as tabular.
@@ -635,39 +645,52 @@ int Step::mergeViewerCSISubModels(QStringList &subModels,
 
 /*
  * Think of the possible placement as a two dimensional table, of
- * places where something can be placed within a step's rectangle.
+ * places where something can be placed within a rectangle.
+ * -- see step.cpp for detail walkthrough --
  *
- *  CCCCCCCCCCCCCCC
- *  CRRRRRRRRRRRRRC
- *  CRCCCCCCCCCCCRC
- *  CRCSSSSSSSSSCRC
- *  CRCSCCCCCCCSCRC
- *  CRCSCPPPPPCSCRC
- *  CRCSCPCCCPCSCRC
- *  CRCSCPCACPCSCRC
- *  CRCSCPCCCPCSCRC
- *  CRCSCPPPPPCSCRC
- *  CRCSCCCCCCCSCRC
- *  CRCSSSSSSSSSCRC
- *  CRCCCCCCCCCCCRC
- *  CRRRRRRRRRRRRRC
- *  CCCCCCCCCCCCCCC
-
- *  C0 - callout relative to rotateIcon
- *  R0 - rotateIcon relative to csi
- *  C1 - callout relative to step number
- *  S0 - step number relative to csi
- *  C2 - callout relative to PLI
- *  P0 - pli relative to csi
- *  C3 - callout relative to csi
- *  A  - csi
- *  C4 - callout relative to csi
- *  P1 - pli relative to csi
- *  C5 - callout relative to PLI
- *  S1 - step number relative to csi
- *  C6 - callout relative to step number
- *  R1 - rotateIcon relative to csi
- *  C7 - callout relative to rotateIcon
+ *  CCCCCCCCCCCCCCCCCCC
+ *  CMMMMMMMMMMMMMMMMMC
+ *  CMCCCCCCCCCCCCCCCMC
+ *  CMCRRRRRRRRRRRRRCMC
+ *  CMCRCCCCCCCCCCCRCMC
+ *  CMCRCSSSSSSSSSCRCMC
+ *  CMCRCSCCCCCCCSCRCMC
+ *  CMCRCSCPPPPPCSCRCMC
+ *  CMCRCSCPCCCPCSCRCMC
+ *  CMCRCSCPCACPCSCRCMC
+ *  CMCRCSCPCCCPCSCRCMC
+ *  CMCRCSCPPPPPCSCRCMC
+ *  CMCRCSCCCCCCCSCRCMC
+ *  CMCRCSSSSSSSSSCRCMC
+ *  CMCRCCCCCCCCCCCRCMC
+ *  CMCRRRRRRRRRRRRRCMC
+ *  CMCCCCCCCCCCCCCCCMC
+ *  CMMMMMMMMMMMMMMMMMC
+ *  CCCCCCCCCCCCCCCCCCC
+ *
+ *  The table above represents either the Horizontal slice
+ *  going through the CSI (represented by A for assembly),
+ *  or the Vertical slice going through the CSI.
+ *
+ * C0 - Callout relative to Submodel
+ * M0 - Submodel relative to CSI
+ * C1 - Callout relative to RotateIcon
+ * R0 - RotateIcon relative to CSI
+ * C2 - Callout relative to StepNumber
+ * S0 - StepNumber relative to CSI
+ * C3 - Callout relative to PLI
+ * P0 - Pli relative to CSI
+ * C4 - Callout relative to CSI
+ * A  - CSI
+ * C5 - Callout relative to CSI
+ * P1 - Pli relative to CSI
+ * C6 - Callout relative to PLI
+ * S1 - StepNumber relative to CSI
+ * C7 - Callout relative to StepNumber
+ * R1 - RotateIcon relative to CSI
+ * C8 - Callout relative to RotateIcon
+ * M1 - Submodel relative to CSI
+ * C9 - Callout relative to Submodel
  */
 
 /*
@@ -704,6 +727,24 @@ const int pliPlace[NumPlacements][2] =
   { TblPli0, TblPli1 }, // BOTTOM_LEFT
   { TblPli0, TblCsi  }, // LEFT
   { TblCsi,  TblCsi },
+};
+
+/*
+ * this tells us where to place the Submodel when placing
+ * relative to csi
+ */
+
+const int subModelPlace[NumPlacements][2] =
+{
+  { TblSm0, TblSm0 }, // Top_Left
+  { TblCsi, TblSm0 }, // Top
+  { TblSm1, TblSm0 }, // Top_Right
+  { TblSm1, TblCsi }, // Right
+  { TblSm1, TblSm1 }, // BOTTOM_RIGHT
+  { TblCsi, TblSm1 }, // BOTTOM
+  { TblSm0, TblSm1 }, // BOTTOM_LEFT
+  { TblSm0, TblCsi }, // LEFT
+  { TblCsi, TblCsi },
 };
 
 /*
@@ -784,11 +825,11 @@ int marginCols[][2])
  * This is the first pass of sizing a step.
  *
  *   locate the proper row/col in the placement table (see above)
- *   for each component (csi, pli, stepNumber, rotateIcon, callout) in the step
+ *   for each component (csi, pli, subModel, stepNumber, rotateIcon, callout) in the step
  *
  *     locate the proper row/col for those relative to CSI (absolute)
  *
- *     locate the proper row/col for those relative to (pli,stepNumber)
+ *     locate the proper row/col for those relative to (pli, stepNumber)
  *
  *   determine the largest dimensions for each row/col in the table
  *
@@ -837,9 +878,9 @@ int  y)// accumulate sub-col margin widths here
 
   /* Lets start with the absolutes (those relative to the CSI) */
 
-  PlacementData pliPlacement = pli.placement.value();
-
   // PLI relative to CSI
+
+  PlacementData pliPlacement = pli.placement.value();
 
   if (pliPlacement.relativeTo == CsiType) {
       if (pliPlacement.preposition == Outside) {
@@ -850,6 +891,22 @@ int  y)// accumulate sub-col margin widths here
           pli.tbl[YY] = TblCsi;
         }
     }
+
+  // Submodel relative to CSI
+
+  PlacementData subModelPlacement = subModel.placement.value();
+
+  if (placeSubModel){
+    if (subModelPlacement.relativeTo == CsiType) {
+        if (subModelPlacement.preposition == Outside) {
+            subModel.tbl[XX] = subModelPlace[subModelPlacement.placement][XX];
+            subModel.tbl[YY] = subModelPlace[subModelPlacement.placement][YY];
+          } else {
+            subModel.tbl[XX] = TblCsi;
+            subModel.tbl[YY] = TblCsi;
+          }
+      }
+  }
 
   // Rotate Icon relative to CSI
 
@@ -870,7 +927,7 @@ int  y)// accumulate sub-col margin widths here
 
   PlacementData stepNumberPlacement = stepNumber.placement.value();
 
-  // if Step Number relative to parts list, but no parts list,
+  // if Step Number relative to PLI, but no PLI,
   //    Step Number is relative to CSI (Assem)
 
   if (stepNumberPlacement.relativeTo == PartsListType && ! pliPerStep) {
@@ -889,7 +946,7 @@ int  y)// accumulate sub-col margin widths here
 
   /* Now lets place things relative to others row/columns */
 
-  /* first the known entities */
+  /* first the known entities (CSI, PLI, SM, SN, RI)*/
 
   if (pliPlacement.relativeTo == StepNumberType) {
       if (pliPerStep && pli.tsize()) {
@@ -898,6 +955,16 @@ int  y)// accumulate sub-col margin widths here
         } else {
           stepNumber.tbl[XX] = stepNumberPlace[stepNumberPlacement.placement][XX];
           stepNumber.tbl[YY] = stepNumberPlace[stepNumberPlacement.placement][YY];
+        }
+    }
+
+  if (pliPlacement.relativeTo == SubModelType) {
+      if (pliPerStep && pli.tsize()) {
+          pli.tbl[XX] = subModel.tbl[XX]+relativePlace[pliPlacement.placement][XX];
+          pli.tbl[YY] = subModel.tbl[YY]+relativePlace[pliPlacement.placement][YY];
+        } else {
+          subModel.tbl[XX] = subModelPlace[subModelPlacement.placement][XX];
+          subModel.tbl[YY] = subModelPlace[subModelPlacement.placement][YY];
         }
     }
 
@@ -911,9 +978,44 @@ int  y)// accumulate sub-col margin widths here
         }
     }
 
+  if (subModelPlacement.relativeTo == PartsListType) {
+      if (placeSubModel) {
+          subModel.tbl[XX] = pli.tbl[XX]+relativePlace[subModelPlacement.placement][XX];
+          subModel.tbl[YY] = pli.tbl[YY]+relativePlace[subModelPlacement.placement][YY];
+        } else {
+          pli.tbl[XX] = pliPlace[pliPlacement.placement][XX];
+          pli.tbl[YY] = pliPlace[pliPlacement.placement][YY];
+        }
+    }
+
+  if (subModelPlacement.relativeTo == RotateIconType) {
+      if (placeSubModel) {
+          subModel.tbl[XX] = rotateIcon.tbl[XX]+relativePlace[subModelPlacement.placement][XX];
+          subModel.tbl[YY] = rotateIcon.tbl[YY]+relativePlace[subModelPlacement.placement][YY];
+        } else {
+          rotateIcon.tbl[XX] = rotateIconPlace[rotateIconPlacement.placement][XX];
+          rotateIcon.tbl[YY] = rotateIconPlace[rotateIconPlacement.placement][YY];
+        }
+    }
+
+  if (subModelPlacement.relativeTo == StepNumberType) {
+      if (placeSubModel) {
+          subModel.tbl[XX] = stepNumber.tbl[XX]+relativePlace[subModelPlacement.placement][XX];
+          subModel.tbl[YY] = stepNumber.tbl[YY]+relativePlace[subModelPlacement.placement][YY];
+        } else {
+          stepNumber.tbl[XX] = stepNumberPlace[stepNumberPlacement.placement][XX];
+          stepNumber.tbl[YY] = stepNumberPlace[stepNumberPlacement.placement][YY];
+        }
+    }
+
   if (stepNumberPlacement.relativeTo == PartsListType) {
       stepNumber.tbl[XX] = pli.tbl[XX]+relativePlace[stepNumberPlacement.placement][XX];
       stepNumber.tbl[YY] = pli.tbl[YY]+relativePlace[stepNumberPlacement.placement][YY];
+    }
+
+  if (stepNumberPlacement.relativeTo == SubModelType) {
+      stepNumber.tbl[XX] = subModel.tbl[XX]+relativePlace[stepNumberPlacement.placement][XX];
+      stepNumber.tbl[YY] = subModel.tbl[YY]+relativePlace[stepNumberPlacement.placement][YY];
     }
 
   if (stepNumberPlacement.relativeTo == RotateIconType) {
@@ -931,6 +1033,16 @@ int  y)// accumulate sub-col margin widths here
         }
     }
 
+  if (rotateIconPlacement.relativeTo == SubModelType) {
+      if (placeRotateIcon) {
+          rotateIcon.tbl[XX] = subModel.tbl[XX]+relativePlace[rotateIconPlacement.placement][XX];
+          rotateIcon.tbl[YY] = subModel.tbl[YY]+relativePlace[rotateIconPlacement.placement][YY];
+        } else {
+          subModel.tbl[XX] = subModelPlace[subModelPlacement.placement][XX];
+          subModel.tbl[YY] = subModelPlace[subModelPlacement.placement][YY];
+        }
+    }
+
   if (rotateIconPlacement.relativeTo == StepNumberType) {
       if (placeRotateIcon) {
           rotateIcon.tbl[XX] = stepNumber.tbl[XX]+relativePlace[rotateIconPlacement.placement][XX];
@@ -942,14 +1054,16 @@ int  y)// accumulate sub-col margin widths here
     }
 
   maxMargin(pli.margin,pli.tbl,marginRows,marginCols);
+  maxMargin(subModel.margin,subModel.tbl,marginRows,marginCols);
   maxMargin(stepNumber.margin,stepNumber.tbl,marginRows,marginCols);
   maxMargin(csiPlacement.margin,csiPlacement.tbl,marginRows,marginCols);
   maxMargin(rotateIcon.margin,rotateIcon.tbl,marginRows,marginCols);
 
-  /* now place the callouts relative to the known (CSI, PLI, SN, RI) */
+  /* now place the callouts relative to the known (CSI, PLI, SM, SN, RI) */
 
   int calloutSize[2] = { 0, 0 };
   bool shared = false;
+  bool smShared = false;
 
   int square[NumPlaces][NumPlaces];
 
@@ -961,6 +1075,7 @@ int  y)// accumulate sub-col margin widths here
 
   square[TblCsi][TblCsi] = CsiType;
   square[pli.tbl[XX]][pli.tbl[YY]] = PartsListType;
+  square[subModel.tbl[XX]][subModel.tbl[YY]] = SubModelType;
   square[stepNumber.tbl[XX]][stepNumber.tbl[YY]] = StepNumberType;
   square[rotateIcon.tbl[XX]][rotateIcon.tbl[YY]] = RotateIconType;
 
@@ -972,6 +1087,7 @@ int  y)// accumulate sub-col margin widths here
 
       PlacementData calloutPlacement = callout->placement.value();
       bool sharable = true;
+      bool smSharable = false /* true */;
       bool onSide = false;
 
       if (calloutPlacement.relativeTo == CsiType) {
@@ -997,6 +1113,10 @@ int  y)// accumulate sub-col margin widths here
           callout->tbl[XX] = pli.tbl[XX] + relativePlace[rp][XX];
           callout->tbl[YY] = pli.tbl[YY] + relativePlace[rp][YY];
           break;
+        case SubModelType:
+          callout->tbl[XX] = subModel.tbl[XX] + relativePlace[rp][XX];
+          callout->tbl[YY] = subModel.tbl[YY] + relativePlace[rp][YY];
+          break;
         case StepNumberType:
           callout->tbl[XX] = stepNumber.tbl[XX] + relativePlace[rp][XX];
           callout->tbl[YY] = stepNumber.tbl[YY] + relativePlace[rp][YY];
@@ -1007,15 +1127,21 @@ int  y)// accumulate sub-col margin widths here
           break;
         default:
           sharable = false;
+          smSharable = false;
           break;
         }
 
-      if ( ! pliPerStep) {
+      if ( ! pliPerStep ) {
           sharable = false;
         }
+
+//      if ( ! placeSubModel ) {
+//          smSharable = false;
+//      }
+
       square[callout->tbl[XX]][callout->tbl[YY]] = i + 1;
       int size = callout->submodelStack().size();
-      if (sharable && size > 1) {
+      if ((sharable || smSharable) && size > 1) {
           if (callout->tbl[x] < TblCsi && callout->tbl[y] == TblCsi) {
               if (calloutSize[x] < callout->size[x]) {
                   calloutSize[XX] = callout->size[XX];
@@ -1033,6 +1159,7 @@ int  y)// accumulate sub-col margin widths here
   /*                                              */
   /************************************************/
 
+  // PLI
   if (pli.pliMeta.constrain.isDefault()) {
 
       int tsize = 0;
@@ -1056,6 +1183,34 @@ int  y)// accumulate sub-col margin widths here
           break;
         default:
           pli.sizePli(ConstrainData::PliConstrainArea,tsize);
+          break;
+        }
+    }
+
+  // SM
+  if (subModel.subModelMeta.constrain.isDefault()) {
+
+      int tsize = 0;
+
+      switch (subModelPlacement.placement) {
+        case Top:
+        case Bottom:
+          tsize = csiPlacement.size[XX];
+          subModel.sizeSubModel(ConstrainData::PliConstrainWidth,tsize);
+          if (subModel.size[YY] > gui->pageSize(gui->page.meta.LPub.page, YY)/3) {
+              subModel.sizeSubModel(ConstrainData::PliConstrainArea,tsize);
+            }
+          break;
+        case Left:
+        case Right:
+          tsize = csiPlacement.size[YY];
+          subModel.sizeSubModel(ConstrainData::PliConstrainHeight,tsize);
+          if (subModel.size[XX] > gui->pageSize(gui->page.meta.LPub.page, XX)/3) {
+              subModel.sizeSubModel(ConstrainData::PliConstrainArea,tsize);
+            }
+          break;
+        default:
+          subModel.sizeSubModel(ConstrainData::PliConstrainArea,tsize);
           break;
         }
     }
@@ -1113,6 +1268,63 @@ int  y)// accumulate sub-col margin widths here
       if (addOn) {
           if (rows[pli.tbl[YY]] < pli.size[YY]) {
               rows[pli.tbl[YY]] = pli.size[YY];
+            }
+        }
+    }
+
+  // Allow SM and CALLOUT to share one column /* Calling this is disabled */
+
+  if (smShared && subModel.tbl[y] == TblCsi) {
+      int wX = 0, wY = 0;
+      if (x == XX) {
+          wX = subModel.size[XX] + calloutSize[XX];
+          wY = subModel.size[YY];
+        } else {
+          wX = subModel.size[XX];
+          wY = subModel.size[YY] + calloutSize[YY];
+        }
+      if (cols[subModel.tbl[XX]] < wX) {
+          cols[subModel.tbl[XX]] = wX;
+        }
+      if (rows[subModel.tbl[YY]] < wY) {
+          rows[subModel.tbl[YY]] = wY;
+        }
+    } else {
+
+      bool addOn = true;
+
+      /* Drop the Submodel down on top of the CSI, and reduce the subModel's size */
+
+      if (onlyChild()) {
+          switch (subModelPlacement.placement) {
+            case Top:
+            case Bottom:
+              if (subModelPlacement.relativeTo == CsiType) {
+                  if ( ! collide(square,subModel.tbl,y, x)) {
+                      int height = (max - pixmapSize[y])/2;
+                      if (height > 0) {
+                          if (height >= subModel.size[y]) {  // entire thing fits
+                              rows[subModel.tbl[y]] = 0;
+                              addOn = false;
+                            } else {                         // fit what we can
+                              rows[subModel.tbl[y]] = subModel.size[y] - height;
+                              addOn = false;
+                            }
+                        }
+                    }
+                }
+              break;
+            default:
+              break;
+            }
+        }
+
+      if (cols[subModel.tbl[XX]] < subModel.size[XX]) {
+          cols[subModel.tbl[XX]] = subModel.size[XX];  // HINT 1
+        }
+      if (addOn) {
+          if (rows[subModel.tbl[YY]] < subModel.size[YY]) {
+              rows[subModel.tbl[YY]] = subModel.size[YY];
             }
         }
     }
@@ -1221,6 +1433,18 @@ void Step::maxMargin(int &top, int &bot, int y)
         }
     }
 
+  if (placeSubModel) {
+      if (subModel.tbl[y] < TblCsi) {
+          top = subModel.margin.valuePixels(y);
+        } else if (stepNumber.tbl[y] == TblCsi) {
+          int margin = subModel.margin.valuePixels(y);
+          top = qMax(top,margin);
+          bot = qMax(bot,margin);
+        } else {
+          bot = subModel.margin.valuePixels(y);
+        }
+    }
+
   if (placeRotateIcon){
       if (rotateIcon.tbl[YY] < TblCsi) {
           top = rotateIcon.margin.valuePixels(y);
@@ -1249,7 +1473,7 @@ void Step::maxMargin(int &top, int &bot, int y)
 
 /***************************************************************************
  * This routine is used for tabular multi-steps.  It is used to determine
- * the location of csi, pli, stepNumber, rotateIcon and step relative callouts.
+ * the location of csi, pli, sm, stepNumber, rotateIcon and step relative callouts.
  ***************************************************************************/
 
 void Step::placeit(
@@ -1282,6 +1506,7 @@ void Step::placeit(
 
   csiPlacement.loc[y] = origins[TblCsi] + (rows[TblCsi] - csiPlacement.size[y])/2;
   pli.loc[y]          = origins[pli.tbl[y]];
+  subModel.loc[y]     = origins[subModel.tbl[y]];
   stepNumber.loc[y]   = origins[stepNumber.tbl[y]];
   rotateIcon.loc[y]   = origins[rotateIcon.tbl[y]];
 
@@ -1289,6 +1514,9 @@ void Step::placeit(
     case XX:
       if ( ! shared) {
           pli.justifyX(origins[pli.tbl[y]],rows[pli.tbl[y]]);
+          if(placeSubModel){
+            subModel.justifyX(origins[subModel.tbl[y]],rows[subModel.tbl[y]]);
+          }
         }
       stepNumber.justifyX(origins[stepNumber.tbl[y]],rows[stepNumber.tbl[y]]);
       if(placeRotateIcon){
@@ -1298,6 +1526,9 @@ void Step::placeit(
     case YY:
       if ( ! shared) {
           pli.justifyY(origins[pli.tbl[y]],rows[pli.tbl[y]]);
+          if(placeSubModel){
+            subModel.justifyY(origins[subModel.tbl[y]],rows[subModel.tbl[y]]);
+          }
         }
       stepNumber.justifyY(origins[stepNumber.tbl[y]],rows[stepNumber.tbl[y]]);
       if(placeRotateIcon){
@@ -1326,6 +1557,7 @@ void Step::placeit(
           switch (calloutPlacement.relativeTo) {
             case CsiType:
             case PartsListType:
+            case SubModelType:
             case StepNumberType:
             case RotateIconType:
               callout->loc[y] = origins[callout->tbl[y]];
@@ -1382,6 +1614,15 @@ void Step::addGraphicsItems(
       pli.setPos(offsetX + pli.loc[XX],
                  offsetY + pli.loc[YY]);
     }
+
+  // SM
+  if (placeSubModel){
+    if (subModel.tsize()) {
+        subModel.addSubModel(submodelLevel, parent);
+        subModel.setPos(offsetX + subModel.loc[XX],
+                   offsetY + subModel.loc[YY]);
+      }
+  }
 
   // Step Number
   if (stepNumber.number > 0 && ! onlyChild() && showStepNumber) {
@@ -1478,6 +1719,9 @@ void Step::placeInside()
           break;
         case PartsListType:
           break;
+        case SubModelType:
+          subModel.placeRelative(&pli);
+          break;
         case StepNumberType:
           stepNumber.placeRelative(&pli);
           break;
@@ -1488,6 +1732,27 @@ void Step::placeInside()
           break;
         }
     }
+
+  if (subModel.placement.value().preposition == Inside) {
+      switch (pli.placement.value().relativeTo) {
+        case CsiType:
+          csiPlacement.placeRelative(&subModel);
+          break;
+        case PartsListType:
+          pli.placeRelative(&subModel);
+          break;
+        case SubModelType:
+          break;
+        case StepNumberType:
+          stepNumber.placeRelative(&subModel);
+          break;
+        case RotateIconType:
+          break;
+        default:
+          break;
+        }
+    }
+
   if (stepNumber.placement.value().preposition == Inside) {
       switch (pli.placement.value().relativeTo) {
         case CsiType:
@@ -1495,6 +1760,9 @@ void Step::placeInside()
           break;
         case PartsListType:
           pli.placeRelative(&stepNumber);
+          break;
+        case SubModelType:
+          subModel.placeRelative(&stepNumber);
           break;
         case StepNumberType:
           break;
@@ -1514,6 +1782,9 @@ void Step::placeInside()
         case PartsListType:
           pli.placeRelative(&rotateIcon);
           break;
+        case SubModelType:
+          subModel.placeRelative(&rotateIcon);
+          break;
         case StepNumberType:
           stepNumber.placeRelative(&rotateIcon);
           break;
@@ -1523,6 +1794,7 @@ void Step::placeInside()
           break;
         }
     }
+
   for (int i = 0; i < list.size(); i++) {
 
       Callout *callout = list[i];
@@ -1543,6 +1815,10 @@ void Step::placeInside()
         case PartsListType:
           relativeToSize[XX] = pli.size[XX];
           relativeToSize[YY] = pli.size[YY];
+          break;
+        case SubModelType:
+          relativeToSize[XX] = subModel.size[XX];
+          relativeToSize[YY] = subModel.size[YY];
           break;
         case StepNumberType:
           relativeToSize[XX] = stepNumber.size[XX];
@@ -1622,6 +1898,12 @@ void Step::sizeitFreeform(
       stepNumber.sizeit();
     }
 
+  // size up the Submodel
+
+//  if (placeSubModel){
+//      subModel.sizeit();
+//    }
+
   // size up the rotateIcon
 
   if (placeRotateIcon){
@@ -1651,6 +1933,14 @@ void Step::sizeitFreeform(
       offsetX = pli.loc[xx];
       sizeX   = pli.size[yy];
       break;
+    case SubModelType:
+      placementData = subModel.placement.value();
+      placementData.relativeTo = PageType;
+      subModel.placement.setValue(placementData);
+      subModel.relativeTo(this);
+      offsetX = subModel.loc[xx];
+      sizeX   = subModel.size[yy];
+      break;
     case StepNumberType:
       placementData = stepNumber.placement.value();
       placementData.relativeTo = PageType;
@@ -1669,7 +1959,7 @@ void Step::sizeitFreeform(
       break;
     }
 
-  // FIXME: when we get here for callouts that are to to the left of the CSI
+  // FIXME: when we get here for callouts that are to the left of the CSI
   // the outermost box is correctly placed, but within there the CSI is
   // in the upper left hand corner, even if it has a callout to the left of
   // it
@@ -1697,6 +1987,12 @@ void Step::sizeitFreeform(
       if (pli.loc[dim] + pli.size[dim] > max) {
           max = pli.loc[dim] + pli.size[dim];
         }
+      if (subModel.loc[dim] < min) {
+          min = subModel.loc[dim];
+        }
+      if (subModel.loc[dim] + subModel.size[dim] > max) {
+          max = subModel.loc[dim] + subModel.size[dim];
+        }
       if (stepNumber.loc[dim] < min) {
           min = stepNumber.loc[dim];
         }
@@ -1723,8 +2019,9 @@ void Step::sizeitFreeform(
       if (calledOut) {
           csiPlacement.loc[dim]  -= min;
           pli.loc[dim]           -= min;
+          subModel.loc[dim]      -= min;
           stepNumber.loc[dim]    -= min;
-          rotateIcon.loc[dim] -= min;
+          rotateIcon.loc[dim]    -= min;
 
           for (int i = 0; i < list.size(); i++) {
               Callout *callout = list[i];
@@ -1744,6 +2041,7 @@ void Step::sizeitFreeform(
 
   csiPlacement.loc[xx] -= offsetX + sizeX;
   pli.loc[xx]          -= offsetX + sizeX;
+  subModel.loc[xx]     -= offsetX + sizeX;
   stepNumber.loc[xx]   -= offsetX + sizeX;
   rotateIcon.loc[xx]   -= offsetX + sizeX;
 

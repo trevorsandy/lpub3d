@@ -247,7 +247,7 @@ int Gui::drawPage(
     QStringList    &bfxParts,
     QStringList    &ldrStepFiles,
     QStringList    &csiKeys,
-    bool            supressRotateIcon,
+    bool            unAssCallout,
     bool            calledOut)
 {
   QStringList saveCsiParts;
@@ -364,7 +364,7 @@ int Gui::drawPage(
                               multiStep);
 
               range->append(step);
-            }
+            } // STEP - Allocate STEP
 
           /* addition of ldraw parts */
           if (curMeta.LPub.pli.show.value()
@@ -416,9 +416,9 @@ int Gui::drawPage(
               if (bfxStore1 && (multiStep || calledOut)) {
                   bfxParts << colorType;
                 }
-            }
+            } // STEP - Process PLI parts
 
-          /* if it is a sub-model, then process it */
+          /* if it is a called out sub-model, then process it */
 
           if (ldrawFile.isSubmodel(type) && callout && ! noStep) {
 
@@ -428,7 +428,7 @@ int Gui::drawPage(
 //                                               mode == CalloutBeginMeta::Rotated ? "Rotated" : "Assembled");
 
               // If callout is rotated or assembled then suppress rotate icon
-              supressRotateIcon = (mode == CalloutBeginMeta::Unassembled ? false : true);
+              unAssCallout = (mode == CalloutBeginMeta::Unassembled);
 
               /* we are a callout, so gather all the steps within the callout */
               /* start with new meta, but no rotation step */
@@ -506,7 +506,7 @@ int Gui::drawPage(
                         bfxParts,
                         ldrStepFiles,
                         csiKeys,
-                        supressRotateIcon,
+                        unAssCallout,
                         true);
 
                   callout->meta = saveMeta;
@@ -531,12 +531,21 @@ int Gui::drawPage(
                 }
 
               /* remind user what file we're working on */
-
-//              statusBar()->showMessage("Processing " + current.modelName);
               emit messageSig(LOG_STATUS, "Processing " + current.modelName + "...");
-            }
 
-        } else if (tokens.size() > 0 &&
+            } // STEP - Process called out submodel
+
+
+          if (step && steps->meta.LPub.subModel.show.value()) {
+              bool calloutOk      = (calledOut ? unAssCallout : true );
+              bool topModel       = (topLevelFile() == topOfStep.modelName);
+              bool showTopModel   = (steps->meta.LPub.subModel.showTopModel.value());
+              step->placeSubModel = (calloutOk && (stepNum == 1) && (!topModel || showTopModel));
+          }
+
+        }
+      // STEP - Process line, triangle, or polygon
+      else if (tokens.size() > 0 &&
                    (tokens[0] == "2" ||
                     tokens[0] == "3" ||
                     tokens[0] == "4" ||
@@ -564,7 +573,9 @@ int Gui::drawPage(
               range->append(step);
             }
 
-        } else if ( (tokens.size() > 0 && tokens[0] == "0") || gprc == EndOfFileRc) {
+        }
+      // STEP - Process meta command
+      else if ( (tokens.size() > 0 && tokens[0] == "0") || gprc == EndOfFileRc) {
 
           /* must be meta-command (or comment) */
 
@@ -1010,7 +1021,7 @@ int Gui::drawPage(
 
                   bool endOfSubmodel = stepNum - 1 >= ldrawFile.numSteps(current.modelName);
 
-                  // Get submodel instnce count
+                  // Get submodel instance count
                   int  instances = ldrawFile.instances(current.modelName, isMirrored);
                   if (instances > 1 && ! steps->meta.LPub.mergeInstanceCount.value()) {
                       MetaItem mi;
@@ -1142,13 +1153,13 @@ int Gui::drawPage(
                           page->inserts              = inserts;
                           page->pagePointers         = pagePointers;
                           page->modelDisplayOnlyStep = step->modelDisplayOnlyStep;
-                        }
+                      }
 
+                      PlacementType relativeType;
                       if (pliPerStep) {
-                          PlacementType relativeType;
                           if (multiStep) {
                               relativeType = StepGroupType;
-                            } else if (calledOut) {
+                          } else if (calledOut) {
                               relativeType = CalloutType;
                             } else {
                               relativeType = SingleStepType;
@@ -1157,14 +1168,45 @@ int Gui::drawPage(
                           step->pli.setParts(pliParts,steps->meta);
                           pliParts.clear();
 
-                          emit messageSig(LOG_STATUS, "Processing step (PLI) for " + topOfStep.modelName + "...");
+                          emit messageSig(LOG_STATUS, "Add step PLI for " + topOfStep.modelName + "...");
 
                           step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
-                        }
+                      }
+
+                      if (step->placeSubModel){
+                          emit messageSig(LOG_INFO, "Set first step submodel display for " + topOfStep.modelName + "...");
+
+                          // Get submodel instance count
+                          int  instances;
+                          if ( ! multiStep && ! calledOut) {
+                              if (instances > 1 && ! steps->meta.LPub.mergeInstanceCount.value()) {
+                                  MetaItem mi;
+                                  instances = mi.countInstancesInStep(&steps->meta, current.modelName);
+                              } else {
+                                  instances = ldrawFile.instances(current.modelName, isMirrored);
+                              }
+                              relativeType = SingleStepType;
+                          } else {
+                              MetaItem mi;
+                              instances = mi.countInstancesInBlock(&steps->meta, current.modelName,CalloutMask|StepGroupMask);
+                              if (multiStep) {
+                                  relativeType = StepGroupType;
+                              } else if (calledOut) {
+                                  relativeType = CalloutType;
+                              }
+                          }
+
+                          steps->meta.LPub.subModel.instance.setValue(instances);
+                          step->subModel.setSubModel(current.modelName,steps->meta);
+                          if (step->subModel.sizeSubModel(&steps->meta,relativeType) != 0)
+                              emit messageSig(LOG_ERROR, "Failed to set first step submodel display for " + topOfStep.modelName + "...");
+                      } else {
+                          step->subModel.clear();
+                      }
 
                       if (rotateIcon) {
                           step->placeRotateIcon = true;
-                        }
+                      }
 
                       emit messageSig(LOG_STATUS, "Processing step (CSI) for " + topOfStep.modelName + "...");
                       csiName = step->csiName();

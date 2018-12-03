@@ -522,6 +522,12 @@ QString type2english(PlacementType type)
 
         break;
 
+    case SubModelType:
+
+        return "submodel";
+
+        break;
+
     case CalloutType:
 
         return "callout";
@@ -661,7 +667,13 @@ QString type2english2(PlacementType type)
 
       return "a parts list";
 
-    break;
+      break;
+
+    case SubModelType:
+
+      return "a submodel";
+
+      break;
 
     case CalloutType:
 

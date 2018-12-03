@@ -84,7 +84,7 @@ public:
   virtual int 		 renderPli(const QStringList &,
                                       const QString &,
                                       Meta &,
-                                      bool bom) = 0;
+                                      int pliType) = 0;
 
 protected:
   virtual float          cameraDistance(Meta &meta, float) = 0;
@@ -101,7 +101,7 @@ public:
   POVRay() {}
   virtual ~POVRay() {}
   virtual int renderCsi(const QString &,  const QStringList &, const QStringList &, const QString &, Meta &);
-  virtual int renderPli(                  const QStringList &, const QString &, Meta &, bool bom);
+  virtual int renderPli(                  const QStringList &, const QString &, Meta &, int pliType);
   virtual float cameraDistance(Meta &meta, float);
 };
 
@@ -111,7 +111,7 @@ public:
   LDGLite() {}
   virtual ~LDGLite() {}
   virtual int renderCsi(const QString &,  const QStringList &, const QStringList &,const QString &, Meta &);
-  virtual int renderPli(                  const QStringList &, const QString &, Meta &, bool bom);
+  virtual int renderPli(                  const QStringList &, const QString &, Meta &, int pliType);
   virtual float cameraDistance(Meta &meta, float);
 };
 
@@ -121,7 +121,7 @@ public:
   LDView() {}
   virtual ~LDView() {}
   virtual int renderCsi(const QString &,  const QStringList &, const QStringList &, const QString &, Meta &);
-  virtual int renderPli(                  const QStringList &, const QString &, Meta &, bool bom);
+  virtual int renderPli(                  const QStringList &, const QString &, Meta &, int pliType);
   virtual float cameraDistance(Meta &meta, float);
 };
 
@@ -131,7 +131,7 @@ public:
   Native() {}
   virtual ~Native() {}
   virtual int renderCsi(const QString &,  const QStringList &, const QStringList &, const QString &, Meta &);
-  virtual int renderPli(                  const QStringList &, const QString &, Meta &, bool bom);
+  virtual int renderPli(                  const QStringList &, const QString &, Meta &, int pliType);
   virtual float cameraDistance(Meta &meta, float);
 };
 

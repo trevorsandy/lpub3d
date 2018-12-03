@@ -159,6 +159,9 @@ bool    Preferences::statusLevel                = false;
 bool    Preferences::errorLevel                 = false;
 bool    Preferences::fatalLevel                 = false;
 
+bool    Preferences::showSubmodels              = false;
+bool    Preferences::showTopModel               = false;
+
 bool    Preferences::includeAllLogAttributes    = false;
 bool    Preferences::allLogLevels               = false;
 
@@ -2427,6 +2430,16 @@ void Preferences::userInterfacePreferences()
           Settings.setValue(QString("%1/%2").arg(SETTINGS,showParseErrorsKey),uValue);
   } else {
           showParseErrors = Settings.value(QString("%1/%2").arg(SETTINGS,showParseErrorsKey)).toBool();
+  }
+
+  QString const showSubmodelsKey("ShowSubmodels");
+  if (Settings.contains(QString("%1/%2").arg(SETTINGS,showSubmodelsKey))) {
+      showSubmodels = Settings.value(QString("%1/%2").arg(SETTINGS,showSubmodelsKey)).toBool();
+  }
+
+  QString const showTopModelKey("ShowTopModel");
+  if (Settings.contains(QString("%1/%2").arg(SETTINGS,showTopModelKey))) {
+      showTopModel = Settings.value(QString("%1/%2").arg(SETTINGS,showTopModelKey)).toBool();
   }
 }
 

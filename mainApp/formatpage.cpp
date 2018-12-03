@@ -440,13 +440,13 @@ int Gui::addGraphicsPageItems(
             }
         }
 
-      // Process Content Page Attriutes - with page number
+      // Process Content Page Attributes - with page number
 
       addContentPageAttributes(page,pageBg,pageHeader,pageFooter,pageNumber,plPage,false);
 
     } else {
 
-      // Process Content Page Attriutes - without page number and end of submodel
+      // Process Content Page Attributes - without page number and end of submodel
 
       addContentPageAttributes(page,pageBg,pageHeader,pageFooter,nullptr,plPage,endOfSubmodel);
     }
@@ -644,6 +644,41 @@ int Gui::addGraphicsPageItems(
                       pageNumber->placeRelative(&step->pli);
                   }
 
+                  // optional PLI placement if step number not displayed
+
+                  if (step->onlyChild()) {
+                      if (step->placeSubModel &&
+                          step->pli.placement.value().relativeTo == StepNumberType &&
+                          step->subModel.placement.value().relativeTo == StepNumberType) {
+
+                          step->subModel.placement.setValue(BottomLeftOutside,PageHeaderType);
+                          pageHeader->appendRelativeTo(&step->subModel);
+                          pageHeader->placeRelative(&step->subModel);
+
+                          step->pli.placement.setValue(BottomLeftOutside,SubModelType);
+                          step->subModel.appendRelativeTo(&step->pli);
+                          step->subModel.placeRelative(&step->pli);
+                      } else {
+
+                          step->pli.placement.setValue(BottomLeftOutside,PageHeaderType);
+                          pageHeader->appendRelativeTo(&step->pli);
+                          pageHeader->placeRelative(&step->pli);
+                      }
+                  }
+
+                  // optional PLI placement if step number displayed
+
+                  if (!step->onlyChild()){
+                      if (step->placeSubModel &&
+                          step->pli.placement.value().relativeTo == StepNumberType &&
+                          step->subModel.placement.value().relativeTo == StepNumberType) {
+
+                          step->pli.placement.setValue(BottomLeftOutside,SubModelType);
+                          step->subModel.appendRelativeTo(&step->pli);
+                          step->subModel.placeRelative(&step->pli);
+                      }
+                  }
+
                   // place the CSI relative to the entire step's box
                   step->csiItem->setPos(step->csiItem->loc[XX],
                                         step->csiItem->loc[YY]);
@@ -653,8 +688,22 @@ int Gui::addGraphicsPageItems(
                   step->pli.addPli(step->submodelLevel, pageBg);
 
                   // place the PLI relative to the entire step's box
+
                   step->pli.setPos(step->pli.loc[XX],
                                    step->pli.loc[YY]);
+
+                  // place the submodel
+                  if (step->placeSubModel) {
+
+                      // add the SM graphically to the scene
+
+                      step->subModel.addSubModel(step->submodelLevel, pageBg);
+
+                      // add the SM relative to the entire step's box
+
+                      step->subModel.setPos(step->subModel.loc[XX],
+                                            step->subModel.loc[YY]);
+                  }
 
                   // allocate QGraphicsPixmapItem for rotate icon
 

@@ -1665,6 +1665,123 @@ void CameraDistFactorGui::apply(
   mi.endMacro();
 }
 
+/***********************************************************************
+ *
+ * RotStep
+ *
+ **********************************************************************/
+
+RotStepGui::RotStepGui(
+        RotStepMeta *_meta,
+        QGroupBox  *parent)
+{
+
+  meta = _meta;
+
+  RotStepData rotStep = meta->value();
+
+  QGridLayout *grid = new QGridLayout();
+
+  if (parent) {
+      parent->setLayout(grid);
+    } else {
+      setLayout(grid);
+    }
+
+  QLabel    *rotStepLabel;
+  rotStepLabel = new QLabel("Rotation", parent);
+  grid->addWidget(rotStepLabel,0,0);
+
+  float val = rotStep.rots[0];
+  int a = val - (int)val;
+  int dec = (a <= 0 ? 2 : QString::number(a).size() < 3 ? 2 : QString::number(a).size());
+  rotStepSpinX = new QDoubleSpinBox(parent);
+  rotStepSpinX->setRange(0.0f,360.0);
+  rotStepSpinX->setSingleStep(1.0);
+  rotStepSpinX->setDecimals(dec);
+  rotStepSpinX->setValue(rotStep.rots[0]);
+  connect(rotStepSpinX,SIGNAL(valueChanged(double)),
+          this,        SLOT(rotStepXChange(double)));
+  grid->addWidget(rotStepSpinX,0,1);
+
+  val = rotStep.rots[1];
+  a = val - (int)val;
+  dec = (a <= 0 ? 2 : QString::number(a).size() < 3 ? 2 : QString::number(a).size());
+  rotStepSpinY = new QDoubleSpinBox(parent);
+  rotStepSpinY->setRange(0.0f,360.0);
+  rotStepSpinY->setSingleStep(1.0);
+  rotStepSpinY->setDecimals(dec);
+  rotStepSpinY->setValue(rotStep.rots[1]);
+  connect(rotStepSpinY,SIGNAL(valueChanged(double)),
+          this,        SLOT(rotStepYChange(double)));
+  grid->addWidget(rotStepSpinY,0,2);
+
+  val = rotStep.rots[2];
+  a = val - (int)val;
+  dec = (a <= 0 ? 2 : QString::number(a).size() < 3 ? 2 : QString::number(a).size());
+  rotStepSpinZ = new QDoubleSpinBox(parent);
+  rotStepSpinZ->setRange(0.0f,360.0);
+  rotStepSpinZ->setSingleStep(1.0);
+  rotStepSpinZ->setDecimals(dec);
+  rotStepSpinZ->setValue(rotStep.rots[2]);
+  connect(rotStepSpinZ,SIGNAL(valueChanged(double)),
+          this,        SLOT(rotStepZChange(double)));
+  grid->addWidget(rotStepSpinZ,0,3);
+
+  QLabel    *typeLabel;
+  typeLabel = new QLabel("Transform", parent);
+  grid->addWidget(typeLabel,1,0);
+
+  typeCombo = new QComboBox(parent);
+  typeCombo->addItem("ABS");
+  typeCombo->addItem("REL");
+  typeCombo->addItem("ADD");
+  typeCombo->setCurrentIndex(!rotStep.type.isEmpty() ? typeCombo->findText(rotStep.type) : 1);
+  connect(typeCombo,SIGNAL(currentIndexChanged(QString const &)),
+          this,     SLOT(  typeChange(         QString const &)));
+  grid->addWidget(typeCombo,1,1);
+
+}
+
+void RotStepGui::rotStepXChange(double value)
+{
+  RotStepData data = meta->value();
+  data.rots[0] = value;
+  meta->setValue(data);
+  modified = true;
+}
+
+void RotStepGui::rotStepYChange(double value)
+{
+  RotStepData data = meta->value();
+  data.rots[1] = value;
+  meta->setValue(data);
+  modified = true;
+}
+
+void RotStepGui::rotStepZChange(double value)
+{
+  RotStepData data = meta->value();
+  data.rots[2] = value;
+  meta->setValue(data);
+  modified = true;
+}
+
+void RotStepGui::typeChange(QString const &value)
+{
+  RotStepData data = meta->value();
+  data.type = value;
+  meta->setValue(data);
+  modified = true;
+}
+
+void RotStepGui::apply(QString &modelName)
+{
+  if (modified) {
+    MetaItem mi;
+    mi.setGlobalMeta(modelName,meta);
+  }
+}
 
 /***********************************************************************
  *
@@ -2731,7 +2848,7 @@ void RendererGui::apply(QString &topLevelFile)
         } else
         if (cameraDistFactorDefaulSettings) {
             Settings.remove(QString("%1/%2").arg(SETTINGS,"CameraDistFactorNative"));
-          }
+         }
       if (cameraDistFactorMetatBox->isChecked()){
           MetaItem mi;
           mi.setGlobalMeta(topLevelFile,&meta->factor);
@@ -2740,7 +2857,136 @@ void RendererGui::apply(QString &topLevelFile)
   if (!modified && clearCaches){
       clearPliCache();
       clearCsiCache();
+      clearSubmodelCache();
       clearTempCache();
+    }
+}
+
+/***********************************************************************
+ *
+ * Show Submodel
+ *
+ **********************************************************************/
+
+ShowSubModelGui::ShowSubModelGui(
+        SubModelMeta  *_meta,
+        QGroupBox     *parent)
+{
+    meta = _meta;
+
+    QGridLayout *grid = new QGridLayout(parent);
+    QHBoxLayout *hLayout = new QHBoxLayout();
+
+    if (parent) {
+        parent->setLayout(grid);
+    } else {
+        setLayout(grid);
+    }
+
+    showSubmodelsBox = new QCheckBox("Show submodel at first step",parent);
+    showSubmodelsBox->setToolTip("Show Submodel image on first step page");
+    showSubmodelsBox->setChecked(meta->show.value());
+    connect(showSubmodelsBox,SIGNAL(clicked(bool)),
+            this,            SLOT(showSubmodelsChange(bool)));
+    grid->addWidget(showSubmodelsBox,0,0,1,2);
+
+    QSettings Settings;
+    showSubmodelsDefaulSettings = Settings.contains(QString("%1/%2").arg(SETTINGS,"ShowSubmodels"));
+    showSubmodelsDefaultBox = new QCheckBox("Set as default",parent);
+    showSubmodelsDefaultBox->setToolTip("Save show submodel to application settings.");
+    showSubmodelsDefaultBox->setChecked(showSubmodelsDefaulSettings);
+    grid->addWidget(showSubmodelsDefaultBox,1,0);
+
+    showSubmodelsMetaBox = new QCheckBox("Add meta command",parent);
+    showSubmodelsMetaBox->setToolTip("Add show submodel as a global meta command to the LDraw file.");
+    showSubmodelsMetaBox->setChecked(!showSubmodelsDefaulSettings);
+    grid->addWidget(showSubmodelsMetaBox,1,1);
+
+    QFrame* line = new QFrame();
+    line->setFrameShape(QFrame::HLine);
+    grid->addWidget(line,2,0,1,2);
+
+    showTopModelBox = new QCheckBox("Show main model at first step",parent);
+    showTopModelBox->setToolTip("Show main model image on first step page");
+    showTopModelBox->setChecked(meta->showTopModel.value());
+    connect(showTopModelBox,SIGNAL(clicked(bool)),
+            this,           SLOT(showTopModelChange(bool)));
+    grid->addWidget(showTopModelBox,3,0,1,2);
+
+    showTopModelDefaulSettings = Settings.contains(QString("%1/%2").arg(SETTINGS,"ShowTopModel"));
+    showTopModelDefaultBox = new QCheckBox("Set as default",parent);
+    showTopModelDefaultBox->setToolTip("Save show top model to application settings.");
+    showTopModelDefaultBox->setChecked(showTopModelDefaulSettings);
+    grid->addWidget(showTopModelDefaultBox,4,0);
+
+    showSubmodelsMetaBox = new QCheckBox("Add meta command",parent);
+    showSubmodelsMetaBox->setToolTip("Add show top model  as a global meta command to the LDraw file.");
+    showSubmodelsMetaBox->setChecked(!showTopModelDefaulSettings);
+    grid->addWidget(showSubmodelsMetaBox,4,1);
+
+    showSubmodelsModified = false;
+    showTopModelModified = false;
+}
+
+void ShowSubModelGui::showSubmodelsChange(bool checked)
+{
+    if (meta->show.value() != checked) {
+        meta->show.setValue(checked);
+        modified = showSubmodelsModified = true;
+    }
+}
+
+void ShowSubModelGui::showTopModelChange(bool checked)
+{
+    if (meta->showTopModel.value() != checked) {
+        meta->showTopModel.setValue(checked);
+        modified = showTopModelModified = true;
+    }
+}
+
+void ShowSubModelGui::apply(QString &topLevelFile)
+{
+    QSettings Settings;
+    QString changeMessage;
+    if (showSubmodelsModified) {
+        changeMessage = QString("Show submodels is %1")
+                                .arg(meta->show.value() ? "ON" : "OFF");
+        emit gui->messageSig(LOG_INFO, changeMessage);
+        if (showSubmodelsDefaultBox->isChecked()){
+            changeMessage = QString("Show submodels added as application default.");
+            emit gui->messageSig(LOG_INFO, changeMessage);
+            Preferences::showSubmodels = meta->show.value();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowSubmodels"),meta->show.value());
+        }
+        else
+        if (showSubmodelsDefaulSettings) {
+            Settings.remove(QString("%1/%2").arg(SETTINGS,"ShowSubmodels"));
+        }
+
+        if (showSubmodelsMetaBox->isChecked()){
+            MetaItem mi;
+            mi.setGlobalMeta(topLevelFile,&meta->show);
+        }
+    }
+    if (showTopModelModified) {
+        changeMessage = QString("Show top model is %1")
+                                .arg(meta->showTopModel.value() ? "ON" : "OFF");
+        emit gui->messageSig(LOG_INFO, changeMessage);
+        if (showTopModelDefaultBox->isChecked()){
+            changeMessage = QString("Show top model added as application default.");
+            emit gui->messageSig(LOG_INFO, changeMessage);
+            Preferences::showTopModel = meta->showTopModel.value();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowTopModel"),meta->showTopModel.value());
+        }
+        else
+        if (showTopModelDefaulSettings) {
+            Settings.remove(QString("%1/%2").arg(SETTINGS,"ShowTopModel"));
+        }
+
+        if (showTopModelMetaBox->isChecked()){
+            MetaItem mi;
+            mi.setGlobalMeta(topLevelFile,&meta->showTopModel);
+        }
     }
 }
 

@@ -88,6 +88,7 @@ public:
   void changeRotation(         const Where &);
 
   int countInstancesInStep(     Meta *, const QString &);
+  int countInstancesInBlock(  Meta *, const QString &, int);
   void addNextMultiStep(       const Where &topOfSteps, const Where &bottomOfSteps);
   void addPrevMultiStep(       const Where &topOfSteps, const Where &bottomOfSteps);
   void addNextStepsMultiStep(  const Where &topOfSteps, const Where &bottomOfSteps, const int &numOfSteps);
@@ -349,10 +350,34 @@ public:
                         bool local = false,
                         bool askLocal = true,
                         bool global = true);
-  void changeConstraint(Where topOfStep, Where bottomOfStep, ConstrainMeta *constraint,int append = 1, bool useBot = false);
-  void changeConstraintStepGroup(Where topOfStep, Where bottomOfStep, ConstrainMeta *constraint, int append = 1);
+
+  void hideSubmodel( const Where &,
+                     const Where &,
+                     BoolMeta *show,
+                     bool useTop = true,
+                     int append = 1,
+                     bool checkLocal = true);
+
+  void changeSubmodelRotStep(QString title,
+                             const Where &, const Where &,
+                             RotStepMeta *rotStep,
+                             bool useTop = true,
+                             int append = 1,
+                             bool checkLocal = true);
+
+  void changeConstraint(const Where &,
+                        const Where &,
+                        ConstrainMeta *constraint,
+                        int append = 1,
+                        bool useBot = false);
+
+  void changeConstraintStepGroup(const Where &,
+                                 const Where &,
+                                 ConstrainMeta *constraint,
+                                 int append = 1);
+
   void changeInsertOffset(InsertMeta *placement);
-  //void changePageAttributePictureOffset(Where defaultconst,PageAttributePictureMeta *pictureMeta,bool local = false,bool global = true);
+  //void changePageAttributePictureOffset(Where default const,PageAttributePictureMeta *pictureMeta,bool local = false,bool global = true);
 
   void hidePLIParts(QList<Where> &parts);
   void removeLPubFormatting();

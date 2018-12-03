@@ -804,6 +804,7 @@ public slots:
   void bomSetup();
   void calloutSetup();
   void multiStepSetup();
+  void subModelSetup();
   void projectSetup();
 
   void fitWidth();
@@ -817,6 +818,7 @@ public slots:
   void clearPLICache();
   void clearCSICache();
   void clearTempCache();
+  void clearSubmodelCache(const QString &key = QString());
   void clearAllCaches();
   void clearCustomPartCache(bool silent = false);
   void clearStepCSICache(QString &pngName);
@@ -980,7 +982,7 @@ private:
     QStringList   &bfxParts,
     QStringList   &ldrStepFiles,
     QStringList   &csiKeys,
-    bool           supressRotateIcon = false,
+    bool           unAssCallout = false,
     bool           calledOut = false);
 
   void attitudeAdjustment(); // reformat the LDraw file to fix LPub backward compatibility issues 
@@ -1266,6 +1268,7 @@ private:
 
   QAction  *clearPLICacheAct;
   QAction  *clearCSICacheAct;
+  QAction  *clearSubmodelCacheAct;
   QAction  *clearTempCacheAct;
   QAction  *clearCustomPartCacheAct;
 
@@ -1280,6 +1283,7 @@ private:
   QAction *bomSetupAct;
   QAction *calloutSetupAct;
   QAction *multiStepSetupAct;
+  QAction *subModelSetupAct;
   QAction *projectSetupAct;
   QAction *fadeStepSetupAct;
   QAction *highlightStepSetupAct;
@@ -1373,6 +1377,7 @@ inline PartWorker& partWorkerLDSearchDirs()
 void clearPliCache();
 void clearCsiCache();
 void clearTempCache();
+void clearSubmodelCache();
 void clearAndRedrawPage();
 
 #endif

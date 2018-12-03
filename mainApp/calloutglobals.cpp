@@ -113,6 +113,11 @@ GlobalCalloutDialog::GlobalCalloutDialog(QString &topLevelFile, Meta &meta)
   data->children.append(child);
   childlayout->addWidget(child);
 
+  box = new QGroupBox("Submodel");
+  grid->addWidget(box);
+  child = new CheckBoxGui("Show Submodel image at first step",&calloutMeta->subModel.show, box);
+  data->children.append(child);
+
   box = new QGroupBox("Step Number");
   grid->addWidget(box);
   child = new NumberGui(&calloutMeta->stepNum,box);
@@ -126,14 +131,14 @@ GlobalCalloutDialog::GlobalCalloutDialog(QString &topLevelFile, Meta &meta)
   tab->addTab(widget,"Contents");
 
   /*
-   * Sub-Model colors
+   * Submodel colors
    */
 
   widget = new QWidget();
   QVBoxLayout *vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
-  box = new QGroupBox(tr("Sub-Model Level Colors"));
+  box = new QGroupBox(tr("Submodel Level Colors"));
   vlayout->addWidget(box);
   child = new SubModelColorGui(&calloutMeta->subModelColor,box);
   data->children.append(child);
@@ -142,7 +147,7 @@ GlobalCalloutDialog::GlobalCalloutDialog(QString &topLevelFile, Meta &meta)
   QSpacerItem *vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
-  tab->addTab(widget,"SubModel Colors");
+  tab->addTab(widget,"Submodel Colors");
 
   QDialogButtonBox *buttonBox;
 

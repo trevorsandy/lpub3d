@@ -557,12 +557,15 @@ int POVRay::renderPli(
     const QStringList &ldrNames ,
     const QString     &pngName,
     Meta    	      &meta,
-    bool     	      bom)
+    int               pliType)
 {
-  QString povName = ldrNames.first() +".pov";
-  PliMeta &metaType = bom ? meta.LPub.bom : meta.LPub.pli;
+  // Select meta type
+  PliMeta &metaType = pliType == SUBMODEL ? static_cast<PliMeta&>(meta.LPub.subModel) :
+                      pliType == BOM ? meta.LPub.bom : meta.LPub.pli;
+
   QStringList list;
   QString message;
+  QString povName = ldrNames.first() +".pov";
 
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
@@ -602,7 +605,7 @@ int POVRay::renderPli(
       arguments << o;
       arguments << v;
 
-      list = meta.LPub.pli.ldviewParms.value().split(' ');
+      list = metaType.ldviewParms.value().split(' ');
       for (int i = 0; i < list.size(); i++) {
           if (list[i] != "" && list[i] != " ") {
               arguments << list[i];
@@ -685,7 +688,7 @@ int POVRay::renderPli(
   povArguments << H;
   povArguments << USE_ALPHA;
 
-  list = meta.LPub.assem.povrayParms.value().split(' ');
+  list = metaType.povrayParms.value().split(' ');
   for (int i = 0; i < list.size(); i++) {
       if (list[i] != "" && list[i] != " ") {
           povArguments << list[i];
@@ -728,8 +731,9 @@ int POVRay::renderPli(
 
   QProcess povray;
   QStringList povEnv = QProcess::systemEnvironment();
+  QString workingDirectory = pliType == SUBMODEL ? Paths::submodelDir : Paths::partsDir;
   povray.setEnvironment(povEnv);
-  povray.setWorkingDirectory(QDir::currentPath()+ "/" + Paths::partsDir); // pov win console app will not write to dir different from cwd or source file dir
+  povray.setWorkingDirectory(QDir::currentPath()+ "/" + workingDirectory); // pov win console app will not write to dir different from cwd or source file dir
   povray.setStandardErrorFile(QDir::currentPath() + "/stderr-povray");
   povray.setStandardOutputFile(QDir::currentPath() + "/stdout-povray");
 
@@ -894,17 +898,18 @@ int LDGLite::renderPli(
   const QStringList &ldrNames,
   const QString     &pngName,
   Meta              &meta,
-  bool               bom)
+  int                pliType)
 {
+  // Select meta type
+  PliMeta &metaType = pliType == SUBMODEL ? static_cast<PliMeta&>(meta.LPub.subModel) :
+                      pliType == BOM ? meta.LPub.bom : meta.LPub.pli;
+
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
 
   int lineThickness = resolution()/72.0+0.5;
 
   /* determine camera distance */
-
-  PliMeta &metaType = bom ? meta.LPub.bom : meta.LPub.pli;
-
   int cd = cameraDistance(meta,metaType.modelScale.value());
 
   QString CA = QString("-ca%1") .arg(metaType.cameraFoV.value());
@@ -928,7 +933,7 @@ int LDGLite::renderPli(
 
   QStringList list;
   // First, load parms from meta
-  list = meta.LPub.pli.ldgliteParms.value().split(' ');
+  list = metaType.ldgliteParms.value().split(' ');
   for (int i = 0; i < list.size(); i++) {
      if (list[i] != "" && list[i] != " ") {
          arguments << list[i];
@@ -1261,15 +1266,17 @@ int LDView::renderPli(
   const QStringList &ldrNames,
   const QString     &pngName,
   Meta              &meta,
-  bool              bom)
+  int                pliType)
 {
+  // Select meta type
+  PliMeta &metaType = pliType == SUBMODEL ? static_cast<PliMeta&>(meta.LPub.subModel) :
+                      pliType == BOM ? meta.LPub.bom : meta.LPub.pli;
+
   QFileInfo fileInfo(ldrNames.first());
   if ( ! fileInfo.exists()) {
     emit gui->messageSig(LOG_ERROR,QMessageBox::tr("File ldrNames does not exist!"));
     return -1;
   }
-
-  PliMeta &metaType = bom ? meta.LPub.bom : meta.LPub.pli;
 
   /* determine camera distance */
   int cd = cameraDistance(meta,metaType.modelScale.value())*1700/1000;
@@ -1338,7 +1345,7 @@ int LDView::renderPli(
   arguments << v;
 
   QStringList ldviewParmslist;
-  ldviewParmslist = meta.LPub.assem.ldviewParms.value().split(' ');
+  ldviewParmslist = metaType.ldviewParms.value().split(' ');
   for (int i = 0; i < ldviewParmslist.size(); i++) {
     if (ldviewParmslist[i] != "" && ldviewParmslist[i] != " ") {
       arguments << ldviewParmslist[i];    // 10. ldviewParms [usually empty]
@@ -1399,7 +1406,12 @@ float Native::cameraDistance(
     float scale)
 {
   Q_UNUSED(scale);
-  return -meta.LPub.page.cameraDistNative.factor.value();
+
+#ifdef IS_SUBMODEL
+  return -meta.LPub.subModel.cameraDistNative.factor.value();
+#else
+  return -meta.LPub.assem.cameraDistNative.factor.value();
+#endif
 }
 
 int Native::renderCsi(
@@ -1450,10 +1462,11 @@ int Native::renderPli(
   const QStringList &ldrNames,
   const QString     &pngName,
   Meta              &meta,
-  bool               bom)
+  int               pliType)
 {
   // Select meta type
-  PliMeta &metaType = bom ? meta.LPub.bom : meta.LPub.pli;
+  PliMeta &metaType = pliType == SUBMODEL ? static_cast<PliMeta&>(meta.LPub.subModel) :
+                      pliType == BOM ? meta.LPub.bom : meta.LPub.pli;
 
   // Renderer options
   NativeOptions Options;

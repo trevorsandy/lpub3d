@@ -2060,6 +2060,13 @@ public:
   {
     _value = rhs.value();
   }
+  void setValue(RotStepData &rhs)
+  {
+    _value.type = rhs.type;
+    _value.rots[0] = rhs.rots[0];
+    _value.rots[1] = rhs.rots[1];
+    _value.rots[2] = rhs.rots[2];
+  }
   RotStepMeta& operator=(const RotStepMeta &rhs)
   {
     LeafMeta::operator=(rhs);
@@ -2138,6 +2145,23 @@ public:
   }
 
   virtual ~PliAnnotationMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+};
+
+/*------------------------*/
+
+class CalloutSubModelMeta : public BranchMeta
+{
+public:
+  PlacementMeta placement;
+  MarginsMeta   margin;
+  BoolMeta      show;
+  CalloutSubModelMeta();
+  CalloutSubModelMeta(const CalloutSubModelMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+
+  virtual ~CalloutSubModelMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -2288,8 +2312,8 @@ public:
   PliAnnotationMeta annotation;
 
   FloatMeta         cameraFoV;
-  FloatPairMeta     cameraAngles;
-  IntMeta           distance;
+  RotStepMeta          rotStep;
+  BoolMeta             showTopModel;
   FloatMeta         znear;
   FloatMeta         zfar;
 
@@ -2317,6 +2341,20 @@ public:
 
 /*------------------------*/
 
+class SubModelMeta  : public PliMeta
+{
+public:
+  SubModelMeta();
+  SubModelMeta(const SubModelMeta &rhs) : PliMeta(rhs)
+  {
+  }
+
+  virtual ~SubModelMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+};
+
+/*------------------------*/
+
 class CalloutMeta  : public BranchMeta
 {
 public:
@@ -2329,6 +2367,7 @@ public:
   MarginsMeta    margin;
   CalloutCsiMeta csi;               
   CalloutPliMeta pli;
+  CalloutSubModelMeta subModel;
   RotateIconMeta rotateIcon;
   NumberPlacementMeta stepNum;
   SepMeta        sep;
@@ -2387,6 +2426,7 @@ public:
   MarginsMeta    margin;
   CalloutCsiMeta csi;
   CalloutPliMeta pli;
+  CalloutSubModelMeta subModel;
   RotateIconMeta rotateIcon;
   NumberPlacementMeta stepNum;
   SepMeta        sep;
@@ -2468,26 +2508,27 @@ public:
 class LPubMeta : public BranchMeta
 {
 public:
-  ResolutionMeta      resolution;
-  PageMeta            page;
-  AssemMeta           assem;
-  NumberPlacementMeta stepNumber;
-  CalloutMeta         callout;
-  PagePointerMeta     pagePointer;
-  MultiStepMeta       multiStep;
-  PliMeta             pli;
-  BomMeta             bom;
-  RemoveMeta          remove;
-  FloatMeta           reserve;
-  PartIgnMeta         partSub;
-  InsertMeta          insert;
-  StringMeta          include;
-  NoStepMeta          nostep;
-  FadeStepMeta        fadeStep;
-  HighlightStepMeta   highlightStep;
-  RotateIconMeta      rotateIcon;
-  BoolMeta            mergeInstanceCount;
-  StepPliMeta         stepPli;
+  ResolutionMeta       resolution;
+  PageMeta             page;
+  AssemMeta            assem;
+  NumberPlacementMeta  stepNumber;
+  CalloutMeta          callout;
+  PagePointerMeta      pagePointer;
+  MultiStepMeta        multiStep;
+  PliMeta              pli;
+  BomMeta              bom;
+  RemoveMeta           remove;
+  FloatMeta            reserve;
+  PartIgnMeta          partSub;
+  InsertMeta           insert;
+  StringMeta           include;
+  NoStepMeta           nostep;
+  FadeStepMeta         fadeStep;
+  HighlightStepMeta    highlightStep;
+  RotateIconMeta       rotateIcon;
+  SubModelMeta         subModel;
+  BoolMeta             mergeInstanceCount;
+  StepPliMeta          stepPli;
 
   LPubMeta();
   virtual ~LPubMeta() {}

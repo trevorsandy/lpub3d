@@ -96,6 +96,11 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   data->children.append(child);
   tempLayout->addWidget(child);
 
+  box = new QGroupBox("Submodel");
+  grid->addWidget(box);
+  child = new CheckBoxGui("Show Submodel image at first step",&multiStepMeta->subModel.show, box);
+  data->children.append(child);
+
   box = new QGroupBox("Step Number");
   grid->addWidget(box);
   child = new NumberGui(&multiStepMeta->stepNum,box);

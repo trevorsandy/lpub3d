@@ -160,6 +160,29 @@ public slots:
 
 /*****************************************************************
  *
+ * Global to sub-model
+ *
+ ****************************************************************/
+
+class GlobalSubModelPrivate;
+class GlobalSubModelDialog : public QDialog
+{
+  Q_OBJECT
+private:
+  GlobalSubModelPrivate *data;
+
+public:
+  GlobalSubModelDialog(QString &topLevelFile, Meta &meta);
+  ~GlobalSubModelDialog() {}
+  static void getSubModelGlobals(QString topLevelFile, Meta &meta);
+
+public slots:
+  void accept();
+  void cancel();
+};
+
+/*****************************************************************
+ *
  * Global to callout
  *
  ****************************************************************/

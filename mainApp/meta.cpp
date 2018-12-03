@@ -554,8 +554,8 @@ QString relativeNames[] =
   "DOCUMENT_TITLE","MODEL_ID","DOCUMENT_AUTHOR","PUBLISH_URL","MODEL_DESCRIPTION",
   "PUBLISH_DESCRIPTION","PUBLISH_COPYRIGHT","PUBLISH_EMAIL","LEGO_DISCLAIMER",
   "MODEL_PARTS","APP_PLUG","SUBMODEL_INST_COUNT","DOCUMENT_LOGO","DOCUMENT_COVER_IMAGE",
-  "APP_PLUG_IMAGE","PAGE_HEADER","PAGE_FOOTER","MODEL_CATEGORY","ROTATE_ICON",
-  "PAGE_POINTER","SINGLE_STEP","STEP","RANGE","RESERVE","COVER_PAGE"
+  "APP_PLUG_IMAGE","PAGE_HEADER","PAGE_FOOTER","MODEL_CATEGORY","SUBMODEL_DISPLAY",
+  "ROTATE_ICON","PAGE_POINTER","SINGLE_STEP","STEP","RANGE","RESERVE","COVER_PAGE"
 };
 
 PlacementMeta::PlacementMeta() : LeafMeta()
@@ -592,8 +592,8 @@ Rc PlacementMeta::parse(QStringList &argv, int index,Where &here)
                         "DOCUMENT_TITLE|MODEL_ID|DOCUMENT_AUTHOR|PUBLISH_URL|MODEL_DESCRIPTION|"
                         "PUBLISH_DESCRIPTION|PUBLISH_COPYRIGHT|PUBLISH_EMAIL|LEGO_DISCLAIMER|"
                         "MODEL_PARTS|APP_PLUG|MODEL_CATEGORY|DOCUMENT_LOGO|DOCUMENT_COVER_IMAGE|"
-                        "APP_PLUG_IMAGE|PAGE_HEADER|PAGE_FOOTER|MODEL_CATEGORY|ROTATE_ICON|"
-                        "PAGE_POINTER|SINGLE_STEP|STEP|RANGE|RESERVE|COVER_PAGE)$";
+                        "APP_PLUG_IMAGE|PAGE_HEADER|PAGE_FOOTER|MODEL_CATEGORY|SUBMODEL_DISPLAY|"
+                        "ROTATE_ICON|PAGE_POINTER|SINGLE_STEP|STEP|RANGE|RESERVE|COVER_PAGE)$";
 
   _placementR    = _value[pushed].rectPlacement;
   _relativeTo    = _value[pushed].relativeTo;
@@ -817,7 +817,8 @@ void PlacementMeta::doc(QStringList &out, QString preamble)
 {
   out << preamble + " (TOP|BOTTOM) (LEFT|CENTER|RIGHT) (PAGE|ASSEM (INSIDE|OUTSIDE)|MULTI_STEP|STEP_NUMBER|PLI|CALLOUT)";
   out << preamble + " (LEFT|RIGHT) (TOP|CENTER|BOTTOM) (PAGE|ASSEM (INSIDE|OUTSIDE)|MULTI_STEP|STEP_NUMBER|PLI|CALLOUT)";
-  out << preamble + " (TOP_LEFT|TOP_RIGHT|BOTTOM_LEFT|BOTTOM_RIGHT) (PAGE|ASSEM (INSIDE|OUTIDE)|MULTI_STEP|STEP_NUMBER|PLI|ROTATE_ICON|CALLOUT)";
+  out << preamble + " (TOP_LEFT|TOP_RIGHT|BOTTOM_LEFT|BOTTOM_RIGHT) (PAGE|ASSEM (INSIDE|OUTIDE)|MULTI_STEP|STEP_NUMBER|PLI|"
+                    "SUBMODEL_DISPLAY|ROTATE_ICON|CALLOUT)";
 }
 /* ------------------ */ 
 
@@ -2125,6 +2126,22 @@ void CalloutPliMeta::init(BranchMeta *parent, QString name)
   perStep.init  (this,"PER_STEP");
 }
 
+/* ------------------ */
+
+CalloutSubModelMeta::CalloutSubModelMeta() : BranchMeta()
+{
+  placement.setValue(LeftOutside,CsiType);
+  show.setValue(true);
+}
+
+void CalloutSubModelMeta::init(BranchMeta *parent, QString name)
+{
+  AbstractMeta::init(parent, name);
+  placement.init(this,"PLACEMENT");
+  margin.init(   this,"MARGINS");
+  show.init  (   this,"SHOW");
+}
+
 /* ------------------ */ 
 
 StepPliMeta::StepPliMeta() : BranchMeta()
@@ -2528,6 +2545,85 @@ void PliAnnotationMeta::init(BranchMeta *parent, QString name)
   freeformAnnotation.init         (this, "USE_FREE_FORM");
   titleAndFreeformAnnotation.init (this, "USE_TITLE_AND_FREE_FORM");
   display.init                    (this, "DISPLAY");
+}
+
+/* ------------------ */
+
+SubModelMeta::SubModelMeta() : PliMeta()
+{
+  placement.setValue(RightTopOutside,StepNumberType);
+  BorderData borderData;
+  borderData.type = BorderData::BdrSquare;
+  borderData.line = BorderData::BdrLnSolid;
+  borderData.color = "Black";
+  borderData.thickness = DEFAULT_THICKNESS;
+  borderData.radius = 15;
+  borderData.margin[0] = DEFAULT_MARGIN;
+  borderData.margin[1] = DEFAULT_MARGIN;
+  border.setValueInches(borderData);
+  background.setValue(BackgroundData::BgColor,"#ffffff");
+  margin.setValuesInches(0.0f,0.0f);
+  // instance - default
+  // annotate - default
+  modelScale.setRange(-10000.0,10000.0);
+  modelScale.setFormats(7,4,"#99999.9");
+  modelScale.setValue(1.0);
+  show.setValue(Preferences::showSubmodels);
+  showTopModel.setValue(Preferences::showTopModel);
+  ldgliteParms.setValue("-l3");
+  ldviewParms.setValue("");
+  povrayParms.setValue("+A");
+  // includeSubs.setValue(false);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_01);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_02);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_03);
+  subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_04);
+  part.margin.setValuesInches(0.05f,0.03f);
+  RotStepData rotStepData;
+  rotStepData.rots[0] = 0.0f;
+  rotStepData.rots[1] = 0.0f;
+  rotStepData.rots[2] = 0.0f;
+  rotStepData.type = "REL";
+  rotStep.setValue(rotStepData);
+  margin.setValuesInches(DEFAULT_MARGIN,DEFAULT_MARGIN);
+  pack.setValue(true);
+  cameraDistNative.factor.setRange(100,5000);
+  cameraDistNative.factor.setValue(Preferences::cameraDistFactorNative);
+  cameraFoV.setFormats(5,4,"9.999");
+  cameraFoV.setRange(0.0,360.0);
+  cameraFoV.setValue(gui->getDefaultCameraFoV());
+  cameraAngles.setFormats(7,4,"###9.90");
+  cameraAngles.setRange(-360.0,360.0);
+  cameraAngles.setValues(23,-45);
+  znear.setValue(gui->getDefaultCameraZNear());
+  zfar.setValue(gui->getDefaultCameraZFar());
+}
+
+void SubModelMeta::init(BranchMeta *parent, QString name)
+{
+  AbstractMeta::init(parent, name);
+  placement       .init(this,"PLACEMENT");
+  constrain       .init(this,"CONSTRAIN");
+  border          .init(this,"BORDER");
+  background      .init(this,"BACKGROUND");
+  margin          .init(this,"MARGINS");
+  instance        .init(this,"INSTANCE_COUNT");
+  includeSubs     .init(this,"INCLUDE_SUBMODELS");
+  modelScale      .init(this,"MODEL_SCALE");
+  show            .init(this,"SHOW");
+  showTopModel    .init(this,"SHOW_TOP_MODEL");
+  ldviewParms     .init(this,"LDVIEW_PARMS");
+  ldgliteParms    .init(this,"LDGLITE_PARMS");
+  povrayParms     .init(this,"POVRAY_PARMS");
+  subModelColor   .init(this,"SUBMODEL_BACKGROUND_COLOR");
+  part            .init(this,"PART");
+  rotStep         .init(this,"SUBMODEL_ROTATION");
+  cameraDistNative.init(this,"CAMERA_DISTANCE_NATIVE");
+  cameraFoV       .init(this,"CAMERA_FOV");
+  cameraAngles    .init(this,"CAMERA_ANGLES");
+  distance        .init(this,"CAMERA_DISTANCE");
+  znear           .init(this,"CAMERA_ZNEAR");
+  zfar            .init(this,"CAMERA_ZFAR");
 }
 
 /* ------------------ */
@@ -3183,6 +3279,9 @@ CalloutMeta::CalloutMeta() : BranchMeta()
   alloc.setValue(Vertical);
   pli.placement.setValue(TopLeftOutside,CsiType);
   pli.perStep.setValue(true);
+  // Submodel
+  subModel.placement.setValue(RightTopOutside,StepNumberType);
+  subModel.show.setValue(true);
   // Rotate Icon
   rotateIcon.placement.setValue(RightOutside,CsiType);
 }
@@ -3209,6 +3308,7 @@ void CalloutMeta::init(BranchMeta *parent, QString name)
   end        .init(this,      "END",     CalloutEndRc);
   csi        .init(this,      "ASSEM");
   pli        .init(this,      "PLI");
+  subModel   .init(this,      "SUBMODEL_DISPLAY");
   rotateIcon .init(this,      "ROTATE_ICON");
 }
 
@@ -3260,6 +3360,9 @@ MultiStepMeta::MultiStepMeta() : BranchMeta()
   alloc.setValue(Vertical);
   pli.placement.setValue(LeftTopOutside,CsiType);
   pli.perStep.setValue(true);
+  // Submodel
+  subModel.placement.setValue(RightTopOutside,StepNumberType);
+  subModel.show.setValue(true);
   // Rotate Icon
   rotateIcon.placement.setValue(RightOutside,CsiType);
 }
@@ -3278,6 +3381,7 @@ void MultiStepMeta::init(BranchMeta *parent, QString name)
   alloc    .init(this,    "ALLOC");
   csi      .init(this,    "ASSEM");
   pli      .init(this,    "PLI");
+  subModel .init(this,    "SUBMODEL_DISPLAY");
   rotateIcon .init(this,  "ROTATE_ICON");
 
   begin    .init(this,    "BEGIN",  StepGroupBeginRc);
@@ -3365,8 +3469,10 @@ void NoStepMeta::doc(QStringList &out, QString preamble)
 LPubMeta::LPubMeta() : BranchMeta()
 {
   rotateIcon.placement.setValue(RightOutside,CsiType);
+  subModel.placement.setValue(RightTopOutside,StepNumberType);
   stepNumber.placement.setValue(BottomLeftOutside,PageHeaderType);      // TopLeftInsideCorner,PageType
   stepNumber.color.setValue("black");
+  cameraDistNative.factor.setValue(Preferences::cameraDistFactorNative);
 
   mergeInstanceCount.setValue(true);
   // stepNumber - default
@@ -3392,7 +3498,7 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   nostep                 .init(this,"NOSTEP", NoStepRc);\
   fadeStep               .init(this,"FADE_STEP");
   highlightStep          .init(this,"HIGHLIGHT_STEP");
-  rotateIcon             .init(this,"ROTATE_ICON");
+  subModel          .init(this,"SUBMODEL_DISPLAY");
   mergeInstanceCount     .init(this,"CONSOLIDATE_INSTANCE_COUNT");
   stepPli                .init(this,"STEP_PLI");
   reserve.setRange(0.0,1000000.0);
@@ -3525,6 +3631,7 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
       tokenMap["PAGE_HEADER"]    	   = PageHeaderType;
       tokenMap["PAGE_FOOTER"]    	   = PageFooterType;
       tokenMap["MODEL_CATEGORY"]       = PageCategoryType;
+      tokenMap["SUBMODEL_DISPLAY"]     = SubModelType;
       tokenMap["ROTATE_ICON"]          = RotateIconType;
 
       tokenMap["PAGE_POINTER"]         = PagePointerType;

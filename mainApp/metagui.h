@@ -39,6 +39,7 @@
 void clearPliCache();
 void clearAndRedrawPage();
 void clearCsiCache();
+void clearSubmodelCache();
 void clearPliCache();
 void clearTempCache();
 
@@ -562,9 +563,80 @@ public slots:
    void cameraDistFactorChange(int factor);
 };
 
-/***********************************************************************
- *
- * Spin Box
+/*********************************************************************** 
+ * 
+ * RotStep 
+ * 
+ **********************************************************************/ 
+ 
+class RotStepData; 
+class QGroupBox; 
+class QDoubleSpinBox; 
+class RotStepGui : public MetaGui 
+{ 
+  Q_OBJECT 
+public: 
+ 
+  RotStepGui(RotStepMeta   *meta, 
+    QGroupBox     *parent = nullptr); 
+  ~RotStepGui() {} 
+ 
+  virtual void apply(QString &modelName); 
+ 
+private: 
+  RotStepMeta     *meta; 
+ 
+  QDoubleSpinBox  *rotStepSpinX; 
+  QDoubleSpinBox  *rotStepSpinY; 
+  QDoubleSpinBox  *rotStepSpinZ; 
+  QComboBox       *typeCombo; 
+ 
+public slots: 
+   void rotStepXChange(double); 
+   void rotStepYChange(double); 
+   void rotStepZChange(double); 
+   void typeChange(QString const &); 
+}; 
+ 
+/*********************************************************************** 
+ * 
+ * Integer Spin Box 
+ * 
+ **********************************************************************/ 
+ 
+class IntMeta; 
+class QLabel; 
+class QSpinBox; 
+class SpinGui : public MetaGui 
+{ 
+  Q_OBJECT 
+public: 
+ 
+  SpinGui( 
+    QString const &heading, 
+    IntMeta       *meta, 
+    int            min, 
+    int            max, 
+    int            step, 
+    QGroupBox     *parent = nullptr); 
+  ~SpinGui() {} 
+ 
+  virtual void apply(QString &modelName); 
+ 
+  void setEnabled(bool enabled); 
+ 
+private: 
+  IntMeta      *meta; 
+  QLabel         *label; 
+  QSpinBox *spin; 
+ 
+public slots: 
+  void valueChanged(int); 
+}; 
+ 
+/*********************************************************************** 
+ * 
+ * Double Spin Box 
  *
  **********************************************************************/
 

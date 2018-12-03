@@ -41,7 +41,9 @@
 #include "csiitem.h"
 #include "callout.h"
 #include "pagepointer.h"
+#include "submodelitem.h"
 #include "rotateiconitem.h"
+#include "submodelitem.h"
 
 class Meta;
 class Callout;
@@ -51,12 +53,14 @@ class PagePointer;
 
 class Step : public AbstractRangeElement
 {
-  public: 
+  public:
     bool                  calledOut;
     bool                  multiStep;
+    bool                  placeSubModel;
     bool                  placeRotateIcon;
     QList<Callout *>      list;
     Pli                   pli;
+    SubModel              subModel;
     CsiItem              *csiItem;
     RotateIconMeta        rotateIconMeta;
     RotateIcon            rotateIcon;
@@ -83,9 +87,9 @@ class Step : public AbstractRangeElement
     Step(
       Where                 &topOfStep,
       AbstractStepsElement *_parent,
-      int                    num, 
+      int                    num,
       Meta                  &_meta,
-      bool                   calledOut, 
+      bool                   calledOut,
       bool                   multiStep);
 
     virtual ~Step();
@@ -128,7 +132,7 @@ class Step : public AbstractRangeElement
                 int  colsMargin[][2],
                 int  x,
                 int  y);
-                
+
     bool collide(int square[][NumPlaces],
                  int tbl[],
                  int x,
@@ -151,9 +155,9 @@ class Step : public AbstractRangeElement
       int relativeJustification,
       int &left,
       int &right);
-      
+
     virtual void addGraphicsItems(int ox, int oy, Meta *, PlacementType, QGraphicsItem *, bool);
 
 };
 
-#endif
+#endif // stepH

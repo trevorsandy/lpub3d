@@ -423,7 +423,9 @@ HEADERS += \
     threadworkers.h \
     updatecheck.h \
     version.h \
-    where.h
+    where.h \
+    submodelitem.h \
+    rotstepdialog.h
 
 SOURCES += \
     aboutdialog.cpp \
@@ -518,7 +520,10 @@ SOURCES += \
     threadworkers.cpp \
     traverse.cpp \
     undoredo.cpp \
-    updatecheck.cpp
+    updatecheck.cpp \
+    submodelitem.cpp \
+    submodelglobals.cpp \
+    rotstepdialog.cpp
 
 FORMS += \
     aboutdialog.ui \

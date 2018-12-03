@@ -26,6 +26,7 @@ class LDVWidget;
 extern LDVWidget *ldvWidget;
 
 enum PartType { FADE_PART, HIGHLIGHT_PART, NORMAL_PART, NUM_PART_TYPES };
+enum PliType { PART, SUBMODEL, BOM, NUM_PLI_TYPES };
 enum LogType { LOG_STATUS, LOG_INFO, LOG_TRACE, LOG_DEBUG, LOG_NOTICE, LOG_ERROR, LOG_INFO_STATUS, LOG_FATAL, LOG_QWARNING, LOG_QDEBUG };
 enum IniFlag { NativePOVIni, LDViewPOVIni, LDViewIni, NumIniFiles };
 enum LibType { LibLEGO, LibTENTE, LibVEXIQ, NumLibs };
@@ -67,11 +68,13 @@ enum Theme { ThemeDark, ThemeDefault };
 #define PAGE_WIDTH_DEFAULT                      600
 #define LINE_WRAP_WIDTH                         160      //Text browser line width (change log)
 
-#define PLAINTEXT_CHANGE_LOG_CUTOFF_VERSION    "2.2.2"  // last version of LPub3D to use html change notes
+#define PLAINTEXT_CHANGE_LOG_CUTOFF_VERSION    "2.2.2"   // last version of LPub3D to use html change notes
 
 #define DURAT_LGEO_STL_LIB_INFO                 "LGEO Stl library is available"
 
 #define SPLASH_FONT_COLOUR                      "#aa0000" // LPub3D Maroon
+
+#define DISPLAY_SUBMODEL_SUFFIX                 "@Display"
 
 // Renderers
 #define RENDERER_POVRAY                         "POVRay"

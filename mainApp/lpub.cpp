@@ -99,6 +99,11 @@ void clearCsiCache()
   gui->clearCSICache();
 }
 
+void clearSubmodelCache()
+{
+  gui->clearSubmodelCache();
+}
+
 void clearTempCache()
 {
   gui->clearTempCache();
@@ -1108,6 +1113,7 @@ void Gui::clearAllCaches()
 
         clearPLICache();
         clearCSICache();
+        clearSubmodelCache();
         clearTempCache();
 
         //reload current model file
@@ -1222,6 +1228,40 @@ void Gui::clearCSICache()
     }
 
     emit messageSig(LOG_INFO_STATUS,QString("Assembly content cache cleaned. %1 items removed.").arg(count));
+}
+
+void Gui::clearSubmodelCache(const QString &key)
+{
+    if (getCurFile().isEmpty()) {
+        emit messageSig(LOG_STATUS,"A model must be open to clean its Submodel cache - no action taken.");
+        return;
+    }
+
+    QDir dir(QDir::currentPath() + "/" + Paths::submodelDir);
+    dir.setFilter(QDir::Files | QDir::NoDotAndDotDot | QDir::NoSymLinks);
+
+    QFileInfoList list = dir.entryInfoList();
+    int count = 0;
+    for (int i = 0; i < list.size(); i++) {
+        QFileInfo fileInfo = list.at(i);
+        QFile     file(fileInfo.absoluteFilePath());
+        bool deleteSpecificFile = fileInfo.absoluteFilePath().contains(key);
+        if (key.isEmpty() || deleteSpecificFile){
+            if (!file.remove()) {
+                emit messageSig(LOG_ERROR,QString("Unable to remove %1")
+                                .arg(fileInfo.absoluteFilePath()));
+            } else {
+#ifdef QT_DEBUG_MODE
+                emit messageSig(LOG_TRACE,QString("-File %1 removed").arg(fileInfo.absoluteFilePath()));
+#endif
+                count++;
+                if (deleteSpecificFile)
+                    break;
+            }
+        }
+    }
+
+    emit messageSig(LOG_INFO_STATUS,QString("Submodel content cache cleaned. %1 items removed.").arg(count));
 }
 
 void Gui::clearTempCache()
@@ -1428,6 +1468,11 @@ void Gui::calloutSetup()
 void Gui::multiStepSetup()
 {
   GlobalMultiStepDialog::getMultiStepGlobals(ldrawFile.topLevelFile(),page.meta);
+}
+
+void Gui::subModelSetup()
+{
+  GlobalSubModelDialog::getSubModelGlobals(ldrawFile.topLevelFile(),page.meta);
 }
 
 void Gui::projectSetup()
@@ -3050,6 +3095,11 @@ void Gui::createActions()
     clearCSICacheAct->setStatusTip(tr("Reset the assembly image cache - Alt+S"));
     connect(clearCSICacheAct, SIGNAL(triggered()), this, SLOT(clearCSICache()));
 
+    clearSubmodelCacheAct = new QAction(QIcon(":/resources/clearsubmodelcache.png"),tr("Reset Submodel Image Cache"), this);
+    clearSubmodelCacheAct->setShortcut(tr("Alt+E"));
+    clearSubmodelCacheAct->setStatusTip(tr("Reset the submodel image cache - Alt+E"));
+    connect(clearSubmodelCacheAct, SIGNAL(triggered()), this, SLOT(clearSubmodelCache()));
+
     clearTempCacheAct = new QAction(QIcon(":/resources/cleartempcache.png"),tr("Reset Temp File Cache"), this);
     clearTempCacheAct->setShortcut(tr("Alt+T"));
     clearTempCacheAct->setStatusTip(tr("Reset the Temp file and 3D viewer image cache - Alt+T"));
@@ -3104,6 +3154,11 @@ void Gui::createActions()
     multiStepSetupAct->setEnabled(false);
     multiStepSetupAct->setStatusTip(tr("Default values for your project's step groups"));
     connect(multiStepSetupAct, SIGNAL(triggered()), this, SLOT(multiStepSetup()));
+
+    subModelSetupAct = new QAction(QIcon(":/resources/submodelsetup.png"),tr("Submodel Display Setup"), this);
+    subModelSetupAct->setEnabled(false);
+    subModelSetupAct->setStatusTip(tr("Default values for your sub-model displayed at first step"));
+    connect(subModelSetupAct, SIGNAL(triggered()), this, SLOT(subModelSetup()));
 
     projectSetupAct = new QAction(QIcon(":/resources/projectsetup.png"),tr("Project Setup"), this);
     projectSetupAct->setEnabled(false);
@@ -3252,6 +3307,7 @@ void Gui::enableActions()
   bomSetupAct->setEnabled(true);
   calloutSetupAct->setEnabled(true);
   multiStepSetupAct->setEnabled(true);
+  subModelSetupAct->setEnabled(true);
   projectSetupAct->setEnabled(true);
   fadeStepSetupAct->setEnabled(true);
   highlightStepSetupAct->setEnabled(true);
@@ -3315,6 +3371,7 @@ void Gui::disableActions()
   bomSetupAct->setEnabled(false);
   calloutSetupAct->setEnabled(false);
   multiStepSetupAct->setEnabled(false);
+  subModelSetupAct->setEnabled(false);
   projectSetupAct->setEnabled(false);
   fadeStepSetupAct->setEnabled(false);
   highlightStepSetupAct->setEnabled(false);
@@ -3483,6 +3540,7 @@ void Gui::createMenus()
     toolsMenu->addAction(refreshLDrawOfficialPartsAct);
     cacheMenu->addAction(clearAllCachesAct);
     cacheMenu->addAction(clearPLICacheAct);
+    cacheMenu->addAction(clearSubmodelCacheAct);
     cacheMenu->addAction(clearCSICacheAct);
     cacheMenu->addAction(clearTempCacheAct);
     cacheMenu->addAction(clearCustomPartCacheAct);
@@ -3499,6 +3557,7 @@ void Gui::createMenus()
     setupMenu->addAction(bomSetupAct);
     setupMenu->addAction(calloutSetupAct);
     setupMenu->addAction(multiStepSetupAct);
+    setupMenu->addAction(subModelSetupAct);
     setupMenu->addAction(projectSetupAct);
     setupMenu->addAction(fadeStepSetupAct);
     setupMenu->addAction(highlightStepSetupAct);

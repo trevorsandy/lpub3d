@@ -112,6 +112,13 @@ int Placement::relativeTo(
       placeRelative(&step->pli);
       appendRelativeTo(&step->pli);
     }
+    /* subModel (Submodel) */
+    stepRelativeTo = step->subModel.placement.value().relativeTo;
+    if (stepRelativeTo == relativeType) {
+      placeRelative(&step->subModel);
+      appendRelativeTo(&step->subModel);
+    }
+
     /* step number */
     stepRelativeTo = step->stepNumber.placement.value().relativeTo;
     if (stepRelativeTo == relativeType) {
@@ -180,6 +187,12 @@ int Placement::relativeToSg(
       placeRelative(&steps->pli);
       appendRelativeTo(&steps->pli);
     }
+    // SM
+    if (steps->subModel.tsize() &&
+        steps->subModel.placement.value().relativeTo == relativeType) {
+      placeRelative(&steps->subModel);
+      appendRelativeTo(&steps->subModel);
+    }
 
     for (int j = 0; j < steps->list.size(); j++) {
 
@@ -239,11 +252,11 @@ int Placement::relativeToSg(
  * This recursive function is the center piece of the whole concept of
  * placing things relative to things.  At the topmost level, this is of
  * type page, and them can be of types page number, step number, csi,
- * pli callout, or step group.
+ * pli, submodel, callout, or step group.
  *
  * Later as we recurse them could be step group or csi. If this->relativeType
  * is step group then callouts could be placed relative to us.  If
- * this->relativeType is csi, then step number, PLIs, or callouts could
+ * this->relativeType is csi, then step number, submodels, PLIs, or callouts could
  * be placed relative to us.
  */
 
@@ -264,8 +277,8 @@ void Placement::placeRelative(
   
     int top, bottom, height;
 
-    // calculate changes in our size due to neighbors
-    // if neighbor is left or top, calculate bounding top left
+    // calculate changes in our size due to neighbours
+    // if neighbour is left or top, calculate bounding top left
     // corner
 
     top = them->loc[i];

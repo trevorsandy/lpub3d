@@ -138,17 +138,18 @@ enum PlacementType {          // placement dialogue codes:
   PageHeaderType,             //22 Ph
   PageFooterType,             //23 Pf
   PageCategoryType,           //24 Cat
-  RotateIconType,             //25 Ri
-  BomType,                    //26
+  SubModelType,               //25 Sm
+  RotateIconType,             //26 Ri
+  BomType,                    //27
 
-  PagePointerType,            //27
-  SingleStepType,             //28
-  StepType,                   //29
-  RangeType,                  //30
-  ReserveType,                //31
-  CoverPageType,              //32
+  PagePointerType,            //28
+  SingleStepType,             //29
+  StepType,                   //30
+  RangeType,                  //31
+  ReserveType,                //32
+  CoverPageType,              //33
 
-  NumRelatives                //33
+  NumRelatives                //34
 };
 
 enum pageType{
@@ -276,7 +277,7 @@ public:
     InsertText,
     InsertArrow,
     InsertBom,
-    InsertRotateIcon
+    InsertRotateIcon,
   } type;
 
   QString     picName;
@@ -498,16 +499,18 @@ const QString RelNames[NumRelatives] =
    "PageHeaderType",             //22 ph
    "PageFooterType",             //23 pf
    "PageCategoryType",           //24 cat
-   "RotateIconType",             //25
-   "BomType",                    //26
+   "SubModelType",               //25 Sm
+   "RotateIconType",             //26 Ri
+   "BomType",                    //27
 
-   "PagePointerType",            //27
-   "SingleStepType",             //28
-   "StepType",                   //29
-   "RangeType",                  //30
-   "ReserveType",                //31
-   "CoverPageType"               //32
-}; //NumRelatives"               //33
+   "PagePointerType",            //28
+   "SingleStepType",             //29
+   "StepType",                   //20
+   "RangeType",                  //31
+   "ReserveType",                //32
+   "CoverPageType"               //33
+
+}; //NumRelatives"               //34
 
 const QString PlacNames[NumPlacements] =
  {

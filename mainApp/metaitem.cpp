@@ -59,6 +59,7 @@
 #include "rotateiconsizedialog.h"
 #include "submodelcolordialog.h"
 #include "cameradistfactordialog.h"
+#include "rotstepdialog.h"
 #include "paths.h"
 #include "render.h"
 
@@ -291,6 +292,107 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
           argv[1] == "LPUB" || argv[1] == "!LPUB") {
         break;
       }
+    } else if (argv.size() == 15 && argv[0] == "1") {
+      if (gui->isSubmodel(argv[14])) {
+        if (argv[14] == modelName) {
+          if (firstLine == "") {
+            firstLine = line;
+            firstInstance = walk;
+            ++instanceCount;
+          } else {
+            if (equivalentAdds(firstLine,line)) {
+              lastInstance = walk;
+              ++instanceCount;
+            } else {
+              break;
+            }
+          }
+        } else {
+          break;
+        }
+      }
+    }
+  }
+  return instanceCount;
+}
+
+int MetaItem::countInstancesInBlock(Meta *meta, const QString &modelName, int mask){
+
+    int   numLines;
+    Where walk(modelName,0);
+
+    /* submodelStack tells us where this submodel is referenced in the
+     parent file */
+
+    SubmodelStack tos = meta->submodelStack[meta->submodelStack.size() - 1];
+    Where step(tos.modelName,tos.lineNumber);
+
+    /* Now scan the lines following this line, to see if there is another
+   * submodel just like this one that needs to be added as multiplier.
+   *
+   * We also want to scan backward for the same submodel.
+   *
+   * In the backward direction, we need to stop on CALLOUT/MULTI_STEP BEGIN
+   * In the forward direction, we need to stop on CALLOUT/MULTI_STEP END.
+   * We also need to stop on other sub-models, or mirror images of the same sub-model.
+   */
+
+  int instanceCount = 0;
+
+  QString firstLine;
+  Where lastInstance, firstInstance;
+
+  Where walkBack = step;
+  for (; walkBack.lineNumber >= 0; walkBack--) {
+    QString line = gui->readLine(walkBack);
+
+    if (isHeader(line)) {
+      break;
+    } else {
+      QStringList argv;
+      split(line,argv);
+      if (argv.size() >= 2 && argv[0] == "0") {
+        Rc rc = meta->parse(line,walkBack);
+        if ((rc == CalloutBeginRc && ((mask >> rc) & 1)) ||
+            (rc == StepGroupBeginRc && ((mask >> rc) & 1))) {
+          break;
+        }
+      } else if (argv.size() == 15 && argv[0] == "1") {
+        if (gui->isSubmodel(argv[14])) {
+          if (argv[14] == modelName) {
+            if (firstLine == "") {
+              firstLine = line;
+              firstInstance = walkBack;
+              lastInstance = walkBack;
+              ++instanceCount;
+            } else {
+              if (equivalentAdds(firstLine,line)) {
+                firstInstance = walkBack;
+                ++instanceCount;
+              } else {
+                break;
+              }
+            }
+          } else {
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  walk = step + 1;
+  numLines = gui->subFileSize(walk.modelName);
+  for ( ; walk.lineNumber < numLines; walk++) {
+    QString line = gui->readLine(walk);
+    QStringList argv;
+    split(line,argv);
+    if (argv.size() >= 2 && argv[0] == "0") {
+        Rc rc = meta->parse(line,walk);
+        if ((rc == CalloutEndRc && ((mask >> rc) & 1)) ||
+            (rc == StepGroupEndRc && ((mask >> rc) & 1))) {
+          break;
+        }
     } else if (argv.size() == 15 && argv[0] == "1") {
       if (gui->isSubmodel(argv[14])) {
         if (argv[14] == modelName) {
@@ -1350,8 +1452,8 @@ void MetaItem::changePlacementOffset(
 }
 
 void MetaItem::changeConstraint(
-  Where          topOfStep,
-  Where          bottomOfStep,
+  const Where   &topOfStep,
+  const Where   &bottomOfStep,
   ConstrainMeta *constraint,
   int            append,
   bool           useBot)
@@ -1364,8 +1466,8 @@ void MetaItem::changeConstraint(
 }
 
 void MetaItem::changeConstraintStepGroup(
-  Where          topOfStep,
-  Where          bottomOfStep,
+  const Where   &topOfStep,
+  const Where   &bottomOfStep,
   ConstrainMeta *constraint,
   int            append)
 {
@@ -1456,6 +1558,35 @@ void MetaItem::changeSizeAndOrientation(
           smeta->setValueSizeID(sdata.sizeID);
           setMeta(topOfStep,bottomOfStep,smeta,useTop,append,local);
         }
+    }
+}
+
+void MetaItem::hideSubmodel(
+        const Where &topOfStep,
+        const Where &bottomOfStep,
+        BoolMeta *show,
+        bool useTop,
+        int append,
+        bool checkLocal){
+    show->setValue(false);
+    setMeta(topOfStep,bottomOfStep,show,useTop,append,checkLocal);
+}
+
+void MetaItem::changeSubmodelRotStep(
+        QString title,
+        const Where &topOfStep,
+        const Where &bottomOfStep,
+        RotStepMeta *rotStep,
+        bool useTop,
+        int append,
+        bool checkLocal){
+
+    RotStepData rotStepData = rotStep->value();
+    bool ok = RotStepDialog::getRotStep(rotStepData,title);
+
+    if (ok) {
+        rotStep->setValue(rotStepData);
+        setMeta(topOfStep,bottomOfStep,rotStep,useTop,append,checkLocal);
     }
 }
 

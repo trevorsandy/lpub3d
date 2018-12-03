@@ -75,43 +75,44 @@ QString labels[5][5] =
 };
 
 const  QList<int> PlacementDialog::relativeToOks[NumRelatives] =
-{ //                               {Page , Csi , Pli , Pn , Sn , Callout , PhD , Pf, Ms}
+{ //                               {Page , Csi , Pli , Pn , Sn , Callout , Sm , PhD , Pf, Ms}
   /*  0 Page             Page    */{0},
   /*  1 Csi (Assem)      Csi     */{Page},
   /*  2 MultiStep        Ms      */{Page       , Pli},
-  /*  3 StepNum          Sn      */{Page , Csi , Pli                     , Ph , Pf},
-  /*  4 Pli              Pli     */{Page , Csi       , Pn , Sn           , Ph , Pf},
-  /*  5 Callout          Callout */{Page , Csi , Pli      , Sn           , Ph , Pf},
-  /*  6 PageNum          Pn      */{Page , Csi , Pli , Pn , Sn , Callout , Ph , Pf},
+  /*  3 StepNumber       Sn      */{Page , Csi , Pli                          , Ph , Pf},
+  /*  4 Pli              Pli     */{Page , Csi       , Pn , Sn           , Sm , Ph , Pf},
+  /*  5 Callout          Callout */{Page , Csi , Pli      , Sn                , Ph , Pf},
+  /*  6 PageNum          Pn      */{Page , Csi , Pli , Pn , Sn , Callout      , Ph , Pf},
 
-  /*  7 title            Tt      */{Page},
-  /*  8 modelName        mnt     */{Page                                                                          , Tt},
-  /*  9 author           At      */{Page             , Pn                , Ph , Pf , Tt ,      Ct , Et , Urlt},
-  /* 10 url              Urlt    */{Page             , Pn                , Ph , Pf      , At , Ct , Et},
-  /* 11 modelDesc        mdt     */{Page                                                                          , Pt},
-  /* 12 publishDesc      pdt     */{Page                                                                          , Mdt},
-  /* 13 copyright        Ct      */{Page             , Pn                , Ph , Pf      , At ,      Et , Urlt},
-  /* 14 email            Et      */{Page             , Pn                , Ph , Pf      , At , Ct ,      Urlt},
-  /* 15 disclaimer       dt      */{Page                                                          , Et},
-  /* 16 Parts            pt      */{Page                                                , At},
-  /* 17 plug             plt     */{Page                                                                          , Dt},
-  /* 18 submodelInsCount sic     */{Page , Csi , Pli , Pn , Sn},
-  /* 19 documentLogo     dlt     */{Page                                 , Ph , Pf},
-  /* 20 coverImage       cit     */{Page},
-  /* 21 plugImage        pit     */{Page                                      , Pf                                , Plt},
-  /* 22 pageHeader       Ph      */{Page},
-  /* 23 pageFooter       Pf      */{Page},
-  /* 24 Category         cat     */{Page             , Pn                , Ph , Pf , Tt ,      Ct , Et , Urlt},
-  /* 25 Rotate Icon      ri      */{Page , Csi , Pli      , Sn},
-  /* 26 Bom                      */{Page                                 , Ph , Pf},
+  /*  7 Title            Tt      */{Page},
+  /*  8 ModelName        Mnt     */{Page                                                                               , Tt},
+  /*  9 Author           At      */{Page             , Pn                     , Ph , Pf , Tt ,      Ct , Et , Urlt},
+  /* 10 Url              Urlt    */{Page             , Pn                     , Ph , Pf      , At , Ct , Et},
+  /* 11 ModelDesc        Mdt     */{Page                                                                               , Pt},
+  /* 12 PublishDesc      Pdt     */{Page                                                                               , Mdt},
+  /* 13 Copyright        Ct      */{Page             , Pn                     , Ph , Pf      , At ,      Et , Urlt},
+  /* 14 Email            Et      */{Page             , Pn                     , Ph , Pf      , At , Ct ,      Urlt},
+  /* 15 Disclaimer       Dt      */{Page                                                               , Et},
+  /* 16 Parts            Pt      */{Page                                                     , At},
+  /* 17 Plug             Plt     */{Page                                                                               , Dt},
+  /* 18 SubmodelInsCount Sic     */{Page , Csi , Pli , Pn , Sn},
+  /* 19 DocumentLogo     Dlt     */{Page                                      , Ph , Pf},
+  /* 20 CoverImage       Cit     */{Page},
+  /* 21 PlugImage        Pit     */{Page                                           , Pf                                , Plt},
+  /* 22 PageHeader       Ph      */{Page},
+  /* 23 PageFooter       Pf      */{Page},
+  /* 24 Category         Cat     */{Page             , Pn                     , Ph , Pf , Tt ,      Ct , Et , Urlt},
+  /* 25 Submodel         Sm      */{Page , Csi , Pli , Pn , Sn                , Ph , Pf},
+  /* 26 RotateIcon       Ri      */{Page , Csi , Pli      , Sn},
+  /* 27 Bom                      */{Page                                      , Ph , Pf},
 
-  /* 27 PagePointer              */{Page , Csi                           , Ph , Pf},
-  /* 28 SingleStep               */{Page},
-  /* 29 Step                     */{Page},
-  /* 30 Range                    */{Page},
-  /* 31 Reserve                  */{Page},
-  /* 32 CoverPage                */{Page}
-  /* 33 NumRelatives             */
+  /* 28 PagePointer              */{Page , Csi                                , Ph , Pf},
+  /* 29 SingleStep               */{Page , Csi},
+  /* 20 Step                     */{Page},
+  /* 31 Range                    */{Page},
+  /* 32 Reserve                  */{Page},
+  /* 33 CoverPage                */{Page}
+  /* 34 NumRelatives             */
 };
 
 //front cover options   Page     | Ph | Pf | Tt | At                  | mnt | pt | mdt | pdt | dlt,
@@ -122,7 +123,7 @@ const int PlacementDialog::prepositionOks[NumRelatives] = // indexed by them
   /*  0 Page                     */ InsideOk,
   /*  1 Csi                      */ InsideOk|OutsideOk,
   /*  2 MultiStep                */ OutsideOk,
-  /*  3 StepNum                  */ OutsideOk,
+  /*  3 StepNumber               */ OutsideOk,
   /*  4 Pli                      */ OutsideOk,
   /*  5 Callout                  */ OutsideOk,
   /*  6 PageNum                  */ OutsideOk,
@@ -145,16 +146,17 @@ const int PlacementDialog::prepositionOks[NumRelatives] = // indexed by them
   /* 22 PageHeader               */ InsideOk|OutsideOk,
   /* 23 PageFooter               */ InsideOk|OutsideOk,
   /* 24 Category                 */ OutsideOk,
-  /* 25 RotateIcon               */ OutsideOk,
-  /* 26 Bom                      */ OutsideOk,
+  /* 25 Submodel                 */ OutsideOk,
+  /* 26 RotateIcon               */ OutsideOk,
+  /* 27 Bom                      */ OutsideOk,
 
-  /* 27 PagePointer              */ OutsideOk,
-  /* 28 SingleStep               */ OutsideOk,
-  /* 29 Step                     */ OutsideOk,
-  /* 30 Range                    */ OutsideOk,
-  /* 31 Reserve                  */ OutsideOk,
-  /* 32 CoverPage                */ InsideOk
-  /* 33 NumRelatives             */
+  /* 28 PagePointer              */ OutsideOk,
+  /* 29 SingleStep               */ OutsideOk,
+  /* 20 Step                     */ OutsideOk,
+  /* 31 Range                    */ OutsideOk,
+  /* 32 Reserve                  */ OutsideOk,
+  /* 33 CoverPage                */ InsideOk
+  /* 34 NumRelatives             */
 };
 
 const QString relativeNames[NumRelatives] =
@@ -164,37 +166,39 @@ const QString relativeNames[NumRelatives] =
   "Step Group",                 // 2 Ms
   "Step Number",                // 3 Sn
   "Parts List",                 // 4 Pli
-  "Callout",                    // 5 Call
-  "Page Number",                // 6 pn
+  "Callout",                    // 5 Callout
+  "Page Number",                // 6 Pn
 
   "Title",                      // 7 Tt
-  "Model ID",                   // 8 mnt
+  "Model ID",                   // 8 Mnt
   "Author",                     // 9 At
   "URL",                        //10 Urlt
-  "Model Description",          //11 mdt
-  "Publish Description",        //12 pdt
+  "Model Description",          //11 Mdt
+  "Publish Description",        //12 Pdt
   "Copyright",                  //13 Ct
   "Email",                      //14 Et
-  "Disclaimer",                 //15 dt
-  "Parts",                      //16 pt
-  "Plug",                       //17 plt
-  "Submodel Instance Count",    //18 sic
-  "Logo",                       //19 dlt
-  "Cover Image",                //20 cit
-  "Plug Image",                 //21 pit
+  "Disclaimer",                 //15 Dt
+  "Parts",                      //16 Pt
+  "Plug",                       //17 Plt
+  "Submodel Instance Count",    //18 Sic
+  "Logo",                       //19 Dlt
+  "Cover Image",                //20 Cit
+  "Plug Image",                 //21 Pit
   "Page Header",                //22 Ph
   "Page Footer",                //23 Pf
-  "Category",                   //24 cat
-  "Rotate Icon",                //25 Ri
-  "BOM",                        //26
+  "Category",                   //24 Cat
+  "Submodel",                   //25 Cat
+  "Rotate Icon",                //26 Ri
+  "BOM",                        //27
 
-  "Page Pointer",               //27
-  "Single Step",                //28
-  "Step",                       //29
-  "Range",                      //30
-  "Reserve",                    //31
-  "Cover Page"                  //32
-};                              //33 NumRelatives
+  "Page Pointer",               //28
+  "Single Step",                //29
+  "Step",                       //20
+  "Range",                      //31
+  "Reserve",                    //32
+  "Cover Page"                  //33
+ /*NumRelatives               *///34 NumRelatives
+};
 
 QString PlacementDialog::relativeToName(
   int relativeTo)
@@ -255,13 +259,13 @@ PlacementDialog::PlacementDialog(
         break;
         case PartsListType:             //placed type
           if (pliPerStep) {
-            oks << Csi  << Sn;
+            oks << Page << Csi  << Sm << Sn;
           } else {
-            oks << Page << Ms;
+            oks << Page << Sm << Ms;
           }
         break;
         case StepNumberType:            //placed type
-          oks << Csi << Pli;
+          oks << Csi << Pli << Sm;
         break;
         case CalloutType:               //placed type
           oks << Page << Csi << Pli << Sn;
@@ -271,6 +275,9 @@ PlacementDialog::PlacementDialog(
         break;
         case PagePointerType:           //placed type
           oks << Page << Csi << Ph << Pf;
+        break;
+        case SubModelType:              //placed type
+          oks << Page << Csi << Pli << Sn << Ph << Pf;
         break;
         default:                        //placed type
           oks << Page << Pn;
@@ -280,13 +287,13 @@ PlacementDialog::PlacementDialog(
     case CalloutType:                               //parent type
       switch (placedType) {
         case PartsListType:             //placed type
-          oks << Csi;
+          oks << Csi << Sm;
         break;
         case StepNumberType:            //placed type
-          oks << Csi  << Pli;
+          oks << Csi  << Pli << Sm;
         break;
         case CalloutType:               //placed type
-          oks << Csi  << Pli << Sn << Callout;
+          oks << Csi  << Pli << Sn << Callout << Sm;
         break;
         case SubmodelInstanceCountType: //placed type
           oks << Page << Pn;
@@ -294,18 +301,21 @@ PlacementDialog::PlacementDialog(
         case PagePointerType:           //placed type
           oks << Page << Csi << Ph << Pf;
         break;
+        case SubModelType:             //placed type
+          oks << Csi << Pli << Sn;
+        break;
         default:
-          oks << Page << Csi << Pli << Sn;
+          oks << Csi << Pli << Sn;
         break;
       }
     break;
     case StepType:                                  //parent type
       switch (placedType) {
         case PartsListType:             //placed type
-          oks << Page << Csi << Sn << Ph << Pf;
+          oks << Page << Csi << Sn << Sm << Ph << Pf;
         break;
         case StepNumberType:            //placed type
-          oks << Page << Csi << Pli << Ph << Pf;
+          oks << Page << Csi << Pli << Sm << Ph << Pf;
         break;
         case CalloutType:               //placed type
           oks << Page << Csi << Sn << Pli;
@@ -315,6 +325,9 @@ PlacementDialog::PlacementDialog(
         break;
         case PagePointerType:           //placed type
           oks << Page << Csi << Ph << Pf;
+        break;
+        case SubModelType:              //placed type
+          oks << Page << Csi << Pli << Sn << Ph << Pf;
         break;
         default:                         //placed type
           oks << Page << Csi << Pli << Sn;
@@ -354,7 +367,7 @@ PlacementDialog::PlacementDialog(
       break;
       }
     break;
-    default:                                        //parent type
+    default:                             //parent type
       oks << relativeToOks[placedType];
     break;
   }

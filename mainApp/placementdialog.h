@@ -104,16 +104,17 @@ public:
       /* 22 PageHeader      */ Ph,
       /* 23 PageFooter      */ Pf,
       /* 24 Category        */ Cat,
-      /* 25 Rotate Icon     */ Ri
-      /* 26 Bom             */ // plus 7 more...
+      /* 25 Submodel        */ Sm,
+      /* 26 Rotate Icon     */ Ri
+      /* 27 Bom             */ // plus 7 more...
 
-      /* 27 PagePointer     */
-      /* 28 SingleStep      */
-      /* 29 Step            */
-      /* 30 Range           */
-      /* 31 Reserve         */
-      /* 32 CoverPage       */
-      /* 33 NumRelatives    */
+      /* 28 PagePointer     */
+      /* 29 SingleStep      */
+      /* 30 Step            */
+      /* 31 Range           */
+      /* 32 Reserve         */
+      /* 33 CoverPage       */
+      /* 34 NumRelatives    */
     };
 
   PlacementDialog(

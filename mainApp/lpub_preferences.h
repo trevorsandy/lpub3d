@@ -161,6 +161,8 @@ class Preferences
     static bool    preferCentimeters;
     static bool    showAllNotifications;
     static bool    showUpdateNotifications;
+    static bool    showSubmodels;
+    static bool    showTopModel;
     static bool    enableDownloader;
     static bool    portableDistribution;
     static bool    lpub3dLoaded;

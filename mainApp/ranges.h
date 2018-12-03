@@ -34,6 +34,7 @@
 #include "meta.h"
 #include "placement.h"
 #include "resize.h"
+#include "submodelitem.h"
 #include "rotateiconitem.h"
 #include "pageattributepixmapitem.h"
 #include "pointer.h"
@@ -57,6 +58,7 @@ class Steps : public Placement {
     QMap<Positions,PagePointer *> pagePointers; // of pagePointers
     QGraphicsView *view;
     Pli            pli;
+    SubModel       subModel;
     Where          top;                         // needed for non-step pages
     Where          bottom;
     bool           isMirrored;
@@ -128,11 +130,11 @@ class Page : public Steps {
 
     void freePage()
     {
-      coverPage           = false;
-      frontCover          = false;
-      backCover           = false;
-      modelDisplayOnlyStep         = false;
-      instances           = 1;
+      coverPage            = false;
+      frontCover           = false;
+      backCover            = false;
+      modelDisplayOnlyStep = false;
+      instances            = 1;
       for (int i = 0; i < insertPixmaps.size(); i++) {
         InsertPixmapItem *pixmap = insertPixmaps[i];
         delete pixmap;
