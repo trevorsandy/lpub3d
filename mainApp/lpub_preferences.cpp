@@ -1489,15 +1489,14 @@ void Preferences::lgeoPreferences()
     if (Settings.contains(QString("%1/%2").arg(POVRAY,lgeoDirKey))){
         lgeoDir = Settings.value(QString("%1/%2").arg(POVRAY,lgeoDirKey)).toString();
     } else { // check in ldraw directory path for lgeo
-        lgeoDir = ldrawLibPath + "/lgeo";
+        lgeoDir = QDir::toNativeSeparators(ldrawLibPath + "/lgeo");
     }
     QDir lgeoDirInfo(lgeoDir);
-    if (lgeoDirInfo.exists() &&
-        lgeoDirInfo.absolutePath() == QString("%1/lgeo").arg(ldrawLibPath)) {
-        lgeoPath = QDir::toNativeSeparators(lgeoDir);
+    if (lgeoDirInfo.exists()) {
+        lgeoPath = lgeoDir;
         logInfo() << QString("LGEO library path  : %1").arg(lgeoDirInfo.absolutePath());
         /* Durat's lgeo stl library Check */
-        QDir lgeoStlLibInfo(lgeoPath + "/stl");
+        QDir lgeoStlLibInfo(QDir::toNativeSeparators(lgeoPath + "/stl"));
         lgeoStlLib = lgeoStlLibInfo.exists();
         if (lgeoStlLib)
             logInfo() << QString("Durat's Stl library: %1").arg(lgeoStlLibInfo.absolutePath());
