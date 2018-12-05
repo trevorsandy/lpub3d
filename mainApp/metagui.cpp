@@ -690,8 +690,8 @@ NumberGui::NumberGui(
           this,  SLOT(  value1Changed(QString const &)));
   grid->addWidget(value1,2,2);
 
-  fontModified = false;
-  colorModified = false;
+  fontModified    = false;
+  colorModified   = false;
   marginsModified = false;
 }
 
@@ -708,7 +708,7 @@ void NumberGui::browseFont(bool clicked)
   if (ok) {
     meta->font.setValue(font.toString());
     fontExample->setFont(font);
-    fontModified = true;
+    modified = fontModified = true;
   }
 }
 
@@ -724,28 +724,27 @@ void NumberGui::browseColor(bool clicked)
           .arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
       colorExample->setStyleSheet(styleSheet);
       meta->color.setValue(newColor.name());
-      colorModified = true;
+      modified = colorModified = true;
     }
 }
 
 void NumberGui::value0Changed(QString const &string)
 {
   meta->margin.setValue(0,string.toFloat());
-  marginsModified = true;
+  modified = marginsModified = true;
 }
 
 void NumberGui::value1Changed(QString const &string)
 {
   meta->margin.setValue(1, string.toFloat());
-  marginsModified = true;
+  modified = marginsModified = true;
 }
 
 void NumberGui::apply(
   QString &topLevelFile)
 {
   MetaItem mi;
-  mi.beginMacro("Settings");
-
+  mi.beginMacro("NumberSettings");
   if (fontModified) {
     mi.setGlobalMeta(topLevelFile,&meta->font);
   }
@@ -763,6 +762,7 @@ void NumberGui::apply(
  * PageAttribute
  *
  **********************************************************************/
+
 const QString pageAttributeName[25] =
 {
     "Page",                "Assembly",   "Step Group",  "Step Number",
@@ -875,9 +875,6 @@ PageAttributeTextGui::PageAttributeTextGui(
 
   placementButton = new QPushButton("Change Placement",parent);
   gLayout->addWidget(placementButton,0,0);
-//  placementButton = new QPushButton("Change Placement",parent);
-//  grid->addWidget(placementButton,0,2);
-
   connect(placementButton,SIGNAL(clicked(   bool)),
           this,      SLOT(  placementChanged(bool)));
 
@@ -948,15 +945,12 @@ PageAttributeTextGui::PageAttributeTextGui(
   gbDescDialog = new QGroupBox("Description Dialogue Content",parent);
   gbDescDialog->hide();
   QVBoxLayout *vLayout = new QVBoxLayout(nullptr);
-  //hLayout = new QHBoxLayout();
   gbDescDialog->setLayout(vLayout);
-  //gbDescDialogue->setLayout(hLayout);
   grid->addWidget(gbDescDialog,4,0,1,3);
 
   editDesc = new QTextEdit(parent);
 
   vLayout->addWidget(editDesc);
-  //hLayout->addWidget(editDesc);
 
   //spacer
   QSpacerItem *vSpacer;
@@ -977,15 +971,12 @@ PageAttributeTextGui::PageAttributeTextGui(
   gbDiscDialog = new QGroupBox("Disclaimer Dialogue Content",parent);
   gbDiscDialog->hide();
   vLayout = new QVBoxLayout(nullptr);
-  //hLayout = new QHBoxLayout();
   gbDiscDialog->setLayout(vLayout);
-  //gbDiscDialogue->setLayout(hLayout);
   grid->addWidget(gbDiscDialog,4,0,1,3);
 
   editDisc = new QTextEdit(parent);
 
   vLayout->addWidget(editDisc);
-  //hLayout->addWidget(editDisc);
 
   //spacer
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
@@ -1004,7 +995,7 @@ PageAttributeTextGui::PageAttributeTextGui(
   fontModified      = false;
   colorModified     = false;
   marginsModified   = false;
-  placementModified  = false;
+  placementModified = false;
   displayModified   = false;
   editModified      = false;
 }
@@ -1022,7 +1013,7 @@ void PageAttributeTextGui::browseFont(bool clicked)
   if (ok) {
     meta->textFont.setValue(font.toString());
     fontExample->setFont(font);
-    fontModified = true;
+    modified = fontModified = true;
   }
 }
 
@@ -1038,41 +1029,41 @@ void PageAttributeTextGui::browseColor(bool clicked)
           .arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
       colorExample->setStyleSheet(styleSheet);
       meta->textColor.setValue(newColor.name());
-      colorModified = true;
+      modified = colorModified = true;
     }
 }
 
 void PageAttributeTextGui::value0Changed(QString const &string)
 {
   meta->margin.setValue(0,string.toFloat());
-  marginsModified = true;
+  modified = marginsModified = true;
 }
 
 void PageAttributeTextGui::value1Changed(QString const &string)
 {
   meta->margin.setValue(1,string.toFloat());
-  marginsModified = true;
+  modified = marginsModified = true;
 }
 
 void PageAttributeTextGui::editDescChanged()
 {
   QStringList  text = editDesc->toPlainText().split("\n");
   meta->content.setValue(text.join("\\n"));
-  editModified = true;
+  modified = editModified = true;
 }
 
 void PageAttributeTextGui::editDiscChanged()
 {
   QStringList  text = editDisc->toPlainText().split("\n");
   meta->content.setValue(text.join("\\n"));
-  editModified = true;
+  modified = editModified = true;
 }
 
 void PageAttributeTextGui::editChanged(const QString &value)
 {
   QStringList  text = value.split("\n");
   meta->content.setValue(text.join("\\n"));
-  editModified = true;
+  modified = editModified = true;
 }
 
 void PageAttributeTextGui::placementChanged(bool clicked)
@@ -1085,13 +1076,13 @@ void PageAttributeTextGui::placementChanged(bool clicked)
   if (ok) {
       meta->placement.setValue(placementData);
   }
-  placementModified = true;
+  modified = placementModified = true;
 }
 
 void PageAttributeTextGui::toggled(bool toggled)
 {
-    meta->display.setValue(toggled);
-    displayModified = true;
+  meta->display.setValue(toggled);
+  modified = displayModified = true;
 }
 
 void PageAttributeTextGui::apply(
@@ -1192,9 +1183,6 @@ void PageAttributeTextGui::apply(
 
   placementButton = new QPushButton("Change Placement",parent);
   gLayout->addWidget(placementButton,0,0);
-//  placementButton = new QPushButton("Change Placement",parent);
-//  grid->addWidget(placementButton,0,2);
-
   connect(placementButton,SIGNAL(clicked(   bool)),
           this,      SLOT(  placementChanged(bool)));
 
@@ -1226,30 +1214,6 @@ void PageAttributeTextGui::apply(
           this,         SLOT(  browsePicture(bool)));
   grid->addWidget(pictureButton,2,2,1,1);
 
-  //fill
-//  gbFill = new QGroupBox("Fill",parent);
-//  gbFill->setCheckable(true);
-//  gbFill->setChecked(false);
-//  hLayout = new QHBoxLayout();
-//  gbFill->setLayout(hLayout);
-//  grid->addWidget(gbFill,2,0,1,3);
-
-//  stretchRadio = new QRadioButton("Stretch Picture",parent);
-//  connect(stretchRadio,SIGNAL(clicked(bool)),
-//          this,        SLOT(  stretch(bool)));
-//  hLayout->addWidget(stretchRadio);
-
-//  tileRadio    = new QRadioButton("Tile Picture",parent);
-//  connect(tileRadio,SIGNAL(clicked(bool)),
-//          this,     SLOT(  tile(bool)));
-//  hLayout->addWidget(tileRadio);
-
-//  stretchRadio->setChecked(meta->stretch);
-//  tileRadio->setChecked( !meta->stretch);
-
-//  pictureEdit->setEnabled(true);
-//  pictureButton->setEnabled(true);
-
   //scale
   gbScale = new QGroupBox("Scale", parent);
   gbScale->setCheckable(true);
@@ -1269,29 +1233,19 @@ void PageAttributeTextGui::apply(
   connect(spin,SIGNAL(valueChanged(double)),
           this,SLOT  (valueChanged(double)));
   hLayout->addWidget(spin);
-
-//  connect(gbFill,SIGNAL(clicked(bool)),gbScale,SLOT(setDisabled(bool)));
-//  connect(gbFill,SIGNAL(clicked(bool)),this,SLOT(gbFillClicked(bool)));
-//  connect(gbScale,SIGNAL(clicked(bool)),gbFill,SLOT(setDisabled(bool)));
   connect(gbScale,SIGNAL(clicked(bool)),this,SLOT(gbScaleClicked(bool)));
 
-//  if(meta->type == PageDocumentLogoType ||
-//     meta->type == PagePlugImageType) {
-//      gbFill->hide();
-//  }
-
-  pictureModified     = false;
-  marginsModified     = false;
-  placementModified   = false;
-  displayModified     = false;
-  scaleModified       = false;
-  //stretchTileModified = false;
+  pictureModified   = false;
+  marginsModified   = false;
+  placementModified = false;
+  displayModified   = false;
+  scaleModified     = false;
 }
 
 void PageAttributePictureGui::pictureChange(QString const &pic)
 {
   meta->file.setValue(pic);
-  pictureModified = true;
+  modified = pictureModified = true;
 }
 
 void PageAttributePictureGui::browsePicture(bool)
@@ -1307,61 +1261,34 @@ void PageAttributePictureGui::browsePicture(bool)
     picture = foo;
     pictureEdit->setText(foo);
     meta->file.setValue(picture);
-    pictureModified = true;
+    modified = pictureModified = true;
   }
 }
-
-//void PageAttributePictureGui::gbFillClicked(bool checked)
-//{
-//    PageAttributePictureData Picture = meta->value();
-//    meta->stretch.setValue(checked);
-//    meta->tile.setValue(checked);
-//    pictureModified = true;
-//}
-//void PageAttributePictureGui::stretch(bool checked)
-//{
-//  PageAttributePictureData Picture = meta->value();
-//  meta->stretch.setValue(checked);
-//  meta->tile.setValue(! checked);
-//  stretchTileModified = true;
-//}
-
-//void PageAttributePictureGui::tile(bool checked)
-//{
-//  PageAttributePictureData Picture = meta->value();
-//  meta->stretch.setValue(! checked);
-//  meta->tile.setValue( checked);
-//  stretchTileModified = true;
-//}
 
 void PageAttributePictureGui::gbScaleClicked(bool checked)
 {
     checked = checked;
     qreal value = meta->picScale.value();
-//    meta->stretch.setValue(! checked)
-//    meta->tile.setValue(! checked);
     meta->picScale.setValue(value);
-    scaleModified = true;
+    modified = scaleModified = true;
 }
 
 void PageAttributePictureGui::value0Changed(QString const &string)
 {
   meta->margin.setValue(0,string.toFloat());
-  marginsModified = true;
+  modified = marginsModified = true;
 }
 
 void PageAttributePictureGui::value1Changed(QString const &string)
 {
   meta->margin.setValue(1,string.toFloat());
-  marginsModified = true;
+  modified = marginsModified = true;
 }
 
 void PageAttributePictureGui::valueChanged(double value)
 {
- //    meta->stretch.setValue(! checked)
- //    meta->tile.setValue(! checked);
   meta->picScale.setValue(value);
-  pictureModified = true;
+  modified = pictureModified = true;
 }
 
 
@@ -1374,25 +1301,24 @@ void PageAttributePictureGui::placementChanged(bool clicked)
        ::getPlacement(SingleStepType,meta->type,placementData,pageAttributeName[meta->type]);
   if (ok) {
       meta->placement.setValue(placementData);
-
-      logInfo() << "\n PRE PLACEMENT META - "
-                << "\ngetPlacement INPUT DATA - "
-                << " \nPlacement: "                 << placementData.placement
-                << " \nJustification: "             << placementData.justification
-                << " \nPreposition: "               << placementData.preposition
-                << " \nRelativeTo: "                << placementData.relativeTo
-                << " \nRectPlacement: "             << placementData.rectPlacement
-                << " \nOffset[0]: "                 << placementData.offsets[0]
-                << " \nOffset[1]: "                 << placementData.offsets[1]
-                ;
+//      logInfo() << "\n PRE PLACEMENT META - "
+//                << "\ngetPlacement INPUT DATA - "
+//                << " \nPlacement: "                 << placementData.placement
+//                << " \nJustification: "             << placementData.justification
+//                << " \nPreposition: "               << placementData.preposition
+//                << " \nRelativeTo: "                << placementData.relativeTo
+//                << " \nRectPlacement: "             << placementData.rectPlacement
+//                << " \nOffset[0]: "                 << placementData.offsets[0]
+//                << " \nOffset[1]: "                 << placementData.offsets[1]
+//                ;
   }
-  placementModified = true;
+  modified = placementModified = true;
 }
 
 void PageAttributePictureGui::toggled(bool toggled)
 {
     meta->display.setValue(toggled);
-    displayModified = true;
+    modified = displayModified = true;
 }
 
 void PageAttributePictureGui::apply(QString &topLevelFile)
@@ -1415,10 +1341,6 @@ void PageAttributePictureGui::apply(QString &topLevelFile)
     if (displayModified){
         mi.setGlobalMeta(topLevelFile,&meta->display);
     }
-//    if (stretchTileModified){
-//        mi.setGlobalMeta(topLevelFile,&meta->stretch);
-//        mi.setGlobalMeta(topLevelFile,&meta->tile);
-//    }
     mi.endMacro();
 }
 
@@ -1568,14 +1490,10 @@ void FadeStepGui::colorChange(QString const &colorName)
 void FadeStepGui::apply(
   QString &topLevelFile)
 {
-  MetaItem mi;
-  mi.beginMacro("GlobalFadeStepSettings");
-
   if (modified) {
+    MetaItem mi;
     mi.setGlobalMeta(topLevelFile,&meta->fadeColor);
   }
-
-  mi.endMacro();
 }
 
 /***********************************************************************
@@ -1653,14 +1571,10 @@ void HighlightStepGui::colorChange(bool clicked)
 void HighlightStepGui::apply(
   QString &topLevelFile)
 {
-  MetaItem mi;
-  mi.beginMacro("GlobalHighlightStepSettings");
-
   if (modified) {
+    MetaItem mi;
     mi.setGlobalMeta(topLevelFile,&meta->highlightColor);
   }
-
-  mi.endMacro();
 }
 
 /***********************************************************************
@@ -1679,11 +1593,6 @@ CameraDistFactorGui::CameraDistFactorGui(
 
   QHBoxLayout *hLayout = new QHBoxLayout();
 
-//  if (parent) {
-//      parent->setLayout(hLayout);
-//    } else {
-//      setLayout(hLayout);
-//    }
   setLayout(hLayout);
 
   bool nativeRenderer = (Render::getRenderer() == RENDERER_NATIVE);
@@ -1711,23 +1620,19 @@ void CameraDistFactorGui::cameraDistFactorChange(int factor)
 {
   meta->factor.setValue(factor);
   changeMessage = QString("Native camera distance factor changed from %1 to %2")
-      .arg(cameraDistFactorNative)
-      .arg(meta->factor.value());
+                          .arg(cameraDistFactorNative)
+                          .arg(meta->factor.value());
   modified = true;
 }
 
 void CameraDistFactorGui::apply(
   QString &topLevelFile)
 {
-  MetaItem mi;
-  mi.beginMacro("GlobalCameraDistFactorSettings");
-
   if (modified) {
-      emit gui->messageSig(LOG_INFO, changeMessage);
-      mi.setGlobalMeta(topLevelFile,&meta->factor);
-    }
-
-  mi.endMacro();
+    emit gui->messageSig(LOG_INFO, changeMessage);
+    MetaItem mi;
+    mi.setGlobalMeta(topLevelFile,&meta->factor);
+  }
 }
 
 /***********************************************************************
@@ -2505,6 +2410,7 @@ void BorderGui::apply(QString &modelName)
  * Pointer Attributes
  *
  **********************************************************************/
+
  PointerAttribGui::PointerAttribGui(
   PointerAttribMeta *_meta,
   QGroupBox         *parent,
@@ -2687,6 +2593,7 @@ void PointerAttribGui::apply(QString &modelName)
  * Separator
  *
  **********************************************************************/
+
 SepGui::SepGui(
   SepMeta   *_meta,
   QGroupBox *parent)
@@ -2746,8 +2653,8 @@ SepGui::SepGui(
   grid->addWidget(lineEdit,2,2);
   connect(lineEdit,SIGNAL(textEdited(QString const &)),
           this,    SLOT(marginYChange(QString const &)));
-
 }
+
 void SepGui::thicknessChange(
   QString const &string)
 {
@@ -2756,6 +2663,7 @@ void SepGui::thicknessChange(
   meta->setValue(sep);
   modified = true;
 }
+
 void SepGui::browseColor(
   bool clicked)
 {
@@ -2775,6 +2683,7 @@ void SepGui::browseColor(
       modified = true;
     }
 }
+
 void SepGui::marginXChange(
   QString const &string)
 {
@@ -2783,6 +2692,7 @@ void SepGui::marginXChange(
   meta->setValue(sep);
   modified = true;
 }
+
 void SepGui::marginYChange(
   QString const &string)
 {
@@ -2791,6 +2701,7 @@ void SepGui::marginYChange(
   meta->setValue(sep);
   modified = true;
 }
+
 void SepGui::apply(QString &modelName)
 {
   if (modified) {
@@ -2863,11 +2774,13 @@ void ResolutionGui::unitsChange(QString const &units)
   QString string = QString("%1") .arg(int(tvalue));
   valueEdit->setText(string);
 }
+
 void ResolutionGui::valueChange(
   QString const &string)
 {
   value = string.toFloat();
 }
+
 void ResolutionGui::differences()
 {
   if (type == meta->type()) {
@@ -2885,6 +2798,7 @@ void ResolutionGui::differences()
     modified = true;
   }
 }
+
 void ResolutionGui::apply(QString &modelName)
 {
   differences();
@@ -3006,11 +2920,11 @@ RendererGui::RendererGui(
   cameraDistFactorMetaBox->setChecked(!cameraDistFactorDefaulSettings);
   grpGrid->addWidget(cameraDistFactorMetaBox,1,1);
 
-  clearCaches = false;
-  rendererModified = false;
-  singleCallModified = false;
-  snapshotListModified = false;
-  povFileGenModified = false;
+  clearCaches              = false;
+  rendererModified         = false;
+  singleCallModified       = false;
+  snapshotListModified     = false;
+  povFileGenModified       = false;
   cameraDistFactorModified = false;
 }
 
@@ -3221,8 +3135,8 @@ ShowSubModelGui::ShowSubModelGui(
     showSubmodelInCalloutMetaBox->setChecked(!showSubmodelInCalloutDefaultSettings);
     grid->addWidget(showSubmodelInCalloutMetaBox,7,1);
 
-    showSubmodelsModified = false;
-    showTopModelModified = false;
+    showSubmodelsModified         = false;
+    showTopModelModified          = false;
     showSubmodelInCalloutModified = false;
 }
 
@@ -3453,7 +3367,7 @@ void PliAnnotationGui::titleAnnotation(bool checked)
   meta->titleAnnotation.setValue(checked);
   meta->freeformAnnotation.setValue(! checked);
   meta->titleAndFreeformAnnotation.setValue(! checked);
-  titleModified = true;
+  modified = titleModified = true;
 }
 
 void PliAnnotationGui::freeformAnnotation(bool checked)
@@ -3461,7 +3375,7 @@ void PliAnnotationGui::freeformAnnotation(bool checked)
   meta->titleAnnotation.setValue(! checked);
   meta->freeformAnnotation.setValue( checked);
   meta->titleAndFreeformAnnotation.setValue(! checked);
-  freeformModified = true;
+  modified = freeformModified = true;
 }
 
 void PliAnnotationGui::titleAndFreeformAnnotation(bool checked)
@@ -3469,7 +3383,7 @@ void PliAnnotationGui::titleAndFreeformAnnotation(bool checked)
   meta->titleAnnotation.setValue(! checked);
   meta->freeformAnnotation.setValue(! checked);
   meta->titleAndFreeformAnnotation.setValue( checked);
-  titleAndFreeformModified = true;
+  modified = titleAndFreeformModified = true;
 }
 
 void PliAnnotationGui::gbToggled(bool toggled)
@@ -3480,18 +3394,26 @@ void PliAnnotationGui::gbToggled(bool toggled)
       freeformAnnotationButton->setChecked(meta->freeformAnnotation.value());
       titleAndFreeformAnnotationButton->setChecked(meta->titleAndFreeformAnnotation.value());
     }
-  displayModified = true;
+  modified = displayModified = true;
 }
 
 void PliAnnotationGui::apply(QString &topLevelFile)
 {
   MetaItem mi;
-  if (displayModified || titleModified || freeformModified || titleAndFreeformModified) {
+  mi.beginMacro("PliAnnotationSettings");
+  if (displayModified) {
       mi.setGlobalMeta(topLevelFile,&meta->display);
+  }
+  if (titleModified) {
       mi.setGlobalMeta(topLevelFile,&meta->titleAnnotation);
+  }
+  if (freeformModified) {
       mi.setGlobalMeta(topLevelFile,&meta->freeformAnnotation);
+  }
+  if (titleAndFreeformModified) {
       mi.setGlobalMeta(topLevelFile,&meta->titleAndFreeformAnnotation);
-    }
+  }
+  mi.endMacro();
 }
 
 /***********************************************************************
@@ -3714,12 +3636,6 @@ PageSizeGui::PageSizeGui(
 
   typeCombo = new QComboBox(parent);
   for (int i = 0; i < numPageTypes; i++) {
-
-//      QString type = QString("%1 (%2 x %3)")
-//          .arg(PageSizes::pageTypeSizeID(i))
-//          .arg((dpi ? PageSizes::pageWidthIn(i) : PageSizes::pageWidthCm(i)))
-//          .arg((dpi ? PageSizes::pageHeightIn(i) : PageSizes::pageHeightCm(i)));
-
        typeCombo->addItem(PageSizes::pageTypeSizeID(i));
   }
 
@@ -3739,8 +3655,6 @@ PageSizeGui::PageSizeGui(
                               'f',
                               meta->_precision);
   valueW = new QLineEdit(string,parent);
-//  connect(valueW,SIGNAL(textEdited(  QString const &)),
-//          this,  SLOT(  valueWChange(QString const &)));
   connect(valueW,SIGNAL(textChanged( QString const &)),
           this,  SLOT(  valueWChange(QString const &)));
   if (heading == "")
@@ -3753,8 +3667,6 @@ PageSizeGui::PageSizeGui(
                               'f',
                               meta->_precision);
   valueH = new QLineEdit(string,parent);
-//  connect(valueH,SIGNAL(textEdited(  QString const &)),
-//          this,  SLOT(  valueHChange(QString const &)));
   connect(valueH,SIGNAL(textChanged( QString const &)),
           this,  SLOT(  valueHChange(QString const &)));
   if (heading == "")
@@ -3767,7 +3679,7 @@ PageSizeGui::PageSizeGui(
   else
     setEnabled(false);
 
-  logDebug() << "Current Page Type: " << typeCombo->currentText();
+//  logDebug() << "Current Page Type: " << typeCombo->currentText();
 }
 
 int PageSizeGui::getTypeIndex(float &widthPg, float &heightPg){
@@ -3786,9 +3698,9 @@ int PageSizeGui::getTypeIndex(float &widthPg, float &heightPg){
       typeWidth  = QString::number((dpi ? PageSizes::pageWidthIn(i) : PageSizes::pageWidthCm(i)),  'f', 1 /*meta->_precision*/ );
       typeHeight = QString::number((dpi ? PageSizes::pageHeightIn(i) : PageSizes::pageHeightCm(i)), 'f', 1 /*meta->_precision*/ );
 
-      qDebug() << "\n" << PageSizes::pageTypeSizeID(i) << " @ index: " << i
-               << "\nType: (" << typeWidth << "x" << typeHeight << ") "
-               << "\nPage: (" << pageWidth << "x" << pageHeight << ")";
+//      qDebug() << "\n" << PageSizes::pageTypeSizeID(i) << " @ index: " << i
+//               << "\nType: (" << typeWidth << "x" << typeHeight << ") "
+//               << "\nPage: (" << pageWidth << "x" << pageHeight << ")";
 
       if ((pageWidth == typeWidth) && (pageHeight == typeHeight)){
         index = i;
@@ -3807,7 +3719,7 @@ void PageSizeGui::typeChange(const QString &pageType){
   float pageHeight = meta->value(1);;
   bool  editLine = true;
 
-  qDebug() << "\nPage Type: " << pageType ;
+//  qDebug() << "\nPage Type: " << pageType ;
 
   if (pageType != "Custom") {
 
@@ -3844,14 +3756,14 @@ void PageSizeGui::valueWChange(QString const &string)
 {
   w = string.toFloat();
   modified     = true;
-  qDebug() << "Meta setValue(0) Change:" << meta->value(0);
+//  qDebug() << "Meta setValue(0) Change:" << meta->value(0);
 }
 
 void PageSizeGui::valueHChange(QString const &string)
 {
   h = string.toFloat();
   modified     = true;
-  qDebug() << "Meta setValue(1) Change:" << meta->value(1);
+//  qDebug() << "Meta setValue(1) Change:" << meta->value(1);
 }
 
 void PageSizeGui::updatePageSize(){
@@ -3859,29 +3771,25 @@ void PageSizeGui::updatePageSize(){
   if (gui->page.meta.LPub.page.orientation.value() == Portrait){
       meta->setValue(0,w);
       meta->setValue(1,h);
-      qDebug() << "\nMeta setValue(0) Portrait Update:" << meta->value(0)
-               << "\nMeta setValue(1) Portrait Update:" << meta->value(1);
+//      qDebug() << "\nMeta setValue(0) Portrait Update:" << meta->value(0)
+//               << "\nMeta setValue(1) Portrait Update:" << meta->value(1);
     }
   else{
       meta->setValue(0,h);
       meta->setValue(1,w);
-      qDebug() << "\nMeta setValue(0) Landscape Update:" << meta->value(0)
-               << "\nMeta setValue(1) Landscape Update:" << meta->value(1);
+//      qDebug() << "\nMeta setValue(0) Landscape Update:" << meta->value(0)
+//               << "\nMeta setValue(1) Landscape Update:" << meta->value(1);
     }
 }
 
 void PageSizeGui::setEnabled(bool enable)
 {
-//  if (label) {
-//    label->setEnabled(enable);
-//  }
   valueW->setEnabled(enable);
   valueH->setEnabled(enable);
 }
 
 void PageSizeGui::apply(QString &topLevelFile)
 {
-
   if (modified) {
     updatePageSize();
     MetaItem mi;
@@ -3889,7 +3797,6 @@ void PageSizeGui::apply(QString &topLevelFile)
   }
 
 }
-
 
 /***********************************************************************
  *
@@ -4046,8 +3953,9 @@ SizeAndOrientationGui::SizeAndOrientationGui(
   else
     grid->addWidget(landscapeRadio,2,2);
 
+  sizeModified        = false;
   orientationModified = false;
-  sizeModified = false;
+
 //  logDebug() << "Current Page Type: " << typeCombo->currentText();
 
 }
@@ -4081,41 +3989,19 @@ void SizeAndOrientationGui::typeChange(const QString &pageType){
     }
 
   QString      string;
-// switch only for UI display - revert on save
-//  if (ometa->value() == Portrait)
-//    {
-      string = QString("%1") .arg(pageWidth,
-                                  smeta->_fieldWidth,
-                                  'f',
-                                  smeta->_precision);
-      valueW->setText(string);
+  string = QString("%1") .arg(pageWidth,
+                              smeta->_fieldWidth,
+                              'f',
+                              smeta->_precision);
+  valueW->setText(string);
 
-      string = QString("%1") .arg(pageHeight,
-                                  smeta->_fieldWidth,
-                                  'f',
-                                  smeta->_precision);
-      valueH->setText(string);
-
-//    }
-//  else
-//    {
-//      // Landscape so switch Width and Height
-//      string = QString("%1") .arg(pageHeight,
-//                                  smeta->_fieldWidth,
-//                                  'f',
-//                                  smeta->_precision);
-//      valueW->setText(string);
-
-//      string = QString("%1") .arg(pageWidth,
-//                                  smeta->_fieldWidth,
-//                                  'f',
-//                                  smeta->_precision);
-//      valueH->setText(string);
-//    }
+  string = QString("%1") .arg(pageHeight,
+                              smeta->_fieldWidth,
+                              'f',
+                              smeta->_precision);
+  valueH->setText(string);
 
   setEnabled(editLine);
-
-  sizeModified = true;
 }
 
 void SizeAndOrientationGui::orientationChange(bool clicked)
@@ -4137,7 +4023,7 @@ void SizeAndOrientationGui::orientationChange(bool clicked)
 
   typeChange(newType);
 
-  orientationModified = true;
+   modified = orientationModified = true;
 //  logDebug() << "Meta Orientation newType:" << newType << "setValue() Value Change:" << ometa->value();
 }
 
@@ -4147,7 +4033,7 @@ void SizeAndOrientationGui::valueWChange(QString const &string)
   w = string.toFloat(&ok);
   if (ok){
       smeta->setValue(0,w);
-      sizeModified         = true;
+      modified = sizeModified = true;
 //      logDebug() << "Meta Size Width setValue(0) Value Change:" << smeta->value(0);
     }
 }
@@ -4159,7 +4045,7 @@ void SizeAndOrientationGui::valueHChange(QString const &string)
   h = string.toFloat(&ok);
   if (ok){
       smeta->setValue(1,h);
-      sizeModified         = true;
+      modified = sizeModified = true;
 //      logDebug() << "Meta size Height setValue(1) Value Change:" << smeta->value(1);
     }
 }
@@ -4172,13 +4058,13 @@ void SizeAndOrientationGui::setEnabled(bool enable)
 
 void SizeAndOrientationGui::apply(QString &topLevelFile)
 {
-  if (isModified()) {
-      MetaItem mi;
-      if (sizeModified)
-        mi.setGlobalMeta(topLevelFile,smeta);
-      if (orientationModified)
-        mi.setGlobalMeta(topLevelFile,ometa);
-    }
+  MetaItem mi;
+  if (sizeModified) {
+      mi.setGlobalMeta(topLevelFile,smeta);
+  }
+  if (orientationModified) {
+      mi.setGlobalMeta(topLevelFile,ometa);
+  }
 }
 
 /***********************************************************************
@@ -4276,8 +4162,6 @@ SubModelColorGui::SubModelColorGui(
           this,       SLOT(  browseSubModelColor3(bool)));
 
   grid->addWidget(subModelColor3Button,3,2);
-
-  modified = false;
 }
 
 void SubModelColorGui::browseSubModelColor0(bool clicked)
@@ -4343,12 +4227,8 @@ void SubModelColorGui::browseSubModelColor3(bool clicked)
 void SubModelColorGui::apply(
   QString &topLevelFile)
 {
-  MetaItem mi;
-  mi.beginMacro("SubModelColor");
-
   if (modified) {
+    MetaItem mi;
     mi.setGlobalMeta(topLevelFile,meta);
   }
-
-  mi.endMacro();
 }

@@ -249,8 +249,6 @@ public slots:
   void value1Changed(QString const &);
 };
 
-
-
 /***********************************************************************
  *
  * PageAttributeText
@@ -387,9 +385,6 @@ private:
 
   QLineEdit      *pictureEdit;
   QPushButton    *pictureButton;
-//  QRadioButton   *stretchRadio;
-//  QRadioButton   *tileRadio;
-//  QGroupBox      *gbFill;
   QGroupBox      *gbScale;
   QLabel         *scale;
   QDoubleSpinBox *spin;
@@ -411,11 +406,7 @@ public slots:
   }
   void pictureChange(QString const &);
   void browsePicture(bool);
-//  void gbFillClicked(bool);
   void gbScaleClicked(bool);
-//  void stretch(bool);
-//  void tile(bool);
-
   void value0Changed(QString const &);
   void value1Changed(QString const &);
 
@@ -1230,14 +1221,8 @@ public:
   ~SizeAndOrientationGui() {}
 
   void setEnabled(bool enabled);
-//  void updateWidthAndHeight();
 
   virtual void apply(QString &topLevelFile);
-
-  bool isModified(){
-    modified = sizeModified || orientationModified;
-    return modified;
-  }
 
 private:
   bool                    sizeModified;
@@ -1255,7 +1240,6 @@ private:
   QLineEdit              *valueW;
   QLineEdit              *valueH;
   QComboBox              *typeCombo;
-
 
 public slots:
   void typeChange(QString const &);

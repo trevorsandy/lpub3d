@@ -99,7 +99,7 @@ bool SizeAndOrientationDialog::getSizeAndOrientation(
 
 void SizeAndOrientationDialog::accept()
 {
-  if (sizeAndOrientation->isModified()) {
+  if (sizeAndOrientation->modified) {
     QDialog::accept();
   } else {
     QDialog::reject();
