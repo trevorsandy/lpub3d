@@ -168,6 +168,8 @@ class Preferences
     static bool    portableDistribution;
     static bool    lpub3dLoaded;
     static bool    lgeoStlLib;
+    static bool    addLSynthSearchDir;
+    static bool    archiveLSynthParts;
 
     static bool    enableFadeSteps;
     static bool    fadeStepsUseColour;

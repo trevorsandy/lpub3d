@@ -842,7 +842,7 @@ public slots:
 
   void processFadeColourParts(bool overwriteCustomParts);
   void processHighlightColourParts(bool overwriteCustomParts);
-  void processLDSearchDirParts();
+  void loadLDSearchDirParts();
   bool loadFile(const QString &file);
   int processCommandLine();
 

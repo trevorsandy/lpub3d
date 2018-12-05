@@ -195,12 +195,14 @@ bool lcApplication::LoadPartsLibrary(const QList<QPair<QString, bool>>& LibraryP
     Q_UNUSED(LibraryPaths);
 
 /*** LPub3D Mod - run search directories ***/
+
+    PartWorker partWorker;
+
     // load search directories
-    PartWorker partWorkerLDSearchDirs;
-    partWorkerLDSearchDirs.ldsearchDirPreferences();
+    partWorker.ldsearchDirPreferences();
 
     // process search directories to update library archive
-    partWorkerLDSearchDirs.processLDSearchDirParts();
+    partWorker.processLDSearchDirParts();
 
     emit Application::instance()->splashMsgSig("80% - Archive libraries loading...");
 /*** LPub3D Mod end ***/

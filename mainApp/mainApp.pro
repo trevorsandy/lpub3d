@@ -554,6 +554,7 @@ RESOURCES += \
     ../lclib/resources/lclib.qrc \
     ../ldvlib/LDVQt/resources.qrc \
     qdarkstyle/style.qrc \
+    resources/lsynth/lsynth.qrc \
     lpub3d.qrc \
 
 DISTFILES += \

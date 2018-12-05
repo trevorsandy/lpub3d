@@ -148,6 +148,8 @@ bool    Preferences::includeTimestamp           = false;
 bool    Preferences::includeLineNumber          = false;
 bool    Preferences::includeFileName            = false;
 bool    Preferences::includeFunction            = false;
+bool    Preferences::addLSynthSearchDir         = false;
+bool    Preferences::archiveLSynthParts         = false;
 
 bool    Preferences::ignoreMixedPageSizesMsg    = false;
 
@@ -1411,6 +1413,25 @@ void Preferences::ldrawPreferences(bool force)
                 fflush(stdout);
             }
         }
+    }
+
+    // LSynth settings
+    QString const addLSynthSearchDirKey("AddLSynthSearchDir");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,addLSynthSearchDirKey))) {
+        QVariant uValue(false);
+        addLSynthSearchDir = false;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,addLSynthSearchDirKey),uValue);
+    } else {
+        addLSynthSearchDir = Settings.value(QString("%1/%2").arg(SETTINGS,addLSynthSearchDirKey)).toBool();
+    }
+
+    QString const archiveLSynthPartsKey("ArchiveLSynthParts");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,archiveLSynthPartsKey))) {
+        QVariant uValue(false);
+        archiveLSynthParts = false;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,archiveLSynthPartsKey),uValue);
+    } else {
+        archiveLSynthParts = Settings.value(QString("%1/%2").arg(SETTINGS,archiveLSynthPartsKey)).toBool();
     }
 
 #ifdef Q_OS_MAC
@@ -2998,6 +3019,18 @@ bool Preferences::getPreferences()
             preferCentimeters = dialog->centimeters();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"Centimeters"),preferCentimeters);
             defaultResolutionType(preferCentimeters);
+        }
+
+        if (addLSynthSearchDir != dialog->addLSynthSearchDir())
+        {
+            addLSynthSearchDir = dialog->addLSynthSearchDir();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"AddLSynthSearchDir"),addLSynthSearchDir);
+        }
+
+        if (archiveLSynthParts != dialog->archiveLSynthParts())
+        {
+            archiveLSynthParts = dialog->archiveLSynthParts();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ArchiveLSynthParts"),archiveLSynthParts);
         }
 
         if (applyCALocally != dialog->applyCALocally())

@@ -78,11 +78,6 @@ class PreferencesDialog : public QDialog
     bool          showAllNotifications();
     bool          lgeoStlLib();
     bool          povrayDisplay();
-    int           checkUpdateFrequency();
-    int           rendererTimeout();
-    int           pageDisplayPause();
-    int           fadeStepsOpacity();
-    int           highlightStepLineWidth();
     bool          includeLogLevel();
     bool          includeTimestamp();
     bool          includeLineNumber();
@@ -90,6 +85,8 @@ class PreferencesDialog : public QDialog
     bool          includeFunction();
     bool          includeAllLogAttrib();
     bool          showParseErrors();
+    bool          addLSynthSearchDir();
+    bool          archiveLSynthParts();
 
     bool          loggingGrpBox();
     bool          logLevelGrpBox();
@@ -103,6 +100,12 @@ class PreferencesDialog : public QDialog
     bool          errorLevel();
     bool          fatalLevel();
     bool          allLogLevels();
+
+    int           checkUpdateFrequency();
+    int           rendererTimeout();
+    int           pageDisplayPause();
+    int           fadeStepsOpacity();
+    int           highlightStepLineWidth();
 
   public slots:
     void accept();
@@ -124,6 +127,7 @@ class PreferencesDialog : public QDialog
     void on_allLogLevelsBox_clicked(bool checked);
     void on_logLevelsGrpBox_clicked(bool checked);
     void on_logLevelGrpBox_clicked(bool checked);
+    void on_archiveLSynthPartsBox_clicked(bool checked);
 
     void on_ldviewBox_clicked(bool checked);
     void on_ldgliteBox_clicked(bool checked);

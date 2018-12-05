@@ -44,6 +44,8 @@ PartWorker::PartWorker(QObject *parent) : QObject(parent)
   _customPartDir = QDir::toNativeSeparators(QString("%1/%2custom/parts").arg(Preferences::lpubDataPath).arg(Preferences::validLDrawLibrary));
   _customPrimDir = QDir::toNativeSeparators(QString("%1/%2custom/p").arg(Preferences::lpubDataPath).arg(Preferences::validLDrawLibrary));
 
+  _lsynthPartsDir = QDir::toNativeSeparators(QString("%1/LSynthParts").arg(Preferences::lpubDataPath));
+
   _ldSearchDirsKey = Preferences::ldrawSearchDirsKey;
   _ldrawCustomArchive = Preferences::validLDrawCustomArchive;
 }
@@ -58,7 +60,7 @@ void PartWorker::ldsearchDirPreferences(){
   setDoFadeStep(fadeStep);
   setDoHighlightStep(highlightStep && !gui->suppressColourMeta());
 
-  if (!_resetSearchDirSettings) {
+  if (!_resetSearchDirSettings && !Preferences::lpub3dLoaded) {
       emit Application::instance()->splashMsgSig("50% - Search directory preferences loading...");
     } else {
       emit gui->messageSig(LOG_INFO,"Reset search directories...");
@@ -69,6 +71,7 @@ void PartWorker::ldsearchDirPreferences(){
 
   // qDebug() << QString(tr("01 ldrawIniFoundReg(Original) = %1").arg((ldrawIniFoundReg ? "True" : "False")));
 
+  // Check for and load LDrawINI
   if (Settings.contains(QString("%1/%2").arg(SETTINGS,LdrawiniFilePathKey))) {
       QString ldrawiniFilePath = Settings.value(QString("%1/%2").arg(SETTINGS,LdrawiniFilePathKey)).toString();
       QFileInfo ldrawiniInfo(ldrawiniFilePath);
@@ -104,12 +107,13 @@ void PartWorker::ldsearchDirPreferences(){
   emit gui->messageSig(LOG_INFO,(doFadeStep() ? QString("Fade Previous Steps is ON.") : QString("Fade Previous Steps is OFF.")));
   emit gui->messageSig(LOG_INFO,(doHighlightStep() ? QString("Highlight Current Step is ON.") : QString("Highlight Current Step is OFF.")));
 
+  // LDrawINI not found and not reset so load registry key
   if (!Preferences::ldrawiniFound && !_resetSearchDirSettings &&
-      Settings.contains(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey))) {    // LDrawINI not found and not reset so load registry key
+      Settings.contains(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey))) {
       emit gui->messageSig(LOG_INFO, QString("LDrawINI not found, loading LDSearch directories from registry key..."));
       QStringList searchDirs = Settings.value(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey)).toStringList();
       bool customDirsIncluded = false;
-      foreach (QString searchDir, searchDirs){
+      foreach (QString searchDir, searchDirs) {
           if (QDir(searchDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
               // Skip custom directory if not doFadeStep or not doHighlightStep
               QString customDir = QDir::toNativeSeparators(searchDir.toLower());
@@ -119,7 +123,7 @@ void PartWorker::ldsearchDirPreferences(){
               // If doFadeStep or doHighlightStep, check if custom directories included
               if ((doFadeStep() || doHighlightStep()) && !customDirsIncluded){
                   customDirsIncluded = (customDir.toLower() == _customPartDir.toLower() ||
-                                      customDir.toLower() == _customPrimDir.toLower());
+                                        customDir.toLower() == _customPrimDir.toLower());
                 }
               Preferences::ldSearchDirs << searchDir;
               emit gui->messageSig(LOG_INFO, QString("Add search directory: %1").arg(searchDir));
@@ -153,8 +157,7 @@ void PartWorker::ldsearchDirPreferences(){
               }
           }
           // update the registry if custom directory included
-          if (customDirsIncluded){
-              QSettings Settings;
+          if (customDirsIncluded) {
               Settings.setValue(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey), Preferences::ldSearchDirs);
           }
        }
@@ -165,6 +168,26 @@ void PartWorker::ldsearchDirPreferences(){
       Settings.remove(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey));
       emit gui->messageSig(LOG_ERROR, QString("Unable to load search directories."));
     }
+
+    // Add LSynth path to search directory list
+    bool addSearchDir    = Preferences::addLSynthSearchDir;
+    bool dirInSearchList = false;
+    QStringList saveSearchDirs;
+    foreach (QString ldSearchDir, Preferences::ldSearchDirs){
+        if (addSearchDir) {
+            if (QDir::toNativeSeparators(ldSearchDir.toLower()) == _lsynthPartsDir.toLower()) {
+                dirInSearchList = true;
+                break;
+            }
+        } else if (QDir::toNativeSeparators(ldSearchDir.toLower()) != _lsynthPartsDir.toLower()) {
+                saveSearchDirs << ldSearchDir;
+        }
+    }
+    if (addSearchDir && !dirInSearchList)
+        Preferences::ldSearchDirs << getLSynthDir();
+    if (!addSearchDir && Preferences::ldSearchDirs.size() > saveSearchDirs.size())
+        Preferences::ldSearchDirs = saveSearchDirs;
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey), Preferences::ldSearchDirs);
 
     // Update LDView extra search directories
     if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni))
@@ -348,11 +371,61 @@ void PartWorker::populateLdgLiteSearchDirs() {
 }
 
 /*
+ * Get LSynth directory path
+ */
+
+QString PartWorker::getLSynthDir(){
+
+    if (Preferences::archiveLSynthParts) {
+        QFileInfo outFile;
+        QDir dir(_lsynthPartsDir);
+        if (!dir.exists())
+            dir.mkdir(_lsynthPartsDir);
+        enum numLSynthFiles { lsynthFiles = 34 };
+        if (dir.entryInfoList(QDir::Files|QDir::NoSymLinks).count() == lsynthFiles)
+            return dir.absolutePath();
+        const QString lsynthFilePaths[lsynthFiles] =
+        {
+            ":/lsynth/572a.dat",":/lsynth/757.dat"  ,":/lsynth/LS00.dat" ,":/lsynth/LS01.dat",
+            ":/lsynth/LS02.dat",":/lsynth/LS03.dat" ,":/lsynth/LS04.dat" ,":/lsynth/LS05.dat",
+            ":/lsynth/LS06.dat",":/lsynth/LS07.dat" ,":/lsynth/LS08.dat" ,":/lsynth/LS09.dat",
+            ":/lsynth/LS10.dat",":/lsynth/LS100.dat",":/lsynth/LS101.dat",":/lsynth/LS102.dat",
+            ":/lsynth/LS11.dat",":/lsynth/LS12.dat" ,":/lsynth/LS20.dat" ,":/lsynth/LS21.dat",
+            ":/lsynth/LS22.dat",":/lsynth/LS23.dat" ,":/lsynth/LS30.dat" ,":/lsynth/LS40.dat",
+            ":/lsynth/LS41.dat",":/lsynth/LS50.dat" ,":/lsynth/LS51.dat" ,":/lsynth/LS60.dat",
+            ":/lsynth/LS61.dat",":/lsynth/LS70.dat" ,":/lsynth/LS71.dat" ,":/lsynth/LS80.dat",
+            ":/lsynth/LS90.dat",":/lsynth/LS91.dat"
+        };
+        for (int i = 0; i < lsynthFiles; i++) {
+            qDebug() << "\nLSynth filePath: [" << i << "] " << lsynthFilePaths[i];
+            QFileInfo inFile(lsynthFilePaths[i]);
+            outFile.setFile(QString("%1/%2").arg(dir.absolutePath(), inFile.fileName()));
+            if (!outFile.exists())
+                QFile::copy(inFile.absoluteFilePath(), outFile.absoluteFilePath());
+        }
+        return dir.absolutePath();
+    }
+    return QString();
+}
+
+/*
  * Process LDraw search directories part files.
  */
 void PartWorker::processLDSearchDirParts(){
-  if (Preferences::ldSearchDirs.size() > 0)
-    processPartsArchive(Preferences::ldSearchDirs, "search directory");
+
+  QStringList dirs;
+
+  if (!Preferences::addLSynthSearchDir) {
+     QString dir;
+     if (!(dir = getLSynthDir()).isEmpty())
+        dirs.append(dir);
+  }
+
+  dirs += Preferences::ldSearchDirs;
+
+  if (dirs.size() > 0)
+    processPartsArchive(dirs, "search directory");
+
   // qDebug() << "\nFinished Processing Search Directory Parts.";
 }
 
@@ -1091,28 +1164,29 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
                                        .arg(gui->elapsedTime(t.elapsed())));
   }
 
-  // Reload unofficial library parts into memory - only if initial library load already done !
+  // Archive parts
   QString partsLabel = "parts";
-  if (Preferences::lpub3dLoaded && totalPartCount > 0) {
-
-      if (!gApplication->mLibrary->ReloadUnoffLib()){
-          returnMessage = tr("Failed to reload custom %1 parts library into memory.")
-                  .arg(Preferences::validLDrawLibrary);
-          emit gui->messageSig(LOG_ERROR,returnMessage);
-          return false;
-      } else {
-          partsLabel = totalPartCount == 1 ? "part" : "parts";
-          returnMessage = tr("Reloaded custom %1 library into memory with %2 new %3.")
-                  .arg(Preferences::validLDrawLibrary).arg(totalPartCount).arg(partsLabel);
+  if (totalPartCount > 0) {
+      // Reload unofficial library parts into memory - only if initial library load already done !
+      if (Preferences::lpub3dLoaded) {
+          if (!gApplication->mLibrary->ReloadUnoffLib()){
+              returnMessage = tr("Failed to reload custom %1 parts library into memory.")
+                                 .arg(Preferences::validLDrawLibrary);
+              emit gui->messageSig(LOG_ERROR,returnMessage);
+              return false;
+          } else {
+              partsLabel = totalPartCount == 1 ? "part" : "parts";
+              returnMessage = tr("Reloaded custom %1 parts library into memory with %2 new %3.")
+                                 .arg(Preferences::validLDrawLibrary).arg(totalPartCount).arg(partsLabel);
+          }
       }
-  } else if (totalPartCount > 0) {
       partsLabel = totalPartCount == 1 ? "part" : "parts";
-      returnMessage = tr("Finished. Archived and loaded %1 %2 %3 into memory. %4")
+      returnMessage = tr("Finished. Archived %1 %2 %3. %4")
                          .arg(totalPartCount).arg(comment).arg(partsLabel).arg(gui->elapsedTime(tf.elapsed()));
       _partsArchived = true;
   } else {
-      returnMessage = tr("Finished. No new %1 parts archived. Custom %2 library not reloaded.")
-              .arg(comment).arg(Preferences::validLDrawLibrary);
+      returnMessage = tr("Finished. Parts exist in custom %1 archive. No new %2 parts archived.")
+                         .arg(Preferences::validLDrawLibrary).arg(comment);
       _partsArchived = false;
   }
   emit gui->messageSig(LOG_INFO,returnMessage);

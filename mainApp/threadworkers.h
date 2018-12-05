@@ -118,6 +118,8 @@ public:
 
     bool loadLDrawSearchDirs();
 
+    QString getLSynthDir();
+
     QStringList                _partList;
 
 public slots:
@@ -167,6 +169,7 @@ private:
     QStringList               _excludedSearchDirs;
     QString                   _customPartDir;
     QString                   _customPrimDir;
+    QString                   _lsynthPartsDir;
     QString                   _ldrawCustomArchive;
     QString                   _ldSearchDirsKey;
     QElapsedTimer             _timer;

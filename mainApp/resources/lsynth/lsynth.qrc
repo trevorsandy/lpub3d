@@ -1,0 +1,38 @@
+<RCC>
+    <qresource prefix="/lsynth">
+        <file alias="572a.dat">572a.dat</file>
+        <file alias="757.dat">757.dat</file>
+        <file alias="LS00.dat">LS00.dat</file>
+        <file alias="LS01.dat">LS01.dat</file>
+        <file alias="LS02.dat">LS02.dat</file>
+        <file alias="LS03.dat">LS03.dat</file>
+        <file alias="LS04.dat">LS04.dat</file>
+        <file alias="LS05.dat">LS05.dat</file>
+        <file alias="LS06.dat">LS06.dat</file>
+        <file alias="LS07.dat">LS07.dat</file>
+        <file alias="LS08.dat">LS08.dat</file>
+        <file alias="LS09.dat">LS09.dat</file>
+        <file alias="LS10.dat">LS10.dat</file>
+        <file alias="LS100.dat">LS100.dat</file>
+        <file alias="LS101.dat">LS101.dat</file>
+        <file alias="LS102.dat">LS102.dat</file>
+        <file alias="LS11.dat">LS11.dat</file>
+        <file alias="LS12.dat">LS12.dat</file>
+        <file alias="LS20.dat">LS20.dat</file>
+        <file alias="LS21.dat">LS21.dat</file>
+        <file alias="LS22.dat">LS22.dat</file>
+        <file alias="LS23.dat">LS23.dat</file>
+        <file alias="LS30.dat">LS30.dat</file>
+        <file alias="LS40.dat">LS40.dat</file>
+        <file alias="LS41.dat">LS41.dat</file>
+        <file alias="LS50.dat">LS50.dat</file>
+        <file alias="LS51.dat">LS51.dat</file>
+        <file alias="LS60.dat">LS60.dat</file>
+        <file alias="LS61.dat">LS61.dat</file>
+        <file alias="LS70.dat">LS70.dat</file>
+        <file alias="LS71.dat">LS71.dat</file>
+        <file alias="LS80.dat">LS80.dat</file>
+        <file alias="LS90.dat">LS90.dat</file>
+        <file alias="LS91.dat">LS91.dat</file>
+    </qresource>
+</RCC>

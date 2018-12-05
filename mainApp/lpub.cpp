@@ -1710,6 +1710,8 @@ void Gui::preferences()
     int  highlightStepLineWidthCompare  = Preferences::highlightStepLineWidth;
     bool doNotShowPageProcessDlgCompare = Preferences::doNotShowPageProcessDlg;
     int  pageDisplayPauseCompare        = Preferences::pageDisplayPause;
+    bool addLSynthSearchDirCompare      = Preferences::addLSynthSearchDir;
+    bool archiveLSynthPartsCompare      = Preferences::archiveLSynthParts;
     QString altLDConfigPathCompare      = Preferences::altLDConfigPath;
     QString povFileGeneratorCompare     = Preferences::povFileGenerator;
     QString fadeStepsColourCompare      = Preferences::validFadeStepsColour;
@@ -1855,7 +1857,7 @@ void Gui::preferences()
         bool rendererChanged               = QString(Preferences::preferredRenderer).toLower()   != preferredRendererCompare.toLower();
         bool enableFadeStepsChanged        = Preferences::enableFadeSteps                        != enableFadeStepsCompare;
         bool fadeStepsUseColourChanged     = Preferences::fadeStepsUseColour                     != fadeStepsUseColourCompare;
-        bool fadeStepsColourChanged        = QString(Preferences::validFadeStepsColour).toLower()     != fadeStepsColourCompare.toLower();
+        bool fadeStepsColourChanged        = QString(Preferences::validFadeStepsColour).toLower()!= fadeStepsColourCompare.toLower();
         bool fadeStepsOpacityChanged       = Preferences::fadeStepsOpacity                       != fadeStepsOpacityCompare;
         bool enableHighlightStepChanged    = Preferences::enableHighlightStep                    != enableHighlightStepCompare;
         bool highlightStepColorChanged     = QString(Preferences::highlightStepColour).toLower() != highlightStepColourCompare.toLower();
@@ -1870,8 +1872,9 @@ void Gui::preferences()
         bool doNotShowPageProcessDlgChanged= Preferences::doNotShowPageProcessDlg                != doNotShowPageProcessDlgCompare;
         bool povFileGeneratorChanged       = Preferences::povFileGenerator                       != povFileGeneratorCompare;
         bool altLDConfigPathChanged        = Preferences::altLDConfigPath                        != altLDConfigPathCompare;
-
-        bool ldrawPathChanged              = QString(Preferences::ldrawLibPath).toLower()           != ldrawPathCompare.toLower();
+        bool addLSynthSearchDirChanged     = Preferences::addLSynthSearchDir                     != addLSynthSearchDirCompare;
+        bool archiveLSynthPartsChanged     = Preferences::archiveLSynthParts                     != archiveLSynthPartsCompare;
+        bool ldrawPathChanged              = QString(Preferences::ldrawLibPath).toLower()        != ldrawPathCompare.toLower();
         bool lgeoPathChanged               = QString(Preferences::lgeoPath).toLower()            != lgeoPathCompare.toLower();
         bool displayThemeChanged           = Preferences::displayTheme.toLower()                 != displayThemeCompare.toLower();
 
@@ -1942,6 +1945,15 @@ void Gui::preferences()
                             .arg(highlightStepLineWidthCompare)
                             .arg(Preferences::pageDisplayPause));
 
+        if (addLSynthSearchDirChanged)
+                    emit messageSig(LOG_INFO,QString("Add LSynth Search Directory is %1").arg(Preferences::addLSynthSearchDir? "ON" : "OFF"));
+
+        if (archiveLSynthPartsChanged)
+                    emit messageSig(LOG_INFO,QString("Archive LSynth Parts is %1").arg(Preferences::archiveLSynthParts? "ON" : "OFF"));
+
+        if ((addLSynthSearchDirChanged || archiveLSynthPartsChanged) && Preferences::archiveLSynthParts)
+                loadLDSearchDirParts();
+
         if (doNotShowPageProcessDlgChanged)
             emit messageSig(LOG_INFO,QString("Show continuous page process options dialog is %1.").arg(Preferences::doNotShowPageProcessDlg ? "ON" : "OFF"));
 
@@ -2008,21 +2020,21 @@ void Gui::preferences()
         }
 
         if (!getCurFile().isEmpty()) {
-            if (enableFadeStepsChanged            ||
-                    altLDConfigPathChanged        ||
-                    fadeStepsColourChanged        ||
-                    fadeStepsUseColourChanged     ||
-                    fadeStepsOpacityChanged       ||
-                    enableHighlightStepChanged    ||
-                    highlightStepColorChanged     ||
-                    highlightStepLineWidthChanged ||
-                    rendererChanged               ||
-                    enableLDViewSCallChanged      ||
-                    enableLDViewSListChanged      ||
-                    displayAttributesChanged      ||
-                    povFileGeneratorChanged       ||
-                    enableImageMattingChanged     ||
-                    generateCoverPagesChanged){
+            if (enableFadeStepsChanged        ||
+                altLDConfigPathChanged        ||
+                fadeStepsColourChanged        ||
+                fadeStepsUseColourChanged     ||
+                fadeStepsOpacityChanged       ||
+                enableHighlightStepChanged    ||
+                highlightStepColorChanged     ||
+                highlightStepLineWidthChanged ||
+                rendererChanged               ||
+                enableLDViewSCallChanged      ||
+                enableLDViewSListChanged      ||
+                displayAttributesChanged      ||
+                povFileGeneratorChanged       ||
+                enableImageMattingChanged     ||
+                generateCoverPagesChanged){
                 clearAndRedrawPage();
             }
         }
@@ -2680,10 +2692,9 @@ void Gui::processHighlightColourParts(bool overwriteCustomParts)
     }
 }
 
-
-
 // Update parts archive from LDSearch directories
-void Gui::processLDSearchDirParts(){
+void Gui::loadLDSearchDirParts() {
+  partWorkerLDSearchDirs.ldsearchDirPreferences();
   partWorkerLDSearchDirs.processLDSearchDirParts();
 }
 

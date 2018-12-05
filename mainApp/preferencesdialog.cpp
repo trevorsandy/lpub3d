@@ -108,6 +108,9 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.publishEmail_Edit->setText(                 Preferences::defaultEmail);
   ui.publishDescriptionEdit->setText(            Preferences::publishDescription);
   ui.enableDownloader_Chk->setChecked(           Preferences::enableDownloader);
+  ui.addLSynthSearchDirBox->setEnabled(          Preferences::archiveLSynthParts);
+  ui.addLSynthSearchDirBox->setChecked(          Preferences::addLSynthSearchDir);
+  ui.archiveLSynthPartsBox->setChecked(          Preferences::archiveLSynthParts);
   ui.showUpdateNotifications_Chk->setChecked(    Preferences::showUpdateNotifications);
   ui.showAllNotificstions_Chk->setChecked(       Preferences::showAllNotifications);
   ui.checkUpdateFrequency_Combo->setCurrentIndex(Preferences::checkUpdateFrequency);
@@ -579,6 +582,11 @@ void PreferencesDialog::on_altLDConfigBox_clicked(bool checked)
   }
 }
 
+void PreferencesDialog::on_archiveLSynthPartsBox_clicked(bool checked)
+{
+    ui.addLSynthSearchDirBox->setEnabled(checked);
+}
+
 void PreferencesDialog::on_fadeStepsColoursCombo_currentIndexChanged(const QString &colorName)
 {
   QColor newFadeColor = LDrawColor::color(colorName);
@@ -910,6 +918,16 @@ QString const PreferencesDialog::defaultAuthor()
 QString const PreferencesDialog::publishDescription()
 {
   return ui.publishDescriptionEdit->toPlainText();
+}
+
+bool PreferencesDialog::addLSynthSearchDir()
+{
+       return ui.addLSynthSearchDirBox->isChecked();
+}
+
+bool PreferencesDialog::archiveLSynthParts()
+{
+       return ui.archiveLSynthPartsBox->isChecked();
 }
 
 bool PreferencesDialog::showUpdateNotifications()
