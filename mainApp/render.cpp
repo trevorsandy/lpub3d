@@ -403,7 +403,7 @@ int POVRay::renderCsi(
         }
 
       bool hasLDViewIni = Preferences::ldviewPOVIni != "";
-      if(hasLDViewIni && Preferences::validLDrawLibrary != VEXIQ_LIBRARY){
+      if(hasLDViewIni){
           QString ini  = QString("-IniFile=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldviewPOVIni)));
           arguments << ini;
         }
@@ -614,7 +614,7 @@ int POVRay::renderPli(
         }
 
       bool hasLDViewIni = Preferences::ldviewPOVIni != "";
-      if(hasLDViewIni && Preferences::validLDrawLibrary != VEXIQ_LIBRARY){
+      if(hasLDViewIni){
           QString ini  = QString("-IniFile=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldviewPOVIni)));
           arguments << ini;
         }
@@ -1163,7 +1163,7 @@ int LDView::renderCsi(
   }
 
   QString ini;
-  if(hasLDViewIni && Preferences::validLDrawLibrary != VEXIQ_LIBRARY){
+  if(hasLDViewIni){
       ini  = QString("-IniFile=%1") .arg(Preferences::ldviewIni);
       arguments << ini;                  // 11. LDView.ini
   }
@@ -1351,7 +1351,7 @@ int LDView::renderPli(
   }
 
   QString ini;
-  if(hasLDViewIni && Preferences::validLDrawLibrary != VEXIQ_LIBRARY){
+  if(hasLDViewIni){
       ini  = QString("-IniFile=%1") .arg(Preferences::ldviewIni);
       arguments << ini;
   }
