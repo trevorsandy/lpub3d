@@ -293,7 +293,10 @@ Required LPub3D libraries on macOS
 ========================
 LDView:
 
-- LibPNG version 1.6.34 or above
+- XQuartz (OSMesa)
+  https://www.xquartz.org
+
+- LibPNG version 1.6.35 or above
   http://www.libpng.org
 
 - GL2PS version 1.3.5 or above
@@ -310,13 +313,16 @@ LDView:
 
 POVRay:
 
+- XQuartz (X11)
+  https://www.xquartz.org
+
 - LibTIFF version 3.6.1 or above
   http://www.libtiff.org
 
 - OpenEXR version 1.2 or above
   http://www.openexr.com
 
-- SDL version 2.0.2 or above (used for the display preview)
+- SDL2 version 2.0.2 or above (for display preview)
   http://www.libsdl.org
 
 Install brew (if not already installed)
@@ -332,7 +338,7 @@ Install libraries
 Check installed lirary - particularly libPNG
 ============================================
 - \$ otool -L $(brew list libpng | grep dylib$)
-    /usr/local/Cellar/libpng/1.6.34/lib/libpng.dylib:
+    /usr/local/Cellar/libpng/1.6.35/lib/libpng.dylib:
         /usr/local/opt/libpng/lib/libpng16.16.dylib (compatibility version 52.0.0, current version 52.0.0)
         /usr/lib/libz.1.dylib (compatibility version 1.0.0, current version 1.2.11)
         /usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1252.0.0)

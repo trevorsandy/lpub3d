@@ -62,6 +62,9 @@ class Preferences
     static bool checkLDrawLibrary(const QString &);
     static bool setLDViewExtraSearchDirs(const QString &);
     static bool copyRecursively(const QString &,const QString &);
+#ifdef Q_OS_MAC
+    static bool validLib(const QString &,const QString &);
+#endif
 
     static void setOverwriteCustomParts(bool);
     static void setPageGuidesPreference(bool);
@@ -220,6 +223,7 @@ class Preferences
     static bool    ldviewMissingLibs;
     static bool    povrayMissingLibs;
 #endif
+
     virtual ~Preferences() {}
 };
 

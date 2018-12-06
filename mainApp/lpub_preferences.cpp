@@ -336,6 +336,88 @@ void Preferences::setDistribution(){
 #endif
 }
 
+#ifdef Q_OS_MAC
+bool Preferences::validLib(const QString &libName, const QString &libVersion) {
+
+    int waitTime = 3000 ; // 3 sec
+    QStringList arguments = QStringList() << "$(brew info " + libName + ") | sed \"s/^.*stable \\([^(]*\\).*/\\1/\"";
+
+    logDebug()  << "Library check arguments:  " << arguments.join(" ");
+
+    QProcess pr;
+    pr.setEnvironment(QProcess::systemEnvironment());
+    pr.setWorkingDirectory(QDir::currentPath());
+    pr.start("echo",arguments);
+    if (! pr.waitForStarted() || ! pr.waitForFinished(waitTime)) {
+        if (pr.exitCode() != 0 || 1) {
+            QByteArray status = pr.readAll();
+            QString str;
+            str.append(status);
+            logError() << QString("Library check process failed with code %1 %2")
+                          .arg(pr.exitCode())
+                          .arg(str);
+            return false;
+        }
+    }
+
+    QString p_stderr = pr.readAllStandardError();
+    if (!p_stderr.isEmpty())
+        logError() << "Library check STDERR: " << p_stderr;
+
+    // Compare two string versions.
+    // Return  1 if v2 is smaller
+    // Return -1 if v1 is smaller
+    // Return  0 if v1 and v2 are equal
+
+    QString v1 = libVersion;
+    QString v2 = pr.readAllStandardOutput();
+
+    logDebug()  << "Library check StandardOutput:  " << v2;
+
+    int r = 0;
+    auto versionCompare = [&v1, &v2] (int &r)
+    {
+        int _v1 = 0, _v2 = 0;
+        for (int i=0,j=0; (i<v1.length() || j<v2.length()); )
+        {
+            while (i < v1.length() && v1[i] != '.')
+            {
+                _v1 = _v1 * 10 + (v1[i].toLatin1() - '0');
+                i++;
+            }
+            while (j < v2.length() && v2[j] != '.')
+            {
+                _v2 = _v2 * 10 + (v2[j].toLatin1() - '0');
+                j++;
+            }
+            if (_v1 > _v2)
+            {
+                r = 1;
+                break;
+            }
+            else if (_v2 > _v1)
+            {
+                r = -1;
+                break;
+            }
+            else
+            { // if equal, reset variables and process next
+                _v1 = _v2 = 0;
+                i++;
+                j++;
+            }
+        }
+    };
+    versionCompare(r);
+    if (r  > 0) {
+        logTrace() << QString("Library %1 version [%2] is less than required version [%3]")
+                              .arg(libName).arg(v2).arg(libVersion);
+        return false;
+    }
+    return true;
+}
+#endif
+
 void Preferences::lpubPreferences()
 {
     lpub3dAppName = QCoreApplication::applicationName();
@@ -1576,7 +1658,6 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
         logInfo() << QString("LDView  : %1").arg(ldviewExe);
 
 #ifdef Q_OS_MAC
-
         // Check macOS LDView Libraries
 
         if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"LDViewMissingLibs"))) {
@@ -1592,32 +1673,52 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
             QFileInfo libInfo("/opt/X11/lib/libOSMesa.dylib");
             if (!libInfo.exists()){
                 ldviewMissingLibs = true;
-                missingLibs << libInfo.absoluteFilePath();
+                missingLibs << libInfo.absoluteFilePath() << QString(" - not found.");
             }
             libInfo.setFile("/usr/local/opt/libpng/lib/libpng.dylib");
             if (!libInfo.exists()){
                 ldviewMissingLibs = true;
-                missingLibs << libInfo.absoluteFilePath();
+                missingLibs << libInfo.absoluteFilePath() << QString(" - not found.");
+            } else {
+                ldviewMissingLibs = !validLib(libInfo.fileName(), LIBPNG_MACOS_VERSION);
+                if (ldviewMissingLibs)
+                missingLibs << libInfo.absoluteFilePath() << QString(" - invalid version.");
             }
             libInfo.setFile("/usr/local/opt/gl2ps/lib/libgl2ps.dylib");
             if (!libInfo.exists()){
                 ldviewMissingLibs = true;
-                missingLibs << libInfo.absoluteFilePath();
+                missingLibs << libInfo.absoluteFilePath() << QString(" - not found.");
+            } else {
+                ldviewMissingLibs = !validLib(libInfo.fileName(), LIBGL2PS_MACOS_VERSION);
+                if (ldviewMissingLibs)
+                missingLibs << libInfo.absoluteFilePath() << QString(" - invalid version.");
             }
-            libInfo.setFile("/usr/local/opt/libjpg/lib/libjpeg.dylib");
+            libInfo.setFile("/usr/local/opt/jpeg/lib/libjpeg.dylib");
             if (!libInfo.exists()){
                 ldviewMissingLibs = true;
-                missingLibs << libInfo.absoluteFilePath();
+                missingLibs << libInfo.absoluteFilePath() << QString(" - not found.");
+            } else {
+                ldviewMissingLibs = !validLib(libInfo.fileName(), LIBJPEG_MACOS_VERSION);
+                if (ldviewMissingLibs)
+                missingLibs << libInfo.absoluteFilePath() << QString(" - invalid version.");
             }
             libInfo.setFile("/usr/local/opt/tinyxml/lib/libtinyxml.dylib");
             if (!libInfo.exists()){
                 ldviewMissingLibs = true;
-                missingLibs << libInfo.absoluteFilePath();
+                missingLibs << libInfo.absoluteFilePath() << QString(" - not found.");
+            } else {
+                ldviewMissingLibs = !validLib(libInfo.fileName(), LIBXML_MACOS_VERSION);
+                if (ldviewMissingLibs)
+                missingLibs << libInfo.absoluteFilePath() << QString(" - invalid version.");
             }
             libInfo.setFile("/usr/local/opt/minizip/lib/libminizip.dylib");
             if (!libInfo.exists()){
                 ldviewMissingLibs = true;
-                missingLibs << libInfo.absoluteFilePath();
+                missingLibs << libInfo.absoluteFilePath() << QString(" - not found.");
+            } else {
+                ldviewMissingLibs = !validLib(libInfo.fileName(), LIBMINIZIP_MACOS_VERSION);
+                if (ldviewMissingLibs)
+                missingLibs << libInfo.absoluteFilePath() << QString(" - invalid version.");
             }
 
             QVariant eValue(ldviewMissingLibs);
@@ -1628,9 +1729,9 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
             {
                 QString header = "<b> " + QMessageBox::tr ("Required libraries for the LDView renderer were not found!!") + "</b>";
                 QString body = QMessageBox::tr ("The following libraries were not found:\n\n -%1\n\n"
-                                                "See %2/assets/docs/lpub3d/macOS_libs.html for install details.")
-                        .arg(missingLibs.join("\n -"))
-                        .arg(VER_COMPANYDOMAIN_STR);
+                                                "See https://github.com/trevorsandy/lpub3d/issues/57 for details.")
+                                                .arg(missingLibs.join("\n -"))
+                                                .arg(VER_COMPANYDOMAIN_STR);
                 box.setText (header);
                 box.setInformativeText (body);
 
@@ -1644,6 +1745,7 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
                 } else {
                     fprintf(stdout,"%s\n",body.toLatin1().constData());
                     fflush(stdout);
+                    logDebug() << QString("MissingLibs : %1").arg(missingLibs.join("\n -"));
                 }
             }
         }
@@ -1652,7 +1754,6 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
         logError() << QString("LDView   : %1 not found").arg(ldviewInfo.absoluteFilePath());
     }
 
-    // POV-Ray EXE
     if (povrayInfo.exists()) {
         povRayInstalled = true;
         povrayExe = QDir::toNativeSeparators(povrayInfo.absoluteFilePath());
@@ -1672,25 +1773,46 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
         if (povrayMissingLibs) {
             missingLibs.clear();
             povrayMissingLibs = false;
-            QFileInfo libInfo("/usr/local/opt/libtiff/lib/libtiff.dylib");
+            QFileInfo libInfo("/opt/X11/lib/libX11.dylib");
             if (!libInfo.exists()){
                 povrayMissingLibs = true;
-                missingLibs << libInfo.absoluteFilePath();
+                missingLibs << libInfo.absoluteFilePath() << QString(" - not found.");
+            }
+            libInfo.setFile("/usr/local/opt/libtiff/lib/libtiff.dylib");
+            if (!libInfo.exists()){
+                povrayMissingLibs = true;
+                missingLibs << libInfo.absoluteFilePath() << QString(" - not found.");
+            } else {
+                ldviewMissingLibs = !validLib(libInfo.fileName(), LIBTIFF_MACOS_VERSION);
+                if (ldviewMissingLibs)
+                missingLibs << libInfo.absoluteFilePath() << QString(" - invalid version.");
             }
             libInfo.setFile("/usr/local/opt/openexr/lib/libIlmImf.dylib");
             if (!libInfo.exists()){
                 povrayMissingLibs = true;
-                missingLibs << libInfo.absoluteFilePath();
+                missingLibs << libInfo.absoluteFilePath() << QString(" - not found.");
+            } else {
+                ldviewMissingLibs = !validLib(libInfo.fileName(), LIBOPENEXR_MACOS_VERSION);
+                if (ldviewMissingLibs)
+                missingLibs << libInfo.absoluteFilePath() << QString(" - invalid version.");
             }
             libInfo.setFile("/usr/local/opt/ilmbase/lib/libHalf.dylib");
             if (!libInfo.exists()){
                 povrayMissingLibs = true;
-                missingLibs << libInfo.absoluteFilePath();
+                missingLibs << libInfo.absoluteFilePath() << QString(" - not found.");
+            } else {
+                ldviewMissingLibs = !validLib(libInfo.fileName(), LIBOPENEXR_MACOS_VERSION);
+                if (ldviewMissingLibs)
+                missingLibs << libInfo.absoluteFilePath() << QString(" - invalid version.");
             }
             libInfo.setFile("/usr/local/opt/sdl2/lib/libSDL2.dylib");
             if (!libInfo.exists()){
                 povrayMissingLibs = true;
-                missingLibs << libInfo.absoluteFilePath();
+                missingLibs << libInfo.absoluteFilePath() << QString(" - not found.");
+            } else {
+                ldviewMissingLibs = !validLib(libInfo.fileName(), LIBSDL_MACOS_VERSION);
+                if (ldviewMissingLibs)
+                missingLibs << libInfo.absoluteFilePath() << QString(" - invalid version.");
             }
 
             QVariant eValue(povrayMissingLibs);
@@ -1701,7 +1823,7 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
             {
               QString header = "<b> " + QMessageBox::tr ("Required libraries for the POVRay renderer were not found!\n\n") + "</b>";
               QString body = QMessageBox::tr ("The following libraries were not found:\n\n -%1\n\n"
-                                              "See %2/assets/docs/lpub3d/macOS_libs.html for install details.")
+                                              "See https://github.com/trevorsandy/lpub3d/issues/57 for details.")
                                               .arg(missingLibs.join("\n -"))
                                               .arg(VER_COMPANYDOMAIN_STR);
               box.setText (header);
@@ -1717,6 +1839,7 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
               } else {
                 fprintf(stdout,"%s\n",body.toLatin1().constData());
                 fflush(stdout);
+                logDebug() << QString("MissingLibs : %1").arg(missingLibs.join("\n -"));
               }
            }
         }
