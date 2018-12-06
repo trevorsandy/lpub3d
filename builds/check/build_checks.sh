@@ -52,15 +52,6 @@ if [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
     echo "ERROR - $(realpath ${LPUB3D_EXE}) not found." 
 fi
 
-# Interim workaround for LDView Single Call fail on Arch Linux
-if [ "${LP3D_PLATFORM}" = "arch" ]; then
-    LP3D_RENDERER0="ldview"
-    LP3D_RENDERER1="ldview"
-else
-    LP3D_RENDERER0="ldview-sc"
-    LP3D_RENDERER1="ldview-scsl"
-fi
-
 echo && echo "------------Build checks start--------------" && echo
 
 LP3D_CHECK_FILE="$(realpath ${SOURCE_DIR})/builds/check/build_checks.mpd"
@@ -77,7 +68,7 @@ for LP3D_BUILD_CHECK in CHECK01 CHECK02 CHECK03 CHECK04 CHECK05 CHECK06 CHECK07;
         ;;
     CHECK03)
         LP3D_CHECK_HDR="- Check 3 of 7: LDView (Single Call) File Process Check..."
-        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --liblego --preferred-renderer ${LP3D_RENDERER0}"
+        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --liblego --preferred-renderer ldview-sc"
         ;;
     CHECK04)
         LP3D_CHECK_HDR="- Check 4 of 7: LDGLite Export Range Check..."
@@ -94,7 +85,7 @@ for LP3D_BUILD_CHECK in CHECK01 CHECK02 CHECK03 CHECK04 CHECK05 CHECK06 CHECK07;
         ;;
     CHECK07)
         LP3D_CHECK_HDR="- Check 7 of 7: Native VEXIQ Model Check..."
-        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --libvexiq --preferred-renderer ${LP3D_RENDERER1}"
+        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --libvexiq --preferred-renderer ldview-scsl"
         LP3D_CHECK_FILE="$(realpath ${SOURCE_DIR})/builds/check/VEXIQ/spider.mpd"
         ;;
       esac
