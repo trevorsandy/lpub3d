@@ -767,15 +767,15 @@ public slots:
   void openDropFile(QString &fileName);
 
   void deployExportBanner(bool b);
-  void setExporting(bool b){ m_exportingContent = b;}
-  bool exporting() {return m_exportingContent;}
-  void cancelExporting(){m_exportingContent = false;}
+  void setExporting(bool b){ m_exportingContent = b; }
+  bool exporting() { return m_exportingContent; }
+  void cancelExporting(){ m_exportingContent = false; }
 
   void setContinuousPageAct(PAction p = SET_DEFAULT_ACTION);
   void setPageContinuousIsRunning(bool b = true, Direction d = DIRECTION_NOT_SET);
-  void setContinuousPage(bool b){ m_contPageProcessing = b;}
-  bool ContinuousPage() {return m_contPageProcessing;}
-  void cancelContinuousPage(){m_contPageProcessing = false;}
+  void setContinuousPage(bool b){ m_contPageProcessing = b; }
+  bool ContinuousPage() { return m_contPageProcessing; }
+  void cancelContinuousPage(){ m_contPageProcessing = false; }
 
   // left side progress bar
   void progressBarInit();

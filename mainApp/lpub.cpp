@@ -478,21 +478,21 @@ bool Gui::continuousPageDialog(Direction d)
   int pageCount = 0;
   int _maxPages = 0;
   bool terminateProcess = false;
+  setContinuousPageSig(true);
   QElapsedTimer continuousTimer;
   QString direction = d == PAGE_NEXT ? "Next" : "Previous";
 
   exportType = PAGE_PROCESS;
 
   if (Preferences::modeGUI) {
-      setContinuousPageSig(true);
       if (Preferences::doNotShowPageProcessDlg) {
           if (!processPageRange(setPageLineEdit->displayText())) {
-              setPageContinuousIsRunning(false);
               emit messageSig(LOG_STATUS,QString("%1 page processing terminated.").arg(direction));
+              setPageContinuousIsRunning(false);
               emit setContinuousPageSig(false);
               return false;
-            }
-        }
+          }
+      }
       else
       {
           DialogExportPages *dialog = new DialogExportPages();
@@ -529,28 +529,30 @@ bool Gui::continuousPageDialog(Direction d)
               connect (   m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelContinuousPage()));
 
           } else {
-              setPageContinuousIsRunning(false);
               emit messageSig(LOG_STATUS,QString("%1 page processing terminated.").arg(direction));
+              setPageContinuousIsRunning(false);
               emit setContinuousPageSig(false);
               return false;
           }
-        }
-    }
-  else { // command line mode
+      }
+  }
+  else
+  { // command line mode
       continuousTimer.start();
-      // This effectively acts like a toggle. If true, it sets false and vice versa.
+      // Set processing direction - This effectively acts like a toggle.
+      // If true, it sets false and vice versa.
       nextPageContinuousIsRunning = !nextPageContinuousIsRunning;
-    }
+  }
 
   // Validate the page range
   if (processOption == EXPORT_PAGE_RANGE){
       if (! validatePageRange()){
-          setPageContinuousIsRunning(false);
           emit messageSig(LOG_STATUS,QString("%1 page processing terminated.").arg(direction));
+          setPageContinuousIsRunning(false);
           emit setContinuousPageSig(false);
           return false;
-        }
-    }
+      }
+  }
 
   // Process is running - configure to stop
   setContinuousPageAct(SET_STOP_ACTION);
@@ -582,13 +584,13 @@ bool Gui::continuousPageDialog(Direction d)
 
           if (! ContinuousPage()) {
               setPageContinuousIsRunning(false,d);
-            }
+          }
 
           if (d == PAGE_NEXT) {
               terminateProcess =  !nextPageContinuousIsRunning;
-            } else {
+          } else {
               terminateProcess =  !previousPageContinuousIsRunning;
-            }
+          }
 
           if (terminateProcess) {
               message = QString("%1 page processing terminated before completion. %2 pages of %3 processed%4.")
@@ -606,7 +608,7 @@ bool Gui::continuousPageDialog(Direction d)
               connect (   m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
 
               return false;
-            }
+          }
 
           pageCount = displayPageNum;
 
@@ -623,11 +625,11 @@ bool Gui::continuousPageDialog(Direction d)
           qApp->processEvents();
 
           secSleeper::secSleep(Preferences::pageDisplayPause);
-        }
+      }
 
       QApplication::restoreOverrideCursor();
 
-    }
+  }
   else
   // Processing page range
   if (processOption == EXPORT_PAGE_RANGE) {
@@ -644,25 +646,25 @@ bool Gui::continuousPageDialog(Direction d)
               if (d == PAGE_NEXT) {
                   for(int i = startPage; i <= endPage; i++){
                       printPages.append(i);
-                    }
-                } else {
+                  }
+              } else {
                   for(int i = startPage; i >= endPage; i--){
                       printPages.append(i);
-                    }
-                }
-            }
+                  }
+              }
+          }
           // Or just add the range value
           else
-            {
+          {
               printPages.append(ranges.toInt());
-            }
-        }
+          }
+      }
 
       // Sort the page numbers
       if (d == PAGE_NEXT)
-        std::sort(printPages.begin(),printPages.end(),lt);    // Next - small to large
+          std::sort(printPages.begin(),printPages.end(),lt);    // Next - small to large
       else
-        std::sort(printPages.begin(),printPages.end(),gt);    // Previous - large to small
+          std::sort(printPages.begin(),printPages.end(),gt);    // Previous - large to small
 
       displayPageNum = printPages.first();
 
@@ -688,9 +690,9 @@ bool Gui::continuousPageDialog(Direction d)
 
           if (d == PAGE_NEXT) {
               terminateProcess = !nextPageContinuousIsRunning;
-            } else {
+          } else {
               terminateProcess = !previousPageContinuousIsRunning;
-            }
+          }
 
           if (terminateProcess) {
               message = QString("%1 page processing terminated before completion. %2 pages of %3 processed%4.")
@@ -708,18 +710,18 @@ bool Gui::continuousPageDialog(Direction d)
               connect (   m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
 
               return false;
-            }
+          }
 
           pageCount++;
 
           displayPage();
 
           message = QString("%1 Page Processing - Processed page %2 (%3 of %4) from the range of %5")
-                  .arg(direction)
-                  .arg(displayPageNum)
-                  .arg(pageCount)
-                  .arg(_maxPages)
-                  .arg(pageRanges.join(" "));
+                            .arg(direction)
+                            .arg(displayPageNum)
+                            .arg(pageCount)
+                            .arg(_maxPages)
+                            .arg(pageRanges.join(" "));
           emit messageSig(LOG_STATUS,message);
 
           if (Preferences::modeGUI) {
@@ -730,12 +732,12 @@ bool Gui::continuousPageDialog(Direction d)
           qApp->processEvents();
 
           secSleeper::secSleep(Preferences::pageDisplayPause);
-        }
+      }
 
       QApplication::restoreOverrideCursor();
-    }
+  }
 
-    setContinuousPageAct(SET_DEFAULT_ACTION);
+  setContinuousPageAct(SET_DEFAULT_ACTION);
 
   message = QString("%1 page processing completed. %2 of %3 %4 processed%5.")
                     .arg(direction)
