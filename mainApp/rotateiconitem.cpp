@@ -507,7 +507,7 @@ void RotateIconItem::contextMenuEvent(
 //        } // end logging only
 
       changePlacement(parentRelativeType,
-                      SingleStepType,         //not using RotateIconType intentionally
+                      RotateIconType,
                       pl+" Placement",
                       top,
                       bottom,

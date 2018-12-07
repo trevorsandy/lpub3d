@@ -985,7 +985,7 @@ private:
     QStringList   &bfxParts,
     QStringList   &ldrStepFiles,
     QStringList   &csiKeys,
-    bool           unAssCallout = false,
+    bool           assembledCallout = false,
     bool           calledOut = false);
 
   void attitudeAdjustment(); // reformat the LDraw file to fix LPub backward compatibility issues 

@@ -387,7 +387,7 @@ int Gui::drawPage(
     QStringList    &bfxParts,
     QStringList    &ldrStepFiles,
     QStringList    &csiKeys,
-    bool            unAssCallout,
+    bool            assembledCallout,
     bool            calledOut)
 {
   QStringList saveCsiParts;
@@ -576,11 +576,8 @@ int Gui::drawPage(
 
               CalloutBeginMeta::CalloutMode mode = callout->meta.LPub.callout.begin.value();
 
-//              qDebug() << "CALLOUT MODE: " << (mode == CalloutBeginMeta::Unassembled ? "Unassembled" :
-//                                               mode == CalloutBeginMeta::Rotated ? "Rotated" : "Assembled");
-
-              // If callout is rotated or assembled then suppress rotate icon
-              unAssCallout = (mode == CalloutBeginMeta::Unassembled);
+//              logDebug() << "CALLOUT MODE: " << (mode == CalloutBeginMeta::Unassembled ? "Unassembled" :
+//                                                 mode == CalloutBeginMeta::Rotated ? "Rotated" : "Assembled");
 
               /* we are a callout, so gather all the steps within the callout */
               /* start with new meta, but no rotation step */
@@ -589,13 +586,18 @@ int Gui::drawPage(
 
              /* t.s. Rotated or assembled callout here (treated like a submodel) */
               if (mode != CalloutBeginMeta::Unassembled) {
-             /* So, we process these callouts in-line, not when we finally hit the STEP or
-             ROTSTEP that ends this processing, but for ASSEMBLED or ROTATED
-             callouts, the ROTSTEP state affects the results, so we have to search
-             forward until we hit STEP or ROTSTEP to know how the submodel might
-             want to be rotated.  Also, for submodel's who's scale is different
-             than their parent's scale, we want to scan ahead and find out the
-             parent's scale and "render" the submodels at the parent's scale */
+
+                  /* So, we process these callouts in-line, not when we finally hit the STEP or
+                     ROTSTEP that ends this processing, but for ASSEMBLED or ROTATED
+                     callouts, the ROTSTEP state affects the results, so we have to search
+                     forward until we hit STEP or ROTSTEP to know how the submodel might
+                     want to be rotated.  Also, for submodel's who's scale is different
+                     than their parent's scale, we want to scan ahead and find out the
+                     parent's scale and "render" the submodels at the parent's scale */
+
+                  // If callout is assembled, suppress rotate icon
+                  assembledCallout = (mode == CalloutBeginMeta::Assembled);
+
                   Meta tmpMeta = curMeta;
                   Where walk = current;
                   for (++walk; walk < numLines; ++walk) {
@@ -628,7 +630,7 @@ int Gui::drawPage(
                   if (mode == CalloutBeginMeta::Assembled) {
                       // In this case, no additional rotation should be applied to the submodel
                       callout->meta.rotStep.clear();
-                    }
+                  }
                   SubmodelStack tos(current.modelName,current.lineNumber,stepNum);
                   callout->meta.submodelStack << tos;
                   Meta saveMeta = callout->meta;
@@ -658,7 +660,7 @@ int Gui::drawPage(
                         bfxParts,
                         ldrStepFiles,
                         csiKeys,
-                        unAssCallout,
+                        assembledCallout,
                         true);
 
                   callout->meta = saveMeta;
@@ -688,7 +690,7 @@ int Gui::drawPage(
             } // STEP - Process called out submodel
 
           if (step && steps->meta.LPub.subModel.show.value()) {
-              bool calloutOk      = (calledOut ? unAssCallout : true ) &&
+              bool calloutOk      = (calledOut ? assembledCallout : true ) &&
                                     (calledOut ? steps->meta.LPub.subModel.showSubmodelInCallout.value(): true);
               bool topModel       = (topLevelFile() == topOfStep.modelName);
               bool showTopModel   = (steps->meta.LPub.subModel.showTopModel.value());
@@ -994,24 +996,17 @@ int Gui::drawPage(
 
             case InsertRc:
               {
-                inserts.append(curMeta.LPub.insert);         // these are always placed before any parts in step
-                insertData = curMeta.LPub.insert.value();
+                 inserts.append(curMeta.LPub.insert);                  // these are always placed before any parts in step
+                 insertData = curMeta.LPub.insert.value();
 
-                if (insertData.type == InsertData::InsertRotateIcon) { // indicate that we have a rotate icon for this step
-
- //                   qDebug() << "CALLED OUT: " << calledOut << " SUPRESS ROTATE ICON: " << unAssCallout;
-
-                    if (calledOut && unAssCallout) {
-                        rotateIcon = true;
-                      } else {
-                        rotateIcon = false;
-                      }
-                  }
-                if (insertData.type == InsertData::InsertBom) {
-                    // nothing to display in 3D Window
-                    if (! exporting())
-                      emit clearViewerWindowSig();
-                  }
+                 if (insertData.type == InsertData::InsertRotateIcon) { // indicate that we have a rotate icon for this step
+                     rotateIcon = (calledOut && assembledCallout ? false : true);
+                 }
+                 if (insertData.type == InsertData::InsertBom) {
+                     // nothing to display in 3D Window
+                     if (! exporting())
+                         emit clearViewerWindowSig();
+                 }
               }
               break;
 
@@ -1595,7 +1590,6 @@ int Gui::drawPage(
                   partsAdded = false;
                   coverPage = false;
                   rotateIcon = false;
-                  //                unAssCallout = false;
                   step = nullptr;
                   bfxStore2 = bfxStore1;
                   bfxStore1 = false;

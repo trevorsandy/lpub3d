@@ -279,6 +279,9 @@ PlacementDialog::PlacementDialog(
         case SubModelType:              //placed type
           oks << Page << Csi << Pli << Sn << Ph << Pf;
         break;
+        case RotateIconType:            //placed type
+          oks << Csi << Pli << Sn ;
+        break;
         default:                        //placed type
           oks << Page << Pn;
         break;
@@ -302,7 +305,8 @@ PlacementDialog::PlacementDialog(
           oks << Page << Csi << Ph << Pf;
         break;
         case SubModelType:             //placed type
-          oks << Csi << Pli << Sn;
+        case RotateIconType:           //placed type
+          oks << Csi << Pli << Sn ;
         break;
         default:
           oks << Csi << Pli << Sn;
