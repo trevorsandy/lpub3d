@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update October 19, 2018
+# Last Update December 08, 2018
 # To run:
 # $ chmod 755 CreateDeb.sh
 # $ [options] && ./builds/linux/CreatePkg.sh
@@ -105,6 +105,16 @@ fi
 if [ ! -f vexiqparts.zip ]
 then
     curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip
+fi
+
+if [ ! -f mesa-18.3.0.tar.gz ]
+then
+  curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/mesa-18.3.0.tar.gz
+fi
+
+if [ ! -f glu-9.0.0.tar.bz2 ]
+then
+  curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/glu-9.0.0.tar.bz2
 fi
 
 # download 3rd party packages defined as source in PKGBUILD

@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: October 02, 2018
+#  Last Update: December 10, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 
@@ -49,8 +49,7 @@ ExtractArchive() {
 }
 
 BuildMesaLibs() {
-  mesaSpecDir="$CallDir/builds/utilities/mesa"
-  mesaBuildDeps="TBD"
+  mesaUtilsDir="$CallDir/builds/utilities/mesa"
   if [ ! "${OBS}" = "true" ]; then
     mesaDepsLog=${LOG_PATH}/${ME}_${host}_mesadeps_${1}.log
     mesaBuildLog=${LOG_PATH}/${ME}_${host}_mesabuild_${1}.log
@@ -63,45 +62,75 @@ BuildMesaLibs() {
 
   Info "Update OSMesa.......[Yes]"
   if [ ! "${OBS}" = "true" ]; then
-    Info "OSMesa Dependencies.[${mesaBuildDeps}]"
-    Info
-    $useSudo dnf builddep -y mesa > $mesaDepsLog 2>&1
-    Info "${1} Mesa dependencies installed." && DisplayLogTail $mesaDepsLog 10
-    $useSudo dnf builddep -y "${mesaSpecDir}/glu.spec" >> $mesaDepsLog 2>&1
-    Info "${1} GLU dependencies installed." && DisplayLogTail $mesaDepsLog 5
+    case ${platform_id} in
+    fedora)
+      mesaBuildDeps="See ${mesaDepsLog}..."
+      Info "Fedora OSMesa Dependencies.[${mesaBuildDeps}]"
+      Info "GLU Spec File.......[${mesaUtilsDir}/glu.spec]"
+      Info
+      $useSudo dnf builddep -y mesa > $mesaDepsLog 2>&1
+      Info "Fedora Mesa dependencies installed." && DisplayLogTail $mesaDepsLog 10
+      $useSudo dnf builddep -y "${mesaUtilsDir}/glu.spec" >> $mesaDepsLog 2>&1
+      Info "Fedora GLU dependencies installed." && DisplayLogTail $mesaDepsLog 5
+      ;;
+    arch)
+      pkgbuildFile="${mesaUtilsDir}/PKGBUILD"
+      mesaBuildDeps="$(echo `grep -wr 'depends' $pkgbuildFile | cut -d= -f2| sed -e 's/(//g' -e "s/'//g" -e 's/)//g'` \
+                            `grep -wr 'makedepends' $pkgbuildFile | cut -d= -f2| sed -e 's/(//g' -e "s/'//g" -e 's/)//g'`)"
+      Info "Arch Linux OSMesa Dependencies.[${mesaBuildDeps}]"
+      Info "PKGBUILD File.......[$pkgbuildFile]"
+      Info
+      $useSudo pacman -S --noconfirm --needed $mesaBuildDeps > $mesaDepsLog 2>&1
+      Info "Arch Linux OSMesa and GLU dependencies installed."  && DisplayLogTail $mesaDepsLog 15
+      ;;
+    esac
   fi
   Info && Info "Build OSMesa and GLU static libraries..."
-  chmod a+x "${mesaSpecDir}/build_osmesa.sh"
+  chmod a+x "${mesaUtilsDir}/build_osmesa.sh"
   if [ "${OBS}" = "true" ]; then
     Info "Using sudo..........[No]"
-    osmesa_version=17.2.6
-    if [[ "${platform_id}" = "redhat" && ${platform_ver} = 28 ]]; then
-      Info "Building OSMesa.....[v18.0.0]"
-      osmesa_version=18.0.0
+    if [[ ("${platform_id}" = "redhat" && ${platform_ver} = 28) || ("${platform_id}" = "arch") ]]; then
+      Info "Building OSMesa.....[v18.3.0]"
+      osmesa_version=18.3.0
+    else
+      Info "Building OSMesa.....[v17.2.6]"
+      osmesa_version=17.2.6
     fi
     env \
     NO_GALLIUM=${no_gallium} \
     OSMESA_VERSION=${osmesa_version} \
-    ${mesaSpecDir}/build_osmesa.sh &
+    OSMESA_PREFIX=$WD/${DIST_DIR}/mesa/${platform_id} \
+    ${mesaUtilsDir}/build_osmesa.sh &
   else
-    ${mesaSpecDir}/build_osmesa.sh > $mesaBuildLog 2>&1 &
+    if [ "${platform_id}" = "arch" ]; then
+       Info "Building OSMesa.....[v18.3.0]"
+       osmesa_version=18.3.0
+    else
+       Info "Building OSMesa.....[v17.2.6]"
+       osmesa_version=17.2.6
+    fi
+    env \
+    OSMESA_VERSION=${osmesa_version} \
+    OSMESA_PREFIX=$WD/${DIST_DIR}/mesa/${platform_id} \
+    ${mesaUtilsDir}/build_osmesa.sh > $mesaBuildLog 2>&1 &
   fi
+
   TreatLongProcess $! 60 "OSMesa and GLU build"
 
-  if [[ -f "$WD/${DIST_DIR}/mesa/lib/libOSMesa32.a" && \
-        -f "$WD/${DIST_DIR}/mesa/lib/libGLU.a" ]]; then
+  if [[ -f "$WD/${DIST_DIR}/mesa/${platform_id}/lib/libOSMesa32.a" && \
+        -f "$WD/${DIST_DIR}/mesa/${platform_id}/lib/libGLU.a" ]]; then
     if [ ! "${OBS}" = "true" ]; then
       Info &&  Info "OSMesa and GLU build check..."
       DisplayCheckStatus "$mesaBuildLog" "Libraries have been installed in:" "1" "16"
-      DisplayLogTail $mesaBuildLog 10
+      DisplayLogTail $mesaBuildLog 20
     fi
     OSMesaBuilt=1
   else
-    if [ ! -f "$WD/${DIST_DIR}/mesa/lib/libOSMesa32.a" ]; then
-      Info && Info "ERROR - libOSMesa32 not found. Binary was not successfully built"
+    if [ ! -f "$WD/${DIST_DIR}/mesa/${platform_id}/lib/libOSMesa32.a" ]; then
+      Info && Info "ERROR - libOSMesa32 not found. Binary was not successfully built."
     fi
-    if [ ! -f "$WD/${DIST_DIR}/mesa/lib/libGLU.a" ]; then
-      Info && Info "ERROR - libGLU not found. Binary was not successfully built"
+    if [ ! -f "$WD/${DIST_DIR}/mesa/${platform_id}/lib/libGLU.a" ]; then
+      Info && Info "ERROR - libGLU not found. Binary was not successfully built."
     fi
     if [ ! "${OBS}" = "true" ]; then
       Info "------------------Build Log-------------------------"
@@ -146,7 +175,7 @@ DisplayCheckStatus() {
     if test -z "$s_checkString"; then Info "ERROR - check string not specified."; return 1; fi
     if test -z "$s_linesBefore"; then s_linesBefore=2; Info "INFO - display 2 lines before"; fi
     if test -z "$s_linesAfter"; then s_linesAfter=10; Info "INFO - display 10 lines after"; fi
-    Info "Checking for ${s_checkString} in ${s_buildLog}..."
+    Info "Checking if ${s_checkString} in ${s_buildLog}..."
     grep -B${s_linesBefore} -A${s_linesAfter} "${s_checkString}" $s_buildLog
   else
     Info "ERROR - Check display [$s_buildLog] not found or is not valid!"
@@ -238,7 +267,7 @@ InstallDependencies() {
         specFile="$PWD/unix/obs/povray.spec"
        ;;
       esac;
-      rpmbuildDeps="Sorry, spec file does not support reliable dependency display."
+      rpmbuildDeps="See $depsLog..."
       Info "Spec File...........[${specFile}]"
       Info "Dependencies List...[${rpmbuildDeps}]"
       if [[ "${build_osmesa}" = 1 && ! "${OSMesaBuilt}" = 1 ]]; then
@@ -252,13 +281,18 @@ InstallDependencies() {
       case $1 in
       ldglite)
         pkgbuildFile="$PWD/obs/PKGBUILD"
+        build_osmesa=1
         ;;
       ldview)
+        cp -f QT/PKGBUILD QT/OBS/PKGBUILD
         pkgbuildFile="$PWD/QT/OBS/PKGBUILD"
-        sed -e "s/'kdelibs'/'tinyxml' 'gl2ps'/g" -e "s/'automoc4'//g" -e "s/'phonon-qt4-gstreamer'//g" -i $pkgbuildFile
+        sed -e "/#Qt4.x/d" -e "/depends=('qt4'/d" -e "s/#depends=/depends=/g" \
+            -e "s/'mesa-libgl'//g" -e "s/'kdelibs'/'tinyxml' 'gl2ps'/g" -e "s/'automoc4'//g" \
+            -e "s/'phonon-qt4-gstreamer'//g" -i $pkgbuildFile
         if [ ! -d /usr/share/mime ]; then
           $useSudo mkdir /usr/share/mime
         fi
+        build_osmesa=1
         ;;
       povray)
         pkgbuildFile="$PWD/unix/obs/PKGBUILD"
@@ -272,6 +306,9 @@ InstallDependencies() {
       $useSudo pacman -Syy --noconfirm --needed > $depsLog 2>&1
       $useSudo pacman -Syu --noconfirm --needed >> $depsLog 2>&1
       $useSudo pacman -S --noconfirm --needed $pkgbuildDeps >> $depsLog 2>&1
+      if [[ "${build_osmesa}" = 1 && ! "${OSMesaBuilt}" = 1 ]]; then
+        BuildMesaLibs $1 $useSudo
+      fi
       Info "${1} dependencies installed." && DisplayLogTail $depsLog 10
       ;;
     ubuntu)
@@ -282,7 +319,8 @@ InstallDependencies() {
         ;;
       ldview)
         controlFile="$PWD/QT/debian/control"
-        sed -e '/#Qt4.x/d' -e '/libqt4-dev/d' -e 's/#Build-Depends/Build-Depends/g' -e 's/kdelibs5-dev//g' \
+        sed -e '/#Qt4.x/d' -e '/libqt4-dev/d' \
+            -e 's/#Build-Depends/Build-Depends/g' -e 's/kdelibs5-dev//g' \
             -e '/^Build-Depends:/ s/$/ qt5-qmake libqt5opengl5-dev libosmesa6-dev libtinyxml-dev libgl2ps-dev/' -i $controlFile
         ;;
       povray)
@@ -539,6 +577,9 @@ if [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
 fi
 if [ "${DOCKER}" = "true" ]; then
   Info "Platform Pretty Name.....[Docker Container - ${platform_pretty}]"
+  if [ "${platform_id}" = "arch" ]; then
+     [ -n "$build_osmesa" ] && Info "OSMesa...................[Build from source]"
+  fi
 elif [ "${TRAVIS}" = "true" ]; then
   Info "Platform Pretty Name.....[Travis CI - ${platform_pretty}]"
 elif [ "${OBS}" = "true" ]; then

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update October 21, 2018
-# LPub3D Unix checks - for remote CI (Trevis, OBS) 
+# Last Update December 10, 2018
+# LPub3D Unix checks - for remote CI (Trevis, OBS)
 # NOTE: Source with variables as appropriate:
 #       $BUILD_OPT = compile
 #       $XMING = true,
@@ -13,7 +13,17 @@ LP3D_OS_NAME=$(uname)
 LP3D_TARGET_ARCH="$(uname -m)"
 LP3D_PLATFORM=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo $ID || echo $OS_NAME | awk '{print tolower($0)}')
 
-# Initialize XVFB 
+# Set XDG_RUNTIME_DIR
+if [[ "${LP3D_OS_NAME}" != "Darwin" && $UID -ge 1000 && -z "$(printenv | grep XDG_RUNTIME_DIR)" ]]
+then
+    runtime_dir="/tmp/runtime-user-$UID"
+    if [ ! -d "$runtime_dir" ]; then
+       mkdir -p $runtime_dir
+    fi
+    export XDG_RUNTIME_DIR="$runtime_dir"
+fi
+
+# Initialize XVFB
 if [[ "${XMING}" != "true" && ("${DOCKER}" = "true" || ("${LP3D_OS_NAME}" != "Darwin")) ]]; then
     echo && echo "- Using XVFB from working directory: ${PWD}"
     USE_XVFB="true"
@@ -45,11 +55,11 @@ fi
 # AppImage execute permissions
 if [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
     cd ${SOURCE_DIR}
-     
+
     echo && echo "- set AppImage $(realpath ${LPUB3D_EXE}) execute permissions..."
     [ -f "${LPUB3D_EXE}" ] && \
     chmod u+x ${LPUB3D_EXE} || \
-    echo "ERROR - $(realpath ${LPUB3D_EXE}) not found." 
+    echo "ERROR - $(realpath ${LPUB3D_EXE}) not found."
 fi
 
 echo && echo "------------Build checks start--------------" && echo

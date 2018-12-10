@@ -1,6 +1,6 @@
 #!/bin/sh
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: November 30, 2017
+#  Last Update: December 08, 2017
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 
 prefix="$( cd "$( dirname "$0" )" && pwd )"
@@ -40,7 +40,7 @@ while test $# -gt 0; do
       echo $exec_prefix
       ;;
     --version)
-      echo 17.2.6
+      echo 18.3.0
       ;;
     --libdir)
       echo -L${libdir}

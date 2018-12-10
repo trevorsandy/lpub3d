@@ -3,7 +3,7 @@
 # Build all libOSMesa and libGLU libraries - short
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: August 08, 2018
+#  Last Update: December 10, 2018
 #  Copyright (c) 2018 by Trevor SANDY
 #
 # Useage: env WD=$PWD [COPY_CONFIG=1] ./lpub3d/builds/utilities/mesa/buildosmesa.sh
@@ -15,7 +15,7 @@ SECONDS=0
 
 # configuration options:
 # specify the osmesa verion to build
-mesaversion="${OSMESA_VERSION:-17.2.6}"
+mesaversion="${OSMESA_VERSION:-18.3.0}"
 # specify if gallium dirver not available (e.g. RHEL on OBS does not support llvm so gallium driver not available)
 nogallium="${NO_GALLIUM:-0}"
 # specify llvm-config path if different from system default
@@ -104,8 +104,8 @@ Info "Install Prefix...........[${osmesaprefix}]"
 Info "OSMesa Version...........[${mesaversion}]"
 Info "GLU Version..............[${gluversion}]"
 
-# build OSMesa
-Info && Info "building OSMesa..."
+Info && Info "----------------------------------------------------"
+Info "Building OSMesa..."
 
 cd $WD
 if [[ -d "mesa-${mesaversion}" && "${cleanbuild}" = 1 ]]; then
@@ -118,14 +118,16 @@ fi
 
 #check for llvm-config - and process OBS alternative config (e.g. no gallium)
 if [ ! -f "${llvm_config}" ]; then
-  if [ "$OBS" = "true" ]; then
+  if [[ "$OBS" = "true" && !"${PLATFORM}" = "arch" ]]; then
     if [ ! "$nogallium" = 1 ]; then
         Info "ERROR - llmv-config not found. $ME will terminate"
         exit 1
     fi
   else
-    Info "llmv-config not found, (re)installing Mesa build dependencies..."
-    sudo dnf builddep -y mesa
+    if [ !"${PLATFORM}" = "arch" ]; then
+        Info "llmv-config not found, (re)installing Mesa build dependencies..."
+        sudo dnf builddep -y mesa
+    fi
   fi
 else
   Info "Found llvm_config at $llvm_config"
@@ -178,7 +180,7 @@ confopts="\
 --with-platforms= \
 --with-osmesa-bits=32 \
 "
-if [ "${mesaversion}" = "18.0.0" ]; then
+if [ "${mesaversion}" = "18.3.0" ]; then
   confopts="\
   $confopts \
   --disable-omx-bellagio \
@@ -240,8 +242,17 @@ elif  [ -f "${osmesaprefix}/osmesa-config" ]; then
     Info "osmesa-config exist - copy skipped."
 fi
 
-# build GLU
-Info && Info "building GLU..."
+# update version in config file
+if  [ -f "${osmesaprefix}/osmesa-config" ]; then
+    sed '/    --version)/{n;s/.*/      echo '"${mesaversion}"'/}' -i ${osmesaprefix}/osmesa-config
+    Info "osmesa-config version updated"
+    sed -n '42,43p;44q' ${osmesaprefix}/osmesa-config
+else
+    Info "osmesa-config was not found - version update failed."
+fi
+
+Info && Info "----------------------------------------------------"
+Info "Building GLU..."
 
 cd $WD
 if [[ -d "glu-$gluversion" && ${cleanbuild} = 1 ]]; then
@@ -302,3 +313,4 @@ ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))mi
 Info
 Info "$ME Finsihed!"
 Info "$ELAPSED"
+Info "----------------------------------------------------"
