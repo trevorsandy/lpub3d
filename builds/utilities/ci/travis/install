@@ -3,7 +3,7 @@
 # Travis-ci build [install] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: October 24 2018
+#  Last Update: December 10, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -56,6 +56,7 @@ if [ "$TRAVIS_OS_NAME" = "osx" ]; then
       brew install qt5;
       brew link --force qt5;
     fi;
+    echo "Downloading archive libraries...";
     wget http://www.ldraw.org/library/updates/complete.zip -O ../complete.zip && cp -f ../complete.zip mainApp/extras;
     wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O mainApp/extras/lpub3dldrawunf.zip;
     wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O mainApp/extras/tenteparts.zip;
@@ -76,7 +77,7 @@ if [ "$TRAVIS_OS_NAME" = "linux" ]; then
     sudo apt-get update -qq;
     sudo apt-get -y install docker-ce;
     docker version;
-    export DOCKER_COMPOSE_VERSION=1.22.0;
+    export DOCKER_COMPOSE_VERSION=1.23.2;
     sudo rm /usr/local/bin/docker-compose;
     curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose;
     chmod +x docker-compose;
@@ -84,19 +85,33 @@ if [ "$TRAVIS_OS_NAME" = "linux" ]; then
     docker-compose version;
   fi;
   if [[ "$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
-    LP3D_DL_DIR="${LP3D_DIST_DIR_BASE}/trusty"
-    LP3D_GH_DL_URL="https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1"
-    LP3D_LD_DL_URL="http://www.ldraw.org/library"
-    wget ${LP3D_LD_DL_URL}/unofficial/ldrawunf.zip -O ${LP3D_DL_DIR}/lpub3dldrawunf.zip;
-    [ ! -f "${LP3D_DL_DIR}/complete.zip" ] &&  wget ${LP3D_LD_DL_URL}/updates/complete.zip -O ${LP3D_DL_DIR}/complete.zip;
-    [ ! -f "${LP3D_DL_DIR}/tenteparts.zip" ] &&  wget ${LP3D_GH_DL_URL}/tenteparts.zip -O ${LP3D_DL_DIR}/tenteparts.zip;
-    [ ! -f "${LP3D_DL_DIR}/vexiqparts.zip" ] &&  wget ${LP3D_GH_DL_URL}/vexiqparts.zip -O ${LP3D_DL_DIR}/vexiqparts.zip;
-    [ ! -d "../appimagebuild" ] && mkdir -p ../appimagebuild;
+    echo "Download AppImage archive libraries...";
+    if [ ! -d "${LP3D_DIST_DIR_BASE}/trusty" ]; then
+       mkdir -p "${LP3D_DIST_DIR_BASE}/trusty";
+       wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O ${LP3D_DIST_DIR_BASE}/trusty/lpub3dldrawunf.zip;
+       wget http://www.ldraw.org/library/updates/complete.zip -O ${LP3D_DIST_DIR_BASE}/trusty/complete.zip;
+       wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O ${LP3D_DIST_DIR_BASE}/trusty/tenteparts.zip;
+       wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O ${LP3D_DIST_DIR_BASE}/trusty/vexiqparts.zip;
+    else
+       wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O ${LP3D_DIST_DIR_BASE}/trusty/lpub3dldrawunf.zip;
+       if [ ! -f "${LP3D_DIST_DIR_BASE}/trusty/complete.zip" ]; then
+          wget http://www.ldraw.org/library/updates/complete.zip -O ${LP3D_DIST_DIR_BASE}/trusty/complete.zip;
+       fi
+       if [ ! -f "${LP3D_DIST_DIR_BASE}/trusty/tenteparts.zip" ]; then
+          wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O ${LP3D_DIST_DIR_BASE}/trusty/tenteparts.zip;
+       fi
+       if [ ! -f "${LP3D_DIST_DIR_BASE}/trusty/vexiqparts.zip" ]; then
+          wget https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/tenteparts.zip -O ${LP3D_DIST_DIR_BASE}/trusty/vexiqparts.zip;
+       fi
+    fi
+    if [ ! -d "../appimagebuild" ]; then
+       mkdir -p ../appimagebuild;
+    fi
     export AppImageBuildPath=$(cd ../ && echo "$PWD/appimagebuild");
   fi;
 fi
 # setup linux platform-specific 3rd party distribution directory
-if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
+if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
   if [ "$LP3D_BUILD_ARCH" = "true" ]; then
     LP3D_DIST_DIR_PATH=${LP3D_DIST_DIR_BASE}/arch;
   elif [ "$LP3D_BUILD_FEDORA" = "true" ]; then
