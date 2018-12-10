@@ -25,6 +25,10 @@ prepare() {
 	export PLATFORM_VER="2018"
 	export TARGET_CPU="$(uname -m)"
 	echo "  -> Build OSMesa from source.......yes"
+	if [ -x /usr/lib64/libQt5Core.so.5 ]; then
+		echo "	-> Strip incompatible libQt5Core.so.5 ABI (Qt 5.12)"
+		(sudo strip --remove-section=.note.ABI-tag /usr/lib64/libQt5Core.so.5)
+	fi
 	export build_osmesa="yes"
 	cd ${pkgname}-git
 	chmod +x builds/utilities/CreateRenderers.sh && \
@@ -44,16 +48,16 @@ prepare() {
 		echo "lpub3dldrawunf.zip not found at $PWD"
 	fi
 	if [ -f ../tenteparts.zip ] ; then
-			cp ../tenteparts.zip mainApp/extras
-			echo "LDraw archive library tenteparts.zip copied"
+		cp ../tenteparts.zip mainApp/extras
+		echo "LDraw archive library tenteparts.zip copied"
 	else
-			echo "tenteparts.zip not found at $PWD"
+		echo "tenteparts.zip not found at $PWD"
 	fi
 	if [ -f ../vexiqparts.zip ] ; then
-			cp ../vexiqparts.zip mainApp/extras
-			echo "LDraw archive library vexiqparts.zip copied"
+		cp ../vexiqparts.zip mainApp/extras
+		echo "LDraw archive library vexiqparts.zip copied"
 	else
-			echo "vexiqparts.zip not found at $PWD"
+		echo "vexiqparts.zip not found at $PWD"
 	fi
 	export QT_SELECT=qt5
 	export LP3D_BUILD_PKG=yes
