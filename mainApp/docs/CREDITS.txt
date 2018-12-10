@@ -66,6 +66,9 @@ Jared Hobbs
 LEGO LDraw Library content
 LDraw.org
 
+LSynth Version 3.1.1 commit 7c8e6fd
+Don Heyse <dheyse@hotmail.com>
+
 NsisMultiUser Plugin <https://github.com/Drizin/NsisMultiUser>
 Ricardo Drizin, Alex Mitev
 
