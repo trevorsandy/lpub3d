@@ -19,7 +19,7 @@ LPub4
 Author:
 Kevin Clague <kevin.clague@gmail.com>
 
-LeoCAD 18.2 commit 85d9788
+LeoCAD 18.2 commit 19680a1
 Author:
 Leonardo Zide <leozide@gmail.com>
 
@@ -65,6 +65,9 @@ Jared Hobbs
 
 LEGO LDraw Library content
 LDraw.org
+
+LSynth Version 3.1.1 commit 7c8e6fd
+Don Heyse <dheyse@hotmail.com>
 
 NsisMultiUser Plugin <https://github.com/Drizin/NsisMultiUser>
 Ricardo Drizin, Alex Mitev
