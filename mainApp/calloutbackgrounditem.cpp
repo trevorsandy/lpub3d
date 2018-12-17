@@ -163,7 +163,7 @@ void CalloutBackgroundItem::contextMenuEvent(
     _base,
     _segments,
     _x1,_y1,_x2,_y2,_x3,_y3,_x4,_y4);
-    pointer->setPointerAttrib(calloutMeta.pointerAttrib);
+    pointer->setPointerAttribInches(calloutMeta.pointerAttrib);
     CalloutPointerItem *calloutPointer = 
       new CalloutPointerItem(callout,pointer,this,view);
     calloutPointer->defaultPointer();

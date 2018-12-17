@@ -92,7 +92,7 @@ void Callout::appendPointer(const Where &here,
 {
     int id = pointerList.size() + 1;
     Pointer *pointer = new Pointer(id,here,pointerMeta);
-    pointer->setPointerAttrib(pointerAttrib);
+    pointer->setPointerAttribInches(pointerAttrib);
     pointerList.append(pointer);
 }
 

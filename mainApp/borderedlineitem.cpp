@@ -25,6 +25,7 @@
  ***************************************************************************/
 
 #include "borderedlineitem.h"
+#include "resolution.h"
 #include "QsLog.h"
 
 #define _USE_MATH_DEFINES
@@ -37,11 +38,18 @@ BorderedLineItem::BorderedLineItem(const QLineF &line, PointerAttribData* paData
              |QGraphicsItem::ItemIsMovable);
 }
 
-void BorderedLineItem::setBorderedLine(const QLineF &bLine){
+void BorderedLineItem::setBorderedLine(const QLineF &bLine) {
 
     qreal ft        = (pad->lineData.thickness/2);
     QLineF _bLine   = bLine;
     QPolygonF nPolygon;
+    qreal radAngle;
+    qreal dx = 0.0;
+    qreal dy = 0.0;
+    QPointF p1offset;
+    QPointF p2offset;
+    QPointF offset1;
+    QPointF offset2;
 
     if (pad->borderModified) {
 
@@ -49,47 +57,49 @@ void BorderedLineItem::setBorderedLine(const QLineF &bLine){
             _bLine.setLength(bLine.length() - (headWidth/1.33));
 
         setLine(_bLine);
-        qreal radAngle  = line().angle()* M_PI / 180;
-        qreal dx        = (ft) * sin(radAngle);
-        qreal dy        = (ft) * cos(radAngle);
-        QPointF offset1 = QPointF(dx, dy);
-        QPointF offset2 = QPointF(-dx, -dy);
+        radAngle = line().angle()* M_PI / 180;
+        dx       = (ft) * sin(radAngle);
+        dy       = (ft) * cos(radAngle);
+        offset1  = QPointF(dx, dy);
+        offset2  = QPointF(-dx, -dy);
 
-        QPointF p1offset = getLineP1Offset();
-        QPointF p2offset = getLineP2Offset();
+        p1offset = getLineP1Offset();
+        p2offset = getLineP2Offset();
 
         nPolygon << p1offset + offset1
                  << p1offset + offset2
                  << p2offset + offset2
                  << p2offset + offset1;
-
-#ifdef QT_DEBUG_MODE      
-//        logTrace() << "\n[DEBUG BORDERED POLYGON]:"
-//                   << "\nSEGMENT: " << segment
-//                   << "\nLINE:    " << line()
-//                   << "\nP1OFFSET:" << p1offset
-//                   << "\nP2OFFSET:" << p2offset
-//                   << "\nPOLYGON: "
-//                   << p1offset + offset1
-//                   << p1offset + offset2
-//                   << p2offset + offset2
-//                   << p2offset + offset1;
-#endif
-
     } else {
         setLine(_bLine);
-        qreal radAngle  = line().angle()* M_PI / 180;
-        qreal dx        = (ft) * sin(radAngle);
-        qreal dy        = (ft) * cos(radAngle);
-        QPointF offset1 = QPointF(dx, dy);
-        QPointF offset2 = QPointF(-dx, -dy);
+        radAngle = line().angle()* M_PI / 180;
+        dx       = (ft) * sin(radAngle);
+        dy       = (ft) * cos(radAngle);
+        offset1  = QPointF(dx, dy);
+        offset2  = QPointF(-dx, -dy);
 
         nPolygon << line().p1() + offset1
                  << line().p1() + offset2
                  << line().p2() + offset2
                  << line().p2() + offset1;
     }
-
+#ifdef QT_DEBUG_MODE
+//    logTrace() << "\n[DEBUG BORDERED-LINE THICKNESS -" << (resolutionType() == DPCM ? "CENTIMETERS]:" : "INCHES]:")
+//               << "LINE THICKNESS:" << QString::number(pad->lineData.thickness)
+//               << "BORDER THICKNESS:" << QString::number(pad->borderData.thickness)
+//    ;
+//    logTrace() << "\n[DEBUG BORDERED POLYGON]:"
+//               << "\nSEGMENT: " << segment
+//               << "\nLINE:    " << line()
+//               << "\nP1OFFSET:" << p1offset
+//               << "\nP2OFFSET:" << p2offset
+//               << "\nPOLYGON: "
+//               << p1offset + offset1
+//               << p1offset + offset2
+//               << p2offset + offset2
+//               << p2offset + offset1
+//    ;
+#endif
     borderPolygon = nPolygon;
     update();
 }

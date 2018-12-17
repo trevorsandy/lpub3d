@@ -410,7 +410,7 @@ class PointerAttribData
         lineData.useDefault=false;
         lineData.hideArrows=false;
 
-        borderData.color     = QString();;
+        borderData.color     = QString();
         borderData.type      = BorderData::BdrRound;
         borderData.line      = BorderData::BdrLnSolid;
         borderData.thickness = 1.0f/64.0f;

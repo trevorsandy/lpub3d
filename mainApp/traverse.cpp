@@ -278,13 +278,13 @@ static void set_divider_pointers(Meta &curMeta, Where &current, Range *range, LG
         } else if (mRc == paRc) {
             QStringList argv;
             split(stepLine,argv);
-            pam.setValue(pam.getAttributes(argv,walk));
+            pam.setValueInches(pam.parseAttributes(argv,walk));
 
             int i               = pam.value().id - 1;
             Pointer          *p = range->dividerPointerList[i];
             if (pam.value().id == p->id) {
-                pam.setAltValue(p->getPointerAttrib());
-                p->setPointerAttrib(pam);
+                pam.setAltValueInches(p->getPointerAttribInches());
+                p->setPointerAttribInches(pam);
                 range->dividerPointerList.replace(i,p);
 #ifdef QT_DEBUG_MODE
 //                logTrace() << "\n[DEBUG " + sType + " POINTER ATTRIBUTE PAM]:"
@@ -1018,7 +1018,7 @@ int Gui::drawPage(
                       Positions position;
                       PointerMeta ppm       = curMeta.LPub.page.pointer;
                       PointerAttribMeta pam = curMeta.LPub.page.pointerAttrib;
-                      PointerAttribData pad = pam.value();
+                      PointerAttribData pad = pam.valueInches();
                       RectPlacement currRp  = curMeta.LPub.page.pointer.value().rectPlacement;
 
                       if (currRp == TopInside)
@@ -1040,7 +1040,7 @@ int Gui::drawPage(
                           newPP = false;
                           pad.id     = pagePointer->pointerList.size() + 1;
                           pad.parent = PositionNames[position];
-                          pam.setValue(pad);
+                          pam.setValueInches(pad);
                           pagePointer->appendPointer(current,ppm,pam);
                           pagePointers.remove(position);
                           pagePointers.insert(position,pagePointer);
@@ -1063,7 +1063,7 @@ int Gui::drawPage(
 
                           pad.id     = 1;
                           pad.parent = PositionNames[position];
-                          pam.setValue(pad);
+                          pam.setValueInches(pad);
                           pagePointer->appendPointer(current,ppm,pam);
                           pagePointers.insert(position,pagePointer);
                       }
@@ -1083,7 +1083,7 @@ int Gui::drawPage(
             case PagePointerAttribRc:
               {
                   PointerAttribMeta pam = curMeta.LPub.page.pointerAttrib;
-                  pam.setValue(pam.getAttributes(tokens,current));
+                  pam.setValueInches(pam.parseAttributes(tokens,current));
 
                   Positions position;
                   if (pam.value().parent == "BASE_TOP")
@@ -1103,8 +1103,8 @@ int Gui::drawPage(
                       int i               = pam.value().id - 1;
                       Pointer          *p = pp->pointerList[i];
                       if (pam.value().id == p->id) {
-                          pam.setAltValue(p->getPointerAttrib());
-                          p->setPointerAttrib(pam);
+                          pam.setAltValueInches(p->getPointerAttribInches());
+                          p->setPointerAttribInches(pam);
                           pp->pointerList.replace(i,p);
                           pagePointers.remove(position);
                           pagePointers.insert(position,pp);
@@ -1156,13 +1156,13 @@ int Gui::drawPage(
           case CalloutPointerAttribRc:
               if (callout) {
                   PointerAttribMeta pam = curMeta.LPub.callout.pointerAttrib;
-                  pam.setValue(pam.getAttributes(tokens,current));
+                  pam.setValueInches(pam.parseAttributes(tokens,current));
 
                   int i               = pam.value().id - 1;
                   Pointer          *p = callout->pointerList[i];
                   if (pam.value().id == p->id) {
-                      pam.setAltValue(p->getPointerAttrib());
-                      p->setPointerAttrib(pam);
+                      pam.setAltValueInches(p->getPointerAttribInches());
+                      p->setPointerAttribInches(pam);
                       callout->pointerList.replace(i,p);
 #ifdef QT_DEBUG_MODE
 //                      logTrace() << "\n[DEBUG CALLOUT POINTER ATTRIBUTE PAM]:"

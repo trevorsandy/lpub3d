@@ -51,14 +51,14 @@ public:
         here          = _here;
         pointerMeta   = _pointerMeta;
     }
-    virtual PointerAttribData getPointerAttrib(){
-        return pointerAttrib.value();
+    virtual PointerAttribData getPointerAttribInches(){
+        return pointerAttrib.valueInches();
     }
-    virtual void setPointerAttrib(PointerAttribMeta pam){
-        PointerAttribData pad  = pam.value();
+    virtual void setPointerAttribInches(PointerAttribMeta pam){
+        PointerAttribData pad  = pam.valueInches();
         pad.id                 = id;
         pointerAttrib.preamble = pam.preamble;
-        pointerAttrib.setValue(pad);
+        pointerAttrib.setValueInches(pad);
     }
     virtual ~Pointer()
     {

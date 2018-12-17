@@ -41,7 +41,7 @@ class BorderedLineItem : public QGraphicsLineItem
 public:
     BorderedLineItem(const QLineF &line,
                      PointerAttribData* paData,
-                     QGraphicsItem* parent = 0);
+                     QGraphicsItem* parent = nullptr);
     void setSegment(const int seg) {segment = seg;}
     void setSegments(const int segs) {segments = segs;}
     void setHeadWidth(const float width) {headWidth = width;}
@@ -50,7 +50,7 @@ public:
     QPainterPath shape() const;
     void paint (QPainter* painter,
                 const QStyleOptionGraphicsItem* option,
-                QWidget* widget = 0);
+                QWidget* widget = nullptr);
 private:
     QPointF getLineP1Offset();
     QPointF getLineP2Offset();

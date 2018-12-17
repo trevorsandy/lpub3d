@@ -2436,19 +2436,16 @@ void BorderGui::apply(QString &modelName)
   PointerAttribData pad = meta->value();
   if (isLine) {
       title = "Line";
-      pad.attribType = PointerAttribData::Line;
       index = (int)pad.lineData.line - 1;            // - 1  adjusts for removal of 'No-Line'
       thickness = QString("%1") .arg(pad.lineData.thickness,5,'f',4);
       color = pad.lineData.color;
       hideTip = pad.lineData.hideArrows;
   } else {
       title = "Border";
-      pad.attribType = PointerAttribData::Border;
       index = (int)pad.borderData.line - 1;
       thickness = QString("%1") .arg(pad.borderData.thickness,5,'f',4);
       color = pad.borderData.color;
   }
-  meta->setValue(pad);
 
     /* Line Combo */
 
@@ -2463,9 +2460,9 @@ void BorderGui::apply(QString &modelName)
           this,       SLOT(  lineChange(       QString const &)));
   grid->addWidget(lineCombo,0,0);
 
-    /*  Thickness */
+    /*  Width */
 
-  thicknessLabel = new QLabel(title+" Thickness",parent);
+  thicknessLabel = new QLabel(title+" Width",parent);
   grid->addWidget(thicknessLabel,0,1);
 
   string = thickness;
@@ -2526,43 +2523,43 @@ void PointerAttribGui::lineChange(QString const &line)
       padLine = BorderData::BdrLnDashDotDot;
     }
 
-  PointerAttribData pointerAttribute = meta->value();
+  PointerAttribData pad = meta->value();
   if (isLine)
-      pointerAttribute.lineData.line = padLine;
+      pad.lineData.line = padLine;
   else
-      pointerAttribute.borderData.line = padLine;
+      pad.borderData.line = padLine;
 
-  meta->setValue(pointerAttribute);
+  meta->setValue(pad);
   modified = true;
 }
 
 void PointerAttribGui::thicknessChange(QString const &thickness)
 {
-  PointerAttribData pointerAttribute = meta->value();
+  PointerAttribData pad = meta->value();
   if (isLine)
-      pointerAttribute.lineData.thickness = thickness.toFloat();
+      pad.lineData.thickness = thickness.toFloat();
   else
-      pointerAttribute.borderData.thickness = thickness.toFloat();
-  meta->setValue(pointerAttribute);
+      pad.borderData.thickness = thickness.toFloat();
+  meta->setValue(pad);
   modified = true;
 }
 
 void PointerAttribGui::browseColor(bool)
 {
-  PointerAttribData pointerAttribute = meta->value();
+  PointerAttribData pad = meta->value();
   QString padColor;
   if (isLine)
-      padColor = pointerAttribute.lineData.color;
+      padColor = pad.lineData.color;
   else
-      padColor = pointerAttribute.borderData.color;
+      padColor = pad.borderData.color;
   QColor color = LDrawColor::color(padColor);
   QColor newColor = QColorDialog::getColor(color,this);
   if (color != newColor) {
     if (isLine)
-        pointerAttribute.lineData.color = newColor.name();
+        pad.lineData.color = newColor.name();
     else
-        pointerAttribute.borderData.color = newColor.name();
-    meta->setValue(pointerAttribute);
+        pad.borderData.color = newColor.name();
+    meta->setValue(pad);
     QString styleSheet =
         QString("QLabel { background-color: rgb(%1, %2, %3); }").
         arg(newColor.red()).arg(newColor.green()).arg(newColor.blue());
@@ -2574,9 +2571,9 @@ void PointerAttribGui::browseColor(bool)
 
 void PointerAttribGui::hideTipChange(bool checked)
 {
-    PointerAttribData pointerAttribute = meta->value();
-    pointerAttribute.lineData.hideArrows = checked;
-    meta->setValue(pointerAttribute);
+    PointerAttribData pad = meta->value();
+    pad.lineData.hideArrows = checked;
+    meta->setValue(pad);
     modified = true;
 }
 

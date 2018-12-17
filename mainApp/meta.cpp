@@ -1385,7 +1385,6 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
   RectPlacement _bRect;
   bool  fail              = true;
   bool  pagePointer       = false;
-  bool  pagePointerLegacy = false;
 
   //logTrace() << "Pointer: " << argv.join(" ") << ", Index:" << index;
 
@@ -1542,7 +1541,7 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
         _value[pushed].rectPlacement = _bRect; //Base Rect Placement
       if (_base > 0) {
           _value[pushed].base = _base;
-        } else if (_value[pushed].base == 0) {
+        } else if (_value[pushed].base == 0.0f) {
           _value[pushed].base = 1.0/8;
         }
 #ifdef QT_DEBUG_MODE

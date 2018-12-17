@@ -463,7 +463,7 @@ void Range::appendDividerPointer(const Where &here, QGraphicsView *_view,
   view    = _view;
   int pid = dividerPointerList.size() + 1;
   Pointer *pointer = new Pointer(pid,here,pointerMeta);
-  pointer->setPointerAttrib(pointerAttrib);
+  pointer->setPointerAttribInches(pointerAttrib);
   dividerPointerList.append(pointer);
 }
 

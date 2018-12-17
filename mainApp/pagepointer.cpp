@@ -69,7 +69,7 @@ void PagePointer::appendPointer(const Where &here,
 {
   int pid = pointerList.size()+1;
   Pointer *pointer = new Pointer(pid,here,pointerMeta);
-  pointer->setPointerAttrib(pointerAttrib);
+  pointer->setPointerAttribInches(pointerAttrib);
   pointerList.append(pointer);
 }
 

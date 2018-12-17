@@ -1182,7 +1182,7 @@ public:
   PointerAttribData &valuePixels()
   {
     _result = _value[pushed];
-    _result.lineData.thickness*=resolution();
+    _result.lineData.thickness  *=resolution();
     _result.borderData.thickness*=resolution();
     return _result;
   }
@@ -1191,7 +1191,7 @@ public:
   {
     _result = _value[pushed];
     if (resolutionType() == DPCM) {
-      _result.lineData.thickness = inches2centimeters(_result.lineData.thickness);
+      _result.lineData.thickness   = inches2centimeters(_result.lineData.thickness);
       _result.borderData.thickness = inches2centimeters(_result.borderData.thickness);
     }
     return _result;
@@ -1200,21 +1200,22 @@ public:
   void setValue(PointerAttribData pointerAttribData)
   {
     if (resolutionType() == DPCM) {
-      pointerAttribData.lineData.thickness = inches2centimeters(pointerAttribData.lineData.thickness);
-      pointerAttribData.borderData.thickness = inches2centimeters(pointerAttribData.borderData.thickness);
+      pointerAttribData.lineData.thickness   = centimeters2inches(pointerAttribData.lineData.thickness);
+      pointerAttribData.borderData.thickness = centimeters2inches(pointerAttribData.borderData.thickness);
     }
     _value[pushed] = pointerAttribData;
   }
 
-  void setAltValue(PointerAttribData data)
+  void setAltValueInches(PointerAttribData data)
   {
-      if (_value[pushed].attribType    == PointerAttribData::Line) {
-          _value[pushed].borderData     = data.borderData;
-          _value[pushed].borderModified = data.borderModified;
-      } else
-      if (_value[pushed].attribType == PointerAttribData::Border) {
-          _value[pushed].lineData    = data.lineData;
-      }
+    if (_value[pushed].attribType    == PointerAttribData::Line) {
+        _value[pushed].borderData     = data.borderData;
+        _value[pushed].borderModified = data.borderModified;
+    }
+    else
+    if (_value[pushed].attribType == PointerAttribData::Border) {
+        _value[pushed].lineData    = data.lineData;
+    }
   }
 
   PointerAttribData valueInches()
@@ -1246,23 +1247,23 @@ public:
       }
   }
 
-  PointerAttribData &getAttributes(const QStringList &argv,Where &here)
+  PointerAttribData &parseAttributes(const QStringList &argv,Where &here)
   {
     int index = 4;
 
     #ifdef QT_DEBUG_MODE
-//        QStringList debugLine;
-//        for(int i=0;i<argv.size();i++){
-//            debugLine << argv[i];
-//            int size = argv.size();
-//            int incr = i;
-//            int result = size - incr;
-//            qDebug() << QString("ATTRIBUTES LINE ARGV Pos:(%1), PosIndex:(%2) [%3 - %4 = %5], Value:(%6)")
-//                           .arg(i+1).arg(i).arg(size).arg(incr).arg(result).arg(argv[i]);
-//        }
-//        logTrace() << debugLine.join(" ");
-//        logDebug() << "argv[index-1]: " << argv[index-1] << ", argv[index-2]: " << argv[index-2]
-//                      ;
+//    QStringList debugLine;
+//    for(int i=0;i<argv.size();i++){
+//        debugLine << argv[i];
+//        int size = argv.size();
+//        int incr = i;
+//        int result = size - incr;
+//        qDebug() << QString("ATTRIBUTES LINE ARGV Pos:(%1), PosIndex:(%2) [%3 - %4 = %5], Value:(%6)")
+//                    .arg(i+1).arg(i).arg(size).arg(incr).arg(result).arg(argv[i]);
+//    }
+//    logTrace() << "\n[PARSE ATTRIBUTES LINE ARGV]:" << debugLine.join(" ");
+//    logDebug() << "\n[ATTRIBUTES LINE] - argv[index-1]: " << argv[index-1] << ", argv[index-2]: " << argv[index-2]
+//                  ;
     #endif
 
         bool isLine = argv[index] == "LINE";
@@ -1274,10 +1275,7 @@ public:
            _result.lineData.line         = setBorderLine(argv[index+1]);
            _result.lineData.color        = argv[index+2];
            _result.lineData.thickness    = argv[index+3].toFloat();
-           _result.lineData.hideArrows   = argv[index+4].toInt();   // used to show/hide arrow tip
-           if (resolutionType() == DPCM)
-             _result.lineData.thickness  = inches2centimeters(_result.lineData.thickness);
-
+           _result.lineData.hideArrows   = argv[index+4].toInt();        // used to show/hide arrow tip
            _result.lineData.useDefault   = false;
         } else
           if (argv[index] == "BORDER") {
@@ -1286,9 +1284,6 @@ public:
            _result.borderData.line       = setBorderLine(argv[index+1]);
            _result.borderData.color      = argv[index+2];
            _result.borderData.thickness  = argv[index+3].toFloat();
-           if (resolutionType() == DPCM)
-             _result.borderData.thickness= inches2centimeters(_result.borderData.thickness);
-
            _result.borderData.useDefault = false;
            _result.borderModified        = true;
         }
@@ -1300,7 +1295,11 @@ public:
         return _result;
   }
 
-  PointerAttribMeta() : LeafMeta() {}
+  PointerAttribMeta() : LeafMeta()
+  {
+    _value[0].borderData.thickness = 1.0f/64.0f;
+    _value[0].lineData.thickness   = 1.0f/32.0f;
+  }
 
   PointerAttribMeta(const PointerAttribMeta &rhs) : LeafMeta(rhs)
   {

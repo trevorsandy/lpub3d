@@ -1505,7 +1505,6 @@ void MetaItem::setPointerAttrib(
   bool ok = PointerAttribDialog::getPointerAttrib(pointerAttribData,title,isCallout,isLine);
 
   if (ok) {
-
     pointerAttrib->setValue(pointerAttribData);
     setMeta(topOfStep,bottomOfStep,pointerAttrib,useTop,append,local,false); // always local so askLocal = false.
   }
