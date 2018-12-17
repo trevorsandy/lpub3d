@@ -211,8 +211,8 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   }
   QAction *cameraFoVAction    = commonMenus.cameraFoVMenu(menu, pl);
   QAction *cameraAnglesAction = commonMenus.cameraAnglesMenu(menu, pl);
-  QAction *marginsAction = nullptr;
 
+  QAction *marginsAction = nullptr;
   switch (parentRelativeType) {
     case SingleStepType:
       whatsThis = QString("Change Assembly Margins:\n"
@@ -229,7 +229,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                           "  whole group of steps, by clicking the menu button with your\n"
                           "  cursor near this assembly image, and using that\n"
                           "  \"Change Step Group Margins\" menu");
-      marginsAction = commonMenus.scaleMenu(menu, pl, whatsThis);
+      marginsAction = commonMenus.marginMenu(menu, pl, whatsThis);
       break;
     case CalloutType:
       whatsThis = QString("Change Assembly Margins:\n"
@@ -239,7 +239,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                           "  this step is in, by putting your cursor on the background\n"
                           "  of the callout, clicking the menu button, and using that\n"
                           "  \"Change Callout Margins\" menu");
-      marginsAction = commonMenus.scaleMenu(menu, pl, whatsThis);
+      marginsAction = commonMenus.marginMenu(menu, pl, whatsThis);
       break;
     default:
       break;
