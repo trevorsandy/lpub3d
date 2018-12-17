@@ -17,7 +17,9 @@ contains(LOAD_LDV_HEADERS,True) {
     else:macx:  DIST_DIR      = lpub3d_macos_3rdparty
     else:win32: DIST_DIR      = lpub3d_windows_3rdparty
     THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
-    !exists($$THIRD_PARTY_DIST_DIR_PATH): \
+    isEmpty(THIRD_PARTY_DIST_DIR_PATH):     THIRD_PARTY_DIST_DIR_PATH = NotDefined
+    !exists($${THIRD_PARTY_DIST_DIR_PATH}): THIRD_PARTY_DIST_DIR_PATH = NotDefined
+    contains(THIRD_PARTY_DIST_DIR_PATH,NotDefined): \
     THIRD_PARTY_DIST_DIR_PATH = $$system_path( $$absolute_path( $$PWD/../../../$$DIST_DIR ) )
     win32 {
         DELETE_HDR_DIRS_CMD = IF EXIST $$LDVINCLUDE RMDIR /S /Q $$LDVINCLUDE

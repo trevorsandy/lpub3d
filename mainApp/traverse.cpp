@@ -56,13 +56,13 @@
 //#define SIZE_DEBUG
 #endif
 
-QString AttributeNames[] =
+static QString AttributeNames[] =
 {
     "Line",
     "Border"
 };
 
-QString PositionNames[] =
+static QString PositionNames[] =
 {
     "BASE_TOP",
     "BASE_BOTTOM",
@@ -1015,7 +1015,7 @@ int Gui::drawPage(
                   if (pagePointer) {
                       parseError("Nested page pointers not allowed within the same page",current);
                   } else {
-                      Positions position;
+                      Positions position = PP_LEFT;
                       PointerMeta ppm       = curMeta.LPub.page.pointer;
                       PointerAttribMeta pam = curMeta.LPub.page.pointerAttrib;
                       PointerAttribData pad = pam.valueInches();
@@ -1085,7 +1085,7 @@ int Gui::drawPage(
                   PointerAttribMeta pam = curMeta.LPub.page.pointerAttrib;
                   pam.setValueInches(pam.parseAttributes(tokens,current));
 
-                  Positions position;
+                  Positions position = PP_LEFT;
                   if (pam.value().parent == "BASE_TOP")
                       position = PP_TOP;
                   else
@@ -1414,7 +1414,7 @@ int Gui::drawPage(
                           page->modelDisplayOnlyStep = step->modelDisplayOnlyStep;
                       }
 
-                      PlacementType relativeType;
+                      PlacementType relativeType = SingleStepType;
                       if (pliPerStep) {
                           if (multiStep) {
                               relativeType = StepGroupType;
@@ -2113,9 +2113,9 @@ int Gui::findPage(
                 if (exporting()){
                     pageSizeUpdate      = true;
 
-                    if (pageSize.sizeW == 0)
+                    if (pageSize.sizeW == 0.0f)
                       pageSize.sizeW    = pageSizes[DEF_SIZE].sizeW;
-                    if (pageSize.sizeH == 0)
+                    if (pageSize.sizeH == 0.0f)
                       pageSize.sizeH    = pageSizes[DEF_SIZE].sizeH;
                     if (pageSize.sizeID.isEmpty())
                       pageSize.sizeID   = pageSizes[DEF_SIZE].sizeID;
@@ -2707,7 +2707,7 @@ void Gui::include(Meta &meta)
     }
 }
 
-Where dummy;
+static Where dummy;
 
 Where &Gui::topOfPage()
 {
