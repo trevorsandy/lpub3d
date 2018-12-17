@@ -577,15 +577,11 @@ int Gui::addGraphicsPageItems(
                       step->stepNumber.sizeit();
                     }
 
-                  /* Size the callouts */
+                  // size the callouts
+
                   for (int i = 0; i < step->list.size(); i++) {
                       step->list[i]->sizeIt();
                     }
-
-                  /* Size the callouts */
-                  for (int i = 0; i < step->list.size(); i++) {
-                      step->list[i]->sizeIt();
-                  }
 
                   // add the assembly image to the scene
 
@@ -855,7 +851,7 @@ int Gui::addGraphicsPageItems(
       plPage.placeRelative(page); // place multi-step relative to the page
 
       page->relativeToSg(page);   // compute bounding box of step group and callouts
-      // placed relative to it.
+                                  // placed relative to it.
 
       plPage.placeRelativeBounding(page); // center multi-step in page's bounding box
 

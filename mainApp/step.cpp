@@ -775,14 +775,14 @@ const int rotateIconPlace[NumPlacements][2] =
 
 const int coPlace[NumPlacements][2] =
 {
-  { TblCo3, TblCo3 }, // Top_Left
-  { TblCsi, TblCo3 }, // Top
-  { TblCo4, TblCo3 }, // Top_Right
-  { TblCo4, TblCsi }, // Right
-  { TblCo4, TblCo4 }, // BOTTOM_RIGHT
-  { TblCsi, TblCo4 }, // BOTTOM
-  { TblCo3, TblCo4 }, // BOTTOM_LEFT
-  { TblCo3, TblCsi }, // LEFT
+  { TblCo4, TblCo4 }, // Top_Left
+  { TblCsi, TblCo4 }, // Top
+  { TblCo5, TblCo4 }, // Top_Right
+  { TblCo5, TblCsi }, // Right
+  { TblCo5, TblCo5 }, // BOTTOM_RIGHT
+  { TblCsi, TblCo5 }, // BOTTOM
+  { TblCo4, TblCo5 }, // BOTTOM_LEFT
+  { TblCo4, TblCsi }, // LEFT
   { TblCsi, TblCsi },
 };
 
@@ -844,12 +844,12 @@ int marginCols[][2])
  */
 
 int Step::sizeit(
-    int  rows[],         // accumulate sub-row heights here
-    int  cols[],         // accumulate sub-col widths here
-    int  marginRows[][2],// accumulate sub-row margin heights here
-int  marginCols[][2],
-int  x,
-int  y)// accumulate sub-col margin widths here
+        int  rows[],         // accumulate sub-row heights here
+        int  cols[],         // accumulate sub-col widths here
+        int  marginRows[][2],// accumulate sub-row margin heights here
+        int  marginCols[][2],
+        int  x,
+        int  y)// accumulate sub-col margin widths here
 {
 
   // size up each callout
@@ -1062,7 +1062,7 @@ int  y)// accumulate sub-col margin widths here
   maxMargin(csiPlacement.margin,csiPlacement.tbl,marginRows,marginCols);
   maxMargin(rotateIcon.margin,rotateIcon.tbl,marginRows,marginCols);
 
-  /* now place the callouts relative to the known (CSI, PLI, SM, SN, RI) */
+  /* now place the callouts relative to the known items (CSI, PLI, SM, SN, RI) */
 
   int calloutSize[2] = { 0, 0 };
   bool shared = false;
@@ -1330,7 +1330,7 @@ int  y)// accumulate sub-col margin widths here
               rows[subModel.tbl[YY]] = subModel.size[YY];
             }
         }
-    }
+    }  // this is disabled
 
   if (cols[stepNumber.tbl[XX]] < stepNumber.size[XX]) {
       cols[stepNumber.tbl[XX]] = stepNumber.size[XX];
