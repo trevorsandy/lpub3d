@@ -220,8 +220,7 @@ class Preferences
     static bool    suppressStdOutToLog;
 
 #ifdef Q_OS_MAC
-    static bool    ldviewMissingLibs;
-    static bool    povrayMissingLibs;
+    static bool    missingRendererLibs;
 #endif
 
     virtual ~Preferences() {}

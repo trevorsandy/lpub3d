@@ -289,40 +289,41 @@ Drag the LPub3D Application icon to the Applications folder.
 
 After installation, remove the mounted LPub3D disk image by dragging it to the Trash.
 
-Required LPub3D libraries on macOS
+Required LPub3D libraries for built distribution.
+Library versions for LPub3D built from source may differ.
 ========================
 LDView:
 
-- XQuartz (OSMesa)
+- XQuartz 11.0 (for OSMesa)
   https://www.xquartz.org
 
 - LibPNG version 1.6.35 or above
   http://www.libpng.org
 
-- GL2PS version 1.3.5 or above
+- GL2PS version 1.6.0 or above
   http://geuz.org/gl2ps
 
-- LibJPEG version 1.4 or above
+- LibJPEG version 9c or above
   http://www.ijg.org
 
-- TinyXML version 2.5.2 or above
+- TinyXML version 2.6.2 or above
   http://www.grinninglizard.com/tinyxml/
 
-- MiniZIP version 1.1.0 or above
+- MiniZIP version 1.2.11 or above
   http://www.winimage.com/zLibDll/minizip.html
 
 POVRay:
 
-- XQuartz (X11)
+- XQuartz 11.0 (for X11)
   https://www.xquartz.org
 
-- LibTIFF version 3.6.1 or above
+- LibTIFF version 4.0.10 or above
   http://www.libtiff.org
 
-- OpenEXR version 1.2 or above
+- OpenEXR version 2.2.0 or above
   http://www.openexr.com
 
-- SDL2 version 2.0.2 or above (for display preview)
+- SDL2 version 2.0.9 or above (for display preview)
   http://www.libsdl.org
 
 Install brew (if not already installed)
@@ -334,8 +335,10 @@ Install libraries
 - \$ brew update
 - \$ brew reinstall libpng
 - \$ brew install tinyxml gl2ps libjpeg minizip openexr sdl2 libtiff
+- Download XQuartz at https://dl.bintray.com/xquartz/downloads/XQuartz-2.7.11.dmg
+- Double click the XQuartz-2.7.11.dmg and follow the dialogue instructions.
 
-Check installed lirary - particularly libPNG
+Optional - Check installed lirary (e.g. libpng)
 ============================================
 - \$ otool -L $(brew list libpng | grep dylib$)
     /usr/local/Cellar/libpng/1.6.35/lib/libpng.dylib:
@@ -345,6 +348,10 @@ Check installed lirary - particularly libPNG
 
 Cheers,
 EOF
+
+echo "- copy README to Resources/README_macOS.txt..."
+cp -f README DMGSRC/LPub3D.app/Contents/Resources/README_macOS.txt
+
 echo "- generate makedmg script..."
 cat <<EOF >makedmg
 #!/bin/bash

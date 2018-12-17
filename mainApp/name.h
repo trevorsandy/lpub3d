@@ -52,15 +52,17 @@ enum Theme { ThemeDark, ThemeDefault };
 
 #define LOGGING_LEVEL_DEFAULT                   "STATUS"
 
-#define LIBPNG_MACOS_VERSION                    "1.6.35"
-#define LIBGL2PS_MACOS_VERSION                  "1.3.5"
-#define LIBJPEG_MACOS_VERSION                   "1.4"
-#define LIBXML_MACOS_VERSION                    "2.5.2"
-#define LIBMINIZIP_MACOS_VERSION                "1.1.0"
+#define LIBXQUARTZ_MACOS_VERSION                "11.0"   // base 11.0
+#define LIBPNG_MACOS_VERSION                    "1.6.35" // base 1.6.34
+#define LIBGL2PS_MACOS_VERSION                  "1.4.0"  // base 1.3.5
+#define LIBJPEG_MACOS_VERSION                   "9c"     // base 8b
+#define LIBXML_MACOS_VERSION                    "2.6.2"  // base 2.5.2
+#define LIBMINIZIP_MACOS_VERSION                "1.2.11" // base 1.1.0
 
-#define LIBTIFF_MACOS_VERSION                   "3.6.1"
-#define LIBSDL_MACOS_VERSION                    "2.0.2"
-#define LIBOPENEXR_MACOS_VERSION                "1.2"
+#define LIBTIFF_MACOS_VERSION                   "4.0.10" // base 3.6.1
+#define LIBSDL_MACOS_VERSION                    "2.0.9"  // base 2.0.2
+#define LIBOPENEXR_MACOS_VERSION                "2.2.0"  // base 2.2.0
+#define LIBILMBASE_MACOS_VERSION                "2.2.1"  // base 2.2.1
 
 #define CAMERA_FOV_DEFAULT                      0.01f    // LPub3D (L3P) default
 #define CAMERA_ZNEAR_DEFAULT                    10.0f    // LPub3D (L3P) default

@@ -3,7 +3,7 @@
 # Travis build [before_install] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: October 21, 2018
+#  Last Update: December 14, 2018
 #  Copyright (c) 2017 - 2018 by Trevor SANDY
 #
 
@@ -79,6 +79,16 @@ fi
 && echo "'Build POV-Ray' detected in environment variable." || true
 
 # Update repository index and download package build dependencies if required
+# Install specific library versions:
+# - libPNG:   1.6.35
+# - libGL2PS: 1.4.0
+# - libJPEG:  9c
+# - tinyXML:  2.6.2
+# - miniZIP:  1.2.11
+# - libTIFF:  4.0.10
+# - libSDL2:  2.0.9
+# - openEXR:  2.2.0
+# - ilmBASE   2.2.1
 if [ "$TRAVIS_OS_NAME" = "linux" ]; then
   if [[ (("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG") || ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true")) && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
     sudo apt-get update -qq;
@@ -86,11 +96,22 @@ if [ "$TRAVIS_OS_NAME" = "linux" ]; then
   export LP3D_DIST_DIR=lpub3d_linux_3rdparty;
 elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
   if [[ "$LP3D_COMPILE_SOURCE" = "true" && "$LP3D_BUILD_PKG" = "" ]]; then
-    brew install ccache;
+    brew install ccache gl2ps jpeg minizip;
     LP3D_EXP_CCACHE_PATH=true;
   fi;
   if [[ "$LP3D_BUILD_MACOS" = "true" && "$LP3D_BUILD_PKG" = "yes" ]]; then
-    brew install ccache openexr sdl2 tinyxml gl2ps libtiff libjpeg minizip;
+    brew install ccache
+    echo "Installing specific libraries..."
+    git -C "$(brew --repo homebrew/core)" fetch --unshallow && cd "$(brew --repo homebrew/core)"
+    git checkout 34de10b34c58e48e6e94a3ca032d8273e822ee76 && HOMEBREW_NO_AUTO_UPDATE=1 brew reinstall libpng
+    git checkout e75d4380bf29e460ab9711e1cf6e2464fbd4472e && HOMEBREW_NO_AUTO_UPDATE=1 brew install gl2ps
+    git checkout ae184c6fe491b63ab7624061f4078a1a2e9db3cd && HOMEBREW_NO_AUTO_UPDATE=1 brew install jpeg
+    git checkout df2f446fe209c370cfc1e32c6ac19871b32725d0 && HOMEBREW_NO_AUTO_UPDATE=1 brew install minizip
+    git checkout 8170d91fcd80e6189a5fe9fa2acf13b53429e9aa && HOMEBREW_NO_AUTO_UPDATE=1 brew install libtiff
+    git checkout 5b0e02212af229f2ab8ea36b7839c60789aabd35 && HOMEBREW_NO_AUTO_UPDATE=1 brew install openexr
+    git checkout 63bf3ab117c43157295c7828f64a345f5d04c836 && HOMEBREW_NO_AUTO_UPDATE=1 brew install ilmbase
+    git checkout 6486d2d092f79913480f5fe64504dcaa571d21f2 && HOMEBREW_NO_AUTO_UPDATE=1 brew install sdl2
+    git checkout master && cd "$LP3D_BUILD_FOLDER"
     LP3D_EXP_CCACHE_PATH=true;
   fi;
   if [ "$LP3D_EXP_CCACHE_PATH" = "true" ]; then
