@@ -23,6 +23,7 @@
 #include <QFontDialog>
 #include <QColor>
 #include <QColorDialog>
+#include "commonmenus.h"
 
 TextItem::TextItem(
   InsertMeta meta,
@@ -43,15 +44,32 @@ TextItem::TextItem(
   QColor color(data.textColor);
   setDefaultTextColor(color);
 
-  QRegExp rx("\\\\n");
-  QStringList list = data.text.split(rx);
-  QString string = list.join("\n");
+  QString string;
 
-  QRegExp rx2("\\\\""");
-  QStringList list2 = string.split(rx2);
-  QString string2 = list2.join("""");
+  QStringList list = data.text.split("\\n");
 
-  setPlainText(string2);
+  QStringList list2;
+  foreach (QString string, list){
+    string = string.trimmed();
+    QRegExp rx2("\"");
+    int pos = 0;
+    QChar esc('\\');
+    while ((pos = rx2.indexIn(string, pos)) != -1) {
+      if (pos < string.size()) {
+        QChar ch = string.at(pos-1);
+        if (ch == esc) {
+          string.remove(pos-1,1);
+          pos += rx2.matchedLength() - 1;
+        }
+      }
+    }
+    // if last character is \, append space ' ' so not to escape closing string double quote
+    if (string.at(string.size()-1) == QChar('\\'))
+      string.append(QChar(' '));
+    list2 << string;
+  }
+
+  setPlainText(list2.join("\n"));
 
   setTextInteractionFlags(Qt::TextEditorInteraction);
 
@@ -65,14 +83,13 @@ void TextItem::contextMenuEvent(
   QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
+  QString pl = "Text";
 
-  QAction *editFontAction = menu.addAction("Edit Font");
-  editFontAction->setWhatsThis("Edit this text's font");
-
-  QAction *editColorAction = menu.addAction("Edit Color");
-  editColorAction->setWhatsThis("Edit this text's color");
+  QAction *editFontAction  = commonMenus.fontMenu(menu,pl);
+  QAction *editColorAction = commonMenus.colorMenu(menu,pl);
 
   QAction *deleteTextAction = menu.addAction("Delete This Text");
+  deleteTextAction->setIcon(QIcon(":/resources/textDelete.png"));
   deleteTextAction->setWhatsThis("Delete this text");
 
   QAction *selectedAction  = menu.exec(event->screenPos());
@@ -164,14 +181,29 @@ void TextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
     calcOffsets(pld,insertData.offsets,topLeft,size);
 
-    QRegExp rx("\\n");
-    QStringList list = toPlainText().split(rx);
+    QStringList list = toPlainText().split("\n");
 
     QStringList list2;
     foreach (QString string, list){
-      string.replace("\"","\\\"");
-      list2 << string;
+      string = string.trimmed();
+      QRegExp rx2("\"");
+      int pos = 0;
+      QChar esc('\\');
+      while ((pos = rx2.indexIn(string, pos)) != -1) {
+        pos += rx2.matchedLength();
+        if (pos < string.size()) {
+          QChar ch = string.at(pos-1);
+          if (ch != esc) {
+            string.insert(pos-1,&esc,1);
+            pos++;
+          }
+        }
       }
+      // if last character is \, append space ' ' so not to escape closing string double quote
+      if (string.at(string.size()-1) == QChar('\\'))
+        string.append(QChar(' '));
+      list2 << string;
+    }
 
     insertData.text = list2.join("\\n");
     meta.setValue(insertData);
@@ -193,18 +225,32 @@ void TextItem::focusInEvent(QFocusEvent *event)
 void TextItem::focusOutEvent(QFocusEvent *event)
 {
   QGraphicsTextItem::focusOutEvent(event);
-
   if (textChanged) {
     InsertData insertData = meta.value();
 
-    QRegExp rx("\\n");
-    QStringList list = toPlainText().split(rx);
+    QStringList list = toPlainText().split("\n");
 
     QStringList list2;
     foreach (QString string, list){
-      string.replace("\"","\\\"");
-      list2 << string;
+      string = string.trimmed();
+      QRegExp rx2("\"");
+      int pos = 0;
+      QChar esc('\\');
+      while ((pos = rx2.indexIn(string, pos)) != -1) {
+        pos += rx2.matchedLength();
+        if (pos < string.size()) {
+          QChar ch = string.at(pos-1);
+          if (ch != esc) {
+            string.insert(pos-1,&esc,1);
+            pos++;
+          }
+        }
       }
+      // if last character is \, append space ' ' so not to escape closing string double quote
+      if (string.at(string.size()-1) == QChar('\\'))
+        string.append(QChar(' '));
+      list2 << string;
+    }
 
     insertData.text = list2.join("\\n");
     meta.setValue(insertData);

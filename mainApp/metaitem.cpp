@@ -1,4 +1,4 @@
- 
+
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
@@ -2323,20 +2323,34 @@ void MetaItem::insertPicture()
 void MetaItem::insertText()
 {
   bool ok;
-  QString text = QInputDialog::getText(nullptr, QInputDialog::tr("Text"),
-                                       QInputDialog::tr("Input:"),
-                                       QLineEdit::Normal,
-                                       QString(""), &ok);
+  QString text = QInputDialog::getMultiLineText(nullptr, QInputDialog::tr("Text"),
+                                                QInputDialog::tr("Input:"),
+                                                QString(), &ok);
   if (ok && !text.isEmpty()) {
 
-      QRegExp rx("\\n");
-      QStringList list = text.split(rx);
+      QStringList list = text.split("\n");
 
       QStringList list2;
       foreach (QString string, list){
-          string.replace("\"","\\\"");
-          list2 << string;
+        string = string.trimmed();
+        QRegExp rx2("\"");
+        int pos = 0;
+        QChar esc('\\');
+        while ((pos = rx2.indexIn(string, pos)) != -1) {
+          pos += rx2.matchedLength();
+          if (pos < string.size()) {
+            QChar ch = string.at(pos-1);
+            if (ch != esc) {
+              string.insert(pos-1,&esc,1);
+              pos++;
+            }
+          }
         }
+        // if last character is \, append space ' ' so not to escape closing string double quote
+        if (string.at(string.size()-1) == QChar('\\'))
+          string.append(QChar(' '));
+        list2 << string;
+      }
 
       QString meta = QString("0 !LPUB INSERT TEXT \"%1\" \"%2\" \"%3\"") .arg(list2.join("\\n")) .arg("Arial,36,-1,255,75,0,0,0,0,0") .arg("Black");
       Where insertPosition, walkBack, topOfStep, bottomOfStep;
