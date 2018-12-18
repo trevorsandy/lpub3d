@@ -392,10 +392,16 @@ class PointerAttribData
       Line,
       Border
     } attribType;
+    struct Where {
+      QString modelName  = "undefined";
+      int     lineNumber = 0;
+    };
     int id;
     QString parent;
     BorderData lineData;
+    Where      lineWhere;
     BorderData borderData;
+    Where      borderWhere;
 
     PointerAttribData()
     {
@@ -420,7 +426,7 @@ class PointerAttribData
         borderData.hideArrows = false;
 
         attribType            = PointerAttribData::Line;
-        id                    = 0000;
+        id                    = 0;
         parent                = QString();
     }
 };

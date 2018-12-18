@@ -1206,14 +1206,16 @@ public:
     _value[pushed] = pointerAttribData;
   }
 
-  void setAltValueInches(PointerAttribData data)
+  void setAltValueInches(PointerAttribData pointerAttribData)
   {
     if (_value[pushed].attribType == PointerAttribData::Line) {
-        _value[pushed].borderData  = data.borderData;
+        _value[pushed].borderData  = pointerAttribData.borderData;
+        _value[pushed].borderWhere = pointerAttribData.borderWhere;
     }
     else
     if (_value[pushed].attribType == PointerAttribData::Border) {
-        _value[pushed].lineData    = data.lineData;
+        _value[pushed].lineData  = pointerAttribData.lineData;
+        _value[pushed].lineWhere = pointerAttribData.lineWhere;
     }
   }
 
@@ -1246,6 +1248,11 @@ public:
       }
   }
 
+  void setWhere(Where &here)
+  {
+      _here[pushed]   = here;
+  }
+
   PointerAttribData &parseAttributes(const QStringList &argv,Where &here)
   {
     int index = 4;
@@ -1276,6 +1283,8 @@ public:
            _result.lineData.thickness    = argv[index+3].toFloat();
            _result.lineData.hideArrows   = argv[index+4].toInt();        // used to show/hide arrow tip
            _result.lineData.useDefault   = false;
+           _result.lineWhere.modelName   = here.modelName;
+           _result.lineWhere.lineNumber  = here.lineNumber;
         } else
           if (argv[index] == "BORDER") {
            _result.attribType            = PointerAttribData::Border;
@@ -1284,11 +1293,12 @@ public:
            _result.borderData.color      = argv[index+2];
            _result.borderData.thickness  = argv[index+3].toFloat();
            _result.borderData.useDefault = false;
+           _result.borderWhere.modelName = here.modelName;
+           _result.borderWhere.lineNumber= here.lineNumber;
         }
         bool noParent                    = argv[index-2] == "CALLOUT" || argv[index-1] == "DIVIDER_POINTER_ATTRIBUTE";
         _result.id                       = argv[isLine ? index+5 : index+4].toInt();
         _result.parent                   = noParent ? QString() : argv[isLine ? index+6 : index+5];
-        _here[pushed]                    = here;
 
         return _result;
   }

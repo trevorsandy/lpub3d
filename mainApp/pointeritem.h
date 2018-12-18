@@ -38,7 +38,7 @@ class QGraphicsView;
 class PointerItem : public QGraphicsItemGroup, public MetaItem, public AbstractResize 
 {
 public:
-  PointerItem(QGraphicsItem *parent = 0);
+  PointerItem(QGraphicsItem *parent = nullptr);
   virtual ~PointerItem();
 
   enum SelectedPoint { Tip, Base, MidBase, MidTip, NumGrabbers };

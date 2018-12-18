@@ -42,6 +42,8 @@
         <file alias="copy.png">resources/copy.png</file>
         <file alias="cut.png">resources/cut.png</file>
         <file alias="delete.png">resources/delete.png</file>
+        <file alias="deleteborderattributes.png">resources/deleteborderattributes.png</file>
+        <file alias="deletefillattributes.png">resources/deletefillattributes.png</file>
         <file alias="deletepointer.png">resources/deletepointer.png</file>
         <file alias="deletedivider.png">resources/deletedivider.png</file>
         <file alias="display.png">resources/display.png</file>

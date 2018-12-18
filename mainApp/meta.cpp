@@ -1295,15 +1295,13 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
             }
             else
             if (argv[index-2] == "MULTI_STEP") {
-                if (argv[index-1] == "POINTER_ATTRIBUTE")
-                    rc = StepGroupPointerAttribRc;
-                else
                 if (argv[index-1] == "DIVIDER_POINTER_ATTRIBUTE")
                     rc = StepGroupDividerPointerAttribRc;
             }
             else
             if (argv[index-2] == "PAGE") {
-                rc = PagePointerAttribRc;
+                if (argv[index-1] == "POINTER_ATTRIBUTE")
+                    rc = PagePointerAttribRc;
             }
         }
     }

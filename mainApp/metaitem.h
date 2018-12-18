@@ -81,7 +81,8 @@ public:
   void removeCallout(          const QString &, const Where &, const Where &);
   void unnestCallouts(         const QString &);
   void updatePointer(          const Where &,   PointerMeta *pointer);
-  void deletePointer(          const Where &);
+  void deletePointerAttribute( const Where &, bool = false);
+  void deletePointer(          const Where &, bool, bool);
   void changeRotation(         const Where &);
 
   int countInstancesInStep(    Meta *, const QString &);

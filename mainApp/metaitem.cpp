@@ -3552,9 +3552,37 @@ void MetaItem::updatePointer(
   }
 }
 
-void MetaItem::deletePointer(const Where &here)
+void MetaItem::deletePointer(const Where &here, bool line, bool border)
 {
-  deleteMeta(here);
+   Where _here = here;
+   if (line)
+       deletePointerAttribute(_here,true);
+   if (border)
+       deletePointerAttribute(_here,true);
+   deleteMeta(_here);
+}
+
+void  MetaItem::deletePointerAttribute(const Where &here, bool all)
+{
+  if (!all) {
+     deleteMeta(here);
+  } else {
+     Where walk = here;
+     QString pattern = QString("^.*(POINTER_ATTRIBUTE (LINE|BORDER)).*$");
+     QRegExp rx(pattern);
+     QString line = gui->readLine(++walk); // advance 1 line
+     if (line.contains(rx)) {
+         deleteMeta(walk);                 // check first line
+     }
+     else
+     {
+        ++walk;                           // check second line
+        line = gui->readLine(walk);
+        if (line.contains(rx)) {
+            deleteMeta(walk);
+        }
+     }
+  }
 }
 
 /*

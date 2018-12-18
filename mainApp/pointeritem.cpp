@@ -574,23 +574,39 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
   bool isCallout = pointerParentType == CalloutType;
-  bool altWhere = pointer.pointerAttrib.here().lineNumber == 0 &&
-                  pointer.pointerAttrib.here().modelName == "undefined";
   PointerAttribData pad = pointer.pointerAttrib.value();
 
-  Where pointerAttribTop, pointerAttribBottom;
-  pointerAttribTop    = altWhere ? pointer.here : pointer.pointerAttrib.here();
-  pointerAttribBottom = pointerAttribTop;
+  Where fillAttribTop, fillAttribBottom, borderAttribTop, borderAttribBottom;
+  fillAttribTop.modelName    = pad.lineWhere.modelName;
+  fillAttribTop.lineNumber   = pad.lineWhere.lineNumber;
+  fillAttribBottom           = fillAttribTop;
+  borderAttribTop.modelName  = pad.borderWhere.modelName;
+  borderAttribTop.lineNumber = pad.borderWhere.lineNumber;
+  borderAttribBottom         = borderAttribTop;
 
   QAction *setFillAttributesAction = menu.addAction("Set Line Attributes");
   setFillAttributesAction->setIcon(QIcon(":/resources/fillattributes.png"));
-  setFillAttributesAction->setWhatsThis(     "Set pointer line attributes:\n"
+  setFillAttributesAction->setWhatsThis( "Set pointer line attributes:\n"
                                          "Set the pointer line color, thickness, and type");
 
   QAction *setBorderAttributesAction = menu.addAction("Set Border Attributes");
   setBorderAttributesAction->setIcon(QIcon(":/resources/borderattributes.png"));
-  setBorderAttributesAction->setWhatsThis(     "Set pointer fill attributes:\n"
-                                         "Set the pointer border color, thickness, and line type");
+  setBorderAttributesAction->setWhatsThis( "Set pointer fill attributes:\n"
+                                           "Set the pointer border color, thickness, and line type");
+
+  QAction *deleteFillAttributesAction = nullptr;
+  if (! pad.lineData.useDefault) {
+      deleteFillAttributesAction = menu.addAction("Delete Line Attributes");
+      deleteFillAttributesAction->setIcon(QIcon(  ":/resources/deletefillattributes.png"));
+      deleteFillAttributesAction->setWhatsThis(   "Delete pointer line attributes");
+  }
+
+  QAction *deleteBorderAttributesAction = nullptr;
+  if (! pad.borderData.useDefault) {
+      deleteBorderAttributesAction = menu.addAction("Delete Border Attributes");
+      deleteBorderAttributesAction->setIcon(QIcon(  ":/resources/deleteborderattributes.png"));
+      deleteBorderAttributesAction->setWhatsThis(   "Delete pointer fill attributes");
+  }
 
   QAction *removeAction = menu.addAction("Delete Pointer");
   removeAction->setIcon(QIcon(":/resources/deletepointer.png"));
@@ -600,17 +616,17 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QAction *addSegmentAction = nullptr;
   if (segments() < 3) {
       addSegmentAction = menu.addAction("Add Pointer Segment");
-      addSegmentAction->setIcon(QIcon(":/resources/addpointersegment.png"));
-      addSegmentAction->setWhatsThis(        "Add pointer segment:\n"
-                                             "Introduce a new pointer shaft segment.");
+      addSegmentAction->setIcon(QIcon(  ":/resources/addpointersegment.png"));
+      addSegmentAction->setWhatsThis(   "Add pointer segment:\n"
+                                        "Introduce a new pointer shaft segment.");
   }
 
   QAction *removeSegmentAction = nullptr;
   if (segments() > 1) {
       removeSegmentAction = menu.addAction("Remove Pointer Segment");
-      removeSegmentAction->setIcon(QIcon(":/resources/removepointersegment.png"));
-      removeSegmentAction->setWhatsThis(     "Remove pointer segment:\n"
-                                             "Remove pointer shaft segment.");
+      removeSegmentAction->setIcon(QIcon(  ":/resources/removepointersegment.png"));
+      removeSegmentAction->setWhatsThis(   "Remove pointer segment:\n"
+                                           "Remove pointer shaft segment.");
   }
 
   QAction *selectedAction   = menu.exec(event->screenPos());
@@ -622,23 +638,37 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   if (selectedAction == setFillAttributesAction) {
       pad.attribType = PointerAttribData::Line;
       pointer.pointerAttrib.setValue(pad);
+      pointer.pointerAttrib.setWhere(fillAttribTop);
       setPointerAttrib("Pointer Line Attributes",
-                        pointerAttribTop,
-                        pointerAttribBottom,
+                        fillAttribTop,
+                        fillAttribBottom,
                        &pointer.pointerAttrib,false,1,false,isCallout);
   }
   else
   if (selectedAction == setBorderAttributesAction) {
       pad.attribType = PointerAttribData::Border;
       pointer.pointerAttrib.setValue(pad);
+      pointer.pointerAttrib.setWhere(borderAttribTop);
       setPointerAttrib("Pointer Border Attributes",
-                        pointerAttribTop,
-                        pointerAttribBottom,
+                        borderAttribTop,
+                        borderAttribBottom,
                        &pointer.pointerAttrib,false,1,false,isCallout);
   }
   else
+  if (selectedAction == deleteFillAttributesAction) {
+    deletePointerAttribute(fillAttribTop);
+  }
+  else
+  if (selectedAction == deleteBorderAttributesAction) {
+    deletePointerAttribute(borderAttribTop);
+  }
+  else
   if (selectedAction == removeAction) {
-    deletePointer(pointer.here);
+    bool fill   = fillAttribTop.lineNumber != 0 &&
+                  fillAttribTop.modelName  != "undefined";
+    bool border = borderAttribTop.lineNumber != 0 &&
+                  borderAttribTop.modelName  != "undefined";
+    deletePointer(pointer.here,fill,border);
   }
   else
   if (selectedAction == addSegmentAction) {
@@ -649,7 +679,6 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     removeShaftSegment();
   }
 }
-
 
 /* calculate the parameters for the equation of line from two points */
 

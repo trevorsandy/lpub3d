@@ -55,10 +55,7 @@ public:
         return pointerAttrib.valueInches();
     }
     virtual void setPointerAttribInches(PointerAttribMeta pam){
-        PointerAttribData pad  = pam.valueInches();
-        pad.id                 = id;
-        pointerAttrib.preamble = pam.preamble;
-        pointerAttrib.setValueInches(pad);
+        pointerAttrib = pam;
     }
     virtual ~Pointer()
     {
