@@ -246,7 +246,7 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Action", "Edit.SelectInvert"),
 		QT_TRANSLATE_NOOP("Menu", "Select &Invert"),
 		QT_TRANSLATE_NOOP("Status", "Invert the current selection set"),
-		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+I")
+        QT_TRANSLATE_NOOP("Shortcut", "")
 	},
 	// LC_EDIT_SELECT_BY_NAME
 	{
@@ -1258,7 +1258,7 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Action", "Piece.Ungroup"),
 		QT_TRANSLATE_NOOP("Menu", "&Ungroup"),
 		QT_TRANSLATE_NOOP("Status", "Ungroup selected group"),
-		QT_TRANSLATE_NOOP("Shortcut", "Ctrl+U")
+        QT_TRANSLATE_NOOP("Shortcut", "")
 	},
 	// LC_PIECE_GROUP_ADD
 	{
@@ -1306,8 +1306,8 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	{
 		QT_TRANSLATE_NOOP("Action", "Piece.UnhideAll"),
 		QT_TRANSLATE_NOOP("Menu", "U&nhide All"),
-        QT_TRANSLATE_NOOP("Status", "Show all hidden objects - Ctrl+U"),                        /*** LPub3D Mod - LPub3D Menu update ***/
-        QT_TRANSLATE_NOOP("Shortcut", "Ctrl+U")
+        QT_TRANSLATE_NOOP("Status", "Show all hidden objects - Ctrl+I"),                        /*** LPub3D Mod - LPub3D Menu update ***/
+        QT_TRANSLATE_NOOP("Shortcut", "Ctrl+I")
 	},
 	// LC_PIECE_SHOW_EARLIER
 	{

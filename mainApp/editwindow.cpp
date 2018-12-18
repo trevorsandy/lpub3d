@@ -85,8 +85,13 @@ void EditWindow::createActions()
 
     redrawAct = new QAction(QIcon(":/resources/redraw.png"), tr("&Redraw"), this);
     redrawAct->setShortcut(tr("Ctrl+R"));
-    redrawAct->setStatusTip(tr("Redraw page - Ctrl+R"));
+    redrawAct->setStatusTip(tr("Redraw page, reset model caches - Ctrl+R"));
     connect(redrawAct, SIGNAL(triggered()), this, SLOT(redraw()));
+
+    updateAct = new QAction(QIcon(":/resources/update.png"), tr("&Update"), this);
+    updateAct->setShortcut(tr("Ctrl+U"));
+    updateAct->setStatusTip(tr("Update page - Ctrl+U"));
+    connect(updateAct, SIGNAL(triggered()), this, SLOT(update()));
 
     delAct = new QAction(QIcon(":/resources/delete.png"), tr("&Delete"), this);
     delAct->setShortcut(tr("DEL"));
@@ -108,20 +113,27 @@ void EditWindow::createActions()
     bottomAct->setStatusTip(tr("Navigate to the bottom of document - Ctrl+B"));
     connect(bottomAct, SIGNAL(triggered()), this, SLOT(bottomOfDocument()));
 
-    cutAct->setEnabled(false);
-    copyAct->setEnabled(false);
-    delAct->setEnabled(false);
-    redrawAct->setEnabled(false);
-    selAllAct->setEnabled(false);
-    findAct->setEnabled(false);
-    topAct->setEnabled(false);
-    bottomAct->setEnabled(false);
     connect(_textEdit, SIGNAL(copyAvailable(bool)),
             cutAct,    SLOT(setEnabled(bool)));
     connect(_textEdit, SIGNAL(copyAvailable(bool)),
             copyAct,   SLOT(setEnabled(bool)));
     connect(_textEdit, SIGNAL(copyAvailable(bool)),
              delAct,   SLOT(setEnabled(bool)));
+
+    disableActions();
+}
+
+void EditWindow::disableActions()
+{
+    cutAct->setEnabled(false);
+    copyAct->setEnabled(false);
+    delAct->setEnabled(false);
+    updateAct->setEnabled(false);
+    redrawAct->setEnabled(false);
+    selAllAct->setEnabled(false);
+    findAct->setEnabled(false);
+    topAct->setEnabled(false);
+    bottomAct->setEnabled(false);
 }
 
 void EditWindow::createToolBars()
@@ -136,6 +148,7 @@ void EditWindow::createToolBars()
     editToolBar->addAction(pasteAct);
     editToolBar->addAction(findAct);
     editToolBar->addAction(delAct);
+    editToolBar->addAction(updateAct);
     editToolBar->addAction(redrawAct);
 }
 
@@ -233,6 +246,10 @@ void EditWindow::showLine(int lineNumber)
   pageUpDown(QTextCursor::Up, QTextCursor::KeepAnchor);
 }
 
+void EditWindow::updateDisabled(bool state){
+    updateAct->setDisabled(state);
+}
+
 void EditWindow::displayFile(
   LDrawFile     *ldrawFile,
   const QString &_fileName)
@@ -261,6 +278,12 @@ void EditWindow::redraw()
 {
   redrawSig();
 }
+
+void EditWindow::update()
+{
+  updateSig();
+}
+
 
 QTextEditor::QTextEditor(QWidget *parent) :
     QTextEdit(parent)

@@ -311,6 +311,8 @@ void Gui::closeModelFile(){
   emit updateAllViewsSig();
   emit disable3DActionsSig();
   // Editor
+  emit disableEditorActionsSig();
+  // Gui
   clearPage(KpageView,KpageScene);
   disableActions();
   disableActions2();

@@ -1128,7 +1128,8 @@ void Gui::reloadCurrentPage(){
         emit messageSig(LOG_STATUS,"No model file page to redisplay.");
         return;
     }
-    if (maybeSave()) {
+    bool prompt = false;
+    if (maybeSave(prompt)) {
         timer.start();
 
         int savePage = displayPageNum;
@@ -2416,6 +2417,12 @@ Gui::Gui()
     connect(editWindow,     SIGNAL(redrawSig()),
             this,           SLOT(  clearAndRedrawPage()));
 
+    connect(editWindow,     SIGNAL(updateSig()),
+            this,           SLOT(  reloadCurrentPage()));
+
+    connect(this,           SIGNAL(disableEditorActionsSig()),
+            editWindow,     SLOT(  disableActions()));
+
     connect(editWindow,     SIGNAL(contentsChange(const QString &,int,int,const QString &)),
             this,           SLOT(  contentsChange(const QString &,int,int,const QString &)));
 
@@ -2425,6 +2432,8 @@ Gui::Gui()
             this,           SLOT(  canUndoChanged(bool)));
     connect(undoStack,      SIGNAL(cleanChanged(bool)),
             this,           SLOT(  cleanChanged(bool)));
+    connect(undoStack,      SIGNAL(cleanChanged(bool)),
+            editWindow,     SLOT(  updateDisabled(bool)));
 
     progressLabel = new QLabel(this);
     progressLabel->setMinimumWidth(200);
@@ -3442,6 +3451,7 @@ void Gui::enableActions()
   actualSizeAct->setEnabled(true);
   zoomInAct->setEnabled(true);
   zoomOutAct->setEnabled(true);
+  pageGuidesAct->setEnabled(true);
 
   setupMenu->setEnabled(true);
   cacheMenu->setEnabled(true);
@@ -3507,6 +3517,7 @@ void Gui::disableActions()
   actualSizeAct->setEnabled(false);
   zoomInAct->setEnabled(false);
   zoomOutAct->setEnabled(false);
+  pageGuidesAct->setEnabled(false);
 
   setupMenu->setEnabled(false);
   cacheMenu->setEnabled(false);

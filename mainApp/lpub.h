@@ -855,6 +855,7 @@ signals:
   void displayFileSig(LDrawFile *ldrawFile, const QString &subFile);
   void displayParmsFileSig(const QString &fileName);
   void showLineSig(int lineNumber);
+  void disableEditorActionsSig();
 
   void enable3DActionsSig();
   void disable3DActionsSig();

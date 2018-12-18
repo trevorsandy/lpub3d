@@ -157,6 +157,7 @@
         <file alias="treataspart.png">resources/treataspart.png</file>
         <file alias="unpackcallout.png">resources/unpackcallout.png</file>
         <file alias="unrotate.png">resources/unrotate.png</file>
+        <file alias="update.png">resources/update.png</file>
         <file alias="viewlog.png">resources/viewlog.png</file>
         <file alias="zoomin.png">resources/zoomin.png</file>
         <file alias="zoomout.png">resources/zoomout.png</file>

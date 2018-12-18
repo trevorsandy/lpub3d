@@ -80,6 +80,7 @@ private:
     QAction  *copyAct;
     QAction  *pasteAct;
     QAction  *redrawAct;
+    QAction  *updateAct;
     QAction  *delAct;
     QAction  *selAllAct;
     QAction  *findAct;
@@ -87,11 +88,13 @@ private:
 signals:
     void contentsChange(const QString &, int position, int charsRemoved, const QString &charsAdded);
     void redrawSig();
+    void updateSig();
 
 private slots:
     void contentsChange(int position, int charsRemoved, int charsAdded);
     // Maybe this helps resizing the editwindow (Jaco)
     void redraw();
+    void update();
     void highlightCurrentLine();
     void topOfDocument();
     void bottomOfDocument();
@@ -99,6 +102,8 @@ private slots:
 public slots:
     void displayFile(LDrawFile *, const QString &fileName);
     void showLine(int);
+    void updateDisabled(bool);
+    void disableActions();
     void pageUpDown(
       QTextCursor::MoveOperation op,
       QTextCursor::MoveMode      moveMode);
