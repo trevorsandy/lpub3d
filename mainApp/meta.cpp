@@ -1226,21 +1226,21 @@ void BorderMeta::doc(QStringList &out, QString preamble)
 QString BorderMeta::text()
 {
   BorderData border = valueInches();
-  QString thickness;
+  QString result, thickness;
   switch (border.type) {
     case BorderData::BdrNone:
-      return "No Border";
+      result = "No Border";
       break;
     case BorderData::BdrSquare:
-      thickness = QString("%1")
-          .arg(border.thickness,4,'f',3);
-      return "Square Corners, thickness " + thickness + " " + units2abbrev();
+      thickness = QString("%1") .arg(border.thickness,4,'f',3);
+      result = "Square Corners, thickness " + thickness + " " + units2abbrev();
       break;
     default:
+      thickness = QString("%1") .arg(border.thickness,4,'f',3);
+      result = "Round Corners, thickness " + thickness + " " + units2abbrev();
       break;
     }
-  thickness = QString("%1") .arg(border.thickness,4,'f',3);
-  return "Round Corners, thickness " + thickness + " " + units2abbrev();
+    return result;
 }
 
 /* ------------------ */
@@ -1269,6 +1269,7 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
 //    logDebug() << "argv[index-1]: " << argv[index-1] << ", argv[index-2]: " << argv[index-2] << ", [" << (isValid ? "Valid ]" : "Not Valid ]");
 #endif
 
+    int id = 0;
     bool isLine  = argv[index] == "LINE";
     Rc rc = FailureRc;
     if (!isLine &&
@@ -1278,14 +1279,14 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
     if (isValid && argv.size() - index >= (isLine ? 6 : 5)) {
 
         bool ok[4];
-        argv[index+1].toInt(&ok[0]);     // line type
-        argv[index+3].toFloat(&ok[1]);   // thickness
-        argv[index+4].toInt(&ok[2]);     // if line (show/hide tip), if border (id)
+        argv[index+1].toInt(&ok[0]);          // line type
+        argv[index+3].toFloat(&ok[1]);        // thickness
+        id = argv[index+4].toInt(&ok[2]);     // if line (show/hide tip), if border (id)
 
         if (isLine)
-            argv[index+5].toInt(&ok[3]); // if line id
+            id = argv[index+5].toInt(&ok[3]); // if line id
 
-        if (ok[0] && ok[1] && ok[2] && (isLine ? ok[3] : true)) {
+        if (ok[0] && ok[1] && ok[2] && (isLine ? ok[3] : true) && id > 0) {
             if (argv[index-2] == "CALLOUT") {
                 if (argv[index-1] == "POINTER_ATTRIBUTE")
                     rc = CalloutPointerAttribRc;
@@ -1303,6 +1304,10 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
                 if (argv[index-1] == "POINTER_ATTRIBUTE")
                     rc = PagePointerAttribRc;
             }
+        }
+        if (id == 0)
+        {
+          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected ID greater than 0, got \"%1\" in \"%2\"") .arg(id) .arg(argv.join(" ")));
         }
     }
     return rc;
