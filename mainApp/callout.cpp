@@ -92,7 +92,9 @@ void Callout::appendPointer(const Where &here,
 {
     int id = pointerList.size() + 1;
     Pointer *pointer = new Pointer(id,here,pointerMeta);
-    pointer->setPointerAttribInches(pointerAttrib);
+    PointerAttribMeta pam = pointerAttrib;
+    pam.setDefaultColor(meta.LPub.callout.border.value().color);
+    pointer->setPointerAttribInches(pam);
     pointerList.append(pointer);
 }
 

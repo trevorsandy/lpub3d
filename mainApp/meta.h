@@ -1258,6 +1258,17 @@ public:
      _value[pushed].id = id;
   }
 
+  void setDefaultColor(QString &color)
+  {
+    if (_value[pushed].attribType == PointerAttribData::Line) {
+      if (_value[pushed].lineData.useDefault)
+         _value[pushed].lineData.color = color;
+    } else {
+      if (_value[pushed].borderData.useDefault)
+         _value[pushed].borderData.color = color;
+    }
+  }
+
   PointerAttribData &parseAttributes(const QStringList &argv,Where &here)
   {
     int index = 4;

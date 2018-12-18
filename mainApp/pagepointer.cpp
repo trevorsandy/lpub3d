@@ -69,7 +69,9 @@ void PagePointer::appendPointer(const Where &here,
 {
   int pid = pointerList.size()+1;
   Pointer *pointer = new Pointer(pid,here,pointerMeta);
-  pointer->setPointerAttribInches(pointerAttrib);
+  PointerAttribMeta pam = pointerAttrib;
+  pam.setDefaultColor(meta.LPub.page.border.value().color);
+  pointer->setPointerAttribInches(pam);
   pointerList.append(pointer);
 }
 
