@@ -1250,7 +1250,12 @@ public:
 
   void setWhere(Where &here)
   {
-      _here[pushed]   = here;
+     _here[pushed] = here;
+  }
+
+  void setPointerId(int id)
+  {
+     _value[pushed].id = id;
   }
 
   PointerAttribData &parseAttributes(const QStringList &argv,Where &here)

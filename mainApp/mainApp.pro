@@ -254,6 +254,7 @@ UI_DIR          = $$DESTDIR/.ui
 # macOS build will also bundle all deliverables.
 
 THIRD_PARTY_DIST_DIR_PATH = $$(LP3D_DIST_DIR_PATH)
+isEmpty(THIRD_PARTY_DIST_DIR_PATH):THIRD_PARTY_DIST_DIR_PATH = NotDefined
 !exists($$THIRD_PARTY_DIST_DIR_PATH) {
     unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
     else:macx: DIST_DIR       = lpub3d_macos_3rdparty

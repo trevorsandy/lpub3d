@@ -56,6 +56,7 @@ public:
     }
     virtual void setPointerAttribInches(PointerAttribMeta pam){
         pointerAttrib = pam;
+        pointerAttrib.setPointerId(id);
     }
     virtual ~Pointer()
     {

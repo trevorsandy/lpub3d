@@ -638,7 +638,13 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   if (selectedAction == setFillAttributesAction) {
       pad.attribType = PointerAttribData::Line;
       pointer.pointerAttrib.setValue(pad);
-      pointer.pointerAttrib.setWhere(fillAttribTop);
+      if(lineAttribTop.lineNumber == 0 &&
+         lineAttribTop.modelName  == "undefined") {
+         lineAttribTop = pointer.here;
+         lineAttribBottom = lineAttribTop;
+      } else {
+         pointer.pointerAttrib.setWhere(lineAttribTop);
+      }
       setPointerAttrib("Pointer Line Attributes",
                         fillAttribTop,
                         fillAttribBottom,
@@ -648,7 +654,13 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   if (selectedAction == setBorderAttributesAction) {
       pad.attribType = PointerAttribData::Border;
       pointer.pointerAttrib.setValue(pad);
-      pointer.pointerAttrib.setWhere(borderAttribTop);
+      if(borderAttribTop.lineNumber == 0 &&
+         borderAttribTop.modelName  == "undefined") {
+         borderAttribTop = pointer.here;
+         borderAttribBottom = borderAttribTop;
+      } else {
+         pointer.pointerAttrib.setWhere(borderAttribTop);
+      }
       setPointerAttrib("Pointer Border Attributes",
                         borderAttribTop,
                         borderAttribBottom,
