@@ -1350,7 +1350,7 @@ QString PointerAttribMeta::format(bool local, bool global)
 
 void PointerAttribMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (LINE|BORDER <line type> <color> <thickness> <id> [<hide/show tip> <base_position>])";
+  out << preamble + " (LINE|BORDER <line type> <color> <thickness> [<hide/show tip>] <id> [<base_position>])";
 }
 
 /* ------------------ */ 
