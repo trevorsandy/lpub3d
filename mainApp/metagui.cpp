@@ -2414,11 +2414,11 @@ void BorderGui::apply(QString &modelName)
  PointerAttribGui::PointerAttribGui(
   PointerAttribMeta *_meta,
   QGroupBox         *parent,
-       bool          _isCallout,
-       bool          _isLine)
+     bool          _isCallout)
 {
   meta   = _meta;
-  isLine = _isLine;
+  PointerAttribData pad = meta->value();
+  lineData = pad.attribType == PointerAttribData::Line;
 
   QString        string;
   QGridLayout   *grid;
@@ -2429,12 +2429,11 @@ void BorderGui::apply(QString &modelName)
   /*  Attributes */
 
   int index;
-  bool hideTip;
+  bool hideTip = false;
   QString title;
   QString thickness;
   QString color;
-  PointerAttribData pad = meta->value();
-  if (isLine) {
+  if (lineData) {
       title = "Line";
       index = (int)pad.lineData.line - 1;            // - 1  adjusts for removal of 'No-Line'
       thickness = QString("%1") .arg(pad.lineData.thickness,5,'f',4);
@@ -2497,7 +2496,7 @@ void BorderGui::apply(QString &modelName)
   grid->addWidget(colorButton,1,2);
 
   /* hide arrows [optional] */
-  if (isLine && !_isCallout) {
+  if (lineData && !_isCallout) {
       hideTipBox = new QCheckBox("Hide Pointer Tip", parent);
       hideTipBox->setChecked(hideTip);
       connect(hideTipBox,SIGNAL(clicked(    bool)),
@@ -2509,7 +2508,7 @@ void BorderGui::apply(QString &modelName)
 
 void PointerAttribGui::lineChange(QString const &line)
 {
-  BorderData::Line padLine;
+  BorderData::Line padLine = BorderData::BdrLnSolid;
 
   if (line == "Solid Line") {
       padLine = BorderData::BdrLnSolid;
@@ -2524,7 +2523,7 @@ void PointerAttribGui::lineChange(QString const &line)
     }
 
   PointerAttribData pad = meta->value();
-  if (isLine)
+  if (lineData)
       pad.lineData.line = padLine;
   else
       pad.borderData.line = padLine;
@@ -2536,7 +2535,7 @@ void PointerAttribGui::lineChange(QString const &line)
 void PointerAttribGui::thicknessChange(QString const &thickness)
 {
   PointerAttribData pad = meta->value();
-  if (isLine)
+  if (lineData)
       pad.lineData.thickness = thickness.toFloat();
   else
       pad.borderData.thickness = thickness.toFloat();
@@ -2548,14 +2547,14 @@ void PointerAttribGui::browseColor(bool)
 {
   PointerAttribData pad = meta->value();
   QString padColor;
-  if (isLine)
+  if (lineData)
       padColor = pad.lineData.color;
   else
       padColor = pad.borderData.color;
   QColor color = LDrawColor::color(padColor);
   QColor newColor = QColorDialog::getColor(color,this);
   if (color != newColor) {
-    if (isLine)
+    if (lineData)
         pad.lineData.color = newColor.name();
     else
         pad.borderData.color = newColor.name();

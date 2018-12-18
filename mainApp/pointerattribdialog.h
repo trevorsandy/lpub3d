@@ -39,8 +39,7 @@ public:
 
  PointerAttribDialog(PointerAttribData  &goods,
    QString name,
-   bool    isCallout,
-   bool    isLine);
+   bool    isCallout);
 
  virtual ~PointerAttribDialog()
  {
@@ -49,8 +48,7 @@ public:
  static bool getPointerAttrib(
    PointerAttribData  &goods,
    QString             name,
-   bool                isCallout,
-   bool                isLine);
+   bool                isCallout);
 
  PointerAttribMeta   meta;
 

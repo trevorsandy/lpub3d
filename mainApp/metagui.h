@@ -777,14 +777,13 @@ class PointerAttribGui : public MetaGui
 public:
   PointerAttribGui(PointerAttribMeta *meta,
     QGroupBox         *parent    = nullptr,
-    bool               _isCallout= false,
-    bool               _isLine   = true);
+    bool               _isCallout= false);
   ~PointerAttribGui() {}
 
   virtual void apply(QString &modelName);
 
 private:
-  bool        isLine;
+  bool        lineData;
   PointerAttribMeta *meta;
 
   QLineEdit   *thicknessEdit;

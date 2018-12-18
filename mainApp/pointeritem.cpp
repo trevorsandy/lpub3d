@@ -163,8 +163,8 @@ void PointerItem::drawPointerPoly()
 
           head->setPolygon(poly);
 
-          qreal x;
-          qreal y;
+          qreal x = 0.0;
+          qreal y = 0.0;
           switch (segments()) {
           case OneSegment:
               x = points[Tip].x()-points[Base].x();
@@ -187,13 +187,13 @@ void PointerItem::drawPointerPoly()
 
           qreal pi = 22.0/7;
 
-          if (x == 0) {
+          if (x == 0.0f) {
             if (y < 0) {
               angle = 270.0;
             } else {
               angle = 90.0;
             }
-          } else if (y == 0) {
+          } else if (y == 0.0f) {
             if (x < 0) {
               angle = 180.0;
             } else {
@@ -378,7 +378,7 @@ bool PointerItem::autoMidBaseFromMidTip()
 
 void PointerItem::placeGrabbers()
 {
-  int numGrabbers;
+  int numGrabbers = 0;
   switch (segments()) {
   case OneSegment:
       numGrabbers = NumGrabbers-2;
@@ -576,6 +576,8 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   bool isCallout = pointerParentType == CalloutType;
   bool altWhere = pointer.pointerAttrib.here().lineNumber == 0 &&
                   pointer.pointerAttrib.here().modelName == "undefined";
+  PointerAttribData pad = pointer.pointerAttrib.value();
+
   Where pointerAttribTop, pointerAttribBottom;
   pointerAttribTop    = altWhere ? pointer.here : pointer.pointerAttrib.here();
   pointerAttribBottom = pointerAttribTop;
@@ -618,6 +620,8 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     }
 
   if (selectedAction == setFillAttributesAction) {
+      pad.attribType = PointerAttribData::Line;
+      pointer.pointerAttrib.setValue(pad);
       setPointerAttrib("Pointer Line Attributes",
                         pointerAttribTop,
                         pointerAttribBottom,
@@ -625,10 +629,12 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   }
   else
   if (selectedAction == setBorderAttributesAction) {
+      pad.attribType = PointerAttribData::Border;
+      pointer.pointerAttrib.setValue(pad);
       setPointerAttrib("Pointer Border Attributes",
                         pointerAttribTop,
                         pointerAttribBottom,
-                       &pointer.pointerAttrib,false,1,false,isCallout,false);
+                       &pointer.pointerAttrib,false,1,false,isCallout);
   }
   else
   if (selectedAction == removeAction) {

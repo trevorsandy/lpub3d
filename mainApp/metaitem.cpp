@@ -1498,11 +1498,10 @@ void MetaItem::setPointerAttrib(
   bool                useTop,
   int                 append,
   bool                local,
-  bool                isCallout,
-  bool                isLine)
+  bool                isCallout)
 {
   PointerAttribData pointerAttribData = pointerAttrib->value();
-  bool ok = PointerAttribDialog::getPointerAttrib(pointerAttribData,title,isCallout,isLine);
+  bool ok = PointerAttribDialog::getPointerAttrib(pointerAttribData,title,isCallout);
 
   if (ok) {
     pointerAttrib->setValue(pointerAttribData);

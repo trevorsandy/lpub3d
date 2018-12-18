@@ -34,8 +34,7 @@
 PointerAttribDialog::PointerAttribDialog(
   PointerAttribData &goods,
   QString           _name,
-  bool               isCallout,
-  bool               isLine)
+  bool               isCallout)
 {
   setWindowTitle(_name);
 
@@ -45,7 +44,7 @@ PointerAttribDialog::PointerAttribDialog(
 
   QGroupBox *box = new QGroupBox("Pointer Attributes",this);
   layout->addWidget(box);
-  pointerAttrib = new PointerAttribGui(&meta,box,isCallout,isLine);
+  pointerAttrib = new PointerAttribGui(&meta,box,isCallout);
 
   QDialogButtonBox *buttonBox;
 
@@ -65,10 +64,9 @@ PointerAttribDialog::PointerAttribDialog(
 bool PointerAttribDialog::getPointerAttrib(
   PointerAttribData &goods,
   QString            name,
-  bool               isCallout,
-  bool               isLine)
+  bool               isCallout)
 {
-  PointerAttribDialog *dialog = new PointerAttribDialog(goods,name,isCallout,isLine);
+  PointerAttribDialog *dialog = new PointerAttribDialog(goods,name,isCallout);
 
   bool ok = dialog->exec() == QDialog::Accepted;
   if (ok) {

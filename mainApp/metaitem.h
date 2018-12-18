@@ -381,8 +381,7 @@ public:
                         bool useTop = true,
                         int  append = 1,
                         bool local = true,
-                        bool isCallout = false,
-                        bool isLine = true);
+                        bool isCallout = false);
 
   void changeInsertOffset(InsertMeta *placement);
   //void changePageAttributePictureOffset(Where default const,PageAttributePictureMeta *pictureMeta,bool local = false,bool global = true);
