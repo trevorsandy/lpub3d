@@ -393,37 +393,35 @@ class PointerAttribData
       Border
     } attribType;
     int id;
-    bool borderModified;
     QString parent;
     BorderData lineData;
     BorderData borderData;
 
     PointerAttribData()
     {
-        lineData.color     = "Black";
-        lineData.type      = BorderData::BdrRound;
-        lineData.line      = BorderData::BdrLnSolid;
-        lineData.thickness = 1.0f/32.0f;
-        lineData.radius    = 15;
-        lineData.margin[0] = 0;
-        lineData.margin[1] = 0;
-        lineData.useDefault=false;
-        lineData.hideArrows=false;
+        lineData.color        = "Black";
+        lineData.type         = BorderData::BdrRound;
+        lineData.line         = BorderData::BdrLnSolid;
+        lineData.thickness    = 1.0f/32.0f;
+        lineData.radius       = 15;
+        lineData.margin[0]    = 0;
+        lineData.margin[1]    = 0;
+        lineData.useDefault   = true;    // flag if using attribute meta
+        lineData.hideArrows   = false;   // flag if pointer tip is hidden
 
-        borderData.color     = QString();
-        borderData.type      = BorderData::BdrRound;
-        borderData.line      = BorderData::BdrLnSolid;
-        borderData.thickness = 1.0f/64.0f;
-        borderData.radius    = 15;
-        borderData.margin[0] = 0;
-        borderData.margin[1] = 0;
-        borderData.useDefault=false;
-        borderData.hideArrows=false;
+        borderData.color      = QString();
+        borderData.type       = BorderData::BdrRound;
+        borderData.line       = BorderData::BdrLnSolid;
+        borderData.thickness  = 1.0f/64.0f;
+        borderData.radius     = 15;
+        borderData.margin[0]  = 0;
+        borderData.margin[1]  = 0;
+        borderData.useDefault = true;
+        borderData.hideArrows = false;
 
-        attribType           = PointerAttribData::Line;
-        id                   = 0000;
-        borderModified       = false;
-        parent               = QString();
+        attribType            = PointerAttribData::Line;
+        id                    = 0000;
+        parent                = QString();
     }
 };
 

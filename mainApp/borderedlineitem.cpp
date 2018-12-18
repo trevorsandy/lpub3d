@@ -51,7 +51,7 @@ void BorderedLineItem::setBorderedLine(const QLineF &bLine) {
     QPointF offset1;
     QPointF offset2;
 
-    if (pad->borderModified) {
+    if (! pad->borderData.useDefault) {
 
         if (segment == segments)
             _bLine.setLength(bLine.length() - (headWidth/1.33));
@@ -205,7 +205,7 @@ void BorderedLineItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    if (pad->borderModified) {
+    if (! pad->borderData.useDefault) {
 
         QPen borderPen(pad->borderData.color);
         borderPen.setWidth(pad->borderData.thickness);

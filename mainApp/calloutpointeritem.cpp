@@ -157,7 +157,7 @@ CalloutPointerItem::CalloutPointerItem(
   QPolygonF poly;
   
   QColor tipPenColor(pad->lineData.color);
-  if (pad->borderModified)
+  if (! pad->borderData.useDefault)
       tipPenColor.setNamedColor(pad->borderData.color);
 
   QPen tipPen(tipPenColor);

@@ -145,7 +145,7 @@ PagePointerItem::PagePointerItem(
   QPolygonF poly;
 
   QColor tipPenColor(pad->lineData.color);
-  if (pad->borderModified)
+  if (! pad->borderData.useDefault)
       tipPenColor.setNamedColor(pad->borderData.color);
 
   if (pad->lineData.hideArrows) {

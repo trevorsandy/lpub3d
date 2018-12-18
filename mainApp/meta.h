@@ -1208,9 +1208,8 @@ public:
 
   void setAltValueInches(PointerAttribData data)
   {
-    if (_value[pushed].attribType    == PointerAttribData::Line) {
-        _value[pushed].borderData     = data.borderData;
-        _value[pushed].borderModified = data.borderModified;
+    if (_value[pushed].attribType == PointerAttribData::Line) {
+        _value[pushed].borderData  = data.borderData;
     }
     else
     if (_value[pushed].attribType == PointerAttribData::Border) {
@@ -1285,7 +1284,6 @@ public:
            _result.borderData.color      = argv[index+2];
            _result.borderData.thickness  = argv[index+3].toFloat();
            _result.borderData.useDefault = false;
-           _result.borderModified        = true;
         }
         bool noParent                    = argv[index-2] == "CALLOUT" || argv[index-1] == "DIVIDER_POINTER_ATTRIBUTE";
         _result.id                       = argv[isLine ? index+5 : index+4].toInt();

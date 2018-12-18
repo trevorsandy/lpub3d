@@ -269,10 +269,10 @@ static void set_divider_pointers(Meta &curMeta, Where &current, Range *range, LG
 #ifdef QT_DEBUG_MODE
 //            int pIndex = range->dividerPointerList.size() - 1;
 //            logTrace() << "\n[DEBUG " + sType + " DIVIDER POINTER PAM"
-//                       << "\ndividerItem.id             [" << range->dividerPointerList[pIndex]->pointerAttrib.value().id << "]"
-//                       << "\ndividerItem.parent         [" << range->dividerPointerList[pIndex]->pointerAttrib.value().parent << "]"
-//                       << "\ndividerItem.attribType     [" << AttributeNames[range->dividerPointerList[pIndex]->pointerAttrib.value().attribType] << "]"
-//                       << "\ndividerItem.borderModified [" << (range->dividerPointerList[pIndex]->pointerAttrib.value().borderModified ? "true" : "false") << "]"
+//                       << "\ndividerItem.id                    [" << range->dividerPointerList[pIndex]->pointerAttrib.value().id << "]"
+//                       << "\ndividerItem.parent                [" << range->dividerPointerList[pIndex]->pointerAttrib.value().parent << "]"
+//                       << "\ndividerItem.attribType            [" << AttributeNames[range->dividerPointerList[pIndex]->pointerAttrib.value().attribType] << "]"
+//                       << "\ndividerItem.borderData.useDefault [" << (range->dividerPointerList[pIndex]->pointerAttrib.value().borderData.useDefault ? "true" : "false") << "]"
 //                          ;
 #endif
         } else if (mRc == paRc) {
@@ -288,21 +288,21 @@ static void set_divider_pointers(Meta &curMeta, Where &current, Range *range, LG
                 range->dividerPointerList.replace(i,p);
 #ifdef QT_DEBUG_MODE
 //                logTrace() << "\n[DEBUG " + sType + " POINTER ATTRIBUTE PAM]:"
-//                           << "\npam.id                [" << pam.value().id << "]"
-//                           << "\npam.parent            [" << pam.value().parent << "]"
-//                           << "\npam.attribType        [" << AttributeNames[pam.value().attribType] << "]"
-//                           << "\npam.borderModified    [" << (pam.value().borderModified ? "true" : "false") << "]"
-//                           << "\np.id                  [" << p->pointerAttrib.value().id << "]"
-//                           << "\np.parent              [" << p->pointerAttrib.value().parent << "]"
-//                           << "\np.attribType          [" << AttributeNames[p->pointerAttrib.value().attribType] << "]"
-//                           << "\np.borderModified      [" << (p->pointerAttrib.value().borderModified ? "true" : "false") << "]"
-//                           << "\nco.id                 [" << range->dividerPointerList[i]->pointerAttrib.value().id << "]"
-//                           << "\nco.parent             [" << range->dividerPointerList[i]->pointerAttrib.value().parent << "]"
-//                           << "\nco.attribType         [" << AttributeNames[range->dividerPointerList[i]->pointerAttrib.value().attribType] << "]"
-//                           << "\nco.borderModified     [" << (range->dividerPointerList[i]->pointerAttrib.value().borderModified ? "true" : "false") << "]"
-//                           << "\npam.preamble          [" << pam.preamble << "]"
-//                           << "\npam.here().modelName  [" << pam.here().modelName << "]"
-//                           << "\npam.here().lineNumber [" << pam.here().lineNumber << "]"
+//                           << "\npam.id                    [" << pam.value().id << "]"
+//                           << "\npam.parent                [" << pam.value().parent << "]"
+//                           << "\npam.attribType            [" << AttributeNames[pam.value().attribType] << "]"
+//                           << "\npam.borderData.useDefault [" << (pam.value().borderData.useDefault ? "true" : "false") << "]"
+//                           << "\np.id                      [" << p->pointerAttrib.value().id << "]"
+//                           << "\np.parent                  [" << p->pointerAttrib.value().parent << "]"
+//                           << "\np.attribType              [" << AttributeNames[p->pointerAttrib.value().attribType] << "]"
+//                           << "\np.borderData.useDefault   [" << (p->pointerAttrib.value().borderData.useDefault ? "true" : "false") << "]"
+//                           << "\nco.id                     [" << range->dividerPointerList[i]->pointerAttrib.value().id << "]"
+//                           << "\nco.parent                 [" << range->dividerPointerList[i]->pointerAttrib.value().parent << "]"
+//                           << "\nco.attribType             [" << AttributeNames[range->dividerPointerList[i]->pointerAttrib.value().attribType] << "]"
+//                           << "\nco.borderData.useDefault  [" << (range->dividerPointerList[i]->pointerAttrib.value().borderData.useDefault ? "true" : "false") << "]"
+//                           << "\npam.preamble              [" << pam.preamble << "]"
+//                           << "\npam.here().modelName      [" << pam.here().modelName << "]"
+//                           << "\npam.here().lineNumber     [" << pam.here().lineNumber << "]"
 //                              ;
 #endif
             }
@@ -1070,10 +1070,10 @@ int Gui::drawPage(
                       pagePointer = nullptr;
 #ifdef QT_DEBUG_MODE
 //                      logTrace() << "\n[DEBUG PAGE POINTER PAM " << (newPP ? "NEW" : "EXISTING") << " POSITION]"
-//                                 << "\npp[pos].id             [" << pagePointers[position]->pointerList[pad.id - 1]->pointerAttrib.value().id << "]"
-//                                 << "\npp[pos].parent         [" << pagePointers[position]->pointerList[pad.id - 1]->pointerAttrib.value().parent << "]"
-//                                 << "\npp[pos].attribType     [" << AttributeNames[pagePointers[position]->pointerList[pad.id - 1]->pointerAttrib.value().attribType] << "]"
-//                                 << "\npp[pos].borderModified [" << (pagePointers[position]->pointerList[pad.id - 1]->pointerAttrib.value().borderModified ? "true" : "false") << "]"
+//                                 << "\npp[pos].id                    [" << pagePointers[position]->pointerList[pad.id - 1]->pointerAttrib.value().id << "]"
+//                                 << "\npp[pos].parent                [" << pagePointers[position]->pointerList[pad.id - 1]->pointerAttrib.value().parent << "]"
+//                                 << "\npp[pos].attribType            [" << AttributeNames[pagePointers[position]->pointerList[pad.id - 1]->pointerAttrib.value().attribType] << "]"
+//                                 << "\npp[pos].borderData.useDefault [" << (pagePointers[position]->pointerList[pad.id - 1]->pointerAttrib.value().borderData.useDefault ? "true" : "false") << "]"
 //                                    ;
 #endif
                   }
@@ -1110,23 +1110,23 @@ int Gui::drawPage(
                           pagePointers.insert(position,pp);
 #ifdef QT_DEBUG_MODE
 //                          logTrace() << "\n[DEBUG PAGE POINTER ATTRIBUTE PAM]:"
-//                                     << "\np.id                   [" << p->pointerAttrib.value().id << "]"
-//                                     << "\np.parent               [" << p->pointerAttrib.value().parent << "]"
-//                                     << "\np.attribType           [" << AttributeNames[p->pointerAttrib.value().attribType] << "]"
-//                                     << "\np.borderModified       [" << (p->pointerAttrib.value().borderModified ? "true" : "false") << "]"
-//                                     << "\np.borderData.color     [" << p->pointerAttrib.value().borderData.color << "]"
-//                                     << "\np.borderData.thickness [" << p->pointerAttrib.value().borderData.thickness << "]"
-//                                     << "\np.borderData.hideTip   [" << (p->pointerAttrib.value().borderData.hideArrows ? "true" : "false") << "]"
-//                                     << "\np.lineData.color       [" << p->pointerAttrib.value().lineData.color << "]"
-//                                     << "\np.lineData.thickness   [" << p->pointerAttrib.value().lineData.thickness << "]"
-//                                     << "\np.lineData.hideTip     [" << (p->pointerAttrib.value().lineData.hideArrows ? "true" : "false") << "]"
-//                                     << "\npp[pos].id             [" << pagePointers[position]->pointerList[i]->pointerAttrib.value().id << "]"
-//                                     << "\npp[pos].parent         [" << pagePointers[position]->pointerList[i]->pointerAttrib.value().parent << "]"
-//                                     << "\npp[pos].attribType     [" << AttributeNames[pagePointers[position]->pointerList[i]->pointerAttrib.value().attribType] << "]"
-//                                     << "\npp[pos].borderModified [" << (pagePointers[position]->pointerList[i]->pointerAttrib.value().borderModified ? "true" : "false") << "]"
-//                                     << "\npam.here().modelName   [" << pam.here().modelName << "]"
-//                                     << "\npam.here().lineNumber  [" << pam.here().lineNumber << "]"
-//                                     << "\npam.preamble           [" << pam.preamble << "]"
+//                                     << "\np.id                          [" << p->pointerAttrib.value().id << "]"
+//                                     << "\np.parent                      [" << p->pointerAttrib.value().parent << "]"
+//                                     << "\np.attribType                  [" << AttributeNames[p->pointerAttrib.value().attribType] << "]"
+//                                     << "\np.borderData.useDefault       [" << (p->pointerAttrib.value().borderData.useDefault ? "true" : "false") << "]"
+//                                     << "\np.borderData.color            [" << p->pointerAttrib.value().borderData.color << "]"
+//                                     << "\np.borderData.thickness        [" << p->pointerAttrib.value().borderData.thickness << "]"
+//                                     << "\np.borderData.hideTip          [" << (p->pointerAttrib.value().borderData.hideArrows ? "true" : "false") << "]"
+//                                     << "\np.lineData.color              [" << p->pointerAttrib.value().lineData.color << "]"
+//                                     << "\np.lineData.thickness          [" << p->pointerAttrib.value().lineData.thickness << "]"
+//                                     << "\np.lineData.hideTip            [" << (p->pointerAttrib.value().lineData.hideArrows ? "true" : "false") << "]"
+//                                     << "\npp[pos].id                    [" << pagePointers[position]->pointerList[i]->pointerAttrib.value().id << "]"
+//                                     << "\npp[pos].parent                [" << pagePointers[position]->pointerList[i]->pointerAttrib.value().parent << "]"
+//                                     << "\npp[pos].attribType            [" << AttributeNames[pagePointers[position]->pointerList[i]->pointerAttrib.value().attribType] << "]"
+//                                     << "\npp[pos].borderData.useDefault [" << (pagePointers[position]->pointerList[i]->pointerAttrib.value().borderData.useDefault ? "true" : "false") << "]"
+//                                     << "\npam.here().modelName          [" << pam.here().modelName << "]"
+//                                     << "\npam.here().lineNumber         [" << pam.here().lineNumber << "]"
+//                                     << "\npam.preamble                  [" << pam.preamble << "]"
 //                                        ;
 #endif
                       }
@@ -1166,19 +1166,19 @@ int Gui::drawPage(
                       callout->pointerList.replace(i,p);
 #ifdef QT_DEBUG_MODE
 //                      logTrace() << "\n[DEBUG CALLOUT POINTER ATTRIBUTE PAM]:"
-//                                 << "\npam.id             [" << pam.value().id << "]"
-//                                 << "\npam.parent         [" << pam.value().parent << "]"
-//                                 << "\npam.attribType     [" << AttributeNames[pam.value().attribType] << "]"
-//                                 << "\npam.borderModified [" << (pam.value().borderModified ? "true" : "false") << "]"
-//                                 << "\np.id               [" << p->pointerAttrib.value().id << "]"
-//                                 << "\np.parent           [" << p->pointerAttrib.value().parent << "]"
-//                                 << "\np.attribType       [" << AttributeNames[p->pointerAttrib.value().attribType] << "]"
-//                                 << "\np.borderModified   [" << (p->pointerAttrib.value().borderModified ? "true" : "false") << "]"
-//                                 << "\nco.id              [" << callout->pointerList[i]->pointerAttrib.value().id << "]"
-//                                 << "\nco.parent          [" << callout->pointerList[i]->pointerAttrib.value().parent << "]"
-//                                 << "\nco.attribType      [" << AttributeNames[callout->pointerList[i]->pointerAttrib.value().attribType] << "]"
-//                                 << "\nco.borderModified  [" << (callout->pointerList[i]->pointerAttrib.value().borderModified ? "true" : "false") << "]"
-//                                 << "\npam.preamble       [" << pam.preamble << "]"
+//                                 << "\npam.id                    [" << pam.value().id << "]"
+//                                 << "\npam.parent                [" << pam.value().parent << "]"
+//                                 << "\npam.attribType            [" << AttributeNames[pam.value().attribType] << "]"
+//                                 << "\npam.borderData.useDefault [" << (pam.value().borderData.useDefault ? "true" : "false") << "]"
+//                                 << "\np.id                      [" << p->pointerAttrib.value().id << "]"
+//                                 << "\np.parent                  [" << p->pointerAttrib.value().parent << "]"
+//                                 << "\np.attribType              [" << AttributeNames[p->pointerAttrib.value().attribType] << "]"
+//                                 << "\np.borderData.useDefault   [" << (p->pointerAttrib.value().borderData.useDefault ? "true" : "false") << "]"
+//                                 << "\nco.id                     [" << callout->pointerList[i]->pointerAttrib.value().id << "]"
+//                                 << "\nco.parent                 [" << callout->pointerList[i]->pointerAttrib.value().parent << "]"
+//                                 << "\nco.attribType             [" << AttributeNames[callout->pointerList[i]->pointerAttrib.value().attribType] << "]"
+//                                 << "\nco.borderData.useDefault  [" << (callout->pointerList[i]->pointerAttrib.value().borderData.useDefault ? "true" : "false") << "]"
+//                                 << "\npam.preamble              [" << pam.preamble << "]"
 //                                    ;
 #endif
                   }
