@@ -4019,7 +4019,7 @@ void MetaItem::writeRotateStep(QString &value)
     QString meta("%1 %2 %3 %4 %5");
     meta = meta.arg(prefix,argv01[2],argv01[3],argv01[4],argv01[5]);
 
-    bool multiStep = gui->isViewerStepMultiStep(argv01[0]);
+    bool multiStep = gui->isViewerStepMultiStep("\""+argv01[0]+"\""+argv01[1]);
     if (multiStep) {
 
         Rc rc;
