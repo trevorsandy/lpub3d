@@ -678,21 +678,24 @@ public:
 
   void setPreferredRenderer(const QString &renderer = QString()){
       if (!Preferences::usingNativeRenderer || !renderer.isEmpty()) {
-          saveRenderer      = Preferences::preferredRenderer;
-          saveProjection    = Preferences::perspectiveProjection;
+          saveRenderer   = Preferences::preferredRenderer;
+          saveProjection = Preferences::perspectiveProjection;
+          saveSingleCall = Preferences::enableLDViewSingleCall;
           if (renderer.isEmpty())
-             Preferences::preferredRenderer  = RENDERER_NATIVE;
+             Preferences::preferredRenderer   = RENDERER_NATIVE;
           else
-             Preferences::preferredRenderer  = renderer;
-          Preferences::perspectiveProjection = true;
+             Preferences::preferredRenderer   = renderer;
+          Preferences::perspectiveProjection  = true;
+          Preferences::enableLDViewSingleCall = false;
           Render::setRenderer(Preferences::preferredRenderer);
       }
   }
 
   void restorePreferredRenderer(){
       if (!saveRenderer.isEmpty()) {
-          Preferences::preferredRenderer        = saveRenderer;
-          Preferences::perspectiveProjection    = saveProjection;
+          Preferences::preferredRenderer      = saveRenderer;
+          Preferences::perspectiveProjection  = saveProjection;
+          Preferences::enableLDViewSingleCall = saveSingleCall;
           Render::setRenderer(Preferences::preferredRenderer);
           saveRenderer = QString();
       }
@@ -1028,6 +1031,7 @@ private:
 
   QString                saveRenderer;
   bool                   saveProjection;
+  bool                   saveSingleCall;
 
   bool                   okToInvokeProgressBar()
   {
@@ -1175,6 +1179,10 @@ private slots:
     void editLdviewPovIni();
     void editPovrayIni();
     void editPovrayConf();
+    void editLD2BLCodesXRef();
+    void editAnnotationStyle();
+    void editLD2BLColorsXRef();
+    void editBLColors();
     void generateCustomColourPartsList(bool prompt = true);
     void viewLog();
 
@@ -1419,6 +1427,10 @@ private:
   QAction *editLdviewPovIniAct;
   QAction *editPovrayIniAct;
   QAction *editPovrayConfAct;
+  QAction *editLD2BLCodesXRefAct;
+  QAction *editAnnotationStyleAct;
+  QAction *editLD2BLColorsXRefAct;
+  QAction *editBLColorsAct;
   QAction *generateCustomColourPartsAct;
 
   // help

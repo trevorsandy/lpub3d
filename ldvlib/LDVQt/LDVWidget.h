@@ -68,21 +68,17 @@ public:
 
   bool doCommand(QStringList &arguments);
 
-  // Parts List functions
   void doPartList(void);
   void doPartList(LDVHtmlInventory *htmlInventory, LDPartsList *partsList,
       const char *filename);
-  bool saveImage(char *filename, int imageWidth, int imageHeight,
-      bool fromCommandLine = false);
+  bool saveImage(char *filename, int imageWidth, int imageHeight);
   LDSnapshotTaker::ImageType getSaveImageType(void);
-  bool grabImage(int &imageWidth, int &imageHeight,
-      bool fromCommandLine = false);
+  bool grabImage(int &imageWidth, int &imageHeight);
   bool chDirFromFilename(const char *filename);
   void setViewMode(LDInputHandler::ViewMode value, bool examineLatLong,
                        bool keepRightSideUp, bool saveSettings=true);
-  void showWebPage(QString &htmlFilename);
+  void showDocument(QString &htmlFilename);
 
-  // new
   void setupMultisample(void);
   void cleanupRenderSettings(void);
   virtual void cleanupOffscreen(void);
@@ -122,7 +118,6 @@ protected:
   LDViewExportOption    *ldvExportOption;
   LDVAlertHandler       *ldvAlertHandler;
 
-  // Parts List vars
   LDInputHandler        *inputHandler;
   const char            *saveImageFilename;
   const char            *imageInputFilename;

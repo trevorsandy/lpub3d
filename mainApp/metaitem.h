@@ -57,9 +57,9 @@ class StepGroup;
 class MetaItem
 {
 public:
-  enum monoColors { white, blue, transwhite, numColors };
-  QString monoColor [numColors] = { "white", "blue", "transwhite" };
-  QString monoColorCode[numColors] = { "15", "1", "11015"};
+  enum monoColors { blue, transwhite, numColors };
+  QString monoColor [numColors] = { "blue", "transwhite" };
+  QString monoColorCode[numColors] = { "1", "11015"};
 
   void setGlobalMeta(QString &topLevelFile, LeafMeta *leaf);
 
@@ -73,7 +73,7 @@ public:
   void updateCsiAnnotationIconMeta(const Where &here, CsiAnnotationIconMeta *caim);
 
   int  nestCallouts(           Meta *, const QString &, bool isMirrored);
-  QString makeMonoName(const QString &fileName, QString &color, bool = false);
+  QString makeMonoName(const QString &fileName, QString &color);
   int monoColorSubmodel(QString &modelName, QString &monoOutName, QString &color);
   QPointF defaultPointerTip(
     Meta &meta,QString &modelName,int lineNumber,

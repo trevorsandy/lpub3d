@@ -140,7 +140,7 @@ enum Theme { ThemeDark, ThemeDefault };
 #define LPUB3D_IM_OVERLAY_PNG_EXT               "overlay.png" // Image Matte Png working file extension
 
 #define HIGHLIGHT_COLOUR_DEFAULT                "#FFFF00"  // Bright Yellow
-#define HIGHLIGHT_LINE_WIDTH_DEFAULT            1.0        // line width 1 - 5
+#define HIGHLIGHT_LINE_WIDTH_DEFAULT            1        // line width 1 - 5
 
 // Team color supplements
 #define THEME_DEFAULT                   "Default" // Default Theme

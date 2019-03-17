@@ -43,10 +43,10 @@ ParmsWindow::ParmsWindow(QMainWindow *parent) :
     parmsWindow  = this;
     parmsWindow->statusBar()->show();
 
-    _textEdit        = new TextEditor;
-    _fadeStepFile    = false;
-    _fileModified    = false;
-    _restartRequired = true;
+    _textEdit          = new TextEditor(this);
+    _fadeStepFile      = false;
+    _fileModified      = false;
+    _restartRequired   = true;
 
     highlighter = new ParmsHighlighter(_textEdit->document());
     _textEdit->setLineWrapMode(TextEditor::NoWrap);
@@ -130,6 +130,12 @@ void ParmsWindow::createActions()
     selAllAct->setStatusTip(tr("Select all page content - Ctrl+A"));
     connect(selAllAct, SIGNAL(triggered()), _textEdit, SLOT(selectAll()));
 
+    showAllCharsAct = new QAction(QIcon(":/resources/showallcharacters.png"), tr("Show all characters"), this);
+    showAllCharsAct->setShortcut(tr("Ctrl+J"));
+    showAllCharsAct->setStatusTip(tr("Show all characters - Ctrl+J"));
+    showAllCharsAct->setCheckable(true);
+    connect(showAllCharsAct, SIGNAL(triggered()), this, SLOT(showAllCharacters()));
+
     undoAct = new QAction(QIcon(":/resources/editundo.png"), tr("Undo"), this);
     undoAct->setShortcut(tr("Ctrl+Z"));
     undoAct->setStatusTip(tr("Undo last change - Ctrl+Z"));
@@ -157,6 +163,7 @@ void ParmsWindow::createActions()
     findAct->setEnabled(false);
     topAct->setEnabled(false);
     bottomAct->setEnabled(false);
+    showAllCharsAct->setEnabled(false);
 
     connect(_textEdit, SIGNAL(copyAvailable(bool)),
             cutAct,    SLOT(setEnabled(bool)));
@@ -185,6 +192,7 @@ void ParmsWindow::createToolBars()
     editToolBar->addAction(saveAct);
     editToolBar->addAction(saveCopyAsAct);
     editToolBar->addAction(selAllAct);
+    editToolBar->addAction(showAllCharsAct);
     editToolBar->addAction(cutAct);
     editToolBar->addAction(copyAct);
     editToolBar->addAction(pasteAct);
@@ -204,6 +212,8 @@ void ParmsWindow::displayParmsFile(
     // Automatically hide open file action - show for logs only
     if (openAct->isVisible())
       openAct->setVisible(false);
+
+    bool showAllCharsAction = false;
 
     fileName = _fileName;
 
@@ -254,6 +264,26 @@ void ParmsWindow::displayParmsFile(
       viewLogWindowSettings();
       _restartRequired = false;
     }
+    else if (fileInfo.fileName() == VER_LPUB3D_LD2BLCODESXREF_FILE) {
+        title = "LDraw to Bricklink Desgn ID cross-reference";
+        showAllCharsAction = true;
+        _restartRequired = true;
+    }
+    else if (fileInfo.fileName() == Preferences::validAnnotationStyleFile) {
+        title = "Part Annotation Style reference";
+        showAllCharsAction = true;
+        _restartRequired = true;
+    }
+    else if (fileInfo.fileName() == VER_LPUB3D_LD2BLCOLORSXREF_FILE) {
+        title = "LDraw to Bricklink Color Code cross-reference";
+        showAllCharsAction = true;
+        _restartRequired = true;
+    }
+    else if (fileInfo.fileName() == VER_LPUB3D_BLCOLORS_FILE) {
+        title = "Bricklink Color ID reference";
+        showAllCharsAction = true;
+        _restartRequired = true;
+    }
     else if (fileInfo.fileName() == "stderr-povray") {
       title = "Standard error - Raytracer (POV-Ray)";
       viewLogWindowSettings();
@@ -293,7 +323,8 @@ void ParmsWindow::displayParmsFile(
       title = "Standard output - LDView";
       viewLogWindowSettings();
       _restartRequired = false;
-    } else {
+    }
+    else {
       title = fileInfo.fileName();
       _restartRequired = false;
     }
@@ -315,11 +346,12 @@ void ParmsWindow::displayParmsFile(
     QTextCodec::ConverterState state;
     QTextCodec *codec = QTextCodec::codecForName("UTF-8");
     QString utfTest = codec->toUnicode(qba.constData(), qba.size(), &state);
-    _fileIsUTF = state.invalidChars == 0;
+    bool isUTF = state.invalidChars == 0;
+    _textEdit->setIsUTF(isUTF);
     utfTest = QString();
 
     QTextStream ss(&qba);
-    ss.setCodec(_fileIsUTF ? codec : QTextCodec::codecForName("System"));
+    ss.setCodec(_textEdit->getIsUTF() ? codec : QTextCodec::codecForName("System"));
 
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -338,6 +370,11 @@ void ParmsWindow::displayParmsFile(
     findAct->setEnabled(true);
     topAct->setEnabled(true);
     bottomAct->setEnabled(true);
+    showAllCharsAct->setEnabled(true);
+    if (showAllCharsAction)
+        showAllCharsAct->setVisible(true);
+    else
+        showAllCharsAct->setVisible(false);
 
     statusBar()->showMessage(tr("File %1 loaded").arg(file.fileName()), 2000);
 }
@@ -353,20 +390,17 @@ bool ParmsWindow::maybeSave()
                 "Do you want to save your changes?"),
             QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
     if (ret == QMessageBox::Save) {
-      saveFile();
-      return rc;
-    } else if (ret == QMessageBox::Cancel) {
-      return ! rc;
+      rc = saveFile();
     }
   }
   return rc;
 }
 
-bool ParmsWindow::saveFile()
+bool ParmsWindow::saveFile(bool force)
 {
     bool rc = false;
     // check for dirty editor
-    if (_textEdit->document()->isModified())
+    if (_textEdit->document()->isModified() || force)
     {
         QFile file(fileName);
         if (! file.open(QFile::WriteOnly | QFile::Text)) {
@@ -379,15 +413,27 @@ bool ParmsWindow::saveFile()
             return rc;
         }
 
+        if (showAllCharsAct->isChecked()) {
+            _textEdit->blockSignals(true);
+            _textEdit->showAllCharacters(false);
+        }
+
         QTextDocumentWriter writer(fileName, "plaintext");
-        writer.setCodec(_fileIsUTF ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
+        writer.setCodec(_textEdit->getIsUTF() ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
         rc = writer.write(_textEdit->document());
 
         if (rc){
-            saveAct->setEnabled(false);
-            _textEdit->document()->setModified(false);
-            _fileModified = true;
-            statusBar()->showMessage(tr("File saved"), 2000);
+            if (!force){
+              saveAct->setEnabled(false);
+              _textEdit->document()->setModified(false);
+              _fileModified = true;
+            }
+            statusBar()->showMessage(tr("File %1 saved").arg(fileName), 2000);
+        }
+
+        if (showAllCharsAct->isChecked()) {
+            _textEdit->showAllCharacters(true);
+            _textEdit->blockSignals(false);
         }
     }
 
@@ -399,7 +445,7 @@ bool ParmsWindow::saveCopyAsFile()
     bool rc = false;
     // provide a file name
     QFileInfo fileInfo(fileName);
-    QString fileSaveName = QString("%1_%2.txt").arg(fileInfo.baseName()).arg(QDateTime::currentDateTime().toString(QLatin1String("yyyyMMdd-hhmmsszzz")));
+    QString fileSaveName = QString("%1_%2.txt").arg(fileInfo.baseName()).arg(QDateTime::currentDateTime().toString(QLatin1String("yyyyMMdd-hhmmss")));
     QString filter(QFileDialog::tr("All Files (*.*)"));
     QString saveCopyAsFileName = QFileDialog::getSaveFileName(nullptr,
                                  QFileDialog::tr("Save %1 log").arg(VER_PRODUCTNAME_STR),
@@ -408,35 +454,12 @@ bool ParmsWindow::saveCopyAsFile()
     if (saveCopyAsFileName.isEmpty())
       return rc;
 
-    QFile file(saveCopyAsFileName);
-    if (!file.open(QFile::WriteOnly | QFile::Text)) {
-        QMessageBox::warning(this, tr("Application"),
-                             tr("Cannot write file %1:\n%2.")
-                             .arg(QDir::toNativeSeparators(saveCopyAsFileName),
-                                  file.errorString()));
-        return rc;
-    }
-
-    QTextStream out(&file);
-    out.setCodec(_fileIsUTF ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
-#ifndef QT_NO_CURSOR
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-#endif
-    out << _textEdit->toPlainText();
-#ifndef QT_NO_CURSOR
-    QApplication::restoreOverrideCursor();
-#endif
-
-    _textEdit->document()->setModified(false);
-    setWindowModified(false);
-
-    if (fileName.isEmpty())
-        fileName = "untitled.txt";
-    setWindowFilePath(fileName);
-
-    statusBar()->showMessage(tr("File %1 saved").arg(fileSaveName), 2000);
-
-    return true;
+    QString saveFileName = fileName;
+    fileName = QDir::toNativeSeparators(fileInfo.absolutePath()+"/"+saveCopyAsFileName);
+    bool force = true;
+    rc = saveFile(force);
+    fileName = saveFileName;
+    return rc;
 }
 
 void ParmsWindow::enableSave()
@@ -485,6 +508,13 @@ void ParmsWindow::topOfDocument(){
 
 void ParmsWindow::bottomOfDocument(){
     _textEdit->moveCursor(QTextCursor::End);
+}
+
+void ParmsWindow::showAllCharacters(){
+    _textEdit->blockSignals(true);
+    _textEdit->showAllCharacters(showAllCharsAct->isChecked());
+    _textEdit->blockSignals(false);
+    _textEdit->document()->setModified(false);
 }
 
 void ParmsWindow::viewLogWindowSettings(){
@@ -598,7 +628,7 @@ void ParmsWindow::writeSettings()
  */
 
 TextEditor::TextEditor(QWidget *parent) :
-    QPlainTextEdit(parent)
+    QPlainTextEdit(parent),_fileIsUTF(false)
 {
     lineNumberArea = new LineNumberArea(this);
 
@@ -608,6 +638,24 @@ TextEditor::TextEditor(QWidget *parent) :
 
     updateLineNumberAreaWidth(0);
     highlightCurrentLine();
+}
+
+void TextEditor::showAllCharacters(bool show){
+    if (show){
+        replaceAll(" ","\u002E");
+#ifdef Q_OS_WIN
+        replaceAll("\t","\u003E");
+#else
+        replaceAll("\t","\u2192");
+#endif
+    } else {
+        replaceAll("\u002E"," ");
+#ifdef Q_OS_WIN
+        replaceAll("\u003E","\t");
+#else
+        replaceAll("\u2192","\t");
+#endif
+    }
 }
 
 int TextEditor::lineNumberAreaWidth()
@@ -787,4 +835,51 @@ void TextEditor::findInTextPrevious()
 void TextEditor::findClear(){
   textFind->clear();
   labelMessage->clear();
+}
+
+void TextEditor::replaceAll(
+        QString findString,
+        QString replaceString,
+        bool isExpr,
+        bool caseSensitively,
+        bool wholeWords)
+{
+    QTextDocument *doc = document();
+    QTextCursor cursor = textCursor();
+    cursor.beginEditBlock();
+    cursor.movePosition(QTextCursor::Start);
+    QTextCursor newCursor = cursor;
+    quint64 count = 0;
+
+    QTextDocument::FindFlags options;
+    if (caseSensitively) options = options | QTextDocument::FindCaseSensitively;
+    if (wholeWords) options = options | QTextDocument::FindWholeWords;
+
+    if (!findString.isEmpty())
+    {
+        while (true)
+        {
+            if (isExpr) {
+                QRegExp findExpr(findString);
+                newCursor = doc->find(findExpr, newCursor, options);
+            } else {
+                newCursor = doc->find(findString, newCursor, options);
+            }
+
+            if (!newCursor.isNull())
+            {
+                if (newCursor.hasSelection())
+                {
+                    newCursor.insertText(replaceString);
+                    count++;
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+    cursor.endEditBlock();
+    //QMessageBox::information(this, tr("ReplaceAll"), tr("%1 occurrence(s) were replaced.").arg(count));
 }

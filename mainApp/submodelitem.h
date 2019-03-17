@@ -129,6 +129,7 @@ class SubModel : public Placement {
                                         // bottomOfStep()
     int                     widestPart;
     int                     tallestPart;
+    bool                    shared;
     // validity
     bool                    imageOutOfDate;
     SubModel()
@@ -139,6 +140,7 @@ class SubModel : public Placement {
       meta = nullptr;
       background = nullptr;
       imageOutOfDate = false;
+      shared         = false;
     }
 
     ~SubModel()

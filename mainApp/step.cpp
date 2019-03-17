@@ -1002,9 +1002,9 @@ int Step::sizeit(
         int  rows[],         // accumulate sub-row heights here
         int  cols[],         // accumulate sub-col widths here
         int  marginRows[][2],// accumulate sub-row margin heights here
-        int  marginCols[][2],
+        int  marginCols[][2],// accumulate sub-col margin widths here
         int  x,
-        int  y)// accumulate sub-col margin widths here
+        int  y)
 {
 
   // size up each callout
@@ -1053,6 +1053,13 @@ int Step::sizeit(
   // Submodel relative to CSI
 
   PlacementData subModelPlacement = subModel.placement.value();
+
+  // if SubModel relative to PLI, but no PLI,
+  //    SubModel is relative to Step Number
+
+  if (subModelPlacement.relativeTo == PartsListType && ! pliPerStep) {
+      subModelPlacement.relativeTo = StepNumberType;
+    }
 
   if (placeSubModel){
     if (subModelPlacement.relativeTo == CsiType) {
@@ -1104,7 +1111,7 @@ int Step::sizeit(
 
   /* Now lets place things relative to others row/columns */
 
-  /* first the known entities (CSI, PLI, SM, SN, RI)*/
+  /* first the known entities (SN, SM, RI, PLI)*/
 
   if (pliPlacement.relativeTo == StepNumberType) {
       if (pliPerStep && pli.tsize()) {
@@ -1221,7 +1228,6 @@ int Step::sizeit(
 
   int calloutSize[2] = { 0, 0 };
   bool shared = false;
-  bool smShared = false;
 
   int square[NumPlaces][NumPlaces];
 
@@ -1245,7 +1251,6 @@ int Step::sizeit(
 
       PlacementData calloutPlacement = callout->placement.value();
       bool sharable = true;
-      bool smSharable = false /* true */;
       bool onSide = false;
 
       if (calloutPlacement.relativeTo == CsiType) {
@@ -1285,7 +1290,6 @@ int Step::sizeit(
           break;
         default:
           sharable = false;
-          smSharable = false;
           break;
         }
 
@@ -1293,13 +1297,9 @@ int Step::sizeit(
           sharable = false;
         }
 
-//      if ( ! placeSubModel ) {
-//          smSharable = false;
-//      }
-
       square[callout->tbl[XX]][callout->tbl[YY]] = i + 1;
       int size = callout->submodelStack().size();
-      if ((sharable || smSharable) && size > 1) {
+      if (sharable && size > 1) {
           if (callout->tbl[x] < TblCsi && callout->tbl[y] == TblCsi) {
               if (calloutSize[x] < callout->size[x]) {
                   calloutSize[XX] = callout->size[XX];
@@ -1310,6 +1310,68 @@ int Step::sizeit(
             }
         }
     }
+
+  /* now place the SubModel relative to the known items (CSI, PLI, SN, RI) */
+
+  int subModelSize[2] = { 0, 0 };
+  bool smShared = false;
+
+  if (placeSubModel) {
+     SubModel *_subModel = &subModel;
+
+     PlacementData subModelPlacement = _subModel->placement.value();
+     bool smSharable = true;
+     bool onSide = false;
+
+     if (subModelPlacement.relativeTo == CsiType) {
+         onSide = x == XX ? (subModelPlacement.placement == Left ||
+                             subModelPlacement.placement == Right)
+                          : (subModelPlacement.placement == Top ||
+                             subModelPlacement.placement == Bottom);
+     }
+
+     if (onSide) {
+         if (max < _subModel->size[y]) {
+             max = _subModel->size[y];
+         }
+     }
+
+     int rp = subModelPlacement.placement;
+     switch (subModelPlacement.relativeTo) {
+       case CsiType:
+         _subModel->tbl[XX] = coPlace[rp][XX];
+         _subModel->tbl[YY] = coPlace[rp][YY];
+         break;
+       case PartsListType:
+         _subModel->tbl[XX] = pli.tbl[XX] + relativePlace[rp][XX];
+         _subModel->tbl[YY] = pli.tbl[YY] + relativePlace[rp][YY];
+         break;
+       case StepNumberType:
+         _subModel->tbl[XX] = stepNumber.tbl[XX] + relativePlace[rp][XX];
+         _subModel->tbl[YY] = stepNumber.tbl[YY] + relativePlace[rp][YY];
+         break;
+       case RotateIconType:
+         _subModel->tbl[XX] = rotateIcon.tbl[XX] + relativePlace[rp][XX];
+         _subModel->tbl[YY] = rotateIcon.tbl[YY] + relativePlace[rp][YY];
+         break;
+       default:
+         smSharable = false;
+         break;
+     }
+
+     square[_subModel->tbl[XX]][_subModel->tbl[YY]] = 1;
+     /*int size = _subModel->submodelStack().size(); */
+     if (smSharable /*&& size > 1*/) {
+         if (_subModel->tbl[x] < TblCsi && _subModel->tbl[y] == TblCsi) {
+            if (subModelSize[x] < _subModel->size[x]) {
+                subModelSize[XX] = _subModel->size[XX];
+                subModelSize[YY] = _subModel->size[YY];
+            }
+            _subModel->shared = true;
+            smShared = true;
+         }
+      }
+   }
 
   /************************************************/
   /*                                              */
@@ -1430,62 +1492,24 @@ int Step::sizeit(
         }
     }
 
-  // Allow SM and CALLOUT to share one column /* Calling this is disabled */
+  // Allow PLI and SUBMODEL to share one column
 
-  if (smShared && subModel.tbl[y] == TblCsi) {
-      int wX = 0, wY = 0;
-      if (x == XX) {
-          wX = subModel.size[XX] + calloutSize[XX];
-          wY = subModel.size[YY];
-        } else {
-          wX = subModel.size[XX];
-          wY = subModel.size[YY] + calloutSize[YY];
-        }
-      if (cols[subModel.tbl[XX]] < wX) {
-          cols[subModel.tbl[XX]] = wX;
-        }
-      if (rows[subModel.tbl[YY]] < wY) {
-          rows[subModel.tbl[YY]] = wY;
-        }
-    } else {
-
-      bool addOn = true;
-
-      /* Drop the Submodel down on top of the CSI, and reduce the subModel's size */
-
-      if (onlyChild()) {
-          switch (subModelPlacement.placement) {
-            case Top:
-            case Bottom:
-              if (subModelPlacement.relativeTo == CsiType) {
-                  if ( ! collide(square,subModel.tbl,y, x)) {
-                      int height = (max - pixmapSize[y])/2;
-                      if (height > 0) {
-                          if (height >= subModel.size[y]) {  // entire thing fits
-                              rows[subModel.tbl[y]] = 0;
-                              addOn = false;
-                            } else {                         // fit what we can
-                              rows[subModel.tbl[y]] = subModel.size[y] - height;
-                              addOn = false;
-                            }
-                        }
-                    }
-                }
-              break;
-            default:
-              break;
-            }
-        }
-
-      if (cols[subModel.tbl[XX]] < subModel.size[XX]) {
-          cols[subModel.tbl[XX]] = subModel.size[XX];  // HINT 1
-        }
-      if (addOn) {
-          if (rows[subModel.tbl[YY]] < subModel.size[YY]) {
-              rows[subModel.tbl[YY]] = subModel.size[YY];
-            }
-        }
-    }  // this is disabled
+  if (smShared && pli.tbl[y] == TblCsi) {
+    int wX = 0, wY = 0;
+    if (x == XX) {
+        wX = pli.size[XX] + subModelSize[XX];
+        wY = pli.size[YY];
+      } else {
+        wX = pli.size[XX];
+        wY = pli.size[YY] + subModelSize[YY];
+      }
+    if (cols[pli.tbl[XX]] < wX) {
+        cols[pli.tbl[XX]] = wX;
+      }
+    if (rows[pli.tbl[YY]] < wY) {
+        rows[pli.tbl[YY]] = wY;
+      }
+  }
 
   if (cols[stepNumber.tbl[XX]] < stepNumber.size[XX]) {
       cols[stepNumber.tbl[XX]] = stepNumber.size[XX];
@@ -1545,6 +1569,41 @@ int Step::sizeit(
           break;
         }
     }
+
+  /******************************************************************/
+  /* Determine col/row and margin for subModel that is relative     */
+  /* to step components (e.g. not page or multiStep)                */
+  /******************************************************************/
+
+  if (placeSubModel) {
+    SubModel *_subModel = &subModel;
+
+    switch (_subModel->placement.value().relativeTo) {
+      case CsiType:
+      case PartsListType:
+      case StepNumberType:
+      case RotateIconType:
+        if (_subModel->shared && rows[TblCsi] < _subModel->size[y]) {
+            rows[TblCsi] = _subModel->size[y];
+          } else {
+
+            if (cols[_subModel->tbl[XX]] < _subModel->size[XX]) {
+                cols[_subModel->tbl[XX]] = _subModel->size[XX];
+              }
+            if (rows[_subModel->tbl[YY]] < _subModel->size[YY]) {
+                rows[_subModel->tbl[YY]] = _subModel->size[YY];
+              }
+
+            maxMargin(_subModel->margin,
+                      _subModel->tbl,
+                      marginRows,
+                      marginCols);
+          }
+        break;
+      default:
+        break;
+      }
+  }
 
   return 0;
 }
@@ -1640,7 +1699,6 @@ void Step::placeit(
     int y,
     bool shared)
 {
-
   /*********************************/
   /* record the origin of each row */
   /*********************************/
@@ -1650,11 +1708,11 @@ void Step::placeit(
   int origins[NumPlaces];
 
   for (int i = 0; i < NumPlaces; i++) {
-      origins[i] = origin;
-      if (rows[i]) {
-          origin += rows[i] + margins[i];
-        }
-    }
+     origins[i] = origin;
+     if (rows[i]) {
+         origin += rows[i] + margins[i];
+     }
+  }
 
   size[y] = origin;
 
@@ -1677,14 +1735,14 @@ void Step::placeit(
           }
         }
       stepNumber.justifyX(origins[stepNumber.tbl[y]],rows[stepNumber.tbl[y]]);
-      if(placeRotateIcon){
+      if(placeRotateIcon) {
           rotateIcon.justifyX(origins[rotateIcon.tbl[y]],rows[rotateIcon.tbl[y]]);
         }
       break;
     case YY:
       if ( ! shared) {
           pli.justifyY(origins[pli.tbl[y]],rows[pli.tbl[y]]);
-          if(placeSubModel){
+          if(placeSubModel) {
             subModel.justifyY(origins[subModel.tbl[y]],rows[subModel.tbl[y]]);
           }
         }
@@ -1729,6 +1787,45 @@ void Step::placeit(
                 } else {
                   callout->justifyX(origins[callout->tbl[y]],
                       rows[callout->tbl[y]]);
+                }
+              break;
+            default:
+              break;
+            }
+        }
+    }
+
+    /* place the subModel that is relative to step components */
+
+    if (placeSubModel) {
+      SubModel *_subModel = &subModel;
+      PlacementData subModelPlacement = _subModel->placement.value();
+
+      if (shared && _subModel->shared) {
+          if (_subModel->size[y] > origins[TblCsi]) {
+              int locY = _subModel->size[y] - origins[TblCsi] - margins[TblCsi];
+              _subModel->loc[y] = locY;
+            } else {
+              int locY = origins[TblCsi] - _subModel->size[y] - margins[TblCsi];
+              _subModel->loc[y] = locY;
+            }
+        } else {
+          switch (subModelPlacement.relativeTo) {
+            case CsiType:
+            case PartsListType:
+            case StepNumberType:
+            case RotateIconType:
+              _subModel->loc[y] = origins[_subModel->tbl[y]];
+              if (_subModel->shared) {
+                  _subModel->loc[y] -= _subModel->margin.value(y) - 500;
+                }
+
+              if (y == YY) {
+                  _subModel->justifyY(origins[_subModel->tbl[y]],
+                      rows[_subModel->tbl[y]]);
+                } else {
+                  _subModel->justifyX(origins[_subModel->tbl[y]],
+                      rows[_subModel->tbl[y]]);
                 }
               break;
             default:

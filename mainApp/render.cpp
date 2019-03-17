@@ -1943,12 +1943,15 @@ bool Render::NativeExport(const NativeOptions &Options) {
     }
     else
     {
+        bool exportHTML = Options.ExportMode == EXPORT_HTML;
         QString workingDirectory = QDir::currentPath();
         QStringList arguments = Options.ExportArgs;
         emit gui->messageSig(LOG_TRACE, QString("Native CSI %1 Export for command: %2")
                                                  .arg(exportMode)
                                                  .arg(arguments.join(" ")));
         ldvWidget = new LDVWidget(nullptr,IniFlag(Options.IniFlag),true);
+        if (exportHTML)
+            gui->connect(ldvWidget, SIGNAL(loadBLElementsSig()), gui, SLOT(loadBLElements()));
         if (! ldvWidget->doCommand(arguments))  {
             emit gui->messageSig(LOG_ERROR, QString("Failed to generate CSI %1 Export for command: %2")
                                                     .arg(exportMode)
@@ -1961,6 +1964,8 @@ bool Render::NativeExport(const NativeOptions &Options) {
                                                     .arg(workingDirectory));
             good = false;
         }
+        if (exportHTML)
+            gui->disconnect(ldvWidget, SIGNAL(loadBLElementsSig()), gui, SLOT(loadBLElements()));
     }
 
     if (! good )

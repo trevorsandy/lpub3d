@@ -158,7 +158,7 @@ int Gui::processCommandLine()
         ParseString(pageRange, false);
       else
       if (Param == QLatin1String("--line-width"))
-        ParseFloat(highlightLineWidth);
+        ParseInteger(highlightLineWidth);
       else
         emit messageSig(LOG_INFO,QString("Unknown command line parameter: '%1'.").arg(Param));
     }

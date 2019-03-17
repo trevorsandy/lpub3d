@@ -2467,7 +2467,7 @@ void MetaItem::insertText()
           // capture model when different from model at top of page
           bottomOfStep = gui->topOfPages[gui->displayPageNum];
           if (topOfStep.modelName == bottomOfStep.modelName) {
-            // we the model has not changed
+            // well the model has not changed
             insertPosition = topOfStep;
           } else {
             // we are entering or leaving a submodel
@@ -3545,21 +3545,24 @@ bool MetaItem::offsetPoint(
   QString label       = title;
 
   if (partAnnotation){
-      int colorLines = 3; // Use trans white color versus white
-      title        = "annotation";
-#ifdef QT_DEBUG_MODE
-      label       += QString("_%1_").arg(partLineNum);
-#endif
-      end         += colorLines;
-      partLineNum += colorLines;
+      title           = "annotation";
   }
 
+#ifdef QT_DEBUG_MODE
+  label              += QString("_%1_").arg(partLineNum);
+#endif
+
+  // line adjustment for custom color entry
+  int colorLines      = 3; // transwhite
+  end                += colorLines;
+  partLineNum        += colorLines;
+
   /*
-   * Create a "white" version of the model/submodel
+   * Create a "transwhite" version of the model/submodel
    */
   QString monoOutName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + modelName;
-  monoOutName = makeMonoName(monoOutName,monoColor[partAnnotation ? transwhite : white], partAnnotation);
-  monoColorSubmodel(modelName,monoOutName,monoColor[partAnnotation ? transwhite : white]);
+  monoOutName = makeMonoName(monoOutName,monoColor[transwhite]);
+  monoColorSubmodel(modelName,monoOutName,monoColor[transwhite]);
 
   QFile inFile(monoOutName);
   if ( ! inFile.open(QFile::ReadOnly | QFile::Text)) {
@@ -3574,7 +3577,7 @@ bool MetaItem::offsetPoint(
   QStringList csiParts;
 
   /*
-   * Gather up the "white" parent model up to the step
+   * Gather up the "transwhite" parent model up to the step
    * then gather up the "blue" step parts
    */
 
@@ -3841,9 +3844,9 @@ void  MetaItem::deletePointerAttribute(const Where &here, bool all)
  *
  * for each part in the model {
  *   if (part is submodel) {
- *     create white version of submodel;
+ *     create transwhite version of submodel;
  *   } else {
- *     color part white
+ *     color part transwhite
  *   }
  * }
  *
@@ -3860,14 +3863,13 @@ void  MetaItem::deletePointerAttribute(const Where &here, bool all)
  
 QString MetaItem::makeMonoName(
    const QString &fileName,
-   QString &color,
-   bool annotation)
+   QString &color)
 {
   QString mono = "mono_";
-  QString altColor = "_" + monoColor[(color == monoColor[blue] ? (annotation ? transwhite : white) : blue)];
+  QString altColor = "_" + monoColor[(color == monoColor[blue] ? transwhite : blue)];
   QFileInfo info(fileName);
   QString baseName = info.baseName();
-  if (info.baseName().right(altColor.size()) == ("_" + monoColor[annotation ? transwhite : white]))
+  if (info.baseName().right(altColor.size()) == ("_" + monoColor[transwhite]))
       baseName = info.baseName().left(info.baseName().length() - altColor.size());
   if ((info.fileName().left(mono.size())) == mono)
       return info.absolutePath() + "/" + baseName + "_" + color + "." + info.suffix();
@@ -3879,8 +3881,7 @@ int MetaItem::monoColorSubmodel(
   QString &monoOutName,
   QString &color)
 {
-  bool annotation = color == monoColor[transwhite];
-  monoColors colorCode = (color == monoColor[white] ? white : annotation ? transwhite : blue);
+  monoColors colorCode = (color == monoColor[transwhite] ? transwhite : blue);
 
   QFile outFile(monoOutName);
   if ( ! outFile.open(QFile::WriteOnly | QFile::Text)) {
@@ -3891,12 +3892,9 @@ int MetaItem::monoColorSubmodel(
   }
 
   QTextStream out(&outFile);
-
-  if (annotation){
-     out << "0 // LPub3D part custom color" << endl;
-     out << "0 !COLOUR LPub3D_White CODE 11015 VALUE #FFFFFF EDGE #FFFFFF ALPHA 32" << endl;
-     out << "0" << endl;
-  }
+  out << "0 // LPub3D part custom color" << endl;
+  out << "0 !COLOUR LPub3D_White CODE 11015 VALUE #FFFFFF EDGE #FFFFFF ALPHA 32" << endl;
+  out << "0" << endl;
 
   int numLines = gui->subFileSize(modelName);
 
@@ -3919,7 +3917,7 @@ int MetaItem::monoColorSubmodel(
       submodel += "." + suffix;
       if (gui->isSubmodel(submodel)) {
         QString model = QDir::currentPath() + "/" + Paths::tmpDir + "/" + argv[14];
-        model = makeMonoName(model,color,annotation);
+        model = makeMonoName(model,color);
         monoColorSubmodel(submodel,model,color);
         QFileInfo info(model);
         argv[14] = info.fileName();
@@ -3947,16 +3945,15 @@ QPointF MetaItem::defaultPointerTip(
   int     instance,
   bool    isMirrored)
 {
-
   QRectF  pagePosition = QRectF(0,0,gui->pageSize(meta.LPub.page, 0),gui->pageSize(meta.LPub.page, 1));
 
   /*
-   * Create a "white" version of the submodel that calls out our callout
+   * Create a "transwhite" version of the submodel that calls out our callout
    */
 
   QString monoOutName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + modelName;
-  monoOutName = makeMonoName(monoOutName,monoColor[white]);
-  monoColorSubmodel(modelName,monoOutName,monoColor[white]);
+  monoOutName = makeMonoName(monoOutName,monoColor[transwhite]);
+  monoColorSubmodel(modelName,monoOutName,monoColor[transwhite]);
 
   QFile inFile(monoOutName);
   if ( ! inFile.open(QFile::ReadOnly | QFile::Text)) {
@@ -3970,19 +3967,22 @@ QPointF MetaItem::defaultPointerTip(
   QStringList csiParts;
 
   /*
-   * Gather up the "white" parent model up to the callout
+   * Gather up the "transwhite" parent model up to the callout
    */
 
-  int numLines = gui->subFileSize(modelName);
-  int instances = 0;
+  // line adjustment for custom color entry
+  int colorLines         = 3; // transwhite
+  int numLines           = gui->subFileSize(modelName) + colorLines;
+  int adjustedLineNumber = lineNumber + colorLines;
+  int instances          = 0;
+  QFileInfo info(subModel);
+  QString monoSubModel = "mono_" + info.baseName() + "_" + monoColor[transwhite] + "." + info.suffix();
   QStringList argv;
   int i;
-  QFileInfo info(subModel);
-  QString monoSubModel = "mono_" + info.baseName() + "_" + monoColor[white] + "." + info.suffix();
   for (i = 0; i < numLines; i++) {
     QString line = in.readLine(0);
     split(line,argv);
-    if (i >= lineNumber) { 
+    if (i >= adjustedLineNumber) {
       if (argv.size() == 15) {
         bool mirrored = gui->isMirrored(argv);
         if (argv[0] == "1" &&
@@ -4052,7 +4052,7 @@ QPointF MetaItem::defaultPointerTip(
   }
 
   /*
-   * Rotate and render white and blue image
+   * Rotate and render transwhite and blue image
    */
 
   bool ok[2];

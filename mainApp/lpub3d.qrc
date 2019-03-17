@@ -57,6 +57,7 @@
         <file alias="divider.png">resources/divider.png</file>
         <file alias="deletepage.png">resources/deletepage.png</file>
         <file alias="editdivider.png">resources/editdivider.png</file>
+        <file alias="editld2blxref.png">resources/editld2blxref.png</file>
         <file alias="editldrawcolourparts.png">resources/editldrawcolourparts.png</file>
         <file alias="editfreeformannotations.png">resources/editfreeformannotations.png</file>
         <file alias="editinifile.png">resources/editinifile.png</file>
@@ -163,6 +164,7 @@
         <file alias="savemetacommands.png">resources/savemetacommands.png</file>
         <file alias="scale.png">resources/scale.png</file>
         <file alias="selectall.png">resources/selectall.png</file>
+        <file alias="showallcharacters.png">resources/showallcharacters.png</file>
         <file alias="softwareupdate.png">resources/softwareupdate.png</file>
         <file alias="sortPli.png">resources/sortPli.png</file>
         <file alias="splitbom.png">resources/splitbom.png</file>

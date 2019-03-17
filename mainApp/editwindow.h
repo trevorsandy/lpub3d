@@ -59,7 +59,7 @@ class EditWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit EditWindow(QMainWindow *parent = 0);
+    explicit EditWindow(QMainWindow *parent = nullptr);
     QToolBar *editToolBar;
 
 protected:
@@ -112,6 +112,7 @@ public:
     QTextEditor *textEdit() { return _textEdit; }
 };
 
+extern class EditWindow *editWindow;
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class QTextEditor : public QTextEdit
@@ -119,7 +120,7 @@ class QTextEditor : public QTextEdit
     Q_OBJECT
 
 public:
-    explicit QTextEditor(QWidget *parent = 0);
+    explicit QTextEditor(QWidget *parent = nullptr);
 
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int getFirstVisibleBlockId();

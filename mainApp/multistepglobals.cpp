@@ -61,24 +61,32 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
 
   setWindowTitle(tr("Step Group Globals Setup"));
 
-  QVBoxLayout *grid = new QVBoxLayout();
-  setLayout(grid);
+  QTabWidget  *tab = new QTabWidget(nullptr);
+  QVBoxLayout *layout = new QVBoxLayout(nullptr);
+  setLayout(layout);
+  layout->addWidget(tab);
+
+  QWidget *widget;
+  QGridLayout *grid;
 
   MetaGui *child;
   QGroupBox *box;
 
   MultiStepMeta *multiStepMeta = &data->meta.LPub.multiStep;
   
+  /*
+   * Contents tab
+   */
+
+  widget = new QWidget(nullptr);
+  grid = new QGridLayout(nullptr);
+  widget->setLayout(grid);
+
   box = new QGroupBox("Margins");
   grid->addWidget(box);
   child = new UnitsGui("",&multiStepMeta->margin,box);
   data->children.append(child);
-  
-  box = new QGroupBox("Divider");
-  grid->addWidget(box);
-  child = new SepGui(&multiStepMeta->sep,box);
-  data->children.append(child);
-  
+    
   box = new QGroupBox("Assembly Margins");
   grid->addWidget(box);
   child = new UnitsGui("",&multiStepMeta->csi.margin,box);
@@ -105,6 +113,27 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   grid->addWidget(box);
   child = new NumberGui(&multiStepMeta->stepNum,box);
   data->children.append(child);
+
+  tab->addTab(widget,"Content");
+
+  /*
+   * Divider tab
+   */
+
+  widget = new QWidget(nullptr);
+  QVBoxLayout *vLayout = new QVBoxLayout(nullptr);
+  widget->setLayout(vLayout);
+
+  box = new QGroupBox("Divider");
+  vLayout->addWidget(box);
+  child = new SepGui(&multiStepMeta->sep,box);
+  data->children.append(child);
+
+  //spacer
+  QSpacerItem *vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vLayout->addSpacerItem(vSpacer);
+
+  tab->addTab(widget,"Divider");
 
   QDialogButtonBox *buttonBox;
 

@@ -62,23 +62,33 @@ GlobalAssemDialog::GlobalAssemDialog(
 {
   data = new GlobalAssemPrivate(topLevelFile,meta);
 
-  QGridLayout *grid;
-  QGridLayout *boxGrid;
-  QGroupBox   *box;
-
   setWindowTitle(tr("Assembly Globals Setup"));
 
-  grid = new QGridLayout();
-  setLayout(grid);
+  QTabWidget  *tab = new QTabWidget(nullptr);
+  QVBoxLayout *layout = new QVBoxLayout(nullptr);
+  QGridLayout *boxGrid = new QGridLayout();
+  setLayout(layout);
+  layout->addWidget(tab);
 
-  box = new QGroupBox("Assembly");
-  grid->addWidget(box,0,0);
-  boxGrid = new QGridLayout();
-  box->setLayout(boxGrid);
+  QWidget *widget;
+  QGridLayout *grid;
 
   MetaGui *child;
+  QGroupBox *box;
 
   AssemMeta *assem = &data->meta.LPub.assem;
+
+  /*
+   * Contents tab
+   */
+
+  widget = new QWidget(nullptr);
+  grid = new QGridLayout(nullptr);
+  widget->setLayout(grid);
+
+  box = new QGroupBox("Assembly");
+  grid->addWidget(box);
+  box->setLayout(boxGrid);
 
   // Scale/Native Camera Distance Factor
   if (Preferences::usingNativeRenderer) {
@@ -126,14 +136,23 @@ GlobalAssemDialog::GlobalAssemDialog(
   box = new QGroupBox("Step Number");
   grid->addWidget(box,3,0);
 
+  boxGrid->addWidget(child);
   NumberPlacementMeta *stepNumber = &data->meta.LPub.stepNumber;
-
   child = new NumberGui(stepNumber,box);
   data->children.append(child);
-  boxGrid->addWidget(child);
 
-  box = new QGroupBox("Display");
-  grid->addWidget(box,4,0);
+  tab->addTab(widget,"Contents");
+
+  /*
+   * Display tab
+   */
+
+  widget = new QWidget(nullptr);
+  grid = new QGridLayout(nullptr);
+  widget->setLayout(grid);
+
+  box = new QGroupBox("Step");
+  grid->addWidget(box);
   QVBoxLayout *vLayout = new QVBoxLayout();
   box->setLayout(vLayout);
 
@@ -141,11 +160,22 @@ GlobalAssemDialog::GlobalAssemDialog(
   data->children.append(child);
   vLayout->addWidget(child);
 
+  box = new QGroupBox("Annotation");
+  grid->addWidget(box);
+  vLayout = new QVBoxLayout();
+  box->setLayout(vLayout);
+
   if (data->meta.LPub.pli.annotation.display.value()) {
      child = new CsiAnnotationGui("",&assem->annotation);
      data->children.append(child);
      vLayout->addWidget(child);
   }
+
+  //spacer
+  QSpacerItem *vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vLayout->addSpacerItem(vSpacer);
+
+  tab->addTab(widget,"Display");
 
   QDialogButtonBox *buttonBox;
 

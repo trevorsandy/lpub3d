@@ -117,8 +117,7 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
         timer(new QTimer(this)),
         interval(0)
 #ifdef Q_OS_WIN
-        ,savingFromCommandLine(false),
-        hPBuffer(nullptr),
+       ,hPBuffer(nullptr),
         hPBufferDC(nullptr),
         hPBufferGLRC(nullptr),
         hCurrentDC(nullptr),
@@ -451,176 +450,44 @@ void LDVWidget::setupLDVContext()
     }
 }
 
-void LDVWidget::displayGLExtensions()
+bool LDVWidget::loadModel(const char *filename)
 {
-    // Query version
-    const GLubyte *Version = glGetString(GL_VERSION);
-    int VersionMajor = 0, VersionMinor = 0;
-    if (Version) {
-        sscanf((const char*)Version, "%d.%d", &VersionMajor, &VersionMinor);
-        fprintf(stdout, "OpenGL version (%d.%d).\n", VersionMajor, VersionMinor);
-    }
+    if (!filename)
+        return false;
 
-    // Query extensions
-//    QList<QByteArray> extensions = ldvContext->extensions().toList();
-//    std::sort( extensions.begin(), extensions.end() );
-//    fprintf(stdout, "OpenGL supported extensions (%d).\n", extensions.count());
-//    foreach ( const QByteArray &extension, extensions )
-//        fprintf(stdout, "     %s\n", extension.constData());
-//    fflush(stdout);
-}
+    bool retValue = true;
 
-void LDVWidget::modelViewerAlertCallback(TCAlert *alert)
-{
-    if (alert)
+    QFileInfo fi(filename);
+    filename = copyString(fi.absoluteFilePath().toLatin1().constData());
+    if (chDirFromFilename(filename))
     {
-        emit lpubAlert->messageSig(LOG_STATUS, QString("%1")
-                                   .arg(alert->getMessage()));
+        startProgressBar(QString("Loading %1...")
+                         .arg(QFileInfo(filename).baseName()).toLatin1().constData());
+        modelViewer->setFilename(filename);
+        if (! modelViewer->loadModel())
+        {
+            emit lpubAlert->messageSig(LOG_ERROR, QString("Could not load command line file %1")
+                                       .arg(filename));
+            retValue = false;
+        }
+        endProgressBar();
     }
-}
-
-bool LDVWidget::staticFileCaseLevel(QDir &dir, char *filename)
-{
-	int i;
-	int len = strlen(filename);
-	QString wildcard;
-	QStringList files;
-
-	if (!dir.isReadable())
-	{
-		return false;
-	}
-	for (i = 0; i < len; i++)
-	{
-		QChar letter = filename[i];
-
-		if (letter.isLetter())
-		{
-			wildcard.append('[');
-			wildcard.append(letter.toLower());
-			wildcard.append(letter.toUpper());
-			wildcard.append(']');
-		}
-		else
-		{
-			wildcard.append(letter);
-		}
-	}
-	dir.setNameFilters(QStringList(wildcard));
-	files = dir.entryList();
-	if (files.count())
-	{
-		QString file = files[0];
-
-		if (file.length() == (int)strlen(filename))
-		{
-			// This should never be false, but just want to be sure.
-			strcpy(filename, file.toLatin1().constData());
-			return true;
-		}
-	}
-	return false;
-}
-
-bool LDVWidget::staticFileCaseCallback(char *filename)
-{
-	char *shortName;
-	QDir dir;
-	char *firstSlashSpot;
-
-	dir.setFilter(QDir::AllEntries | QDir::Readable | QDir::Hidden | QDir::System);
-	replaceStringCharacter(filename, '\\', '/');
-	firstSlashSpot = strchr(filename, '/');
-	if (firstSlashSpot)
-	{
-		char *lastSlashSpot = strrchr(filename, '/');
-		int dirLen;
-		char *dirName;
-
-		while (firstSlashSpot != lastSlashSpot)
-		{
-			char *nextSlashSpot = strchr(firstSlashSpot + 1, '/');
-
-			dirLen = firstSlashSpot - filename + 1;
-			dirName = new char[dirLen + 1];
-			*nextSlashSpot = 0;
-			strncpy(dirName, filename, dirLen);
-			dirName[dirLen] = 0;
-			if (dirLen)
-			{
-				dir.setPath(dirName);
-				delete dirName;
-				if (!staticFileCaseLevel(dir, firstSlashSpot + 1))
-				{
-					return false;
-				}
-			}
-			firstSlashSpot = nextSlashSpot;
-			*firstSlashSpot = '/';
-		}
-		dirLen = lastSlashSpot - filename;
-		dirName = new char[dirLen + 1];
-		strncpy(dirName, filename, dirLen);
-		dirName[dirLen] = 0;
-		dir.setPath(dirName);
-		shortName = lastSlashSpot + 1;
-		delete dirName;
-	}
-	else
-	{
-		shortName = filename;
-	}
-	return staticFileCaseLevel(dir, shortName);
-}
-
-/*************************************************/
-/*************************************************/
-
-// Parts List
-
-LDSnapshotTaker::ImageType LDVWidget::getSaveImageType(void)
-{
-    return LDSnapshotTaker::ITPng;
-}
-
-void LDVWidget::setViewMode(LDInputHandler::ViewMode value,
-     bool examine, bool keep, bool /*saveSettings*/)
-{
-    viewMode = value;
-    if (viewMode == LDInputHandler::VMExamine)
+    else
     {
-        LDrawModelViewer::ExamineMode examineMode = ( examine ?
-                LDrawModelViewer::EMLatLong : LDrawModelViewer::EMFree );
-        inputHandler->setViewMode(LDInputHandler::VMExamine);
-        modelViewer->setConstrainZoom(true);
-        modelViewer->setExamineMode(examineMode);
+        emit lpubAlert->messageSig(LOG_ERROR, QString("The directory containing the file %1 could not be found.")
+                                   .arg(filename));
+        retValue = false;
     }
-    else if (viewMode == LDInputHandler::VMFlyThrough)
-    {
-        inputHandler->setViewMode(LDInputHandler::VMFlyThrough);
-        modelViewer->setConstrainZoom(false);
-        modelViewer->setKeepRightSideUp(keep);
-    }
-    else if (viewMode == LDInputHandler::VMWalk)
-    {
-        inputHandler->setViewMode(LDInputHandler::VMWalk);
-        modelViewer->setKeepRightSideUp(true);
-    }
-    LDVPreferences::setViewMode(viewMode);
+    return retValue;
 }
 
 bool LDVWidget::grabImage(
     int &imageWidth,
-    int &imageHeight,
-    bool fromCommandLine /*= false*/)
+    int &imageHeight)
 {
     int newWidth = 800;
     int newHeight = 600;
-    int origWidth = mwidth;
-    int origHeight = mheight;
     int numXTiles, numYTiles;
-    bool origSlowClear = modelViewer->getSlowClear();
-    int origMemoryUsage = modelViewer->getMemoryUsage();
 
     saving = true;
     modelViewer->setMemoryUsage(0);
@@ -658,15 +525,8 @@ bool LDVWidget::grabImage(
     if (snapshotTaker->getUseFBO())
     {
         makeCurrent();
-        if (fromCommandLine)
-        {
-            saveImageResult = snapshotTaker->saveImage();
-        }
-        else
-        {
-            saveImageResult = snapshotTaker->saveImage(saveImageFilename,
-                saveImageWidth, saveImageHeight, saveImageZoomToFit);
-        }
+        saveImageResult = snapshotTaker->saveImage(saveImageFilename,
+            saveImageWidth, saveImageHeight, saveImageZoomToFit);
     }
     else
     {
@@ -679,35 +539,19 @@ bool LDVWidget::grabImage(
         modelViewer->openGlWillEnd();
     }
     saving = false;
-    mwidth = origWidth;
-    mheight = origHeight;
-    modelViewer->setWidth(mwidth);
-    modelViewer->setHeight(mheight);
-    modelViewer->setMemoryUsage(origMemoryUsage);
-    modelViewer->setSlowClear(origSlowClear);
-    modelViewer->setup();
     return saveImageResult;
 }
 
 bool LDVWidget::saveImage(
     char *filename,
     int imageWidth,
-    int imageHeight,
-    bool fromCommandLine /*= false*/)
+    int imageHeight)
 {
     bool retValue = false;
 
     if (!snapshotTaker)
     {
-        if (fromCommandLine)
-        {
-           // The command line snapshot will be blank if LDSnapshotTaker has no argument
-            snapshotTaker =  new LDSnapshotTaker(modelViewer);
-        }
-        else
-        {
-            snapshotTaker =  new LDSnapshotTaker(modelViewer);
-        }
+        snapshotTaker =  new LDSnapshotTaker(modelViewer);
     }
 #ifdef Q_OS_WIN
     if (LDVExtensionsSetup::havePixelBufferExtension())
@@ -728,7 +572,7 @@ bool LDVWidget::saveImage(
     saveImageFilename = filename;
     saveImageZoomToFit = TCUserDefaults::longForKey(SAVE_ZOOM_TO_FIT_KEY, 1,
         false);
-    retValue = grabImage(imageWidth, imageHeight, fromCommandLine);
+    retValue = grabImage(imageWidth, imageHeight);
     return retValue;
 }
 
@@ -743,13 +587,7 @@ void LDVWidget::doPartList(
         if (htmlInventory->isSnapshotNeeded())
         {
             char *snapshotPath = copyString(htmlInventory->getSnapshotPath());
-            bool saveZoomToFit = modelViewer->getForceZoomToFit();
-            bool saveActualSize = TCUserDefaults::longForKey(SAVE_ACTUAL_SIZE_KEY, 1, false);
-            int saveWidth = TCUserDefaults::longForKey(SAVE_WIDTH_KEY, 1024, false);
-            int saveHeight = TCUserDefaults::longForKey(SAVE_HEIGHT_KEY, 768, false);
-            bool origSteps = TCUserDefaults::boolForKey(SAVE_STEPS_KEY, false, false);
             bool seams     = TCUserDefaults::boolForKey(SEAMS_KEY, false, false);
-            int origStep = modelViewer->getStep();
 
             TCUserDefaults::setBoolForKey(seams, SEAMS_KEY, false);
             TCUserDefaults::setBoolForKey(false, SAVE_STEPS_KEY, false);
@@ -764,18 +602,9 @@ void LDVWidget::doPartList(
                 emit lpubAlert->messageSig(LOG_ERROR, QString("Image input file was not loaded."));
             }
 
-            // By saying it's from the command line, none of the above settings
-            // will be written to TCUserDefaults.
-            savingFromCommandLine = false;
-            saveImage(snapshotPath, 400, 300, savingFromCommandLine);
+            saveImage(snapshotPath, 400, 300);
             delete snapshotPath;
             htmlInventory->restoreAfterSnapshot(modelViewer);
-            modelViewer->setForceZoomToFit(saveZoomToFit);
-            TCUserDefaults::setLongForKey(saveActualSize, SAVE_ACTUAL_SIZE_KEY, false);
-            TCUserDefaults::setLongForKey(saveWidth, SAVE_WIDTH_KEY, false);
-            TCUserDefaults::setLongForKey(saveHeight, SAVE_HEIGHT_KEY, false);
-            modelViewer->setStep(origStep);
-            TCUserDefaults::setBoolForKey(origSteps, SAVE_STEPS_KEY, false);
         }
     }
     else
@@ -785,66 +614,6 @@ void LDVWidget::doPartList(
                                             TCLocalStrings::get(L"PLGenerateError"))
                                         ));
     }
-}
-
-void LDVWidget::startProgressBar(const char *message){
-    progressDialog->setWindowFlags(progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
-    progressDialog->setWindowTitle(QString("HTML Part List"));
-    progressDialog->setLabelText(QString("%1").arg(message));
-    progressDialog->setMaximum(10000);
-    progressDialog->setMinimum(0);
-    progressDialog->setValue(0);
-    progressDialog->setCancelButton(nullptr);
-    progressDialog->setAutoReset(false);
-    progressDialog->setModal(false);
-    progressDialog->show();
-    timer->start(100);
-    QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-}
-
-void LDVWidget::endProgressBar(){
-    progressDialog->setValue(progressDialog->maximum());
-    progressDialog->hide();
-    QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-    timer->stop();
-}
-
-void LDVWidget::updateProgressDialog(){
-    progressDialog->setValue(interval+100);
-    QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-    if (interval > progressDialog->maximum())
-        timer->stop();
-}
-
-bool LDVWidget::loadModel(const char *filename)
-{
-    if (!filename)
-        return false;
-
-    bool retValue = true;
-
-    QFileInfo fi(filename);
-    filename = copyString(fi.absoluteFilePath().toLatin1().constData());
-    if (chDirFromFilename(filename))
-    {
-        startProgressBar(QString("Loading %1...")
-                         .arg(QFileInfo(filename).baseName()).toLatin1().constData());
-        modelViewer->setFilename(filename);
-        if (! modelViewer->loadModel())
-        {
-            emit lpubAlert->messageSig(LOG_ERROR, QString("Could not load command line file %1")
-                                       .arg(filename));
-            retValue = false;
-        }
-        endProgressBar();
-    }
-    else
-    {
-        emit lpubAlert->messageSig(LOG_ERROR, QString("The directory containing the file %1 could not be found.")
-                                   .arg(filename));
-        retValue = false;
-    }
-    return retValue;
 }
 
 void LDVWidget::doPartList(void)
@@ -934,7 +703,7 @@ void LDVWidget::doPartList(void)
             if (htmlInventory->getShowFileFlag() &&
                 QFileInfo(htmlFilename).exists())
             {
-                showWebPage(htmlFilename);
+                showDocument(htmlFilename);
             }
             htmlInventory->release();
             partsList->release();
@@ -942,7 +711,7 @@ void LDVWidget::doPartList(void)
     }
 }
 
-void LDVWidget::showWebPage(QString &htmlFilename){
+void LDVWidget::showDocument(QString &htmlFilename){
 
   if (QFileInfo(htmlFilename).exists()){
 
@@ -960,7 +729,7 @@ void LDVWidget::showWebPage(QString &htmlFilename){
       box.setDefaultButton   (QMessageBox::Yes);
 
       QString title = "<b> HTML part list generated. </b>";
-      QString text = tr ("Your HTML part list web page was generated successfully.\n\n"
+      QString text = tr ("Your HTML part list was generated successfully.\n\n"
                          "Do you want to open this document ?\n\n%1").arg(htmlFilename);
 
       box.setText (title);
@@ -995,6 +764,186 @@ void LDVWidget::showWebPage(QString &htmlFilename){
       emit lpubAlert->messageSig(LOG_ERROR, QString("Generation failed for %1 HTML Part List.")
                                                     .arg(QFileInfo(htmlFilename).baseName()));
   }
+}
+
+void LDVWidget::startProgressBar(const char *message){
+    progressDialog->setWindowFlags(progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
+    progressDialog->setWindowTitle(QString("HTML Part List"));
+    progressDialog->setLabelText(QString("%1").arg(message));
+    progressDialog->setMaximum(1000);
+    progressDialog->setMinimum(0);
+    progressDialog->setValue(500);
+    progressDialog->setCancelButton(nullptr);
+    progressDialog->setAutoReset(false);
+    progressDialog->setModal(false);
+    progressDialog->show();
+    timer->start(100);
+    QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+}
+
+void LDVWidget::endProgressBar(){
+    progressDialog->setValue(progressDialog->maximum());
+    progressDialog->hide();
+    QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+    timer->stop();
+}
+
+void LDVWidget::updateProgressDialog(){
+    progressDialog->setValue(interval+600);
+    QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+}
+
+void LDVWidget::displayGLExtensions()
+{
+    // Query version
+    const GLubyte *Version = glGetString(GL_VERSION);
+    int VersionMajor = 0, VersionMinor = 0;
+    if (Version) {
+        sscanf((const char*)Version, "%d.%d", &VersionMajor, &VersionMinor);
+        fprintf(stdout, "OpenGL version (%d.%d).\n", VersionMajor, VersionMinor);
+    }
+
+    // Query extensions
+//    QList<QByteArray> extensions = ldvContext->extensions().toList();
+//    std::sort( extensions.begin(), extensions.end() );
+//    fprintf(stdout, "OpenGL supported extensions (%d).\n", extensions.count());
+//    foreach ( const QByteArray &extension, extensions )
+//        fprintf(stdout, "     %s\n", extension.constData());
+//    fflush(stdout);
+}
+
+void LDVWidget::modelViewerAlertCallback(TCAlert *alert)
+{
+    if (alert)
+    {
+        emit lpubAlert->messageSig(LOG_STATUS, QString("%1")
+                                   .arg(alert->getMessage()));
+    }
+}
+
+bool LDVWidget::staticFileCaseLevel(QDir &dir, char *filename)
+{
+    int i;
+    int len = strlen(filename);
+    QString wildcard;
+    QStringList files;
+
+    if (!dir.isReadable())
+    {
+        return false;
+    }
+    for (i = 0; i < len; i++)
+    {
+        QChar letter = filename[i];
+
+        if (letter.isLetter())
+        {
+            wildcard.append('[');
+            wildcard.append(letter.toLower());
+            wildcard.append(letter.toUpper());
+            wildcard.append(']');
+        }
+        else
+        {
+            wildcard.append(letter);
+        }
+    }
+    dir.setNameFilters(QStringList(wildcard));
+    files = dir.entryList();
+    if (files.count())
+    {
+        QString file = files[0];
+
+        if (file.length() == (int)strlen(filename))
+        {
+            // This should never be false, but just want to be sure.
+            strcpy(filename, file.toLatin1().constData());
+            return true;
+        }
+    }
+    return false;
+}
+
+bool LDVWidget::staticFileCaseCallback(char *filename)
+{
+    char *shortName;
+    QDir dir;
+    char *firstSlashSpot;
+
+    dir.setFilter(QDir::AllEntries | QDir::Readable | QDir::Hidden | QDir::System);
+    replaceStringCharacter(filename, '\\', '/');
+    firstSlashSpot = strchr(filename, '/');
+    if (firstSlashSpot)
+    {
+        char *lastSlashSpot = strrchr(filename, '/');
+        int dirLen;
+        char *dirName;
+
+        while (firstSlashSpot != lastSlashSpot)
+        {
+            char *nextSlashSpot = strchr(firstSlashSpot + 1, '/');
+
+            dirLen = firstSlashSpot - filename + 1;
+            dirName = new char[dirLen + 1];
+            *nextSlashSpot = 0;
+            strncpy(dirName, filename, dirLen);
+            dirName[dirLen] = 0;
+            if (dirLen)
+            {
+                dir.setPath(dirName);
+                delete dirName;
+                if (!staticFileCaseLevel(dir, firstSlashSpot + 1))
+                {
+                    return false;
+                }
+            }
+            firstSlashSpot = nextSlashSpot;
+            *firstSlashSpot = '/';
+        }
+        dirLen = lastSlashSpot - filename;
+        dirName = new char[dirLen + 1];
+        strncpy(dirName, filename, dirLen);
+        dirName[dirLen] = 0;
+        dir.setPath(dirName);
+        shortName = lastSlashSpot + 1;
+        delete dirName;
+    }
+    else
+    {
+        shortName = filename;
+    }
+    return staticFileCaseLevel(dir, shortName);
+}
+
+LDSnapshotTaker::ImageType LDVWidget::getSaveImageType(void)
+{
+    return LDSnapshotTaker::ITPng;
+}
+
+void LDVWidget::setViewMode(LDInputHandler::ViewMode value,
+     bool examine, bool keep, bool /*saveSettings*/)
+{
+    viewMode = value;
+    if (viewMode == LDInputHandler::VMExamine)
+    {
+        LDrawModelViewer::ExamineMode examineMode = ( examine ?
+                LDrawModelViewer::EMLatLong : LDrawModelViewer::EMFree );
+        inputHandler->setViewMode(LDInputHandler::VMExamine);
+        modelViewer->setConstrainZoom(true);
+        modelViewer->setExamineMode(examineMode);
+    }
+    else if (viewMode == LDInputHandler::VMFlyThrough)
+    {
+        inputHandler->setViewMode(LDInputHandler::VMFlyThrough);
+        modelViewer->setConstrainZoom(false);
+        modelViewer->setKeepRightSideUp(keep);
+    }
+    else if (viewMode == LDInputHandler::VMWalk)
+    {
+        inputHandler->setViewMode(LDInputHandler::VMWalk);
+        modelViewer->setKeepRightSideUp(true);
+    }
+    LDVPreferences::setViewMode(viewMode);
 }
 
 void LDVWidget::setupSnapshotBackBuffer(int width, int height)
@@ -1057,7 +1006,6 @@ void LDVWidget::cleanupOffscreen(void)
     {
         cleanupPBuffer();
     }
-    savingFromCommandLine = true;
     cleanupRenderSettings();
 #endif
 }
@@ -1087,12 +1035,13 @@ void LDVWidget::cleanupPBuffer(void)
 
 void LDVWidget::cleanupRenderSettings(void)
 {
-    if (!savingFromCommandLine)
+    // there's no need to
+    // put things back for regular rendering (particularly
+    // recompiling the model, which takes quite a bit of extra
+    // time.
+
+    if (/* DISABLES CODE */ (false))
     {
-        // If we're saving from the command line, there's no need to
-        // put things back for regular rendering (particularly
-        // recompiling the model, which takes quite a bit of extra
-        // time.
         makeCurrent();
         modelViewer->setup();
     }

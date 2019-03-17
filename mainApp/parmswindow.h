@@ -58,7 +58,7 @@ class ParmsWindow : public QMainWindow
     Q_OBJECT
 
 public:
-  ParmsWindow(QMainWindow *parent = 0);
+  ParmsWindow(QMainWindow *parent = nullptr);
 
 protected:
 
@@ -73,7 +73,6 @@ private:
     bool              _fadeStepFile;
     bool              _fileModified;
     bool              _restartRequired;
-    bool              _fileIsUTF;
     QString           title;
     ParmsHighlighter *highlighter;
     QString           fileName;  // file currently being displayed
@@ -96,6 +95,7 @@ private:
     QAction  *findAct;
     QAction  *topAct;
     QAction  *bottomAct;
+    QAction  *showAllCharsAct;
 
 private slots:
     void openFile();
@@ -104,10 +104,11 @@ private slots:
     void toggleClear();
     void viewLogWindowSettings();
     bool maybeSave();
-    bool saveFile();
+    bool saveFile(bool force = false);
     bool saveCopyAsFile();
     void topOfDocument();
     void bottomOfDocument();
+    void showAllCharacters();
     void closeEvent(QCloseEvent *event);
 
 public slots:
@@ -118,15 +119,20 @@ public:
     void setWindowTitle(const QString &title);
 };
 
+extern class ParmsWindow *parmsWindow;
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class TextEditor : public QPlainTextEdit
 {
     Q_OBJECT
 
 public:
-    explicit TextEditor(QWidget *parent = 0);
+    explicit TextEditor(QWidget *parent = nullptr);
 
+    void showAllCharacters(bool show);
     void lineNumberAreaPaintEvent(QPaintEvent *event);
+    void setIsUTF(bool isUTF) { _fileIsUTF = isUTF; }
+    bool getIsUTF() { return _fileIsUTF; }
     int lineNumberAreaWidth();
     void parmsOpen(int &opt);
     bool parmsSave(int &opt);
@@ -152,8 +158,15 @@ private slots:
     void findInTextNext();
     void findInTextPrevious();
     void findClear();
+    void replaceAll(
+         QString findString,
+         QString replaceString,
+         bool isExpr = false,
+         bool caseSensitively = false,
+         bool wholeWords = false);
 
 private:
+    bool _fileIsUTF;
     QWidget *lineNumberArea;
 };
 
