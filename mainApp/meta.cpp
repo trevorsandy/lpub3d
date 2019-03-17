@@ -4262,6 +4262,12 @@ Rc Meta::parse(
       argv << "LEOCAD" << "GROUP" << "END";
   } else {
 
+      /* Legacy LPub backward compatibilty: substitute VIEW_ANGLE with CAMERA_ANGLES */
+
+      QRegExp rx("^\\s*0.*\\s+(VIEW_ANGLE)\\s+.*$");
+      if (line.contains(rx))
+          line.replace(rx.cap(1),"CAMERA_ANGLES");
+
       /* Parse the input line into argv[] */
 
       split(line,argv);
