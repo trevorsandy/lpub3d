@@ -990,7 +990,7 @@ void Gui::exportAs(const QString &_suffix)
               return;
             }
 
-          m_progressDlgMessageLbl->setText(QString("Exporting image: %1 of %2").arg(displayPageNum).arg(_maxPages));
+          m_progressDlgMessageLbl->setText(QString("Exporting %1: %2 of %3...").arg(type).arg(displayPageNum).arg(_maxPages));
           m_progressDlgProgressBar->setValue(displayPageNum);
           QApplication::processEvents();
 
@@ -1090,7 +1090,7 @@ void Gui::exportAs(const QString &_suffix)
 
           displayPageNum = printPage;
 
-          m_progressDlgMessageLbl->setText(QString("Exporting %1 %2 of range %3")
+          m_progressDlgMessageLbl->setText(QString("Exporting %1 %2 of range %3...")
                                                    .arg(type)
                                                    .arg(displayPageNum)
                                                    .arg(pageRanges.join(" ")));
@@ -1329,15 +1329,15 @@ void Gui::PrintPdf(QPrinter* Printer)
                       m_progressDialog->hide();
                   displayPageNum = savePageNumber;
                   drawPage(KpageView,KpageScene,false);
-                  emit messageSig(LOG_STATUS,QString("Exporting terminated before completion."));
+                  emit messageSig(LOG_STATUS,QString("Export terminated before completion."));
                   if (preview){
                       m_previewDialog = false;
                     }
                   return;
                 }
 
-              m_progressDlgMessageLbl->setText(QString("%3 page %1 of %2").arg(Page).arg(ToPage)
-                                               .arg(preview ? "Preview" : "Exporting"));
+              m_progressDlgMessageLbl->setText(QString("%3 page %1 of %2...").arg(Page).arg(ToPage)
+                                               .arg(preview ? "Preview" : "Export"));
               m_progressDlgProgressBar->setValue(Page);
               QApplication::processEvents();
 
@@ -1352,7 +1352,7 @@ void Gui::PrintPdf(QPrinter* Printer)
                                        .arg(displayPageNum)
                                        .arg(ToPage)
                                        .arg(ls ? "Landscape" : "Portrait")
-                                       .arg(preview ? "Preview" : "Exporting");
+                                       .arg(preview ? "Preview" : "Export");
 
               // set up the view
               QRectF boundingRect(0.0, 0.0, pageWidthPx, pageHeightPx);
@@ -1378,7 +1378,7 @@ void Gui::PrintPdf(QPrinter* Printer)
                       displayPageNum = savePageNumber;
                       drawPage(KpageView,KpageScene,false);
                       emit messageSig(LOG_STATUS,QString("%1 terminated before completion.")
-                                      .arg(preview ? "Preview" : "Exporting"));
+                                      .arg(preview ? "Preview" : "Export"));
                       if (preview){
                           m_previewDialog = false;
                         }
@@ -1444,7 +1444,7 @@ void Gui::PrintPdf(QPrinter* Printer)
                       m_progressDialog->hide();
                   displayPageNum = savePageNumber;
                   drawPage(KpageView,KpageScene,false);
-                  emit messageSig(LOG_STATUS,QString("Exporting terminated before completion."));
+                  emit messageSig(LOG_STATUS,QString("Export terminated before completion."));
                   if (preview){
                       m_previewDialog = false;
                     }
@@ -1454,7 +1454,7 @@ void Gui::PrintPdf(QPrinter* Printer)
               displayPageNum = Page = printPage;
 
               m_progressDlgMessageLbl->setText(QString("%1 page %2 of %3 for range %4 ")
-                                               .arg(preview ? "Preview" : "Exporting")
+                                               .arg(preview ? "Preview" : "Export")
                                                .arg(Page)
                                                .arg(printPages.count())
                                                .arg(pageRanges.join(" ")));
@@ -1472,7 +1472,7 @@ void Gui::PrintPdf(QPrinter* Printer)
                                        .arg(Page)
                                        .arg(printPages.count())
                                        .arg(ls ? "Landscape" : "Portrait")
-                                       .arg(preview ? "Preview" : "Exporting")
+                                       .arg(preview ? "Preview" : "Export")
                                        .arg(pageRanges.join(" "));
 
               // set up the view
@@ -1499,7 +1499,7 @@ void Gui::PrintPdf(QPrinter* Printer)
                       displayPageNum = savePageNumber;
                       drawPage(KpageView,KpageScene,false);
                       emit messageSig(LOG_STATUS,QString("%1 terminated before completion.")
-                                      .arg(preview ? "Preview" : "Exporting"));
+                                      .arg(preview ? "Preview" : "Export"));
                       if (preview){
                           m_previewDialog = false;
                         }

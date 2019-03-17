@@ -33,12 +33,12 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
     }
 
     if ((! preview) &&
-        (gui->exportMode == EXPORT_POVRAY  ||
-         gui->exportMode == EXPORT_STL /* ||
-        gui->exportMode == EXPORT_3DS_MAX */)){
-       /* flag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni :
-               gui->exportMode == EXPORT_STL ? NativeSTLIni : Native3DSIni; */
-        flag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni : NativeSTLIni ;
+        (gui->exportMode == EXPORT_POVRAY ||
+         gui->exportMode == EXPORT_STL    ||
+        gui->exportMode == EXPORT_3DS_MAX)){
+        flag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni :
+               gui->exportMode == EXPORT_STL ? NativeSTLIni : Native3DSIni;
+//        flag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni : NativeSTLIni;
         ui->gropuBoxLDVExport->setTitle(QString("%1 Export Settings")
                                                 .arg(iniFlagNames[IniFlag(flag)]));
     } else {
@@ -71,57 +71,57 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
         ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before %1 pdf").arg(preview ? "previewing":"exporting"));
         break;
     case EXPORT_PNG:
-        setWindowTitle(tr("Export as png"));
-        ui->groupBoxPrintOptions->setTitle("Export as png options");
-        ui->checkBoxResetCache->setText(tr("Reset all caches before export to png"));
-        ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to png"));
+        setWindowTitle(tr("Export as PNG"));
+        ui->groupBoxPrintOptions->setTitle("Export as PNG options");
+        ui->checkBoxResetCache->setText(tr("Reset all caches before export to PNG"));
+        ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to PNG"));
         break;
     case EXPORT_JPG:
-        setWindowTitle(tr("Export as jpg"));
-        ui->groupBoxPrintOptions->setTitle("Export as jpg options");
-        ui->checkBoxResetCache->setText(tr("Reset all caches before export to jpg"));
-        ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to jpg"));
+        setWindowTitle(tr("Export as JPG"));
+        ui->groupBoxPrintOptions->setTitle("Export as JPG options");
+        ui->checkBoxResetCache->setText(tr("Reset all caches before export to JPG"));
+        ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to JPG"));
         break;
     case EXPORT_BMP:
-        setWindowTitle(tr("Export as bmp"));
-        ui->groupBoxPrintOptions->setTitle("Export as bmp options");
-        ui->checkBoxResetCache->setText(tr("Reset all caches before content export to bmp"));
-        ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to bmp"));
+        setWindowTitle(tr("Export as BMP"));
+        ui->groupBoxPrintOptions->setTitle("Export as BMP options");
+        ui->checkBoxResetCache->setText(tr("Reset all caches before content export to BMP"));
+        ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to BMP"));
         break;
 
     case EXPORT_3DS_MAX:
-        setWindowTitle(tr("Export as 3ds"));
-        ui->groupBoxPrintOptions->setTitle("Export as 3ds options");
-        ui->checkBoxResetCache->setText(tr("Reset all caches before content export to 3ds"));
-        ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to 3ds"));
+        setWindowTitle(tr("Export as 3DS"));
+        ui->groupBoxPrintOptions->setTitle("Export as 3DS options");
+        ui->checkBoxResetCache->setText(tr("Reset all caches before content export to 3DS"));
+        ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to 3DS"));
         break;
 
     case EXPORT_COLLADA:
-        setWindowTitle(tr("Export as dae"));
-        ui->groupBoxPrintOptions->setTitle("Export as dae options");
-        ui->checkBoxResetCache->setText(tr("Reset all caches before content export to dae"));
-        ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to dae"));
+        setWindowTitle(tr("Export as DAE"));
+        ui->groupBoxPrintOptions->setTitle("Export as DAE options");
+        ui->checkBoxResetCache->setText(tr("Reset all caches before content export to DAE"));
+        ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to DAE"));
         break;
 
     case EXPORT_WAVEFRONT:
-        setWindowTitle(tr("Export as obj"));
-        ui->groupBoxPrintOptions->setTitle("Export as obj options");
-        ui->checkBoxResetCache->setText(tr("Reset all caches before content export to obj"));
-        ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to obj"));
+        setWindowTitle(tr("Export as OBJ"));
+        ui->groupBoxPrintOptions->setTitle("Export as OBJ options");
+        ui->checkBoxResetCache->setText(tr("Reset all caches before content export to OBJ"));
+        ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to OBJ"));
         break;
 
     case EXPORT_STL:
-        setWindowTitle(tr("Export as stl"));
-        ui->groupBoxPrintOptions->setTitle("Export as stl options");
-        ui->checkBoxResetCache->setText(tr("Reset all caches before content export to stl"));
-        ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to stl"));
+        setWindowTitle(tr("Export as STL"));
+        ui->groupBoxPrintOptions->setTitle("Export as STL options");
+        ui->checkBoxResetCache->setText(tr("Reset all caches before content export to STL"));
+        ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to STL"));
         break;
 
     case EXPORT_POVRAY:
-        setWindowTitle(tr("Export as pov"));
-        ui->groupBoxPrintOptions->setTitle("Export as pov options");
-        ui->checkBoxResetCache->setText(tr("Reset all caches before content export to pov"));
-        ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to pov"));
+        setWindowTitle(tr("Export as POV"));
+        ui->groupBoxPrintOptions->setTitle("Export as POV options");
+        ui->checkBoxResetCache->setText(tr("Reset all caches before content export to POV"));
+        ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to POV"));
         break;
 
     case PAGE_PROCESS:

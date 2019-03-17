@@ -394,6 +394,7 @@ void LDViewExportOption::populateExportSettings(void)
                 vbox = new QVBoxLayout();
                 vbox->setSpacing(4);
                 hbox->addLayout(vbox);
+                sp = new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
                 hbox->addSpacerItem(sp);
                 label = new QLabel(qstmp);
                 vbox->addWidget(label);

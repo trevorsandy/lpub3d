@@ -173,7 +173,7 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
     fsaaModeBox->setDisabled(true);
     fsaaModeBox->hide();
     fsaaModeLabel->hide();
-    havePixelBuffer->hide();
+    havePixelBufferButton->hide();
 #endif // WIN32
 
     ldPrefs->applySettings();

@@ -58,7 +58,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="generalTab">
       <attribute name="title">
@@ -3978,8 +3978,8 @@ into effect until the next time a model is loaded.</string>
  </tabstops>
  <resources>
   <include location="../../mainApp/lpub3d.qrc"/>
-  <include location="../../mainApp/lpub3d.qrc"/>
   <include location="resources.qrc"/>
+  <include location="../../mainApp/lpub3d.qrc"/>
  </resources>
  <connections/>
 </ui>

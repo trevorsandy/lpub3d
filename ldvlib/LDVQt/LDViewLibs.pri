@@ -96,7 +96,7 @@ contains(LOAD_LDVLIBS,True) {
 
         _GL2PS_DEP        = $$system_path( $${LDVLIBDIR}/gl2ps.lib )
         _TINYXML_DEP      = $$system_path( $${LDVLIBDIR}/tinyxml_STL.lib )
-        _3DS_DEP          = $$system_path( $${LDVLIBDIR}/lib3ds.lib )
+        _3DS_DEP          = $$system_path( $${LDVLIBDIR}/lib3ds-vs2015.lib )
         _MINIZIP_DEP      = $$system_path( $${LDVLIBDIR}/unzip32-vs2015.lib )
         _PNG_DEP          = $$system_path( $${LDVLIBDIR}/libpng16-vs2015.lib )
         _JPEG_DEP         = $$system_path( $${LDVLIBDIR}/libjpeg-vs2015.lib )
@@ -111,7 +111,7 @@ contains(LOAD_LDVLIBS,True) {
 
         GL2PS_LIB         = -lgl2ps
         TINYXML_LIB       = -ltinyxml_STL
-        3DS_LIB           = -llib3ds
+        3DS_LIB           = -llib3ds-vs2015
         ZIP_LIB           = -lunzip32-vs2015
         PNG_LIB           = -llibpng16-vs2015
         JPEG_LIB          = -llibjpeg-vs2015
@@ -126,7 +126,7 @@ contains(LOAD_LDVLIBS,True) {
 
         GL2PS_DEP         = $$system_path( $${LDVLIBRARY}/gl2ps.lib )
         TINYXML_DEP       = $$system_path( $${LDVLIBRARY}/tinyxml_STL.lib )
-        3DS_DEP           = $$system_path( $${LDVLIBRARY}/lib3ds.lib )
+        3DS_DEP           = $$system_path( $${LDVLIBRARY}/lib3ds-vs2015.lib )
         MINIZIP_DEP       = $$system_path( $${LDVLIBRARY}/unzip32-vs2015.lib )
         PNG_DEP           = $$system_path( $${LDVLIBRARY}/libpng16-vs2015.lib )
         JPEG_DEP          = $$system_path( $${LDVLIBRARY}/libjpeg-vs2015.lib )

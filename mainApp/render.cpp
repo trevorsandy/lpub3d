@@ -1512,12 +1512,12 @@ int Native::renderCsi(
 
               if (gui->exportMode == EXPORT_POVRAY ||
                   gui->exportMode == EXPORT_STL ||
-                  gui->exportMode == EXPORT_HTML  /*||
-                  gui->exportMode == EXPORT_3DS_MAX */){
-                /*  Options.IniFlag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni :
-                                      gui->exportMode == EXPORT_STL ? NativeSTLIni : Native3DSIni; */
+                  gui->exportMode == EXPORT_HTML ||
+                  gui->exportMode == EXPORT_3DS_MAX) {
                   Options.IniFlag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni :
-                                    gui->exportMode == EXPORT_STL ? NativeSTLIni : EXPORT_HTML;
+                                    gui->exportMode == EXPORT_STL ? NativeSTLIni : Native3DSIni;
+                /*  Options.IniFlag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni :
+                                    gui->exportMode == EXPORT_STL ? NativeSTLIni : EXPORT_HTML; */
               }
 
             ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/exportcsi.ldr";
@@ -1572,7 +1572,7 @@ int Native::renderCsi(
       emit gui->messageSig(LOG_ERROR,QString("Native %1 render failed.")
                           .arg(Options.ExportMode == EXPORT_NONE ? QString("CSI image") :
                                QString("CSI %1 object").arg(nativeExportNames[gui->exportMode])));
-      delete CsiImageProject;
+      // delete CsiImageProject;
       return -1;
   }
 
@@ -1922,21 +1922,21 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerCsiKey)
 
 bool Render::NativeExport(const NativeOptions &Options) {
 
-    QString exortMode = nativeExportNames[Options.ExportMode];
+    QString exportMode = nativeExportNames[Options.ExportMode];
 
     bool good = true;
 
     if (Options.ExportMode == EXPORT_WAVEFRONT ||
-        Options.ExportMode == EXPORT_COLLADA   ||
-        Options.ExportMode == EXPORT_3DS_MAX /*  ||
+        Options.ExportMode == EXPORT_COLLADA /*  ||
+        Options.ExportMode == EXPORT_3DS_MAX   ||
         Options.ExportMode == EXPORT_HTML */) {
-        emit gui->messageSig(LOG_STATUS, QString("Native CSI %1 Export...").arg(exortMode));
+        emit gui->messageSig(LOG_STATUS, QString("Native CSI %1 Export...").arg(exportMode));
         Project* NativeExportProject = new Project();
         gApplication->SetProject(NativeExportProject);
 
         if (! gMainWindow->OpenProject(Options.InputFileName)) {
             emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to open CSI %1 Export project")
-                                                           .arg(exortMode));
+                                                           .arg(exportMode));
             delete NativeExportProject;
             good = false;
         }
@@ -1946,18 +1946,18 @@ bool Render::NativeExport(const NativeOptions &Options) {
         QString workingDirectory = QDir::currentPath();
         QStringList arguments = Options.ExportArgs;
         emit gui->messageSig(LOG_TRACE, QString("Native CSI %1 Export for command: %2")
-                                                 .arg(exortMode)
+                                                 .arg(exportMode)
                                                  .arg(arguments.join(" ")));
         ldvWidget = new LDVWidget(nullptr,IniFlag(Options.IniFlag),true);
         if (! ldvWidget->doCommand(arguments))  {
             emit gui->messageSig(LOG_ERROR, QString("Failed to generate CSI %1 Export for command: %2")
-                                                    .arg(exortMode)
+                                                    .arg(exportMode)
                                                     .arg(arguments.join(" ")));
             good = false;
         }
         if (! QDir::setCurrent(workingDirectory)) {
             emit gui->messageSig(LOG_ERROR, QString("Failed to restore CSI %1 export working directory: %2")
-                                                    .arg(exortMode)
+                                                    .arg(exportMode)
                                                     .arg(workingDirectory));
             good = false;
         }
@@ -1985,11 +1985,6 @@ bool Render::NativeExport(const NativeOptions &Options) {
     {
         lcGetActiveProject()->ExportCOLLADA(Options.ExportFileName);
     }
-    else
-    if (Options.ExportMode == EXPORT_3DS_MAX)
-    {
-        lcGetActiveProject()->Export3DStudio(Options.ExportFileName);
-    }
 
 /*
     // These are executed through the LDV Native renderer
@@ -2012,6 +2007,11 @@ bool Render::NativeExport(const NativeOptions &Options) {
     if (Options.ExportMode == EXPORT_POVRAY)
     {
         lcGetActiveProject()->ExportPOVRay(Options.ExportFileName);
+    }
+    else
+    if (Options.ExportMode == EXPORT_3DS_MAX)
+    {
+        lcGetActiveProject()->Export3DStudio(Options.ExportFileName);
     }
 */
 
