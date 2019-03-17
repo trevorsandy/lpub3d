@@ -247,10 +247,10 @@ void Range::sizeitVert()
   
   setBoundingSize();
 
-  logTrace() << "\nRangeDivider Vertical Range Size:"
-             << "\nRange::size XX     [" << size[XX] << "]"
-             << "\nRange::size YY     [" << size[YY] << "]"
-                ;
+//  logTrace() << "\nRangeDivider Vertical Range Size:"
+//             << "\nRange::size XX     [" << size[XX] << "]"
+//             << "\nRange::size YY     [" << size[YY] << "]"
+//                ;
 }
 
 /*

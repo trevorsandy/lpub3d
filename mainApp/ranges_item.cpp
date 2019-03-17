@@ -204,47 +204,23 @@ DividerItem::DividerItem(
                   offsetY,
                   parentStep->size[XX],
                   2*sepData.margin[YY]+sepData.thickness);
-          logDebug() << "\nRangeDivider Vertical Rectangle for Step [" << parentStep->stepNumber.number << "]:"
-                     << "\nrectangle::(x1) [" << offsetX << "] offsetX"
-                     << "\nrectangle::(y1) [" << offsetY << "] offsetY"
-                     << "\nrectangle::(x2) [" << parentStep->size[XX] << "] parentStep->size[XX]"
-                     << "\nrectangle::(y2) [" << 2*sepData.margin[YY]+sepData.thickness << "] 2*sepData.margin[YY]+sepData.thickness"
-                        ;
       } else {
           setRect(offsetX,
                   offsetY,
                   2*sepData.margin[XX]+sepData.thickness,
                   parentStep->size[YY]);
-          logDebug() << "\nRangeDivider Horizontal Rectangle for Step [" << parentStep->stepNumber.number << "]:"
-                     << "\nrectangle::(x1) [" << offsetX << "] offsetX"
-                     << "\nrectangle::(y1) [" << offsetY << "] offsetY"
-                     << "\nrectangle::(x2) [" << 2*sepData.margin[XX]+sepData.thickness << "] 2*sepData.margin[XX]+sepData.thickness"
-                     << "\nrectangle::(y2) [" << parentStep->size[YY] << "] parentStep->size[YY]"
-                        ;
       }
-  } else {                 // default divider
+  } else {                      // default divider
       if (allocEnc == Vertical) {
         setRect(offsetX,
                 offsetY,
                 2*sepData.margin[XX]+sepData.thickness,
                 range->size[YY]);
-        logDebug() << "\nDivider Horizontal Rectangle for Step [" << parentStep->stepNumber.number << "]:"
-                   << "\nrectangle::(x1) [" << offsetX << "] offsetX"
-                   << "\nrectangle::(y1) [" << offsetY << "] offsetY"
-                   << "\nrectangle::(x2) [" << 2*sepData.margin[XX]+sepData.thickness << "] 2*sepData.margin[XX]+sepData.thickness"
-                   << "\nrectangle::(y2) [" << range->size[YY] << "] range->size[YY]"
-                      ;
       } else {
         setRect(offsetX,
                 offsetY,
                 range->size[XX],
                 2*sepData.margin[YY]+sepData.thickness);
-        logDebug() << "\nDivider Vertical Rectangle for Step [" << parentStep->stepNumber.number << "]:"
-                   << "\nrectangle::(x1) [" << offsetX << "] offsetX"
-                   << "\nrectangle::(y1) [" << offsetY << "] offsetY"
-                   << "\nrectangle::(x2) [" << range->size[XX] << "] range->size[XX]"
-                   << "\nrectangle::(y2) [" << 2*sepData.margin[YY]+sepData.thickness << "] 2*sepData.margin[YY]+sepData.thickness"
-                      ;
       }
   }
 
@@ -274,12 +250,6 @@ DividerItem::DividerItem(
                               offsetY-spacingHeight,    // top
                               offsetX+parentStep->size[XX]-separatorWidth,
                               offsetY-spacingHeight);   // top
-            logDebug() << "\nRangeDividerLine Vertical Position points for Step [" << parentStep->stepNumber.number << "]:"
-                       << "\nlineItem::(x1) [" << offsetX-separatorWidth << "] offsetX-(sepData.margin[XX]+sepData.thickness)/2"
-                       << "\nlineItem::(y1) [" << offsetY-spacingHeight << "] offsetY-(sepData.margin[YY]+sepData.thickness+range->stepSpacing)/2"
-                       << "\nlineItem::(x2) [" << offsetX+parentStep->size[XX]-separatorWidth << "] offsetX+parentStep->size[XX]-(sepData.margin[XX]+sepData.thickness)/2"
-                       << "\nlineItem::(y2) [" << offsetY-spacingHeight << "] offsetY-(sepData.margin[YY]+sepData.thickness+range->stepSpacing)/2"
-                          ;
         } else {
             int spacingWidth    = (sepData.margin[XX]+sepData.thickness+range->stepSpacing)/2;
             int separatorHeight = sepData.margin[YY]+sepData.thickness/2;
@@ -287,12 +257,6 @@ DividerItem::DividerItem(
                               offsetY-separatorHeight,
                               offsetX-spacingWidth,     // left
                               offsetY+parentStep->size[YY]-separatorHeight);
-            logDebug() << "\nRangeDividerLine Horizontal Position points for Step [" << parentStep->stepNumber.number << "]:"
-                       << "\nlineItem::(x1) [" << offsetX-spacingWidth << "] offsetX-(sepData.margin[XX]+sepData.thickness+range->stepSpacing)/2"
-                       << "\nlineItem::(y1) [" << offsetY-separatorHeight << "] offsetY-(sepData.margin[YY]+sepData.thickness)/2"
-                       << "\nlineItem::(x2) [" << offsetX-spacingWidth << "] offsetX-(sepData.margin[XX]+sepData.thickness+range->stepSpacing)/2"
-                       << "\nlineItem::(y2) [" << offsetY+parentStep->size[YY]-separatorHeight << "] offsetY+parentStep->size[YY]-(sepData.margin[YY]+sepData.thickness)/2"
-                          ;
         }
     } else {                      // default divider
         if (allocEnc == Vertical) {
@@ -301,24 +265,12 @@ DividerItem::DividerItem(
                             offsetY,
                             offsetX+separatorWidth,   // right
                             offsetY+range->size[YY]);
-          logDebug() << "\nDividerLine Vertical Position points for Step [" << parentStep->stepNumber.number << "]:"
-                     << "\nlineItem::(x1) [" << offsetX+separatorWidth << "] offsetX+sepData.margin[XX]+sepData.thickness/2"
-                     << "\nlineItem::(y1) [" << offsetY << "] offsetY"
-                     << "\nlineItem::(x2) [" << offsetX+separatorWidth << "] offsetX+sepData.margin[XX]+sepData.thickness/2"
-                     << "\nlineItem::(y2) [" << offsetY+range->size[YY] << "] offsetY + range->size[YY]"
-                        ;
         } else {
           int separatorHeight = sepData.margin[YY]+sepData.thickness/2;
           lineItem->setLine(offsetX,
                             offsetY+separatorHeight,   // top
                             offsetX+range->size[XX],
                             offsetY+separatorHeight);  // top
-          logDebug() << "\nDividerLine Horizontal Position points for Step [" << parentStep->stepNumber.number << "]:"
-                     << "\nlineItem::(x1) [" << offsetX << "] offsetX"
-                     << "\nlineItem::(y1) [" << offsetY+separatorHeight << "] offsetY+sepData.margin[YY]+sepData.thickness/2"
-                     << "\nlineItem::(x2) [" << offsetX+range->size[XX] << "] offsetX + range->size[XX]"
-                     << "\nlineItem::(y2) [" << offsetY+separatorHeight << "] offsetY+sepData.margin[YY]+sepData.thickness/2"
-                        ;
         }
     }
 
@@ -326,14 +278,6 @@ DividerItem::DividerItem(
     loc[YY]  = lineItem->boundingRect().y();
     size[XX] = lineItem->boundingRect().size().width();
     size[YY] = lineItem->boundingRect().size().height();
-
-//    logDebug() << "\nDivider Dimensions for Step [" << parentStep->stepNumber.number << "]:"
-//               << "\nlineItem::loc XX  [" << loc[XX] << "]"
-//               << "\nlineItem::loc YY  [" << loc[YY] << "]"
-//               << "\nlineItem::size XX [" << size[XX] << "]"
-//               << "\nlineItem::size YY [" << size[YY] << "]"
-//               << "\nlineItem::size    [" << lineItem->boundingRect().size() << "]"
-//                  ;
 
     QPen pen(LDrawColor::color(sepData.color));
     pen.setWidth(sepData.thickness);
@@ -376,7 +320,11 @@ void DividerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     return;
   }
   
-  Where topOfStep    = nextStep->topOfStep();
+  Where topOfStep;
+  if (parentStep->rangeDivider)
+      topOfStep = parentStep->topOfStep();
+  else
+      topOfStep = nextStep->topOfStep();
   Where bottomOfStep = nextStep->bottomOfStep();
   Range *range = parentStep->range();
 

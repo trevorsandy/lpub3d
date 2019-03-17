@@ -241,13 +241,20 @@ static void remove_partname(
  *
  ********************************************/
 
-static void set_divider_pointers(Meta &curMeta, Where &current, Range *range, LGraphicsView *view, bool rd, Rc rct){
+static void set_divider_pointers(
+        Meta &curMeta,
+        Where &current,
+        Range *range,
+        LGraphicsView *view,
+        bool rangeDivider,
+        Rc rct){
 
     QString sType = (rct == CalloutDividerRc ? "CALLOUT" : "STEPGROUP");
 
-    Rc pRc  = (rct == CalloutDividerRc ? CalloutDividerPointerRc : StepGroupDividerPointerRc);
-    Rc paRc = (rct == CalloutDividerRc ? CalloutDividerPointerAttribRc : StepGroupDividerPointerAttribRc);
-
+    Rc pRc  = (rct == CalloutDividerRc ? CalloutDividerPointerRc :
+                                         StepGroupDividerPointerRc);
+    Rc paRc = (rct == CalloutDividerRc ? CalloutDividerPointerAttribRc :
+                                         StepGroupDividerPointerAttribRc);
     PointerAttribMeta pam = (rct == CalloutDividerRc ? curMeta.LPub.callout.divPointerAttrib :
                                                        curMeta.LPub.multiStep.divPointerAttrib);
 
@@ -256,13 +263,10 @@ static void set_divider_pointers(Meta &curMeta, Where &current, Range *range, LG
 
     int numLines = gui->subFileSize(walk.modelName);
 
-    bool sd = !rd;
+    bool sd = !rangeDivider;
 
     for ( ; walk.lineNumber < numLines; walk++) {
         QString stepLine = gui->readLine(walk);
-#ifdef QT_DEBUG_MODE
-//        logTrace() << "\n[DEBUG " + sType + " DIVIDER POINTER LINE]" << stepLine;
-#endif
         Rc mRc = curMeta.parse(stepLine,walk);
         if (mRc == StepRc || mRc == RotStepRc) {
             break;
@@ -270,33 +274,14 @@ static void set_divider_pointers(Meta &curMeta, Where &current, Range *range, LG
             PointerMeta pm = (rct == CalloutDividerRc ? curMeta.LPub.callout.divPointer :
                                                         curMeta.LPub.multiStep.divPointer);
             range->appendDividerPointer(walk,pm,pam,view,sd);
-#ifdef QT_DEBUG_MODE
-//            if (sd){
-//            int pIndex = range->stepDividerPointerList.size() - 1;
-//            logTrace() << "\n[DEBUG " + sType + " STEP DIVIDER POINTER PAM"
-//                       << "\ndividerItem.id                    [" << range->stepDividerPointerList[pIndex]->pointerAttrib.value().id << "]"
-//                       << "\ndividerItem.parent                [" << range->stepDividerPointerList[pIndex]->pointerAttrib.value().parent << "]"
-//                       << "\ndividerItem.attribType            [" << AttributeNames[range->stepDividerPointerList[pIndex]->pointerAttrib.value().attribType] << "]"
-//                       << "\ndividerItem.borderData.useDefault [" << (range->stepDividerPointerList[pIndex]->pointerAttrib.value().borderData.useDefault ? "true" : "false") << "]"
-//                          ;
-//            } else {
-//            int pIndex = range->rangeDividerPointerList.size() - 1;
-//            logTrace() << "\n[DEBUG " + sType + " RANGE DIVIDER POINTER PAM"
-//                       << "\ndividerItem.id                    [" << range->rangeDividerPointerList[pIndex]->pointerAttrib.value().id << "]"
-//                       << "\ndividerItem.parent                [" << range->rangeDividerPointerList[pIndex]->pointerAttrib.value().parent << "]"
-//                       << "\ndividerItem.attribType            [" << AttributeNames[range->rangeDividerPointerList[pIndex]->pointerAttrib.value().attribType] << "]"
-//                       << "\ndividerItem.borderData.useDefault [" << (range->rangeDividerPointerList[pIndex]->pointerAttrib.value().borderData.useDefault ? "true" : "false") << "]"
-//                          ;
-//            }
-#endif
         } else if (mRc == paRc) {
             QStringList argv;
             split(stepLine,argv);
             pam.setValueInches(pam.parseAttributes(argv,walk));
 
-            int i               = pam.value().id - 1;
-            Pointer          *p = sd ? range->stepDividerPointerList[i] :
-                                       range->rangeDividerPointerList[i];
+            int i      = pam.value().id - 1;
+            Pointer *p = sd ? range->stepDividerPointerList[i] :
+                              range->rangeDividerPointerList[i];
             if (pam.value().id == p->id) {
                 pam.setAltValueInches(p->getPointerAttribInches());
                 p->setPointerAttribInches(pam);
@@ -304,45 +289,6 @@ static void set_divider_pointers(Meta &curMeta, Where &current, Range *range, LG
                     range->stepDividerPointerList.replace(i,p);
                 else
                     range->rangeDividerPointerList.replace(i,p);
-#ifdef QT_DEBUG_MODE
-//            if (sd){
-//                logTrace() << "\n[DEBUG " + sType + " POINTER ATTRIBUTE PAM]:"
-//                           << "\npam.id                    [" << pam.value().id << "]"
-//                           << "\npam.parent                [" << pam.value().parent << "]"
-//                           << "\npam.attribType            [" << AttributeNames[pam.value().attribType] << "]"
-//                           << "\npam.borderData.useDefault [" << (pam.value().borderData.useDefault ? "true" : "false") << "]"
-//                           << "\np.id                      [" << p->pointerAttrib.value().id << "]"
-//                           << "\np.parent                  [" << p->pointerAttrib.value().parent << "]"
-//                           << "\np.attribType              [" << AttributeNames[p->pointerAttrib.value().attribType] << "]"
-//                           << "\np.borderData.useDefault   [" << (p->pointerAttrib.value().borderData.useDefault ? "true" : "false") << "]"
-//                           << "\nco.id                     [" << range->stepDividerPointerList[i]->pointerAttrib.value().id << "]"
-//                           << "\nco.parent                 [" << range->stepDividerPointerList[i]->pointerAttrib.value().parent << "]"
-//                           << "\nco.attribType             [" << AttributeNames[range->stepDividerPointerList[i]->pointerAttrib.value().attribType] << "]"
-//                           << "\nco.borderData.useDefault  [" << (range->stepDividerPointerList[i]->pointerAttrib.value().borderData.useDefault ? "true" : "false") << "]"
-//                           << "\npam.preamble              [" << pam.preamble << "]"
-//                           << "\npam.here().modelName      [" << pam.here().modelName << "]"
-//                           << "\npam.here().lineNumber     [" << pam.here().lineNumber << "]"
-//                              ;
-//            } else {
-//                logTrace() << "\n[DEBUG " + sType + " POINTER ATTRIBUTE PAM]:"
-//                           << "\npam.id                    [" << pam.value().id << "]"
-//                           << "\npam.parent                [" << pam.value().parent << "]"
-//                           << "\npam.attribType            [" << AttributeNames[pam.value().attribType] << "]"
-//                           << "\npam.borderData.useDefault [" << (pam.value().borderData.useDefault ? "true" : "false") << "]"
-//                           << "\np.id                      [" << p->pointerAttrib.value().id << "]"
-//                           << "\np.parent                  [" << p->pointerAttrib.value().parent << "]"
-//                           << "\np.attribType              [" << AttributeNames[p->pointerAttrib.value().attribType] << "]"
-//                           << "\np.borderData.useDefault   [" << (p->pointerAttrib.value().borderData.useDefault ? "true" : "false") << "]"
-//                           << "\nco.id                     [" << range->rangeDividerPointerList[i]->pointerAttrib.value().id << "]"
-//                           << "\nco.parent                 [" << range->rangeDividerPointerList[i]->pointerAttrib.value().parent << "]"
-//                           << "\nco.attribType             [" << AttributeNames[range->rangeDividerPointerList[i]->pointerAttrib.value().attribType] << "]"
-//                           << "\nco.borderData.useDefault  [" << (range->rangeDividerPointerList[i]->pointerAttrib.value().borderData.useDefault ? "true" : "false") << "]"
-//                           << "\npam.preamble              [" << pam.preamble << "]"
-//                           << "\npam.here().modelName      [" << pam.here().modelName << "]"
-//                           << "\npam.here().lineNumber     [" << pam.here().lineNumber << "]"
-//                              ;
-//            }
-#endif
             }
         }
     }
@@ -1118,14 +1064,6 @@ int Gui::drawPage(
                           pagePointers.insert(position,pagePointer);
                       }
                       pagePointer = nullptr;
-#ifdef QT_DEBUG_MODE
-//                      logTrace() << "\n[DEBUG PAGE POINTER PAM " << (newPP ? "NEW" : "EXISTING") << " POSITION]"
-//                                 << "\npp[pos].id                    [" << pagePointers[position]->pointerList[pad.id - 1]->pointerAttrib.value().id << "]"
-//                                 << "\npp[pos].parent                [" << pagePointers[position]->pointerList[pad.id - 1]->pointerAttrib.value().parent << "]"
-//                                 << "\npp[pos].attribType            [" << AttributeNames[pagePointers[position]->pointerList[pad.id - 1]->pointerAttrib.value().attribType] << "]"
-//                                 << "\npp[pos].borderData.useDefault [" << (pagePointers[position]->pointerList[pad.id - 1]->pointerAttrib.value().borderData.useDefault ? "true" : "false") << "]"
-//                                    ;
-#endif
                   }
               }
               break;
@@ -1158,27 +1096,6 @@ int Gui::drawPage(
                           pp->pointerList.replace(i,p);
                           pagePointers.remove(position);
                           pagePointers.insert(position,pp);
-#ifdef QT_DEBUG_MODE
-//                          logTrace() << "\n[DEBUG PAGE POINTER ATTRIBUTE PAM]:"
-//                                     << "\np.id                          [" << p->pointerAttrib.value().id << "]"
-//                                     << "\np.parent                      [" << p->pointerAttrib.value().parent << "]"
-//                                     << "\np.attribType                  [" << AttributeNames[p->pointerAttrib.value().attribType] << "]"
-//                                     << "\np.borderData.useDefault       [" << (p->pointerAttrib.value().borderData.useDefault ? "true" : "false") << "]"
-//                                     << "\np.borderData.color            [" << p->pointerAttrib.value().borderData.color << "]"
-//                                     << "\np.borderData.thickness        [" << p->pointerAttrib.value().borderData.thickness << "]"
-//                                     << "\np.borderData.hideTip          [" << (p->pointerAttrib.value().borderData.hideArrows ? "true" : "false") << "]"
-//                                     << "\np.lineData.color              [" << p->pointerAttrib.value().lineData.color << "]"
-//                                     << "\np.lineData.thickness          [" << p->pointerAttrib.value().lineData.thickness << "]"
-//                                     << "\np.lineData.hideTip            [" << (p->pointerAttrib.value().lineData.hideArrows ? "true" : "false") << "]"
-//                                     << "\npp[pos].id                    [" << pagePointers[position]->pointerList[i]->pointerAttrib.value().id << "]"
-//                                     << "\npp[pos].parent                [" << pagePointers[position]->pointerList[i]->pointerAttrib.value().parent << "]"
-//                                     << "\npp[pos].attribType            [" << AttributeNames[pagePointers[position]->pointerList[i]->pointerAttrib.value().attribType] << "]"
-//                                     << "\npp[pos].borderData.useDefault [" << (pagePointers[position]->pointerList[i]->pointerAttrib.value().borderData.useDefault ? "true" : "false") << "]"
-//                                     << "\npam.here().modelName          [" << pam.here().modelName << "]"
-//                                     << "\npam.here().lineNumber         [" << pam.here().lineNumber << "]"
-//                                     << "\npam.preamble                  [" << pam.preamble << "]"
-//                                        ;
-#endif
                       }
                   } else {
                       emit messageSig(LOG_ERROR, QString("Page Position %1 does not exist.").arg(PositionNames[position]));
@@ -1214,23 +1131,6 @@ int Gui::drawPage(
                       pam.setAltValueInches(p->getPointerAttribInches());
                       p->setPointerAttribInches(pam);
                       callout->pointerList.replace(i,p);
-#ifdef QT_DEBUG_MODE
-//                      logTrace() << "\n[DEBUG CALLOUT POINTER ATTRIBUTE PAM]:"
-//                                 << "\npam.id                    [" << pam.value().id << "]"
-//                                 << "\npam.parent                [" << pam.value().parent << "]"
-//                                 << "\npam.attribType            [" << AttributeNames[pam.value().attribType] << "]"
-//                                 << "\npam.borderData.useDefault [" << (pam.value().borderData.useDefault ? "true" : "false") << "]"
-//                                 << "\np.id                      [" << p->pointerAttrib.value().id << "]"
-//                                 << "\np.parent                  [" << p->pointerAttrib.value().parent << "]"
-//                                 << "\np.attribType              [" << AttributeNames[p->pointerAttrib.value().attribType] << "]"
-//                                 << "\np.borderData.useDefault   [" << (p->pointerAttrib.value().borderData.useDefault ? "true" : "false") << "]"
-//                                 << "\nco.id                     [" << callout->pointerList[i]->pointerAttrib.value().id << "]"
-//                                 << "\nco.parent                 [" << callout->pointerList[i]->pointerAttrib.value().parent << "]"
-//                                 << "\nco.attribType             [" << AttributeNames[callout->pointerList[i]->pointerAttrib.value().attribType] << "]"
-//                                 << "\nco.borderData.useDefault  [" << (callout->pointerList[i]->pointerAttrib.value().borderData.useDefault ? "true" : "false") << "]"
-//                                 << "\npam.preamble              [" << pam.preamble << "]"
-//                                    ;
-#endif
                   }
               }
             break;
@@ -1430,8 +1330,6 @@ int Gui::drawPage(
                   if (renderer->useLDViewSCall() && ! step->ldrName.isNull()) {
                       ldrStepFiles << step->ldrName;
                       csiKeys << step->csiKey; // No parts to process
-                      //qDebug() << "CSI ldr file #"<< ldrStepFiles.count() <<"added: " << step->ldrName;
-                      //qDebug() << "CSI key #"<< csiKeys.count() <<"added: " << step->csiKey;
                     }
 
                   partsAdded = true; // OK, so this is a lie, but it works
@@ -1554,8 +1452,6 @@ int Gui::drawPage(
                       if (renderer->useLDViewSCall() && ! step->ldrName.isNull()) {
                           ldrStepFiles << step->ldrName;
                           csiKeys << step->csiKey;
-                          //qDebug() << "CSI ldr file #"<< ldrStepFiles.count() <<"added: " << step->ldrName;
-                          //qDebug() << "CSI key #"<< csiKeys.count() <<"added: " << step->csiKey;
                       }
 
                   } else {

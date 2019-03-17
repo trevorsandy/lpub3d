@@ -382,7 +382,7 @@ bool Preferences::validLib(const QString &libName, const QString &libVersion) {
 
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     QStringList envList = env.toStringList();
-    envList.replaceInStrings(QRegularExpression("^(?i)PATH=(.*)"), "PATH=/usr/local/Homebrew/bin:/opt/local/bin:/usr/local/bin/:$HOME/bin:\\1");
+    envList.replaceInStrings(QRegularExpression("^(?i)PATH=(.*)"), "PATH=/usr/local/Homebrew/bin:/opt/local/bin:/usr/local/bin/:/opt/x11/bin:$HOME/bin:\\1");
 
     //logDebug() << "SystemEnvironment:  " << envList.join(" ");
 
