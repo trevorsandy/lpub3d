@@ -1155,7 +1155,7 @@ int LDView::renderCsi(
   QString cg = QString("-cg%1,%2,%3") .arg(applyCA ? 0.0f : meta.LPub.assem.cameraAngles.value(0))
                                       .arg(applyCA ? 0.0f : meta.LPub.assem.cameraAngles.value(1))
                                       .arg(cd);
-  QString a  = QString("-AutoCrop=1");
+
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
   QString l  = QString("-LDrawDir=%1")   .arg(Preferences::ldrawLibPath);
@@ -1171,8 +1171,10 @@ int LDView::renderCsi(
   arguments << l;                         // 06. LDrawDir
   arguments << o;                         // 07. HaveStdOut
   arguments << v;                         // 09. Verbose
-  if (!enableIM)
-    arguments.insert(2,a);                // 02. AutoCrop On if IM Off
+
+//  QString a  = QString("-AutoCrop=1");
+//  if (!enableIM)
+//    arguments.insert(2,a);                // 02. AutoCrop On if IM Off
 
   QStringList ldviewParmslist;
   ldviewParmslist = meta.LPub.assem.ldviewParms.value().split(' ');
