@@ -8,8 +8,8 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: November 11, 2018
-rem  Copyright (c) 2017 - 2018 by Trevor SANDY
+rem  Last Update: February 18, 2019
+rem  Copyright (c) 2017 - 2019 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
 rem but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -47,8 +47,8 @@ IF "%APPVEYOR%" EQU "True" (
   SET LDRAW_INSTALL_ROOT=%USERPROFILE%
   SET LDRAW_LIBS=%USERPROFILE%
   SET LDRAW_DIR=%USERPROFILE%\LDraw
-  SET LP3D_QT32_MSVC=C:\Qt\IDE\5.11.1\msvc2015\bin
-  SET LP3D_QT64_MSVC=C:\Qt\IDE\5.11.1\msvc2015_64\bin
+  SET LP3D_QT32_MSVC=C:\Qt\IDE\5.12.1\msvc2017\bin
+  SET LP3D_QT64_MSVC=C:\Qt\IDE\5.12.1\msvc2017_64\bin
 )
 
 SET LP3D_VCVARSALL=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build

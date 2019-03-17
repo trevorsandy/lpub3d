@@ -1,7 +1,7 @@
 # Build and check LPub3D x86 and x86_64 architectures unsing Qt/MinGW/VS2017 platforms
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: October 19, 2018
-# Copyright (c) 2017 - 2018 by Trevor SANDY
+# Last Update: February 18, 2019
+# Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 version: 'LPub3D-AV-Build-{build}'
 
@@ -59,8 +59,8 @@ environment:
   LP3D_PACKAGE_PATH: builds\windows\$(configuration)
   LP3D_DIST_DIR: lpub3d_windows_3rdparty
   LP3D_DIST_DIR_PATH: $(APPVEYOR_BUILD_FOLDER)\$(LP3D_DIST_DIR)
-  LP3D_QT32_MSVC: C:\Qt\5.11.2\msvc2015\bin
-  LP3D_QT64_MSVC: C:\Qt\5.11.2\msvc2017_64\bin
+  LP3D_QT32_MSVC: C:\Qt\5.12.1\msvc2017\bin
+  LP3D_QT64_MSVC: C:\Qt\5.12.1\msvc2017_64\bin
   LP3D_SECURE_DIR: builds\utilities\ci\secure
   SECURE_AV_SECRET:
     secure: nQtdZL7czHUCbI5HicAKEwLHmW88oGm9Y55LPalj8L4=
