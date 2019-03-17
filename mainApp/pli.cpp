@@ -136,7 +136,7 @@ float PliPart::maxMargin()
   float margin1 = qMax(instanceMeta.margin.valuePixels(XX),
                        csiMargin.valuePixels(XX));
 
-  // Use BOM Element margin
+  // Use style margin
   if (styleMeta.style.value() != AnnotationStyle::none){
       float margin2 = styleMeta.margin.valuePixels(XX);
       margin1 = qMax(margin1,margin2);
@@ -226,12 +226,7 @@ void Pli::setParts(
               }
           }
 
-          float modelScale = 1.0f;
-          if (Preferences::usingNativeRenderer) {
-              modelScale = pliMeta.cameraDistNative.factor.value();
-          } else {
-              modelScale = pliMeta.modelScale.value();
-          }
+          float modelScale = pliMeta.modelScale.value();;
 
           // set default annotation style settings
           AnnotationStyleMeta styleMeta;
@@ -940,9 +935,9 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart) {
                     int elementMargin;
 
                     if (pliMeta.annotation.elementStyle.value()){
-                        font   = pliMeta.rectangleStyle.font.valueFoo();
-                        color  = pliMeta.rectangleStyle.color.value();
-                        elementMargin = pliMeta.rectangleStyle.margin.valuePixels(YY);
+                        font   = pliMeta.elementStyle.font.valueFoo();
+                        color  = pliMeta.elementStyle.color.value();
+                        elementMargin = pliMeta.elementStyle.margin.valuePixels(YY);
                     } else {
                         font   = pliMeta.annotate.font.valueFoo();
                         color  = pliMeta.annotate.color.value();
@@ -1762,9 +1757,9 @@ int Pli::partSize()
                       int elementMargin;
 
                       if (pliMeta.annotation.elementStyle.value()){
-                          font   = pliMeta.rectangleStyle.font.valueFoo();
-                          color  = pliMeta.rectangleStyle.color.value();
-                          elementMargin = pliMeta.rectangleStyle.margin.valuePixels(YY);
+                          font   = pliMeta.elementStyle.font.valueFoo();
+                          color  = pliMeta.elementStyle.color.value();
+                          elementMargin = pliMeta.elementStyle.margin.valuePixels(YY);
                       } else {
                           font   = pliMeta.annotate.font.valueFoo();
                           color  = pliMeta.annotate.color.value();
@@ -2797,9 +2792,9 @@ void AnnotateTextItem::contextMenuEvent(
 
   QAction *fontAction       = commonMenus.fontMenu(menu,pl);
   QAction *colorAction      = commonMenus.colorMenu(menu,pl);
-  QAction *marginAction     = commonMenus.marginMenu(menu,pl);
   QAction *borderAction     = commonMenus.borderMenu(menu,pl);
   QAction *backgroundAction = commonMenus.backgroundMenu(menu,pl);
+  QAction *marginAction     = nullptr; //commonMenus.marginMenu(menu,pl);
   QAction *sizeAction       = nullptr; // commonMenus.sizeMenu(menu,pl);
 
 
@@ -2825,29 +2820,29 @@ void AnnotateTextItem::contextMenuEvent(
   if (selectedAction == fontAction) {
       changeFont(top,
                  bottom,
-                 &styleMeta->font);
+                 &font);
     } else if (selectedAction == colorAction) {
       changeColor(top,
                   bottom,
-                  &styleMeta->color);
-    } else if (selectedAction == marginAction) {
-      changeMargins(pl + " Margins",
-                    top,
-                    bottom,
-                    &styleMeta->margin);
+                  &color);
     } else if (selectedAction == backgroundAction) {
       changeBackground(pl+" Background",
                        top,
                        bottom,
-                       &styleMeta->background,
+                       &background,
                        true,1,true,false);  // no picture
     } else if (selectedAction == borderAction) {
-      bool corners = styleMeta->style.value() == circle;
+      bool corners = style.value() == circle;
       changeBorder(pl + " Border",
                    top,
                    bottom,
-                   &styleMeta->border,
+                   &border,
                    true,1,true,false,corners);
+    } else if (selectedAction == marginAction) {
+//      changeMargins(pl + " Margins",
+//                    top,
+//                    bottom,
+//                    &margin);
     } else if (selectedAction == sizeAction) {
 //      changeSize(pl + " Size",
 //                   "Width",
@@ -2986,29 +2981,46 @@ AnnotateTextItem::AnnotateTextItem(
 
   QString toolTip;
 
+  UnitsMeta styleSize;
+
   if (isElement){
       if (_pli->pliMeta.annotation.elementStyle.value()){
-         styleMeta  = &_pli->pliMeta.rectangleStyle;
+         border     = _pli->pliMeta.elementStyle.border;
+         background = _pli->pliMeta.elementStyle.background;
+         style      = _pli->pliMeta.elementStyle.style;
+         font       = _pli->pliMeta.elementStyle.font;
+         color      = _pli->pliMeta.elementStyle.color;
+         margin     = _pli->pliMeta.elementStyle.margin;
+         styleSize  = _pli->pliMeta.elementStyle.size;
       }
       toolTip = QString("%1 Element Annotation - right-click to modify")
                        .arg(_pli->pliMeta.partElements.legoElements.value() ? "LEGO" : "BrickLink");
   } else {
-      styleMeta  = &_part->styleMeta;
-      toolTip    = "Part Annotation - right-click to modify";
       // TODO - automatically resize text until it fits
       if ((_part->styleMeta.style.value() == AnnotationStyle::circle ||
            _part->styleMeta.style.value() == AnnotationStyle::square) &&
            _text.size() > 2) {
          fontString = "Arial,17,-1,5,50,0,0,0,0,0";
       }
+      border     = _part->styleMeta.border;
+      background = _part->styleMeta.background;
+      style      = _part->styleMeta.style;
+      font       = _part->styleMeta.font;
+      color      = _part->styleMeta.color;
+      margin     = _part->styleMeta.margin;
+      styleSize  = _part->styleMeta.size;
+      toolTip    = "Part Annotation - right-click to modify";
   }
 
   setText(_pli,_part,_text,fontString,toolTip);
 
+  QColor color(_colorString);
+  setDefaultTextColor(color);
+
   bool useDocSize = false;
 
   if (!isElement)
-      useDocSize = styleMeta->style.value() == AnnotationStyle::none;
+      useDocSize = style.value() == AnnotationStyle::none;
 
   QRectF docSize  = QRectF(0,0,document()->size().width(),document()->size().height());
 
@@ -3016,8 +3028,8 @@ AnnotateTextItem::AnnotateTextItem(
       annotateRect = docSize;
   } else {
       bool dw = part->styleMeta.style.value() == AnnotationStyle::rectangle || isElement;
-      QRectF styleSize = QRectF(0,0,dw ? docSize.width() : styleMeta->size.valuePixels(0),styleMeta->size.valuePixels(1));
-      annotateRect = boundingRect().adjusted(0,0,styleSize.width()-docSize.width(),styleSize.height()-docSize.height());
+      QRectF _styleSize = QRectF(0,0,dw ? docSize.width() : styleSize.valuePixels(XX),styleSize.valuePixels(YY));
+      annotateRect = boundingRect().adjusted(0,0,_styleSize.width()-docSize.width(),_styleSize.height()-docSize.height());
       // center the document on the new size
       setTextWidth(-1);
       setTextWidth(annotateRect.width());
@@ -3029,9 +3041,6 @@ AnnotateTextItem::AnnotateTextItem(
       cursor.clearSelection();
       setTextCursor(cursor);
   }
-
-  QColor color(_colorString);
-  setDefaultTextColor(color);
 
   subModelColor = pli->pliMeta.subModelColor;
   if (pli->background)
@@ -3050,8 +3059,8 @@ void AnnotateTextItem::size(int &x, int &y)
 void AnnotateTextItem::setBackground(QPainter *painter)
 {
     // set border and background parameters
-    BorderData     borderData     = styleMeta->border.valuePixels();
-    BackgroundData backgroundData = styleMeta->background.value();
+    BorderData     borderData     = border.valuePixels();
+    BackgroundData backgroundData = background.value();
 
     // set rectangle size and dimensions parameters
     int ibt = int(borderData.thickness);
@@ -3127,7 +3136,7 @@ void AnnotateTextItem::setBackground(QPainter *painter)
     }
 
     // draw icon rectangle - background and border
-    if (styleMeta->style.value() != AnnotationStyle::circle) {
+    if (style.value() != AnnotationStyle::circle) {
         if (borderData.type == BorderData::BdrRound) {
             painter->drawRoundRect(irect,int(rx),int(ry));
         } else {
@@ -3140,9 +3149,8 @@ void AnnotateTextItem::setBackground(QPainter *painter)
 
 void AnnotateTextItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *o, QWidget *w)
 {
-    if (styleMeta->style.value() != AnnotationStyle::none)
+    if (style.value() != AnnotationStyle::none)
         setBackground(painter);
-
     QGraphicsTextItem::paint(painter, o, w);
 }
 

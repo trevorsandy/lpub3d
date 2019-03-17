@@ -241,10 +241,24 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       placementAction = commonMenus.placementMenu(menu, pl, whatsThis);
     }
 
+  QAction *addCsiAnnoAction = nullptr;
+  if (fullContextMenu &&
+      meta->LPub.assem.annotation.display.value() &&
+      (step->calledOut || step->multiStep)) {
+      addCsiAnnoAction = menu.addAction("Add Part Annotations");
+      addCsiAnnoAction->setIcon(QIcon(":/resources/addpartannotation.png"));
+  }
+
+  QAction *refreshCsiAnnoAction = nullptr;
+  if (fullContextMenu && step->csiAnnotations.size()){
+      refreshCsiAnnoAction = menu.addAction("Reload Part Annotations");
+      refreshCsiAnnoAction->setIcon(QIcon(":/resources/reloadpartannotation.png"));
+  }
+
   QAction *showCsiAnnoAction = nullptr;
-  if (fullContextMenu  && hiddenAnnotations){
-      showCsiAnnoAction = menu.addAction("Show All Hidden Annotations");
-      showCsiAnnoAction->setIcon(QIcon(":/resources/display.png"));
+  if (fullContextMenu && hiddenAnnotations){
+      showCsiAnnoAction = menu.addAction("Show Hidden Part Annotations");
+      showCsiAnnoAction->setIcon(QIcon(":/resources/hidepartannotation.png"));
   }
 
   QAction *cameraDistFactorAction = nullptr;
@@ -396,37 +410,37 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         }
     } else if (selectedAction == addDividerPointerAction) {
         PlacementEnc placement = Center;
-        addPointerTip(&step->grandparent()->meta,topOfStep,bottomOfStep,placement,StepGroupDividerPointerRc);
+        addPointerTip(meta,topOfStep,bottomOfStep,placement,StepGroupDividerPointerRc);
     } else if (selectedAction == allocAction) {
-      if (parentRelativeType == StepGroupType) {
-          changeAlloc(topOfSteps,
-                      bottomOfSteps,
-                      step->allocMeta());
+        if (parentRelativeType == StepGroupType) {
+            changeAlloc(topOfSteps,
+                        bottomOfSteps,
+                        step->allocMeta());
         } else {
-          changeAlloc(callout->topOfCallout(),
-                      callout->bottomOfCallout(),
-                      step->allocMeta());
+            changeAlloc(callout->topOfCallout(),
+                        callout->bottomOfCallout(),
+                        step->allocMeta());
         }
 
     } else if (selectedAction == placementAction) {
-      changePlacement(parentRelativeType,
-                      CsiType,
-                      pl+" Placement",
-                      topOfStep,
-                      bottomOfStep,
-                      &meta->LPub.assem.placement);
+        changePlacement(parentRelativeType,
+                        CsiType,
+                        pl+" Placement",
+                        topOfStep,
+                        bottomOfStep,
+                        &meta->LPub.assem.placement);
     } else if (selectedAction == cameraDistFactorAction) {
-          changeCameraDistFactor(pl+" Camera Distance",
-                                 "Native Camera Distance",
-                                 topOfSteps,
-                                 bottomOfSteps,
-                                 &meta->LPub.assem.cameraDistNative.factor);
+        changeCameraDistFactor(pl+" Camera Distance",
+                               "Native Camera Distance",
+                               topOfSteps,
+                               bottomOfSteps,
+                               &meta->LPub.assem.cameraDistNative.factor);
     } else if (selectedAction == scaleAction){
-          changeFloatSpin(pl+" Scale",
-                          "Model Size",
-                          topOfSteps,
-                          bottomOfSteps,
-                          &meta->LPub.assem.modelScale);
+        changeFloatSpin(pl+" Scale",
+                        "Model Size",
+                        topOfSteps,
+                        bottomOfSteps,
+                        &meta->LPub.assem.modelScale);
     } else if (selectedAction == marginsAction) {
 
       MarginsMeta *margins;
@@ -452,17 +466,21 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       appendMeta(topOfStep,"0 !LPUB NOSTEP");
     } else if (selectedAction == insertRotateIconAction &&fullContextMenu) {
       appendMeta(topOfStep,"0 !LPUB INSERT ROTATE_ICON OFFSET 0.5 0.5");
-  } else if (selectedAction == showCsiAnnoAction) {
-          for (int i = 0; i < step->csiAnnotations.size(); ++i) {
-              CsiAnnotation *ca = step->csiAnnotations[i];
-              if (ca->caMeta.icon.value().hidden) {
-                  ca->caMeta.icon.value().hidden = false;
-                  step->csiAnnotations.replace(i,ca);
-              }
+    } else if (selectedAction == addCsiAnnoAction) {
+      step->setCsiAnnotationMetas(*meta);
+    } else if (selectedAction == refreshCsiAnnoAction) {
+      step->setCsiAnnotationMetas(*meta,true);
+    } else if (selectedAction == showCsiAnnoAction) {
+      for (int i = 0; i < step->csiAnnotations.size(); ++i) {
+          CsiAnnotation *ca = step->csiAnnotations[i];
+          if (ca->caMeta.icon.value().hidden) {
+              ca->caMeta.icon.value().hidden = false;
+              step->csiAnnotations.replace(i,ca);
           }
-          hiddenAnnotations = false;
-          step->setCsiAnnotationMetas(*meta,!hiddenAnnotations);
-  }
+      }
+      hiddenAnnotations = false;
+      step->setCsiAnnotationMetas(*meta,!hiddenAnnotations);
+    }
 
 }
 

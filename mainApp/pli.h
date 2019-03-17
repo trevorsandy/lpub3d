@@ -424,8 +424,13 @@ void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 class AnnotateTextItem : public PGraphicsTextItem
 {
 public:
-  QRectF               annotateRect;
-  AnnotationStyleMeta *styleMeta;
+  BorderMeta     border;
+  BackgroundMeta background;
+  IntMeta        style;
+  FontMeta       font;
+  StringMeta     color;
+  MarginsMeta    margin;
+  QRectF         annotateRect;
 
   AnnotateTextItem(
     Pli           *_pli,

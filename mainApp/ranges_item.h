@@ -29,6 +29,7 @@
 #define ranges_itemH
 
 #include <QGraphicsRectItem>
+#include "placement.h"
 #include "metaitem.h"
 #include "where.h"
 
@@ -87,23 +88,14 @@ protected:
     void contextMenuEvent (QGraphicsSceneContextMenuEvent *event);
 };
 
-#include "backgrounditem.h"
-
-class DividerPointerBackgroundItem : public QGraphicsRectItem, public MetaItem /* public PlacementBackgroundItem */
+class DividerPointerBackgroundItem : public QGraphicsRectItem, public MetaItem
 {
 public:
-  PlacementType   parentRelativeType;
-  QRect           dividerRect;
-  Meta           *meta;
-  BackgroundMeta *background;
   BorderMeta     *border;
-  PlacementMeta  *placement;
-  MarginsMeta    *margin;
 
   DividerPointerBackgroundItem(
+    Meta         *_meta,
     QRect        &_dividerRect,
-    PlacementType  parentRelativeType,
-    Meta          *meta,
     QGraphicsItem *parent);
 
   void setPos(float x, float y)
@@ -121,11 +113,12 @@ class DividerPointerBackgroundItem;
 class DividerItem : public QGraphicsRectItem, public MetaItem, public Placement
 {
 public:
+    Meta                         *meta;
     Step                         *step;
-    PlacementType                 parentRelativeType;
     DividerLine                  *lineItem;
-    QList<DividerPointerItem *>   graphicsPointerList; /* Pointer and pointer tips graphics */
     DividerPointerBackgroundItem *background;
+    QList<DividerPointerItem *>   graphicsPointerList; /* Pointer and pointer tips graphics */
+    PlacementType                 parentRelativeType;
 
     DividerItem() {}
     DividerItem(

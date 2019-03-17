@@ -29,13 +29,9 @@ class LPubAlert : public QObject
 public:
   LPubAlert();
   ~LPubAlert();
-  bool exportingObjects() { return !m_exportingObjects; }
-public slots:
-  void setExportingObjects(bool b){ m_exportingObjects = b; }
 signals:
   void messageSig(LogType logType, QString message);
 private:
-  bool m_exportingObjects;
 };
 
 extern class LPubAlert *lpubAlert;

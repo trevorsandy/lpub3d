@@ -183,6 +183,7 @@ DividerItem::DividerItem(
   int    offsetY)
 {
   AllocEnc allocEnc;
+  meta               = _meta;
   step               = _step;
   Steps  *steps      = step->grandparent();
   Range  *range      = step->range();
@@ -190,9 +191,9 @@ DividerItem::DividerItem(
   placement          = steps->placement;
 
   if (parentRelativeType == CalloutType) {
-    allocEnc = steps->meta.LPub.callout.alloc.value();
+    allocEnc = meta->LPub.callout.alloc.value();
   } else {
-    allocEnc = steps->meta.LPub.multiStep.alloc.value();
+    allocEnc = meta->LPub.multiStep.alloc.value();
   }
 
   SepData sepData = range->sepMeta.valuePixels();
@@ -389,25 +390,23 @@ void DividerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
 void DividerItem::addGraphicsPointerItem(Pointer *pointer, QGraphicsView *view)
 {
-
     // This is the background for the dividerPointer line.
     QRect dividerRect(loc[XX],loc[YY],size[XX],size[YY]);
     background = new DividerPointerBackgroundItem (
+                meta,
                 dividerRect,
-                parentRelativeType,
-                &step->grandparent()->meta,
                 parentItem());
     background->setPos(loc[XX],loc[YY]);
     background->setFlag(QGraphicsItem::ItemIsMovable, false);
     background->setFlag(QGraphicsItem::ItemIsSelectable, false);
 
-    DividerPointerItem *t =
+    DividerPointerItem *pi =
             new DividerPointerItem(
                 this,
                 pointer,
                 background,
                 view);
-    graphicsPointerList.append(t);
+    graphicsPointerList.append(pi);
 }
 
 void DividerItem::updatePointers(QPoint &delta)
@@ -441,20 +440,13 @@ void DividerLine::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
  *****************************************************************************/
 
 DividerPointerBackgroundItem::DividerPointerBackgroundItem(
-  QRect         &_dividerRect,
-  PlacementType  _parentRelativeType,
   Meta          *_meta,
+  QRect         &_dividerRect,
   QGraphicsItem *parent)
 {
-  meta               = _meta;
-  parentRelativeType = _parentRelativeType;
-  dividerRect        = _dividerRect;
-  background         = &meta->LPub.pointerBase.background;
-  border             = &meta->LPub.pointerBase.border;
-  placement          = &meta->LPub.pointerBase.placement;
-  margin             = &meta->LPub.pointerBase.margin;
+  border = &_meta->LPub.pointerBase.border;
 
-  setRect(0,0,dividerRect.width(),dividerRect.height());
+  setRect(0,0,_dividerRect.width(),_dividerRect.height());
   setToolTip("");
   setPen(QPen(Qt::NoPen));
   setBrush(QBrush(Qt::NoBrush));

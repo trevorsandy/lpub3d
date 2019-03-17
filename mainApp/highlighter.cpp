@@ -296,6 +296,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bDOCUMENT_TITLE_FRONT\\b"
     << "\\bDPCM\\b"
     << "\\bDPI\\b"
+    << "\\bELEMENT_STYLE\\b"
     << "\\bEND\\b"
     << "\\bEXTENDED\\b"
     << "\\bFACTOR\\b"

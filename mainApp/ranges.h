@@ -85,6 +85,8 @@ class Steps : public Placement {
     void addGraphicsItems(int ox, int oy, QGraphicsItem *parent);
     virtual void addGraphicsItems(AllocEnc, int ox, int oy, QGraphicsItem *parent);
 
+    virtual void setCsiAnnotationMetas(bool = false);
+
     Boundary boundary(AbstractStepsElement *);
 
     const Where &bottomOfStep(AbstractStepsElement *me);

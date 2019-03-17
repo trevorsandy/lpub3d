@@ -286,6 +286,14 @@ GlobalPliDialog::GlobalPliDialog(
           this,          SLOT(  styleOptionChanged(bool)));
   shlayout->addWidget(rectangleStyle);
 
+  if (bom) {
+      elementStyle = new QRadioButton("Element",sbox);
+      elementStyle->setChecked(false);
+      connect(elementStyle,SIGNAL(clicked(bool)),
+              this,        SLOT(  styleOptionChanged(bool)));
+      shlayout->addWidget(elementStyle);
+  }
+
   // square style settings
   squareBkGrndStyleBox = new QGroupBox("Square Background");
   svlayout->addWidget(squareBkGrndStyleBox);
@@ -370,6 +378,35 @@ GlobalPliDialog::GlobalPliDialog(
   child = new FloatsGui("Width","Height",&pliMeta->rectangleStyle.size,rectangleSizeStyleBox,3);
   data->children.append(child);
 
+  if (bom) {
+      // element style settings
+      elementBkGrndStyleBox = new QGroupBox("Element Background");
+      svlayout->addWidget(elementBkGrndStyleBox);
+      elementBkGrndStyleBox->hide();
+      child = new BackgroundGui(&pliMeta->elementStyle.background,elementBkGrndStyleBox,false);
+      data->children.append(child);
+
+      elementBorderStyleBox = new QGroupBox("Element Border");
+      svlayout->addWidget(elementBorderStyleBox);
+      elementBorderStyleBox->hide();
+      child = new BorderGui(&pliMeta->elementStyle.border,elementBorderStyleBox);
+      data->children.append(child);
+
+      elementFormatStyleBox = new QGroupBox("Element Annotation Text Format");
+      svlayout->addWidget(elementFormatStyleBox);
+      elementFormatStyleBox->hide();
+      styleMeta.margin = pliMeta->elementStyle.margin;
+      styleMeta.font   = pliMeta->elementStyle.font;
+      styleMeta.color  = pliMeta->elementStyle.color;
+      child = new NumberGui(&styleMeta,elementFormatStyleBox);
+      data->children.append(child);
+
+      elementSizeStyleBox = new QGroupBox("Element Size");
+      svlayout->addWidget(elementSizeStyleBox);
+      elementSizeStyleBox->hide();
+      child = new FloatsGui("Width","Height",&pliMeta->elementStyle.size,elementSizeStyleBox,3);
+      data->children.append(child);
+  }
   //Edit PLI Annotation Style Selection END
 
   //spacer
@@ -453,6 +490,11 @@ void GlobalPliDialog::styleOptionChanged(bool b){
       rectangleBorderStyleBox->hide();
       rectangleFormatStyleBox->hide();
       rectangleSizeStyleBox->hide();
+
+      elementBkGrndStyleBox->hide();
+      elementBorderStyleBox->hide();
+      elementFormatStyleBox->hide();
+      elementSizeStyleBox->hide();
   }
   else
   if (obj == circleStyle) {
@@ -470,6 +512,11 @@ void GlobalPliDialog::styleOptionChanged(bool b){
       rectangleBorderStyleBox->hide();
       rectangleFormatStyleBox->hide();
       rectangleSizeStyleBox->hide();
+
+      elementBkGrndStyleBox->hide();
+      elementBorderStyleBox->hide();
+      elementFormatStyleBox->hide();
+      elementSizeStyleBox->hide();
   }
   else
   if (obj == rectangleStyle) {
@@ -487,7 +534,34 @@ void GlobalPliDialog::styleOptionChanged(bool b){
       circleBorderStyleBox->hide();
       circleFormatStyleBox->hide();
       circleSizeStyleBox->hide();
-  } else {
+
+      elementBkGrndStyleBox->hide();
+      elementBorderStyleBox->hide();
+      elementFormatStyleBox->hide();
+      elementSizeStyleBox->hide();
+  }
+  else
+  if (obj == elementStyle) {
+      elementBkGrndStyleBox->show();
+      elementBorderStyleBox->show();
+      elementFormatStyleBox->show();
+      elementSizeStyleBox->show();
+
+      rectangleBkGrndStyleBox->hide();
+      rectangleBorderStyleBox->hide();
+      rectangleFormatStyleBox->hide();
+      rectangleSizeStyleBox->hide();
+
+      squareBkGrndStyleBox->hide();
+      squareBorderStyleBox->hide();
+      squareFormatStyleBox->hide();
+      squareSizeStyleBox->hide();
+
+      circleBkGrndStyleBox->hide();
+      circleBorderStyleBox->hide();
+      circleFormatStyleBox->hide();
+      circleSizeStyleBox->hide();
+  }else {
       squareBkGrndStyleBox->show();
       squareBorderStyleBox->show();
       squareFormatStyleBox->show();
@@ -502,6 +576,11 @@ void GlobalPliDialog::styleOptionChanged(bool b){
       rectangleBorderStyleBox->hide();
       rectangleFormatStyleBox->hide();
       rectangleSizeStyleBox->hide();
+
+      elementBkGrndStyleBox->hide();
+      elementBorderStyleBox->hide();
+      elementFormatStyleBox->hide();
+      elementSizeStyleBox->hide();
 
       squareBkGrndStyleBox->setDisabled(true);
       squareBorderStyleBox->setDisabled(true);

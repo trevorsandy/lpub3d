@@ -516,9 +516,9 @@ void Steps::addGraphicsItems(
   }
 
   for (int i = 0; i < list.size(); i++) {
-    if (list[i]->relativeType == RangeType) {
+    if (list[i]->relativeType == RangeType) {                       // rangeType
       Range *range = dynamic_cast<Range *>(list[i]);
-      if (range) {
+      if (range) {                                                  // range
         if (relativeType == StepGroupType) {
           new MultiStepRangeBackgroundItem(this,range,&meta,
                     offsetX + loc[XX],
@@ -529,54 +529,11 @@ void Steps::addGraphicsItems(
         range->addGraphicsItems(
           offsetX + loc[XX], offsetY + loc[YY], &meta, relativeType, parent);
 
-        // check range for Steps with rangeDivider
-        int size = range->list.size();
-        if (size) {
-            for (int i = 0; i < range->list.size(); i++) {
-              if (range->list[i]->relativeType == StepType) {
-                Step *step = dynamic_cast<Step *>(range->list[i]);
-                if (step && step->rangeDivider) {
-                    int oX,oY;
-                    if (allocEnc == Vertical) {
-                      oX = offsetX + loc[XX] + range->loc[XX];
-                      oY = offsetY + loc[YY] + step->loc[YY];
-                    } else {
-                      oX = offsetX + loc[XX] + step->loc[XX];
-                      oY = offsetY + loc[YY] + range->loc[YY];
-                    }
-                    logDebug() << "\nRangeDivider Ranges and Range Dimensions for Step [" << step->stepNumber.number << "]:"
-                               << "\nRanges::loc XX     [" << loc[XX] << "]"
-                               << "\nRanges::loc YY     [" << loc[YY] << "]"
-                               << (allocEnc == Vertical ? "\nStep[" : "\nRange[")
-                               << (allocEnc == Vertical ? step->stepNumber.number : i) << "]::loc XX ["
-                               << (allocEnc == Vertical ? step->loc[XX] : range->loc[XX]) << "]"
-                               << (allocEnc == Vertical ? "\nRange[" : "\nStep[")
-                               << (allocEnc == Vertical ? i : step->stepNumber.number) << "]::loc YY ["
-                               << (allocEnc == Vertical ? range->loc[YY] : step->loc[YY])  << "]"
-                               << "\nStep[" << step->stepNumber.number << "]::size XX [" << step->size[XX] << "]"
-                               << "\nStep[" << step->stepNumber.number << "]::size YY [" << step->size[YY] << "]"
-                               << "\noffsetX            [" << offsetX << "] offsetX"
-                               << "\noffsetY            [" << offsetY << "] offsetY"
-                               << "\noX                 [" << oX << "] offsetX + ranges->loc[XX] + step->loc[XX]"
-                               << "\noY                 [" << oY << "] offsetY + ranges->loc[YY] + range->loc[YY]"
-                                  ;
-                  DividerItem *divider = new DividerItem(step,&meta,oX,oY);
-                  divider->setParentItem(parent);
-
-                  for (int i = 0; i < range->dividerPointerList.size(); i++) {
-                      Pointer *pointer = range->dividerPointerList[i];
-                      divider->addGraphicsPointerItem(pointer,range->view);
-                  }
-                }
-              }
-           }
-        }
-
+        // add divider if exist here
         if (list.size() > 1 && i < list.size() - 1) {
-          // add divider here
-          //int size = range->list.size();
+          int size = range->list.size();
           if (size) {
-            Step *step = dynamic_cast<Step *>(range->list[size-1]);          
+            Step *step = dynamic_cast<Step *>(range->list[size-1]);
             if (step) {
               int oX = offsetX + loc[XX] + range->loc[XX];
               int oY = offsetY + loc[YY] + range->loc[YY];
@@ -608,15 +565,55 @@ void Steps::addGraphicsItems(
               divider->setParentItem(parent);
 
               //   add divider pointers (if any) to the graphics scene
-              for (int i = 0; i < range->dividerPointerList.size(); i++) {
-                  Pointer *pointer = range->dividerPointerList[i];
+              for (int j = 0; j < range->stepDividerPointerList.size(); j++) {
+                  Pointer *pointer = range->stepDividerPointerList[j];
                   divider->addGraphicsPointerItem(pointer,range->view);
               }
             }
           }
-        }
-      }
-    }
+        }             // [divider]
+
+        // check steps for rangeDivider
+        for (int i = 0; i < range->list.size(); i++) {
+          if (range->list[i]->relativeType == StepType) {           // stepType
+            Step *step = dynamic_cast<Step *>(range->list[i]);
+            if (step && step->rangeDivider) {                       // step
+              int oX,oY;
+              if (allocEnc == Vertical) {
+                oX = offsetX + loc[XX] + range->loc[XX];
+                oY = offsetY + loc[YY] + step->loc[YY];
+              } else {
+                oX = offsetX + loc[XX] + step->loc[XX];
+                oY = offsetY + loc[YY] + range->loc[YY];
+              }
+              logDebug() << "\nRangeDivider Ranges and Range Dimensions for Step [" << step->stepNumber.number << "]:"
+                         << "\nRanges::loc XX     [" << loc[XX] << "]"
+                         << "\nRanges::loc YY     [" << loc[YY] << "]"
+                         << (allocEnc == Vertical ? "\nStep[" : "\nRange[")
+                         << (allocEnc == Vertical ? step->stepNumber.number : i) << "]::loc XX ["
+                         << (allocEnc == Vertical ? step->loc[XX] : range->loc[XX]) << "]"
+                         << (allocEnc == Vertical ? "\nRange[" : "\nStep[")
+                         << (allocEnc == Vertical ? i : step->stepNumber.number) << "]::loc YY ["
+                         << (allocEnc == Vertical ? range->loc[YY] : step->loc[YY])  << "]"
+                         << "\nStep[" << step->stepNumber.number << "]::size XX [" << step->size[XX] << "]"
+                         << "\nStep[" << step->stepNumber.number << "]::size YY [" << step->size[YY] << "]"
+                         << "\noffsetX            [" << offsetX << "] offsetX"
+                         << "\noffsetY            [" << offsetY << "] offsetY"
+                         << "\noX                 [" << oX << "] offsetX + ranges->loc[XX] + step->loc[XX]"
+                         << "\noY                 [" << oY << "] offsetY + ranges->loc[YY] + range->loc[YY]"
+                            ;
+              DividerItem *divider = new DividerItem(step,&meta,oX,oY);
+              divider->setParentItem(parent);
+
+              for (int j = 0; j < range->rangeDividerPointerList.size(); j++) {
+                  Pointer *pointer = range->rangeDividerPointerList[j];
+                  divider->addGraphicsPointerItem(pointer,range->view);
+              }
+            }                    // step          [range divider]
+          }                      // stepType      [range divider]
+        }                        // for each step [range divider]
+      }                          // range
+    }                            // rangeType
   }
 }
 
@@ -633,4 +630,151 @@ Boundary Steps::boundary(AbstractStepsElement *me)
     }
   }
   return Middle;
+}
+
+/******************************************************************************
+ *Place the multistep and callout CSI annotation metas - Not Used
+ *****************************************************************************/
+
+void Steps::setCsiAnnotationMetas(bool force)
+{
+  if (! meta.LPub.assem.annotation.display.value() ||
+      gui->exportingObjects())
+      return;
+
+  MetaItem mi;
+  QStringList parts;
+  Where undefined,rangeStart,rangeEnd;
+  Where walk,fromHere,toHere;
+
+  bool calledout = relativeType == CalloutType;
+
+  // get the model file lines to process
+  rangeStart = topOfSteps();
+  rangeEnd   = bottomOfSteps();
+
+  if (rangeStart == undefined) {
+    QString topOf = calledout ? "topOfCallout" : "topOfSteps";
+    emit gui->messageSig(LOG_ERROR, QString("CSI annotations could not retrieve %1 location").arg(topOf));
+    return;
+  }
+
+  for (int i = 0; i < list.size(); i++) {
+    if (list[i]->relativeType == RangeType) {
+      Range *range = dynamic_cast<Range *>(list[i]);
+      if (range) {
+        // process annotations for each step
+        for (int j = 0; j < range->list.size(); j++) {
+          if (range->list[j]->relativeType == StepType) {
+            Step *step = dynamic_cast<Step *>(range->list[j]);
+            if (step) {
+
+              // Sometimes we may already have annotations for the
+              // step defined - such as after printing or exporting
+              // In such cases we do not need to set metas again.
+              if (step->csiAnnotations.size() && ! force) {
+                continue;
+              }
+
+              QHash<QString, PliPart*> pliParts;
+
+              step->pli.getParts(pliParts);
+
+              if (! pliParts.size())
+                continue;
+
+              QString savePartIds,partIds,lineNumbers;
+
+              fromHere = step->topOfStep();
+              toHere   = step->bottomOfStep();
+              if (toHere == undefined)
+                  toHere = fromHere;
+              if (toHere == fromHere) {
+                  mi.scanForward(toHere,StepMask);
+              }
+
+              if (fromHere == undefined) {
+                  emit gui->messageSig(LOG_ERROR, QString("CSI annotations could not retrieve topOfStep location"));
+                  continue;
+              }
+
+              walk = fromHere;
+
+              for (; walk.lineNumber < toHere.lineNumber; ++walk) {
+                QString line = gui->readLine(walk);
+                QStringList argv;
+                split(line,argv);
+
+                if (argv.size() == 15 && argv[0] == "1") {
+                  QString key = QString("%1_%2").arg(QFileInfo(argv[14]).baseName()).arg(argv[1]);
+                  PliPart *part = pliParts[key];
+
+                  if (! part)
+                    continue;
+
+                  if (part->type != argv[14])
+                    continue;
+
+                  if (part->annotateText) {
+                    QString typeName = QFileInfo(part->type).baseName();
+                    QString pattern = QString("^\\s*0\\s+(\\!*LPUB ASSEM ANNOTATION ICON).*("+typeName+"|HIDDEN|HIDE).*$");
+                    QRegExp rx(pattern);
+                    Where nextLine = walk;
+                    line = gui->readLine(++nextLine); // check next line - skip if meta exist [we may have to extend this check to the end of the Step]
+                    if ((line.contains(rx) && typeName == rx.cap(2)) ||
+                       ((rx.cap(2) == "HIDDEN" || rx.cap(2) == "HIDE") && !force))
+                       continue;
+
+                    bool display = false;
+                    AnnotationCategory annotationCategory = AnnotationCategory(Annotations::getAnnotationCategory(part->type));
+                    switch (annotationCategory)
+                    {
+                    case AnnotationCategory::axle:
+                        display = meta.LPub.assem.annotation.axleDisplay.value();
+                        break;
+                    case AnnotationCategory::beam:
+                        display = meta.LPub.assem.annotation.beamDisplay.value();
+                        break;
+                    case AnnotationCategory::cable:
+                        display = meta.LPub.assem.annotation.cableDisplay.value();
+                        break;
+                    case AnnotationCategory::connector:
+                        display = meta.LPub.assem.annotation.connectorDisplay.value();
+                        break;
+                    case AnnotationCategory::hose:
+                        display = meta.LPub.assem.annotation.hoseDisplay.value();
+                        break;
+                    case AnnotationCategory::panel:
+                        display = meta.LPub.assem.annotation.panelDisplay.value();
+                        break;
+                    default:
+                        display = meta.LPub.assem.annotation.extendedDisplay.value();
+                        break;
+                    }
+                    if (display) {
+                      // Pack parts type, partIds and instance line(s) into stringlist - do not reorder
+                      for (int i = 0; i < part->instances.size(); ++i) {
+                        savePartIds = typeName+";"+part->color+";"+part->instances[i].modelName;
+                        if (partIds == savePartIds) {
+                          lineNumbers += QString("%1;").arg(part->instances[i].lineNumber);
+                        } else {
+                          partIds     = savePartIds;
+                          lineNumbers = QString("%1;").arg(part->instances[i].lineNumber);
+                          parts.append(partIds+"@"+lineNumbers);
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          } // step
+        } // foreach step in range - [if gereater than 1 then can be multistep]
+      }
+    }
+  }
+  // add annotation metas for the process list of parts
+  if (parts.size()){
+      mi.writeCsiAnnotationMeta(parts,fromHere,toHere,&meta,force);
+  }
 }

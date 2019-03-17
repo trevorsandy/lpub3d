@@ -53,11 +53,17 @@ Range::~Range()
     delete re;
   }
   list.clear();
-  for (int i = 0; i < dividerPointerList.size(); i++) {
-    Pointer *p = dividerPointerList[i];
+  for (int i = 0; i < stepDividerPointerList.size(); i++) {
+    Pointer *p = stepDividerPointerList[i];
     delete p;
   }
-  dividerPointerList.clear();
+  stepDividerPointerList.clear();
+
+  for (int i = 0; i < rangeDividerPointerList.size(); i++) {
+    Pointer *p = rangeDividerPointerList[i];
+    delete p;
+  }
+  rangeDividerPointerList.clear();
 }
 
 void Range::append(AbstractRangeElement *gi)
@@ -516,16 +522,24 @@ void Range::placeitFreeform(
  * Divider pointer item routines
  *****************************************************************************/
 
-void Range::appendDividerPointer(const Where &here, QGraphicsView *_view,
-        PointerMeta &pointerMeta, PointerAttribMeta &pointerAttrib)
+void Range::appendDividerPointer(
+   const Where       &here,
+   PointerMeta       &pointerMeta,
+   PointerAttribMeta &pointerAttrib,
+   QGraphicsView    *_view,
+   bool sd)
 {
   view    = _view;
-  int pid = dividerPointerList.size() + 1;
+  int pid = sd ? stepDividerPointerList.size() + 1 :
+                 rangeDividerPointerList.size() + 1;
   Pointer *pointer = new Pointer(pid,here,pointerMeta);
   PointerAttribMeta pam = pointerAttrib;
   pam.setDefaultColor(sepMeta.value().color);
   pointer->setPointerAttribInches(pam);
-  dividerPointerList.append(pointer);
+  if (sd)
+      stepDividerPointerList.append(pointer);
+  else
+      rangeDividerPointerList.append(pointer);
 }
 
 /******************************************************************************

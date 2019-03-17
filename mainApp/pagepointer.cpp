@@ -139,7 +139,7 @@ void PagePointer::addGraphicsPointerItem(
     new PagePointerItem(
           this,
           pointer,
-          background,                         // remove (use 'this')
+          background,
           view);
   graphicsPointerList.append(t);
 }

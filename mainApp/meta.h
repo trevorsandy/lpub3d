@@ -2608,6 +2608,7 @@ public:
   PliSortMeta          sortBy;
   PliAnnotationMeta    annotation;
   PliPartElementMeta   partElements;
+  AnnotationStyleMeta  elementStyle;
   AnnotationStyleMeta  rectangleStyle;
   AnnotationStyleMeta  circleStyle;
   AnnotationStyleMeta  squareStyle;

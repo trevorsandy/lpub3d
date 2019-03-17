@@ -610,22 +610,30 @@ void RotateIconItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
                 placementData.offsets[1] += newPosition.y()/relativeToSize[1];
                 placement.setValue(placementData);
 
-                logInfo() << "\nCHANGE ROTATE_ICON - "
-                          << "\nPAGE WHERE - "
-                          << " \nStep TopOf (Model Name): "    << top.modelName
-                          << " \nStep TopOf (Line Number): "   << top.lineNumber
-                          << "\nUSING PLACEMENT DATA - "
-                          << " \nPlacement: "                 << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
-                          << " \nJustification: "             << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
-                          << " \nPreposition: "               << PrepNames[placement.value().preposition]   << " (" << placement.value().justification << ")"
-                          << " \nRelativeTo: "                << RelNames[placement.value().relativeTo]     << " (" << placement.value().relativeTo << ")"
-                          << " \nRectPlacement: "             << RectNames[placement.value().rectPlacement] << " (" << placement.value().rectPlacement << ")"
-                          << " \nOffset[0]: "                 << placement.value().offsets[0]
-                          << " \nOffset[1]: "                 << placement.value().offsets[1]
-                          << "\nOTHER DATA - "
-                          << " \nRelativeType: "               << RelNames[relativeType]       << " (" << relativeType << ")"
-                          << " \nParentRelativeType: "         << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
-                             ;
+//                logInfo() << QString(" -RELATIVE_TO_SIZE: (%1, %2), NEW_POSITION: (%3, %4), OFFSET: (%5, %6)")
+//                                     .arg(QString::number(double(relativeToSize[XX]),'f',5))
+//                                     .arg(QString::number(double(relativeToSize[YY]),'f',5))
+//                                     .arg(QString::number(double(newPosition.x()),'f',5))
+//                                     .arg(QString::number(double(newPosition.y()),'f',5))
+//                                     .arg(QString::number(double(placement.value().offsets[XX]),'f',5))
+//                                     .arg(QString::number(double(placement.value().offsets[YY]),'f',5));
+
+//                logInfo() << "\nCHANGE ROTATE_ICON - "
+//                          << "\nPAGE WHERE - "
+//                          << " \nStep TopOf (Model Name): "    << top.modelName
+//                          << " \nStep TopOf (Line Number): "   << top.lineNumber
+//                          << "\nUSING PLACEMENT DATA - "
+//                          << " \nPlacement: "                 << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
+//                          << " \nJustification: "             << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
+//                          << " \nPreposition: "               << PrepNames[placement.value().preposition]   << " (" << placement.value().justification << ")"
+//                          << " \nRelativeTo: "                << RelNames[placement.value().relativeTo]     << " (" << placement.value().relativeTo << ")"
+//                          << " \nRectPlacement: "             << RectNames[placement.value().rectPlacement] << " (" << placement.value().rectPlacement << ")"
+//                          << " \nOffset[0]: "                 << placement.value().offsets[0]
+//                          << " \nOffset[1]: "                 << placement.value().offsets[1]
+//                          << "\nOTHER DATA - "
+//                          << " \nRelativeType: "               << RelNames[relativeType]       << " (" << relativeType << ")"
+//                          << " \nParentRelativeType: "         << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
+//                             ;
 
                 changePlacementOffset(top,
                                       &placement,

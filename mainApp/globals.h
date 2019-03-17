@@ -164,6 +164,12 @@ private:
   QGroupBox        *circleFormatStyleBox;
   QGroupBox        *circleSizeStyleBox;
 
+  QRadioButton     *elementStyle;
+  QGroupBox        *elementBkGrndStyleBox;
+  QGroupBox        *elementBorderStyleBox;
+  QGroupBox        *elementFormatStyleBox;
+  QGroupBox        *elementSizeStyleBox;
+
   QRadioButton     *rectangleStyle;
   QGroupBox        *rectangleBkGrndStyleBox;
   QGroupBox        *rectangleBorderStyleBox;

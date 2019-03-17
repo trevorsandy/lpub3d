@@ -241,20 +241,22 @@ static void remove_partname(
  *
  ********************************************/
 
-static void set_divider_pointers(Meta &curMeta, Where &current, Range *range, LGraphicsView *view, Rc rct){
+static void set_divider_pointers(Meta &curMeta, Where &current, Range *range, LGraphicsView *view, bool rd, Rc rct){
 
     QString sType = (rct == CalloutDividerRc ? "CALLOUT" : "STEPGROUP");
 
     Rc pRc  = (rct == CalloutDividerRc ? CalloutDividerPointerRc : StepGroupDividerPointerRc);
     Rc paRc = (rct == CalloutDividerRc ? CalloutDividerPointerAttribRc : StepGroupDividerPointerAttribRc);
 
-    PointerMeta ppm       = (rct == CalloutDividerRc ? curMeta.LPub.callout.divPointer : curMeta.LPub.multiStep.divPointer);
+    PointerMeta pm        = (rct == CalloutDividerRc ? curMeta.LPub.callout.divPointer       : curMeta.LPub.multiStep.divPointer);
     PointerAttribMeta pam = (rct == CalloutDividerRc ? curMeta.LPub.callout.divPointerAttrib : curMeta.LPub.multiStep.divPointerAttrib);
 
     Where walk(current.modelName,current.lineNumber);
     walk++;
 
     int numLines = gui->subFileSize(walk.modelName);
+
+    bool sd = !rd;
 
     for ( ; walk.lineNumber < numLines; walk++) {
         QString stepLine = gui->readLine(walk);
@@ -265,15 +267,25 @@ static void set_divider_pointers(Meta &curMeta, Where &current, Range *range, LG
         if (mRc == StepRc || mRc == RotStepRc) {
             break;
         } else if (mRc == pRc) {
-            range->appendDividerPointer(walk,view,ppm,pam);
+            range->appendDividerPointer(walk,pm,pam,view,sd);
 #ifdef QT_DEBUG_MODE
-//            int pIndex = range->dividerPointerList.size() - 1;
-//            logTrace() << "\n[DEBUG " + sType + " DIVIDER POINTER PAM"
-//                       << "\ndividerItem.id                    [" << range->dividerPointerList[pIndex]->pointerAttrib.value().id << "]"
-//                       << "\ndividerItem.parent                [" << range->dividerPointerList[pIndex]->pointerAttrib.value().parent << "]"
-//                       << "\ndividerItem.attribType            [" << AttributeNames[range->dividerPointerList[pIndex]->pointerAttrib.value().attribType] << "]"
-//                       << "\ndividerItem.borderData.useDefault [" << (range->dividerPointerList[pIndex]->pointerAttrib.value().borderData.useDefault ? "true" : "false") << "]"
+//            if (sd){
+//            int pIndex = range->stepDividerPointerList.size() - 1;
+//            logTrace() << "\n[DEBUG " + sType + " STEP DIVIDER POINTER PAM"
+//                       << "\ndividerItem.id                    [" << range->stepDividerPointerList[pIndex]->pointerAttrib.value().id << "]"
+//                       << "\ndividerItem.parent                [" << range->stepDividerPointerList[pIndex]->pointerAttrib.value().parent << "]"
+//                       << "\ndividerItem.attribType            [" << AttributeNames[range->stepDividerPointerList[pIndex]->pointerAttrib.value().attribType] << "]"
+//                       << "\ndividerItem.borderData.useDefault [" << (range->stepDividerPointerList[pIndex]->pointerAttrib.value().borderData.useDefault ? "true" : "false") << "]"
 //                          ;
+//            } else {
+//            int pIndex = range->rangeDividerPointerList.size() - 1;
+//            logTrace() << "\n[DEBUG " + sType + " RANGE DIVIDER POINTER PAM"
+//                       << "\ndividerItem.id                    [" << range->rangeDividerPointerList[pIndex]->pointerAttrib.value().id << "]"
+//                       << "\ndividerItem.parent                [" << range->rangeDividerPointerList[pIndex]->pointerAttrib.value().parent << "]"
+//                       << "\ndividerItem.attribType            [" << AttributeNames[range->rangeDividerPointerList[pIndex]->pointerAttrib.value().attribType] << "]"
+//                       << "\ndividerItem.borderData.useDefault [" << (range->rangeDividerPointerList[pIndex]->pointerAttrib.value().borderData.useDefault ? "true" : "false") << "]"
+//                          ;
+//            }
 #endif
         } else if (mRc == paRc) {
             QStringList argv;
@@ -281,12 +293,17 @@ static void set_divider_pointers(Meta &curMeta, Where &current, Range *range, LG
             pam.setValueInches(pam.parseAttributes(argv,walk));
 
             int i               = pam.value().id - 1;
-            Pointer          *p = range->dividerPointerList[i];
+            Pointer          *p = sd ? range->stepDividerPointerList[i] :
+                                       range->rangeDividerPointerList[i];
             if (pam.value().id == p->id) {
                 pam.setAltValueInches(p->getPointerAttribInches());
                 p->setPointerAttribInches(pam);
-                range->dividerPointerList.replace(i,p);
+                if (sd)
+                    range->stepDividerPointerList.replace(i,p);
+                else
+                    range->rangeDividerPointerList.replace(i,p);
 #ifdef QT_DEBUG_MODE
+//            if (sd){
 //                logTrace() << "\n[DEBUG " + sType + " POINTER ATTRIBUTE PAM]:"
 //                           << "\npam.id                    [" << pam.value().id << "]"
 //                           << "\npam.parent                [" << pam.value().parent << "]"
@@ -296,14 +313,33 @@ static void set_divider_pointers(Meta &curMeta, Where &current, Range *range, LG
 //                           << "\np.parent                  [" << p->pointerAttrib.value().parent << "]"
 //                           << "\np.attribType              [" << AttributeNames[p->pointerAttrib.value().attribType] << "]"
 //                           << "\np.borderData.useDefault   [" << (p->pointerAttrib.value().borderData.useDefault ? "true" : "false") << "]"
-//                           << "\nco.id                     [" << range->dividerPointerList[i]->pointerAttrib.value().id << "]"
-//                           << "\nco.parent                 [" << range->dividerPointerList[i]->pointerAttrib.value().parent << "]"
-//                           << "\nco.attribType             [" << AttributeNames[range->dividerPointerList[i]->pointerAttrib.value().attribType] << "]"
-//                           << "\nco.borderData.useDefault  [" << (range->dividerPointerList[i]->pointerAttrib.value().borderData.useDefault ? "true" : "false") << "]"
+//                           << "\nco.id                     [" << range->stepDividerPointerList[i]->pointerAttrib.value().id << "]"
+//                           << "\nco.parent                 [" << range->stepDividerPointerList[i]->pointerAttrib.value().parent << "]"
+//                           << "\nco.attribType             [" << AttributeNames[range->stepDividerPointerList[i]->pointerAttrib.value().attribType] << "]"
+//                           << "\nco.borderData.useDefault  [" << (range->stepDividerPointerList[i]->pointerAttrib.value().borderData.useDefault ? "true" : "false") << "]"
 //                           << "\npam.preamble              [" << pam.preamble << "]"
 //                           << "\npam.here().modelName      [" << pam.here().modelName << "]"
 //                           << "\npam.here().lineNumber     [" << pam.here().lineNumber << "]"
 //                              ;
+//            } else {
+//                logTrace() << "\n[DEBUG " + sType + " POINTER ATTRIBUTE PAM]:"
+//                           << "\npam.id                    [" << pam.value().id << "]"
+//                           << "\npam.parent                [" << pam.value().parent << "]"
+//                           << "\npam.attribType            [" << AttributeNames[pam.value().attribType] << "]"
+//                           << "\npam.borderData.useDefault [" << (pam.value().borderData.useDefault ? "true" : "false") << "]"
+//                           << "\np.id                      [" << p->pointerAttrib.value().id << "]"
+//                           << "\np.parent                  [" << p->pointerAttrib.value().parent << "]"
+//                           << "\np.attribType              [" << AttributeNames[p->pointerAttrib.value().attribType] << "]"
+//                           << "\np.borderData.useDefault   [" << (p->pointerAttrib.value().borderData.useDefault ? "true" : "false") << "]"
+//                           << "\nco.id                     [" << range->rangeDividerPointerList[i]->pointerAttrib.value().id << "]"
+//                           << "\nco.parent                 [" << range->rangeDividerPointerList[i]->pointerAttrib.value().parent << "]"
+//                           << "\nco.attribType             [" << AttributeNames[range->rangeDividerPointerList[i]->pointerAttrib.value().attribType] << "]"
+//                           << "\nco.borderData.useDefault  [" << (range->rangeDividerPointerList[i]->pointerAttrib.value().borderData.useDefault ? "true" : "false") << "]"
+//                           << "\npam.preamble              [" << pam.preamble << "]"
+//                           << "\npam.here().modelName      [" << pam.here().modelName << "]"
+//                           << "\npam.here().lineNumber     [" << pam.here().lineNumber << "]"
+//                              ;
+//            }
 #endif
             }
         }
@@ -1027,7 +1063,7 @@ int Gui::drawPage(
                   if (pagePointer) {
                       parseError("Nested page pointers not allowed within the same page",current);
                   } else {
-                      Positions position = PP_LEFT;
+                      Positions position    = PP_LEFT;
                       PointerMeta ppm       = curMeta.LPub.page.pointer;
                       PointerAttribMeta pam = curMeta.LPub.page.pointerAttrib;
                       PointerAttribData pad = pam.valueInches();
@@ -1200,10 +1236,10 @@ int Gui::drawPage(
             case CalloutDividerRc:
               if (range) {
                   range->sepMeta = curMeta.LPub.callout.sep;
-                  set_divider_pointers(curMeta,current,range,view,CalloutDividerRc);
-                  if (line.contains("RANGE")) {
+                  if (line.contains("RANGE"))
                       rangeDivider = true;
-                  } else {
+                  set_divider_pointers(curMeta,current,range,view,rangeDivider,CalloutDividerRc);
+                  if (! rangeDivider) {
                       range = nullptr;
                       step = nullptr;
                   }
@@ -1228,6 +1264,9 @@ int Gui::drawPage(
                     } else {
                       callout->parentRelativeType = step->relativeType;
                     }
+                  // set csi annotations - callout
+//                  if (! gui->exportingObjects())
+//                      callout->setCsiAnnotationMetas();
                   callout->pli.clear();
                   callout->placement = curMeta.LPub.callout.placement;
                   callout->setBottomOfCallout(current);
@@ -1250,10 +1289,10 @@ int Gui::drawPage(
             case StepGroupDividerRc:
               if (range) {
                   range->sepMeta = steps->meta.LPub.multiStep.sep;
-                  set_divider_pointers(curMeta,current,range,view,StepGroupDividerRc);
-                  if (line.contains("RANGE")) {
+                  if (line.contains("RANGE"))
                       rangeDivider = true;
-                  } else {
+                  set_divider_pointers(curMeta,current,range,view,rangeDivider,StepGroupDividerRc);
+                  if (! rangeDivider) {
                       range = nullptr;
                       step = nullptr;
                   }
@@ -1305,6 +1344,10 @@ int Gui::drawPage(
                       MetaItem mi;
                       instances = mi.countInstancesInStep(&steps->meta, current.modelName);
                   }
+
+                  // set csi annotations - multistep
+//                  if (! gui->exportingObjects())
+//                      steps->setCsiAnnotationMetas();
 
                   Page *page = dynamic_cast<Page *>(steps);
                   if (page) {
@@ -1390,10 +1433,6 @@ int Gui::drawPage(
                     }
 
                   partsAdded = true; // OK, so this is a lie, but it works
-
-                  // set csi annotations
-                  if (! gui->exportingObjects())
-                      step->setCsiAnnotationMetas(steps->meta);
                 }
 
               // STEP - normal case of parts added, and not NOSTEP
@@ -1506,16 +1545,16 @@ int Gui::drawPage(
                           return rc;
                       }
 
+                      // set csi annotations - single step only
+                      if (! gui->exportingObjects() &&  ! multiStep && ! calledOut)
+                          step->setCsiAnnotationMetas(steps->meta);
+
                       if (renderer->useLDViewSCall() && ! step->ldrName.isNull()) {
                           ldrStepFiles << step->ldrName;
                           csiKeys << step->csiKey;
                           //qDebug() << "CSI ldr file #"<< ldrStepFiles.count() <<"added: " << step->ldrName;
                           //qDebug() << "CSI key #"<< csiKeys.count() <<"added: " << step->csiKey;
                       }
-
-                      // set csi annotations
-                      if (! gui->exportingObjects())
-                          step->setCsiAnnotationMetas(steps->meta);
 
                   } else {
 

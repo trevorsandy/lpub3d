@@ -182,7 +182,8 @@ enum AnnotationStyle{
     none = 0,
     circle,
     square,
-    rectangle
+    rectangle,
+    element
 };
 
 enum AnnotationCategory{

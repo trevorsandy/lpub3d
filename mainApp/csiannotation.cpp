@@ -26,10 +26,7 @@
 #include "metaitem.h"
 #include "color.h"
 #include "step.h"
-
-#ifdef QT_DEBUG_MODE
-#include "lpubalert.h"
-#endif
+#include "lpub.h"
 
 PlacementCsiPart::PlacementCsiPart(
     CsiPartMeta   &_csiPartMeta,
@@ -42,6 +39,7 @@ PlacementCsiPart::PlacementCsiPart(
   size[YY]     = _csiPartMeta.size.valuePixels(YY);
   loc[XX]     += _csiPartMeta.loc.valuePixels(XX);
   loc[YY]     += _csiPartMeta.loc.valuePixels(YY);
+  outline      = false;
 
   setParentItem(_parent);
 }
@@ -52,6 +50,44 @@ bool PlacementCsiPart::hasOffset()
     zero  = placement.value().offsets[XX] == 0.0f;
     zero &= placement.value().offsets[YY] == 0.0f;
     return !zero;
+}
+
+void PlacementCsiPart::paint( QPainter *painter, const QStyleOptionGraphicsItem *o, QWidget *w)
+{
+//#ifdef QT_DEBUG_MODE
+    if (outline)
+        setOutline(painter);
+//#endif
+    QGraphicsRectItem::paint(painter, o, w);
+}
+
+void PlacementCsiPart::toggleOutline()
+{
+    bool curState = outline;
+    outline = ! curState;
+    update();
+}
+void PlacementCsiPart::setOutline(QPainter *painter)
+{
+    painter->setRenderHints(QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing);
+    int ibt = int(1.0f/32.0f);
+
+    /* BORDER */
+    QPen borderPen;
+    borderPen.setColor(QColor(Qt::blue));       // Qt::transparent
+    borderPen.setCapStyle(Qt::SquareCap);
+    borderPen.setJoinStyle(Qt::RoundJoin);
+    borderPen.setStyle(Qt::DashLine);           // Qt::SolidLine
+    borderPen.setWidth(ibt);
+    painter->setPen(borderPen);
+
+    /* BACKGROUND */
+    painter->setBrush(QColor(Qt::transparent)); // Qt::blue
+
+    QRectF irect(ibt/2,ibt/2,size[XX]-ibt,size[YY]-ibt);
+    painter->drawRect(irect);
+
+    setZValue(10000);
 }
 
 CsiAnnotation::CsiAnnotation(
@@ -156,6 +192,7 @@ CsiAnnotationItem::CsiAnnotationItem(
   : ResizeTextItem(_parent)
 {
    relativeType         = CsiAnnotationType;
+   placementCsiPart     = nullptr;
 }
 
 void CsiAnnotationItem::addGraphicsItems(
@@ -187,13 +224,6 @@ void CsiAnnotationItem::addGraphicsItems(
         bottomOf        = _step->bottomOfStep();
         break;
     }
-
-    // Debug variables
-    pageMeta            = _csiItem->meta->LPub.page;
-    csiItemRect         = QRect(_csiItem->loc[XX],
-                                _csiItem->loc[YY],
-                                _csiItem->size[XX],
-                                _csiItem->size[YY]);
 
     setParentItem(_csiItem);
 
@@ -249,9 +279,7 @@ void CsiAnnotationItem::addGraphicsItems(
 
     // place PlacementCsiPart relative to CSI
 
-    PlacementCsiPart    *placementCsiPart =
-            new PlacementCsiPart(_ca->csiPartMeta,_csiItem);
-
+    placementCsiPart = new PlacementCsiPart(_ca->csiPartMeta,_csiItem);
     if (! placementCsiPart->hasOffset())
         _csiItem->placeRelative(placementCsiPart);
 
@@ -273,8 +301,6 @@ void CsiAnnotationItem::addGraphicsItems(
     setZValue(10000);
     setFlag(QGraphicsItem::ItemIsMovable, _movable);
     setFlag(QGraphicsItem::ItemIsSelectable, _movable);
-
-    debugPlacementTrace();
 }
 
 void CsiAnnotationItem::sizeIt()
@@ -287,44 +313,42 @@ void CsiAnnotationItem::sizeIt()
 
 void CsiAnnotationItem::setBackground(QPainter *painter)
 {
-    if (style.value() != AnnotationStyle::none) {
+    // set border and background parameters
+    BorderData     borderData     = border.valuePixels();
+    BackgroundData backgroundData = background.value();
 
-        // set border and background parameters
-        BorderData     borderData     = border.valuePixels();
-        BackgroundData backgroundData = background.value();
+    // set rectangle size and dimensions parameters
+    int ibt = int(borderData.thickness);
+    QRectF irect(ibt/2,ibt/2,size[XX]-ibt,size[YY]-ibt);
 
-        // set rectangle size and dimensions parameters
-        int ibt = int(borderData.thickness);
-        QRectF irect(ibt/2,ibt/2,size[XX]-ibt,size[YY]-ibt);
+    // set painter and render hints (initialized with pixmap)
+    painter->setRenderHints(QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing);
 
-        // set painter and render hints (initialized with pixmap)
-        painter->setRenderHints(QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing);
+    // set the background then set the border and paint both in one go.
 
-        // set the background then set the border and paint both in one go.
+    /* BACKGROUND */
+    QColor brushColor;
+    switch(backgroundData.type) {
+    case BackgroundData::BgColor:
+        brushColor = LDrawColor::color(backgroundData.string);
+        break;
+    case BackgroundData::BgSubmodelColor:
+        brushColor = LDrawColor::color(subModelColor.value(0));
+        break;
+    default:
+        brushColor = Qt::transparent;
+        break;
+    }
+    painter->setBrush(brushColor);
 
-        /* BACKGROUND */
-        QColor brushColor;
-        switch(backgroundData.type) {
-        case BackgroundData::BgColor:
-            brushColor = LDrawColor::color(backgroundData.string);
-            break;
-        case BackgroundData::BgSubmodelColor:
-            brushColor = LDrawColor::color(subModelColor.value(0));
-            break;
-        default:
-            brushColor = Qt::transparent;
-            break;
-        }
-        painter->setBrush(brushColor);
-
-        /* BORDER */
-        QPen borderPen;
-        QColor borderPenColor;
-        if (borderData.type == BorderData::BdrNone) {
-            borderPenColor = Qt::transparent;
-        } else {
-            borderPenColor =  LDrawColor::color(borderData.color);
-        }
+    /* BORDER */
+    QPen borderPen;
+    QColor borderPenColor;
+    if (borderData.type == BorderData::BdrNone) {
+        borderPenColor = Qt::transparent;
+    } else {
+        borderPenColor =  LDrawColor::color(borderData.color);
+    }
     borderPen.setColor(borderPenColor);
     borderPen.setCapStyle(Qt::RoundCap);
     borderPen.setJoinStyle(Qt::RoundJoin);
@@ -335,54 +359,53 @@ void CsiAnnotationItem::setBackground(QPainter *painter)
         borderPen.setStyle(Qt::SolidLine);
     }
     else if (borderData.line == BorderData::BdrLnDash){
-            borderPen.setStyle(Qt::DashLine);
-        }
-        else if (borderData.line == BorderData::BdrLnDot){
-            borderPen.setStyle(Qt::DotLine);
-        }
-        else if (borderData.line == BorderData::BdrLnDashDot){
-            borderPen.setStyle(Qt::DashDotLine);
-        }
-        else if (borderData.line == BorderData::BdrLnDashDotDot){
-            borderPen.setStyle(Qt::DashDotDotLine);
-        }
-        borderPen.setWidth(ibt);
+        borderPen.setStyle(Qt::DashLine);
+    }
+    else if (borderData.line == BorderData::BdrLnDot){
+        borderPen.setStyle(Qt::DotLine);
+    }
+    else if (borderData.line == BorderData::BdrLnDashDot){
+        borderPen.setStyle(Qt::DashDotLine);
+    }
+    else if (borderData.line == BorderData::BdrLnDashDotDot){
+        borderPen.setStyle(Qt::DashDotDotLine);
+    }
+    borderPen.setWidth(ibt);
 
-        painter->setPen(borderPen);
+    painter->setPen(borderPen);
 
-        // set icon border dimensions
-        qreal rx = borderData.radius;
-        qreal ry = borderData.radius;
-        qreal dx = size[XX];
-        qreal dy = size[YY];
+    // set icon border dimensions
+    qreal rx = borderData.radius;
+    qreal ry = borderData.radius;
+    qreal dx = size[XX];
+    qreal dy = size[YY];
 
-        if (dx && dy) {
-            if (dx > dy) {
-                rx *= dy;
-                rx /= dx;
-            } else {
-                ry *= dx;
-                ry /= dy;
-            }
-        }
-
-        // draw icon rectangle - background and border
-        if (style.value() != AnnotationStyle::circle) {
-            if (borderData.type == BorderData::BdrRound) {
-                painter->drawRoundRect(irect,int(rx),int(ry));
-            } else {
-                painter->drawRect(irect);
-            }
+    if (dx && dy) {
+        if (dx > dy) {
+            rx *= dy;
+            rx /= dx;
         } else {
-            painter->drawEllipse(irect);
+            ry *= dx;
+            ry /= dy;
         }
-        //doPaint = false;
+    }
+
+    // draw icon rectangle - background and border
+    if (style.value() != AnnotationStyle::circle) {
+        if (borderData.type == BorderData::BdrRound) {
+            painter->drawRoundRect(irect,int(rx),int(ry));
+        } else {
+            painter->drawRect(irect);
+        }
+    } else {
+        painter->drawEllipse(irect);
     }
 }
 
 void CsiAnnotationItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *o, QWidget *w)
 {
-    setBackground(painter);
+    if (style.value() != AnnotationStyle::none)
+        setBackground(painter);
     QGraphicsTextItem::paint(painter, o, w);
 }
 
@@ -426,15 +449,16 @@ void CsiAnnotationItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
                 positionChanged = true;
 
-                PlacementData placementData   = placement.value();
-                placementData.offsets[XX]    += newPosition.x()/relativeToSize[XX];
-                placementData.offsets[YY]    += newPosition.y()/relativeToSize[YY];
+                PlacementData placementData    = placement.value();
+                if (relativeToSize[XX] > 1 || relativeToSize[YY] > 1) {
+                    placementData.offsets[XX] += newPosition.x()+loc[XX];
+                    placementData.offsets[YY] += newPosition.y()+loc[YY];
+                } else {
+                    placementData.offsets[XX] += newPosition.x()/relativeToSize[XX];
+                    placementData.offsets[YY] += newPosition.y()/relativeToSize[YY];
+                }
                 placement.setValue(placementData);
-#ifdef QT_DEBUG_MODE
-                emit lpubAlert->messageSig(LOG_NOTICE,QString(" -RELATIVE_TO_SIZE_MOUSE_RELEASE: (%1, %2)")
-                                           .arg(QString::number(double(relativeToSize[XX]),'f',5))
-                                           .arg(QString::number(double(relativeToSize[YY]),'f',5)));
-#endif
+
                 CsiAnnotationIconData caiData = icon.value();
                 caiData.iconOffset[XX]        = placementData.offsets[XX];
                 caiData.iconOffset[YY]        = placementData.offsets[YY];
@@ -457,15 +481,22 @@ void CsiAnnotationItem::contextMenuEvent(
   QString whatsThis = commonMenus.naturalLanguagePlacementWhatsThis(CsiAnnotationType,placementData,pl);
 
   QAction *placementAction  = commonMenus.placementMenu(menu, pl, whatsThis);
-  QAction *hideAction       = commonMenus.hideMenu(menu,pl);
+
+  QAction *hideAction = menu.addAction("Hide Part Annotation");
+  hideAction->setIcon(QIcon(":/resources/hidepartannotation.png"));
+
+  QAction *toggleCsiPartRectAction = menu.addAction("Toggle Part Outline");
+  toggleCsiPartRectAction->setIcon(QIcon(":/resources/togglepartoutline.png"));
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
   if (selectedAction == nullptr) {
       return;
     }
-
-  if (selectedAction == placementAction) {
+  else if (selectedAction == toggleCsiPartRectAction) {
+      placementCsiPart->toggleOutline();
+      gui->pagescene()->update();
+  } else if (selectedAction == placementAction) {
       changeCsiAnnotationPlacement(
               parentRelativeType,
               CsiAnnotationType,
@@ -480,141 +511,4 @@ void CsiAnnotationItem::contextMenuEvent(
               icon.setValue(caid);
               updateCsiAnnotationIconMeta(metaLine, &icon);
    }
-}
-
-// DEBUG FUNCTINOS....................
-
-void PlacementCsiPart::paint( QPainter *painter, const QStyleOptionGraphicsItem *o, QWidget *w)
-{
-#ifdef QT_DEBUG_MODE
-    setBackground(painter);
-#endif
-    QGraphicsRectItem::paint(painter, o, w);
-}
-
-void PlacementCsiPart::setBackground(QPainter *painter)
-{
-    painter->setRenderHints(QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing);
-    int ibt = int(1.0f/32.0f);
-
-    /* BORDER */
-    QPen borderPen;
-    borderPen.setColor(QColor(Qt::blue));       // Qt::transparent
-    borderPen.setCapStyle(Qt::SquareCap);
-    borderPen.setJoinStyle(Qt::RoundJoin);
-    borderPen.setStyle(Qt::DashLine);           // Qt::SolidLine
-    borderPen.setWidth(ibt);
-    painter->setPen(borderPen);
-
-    /* BACKGROUND */
-    painter->setBrush(QColor(Qt::transparent)); // Qt::blue
-
-    QRectF irect(ibt/2,ibt/2,size[XX]-ibt,size[YY]-ibt);
-    painter->drawRect(irect);
-
-    setZValue(10000);
-}
-
-#ifdef QT_DEBUG_MODE
-#include <lpub.h>
-#endif
-
-void CsiAnnotationItem::debugPlacementTrace()
-{
-#ifdef QT_DEBUG_MODE
-    emit lpubAlert->messageSig(LOG_DEBUG,QString("--------------------------------------------------"));
-
-    emit lpubAlert->messageSig(LOG_DEBUG,QString("%1 FOR MODEL [%2]:")
-                         .arg("PART ["+icon.value().typeBaseName+".dat] ANNOTATION")
-                         .arg(partLine.modelName));
-
-    QRect pageRect(0,0,
-                   gui->pageSize(pageMeta, 0),
-                   gui->pageSize(pageMeta, 1));
-
-    QRect csiRect(csiItemRect);
-
-    QRectF partRect(relativeToLoc[XX],
-                    relativeToLoc[YY],
-                    relativeToSize[XX],
-                    relativeToSize[YY]);
-
-    qreal pageTop    = pageRect.top();
-    qreal pageBottom = pageRect.bottom();
-    qreal pageLeft   = pageRect.left();
-    qreal pageRight  = pageRect.right();
-    qreal pageWidth  = pageRect.width();
-    qreal pageHeight = pageRect.height();
-
-    qreal csiTop     = csiRect.top();
-    qreal csiBottom  = csiRect.bottom();
-    qreal csiLeft    = csiRect.left();
-    qreal csiRight   = csiRect.right();
-    qreal csiWidth   = csiRect.width();
-    qreal csiHeight  = csiRect.height();
-
-    qreal partTop     = partRect.top();
-    qreal partBottom  = partRect.bottom();
-    qreal partLeft    = partRect.left();
-    qreal partRight   = partRect.right();
-    qreal partWidth   = partRect.width();
-    qreal partHeight  = partRect.height();
-
-    qreal iconTop    = boundingRect().top();
-    qreal iconBottom = boundingRect().bottom();
-    qreal iconLeft   = boundingRect().left();
-    qreal iconRight  = boundingRect().right();
-    qreal iconWidth  = boundingRect().width();
-    qreal iconHeight = boundingRect().height();
-
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *pageTop:        %1").arg(QString::number(pageTop)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *pageLeft:       %1").arg(QString::number(pageLeft)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *pageBottom:     %1").arg(QString::number(pageBottom)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *pageRight:      %1").arg(QString::number(pageRight)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *pageWidth:      %1").arg(QString::number(pageWidth)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *pageHeight:     %1").arg(QString::number(pageHeight)));
-
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *csiTop:         %1").arg(QString::number(csiTop)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *csiLeft:        %1").arg(QString::number(csiLeft)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *csiBottom:      %1").arg(QString::number(csiBottom)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *csiRight:       %1").arg(QString::number(csiRight)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *csiWidth:       %1").arg(QString::number(csiWidth)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *csiHeight:      %1").arg(QString::number(csiHeight)));
-
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partTop:        %1").arg(QString::number(partTop)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partLeft:       %1").arg(QString::number(partLeft)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partBottom:     %1").arg(QString::number(partBottom)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partRight:      %1").arg(QString::number(partRight)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partWidth:      %1").arg(QString::number(partWidth)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partHeight:     %1").arg(QString::number(partHeight)));
-
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *iconTop:        %1").arg(QString::number(iconTop)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *iconLeft:       %1").arg(QString::number(iconLeft)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *iconBottom:     %1").arg(QString::number(iconBottom)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *iconRight:      %1").arg(QString::number(iconRight)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *iconWidth:      %1").arg(QString::number(iconWidth)));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *iconHeight:     %1").arg(QString::number(iconHeight)));
-
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partOffset[XX]: %1").arg(QString::number(double(icon.value().partOffset[XX]))));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partOffset[YY]: %1").arg(QString::number(double(icon.value().partOffset[YY]))));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partSize[XX]:   %1").arg(QString::number(relativeToSize[XX])));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partSize[YY]:   %1").arg(QString::number(relativeToSize[YY])));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partLoc[XX]:    %1").arg(QString::number(relativeToLoc[XX])));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partLoc[YY]:    %1").arg(QString::number(relativeToLoc[YY])));
-
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *iconOffset[XX]: %1").arg(QString::number(double(placement.value().offsets[XX]))));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *iconOffset[YY]: %1").arg(QString::number(double(placement.value().offsets[YY]))));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *iconSize[XX]:   %1").arg(QString::number(size[XX])));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *iconSize[YY]:   %1").arg(QString::number(size[YY])));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *iconLoc[XX]:    %1").arg(QString::number(loc[XX])));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *iconLoc[YY]:    %1").arg(QString::number(loc[YY])));
-
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *boundSize[XX]:  %1").arg(QString::number(boundingSize[XX])));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *boundSize[YY]:  %1").arg(QString::number(boundingSize[YY])));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *boundLoc[XX]:   %1").arg(QString::number(boundingLoc[XX])));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *boundLoc[YY]:   %1").arg(QString::number(boundingLoc[YY])));
-
-    emit lpubAlert->messageSig(LOG_DEBUG,QString("--------------------------------------------------"));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString("--------------------------------------------------"));
-#endif
 }

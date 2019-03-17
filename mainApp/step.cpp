@@ -582,11 +582,11 @@ bool Step::loadTheViewer(){
  * Place the CSI step annotation metas
  *
  */
-void Step::setCsiAnnotationMetas(Meta &_meta, bool show)
+void Step::setCsiAnnotationMetas(Meta &_meta, bool force)
 {
     // sometime we may already have annotations for the
     // step defined - such as after printing or exporting
-    if (csiAnnotations.size() && !show) {
+    if (csiAnnotations.size() && ! force) {
        return;
     }
 
@@ -602,43 +602,21 @@ void Step::setCsiAnnotationMetas(Meta &_meta, bool show)
     if (!pliParts.size())
         return;
 
-    Rc rc;
     MetaItem mi;
     QStringList parts;
     Where start,undefined,fromHere,toHere;
-    QString topOf,savePartIds,partIds,lineNumbers;
+    QString savePartIds,partIds,lineNumbers;
 
-    if (multiStep){
-        topOf = "topOfSteps";
-        fromHere = topOfSteps();
-        toHere   = bottomOfSteps();
-        if (toHere == undefined)
-            toHere = fromHere;
-        if (toHere == fromHere) {
-            mi.scanForward(toHere,StepGroupEndMask);
-        }
-    } else if (calledOut){
-        topOf = "topOfCallout";
-        fromHere = callout()->topOfCallout();
-        toHere   = callout()->bottomOfCallout();
-        if (toHere == undefined)
-            toHere = fromHere;
-        if (toHere == fromHere) {
-            mi.scanForward(toHere,CalloutEndMask);
-        }
-    } else {
-        topOf = "topOfStep";
-        fromHere = topOfStep();
-        toHere   = bottomOfStep();
-        if (toHere == undefined)
-            toHere = fromHere;
-        if (toHere == fromHere) {
-            rc = mi.scanForward(toHere,StepMask);
-        }
+    fromHere = topOfStep();
+    toHere   = bottomOfStep();
+    if (toHere == undefined)
+        toHere = fromHere;
+    if (toHere == fromHere) {
+        mi.scanForward(toHere,StepMask);
     }
 
     if (fromHere == undefined) {
-        emit gui->messageSig(LOG_ERROR, QString("CSI annotations cound not retrieve %1 settings").arg(topOf));
+        emit gui->messageSig(LOG_ERROR, QString("CSI annotations cound not retrieve topOfStep settings"));
         return;
     }
 
@@ -666,8 +644,8 @@ void Step::setCsiAnnotationMetas(Meta &_meta, bool show)
                 QRegExp rx(pattern);
                 Where walk = start;
                 line = gui->readLine(++walk); // check next line - skip if meta exist
-                if ((line.contains(rx) && typeName == rx.cap(2)) ||
-                   ((rx.cap(2) == "HIDDEN" || rx.cap(2) == "HIDE") && !show))
+                if (((line.contains(rx) && typeName == rx.cap(2)) ||
+                     (rx.cap(2) == "HIDDEN" || rx.cap(2) == "HIDE")) && ! force)
                     continue;
 
                 bool display = false;
@@ -713,7 +691,7 @@ void Step::setCsiAnnotationMetas(Meta &_meta, bool show)
         }
     }
     if (parts.size()){
-        mi.writeCsiAnnotationMeta(parts,fromHere,toHere,meta,show);
+        mi.writeCsiAnnotationMeta(parts,fromHere,toHere,meta,force);
     }
 }
 

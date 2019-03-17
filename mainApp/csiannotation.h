@@ -38,14 +38,15 @@ class PlacementCsiPart : public Placement,
                          public QGraphicsRectItem
 {
 public:
+    bool outline;
     PlacementCsiPart(){}
     PlacementCsiPart(
         CsiPartMeta   &_csiPartMeta,
         QGraphicsItem *_parent = nullptr);
     bool hasOffset();
-
+    void toggleOutline();
+    void setOutline(QPainter *painter);
     void paint( QPainter *painter, const QStyleOptionGraphicsItem *o, QWidget *w);
-    void setBackground(QPainter *painter);
 };
 
 class CsiAnnotation : public Placement
@@ -68,22 +69,20 @@ public:
 class CsiAnnotationItem : public ResizeTextItem
 {
 public:
-  //CsiAnnotation *ca;
-  Where          topOf,bottomOf;
-  Where          partLine, metaLine;
-  BorderMeta     border;
-  BackgroundMeta background;
-  IntMeta        style;
-  UnitsMeta      styleSize;
-  MarginsMeta    styleMargin;
-  PlacementType  parentRelativeType;
-  int            submodelLevel;
-  StringListMeta subModelColor;
+  PlacementCsiPart *placementCsiPart;
+  Where             topOf,bottomOf;
+  Where             partLine, metaLine;
+  BorderMeta        border;
+  BackgroundMeta    background;
+  IntMeta           style;
+  PlacementType     parentRelativeType;
+  int               submodelLevel;
+  StringListMeta    subModelColor;
   CsiAnnotationIconMeta icon;
 
   // DEBUG TRACE STUFF
-  PageMeta       pageMeta;
-  QRect          csiItemRect;
+  PageMeta          pageMeta;
+  QRect             csiItemRect;
 
   CsiAnnotationItem(
     QGraphicsItem *_parent = nullptr);
@@ -114,7 +113,6 @@ public:
     QGraphicsItem::setFlag(flag,value);
   }
   virtual ~CsiAnnotationItem(){}
-  void debugPlacementTrace();
 
 protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);

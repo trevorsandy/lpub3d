@@ -41,7 +41,7 @@ DividerPointerItem::DividerPointerItem(
 
   : PointerItem(parent)
 {
-  meta               = &div->step->grandparent()->meta;
+  meta               = div->meta;
   view               = _view;
   pointer            = *_pointer;
   divider            = div;

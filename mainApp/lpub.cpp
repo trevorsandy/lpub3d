@@ -2435,9 +2435,6 @@ Gui::Gui()
 {
     emit Application::instance()->splashMsgSig(QString("25% - %1 window defaults loading...").arg(VER_PRODUCTNAME_STR));
 
-    lpubAlert = new LPubAlert();
-    connect(lpubAlert, SIGNAL(messageSig(LogType,QString)),   this, SLOT(statusMessage(LogType,QString)));
-    connect(this,      SIGNAL(messageSig(LogType,QString)),   this, SLOT(statusMessage(LogType,QString)));
     Preferences::lgeoPreferences();
     Preferences::rendererPreferences(SkipExisting);
     Preferences::nativePovGenPreferences();
@@ -2500,6 +2497,13 @@ Gui::Gui()
     undoStack = new QUndoStack();
     macroNesting = 0;
 
+    lpubAlert = new LPubAlert();
+    connect(lpubAlert,      SIGNAL(messageSig(LogType,QString)),
+            this,           SLOT(statusMessage(LogType,QString)));
+
+    connect(this,           SIGNAL(messageSig(LogType,QString)),
+            this,           SLOT(statusMessage(LogType,QString)));
+
     connect(mHttpManager,   SIGNAL(DownloadFinished(lcHttpReply*)),
             this,           SLOT(DownloadFinished(lcHttpReply*)));
 
@@ -2508,9 +2512,6 @@ Gui::Gui()
 
     connect(this,           SIGNAL(setExportingObjectsSig(bool)),
             this,           SLOT(  setExportingObjects(   bool)));
-
-    connect(this,           SIGNAL(setContinuousPageSig(bool)),
-            lpubAlert,      SLOT(  setExportingObjects( bool)));
 
     connect(this,           SIGNAL(setContinuousPageSig(bool)),
             this,           SLOT(  setContinuousPage(   bool)));

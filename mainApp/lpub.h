@@ -642,6 +642,11 @@ public:
       return KpageView;
   }
 
+  LGraphicsScene *pagescene()
+  {
+      return KpageScene;
+  }
+
   QString getCurFile()
   {
       return curFile;

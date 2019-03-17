@@ -3,6 +3,7 @@
         <file alias="3ds32.png">resources/3ds32.png</file>
         <file alias="actual.png">resources/actual.png</file>
         <file alias="add.png">resources/add.png</file>
+        <file alias="addpartannotation.png">resources/addpartannotation.png</file>
         <file alias="addpointer.png">resources/addpointer.png</file>
         <file alias="adddividerpointer.png">resources/adddividerpointer.png</file>
         <file alias="addassembledimage.png">resources/addassembledimage.png</file>
@@ -89,6 +90,7 @@
         <file alias="front.png">resources/front.png</file>
         <file alias="generatecolourparts.png">resources/generatecolourparts.png</file>
         <file alias="gplv3.png">resources/gplv3.png</file>
+        <file alias="hidepartannotation.png">resources/hidepartannotation.png</file>
         <file alias="highlightstepsetup.png">resources/highlightstepsetup.png</file>
         <file alias="html32.png">resources/html32.png</file>
         <file alias="ignoresubmodel.png">resources/ignoresubmodel.png</file>
@@ -143,6 +145,7 @@
         <file alias="redraw.png">resources/redraw.png</file>
         <file alias="refreshoffarchive.png">resources/refreshoffarchive.png</file>
         <file alias="refreshunoffarchive.png">resources/refreshunoffarchive.png</file>
+        <file alias="reloadpartannotation.png">resources/reloadpartannotation.png</file>
         <file alias="remove.png">resources/remove.png</file>
         <file alias="removepointersegment.png">resources/removepointersegment.png</file>
         <file alias="removelpubformat.png">resources/removelpubformat.png</file>
@@ -168,6 +171,7 @@
         <file alias="submodelcolor.png">resources/submodelcolor.png</file>
         <file alias="submodelsetup.png">resources/submodelsetup.png</file>
         <file alias="textDelete.png">resources/textDelete.png</file>
+        <file alias="togglepartoutline.png">resources/togglepartoutline.png</file>
         <file alias="top.png">resources/top.png</file>
         <file alias="topofdocument.png">resources/topofdocument.png</file>
         <file alias="treataspart.png">resources/treataspart.png</file>
