@@ -28,17 +28,18 @@ int Gui::processCommandLine()
     return 0;
 
   // Declarations
-  int  fadeStepsOpacity    = FADE_OPACITY_DEFAULT;
-  float highlightLineWidth = HIGHLIGHT_LINE_WIDTH_DEFAULT;
+   int fadeStepsOpacity    = FADE_OPACITY_DEFAULT;
+   int highlightLineWidth  = HIGHLIGHT_LINE_WIDTH_DEFAULT;
   bool processExport       = false;
   bool processFile         = false;
   bool fadeSteps           = false;
   bool highlightStep       = false;
-  bool imageMatting        = false;
+  //bool imageMatting        = false;
   bool resetSearchDirs     = false;
-  bool useLDVSingleCall    = Preferences::enableLDViewSingleCall;
-  bool useLDVSnapShotList  = Preferences::enableLDViewSnaphsotList;
-  QString generator        = Preferences::povFileGenerator;
+  bool useLDVSingleCall    = false;
+  bool useLDVSnapShotList  = false;
+  bool useNativeRenderer   = false;
+  QString generator        = RENDERER_NATIVE;
 
   QString pageRange, exportOption,
           commandlineFile, preferredRenderer,
@@ -169,6 +170,7 @@ int Gui::processCommandLine()
       QString renderer;
       if (preferredRenderer.toLower() == "native"){
           renderer = RENDERER_NATIVE;
+          useNativeRenderer = true;
       }
       else
       if (preferredRenderer.toLower() == "ldview"){
@@ -177,13 +179,13 @@ int Gui::processCommandLine()
       else
       if (preferredRenderer.toLower() == "ldview-sc"){
           renderer = RENDERER_LDVIEW;
-          Preferences::enableLDViewSingleCall = true;
+          useLDVSingleCall = true;
       }
       else
       if (preferredRenderer.toLower() == "ldview-scsl"){
           renderer = RENDERER_LDVIEW;
-          Preferences::enableLDViewSingleCall = true;
-          Preferences::enableLDViewSnaphsotList = true;
+          useLDVSingleCall = true;
+          useLDVSnapShotList = true;
       }
       else
       if (preferredRenderer.toLower() == "ldglite"){
@@ -193,6 +195,7 @@ int Gui::processCommandLine()
       if (preferredRenderer.toLower() == "povray"){
           renderer = RENDERER_POVRAY;
       }
+      else
       if (preferredRenderer.toLower() == "povray-ldv"){
           renderer = RENDERER_POVRAY;
           generator = RENDERER_LDVIEW;
@@ -201,10 +204,24 @@ int Gui::processCommandLine()
           emit messageSig(LOG_INFO,QString("Invalid renderer option specified: '%1'.").arg(renderer));
           return 1;
       }
-      if (Preferences::preferredRenderer != renderer ||
-          Preferences::enableLDViewSingleCall != useLDVSingleCall ||
-          Preferences::enableLDViewSnaphsotList != useLDVSnapShotList) {
-          QString message = QString("Renderer preference changed from %1 to %2%3.")
+      if (Preferences::preferredRenderer != renderer) {
+          QString message;
+          if (preferredRenderer.toLower().contains("ldview")) {
+              if (Preferences::enableLDViewSingleCall != useLDVSingleCall) {
+                  message = QString("Renderer preference use LDView Single Call changed from %1 to %2.")
+                                            .arg(Preferences::enableLDViewSingleCall ? "Yes" : "No")
+                      .arg(useLDVSingleCall ? "Yes" : "No");
+                  emit messageSig(LOG_INFO,message);
+                  Preferences::enableLDViewSingleCall = useLDVSingleCall;
+              }
+              if (Preferences::enableLDViewSnaphsotList != useLDVSnapShotList) {
+                  message = QString("Renderer preference use LDView Snapshot List changed from %1 to %2.")
+                      .arg(Preferences::enableLDViewSnaphsotList ? "Yes" : "No")
+                      .arg(useLDVSingleCall ? "Yes" : "No");
+                  emit messageSig(LOG_INFO,message);
+                  Preferences::enableLDViewSnaphsotList = useLDVSnapShotList;
+              }
+          }
           else
           if (preferredRenderer.toLower().contains("povray")) {
               if (Preferences::povFileGenerator != generator) {
@@ -213,14 +230,18 @@ int Gui::processCommandLine()
                           .arg(generator);
                   emit messageSig(LOG_INFO,message);
                   Preferences::povFileGenerator = generator;
+              }
+          }
+          message = QString("Renderer preference changed from %1 to %2%3.")
                                     .arg(Preferences::preferredRenderer)
                                     .arg(renderer)
-                                    .arg(renderer == RENDERER_POVRAY ? QString(" (POV file generator is %1)").arg(Preferences::povFileGenerator) :
+                                    .arg(renderer == RENDERER_POVRAY ? QString(" (POV file generator is %1)").arg(generator) :
                                          renderer == RENDERER_LDVIEW ? useLDVSingleCall ?
                                                                        useLDVSnapShotList ? " (Single Call w/ SnapShot List)" : " (Single Call)" :
                                                                        QString() : QString());
           emit messageSig(LOG_INFO,message);
-          Preferences::preferredRenderer = renderer;
+          Preferences::preferredRenderer   = renderer;
+          Preferences::usingNativeRenderer = useNativeRenderer;
           Render::setRenderer(Preferences::preferredRenderer);
       }
     }

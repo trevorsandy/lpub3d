@@ -1905,6 +1905,9 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
         }
     }
 
+    // using native Renderer flag
+    usingNativeRenderer = preferredRenderer == RENDERER_NATIVE;
+
     // Default projection
     QString const perspectiveProjectionKey("PerspectiveProjection");
 
@@ -2029,7 +2032,6 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
                               enableLDViewSingleCall ?
                                   QString("(Single Call%1)")
                                           .arg(enableLDViewSnaphsotList ? " - SnapshotsList" : "") : "" : "");
-   usingNativeRenderer = preferredRenderer == RENDERER_NATIVE;
 }
 
 void Preferences::setLDGLiteIniParams()
@@ -3467,9 +3469,7 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"PerspectiveProjection"),perspectiveProjection);
         }
 
-        usingNativeRenderer = (preferredRenderer == RENDERER_NATIVE ||
-                              (preferredRenderer == RENDERER_POVRAY &&
-                               povFileGenerator  == RENDERER_NATIVE));
+        usingNativeRenderer = preferredRenderer == RENDERER_NATIVE;
         return true;
     } else {
         return false;
