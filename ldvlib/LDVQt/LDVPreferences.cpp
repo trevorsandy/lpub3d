@@ -165,13 +165,18 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
     loadSettings();
 #ifdef WIN32
     setupAntialiasing();
+    connect( fsaaModeBox, SIGNAL( currentIndexChanged(int) ), this, SLOT( enableApply() ) );
     connect( fsaaModeBox, SIGNAL( currentIndexChanged(const QString &) ), this, SLOT( fsaaModeBoxChanged(const QString &) ) );
+    connect( havePixelBufferButton, SIGNAL( clicked() ), this, SLOT( enableApply() ) );
 #else
     fsaaModeBox->setDisabled(true);
     fsaaModeBox->hide();
     fsaaModeLabel->hide();
+    havePixelBuffer->hide();
 #endif // WIN32
+
     ldPrefs->applySettings();
+
     reflectSettings();
 
     QStyle *style = defaultColorButton->style();
@@ -189,11 +194,6 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
             backgroundColorButton->setStyle(QStyleFactory::create("Windows"));
         }
     }
-
-    IniFlag iniFlag = modelWidget->getIniFlag();
-    bool enableNativeSettings = (iniFlag == NativePOVIni ||
-                                 iniFlag == NativeSTLIni ||
-                                 iniFlag == Native3DSIni);
 
     this->setWindowTitle(modelWidget->getIniTitle().append(" Preferences"));
 
@@ -218,22 +218,40 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
     showAxesButton->hide();
     showErrorsButton->hide();
 
-    if (enableNativeSettings)
-    {
-        // Default Save Directories
-        defaultSnapshotDirLabel->hide();
-        snapshotSaveDirBox->hide();
-        snapshotSaveDirEdit->hide();
-        snapshotSaveDirButton->hide();
-      /*
-       * We will use these for the parts list export
-       *
+    IniFlag iniFlag = modelWidget->getIniFlag();
+    if (iniFlag == LDViewIni) {
         defaultPartlistDirLabel->hide();
         partsListsSaveDirBox->hide();
         partsListsSaveDirEdit->hide();
         partsListsSaveDirButton->hide();
-       */
-
+    }
+    else
+    {
+        if (iniFlag == NativePOVIni ||
+            iniFlag == NativeSTLIni ||
+            iniFlag == Native3DSIni) {
+            // Default Save Directory
+            defaultSnapshotDirLabel->hide();
+            snapshotSaveDirBox->hide();
+            snapshotSaveDirEdit->hide();
+            snapshotSaveDirButton->hide();
+            // Part List Save Directory
+            defaultPartlistDirLabel->hide();
+            partsListsSaveDirBox->hide();
+            partsListsSaveDirEdit->hide();
+            partsListsSaveDirButton->hide();
+        } else {
+            // Default Save Directory
+            defaultSnapshotDirLabel->hide();
+            snapshotSaveDirBox->hide();
+            snapshotSaveDirEdit->hide();
+            snapshotSaveDirButton->hide();
+            // Exports Directory
+            exportsDirLabel->hide();
+            exportsListsSaveDirBox->hide();
+            exportsSaveDirEdit->hide();
+            exportsSaveDirButton->hide();
+        }
         // Remove Updates Tab
         tabs->removeTab(tabs->indexOf(updateTab));
     }
@@ -355,7 +373,6 @@ void LDVPreferences::doGeneralApply(void)
 	ldPrefs->setProcessLdConfig(processLdconfigLdrButton->checkState());
 	ldPrefs->setRandomColors(randomColorsButton->checkState());
 
-/*** LPub3D Mod - use button icon image ***/
 	ldPrefs->getBackgroundColor(r, g, b);
 	if (backgroundColor.isValid() && backgroundColor != QColor(r,g,b)){
 	   backgroundColor.getRgb(&r, &g, &b);
@@ -367,7 +384,6 @@ void LDVPreferences::doGeneralApply(void)
 	   defaultColor.getRgb(&r, &g, &b);
 	   ldPrefs->setDefaultColor(r, g, b);
 	}
-/*** LPub3D Mod end ***/
 
     ldPrefs->setFov(fieldOfViewDoubleSpin->value());
 	ldPrefs->setMemoryUsage(memoryUsageBox->currentIndex());
@@ -416,6 +432,17 @@ void LDVPreferences::doGeneralApply(void)
                     LDPreferences::DDMLastDir);
 		}
 	}
+    // Other General Settings
+    TCUserDefaults::setBoolForKey(autoCropButton->isChecked(),
+                                  AUTO_CROP_KEY, false);
+    TCUserDefaults::setBoolForKey(transparentBackgroundButton->isChecked(),
+                                  SAVE_ALPHA_KEY, false);
+#ifdef WIN32
+    TCUserDefaults::setLongForKey(havePixelBufferButton->isChecked() ? 1 : 0,
+                                  IGNORE_PBUFFER_KEY, false);
+
+#endif
+
 	ldPrefs->applyGeneralSettings();
 	ldPrefs->commitGeneralSettings();
 }
@@ -738,11 +765,13 @@ void LDVPreferences::doApply(void)
 void LDVPreferences::doOk(void)
 {
 	doApply();
+    QDialog::accept();
 	QDialog::close();
 }
 
 void LDVPreferences::doCancel(void)
 {
+    QDialog::reject();
 	QDialog::close();
 }
 
@@ -1015,7 +1044,6 @@ void LDVPreferences::reflectGeneralSettings(void)
         ldPrefs->getProcessLdConfig());
 	setButtonState(randomColorsButton,ldPrefs->getRandomColors());
 
-/*** LPub3D Mod - use button icon image ***/
 	ldPrefs->getBackgroundColor(r, g, b);
 	pix.fill(QColor(r, g, b));
 	backgroundColorButton->setIcon(pix);
@@ -1023,11 +1051,21 @@ void LDVPreferences::reflectGeneralSettings(void)
 	ldPrefs->getDefaultColor(r, g, b);
 	pix.fill(QColor(r, g, b));
 	defaultColorButton->setIcon(pix);
-/*** LPub3D Mod end ***/
 
     setDoubleRangeValue(fieldOfViewDoubleSpin, (float)ldPrefs->getFov());
 	setButtonState(transparentButton, ldPrefs->getTransDefaultColor());
 	memoryUsageBox->setCurrentIndex(ldPrefs->getMemoryUsage());
+
+    // Other General Settings
+    autoCropButton->setChecked(
+            TCUserDefaults::boolForKey(AUTO_CROP_KEY, false, false));
+    transparentBackgroundButton->setChecked(
+            TCUserDefaults::longForKey(SAVE_ALPHA_KEY, 0, false) != 0);
+#ifdef WIN32
+    havePixelBufferButton->setChecked(
+            TCUserDefaults::longForKey(IGNORE_PBUFFER_KEY, 0, false) != 0);
+#endif
+
 	setupSaveDirs();
 }
 

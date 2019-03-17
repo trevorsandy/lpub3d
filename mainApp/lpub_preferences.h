@@ -52,7 +52,7 @@ class Preferences
     static void setLPub3DLoaded();
     static void setLDGLiteIniParams();
     static void setDistribution();
-    static void updateLDVPOVIniFile(UpdateFlag);
+    static void updateLDVExportIniFile(UpdateFlag);
     static void updateLDViewIniFile(UpdateFlag);
     static void updateLDViewPOVIniFile(UpdateFlag);
     static void updatePOVRayConfFile(UpdateFlag);

@@ -147,6 +147,7 @@ SOURCES += \
     $$PWD/LDVAlertHandler.cpp \
     $$PWD/LDViewExportOption.cpp \
     $$PWD/LDVImageMatte.cpp \
+	$$PWD/LDViewPartList.cpp \
     $$PWD/LDVMisc.cpp \
     $$PWD/LDVPreferences.cpp \
     $$PWD/LDVWidget.cpp
@@ -160,6 +161,7 @@ HEADERS += \
     $$PWD/LDVAlertHandler.h \
     $$PWD/LDViewExportOption.h \
     $$PWD/LDVImageMatte.h \
+	$$PWD/LDViewPartList.h \
     $$PWD/LDVMisc.h \
     $$PWD/LDVPovUserDefaultsKeys.h \
     $$PWD/LDVPreferences.h \
@@ -172,7 +174,8 @@ HEADERS += \
 
 FORMS += \
     $$PWD/LDVExportOptionPanel.ui \
-    $$PWD/LDVPreferencesPanel.ui
+    $$PWD/LDVPreferencesPanel.ui \
+    $$PWD/LDVPartList.ui
 
 OTHER_FILES += \
     $$PWD/../../mainApp/extras/ldvMessages.ini

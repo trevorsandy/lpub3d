@@ -508,10 +508,19 @@ bool Gui::exportAsDialog(ExportMode m)
 void Gui::exportAsHtml()
 {
     NativeOptions Options;
-    Options.ImageType         = Render::CSI;
     Options.InputFileName     = curFile;
     Options.ExportMode        = EXPORT_HTML;
+    // 3DViewer only
+    Options.ImageType         = Render::CSI;
     Options.ExportFileName    = QFileInfo(curFile).absolutePath();
+    // Native only
+    Options.IniFlag           = NativePartList;
+    QStringList arguments;
+    arguments << QString("-LDrawDir=%1").arg(QDir::toNativeSeparators(Preferences::ldrawLibPath));
+    if (!Preferences::altLDConfigPath.isEmpty())
+       arguments << QString("-LDConfig=").arg(QDir::toNativeSeparators(Preferences::altLDConfigPath));
+    arguments << QDir::toNativeSeparators(curFile);
+    Options.ExportArgs = arguments;
     if (! renderer->NativeExport(Options)) {
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("HTML parts list export failed."));
     }

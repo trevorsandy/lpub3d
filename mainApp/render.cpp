@@ -1208,7 +1208,7 @@ int LDView::renderCsi(
           return -1;
   }
 
-  // Build IM arguments and process IM
+  // Build IM arguments and process IM [Not implemented]
   QStringList im_arguments;
   if (enableIM && haveLdrNamesIM) {
       QString a  = QString("-AutoCrop=0");
@@ -1504,12 +1504,14 @@ int Native::renderCsi(
           }
           if (ldvExport) {
 
-              if (gui->exportMode == EXPORT_STL    ||
-                  gui->exportMode == EXPORT_POVRAY /*||
+              if (gui->exportMode == EXPORT_POVRAY ||
+                  gui->exportMode == EXPORT_STL ||
+                  gui->exportMode == EXPORT_HTML  /*||
                   gui->exportMode == EXPORT_3DS_MAX */){
                 /*  Options.IniFlag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni :
                                       gui->exportMode == EXPORT_STL ? NativeSTLIni : Native3DSIni; */
-                  Options.IniFlag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni : NativeSTLIni;
+                  Options.IniFlag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni :
+                                    gui->exportMode == EXPORT_STL ? NativeSTLIni : EXPORT_HTML;
               }
 
             ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/exportcsi.ldr";
@@ -1920,8 +1922,8 @@ bool Render::NativeExport(const NativeOptions &Options) {
 
     if (Options.ExportMode == EXPORT_WAVEFRONT ||
         Options.ExportMode == EXPORT_COLLADA   ||
-        Options.ExportMode == EXPORT_3DS_MAX   ||
-        Options.ExportMode == EXPORT_HTML) {
+        Options.ExportMode == EXPORT_3DS_MAX /*  ||
+        Options.ExportMode == EXPORT_HTML */) {
         emit gui->messageSig(LOG_STATUS, QString("Native CSI %1 Export...").arg(exortMode));
         Project* NativeExportProject = new Project();
         gApplication->SetProject(NativeExportProject);
@@ -1935,7 +1937,6 @@ bool Render::NativeExport(const NativeOptions &Options) {
     }
     else
     {
-
         QString workingDirectory = QDir::currentPath();
         QStringList arguments = Options.ExportArgs;
         emit gui->messageSig(LOG_TRACE, QString("Native CSI %1 Export for command: %2")
@@ -1959,21 +1960,6 @@ bool Render::NativeExport(const NativeOptions &Options) {
     if (! good )
         return good;
 
-    if (Options.ExportMode == EXPORT_HTML)
-    {
-        lcHTMLExportOptions HTMLOptions(lcGetActiveProject());
-
-        lcQHTMLDialog Dialog(gMainWindow, &HTMLOptions);
-        if (Dialog.exec() != QDialog::Accepted)
-            return false;
-
-        HTMLOptions.SaveDefaults();
-
-        //HTMLOptions.PathName = Options.ExportFileName;
-
-        lcGetActiveProject()->ExportHTML(HTMLOptions);
-    }
-    else
     if (Options.ExportMode == EXPORT_CSV)
     {
         lcGetActiveProject()->ExportCSV();
@@ -2002,6 +1988,21 @@ bool Render::NativeExport(const NativeOptions &Options) {
 /*
     // These are executed through the LDV Native renderer
 
+    if (Options.ExportMode == EXPORT_HTML)
+    {
+        lcHTMLExportOptions HTMLOptions(lcGetActiveProject());
+
+        lcQHTMLDialog Dialog(gMainWindow, &HTMLOptions);
+        if (Dialog.exec() != QDialog::Accepted)
+            return false;
+
+        HTMLOptions.SaveDefaults();
+
+        //HTMLOptions.PathName = Options.ExportFileName;
+
+        lcGetActiveProject()->ExportHTML(HTMLOptions);
+    }
+    else
     if (Options.ExportMode == EXPORT_POVRAY)
     {
         lcGetActiveProject()->ExportPOVRay(Options.ExportFileName);

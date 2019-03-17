@@ -691,9 +691,6 @@ void PreferencesDialog::on_povGenLDViewRadio_clicked(bool checked)
 
 void PreferencesDialog::ldvPoVFileGenOptBtn_clicked()
 {
-    if (ldvWidget)
-        ldvWidget->closeLDVExportOptions();
-
     if (ui.povGenNativeRadio->isChecked())
         ldvWidget = new LDVWidget(this,NativePOVIni,true);
     else
@@ -704,9 +701,6 @@ void PreferencesDialog::ldvPoVFileGenOptBtn_clicked()
 
 void PreferencesDialog::ldvPoVFileGenPrefBtn_clicked()
 {
-    if (ldvWidget)
-        ldvWidget->closeLDVPreferences();
-
     if (ui.povGenNativeRadio->isChecked())
         ldvWidget = new LDVWidget(this,NativePOVIni,true);
     else

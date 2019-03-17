@@ -25,6 +25,7 @@
 #include <QMessageBox>
 #include <QDate>
 #include <JlCompress.h>
+#include <LDVQt/LDVWidget.h>
 #include "lpub_preferences.h"
 #include "ui_preferences.h"
 #include "preferencesdialog.h"
@@ -1998,7 +1999,7 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
     lpub3d3rdPartyConfigDir = QString("%1/3rdParty").arg(lpubDataPath);
     lpub3dLDVConfigDir      = QString("%1/ldv").arg(lpubDataPath);
     setLDGLiteIniParams();
-    updateLDVPOVIniFile(updateFlag);
+    updateLDVExportIniFile(updateFlag);
     updateLDViewIniFile(updateFlag);
     updateLDViewPOVIniFile(updateFlag);
     updatePOVRayConfFile(updateFlag);
@@ -2099,7 +2100,7 @@ void Preferences::setLDGLiteIniParams()
     logInfo() << QString("LDGLite.ini file   : %1").arg(ldgliteIni.isEmpty() ? "Not found" : ldgliteIni);
 }
 
-void Preferences::updateLDVPOVIniFile(UpdateFlag updateFlag)
+void Preferences::updateLDVExportIniFile(UpdateFlag updateFlag)
 {
     QString inFileName;
     QFileInfo resourceFile;
@@ -3045,7 +3046,7 @@ bool Preferences::getPreferences()
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawLibPathKey),ldrawLibPath);
             }
             // update LDView ini files
-            updateLDVPOVIniFile(UpdateExisting);
+            updateLDVExportIniFile(UpdateExisting);
             updateLDViewIniFile(UpdateExisting);       //ldraw path changed
             updateLDViewPOVIniFile(UpdateExisting);    //ldraw or lgeo paths changed
             updateLDViewConfigFiles = true;            //set flag to true
@@ -3278,7 +3279,7 @@ bool Preferences::getPreferences()
             enableImageMatting = dialog->enableImageMatting();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableImageMatting"),enableImageMatting);
             if (enableImageMatting)
-                updateLDViewIniFile(UpdateExisting);       // strip AutoCrop
+                updateLDViewIniFile(UpdateExisting);       // strip AutoCrop [disabled]
         }
 
         if (preferCentimeters != dialog->centimeters())

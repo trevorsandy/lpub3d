@@ -24,8 +24,10 @@
 #include <QDateTime>
 #include <QFileDialog>
 
-#include <LDLib/LDPreferences.h>
 #include <TCFoundation/TCAlertManager.h>
+#include <LDLib/LDInputHandler.h>
+#include <LDLib/LDPreferences.h>
+#include <LDLib/LDSnapshotTaker.h>
 
 #include "name.h"
 
@@ -46,6 +48,7 @@ public:
   ~LDVWidget(void);
 
   LDrawModelViewer *getModelViewer(void) { return modelViewer; }
+  LDVPreferences   *getLDVPreferences(void) { return ldvPreferences; }
   IniFlag getIniFlag(void) { return iniFlag; }
   QString getIniTitle(void);
   QString getIniFile(void);
@@ -57,25 +60,28 @@ public:
   void snapshotTakerAlertCallback(TCAlert *alert);
 
   void showLDVExportOptions(void);
-  void closeLDVExportOptions(void);
   void showLDVPreferences(void);
-  void closeLDVPreferences(void);
 
   bool doCommand(QStringList &arguments);
 
-  // Extend LDV export functions
-  bool fileExists(const char* filename);
-  bool shouldOverwriteFile(char* filename);
-  virtual bool calcSaveFilename(char* saveFilename, int len);
-  bool getSaveFilename(char* saveFilename, int len);
-  void fileExport(const QString &saveFilename);
-  void fileExport(void);
+  // Parts List functions
+  void doPartList(void);
+  void doPartList(LDHtmlInventory *htmlInventory, LDPartsList *partsList,
+          const char *filename);
+  bool saveImage(char *filename, int imageWidth, int imageHeight,
+          bool fromCommandLine = false);
+  LDSnapshotTaker::ImageType getSaveImageType(void);
+  bool grabImage(int &imageWidth, int &imageHeight,
+      bool fromCommandLine = false);
+  bool chDirFromFilename(const char *filename);
+  void setViewMode(LDInputHandler::ViewMode value, bool examineLatLong,
+                       bool keepRightSideUp, bool saveSettings=true);
 
 protected:
   bool setIniFile(void);
   void setupLDVFormat(void);
   void setupLDVContext(void);
-  void setupLDVUI(void);
+  bool setupLDVApplication(void);
   void displayGLExtensions(void);
 
   bool getUseFBO();
@@ -92,20 +98,30 @@ protected:
   LDViewExportOption    *ldvExportOption;
   LDVAlertHandler       *ldvAlertHandler;
 
-  // Extend LDV export vars
-  QFileDialog           *saveDialog;
-  LDPreferences::SaveOp  curSaveOp;
-  int                    saveDigits;
-  int                    exportType;
+  // Parts List vars
+  LDInputHandler        *inputHandler;
+  const char            *saveImageFilename;
+  LDInputHandler::ViewMode viewMode;
+  bool                   commandLineSnapshotSave;
+  bool                   saving;
+  bool                   saveAlpha;
+  int                    saveImageType;
+  bool                   saveImageZoomToFit;
+  int                    saveImageWidth;
+  int                    saveImageHeight;
+  bool                   saveImageResult;
+  int                    mwidth, mheight;
+  bool                   examineLatLong;
+  bool                   keepRightSide;
 
   struct IniFile
   {
       QString Title;
       QString File;
   };
-  struct IniFile iniFiles[NumIniFiles];
-
+  IniFile iniFiles[NumIniFiles];
 };
+
 extern LDVWidget* ldvWidget;
 extern const QString iniFlagNames[];
 

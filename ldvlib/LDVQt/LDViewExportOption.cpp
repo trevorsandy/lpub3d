@@ -406,11 +406,13 @@ void LDViewExportOption::doApply(void)
 void LDViewExportOption::doOk(void)
 {
     doApply();
+    QDialog::accept();
     QDialog::close();
 }
 
 void LDViewExportOption::doCancel(void)
 {
+    QDialog::reject();
     QDialog::close();
 }
 

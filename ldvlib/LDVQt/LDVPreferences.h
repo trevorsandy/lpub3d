@@ -244,12 +244,10 @@ protected:
 	static const QString &getRecentFileKey(int index);
 
 	LDrawModelViewer *modelViewer;
-	LDPreferences *ldPrefs;
+    LDPreferences    *ldPrefs;
 
-/*** LPub3D Mod - use button icon image ***/
 	QColor backgroundColor;
 	QColor defaultColor;
-/*** LPub3D Mod end ***/
 
 	bool checkAbandon;
 	int hotKeyIndex;
@@ -261,9 +259,6 @@ protected:
 	int windowHeight;
 	QString snapshotDir, partsListDir, exportDir;
     //QIntValidator *proxyPortValidator;
-#if QT_VERSION < 0x50000
-	QWindowsStyle qlStyle;
-#endif
 };
 
 #endif // __PREFERENCES_H__
