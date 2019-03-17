@@ -175,13 +175,25 @@ void Render::setRenderer(QString const &name)
   }
 }
 
-const QString Render::getRotstepMeta(RotStepMeta &rotStep){
-  QString rotstepMeta = QString("0 // ROTSTEP %1 %2 %3 %4")
-                                .arg(rotStep.value().type)
-                                .arg(rotStep.value().rots[0])
-                                .arg(rotStep.value().rots[1])
-                                .arg(rotStep.value().rots[2]);
-  return rotstepMeta;
+const QString Render::getRotstepMeta(RotStepMeta &rotStep, bool key){
+  QString rotstepString;
+  if (key) {
+      rotstepString = QString("%1%2%3%4")
+                              .arg(qRound(rotStep.value().rots[0]))
+                              .arg(qRound(rotStep.value().rots[1]))
+                              .arg(qRound(rotStep.value().rots[2]))
+                              .arg(rotStep.value().type.trimmed());
+  } else {
+      rotstepString = QString("0 // ROTSTEP %1 %2 %3 %4")
+                              .arg(rotStep.value().type)
+                              .arg(rotStep.value().rots[0])
+                              .arg(rotStep.value().rots[1])
+                              .arg(rotStep.value().rots[2]);
+  }
+
+  //gui->messageSig(LOG_DEBUG,QString("ROTSTEP String: %1").arg(rotstepString));
+
+  return rotstepString;
 }
 
 bool Render::useLDViewSCall(){

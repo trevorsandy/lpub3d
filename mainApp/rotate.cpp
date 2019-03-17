@@ -172,13 +172,7 @@ int Render::rotateParts(
   }
 
   RotStepData rotStepData = rotStep.value();
-  QString rotsComment = QString("0 // ROTSTEP %1 %2 %3 %4")
-                                .arg(rotStepData.type)
-                                .arg(rotStepData.rots[0])
-                                .arg(rotStepData.rots[1])
-                                .arg(rotStepData.rots[2]);
-
-  gui->messageSig(LOG_DEBUG,QString("ROTSTEP command: %1").arg(rotsComment));
+  QString rotsComment = getRotstepMeta(rotStep);
 
   QTextStream out(&file);
   if (nativeRenderer) {

@@ -204,8 +204,6 @@ int Step::createCsi(
   bool    invalidIMStep   = ((modelDisplayOnlyStep) || (stepNumber.number == 1));
   bool    absRotstep      = meta.rotStep.value().type == "ABS";
   FloatPairMeta absCA;
-  if (absRotstep)
-      absCA.setValues(0.0f,0.0f);
 
   ldrName.clear();
 

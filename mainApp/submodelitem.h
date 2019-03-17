@@ -129,6 +129,8 @@ class SubModel : public Placement {
                                         // bottomOfStep()
     int                     widestPart;
     int                     tallestPart;
+    // validity
+    bool                    imageOutOfDate;
     SubModel()
     {
       relativeType = SubModelType;
@@ -136,6 +138,7 @@ class SubModel : public Placement {
       step = nullptr;
       meta = nullptr;
       background = nullptr;
+      imageOutOfDate = false;
     }
 
     ~SubModel()
@@ -154,7 +157,7 @@ class SubModel : public Placement {
 
     void setPos(float x, float y);
     void setFlag(QGraphicsItem::GraphicsItemFlag flag,bool value);
-    QStringList orient(QString subModel, QString color);
+    bool rotateModel(QString ldrName, QString subModel, const QString color);
 
     void setSubModel(
       QString &modelName,

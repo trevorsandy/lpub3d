@@ -53,7 +53,7 @@ public:
   virtual ~Render() {}
   static QString const   getRenderer();
   static void            setRenderer(QString const &);
-  static QString const   getRotstepMeta(RotStepMeta &);
+  static QString const   getRotstepMeta(RotStepMeta &, bool = false);
   static int             executeLDViewProcess(QStringList &, Mt);
   static bool            useLDViewSCall();
   static bool            useLDViewSList();

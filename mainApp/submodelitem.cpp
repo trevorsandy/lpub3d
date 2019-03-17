@@ -40,6 +40,7 @@
 #include "lpub_preferences.h"
 #include "ranges_element.h"
 #include "range_element.h"
+#include "dependencies.h"
 
 const Where &SubModel::topOfStep()
 {
@@ -137,22 +138,28 @@ void SubModel::clear()
   parts.clear();
 }
 
-QStringList SubModel::orient(QString subModel,QString color)
+bool SubModel::rotateModel(QString ldrName, QString subModel, const QString color)
 {
    subModel = subModel.toLower();
-
-   // Camera angels always applied by renderer so do not apply
-
    QStringList rotatedModel = QStringList() << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(subModel);
    QString addLine = "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr";
-   FloatPairMeta emptyCameraAngles;
+   bool    absRotstep = subModelMeta.rotStep.value().type == "ABS";
+   FloatPairMeta noCameraAngles;
 
-   // Native renderer applies rotStep so do not rotate
-   if (Preferences::preferredRenderer != RENDERER_NATIVE)
-       if ((renderer->rotateParts(addLine,subModelMeta.rotStep,rotatedModel,emptyCameraAngles,false)) != 0)
-           emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer Submodel"));
-
-   return rotatedModel;
+   // create the Submodel ldr file and rotate its parts
+   if ((renderer->rotateParts(
+            addLine,
+            subModelMeta.rotStep,
+            rotatedModel,
+            ldrName,
+            step->top.modelName,
+            absRotstep ? noCameraAngles : subModelMeta.cameraAngles
+            )) != 0) {
+       emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate Submodel ldr file: %1.")
+                                             .arg(ldrName));
+       return false;
+   }
+   return true;
 }
 
 int SubModel::pageSizeP(Meta *meta, int which){
@@ -181,7 +188,8 @@ int SubModel::createSubModelImage(
   }
   QString        unitsName = resolutionType() ? "DPI" : "DPCM";
 
-  QString key = QString("%1_%2_%3_%4_%5_%6_%7_%8")
+  // assemble name key - create unique file when a value that impacts the image changes
+  QString key = QString("%1_%2_%3_%4_%5_%6_%7_%8_%9")
                     .arg(partialKey)
                     .arg(pageSizeP(meta, 0))
                     .arg(resolution())
@@ -189,37 +197,41 @@ int SubModel::createSubModelImage(
                     .arg(modelScale)
                     .arg(subModelMeta.cameraFoV.value())
                     .arg(subModelMeta.cameraAngles.value(0))
-                    .arg(subModelMeta.cameraAngles.value(1));
+                    .arg(subModelMeta.cameraAngles.value(1))
+                    .arg(renderer->getRotstepMeta(subModelMeta.rotStep,true));
   imageName = QDir::currentPath() + "/" +
               Paths::submodelDir + "/" + key.toLower() + ".png";
   QStringList ldrNames = QStringList() << QDir::currentPath() + "/" +
                                           Paths::tmpDir + "/submodel.ldr";
+
+  // Check if png file date modified is older than model file (on the stack) date modified
+  imageOutOfDate = false;
+
   QFile part(imageName);
 
-  if ( ! part.exists()) {
+  if (part.exists()) {
+      QDateTime lastModified = QFileInfo(imageName).lastModified();
+      QStringList parsedStack = step->submodelStack();
+      parsedStack << step->parent->modelName();
+      if ( ! isOlder(parsedStack,lastModified)) {
+          imageOutOfDate = true;
+          if (imageOutOfDate && ! part.remove()) {
+              emit gui->messageSig(LOG_ERROR,QString("Failed to remove out of date CSI PNG file."));
+          }
+      }
+  }
 
-    part.setFileName(ldrNames.first());
+  // Generate and renderer Submodel file
+  if ( ! part.exists() || imageOutOfDate) {
 
-    if ( ! part.open(QIODevice::WriteOnly)) {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open file for writing %1: %2.")
-                             .arg(ldrNames.first())
-                             .arg(part.errorString()));
-      return -1;
-    }
+      QElapsedTimer timer;
+      timer.start();
 
-    QStringList rotatedModel = orient(type,color);
-    QTextStream out(&part);
-    if (Preferences::usingNativeRenderer) {
-        QString modelName = QFileInfo(type).baseName().toLower();
-        modelName = modelName.replace(modelName.at(0),modelName.at(0).toUpper());
-        out << QString("0 %1").arg(modelName) << endl;
-        out << QString("0 Name: %1").arg(type) << endl;
-        out << QString("0 !LEOCAD MODEL NAME %1").arg(modelName) << endl;
-        out << renderer->getRotstepMeta(subModelMeta.rotStep) << endl;
-    }
-    foreach (QString line, rotatedModel)
-        out << line << endl;
-    part.close();
+      if (! rotateModel(ldrNames.first(),type,color)) {
+          emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate Submodel ldr file: %1.")
+                                                .arg(ldrNames.first()));
+          return -1;
+      }
 
     // TODO - create 3DViewer entry
 
@@ -229,8 +241,21 @@ int SubModel::createSubModelImage(
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render failed for %1").arg(imageName));
         return -1;
     }
+
+    emit gui->messageSig(LOG_INFO,
+                             QString("%1 Submodel render call took %2 milliseconds "
+                                     "to render %3 for %4 %5 %6 on page %7.")
+                                     .arg(Render::getRenderer())
+                                     .arg(timer.elapsed())
+                                     .arg(imageName)
+                                     .arg(step->calledOut ? "called out," : "simple,")
+                                     .arg(step->multiStep ? "step group" : "single step")
+                                     .arg(step->stepNumber.number)
+                                     .arg(gui->stepPageNum));
   }
+
   pixmap->load(imageName);
+
   return 0;
 }
 
@@ -1134,12 +1159,10 @@ void SubModelBackgroundItem::contextMenuEvent(
     QAction *borderAction        = commonMenus.borderMenu(menu,pl);
     QAction *marginAction        = commonMenus.marginMenu(menu,pl);
     QAction *subModelColorAction = commonMenus.subModelColorMenu(menu,pl);
-    QAction *rotStepAction       = menu.addAction("Change "+pl+" Rotation");
-    rotStepAction->setIcon(QIcon(":/resources/rotateicon.png"));
+    QAction *rotStepAction       = commonMenus.rotStepMenu(menu,pl);
     QAction *cameraFoVAction     = commonMenus.cameraFoVMenu(menu,pl);
     QAction *cameraAnglesAction  = commonMenus.cameraAnglesMenu(menu,pl);
-    QAction *hideAction          = menu.addAction("Hide "+pl);
-    hideAction->setIcon(QIcon(":/resources/display.png"));
+    QAction *hideAction          = commonMenus.hideMenu(menu,pl);
 
     QAction *selectedAction   = menu.exec(event->screenPos());
 

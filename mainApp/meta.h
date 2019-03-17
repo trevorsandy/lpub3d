@@ -437,8 +437,8 @@ public:
   QString   _inputMask;
   FloatPairMeta()
   {
-    _value[0][0] = 0;
-    _value[0][1] = 0;
+    _value[0][0] = 0.0f;
+    _value[0][1] = 0.0f;
     _min = 0;
     _max = 0;
     _fieldWidth = 6;
