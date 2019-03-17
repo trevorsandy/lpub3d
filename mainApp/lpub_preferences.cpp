@@ -65,7 +65,7 @@ QString Preferences::povrayIni;
 QString Preferences::ldgliteIni;
 QString Preferences::ldviewIni;
 QString Preferences::ldviewPOVIni;
-QString Preferences::nativePOVIni;
+QString Preferences::nativeExportIni;
 QString Preferences::povrayIniPath;
 QString Preferences::povrayIncPath;
 QString Preferences::povrayScenePath;
@@ -2106,12 +2106,12 @@ void Preferences::updateLDVPOVIniFile(UpdateFlag updateFlag)
     QFile confFileIn, confFileOut, oldFile;
     QDateTime timeStamp = QDateTime::currentDateTime();
 
-    resourceFile.setFile(QString("%1/%2").arg(lpub3dLDVConfigDir, VER_NATIVE_POV_INI_FILE));
+    resourceFile.setFile(QString("%1/%2").arg(lpub3dLDVConfigDir, VER_NATIVE_EXPORT_INI_FILE));
     if (resourceFile.exists())
     {
         if (updateFlag == SkipExisting) {
-           nativePOVIni = resourceFile.absoluteFilePath(); // populate native POV ini file
-           logInfo() << QString("NativePOV ini file : %1").arg(nativePOVIni);
+           nativeExportIni = resourceFile.absoluteFilePath(); // populate Native Export file file
+           logInfo() << QString("Native Export file : %1").arg(nativeExportIni);
            return;
         }
         logInfo() << QString("Updating %1...").arg(resourceFile.absoluteFilePath());
@@ -2173,10 +2173,10 @@ void Preferences::updateLDVPOVIniFile(UpdateFlag updateFlag)
         logError() << QString("Could not open NativePOV.ini input or output file: %1").arg(confFileError);
     }
     if (resourceFile.exists())
-        nativePOVIni = resourceFile.absoluteFilePath(); // populate native POV ini file
+        nativeExportIni = resourceFile.absoluteFilePath(); // populate native POV ini file
     if (oldFile.exists())
         oldFile.remove();                               // delete old file
-    logInfo() << QString("NativePOV ini file : %1").arg(nativePOVIni.isEmpty() ? "Not found" : nativePOVIni);
+    logInfo() << QString("NativePOV ini file : %1").arg(nativeExportIni.isEmpty() ? "Not found" : nativeExportIni);
 }
 
 void Preferences::updateLDViewIniFile(UpdateFlag updateFlag)
@@ -3166,8 +3166,8 @@ bool Preferences::getPreferences()
                logError() << QString("Could not update %1").arg(ldviewIni);
             if (!setLDViewExtraSearchDirs(ldviewPOVIni))
                logError() << QString("Could not update %1").arg(ldviewPOVIni);
-            if (!setLDViewExtraSearchDirs(nativePOVIni))
-               logError() << QString("Could not update %1").arg(nativePOVIni);
+            if (!setLDViewExtraSearchDirs(nativeExportIni))
+               logError() << QString("Could not update %1").arg(nativeExportIni);
         }
 
         if (rendererTimeout != dialog->rendererTimeout()) {

@@ -194,8 +194,8 @@ void PartWorker::ldsearchDirPreferences(){
        emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::ldviewIni));
     if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni))
        emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::ldviewPOVIni));
-    if (!Preferences::setLDViewExtraSearchDirs(Preferences::nativePOVIni))
-       emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::nativePOVIni));
+    if (!Preferences::setLDViewExtraSearchDirs(Preferences::nativeExportIni))
+       emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::nativeExportIni));
 
     // Update LDGLite extra search directories
     if (Preferences::preferredRenderer == RENDERER_LDGLITE)
@@ -579,8 +579,8 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
                      emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::ldviewIni));
                   if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni))
                      emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::ldviewPOVIni));
-                  if (!Preferences::setLDViewExtraSearchDirs(Preferences::nativePOVIni))
-                     emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::nativePOVIni));
+                  if (!Preferences::setLDViewExtraSearchDirs(Preferences::nativeExportIni))
+                     emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::nativeExportIni));
                   updateLDGLiteSearchDirs = true;
               }
           }

@@ -7,7 +7,7 @@ extras/pli.mpd \
 extras/pliSubstituteParts.lst \
 extras/titleAnnotations.lst \
 extras/ldglite.ini \
-extras/ldvPOV.ini \
+extras/ldvExport.ini \
 docs/COPYING_BRIEF \
 docs/CREDITS.txt \
 docs/lpub3d.1 \

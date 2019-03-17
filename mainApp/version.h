@@ -51,7 +51,7 @@
 #define VER_POVRAY_CONF_FILE                "povray.conf"     // POV-Ray access control config settings
 #define VER_POVRAY_INI_FILE                 "povray.ini"      // POV-Ray renderer config settings
 #define VER_LDGLITE_INI_FILE                "ldglite.ini"     // LDGLite renderer config settings
-#define VER_NATIVE_POV_INI_FILE             "ldvPOV.ini"      // Native LDV POV file generation config settings
+#define VER_NATIVE_EXPORT_INI_FILE          "ldvExport.ini"   // Native LDV Export (POV file gen, 3ds, STL) config settings
 #define VER_POVRAY_INC_FILE                 "consts.inc"      // Only used to validate directory
 #define VER_POVRAY_SCENE_FILE               "index.htm"       // Only used to validate directory
 #define VER_LGEO_XML_FILE                   "LGEO.xml"        // LGEO xml file
@@ -128,7 +128,7 @@
 #define VER_LPUB3D_LEGOELEMENTS_FILE        "legoelements.lst"
 #define VER_LPUB3D_LD2BLCOLORSXREF_FILE     "ld2blcolorsxref.lst"
 #define VER_LPUB3D_LD2BLCODESXREF_FILE      "ld2blcodesxref.lst"
-#define VER_LPUB3D_BLELEMENTS_DOWNLOAD_URL     "https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/codes.txt"
+#define VER_LPUB3D_BLELEMENTS_DOWNLOAD_URL  "https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/codes.txt"
 
 // ~~~~~~ Build Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 #ifdef QT_DEBUG_MODE

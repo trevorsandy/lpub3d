@@ -63,7 +63,7 @@ win32: stagewindistcontent {
         $$LPUB3D_STG_EXTRAS/freeformAnnotations.lst \
         $$LPUB3D_STG_EXTRAS/LDConfig.ldr \
         $$LPUB3D_STG_EXTRAS/ldglite.ini \
-        $$LPUB3D_STG_EXTRAS/ldvPOV.ini \
+        $$LPUB3D_STG_EXTRAS/ldvExport.ini \
         $$LPUB3D_STG_EXTRAS/PDFPrint.jpg \
         $$LPUB3D_STG_EXTRAS/pli.mpd \
         $$LPUB3D_STG_EXTRAS/pliSubstituteParts.lst \

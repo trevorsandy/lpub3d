@@ -420,13 +420,13 @@ enum Dimensions {Pixels = 0, Inches };
 enum PAction { SET_DEFAULT_ACTION, SET_STOP_ACTION };
 enum Direction { PAGE_PREVIOUS, PAGE_NEXT, DIRECTION_NOT_SET };
 enum ExportOption { EXPORT_ALL_PAGES, EXPORT_PAGE_RANGE, EXPORT_CURRENT_PAGE };
-enum ExportMode { EXPORT_NONE = -1,
+enum ExportMode { EXPORT_NONE  = -1,
                   PAGE_PROCESS = 0,
                   EXPORT_PDF,
                   EXPORT_PNG,
                   EXPORT_JPG,
                   EXPORT_BMP,
-                  EXPORT_3DS,
+                  EXPORT_3DS_MAX,
                   EXPORT_COLLADA,
                   EXPORT_WAVEFRONT,
                   EXPORT_STL,
@@ -435,6 +435,24 @@ enum ExportMode { EXPORT_NONE = -1,
                   EXPORT_CSV,
                   EXPORT_ELEMENT,
                   EXPORT_HTML};
+
+const QString nativeExportNames[] =
+{
+  "",          // PAGE_PROCESS
+  "PDF",       // EXPORT_PDF
+  "PNG",       // EXPORT_PNG
+  "JPG",       // EXPORT_JPG
+  "BMP",       // EXPORT_BMP
+  "3DS MAX",   // EXPORT_3DS_MAX
+  "COLLADA",   // EXPORT_COLLADA
+  "WAVEFRONT", // EXPORT_WAVEFRONT
+  "STL",       // EXPORT_STL
+  "POVRAY",    // EXPORT_POVRAY
+  "BRICKLINK", // EXPORT_BRICKLINK
+  "CSV",       // EXPORT_CSV
+  "ELEMENT",   // EXPORT_ELEMENT
+  "HTML"       // EXPORT_HTML
+};
 
 class Gui : public QMainWindow
 {
@@ -657,13 +675,13 @@ public:
    **********************************************************************/
 
   void setPreferredRenderer(const QString &renderer = QString()){
-      if (!Preferences::usingNativeRenderer) {
+      if (!Preferences::usingNativeRenderer || !renderer.isEmpty()) {
           saveRenderer      = Preferences::preferredRenderer;
           saveProjection    = Preferences::perspectiveProjection;
           if (renderer.isEmpty())
-             Preferences::preferredRenderer = RENDERER_NATIVE;
+             Preferences::preferredRenderer  = RENDERER_NATIVE;
           else
-             Preferences::preferredRenderer = renderer;
+             Preferences::preferredRenderer  = renderer;
           Preferences::perspectiveProjection = true;
           Render::setRenderer(Preferences::preferredRenderer);
       }

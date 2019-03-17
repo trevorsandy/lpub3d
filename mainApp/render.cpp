@@ -352,14 +352,13 @@ int POVRay::renderCsi(
     Meta              &meta)
 {
 
+  Q_UNUSED(csiKeys)
+
   /* Create the CSI DAT file */
   QString ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
   QString povName = ldrName + ".pov";
   QStringList list;
   QString message;
-
-  int width  = gui->pageSize(meta.LPub.page, 0);
-  int height = gui->pageSize(meta.LPub.page, 1);
 
   int rc;
   if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrName, QString(),meta.LPub.assem.cameraAngles)) < 0) {
@@ -373,12 +372,15 @@ int POVRay::renderCsi(
   bool applyCA = Preferences::applyCALocally;
   bool pp      = Preferences::perspectiveProjection;
 
+  int width  = gui->pageSize(meta.LPub.page, 0);
+  int height = gui->pageSize(meta.LPub.page, 1);
+
+  QString CA = QString("-ca%1") .arg(pp ? meta.LPub.assem.cameraFoV.value() : 0.01);
   QString cg = QString("-cg%1,%2,%3")
       .arg(applyCA ? 0.0 : meta.LPub.assem.cameraAngles.value(0))
       .arg(applyCA ? 0.0 : meta.LPub.assem.cameraAngles.value(1))
       .arg(cd);
 
-  QString CA = QString("-ca%1") .arg(pp ? meta.LPub.assem.cameraFoV.value() : 0.01);
   QString w  = QString("-SaveWidth=%1") .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
   QString f  = QString("-ExportFile=%1") .arg(povName);
@@ -420,10 +422,6 @@ int POVRay::renderCsi(
       if(hasLDViewIni){
           QString ini  = QString("-IniFile=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldviewPOVIni)));
           arguments << ini;
-        }
-      if (!Preferences::altLDConfigPath.isEmpty()) {
-          arguments << "-LDConfig=" + Preferences::altLDConfigPath;
-          //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
         }
 
       arguments << QDir::toNativeSeparators(ldrName);
@@ -1149,7 +1147,7 @@ int LDView::renderCsi(
         f  = QString("-SaveSnapShot=%1") .arg(pngName);     // applied for ldrName entry that IS NOT IM
     }
 
-  bool haveLdrNames = !ldrNames.isEmpty();
+  bool haveLdrNames   = !ldrNames.isEmpty();
   bool haveLdrNamesIM = !ldrNamesIM.isEmpty();
 
   // Build (Native) arguments
@@ -1441,9 +1439,6 @@ int Native::renderCsi(
   const QString     &pngName,
         Meta        &meta)
 {
-  Q_UNUSED(addLine);
-  Q_UNUSED(csiParts);
-  Q_UNUSED(csiKeys);
 
   QString ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
   float lineThickness = (float(resolution()/Preferences::highlightStepLineWidth));
@@ -1455,7 +1450,6 @@ int Native::renderCsi(
   Options.OutputFileName    = pngName;
   Options.ImageWidth        = gui->pageSize(meta.LPub.page, 0);
   Options.ImageHeight       = gui->pageSize(meta.LPub.page, 1);
-  Options.FoV               = meta.LPub.assem.cameraFoV.value();
   Options.FoV               = meta.LPub.assem.cameraFoV.value();
   Options.ZNear             = meta.LPub.assem.znear.value();
   Options.ZFar              = meta.LPub.assem.zfar.value();
@@ -1477,25 +1471,89 @@ int Native::renderCsi(
       if (csiKeys.size()) {
           emit gui->messageSig(LOG_STATUS, "Rendering CSI Objects - please wait...");
           QString baseName = csiKeys.first();
-          QString outPath = gui->saveDirectoryName;
+          QString outPath  = gui->saveDirectoryName;
+          bool ldvExport   = true;
 
           switch (gui->exportMode){
-          case EXPORT_3DS:
-              Options.ExportMode = int(EXPORT_3DS);
+          case EXPORT_3DS_MAX:
+              Options.ExportMode = int(EXPORT_3DS_MAX);
               Options.ExportFileName = QDir::toNativeSeparators(outPath+"/"+baseName+".3ds");
+              break;
+          case EXPORT_STL:
+              Options.ExportMode = int(EXPORT_STL);
+              Options.ExportFileName = QDir::toNativeSeparators(outPath+"/"+baseName+".stl");
+              break;
+          case EXPORT_POVRAY:
+              Options.ExportMode = int(EXPORT_POVRAY);
+              Options.ExportFileName = QDir::toNativeSeparators(outPath+"/"+baseName+".pov");
               break;
           case EXPORT_COLLADA:
               Options.ExportMode = int(EXPORT_COLLADA);
               Options.ExportFileName = QDir::toNativeSeparators(outPath+"/"+baseName+".dae");
+              ldvExport = false;
               break;
           case EXPORT_WAVEFRONT:
               Options.ExportMode = int(EXPORT_WAVEFRONT);
               Options.ExportFileName = QDir::toNativeSeparators(outPath+"/"+baseName+".obj");
+              ldvExport = false;
               break;
           default:
               emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Invalid CSI Object export option."));
               delete CsiImageProject;
               return -1;
+          }
+          if (ldvExport) {
+
+              if (gui->exportMode == EXPORT_STL    ||
+                  gui->exportMode == EXPORT_POVRAY /*||
+                  gui->exportMode == EXPORT_3DS_MAX */){
+                /*  Options.IniFlag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni :
+                                      gui->exportMode == EXPORT_STL ? NativeSTLIni : Native3DSIni; */
+                  Options.IniFlag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni : NativeSTLIni;
+              }
+
+            ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/exportcsi.ldr";
+
+            int rc;
+            if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrName, QString(),meta.LPub.assem.cameraAngles,true)) < 0) {
+                return rc;
+             }
+
+            /* determine camera distance */
+            int cd = int((stdCameraDistance(meta,meta.LPub.assem.modelScale.value())*0.775)*1700/1000);
+
+            /* apply camera angles */
+            bool applyCA = Preferences::applyCALocally;
+            //bool pp      = Preferences::perspectiveProjection;
+
+            QString CA = QString("-ca%1") .arg(/*pp ? Options.FoV : */ 0.01);  // Effectively defaults to orthographic projection.
+            QString cg = QString("-cg%1,%2,%3")
+                                 .arg(applyCA ? 0.0 : Options.Latitude)
+                                 .arg(applyCA ? 0.0 : Options.Longitude)
+                                 .arg(cd);
+
+            QString w  = QString("-SaveWidth=%1") .arg(Options.ImageWidth);
+            QString h  = QString("-SaveHeight=%1") .arg(Options.ImageHeight);
+            QString f  = QString("-ExportFile=%1") .arg(Options.ExportFileName);
+            QString l  = QString("-LDrawDir=%1") .arg(QDir::toNativeSeparators(Preferences::ldrawLibPath));
+            QString o  = QString("-HaveStdOut=1");
+            QString v  = QString("-vv");
+
+            QStringList arguments;
+            arguments << CA;
+            arguments << cg;
+            arguments << w;
+            arguments << h;
+            arguments << f;
+            arguments << l;
+
+            if (!Preferences::altLDConfigPath.isEmpty()) {
+               arguments << "-LDConfig=" + Preferences::altLDConfigPath;
+            }
+
+            arguments << QDir::toNativeSeparators(ldrName);
+
+            Options.ExportArgs = arguments;
           }
       } else {
           Options.ExportMode = EXPORT_NONE;
@@ -1503,7 +1561,9 @@ int Native::renderCsi(
   }
 
   if (!RenderNativeImage(Options)) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Native CSI image render failed."));
+      emit gui->messageSig(LOG_ERROR,QString("Native %1 render failed.")
+                          .arg(Options.ExportMode == EXPORT_NONE ? QString("CSI image") :
+                               QString("CSI %1 object").arg(nativeExportNames[gui->exportMode])));
       delete CsiImageProject;
       return -1;
   }
@@ -1591,7 +1651,7 @@ bool Render::RenderNativeImage(const NativeOptions &Options)
     View.SetContext(Context);
 
     // generate image
-    const int ImageWidth = Options.ImageWidth;
+    const int ImageWidth  = Options.ImageWidth;
     const int ImageHeight = Options.ImageHeight;
 
     if (!View.BeginRenderToImage(ImageWidth, ImageHeight))
@@ -1854,73 +1914,50 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerCsiKey)
 
 bool Render::NativeExport(const NativeOptions &Options) {
 
-    Project* PliImageProject = new Project();
-    gApplication->SetProject(PliImageProject);
+    QString exortMode = nativeExportNames[Options.ExportMode];
 
-    if (! gMainWindow->OpenProject(Options.InputFileName)) {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("CSI object export failed."));
-        delete PliImageProject;
-        return false;
+    bool good = true;
+
+    if (Options.ExportMode == EXPORT_WAVEFRONT ||
+        Options.ExportMode == EXPORT_COLLADA   ||
+        Options.ExportMode == EXPORT_3DS_MAX   ||
+        Options.ExportMode == EXPORT_HTML) {
+        emit gui->messageSig(LOG_STATUS, QString("Native CSI %1 Export...").arg(exortMode));
+        Project* NativeExportProject = new Project();
+        gApplication->SetProject(NativeExportProject);
+
+        if (! gMainWindow->OpenProject(Options.InputFileName)) {
+            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to open CSI %1 Export project")
+                                                           .arg(exortMode));
+            delete NativeExportProject;
+            good = false;
+        }
     }
-
-    QString FileName;
-
-    if (Options.ExportMode == EXPORT_WAVEFRONT)
+    else
     {
-        FileName = Options.ExportFileName;
 
-        QString Extension = QFileInfo(FileName).suffix().toLower();
-
-        if (Extension.isEmpty())
-        {
-            FileName += ".obj";
+        QString workingDirectory = QDir::currentPath();
+        QStringList arguments = Options.ExportArgs;
+        emit gui->messageSig(LOG_TRACE, QString("Native CSI %1 Export for command: %2")
+                                                 .arg(exortMode)
+                                                 .arg(arguments.join(" ")));
+        ldvWidget = new LDVWidget(nullptr,IniFlag(Options.IniFlag),true);
+        if (! ldvWidget->doCommand(arguments))  {
+            emit gui->messageSig(LOG_ERROR, QString("Failed to generate CSI %1 Export for command: %2")
+                                                    .arg(exortMode)
+                                                    .arg(arguments.join(" ")));
+            good = false;
         }
-        else if (Extension != "obj")
-        {
-            FileName = FileName.left(FileName.length() - Extension.length() - 1);
-            FileName += ".obj";
+        if (! QDir::setCurrent(workingDirectory)) {
+            emit gui->messageSig(LOG_ERROR, QString("Failed to restore CSI %1 export working directory: %2")
+                                                    .arg(exortMode)
+                                                    .arg(workingDirectory));
+            good = false;
         }
-
-        lcGetActiveProject()->ExportWavefront(FileName);
     }
 
-    if (Options.ExportMode == EXPORT_3DS)
-    {
-        FileName = Options.ExportFileName;
-
-        QString Extension = QFileInfo(FileName).suffix().toLower();
-
-        if (Extension.isEmpty())
-        {
-            FileName += ".3ds";
-        }
-        else if (Extension != "3ds")
-        {
-            FileName = FileName.left(FileName.length() - Extension.length() - 1);
-            FileName += ".3ds";
-        }
-
-        lcGetActiveProject()->Export3DStudio(FileName);
-    }
-
-    if (Options.ExportMode == EXPORT_COLLADA)
-    {
-        FileName = Options.ExportFileName;
-
-        QString Extension = QFileInfo(FileName).suffix().toLower();
-
-        if (Extension.isEmpty())
-        {
-            FileName += ".dae";
-        }
-        else if (Extension != "dae")
-        {
-            FileName = FileName.left(FileName.length() - Extension.length() - 1);
-            FileName += ".dae";
-        }
-
-        lcGetActiveProject()->ExportCOLLADA(FileName);
-    }
+    if (! good )
+        return good;
 
     if (Options.ExportMode == EXPORT_HTML)
     {
@@ -1936,35 +1973,40 @@ bool Render::NativeExport(const NativeOptions &Options) {
 
         lcGetActiveProject()->ExportHTML(HTMLOptions);
     }
-
-    if (Options.ExportMode == EXPORT_POVRAY)
-    {
-        FileName = Options.ExportFileName;
-
-        QString Extension = QFileInfo(FileName).suffix().toLower();
-
-        if (Extension.isEmpty())
-        {
-            FileName += ".pov";
-        }
-        else if (Extension != "pov")
-        {
-            FileName = FileName.left(FileName.length() - Extension.length() - 1);
-            FileName += ".pov";
-        }
-
-        lcGetActiveProject()->ExportPOVRay(FileName);
-    }
-
+    else
     if (Options.ExportMode == EXPORT_CSV)
     {
         lcGetActiveProject()->ExportCSV();
     }
-
+    else
     if (Options.ExportMode == EXPORT_BRICKLINK)
     {
         lcGetActiveProject()->ExportBrickLink();
     }
+    else
+    if (Options.ExportMode == EXPORT_WAVEFRONT)
+    {
+        lcGetActiveProject()->ExportWavefront(Options.ExportFileName);
+    }
+    else
+    if (Options.ExportMode == EXPORT_COLLADA)
+    {
+        lcGetActiveProject()->ExportCOLLADA(Options.ExportFileName);
+    }
+    else
+    if (Options.ExportMode == EXPORT_3DS_MAX)
+    {
+        lcGetActiveProject()->Export3DStudio(Options.ExportFileName);
+    }
 
-    return true;
+/*
+    // These are executed through the LDV Native renderer
+
+    if (Options.ExportMode == EXPORT_POVRAY)
+    {
+        lcGetActiveProject()->ExportPOVRay(Options.ExportFileName);
+    }
+*/
+
+    return good;
 }

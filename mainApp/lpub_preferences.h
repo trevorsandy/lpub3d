@@ -111,7 +111,7 @@ class Preferences
     static QString ldgliteIni;
     static QString ldviewIni;
     static QString ldviewPOVIni;
-    static QString nativePOVIni;
+    static QString nativeExportIni;
     static QString povrayIniPath;
     static QString povrayIncPath;
     static QString povrayScenePath;

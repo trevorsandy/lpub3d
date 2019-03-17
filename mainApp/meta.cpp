@@ -3107,14 +3107,14 @@ SubModelMeta::SubModelMeta() : PliMeta()
   rotStep.setValue(rotStepData);
   margin.setValuesInches(DEFAULT_MARGIN,DEFAULT_MARGIN);
   pack.setValue(true);
+  cameraAngles.setFormats(7,4,"###9.90");
+  cameraAngles.setRange(-360.0,360.0);
+  cameraAngles.setValues(23,-45);
   cameraDistNative.factor.setRange(-5000,5000);
   cameraDistNative.factor.setValue(Preferences::cameraDistFactorNative);
   cameraFoV.setFormats(5,4,"9.999");
   cameraFoV.setRange(0.0,360.0);
   cameraFoV.setValue(gui->getDefaultCameraFoV());
-  cameraAngles.setFormats(7,4,"###9.90");
-  cameraAngles.setRange(-360.0,360.0);
-  cameraAngles.setValues(23,-45);
   znear.setValue(gui->getDefaultCameraZNear());
   zfar.setValue(gui->getDefaultCameraZFar());
 }
@@ -3506,18 +3506,18 @@ AssemMeta::AssemMeta() : BranchMeta()
   showStepNumber.setValue(true);
 
   // image generation
-  cameraFoV.setFormats(5,4,"9.999");
-  cameraFoV.setRange(0.0,360.0);
-  cameraFoV.setValue(gui->getDefaultCameraFoV());  // using LPub3D Default 0.01f
   cameraAngles.setFormats(7,4,"###9.90");
   cameraAngles.setRange(-360.0,360.0);
   cameraAngles.setValues(23,45);                   // using LPub3D Default 0.0,0.0f
+  cameraDistNative.factor.setRange(-5000,5000);
+  cameraDistNative.factor.setValue(Preferences::cameraDistFactorNative);
+  cameraFoV.setFormats(5,4,"9.999");
+  cameraFoV.setRange(0.0,360.0);
+  cameraFoV.setValue(gui->getDefaultCameraFoV());  // using LPub3D Default 0.01f
   znear.setValue(gui->getDefaultCameraZNear());    // using LPub3D Default 10.0f
   zfar.setValue(gui->getDefaultCameraZFar());      // using LPub3D Default 4000.0f
 
   // image display
-  cameraDistNative.factor.setRange(-5000,5000);
-  cameraDistNative.factor.setValue(Preferences::cameraDistFactorNative);
   v_cameraFoV.setFormats(5,4,"9.999");
   v_cameraFoV.setRange(0.0,360.0);
   v_cameraFoV.setValue(CAMERA_FOV_NATIVE_DEFAULT);
@@ -3612,14 +3612,14 @@ PliMeta::PliMeta() : BranchMeta()
   sortBy.setValue(SortOptionName[PartSize]);
 
   // image generation
+  cameraAngles.setFormats(7,4,"###9.90");
+  cameraAngles.setRange(-360.0,360.0);
+  cameraAngles.setValues(23,-45);
   cameraDistNative.factor.setRange(-5000,5000);
   cameraDistNative.factor.setValue(Preferences::cameraDistFactorNative);
   cameraFoV.setFormats(5,4,"9.999");
   cameraFoV.setRange(0.0,360.0);
   cameraFoV.setValue(gui->getDefaultCameraFoV());
-  cameraAngles.setFormats(7,4,"###9.90");
-  cameraAngles.setRange(-360.0,360.0);
-  cameraAngles.setValues(23,-45);
   znear.setValue(gui->getDefaultCameraZNear());
   zfar.setValue(gui->getDefaultCameraZFar());
 }
@@ -3727,14 +3727,14 @@ BomMeta::BomMeta() : PliMeta()
   sortBy.setValue(SortOptionName[PartColour]);
 
   // image generation
+  cameraAngles.setFormats(7,4,"###9.90");
+  cameraAngles.setRange(-360.0,360.0);
+  cameraAngles.setValues(23,-45);
   cameraDistNative.factor.setRange(-5000,5000);
   cameraDistNative.factor.setValue(Preferences::cameraDistFactorNative);
   cameraFoV.setFormats(5,4,"9.999");
   cameraFoV.setRange(0.0,360.0);
   cameraFoV.setValue(gui->getDefaultCameraFoV());
-  cameraAngles.setFormats(7,4,"###9.90");
-  cameraAngles.setRange(-360.0,360.0);
-  cameraAngles.setValues(23,-45);
   znear.setValue(gui->getDefaultCameraZNear());
   zfar.setValue(gui->getDefaultCameraZFar());
 }

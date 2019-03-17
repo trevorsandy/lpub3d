@@ -1093,7 +1093,7 @@ bool Gui::installExportBanner(const int &type, const QString &printFile, const Q
         bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpta.dat";
         bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpte.dat";
         break;
-    case EXPORT_3DS:
+    case EXPORT_3DS_MAX:
         bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptx.dat";
         bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptd.dat";
         bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpts.dat";
@@ -1745,8 +1745,8 @@ void Gui::editLdgliteIni()
 
 void Gui::editNativePovIni()
 {
-    displayParmsFile(Preferences::nativePOVIni);
-    parmsWindow->setWindowTitle(tr("Edit Native POV file generation INI","Edit Native POV file generation INI"));
+    displayParmsFile(Preferences::nativeExportIni);
+    parmsWindow->setWindowTitle(tr("Edit Native Export INI","Edit Native Export INI"));
     parmsWindow->show();
 }
 
@@ -1815,16 +1815,16 @@ void Gui::preferences()
     QString displayThemeCompare         = Preferences::displayTheme;
 
     // Native POV file generation settings
-    bool showLDVSettings = false;
+    bool showLdvPOVGenSettings = false;
     if (Preferences::preferredRenderer == RENDERER_POVRAY) {
         if (Preferences::povFileGenerator == RENDERER_NATIVE )
-            TCUserDefaults::setIniFile(Preferences::nativePOVIni.toLatin1().constData());
+            TCUserDefaults::setIniFile(Preferences::nativeExportIni.toLatin1().constData());
         else
             TCUserDefaults::setIniFile(Preferences::ldviewPOVIni.toLatin1().constData());
-        showLDVSettings = true;
+        showLdvPOVGenSettings = true;
     } else if (Preferences::preferredRenderer == RENDERER_LDVIEW) {
         TCUserDefaults::setIniFile(Preferences::ldviewIni.toLatin1().constData());
-        showLDVSettings = true;
+        showLdvPOVGenSettings = true;
     }
 
     long qualityCompare = 0.0f;
@@ -1866,7 +1866,7 @@ void Gui::preferences()
     QString bottomIncludeCompare = "";
     QString lightsCompare = "";
 
-    if (showLDVSettings) {
+    if (showLdvPOVGenSettings) {
         switch (int(TCUserDefaults::longForKey(SELECTED_ASPECT_RATIO_KEY, SELECTED_ASPECT_RATIO_DEFAULT)))
         {
         case -1:
@@ -2182,7 +2182,7 @@ void Gui::preferences()
         }
 
         // Native POV file generation settings
-        if (showLDVSettings) {
+        if (showLdvPOVGenSettings) {
             QString selectedAspectRatio;
             switch (int(TCUserDefaults::longForKey(SELECTED_ASPECT_RATIO_KEY, SELECTED_ASPECT_RATIO_DEFAULT)))
             {
@@ -2729,7 +2729,7 @@ void Gui::reloadModelFileAfterColorFileGen(){
 
 void Gui::generateCustomColourPartsList(bool prompt)
 {
-    QMessageBox::StandardButton ret;
+    QMessageBox::StandardButton ret = QMessageBox::Cancel;
     QString message = QString("Generate the %1 color parts list. This may take some time.").arg(Preferences::validLDrawLibrary);
 
     if (Preferences::modeGUI && prompt && Preferences::lpub3dLoaded) {
@@ -3123,7 +3123,7 @@ void Gui::createActions()
     connect(export3dsAct, SIGNAL(triggered()), this, SLOT(exportAs3dsDialog()));
 
     exportStlAct = new QAction(QIcon(":/resources/stl32.png"),tr("Export As &Stereo Lithography Objects"), this);
-    exportBmpAct->setShortcut(tr("Alt+2"));
+    exportStlAct->setShortcut(tr("Alt+2"));
     exportStlAct->setStatusTip(tr("Export your document as a sequence of Stereo Lithography Objects - Alt+2"));
     exportStlAct->setEnabled(false);
     connect(exportStlAct, SIGNAL(triggered()), this, SLOT(exportAsStlDialog()));
@@ -3619,7 +3619,7 @@ void Gui::enableActions()
   exportBricklinkAct->setEnabled(true);
   exportCsvAct->setEnabled(true);
   exportPovAct->setEnabled(true);
-//  exportStlAct->setEnabled(true); Temp disabled
+  exportStlAct->setEnabled(true);
   export3dsAct->setEnabled(true);
   exportObjAct->setEnabled(true);
   exportColladaAct->setEnabled(true);

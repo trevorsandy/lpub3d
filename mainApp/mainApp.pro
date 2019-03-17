@@ -80,6 +80,9 @@ unix:!freebsd:!macx {
     DEFINES += USE_CPP11
 }
 
+!freebsd: \
+DEFINES += EXPORT_3DS
+
 QMAKE_CXXFLAGS       += $(Q_CXXFLAGS)
 QMAKE_LFLAGS         += $(Q_LDFLAGS)
 QMAKE_CFLAGS         += $(Q_CFLAGS)

@@ -133,8 +133,8 @@ unix:!macx {
     ldglite_ini.files += $$_PRO_FILE_PWD_/extras/ldglite.ini
     ldglite_ini.path = $$RESOURCE_DIR
 
-    nativepov_ini.files += $$_PRO_FILE_PWD_/extras/ldvPOV.ini
-    nativepov_ini.path = $$RESOURCE_DIR
+    nativexport_ini.files += $$_PRO_FILE_PWD_/extras/ldvExport.ini
+    nativexport_ini.path = $$RESOURCE_DIR
 
     ldv_messages_ini.files += $$_PRO_FILE_PWD_/extras/$$LDVMESSAGESINI
     ldv_messages_ini.path = $$RESOURCE_DIR
@@ -160,7 +160,7 @@ unix:!macx {
     ldraw_tente_library \
     ldraw_vexiq_library \
     ldglite_ini \
-    nativepov_ini \
+    nativexport_ini \
     ldv_messages_ini
 
     api {

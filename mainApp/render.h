@@ -30,6 +30,7 @@
 #define RENDER_H
 
 #include <QString>
+#include <QStringList>
 
 class QString;
 class QStringList;
@@ -67,7 +68,8 @@ public:
                                      const QStringList &parts,
                                      QString &ldrName,
                                      const QString &modelName,
-                                     FloatPairMeta &ca);
+                                     FloatPairMeta &ca,
+                                     bool ldv = false);
   static int             rotateParts(const QString &addLine,
                                      RotStepMeta &rotStep,
                                      QStringList &parts,
@@ -166,12 +168,15 @@ public:
     UsingViewpoint    = false;
     LineWidth         = 1.0;
     ExportMode        = -1; //NONE
+    IniFlag           = -1; //NONE
   }
+  QStringList ExportArgs;
   QString InputFileName;
   QString OutputFileName;
   QString ExportFileName;
   Render::Mt ImageType;
   int ExportMode;
+  int IniFlag;
   float ImageWidth;
   float ImageHeight;
   float FoV;

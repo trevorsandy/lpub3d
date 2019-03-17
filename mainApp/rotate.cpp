@@ -156,9 +156,10 @@ int Render::rotateParts(
           const QStringList &parts,
           QString           &ldrName,
           const QString     &modelName,
-          FloatPairMeta     &ca)
+          FloatPairMeta     &ca,
+          bool               ldv)
 {
-  bool  nativeRenderer = Preferences::usingNativeRenderer;
+  bool  nativeRenderer = (Preferences::usingNativeRenderer && ! ldv);
   QStringList rotatedParts = parts;
 
   // do not apply camera angles for native renderer

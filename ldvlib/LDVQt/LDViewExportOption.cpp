@@ -36,11 +36,32 @@ LDViewExportOption::LDViewExportOption(LDVWidget *modelWidget)
     :QDialog(qobject_cast<QWidget*>(modelWidget)),
     LDVExportOptionPanel(),
     m_modelViewer(modelWidget->getModelViewer() ? ((LDrawModelViewer*)modelWidget->getModelViewer()->retain()) : nullptr),
-    m_exporter(m_modelViewer ? m_modelViewer->getExporter(LDrawModelViewer::ETPov, true) : nullptr),
+    m_exporter(nullptr),
     m_box(nullptr),
-    m_lay(nullptr)
+    m_lay(nullptr),
+    m_POVLights(false)
 {
     setupUi(this);
+
+    IniFlag iniFlag = modelWidget->getIniFlag();
+
+    if (m_modelViewer) {
+        switch (iniFlag){
+        case NativePOVIni:
+            m_exporter  = m_modelViewer->getExporter(LDrawModelViewer::ETPov, true);
+            m_POVLights = true;
+            break;
+        case NativeSTLIni:
+            m_exporter  = m_modelViewer->getExporter(LDrawModelViewer::ETStl, true);
+            break;
+        case Native3DSIni:
+            m_exporter  = m_modelViewer->getExporter(LDrawModelViewer::ET3ds, true);
+            break;
+        default:
+            break;
+        }
+    }
+
     connect( okButton, SIGNAL( clicked() ), this, SLOT( doOk() ) );
     connect( applyButton, SIGNAL( pressed() ), this, SLOT( doApply() ) );
     connect( cancelButton, SIGNAL( clicked() ), this, SLOT( doCancel() ) );
@@ -52,8 +73,7 @@ LDViewExportOption::LDViewExportOption(LDVWidget *modelWidget)
         captureExtraSearchDirs();
     }
 
-    m_nativePOVIni = modelWidget->getIniFlag() == NativePOVIni;
-    if (m_nativePOVIni)
+    if (m_POVLights)
     {
         connect( povLightLatitudeLnEdit, SIGNAL( editingFinished() ), this, SLOT( enableApply() ) );
         connect( povLightLongitudeLnEdit, SIGNAL( editingFinished() ), this, SLOT( enableApply() ) );
@@ -376,7 +396,7 @@ void LDViewExportOption::doApply(void)
             break;
         }
     }
-    if (m_nativePOVIni)
+    if (m_POVLights)
         applyLights();
     applyExtraSearchDirs();
     TCUserDefaults::flush();
@@ -397,7 +417,7 @@ void LDViewExportOption::doCancel(void)
 void LDViewExportOption::doReset(void)
 {
     resetSettings(m_settings);
-    if (m_nativePOVIni)
+    if (m_POVLights)
         resetLights();
     captureExtraSearchDirs();
     enableApply();
@@ -480,7 +500,7 @@ void LDViewExportOption::resetLights()
 
 void LDViewExportOption::setLights(void)
 {
-    if (m_nativePOVIni)
+    if (m_POVLights)
     {
         povLightsCombo->clear();
         QStringList myLigths = Preferences::ldvLights.split(",", QString::SkipEmptyParts);

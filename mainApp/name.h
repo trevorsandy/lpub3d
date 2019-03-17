@@ -28,10 +28,11 @@ extern LDVWidget *ldvWidget;
 enum PartType { FADE_PART, HIGHLIGHT_PART, NORMAL_PART, NUM_PART_TYPES };
 enum PliType { PART, SUBMODEL, BOM, NUM_PLI_TYPES };
 enum LogType { LOG_STATUS, LOG_INFO, LOG_TRACE, LOG_DEBUG, LOG_NOTICE, LOG_ERROR, LOG_INFO_STATUS, LOG_FATAL, LOG_QWARNING, LOG_QDEBUG };
+enum IniFlag { NativePOVIni, NativeSTLIni, Native3DSIni, LDViewPOVIni, LDViewIni, NumIniFiles };
 enum DividerType { StepDivider, RangeDivider, NoDivider };
-enum IniFlag { NativePOVIni, LDViewPOVIni, LDViewIni, NumIniFiles };
 enum LibType { LibLEGO, LibTENTE, LibVEXIQ, NumLibs };
 enum Theme { ThemeDark, ThemeDefault };
+
 
 // registry sections
 #define DEFAULTS                "Defaults"

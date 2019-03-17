@@ -79,8 +79,8 @@ macx {
     ldglite_ini.files += $$_PRO_FILE_PWD_/extras/ldglite.ini
     ldglite_ini.path = Contents/Resources
 
-    nativepov_ini.files += $$_PRO_FILE_PWD_/extras/ldvPOV.ini
-    nativepov_ini.path = Contents/Resources
+    nativexport_ini.files += $$_PRO_FILE_PWD_/extras/ldvExport.ini
+    nativexport_ini.path = Contents/Resources
 
     ldv_messages_ini.files += $$_PRO_FILE_PWD_/extras/$$LDVMESSAGESINI
     ldv_messages_ini.path = Contents/Resources
@@ -102,7 +102,7 @@ macx {
         ldraw_tente_library \
         ldraw_vexiq_library \
         ldglite_ini \
-        nativepov_ini \
+        nativexport_ini \
         ldv_messages_ini
 
     # The package distribution settings below requires a specific dev env configuration.

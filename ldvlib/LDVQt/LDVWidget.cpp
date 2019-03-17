@@ -53,6 +53,8 @@
 #include <LDViewExportOption.h>
 #include <LDVAlertHandler.h>
 
+#include <LDVMisc.h>
+
 #include <vector>
 #include <string>
 #include <assert.h>
@@ -67,6 +69,10 @@
 #define WIN_HEIGHT 480
 
 LDVWidget* ldvWidget;
+const QString iniFlagNames [] =
+{
+  "Native POV", "Native STL", "Native 3DS", "LDView POV", "LDView"
+};
 
 LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
         : QGLWidget(parent),
@@ -95,9 +101,11 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 
   LDLModel::setFileCaseCallback(staticFileCaseCallback);
 
-  iniFiles[NativePOVIni] = { "Native POV", Preferences::nativePOVIni };
+  iniFiles[NativePOVIni] = { "Native POV", Preferences::nativeExportIni };
+  iniFiles[NativeSTLIni] = { "Native STL", Preferences::nativeExportIni };
+  iniFiles[Native3DSIni] = { "Native 3DS", Preferences::nativeExportIni };
   iniFiles[LDViewPOVIni] = { "LDView POV", Preferences::ldviewPOVIni };
-  iniFiles[LDViewIni] = { "LDView", Preferences::ldviewIni } ;
+  iniFiles[LDViewIni]    = { "LDView",     Preferences::ldviewIni };
 
   QString programPath = QCoreApplication::applicationFilePath();
   TCUserDefaults::setCommandLine(programPath.toLatin1().constData());
@@ -161,15 +169,31 @@ bool LDVWidget::setIniFile()
             emit lpubAlert->messageSig(LOG_ERROR, QString("INI file was not specified").arg(getIniTitle()).arg(getIniFile()));
             return false;
         }
+
         if (!TCUserDefaults::setIniFile(getIniFile().toLatin1().constData()))
         {
             emit lpubAlert->messageSig(LOG_ERROR, QString("Could not set %1 INI %2").arg(getIniTitle()).arg(getIniFile()));
             return false;
         }
-//        if (TCUserDefaults::isIniFileSet())
-//            emit lpubAlert->messageSig(LOG_INFO, QString("%1 INI set: %2").arg(getIniTitle()).arg(getIniFile()));
     }
     return true;
+}
+
+QString LDVWidget::getIniTitle()
+{
+
+    if (iniFlag < 0 || iniFlag > NumIniFiles -1)
+        return QString();
+    else
+        return iniFiles[iniFlag].Title;
+}
+
+QString LDVWidget::getIniFile()
+{
+    if (iniFlag < 0 || iniFlag > NumIniFiles -1)
+        return QString();
+    else
+        return iniFiles[iniFlag].File;
 }
 
 bool LDVWidget::doCommand(QStringList &arguments)
@@ -181,14 +205,13 @@ bool LDVWidget::doCommand(QStringList &arguments)
     QImage studImage(":/resources/StudLogo.png");
     TREMainModel::setRawStudTextureData(studImage.bits(),studImage.byteCount());
 
-    bool retValue = LDSnapshotTaker::doCommandLine(false, true);
-    if (!retValue)
+    if (!LDSnapshotTaker::doCommandLine(false, true))
     {
-         fprintf(stdout, "ERROR - Failed to process Native command arguments: %s\n",
-                 arguments.join(" ").toLatin1().constData());
-         fflush(stdout);
+         emit lpubAlert->messageSig(LOG_ERROR,QString("Failed to process Native command arguments: %1").arg(arguments.join(" ")));
+         return false;
     }
-    return retValue;
+
+    return true;
 }
 
 void LDVWidget::showLDVExportOptions()
@@ -230,15 +253,10 @@ void LDVWidget::closeLDVPreferences()
 void LDVWidget::setupLDVFormat(void)
 {
     // Specify the format and create platform-specific surface
-    ldvFormat.setDepthBufferSize( 24 );
-    ldvFormat.setStencilBufferSize(8);
-    ldvFormat.setRedBufferSize(8);
-    ldvFormat.setGreenBufferSize(8);
-    ldvFormat.setBlueBufferSize(8);
-    ldvFormat.setAlphaBufferSize(8);
-
-    ldvFormat.setSamples(16);
-    ldvFormat.setProfile(QGLFormat::CoreProfile);
+    int Samples = (QGLFormat::defaultFormat().sampleBuffers()) ? QGLFormat::defaultFormat().samples() : 1;
+    ldvFormat.setSamples(Samples);
+    ldvFormat.setAlpha(true);
+    ldvFormat.setStencil(true);
     QGLFormat::setDefaultFormat(ldvFormat);
 }
 
@@ -428,4 +446,199 @@ void LDVWidget::setupSnapshotBackBuffer(int width, int height)
     modelViewer->setHeight(height);
     modelViewer->setup();
     glReadBuffer(GL_BACK);
+}
+
+  // Extend LDV export
+bool LDVWidget::fileExists(const char* filename)
+{
+    FILE* file = fopen(filename, "r");
+
+    if (file)
+    {
+        fclose(file);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool LDVWidget::shouldOverwriteFile(char* filename)
+{
+    char buf[256];
+
+    sprintf(buf, TCLocalStrings::get("OverwritePrompt"),
+        filename);
+    switch( QMessageBox::warning( this, tr(VER_PRODUCTNAME_STR),
+        buf,
+        QMessageBox::Yes | QMessageBox::Default,
+        QMessageBox::No | QMessageBox::Escape )) {
+    case QMessageBox::Yes:
+        return true;
+    }
+        return false;
+}
+
+bool LDVWidget::calcSaveFilename(char* saveFilename, int /*len*/)
+{
+    char* filename = modelViewer->getFilename();
+    saveDigits = TCUserDefaults::longForKey(SAVE_DIGITS_KEY, 1, false);
+    if (filename)
+    {
+        char baseFilename[1024];
+
+        if (strrchr(filename, '/'))
+        {
+            filename = strrchr(filename, '/') + 1;
+        }
+        if (strrchr(filename, '\\'))
+        {
+            filename = strrchr(filename, '\\') + 1;
+        }
+        strcpy(baseFilename, filename);
+        if (strchr(baseFilename, '.'))
+        {
+            *strchr(baseFilename, '.') = 0;
+        }
+        if (curSaveOp == LDPreferences::SOExport)
+        {
+            sprintf(saveFilename, "%s.%s", baseFilename,
+                modelViewer->getExporter(
+                LDrawModelViewer::ExportType(exportType))->getExtension().c_str());
+            return true;
+        }
+    }
+    return false;
+}
+
+bool LDVWidget::getSaveFilename(char* saveFilename, int len)
+{
+    QString initialDir = ldvPreferences->getSaveDir(curSaveOp,
+                         modelViewer->getFilename());
+    LDrawModelViewer::ExportType origExportType = modelViewer->getExportType();
+    QStringList exportFilters;
+
+    QDir::setCurrent(initialDir);
+    exportType = TCUserDefaults::longForKey(SAVE_EXPORT_TYPE_KEY,
+                 LDrawModelViewer::ETPov, false);
+    if (!calcSaveFilename(saveFilename, len))
+    {
+        saveFilename[0] = 0;
+    }
+    switch (curSaveOp)
+    {
+    case LDPreferences::SOExport:
+        origExportType = modelViewer->getExportType();
+        for (int i = LDrawModelViewer::ETFirst; i <= LDrawModelViewer::ETLast;i++)
+        {
+            const LDExporter *exporter = modelViewer->getExporter(
+                  LDrawModelViewer::ExportType(i));
+
+            if (exporter != nullptr)
+            {
+                ucstring ucFileType = exporter->getTypeDescription();
+                QString qFileType;
+
+                ucstringtoqstring(qFileType, ucFileType);
+                qFileType += " (*.";
+                qFileType += exporter->getExtension().c_str();
+                qFileType += ")";
+                exportFilters << qFileType;
+            }
+        }
+        modelViewer->getExporter(origExportType);
+        saveDialog = new QFileDialog(this,QString::fromWCharArray(TCLocalStrings::get(L"ExportModel")),".");
+        saveDialog->setWindowIcon(QPixmap( ":/resources/LPub32.png"));
+
+        saveDialog->setNameFilters(exportFilters);
+        saveDialog->selectNameFilter(exportFilters.at(exportType - LDrawModelViewer::ETFirst));
+
+        saveDialog->setFileMode(QFileDialog::AnyFile);
+        saveDialog->setAcceptMode(QFileDialog::AcceptSave);
+        saveDialog->setLabelText(QFileDialog::Accept,"Export");
+        break;
+    default:
+        break;
+    }
+    saveDialog->selectFile(saveFilename);
+    if (saveDialog->exec() == QDialog::Accepted)
+    {
+        QString selectedfile="";
+        if (!saveDialog->selectedFiles().isEmpty())
+        {
+            selectedfile = saveDialog->selectedFiles()[0];
+        }
+        QString filename = selectedfile, dir = saveDialog->directory().path();
+        switch (curSaveOp)
+        {
+        case LDPreferences::SOExport:
+            TCUserDefaults::setPathForKey(dir.toLatin1().constData(), LAST_EXPORT_DIR_KEY, false);
+            break;
+        default:
+            break;
+        }
+        QDir::setCurrent(dir);
+        strncpy(saveFilename,filename.toLatin1().constData(),len);
+
+        QString filter = saveDialog->selectedNameFilter();
+
+        if (filter.indexOf(".pov") != -1)
+        {
+            exportType = LDrawModelViewer::ETPov;
+        }
+        if (filter.indexOf(".stl") != -1)
+        {
+            exportType = LDrawModelViewer::ETStl;
+        }
+#ifdef EXPORT_3DS
+        if (filter.indexOf(".3ds") != -1)
+        {
+            exportType = LDrawModelViewer::ET3ds;
+        }
+#endif
+        TCUserDefaults::setLongForKey(exportType, SAVE_EXPORT_TYPE_KEY, false);
+        delete saveDialog;
+        return true;
+    }
+    delete saveDialog;
+    return false;
+}
+
+void LDVWidget::fileExport(const QString &saveFilename)
+{
+    curSaveOp = LDPreferences::SOExport;
+
+    if (saveFilename.indexOf(".pov") != -1)
+    {
+        exportType = LDrawModelViewer::ETPov;
+    }
+    if (saveFilename.indexOf(".stl") != -1)
+    {
+        exportType = LDrawModelViewer::ETStl;
+    }
+#ifdef EXPORT_3DS
+    if (saveFilename.indexOf(".3ds") != -1)
+    {
+        exportType = LDrawModelViewer::ET3ds;
+    }
+#endif
+    TCUserDefaults::setLongForKey(exportType, SAVE_EXPORT_TYPE_KEY, false);
+    if (!saveFilename.isEmpty())
+    {
+        modelViewer->setExportType(LDrawModelViewer::ExportType(exportType));
+        modelViewer->exportCurModel(saveFilename.toLatin1().constData());
+    }
+}
+
+void LDVWidget::fileExport()
+{
+    curSaveOp = LDPreferences::SOExport;
+    char saveFilename[1024] = "";
+    if (getSaveFilename(saveFilename, 1024) &&
+       (!fileExists(saveFilename)||shouldOverwriteFile(saveFilename)))
+    {
+        modelViewer->setExportType(LDrawModelViewer::ExportType(exportType));
+        modelViewer->exportCurModel(saveFilename);
+    }
 }

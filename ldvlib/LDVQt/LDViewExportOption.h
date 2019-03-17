@@ -66,13 +66,14 @@ protected:
 	void resetSettings(SettingsMap &settings);
 
 	LDrawModelViewer *m_modelViewer;
-	LDExporter *m_exporter;
-	QWidget *m_box;
-	QVBoxLayout *m_lay;
-	SettingsMap m_settings;
-	ButtonMap m_button;
-	GroupMap m_groups;
-    bool m_nativePOVIni;
+    LDExporter       *m_exporter;
+    QWidget          *m_box;
+    QVBoxLayout      *m_lay;
+    bool              m_POVLights;
+    SettingsMap       m_settings;
+    ButtonMap         m_button;
+    GroupMap          m_groups;
+
 };
 
 #endif // __LDVIEWExportOption_H__

@@ -245,8 +245,8 @@ void ParmsWindow::displayParmsFile(
       title = "LDGLite ini";
       _restartRequired = false;
     }
-    else if (fileInfo.fileName() == VER_NATIVE_POV_INI_FILE) {
-      title = "Native POV File Generation ini";
+    else if (fileInfo.fileName() == VER_NATIVE_EXPORT_INI_FILE) {
+      title = "Native Export ini";
       _restartRequired = false;
     }
     else if (fileInfo.fileName() == QString("%1Log.txt").arg(VER_PRODUCTNAME_STR)) {

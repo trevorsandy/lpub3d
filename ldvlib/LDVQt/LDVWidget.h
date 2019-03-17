@@ -24,6 +24,7 @@
 #include <QDateTime>
 #include <QFileDialog>
 
+#include <LDLib/LDPreferences.h>
 #include <TCFoundation/TCAlertManager.h>
 
 #include "name.h"
@@ -33,6 +34,7 @@ class LDVAlertHandler;
 class LDVPreferences;
 class LDViewExportOption;
 class LDSnapshotTaker;
+class LDHtmlInventory;
 
 class LDVWidget : public QGLWidget, protected QGLFunctions
 {
@@ -45,8 +47,8 @@ public:
 
   LDrawModelViewer *getModelViewer(void) { return modelViewer; }
   IniFlag getIniFlag(void) { return iniFlag; }
-  QString getIniTitle(void) {return iniFiles[iniFlag].Title; }
-  QString getIniFile(void) {return iniFiles[iniFlag].File; }
+  QString getIniTitle(void);
+  QString getIniFile(void);
 
   static bool staticFileCaseCallback(char *filename);
   static bool staticFileCaseLevel(QDir &dir, char *filename);
@@ -61,6 +63,14 @@ public:
 
   bool doCommand(QStringList &arguments);
 
+  // Extend LDV export functions
+  bool fileExists(const char* filename);
+  bool shouldOverwriteFile(char* filename);
+  virtual bool calcSaveFilename(char* saveFilename, int len);
+  bool getSaveFilename(char* saveFilename, int len);
+  void fileExport(const QString &saveFilename);
+  void fileExport(void);
+
 protected:
   bool setIniFile(void);
   void setupLDVFormat(void);
@@ -71,16 +81,22 @@ protected:
   bool getUseFBO();
   void setupSnapshotBackBuffer(int width, int height);
 
-  IniFlag iniFlag;
-  bool    forceIni;
-  QGLFormat ldvFormat;
-  QGLContext *ldvContext;
+  IniFlag                iniFlag;
+  bool                   forceIni;
+  QGLFormat              ldvFormat;
+  QGLContext            *ldvContext;
 
-  LDrawModelViewer *modelViewer;
-  LDSnapshotTaker *snapshotTaker;
-  LDVPreferences *ldvPreferences;
-  LDViewExportOption *ldvExportOption;
-  LDVAlertHandler *ldvAlertHandler;
+  LDrawModelViewer      *modelViewer;
+  LDSnapshotTaker       *snapshotTaker;
+  LDVPreferences        *ldvPreferences;
+  LDViewExportOption    *ldvExportOption;
+  LDVAlertHandler       *ldvAlertHandler;
+
+  // Extend LDV export vars
+  QFileDialog           *saveDialog;
+  LDPreferences::SaveOp  curSaveOp;
+  int                    saveDigits;
+  int                    exportType;
 
   struct IniFile
   {
@@ -91,5 +107,6 @@ protected:
 
 };
 extern LDVWidget* ldvWidget;
+extern const QString iniFlagNames[];
 
 #endif // LDVWIDGET_H

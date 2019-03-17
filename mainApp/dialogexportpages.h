@@ -40,12 +40,14 @@ public:
 
 private slots:
   void on_lineEditPageRange_textChanged(const QString &arg1);
-
   void on_lineEditPageRange_selectionChanged();
+  void on_pushButtonExportSettings_clicked();
+  void on_pushButtonExportPreferences_clicked();
 
 private:
   Ui::DialogExportPages *ui;
   QString linePageRange;
+  int flag;
 };
 
 #endif // DIALOGEXPORTPAGES_H

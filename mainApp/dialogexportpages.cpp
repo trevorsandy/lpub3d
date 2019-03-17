@@ -15,6 +15,7 @@
 #include "dialogexportpages.h"
 #include "ui_dialogexportpages.h"
 #include "lpub_preferences.h"
+#include <LDVQt/LDVWidget.h>
 #include "lpub.h"
 
 DialogExportPages::DialogExportPages(QWidget *parent) :
@@ -29,6 +30,19 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
     if (gui->exportMode != PAGE_PROCESS) {
         ui->doNotShowPageProcessDlgChk->hide();
         ui->pageProcessingContinuousBox->hide();
+    }
+
+    if ((! preview) &&
+        (gui->exportMode == EXPORT_STL    ||
+         gui->exportMode == EXPORT_POVRAY /* ||
+        gui->exportMode == EXPORT_3DS_MAX */)){
+       /* flag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni :
+               gui->exportMode == EXPORT_STL ? NativeSTLIni : Native3DSIni; */
+        flag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni : NativeSTLIni ;
+        ui->gropuBoxLDVExport->setTitle(QString("%1 Export Settings")
+                                                .arg(iniFlagNames[IniFlag(flag)]));
+    } else {
+        ui->gropuBoxLDVExport->hide();
     }
 
     if (! preview && gui->exportMode != EXPORT_PDF) {
@@ -75,7 +89,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
         ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to bmp"));
         break;
 
-    case EXPORT_3DS:
+    case EXPORT_3DS_MAX:
         setWindowTitle(tr("Export as 3ds"));
         ui->groupBoxPrintOptions->setTitle("Export as 3ds options");
         ui->checkBoxResetCache->setText(tr("Reset all caches before content export to 3ds"));
@@ -188,4 +202,18 @@ void DialogExportPages::on_lineEditPageRange_selectionChanged()
 {
     // if line selected, move radio to page range
     ui->radioButtonPageRange->setChecked(true);
+}
+
+void DialogExportPages::on_pushButtonExportSettings_clicked()
+{
+    if (ldvWidget)
+      ldvWidget->closeLDVExportOptions();
+    ldvWidget = new LDVWidget(this,IniFlag(flag),true);
+    ldvWidget->showLDVExportOptions();
+}
+
+void DialogExportPages::on_pushButtonExportPreferences_clicked()
+{
+    ldvWidget = new LDVWidget(this,IniFlag(flag),true);
+    ldvWidget->showLDVPreferences();
 }

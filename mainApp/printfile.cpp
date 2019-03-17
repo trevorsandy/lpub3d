@@ -33,6 +33,8 @@
 
 #include "lpub.h"
 #include "messageboxresizable.h"
+#include <TCFoundation/TCUserDefaults.h>
+#include <LDLib/LDUserDefaultsKeys.h>
 
 // Set to enable print/export trace logging
 #ifndef PRINT_DEBUG
@@ -399,7 +401,11 @@ void Gui::exportAsStlDialog(){
 }
 
 void Gui::exportAs3dsDialog(){
-  exportAsDialog(EXPORT_3DS);
+  exportAsDialog(EXPORT_3DS_MAX);
+}
+
+void Gui::exportAsPovDialog(){
+  exportAsDialog(EXPORT_POVRAY);
 }
 
 void Gui::exportAsColladaDialog(){
@@ -408,10 +414,6 @@ void Gui::exportAsColladaDialog(){
 
 void Gui::exportAsObjDialog(){
   exportAsDialog(EXPORT_WAVEFRONT);
-}
-
-void Gui::exportAsPovDialog(){
-  exportAsDialog(EXPORT_POVRAY);
 }
 
 bool Gui::exportAsDialog(ExportMode m)
@@ -479,7 +481,7 @@ bool Gui::exportAsDialog(ExportMode m)
         emit setExportingObjectsSig(true);
         exportAs(".stl");
       break;
-      case EXPORT_3DS:
+      case EXPORT_3DS_MAX:
         emit setExportingObjectsSig(true);
         exportAs(".3ds");
       break;
@@ -873,6 +875,7 @@ void Gui::exportAsPdf()
 void Gui::exportAs(const QString &_suffix)
 {
   QString suffix = _suffix;
+  QString directoryName = QDir::currentPath();
 
   QString type;
   if (suffix == ".png" ||
@@ -886,18 +889,35 @@ void Gui::exportAs(const QString &_suffix)
       suffix == ".obj") {
       type  = "objects";
   } else {
+      // .dae
+      // .pov
       type  = "files";
   }
 
   // store current display page number
   int savePageNumber = displayPageNum;
 
+  // Switch to Native Renderer for fast processing
+  if (exportingObjects()) {
+
+      setPreferredRenderer();
+
+      char *exportsDir = nullptr;
+      exportsDir = TCUserDefaults::stringForKey(EXPORTS_DIR_KEY, nullptr,false);
+      if (exportsDir) {
+          stripTrailingPathSeparators(exportsDir);
+          saveDirectoryName = exportsDir;
+      } else {
+          saveDirectoryName = directoryName;
+      }
+      delete[] exportsDir;
+  }
+
   // determine location to output images
   QFileInfo fileInfo(curFile);
   QString baseName = fileInfo.baseName();
-  QString directoryName = QDir::currentPath();
 
-  if (Preferences::modeGUI) {
+  if (Preferences::modeGUI && saveDirectoryName.isEmpty()) {
       directoryName = QFileDialog::getExistingDirectory(
             this,
             tr("Save %1 %2 to folder").arg(suffix).arg(type),
@@ -907,16 +927,11 @@ void Gui::exportAs(const QString &_suffix)
           // release 3D Viewer
           emit setExportingSig(false);
           return;
-        }
+      }
+      saveDirectoryName = directoryName;
   } else
     if (!saveDirectoryName.isEmpty()) {
-        directoryName = saveDirectoryName;
-  }
-
-  // Switch to Native Renderer for fast processing
-  if (exportingObjects()) {
-      setPreferredRenderer();
-      saveDirectoryName = directoryName;
+      directoryName = saveDirectoryName;
   }
 
   LGraphicsScene scene;

@@ -190,7 +190,11 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
         }
     }
 
-    bool enableNativeSettings = modelWidget->getIniFlag() == NativePOVIni;
+    IniFlag iniFlag = modelWidget->getIniFlag();
+    bool enableNativeSettings = (iniFlag == NativePOVIni ||
+                                 iniFlag == NativeSTLIni ||
+                                 iniFlag == Native3DSIni);
+
     this->setWindowTitle(modelWidget->getIniTitle().append(" Preferences"));
 
     QPalette readOnlyPalette;
@@ -221,11 +225,14 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
         snapshotSaveDirBox->hide();
         snapshotSaveDirEdit->hide();
         snapshotSaveDirButton->hide();
-
+      /*
+       * We will use these for the parts list export
+       *
         defaultPartlistDirLabel->hide();
         partsListsSaveDirBox->hide();
         partsListsSaveDirEdit->hide();
         partsListsSaveDirButton->hide();
+       */
 
         // Remove Updates Tab
         tabs->removeTab(tabs->indexOf(updateTab));

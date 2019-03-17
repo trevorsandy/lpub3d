@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>339</width>
-    <height>359</height>
+    <height>417</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -189,6 +189,29 @@
        </widget>
       </item>
       <item>
+       <widget class="QGroupBox" name="gropuBoxLDVExport">
+        <property name="title">
+         <string>Export Settings</string>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QPushButton" name="pushButtonExportSettings">
+           <property name="text">
+            <string>Export Options...</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonExportPreferences">
+           <property name="text">
+            <string>Content Preferences...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
        <widget class="QGroupBox" name="pageProcessingContinuousBox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
@@ -295,6 +318,7 @@
      <zorder>doNotShowPageProcessDlgChk</zorder>
      <zorder></zorder>
      <zorder>pageProcessingContinuousBox</zorder>
+     <zorder>gropuBoxLDVExport</zorder>
     </widget>
    </item>
    <item>
