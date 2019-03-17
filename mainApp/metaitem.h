@@ -57,8 +57,6 @@ class StepGroup;
 class MetaItem
 {
 public:
-  void setNativeRenderer();
-  void restoreRenderer(QString &,bool,bool);
   enum monoColors { white, blue, transwhite, numColors };
   QString monoColor [numColors] = { "white", "blue", "transwhite" };
   QString monoColorCode[numColors] = { "15", "1", "11015"};
@@ -118,12 +116,13 @@ public:
   void convertToPart(          Meta *);
 
   void changeCsiAnnotationPlacement(
-                    PlacementType      parentType,
-                    PlacementType      placedType,
-                    QString            title,
-                    const Where       &topOf,
-                    const Where       &bottomOf,
-                    CsiAnnotationMeta *,
+                    PlacementType          parentType,
+                    PlacementType          placedType,
+                    QString                title,
+                    const Where           &topOf,
+                    const Where           &bottomOf,
+                    PlacementMeta         *placement,
+                    CsiAnnotationIconMeta *icon,
                     bool useTop     =  true,
                     int  append     =  1,
                     bool local      =  true,

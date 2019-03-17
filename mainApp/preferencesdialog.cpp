@@ -117,6 +117,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.rendererTimeout->setValue(                  Preferences::rendererTimeout);
   ui.pageDisplayPauseSpin->setValue(             Preferences::pageDisplayPause);
   ui.povrayDisplay_Chk->setChecked(              Preferences::povrayDisplay);
+  ui.projectionCombo->setCurrentIndex(           Preferences::perspectiveProjection ? 0 : 1);
 
   ui.loggingGrpBox->setChecked(                  Preferences::logging);
   ui.logPathEdit->setEnabled(                    Preferences::logging);
@@ -790,6 +791,11 @@ QString const PreferencesDialog::povFileGenerator()
       return RENDERER_NATIVE;
     else
       return RENDERER_LDVIEW;
+}
+
+bool PreferencesDialog::perspectiveProjection()
+{
+   return ui.projectionCombo->currentIndex() == 0 ? true : false;
 }
 
 bool PreferencesDialog::povrayDisplay()

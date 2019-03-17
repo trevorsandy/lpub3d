@@ -64,7 +64,7 @@ enum Theme { ThemeDark, ThemeDefault };
 #define LIBOPENEXR_MACOS_VERSION                "2.2.0"  // base 2.2.0
 #define LIBILMBASE_MACOS_VERSION                "2.2.1"  // base 2.2.1
 
-#define CAMERA_FOV_DEFAULT                      0.01f    // LPub3D (L3P) default
+#define CAMERA_FOV_DEFAULT                      0.01f    // LPub3D (L3P) default [Orthographic]
 #define CAMERA_ZNEAR_DEFAULT                    10.0f    // LPub3D (L3P) default
 #define CAMERA_ZFAR_DEFAULT                     4000.0f  // LPub3D (L3P) default
 
@@ -112,7 +112,7 @@ enum Theme { ThemeDark, ThemeDefault };
 #define TENTE_FADE_COLOUR_DEFAULT               "Light_Orange"
 #define VEXIQ_FADE_COLOUR_DEFAULT               "VEX_Sky_Blue"
 
-#define CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT   260  // Native camera distance factor for A4 portrait; factor is about 450 for A4 landscape
+#define CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT   -260  // Native camera distance factor for A4 portrait; factor is about -450 for A4 landscape
 
 #define RENDERER_TIMEOUT_DEFAULT                6    // measured in seconds
 

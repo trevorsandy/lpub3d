@@ -917,7 +917,7 @@ void lcMainWindow::CreateToolBars()
 	mPartsToolBar->setVisible(false);
 	mColorsToolBar->setVisible(false);
 
-    // remove actions
+    // remove Tools actions
     mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_INSERT]);
     mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_LIGHT]);
     mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_SPOTLIGHT]);
@@ -3120,12 +3120,12 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		break;
 
 	case LC_VIEW_PROJECTION_PERSPECTIVE:
-		if (ActiveView)
+        if (ActiveView)
 			ActiveView->SetProjection(false);
 		break;
 
 	case LC_VIEW_PROJECTION_ORTHO:
-		if (ActiveView)
+        if (ActiveView)
 			ActiveView->SetProjection(true);
 		break;
 

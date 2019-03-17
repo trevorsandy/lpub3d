@@ -491,21 +491,24 @@ void View::ShowContextMenu() const
 ***/
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - context menu undo/redo ***/
+    Popup->addAction(Actions[LC_EDIT_UNDO]);
+    Popup->addAction(Actions[LC_EDIT_REDO]);
+
+    Popup->addSeparator();
+/*** LPub3D Mod end ***/
+
 	Popup->addMenu(gMainWindow->GetToolsMenu());
 	Popup->addMenu(gMainWindow->GetViewpointMenu());
-	Popup->addMenu(gMainWindow->GetCameraMenu());
+/*** LPub3D Mod - hide camera menu ***/
+/***
+    Popup->addMenu(gMainWindow->GetCameraMenu());
+***/
+/*** LPub3D Mod end ***/
 	Popup->addMenu(gMainWindow->GetProjectionMenu());
 	Popup->addMenu(gMainWindow->GetShadingMenu());
 
 	Popup->addSeparator();
-
-/*** LPub3D Mod - context menu undo/redo ***/
-	Popup->addAction(Actions[LC_EDIT_UNDO]);
-	Popup->addAction(Actions[LC_EDIT_REDO]);
-
-	Popup->addSeparator();
-/*** LPub3D Mod end ***/
-
 	Popup->addAction(Actions[LC_VIEW_SPLIT_HORIZONTAL]);
 	Popup->addAction(Actions[LC_VIEW_SPLIT_VERTICAL]);
 	Popup->addAction(Actions[LC_VIEW_REMOVE_VIEW]);

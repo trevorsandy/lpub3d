@@ -139,6 +139,7 @@ QString Preferences::ld2blCodesXRefFile         = VER_LPUB3D_LD2BLCODESXREF_FILE
 
 bool    Preferences::usingDefaultLibrary        = true;
 bool    Preferences::portableDistribution       = false;
+bool    Preferences::perspectiveProjection      = false;
 
 bool    Preferences::themeAutoRestart           = false;
 bool    Preferences::lgeoStlLib                 = false;
@@ -946,7 +947,6 @@ void Preferences::lpub3dLibPreferences(bool force)
 
         if (fileInfo.exists()) {
             QString partsLibrary = Settings.value(QString("%1/%2").arg(SETTINGS,PartsLibraryKey)).toString();
-            lcSetProfileString(LC_PROFILE_PARTS_LIBRARY, QDir::toNativeSeparators(partsLibrary));
             return;
         }
         else {
@@ -1170,9 +1170,6 @@ void Preferences::lpub3dLibPreferences(bool force)
             fprintf(stderr, "Launching %s in GUI mode offers a dialogue to download, and extract archive libraries.\n",lpub3dAppName.toLatin1().constData());
         }
     }
-
-    if (Settings.contains(QString("%1/%2").arg(SETTINGS,PartsLibraryKey)))
-        lcSetProfileString(LC_PROFILE_PARTS_LIBRARY, Settings.value(QString("%1/%2").arg(SETTINGS,PartsLibraryKey)).toString());
 }
 
 void Preferences::ldrawPreferences(bool force)
@@ -1437,8 +1434,6 @@ void Preferences::ldrawPreferences(bool force)
 
         } else {                                 // second check successful - return
             Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawLibPathKey),ldrawLibPath);
-            if (Settings.contains(QString("%1/%2").arg(SETTINGS,"PartsLibrary")))
-                lcSetProfileString(LC_PROFILE_PARTS_LIBRARY, Settings.value(QString("%1/%2").arg(SETTINGS,"PartsLibrary")).toString());
         }
     }                                             // first check successful - return
 
@@ -1906,6 +1901,17 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
         if (!preferredRenderer.isEmpty()) {
             Settings.setValue(QString("%1/%2").arg(SETTINGS,preferredRendererKey),preferredRenderer);
         }
+    }
+
+    // Default projection
+    QString const perspectiveProjectionKey("PerspectiveProjection");
+
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,perspectiveProjectionKey))) {
+        QVariant uValue(true);
+        perspectiveProjection = true;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,perspectiveProjectionKey),uValue);
+    } else {
+        perspectiveProjection = Settings.value(QString("%1/%2").arg(SETTINGS,perspectiveProjectionKey)).toBool();
     }
 
     // LDView multiple files single call rendering
@@ -2995,10 +3001,19 @@ void Preferences::viewerPreferences()
 {
     if (!povrayExe.isEmpty())
         lcSetProfileString(LC_PROFILE_POVRAY_PATH, povrayExe);
+
     if (!lgeoPath.isEmpty())
         lcSetProfileString(LC_PROFILE_POVRAY_LGEO_PATH, lgeoPath);
+
     if (!defaultAuthor.isEmpty())
         lcSetProfileString(LC_PROFILE_DEFAULT_AUTHOR_NAME, defaultAuthor);
+
+    if (!lpub3dLibFile.isEmpty())
+        lcSetProfileString(LC_PROFILE_PARTS_LIBRARY, lpub3dLibFile);
+
+    lcSetProfileInt(LC_PROFILE_NATIVE_PROJECTION, perspectiveProjection ? 0 : 1);
+
+    lcSetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES, 8);
 
     QSettings Settings;
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,"ProjectsPath")))
@@ -3445,6 +3460,13 @@ bool Preferences::getPreferences()
             allLogLevels = dialog->allLogLevels();
             Settings.setValue(QString("%1/%2").arg(LOGGING,"AllLogLevels"),allLogLevels);
         }
+
+        if (perspectiveProjection != dialog->perspectiveProjection())
+        {
+            perspectiveProjection = dialog->perspectiveProjection();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"PerspectiveProjection"),perspectiveProjection);
+        }
+
         usingNativeRenderer = (preferredRenderer == RENDERER_NATIVE ||
                               (preferredRenderer == RENDERER_POVRAY &&
                                povFileGenerator  == RENDERER_NATIVE));

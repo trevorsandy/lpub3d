@@ -16,6 +16,9 @@ enum LC_PROFILE_KEY
 	LC_PROFILE_ANTIALIASING_SAMPLES,
 	LC_PROFILE_VIEW_SPHERE_LOCATION,
 	LC_PROFILE_VIEW_SPHERE_SIZE,
+	LC_PROFILE_VIEW_SPHERE_COLOR,
+	LC_PROFILE_VIEW_SPHERE_TEXT_COLOR,
+	LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR,
 /*** LPub3D Mod - Timeline part icons ***/
     LC_PROFILE_VIEW_PIECE_ICONS,
 /*** LPub3D Mod end ***/
@@ -107,8 +110,6 @@ public:
 		const char* StringValue;
 	} mDefault;
 };
-
-extern lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS];
 
 void lcRemoveProfileKey(LC_PROFILE_KEY Key);
 

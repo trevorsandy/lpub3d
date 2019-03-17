@@ -190,6 +190,7 @@ class Preferences
     static bool    enableHighlightStep;
     static int     highlightStepLineWidth;
     static int     cameraDistFactorNative;
+    static bool    perspectiveProjection;
 
     static bool    includeLogLevel;
     static bool    includeTimestamp;

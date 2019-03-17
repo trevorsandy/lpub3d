@@ -19,7 +19,6 @@ enum lcShadingMode
 
 enum class lcViewSphereLocation
 {
-	DISABLED,
 	TOP_LEFT,
 	TOP_RIGHT,
 	BOTTOM_LEFT,
@@ -45,10 +44,12 @@ public:
 	bool mFixedAxes;
 	lcViewSphereLocation mViewSphereLocation;
 	int mViewSphereSize;
-
+	quint32 mViewSphereColor;
+	quint32 mViewSphereTextColor;
+	quint32 mViewSphereHighlightColor;
 /*** LPub3D Mod - Native Renderer settings ***/
     int mNativeViewpoint;
-    int mNativeOrthographic;
+    int mNativeProjection;
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Timeline part icons ***/
@@ -63,7 +64,6 @@ class lcApplication : public QObject
 	Q_OBJECT
 
 public:
-
 /*** LPub3D Mod - initialization - move arguments to LP3D Application ***/
 	lcApplication();
 /*** LPub3D Mod end ***/

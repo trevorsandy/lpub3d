@@ -26,12 +26,12 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
     bool preview = gui->m_previewDialog;
     linePageRange  = gui->setPageLineEdit->displayText().replace("of","-").replace(" ","");
 
-    if (gui->exportType != PAGE_PROCESS) {
+    if (gui->exportMode != PAGE_PROCESS) {
         ui->doNotShowPageProcessDlgChk->hide();
         ui->pageProcessingContinuousBox->hide();
     }
 
-    if (! preview && gui->exportType != EXPORT_PDF) {
+    if (! preview && gui->exportMode != EXPORT_PDF) {
         ui->groupBoxMixedPageSizes->hide();
     } else {
         ui->checkBoxIgnoreMixedPageSizes->setChecked(Preferences::ignoreMixedPageSizesMsg);
@@ -49,7 +49,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
     }
     ui->labelCurrentPage->setText(QString("%1").arg(gui->displayPageNum));
 
-    switch(gui->exportType){
+    switch(gui->exportMode){
     case EXPORT_PDF:
         setWindowTitle(tr("%1 pdf").arg(preview ? "Preview":"Export to"));
         ui->groupBoxPrintOptions->setTitle(tr("%1 options").arg(preview ? "Preview":"Export to pdf"));
@@ -74,6 +74,42 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
         ui->checkBoxResetCache->setText(tr("Reset all caches before content export to bmp"));
         ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to bmp"));
         break;
+
+    case EXPORT_3DS:
+        setWindowTitle(tr("Export as 3ds"));
+        ui->groupBoxPrintOptions->setTitle("Export as 3ds options");
+        ui->checkBoxResetCache->setText(tr("Reset all caches before content export to 3ds"));
+        ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to 3ds"));
+        break;
+
+    case EXPORT_COLLADA:
+        setWindowTitle(tr("Export as dae"));
+        ui->groupBoxPrintOptions->setTitle("Export as dae options");
+        ui->checkBoxResetCache->setText(tr("Reset all caches before content export to dae"));
+        ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to dae"));
+        break;
+
+    case EXPORT_WAVEFRONT:
+        setWindowTitle(tr("Export as obj"));
+        ui->groupBoxPrintOptions->setTitle("Export as obj options");
+        ui->checkBoxResetCache->setText(tr("Reset all caches before content export to obj"));
+        ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to obj"));
+        break;
+
+    case EXPORT_STL:
+        setWindowTitle(tr("Export as stl"));
+        ui->groupBoxPrintOptions->setTitle("Export as stl options");
+        ui->checkBoxResetCache->setText(tr("Reset all caches before content export to stl"));
+        ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to stl"));
+        break;
+
+    case EXPORT_POVRAY:
+        setWindowTitle(tr("Export as pov"));
+        ui->groupBoxPrintOptions->setTitle("Export as pov options");
+        ui->checkBoxResetCache->setText(tr("Reset all caches before content export to pov"));
+        ui->checkBoxResetCache->setToolTip(tr("Check to reset all caches before export to pov"));
+        break;
+
     case PAGE_PROCESS:
         QString direction = gui->pageDirection == PAGE_NEXT ? "Next" : "Previous";
         setWindowTitle(tr("%1 page continuous processing").arg(direction));

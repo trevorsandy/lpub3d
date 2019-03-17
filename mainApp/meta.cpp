@@ -590,7 +590,7 @@ const QString relativeNames[] =
   "PUBLISH_DESCRIPTION","PUBLISH_COPYRIGHT","PUBLISH_EMAIL","LEGO_DISCLAIMER",
   "MODEL_PARTS","APP_PLUG","SUBMODEL_INST_COUNT","DOCUMENT_LOGO","DOCUMENT_COVER_IMAGE",
   "APP_PLUG_IMAGE","PAGE_HEADER","PAGE_FOOTER","MODEL_CATEGORY","SUBMODEL_DISPLAY",
-  "ROTATE_ICON","CSI_PART","BOM","PAGE_POINTER","SINGLE_STEP","STEP","RANGE","RESERVE",
+  "ROTATE_ICON","ASSEM_PART","BOM","PAGE_POINTER","SINGLE_STEP","STEP","RANGE","RESERVE",
   "COVER_PAGE","ANNOTATION"
 };
 
@@ -629,7 +629,7 @@ Rc PlacementMeta::parse(QStringList &argv, int index,Where &here)
                         "PUBLISH_DESCRIPTION|PUBLISH_COPYRIGHT|PUBLISH_EMAIL|LEGO_DISCLAIMER|"
                         "MODEL_PARTS|APP_PLUG|MODEL_CATEGORY|DOCUMENT_LOGO|DOCUMENT_COVER_IMAGE|"
                         "APP_PLUG_IMAGE|PAGE_HEADER|PAGE_FOOTER|MODEL_CATEGORY|SUBMODEL_DISPLAY|"
-                        "ROTATE_ICON|CSI_PART|BOM|PAGE_POINTER|SINGLE_STEP|STEP|RANGE|RESERVE|"
+                        "ROTATE_ICON|ASSEM_PART|BOM|PAGE_POINTER|SINGLE_STEP|STEP|RANGE|RESERVE|"
                         "COVER_PAGE|ANNOTATION)$";
 
   _placementR    = _value[pushed].rectPlacement;
@@ -3048,7 +3048,7 @@ SubModelMeta::SubModelMeta() : PliMeta()
   rotStep.setValue(rotStepData);
   margin.setValuesInches(DEFAULT_MARGIN,DEFAULT_MARGIN);
   pack.setValue(true);
-  cameraDistNative.factor.setRange(100,5000);
+  cameraDistNative.factor.setRange(-5000,5000);
   cameraDistNative.factor.setValue(Preferences::cameraDistFactorNative);
   cameraFoV.setFormats(5,4,"9.999");
   cameraFoV.setRange(0.0,360.0);
@@ -3457,14 +3457,11 @@ AssemMeta::AssemMeta() : BranchMeta()
   zfar.setValue(gui->getDefaultCameraZFar());      // using LPub3D Default 4000.0f
 
   // image display
-  cameraDistNative.factor.setRange(100,5000);
+  cameraDistNative.factor.setRange(-5000,5000);
   cameraDistNative.factor.setValue(Preferences::cameraDistFactorNative);
   v_cameraFoV.setFormats(5,4,"9.999");
   v_cameraFoV.setRange(0.0,360.0);
   v_cameraFoV.setValue(CAMERA_FOV_NATIVE_DEFAULT);
-  v_cameraAngles.setFormats(7,4,"###9.90");
-  v_cameraAngles.setRange(-360.0,360.0);
-  v_cameraAngles.setValues(23,45);
   v_znear.setValue(CAMERA_ZNEAR_NATIVE_DEFAULT);
   v_zfar.setValue(CAMERA_ZFAR_NATIVE_DEFAULT);
 }
@@ -3489,7 +3486,6 @@ void AssemMeta::init(BranchMeta *parent, QString name)
   zfar.init             (this,"CAMERA_ZFAR");
 
   v_cameraFoV.init     (this,"VIEWER_CAMERA_FOV");
-  v_cameraAngles.init  (this,"VIEWER_CAMERA_ANGLES");
   v_distance.init      (this,"VIEWER_CAMERA_DISTANCE");
   v_znear.init         (this,"VIEWER_CAMERA_ZNEAR");
   v_zfar.init          (this,"VIEWER_CAMERA_ZFAR");
@@ -3557,6 +3553,7 @@ PliMeta::PliMeta() : BranchMeta()
   sortBy.setValue(SortOptionName[PartSize]);
 
   // image generation
+  cameraDistNative.factor.setRange(-5000,5000);
   cameraDistNative.factor.setValue(Preferences::cameraDistFactorNative);
   cameraFoV.setFormats(5,4,"9.999");
   cameraFoV.setRange(0.0,360.0);
@@ -3592,9 +3589,9 @@ void PliMeta::init(BranchMeta *parent, QString name)
   sortBy          .init(this,"SORT_BY");
   annotation      .init(this,"ANNOTATION");
   partElements    .init(this,"PART_ELEMENTS");
-  rectangleStyle  .init(this,"RECTANGLE");
-  circleStyle     .init(this,"CIRCLE");
-  squareStyle     .init(this,"SQUARE");
+  rectangleStyle  .init(this,"RECTANGLE_STYLE");
+  circleStyle     .init(this,"CIRCLE_STYLE");
+  squareStyle     .init(this,"SQUARE_STYLE");
   cameraDistNative.init(this,"CAMERA_DISTANCE_NATIVE");
   cameraFoV       .init(this,"CAMERA_FOV");
   cameraAngles    .init(this,"CAMERA_ANGLES");
@@ -3664,6 +3661,8 @@ BomMeta::BomMeta() : PliMeta()
   sortBy.setValue(SortOptionName[PartColour]);
 
   // image generation
+  cameraDistNative.factor.setRange(-5000,5000);
+  cameraDistNative.factor.setValue(Preferences::cameraDistFactorNative);
   cameraFoV.setFormats(5,4,"9.999");
   cameraFoV.setRange(0.0,360.0);
   cameraFoV.setValue(gui->getDefaultCameraFoV());
@@ -3699,9 +3698,9 @@ void BomMeta::init(BranchMeta *parent, QString name)
   sortBy          .init(this,"SORT_BY");
   annotation      .init(this,"ANNOTATION");
   partElements    .init(this,"PART_ELEMENTS");
-  rectangleStyle  .init(this,"RECTANGLE");
-  circleStyle     .init(this,"CIRCLE");
-  squareStyle     .init(this,"SQUARE");
+  rectangleStyle  .init(this,"RECTANGLE_STYLE");
+  circleStyle     .init(this,"CIRCLE_STYLE");
+  squareStyle     .init(this,"SQUARE_STYLE");
 
   cameraDistNative.init(this,"CAMERA_DISTANCE_NATIVE");
   cameraFoV       .init(this,"CAMERA_FOV");
@@ -3980,6 +3979,7 @@ LPubMeta::LPubMeta() : BranchMeta()
   subModel.placement.setValue(RightTopOutside,StepNumberType);
   stepNumber.placement.setValue(BottomLeftOutside,PageHeaderType);      // TopLeftInsideCorner,PageType
   stepNumber.color.setValue("black");
+  cameraDistNative.factor.setRange(-5000,5000);
   cameraDistNative.factor.setValue(Preferences::cameraDistFactorNative);
 
   mergeInstanceCount.setValue(true);

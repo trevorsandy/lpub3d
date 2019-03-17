@@ -2683,11 +2683,10 @@ public:
   FloatMeta            znear;
   FloatMeta            zfar;
   // display step
-  FloatMeta     v_cameraFoV;
-  FloatPairMeta v_cameraAngles;
-  IntMeta       v_distance;
-  FloatMeta     v_znear;
-  FloatMeta     v_zfar;
+  FloatMeta            v_cameraFoV;
+  IntMeta              v_distance;
+  FloatMeta            v_znear;
+  FloatMeta            v_zfar;
 
   AssemMeta();
   AssemMeta(const AssemMeta &rhs) : BranchMeta(rhs)

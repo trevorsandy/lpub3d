@@ -52,7 +52,8 @@ CsiItem::CsiItem(
   meta               = _meta;
   submodelLevel      = _submodelLevel;
   parentRelativeType = _parentRelativeType;
-  hiddenAnnotations   = false;
+  hiddenAnnotations  = false;
+
   setPixmap(pixmap);
   setParentItem(parent);
   

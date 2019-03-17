@@ -532,7 +532,7 @@ bool Gui::continuousPageDialog(Direction d)
   QElapsedTimer continuousTimer;
   QString direction = d == PAGE_NEXT ? "Next" : "Previous";
 
-  exportType = PAGE_PROCESS;
+  exportMode = PAGE_PROCESS;
 
   if (Preferences::modeGUI) {
       if (Preferences::doNotShowPageProcessDlg) {
@@ -1036,7 +1036,7 @@ void Gui::deployExportBanner(bool b)
 
 #endif
 
-      installExportBanner(exportType, exportBanner,imageFile);
+      installExportBanner(exportMode, exportBanner,imageFile);
     }
 }
 
@@ -1068,26 +1068,66 @@ bool Gui::installExportBanner(const int &type, const QString &printFile, const Q
     bannerData << "1 71 0 -23.272 6.254 -1 0 0 0 0.927 0.375 0 0.375 -0.927 3938.dat";
     bannerData << "1 72 0 -45.524 -2.737 -1 0 0 0 0.927 0.375 0 0.375 -0.927 4865a.dat";
     switch (type) {
-      case EXPORT_PNG:
+    case EXPORT_PNG:
         bannerData << "1 25 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
         bannerData << "1 25 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptn.dat";
         bannerData << "1 25 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptg.dat";
         break;
-      case EXPORT_JPG:
+    case EXPORT_JPG:
         bannerData << "1 92 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptj.dat";
         bannerData << "1 92 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
         bannerData << "1 92 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptg.dat";
         break;
-      case EXPORT_BMP:
+    case EXPORT_BMP:
         bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptb.dat";
         bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptm.dat";
         bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
         break;
-      default:
+    case EXPORT_WAVEFRONT:
+        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpto.dat";
+        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptb.dat";
+        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptj.dat";
+        break;
+    case EXPORT_COLLADA:
+        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptd.dat";
+        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpta.dat";
+        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpte.dat";
+        break;
+    case EXPORT_3DS:
+        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptx.dat";
+        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptd.dat";
+        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpts.dat";
+        break;
+    case EXPORT_STL:
+        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpts.dat";
+        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptt.dat";
+        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptl.dat";
+        break;
+    case EXPORT_POVRAY:
+        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
+        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpto.dat";
+        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptv.dat";
+        break;
+    case EXPORT_HTML:
+        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpth.dat";
+        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptt.dat";
+        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptm.dat";
+        break;
+    case EXPORT_CSV:
+        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptc.dat";
+        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpts.dat";
+        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptv.dat";
+        break;
+    case EXPORT_BRICKLINK:
+        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptb.dat";
+        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptl.dat";
+        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptk.dat";
+        break;
+    default:
         bannerData << "1 216 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
         bannerData << "1 216 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptd.dat";
         bannerData << "1 216 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptf.dat";
-      }
+    }
     bannerData << "0";
     bannerData << "0 NOFILE";
 
@@ -1764,6 +1804,7 @@ void Gui::preferences()
     int  pageDisplayPauseCompare        = Preferences::pageDisplayPause;
     bool addLSynthSearchDirCompare      = Preferences::addLSynthSearchDir;
     bool archiveLSynthPartsCompare      = Preferences::archiveLSynthParts;
+    bool perspectiveProjectionCompare   = Preferences::perspectiveProjection;
     QString altLDConfigPathCompare      = Preferences::altLDConfigPath;
     QString povFileGeneratorCompare     = Preferences::povFileGenerator;
     QString fadeStepsColourCompare      = Preferences::validFadeStepsColour;
@@ -1915,6 +1956,7 @@ void Gui::preferences()
         bool highlightStepColorChanged     = QString(Preferences::highlightStepColour).toLower() != highlightStepColourCompare.toLower();
         bool highlightStepLineWidthChanged = Preferences::highlightStepLineWidth                 != highlightStepLineWidthCompare;
         bool enableImageMattingChanged     = Preferences::enableImageMatting                     != enableImageMattingCompare;
+        bool perspectiveProjectionChanged  = Preferences::perspectiveProjection                  != perspectiveProjectionCompare;
         bool applyCALocallyChanged         = Preferences::applyCALocally                         != applyCALocallyCompare;
         bool enableLDViewSCallChanged      = Preferences::enableLDViewSingleCall                 != enableLDViewSCallCompare;
         bool enableLDViewSListChanged      = Preferences::enableLDViewSnaphsotList               != enableLDViewSListCompare;
@@ -1991,6 +2033,11 @@ void Gui::preferences()
         if (generateCoverPagesChanged)
             emit messageSig(LOG_INFO,QString("Generate Cover Pages preference is %1").arg(Preferences::generateCoverPages ? "ON" : "OFF"));
 
+        if (perspectiveProjectionChanged) {
+           lcSetProfileInt(LC_PROFILE_NATIVE_PROJECTION, Preferences::perspectiveProjection ? 0 : 1);
+           gApplication->mPreferences.LoadDefaults();
+           emit messageSig(LOG_INFO,QString("Projection set to %1").arg(Preferences::perspectiveProjection ? "Perspective" : "Orthographic"));
+        }
 
         if (pageDisplayPauseChanged)
             emit messageSig(LOG_INFO,QString("Continuous process page display pause changed from %1 to %2")
@@ -2086,6 +2133,7 @@ void Gui::preferences()
                 displayAttributesChanged      ||
                 povFileGeneratorChanged       ||
                 enableImageMattingChanged     ||
+                perspectiveProjectionChanged  ||
                 generateCoverPagesChanged){
                 clearAndRedrawPage();
             }
@@ -2400,11 +2448,13 @@ Gui::Gui()
     displayPageNum = 1;
 
     processOption                   = EXPORT_ALL_PAGES;
-    exportType                      = EXPORT_PDF;
+    exportMode                      = EXPORT_PDF;
     pageRangeText                   = "1";
     resetCache                      = false;
     m_previewDialog                 = false;
     m_exportingContent              = false;
+    m_exportingObjects              = false;
+    m_contPageProcessing            = false;
     nextPageContinuousIsRunning     = false;
     previousPageContinuousIsRunning = false;
 
@@ -2455,6 +2505,12 @@ Gui::Gui()
 
     connect(this,           SIGNAL(setExportingSig(bool)),
             this,           SLOT(  setExporting(   bool)));
+
+    connect(this,           SIGNAL(setExportingObjectsSig(bool)),
+            this,           SLOT(  setExportingObjects(   bool)));
+
+    connect(this,           SIGNAL(setContinuousPageSig(bool)),
+            lpubAlert,      SLOT(  setExportingObjects( bool)));
 
     connect(this,           SIGNAL(setContinuousPageSig(bool)),
             this,           SLOT(  setContinuousPage(   bool)));
@@ -3041,6 +3097,54 @@ void Gui::createActions()
     exportBmpAct->setEnabled(false);
     connect(exportBmpAct, SIGNAL(triggered()), this, SLOT(exportAsBmpDialog()));
 
+    exportHtmlAct = new QAction(QIcon(":/resources/html32.png"),tr("Export As &HTML Part List"), this);
+    exportHtmlAct->setShortcut(tr("Alt+6"));
+    exportHtmlAct->setStatusTip(tr("Export your document as an HTML part list - Alt+6"));
+    exportHtmlAct->setEnabled(false);
+    connect(exportHtmlAct, SIGNAL(triggered()), this, SLOT(exportAsHtml()));
+
+    exportColladaAct = new QAction(QIcon(":/resources/dae32.png"),tr("Export As &COLLADA Objects"), this);
+    exportColladaAct->setShortcut(tr("Alt+4"));
+    exportColladaAct->setStatusTip(tr("Export your document as a sequence of Collada objects - Alt+4"));
+    exportColladaAct->setEnabled(false);
+    connect(exportColladaAct, SIGNAL(triggered()), this, SLOT(exportAsColladaDialog()));
+
+    exportObjAct = new QAction(QIcon(":/resources/obj32.png"),tr("Export As &Wavefront Objects"), this);
+    exportObjAct->setShortcut(tr("Alt+1"));
+    exportObjAct->setStatusTip(tr("Export your document as a sequence of Wavefront objects - Alt+1"));
+    exportObjAct->setEnabled(false);
+    connect(exportObjAct, SIGNAL(triggered()), this, SLOT(exportAsObjDialog()));
+
+    export3dsAct = new QAction(QIcon(":/resources/3ds32.png"),tr("Export As &3DStudio Objects"), this);
+    export3dsAct->setShortcut(tr("Alt+5"));
+    export3dsAct->setStatusTip(tr("Export your document as a sequence of 3DStudio objects - Alt+5"));
+    export3dsAct->setEnabled(false);
+    connect(export3dsAct, SIGNAL(triggered()), this, SLOT(exportAs3dsDialog()));
+
+    exportStlAct = new QAction(QIcon(":/resources/stl32.png"),tr("Export As &Stereo Lithography Objects"), this);
+    exportBmpAct->setShortcut(tr("Alt+2"));
+    exportStlAct->setStatusTip(tr("Export your document as a sequence of Stereo Lithography Objects - Alt+2"));
+    exportStlAct->setEnabled(false);
+    connect(exportStlAct, SIGNAL(triggered()), this, SLOT(exportAsStlDialog()));
+
+    exportPovAct = new QAction(QIcon(":/resources/povray32.png"),tr("Export As &PovRay Scene Files"), this);
+    exportPovAct->setShortcut(tr("Alt+3"));
+    exportPovAct->setStatusTip(tr("Export your document as a sequence of PovRay Scene Files - Alt+3"));
+    exportPovAct->setEnabled(false);
+    connect(exportPovAct, SIGNAL(triggered()), this, SLOT(exportAsPovDialog()));
+
+    exportCsvAct = new QAction(QIcon(":/resources/csv32.png"),tr("Export As &CSV Part List"), this);
+    exportCsvAct->setShortcut(tr("Alt+8"));
+    exportCsvAct->setStatusTip(tr("Export your document as a CSV part list - Alt+8"));
+    exportCsvAct->setEnabled(false);
+    connect(exportCsvAct, SIGNAL(triggered()), this, SLOT(exportAsCsv()));
+
+    exportBricklinkAct = new QAction(QIcon(":/resources/bricklink32.png"),tr("Export As &Bricklink XML Part List"), this);
+    exportBricklinkAct->setShortcut(tr("Alt+7"));
+    exportBricklinkAct->setStatusTip(tr("Export your document as a Bricklink XML Part List - Alt+7"));
+    exportBricklinkAct->setEnabled(false);
+    connect(exportBricklinkAct, SIGNAL(triggered()), this, SLOT(exportAsBricklinkXML()));
+
     exitAct = new QAction(QIcon(":/resources/exit.png"),tr("E&xit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
     exitAct->setStatusTip(tr("Exit the application - Ctrl+Q"));
@@ -3511,7 +3615,16 @@ void Gui::enableActions()
   cacheMenu->setEnabled(true);
   exportMenu->setEnabled(true);
 
-  //ExportMenuViewer->setEnabled(true); // Hide 3DViewer step export functions
+  exportBricklinkAct->setEnabled(true);
+  exportCsvAct->setEnabled(true);
+  exportPovAct->setEnabled(true);
+//  exportStlAct->setEnabled(true); Temp disabled
+  export3dsAct->setEnabled(true);
+  exportObjAct->setEnabled(true);
+  exportColladaAct->setEnabled(true);
+  exportHtmlAct->setEnabled(true);
+
+  //ViewerExportMenu->setEnabled(true); // Hide 3DViewer step export functions
 
 }
 
@@ -3577,7 +3690,16 @@ void Gui::disableActions()
   cacheMenu->setEnabled(false);
   exportMenu->setEnabled(false);
 
-  // ExportMenuViewer->setEnabled(false); // Hide 3DViewer step export functions
+  exportBricklinkAct->setEnabled(false);
+  exportCsvAct->setEnabled(false);
+  exportPovAct->setEnabled(false);
+  exportStlAct->setEnabled(false);
+  export3dsAct->setEnabled(false);
+  exportObjAct->setEnabled(false);
+  exportColladaAct->setEnabled(false);
+  exportHtmlAct->setEnabled(false);
+
+  // ViewerExportMenu->setEnabled(false); // Hide 3DViewer step export functions
 
 }
 
@@ -3630,10 +3752,19 @@ void Gui::createMenus()
     exportMenu->setIcon(QIcon(":/resources/exportas.png"));
     exportMenu->addAction(exportPngAct);
     exportMenu->addAction(exportJpgAct);
-    exportMenu->addAction(exportBmpAct);
 #ifdef Q_OS_WIN
     exportMenu->addAction(exportBmpAct);
 #endif
+    exportMenu->addSeparator();
+    exportMenu->addAction(exportObjAct);
+    exportMenu->addAction(exportStlAct);
+    exportMenu->addAction(exportPovAct);
+    exportMenu->addAction(exportColladaAct);
+    exportMenu->addAction(export3dsAct);
+    exportMenu->addSeparator();
+    exportMenu->addAction(exportHtmlAct);
+    exportMenu->addAction(exportBricklinkAct);
+    exportMenu->addAction(exportCsvAct);
     exportMenu->setDisabled(true);
 
     //fileMenu->addAction(printToFileAct);
@@ -3761,14 +3892,42 @@ void Gui::createMenus()
     configMenu->addAction(preferencesAct);
 
    // 3DViewer Menus
+
+    /*
+     * Not used
+    FileMenuViewer = menuBar()->addMenu(tr("&Step"));
+    FileMenuViewer->addAction(gMainWindow->mActions[LC_FILE_SAVEAS]);
+    FileMenuViewer->addAction(gMainWindow->mActions[LC_FILE_SAVE_IMAGE]);
+    */
+
+    ViewerExportMenu = new QMenu(tr("&Export As..."), this);
+    ViewerExportMenu->setIcon(QIcon(":/resources/exportas.png"));
+    ViewerExportMenu->addAction(gMainWindow->mActions[LC_FILE_EXPORT_3DS]);
+    gMainWindow->mActions[LC_FILE_EXPORT_3DS]->setIcon(QIcon(":/resources/3ds32.png"));
+    ViewerExportMenu->addAction(gMainWindow->mActions[LC_FILE_EXPORT_COLLADA]);
+    gMainWindow->mActions[LC_FILE_EXPORT_COLLADA]->setIcon(QIcon(":/resources/dae32.png"));
+    ViewerExportMenu->addAction(gMainWindow->mActions[LC_FILE_EXPORT_WAVEFRONT]);
+    gMainWindow->mActions[LC_FILE_EXPORT_WAVEFRONT]->setIcon(QIcon(":/resources/obj32.png"));
+
     ViewerMenu = menuBar()->addMenu(tr("&3DViewer"));
-    ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_PREFERENCES]);
+    ViewerMenu->addMenu(ViewerExportMenu);
+
     ViewerMenu->addSeparator();
     ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]);
     ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
+    gMainWindow->mActions[LC_VIEW_LOOK_AT]->setIcon(QIcon(":/resources/lookat.png"));
 
+    ViewerMenu->addMenu(gMainWindow->GetToolsMenu());
     ViewerMenu->addMenu(gMainWindow->GetViewpointMenu());
-    ViewerMenu->addMenu(gMainWindow->GetCameraMenu());
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_FRONT]->setIcon(QIcon(":/resources/front.png"));
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_BACK]->setIcon(QIcon(":/resources/back.png"));
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_LEFT]->setIcon(QIcon(":/resources/left.png"));
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_RIGHT]->setIcon(QIcon(":/resources/right.png"));
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_TOP]->setIcon(QIcon(":/resources/top.png"));
+    gMainWindow->mActions[LC_VIEW_VIEWPOINT_BOTTOM]->setIcon(QIcon(":/resources/bottom.png"));
+
+/* Hide camera menu */
+//    ViewerMenu->addMenu(gMainWindow->GetCameraMenu());
     ViewerMenu->addMenu(gMainWindow->GetProjectionMenu());
     ViewerMenu->addMenu(gMainWindow->GetShadingMenu());
 
@@ -3777,28 +3936,14 @@ void Gui::createMenus()
     ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_SPLIT_VERTICAL]);
     ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_REMOVE_VIEW]);
     ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_RESET_VIEWS]);
+
     ViewerMenu->addSeparator();
+    ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_PREFERENCES]);
+    ViewerMenu->addSeparator();
+    // 3D Viewer Menus End
 
     QMenu* ToolBarViewerMenu = ViewerMenu->addMenu(tr("3DViewer Too&lbar"));
     ToolBarViewerMenu->addAction(gMainWindow->mToolsToolBar->toggleViewAction());
-
-    /* // Hide 3DViewer step export functions
-    FileMenuViewer = menuBar()->addMenu(tr("&Step"));
-    FileMenuViewer->addAction(gMainWindow->mActions[LC_FILE_SAVEAS]);
-    FileMenuViewer->addAction(gMainWindow->mActions[LC_FILE_SAVE_IMAGE]);
-
-    ExportMenuViewer = FileMenuViewer->addMenu(tr("&Export Step As"));
-    ExportMenuViewer->addAction(gMainWindow->mActions[LC_FILE_EXPORT_3DS]);
-    ExportMenuViewer->addAction(gMainWindow->mActions[LC_FILE_EXPORT_BRICKLINK]);
-    ExportMenuViewer->addAction(gMainWindow->mActions[LC_FILE_EXPORT_COLLADA]);
-    ExportMenuViewer->addAction(gMainWindow->mActions[LC_FILE_EXPORT_CSV]);
-    ExportMenuViewer->addAction(gMainWindow->mActions[LC_FILE_EXPORT_HTML]);
-    ExportMenuViewer->addAction(gMainWindow->mActions[LC_FILE_EXPORT_POVRAY]);
-    ExportMenuViewer->addAction(gMainWindow->mActions[LC_FILE_EXPORT_WAVEFRONT]);
-    ExportMenuViewer->setDisabled(true);
-    // 3D Viewer Menus End
-    */
-
     // Help Menus
 
     helpMenu = menuBar()->addMenu(tr("&Help"));
@@ -3882,6 +4027,148 @@ void Gui::showLCStatusMessage(){
 
     if(!viewerDockWindow->isFloating())
     statusBarMsg(gMainWindow->mLCStatusBar->currentMessage());
+}
+
+void Gui::parseError(QString errorMsg,Where &here)
+{
+    QString parseMessage = QString("%1 (file: %2, line: %3)") .arg(errorMsg) .arg(here.modelName) .arg(here.lineNumber);
+    if (Preferences::modeGUI) {
+        showLine(here);
+        if (Preferences::showParseErrors) {
+            QCheckBox *cb = new QCheckBox("Do not show this message again.");
+            QMessageBoxResizable box;
+            box.setText(parseMessage);
+            box.setIcon(QMessageBox::Icon::Warning);
+            box.addButton(QMessageBox::Ok);
+            box.addButton(QMessageBox::Cancel);
+            box.setDefaultButton(QMessageBox::Cancel);
+            box.setCheckBox(cb);
+
+            QObject::connect(cb, &QCheckBox::stateChanged, [this](int state){
+                if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked) {
+                    Preferences::setShowParseErrorsPreference(false);
+                } else {
+                    Preferences::setShowParseErrorsPreference(true);
+                }
+            });
+            box.exec();
+        }
+    }
+    logError() << qPrintable(parseMessage);
+}
+
+void Gui::createDockWindows()
+{
+    fileEditDockWindow = new QDockWidget(trUtf8(wCharToUtf8("LDraw\u2122 Editor")), this);
+    fileEditDockWindow->setObjectName("LDrawFileDockWindow");
+    fileEditDockWindow->setAllowedAreas(
+                Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
+                Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    fileEditDockWindow->setWidget(editWindow);
+    addDockWidget(Qt::RightDockWidgetArea, fileEditDockWindow);
+    viewMenu->addAction(fileEditDockWindow->toggleViewAction());
+
+    //3D Viewer
+
+    viewerDockWindow = new QDockWidget(trUtf8(wCharToUtf8("3DViewer")), this);
+    viewerDockWindow->setObjectName("ModelDockWindow");
+    viewerDockWindow->setAllowedAreas(
+                Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
+                Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    viewerDockWindow->setWidget(gMainWindow);
+    addDockWidget(Qt::RightDockWidgetArea, viewerDockWindow);
+    viewMenu->addAction(viewerDockWindow->toggleViewAction());
+
+    tabifyDockWidget(viewerDockWindow, fileEditDockWindow);
+
+    //timeline
+    gMainWindow->mTimelineToolBar->setWindowTitle(trUtf8(wCharToUtf8("Timeline")));
+    gMainWindow->mTimelineToolBar->setObjectName("TimelineToolbar");
+    gMainWindow->mTimelineToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    gMainWindow->mTimelineToolBar->setAcceptDrops(true);
+    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->mTimelineToolBar);
+    viewMenu->addAction(gMainWindow->mTimelineToolBar->toggleViewAction());
+
+    tabifyDockWidget(viewerDockWindow, gMainWindow->mTimelineToolBar);
+
+    //Properties
+    gMainWindow->mPropertiesToolBar->setWindowTitle(trUtf8(wCharToUtf8("Properties")));
+    gMainWindow->mPropertiesToolBar->setObjectName("PropertiesToolbar");
+    gMainWindow->mPropertiesToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->mPropertiesToolBar);
+    viewMenu->addAction(gMainWindow->mPropertiesToolBar->toggleViewAction());
+
+    tabifyDockWidget(gMainWindow->mTimelineToolBar, gMainWindow->mPropertiesToolBar);
+
+    //Part Selection
+    gMainWindow->mPartsToolBar->setWindowTitle(trUtf8(wCharToUtf8("Parts")));
+    gMainWindow->mPartsToolBar->setObjectName("PartsToolbar");
+    gMainWindow->mPartsToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->mPartsToolBar);
+    viewMenu->addAction(gMainWindow->mPartsToolBar->toggleViewAction());
+
+    bool viewable = false;
+    QSettings Settings;
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,VIEW_PARTS_WIDGET)))
+        viewable = Settings.value(QString("%1/%2").arg(SETTINGS,VIEW_PARTS_WIDGET)).toBool();
+    viewMenu->actions().last()->setChecked(viewable);
+
+    tabifyDockWidget(gMainWindow->mPropertiesToolBar, gMainWindow->mPartsToolBar);
+
+    // launching with viewerDockWindow raised is not stable so start with fileEdit until I figure out what's wrong.
+    fileEditDockWindow->raise();
+//#ifdef Q_OS_MACOS
+//    fileEditDockWindow->raise();
+//#else
+//    viewerDockWindow->raise();
+//#endif
+
+    connect(viewerDockWindow, SIGNAL (topLevelChanged(bool)), this, SLOT (toggleLCStatusBar(bool)));
+    connect (gMainWindow->mPartsToolBar, SIGNAL (visibilityChanged(bool)), this, SLOT (partsWidgetVisibilityChanged(bool)));
+    //**
+}
+
+void Gui::toggleLCStatusBar(bool topLevel){
+
+    Q_UNUSED(topLevel);
+
+    if(viewerDockWindow->isFloating())
+        gMainWindow->statusBar()->show();
+    else
+        gMainWindow->statusBar()->hide();
+}
+
+void Gui::readSettings()
+{
+    QSettings Settings;
+    Settings.beginGroup(MAINWINDOW);
+    restoreState(Settings.value("State").toByteArray());
+    QSize size = Settings.value("Size", QDesktopWidget().availableGeometry(this).size()*0.6).toSize();
+    const QByteArray geometry = Settings.value("Geometry", QByteArray()).toByteArray();
+    if (geometry.isEmpty()) {
+        const QRect availableGeometry = QApplication::desktop()->availableGeometry(this);
+        resize(availableGeometry.width() / 3, availableGeometry.height() / 2);
+        move((availableGeometry.width() - width()) / 2,
+             (availableGeometry.height() - height()) / 2);
+    } else {
+        restoreGeometry(geometry);
+    }
+    resize(size);
+    gMainWindow->mPartSelectionWidget->LoadState(Settings);
+    Settings.endGroup();
+}
+
+void Gui::writeSettings()
+{
+    QSettings Settings;
+    Settings.beginGroup(MAINWINDOW);
+    Settings.setValue("Geometry", saveGeometry());
+    Settings.setValue("State", saveState());
+    Settings.setValue("Size", size());
+    gMainWindow->mPartSelectionWidget->SaveState(Settings);
+    Settings.endGroup();
+
+    gApplication->SaveTabLayout();
 }
 
 void Gui::statusMessage(LogType logType, QString message) {
@@ -4025,145 +4312,3 @@ void Gui::statusMessage(LogType logType, QString message) {
     }
 }
 
-
-void Gui::parseError(QString errorMsg,Where &here)
-{
-    QString parseMessage = QString("%1 (file: %2, line: %3)") .arg(errorMsg) .arg(here.modelName) .arg(here.lineNumber);
-    if (Preferences::modeGUI) {
-        showLine(here);
-        if (Preferences::showParseErrors) {
-            QCheckBox *cb = new QCheckBox("Do not show this message again.");
-            QMessageBoxResizable box;
-            box.setText(parseMessage);
-            box.setIcon(QMessageBox::Icon::Warning);
-            box.addButton(QMessageBox::Ok);
-            box.addButton(QMessageBox::Cancel);
-            box.setDefaultButton(QMessageBox::Cancel);
-            box.setCheckBox(cb);
-
-            QObject::connect(cb, &QCheckBox::stateChanged, [this](int state){
-                if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked) {
-                    Preferences::setShowParseErrorsPreference(false);
-                } else {
-                    Preferences::setShowParseErrorsPreference(true);
-                }
-            });
-            box.exec();
-        }
-    }
-    logError() << qPrintable(parseMessage);
-}
-
-void Gui::createDockWindows()
-{
-    fileEditDockWindow = new QDockWidget(trUtf8(wCharToUtf8("LDraw\u2122 Editor")), this);
-    fileEditDockWindow->setObjectName("LDrawFileDockWindow");
-    fileEditDockWindow->setAllowedAreas(
-                Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
-                Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    fileEditDockWindow->setWidget(editWindow);
-    addDockWidget(Qt::RightDockWidgetArea, fileEditDockWindow);
-    viewMenu->addAction(fileEditDockWindow->toggleViewAction());
-
-    //3D Viewer
-
-    viewerDockWindow = new QDockWidget(trUtf8(wCharToUtf8("3DViewer")), this);
-    viewerDockWindow->setObjectName("ModelDockWindow");
-    viewerDockWindow->setAllowedAreas(
-                Qt::TopDockWidgetArea  | Qt::BottomDockWidgetArea |
-                Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    viewerDockWindow->setWidget(gMainWindow);
-    addDockWidget(Qt::RightDockWidgetArea, viewerDockWindow);
-    viewMenu->addAction(viewerDockWindow->toggleViewAction());
-
-    tabifyDockWidget(viewerDockWindow, fileEditDockWindow);
-
-    //timeline
-    gMainWindow->mTimelineToolBar->setWindowTitle(trUtf8(wCharToUtf8("Timeline")));
-    gMainWindow->mTimelineToolBar->setObjectName("TimelineToolbar");
-    gMainWindow->mTimelineToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    gMainWindow->mTimelineToolBar->setAcceptDrops(true);
-    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->mTimelineToolBar);
-    viewMenu->addAction(gMainWindow->mTimelineToolBar->toggleViewAction());
-
-    tabifyDockWidget(viewerDockWindow, gMainWindow->mTimelineToolBar);
-
-    //Properties
-    gMainWindow->mPropertiesToolBar->setWindowTitle(trUtf8(wCharToUtf8("Properties")));
-    gMainWindow->mPropertiesToolBar->setObjectName("PropertiesToolbar");
-    gMainWindow->mPropertiesToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->mPropertiesToolBar);
-    viewMenu->addAction(gMainWindow->mPropertiesToolBar->toggleViewAction());
-
-    tabifyDockWidget(gMainWindow->mTimelineToolBar, gMainWindow->mPropertiesToolBar);
-
-    //Part Selection
-    gMainWindow->mPartsToolBar->setWindowTitle(trUtf8(wCharToUtf8("Parts")));
-    gMainWindow->mPartsToolBar->setObjectName("PartsToolbar");
-    gMainWindow->mPartsToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->mPartsToolBar);
-    viewMenu->addAction(gMainWindow->mPartsToolBar->toggleViewAction());
-
-    bool viewable = false;
-    QSettings Settings;
-    if (Settings.contains(QString("%1/%2").arg(SETTINGS,VIEW_PARTS_WIDGET)))
-        viewable = Settings.value(QString("%1/%2").arg(SETTINGS,VIEW_PARTS_WIDGET)).toBool();
-    viewMenu->actions().last()->setChecked(viewable);
-
-    tabifyDockWidget(gMainWindow->mPropertiesToolBar, gMainWindow->mPartsToolBar);
-
-    // launching with viewerDockWindow raised is not stable so start with fileEdit until I figure out what's wrong.
-    fileEditDockWindow->raise();
-//#ifdef Q_OS_MACOS
-//    fileEditDockWindow->raise();
-//#else
-//    viewerDockWindow->raise();
-//#endif
-
-    connect(viewerDockWindow, SIGNAL (topLevelChanged(bool)), this, SLOT (toggleLCStatusBar(bool)));
-    connect (gMainWindow->mPartsToolBar, SIGNAL (visibilityChanged(bool)), this, SLOT (partsWidgetVisibilityChanged(bool)));
-    //**
-}
-
-void Gui::toggleLCStatusBar(bool topLevel){
-
-    Q_UNUSED(topLevel);
-
-    if(viewerDockWindow->isFloating())
-        gMainWindow->statusBar()->show();
-    else
-        gMainWindow->statusBar()->hide();
-}
-
-void Gui::readSettings()
-{
-    QSettings Settings;
-    Settings.beginGroup(MAINWINDOW);
-    restoreState(Settings.value("State").toByteArray());
-    QSize size = Settings.value("Size", QDesktopWidget().availableGeometry(this).size()*0.6).toSize();
-    const QByteArray geometry = Settings.value("Geometry", QByteArray()).toByteArray();
-    if (geometry.isEmpty()) {
-        const QRect availableGeometry = QApplication::desktop()->availableGeometry(this);
-        resize(availableGeometry.width() / 3, availableGeometry.height() / 2);
-        move((availableGeometry.width() - width()) / 2,
-             (availableGeometry.height() - height()) / 2);
-    } else {
-        restoreGeometry(geometry);
-    }
-    resize(size);
-    gMainWindow->mPartSelectionWidget->LoadState(Settings);
-    Settings.endGroup();
-}
-
-void Gui::writeSettings()
-{
-    QSettings Settings;
-    Settings.beginGroup(MAINWINDOW);
-    Settings.setValue("Geometry", saveGeometry());
-    Settings.setValue("State", saveState());
-    Settings.setValue("Size", size());
-    gMainWindow->mPartSelectionWidget->SaveState(Settings);
-    Settings.endGroup();
-
-    gApplication->SaveTabLayout();
-}

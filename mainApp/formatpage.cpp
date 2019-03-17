@@ -680,7 +680,8 @@ int Gui::addGraphicsPageItems(
                                         step->csiItem->loc[YY]);
 
 //------------------// place CSI annotations // ----------------------------------------//
-                  if (step->csiItem->assem->annotation.display.value())
+                  if (step->csiItem->assem->annotation.display.value() &&
+                      ! gui->exportingObjects())
                       step->csiItem->placeCsiPartAnnotations();
 
                   // add the PLI graphically to the scene

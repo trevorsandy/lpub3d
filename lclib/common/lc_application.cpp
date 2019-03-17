@@ -23,54 +23,61 @@ void lcPreferences::LoadDefaults()
 /*** LPub3D Mod - Splash message viewer defaults ***/
     emit Application::instance()->splashMsgSig("25% - Viewer defaults loading...");
 /*** LPub3D Mod end ***/
-    mFixedAxes = lcGetProfileInt(LC_PROFILE_FIXED_AXES);
-    mMouseSensitivity = lcGetProfileInt(LC_PROFILE_MOUSE_SENSITIVITY);
-    mShadingMode = (lcShadingMode)lcGetProfileInt(LC_PROFILE_SHADING_MODE);
-    mDrawAxes = lcGetProfileInt(LC_PROFILE_DRAW_AXES);
-    mDrawEdgeLines = lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
-    mLineWidth = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
-    mDrawGridStuds = lcGetProfileInt(LC_PROFILE_GRID_STUDS);
-    mGridStudColor = lcGetProfileInt(LC_PROFILE_GRID_STUD_COLOR);
-    mDrawGridLines = lcGetProfileInt(LC_PROFILE_GRID_LINES);
-    mGridLineSpacing = lcGetProfileInt(LC_PROFILE_GRID_LINE_SPACING);
-    mGridLineColor = lcGetProfileInt(LC_PROFILE_GRID_LINE_COLOR);
-    mViewSphereLocation = (lcViewSphereLocation)lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_LOCATION);
-    mViewSphereSize = lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_SIZE);
+
+	mFixedAxes = lcGetProfileInt(LC_PROFILE_FIXED_AXES);
+	mMouseSensitivity = lcGetProfileInt(LC_PROFILE_MOUSE_SENSITIVITY);
+	mShadingMode = (lcShadingMode)lcGetProfileInt(LC_PROFILE_SHADING_MODE);
+	mDrawAxes = lcGetProfileInt(LC_PROFILE_DRAW_AXES);
+	mDrawEdgeLines = lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
+	mLineWidth = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
+	mDrawGridStuds = lcGetProfileInt(LC_PROFILE_GRID_STUDS);
+	mGridStudColor = lcGetProfileInt(LC_PROFILE_GRID_STUD_COLOR);
+	mDrawGridLines = lcGetProfileInt(LC_PROFILE_GRID_LINES);
+	mGridLineSpacing = lcGetProfileInt(LC_PROFILE_GRID_LINE_SPACING);
+	mGridLineColor = lcGetProfileInt(LC_PROFILE_GRID_LINE_COLOR);
+	mViewSphereLocation = (lcViewSphereLocation)lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_LOCATION);
+	mViewSphereSize = lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_SIZE);
+	mViewSphereColor = lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_COLOR);
+	mViewSphereTextColor = lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_TEXT_COLOR);
+	mViewSphereHighlightColor = lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR);
 
 /*** LPub3D Mod - Native Renderer settings ***/
     mNativeViewpoint = lcGetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT);
-    mNativeOrthographic = lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION);
+    mNativeProjection = lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION);
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Timeline part icons ***/
-     mViewPieceIcons = lcGetProfileInt(LC_PROFILE_VIEW_PIECE_ICONS);
+    mViewPieceIcons = lcGetProfileInt(LC_PROFILE_VIEW_PIECE_ICONS);
 /*** LPub3D Mod end ***/
 
 }
 
 void lcPreferences::SaveDefaults()
 {
-    lcSetProfileInt(LC_PROFILE_FIXED_AXES, mFixedAxes);
-    lcSetProfileInt(LC_PROFILE_MOUSE_SENSITIVITY, mMouseSensitivity);
-    lcSetProfileInt(LC_PROFILE_SHADING_MODE, mShadingMode);
-    lcSetProfileInt(LC_PROFILE_DRAW_AXES, mDrawAxes);
-    lcSetProfileInt(LC_PROFILE_DRAW_EDGE_LINES, mDrawEdgeLines);
-    lcSetProfileFloat(LC_PROFILE_LINE_WIDTH, mLineWidth);
-    lcSetProfileInt(LC_PROFILE_GRID_STUDS, mDrawGridStuds);
-    lcSetProfileInt(LC_PROFILE_GRID_STUD_COLOR, mGridStudColor);
-    lcSetProfileInt(LC_PROFILE_GRID_LINES, mDrawGridLines);
-    lcSetProfileInt(LC_PROFILE_GRID_LINE_SPACING, mGridLineSpacing);
-    lcSetProfileInt(LC_PROFILE_GRID_LINE_COLOR, mGridLineColor);
-    lcSetProfileInt(LC_PROFILE_VIEW_SPHERE_LOCATION, (int)mViewSphereLocation);
-    lcSetProfileInt(LC_PROFILE_VIEW_SPHERE_SIZE, mViewSphereSize);
+	lcSetProfileInt(LC_PROFILE_FIXED_AXES, mFixedAxes);
+	lcSetProfileInt(LC_PROFILE_MOUSE_SENSITIVITY, mMouseSensitivity);
+	lcSetProfileInt(LC_PROFILE_SHADING_MODE, mShadingMode);
+	lcSetProfileInt(LC_PROFILE_DRAW_AXES, mDrawAxes);
+	lcSetProfileInt(LC_PROFILE_DRAW_EDGE_LINES, mDrawEdgeLines);
+	lcSetProfileFloat(LC_PROFILE_LINE_WIDTH, mLineWidth);
+	lcSetProfileInt(LC_PROFILE_GRID_STUDS, mDrawGridStuds);
+	lcSetProfileInt(LC_PROFILE_GRID_STUD_COLOR, mGridStudColor);
+	lcSetProfileInt(LC_PROFILE_GRID_LINES, mDrawGridLines);
+	lcSetProfileInt(LC_PROFILE_GRID_LINE_SPACING, mGridLineSpacing);
+	lcSetProfileInt(LC_PROFILE_GRID_LINE_COLOR, mGridLineColor);
+	lcSetProfileInt(LC_PROFILE_VIEW_SPHERE_LOCATION, (int)mViewSphereLocation);
+	lcSetProfileInt(LC_PROFILE_VIEW_SPHERE_SIZE, mViewSphereSize);
+	lcSetProfileInt(LC_PROFILE_VIEW_SPHERE_COLOR, mViewSphereColor);
+	lcSetProfileInt(LC_PROFILE_VIEW_SPHERE_TEXT_COLOR, mViewSphereTextColor);
+	lcSetProfileInt(LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR, mViewSphereHighlightColor);
 
 /*** LPub3D Mod - Native Renderer settings ***/
     lcSetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT, mNativeViewpoint);
-    lcSetProfileInt(LC_PROFILE_NATIVE_PROJECTION, mNativeOrthographic);
+    lcSetProfileInt(LC_PROFILE_NATIVE_PROJECTION, mNativeProjection);
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Timeline part icons ***/
-     lcSetProfileInt(LC_PROFILE_VIEW_PIECE_ICONS, mViewPieceIcons);
+    lcSetProfileInt(LC_PROFILE_VIEW_PIECE_ICONS, mViewPieceIcons);
 /*** LPub3D Mod end ***/
 }
 
@@ -728,7 +735,7 @@ void lcApplication::ShowPreferencesDialog()
 
 /*** LPub3D Mod - Native Renderer settings ***/
     Options.Preferences.mNativeViewpoint = lcGetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT);
-    Options.Preferences.mNativeOrthographic = lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION);
+    Options.Preferences.mNativeProjection = lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION);
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Timeline part icons ***/
@@ -760,7 +767,7 @@ void lcApplication::ShowPreferencesDialog()
 
 /*** LPub3D Mod - Native Renderer settings ***/
     bool NativeViewpointChanged = Options.Preferences.mNativeViewpoint != lcGetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT);
-    bool NativeProjectionIsOrthoChanged = Options.Preferences.mNativeOrthographic != lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION);
+    bool NativeProjectionChanged = Options.Preferences.mNativeProjection != lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION);
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Timeline part icons ***/
@@ -810,7 +817,7 @@ void lcApplication::ShowPreferencesDialog()
           drawEdgeLinesChanged ||
           lineWidthChanged ||
           NativeViewpointChanged ||
-          NativeProjectionIsOrthoChanged)
+          NativeProjectionChanged)
       {
           redrawPage = true;
 
@@ -895,22 +902,28 @@ void lcApplication::ShowPreferencesDialog()
                   Viewpoint = "Front";
               }
               logInfo() << QString("Native Viewport changed to '%1'.").arg(Viewpoint.toUpper());
+
           }
 
-          if (NativeProjectionIsOrthoChanged) {
+          if (NativeProjectionChanged) {
+              QVariant uValue(true);
               QString Projection;
               switch (lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION))
               {
               case 0:
-                  Projection = "Ortographic";
-                  break;
-              case 1:
                   Projection = "Perscpective";
                   break;
-              default:
+              case 1:
                   Projection = "Ortographic";
+                  uValue = false;
+                  break;
+              default:
+                  Projection = "Perscpective";
+                  break;
               }
               logInfo() << QString("Native Projection changed to '%1'.").arg(Projection.toUpper());
+              QSettings Settings;
+              Settings.setValue(QString("%1/%2").arg(SETTINGS,"PerspectiveProjection"),uValue);
           }
       }
     }

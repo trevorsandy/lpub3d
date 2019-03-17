@@ -87,17 +87,6 @@ CsiAnnotation::CsiAnnotation(
     relativeType    = CsiAnnotationType;
 }
 
-void CsiAnnotation::sizeIt(int &x, int &y)
-{
-    margin    = styleMeta.margin;
-    size[XX] += int(styleMeta.border.valuePixels().margin[XX]);
-    size[YY] += int(styleMeta.border.valuePixels().margin[YY]);
-    size[XX] += int(styleMeta.border.valuePixels().thickness);
-    size[YY] += int(styleMeta.border.valuePixels().thickness);
-    x = size[XX];
-    y = size[YY];
-}
-
 bool CsiAnnotation::setPlacement()
 {
     QString placement, justification, preposition, relativeTo;
@@ -163,11 +152,10 @@ bool CsiAnnotation::setAnnotationLoc(float iconOffset[])
 }
 
 CsiAnnotationItem::CsiAnnotationItem(
-   QGraphicsItem     *_parent)
+   QGraphicsItem  *_parent)
   : ResizeTextItem(_parent)
 {
    relativeType         = CsiAnnotationType;
-   ca                   = nullptr;
 }
 
 void CsiAnnotationItem::addGraphicsItems(
@@ -177,11 +165,17 @@ void CsiAnnotationItem::addGraphicsItems(
    CsiItem              *_csiItem,
    bool                  _movable)
 {
-    ca                  = _ca;
+    icon                = _ca->caMeta.icon;
+    partLine            = _ca->partLine;
+    metaLine            = _ca->metaLine;
+    placement           = _ca->placement;
+    margin              = _part->styleMeta.margin;
+    border              = _part->styleMeta.border;
+    background          = _part->styleMeta.background;
+    style               = _part->styleMeta.style;
+    submodelLevel       = _csiItem->submodelLevel;
     parentRelativeType  = _csiItem->parentRelativeType;
-    ca->styleMeta       = _part->styleMeta;
-    ca->subModelColor   = _step->pli.pliMeta.subModelColor;
-    ca->submodelLevel   = _csiItem->submodelLevel;
+    subModelColor       = _step->pli.pliMeta.subModelColor;
     positionChanged     = false;
     switch (parentRelativeType) {
       case CalloutType:
@@ -204,12 +198,12 @@ void CsiAnnotationItem::addGraphicsItems(
     setParentItem(_csiItem);
 
     QString textString  = _part->text;
-    QString fontString  = ca->styleMeta.font.valueFoo();
-    QString colorString = ca->styleMeta.color.value();
+    QString fontString  = _part->styleMeta.font.valueFoo();
+    QString colorString = _part->styleMeta.color.value();
 
     // TODO - automatically resize text until it fits
-    if ((ca->styleMeta.style.value() == AnnotationStyle::circle ||
-         ca->styleMeta.style.value() == AnnotationStyle::square) &&
+    if ((style.value() == AnnotationStyle::circle ||
+         style.value() == AnnotationStyle::square) &&
          textString.size() > 2) {
        fontString = "Arial,17,-1,5,50,0,0,0,0,0";
     }
@@ -227,11 +221,11 @@ void CsiAnnotationItem::addGraphicsItems(
 
     QRectF annotateRect;
     QRectF docSize  = QRectF(0,0,document()->size().width(),document()->size().height());
-    if (ca->styleMeta.style.value() == AnnotationStyle::none) {
+    if (style.value() == AnnotationStyle::none) {
         annotateRect = docSize;
     } else {
-        bool dw = ca->styleMeta.style.value() == AnnotationStyle::rectangle;
-        QRectF styleSize = QRectF(0,0,dw ? docSize.width() : ca->styleMeta.size.valuePixels(XX),ca->styleMeta.size.valuePixels(YY));
+        bool dw = style.value() == AnnotationStyle::rectangle;
+        QRectF styleSize = QRectF(0,0,dw ? docSize.width() : _part->styleMeta.size.valuePixels(XX), _part->styleMeta.size.valuePixels(YY));
         annotateRect = boundingRect().adjusted(0,0,styleSize.width()-docSize.width(),styleSize.height()-docSize.height());
         // center the document on the new size
         setTextWidth(-1);
@@ -244,21 +238,19 @@ void CsiAnnotationItem::addGraphicsItems(
         cursor.clearSelection();
         setTextCursor(cursor);
     }
-    ca->size[XX] = int(annotateRect.size().width());
-    ca->size[YY] = int(annotateRect.size().height());
+    size[XX] = int(annotateRect.size().width());
+    size[YY] = int(annotateRect.size().height());
 
-    margin    = ca->margin;
-    placement = ca->placement;
-    ca->sizeIt(size[XX],size[YY]);
+    sizeIt();
 
     // set PlacementCsiPart location based on csi size
 
-    ca->setCsiPartLoc(_csiItem->size);
+    _ca->setCsiPartLoc(_csiItem->size);
 
     // place PlacementCsiPart relative to CSI
 
     PlacementCsiPart    *placementCsiPart =
-            new PlacementCsiPart(ca->csiPartMeta,_csiItem);
+            new PlacementCsiPart(_ca->csiPartMeta,_csiItem);
 
     if (! placementCsiPart->hasOffset())
         _csiItem->placeRelative(placementCsiPart);
@@ -268,13 +260,13 @@ void CsiAnnotationItem::addGraphicsItems(
 
     // place CsiAnnotation Icon relative to PlacementCsiPart
 
-    bool hasLoc = ca->setAnnotationLoc(placement.value().offsets);
+    bool hasLoc = _ca->setAnnotationLoc(placement.value().offsets);
     if (hasLoc) {
-        loc[XX]   = ca->loc[XX];
-        loc[YY]   = ca->loc[YY];
+        loc[XX] = _ca->loc[XX];
+        loc[YY] = _ca->loc[YY];
     } else {
         placementCsiPart->placeRelative(this);
-        ca->assign(this);
+        _ca->assign(this);
     }
     setPos(loc[XX],loc[YY]);
 
@@ -285,104 +277,114 @@ void CsiAnnotationItem::addGraphicsItems(
     debugPlacementTrace();
 }
 
+void CsiAnnotationItem::sizeIt()
+{
+    size[XX] += int(border.valuePixels().margin[XX]);
+    size[YY] += int(border.valuePixels().margin[YY]);
+    size[XX] += int(border.valuePixels().thickness);
+    size[YY] += int(border.valuePixels().thickness);
+}
+
 void CsiAnnotationItem::setBackground(QPainter *painter)
 {
-    // set border and background parameters
-    BorderData     borderData     = ca->styleMeta.border.valuePixels();
-    BackgroundData backgroundData = ca->styleMeta.background.value();
+    if (style.value() != AnnotationStyle::none) {
 
-    // set rectangle size and dimensions parameters
-    int ibt = int(borderData.thickness);
-    QRectF irect(ibt/2,ibt/2,size[XX]-ibt,size[YY]-ibt);
+        // set border and background parameters
+        BorderData     borderData     = border.valuePixels();
+        BackgroundData backgroundData = background.value();
 
-    // set painter and render hints (initialized with pixmap)
-    painter->setRenderHints(QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing);
+        // set rectangle size and dimensions parameters
+        int ibt = int(borderData.thickness);
+        QRectF irect(ibt/2,ibt/2,size[XX]-ibt,size[YY]-ibt);
 
-    // set the background then set the border and paint both in one go.
+        // set painter and render hints (initialized with pixmap)
+        painter->setRenderHints(QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing);
 
-    /* BACKGROUND */
-    QColor brushColor;
-    switch(backgroundData.type) {
-    case BackgroundData::BgColor:
-       brushColor = LDrawColor::color(backgroundData.string);
-       break;
-    case BackgroundData::BgSubmodelColor:
-       brushColor = LDrawColor::color(ca->subModelColor.value(0));
-       break;
-    default:
-       brushColor = Qt::transparent;
-       break;
-    }
-    painter->setBrush(brushColor);
+        // set the background then set the border and paint both in one go.
 
-    /* BORDER */
-    QPen borderPen;
-    QColor borderPenColor;
-    if (borderData.type == BorderData::BdrNone) {
-        borderPenColor = Qt::transparent;
-    } else {
-        borderPenColor =  LDrawColor::color(borderData.color);
-    }
-    borderPen.setColor(borderPenColor);
-    borderPen.setCapStyle(Qt::RoundCap);
-    borderPen.setJoinStyle(Qt::RoundJoin);
-    if (borderData.line == BorderData::BdrLnSolid){
-        borderPen.setStyle(Qt::SolidLine);
-    }
-    else if (borderData.line == BorderData::BdrLnDash){
-        borderPen.setStyle(Qt::DashLine);
-    }
-    else if (borderData.line == BorderData::BdrLnDot){
-        borderPen.setStyle(Qt::DotLine);
-    }
-    else if (borderData.line == BorderData::BdrLnDashDot){
-        borderPen.setStyle(Qt::DashDotLine);
-    }
-    else if (borderData.line == BorderData::BdrLnDashDotDot){
-        borderPen.setStyle(Qt::DashDotDotLine);
-    }
-    borderPen.setWidth(ibt);
-
-    painter->setPen(borderPen);
-
-    // set icon border dimensions
-    qreal rx = borderData.radius;
-    qreal ry = borderData.radius;
-    qreal dx = size[XX];
-    qreal dy = size[YY];
-
-    if (dx && dy) {
-        if (dx > dy) {
-            rx *= dy;
-            rx /= dx;
-        } else {
-            ry *= dx;
-            ry /= dy;
+        /* BACKGROUND */
+        QColor brushColor;
+        switch(backgroundData.type) {
+        case BackgroundData::BgColor:
+            brushColor = LDrawColor::color(backgroundData.string);
+            break;
+        case BackgroundData::BgSubmodelColor:
+            brushColor = LDrawColor::color(subModelColor.value(0));
+            break;
+        default:
+            brushColor = Qt::transparent;
+            break;
         }
-    }
+        painter->setBrush(brushColor);
 
-    // draw icon rectangle - background and border
-    if (ca->styleMeta.style.value() != AnnotationStyle::circle) {
-        if (borderData.type == BorderData::BdrRound) {
-            painter->drawRoundRect(irect,int(rx),int(ry));
+        /* BORDER */
+        QPen borderPen;
+        QColor borderPenColor;
+        if (borderData.type == BorderData::BdrNone) {
+            borderPenColor = Qt::transparent;
         } else {
-            painter->drawRect(irect);
+            borderPenColor =  LDrawColor::color(borderData.color);
         }
-    } else {
-        painter->drawEllipse(irect);
+        borderPen.setColor(borderPenColor);
+        borderPen.setCapStyle(Qt::RoundCap);
+        borderPen.setJoinStyle(Qt::RoundJoin);
+        if (borderData.line == BorderData::BdrLnSolid){
+            borderPen.setStyle(Qt::SolidLine);
+        }
+        else if (borderData.line == BorderData::BdrLnDash){
+            borderPen.setStyle(Qt::DashLine);
+        }
+        else if (borderData.line == BorderData::BdrLnDot){
+            borderPen.setStyle(Qt::DotLine);
+        }
+        else if (borderData.line == BorderData::BdrLnDashDot){
+            borderPen.setStyle(Qt::DashDotLine);
+        }
+        else if (borderData.line == BorderData::BdrLnDashDotDot){
+            borderPen.setStyle(Qt::DashDotDotLine);
+        }
+        borderPen.setWidth(ibt);
+
+        painter->setPen(borderPen);
+
+        // set icon border dimensions
+        qreal rx = borderData.radius;
+        qreal ry = borderData.radius;
+        qreal dx = size[XX];
+        qreal dy = size[YY];
+
+        if (dx && dy) {
+            if (dx > dy) {
+                rx *= dy;
+                rx /= dx;
+            } else {
+                ry *= dx;
+                ry /= dy;
+            }
+        }
+
+        // draw icon rectangle - background and border
+        if (style.value() != AnnotationStyle::circle) {
+            if (borderData.type == BorderData::BdrRound) {
+                painter->drawRoundRect(irect,int(rx),int(ry));
+            } else {
+                painter->drawRect(irect);
+            }
+        } else {
+            painter->drawEllipse(irect);
+        }
+        //doPaint = false;
     }
 }
 
 void CsiAnnotationItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *o, QWidget *w)
 {
-    if (ca->styleMeta.style.value() != AnnotationStyle::none)
-        setBackground(painter);
-
+    setBackground(painter);
     QGraphicsTextItem::paint(painter, o, w);
 }
 
-void CsiAnnotationItem::change(){
-    updateCsiAnnotationIconMeta(ca->metaLine, &ca->caMeta.icon);
+void CsiAnnotationItem::change() {
+    updateCsiAnnotationIconMeta(metaLine, &icon);
 }
 
 void CsiAnnotationItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -425,15 +427,15 @@ void CsiAnnotationItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
                 placementData.offsets[XX]    += newPosition.x()/relativeToSize[XX];
                 placementData.offsets[YY]    += newPosition.y()/relativeToSize[YY];
                 placement.setValue(placementData);
-
+#ifdef QT_DEBUG_MODE
                 emit lpubAlert->messageSig(LOG_NOTICE,QString(" -RELATIVE_TO_SIZE_MOUSE_RELEASE: (%1, %2)")
                                            .arg(QString::number(double(relativeToSize[XX]),'f',5))
                                            .arg(QString::number(double(relativeToSize[YY]),'f',5)));
-
-                CsiAnnotationIconData caiData = ca->caMeta.icon.value();
+#endif
+                CsiAnnotationIconData caiData = icon.value();
                 caiData.iconOffset[XX]        = placementData.offsets[XX];
                 caiData.iconOffset[YY]        = placementData.offsets[YY];
-                ca->caMeta.icon.setValue(caiData);
+                icon.setValue(caiData);
 
                 change();
             }
@@ -465,14 +467,15 @@ void CsiAnnotationItem::contextMenuEvent(
               parentRelativeType,
               CsiAnnotationType,
               pl+" Placement",
-              ca->metaLine,
-              ca->metaLine,
-             &ca->caMeta,true,1,0,false);
+              metaLine,
+              metaLine,
+             &placement,
+             &icon,true,1,0,false);
    } else if (selectedAction == hideAction) {
-              CsiAnnotationIconData caid = ca->caMeta.icon.value();
+              CsiAnnotationIconData caid = icon.value();
               caid.hidden = true;
-              ca->caMeta.icon.setValue(caid);
-              updateCsiAnnotationIconMeta(ca->metaLine, &ca->caMeta.icon);
+              icon.setValue(caid);
+              updateCsiAnnotationIconMeta(metaLine, &icon);
    }
 }
 
@@ -519,8 +522,8 @@ void CsiAnnotationItem::debugPlacementTrace()
     emit lpubAlert->messageSig(LOG_DEBUG,QString("--------------------------------------------------"));
 
     emit lpubAlert->messageSig(LOG_DEBUG,QString("%1 FOR MODEL [%2]:")
-                         .arg("PART ["+ca->caMeta.icon.value().typeBaseName+".dat] ANNOTATION")
-                         .arg(ca->partLine.modelName));
+                         .arg("PART ["+icon.value().typeBaseName+".dat] ANNOTATION")
+                         .arg(partLine.modelName));
 
     QRect pageRect(0,0,
                    gui->pageSize(pageMeta, 0),
@@ -589,8 +592,8 @@ void CsiAnnotationItem::debugPlacementTrace()
     emit lpubAlert->messageSig(LOG_DEBUG,QString(" *iconWidth:      %1").arg(QString::number(iconWidth)));
     emit lpubAlert->messageSig(LOG_DEBUG,QString(" *iconHeight:     %1").arg(QString::number(iconHeight)));
 
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partOffset[XX]: %1").arg(QString::number(double(ca->caMeta.icon.value().partOffset[XX]))));
-    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partOffset[YY]: %1").arg(QString::number(double(ca->caMeta.icon.value().partOffset[YY]))));
+    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partOffset[XX]: %1").arg(QString::number(double(icon.value().partOffset[XX]))));
+    emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partOffset[YY]: %1").arg(QString::number(double(icon.value().partOffset[YY]))));
     emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partSize[XX]:   %1").arg(QString::number(relativeToSize[XX])));
     emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partSize[YY]:   %1").arg(QString::number(relativeToSize[YY])));
     emit lpubAlert->messageSig(LOG_DEBUG,QString(" *partLoc[XX]:    %1").arg(QString::number(relativeToLoc[XX])));

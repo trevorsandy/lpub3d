@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/resources">
+        <file alias="3ds32.png">resources/3ds32.png</file>
         <file alias="actual.png">resources/actual.png</file>
         <file alias="add.png">resources/add.png</file>
         <file alias="addpointer.png">resources/addpointer.png</file>
@@ -15,12 +16,15 @@
         <file alias="appendlastpage.png">resources/appendlastpage.png</file>
         <file alias="appendpage.png">resources/appendpage.png</file>
         <file alias="assemblysetup.png">resources/assemblysetup.png</file>
+        <file alias="back.png">resources/back.png</file>
         <file alias="background.png">resources/background.png</file>
         <file alias="bomannotation.png">resources/bomannotation.png</file>
         <file alias="bomsetup.png">resources/bomsetup.png</file>
         <file alias="border.png">resources/border.png</file>
         <file alias="borderattributes.png">resources/borderattributes.png</file>
+        <file alias="bottom.png">resources/bottom.png</file>
         <file alias="bottomofdocument.png">resources/bottomofdocument.png</file>
+        <file alias="bricklink32.png">resources/bricklink32.png</file>
         <file alias="calloutsetup.png">resources/calloutsetup.png</file>
         <file alias="changedivider.png">resources/changedivider.png</file>
         <file alias="changeshape.png">resources/changeshape.png</file>
@@ -41,6 +45,8 @@
         <file alias="convertcallout.png">resources/convertcallout.png</file>
         <file alias="copy.png">resources/copy.png</file>
         <file alias="cut.png">resources/cut.png</file>
+        <file alias="csv32.png">resources/csv32.png</file>
+        <file alias="dae32.png">resources/dae32.png</file>
         <file alias="delete.png">resources/delete.png</file>
         <file alias="deletepointer.png">resources/deletepointer.png</file>
         <file alias="deletedivider.png">resources/deletedivider.png</file>
@@ -80,13 +86,17 @@
         <file alias="fitWidth.png">resources/fitWidth.png</file>
         <file alias="font.png">resources/font.png</file>
         <file alias="fontColour.png">resources/fontColour.png</file>
+        <file alias="front.png">resources/front.png</file>
         <file alias="generatecolourparts.png">resources/generatecolourparts.png</file>
         <file alias="gplv3.png">resources/gplv3.png</file>
         <file alias="highlightstepsetup.png">resources/highlightstepsetup.png</file>
+        <file alias="html32.png">resources/html32.png</file>
         <file alias="ignoresubmodel.png">resources/ignoresubmodel.png</file>
         <file alias="insertcoverpage.png">resources/insertcoverpage.png</file>
         <file alias="insertpage.png">resources/insertpage.png</file>
         <file alias="instructionsetup.png">resources/instructionsetup.png</file>
+        <file alias="left.png">resources/left.png</file>
+        <file alias="lookat.png">resources/lookat.png</file>
         <file alias="lpub3d.png">resources/lpub3d.png</file>
         <file alias="lpub3d.icns">lpub3d.icns</file>
         <file alias="ldraw_document.icns">ldraw_document.icns</file>
@@ -106,6 +116,7 @@
         <file alias="nextpagecontinuous.png">resources/nextpagecontinuous.png</file>
         <file alias="nextpagecontinuousstop.png">resources/nextpagecontinuousstop.png</file>
         <file alias="nopartslist.png">resources/nopartslist.png</file>
+        <file alias="obj32.png">resources/obj32.png</file>
         <file alias="onlinemanual.png">resources/onlinemanual.png</file>
         <file alias="open.png">resources/open.png</file>
         <file alias="pageguides.png">resources/pageguides.png</file>
@@ -120,6 +131,7 @@
         <file alias="pliannotation.png">resources/pliannotation.png</file>
         <file alias="plus.png">resources/plus.png</file>
         <file alias="placement.png">resources/placement.png</file>
+        <file alias="povray32.png">resources/povray32.png</file>
         <file alias="preferences.png">resources/preferences.png</file>
         <file alias="prev.png">resources/prev.png</file>
         <file alias="previousstep.png">resources/previousstep.png</file>
@@ -138,6 +150,7 @@
         <file alias="resetborderattributes.png">resources/resetborderattributes.png</file>
         <file alias="resetcache.png">resources/resetcache.png</file>
         <file alias="resetlineattributes.png">resources/resetlineattributes.png</file>
+        <file alias="right.png">resources/right.png</file>
         <file alias="resetsetting.png">resources/resetsetting.png</file>
         <file alias="rotate.png">resources/rotate.png</file>
         <file alias="rotateicon.png">resources/rotateicon.png</file>
@@ -150,10 +163,12 @@
         <file alias="softwareupdate.png">resources/softwareupdate.png</file>
         <file alias="sortPli.png">resources/sortPli.png</file>
         <file alias="splitbom.png">resources/splitbom.png</file>
+        <file alias="stl32.png">resources/stl32.png</file>
         <file alias="stepgroupsetup.png">resources/stepgroupsetup.png</file>
         <file alias="submodelcolor.png">resources/submodelcolor.png</file>
         <file alias="submodelsetup.png">resources/submodelsetup.png</file>
         <file alias="textDelete.png">resources/textDelete.png</file>
+        <file alias="top.png">resources/top.png</file>
         <file alias="topofdocument.png">resources/topofdocument.png</file>
         <file alias="treataspart.png">resources/treataspart.png</file>
         <file alias="unpackcallout.png">resources/unpackcallout.png</file>

@@ -7,12 +7,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>541</width>
-    <height>720</height>
+    <width>508</width>
+    <height>717</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -861,6 +861,46 @@
           </widget>
          </item>
          <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Projection:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="projectionCombo">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <item>
+            <property name="text">
+             <string>Perspective</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Orthographic</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
           <spacer name="horizontalSpacer_7">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
@@ -888,7 +928,7 @@
             <string>Set the renderer 'wait for finish' process time in minutes. -1 will not timeout.</string>
            </property>
            <property name="text">
-            <string>Process timeout:</string>
+            <string>Timeout:</string>
            </property>
           </widget>
          </item>
@@ -902,13 +942,6 @@
            </property>
            <property name="value">
             <number>6</number>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="timeoutLbl">
-           <property name="text">
-            <string>seconds</string>
            </property>
           </widget>
          </item>
@@ -2523,16 +2556,6 @@ p, li { white-space: pre-wrap; }
           <string>LDraw Content Search Directories</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_6">
-          <item row="0" column="0" colspan="2">
-           <widget class="QLineEdit" name="lineEditIniFile">
-            <property name="toolTip">
-             <string>LDraw.ini file path dialog</string>
-            </property>
-            <property name="readOnly">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="0">
            <widget class="QTextEdit" name="textEditSearchDirs">
             <property name="enabled">
@@ -2541,7 +2564,7 @@ p, li { white-space: pre-wrap; }
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
               <horstretch>0</horstretch>
-              <verstretch>150</verstretch>
+              <verstretch>0</verstretch>
              </sizepolicy>
             </property>
             <property name="minimumSize">
@@ -2578,6 +2601,16 @@ p, li { white-space: pre-wrap; }
               <width>25</width>
               <height>25</height>
              </size>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" colspan="2">
+           <widget class="QLineEdit" name="lineEditIniFile">
+            <property name="toolTip">
+             <string>LDraw.ini file path dialog</string>
+            </property>
+            <property name="readOnly">
+             <bool>false</bool>
             </property>
            </widget>
           </item>

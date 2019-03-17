@@ -868,7 +868,7 @@ int Gui::drawPage(
               if (assemAnnotation) {
                   parseError("Nested ASSEM ANNOTATION ICON not allowed",current);
               } else {
-                  if (step)
+                  if (step && ! gui->exportingObjects())
                       step->appendCsiAnnotation(current,curMeta.LPub.assem.annotation/*,view*/);
                   assemAnnotation = false;
               }
@@ -1392,7 +1392,8 @@ int Gui::drawPage(
                   partsAdded = true; // OK, so this is a lie, but it works
 
                   // set csi annotations
-                  step->setCsiAnnotationMetas(steps->meta);
+                  if (! gui->exportingObjects())
+                      step->setCsiAnnotationMetas(steps->meta);
                 }
 
               // STEP - normal case of parts added, and not NOSTEP
@@ -1513,7 +1514,8 @@ int Gui::drawPage(
                       }
 
                       // set csi annotations
-                      step->setCsiAnnotationMetas(steps->meta);
+                      if (! gui->exportingObjects())
+                          step->setCsiAnnotationMetas(steps->meta);
 
                   } else {
 

@@ -3536,7 +3536,7 @@ PliAnnotationGui::PliAnnotationGui(
           this,               SLOT(  connectorStyle(bool)));
   sgrid->addWidget(connectorStyleCheck,0,3);
 
-  elementStyleCheck = new QCheckBox("Element",gbPLIAnnotationStyle);
+  elementStyleCheck = new QCheckBox("Elements",gbPLIAnnotationStyle);
   elementStyleCheck->setChecked(meta->elementStyle.value());
   elementStyleCheck->setToolTip("Default part Element annotation on rectanglular background");
   elementStyleCheck->setVisible(bom);

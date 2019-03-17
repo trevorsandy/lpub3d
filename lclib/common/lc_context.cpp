@@ -374,6 +374,7 @@ void lcContext::SetMaterial(lcMaterialType MaterialType)
 			}
 			break;
 
+        case LC_MATERIAL_UNLIT_VIEW_SPHERE:
 		case LC_NUM_MATERIALS:
 			break;
 		}
@@ -1185,7 +1186,10 @@ void lcContext::FlushState()
 
         if (mHighlightParamsDirty && Program.HighlightParamsLocation != -1)
 		{
-            glUniform4fv(Program.HighlightParamsLocation, 4, mHighlightParams[0]);
+            lcMatrix44 InverseViewMatrix = lcMatrix44AffineInverse(mViewMatrix);
+            mHighlightParams[4] = InverseViewMatrix[2];
+
+            glUniform4fv(Program.HighlightParamsLocation, 5, mHighlightParams[0]);
             mHighlightParamsDirty = false;
 		}
 	}

@@ -285,7 +285,7 @@ int Step::createCsi(
   bool viewerUpdate = viewerCsiKey == gui->getViewerCsiKey();
 
   // Generate 3DViewer CSI entry
-  if ( addViewerStepContent || csiOutOfDate || viewerUpdate ) {
+  if ((addViewerStepContent || csiOutOfDate || viewerUpdate) && ! gui->exportingObjects()) {
 
       // set rotated parts
       QStringList rotatedParts = csiParts;
@@ -313,7 +313,7 @@ int Step::createCsi(
   }
 
   // Generate renderer CSI file
-  if ( ! csiExist || csiOutOfDate ) {
+  if ( ! csiExist || csiOutOfDate || gui->exportingObjects()) {
 
      QElapsedTimer timer;
      timer.start();
@@ -336,11 +336,7 @@ int Step::createCsi(
 
      if (!renderer->useLDViewSCall()) {
          // render the partially assembled model
-         QStringList csiKeys;
-         if (nativeRenderer)
-             csiKeys = (QStringList() << viewerCsiKey);
-         else
-             csiKeys = (QStringList() << csiKey); // adding just a single key
+         QStringList csiKeys = QStringList() << csiKey; // adding just a single key
 
          if ((rc = renderer->renderCsi(addLine, csiParts, csiKeys, pngName, meta)) != 0) {
              emit gui->messageSig(LOG_ERROR,QString("Render CSI part failed for %1.")
@@ -361,14 +357,20 @@ int Step::createCsi(
      }
   }
 
-  // set viewer camera options
-  viewerOptions.ViewerCsiKey  = viewerCsiKey;
-  viewerOptions.FoV            = meta.LPub.assem.cameraFoV.value();
-  viewerOptions.Latitude       = absRotstep ? absCA.value(0) : meta.LPub.assem.cameraAngles.value(0);
-  viewerOptions.Longitude      = absRotstep ? absCA.value(1) : meta.LPub.assem.cameraAngles.value(1);
+  if (! gui->exportingObjects()) {
+      // set viewer camera options
+      viewerOptions.ViewerCsiKey   = viewerCsiKey;
+      viewerOptions.UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
+      viewerOptions.FoV            = meta.LPub.assem.v_cameraFoV.value();
+      viewerOptions.ZNear          = meta.LPub.assem.v_znear.value();
+      viewerOptions.ZFar           = meta.LPub.assem.v_zfar.value();
+      viewerOptions.CameraDistance = meta.LPub.assem.cameraDistNative.factor.value();
+      viewerOptions.Latitude       = absRotstep ? absCA.value(0) : meta.LPub.assem.cameraAngles.value(0);
+      viewerOptions.Longitude      = absRotstep ? absCA.value(1) : meta.LPub.assem.cameraAngles.value(1);
 
-  // Load the 3DViewer
-  loadTheViewer();
+      // Load the 3DViewer
+      loadTheViewer();
+  }
 
   // If not using LDView SCall, populate pixmap
   if (! renderer->useLDViewSCall()) {
@@ -582,6 +584,12 @@ bool Step::loadTheViewer(){
  */
 void Step::setCsiAnnotationMetas(Meta &_meta, bool show)
 {
+    // sometime we may already have annotations for the
+    // step defined - such as after printing or exporting
+    if (csiAnnotations.size() && !show) {
+       return;
+    }
+
     Meta *meta = &_meta;
 
     if (!meta->LPub.assem.annotation.display.value())
@@ -1770,7 +1778,8 @@ void Step::addGraphicsItems(
   csiItem->setFlag(QGraphicsItem::ItemIsMovable,movable);
 
   // CSI annotations
-  if (csiItem->assem->annotation.display.value())
+  if (csiItem->assem->annotation.display.value() &&
+      ! gui->exportingObjects())
       csiItem->placeCsiPartAnnotations();
 
   // PLI

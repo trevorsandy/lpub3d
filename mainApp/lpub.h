@@ -417,10 +417,24 @@ class lcHttpManager;
 
 enum traverseRc { HitEndOfPage = 1 };
 enum Dimensions {Pixels = 0, Inches};
-enum ExportOption { EXPORT_ALL_PAGES, EXPORT_PAGE_RANGE, EXPORT_CURRENT_PAGE };
-enum Mode { PAGE_PROCESS, EXPORT_PDF, EXPORT_PNG, EXPORT_JPG, EXPORT_BMP };
-enum Direction { PAGE_PREVIOUS, PAGE_NEXT, DIRECTION_NOT_SET };
 enum PAction { SET_DEFAULT_ACTION, SET_STOP_ACTION };
+enum Direction { PAGE_PREVIOUS, PAGE_NEXT, DIRECTION_NOT_SET };
+enum ExportOption { EXPORT_ALL_PAGES, EXPORT_PAGE_RANGE, EXPORT_CURRENT_PAGE };
+enum ExportMode { EXPORT_NONE = -1,
+                  PAGE_PROCESS = 0,
+                  EXPORT_PDF,
+                  EXPORT_PNG,
+                  EXPORT_JPG,
+                  EXPORT_BMP,
+                  EXPORT_3DS,
+                  EXPORT_COLLADA,
+                  EXPORT_WAVEFRONT,
+                  EXPORT_STL,
+                  EXPORT_POVRAY,
+                  EXPORT_BRICKLINK,
+                  EXPORT_CSV,
+                  EXPORT_ELEMENT,
+                  EXPORT_HTML};
 
 class Gui : public QMainWindow
 {
@@ -442,8 +456,8 @@ public:
   int             boms;            // the number of pli BOMs in the document
   int             bomOccurrence;   // the actual occurrence of each pli BOM
 
-  int             exportType;       // export Type
-  int             processOption;     // export Option
+  int             exportMode;       // export Mode
+  int             processOption;    // export Option
   int             pageDirection;    // continuous page processing direction
   QString         pageRangeText;    // page range parameters
   bool            submodelIconsLoaded; // load submodel images
@@ -633,6 +647,32 @@ public:
       return curFile;
   }
 
+  /***********************************************************************
+   * set Native renderer for fast processing
+   **********************************************************************/
+
+  void setPreferredRenderer(const QString &renderer = QString()){
+      if (!Preferences::usingNativeRenderer) {
+          saveRenderer      = Preferences::preferredRenderer;
+          saveProjection    = Preferences::perspectiveProjection;
+          if (renderer.isEmpty())
+             Preferences::preferredRenderer = RENDERER_NATIVE;
+          else
+             Preferences::preferredRenderer = renderer;
+          Preferences::perspectiveProjection = true;
+          Render::setRenderer(Preferences::preferredRenderer);
+      }
+  }
+
+  void restorePreferredRenderer(){
+      if (!saveRenderer.isEmpty()) {
+          Preferences::preferredRenderer        = saveRenderer;
+          Preferences::perspectiveProjection    = saveProjection;
+          Render::setRenderer(Preferences::preferredRenderer);
+          saveRenderer = QString();
+      }
+  }
+
   Theme getTheme(){
     if (Preferences::displayTheme == THEME_DEFAULT) {
         return ThemeDefault;
@@ -777,9 +817,12 @@ public slots:
   void openDropFile(QString &fileName);
 
   void deployExportBanner(bool b);
-  void setExporting(bool b){ m_exportingContent = b; }
+  void setExporting(bool b){ m_exportingContent = b; if (!b){ m_exportingObjects = b; } }
+  void setExportingObjects(bool b){ m_exportingContent = m_exportingObjects = b; }
   bool exporting() { return m_exportingContent; }
-  void cancelExporting(){ m_exportingContent = false; }
+  bool exportingImages() { return m_exportingContent && !m_exportingObjects; }
+  bool exportingObjects() { return m_exportingContent && m_exportingObjects; }
+  void cancelExporting(){ m_exportingContent = m_exportingObjects = false; }
 
   void setContinuousPageAct(PAction p = SET_DEFAULT_ACTION);
   void setPageContinuousIsRunning(bool b = true, Direction d = DIRECTION_NOT_SET);
@@ -874,6 +917,7 @@ signals:
   void updateAllViewsSig();
   void clearViewerWindowSig();
   void setExportingSig(bool);
+  void setExportingObjectsSig(bool);
   void setContinuousPageSig(bool);
   void hidePreviewDialogSig();
   void showPrintedFileSig(int);
@@ -950,8 +994,13 @@ private:
   QLabel                *progressLabelPerm;  //
 
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
-  bool                   m_exportingContent; // indicate export/pring underway
+
+  bool                   m_exportingContent; // indicate export/printing underway
+  bool                   m_exportingObjects; // indicate exporting non-image object file content
   bool                   m_contPageProcessing;// indicate continuous page processing underway
+
+  QString                saveRenderer;
+  bool                   saveProjection;
 
   bool                   okToInvokeProgressBar()
   {
@@ -1140,16 +1189,21 @@ private slots:
     void ShowPrintDialog();
     void PrintPdf(QPrinter* Printer);
 
-    void exportAs(QString &);
+    void exportAs(const QString &);
+    void exportAsHtml();
+    void exportAsCsv();
+    void exportAsBricklinkXML();
     void exportAsPdf();
-    void exportAsPng();
-    void exportAsJpg();
-    void exportAsBmp();
-    bool exportAsDialog(Mode t);
+    bool exportAsDialog(ExportMode m);
     void exportAsPdfDialog();
     void exportAsPngDialog();
     void exportAsJpgDialog();
     void exportAsBmpDialog();
+    void exportAsStlDialog();
+    void exportAsPovDialog();
+    void exportAs3dsDialog();
+    void exportAsColladaDialog();
+    void exportAsObjDialog();
 
     OrientationEnc getPageOrientation(bool nextPage = false);
     QPageLayout getPageLayout(bool nextPage = false);
@@ -1221,7 +1275,7 @@ private:
   // 3D Viewer Menus
   QMenu* ViewerMenu;
   QMenu* FileMenuViewer;
-  QMenu* ExportMenuViewer;
+  QMenu* ViewerExportMenu;
 
   QToolBar *fileToolBar;
   QToolBar *editToolBar;
@@ -1242,6 +1296,16 @@ private:
   QAction  *exportPngAct;
   QAction  *exportJpgAct;
   QAction  *exportBmpAct;
+
+  QAction  *exportStlAct;
+  QAction  *exportPovAct;
+  QAction  *export3dsAct;
+  QAction  *exportColladaAct;
+  QAction  *exportObjAct;
+  QAction  *exportCsvAct;
+  QAction  *exportBricklinkAct;
+  QAction  *exportHtmlAct;
+
   QAction  *clearRecentAct;
   QAction  *exitAct;
 

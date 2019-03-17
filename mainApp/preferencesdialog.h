@@ -87,6 +87,7 @@ class PreferencesDialog : public QDialog
     bool          showParseErrors();
     bool          addLSynthSearchDir();
     bool          archiveLSynthParts();
+    bool          perspectiveProjection();
 
     bool          loggingGrpBox();
     bool          logLevelGrpBox();

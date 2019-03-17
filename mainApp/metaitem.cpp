@@ -109,26 +109,6 @@ Rc MetaItem::scanBackwardStepGroup(Where &here)
 
 /***********************************************************************
  *
- * switch rendere for fast processing
- *
- **********************************************************************/
-
-void MetaItem::setNativeRenderer(){
-    if (!Preferences::usingNativeRenderer) {
-        Preferences::preferredRenderer = RENDERER_NATIVE;
-        Render::setRenderer(Preferences::preferredRenderer);
-    }
-}
-
-void MetaItem::restoreRenderer(QString &renderer, bool singleCall, bool snapshotList){
-   Preferences::preferredRenderer = renderer;
-   Preferences::enableLDViewSnaphsotList = singleCall;
-   Preferences::enableLDViewSnaphsotList = snapshotList;
-   Render::setRenderer(Preferences::preferredRenderer);
-}
-
-/***********************************************************************
- *
  * tools
  *
  **********************************************************************/
@@ -1268,17 +1248,18 @@ bool MetaItem::setPointerPlacement(
 }
 
 void MetaItem::changeCsiAnnotationPlacement(
-  PlacementType      parentType,
-  PlacementType      relativeType,
-  QString            title,
-  const Where       &metaLine,
-  const Where       &bottomOf,
-  CsiAnnotationMeta *caMeta,
-  bool               useTop,
-  int                append,
-  bool               local,
-  bool               useLocal,
-  int                onPageType)
+  PlacementType          parentType,
+  PlacementType          relativeType,
+  QString                title,
+  const Where           &metaLine,
+  const Where           &bottomOf,
+  PlacementMeta         *placement,
+  CsiAnnotationIconMeta *icon,
+  bool                   useTop,
+  int                    append,
+  bool                   local,
+  bool                   useLocal,
+  int                    onPageType)
 {
   Q_UNUSED(bottomOf)
   Q_UNUSED(useTop)
@@ -1286,13 +1267,13 @@ void MetaItem::changeCsiAnnotationPlacement(
   Q_UNUSED(local)
   Q_UNUSED(useLocal)
 
-  PlacementData placementData = caMeta->placement.value();
+  PlacementData placementData = placement->value();
   bool ok;
   ok = PlacementDialog
        ::getPlacement(parentType,relativeType,placementData,title,onPageType);
 
   if (ok) {
-    CsiAnnotationIconData caiData = caMeta->icon.value();
+    CsiAnnotationIconData caiData = icon->value();
     bool hasJustification = (placementData.justification != Center &&
                              placementData.preposition != Inside);
     QStringList replacements;
@@ -1302,9 +1283,9 @@ void MetaItem::changeCsiAnnotationPlacement(
     replacements << QString::number(placementData.preposition);
     caiData.placements = replacements;
 
-    caMeta->icon.setValue(caiData);
+    icon->setValue(caiData);
 
-    updateCsiAnnotationIconMeta(metaLine, &caMeta->icon);
+    updateCsiAnnotationIconMeta(metaLine,icon);
   }
 }
 
@@ -3039,10 +3020,7 @@ int MetaItem::nestCallouts(
   bool restart = true;
   
   // Switch to Native Renderer for fast processing
-  QString saveRenderer   = Preferences::preferredRenderer;
-  bool saveSingleCall    = Preferences::enableLDViewSingleCall;
-  bool saveSnapshotList  = Preferences::enableLDViewSnaphsotList;
-  setNativeRenderer();
+  gui->setPreferredRenderer();
 
   while (restart) {
   
@@ -3109,7 +3087,7 @@ int MetaItem::nestCallouts(
       }
     }
   }
-  restoreRenderer(saveRenderer,saveSingleCall,saveSnapshotList);
+  gui->restorePreferredRenderer();
   return 0;
 }
 
@@ -3152,10 +3130,7 @@ void MetaItem::convertToCallout(
   gui->maxPages = -1;
 
   // Switch to Native Renderer for fast processing
-  QString saveRenderer   = Preferences::preferredRenderer;
-  bool saveSingleCall    = Preferences::enableLDViewSingleCall;
-  bool saveSnapshotList  = Preferences::enableLDViewSnaphsotList;
-  setNativeRenderer();
+  gui->setPreferredRenderer();
 
   beginMacro("convertToCallout");
   addCalloutMetas(meta,modelName,isMirrored,assembled);
@@ -3163,7 +3138,7 @@ void MetaItem::convertToCallout(
     nestCallouts(meta,modelName,isMirrored);
   }
   endMacro();
-  restoreRenderer(saveRenderer,saveSingleCall,saveSnapshotList);
+  gui->restorePreferredRenderer();
 }
 
 void MetaItem::addCalloutMetas(
@@ -3384,10 +3359,7 @@ void MetaItem::addPointerTipMetas(
     Rc           rc)
 {
   // Switch to Native Renderer for fast processing
-  QString saveRenderer   = Preferences::preferredRenderer;
-  bool saveSingleCall    = Preferences::enableLDViewSingleCall;
-  bool saveSnapshotList  = Preferences::enableLDViewSnaphsotList;
-  setNativeRenderer();
+  gui->setPreferredRenderer();
 
   QString placementName;
   if (rc == PagePointerRc) {
@@ -3437,7 +3409,7 @@ void MetaItem::addPointerTipMetas(
      scanForward(walk,StepMask);
 
   insertMeta(walk,line);
-  restoreRenderer(saveRenderer,saveSingleCall,saveSnapshotList);
+  gui->restorePreferredRenderer();
 }
 
 void MetaItem::updateCsiAnnotationIconMeta(
@@ -3457,10 +3429,7 @@ void MetaItem::writeCsiAnnotationMeta(
   bool          update)
 {
   // Switch to Native Renderer for fast processing
-  QString saveRenderer   = Preferences::preferredRenderer;
-  bool saveSingleCall    = Preferences::enableLDViewSingleCall;
-  bool saveSnapshotList  = Preferences::enableLDViewSnaphsotList;
-  setNativeRenderer();
+  gui->setPreferredRenderer();
 
   QHash<QString,QString> hash;
 
@@ -3567,7 +3536,7 @@ void MetaItem::writeCsiAnnotationMeta(
       }
     }
   }
-  restoreRenderer(saveRenderer,saveSingleCall,saveSnapshotList);
+  gui->restorePreferredRenderer();
   endMacro();
 }
 
@@ -3661,6 +3630,8 @@ bool MetaItem::offsetPoint(
   QString pngName, ldrName;
   QStringList ldrNames, csiKeys;
   QString addLine = "1 0 0 0 0 1 0 0 0 1 0 0 0 1 " + modelName;
+
+  // this block has been refactored to reflect that this function exclusively uses the Native Renderer
   if (renderer->useLDViewSCall()) {
       ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + label + "Mono.ldr";
       pngName = QDir::currentPath() + "/" + Paths::assemDir + "/" + label + "Mono.png";

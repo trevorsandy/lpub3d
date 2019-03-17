@@ -222,6 +222,8 @@ int Render::rotateParts(
         FloatPairMeta &ca,
         bool          applyCA /* default true */)
 {
+  bool cal = Preferences::applyCALocally;
+
   double min[3], max[3];
 
   min[0] = 1e23, max[0] = -1e23,
@@ -230,7 +232,7 @@ int Render::rotateParts(
 
   double defaultViewMatrix[3][3], defaultViewRots[3];
 
-  if (Preferences::applyCALocally && applyCA) {
+  if (cal && applyCA) {
     defaultViewRots[0] = ca.value(0);
     defaultViewRots[1] = ca.value(1);
     defaultViewRots[2] = 0;

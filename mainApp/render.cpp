@@ -52,6 +52,7 @@
 #include "lc_file.h"
 #include "project.h"
 #include "pieceinf.h"
+#include "lc_qhtmldialog.h"
 #include "view.h"
 #include "lc_partselectionwidget.h"
 
@@ -370,13 +371,14 @@ int POVRay::renderCsi(
 
   /* apply camera angle */
   bool applyCA = Preferences::applyCALocally;
+  bool pp      = Preferences::perspectiveProjection;
 
   QString cg = QString("-cg%1,%2,%3")
-      .arg(applyCA ? 0.0f : meta.LPub.assem.cameraAngles.value(0))
-      .arg(applyCA ? 0.0f : meta.LPub.assem.cameraAngles.value(1))
+      .arg(applyCA ? 0.0 : meta.LPub.assem.cameraAngles.value(0))
+      .arg(applyCA ? 0.0 : meta.LPub.assem.cameraAngles.value(1))
       .arg(cd);
 
-  QString CA = QString("-ca%1") .arg(meta.LPub.assem.cameraFoV.value());
+  QString CA = QString("-ca%1") .arg(pp ? meta.LPub.assem.cameraFoV.value() : 0.01);
   QString w  = QString("-SaveWidth=%1") .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
   QString f  = QString("-ExportFile=%1") .arg(povName);
@@ -811,6 +813,7 @@ int LDGLite::renderCsi(
   /* apply camera angle */
 
   bool applyCA = Preferences::applyCALocally;
+  bool pp      = Preferences::perspectiveProjection;
 
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
@@ -827,14 +830,17 @@ int LDGLite::renderCsi(
 
   QString w  = QString("-W%1")      .arg(lineThickness); // ldglite always deals in 72 DPI
 
-  QString CA = QString("-ca%1") .arg(meta.LPub.assem.cameraFoV.value());
-  QString cg = QString("-cg%1,%2,%3") .arg(applyCA ? 0.0f : meta.LPub.assem.cameraAngles.value(0))
-                                      .arg(applyCA ? 0.0f : meta.LPub.assem.cameraAngles.value(1))
+  QString CA = QString("-ca%1") .arg(pp ? meta.LPub.assem.cameraFoV.value() : 0.01);
+  QString cg = QString("-cg%1,%2,%3") .arg(applyCA ? 0.0 : meta.LPub.assem.cameraAngles.value(0))
+                                      .arg(applyCA ? 0.0 : meta.LPub.assem.cameraAngles.value(1))
                                       .arg(cd);
+
+  QString J  = QString("-%1").arg(pp ? "J" : "j");
 
   QStringList arguments;
   arguments << CA;                  // camera FOV in degrees
   arguments << cg;                  // camera globe - scale factor
+  arguments << J;                   // projection
   arguments << v;                   // display in X wide by Y high window
   arguments << o;                   // changes the centre X across and Y down
   arguments << w;                   // line thickness
@@ -929,6 +935,8 @@ int LDGLite::renderPli(
                                       .arg(metaType.cameraAngles.value(1))
                                       .arg(cd);
 
+  QString J  = QString("-J");
+
   QString v  = QString("-v%1,%2")   .arg(width)
                                     .arg(height);
   QString o  = QString("-o0,-%1")   .arg(height/6);
@@ -939,6 +947,7 @@ int LDGLite::renderPli(
   QStringList arguments;
   arguments << CA;                  // Camera FOV in degrees
   arguments << cg;                  // camera globe - scale factor
+  arguments << J;                   // Perspective projection
   arguments << v;                   // display in X wide by Y high window
   arguments << o;                   // changes the centre X across and Y down
   arguments << w;                   // line thickness
@@ -1055,6 +1064,7 @@ int LDView::renderCsi(
 
     /* apply camera angle */
     bool applyCA = Preferences::applyCALocally;
+    bool pp      = Preferences::perspectiveProjection;
 
     /* page size */
     int width  = gui->pageSize(meta.LPub.page, 0);
@@ -1143,7 +1153,7 @@ int LDView::renderCsi(
   bool haveLdrNamesIM = !ldrNamesIM.isEmpty();
 
   // Build (Native) arguments
-  QString CA = QString("-ca%1") .arg(meta.LPub.assem.cameraFoV.value());
+  QString CA = QString("-ca%1") .arg(pp ? meta.LPub.assem.cameraFoV.value() : 0.01);
   QString cg = QString("-cg%1,%2,%3") .arg(applyCA ? 0.0f : meta.LPub.assem.cameraAngles.value(0))
                                       .arg(applyCA ? 0.0f : meta.LPub.assem.cameraAngles.value(1))
                                       .arg(cd);
@@ -1418,9 +1428,9 @@ float Native::cameraDistance(
   Q_UNUSED(scale);
 
 #ifdef IS_SUBMODEL
-  return -meta.LPub.subModel.cameraDistNative.factor.value();
+  return meta.LPub.subModel.cameraDistNative.factor.value();
 #else
-  return -meta.LPub.assem.cameraDistNative.factor.value();
+  return meta.LPub.assem.cameraDistNative.factor.value();
 #endif
 }
 
@@ -1445,12 +1455,16 @@ int Native::renderCsi(
   Options.OutputFileName    = pngName;
   Options.ImageWidth        = gui->pageSize(meta.LPub.page, 0);
   Options.ImageHeight       = gui->pageSize(meta.LPub.page, 1);
-  Options.FoV               = meta.LPub.assem.cameraFoV.value();    // not currently used
+  Options.FoV               = meta.LPub.assem.cameraFoV.value();
+  Options.FoV               = meta.LPub.assem.cameraFoV.value();
+  Options.ZNear             = meta.LPub.assem.znear.value();
+  Options.ZFar              = meta.LPub.assem.zfar.value();
   Options.Latitude          = meta.LPub.assem.cameraAngles.value(0);
   Options.Longitude         = meta.LPub.assem.cameraAngles.value(1);
   Options.HighlightNewParts = gui->suppressColourMeta(); //Preferences::enableHighlightStep;
   Options.CameraDistance    = cameraDistance(meta,meta.LPub.assem.modelScale.value());
   Options.LineWidth         = lineThickness;
+  Options.UsingViewpoint    = gApplication->mPreferences.mNativeViewpoint <= 6;
 
   // Set CSI project
   Project* CsiImageProject = new Project();
@@ -1459,8 +1473,37 @@ int Native::renderCsi(
   // Render image
   emit gui->messageSig(LOG_STATUS, "Rendering Native CSI image - please wait...");
 
+  if (gui->exportingObjects()) {
+      if (csiKeys.size()) {
+          emit gui->messageSig(LOG_STATUS, "Rendering CSI Objects - please wait...");
+          QString baseName = csiKeys.first();
+          QString outPath = gui->saveDirectoryName;
+
+          switch (gui->exportMode){
+          case EXPORT_3DS:
+              Options.ExportMode = int(EXPORT_3DS);
+              Options.ExportFileName = QDir::toNativeSeparators(outPath+"/"+baseName+".3ds");
+              break;
+          case EXPORT_COLLADA:
+              Options.ExportMode = int(EXPORT_COLLADA);
+              Options.ExportFileName = QDir::toNativeSeparators(outPath+"/"+baseName+".dae");
+              break;
+          case EXPORT_WAVEFRONT:
+              Options.ExportMode = int(EXPORT_WAVEFRONT);
+              Options.ExportFileName = QDir::toNativeSeparators(outPath+"/"+baseName+".obj");
+              break;
+          default:
+              emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Invalid CSI Object export option."));
+              delete CsiImageProject;
+              return -1;
+          }
+      } else {
+          Options.ExportMode = EXPORT_NONE;
+      }
+  }
+
   if (!RenderNativeImage(Options)) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Native CSI image render project failed."));
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Native CSI image render failed."));
       delete CsiImageProject;
       return -1;
   }
@@ -1486,10 +1529,13 @@ int Native::renderPli(
   Options.ImageWidth        = gui->pageSize(meta.LPub.page, 0);
   Options.ImageHeight       = gui->pageSize(meta.LPub.page, 1);
   Options.FoV               = metaType.cameraFoV.value();
+  Options.ZNear             = metaType.znear.value();
+  Options.ZFar              = metaType.zfar.value();
   Options.Latitude          = metaType.cameraAngles.value(0);
   Options.Longitude         = metaType.cameraAngles.value(1);
   Options.CameraDistance    = cameraDistance(meta,metaType.modelScale.value());
   Options.LineWidth         = HIGHLIGHT_LINE_WIDTH_DEFAULT;
+  Options.UsingViewpoint    = gApplication->mPreferences.mNativeViewpoint <= 6;
 
   // Set PLI project
   Project* PliImageProject = new Project();
@@ -1499,7 +1545,7 @@ int Native::renderPli(
   emit gui->messageSig(LOG_STATUS, "Rendering Native PLI image - please wait...");
 
   if (!RenderNativeImage(Options)) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Native PLI image render project failed."));
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Native PLI image render failed."));
       delete PliImageProject;
       return -1;
   }
@@ -1509,6 +1555,7 @@ int Native::renderPli(
 
 bool Render::RenderNativeImage(const NativeOptions &Options)
 {
+    // Load model
     if (! gMainWindow->OpenProject(Options.InputFileName))
         return false;
 
@@ -1516,23 +1563,26 @@ bool Render::RenderNativeImage(const NativeOptions &Options)
 
     View* ActiveView = gMainWindow->GetActiveView();
 
-    if (gApplication->mPreferences.mNativeViewpoint <= 6) {// ViewPoints (Front, Back, Top, Bottom, Left, Right, Home)
-        ActiveView->SetViewpoint((lcViewpoint)gApplication->mPreferences.mNativeViewpoint);
-    } else {                                               // Default View (Angles + Ortho or Perspective)
-        ActiveView->SetCameraAngles(Options.Latitude, Options.Longitude);
-        ActiveView->SetProjection(gApplication->mPreferences.mNativeOrthographic == 0);
-    }
-
     lcModel* ActiveModel = ActiveView->GetActiveModel();
 
-    ActiveView->MakeCurrent();
-
-    lcContext* Context = ActiveView->mContext;
+    lcCamera* Camera =  ActiveView->mCamera;
 
     lcStep CurrentStep = ActiveModel->GetCurrentStep();
 
-    lcCamera* Camera = gMainWindow->GetActiveView()->mCamera;
+    if (Options.UsingViewpoint) { // ViewPoints (Front, Back, Top, Bottom, Left, Right, Home)
+        ActiveView->SetViewpoint(lcViewpoint(gApplication->mPreferences.mNativeViewpoint));
+    } else {                      // Default View (Angles + Perspective|Orthographic)
+        Camera->m_fovy  = Options.FoV;
+        Camera->m_zNear = Options.ZNear;
+        Camera->m_zFar  = Options.ZFar;
+        Camera->UpdatePosition(CurrentStep);
+        ActiveView->SetProjection(gApplication->mPreferences.mNativeProjection);
+        ActiveView->SetCameraAngles(Options.Latitude, Options.Longitude);
+    }
 
+    // Set zoom
+    ActiveView->MakeCurrent();
+    lcContext* Context = ActiveView->mContext;
     Camera->Zoom(Options.CameraDistance,CurrentStep,true);
 
     View View(ActiveModel);
@@ -1540,6 +1590,7 @@ bool Render::RenderNativeImage(const NativeOptions &Options)
     View.SetCamera(Camera, false);
     View.SetContext(Context);
 
+    // generate image
     const int ImageWidth = Options.ImageWidth;
     const int ImageHeight = Options.ImageHeight;
 
@@ -1616,6 +1667,13 @@ bool Render::RenderNativeImage(const NativeOptions &Options)
      emit gui->messageSig(LOG_INFO,QMessageBox::tr("Native %1 image file rendered '%2'")
                           .arg(ImageType).arg(Options.OutputFileName));
 
+    if (Options.ExportMode != EXPORT_NONE) {
+        if (!NativeExport(Options)) {
+            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("CSI Objects render failed."));
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -1623,6 +1681,7 @@ bool Render::LoadViewer(const ViewerOptions &Options){
 
     QString viewerCsiKey = Options.ViewerCsiKey;
 
+    // Load model
     Project* StepProject = new Project();
     if (LoadStepProject(StepProject, viewerCsiKey)){
         gApplication->SetProject(StepProject);
@@ -1642,12 +1701,32 @@ bool Render::LoadViewer(const ViewerOptions &Options){
 
     gMainWindow->GetPartSelectionWidget()->SetDefaultPart();
 
-    if (gApplication->mPreferences.mNativeViewpoint <= 6) {// ViewPoints (Front, Back, Top, Bottom, Left, Right, Home)
-        ActiveView->SetViewpoint((lcViewpoint)gApplication->mPreferences.mNativeViewpoint);
-    } else {                                               // Default View (Angles + Ortho or Perspective)
+    lcModel* ActiveModel = ActiveView->GetActiveModel();
+
+    lcCamera* Camera =  ActiveView->mCamera;
+
+    lcStep CurrentStep = ActiveModel->GetCurrentStep();
+
+    if (Options.UsingViewpoint) { // ViewPoints (Front, Back, Top, Bottom, Left, Right, Home)
+        ActiveView->SetViewpoint(lcViewpoint(gApplication->mPreferences.mNativeViewpoint));
+    } else {                      // Default View (Angles + Perspective|Orthographic)
+        Camera->m_fovy  = Options.FoV;
+        Camera->m_zNear = Options.ZNear;
+        Camera->m_zFar  = Options.ZFar;
+        Camera->UpdatePosition(CurrentStep);
+        ActiveView->SetProjection(gApplication->mPreferences.mNativeProjection);
         ActiveView->SetCameraAngles(Options.Latitude, Options.Longitude);
-        ActiveView->SetProjection(gApplication->mPreferences.mNativeOrthographic == 0);
+        if (ActiveView->mCamera->IsOrtho())
+            ActiveView->ZoomExtents();
+        else
+            Camera->Zoom(Options.CameraDistance,CurrentStep,true);
     }
+    ActiveView->MakeCurrent();
+    lcContext* Context = ActiveView->mContext;
+    View View(ActiveModel);
+    View.SetHighlight(false);
+    View.SetCamera(Camera, false);
+    View.SetContext(Context);
 
     return true;
 }
@@ -1769,6 +1848,123 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerCsiKey)
     }
 
     StepProject->mModified = false;
+
+    return true;
+}
+
+bool Render::NativeExport(const NativeOptions &Options) {
+
+    Project* PliImageProject = new Project();
+    gApplication->SetProject(PliImageProject);
+
+    if (! gMainWindow->OpenProject(Options.InputFileName)) {
+        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("CSI object export failed."));
+        delete PliImageProject;
+        return false;
+    }
+
+    QString FileName;
+
+    if (Options.ExportMode == EXPORT_WAVEFRONT)
+    {
+        FileName = Options.ExportFileName;
+
+        QString Extension = QFileInfo(FileName).suffix().toLower();
+
+        if (Extension.isEmpty())
+        {
+            FileName += ".obj";
+        }
+        else if (Extension != "obj")
+        {
+            FileName = FileName.left(FileName.length() - Extension.length() - 1);
+            FileName += ".obj";
+        }
+
+        lcGetActiveProject()->ExportWavefront(FileName);
+    }
+
+    if (Options.ExportMode == EXPORT_3DS)
+    {
+        FileName = Options.ExportFileName;
+
+        QString Extension = QFileInfo(FileName).suffix().toLower();
+
+        if (Extension.isEmpty())
+        {
+            FileName += ".3ds";
+        }
+        else if (Extension != "3ds")
+        {
+            FileName = FileName.left(FileName.length() - Extension.length() - 1);
+            FileName += ".3ds";
+        }
+
+        lcGetActiveProject()->Export3DStudio(FileName);
+    }
+
+    if (Options.ExportMode == EXPORT_COLLADA)
+    {
+        FileName = Options.ExportFileName;
+
+        QString Extension = QFileInfo(FileName).suffix().toLower();
+
+        if (Extension.isEmpty())
+        {
+            FileName += ".dae";
+        }
+        else if (Extension != "dae")
+        {
+            FileName = FileName.left(FileName.length() - Extension.length() - 1);
+            FileName += ".dae";
+        }
+
+        lcGetActiveProject()->ExportCOLLADA(FileName);
+    }
+
+    if (Options.ExportMode == EXPORT_HTML)
+    {
+        lcHTMLExportOptions HTMLOptions(lcGetActiveProject());
+
+        lcQHTMLDialog Dialog(gMainWindow, &HTMLOptions);
+        if (Dialog.exec() != QDialog::Accepted)
+            return false;
+
+        HTMLOptions.SaveDefaults();
+
+        //HTMLOptions.PathName = Options.ExportFileName;
+
+        lcGetActiveProject()->ExportHTML(HTMLOptions);
+    }
+
+    if (Options.ExportMode == EXPORT_POVRAY)
+    {
+        FileName = Options.ExportFileName;
+
+        QString Extension = QFileInfo(FileName).suffix().toLower();
+
+        if (Extension.isEmpty())
+        {
+            FileName += ".pov";
+        }
+        else if (Extension != "pov")
+        {
+            FileName = FileName.left(FileName.length() - Extension.length() - 1);
+            FileName += ".pov";
+        }
+
+        lcGetActiveProject()->ExportPOVRay(FileName);
+    }
+
+    if (Options.ExportMode == EXPORT_CSV)
+    {
+        lcGetActiveProject()->ExportCSV();
+    }
+
+    if (Options.ExportMode == EXPORT_BRICKLINK)
+    {
+        lcGetActiveProject()->ExportBrickLink();
+    }
 
     return true;
 }

@@ -56,7 +56,7 @@ lcProfileEntry::lcProfileEntry(const char* Section, const char* Key)
 	mDefault.IntValue = 0;
 }
 
-lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
+static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 {
 	lcProfileEntry("Settings", "FixedAxes", false),                                         // LC_PROFILE_FIXED_AXES
 	lcProfileEntry("Settings", "LineWidth", 1.0f),                                          // LC_PROFILE_LINE_WIDTH
@@ -71,9 +71,12 @@ lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "AASamples", 1),                                             // LC_PROFILE_ANTIALIASING_SAMPLES
 	lcProfileEntry("Settings", "ViewSphereLocation", (int)lcViewSphereLocation::TOP_RIGHT), // LC_PROFILE_VIEW_SPHERE_LOCATION
 	lcProfileEntry("Settings", "ViewSphereSize", 100),                                      // LC_PROFILE_VIEW_SPHERE_SIZE
-
+	lcProfileEntry("Settings", "ViewSphereColor", LC_RGBA(255, 255, 255, 255)),             // LC_PROFILE_VIEW_SPHERE_COLOR
+	lcProfileEntry("Settings", "ViewSphereTextColor", LC_RGBA(0, 0, 0, 255)),               // LC_PROFILE_VIEW_SPHERE_TEXT_COLOR
+	lcProfileEntry("Settings", "ViewSphereHighlightColor", LC_RGBA(255, 0, 0, 255)),        // LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR
+/*** LPub3D Mod - piece icons ***/
     lcProfileEntry("Settings", "ViewPieceIcons", 0),                                        // LC_PROFILE_VIEW_PIECE_ICONS                          /*** LPub3D Mod - View piece icons ***/
-
+/*** LPub3D Mod end ***/
 	lcProfileEntry("Settings", "CheckUpdates", 1),                                          // LC_PROFILE_CHECK_UPDATES
 	lcProfileEntry("Settings", "ProjectsPath", ""),                                         // LC_PROFILE_PROJECTS_PATH
 	lcProfileEntry("Settings", "PartsLibrary", ""),                                         // LC_PROFILE_PARTS_LIBRARY
@@ -116,13 +119,17 @@ lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("HTML", "PartsWidth", 128),                                              // LC_PROFILE_HTML_PARTS_WIDTH
 	lcProfileEntry("HTML", "PartsHeight", 128),                                             // LC_PROFILE_HTML_PARTS_HEIGHT
 
+/*** LPub3D Mod - modified POVRay path ***/
     lcProfileEntry("POVRay", "POVRayPath", ""),                                             // LC_PROFILE_POVRAY_PATH                                 /*** LPub3D Mod - POV-ray remove default path ***/
+/*** LPub3D Mod end ***/
     lcProfileEntry("POVRay", "LGEOPath", ""),                                               // LC_PROFILE_POVRAY_LGEO_PATH
     lcProfileEntry("POVRay", "Width", 1280),                                                // LC_PROFILE_POVRAY_WIDTH
     lcProfileEntry("POVRay", "Height", 720),                                                // LC_PROFILE_POVRAY_HEIGHT
 
+/*** LPub3D Mod - Native projection options ***/
     lcProfileEntry("Settings", "NativeViewpoint",  7),                                      // LC_PROFILE_NATIVE_VIEWPOINT  [0 = LC_VIEWPOINT_FRONT]  /*** LPub3D Mod - Native Renderer settings ***/
-    lcProfileEntry("Settings", "NativeProjection", 0)                                       // LC_PROFILE_NATIVE_PROJECTION [1 = ORTHOGRAPHIC]        /*** LPub3D Mod - Native Renderer settings ***/
+    lcProfileEntry("Settings", "NativeProjection", 0)                                       // LC_PROFILE_NATIVE_PROJECTION [0 = PERSPECTIVE, 1 = ORTHOGRAPHIC]  /*** LPub3D Mod - Native Renderer settings ***/
+/*** LPub3D Mod end ***/
 };
 
 void lcRemoveProfileKey(LC_PROFILE_KEY Key)

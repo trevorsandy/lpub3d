@@ -58,6 +58,7 @@ public:
   static bool            useLDViewSCall();
   static bool            useLDViewSList();
   bool                   RenderNativeImage(const NativeOptions &);
+  bool                   NativeExport(const NativeOptions &);
   bool                   LoadViewer(const ViewerOptions &);
   bool                   LoadStepProject(Project *,
                                   const QString &);
@@ -140,14 +141,18 @@ class ViewerOptions
 public:
   ViewerOptions()
   {
-    ImageType       = Render::CSI;
+    ImageType      = Render::CSI;
+    UsingViewpoint = false;
   }
   QString ViewerCsiKey;
   Render::Mt ImageType;
   float CameraDistance;
   float FoV;
+  float ZNear;
+  float ZFar;
   float Latitude;
   float Longitude;
+  bool UsingViewpoint;
 };
 
 class NativeOptions
@@ -158,19 +163,26 @@ public:
     ImageType         = Render::CSI;
     TransBackground   = true;
     HighlightNewParts = false;
-    LineWidth         = 1.0;    
+    UsingViewpoint    = false;
+    LineWidth         = 1.0;
+    ExportMode        = -1; //NONE
   }
   QString InputFileName;
   QString OutputFileName;
+  QString ExportFileName;
   Render::Mt ImageType;
+  int ExportMode;
   float ImageWidth;
   float ImageHeight;
   float FoV;
+  float ZNear;
+  float ZFar;
   float Latitude;
   float Longitude;
   float CameraDistance;
   float LineWidth;
   bool HighlightNewParts;
   bool TransBackground;
+  bool UsingViewpoint;
 };
 #endif

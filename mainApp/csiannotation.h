@@ -51,12 +51,9 @@ public:
 class CsiAnnotation : public Placement
 {
 public:
-  CsiPartMeta         csiPartMeta;
-  CsiAnnotationMeta   caMeta;
-  AnnotationStyleMeta styleMeta;
-  Where               partLine,metaLine; // Part / Meta line in the model file
-  StringListMeta      subModelColor;
-  int                 submodelLevel;
+  CsiAnnotationMeta caMeta;
+  CsiPartMeta       csiPartMeta;
+  Where             partLine,metaLine; // Part / Meta line in the model file
 
   CsiAnnotation(){}
   CsiAnnotation(
@@ -64,7 +61,6 @@ public:
      CsiAnnotationMeta &_caMeta);
   virtual ~CsiAnnotation(){}
   bool setPlacement();
-  void sizeIt(int &x, int &y);
   bool setCsiPartLoc(int csiSize[]);
   bool setAnnotationLoc(float iconOffset[]);
 };
@@ -72,15 +68,26 @@ public:
 class CsiAnnotationItem : public ResizeTextItem
 {
 public:
-  CsiAnnotation *ca;
+  //CsiAnnotation *ca;
   Where          topOf,bottomOf;
+  Where          partLine, metaLine;
+  BorderMeta     border;
+  BackgroundMeta background;
+  IntMeta        style;
+  UnitsMeta      styleSize;
+  MarginsMeta    styleMargin;
   PlacementType  parentRelativeType;
+  int            submodelLevel;
+  StringListMeta subModelColor;
+  CsiAnnotationIconMeta icon;
+
   // DEBUG TRACE STUFF
   PageMeta       pageMeta;
   QRect          csiItemRect;
 
   CsiAnnotationItem(
     QGraphicsItem *_parent = nullptr);
+  void sizeIt();
   void setText(
     QString &text,
     QString &fontString,

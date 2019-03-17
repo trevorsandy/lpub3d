@@ -40,19 +40,20 @@
 
 class Step;
 class CsiAnnotation;
+class CsiAnnotationItem;
 
-class CsiItem : public ResizePixmapItem
+class CsiItem : public ResizePixmapItem, public QObject
 {
 public:
-  Meta          *meta;
-  AssemMeta     *assem;
-  RcMeta        *divider;
-  Step          *step;
-  PlacementType  parentRelativeType;
-  bool           multiStep;
-  bool           hiddenAnnotations;
-  int            submodelLevel;
-  FloatMeta      modelScale;
+  Meta              *meta;
+  AssemMeta         *assem;
+  RcMeta            *divider;
+  Step              *step;
+  PlacementType      parentRelativeType;
+  bool               multiStep;
+  bool               hiddenAnnotations;
+  int                submodelLevel;
+  FloatMeta          modelScale;
 
   CsiItem(
           Step          *_step,
