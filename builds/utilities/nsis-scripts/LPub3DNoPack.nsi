@@ -1,6 +1,6 @@
 ;LPub3D Setup Script
-;Last Update: April 07, 2018
-;Copyright (C) 2016 - 2018 by Trevor SANDY
+;Last Update: February 18, 2019
+;Copyright (C) 2016 - 2019 by Trevor SANDY
 
 ; Install LPub3D and pre-packaged renderers.
 
@@ -116,7 +116,7 @@ SetCompressor /SOLID lzma
 !define MUI_PAGE_HEADER_SUBTEXT "Please review the readme file before installing ${PRODUCT_NAME} ${VERSION} ${PLATFORM}."
 !define MUI_LICENSEPAGE_TEXT_TOP "Press Page Down to see the rest of the readme file."
 !define MUI_LICENSEPAGE_TEXT_BOTTOM "When you have finished reading, click on Next to continue the installation."
-!insertmacro MUI_PAGE_LICENSE "${WinBuildDir}\docs\${RELEASE_NOTES_FILE}"
+!insertmacro MUI_PAGE_LICENSE Empty.txt
 
 !define MULTIUSER_INSTALLMODE_CHANGE_MODE_FUNCTION PageInstallModeChangeMode
 !insertmacro MULTIUSER_PAGE_INSTALLMODE
@@ -497,6 +497,7 @@ Function PageReadmePre
     Abort ; don't display the Readme page for the inner instance
   ${endif}
   GetDlgItem $0 $HWNDPARENT 1
+  EmbedHTML::Load /replace $R0 `${WinBuildDir}\docs\${RELEASE_NOTES_FILE}`
   SendMessage $0 ${WM_SETTEXT} 0 "STR:$(^NextBtn)" ;Change 'I Agree' button to 'Next'
 FunctionEnd
 
