@@ -158,6 +158,12 @@ public:
 
   int segments(){return shaftSegments.size();}
 
+  static bool rectLineIntersect(QPoint        tip,
+                                QPoint        loc,
+                                QRect         rect,
+                                int           base,
+                                QPoint       &intersect,
+                                PlacementEnc &placement);
 protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
   void mousePressEvent(QGraphicsSceneMouseEvent *event);

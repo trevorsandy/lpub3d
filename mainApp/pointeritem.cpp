@@ -762,8 +762,8 @@ bool lineIntersectVertSeg(
   return intersect.y() >= seg[0].y() && intersect.y() <= seg[1].y();
 }
 /*
- * Given Tip and Loc that form a line and an rectangle in 2D space, calculate the
- * intersection of the line and rect that is closes to tip.
+ * Given Tip and Loc that form a line and a rectangle in 2D space, calculate the
+ * intersection of the line and rect that is closes to the tip.
  *
  * iv_top && iv_left
  * iv_top && iv_bottom
@@ -776,7 +776,7 @@ bool lineIntersectVertSeg(
  *
  */
 
-bool rectLineIntersect(
+bool PointerItem::rectLineIntersect(
   QPoint        tip,
   QPoint        loc,
   QRect         rect, 

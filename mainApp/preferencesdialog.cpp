@@ -650,6 +650,7 @@ void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &
       bool ldviewEnabled = (currentText == RENDERER_LDVIEW);
       bool povrayEnabled = (currentText == RENDERER_POVRAY);
       ui.povNativeGenBox->setEnabled(povrayEnabled);
+      ui.ldvPOVSettingsBox->setEnabled(povrayEnabled);
       ui.ldvPreferencesBtn->setEnabled(ldviewEnabled);
       ui.ldvPoVFileGenOptBtn->setEnabled(povrayEnabled);
       ui.ldvPoVFileGenPrefBtn->setEnabled(povrayEnabled);
