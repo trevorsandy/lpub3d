@@ -220,8 +220,7 @@ int     Preferences::pageDisplayPause           = PAGE_DISPLAY_PAUSE_DEFAULT;   
 int     Preferences::cameraDistFactorNative     = CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT;
 
 // Native POV file generation settings
-QString Preferences::ldvLights                  = LIGHTS_COMBO_DEFAULT;
-QString Preferences::xmlMapPath                 = XML_MAP_PATH_DEFAULT;
+QString Preferences::xmlMapPath                 = EMPTY_STRING_DEFAULT;
 
 /*
  * [DATA PATHS]
@@ -3754,23 +3753,4 @@ bool Preferences::copyRecursively(const QString &srcFilePath,
             return false;
     }
     return true;
-}
-
-void Preferences::nativePovGenPreferences()
-{
-
-    emit Application::instance()->splashMsgSig("25% - NativePOV settings...");
-
-    QSettings Settings;
-
-    ldvLights = LIGHTS_COMBO_DEFAULT;
-    if ( ! Settings.contains(QString("%1/%2").arg(POVRAY,"LDVLights"))) {
-        Settings.setValue(QString("%1/%2").arg(POVRAY,"LDVLights"),ldvLights);
-    } else {
-        ldvLights = Settings.value(QString("%1/%2").arg(POVRAY,"LDVLights")).toString();
-        if (ldvLights.isEmpty()) {
-            ldvLights = LIGHTS_COMBO_DEFAULT;
-            Settings.setValue(QString("%1/%2").arg(POVRAY,"LDVLights"),ldvLights);
-        }
-    }
 }

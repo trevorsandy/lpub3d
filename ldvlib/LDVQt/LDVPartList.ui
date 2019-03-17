@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>323</width>
-    <height>347</height>
+    <height>368</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -117,6 +117,13 @@
          <widget class="QCheckBox" name="showPartImageButton">
           <property name="text">
            <string>Show part images</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="showWebPageButton">
+          <property name="text">
+           <string>Show generated web page</string>
           </property>
          </widget>
         </item>

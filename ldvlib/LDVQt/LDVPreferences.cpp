@@ -34,6 +34,7 @@
 #include <TCFoundation/TCLocalStrings.h>
 #include <LDLib/LDPreferences.h>
 #include <LDLib/LDrawModelViewer.h>
+#include <LDVWidgetDefaultKeys.h>
 #ifdef WIN32
 #include <TCFoundation/TCTypedValueArray.h>
 #include <LDVExtensionsSetup.h>
@@ -1074,7 +1075,6 @@ void LDVPreferences::reflectGeometrySettings(void)
 	setButtonState(seamWidthButton, ldPrefs->getUseSeams());
     setDoubleRangeValue(seamWidthDoubleSpin, ldPrefs->getSeamWidth() / 100.0f);
 	partBoundingBoxOnlyBox->setChecked(ldPrefs->getBoundingBoxesOnly());
-//	seamWidthSpin->setValue(seamWidth);
 	reflectWireframeSettings();
 	reflectBFCSettings();
 //	wireframeThicknessSlider->setValue(wireframeThickness);
@@ -1088,7 +1088,6 @@ void LDVPreferences::reflectGeometrySettings(void)
 		disableEdgeLines();
 	}
 	setRangeValue(edgeThicknessSlider, ldPrefs->getEdgeThickness());
-//	edgeThicknessSlider->setValue(edgeThickness);
 }
 
 void LDVPreferences::reflectWireframeSettings(void)
@@ -2352,7 +2351,7 @@ void LDVPreferences::setupAntialiasing(void)
 {
     HWND hWnd = (HWND)this->winId();
     HINSTANCE hInstance = (HINSTANCE)this->winId();
-
+    hdc = GetDC(hWnd);
     LDVExtensionsSetup::setup(hWnd, hInstance);
     TCIntArray *fsaaModes = LDVExtensionsSetup::getFSAAModes();
 

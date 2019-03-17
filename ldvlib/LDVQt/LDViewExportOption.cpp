@@ -19,6 +19,9 @@
 #include <TCFoundation/mystring.h>
 #include <LDLib/LDUserDefaultsKeys.h>
 #include <LDExporter/LDExporter.h>
+#include <LDExporter/LDExporterSetting.h>
+#include <LDExporter/LDPovExporter.h>
+#include <LDVWidgetDefaultKeys.h>
 #include <LDVMisc.h>
 #include "LDViewExportOption.h"
 #include "LDVWidget.h"
@@ -39,7 +42,7 @@ LDViewExportOption::LDViewExportOption(LDVWidget *modelWidget)
     m_exporter(nullptr),
     m_box(nullptr),
     m_lay(nullptr),
-    m_POVLights(false)
+    m_POVLightsLoaded(false)
 {
     setupUi(this);
 
@@ -49,7 +52,6 @@ LDViewExportOption::LDViewExportOption(LDVWidget *modelWidget)
         switch (iniFlag){
         case NativePOVIni:
             m_exporter  = m_modelViewer->getExporter(LDrawModelViewer::ETPov, true);
-            m_POVLights = true;
             break;
         case NativeSTLIni:
             m_exporter  = m_modelViewer->getExporter(LDrawModelViewer::ETStl, true);
@@ -62,27 +64,15 @@ LDViewExportOption::LDViewExportOption(LDVWidget *modelWidget)
         }
     }
 
-    connect( okButton, SIGNAL( clicked() ), this, SLOT( doOk() ) );
-    connect( applyButton, SIGNAL( pressed() ), this, SLOT( doApply() ) );
+    connect( okButton,     SIGNAL( clicked() ), this, SLOT( doOk() ) );
+    connect( applyButton,  SIGNAL( pressed() ), this, SLOT( doApply() ) );
     connect( cancelButton, SIGNAL( clicked() ), this, SLOT( doCancel() ) );
-    connect( resetButton, SIGNAL( clicked() ), this, SLOT( doReset() ) );
+    connect( resetButton,  SIGNAL( clicked() ), this, SLOT( doReset() ) );
 
     if (!extraSearchDirs)
     {
         extraSearchDirs = new TCStringArray;
         captureExtraSearchDirs();
-    }
-
-    if (m_POVLights)
-    {
-        connect( povLightLatitudeLnEdit, SIGNAL( editingFinished() ), this, SLOT( enableApply() ) );
-        connect( povLightLongitudeLnEdit, SIGNAL( editingFinished() ), this, SLOT( enableApply() ) );
-        connect( povLightingGrpResetBtn, SIGNAL( clicked() ),          this, SLOT( resetLights() ) );
-        setLights();
-    }
-    else
-    {
-        povLightingGrpBox->hide();
     }
 
     populateExportSettings();
@@ -106,6 +96,8 @@ LDViewExportOption::LDViewExportOption(LDVWidget *modelWidget)
     iniFileEdit->setText(iniFileMessage);
 
     applyButton->setEnabled(false);
+
+    adjustSize();
 }
 
 LDViewExportOption::~LDViewExportOption()
@@ -142,6 +134,7 @@ void LDViewExportOption::populateExportSettings(void)
     m_lay->setSpacing(4);
     m_box->setLayout(m_lay);
     QVBoxLayout *vbl= nullptr;
+    QSpacerItem *sp = nullptr;
     std::stack<int> groupSizes;
     std::stack<QWidget *> parents;
     int groupSize = 0;
@@ -190,11 +183,11 @@ void LDViewExportOption::populateExportSettings(void)
                 // Top level group; use a group setting.
                 if (vbl)
                 {
-                    QSpacerItem *sp = new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
                     QHBoxLayout *hbox;
                     QPushButton *rg;
                     hbox = new QHBoxLayout();
                     rg = new QPushButton("Reset Group");
+                    sp = new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
                     hbox->addItem(sp);
                     hbox->addWidget(rg);
                     rg->setObjectName("Reset Group");
@@ -262,6 +255,8 @@ void LDViewExportOption::populateExportSettings(void)
                 li = new QLineEdit(qstmp);
                 li->setObjectName(qstmp);
                 hbox->addWidget(li);
+                sp = new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+                hbox->addSpacerItem(sp);
                 ucstringtoqstring(qstmp,it->getStringValue());
                 li->setText(qstmp);
                 m_settings[&*it] = li;
@@ -289,20 +284,117 @@ void LDViewExportOption::populateExportSettings(void)
                 {
                     m_groups[vbl][&*it] = li;
                 }
-                connect( li, SIGNAL( editingFinished() ), this, SLOT( enableApply() ) );
-                if (it->isPath())
+                if (it->isPath() ||
+                      (label->text().contains(TCObject::ls("PovBottomInclude")) ||
+                       label->text().contains(TCObject::ls("PovTopInclude"))))
                 {
                     QPushButton *but = new QPushButton();
                     but->setText(TCObject::ls("LDXBrowse..."));
                     hbox2->addWidget(but);
                     connect( but, SIGNAL( clicked() ), this, SLOT( doBrowse()));
-                    m_button[but]=li;
+                    m_button[but] = li;
+                } else if (label->text() != TCObject::ls("PovLights")) {
+                    hbox2->addSpacerItem(sp);
+                }
+                if (label->text() != TCObject::ls("PovLights")){
+                    connect( li, SIGNAL( editingFinished() ), this, SLOT( enableApply() ) );
+                } else {
+                   label->hide();
+                   li->hide();
+                   li->setObjectName(label->text());
+
+                   m_pov_lightList = qstmp.split(";");
+
+                   QGridLayout *grid = new QGridLayout();
+                   grid->setSpacing(4);
+                   vbox->addLayout(grid);
+                   QLabel *label;
+                   QValidator *validator;
+                   QPalette palette;
+
+                   label = new QLabel(TCObject::ls("PovLightNum"),this);
+                   grid->addWidget(label,0,0,1,1);
+                   label = new QLabel(TCObject::ls("PovLatitude"),this);
+                   grid->addWidget(label,0,1,1,1);
+                   label = new QLabel(TCObject::ls("PovLongitude"),this);
+                   grid->addWidget(label,0,2,1,1);
+
+                   vbox = new QVBoxLayout();
+                   grid->addItem(vbox,1,3,5,1);
+                   QPushButton *abut = new QPushButton(this);
+                   abut->setText(TCObject::ls("PovAddLight"));
+                   vbox->addWidget(abut);
+                   connect( abut, SIGNAL( clicked() ), this, SLOT( addLight()));
+
+                   m_liNumEdit =  new QLineEdit(this);
+                   palette.setColor(QPalette::Base,Qt::lightGray);
+                   m_liNumEdit->setPalette(palette);
+                   m_liNumEdit->setReadOnly(true);
+                   validator = new QIntValidator(0, 127, this);
+                   m_liNumEdit->setValidator(validator);
+                   grid->addWidget(m_liNumEdit,1,0,1,1);
+                   connect( m_liNumEdit, SIGNAL( editingFinished() ), this, SLOT( applyLights() ) );
+
+                   m_liLatEdit =  new QLineEdit(this);
+                   validator = new QDoubleValidator(-360, 360, 4,this);
+                   m_liLatEdit->setValidator(validator);
+                   grid->addWidget(m_liLatEdit,1,1,1,1);
+                   connect( m_liLatEdit, SIGNAL( editingFinished() ), this, SLOT( applyLights() ) );
+
+                   m_liLonEdit =  new QLineEdit(this);
+                   validator = new QDoubleValidator(-360, 360, 4,this);
+                   m_liLonEdit->setValidator(validator);
+                   grid->addWidget(m_liLonEdit,1,2,1,1);
+                   connect( m_liLonEdit, SIGNAL( editingFinished() ), this, SLOT( applyLights() ) );
+
+                   QPushButton *rbut = new QPushButton(this);
+                   rbut->setText(TCObject::ls("PovRemoveLight"));
+                   vbox->addWidget(rbut);
+                   connect( rbut, SIGNAL( clicked() ), this, SLOT( removeLight()));
+
+                   label = new QLabel(TCObject::ls("PovLightIntensity"),this);
+                   grid->addWidget(label,2,0,1,1);
+                   label = new QLabel(TCObject::ls("PovLightAreaSize"),this);
+                   grid->addWidget(label,2,1,1,1);
+                   label = new QLabel(TCObject::ls("PovAreaLightsNum"),this);
+                   grid->addWidget(label,2,2,1,1);
+
+                   sp = new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+                   vbox->addSpacerItem(sp);
+
+                   m_liIntEdit =  new QLineEdit(this);
+                   validator = new QDoubleValidator(0.0, 100, 4,this);
+                   m_liIntEdit->setValidator(validator);
+                   grid->addWidget(m_liIntEdit,3,0,1,1);
+                   connect( m_liIntEdit, SIGNAL( editingFinished() ), this, SLOT( applyLights() ) );
+
+                   m_liASizeEdit =  new QLineEdit(this);
+                   validator = new QIntValidator(0, 20000, this);
+                   m_liASizeEdit->setValidator(validator);
+                   grid->addWidget(m_liASizeEdit,3,1,1,1);
+                   connect( m_liASizeEdit, SIGNAL( editingFinished() ), this, SLOT( applyLights() ) );
+
+                   m_liALightsSpin =  new QSpinBox(this);
+                   grid->addWidget(m_liALightsSpin,3,2,1,1);
+                   connect( m_liALightsSpin, SIGNAL( valueChanged(int) ), this, SLOT( setLights(int)));
+
+                   m_liCombo = new QComboBox(this);
+                   grid->addWidget(m_liCombo,4,0,1,3);
+                   connect( m_liCombo, SIGNAL( currentIndexChanged(int) ), this, SLOT( selectLight(int)));
+
+                   m_messageLabel = new QLabel(this);
+                   grid->addWidget(m_messageLabel,5,0,1,4);
+
+                   setLights();
+
+                   m_POVLightsLoaded = true;
                 }
                 break;
             case LDExporterSetting::TEnum:
                 vbox = new QVBoxLayout();
                 vbox->setSpacing(4);
                 hbox->addLayout(vbox);
+                hbox->addSpacerItem(sp);
                 label = new QLabel(qstmp);
                 vbox->addWidget(label);
                 QComboBox *combo;
@@ -351,8 +443,8 @@ void LDViewExportOption::populateExportSettings(void)
     scrollArea->setWidget(m_box);
     m_box->adjustSize();
     scrollArea->adjustSize();
-    setFixedWidth(width());
 
+    setFixedWidth(width());
     setMinimumSize(50,50);
 }
 
@@ -385,7 +477,12 @@ void LDViewExportOption::doApply(void)
         case LDExporterSetting::TLong:
         case LDExporterSetting::TFloat:
         case LDExporterSetting::TString:
-            qstringtoucstring(value, ((QLineEdit *)it->second)->text());
+            if (((QLineEdit *)it->second)->objectName() == TCObject::ls("PovLights"))
+            {
+                qstringtoucstring(value, m_pov_lightList.join(";"));
+            } else {
+                qstringtoucstring(value, ((QLineEdit *)it->second)->text());
+            }
             setting->setValue(value.c_str(), true);
             break;
         case LDExporterSetting::TEnum:
@@ -396,8 +493,6 @@ void LDViewExportOption::doApply(void)
             break;
         }
     }
-    if (m_POVLights)
-        applyLights();
     applyExtraSearchDirs();
     TCUserDefaults::flush();
     applyButton->setEnabled(false);
@@ -419,8 +514,6 @@ void LDViewExportOption::doCancel(void)
 void LDViewExportOption::doReset(void)
 {
     resetSettings(m_settings);
-    if (m_POVLights)
-        resetLights();
     captureExtraSearchDirs();
     enableApply();
 }
@@ -432,18 +525,6 @@ void LDViewExportOption::doResetGroup()
     enableApply();
 }
 
-void LDViewExportOption::doBrowse()
-{
-    QPushButton *pb = qobject_cast<QPushButton *>(sender());
-    QString dir;
-    dir = QFileDialog::getExistingDirectory(this,"",m_button[pb]->text());
-    if (!dir.isEmpty())
-    {
-            m_button[pb]->setText (dir);
-            enableApply();
-    }
-}
-
 void LDViewExportOption::resetSettings(SettingsMap &settings)
 {
     SettingsMap::const_iterator it;
@@ -451,9 +532,14 @@ void LDViewExportOption::resetSettings(SettingsMap &settings)
 
     for (it = settings.begin(); it != settings.end(); it++)
     {
-        LDExporterSetting *setting = it->first;
+        LDVExportSetting *setting = (LDVExportSetting*)it->first;
+        bool povLights = ((QLineEdit *)it->second)->objectName() == TCObject::ls("PovLights");
+        if (povLights){
+           setting->resetLights();
+        } else {
+           setting->reset();
+        }
 
-        setting->reset();
         switch (setting->getType())
         {
         case LDExporterSetting::TBool:
@@ -470,7 +556,13 @@ void LDViewExportOption::resetSettings(SettingsMap &settings)
         case LDExporterSetting::TFloat:
         case LDExporterSetting::TString:
             ucstringtoqstring(value, setting->getStringValue());
-            ((QLineEdit *)it->second)->setText(value);
+            if (povLights)
+             {
+                 m_pov_lightList = value.split(";");
+                 setLights();
+             } else {
+                 ((QLineEdit *)it->second)->setText(value);
+             }
             break;
         case LDExporterSetting::TEnum:
             ((QComboBox *)it->second)->setCurrentIndex(
@@ -483,60 +575,16 @@ void LDViewExportOption::resetSettings(SettingsMap &settings)
     }
 }
 
-void LDViewExportOption::applyLights()
+void LDViewExportOption::doBrowse()
 {
-   QSettings Settings;
-   Preferences::ldvLights = getLights();
-   QVariant cValue(Preferences::ldvLights);
-   Settings.setValue(QString("%1/%2").arg(POVRAY,"LDVLights"),cValue);
-}
-
-void LDViewExportOption::resetLights()
-{
-    QSettings Settings;
-    Preferences::ldvLights = LIGHTS_COMBO_DEFAULT;
-    QVariant cValue(Preferences::ldvLights);
-    Settings.setValue(QString("%1/%2").arg(POVRAY,"LDVLights"),cValue);
-    setLights();
-}
-
-void LDViewExportOption::setLights(void)
-{
-    if (m_POVLights)
+    QPushButton *pb = qobject_cast<QPushButton *>(sender());
+    QString dir;
+    dir = QFileDialog::getOpenFileName(this,"",m_button[pb]->text());
+    if (!dir.isEmpty())
     {
-        povLightsCombo->clear();
-        QStringList myLigths = Preferences::ldvLights.split(",", QString::SkipEmptyParts);
-
-        povLightsCombo->addItems(                    myLigths);
-        povLightsCombo->setCurrentIndex(             povLightsCombo->count() - 1);
-
-        QStringList lightEntryFields = povLightsCombo->currentText().split(" ",QString::SkipEmptyParts); // 1. Latitude 45.0 Longitude 0.0
-        label_12->setText(                          "Light No");
-        label_13->setText(                          "Latitude");
-        label_14->setText(                          "Longitude");
-
-        povLightLatitudeLnEdit->setText(            lightEntryFields.at(2));
-        povLightLongitudeLnEdit->setText(           lightEntryFields.at(4));
-        povLightNumLnEdit->setText(                 QString("%1").arg(lightEntryFields.at(0)).replace(".",""));
-
-        QPalette palette;
-        palette.setColor(QPalette::Base,Qt::lightGray);
-        povLightNumLnEdit->setPalette(palette);
-        povLightNumLnEdit->setReadOnly(true);
+            m_button[pb]->setText (dir);
+            enableApply();
     }
-}
-
-QString const LDViewExportOption::getLights()
-{
-  QStringList povLightsComboList;
-  for (int index = 0; index < povLightsCombo->count(); index++)
-  {
-      if (index == 0)
-        povLightsComboList << povLightsCombo->itemText(index);
-      else
-        povLightsComboList << "," << povLightsCombo->itemText(index);
-  }
-  return povLightsComboList.join(",");
 }
 
 void LDViewExportOption::applyExtraSearchDirs(void)
@@ -560,14 +608,13 @@ void LDViewExportOption::applyExtraSearchDirs(void)
             TCUserDefaults::removeValue(key, false);
         }
     }
-        for (i=count; i<MAX_EXTRA_DIR;i++)
-        {
-                char key[128];
+    for (i=count; i<MAX_EXTRA_DIR;i++)
+    {
+        char key[128];
         char extraDir[]="";
 
-
-	sprintf(key, "%s/Dir%03d", EXTRA_SEARCH_DIRS_KEY, i + 1);
-		TCUserDefaults::setStringForKey(extraDir, key, false);
+	    sprintf(key, "%s/Dir%03d", EXTRA_SEARCH_DIRS_KEY, i + 1);
+	    TCUserDefaults::setStringForKey(extraDir, key, false);
 	}
     if (m_modelViewer)
     {
@@ -599,52 +646,153 @@ void LDViewExportOption::captureExtraSearchDirs(void)
     }
 }
 
-void LDViewExportOption::on_povLightsCombo_currentIndexChanged(int index)
+// Lights
+
+void LDViewExportOption::setLights(void)
 {
-  Q_UNUSED(index)
+    QStringList tempList;
+    QStringList lights;
+    m_liCombo->clear();
+    foreach (QString light, m_pov_lightList){
+        tempList = light.split(" ");
+        lights << QString("%1. Latitude %2 Longitude %3")
+                          .arg(tempList.at(0))
+                          .arg(tempList.at(1))
+                          .arg(tempList.at(2));
+    }
+    m_liCombo->addItems(       lights);
+    m_liCombo->setCurrentIndex(m_liCombo->count() - 1);
 
-    if (povLightsCombo->count() == 0)
-        return;
+    int lightIndex = m_liCombo->currentIndex();
 
-    QStringList lightEntryFields = povLightsCombo->currentText().split(" ",QString::SkipEmptyParts);
-    povLightNumLnEdit->setText(                QString("%1").arg(lightEntryFields.at(0)).replace(".",""));
-    povLightLatitudeLnEdit->setText(           lightEntryFields.at(2));
-    povLightLongitudeLnEdit->setText(          lightEntryFields.at(4));
+    tempList = m_pov_lightList.at(lightIndex).split(" ");
+
+    m_liNumEdit->setText(     tempList.at(0));
+    m_liLatEdit->setText(     tempList.at(1));
+    m_liLonEdit->setText(     tempList.at(2));
+
+    m_liIntEdit->setText(     tempList.at(3));
+    m_liASizeEdit->setText(   tempList.at(4));
+    m_liALightsSpin->setValue(tempList.at(5).toInt());
 }
 
-void LDViewExportOption::on_povAddLightBtn_clicked()
+void LDViewExportOption::selectLight(int lightIndex)
 {
-    if (povLightLatitudeLnEdit->displayText().isEmpty() || povLightLongitudeLnEdit->displayText().isEmpty())
+
+    if (m_liCombo->count() == 0 || !m_POVLightsLoaded)
         return;
 
-    QString lightPosition = QString("Latitude %1 Longitude %2")
-            .arg(povLightLatitudeLnEdit->displayText())
-            .arg(povLightLongitudeLnEdit->displayText());
+    // populate LineEdit and Spin controls
+    QStringList tempList = m_pov_lightList.at(lightIndex).split(" ");
 
-    QString lightNumber = QString("%1").arg(povLightNumLnEdit->displayText());
+    m_liNumEdit->setText(      tempList.at(0));
+    m_liLatEdit->setText( tempList.at(1));
+    m_liLonEdit->setText(tempList.at(2));
+    m_liIntEdit->setText(  tempList.at(3));
+    m_liASizeEdit->setText(   tempList.at(4));
+    m_liALightsSpin->setValue(tempList.at(5).toInt());
+}
 
-    QString lightEntry = QString("%1. %2").arg(lightNumber).arg(lightPosition);
-
-    int lightIndex = povLightsCombo->findText(lightEntry);
-
-    if (lightIndex != -1)
+void LDViewExportOption::addLight()
+{
+    if (m_liLatEdit->displayText().isEmpty() || m_liLonEdit->displayText().isEmpty())
         return;
 
-    lightNumber = QString("%1").arg(povLightsCombo->count() + 1);
 
-    lightEntry = QString("%1. %2").arg(lightNumber).arg(lightPosition);
+    QString num = QString("%1").arg(m_liNumEdit->displayText());
+    QString pos = QString("Latitude %1 Longitude %2")
+            .arg(m_liLatEdit->displayText())
+            .arg(m_liLonEdit->displayText());
+    QString comboItem = QString("%1. %2").arg(num).arg(pos);
 
-    povLightsCombo->addItem(                    lightEntry);
-    povLightsCombo->setCurrentIndex(            povLightsCombo->count() - 1);
-    povLightNumLnEdit->setText(                 QString("%1").arg(povLightsCombo->count()));
+    int lightIndex = m_liCombo->findText(comboItem);
+
+    if (lightIndex != -1) {
+        m_messageLabel->setText(QString("You must enter unique longitude or latitude values before clicking 'Add'."));
+        m_messageLabel->setStyleSheet("QLabel { color : red; }");
+        return;
+    }
+
+    num = QString("%1").arg(m_liCombo->count() + 1);
+
+    comboItem = QString("%1. %2").arg(num).arg(pos);
+
+    pos = QString("%1 %2")
+                .arg(m_liLatEdit->displayText())
+                .arg(m_liLonEdit->displayText());
+    QString intensity  = m_liIntEdit->displayText();
+    QString aSize   = m_liASizeEdit->displayText();
+    QString aLights = QString::number(m_liALightsSpin->value());
+
+    QString lightEntry = QString("%1 %2 %3 %4 %5").arg(num).arg(pos)
+                         .arg(intensity).arg(aSize).arg(aLights);
+
+    m_pov_lightList.append(lightEntry);
+
+    m_liNumEdit->setText(     QString("%1").arg(m_liCombo->count()));
+    m_liCombo->addItem(        comboItem);
+    m_liCombo->setCurrentIndex(m_liCombo->count() - 1);
+
     enableApply();
 }
 
-void LDViewExportOption::on_povRemoveLightBtn_clicked()
+void LDViewExportOption::removeLight()
 {
-    int lightIndex = povLightNumLnEdit->displayText().toInt() - 1;
-    povLightsCombo->removeItem(                 lightIndex);
-    povLightsCombo->setCurrentIndex(            povLightsCombo->count() - 1);
-    povLightNumLnEdit->setText(                 QString("%1").arg(povLightsCombo->count()));
+    int removeIndex = m_liNumEdit->displayText().toInt() - 1;
+
+    m_liCombo->removeItem(                 removeIndex);
+    m_liCombo->setCurrentIndex(            m_liCombo->count() - 1);
+    m_liNumEdit->setText(                 QString("%1").arg(m_liCombo->count()));
+
+    m_pov_lightList.removeAt(removeIndex);
+
+    int lightIndex = m_liCombo->currentIndex();
+
+    QStringList tempList = m_pov_lightList.at(lightIndex).split(" ");
+
+    m_liNumEdit->setText(      tempList.at(0));
+    m_liLatEdit->setText( tempList.at(1));
+    m_liLonEdit->setText(tempList.at(2));
+    m_liIntEdit->setText(  tempList.at(3));
+    m_liASizeEdit->setText(   tempList.at(4));
+    m_liALightsSpin->setValue(tempList.at(5).toInt());
+
     enableApply();
+}
+
+void LDViewExportOption::setLights(int arg1)
+{
+    Q_UNUSED(arg1)
+    applyLights();
+}
+
+void LDViewExportOption::applyLights(void)
+{
+    if (m_liCombo->count() == 0 || !m_POVLightsLoaded)
+        return;
+
+    m_messageLabel->clear();
+
+    int lightIndex = m_liCombo->currentIndex();
+
+    QString num = QString("%1").arg(m_liNumEdit->displayText());
+    QString pos = QString("%1 %2")
+                          .arg(m_liLatEdit->displayText())
+                          .arg(m_liLonEdit->displayText());
+    QString intensity  = m_liIntEdit->displayText();
+    QString aSize   = m_liASizeEdit->displayText();
+    QString aLights = QString::number(m_liALightsSpin->value());
+
+    QString lightEntry = QString("%1 %2 %3 %4 %5").arg(num).arg(pos)
+                                 .arg(intensity).arg(aSize).arg(aLights);
+
+    m_pov_lightList.replace(lightIndex,lightEntry);
+
+    enableApply();
+}
+
+void LDVExportSetting::resetLights()
+{
+    std::string value = TCUserDefaults::defaultStringForKey(m_key.c_str());
+    stringtowstring(m_string,value);
 }

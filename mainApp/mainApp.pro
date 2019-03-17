@@ -193,8 +193,8 @@ CONFIG(debug, debug|release) {
     macx: TARGET = $$join(TARGET,,,_debug)
     win32:TARGET = $$join(TARGET,,,d)
     unix:!macx: TARGET = $$join(TARGET,,,d$$VER_MAJOR$$VER_MINOR)
-	
-	DO_COPY_LDVLIBS = #True
+
+    DO_COPY_LDVLIBS = #True
 
 } else {
 
@@ -228,8 +228,8 @@ CONFIG(debug, debug|release) {
 
     # executable target
     !macx:!win32: TARGET = $$join(TARGET,,,$$VER_MAJOR$$VER_MINOR)
-	
-	DO_COPY_LDVLIBS = True
+
+    DO_COPY_LDVLIBS = True
 }
 BUILD += $$BUILD_CONF
 

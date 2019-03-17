@@ -7,8 +7,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>376</width>
-    <height>395</height>
+    <width>450</width>
+    <height>240</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -27,7 +27,7 @@
   <property name="sizeGripEnabled">
    <bool>true</bool>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QScrollArea" name="scrollArea">
      <property name="sizePolicy">
@@ -48,161 +48,6 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="povLightingGrpBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="baseSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="title">
-      <string>Lights</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
-      <item>
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="povLightLongitudeLnEdit">
-          <property name="toolTip">
-           <string>Enter the light's longitude coordinate.</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_13">
-          <property name="text">
-           <string>Latitude</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QLabel" name="label_14">
-          <property name="text">
-           <string>Longitude</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLineEdit" name="povLightLatitudeLnEdit">
-          <property name="toolTip">
-           <string>Enter the light's latitude coordinate.</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="4">
-         <widget class="QPushButton" name="povRemoveLightBtn">
-          <property name="toolTip">
-           <string>Remove the current light entry</string>
-          </property>
-          <property name="text">
-           <string>Remove</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QLineEdit" name="povLightNumLnEdit">
-          <property name="autoFillBackground">
-           <bool>false</bool>
-          </property>
-          <property name="readOnly">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2">
-         <widget class="QLabel" name="label_12">
-          <property name="text">
-           <string>Light No</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="3">
-         <widget class="QPushButton" name="povAddLightBtn">
-          <property name="toolTip">
-           <string>Enter new latitude and longitude values and add a light entry.</string>
-          </property>
-          <property name="text">
-           <string>Add</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QLabel" name="label">
-        <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QComboBox" name="povLightsCombo">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>170</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>View and select light entries</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeType">
-           <enum>QSizePolicy::Expanding</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>10</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QPushButton" name="povLightingGrpResetBtn">
-          <property name="toolTip">
-           <string>Reset the Lighting group to its default settings.</string>
-          </property>
-          <property name="text">
-           <string>Reset Group</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
     <widget class="QGroupBox" name="iniBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -219,7 +64,7 @@
      <property name="title">
       <string>INI file</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
+     <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QLineEdit" name="iniFileEdit"/>
       </item>
@@ -237,7 +82,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>40</height>
+       <height>20</height>
       </size>
      </property>
     </spacer>
@@ -298,13 +143,6 @@
   <tabstop>cancelButton</tabstop>
   <tabstop>okButton</tabstop>
   <tabstop>resetButton</tabstop>
-  <tabstop>povLightsCombo</tabstop>
-  <tabstop>povLightLatitudeLnEdit</tabstop>
-  <tabstop>povLightLongitudeLnEdit</tabstop>
-  <tabstop>povLightNumLnEdit</tabstop>
-  <tabstop>povAddLightBtn</tabstop>
-  <tabstop>povRemoveLightBtn</tabstop>
-  <tabstop>povLightingGrpResetBtn</tabstop>
   <tabstop>scrollArea</tabstop>
   <tabstop>iniFileEdit</tabstop>
  </tabstops>

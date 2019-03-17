@@ -120,6 +120,7 @@ public:
     int getFSAAFactor(void);
     bool getUseNvMultisampleFilter(void);
     void setupAntialiasing(void);
+    HDC   hdc;
 #endif
 
 public slots:

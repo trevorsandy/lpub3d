@@ -44,7 +44,7 @@ contains(LOAD_LDV_HEADERS,True) {
     system( $$DELETE_HDR_DIRS_CMD )
     system( $$CREATE_HDR_DIRS_CMD )
 
-    # Copy headers from LDView LDVHDRDIR
+    # Copy headers from LDView LDVHDRDIR - lpub3d_<platfor>_3rdParty
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDLib/*.h) $$system_path( $${LDVINCLUDE}/LDLib/ ) )
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDExporter/*.h) $$system_path( $${LDVINCLUDE}/LDExporter/ ) )
     system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDLoader/*.h) $$system_path( $${LDVINCLUDE}/LDLoader/) )
@@ -61,6 +61,18 @@ contains(LOAD_LDV_HEADERS,True) {
 
     exists($$system_path( $$LDVINCLUDE/TCFoundation/TCObject.h )): \
     message("~~~ lib$${TARGET} headers copied to $${LDVINCLUDE} ~~~")
+
+    # These includes are only processed in debug on Windows mode
+    win32-msvc*:contains(LOAD_LDV_SOURCE_FILES,True) {
+        # Copy headers from LDView LDVHDRDIR - lpub3d_<platfor>_3rdParty
+        system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDLib/*.pri) $$system_path( $${LDVINCLUDE}/LDLib/ ) )
+        system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDExporter/*.pri) $$system_path( $${LDVINCLUDE}/LDExporter/ ) )
+        system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDLoader/*.pri) $$system_path( $${LDVINCLUDE}/LDLoader/) )
+        system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/TRE/*.pri) $$system_path( $${LDVINCLUDE}/TRE/) )
+        system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/TCFoundation/*.pri) $$system_path( $${LDVINCLUDE}/TCFoundation/ ) )
+        exists($$system_path( $$LDVINCLUDE/TCFoundation/TCFoundation.pri )): \
+        message("~~~ lib$${TARGET} project include files copied to $${LDVINCLUDE} ~~~")
+    }
 }
 
 contains(LOAD_LDVLIBS,True) {
@@ -84,7 +96,7 @@ contains(LOAD_LDVLIBS,True) {
 
         _GL2PS_DEP        = $$system_path( $${LDVLIBDIR}/gl2ps.lib )
         _TINYXML_DEP      = $$system_path( $${LDVLIBDIR}/tinyxml_STL.lib )
-        _3DS_DEP          = $$system_path( $${LDVLIBDIR}/lib3ds-vs2015.lib )
+        _3DS_DEP          = $$system_path( $${LDVLIBDIR}/lib3ds.lib )
         _MINIZIP_DEP      = $$system_path( $${LDVLIBDIR}/unzip32-vs2015.lib )
         _PNG_DEP          = $$system_path( $${LDVLIBDIR}/libpng16-vs2015.lib )
         _JPEG_DEP         = $$system_path( $${LDVLIBDIR}/libjpeg-vs2015.lib )
@@ -99,7 +111,7 @@ contains(LOAD_LDVLIBS,True) {
 
         GL2PS_LIB         = -lgl2ps
         TINYXML_LIB       = -ltinyxml_STL
-        3DS_LIB           = -llib3ds-vs2015
+        3DS_LIB           = -llib3ds
         ZIP_LIB           = -lunzip32-vs2015
         PNG_LIB           = -llibpng16-vs2015
         JPEG_LIB          = -llibjpeg-vs2015
@@ -114,7 +126,7 @@ contains(LOAD_LDVLIBS,True) {
 
         GL2PS_DEP         = $$system_path( $${LDVLIBRARY}/gl2ps.lib )
         TINYXML_DEP       = $$system_path( $${LDVLIBRARY}/tinyxml_STL.lib )
-        3DS_DEP           = $$system_path( $${LDVLIBRARY}/lib3ds-vs2015.lib )
+        3DS_DEP           = $$system_path( $${LDVLIBRARY}/lib3ds.lib )
         MINIZIP_DEP       = $$system_path( $${LDVLIBRARY}/unzip32-vs2015.lib )
         PNG_DEP           = $$system_path( $${LDVLIBRARY}/libpng16-vs2015.lib )
         JPEG_DEP          = $$system_path( $${LDVLIBRARY}/libjpeg-vs2015.lib )
@@ -406,15 +418,19 @@ contains(DO_COPY_LDVLIBS,True) {
     ldvmsg_copy_cmd = \
     $$COPY_CMD \
     $$system_path( $${LDVRESDIR}/LDViewMessages.ini ) $$PLUS_CMD \
-    $$system_path( $${LDVRESDIR}/LDExportMessages.ini ) $$REDIRECT_CMD \
-    $$system_path( $$LDVMESSAGESINI_DEP )
+    $$system_path( $${LDVRESDIR}/LDExportMessages.ini ) $$PLUS_CMD \
+    $$system_path( $$PWD/LDVWidgetMessages.ini ) $$REDIRECT_CMD \
+    $$system_path( $$LDVMESSAGESINI_DEP ) $$escape_expand(\n\t) \
+    $$COPY_CMD \
+    $$system_path( $$LDVMESSAGESINI_DEP $$DESTDIR/extras/ )
 
     ldvmsg_copy.target         = $$LDVMESSAGESINI_DEP
     ldvmsg_copy.commands       = $$ldvmsg_copy_cmd
     ldvmsg_copy.depends        = $${LDVRESDIR}/LDViewMessages.ini \
                                  $${LDVRESDIR}/LDExportMessages.ini \
+                                 $$PWD/LDVWidgetMessages.ini \
                                  ldvmsg_copy_msg
-    ldvmsg_copy_msg.commands   = @echo Copying $${LDVMESSAGESINI}...
+    ldvmsg_copy_msg.commands   = @echo Creating $${LDVMESSAGESINI}...
 
     QMAKE_EXTRA_TARGETS += ldvmsg_copy ldvmsg_copy_msg
     PRE_TARGETDEPS      += $$LDVMESSAGESINI_DEP

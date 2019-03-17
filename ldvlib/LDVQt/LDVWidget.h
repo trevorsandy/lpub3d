@@ -31,12 +31,21 @@
 
 #include "name.h"
 
+#include <LDLib/LDHtmlInventory.h>
+
 class LDrawModelViewer;
 class LDVAlertHandler;
 class LDVPreferences;
 class LDViewExportOption;
 class LDSnapshotTaker;
-class LDHtmlInventory;
+class LDVHtmlInventory;
+
+class LDVHtmlInventory : public LDHtmlInventory
+{
+public:
+    bool generateHtml(const char *filename, LDPartsList *partsList,
+        const char *modelName);
+};
 
 class LDVWidget : public QGLWidget, protected QGLFunctions
 {
@@ -66,7 +75,7 @@ public:
 
   // Parts List functions
   void doPartList(void);
-  void doPartList(LDHtmlInventory *htmlInventory, LDPartsList *partsList,
+  void doPartList(LDVHtmlInventory *htmlInventory, LDPartsList *partsList,
           const char *filename);
   bool saveImage(char *filename, int imageWidth, int imageHeight,
           bool fromCommandLine = false);
@@ -76,6 +85,7 @@ public:
   bool chDirFromFilename(const char *filename);
   void setViewMode(LDInputHandler::ViewMode value, bool examineLatLong,
                        bool keepRightSideUp, bool saveSettings=true);
+  void showWebPage(QString &htmlFilename);
 
 protected:
   bool setIniFile(void);
@@ -124,5 +134,7 @@ protected:
 
 extern LDVWidget* ldvWidget;
 extern const QString iniFlagNames[];
+
+
 
 #endif // LDVWIDGET_H

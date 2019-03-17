@@ -44,7 +44,6 @@ class Preferences
     static void loggingPreferences();
     static void exportPreferences();
     static void userInterfacePreferences();
-    static void nativePovGenPreferences();
 
     static bool extractLDrawLib();
     static void getRequireds();

@@ -19,6 +19,15 @@
 #include <TCFoundation/TCTypedObjectArray.h>
 #include <LDLib/LDrawModelViewer.h>
 #include "ui_LDVExportOptionPanel.h"
+#include <QSpinBox>
+#include <QLabel>
+#include <QComboBox>
+
+class LDVExportSetting : public LDExporterSetting
+{
+public:
+    void resetLights();
+};
 
 class LDVWidget;
 class LDVPreferences;
@@ -38,7 +47,6 @@ public:
     LDViewExportOption(LDVWidget *modelWidget);
 	~LDViewExportOption();
 
-	QString const getLights();
     void applyExtraSearchDirs(void);
     void captureExtraSearchDirs(void);
 	static TCStringArray* extraSearchDirs;
@@ -51,29 +59,38 @@ public slots:
 	void doReset(void);
 	void doResetGroup(void);
 	void doBrowse(void);
-    void resetLights(void);
     void show(void);
 
 private slots:
-        void on_povAddLightBtn_clicked();
-        void on_povRemoveLightBtn_clicked();
-        void on_povLightsCombo_currentIndexChanged(int index);
+    void applyLights(void);
+    void setLights(void);
+    void setLights(int);
+    void addLight(void);
+    void removeLight(void);
+    void selectLight(int);
 
 protected:
     void populateExportSettings(void);
-    void setLights(void);
-    void applyLights(void);
 	void resetSettings(SettingsMap &settings);
 
 	LDrawModelViewer *m_modelViewer;
     LDExporter       *m_exporter;
     QWidget          *m_box;
     QVBoxLayout      *m_lay;
-    bool              m_POVLights;
+    bool              m_POVLightsLoaded;
     SettingsMap       m_settings;
     ButtonMap         m_button;
     GroupMap          m_groups;
 
+    QComboBox        *m_liCombo;
+    QLineEdit        *m_liNumEdit;
+    QLineEdit        *m_liLatEdit;
+    QLineEdit        *m_liLonEdit;
+    QLineEdit        *m_liIntEdit;
+    QLineEdit        *m_liASizeEdit;
+    QSpinBox         *m_liALightsSpin;
+    QLabel           *m_messageLabel;
+    QStringList       m_pov_lightList;
 };
 
 #endif // __LDVIEWExportOption_H__

@@ -19,8 +19,8 @@
 #include <QPainter>
 #include <QDateTime>
 #include <QFileInfo>
+#include <QProcess>
 #include <QApplication>
-#include <QMessageBox>
 #include <QDesktopWidget>
 #include <QDesktopServices>
 
@@ -56,26 +56,32 @@
 
 #include "LDViewPartList.h"
 #include <LDLib/LDPartsList.h>
+#include <LDVWidgetDefaultKeys.h>
 #include <LDVMisc.h>
 
 #include <vector>
 #include <string>
 #include <assert.h>
 
-#ifdef WIN32
+#include <QProgressDialog>
+#include <LDLoader/LDLPalette.h>
+#include <LDLoader/LDLMainModel.h>
+
+#ifdef Q_OS_WIN
 #include <TCFoundation/TCTypedValueArray.h>
 #include <LDVExtensionsSetup.h>
 #endif // WIN32
 
 //#include "lpub_messages.h" //
+#include "messageboxresizable.h"
 #include "lpub_preferences.h"
 #include "lpubalert.h"
 #include "version.h"
 #include "paths.h"
 
 #define PNG_IMAGE_TYPE_INDEX 1
-#define WIN_WIDTH 640
-#define WIN_HEIGHT 480
+#define WINDOW_WIDTH_DEFAULT 640
+#define WINDOW_HEIGHT_DEFAULT 480
 
 LDVWidget* ldvWidget;
 const QString iniFlagNames [] =
@@ -103,9 +109,19 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
         commandLineSnapshotSave(false),
         saving(false)
 {
+  iniFiles[NativePOVIni]   = { "Native POV",       Preferences::nativeExportIni };
+  iniFiles[NativeSTLIni]   = { "Native STL",       Preferences::nativeExportIni };
+  iniFiles[Native3DSIni]   = { "Native 3DS",       Preferences::nativeExportIni };
+  iniFiles[NativePartList] = { "Native Part List", Preferences::nativeExportIni };
+  iniFiles[LDViewPOVIni]   = { "LDView POV",       Preferences::ldviewPOVIni };
+  iniFiles[LDViewIni]      = { "LDView",           Preferences::ldviewIni };
+
   setupLDVFormat();
 
   setupLDVContext();
+
+  if (!setIniFile())
+      return;
 
   QString messagesPath = QDir::toNativeSeparators(QString("%1%2")
                                                   .arg(Preferences::dataLocation)
@@ -118,13 +134,6 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 
   LDLModel::setFileCaseCallback(staticFileCaseCallback);
 
-  iniFiles[NativePOVIni] =   { "Native POV",       Preferences::nativeExportIni };
-  iniFiles[NativeSTLIni] =   { "Native STL",       Preferences::nativeExportIni };
-  iniFiles[Native3DSIni] =   { "Native 3DS",       Preferences::nativeExportIni };
-  iniFiles[NativePartList] = { "Native Part List", Preferences::nativeExportIni };
-  iniFiles[LDViewPOVIni] =   { "LDView POV",       Preferences::ldviewPOVIni };
-  iniFiles[LDViewIni]    =   { "LDView",           Preferences::ldviewIni };
-
   QString programPath = QCoreApplication::applicationFilePath();
   TCUserDefaults::setCommandLine(programPath.toLatin1().constData());
 
@@ -136,23 +145,93 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 
 LDVWidget::~LDVWidget(void)
 {
-    makeCurrent();
-    TCAutoreleasePool::processReleases();
+}
 
+bool LDVWidget::doCommand(QStringList &arguments)
+{
+    TCUserDefaults::setCommandLine(arguments.join(" ").toLatin1().constData());
+
+    QImage studImage(":/resources/StudLogo.png");
+    TREMainModel::setRawStudTextureData(studImage.bits(),studImage.byteCount());
+
+    bool retValue = true;
+    if (!LDSnapshotTaker::doCommandLine(false, true))
+    {
+        if ((arguments.indexOf(QRegExp("-ExportFile=", Qt::CaseInsensitive), 0) != -1)){
+
+            emit lpubAlert->messageSig(LOG_ERROR,QString("Failed to process Native export command arguments: %1").arg(arguments.join(" ")));
+            retValue = false;
+
+        } else if (iniFlag == NativePartList) {
+            if (setupLDVApplication()) {
+                doPartList();
+                TCObject::release(modelViewer);
+            }
+        }
+    }
     TCObject::release(snapshotTaker);
-    TCObject::release(modelViewer);
-    if (ldvPreferences) {
-        delete ldvPreferences;
-    }
-    if (ldvExportOption) {
-        delete ldvExportOption;
-    }
     TCObject::release(ldvAlertHandler);
-    ldvAlertHandler = nullptr;
-
+    makeCurrent();
     doneCurrent();
-    delete ldvWidget;
-    ldvWidget = nullptr;
+    return retValue;
+}
+
+
+void LDVWidget::snapshotTakerAlertCallback(TCAlert *alert)
+{
+    if (strcmp(alert->getAlertClass(), "LDSnapshotTaker") == 0)
+    {
+        if (strcmp(alert->getMessage(), "MakeCurrent") == 0)
+        {
+              makeCurrent();
+        }
+
+        if (strcmp(alert->getMessage(), "PreFbo") == 0)
+        {
+            if (getUseFBO())
+            {
+                return;
+            }
+            else
+            {
+                makeCurrent();
+#ifdef Q_OS_WIN
+                // setup to use Windows pixelBuffer
+                //HWND hWnd = (HWND)this->winId();
+                //HINSTANCE hInstance = (HINSTANCE)this->winId();
+                //hdc = GetDC(hWnd);
+                //LDVExtensionsSetup::setup(hWnd, hInstance);
+                ldvPreferences = new LDVPreferences(this);
+                ldvPreferences->doApply();
+                hdc = ldvPreferences->hdc;
+                TREGLExtensions::setup();
+                setupMultisample();
+                snapshotTaker = (LDSnapshotTaker*)alert->getSender()->retain();
+                if (LDVExtensionsSetup::havePixelBufferExtension())
+                {
+                    snapshotTaker->setUseFBO(true);
+                }
+                delete ldvPreferences;
+#else
+                TREGLExtensions::setup();
+                snapshotTaker = (LDSnapshotTaker*)alert->getSender()->retain();
+                if (TREGLExtensions::haveFramebufferObjectExtension())
+                {
+                    snapshotTaker->setUseFBO(true);
+                }
+#endif
+                if (!snapshotTaker->getUseFBO())
+                {
+                    setupSnapshotBackBuffer(WINDOW_WIDTH_DEFAULT, WINDOW_HEIGHT_DEFAULT);
+                }
+            }
+        }
+
+        if (strcmp(alert->getMessage(), "PreSave") == 0)
+        {
+            modelViewer = snapshotTaker->getModelViewer();
+        }
+    }
 }
 
 bool LDVWidget::chDirFromFilename(const char *filename)
@@ -178,9 +257,6 @@ bool LDVWidget::chDirFromFilename(const char *filename)
 }
 
 bool LDVWidget::setupLDVApplication(){
-
-    if (!setIniFile())
-        return false;
 
     // Saved session
     char *sessionName = TCUserDefaults::getSavedSessionNameFromKey(PREFERENCE_SET_KEY);
@@ -332,39 +408,6 @@ QString LDVWidget::getIniFile()
         return iniFiles[iniFlag].File;
 }
 
-bool LDVWidget::doCommand(QStringList &arguments)
-{
-    TCUserDefaults::setCommandLine(arguments.join(" ").toLatin1().constData());
-
-    if (!setIniFile())
-        return false;
-
-    QImage studImage(":/resources/StudLogo.png");
-    TREMainModel::setRawStudTextureData(studImage.bits(),studImage.byteCount());
-
-    bool retValue = true;
-    if (!LDSnapshotTaker::doCommandLine(false, true))
-    {
-        if ((arguments.indexOf(QRegExp("-ExportFile=", Qt::CaseInsensitive), 0) != -1)){
-
-            emit lpubAlert->messageSig(LOG_ERROR,QString("Failed to process Native export command arguments: %1").arg(arguments.join(" ")));
-            retValue = false;
-
-        } else if (iniFlag == NativePartList) {
-
-            ldvPreferences = new LDVPreferences(this);
-            ldvPreferences->doApply();
-
-            if (setupLDVApplication()) {
-                doPartList();
-            }
-        }
-    }
-
-    TCObject::release(snapshotTaker);
-    return retValue;
-}
-
 void LDVWidget::showLDVExportOptions()
 {
     setupLDVApplication();
@@ -375,8 +418,6 @@ void LDVWidget::showLDVExportOptions()
         ldvExportOption->doOk();
     else
         ldvExportOption->doCancel();
-
-    delete ldvExportOption;
 }
 
 void LDVWidget::showLDVPreferences()
@@ -389,14 +430,6 @@ void LDVWidget::showLDVPreferences()
         ldvPreferences->doOk();
     else
         ldvPreferences->doCancel();
-
-    delete ldvPreferences;
-}
-
-void LDVWidget::closeLDVPreferences()
-{
-    if (ldvPreferences)
-        ldvPreferences->doOk();
 }
 
 void LDVWidget::setupLDVFormat(void)
@@ -459,49 +492,6 @@ void LDVWidget::modelViewerAlertCallback(TCAlert *alert)
 bool LDVWidget::getUseFBO()
 {
     return snapshotTaker != nullptr && snapshotTaker->getUseFBO();
-}
-
-void LDVWidget::snapshotTakerAlertCallback(TCAlert *alert)
-{
-    if (strcmp(alert->getAlertClass(), "LDSnapshotTaker") == 0)
-    {
-        if (strcmp(alert->getMessage(), "MakeCurrent") == 0)
-        {
-              makeCurrent();
-        }
-
-        if (strcmp(alert->getMessage(), "PreFbo") == 0)
-        {
-            if (getUseFBO())
-            {
-                return;
-            }
-            else
-            {
-                makeCurrent();
-                TREGLExtensions::setup();
-                snapshotTaker = (LDSnapshotTaker*)alert->getSender()->retain();
-#ifdef WIN32
-                // Only try FBO if the user hasn't unchecked the "Use Pixel Buffer"
-                // check box.  Note that snapshotTaker will also check that the
-                // FBO extension is available before using it.
-                if (LDVExtensionsSetup::havePixelBufferExtension())
-                {
-                    snapshotTaker->setUseFBO(true);
-                }
-#else
-                if (TREGLExtensions::haveFramebufferObjectExtension())
-                {
-                    snapshotTaker->setUseFBO(true);
-                }
-#endif
-                if (!snapshotTaker->getUseFBO())
-                {
-                    setupSnapshotBackBuffer(ldvPreferences->getWindowWidth(), ldvPreferences->getWindowHeight());
-                }
-            }
-        }
-    }
 }
 
 bool LDVWidget::staticFileCaseLevel(QDir &dir, char *filename)
@@ -618,7 +608,7 @@ LDSnapshotTaker::ImageType LDVWidget::getSaveImageType(void)
 }
 
 void LDVWidget::setViewMode(LDInputHandler::ViewMode value,
-bool examine, bool keep, bool /*saveSettings*/)
+     bool examine, bool keep, bool /*saveSettings*/)
 {
     viewMode = value;
     if (viewMode == LDInputHandler::VMExamine)
@@ -744,7 +734,7 @@ bool LDVWidget::saveImage(
 }
 
 void LDVWidget::doPartList(
-    LDHtmlInventory *htmlInventory,
+    LDVHtmlInventory *htmlInventory,
     LDPartsList *partsList,
     const char *filename)
 {
@@ -759,8 +749,10 @@ void LDVWidget::doPartList(
             int saveWidth = TCUserDefaults::longForKey(SAVE_WIDTH_KEY, 1024, false);
             int saveHeight = TCUserDefaults::longForKey(SAVE_HEIGHT_KEY, 768, false);
             bool origSteps = TCUserDefaults::boolForKey(SAVE_STEPS_KEY, false, false);
+            bool seams     = TCUserDefaults::boolForKey(SEAMS_KEY, false, false);
             int origStep = modelViewer->getStep();
 
+            TCUserDefaults::setBoolForKey(seams, SEAMS_KEY, false);
             TCUserDefaults::setBoolForKey(false, SAVE_STEPS_KEY, false);
             modelViewer->setStep(modelViewer->getNumSteps());
             htmlInventory->prepForSnapshot(modelViewer);
@@ -798,7 +790,8 @@ void LDVWidget::doPartList(void)
         LDPartsList *partsList = modelViewer->getPartsList();
         if (partsList)
         {
-            LDHtmlInventory *htmlInventory = new LDHtmlInventory;
+            QString htmlFilename;
+            LDVHtmlInventory *htmlInventory = new LDVHtmlInventory;
             LDVPartList *ldvPartList = new LDVPartList(this, htmlInventory);
             if (ldvPartList->exec() == QDialog::Accepted)
             {
@@ -828,7 +821,7 @@ void LDVWidget::doPartList(void)
                     " (*.html)";
                 while (!done)
                 {
-                    QString htmlFilename = QFileDialog::getSaveFileName(this,
+                    htmlFilename = QFileDialog::getSaveFileName(this,
                         QString::fromWCharArray(TCLocalStrings::get(L"GeneratePartsList")),
                         initialDir + "/" + filename,
                         filter);
@@ -840,15 +833,30 @@ void LDVWidget::doPartList(void)
                     {
                         if (QFileInfo(htmlFilename).exists())
                         {
+                            QPixmap _icon = QPixmap(":/icons/lpub96.png");
+                            QMessageBoxResizable box;
+                            box.setWindowIcon(QIcon());
+                            box.setIconPixmap (_icon);
+                            box.setTextFormat (Qt::RichText);
+                            box.setStandardButtons (QMessageBox::Close);
+                            box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+                            box.setWindowTitle(tr ("HTML Part List"));
+
+                            box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
+                            box.setDefaultButton   (QMessageBox::Yes);
+
                             QString prompt =
                                 QString::fromWCharArray(TCLocalStrings::get(L"OverwritePrompt"));
-
                             prompt.replace("%s", htmlFilename);
-                            if (QMessageBox::warning(this, VER_PRODUCTNAME_STR, prompt,
-                                QMessageBox::Yes, QMessageBox::No) ==
-                                QMessageBox::No)
-                            {
-                                continue;
+
+                            QString title = "<b> HTML part list generation. </b>";
+                            QString text = prompt;
+
+                            box.setText (title);
+                            box.setInformativeText (text);
+
+                            if (Preferences::modeGUI && (box.exec() == QMessageBox::No)) {
+                                 continue;
                             }
                         }
                         doPartList(htmlInventory, partsList,
@@ -857,8 +865,150 @@ void LDVWidget::doPartList(void)
                     }
                 }
             }
+            if (htmlInventory->getShowFileFlag() &&
+                QFileInfo(htmlFilename).exists())
+            {
+                showWebPage(htmlFilename);
+            }
             htmlInventory->release();
             partsList->release();
         }
+    }
+}
+
+void LDVWidget::showWebPage(QString &htmlFilename){
+
+  if (QFileInfo(htmlFilename).exists()){
+
+      //display completion message
+      QPixmap _icon = QPixmap(":/icons/lpub96.png");
+      QMessageBoxResizable box;
+      box.setWindowIcon(QIcon());
+      box.setIconPixmap (_icon);
+      box.setTextFormat (Qt::RichText);
+      box.setStandardButtons (QMessageBox::Close);
+      box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+      box.setWindowTitle(tr ("HTML Part List"));
+
+      box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
+      box.setDefaultButton   (QMessageBox::Yes);
+
+      QString title = "<b> HTML part list generated. </b>";
+      QString text = tr ("Your HTML part list web page was generated successfully.\n\n"
+                         "Do you want to open this document ?\n\n%1").arg(htmlFilename);
+
+      box.setText (title);
+      box.setInformativeText (text);
+
+      if (Preferences::modeGUI && (box.exec() == QMessageBox::Yes)) {
+          QString CommandPath = htmlFilename;
+          QProcess *Process = new QProcess(this);
+          Process->setWorkingDirectory(QDir::currentPath() + "/");
+#ifdef Q_OS_WIN
+          Process->setNativeArguments(CommandPath);
+          QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
+#else
+          Process->execute(CommandPath);
+          Process->waitForFinished();
+
+          QProcess::ExitStatus Status = Process->exitStatus();
+
+          if (Status != 0) {  // look for error
+              QErrorMessage *m = new QErrorMessage(this);
+              m->showMessage(QString("%1<br>%2").arg("Failed to launch HTML part list web page!").arg(CommandPath));
+          }
+#endif
+          return;
+        } else {
+          emit lpubAlert->messageSig(LOG_STATUS, QString("HTML part list generation completed!")
+                                                         .arg(QFileInfo(htmlFilename).baseName()));
+          return;
+
+        }
+  } else {
+      emit lpubAlert->messageSig(LOG_ERROR, QString("Generation failed for %1 HTML Part List.")
+                                                    .arg(QFileInfo(htmlFilename).baseName()));
+  }
+}
+
+bool LDVHtmlInventory::generateHtml(
+    const char *filename,
+    LDPartsList *partsList,
+    const char *modelName)
+{
+    FILE *file = ucfopen(filename, "w");
+    size_t nSlashSpot;
+
+    m_lastFilename = filename;
+    m_lastSavePath = filename;
+    populateColumnMap();
+    nSlashSpot = m_lastSavePath.find_last_of("/\\");
+    if (nSlashSpot < m_lastSavePath.size())
+    {
+        m_lastSavePath = m_lastSavePath.substr(0, nSlashSpot);
+    }
+    m_prefs->setInvLastSavePath(m_lastSavePath.c_str());
+    m_prefs->commitInventorySettings();
+    m_modelName = modelName;
+    nSlashSpot = m_modelName.find_last_of("/\\");
+    if (nSlashSpot < m_modelName.size())
+    {
+        m_modelName = m_modelName.substr(nSlashSpot + 1);
+    }
+    if (file)
+    {
+        QProgressDialog* ProgressDialog = new QProgressDialog(nullptr);
+        ProgressDialog->setWindowFlags(ProgressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
+        ProgressDialog->setWindowTitle(QString("HTML Part List"));
+        ProgressDialog->setLabelText(QString("Generating %1 HTML Part List...")
+                                             .arg(QFileInfo(filename).baseName()));
+        ProgressDialog->setMinimum(0);
+        ProgressDialog->setValue(0);
+        ProgressDialog->setCancelButton(nullptr);
+        ProgressDialog->setAutoReset(false);
+        ProgressDialog->setModal(true);
+        ProgressDialog->show();
+
+        const LDPartCountVector &partCounts = partsList->getPartCounts();
+        int i, j, pc;
+
+        pc = int(partCounts.size());
+
+        ProgressDialog->setMaximum(pc);
+
+        writeHeader(file);
+        writeTableHeader(file, partsList->getTotalParts());
+        for (i = 0; i < pc; i++)
+        {
+            ProgressDialog->setValue(i);
+            QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+
+            const LDPartCount &partCount = partCounts[i];
+            const IntVector &colors = partCount.getColors();
+            LDLModel *model = const_cast<LDLModel *>(partCount.getModel());
+            LDLPalette *palette = model->getMainModel()->getPalette();
+            //int partTotal = partCount.getTotalCount();
+
+            for (j = 0; j < (int)colors.size(); j++)
+            {
+                int colorNumber = colors[j];
+                LDLColorInfo colorInfo = palette->getAnyColorInfo(colorNumber);
+
+                writePartRow(file, partCount, palette, colorInfo, colorNumber);
+            }
+        }
+        writeTableFooter(file);
+        writeFooter(file);
+        fclose(file);
+
+        ProgressDialog->setValue(pc);
+        QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        ProgressDialog->deleteLater();
+
+        return true;
+    }
+    else
+    {
+        return false;
     }
 }

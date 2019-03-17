@@ -12,8 +12,8 @@ CONFIG  -= app_bundle
 
 DEPENDPATH  += .
 INCLUDEPATH += .
-DEPENDPATH  += include
-INCLUDEPATH += include
+DEPENDPATH  += ./include
+INCLUDEPATH += ./include
 INCLUDEPATH += ../WPngImage
 INCLUDEPATH += ../../mainApp
 INCLUDEPATH += ../../qslog
@@ -68,7 +68,7 @@ CONFIG(debug, debug|release) {
     win32: TARGET = $$join(TARGET,,,d$${VER_MAJ}$${VER_MIN})
     unix:!macx: TARGET = $$join(TARGET,,,d)
     # The next 4 lines adds the LDView source files in my local Dev env
-    LOAD_LDV_HEADERS      = #True
+    LOAD_LDV_HEADERS      = True
     LOAD_LDV_SOURCE_FILES = True
     VER_LDVSRC            = ldview
     LDVSRCPATH            = $$system_path( $$absolute_path( $$PWD/../../../$${VER_LDVSRC} ) )
@@ -147,7 +147,7 @@ SOURCES += \
     $$PWD/LDVAlertHandler.cpp \
     $$PWD/LDViewExportOption.cpp \
     $$PWD/LDVImageMatte.cpp \
-	$$PWD/LDViewPartList.cpp \
+    $$PWD/LDViewPartList.cpp \
     $$PWD/LDVMisc.cpp \
     $$PWD/LDVPreferences.cpp \
     $$PWD/LDVWidget.cpp
@@ -158,12 +158,12 @@ SOURCES += \
 }
 
 HEADERS += \
+    $$PWD/LDVWidgetDefaultKeys.h \
     $$PWD/LDVAlertHandler.h \
     $$PWD/LDViewExportOption.h \
     $$PWD/LDVImageMatte.h \
-	$$PWD/LDViewPartList.h \
+    $$PWD/LDViewPartList.h \
     $$PWD/LDVMisc.h \
-    $$PWD/LDVPovUserDefaultsKeys.h \
     $$PWD/LDVPreferences.h \
     $$PWD/LDVWidget.h
 
@@ -178,9 +178,10 @@ FORMS += \
     $$PWD/LDVPartList.ui
 
 OTHER_FILES += \
+    $$PWD/LDVWidgetMessages.ini \
     $$PWD/../../mainApp/extras/ldvMessages.ini
 
-# These includes are only processed in debug mode
+# These includes are only processed in debug on Windows mode
 win32-msvc*:contains(LOAD_LDV_SOURCE_FILES,True) {
     include(include/LDExporter/LDExporter.pri)
     include(include/LDLib/LDLib.pri)
