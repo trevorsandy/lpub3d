@@ -49,6 +49,9 @@
 #include "step.h"
 #include "messageboxresizable.h"
 
+#include "QProgressDialog"
+#include "lc_http.h"
+
 //** 3D
 #include "camera.h"
 #include "project.h"
@@ -107,6 +110,53 @@ void clearSubmodelCache()
 void clearTempCache()
 {
   gui->clearTempCache();
+}
+
+/****************************************************************************
+ *
+ * Download and progress monotor
+ *
+ ***************************************************************************/
+void Gui::downloadFile(QString URL, QString title)
+{
+    mTitle = title;
+    QProgressDialog ProgressDialog(nullptr);
+    ProgressDialog.setWindowTitle(tr("Downloading"));
+    ProgressDialog.setLabelText(tr("Downloading %1").arg(mTitle));
+    ProgressDialog.setMaximum(0);
+    ProgressDialog.setMinimum(0);
+    ProgressDialog.setValue(0);
+    ProgressDialog.show();
+
+    QString DownloadUrl = QString(URL);
+    mHttpReply = mHttpManager->DownloadFile(DownloadUrl);
+    while (mHttpReply) {
+        QApplication::processEvents();
+        if (ProgressDialog.wasCanceled()){
+            mHttpReply->abort();
+            mHttpReply->deleteLater();
+            mHttpReply = nullptr;
+            return;
+        }
+    }
+}
+
+void Gui::DownloadFinished(lcHttpReply* Reply){
+    if (Reply == mHttpReply)
+    {
+        if (!Reply->error()) {
+            mByteArray = Reply->readAll();
+        } else {
+            QString message = QString("Error downloading %1").arg(mTitle);
+            if (Preferences::modeGUI){
+                QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),  message);
+            } else {
+                logError() << message;
+            }
+        }
+        mHttpReply = nullptr;
+    }
+    Reply->deleteLater();
 }
 
 /****************************************************************************
@@ -2365,6 +2415,8 @@ Gui::Gui()
     mRotStepTransform = QString();
     mPliIconsPath.clear();
 
+    mHttpManager = new lcHttpManager(this);
+
     editWindow    = new EditWindow(this);  // remove inheritance 'this' to independently manage window
     parmsWindow   = new ParmsWindow();
 
@@ -2397,6 +2449,9 @@ Gui::Gui()
 
     undoStack = new QUndoStack();
     macroNesting = 0;
+
+    connect(mHttpManager,   SIGNAL(DownloadFinished(lcHttpReply*)),
+            this,           SLOT(DownloadFinished(lcHttpReply*)));
 
     connect(this,           SIGNAL(setExportingSig(bool)),
             this,           SLOT(  setExporting(   bool)));

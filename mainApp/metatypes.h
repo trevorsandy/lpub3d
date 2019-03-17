@@ -158,6 +158,23 @@ enum pageType{
     BackCoverPage
 };
 
+enum AnnotationStyle{
+    none = 0,
+    circle,
+    square,
+    rectangle
+};
+
+enum AnnotationCategory{
+    notdefined = 0,
+    axle,
+    beam,
+    cable,
+    connector,
+    hose,
+    panel
+};
+
 enum annotationType{
   TitleAnnotationType = 0,
   FreeFormAnnotationType,
@@ -169,6 +186,7 @@ enum sortType{
     PartSize = 0,
     PartColour,
     PartCategory,
+    PartElement,
     SortByType
 };
 
@@ -478,7 +496,8 @@ const QString SortOptionName[SortByType] =
 {
     "Part Size",
     "Part Color",
-    "Part Category"
+    "Part Category",
+    "Part Element"
 };
 
 // testing and diagnostics only

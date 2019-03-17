@@ -347,6 +347,19 @@ int UnitsMeta::valuePixels(int which)
   return int(t*r);
 }
 
+void UnitsMeta::setValuePixels(int which, int pixels)
+{
+  float r = resolution();
+
+  float value = float(pixels/r);
+
+  if (resolutionType() == DPCM) {
+    value = centimeters2inches(value);
+  }
+
+  _value[pushed][which] = value;
+}
+
 QString UnitsMeta::format(bool local, bool global)
 {
   QString foo;
@@ -2687,6 +2700,41 @@ void BuffExchgMeta::doc(QStringList &out, QString preamble)
 
 /* ------------------ */
 
+AnnotationStyleMeta::AnnotationStyleMeta() : BranchMeta()
+{
+  margin.setValuesInches(0.03f,0.03f);      //4px @ 150DPI
+  BorderData borderData;
+  borderData.type = BorderData::BdrNone;
+  borderData.line = BorderData::BdrLnNone;
+  borderData.color = "#ffffff";
+  borderData.thickness = 1.0f/64.0f;
+  borderData.radius = 10;
+  borderData.margin[0] = 0.0f;
+  borderData.margin[1] = 0.0f;
+  border.setValueInches(borderData);
+  background.setValue(BackgroundData::BgTransparent);
+  font.setValuePoints("Arial,20,-1,5,50,0,0,0,0,0");
+  color.setValue("#3a3938");
+  size.setValuesInches(0.28f,0.28f);      //42px @ 150DPI
+  size.setRange(0.1f,1.0f);
+  size.setFormats(6,4,"9.9999");
+  style.setValue(AnnotationStyle::none);
+}
+
+void AnnotationStyleMeta::init(BranchMeta *parent, QString name)
+{
+  AbstractMeta::init(parent, name);
+  margin          .init(this,"MARGINS");
+  border          .init(this,"BORDER");
+  background      .init(this,"BACKGROUND");
+  font            .init(this,"FONT",OkRc, "\"");
+  color           .init(this,"FONT_COLOR");
+  size            .init(this,"SIZE");
+  style           .init(this,"STYLE");
+}
+
+/* ------------------ */
+
 PliSortMeta::PliSortMeta() : BranchMeta()
 {
   sortOption.setValue("Part Size");
@@ -2700,12 +2748,39 @@ void PliSortMeta::init(BranchMeta *parent, QString name)
 
 /* ------------------ */
 
+PliPartElementMeta::PliPartElementMeta() : BranchMeta()
+{
+  display.setValue               (false);
+  bricklinkElements.setValue     (false);
+  legoElements.setValue          (true);
+  localLegoElements.setValue     (false);   // default is to use BrickLink's LEGO Elements
+}
+
+void PliPartElementMeta::init(BranchMeta *parent, QString name)
+{
+  AbstractMeta::init(parent, name);
+  display.init                   (this, "DISPLAY");
+  bricklinkElements.init         (this, "BRICKLINK");
+  legoElements.init              (this, "LEGO");
+  localLegoElements.init         (this, "LOCAL_LEGO_ELEMENTS_FILE");
+}
+
+/* ------------------ */
+
 PliAnnotationMeta::PliAnnotationMeta() : BranchMeta()
 {
   titleAnnotation.setValue           (true);
   freeformAnnotation.setValue        (false);
   titleAndFreeformAnnotation.setValue(false);
   display.setValue                   (false);
+  axleStyle.setValue                 (true);
+  beamStyle.setValue                 (true);
+  cableStyle.setValue                (true);
+  connectorStyle.setValue            (true);
+  elementStyle.setValue              (true);
+  extendedStyle.setValue             (false);
+  hoseStyle.setValue                 (true);
+  panelStyle.setValue                (true);
 }
 
 void PliAnnotationMeta::init(BranchMeta *parent, QString name)
@@ -2715,6 +2790,14 @@ void PliAnnotationMeta::init(BranchMeta *parent, QString name)
   freeformAnnotation.init         (this, "USE_FREE_FORM");
   titleAndFreeformAnnotation.init (this, "USE_TITLE_AND_FREE_FORM");
   display.init                    (this, "DISPLAY");
+  axleStyle.init                  (this, "AXLE_STYLE");
+  beamStyle.init                  (this, "BEAM_STYLE");
+  cableStyle.init                 (this, "CABLE_STYLE");
+  connectorStyle.init             (this, "CONNECTOR_STYLE");
+  elementStyle.init               (this, "ELEMENT_STYLE");
+  extendedStyle.init              (this, "EXTENDED_STYLE");
+  hoseStyle.init                  (this, "HOSE_STYLE");
+  panelStyle.init                 (this, "PANEL_STYLE");
 }
 
 /* ------------------ */
@@ -3237,10 +3320,29 @@ PliMeta::PliMeta() : BranchMeta()
   part.margin.setValuesInches(0.05f,0.03f);
   instance.font.setValuePoints("Arial,36,-1,255,75,0,0,0,0,0");
   instance.margin.setValuesInches(0.0f,0.0f);
+
   //annotate.font.setValuePoints("Arial,36,-1,255,75,0,0,0,0,0");   // Rem at revision 226 11/06/15
   annotate.font.setValuePoints("Arial,24,-1,5,50,0,0,0,0,0");
   annotate.color.setValue("#3a3938");                               // Add at revision 285 01/07/15
   annotate.margin.setValuesInches(0.0f,0.0f);
+
+  rectangleStyle.border.setValue(BorderData::BdrSquare,BorderData::BdrLnSolid,"#3a3938");
+  rectangleStyle.background.setValue(BackgroundData::BgColor,"#ffffff");
+  rectangleStyle.color.setValue("#34699d"); // #3a3938
+  rectangleStyle.style.setValue(AnnotationStyle::rectangle);
+  rectangleStyle.size.setValuesInches(8.0f,0.28f);
+  rectangleStyle.size.setRange(0.1f,8.0f);
+
+  squareStyle.border.setValue(BorderData::BdrSquare,BorderData::BdrLnSolid,"#3a3938");
+  squareStyle.background.setValue(BackgroundData::BgColor,"#ffffff");
+  squareStyle.color.setValue("#34699d");    // #3a3938
+  squareStyle.style.setValue(AnnotationStyle::square);
+
+  circleStyle.border.setValue(BorderData::BdrSquare,BorderData::BdrLnSolid,"#3a3938");
+  circleStyle.background.setValue(BackgroundData::BgColor,"#ffffff");
+  circleStyle.color.setValue("#34699d");    // #3a3938
+  circleStyle.style.setValue(AnnotationStyle::circle);
+
   margin.setValuesInches(DEFAULT_MARGIN,DEFAULT_MARGIN);
   pack.setValue(true);
   sort.setValue(false);
@@ -3281,6 +3383,10 @@ void PliMeta::init(BranchMeta *parent, QString name)
   sort            .init(this,"SORT");
   sortBy          .init(this,"SORT_BY");
   annotation      .init(this,"ANNOTATION");
+  partElements    .init(this,"PART_ELEMENTS");
+  rectangleStyle  .init(this,"RECTANGLE_STYLE");
+  circleStyle     .init(this,"CIRCLE_STYLE");
+  squareStyle     .init(this,"SQUARE_STYLE");
   cameraDistNative.init(this,"CAMERA_DISTANCE_NATIVE");
   cameraFoV       .init(this,"CAMERA_FOV");
   cameraAngles    .init(this,"CAMERA_ANGLES");
@@ -3322,10 +3428,28 @@ BomMeta::BomMeta() : PliMeta()
   part.margin.setValuesInches(0.05f,0.03f);
   instance.font.setValuePoints("Arial,24,-1,255,75,0,0,0,0,0");
   instance.margin.setValuesInches(0.0f,0.0f);
-  //instance.font.setValuePoints("Arial,24,-1,255,75,0,0,0,0,0");   // Rem at revision 226 11/06/15
-  annotate.font.setValuePoints("Arial,18,-1,5,50,0,0,0,0,0");
+  //annotate.font.setValuePoints("Arial,18,-1,5,50,0,0,0,0,0");     // Rem at 2.3.7 05/01/19
+  instance.font.setValuePoints("Arial,24,-1,255,75,0,0,0,0,0");
   annotate.color.setValue("#3a3938");                               // Add at revision 285 01/07/15
   annotate.margin.setValuesInches(0.0f,0.0f);
+
+  rectangleStyle.border.setValue(BorderData::BdrSquare,BorderData::BdrLnSolid,"#3a3938");
+  rectangleStyle.background.setValue(BackgroundData::BgColor,"#ffffff");
+  rectangleStyle.color.setValue("#34699d"); // #3a3938
+  rectangleStyle.style.setValue(AnnotationStyle::rectangle);
+  rectangleStyle.size.setValuesInches(8.0f,0.28f);
+  rectangleStyle.size.setRange(0.1f,8.0f);
+
+  squareStyle.border.setValue(BorderData::BdrSquare,BorderData::BdrLnSolid,"#3a3938");
+  squareStyle.background.setValue(BackgroundData::BgColor,"#ffffff");
+  squareStyle.color.setValue("#34699d");    // #3a3938
+  squareStyle.style.setValue(AnnotationStyle::square);
+
+  circleStyle.border.setValue(BorderData::BdrSquare,BorderData::BdrLnSolid,"#3a3938");
+  circleStyle.background.setValue(BackgroundData::BgColor,"#ffffff");
+  circleStyle.color.setValue("#34699d");    // #3a3938
+  circleStyle.style.setValue(AnnotationStyle::circle);
+
   pack.setValue(false);
   sort.setValue(true);
   sortBy.setValue("Part Size");
@@ -3366,6 +3490,10 @@ void BomMeta::init(BranchMeta *parent, QString name)
   sort            .init(this,"SORT");
   sortBy          .init(this,"SORT_BY");
   annotation      .init(this,"ANNOTATION");
+  partElements    .init(this,"PART_ELEMENTS");
+  rectangleStyle  .init(this,"RECTANGLE_STYLE");
+  circleStyle     .init(this,"CIRCLE_STYLE");
+  squareStyle     .init(this,"SQUARE_STYLE");
 
   cameraDistNative.init(this,"CAMERA_DISTANCE_NATIVE");
   cameraFoV       .init(this,"CAMERA_FOV");
@@ -3811,6 +3939,11 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
   LDCad  .init(this,"LDCAD");
   LeoCad .init(this,"LEOCAD");
   LSynth .init(this,"SYNTH");
+
+  /*
+   * The token map translates known keywords to values
+   * used by LPub to identify things like placement and such
+   */
 
   if (tokenMap.size() == 0) {
       tokenMap["TOP_LEFT"]         	   = TopLeft;

@@ -43,7 +43,8 @@ PliSortDialog::PliSortDialog(
 
   QGroupBox *box = new QGroupBox(_name,this);
   layout->addWidget(box);
-  pliSortBy = new PliSortGui("",&meta,box);
+  bool bom  = _name.toUpper().contains("BOM");
+  pliSortBy = new PliSortGui("",&meta,box,bom);
 
   QDialogButtonBox *buttonBox;
 

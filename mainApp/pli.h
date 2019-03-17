@@ -69,58 +69,65 @@ class PliPart {
     QList<Where>         instances;
     QString              type;
     QString              color;
+    QString              element;
     NumberMeta           instanceMeta;
-    NumberMeta           annotateMeta;
+    AnnotationStyleMeta  styleMeta;
     MarginsMeta          csiMargin;
     InstanceTextItem    *instanceText;
     AnnotateTextItem    *annotateText;
+    AnnotateTextItem    *annotateElement;
     PGraphicsPixmapItem *pixmap;
 
+    QString              sortElement;
     QString              sortCategory;
     QString              sortColour;
     QString              sortSize;
     QString              nameKey;
     QString              imageName;
 
-    int           width;
-    int           height;
+    int                  width;
+    int                  height;
 
-    int           col;
+    int                  col;
 
-    int           pixmapWidth;
-    int           pixmapHeight;
-    int           textHeight;
-    int           annotHeight;
-    int           annotWidth;
+    int                  pixmapWidth;
+    int                  pixmapHeight;
+    int                  textHeight;
+    int                  elementHeight;
+    int                  annotHeight;
+    int                  annotWidth;
 
-    int           topMargin;
-    int           partTopMargin;
-    int           partBotMargin;
+    int                  textMargin;
+    int                  topMargin;
+    int                  partTopMargin;
+    int                  partBotMargin;
 
-    QList<int>    leftEdge;
-    QList<int>    rightEdge;
+    QList<int>           leftEdge;
+    QList<int>           rightEdge;
 
     // placement info
-    bool          placed;
-    int           left;
-    int           bot;
+    bool                 placed;
+    int                  left;
+    int                  bot;
 
     PliPart()
     {
-      placed       = false;
-      instanceText = nullptr;
-      annotateText = nullptr;
-      pixmap       = nullptr;
+      placed          = false;
+      instanceText    = nullptr;
+      annotateText    = nullptr;
+      annotateElement = nullptr;
+      pixmap          = nullptr;
     }
 
     PliPart(QString _type, QString _color)
     {
-      type         = _type;
-      color        = _color;
-      placed       = false;
-      instanceText = nullptr;
-      annotateText = nullptr;
-      pixmap       = nullptr;
+      type            = _type;
+      color           = _color;
+      placed          = false;
+      instanceText    = nullptr;
+      annotateText    = nullptr;
+      annotateElement = nullptr;
+      pixmap          = nullptr;
     }
 
     float maxMargin();
@@ -232,7 +239,7 @@ class Pli : public Placement {
 
     void placeCols(QList<QString> &);
     bool initAnnotationString();
-    void getAnnotate(QString &, QString &);
+    void getAnnotation(QString &, QString &);
     void partClass(QString &, QString &);
     int  createPartImage(QString &, QString &, QString &, QPixmap*);
     int  createPartImagesLDViewSCall(QStringList &, bool);      //LDView performance improvement
@@ -300,14 +307,44 @@ protected:
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 
-  //-----------------------------------------
-
   virtual void resize(QPointF);
   virtual void change();
   virtual QRectF currentRect();
 
 private:
 };
+
+  //-----------------------------------------
+  //-----------------------------------------
+  //-----------------------------------------
+
+class PGraphicsPixmapItem : public QGraphicsPixmapItem,
+                            public MetaItem  // ResizePixmapItem
+{
+public:
+  PGraphicsPixmapItem(
+    Pli     *_pli,
+    PliPart *_part,
+    QPixmap &pixmap,
+    PlacementType  _parentRelativeType,
+    QString &type,
+    QString &color)
+  {
+    parentRelativeType = _parentRelativeType;
+    pli = _pli;
+    part = _part;
+    setPixmap(pixmap);
+    setToolTip(pliToolTip(type,color));
+  }
+  QString pliToolTip(QString type, QString Color);
+  PliPart *part;
+  Pli     *pli;
+  PlacementType  parentRelativeType;
+
+protected:
+  void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+};
+
 
 class PGraphicsTextItem : public QGraphicsTextItem, public MetaItem
 {
@@ -345,7 +382,7 @@ public:
     setFont(font);
     setToolTip(toolTip);
   }
-  void size(int &x, int &y)
+  virtual void size(int &x, int &y)
   {
     QSizeF size = document()->size();
     x = int(size.width());
@@ -354,28 +391,32 @@ public:
   PliPart *part;
   Pli     *pli;
   PlacementType  parentRelativeType;
+  bool     element;
 };
 
 class AnnotateTextItem : public PGraphicsTextItem
 {
 public:
-  AnnotateTextItem(
-    Pli     *_pli,
+    QRectF               annotateRect;
+    StringListMeta       subModelColor;
+    int                  submodelLevel;
+    AnnotationStyleMeta *styleMeta;
+
+  AnnotateTextItem(Pli     *_pli,
     PliPart *_part,
     QString &text,
     QString &fontString,
     QString &colorString,
-    PlacementType _parentRelativeType)
-  {
-    parentRelativeType = _parentRelativeType;
-    QString toolTip("Part Annotation - right-click to modify");
-    setText(_pli,_part,text,fontString,toolTip);
-    QColor color(colorString);
-    setDefaultTextColor(color);
-  }
+    PlacementType _parentRelativeType,
+    bool          _element = false);
 
+    void size(int &x, int &y);
+    void setAttributes();
+    QGradient setGradient();
 protected:
+  void setBackground(QPainter *painter);
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+  void paint(QPainter *painter, const QStyleOptionGraphicsItem *o, QWidget *w);
 };
 
 class InstanceTextItem : public PGraphicsTextItem
@@ -399,32 +440,4 @@ public:
 protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 };
-
-class PGraphicsPixmapItem : public QGraphicsPixmapItem,
-                            public MetaItem  // ResizePixmapItem
-{
-public:
-  PGraphicsPixmapItem(
-    Pli     *_pli,
-    PliPart *_part,
-    QPixmap &pixmap,
-    PlacementType  _parentRelativeType,
-    QString &type,
-    QString &color)
-  {
-    parentRelativeType = _parentRelativeType;
-    pli = _pli;
-    part = _part;
-    setPixmap(pixmap);
-    setToolTip(pliToolTip(type,color));
-  }
-  QString pliToolTip(QString type, QString Color);
-  PliPart *part;
-  Pli     *pli;
-  PlacementType  parentRelativeType;
-
-protected:
-  void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
-};
-
 #endif

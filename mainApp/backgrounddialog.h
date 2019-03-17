@@ -41,14 +41,16 @@ public:
   BackgroundDialog(
     BackgroundData  &goods,
     QString          name,
+    bool             picSettings,
     QWidget         *parent);
 
   virtual ~BackgroundDialog();
 
   static bool getBackground(
     BackgroundData &goods,
-    QString      name,
-    QWidget     *parent);
+    QString         name,
+    bool            picSettings,
+    QWidget        *parent);
 
   BackgroundMeta meta;
 

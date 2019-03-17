@@ -185,7 +185,8 @@ public:
     QString const &heading0,
     QString const &heading1,
     FloatPairMeta *meta,
-    QGroupBox     *parent = nullptr);
+    QGroupBox     *parent = nullptr,
+    int            decPlaces = 1);
   ~FloatsGui() {}
 
   void setEnabled(bool enabled);
@@ -681,7 +682,8 @@ public:
 
   BackgroundGui(
     BackgroundMeta  *meta,
-    QGroupBox       *parent = nullptr);
+    QGroupBox       *parent = nullptr,
+    bool             pictureSettings = true);
 
   ~BackgroundGui() {}
 
@@ -731,7 +733,8 @@ public:
   BorderGui(
     BorderMeta *meta,
     QGroupBox  *parent  = nullptr,
-    bool rotateArrow = false);
+    bool rotateArrow = false,
+    bool corners = true);
   ~BorderGui() {}
 
   virtual void apply(QString &modelName);
@@ -1022,7 +1025,8 @@ public:
   PliSortGui(
       QString const &heading,
       PliSortMeta   *meta,
-      QGroupBox     *parent = nullptr);
+      QGroupBox     *parent = nullptr,
+      bool           bom = false);
   ~PliSortGui() {}
 
   virtual void apply(QString &topLevelFile);
@@ -1036,6 +1040,52 @@ private:
 public slots:
   void optionChange(QString const &);
 };
+
+/***********************************************************************
+ *
+ * PliPartElements
+ *
+ **********************************************************************/
+
+class PliPartElementMeta;
+class PliPartElementGui : public MetaGui
+{
+  Q_OBJECT
+public:
+  bool displayModified;
+  bool bricklinkElementsModified;
+  bool legoElementsModified;
+  bool localLegoElementsModified;
+
+
+  PliPartElementGui(
+      QString const       &heading,
+      PliPartElementMeta  *meta,
+      QGroupBox           *parent = nullptr);
+  ~PliPartElementGui() {}
+
+  virtual void apply(QString &topLevelFile);
+
+private:
+  QGroupBox         *gbPliPartElement;
+  QLabel            *headingLabel;
+  QRadioButton      *bricklinkElementsButton;
+  QRadioButton      *legoElementsButton;
+  QCheckBox         *localLegoElementsCheck;
+
+  PliPartElementMeta *meta;
+
+signals:
+  void toggled(bool);
+
+public slots:
+  void bricklinkElements(bool);
+  void legoElements(bool);
+  void localLegoElements(bool);
+
+  void gbToggled(bool toggled);
+};
+
 
 /***********************************************************************
  *
@@ -1054,11 +1104,21 @@ public:
   bool titleModified;
   bool freeformModified;
   bool titleAndFreeformModified;
+  bool axleStyleModified;
+  bool beamStyleModified;
+  bool cableStyleModified;
+  bool connectorStyleModified;
+  bool elementStyleModified;
+  bool extendedStyleModified;
+  bool hoseStyleModified;
+  bool panelStyleModified;
+
 
   PliAnnotationGui(
       QString const       &heading,
       PliAnnotationMeta   *meta,
-      QGroupBox           *parent = nullptr);
+      QGroupBox           *parent = nullptr,
+      bool                 bom = false);
   ~PliAnnotationGui() {}
 
   virtual void apply(QString &topLevelFile);
@@ -1069,13 +1129,35 @@ private:
   QRadioButton      *freeformAnnotationButton;
   QRadioButton      *titleAndFreeformAnnotationButton;
   QGroupBox         *gbPLIAnnotation;
+  QCheckBox         *axleStyleCheck;
+  QCheckBox         *beamStyleCheck;
+  QCheckBox         *cableStyleCheck;
+  QCheckBox         *connectorStyleCheck;
+  QCheckBox         *elementStyleCheck;
+  QCheckBox         *extendedStyleCheck;
+  QCheckBox         *hoseStyleCheck;
+  QCheckBox         *panelStyleCheck;
+
+  QGroupBox         *gbPLIAnnotationStyle;
   PliAnnotationMeta *meta;
+
+signals:
+  void toggled(bool);
 
 public slots:
   void titleAnnotation(bool);
   void freeformAnnotation(bool);
   void titleAndFreeformAnnotation(bool);
-  void gbToggled(bool toggled);
+  void axleStyle(bool);
+  void beamStyle(bool);
+  void cableStyle(bool);
+  void connectorStyle(bool);
+  void elementStyle(bool);
+  void extendedStyle(bool);
+  void hoseStyle(bool);
+  void panelStyle(bool);
+
+  void gbToggled(bool checked);
 };
 
 /***********************************************************************

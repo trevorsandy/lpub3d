@@ -133,6 +133,7 @@ class Preferences
     static QString validPliControl;
     static QString validTitleAnnotations;
     static QString validFreeFormAnnotations;
+    static QString validAnnotationStyleFile;
     static QString validPliSubstituteParts;
     static QString validExcludedPliParts;
 
@@ -140,8 +141,15 @@ class Preferences
     static QString pliControlFile;
     static QString titleAnnotationsFile;
     static QString freeformAnnotationsFile;
+    static QString annotationStyleFile;
     static QString excludedPartsFile;
     static QString ldrawColourPartsFile;
+
+    static QString blElementsFile;
+    static QString legoElementsFile;
+    static QString blColorsFile;
+    static QString ld2blColorsXRefFile;
+    static QString ld2blCodesXRefFile;
 
     static QString fadeStepsColourKey;
     static QString ldrawSearchDirsKey;

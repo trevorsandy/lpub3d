@@ -35,7 +35,8 @@
 BorderDialog::BorderDialog(
   BorderData &goods,
   QString     _name,
-  bool        _rotateArrow)
+  bool        _rotateArrow,
+  bool        _noCorners)
 {
   setWindowTitle(_name);
 
@@ -45,7 +46,7 @@ BorderDialog::BorderDialog(
 
   QGroupBox *box = new QGroupBox(_rotateArrow ? "Arrows": "Border",this);
   layout->addWidget(box);
-  border = new BorderGui(&meta,box,_rotateArrow);
+  border = new BorderGui(&meta,box,_rotateArrow,_noCorners);
 
   QDialogButtonBox *buttonBox;
   
@@ -65,9 +66,10 @@ BorderDialog::BorderDialog(
 bool BorderDialog::getBorder(
   BorderData &goods,
   QString     name,
-  bool        rotateArrow)
+  bool        rotateArrow,
+  bool        corners)
 {
-  BorderDialog *dialog = new BorderDialog(goods,name,rotateArrow);
+  BorderDialog *dialog = new BorderDialog(goods,name,rotateArrow,corners);
 
   bool ok = dialog->exec() == QDialog::Accepted;
   if (ok) {

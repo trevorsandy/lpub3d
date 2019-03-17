@@ -349,7 +349,7 @@
 #include "lgraphicsscene.h"
 
 //3D Viewer
-#include "lc_global.h" // TODO - remove this; not necessary
+#include "lc_global.h"
 #include "lc_math.h"
 #include "lc_library.h"
 #include "lc_mainwindow.h"
@@ -411,6 +411,9 @@ class PageBackgroundItem;
 
 class Pointer;
 class PagePointer;
+
+class lcHttpReply;
+class lcHttpManager;
 
 enum traverseRc { HitEndOfPage = 1 };
 enum Dimensions {Pixels = 0, Inches};
@@ -660,6 +663,13 @@ public:
 
   bool compareVersionStr(const QString &first, const QString &second);
 
+  // download components
+  void downloadFile(QString URL, QString title);
+  QByteArray getDownloadedFile() const
+  {
+      return mByteArray;
+  }
+
 public slots:
   //**3D Viewer Manage Step Rotation
 
@@ -848,6 +858,8 @@ public slots:
 
   void TogglePrintPreview();
 
+  void DownloadFinished(lcHttpReply* Reply);
+
 signals:       
 
   /* tell the editor to display this file */
@@ -916,6 +928,12 @@ protected:
   QMap<QString, QString> mPliIconsPath;       // used to set an icon image in the 3DViewer timeline view
 
   QMap<int, PgSizeData>  pageSizes;          // page size and orientation object
+
+  // download components
+  lcHttpManager*         mHttpManager;
+  lcHttpReply*           mHttpReply;
+  QByteArray             mByteArray;
+  QString                mTitle;
 
 private:
   LGraphicsScene        *KpageScene;         // top of displayed page's graphics items

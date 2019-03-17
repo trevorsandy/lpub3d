@@ -698,6 +698,8 @@ public:
     _value[pushed][1] = v2;
   }
   
+  virtual void setValuePixels(int which, int pixels);
+
   virtual int valuePixels(int which);
 
   UnitsMeta() : FloatPairMeta()
@@ -864,7 +866,6 @@ public:
 };
 
 /* This leaf class is used for fonts */
-
 class FontMeta : public StringMeta {
 private:
   
@@ -1083,16 +1084,6 @@ private:
   BorderData _value[2];  // some of this is in units
   BorderData _result;
 public:
-  BorderData &value()
-  {
-    _result = _value[pushed];
-    if (resolutionType() == DPCM) {
-      _result.thickness = inches2centimeters(_result.thickness);
-      _result.margin[0] = inches2centimeters(_result.margin[0]);
-      _result.margin[1] = inches2centimeters(_result.margin[1]);
-    }
-    return _result;
-  }
   void setValue(BorderData border)
   {
     if (resolutionType() == DPCM) {
@@ -1102,9 +1093,14 @@ public:
     }
     _value[pushed] = border;
   }
-  BorderData valueInches()
+  void setValue(
+    BorderData::Border type,
+    BorderData::Line line,
+    QString string)
   {
-    return _value[pushed];
+    _value[pushed].type  = type;
+    _value[pushed].line  = line;
+    _value[pushed].color = string;
   }
   void setValueInches(BorderData &borderData)
   {
@@ -1130,6 +1126,20 @@ public:
     else {//"Dot-Dot-Dash Line"
       return BorderData::BdrLnDashDotDot;
       }
+  }
+  BorderData &value()
+  {
+    _result = _value[pushed];
+    if (resolutionType() == DPCM) {
+      _result.thickness = inches2centimeters(_result.thickness);
+      _result.margin[0] = inches2centimeters(_result.margin[0]);
+      _result.margin[1] = inches2centimeters(_result.margin[1]);
+    }
+    return _result;
+  }
+  BorderData valueInches()
+  {
+    return _value[pushed];
   }
   BorderData &valuePixels()
   {
@@ -2288,6 +2298,28 @@ public:
 
 /*------------------------*/
 
+class AnnotationStyleMeta : public BranchMeta
+{
+public:
+  MarginsMeta     margin;
+  BorderMeta      border;
+  BackgroundMeta  background;
+  FontMeta        font;
+  StringMeta      color;
+  UnitsMeta       size;
+  IntMeta         style;
+
+  AnnotationStyleMeta();
+  AnnotationStyleMeta(const AnnotationStyleMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+
+  virtual ~AnnotationStyleMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+};
+
+/*------------------------*/
+
 class PliSortMeta : public BranchMeta
 {
 public:
@@ -2312,6 +2344,25 @@ public:
 
 /*------------------------*/
 
+class PliPartElementMeta : public BranchMeta
+{
+public:
+  BoolMeta      display;
+  BoolMeta      bricklinkElements;
+  BoolMeta      legoElements;
+  BoolMeta      localLegoElements;
+
+  PliPartElementMeta();
+  PliPartElementMeta(const PliPartElementMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+
+  virtual ~PliPartElementMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+};
+
+/*------------------------*/
+
 class PliAnnotationMeta : public BranchMeta
 {
 public:
@@ -2319,6 +2370,14 @@ public:
   BoolMeta      freeformAnnotation;
   BoolMeta      titleAndFreeformAnnotation;
   BoolMeta      display;
+  BoolMeta      axleStyle;
+  BoolMeta      beamStyle;
+  BoolMeta      cableStyle;
+  BoolMeta      connectorStyle;
+  BoolMeta      elementStyle;
+  BoolMeta      extendedStyle;
+  BoolMeta      hoseStyle;
+  BoolMeta      panelStyle;
 
   PliAnnotationMeta();
   PliAnnotationMeta(const PliAnnotationMeta &rhs) : BranchMeta(rhs)
@@ -2513,6 +2572,10 @@ public:
   BoolMeta             sort;
   PliSortMeta          sortBy;
   PliAnnotationMeta    annotation;
+  PliPartElementMeta   partElements;
+  AnnotationStyleMeta  rectangleStyle;
+  AnnotationStyleMeta  circleStyle;
+  AnnotationStyleMeta  squareStyle;
 
   FloatMeta            cameraFoV;
   FloatPairMeta        cameraAngles;

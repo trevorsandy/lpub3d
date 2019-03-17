@@ -48,7 +48,8 @@ public:
   BorderDialog(
     BorderData  &goods,
     QString      name,
-    bool         rotateArrow = false);
+    bool         rotateArrow,
+    bool         corners);
 
   virtual ~BorderDialog()
   {
@@ -57,7 +58,8 @@ public:
   static bool getBorder(
     BorderData  &goods,
     QString      name,
-    bool         rotateArrow = false);
+    bool         rotateArrow,
+    bool         corners);
 
   BorderMeta   meta;
 

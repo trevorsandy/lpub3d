@@ -123,8 +123,8 @@ public:
     PlacementData  &goods,
     QString         title,
     int             onPageType,
-    QWidget        *parent,
-    bool            pliPerStep);
+    bool            pliPerStep,
+    QWidget        *parent);
  ~PlacementDialog();
 
   static bool getPlacement(
@@ -133,8 +133,8 @@ public:
     PlacementData  &goods,  // the type in here provides default value
     QString         title,
     int             onPageType = ContentPage,
-    QWidget        *parent = 0,
-    bool            pliPerStep = false);
+    bool            pliPerStep = false,
+    QWidget        *parent = nullptr);
 
   static QString relativeToName(int relativeTo);
 

@@ -1288,7 +1288,7 @@ void MetaItem::changePlacement(
   PlacementData placementData = placement->value();
   bool ok;
   ok = PlacementDialog
-       ::getPlacement(parentType,relativeType,placementData,title,onPageType,nullptr,pliPerStep);
+       ::getPlacement(parentType,relativeType,placementData,title,onPageType,pliPerStep);
 
   if (ok) {
     placement->setValue(placementData);
@@ -1504,11 +1504,12 @@ void MetaItem::changeBackground(
   BackgroundMeta *background,
   bool            useTop,
   int             append,
-  bool            local)
+  bool            local,
+  bool            picSettings)
 {
   BackgroundData backgroundData = background->value();
   bool ok;
-  ok = BackgroundDialog::getBackground(backgroundData,title,gui);
+  ok = BackgroundDialog::getBackground(backgroundData,title,picSettings,gui);
 
   if (ok) {
     background->setValue(backgroundData);
@@ -1923,10 +1924,11 @@ void MetaItem::changeBorder(
   bool         useTop,
   int          append,
   bool         local,
-  bool         rotateArrow)
+  bool         rotateArrow,
+  bool         corners)
 {
   BorderData borderData = border->value();
-  bool ok = BorderDialog::getBorder(borderData,title,rotateArrow);
+  bool ok = BorderDialog::getBorder(borderData,title,rotateArrow,corners);
 
   if (ok) {
 

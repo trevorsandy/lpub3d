@@ -130,14 +130,23 @@ PliPart::~PliPart()
   rightEdge.clear();
 }
 
+
 float PliPart::maxMargin()
 {
   float margin1 = qMax(instanceMeta.margin.valuePixels(XX),
                        csiMargin.valuePixels(XX));
+
+  // Use BOM Element margin
+  if (styleMeta.style.value() != AnnotationStyle::none){
+      float margin2 = styleMeta.margin.valuePixels(XX);
+      margin1 = qMax(margin1,margin2);
+  }
+
   if (annotWidth) {
-      float margin2 = annotateMeta.margin.valuePixels(XX);
+      float margin2 = styleMeta.margin.valuePixels(XX);
       margin1 = qMax(margin1,margin2);
     }
+
   return margin1;
 }
 
@@ -168,6 +177,8 @@ void Pli::setParts(
   splitBom = _split;
   pliMeta  = _bom ? meta.LPub.bom : meta.LPub.pli;
 
+  bool styleExtended = pliMeta.annotation.extendedStyle.value();
+
   for (int i = 0; i < pliParts.size(); i++) {
       QString part = pliParts[i];
       QStringList sections = part.split(";");
@@ -186,14 +197,92 @@ void Pli::setParts(
 
           QString key = info.baseName() + "_" + color;
 
-          QString category;
-          partClass(type,category);  // populate category w/ part class
+          QString sortCategory;
+          partClass(type,sortCategory);  // populate sort category using part class and
+
+          QString element;
+          if (bom && pliMeta.partElements.display.value()) {
+
+              QString _colorid = color;
+              QString _typeid  = QFileInfo(type).baseName();
+
+              int which = 0;
+              if ( pliMeta.partElements.legoElements.value())
+                  which = 1;
+
+              if (pliMeta.partElements.localLegoElements.value()) {
+                  QString elementKey = QString("%1%2").arg(_typeid).arg(_colorid);
+                  element = Annotations::getLEGOElement(elementKey.toLower());
+              }
+              else
+              {
+                  if (!Annotations::loadBLElements()){
+                      QString URL(VER_LPUB3D_BLELEMENTS_DOWNLOAD_URL);
+                      gui->downloadFile(URL, "BrickLink Elements");
+                      QByteArray Buffer = gui->getDownloadedFile();
+                      Annotations::loadBLElements(Buffer);
+                  }
+                  element = Annotations::getBLElement(_colorid,_typeid,which);
+              }
+          }
 
           float modelScale = 1.0f;
           if (Preferences::usingNativeRenderer) {
               modelScale = pliMeta.cameraDistNative.factor.value();
           } else {
               modelScale = pliMeta.modelScale.value();
+          }
+
+          // set default annotation style settings
+          AnnotationStyleMeta styleMeta;
+          styleMeta.margin = pliMeta.annotate.margin;
+          styleMeta.font   = pliMeta.annotate.font;
+          styleMeta.color  = pliMeta.annotate.color;
+
+          // get part annotation style flag - either cirle(1) or square(2)
+          AnnotationStyle style = (AnnotationStyle)Annotations::getAnnotationStyle(type);
+
+          // set style meta settings
+          if (style) {
+              // get style category
+              bool styleCategory = false;
+              AnnotationCategory annotationCategory = (AnnotationCategory)Annotations::getAnnotationCategory(type);
+              switch (annotationCategory)
+              {
+              case AnnotationCategory::axle:
+                  styleCategory = pliMeta.annotation.axleStyle.value();
+                  break;
+              case AnnotationCategory::beam:
+                  styleCategory = pliMeta.annotation.beamStyle.value();
+                  break;
+              case AnnotationCategory::cable:
+                  styleCategory = pliMeta.annotation.cableStyle.value();
+                  break;
+              case AnnotationCategory::connector:
+                  styleCategory = pliMeta.annotation.connectorStyle.value();
+                  break;
+              case AnnotationCategory::hose:
+                  styleCategory = pliMeta.annotation.hoseStyle.value();
+                  break;
+              case AnnotationCategory::panel:
+                  styleCategory = pliMeta.annotation.panelStyle.value();
+                  break;
+              default:
+                  break;
+              }
+              // set style if category enabled
+              if (styleCategory) {
+                  if (style == AnnotationStyle::circle)
+                      styleMeta       = pliMeta.circleStyle;
+                  else
+                  if (style == AnnotationStyle::square)
+                     styleMeta        = pliMeta.squareStyle;
+              }
+          }
+          else {
+              if (styleExtended) {
+                  styleMeta = pliMeta.rectangleStyle;
+              }
           }
 
           // assemble image name key
@@ -212,26 +301,30 @@ void Pli::setParts(
           if (bom && splitBom){
               if ( ! tempParts.contains(key)) {
                   PliPart *part = new PliPart(type,color);
-                  part->annotateMeta = pliMeta.annotate;
-                  part->instanceMeta = pliMeta.instance;
-                  part->csiMargin    = pliMeta.part.margin;
-                  part->sortColour   = QString("%1").arg(color,5,'0');
-                  part->sortCategory = QString("%1").arg(category,80,' ');
-                  part->nameKey      = nameKey;
-                  part->imageName    = imageName;
+                  part->element         = element;
+                  part->styleMeta       = styleMeta;
+                  part->instanceMeta    = pliMeta.instance;
+                  part->csiMargin       = pliMeta.part.margin;
+                  part->sortColour      = QString("%1").arg(color,5,'0');
+                  part->sortCategory    = QString("%1").arg(sortCategory,80,' ');
+                  part->sortElement     = pliMeta.partElements.legoElements.value() ? QString("%1").arg(element,12,'0'): QString("%1").arg(element,20,' ');
+                  part->nameKey         = nameKey;
+                  part->imageName       = imageName;
                   tempParts.insert(key,part);
                 }
               tempParts[key]->instances.append(here);
             } else {
               if ( ! parts.contains(key)) {
                   PliPart *part = new PliPart(type,color);
-                  part->annotateMeta = pliMeta.annotate;
-                  part->instanceMeta = pliMeta.instance;
-                  part->csiMargin    = pliMeta.part.margin;
-                  part->sortColour   = QString("%1").arg(color,5,'0');
-                  part->sortCategory = QString("%1").arg(category,80,' ');
-                  part->nameKey      = nameKey;
-                  part->imageName    = imageName;
+                  part->element         = element;
+                  part->styleMeta       = styleMeta;
+                  part->instanceMeta    = pliMeta.instance;
+                  part->csiMargin       = pliMeta.part.margin;
+                  part->sortColour      = QString("%1").arg(color,5,'0');
+                  part->sortCategory    = QString("%1").arg(sortCategory,80,' ');
+                  part->sortElement     = pliMeta.partElements.legoElements.value() ? QString("%1").arg(element,12,'0'): QString("%1").arg(element,20,' ');
+                  part->nameKey         = nameKey;
+                  part->imageName       = imageName;
                   parts.insert(key,part);
                 }
               parts[key]->instances.append(here);
@@ -261,6 +354,17 @@ void Pli::setParts(
           for (int i = 0; i < tempParts.size() - 1; i++) {
               for (int j = i+1; j < tempParts.size(); j++) {
                   if (tempParts[sortedKeys[i]]->sortCategory < tempParts[sortedKeys[j]]->sortCategory) {
+                      QString t = sortedKeys[i];
+                      sortedKeys[i] = sortedKeys[j];
+                      sortedKeys[j] = t;
+                    }
+                }
+            }
+        } else if (pliMeta.sortBy.value() == SortOptionName[PartElement]){
+          // Sort tempParts by element
+          for (int i = 0; i < tempParts.size() - 1; i++) {
+              for (int j = i+1; j < tempParts.size(); j++) {
+                  if (tempParts[sortedKeys[i]]->sortElement < tempParts[sortedKeys[j]]->sortElement) {
                       QString t = sortedKeys[i];
                       sortedKeys[i] = sortedKeys[j];
                       sortedKeys[j] = t;
@@ -344,7 +448,7 @@ bool Pli::initAnnotationString()
   return true;
 }
 
-void Pli::getAnnotate(
+void Pli::getAnnotation(
     QString &type,
     QString &annotateStr)
 {
@@ -495,8 +599,13 @@ int Pli::createSubModelIcons()
                     .arg(pliMeta.cameraAngles.value(1));
 
             if ( ! parts.contains(key)) {
+                AnnotationStyleMeta styleMeta;
+                styleMeta.margin = pliMeta.annotate.margin;
+                styleMeta.font   = pliMeta.annotate.font;
+                styleMeta.color  = pliMeta.annotate.color;
+
                 PliPart *part = new PliPart(type,color);
-                part->annotateMeta = pliMeta.annotate;
+                part->styleMeta    = styleMeta;
                 part->instanceMeta = pliMeta.instance;
                 part->csiMargin    = pliMeta.part.margin;
                 part->sortColour   = QString("%1").arg(color,5,'0');
@@ -760,12 +869,17 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart) {
 
             /* Add annotation area */
 
-            getAnnotate(part->type,descr);
+            if (part->styleMeta.style.value() == AnnotationStyle::circle ||
+                part->styleMeta.style.value() == AnnotationStyle::square)
+                descr = Annotations::getStyleAnnotation(part->type);
+            else
+                getAnnotation(part->type,descr);
 
             if (descr.size()) {
 
-                font = pliMeta.annotate.font.valueFoo();
-                color = pliMeta.annotate.color.value();
+                font   = part->styleMeta.font.valueFoo();
+                color  = part->styleMeta.color.value();
+
                 part->annotateText =
                         new AnnotateTextItem(this,part,descr,font,color,parentRelativeType);
 
@@ -775,9 +889,9 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart) {
                     part->width = part->annotWidth;
                 }
 
-                part->partTopMargin = part->annotateMeta.margin.valuePixels(YY);
+                part->partTopMargin = part->styleMeta.margin.valuePixels(YY);
 
-                int hMax = int(part->annotHeight + part->annotateMeta.margin.value(YY));
+                int hMax = int(part->annotHeight + part->partTopMargin);
                 for (int h = 0; h < hMax; h++) {
                     part->leftEdge  << part->width - part->annotWidth;
                     part->rightEdge << part->width;
@@ -788,27 +902,91 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart) {
                 part->annotHeight = 0;
                 part->partTopMargin = 0;
             }
+
             part->topMargin = part->csiMargin.valuePixels(YY);
             getLeftEdge(image,part->leftEdge);
             getRightEdge(image,part->rightEdge);
 
-            part->partBotMargin = part->instanceMeta.margin.valuePixels(YY);
+            /*
+             * Lets see if we can slide the text up in the bottom left corner of
+             * part image (or part element if display option selected)
+             */
 
-            /* Lets see if we can slide the text up in the bottom left corner of part image */
-
-            int overlap;
             bool overlapped = false;
 
+            int overlap;
             for (overlap = 1; overlap < textHeight && ! overlapped; overlap++) {
                 if (part->leftEdge[part->leftEdge.size() - overlap] < textWidth) {
                     overlapped = true;
-                }
-            }
+                  }
+              }
 
-            int hMax = textHeight + part->instanceMeta.margin.valuePixels(YY);
+            part->textMargin = part->instanceMeta.margin.valuePixels(YY);
+
+            int hMax = int(textHeight + part->textMargin);
             for (int h = overlap; h < hMax; h++) {
                 part->leftEdge << 0;
                 part->rightEdge << textWidth;
+              }
+
+            if (bom && pliMeta.partElements.display.value()) {
+
+                /* Add BOM Elements area */
+
+                if (part->element.size()) {
+
+                    int elementMargin;
+
+                    if (pliMeta.annotation.elementStyle.value()){
+                        font   = pliMeta.rectangleStyle.font.valueFoo();
+                        color  = pliMeta.rectangleStyle.color.value();
+                        elementMargin = pliMeta.rectangleStyle.margin.valuePixels(YY);
+                    } else {
+                        font   = pliMeta.annotate.font.valueFoo();
+                        color  = pliMeta.annotate.color.value();
+                        elementMargin = pliMeta.annotate.margin.valuePixels(YY);
+                    }
+
+                    part->annotateElement =
+                            new AnnotateTextItem(this,part,part->element,font,color,parentRelativeType,true);
+
+                    int elementWidth, elementHeight;
+
+                    part->annotateElement->size(elementWidth,elementHeight);
+
+                    part->elementHeight = elementHeight;
+
+                    if (elementWidth > part->width) {
+                        part->width = elementWidth;
+                    }
+
+                    /*
+                     * Lets see if we can slide the BOM Element up in the bottom left corner of
+                     * part image
+                     */
+
+                    overlapped = false;
+
+                    for (overlap = 1; overlap < elementHeight && ! overlapped; overlap++) {
+                        if (part->leftEdge[part->leftEdge.size() - overlap] < elementWidth) {
+                            overlapped = true;
+                        }
+                    }
+
+                    part->partBotMargin = elementMargin;
+
+                    hMax = elementHeight + part->partBotMargin;
+                    for (int h = overlap; h < hMax; h++) {
+                        part->leftEdge << 0;
+                        part->rightEdge << elementWidth;
+                    }
+                } else {
+                    part->annotateElement = nullptr;
+                    part->elementHeight  = 0;
+                    part->partBotMargin = part->textMargin;
+                }
+            } else {
+                part->partBotMargin = part->textMargin;
             }
 
             part->height = part->leftEdge.size();
@@ -883,7 +1061,7 @@ void Pli::partClass(
           pclass = rx.cap(1);
           if (rx.captureCount() == 2 && rx.cap(1) == "Technic") {
               pclass += rx.cap(2);
-            }
+          }
         } else {
           pclass = "NoCat";
         }
@@ -961,8 +1139,17 @@ int Pli::placePli(
 
       QPair<int, int> margin;
 
+
       margin.first = qMax(prevPart->instanceMeta.margin.valuePixels(XX),
                           prevPart->csiMargin.valuePixels(XX));
+
+      // Compare BOM Element Margin
+      if (bom && pliMeta.partElements.display.value()) {
+          int elementMargin = qMax(prevPart->styleMeta.margin.valuePixels(XX),
+                                   prevPart->csiMargin.valuePixels(XX));
+          if (elementMargin > margin.first)
+              margin.first = elementMargin;
+      }
 
       tallest = qMax(tallest,prevPart->height);
 
@@ -1180,7 +1367,7 @@ int Pli::placePli(
 
       part = parts[keys[widest]];
       if (part->annotWidth) {
-          margin.second = qMax(part->annotateMeta.margin.valuePixels(XX),part->csiMargin.valuePixels(XX));
+          margin.second = qMax(part->styleMeta.margin.valuePixels(XX),part->csiMargin.valuePixels(XX));
         } else {
           margin.second = part->csiMargin.valuePixels(XX);
         }
@@ -1377,6 +1564,35 @@ int Pli::sortPli()
             }
         }
 
+    } else if (pliMeta.sortBy.value() == SortOptionName[PartElement]){
+
+      if (! bom)
+        pliMeta.sort.setValue(true);
+
+      // Sort parts by element
+      for (int i = 0; i < parts.size() - 1; i++) {
+          for (int j = i+1; j < parts.size(); j++) {
+              if (parts[sortedKeys[i]]->sortElement < parts[sortedKeys[j]]->sortElement) {
+                  QString t = sortedKeys[i];
+                  sortedKeys[i] = sortedKeys[j];
+                  sortedKeys[j] = t;
+                }
+            }
+        }
+
+      // Sort element-sorted parts by size
+      for (int i = 0; i < parts.size() - 1; i++) {
+          for (int j = i+1; j < parts.size(); j++) {
+              if (parts[sortedKeys[i]]->sortCategory == parts[sortedKeys[j]]->sortCategory) {
+                  if (parts[sortedKeys[i]]->sortSize < parts[sortedKeys[j]]->sortSize) {
+                      QString t = sortedKeys[i];
+                      sortedKeys[i] = sortedKeys[j];
+                      sortedKeys[j] = t;
+                    }
+                }
+            }
+        }
+
     } else {
 
       // Sort parts by size
@@ -1390,6 +1606,7 @@ int Pli::sortPli()
             }
         }
     }
+
   return 0;
 }
 
@@ -1472,12 +1689,17 @@ int Pli::partSize()
 
               /* Add annotation area */
 
-              getAnnotate(part->type,descr);
+              if (part->styleMeta.style.value() == AnnotationStyle::circle ||
+                  part->styleMeta.style.value() == AnnotationStyle::square)
+                  descr = Annotations::getStyleAnnotation(part->type);
+              else
+                  getAnnotation(part->type,descr);
 
               if (descr.size()) {
 
-                  font = pliMeta.annotate.font.valueFoo();
-                  color = pliMeta.annotate.color.value();
+                  font   = part->styleMeta.font.valueFoo();
+                  color  = part->styleMeta.color.value();
+
                   part->annotateText =
                       new AnnotateTextItem(this,part,descr,font,color,parentRelativeType);
 
@@ -1487,9 +1709,9 @@ int Pli::partSize()
                       part->width = part->annotWidth;
                     }
 
-                  part->partTopMargin = part->annotateMeta.margin.valuePixels(YY);
+                  part->partTopMargin = part->styleMeta.margin.valuePixels(YY);           // annotationStyle margin
 
-                  int hMax = int(part->annotHeight + part->annotateMeta.margin.value(YY));
+                  int hMax = int(part->annotHeight + part->partTopMargin);
                   for (int h = 0; h < hMax; h++) {
                       part->leftEdge  << part->width - part->annotWidth;
                       part->rightEdge << part->width;
@@ -1500,29 +1722,92 @@ int Pli::partSize()
                   part->annotHeight = 0;
                   part->partTopMargin = 0;
                 }
+
               part->topMargin = part->csiMargin.valuePixels(YY);
               getLeftEdge(image,part->leftEdge);
               getRightEdge(image,part->rightEdge);
 
-              part->partBotMargin = part->instanceMeta.margin.valuePixels(YY);
+              /*
+               * Lets see if we can slide the text up in the bottom left corner of
+               * part image (or part element if display option selected)
+               */
 
-              /* Lets see if we can slide the text up in the bottom left corner of
-               * part image */
-
-              int overlap;
               bool overlapped = false;
 
+              int overlap;
               for (overlap = 1; overlap < textHeight && ! overlapped; overlap++) {
                   if (part->leftEdge[part->leftEdge.size() - overlap] < textWidth) {
                       overlapped = true;
                     }
                 }
 
-              int hMax = textHeight + part->instanceMeta.margin.valuePixels(YY);
+              part->textMargin = part->instanceMeta.margin.valuePixels(YY);
+
+              int hMax = int(textHeight + part->textMargin);
               for (int h = overlap; h < hMax; h++) {
                   part->leftEdge << 0;
                   part->rightEdge << textWidth;
                 }
+
+              if (bom && pliMeta.partElements.display.value()) {
+
+                  /* Add BOM Elements area */
+
+                  if (part->element.size()) {
+
+                      int elementMargin;
+
+                      if (pliMeta.annotation.elementStyle.value()){
+                          font   = pliMeta.rectangleStyle.font.valueFoo();
+                          color  = pliMeta.rectangleStyle.color.value();
+                          elementMargin = pliMeta.rectangleStyle.margin.valuePixels(YY);
+                      } else {
+                          font   = pliMeta.annotate.font.valueFoo();
+                          color  = pliMeta.annotate.color.value();
+                          elementMargin = pliMeta.annotate.margin.valuePixels(YY);
+                      }
+
+                      part->annotateElement =
+                              new AnnotateTextItem(this,part,part->element,font,color,parentRelativeType,true);
+
+                      int elementWidth, elementHeight;
+
+                      part->annotateElement->size(elementWidth,elementHeight);
+
+                      part->elementHeight = elementHeight;
+
+                      if (elementWidth > part->width) {
+                          part->width = elementWidth;
+                      }
+
+                      /*
+                       * Lets see if we can slide the BOM Element up in the bottom left corner of
+                       * part image
+                       */
+
+                      overlapped = false;
+
+                      for (overlap = 1; overlap < elementHeight && ! overlapped; overlap++) {
+                          if (part->leftEdge[part->leftEdge.size() - overlap] < elementWidth) {
+                              overlapped = true;
+                          }
+                      }
+
+                      part->partBotMargin = elementMargin;
+
+                      hMax = elementHeight + part->partBotMargin;
+                      for (int h = overlap; h < hMax; h++) {
+                          part->leftEdge << 0;
+                          part->rightEdge << elementWidth;
+                      }
+                  } else {
+                      part->annotateElement = nullptr;
+                      part->elementHeight  = 0;
+                      part->partBotMargin = part->textMargin;
+                  }
+              } else {
+                  part->partBotMargin = part->textMargin;
+              }
 
               part->height = part->leftEdge.size();
 
@@ -1690,7 +1975,6 @@ int Pli::partSizeLDViewSCall() {
 
         QElapsedTimer timer;
         timer.start();
-        bool showElapsedTime = false;
 
         if ((rc = createPartImagesLDViewSCall(ia.ldrNames[pT],(isSubModel ? false : pT == NORMAL_PART))) != 0) {
             emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Failed to create PLI part images using LDView Single Call"));
@@ -1702,15 +1986,14 @@ int Pli::partSizeLDViewSCall() {
         }
 
         if (!ia.ldrNames[pT].isEmpty())
-            emit gui->messageSig(LOG_INFO, qPrintable(
-                                     QString("%1 PLI (Single Call) for [%2] render took "
-                                             "%3 milliseconds to render %4.")
-                                             .arg(Render::getRenderer())
-                                             .arg(PartTypeNames[pT])
-                                             .arg(timer.elapsed())
-                                             .arg(QString("%1 %2")
-                                                          .arg(ia.ldrNames[pT].size())
-                                                          .arg(ia.ldrNames[pT].size() == 1 ? "image" : "images"))));
+            emit gui->messageSig(LOG_INFO, QString("%1 PLI (Single Call) for [%2] render took "
+                                                   "%3 milliseconds to render %4.")
+                                                   .arg(Render::getRenderer())
+                                                   .arg(PartTypeNames[pT])
+                                                   .arg(timer.elapsed())
+                                                   .arg(QString("%1 %2")
+                                                                .arg(ia.ldrNames[pT].size())
+                                                                .arg(ia.ldrNames[pT].size() == 1 ? "image" : "images")));
     }
 
     if (isSubModel && Preferences::modeGUI && ! gui->exporting()) {
@@ -1789,7 +2072,7 @@ int Pli::resizePli(
   int cols, height;
   bool packSubs = pliMeta.pack.value();
   bool sortType = pliMeta.sort.value();
-  int pliWidth,pliHeight;
+  int pliWidth = 0,pliHeight = 0;
 
   if (constrainData.type == ConstrainData::PliConstrainHeight) {
       int cols;
@@ -2001,8 +2284,10 @@ void Pli::positionChildren(
       if (part == nullptr) {
           continue;
         }
-      float x,y;
 
+      bool element = bom && pliMeta.partElements.display.value() && part->annotateElement;
+
+      float x,y;
       x = part->left;
       y = height - part->bot;
 
@@ -2022,7 +2307,16 @@ void Pli::positionChildren(
       part->instanceText->setParentItem(background);
       part->instanceText->setPos(
             x/scaleX,
-            (y - part->textHeight)/scaleY);
+            (y - (element ? (part->textHeight + part->elementHeight - part->textMargin) : part->textHeight))/scaleY);
+
+      // Position the BOM Element
+      if (element) {
+          part->annotateElement->setParentItem(background);
+          part->annotateElement->setPos(
+                x/scaleX,
+                (y - part->elementHeight)/scaleY);
+      }
+
     }
 }
 
@@ -2495,11 +2789,15 @@ void AnnotateTextItem::contextMenuEvent(
 {
   QMenu menu;
 
-  QString pl = "Part Annotation";
+  QString pl =  element ? "Part Element" : "Part Annotation";
 
-  QAction *fontAction   = commonMenus.fontMenu(menu,pl);
-  QAction *colorAction  = commonMenus.colorMenu(menu,pl);
-  QAction *marginAction = commonMenus.marginMenu(menu,pl);
+  QAction *fontAction       = commonMenus.fontMenu(menu,pl);
+  QAction *colorAction      = commonMenus.colorMenu(menu,pl);
+  QAction *marginAction     = commonMenus.marginMenu(menu,pl);
+  QAction *borderAction     = commonMenus.borderMenu(menu,pl);
+  QAction *backgroundAction = commonMenus.backgroundMenu(menu,pl);
+  QAction *sizeAction       = nullptr; // commonMenus.sizeMenu(menu,pl);
+
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
@@ -2523,16 +2821,36 @@ void AnnotateTextItem::contextMenuEvent(
   if (selectedAction == fontAction) {
       changeFont(top,
                  bottom,
-                 &pli->pliMeta.annotate.font);
+                 &styleMeta->font);
     } else if (selectedAction == colorAction) {
       changeColor(top,
                   bottom,
-                  &pli->pliMeta.annotate.color);
+                  &styleMeta->color);
     } else if (selectedAction == marginAction) {
       changeMargins(pl + " Margins",
                     top,
                     bottom,
-                    &pli->pliMeta.annotate.margin);
+                    &styleMeta->margin);
+    } else if (selectedAction == backgroundAction) {
+      changeBackground(pl+" Background",
+                       top,
+                       bottom,
+                       &styleMeta->background,
+                       true,1,true,false);  // no picture
+    } else if (selectedAction == borderAction) {
+      bool corners = styleMeta->style.value() == circle;
+      changeBorder(pl + " Border",
+                   top,
+                   bottom,
+                   &styleMeta->border,
+                   true,1,true,false,corners);
+    } else if (selectedAction == sizeAction) {
+//      changeSize(pl + " Size",
+//                   "Width",
+//                   "Height",
+//                   top,
+//                   bottom,
+//                   &styleMeta->size);
     }
 }
 
@@ -2640,3 +2958,290 @@ void PGraphicsPixmapItem::contextMenuEvent(
 }
 
 
+//-----------------------------------------
+//-----------------------------------------
+//-----------------------------------------
+
+#include <QGraphicsRectItem>
+#include <QGraphicsSceneContextMenuEvent>
+#include <QGraphicsPixmapItem>
+
+AnnotateTextItem::AnnotateTextItem(
+  Pli     *_pli,
+  PliPart *_part,
+  QString &_text,
+  QString &_fontString,
+  QString &_colorString,
+  PlacementType _parentRelativeType,
+  bool          _element)
+{
+  parentRelativeType = _parentRelativeType;
+
+  element = _element;
+
+  QString fontString = _fontString;
+
+  bool useDocSize = false;
+
+  QString toolTip;
+
+  if (element){
+      if (_pli->pliMeta.annotation.elementStyle.value()){
+          styleMeta  = &_pli->pliMeta.rectangleStyle;
+      }
+      toolTip = QString("%1 Element Annotation - right-click to modify")
+                       .arg(_pli->pliMeta.partElements.legoElements.value() ? "LEGO" : "BrickLink");
+  } else {
+      styleMeta  = &_part->styleMeta;
+      useDocSize = styleMeta->style.value() == AnnotationStyle::none;
+      toolTip    = "Part Annotation - right-click to modify";
+      // TODO - automatically resize text until it fits
+      if ((_part->styleMeta.style.value() == AnnotationStyle::circle ||
+           _part->styleMeta.style.value() == AnnotationStyle::square) &&
+           _text.size() > 2) {
+         fontString = "Arial,17,-1,5,50,0,0,0,0,0";
+      }
+  }
+
+  setText(_pli,_part,_text,fontString,toolTip);
+
+  QRectF docSize  = QRectF(0,0,document()->size().width(),document()->size().height());
+
+  if (useDocSize) {
+      annotateRect = docSize;
+  } else {
+      bool dw = part->styleMeta.style.value() == AnnotationStyle::rectangle || element;
+      QRectF styleSize = QRectF(0,0,dw ? docSize.width() : styleMeta->size.valuePixels(0),styleMeta->size.valuePixels(1));
+      annotateRect = boundingRect().adjusted(0,0,styleSize.width()-docSize.width(),styleSize.height()-docSize.height());
+      // center the document on the new size
+      setTextWidth(-1);
+      setTextWidth(annotateRect.width());
+      QTextBlockFormat format;
+      format.setAlignment(Qt::AlignCenter);
+      QTextCursor cursor = textCursor();
+      cursor.select(QTextCursor::Document);
+      cursor.mergeBlockFormat(format);
+      cursor.clearSelection();
+      setTextCursor(cursor);
+  }
+
+  QColor color(_colorString);
+  setDefaultTextColor(color);
+
+  setAttributes();
+}
+
+void AnnotateTextItem::size(int &x, int &y)
+{
+  x = int(annotateRect.width());
+  y = int(annotateRect.height());
+}
+
+void AnnotateTextItem::setAttributes(){
+
+    subModelColor = pli->pliMeta.subModelColor;
+    if (pli->background)
+      submodelLevel = pli->background->submodelLevel;
+
+    //gradient settings
+    if (styleMeta->background.value().gsize[0] == 0 &&
+        styleMeta->background.value().gsize[1] == 0) {
+        styleMeta->background.value().gsize[0] = annotateRect.width();
+        styleMeta->background.value().gsize[1] = annotateRect.width();
+        QSize gSize(styleMeta->background.value().gsize[0],
+            styleMeta->background.value().gsize[1]);
+        int h_off = gSize.width() / 10;
+        int v_off = gSize.height() / 8;
+        styleMeta->background.value().gpoints << QPointF(gSize.width() / 2, gSize.height() / 2)
+                                   << QPointF(gSize.width() / 2 - h_off, gSize.height() / 2 - v_off);
+    }
+
+    setZValue(98);
+    setFlag(QGraphicsItem::ItemIsSelectable,true);
+}
+
+QGradient AnnotateTextItem::setGradient(){
+
+    BackgroundData backgroundData = styleMeta->background.value();
+    QPolygonF pts;
+    QGradientStops stops;
+
+    QSize gSize(backgroundData.gsize[0],backgroundData.gsize[1]);
+
+    for (int i=0; i<backgroundData.gpoints.size(); i++)
+        pts.append(backgroundData.gpoints.at(i));
+
+    QGradient::CoordinateMode mode = QGradient::LogicalMode;
+    switch (backgroundData.gmode){
+    case BackgroundData::LogicalMode:
+        mode = QGradient::LogicalMode;
+        break;
+    case BackgroundData::StretchToDeviceMode:
+        mode = QGradient::StretchToDeviceMode;
+        break;
+    case BackgroundData::ObjectBoundingMode:
+        mode = QGradient::ObjectBoundingMode;
+        break;
+    }
+
+    QGradient::Spread spread = QGradient::RepeatSpread;
+    switch (backgroundData.gspread){
+    case BackgroundData::PadSpread:
+        spread = QGradient::PadSpread;
+        break;
+    case BackgroundData::RepeatSpread:
+        spread = QGradient::RepeatSpread;
+        break;
+    case BackgroundData::ReflectSpread:
+        spread = QGradient::ReflectSpread;
+        break;
+    }
+
+    QGradient g = QLinearGradient(pts.at(0), pts.at(1));
+    switch (backgroundData.gtype){
+    case BackgroundData::LinearGradient:
+        g = QLinearGradient(pts.at(0), pts.at(1));
+        break;
+    case BackgroundData::RadialGradient:
+    {
+        QLineF line(pts[0], pts[1]);
+        if (line.length() > 132){
+            line.setLength(132);
+        }
+        g = QRadialGradient(line.p1(),  qMin(gSize.width(), gSize.height()) / 3.0, line.p2());
+    }
+        break;
+    case BackgroundData::ConicalGradient:
+    {
+        qreal angle = backgroundData.gangle;
+        g = QConicalGradient(pts.at(0), angle);
+    }
+        break;
+    case BackgroundData::NoGradient:
+        break;
+    }
+
+    for (int i=0; i<backgroundData.gstops.size(); ++i) {
+        stops.append(backgroundData.gstops.at(i));
+    }
+
+    g.setStops(stops);
+    g.setSpread(spread);
+    g.setCoordinateMode(mode);
+
+    return g;
+}
+
+void AnnotateTextItem::setBackground(QPainter *painter)
+{
+
+    // set border and background parameters
+    BorderData     borderData     = styleMeta->border.valuePixels();
+    BackgroundData backgroundData = styleMeta->background.value();
+
+    // set defaults for using a background image only
+    if ((backgroundData.type == BackgroundData::BgImage) &&
+            !backgroundData.stretch) {
+        backgroundData.stretch = true;
+    }
+
+    // set rectangle size and dimensions parameters
+    int ibt = int(borderData.thickness);
+    QRectF irect(ibt/2,ibt/2,annotateRect.width()-ibt,annotateRect.height()-ibt);
+
+    // set painter and render hints (initialized with pixmap)
+    painter->setRenderHints(QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing);
+
+    // set the background then set the border and paint both in one go.
+
+    /* BACKGROUND */
+    bool useGradient = false;
+    QColor brushColor;
+    switch(backgroundData.type) {
+    case BackgroundData::BgTransparent:
+        brushColor = Qt::transparent;
+        break;
+    case BackgroundData::BgGradient:
+        useGradient = true;
+        brushColor = Qt::transparent;
+        break;
+    case BackgroundData::BgColor:
+    case BackgroundData::BgSubmodelColor:
+        if (backgroundData.type == BackgroundData::BgColor) {
+            brushColor = LDrawColor::color(backgroundData.string);
+        } else {
+            brushColor = LDrawColor::color(subModelColor.value(0));
+        }
+        break;
+    case BackgroundData::BgImage:
+        break;
+    }
+
+    useGradient ? painter->setBrush(QBrush(setGradient())) :
+                  painter->setBrush(brushColor);
+
+    /* BORDER */
+    QPen borderPen;
+    QColor borderPenColor;
+    if (borderData.type == BorderData::BdrNone) {
+        borderPenColor = Qt::transparent;
+    } else {
+        borderPenColor =  LDrawColor::color(borderData.color);
+    }
+    borderPen.setColor(borderPenColor);
+    borderPen.setCapStyle(Qt::RoundCap);
+    borderPen.setJoinStyle(Qt::RoundJoin);
+    if (borderData.line == BorderData::BdrLnSolid){
+        borderPen.setStyle(Qt::SolidLine);
+    }
+    else if (borderData.line == BorderData::BdrLnDash){
+        borderPen.setStyle(Qt::DashLine);
+    }
+    else if (borderData.line == BorderData::BdrLnDot){
+        borderPen.setStyle(Qt::DotLine);
+    }
+    else if (borderData.line == BorderData::BdrLnDashDot){
+        borderPen.setStyle(Qt::DashDotLine);
+    }
+    else if (borderData.line == BorderData::BdrLnDashDotDot){
+        borderPen.setStyle(Qt::DashDotDotLine);
+    }
+    borderPen.setWidth(ibt);
+
+    painter->setPen(borderPen);
+
+    // set icon border dimensions
+    qreal rx = borderData.radius;
+    qreal ry = borderData.radius;
+    qreal dx = annotateRect.width();
+    qreal dy = annotateRect.height();
+
+    if (dx && dy) {
+        if (dx > dy) {
+            rx *= dy;
+            rx /= dx;
+        } else {
+            ry *= dx;
+            ry /= dy;
+        }
+    }
+
+    // draw icon rectangle - background and border
+    if (styleMeta->style.value() != AnnotationStyle::circle) {
+        if (borderData.type == BorderData::BdrRound) {
+            painter->drawRoundRect(irect,int(rx),int(ry));
+        } else {
+            painter->drawRect(irect);
+        }
+    } else {
+        painter->drawEllipse(irect);
+    }
+}
+
+void AnnotateTextItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *o, QWidget *w)
+{
+    if (styleMeta->style.value() != AnnotationStyle::none)
+        setBackground(painter);
+
+    QGraphicsTextItem::paint(painter, o, w);
+}

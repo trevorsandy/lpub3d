@@ -257,7 +257,8 @@ FloatsGui::FloatsGui(
   QString const &heading0,
   QString const &heading1,
   FloatPairMeta *_meta,
-  QGroupBox     *parent)
+  QGroupBox     *parent,
+  int            decPlaces)
 {
   meta = _meta;
 
@@ -282,9 +283,9 @@ FloatsGui::FloatsGui(
 
   val = meta->value(0);
   a = val - (int)val;
-  dec = (a <= 0 ? 0 : QString::number(a).size() - 2);                  // shameless hack for the number of input decimals
-  numStr = dec > 0 ? QString::number(val): QString::number(val,'f',1); // add 1 decimal place for even numbers
-  for (int i = 0; i < numStr.size(); i++) dynMask.append("x");         // dynamically create the input mask
+  dec = (a <= 0 ? 0 : QString::number(a).size() - 2);                          // shameless hack for the number of input decimals
+  numStr = dec > 0 ? QString::number(val): QString::number(val,'f',decPlaces); // add 1 decimal place for whole numbers
+  for (int i = 0; i < numStr.size(); i++) dynMask.append("x");                 // dynamically create the input mask
 
   string = QString("%1") .arg(val,
                               meta->_fieldWidth,
@@ -306,9 +307,9 @@ FloatsGui::FloatsGui(
   val = meta->value(1);
   dynMask.clear();
   a = val - (int)val;
-  dec = (a <= 0 ? 0 : QString::number(a).size() - 2);                  // shameless hack for the number of input decimals
-  numStr = dec > 0 ? QString::number(val): QString::number(val,'f',1);
-  for (int i = 0; i < numStr.size(); i++) dynMask.append("x");         // dynamically create the input mask
+  dec = (a <= 0 ? 0 : QString::number(a).size() - 2);                           // shameless hack for the number of input decimals
+  numStr = dec > 0 ? QString::number(val): QString::number(val,'f',decPlaces);
+  for (int i = 0; i < numStr.size(); i++) dynMask.append("x");                  // dynamically create the input mask
   string = QString("%1") .arg(val,
                               meta->_fieldWidth,
                               'f',
@@ -1763,8 +1764,9 @@ void RotStepGui::apply(QString &modelName)
  **********************************************************************/
 
 BackgroundGui::BackgroundGui(
-  BackgroundMeta *_meta,
-  QGroupBox      *parent)
+        BackgroundMeta *_meta,
+        QGroupBox      *parent,
+        bool            pictureSettings)
 {
   QComboBox     *combo;
   QGridLayout   *grid;
@@ -1783,12 +1785,17 @@ BackgroundGui::BackgroundGui(
   parent->setLayout(grid);
 
   combo = new QComboBox(parent);
-  combo->addItem("None (transparent)");
-  combo->addItem("Solid Color");
-  combo->addItem("Gradient");
-  combo->addItem("Picture");
-  combo->addItem("Submodel Level Color");
-  combo->setCurrentIndex(int(background.type));
+  combo->addItem("None (transparent)");         // 0
+  combo->addItem("Solid Color");                // 1
+  combo->addItem("Gradient");                   // 2
+  if (pictureSettings) {
+     combo->addItem("Picture");                 // 3
+     combo->addItem("Submodel Level Color");    // 4
+     combo->setCurrentIndex(int(background.type));
+  } else {
+     combo->addItem("Submodel Level Color");    //3
+     combo->setCurrentIndex(background.type == 4 ? 3 : (int)background.type);
+  }
   connect(combo,SIGNAL(currentIndexChanged(QString const &)),
           this, SLOT(  typeChange(         QString const &)));
   grid->addWidget(combo,0,0);
@@ -1852,6 +1859,14 @@ BackgroundGui::BackgroundGui(
           this,     SLOT(  stretch(bool)));
   layout->addWidget(tileRadio);
 
+  if (!pictureSettings) {
+      pictureEdit->hide();
+      pictureButton->hide();
+      fill->hide();
+      stretchRadio->hide();
+      tileRadio->hide();
+  }
+
   enable();
 }
 
@@ -1880,14 +1895,12 @@ void BackgroundGui::enable()
       fill->setEnabled(false);
     break;
     case BackgroundData::BgColor:
-      {
       colorButton->show();
       colorButton->setEnabled(true);
       gradientButton->hide();
       pictureButton->setEnabled(false);
       pictureEdit->setEnabled(false);
       fill->setEnabled(false);
-      }
     break;
     default:
       colorButton->show();
@@ -2116,9 +2129,11 @@ void BackgroundGui::apply(QString &modelName)
  *
  **********************************************************************/
 
-BorderGui::BorderGui(BorderMeta *_meta,
+BorderGui::BorderGui(
+  BorderMeta *_meta,
   QGroupBox *parent,
-  bool rotateArrow)
+  bool rotateArrow,
+  bool corners)
 {
   meta = _meta;
 
@@ -2229,10 +2244,12 @@ BorderGui::BorderGui(BorderMeta *_meta,
 
   enable(rotateArrow);
 
-  if (rotateArrow) {
+  if (rotateArrow || !corners) {
       typeCombo->hide();
       spinLabel->hide();
       spin->hide();
+      if (!corners)
+          hideArrowsChk->hide();
   } else {
       hideArrowsChk->hide();
   }
@@ -3244,7 +3261,8 @@ void ShowSubModelGui::apply(QString &topLevelFile)
 PliSortGui::PliSortGui(
   const QString   &heading,
   PliSortMeta     *_meta,
-  QGroupBox       *parent)
+  QGroupBox       *parent,
+  bool             bom)
 {
   meta = _meta;
 
@@ -3267,14 +3285,18 @@ PliSortGui::PliSortGui(
 
   int currentIndex;
   sortOption  = meta->sortOption.value();
-  sortOption == SortOptionName[PartSize]   ? currentIndex = PartSize :
-  sortOption == SortOptionName[PartColour] ? currentIndex = PartColour :
-                                             currentIndex = PartCategory;
+  sortOption == SortOptionName[PartSize]     ? currentIndex = PartSize :
+  sortOption == SortOptionName[PartColour]   ? currentIndex = PartColour :
+  sortOption == SortOptionName[PartCategory] ? currentIndex = PartCategory :
+                                         bom ? currentIndex = PartElement :
+                                               currentIndex = PartSize;
 
   combo = new QComboBox(parent);
   combo->addItem(SortOptionName[PartSize]);
   combo->addItem(SortOptionName[PartColour]);
   combo->addItem(SortOptionName[PartCategory]);
+  if (bom)
+      combo->addItem(SortOptionName[PartElement]);
   combo->setCurrentIndex(currentIndex);
   connect(combo,SIGNAL(currentIndexChanged(QString const &)),
           this, SLOT(  optionChange(       QString const &)));
@@ -3301,6 +3323,127 @@ void PliSortGui::apply(QString &topLevelFile)
 
 /***********************************************************************
  *
+ * PliPartElements
+ *
+ **********************************************************************/
+
+PliPartElementGui::PliPartElementGui(
+    const QString      &heading,
+    PliPartElementMeta *_meta,
+    QGroupBox          *parent)
+{
+  meta = _meta;
+
+  QVBoxLayout *vLayout = new QVBoxLayout(parent);
+  QHBoxLayout *hLayout;
+
+  if (parent) {
+      parent->setLayout(vLayout);
+    }
+
+  if (heading != "") {
+      headingLabel = new QLabel(heading,parent);
+      vLayout->addWidget(headingLabel);
+    } else {
+      headingLabel = nullptr;
+    }
+
+  //PLIAnnotation
+  gbPliPartElement = new QGroupBox("Display Part Element ID",parent);
+  gbPliPartElement->setCheckable(true);
+  gbPliPartElement->setChecked(meta->display.value());
+  hLayout = new QHBoxLayout();
+  gbPliPartElement->setLayout(hLayout);
+  vLayout->addWidget(gbPliPartElement);
+
+  connect(gbPliPartElement,SIGNAL(toggled(bool)),
+          this,            SLOT(  gbToggled(bool)));
+
+  bricklinkElementsButton = new QRadioButton("BrickLink",gbPliPartElement);
+  bricklinkElementsButton->setToolTip("Use BrickLink element identification");
+  connect(bricklinkElementsButton,SIGNAL(clicked(bool)),
+          this,                   SLOT(  bricklinkElements(bool)));
+  hLayout->addWidget(bricklinkElementsButton);
+
+  legoElementsButton = new QRadioButton("LEGO",gbPliPartElement);
+  legoElementsButton->setToolTip("Use LEGO element identification");
+  connect(legoElementsButton,SIGNAL(clicked(bool)),
+          this,              SLOT(  legoElements(bool)));
+  hLayout->addWidget(legoElementsButton);
+
+  localLegoElementsCheck = new QCheckBox("Local",gbPliPartElement);
+  localLegoElementsCheck->setToolTip("Use local LEGO Elements file. Default uses BrickLink's LEGO Elements");
+  connect(localLegoElementsCheck,SIGNAL(clicked(bool)),
+          this,                  SLOT(  localLegoElements(bool)));
+  hLayout->addWidget(localLegoElementsCheck);
+
+  bricklinkElementsButton->setChecked(meta->bricklinkElements.value());
+  legoElementsButton->setChecked(meta->legoElements.value());
+  localLegoElementsCheck->setChecked(meta->localLegoElements.value());
+  localLegoElementsCheck->setEnabled(gbPliPartElement->isChecked() &&
+                                     legoElementsButton->isChecked());
+
+  displayModified           = false;
+  bricklinkElementsModified = false;
+  legoElementsModified      = false;
+  localLegoElementsModified = false;
+}
+
+void PliPartElementGui::bricklinkElements(bool checked)
+{
+  meta->bricklinkElements.setValue(checked);
+  meta->legoElements.setValue(! checked);
+  localLegoElementsCheck->setDisabled(checked);
+  modified = bricklinkElementsModified = true;
+}
+
+void PliPartElementGui::legoElements(bool checked)
+{
+  meta->bricklinkElements.setValue(! checked);
+  meta->legoElements.setValue( checked);
+  localLegoElementsCheck->setEnabled(checked);
+  modified = legoElementsModified = true;
+}
+
+void PliPartElementGui::localLegoElements(bool checked)
+{
+  meta->localLegoElements.setValue( checked);
+  modified = localLegoElementsModified = true;
+}
+
+void PliPartElementGui::gbToggled(bool toggled)
+{
+  meta->display.setValue(toggled);
+  if(toggled){
+      bricklinkElementsButton->setChecked(meta->bricklinkElements.value());
+      legoElementsButton->setChecked(meta->legoElements.value());
+      localLegoElementsCheck->setChecked(meta->localLegoElements.value());
+  }
+  localLegoElementsCheck->setEnabled(toggled && legoElementsButton->isChecked());
+  modified = displayModified = true;
+}
+
+void PliPartElementGui::apply(QString &topLevelFile)
+{
+  MetaItem mi;
+  mi.beginMacro("PliPartElementSettings");
+  if (displayModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->display);
+  }
+  if (bricklinkElementsModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->bricklinkElements);
+  }
+  if (legoElementsModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->legoElements);
+  }
+  if (localLegoElementsModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->localLegoElements);
+  }
+  mi.endMacro();
+}
+
+/***********************************************************************
+ *
  * PliAnnotation
  *
  **********************************************************************/
@@ -3308,7 +3451,8 @@ void PliSortGui::apply(QString &topLevelFile)
 PliAnnotationGui::PliAnnotationGui(
     const QString     &heading,
     PliAnnotationMeta *_meta,
-    QGroupBox         *parent)
+    QGroupBox         *parent,
+    bool               bom)
 {
   meta = _meta;
 
@@ -3334,31 +3478,107 @@ PliAnnotationGui::PliAnnotationGui(
   gbPLIAnnotation->setLayout(hLayout);
   grid->addWidget(gbPLIAnnotation,0,0);
   connect(gbPLIAnnotation,SIGNAL(toggled(bool)),
-          this, SLOT(  gbToggled(bool)));
+          this,           SIGNAL(toggled(bool)));
+  connect(gbPLIAnnotation,SIGNAL(toggled(bool)),
+          this,           SLOT(  gbToggled(bool)));
 
   titleAnnotationButton = new QRadioButton("Title",gbPLIAnnotation);
   connect(titleAnnotationButton,SIGNAL(clicked(bool)),
-          this,        SLOT(  titleAnnotation(bool)));
+          this,                 SLOT(  titleAnnotation(bool)));
   hLayout->addWidget(titleAnnotationButton);
 
   freeformAnnotationButton = new QRadioButton("Free Form",gbPLIAnnotation);
   connect(freeformAnnotationButton,SIGNAL(clicked(bool)),
-          this,     SLOT(  freeformAnnotation(bool)));
+          this,                    SLOT(  freeformAnnotation(bool)));
   hLayout->addWidget(freeformAnnotationButton);
 
   titleAndFreeformAnnotationButton = new QRadioButton("Both",gbPLIAnnotation);
   connect(titleAndFreeformAnnotationButton,SIGNAL(clicked(bool)),
-          this,     SLOT(  titleAndFreeformAnnotation(bool)));
+          this,                            SLOT(  titleAndFreeformAnnotation(bool)));
   hLayout->addWidget(titleAndFreeformAnnotationButton);
 
   titleAnnotationButton->setChecked(meta->titleAnnotation.value());
   freeformAnnotationButton->setChecked(meta->freeformAnnotation.value());
   titleAndFreeformAnnotationButton->setChecked(meta->titleAndFreeformAnnotation.value());
 
+
+  //PLIAnnotation Style Options
+  gbPLIAnnotationStyle = new QGroupBox("Enable Annotation Style",parent);
+  gbPLIAnnotationStyle->setEnabled(meta->display.value());
+  QGridLayout *sgrid = new QGridLayout();
+  gbPLIAnnotationStyle->setLayout(sgrid);
+  grid->addWidget(gbPLIAnnotationStyle,1,0);
+
+  axleStyleCheck = new QCheckBox("Axles",gbPLIAnnotationStyle);
+  axleStyleCheck->setChecked(meta->axleStyle.value());
+  axleStyleCheck->setToolTip("Default Axle annotation on round background");
+  connect(axleStyleCheck,SIGNAL(clicked(bool)),
+          this,          SLOT(  axleStyle(bool)));
+  sgrid->addWidget(axleStyleCheck,0,0);
+
+  beamStyleCheck = new QCheckBox("Beams",gbPLIAnnotationStyle);
+  beamStyleCheck->setChecked(meta->beamStyle.value());
+  beamStyleCheck->setToolTip("Default Beam annotation on square background");
+  connect(beamStyleCheck,SIGNAL(clicked(bool)),
+          this,          SLOT(  beamStyle(bool)));
+  sgrid->addWidget(beamStyleCheck,0,1);
+
+  cableStyleCheck = new QCheckBox("Cables",gbPLIAnnotationStyle);
+  cableStyleCheck->setChecked(meta->cableStyle.value());
+  cableStyleCheck->setToolTip("Default Cable annotation on square background");
+  connect(cableStyleCheck,SIGNAL(clicked(bool)),
+          this,           SLOT(  cableStyle(bool)));
+  sgrid->addWidget(cableStyleCheck,0,2);
+
+  connectorStyleCheck = new QCheckBox("Connectors",gbPLIAnnotationStyle);
+  connectorStyleCheck->setChecked(meta->connectorStyle.value());
+  connectorStyleCheck->setToolTip("Default Connector annotation on square background");
+  connect(connectorStyleCheck,SIGNAL(clicked(bool)),
+          this,               SLOT(  connectorStyle(bool)));
+  sgrid->addWidget(connectorStyleCheck,0,3);
+
+  elementStyleCheck = new QCheckBox("Element",gbPLIAnnotationStyle);
+  elementStyleCheck->setChecked(meta->elementStyle.value());
+  elementStyleCheck->setToolTip("Default part Element annotation on rectanglular background");
+  elementStyleCheck->setVisible(bom);
+  connect(elementStyleCheck,SIGNAL(clicked(bool)),
+          this,              SLOT(  elementStyle(bool)));
+  sgrid->addWidget(elementStyleCheck,1,0);
+
+  extendedStyleCheck = new QCheckBox("Extended",gbPLIAnnotationStyle);
+  extendedStyleCheck->setChecked(meta->extendedStyle.value());
+  extendedStyleCheck->setToolTip("Your custom annotation on rectanglular background");
+  connect(extendedStyleCheck,SIGNAL(clicked(bool)),
+          this,              SLOT(  extendedStyle(bool)));
+  sgrid->addWidget(extendedStyleCheck,1,bom ? 1 : 0);
+
+  hoseStyleCheck = new QCheckBox("Hoses",gbPLIAnnotationStyle);
+  hoseStyleCheck->setChecked(meta->hoseStyle.value());
+  hoseStyleCheck->setToolTip("Default Hose annotation on square background");
+  connect(hoseStyleCheck,SIGNAL(clicked(bool)),
+          this,          SLOT(  hoseStyle(bool)));
+  sgrid->addWidget(hoseStyleCheck,1,bom ? 2 : 1);
+
+  panelStyleCheck = new QCheckBox("Panels",gbPLIAnnotationStyle);
+  panelStyleCheck->setChecked(meta->panelStyle.value());
+  panelStyleCheck->setToolTip("Default Panel annotation on round background");
+  connect(panelStyleCheck,SIGNAL(clicked(bool)),
+          this,           SLOT(  panelStyle(bool)));
+  sgrid->addWidget(panelStyleCheck,1,bom ? 3 : 2);
+
   titleModified            = false;
   freeformModified         = false;
   titleAndFreeformModified = false;
   displayModified          = false;
+  axleStyleModified        = false;
+  beamStyleModified        = false;
+  cableStyleModified       = false;
+  elementStyleModified     = false;
+  connectorStyleModified   = false;
+  extendedStyleModified    = false;
+  hoseStyleModified        = false;
+  panelStyleModified       = false;
+
 }
 
 void PliAnnotationGui::titleAnnotation(bool checked)
@@ -3385,23 +3605,92 @@ void PliAnnotationGui::titleAndFreeformAnnotation(bool checked)
   modified = titleAndFreeformModified = true;
 }
 
-void PliAnnotationGui::gbToggled(bool toggled)
+void PliAnnotationGui::axleStyle(bool checked)
 {
-  meta->display.setValue(toggled);
-  if(toggled){
+  meta->axleStyle.setValue(checked);
+  modified = axleStyleModified = true;
+}
+
+void PliAnnotationGui::beamStyle(bool checked)
+{
+  meta->beamStyle.setValue(checked);
+  modified = beamStyleModified = true;
+}
+
+void PliAnnotationGui::cableStyle(bool checked)
+{
+  meta->cableStyle.setValue(checked);
+  modified = cableStyleModified = true;
+}
+
+void PliAnnotationGui::connectorStyle(bool checked)
+{
+  meta->connectorStyle.setValue(checked);
+  modified = connectorStyleModified = true;
+}
+
+void PliAnnotationGui::elementStyle(bool checked)
+{
+  meta->elementStyle.setValue(checked);
+  modified = elementStyleModified = true;
+}
+
+
+void PliAnnotationGui::extendedStyle(bool checked)
+{
+  meta->extendedStyle.setValue(checked);
+  modified = extendedStyleModified = true;
+}
+
+void PliAnnotationGui::hoseStyle(bool checked)
+{
+  meta->hoseStyle.setValue(checked);
+  modified = hoseStyleModified = true;
+}
+
+void PliAnnotationGui::panelStyle(bool checked)
+{
+  meta->panelStyle.setValue(checked);
+  modified = panelStyleModified = true;
+}
+
+void PliAnnotationGui::gbToggled(bool checked)
+{
+  meta->display.setValue(checked);
+  if(checked){
       titleAnnotationButton->setChecked(meta->titleAnnotation.value());
       freeformAnnotationButton->setChecked(meta->freeformAnnotation.value());
       titleAndFreeformAnnotationButton->setChecked(meta->titleAndFreeformAnnotation.value());
-    }
+  }
+
+  gbPLIAnnotationStyle->setEnabled(checked);
+
   modified = displayModified = true;
 }
 
 void PliAnnotationGui::apply(QString &topLevelFile)
 {
+
+//  QProgressDialog* ProgressDialog = new QProgressDialog(nullptr);
+//  ProgressDialog->setWindowFlags(ProgressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
+//  ProgressDialog->setWindowTitle(tr("Global Settings"));
+//  ProgressDialog->setLabelText(tr("Applying Pli Annotation Settings..."));
+//  ProgressDialog->setMaximum(11);
+//  ProgressDialog->setMinimum(0);
+//  ProgressDialog->setValue(0);
+//  ProgressDialog->setCancelButton(nullptr);
+//  ProgressDialog->setAutoReset(false);
+//  ProgressDialog->setModal(true);
+//  ProgressDialog->show();
+
+//  int commands = 0;
+
   MetaItem mi;
   mi.beginMacro("PliAnnotationSettings");
   if (displayModified) {
       mi.setGlobalMeta(topLevelFile,&meta->display);
+//      ProgressDialog->setValue(++commands);
+//      QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
   }
   if (titleModified) {
       mi.setGlobalMeta(topLevelFile,&meta->titleAnnotation);
@@ -3412,7 +3701,34 @@ void PliAnnotationGui::apply(QString &topLevelFile)
   if (titleAndFreeformModified) {
       mi.setGlobalMeta(topLevelFile,&meta->titleAndFreeformAnnotation);
   }
+  if (axleStyleModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->axleStyle);
+  }
+  if (beamStyleModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->beamStyle);
+  }
+  if (cableStyleModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->cableStyle);
+  }
+  if (connectorStyleModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->connectorStyle);
+  }
+  if (elementStyleModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->elementStyle);
+  }
+  if (extendedStyleModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->extendedStyle);
+  }
+  if (hoseStyleModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->hoseStyle);
+  }
+  if (panelStyleModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->panelStyle);
+  }
   mi.endMacro();
+//  ProgressDialog->setValue(commands);
+//  QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+//  ProgressDialog->deleteLater();
 }
 
 /***********************************************************************

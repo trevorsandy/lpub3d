@@ -35,7 +35,8 @@
 
 BackgroundDialog::BackgroundDialog(
   BackgroundData &goods,
-  QString     _name,
+  QString    _name,
+  bool        picSettings,
   QWidget    *parent)
   : QDialog(parent)
 {
@@ -47,7 +48,7 @@ BackgroundDialog::BackgroundDialog(
 
   QGroupBox *box = new QGroupBox("Background",this);
   layout->addWidget(box);
-  background = new BackgroundGui(&meta,box);
+  background = new BackgroundGui(&meta,box,picSettings);
 
   QDialogButtonBox *buttonBox;
   
@@ -71,9 +72,10 @@ BackgroundDialog::~BackgroundDialog()
 bool BackgroundDialog::getBackground(
   BackgroundData &goods,
   QString         name,
+  bool            picSettings,
   QWidget        *parent)
 {
-  BackgroundDialog *dialog = new BackgroundDialog(goods,name,parent);
+  BackgroundDialog *dialog = new BackgroundDialog(goods,name,picSettings,parent);
 
   bool ok = dialog->exec() == QDialog::Accepted;
   if (ok) {

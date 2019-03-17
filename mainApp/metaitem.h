@@ -200,7 +200,8 @@ public:
                         BackgroundMeta*,
                         bool  useTop = true,
                         int   append = 1,
-                        bool checkLocal = true);
+                        bool checkLocal = true,
+                        bool picSettings = true);
 
   void changeSizeAndOrientation(QString,
                         const Where &,
@@ -257,7 +258,8 @@ public:
                         bool useTop = true,
                         int  append = 1, 
                         bool checkLocal = true,
-                        bool rotateArrow = false);
+                        bool rotateArrow = false,
+                        bool corners = false);
 
   void changeCameraAngles( QString,
                         const Where &, 

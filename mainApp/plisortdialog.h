@@ -42,7 +42,7 @@ public:
   virtual ~PliSortDialog();
 
   static bool getPliSortOption(
-    QString   &goods,
+    QString       &goods,
     QString        name,
     QWidget       *parent);
 

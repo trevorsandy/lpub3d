@@ -46,25 +46,6 @@
 
 #include "QsLog.h"
 
-bool PlacementDialog::getPlacement(
-  PlacementType  parentType,
-  PlacementType  placedType,
-  PlacementData &goods,
-  QString        title,
-  int            onPageType,
-  QWidget       *parent,
-  bool           pliPerStep)
-{
-  PlacementDialog *dialog = new PlacementDialog(parentType,placedType,goods,title,onPageType,parent,pliPerStep);
-
-  bool ok = dialog->exec() == QDialog::Accepted;
-  if (ok) {
-    goods.offsets[0] = 0;
-    goods.offsets[1] = 0;
-  }
-  return ok;
-}
-
 QString labels[5][5] = 
 {
   {"Top/Left",   "Top:Left",   "Top:Center",   "Top:Right",   "Top/Right" },
@@ -200,6 +181,25 @@ const QString relativeNames[NumRelatives] =
  /*NumRelatives               *///34 NumRelatives
 };
 
+bool PlacementDialog::getPlacement(
+  PlacementType  parentType,
+  PlacementType  placedType,
+  PlacementData &goods,
+  QString        title,
+  int            onPageType,
+  bool           pliPerStep,
+  QWidget       *parent)
+{
+  PlacementDialog *dialog = new PlacementDialog(parentType,placedType,goods,title,onPageType,pliPerStep,parent);
+
+  bool ok = dialog->exec() == QDialog::Accepted;
+  if (ok) {
+    goods.offsets[0] = 0;
+    goods.offsets[1] = 0;
+  }
+  return ok;
+}
+
 QString PlacementDialog::relativeToName(
   int relativeTo)
 {
@@ -216,8 +216,8 @@ PlacementDialog::PlacementDialog(
   PlacementData &_goods,
   QString        title,
   int            onPageType,
-  QWidget       *parent,
-  bool           pliPerStep)
+  bool           pliPerStep,
+  QWidget       *parent)
 {
   goods = &_goods;
 
