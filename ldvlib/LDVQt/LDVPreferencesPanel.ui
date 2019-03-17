@@ -58,7 +58,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="generalTab">
       <attribute name="title">
@@ -794,9 +794,15 @@
              </widget>
             </item>
             <item>
-             <widget class="QSpinBox" name="seamWidthSpin">
-              <property name="maximum">
-               <number>500</number>
+             <widget class="QDoubleSpinBox" name="seamWidthDoubleSpin">
+              <property name="decimals">
+               <number>1</number>
+              </property>
+              <property name="minimum">
+               <double>0.100000000000000</double>
+              </property>
+              <property name="singleStep">
+               <double>0.100000000000000</double>
               </property>
              </widget>
             </item>
@@ -3918,7 +3924,7 @@ into effect until the next time a model is loaded.</string>
   <tabstop>fieldOfViewDoubleSpin</tabstop>
   <tabstop>generalResetButton</tabstop>
   <tabstop>seamWidthButton</tabstop>
-  <tabstop>seamWidthSpin</tabstop>
+  <tabstop>seamWidthDoubleSpin</tabstop>
   <tabstop>wireframeButton</tabstop>
   <tabstop>wireframeFogButton</tabstop>
   <tabstop>wireframeRemoveHiddenLineButton</tabstop>

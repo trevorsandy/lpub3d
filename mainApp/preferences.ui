@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>508</width>
-    <height>717</height>
+    <height>633</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -27,29 +27,29 @@
    <item>
     <widget class="QTabWidget" name="preferencesTabWidget">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
      <property name="minimumSize">
       <size>
-       <width>490</width>
+       <width>0</width>
        <height>0</height>
       </size>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tabGeneral">
       <attribute name="title">
        <string>General</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_18">
+      <layout class="QVBoxLayout" name="verticalLayout_17">
        <item>
         <widget class="QGroupBox" name="ldrawLibPathBox">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -101,25 +101,9 @@
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer_12">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>10</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
         <widget class="QGroupBox" name="altLDConfigBox">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -158,35 +142,19 @@
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer_13">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>10</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_28">
-         <item>
+        <layout class="QGridLayout" name="gridLayout_8">
+         <item row="0" column="0" rowspan="2">
           <widget class="QGroupBox" name="fadeStepBox">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
            <property name="minimumSize">
             <size>
-             <width>240</width>
-             <height>240</height>
+             <width>0</width>
+             <height>0</height>
             </size>
            </property>
            <property name="toolTip">
@@ -208,7 +176,7 @@
                <bool>false</bool>
               </property>
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -326,7 +294,7 @@
                <bool>false</bool>
               </property>
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -375,278 +343,229 @@
            </layout>
           </widget>
          </item>
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_17">
-           <item>
-            <widget class="QGroupBox" name="highlightStepBox">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>208</width>
-               <height>145</height>
-              </size>
-             </property>
-             <property name="toolTip">
-              <string>This setting allows you to highlight current build step parts</string>
-             </property>
-             <property name="title">
-              <string>Enable Highlight Current Step</string>
-             </property>
-             <property name="checkable">
-              <bool>true</bool>
-             </property>
-             <property name="checked">
-              <bool>false</bool>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_7">
-              <item>
-               <spacer name="verticalSpacer_9">
+         <item row="0" column="1">
+          <widget class="QGroupBox" name="highlightStepBox">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>208</width>
+             <height>145</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>This setting allows you to highlight current build step parts</string>
+           </property>
+           <property name="title">
+            <string>Enable Highlight Current Step</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_7">
+            <item>
+             <spacer name="verticalSpacer_9">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>17</width>
+                <height>7</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <layout class="QGridLayout" name="gridLayout_7">
+              <item row="0" column="0" rowspan="3">
+               <widget class="QLabel" name="highlightStepColorLabel">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>50</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="frameShape">
+                 <enum>QFrame::Panel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Sunken</enum>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <spacer name="verticalSpacer_3">
                 <property name="orientation">
                  <enum>Qt::Vertical</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
-                  <width>17</width>
+                  <width>20</width>
                   <height>7</height>
                  </size>
                 </property>
                </spacer>
               </item>
-              <item>
-               <layout class="QGridLayout" name="gridLayout_7">
-                <item row="0" column="0" rowspan="3">
-                 <widget class="QLabel" name="highlightStepColorLabel">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>50</width>
-                    <height>50</height>
-                   </size>
-                  </property>
-                  <property name="frameShape">
-                   <enum>QFrame::Panel</enum>
-                  </property>
-                  <property name="frameShadow">
-                   <enum>QFrame::Sunken</enum>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <spacer name="verticalSpacer_3">
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>20</width>
-                    <height>7</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QPushButton" name="highlightStepBtn">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="text">
-                   <string>Highlight Color...</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="1">
-                 <spacer name="verticalSpacer_4">
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>20</width>
-                    <height>7</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-               </layout>
+              <item row="1" column="1">
+               <widget class="QPushButton" name="highlightStepBtn">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Highlight Color...</string>
+                </property>
+               </widget>
               </item>
-              <item>
-               <spacer name="verticalSpacer_5">
+              <item row="2" column="1">
+               <spacer name="verticalSpacer_4">
                 <property name="orientation">
                  <enum>Qt::Vertical</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
-                  <width>17</width>
-                  <height>7</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_23">
-                <item>
-                 <widget class="QLabel" name="highlightStepLabel">
-                  <property name="toolTip">
-                   <string>Set the highlight line width [LDGLite only]</string>
-                  </property>
-                  <property name="text">
-                   <string>Highlight line width</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <spacer name="horizontalSpacer_13">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item>
-                 <widget class="QSpinBox" name="highlightStepLineWidthSpin">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="toolTip">
-                   <string>Set the highlight line width  [LDGLite only]</string>
-                  </property>
-                  <property name="minimum">
-                   <number>1</number>
-                  </property>
-                  <property name="maximum">
-                   <number>5</number>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <spacer name="verticalSpacer_6">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>17</width>
+                  <width>20</width>
                   <height>7</height>
                  </size>
                 </property>
                </spacer>
               </item>
              </layout>
-            </widget>
-           </item>
-           <item>
-            <spacer name="verticalSpacer_10">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Fixed</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>5</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QGroupBox" name="imageMatteBox">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="title">
-              <string>Enable Image Matting</string>
-             </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_22">
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_23">
               <item>
-               <widget class="QCheckBox" name="imageMattingChk">
+               <widget class="QLabel" name="highlightStepLabel">
                 <property name="toolTip">
-                 <string>Future use</string>
-                </property>
-                <property name="statusTip">
-                 <string/>
+                 <string>Set the highlight line width [LDGLite only]</string>
                 </property>
                 <property name="text">
-                 <string>True fade image matting</string>
+                 <string>Highlight line width</string>
                 </property>
                </widget>
               </item>
               <item>
-               <spacer name="horizontalSpacer_12">
+               <spacer name="horizontalSpacer_13">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
-                  <width>39</width>
+                  <width>40</width>
                   <height>20</height>
                  </size>
                 </property>
                </spacer>
               </item>
+              <item>
+               <widget class="QSpinBox" name="highlightStepLineWidthSpin">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="toolTip">
+                 <string>Set the highlight line width  [LDGLite only]</string>
+                </property>
+                <property name="minimum">
+                 <number>1</number>
+                </property>
+                <property name="maximum">
+                 <number>5</number>
+                </property>
+               </widget>
+              </item>
              </layout>
-            </widget>
-           </item>
-          </layout>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_6">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>17</width>
+                <height>7</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QGroupBox" name="imageMatteBox">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="title">
+            <string>Enable Image Matting</string>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_22">
+            <item>
+             <widget class="QCheckBox" name="imageMattingChk">
+              <property name="toolTip">
+               <string>Future use</string>
+              </property>
+              <property name="statusTip">
+               <string/>
+              </property>
+              <property name="text">
+               <string>True fade image matting</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_12">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>39</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
          </item>
         </layout>
        </item>
        <item>
-        <spacer name="verticalSpacer_14">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>10</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
         <widget class="QGroupBox" name="pliControlBox">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -698,27 +617,11 @@
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer_15">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>10</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
         <layout class="QHBoxLayout" name="horizontalLayout_29">
          <item>
           <widget class="QGroupBox" name="groupBox">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -746,6 +649,12 @@
          </item>
          <item>
           <widget class="QGroupBox" name="applyCameraAnglesBox">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="title">
             <string>Apply Camera Angles</string>
            </property>
@@ -776,7 +685,7 @@
          <item>
           <widget class="QGroupBox" name="showParseErrorGrpBox">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -948,32 +857,16 @@
         </layout>
        </item>
        <item>
-        <spacer name="verticalSpacer_20">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>10</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
         <widget class="QGroupBox" name="ldviewBox">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
          <property name="minimumSize">
           <size>
-           <width>420</width>
+           <width>0</width>
            <height>0</height>
           </size>
          </property>
@@ -1095,25 +988,9 @@
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer_19">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>10</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
         <widget class="QGroupBox" name="ldgliteBox">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -1149,33 +1026,17 @@
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer_18">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>10</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
         <widget class="QGroupBox" name="POVRayBox">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
          <property name="minimumSize">
           <size>
-           <width>420</width>
-           <height>242</height>
+           <width>0</width>
+           <height>0</height>
           </size>
          </property>
          <property name="title">
@@ -1419,22 +1280,6 @@
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer_32">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>10</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
         <widget class="QGroupBox" name="lsynthPartsBox">
          <property name="toolTip">
           <string>Add LSynth parts to the parts archive and define search path entry as needed.</string>
@@ -1468,6 +1313,16 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
         </widget>
        </item>
        <item>
+        <widget class="QLabel" name="RenderMessage">
+         <property name="frameShape">
+          <enum>QFrame::StyledPanel</enum>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer_17">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -1479,13 +1334,6 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
           </size>
          </property>
         </spacer>
-       </item>
-       <item>
-        <widget class="QLabel" name="RenderMessage">
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
        </item>
       </layout>
      </widget>
@@ -1581,22 +1429,6 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer_26">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>10</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
         <layout class="QGridLayout" name="gridLayout_2">
          <item row="0" column="1">
           <widget class="QCheckBox" name="displayAllAttributes_Chk">
@@ -1632,22 +1464,6 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
           </widget>
          </item>
         </layout>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_25">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>10</height>
-          </size>
-         </property>
-        </spacer>
        </item>
        <item>
         <layout class="QGridLayout" name="gridLayout">
@@ -1688,22 +1504,6 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
           <widget class="QLineEdit" name="publishEmail_Edit"/>
          </item>
         </layout>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_24">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>10</height>
-          </size>
-         </property>
-        </spacer>
        </item>
        <item>
         <widget class="QGroupBox" name="publishLogoBox">
@@ -1754,22 +1554,6 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer_23">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>10</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
         <widget class="QGroupBox" name="publishDescriptionBox">
          <property name="title">
           <string>Publish Description</string>
@@ -1808,7 +1592,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
        <item>
         <widget class="QGroupBox" name="themesBox">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -1880,22 +1664,6 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer_31">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>10</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
         <widget class="Line" name="line_2">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -1903,25 +1671,9 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer_30">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeType">
-          <enum>QSizePolicy::Fixed</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>10</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
         <widget class="QGroupBox" name="loggingGrpBox">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -1962,19 +1714,6 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
              </widget>
             </item>
            </layout>
-          </item>
-          <item>
-           <spacer name="verticalSpacer_29">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>7</height>
-             </size>
-            </property>
-           </spacer>
           </item>
           <item>
            <widget class="QGroupBox" name="includesGrpBox">
@@ -2059,19 +1798,6 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
            </widget>
           </item>
           <item>
-           <spacer name="verticalSpacer_28">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>7</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
            <widget class="QGroupBox" name="logLevelGrpBox">
             <property name="toolTip">
              <string>Select logging level as needed. Levels below the selected level will also be logged.</string>
@@ -2120,19 +1846,6 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
              </item>
             </layout>
            </widget>
-          </item>
-          <item>
-           <spacer name="verticalSpacer_27">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>7</height>
-             </size>
-            </property>
-           </spacer>
           </item>
           <item>
            <widget class="QGroupBox" name="logLevelsGrpBox">
@@ -2256,26 +1969,16 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
             <property name="minimumSize">
              <size>
               <width>0</width>
-              <height>25</height>
+              <height>0</height>
              </size>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
             </property>
             <property name="text">
              <string/>
             </property>
            </widget>
-          </item>
-          <item>
-           <spacer name="verticalSpacer_21">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>7</height>
-             </size>
-            </property>
-           </spacer>
           </item>
          </layout>
         </widget>
@@ -2311,7 +2014,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
          <property name="minimumSize">
           <size>
            <width>0</width>
-           <height>330</height>
+           <height>0</height>
           </size>
          </property>
          <property name="toolTip">
@@ -2485,8 +2188,8 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
             </property>
             <property name="minimumSize">
              <size>
-              <width>446</width>
-              <height>170</height>
+              <width>0</width>
+              <height>0</height>
              </size>
             </property>
             <property name="title">
@@ -2504,7 +2207,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
                <property name="minimumSize">
                 <size>
                  <width>0</width>
-                 <height>100</height>
+                 <height>0</height>
                 </size>
                </property>
                <property name="readOnly">
@@ -2541,7 +2244,7 @@ p, li { white-space: pre-wrap; }
        <item>
         <widget class="QGroupBox" name="groupBoxSearchDirs">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -2549,7 +2252,7 @@ p, li { white-space: pre-wrap; }
          <property name="minimumSize">
           <size>
            <width>0</width>
-           <height>240</height>
+           <height>0</height>
           </size>
          </property>
          <property name="title">
@@ -2562,7 +2265,7 @@ p, li { white-space: pre-wrap; }
              <bool>true</bool>
             </property>
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -2570,7 +2273,7 @@ p, li { white-space: pre-wrap; }
             <property name="minimumSize">
              <size>
               <width>0</width>
-              <height>151</height>
+              <height>0</height>
              </size>
             </property>
             <property name="acceptDrops">
@@ -2584,8 +2287,30 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
+          <item row="0" column="0" colspan="2">
+           <widget class="QLineEdit" name="lineEditIniFile">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>LDraw.ini file path dialog</string>
+            </property>
+            <property name="readOnly">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="1">
            <widget class="QPushButton" name="pushButtonReset">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="toolTip">
              <string>Reset LPub3D LDraw search directories to default</string>
             </property>
@@ -2601,16 +2326,6 @@ p, li { white-space: pre-wrap; }
               <width>25</width>
               <height>25</height>
              </size>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0" colspan="2">
-           <widget class="QLineEdit" name="lineEditIniFile">
-            <property name="toolTip">
-             <string>LDraw.ini file path dialog</string>
-            </property>
-            <property name="readOnly">
-             <bool>false</bool>
             </property>
            </widget>
           </item>

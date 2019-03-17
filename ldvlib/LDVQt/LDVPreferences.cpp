@@ -58,7 +58,7 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
     connect( cancelButton, SIGNAL( clicked() ), this, SLOT( doCancel() ) );
     connect( primitvesResetButton, SIGNAL( clicked() ), this, SLOT( doResetPrimitives() ) );
     connect( seamWidthButton, SIGNAL( clicked() ), this, SLOT( enableApply() ) );
-    connect( seamWidthSpin, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
+    connect( seamWidthDoubleSpin, SIGNAL( valueChanged(double) ), this, SLOT( enableApply() ) );
     connect( fieldOfViewDoubleSpin, SIGNAL( valueChanged(double) ), this, SLOT( enableApply() ) );
     connect( memoryUsageBox, SIGNAL( activated(int) ), this, SLOT( enableApply() ) );
     connect( snapshotSaveDirBox, SIGNAL( activated(int) ), this, SLOT( snapshotSaveDirBoxChanged() ) );
@@ -451,7 +451,7 @@ void LDVPreferences::doGeometryApply(void)
 {
 	ldPrefs->setUseSeams(seamWidthButton->isChecked());
 	ldPrefs->setBoundingBoxesOnly(partBoundingBoxOnlyBox->isChecked());
-	ldPrefs->setSeamWidth(seamWidthSpin->value());
+    ldPrefs->setSeamWidth(int(seamWidthDoubleSpin->value() * 100.0f));
 	ldPrefs->setDrawWireframe(wireframeButton->isChecked());
 	if (ldPrefs->getDrawWireframe())
 	{
@@ -1072,7 +1072,7 @@ void LDVPreferences::reflectGeneralSettings(void)
 void LDVPreferences::reflectGeometrySettings(void)
 {
 	setButtonState(seamWidthButton, ldPrefs->getUseSeams());
-	setRangeValue(seamWidthSpin, ldPrefs->getSeamWidth());
+    setDoubleRangeValue(seamWidthDoubleSpin, ldPrefs->getSeamWidth() / 100.0f);
 	partBoundingBoxOnlyBox->setChecked(ldPrefs->getBoundingBoxesOnly());
 //	seamWidthSpin->setValue(seamWidth);
 	reflectWireframeSettings();
