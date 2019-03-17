@@ -752,14 +752,8 @@ void LDVPreferences::doApply(void)
 	doUpdatesApply();
 	doPrefSetsApply();
 	applyButton->setEnabled(false);
-//	if (modelWidget)
-//	{
-//		modelWidget->reflectSettings();
-//		modelWidget->doApply();
-//		setupDefaultRotationMatrix();
-//	}
     if (modelViewer)
-        setupDefaultRotationMatrix();
+       setupDefaultRotationMatrix();
 	checkAbandon = true;
 }
 

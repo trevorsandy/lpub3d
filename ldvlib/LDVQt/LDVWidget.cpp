@@ -108,6 +108,15 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
         viewMode(LDInputHandler::VMExamine),
         commandLineSnapshotSave(false),
         saving(false)
+#ifdef Q_OS_WIN
+        ,savingFromCommandLine(false),
+        hPBuffer(nullptr),
+        hPBufferDC(nullptr),
+        hPBufferGLRC(nullptr),
+        hCurrentDC(nullptr),
+        hCurrentGLRC(nullptr)
+#endif
+
 {
   iniFiles[NativePOVIni]   = { "Native POV",       Preferences::nativeExportIni };
   iniFiles[NativeSTLIni]   = { "Native STL",       Preferences::nativeExportIni };
@@ -165,6 +174,7 @@ bool LDVWidget::doCommand(QStringList &arguments)
         } else if (iniFlag == NativePartList) {
             if (setupLDVApplication()) {
                 doPartList();
+                delete ldvPreferences;
                 TCObject::release(modelViewer);
             }
         }
@@ -196,11 +206,6 @@ void LDVWidget::snapshotTakerAlertCallback(TCAlert *alert)
             {
                 makeCurrent();
 #ifdef Q_OS_WIN
-                // setup to use Windows pixelBuffer
-                //HWND hWnd = (HWND)this->winId();
-                //HINSTANCE hInstance = (HINSTANCE)this->winId();
-                //hdc = GetDC(hWnd);
-                //LDVExtensionsSetup::setup(hWnd, hInstance);
                 ldvPreferences = new LDVPreferences(this);
                 ldvPreferences->doApply();
                 hdc = ldvPreferences->hdc;
@@ -225,11 +230,6 @@ void LDVWidget::snapshotTakerAlertCallback(TCAlert *alert)
                     setupSnapshotBackBuffer(WINDOW_WIDTH_DEFAULT, WINDOW_HEIGHT_DEFAULT);
                 }
             }
-        }
-
-        if (strcmp(alert->getMessage(), "PreSave") == 0)
-        {
-            modelViewer = snapshotTaker->getModelViewer();
         }
     }
 }
@@ -266,7 +266,7 @@ bool LDVWidget::setupLDVApplication(){
     }
     delete sessionName;
 
-    modelViewer = new LDrawModelViewer(100, 100);
+    modelViewer = new LDrawModelViewer(WINDOW_WIDTH_DEFAULT, WINDOW_HEIGHT_DEFAULT);
 
     if (! modelViewer)
         return false;
@@ -299,11 +299,16 @@ bool LDVWidget::setupLDVApplication(){
 
         modelViewer->setProgramPath(programPath.toLatin1().constData());
 
+        modelViewer->setNoUI(true);
+
+        ldvPreferences = new LDVPreferences(this);
+        ldvPreferences->doApply();
+
         inputHandler = modelViewer->getInputHandler();
 
         setViewMode(LDVPreferences::getViewMode(),
                     examineLatLong = LDVPreferences::getLatLongMode(),
-                keepRightSide = LDVPreferences::getKeepRightSideUp());
+                    keepRightSide = LDVPreferences::getKeepRightSideUp());
 
         TCStringArray *commandLine = (TCStringArray *)TCUserDefaults::getProcessedCommandLine();
         char *commandLineFilename = nullptr;
@@ -335,6 +340,7 @@ bool LDVWidget::setupLDVApplication(){
                 }
             }
         }
+
         char *snapshotFilename =
             TCUserDefaults::stringForKey(SAVE_SNAPSHOT_KEY);
         commandLineSnapshotSave = (snapshotFilename ? true : false);
@@ -648,17 +654,33 @@ bool LDVWidget::grabImage(
 
     saving = true;
     modelViewer->setMemoryUsage(0);
+
+    snapshotTaker->calcTiling(imageWidth, imageHeight, newWidth, newHeight,
+        numXTiles, numYTiles);
+
     if (snapshotTaker->getUseFBO())
     {
+#ifdef Q_OS_WIN
+        ldvPreferences = new LDVPreferences(this);
+        ldvPreferences->doApply();
+        hdc = ldvPreferences->hdc;
+        currentAntialiasType = TCUserDefaults::longForKey(FSAA_MODE_KEY);
+        if (!setupPBuffer(newWidth, newHeight, currentAntialiasType))
+        {
+           newWidth = snapshotTaker->getFBOSize();
+           newHeight = snapshotTaker->getFBOSize();
+           setupSnapshotBackBuffer(newWidth, newHeight);
+        }
+#else
         newWidth = snapshotTaker->getFBOSize();
         newHeight = snapshotTaker->getFBOSize();
     }
-    snapshotTaker->calcTiling(imageWidth, imageHeight, newWidth, newHeight,
-        numXTiles, numYTiles);
-    if (!snapshotTaker->getUseFBO())
+    else
     {
-        setupSnapshotBackBuffer(newWidth, newHeight);
+       setupSnapshotBackBuffer(newWidth, newHeight);
+#endif
     }
+
     imageWidth = newWidth * numXTiles;
     imageHeight = newHeight * numYTiles;
     saveImageWidth = imageWidth;
@@ -717,10 +739,17 @@ bool LDVWidget::saveImage(
             snapshotTaker =  new LDSnapshotTaker(modelViewer);
         }
     }
+#ifdef Q_OS_WIN
+    if (LDVExtensionsSetup::havePixelBufferExtension())
+    {
+        snapshotTaker->setUseFBO(true);
+    }
+#else
     if (TREGLExtensions::haveFramebufferObjectExtension())
     {
         snapshotTaker->setUseFBO(true);
     }
+#endif
     snapshotTaker->setImageType(getSaveImageType());
     snapshotTaker->setTrySaveAlpha(saveAlpha =
         TCUserDefaults::longForKey(SAVE_ALPHA_KEY, 0, false) != 0);
@@ -763,7 +792,8 @@ void LDVWidget::doPartList(
             saveImageType = PNG_IMAGE_TYPE_INDEX;
             // By saying it's from the command line, none of the above settings
             // will be written to TCUserDefaults.
-            saveImage(snapshotPath, 400, 300);
+            savingFromCommandLine = false;
+            saveImage(snapshotPath, 400, 300, savingFromCommandLine);
             delete snapshotPath;
             htmlInventory->restoreAfterSnapshot(modelViewer);
             modelViewer->setForceZoomToFit(saveZoomToFit);
@@ -796,7 +826,7 @@ void LDVWidget::doPartList(void)
             if (ldvPartList->exec() == QDialog::Accepted)
             {
                 QString initialDir = ldvPreferences->getSaveDir(LDPreferences::SOPartsList,
-                modelViewer->getFilename());
+                                                                modelViewer->getFilename());
                 QDir::setCurrent(initialDir);
 
                 bool done = false;
@@ -824,7 +854,9 @@ void LDVWidget::doPartList(void)
                     htmlFilename = QFileDialog::getSaveFileName(this,
                         QString::fromWCharArray(TCLocalStrings::get(L"GeneratePartsList")),
                         initialDir + "/" + filename,
-                        filter);
+                        filter,
+                        nullptr,
+                        QFileDialog::DontConfirmOverwrite);
                     if (htmlFilename.isEmpty())
                     {
                         done = true;
@@ -929,6 +961,216 @@ void LDVWidget::showWebPage(QString &htmlFilename){
       emit lpubAlert->messageSig(LOG_ERROR, QString("Generation failed for %1 HTML Part List.")
                                                     .arg(QFileInfo(htmlFilename).baseName()));
   }
+}
+
+
+void LDVWidget::setupMultisample(void)
+{
+#ifdef Q_OS_WIN
+    if (LDVExtensionsSetup::haveMultisampleExtension())
+    {
+        if (currentAntialiasType)
+        {
+            if (TREGLExtensions::haveNvMultisampleFilterHintExtension())
+            {
+                if (ldvPreferences->getUseNvMultisampleFilter())
+                {
+                    glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_NICEST);
+                }
+                else
+                {
+                    glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_FASTEST);
+                }
+            }
+            glEnable(GL_MULTISAMPLE_ARB);
+        }
+        else
+        {
+            if (TREGLExtensions::haveNvMultisampleFilterHintExtension())
+            {
+                glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_FASTEST);
+            }
+            glDisable(GL_MULTISAMPLE_ARB);
+        }
+    }
+#endif
+}
+
+void LDVWidget::setupMaterial(void)
+{
+    // Don't call super.
+}
+
+void LDVWidget::setupLighting(void)
+{
+    modelViewer->setup();
+}
+
+void LDVWidget::cleanupOffscreen(void)
+{
+#ifdef Q_OS_WIN
+    hCurrentDC = hdc;
+    hCurrentGLRC = hglrc;
+    if (hPBuffer)
+    {
+        cleanupPBuffer();
+    }
+    savingFromCommandLine = true;
+    cleanupRenderSettings();
+#endif
+}
+
+void LDVWidget::cleanupPBuffer(void)
+{
+#ifdef Q_OS_WIN
+    if (hPBuffer)
+    {
+        using namespace TREGLExtensionsNS;
+
+        if (hPBufferDC)
+        {
+            if (hPBufferGLRC)
+            {
+                wglDeleteContext(hPBufferGLRC);
+                hPBufferGLRC = nullptr;
+            }
+            wglReleasePbufferDCARB(hPBuffer, hPBufferDC);
+            hPBufferDC = nullptr;
+        }
+        wglDestroyPbufferARB(hPBuffer);
+        hPBuffer = nullptr;
+    }
+#endif
+}
+
+void LDVWidget::cleanupRenderSettings(void)
+{
+    if (!savingFromCommandLine)
+    {
+        // If we're saving from the command line, there's no need to
+        // put things back for regular rendering (particularly
+        // recompiling the model, which takes quite a bit of extra
+        // time.
+        makeCurrent();
+        modelViewer->setup();
+    }
+}
+
+bool LDVWidget::setupPBuffer(int imageWidth, int imageHeight,
+    bool antialias)
+{
+#ifndef Q_OS_WIN
+    return true;
+#else
+    if (LDVExtensionsSetup::havePixelBufferExtension())
+    {
+        GLint intValues[] = {
+            WGL_DRAW_TO_PBUFFER_ARB, GL_TRUE,
+            WGL_RED_BITS_ARB, 8,
+            WGL_GREEN_BITS_ARB, 8,
+            WGL_BLUE_BITS_ARB, 8,
+            WGL_ALPHA_BITS_ARB, 8,
+            WGL_STENCIL_BITS_ARB, 2,
+            0, 0,
+            0, 0,
+            0, 0
+        };
+        int index;
+
+        if (antialias)
+        {
+            int offset = sizeof(intValues) / sizeof(GLint) - 6;
+
+            intValues[offset++] = WGL_SAMPLES_EXT;
+            intValues[offset++] = ldvPreferences->getFSAAFactor();
+            intValues[offset++] = WGL_SAMPLE_BUFFERS_EXT;
+            intValues[offset++] = GL_TRUE;
+        }
+        index = LDVExtensionsSetup::choosePixelFormat(hdc, intValues);
+        if (index >= 0)
+        {
+            using namespace TREGLExtensionsNS;
+
+            if (wglCreatePbufferARB && wglGetPbufferDCARB &&
+                wglGetPixelFormatAttribivARB)
+            {
+                int pfSizeAttribs[3] = {
+                    WGL_MAX_PBUFFER_WIDTH_ARB,
+                    WGL_MAX_PBUFFER_HEIGHT_ARB,
+                    WGL_MAX_PBUFFER_PIXELS_ARB
+                };
+                int attribValues[3];
+
+                wglGetPixelFormatAttribivARB(hdc, index, 0, 3, pfSizeAttribs,
+                    attribValues);
+                // This shouldn't be necessary, but ATI returns a PBuffer even
+                // if we ask for one that is too big, so we can't rely on their
+                // failure to trigger failure.  The one it returns CLAIMS to be
+                // the size we asked for; it just doesn't work right.
+                if (attribValues[0] >= imageWidth &&
+                    attribValues[1] >= imageHeight &&
+                    attribValues[2] >= imageWidth * imageHeight)
+                {
+                    // Given the above check, the following shouldn't really
+                    // matter, but I'll leave it in anyway.
+                    GLint cbpIntValues[] = {
+                        WGL_PBUFFER_LARGEST_ARB, 0,
+                        0, 0
+                    };
+                    hPBuffer = wglCreatePbufferARB(hdc, index, imageWidth,
+                        imageHeight, cbpIntValues);
+
+                    if (hPBuffer)
+                    {
+                        hPBufferDC = wglGetPbufferDCARB(hPBuffer);
+                        if (hPBufferDC)
+                        {
+                            hPBufferGLRC = wglCreateContext(hPBufferDC);
+
+                            if (hPBufferGLRC)
+                            {
+                                wglShareLists(hglrc, hPBufferGLRC);
+                                hCurrentDC = hPBufferDC;
+                                hCurrentGLRC = hPBufferGLRC;
+                                makeCurrent();
+                                if (antialias)
+                                {
+                                    setupMultisample();
+                                }
+                                setupMaterial();
+                                setupLighting();
+                                glDepthFunc(GL_LEQUAL);
+                                glEnable(GL_DEPTH_TEST);
+                                glDrawBuffer(GL_FRONT);
+                                glReadBuffer(GL_FRONT);
+                                modelViewer->setWidth(imageWidth);
+                                modelViewer->setHeight(imageHeight);
+                                modelViewer->setup();
+                                modelViewer->pause();
+                                if (modelViewer->getNeedsReload())
+                                {
+                                    return true;
+                                }
+                                else
+                                {
+                                    // No need to recompile as before, because
+                                    // we're sharing display lists.
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        cleanupOffscreen();
+        if (antialias)
+        {
+            return setupPBuffer(imageWidth, imageHeight, false);
+        }
+    }
+    return false;
+#endif
 }
 
 bool LDVHtmlInventory::generateHtml(

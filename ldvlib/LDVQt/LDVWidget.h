@@ -76,9 +76,9 @@ public:
   // Parts List functions
   void doPartList(void);
   void doPartList(LDVHtmlInventory *htmlInventory, LDPartsList *partsList,
-          const char *filename);
+      const char *filename);
   bool saveImage(char *filename, int imageWidth, int imageHeight,
-          bool fromCommandLine = false);
+      bool fromCommandLine = false);
   LDSnapshotTaker::ImageType getSaveImageType(void);
   bool grabImage(int &imageWidth, int &imageHeight,
       bool fromCommandLine = false);
@@ -86,6 +86,16 @@ public:
   void setViewMode(LDInputHandler::ViewMode value, bool examineLatLong,
                        bool keepRightSideUp, bool saveSettings=true);
   void showWebPage(QString &htmlFilename);
+
+  // new
+  void setupMultisample(void);
+  void cleanupRenderSettings(void);
+  virtual void cleanupOffscreen(void);
+  virtual void cleanupPBuffer(void);
+  virtual bool setupPBuffer(int imageWidth, int imageHeight,
+      bool antialias = false);
+  virtual void setupLighting(void);
+  virtual void setupMaterial(void);
 
 protected:
   bool setIniFile(void);
@@ -114,6 +124,19 @@ protected:
   LDInputHandler::ViewMode viewMode;
   bool                   commandLineSnapshotSave;
   bool                   saving;
+#ifdef Q_OS_WIN
+
+  bool                   savingFromCommandLine;
+  HPBUFFERARB            hPBuffer;
+  HDC                    hPBufferDC;
+  HGLRC                  hPBufferGLRC;
+  HDC                    hCurrentDC;
+  HGLRC                  hCurrentGLRC;
+  HINSTANCE              hInstance;
+  HWND                   hWnd;
+  HDC                    hdc;
+  HGLRC                  hglrc;
+#endif
   bool                   saveAlpha;
   int                    saveImageType;
   bool                   saveImageZoomToFit;
@@ -123,6 +146,9 @@ protected:
   int                    mwidth, mheight;
   bool                   examineLatLong;
   bool                   keepRightSide;
+
+  int                    currentAntialiasType;
+
 
   struct IniFile
   {

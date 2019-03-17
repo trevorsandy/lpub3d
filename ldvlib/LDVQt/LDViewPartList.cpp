@@ -20,9 +20,6 @@ LDVPartList::LDVPartList(LDVWidget *modelWidget, LDHtmlInventory *htmlInventory)
     connect( fieldOrderView, SIGNAL( currentItemChanged(QListWidgetItem *, QListWidgetItem *) ), this, SLOT( doHighlighted(QListWidgetItem *, QListWidgetItem *) ) );
     connect( preferencesButton, SIGNAL( clicked() ), this, SLOT( doShowPreferences() ) );
 
-    // TEMPORARY hide until I figure out how to enable preferences
-    preferencesBox->hide();
-
 //	fieldOrderView->header()->hide();
 //	fieldOrderView->setSorting(-1);
 }
@@ -158,9 +155,10 @@ void LDVPartList::doShowModel()
 void LDVPartList::doShowPreferences()
 {
     if (m_modelWidget->getLDVPreferences()) {
-        if (m_modelWidget->getLDVPreferences()->exec() == QDialog::Accepted)
-            m_modelWidget->getLDVPreferences()->doOk();
+        LDVPreferences *preferences = m_modelWidget->getLDVPreferences();
+        if (preferences->exec() == QDialog::Accepted)
+            preferences->doOk();
         else
-            m_modelWidget->getLDVPreferences()->doCancel();
+            preferences->doCancel();
     }
 }
