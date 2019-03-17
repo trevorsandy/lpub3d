@@ -46,11 +46,11 @@
 
 PagePointer::PagePointer(
   Meta           *_meta,
-  QGraphicsView  *view)
-  : view(view)
+  QGraphicsView  *_view)
 {
   relativeType  = PagePointerType;
   meta          = *_meta;
+  view          =  _view;
   margin.setValues(0,0);
 }
 

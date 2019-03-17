@@ -43,13 +43,14 @@
 #include "pagepointer.h"
 #include "submodelitem.h"
 #include "rotateiconitem.h"
-#include "submodelitem.h"
 
 class Meta;
 class Callout;
 class Range;
 class ImageMatt;
 class PagePointer;
+class QGraphicsView;
+class CsiAnnotationItem;
 
 class Step : public AbstractRangeElement
 {
@@ -58,16 +59,18 @@ class Step : public AbstractRangeElement
     bool                  multiStep;
     bool                  placeSubModel;
     bool                  placeRotateIcon;
+    bool                  placeCsiAnnotation;
     bool                  rangeDivider;
 //    bool                  rangeDividerBefore;
     QList<Callout *>      list;
+    QList<CsiAnnotation*> csiAnnotations;
     Pli                   pli;
     SubModel              subModel;
     CsiItem              *csiItem;
-    RotateIconMeta        rotateIconMeta;
-    RotateIcon            rotateIcon;
     Placement             csiPlacement;
     QPixmap               csiPixmap;
+    RotateIconMeta        rotateIconMeta;
+    RotateIcon            rotateIcon;
     PlacementNum          stepNumber;
     NumberPlacementMeta   numberPlacemetMeta;
     bool                  showStepNumber;
@@ -111,6 +114,12 @@ class Step : public AbstractRangeElement
     Range *range();
 
     bool loadTheViewer();
+
+    void setCsiAnnotationMetas(Meta &_meta,bool = false);
+
+    void appendCsiAnnotation(
+            const Where       &here,
+            CsiAnnotationMeta &caMeta);
 
     int  createCsi(
            QString      const &addLine,
@@ -161,5 +170,4 @@ class Step : public AbstractRangeElement
     virtual void addGraphicsItems(int ox, int oy, Meta *, PlacementType, QGraphicsItem *, bool);
 
 };
-
 #endif // stepH

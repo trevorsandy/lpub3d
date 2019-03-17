@@ -69,6 +69,7 @@ class PliPart {
     QList<Where>         instances;
     QString              type;
     QString              color;
+    QString              text;
     QString              element;
     NumberMeta           instanceMeta;
     AnnotationStyleMeta  styleMeta;
@@ -259,9 +260,13 @@ class Pli : public Placement {
       bom       = from.bom;
     }
 
+    void getParts(QHash<QString, PliPart*> &_parts)
+    {
+      _parts = parts;
+    }
+
     void getLeftEdge(QImage &, QList<int> &);
     void getRightEdge(QImage &, QList<int> &);
-
 };
 
 class PliBackgroundItem : public BackgroundItem, public AbstractResize, public Placement
@@ -286,7 +291,7 @@ public:
     int            submodelLevel,
     QGraphicsItem *parent);
 
-  void setPos(float x, float y)
+  void setPos(double x, double y)
   {
     QGraphicsPixmapItem::setPos(x,y);
   }
@@ -314,130 +319,139 @@ protected:
 private:
 };
 
-  //-----------------------------------------
-  //-----------------------------------------
-  //-----------------------------------------
+//-----------------------------------------
+//-----------------------------------------
+//-----------------------------------------
 
 class PGraphicsPixmapItem : public QGraphicsPixmapItem,
                             public MetaItem  // ResizePixmapItem
 {
 public:
-  PGraphicsPixmapItem(
-    Pli     *_pli,
-    PliPart *_part,
-    QPixmap &pixmap,
-    PlacementType  _parentRelativeType,
-    QString &type,
-    QString &color)
-  {
-    parentRelativeType = _parentRelativeType;
-    pli = _pli;
-    part = _part;
-    setPixmap(pixmap);
-    setToolTip(pliToolTip(type,color));
-  }
-  QString pliToolTip(QString type, QString Color);
-  PliPart *part;
-  Pli     *pli;
-  PlacementType  parentRelativeType;
+PGraphicsPixmapItem(
+  Pli     *_pli,
+  PliPart *_part,
+  QPixmap &pixmap,
+  PlacementType  _parentRelativeType,
+  QString &type,
+  QString &color)
+{
+  parentRelativeType = _parentRelativeType;
+  pli = _pli;
+  part = _part;
+  setPixmap(pixmap);
+  setToolTip(pliToolTip(type,color));
+}
+QString pliToolTip(QString type, QString Color);
+PliPart *part;
+Pli     *pli;
+PlacementType  parentRelativeType;
 
 protected:
-  void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 };
-
 
 class PGraphicsTextItem : public QGraphicsTextItem, public MetaItem
 {
 public:
-  PGraphicsTextItem()
-  {
-    pli = nullptr;
-    part = nullptr;
-  }
-  PGraphicsTextItem(
-    Pli     *_pli,
-    PliPart *_part,
-    QString &text,
-    QString &fontString,
-    QString &toolTip)
-  {
-    setText(_pli,
-            _part,
-            text,
-            fontString,
-            toolTip);
-  }
-  void setText(
-    Pli     *_pli,
-    PliPart *_part,
-    QString &text,
-    QString &fontString,
-    QString &toolTip)
-  {
-    pli  = _pli;
-    part = _part;
-    setPlainText(text);
-    QFont font;
-    font.fromString(fontString);
-    setFont(font);
-    setToolTip(toolTip);
-  }
-  virtual void size(int &x, int &y)
-  {
-    QSizeF size = document()->size();
-    x = int(size.width());
-    y = int(size.height());
-  }
-  PliPart *part;
-  Pli     *pli;
-  PlacementType  parentRelativeType;
-  bool     element;
-};
-
-class AnnotateTextItem : public PGraphicsTextItem
+PGraphicsTextItem()
 {
-public:
-    QRectF               annotateRect;
-    StringListMeta       subModelColor;
-    int                  submodelLevel;
-    AnnotationStyleMeta *styleMeta;
+  pli = nullptr;
+  part = nullptr;
+}
+PGraphicsTextItem(
+  Pli     *_pli,
+  PliPart *_part,
+  QString &text,
+  QString &fontString,
+  QString &toolTip)
+{
+  setText(_pli,
+          _part,
+          text,
+          fontString,
+          toolTip);
+}
+void setText(
+  Pli     *_pli,
+  PliPart *_part,
+  QString &text,
+  QString &fontString,
+  QString &toolTip)
+{
+  pli  = _pli;
+  part = _part;
+  setPlainText(text);
+  QFont font;
+  font.fromString(fontString);
+  setFont(font);
+  setToolTip(toolTip);
+}
 
-  AnnotateTextItem(Pli     *_pli,
-    PliPart *_part,
-    QString &text,
-    QString &fontString,
-    QString &colorString,
-    PlacementType _parentRelativeType,
-    bool          _element = false);
-
-    void size(int &x, int &y);
-    void setAttributes();
-    QGradient setGradient();
-protected:
-  void setBackground(QPainter *painter);
-  void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
-  void paint(QPainter *painter, const QStyleOptionGraphicsItem *o, QWidget *w);
+virtual void size(int &x, int &y)
+{
+  QSizeF size = document()->size();
+  x = int(size.width());
+  y = int(size.height());
+}
+PliPart      *part;
+Pli          *pli;
+PlacementType parentRelativeType;
+bool          isElement;
 };
 
 class InstanceTextItem : public PGraphicsTextItem
 {
 public:
-  InstanceTextItem(
-    Pli            *_pli,
-    PliPart        *_part,
-    QString        &text,
-    QString        &fontString,
-    QString        &colorString,
-    PlacementType _parentRelativeType)
-  {
-    parentRelativeType = _parentRelativeType;
-    QString toolTip(tr("Times used - right-click to modify"));
-    setText(_pli,_part,text,fontString,toolTip);
-    QColor color(colorString);
-    setDefaultTextColor(color);
-  }
+InstanceTextItem(
+  Pli            *_pli,
+  PliPart        *_part,
+  QString        &text,
+  QString        &fontString,
+  QString        &colorString,
+  PlacementType _parentRelativeType)
+{
+  parentRelativeType = _parentRelativeType;
+  QString toolTip(tr("Times used - right-click to modify"));
+  setText(_pli,_part,text,fontString,toolTip);
+  QColor color(colorString);
+  setDefaultTextColor(color);
+}
 
 protected:
+void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+};
+
+class AnnotateTextItem : public PGraphicsTextItem
+{
+public:
+  QRectF               annotateRect;
+  AnnotationStyleMeta *styleMeta;
+
+  AnnotateTextItem(
+    Pli           *_pli,
+    PliPart       *_part,
+    QString       &text,
+    QString       &fontString,
+    QString       &colorString,
+    PlacementType _parentRelativeType,
+    bool          _element = false);
+
+  virtual ~AnnotateTextItem(){}
+
+  void size(int &x, int &y);
+
+protected:
+  StringListMeta       subModelColor;
+  int                  submodelLevel;
+
+  void setBackground(QPainter *painter);
+  void paint(QPainter *painter, const QStyleOptionGraphicsItem *o, QWidget *w);
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 };
+
+extern QHash<int, QString>     annotationString;
+extern QList<QString>          titleAnnotations;
+
+// Cut from here.....
+
 #endif

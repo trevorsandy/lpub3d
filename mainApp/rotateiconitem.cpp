@@ -577,57 +577,59 @@ void RotateIconItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 void RotateIconItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-  QGraphicsItem::mouseReleaseEvent(event);
-  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
+    QGraphicsItem::mouseReleaseEvent(event);
 
-      Where top;
+    if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
 
-      switch (parentRelativeType) {
+        Where top;
+
+        switch (parentRelativeType) {
         case CalloutType:
-          top    = step->topOfCallout();
-          break;
+            top    = step->topOfCallout();
+            break;
         default:
-          top    = step->topOfStep();
-          break;
+            top    = step->topOfStep();
+            break;
         }
 
-      if (positionChanged) {
+        if (positionChanged) {
 
-          beginMacro(QString("DragRotateIcon"));
+            beginMacro(QString("DragRotateIcon"));
 
-          QPointF newPosition;
-          newPosition = pos() - position;
+            QPointF newPosition;
+            newPosition = pos() - position;
 
-          if (newPosition.x() || newPosition.y()) {
-              positionChanged = true;
+            if (newPosition.x() || newPosition.y()) {
+                positionChanged = true;
 
-              PlacementData placementData = placement.value();
-              placementData.offsets[0] += newPosition.x()/relativeToSize[0];
-              placementData.offsets[1] += newPosition.y()/relativeToSize[1];
-              placement.setValue(placementData);
+                PlacementData placementData = placement.value();
+                placementData.offsets[0] += newPosition.x()/relativeToSize[0];
+                placementData.offsets[1] += newPosition.y()/relativeToSize[1];
+                placement.setValue(placementData);
 
-              logInfo() << "\nCHANGE ROTATE_ICON - "
-                        << "\nPAGE WHERE - "
-                        << " \nStep TopOf (Model Name): "    << top.modelName
-                        << " \nStep TopOf (Line Number): "   << top.lineNumber
-                        << "\nUSING PLACEMENT DATA - "
-                        << " \nPlacement: "                 << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
-                        << " \nJustification: "             << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
-                        << " \nPreposition: "               << PrepNames[placement.value().preposition]   << " (" << placement.value().justification << ")"
-                        << " \nRelativeTo: "                << RelNames[placement.value().relativeTo]     << " (" << placement.value().relativeTo << ")"
-                        << " \nRectPlacement: "             << RectNames[placement.value().rectPlacement] << " (" << placement.value().rectPlacement << ")"
-                        << " \nOffset[0]: "                 << placement.value().offsets[0]
-                        << " \nOffset[1]: "                 << placement.value().offsets[1]
-                        << "\nOTHER DATA - "
-                        << " \nRelativeType: "               << RelNames[relativeType]       << " (" << relativeType << ")"
-                        << " \nParentRelativeType: "         << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
-                           ;
+                logInfo() << "\nCHANGE ROTATE_ICON - "
+                          << "\nPAGE WHERE - "
+                          << " \nStep TopOf (Model Name): "    << top.modelName
+                          << " \nStep TopOf (Line Number): "   << top.lineNumber
+                          << "\nUSING PLACEMENT DATA - "
+                          << " \nPlacement: "                 << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
+                          << " \nJustification: "             << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
+                          << " \nPreposition: "               << PrepNames[placement.value().preposition]   << " (" << placement.value().justification << ")"
+                          << " \nRelativeTo: "                << RelNames[placement.value().relativeTo]     << " (" << placement.value().relativeTo << ")"
+                          << " \nRectPlacement: "             << RectNames[placement.value().rectPlacement] << " (" << placement.value().rectPlacement << ")"
+                          << " \nOffset[0]: "                 << placement.value().offsets[0]
+                          << " \nOffset[1]: "                 << placement.value().offsets[1]
+                          << "\nOTHER DATA - "
+                          << " \nRelativeType: "               << RelNames[relativeType]       << " (" << relativeType << ")"
+                          << " \nParentRelativeType: "         << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
+                             ;
 
-              changePlacementOffset(top,
-                                    &placement,
-                                    relativeType);
-              endMacro();
+                changePlacementOffset(top,
+                                      &placement,
+                                      relativeType);
+
             }
+            endMacro();
         }
     }
 }

@@ -47,9 +47,9 @@
 
 Callout::Callout(
   Meta                 &_meta,
-  QGraphicsView        *view)
-  : view(view)
+  QGraphicsView        *_view)
 {
+  view          = _view;
   relativeType  = CalloutType;
   meta          = _meta;
   instances     = 1;

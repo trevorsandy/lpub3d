@@ -46,7 +46,7 @@
 
 #include "QsLog.h"
 
-QString labels[5][5] = 
+const QString PlacementDialog::labels[][5] =
 {
   {"Top/Left",   "Top:Left",   "Top:Center",   "Top:Right",   "Top/Right" },
   {"Left:Top",   "Top/Left",   "Top",          "Top/Right",   "Right:Top" },
@@ -55,7 +55,7 @@ QString labels[5][5] =
   {"Bottom/Left","Bottom:Left","Bottom:Center","Bottom:Right","Right/Bottom" },
 };
 
-const  QList<int> PlacementDialog::relativeToOks[NumRelatives] =
+const QList<int> PlacementDialog::relativeToOks[NumRelatives] =
 { //                               {Page , Csi , Pli , Pn , Sn , Callout , Sm , PhD , Pf, Ms}
   /*  0 Page             Page    */{0},
   /*  1 Csi (Assem)      Csi     */{Page},
@@ -85,15 +85,18 @@ const  QList<int> PlacementDialog::relativeToOks[NumRelatives] =
   /* 24 Category         Cat     */{Page             , Pn                     , Ph , Pf , Tt ,      Ct , Et , Urlt},
   /* 25 Submodel         Sm      */{Page , Csi , Pli , Pn , Sn                , Ph , Pf},
   /* 26 RotateIcon       Ri      */{Page , Csi , Pli      , Sn},
-  /* 27 Bom                      */{Page                                      , Ph , Pf},
+  /* 27 Csi Part         Cp      */{       Csi},
+  /* 28 Bom                      */{Page                                      , Ph , Pf},
 
-  /* 28 PagePointer              */{Page , Csi                                , Ph , Pf},
-  /* 29 SingleStep               */{Page , Csi},
-  /* 20 Step                     */{Page},
-  /* 31 Range                    */{Page},
-  /* 32 Reserve                  */{Page},
-  /* 33 CoverPage                */{Page}
-  /* 34 NumRelatives             */
+  /* 29 PagePointer              */{Page , Csi                                , Ph , Pf},
+  /* 30 SingleStep               */{Page , Csi},
+  /* 31 Step                     */{Page},
+  /* 32 Range                    */{Page},
+  /* 33 Reserve                  */{Page},
+  /* 34 CoverPage                */{Page},
+  /* 35 CsiAnnotationType        */{       Cp}
+
+  /* 36 NumRelatives             */
 };
 
 //front cover options   Page     | Ph | Pf | Tt | At                  | mnt | pt | mdt | pdt | dlt,
@@ -129,18 +132,21 @@ const int PlacementDialog::prepositionOks[NumRelatives] = // indexed by them
   /* 24 Category                 */ OutsideOk,
   /* 25 Submodel                 */ OutsideOk,
   /* 26 RotateIcon               */ OutsideOk,
-  /* 27 Bom                      */ OutsideOk,
+  /* 27 Csi Part                 */ InsideOk|OutsideOk,
+  /* 28 Bom                      */ OutsideOk,
 
-  /* 28 PagePointer              */ OutsideOk,
-  /* 29 SingleStep               */ OutsideOk,
-  /* 20 Step                     */ OutsideOk,
-  /* 31 Range                    */ OutsideOk,
-  /* 32 Reserve                  */ OutsideOk,
-  /* 33 CoverPage                */ InsideOk
-  /* 34 NumRelatives             */
+  /* 29 PagePointer              */ OutsideOk,
+  /* 30 SingleStep               */ OutsideOk,
+  /* 31 Step                     */ OutsideOk,
+  /* 32 Range                    */ OutsideOk,
+  /* 33 Reserve                  */ OutsideOk,
+  /* 34 CoverPage                */ InsideOk,
+  /* 35 CsiAnnotationType        */ OutsideOk
+
+  /* 36 NumRelatives             */
 };
 
-const QString relativeNames[NumRelatives] =
+const QString PlacementDialog::relativeNames[NumRelatives] =
 {
   "Page",        		        // 0 Page
   "Assem",                      // 1 Csi
@@ -170,15 +176,18 @@ const QString relativeNames[NumRelatives] =
   "Category",                   //24 Cat
   "Submodel",                   //25 Cat
   "Rotate Icon",                //26 Ri
-  "BOM",                        //27
+  "CSI Part",                   //27 Cp
+  "BOM",                        //28
 
-  "Page Pointer",               //28
-  "Single Step",                //29
-  "Step",                       //20
-  "Range",                      //31
-  "Reserve",                    //32
-  "Cover Page"                  //33
- /*NumRelatives               *///34 NumRelatives
+  "Page Pointer",               //29
+  "Single Step",                //30
+  "Step",                       //31
+  "Range",                      //32
+  "Reserve",                    //33
+  "Cover Page",                 //34
+  "CSI Annotation"              //35
+
+ /*NumRelatives               *///36 NumRelatives
 };
 
 bool PlacementDialog::getPlacement(

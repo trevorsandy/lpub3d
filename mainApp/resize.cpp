@@ -32,7 +32,7 @@ RectPlacement constAspectRatioResizePlacement[] =
 { TopLeftOutsideCorner, 
   TopRightOutsideCorner, 
   BottomRightOutsideCorner, 
-  BottomLeftOutsideCorner };
+  BottomLeftOutsideCorner};
 
 void ResizeRect::placeGrabbers()
 {
@@ -41,6 +41,7 @@ void ResizeRect::placeGrabbers()
   int    top  = rect.top();
   int    width = rect.width();
   int    height = rect.height();
+  int    bottom = rect.bottom();
   
   points[0] = QPointF(left,top);
   points[1] = QPointF(left + width, top);
@@ -168,7 +169,8 @@ void ResizeConstAspectRect::resize(QPointF grabbed)
   }
 }
 
-//---------------------------------------------------------------
+
+//------------------PixMap-------------------------//
 
 ResizePixmapItem::ResizePixmapItem()
 {
@@ -231,6 +233,70 @@ QVariant ResizePixmapItem::itemChange(GraphicsItemChange change, const QVariant 
   return QGraphicsItem::itemChange(change,value);
 }
 
+//------------------Text-------------------------//
+
+ResizeTextItem::ResizeTextItem(QGraphicsItem *parent)
+: QGraphicsTextItem(parent)
+{
+}
+
+QRectF ResizeTextItem::currentRect()
+{
+  return sceneBoundingRect();
+}
+
+QPointF ResizeTextItem::currentPos()
+{
+  return pos();
+}
+
+void ResizeTextItem::setNewPos(qreal x, qreal y)
+{
+  setPos(x,y);
+}
+
+void ResizeTextItem::setScale(qreal x, qreal y)
+{
+  setTransform(QTransform::fromScale(x,y),true);
+}
+
+void ResizeTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+  position = pos();
+  positionChanged = false;
+  QGraphicsItem::mousePressEvent(event);
+  placeGrabbers();
+}
+
+void ResizeTextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+  positionChanged = true;
+  QGraphicsItem::mouseMoveEvent(event);
+  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
+    placeGrabbers();
+  }
+}
+
+void ResizeTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+  QGraphicsItem::mouseReleaseEvent(event);
+
+  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
+    change();
+  }
+}
+
+QVariant ResizeTextItem::itemChange(GraphicsItemChange change, const QVariant &value)
+{
+  if (grabbers[0] && change == ItemSelectedChange) {
+    for (int i = 0; i < numGrabbers; i++) {
+      grabbers[i]->setVisible(value.toBool());
+    }
+  }
+  return QGraphicsItem::itemChange(change,value);
+}
+
+//-----------------------------------------------------------
 //-----------------------------------------------------------
 
 InsertPixmapItem::InsertPixmapItem(

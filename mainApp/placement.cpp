@@ -1,4 +1,4 @@
- 
+
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
@@ -33,6 +33,7 @@
 #include "callout.h"
 #include "range.h"
 #include "step.h"
+#include "csiannotation.h"
 
 void PlacementNum::sizeit()
 {
@@ -118,7 +119,6 @@ int Placement::relativeTo(
       placeRelative(&step->subModel);
       appendRelativeTo(&step->subModel);
     }
-
     /* step number */
     stepRelativeTo = step->stepNumber.placement.value().relativeTo;
     if (stepRelativeTo == relativeType) {
@@ -177,6 +177,7 @@ int Placement::relativeTo(
   return rc;
 }
 
+// Multi-step
 int Placement::relativeToSg(
   Steps *steps)
 {
@@ -195,50 +196,39 @@ int Placement::relativeToSg(
     }
 
     for (int j = 0; j < steps->list.size(); j++) {
-
+      /* range (Steps) */
       if (steps->list[j]->relativeType == RangeType) {
         Range *range = dynamic_cast<Range *>(steps->list[j]);
         for (int i = 0; i < range->list.size(); i++) {
-
+          /* step */
           if (range->list[i]->relativeType == StepType) {
             Step *step = dynamic_cast<Step *>(range->list[i]);
-            
             /* callouts */
-
             for (int i = 0; i < step->list.size(); i++) {
-
               if (step->list[i]->relativeType == CalloutType) {
                 Callout *callout = dynamic_cast<Callout *>(step->list[i]);
-
                 PlacementData placementData = callout->placement.value();
-
                 if (placementData.relativeTo == relativeType) {
-
                   placeRelative(callout);
-
                   steps->appendRelativeTo(callout);
                 }
-              } // if callout
+              }
             } // callouts
-          } // if step
-        } // foreach step
-      } // if range
-    } // foreach range
+          } // step
+        }
+      } // range (Steps)
+    }
 
     for (auto i : steps->pagePointers.keys()) {
         PagePointer *pagePointer = dynamic_cast<PagePointer *>(steps->pagePointers[i]);
-
         PlacementData placementData = pagePointer->placement.value();
-
         if (placementData.relativeTo == relativeType) {
-
             int size[2]   = { pagePointer->size[0], pagePointer->size[1] };
             int margin[2] = { pagePointer->margin.valuePixels(0), pagePointer->margin.valuePixels(1) };
             placeRelative(pagePointer, size, margin);
-
             steps->appendRelativeTo(pagePointer);
           }
-      }
+      } // pagePointerss
 
     /* try to find relation for things relative to us */
 
@@ -592,9 +582,3 @@ void Placement::calcOffsets(
   offset[0] /= relativeToSize[0];
   offset[1] /= relativeToSize[1];
 }
-
-
-
-
-
-

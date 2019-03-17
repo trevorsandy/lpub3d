@@ -33,6 +33,7 @@
 
 #include <QGraphicsPixmapItem>
 #include <QGraphicsRectItem>
+#include <QGraphicsTextItem>
 #include <QGraphicsSceneMouseEvent>
 #include <QSize>
 #include <QRect>
@@ -155,6 +156,8 @@ class ResizeConstAspectRect : public ResizeRect
     virtual void    setScale(qreal,qreal) = 0;
 };
 
+//------------------PixMap-------------------------//
+
 class ResizePixmapItem: public QGraphicsPixmapItem, 
                         public MetaItem, 
                         public ResizeConstAspectRect
@@ -165,7 +168,7 @@ class ResizePixmapItem: public QGraphicsPixmapItem,
 
     ResizePixmapItem();
 
-    virtual void change() {}
+    virtual void change() = 0;
     QRectF currentRect();
     QPointF currentPos();
     virtual void setNewPos(qreal,qreal);
@@ -180,6 +183,37 @@ class ResizePixmapItem: public QGraphicsPixmapItem,
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 };
+
+//------------------Text-------------------------//
+
+class ResizeTextItem: public QGraphicsTextItem,
+                      public MetaItem,
+                      public ResizeConstAspectRect
+{
+  public:
+    QPointF  position;
+    bool     positionChanged;
+
+    ResizeTextItem(QGraphicsItem *parent = nullptr);
+
+    virtual void change() = 0;
+    QRectF currentRect();
+    QPointF currentPos();
+    virtual void setNewPos(qreal,qreal);
+    virtual void setScale(qreal,qreal);
+    virtual QGraphicsItem *myParentItem()
+    {
+      return parentItem();
+    }
+  protected:
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+    QVariant itemChange(GraphicsItemChange change, const QVariant &value);
+};
+
+//-----------------------------------------------------------
+//-----------------------------------------------------------
 
 class InsertPixmapItem : public ResizePixmapItem
 {

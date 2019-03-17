@@ -409,6 +409,7 @@ int Gui::drawPage(
   bool     noStep          = false;
   bool     rotateIcon      = false;
   bool     rangeDivider    = false;
+  bool     assemAnnotation = false;
 
   PagePointer *pagePointer = nullptr;
   QMap<Positions, PagePointer*> pagePointers;
@@ -861,6 +862,16 @@ int Gui::drawPage(
                   parseError("PLI END with no PLI BEGIN",current);
                 }
               pliIgnore = false;
+              break;
+
+            case AssemAnnotationIconRc:
+              if (assemAnnotation) {
+                  parseError("Nested ASSEM ANNOTATION ICON not allowed",current);
+              } else {
+                  if (step)
+                      step->appendCsiAnnotation(current,curMeta.LPub.assem.annotation/*,view*/);
+                  assemAnnotation = false;
+              }
               break;
 
               /* discard subsequent parts, and don't create CSI's for them */
@@ -1379,6 +1390,9 @@ int Gui::drawPage(
                     }
 
                   partsAdded = true; // OK, so this is a lie, but it works
+
+                  // set csi annotations
+                  step->setCsiAnnotationMetas(steps->meta);
                 }
 
               // STEP - normal case of parts added, and not NOSTEP
@@ -1497,6 +1511,9 @@ int Gui::drawPage(
                           //qDebug() << "CSI ldr file #"<< ldrStepFiles.count() <<"added: " << step->ldrName;
                           //qDebug() << "CSI key #"<< csiKeys.count() <<"added: " << step->csiKey;
                       }
+
+                      // set csi annotations
+                      step->setCsiAnnotationMetas(steps->meta);
 
                   } else {
 

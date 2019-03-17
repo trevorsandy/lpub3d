@@ -224,7 +224,8 @@ void PointerItem::drawPointerPoly()
       }
   }
 
-  view->updateSceneRect(sceneBoundingRect());
+  if (view)
+    view->updateSceneRect(sceneBoundingRect());
 }
 
 void PointerItem::addShaftSegment(){

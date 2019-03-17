@@ -37,6 +37,40 @@
 
 #include "QsLog.h"
 
+const QString PointerPlacementDialog::labels[][3] =
+{
+  {"Top/Left",   "Top",   "Top/Right"   },
+  {"Left",       "Center","Right"       },
+  {"Bottom/Left","Bottom","Bottom/Right"},
+};
+
+const QList<int> PointerPlacementDialog::relativeToOks[PointerPlacementDialog::PointerNumRelatives] =
+{ //                              Page
+  /* 0 page                   */  {0}
+  /* 1 PointerNumRelatives    */
+};
+
+const int PointerPlacementDialog::prepositionOks[PointerPlacementDialog::PointerNumRelatives] = // indexed by them
+{
+  /*  0 Page                  */ InsideOk
+  /*  1 PointerNumRelatives   */
+};
+
+const QString PointerPlacementDialog::relativeNames[PointerPlacementDialog::PointerNumRelatives] =
+{
+  "Page"  // 0 page
+};        // 1 PointerNumRelatives
+
+QString PointerPlacementDialog::relativeToName(
+  int relativeTo)
+{
+  if (relativeTo >= PointerPlacementDialog::PointerNumRelatives) {
+    return relativeNames[0];
+  } else {
+    return relativeNames[relativeTo];
+  }
+}
+
 bool PointerPlacementDialog::getPointerPlacement(
   PlacementType  parentType,
   PlacementType  placedType,
@@ -52,40 +86,6 @@ bool PointerPlacementDialog::getPointerPlacement(
     goods.offsets[1] = 0;
   }
   return ok;
-}
-
-QString ppLabels[3][3] =
-{
-  {"Top/Left",   "Top",   "Top/Right"   },
-  {"Left",       "Center","Right"       },
-  {"Bottom/Left","Bottom","Bottom/Right"},
-};
-
-const  QList<int> PointerPlacementDialog::relativeToOks[PointerPlacementDialog::PointerNumRelatives] =
-{ //                              Page
-  /* 0 page                   */  {0}
-  /* 1 PointerNumRelatives    */
-};
-
-const int PointerPlacementDialog::prepositionOks[PointerPlacementDialog::PointerNumRelatives] = // indexed by them
-{
-  /*  0 Page                  */ InsideOk
-  /*  1 PointerNumRelatives   */
-};
-
-const QString ppRelativeNames[PointerPlacementDialog::PointerNumRelatives] =
-{
-  "Page"  // 0 page
-};        // 1 PointerNumRelatives
-
-QString PointerPlacementDialog::relativeToName(
-  int relativeTo)
-{
-  if (relativeTo >= PointerPlacementDialog::PointerNumRelatives) {
-    return ppRelativeNames[0];
-  } else {
-    return ppRelativeNames[relativeTo];
-  }
 }
 
 PointerPlacementDialog::PointerPlacementDialog(
@@ -143,7 +143,7 @@ PointerPlacementDialog::PointerPlacementDialog(
       foreach(int ok, oks){
           if (ok == i) {
 //              logDebug() << "POINTER MATCH: Ok:" << ok << "Type:" << RelNames[i];
-              combo->addItem(ppRelativeNames[i]);
+              combo->addItem(relativeNames[i]);
               if (i == goods->relativeTo) {
                   currentIndex = combo->count()-1;
                 }
@@ -159,7 +159,7 @@ PointerPlacementDialog::PointerPlacementDialog(
   for (int y = 0; y < 3; y++) {
     for (int x = 0; x < 3; x++) {
       QPushButton *button;
-      button = new QPushButton(ppLabels[y][x],parent);
+      button = new QPushButton(labels[y][x],parent);
       buttons[y][x] = button;
 
       if (y == 0 || y == 2) {
@@ -241,7 +241,7 @@ void PointerPlacementDialog::relativeToChanged(int /* unused */)
   QString name = combo->currentText();
 
   for (int i = 0; i < PointerPlacementDialog::PointerNumRelatives; i++) {
-    if (name == ppRelativeNames[i]) {
+    if (name == relativeNames[i]) {
       setEnabled(prepositionOks[i]);
       goods->relativeTo = PlacementType(i);
       goods->offsets[0] = 0;

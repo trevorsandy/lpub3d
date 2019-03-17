@@ -57,7 +57,6 @@ class Callout : public Steps {
   public:
     Step                  *parentStep;
     PlacementType          parentRelativeType;
-    QGraphicsView         *view;
     int                    instances;
     PlacementNum           instanceCount;
     bool                   shared;

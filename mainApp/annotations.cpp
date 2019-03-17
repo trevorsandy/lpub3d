@@ -481,7 +481,7 @@ void Annotations::loadDefaultAnnotationStyles(QByteArray& Buffer){
 # | 3 |square(2)     |cable(3)        |
 # | 4 |square(2)     |connector(4)    |
 # | 5 |square(2)     |hose(5)         |
-# | 6 |round(1)     |panel(6)        |
+# | 6 |round(1)      |panel(6)        |
 # ------------------------------------
 #
 # 32034.dat=1  4  2    Technic Angle Connector #2 (180 degree)

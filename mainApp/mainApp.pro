@@ -429,7 +429,8 @@ HEADERS += \
     submodelitem.h \
     rotstepdialog.h \
     borderedlineitem.h \
-    pointerattribdialog.h
+    pointerattribdialog.h \
+    csiannotation.h
 
 SOURCES += \
     aboutdialog.cpp \
@@ -529,7 +530,8 @@ SOURCES += \
     submodelglobals.cpp \
     rotstepdialog.cpp \
     borderedlineitem.cpp \
-    pointerattribdialog.cpp
+    pointerattribdialog.cpp \
+    csiannotation.cpp
 
 FORMS += \
     aboutdialog.ui \

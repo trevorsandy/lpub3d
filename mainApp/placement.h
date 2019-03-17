@@ -301,7 +301,7 @@ class PlacementNum : public Placement {
 };
 
 class PlacementHeader : public Placement,
-                        public QGraphicsPixmapItem {
+                        public QGraphicsRectItem {
 public:
     PlacementHeader(){}
     PlacementHeader(
@@ -317,7 +317,7 @@ public:
 };
 
 class PlacementFooter : public Placement ,
-                        public QGraphicsPixmapItem {
+                        public QGraphicsRectItem {
 public:
     PlacementFooter(){}
     PlacementFooter(
@@ -331,7 +331,5 @@ public:
       setParentItem(_parent);
     }
 };
-
-
 
 #endif

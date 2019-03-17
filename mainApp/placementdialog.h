@@ -78,43 +78,46 @@ public:
   enum PrepositionMask { InsideOk = 128, OutsideOk = 256 };
   enum RelativeTos
     {
-      /*  0 Page            */ Page,
-      /*  1 Csi (Assem)     */ Csi,
-      /*  2 MultiStep       */ Ms,
-      /*  3 StepNum         */ Sn,
-      /*  4 Pli             */ Pli,
-      /*  5 Callout         */ Callout,
-      /*  6 PageNum         */ Pn,
+      /*  0 Page              */ Page,
+      /*  1 Csi (Assem)       */ Csi,
+      /*  2 MultiStep         */ Ms,
+      /*  3 StepNum           */ Sn,
+      /*  4 Pli               */ Pli,
+      /*  5 Callout           */ Callout,
+      /*  6 PageNum           */ Pn,
 
-      /*  7 Title           */ Tt,
-      /*  8 ModelName       */ Mnt,
-      /*  9 Author          */ At,
-      /* 10 Url             */ Urlt,
-      /* 11 ModelDesc       */ Mdt,
-      /* 12 PublishDesc     */ Pdt,
-      /* 13 Copyright       */ Ct,
-      /* 14 Email           */ Et,
-      /* 15 Disclaimer      */ Dt,
-      /* 16 Parts           */ Pt,
-      /* 17 Plug            */ Plt,
-      /* 18 SubmodelInsCount*/ Sic,
-      /* 19 DocumentLogo    */ Dlt,
-      /* 20 CoverImage      */ Cit,
-      /* 21 PlugImage       */ Pit,
-      /* 22 PageHeader      */ Ph,
-      /* 23 PageFooter      */ Pf,
-      /* 24 Category        */ Cat,
-      /* 25 Submodel        */ Sm,
-      /* 26 Rotate Icon     */ Ri
-      /* 27 Bom             */ // plus 7 more...
+      /*  7 Title             */ Tt,
+      /*  8 ModelName         */ Mnt,
+      /*  9 Author            */ At,
+      /* 10 Url               */ Urlt,
+      /* 11 ModelDesc         */ Mdt,
+      /* 12 PublishDesc       */ Pdt,
+      /* 13 Copyright         */ Ct,
+      /* 14 Email             */ Et,
+      /* 15 Disclaimer        */ Dt,
+      /* 16 Parts             */ Pt,
+      /* 17 Plug              */ Plt,
+      /* 18 SubmodelInsCount  */ Sic,
+      /* 19 DocumentLogo      */ Dlt,
+      /* 20 CoverImage        */ Cit,
+      /* 21 PlugImage         */ Pit,
+      /* 22 PageHeader        */ Ph,
+      /* 23 PageFooter        */ Pf,
+      /* 24 Category          */ Cat,
+      /* 25 Submodel          */ Sm,
+      /* 26 Rotate Icon       */ Ri,
+      /* 27 Csi Part          */ Cp
+      /* 28 Bom               */ // plus 8 more...
 
-      /* 28 PagePointer     */
-      /* 29 SingleStep      */
-      /* 30 Step            */
-      /* 31 Range           */
-      /* 32 Reserve         */
-      /* 33 CoverPage       */
-      /* 34 NumRelatives    */
+      /* 29 PagePointer       */
+      /* 30 SingleStep        */
+      /* 31 Step              */
+      /* 32 Range             */
+      /* 33 Reserve           */
+      /* 34 CoverPage         */
+      /* 35 CsiAnnotationType */
+
+      /* 36 NumRelatives      */
     };
 
   PlacementDialog(
@@ -185,6 +188,8 @@ private:
   QLabel            *lblRelativeTo;
   QDialogButtonBox  *buttonBox;
 
+  static const QString labels[][5];
+  static const QString relativeNames[];
   static const QList<int> relativeToOks[];
   static const int prepositionOks[];
 };

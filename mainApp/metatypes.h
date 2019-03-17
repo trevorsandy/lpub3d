@@ -111,6 +111,24 @@ enum PrepositionEnc {
   Outside
 };
 
+/*
+* PlacementTypes are defined here and in
+* PlacementDialog. Placement
+* Names are defined at PlacementMeta in
+* meta.cpp as relativeNames[] and below as RelNames[]
+* PlacementMeta also defines _relativeTo
+* PlacementDialog also defined RelativeTos
+* Which correspond to each PlacementType
+*
+* -enum       PlacementType                (metatypes.h)
+* -QString    RelNames[NumRelatives]       (metatypes.h)
+* -QString    relativeNames[]              (meta.cpp)
+* -QString    relativeTos                  (meta.cpp, PlacementMeta::parse())
+* -enum       RelativeTos                  (placementdialog.h)
+* -QList<int> relativeToOks[NumRelatives]  (placementdialog.cpp)
+* -int        prepositionOks[NumRelatives] (placementdialog.cpp)
+* -QString    relativeNames[NumRelatives]  (placementdialog.cpp)
+*/
 enum PlacementType {          // placement dialogue codes:
   PageType,                   // 0 Page
   CsiType,                    // 1 Csi  (Assem)
@@ -140,16 +158,18 @@ enum PlacementType {          // placement dialogue codes:
   PageCategoryType,           //24 Cat
   SubModelType,               //25 Sm
   RotateIconType,             //26 Ri
-  BomType,                    //27
+  CsiPartType,                //27 Cp
+  BomType,                    //28
 
-  PagePointerType,            //28
-  SingleStepType,             //29
-  StepType,                   //30
-  RangeType,                  //31
-  ReserveType,                //32
-  CoverPageType,              //33
+  PagePointerType,            //29
+  SingleStepType,             //30
+  StepType,                   //31
+  RangeType,                  //32
+  ReserveType,                //33
+  CoverPageType,              //34
+  CsiAnnotationType,          //35
 
-  NumRelatives                //34
+  NumRelatives                //36
 };
 
 enum pageType{
@@ -172,7 +192,8 @@ enum AnnotationCategory{
     cable,
     connector,
     hose,
-    panel
+    panel,
+    extended
 };
 
 enum annotationType{
@@ -230,6 +251,32 @@ public:
   float y4;                    // MidTipY
 };
 
+class CsiAnnotationIconData
+{
+public:
+  QStringList placements;     // My placement attributes
+  float       iconOffset[2];  // My offset from the part;
+  float       partOffset[2];  // My part offset from the csi
+  int         partSize[2];    // How big is my part (in pixels)?
+  QString     typeBaseName;   // My part name without extension
+  int         typeColor;      // My part color
+  bool        hidden;         // Am I hidden ?
+
+  CsiAnnotationIconData()
+  {
+    placements    = QStringList() << QString::number(BottomLeft) << QString::number(Outside);
+    iconOffset[0] = 0.0f;
+    iconOffset[1] = 0.0f;
+    partOffset[0] = 0.0f;
+    partOffset[1] = 0.0f;
+    partSize[0]   = 0;
+    partSize[1]   = 0;
+    typeBaseName  = QString();
+    typeColor     = -1;
+    hidden        = false;
+  }
+};
+
 class RotStepData
 {
 public:
@@ -237,7 +284,7 @@ public:
   QString type;
   RotStepData()
   {
-    type = "";
+    type = QString();
     rots[0] = 0;
     rots[1] = 0;
     rots[2] = 0;
@@ -564,16 +611,18 @@ const QString RelNames[NumRelatives] =
    "PageCategoryType",           //24 cat
    "SubModelType",               //25 Sm
    "RotateIconType",             //26 Ri
-   "BomType",                    //27
+   "CsiPartType",                //27 Cp
+   "BomType",                    //28
 
-   "PagePointerType",            //28
-   "SingleStepType",             //29
-   "StepType",                   //20
-   "RangeType",                  //31
-   "ReserveType",                //32
-   "CoverPageType"               //33
+   "PagePointerType",            //29
+   "SingleStepType",             //30
+   "StepType",                   //31
+   "RangeType",                  //32
+   "ReserveType",                //33
+   "CoverPageType",              //34
+   "CsiAnnotationType"           //35
 
-}; //NumRelatives"               //34
+}; //NumRelatives"               //36
 
 const QString PlacNames[NumPlacements] =
  {

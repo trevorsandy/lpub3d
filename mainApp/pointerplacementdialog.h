@@ -56,7 +56,7 @@ public:
 
   enum PrepositionMask { InsideOk = 128 };
 
-  enum RelativeTos {  page };
+  enum RelativeTos { page };
 
   PointerPlacementDialog(
     PlacementType   parentType,
@@ -72,7 +72,7 @@ public:
     PlacementType   placedType,
     PlacementData  &goods,          // the type in here provides default value
     QString         title,
-    QWidget        *parent = 0);
+    QWidget        *parent = nullptr);
 
   static QString relativeToName(int relativeTo);
 
@@ -105,6 +105,8 @@ private:
   QLabel            *lblRelativeTo;
   QDialogButtonBox  *buttonBox;
 
+  static const QString labels[][3];
+  static const QString relativeNames[];
   static const QList<int> relativeToOks[];
   static const int prepositionOks[];
 };

@@ -43,12 +43,13 @@ public:
   Meta       meta;
   QString    topLevelFile;
   QList<MetaGui *> children;
-  MetaGui   *modelScale;
+  bool     clearCache;
 
   GlobalAssemPrivate(QString &_topLevelFile, Meta &_meta)
   {
     topLevelFile = _topLevelFile;
     meta = _meta;
+    clearCache   = false;
 
     MetaItem mi; // examine all the globals and then return
 
@@ -84,6 +85,7 @@ GlobalAssemDialog::GlobalAssemDialog(
       child = new CameraDistFactorGui("Camera Distance Factor",
                                       &assem->cameraDistNative);
       data->children.append(child);
+      data->clearCache = child->modified;
       boxGrid->addWidget(child,0,0);
   } else {
       child = new DoubleSpinGui("Scale",
@@ -92,7 +94,7 @@ GlobalAssemDialog::GlobalAssemDialog(
         assem->modelScale._max,
         0.01);
       data->children.append(child);
-      data->modelScale = child;
+      data->clearCache = child->modified;
       boxGrid->addWidget(child,0,0);
   }
   child = new UnitsGui("Margins",&assem->margin);
@@ -132,10 +134,18 @@ GlobalAssemDialog::GlobalAssemDialog(
 
   box = new QGroupBox("Display");
   grid->addWidget(box,4,0);
+  QVBoxLayout *vLayout = new QVBoxLayout();
+  box->setLayout(vLayout);
 
-  child = new CheckBoxGui("Step Number",&assem->showStepNumber,box);
+  child = new CheckBoxGui("Step Number",&assem->showStepNumber);
   data->children.append(child);
-  boxGrid->addWidget(child);
+  vLayout->addWidget(child);
+
+  if (data->meta.LPub.pli.annotation.display.value()) {
+     child = new CsiAnnotationGui("",&assem->annotation);
+     data->children.append(child);
+     vLayout->addWidget(child);
+  }
 
   QDialogButtonBox *buttonBox;
 
@@ -163,7 +173,7 @@ void GlobalAssemDialog::accept()
 {
   MetaItem mi;
 
-  if (data->modelScale->modified) {
+  if (data->clearCache) {
     clearCsiCache();
     clearTempCache();
   }

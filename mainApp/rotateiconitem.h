@@ -69,7 +69,7 @@ public:
     Step           *_step,
     PlacementType   _parentRelativeType,
     RotateIconMeta &_rotateIconMeta,
-    QGraphicsItem  *_parent = 0);
+    QGraphicsItem  *_parent = nullptr);
   ~RotateIconItem()
   {
   }
@@ -78,7 +78,7 @@ public:
       Step           *_step,
       PlacementType   _parentRelativeType,
       RotateIconMeta &_rotateIconMeta,
-      QGraphicsItem  *parent = 0);
+      QGraphicsItem  *parent = nullptr);
 
   void setRotateIconImage(QPixmap *pixmap);
   QGradient setGradient();

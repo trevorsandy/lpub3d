@@ -240,13 +240,13 @@ void Pli::setParts(
           styleMeta.color  = pliMeta.annotate.color;
 
           // get part annotation style flag - either cirle(1) or square(2)
-          AnnotationStyle style = (AnnotationStyle)Annotations::getAnnotationStyle(type);
+          AnnotationStyle style = AnnotationStyle(Annotations::getAnnotationStyle(type));
 
           // set style meta settings
           if (style) {
               // get style category
               bool styleCategory = false;
-              AnnotationCategory annotationCategory = (AnnotationCategory)Annotations::getAnnotationCategory(type);
+              AnnotationCategory annotationCategory = AnnotationCategory(Annotations::getAnnotationCategory(type));
               switch (annotationCategory)
               {
               case AnnotationCategory::axle:
@@ -876,6 +876,8 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart) {
                 getAnnotation(part->type,descr);
 
             if (descr.size()) {
+
+                part->text = descr;
 
                 font   = part->styleMeta.font.valueFoo();
                 color  = part->styleMeta.color.value();
@@ -1697,6 +1699,8 @@ int Pli::partSize()
 
               if (descr.size()) {
 
+                  part->text = descr;
+
                   font   = part->styleMeta.font.valueFoo();
                   color  = part->styleMeta.color.value();
 
@@ -2285,7 +2289,7 @@ void Pli::positionChildren(
           continue;
         }
 
-      bool element = bom && pliMeta.partElements.display.value() && part->annotateElement;
+      bool showElement = bom && pliMeta.partElements.display.value() && part->annotateElement;
 
       float x,y;
       x = part->left;
@@ -2307,10 +2311,10 @@ void Pli::positionChildren(
       part->instanceText->setParentItem(background);
       part->instanceText->setPos(
             x/scaleX,
-            (y - (element ? (part->textHeight + part->elementHeight - part->textMargin) : part->textHeight))/scaleY);
+            (y - (showElement ? (part->textHeight + part->elementHeight - part->textMargin) : part->textHeight))/scaleY);
 
       // Position the BOM Element
-      if (element) {
+      if (showElement) {
           part->annotateElement->setParentItem(background);
           part->annotateElement->setPos(
                 x/scaleX,
@@ -2789,7 +2793,7 @@ void AnnotateTextItem::contextMenuEvent(
 {
   QMenu menu;
 
-  QString pl =  element ? "Part Element" : "Part Annotation";
+  QString pl =  isElement ? "Part Element" : "Part Annotation";
 
   QAction *fontAction       = commonMenus.fontMenu(menu,pl);
   QAction *colorAction      = commonMenus.colorMenu(menu,pl);
@@ -2967,33 +2971,29 @@ void PGraphicsPixmapItem::contextMenuEvent(
 #include <QGraphicsPixmapItem>
 
 AnnotateTextItem::AnnotateTextItem(
-  Pli     *_pli,
-  PliPart *_part,
-  QString &_text,
-  QString &_fontString,
-  QString &_colorString,
-  PlacementType _parentRelativeType,
-  bool          _element)
+  Pli           *_pli,
+  PliPart       *_part,
+  QString       &_text,
+  QString       &_fontString,
+  QString       &_colorString,
+  PlacementType  _parentRelativeType,
+  bool           _element)
 {
   parentRelativeType = _parentRelativeType;
-
-  element = _element;
+  isElement          = _element;
 
   QString fontString = _fontString;
 
-  bool useDocSize = false;
-
   QString toolTip;
 
-  if (element){
+  if (isElement){
       if (_pli->pliMeta.annotation.elementStyle.value()){
-          styleMeta  = &_pli->pliMeta.rectangleStyle;
+         styleMeta  = &_pli->pliMeta.rectangleStyle;
       }
       toolTip = QString("%1 Element Annotation - right-click to modify")
                        .arg(_pli->pliMeta.partElements.legoElements.value() ? "LEGO" : "BrickLink");
   } else {
       styleMeta  = &_part->styleMeta;
-      useDocSize = styleMeta->style.value() == AnnotationStyle::none;
       toolTip    = "Part Annotation - right-click to modify";
       // TODO - automatically resize text until it fits
       if ((_part->styleMeta.style.value() == AnnotationStyle::circle ||
@@ -3005,12 +3005,17 @@ AnnotateTextItem::AnnotateTextItem(
 
   setText(_pli,_part,_text,fontString,toolTip);
 
+  bool useDocSize = false;
+
+  if (!isElement)
+      useDocSize = styleMeta->style.value() == AnnotationStyle::none;
+
   QRectF docSize  = QRectF(0,0,document()->size().width(),document()->size().height());
 
   if (useDocSize) {
       annotateRect = docSize;
   } else {
-      bool dw = part->styleMeta.style.value() == AnnotationStyle::rectangle || element;
+      bool dw = part->styleMeta.style.value() == AnnotationStyle::rectangle || isElement;
       QRectF styleSize = QRectF(0,0,dw ? docSize.width() : styleMeta->size.valuePixels(0),styleMeta->size.valuePixels(1));
       annotateRect = boundingRect().adjusted(0,0,styleSize.width()-docSize.width(),styleSize.height()-docSize.height());
       // center the document on the new size
@@ -3028,122 +3033,25 @@ AnnotateTextItem::AnnotateTextItem(
   QColor color(_colorString);
   setDefaultTextColor(color);
 
-  setAttributes();
+  subModelColor = pli->pliMeta.subModelColor;
+  if (pli->background)
+    submodelLevel = pli->background->submodelLevel;
+
+  setFlag(QGraphicsItem::ItemIsSelectable,true);
+  setZValue(98);
 }
 
 void AnnotateTextItem::size(int &x, int &y)
 {
-  x = int(annotateRect.width());
-  y = int(annotateRect.height());
-}
-
-void AnnotateTextItem::setAttributes(){
-
-    subModelColor = pli->pliMeta.subModelColor;
-    if (pli->background)
-      submodelLevel = pli->background->submodelLevel;
-
-    //gradient settings
-    if (styleMeta->background.value().gsize[0] == 0 &&
-        styleMeta->background.value().gsize[1] == 0) {
-        styleMeta->background.value().gsize[0] = annotateRect.width();
-        styleMeta->background.value().gsize[1] = annotateRect.width();
-        QSize gSize(styleMeta->background.value().gsize[0],
-            styleMeta->background.value().gsize[1]);
-        int h_off = gSize.width() / 10;
-        int v_off = gSize.height() / 8;
-        styleMeta->background.value().gpoints << QPointF(gSize.width() / 2, gSize.height() / 2)
-                                   << QPointF(gSize.width() / 2 - h_off, gSize.height() / 2 - v_off);
-    }
-
-    setZValue(98);
-    setFlag(QGraphicsItem::ItemIsSelectable,true);
-}
-
-QGradient AnnotateTextItem::setGradient(){
-
-    BackgroundData backgroundData = styleMeta->background.value();
-    QPolygonF pts;
-    QGradientStops stops;
-
-    QSize gSize(backgroundData.gsize[0],backgroundData.gsize[1]);
-
-    for (int i=0; i<backgroundData.gpoints.size(); i++)
-        pts.append(backgroundData.gpoints.at(i));
-
-    QGradient::CoordinateMode mode = QGradient::LogicalMode;
-    switch (backgroundData.gmode){
-    case BackgroundData::LogicalMode:
-        mode = QGradient::LogicalMode;
-        break;
-    case BackgroundData::StretchToDeviceMode:
-        mode = QGradient::StretchToDeviceMode;
-        break;
-    case BackgroundData::ObjectBoundingMode:
-        mode = QGradient::ObjectBoundingMode;
-        break;
-    }
-
-    QGradient::Spread spread = QGradient::RepeatSpread;
-    switch (backgroundData.gspread){
-    case BackgroundData::PadSpread:
-        spread = QGradient::PadSpread;
-        break;
-    case BackgroundData::RepeatSpread:
-        spread = QGradient::RepeatSpread;
-        break;
-    case BackgroundData::ReflectSpread:
-        spread = QGradient::ReflectSpread;
-        break;
-    }
-
-    QGradient g = QLinearGradient(pts.at(0), pts.at(1));
-    switch (backgroundData.gtype){
-    case BackgroundData::LinearGradient:
-        g = QLinearGradient(pts.at(0), pts.at(1));
-        break;
-    case BackgroundData::RadialGradient:
-    {
-        QLineF line(pts[0], pts[1]);
-        if (line.length() > 132){
-            line.setLength(132);
-        }
-        g = QRadialGradient(line.p1(),  qMin(gSize.width(), gSize.height()) / 3.0, line.p2());
-    }
-        break;
-    case BackgroundData::ConicalGradient:
-    {
-        qreal angle = backgroundData.gangle;
-        g = QConicalGradient(pts.at(0), angle);
-    }
-        break;
-    case BackgroundData::NoGradient:
-        break;
-    }
-
-    for (int i=0; i<backgroundData.gstops.size(); ++i) {
-        stops.append(backgroundData.gstops.at(i));
-    }
-
-    g.setStops(stops);
-    g.setSpread(spread);
-    g.setCoordinateMode(mode);
-
-    return g;
+    x = int(annotateRect.width());
+    y = int(annotateRect.height());
 }
 
 void AnnotateTextItem::setBackground(QPainter *painter)
 {
-
     // set border and background parameters
     BorderData     borderData     = styleMeta->border.valuePixels();
     BackgroundData backgroundData = styleMeta->background.value();
-
-    // set defaults for using a background image only
-    if ((backgroundData.type == BackgroundData::BgImage) &&
-            !backgroundData.stretch) {
-        backgroundData.stretch = true;
-    }
 
     // set rectangle size and dimensions parameters
     int ibt = int(borderData.thickness);
@@ -3155,30 +3063,19 @@ void AnnotateTextItem::setBackground(QPainter *painter)
     // set the background then set the border and paint both in one go.
 
     /* BACKGROUND */
-    bool useGradient = false;
     QColor brushColor;
     switch(backgroundData.type) {
-    case BackgroundData::BgTransparent:
-        brushColor = Qt::transparent;
-        break;
-    case BackgroundData::BgGradient:
-        useGradient = true;
-        brushColor = Qt::transparent;
-        break;
     case BackgroundData::BgColor:
+       brushColor = LDrawColor::color(backgroundData.string);
+       break;
     case BackgroundData::BgSubmodelColor:
-        if (backgroundData.type == BackgroundData::BgColor) {
-            brushColor = LDrawColor::color(backgroundData.string);
-        } else {
-            brushColor = LDrawColor::color(subModelColor.value(0));
-        }
-        break;
-    case BackgroundData::BgImage:
-        break;
+       brushColor = LDrawColor::color(subModelColor.value(0));
+       break;
+    default:
+       brushColor = Qt::transparent;
+       break;
     }
-
-    useGradient ? painter->setBrush(QBrush(setGradient())) :
-                  painter->setBrush(brushColor);
+    painter->setBrush(brushColor);
 
     /* BORDER */
     QPen borderPen;
@@ -3245,3 +3142,5 @@ void AnnotateTextItem::paint( QPainter *painter, const QStyleOptionGraphicsItem 
 
     QGraphicsTextItem::paint(painter, o, w);
 }
+
+/* CSI Icon functions */

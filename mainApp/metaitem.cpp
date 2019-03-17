@@ -109,6 +109,26 @@ Rc MetaItem::scanBackwardStepGroup(Where &here)
 
 /***********************************************************************
  *
+ * switch rendere for fast processing
+ *
+ **********************************************************************/
+
+void MetaItem::setNativeRenderer(){
+    if (!Preferences::usingNativeRenderer) {
+        Preferences::preferredRenderer = RENDERER_NATIVE;
+        Render::setRenderer(Preferences::preferredRenderer);
+    }
+}
+
+void MetaItem::restoreRenderer(QString &renderer, bool singleCall, bool snapshotList){
+   Preferences::preferredRenderer = renderer;
+   Preferences::enableLDViewSnaphsotList = singleCall;
+   Preferences::enableLDViewSnaphsotList = snapshotList;
+   Render::setRenderer(Preferences::preferredRenderer);
+}
+
+/***********************************************************************
+ *
  * tools
  *
  **********************************************************************/
@@ -1245,6 +1265,47 @@ bool MetaItem::setPointerPlacement(
       placementMeta->setValue(placementData);
     }
   return ok;
+}
+
+void MetaItem::changeCsiAnnotationPlacement(
+  PlacementType      parentType,
+  PlacementType      relativeType,
+  QString            title,
+  const Where       &metaLine,
+  const Where       &bottomOf,
+  CsiAnnotationMeta *caMeta,
+  bool               useTop,
+  int                append,
+  bool               local,
+  bool               useLocal,
+  int                onPageType)
+{
+  Q_UNUSED(bottomOf)
+  Q_UNUSED(useTop)
+  Q_UNUSED(append)
+  Q_UNUSED(local)
+  Q_UNUSED(useLocal)
+
+  PlacementData placementData = caMeta->placement.value();
+  bool ok;
+  ok = PlacementDialog
+       ::getPlacement(parentType,relativeType,placementData,title,onPageType);
+
+  if (ok) {
+    CsiAnnotationIconData caiData = caMeta->icon.value();
+    bool hasJustification = (placementData.justification != Center &&
+                             placementData.preposition != Inside);
+    QStringList replacements;
+    replacements << QString::number(placementData.placement);
+    if (hasJustification)
+        replacements << QString::number(placementData.justification);
+    replacements << QString::number(placementData.preposition);
+    caiData.placements = replacements;
+
+    caMeta->icon.setValue(caiData);
+
+    updateCsiAnnotationIconMeta(metaLine, &caMeta->icon);
+  }
 }
 
 void MetaItem::changePlacement(
@@ -2977,6 +3038,12 @@ int MetaItem::nestCallouts(
 {
   bool restart = true;
   
+  // Switch to Native Renderer for fast processing
+  QString saveRenderer   = Preferences::preferredRenderer;
+  bool saveSingleCall    = Preferences::enableLDViewSingleCall;
+  bool saveSnapshotList  = Preferences::enableLDViewSnaphsotList;
+  setNativeRenderer();
+
   while (restart) {
   
     restart = false;
@@ -3042,6 +3109,7 @@ int MetaItem::nestCallouts(
       }
     }
   }
+  restoreRenderer(saveRenderer,saveSingleCall,saveSnapshotList);
   return 0;
 }
 
@@ -3083,12 +3151,19 @@ void MetaItem::convertToCallout(
 {
   gui->maxPages = -1;
 
+  // Switch to Native Renderer for fast processing
+  QString saveRenderer   = Preferences::preferredRenderer;
+  bool saveSingleCall    = Preferences::enableLDViewSingleCall;
+  bool saveSnapshotList  = Preferences::enableLDViewSnaphsotList;
+  setNativeRenderer();
+
   beginMacro("convertToCallout");
   addCalloutMetas(meta,modelName,isMirrored,assembled);
   if ( ! assembled) {
     nestCallouts(meta,modelName,isMirrored);
   }
   endMacro();
+  restoreRenderer(saveRenderer,saveSingleCall,saveSnapshotList);
 }
 
 void MetaItem::addCalloutMetas(
@@ -3308,51 +3383,25 @@ void MetaItem::addPointerTipMetas(
     PlacementEnc placement,
     Rc           rc)
 {
-  QString pointerPlacement;
-  if (rc == PagePointerRc) {
+  // Switch to Native Renderer for fast processing
+  QString saveRenderer   = Preferences::preferredRenderer;
+  bool saveSingleCall    = Preferences::enableLDViewSingleCall;
+  bool saveSnapshotList  = Preferences::enableLDViewSnaphsotList;
+  setNativeRenderer();
 
-      switch (placement)
-      {
-      case TopLeft:
-          pointerPlacement = "BASE_TOP_LEFT";
-          break;
-      case Top:
-          pointerPlacement = "BASE_TOP";
-          break;
-      case TopRight:
-          pointerPlacement = "BASE_TOP_RIGHT";
-          break;
-      case Left:
-          pointerPlacement = "BASE_LEFT";
-          break;
-      case Center:
-          pointerPlacement = "BASE_CENTER";
-          break;
-      case Right:
-          pointerPlacement = "BASE_RIGHT";
-          break;
-      case BottomLeft:
-          pointerPlacement = "BASE_BOTTOM_LEFT";
-          break;
-      case Bottom:
-          pointerPlacement = "BASE_BOTTOM";
-          break;
-      case BottomRight:
-          pointerPlacement = "BASE_BOTTOM_RIGHT";
-          break;
-      case NumPlacements:
-          break;
-      }
+  QString placementName;
+  if (rc == PagePointerRc) {
+      placementName = bPlacementEncNames[placement];
   }
 
-  /* pointerTip is the trick - it calculates the pointer tip
-     for a given step.  It does this by rendering
-     the parent image with the model's non-step parts color A and
-     the step's parts color B.  Then the resultant image is
-     searched for color B.  The parent model needs to be rotated
-     by ROTSTEP for this to work. */
+  QPointF centerOffset = QPointF(0.5,0.5);
 
-  QPointF offset = pointerTip(*meta,fromHere,toHere);
+  int partLoc[2]  = { 0,0 };
+  int csiSize[2]  = { 0,0 };
+  int partSize[2] = { 0,0 };
+
+  if (offsetPoint(*meta,fromHere,toHere,partLoc,csiSize,partSize))
+      centerOffset = QPointF(qreal(partLoc[XX])/csiSize[XX], qreal(partLoc[YY])/csiSize[YY]);
 
   QString pointerType;
   switch (rc)
@@ -3375,9 +3424,9 @@ void MetaItem::addPointerTipMetas(
 
   QString line = QString("%1 %2 %3 0 0 0 0 0 0 1 %4")
                          .arg(preamble)
-                         .arg(offset.x())
-                         .arg(offset.y())
-                         .arg(pointerPlacement);
+                         .arg(centerOffset.x())
+                         .arg(centerOffset.y())
+                         .arg(placementName);
 
   //logTrace() << "META" << meta->LPub.pointerBase.pointer.format(false,false);
 
@@ -3385,32 +3434,191 @@ void MetaItem::addPointerTipMetas(
 
   Where walk = toHere;
   if (rc == StepGroupDividerPointerRc)
-      Rc mRc = scanForward(walk,StepMask);
+     scanForward(walk,StepMask);
 
   insertMeta(walk,line);
+  restoreRenderer(saveRenderer,saveSingleCall,saveSnapshotList);
 }
 
-QPointF MetaItem::pointerTip(
-  Meta          &meta,
-  const Where   &fromHere,
-  const Where   &toHere)
+void MetaItem::updateCsiAnnotationIconMeta(
+  const Where &here, CsiAnnotationIconMeta *caim)
 {
-  QString modelName = fromHere.modelName;
-  QRectF  pagePosition = QRectF(0,0,gui->pageSize(meta.LPub.page, 0),gui->pageSize(meta.LPub.page, 1));
-  /*
-   * Create a "white" version of the submodel that callouts out our callout
-   */
+  if (here.modelName != "undefined") {
+    QString repLine = caim->format(false,false);
+    replaceMeta(here,repLine);
+  }
+}
 
+void MetaItem::writeCsiAnnotationMeta(
+  QStringList  &parts,
+  const Where  &fromHere,
+  const Where  &toHere,
+  Meta         *meta,
+  bool          update)
+{
+  // Switch to Native Renderer for fast processing
+  QString saveRenderer   = Preferences::preferredRenderer;
+  bool saveSingleCall    = Preferences::enableLDViewSingleCall;
+  bool saveSnapshotList  = Preferences::enableLDViewSnaphsotList;
+  setNativeRenderer();
+
+  QHash<QString,QString> hash;
+
+  beginMacro("annotationIconMetas");
+
+  Where start = fromHere;
+  Where end   = toHere;
+
+  QString preamble = "0 !LPUB ASSEM ANNOTATION ICON";
+
+  // Default placement
+
+  PlacementData pld = meta->LPub.assem.annotation.placement.value();
+  QString placements;
+  bool hasJustification = (pld.justification != Center && pld.preposition != Inside);
+  placements = placementNames[pld.placement]+" ";
+  if (hasJustification)
+      placements += placementNames[pld.justification]+" ";
+  placements +=  prepositionNames[pld.preposition];
+
+  // Unpack the part parts, modelNames and lineNumbers involved - do not reorder
+
+  for (int i = parts.size() - 1; i >= 0; --i) {
+
+    // extract components
+
+    QStringList partIds = QString(parts[i].section('@',0,0)).split(";");
+    QString partName    = partIds.at(0);                // extract partName
+    QString partColor   = partIds.at(1);                // extract partColor
+    QString modelName   = partIds.at(2);                // extract modelName
+    QString lines       = parts[i].section('@',1,1);
+    lines.chop(1);                                      // remove trailing ;
+    QStringList lineNumStrings = lines.split(";");      // extract lineNumbers
+
+    // for each modelName, sort the list of lineNumbers
+
+    QList<int> lineNumbers;
+    for (int j = 0; j < lineNumStrings.size(); ++j) {
+      lineNumbers << lineNumStrings[j].toInt();
+    }
+    qSort(lineNumbers.begin(),lineNumbers.end());
+
+    // process from last to first so as to not disturb line numbers
+
+    int lastLineNumber = -1;
+    for (int j = lineNumbers.size() - 1; j >= 0; --j) {
+
+      int lineNumber = lineNumbers[j];
+
+      if (lineNumber != lastLineNumber) {
+
+        Where here(modelName,lineNumber);
+
+        int partLoc[2]      = { 0,0 }; // only used to calculate part offset
+        int csiSize[2]      = { 0,0 }; // only used to calculate part offset
+
+        int iconOffset[2]   = { 0,0 };
+        float partOffset[2] = { 0.5f,0.5f };
+        int partSize[2]     = { 0,0 };
+
+        QString line;
+
+        if (offsetPoint(*meta,start,end,partLoc,csiSize,partSize,lineNumber)) {
+
+            // part offset is alwasy calculcated from center
+            partOffset[XX] = float(partLoc[XX])/csiSize[XX];
+            partOffset[YY] = float(partLoc[YY])/csiSize[YY];
+
+
+            emit gui->messageSig(LOG_DEBUG,QString(" -PartOffsetCenter: (%1, %2)")
+                                 .arg(QString::number(double(partOffset[XX]),'f',5))
+                                 .arg(QString::number(double(partOffset[YY]),'f',5)));
+
+            line = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10")
+                           .arg(preamble)
+                           .arg(placements)
+                           .arg(QString::number(iconOffset[XX]))
+                           .arg(QString::number(iconOffset[YY]))
+                           .arg(QString::number(double(partOffset[XX]),'f',5))
+                           .arg(QString::number(double(partOffset[YY]),'f',5))
+                           .arg(partSize[XX])
+                           .arg(partSize[YY])
+                           .arg(partColor)
+                           .arg(partName);
+        } else {
+            emit gui->messageSig(LOG_ERROR, QString("Could not generate meta for line [%1]").arg(line));
+            return;
+        }
+
+        logTrace() << "\nCSI ANNOTATION ICON LINE: " << line
+//                  << "\nCSI ANNOTATION ICON META: " << meta->LPub.assem.annotation.icon.format(false,false)
+                      ;
+        if (update) {
+            Where meta = here + 1;
+            gui->replaceLine(meta,line);
+        } else {
+            gui->appendLine(here,line);
+        }
+
+          // increase toHere lines with each added line
+          end++;
+
+        lastLineNumber = lineNumber;
+      }
+    }
+  }
+  restoreRenderer(saveRenderer,saveSingleCall,saveSnapshotList);
+  endMacro();
+}
+
+/* offsetPoint is the trick - it calculates specified a position
+   point for part(s) in a specified modelName and at specified
+   lineNumber(s). It does this by rendering the parent image with
+   the model's non-step parts color A and the step's parts color B.
+   Then the resultant image is searched for color B. The parent
+   model needs to be rotated by ROTSTEP for this to work.
+*/
+
+bool MetaItem::offsetPoint(
+        Meta    &meta,
+  const Where   &fromHere,
+  const Where   &toHere,
+  int          (&partLoc)[2],
+  int          (&csiSize)[2],
+  int          (&partSize)[2],
+  int            partLineNum)
+{
+  int start           = fromHere.lineNumber;
+  int end             = toHere.lineNumber;
+  bool partAnnotation = partLineNum > -1;
+  QString modelName   = fromHere.modelName;
+  QString title       = "pointer";
+  QString label       = title;
+
+  if (partAnnotation){
+      int colorLines = 3; // Use trans white color versus white
+      title        = "annotation";
+#ifdef QT_DEBUG_MODE
+      label       += QString("_%1_").arg(partLineNum);
+#endif
+      end         += colorLines;
+      partLineNum += colorLines;
+  }
+
+  /*
+   * Create a "white" version of the model/submodel
+   */
   QString monoOutName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + modelName;
-  monoOutName = makeMonoName(monoOutName,monoColor[white]);
-  monoColorSubmodel(modelName,monoOutName,monoColor[white]);
+  monoOutName = makeMonoName(monoOutName,monoColor[partAnnotation ? transwhite : white], partAnnotation);
+  monoColorSubmodel(modelName,monoOutName,monoColor[partAnnotation ? transwhite : white]);
 
   QFile inFile(monoOutName);
   if ( ! inFile.open(QFile::ReadOnly | QFile::Text)) {
-    emit gui->messageSig(LOG_ERROR,QString("defaultPointerTip cannot read file %1: %2.")
-                         .arg(monoOutName)
-                         .arg(inFile.errorString()));
-    return QPointF(0.5,0.5);
+    emit gui->messageSig(LOG_ERROR,QString("Generate %1 offset cannot read file %2: %3")
+                                           .arg(title)
+                                           .arg(monoOutName)
+                                           .arg(inFile.errorString()));
+      return false; //pagePosition.center();
   }
 
   QTextStream in(&inFile);
@@ -3421,22 +3629,32 @@ QPointF MetaItem::pointerTip(
    * then gather up the "blue" step parts
    */
 
-  for (int i = 0; i < toHere.lineNumber; i++) {
-    QString line = in.readLine(0);
-    if (i >= fromHere.lineNumber) {
-      QStringList argv;
-      split(line,argv);
-      if (argv.size() == 15) {
-        // create blue parts
-        argv[1] = monoColorCode[blue];
-        line = argv.join(" ");
+  QString partType = QString();
+  for (int i = 0; i < end; i++) {
+      QString line = in.readLine(0);
+      if (line.contains("0 Name: "))
+          continue;
+      // create blue part(s)
+      if (i >= start) {
+          QStringList argv;
+          split(line,argv);
+          if (argv.size() == 15) {
+              if (partAnnotation) {
+                  if (i == partLineNum) {
+                      argv[1] = monoColorCode[blue];
+                      partType = argv[14];
+                  }
+              } else {
+                  argv[1] = monoColorCode[blue];
+              }
+              line = argv.join(" ");
+          }
       }
-    }
-    csiParts << line;
+      csiParts << line;
   }
 
   if (csiParts.size() == 0) {
-    return pagePosition.center();
+      return false;
   }
 
   bool ok[2];
@@ -3444,15 +3662,20 @@ QPointF MetaItem::pointerTip(
   QStringList ldrNames, csiKeys;
   QString addLine = "1 0 0 0 0 1 0 0 0 1 0 0 0 1 " + modelName;
   if (renderer->useLDViewSCall()) {
-      ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/pointerMono.ldr";
-      pngName = QDir::currentPath() + "/" + Paths::assemDir + "/pointerMono.png";
+      ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + label + "Mono.ldr";
+      pngName = QDir::currentPath() + "/" + Paths::assemDir + "/" + label + "Mono.png";
       ldrNames << ldrName;
-      csiKeys << "pointerMono";
+      csiKeys << title + "Mono";
       ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles) == 0);
       ok[1] = (renderer->renderCsi(addLine,ldrNames,csiKeys,pngName,meta) == 0);
     } else {
-      pngName = QDir::currentPath() + "/" + Paths::tmpDir + "/pointerMono.png";
-      ok[0] = ok[1] = (renderer->renderCsi(addLine,csiParts,csiKeys,pngName,meta) == 0);
+      ok[0] = true;
+      pngName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + label + "Mono.png";
+      if (Preferences::usingNativeRenderer){
+          ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
+          ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles) == 0);
+      }
+      ok[1] = (renderer->renderCsi(addLine,csiParts,csiKeys,pngName,meta) == 0);
     }
 
   if (ok[0] && ok[1]) {
@@ -3493,17 +3716,42 @@ QPointF MetaItem::pointerTip(
       }
     }
 
-    left = (right+left)/2;
-    top  = (top+bottom)/2;
+    left = partAnnotation ? left : (right+left)/2;
+    top  = partAnnotation ? top : (top+bottom)/2;
 
     if (left > width || top > height) {
-      left = width/2;
-      top  = height/2;
+      left = partAnnotation ? width : width/2;
+      top  = partAnnotation ? height : height/2;
     }
-    return QPointF(float(left)/width, float(top)/height);
+
+    csiSize[0]  = width;      // csi
+    csiSize[1]  = height;     // csi
+
+    partSize[0] = right-left; // part
+    partSize[1] = bottom-top; // part
+
+    partLoc [0] = left;
+    partLoc [1] = top;
+
+    emit gui->messageSig(LOG_DEBUG,QString("%1 for model [%2]:")
+                                           .arg(partAnnotation ? "Part ["+partType+"] annotation" :
+                                                           "Default pointer tip position")
+                                           .arg(modelName));
+    emit gui->messageSig(LOG_DEBUG,QString(" -partLeft (locX):   %1").arg(QString::number(left)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -partTop  (locY):   %1").arg(QString::number(top)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -partBottom:        %1").arg(QString::number(bottom)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -partRight:         %1").arg(QString::number(right)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -partWidth (sizeX): %1").arg(QString::number(right-left)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -partHeight(sizeY): %1").arg(QString::number(bottom-top)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -csiWidth  (sizeX): %1").arg(QString::number(width)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -csiHeight (sizeY): %1").arg(QString::number(height)));
+
+    return true;
   }
-  emit gui->messageSig(LOG_ERROR, QString("Render momo image for pointer tip failed."));
-  return QPointF(0.5,0.5);
+  emit gui->messageSig(LOG_ERROR, QString("Render momo %1 image for %2 failed.")
+                       .arg(title.toLower())
+                       .arg(partAnnotation ? "part ["+partType+"]" : "model ["+modelName+"]"));
+  return false;
 }
 
 /*
@@ -3659,13 +3907,16 @@ void  MetaItem::deletePointerAttribute(const Where &here, bool all)
  *
  */
  
-QString MetaItem::makeMonoName(const QString &fileName, QString &color)
+QString MetaItem::makeMonoName(
+   const QString &fileName,
+   QString &color,
+   bool annotation)
 {
   QString mono = "mono_";
-  QString altColor = "_" + monoColor[(color == monoColor[blue] ? white : blue)];
+  QString altColor = "_" + monoColor[(color == monoColor[blue] ? (annotation ? transwhite : white) : blue)];
   QFileInfo info(fileName);
   QString baseName = info.baseName();
-  if (info.baseName().right(altColor.size()) == ("_" + monoColor[white]))
+  if (info.baseName().right(altColor.size()) == ("_" + monoColor[annotation ? transwhite : white]))
       baseName = info.baseName().left(info.baseName().length() - altColor.size());
   if ((info.fileName().left(mono.size())) == mono)
       return info.absolutePath() + "/" + baseName + "_" + color + "." + info.suffix();
@@ -3677,7 +3928,8 @@ int MetaItem::monoColorSubmodel(
   QString &monoOutName,
   QString &color)
 {
-  monoColors colorCode = (color == monoColor[white] ? white : blue);
+  bool annotation = color == monoColor[transwhite];
+  monoColors colorCode = (color == monoColor[white] ? white : annotation ? transwhite : blue);
 
   QFile outFile(monoOutName);
   if ( ! outFile.open(QFile::WriteOnly | QFile::Text)) {
@@ -3688,6 +3940,13 @@ int MetaItem::monoColorSubmodel(
   }
 
   QTextStream out(&outFile);
+
+  if (annotation){
+     out << "0 // LPub3D part custom color" << endl;
+     out << "0 !COLOUR LPub3D_White CODE 11015 VALUE #FFFFFF EDGE #FFFFFF ALPHA 32" << endl;
+     out << "0" << endl;
+  }
+
   int numLines = gui->subFileSize(modelName);
 
   Where walk(modelName,0);
@@ -3709,13 +3968,13 @@ int MetaItem::monoColorSubmodel(
       submodel += "." + suffix;
       if (gui->isSubmodel(submodel)) {
         QString model = QDir::currentPath() + "/" + Paths::tmpDir + "/" + argv[14];
-        model = makeMonoName(model,color);
+        model = makeMonoName(model,color,annotation);
         monoColorSubmodel(submodel,model,color);
         QFileInfo info(model);
         argv[14] = info.fileName();
       }
       argv[1] = monoColorCode[colorCode];
-    } else if ((argv.size() == 8 && argv[0] == "2") ||
+    } else if ((argv.size() == 8 && argv[0]  == "2") ||
                (argv.size() == 11 && argv[0] == "3") ||
                (argv.size() == 14 && argv[0] == "4") ||
                (argv.size() == 14 && argv[0] == "5")) {
@@ -3724,7 +3983,7 @@ int MetaItem::monoColorSubmodel(
     line = argv.join(" ");
     out << line << endl;
   }
-  
+
   outFile.close();
   return 0;
 }
@@ -3741,7 +4000,7 @@ QPointF MetaItem::defaultPointerTip(
   QRectF  pagePosition = QRectF(0,0,gui->pageSize(meta.LPub.page, 0),gui->pageSize(meta.LPub.page, 1));
 
   /*
-   * Create a "white" version of the submodel that callouts out our callout
+   * Create a "white" version of the submodel that calls out our callout
    */
 
   QString monoOutName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + modelName;
@@ -3860,10 +4119,15 @@ QPointF MetaItem::defaultPointerTip(
       pngName = QDir::currentPath() + "/" + Paths::assemDir + "/" + monoOutPngBaseName + ".png";
       ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles) == 0);
       ok[1] = (renderer->renderCsi(addLine,ldrNames,csiKeys,pngName,meta) == 0);
-    } else {
+  } else {
+      ok[0] = true;
       pngName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + monoOutPngBaseName + ".png";
-      ok[0] = ok[1] = (renderer->renderCsi(addLine,csiParts,csiKeys,pngName,meta) == 0);
-    }
+      if (Preferences::usingNativeRenderer){
+         ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
+         ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles) == 0);
+      }
+      ok[1] = (renderer->renderCsi(addLine,csiParts,csiKeys,pngName,meta) == 0);
+  }
 
   if (ok[0] && ok[1]) {
     QPixmap pixmap;
@@ -3917,12 +4181,12 @@ QPointF MetaItem::defaultPointerTip(
                                            .arg(subModel)
                                            .arg(modelName));
     emit gui->messageSig(LOG_DEBUG,QString(" -top:    %1").arg(QString::number(top)));
-    emit gui->messageSig(LOG_DEBUG,QString(" -bottom: %1").arg(QString::number(bottom)));
     emit gui->messageSig(LOG_DEBUG,QString(" -left:   %1").arg(QString::number(left)));
+    emit gui->messageSig(LOG_DEBUG,QString(" -bottom: %1").arg(QString::number(bottom)));
     emit gui->messageSig(LOG_DEBUG,QString(" -right:  %1").arg(QString::number(right)));
     emit gui->messageSig(LOG_DEBUG,QString(" -width:  %1").arg(QString::number(width)));
     emit gui->messageSig(LOG_DEBUG,QString(" -height: %1").arg(QString::number(height)));
-    QPointF offset = QPointF(float(left)/width, float(top)/height);
+    QPointF offset = QPointF(qreal(left)/width, qreal(top)/height);
     emit gui->messageSig(LOG_DEBUG,QString(" -X (left[%1]/width[%2]): %3")
                                                                    .arg(QString::number(left))
                                                                    .arg(QString::number(width))
@@ -3936,7 +4200,7 @@ QPointF MetaItem::defaultPointerTip(
                                                  .arg(QString::number(offset.x(),'f',6))
                                                  .arg(QString::number(offset.y(),'f',6)));
 
-    return QPointF(float(left)/width, float(top)/height);
+    return QPointF(qreal(left)/width, qreal(top)/height);
   }
   emit gui->messageSig(LOG_ERROR,QString("Render momo image for pointer tip location failed."));
   return pagePosition.center();

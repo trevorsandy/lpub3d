@@ -422,7 +422,7 @@ QAction* CommonMenus::hideMenu(
   QAction *action;
 
   action = menu.addAction(formatted);
-  action->setEnabled(false);
+  action->setIcon(QIcon(":/resources/display.png"));
 
   formatted = QString("You can hide %1 in the page display") .arg(name);
   action->setWhatsThis(formatted);

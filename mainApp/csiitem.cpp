@@ -36,6 +36,7 @@
 #include "ranges_element.h"
 #include "callout.h"
 #include "csiitem.h"
+#include "csiannotation.h"
 #include "metaitem.h"
 #include "commonmenus.h"
 
@@ -47,10 +48,11 @@ CsiItem::CsiItem(
   QGraphicsItem *parent,
   PlacementType  _parentRelativeType)
 {
-  step = _step;
-  meta = _meta;
-  submodelLevel = _submodelLevel;
+  step               = _step;
+  meta               = _meta;
+  submodelLevel      = _submodelLevel;
   parentRelativeType = _parentRelativeType;
+  hiddenAnnotations   = false;
   setPixmap(pixmap);
   setParentItem(parent);
   
@@ -71,6 +73,41 @@ CsiItem::CsiItem(
   setFlag(QGraphicsItem::ItemIsMovable,true);
 
   modelScale = meta->LPub.assem.modelScale;
+}
+
+void CsiItem::placeCsiPartAnnotations()
+{
+    if (!assem->annotation.display.value())
+        return;
+
+    QHash<QString, PliPart*> pliParts;
+
+    step->pli.getParts(pliParts);
+
+    if (!pliParts.size())
+        return;
+
+    for (int i = 0; i < step->csiAnnotations.size(); ++i) {
+        CsiAnnotation *ca = step->csiAnnotations[i];
+        if (!hiddenAnnotations)
+            hiddenAnnotations = ca->caMeta.icon.value().hidden;
+        if (!ca->caMeta.icon.value().hidden){
+            QString key       = QString("%1_%2")
+                                        .arg(ca->caMeta.icon.value().typeBaseName)
+                                        .arg(ca->caMeta.icon.value().typeColor);
+            PliPart *part     = pliParts[key];
+
+            if (!part)
+                continue;
+
+            for (int i = 0; i < part->instances.size(); ++i) {
+                if (ca->partLine == part->instances[i] && part->text.size()){
+                    CsiAnnotationItem *caItem = new CsiAnnotationItem();
+                    caItem->addGraphicsItems(ca,step,part,this,true);
+                }
+            }
+        }
+    }
 }
 
 void CsiItem::setFlag(GraphicsItemFlag flag, bool value)
@@ -192,6 +229,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     }
 
   QString pl = "Assembly";
+
   QAction *placementAction = nullptr;
   if (fullContextMenu  && parentRelativeType == SingleStepType) {
       whatsThis = QString(
@@ -202,6 +240,11 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       placementAction = commonMenus.placementMenu(menu, pl, whatsThis);
     }
 
+  QAction *showCsiAnnoAction = nullptr;
+  if (fullContextMenu  && hiddenAnnotations){
+      showCsiAnnoAction = menu.addAction("Show All Hidden Annotations");
+      showCsiAnnoAction->setIcon(QIcon(":/resources/display.png"));
+  }
 
   QAction *cameraDistFactorAction = nullptr;
   QAction *scaleAction = nullptr;
@@ -292,7 +335,8 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       addDividerPointerAction->setIcon(QIcon(":/resources/adddividerpointer.png"));
   }
 
-  QAction *noStepAction = menu.addAction(fullContextMenu ? "Don't Show This Page" : "Don't Show This Final Model");
+  QAction *noStepAction = menu.addAction(fullContextMenu ? "Don't Show This Step"
+                                                         : "Don't Show This Final Model");
   noStepAction->setIcon(QIcon(":/resources/display.png"));
 
   QAction *selectedAction = menu.exec(event->screenPos());
@@ -407,7 +451,17 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       appendMeta(topOfStep,"0 !LPUB NOSTEP");
     } else if (selectedAction == insertRotateIconAction &&fullContextMenu) {
       appendMeta(topOfStep,"0 !LPUB INSERT ROTATE_ICON OFFSET 0.5 0.5");
-    }
+  } else if (selectedAction == showCsiAnnoAction) {
+          for (int i = 0; i < step->csiAnnotations.size(); ++i) {
+              CsiAnnotation *ca = step->csiAnnotations[i];
+              if (ca->caMeta.icon.value().hidden) {
+                  ca->caMeta.icon.value().hidden = false;
+                  step->csiAnnotations.replace(i,ca);
+              }
+          }
+          hiddenAnnotations = false;
+          step->setCsiAnnotationMetas(*meta,!hiddenAnnotations);
+  }
 
 }
 

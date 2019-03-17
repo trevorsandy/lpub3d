@@ -1076,8 +1076,8 @@ void PageAttributeTextGui::placementChanged(bool clicked)
        ::getPlacement(SingleStepType,meta->type,placementData,pageAttributeName[meta->type]);
   if (ok) {
       meta->placement.setValue(placementData);
+      modified = placementModified = true;
   }
-  modified = placementModified = true;
 }
 
 void PageAttributeTextGui::toggled(bool toggled)
@@ -1312,8 +1312,8 @@ void PageAttributePictureGui::placementChanged(bool clicked)
 //                << " \nOffset[0]: "                 << placementData.offsets[0]
 //                << " \nOffset[1]: "                 << placementData.offsets[1]
 //                ;
-  }
-  modified = placementModified = true;
+    modified = placementModified = true;
+  }  
 }
 
 void PageAttributePictureGui::toggled(bool toggled)
@@ -3080,7 +3080,6 @@ ShowSubModelGui::ShowSubModelGui(
     meta = _meta;
 
     QGridLayout *grid = new QGridLayout(parent);
-    QHBoxLayout *hLayout = new QHBoxLayout();
 
     if (parent) {
         parent->setLayout(grid);
@@ -3502,7 +3501,7 @@ PliAnnotationGui::PliAnnotationGui(
   titleAndFreeformAnnotationButton->setChecked(meta->titleAndFreeformAnnotation.value());
 
 
-  //PLIAnnotation Style Options
+  // PLI Annotation Style Options
   gbPLIAnnotationStyle = new QGroupBox("Enable Annotation Style",parent);
   gbPLIAnnotationStyle->setEnabled(meta->display.value());
   QGridLayout *sgrid = new QGridLayout();
@@ -3656,16 +3655,16 @@ void PliAnnotationGui::panelStyle(bool checked)
 
 void PliAnnotationGui::gbToggled(bool checked)
 {
-  meta->display.setValue(checked);
-  if(checked){
-      titleAnnotationButton->setChecked(meta->titleAnnotation.value());
-      freeformAnnotationButton->setChecked(meta->freeformAnnotation.value());
-      titleAndFreeformAnnotationButton->setChecked(meta->titleAndFreeformAnnotation.value());
-  }
-
-  gbPLIAnnotationStyle->setEnabled(checked);
-
-  modified = displayModified = true;
+    bool saveModified = meta->display.value();
+    meta->display.setValue(checked);
+    if(checked){
+        titleAnnotationButton->setChecked(meta->titleAnnotation.value());
+        freeformAnnotationButton->setChecked(meta->freeformAnnotation.value());
+        titleAndFreeformAnnotationButton->setChecked(meta->titleAndFreeformAnnotation.value());
+    }
+    gbPLIAnnotationStyle->setEnabled(checked);
+    if (saveModified != meta->display.value())
+        modified = displayModified = true;
 }
 
 void PliAnnotationGui::apply(QString &topLevelFile)
@@ -3729,6 +3728,214 @@ void PliAnnotationGui::apply(QString &topLevelFile)
 //  ProgressDialog->setValue(commands);
 //  QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 //  ProgressDialog->deleteLater();
+}
+
+/***********************************************************************
+ *
+ * CsiAnnotation
+ *
+ **********************************************************************/
+
+CsiAnnotationGui::CsiAnnotationGui(
+    const QString        &heading,
+    CsiAnnotationMeta *_meta,
+    QGroupBox            *parent)
+{
+  meta = _meta;
+
+  QGridLayout *grid = new QGridLayout(parent);
+
+  if (parent) {
+      parent->setLayout(grid);
+   } else {
+      setLayout(grid);
+   }
+
+  if (heading != "") {
+      headingLabel = new QLabel(heading,parent);
+      grid->addWidget(headingLabel);
+    } else {
+      headingLabel = nullptr;
+    }
+
+  // CSI Annotation Display Options
+  gbCSIAnnotationDisplay = new QGroupBox("Display Assembly Part Annotation",parent);
+  gbCSIAnnotationDisplay->setCheckable(true);
+  gbCSIAnnotationDisplay->setChecked(meta->display.value());
+  QGridLayout *sgrid = new QGridLayout();
+  gbCSIAnnotationDisplay->setLayout(sgrid);
+  grid->addWidget(gbCSIAnnotationDisplay);
+  connect(gbCSIAnnotationDisplay,SIGNAL(toggled(bool)),
+          this,                  SLOT(  gbToggled(bool)));
+
+  axleDisplayCheck = new QCheckBox("Axles",gbCSIAnnotationDisplay);
+  axleDisplayCheck->setChecked(meta->axleDisplay.value());
+  axleDisplayCheck->setToolTip("Display Axle annotation");
+  connect(axleDisplayCheck,SIGNAL(clicked(bool)),
+          this,            SLOT(  axleDisplay(bool)));
+  sgrid->addWidget(axleDisplayCheck,0,0);
+
+  beamDisplayCheck = new QCheckBox("Beams",gbCSIAnnotationDisplay);
+  beamDisplayCheck->setChecked(meta->beamDisplay.value());
+  beamDisplayCheck->setToolTip("Display Beam annotation");
+  connect(beamDisplayCheck,SIGNAL(clicked(bool)),
+          this,            SLOT(  beamDisplay(bool)));
+  sgrid->addWidget(beamDisplayCheck,0,1);
+
+  cableDisplayCheck = new QCheckBox("Cables",gbCSIAnnotationDisplay);
+  cableDisplayCheck->setChecked(meta->cableDisplay.value());
+  cableDisplayCheck->setToolTip("Display Cable annotation");
+  connect(cableDisplayCheck,SIGNAL(clicked(bool)),
+          this,             SLOT(  cableDisplay(bool)));
+  sgrid->addWidget(cableDisplayCheck,0,2);
+
+  connectorDisplayCheck = new QCheckBox("Connectors",gbCSIAnnotationDisplay);
+  connectorDisplayCheck->setChecked(meta->connectorDisplay.value());
+  connectorDisplayCheck->setToolTip("Display Connector annotation");
+  connect(connectorDisplayCheck,SIGNAL(clicked(bool)),
+          this,                 SLOT(  connectorDisplay(bool)));
+  sgrid->addWidget(connectorDisplayCheck,0,3);
+
+  extendedDisplayCheck = new QCheckBox("Extended",gbCSIAnnotationDisplay);
+  extendedDisplayCheck->setChecked(meta->extendedDisplay.value());
+  extendedDisplayCheck->setToolTip("Display your custom annotation");
+  connect(extendedDisplayCheck,SIGNAL(clicked(bool)),
+          this,                SLOT(  extendedDisplay(bool)));
+  sgrid->addWidget(extendedDisplayCheck,1,0);
+
+  hoseDisplayCheck = new QCheckBox("Hoses",gbCSIAnnotationDisplay);
+  hoseDisplayCheck->setChecked(meta->hoseDisplay.value());
+  hoseDisplayCheck->setToolTip("Display Hose annotation");
+  connect(hoseDisplayCheck,SIGNAL(clicked(bool)),
+          this,            SLOT(  hoseDisplay(bool)));
+  sgrid->addWidget(hoseDisplayCheck,1,1);
+
+  panelDisplayCheck = new QCheckBox("Panels",gbCSIAnnotationDisplay);
+  panelDisplayCheck->setChecked(meta->panelDisplay.value());
+  panelDisplayCheck->setToolTip("Display Panel annotation");
+  connect(panelDisplayCheck,SIGNAL(clicked(bool)),
+          this,             SLOT(  panelDisplay(bool)));
+  sgrid->addWidget(panelDisplayCheck,1,2);
+
+  gbPlacement = new QGroupBox("Part Annotation Placement",parent);
+  QGridLayout *gLayout = new QGridLayout();
+  gbPlacement->setLayout(gLayout);
+  grid->addWidget(gbPlacement);
+
+  placementButton = new QPushButton("Change Placement",gbPlacement);
+  placementButton->setToolTip("Set annotation placement relative to CSI part");
+  connect(placementButton,SIGNAL(clicked(   bool)),
+          this,           SLOT(  placementChanged(bool)));
+  gLayout->addWidget(placementButton);
+
+  displayModified          = false;
+  axleDisplayModified      = false;
+  beamDisplayModified      = false;
+  cableDisplayModified     = false;
+  connectorDisplayModified = false;
+  extendedDisplayModified  = false;
+  hoseDisplayModified      = false;
+  panelDisplayModified     = false;
+  placementModified        = false;
+}
+
+void CsiAnnotationGui::axleDisplay(bool checked)
+{
+  meta->axleDisplay.setValue(checked);
+  modified = axleDisplayModified = true;
+}
+
+void CsiAnnotationGui::beamDisplay(bool checked)
+{
+  meta->beamDisplay.setValue(checked);
+  modified = beamDisplayModified = true;
+}
+
+void CsiAnnotationGui::cableDisplay(bool checked)
+{
+  meta->cableDisplay.setValue(checked);
+  modified = cableDisplayModified = true;
+}
+
+void CsiAnnotationGui::connectorDisplay(bool checked)
+{
+  meta->connectorDisplay.setValue(checked);
+  modified = connectorDisplayModified = true;
+}
+
+void CsiAnnotationGui::extendedDisplay(bool checked)
+{
+  meta->extendedDisplay.setValue(checked);
+  modified = extendedDisplayModified = true;
+}
+
+void CsiAnnotationGui::hoseDisplay(bool checked)
+{
+  meta->hoseDisplay.setValue(checked);
+  modified = hoseDisplayModified = true;
+}
+
+void CsiAnnotationGui::panelDisplay(bool checked)
+{    
+  meta->panelDisplay.setValue(checked);
+  modified = panelDisplayModified = true;
+}
+
+void CsiAnnotationGui::placementChanged(bool clicked)
+{
+  Q_UNUSED(clicked);
+  PlacementData placementData = meta->placement.value();
+  bool ok;
+  ok = PlacementDialog
+       ::getPlacement(SingleStepType,CsiAnnotationType,placementData,"Annotation Placement",ContentPage);
+  if (ok) {
+      meta->placement.setValue(placementData);
+      modified = placementModified = true;
+  }
+}
+
+
+void CsiAnnotationGui::gbToggled(bool checked)
+{
+    bool saveModified = meta->display.value();
+    meta->display.setValue(checked);
+    if (saveModified != meta->display.value())
+       modified = displayModified = true;
+    gbPlacement->setEnabled(checked);
+}
+
+void CsiAnnotationGui::apply(QString &topLevelFile)
+{
+  MetaItem mi;
+  mi.beginMacro("CsiAnnotationSettings");
+  if (displayModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->display);
+  }
+  if (axleDisplayModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->axleDisplay);
+  }
+  if (beamDisplayModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->beamDisplay);
+  }
+  if (cableDisplayModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->cableDisplay);
+  }
+  if (connectorDisplayModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->connectorDisplay);
+  }
+  if (extendedDisplayModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->extendedDisplay);
+  }
+  if (hoseDisplayModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->hoseDisplay);
+  }
+  if (panelDisplayModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->panelDisplay);
+  }
+  if (placementModified){
+      mi.setGlobalMeta(topLevelFile,&meta->placement);
+  }
+  mi.endMacro();
 }
 
 /***********************************************************************
