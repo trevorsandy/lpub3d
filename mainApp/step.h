@@ -58,6 +58,8 @@ class Step : public AbstractRangeElement
     bool                  multiStep;
     bool                  placeSubModel;
     bool                  placeRotateIcon;
+    bool                  rangeDivider;
+//    bool                  rangeDividerBefore;
     QList<Callout *>      list;
     Pli                   pli;
     SubModel              subModel;

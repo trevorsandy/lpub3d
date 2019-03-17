@@ -235,6 +235,7 @@ Highlighter::Highlighter(QTextDocument *parent)
 
     QStringList LPubBodyMetaPatterns;
     LPubBodyMetaPatterns
+    << "\\bAFTER\\b"
     << "\\bALLOC\\b"
     << "\\bANNOTATE\\b"
     << "\\bANNOTATION\\b"
@@ -253,6 +254,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bBASE_BOTTOM_LEFT\\b"
     << "\\bBASE_BOTTOM\\b"
     << "\\bBASE_BOTTOM_RIGHT\\b"
+    << "\\bBEFORE\\b"
     << "\\bBEGIN\\b"
     << "\\bBOM\\b"
     << "\\bBORDER\\b"
@@ -352,6 +354,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bPUBLISH_EMAIL_BACK\\b"
     << "\\bPUBLISH_URL\\b"
     << "\\bPUBLISH_URL_BACK\\b"
+    << "\\bRANGE\\b"
     << "\\bREMOVE\\b"
     << "\\bRESERVE\\b"
     << "\\bRESOLUTION\\b"

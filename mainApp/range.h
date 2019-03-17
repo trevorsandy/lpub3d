@@ -43,6 +43,7 @@ class Range : public AbstractStepsElement {
     int                 allocType;
     FreeFormMeta        freeform;
     SepMeta             sepMeta;
+    int                 stepSpacing;
     int                 leftAdjust;         // for freeform multi_step only
     QList<Pointer *>    dividerPointerList; // for divider pointers and pointer tips data
     QGraphicsView      *view;               // for divider pointers
@@ -59,6 +60,7 @@ class Range : public AbstractStepsElement {
     void append(AbstractRangeElement *gi);
 
     virtual void sizeMargins(int cols[], int colMargins[][2], int margins[]);
+    virtual int sizeRangeDividers(int axis);
     virtual void sizeitVert();
     virtual void sizeitHoriz();
     virtual void placeit(int max, int x, int y);

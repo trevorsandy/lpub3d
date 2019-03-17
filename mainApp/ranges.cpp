@@ -249,6 +249,13 @@ void Steps::sizeit(AllocEnc allocEnc, int x, int y)
   size[XX] = 0;
   size[YY] = 0;
 
+  /* set the range height to the adjusted page height */
+// TODO Add Condition
+//  int pageHeader = meta.LPub.page.pageHeader.size.valuePixels(y);
+//  int pageFooter = meta.LPub.page.pageFooter.size.valuePixels(y);
+//  int pageSize   = gui->pageSize(meta.LPub.page,y);
+//  size[y] = pageSize - (pageHeader + pageFooter);
+
   SepData divider;
 
   if (relativeType == CalloutType) {
@@ -275,6 +282,10 @@ void Steps::sizeit(AllocEnc allocEnc, int x, int y)
         if (range->size[y] > size[y]) {
           size[y] = range->size[y];
         }
+
+        /* add range divider size adjustment */
+        // TODO Add Condition
+        size[y] += range->sizeRangeDividers(y);
 
         /* place each range Horizontally */
 
@@ -518,18 +529,79 @@ void Steps::addGraphicsItems(
         range->addGraphicsItems(
           offsetX + loc[XX], offsetY + loc[YY], &meta, relativeType, parent);
 
+        // check range for Steps with rangeDivider
+        int size = range->list.size();
+        if (size) {
+            for (int i = 0; i < range->list.size(); i++) {
+              if (range->list[i]->relativeType == StepType) {
+                Step *step = dynamic_cast<Step *>(range->list[i]);
+                if (step && step->rangeDivider) {
+                    int oX,oY;
+                    if (allocEnc == Vertical) {
+                      oX = offsetX + loc[XX] + range->loc[XX];
+                      oY = offsetY + loc[YY] + step->loc[YY];
+                    } else {
+                      oX = offsetX + loc[XX] + step->loc[XX];
+                      oY = offsetY + loc[YY] + range->loc[YY];
+                    }
+                    logDebug() << "\nRangeDivider Ranges and Range Dimensions for Step [" << step->stepNumber.number << "]:"
+                               << "\nRanges::loc XX     [" << loc[XX] << "]"
+                               << "\nRanges::loc YY     [" << loc[YY] << "]"
+                               << (allocEnc == Vertical ? "\nStep[" : "\nRange[")
+                               << (allocEnc == Vertical ? step->stepNumber.number : i) << "]::loc XX ["
+                               << (allocEnc == Vertical ? step->loc[XX] : range->loc[XX]) << "]"
+                               << (allocEnc == Vertical ? "\nRange[" : "\nStep[")
+                               << (allocEnc == Vertical ? i : step->stepNumber.number) << "]::loc YY ["
+                               << (allocEnc == Vertical ? range->loc[YY] : step->loc[YY])  << "]"
+                               << "\nStep[" << step->stepNumber.number << "]::size XX [" << step->size[XX] << "]"
+                               << "\nStep[" << step->stepNumber.number << "]::size YY [" << step->size[YY] << "]"
+                               << "\noffsetX            [" << offsetX << "] offsetX"
+                               << "\noffsetY            [" << offsetY << "] offsetY"
+                               << "\noX                 [" << oX << "] offsetX + ranges->loc[XX] + step->loc[XX]"
+                               << "\noY                 [" << oY << "] offsetY + ranges->loc[YY] + range->loc[YY]"
+                                  ;
+                  DividerItem *divider = new DividerItem(step,&meta,oX,oY);
+                  divider->setParentItem(parent);
+
+                  for (int i = 0; i < range->dividerPointerList.size(); i++) {
+                      Pointer *pointer = range->dividerPointerList[i];
+                      divider->addGraphicsPointerItem(pointer,range->view);
+                  }
+                }
+              }
+           }
+        }
+
         if (list.size() > 1 && i < list.size() - 1) {
           // add divider here
-          int size = range->list.size();
+          //int size = range->list.size();
           if (size) {
             Step *step = dynamic_cast<Step *>(range->list[size-1]);          
             if (step) {
               int oX = offsetX + loc[XX] + range->loc[XX];
               int oY = offsetY + loc[YY] + range->loc[YY];
+              logDebug() << "\nDivider Ranges and Range Dimensions for Step [" << step->stepNumber.number << "]:"
+                         << "\nRanges::loc XX [" << loc[XX] << "]"
+                         << "\nRanges::loc YY [" << loc[YY] << "]"
+                         << "\nRange[" << i << "]::loc XX  [" << range->loc[XX] << "]"
+                         << "\nRange[" << i << "]::loc YY  [" << range->loc[YY] << "]"
+                         << "\nRange[" << i << "]::size XX [" << range->size[XX] << "]"
+                         << "\nRange[" << i << "]::size YY [" << range->size[YY] << "]"
+                         << "\noffsetX        [" << offsetX << "] offsetX"
+                         << "\noffsetY        [" << offsetY << "] offsetY"
+                         << "\noX             [" << oX << "] offsetX + ranges->loc[XX] + range->loc[XX]"
+                         << "\noY             [" << oY << "] offsetY + ranges->loc[YY] + range->loc[YY]"
+                            ;
               if (allocEnc == Vertical) {
                 oX += range->size[XX];
+                logDebug() << "\nDivider Vertical offset for Step [" << step->stepNumber.number << "]:"
+                           << "\noX Vertical  ["  << oX << "] oX += range->size[XX]"
+                              ;
               } else {
                 oY += range->size[YY];
+                logDebug() << "\nDivider Horizontal offset for Step [" << step->stepNumber.number << "]:"
+                           << "\noY Horizontal[" << oY << "] oX += range->size[XX]"
+                              ;
               }
 
               DividerItem *divider = new DividerItem(step,&meta,oX,oY);

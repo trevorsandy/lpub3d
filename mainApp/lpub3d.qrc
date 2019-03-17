@@ -49,6 +49,7 @@
         <file alias="displaycolumn.png">resources/displaycolumn.png</file>
         <file alias="divider.png">resources/divider.png</file>
         <file alias="deletepage.png">resources/deletepage.png</file>
+        <file alias="editdivider.png">resources/editdivider.png</file>
         <file alias="editldrawcolourparts.png">resources/editldrawcolourparts.png</file>
         <file alias="editfreeformannotations.png">resources/editfreeformannotations.png</file>
         <file alias="editinifile.png">resources/editinifile.png</file>

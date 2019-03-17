@@ -872,46 +872,6 @@ void MetaItem::deleteLastMultiStep(
   endMacro();
 }
 
-void MetaItem::addDivider(
-  PlacementType parentRelativeType,
-  const Where &bottomOfStep,
-  RcMeta *divider)
-{
-  Where   walk = bottomOfStep;
-  Rc      rc;
-  QString divString = divider->preamble;
-  int     mask = parentRelativeType == StepGroupType ? StepMask|StepGroupMask : StepMask|CalloutMask;
-
-  rc = scanForward(walk, mask);
-
-  if (rc == StepRc || rc == RotStepRc) {
-    // we can add a divider after meta->context.curStep().lineNumber    
-    appendMeta(bottomOfStep,divString); 
-  }
-}
-
-void MetaItem::deleteDivider(
-  PlacementType parentRelativeType, 
-  const Where &dividerIn)
-{
-  Where divider = dividerIn;
-  
-  if (divider.modelName != "undefined") {
-    Rc rc;
-    int mask = parentRelativeType == StepGroupType ? StepMask|StepGroupMask : StepMask|CalloutMask;
-    Rc expRc = parentRelativeType == StepGroupType ? StepGroupDividerRc : CalloutDividerRc;
-    
-    ++divider;
-    rc = scanForward(divider,mask);
-
-    if (rc == expRc) {
-      beginMacro("deleteDivider");
-      deleteMeta(divider);
-      endMacro();
-    }
-  }
-}
-
 /***********************************************************************
  *
  * These "short-cuts" move steps to the other side of a divider
@@ -2006,6 +1966,92 @@ void MetaItem::changeDivider(
   }
 }
 
+void MetaItem::addDivider(
+  PlacementType parentRelativeType,
+  const Where &bottomOfStep,
+  RcMeta *divider,
+  AllocEnc defAlloc)
+{
+  QString divString = divider->preamble;
+
+  QDialog *dialog = new QDialog();
+
+  QFormLayout *form = new QFormLayout(dialog);
+  form->addRow(new QLabel("Divider Allocation"));
+
+  QGroupBox *box = new QGroupBox("Select Allocation");
+  form->addWidget(box);
+
+  QList<QRadioButton *> options;
+  QStringList allocLabels = QStringList()
+  << QString("Vertical") << QString("Horizontal");
+
+  // Set default allocation
+  for(int i = 0; i < allocLabels.size(); ++i) {
+      QRadioButton *option = new QRadioButton(allocLabels[i],dialog);
+      if (allocLabels[i] == "Vertical")
+          option->setChecked(defAlloc == Vertical);
+      if (allocLabels[i] == "Horizontal")
+          option->setChecked(defAlloc == Horizontal);
+      options << option;
+  }
+
+  QFormLayout *subform = new QFormLayout(box);
+  subform->addRow(options[0],options[1]);
+
+  QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                             Qt::Horizontal, dialog);
+  form->addRow(&buttonBox);
+  QObject::connect(&buttonBox, SIGNAL(accepted()), dialog, SLOT(accept()));
+  QObject::connect(&buttonBox, SIGNAL(rejected()), dialog, SLOT(reject()));
+  dialog->setMinimumWidth(250);
+
+  AllocEnc  alloc = Vertical;
+  if (dialog->exec() == QDialog::Accepted) {
+      for(int i = 0; i < allocLabels.size(); ++i) {
+         QRadioButton * option = options[i];
+         if (option->isChecked())
+            alloc = (allocLabels[i] == "Vertical" ? Vertical : Horizontal);
+      }
+  } else {
+    return;
+  }
+
+  bool rangeDivider = alloc != defAlloc;
+  if (rangeDivider) {
+       divString += QString(" RANGE");
+  }
+
+  Where walk = bottomOfStep;
+  int mask = parentRelativeType == StepGroupType ? StepMask|StepGroupMask : StepMask|CalloutMask;
+  Rc  rc = scanForward(walk, mask);
+  if (rc == StepRc || rc == RotStepRc) {
+      appendMeta(bottomOfStep,divString);
+  }
+}
+
+void MetaItem::deleteDivider(
+  PlacementType parentRelativeType,
+  const Where &dividerIn)
+{
+  Where divider = dividerIn;
+
+  if (divider.modelName != "undefined") {
+    Rc rc;
+    int mask = parentRelativeType == StepGroupType ? StepMask|StepGroupMask : StepMask|CalloutMask;
+    Rc expRc = parentRelativeType == StepGroupType ? StepGroupDividerRc : CalloutDividerRc;
+
+    ++divider;
+    rc = scanForward(divider,mask);
+
+    if (rc == expRc) {
+      beginMacro("deleteDivider");
+      deleteMeta(divider);
+      endMacro();
+    }
+  }
+}
+
 void MetaItem::changeAlloc(
   const Where &topOfSteps,
   const Where &bottomOfSteps,
@@ -2041,7 +2087,8 @@ void MetaItem::changeAlloc(
       QString line = alloc.format(false,false);
       if (line.contains("CALLOUT ALLOC"))
         append = 0;
-      setMetaBottomOf(topOfSteps,bottomOfSteps,&alloc,append,false,false,false);
+//      setMetaBottomOf(topOfSteps,bottomOfSteps,&alloc,append,false,false,false);
+      setMetaTopOf(topOfSteps,bottomOfSteps,&alloc,append,false,false,false);
     }
 
 }

@@ -43,6 +43,7 @@ Range::Range(
   allocType    = _allocType;
   freeform     = _freeform;
   relativeType = RangeType;
+  stepSpacing  = 0;
 }
 
 Range::~Range()
@@ -99,6 +100,22 @@ void Range::sizeMargins(
       }
     }
   }
+}
+
+int Range::sizeRangeDividers(int axis) {
+    SepData divider;
+    if ( parent->relativeType == CalloutType) {
+      divider = parent->meta.LPub.callout.sep.valuePixels();
+    } else {
+      divider = parent->meta.LPub.multiStep.sep.valuePixels();
+    }
+    int dividerSizeAdjust = 0;
+    for (int i = 0; i < list.size()-1; i++) {
+      if (list[i]->relativeType == StepType) {
+        dividerSizeAdjust += qRound(2*divider.margin[axis] + divider.thickness);
+      }
+    }
+    return dividerSizeAdjust;
 }
 
 /*
@@ -171,13 +188,20 @@ void Range::sizeitVert()
         lastMargin = topMargin;
       }
 
+      /*  adjust size height */
+
       size[YY] += step->size[YY] + lastMargin;
+
+//      logTrace() << "\nRangeDivider Vertical Step [" << step->stepNumber.number << "] Height:"
+//                 << "\nStep::size YY     [" << step->size[YY] << "]"
+//                    ;
+
     } else if (list[i]->relativeType == ReserveType) {
       Reserve *reserve = dynamic_cast<Reserve *>(list[i]);
       size[YY] += reserve->size[YY];
     }
   }
-  
+
   size[YY] -= lastMargin;
 
   /* place all step's components into columns */
@@ -216,6 +240,11 @@ void Range::sizeitVert()
   }
   
   setBoundingSize();
+
+  logTrace() << "\nRangeDivider Vertical Range Size:"
+             << "\nRange::size XX     [" << size[XX] << "]"
+             << "\nRange::size YY     [" << size[YY] << "]"
+                ;
 }
 
 /*
@@ -226,14 +255,20 @@ void Range::placeit(int max, int x, int y)
 {
   /* determine the spacing needed */
 
-  int spacing = 0, top = 0;
+  int top = 0;
+  stepSpacing = 0;
 
   if (list.size() < 3) {
-    spacing = (max - size[y])/(list.size() + 1);
-    top = spacing;
+    stepSpacing = (max - size[y])/(list.size() + 1);
+    top = stepSpacing;
   } else {
-    spacing = (max - size[y])/(list.size() - 1);
+    stepSpacing = (max - size[y])/(list.size() - 1);
   }
+
+//  logNotice() << "\nRangeDivider Range Spacing and Size Height (Start):"
+//              << "\nRange::stepSpacing [" << stepSpacing << "]"
+//              << "\nRange::size YY     [" << size[y] << "]"
+//                 ;
 
   /* evenly space the steps Vertically */
 
@@ -245,7 +280,11 @@ void Range::placeit(int max, int x, int y)
       step->loc[x] = 0;
       step->loc[y] = top;
 
-      top += step->size[y] + spacing;
+//      logNotice() << "\nRangeDivider Range Top for Step [" << step->stepNumber.number << "]:"
+//                  << "\nStep::top         [" << top << "]"
+//                     ;
+
+      top += step->size[y] + stepSpacing;
 
       /* accumulate minimum height of column */
 
@@ -257,13 +296,19 @@ void Range::placeit(int max, int x, int y)
       }
 
       top += lastMargin;
+
+//      logNotice() << "\nRangeDivider adjusted Top and Size (top - stepSpacing) Height for Step [" << step->stepNumber.number << "]:"
+//                  << "\nRange::adj top     [" << top << "] top += step->size[y] + stepSpacing + lastMargin"
+//                  << "\nRange::adj size    [" << top - stepSpacing << "] top - stepSpacing"
+//                     ;
+
     } else if (list[i]->relativeType == ReserveType) {
       Reserve *reserve = dynamic_cast<Reserve *>(list[i]);
       if (reserve) {
         top += reserve->size[y];
       }
     }
-    size[y] = top - spacing;
+    size[y] = top - stepSpacing;
   }
   size[y] = max;
   setBoundingSize();
@@ -275,7 +320,7 @@ void Range::sizeitHoriz()
   int     rowsMargin[NumPlaces][2];
   int     cols[NumPlaces];
   int     colsMargin[NumPlaces][2];
-  int margins[NumPlaces];
+  int     margins[NumPlaces];
 
   /* we accumulate the tallest of the rows within the steps */
 
@@ -303,7 +348,7 @@ void Range::sizeitHoriz()
       /* size the step both Vertically and Horizontally */
 
       step->sizeit(rows,cols,rowsMargin,colsMargin,XX,YY);
-      
+
       sizeMargins(cols,colsMargin,margins);
 
       /* place the step components Horizontally */
@@ -319,16 +364,24 @@ void Range::sizeitHoriz()
         lastMargin = topMargin;
       }
 
+      /*  adjust size height */
+
       size[XX] += step->size[XX] + lastMargin;
+
+//      logTrace() << "\nRangeDivider Horizontal Step [" << step->stepNumber.number << "] Width:"
+//                 << "\nStep::size XX     [" << step->size[XX] << "]"
+//                    ;
+
     } else if (list[i]->relativeType == ReserveType) {
       Reserve *reserve = dynamic_cast<Reserve *>(list[i]);
       size[XX] += reserve->size[XX];
     }
   }
+
   size[XX] -= lastMargin;
 
   /* place all step's components into rows */
-  
+
   sizeMargins(rows,rowsMargin,margins);
 
   size[YY] = 0;
@@ -357,7 +410,13 @@ void Range::sizeitHoriz()
       step->placeInside();
     }
   }
+
   setBoundingSize();
+
+  logTrace() << "\nRangeDivider Horizontal Range Size:"
+             << "\nRange::size XX     [" << size[XX] << "]"
+             << "\nRange::size YY     [" << size[YY] << "]"
+                ;
 }
 
 /*****************************************************************************

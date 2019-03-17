@@ -170,16 +170,18 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
             }
         }
       if ( ! (boundary & EndOfRange) && ! (boundary & EndOfSteps)) {
-          addDividerAction = menu.addAction("Add Divider After Step");
+          addDividerAction = menu.addAction("Add Divider");
           addDividerAction->setIcon(QIcon(":/resources/divider.png"));
           if (allocType == Vertical) {
               addDividerAction->setWhatsThis(
-                    "Add Divider After Step:\n"
-                    "  Put the step(s) after this into a new column");
+                    "Add Divider:\n"
+                    "  Before step - Place a divider at the top of this step\n"
+                    "  After step  - Put the step(s) after this into a new column");
             } else {
               addDividerAction->setWhatsThis(
-                    "Add Divider After Step:\n"
-                    "  Put the step(s) after this into a new row");
+                    "Add Divider:\n"
+                    "  Before step - Place a divider to the left this step"
+                    "  After Step - Put the step(s) after this into a new row");
             }
         }
       if (allocType == Vertical) {
@@ -268,14 +270,19 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   bool dividerDetected = false;
   if (parentRelativeType == StepGroupType) {
-      scanForward(topOfSteps,StepGroupMask);
-
-      Where walk = topOfStep + 1;
+      Where walk = topOfStep;
+      // selected csi in first step in range
       Rc rc = scanForward(walk,StepMask);
       if (rc == StepRc || rc == RotStepRc) {
-        ++walk;
-        rc = scanForward(walk,StepGroupDividerMask);
-        dividerDetected = rc == StepGroupDividerRc;
+          ++walk;
+          rc = scanForward(walk,StepGroupDividerMask|StepMask);
+          dividerDetected = rc == StepGroupDividerRc;
+      }
+      // selected csi after first step in range
+      if (!dividerDetected) {
+          walk = topOfStep;
+          rc = scanForward(walk,StepGroupDividerMask|StepMask);
+          dividerDetected = rc == StepGroupDividerRc;
       }
   }
 
@@ -331,7 +338,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       addToNext(parentRelativeType,topOfStep);
 
     } else if (selectedAction == addDividerAction) {
-      addDivider(parentRelativeType,bottomOfStep,divider);
+      addDivider(parentRelativeType,bottomOfStep,divider,allocType);
     } else if (selectedAction == addPagePointerAction) {
 
       PlacementMeta pointerPlacement = meta->LPub.pointerBase.placement;

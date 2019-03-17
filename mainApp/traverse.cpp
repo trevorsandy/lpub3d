@@ -396,6 +396,7 @@ int Gui::drawPage(
   Callout *callout         = nullptr;
   Range   *range           = nullptr;
   Step    *step            = nullptr;
+  int      numLines        = ldrawFile.size(current.modelName);
   bool     pliIgnore       = false;
   bool     partIgnore      = false;
   bool     synthBegin      = false;
@@ -404,10 +405,10 @@ int Gui::drawPage(
   bool     coverPage       = false;
   bool     bfxStore1       = false;
   bool     bfxLoad         = false;
-  int      numLines        = ldrawFile.size(current.modelName);
   bool     firstStep       = true;
   bool     noStep          = false;
   bool     rotateIcon      = false;
+  bool     rangeDivider    = false;
 
   PagePointer *pagePointer = nullptr;
   QMap<Positions, PagePointer*> pagePointers;
@@ -1189,8 +1190,12 @@ int Gui::drawPage(
               if (range) {
                   range->sepMeta = curMeta.LPub.callout.sep;
                   set_divider_pointers(curMeta,current,range,view,CalloutDividerRc);
-                  range = nullptr;
-                  step = nullptr;
+                  if (line.contains("RANGE")) {
+                      rangeDivider = true;
+                  } else {
+                      range = nullptr;
+                      step = nullptr;
+                  }
                 }
               break;
 
@@ -1235,8 +1240,12 @@ int Gui::drawPage(
               if (range) {
                   range->sepMeta = steps->meta.LPub.multiStep.sep;
                   set_divider_pointers(curMeta,current,range,view,StepGroupDividerRc);
-                  range = nullptr;
-                  step = nullptr;
+                  if (line.contains("RANGE")) {
+                      rangeDivider = true;
+                  } else {
+                      range = nullptr;
+                      step = nullptr;
+                  }
                 }
               break;
 
@@ -1463,6 +1472,8 @@ int Gui::drawPage(
                           step->subModel.clear();
                       }
 
+                      step->rangeDivider    = rangeDivider;
+
                       if (rotateIcon) {
                           step->placeRotateIcon = true;
                       }
@@ -1590,6 +1601,7 @@ int Gui::drawPage(
                   partsAdded = false;
                   coverPage = false;
                   rotateIcon = false;
+                  rangeDivider = false;
                   step = nullptr;
                   bfxStore2 = bfxStore1;
                   bfxStore1 = false;
