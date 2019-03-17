@@ -1,16 +1,18 @@
 #ifndef __LDVIEWPARTLIST_H__
 #define __LDVIEWPARTLIST_H__
 
-#include "LDLib/LDHtmlInventory.h"
+#include "LDVHtmlInventory.h"
 #include "ui_LDVPartList.h"
 
 class LDVWidget;
 class LDVPreferences;
+class LDVHtmlInventory;
+
 class LDVPartList : public QDialog , Ui::LDVPartListPanel
 {
 	Q_OBJECT
 public:
-    LDVPartList(LDVWidget *modelWidget, LDHtmlInventory *htmlInventory);
+    LDVPartList(LDVWidget *modelWidget, LDVHtmlInventory *htmlInventory);
     ~LDVPartList(void);
     void populateColumnList();
 //    QCheckListItem *description;
@@ -28,6 +30,6 @@ protected:
 	void doMoveColumn(int distance);
     LDrawModelViewer *m_modelViewer;
     LDVWidget        *m_modelWidget;
-    LDHtmlInventory  *m_htmlInventory;
+    LDVHtmlInventory *m_htmlInventory;
 };
 #endif //__LDVIEWPARTLIST_H__

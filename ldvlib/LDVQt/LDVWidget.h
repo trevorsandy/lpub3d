@@ -28,10 +28,9 @@
 #include <LDLib/LDInputHandler.h>
 #include <LDLib/LDPreferences.h>
 #include <LDLib/LDSnapshotTaker.h>
-
 #include "name.h"
 
-#include <LDLib/LDHtmlInventory.h>
+#include "LDVHtmlInventory.h"
 
 class LDrawModelViewer;
 class LDVAlertHandler;
@@ -39,13 +38,6 @@ class LDVPreferences;
 class LDViewExportOption;
 class LDSnapshotTaker;
 class LDVHtmlInventory;
-
-class LDVHtmlInventory : public LDHtmlInventory
-{
-public:
-    bool generateHtml(const char *filename, LDPartsList *partsList,
-        const char *modelName);
-};
 
 class LDVWidget : public QGLWidget, protected QGLFunctions
 {
@@ -97,6 +89,9 @@ public:
   virtual void setupLighting(void);
   virtual void setupMaterial(void);
 
+signals:
+  void loadBLElementsSig();
+
 protected:
   bool setIniFile(void);
   void setupLDVFormat(void);
@@ -124,8 +119,8 @@ protected:
   LDInputHandler::ViewMode viewMode;
   bool                   commandLineSnapshotSave;
   bool                   saving;
-#ifdef Q_OS_WIN
 
+#ifdef Q_OS_WIN
   bool                   savingFromCommandLine;
   HPBUFFERARB            hPBuffer;
   HDC                    hPBufferDC;
@@ -149,18 +144,16 @@ protected:
 
   int                    currentAntialiasType;
 
-
   struct IniFile
   {
       QString Title;
       QString File;
   };
   IniFile iniFiles[NumIniFiles];
+
 };
 
 extern LDVWidget* ldvWidget;
 extern const QString iniFlagNames[];
-
-
 
 #endif // LDVWIDGET_H

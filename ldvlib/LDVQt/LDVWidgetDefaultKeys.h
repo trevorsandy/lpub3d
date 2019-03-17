@@ -3,7 +3,10 @@
 // These keys are used by LPub3D's LDVWidget library
 
 // Part Lists
-#define PARTS_LISTS_SITE_KEY "PartsListSite"
+#define PARTS_LIST_LOOKUP_SITE_KEY "PartsListLookupSite"
+#define PARTS_LIST_ELEMENT_SRURCE_KEY "PartsListElementSource"
+#define PARTS_LIST_GENERATE_PDF_KEY "PartsListPdf"
+
 
 // Edges
 #define EXPORT_DRAW_EDGES_KEY "Edges"

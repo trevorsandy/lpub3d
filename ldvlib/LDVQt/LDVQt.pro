@@ -15,7 +15,7 @@ INCLUDEPATH += .
 DEPENDPATH  += ./include
 INCLUDEPATH += ./include
 INCLUDEPATH += ../WPngImage
-INCLUDEPATH += ../../mainApp
+INCLUDEPATH += ../../mainApp #../../lclib/common
 INCLUDEPATH += ../../qslog
 macx: \
 INCLUDEPATH += /usr/local/include
@@ -146,6 +146,7 @@ win32 {
 SOURCES += \
     $$PWD/LDVAlertHandler.cpp \
     $$PWD/LDViewExportOption.cpp \
+    $$PWD/LDVHtmlInventory.cpp \
     $$PWD/LDVImageMatte.cpp \
     $$PWD/LDViewPartList.cpp \
     $$PWD/LDVMisc.cpp \
@@ -160,6 +161,7 @@ SOURCES += \
 HEADERS += \
     $$PWD/LDVWidgetDefaultKeys.h \
     $$PWD/LDVAlertHandler.h \
+	$$PWD/LDVHtmlInventory.h \	
     $$PWD/LDViewExportOption.h \
     $$PWD/LDVImageMatte.h \
     $$PWD/LDViewPartList.h \

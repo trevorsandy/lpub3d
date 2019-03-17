@@ -206,9 +206,9 @@ void Pli::setParts(
               QString _colorid = color;
               QString _typeid  = QFileInfo(type).baseName();
 
-              int which = 0;
+              int which = 0; // Bricklink
               if ( pliMeta.partElements.legoElements.value())
-                  which = 1;
+                  which = 1; // LEGO
 
               if (pliMeta.partElements.localLegoElements.value()) {
                   QString elementKey = QString("%1%2").arg(_typeid).arg(_colorid);

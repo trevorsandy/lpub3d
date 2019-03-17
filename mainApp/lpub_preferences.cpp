@@ -2029,9 +2029,7 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
                               enableLDViewSingleCall ?
                                   QString("(Single Call%1)")
                                           .arg(enableLDViewSnaphsotList ? " - SnapshotsList" : "") : "" : "");
-   usingNativeRenderer = (preferredRenderer == RENDERER_NATIVE ||
-                         (preferredRenderer == RENDERER_POVRAY &&
-                          povFileGenerator  == RENDERER_NATIVE));
+   usingNativeRenderer = preferredRenderer == RENDERER_NATIVE;
 }
 
 void Preferences::setLDGLiteIniParams()

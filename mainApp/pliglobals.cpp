@@ -490,11 +490,12 @@ void GlobalPliDialog::styleOptionChanged(bool b){
       rectangleBorderStyleBox->hide();
       rectangleFormatStyleBox->hide();
       rectangleSizeStyleBox->hide();
-
-      elementBkGrndStyleBox->hide();
-      elementBorderStyleBox->hide();
-      elementFormatStyleBox->hide();
-      elementSizeStyleBox->hide();
+      if (data->bom) {
+            elementBkGrndStyleBox->hide();
+            elementBorderStyleBox->hide();
+            elementFormatStyleBox->hide();
+            elementSizeStyleBox->hide();
+      }
   }
   else
   if (obj == circleStyle) {
@@ -513,10 +514,12 @@ void GlobalPliDialog::styleOptionChanged(bool b){
       rectangleFormatStyleBox->hide();
       rectangleSizeStyleBox->hide();
 
-      elementBkGrndStyleBox->hide();
-      elementBorderStyleBox->hide();
-      elementFormatStyleBox->hide();
-      elementSizeStyleBox->hide();
+      if (data->bom) {
+            elementBkGrndStyleBox->hide();
+            elementBorderStyleBox->hide();
+            elementFormatStyleBox->hide();
+            elementSizeStyleBox->hide();
+      }
   }
   else
   if (obj == rectangleStyle) {
@@ -535,13 +538,15 @@ void GlobalPliDialog::styleOptionChanged(bool b){
       circleFormatStyleBox->hide();
       circleSizeStyleBox->hide();
 
-      elementBkGrndStyleBox->hide();
-      elementBorderStyleBox->hide();
-      elementFormatStyleBox->hide();
-      elementSizeStyleBox->hide();
+      if (data->bom) {
+            elementBkGrndStyleBox->hide();
+            elementBorderStyleBox->hide();
+            elementFormatStyleBox->hide();
+            elementSizeStyleBox->hide();
+      }
   }
   else
-  if (obj == elementStyle) {
+  if (data->bom && obj == elementStyle) {
       elementBkGrndStyleBox->show();
       elementBorderStyleBox->show();
       elementFormatStyleBox->show();
@@ -561,7 +566,7 @@ void GlobalPliDialog::styleOptionChanged(bool b){
       circleBorderStyleBox->hide();
       circleFormatStyleBox->hide();
       circleSizeStyleBox->hide();
-  }else {
+  } else {
       squareBkGrndStyleBox->show();
       squareBorderStyleBox->show();
       squareFormatStyleBox->show();
@@ -577,10 +582,12 @@ void GlobalPliDialog::styleOptionChanged(bool b){
       rectangleFormatStyleBox->hide();
       rectangleSizeStyleBox->hide();
 
-      elementBkGrndStyleBox->hide();
-      elementBorderStyleBox->hide();
-      elementFormatStyleBox->hide();
-      elementSizeStyleBox->hide();
+      if (data->bom) {
+            elementBkGrndStyleBox->hide();
+            elementBorderStyleBox->hide();
+            elementFormatStyleBox->hide();
+            elementSizeStyleBox->hide();
+      }
 
       squareBkGrndStyleBox->setDisabled(true);
       squareBorderStyleBox->setDisabled(true);

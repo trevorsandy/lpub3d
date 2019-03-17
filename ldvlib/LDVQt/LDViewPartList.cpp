@@ -4,7 +4,7 @@
 #include <LDVPreferences.h>
 #include <LDVWidgetDefaultKeys.h>
 
-LDVPartList::LDVPartList(LDVWidget *modelWidget, LDHtmlInventory *htmlInventory)
+LDVPartList::LDVPartList(LDVWidget *modelWidget, LDVHtmlInventory *htmlInventory)
         : QDialog(qobject_cast<QWidget*>(modelWidget)),
          LDVPartListPanel(),
          m_modelViewer(modelWidget->getModelViewer() ? ((LDrawModelViewer*)modelWidget->getModelViewer()->retain()) : nullptr),
@@ -20,6 +20,11 @@ LDVPartList::LDVPartList(LDVWidget *modelWidget, LDHtmlInventory *htmlInventory)
     connect( fieldOrderView, SIGNAL( currentItemChanged(QListWidgetItem *, QListWidgetItem *) ), this, SLOT( doHighlighted(QListWidgetItem *, QListWidgetItem *) ) );
     connect( preferencesButton, SIGNAL( clicked() ), this, SLOT( doShowPreferences() ) );
 
+    if (m_modelWidget &&
+            m_htmlInventory->getLookupSite() ==
+            LDVHtmlInventory::LookUp::Bricklink)
+        emit m_modelWidget->loadBLElementsSig();
+
 //	fieldOrderView->header()->hide();
 //	fieldOrderView->setSorting(-1);
 }
@@ -30,24 +35,24 @@ LDVPartList::~LDVPartList(void)
 
 void LDVPartList::populateColumnList(void)
 {
-	const LDPartListColumnVector &columnOrder =
+    const LDVPartListColumnVector &columnOrder =
         m_htmlInventory->getColumnOrder();
 	int i;
 	fieldOrderView->clear();
 	for (i = 0; i < (int)columnOrder.size(); i++)
 	{
-		LDPartListColumn column = columnOrder[i];
-		const char *name = LDHtmlInventory::getColumnName(column);
+        LDVPartListColumn column = columnOrder[i];
+        const char *name = LDVHtmlInventory::getColumnName(column);
 		QListWidgetItem *item = new QListWidgetItem(name, fieldOrderView);
 		item->setCheckState(m_htmlInventory->isColumnEnabled(column) ? Qt::Checked : Qt::Unchecked);
 		item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
 	}
-    for (i = LDPLCFirst; i <= LDPLCLast; i++)
+    for (i = LDVPLCFirst; i <= LDVPLCLast; i++)
     {
-        LDPartListColumn column = (LDPartListColumn)i;
+        LDVPartListColumn column = (LDVPartListColumn)i;
         if (!m_htmlInventory->isColumnEnabled(column))
         {
-            const char *name = LDHtmlInventory::getColumnName(column);
+            const char *name = LDVHtmlInventory::getColumnName(column);
             QListWidgetItem *item = new QListWidgetItem(name, fieldOrderView);
             item->setCheckState(m_htmlInventory->isColumnEnabled(column) ? Qt::Checked : Qt::Unchecked);
             item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
@@ -70,26 +75,32 @@ void LDVPartList::doOk()
 {
 	int i,j;
 	QListWidgetItem *item;
-	bool showmodel;
-	LDPartListColumnVector columnOrder;
+    bool showmodel,openDocument;
+    LDVPartListColumnVector columnOrder;
 	m_htmlInventory->setExternalCssFlag(generateExternalSSButton->isChecked());
 	m_htmlInventory->setPartImagesFlag(showPartImageButton->isChecked());
-	m_htmlInventory->setShowModelFlag(showmodel = 
-					  showModelButton->isChecked());
-    m_htmlInventory->setShowFileFlag(showWebPageButton->isChecked());
+    m_htmlInventory->setShowModelFlag(showmodel = showModelButton->isChecked());
 	if (showmodel)
 	{
 		 m_htmlInventory->setOverwriteSnapshotFlag(
 					overwriteExistingButton->isChecked());
 	}
-	for (item = fieldOrderView->item(j = 0) ; item && (j < (fieldOrderView->count())) ;
+    m_htmlInventory->setShowFileFlag(openDocument = showWebPageButton->isChecked());
+    if (openDocument){
+         m_htmlInventory->setGeneratePdfFlag(false); // not implemented
+    }
+
+    m_htmlInventory->setLookupSiteFlag(partLookupSiteCombo->currentIndex());
+    m_htmlInventory->setElementSourceFlag(elementSourceCombo->currentIndex());
+
+    for (item = fieldOrderView->item(j = 0) ; item && (j < (fieldOrderView->count()));
 		 item = fieldOrderView->item(++j))
 	{
             QListWidgetItem *item2 =  (QListWidgetItem*)item;
-		for (i = LDPLCFirst; i <= LDPLCLast; i++)
+        for (i = LDVPLCFirst; i <= LDVPLCLast; i++)
 		{
-            LDPartListColumn column = LDPartListColumn(i);
-            const char *name = LDHtmlInventory::getColumnName(column);
+            LDVPartListColumn column = LDVPartListColumn(i);
+            const char *name = LDVHtmlInventory::getColumnName(column);
             if (strcmp(name,item->text().toLatin1().constData())==0)
 			{
 				if (item2->checkState() == Qt::Checked)
@@ -143,6 +154,11 @@ int LDVPartList::exec()
 	overwriteExistingButton->setChecked(showmodel ?
 		m_htmlInventory->getOverwriteSnapshotFlag() : false);
     showWebPageButton->setChecked(m_htmlInventory->getShowFileFlag());
+    partLookupSiteCombo->setCurrentIndex(
+        m_htmlInventory->getLookupSiteFlag());
+    elementSourceCombo->setCurrentIndex(
+        m_htmlInventory->getElementSourceFlag());
+
 	doShowModel();
 	return QDialog::exec();
 }

@@ -339,7 +339,7 @@
 #include <QSettings>
 #include <QDateTime>
 #include <QFileSystemWatcher>
-#include <QPrinter>
+#include <QtPrintSupport>
 #include <QFile>
 #include <QProgressBar>
 #include <QElapsedTimer>
@@ -802,6 +802,8 @@ public slots:
   }
 
   //**
+
+  void loadBLElements();
 
   /* The undoStack needs access to these */
 

@@ -63,7 +63,6 @@
 #include <string>
 #include <assert.h>
 
-#include <QProgressDialog>
 #include <LDLoader/LDLPalette.h>
 #include <LDLoader/LDLMainModel.h>
 
@@ -72,7 +71,11 @@
 #include <LDVExtensionsSetup.h>
 #endif // WIN32
 
-//#include "lpub_messages.h" //
+#include <QApplication>
+#include <QFile>
+#include <QTextStream>
+#include <functional>
+
 #include "messageboxresizable.h"
 #include "lpub_preferences.h"
 #include "lpubalert.h"
@@ -167,10 +170,8 @@ bool LDVWidget::doCommand(QStringList &arguments)
     if (!LDSnapshotTaker::doCommandLine(false, true))
     {
         if ((arguments.indexOf(QRegExp("-ExportFile=", Qt::CaseInsensitive), 0) != -1)){
-
             emit lpubAlert->messageSig(LOG_ERROR,QString("Failed to process Native export command arguments: %1").arg(arguments.join(" ")));
             retValue = false;
-
         } else if (iniFlag == NativePartList) {
             if (setupLDVApplication()) {
                 doPartList();
@@ -458,7 +459,7 @@ void LDVWidget::setupLDVContext()
         setFormat(ldvFormat);
         needsInitialize = true;
     } else {
-        fprintf(stdout, "ERROR - The OpenGL context is not valid!");
+        emit lpubAlert->messageSig(LOG_ERROR, QString("ERROR - The OpenGL context is not valid!"));
     }
 
     if (needsInitialize) {
@@ -497,7 +498,10 @@ void LDVWidget::modelViewerAlertCallback(TCAlert *alert)
 
 bool LDVWidget::getUseFBO()
 {
-    return snapshotTaker != nullptr && snapshotTaker->getUseFBO();
+    if (snapshotTaker)
+        return snapshotTaker->getUseFBO();
+    else
+        return false;
 }
 
 bool LDVWidget::staticFileCaseLevel(QDir &dir, char *filename)
@@ -592,15 +596,6 @@ bool LDVWidget::staticFileCaseCallback(char *filename)
 		shortName = filename;
 	}
 	return staticFileCaseLevel(dir, shortName);
-}
-
-void LDVWidget::setupSnapshotBackBuffer(int width, int height)
-{
-    modelViewer->setSlowClear(true);
-    modelViewer->setWidth(width);
-    modelViewer->setHeight(height);
-    modelViewer->setup();
-    glReadBuffer(GL_BACK);
 }
 
 /*************************************************/
@@ -790,6 +785,7 @@ void LDVWidget::doPartList(
             TCUserDefaults::setLongForKey(400, SAVE_WIDTH_KEY, false);
             TCUserDefaults::setLongForKey(300, SAVE_HEIGHT_KEY, false);
             saveImageType = PNG_IMAGE_TYPE_INDEX;
+
             // By saying it's from the command line, none of the above settings
             // will be written to TCUserDefaults.
             savingFromCommandLine = false;
@@ -963,6 +959,14 @@ void LDVWidget::showWebPage(QString &htmlFilename){
   }
 }
 
+void LDVWidget::setupSnapshotBackBuffer(int width, int height)
+{
+    modelViewer->setSlowClear(true);
+    modelViewer->setWidth(width);
+    modelViewer->setHeight(height);
+    modelViewer->setup();
+    glReadBuffer(GL_BACK);
+}
 
 void LDVWidget::setupMultisample(void)
 {
@@ -1171,86 +1175,4 @@ bool LDVWidget::setupPBuffer(int imageWidth, int imageHeight,
     }
     return false;
 #endif
-}
-
-bool LDVHtmlInventory::generateHtml(
-    const char *filename,
-    LDPartsList *partsList,
-    const char *modelName)
-{
-    FILE *file = ucfopen(filename, "w");
-    size_t nSlashSpot;
-
-    m_lastFilename = filename;
-    m_lastSavePath = filename;
-    populateColumnMap();
-    nSlashSpot = m_lastSavePath.find_last_of("/\\");
-    if (nSlashSpot < m_lastSavePath.size())
-    {
-        m_lastSavePath = m_lastSavePath.substr(0, nSlashSpot);
-    }
-    m_prefs->setInvLastSavePath(m_lastSavePath.c_str());
-    m_prefs->commitInventorySettings();
-    m_modelName = modelName;
-    nSlashSpot = m_modelName.find_last_of("/\\");
-    if (nSlashSpot < m_modelName.size())
-    {
-        m_modelName = m_modelName.substr(nSlashSpot + 1);
-    }
-    if (file)
-    {
-        QProgressDialog* ProgressDialog = new QProgressDialog(nullptr);
-        ProgressDialog->setWindowFlags(ProgressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
-        ProgressDialog->setWindowTitle(QString("HTML Part List"));
-        ProgressDialog->setLabelText(QString("Generating %1 HTML Part List...")
-                                             .arg(QFileInfo(filename).baseName()));
-        ProgressDialog->setMinimum(0);
-        ProgressDialog->setValue(0);
-        ProgressDialog->setCancelButton(nullptr);
-        ProgressDialog->setAutoReset(false);
-        ProgressDialog->setModal(true);
-        ProgressDialog->show();
-
-        const LDPartCountVector &partCounts = partsList->getPartCounts();
-        int i, j, pc;
-
-        pc = int(partCounts.size());
-
-        ProgressDialog->setMaximum(pc);
-
-        writeHeader(file);
-        writeTableHeader(file, partsList->getTotalParts());
-        for (i = 0; i < pc; i++)
-        {
-            ProgressDialog->setValue(i);
-            QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-
-            const LDPartCount &partCount = partCounts[i];
-            const IntVector &colors = partCount.getColors();
-            LDLModel *model = const_cast<LDLModel *>(partCount.getModel());
-            LDLPalette *palette = model->getMainModel()->getPalette();
-            //int partTotal = partCount.getTotalCount();
-
-            for (j = 0; j < (int)colors.size(); j++)
-            {
-                int colorNumber = colors[j];
-                LDLColorInfo colorInfo = palette->getAnyColorInfo(colorNumber);
-
-                writePartRow(file, partCount, palette, colorInfo, colorNumber);
-            }
-        }
-        writeTableFooter(file);
-        writeFooter(file);
-        fclose(file);
-
-        ProgressDialog->setValue(pc);
-        QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-        ProgressDialog->deleteLater();
-
-        return true;
-    }
-    else
-    {
-        return false;
-    }
 }

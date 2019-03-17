@@ -65,6 +65,8 @@
 
 #include <TCFoundation/TCUserDefaults.h>
 #include <LDLib/LDUserDefaultsKeys.h>
+#include <LDVQt/LDVWidget.h>
+
 //**
 
 #if _MSC_VER > 1310
@@ -2297,6 +2299,8 @@ void Gui::initialize()
   connect(gMainWindow, SIGNAL(SetRotStepTransform(QString&,bool)), this,        SLOT(SetRotStepTransform(QString&,bool)));
   connect(gMainWindow, SIGNAL(GetRotStepMeta()),                   this,        SLOT(GetRotStepMeta()));
 
+  connect(ldvWidget,   SIGNAL(loadBLElementsSig()),                this,        SLOT(loadBLElements()));
+
 /* Moved to PartWorker::ldsearchDirPreferences()  */
 //  if (Preferences::preferredRenderer == RENDERER_LDGLITE)
 //      partWorkerLdgLiteSearchDirs.populateLdgLiteSearchDirs();
@@ -2317,6 +2321,16 @@ void Gui::initialize()
   emit disable3DActionsSig();
   setCurrentFile("");
   readSettings();
+}
+
+void Gui::loadBLElements()
+{
+   if (!Annotations::loadBLElements()){
+       QString URL(VER_LPUB3D_BLELEMENTS_DOWNLOAD_URL);
+       downloadFile(URL, "BrickLink Elements");
+       QByteArray Buffer = getDownloadedFile();
+       Annotations::loadBLElements(Buffer);
+   }
 }
 
 void Gui::ldrawColorPartsLoad()

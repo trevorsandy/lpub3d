@@ -996,6 +996,9 @@ Annotations::Annotations()
     }
 }
 
+// key : blitemid+blcolorid
+// val1: blitemid+"-"+blcolorid
+// val2: elementid
 bool Annotations::loadBLElements(){
     if (blElements.size() == 0) {
         QString blElementsFile = Preferences::blElementsFile;
@@ -1138,6 +1141,8 @@ bool Annotations::loadBLElements(QByteArray &Buffer){
     return true;
 }
 
+// key: ldpartid+ldcolorid
+// val: elementid
 bool Annotations::loadLEGOElements(){
     if (legoElements.size() == 0) {
         QString legoElementsFile = Preferences::legoElementsFile;
@@ -1240,6 +1245,7 @@ const QString &Annotations::getBLColorID(QString blcolorname)
   return returnString;
 }
 
+//key: ldpartid+ldcolorid
 const QString &Annotations::getLEGOElement(QString elementkey)
 {
     loadLEGOElements();
