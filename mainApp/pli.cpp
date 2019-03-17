@@ -3088,7 +3088,10 @@ void AnnotateTextItem::setBackground(QPainter *painter)
     borderPen.setColor(borderPenColor);
     borderPen.setCapStyle(Qt::RoundCap);
     borderPen.setJoinStyle(Qt::RoundJoin);
-    if (borderData.line == BorderData::BdrLnSolid){
+    if (borderData.line == BorderData::BdrLnNone){
+          borderPen.setStyle(Qt::NoPen);
+    }
+    else if (borderData.line == BorderData::BdrLnSolid){
         borderPen.setStyle(Qt::SolidLine);
     }
     else if (borderData.line == BorderData::BdrLnDash){

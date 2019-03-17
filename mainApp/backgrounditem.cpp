@@ -163,15 +163,18 @@ void BackgroundItem::setBackground(
 
   if (borderData.type == BorderData::BdrNone) {
       penColor = Qt::transparent;
-    } else {
-      penColor =  LDrawColor::color(borderData.color);
-    }
+   } else {
+     penColor =  LDrawColor::color(borderData.color);
+   }
 
   QPen pen;
   pen.setColor(penColor);
   pen.setCapStyle(Qt::RoundCap);
   pen.setJoinStyle(Qt::RoundJoin);
-  if (borderData.line == BorderData::BdrLnSolid){
+  if (borderData.line == BorderData::BdrLnNone){
+        pen.setStyle(Qt::NoPen);
+    }
+  else if (borderData.line == BorderData::BdrLnSolid){
         pen.setStyle(Qt::SolidLine);
     }
   else if (borderData.line == BorderData::BdrLnDash){

@@ -325,13 +325,16 @@ void CsiAnnotationItem::setBackground(QPainter *painter)
         } else {
             borderPenColor =  LDrawColor::color(borderData.color);
         }
-        borderPen.setColor(borderPenColor);
-        borderPen.setCapStyle(Qt::RoundCap);
-        borderPen.setJoinStyle(Qt::RoundJoin);
-        if (borderData.line == BorderData::BdrLnSolid){
-            borderPen.setStyle(Qt::SolidLine);
-        }
-        else if (borderData.line == BorderData::BdrLnDash){
+    borderPen.setColor(borderPenColor);
+    borderPen.setCapStyle(Qt::RoundCap);
+    borderPen.setJoinStyle(Qt::RoundJoin);
+    if (borderData.line == BorderData::BdrLnNone){
+          borderPen.setStyle(Qt::NoPen);
+    }
+    else if (borderData.line == BorderData::BdrLnSolid){
+        borderPen.setStyle(Qt::SolidLine);
+    }
+    else if (borderData.line == BorderData::BdrLnDash){
             borderPen.setStyle(Qt::DashLine);
         }
         else if (borderData.line == BorderData::BdrLnDot){

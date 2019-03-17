@@ -3018,9 +3018,6 @@ int MetaItem::nestCallouts(
   bool  isMirrored)
 {
   bool restart = true;
-  
-  // Switch to Native Renderer for fast processing
-  gui->setPreferredRenderer();
 
   while (restart) {
   
@@ -3087,7 +3084,6 @@ int MetaItem::nestCallouts(
       }
     }
   }
-  gui->restorePreferredRenderer();
   return 0;
 }
 
@@ -3129,16 +3125,12 @@ void MetaItem::convertToCallout(
 {
   gui->maxPages = -1;
 
-  // Switch to Native Renderer for fast processing
-  gui->setPreferredRenderer();
-
   beginMacro("convertToCallout");
   addCalloutMetas(meta,modelName,isMirrored,assembled);
   if ( ! assembled) {
     nestCallouts(meta,modelName,isMirrored);
   }
   endMacro();
-  gui->restorePreferredRenderer();
 }
 
 void MetaItem::addCalloutMetas(
@@ -3358,9 +3350,6 @@ void MetaItem::addPointerTipMetas(
     PlacementEnc placement,
     Rc           rc)
 {
-  // Switch to Native Renderer for fast processing
-  gui->setPreferredRenderer();
-
   QString placementName;
   if (rc == PagePointerRc) {
       placementName = bPlacementEncNames[placement];
@@ -3409,7 +3398,6 @@ void MetaItem::addPointerTipMetas(
      scanForward(walk,StepMask);
 
   insertMeta(walk,line);
-  gui->restorePreferredRenderer();
 }
 
 void MetaItem::updateCsiAnnotationIconMeta(
@@ -3428,9 +3416,6 @@ void MetaItem::writeCsiAnnotationMeta(
   Meta         *meta,
   bool          update)
 {
-  // Switch to Native Renderer for fast processing
-  gui->setPreferredRenderer();
-
   QHash<QString,QString> hash;
 
   beginMacro("annotationIconMetas");
@@ -3536,7 +3521,6 @@ void MetaItem::writeCsiAnnotationMeta(
       }
     }
   }
-  gui->restorePreferredRenderer();
   endMacro();
 }
 
