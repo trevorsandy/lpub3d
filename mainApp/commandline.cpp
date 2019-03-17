@@ -356,6 +356,21 @@ int Gui::processCommandLine()
             if (exportOption == "bmp")
                exportAsBmpDialog();
             else
+            if (exportOption == "stl")
+               exportAsStlDialog();
+            else
+            if (exportOption == "3ds")
+               exportAs3dsDialog();
+            else
+            if (exportOption == "pov")
+               exportAsPovDialog();
+            else
+            if (exportOption == "dae")
+               exportAsColladaDialog();
+            else
+            if (exportOption == "obj")
+               exportAsObjDialog();
+            else
                exportAsPdfDialog();
           } else {
             continuousPageDialog(PAGE_NEXT);
