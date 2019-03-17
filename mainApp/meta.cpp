@@ -1399,10 +1399,11 @@ PointerMeta::PointerMeta() : LeafMeta()
 
 Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
 {
-  float _loc = 0, _x1 = 0, _y1 = 0, _base = -1, _segments = 1;
-  float           _x2 = 0, _y2 = 0;
-  float           _x3 = 0, _y3 = 0;
-  float           _x4 = 0, _y4 = 0;
+  int   _segments = 1;
+  float _loc = 0.0, _x1 = 0.0, _y1 = 0.0, _base = -1.0;
+  float           _x2 = 0.0, _y2 = 0.0;
+  float           _x3 = 0.0, _y3 = 0.0;
+  float           _x4 = 0.0, _y4 = 0.0;
   int   n_tokens = argv.size() - index;
   RectPlacement _bRect = RectPlacement(tokenMap["BASE_TOP_LEFT"]);
   bool  fail              = true;
@@ -1492,7 +1493,6 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
         }
       rx.setPattern("^(TOP|BOTTOM|LEFT|RIGHT|CENTER)$");
       if (argv[index].contains(rx) && n_tokens == 5) {
-          _loc = 0;
           bool ok[4];
           _loc  = argv[index+1].toFloat(&ok[0]);
           _x1    = argv[index+2].toFloat(&ok[1]);
@@ -1501,7 +1501,6 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
           fail  = ! (ok[0] && ok[1] && ok[2] && ok[3]);
         }
       if (argv[index].contains(rx) && n_tokens == 4) {
-          _loc = 0;
           bool ok[3];
           _loc  = argv[index+1].toFloat(&ok[0]);
           _x1    = argv[index+2].toFloat(&ok[1]);
@@ -1510,7 +1509,6 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
         }
       // new multi-segment patterns (+ 7 tokens: x2,y2,x3,y3,x4,y4,segments)
       if (argv[index].contains(rx) && (pagePointer ? n_tokens == 13 : n_tokens == 12)) {
-          _loc = 0;
           bool ok[11];
           _loc      = argv[index+1].toFloat(&ok[0]);
           _x1       = argv[index+2].toFloat(&ok[1]);
@@ -1529,7 +1527,6 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
                          ok[6] && ok[7] && ok[8] && ok[9] && ok[10]);
         }
       if (argv[index].contains(rx) && (pagePointer ? n_tokens == 12 : n_tokens == 11)) {
-          _loc = 0;
           bool ok[10];
           _loc      = argv[index+1].toFloat(&ok[0]);
           _x1       = argv[index+2].toFloat(&ok[1]);
@@ -1586,8 +1583,7 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
 //                                                                            "None - Not PagePointer")
 //                   ;
 #endif
-      _here[0] = here;
-      _here[1] = here;
+      _here[pushed] = here;
 
       if ((argv[1] == "PAGE" && argv[2] == "POINTER") ||
           (argv[1] == "PAGE_POINTER")) {

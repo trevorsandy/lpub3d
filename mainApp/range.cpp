@@ -523,23 +523,23 @@ void Range::placeitFreeform(
  *****************************************************************************/
 
 void Range::appendDividerPointer(
-   const Where       &here,
-   PointerMeta       &pointerMeta,
-   PointerAttribMeta &pointerAttrib,
-   QGraphicsView    *_view,
-   bool sd)
+  const Where       &here,
+  PointerMeta       &pointerMeta,
+  PointerAttribMeta &pointerAttrib,
+  QGraphicsView    *_view,
+  bool               sd)
 {
-  view    = _view;
-  int pid = sd ? stepDividerPointerList.size() + 1 :
+  int pid = sd ? stepDividerPointerList.size()  + 1 :
                  rangeDividerPointerList.size() + 1;
-  Pointer *pointer = new Pointer(pid,here,pointerMeta);
   PointerAttribMeta pam = pointerAttrib;
+  Pointer *pointer = new Pointer(pid,here,pointerMeta);
   pam.setDefaultColor(sepMeta.value().color);
   pointer->setPointerAttribInches(pam);
   if (sd)
       stepDividerPointerList.append(pointer);
   else
       rangeDividerPointerList.append(pointer);
+  view    = _view;
 }
 
 /******************************************************************************

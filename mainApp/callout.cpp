@@ -87,12 +87,14 @@ AllocMeta &Callout::allocMeta()
   }
 }
 
-void Callout::appendPointer(const Where &here,
-                            PointerMeta &pointerMeta, PointerAttribMeta &pointerAttrib)
+void Callout::appendPointer(
+  const Where       &here,
+  PointerMeta       &pointerMeta,
+  PointerAttribMeta &pointerAttrib)
 {
-    int id = pointerList.size() + 1;
-    Pointer *pointer = new Pointer(id,here,pointerMeta);
+    int pid = pointerList.size() + 1;
     PointerAttribMeta pam = pointerAttrib;
+    Pointer *pointer = new Pointer(pid,here,pointerMeta);
     pam.setDefaultColor(meta.LPub.callout.border.value().color);
     pointer->setPointerAttribInches(pam);
     pointerList.append(pointer);

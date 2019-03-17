@@ -34,7 +34,6 @@ class QGraphicsPolygonItem;
 class QGraphicsLineItem;
 class QGraphicsItemGroup;
 class DividerItem;
-class Steps;
 
 class DividerPointerItem  : public PointerItem
 {
@@ -48,9 +47,6 @@ public:
 
 private:
     DividerItem     *divider;
-    Meta            *meta;
-    Steps           *steps;
-    PlacementType    parentRelativeType;
 
   /*
    *   +--------------------------------------------++

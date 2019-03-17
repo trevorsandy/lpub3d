@@ -31,6 +31,7 @@
 #include <QGraphicsRectItem>
 #include "placement.h"
 #include "metaitem.h"
+#include "ranges.h"
 #include "where.h"
 
 class Page;
@@ -88,12 +89,12 @@ protected:
     void contextMenuEvent (QGraphicsSceneContextMenuEvent *event);
 };
 
-class DividerPointerBackgroundItem : public QGraphicsRectItem, public MetaItem
+class DividerBackgroundItem : public QGraphicsRectItem, public MetaItem
 {
 public:
   BorderMeta     *border;
 
-  DividerPointerBackgroundItem(
+  DividerBackgroundItem(
     Meta         *_meta,
     QRect        &_dividerRect,
     QGraphicsItem *parent);
@@ -109,16 +110,15 @@ class DividerLine;
 class DividerItem;
 class Pointer;
 class DividerPointerItem;
-class DividerPointerBackgroundItem;
-class DividerItem : public QGraphicsRectItem, public MetaItem, public Placement
+class DividerBackgroundItem;
+class DividerItem : public Steps, public QGraphicsRectItem, public MetaItem /*, public Placement  */
 {
 public:
-    Meta                         *meta;
-    Step                         *step;
-    DividerLine                  *lineItem;
-    DividerPointerBackgroundItem *background;
-    QList<DividerPointerItem *>   graphicsPointerList; /* Pointer and pointer tips graphics */
-    PlacementType                 parentRelativeType;
+    Step                        *parentStep;
+    DividerLine                 *lineItem;
+    DividerBackgroundItem       *background;
+    QList<DividerPointerItem *>  graphicsPointerList; /* Pointer and pointer tips graphics */
+    PlacementType                parentRelativeType;
 
     DividerItem() {}
     DividerItem(

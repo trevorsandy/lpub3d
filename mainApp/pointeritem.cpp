@@ -324,7 +324,7 @@ void PointerItem::removeShaftSegment(){
 }
 
 /*
- * Given the location of Loc (as dragged around by the user)
+ * Given the location of Base (as dragged around by the user)
  * calculate a reasonable placement and Loc for points[Base]
  */
 

@@ -18,7 +18,6 @@
 
 #include <QGraphicsItem>
 
-#include "ranges.h"
 #include "ranges_item.h"
 #include "range.h"
 #include "step.h"
@@ -183,44 +182,44 @@ DividerItem::DividerItem(
   int    offsetY)
 {
   AllocEnc allocEnc;
-  meta               = _meta;
-  step               = _step;
-  Steps  *steps      = step->grandparent();
-  Range  *range      = step->range();
+  meta               = *_meta;
+  parentStep         = _step;
+  Steps  *steps      = parentStep->grandparent();
+  Range  *range      = parentStep->range();
   parentRelativeType = steps->relativeType;
   placement          = steps->placement;
 
   if (parentRelativeType == CalloutType) {
-    allocEnc = meta->LPub.callout.alloc.value();
+    allocEnc = meta.LPub.callout.alloc.value();
   } else {
-    allocEnc = meta->LPub.multiStep.alloc.value();
+    allocEnc = meta.LPub.multiStep.alloc.value();
   }
 
   SepData sepData = range->sepMeta.valuePixels();
 
   /* Size the rectangle around the divider */
-  if(step->rangeDivider) { // range divider
+  if(parentStep->rangeDivider) { // range divider
       if (allocEnc == Vertical) {
           setRect(offsetX,
                   offsetY,
-                  step->size[XX],
+                  parentStep->size[XX],
                   2*sepData.margin[YY]+sepData.thickness);
-          logDebug() << "\nRangeDivider Vertical Rectangle for Step [" << step->stepNumber.number << "]:"
+          logDebug() << "\nRangeDivider Vertical Rectangle for Step [" << parentStep->stepNumber.number << "]:"
                      << "\nrectangle::(x1) [" << offsetX << "] offsetX"
                      << "\nrectangle::(y1) [" << offsetY << "] offsetY"
-                     << "\nrectangle::(x2) [" << step->size[XX] << "] step->size[XX]"
+                     << "\nrectangle::(x2) [" << parentStep->size[XX] << "] parentStep->size[XX]"
                      << "\nrectangle::(y2) [" << 2*sepData.margin[YY]+sepData.thickness << "] 2*sepData.margin[YY]+sepData.thickness"
                         ;
       } else {
           setRect(offsetX,
                   offsetY,
                   2*sepData.margin[XX]+sepData.thickness,
-                  step->size[YY]);
-          logDebug() << "\nRangeDivider Horizontal Rectangle for Step [" << step->stepNumber.number << "]:"
+                  parentStep->size[YY]);
+          logDebug() << "\nRangeDivider Horizontal Rectangle for Step [" << parentStep->stepNumber.number << "]:"
                      << "\nrectangle::(x1) [" << offsetX << "] offsetX"
                      << "\nrectangle::(y1) [" << offsetY << "] offsetY"
                      << "\nrectangle::(x2) [" << 2*sepData.margin[XX]+sepData.thickness << "] 2*sepData.margin[XX]+sepData.thickness"
-                     << "\nrectangle::(y2) [" << step->size[YY] << "] step->size[YY]"
+                     << "\nrectangle::(y2) [" << parentStep->size[YY] << "] parentStep->size[YY]"
                         ;
       }
   } else {                 // default divider
@@ -229,7 +228,7 @@ DividerItem::DividerItem(
                 offsetY,
                 2*sepData.margin[XX]+sepData.thickness,
                 range->size[YY]);
-        logDebug() << "\nDivider Horizontal Rectangle for Step [" << step->stepNumber.number << "]:"
+        logDebug() << "\nDivider Horizontal Rectangle for Step [" << parentStep->stepNumber.number << "]:"
                    << "\nrectangle::(x1) [" << offsetX << "] offsetX"
                    << "\nrectangle::(y1) [" << offsetY << "] offsetY"
                    << "\nrectangle::(x2) [" << 2*sepData.margin[XX]+sepData.thickness << "] 2*sepData.margin[XX]+sepData.thickness"
@@ -240,7 +239,7 @@ DividerItem::DividerItem(
                 offsetY,
                 range->size[XX],
                 2*sepData.margin[YY]+sepData.thickness);
-        logDebug() << "\nDivider Vertical Rectangle for Step [" << step->stepNumber.number << "]:"
+        logDebug() << "\nDivider Vertical Rectangle for Step [" << parentStep->stepNumber.number << "]:"
                    << "\nrectangle::(x1) [" << offsetX << "] offsetX"
                    << "\nrectangle::(y1) [" << offsetY << "] offsetY"
                    << "\nrectangle::(x2) [" << range->size[XX] << "] range->size[XX]"
@@ -267,18 +266,18 @@ DividerItem::DividerItem(
   if (sepData.thickness > 0.5) {
 
     // determine the position of the divider
-    if(step->rangeDivider) {     // range divider
+    if(parentStep->rangeDivider) {     // range divider
         if (allocEnc == Vertical) {
             int separatorWidth = sepData.margin[XX]+sepData.thickness/2;
             int spacingHeight  = (sepData.margin[YY]+sepData.thickness+range->stepSpacing)/2;
             lineItem->setLine(offsetX-separatorWidth,
                               offsetY-spacingHeight,    // top
-                              offsetX+step->size[XX]-separatorWidth,
+                              offsetX+parentStep->size[XX]-separatorWidth,
                               offsetY-spacingHeight);   // top
-            logDebug() << "\nRangeDividerLine Vertical Position points for Step [" << step->stepNumber.number << "]:"
+            logDebug() << "\nRangeDividerLine Vertical Position points for Step [" << parentStep->stepNumber.number << "]:"
                        << "\nlineItem::(x1) [" << offsetX-separatorWidth << "] offsetX-(sepData.margin[XX]+sepData.thickness)/2"
                        << "\nlineItem::(y1) [" << offsetY-spacingHeight << "] offsetY-(sepData.margin[YY]+sepData.thickness+range->stepSpacing)/2"
-                       << "\nlineItem::(x2) [" << offsetX+step->size[XX]-separatorWidth << "] offsetX+step->size[XX]-(sepData.margin[XX]+sepData.thickness)/2"
+                       << "\nlineItem::(x2) [" << offsetX+parentStep->size[XX]-separatorWidth << "] offsetX+parentStep->size[XX]-(sepData.margin[XX]+sepData.thickness)/2"
                        << "\nlineItem::(y2) [" << offsetY-spacingHeight << "] offsetY-(sepData.margin[YY]+sepData.thickness+range->stepSpacing)/2"
                           ;
         } else {
@@ -287,12 +286,12 @@ DividerItem::DividerItem(
             lineItem->setLine(offsetX-spacingWidth,     // left
                               offsetY-separatorHeight,
                               offsetX-spacingWidth,     // left
-                              offsetY+step->size[YY]-separatorHeight);
-            logDebug() << "\nRangeDividerLine Horizontal Position points for Step [" << step->stepNumber.number << "]:"
+                              offsetY+parentStep->size[YY]-separatorHeight);
+            logDebug() << "\nRangeDividerLine Horizontal Position points for Step [" << parentStep->stepNumber.number << "]:"
                        << "\nlineItem::(x1) [" << offsetX-spacingWidth << "] offsetX-(sepData.margin[XX]+sepData.thickness+range->stepSpacing)/2"
                        << "\nlineItem::(y1) [" << offsetY-separatorHeight << "] offsetY-(sepData.margin[YY]+sepData.thickness)/2"
                        << "\nlineItem::(x2) [" << offsetX-spacingWidth << "] offsetX-(sepData.margin[XX]+sepData.thickness+range->stepSpacing)/2"
-                       << "\nlineItem::(y2) [" << offsetY+step->size[YY]-separatorHeight << "] offsetY+step->size[YY]-(sepData.margin[YY]+sepData.thickness)/2"
+                       << "\nlineItem::(y2) [" << offsetY+parentStep->size[YY]-separatorHeight << "] offsetY+parentStep->size[YY]-(sepData.margin[YY]+sepData.thickness)/2"
                           ;
         }
     } else {                      // default divider
@@ -302,7 +301,7 @@ DividerItem::DividerItem(
                             offsetY,
                             offsetX+separatorWidth,   // right
                             offsetY+range->size[YY]);
-          logDebug() << "\nDividerLine Vertical Position points for Step [" << step->stepNumber.number << "]:"
+          logDebug() << "\nDividerLine Vertical Position points for Step [" << parentStep->stepNumber.number << "]:"
                      << "\nlineItem::(x1) [" << offsetX+separatorWidth << "] offsetX+sepData.margin[XX]+sepData.thickness/2"
                      << "\nlineItem::(y1) [" << offsetY << "] offsetY"
                      << "\nlineItem::(x2) [" << offsetX+separatorWidth << "] offsetX+sepData.margin[XX]+sepData.thickness/2"
@@ -314,7 +313,7 @@ DividerItem::DividerItem(
                             offsetY+separatorHeight,   // top
                             offsetX+range->size[XX],
                             offsetY+separatorHeight);  // top
-          logDebug() << "\nDividerLine Horizontal Position points for Step [" << step->stepNumber.number << "]:"
+          logDebug() << "\nDividerLine Horizontal Position points for Step [" << parentStep->stepNumber.number << "]:"
                      << "\nlineItem::(x1) [" << offsetX << "] offsetX"
                      << "\nlineItem::(y1) [" << offsetY+separatorHeight << "] offsetY+sepData.margin[YY]+sepData.thickness/2"
                      << "\nlineItem::(x2) [" << offsetX+range->size[XX] << "] offsetX + range->size[XX]"
@@ -328,7 +327,7 @@ DividerItem::DividerItem(
     size[XX] = lineItem->boundingRect().size().width();
     size[YY] = lineItem->boundingRect().size().height();
 
-//    logDebug() << "\nDivider Dimensions for Step [" << step->stepNumber.number << "]:"
+//    logDebug() << "\nDivider Dimensions for Step [" << parentStep->stepNumber.number << "]:"
 //               << "\nlineItem::loc XX  [" << loc[XX] << "]"
 //               << "\nlineItem::loc YY  [" << loc[YY] << "]"
 //               << "\nlineItem::size XX [" << size[XX] << "]"
@@ -372,14 +371,14 @@ void DividerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     return;
   }
   
-  Step *nextStep = step->nextStep();
+  Step *nextStep = parentStep->nextStep();
   if ( ! nextStep) {
     return;
   }
   
   Where topOfStep    = nextStep->topOfStep();
   Where bottomOfStep = nextStep->bottomOfStep();
-  Range *range = step->range();
+  Range *range = parentStep->range();
 
   if (selectedAction == editAction) {
     changeDivider("Divider",topOfStep,bottomOfStep,&range->sepMeta,1,false);
@@ -392,8 +391,8 @@ void DividerItem::addGraphicsPointerItem(Pointer *pointer, QGraphicsView *view)
 {
     // This is the background for the dividerPointer line.
     QRect dividerRect(loc[XX],loc[YY],size[XX],size[YY]);
-    background = new DividerPointerBackgroundItem (
-                meta,
+    background = new DividerBackgroundItem (
+                &meta,
                 dividerRect,
                 parentItem());
     background->setPos(loc[XX],loc[YY]);
@@ -436,10 +435,10 @@ void DividerLine::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 }
 
 /******************************************************************************
- * Divider pointer background item routine
+ * Divider background item routine
  *****************************************************************************/
 
-DividerPointerBackgroundItem::DividerPointerBackgroundItem(
+DividerBackgroundItem::DividerBackgroundItem(
   Meta          *_meta,
   QRect         &_dividerRect,
   QGraphicsItem *parent)
