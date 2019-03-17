@@ -108,9 +108,14 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
         ldvPreferences(nullptr),
         ldvExportOption(nullptr),
         ldvAlertHandler(new LDVAlertHandler(this)),
+        inputHandler(nullptr),
+        saveImageFilename(nullptr),
+        imageInputFilename(nullptr),
         viewMode(LDInputHandler::VMExamine),
-        commandLineSnapshotSave(false),
-        saving(false)
+        saving(false),
+        progressDialog(new QProgressDialog(nullptr)),
+        timer(new QTimer(this)),
+        interval(0)
 #ifdef Q_OS_WIN
         ,savingFromCommandLine(false),
         hPBuffer(nullptr),
@@ -151,12 +156,15 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 
   TCUserDefaults::setAppName(Preferences::lpub3dAppName.toLatin1().constData());
 
+  connect(timer, SIGNAL(timeout()), this, SLOT(updateProgressDialog()));
+
   ldvWidget = this;
 
 }
 
 LDVWidget::~LDVWidget(void)
 {
+    progressDialog->deleteLater();
     TCAutoreleasePool::processReleases();
     ldvWidget = nullptr;
 }
@@ -342,43 +350,15 @@ bool LDVWidget::setupLDVApplication(){
                 {
                     TCUserDefaults::setStringForKey(arg + 3, CAMERA_GLOBE_KEY,false);
                 }
+                else if (stringHasCaseInsensitivePrefix(arg, "-Snapshot="))
+                {
+                    imageInputFilename = (arg + 10);
+                }
             }
         }
 
-        char *snapshotFilename =
-            TCUserDefaults::stringForKey(SAVE_SNAPSHOT_KEY);
-        commandLineSnapshotSave = (snapshotFilename ? true : false);
-        QString current = QDir::currentPath();
-        if (commandLineFilename)
-        {
-            QUrl qurl(commandLineFilename);
-            if (qurl.scheme()=="file")
-            {
-                commandLineFilename=copyString(QUrl::fromPercentEncoding(qurl.toLocalFile().toLatin1().constData()).toLatin1().constData());
-            }
-            QFileInfo fi(commandLineFilename);
-            commandLineFilename = copyString(fi.absoluteFilePath().toLatin1().constData());
-            if (chDirFromFilename(commandLineFilename))
-            {
-                modelViewer->setFilename(commandLineFilename);
-                if (! modelViewer->loadModel())
-                {
-                    emit lpubAlert->messageSig(LOG_ERROR, QString("Could not load command line file %1")
-                                               .arg(commandLineFilename));
-                    retValue = false;
-                }
-            }
-            else
-            {
-                emit lpubAlert->messageSig(LOG_ERROR, QString("The directory containing the file %1 could not be found.")
-                                           .arg(commandLineFilename));
-                retValue = false;
-            }
-        }
-        else
-        {
-            emit lpubAlert->messageSig(LOG_ERROR, QString("Command line file name was not specified."));
-            retValue = false;
+        if (!loadModel(commandLineFilename)){
+            emit lpubAlert->messageSig(LOG_ERROR, QString("Command line file was not loaded."));
         }
     }
     return retValue;
@@ -780,6 +760,9 @@ void LDVWidget::doPartList(
             TCUserDefaults::setLongForKey(400, SAVE_WIDTH_KEY, false);
             TCUserDefaults::setLongForKey(300, SAVE_HEIGHT_KEY, false);
             saveImageType = PNG_IMAGE_TYPE_INDEX;
+            if (!loadModel(imageInputFilename)){
+                emit lpubAlert->messageSig(LOG_ERROR, QString("Image input file was not loaded."));
+            }
 
             // By saying it's from the command line, none of the above settings
             // will be written to TCUserDefaults.
@@ -802,6 +785,66 @@ void LDVWidget::doPartList(
                                             TCLocalStrings::get(L"PLGenerateError"))
                                         ));
     }
+}
+
+void LDVWidget::startProgressBar(const char *message){
+    progressDialog->setWindowFlags(progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
+    progressDialog->setWindowTitle(QString("HTML Part List"));
+    progressDialog->setLabelText(QString("%1").arg(message));
+    progressDialog->setMaximum(10000);
+    progressDialog->setMinimum(0);
+    progressDialog->setValue(0);
+    progressDialog->setCancelButton(nullptr);
+    progressDialog->setAutoReset(false);
+    progressDialog->setModal(false);
+    progressDialog->show();
+    timer->start(100);
+    QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+}
+
+void LDVWidget::endProgressBar(){
+    progressDialog->setValue(progressDialog->maximum());
+    progressDialog->hide();
+    QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+    timer->stop();
+}
+
+void LDVWidget::updateProgressDialog(){
+    progressDialog->setValue(interval+100);
+    QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+    if (interval > progressDialog->maximum())
+        timer->stop();
+}
+
+bool LDVWidget::loadModel(const char *filename)
+{
+    if (!filename)
+        return false;
+
+    bool retValue = true;
+
+    QFileInfo fi(filename);
+    filename = copyString(fi.absoluteFilePath().toLatin1().constData());
+    if (chDirFromFilename(filename))
+    {
+        startProgressBar(QString("Loading %1...")
+                         .arg(QFileInfo(filename).baseName()).toLatin1().constData());
+        modelViewer->setFilename(filename);
+        if (! modelViewer->loadModel())
+        {
+            emit lpubAlert->messageSig(LOG_ERROR, QString("Could not load command line file %1")
+                                       .arg(filename));
+            retValue = false;
+        }
+        endProgressBar();
+    }
+    else
+    {
+        emit lpubAlert->messageSig(LOG_ERROR, QString("The directory containing the file %1 could not be found.")
+                                   .arg(filename));
+        retValue = false;
+    }
+    return retValue;
 }
 
 void LDVWidget::doPartList(void)

@@ -361,6 +361,7 @@ bool LDVHtmlInventory::generateHtml(
         fclose(file);
 
         ProgressDialog->setValue(pc);
+        ProgressDialog->hide();
         QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
         ProgressDialog->deleteLater();
 

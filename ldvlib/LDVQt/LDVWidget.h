@@ -28,6 +28,9 @@
 #include <LDLib/LDInputHandler.h>
 #include <LDLib/LDPreferences.h>
 #include <LDLib/LDSnapshotTaker.h>
+
+#include <QProgressDialog>
+#include <QTimer>
 #include "name.h"
 
 #include "LDVHtmlInventory.h"
@@ -92,6 +95,9 @@ public:
 signals:
   void loadBLElementsSig();
 
+private slots:
+  void updateProgressDialog();
+
 protected:
   bool setIniFile(void);
   void setupLDVFormat(void);
@@ -100,6 +106,9 @@ protected:
   void displayGLExtensions(void);
 
   bool getUseFBO();
+  void endProgressBar();
+  void startProgressBar(const char *msg);
+  bool loadModel(const char *filename);
   void setupSnapshotBackBuffer(int width, int height);
 
   IniFlag                iniFlag;
@@ -116,12 +125,15 @@ protected:
   // Parts List vars
   LDInputHandler        *inputHandler;
   const char            *saveImageFilename;
+  const char            *imageInputFilename;
   LDInputHandler::ViewMode viewMode;
-  bool                   commandLineSnapshotSave;
   bool                   saving;
 
+  QProgressDialog        *progressDialog;
+  QTimer                 *timer;
+  int                     interval;
+
 #ifdef Q_OS_WIN
-  bool                   savingFromCommandLine;
   HPBUFFERARB            hPBuffer;
   HDC                    hPBufferDC;
   HGLRC                  hPBufferGLRC;
