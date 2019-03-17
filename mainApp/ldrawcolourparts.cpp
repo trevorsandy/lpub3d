@@ -16,6 +16,7 @@
 #include <QFileInfo>
 #include <QTextStream>
 #include "lpub_preferences.h"
+#include "QsLog.h"
 
 QHash<QString, QString>  LDrawColourParts::ldrawColourParts;
 
@@ -31,7 +32,19 @@ bool LDrawColourParts::LDrawColorPartsLoad(QString &result)
 
     QTextStream in(&file);
 
-    QRegExp rx("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(u|o)\\s+(.*)$");    // 3 groups (file, libtype, desc)
+    // Load RegExp from file;
+    QRegExp rx("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(u|o)\\s+(.*)$"); // 3 groups (file, libtype, desc)
+    QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
+    while ( ! in.atEnd()) {
+        QString sLine = in.readLine(0);
+        if (sLine.contains(rxin)) {
+           rx.setPattern(rxin.cap(1));
+           //logDebug() << "LDrawColourParts RegExp Pattern: " << rxin.cap(1);
+           break;
+        }
+    }
+
+    // Load input values
     while ( ! in.atEnd()) {
         QString sLine = in.readLine(0);
         if (sLine.contains(rx)) {

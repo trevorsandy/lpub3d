@@ -565,7 +565,6 @@ bool Gui::continuousPageDialog(Direction d)
   // store current display page number
   logStatus() << QString("%1 start...").arg(message);
 
-
   if (processOption == EXPORT_ALL_PAGES){
 
       _maxPages = maxPages;

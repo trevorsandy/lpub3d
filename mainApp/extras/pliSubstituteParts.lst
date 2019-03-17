@@ -10,7 +10,13 @@
 # This file can be edited from LPub3D from:
 #    Configuration=>Edit Parameter Files=>Edit PLI/BOM Substitue Parts List
 
-# The RegExp used is ^(\b.+\b)\s+\"(.*)\"\s+(.*)$
+# LPub3D will attempt to load the regular expression below first, if the
+# load fails, LPub3D will load the hard-coded (default) regular expression.
+# If you wish to modify the file import, you can edit this regular expression.
+# It would be wise to backup the default entry before performing and update - copy
+# and paste to a new line with starting phrase other than 'The Regular Expression..."
+
+# The Regular Expression used is: ^(\b.+\b)\s+"(.*)"\s+(.*)$
 
 # Part ID (LDraw Name:)     Substitute Part Absolute File Path      Part Description - for reference only
 

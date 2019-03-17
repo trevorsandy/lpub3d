@@ -39,14 +39,26 @@ PliSubstituteParts::PliSubstituteParts()
         }
         QTextStream in(&file);
 
+        // Load RegExp from file;
         QRegExp rx("^(\\b.+\\b)\\s+\"(.*)\"\\s+(.*)$");
-                while ( ! in.atEnd()) {
+        QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
+        while ( ! in.atEnd()) {
+            QString sLine = in.readLine(0);
+            if (sLine.contains(rxin)) {
+                rx.setPattern(rxin.cap(1));
+                //logDebug() << "SubstituteParts RegExp Pattern: " << rxin.cap(1);
+                break;
+            }
+        }
+
+        // Load input values
+        while ( ! in.atEnd()) {
             QString sLine = in.readLine(0);
             if (sLine.contains(rx)) {
                 QString modeledPartID = rx.cap(1);
                 QString substitutePartID = rx.cap(2);
                 substituteParts.insert(modeledPartID.toLower().trimmed(),substitutePartID.toLower().trimmed());
-//                qDebug() << "** ModeledPartID Loaded: " << modeledPartID.toLower() << " SubstitutePartID: " << substitutePartID.toLower(); //TEST
+                //logDebug() << "** ModeledPartID Loaded: " << modeledPartID.toLower() << " SubstitutePartID: " << substitutePartID.toLower(); //TEST
             }
         }
     }

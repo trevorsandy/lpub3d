@@ -18,6 +18,7 @@
 #include <QFileInfo>
 #include <QTextStream>
 #include "lpub_preferences.h"
+#include "QsLog.h"
 
 QString                 Annotations::empty;
 QList<QString>          Annotations::titleAnnotations;
@@ -36,8 +37,21 @@ Annotations::Annotations()
             return;
         }
         QTextStream in(&file);
+
+        // Load RegExp from file;
         QRegExp rx("^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$");
-                while ( ! in.atEnd()) {
+        QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
+        while ( ! in.atEnd()) {
+            QString sLine = in.readLine(0);
+            if (sLine.contains(rxin)) {
+                rx.setPattern(rxin.cap(1));
+                //logDebug() << "TitleAnnotations RegExp Pattern: " << rxin.cap(1);
+                break;
+            }
+        }
+
+        // Load input values
+        while ( ! in.atEnd()) {
             QString sLine = in.readLine(0);
             if (sLine.contains(rx)) {
                 QString annotation = rx.cap(2);
@@ -57,7 +71,20 @@ Annotations::Annotations()
             return;
         }
         QTextStream in(&file);
+
+        // Load RegExp from file;
         QRegExp rx("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
+        QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
+        while ( ! in.atEnd()) {
+            QString sLine = in.readLine(0);
+            if (sLine.contains(rxin)) {
+                rx.setPattern(rxin.cap(1));
+                //logDebug() << "FreeFormAnnotations RegExp Pattern: " << rxin.cap(1);
+                break;
+            }
+        }
+
+        // Load input values
         while ( ! in.atEnd()) {
             QString sLine = in.readLine(0);
             if (sLine.contains(rx)) {

@@ -41,13 +41,25 @@ ExcludedParts::ExcludedParts()
         }
         QTextStream in(&file);
 
+        // Load RegExp from file;
         QRegExp rx("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
-                while ( ! in.atEnd()) {
+        QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
+        while ( ! in.atEnd()) {
+            QString sLine = in.readLine(0);
+            if (sLine.contains(rxin)) {
+               rx.setPattern(rxin.cap(1));
+               //logDebug() << "ExcludedParts RegExp Pattern: " << rxin.cap(1);
+               break;
+            }
+        }
+
+        // Load input values
+        while ( ! in.atEnd()) {
             QString sLine = in.readLine(0);
             if (sLine.contains(rx)) {
                 QString excludedPartID = rx.cap(1);
                 excludedParts.append(excludedPartID.toLower().trimmed());
-                // logDebug() << "** ExcludedPartID: " << excludedPartID.toLower();
+                //logDebug() << "** ExcludedPartID: " << excludedPartID.toLower();
             }
         }
     }
