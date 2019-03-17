@@ -488,6 +488,8 @@ public:
   QLabel          *m_progressDlgMessageLbl;
   QProgressBar    *m_progressDlgProgressBar;
 
+  bool             m_partListCSIFile;   // processing part list CSI file
+
   void            *noData;
 
   FadeStepMeta      *fadeStepMeta;      // propagate fade step settings
@@ -1123,6 +1125,9 @@ private:
 
   int getBOMOccurrence(
           Where  current);
+
+  bool generateBOMPartsFile(
+          const QString &);
 
   void writeToTmp(
     const QString &fileName,

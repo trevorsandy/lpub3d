@@ -2500,6 +2500,41 @@ int Gui::getBOMOccurrence(Where	current) {		// start at top of ldrawFile
   return 0;
 }
 
+bool Gui::generateBOMPartsFile(const QString &bomFileName){
+    QString addLine;
+    QStringList tempParts, bomParts;
+    Where current(ldrawFile.topLevelFile(),0);
+    getBOMParts(current,addLine,tempParts);
+
+    if (! tempParts.size()) {
+        emit messageSig(LOG_ERROR,QMessageBox::tr("No BOM parts were detected."));
+        return false;
+    }
+
+    foreach (QString bomPartsString, tempParts){
+        if (bomPartsString.startsWith("1")) {
+            QStringList partComponents = bomPartsString.split(";");
+            bomParts << partComponents.at(0);
+        }
+    }
+    emit messageSig(LOG_INFO,QMessageBox::tr("%1 BOM parts processed.").arg(bomParts.size()));
+
+    // create a BOM parts file
+    QFile bomFile(bomFileName);
+    if ( ! bomFile.open(QIODevice::WriteOnly)) {
+        emit messageSig(LOG_ERROR,QMessageBox::tr("Cannot open BOM parts file for writing: %1, %2.")
+                              .arg(bomFileName)
+                              .arg(bomFile.errorString()));
+        return false;
+    }
+
+    QTextStream out(&bomFile);
+    foreach (QString bomPart, bomParts)
+        out << bomPart << endl;
+    bomFile.close();
+    return true;
+}
+
 void Gui::attitudeAdjustment()
 {
   Meta meta;

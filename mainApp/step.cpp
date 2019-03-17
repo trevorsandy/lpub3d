@@ -227,7 +227,8 @@ int Step::createCsi(
   // Define csi file paths
   QString csiLdrFilePath = QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir);
   QString csiPngFilePath = QString("%1/%2").arg(QDir::currentPath()).arg(Paths::assemDir);
-  QString csiLdrFile = QString("%1/csi.ldr").arg(csiLdrFilePath);
+  QString csiLdrFile = QString("%1/%2").arg(csiLdrFilePath).arg(gui->m_partListCSIFile ?
+                               QFileInfo(gui->getCurFile()).baseName()+"_snapshot.ldr" : "csi.ldr");
 
   QString key = QString("%1_%2_%3_%4_%5_%6_%7_%8_%9")
       .arg(csi_Name+orient)
@@ -333,7 +334,10 @@ int Step::createCsi(
          }
      }
 
-     if (!renderer->useLDViewSCall()) {
+     bool showStatus = gui->m_partListCSIFile;
+
+     if (!renderer->useLDViewSCall() && ! gui->m_partListCSIFile) {
+         showStatus = true;
          // render the partially assembled model
          QStringList csiKeys = QStringList() << csiKey; // adding just a single key
 
@@ -342,7 +346,9 @@ int Step::createCsi(
                                                             .arg(pngName));
              return rc;
          }
+     }
 
+     if (showStatus) {
          emit gui->messageSig(LOG_INFO,
                                   QString("%1 CSI render call took %2 milliseconds "
                                           "to render %3 for %4 %5 %6 on page %7.")
@@ -353,6 +359,13 @@ int Step::createCsi(
                                           .arg(multiStep ? "step group" : "single step")
                                           .arg(stepNumber.number)
                                           .arg(gui->stepPageNum));
+     }
+
+     if (gui->exportingObjects() && gui->m_partListCSIFile){
+         pixmap->load(":/resources/save.png");  // just a placeholder
+         csiPlacement.size[0] = 32;
+         csiPlacement.size[1] = 32;
+         return 0;
      }
   }
 

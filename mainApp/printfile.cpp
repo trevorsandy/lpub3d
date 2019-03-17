@@ -31,6 +31,7 @@
 #include <QErrorMessage>
 #include <algorithm>
 
+#include "paths.h"
 #include "lpub.h"
 #include "messageboxresizable.h"
 #include <TCFoundation/TCUserDefaults.h>
@@ -508,21 +509,125 @@ bool Gui::exportAsDialog(ExportMode m)
 void Gui::exportAsHtml()
 {
     NativeOptions Options;
-    Options.InputFileName     = curFile;
     Options.ExportMode        = EXPORT_HTML;
     // 3DViewer only
     Options.ImageType         = Render::CSI;
     Options.ExportFileName    = QFileInfo(curFile).absolutePath();
     // Native only
     Options.IniFlag           = NativePartList;
+
+    // Capture the model's last CSI
+    emit setExportingObjectsSig(true);
+
+    // Switch to Native Renderer for fast processing
+    setPreferredRenderer();
+
+    // store current display page number
+    int savePageNumber = displayPageNum;
+
+    // start at the last page moving backward until we find a valid CSI
+    Meta meta;
+    m_partListCSIFile  = true;
+    bool modelFound    = false;
+    int pageNum        = maxPages;
+    for (; pageNum > 0 && ! modelFound; pageNum--) {
+
+      // start at the bottom of the page's last step
+      Where pagePos = gui->topOfPages[pageNum];
+      pagePos.lineNumber = gui->subFileSize(pagePos.modelName);
+      pagePos--;  //adjust to start at absolute bottom of file
+      int numLines = gui->subFileSize(pagePos.modelName);
+
+      // traverse backwards until we find an inserted model or part line
+      for (; pagePos < numLines && pagePos > 0 && ! modelFound; --pagePos) {
+        QString line = readLine(pagePos);
+        Rc rc = meta.parse(line,pagePos);
+        // if the last line is STEP, scan backward to the next to last step
+        if (rc == StepRc || rc == RotStepRc) {
+            MetaItem mi;
+            Where walk = pagePos;
+            rc = mi.scanBackward(walk,StepMask);
+            if (rc == StepRc || rc == RotStepRc) {
+                ++walk;
+                // check if step includes inserted model or part line
+                for (; walk < pagePos.lineNumber && ! modelFound; walk++) {
+                    line = readLine(walk);
+                    rc = meta.parse(line,walk);
+                    if (rc == InsertRc) {
+                        if (rc == InsertFinalModelRc) {
+                           modelFound = true;
+                           break;
+                        } else
+                           continue;
+                    }
+                    else
+                    {
+                        QStringList tokens;
+                        split(line,tokens);
+                        bool token_1_5 = tokens.size() &&
+                             tokens[0] >= "1" && tokens[0] <= "5";
+                        if (token_1_5) {
+                            modelFound = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        else
+        // check if step includes inserted model or part line
+        if (rc == InsertRc) {
+            if (rc == InsertFinalModelRc) {
+               modelFound = true;
+               break;
+            } else
+               continue;
+        }
+        else
+        {
+            QStringList tokens;
+            split(line,tokens);
+            bool token_1_5 = tokens.size() &&
+                 tokens[0] >= "1" && tokens[0] <= "5";
+            if (token_1_5) {
+                modelFound = true;
+                break;
+            }
+        }
+      }
+      displayPageNum = pageNum;
+    }
+
+    // setup and export the last CSI on the page
+    LGraphicsScene scene;
+    LGraphicsView view(&scene);
+
+    drawPage(&view,&scene,false);
+    clearPage(&view,&scene);
+
+    restorePreferredRenderer();
+    emit setExportingSig(false);
+
+    // return to whatever page we were viewing before capturing the CSI
+    m_partListCSIFile  = false;
+    displayPageNum     = savePageNumber;
+    displayPage();
+
     QStringList arguments;
+    QString ldrFile  = QDir::toNativeSeparators(QDir::currentPath()+"/"+Paths::tmpDir+"/"+QFileInfo(curFile).baseName());
+    QString snapshot = ldrFile+"_snapshot.ldr";
+    if (QFileInfo(snapshot).exists())
+        arguments << QString("-Snapshot=%1").arg(snapshot);
     arguments << QString("-LDrawDir=%1").arg(QDir::toNativeSeparators(Preferences::ldrawLibPath));
     if (!Preferences::altLDConfigPath.isEmpty())
        arguments << QString("-LDConfig=").arg(QDir::toNativeSeparators(Preferences::altLDConfigPath));
-    arguments << QDir::toNativeSeparators(curFile);
+    Options.InputFileName = ldrFile+"_parts.ldr";
+    if (! generateBOMPartsFile(Options.InputFileName))
+        return;
+    arguments << Options.InputFileName;
     Options.ExportArgs = arguments;
     if (! renderer->NativeExport(Options)) {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("HTML parts list export failed."));
+        emit messageSig(LOG_ERROR,QMessageBox::tr("HTML parts list export failed."));
     }
 }
 
@@ -530,11 +635,14 @@ void Gui::exportAsCsv()
 {
     NativeOptions Options;
     Options.ImageType         = Render::CSI;
-    Options.InputFileName     = curFile;
     Options.ExportMode        = EXPORT_CSV;
     Options.OutputFileName    = QString(curFile).replace(QFileInfo(curFile).suffix(),"txt");
+    Options.InputFileName     = QDir::toNativeSeparators(QDir::currentPath()+"/"+
+                                                         Paths::tmpDir+"/"+QFileInfo(curFile).baseName()+"_parts.ldr");
+    if (! generateBOMPartsFile(Options.InputFileName))
+        return;
     if (! renderer->NativeExport(Options)) {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("CSV parts list export failed."));
+        emit messageSig(LOG_ERROR,QMessageBox::tr("CSV parts list export failed."));
     }
 }
 
@@ -542,11 +650,14 @@ void Gui::exportAsBricklinkXML()
 {
     NativeOptions Options;
     Options.ImageType         = Render::CSI;
-    Options.InputFileName     = curFile;
     Options.ExportMode        = EXPORT_BRICKLINK;
     Options.OutputFileName    = QString(curFile).replace(QFileInfo(curFile).suffix(),"xml");
+    Options.InputFileName     = QDir::toNativeSeparators(QDir::currentPath()+"/"+
+                                                         Paths::tmpDir+"/"+QFileInfo(curFile).baseName()+"_parts.ldr");
+    if (! generateBOMPartsFile(Options.InputFileName))
+        return;
     if (! renderer->NativeExport(Options)) {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Bricklink XML parts list export failed."));
+        emit messageSig(LOG_ERROR,QMessageBox::tr("Bricklink XML parts list export failed."));
     }
 }
 
@@ -897,7 +1008,8 @@ void Gui::exportAs(const QString &_suffix)
       suffix == ".3ds" ||
       suffix == ".obj") {
       type  = "objects";
-  } else {
+  }
+  else {
       // .dae
       // .pov
       type  = "files";
