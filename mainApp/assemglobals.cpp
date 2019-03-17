@@ -82,8 +82,7 @@ GlobalAssemDialog::GlobalAssemDialog(
   // Scale/Native Camera Distance Factor
   if (Preferences::usingNativeRenderer) {
       child = new CameraDistFactorGui("Camera Distance Factor",
-                                      &assem->cameraDistNative,
-                                      box);
+                                      &assem->cameraDistNative);
       data->children.append(child);
       boxGrid->addWidget(child,0,0);
   } else {

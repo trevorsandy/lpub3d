@@ -132,8 +132,7 @@ GlobalPliDialog::GlobalPliDialog(
   // Scale/Native Camera Distance Factor
   if (Preferences::usingNativeRenderer) {
       child = new CameraDistFactorGui("Camera Distance Factor",
-                                      &pliMeta->cameraDistNative,
-                                      box);
+                                      &pliMeta->cameraDistNative);
       data->children.append(child);
       childlayout->addWidget(child);
   } else {
