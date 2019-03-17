@@ -38,6 +38,7 @@ int Gui::processCommandLine()
   bool resetSearchDirs     = false;
   bool useLDVSingleCall    = Preferences::enableLDViewSingleCall;
   bool useLDVSnapShotList  = Preferences::enableLDViewSnaphsotList;
+  QString generator        = Preferences::povFileGenerator;
 
   QString pageRange, exportOption,
           commandlineFile, preferredRenderer,
@@ -192,6 +193,10 @@ int Gui::processCommandLine()
       if (preferredRenderer.toLower() == "povray"){
           renderer = RENDERER_POVRAY;
       }
+      if (preferredRenderer.toLower() == "povray-ldv"){
+          renderer = RENDERER_POVRAY;
+          generator = RENDERER_LDVIEW;
+      }
       else {
           emit messageSig(LOG_INFO,QString("Invalid renderer option specified: '%1'.").arg(renderer));
           return 1;
@@ -200,6 +205,14 @@ int Gui::processCommandLine()
           Preferences::enableLDViewSingleCall != useLDVSingleCall ||
           Preferences::enableLDViewSnaphsotList != useLDVSnapShotList) {
           QString message = QString("Renderer preference changed from %1 to %2%3.")
+          else
+          if (preferredRenderer.toLower().contains("povray")) {
+              if (Preferences::povFileGenerator != generator) {
+                  message = QString("Renderer preference POV file generator changed from %1 to %2.")
+                          .arg(Preferences::povFileGenerator)
+                          .arg(generator);
+                  emit messageSig(LOG_INFO,message);
+                  Preferences::povFileGenerator = generator;
                                     .arg(Preferences::preferredRenderer)
                                     .arg(renderer)
                                     .arg(renderer == RENDERER_POVRAY ? QString(" (POV file generator is %1)").arg(Preferences::povFileGenerator) :
