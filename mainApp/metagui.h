@@ -842,7 +842,7 @@ public slots:
 
 /***********************************************************************
  *
- * Divider
+ * Separator/Divider
  *
  **********************************************************************/
 
@@ -853,17 +853,20 @@ class SepGui : public MetaGui
 public:
 
   SepGui(
-    SepMeta *meta,
-    QGroupBox     *parent = nullptr);
+  SepMeta   *meta,
+  QGroupBox *parent = nullptr);
   ~SepGui() {}
 
   virtual void apply(QString &modelName);
 
 private:
-  SepMeta *meta;
-  QLabel  *colorExample;
+  SepMeta   *meta;
+  QLabel    *colorExample;
+  QLineEdit *typeLineEdit;
 
 public slots:
+  void typeChange(int type);
+  void lengthChange(QString const &);
   void thicknessChange(QString const &);
   void browseColor(bool clicked);
   void marginXChange(QString const &);

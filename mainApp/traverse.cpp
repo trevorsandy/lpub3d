@@ -246,7 +246,8 @@ static void set_divider_pointers(
         Where &current,
         Range *range,
         LGraphicsView *view,
-        bool rangeDivider,
+        DividerType dividerType,
+        int stepNum,
         Rc rct){
 
     QString sType = (rct == CalloutDividerRc ? "CALLOUT" : "STEPGROUP");
@@ -263,7 +264,9 @@ static void set_divider_pointers(
 
     int numLines = gui->subFileSize(walk.modelName);
 
-    bool sd = !rangeDivider;
+    bool rd = dividerType == RangeDivider;
+
+    int sn  = stepNum - 1; // set the previous STEP's step number
 
     for ( ; walk.lineNumber < numLines; walk++) {
         QString stepLine = gui->readLine(walk);
@@ -273,22 +276,22 @@ static void set_divider_pointers(
         } else if (mRc == pRc) {
             PointerMeta pm = (rct == CalloutDividerRc ? curMeta.LPub.callout.divPointer :
                                                         curMeta.LPub.multiStep.divPointer);
-            range->appendDividerPointer(walk,pm,pam,view,sd);
+            range->appendDividerPointer(walk,pm,pam,view,sn,rd);
         } else if (mRc == paRc) {
             QStringList argv;
             split(stepLine,argv);
             pam.setValueInches(pam.parseAttributes(argv,walk));
 
             int i      = pam.value().id - 1;
-            Pointer *p = sd ? range->stepDividerPointerList[i] :
-                              range->rangeDividerPointerList[i];
+            Pointer *p = rd ? range->rangeDividerPointerList[i] :
+                              range->stepDividerPointerList[i];
             if (pam.value().id == p->id) {
                 pam.setAltValueInches(p->getPointerAttribInches());
                 p->setPointerAttribInches(pam);
-                if (sd)
-                    range->stepDividerPointerList.replace(i,p);
-                else
+                if (rd)
                     range->rangeDividerPointerList.replace(i,p);
+                else
+                    range->stepDividerPointerList.replace(i,p);
             }
         }
     }
@@ -392,8 +395,9 @@ int Gui::drawPage(
   bool     firstStep       = true;
   bool     noStep          = false;
   bool     rotateIcon      = false;
-  bool     rangeDivider    = false;
   bool     assemAnnotation = false;
+
+  DividerType dividerType  = NoDivider;
 
   PagePointer *pagePointer = nullptr;
   QMap<Positions, PagePointer*> pagePointers;
@@ -1138,10 +1142,9 @@ int Gui::drawPage(
             case CalloutDividerRc:
               if (range) {
                   range->sepMeta = curMeta.LPub.callout.sep;
-                  if (line.contains("RANGE"))
-                      rangeDivider = true;
-                  set_divider_pointers(curMeta,current,range,view,rangeDivider,CalloutDividerRc);
-                  if (! rangeDivider) {
+                  dividerType = (line.contains("STEPS") ? StepDivider : RangeDivider);
+                  set_divider_pointers(curMeta,current,range,view,dividerType,stepNum,CalloutDividerRc);
+                  if (dividerType != StepDivider) {
                       range = nullptr;
                       step = nullptr;
                   }
@@ -1191,10 +1194,9 @@ int Gui::drawPage(
             case StepGroupDividerRc:
               if (range) {
                   range->sepMeta = steps->meta.LPub.multiStep.sep;
-                  if (line.contains("RANGE"))
-                      rangeDivider = true;
-                  set_divider_pointers(curMeta,current,range,view,rangeDivider,StepGroupDividerRc);
-                  if (! rangeDivider) {
+                  dividerType = (line.contains("STEPS") ? StepDivider : RangeDivider);
+                  set_divider_pointers(curMeta,current,range,view,dividerType,stepNum,StepGroupDividerRc);
+                  if (dividerType != StepDivider) {
                       range = nullptr;
                       step = nullptr;
                   }
@@ -1426,11 +1428,34 @@ int Gui::drawPage(
                           step->subModel.clear();
                       }
 
-                      step->rangeDivider    = rangeDivider;
-
-                      if (rotateIcon) {
-                          step->placeRotateIcon = true;
+                      switch (dividerType){
+                      // for range divider, we set the dividerType for the last STEP of the previous RANGE.
+                      case RangeDivider:
+                          if (steps && steps->list.size() > 1) {
+                              int i = steps->list.size()-2;           // previous range index
+                              Range *previousRange = dynamic_cast<Range *>(steps->list[i]);
+                              if (previousRange){
+                                  i = previousRange->list.size()-1;   // last step index in previous range
+                                  Step *lastStep = dynamic_cast<Step *>(previousRange->list[i]);
+                                  lastStep->dividerType = dividerType;
+                              }
+                          }
+                          break;
+                      // for steps divider, we set the dividerType for the previous STEP
+                      case StepDivider:
+                          if (range && range->list.size() > 1) {
+                             int i = range->list.size()-2;            // previous step index
+                             Step *previousStep = dynamic_cast<Step *>(range->list[i]);
+                             previousStep->dividerType = dividerType;
+                          }
+                          break;
+                      // no divider
+                      default:
+                          step->dividerType = dividerType;
+                      break;
                       }
+
+                      step->placeRotateIcon = rotateIcon;
 
                       emit messageSig(LOG_STATUS, "Processing step (CSI) for " + topOfStep.modelName + "...");
                       csiName = step->csiName();
@@ -1550,6 +1575,8 @@ int Gui::drawPage(
                       return HitEndOfPage;
                   }
 
+                  dividerType = NoDivider;
+
                   steps->meta.pop();
                   stepNum += partsAdded;
                   topOfStep = current;
@@ -1557,7 +1584,6 @@ int Gui::drawPage(
                   partsAdded = false;
                   coverPage = false;
                   rotateIcon = false;
-                  rangeDivider = false;
                   step = nullptr;
                   bfxStore2 = bfxStore1;
                   bfxStore1 = false;

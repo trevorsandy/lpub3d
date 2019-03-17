@@ -394,6 +394,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bSQUARE_STYLE\\b"
     << "\\bSTEP_NUMBER\\b"
     << "\\bSTEP_PLI\\b"
+    << "\\bSTEPS\\b"
     << "\\bSTRETCH\\b"
     << "\\bSTYLE\\b"
     << "\\bSUB\\b"

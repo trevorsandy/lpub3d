@@ -2104,45 +2104,108 @@ void PageSizeMeta::doc(QStringList &out, QString preamble)
 
 SepMeta::SepMeta() : LeafMeta()
 {
-  _value[0].thickness = DEFAULT_THICKNESS;
-  _value[0].color = "black";
-  _value[0].margin[0] = DEFAULT_MARGIN;
-  _value[0].margin[1] = DEFAULT_MARGIN;
+  _value[pushed].type      = SepData::Default;
+  _value[pushed].color     = "black";
+  _value[pushed].length    = -1.0;
+  _value[pushed].thickness = DEFAULT_THICKNESS;
+  _value[pushed].margin[0] = DEFAULT_MARGIN;
+  _value[pushed].margin[1] = DEFAULT_MARGIN;
 }
 Rc SepMeta::parse(QStringList &argv, int index,Where &here)
 {
-  bool ok[3];
+  Rc rc = FailureRc;
+  bool good, ok;
   if (argv.size() - index == 4) {
-      argv[index  ].toFloat(&ok[0]);
-      argv[index+2].toFloat(&ok[1]);
-      argv[index+3].toFloat(&ok[2]);
+      argv[index  ].toFloat(&good);
+      argv[index+2].toFloat(&ok);
+      good &= ok;
+      argv[index+3].toFloat(&ok);
+      good &= ok;
 
-      if (ok[0] && ok[1] && ok[2]) {
-          _value[pushed].thickness = argv[index].toFloat(&ok[0]);
+      if (good) {
+          _value[pushed].thickness = argv[index].toFloat();
           _value[pushed].color     = argv[index+1];
-          _value[pushed].margin[0] = argv[index+2].toFloat(&ok[0]);
-          _value[pushed].margin[1] = argv[index+3].toFloat(&ok[0]);
+          _value[pushed].margin[0] = argv[index+2].toFloat();
+          _value[pushed].margin[1] = argv[index+3].toFloat();
           _here[pushed] = here;
-          return OkRc;
+          rc = OkRc;
+        }
+    } else
+  if (argv.size() - index == 5) {
+      argv[index+1].toFloat(&good);
+      argv[index+3].toFloat(&ok);
+      good &= ok;
+      argv[index+4].toFloat(&ok);
+      good &= ok;
+
+      if (good) {
+          _value[pushed].type      = SepData::LengthType(tokenMap[argv[index]]);
+          _value[pushed].thickness = argv[index+1].toFloat();
+          _value[pushed].color     = argv[index+2];
+          _value[pushed].margin[0] = argv[index+3].toFloat();
+          _value[pushed].margin[1] = argv[index+4].toFloat();
+          _here[pushed] = here;
+          rc = OkRc;
+        }
+    } else
+  if (argv.size() - index == 6) {
+      argv[index+1].toFloat(&good);
+      argv[index+3].toFloat(&ok);
+      good &= ok;
+      argv[index+4].toFloat(&ok);
+      good &= ok;
+      argv[index+5].toFloat(&ok);
+      good &= ok;
+
+      if (good) {
+          _value[pushed].type      = SepData::LengthType(tokenMap[argv[index]]);
+          _value[pushed].length    = argv[index+1].toFloat();
+          _value[pushed].thickness = argv[index+2].toFloat();
+          _value[pushed].color     = argv[index+3];
+          _value[pushed].margin[0] = argv[index+4].toFloat();
+          _value[pushed].margin[1] = argv[index+5].toFloat();
+          _here[pushed] = here;
+          rc = OkRc;
         }
     }
-  if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Malformed separator \"%1\"") .arg(argv.join(" ")));
-    }
-  return FailureRc;
+  if (rc == FailureRc) {
+    if (reportErrors) {
+        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Malformed separator \"%1\"") .arg(argv.join(" ")));
+      }
+  }
+  return rc;
 }
 QString SepMeta::format(bool local, bool global)
 {
-  QString foo = QString("%1 %2 %3 %4")
-      .arg(_value[pushed].thickness)
-      .arg(_value[pushed].color)
-      .arg(_value[pushed].margin[0])
-      .arg(_value[pushed].margin[1]);
+  QString foo;
+  if (_value[pushed].type == SepData::LenCustom) {
+    foo = QString("%1 %2 %3 %4 %5 %6")
+                .arg("CUSTOM")
+                .arg(_value[pushed].length)
+                .arg(_value[pushed].thickness)
+                .arg(_value[pushed].color)
+                .arg(_value[pushed].margin[0])
+                .arg(_value[pushed].margin[1]);
+  } else
+  if (_value[pushed].type == SepData::LenPage) {
+    foo = QString("%1 %2 %3 %4 %5")
+                  .arg("PAGE")
+                  .arg(_value[pushed].thickness)
+                  .arg(_value[pushed].color)
+                  .arg(_value[pushed].margin[0])
+                  .arg(_value[pushed].margin[1]);
+  } else {
+    foo = QString("%1 %2 %3 %4")
+                  .arg(_value[pushed].thickness)
+                  .arg(_value[pushed].color)
+                  .arg(_value[pushed].margin[0])
+                  .arg(_value[pushed].margin[1]);
+  }
   return LeafMeta::format(local,global,foo);
 }
 void SepMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " <intThickness> <color> <marginX> <marginY>";
+  out << preamble + "[<PAGE|CUSTOM <length>] <intThickness> <color> <marginX> <marginY>";
 }
 
 /* ------------------ */ 
@@ -4232,6 +4295,9 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
       tokenMap["BASE_BOTTOM_LEFT"]     = BottomLeftInsideCorner;
       tokenMap["BASE_BOTTOM"]          = BottomInside;
       tokenMap["BASE_BOTTOM_RIGHT"]    = BottomRightInsideCorner;
+
+      tokenMap["PAGE"]                 = SepData::LenPage;
+      tokenMap["CUSTOM"]               = SepData::LenCustom;
     }
 }
 

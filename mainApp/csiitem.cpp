@@ -119,13 +119,13 @@ void CsiItem::setFlag(GraphicsItemFlag flag, bool value)
 void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
-  QString name = "Step";
-  QString whatsThis = QString();
-
-  int numOfSteps          = numSteps(step->top.modelName);
+  QString name          = "Step";
+  QString whatsThis     = QString();
+  bool dividerDetected  = false;
+  int numOfSteps        = numSteps(step->top.modelName);
   bool fullContextMenu  = ! step->modelDisplayOnlyStep;
-  bool allowLocal = (parentRelativeType != StepGroupType) && (parentRelativeType != CalloutType);
-  Boundary boundary = step->boundary();
+  bool allowLocal       = (parentRelativeType != StepGroupType) && (parentRelativeType != CalloutType);
+  Boundary boundary     = step->boundary();
 
   QAction *addNextAction = nullptr;
   if (fullContextMenu  &&
@@ -165,6 +165,21 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       clearStepCacheAction->setIcon(QIcon(":/resources/clearstepcache.png"));
       clearStepCacheAction->setWhatsThis("Clear the CSI image and ldr cache files for this step.");
     }
+
+  Where topOfStep     = step->topOfStep();
+  Where bottomOfStep  = step->bottomOfStep();
+  Where topOfSteps    = step->topOfSteps();
+  Where bottomOfSteps = step->bottomOfSteps();
+
+  if (parentRelativeType == StepGroupType) {
+      Where walk = topOfStep;
+      Rc rc = scanForward(walk,StepMask);
+      if (rc == StepRc || rc == RotStepRc) {
+          ++walk;
+          rc = scanForward(walk,StepGroupDividerMask|StepMask);
+          dividerDetected = rc == StepGroupDividerRc;
+      }
+  }
 
   QAction *movePrevAction = nullptr;
   QAction *moveNextAction = nullptr;
@@ -207,7 +222,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                     "  and put it in the row above");
             }
         }
-      if ( ! (boundary & EndOfRange) && ! (boundary & EndOfSteps)) {
+      if ( ! (boundary & EndOfRange) && ! (boundary & EndOfSteps) && ! dividerDetected) {
           addDividerAction = menu.addAction("Add Divider");
           addDividerAction->setIcon(QIcon(":/resources/divider.png"));
           if (allocType == Vertical) {
@@ -317,32 +332,9 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
         }
     }
 
-  Where topOfStep     = step->topOfStep();
-  Where bottomOfStep  = step->bottomOfStep();
-  Where topOfSteps    = step->topOfSteps();
-  Where bottomOfSteps = step->bottomOfSteps();
-
   QAction *addPagePointerAction = menu.addAction("Place Page Pointer");
   addPagePointerAction->setWhatsThis("Add pointer from the page to this CSI image");
   addPagePointerAction->setIcon(QIcon(":/resources/addpointer.png"));
-
-  bool dividerDetected = false;
-  if (parentRelativeType == StepGroupType) {
-      Where walk = topOfStep;
-      // selected csi in first step in range
-      Rc rc = scanForward(walk,StepMask);
-      if (rc == StepRc || rc == RotStepRc) {
-          ++walk;
-          rc = scanForward(walk,StepGroupDividerMask|StepMask);
-          dividerDetected = rc == StepGroupDividerRc;
-      }
-      // selected csi after first step in range
-      if (!dividerDetected) {
-          walk = topOfStep;
-          rc = scanForward(walk,StepGroupDividerMask|StepMask);
-          dividerDetected = rc == StepGroupDividerRc;
-      }
-  }
 
   if (dividerDetected) {
       addDividerPointerAction = menu.addAction("Place Divider Pointer");
@@ -397,7 +389,9 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       addToNext(parentRelativeType,topOfStep);
 
     } else if (selectedAction == addDividerAction) {
+
       addDivider(parentRelativeType,bottomOfStep,divider,allocType);
+
     } else if (selectedAction == addPagePointerAction) {
 
       PlacementMeta pointerPlacement = meta->LPub.pointerBase.placement;
@@ -409,8 +403,10 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
           addPointerTip(meta,topOfStep,bottomOfStep,pointerPlacement.value().placement,PagePointerRc);
         }
     } else if (selectedAction == addDividerPointerAction) {
+
         PlacementEnc placement = Center;
         addPointerTip(meta,topOfStep,bottomOfStep,placement,StepGroupDividerPointerRc);
+
     } else if (selectedAction == allocAction) {
         if (parentRelativeType == StepGroupType) {
             changeAlloc(topOfSteps,

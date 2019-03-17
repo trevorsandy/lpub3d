@@ -416,7 +416,7 @@ class lcHttpReply;
 class lcHttpManager;
 
 enum traverseRc { HitEndOfPage = 1 };
-enum Dimensions {Pixels = 0, Inches};
+enum Dimensions {Pixels = 0, Inches };
 enum PAction { SET_DEFAULT_ACTION, SET_STOP_ACTION };
 enum Direction { PAGE_PREVIOUS, PAGE_NEXT, DIRECTION_NOT_SET };
 enum ExportOption { EXPORT_ALL_PAGES, EXPORT_PAGE_RANGE, EXPORT_CURRENT_PAGE };

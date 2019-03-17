@@ -428,12 +428,11 @@ public:
     BdrLnDot,
     BdrLnDashDot,
     BdrLnDashDotDot,
-  };
+  } line;
   QString color;
-  float   thickness;  // in units 
-  float   radius;     // in units
-  float   margin[2];  // in units
-  Line    line;
+  float   thickness;  // in units [inches]
+  float   radius;     // in units [inches]
+  float   margin[2];  // in units [inches]
   bool    hideArrows;
   bool    useDefault;
   
@@ -529,11 +528,19 @@ public:
 class SepData
 {
 public:
-  float   thickness;  // in units
+  enum LengthType {
+    Default,
+    LenPage,
+    LenCustom
+  } type;
+  float   length;     // in units [inches]
+  float   thickness;  // in units [inches]
   QString color;
-  float   margin[2];  // in units
+  float   margin[2];  // in units [inches]
   SepData()
   {
+    type       = Default;
+    length     = -1;
     thickness  = 0.125;
     margin[0]  = 0;
     margin[1]  = 0;

@@ -248,21 +248,6 @@ void Steps::sizeit(AllocEnc allocEnc, int x, int y)
   loc[YY] = 0;
   size[XX] = 0;
   size[YY] = 0;
-
-  /* set the range height to the adjusted page height */
-// TODO Add Condition
-//  int pageHeader = meta.LPub.page.pageHeader.size.valuePixels(y);
-//  int pageFooter = meta.LPub.page.pageFooter.size.valuePixels(y);
-//  int pageSize   = gui->pageSize(meta.LPub.page,y);
-//  size[y] = pageSize - (pageHeader + pageFooter);
-
-  SepData divider;
-
-  if (relativeType == CalloutType) {
-    divider = meta.LPub.callout.sep.valuePixels();
-  } else {
-    divider = meta.LPub.multiStep.sep.valuePixels();
-  }
   
   /* foreach range */
 
@@ -277,15 +262,29 @@ void Steps::sizeit(AllocEnc allocEnc, int x, int y)
           range->sizeitHoriz();
         }
         
+        SepData divider = range->sepMeta.valuePixels();
+
         /* find the tallest range */
 
+        bool usePageSize = false;
         if (range->size[y] > size[y]) {
-          size[y] = range->size[y];
+          if (divider.type == SepData::LenPage) {
+            for (int i = 0; i < range->list.size(); i++) {
+              Step *step = dynamic_cast<Step *>(range->list[i]);
+              if ((usePageSize = (step && step->dividerType != NoDivider))) // divider found
+                break;
+            }
+          }
+          if (usePageSize)
+            size[y] = pageSize(y,true);
+          else
+            size[y] = range->size[y];
         }
 
         /* add range divider size adjustment */
-        // TODO Add Condition
-        size[y] += range->sizeRangeDividers(y);
+
+        if (! usePageSize)
+          size[y] += range->sizeRangeDividers(y);
 
         /* place each range Horizontally */
 
@@ -516,25 +515,25 @@ void Steps::addGraphicsItems(
   }
 
   for (int i = 0; i < list.size(); i++) {
-    if (list[i]->relativeType == RangeType) {                       // rangeType
+    if (list[i]->relativeType == RangeType) {
       Range *range = dynamic_cast<Range *>(list[i]);
-      if (range) {                                                  // range
+      if (range) {
         if (relativeType == StepGroupType) {
           new MultiStepRangeBackgroundItem(this,range,&meta,
                     offsetX + loc[XX],
                     offsetY + loc[YY],
                     parent);
         }
-        
+
         range->addGraphicsItems(
           offsetX + loc[XX], offsetY + loc[YY], &meta, relativeType, parent);
 
-        // add divider if exist here
+        // add range divider if exist here
         if (list.size() > 1 && i < list.size() - 1) {
           int size = range->list.size();
           if (size) {
             Step *step = dynamic_cast<Step *>(range->list[size-1]);
-            if (step) {
+            if (step && step->dividerType == RangeDivider) {
               int oX = offsetX + loc[XX] + range->loc[XX];
               int oY = offsetY + loc[YY] + range->loc[YY];
               if (allocEnc == Vertical) {
@@ -547,19 +546,19 @@ void Steps::addGraphicsItems(
               divider->setParentItem(parent);
 
               //   add divider pointers (if any) to the graphics scene
-              for (int j = 0; j < range->stepDividerPointerList.size(); j++) {
-                  Pointer *pointer = range->stepDividerPointerList[j];
+              for (int j = 0; j < range->rangeDividerPointerList.size(); j++) {
+                  Pointer *pointer = range->rangeDividerPointerList[j];
                   divider->addGraphicsPointerItem(pointer,range->view);
               }
             }
           }
-        }             // [divider]
+        }             // Range divider
 
-        // check steps for rangeDivider
+        // check steps for step divider
         for (int i = 0; i < range->list.size(); i++) {
-          if (range->list[i]->relativeType == StepType) {           // stepType
+          if (range->list[i]->relativeType == StepType) {
             Step *step = dynamic_cast<Step *>(range->list[i]);
-            if (step && step->rangeDivider) {                       // step
+            if (step && step->dividerType == StepDivider) {
               int oX,oY;
               if (allocEnc == Vertical) {
                 oX = offsetX + loc[XX] + range->loc[XX];
@@ -572,16 +571,48 @@ void Steps::addGraphicsItems(
               DividerItem *divider = new DividerItem(step,&meta,oX,oY);
               divider->setParentItem(parent);
 
-              for (int j = 0; j < range->rangeDividerPointerList.size(); j++) {
-                  Pointer *pointer = range->rangeDividerPointerList[j];
+              //   add divider pointers (if any) to the graphics scene
+              for (int j = 0; j < range->stepDividerPointerList.size(); j++) {
+                Pointer *pointer = range->stepDividerPointerList[j];
+                if (pointer->stepNum == step->stepNumber.number)
                   divider->addGraphicsPointerItem(pointer,range->view);
               }
-            }                    // step          [range divider]
-          }                      // stepType      [range divider]
-        }                        // for each step [range divider]
+            }
+          }
+        }                        // step divider
       }                          // range
     }                            // rangeType
   }
+}
+
+/*
+ * This is used to return the best adjusted size of a divider
+ */
+
+int Steps::pageSize(int axis,bool adjust){
+  int which  = allocType() == Vertical ? YY : XX;
+  int pageSizeAdjust = gui->pageSize(meta.LPub.page,which);
+  if (adjust) {
+   /*
+    * TODO - get all items that intersect divider
+    * and subtract top/bottom, left,right from retVal midpoint
+    * see http://doc.qt.io/qt-5/qgraphicsview.html#items-4
+    for (int i = 0; i < list.size(); i++) {
+      if (list[i]->relativeType == RangeType) {
+        Range *range = dynamic_cast<Range *>(list[i]);
+        if (range && range->stepDividerPointerList.size()){
+          break;
+        }
+      }
+    } // for
+    */
+    int pageHeader        = meta.LPub.page.pageHeader.size.valuePixels(YY);
+    int pageFooter        = meta.LPub.page.pageFooter.size.valuePixels(YY);
+    int topBottomAdjust   = which == YY ? (pageHeader+pageFooter) : 0;
+    BorderData pageBorder = meta.LPub.page.border.value();
+    pageSizeAdjust       -= (2*pageBorder.margin[axis]+pageBorder.thickness+topBottomAdjust);
+  }
+  return pageSizeAdjust;
 }
 
 Boundary Steps::boundary(AbstractStepsElement *me)

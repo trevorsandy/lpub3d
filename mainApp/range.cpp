@@ -53,17 +53,17 @@ Range::~Range()
     delete re;
   }
   list.clear();
-  for (int i = 0; i < stepDividerPointerList.size(); i++) {
-    Pointer *p = stepDividerPointerList[i];
-    delete p;
-  }
-  stepDividerPointerList.clear();
-
   for (int i = 0; i < rangeDividerPointerList.size(); i++) {
     Pointer *p = rangeDividerPointerList[i];
     delete p;
   }
   rangeDividerPointerList.clear();
+
+  for (int i = 0; i < stepDividerPointerList.size(); i++) {
+    Pointer *p = stepDividerPointerList[i];
+    delete p;
+  }
+  stepDividerPointerList.clear();
 }
 
 void Range::append(AbstractRangeElement *gi)
@@ -109,12 +109,7 @@ void Range::sizeMargins(
 }
 
 int Range::sizeRangeDividers(int axis) {
-    SepData divider;
-    if ( parent->relativeType == CalloutType) {
-      divider = parent->meta.LPub.callout.sep.valuePixels();
-    } else {
-      divider = parent->meta.LPub.multiStep.sep.valuePixels();
-    }
+    SepData divider = sepMeta.valuePixels();
     int dividerSizeAdjust = 0;
     for (int i = 0; i < list.size()-1; i++) {
       if (list[i]->relativeType == StepType) {
@@ -527,18 +522,19 @@ void Range::appendDividerPointer(
   PointerMeta       &pointerMeta,
   PointerAttribMeta &pointerAttrib,
   QGraphicsView    *_view,
-  bool               sd)
+  int                stepNum,
+  bool               rd)
 {
-  int pid = sd ? stepDividerPointerList.size()  + 1 :
-                 rangeDividerPointerList.size() + 1;
+  int pid = rd ? rangeDividerPointerList.size()  + 1 :
+                 stepDividerPointerList.size() + 1;
   PointerAttribMeta pam = pointerAttrib;
-  Pointer *pointer = new Pointer(pid,here,pointerMeta);
+  Pointer *pointer = new Pointer(pid,here,stepNum,pointerMeta);
   pam.setDefaultColor(sepMeta.value().color);
   pointer->setPointerAttribInches(pam);
-  if (sd)
-      stepDividerPointerList.append(pointer);
-  else
+  if (rd)
       rangeDividerPointerList.append(pointer);
+  else
+      stepDividerPointerList.append(pointer);
   view    = _view;
 }
 

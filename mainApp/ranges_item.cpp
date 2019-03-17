@@ -176,50 +176,61 @@ void MultiStepRangeBackgroundItem::contextMenuEvent(
 #include "dividerpointeritem.h"
 
 DividerItem::DividerItem(
-  Step  *_step,
-  Meta  *_meta,
-  int    offsetX,
-  int    offsetY)
+  Step       *_step,
+  Meta       *_meta,
+  int         _offsetX,
+  int         _offsetY)
 {
-  AllocEnc allocEnc;
   meta               = *_meta;
-  parentStep         = _step;
-  Steps  *steps      = parentStep->grandparent();
-  Range  *range      = parentStep->range();
-  parentRelativeType = steps->relativeType;
-  placement          = steps->placement;
+  parentStep         =  _step;
+  Range  *range      =  _step->range();
+  Steps  *steps      =  _step->grandparent();
+  parentRelativeType =  steps->relativeType;
+  placement          =  steps->placement;
+  SepData sepData    =  range->sepMeta.valuePixels();
 
+  AllocEnc allocEnc;
   if (parentRelativeType == CalloutType) {
     allocEnc = meta.LPub.callout.alloc.value();
   } else {
     allocEnc = meta.LPub.multiStep.alloc.value();
   }
 
-  SepData sepData = range->sepMeta.valuePixels();
+  /* Size the divider length */
+
+  int separatorLength = sepData.length;
+  if (sepData.type != SepData::LenCustom) {
+    if(parentStep->dividerType == StepDivider) { // Step divider
+      separatorLength = allocEnc == Vertical ? range->size[XX] : range->size[YY];
+    } else {                                    // Range divider
+      separatorLength = allocEnc == Vertical ? range->size[YY] : range->size[XX];
+    }
+  }
 
   /* Size the rectangle around the divider */
-  if(parentStep->rangeDivider) { // range divider
+
+  if(parentStep->dividerType == StepDivider) { // Step divider
       if (allocEnc == Vertical) {
-          setRect(offsetX,
-                  offsetY,
-                  parentStep->size[XX],
+          setRect(_offsetX,
+                  _offsetY,
+                  separatorLength,
                   2*sepData.margin[YY]+sepData.thickness);
       } else {
-          setRect(offsetX,
-                  offsetY,
+          setRect(_offsetX,
+                  _offsetY,
                   2*sepData.margin[XX]+sepData.thickness,
-                  parentStep->size[YY]);
+                  separatorLength);
       }
-  } else {                      // default divider
+  } else {                        // Range divider
       if (allocEnc == Vertical) {
-        setRect(offsetX,
-                offsetY,
+        setRect(_offsetX,
+                _offsetY,
                 2*sepData.margin[XX]+sepData.thickness,
-                range->size[YY]);
+                separatorLength);
       } else {
-        setRect(offsetX,
-                offsetY,
-                range->size[XX],
+        setRect(_offsetX,
+                _offsetY,
+                separatorLength,
                 2*sepData.margin[YY]+sepData.thickness);
       }
   }
@@ -240,37 +251,38 @@ DividerItem::DividerItem(
   }
 
   if (sepData.thickness > 0.5) {
-
     // determine the position of the divider
-    if(parentStep->rangeDivider) {     // range divider
+    if(parentStep->dividerType == StepDivider) {     // Step divider
         if (allocEnc == Vertical) {
             int separatorWidth = sepData.margin[XX]+sepData.thickness/2;
             int spacingHeight  = (sepData.margin[YY]+sepData.thickness+range->stepSpacing)/2;
-            lineItem->setLine(offsetX-separatorWidth,
-                              offsetY-spacingHeight,    // top
-                              offsetX+parentStep->size[XX]-separatorWidth,
-                              offsetY-spacingHeight);   // top
+            lineItem->setLine(_offsetX+separatorWidth,
+                              _offsetY-spacingHeight,    // top
+                              _offsetX+separatorLength+separatorWidth,
+                              _offsetY-spacingHeight);   // top
         } else {
-            int spacingWidth    = (sepData.margin[XX]+sepData.thickness+range->stepSpacing)/2;
             int separatorHeight = sepData.margin[YY]+sepData.thickness/2;
-            lineItem->setLine(offsetX-spacingWidth,     // left
-                              offsetY-separatorHeight,
-                              offsetX-spacingWidth,     // left
-                              offsetY+parentStep->size[YY]-separatorHeight);
+            int spacingWidth    = (sepData.margin[XX]+sepData.thickness+range->stepSpacing)/2;
+            lineItem->setLine(_offsetX+spacingWidth,     // left
+                              _offsetY-separatorHeight,
+                              _offsetX+spacingWidth,     // left
+                              _offsetY+separatorLength-separatorHeight);
         }
-    } else {                      // default divider
+    } else {                            // Range divider
         if (allocEnc == Vertical) {
           int separatorWidth = sepData.margin[XX]+sepData.thickness/2;
-          lineItem->setLine(offsetX+separatorWidth,   // right
-                            offsetY,
-                            offsetX+separatorWidth,   // right
-                            offsetY+range->size[YY]);
+          int spacingHeight  = (sepData.margin[YY]+sepData.thickness+range->stepSpacing)/2;
+          lineItem->setLine(_offsetX+separatorWidth,   // right
+                            _offsetY-spacingHeight,
+                            _offsetX+separatorWidth,   // right
+                            _offsetY+separatorLength-spacingHeight);
         } else {
           int separatorHeight = sepData.margin[YY]+sepData.thickness/2;
-          lineItem->setLine(offsetX,
-                            offsetY+separatorHeight,   // top
-                            offsetX+range->size[XX],
-                            offsetY+separatorHeight);  // top
+          int spacingWidth    = (sepData.margin[XX]+sepData.thickness+range->stepSpacing)/2;
+          lineItem->setLine(_offsetX-spacingWidth,
+                            _offsetY+separatorHeight,   // top
+                            _offsetX+separatorLength-spacingWidth,
+                            _offsetY+separatorHeight);  // top
         }
     }
 
@@ -315,23 +327,78 @@ void DividerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     return;
   }
   
-  Step *nextStep = parentStep->nextStep();
-  if ( ! nextStep) {
-    return;
-  }
-  
-  Where topOfStep;
-  if (parentStep->rangeDivider)
-      topOfStep = parentStep->topOfStep();
-  else
-      topOfStep = nextStep->topOfStep();
+  Step *nextStep = nullptr;
+  nextStep = parentStep->nextStep();
+  if ( ! nextStep)
+      return;
+  Where topOfStep    = nextStep->topOfStep();
   Where bottomOfStep = nextStep->bottomOfStep();
-  Range *range = parentStep->range();
+  Range *range       = parentStep->range();
 
   if (selectedAction == editAction) {
+
     changeDivider("Divider",topOfStep,bottomOfStep,&range->sepMeta,1,false);
+
   } else if (selectedAction == deleteAction) {
+
+    enum Type { Attribute, MetaCmd };
+
+    Where undefined;
+    QString modelName;
+    QList<int> lineNumbers;
+    QHash<int, Type> hash;
+
+    beginMacro("deleteDividerMetas");
+
+    // first we delete any divider pointers
+    bool stepList = parentStep->dividerType == StepDivider;
+    int listSize  = stepList ? range->stepDividerPointerList.size() :
+                               range->rangeDividerPointerList.size();
+    // capture list of pointers and their attirbutes if any
+    for (int j = 0; j < listSize; j++) {
+      Pointer *pointer        = stepList ? range->stepDividerPointerList[j] :
+                                           range->rangeDividerPointerList[j];
+      if (pointer->stepNum   == parentStep->stepNumber.number) {
+        modelName             = pointer->here.modelName;
+        PointerAttribData pad = pointer->pointerAttrib.value();
+        Where lineAttribTop   = Where(pad.lineWhere.modelName,pad.lineWhere.lineNumber);
+        Where borderAttribTop = Where(pad.borderWhere.modelName,pad.borderWhere.lineNumber);
+        // for each pointer load the pointer...
+        hash.insert(pointer->here.lineNumber,MetaCmd);
+        lineNumbers << pointer->here.lineNumber;
+        // load pointer attributes if any...
+        if (lineAttribTop != undefined){
+            hash.insert(lineAttribTop.lineNumber,Attribute);
+            lineNumbers << lineAttribTop.lineNumber;
+        }
+        if (borderAttribTop != undefined){
+            hash.insert(borderAttribTop.lineNumber,Attribute);
+            lineNumbers << borderAttribTop.lineNumber;
+        }
+      }
+    }
+    // sort the line numbers...
+    qSort(lineNumbers.begin(),lineNumbers.end());
+    // process from last to first to preserve line numbers
+    int lastLineNumber = -1;
+    for (int k = lineNumbers.size() - 1; k >= 0; --k) {
+      int lineNumber  = lineNumbers[k];
+      if (lineNumber != lastLineNumber) {
+        Where here(modelName,lineNumber);
+        QHash<int, Type>::iterator i = hash.find(lineNumber);
+        while (i != hash.end() && i.key() == lineNumber) {
+          if (i.value() == Attribute)
+            deletePointerAttribute(here,true);
+          else
+            deleteMeta(here);
+          ++i;
+        }
+        lastLineNumber = lineNumber;
+      }
+    }
+    // delete divider
     deleteDivider(parentRelativeType,topOfStep);
+    endMacro();
   }
 }
 
@@ -394,7 +461,7 @@ DividerBackgroundItem::DividerBackgroundItem(
   border = &_meta->LPub.pointerBase.border;
 
   setRect(0,0,_dividerRect.width(),_dividerRect.height());
-  setToolTip("");
+  setToolTip(QString());
   setPen(QPen(Qt::NoPen));
   setBrush(QBrush(Qt::NoBrush));
   setParentItem(parent);

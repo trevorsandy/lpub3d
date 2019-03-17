@@ -2606,7 +2606,7 @@ void PointerAttribGui::apply(QString &modelName)
 
 /***********************************************************************
  *
- * Separator
+ * Separator/Divider
  *
  **********************************************************************/
 
@@ -2619,9 +2619,10 @@ SepGui::SepGui(
   QGridLayout *grid = new QGridLayout(parent);
   parent->setLayout(grid);
 
-  QLabel    *label;
-  QLineEdit *lineEdit;
+  QLabel      *label;
+  QLineEdit   *lineEdit;
   QPushButton *button;
+  QComboBox   *typeCombo;
 
   label = new QLabel("Width",parent);
   grid->addWidget(label,0,0);
@@ -2637,8 +2638,28 @@ SepGui::SepGui(
           this,    SLOT(  thicknessChange(QString const &)));
   grid->addWidget(lineEdit,0,1);
 
-  label = new QLabel("Color",parent);
+  label = new QLabel("Length",parent);
   grid->addWidget(label,1,0);
+
+  typeCombo = new QComboBox(parent);
+  typeCombo->addItem("Default");
+  typeCombo->addItem("Page");
+  typeCombo->addItem("Custom");
+  typeCombo->setCurrentIndex(int(sep.type));
+  connect(typeCombo,SIGNAL(currentIndexChanged(int)),
+          this,     SLOT(  typeChange(             int)));
+  grid->addWidget(typeCombo,1,1);
+
+  string = QString("%1") .arg(sep.length,
+                              5,'f',4);
+  typeLineEdit = new QLineEdit(string,parent);
+  typeLineEdit->setEnabled(sep.type == SepData::LenCustom);
+  connect(typeLineEdit,SIGNAL(textEdited(QString const &)),
+          this,        SLOT(  lengthChange(QString const &)));
+  grid->addWidget(typeLineEdit,1,2);
+
+  label = new QLabel("Color",parent);
+  grid->addWidget(label,2,0);
 
   colorExample = new QLabel(parent);
   colorExample->setFrameStyle(QFrame::Sunken|QFrame::Panel);
@@ -2648,27 +2669,46 @@ SepGui::SepGui(
       QString("QLabel { background-color: rgb(%1, %2, %3); }").
       arg(c.red()).arg(c.green()).arg(c.blue());
   colorExample->setStyleSheet(styleSheet);
-  grid->addWidget(colorExample,1,1);
+  grid->addWidget(colorExample,2,1);
 
   button = new QPushButton("Change",parent);
   connect(button,SIGNAL(clicked(bool)),
           this,  SLOT(  browseColor(bool)));
-  grid->addWidget(button,1,2);
+  grid->addWidget(button,2,2);
 
   label = new QLabel("Margins",parent);
-  grid->addWidget(label,2,0);
+  grid->addWidget(label,3,0);
 
   string = QString("%1") .arg(sep.margin[0],5,'f',4);
   lineEdit = new QLineEdit(string,parent);
-  grid->addWidget(lineEdit,2,1);
+  grid->addWidget(lineEdit,3,1);
   connect(lineEdit,SIGNAL(textEdited(QString const &)),
           this,    SLOT(marginXChange(QString const &)));
 
   string = QString("%1") .arg(sep.margin[1],5,'f',4);
   lineEdit = new QLineEdit(string,parent);
-  grid->addWidget(lineEdit,2,2);
+  grid->addWidget(lineEdit,3,2);
   connect(lineEdit,SIGNAL(textEdited(QString const &)),
           this,    SLOT(marginYChange(QString const &)));
+}
+
+void SepGui::typeChange(
+  int type)
+{
+  SepData sep = meta->value();
+  sep.type = SepData::LengthType(type);
+  meta->setValue(sep);
+  typeLineEdit->setEnabled(sep.type == SepData::LenCustom);
+  modified = true;
+}
+
+void SepGui::lengthChange(
+  QString const &string)
+{
+  SepData sep = meta->value();
+  sep.length = string.toFloat();
+  meta->setValue(sep);
+  modified = true;
 }
 
 void SepGui::thicknessChange(

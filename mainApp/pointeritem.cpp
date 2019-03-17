@@ -574,26 +574,24 @@ void PointerItem::addPointerMeta()
 void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
+  Where undefined;
   bool isCallout = pointerParentType == CalloutType;
   PointerAttribData pad = pointer.pointerAttrib.value();
 
-  Where lineAttribTop, lineAttribBottom, borderAttribTop, borderAttribBottom;
-  lineAttribTop.modelName    = pad.lineWhere.modelName;
-  lineAttribTop.lineNumber   = pad.lineWhere.lineNumber;
-  lineAttribBottom           = lineAttribTop;
-  borderAttribTop.modelName  = pad.borderWhere.modelName;
-  borderAttribTop.lineNumber = pad.borderWhere.lineNumber;
-  borderAttribBottom         = borderAttribTop;
+  Where lineAttribTop      = Where(pad.lineWhere.modelName,pad.lineWhere.lineNumber);
+  Where lineAttribBottom   = lineAttribTop;
+  Where borderAttribTop    = Where(pad.borderWhere.modelName,pad.borderWhere.lineNumber);
+  Where borderAttribBottom = borderAttribTop;
 
-  QAction *setLineAttributesAction = menu.addAction("Set Line Attributes");
+  QAction *setLineAttributesAction = menu.addAction("Edit Line Attributes");
   setLineAttributesAction->setIcon(QIcon(":/resources/lineattributes.png"));
-  setLineAttributesAction->setWhatsThis( "Set pointer line attributes:\n"
-                                         "Set the pointer line color, thickness, and type");
+  setLineAttributesAction->setWhatsThis( "Edit pointer line attributes:\n"
+                                         "Edit the pointer line color, thickness, and type");
 
-  QAction *setBorderAttributesAction = menu.addAction("Set Border Attributes");
+  QAction *setBorderAttributesAction = menu.addAction("Edit Border Attributes");
   setBorderAttributesAction->setIcon(QIcon(":/resources/borderattributes.png"));
-  setBorderAttributesAction->setWhatsThis( "Set pointer line attributes:\n"
-                                           "Set the pointer border color, thickness, and line type");
+  setBorderAttributesAction->setWhatsThis( "Edit pointer line attributes:\n"
+                                           "Edit the pointer border color, thickness, and line type");
 
   QAction *resetLineAttributesAction = nullptr;
   if (! pad.lineData.useDefault) {
@@ -639,8 +637,7 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   if (selectedAction == setLineAttributesAction) {
       pad.attribType = PointerAttribData::Line;
       pointer.pointerAttrib.setValue(pad);
-      if(lineAttribTop.lineNumber == 0 &&
-         lineAttribTop.modelName  == "undefined") {
+      if(lineAttribTop == undefined) {
          lineAttribTop = pointer.here;
          lineAttribBottom = lineAttribTop;
       } else {
@@ -655,8 +652,7 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   if (selectedAction == setBorderAttributesAction) {
       pad.attribType = PointerAttribData::Border;
       pointer.pointerAttrib.setValue(pad);
-      if(borderAttribTop.lineNumber == 0 &&
-         borderAttribTop.modelName  == "undefined") {
+      if(borderAttribTop == undefined) {
          borderAttribTop = pointer.here;
          borderAttribBottom = borderAttribTop;
       } else {
@@ -677,10 +673,8 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   }
   else
   if (selectedAction == removeAction) {
-    bool line   = lineAttribTop.lineNumber != 0 &&
-                  lineAttribTop.modelName  != "undefined";
-    bool border = borderAttribTop.lineNumber != 0 &&
-                  borderAttribTop.modelName  != "undefined";
+    bool line   = lineAttribTop   != undefined;
+    bool border = borderAttribTop != undefined;
     deletePointer(pointer.here,line,border);
   }
   else

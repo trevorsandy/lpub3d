@@ -102,7 +102,7 @@ public:
   void deleteLastMultiStep(    const Where &, const Where &);
 
   void addDivider(             PlacementType, const Where &, RcMeta *divider, AllocEnc alloc);
-  void deleteDivider(          PlacementType parentRelativeType, const Where &divider);
+  void deleteDivider(PlacementType parentRelativeType, const Where &divider);
 
   void addToNext(    PlacementType parentRelativeType, const Where &topOfStep);
   void addToPrev(    PlacementType parentRelativeType, const Where &topOfStep);

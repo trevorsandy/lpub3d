@@ -60,8 +60,7 @@ class Step : public AbstractRangeElement
     bool                  placeSubModel;
     bool                  placeRotateIcon;
     bool                  placeCsiAnnotation;
-    bool                  rangeDivider;
-//    bool                  rangeDividerBefore;
+    DividerType           dividerType;
     QList<Callout *>      list;
     QList<CsiAnnotation*> csiAnnotations;
     Pli                   pli;

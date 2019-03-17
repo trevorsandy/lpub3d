@@ -45,9 +45,10 @@ DividerPointerItem::DividerPointerItem(
   view               = _view;
   pointer            = *_pointer;
   divider            = div;
-  pointerTop         = div->parentStep->nextStep()->topOfStep();
-  pointerBottom      = div->parentStep->nextStep()->bottomOfStep();
-  pointerParentType  = div->parentRelativeType;;
+
+  pointerTop         = divider->parentStep->nextStep()->topOfStep();
+  pointerBottom      = divider->parentStep->nextStep()->bottomOfStep();
+  pointerParentType  = divider->parentRelativeType;;
   resizeRequested    = false;
 
   PointerData pointerData = pointer.pointerMeta.value();

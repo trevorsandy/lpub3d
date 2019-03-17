@@ -40,6 +40,7 @@ class Pointer {
 public:
     int                 id;
     Where               here;
+    int                 stepNum;
     PointerMeta         pointerMeta;
     PointerAttribMeta   pointerAttrib;
     Pointer() {}
@@ -49,6 +50,16 @@ public:
     {
         id            = _id;
         here          = _here;
+        pointerMeta   = _pointerMeta;
+    }
+    Pointer(int          _id,
+            Where        _here,
+            int          _stepNum,
+            PointerMeta &_pointerMeta)
+    {
+        id            = _id;
+        here          = _here;
+        stepNum       = _stepNum;
         pointerMeta   = _pointerMeta;
     }
     virtual PointerAttribData getPointerAttribInches(){

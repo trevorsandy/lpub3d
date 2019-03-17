@@ -89,6 +89,8 @@ class Steps : public Placement {
 
     Boundary boundary(AbstractStepsElement *);
 
+    int pageSize(int,bool = false);
+
     const Where &bottomOfStep(AbstractStepsElement *me);
     const Where &topOfSteps();
     const Where &bottomOfSteps();

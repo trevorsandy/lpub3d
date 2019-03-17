@@ -69,9 +69,8 @@ Step::Step(
   stepNumber.number         =  num;             // record step number
   csiItem                   = nullptr;
 
-  rangeDivider              = false;
-//  rangeDividerBefore           = false;
   modelDisplayOnlyStep      = false;
+  dividerType               = NoDivider;
   relativeType              = StepType;
   csiPlacement.relativeType = CsiType;
   stepNumber.relativeType   = StepNumberType;

@@ -2061,11 +2061,12 @@ void MetaItem::addDivider(
     return;
   }
 
-  bool rangeDivider = alloc != defAlloc;
-  if (rangeDivider) {
-       divString += QString(" RANGE");
+  bool stepDivider = alloc != defAlloc;
+  if (stepDivider) {
+       divString += QString(" STEPS");
   }
 
+  // set the DIVIDER meta as the first line in the next STEP
   Where walk = bottomOfStep;
   int mask = parentRelativeType == StepGroupType ? StepMask|StepGroupMask : StepMask|CalloutMask;
   Rc  rc = scanForward(walk, mask);

@@ -1653,6 +1653,7 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
     }
 
 #ifdef Q_OS_MAC
+    emit Application::instance()->splashMsgSig(QString("25% - %1 macOS Required Library Check...").arg(VER_PRODUCTNAME_STR));
     QStringList missingLibs;
     QPixmap _icon = QPixmap(":/icons/lpub96.png");
     QMessageBoxResizable box;
@@ -1846,6 +1847,7 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
               }
            }
         }
+        emit Application::instance()->splashMsgSig(QString("25% - %1 window defaults loading...").arg(VER_PRODUCTNAME_STR));
 #endif
     } else {
         logError() << QString("POVRay  : %1 not found").arg(povrayInfo.absoluteFilePath());

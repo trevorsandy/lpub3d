@@ -1659,6 +1659,7 @@ public:
   {
     _result = _value[pushed];
     if (resolutionType() == DPCM) {
+      _result.length    = inches2centimeters(_result.length);
       _result.thickness = inches2centimeters(_result.thickness);
       _result.margin[0] = inches2centimeters(_result.margin[0]);
       _result.margin[1] = inches2centimeters(_result.margin[1]);
@@ -1680,9 +1681,30 @@ public:
     _value[pushed].margin[0] = margin0;
     _value[pushed].margin[1] = margin1;
   }
+  void setValue(QString color,
+                SepData::LengthType type,
+                float length,
+                float thickness,
+                float margin0,
+                float margin1)
+  {
+    if (resolutionType() == DPCM) {
+      length    = centimeters2inches(length);
+      thickness = centimeters2inches(thickness);
+      margin0   = centimeters2inches(margin0);
+      margin1   = centimeters2inches(margin1);
+    }
+    _value[pushed].color     = color;
+    _value[pushed].type      = type;
+    _value[pushed].length    = length;
+    _value[pushed].thickness = thickness;
+    _value[pushed].margin[0] = margin0;
+    _value[pushed].margin[1] = margin1;
+  }
   void setValue(SepData goods)
   {
     if (resolutionType() == DPCM) {
+      goods.length    = centimeters2inches(goods.length);
       goods.thickness = centimeters2inches(goods.thickness);
       goods.margin[0] = centimeters2inches(goods.margin[0]);
       goods.margin[1] = centimeters2inches(goods.margin[1]);
@@ -1692,6 +1714,7 @@ public:
   SepData &valuePixels()
   {
     _result = _value[pushed];
+    _result.length    *= resolution();
     _result.thickness *= resolution();
     _result.margin[0] *= resolution();
     _result.margin[1] *= resolution();
@@ -1702,7 +1725,21 @@ public:
                 float margin0,
                 float margin1)
   {
-    _value[pushed].color = color;
+    _value[pushed].color     = color;
+    _value[pushed].thickness = thickness;
+    _value[pushed].margin[0] = margin0;
+    _value[pushed].margin[1] = margin1;
+  }
+  void setValueInches(QString color,
+                SepData::LengthType type,
+                float length,
+                float thickness,
+                float margin0,
+                float margin1)
+  {
+    _value[pushed].color     = color;
+    _value[pushed].type      = type;
+    _value[pushed].length    = length;
     _value[pushed].thickness = thickness;
     _value[pushed].margin[0] = margin0;
     _value[pushed].margin[1] = margin1;
