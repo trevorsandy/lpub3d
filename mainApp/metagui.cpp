@@ -418,7 +418,7 @@ void SpinGui::apply(QString &modelName)
 
 /***********************************************************************
  *
- * Float Spin
+ * Double Spin Box
  *
  **********************************************************************/
 
@@ -1591,36 +1591,39 @@ CameraDistFactorGui::CameraDistFactorGui(
 
   meta = _meta;
 
-  QHBoxLayout *hLayout = new QHBoxLayout();
+  QHBoxLayout *hLayout = new QHBoxLayout(parent);
 
-  setLayout(hLayout);
+  if (parent) {
+      parent->setLayout(hLayout);
+  } else {
+      setLayout(hLayout);
+  }
 
-  bool nativeRenderer = (Render::getRenderer() == RENDERER_NATIVE);
-  QString tipMessage = QString("Native renderer camera distance factor - enabled when Renderer is set to Native.");
-  if (nativeRenderer)
-      tipMessage = QString("Native renderer camera distance factor, adjust by 10, to scale renderings.");
-  parent->setToolTip(tipMessage);
-  parent->setEnabled(nativeRenderer);
+  QString tipMessage = QString("Native renderer camera distance factor, adjust by 10, to scale renderings.");
 
-  cameraDistFactorLabel = new QLabel(heading, parent);
-  hLayout->addWidget(cameraDistFactorLabel);
+  if (heading != "") {
+    cameraDistFactorLabel = new QLabel(heading, parent);
+    hLayout->addWidget(cameraDistFactorLabel);
+  } else {
+    cameraDistFactorLabel = nullptr;
+  }
 
-  cameraDistFactorNative = meta->factor.value();
+  saveFactor = meta->factor.value();
   cameraDistFactorSpin = new QSpinBox(parent);
+  cameraDistFactorSpin->setToolTip(tipMessage);
   cameraDistFactorSpin->setRange(100,5000);
   cameraDistFactorSpin->setSingleStep(10);
-  cameraDistFactorSpin->setValue(cameraDistFactorNative);
+  cameraDistFactorSpin->setValue(meta->factor.value());
   connect(cameraDistFactorSpin,SIGNAL(valueChanged(int)),
           this,                SLOT(cameraDistFactorChange(int)));
   hLayout->addWidget(cameraDistFactorSpin);
-
 }
 
 void CameraDistFactorGui::cameraDistFactorChange(int factor)
 {
   meta->factor.setValue(factor);
   changeMessage = QString("Native camera distance factor changed from %1 to %2")
-                          .arg(cameraDistFactorNative)
+                          .arg(saveFactor)
                           .arg(meta->factor.value());
   modified = true;
 }

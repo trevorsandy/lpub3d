@@ -98,6 +98,10 @@ public:
           QMenu   &menu,
     const QString  name = "");
 
+  QAction *rotStepMenu(
+          QMenu   &menu,
+    const QString  name = "");
+
   QAction *backgroundMenu(
           QMenu   &menu, 
     const QString  name = "");
@@ -128,6 +132,10 @@ public:
     const QString  name = "");
 
   QAction *sortMenu(
+          QMenu   &menu,
+    const QString  name = "");
+
+  QAction *hideMenu(
           QMenu   &menu,
     const QString  name = "");
 

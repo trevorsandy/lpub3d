@@ -546,7 +546,7 @@ public:
 private:
   CameraDistFactorMeta  *meta;
 
-  int       cameraDistFactorNative;
+  int       saveFactor;
   QSpinBox  *cameraDistFactorSpin;
   QLabel    *cameraDistFactorLabel;
 

@@ -130,7 +130,7 @@ GlobalPliDialog::GlobalPliDialog(
   box->setLayout(childlayout);
 
   // Scale/Native Camera Distance Factor
-  if (Preferences::preferredRenderer == RENDERER_NATIVE) {
+  if (Preferences::usingNativeRenderer) {
       child = new CameraDistFactorGui("Camera Distance Factor",
                                       &pliMeta->cameraDistNative,
                                       box);

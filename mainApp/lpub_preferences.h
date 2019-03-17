@@ -173,6 +173,7 @@ class Preferences
     static bool    lgeoStlLib;
     static bool    addLSynthSearchDir;
     static bool    archiveLSynthParts;
+    static bool    usingNativeRenderer;
 
     static bool    enableFadeSteps;
     static bool    fadeStepsUseColour;

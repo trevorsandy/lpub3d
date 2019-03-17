@@ -718,7 +718,7 @@ void lcApplication::ShowPreferencesDialog()
     Options.MouseShortcutsDefault = false;
 
 /*** LPub3D Mod - preference refresh ***/
-    if (Preferences::preferredRenderer == RENDERER_NATIVE)
+    if (Preferences::usingNativeRenderer)
     {
       Options.Preferences.mShadingMode   = (lcShadingMode)lcGetProfileInt(LC_PROFILE_SHADING_MODE);
       Options.Preferences.mDrawEdgeLines = lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
@@ -746,7 +746,7 @@ void lcApplication::ShowPreferencesDialog()
     bool drawEdgeLinesChanged = false;
     bool shadingModeChanged = false;
     bool lineWidthChanged = false;
-    if (Preferences::preferredRenderer == RENDERER_NATIVE)
+    if (Preferences::usingNativeRenderer)
     {
         float mLineWidth  = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
         bool mDrawEdgeLInes   = lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
@@ -804,7 +804,7 @@ void lcApplication::ShowPreferencesDialog()
     if (ViewPieceIconsChangd && !restartApp && !redrawPage)
         reloadPage = true;
 
-    if (Preferences::preferredRenderer == RENDERER_NATIVE && !restartApp)
+    if (Preferences::usingNativeRenderer && !restartApp)
     {
       if (shadingModeChanged ||
           drawEdgeLinesChanged ||

@@ -287,6 +287,21 @@ QAction* CommonMenus::cameraDistFactorrMenu(
   return action;
 }
 
+QAction* CommonMenus::rotStepMenu(
+        QMenu   &menu,
+  const QString  name)
+{
+  QAction *action;
+
+  QString formatted = QString("Change %1 Rotation") .arg(name);
+  action = menu.addAction(formatted);
+  action->setIcon(QIcon(":/resources/rotateicon.png"));
+
+  formatted = QString("You can change the %1 Rotation angles and Transform.") .arg(name);
+  action->setWhatsThis(formatted);
+
+  return action;
+}
 
 QAction* CommonMenus::backgroundMenu(
         QMenu   &menu,
@@ -399,20 +414,37 @@ QAction* CommonMenus::sortMenu(
   return action;
 }
 
-QAction* CommonMenus::renderParmsMenu(
+QAction* CommonMenus::hideMenu(
         QMenu   &menu,
   const QString  name)
 {
-  QString formatted = QString("Change %1 Render Parameters") .arg(name);
+  QString formatted = QString("Hide %1") .arg(name);
   QAction *action;
 
   action = menu.addAction(formatted);
   action->setEnabled(false);
 
+  formatted = QString("You can hide %1 in the page display") .arg(name);
+  action->setWhatsThis(formatted);
+
+  return action;
+}
+
+QAction* CommonMenus::renderParmsMenu(
+        QMenu   &menu,
+  const QString  name)
+{
+  QString formatted = QString("Change %1 Render Parameters") .arg(name);
+
+  QAction *action;
+  action = menu.addAction(formatted);
+  action->setIcon(QIcon(":/resources/display.png"));
+
   action->setWhatsThis("This is not implemented yet");
 
   return action;
 }
+
 
 QString placement2english(PlacementEnc placement)
 

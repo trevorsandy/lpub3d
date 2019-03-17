@@ -40,7 +40,7 @@ public:
   CameraDistFactorDialog(
     QString   title,
     QString   heading,
-    int      &value,
+    int      &goods,
     QWidget  *parent);
 
   virtual ~CameraDistFactorDialog();
@@ -48,10 +48,10 @@ public:
   static bool getCameraDistFactor(
     QString   title,
     QString   heading,
-    int      &value,
-    QWidget  *parent = 0);
+    int      &goods,
+    QWidget  *parent);
 
-  CameraDistFactorMeta meta;
+    CameraDistFactorMeta meta;
 
 public slots:
   void accept();

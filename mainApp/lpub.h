@@ -597,7 +597,7 @@ public:
 
   bool suppressColourMeta()
   {
-    return false; //Preferences::preferredRenderer == RENDERER_NATIVE;
+    return false; //Preferences::usingNativeRenderer;
   }
 
   void insertLine (const Where &here, const QString &line, QUndoCommand *parent = 0);
@@ -641,19 +641,19 @@ public:
   }
 
   float getDefaultCameraFoV(){
-      return (Preferences::preferredRenderer == RENDERER_NATIVE ?
+      return (Preferences::usingNativeRenderer ?
                   CAMERA_FOV_NATIVE_DEFAULT :
                   CAMERA_FOV_DEFAULT);
   }
 
   float getDefaultCameraZNear(){
-      return (Preferences::preferredRenderer == RENDERER_NATIVE ?
+      return (Preferences::usingNativeRenderer ?
                   CAMERA_ZNEAR_NATIVE_DEFAULT :
                   CAMERA_ZNEAR_DEFAULT);
   }
 
   float getDefaultCameraZFar(){
-      return (Preferences::preferredRenderer == RENDERER_NATIVE ?
+      return (Preferences::usingNativeRenderer ?
                   CAMERA_ZFAR_NATIVE_DEFAULT :
                   CAMERA_ZFAR_DEFAULT);
   }

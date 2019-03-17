@@ -262,6 +262,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bCALLOUT\\b"
     << "\\bDIVIDER_POINTER\\b"
     << "\\bCAMERA_DISTANCE_NATIVE\\b"
+    << "\\bCAMERA_FOV\\b"
     << "\\bCENTER\\b"
     << "\\bCLEAR\\b"
     << "\\bCOLOR\\b"

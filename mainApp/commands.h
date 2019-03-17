@@ -80,6 +80,7 @@
  ***************************************************************************/
 
 #include <QUndoCommand>
+#include <QDateTime>
 #include "where.h"
 
 class LDrawFile;
@@ -92,7 +93,7 @@ public:
   InsertLineCommand(LDrawFile     *ldrawFile,
                     const Where   &here,
                     const QString &line,
-                    QUndoCommand  *parent = 0);
+                    QUndoCommand  *parent = nullptr);
 
   void undo();
   void redo();
@@ -113,7 +114,7 @@ public:
   AppendLineCommand(LDrawFile     *ldrawFile,
                     const Where   &here,
                     const QString &line,
-                    QUndoCommand  *parent = 0);
+                    QUndoCommand  *parent = nullptr);
 
   void undo();
   void redo();
@@ -133,7 +134,7 @@ public:
 
   DeleteLineCommand(LDrawFile    *ldrawFile,
                     const Where  &here,
-                    QUndoCommand *parent = 0);
+                    QUndoCommand *parent = nullptr);
 
   void undo();
   void redo();
@@ -154,7 +155,7 @@ public:
   ReplaceLineCommand(LDrawFile     *ldrawFile,
                      const Where   &here,
                      const QString &newLine,
-                     QUndoCommand  *parent = 0);
+                     QUndoCommand  *parent = nullptr);
 
   void undo();
   void redo();
@@ -180,7 +181,7 @@ public:
                         int            position,
                         const QString &removedChars,
                         const QString &addedChars,
-                        QUndoCommand  *parent = 0);
+                        QUndoCommand  *parent = nullptr);
 
   void undo();
   void redo();

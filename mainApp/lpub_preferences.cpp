@@ -150,6 +150,7 @@ bool    Preferences::includeFileName            = false;
 bool    Preferences::includeFunction            = false;
 bool    Preferences::addLSynthSearchDir         = false;
 bool    Preferences::archiveLSynthParts         = false;
+bool    Preferences::usingNativeRenderer        = false;
 
 bool    Preferences::ignoreMixedPageSizesMsg    = false;
 
@@ -2009,6 +2010,9 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
                               enableLDViewSingleCall ?
                                   QString("(Single Call%1)")
                                           .arg(enableLDViewSnaphsotList ? " - SnapshotsList" : "") : "" : "");
+   usingNativeRenderer = (preferredRenderer == RENDERER_NATIVE ||
+                         (preferredRenderer == RENDERER_POVRAY &&
+                          povFileGenerator  == RENDERER_NATIVE));
 }
 
 void Preferences::setLDGLiteIniParams()
@@ -3313,7 +3317,9 @@ bool Preferences::getPreferences()
             allLogLevels = dialog->allLogLevels();
             Settings.setValue(QString("%1/%2").arg(LOGGING,"AllLogLevels"),allLogLevels);
         }
-
+        usingNativeRenderer = (preferredRenderer == RENDERER_NATIVE ||
+                              (preferredRenderer == RENDERER_POVRAY &&
+                               povFileGenerator  == RENDERER_NATIVE));
         return true;
     } else {
         return false;

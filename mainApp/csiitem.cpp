@@ -86,7 +86,6 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   int numOfSteps          = numSteps(step->top.modelName);
   bool fullContextMenu  = ! step->modelDisplayOnlyStep;
-  bool showCameraDistFactorItem = (Preferences::preferredRenderer == RENDERER_NATIVE);
   bool allowLocal = (parentRelativeType != StepGroupType) && (parentRelativeType != CalloutType);
   Boundary boundary = step->boundary();
 
@@ -204,7 +203,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   QAction *cameraDistFactorAction = nullptr;
   QAction *scaleAction = nullptr;
-  if (showCameraDistFactorItem){
+  if (Preferences::usingNativeRenderer){
       cameraDistFactorAction  = commonMenus.cameraDistFactorrMenu(menu, pl);
   } else {
       scaleAction             = commonMenus.scaleMenu(menu, pl);

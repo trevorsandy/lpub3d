@@ -80,7 +80,7 @@ GlobalAssemDialog::GlobalAssemDialog(
   AssemMeta *assem = &data->meta.LPub.assem;
 
   // Scale/Native Camera Distance Factor
-  if (Preferences::preferredRenderer == RENDERER_NATIVE) {
+  if (Preferences::usingNativeRenderer) {
       child = new CameraDistFactorGui("Camera Distance Factor",
                                       &assem->cameraDistNative,
                                       box);

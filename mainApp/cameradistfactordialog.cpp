@@ -33,26 +33,29 @@
 CameraDistFactorDialog::CameraDistFactorDialog(
   QString   title,
   QString   heading,
-  int      &value,
+  int      &goods,
   QWidget  *parent)
   : QDialog(parent)
 {
   setWindowTitle(title);
+
+  meta.factor.setValue(goods);
 
   QVBoxLayout *layout = new QVBoxLayout(this);
   setLayout(layout);
 
   QGroupBox *box = new QGroupBox(heading,this);
   layout->addWidget(box);
-  meta.factor.setValue(value);
   cameraDistFactor = new CameraDistFactorGui(heading+" Factor",&meta,box);
 
   QDialogButtonBox *buttonBox;
+
   buttonBox = new QDialogButtonBox(this);
   buttonBox->addButton(QDialogButtonBox::Ok);
   connect(buttonBox,SIGNAL(accepted()),SLOT(accept()));
   buttonBox->addButton(QDialogButtonBox::Cancel);
   connect(buttonBox,SIGNAL(rejected()),SLOT(cancel()));
+
   layout->addWidget(buttonBox);
 
   setModal(true);

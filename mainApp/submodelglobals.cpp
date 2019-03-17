@@ -39,11 +39,11 @@ public:
   Meta     meta;
   QString  topLevelFile;
   QList<MetaGui *> children;
-  MetaGui *cameraAngles;
-  MetaGui *modelScale;
+  bool clearCache;
 
   GlobalSubModelPrivate(QString &_topLevelFile, Meta &_meta)
   {
+    clearCache = false;
     topLevelFile = _topLevelFile;
     meta = _meta;
     MetaItem mi; // examine all the globals and then return
@@ -119,10 +119,9 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   grid->addWidget(box);
   box->setLayout(childlayout);
 
-  if (Preferences::preferredRenderer == RENDERER_NATIVE) {
+  if (Preferences::usingNativeRenderer) {
       child = new CameraDistFactorGui("Camera Distance Factor",
-                                      &subModelMeta->cameraDistNative,
-                                      box);
+                                      &subModelMeta->cameraDistNative);
       data->children.append(child);
       childlayout->addWidget(child);
   } else {
@@ -130,11 +129,11 @@ GlobalSubModelDialog::GlobalSubModelDialog(
         &subModelMeta->modelScale,
         subModelMeta->modelScale._min,
         subModelMeta->modelScale._max,
-        0.01);
+        0.01f);
       data->children.append(child);
-      data->modelScale = child;
       childlayout->addWidget(child);
   }
+  data->clearCache = (data->clearCache ? data->clearCache : child->modified);
 
   child = new UnitsGui("Margins",&subModelMeta->part.margin);
   data->children.append(child);
@@ -156,20 +155,22 @@ GlobalSubModelDialog::GlobalSubModelDialog(
                              &subModelMeta->cameraFoV,
                              subModelMeta->cameraFoV._min,
                              subModelMeta->cameraFoV._max,
-                             subModelMeta->cameraFoV.value());
+                             0.01f);
   data->children.append(child);
+  data->clearCache = (data->clearCache ? data->clearCache : child->modified);
   boxGrid->addWidget(child,0,0,1,2);
 
   // view angles
   child = new FloatsGui("Latitude","Longitude",&subModelMeta->cameraAngles);
-  data->cameraAngles = child;
   data->children.append(child);
+  data->clearCache = (data->clearCache ? data->clearCache : child->modified);
   boxGrid->addWidget(child,1,0);
 
   box = new QGroupBox("Default Step Rotation");
   grid->addWidget(box);
   child = new RotStepGui(&subModelMeta->rotStep,box);
   data->children.append(child);
+  data->clearCache = (data->clearCache ? data->clearCache : child->modified);
 
   box = new QGroupBox("Submodel Count");
   grid->addWidget(box);
@@ -220,8 +221,7 @@ void GlobalSubModelDialog::getSubModelGlobals(
 
 void GlobalSubModelDialog::accept()
 {
-  if (data->modelScale->modified ||
-      data->cameraAngles->modified) {
+  if (data->clearCache) {
       clearSubmodelCache();
   }
 
