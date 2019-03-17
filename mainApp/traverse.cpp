@@ -248,8 +248,8 @@ static void set_divider_pointers(Meta &curMeta, Where &current, Range *range, LG
     Rc pRc  = (rct == CalloutDividerRc ? CalloutDividerPointerRc : StepGroupDividerPointerRc);
     Rc paRc = (rct == CalloutDividerRc ? CalloutDividerPointerAttribRc : StepGroupDividerPointerAttribRc);
 
-    PointerMeta pm        = (rct == CalloutDividerRc ? curMeta.LPub.callout.divPointer       : curMeta.LPub.multiStep.divPointer);
-    PointerAttribMeta pam = (rct == CalloutDividerRc ? curMeta.LPub.callout.divPointerAttrib : curMeta.LPub.multiStep.divPointerAttrib);
+    PointerAttribMeta pam = (rct == CalloutDividerRc ? curMeta.LPub.callout.divPointerAttrib :
+                                                       curMeta.LPub.multiStep.divPointerAttrib);
 
     Where walk(current.modelName,current.lineNumber);
     walk++;
@@ -267,6 +267,8 @@ static void set_divider_pointers(Meta &curMeta, Where &current, Range *range, LG
         if (mRc == StepRc || mRc == RotStepRc) {
             break;
         } else if (mRc == pRc) {
+            PointerMeta pm = (rct == CalloutDividerRc ? curMeta.LPub.callout.divPointer :
+                                                        curMeta.LPub.multiStep.divPointer);
             range->appendDividerPointer(walk,pm,pam,view,sd);
 #ifdef QT_DEBUG_MODE
 //            if (sd){
