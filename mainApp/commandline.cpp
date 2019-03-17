@@ -34,7 +34,7 @@ int Gui::processCommandLine()
   bool processFile         = false;
   bool fadeSteps           = false;
   bool highlightStep       = false;
-  //bool imageMatting        = false;
+// bool imageMatting        = false;
   bool resetSearchDirs     = false;
   bool useLDVSingleCall    = false;
   bool useLDVSnapShotList  = false;
@@ -43,7 +43,7 @@ int Gui::processCommandLine()
 
   QString pageRange, exportOption,
           commandlineFile, preferredRenderer,
-          fadeStepsColour, highlightStepColour;
+          fadeStepsColour, highlightStepColour, message;
 
   // Process parameters
   QStringList Arguments = Application::instance()->arguments();
@@ -205,11 +205,10 @@ int Gui::processCommandLine()
           return 1;
       }
       if (Preferences::preferredRenderer != renderer) {
-          QString message;
           if (preferredRenderer.toLower().contains("ldview")) {
               if (Preferences::enableLDViewSingleCall != useLDVSingleCall) {
                   message = QString("Renderer preference use LDView Single Call changed from %1 to %2.")
-                                            .arg(Preferences::enableLDViewSingleCall ? "Yes" : "No")
+                      .arg(Preferences::enableLDViewSingleCall ? "Yes" : "No")
                       .arg(useLDVSingleCall ? "Yes" : "No");
                   emit messageSig(LOG_INFO,message);
                   Preferences::enableLDViewSingleCall = useLDVSingleCall;
@@ -226,19 +225,19 @@ int Gui::processCommandLine()
           if (preferredRenderer.toLower().contains("povray")) {
               if (Preferences::povFileGenerator != generator) {
                   message = QString("Renderer preference POV file generator changed from %1 to %2.")
-                          .arg(Preferences::povFileGenerator)
-                          .arg(generator);
+                      .arg(Preferences::povFileGenerator)
+                      .arg(generator);
                   emit messageSig(LOG_INFO,message);
                   Preferences::povFileGenerator = generator;
               }
           }
           message = QString("Renderer preference changed from %1 to %2%3.")
-                                    .arg(Preferences::preferredRenderer)
-                                    .arg(renderer)
-                                    .arg(renderer == RENDERER_POVRAY ? QString(" (POV file generator is %1)").arg(generator) :
-                                         renderer == RENDERER_LDVIEW ? useLDVSingleCall ?
-                                                                       useLDVSnapShotList ? " (Single Call w/ SnapShot List)" : " (Single Call)" :
-                                                                       QString() : QString());
+              .arg(Preferences::preferredRenderer)
+              .arg(renderer)
+              .arg(renderer == RENDERER_POVRAY ? QString(" (POV file generator is %1)").arg(generator) :
+                   renderer == RENDERER_LDVIEW ? useLDVSingleCall ?
+                                                 useLDVSnapShotList ? " (Single Call w/ SnapShot List)" : " (Single Call)" :
+                                                 QString() : QString());
           emit messageSig(LOG_INFO,message);
           Preferences::preferredRenderer   = renderer;
           Preferences::usingNativeRenderer = useNativeRenderer;
@@ -254,12 +253,12 @@ int Gui::processCommandLine()
 
   if (fadeSteps && fadeSteps != Preferences::enableFadeSteps) {
       Preferences::enableFadeSteps = fadeSteps;
-      QString message = QString("Fade Previous Steps set to ON.");
+      message = QString("Fade Previous Steps set to ON.");
       emit messageSig(LOG_INFO,message);
       if (fadeStepsColour.isEmpty()) {
           if (Preferences::fadeStepsUseColour){
               Preferences::fadeStepsUseColour = false;
-              QString message = QString("Use Global Fade Color set to OFF.");
+              message = QString("Use Global Fade Color set to OFF.");
               emit messageSig(LOG_INFO,message);
             }
         }
@@ -267,7 +266,7 @@ int Gui::processCommandLine()
 
   if ((fadeStepsOpacity != Preferences::fadeStepsOpacity) &&
       Preferences::enableFadeSteps) {
-          QString message = QString("Fade Step Transparency changed from %1 to %2 percent.")
+          message = QString("Fade Step Transparency changed from %1 to %2 percent.")
               .arg(Preferences::fadeStepsOpacity)
               .arg(fadeStepsOpacity);
           emit messageSig(LOG_INFO,message);
@@ -277,11 +276,11 @@ int Gui::processCommandLine()
   if (!fadeStepsColour.isEmpty() && Preferences::enableFadeSteps) {
       if (!Preferences::fadeStepsUseColour){
           Preferences::fadeStepsUseColour = true;
-          QString message = QString("Use Global Fade Color set to ON.");
+          message = QString("Use Global Fade Color set to ON.");
           emit messageSig(LOG_INFO,message);
           fadeStepsOpacity = 100;
           if (fadeStepsOpacity != Preferences::fadeStepsOpacity ) {
-              QString message = QString("Fade Step Transparency changed from %1 to %2 percent.")
+              message = QString("Fade Step Transparency changed from %1 to %2 percent.")
                   .arg(Preferences::fadeStepsOpacity)
                   .arg(fadeStepsOpacity);
               emit messageSig(LOG_INFO,message);
@@ -289,7 +288,7 @@ int Gui::processCommandLine()
             }
         }
       if (LDrawColor::name(fadeStepsColour) != Preferences::validFadeStepsColour) {
-          QString message = QString("Fade Step Color preference changed from %1 to %2.")
+          message = QString("Fade Step Color preference changed from %1 to %2.")
               .arg(QString(Preferences::validFadeStepsColour).replace("_"," "))
               .arg(QString(LDrawColor::name(fadeStepsColour)).replace("_"," "));
           emit messageSig(LOG_INFO,message);
@@ -301,7 +300,7 @@ int Gui::processCommandLine()
 //  if (imageMatting && Preferences::enableFadeSteps &&
 //      (Preferences::preferredRenderer == RENDERER_LDVIEW)) {
 //      Preferences::enableImageMatting = imageMatting;
-//      QString message = QString("Enable Image matte is ON.");
+//      message = QString("Enable Image matte is ON.");
 //      emit messageSig(LOG_INFO,message);
 //    } else {
 //      QString message;
@@ -322,14 +321,14 @@ int Gui::processCommandLine()
 
   if (highlightStep && highlightStep != Preferences::enableHighlightStep) {
       Preferences::enableHighlightStep = highlightStep;
-      QString message = QString("Highlight Current Step set to ON.");
+      message = QString("Highlight Current Step set to ON.");
       emit messageSig(LOG_INFO,message);
     }
 
   if ((highlightStepColour != Preferences::highlightStepColour) &&
       !highlightStepColour.isEmpty() &&
       Preferences::enableHighlightStep) {
-      QString message = QString("Highlight Step Color preference changed from %1 to %2.")
+      message = QString("Highlight Step Color preference changed from %1 to %2.")
           .arg(Preferences::highlightStepColour)
           .arg(highlightStepColour);
       emit messageSig(LOG_INFO,message);
@@ -338,7 +337,7 @@ int Gui::processCommandLine()
 
   if ((highlightLineWidth != Preferences::highlightStepLineWidth ) &&
       Preferences::enableHighlightStep) {
-      QString message = QString("Highlight Line Width preference changed from %1 to %2.")
+      message = QString("Highlight Line Width preference changed from %1 to %2.")
           .arg(Preferences::highlightStepLineWidth)
           .arg(highlightLineWidth);
       emit messageSig(LOG_INFO,message);
@@ -346,7 +345,7 @@ int Gui::processCommandLine()
     }
 
   if (resetSearchDirs) {
-      QString message = QString("Reset search directories requested..");
+      message = QString("Reset search directories requested..");
       emit messageSig(LOG_INFO,message);
 
       // set fade step setting

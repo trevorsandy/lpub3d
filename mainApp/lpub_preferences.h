@@ -56,6 +56,7 @@ class Preferences
     static void updateLDViewPOVIniFile(UpdateFlag);
     static void updatePOVRayConfFile(UpdateFlag);
     static void updatePOVRayIniFile(UpdateFlag);
+    static void updatePOVRayConfigFiles();
 
     static void setLPub3DAltLibPreferences(const QString &);
     static bool checkLDrawLibrary(const QString &);

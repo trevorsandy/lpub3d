@@ -681,10 +681,12 @@ public:
           saveRenderer   = Preferences::preferredRenderer;
           saveProjection = Preferences::perspectiveProjection;
           saveSingleCall = Preferences::enableLDViewSingleCall;
-          if (renderer.isEmpty())
+          if (renderer.isEmpty()) {
              Preferences::preferredRenderer   = RENDERER_NATIVE;
-          else
+             Preferences::usingNativeRenderer = true;
+          } else {
              Preferences::preferredRenderer   = renderer;
+          }
           Preferences::perspectiveProjection  = true;
           Preferences::enableLDViewSingleCall = false;
           Render::setRenderer(Preferences::preferredRenderer);
@@ -696,6 +698,7 @@ public:
           Preferences::preferredRenderer      = saveRenderer;
           Preferences::perspectiveProjection  = saveProjection;
           Preferences::enableLDViewSingleCall = saveSingleCall;
+          Preferences::usingNativeRenderer    = saveRenderer == RENDERER_NATIVE;
           Render::setRenderer(Preferences::preferredRenderer);
           saveRenderer = QString();
       }

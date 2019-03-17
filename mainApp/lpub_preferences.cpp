@@ -189,7 +189,6 @@ bool    Preferences::showAllNotifications       = true;
 bool    Preferences::showUpdateNotifications    = true;
 bool    Preferences::enableDownloader           = true;
 bool    Preferences::ldrawiniFound              = false;
-//bool    Preferences::portableDistribution       = false;
 bool    Preferences::povrayDisplay              = false;
 bool    Preferences::isAppImagePayload          = false;
 bool    Preferences::modeGUI                    = true;
@@ -224,10 +223,11 @@ QString Preferences::xmlMapPath                 = EMPTY_STRING_DEFAULT;
 
 /*
  * [DATA PATHS]
- * dataLocation   - the data location at install
- * lpubDataPath   - the application user data location after install
- * lpubExtrasPath - not used
- *
+ * dataLocation            - the data location at install
+ * lpubDataPath            - the application user data location after install
+ * lpub3d3rdPartyConfigDir - 3rdParty folder at application user data location
+ * lpub3d3rdPartyAppDir    - 3rdParty folder at install location
+ * lpubExtrasPath          - not used
  */
 
 Preferences::Preferences()
@@ -2339,6 +2339,7 @@ void Preferences::updatePOVRayConfFile(UpdateFlag updateFlag)
         if (updateFlag == SkipExisting) {
            povrayConf = resourceFile.absoluteFilePath();  // populate povray conf file
            logInfo() << QString("POVRay conf file   : %1").arg(povrayConf);
+           updatePOVRayConfigFiles();
            return;
         }
         logInfo() << QString("Updating %1...").arg(resourceFile.absoluteFilePath());
@@ -2427,6 +2428,85 @@ void Preferences::updatePOVRayConfFile(UpdateFlag updateFlag)
     if (oldFile.exists())
         oldFile.remove();                              // delete old file
     logInfo() << QString("POVRay conf file   : %1").arg(povrayConf.isEmpty() ? "Not found" : povrayConf);
+
+    updatePOVRayConfigFiles();
+}
+
+void Preferences::updatePOVRayConfigFiles(){
+#if defined Q_OS_WIN
+    if (preferredRenderer == RENDERER_POVRAY) {
+        QString targetFolder, destFolder, dataPath, targetFile, destFile, saveFile;
+        QStringList dataPathList = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+        QFileInfo fileInfo, saveFileInfo;
+        dataPath     = dataPathList.first();
+        destFolder   = QString("%1/%2").arg(dataPath).arg("3rdParty/" VER_POVRAY_STR "/config");
+        targetFolder = QString(lpub3dPath +"/3rdParty/" VER_POVRAY_STR "/config");
+        if (portableDistribution) {
+            targetFile = QString("%1/povray.conf").arg(targetFolder);
+            destFile   = QString("%1/povray.conf").arg(destFolder);
+            saveFile   = QString("%1/povray_install.conf").arg(destFolder);
+            fileInfo.setFile(destFile);
+            saveFileInfo.setFile(saveFile);
+            if (! saveFileInfo.exists()) {
+                if (fileInfo.exists()) {
+                    QFile file(fileInfo.absoluteFilePath());
+                    if (! file.rename(saveFile) || ! QFile::copy(targetFile,destFile)) {
+                        logError() << QString("Could not copy %1 to %2").arg(targetFile).arg(destFile);
+                    }
+                } else if (! QFile::copy(targetFile,destFile)) {
+                    logError() << QString("Could not copy %1 to %2").arg(targetFile).arg(destFile);
+                }
+            }
+            targetFile = QString("%1/povray.ini").arg(targetFolder);
+            destFile   = QString("%1/povray.ini").arg(destFolder);
+            saveFile   = QString("%1/povray_install.ini").arg(destFolder);
+            fileInfo.setFile(destFile);
+            saveFileInfo.setFile(saveFile);
+            if (! saveFileInfo.exists()) {
+                if (fileInfo.exists()) {
+                    QFile file(fileInfo.absoluteFilePath());
+                    if (! file.rename(saveFile) || ! QFile::copy(targetFile,destFile)) {
+                        logError() << QString("Could not copy %1 to %2").arg(targetFile).arg(destFile);
+                    }
+                } else if (! QFile::copy(targetFile,destFile)) {
+                    logError() << QString("Could not copy %1 to %2").arg(targetFile).arg(destFile);
+                }
+            }
+        } else {
+            saveFile = QString("%1/povray_install.conf").arg(destFolder);
+            saveFileInfo.setFile(saveFile);
+            if (saveFileInfo.exists()) {
+                destFile = QString("%1/povray.conf").arg(destFolder);
+                fileInfo.setFile(destFile);
+                QFile file2(saveFileInfo.absoluteFilePath());
+                if (fileInfo.exists()) {
+                    QFile file(fileInfo.absoluteFilePath());
+                    if (! file.remove(destFile) || ! file2.rename(destFile)) {
+                        logError() << QString("Could not rename %1 to %2").arg(targetFile).arg(destFile);
+                    }
+                } else if (! file2.rename(destFile)) {
+                    logError() << QString("Could not rename %1 to %2").arg(targetFile).arg(destFile);
+                }
+            }
+            saveFile = QString("%1/povray_install.ini").arg(destFolder);
+            saveFileInfo.setFile(saveFile);
+            if (saveFileInfo.exists()) {
+                destFile = QString("%1/povray.ini").arg(destFolder);
+                fileInfo.setFile(destFile);
+                QFile file2(saveFileInfo.absoluteFilePath());
+                if (fileInfo.exists()) {
+                    QFile file(fileInfo.absoluteFilePath());
+                    if (! file.remove(destFile) || ! file2.rename(destFile)) {
+                        logError() << QString("Could not rename %1 to %2").arg(targetFile).arg(destFile);
+                    }
+                } else if (! file2.rename(destFile)) {
+                    logError() << QString("Could not rename %1 to %2").arg(targetFile).arg(destFile);
+                }
+            }
+
+        }
+    }
+#endif
 }
 
 void Preferences::updatePOVRayIniFile(UpdateFlag updateFlag)

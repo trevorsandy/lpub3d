@@ -157,7 +157,7 @@ int Render::rotateParts(
           QString           &ldrName,
           const QString     &modelName,
           FloatPairMeta     &ca,
-          bool               ldv)
+          bool               ldv /* false */)
 {
   bool  nativeRenderer = (Preferences::usingNativeRenderer && ! ldv);
   QStringList rotatedParts = parts;
@@ -221,7 +221,7 @@ int Render::rotateParts(
         RotStepMeta   &rotStep,
         QStringList   &parts,
         FloatPairMeta &ca,
-        bool          applyCA /* default true */)
+        bool          applyCA /* true */)
 {
   bool cal = Preferences::applyCALocally;
 
