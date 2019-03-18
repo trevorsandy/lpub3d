@@ -25,6 +25,10 @@ LDVPartList::LDVPartList(LDVWidget *modelWidget, LDVHtmlInventory *htmlInventory
             LDVHtmlInventory::LookUp::Bricklink)
         emit m_modelWidget->loadBLElementsSig();
 
+    QValidator *validator = new QIntValidator(10, 5000, this);
+    snapshotWidthEdit->setValidator(validator);
+    snapshotHeightEdit->setValidator(validator);
+
 //	fieldOrderView->header()->hide();
 //	fieldOrderView->setSorting(-1);
 }
@@ -84,6 +88,10 @@ void LDVPartList::doOk()
 	{
 		 m_htmlInventory->setOverwriteSnapshotFlag(
 					overwriteExistingButton->isChecked());
+         m_htmlInventory->setSnapshotWidthFlag(
+                     snapshotWidthEdit->text().toInt());
+         m_htmlInventory->setSnapshotHeightFlag(
+                     snapshotHeightEdit->text().toInt());
 	}
     m_htmlInventory->setShowFileFlag(openDocument = showWebPageButton->isChecked());
     if (openDocument){
@@ -158,14 +166,25 @@ int LDVPartList::exec()
         m_htmlInventory->getLookupSiteFlag());
     elementSourceCombo->setCurrentIndex(
         m_htmlInventory->getElementSourceFlag());
+    snapshotWidthEdit->setText(
+        QString::number(m_htmlInventory->getSnapshotWidthFlag()));
+    snapshotHeightEdit->setText(
+        QString::number(m_htmlInventory->getSnapshotHeightFlag()));
 
 	doShowModel();
+
 	return QDialog::exec();
 }
 
 void LDVPartList::doShowModel()
 {
-	overwriteExistingButton->setEnabled(showModelButton->isChecked());
+    bool show = showModelButton->isChecked();
+
+    overwriteExistingButton->setEnabled(show);
+    snapshotWidthEdit->setEnabled(show);
+    snapshotHeightEdit->setEnabled(show);
+    widthLabel->setEnabled(show);
+    heightLabel->setEnabled(show);
 }
 
 void LDVPartList::doShowPreferences()

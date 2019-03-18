@@ -59,7 +59,7 @@ public:
 
   void modelViewerAlertCallback(TCAlert *alert);
   void snapshotTakerAlertCallback(TCAlert *alert);
-  bool chDirFromFilename(const char *filename);
+  bool setDirFromFilename(const char *filename);
 
   void showLDVExportOptions(void);
   void showLDVPreferences(void);
@@ -70,30 +70,13 @@ public:
   void doPartList(LDVHtmlInventory *htmlInventory, LDPartsList *partsList,
       const char *filename);
   bool saveImage(char *filename, int imageWidth, int imageHeight);
-  LDSnapshotTaker::ImageType getSaveImageType(void);
   bool grabImage(int &imageWidth, int &imageHeight);
   void setViewMode(LDInputHandler::ViewMode value, bool examineLatLong,
                        bool keepRightSideUp, bool saveSettings=true);
-  void cleanupRenderSettings(void);
   void showDocument(QString &htmlFilename);
-
-#ifdef Q_OS_WIN
-  virtual void setupWinExtensions(void);
-  virtual void setupMultisample(void);
-  virtual int getFSAAFactor(void);
-  virtual void cleanupOffscreen(void);
-  virtual void cleanupPBuffer(void);
-  virtual bool setupPBuffer(int imageWidth, int imageHeight,
-      bool antialias = false);
-  virtual void setupLighting(void);
-  virtual void setupMaterial(void);
-#endif
 
 signals:
   void loadBLElementsSig();
-
-private slots:
-  void updateProgressDialog();
 
 protected:
   bool setIniFile(void);
@@ -104,8 +87,6 @@ protected:
   void displayGLExtensions(void);
 
   bool getUseFBO(void);
-  void endProgressBar();
-  void startProgressBar(const char *msg);
   bool loadModel(const char *filename);
   void setupSnapshotBackBuffer(int width, int height);
 
@@ -120,35 +101,11 @@ protected:
   LDVAlertHandler       *ldvAlertHandler;
 
   LDInputHandler        *inputHandler;
+  char                  *commandLineFilename;
   const char            *saveImageFilename;
   const char            *imageInputFilename;
-  LDInputHandler::ViewMode viewMode;
-  bool                   saving;
-
-  QProgressDialog        *progressDialog;
-  QTimer                 *timer;
-  int                     interval;
-
-#ifdef Q_OS_WIN
-  int                    currentAntialiasType;
-  HPBUFFERARB            hPBuffer;
-  HDC                    hPBufferDC;
-  HGLRC                  hPBufferGLRC;
-  HDC                    hCurrentDC;
-  HGLRC                  hCurrentGLRC;
-  HINSTANCE              hInstance;
-  HWND                   hWnd;
-  HDC                    hdc;
-  HGLRC                  hglrc;
-  int                    fsaaMode;
-#endif
-  bool                   saveAlpha;
-  int                    saveImageType;
   bool                   saveImageZoomToFit;
-  int                    saveImageWidth;
-  int                    saveImageHeight;
-  bool                   saveImageResult;
-  int                    mwidth, mheight;
+  LDInputHandler::ViewMode viewMode;
 
   struct IniFile
   {

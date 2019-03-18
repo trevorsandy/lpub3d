@@ -51,6 +51,7 @@ LDViewExportOption::LDViewExportOption(LDVWidget *modelWidget)
     if (m_modelViewer) {
         switch (iniFlag){
         case NativePOVIni:
+        case LDViewPOVIni:
             m_exporter  = m_modelViewer->getExporter(LDrawModelViewer::ETPov, true);
             break;
         case NativeSTLIni:

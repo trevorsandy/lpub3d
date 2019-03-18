@@ -67,10 +67,14 @@ public:
 	void setGeneratePdfFlag(bool value);
     void setLookupSiteFlag(int value);
     void setElementSourceFlag(int value);
+    void setSnapshotWidthFlag(int value);
+    void setSnapshotHeightFlag(int value);
 
     bool getGeneratePdfFlag(void);
      int getLookupSiteFlag(void);
      int getElementSourceFlag(void);
+     int getSnapshotWidthFlag(void);
+     int getSnapshotHeightFlag(void);
 	 
 	void loadOtherSettings(void);
 
@@ -121,6 +125,8 @@ protected:
     int  m_elementSource;
     int  m_lookupDefault;
     int  m_elementDefault;
+    int  m_snapshotWidth;
+    int  m_snapshotHeight;
 	
 	bool m_showModel;
 	bool m_overwriteSnapshot;

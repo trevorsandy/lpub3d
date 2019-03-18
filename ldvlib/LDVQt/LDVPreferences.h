@@ -104,6 +104,8 @@ public:
 	static void setPollMode(LDVPollMode value);
 	static LDInputHandler::ViewMode getViewMode(void);
 	static void setViewMode(LDInputHandler::ViewMode value);
+    static void setCheckPartTracker(bool value);
+    static bool getCheckPartTracker(void);
 	static bool getLatLongMode(void);
 	static void setLatLongMode(bool);
 	static bool getKeepRightSideUp(void);

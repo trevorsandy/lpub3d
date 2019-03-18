@@ -1354,6 +1354,16 @@ void LDVPreferences::setViewMode(LDInputHandler::ViewMode value)
 	TCUserDefaults::setLongForKey(value, VIEW_MODE_KEY, false);
 }
 
+void LDVPreferences::setCheckPartTracker(bool value)
+{
+    TCUserDefaults::setLongForKey(value, CHECK_PART_TRACKER_KEY, false);
+}
+
+bool LDVPreferences::getCheckPartTracker(void)
+{
+    return TCUserDefaults::longForKey(CHECK_PART_TRACKER_KEY, long(true), false);
+}
+
 bool LDVPreferences::getLatLongMode(void)
 {
 	return TCUserDefaults::longForKey(EXAMINE_MODE_KEY, LDrawModelViewer::EMFree ,false);

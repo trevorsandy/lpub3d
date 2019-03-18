@@ -197,7 +197,7 @@ int Step::createCsi(
     bool               bfxLoad)   // Bfx load special case (no parts added)
 {
   bool csiExist       = false;
-  bool nativeRenderer = (Preferences::usingNativeRenderer);
+  bool nativeRenderer = Preferences::usingNativeRenderer;
   float modelScale    = 1.0f;
   if (nativeRenderer) {
       modelScale = meta.LPub.assem.cameraDistNative.factor.value();

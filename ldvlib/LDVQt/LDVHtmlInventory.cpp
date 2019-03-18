@@ -7,6 +7,7 @@
 #include <LDLib/LDPreferences.h>
 #include <LDLib/LDrawModelViewer.h>
 #include <LDLib/LDViewPoint.h>
+#include <LDLib/LDUserDefaultsKeys.h>
 #include <string>
 
 #include <QFileInfo>
@@ -25,6 +26,9 @@
 #define new DEBUG_CLIENTBLOCK
 #endif // _DEBUG
 #endif // WIN32
+
+#define SNAPSHOT_WIDTH_DEFAULT 400
+#define SNAPSHOT_HEIGHT_DEFAULT 300
 
 const char *LDVHtmlInventory::sm_style = "\
 body\n\
@@ -392,6 +396,16 @@ void LDVHtmlInventory::setElementSourceFlag(int value)
     setOtherSetting(m_elementSource, value, PARTS_LIST_ELEMENT_SRURCE_KEY, true);
 }
 
+void LDVHtmlInventory::setSnapshotWidthFlag(int value)
+{
+    setOtherSetting(m_snapshotWidth, value, SAVE_WIDTH_KEY, true);
+}
+
+void LDVHtmlInventory::setSnapshotHeightFlag(int value)
+{
+    setOtherSetting(m_snapshotHeight, value, SAVE_HEIGHT_KEY, true);
+}
+
 bool LDVHtmlInventory::getGeneratePdfFlag()
 {
     m_generatePdf = getBoolSetting(PARTS_LIST_GENERATE_PDF_KEY);
@@ -410,11 +424,25 @@ int LDVHtmlInventory::getElementSourceFlag()
     return m_elementSource;
 }
 
+int LDVHtmlInventory::getSnapshotWidthFlag()
+{
+    m_snapshotWidth = getIntSetting(SAVE_WIDTH_KEY,SNAPSHOT_WIDTH_DEFAULT);
+    return m_snapshotWidth;
+}
+
+int LDVHtmlInventory::getSnapshotHeightFlag()
+{
+    m_snapshotHeight = getIntSetting(SAVE_HEIGHT_KEY,SNAPSHOT_HEIGHT_DEFAULT);
+    return m_snapshotHeight;
+}
+
 void LDVHtmlInventory::loadOtherSettings(void)
 {
     getGeneratePdfFlag();
     getLookupSiteFlag();
     getElementSourceFlag();
+    getSnapshotWidthFlag();
+    getSnapshotHeightFlag();
     LongVector columnOrder;
     columnOrder.push_back(1);	// Part
     columnOrder.push_back(3);	// Color
