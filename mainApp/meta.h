@@ -1993,7 +1993,13 @@ public:
   BoolMeta    fadeStep;
   BoolMeta    fadeUseColor;
   IntMeta     fadeOpacity;
-
+  void setPreferences()
+  {
+     Preferences::enableFadeSteps      = fadeStep.value();
+     Preferences::validFadeStepsColour = fadeColor.value();
+     Preferences::fadeStepsUseColour   = fadeUseColor.value();
+     Preferences::fadeStepsOpacity     = fadeOpacity.value();
+  }
   FadeStepMeta();
   FadeStepMeta(const FadeStepMeta &rhs) : BranchMeta(rhs)
   {
@@ -2016,7 +2022,12 @@ public:
   StringMeta  highlightColor;
   BoolMeta    highlightStep;
   IntMeta     highlightLineWidth;
-
+  void setPreferences()
+  {
+     Preferences::enableHighlightStep    = highlightStep.value();
+     Preferences::highlightStepColour    = highlightColor.value();
+     Preferences::highlightStepLineWidth = highlightLineWidth.value();
+  }
   HighlightStepMeta();
   HighlightStepMeta(const HighlightStepMeta &rhs) : BranchMeta(rhs)
   {
@@ -2035,7 +2046,10 @@ class CameraDistFactorMeta : public BranchMeta
 {
 public:
   IntMeta     factor;
-
+  void setPreferences()
+  {
+     Preferences::cameraDistFactorNative = factor.value();
+  }
   CameraDistFactorMeta();
   CameraDistFactorMeta(const CameraDistFactorMeta &rhs) : BranchMeta(rhs)
   {
@@ -2506,6 +2520,10 @@ public:
   PlacementMeta placement;
   MarginsMeta   margin;
   BoolMeta      show;
+  void setPreferences()
+  {
+      Preferences::showSubmodelInCallout = show.value();
+  }
   CalloutSubModelMeta();
   CalloutSubModelMeta(const CalloutSubModelMeta &rhs) : BranchMeta(rhs)
   {
@@ -2688,6 +2706,12 @@ public:
 class SubModelMeta  : public PliMeta
 {
 public:
+  void setPreferences()
+  {
+      Preferences::showSubmodels         = show.value();
+      Preferences::showTopModel          = showTopModel.value();
+      Preferences::showSubmodelInCallout = showSubmodelInCallout.value();
+  }
   SubModelMeta();
   SubModelMeta(const SubModelMeta &rhs) : PliMeta(rhs)
   {

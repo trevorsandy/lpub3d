@@ -2528,7 +2528,7 @@ void CalloutPliMeta::init(BranchMeta *parent, QString name)
 CalloutSubModelMeta::CalloutSubModelMeta() : BranchMeta()
 {
   placement.setValue(LeftOutside,CsiType);
-  show.setValue(true);
+  show.setValue(Preferences::showSubmodelInCallout);
 }
 
 void CalloutSubModelMeta::init(BranchMeta *parent, QString name)
