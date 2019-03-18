@@ -1714,6 +1714,154 @@ void ColourPartListWorker::requestEndThreadNow(){
     emit requestFinishSig();
 }
 
+ExtractWorker::ExtractWorker(
+        const QString &archive,
+        const QString &destination)
+    : mArchive(archive),
+      mDestination(destination),
+      mEndWorkNow(false)
+{
+}
+
+void ExtractWorker::doWork() {
+    QuaZip zip(mArchive);
+    if (!extractDir(zip, mDestination)) {
+        emit gui->messageSig(LOG_ERROR,QString(", Failed to extract archive %1").arg(mArchive));
+    }
+    emit finished();
+}
+
+bool ExtractWorker::extractDir(QuaZip &zip, const QString &dir)
+{
+    if(!zip.open(QuaZip::mdUnzip)) {
+        emit gui->messageSig(LOG_ERROR,QString("Failed to open archive %1").arg(mArchive));
+        return false;
+    }
+
+    QDir directory(dir);
+    QStringList extracted;
+    if (!zip.goToFirstFile()) {
+        emit gui->messageSig(LOG_ERROR,QString("Failed to go to first archive file"));
+        return false;
+    }
+
+    int i = 0;
+    do {
+        QString name = zip.getCurrentFileName();
+        QString absFilePath = directory.absoluteFilePath(name);
+        if (!extractFile(&zip, "", absFilePath)) {
+            removeFile(extracted);
+            emit gui->messageSig(LOG_ERROR,QString("Failed extract archive file %1").arg(absFilePath));
+            return false;
+        }
+        extracted.append(absFilePath);
+        emit progressSetValue(++i);
+    } while (zip.goToNextFile() && ! mEndWorkNow);
+
+    // Chiudo il file zip
+    zip.close();
+    if(zip.getZipError()!=0) {
+        removeFile(extracted);
+        emit gui->messageSig(LOG_ERROR,QString("Failed to close archive %1.").arg(mArchive));
+        return false;
+    }
+
+    emit result(extracted.count());
+
+    return true;
+}
+
+void ExtractWorker::requestEndWorkNow(){
+    mEndWorkNow = true;
+}
+
+bool ExtractWorker::copyData(QIODevice &inFile, QIODevice &outFile)
+{
+    while (!inFile.atEnd()) {
+        char buf[4096];
+        qint64 readLen = inFile.read(buf, 4096);
+        if (readLen <= 0)
+            return false;
+        if (outFile.write(buf, readLen) != readLen)
+            return false;
+    }
+    return true;
+}
+
+bool ExtractWorker::extractFile(QuaZip* zip, QString fileName, QString fileDest) {
+    // zip: oggetto dove aggiungere il file
+    // filename: nome del file reale
+    // fileincompress: nome del file all'interno del file compresso
+
+    // Controllo l'apertura dello zip
+    if (!zip) return false;
+    if (zip->getMode()!=QuaZip::mdUnzip) return false;
+
+    // Apro il file compresso
+    if (!fileName.isEmpty())
+        zip->setCurrentFile(fileName);
+    QuaZipFile inFile(zip);
+    if(!inFile.open(QIODevice::ReadOnly) || inFile.getZipError()!=UNZ_OK) return false;
+
+    // Controllo esistenza cartella file risultato
+    QDir curDir;
+    if (fileDest.endsWith('/')) {
+        if (!curDir.mkpath(fileDest)) {
+            return false;
+        }
+    } else {
+        if (!curDir.mkpath(QFileInfo(fileDest).absolutePath())) {
+            return false;
+        }
+    }
+
+    QuaZipFileInfo64 info;
+    if (!zip->getCurrentFileInfo(&info))
+        return false;
+
+    QFile::Permissions srcPerm = info.getPermissions();
+    if (fileDest.endsWith('/') && QFileInfo(fileDest).isDir()) {
+        if (srcPerm != 0) {
+            QFile(fileDest).setPermissions(srcPerm);
+        }
+        return true;
+    }
+
+    // Apro il file risultato
+    QFile outFile;
+    outFile.setFileName(fileDest);
+    if(!outFile.open(QIODevice::WriteOnly)) return false;
+
+    // Copio i dati
+    if (!copyData(inFile, outFile) || inFile.getZipError()!=UNZ_OK) {
+        outFile.close();
+        removeFile(QStringList(fileDest));
+        return false;
+    }
+    outFile.close();
+
+    // Chiudo i file
+    inFile.close();
+    if (inFile.getZipError()!=UNZ_OK) {
+        removeFile(QStringList(fileDest));
+        return false;
+    }
+
+    if (srcPerm != 0) {
+        outFile.setPermissions(srcPerm);
+    }
+    return true;
+}
+
+bool ExtractWorker::removeFile(QStringList listFile) {
+    bool ret = true;
+    // Per ogni file
+    for (int i=0; i<listFile.count(); i++) {
+        // Lo elimino
+        ret = ret && QFile::remove(listFile.at(i));
+    }
+    return ret;
+}
 
 
 

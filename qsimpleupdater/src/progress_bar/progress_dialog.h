@@ -27,15 +27,21 @@ class ProgressDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ProgressDialog (QWidget *parent = 0);
+    explicit ProgressDialog (QWidget *parent = nullptr);
     ~ProgressDialog();
 
+    void setWindowFlags(Qt::WindowFlags type);
     void setDownloadInfo ();
     void setAutoHide(bool);
     void setBtnToClose();
 
 signals:
     void cancelClicked();
+
+public slots:
+    void progressBarSetLabelText(QString text);
+    void progressBarSetRange(int min, int max);
+    void progressBarSetValue(int value);
 
 private slots:
     void cancel (void);

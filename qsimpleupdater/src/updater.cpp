@@ -41,6 +41,7 @@
 #include "version.h"
 #include "name.h"
 #include "lpubalert.h"
+#include "lpub_preferences.h"
 
 Updater::Updater()
 {
@@ -443,7 +444,7 @@ void Updater::onReply (QNetworkReply* reply)
     if (versionsRequested()){
       if (! platform.isEmpty()) {
           m_availableVersions = platform.value ("available-versions").toString();
-        }
+      }
       setVersionsRequested(false);
       emit checkingFinished (url());
       return;
@@ -462,7 +463,7 @@ void Updater::onReply (QNetworkReply* reply)
     } else {
 
         QString _changelogUrl;
-        bool _updateAvailable;
+        bool _updateAvailable = false;
 
         if (moduleVersion() == qApp->applicationVersion()) {
 
@@ -599,9 +600,13 @@ void Updater::setUpdateAvailable (const bool available)
 
         QString title = "<b>" + tr ("Download LDraw library archive %1 ?")
                                     .arg(fileName()) + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>";
-        QString text = tr ("The latest version of %1 will be downloaded and written to\n"
-                           "'%2'.\n\nClick \"OK\" to continue.")
-                            .arg(fileName(),downloadDir());
+        QString text = tr ("The latest version of %1 will be downloaded and written to\n'%2'.\n\n"
+                           "NOTICE: %3 will restart to properly load the LDraw %4 Library archive.\n\n"
+                           "Click \"OK\" to continue.")
+                            .arg(fileName())
+                            .arg(QDir::toNativeSeparators(Preferences::lpubDataPath+"/libraries/"+fileName()))
+                            .arg(VER_PRODUCTNAME_STR)
+                            .arg(fileName() == VER_LDRAW_OFFICIAL_ARCHIVE ? "Official" : "Unofficial");
         box.setText (title);
         box.setInformativeText (text);
         box.setDefaultButton   (QMessageBox::Ok);
@@ -610,6 +615,9 @@ void Updater::setUpdateAvailable (const bool available)
         if (box.exec() == QMessageBox::Ok) {
             m_downloader->setFileName(fileName());
             m_downloader->startDownload (QUrl (downloadUrl()));
+        } else {
+            emit downloadCancelled();
+            m_manager->disconnect();
         }
 
     } else {
@@ -646,9 +654,11 @@ void Updater::setUpdateAvailable (const bool available)
 
                 else
                     QDesktopServices::openUrl (QUrl (downloadUrl()));
+            } else {
+                m_manager->disconnect();
+                emit downloadCancelled();
             }
         }
-
         else if (notifyOnFinish()) {
 
             QMessageBox box;
@@ -834,8 +844,10 @@ void Updater::showErrorMessage (QString error)
       box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
       box.setWindowTitle(customProcedure() ? tr ("Library Update") : tr ("Software Update"));
       QString title = customProcedure() ?
-            "<b>" + tr ("An error occured while downloading %1.") .arg(fileName()) + "</b>" :
-            "<b>" + tr ("An error occured while checking for %1 update.") .arg(moduleName()) + "</b>";
+            "<b>" + tr ("An error occured while downloading %1.&nbsp;&nbsp;&nbsp;&nbsp;")
+                        .arg(fileName().isEmpty() ? QString("archive ibrary") : fileName()) + "</b>" :
+            "<b>" + tr ("An error occured while checking for %1 update.&nbsp;&nbsp;&nbsp;")
+                        .arg(moduleName().isEmpty() ? QString(VER_PRODUCTNAME_STR) : moduleName()) + "</b>";
       QString text = tr("%1").arg(error);
 
       box.setText (title);
@@ -854,7 +866,7 @@ void Updater::changeLogReply (QNetworkReply *reply){
         m_changelog = _reply;
 
      } else {
-         showErrorMessage("Error receiving change log: " + reply->errorString());
+         showErrorMessage("Error receiving change log: " + reply->errorString() + ".");
      }
      emit changeLogReplyFinished();
 }

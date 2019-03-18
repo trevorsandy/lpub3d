@@ -306,6 +306,37 @@ private:
                            const QString &heading = "");
 };
 
+#include "quazip.h"
+#include "quazipfile.h"
+#include "quazipdir.h"
+class ExtractWorker : public QObject
+{
+    Q_OBJECT
+public:
+    ExtractWorker(
+    const QString &archive,
+    const QString &destination);
+
+public slots:
+    void doWork();
+    void requestEndWorkNow();
+
+signals:
+    void finished();
+    void result(int);
+    void progressSetValue(
+            const int &value);
+
+protected:
+    static bool copyData(QIODevice &inFile, QIODevice &outFile);
+    bool extractDir(QuaZip &zip, const QString &dir);
+    bool extractFile(QuaZip* zip, QString fileName, QString fileDest);
+    bool removeFile(QStringList listFile);
+    QString mArchive;
+    QString mDestination;
+    bool mEndWorkNow;
+};
+
 #endif // THREADWORKERS_H
 
 

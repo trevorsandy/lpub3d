@@ -46,6 +46,23 @@ void ProgressDialog::setAutoHide(bool b)
     autoHide = b;
 }
 
+void ProgressDialog::progressBarSetLabelText(QString text) {
+    ui->progressDlgMessageLbl->setText(text);
+}
+
+void ProgressDialog::progressBarSetRange(int min, int max)
+{
+    ui->progressDlgProgressBar->setMinimum(min);
+    ui->progressDlgProgressBar->setMaximum(max);
+    QApplication::processEvents();
+}
+
+void ProgressDialog::progressBarSetValue(int value)
+{
+    ui->progressDlgProgressBar->setValue(value);
+    QApplication::processEvents(/*QEventLoop::ExcludeUserInputEvents*/);
+}
+
 void ProgressDialog::cancel (void)
 {
     if (autoHide) {
@@ -58,4 +75,8 @@ void ProgressDialog::cancel (void)
 void ProgressDialog::setDownloadInfo () {
     setWindowTitle(tr("Library Update"));
     ui->progressDlgMessageLbl->setText(tr("Retrieving download..."));
+}
+
+void ProgressDialog::setWindowFlags(Qt::WindowFlags type) {
+     QWidget::setWindowFlags(type);
 }

@@ -115,7 +115,7 @@ void clearTempCache()
 
 /****************************************************************************
  *
- * Download and progress monotor
+ * Download with progress monotor
  *
  ***************************************************************************/
 void Gui::downloadFile(QString URL, QString title)
@@ -2331,6 +2331,10 @@ void Gui::closeEvent(QCloseEvent *event)
     }
 }
 
+void Gui::extractJobResult(int value){
+    m_extractJobResult = value;
+}
+
 void Gui::getRequireds(){
     // Check preferred renderer value is set before setting Renderer class
     Preferences::getRequireds();
@@ -2474,8 +2478,8 @@ void Gui::generateCustomColourPartsList(bool prompt)
         connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),             listThread, SLOT(quit()));
         connect(colourPartListWorker, SIGNAL(colourPartListFinishedSig()),   colourPartListWorker, SLOT(deleteLater()));
         connect(this,                 SIGNAL(requestEndThreadNowSig()),      colourPartListWorker, SLOT(requestEndThreadNow()));
-
-        connect(colourPartListWorker, SIGNAL(messageSig(LogType,QString)),                   this, SLOT(statusMessage(LogType,QString)));
+//      uses gui signal
+//        connect(colourPartListWorker, SIGNAL(messageSig(LogType,QString)),                   this, SLOT(statusMessage(LogType,QString)));
 
         connect(colourPartListWorker, SIGNAL(progressBarInitSig()),                          this, SLOT(progressBarInit()));
         connect(colourPartListWorker, SIGNAL(progressMessageSig(QString)),                   this, SLOT(progressBarSetText(QString)));
@@ -2644,53 +2648,215 @@ bool Gui::aboutDialog()
     return Dialog.exec() == QDialog::Accepted;
 }
 
-void Gui::refreshLDrawUnoffParts(){
+void Gui::refreshLDrawUnoffParts() {
 
     // Download unofficial archive
     emit messageSig(LOG_STATUS,"Refresh LDraw Unofficial Library archive...");
+    QTemporaryDir tempDir;
+    QString downloadPath = tempDir.path();
     UpdateCheck *libraryDownload;
-    QEventLoop *wait = new QEventLoop();
-    QString archivePath = tr("%1/%2").arg(Preferences::lpubDataPath, "libraries");
-    libraryDownload = new UpdateCheck(this, (void*)LDrawUnofficialLibraryDownload);
+    libraryDownload      = new UpdateCheck(this, (void*)LDrawUnofficialLibraryDownload);
+    QEventLoop  *wait    = new QEventLoop();
     wait->connect(libraryDownload, SIGNAL(downloadFinished(QString,QString)), wait, SLOT(quit()));
-    libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), archivePath);
+    wait->connect(libraryDownload, SIGNAL(cancel()),                          wait, SLOT(quit()));
+    libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), downloadPath);
+    wait->exec();
+    if (libraryDownload->getCancelled()) {
+        return;
+    }
+
+    // Automatically extract Unofficial archive
+    QString newarchive  = QDir::toNativeSeparators(tr("%1/%2").arg(downloadPath).arg(VER_LPUB3D_UNOFFICIAL_ARCHIVE));
+    QString destination = QDir::toNativeSeparators(tr("%1/unofficial").arg(Preferences::ldrawLibPath));
+    QString message     = tr("Extracting Unofficial archive library. Please wait...");
+    emit messageSig(LOG_STATUS,message);
+
+    QStringList items = JlCompress::getFileList(newarchive);
+    m_progressDialog  = new ProgressDialog(nullptr);
+    m_progressDialog->setWindowFlags(m_progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
+    m_progressDialog->setWindowTitle(QString("LDraw Library Update"));
+    m_progressDialog->progressBarSetLabelText(QString("Extracting LDraw Unofficial parts from %1...")
+                                              .arg(QFileInfo(newarchive).baseName()));
+    m_progressDialog->progressBarSetRange(0,items.count());
+    m_progressDialog->setAutoHide(true);
+    m_progressDialog->setModal(true);
+    m_progressDialog->show();
+
+    QThread *thread    = new QThread(this);
+    ExtractWorker *job = new ExtractWorker(newarchive,destination);
+    job->moveToThread(thread);
+    wait = new QEventLoop();
+
+    connect(thread, SIGNAL(started()),
+            job, SLOT(doWork()));
+    connect(thread, SIGNAL(finished()),
+            thread, SLOT(deleteLater()));
+    connect(job, SIGNAL(progressSetValue(int)),
+            m_progressDialog, SLOT(progressBarSetValue(int)));
+    disconnect(m_progressDialog, SIGNAL (cancelClicked()),
+            this, SLOT (cancelExporting()));
+    connect(m_progressDialog, SIGNAL(cancelClicked()),
+            job, SLOT(requestEndWorkNow()));
+    connect(job, SIGNAL(result(int)),
+            this, SLOT(extractJobResult(int)));
+    connect(this, SIGNAL(requestEndThreadNowSig()),
+            job, SLOT(requestEndWorkNow()));
+    connect(job, SIGNAL(finished()),
+            thread, SLOT(quit()));
+    connect(job, SIGNAL(finished()),
+            job, SLOT(deleteLater()));
+    wait->connect(job, SIGNAL(finished()),
+            wait, SLOT(quit()));
+
+    extractJobResult(0);
+    thread->start();
     wait->exec();
 
-    // Automatically extract unofficial archive
-    QString archive = tr("%1/%2").arg(archivePath).arg(VER_LPUB3D_UNOFFICIAL_ARCHIVE);
-    QString destination = tr("%1/unofficial").arg(Preferences::ldrawLibPath);
-    QStringList result = JlCompress::extractDir(archive,destination);
-    if (result.isEmpty()){
-        emit messageSig(LOG_ERROR,tr("Failed to extract %1 to %2").arg(archive).arg(destination));
+    m_progressDialog->progressBarSetValue(items.count());
+    connect (m_progressDialog, SIGNAL (cancelClicked()),
+             this, SLOT (cancelExporting()));
+
+    if (m_extractJobResult) {
+        message = tr("%1 of %2 Unofficial library files extracted to %3")
+                     .arg(m_extractJobResult)
+                     .arg(items.count())
+                     .arg(destination);
+        emit messageSig(LOG_INFO,message);
     } else {
-        QString message = tr("%1 Unofficial Library files extracted to %2").arg(result.size()).arg(destination);
-        emit messageSig(LOG_STATUS,message);
+        message = tr("Failed to %1 extract library files")
+                     .arg(QFileInfo(newarchive).fileName());
+        emit messageSig(LOG_ERROR,message);
     }
+
+    // Unload LDraw Unofficial archive library
+    gApplication->mLibrary->UnloadUnofficialLib();
+
+    // Copy archive library to user data
+    QString archivePath = QDir::toNativeSeparators(tr("%1/libraries").arg(Preferences::lpubDataPath));
+    QString archive     = QDir::toNativeSeparators(tr("%1/%2").arg(archivePath).arg(VER_LPUB3D_UNOFFICIAL_ARCHIVE));
+    QFile oldFile(archive);
+    QFile newFile(newarchive);
+    if (! newFile.exists()) {
+        message = tr("Could not find file %1").arg(newFile.fileName());
+        emit messageSig(LOG_ERROR,message);
+    } else if (! oldFile.exists() || oldFile.remove()) {
+        if (! newFile.rename(archive)) {
+            message = tr("Could not rename file %1").arg(newFile.fileName());
+            emit messageSig(LOG_ERROR,message);
+        }
+    } else {
+        message = tr("Could not remove old file %1").arg(oldFile.fileName());
+        emit  messageSig(LOG_ERROR,message);
+    }
+
+    // Reload LDraw archive libraries
+    restartApplication(false);
 }
 
-void Gui::refreshLDrawOfficialParts(){
+void Gui::refreshLDrawOfficialParts() {
 
     // Download official archive
     emit messageSig(LOG_STATUS,"Refresh LDraw Official Library archive...");
+    QTemporaryDir tempDir;
+    QString downloadPath = tempDir.path();
     UpdateCheck *libraryDownload;
-    QEventLoop *wait = new QEventLoop();
-    QString archivePath = tr("%1/%2").arg(Preferences::lpubDataPath, "libraries");
-    libraryDownload = new UpdateCheck(this, (void*)LDrawOfficialLibraryDownload);
+    libraryDownload      = new UpdateCheck(this, (void*)LDrawOfficialLibraryDownload);
+    QEventLoop  *wait    = new QEventLoop();
     wait->connect(libraryDownload, SIGNAL(downloadFinished(QString,QString)), wait, SLOT(quit()));
-    libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), archivePath);
+    wait->connect(libraryDownload, SIGNAL(cancel()),                          wait, SLOT(quit()));
+    libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), downloadPath);
+    wait->exec();
+    if (libraryDownload->getCancelled()) {
+        return;
+    }
+
+    // Automatically extract Official archive
+    QString newarchive  = QDir::toNativeSeparators(tr("%1/%2").arg(downloadPath).arg(VER_LDRAW_OFFICIAL_ARCHIVE));
+    QString destination = QDir::toNativeSeparators(Preferences::ldrawLibPath);
+    destination         = destination.remove(destination.size() - 6,6);
+    QString message = tr("Extracting Official archive library. Please wait...");
+    emit messageSig(LOG_INFO_STATUS,message);
+
+    QStringList items = JlCompress::getFileList(newarchive);
+    m_progressDialog  = new ProgressDialog(nullptr);
+    m_progressDialog->setWindowFlags(m_progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
+    m_progressDialog->setWindowTitle(QString("LDraw Library Update"));
+    m_progressDialog->progressBarSetLabelText(QString("Extracting LDraw Official parts from %1...")
+                                              .arg(QFileInfo(newarchive).baseName()));
+    m_progressDialog->progressBarSetRange(0,items.count());
+    m_progressDialog->setAutoHide(true);
+    m_progressDialog->setModal(true);
+    m_progressDialog->show();
+
+    QThread *thread    = new QThread(this);
+    ExtractWorker *job = new ExtractWorker(newarchive,destination);
+    job->moveToThread(thread);
+    wait = new QEventLoop();
+
+    connect(thread, SIGNAL(started()),
+            job, SLOT(doWork()));
+    connect(thread, SIGNAL(finished()),
+            thread, SLOT(deleteLater()));
+    connect(job, SIGNAL(progressSetValue(int)),
+            m_progressDialog, SLOT(progressBarSetValue(int)));
+    disconnect(m_progressDialog, SIGNAL (cancelClicked()),
+            this, SLOT (cancelExporting()));
+    connect(m_progressDialog, SIGNAL(cancelClicked()),
+            job, SLOT(requestEndWorkNow()));
+    connect(job, SIGNAL(result(int)),
+            this, SLOT(extractJobResult(int)));
+    connect(this, SIGNAL(requestEndThreadNowSig()),
+            job, SLOT(requestEndWorkNow()));
+    connect(job, SIGNAL(finished()),
+            thread, SLOT(quit()));
+    connect(job, SIGNAL(finished()),
+            job, SLOT(deleteLater()));
+    wait->connect(job, SIGNAL(finished()),
+            wait, SLOT(quit()));
+
+    extractJobResult(0);
+    thread->start();
     wait->exec();
 
-    // Automatically extract official archive
-    QString archive = tr("%1/%2").arg(archivePath).arg(VER_LDRAW_OFFICIAL_ARCHIVE);
-    QString destination = Preferences::ldrawLibPath;
-    destination = destination.remove(destination.size() - 6,6);
-    QStringList result = JlCompress::extractDir(archive,destination);
-    if (result.isEmpty()){
-        emit messageSig(LOG_ERROR,tr("Failed to extract %1 to %2/ldraw").arg(archive).arg(destination));
+    m_progressDialog->progressBarSetValue(items.count());
+    connect (m_progressDialog, SIGNAL (cancelClicked()),
+             this, SLOT (cancelExporting()));
+
+    if (m_extractJobResult) {
+        message = tr("%1 of %2 Library files extracted to %3")
+                     .arg(m_extractJobResult)
+                     .arg(items.count())
+                     .arg(destination);
+        emit messageSig(LOG_INFO,message);
     } else {
-        QString message = tr("%1 Official Library files extracted to %2/ldraw").arg(result.size()).arg(destination);
-        emit messageSig(LOG_STATUS,message);
+        message = tr("Failed to %1 extract library files")
+                     .arg(QFileInfo(newarchive).fileName());
+        emit messageSig(LOG_ERROR,message);
     }
+
+    // Unload LDraw Official archive libraries
+    gApplication->mLibrary->UnloadOfficialLib();
+
+    // Copy archive library to user data
+    QString archivePath = QDir::toNativeSeparators(tr("%1/libraries").arg(Preferences::lpubDataPath));
+    QString archive     = QDir::toNativeSeparators(tr("%1/%2").arg(archivePath).arg(VER_LDRAW_OFFICIAL_ARCHIVE));
+    QFile oldFile(archive);
+    QFile newFile(newarchive);
+    if (! newFile.exists()) {
+        message = tr("Could not find file %1").arg(newFile.fileName());
+        emit messageSig(LOG_ERROR,message);
+    } else if (! oldFile.exists() || oldFile.remove()) {
+        if (! newFile.rename(archive)) {
+            message = tr("Could not rename file %1").arg(newFile.fileName());
+            emit messageSig(LOG_ERROR,message);
+        }
+    } else {
+        message = tr("Could not remove old file %1").arg(oldFile.fileName());
+        emit  messageSig(LOG_ERROR,message);
+    }
+
+    // Reload LDraw archive libraries
+    restartApplication(false);
 }
 
 void Gui::updateCheck()
@@ -3105,11 +3271,13 @@ void Gui::createActions()
     connect(clearCustomPartCacheAct, SIGNAL(triggered()), this, SLOT(clearCustomPartCache()));
 
     refreshLDrawUnoffPartsAct = new QAction(QIcon(":/resources/refreshunoffarchive.png"),tr("Refresh LDraw Unofficial Parts"), this);
-    refreshLDrawUnoffPartsAct->setStatusTip(tr("Download and replace LDraw Unofficial parts archive file"));
+    refreshLDrawUnoffPartsAct->setStatusTip(tr("Download and replace LDraw Unofficial parts archive file in User data"));
+    refreshLDrawUnoffPartsAct->setEnabled(Preferences::usingDefaultLibrary);
     connect(refreshLDrawUnoffPartsAct, SIGNAL(triggered()), this, SLOT(refreshLDrawUnoffParts()));
 
     refreshLDrawOfficialPartsAct = new QAction(QIcon(":/resources/refreshoffarchive.png"),tr("Refresh LDraw Official Parts"), this);
-    refreshLDrawOfficialPartsAct->setStatusTip(tr("Download and replace LDraw Official parts archive file"));
+    refreshLDrawOfficialPartsAct->setStatusTip(tr("Download and replace LDraw Official parts archive file in User data"));
+    refreshLDrawUnoffPartsAct->setEnabled(Preferences::usingDefaultLibrary);
     connect(refreshLDrawOfficialPartsAct, SIGNAL(triggered()), this, SLOT(refreshLDrawOfficialParts()));
 
     // Config menu
@@ -4063,4 +4231,3 @@ void Gui::statusMessage(LogType logType, QString message) {
         logger.setLoggingLevel(OffLevel);
     }
 }
-

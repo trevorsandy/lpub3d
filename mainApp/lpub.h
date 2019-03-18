@@ -880,6 +880,8 @@ public slots:
   void progressBarPermReset();
   void progressPermStatusRemove();
 
+  void extractJobResult(int value);
+
   void preferences();
   void fadeStepSetup();
   void highlightStepSetup();
@@ -1036,6 +1038,8 @@ private:
   QString                saveRenderer;
   bool                   saveProjection;
   bool                   saveSingleCall;
+
+  int                    m_extractJobResult;
 
   bool                   okToInvokeProgressBar()
   {
