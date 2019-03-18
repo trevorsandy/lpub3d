@@ -682,12 +682,14 @@ int Gui::drawPage(
 
             } // STEP - Process called out submodel
 
+          // Set flag to display submodel at first submodel step
           if (step && steps->meta.LPub.subModel.show.value()) {
               bool calloutOk      = (calledOut ? assembledCallout : true ) &&
-                                    (calledOut ? steps->meta.LPub.subModel.showSubmodelInCallout.value(): true);
+                                    (calledOut ? steps->meta.LPub.subModel.showSubmodelInCallout.value() : true);
               bool topModel       = (topLevelFile() == topOfStep.modelName);
               bool showTopModel   = (steps->meta.LPub.subModel.showTopModel.value());
-              step->placeSubModel = (calloutOk && (stepNum == 1) && (!topModel || showTopModel));
+              bool showStepOk     = (steps->meta.LPub.subModel.showStep.value());
+              step->placeSubModel = (calloutOk && showStepOk && (! topModel || showTopModel));
           }
 
         }
@@ -1843,8 +1845,13 @@ int Gui::findPage(LGraphicsView  *view,
             case StepGroupBeginRc:
               stepGroup = true;
               stepGroupCurrent = topOfStep;
-              if (useContStepNum){     // save starting step group continuous step number
+              if (useContStepNum){    // save starting step group continuous step number
                   saveContStepNum = contStepNumber == 1 ? stepNumber : contStepNumber;
+                  if (pageNum == 1) { // set the ok to display subModel flag
+                    meta.LPub.subModel.showStep.setValue(stepNumber == 1);
+                  } else {
+                    saveMeta.LPub.subModel.showStep.setValue(stepNumber == 1);
+                  }
               }
               // Steps within step group modify bfxStore2 as they progress
               // so we must save bfxStore2 and use the saved copy when
@@ -1865,9 +1872,6 @@ int Gui::findPage(LGraphicsView  *view,
                       saveRotStep = meta.rotStep;
                     } else if (pageNum == displayPageNum) {
                       csiParts.clear();
-                      if (useContStepNum) {  // pass starting continuous step number to drawPage
-                        saveStepNumber = saveContStepNum;
-                      }
                       savePrevStepPosition = saveCsiParts.size();
                       stepPageNum = saveStepPageNum;
                       if (pageNum == 1) {
@@ -1876,6 +1880,9 @@ int Gui::findPage(LGraphicsView  *view,
                           page.meta = saveMeta;
                         }
                       page.meta.pop();
+                      if (useContStepNum) {  // pass starting continuous step number to drawPage
+                        saveStepNumber = saveContStepNum;
+                      }
                       page.meta.rotStep = saveRotStep;
 
                       QStringList pliParts;
@@ -1932,10 +1939,15 @@ int Gui::findPage(LGraphicsView  *view,
             case RotStepRc:
             case StepRc:
               if (partsAdded && ! noStep) {
-                  // increment continuous step number until we hit the display page
-                  if (useContStepNum && pageNum < displayPageNum && ! stepGroup) {
-                      if (stepNumber > FIRST_STEP || displayPageNum > FIRST_PAGE) { // skip the first step
-                         contStepNumber += ! coverPage && ! stepPage;
+                  if (useContStepNum) {   // increment continuous step number until we hit the display page
+                      if (! stepGroup && pageNum < displayPageNum &&
+                         (stepNumber > FIRST_STEP || displayPageNum > FIRST_PAGE)) { // skip the first step
+                             contStepNumber += ! coverPage && ! stepPage;
+                      }
+                      if (pageNum == 1) { // set the ok to display subModel flag
+                        meta.LPub.subModel.showStep.setValue(stepNumber == 1);
+                      } else {
+                        saveMeta.LPub.subModel.showStep.setValue(stepNumber == 1);
                       }
                   }
                   stepNumber  += ! coverPage && ! stepPage;

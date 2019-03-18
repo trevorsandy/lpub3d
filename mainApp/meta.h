@@ -2706,6 +2706,7 @@ public:
 class SubModelMeta  : public PliMeta
 {
 public:
+  BoolMeta   showStep;
   void setPreferences()
   {
       Preferences::showSubmodels         = show.value();
