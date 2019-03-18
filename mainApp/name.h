@@ -43,9 +43,9 @@ enum Theme { ThemeDark, ThemeDefault };
 #define UPDATES                 "Updates"
 #define LOGGING                 "Logging"
 
-#define SAVE_DISPLAY_PAGE_NUM   "SaveDisplayPageNum"
-#define VIEW_PARTS_WIDGET       "ViewPartsWidget"
-
+#define SAVE_DISPLAY_PAGE_NUM_KEY   "SaveDisplayPageNum"
+#define SAVE_SKIP_PARTS_ARCHIVE_KEY "SaveSkipPartsArchive"
+#define VIEW_PARTS_WIDGET           "ViewPartsWidget"
 
 #define MAX_NUM_POV_GEN_ARGS (128)
 

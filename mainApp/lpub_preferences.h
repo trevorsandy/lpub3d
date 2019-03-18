@@ -182,6 +182,7 @@ class Preferences
     static bool    addLSynthSearchDir;
     static bool    archiveLSynthParts;
     static bool    usingNativeRenderer;
+    static bool    skipPartsArchive;
 
     static bool    enableFadeSteps;
     static bool    fadeStepsUseColour;

@@ -161,6 +161,7 @@ bool    Preferences::includeFunction            = false;
 bool    Preferences::addLSynthSearchDir         = false;
 bool    Preferences::archiveLSynthParts         = false;
 bool    Preferences::usingNativeRenderer        = false;
+bool    Preferences::skipPartsArchive           = false;
 
 bool    Preferences::ignoreMixedPageSizesMsg    = false;
 
@@ -924,6 +925,13 @@ void Preferences::lpub3dLibPreferences(bool force)
     QString const PartsLibraryKey("PartsLibrary");
 
     QSettings Settings;
+
+    // check if skip parts archive selected
+    if (Settings.contains(QString("%1/%2").arg(DEFAULTS,SAVE_SKIP_PARTS_ARCHIVE_KEY))) {
+        skipPartsArchive = Settings.value(QString("%1/%2").arg(DEFAULTS,SAVE_SKIP_PARTS_ARCHIVE_KEY)).toBool();
+        Settings.remove(QString("%1/%2").arg(DEFAULTS,SAVE_SKIP_PARTS_ARCHIVE_KEY));
+    }
+
     lpub3dLibFile = Settings.value(QString("%1/%2").arg(SETTINGS,PartsLibraryKey)).toString();
 
     QString validFile = QString("%1/%2/%3").arg(lpubDataPath, "libraries", validLDrawPartsArchive);

@@ -78,6 +78,7 @@ class PartWorker: public QObject
 
 public:
     explicit PartWorker(QObject *parent = 0);
+    PartWorker(QString archiveFile, QObject *parent = 0);
     ~PartWorker()
     {
         _colourParts.empty();
@@ -133,6 +134,8 @@ public slots:
 
      void requestEndThreadNow();
 
+     void processPartsArchive();
+
 signals:
      void progressBarInitSig();
 
@@ -152,6 +155,10 @@ signals:
 
      void customColourFinishedSig();
 
+     void partsArchiveFinishedSig();
+
+     void partsArchiveResultSig(int);
+
      //2 below not used
      void requestFinishSig();
      void ldSearchDirFinishedSig();
@@ -160,30 +167,8 @@ private:
     void processCustomColourParts(PartType partType,
                                   bool     overwriteCustomParts = false);
 
-    bool                      _endThreadNowRequested;
-    QMap<QString, ColourPart> _colourParts;
-    QStringList               _emptyList;
-    QString                   _emptyString;
-    QStringList               _ldrawStaticColourParts;
-    QStringList               _partFileContents;
-    QStringList               _excludedSearchDirs;
-    QString                   _customPartDir;
-    QString                   _customPrimDir;
-    QString                   _lsynthPartsDir;
-    QString                   _ldrawCustomArchive;
-    QString                   _ldSearchDirsKey;
-    QElapsedTimer             _timer;
-    bool                      _partsArchived;
-    bool                      _doFadeStep;
-    bool                      _doHighlightStep;
-    bool                      _resetSearchDirSettings;
-    int                       _customParts;
+    bool endThreadNotRequested(){ return ! _endThreadNowRequested; }
 
-    LDPartsDirs                ldPartsDirs;     // automatically load LDraw.ini parameters
-    LDrawFile                  ldrawFile;       // contains MPD or all files used in model
-    ArchiveParts               archiveParts;    // add contents to unofficial zip archive (for 3DViewer)
-
-    bool endThreadNotRequested(){ return ! _endThreadNowRequested;}
     QStringList contents(
         const QString       &fileNameStr);
 
@@ -200,7 +185,6 @@ private:
    bool createCustomPartFiles(
         const PartType       partType); // convert static color files // replace color code with fade color or highlight edge color
 
-   // new
    bool processColourParts(
        const QStringList      &colourPartList,
        const PartType         partType);
@@ -219,6 +203,29 @@ private:
    bool okToEmitToProgressBar()
       {return               (Preferences::lpub3dLoaded && Preferences::modeGUI);}
 
+   bool                      _endThreadNowRequested;
+   QMap<QString, ColourPart> _colourParts;
+   QStringList               _emptyList;
+   QString                   _emptyString;
+   QStringList               _ldrawStaticColourParts;
+   QStringList               _partFileContents;
+   QStringList               _excludedSearchDirs;
+   QString                   _customPartDir;
+   QString                   _customPrimDir;
+   QString                   _lsynthPartsDir;
+   QString                   _ldrawCustomArchive;
+   QString                   _ldSearchDirsKey;
+   QString                   _ldrawArchiveFile;
+   QElapsedTimer             _timer;
+   bool                      _partsArchived;
+   bool                      _doFadeStep;
+   bool                      _doHighlightStep;
+   bool                      _resetSearchDirSettings;
+   int                       _customParts;
+
+   LDPartsDirs                ldPartsDirs;     // automatically load LDraw.ini parameters
+   LDrawFile                  ldrawFile;       // contains MPD or all files used in model
+   ArchiveParts               archiveParts;    // add contents to unofficial zip archive (for 3DViewer)
 };
 
 

@@ -1196,13 +1196,13 @@ void Gui::loadTheme(bool restart){
 
 void  Gui::restartApplication(bool changeLibrary){
     QStringList args;
-    if (! getCurFile().isEmpty() && ! changeLibrary){
+    if (! changeLibrary && ! getCurFile().isEmpty()){
         args = QApplication::arguments();
         args.removeFirst();
         if (!args.contains(getCurFile(),Qt::CaseInsensitive))
             args << QString("%1").arg(getCurFile());
         QSettings Settings;
-        Settings.setValue(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM),displayPageNum);
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM_KEY),displayPageNum);
     } else {
         args << (Preferences::validLDrawLibraryChange == LEGO_LIBRARY  ? "++liblego" :
                  Preferences::validLDrawLibraryChange == TENTE_LIBRARY ? "++libtente" : "++libvexiq");
@@ -2331,8 +2331,8 @@ void Gui::closeEvent(QCloseEvent *event)
     }
 }
 
-void Gui::extractJobResult(int value){
-    m_extractJobResult = value;
+void Gui::workerJobResult(int value){
+    m_workerJobResult = value;
 }
 
 void Gui::getRequireds(){
@@ -2698,7 +2698,7 @@ void Gui::refreshLDrawUnoffParts() {
     connect(m_progressDialog, SIGNAL(cancelClicked()),
             job, SLOT(requestEndWorkNow()));
     connect(job, SIGNAL(result(int)),
-            this, SLOT(extractJobResult(int)));
+            this, SLOT(workerJobResult(int)));
     connect(this, SIGNAL(requestEndThreadNowSig()),
             job, SLOT(requestEndWorkNow()));
     connect(job, SIGNAL(finished()),
@@ -2708,30 +2708,86 @@ void Gui::refreshLDrawUnoffParts() {
     wait->connect(job, SIGNAL(finished()),
             wait, SLOT(quit()));
 
-    extractJobResult(0);
+    workerJobResult(0);
     thread->start();
     wait->exec();
 
     m_progressDialog->progressBarSetValue(items.count());
-    connect (m_progressDialog, SIGNAL (cancelClicked()),
-             this, SLOT (cancelExporting()));
 
-    if (m_extractJobResult) {
+    if (m_workerJobResult) {
         message = tr("%1 of %2 Unofficial library files extracted to %3")
-                     .arg(m_extractJobResult)
+                     .arg(m_workerJobResult)
                      .arg(items.count())
                      .arg(destination);
         emit messageSig(LOG_INFO,message);
     } else {
-        message = tr("Failed to %1 extract library files")
+        message = tr("Failed to extract %1 library files")
                      .arg(QFileInfo(newarchive).fileName());
         emit messageSig(LOG_ERROR,message);
     }
 
+   // Process custom and color parts if any
+    items = Preferences::ldSearchDirs;
+    if (items.count()){
+        QString message = tr("Archiving custom parts. Please wait...");
+        emit messageSig(LOG_STATUS,message);
+        m_progressDialog->progressBarSetLabelText(QString("Archiving custom parts..."));
+        m_progressDialog->progressBarSetRange(0,items.count());
+        m_progressDialog->show();
+
+        QThread *thread = new QThread(this);
+        PartWorker *job = new PartWorker(newarchive);
+        job->moveToThread(thread);
+        wait = new QEventLoop();
+
+        connect(thread, SIGNAL(started()),
+                job, SLOT(processPartsArchive()));
+        connect(thread, SIGNAL(finished()),
+                thread, SLOT(deleteLater()));
+        connect(job, SIGNAL(progressSetValueSig(int)),
+                m_progressDialog, SLOT(progressBarSetValue(int)));
+        connect(m_progressDialog, SIGNAL(cancelClicked()),
+                job, SLOT(requestEndThreadNow()));
+        connect(job, SIGNAL(progressMessageSig (QString)),
+                m_progressDialog, SLOT(progressBarSetLabelText(QString)));
+        connect(job, SIGNAL(progressSetValueSig(int)),
+                this, SLOT(workerJobResult(int)));
+        connect(this, SIGNAL(requestEndThreadNowSig()),
+                job, SLOT(requestEndThreadNow()));
+        connect(job, SIGNAL(partsArchiveFinishedSig()),
+                thread, SLOT(quit()));
+        connect(job, SIGNAL(partsArchiveFinishedSig()),
+                job, SLOT(deleteLater()));
+        wait->connect(job, SIGNAL(partsArchiveFinishedSig()),
+                wait, SLOT(quit()));
+
+        workerJobResult(0);
+        thread->start();
+        wait->exec();
+
+        m_progressDialog->progressBarSetValue(items.count());
+
+        QString partsLabel = m_workerJobResult == 1 ? "part" : "parts";
+        message = tr("Added %1 custom %2 into Unofficial library archive %3")
+                     .arg(m_workerJobResult)
+                     .arg(partsLabel)
+                     .arg(QFileInfo(newarchive).fileName());
+        emit messageSig(LOG_INFO,message);
+
+        if (m_workerJobResult) {
+            QSettings Settings;
+            QVariant uValue(true);
+            Settings.setValue(QString("%1/%2").arg(DEFAULTS,SAVE_SKIP_PARTS_ARCHIVE_KEY),uValue);
+        }
+    }
+
+    connect (m_progressDialog, SIGNAL (cancelClicked()),
+             this, SLOT (cancelExporting()));
+
     // Unload LDraw Unofficial archive library
     gApplication->mLibrary->UnloadUnofficialLib();
 
-    // Copy archive library to user data
+    // Copy new archive library to user data
     QString archivePath = QDir::toNativeSeparators(tr("%1/libraries").arg(Preferences::lpubDataPath));
     QString archive     = QDir::toNativeSeparators(tr("%1/%2").arg(archivePath).arg(VER_LPUB3D_UNOFFICIAL_ARCHIVE));
     QFile oldFile(archive);
@@ -2749,7 +2805,7 @@ void Gui::refreshLDrawUnoffParts() {
         emit  messageSig(LOG_ERROR,message);
     }
 
-    // Reload LDraw archive libraries
+    // Restart LDraw archive libraries
     restartApplication(false);
 }
 
@@ -2804,7 +2860,7 @@ void Gui::refreshLDrawOfficialParts() {
     connect(m_progressDialog, SIGNAL(cancelClicked()),
             job, SLOT(requestEndWorkNow()));
     connect(job, SIGNAL(result(int)),
-            this, SLOT(extractJobResult(int)));
+            this, SLOT(workerJobResult(int)));
     connect(this, SIGNAL(requestEndThreadNowSig()),
             job, SLOT(requestEndWorkNow()));
     connect(job, SIGNAL(finished()),
@@ -2814,7 +2870,7 @@ void Gui::refreshLDrawOfficialParts() {
     wait->connect(job, SIGNAL(finished()),
             wait, SLOT(quit()));
 
-    extractJobResult(0);
+    workerJobResult(0);
     thread->start();
     wait->exec();
 
@@ -2822,14 +2878,14 @@ void Gui::refreshLDrawOfficialParts() {
     connect (m_progressDialog, SIGNAL (cancelClicked()),
              this, SLOT (cancelExporting()));
 
-    if (m_extractJobResult) {
+    if (m_workerJobResult) {
         message = tr("%1 of %2 Library files extracted to %3")
-                     .arg(m_extractJobResult)
+                     .arg(m_workerJobResult)
                      .arg(items.count())
                      .arg(destination);
         emit messageSig(LOG_INFO,message);
     } else {
-        message = tr("Failed to %1 extract library files")
+        message = tr("Failed to extract %1 library files")
                      .arg(QFileInfo(newarchive).fileName());
         emit messageSig(LOG_ERROR,message);
     }
@@ -2855,7 +2911,7 @@ void Gui::refreshLDrawOfficialParts() {
         emit  messageSig(LOG_ERROR,message);
     }
 
-    // Reload LDraw archive libraries
+    // Restart LDraw archive libraries
     restartApplication(false);
 }
 

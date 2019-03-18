@@ -880,7 +880,7 @@ public slots:
   void progressBarPermReset();
   void progressPermStatusRemove();
 
-  void extractJobResult(int value);
+  void workerJobResult(int value);
 
   void preferences();
   void fadeStepSetup();
@@ -1039,7 +1039,7 @@ private:
   bool                   saveProjection;
   bool                   saveSingleCall;
 
-  int                    m_extractJobResult;
+  int                    m_workerJobResult;
 
   bool                   okToInvokeProgressBar()
   {
