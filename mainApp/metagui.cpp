@@ -3778,7 +3778,7 @@ void PliAnnotationGui::apply(QString &topLevelFile)
 
 CsiAnnotationGui::CsiAnnotationGui(
     const QString        &heading,
-    CsiAnnotationMeta *_meta,
+    CsiAnnotationMeta   *_meta,
     QGroupBox            *parent)
 {
   meta = _meta;
@@ -3857,7 +3857,7 @@ CsiAnnotationGui::CsiAnnotationGui(
           this,             SLOT(  panelDisplay(bool)));
   sgrid->addWidget(panelDisplayCheck,1,2);
 
-  gbPlacement = new QGroupBox("Part Annotation Placement",parent);
+  gbPlacement = new QGroupBox("Part Annotation Default Placement",parent);
   QGridLayout *gLayout = new QGridLayout();
   gbPlacement->setLayout(gLayout);
   grid->addWidget(gbPlacement);

@@ -165,11 +165,12 @@ GlobalAssemDialog::GlobalAssemDialog(
   vLayout = new QVBoxLayout();
   box->setLayout(vLayout);
 
-  if (data->meta.LPub.pli.annotation.display.value()) {
-     child = new CsiAnnotationGui("",&assem->annotation);
-     data->children.append(child);
-     vLayout->addWidget(child);
-  }
+  child = new CsiAnnotationGui("",&assem->annotation);
+  data->children.append(child);
+  vLayout->addWidget(child);
+  box->setEnabled(data->meta.LPub.pli.annotation.display.value());
+  if (!box->isEnabled())
+      box->setToolTip("Part List annotations display must be enabled to enable Assembly annotations.");
 
   //spacer
   QSpacerItem *vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);

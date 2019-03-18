@@ -280,6 +280,8 @@ void Pli::setParts(
               }
           }
 
+          bool noCA = pliMeta.rotStep.value().type == "ABS";
+
           // assemble image name key
           QString nameKey = QString("%1_%2_%3_%4_%5_%6_%7")
               .arg(key)
@@ -287,8 +289,8 @@ void Pli::setParts(
               .arg(resolution())
               .arg(resolutionType() == DPI ? "DPI" : "DPCM")
               .arg(modelScale)
-              .arg(pliMeta.cameraAngles.value(0))
-              .arg(pliMeta.cameraAngles.value(1));
+              .arg(noCA ? 0.0 : pliMeta.cameraAngles.value(0))
+              .arg(noCA ? 0.0 : pliMeta.cameraAngles.value(1));
           // assemble image name
           QString imageName = QDir::currentPath() + "/" +
               Paths::partsDir + "/" + nameKey + ".png";
@@ -555,7 +557,7 @@ QString Pli::orient(QString &color, QString type)
       .arg(type);
 }
 
-int Pli::createSubModelIcons()
+int Pli::createSubModelIcons() // NOT USED
 {
     int rc = 0;
     QString key   = "";
@@ -567,6 +569,7 @@ int Pli::createSubModelIcons()
     splitBom   = false;
     isSubModel = true;
     pliMeta    = meta->LPub.pli;
+    bool noCA = pliMeta.rotStep.value().type == "ABS";
 
     if (renderer->useLDViewSCall()) {
 
@@ -590,8 +593,8 @@ int Pli::createSubModelIcons()
                     .arg(resolution())
                     .arg(resolutionType() == DPI ? "DPI" : "DPCM")
                     .arg(modelScale)
-                    .arg(pliMeta.cameraAngles.value(0))
-                    .arg(pliMeta.cameraAngles.value(1));
+                    .arg(noCA ? 0.0 : pliMeta.cameraAngles.value(0))
+                    .arg(noCA ? 0.0 : pliMeta.cameraAngles.value(1));
 
             if ( ! parts.contains(key)) {
                 AnnotationStyleMeta styleMeta;
@@ -654,8 +657,9 @@ int Pli::createPartImage(
     highlightStep = Preferences::enableHighlightStep && !gui->suppressColourMeta();
     bool fadePartOK = fadeSteps && !highlightStep && displayIcons;
     bool highlightPartOK = highlightStep && !fadeSteps && displayIcons;
-
     bool isColorPart = gui->ldrawColourParts.isLDrawColourPart(type);
+    bool noCA = pliMeta.rotStep.value().type == "ABS";
+    PliType pliType = isSubModel ? SUBMODEL: bom ? BOM : PART;
 
     for (int pT = 0; pT < ptn.size(); pT++ ) {
 
@@ -689,8 +693,8 @@ int Pli::createPartImage(
                 .arg(resolutionType() == DPI ? "DPI" : "DPCM")
                 .arg(modelScale)
                 .arg(pliMeta.cameraFoV.value())
-                .arg(pliMeta.cameraAngles.value(0))
-                .arg(pliMeta.cameraAngles.value(1))
+                .arg(noCA ? 0.0 : pliMeta.cameraAngles.value(0))
+                .arg(noCA ? 0.0 : pliMeta.cameraAngles.value(1))
                 .arg(ptn[pT].typeName);
 
         QString imageDir = isSubModel ? Paths::submodelDir : Paths::partsDir;
@@ -731,18 +735,18 @@ int Pli::createPartImage(
             QTextStream out(&part);
             if (Preferences::usingNativeRenderer) {
                 QString modelName = QFileInfo(type).baseName();
-                modelName = modelName.replace(modelName.at(0),modelName.at(0).toUpper());
+                modelName = modelName.replace(
+                            modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper());
                 out << QString("0 %1").arg(modelName) << endl;
                 out << QString("0 Name: %1").arg(type) << endl;
                 out << QString("0 !LEOCAD MODEL NAME %1").arg(modelName) << endl;
-                out << renderer->getRotstepMeta(meta->rotStep) << endl;
+                out << renderer->getRotstepMeta(pliMeta.rotStep) << endl;
             }
             foreach (QString line, pliFile)
                 out << line << endl;
             part.close();
 
             // feed DAT to renderer
-            PliType pliType = isSubModel ? SUBMODEL: bom ? BOM : PART;
             int rc = renderer->renderPli(ldrNames,imageName,*meta,pliType);
 
             if (rc != 0) {

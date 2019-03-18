@@ -159,7 +159,7 @@ class SubModel : public Placement {
 
     void setPos(float x, float y);
     void setFlag(QGraphicsItem::GraphicsItemFlag flag,bool value);
-    bool rotateModel(QString ldrName, QString subModel, const QString color);
+    bool rotateModel(QString ldrName, QString subModel, const QString color, bool noCA);
 
     void setSubModel(
       QString &modelName,

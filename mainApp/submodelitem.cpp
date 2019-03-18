@@ -138,12 +138,11 @@ void SubModel::clear()
   parts.clear();
 }
 
-bool SubModel::rotateModel(QString ldrName, QString subModel, const QString color)
+bool SubModel::rotateModel(QString ldrName, QString subModel, const QString color, bool noCA)
 {
    subModel = subModel.toLower();
    QStringList rotatedModel = QStringList() << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(subModel);
    QString addLine = "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr";
-   bool    absRotstep = subModelMeta.rotStep.value().type == "ABS";
    FloatPairMeta noCameraAngles;
 
    // create the Submodel ldr file and rotate its parts - camera angles not applied for Native renderer
@@ -153,7 +152,7 @@ bool SubModel::rotateModel(QString ldrName, QString subModel, const QString colo
             rotatedModel,
             ldrName,
             step->top.modelName,
-            absRotstep ? noCameraAngles : subModelMeta.cameraAngles
+            noCA ? noCameraAngles : subModelMeta.cameraAngles
             )) != 0) {
        emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate Submodel ldr file: %1.")
                                              .arg(ldrName));
@@ -186,7 +185,8 @@ int SubModel::createSubModelImage(
   } else {
       modelScale = subModelMeta.modelScale.value();
   }
-  QString        unitsName = resolutionType() ? "DPI" : "DPCM";
+  QString unitsName = resolutionType() ? "DPI" : "DPCM";
+  bool noCA = subModelMeta.rotStep.value().type == "ABS";
 
   // assemble name key - create unique file when a value that impacts the image changes
   QString key = QString("%1_%2_%3_%4_%5_%6_%7_%8_%9")
@@ -196,8 +196,8 @@ int SubModel::createSubModelImage(
                     .arg(resolutionType() == DPI ? "DPI" : "DPCM")
                     .arg(modelScale)
                     .arg(subModelMeta.cameraFoV.value())
-                    .arg(subModelMeta.cameraAngles.value(0))
-                    .arg(subModelMeta.cameraAngles.value(1))
+                    .arg(noCA ? 0.0 : subModelMeta.cameraAngles.value(0))
+                    .arg(noCA ? 0.0 : subModelMeta.cameraAngles.value(1))
                     .arg(renderer->getRotstepMeta(subModelMeta.rotStep,true));
   imageName = QDir::currentPath() + "/" +
               Paths::submodelDir + "/" + key.toLower() + ".png";
@@ -227,7 +227,7 @@ int SubModel::createSubModelImage(
       QElapsedTimer timer;
       timer.start();
 
-      if (! rotateModel(ldrNames.first(),type,color)) {
+      if (! rotateModel(ldrNames.first(),type,color,noCA)) {
           emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate Submodel ldr file: %1.")
                                                 .arg(ldrNames.first()));
           return -1;

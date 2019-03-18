@@ -209,7 +209,7 @@ int Step::createCsi(
   QString csi_Name        = modelDisplayOnlyStep ? csiName()+"_fm" : bfxLoad ? csiName()+"_bfx" : csiName();
   bool    invalidIMStep   = ((modelDisplayOnlyStep) || (stepNumber.number == 1));
   bool    absRotstep      = meta.rotStep.value().type == "ABS";
-  FloatPairMeta absCA;
+  FloatPairMeta noCA;
 
   ldrName.clear();
 
@@ -238,8 +238,8 @@ int Step::createCsi(
       .arg(resolutionType() == DPI ? "DPI" : "DPCM")
       .arg(modelScale)
       .arg(meta.LPub.assem.cameraFoV.value())
-      .arg(absRotstep ? absCA.value(0) : meta.LPub.assem.cameraAngles.value(0))
-      .arg(absRotstep ? absCA.value(1) : meta.LPub.assem.cameraAngles.value(1));
+      .arg(absRotstep ? noCA.value(0) : meta.LPub.assem.cameraAngles.value(0))
+      .arg(absRotstep ? noCA.value(1) : meta.LPub.assem.cameraAngles.value(1));
 
   // populate png name
   pngName = QString("%1/%2.png").arg(csiPngFilePath).arg(key);
@@ -290,9 +290,9 @@ int Step::createCsi(
       // set rotated parts
       QStringList rotatedParts = csiParts;
 
-      // rotate parts for 3DViewer display - do not apply camera angles
-      if ((rc = renderer->rotateParts(addLine,meta.rotStep,rotatedParts,absRotstep ? absCA : meta.LPub.assem.cameraAngles,false)) != 0)
-        emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer CSI parts"));
+      // rotate parts for 3DViewer without camera angles - this rotateParts routine returns a part list
+      if ((rc = renderer->rotateParts(addLine,meta.rotStep,rotatedParts,absRotstep ? noCA : meta.LPub.assem.cameraAngles,false)) != 0)
+          emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer CSI parts"));
 
       // add ROTSTEP command
       rotatedParts.prepend(renderer->getRotstepMeta(meta.rotStep));
@@ -333,8 +333,8 @@ int Step::createCsi(
             meta.LPub.highlightStep.setPreferences();
          }
 
-         // Camera angles not applied to rotated parts for Native renderer
-         if ((rc = renderer->rotateParts(addLine, meta.rotStep, csiParts, ldrName, top.modelName, absRotstep ? absCA : meta.LPub.assem.cameraAngles)) != 0) {
+         // Camera angles not applied to rotated parts for Native renderer - this rotateParts routine generates an ldr file
+         if ((rc = renderer->rotateParts(addLine, meta.rotStep, csiParts, ldrName, top.modelName, absRotstep ? noCA : meta.LPub.assem.cameraAngles)) != 0) {
              emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate CSI ldr file: %1.")
                                                    .arg(ldrName));
              return rc;
@@ -377,15 +377,15 @@ int Step::createCsi(
   }
 
   if (! gui->exportingObjects()) {
-      // set viewer camera options
+      // set viewer display options
       viewerOptions.ViewerCsiKey   = viewerCsiKey;
       viewerOptions.UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
       viewerOptions.FoV            = meta.LPub.assem.v_cameraFoV.value();
       viewerOptions.ZNear          = meta.LPub.assem.v_znear.value();
       viewerOptions.ZFar           = meta.LPub.assem.v_zfar.value();
       viewerOptions.CameraDistance = meta.LPub.assem.cameraDistNative.factor.value();
-      viewerOptions.Latitude       = absRotstep ? absCA.value(0) : meta.LPub.assem.cameraAngles.value(0);
-      viewerOptions.Longitude      = absRotstep ? absCA.value(1) : meta.LPub.assem.cameraAngles.value(1);
+      viewerOptions.Latitude       = absRotstep ? noCA.value(0) : meta.LPub.assem.cameraAngles.value(0);
+      viewerOptions.Longitude      = absRotstep ? noCA.value(1) : meta.LPub.assem.cameraAngles.value(1);
 
       // Load the 3DViewer
       loadTheViewer();
