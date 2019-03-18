@@ -35,15 +35,15 @@ Image::Image()
 
 Image::Image(Image&& Other)
 {
-    mData = Other.mData;
-    mWidth = Other.mWidth;
-    mHeight = Other.mHeight;
-    mFormat = Other.mFormat;
+	mData = Other.mData;
+	mWidth = Other.mWidth;
+	mHeight = Other.mHeight;
+	mFormat = Other.mFormat;
 
-    Other.mData = nullptr;
-    Other.mWidth = 0;
-    Other.mHeight = 0;
-    Other.mFormat = LC_PIXEL_FORMAT_INVALID;
+	Other.mData = nullptr;
+	Other.mWidth = 0;
+	Other.mHeight = 0;
+	Other.mFormat = LC_PIXEL_FORMAT_INVALID;
 }
 
 Image::~Image()

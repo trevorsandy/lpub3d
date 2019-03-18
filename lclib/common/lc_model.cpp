@@ -288,7 +288,7 @@ void lcModel::UpdatePieceInfo(lcArray<lcModel*>& UpdatedModels)
 
 	for (lcPiece* Piece : mPieces)
 	{
-		if (Piece->GetStepHide() == LC_STEP_MAX)
+		if (Piece->IsVisibleInSubModel())
 		{
 			Piece->mPieceInfo->UpdateBoundingBox(UpdatedModels);
 			Piece->CompareBoundingBox(Min, Max);
@@ -611,8 +611,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 				if (Token == QLatin1String("BEGIN"))
 				{
 					QString Name = LineStream.readAll().trimmed();
-					QByteArray NameUtf = Name.toUtf8(); // todo: replace with qstring
-					lcGroup* Group = GetGroup(NameUtf.constData(), true);
+					lcGroup* Group = GetGroup(Name, true);
 					if (!CurrentGroups.IsEmpty())
 						Group->mGroup = CurrentGroups[CurrentGroups.GetSize() - 1];
 					else
@@ -1289,7 +1288,7 @@ void lcModel::GetScene(lcScene& Scene, lcCamera* ViewCamera, bool DrawInterface,
 void lcModel::AddSubModelRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive) const
 {
 	for (lcPiece* Piece : mPieces)
-		if (Piece->GetStepHide() == LC_STEP_MAX)
+		if (Piece->IsVisibleInSubModel())
 			Piece->AddSubModelRenderMeshes(Scene, WorldMatrix, DefaultColorIndex, RenderMeshState, ParentActive);
 }
 
@@ -1485,7 +1484,7 @@ bool lcModel::SubModelMinIntersectDist(const lcVector3& WorldStart, const lcVect
 		lcVector3 Start = lcMul31(WorldStart, InverseWorldMatrix);
 		lcVector3 End = lcMul31(WorldEnd, InverseWorldMatrix);
 
-		if (Piece->GetStepHide() == LC_STEP_MAX && Piece->mPieceInfo->MinIntersectDist(Start, End, MinDistance)) // todo: this should check for piece->mMesh first
+		if (Piece->IsVisibleInSubModel() && Piece->mPieceInfo->MinIntersectDist(Start, End, MinDistance)) // todo: this should check for piece->mMesh first
 			MinIntersect = true;
 	}
 
@@ -1495,13 +1494,8 @@ bool lcModel::SubModelMinIntersectDist(const lcVector3& WorldStart, const lcVect
 bool lcModel::SubModelBoxTest(const lcVector4 Planes[6]) const
 {
 	for (lcPiece* Piece : mPieces)
-	{
-		if (Piece->GetStepHide() != LC_STEP_MAX)
-			continue;
-
-		if (Piece->mPieceInfo->BoxTest(Piece->mModelWorld, Planes))
+		if (Piece->IsVisibleInSubModel() && Piece->mPieceInfo->BoxTest(Piece->mModelWorld, Planes))
 			return true;
-	}
 
 	return false;
 }
@@ -2322,6 +2316,7 @@ void lcModel::MoveSelectionToModel(lcModel* Model)
 	lcArray<lcPiece*> Pieces;
 	lcPiece* ModelPiece = nullptr;
 	lcStep FirstStep = LC_STEP_MAX;
+	lcVector3 Min(FLT_MAX, FLT_MAX, FLT_MAX), Max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
 	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); )
 	{
@@ -2329,6 +2324,7 @@ void lcModel::MoveSelectionToModel(lcModel* Model)
 
 		if (Piece->IsSelected())
 		{
+			Piece->CompareBoundingBox(Min, Max);
 			mPieces.RemoveIndex(PieceIdx);
 			Piece->SetGroup(nullptr); // todo: copy groups
 			Pieces.Add(Piece);
@@ -2337,7 +2333,6 @@ void lcModel::MoveSelectionToModel(lcModel* Model)
 			if (!ModelPiece)
 			{
 				ModelPiece = new lcPiece(Model->mPieceInfo);
-				ModelPiece->Initialize(lcMatrix44Identity(), Piece->GetStepShow());
 				ModelPiece->SetColorIndex(gDefaultColor);
 				InsertPiece(ModelPiece, PieceIdx);
 				PieceIdx++;
@@ -2347,18 +2342,25 @@ void lcModel::MoveSelectionToModel(lcModel* Model)
 			PieceIdx++;
 	}
 
+	lcVector3 ModelCenter = (Min + Max) / 2.0f;
+	ModelCenter.z += (Min.z - Max.z) / 2.0f;
+
 	for (int PieceIdx = 0; PieceIdx < Pieces.GetSize(); PieceIdx++)
 	{
 		lcPiece* Piece = Pieces[PieceIdx];
 		Piece->SetFileLine(-1);
 		Piece->SetStepShow(Piece->GetStepShow() - FirstStep + 1);
+		Piece->MoveSelected(Piece->GetStepShow(), false, -ModelCenter);
 		Model->AddPiece(Piece);
 	}
 
 	lcArray<lcModel*> UpdatedModels;
 	Model->UpdatePieceInfo(UpdatedModels);
 	if (ModelPiece)
+	{
+		ModelPiece->Initialize(lcMatrix44Translation(ModelCenter), FirstStep);
 		ModelPiece->UpdatePosition(mCurrentStep);
+	}
 
 	SaveCheckpoint(tr("New Model"));
 	gMainWindow->UpdateTimeline(false, false);
@@ -3116,6 +3118,9 @@ void lcModel::GetPartsList(int DefaultColorIndex, bool IncludeSubmodels, lcParts
 {
 	for (lcPiece* Piece : mPieces)
 	{
+		if (!Piece->IsVisibleInSubModel())
+			continue;
+
 		int ColorIndex = Piece->mColorIndex;
 
 		if (ColorIndex == gDefaultColor)
@@ -3129,7 +3134,7 @@ void lcModel::GetPartsListForStep(lcStep Step, int DefaultColorIndex, lcPartsLis
 {
 	for (lcPiece* Piece : mPieces)
 	{
-		if (Piece->GetStepShow() != Step)
+		if (Piece->GetStepShow() != Step || Piece->IsHidden())
 			continue;
 
 		int ColorIndex = Piece->mColorIndex;
@@ -3145,6 +3150,9 @@ void lcModel::GetModelParts(const lcMatrix44& WorldMatrix, int DefaultColorIndex
 {
 	for (lcPiece* Piece : mPieces)
 	{
+		if (!Piece->IsVisibleInSubModel())
+			continue;
+
 		int ColorIndex = Piece->mColorIndex;
 
 		if (ColorIndex == gDefaultColor)

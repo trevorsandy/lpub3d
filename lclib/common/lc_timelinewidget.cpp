@@ -179,7 +179,7 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 						PieceParent->removeChild(PieceItem);
 
 					StepItem->insertChild(PieceItemIndex, PieceItem);
-                }
+				}
 			}
 		}
 
@@ -188,10 +188,9 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 			PieceItem->setText(0, Piece->mPieceInfo->m_strDescription);
 
 			int ColorIndex = Piece->mColorIndex;
-
+/*** LPub3D Mod - Timeline part icons ***/
             int Size = rowHeight(indexFromItem(PieceItem));
 
-/*** LPub3D Mod - Timeline part icons ***/
             QFileInfo p = QFileInfo(Piece->GetID());
             bool fPiece = (p.baseName().right(4) == QString(LPUB3D_COLOUR_FADE_SUFFIX));
             bool hPiece = (p.baseName().right(9) == QString(LPUB3D_COLOUR_HIGHLIGHT_SUFFIX));

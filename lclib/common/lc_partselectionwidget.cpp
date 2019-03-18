@@ -505,14 +505,14 @@ void lcPartSelectionListView::CustomContextMenuRequested(QPoint Pos)
 		ListMode->setCheckable(true);
 		ListMode->setChecked(mListModel->IsListMode());
 
-        /*** LPub3D Mod - Disable preview color lock ***/
-        /*
+/*** LPub3D Mod - Disable preview color lock ***/
+/***
 		QAction* FixedColor = Menu->addAction(tr("Lock Preview Color"), this, SLOT(ToggleFixedColor()));
 		FixedColor->setCheckable(true);
 		FixedColor->setChecked(mListModel->IsColorLocked());
         FixedColor->setDisabled(true);
-        */
-        /*** LPub3D Mod end ***/
+***/
+/*** LPub3D Mod end ***/
 	}
 
 	Menu->popup(viewport()->mapToGlobal(Pos));
@@ -734,7 +734,7 @@ void lcPartSelectionWidget::FilterChanged(const QString& Text)
 		if (Text.isEmpty())
 			mFilterAction->setIcon(QIcon(":/resources/parts_search.png"));
 		else
-            mFilterAction->setIcon(QIcon(":/resources/parts_cancel.png"));
+			mFilterAction->setIcon(QIcon(":/resources/parts_cancel.png"));
 	}
 
 	mPartsWidget->GetListModel()->SetFilter(Text);
@@ -802,7 +802,7 @@ void lcPartSelectionWidget::UpdateCategories()
 	for (int CategoryIdx = 0; CategoryIdx < gCategories.GetSize(); CategoryIdx++)
 		new QTreeWidgetItem(mCategoriesWidget, QStringList(gCategories[CategoryIdx].Name));
 
-    mModelsCategoryItem = new QTreeWidgetItem(mCategoriesWidget, QStringList(tr("Submodels")));
+	mModelsCategoryItem = new QTreeWidgetItem(mCategoriesWidget, QStringList(tr("Submodels")));
 
 	if (CurrentIndex != -1)
 		mCategoriesWidget->setCurrentItem(mCategoriesWidget->topLevelItem(CurrentIndex));

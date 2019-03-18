@@ -204,7 +204,7 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Action", "Edit.Paste"),
 		QT_TRANSLATE_NOOP("Menu", "&Paste"),
 		QT_TRANSLATE_NOOP("Status", "Insert Clipboard contents"),
-        QT_TRANSLATE_NOOP("Shortcut", "")                                 /*** LPub3D Mod - LPub3D Menu conflict ***/
+        ""                                 /*** LPub3D Mod - LPub3D Menu conflict ***/
 	},
 	// LC_EDIT_FIND
 	{
@@ -1041,7 +1041,7 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Action", "View.CloseCurrentTab"),
 		QT_TRANSLATE_NOOP("Menu", "Close &Tab"),
 		QT_TRANSLATE_NOOP("Status", "Close current tab"),
-		""
+		""                                /*** LPub3D Mod - LPub3D Menu update ***/
 	},
 	// LC_VIEW_SHADE_WIREFRAME
 	{
@@ -1228,8 +1228,8 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	// 	LC_PIECE_VIEW_SELECTED_MODEL
 	{
 		QT_TRANSLATE_NOOP("Action", "Piece.ViewSelectedModel"),
-		QT_TRANSLATE_NOOP("Menu", "View Selected Model"),
-		QT_TRANSLATE_NOOP("Status", "View the model referenced by the selected piece in a new tab"),
+		QT_TRANSLATE_NOOP("Menu", "View Selected Model"),                                             /*** LPub3D Mod - LPub3D Menu update ***/
+		QT_TRANSLATE_NOOP("Status", "View the model referenced by the selected piece in a new tab"),  /*** LPub3D Mod - LPub3D Menu update ***/
 		""
 	},
 	// LC_PIECE_MOVE_SELECTION_TO_MODEL
@@ -1272,7 +1272,7 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Action", "Piece.Ungroup"),
 		QT_TRANSLATE_NOOP("Menu", "&Ungroup"),
 		QT_TRANSLATE_NOOP("Status", "Ungroup selected group"),
-		""
+		""                                  /*** LPub3D Mod - LPub3D Menu update ***/
 	},
 	// LC_PIECE_GROUP_ADD
 	{
@@ -1529,8 +1529,8 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	// LC_HELP_HOMEPAGE
 	{
 		QT_TRANSLATE_NOOP("Action", "Help.HomePage"),
-		QT_TRANSLATE_NOOP("Menu", "3DViewer &Home Page"),
-		QT_TRANSLATE_NOOP("Status", "Open 3DViewer's home page on the internet using your default web browser"),
+		QT_TRANSLATE_NOOP("Menu", "3DViewer &Home Page"),                                                      /*** LPub3D Mod - LPub3D Menu update ***/
+		QT_TRANSLATE_NOOP("Status", "Open 3DViewer's home page on the internet using your default web browser"),  
 		""
 	},
 	// LC_HELP_BUG_REPORT

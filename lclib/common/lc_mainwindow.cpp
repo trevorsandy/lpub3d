@@ -24,9 +24,10 @@
 #include "lc_colors.h"
 #include <functional>
 
-
 #if LC_ENABLE_GAMEPAD
+/*** LPub3D Mod - enable gamepad modification ***/
 #if defined(QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
+/*** LPub3D Mod end ***/
 #include <QtGamepad/QGamepad>
 #endif
 #endif
@@ -82,7 +83,9 @@ lcMainWindow::lcMainWindow(QMainWindow *parent) :
 	mTransformType = LC_TRANSFORM_RELATIVE_ROTATION;
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - set default color ***/
 	mColorIndex = lcGetColorIndex(71); //Light Bluish Grey
+/*** LPub3D Mod end ***/
 	mTool = LC_TOOL_SELECT;
 	mAddKeys = false;
 	mMoveSnapEnabled = true;
@@ -93,8 +96,10 @@ lcMainWindow::lcMainWindow(QMainWindow *parent) :
 	mRelativeTransform = true;
 	mCurrentPieceInfo = nullptr;
 	mSelectionMode = lcSelectionMode::SINGLE;
-    mModelTabWidget = nullptr;
+	mModelTabWidget = nullptr;
+/*** LPub3D Mod - submodel icon ***/
     mSubmodelIconsLoaded = false;
+/*** LPub3D Mod end ***/
 
 	memset(&mSearchOptions, 0, sizeof(mSearchOptions));
 
@@ -358,7 +363,7 @@ void lcMainWindow::CreateActions()
 	mActions[LC_EDIT_ACTION_ROLL]->setIcon(QIcon(":/resources/action_roll.png"));
 	mActions[LC_EDIT_ACTION_ZOOM_REGION]->setIcon(QIcon(":/resources/action_zoom_region.png"));
 	mActions[LC_EDIT_FIND]->setIcon(QIcon(":/resources/edit_find.png"));
-    mActions[LC_EDIT_TRANSFORM_RELATIVE]->setIcon(QIcon(":/resources/edit_transform_relative.png"));
+	mActions[LC_EDIT_TRANSFORM_RELATIVE]->setIcon(QIcon(":/resources/edit_transform_relative.png"));
 	mActions[LC_PIECE_SHOW_EARLIER]->setIcon(QIcon(":/resources/piece_show_earlier.png"));
 	mActions[LC_PIECE_SHOW_LATER]->setIcon(QIcon(":/resources/piece_show_later.png"));
 	mActions[LC_VIEW_SPLIT_HORIZONTAL]->setIcon(QIcon(":/resources/view_split_horizontal.png"));
@@ -673,6 +678,7 @@ void lcMainWindow::CreateMenus()
 	PieceMenu->addAction(mActions[LC_PIECE_REMOVE_KEY_FRAMES]);
 	PieceMenu->addSeparator();
 	PieceMenu->addAction(mActions[LC_PIECE_EDIT_SELECTED_SUBMODEL]);
+	PieceMenu->addAction(mActions[LC_PIECE_EDIT_END_SUBMODEL]);
 	PieceMenu->addAction(mActions[LC_PIECE_VIEW_SELECTED_MODEL]);
 	PieceMenu->addAction(mActions[LC_PIECE_INLINE_SELECTED_MODELS]);
 	PieceMenu->addAction(mActions[LC_PIECE_MOVE_SELECTION_TO_MODEL]);
@@ -690,10 +696,10 @@ void lcMainWindow::CreateMenus()
 	QMenu* ModelMenu = menuBar()->addMenu(tr("Sub&model"));
 	ModelMenu->addAction(mActions[LC_MODEL_PROPERTIES]);
 	ModelMenu->addAction(mActions[LC_MODEL_NEW]);
+	ModelMenu->addAction(mActions[LC_MODEL_LIST]);
 	ModelMenu->addSeparator();
 	for (int ModelIdx = LC_MODEL_FIRST; ModelIdx <= LC_MODEL_LAST; ModelIdx++)
 		ModelMenu->addAction(mActions[ModelIdx]);
-	ModelMenu->addAction(mActions[LC_MODEL_LIST]);
 
 	QMenu* HelpMenu = menuBar()->addMenu(tr("&Help"));
 	HelpMenu->addAction(mActions[LC_HELP_HOMEPAGE]);
@@ -801,9 +807,10 @@ void lcMainWindow::CreateToolBars()
 /*** LPub3D Mod end ***/
 
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_SELECT]);
+/*** LPub3D Mod - place ROTATE menu item before MOVE ***/
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROTATE]);
-
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_MOVE]);
+/*** LPub3D Mod end ***/
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_DELETE]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_PAINT]);
 	mToolsToolBar->addSeparator();
@@ -812,7 +819,9 @@ void lcMainWindow::CreateToolBars()
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROTATE_VIEW]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROLL]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ZOOM_REGION]);
+/*** LPub3D Mod - Disable ToolBar hide ***/
 	//mToolsToolBar->hide();
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - toolstoolbar snap angle widget ***/
 	((QToolButton*)mToolsToolBar->widgetForAction(AngleAction))->setPopupMode(QToolButton::InstantPopup);
 /*** LPub3D Mod end ***/
@@ -1378,18 +1387,21 @@ void lcMainWindow::ProjectFileChanged(const QString& Path)
 
 	QString Text = tr("The file '%1' has been modified by another application, do you want to reload it?").arg(QDir::toNativeSeparators(Path));
 
+	Project* CurrentProject = lcGetActiveProject();
+
 	Ignore = true;
 
 	if (QMessageBox::question(this, tr("File Changed"), Text, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
 	{
 		Ignore = false;
+		CurrentProject->MarkAsModified();
+		UpdateTitle();
 		return;
 	}
 
 	Ignore = false;
 
 	QFileInfo FileInfo(Path);
-	Project* CurrentProject = lcGetActiveProject();
 
 	if (FileInfo == QFileInfo(CurrentProject->GetFileName()))
 	{
@@ -1401,11 +1413,6 @@ void lcMainWindow::ProjectFileChanged(const QString& Path)
 			gApplication->SetProject(NewProject);
 			RestoreTabLayout(TabLayout);
 			UpdateAllViews();
-		}
-		else
-		{
-			QMessageBox::information(this, tr("3DViewer"), tr("Error loading '%1'.").arg(Path));
-			delete NewProject;
 		}
 	}
 	else
@@ -1768,7 +1775,7 @@ void lcMainWindow::RestoreTabLayout(const QByteArray& TabLayout)
 
 		QWidget* ActiveWidget = nullptr;
 
-		std::function<void(QWidget*)> LoadWidget = [&DataStream, &LoadWidget, Model, &ActiveWidget, this](QWidget* ParentWidget)
+		std::function<void(QWidget*)> LoadWidget = [&DataStream, &LoadWidget, &ActiveWidget, this](QWidget* ParentWidget)
 		{
 			qint32 WidgetType;
 			DataStream >> WidgetType;
@@ -1785,7 +1792,7 @@ void lcMainWindow::RestoreTabLayout(const QByteArray& TabLayout)
 				DataStream >> CameraType;
 
 				View* CurrentView = nullptr;
-
+				
 				if (ParentWidget)
 					CurrentView = (View*)((lcQGLWidget*)ParentWidget)->widget;
 
@@ -1912,7 +1919,6 @@ void lcMainWindow::SetCurrentModelTab(lcModel* Model)
 	{
 		TabWidget = new lcModelTabWidget(Model);
 		mModelTabWidget->addTab(TabWidget, Model->GetProperties().mName);
-		mModelTabWidget->setCurrentWidget(TabWidget);
 
 		QGridLayout* CentralLayout = new QGridLayout(TabWidget);
 		CentralLayout->setContentsMargins(0, 0, 0, 0);
@@ -1920,12 +1926,13 @@ void lcMainWindow::SetCurrentModelTab(lcModel* Model)
 		NewView = new View(Model);
 		ViewWidget = new lcQGLWidget(TabWidget, NewView, true);
 		CentralLayout->addWidget(ViewWidget, 0, 0, 1, 1);
+
+		mModelTabWidget->setCurrentWidget(TabWidget);
 	}
 	else
 	{
 		TabWidget = EmptyWidget;
 		TabWidget->SetModel(Model);
-		mModelTabWidget->setCurrentWidget(TabWidget);
 
 		NewView = new View(Model);
 		ViewWidget = (lcQGLWidget*)TabWidget->layout()->itemAt(0)->widget();
@@ -1934,6 +1941,8 @@ void lcMainWindow::SetCurrentModelTab(lcModel* Model)
 		NewView->mWidth = ViewWidget->width();
 		NewView->mHeight = ViewWidget->height();
 		AddView(NewView);
+
+		mModelTabWidget->setCurrentWidget(TabWidget);
 	}
 
 	ViewWidget->show();
@@ -2091,6 +2100,7 @@ void lcMainWindow::SetTransformType(lcTransformType TransformType)
 	}
 }
 
+/*** LPub3D Mod - Rotate Step ***/
 void lcMainWindow::SetRotateStepCoordType(lcRotateStepCoordType RotateStepCoordType)
 {
     mRotateStepCoordType = RotateStepCoordType;
@@ -2117,6 +2127,7 @@ void lcMainWindow::SetRotateStepCoordType(lcRotateStepCoordType RotateStepCoordT
         mTransformZEdit->setStatusTip(tr("%1 Z coordinate").arg(StatusMessages[RotateStepCoordType]));
     }
 }
+/*** LPub3D Mod end ***/
 
 void lcMainWindow::SetCurrentPieceInfo(PieceInfo* Info)
 {
@@ -2133,10 +2144,11 @@ void lcMainWindow::SetCurrentPieceInfo(PieceInfo* Info)
 
 lcVector3 lcMainWindow::GetTransformAmount()
 {
-    lcVector3 Transform;
-    Transform.x = lcParseValueLocalized(mTransformXEdit->text());
-    Transform.y = lcParseValueLocalized(mTransformYEdit->text());
-    Transform.z = lcParseValueLocalized(mTransformZEdit->text());
+	lcVector3 Transform;
+
+	Transform.x = lcParseValueLocalized(mTransformXEdit->text());
+	Transform.y = lcParseValueLocalized(mTransformYEdit->text());
+	Transform.z = lcParseValueLocalized(mTransformZEdit->text());
 
 /*** LPub3D Mod - rotstep transform ***/
     if (GetRotateStepCoordType() == LC_ROTATESTEP_COORD_FORMAT_LDRAW)
@@ -2150,6 +2162,7 @@ lcVector3 lcMainWindow::GetTransformAmount()
 lcVector3 lcMainWindow::GetRotStepTransformAmount()
 {
 	lcVector3 Transform;
+
 	Transform.x = lcParseValueLocalized(mTransformXEdit->text());
 	Transform.y = lcParseValueLocalized(mTransformYEdit->text());
 	Transform.z = lcParseValueLocalized(mTransformZEdit->text());
@@ -2182,7 +2195,7 @@ void lcMainWindow::SplitView(Qt::Orientation Orientation)
 	}
 	else
 	{
-		QSplitter* ParentSplitter = (QSplitter*)Parent;
+		QSplitter* ParentSplitter = (QSplitter*)Parent;	
 		Sizes = ParentSplitter->sizes();
 		int FocusIndex = ParentSplitter->indexOf(Focus);
 
@@ -2333,9 +2346,9 @@ void lcMainWindow::RemoveRecentFile(int FileIndex)
 
 void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged)
 {
-	int Flags;
+	int Flags = 0;
 	lcArray<lcObject*> Selection;
-	lcObject* Focus;
+	lcObject* Focus = nullptr;
 
 	lcGetActiveModel()->GetSelectionInformation(&Flags, Selection, &Focus);
 
@@ -2732,7 +2745,6 @@ bool lcMainWindow::OpenProject(const QString& FileName)
 		return true;
 	}
 
-	QMessageBox::information(this, tr("3DViewer"), tr("Error loading '%1'.").arg(LoadFileName));
 	delete NewProject;
 
 	return false;
@@ -2767,11 +2779,8 @@ void lcMainWindow::MergeProject()
 
 		UpdateModels();
 	}
-	else
-		QMessageBox::information(this, tr("3DViewer"), tr("Error loading '%1'.").arg(LoadFileName));
 
 	delete NewProject;
-
 }
 
 void lcMainWindow::ImportLDD()
@@ -3134,12 +3143,12 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		break;
 
 	case LC_VIEW_PROJECTION_PERSPECTIVE:
-        if (ActiveView)
+		if (ActiveView)
 			ActiveView->SetProjection(false);
 		break;
 
 	case LC_VIEW_PROJECTION_ORTHO:
-        if (ActiveView)
+		if (ActiveView)
 			ActiveView->SetProjection(true);
 		break;
 
@@ -3264,7 +3273,14 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 
 	case LC_PIECE_EDIT_END_SUBMODEL:
 		if (ActiveView)
+		{
 			ActiveView->SetTopSubmodelActive();
+			if (ActiveModel)
+			{
+				lcArray<lcModel*> UpdatedModels;
+				ActiveModel->UpdatePieceInfo(UpdatedModels);
+			}
+		}
 		break;
 
 	case LC_PIECE_EDIT_SELECTED_SUBMODEL:

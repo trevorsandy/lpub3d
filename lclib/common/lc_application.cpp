@@ -40,6 +40,7 @@ void lcPreferences::LoadDefaults()
 	mViewSphereColor = lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_COLOR);
 	mViewSphereTextColor = lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_TEXT_COLOR);
 	mViewSphereHighlightColor = lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR);
+	mAutoLoadMostRecent = lcGetProfileInt(LC_PROFILE_AUTOLOAD_MOSTRECENT);
 
 /*** LPub3D Mod - Native Renderer settings ***/
     mNativeViewpoint = lcGetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT);
@@ -70,6 +71,7 @@ void lcPreferences::SaveDefaults()
 	lcSetProfileInt(LC_PROFILE_VIEW_SPHERE_COLOR, mViewSphereColor);
 	lcSetProfileInt(LC_PROFILE_VIEW_SPHERE_TEXT_COLOR, mViewSphereTextColor);
 	lcSetProfileInt(LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR, mViewSphereHighlightColor);
+	lcSetProfileInt(LC_PROFILE_AUTOLOAD_MOSTRECENT, mAutoLoadMostRecent);
 
 /*** LPub3D Mod - Native Renderer settings ***/
     lcSetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT, mNativeViewpoint);
@@ -85,14 +87,20 @@ lcApplication::lcApplication()
 {
 
 /*** LPub3D Mod - disable leoCAD application vars ***/
-//#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-//    setApplicationDisplayName("LeoCAD");
-//#endif
-//  setOrganizationDomain("leocad.org");
-//  setOrganizationName("LeoCAD Software");
-//  setApplicationName("LeoCAD");
-//  setApplicationVersion(LC_VERSION_TEXT);
+/***
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+	setApplicationDisplayName("LeoCAD");
+#endif
+  setOrganizationDomain("leocad.org");
+  setOrganizationName("LeoCAD Software");
+  setApplicationName("LeoCAD");
+  setApplicationVersion(LC_VERSION_TEXT);
+***/
 /*** LPub3D Mod end ***/
+
+    gApplication = this;
+    mProject = nullptr;
+    mLibrary = nullptr;
 
 /*** LPub3D Mod - initialize set 3DViewer profile defaults ***/
   lcSetProfileInt(LC_PROFILE_DRAW_AXES, 1);
@@ -101,33 +109,29 @@ lcApplication::lcApplication()
   lcSetProfileInt(LC_PROFILE_CHECK_UPDATES, 0);
 /*** LPub3D Mod end ***/
 
-    gApplication = this;
-    mProject = nullptr;
-    mLibrary = nullptr;
-
     mPreferences.LoadDefaults();
 }
 
 /*** LPub3D Mod - initialize fade vars ***/
-    bool lcApplication::HighlightStep(){
-        return Preferences::enableHighlightStep;
-    }
-    bool lcApplication::FadePreviousSteps(){
-        return Preferences::enableFadeSteps;
-    }
-    bool lcApplication::UseFadeColour(){
-        return Preferences::fadeStepsUseColour;
-    }
-    QString lcApplication::FadeColour(){
-        return gMainWindow->GetFadeStepsColor();
-    }
+bool lcApplication::HighlightStep(){
+    return Preferences::enableHighlightStep;
+}
+bool lcApplication::FadePreviousSteps(){
+    return Preferences::enableFadeSteps;
+}
+bool lcApplication::UseFadeColour(){
+    return Preferences::fadeStepsUseColour;
+}
+QString lcApplication::FadeColour(){
+    return gMainWindow->GetFadeStepsColor();
+}
 /*** LPub3D Mod end ***/
 
 lcApplication::~lcApplication()
 {
     delete mProject;
     delete mLibrary;
-    gApplication = nullptr;
+	gApplication = nullptr;
 }
 
 void lcApplication::SaveTabLayout() const
@@ -135,6 +139,7 @@ void lcApplication::SaveTabLayout() const
 /*** LPub3D - Disable save tab layout ***/
   return;
 /*** LPub3D Mod end ***/
+
     if (!mProject || mProject->GetFileName().isEmpty())
         return;
 
@@ -146,62 +151,61 @@ void lcApplication::SaveTabLayout() const
 
 QString lcApplication::GetTabLayoutKey() const
 {
-    if (mProject)
-    {
-        QString FileName = mProject->GetFileName();
-        if (!FileName.isEmpty())
-        {
-            FileName.replace('\\', '?');
-            FileName.replace('/', '?');
-            return QString("TabLayouts/%1").arg(FileName);
-        }
-    }
+	if (mProject)
+	{
+		QString FileName = mProject->GetFileName();
+		if (!FileName.isEmpty())
+		{
+			FileName.replace('\\', '?');
+			FileName.replace('/', '?');
+			return QString("TabLayouts/%1").arg(FileName);
+		}
+	}
 
-    return QString();
+	return QString();
 }
 
 void lcApplication::SetProject(Project* Project)
 {
-    SaveTabLayout();
+	SaveTabLayout();
 
-    gMainWindow->RemoveAllModelTabs();
+	gMainWindow->RemoveAllModelTabs();
 
-    delete mProject;
-    mProject = Project;
+	delete mProject;
+	mProject = Project;
 
-    Project->SetActiveModel(0);
-    lcGetPiecesLibrary()->RemoveTemporaryPieces();
+	Project->SetActiveModel(0);
+	lcGetPiecesLibrary()->RemoveTemporaryPieces();
 
-    if (mProject && !mProject->GetFileName().isEmpty())
-    {
-        QSettings Settings;
-        QByteArray TabLayout = Settings.value(GetTabLayoutKey()).toByteArray();
+	if (mProject && !mProject->GetFileName().isEmpty())
+	{
+		QSettings Settings;
+		QByteArray TabLayout = Settings.value(GetTabLayoutKey()).toByteArray();
 
-        gMainWindow->RestoreTabLayout(TabLayout);
-    }
+		gMainWindow->RestoreTabLayout(TabLayout);
+	}
 }
 
 void lcApplication::SetClipboard(const QByteArray& Clipboard)
 {
-    mClipboard = Clipboard;
-    gMainWindow->UpdatePaste(!mClipboard.isEmpty());
+	mClipboard = Clipboard;
+	gMainWindow->UpdatePaste(!mClipboard.isEmpty());
 }
 
 void lcApplication::ExportClipboard(const QByteArray& Clipboard)
 {
-    QMimeData* MimeData = new QMimeData();
+	QMimeData* MimeData = new QMimeData();
 
-    MimeData->setData("application/vnd.leocad-clipboard", Clipboard);
-    QApplication::clipboard()->setMimeData(MimeData);
+	MimeData->setData("application/vnd.leocad-clipboard", Clipboard);
+	QApplication::clipboard()->setMimeData(MimeData);
 
-    SetClipboard(Clipboard);
+	SetClipboard(Clipboard);
 }
 
 bool lcApplication::LoadPartsLibrary(const QList<QPair<QString, bool>>& LibraryPaths, bool OnlyUsePaths, bool ShowProgress)
 {
-    Q_UNUSED(LibraryPaths);
-
 /*** LPub3D Mod - run search directories ***/
+    Q_UNUSED(LibraryPaths);
 
     PartWorker partWorker;
 
@@ -692,40 +696,41 @@ bool lcApplication::Initialize(QList<QPair<QString, bool>>& LibraryPaths, QMainW
 /*** LPub3D Mod end ***/
     }
 
-    return true;
+	return true;
 }
 
 void lcApplication::Shutdown()
 {
-    delete mLibrary;
-    mLibrary = nullptr;
+	delete mLibrary;
+	mLibrary = nullptr;
 }
 
 void lcApplication::ShowPreferencesDialog()
 {
-    lcPreferencesDialogOptions Options;
-    int CurrentAASamples = lcGetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES);
+	lcPreferencesDialogOptions Options;
+	int CurrentAASamples = lcGetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES);
 
-    Options.Preferences = mPreferences;
+	Options.Preferences = mPreferences;
 
-    Options.DefaultAuthor = lcGetProfileString(LC_PROFILE_DEFAULT_AUTHOR_NAME);
-    Options.LibraryPath = lcGetProfileString(LC_PROFILE_PARTS_LIBRARY);
-    Options.POVRayPath = lcGetProfileString(LC_PROFILE_POVRAY_PATH);
-    Options.LGEOPath = lcGetProfileString(LC_PROFILE_POVRAY_LGEO_PATH);
-    Options.CheckForUpdates = lcGetProfileInt(LC_PROFILE_CHECK_UPDATES);
+	Options.DefaultAuthor = lcGetProfileString(LC_PROFILE_DEFAULT_AUTHOR_NAME);
+	Options.LibraryPath = lcGetProfileString(LC_PROFILE_PARTS_LIBRARY);
+	Options.POVRayPath = lcGetProfileString(LC_PROFILE_POVRAY_PATH);
+	Options.LGEOPath = lcGetProfileString(LC_PROFILE_POVRAY_LGEO_PATH);
+	Options.CheckForUpdates = lcGetProfileInt(LC_PROFILE_CHECK_UPDATES);
 
-    Options.AASamples = CurrentAASamples;
+	Options.AASamples = CurrentAASamples;
 
-    Options.Categories = gCategories;
-    Options.CategoriesModified = false;
-    Options.CategoriesDefault = false;
+	Options.Categories = gCategories;
+	Options.CategoriesModified = false;
+	Options.CategoriesDefault = false;
 
-    Options.KeyboardShortcuts = gKeyboardShortcuts;
-    Options.KeyboardShortcutsModified = false;
-    Options.KeyboardShortcutsDefault = false;
-    Options.MouseShortcuts = gMouseShortcuts;
-    Options.MouseShortcutsModified = false;
-    Options.MouseShortcutsDefault = false;
+	Options.KeyboardShortcuts = gKeyboardShortcuts;
+	Options.KeyboardShortcutsModified = false;
+	Options.KeyboardShortcutsDefault = false;
+	Options.MouseShortcuts = gMouseShortcuts;
+	Options.MouseShortcutsModified = false;
+	Options.MouseShortcutsDefault = false;
+
 
 /*** LPub3D Mod - preference refresh ***/
     if (Preferences::usingNativeRenderer)
@@ -778,16 +783,16 @@ void lcApplication::ShowPreferencesDialog()
     bool ViewPieceIconsChangd = Options.Preferences.mViewPieceIcons != mViewPieceIcons;
 /*** LPub3D Mod end ***/
 
-    mPreferences = Options.Preferences;
+	mPreferences = Options.Preferences;
 
-    mPreferences.SaveDefaults();
+	mPreferences.SaveDefaults();
 
-    lcSetProfileString(LC_PROFILE_DEFAULT_AUTHOR_NAME, Options.DefaultAuthor);
-    lcSetProfileString(LC_PROFILE_PARTS_LIBRARY, Options.LibraryPath);
-    lcSetProfileString(LC_PROFILE_POVRAY_PATH, Options.POVRayPath);
-    lcSetProfileString(LC_PROFILE_POVRAY_LGEO_PATH, Options.LGEOPath);
-    lcSetProfileInt(LC_PROFILE_CHECK_UPDATES, Options.CheckForUpdates);
-    lcSetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES, Options.AASamples);
+	lcSetProfileString(LC_PROFILE_DEFAULT_AUTHOR_NAME, Options.DefaultAuthor);
+	lcSetProfileString(LC_PROFILE_PARTS_LIBRARY, Options.LibraryPath);
+	lcSetProfileString(LC_PROFILE_POVRAY_PATH, Options.POVRayPath);
+	lcSetProfileString(LC_PROFILE_POVRAY_LGEO_PATH, Options.LGEOPath);
+	lcSetProfileInt(LC_PROFILE_CHECK_UPDATES, Options.CheckForUpdates);
+	lcSetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES, Options.AASamples);
 
 /*** LPub3D Mod - preference refresh ***/
 
@@ -932,51 +937,51 @@ void lcApplication::ShowPreferencesDialog()
     }
 /*** LPub3D Mod end ***/
 
-    if (Options.CategoriesModified)
-    {
-        if (Options.CategoriesDefault)
-            lcResetDefaultCategories();
-        else
-        {
-            gCategories = Options.Categories;
-            lcSaveDefaultCategories();
-        }
+	if (Options.CategoriesModified)
+	{
+		if (Options.CategoriesDefault)
+			lcResetDefaultCategories();
+		else
+		{
+			gCategories = Options.Categories;
+			lcSaveDefaultCategories();
+		}
 
-        gMainWindow->UpdateCategories();
-    }
+		gMainWindow->UpdateCategories();
+	}
 
-    if (Options.KeyboardShortcutsModified)
-    {
-        if (Options.KeyboardShortcutsDefault)
-            lcResetDefaultKeyboardShortcuts();
-        else
-        {
-            gKeyboardShortcuts = Options.KeyboardShortcuts;
-            lcSaveDefaultKeyboardShortcuts();
-        }
+	if (Options.KeyboardShortcutsModified)
+	{
+		if (Options.KeyboardShortcutsDefault)
+			lcResetDefaultKeyboardShortcuts();
+		else
+		{
+			gKeyboardShortcuts = Options.KeyboardShortcuts;
+			lcSaveDefaultKeyboardShortcuts();
+		}
 
-        gMainWindow->UpdateShortcuts();
-    }
+		gMainWindow->UpdateShortcuts();
+	}
 
-    if (Options.MouseShortcutsModified)
-    {
-        if (Options.MouseShortcutsDefault)
-            lcResetDefaultMouseShortcuts();
-        else
-        {
-            gMouseShortcuts = Options.MouseShortcuts;
-            lcSaveDefaultMouseShortcuts();
-        }
-    }
+	if (Options.MouseShortcutsModified)
+	{
+		if (Options.MouseShortcutsDefault)
+			lcResetDefaultMouseShortcuts();
+		else
+		{
+			gMouseShortcuts = Options.MouseShortcuts;
+			lcSaveDefaultMouseShortcuts();
+		}
+	}
 
-    // TODO: printing preferences
-    /*
-    strcpy(opts.strFooter, m_strFooter);
-    strcpy(opts.strHeader, m_strHeader);
-    */
+	// TODO: printing preferences
+	/*
+	strcpy(opts.strFooter, m_strFooter);
+	strcpy(opts.strHeader, m_strHeader);
+	*/
 
-    gMainWindow->SetShadingMode(Options.Preferences.mShadingMode);
-    gMainWindow->UpdateAllViews();
+	gMainWindow->SetShadingMode(Options.Preferences.mShadingMode);
+	gMainWindow->UpdateAllViews();
 
 /*** LPub3D Mod restart and reload***/
     if (restartApp) {

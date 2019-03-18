@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tabRendering">
       <attribute name="title">
@@ -643,6 +643,13 @@
         <widget class="QCheckBox" name="fixedDirectionKeys">
          <property name="text">
           <string>Fixed direction keys</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="autoLoadMostRecent">
+         <property name="text">
+          <string>Open most recent file on startup</string>
          </property>
         </widget>
        </item>

@@ -47,6 +47,8 @@ public:
 	quint32 mViewSphereColor;
 	quint32 mViewSphereTextColor;
 	quint32 mViewSphereHighlightColor;
+	bool mAutoLoadMostRecent;
+
 /*** LPub3D Mod - Native Renderer settings ***/
     int mNativeViewpoint;
     int mNativeProjection;

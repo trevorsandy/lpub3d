@@ -341,8 +341,12 @@ void Project::ShowModelListDialog()
 
 	mModels = NewModels;
 
-	SetActiveModel(Dialog.mActiveModel);
 	gMainWindow->UpdateTitle();
+	gMainWindow->UpdateModels();
+
+	int ModelIndex = Dialog.GetActiveModelIndex();
+	if (ModelIndex != -1)
+		SetActiveModel(ModelIndex);
 }
 
 void Project::SetFileName(const QString& FileName)
@@ -379,7 +383,7 @@ bool Project::Load(const QString& FileName)
 	else if (Extension == QLatin1String("lcd") || Extension == QLatin1String("leocad"))
 		LoadDAT = false;
 	else
-		LoadDAT = memcmp(FileData, "LeoCAD ", 7);
+		LoadDAT = FileData.size() > 7 && memcmp(FileData, "LeoCAD ", 7);
 
 	if (LoadDAT)
 	{
@@ -428,7 +432,10 @@ bool Project::Load(const QString& FileName)
 	}
 
 	if (mModels.IsEmpty())
+	{
+		QMessageBox::warning(gMainWindow, tr("Error"), tr("Error loading file '%1':\nFile format is not recognized.").arg(FileName));
 		return false;
+	}
 
 	if (mModels.GetSize() == 1)
 	{
@@ -1475,9 +1482,7 @@ void Project::ExportCSV()
 
 	if (PartsList.empty())
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to export."));
-/*** LPub3D Mod end ***/
+		QMessageBox::information(gMainWindow, tr("LeoCAD"), tr("Nothing to export."));
 		return;
 	}
 
@@ -1546,7 +1551,7 @@ QImage Project::CreatePartsListImage(lcModel* Model, lcStep Step)
 		}
 	}
 
-	auto ImageCompare = [this](const lcPartsListImage& Image1, const lcPartsListImage& Image2)
+	auto ImageCompare = [](const lcPartsListImage& Image1, const lcPartsListImage& Image2)
 	{
 		if (Image1.ColorIndex != Image2.ColorIndex)
 			return Image1.ColorIndex < Image2.ColorIndex;
@@ -2052,8 +2057,9 @@ void Project::ExportHTML(const lcHTMLExportOptions& Options)
 					Stream << QString::fromLatin1("<A HREF=\"%1-pieces.html\">Pieces Used</A><BR>\r\n").arg(BaseName);
 			}
 		}
-
+/*** LPub3D Mod - set 3DViewer URL ***/
 		Stream << QLatin1String("</CENTER>\r\n<BR><HR><BR><B><I>Created by <A HREF=\"https://trevorsandy.github.io/lpub3d/\">3DViewer</A></B></I><BR></HTML>\r\n");
+/*** LPub3D Mod end ***/
 	}
 }
 
@@ -2301,7 +2307,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 	for (const lcModelPartsEntry& ModelPart : ModelParts)
 	{
 		lcVector3 Points[8];
-
+		
 		lcGetBoxCorners(ModelPart.Info->GetBoundingBox(), Points);
 
 		for (int PointIdx = 0; PointIdx < 8; PointIdx++)
@@ -2488,7 +2494,7 @@ void Project::SaveImage()
 
 	if (Dialog.exec() != QDialog::Accepted)
 		return;
-
+	
 	QString Extension = QFileInfo(Dialog.mFileName).suffix();
 
 	if (!Extension.isEmpty())
@@ -2510,4 +2516,9 @@ void Project::UpdatePieceInfo(PieceInfo* Info) const
 		lcBoundingBox BoundingBox = mModels[0]->GetPieceInfo()->GetBoundingBox();
 		Info->SetBoundingBox(BoundingBox.Min, BoundingBox.Max);
 	}
+}
+
+void Project::MarkAsModified()
+{
+	mModified = true;
 }

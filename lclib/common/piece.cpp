@@ -174,10 +174,10 @@ bool lcPiece::FileLoad(lcFile& file)
 	quint8 version, ch;
 
 	version = file.ReadU8();
-/*** LPub3D Mod - set 3DViewer label ***/
-	if (version > 12) // 3DViewer 0.80
+
+	if (version > 12) // LeoCAD 0.80
 		return false;
-/*** LPub3D Mod end ***/
+
 	if (version > 8)
 	{
 		if (file.ReadU8() != 1)
@@ -850,12 +850,17 @@ const char* lcPiece::GetName() const
 	return mPieceInfo->m_strDescription;
 }
 
-bool lcPiece::IsVisible(lcStep Step)
+bool lcPiece::IsVisible(lcStep Step) const
 {
 	if (mState & LC_PIECE_HIDDEN)
 		return false;
 
 	return (mStepShow <= Step) && (mStepHide > Step || mStepHide == LC_STEP_MAX);
+}
+
+bool lcPiece::IsVisibleInSubModel() const
+{
+	return (mStepHide == LC_STEP_MAX) && !(mState & LC_PIECE_HIDDEN);
 }
 
 const lcBoundingBox& lcPiece::GetBoundingBox() const

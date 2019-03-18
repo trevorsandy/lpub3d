@@ -99,14 +99,14 @@ lcQGLWidget::lcQGLWidget(QWidget *parent, lcGLWidget *owner, bool view)
 	widget->MakeCurrent();
 
 	// TODO: Find a better place for the grid texture and font
-    gStringCache.AddRef(widget->mContext);
+	gStringCache.AddRef(widget->mContext);
 	gTexFont.Load(widget->mContext);
 	if (gWidgetList.isEmpty())
 	{
 		lcInitializeGLExtensions(context());
 		lcContext::CreateResources();
 		View::CreateResources(widget->mContext);
-        lcViewSphere::CreateResources(widget->mContext);
+		lcViewSphere::CreateResources(widget->mContext);
 
 		if (!gSupportsShaderObjects && lcGetPreferences().mShadingMode == LC_SHADING_DEFAULT_LIGHTS)
 			lcGetPreferences().mShadingMode = LC_SHADING_FLAT;
@@ -135,7 +135,7 @@ lcQGLWidget::lcQGLWidget(QWidget *parent, lcGLWidget *owner, bool view)
 lcQGLWidget::~lcQGLWidget()
 {
 	gWidgetList.removeOne(this);
-    gStringCache.Release(widget->mContext);
+	gStringCache.Release(widget->mContext);
 	gTexFont.Release();
 	makeCurrent();
 	if (gWidgetList.isEmpty())
@@ -143,7 +143,7 @@ lcQGLWidget::~lcQGLWidget()
 		lcGetPiecesLibrary()->ReleaseBuffers(widget->mContext);
 		View::DestroyResources(widget->mContext);
 		lcContext::DestroyResources();
-        lcViewSphere::DestroyResources(widget->mContext);
+		lcViewSphere::DestroyResources(widget->mContext);
 
 		delete gPlaceholderMesh;
 		gPlaceholderMesh = nullptr;
@@ -162,13 +162,13 @@ QSize lcQGLWidget::sizeHint() const
 
 void lcQGLWidget::initializeGL()
 {
-    // Revert [No1. Reduce z-fighting 31703618c]
+/*** LPub3D Mod - Revert [No1. Reduce z-fighting 31703618c] ***/
     glEnable(GL_POLYGON_OFFSET_FILL);
     // Revert [No2. Enabled polygon offset  0abc4a258a]
     //glDisable(GL_POLYGON_OFFSET_FILL);
     // End revert
     glPolygonOffset(0.5f, 0.1f);
-
+/*** LPub3D Mod end ***/
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);

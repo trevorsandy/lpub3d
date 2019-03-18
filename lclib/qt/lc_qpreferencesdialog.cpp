@@ -17,13 +17,15 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
     ui->setupUi(this);
 
 /*** LPub3D Mod - suppress Win/macOS preferences dialog settings ***/
-//#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
-//	ui->povrayLabel->hide();
-//	ui->povrayExecutable->hide();
-//	ui->povrayExecutableBrowse->hide();
-//	delete ui->povrayLabel;
-//	delete ui->povrayLayout;
-//#endif
+/***
+#if defined(Q_OS_WIN) || defined(Q_OS_MACOS)
+	ui->povrayLabel->hide();
+	ui->povrayExecutable->hide();
+	ui->povrayExecutableBrowse->hide();
+	delete ui->povrayLabel;
+	delete ui->povrayLayout;
+#endif
+***/
 /*** LPub3D Mod end ***/
 
 	ui->lineWidth->setValidator(new QDoubleValidator(ui->lineWidth));
@@ -45,7 +47,8 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
 	ui->lgeoPath->setText(options->LGEOPath);
 	ui->mouseSensitivity->setValue(options->Preferences.mMouseSensitivity);
 	ui->checkForUpdates->setCurrentIndex(options->CheckForUpdates);
-	ui->fixedDirectionKeys->setChecked((options->Preferences.mFixedAxes) != 0);
+	ui->fixedDirectionKeys->setChecked(options->Preferences.mFixedAxes);
+	ui->autoLoadMostRecent->setChecked(options->Preferences.mAutoLoadMostRecent);
 
 	ui->antiAliasing->setChecked(options->AASamples != 1);
 	if (options->AASamples == 8)
@@ -143,6 +146,7 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
 	ui->povrayExecutable->setDisabled(true);
 	ui->povrayExecutableBrowse->hide();
 	ui->lgeoPath->setDisabled(true);
+    ui->autoLoadMostRecent->hide();
 	ui->lgeoPathBrowse->hide();
 	ui->checkForUpdates->hide();
 	ui->label_10->hide();                   //label check for updates
@@ -176,6 +180,7 @@ void lcQPreferencesDialog::accept()
 	options->Preferences.mMouseSensitivity = ui->mouseSensitivity->value();
 	options->CheckForUpdates = ui->checkForUpdates->currentIndex();
 	options->Preferences.mFixedAxes = ui->fixedDirectionKeys->isChecked();
+	options->Preferences.mAutoLoadMostRecent = ui->autoLoadMostRecent->isChecked();
 
 	if (!ui->antiAliasing->isChecked())
 		options->AASamples = 1;
@@ -228,7 +233,15 @@ void lcQPreferencesDialog::accept()
 
 void lcQPreferencesDialog::on_partsLibraryBrowse_clicked()
 {
-	QString result = QFileDialog::getExistingDirectory(this, tr("Open Parts Library Folder"), ui->partsLibrary->text());
+	QString result = QFileDialog::getExistingDirectory(this, tr("Select Parts Library Folder"), ui->partsLibrary->text());
+
+	if (!result.isEmpty())
+		ui->partsLibrary->setText(QDir::toNativeSeparators(result));
+}
+
+void lcQPreferencesDialog::on_partsArchiveBrowse_clicked()
+{
+	QString result = QFileDialog::getOpenFileName(this, tr("Select Parts Library Archive"), ui->partsLibrary->text(), tr("Supported Archives (*.zip *.bin);;All Files (*.*)"));
 
 	if (!result.isEmpty())
 		ui->partsLibrary->setText(QDir::toNativeSeparators(result));
@@ -755,7 +768,7 @@ void lcQPreferencesDialog::UpdateMouseTree()
 
 void lcQPreferencesDialog::UpdateMouseTreeItem(int ItemIndex)
 {
-	auto GetShortcutText = [this](Qt::MouseButton Button, Qt::KeyboardModifiers Modifiers)
+	auto GetShortcutText = [](Qt::MouseButton Button, Qt::KeyboardModifiers Modifiers)
 	{
 		QString Shortcut = QKeySequence(Modifiers).toString(QKeySequence::NativeText);
 

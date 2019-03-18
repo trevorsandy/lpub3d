@@ -139,7 +139,7 @@ void lcQPropertiesTreeDelegate::paint(QPainter *painter, const QStyleOptionViewI
 	if (m_treeWidget)
 		hasValue = m_treeWidget->indexToItem(index)->data(0, lcQPropertiesTree::PropertyTypeRole).toInt() != lcQPropertiesTree::PropertyGroup;
 
-	QStyleOptionViewItemV3 opt = option;
+	QStyleOptionViewItem opt = option;
 
 	opt.state &= ~QStyle::State_HasFocus;
 
@@ -241,7 +241,7 @@ QSize lcQPropertiesTree::sizeHint() const
 
 void lcQPropertiesTree::drawRow(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-	QStyleOptionViewItemV3 opt = option;
+	QStyleOptionViewItem opt = option;
 
 	QTreeWidgetItem *item = itemFromIndex(index);
 
@@ -856,7 +856,7 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 
 	lcModel* Model = gMainWindow->GetActiveModel();
 	lcPiece* Piece = (Focus && Focus->IsPiece()) ? (lcPiece*)Focus : nullptr;
-    mFocus = Piece;
+	mFocus = Piece;
 
 	lcVector3 Position;
 	lcMatrix33 RelativeRotation;
@@ -872,7 +872,7 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 
 	lcVector3 Rotation;
 	if (Piece)
-        Rotation = lcMatrix44ToEulerAngles(Piece->mModelWorld) * LC_RTOD;
+		Rotation = lcMatrix44ToEulerAngles(Piece->mModelWorld) * LC_RTOD;
 	else
 		Rotation = lcVector3(0.0f, 0.0f, 0.0f);
 /*** LPub3D Mod - Switch Y and Z axis ***/

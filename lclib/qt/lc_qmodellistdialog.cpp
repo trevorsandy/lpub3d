@@ -7,6 +7,8 @@
 lcQModelListDialog::lcQModelListDialog(QWidget* Parent, QList<QPair<QString, lcModel*>>& Models)
 	: QDialog(Parent), mModels(Models), ui(new Ui::lcQModelListDialog)
 {
+	mActiveModelItem = nullptr;
+
 	ui->setupUi(this);
 
 	for (QList<QPair<QString, lcModel*>>::iterator it = Models.begin(); it != Models.end(); it++)
@@ -22,6 +24,11 @@ lcQModelListDialog::lcQModelListDialog(QWidget* Parent, QList<QPair<QString, lcM
 lcQModelListDialog::~lcQModelListDialog()
 {
 	delete ui;
+}
+
+int lcQModelListDialog::GetActiveModelIndex() const
+{
+	return ui->ModelList->row(mActiveModelItem);
 }
 
 void lcQModelListDialog::UpdateButtons()
@@ -43,10 +50,6 @@ void lcQModelListDialog::accept()
 		QListWidgetItem* Item = ui->ModelList->item(ItemIdx);
 		mModels.append(QPair<QString, lcModel*>(Item->text(), (lcModel*)Item->data(Qt::UserRole).value<uintptr_t>()));
 	}
-
-	mActiveModel = ui->ModelList->currentRow();
-	if (mActiveModel < 0)
-		mActiveModel = 0;
 
 	QDialog::accept();
 }
@@ -86,7 +89,12 @@ void lcQModelListDialog::on_DeleteModel_clicked()
 	if (QMessageBox::question(this, tr("Delete Submodel"), Prompt, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
 		return;
 
-	delete SelectedItems[0];
+	QListWidgetItem* SelectedItem = SelectedItems.first();
+
+	if (mActiveModelItem == SelectedItem)
+		mActiveModelItem = nullptr;
+
+	delete SelectedItem;
 	UpdateButtons();
 }
 
@@ -172,9 +180,14 @@ void lcQModelListDialog::on_MoveDown_clicked()
 	UpdateButtons();
 }
 
+void lcQModelListDialog::on_SetActiveModel_clicked()
+{
+	mActiveModelItem = ui->ModelList->currentItem();
+}
+
 void lcQModelListDialog::on_ModelList_itemDoubleClicked(QListWidgetItem* Item)
 {
-	Q_UNUSED(Item);
+	mActiveModelItem = Item;
 
 	accept();
 }

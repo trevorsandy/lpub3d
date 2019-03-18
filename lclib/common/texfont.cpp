@@ -245,7 +245,7 @@ void TexFont::GetTriangles(const lcMatrix44& Transform, const char* Text, float*
 
 	for (const char* ch = Text; *ch; ch++)
 	{
-        int Glyph = *ch;
+		int Glyph = *ch;
 		Width += mGlyphs[Glyph].width;
 	}
 

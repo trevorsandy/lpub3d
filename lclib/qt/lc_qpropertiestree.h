@@ -71,9 +71,9 @@ protected:
 	void SetMultiple();
 
 	void getPartProperties(lcPartProperties *properties);
-
+/*** LPub3D Mod - LPub3D properties ***/
     bool FirstHit;
-
+/*** LPub3D Mod end ***/
 	lcPropertyWidgetMode mWidgetMode;
 	lcObject* mFocus;
 
@@ -90,16 +90,18 @@ protected:
 	QTreeWidgetItem *partRotationX;
 	QTreeWidgetItem *partRotationY;
 	QTreeWidgetItem *partRotationZ;
-    QTreeWidgetItem *partAppearance;
-    QTreeWidgetItem *partID;
-    QTreeWidgetItem *partColor;
+	QTreeWidgetItem *partVisibility;
+	QTreeWidgetItem *partShow;
+	QTreeWidgetItem *partHide;
+	QTreeWidgetItem *partAppearance;
+	QTreeWidgetItem *partColor;
+	QTreeWidgetItem *partID;
+/*** LPub3D Mod - LPub3D Properties ***/
     QTreeWidgetItem *partFileName;
     QTreeWidgetItem *partModel;
     QTreeWidgetItem *partType;
     QTreeWidgetItem *partIsSubmodel;
-	QTreeWidgetItem *partVisibility;
-	QTreeWidgetItem *partShow;
-	QTreeWidgetItem *partHide;
+/*** LPub3D Mod end ***/
 
 	QTreeWidgetItem *cameraPosition;
 	QTreeWidgetItem *cameraPositionX;

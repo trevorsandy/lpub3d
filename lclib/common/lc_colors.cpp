@@ -278,9 +278,9 @@ bool lcLoadColorFile(lcFile& File)
 				if (Token[0] == '#')
 					Token[0] = ' ';
 
-                int Value;
-                if (sscanf(Token, "%x", &Value) != 1)
-                    Value = 0;
+				int Value;
+				if (sscanf(Token, "%x", &Value) != 1)
+					Value = 0;
 /*** LPub3D Mod - use 3DViewer colors ***/
                 Color.CValue = Value;
 /*** LPub3D Mod end ***/

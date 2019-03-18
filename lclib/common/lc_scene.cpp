@@ -70,13 +70,15 @@ void lcScene::DrawRenderMeshes(lcContext* Context, int PrimitiveTypes, bool Enab
 {
 	const lcArray<int>& Meshes = DrawTranslucent ? mTranslucentMeshes : mOpaqueMeshes;
 
-    // Disable [No1. Reduce z-fighting 31703618c]
-    //if (DrawTranslucent)
-    //	Context->BeginTranslucent();
-    // Disable [No2. Enabled polygon offset  0abc4a258a]
-    //else
-    //	Context->SetPolygonOffset(LC_POLYGON_OFFSET_OPAQUE);
-
+/*** LPub3D Mod - Disable [No1. Reduce z-fighting 31703618c] ***/
+/***
+    if (DrawTranslucent)
+    	Context->BeginTranslucent();
+     Disable [No2. Enabled polygon offset  0abc4a258a]
+    else
+    	Context->SetPolygonOffset(LC_POLYGON_OFFSET_OPAQUE);
+***/
+/*** LPub3D Mod end ***/
 	for (int MeshIndex : Meshes)
 	{
 		const lcRenderMesh& RenderMesh = mRenderMeshes[MeshIndex];
@@ -235,17 +237,17 @@ void lcScene::DrawRenderMeshes(lcContext* Context, int PrimitiveTypes, bool Enab
 #endif
 	}
 
-    // Disable [No1. Reduce z-fighting 31703618c]
+/*** LPub3D Mod - Disable [No1. Reduce z-fighting 31703618c] ***/
     //if (DrawTranslucent)
     //	Context->EndTranslucent();
+/*** LPub3D Mod end ***/
 }
 
-/*** LPub3D Mod - add fade ***/
 void lcScene::Draw(lcContext* Context) const
 {
 	// TODO: find a better place for these updates
 	lcGetPiecesLibrary()->UpdateBuffers(Context);
-    lcGetPiecesLibrary()->UploadTextures(Context);
+	lcGetPiecesLibrary()->UploadTextures(Context);
 
 	Context->SetViewMatrix(mViewMatrix);
 
@@ -281,6 +283,7 @@ void lcScene::Draw(lcContext* Context) const
 	else if (ShadingMode == LC_SHADING_FLAT)
 	{
 		bool DrawLines = Preferences.mDrawEdgeLines && Preferences.mLineWidth != 0.0f;
+/*** LPub3D Mod - add fade ***/
         bool DoFade = gApplication->FadePreviousSteps() && !mTranslucentMeshes.IsEmpty();
 
 		Context->BindTexture2D(0);

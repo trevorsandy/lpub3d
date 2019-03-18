@@ -137,7 +137,7 @@ public:
 	lcTransformType GetTransformType() const
 	{
 		return mTransformType;
-    }
+	}
 
 /*** LPub3D Mod - coord format ***/
     lcRotateStepCoordType GetRotateStepCoordType() const
@@ -203,7 +203,7 @@ public:
 
 	View* GetActiveView() const
 	{
-        lcModelTabWidget* CurrentTab = mModelTabWidget ? (lcModelTabWidget*)mModelTabWidget->currentWidget() : nullptr;
+		lcModelTabWidget* CurrentTab = mModelTabWidget ? (lcModelTabWidget*)mModelTabWidget->currentWidget() : nullptr;
 		return CurrentTab ? CurrentTab->GetActiveView() : nullptr;
 	}
 
@@ -268,7 +268,7 @@ public:
 	QByteArray GetTabLayout();
 	void RestoreTabLayout(const QByteArray& TabLayout);
 	void RemoveAllModelTabs();
-    void CloseCurrentModelTab();
+	void CloseCurrentModelTab();
 	void SetCurrentModelTab(lcModel* Model);
 	void ResetCameras();
 	void AddView(View* View);
@@ -351,7 +351,7 @@ public:
 	QString mRecentFiles[LC_MAX_RECENT_FILES];
 	int mColorIndex;
 	lcSearchOptions mSearchOptions;
-	QAction* mActions[LC_NUM_COMMANDS]; 
+	QAction* mActions[LC_NUM_COMMANDS];
 /*** LPub3D Mod - relocate toolbar ***/
 	QToolBar* mToolsToolBar;       //moved from protected:
 /*** LPub3D Mod end ***/
@@ -439,7 +439,6 @@ protected:
 	bool mAddKeys;
 	lcTool mTool;
 	lcTransformType mTransformType;
-
 	bool mMoveSnapEnabled;
 	bool mAngleSnapEnabled;
 	int mMoveXYSnapIndex;
@@ -454,14 +453,13 @@ protected:
 
 	lcTabWidget* mModelTabWidget;
 	QToolBar* mStandardToolBar;
-
+/*** QToolBar* mToolsToolBar;     LPub3D Mod -  move to public ***/
 /*** LPub3D Mod - coord format ***/
     lcRotateStepCoordType mRotateStepCoordType;
     lcVector3 mExistingRotStep;
     QString mRotStepTransform;
 /*** LPub3D Mod end ***/
 
-/*** QToolBar* mToolsToolBar;     LPub3D Mod -  move to public ***/
 	QToolBar* mTimeToolBar;
 	QDockWidget* mPartsToolBar;
 	QDockWidget* mColorsToolBar;
@@ -478,10 +476,10 @@ protected:
 
 	QLabel* mStatusBarLabel;
 	QLabel* mStatusSnapLabel;
-/*** LPub3D Mod - disable position/time status ***
-	QLabel* mStatusPositionLabel;
-	QLabel* mStatusTimeLabel;
-*** LPub3D Mod end ***/
+/*** LPub3D Mod - disable position/time status ***/
+	//QLabel* mStatusPositionLabel;
+	//QLabel* mStatusTimeLabel;
+/*** LPub3D Mod end ***/
 
 	QMenu* mToolsMenu;
 	QMenu* mViewpointMenu;

@@ -35,8 +35,9 @@ lcContext::lcContext()
 	mTexture2D = 0;
 	mTexture2DMS = 0;
 	mTextureCubeMap = 0;
-    // Disable [No2. Enabled polygon offset  0abc4a258a]
+/*** LPub3D Mod - Disable [No2. Enabled polygon offset  0abc4a258a] ***/
     //mPolygonOffset = LC_POLYGON_OFFSET_NONE;
+/*** LPub3D Mod end ***/
 	mLineWidth = 1.0f;
 #ifndef LC_OPENGLES
 	mMatrixMode = GL_MODELVIEW;
@@ -243,11 +244,12 @@ void lcContext::SetDefaultState()
 	else
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // Revert [No1. Reduce z-fighting 31703618c]
+/*** LPub3D Mod - Revert [No1. Reduce z-fighting 31703618c] ***/
     glEnable(GL_POLYGON_OFFSET_FILL);
     // Add back [No2. Enabled polygon offset  0abc4a258a]
     //glDisable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(0.5f, 0.1f);
+/*** LPub3D Mod end ***/
 
 	if (gSupportsVertexBufferObject)
 	{
@@ -299,9 +301,10 @@ void lcContext::SetDefaultState()
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	mTextureCubeMap = 0;
 
-// Disable [No2. Enabled polygon offset  0abc4a258a]
+/*** LPub3D Mod - Disable [No2. Enabled polygon offset  0abc4a258a] ***/
 //	glDisable(GL_POLYGON_OFFSET_FILL);
 //	mPolygonOffset = LC_POLYGON_OFFSET_NONE;
+/*** LPub3D Mod end ***/
 
 	glLineWidth(1.0f);
 	mLineWidth = 1.0f;
@@ -396,8 +399,8 @@ void lcContext::SetViewport(int x, int y, int Width, int Height)
 	glViewport(x, y, Width, Height);
 }
 
-// Disable [No2. Enabled polygon offset  0abc4a258a]
-/*
+/*** LPub3D Mod - Disable [No2. Enabled polygon offset  0abc4a258a] ***/
+/****
 void lcContext::SetPolygonOffset(lcPolygonOffset PolygonOffset)
 {
 	if (mPolygonOffset == PolygonOffset)
@@ -426,7 +429,8 @@ void lcContext::SetPolygonOffset(lcPolygonOffset PolygonOffset)
 
 	mPolygonOffset = PolygonOffset;
 }
-*/
+***/
+/*** LPub3D Mod end ***/
 
 void lcContext::SetLineWidth(float LineWidth)
 {
@@ -445,8 +449,8 @@ void lcContext::SetSmoothShading(bool Smooth)
 #endif
 }
 
-// Disable [No1. Reduce z-fighting 31703618c]
-/*
+/*** LPub3D Mod - Disable [No1. Reduce z-fighting 31703618c] ***/
+/***
 void lcContext::BeginTranslucent()
 {
 	glEnable(GL_BLEND);
@@ -466,7 +470,8 @@ void lcContext::EndTranslucent()
     // Revert [No2. Enabled polygon offset  0abc4a258a]
     glDisable(GL_POLYGON_OFFSET_FILL);
 }
-*/
+***/
+/*** LPub3D Mod end ***/
 
 void lcContext::BindTexture2D(GLuint Texture)
 {
