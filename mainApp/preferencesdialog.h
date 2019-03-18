@@ -79,6 +79,7 @@ class PreferencesDialog : public QDialog
     bool          showAllNotifications();
     bool          lgeoStlLib();
     bool          povrayDisplay();
+    bool          povrayAutoCrop();
     bool          includeLogLevel();
     bool          includeTimestamp();
     bool          includeLineNumber();

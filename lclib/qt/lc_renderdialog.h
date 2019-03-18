@@ -18,6 +18,10 @@ public slots:
 	void reject();
 	void on_RenderButton_clicked();
 	void on_OutputBrowseButton_clicked();
+/*** LPub3D Mod - LDV Settings ***/
+    void on_LdvLDrawPreferencesButton_clicked();
+    void on_LdvExportSettingsButton_clicked();
+/*** LPub3D Mod end ***/
 	void Update();
 
 protected slots:
@@ -38,6 +42,12 @@ protected:
 	void* mOutputBuffer;
 	QImage mImage;
 	QStringList mStdErrList;
+/*** LPub3D Mod - Vars ***/
+    QStringList mCsiKeyList;
+    QString mViewerCsiKey;
+    QString mModelFile;
+    QTime mRenderTime;
+/*** LPub3D Mod end ***/
 
 	Ui::lcRenderDialog* ui;
 };

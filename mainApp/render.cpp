@@ -74,18 +74,19 @@ Native  native;
 #define SNAPSHOTS_LIST_THRESHOLD 3
 
 static double pi = 4*atan(1.0);
+
 // the default camera distance for real size
 static float LduDistance = 10.0/tan(0.005*pi/180);
 
 // renderer timeout in milliseconds
-static int rendererTimeout(){
+int Render::rendererTimeout(){
     if (Preferences::rendererTimeout == -1)
         return -1;
     else
         return Preferences::rendererTimeout*60*1000;
 }
 
-QString fixupDirname(const QString &dirNameIn) {
+const QString Render::fixupDirname(const QString &dirNameIn) {
 #ifdef Q_OS_WIN
     long     length = 0;
     TCHAR*   buffer = nullptr;
@@ -176,17 +177,18 @@ void Render::setRenderer(QString const &name)
   }
 }
 
-const QString Render::getRotstepMeta(RotStepMeta &rotStep, bool key){
+const QString Render::getRotstepMeta(RotStepMeta &rotStep, bool isKey){
   QString rotstepString;
-  if (key) {
-      rotstepString = QString("%1%2%3%4")
+  if (isKey) {
+      rotstepString = QString("%1_%2_%3_%4")
                               .arg(qRound(rotStep.value().rots[0]))
                               .arg(qRound(rotStep.value().rots[1]))
                               .arg(qRound(rotStep.value().rots[2]))
-                              .arg(rotStep.value().type.trimmed());
+                              .arg(rotStep.value().type.isEmpty() ? "REL" :
+                                   rotStep.value().type.trimmed());
   } else {
       rotstepString = QString("0 // ROTSTEP %1 %2 %3 %4")
-                              .arg(rotStep.value().type)
+                              .arg(rotStep.value().type.trimmed())
                               .arg(rotStep.value().rots[0])
                               .arg(rotStep.value().rots[1])
                               .arg(rotStep.value().rots[2]);
@@ -207,7 +209,7 @@ bool Render::useLDViewSList(){
             Preferences::enableLDViewSnaphsotList);
 }
 
-bool clipImage(QString const &pngName) {
+bool Render::clipImage(QString const &pngName) {
 
     QImage toClip(QDir::toNativeSeparators(pngName));
     QRect clipBox;
@@ -261,22 +263,60 @@ float stdCameraDistance(Meta &meta, float scale) {
     float factor;
 
     // Do the math in pixels
-
     onexone  = 20*meta.LPub.resolution.ldu(); // size of 1x1 in units
     onexone *= meta.LPub.resolution.value();  // size of 1x1 in pixels
     onexone *= scale;
     factor   = gui->pageSize(meta.LPub.page, 0)/onexone; // in pixels;
 
-//	logDebug() << qPrintable(QString("LduDistance                      : %1").arg(LduDistance));
-//	logDebug() << qPrintable(QString("Page Size (width in pixels)      : %1").arg(gui->pageSize(meta.LPub.page, 0)));
-//	logDebug() << qPrintable(QString("Resolution Ldu                   : %1").arg(QString::number(meta.LPub.resolution.ldu(), 'f' ,10)));
-//	logDebug() << qPrintable(QString("Resolution pixel                 : %1").arg(meta.LPub.resolution.value()));
-//	logDebug() << qPrintable(QString("Scale                            : %1").arg(scale));
-//	logDebug() << qPrintable(QString("1x1 [20*res.ldu*res.pix*scale]   : %1").arg(QString::number(onexone, 'f' ,10)));
-//	logDebug() << qPrintable(QString("Factor [Page size/OnexOne]       : %1").arg(QString::number(factor, 'f' ,10)));
-//	logDebug() << qPrintable(QString("Cam Distance [Factor*LduDistance]: %1").arg(QString::number(factor*LduDistance, 'f' ,10)));
+//    logDebug() << qPrintable(QString("LduDistance                      : %1").arg(double(LduDistance)));
+//    logDebug() << qPrintable(QString("Page Size (width in pixels)      : %1").arg(gui->pageSize(meta.LPub.page, 0)));
+//    logDebug() << qPrintable(QString("Resolution Ldu                   : %1").arg(QString::number(double(meta.LPub.resolution.ldu()), 'f' ,10)));
+//    logDebug() << qPrintable(QString("Resolution pixel                 : %1").arg(double(meta.LPub.resolution.value())));
+//    logDebug() << qPrintable(QString("Scale                            : %1").arg(double(scale)));
+//    logDebug() << qPrintable(QString("1x1 [20*res.ldu*res.pix*scale]   : %1").arg(QString::number(double(onexone), 'f' ,10)));
+//    logDebug() << qPrintable(QString("Factor [Page size/OnexOne]       : %1").arg(QString::number(double(factor), 'f' ,10)));
+//    logDebug() << qPrintable(QString("Cam Distance [Factor*LduDistance]: %1").arg(QString::number(double(factor*LduDistance), 'f' ,10)));
 
     return factor*LduDistance;
+}
+
+float Render::getPovrayRenderCameraDistance(const QString &cdKeys){
+    enum {
+       K_IMAGEWIDTH = 0,
+       K_IMAGEHEIGHT,
+       K_MODELSCALE,
+       K_RESOLUTION,
+       K_RESOLUTIONTYPE
+    };
+
+    QStringList cdKey = cdKeys.split(" ");
+
+#ifdef QT_DEBUG_MODE
+    QString message = QString("DEBUG STRING IN - ResType: %1, Resolution: %2, Width: %3, Height: %4, Scale: %5")
+            .arg(cdKey.at(K_RESOLUTIONTYPE) == "DPI" ? "DPI" : "DPCM")
+            .arg(cdKey.at(K_RESOLUTION).toDouble())
+            .arg(cdKey.at(K_IMAGEWIDTH).toDouble()).arg(cdKey.at(K_IMAGEHEIGHT).toDouble())
+            .arg(cdKey.at(K_MODELSCALE).toDouble());
+    emit gui->messageSig(LOG_TRACE, message);
+#endif
+
+    float scale = cdKey.at(K_MODELSCALE).toFloat();
+    ResolutionType ResType = cdKey.at(K_RESOLUTIONTYPE) == "DPI" ? DPI : DPCM;
+    
+    Meta meta;
+    meta.LPub.resolution.setValue(ResType,cdKey.at(K_RESOLUTION).toFloat());
+    meta.LPub.page.size.setValuesPixels(cdKey.at(K_IMAGEWIDTH).toFloat(),cdKey.at(K_IMAGEHEIGHT).toFloat());
+
+#ifdef QT_DEBUG_MODE
+    message = QString("DEBUG META OUT - Resolution: %1, Width: %2, Height: %3")
+            .arg(double(meta.LPub.resolution.value()))
+            .arg(double(meta.LPub.page.size.value(0)))
+            .arg(double(meta.LPub.page.size.value(1)));
+    emit gui->messageSig(LOG_TRACE, message);
+#endif
+
+    // calculate LDView camera distance settings
+    return stdCameraDistance(meta,scale);
 }
 
 int Render::executeLDViewProcess(QStringList &arguments, Mt module) {
@@ -1825,7 +1865,7 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerCsiKey)
         return false;
     }
 
-    QStringList CsiContent = gui->getViewerStepContents(viewerCsiKey);
+    QStringList CsiContent = gui->getViewerStepRotatedContents(viewerCsiKey);
     if (CsiContent.isEmpty())
     {
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Did not receive 3DViewer CSI content for %1.").arg(FileName));
@@ -1852,6 +1892,7 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerCsiKey)
             .arg(outFileInfo.absolutePath())
             .arg(outFileInfo.baseName().replace(".ldr",""))
             .arg(QFileInfo(modelName).baseName());
+
     QFile file(outfileName);
     if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open 3DViewer file %1 for writing: %2")
@@ -1937,54 +1978,27 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerCsiKey)
 
 bool Render::NativeExport(const NativeOptions &Options) {
 
-    QString exportMode = nativeExportNames[Options.ExportMode];
-
-    bool good = true;
+    QString exportModeName = nativeExportNames[Options.ExportMode];
 
     if (Options.ExportMode == EXPORT_WAVEFRONT ||
         Options.ExportMode == EXPORT_COLLADA /*  ||
         Options.ExportMode == EXPORT_3DS_MAX   ||
         Options.ExportMode == EXPORT_HTML */) {
-        emit gui->messageSig(LOG_STATUS, QString("Native CSI %1 Export...").arg(exportMode));
+        emit gui->messageSig(LOG_STATUS, QString("Native CSI %1 Export...").arg(exportModeName));
         Project* NativeExportProject = new Project();
         gApplication->SetProject(NativeExportProject);
 
         if (! gMainWindow->OpenProject(Options.InputFileName)) {
             emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to open CSI %1 Export project")
-                                                           .arg(exportMode));
+                                                           .arg(exportModeName));
             delete NativeExportProject;
-            good = false;
+            return false;
         }
     }
     else
     {
-        bool exportHTML = Options.ExportMode == EXPORT_HTML;
-        QString workingDirectory = QDir::currentPath();
-        QStringList arguments = Options.ExportArgs;
-        emit gui->messageSig(LOG_TRACE, QString("Native CSI %1 Export for command: %2")
-                                                 .arg(exportMode)
-                                                 .arg(arguments.join(" ")));
-        ldvWidget = new LDVWidget(nullptr,IniFlag(Options.IniFlag),true);
-        if (exportHTML)
-            gui->connect(ldvWidget, SIGNAL(loadBLElementsSig()), gui, SLOT(loadBLElements()));
-        if (! ldvWidget->doCommand(arguments))  {
-            emit gui->messageSig(LOG_ERROR, QString("Failed to generate CSI %1 Export for command: %2")
-                                                    .arg(exportMode)
-                                                    .arg(arguments.join(" ")));
-            good = false;
-        }
-        if (! QDir::setCurrent(workingDirectory)) {
-            emit gui->messageSig(LOG_ERROR, QString("Failed to restore CSI %1 export working directory: %2")
-                                                    .arg(exportMode)
-                                                    .arg(workingDirectory));
-            good = false;
-        }
-        if (exportHTML)
-            gui->disconnect(ldvWidget, SIGNAL(loadBLElementsSig()), gui, SLOT(loadBLElements()));
+        return doLDVCommand(Options.ExportArgs, Options.ExportMode);
     }
-
-    if (! good )
-        return good;
 
     if (Options.ExportMode == EXPORT_CSV)
     {
@@ -2035,7 +2049,108 @@ bool Render::NativeExport(const NativeOptions &Options) {
     }
 */
 
-    return good;
+    return true;
+}
+
+void Render::showLdvExportSettings(int iniFlag){
+    ldvWidget = new LDVWidget(nullptr,IniFlag(iniFlag),true);
+    ldvWidget->showLDVExportOptions();
+}
+
+void Render::showLdvLDrawPreferences(int iniFlag){
+    ldvWidget = new LDVWidget(nullptr,IniFlag(iniFlag),true);
+    ldvWidget->showLDVPreferences();
+}
+
+bool Render::doLDVCommand(const QStringList &args, int exportMode, int iniFlag){
+    QString exportModeName = nativeExportNames[exportMode];
+    bool exportHTML = exportMode == EXPORT_HTML;
+    QStringList arguments = args;
+
+    if (exportMode == EXPORT_NONE && iniFlag == NumIniFiles) {
+        emit gui->messageSig(LOG_ERROR, QString("Invalid export mode and ini flag codes specified."));
+        return false;
+    }
+
+    switch (exportMode){
+    case EXPORT_HTML:
+        iniFlag = NativePartList;
+        break;
+    case EXPORT_POVRAY:
+        iniFlag = NativePOVIni;
+        break;
+    case EXPORT_STL:
+        iniFlag = NativeSTLIni;
+        break;
+    case EXPORT_3DS_MAX:
+        iniFlag = Native3DSIni;
+        break;
+    default:
+        if (iniFlag == NumIniFiles)
+            return false;
+        break;
+    }
+
+    QString workingDirectory = QDir::currentPath();
+    emit gui->messageSig(LOG_TRACE, QString("Native CSI %1 Export for command: %2")
+                                             .arg(exportModeName)
+                                             .arg(arguments.join(" ")));
+    ldvWidget = new LDVWidget(nullptr,IniFlag(iniFlag),true);
+    if (exportHTML)
+        gui->connect(ldvWidget, SIGNAL(loadBLElementsSig()), gui, SLOT(loadBLElements()));
+    if (! ldvWidget->doCommand(arguments))  {
+        emit gui->messageSig(LOG_ERROR, QString("Failed to generate CSI %1 Export for command: %2")
+                                                .arg(exportModeName)
+                                                .arg(arguments.join(" ")));
+        return false;
+    }
+    if (! QDir::setCurrent(workingDirectory)) {
+        emit gui->messageSig(LOG_ERROR, QString("Failed to restore CSI %1 export working directory: %2")
+                                                .arg(exportModeName)
+                                                .arg(workingDirectory));
+        return false;
+    }
+    if (exportHTML)
+        gui->disconnect(ldvWidget, SIGNAL(loadBLElementsSig()), gui, SLOT(loadBLElements()));
+
+    return true;
+}
+
+const QString Render::getPovrayRenderFileName(const QString &viewerCsiKey)
+{
+    QString valueAt0 = viewerCsiKey.at(0);
+    bool inside = (valueAt0 == "\"");                                                 // true if the first character is "
+    QStringList tmpList = viewerCsiKey.split(QRegExp("\""), QString::SkipEmptyParts); // Split by "
+    QStringList argv01;
+    foreach (QString s, tmpList) {
+        if (inside) {                                                                 // If 's' is inside quotes ...
+            argv01.append(s);                                                         // ... get the whole string
+        } else {                                                                      // If 's' is outside quotes ...
+            argv01.append(s.split(" ", QString::SkipEmptyParts));                     // ... get the split string
+        }
+        inside = !inside;
+    }
+    QString csiModel  = argv01[0];                                                   //0=modelName
+
+    QString fileName = gui->getViewerStepFilePath(viewerCsiKey);
+
+    if (fileName.isEmpty()){
+        emit gui->messageSig(LOG_ERROR, QString("Failed to receive ldrFileName for viewerCsiKey : %1").arg(viewerCsiKey));
+        return QString();
+    }
+
+    QDir povrayDir(QString("%1/%2").arg(QDir::currentPath()).arg(Paths::povrayRenderDir));
+    if (!povrayDir.exists())
+        povrayDir.mkdir(".");
+
+    QFileInfo csiFile(fileName);
+    QString imageFile = QDir::toNativeSeparators(QString("%1/%2_%3.png")
+                       .arg(povrayDir.absolutePath())
+                       .arg(csiFile.baseName().replace(".ldr",""))
+                       .arg(QFileInfo(csiModel).baseName()));
+
+    return imageFile;
+
 }
 
 // create Native version of the csi file
@@ -2049,7 +2164,6 @@ int Render::createNativeCSI(
   QStringList csiParts = csiRotatedParts;
 
   QStringList argv;
-  bool        alreadyInserted;
   int         rc;
 
   if (csiRotatedParts.size() > 0) {

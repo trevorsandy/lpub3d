@@ -117,6 +117,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.rendererTimeout->setValue(                  Preferences::rendererTimeout);
   ui.pageDisplayPauseSpin->setValue(             Preferences::pageDisplayPause);
   ui.povrayDisplay_Chk->setChecked(              Preferences::povrayDisplay);
+  ui.povrayAutoCropBox->setChecked(              Preferences::povrayAutoCrop);
   ui.loadLastOpenedFileCheck->setChecked(        Preferences::loadLastOpenedFile);
   ui.projectionCombo->setCurrentIndex(           Preferences::perspectiveProjection ? 0 : 1);
 
@@ -797,6 +798,11 @@ bool PreferencesDialog::perspectiveProjection()
 bool PreferencesDialog::povrayDisplay()
 {
     return ui.povrayDisplay_Chk->isChecked();
+}
+
+bool PreferencesDialog::povrayAutoCrop()
+{
+    return ui.povrayAutoCropBox->isChecked();
 }
 
 bool PreferencesDialog::loadLastOpenedFile()

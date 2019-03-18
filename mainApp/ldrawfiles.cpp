@@ -79,12 +79,16 @@ LDrawSubFile::LDrawSubFile(
 }
 
 /* initialize viewer step*/
-ViewerStep::ViewerStep(const QStringList &contents,
+ViewerStep::ViewerStep(const QStringList &rotatedContents,
+                       const QStringList &unrotatedContents,
                        const QString     &filePath,
+                       const QString     &csiKey,
                        bool               multiStep,
                        bool               calledOut){
-    _contents << contents;
+    _rotatedContents << rotatedContents;
+    _unrotatedContents << unrotatedContents;
     _filePath  = filePath;
+    _csiKey    = csiKey;
     _modified  = false;
     _multiStep = multiStep;
     _calledOut = calledOut;
@@ -1141,8 +1145,10 @@ void LDrawFile::tempCacheCleared()
 /* Add a new Viewer Step */
 
 void LDrawFile::insertViewerStep(const QString     &fileName,
-                                 const QStringList &contents,
+                                 const QStringList &rotatedContents,
+                                 const QStringList &unrotatedContents,
                                  const QString     &filePath,
+                                 const QString     &csiKey,
                                  bool               multiStep,
                                  bool               calledOut)
 {
@@ -1152,43 +1158,46 @@ void LDrawFile::insertViewerStep(const QString     &fileName,
   if (i != _viewerSteps.end()) {
     _viewerSteps.erase(i);
   }
-  ViewerStep viewerStep(contents,filePath,multiStep,calledOut);
+  ViewerStep viewerStep(rotatedContents,unrotatedContents,filePath,csiKey,multiStep,calledOut);
   _viewerSteps.insert(mfileName,viewerStep);
 }
 
 /* Viewer Step Exist */
 
-void LDrawFile::updateViewerStep(const QString &fileName, const QStringList &contents)
+void LDrawFile::updateViewerStep(const QString &fileName, const QStringList &contents, bool rotated)
 {
   QString    mfileName = fileName.toLower();
   QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
 
   if (i != _viewerSteps.end()) {
-    i.value()._contents = contents;
+    if (rotated)
+      i.value()._rotatedContents = contents;
+    else
+      i.value()._unrotatedContents = contents;
     i.value()._modified = true;
   }
 }
 
-/* Viewer Step Exist */
+/* return viewer step rotatedContents */
 
-bool LDrawFile::viewerStepContentExist(const QString &fileName)
-{
-  QString    mfileName = fileName.toLower();
-  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
-
-  if (i != _viewerSteps.end()) {
-    return true;
-  }
-  return false;
-}
-/* return viewer step contents */
-
-QStringList LDrawFile::getViewerStepContents(const QString &fileName)
+QStringList LDrawFile::getViewerStepRotatedContents(const QString &fileName)
 {
   QString mfileName = fileName.toLower();
   QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
   if (i != _viewerSteps.end()) {
-    return i.value()._contents;
+    return i.value()._rotatedContents;
+  }
+  return _emptyList;
+}
+
+/* return viewer step unrotatedContents */
+
+QStringList LDrawFile::getViewerStepUnrotatedContents(const QString &fileName)
+{
+  QString mfileName = fileName.toLower();
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
+  if (i != _viewerSteps.end()) {
+    return i.value()._unrotatedContents;
   }
   return _emptyList;
 }
@@ -1203,6 +1212,31 @@ QString LDrawFile::getViewerStepFilePath(const QString &fileName)
     return i.value()._filePath;
   }
   return _emptyString;
+}
+
+/* return viewer step CSI key */
+
+QString LDrawFile::getViewerStepCsiKey(const QString &fileName)
+{
+  QString mfileName = fileName.toLower();
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
+  if (i != _viewerSteps.end()) {
+    return i.value()._csiKey;
+  }
+  return _emptyString;
+}
+
+/* Viewer Step Exist */
+
+bool LDrawFile::viewerStepContentExist(const QString &fileName)
+{
+  QString    mfileName = fileName.toLower();
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
+
+  if (i != _viewerSteps.end()) {
+    return true;
+  }
+  return false;
 }
 
 /* return viewer step is multiStep */

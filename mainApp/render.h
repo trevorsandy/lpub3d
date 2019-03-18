@@ -53,15 +53,25 @@ public:
   enum Mt { PLI, CSI };
   virtual ~Render() {}
   static QString const   getRenderer();
-  static void            setRenderer(QString const &);
-  static QString const   getRotstepMeta(RotStepMeta &, bool = false);
-  static int             executeLDViewProcess(QStringList &, Mt);
   static bool            useLDViewSCall();
   static bool            useLDViewSList();
-  bool                   RenderNativeImage(const NativeOptions &);
-  bool                   NativeExport(const NativeOptions &);
-  bool                   LoadViewer(const ViewerOptions &);
-  bool                   LoadStepProject(Project *,
+  static int             rendererTimeout();
+  static void            setRenderer(QString const &);
+  static bool            clipImage(QString const &);
+  static QString const   getRotstepMeta(RotStepMeta &, bool isKey = false);
+  static int             executeLDViewProcess(QStringList &, Mt);
+  static QString const   fixupDirname(const QString &);
+  static QString const   getPovrayRenderFileName(const QString &);
+  static float           getPovrayRenderCameraDistance(const QString &cdKeys);
+  static void            showLdvExportSettings(int mode);
+  static void            showLdvLDrawPreferences(int mode);
+  static bool            RenderNativeImage(const NativeOptions &);
+  static bool            NativeExport(const NativeOptions &);
+  static bool            LoadViewer(const ViewerOptions &);
+  static bool            doLDVCommand(const QStringList &args,
+                                    int = -1 /*EXPORT_NONE*/,
+                                    int = 6 /*NumIniFiles*/);
+  static bool            LoadStepProject(Project *,
                                      const QString &);
   static int             createNativeCSI(QStringList &csiParts,
                                      bool doFadeStep,
@@ -77,6 +87,10 @@ public:
                                      const QString &modelName,
                                      FloatPairMeta &ca,
                                      bool ldv = false);
+  static int             rotateParts(const QStringList &parts,
+                                     QString &ldrName,
+                                     const QString &rs,
+                                     QString &ca);
   static int             rotateParts(const QString &addLine,
                                      RotStepMeta &rotStep,
                                      QStringList &parts,
@@ -102,8 +116,6 @@ protected:
   friend class Project;
   friend class Step;
 };
-
-extern Render *renderer;
 
 class POVRay : public Render
 {
@@ -197,4 +209,11 @@ public:
   bool TransBackground;
   bool UsingViewpoint;
 };
+
+extern Render *renderer;
+extern LDGLite ldglite;
+extern LDView  ldview;
+extern POVRay  povray;
+extern Native  native;
+
 #endif

@@ -37,15 +37,15 @@
 
 Paths paths;
 
-QString Paths::lpubDir     = "LPub3D";
-QString Paths::tmpDir      = "LPub3D/tmp";
-QString Paths::assemDir    = "LPub3D/assem";
-QString Paths::partsDir    = "LPub3D/parts";
-QString Paths::submodelDir = "LPub3D/submodels";
-
-QString Paths::logsDir    = "logs";
-QString Paths::extrasDir  = "extras";
-QString Paths::libraryDir = "libraries";
+QString Paths::lpubDir         = "LPub3D";
+QString Paths::tmpDir          = "LPub3D/tmp";
+QString Paths::assemDir        = "LPub3D/assem";
+QString Paths::partsDir        = "LPub3D/parts";
+QString Paths::submodelDir     = "LPub3D/submodels";
+QString Paths::povrayRenderDir = "LPub3D/povray";
+QString Paths::logsDir         = "logs";
+QString Paths::extrasDir       = "extras";
+QString Paths::libraryDir      = "libraries";
 
 QString Paths::customDir       = QString();
 QString Paths::customPartDir   = QString();
@@ -55,6 +55,13 @@ QString Paths::customPrim8Dir  = QString();
 QString Paths::customPrim48Dir = QString();
 
 QStringList Paths::customDirs;
+
+void Paths::mkPovrayDir(){
+
+    QDir dir;
+    dir.mkdir(povrayRenderDir);
+
+}
 
 void Paths::mkDirs(){
 

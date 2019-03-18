@@ -229,17 +229,23 @@ int Step::createCsi(
   QString csiPngFilePath = QString("%1/%2").arg(QDir::currentPath()).arg(Paths::assemDir);
   QString csiLdrFile = QString("%1/%2").arg(csiLdrFilePath).arg(gui->m_partListCSIFile ?
                                QFileInfo(gui->getCurFile()).baseName()+"_snapshot.ldr" : "csi.ldr");
-
-  QString key = QString("%1_%2_%3_%4_%5_%6_%7_%8_%9")
-      .arg(csi_Name+orient)
+  QString keyPart1 = QString("%1")
+      .arg(csi_Name+orient);
+  QString keyPart2 = QString("%1_%2_%3_%4_%5_%6_%7_%8")
       .arg(stepNumber.number)
       .arg(gui->pageSize(meta.LPub.page, 0))
-      .arg(resolution())
+      .arg(double(resolution()))
       .arg(resolutionType() == DPI ? "DPI" : "DPCM")
-      .arg(modelScale)
-      .arg(meta.LPub.assem.cameraFoV.value())
-      .arg(absRotstep ? noCA.value(0) : meta.LPub.assem.cameraAngles.value(0))
-      .arg(absRotstep ? noCA.value(1) : meta.LPub.assem.cameraAngles.value(1));
+      .arg(double(modelScale))
+      .arg(double(meta.LPub.assem.cameraFoV.value()))
+      .arg(absRotstep ? double(noCA.value(0.0)) : double(meta.LPub.assem.cameraAngles.value(0)))
+      .arg(absRotstep ? double(noCA.value(1.0)) : double(meta.LPub.assem.cameraAngles.value(1)));
+  QString key = QString("%1_%2").arg(keyPart1).arg(keyPart2);
+
+  // append rotstep to be passed on to 3DViewer
+  keyPart2 += QString("_%1_%2")
+                      .arg(renderer->getRotstepMeta(meta.rotStep,true))
+                      .arg(double(meta.LPub.assem.modelScale.value()));
 
   // populate png name
   pngName = QString("%1/%2.png").arg(csiPngFilePath).arg(key);
@@ -311,7 +317,8 @@ int Step::createCsi(
       if ((rc = renderer->createNativeCSI(rotatedParts,fadeSteps,highlightStep) != 0))
           emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Viewer CSI parts"));
 
-      gui->insertViewerStep(viewerCsiKey,rotatedParts,csiLdrFile,multiStep,calledOut);
+      // store rotated and unrotated (csiParts). Unrotated parts are used to generate LDView pov file
+      gui->insertViewerStep(viewerCsiKey,rotatedParts,csiParts,csiLdrFile,keyPart2,multiStep,calledOut);
   }
 
   // generate renderer CSI file

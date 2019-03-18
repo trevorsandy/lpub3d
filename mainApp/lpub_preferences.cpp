@@ -192,6 +192,7 @@ bool    Preferences::showUpdateNotifications    = true;
 bool    Preferences::enableDownloader           = true;
 bool    Preferences::ldrawiniFound              = false;
 bool    Preferences::povrayDisplay              = false;
+bool    Preferences::povrayAutoCrop             = false;
 bool    Preferences::isAppImagePayload          = false;
 bool    Preferences::modeGUI                    = true;
 
@@ -1985,6 +1986,16 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
         povrayDisplay = Settings.value(QString("%1/%2").arg(SETTINGS,povrayDisplayKey)).toBool();
     }
 
+    // Automatically crop POV-Ray rendered images
+    QString const povrayAutoCropKey("PovrayAutoCrop");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,povrayAutoCropKey))) {
+        QVariant uValue(true);
+        povrayAutoCrop = true;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,povrayAutoCropKey),uValue);
+    } else {
+        povrayAutoCrop = Settings.value(QString("%1/%2").arg(SETTINGS,povrayAutoCropKey)).toBool();
+    }
+
     // Apply latitude and longitude camera angles locally
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"ApplyCALocally"))) {
         QVariant uValue(true);
@@ -3219,6 +3230,12 @@ bool Preferences::getPreferences()
         {
             povrayDisplay = dialog->povrayDisplay();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"POVRayDisplay"),povrayDisplay);
+        }
+
+        if (povrayAutoCrop != dialog->povrayAutoCrop())
+        {
+            povrayAutoCrop = dialog->povrayAutoCrop();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"PovrayAutoCrop"),povrayAutoCrop);
         }
 
         if (ldSearchDirs != dialog->searchDirSettings()) {

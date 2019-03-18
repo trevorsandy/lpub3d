@@ -1867,6 +1867,7 @@ void Gui::preferences()
     bool archiveLSynthPartsCompare      = Preferences::archiveLSynthParts;
     bool perspectiveProjectionCompare   = Preferences::perspectiveProjection;
     bool loadLastOpenedFileCompare      = Preferences::loadLastOpenedFile;
+    bool povrayAutoCropCompare          = Preferences::povrayAutoCrop;
     QString altLDConfigPathCompare      = Preferences::altLDConfigPath;
     QString povFileGeneratorCompare     = Preferences::povFileGenerator;
     QString fadeStepsColourCompare      = Preferences::validFadeStepsColour;
@@ -1922,6 +1923,7 @@ void Gui::preferences()
         bool lgeoPathChanged               = QString(Preferences::lgeoPath).toLower()            != lgeoPathCompare.toLower();
         bool displayThemeChanged           = Preferences::displayTheme.toLower()                 != displayThemeCompare.toLower();
         bool loadLastOpenedFileChanged     = Preferences::loadLastOpenedFile                     != loadLastOpenedFileCompare;
+        bool povrayAutoCropChanged         = Preferences::povrayAutoCrop                         != povrayAutoCropCompare;
 
         if (ldrawPathChanged) {
             emit messageSig(LOG_INFO,QString("LDraw Library path changed from %1 to %2")
@@ -1972,7 +1974,10 @@ void Gui::preferences()
             emit messageSig(LOG_INFO,QString("Highlight Current Step is %1.").arg(Preferences::enableHighlightStep ? "ON" : "OFF"));
 
         if (loadLastOpenedFileChanged     )
-                    emit messageSig(LOG_INFO,QString("Load Last Opened File is %1").arg(Preferences::loadLastOpenedFile? "ON" : "OFF"));
+                    emit messageSig(LOG_INFO,QString("Load Last Opened File is %1").arg(Preferences::loadLastOpenedFile ? "ON" : "OFF"));
+
+        if (povrayAutoCropChanged     )
+                    emit messageSig(LOG_INFO,QString("Povray AutoCrop is %1").arg(Preferences::povrayAutoCrop ? "ON" : "OFF"));
 
         if (highlightStepLineWidthChanged && Preferences::enableHighlightStep)
             emit messageSig(LOG_INFO,QString("Highlight Step line width changed from %1 to %2")

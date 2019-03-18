@@ -591,23 +591,40 @@ public:
   }
 
   void insertViewerStep(const QString     &fileName,
-                        const QStringList &contents,
+                        const QStringList &rotatedContents,
+                        const QStringList &unrotatedContents,
                         const QString     &filePath,
+                        const QString     &csiKey,
                         bool               multiStep,
                         bool               calledOut)
   {
-      ldrawFile.insertViewerStep(fileName,  contents, filePath,
-                                 multiStep, calledOut);
+      ldrawFile.insertViewerStep(fileName,
+                                 rotatedContents,
+                                 unrotatedContents,
+                                 filePath,
+                                 csiKey,
+                                 multiStep,
+                                 calledOut);
   }
 
-  QStringList getViewerStepContents(const QString &fileName)
+  QStringList getViewerStepRotatedContents(const QString &fileName)
   {
-      return ldrawFile.getViewerStepContents(fileName);
+      return ldrawFile.getViewerStepRotatedContents(fileName);
+  }
+
+  QStringList getViewerStepUnrotatedContents(const QString &fileName)
+  {
+      return ldrawFile.getViewerStepUnrotatedContents(fileName);
   }
 
   QString getViewerStepFilePath(const QString &fileName)
   {
       return ldrawFile.getViewerStepFilePath(fileName);
+  }
+
+  QString getViewerStepCsiKey(const QString &fileName)
+  {
+      return ldrawFile.getViewerStepCsiKey(fileName);
   }
 
   bool isViewerStepMultiStep(const QString &fileName)

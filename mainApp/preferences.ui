@@ -39,7 +39,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tabGeneral">
       <attribute name="title">
@@ -1059,15 +1059,9 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_17">
             <item>
-             <widget class="QCheckBox" name="povrayDisplay_Chk">
-              <property name="toolTip">
-               <string>Display image during rendering (Experimental)</string>
-              </property>
-              <property name="statusTip">
-               <string>Check to enable display window during image Raytracer rendering</string>
-              </property>
+             <widget class="QCheckBox" name="povrayAutoCropBox">
               <property name="text">
-               <string>Display image during rendering (Experimental)</string>
+               <string>Automatically crop rendered images</string>
               </property>
              </widget>
             </item>
@@ -1083,6 +1077,19 @@
                </size>
               </property>
              </spacer>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="povrayDisplay_Chk">
+              <property name="toolTip">
+               <string>Display image during rendering (Experimental)</string>
+              </property>
+              <property name="statusTip">
+               <string>Check to enable display window during image Raytracer rendering</string>
+              </property>
+              <property name="text">
+               <string>Display image during rendering (Experimental)</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -2383,7 +2390,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>lgeoBox</tabstop>
   <tabstop>lgeoPath</tabstop>
   <tabstop>browseLGEO</tabstop>
-  <tabstop>povrayDisplay_Chk</tabstop>
   <tabstop>povrayPath</tabstop>
   <tabstop>povGenNativeRadio</tabstop>
   <tabstop>povGenLDViewRadio</tabstop>

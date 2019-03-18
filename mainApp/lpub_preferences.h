@@ -223,6 +223,7 @@ class Preferences
     static int     pageDisplayPause;
     static int     rendererTimeout;
     static bool    povrayDisplay;
+    static bool    povrayAutoCrop;
     static bool    isAppImagePayload;
     static bool    modeGUI;
 

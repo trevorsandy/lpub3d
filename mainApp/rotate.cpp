@@ -150,6 +150,43 @@ void rotateMatrix(
   }
 }
 
+int Render::rotateParts(const QStringList &parts, QString &ldrName, const QString &rs, QString &ca)
+{
+    bool ldvExport = true, good = false, ok = false;
+    const QString addLine = "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr";
+
+    QStringList rotStepList = rs.split(" ");
+    RotStepData rotStepData;
+    rotStepData.rots[0] = rotStepList.at(0).toDouble(&good);
+    rotStepData.rots[1] = rotStepList.at(1).toDouble(&ok);
+    good &= ok;
+    rotStepData.rots[2] = rotStepList.at(2).toDouble(&ok);
+    good &= ok;
+    if (!good){
+        emit gui->messageSig(LOG_NOTICE,QString("Malformed ROTSTEP values [%1], using '0 0 0'.").arg(rs));
+        rotStepData.rots[0] = 0.0;
+        rotStepData.rots[1] = 0.0;
+        rotStepData.rots[2] = 0.0;
+    }
+    rotStepData.type    = rotStepList.at(3);
+    RotStepMeta rotStepMeta;
+    rotStepMeta.setValue(rotStepData);
+
+    QStringList caList = ca.split(" ");
+    float latitude = caList.at(0).toFloat(&good);
+    float longitude = caList.at(1).toFloat(&ok);
+    good &= ok;
+    if (!good){
+        emit gui->messageSig(LOG_NOTICE,QString("Malformed Camera Angle values [%1], using 'latitude 30', 'longitude 45'.").arg(ca));
+        latitude = 30.0;
+        longitude = 45.0;
+    }
+    FloatPairMeta cameraAngles;
+    cameraAngles.setValues(latitude,longitude);
+
+    return rotateParts(addLine, rotStepMeta, parts, ldrName, QString(),cameraAngles,ldvExport);
+}
+
 int Render::rotateParts(
           const QString     &addLine,
           RotStepMeta       &rotStep,

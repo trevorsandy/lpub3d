@@ -75,8 +75,10 @@ class LDrawSubFile {
 
 class ViewerStep {
   public:
-    QStringList _contents;
+    QStringList _rotatedContents;
+    QStringList _unrotatedContents;
     QString   	_filePath;
+    QString     _csiKey;
     bool        _modified;
     bool        _multiStep;
     bool        _calledOut;
@@ -86,13 +88,16 @@ class ViewerStep {
       _modified = false;
     }
     ViewerStep(
-      const QStringList &contents,
+      const QStringList &rotatedContents,
+      const QStringList &unrotatedContents,
       const QString     &filePath,
+      const QString     &csiKey,
       bool               multiStep,
       bool               calledOut);
     ~ViewerStep()
     {
-      _contents.clear();
+      _rotatedContents.clear();
+      _unrotatedContents.clear();
     }
 };
 
@@ -190,14 +195,19 @@ class LDrawFile {
 
     /* ViewerStep functions */
     void insertViewerStep(const QString     &fileName,
-                          const QStringList &contents,
+                          const QStringList &rotatedContents,
+                          const QStringList &unrotatedContents,
                           const QString     &filePath,
+                          const QString     &csiKey,
                           bool               multiStep,
                           bool               calledOut);
     void updateViewerStep(const QString     &fileName,
-                          const QStringList &contents);
-    QStringList getViewerStepContents(const QString &fileName);
+                          const QStringList &contents,
+                          bool rotated = true);
+    QStringList getViewerStepRotatedContents(const QString &fileName);
+    QStringList getViewerStepUnrotatedContents(const QString &fileName);
     QString     getViewerStepFilePath(const QString &fileName);
+    QString     getViewerStepCsiKey(const QString &fileName);
     bool        isViewerStepMultiStep(const QString &fileName);
     bool        isViewerStepCalledOut(const QString &fileName);
     bool        viewerStepContentExist(      const QString &fileName);

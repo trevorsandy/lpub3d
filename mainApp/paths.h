@@ -25,6 +25,7 @@ class Paths {
 public:
 
     static void mkDirs();
+    static void mkPovrayDir();
     static void mkCustomDirs();
     static QString lpubDir;
     static QString tmpDir;
@@ -40,7 +41,10 @@ public:
     static QString customPrimDir;
     static QString customPrim8Dir;
     static QString customPrim48Dir;
+    static QString povrayRenderDir;
     static QStringList customDirs;
 };
+
+extern Paths paths;
 
 #endif
