@@ -117,6 +117,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.rendererTimeout->setValue(                  Preferences::rendererTimeout);
   ui.pageDisplayPauseSpin->setValue(             Preferences::pageDisplayPause);
   ui.povrayDisplay_Chk->setChecked(              Preferences::povrayDisplay);
+  ui.loadLastOpenedFileCheck->setChecked(        Preferences::loadLastOpenedFile);
   ui.projectionCombo->setCurrentIndex(           Preferences::perspectiveProjection ? 0 : 1);
 
   ui.loggingGrpBox->setChecked(                  Preferences::logging);
@@ -796,6 +797,11 @@ bool PreferencesDialog::perspectiveProjection()
 bool PreferencesDialog::povrayDisplay()
 {
     return ui.povrayDisplay_Chk->isChecked();
+}
+
+bool PreferencesDialog::loadLastOpenedFile()
+{
+       return ui.loadLastOpenedFileCheck->isChecked();
 }
 
 QString const PreferencesDialog::fadeStepsColour()

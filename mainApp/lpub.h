@@ -814,6 +814,8 @@ public slots:
 
   void loadBLElements();
 
+  void loadLastOpenedFile();
+
   /* The undoStack needs access to these */
 
   void canRedoChanged(bool);

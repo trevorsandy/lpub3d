@@ -183,6 +183,7 @@ class Preferences
     static bool    archiveLSynthParts;
     static bool    usingNativeRenderer;
     static bool    skipPartsArchive;
+    static bool    loadLastOpenedFile;
 
     static bool    enableFadeSteps;
     static bool    fadeStepsUseColour;

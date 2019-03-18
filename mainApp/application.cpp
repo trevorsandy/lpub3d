@@ -607,6 +607,9 @@ void Application::mainApp()
 
         if (!m_commandline_file.isEmpty())
             emit gui->loadFileSig(m_commandline_file);
+        else if (Preferences::loadLastOpenedFile){
+            gui->loadLastOpenedFile();
+        }
 
 #ifndef DISABLE_UPDATE_CHECK
         DoInitialUpdateCheck();

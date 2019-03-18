@@ -64,6 +64,7 @@ class PreferencesDialog : public QDialog
     bool          generateCoverPages();
     bool          printDocumentTOC();
     bool          doNotShowPageProcessDlg();
+    bool          loadLastOpenedFile();
     bool          centimeters();
     bool          applyCALocally();
     bool          enableFadeSteps();

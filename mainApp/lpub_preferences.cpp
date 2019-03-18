@@ -162,6 +162,7 @@ bool    Preferences::addLSynthSearchDir         = false;
 bool    Preferences::archiveLSynthParts         = false;
 bool    Preferences::usingNativeRenderer        = false;
 bool    Preferences::skipPartsArchive           = false;
+bool    Preferences::loadLastOpenedFile         = false;
 
 bool    Preferences::ignoreMixedPageSizesMsg    = false;
 
@@ -2720,6 +2721,15 @@ void Preferences::userInterfacePreferences()
   if (Settings.contains(QString("%1/%2").arg(SETTINGS,showSubmodelInCalloutKey))) {
       showSubmodelInCallout = Settings.value(QString("%1/%2").arg(SETTINGS,showSubmodelInCalloutKey)).toBool();
   }
+
+  QString const loadLastOpenedFileKey("LoadLastOpenedFile");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,loadLastOpenedFileKey))) {
+      QVariant uValue(false);
+      loadLastOpenedFile = false;
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,loadLastOpenedFileKey),uValue);
+  } else {
+      loadLastOpenedFile = Settings.value(QString("%1/%2").arg(SETTINGS,loadLastOpenedFileKey)).toBool();
+  }
 }
 
 
@@ -3563,6 +3573,12 @@ bool Preferences::getPreferences()
         {
             perspectiveProjection = dialog->perspectiveProjection();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"PerspectiveProjection"),perspectiveProjection);
+        }
+
+        if (loadLastOpenedFile != dialog->loadLastOpenedFile())
+        {
+            loadLastOpenedFile = dialog->loadLastOpenedFile();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"LoadLastOpenedFile"),loadLastOpenedFile);
         }
 
         usingNativeRenderer = preferredRenderer == RENDERER_NATIVE;

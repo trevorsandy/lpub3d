@@ -27,6 +27,7 @@
 #include "editwindow.h"
 #include "paths.h"
 #include "threadworkers.h"
+#include "messageboxresizable.h"
 
 #include <LDVQt/LDVImageMatte.h>
 
@@ -451,7 +452,13 @@ void Gui::setCurrentFile(const QString &fileName)
   updateRecentFileActions();
 }
 
-#include "messageboxresizable.h"
+void Gui::loadLastOpenedFile(){
+    updateRecentFileActions();
+    if (recentFilesActs[0]) {
+        emit loadFile(recentFilesActs[0]->data().toString());
+    }
+}
+
 void Gui::fileChanged(const QString &path)
 {
   if (! changeAccepted)

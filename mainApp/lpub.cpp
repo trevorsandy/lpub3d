@@ -1866,6 +1866,7 @@ void Gui::preferences()
     bool addLSynthSearchDirCompare      = Preferences::addLSynthSearchDir;
     bool archiveLSynthPartsCompare      = Preferences::archiveLSynthParts;
     bool perspectiveProjectionCompare   = Preferences::perspectiveProjection;
+    bool loadLastOpenedFileCompare      = Preferences::loadLastOpenedFile;
     QString altLDConfigPathCompare      = Preferences::altLDConfigPath;
     QString povFileGeneratorCompare     = Preferences::povFileGenerator;
     QString fadeStepsColourCompare      = Preferences::validFadeStepsColour;
@@ -1920,6 +1921,7 @@ void Gui::preferences()
         bool ldrawPathChanged              = QString(Preferences::ldrawLibPath).toLower()        != ldrawPathCompare.toLower();
         bool lgeoPathChanged               = QString(Preferences::lgeoPath).toLower()            != lgeoPathCompare.toLower();
         bool displayThemeChanged           = Preferences::displayTheme.toLower()                 != displayThemeCompare.toLower();
+        bool loadLastOpenedFileChanged     = Preferences::loadLastOpenedFile                     != loadLastOpenedFileCompare;
 
         if (ldrawPathChanged) {
             emit messageSig(LOG_INFO,QString("LDraw Library path changed from %1 to %2")
@@ -1968,6 +1970,9 @@ void Gui::preferences()
 
         if (enableHighlightStepChanged)
             emit messageSig(LOG_INFO,QString("Highlight Current Step is %1.").arg(Preferences::enableHighlightStep ? "ON" : "OFF"));
+
+        if (loadLastOpenedFileChanged     )
+                    emit messageSig(LOG_INFO,QString("Load Last Opened File is %1").arg(Preferences::loadLastOpenedFile? "ON" : "OFF"));
 
         if (highlightStepLineWidthChanged && Preferences::enableHighlightStep)
             emit messageSig(LOG_INFO,QString("Highlight Step line width changed from %1 to %2")
