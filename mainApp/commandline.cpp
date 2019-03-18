@@ -242,6 +242,7 @@ int Gui::processCommandLine()
           Preferences::preferredRenderer   = renderer;
           Preferences::usingNativeRenderer = useNativeRenderer;
           Render::setRenderer(Preferences::preferredRenderer);
+          Preferences::updatePOVRayConfigFiles();
       }
     }
 

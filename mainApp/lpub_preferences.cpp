@@ -2452,6 +2452,8 @@ void Preferences::updatePOVRayConfigFiles(){
                     QFile file(fileInfo.absoluteFilePath());
                     if (! file.rename(saveFile) || ! QFile::copy(targetFile,destFile)) {
                         logError() << QString("Could not copy %1 to %2").arg(targetFile).arg(destFile);
+                    } else {
+                        logInfo() << QString("Copied 'portable' POVRay conf file %1").arg(destFile);
                     }
                 } else if (! QFile::copy(targetFile,destFile)) {
                     logError() << QString("Could not copy %1 to %2").arg(targetFile).arg(destFile);
@@ -2467,6 +2469,8 @@ void Preferences::updatePOVRayConfigFiles(){
                     QFile file(fileInfo.absoluteFilePath());
                     if (! file.rename(saveFile) || ! QFile::copy(targetFile,destFile)) {
                         logError() << QString("Could not copy %1 to %2").arg(targetFile).arg(destFile);
+                    } else {
+                        logInfo() << QString("Copied 'portable' POVRay ini file %1").arg(destFile);
                     }
                 } else if (! QFile::copy(targetFile,destFile)) {
                     logError() << QString("Could not copy %1 to %2").arg(targetFile).arg(destFile);
@@ -2483,6 +2487,8 @@ void Preferences::updatePOVRayConfigFiles(){
                     QFile file(fileInfo.absoluteFilePath());
                     if (! file.remove(destFile) || ! file2.rename(destFile)) {
                         logError() << QString("Could not rename %1 to %2").arg(targetFile).arg(destFile);
+                    } else {
+                        logInfo() << QString("Renamed 'installed' POVRay conf file %1").arg(destFile);
                     }
                 } else if (! file2.rename(destFile)) {
                     logError() << QString("Could not rename %1 to %2").arg(targetFile).arg(destFile);
@@ -2498,6 +2504,8 @@ void Preferences::updatePOVRayConfigFiles(){
                     QFile file(fileInfo.absoluteFilePath());
                     if (! file.remove(destFile) || ! file2.rename(destFile)) {
                         logError() << QString("Could not rename %1 to %2").arg(targetFile).arg(destFile);
+                    } else {
+                        logInfo() << QString("Renamed 'installed' POVRay ini file %1").arg(destFile);
                     }
                 } else if (! file2.rename(destFile)) {
                     logError() << QString("Could not rename %1 to %2").arg(targetFile).arg(destFile);
@@ -3672,7 +3680,7 @@ bool Preferences::extractLDrawLib() {
 
     message = QMessageBox::tr("Extracting %1 LDraw library, please wait...").arg(validLDrawLibrary);
 
-    emit Application::instance()->splashMsgSig(message.prepend("10% - "));
+    emit Application::instance()->splashMsgSig("10% - " + message);
 
     if (!modeGUI) {
       fprintf(stdout,"%s\n",message.toLatin1().constData());
