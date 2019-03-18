@@ -757,8 +757,10 @@ int Gui::drawPage(
 
             case BufferLoadRc:
               csiParts = bfx[curMeta.bfx.value()];
-              ldrawFile.setPrevStepPosition(current.modelName,csiParts.size());
-              //qDebug() << "Model:" << current.modelName << ", Step:"  << stepNum << ", bfx Set Fade Position:" << csiParts.size();
+              if (!partsAdded) {
+                  ldrawFile.setPrevStepPosition(current.modelName,csiParts.size());
+                  //qDebug() << "Model:" << current.modelName << ", Step:"  << stepNum << ", bfx Set Fade Position:" << csiParts.size();
+              }
               bfxLoad = true;
               break;
 
