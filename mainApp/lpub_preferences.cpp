@@ -1091,7 +1091,7 @@ void Preferences::lpub3dLibPreferences(bool force)
                     wait->connect(libraryDownload, SIGNAL(cancel()),                          wait, SLOT(quit()));
                     libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), libraryDir.absolutePath());
                     wait->exec();
-                    if (libraryDownload->getCancel()) {
+                    if (libraryDownload->getCancelled()) {
                         body = QMessageBox::tr ("<u>Official LDraw archive download cancelled</u>.\n"
                                                 "The application will terminate.");
                         box.removeButton(selectButton);
@@ -1108,7 +1108,7 @@ void Preferences::lpub3dLibPreferences(bool force)
                     wait->connect(libraryDownload, SIGNAL(cancel()),                          wait, SLOT(quit()));
                     libraryDownload->requestDownload(libraryDownload->getDEFS_URL(), libraryDir.absolutePath());
                     wait->exec();
-                    if (libraryDownload->getCancel()) {
+                    if (libraryDownload->getCancelled()) {
                         body = QMessageBox::tr ("<u>Unofficial LDraw archive download cancelled</u>.\n"
                                                 "The application will continue; however, your LDraw archives\n"
                                                 "will not contain unofficial LDraw parts or primitives.");

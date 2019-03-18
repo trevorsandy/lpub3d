@@ -25,7 +25,7 @@ UpdateCheck::UpdateCheck(QObject *parent, void *data) : QObject(parent)
     DEFS_URL        = "";
     m_latestVersion = "";
     m_changeLog     = "";
-    m_cancel        = false;
+    m_cancelled     = false;
     m_option = (intptr_t)data;
 
     m_updater = QSimpleUpdater::getInstance();
@@ -40,7 +40,7 @@ UpdateCheck::UpdateCheck(QObject *parent, void *data) : QObject(parent)
              this,      SIGNAL (downloadFinished (QString, QString)));
 
     connect (m_updater, SIGNAL (cancel ()),
-             this,      SLOT   (setCancel ()));
+             this,      SLOT   (setCancelled ()));
 
     /* Run check for updates if sofware update */
     if (m_option == SoftwareUpdate) {

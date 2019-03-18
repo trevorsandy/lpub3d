@@ -409,9 +409,12 @@ void Updater::onReply (QNetworkReply* reply)
 
     /* There was a network error */
     if (reply->error() != QNetworkReply::NoError) {
-        setUpdateAvailable (false);
+        if (reply->errorString().contains(QRegExp("Host.*not found"))) {
+            showErrorMessage("Error connecting to update server - newtork access may be interrupted: <br>" + reply->errorString() + ".");
+        } else {
+            showErrorMessage("Error connecting to update server: <br>" + reply->errorString() + ".");
+        }
         emit checkingFinished (url());
-        showErrorMessage("Error connecting to update server: " + reply->errorString());
         return;
     }
 
@@ -427,9 +430,8 @@ void Updater::onReply (QNetworkReply* reply)
 
     /* JSON is invalid */
     if (document.isNull()) {
-        setUpdateAvailable (false);
+        showErrorMessage("Error retrieving JSON data: JSON document is empty.");
         emit checkingFinished (url());
-        showErrorMessage("Error retrieving JSON data: ");
         return;
     }
 
