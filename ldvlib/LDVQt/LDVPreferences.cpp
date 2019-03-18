@@ -2345,7 +2345,6 @@ void LDVPreferences::setupAntialiasing(void)
 {
     HWND hWnd = (HWND)this->winId();
     HINSTANCE hInstance = (HINSTANCE)this->winId();
-    hdc = GetDC(hWnd);
     LDVExtensionsSetup::setup(hWnd, hInstance);
     TCIntArray *fsaaModes = LDVExtensionsSetup::getFSAAModes();
 

@@ -170,11 +170,9 @@ void LDVPartList::doShowModel()
 
 void LDVPartList::doShowPreferences()
 {
-    if (m_modelWidget->getLDVPreferences()) {
-        LDVPreferences *preferences = m_modelWidget->getLDVPreferences();
-        if (preferences->exec() == QDialog::Accepted)
-            preferences->doOk();
-        else
-            preferences->doCancel();
-    }
+     LDVPreferences *preferences = new LDVPreferences(m_modelWidget);
+     if (preferences->exec() == QDialog::Accepted)
+         preferences->doOk();
+     else
+         preferences->doCancel();
 }

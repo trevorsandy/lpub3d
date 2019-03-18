@@ -467,9 +467,8 @@ int POVRay::renderCsi(
       if (! ldvWidget->doCommand(arguments))  {
           emit gui->messageSig(LOG_ERROR, QString("Failed to generate CSI POV file for command: %1").arg(arguments.join(" ")));
           retError = true;
-      } else {
-          delete ldvWidget;
       }
+
       // ldvWidget changes the Working directory so we must reset
       if (! QDir::setCurrent(workingDirectory)) {
           emit gui->messageSig(LOG_ERROR, QString("Failed to restore CSI POV working directory %1").arg(workingDirectory));
@@ -676,9 +675,8 @@ int POVRay::renderPli(
       if (! ldvWidget->doCommand(arguments)) {
           emit gui->messageSig(LOG_ERROR, QString("Failed to generate PLI POV file for command: %1").arg(arguments.join(" ")));
           retError = true;
-      } else {
-          delete ldvWidget;
       }
+
       // ldvWidget changes the Working directory so we must reset
       if (! QDir::setCurrent(workingDirectory)) {
           emit gui->messageSig(LOG_ERROR, QString("Failed to restore PLI POV working directory %1").arg(workingDirectory));

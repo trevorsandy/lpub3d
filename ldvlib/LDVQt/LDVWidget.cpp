@@ -87,6 +87,7 @@
 #define WINDOW_HEIGHT_DEFAULT 480
 
 LDVWidget* ldvWidget;
+
 const QString iniFlagNames [] =
 {
     "Native POV",
@@ -103,21 +104,18 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
         forceIni(forceIni),
         ldvFormat(nullptr),
         ldvContext(nullptr),
+        ldPrefs(nullptr),
         modelViewer(nullptr),
         snapshotTaker(nullptr),
-        ldvPreferences(nullptr),
-        ldvExportOption(nullptr),
         ldvAlertHandler(new LDVAlertHandler(this)),
         inputHandler(nullptr),
         saveImageFilename(nullptr),
         imageInputFilename(nullptr),
         viewMode(LDInputHandler::VMExamine),
-        saving(false),
-        progressDialog(new QProgressDialog(nullptr)),
-        timer(new QTimer(this)),
-        interval(0)
+        saving(false)
 #ifdef Q_OS_WIN
-       ,hPBuffer(nullptr),
+       ,currentAntialiasType(false),
+        hPBuffer(nullptr),
         hPBufferDC(nullptr),
         hPBufferGLRC(nullptr),
         hCurrentDC(nullptr),
@@ -155,16 +153,27 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 
   TCUserDefaults::setAppName(Preferences::lpub3dAppName.toLatin1().constData());
 
-  connect(timer, SIGNAL(timeout()), this, SLOT(updateProgressDialog()));
+
+  if (iniflag == NativePartList) {
+      progressDialog = new QProgressDialog(nullptr);
+      timer = new QTimer(this);
+      interval = 0;
+      progressDialog->hide();
+      connect(timer, SIGNAL(timeout()), this, SLOT(updateProgressDialog()));
+  }
 
   ldvWidget = this;
-
 }
 
 LDVWidget::~LDVWidget(void)
 {
-    progressDialog->deleteLater();
+    if (getIniFlag() == NativePartList)
+        progressDialog->deleteLater();
+
+    makeCurrent();
     TCAutoreleasePool::processReleases();
+
+    doneCurrent();
     ldvWidget = nullptr;
 }
 
@@ -181,9 +190,11 @@ bool LDVWidget::doCommand(QStringList &arguments)
         if ((arguments.indexOf(QRegExp("^.*-ExportFile=.*$", Qt::CaseInsensitive), 0) != -1)){
             emit lpubAlert->messageSig(LOG_ERROR,QString("Failed to process Native export command arguments: %1").arg(arguments.join(" ")));
             retValue = false;
-        } else if (iniFlag == NativePartList) {
+        } else
+        if (iniFlag == NativePartList) {
             if (setupLDVApplication()) {
-                doPartList();
+                if (setupPartList())
+                    doPartList();
             }
         }
     }
@@ -217,17 +228,12 @@ void LDVWidget::snapshotTakerAlertCallback(TCAlert *alert)
             {
                 makeCurrent();
 #ifdef Q_OS_WIN
-                ldvPreferences = new LDVPreferences(this);
-                ldvPreferences->doApply();
-                hdc = ldvPreferences->hdc;
-                TREGLExtensions::setup();
-                setupMultisample();
+                setupWinExtensions();
                 snapshotTaker = (LDSnapshotTaker*)alert->getSender()->retain();
                 if (LDVExtensionsSetup::havePixelBufferExtension())
                 {
                     snapshotTaker->setUseFBO(true);
                 }
-                delete ldvPreferences;
 #else
                 TREGLExtensions::setup();
                 snapshotTaker = (LDSnapshotTaker*)alert->getSender()->retain();
@@ -245,29 +251,19 @@ void LDVWidget::snapshotTakerAlertCallback(TCAlert *alert)
     }
 }
 
-bool LDVWidget::chDirFromFilename(const char *filename)
-{
-    const char *fileSpot = strrchr(filename, '/');
-    bool retValue = false;
-
-    if (fileSpot)
-    {
-        int len = fileSpot - filename;
-        char *path = new char[len + 1];
-
-        strncpy(path, filename, len);
-        path[len] = 0;
-        retValue = QDir::setCurrent(path);
-        if (retValue)
-        {
-            ldvPreferences->setLastOpenPath(path);
-        }
-        delete[] path;
-    }
-    return retValue;
-}
-
 bool LDVWidget::setupLDVApplication(){
+
+    if (!TCUserDefaults::isIniFileSet())
+        setIniFile();
+
+    modelViewer = new LDrawModelViewer(WINDOW_WIDTH_DEFAULT, WINDOW_HEIGHT_DEFAULT);
+
+    if (! modelViewer) {
+        emit lpubAlert->messageSig(LOG_ERROR, QString("Unable to initialize LDVApplication modelViewer"));
+        return false;
+    }
+
+    ldPrefs = new LDPreferences(modelViewer);
 
     // Saved session
     char *sessionName = TCUserDefaults::getSavedSessionNameFromKey(PREFERENCE_SET_KEY);
@@ -276,11 +272,6 @@ bool LDVWidget::setupLDVApplication(){
           TCUserDefaults::setSessionName(sessionName, nullptr, false);
     }
     delete sessionName;
-
-    modelViewer = new LDrawModelViewer(WINDOW_WIDTH_DEFAULT, WINDOW_HEIGHT_DEFAULT);
-
-    if (! modelViewer)
-        return false;
 
     QFile fontFile(":/resources/SansSerif.fnt");
     if (fontFile.exists())
@@ -303,64 +294,7 @@ bool LDVWidget::setupLDVApplication(){
     long len = fontImage2x.byteCount();
     modelViewer->setRawFont2xData(fontImage2x.bits(),len);
 
-    bool retValue = true;
-
-    if (iniFlag == NativePartList) {
-        QString programPath = QCoreApplication::applicationFilePath();
-
-        modelViewer->setProgramPath(programPath.toLatin1().constData());
-
-        modelViewer->setNoUI(true);
-
-        ldvPreferences = new LDVPreferences(this);
-        ldvPreferences->doApply();
-
-        inputHandler = modelViewer->getInputHandler();
-
-        setViewMode(LDVPreferences::getViewMode(),
-                    examineLatLong = LDVPreferences::getLatLongMode(),
-                    keepRightSide = LDVPreferences::getKeepRightSideUp());
-
-        TCStringArray *commandLine = (TCStringArray *)TCUserDefaults::getProcessedCommandLine();
-        char *commandLineFilename = nullptr;
-
-        TCUserDefaults::removeValue(HFOV_KEY, false);
-        TCUserDefaults::removeValue(CAMERA_GLOBE_KEY, false);
-        if (commandLine)
-        {
-            int i;
-            int count = commandLine->getCount();
-            for (i = 0; i < count && !commandLineFilename; i++)
-            {
-                char *arg = commandLine->stringAtIndex(i);
-
-                if (arg[0] != '-')
-                    commandLineFilename = arg;
-                if (stringHasCaseInsensitivePrefix(arg, "-ca"))
-                {
-                    float value;
-
-                    if (sscanf(arg + 3, "%f", &value) == 1)
-                    {
-                        TCUserDefaults::setFloatForKey(value, HFOV_KEY, false);
-                    }
-                }
-                else if (stringHasCaseInsensitivePrefix(arg, "-cg"))
-                {
-                    TCUserDefaults::setStringForKey(arg + 3, CAMERA_GLOBE_KEY,false);
-                }
-                else if (stringHasCaseInsensitivePrefix(arg, "-Snapshot="))
-                {
-                    imageInputFilename = (arg + 10);
-                }
-            }
-        }
-
-        if (!loadModel(commandLineFilename)){
-            emit lpubAlert->messageSig(LOG_ERROR, QString("Command line file was not loaded."));
-        }
-    }
-    return retValue;
+    return true;
 }
 
 bool LDVWidget::setIniFile()
@@ -401,7 +335,7 @@ void LDVWidget::showLDVExportOptions()
 {
     setupLDVApplication();
 
-    ldvExportOption = new LDViewExportOption(this);
+    LDViewExportOption *ldvExportOption = new LDViewExportOption(this);
 
     if (ldvExportOption->exec() == QDialog::Accepted)
         ldvExportOption->doOk();
@@ -413,7 +347,7 @@ void LDVWidget::showLDVPreferences()
 {
     setupLDVApplication();
 
-    ldvPreferences = new LDVPreferences(this);
+    LDVPreferences *ldvPreferences = new LDVPreferences(this);
 
     if (ldvPreferences->exec() == QDialog::Accepted)
         ldvPreferences->doOk();
@@ -448,6 +382,62 @@ void LDVWidget::setupLDVContext()
         initializeGLFunctions();
         //displayGLExtensions();
     }
+}
+
+bool LDVWidget::setupPartList(void){
+
+    QString programPath = QCoreApplication::applicationFilePath();
+
+    modelViewer->setProgramPath(programPath.toLatin1().constData());
+
+    modelViewer->setNoUI(true);
+
+    inputHandler = modelViewer->getInputHandler();
+
+    setViewMode(LDVPreferences::getViewMode(),
+                LDVPreferences::getLatLongMode(),
+                LDVPreferences::getKeepRightSideUp());
+
+    TCStringArray *commandLine = (TCStringArray *)TCUserDefaults::getProcessedCommandLine();
+    char *commandLineFilename = nullptr;
+
+    TCUserDefaults::removeValue(HFOV_KEY, false);
+    TCUserDefaults::removeValue(CAMERA_GLOBE_KEY, false);
+    if (commandLine)
+    {
+        int i;
+        int count = commandLine->getCount();
+        for (i = 0; i < count && !commandLineFilename; i++)
+        {
+            char *arg = commandLine->stringAtIndex(i);
+
+            if (arg[0] != '-')
+                commandLineFilename = arg;
+            if (stringHasCaseInsensitivePrefix(arg, "-ca"))
+            {
+                float value;
+
+                if (sscanf(arg + 3, "%f", &value) == 1)
+                {
+                    TCUserDefaults::setFloatForKey(value, HFOV_KEY, false);
+                }
+            }
+            else if (stringHasCaseInsensitivePrefix(arg, "-cg"))
+            {
+                TCUserDefaults::setStringForKey(arg + 3, CAMERA_GLOBE_KEY,false);
+            }
+            else if (stringHasCaseInsensitivePrefix(arg, "-Snapshot="))
+            {
+                imageInputFilename = (arg + 10);
+            }
+        }
+    }
+
+    if (!loadModel(commandLineFilename)){
+        emit lpubAlert->messageSig(LOG_ERROR, QString("Command line file was not loaded."));
+        return false;
+    }
+    return true;
 }
 
 bool LDVWidget::loadModel(const char *filename)
@@ -498,10 +488,6 @@ bool LDVWidget::grabImage(
     if (snapshotTaker->getUseFBO())
     {
 #ifdef Q_OS_WIN
-        ldvPreferences = new LDVPreferences(this);
-        ldvPreferences->doApply();
-        hdc = ldvPreferences->hdc;
-        currentAntialiasType = TCUserDefaults::longForKey(FSAA_MODE_KEY);
         if (!setupPBuffer(newWidth, newHeight, currentAntialiasType))
         {
            newWidth = snapshotTaker->getFBOSize();
@@ -554,6 +540,7 @@ bool LDVWidget::saveImage(
         snapshotTaker =  new LDSnapshotTaker(modelViewer);
     }
 #ifdef Q_OS_WIN
+    setupWinExtensions();
     if (LDVExtensionsSetup::havePixelBufferExtension())
     {
         snapshotTaker->setUseFBO(true);
@@ -628,8 +615,8 @@ void LDVWidget::doPartList(void)
             LDVPartList *ldvPartList = new LDVPartList(this, htmlInventory);
             if (ldvPartList->exec() == QDialog::Accepted)
             {
-                QString initialDir = ldvPreferences->getSaveDir(LDPreferences::SOPartsList,
-                                                                modelViewer->getFilename());
+                QString initialDir = QString(ldPrefs->getDefaultSaveDir(LDPreferences::SOPartsList,
+                                             modelViewer->getFilename()).c_str());
                 QDir::setCurrent(initialDir);
 
                 bool done = false;
@@ -767,6 +754,8 @@ void LDVWidget::showDocument(QString &htmlFilename){
 }
 
 void LDVWidget::startProgressBar(const char *message){
+    if (getIniFlag() != NativePartList)
+        return;
     progressDialog->setWindowFlags(progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
     progressDialog->setWindowTitle(QString("HTML Part List"));
     progressDialog->setLabelText(QString("%1").arg(message));
@@ -782,6 +771,8 @@ void LDVWidget::startProgressBar(const char *message){
 }
 
 void LDVWidget::endProgressBar(){
+    if (getIniFlag() != NativePartList)
+        return;
     progressDialog->setValue(progressDialog->maximum());
     progressDialog->hide();
     QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
@@ -789,27 +780,10 @@ void LDVWidget::endProgressBar(){
 }
 
 void LDVWidget::updateProgressDialog(){
+    if (getIniFlag() != NativePartList)
+        return;
     progressDialog->setValue(interval+600);
     QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-}
-
-void LDVWidget::displayGLExtensions()
-{
-    // Query version
-    const GLubyte *Version = glGetString(GL_VERSION);
-    int VersionMajor = 0, VersionMinor = 0;
-    if (Version) {
-        sscanf((const char*)Version, "%d.%d", &VersionMajor, &VersionMinor);
-        fprintf(stdout, "OpenGL version (%d.%d).\n", VersionMajor, VersionMinor);
-    }
-
-    // Query extensions
-//    QList<QByteArray> extensions = ldvContext->extensions().toList();
-//    std::sort( extensions.begin(), extensions.end() );
-//    fprintf(stdout, "OpenGL supported extensions (%d).\n", extensions.count());
-//    foreach ( const QByteArray &extension, extensions )
-//        fprintf(stdout, "     %s\n", extension.constData());
-//    fflush(stdout);
 }
 
 void LDVWidget::modelViewerAlertCallback(TCAlert *alert)
@@ -819,6 +793,28 @@ void LDVWidget::modelViewerAlertCallback(TCAlert *alert)
         emit lpubAlert->messageSig(LOG_STATUS, QString("%1")
                                    .arg(alert->getMessage()));
     }
+}
+
+bool LDVWidget::chDirFromFilename(const char *filename)
+{
+    const char *fileSpot = strrchr(filename, '/');
+    bool retValue = false;
+
+    if (fileSpot)
+    {
+        int len = fileSpot - filename;
+        char *path = new char[len + 1];
+
+        strncpy(path, filename, len);
+        path[len] = 0;
+        retValue = QDir::setCurrent(path);
+        if (retValue)
+        {
+            LDVPreferences::setLastOpenPath(path);
+        }
+        delete[] path;
+    }
+    return retValue;
 }
 
 bool LDVWidget::staticFileCaseLevel(QDir &dir, char *filename)
@@ -915,6 +911,33 @@ bool LDVWidget::staticFileCaseCallback(char *filename)
     return staticFileCaseLevel(dir, shortName);
 }
 
+void LDVWidget::displayGLExtensions()
+{
+#ifdef QT_DEBUG_MODE
+    QString openGLString, countString;
+    int extensionCount;
+    UCSTR temp = LDrawModelViewer::getOpenGLDriverInfo(extensionCount);
+    ucstringtoqstring(openGLString, temp);
+    QStringList list = openGLString.split(QRegExp("\n|\r\n|\r"),QString::SkipEmptyParts);
+    countString = QString::number(extensionCount);
+    countString += QString::fromWCharArray((TCLocalStrings::get(L"OpenGlnExtensionsSuffix")));
+
+    emit lpubAlert->messageSig(LOG_INFO, QString("OpenGL supported extensions (%1)").arg(countString));
+    foreach(openGLString, list){
+        emit lpubAlert->messageSig(LOG_INFO, QString("%1").arg(openGLString));
+    }
+#endif
+}
+
+void LDVWidget::setupSnapshotBackBuffer(int width, int height)
+{
+    modelViewer->setSlowClear(true);
+    modelViewer->setWidth(width);
+    modelViewer->setHeight(height);
+    modelViewer->setup();
+    glReadBuffer(GL_BACK);
+}
+
 LDSnapshotTaker::ImageType LDVWidget::getSaveImageType(void)
 {
     return LDSnapshotTaker::ITPng;
@@ -946,25 +969,43 @@ void LDVWidget::setViewMode(LDInputHandler::ViewMode value,
     LDVPreferences::setViewMode(viewMode);
 }
 
-void LDVWidget::setupSnapshotBackBuffer(int width, int height)
+void LDVWidget::cleanupRenderSettings(void)
 {
-    modelViewer->setSlowClear(true);
-    modelViewer->setWidth(width);
-    modelViewer->setHeight(height);
-    modelViewer->setup();
-    glReadBuffer(GL_BACK);
+    // there's no need to
+    // put things back for regular rendering (particularly
+    // recompiling the model, which takes quite a bit of extra
+    // time.
+
+    if (/* DISABLES CODE */ (false))
+    {
+        makeCurrent();
+        modelViewer->setup();
+    }
+}
+
+#ifdef Q_OS_WIN
+
+void LDVWidget::setupWinExtensions(){
+    hWnd = (HWND)this->winId();
+    hInstance = (HINSTANCE)this->winId();
+    hdc = GetDC(hWnd);
+    LDVExtensionsSetup::setup(hWnd, hInstance);
+    TREGLExtensions::setup();
+    setupMultisample();
 }
 
 void LDVWidget::setupMultisample(void)
 {
-#ifdef Q_OS_WIN
     if (LDVExtensionsSetup::haveMultisampleExtension())
     {
+        currentAntialiasType = TCUserDefaults::longForKey(FSAA_MODE_KEY);
+
         if (currentAntialiasType)
         {
             if (TREGLExtensions::haveNvMultisampleFilterHintExtension())
             {
-                if (ldvPreferences->getUseNvMultisampleFilter())
+                fsaaMode = ldPrefs->getFsaaMode();
+                if (fsaaMode & 0x1)
                 {
                     glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_NICEST);
                 }
@@ -984,7 +1025,6 @@ void LDVWidget::setupMultisample(void)
             glDisable(GL_MULTISAMPLE_ARB);
         }
     }
-#endif
 }
 
 void LDVWidget::setupMaterial(void)
@@ -999,7 +1039,6 @@ void LDVWidget::setupLighting(void)
 
 void LDVWidget::cleanupOffscreen(void)
 {
-#ifdef Q_OS_WIN
     hCurrentDC = hdc;
     hCurrentGLRC = hglrc;
     if (hPBuffer)
@@ -1007,12 +1046,10 @@ void LDVWidget::cleanupOffscreen(void)
         cleanupPBuffer();
     }
     cleanupRenderSettings();
-#endif
 }
 
 void LDVWidget::cleanupPBuffer(void)
 {
-#ifdef Q_OS_WIN
     if (hPBuffer)
     {
         using namespace TREGLExtensionsNS;
@@ -1030,29 +1067,29 @@ void LDVWidget::cleanupPBuffer(void)
         wglDestroyPbufferARB(hPBuffer);
         hPBuffer = nullptr;
     }
-#endif
 }
 
-void LDVWidget::cleanupRenderSettings(void)
-{
-    // there's no need to
-    // put things back for regular rendering (particularly
-    // recompiling the model, which takes quite a bit of extra
-    // time.
-
-    if (/* DISABLES CODE */ (false))
+int LDVWidget::getFSAAFactor(void){
+    if (fsaaMode && LDVExtensionsSetup::haveMultisampleExtension())
     {
-        makeCurrent();
-        modelViewer->setup();
+        if (fsaaMode <= 5)
+        {
+            return fsaaMode & 0x6; // Mask off bottom bit
+        }
+        else
+        {
+            return fsaaMode >> 3;
+        }
+    }
+    else
+    {
+        return 0;
     }
 }
 
 bool LDVWidget::setupPBuffer(int imageWidth, int imageHeight,
     bool antialias)
 {
-#ifndef Q_OS_WIN
-    return true;
-#else
     if (LDVExtensionsSetup::havePixelBufferExtension())
     {
         GLint intValues[] = {
@@ -1073,7 +1110,7 @@ bool LDVWidget::setupPBuffer(int imageWidth, int imageHeight,
             int offset = sizeof(intValues) / sizeof(GLint) - 6;
 
             intValues[offset++] = WGL_SAMPLES_EXT;
-            intValues[offset++] = ldvPreferences->getFSAAFactor();
+            intValues[offset++] = getFSAAFactor();
             intValues[offset++] = WGL_SAMPLE_BUFFERS_EXT;
             intValues[offset++] = GL_TRUE;
         }
@@ -1160,6 +1197,7 @@ bool LDVWidget::setupPBuffer(int imageWidth, int imageHeight,
             return setupPBuffer(imageWidth, imageHeight, false);
         }
     }
+
     return false;
-#endif
 }
+#endif

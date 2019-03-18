@@ -37,8 +37,6 @@
 
 class LDrawModelViewer;
 class LDVAlertHandler;
-class LDVPreferences;
-class LDViewExportOption;
 class LDSnapshotTaker;
 class LDVHtmlInventory;
 
@@ -52,7 +50,6 @@ public:
   ~LDVWidget(void);
 
   LDrawModelViewer *getModelViewer(void) { return modelViewer; }
-  LDVPreferences   *getLDVPreferences(void) { return ldvPreferences; }
   IniFlag getIniFlag(void) { return iniFlag; }
   QString getIniTitle(void);
   QString getIniFile(void);
@@ -62,6 +59,7 @@ public:
 
   void modelViewerAlertCallback(TCAlert *alert);
   void snapshotTakerAlertCallback(TCAlert *alert);
+  bool chDirFromFilename(const char *filename);
 
   void showLDVExportOptions(void);
   void showLDVPreferences(void);
@@ -74,19 +72,22 @@ public:
   bool saveImage(char *filename, int imageWidth, int imageHeight);
   LDSnapshotTaker::ImageType getSaveImageType(void);
   bool grabImage(int &imageWidth, int &imageHeight);
-  bool chDirFromFilename(const char *filename);
   void setViewMode(LDInputHandler::ViewMode value, bool examineLatLong,
                        bool keepRightSideUp, bool saveSettings=true);
+  void cleanupRenderSettings(void);
   void showDocument(QString &htmlFilename);
 
-  void setupMultisample(void);
-  void cleanupRenderSettings(void);
+#ifdef Q_OS_WIN
+  virtual void setupWinExtensions(void);
+  virtual void setupMultisample(void);
+  virtual int getFSAAFactor(void);
   virtual void cleanupOffscreen(void);
   virtual void cleanupPBuffer(void);
   virtual bool setupPBuffer(int imageWidth, int imageHeight,
       bool antialias = false);
   virtual void setupLighting(void);
   virtual void setupMaterial(void);
+#endif
 
 signals:
   void loadBLElementsSig();
@@ -96,12 +97,13 @@ private slots:
 
 protected:
   bool setIniFile(void);
+  bool setupPartList(void);
   void setupLDVFormat(void);
   void setupLDVContext(void);
   bool setupLDVApplication(void);
   void displayGLExtensions(void);
 
-  bool getUseFBO();
+  bool getUseFBO(void);
   void endProgressBar();
   void startProgressBar(const char *msg);
   bool loadModel(const char *filename);
@@ -112,10 +114,9 @@ protected:
   QGLFormat              ldvFormat;
   QGLContext            *ldvContext;
 
+  LDPreferences         *ldPrefs;
   LDrawModelViewer      *modelViewer;
   LDSnapshotTaker       *snapshotTaker;
-  LDVPreferences        *ldvPreferences;
-  LDViewExportOption    *ldvExportOption;
   LDVAlertHandler       *ldvAlertHandler;
 
   LDInputHandler        *inputHandler;
@@ -129,6 +130,7 @@ protected:
   int                     interval;
 
 #ifdef Q_OS_WIN
+  int                    currentAntialiasType;
   HPBUFFERARB            hPBuffer;
   HDC                    hPBufferDC;
   HGLRC                  hPBufferGLRC;
@@ -138,6 +140,7 @@ protected:
   HWND                   hWnd;
   HDC                    hdc;
   HGLRC                  hglrc;
+  int                    fsaaMode;
 #endif
   bool                   saveAlpha;
   int                    saveImageType;
@@ -146,10 +149,6 @@ protected:
   int                    saveImageHeight;
   bool                   saveImageResult;
   int                    mwidth, mheight;
-  bool                   examineLatLong;
-  bool                   keepRightSide;
-
-  int                    currentAntialiasType;
 
   struct IniFile
   {
