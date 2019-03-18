@@ -523,8 +523,8 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
                       }
                   // add part entry to list
                   if (!entryExists) {
-                      logNotice() << "01 SUBMIT COLOUR PART INFO:" << fileNameStr.replace(":::", " ") << " Line: " << i ;
-                      colourPartList << fileNameStr;
+                      colourPartList << fileString;
+                      logNotice() << "01 SUBMIT COLOUR PART INFO:" << fileString.replace(":::", " ") << " Line: " << i ;
                   }
               }
           }
