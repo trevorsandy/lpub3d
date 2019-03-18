@@ -586,7 +586,9 @@ int POVRay::renderPli(
   /* determine camera distance */
   int cd = cameraDistance(meta,metaType.modelScale.value())*1700/1000;
 
-  bool noCA = pliType == SUBMODEL;
+  bool noCA  = metaType.rotStep.value().type == "ABS";
+  if (pliType == SUBMODEL)
+      noCA   = Preferences::applyCALocally || noCA;
 
   QString CA = QString("-ca%1") .arg(metaType.cameraFoV.value());
   QString cg = QString("-cg%1,%2,%3")
@@ -932,7 +934,9 @@ int LDGLite::renderPli(
   /* determine camera distance */
   int cd = cameraDistance(meta,metaType.modelScale.value());
 
-  bool noCA = pliType == SUBMODEL;
+  bool noCA  = metaType.rotStep.value().type == "ABS";
+  if (pliType == SUBMODEL)
+      noCA   = Preferences::applyCALocally || noCA;
 
   QString CA = QString("-ca%1") .arg(metaType.cameraFoV.value());
   QString cg = QString("-cg%1,%2,%3") .arg(noCA ? 0.0 : metaType.cameraAngles.value(0))
@@ -1349,7 +1353,9 @@ int LDView::renderPli(
       f  = QString("-SaveSnapShot=%1") .arg(pngName);
   }
 
-  bool noCA  = pliType == SUBMODEL;
+  bool noCA  = metaType.rotStep.value().type == "ABS";
+  if (pliType == SUBMODEL)
+      noCA   = Preferences::applyCALocally || noCA;
 
   QString CA = QString("-ca%1") .arg(metaType.cameraFoV.value());
   QString cg = QString("-cg%1,%2,%3") .arg(noCA ? 0.0 : metaType.cameraAngles.value(0))
@@ -1449,9 +1455,11 @@ int Native::renderCsi(
   const QString     &pngName,
         Meta        &meta)
 {
-
-  QString ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
+  QString ldrName     = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
   float lineThickness = (float(resolution()/Preferences::highlightStepLineWidth));
+
+  // Camera Angles always applied by Native renderer except if ABS rotstep
+  bool noCA = meta.rotStep.value().type == "ABS";
 
   // Renderer options
   NativeOptions Options;
@@ -1463,8 +1471,8 @@ int Native::renderCsi(
   Options.FoV               = meta.LPub.assem.cameraFoV.value();
   Options.ZNear             = meta.LPub.assem.znear.value();
   Options.ZFar              = meta.LPub.assem.zfar.value();
-  Options.Latitude          = meta.LPub.assem.cameraAngles.value(0);
-  Options.Longitude         = meta.LPub.assem.cameraAngles.value(1);
+  Options.Latitude          = noCA ? 0.0 : meta.LPub.assem.cameraAngles.value(0);
+  Options.Longitude         = noCA ? 0.0 : meta.LPub.assem.cameraAngles.value(1);
   Options.HighlightNewParts = gui->suppressColourMeta(); //Preferences::enableHighlightStep;
   Options.CameraDistance    = cameraDistance(meta,meta.LPub.assem.modelScale.value());
   Options.LineWidth         = lineThickness;
@@ -1512,11 +1520,11 @@ int Native::renderCsi(
               delete CsiImageProject;
               return -1;
           }
+          // These exports are performed by the Native LDV module (LDView).
           if (ldvExport) {
-
               if (gui->exportMode == EXPORT_POVRAY ||
-                  gui->exportMode == EXPORT_STL ||
-                  gui->exportMode == EXPORT_HTML ||
+                      gui->exportMode == EXPORT_STL ||
+                      gui->exportMode == EXPORT_HTML ||
                   gui->exportMode == EXPORT_3DS_MAX) {
                   Options.IniFlag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni :
                                     gui->exportMode == EXPORT_STL ? NativeSTLIni : Native3DSIni;
@@ -1533,19 +1541,19 @@ int Native::renderCsi(
              }
 
             /* determine camera distance */
-            int cd = int((stdCameraDistance(meta,meta.LPub.assem.modelScale.value())*0.775)*1700/1000);
+              int cd = int((stdCameraDistance(meta,meta.LPub.assem.modelScale.value())*0.775)*1700/1000);
 
-            /* apply camera angles */
-            bool noCA  = Preferences::applyCALocally;
-            //bool pp      = Preferences::perspectiveProjection;
+              /* apply camera angles */
+              noCA  = Preferences::applyCALocally || noCA;
+              //bool pp      = Preferences::perspectiveProjection;
 
-            QString CA = QString("-ca%1") .arg(/*pp ? Options.FoV : */ 0.01);  // Effectively defaults to orthographic projection.
-            QString cg = QString("-cg%1,%2,%3")
-                                 .arg(noCA ? 0.0 : Options.Latitude)
-                                 .arg(noCA ? 0.0 : Options.Longitude)
-                                 .arg(cd);
+              QString CA = QString("-ca%1") .arg(/*pp ? Options.FoV : */ 0.01);  // Effectively defaults to orthographic projection.
+              QString cg = QString("-cg%1,%2,%3")
+                      .arg(noCA ? 0.0 : meta.LPub.assem.cameraAngles.value(0))
+                      .arg(noCA ? 0.0 : meta.LPub.assem.cameraAngles.value(1))
+                      .arg(cd);
 
-            QString w  = QString("-SaveWidth=%1") .arg(Options.ImageWidth);
+              QString w  = QString("-SaveWidth=%1") .arg(Options.ImageWidth);
             QString h  = QString("-SaveHeight=%1") .arg(Options.ImageHeight);
             QString f  = QString("-ExportFile=%1") .arg(Options.ExportFileName);
             QString l  = QString("-LDrawDir=%1") .arg(QDir::toNativeSeparators(Preferences::ldrawLibPath));
@@ -1594,6 +1602,9 @@ int Native::renderPli(
   PliMeta &metaType = pliType == SUBMODEL ? static_cast<PliMeta&>(meta.LPub.subModel) :
                       pliType == BOM ? meta.LPub.bom : meta.LPub.pli;
 
+  // Camera Angles always applied by Native renderer except if ABS rotstep
+  bool noCA  = metaType.rotStep.value().type == "ABS";
+
   // Renderer options
   NativeOptions Options;
   Options.ImageType         = PLI;
@@ -1604,8 +1615,8 @@ int Native::renderPli(
   Options.FoV               = metaType.cameraFoV.value();
   Options.ZNear             = metaType.znear.value();
   Options.ZFar              = metaType.zfar.value();
-  Options.Latitude          = metaType.cameraAngles.value(0);
-  Options.Longitude         = metaType.cameraAngles.value(1);
+  Options.Latitude          = noCA ? 0.0 : metaType.cameraAngles.value(0);
+  Options.Longitude         = noCA ? 0.0 : metaType.cameraAngles.value(1);
   Options.CameraDistance    = cameraDistance(meta,metaType.modelScale.value());
   Options.LineWidth         = HIGHLIGHT_LINE_WIDTH_DEFAULT;
   Options.UsingViewpoint    = gApplication->mPreferences.mNativeViewpoint <= 6;
@@ -1895,7 +1906,6 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerCsiKey)
         Model->LoadLDraw(Buffer, StepProject);
         Model->SetSaved();
     }
-
 
     if (StepProject->mModels.IsEmpty())
         return false;
