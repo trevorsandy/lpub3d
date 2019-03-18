@@ -582,6 +582,8 @@ void Application::mainApp()
 
     availableVersions = new AvailableVersions(this);
 
+    gui->ldrawColorPartsLoad();
+
     if (modeGUI()) {
         splash->finish(gui);
 
@@ -596,8 +598,6 @@ void Application::mainApp()
         DoInitialUpdateCheck();
 #endif
     }
-
-    gui->ldrawColorPartsLoad();
 }
 
 int Application::run()
