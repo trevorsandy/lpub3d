@@ -4050,6 +4050,7 @@ LPubMeta::LPubMeta() : BranchMeta()
   cameraDistNative.factor.setValue(Preferences::cameraDistFactorNative);
 
   mergeInstanceCount.setValue(true);
+  contStepNumbers.setValue(false);
   // stepNumber - default
 }
 
@@ -4070,12 +4071,13 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   resolution         .init(this,"RESOLUTION");
   insert             .init(this,"INSERT");
   include            .init(this,"INCLUDE", IncludeRc);
-  nostep             .init(this,"NOSTEP", NoStepRc);\
+  nostep             .init(this,"NOSTEP", NoStepRc);
   fadeStep           .init(this,"FADE_STEP");
   highlightStep      .init(this,"HIGHLIGHT_STEP");
   subModel           .init(this,"SUBMODEL_DISPLAY");
   rotateIcon         .init(this,"ROTATE_ICON");
   mergeInstanceCount .init(this,"CONSOLIDATE_INSTANCE_COUNT");
+  contStepNumbers    .init(this,"CONTINUOUS_STEP_NUMBERS");
   stepPli            .init(this,"STEP_PLI");
   cameraDistNative   .init(this,"CAMERA_DISTANCE_NATIVE");
   reserve.setRange(0.0,1000000.0);

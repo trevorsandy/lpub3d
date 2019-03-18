@@ -83,6 +83,12 @@ GlobalProjectDialog::GlobalProjectDialog(
   box->setToolTip("Consolidate submodel instance count at first occurrence in model.");
   data->children.append(child);
 
+  box = new QGroupBox("Step Numbers");
+  layout->addWidget(box);
+  child = new CheckBoxGui("Continuous step numbers.",&lpubMeta->contStepNumbers,box);
+  box->setToolTip("Enable continuous step numbers across submodels and callouts - except assembled or rotated callouts.");
+  data->children.append(child);
+
   QDialogButtonBox *buttonBox;
 
   buttonBox = new QDialogButtonBox(this);

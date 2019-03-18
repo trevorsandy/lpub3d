@@ -279,6 +279,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bCONSOLIDATE_INSTANCE_COUNT\\b"
     << "\\bCONSTRAIN\\b"
     << "\\bCONTENT\\b"
+    << "\\bCONTINUOUS_STEP_NUMBERS\\b"
     << "\\bCOVER_PAGE\\b"
     << "\\bCROSS\\b"
     << "\\ASSEM_PART\\b"

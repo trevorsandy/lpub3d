@@ -56,6 +56,9 @@
 //#define SIZE_DEBUG
 #endif
 
+#define FIRST_STEP 1
+#define FIRST_PAGE 1
+
 static QString AttributeNames[] =
 {
     "Line",
@@ -1626,8 +1629,7 @@ int Gui::drawPage(
   return 0;
 }
 
-int Gui::findPage(
-    LGraphicsView  *view,
+int Gui::findPage(LGraphicsView  *view,
     LGraphicsScene *scene,
     int            &pageNum,      //maxPages
     QString const  &addLine,
@@ -1635,7 +1637,8 @@ int Gui::findPage(
     PgSizeData     &pageSize,
     bool            isMirrored,
     Meta            meta,
-    bool            printing)
+    bool            printing,
+    int             contStepNumber)
 {
   bool stepGroup  = false;
   bool partIgnore = false;
@@ -1648,27 +1651,29 @@ int Gui::findPage(
   bool noStep2    = false;
   bool stepGroupBfxStore2 = false;
   bool pageSizeUpdate     = false;
+  bool useContStepNum     = contStepNumber;
 
+  Rc rc;
   QStringList bfxParts;
   QStringList saveBfxParts;
   QStringList ldrStepFiles;
   QStringList csiKeys;
   int  partsAdded = 0;
   int  stepNumber = 1;
-  Rc   rc;
 
   skipHeader(current);
 
   if (pageNum == 1) {
       topOfPages.clear();
       topOfPages.append(current);
-    }
+  }
 
   QStringList csiParts;
   QStringList saveCsiParts;
   Where       saveCurrent = current;
   Where       stepGroupCurrent;
   int         saveStepNumber = 1;
+
   saveStepPageNum = stepPageNum;
 
   Meta        saveMeta = meta;
@@ -1695,9 +1700,18 @@ int Gui::findPage(
 
       QString line = ldrawFile.readLine(current.modelName,current.lineNumber).trimmed();
 
+      // initialize continuous step number to 1
+      if (line.indexOf("CONTINUOUS_STEP_NUMBERS") != -1) {
+          if ((meta.parse(line,current) == OkRc)) {
+              if ((useContStepNum = meta.LPub.contStepNumbers.value())) {
+                 contStepNumber++;
+              }
+          }
+       }
+
       if (line.startsWith("0 GHOST ")) {
           line = line.mid(8).trimmed();
-        }
+      }
 
       QStringList tokens, addTokens;
 
@@ -1731,7 +1745,7 @@ int Gui::findPage(
               bool contains   = ldrawFile.isSubmodel(type);
               CalloutBeginMeta::CalloutMode mode = meta.LPub.callout.begin.value();
 
-              // if submodel or callout treated as part (added to parent as assembled image)
+              // if submodel or assembled/rotated callout
               if (contains && (!callout || (callout && mode != CalloutBeginMeta::Unassembled))) {
 
                   bool rendered = ldrawFile.rendered(type,ldrawFile.mirrored(token));
@@ -1777,10 +1791,13 @@ int Gui::findPage(
 #endif
                         }
 
-                      findPage(view,scene,pageNum,line,current2,pageSize,isMirrored,meta,printing);
+                      findPage(view,scene,pageNum,line,current2,pageSize,isMirrored,meta,printing,contStepNumber);
                       saveStepPageNum = stepPageNum;
                       meta.submodelStack.pop_back();
-                      meta.rotStep = saveRotStep2;    // restore old rotstep
+                      meta.rotStep = saveRotStep2;       // restore old rotstep
+                      if (useContStepNum) {              // capture continuous step number from exited submodel
+                          contStepNumber = saveContStepNum;
+                      }
 
                       if (exporting()) {
                           pageSizes.remove(DEF_SIZE);
@@ -1826,11 +1843,15 @@ int Gui::findPage(
             case StepGroupBeginRc:
               stepGroup = true;
               stepGroupCurrent = topOfStep;
+              if (useContStepNum){     // save starting step group continuous step number
+                  saveContStepNum = contStepNumber == 1 ? stepNumber : contStepNumber;
+              }
               // Steps within step group modify bfxStore2 as they progress
               // so we must save bfxStore2 and use the saved copy when
               // we call drawPage for a step group.
               stepGroupBfxStore2 = bfxStore2;
               break;
+
             case StepGroupEndRc:
               if (stepGroup && ! noStep2) {
                   stepGroup = false;
@@ -1844,6 +1865,9 @@ int Gui::findPage(
                       saveRotStep = meta.rotStep;
                     } else if (pageNum == displayPageNum) {
                       csiParts.clear();
+                      if (useContStepNum) {  // pass starting continuous step number to drawPage
+                        saveStepNumber = saveContStepNum;
+                      }
                       savePrevStepPosition = saveCsiParts.size();
                       stepPageNum = saveStepPageNum;
                       if (pageNum == 1) {
@@ -1907,19 +1931,27 @@ int Gui::findPage(
 
             case RotStepRc:
             case StepRc:
-
               if (partsAdded && ! noStep) {
-                  stepNumber += ! coverPage && ! stepPage;
+                  // increment continuous step number until we hit the display page
+                  if (useContStepNum && pageNum < displayPageNum && ! stepGroup) {
+                      if (stepNumber > FIRST_STEP || displayPageNum > FIRST_PAGE) { // skip the first step
+                         contStepNumber += ! coverPage && ! stepPage;
+                      }
+                  }
+                  stepNumber  += ! coverPage && ! stepPage;
                   stepPageNum += ! coverPage && ! stepGroup;
                   if (pageNum < displayPageNum) {
                       if ( ! stepGroup) {
-                          saveCsiParts   = csiParts;
-                          saveStepNumber = stepNumber;
-                          saveMeta       = meta;
-                          saveBfx        = bfx;
-                          saveBfxParts   = bfxParts;
+                          saveStepNumber  = stepNumber;
+                          saveCsiParts    = csiParts;
+                          saveMeta        = meta;
+                          saveBfx         = bfx;
+                          saveBfxParts    = bfxParts;
                           saveStepPageNum = stepPageNum;
-                          // bfxParts.clear();                          
+                          if (useContStepNum) { // save continuous step number from current model
+                              saveContStepNum = contStepNumber;
+                          }
+                          // bfxParts.clear();
                         }
                       saveCurrent = current;
                       saveRotStep = meta.rotStep;
@@ -1927,6 +1959,9 @@ int Gui::findPage(
                   if ( ! stepGroup) {
                       if (pageNum == displayPageNum) {
                           csiParts.clear();
+                          if (useContStepNum) { // pass continuous step number to drawPage
+                              saveStepNumber = contStepNumber;
+                          }
                           savePrevStepPosition = saveCsiParts.size();
                           stepPageNum = saveStepPageNum;
                           if (pageNum == 1) {
@@ -2010,10 +2045,12 @@ int Gui::findPage(
               callout = false;
               meta.LPub.callout.placement.clear();
               break;
+
             case InsertCoverPageRc:
               coverPage  = true;
               partsAdded = true;
               break;
+
             case InsertPageRc:
               stepPage   = true;
               partsAdded = true;
@@ -2044,6 +2081,7 @@ int Gui::findPage(
               bfxStore1 = true;
               bfxParts.clear();
               break;
+
             case BufferLoadRc:
               if (pageNum < displayPageNum) {
                   csiParts = bfx[meta.bfx.value()];
@@ -2083,6 +2121,7 @@ int Gui::findPage(
             case IncludeRc:
               include(meta);
               break;
+
             case PageSizeRc:
               {
                 if (exporting()) {
@@ -2104,6 +2143,7 @@ int Gui::findPage(
                   }
               }
               break;
+
             case PageOrientationRc:
               {
                 if (exporting()){
@@ -2129,6 +2169,7 @@ int Gui::findPage(
                   }
               }
               break;
+
             case NoStepRc:
               noStep = true;
               break;
@@ -2605,7 +2646,7 @@ void Gui::countPages()
       QString empty;
       PgSizeData empty1;
       stepPageNum = 1;
-      findPage(KpageView,KpageScene,maxPages,empty,current,empty1,false,meta,false);
+      findPage(KpageView,KpageScene,maxPages,empty,current,empty1,false,meta,false,0);
       topOfPages.append(current);
       maxPages--;
 
@@ -2641,6 +2682,7 @@ void Gui::drawPage(
   lastStepPageNum  = -1;
   renderStepNum    = 0;
   savePrevStepPosition = 0;
+  saveContStepNum = 0;
 
   PgSizeData pageSize;
   if (exporting()) {
@@ -2658,7 +2700,7 @@ void Gui::drawPage(
 #endif
     }
 
-  findPage(view,scene,maxPages,empty,current,pageSize,false,meta,printing);
+  findPage(view,scene,maxPages,empty,current,pageSize,false,meta,printing,0);
   topOfPages.append(current);
   maxPages--;
 

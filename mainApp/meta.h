@@ -2916,6 +2916,7 @@ public:
   RotateIconMeta       rotateIcon;
   SubModelMeta         subModel;
   BoolMeta             mergeInstanceCount;
+  BoolMeta             contStepNumbers;
   StepPliMeta          stepPli;
   CameraDistFactorMeta cameraDistNative;
 

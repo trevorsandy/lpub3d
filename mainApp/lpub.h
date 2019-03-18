@@ -466,6 +466,7 @@ public:
   int             displayPageNum;  // what page are we displaying
   int             stepPageNum;     // the number displayed on the page
   int             saveStepPageNum;
+  int             saveContStepNum; // saved continuous step number from exited submodel or step group
   int             firstStepPageNum;
   int             lastStepPageNum;
   int             savePrevStepPosition; // indicate the previous step position amongst current and previous steps.
@@ -1069,7 +1070,8 @@ private:
     PgSizeData    &pageSize,
     bool           mirrored,
     Meta           meta,
-    bool           printing);
+    bool           printing,
+    int            contStepNumber);
 
   int drawPage(// process the page of interest and any callouts
     LGraphicsView  *view,
