@@ -3,8 +3,8 @@
 # Travis build [script] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: October 19, 2018
-#  Copyright (c) 2017 - 2018 by Trevor SANDY
+#  Last Update: March 01, 2019
+#  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
 
@@ -50,8 +50,9 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
     fi;
   fi
   # Compile source code or build AppImage
-  if [[ ("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG" ) || \
+  if [[ ("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG") || \
         ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true" && "$TRAVIS_OS_NAME" = "linux" ) ]]; then
+    # Linux
     if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       export TARGET_CPU=$(uname -m); export PLATFORM_CODE="ubu" ; export PLATFORM_VER="14.04"
       export LPUB3D=${PWD##*/}; export WD=$(cd ../ && echo $PWD); export LDRAWDIR=${HOME}/ldraw;
@@ -61,6 +62,10 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
       else
         echo "Using cached 3rd Party repository ${WD}/${LP3D_DIST_DIR}";
       fi;
+      if [ -n "$LP3D_BUILD_RENDERERS" ]; then
+            echo "Building Renderers for Linux";
+      fi
+
       chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh;
       #echo "Renderer Files:" && find ${LP3D_DIST_DIR_PATH} -type f && echo;
 
@@ -112,11 +117,12 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
         else
           echo "AppImage build failed. $AppImageFile not found.";
         fi
-      # else just compile source
-      else
+      # else if not build renderers then just compile source
+      elif [ -z "$LP3D_BUILD_RENDERERS" ]; then
           qmake -makefile -nocache QMAKE_STRIP=: CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_release CONFIG+=deb;
           make -j$(nproc);
       fi
+    # macOS compile
     elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
         if [ ! -d "${DmgBuildPath}/${LP3D_DIST_DIR}" ]; then
             ln -sf "$LP3D_DIST_DIR_PATH" "${DmgBuildPath}/${LP3D_DIST_DIR}" && \
@@ -124,7 +130,12 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
         else
             echo "Using cached 3rd Party repository ${DmgBuildPath}/${LP3D_DIST_DIR}";
         fi;
-        export BUILD_OPT="compile"
+        if [ -z "$LP3D_BUILD_RENDERERS" ]; then
+           export BUILD_OPT="compile";
+        else
+           export BUILD_OPT="renderers";
+           echo "Building Renderers for macOS";
+        fi
         chmod +x builds/macx/CreateDmg.sh && ./builds/macx/CreateDmg.sh;
     fi;
   fi

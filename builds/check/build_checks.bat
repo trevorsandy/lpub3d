@@ -3,8 +3,8 @@
 Title LPub3D Windows build check script
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: October 22, 2018
-rem  Copyright (c) 2018 by Trevor SANDY
+rem  Last Update: March 01, 2019
+rem  Copyright (c) 2018-2019 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
 rem but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -30,7 +30,11 @@ rem Check 4 of 7
 SET PKG_CHECK_OPTIONS=--process-export --range 1-3 --clear-cache --liblego --preferred-renderer ldglite
 SET PKG_CHECK_RANGE_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 rem Check 5 of 7
-SET PKG_CHECK_OPTIONS=--process-file --clear-cache --liblego --preferred-renderer povray
+IF "%APPVEYOR%" EQU "True" (
+  SET PKG_CHECK_OPTIONS=--process-file --clear-cache --liblego --preferred-renderer povray-ldv
+) ELSE (
+  SET PKG_CHECK_OPTIONS=--process-file --clear-cache --liblego --preferred-renderer povray
+)
 SET PKG_CHECK_POV_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
 rem Check 6 of 7
 SET PKG_CHECK_FILE=%ABS_WD%\builds\check\TENTE\astromovil.ldr

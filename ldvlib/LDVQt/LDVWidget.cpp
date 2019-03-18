@@ -21,8 +21,12 @@
 #include <QFileInfo>
 #include <QProcess>
 #include <QApplication>
+#include <QErrorMessage>
 #include <QDesktopWidget>
 #include <QDesktopServices>
+#include <QFile>
+#include <QTextStream>
+#include <functional>
 
 #ifdef __APPLE__
 #include <CoreFoundation/CoreFoundation.h>
@@ -70,11 +74,6 @@
 #include <TCFoundation/TCTypedValueArray.h>
 #include <LDVExtensionsSetup.h>
 #endif // WIN32
-
-#include <QApplication>
-#include <QFile>
-#include <QTextStream>
-#include <functional>
 
 #include "messageboxresizable.h"
 #include "lpub_preferences.h"
@@ -660,7 +659,7 @@ void LDVWidget::showDocument(QString &htmlFilename){
 
           QProcess::ExitStatus Status = Process->exitStatus();
 
-          if (Status != 0) {  // look for error
+          if (Status != 0) {         // look for error
               QErrorMessage *m = new QErrorMessage(this);
               m->showMessage(QString("%1<br>%2").arg("Failed to launch HTML part list web page!").arg(CommandPath));
           }

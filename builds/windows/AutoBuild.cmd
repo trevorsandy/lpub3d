@@ -91,25 +91,30 @@ IF [%1]==[] (
   SET PLATFORM=-all
   GOTO :SET_CONFIGURATION
 )
+
 IF /I "%1"=="x86" (
   IF NOT EXIST "%LP3D_QT32_MSVC%" GOTO :LIBRARY_ERROR
   SET PLATFORM=x86
   GOTO :SET_CONFIGURATION
 )
+
 IF /I "%1"=="x86_64" (
   IF NOT EXIST "%LP3D_QT64_MSVC%" GOTO :LIBRARY_ERROR
   SET PLATFORM=x86_64
   GOTO :SET_CONFIGURATION
 )
+
 IF /I "%1"=="-all" (
   IF NOT EXIST "%LP3D_QT32_MSVC%" GOTO :LIBRARY_ERROR
   IF NOT EXIST "%LP3D_QT64_MSVC%" GOTO :LIBRARY_ERROR
   SET PLATFORM=-all
   GOTO :SET_CONFIGURATION
 )
+
 IF /I "%1"=="-help" (
   GOTO :USAGE
 )
+
 rem If we get here display invalid command message.
 GOTO :COMMAND_ERROR
 
@@ -118,7 +123,9 @@ rem Verify 2nd input flag options
 IF NOT [%2]==[] (
   IF NOT "%2"=="-ins" (
     IF NOT "%2"=="-chk" (
-      IF NOT "%2"=="-3rd" GOTO :CONFIGURATION_ERROR
+      IF NOT "%2"=="-3rd" (
+        IF NOT "%2"=="-ren" GOTO :CONFIGURATION_ERROR
+      )
     )
   )
 )
@@ -156,6 +163,12 @@ IF /I "%2"=="-3rd" (
   SET BUILD_THIRD=1
   GOTO :BUILD
 )
+
+IF /I "%2"=="-ren" (
+  SET RENDERERS_ONLY=1
+  GOTO :BUILD
+)
+
 rem If we get here display invalid command message.
 GOTO :COMMAND_ERROR
 
@@ -195,10 +208,12 @@ rem Perform 3rd party content install
 IF /I "%3"=="-ins" (
  SET INSTALL=1
 )
+
 rem Perform build check
 IF /I "%3"=="-chk" (
   SET CHECK=1
 )
+
 IF /I "%4"=="-chk" (
   SET CHECK=1
 )
@@ -209,8 +224,13 @@ IF NOT EXIST "%DIST_DIR%\" (
 )
 
 rem Stage Install prior to build check
-IF %CHECK%==1 (
+IF /I %CHECK%==1 (
   SET INSTALL=1
+)
+
+rem Check if build renderers
+IF /I "%RENDERERS_ONLY%"=="1" (
+  GOTO :BUILD_RENDERERS
 )
 
 rem Check if build all platforms
@@ -218,7 +238,7 @@ IF /I "%PLATFORM%"=="-all" (
   GOTO :BUILD_ALL
 )
 
-rem Configure buid arguments and set environment variables
+rem Configure build arguments and set environment variables
 CALL :CONFIGURE_BUILD_ENV
 CD /D "%ABS_WD%"
 ECHO.
@@ -264,6 +284,36 @@ FOR %%P IN ( x86, x86_64 ) DO (
   IF %INSTALL%==1 CALL :STAGE_INSTALL
   rem Perform build check if specified
   IF %CHECK%==1 CALL :BUILD_CHECK %%P
+)
+GOTO :END
+
+:BUILD_RENDERERS
+rem Check if build all platforms
+IF /I "%PLATFORM%"=="-all" (
+  GOTO :BUILD_ALL_RENDERERS
+)
+
+rem Configure buid arguments and set environment variables
+CALL :CONFIGURE_BUILD_ENV
+CD /D "%ABS_WD%"
+rem Build renderer from source
+ECHO.
+ECHO -Building Renderers for %PLATFORM% platform, %CONFIGURATION% configuration...
+ECHO -----------------------------------------------------
+CALL builds\utilities\CreateRenderers.bat %PLATFORM%
+GOTO :END
+
+:BUILD_ALL_RENDERERS
+FOR %%P IN ( x86, x86_64 ) DO (
+  SET PLATFORM=%%P
+  rem Configure build arguments and set environment variables
+  CALL :CONFIGURE_BUILD_ENV
+  CD /D "%ABS_WD%"
+  rem Build renderer from source
+  ECHO.
+  ECHO -Building Renderers for %%P platform, %CONFIGURATION% configuration...
+  ECHO -----------------------------------------------------
+  CALL builds\utilities\CreateRenderers.bat %%P
 )
 GOTO :END
 
@@ -646,13 +696,16 @@ ECHO.
 ECHO Build 32bit, Release and perform build check
 ECHO build x86 -chk
 ECHO.
-ECHO Build 64bit and32bit, Release and perform build check
-ECHO build -all -chk
+ECHO Build 64bit and 32bit, 3rdParty renderers
+ECHO build -all -ren
 ECHO.
-ECHO Build 64bit and32bit, Release, perform install and build check
+ECHO Build 64bit and 32bit, Release and perform build check
+ECHO build -all -ren
+ECHO.
+ECHO Build 64bit and 32bit, Release, perform install and build check
 ECHO build -all -ins -chk
 ECHO.
-ECHO Build 64bit and32bit, Release, build 3rd party renderers, perform install and build check
+ECHO Build 64bit and 32bit, Release, build 3rd party renderers, perform install and build check
 ECHO build -all -ins -chk
 ECHO.
 ECHO Commands:
@@ -669,6 +722,7 @@ ECHO  x86........1......Platform flag       [Default=Off] Build 32bit architectu
 ECHO  x86_64.....1......Platform flag       [Default=Off] Build 64bit architecture.
 ECHO  -all.......1......Configuraiton flag  [Default=On ] Build both  32bit and 64bit architectures - Requries Qt libraries for both architectures.
 ECHO  -3rd.......2......Project flag        [Default=Off] Build 3rdparty renderers - LDGLite, LDView, and LPub3D-Trace (POV-Ray) from source
+ECHO  -ren.......2......Project flag        [Default=Off] Build 3rdparty renderers only - LPub3D not built
 ECHO  -ins.......2,3....Project flag        [Default=On ] Install distribution as LPub3D 3rd party installation
 ECHO  -chk.......2,3,4..Project flag        [Default=Off] Perform a build check [This flag is not currently functional]
 ECHO.

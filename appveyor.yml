@@ -42,16 +42,17 @@ configuration: release
 matrix:
   fast_finish: true
 
-# The following variables/actions can be manipulated from AppVeyor via site->Project->Settings->Environment Variables
-# Variables ending with '_VAR' are designated to be defined at the AppVeyor site only
-# LP3D_BUILD_PKG = "yes"           ; trigger build
-# LP3D_BUILD_PKG_VAR = "true"      ; trigger build
-# LP3D_TEST_SF_DEPLOY_VAR = "true" ; deploy SourceForge
-# LP3D_SKIP_SF_DEPLOY_VAR = "true" ; skip SourceForge deploy
-# LP3D_CLEAR_AVCACHE_VAR = "true"  ; delete cache
-# LP3D_BUILD_LDGLITE_VAR = "true"  ; rebuild LDGLite
-# LP3D_BUILD_LDVIEW_VAR = "true"   ; rebuild LDView
-# LP3D_BUILD_POVRAY_VAR = "true"   ; rebuild LPub3D-Trace (POV-Ray)
+# The following variables can be set to true from the AppVeyor
+# via site->Project->Settings->Environment Variables
+# LP3D_SKIP_APPVEYOR_VAR   ; skip AppVeyor build
+# LP3D_BUILD_PKG_VAR       ; trigger package build
+# LP3D_TEST_SF_DEPLOY_VAR  ; deploy SourceForge
+# LP3D_SKIP_SF_DEPLOY_VAR  ; skip SourceForge deploy
+# LP3D_CLEAR_AVCACHE_VAR   ; delete cache
+# LP3D_BUILD_RENDERERS_VAR ; build specified renderer(s) in compile only configuration
+# LP3D_BUILD_LDGLITE_VAR   ; rebuild LDGLite
+# LP3D_BUILD_LDVIEW_VAR    ; rebuild LDView
+# LP3D_BUILD_POVRAY_VAR    ; rebuild LPub3D-Trace (POV-Ray)
 #
 environment:
   LP3D_PACKAGE: LPub3D
@@ -69,7 +70,7 @@ environment:
 # Parse the commit message for 3rd party build override
 # As 3rd party items are not expected to change often
 # We cache them to speed up the build. If/when it is necessary
-# to build one of the items, we signa with 1 in the commit message
+# to build one of the items, we signal with 1 in the commit message
 # The format is [build pkg 1 1 1] to build all 3rd party itmes.
 # The first position is LDGlite, the second is LDView and the
 # third is LPub3D_Trace (POV-Ray). Alternatively you may choose
@@ -82,6 +83,11 @@ init:
  - ps: cmd.exe /c %windir%\system32\tzutil.exe /s "Central Europe Standard Time"
  - ps: write-host "Building ${env:LP3D_PACKAGE} x86 and x86_64 architectures..."
  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+ - ps: |
+      If ($env:LP3D_SKIP_APPVEYOR_VAR -eq "true") {
+         write-host "Exit build detected."
+         Exit-AppveyorBuild
+      }
  - ps: |
       If ($env:LP3D_TEST_SF_DEPLOY_VAR -eq "true") {
          write-host "Test Sourceforge deploy detected."
@@ -113,28 +119,43 @@ init:
           $env:LP3D_BUILD_LDVIEW = $matches[1].substring(2,1)
           $env:LP3D_BUILD_POVRAY = $matches[1].substring(4,1)
         }
-        If ($env:LP3D_BUILD_LDGLITE_VAR -eq "true") {
-          write-host "'Build LDGLite' detected in environment variable."
-          $env:LP3D_BUILD_LDGLITE = "1"
-        }
-        If ($env:LP3D_BUILD_LDVIEW_VAR -eq "true") {
-          write-host "'Build LDView' detected in environment variable."
-          $env:LP3D_BUILD_LDVIEW = "1"
-        }
-        If ($env:LP3D_BUILD_POVRAY_VAR -eq "true") {
-          write-host "'Build LPub3D-Trace' detected in environment variable."
-          $env:LP3D_BUILD_POVRAY = "1"
-        }
         If ($env:LP3D_BUILD_LDGLITE -eq "1") {
-          $env:LP3D_LDGLITE = "${env:LP3D_DIST_DIR_PATH}\ldglite-1.3"
+          write-host "'Build LDGLite' detected."
         }
         If ($env:LP3D_BUILD_LDVIEW -eq "1") {
-          $env:LP3D_LDVIEW = "${env:LP3D_DIST_DIR_PATH}\ldview-4.3"
+          write-host "'Build LDView' detected."
         }
         If ($env:LP3D_BUILD_POVRAY -eq "1") {
-          $env:LP3D_POVRAY = "${env:LP3D_DIST_DIR_PATH}\lpub3d_trace_cui-3.8"
-        }
+          write-host "'LPub3D-Trace' detected."
+        }          
       }
+ - ps: |
+      If ($env:LP3D_BUILD_LDGLITE_VAR -eq "true") {
+        write-host "'Build LDGLite' detected in environment variable."
+        $env:LP3D_BUILD_LDGLITE = "1"
+      }
+ - ps: |
+      If ($env:LP3D_BUILD_LDVIEW_VAR -eq "true") {
+        write-host "'Build LDView' detected in environment variable."
+        $env:LP3D_BUILD_LDVIEW = "1"
+      }
+ - ps: |
+      If ($env:LP3D_BUILD_POVRAY_VAR -eq "true") {
+        write-host "'Build LPub3D-Trace' detected in environment variable."
+        $env:LP3D_BUILD_POVRAY = "1"
+      }
+ - ps: |
+      If ($env:LP3D_BUILD_LDGLITE -eq "1") {
+        $env:LP3D_LDGLITE = "${env:LP3D_DIST_DIR_PATH}\ldglite-1.3"
+      }
+ - ps: |
+      If ($env:LP3D_BUILD_LDVIEW -eq "1") {
+        $env:LP3D_LDVIEW = "${env:LP3D_DIST_DIR_PATH}\ldview-4.3"
+      }
+ - ps: |
+      If ($env:LP3D_BUILD_POVRAY -eq "1") {
+        $env:LP3D_POVRAY = "${env:LP3D_DIST_DIR_PATH}\lpub3d_trace_cui-3.8"
+      }      
  - ps: |
       If (($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower().Contains("[clear avcache]")) -or ($env:LP3D_CLEAR_AVCACHE_VAR -eq "true")) {
         If ($env:LP3D_CLEAR_AVCACHE_VAR -eq "true") {
@@ -189,6 +210,8 @@ build_script:
         $env:LP3D_ARTEFACT_ITEM_COUNT = (Get-ChildItem -Path $env:LP3D_PACKAGE_PATH -Recurse).count
         write-host "`n  Build Archive Item Count...[$env:LP3D_ARTEFACT_ITEM_COUNT]"
         (Get-ChildItem -Path $env:LP3D_PACKAGE_PATH -Recurse | Select-Object -ExpandProperty FullName | ft -hidetableheaders)
+      } ElseIf ($env:LP3D_BUILD_RENDERERS_VAR -eq "true") {
+        cmd.exe /c builds\windows\AutoBuild.cmd -all -ren 2`>`&1
       } Else {
         cmd.exe /c builds\windows\AutoBuild.cmd -all -3rd -chk 2`>`&1
       }

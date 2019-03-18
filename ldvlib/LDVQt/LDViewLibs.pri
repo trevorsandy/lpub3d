@@ -76,7 +76,6 @@ contains(LOAD_LDV_HEADERS,True) {
 }
 
 contains(LOAD_LDVLIBS,True) {
-
     isEmpty(LDVLIBRARY):LDVLIBRARY = $$system_path( $$absolute_path( $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR ) )
     win32-msvc*:CONFIG(debug, debug|release): \
     LDVLIBDIR = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/Build/Debug$$LIB_ARCH )
@@ -415,17 +414,21 @@ contains(DO_COPY_LDVLIBS,True) {
         REDIRECT_CMD  = >
     }
 
-    ldvmsg_copy_cmd = \
+    LDVMSGINI_COPY_CMD = \
     $$COPY_CMD \
     $$system_path( $${LDVRESDIR}/LDViewMessages.ini ) $$PLUS_CMD \
     $$system_path( $${LDVRESDIR}/LDExportMessages.ini ) $$PLUS_CMD \
     $$system_path( $$PWD/LDVWidgetMessages.ini ) $$REDIRECT_CMD \
-    $$system_path( $$LDVMESSAGESINI_DEP ) $$escape_expand(\n\t) \
-    $$COPY_CMD \
-    $$system_path( $$LDVMESSAGESINI_DEP $$DESTDIR/extras/ )
+    $$system_path( $$LDVMESSAGESINI_DEP )
+    contains(DEVL_LDV_MESSAGES_INI,True) {
+         LDVMSGINI_COPY_CMD += \
+         $$escape_expand(\n\t) \
+         $$COPY_CMD \
+         $$system_path( $$LDVMESSAGESINI_DEP $$DESTDIR/extras/ )
+    }
 
     ldvmsg_copy.target         = $$LDVMESSAGESINI_DEP
-    ldvmsg_copy.commands       = $$ldvmsg_copy_cmd
+    ldvmsg_copy.commands       = $$LDVMSGINI_COPY_CMD
     ldvmsg_copy.depends        = $${LDVRESDIR}/LDViewMessages.ini \
                                  $${LDVRESDIR}/LDExportMessages.ini \
                                  $$PWD/LDVWidgetMessages.ini \

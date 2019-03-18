@@ -3,23 +3,48 @@
 # Travis build [before_install] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: December 14, 2018
-#  Copyright (c) 2017 - 2018 by Trevor SANDY
+#  Last Update: March 01, 2019
+#  Copyright (c) 2017 - 2019 by Trevor SANDY
+#
+
+# The following variables can be set to true from the Travis-CI site
+# via site->More Options->Settings->Environment Variables
+# LP3D_SKIP_TRAVIS_VAR     ; skip Travis-CI build
+# LP3D_BUILD_PKG_VAR       ; trigger package build
+# LP3D_TEST_SF_DEPLOY_VAR  ; test deploy SourceForge
+# LP3D_SKIP_SF_DEPLOY_VAR  ; skip SourceForge deploy
+# LP3D_BUILD_RENDERERS_VAR ; build specified renderer(s) in compile only configuration
+# LP3D_BUILD_LDGLITE_VAR   ; rebuild LDGLite
+# LP3D_BUILD_LDVIEW_VAR    ; rebuild LDView
+# LP3D_BUILD_POVRAY_VAR    ; rebuild LPub3D-Trace (POV-Ray)
 #
 
 # Skip build if the commit message contains [skip travis] or [travis skip]
+# or environment variable LP3D_SKIP_TRAVIS_VAR is true
 echo "$TRAVIS_COMMIT_MESSAGE" | awk '{print tolower($0)}' | grep -E '\[(skip travis|travis skip)\]' \
 && echo "[skip travis] detected, exiting." \
-&& exit 0 || [ "$SKIP_TRAVIS_VAR" = "true" ] \
-&& echo "'Skip Travis' detected in environment variable." \
+&& exit 0 || [ "$LP3D_SKIP_TRAVIS_VAR" = "true" ] \
+&& echo "Skip Travis-CI detected in environment variable." \
 && exit 0 || true
 
-# Build package if commit message contains [build pkg] or environment var contains LP3D_BUILD_PKG_VAR
+# Build package if commit message contains [build pkg] 
+# or environment variable LP3D_BUILD_PKG_VAR is true
 echo "$TRAVIS_COMMIT_MESSAGE" | awk '{print tolower($0)}' | grep -E '\[build pkg.*\]' \
 && export LP3D_BUILD_PKG=yes \
 && echo "[build pkg] detected in commit message." || [ "$LP3D_BUILD_PKG_VAR" = "true" ] \
 && export LP3D_BUILD_PKG=yes \
 && echo "'Build package' detected in environment variable." || true
+
+# Deploy package if environment variable LP3D_TEST_SF_DEPLOY_VAR is true
+[ "$LP3D_TEST_SF_DEPLOY_VAR" = "true" ] \
+&& export LP3D_BUILD_PKG=yes \
+&& export LP3D_DEPLOY_PKG=yes \
+&& echo "Deploy package detected in environment variable." || true
+
+# Skip Sourceforge deploy if LP3D_SKIP_SF_DEPLOY_VAR is true
+[ "$LP3D_SKIP_SF_DEPLOY_VAR" = "true" ] \
+&& export LP3D_SKIP_SF_DEPLOY=yes \
+&& echo "Skip Sourceforge deploy detected in environment variable." || true;
 
 # Deploy package if pushed tag exists and has a valid format (vN.N.N[_A])
 # Automatically deploy to GitHub Release and Sourceforge.net.
@@ -67,10 +92,7 @@ if [ -n "$LP3D_BUILD_3RD" ]; then
   export LP3D_BUILD_POVRAY=$(echo "$LP3D_BUILD_3RD" | cut -d' ' -f 3);
 fi
 
-# Build 3rd party renderer if environment var contains:
-# LP3D_BUILD_LDGLITE_VAR=true
-# LP3D_BUILD_LDVIEW_VAR=true
-# LP3D_BUILD_POVRAY_VAR=true
+# Build 3rdPart renderers from environment variable flag
 [ "$LP3D_BUILD_LDGLITE_VAR" = "true" ] && export LP3D_BUILD_LDGLITE=1 \
 && echo "'Build LDGLite' detected in environment variable." || true
 [ "$LP3D_BUILD_LDVIEW_VAR" = "true" ] && export LP3D_BUILD_LDVIEW=1 \

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update August 10, 2018
+# Last Update: March 01, 2019
 # To run:
 # $ chmod 755 CreateDmg.sh
 # $ ./CreateDmg.sh
@@ -13,6 +13,8 @@ ElapsedTime() {
   echo "----------------------------------------------------"
   if [ "$BUILD_OPT" = "compile" ]; then
     echo "LPub3D Compile Finished!"
+  elif [ "$BUILD_OPT" = "renderers" ]; then
+    echo "LPub3D Renderers Build Finished!"
   else
     echo "$ME Finished!"
   fi
@@ -45,6 +47,8 @@ echo && echo "   LPUB3D SOURCE DIR......[$(realpath .)]"
 
 if [ "$BUILD_OPT" = "compile" ]; then
   echo "   BUILD OPTION...........[comple only]"
+elif [ "$BUILD_OPT" = "renderers" ]; then
+  echo "   BUILD OPTION...........[renderers only]"
 else
   echo "   BUILD OPTION...........[build package]"
 fi
@@ -141,6 +145,12 @@ cd ${LPUB3D}
 chmod +x builds/utilities/CreateRenderers.sh
 ./builds/utilities/CreateRenderers.sh
 
+# Stop here if we are only building renderers
+if [ "$BUILD_OPT" = "renderers" ]; then
+  ElapsedTime
+  exit 0
+fi
+  
 if [ ! -f "mainApp/extras/complete.zip" ]
 then
   DIST_DIR="../lpub3d_macos_3rdparty"
