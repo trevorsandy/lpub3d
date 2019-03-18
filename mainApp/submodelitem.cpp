@@ -146,7 +146,7 @@ bool SubModel::rotateModel(QString ldrName, QString subModel, const QString colo
    bool    absRotstep = subModelMeta.rotStep.value().type == "ABS";
    FloatPairMeta noCameraAngles;
 
-   // create the Submodel ldr file and rotate its parts
+   // create the Submodel ldr file and rotate its parts - camera angles not applied for Native renderer
    if ((renderer->rotateParts(
             addLine,
             subModelMeta.rotStep,

@@ -586,10 +586,12 @@ int POVRay::renderPli(
   /* determine camera distance */
   int cd = cameraDistance(meta,metaType.modelScale.value())*1700/1000;
 
+  bool noCA = pliType == SUBMODEL;
+
   QString CA = QString("-ca%1") .arg(metaType.cameraFoV.value());
   QString cg = QString("-cg%1,%2,%3")
-      .arg(metaType.cameraAngles.value(0))
-      .arg(metaType.cameraAngles.value(1))
+      .arg(noCA ? 0.0 : metaType.cameraAngles.value(0))
+      .arg(noCA ? 0.0 : metaType.cameraAngles.value(1))
       .arg(cd);
 
   QString w  = QString("-SaveWidth=%1")  .arg(width);
@@ -930,9 +932,11 @@ int LDGLite::renderPli(
   /* determine camera distance */
   int cd = cameraDistance(meta,metaType.modelScale.value());
 
+  bool noCA = pliType == SUBMODEL;
+
   QString CA = QString("-ca%1") .arg(metaType.cameraFoV.value());
-  QString cg = QString("-cg%1,%2,%3") .arg(metaType.cameraAngles.value(0))
-                                      .arg(metaType.cameraAngles.value(1))
+  QString cg = QString("-cg%1,%2,%3") .arg(noCA ? 0.0 : metaType.cameraAngles.value(0))
+                                      .arg(noCA ? 0.0 : metaType.cameraAngles.value(1))
                                       .arg(cd);
 
   QString J  = QString("-J");
@@ -1345,9 +1349,11 @@ int LDView::renderPli(
       f  = QString("-SaveSnapShot=%1") .arg(pngName);
   }
 
+  bool noCA  = pliType == SUBMODEL;
+
   QString CA = QString("-ca%1") .arg(metaType.cameraFoV.value());
-  QString cg = QString("-cg%1,%2,%3") .arg(metaType.cameraAngles.value(0))
-                                      .arg(metaType.cameraAngles.value(1))
+  QString cg = QString("-cg%1,%2,%3") .arg(noCA ? 0.0 : metaType.cameraAngles.value(0))
+                                      .arg(noCA ? 0.0 : metaType.cameraAngles.value(1))
                                       .arg(cd);
 
   QString w  = QString("-SaveWidth=%1")  .arg(width);
