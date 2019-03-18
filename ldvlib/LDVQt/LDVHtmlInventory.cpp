@@ -828,7 +828,7 @@ void LDVHtmlInventory::writeCell(
 
 const char *LDVHtmlInventory::getSnapshotPath(void) const
 {
-	m_snapshotPath = m_lastSavePath + "/" + getSnapshotFilename();
+    m_snapshotPath = m_lastSavePath + "/" + getSnapshotFilename();
 	return m_snapshotPath.c_str();
 }
 

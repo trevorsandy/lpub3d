@@ -19,6 +19,8 @@ LDVPartList::LDVPartList(LDVWidget *modelWidget, LDVHtmlInventory *htmlInventory
     connect( showModelButton, SIGNAL( clicked() ), this, SLOT( doShowModel() ) );
     connect( fieldOrderView, SIGNAL( currentItemChanged(QListWidgetItem *, QListWidgetItem *) ), this, SLOT( doHighlighted(QListWidgetItem *, QListWidgetItem *) ) );
     connect( preferencesButton, SIGNAL( clicked() ), this, SLOT( doShowPreferences() ) );
+    connect( snapshotButton, SIGNAL( clicked() ), this, SLOT( doBrowseSnapshotFile() ) );
+    connect( snapshotEdit, SIGNAL( editingFinished() ), this, SLOT(doUpdateSnapshotEdit() ) );
 
     if (m_modelWidget &&
             m_htmlInventory->getLookupSite() ==
@@ -28,6 +30,8 @@ LDVPartList::LDVPartList(LDVWidget *modelWidget, LDVHtmlInventory *htmlInventory
     QValidator *validator = new QIntValidator(10, 5000, this);
     snapshotWidthEdit->setValidator(validator);
     snapshotHeightEdit->setValidator(validator);
+    QRegExp rx("^.*\\.(png)$",Qt::CaseInsensitive);
+    snapshotEdit->setValidator(new QRegExpValidator(rx, this));
 
 //	fieldOrderView->header()->hide();
 //	fieldOrderView->setSorting(-1);
@@ -92,6 +96,8 @@ void LDVPartList::doOk()
                      snapshotWidthEdit->text().toInt());
          m_htmlInventory->setSnapshotHeightFlag(
                      snapshotHeightEdit->text().toInt());
+         if (overwriteExistingButton->isChecked() && !(snapshotEdit->text().isEmpty()))
+             m_htmlInventory->setUserDefinedSnapshot(snapshotEdit->text().toLatin1().constData());
 	}
     m_htmlInventory->setShowFileFlag(openDocument = showWebPageButton->isChecked());
     if (openDocument){
@@ -185,6 +191,8 @@ void LDVPartList::doShowModel()
     snapshotHeightEdit->setEnabled(show);
     widthLabel->setEnabled(show);
     heightLabel->setEnabled(show);
+    snapshotButton->setEnabled(show);
+    snapshotEdit->setEnabled(show);
 }
 
 void LDVPartList::doShowPreferences()
@@ -194,4 +202,35 @@ void LDVPartList::doShowPreferences()
          preferences->doOk();
      else
          preferences->doCancel();
+}
+
+void LDVPartList::doBrowseSnapshotFile()
+{
+    QString Result = QFileDialog::getOpenFileName(this, tr("Select Snapshot File"), snapshotEdit->text(), tr("Supported Image File (*.png);;PNG Files (*.png)"));
+    if (!Result.isEmpty()) {
+        doSetSnapshotFile(Result);
+    }
+}
+
+void LDVPartList::doUpdateSnapshotEdit()
+{
+    QString Result = snapshotEdit->text();
+    if (!Result.isEmpty())
+        doSetSnapshotFile(Result);
+}
+
+void LDVPartList::doSetSnapshotFile(QString &Result)
+{
+    preferencesButton->setEnabled(false);
+    snapshotEdit->setText(QDir::toNativeSeparators(Result));
+
+    QImage image(Result);
+    if (snapshotWidthEdit->text().toInt() != image.width()) {
+        m_htmlInventory->setSnapshotWidthFlag(image.width());
+        snapshotWidthEdit->setText(QString::number(m_htmlInventory->getSnapshotWidthFlag()));
+    }
+    if (snapshotHeightEdit->text().toInt() != image.height()) {
+        m_htmlInventory->setSnapshotHeightFlag(image.height());
+        snapshotHeightEdit->setText(QString::number(m_htmlInventory->getSnapshotHeightFlag()));
+    }
 }

@@ -44,6 +44,9 @@ public:
 	bool getShowFileFlag(void) { return m_showFile; }
 	void setShowTotalFlag(bool value);
 	bool getShowTotalFlag(void) { return m_showTotal; }
+    void setUserDefinedSnapshot(const char *value) { m_userDefinedSnapshot = value; }
+    const char *getUserDefinedSnapshot(void) { return m_userDefinedSnapshot.c_str(); }
+
 	const LDVPartListColumnVector &getColumnOrder(void) const
 	{
 		return m_columnOrder;
@@ -119,6 +122,7 @@ protected:
 	 
 	std::string m_modelName;
 	LDPreferences *m_prefs;
+    LDViewPoint *m_viewPoint;
 
     bool m_generatePdf;
     int  m_lookupSite;
@@ -136,10 +140,11 @@ protected:
 	bool m_showTotal;
 	std::string m_lastSavePath;
 	std::string m_lastFilename;
+    std::string m_imageFilename;
+    std::string m_userDefinedSnapshot;
 	int m_columns;
 	LDVPartListColumnVector m_columnOrder;
 	LDVPartListColumnBoolMap m_columnMap;
-	LDViewPoint *m_viewPoint;
 	mutable std::string m_snapshotPath;
 
 	static const char *sm_style;

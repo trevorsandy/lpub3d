@@ -26,7 +26,11 @@ public slots:
 	void doHighlighted(QListWidgetItem * current, QListWidgetItem * previous );
 	void doShowModel();
     void doShowPreferences();
+    void doBrowseSnapshotFile();
+    void doUpdateSnapshotEdit();
+
 protected:
+    void doSetSnapshotFile(QString &Result);
 	void doMoveColumn(int distance);
     LDrawModelViewer *m_modelViewer;
     LDVWidget        *m_modelWidget;

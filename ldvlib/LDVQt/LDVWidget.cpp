@@ -26,6 +26,7 @@
 #include <QDesktopServices>
 #include <QFile>
 #include <QTextStream>
+#include <QImageWriter>
 #include <functional>
 
 #ifdef __APPLE__
@@ -496,22 +497,51 @@ void LDVWidget::doPartList(
             int imageWidth = htmlInventory->getSnapshotWidthFlag();
             int imageHeight = htmlInventory->getSnapshotHeightFlag();
             char *snapshotPath = copyString(htmlInventory->getSnapshotPath());
-            bool seams     = TCUserDefaults::boolForKey(SEAMS_KEY, false, false);
 
-            TCUserDefaults::setBoolForKey(seams, SEAMS_KEY, false);
-            TCUserDefaults::setBoolForKey(false, SAVE_STEPS_KEY, false);
-            modelViewer->setStep(modelViewer->getNumSteps());
-            htmlInventory->prepForSnapshot(modelViewer);
-            modelViewer->setForceZoomToFit(true);
-            TCUserDefaults::setLongForKey(false, SAVE_ACTUAL_SIZE_KEY, false);
-            TCUserDefaults::setLongForKey(imageWidth, SAVE_WIDTH_KEY, false);
-            TCUserDefaults::setLongForKey(imageHeight, SAVE_HEIGHT_KEY, false);
-            if (!loadModel(imageInputFilename)){
-                emit lpubAlert->messageSig(LOG_ERROR, QString("Image input file was not loaded."));
+            QString Result = htmlInventory->getUserDefinedSnapshot();
+
+            if (!Result.isEmpty()) {
+                QString snapshot = QDir::toNativeSeparators(snapshotPath);
+                delete snapshotPath;
+                emit lpubAlert->messageSig(LOG_INFO, QString("Using user defined Snapshot image."));
+
+                if (htmlInventory->getOverwriteSnapshotFlag()){
+                    QFile snapshotFile(snapshot);
+                    if (snapshotFile.exists() && !snapshotFile.remove()){
+                        emit lpubAlert->messageSig(LOG_ERROR, QString("Could not remove existing snapshot file '%1'").arg(snapshot));
+                        return;
+                    }
+                }
+
+                QImage image(Result);
+                if (image.width() != imageWidth || image.height() != imageHeight)
+                    image.scaled(imageWidth, imageHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+                QImageWriter Writer(snapshot);
+                if (!Writer.write(image)) {
+                    emit lpubAlert->messageSig(LOG_ERROR, QString("Error writing to file '%1':\n%2").arg(snapshot).arg(Writer.errorString()));
+                    return;
+                }
+            } else {
+                emit lpubAlert->messageSig(LOG_INFO, QString("Generating Snapshot image..."));
+
+                bool seams     = TCUserDefaults::boolForKey(SEAMS_KEY, false, false);
+
+                TCUserDefaults::setBoolForKey(seams, SEAMS_KEY, false);
+                TCUserDefaults::setBoolForKey(false, SAVE_STEPS_KEY, false);
+                modelViewer->setStep(modelViewer->getNumSteps());
+                htmlInventory->prepForSnapshot(modelViewer);
+                modelViewer->setForceZoomToFit(true);
+                TCUserDefaults::setLongForKey(false, SAVE_ACTUAL_SIZE_KEY, false);
+                TCUserDefaults::setLongForKey(imageWidth, SAVE_WIDTH_KEY, false);
+                TCUserDefaults::setLongForKey(imageHeight, SAVE_HEIGHT_KEY, false);
+                if (!loadModel(imageInputFilename)){
+                    emit lpubAlert->messageSig(LOG_ERROR, QString("Snapshot image input file was not loaded."));
+                }
+                saveImage(snapshotPath, imageWidth, imageHeight);
+                delete snapshotPath;
+                htmlInventory->restoreAfterSnapshot(modelViewer);
             }
-            saveImage(snapshotPath, imageWidth, imageHeight);
-            delete snapshotPath;
-            htmlInventory->restoreAfterSnapshot(modelViewer);
         }
     }
     else
