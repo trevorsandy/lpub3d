@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 - 2018 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the
 ** GNU General Public Liceense (GPL) version 3.0
@@ -98,7 +98,7 @@ bool ArchiveParts::Archive(const QString &zipArchive,
               }
           }
           if (isExcludedPath) {
-              emit gui->messageSig(LOG_STATUS, QString("Specified path [%1] is excluded from archive").arg(fileDir));
+              emit gui->messageSig(LOG_NOTICE, QString("Specified path [%1] is excluded from archive").arg(fileDir));
               continue;
           }
           validDirFiles << dirFile;

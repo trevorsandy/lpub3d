@@ -7,8 +7,8 @@
 # This script is sourced to extract and bin-patch the Qt5 assets.
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: January 22, 2018
-#  Copyright (c) 2017 - 2018 by Trevor SANDY
+#  Last Update: March 06, 2019
+#  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 # sample command [call from root build directory - e.g. lpub3d/]:
 # source builds/linux/obs/alldeps/GetQt5Libs.sh

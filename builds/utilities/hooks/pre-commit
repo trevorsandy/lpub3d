@@ -4,8 +4,8 @@
 # [build pkg*] or [deploy pkg*] is detected in the commit message.
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: March 08, 2018
-#  Copyright (c) 2017 - 2018 by Trevor SANDY
+#  Last Update: March 06, 2019
+#  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 ## Automatically generate git revision info
 ##

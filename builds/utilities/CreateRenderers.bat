@@ -3,8 +3,8 @@
 Title Build, test and package LPub3D 3rdParty renderers.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: December 28, 2017
-rem  Copyright (c) 2017 - 2018 by Trevor SANDY
+rem  Last Update: March 06, 2019
+rem  Copyright (c) 2017 - 2019 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
 rem but WITHOUT ANY WARRANTY; without even the implied warranty of

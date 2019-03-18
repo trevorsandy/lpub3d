@@ -1,4 +1,4 @@
-LPub3D 2.3.7.1.1156 (18 03 2019 02:38:20)
+LPub3D 2.3.7.1.1157 (18 03 2019 02:42:36)
 
 Features, enhancements, fixes and changes
 ------------
@@ -1201,7 +1201,7 @@ About LPub3D
 LPub3D is a WYSIWYG editing application for creating LEGO style digital building instructions.
 It is available for free under the GNU Public License v3 and works on the Windows
 Operating Systems. Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague,
-LeoCAD© 2018 Leonardo Zide.and additional third party components.
+LeoCAD© 2019 Leonardo Zide.and additional third party components.
 
 Installation
 ------------

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 - 2018 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the
 ** GNU General Public License (GPL) version 3.0
@@ -469,19 +469,20 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
   QStringList colourPartList;
   int existingCustomParts = 0;
 
-  emit progressBarInitSig();
-  emit progressMessageSig("Parse Model File");
+  //DISABLE PROGRESS BAR - CAUSING MESSAGEBAR OVERLOAD
+  //emit progressBarInitSig();
+  //emit progressMessageSig("Parse Model File");
   Paths::mkCustomDirs();
 
   ldrawFile = gui->getLDrawFile();
   // process top-level submodels
-  emit progressRangeSig(1, ldrawFile._subFileOrder.size());
+  //emit progressRangeSig(1, ldrawFile._subFileOrder.size());
 
   for (int i = 0; i < ldrawFile._subFileOrder.size() && endThreadNotRequested(); i++) {
       QString subFileString = ldrawFile._subFileOrder[i].toLower();
       contents = ldrawFile.contents(subFileString);
-      emit progressSetValueSig(i);
-      emit gui->messageSig(LOG_INFO,QString("00 PROCESSING SUBFILE: %1").arg(subFileString));
+      //emit progressSetValueSig(i);
+      emit gui->messageSig(LOG_INFO,QString("00 PROCESSING SUBFILE CUSTOM COLOR PARTS: %1").arg(subFileString));
       for (int i = 0; i < contents.size() && endThreadNotRequested(); i++) {
           QString line = contents[i];
           QStringList tokens;
@@ -542,7 +543,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
       }
   }
 
-  emit progressSetValueSig(ldrawFile._subFileOrder.size());
+  //emit progressSetValueSig(ldrawFile._subFileOrder.size());
 
   // We have new parts to be created.
   if (colourPartList.size() > 0) {
@@ -550,7 +551,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
       if (!processColourParts(colourPartList, partType)) {
           QString error = QString("Process %1 color parts failed!.").arg(nameMod);
           emit gui->messageSig(LOG_ERROR,error);
-          emit progressStatusRemoveSig();
+          //emit progressStatusRemoveSig();
           emit customColourFinishedSig();
           return;
       }
@@ -610,7 +611,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
       if (!processPartsArchive(customPartsDirs, comment, overwriteCustomParts)){
           QString error = QString("Process %1 parts archive failed!.").arg(nameMod);
           emit gui->messageSig(LOG_ERROR,error);
-          emit progressStatusRemoveSig();
+          //emit progressStatusRemoveSig();
           emit customColourFinishedSig();
           return;
       }
@@ -637,7 +638,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
                                                     .arg(time) :
                                              QString("No %2 parts created.").arg(nameMod);
 
-  emit progressStatusRemoveSig();
+  //emit progressStatusRemoveSig();
   emit customColourFinishedSig();
   emit gui->messageSig(LOG_INFO,fileStatus);
 }
@@ -665,9 +666,10 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
         return false;
     }
 
-    emit progressResetSig();
-    emit progressMessageSig("Process Color Parts...");
-    emit progressRangeSig(1, colourPartList.size());
+    //DISABLE PROGRESS BAR - CAUSING MESSAGEBAR OVERLOAD
+    //emit progressResetSig();
+    //emit progressMessageSig("Process Color Parts...");
+    //emit progressRangeSig(1, colourPartList.size());
 
     int partCount = 0;
     int partsProcessed = 0;
@@ -689,7 +691,7 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
         }
         //emit gui->messageSig(LOG_INFO,QString("Lib Part Name: %1").arg(libPartName));
 
-        emit progressSetValueSig(partCount++);
+        //emit progressSetValueSig(partCount++);
 
         QuaZip zip(unOffLib ? unofficialLib : officialLib);
         if (!zip.open(QuaZip::mdUnzip)) {
@@ -814,7 +816,7 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
             return false;
         }
     }
-    emit progressSetValueSig(colourPartList.size());
+    //emit progressSetValueSig(colourPartList.size());
 
     // recurse part file content to check if any children are color parts
     if (childrenColourParts.size() > 0)
@@ -841,16 +843,17 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
      }
 
     int maxValue            = _partList.size();
-    emit progressResetSig();
-    emit progressMessageSig("Creating Custom Color Parts");
-    emit progressRangeSig(1, maxValue);
+    //DISABLE PROGRESS BAR - CAUSING MESSAGEBAR OVERLOAD
+    //emit progressResetSig();
+    //emit progressMessageSig("Creating Custom Color Parts");
+    //emit progressRangeSig(1, maxValue);
 
     QStringList customPartContent, customPartColourList;
     QString customPartFile;
 
     for(int part = 0; part < _partList.size() && endThreadNotRequested(); part++) {
 
-        emit progressSetValueSig(part);
+        //emit progressSetValueSig(part);
 
         QMap<QString, ColourPart>::iterator cp = _colourParts.find(_partList[part]);
 
@@ -1008,7 +1011,7 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
             customPartColourList.clear();
         }
     }
-    emit progressSetValueSig(maxValue);
+    //emit progressSetValueSig(maxValue);
     return true;
 }
 
@@ -1144,13 +1147,14 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
   emit gui->messageSig(LOG_INFO,QString("Archiving %1 parts to %2.").arg(comment,archiveFile));
 
   if (okToEmitToProgressBar()) {
-      emit progressResetSig();
+      //emit progressResetSig();
+      ;
     } else {
       emit Application::instance()->splashMsgSig(QString("60% - Archiving %1 parts, please wait...").arg(comment));
     }
 
-  if (okToEmitToProgressBar())
-      emit progressRangeSig(0, 0);
+  //if (okToEmitToProgressBar())
+  //    emit progressRangeSig(0, 0);
 
   int partCount = 0;
   int totalPartCount = 0;

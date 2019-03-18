@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2018 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -433,7 +433,7 @@ int Gui::drawPage(
       steps->meta.LPub.page.pageFooter.size.setValue(0,pW);
     }
 
-  emit messageSig(LOG_STATUS, "Processing draw page for " + current.modelName + "...");
+  emit messageSig(LOG_INFO, "Processing draw page for " + current.modelName + "...");
 
   /*
    * do until end of page
@@ -1399,7 +1399,7 @@ int Gui::drawPage(
                           step->pli.setParts(pliParts,steps->meta);
                           pliParts.clear();
 
-                          emit messageSig(LOG_STATUS, "Add step PLI for " + topOfStep.modelName + "...");
+                          emit messageSig(LOG_INFO, "Add step PLI for " + topOfStep.modelName + "...");
 
                           step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
                       }
@@ -1464,7 +1464,7 @@ int Gui::drawPage(
 
                       step->placeRotateIcon = rotateIcon;
 
-                      emit messageSig(LOG_STATUS, "Processing step (CSI) for " + topOfStep.modelName + "...");
+                      emit messageSig(LOG_STATUS, "Processing CSI for " + topOfStep.modelName + "...");
                       csiName = step->csiName();
                       int rc = step->createCsi(
                                   isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
@@ -1543,13 +1543,13 @@ int Gui::drawPage(
                               instancesPliParts.clear();
                               pliParts.clear();
 
-                              emit messageSig(LOG_STATUS, "Add PLI images for single-step page...");
+                              emit messageSig(LOG_INFO, "Add PLI images for single-step page...");
 
                               step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
                           }
                       }
 
-                      emit messageSig(LOG_STATUS, "Add CSI image for single-step page...");
+                      emit messageSig(LOG_INFO, "Add CSI image for single-step page...");
 
                       if (renderer->useLDViewSCall() && ldrStepFiles.size() > 0){
 
@@ -2943,7 +2943,7 @@ void Gui::writeToTmp()
       if (ldrawFile.changedSinceLastWrite(fileName)) {
           // write normal submodels...
           upToDate = false;
-          emit messageSig(LOG_STATUS, "Writing submodel to temp directory: " + fileName + "...");
+          emit messageSig(LOG_INFO, "Writing submodel to temp directory: " + fileName + "...");
           writeToTmp(fileName,content);
 
           // capture file name extensions
@@ -2963,7 +2963,7 @@ void Gui::writeToTmp()
               fadeFileName = fadeFileName.replace(".dat", "-fade.dat");
             }
             /* Faded version of submodels */
-            emit messageSig(LOG_STATUS, "Writing fade submodels to temp directory: " + fadeFileName);
+            emit messageSig(LOG_INFO, "Writing fade submodels to temp directory: " + fadeFileName);
             configuredContent = configureModelSubFile(content, fadeColor, FADE_PART);
             writeToTmp(fadeFileName,configuredContent);
           }
@@ -2978,7 +2978,7 @@ void Gui::writeToTmp()
               highlightFileName = highlightFileName.replace(".dat", "-highlight.dat");
             }
             /* Highlighted version of submodels */
-            emit messageSig(LOG_STATUS, "Writing highlight submodel to temp directory: " + highlightFileName);
+            emit messageSig(LOG_INFO, "Writing highlight submodel to temp directory: " + highlightFileName);
             configuredContent = configureModelSubFile(content, fadeColor, HIGHLIGHT_PART);
             writeToTmp(highlightFileName,configuredContent);
           }

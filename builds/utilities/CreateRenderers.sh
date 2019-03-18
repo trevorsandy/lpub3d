@@ -3,8 +3,8 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: December 10, 2018
-#  Copyright (c) 2017 - 2018 by Trevor SANDY
+#  Last Update: March 06, 2019
+#  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 
 # sample commands [call from root build directory - e.g. lpub3d]:
@@ -255,13 +255,11 @@ InstallDependencies() {
       case $1 in
       ldglite)
         specFile="$PWD/obs/ldglite.spec"
-        build_osmesa=1
         ;;
       ldview)
         cp -f QT/LDView.spec QT/ldview-lp3d-qt5.spec
         specFile="$PWD/QT/ldview-lp3d-qt5.spec"
         sed -e 's/define qt5 0/define qt5 1/g' -e 's/kdebase-devel/make/g' -e 's/, kdelibs-devel//g' -i $specFile
-        build_osmesa=1
         ;;
       povray)
         specFile="$PWD/unix/obs/povray.spec"
@@ -270,7 +268,7 @@ InstallDependencies() {
       rpmbuildDeps="See $depsLog..."
       Info "Spec File...........[${specFile}]"
       Info "Dependencies List...[${rpmbuildDeps}]"
-      if [[ "${build_osmesa}" = 1 && ! "${OSMesaBuilt}" = 1 ]]; then
+      if [[ -n "$build_osmesa" && ! "$OSMesaBuilt" = 1 ]]; then
         BuildMesaLibs $1 $useSudo
       fi
       Info
@@ -281,7 +279,6 @@ InstallDependencies() {
       case $1 in
       ldglite)
         pkgbuildFile="$PWD/obs/PKGBUILD"
-        build_osmesa=1
         ;;
       ldview)
         cp -f QT/PKGBUILD QT/OBS/PKGBUILD
@@ -292,7 +289,6 @@ InstallDependencies() {
         if [ ! -d /usr/share/mime ]; then
           $useSudo mkdir /usr/share/mime
         fi
-        build_osmesa=1
         ;;
       povray)
         pkgbuildFile="$PWD/unix/obs/PKGBUILD"
@@ -306,7 +302,7 @@ InstallDependencies() {
       $useSudo pacman -Syy --noconfirm --needed > $depsLog 2>&1
       $useSudo pacman -Syu --noconfirm --needed >> $depsLog 2>&1
       $useSudo pacman -S --noconfirm --needed $pkgbuildDeps >> $depsLog 2>&1
-      if [[ "${build_osmesa}" = 1 && ! "${OSMesaBuilt}" = 1 ]]; then
+      if [[ -n "$build_osmesa" && ! "$OSMesaBuilt" = 1 ]]; then
         BuildMesaLibs $1 $useSudo
       fi
       Info "${1} dependencies installed." && DisplayLogTail $depsLog 10
@@ -358,7 +354,7 @@ BuildLDGLite() {
   else
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=release"
   fi
-  if [[ "$build_osmesa" = 1 && ! "$get_local_libs" = 1 ]]; then
+  if [[ -n "$build_osmesa" && ! "$get_local_libs" = 1 ]]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_STATIC"
   fi
   if [ "$no_gallium" = 1 ]; then
@@ -400,7 +396,7 @@ BuildLDView() {
   else
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=release"
   fi
-  if [[ "$build_osmesa" = 1 && ! "$get_local_libs" = 1 ]]; then
+  if [[ -n "$build_osmesa" && ! "$get_local_libs" = 1 ]]; then
     BUILD_CONFIG="$BUILD_CONFIG CONFIG+=USE_OSMESA_STATIC"
   fi
   if [ "$no_gallium" = 1 ]; then
@@ -817,7 +813,7 @@ for buildDir in ldglite ldview povray; do
     else
       Info && Info "ERROR - Unable to find ${buildDir}.tar.gz at $PWD"
     fi
-    if [[ "${build_osmesa}" = 1 && ! "${OSMesaBuilt}" = 1 && ! "$get_local_libs" = 1 ]]; then
+    if [[ -n "$build_osmesa" && ! "$OSMesaBuilt" = 1 && ! "$get_local_libs" = 1 ]]; then
       BuildMesaLibs
     fi
     if [[ "$platform_id" = "suse" && "${buildDir}" = "povray" && $(echo "$platform_ver" | grep -E '1315') ]]; then

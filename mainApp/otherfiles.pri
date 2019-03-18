@@ -72,10 +72,11 @@ docs/RELEASE_NOTES.html \
 ../builds/utilities/json/complete.json \
 ../builds/utilities/json/lpub3dldrawunf.json \
 ../builds/utilities/json/lpub3dupdates.json \
-../builds/utilities/mesa/buildosmesa.sh \
+../builds/utilities/mesa/build_osmesa.sh \
 ../builds/utilities/mesa/glu.spec \
 ../builds/utilities/mesa/Mesa.spec \
 ../builds/utilities/mesa/osmesa-config \
+../builds/utilities/mesa/PKGBUILD \
 ../builds/utilities/nsis-scripts/AppVersion.nsh \
 ../builds/utilities/nsis-scripts/Include/NsisMultiUser.nsh \
 ../builds/utilities/nsis-scripts/Include/Registry.nsh \

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2018 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -404,7 +404,7 @@ GlobalPageDialog::GlobalPageDialog(
   childlayout->addWidget(copyrightBoxBack);
   copyrightChildBack = new PageAttributeTextGui(&pageMeta->copyrightBack,copyrightBoxBack);
   childTextGui = static_cast<PageAttributeTextGui*>(copyrightChildBack);
-  childTextGui->contentEdit->setToolTip("Enter copyright - Copyright © 2018");
+  childTextGui->contentEdit->setToolTip("Enter copyright - Copyright © 2019");
   data->children.append(copyrightChildBack);
   connect(copyrightChildBack, SIGNAL(indexChanged(int)),
          SLOT(indexChanged(int)));
@@ -414,7 +414,7 @@ GlobalPageDialog::GlobalPageDialog(
   copyrightBox->hide();
   copyrightChild = new PageAttributeTextGui(&pageMeta->copyright,copyrightBox);
   childTextGui = static_cast<PageAttributeTextGui*>(copyrightChild);
-  childTextGui->contentEdit->setToolTip("Enter copyright - Copyright © 2018");
+  childTextGui->contentEdit->setToolTip("Enter copyright - Copyright © 2019");
   data->children.append(copyrightChild);
   connect(copyrightChild, SIGNAL(indexChanged(int)),
          SLOT(indexChanged(int)));

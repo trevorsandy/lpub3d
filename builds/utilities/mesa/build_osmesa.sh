@@ -3,8 +3,8 @@
 # Build all libOSMesa and libGLU libraries - short
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: December 10, 2018
-#  Copyright (c) 2018 by Trevor SANDY
+#  Last Update: March 06, 2019
+#  Copyright (c) 2018 - 2019 by Trevor SANDY
 #
 # Useage: env WD=$PWD [COPY_CONFIG=1] ./lpub3d/builds/utilities/mesa/buildosmesa.sh
 # Note: If WD is not defined,

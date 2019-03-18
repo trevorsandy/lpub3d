@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2018 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -598,8 +598,8 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 
     emit gui->progressBarPermInitSig();
     emit gui->progressPermRangeSig(1, stageContents.size());
-    emit gui->progressPermMessageSig("Processing model file...");
-    emit gui->messageSig(LOG_STATUS, "Loading MPD model file " + fileInfo.fileName() + "...");
+    emit gui->progressPermMessageSig("Processing model file" + fileInfo.fileName() + "...");
+    emit gui->messageSig(LOG_INFO, "Loading MPD model file " + fileInfo.fileName() + "...");
 
     for (int i = 0; i < stageContents.size(); i++) {
 
@@ -674,7 +674,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
              */
             if (sof) {
                 mpdName = sofRE.cap(1).toLower();
-                emit gui->messageSig(LOG_STATUS, "Loading MPD submodel '" + mpdName + "'...");
+                emit gui->messageSig(LOG_INFO, "Loading MPD submodel '" + mpdName + "'...");
             } else {
                 mpdName.clear();
             }
@@ -747,7 +747,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName, bool t
       emit gui->progressBarPermInitSig();
       emit gui->progressPermRangeSig(1, contents.size());
       emit gui->progressPermMessageSig("Processing model file...");
-      emit gui->messageSig(LOG_STATUS, "Loading LDR " + fileType + " file '" + fileName + "'...");
+      emit gui->messageSig(LOG_INFO, "Loading LDR " + fileType + " file '" + fileName + "'...");
 
       QDateTime datetime = QFileInfo(fullName).lastModified();
     

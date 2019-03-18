@@ -3,8 +3,8 @@
 # Travis build [prepare_store] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: March 17, 2017
-#  Copyright (c) 2017 - 2018 by Trevor SANDY
+#  Last Update: March 06, 2019
+#  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
 

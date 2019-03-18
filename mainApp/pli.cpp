@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2018 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -677,7 +677,7 @@ int Pli::createPartImage(
         ia.baseName[pT] = QFileInfo(type).baseName();
         ia.partColor[pT] = (pT == FADE_PART && fadeSteps && Preferences::fadeStepsUseColour) ? fadeColour : color;
 
-        emit gui->messageSig(LOG_STATUS, QString("Render PLI image for [%1] parts...").arg(PartTypeNames[pT]));
+        emit gui->messageSig(LOG_INFO, QString("Render PLI image for [%1] parts...").arg(PartTypeNames[pT]));
 
         float modelScale = 1.0f;
         if (Preferences::usingNativeRenderer) {
@@ -792,7 +792,7 @@ int Pli::createPartImage(
 // LDView performance improvement
 int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart) {
 
-    emit gui->messageSig(LOG_STATUS, "Render PLI images using LDView Single Call...");
+    emit gui->messageSig(LOG_INFO, "Render PLI images using LDView Single Call...");
 
     if (! ldrNames.isEmpty()) {
 

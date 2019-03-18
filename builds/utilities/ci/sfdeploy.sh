@@ -3,8 +3,8 @@
 # Deploy LPub3D assets to Sourceforge.net using OpenSSH and rsync
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: January 02, 2018
-#  Copyright (c) 2017 - 2018 by Trevor SANDY
+#  Last Update: March 06, 2019
+#  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 #  Note: this script requires SSH host public/private keys
 

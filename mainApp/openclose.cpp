@@ -1,7 +1,7 @@
 /**************************************************************************** 
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2018 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -355,17 +355,17 @@ void Gui::openFile(QString &fileName)
   emit messageSig(LOG_INFO_STATUS, QString("Loading LDraw model file [%1]...").arg(fileName));
   ldrawFile.loadFile(fileName);
   bool overwriteCustomParts = false;
-  emit messageSig(LOG_STATUS, "Loading fade color parts...");
+  emit messageSig(LOG_INFO, "Loading fade color parts...");
   processFadeColourParts(overwriteCustomParts);
-  emit messageSig(LOG_STATUS, "Loading highlight color parts...");
+  emit messageSig(LOG_INFO, "Loading highlight color parts...");
   processHighlightColourParts(overwriteCustomParts);
-  emit messageSig(LOG_STATUS, "Loading user interface items...");
+  emit messageSig(LOG_INFO, "Loading user interface items...");
   attitudeAdjustment();
   mpdCombo->setMaxCount(0);
   mpdCombo->setMaxCount(1000);
   mpdCombo->addItems(ldrawFile.subFileOrder());
   setCurrentFile(fileName);
-  emit messageSig(LOG_INFO_STATUS, "Loading LDraw Editor display...");
+  emit messageSig(LOG_STATUS, "Loading LDraw Editor display...");
   displayFile(&ldrawFile,ldrawFile.topLevelFile());
   undoStack->setClean();
   curFile = fileName;

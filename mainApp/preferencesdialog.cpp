@@ -1,7 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2018 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -57,7 +57,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
 
   ldrawLibPathTitle            = QString("LDraw Library Path for %1").arg(Preferences::validLDrawPartsLibrary);
-  QString fadeStepsColorTitle  = QString("Use %1® Global Fade Color").arg(Preferences::validLDrawPartsLibrary);
+  QString fadeStepsColorTitle  = QString("Use %1 Global Fade Color").arg(Preferences::validLDrawPartsLibrary);
   QString ldrawSearchDirsTitle = QString("LDraw Content Search Directories for %1").arg(Preferences::validLDrawPartsLibrary);
   bool useLDViewSCall = (Preferences::enableLDViewSingleCall && Preferences::preferredRenderer == RENDERER_LDVIEW);
 

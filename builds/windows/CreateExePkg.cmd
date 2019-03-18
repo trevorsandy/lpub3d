@@ -2,8 +2,8 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: October 21, 2018
-rem  Copyright (c) 2015 - 2018 by Trevor SANDY
+rem  Last Update: March 06, 2019
+rem  Copyright (c) 2015 - 2019 by Trevor SANDY
 rem --
 SETLOCAL
 @break off
@@ -1153,8 +1153,8 @@ SET genFile=%set_bash_vars% ECHO
 >>%genFile% # This script sets the update-config-files environment variables in Bash
 >>%genFile% #
 >>%genFile% #  Trevor SANDY ^<trevor.sandy@gmail.com^>
->>%genFile% #  Last Update: December 31, 2017
->>%genFile% #  Copyright ^(c^) 2018 by Trevor SANDY
+>>%genFile% #  Last Update: March 06, 2019
+>>%genFile% #  Copyright ^(c^) 2019 by Trevor SANDY
 >>%genFile%.
 >>%genFile% export LP3D_SOURCE_DIR="%LP3D_SOURCE_DIR%"
 >>%genFile% export LP3D_CALL_DIR="%LP3D_CALL_DIR%"

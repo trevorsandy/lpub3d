@@ -1,6 +1,7 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update October 19, 2018
+# Last Update March 06, 2019
+# Copyright (c) 2017 - 2019 by Trevor SANDY
 # To run:
 # $ chmod 755 CreateDeb.sh
 # $ [options] && ./builds/linux/CreateDeb.sh

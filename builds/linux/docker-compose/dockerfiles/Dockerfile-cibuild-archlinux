@@ -1,4 +1,4 @@
-FROM base/archlinux:latest
+FROM archlinux/base:latest
 LABEL maintainer "Trevor SANDY <trevor.sandy@gmail.com>"
 RUN pacman -Syu --noconfirm > CreateDockerImage_archlinux.log 2>&1
 RUN pacman -S --noconfirm --needed git wget unzip ccache base-devel >> CreateDockerImage_archlinux.log 2>&1
