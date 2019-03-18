@@ -100,12 +100,15 @@ public:
 	int mHeight = 0;
 };
 
+// Disable [No2. Enabled polygon offset  0abc4a258a]
+/*
 enum lcPolygonOffset
 {
 	LC_POLYGON_OFFSET_NONE,
 	LC_POLYGON_OFFSET_OPAQUE,
 	LC_POLYGON_OFFSET_TRANSLUCENT
 };
+*/
 
 class lcContext
 {
@@ -146,11 +149,15 @@ public:
 
 	void SetMaterial(lcMaterialType MaterialType);
 	void SetViewport(int x, int y, int Width, int Height);
-	void SetPolygonOffset(lcPolygonOffset PolygonOffset);
+    // Disable [No2. Enabled polygon offset  0abc4a258a]
+    //void SetPolygonOffset(lcPolygonOffset PolygonOffset);
 	void SetLineWidth(float LineWidth);
 	void SetSmoothShading(bool Smooth);
+    // Disable [No1. Reduce z-fighting 31703618c]
+    /*
 	void BeginTranslucent();
 	void EndTranslucent();
+    */
 	void BindTexture2D(GLuint Texture);
 	void BindTexture2DMS(GLuint Texture);
 	void BindTextureCubeMap(GLuint Texture);
@@ -230,7 +237,8 @@ protected:
 	GLuint mTexture2D;
 	GLuint mTexture2DMS;
 	GLuint mTextureCubeMap;
-	lcPolygonOffset mPolygonOffset;
+   // Disable [No2. Enabled polygon offset  0abc4a258a]
+   //lcPolygonOffset mPolygonOffset;
 	float mLineWidth;
 	int mMatrixMode;
 	bool mTextureEnabled;

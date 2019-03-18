@@ -162,6 +162,14 @@ QSize lcQGLWidget::sizeHint() const
 
 void lcQGLWidget::initializeGL()
 {
+    // Revert [No1. Reduce z-fighting 31703618c]
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    // Revert [No2. Enabled polygon offset  0abc4a258a]
+    //glDisable(GL_POLYGON_OFFSET_FILL);
+    // End revert
+    glPolygonOffset(0.5f, 0.1f);
+
+
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glDepthMask(GL_TRUE);

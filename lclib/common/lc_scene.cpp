@@ -70,10 +70,12 @@ void lcScene::DrawRenderMeshes(lcContext* Context, int PrimitiveTypes, bool Enab
 {
 	const lcArray<int>& Meshes = DrawTranslucent ? mTranslucentMeshes : mOpaqueMeshes;
 
-	if (DrawTranslucent)
-		Context->BeginTranslucent();
-	else
-		Context->SetPolygonOffset(LC_POLYGON_OFFSET_OPAQUE);
+    // Disable [No1. Reduce z-fighting 31703618c]
+    //if (DrawTranslucent)
+    //	Context->BeginTranslucent();
+    // Disable [No2. Enabled polygon offset  0abc4a258a]
+    //else
+    //	Context->SetPolygonOffset(LC_POLYGON_OFFSET_OPAQUE);
 
 	for (int MeshIndex : Meshes)
 	{
@@ -233,8 +235,9 @@ void lcScene::DrawRenderMeshes(lcContext* Context, int PrimitiveTypes, bool Enab
 #endif
 	}
 
-	if (DrawTranslucent)
-		Context->EndTranslucent();
+    // Disable [No1. Reduce z-fighting 31703618c]
+    //if (DrawTranslucent)
+    //	Context->EndTranslucent();
 }
 
 /*** LPub3D Mod - add fade ***/
@@ -332,7 +335,15 @@ void lcScene::Draw(lcContext* Context) const
 			 }
 			 else
 			 {
-				  DrawRenderMeshes(Context, LC_MESH_TRIANGLES, false, true, false);
+                 // Revert [No1. Reduce z-fighting 31703618c]
+                 glEnable(GL_BLEND);
+                 glDepthMask(GL_FALSE);
+
+                 DrawRenderMeshes(Context, LC_MESH_TRIANGLES, false, true, false);
+
+                 // Revert [No1. Reduce z-fighting 31703618c]
+                 glDepthMask(GL_TRUE);
+                 glDisable(GL_BLEND);
              }
 		}
 
@@ -376,7 +387,15 @@ void lcScene::Draw(lcContext* Context) const
 				 }
 				 else
 				 {
+                     // Revert [No1. Reduce z-fighting 31703618c]
+                     glEnable(GL_BLEND); // todo: remove GL calls
+                     glDepthMask(GL_FALSE);
+
 					 DrawRenderMeshes(Context, LC_MESH_TEXTURED_TRIANGLES, false, true, true);
+
+                     // Revert [No1. Reduce z-fighting 31703618c]
+                     glDepthMask(GL_TRUE);
+                     glDisable(GL_BLEND);
 				 }
 			}
 
@@ -451,7 +470,15 @@ void lcScene::Draw(lcContext* Context) const
 			}
 			else
 			{
+                 // Revert [No1. Reduce z-fighting 31703618c]
+                 glEnable(GL_BLEND);
+                 glDepthMask(GL_FALSE);
+
 				 DrawRenderMeshes(Context, LC_MESH_TRIANGLES, true, true, false);
+
+                 // Revert [No1. Reduce z-fighting 31703618c]
+                 glDepthMask(GL_TRUE);
+                 glDisable(GL_BLEND);
 			}
 		}
 
@@ -498,7 +525,15 @@ void lcScene::Draw(lcContext* Context) const
 				}
 				else
 				{
+                     // Revert [No1. Reduce z-fighting 31703618c]
+                     glEnable(GL_BLEND);
+                     glDepthMask(GL_FALSE);
+
 					 DrawRenderMeshes(Context, LC_MESH_TEXTURED_TRIANGLES, true, true, true);
+
+                     // Revert [No1. Reduce z-fighting 31703618c]
+                     glDepthMask(GL_TRUE);
+                     glDisable(GL_BLEND);
 				}
 			}
 
