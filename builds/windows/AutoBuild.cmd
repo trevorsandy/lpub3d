@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: February 18, 2019
+rem  Last Update: March 01, 2019
 rem  Copyright (c) 2017 - 2019 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -24,9 +24,6 @@ IF "%SCRIPT_DIR%" EQU "windows" (
   SET ABS_WD=%CD%
 )
 
-SET PACKAGE=LPub3D
-SET CONFIGURATION=release
-
 rem Variables - change these as required by your build environments
 IF "%APPVEYOR%" EQU "True" (
   IF [%LP3D_DIST_DIR_PATH%] == [] (
@@ -37,21 +34,26 @@ IF "%APPVEYOR%" EQU "True" (
   )
   SET ABS_WD=%APPVEYOR_BUILD_FOLDER%
   SET DIST_DIR=%LP3D_DIST_DIR_PATH%
+  SET PACKAGE=%LP3D_PACKAGE%
+  SET CONFIGURATION=%configuration%
   SET LDRAW_INSTALL_ROOT=%APPVEYOR_BUILD_FOLDER%
   SET LDRAW_LIBS=%APPVEYOR_BUILD_FOLDER%\LDrawLibs
   SET LDRAW_DIR=%APPVEYOR_BUILD_FOLDER%\LDraw
-  SET PACKAGE=%LP3D_PACKAGE%
-  SET CONFIGURATION=%configuration%
+  SET LP3D_QT32_MSVC=C:\Qt\5.11.3\msvc2015\bin
+  SET LP3D_QT64_MSVC=C:\Qt\5.11.3\msvc2015_64\bin
+  SET LP3D_VCVARSALL=C:\Program Files ^(x86^)\Microsoft Visual Studio 14.0\VC
 ) ELSE (
   CALL :DIST_DIR_REL_TO_ABS ..\lpub3d_windows_3rdparty
+  SET PACKAGE=LPub3D
+  SET CONFIGURATION=release
   SET LDRAW_INSTALL_ROOT=%USERPROFILE%
   SET LDRAW_LIBS=%USERPROFILE%
   SET LDRAW_DIR=%USERPROFILE%\LDraw
   SET LP3D_QT32_MSVC=C:\Qt\IDE\5.11.3\msvc2015\bin
   SET LP3D_QT64_MSVC=C:\Qt\IDE\5.11.3\msvc2015_64\bin
+  SET LP3D_VCVARSALL=C:\Program Files ^(x86^)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
 )
 
-SET LP3D_VCVARSALL=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
 SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
 SET LP3D_WIN_GIT_MSG=%LP3D_WIN_GIT%
 SET SYS_DIR=%SystemRoot%\System32
@@ -299,17 +301,27 @@ IF "%APPVEYOR%" EQU "True" (
   SET LPUB3D_CONFIG_ARGS=%LPUB3D_CONFIG_ARGS% CONFIG+=exe
   SET LP3D_DIST_DIR_PATH=%CD%\%DIST_DIR%
 )
+rem Set vcvars for AppVeyor or local build environments
 IF %PLATFORM% EQU x86 (
   ECHO.
   CALL "%LP3D_QT32_MSVC%\qtenv2.bat"
-  CALL "%LP3D_VCVARSALL%\vcvars32.bat" -vcvars_ver=14.0
+  IF "%APPVEYOR%" EQU "True" (
+    CALL "%LP3D_VCVARSALL%\bin\vcvars32.bat"
+  ) ELSE (
+    CALL "%LP3D_VCVARSALL%\vcvars32.bat" -vcvars_ver=14.0
+  )
 ) ELSE (
   ECHO.
   CALL "%LP3D_QT64_MSVC%\qtenv2.bat"
-  CALL "%LP3D_VCVARSALL%\vcvars64.bat" -vcvars_ver=14.0
+  IF "%APPVEYOR%" EQU "True" (
+    CALL "%LP3D_VCVARSALL%\bin\amd64\vcvars64.bat"
+  ) ELSE (
+    CALL "%LP3D_VCVARSALL%\vcvars64.bat" -vcvars_ver=14.0
+  )
 )
 rem Display MSVC Compiler settings
-cl -Bv
+echo _MSC_VER > %TEMP%\settings.c
+cl -Bv -EP %TEMP%/settings.c > NUL
 ECHO.
 SET LPUB3D_MAKE_ARGS=-c -f Makefile
 SET PATH_PREPENDED=True
