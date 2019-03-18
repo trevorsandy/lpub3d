@@ -369,16 +369,16 @@ int POVRay::renderCsi(
   int cd = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
 
   /* apply camera angle */
-  bool applyCA = Preferences::applyCALocally;
-  bool pp      = Preferences::perspectiveProjection;
+  bool noCA  = Preferences::applyCALocally;
+  bool pp    = Preferences::perspectiveProjection;
 
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
 
   QString CA = QString("-ca%1") .arg(pp ? meta.LPub.assem.cameraFoV.value() : 0.01);
   QString cg = QString("-cg%1,%2,%3")
-      .arg(applyCA ? 0.0 : meta.LPub.assem.cameraAngles.value(0))
-      .arg(applyCA ? 0.0 : meta.LPub.assem.cameraAngles.value(1))
+      .arg(noCA ? 0.0 : meta.LPub.assem.cameraAngles.value(0))
+      .arg(noCA ? 0.0 : meta.LPub.assem.cameraAngles.value(1))
       .arg(cd);
 
   QString w  = QString("-SaveWidth=%1") .arg(width);
@@ -814,8 +814,8 @@ int LDGLite::renderCsi(
 
   /* apply camera angle */
 
-  bool applyCA = Preferences::applyCALocally;
-  bool pp      = Preferences::perspectiveProjection;
+  bool noCA  = Preferences::applyCALocally;
+  bool pp    = Preferences::perspectiveProjection;
 
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
@@ -833,8 +833,8 @@ int LDGLite::renderCsi(
   QString w  = QString("-W%1")      .arg(lineThickness); // ldglite always deals in 72 DPI
 
   QString CA = QString("-ca%1") .arg(pp ? meta.LPub.assem.cameraFoV.value() : 0.01);
-  QString cg = QString("-cg%1,%2,%3") .arg(applyCA ? 0.0 : meta.LPub.assem.cameraAngles.value(0))
-                                      .arg(applyCA ? 0.0 : meta.LPub.assem.cameraAngles.value(1))
+  QString cg = QString("-cg%1,%2,%3") .arg(noCA ? 0.0 : meta.LPub.assem.cameraAngles.value(0))
+                                      .arg(noCA ? 0.0 : meta.LPub.assem.cameraAngles.value(1))
                                       .arg(cd);
 
   QString J  = QString("-%1").arg(pp ? "J" : "j");
@@ -1067,8 +1067,8 @@ int LDView::renderCsi(
     int cd = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
 
     /* apply camera angle */
-    bool applyCA = Preferences::applyCALocally;
-    bool pp      = Preferences::perspectiveProjection;
+    bool noCA  = Preferences::applyCALocally;
+    bool pp    = Preferences::perspectiveProjection;
 
     /* page size */
     int width  = gui->pageSize(meta.LPub.page, 0);
@@ -1158,8 +1158,8 @@ int LDView::renderCsi(
 
   // Build (Native) arguments
   QString CA = QString("-ca%1") .arg(pp ? meta.LPub.assem.cameraFoV.value() : 0.01);
-  QString cg = QString("-cg%1,%2,%3") .arg(applyCA ? 0.0f : meta.LPub.assem.cameraAngles.value(0))
-                                      .arg(applyCA ? 0.0f : meta.LPub.assem.cameraAngles.value(1))
+  QString cg = QString("-cg%1,%2,%3") .arg(noCA ? 0.0f : meta.LPub.assem.cameraAngles.value(0))
+                                      .arg(noCA ? 0.0f : meta.LPub.assem.cameraAngles.value(1))
                                       .arg(cd);
 
   QString w  = QString("-SaveWidth=%1")  .arg(width);
@@ -1526,8 +1526,9 @@ int Native::renderCsi(
 
             ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/exportcsi.ldr";
 
+            // rotate parts for ldvExport - apply camera angles
             int rc;
-            if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrName, QString(),meta.LPub.assem.cameraAngles,true)) < 0) {
+            if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrName, QString(),meta.LPub.assem.cameraAngles,ldvExport)) < 0) {
                 return rc;
              }
 
@@ -1535,13 +1536,13 @@ int Native::renderCsi(
             int cd = int((stdCameraDistance(meta,meta.LPub.assem.modelScale.value())*0.775)*1700/1000);
 
             /* apply camera angles */
-            bool applyCA = Preferences::applyCALocally;
+            bool noCA  = Preferences::applyCALocally;
             //bool pp      = Preferences::perspectiveProjection;
 
             QString CA = QString("-ca%1") .arg(/*pp ? Options.FoV : */ 0.01);  // Effectively defaults to orthographic projection.
             QString cg = QString("-cg%1,%2,%3")
-                                 .arg(applyCA ? 0.0 : Options.Latitude)
-                                 .arg(applyCA ? 0.0 : Options.Longitude)
+                                 .arg(noCA ? 0.0 : Options.Latitude)
+                                 .arg(noCA ? 0.0 : Options.Longitude)
                                  .arg(cd);
 
             QString w  = QString("-SaveWidth=%1") .arg(Options.ImageWidth);

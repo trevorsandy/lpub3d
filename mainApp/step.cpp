@@ -327,6 +327,7 @@ int Step::createCsi(
          if (nativeRenderer)
             ldrName = csiLdrFile;
 
+         // Camera angles not applied to rotated parts for Native renderer
          if ((rc = renderer->rotateParts(addLine, meta.rotStep, csiParts, ldrName, top.modelName, absRotstep ? absCA : meta.LPub.assem.cameraAngles)) != 0) {
              emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate CSI ldr file: %1.")
                                                    .arg(ldrName));
