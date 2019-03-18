@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: March 06, 2019
+#  Last Update: March 18, 2019
 #  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 
@@ -381,7 +381,7 @@ BuildLDView() {
   case ${platform_id} in
   redhat|fedora|suse)
      case ${platform_ver} in
-     24|25|26|27|28|1500|1550|150000)
+     24|25|26|27|28|29|1500|1550|150000)
        ApplyLDViewStdlibHack
        ;;
      esac

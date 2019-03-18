@@ -118,7 +118,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d
 Icon: lpub3d.xpm
-Version: 2.3.7.1167
+Version: 2.3.7.1168
 Release: <B_CNT>%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -181,7 +181,7 @@ BuildRequires: llvm-libs
 BuildRequires: openssl-devel, storaged
 %define build_osmesa 1
 %endif
-%if 0%{?fedora_version} >= 27
+%if 0%{?fedora_version}== 27 || 0%{?fedora_version}==28
 %define build_osmesa 1
 %endif
 %endif
@@ -446,7 +446,7 @@ BuildRequires:  pkgconfig(xxf86vm)
  © 2015-2019 Trevor SANDY
 
 # work around fc27 and fc28 build error: Empty files file /home/abuild/rpmbuild/BUILD/lpub3d-git/debugsourcefiles.list
-%if 0%{?fedora_version}==27 || 0%{?fedora_version}==28
+%if 0%{?fedora_version}==27 || 0%{?fedora_version}==28 || 0%{?fedora_version}==29
 %global debug_package %{nil}
 %endif
 
@@ -717,5 +717,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Mon Mar 18 2019 - trevor.dot.sandy.at.gmail.dot.com 2.3.7.1167
+* Mon Mar 18 2019 - trevor.dot.sandy.at.gmail.dot.com 2.3.7.1168
 - LPub3D Linux package (rpm) release
