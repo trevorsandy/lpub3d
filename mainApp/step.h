@@ -77,6 +77,8 @@ class Step : public AbstractRangeElement
     bool                  pliPerStep;
     bool                  csiOutOfDate;
     bool                  modelDisplayOnlyStep;
+    bool                  fadeSteps;
+    bool                  highlightStep;
     PlacementMeta         placement;
     QString               ldrName;
     QString               pngName;
@@ -126,15 +128,6 @@ class Step : public AbstractRangeElement
            QPixmap            *pixmap,
            Meta               &meta,
            bool               bfxLoad = false);
-
-    int createViewerCSI(QStringList &csiParts,
-                  bool doFadeStep,
-                  bool doHighlightStep);
-
-    int mergeViewerCSISubModels(QStringList &subModels,
-                           QStringList &subModelParts,
-                           bool doFadeStep,
-                           bool doHighlightStep);
 
     int  sizeit(int  rows[],
                 int  cols[],

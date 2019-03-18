@@ -153,6 +153,8 @@ Step::Step(
   placeSubModel             = false;
   placeRotateIcon           = false;
   placeCsiAnnotation        = false;
+  fadeSteps                 = _meta.LPub.fadeStep.fadeStep.value();
+  highlightStep             = _meta.LPub.highlightStep.highlightStep.value() && !gui->suppressColourMeta();
 
 }
 
@@ -205,8 +207,6 @@ int Step::createCsi(
       modelScale = meta.LPub.assem.modelScale.value();
   }
   QString csi_Name        = modelDisplayOnlyStep ? csiName()+"_fm" : bfxLoad ? csiName()+"_bfx" : csiName();
-  bool    doFadeStep      = meta.LPub.fadeStep.fadeStep.value();
-  bool    doHighlightStep = meta.LPub.highlightStep.highlightStep.value() && !gui->suppressColourMeta();
   bool    invalidIMStep   = ((modelDisplayOnlyStep) || (stepNumber.number == 1));
   bool    absRotstep      = meta.rotStep.value().type == "ABS";
   FloatPairMeta absCA;
@@ -299,20 +299,22 @@ int Step::createCsi(
 
       // header and closing meta
       QString modelName = QFileInfo(top.modelName).baseName().toLower();
-      modelName = QString("%1%2").arg(modelName.replace(modelName.at(0),modelName.at(0).toUpper()))
+      modelName = QString("%1%2").arg(modelName.replace(
+                                      modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper()))
                                  .arg(modelDisplayOnlyStep ? " - Final Model" : "");
       rotatedParts.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(modelName));
       rotatedParts.prepend(QString("0 Name: %1").arg(top.modelName));
       rotatedParts.prepend(QString("0 %1").arg(modelName));
       rotatedParts.append("0 NOFILE");
 
-      // consolidate subfiles and parts into single file - I don't think this is still needed but I keep it anyway
-      createViewerCSI(rotatedParts, doFadeStep, doHighlightStep);
+      // consolidate subfiles and parts into single file
+      if ((rc = renderer->createNativeCSI(rotatedParts,fadeSteps,highlightStep) != 0))
+          emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Viewer CSI parts"));
 
       gui->insertViewerStep(viewerCsiKey,rotatedParts,csiLdrFile,multiStep,calledOut);
   }
 
-  // Generate renderer CSI file
+  // generate renderer CSI file
   if ( ! csiExist || csiOutOfDate || gui->exportingObjects()) {
 
      QElapsedTimer timer;
@@ -321,11 +323,15 @@ int Step::createCsi(
      // populate ldr file name
      ldrName = QString("%1/%2.ldr").arg(csiLdrFilePath).arg(key);
 
-     // create the CSI ldr file and rotate its parts for single call LDView and Native renderers
+     // rotate parts and create the CSI file for LDView single call and Native renderering
      if (renderer->useLDViewSCall() || nativeRenderer) {
 
-         if (nativeRenderer)
+         if (nativeRenderer) {
             ldrName = csiLdrFile;
+            // update fade and highlight Preferences for rotateParts routine.
+            meta.LPub.fadeStep.setPreferences();
+            meta.LPub.highlightStep.setPreferences();
+         }
 
          // Camera angles not applied to rotated parts for Native renderer
          if ((rc = renderer->rotateParts(addLine, meta.rotStep, csiParts, ldrName, top.modelName, absRotstep ? absCA : meta.LPub.assem.cameraAngles)) != 0) {
@@ -390,197 +396,13 @@ int Step::createCsi(
       pixmap->load(pngName);
       csiPlacement.size[0] = pixmap->width();
       csiPlacement.size[1] = pixmap->height();
-    }
+  }
 
-  return 0;
-}
-
-// create 3D Viewer version of the csi file
-int Step::createViewerCSI(
-    QStringList &csiRotatedParts,
-    bool         doFadeStep,
-    bool         doHighlightStep)
-{
-  QStringList csiSubModels;
-  QStringList csiSubModelParts;
-  QStringList csiParts = csiRotatedParts;
-
-  QStringList argv;
-  bool        alreadyInserted;
-  int         rc;
-
-  if (csiRotatedParts.size() > 0) {
-
-      for (int index = 0; index < csiRotatedParts.size(); index++) {
-
-          QString csiLine = csiRotatedParts[index];
-          split(csiLine, argv);
-          if (argv.size() == 15 && argv[0] == "1") {
-
-              /* process subfiles in csiRotatedParts */
-              QString type = argv[argv.size()-1];
-
-              bool isCustomSubModel = false;
-              bool isCustomPart = false;
-              QString customType;
-
-              // Custom part types
-              if (doFadeStep) {
-                  bool isFadedItem = type.contains("-fade.");
-                  // Fade file
-                  if (isFadedItem) {
-                      customType = type;
-                      customType = customType.replace("-fade.",".");
-                      isCustomSubModel = gui->isSubmodel(customType);
-                      isCustomPart = gui->isUnofficialPart(customType);
-                    }
-                }
-              else
-                if (doHighlightStep) {
-                    bool isHighlightItem = type.contains("-highlight");
-                    // Highlight file
-                    if (isHighlightItem) {
-                        customType = type;
-                        customType = customType.replace("-highlight.",".");
-                        isCustomSubModel = gui->isSubmodel(customType);
-                        isCustomPart = gui->isUnofficialPart(customType);
-                      }
-                  }
-
-              if (gui->isSubmodel(type) || gui->isUnofficialPart(type) || isCustomSubModel || isCustomPart) {
-                  /* capture subfiles (full string) to be processed when finished */
-                  if (!csiSubModels.contains(type.toLower()))
-                       csiSubModels << type.toLower();
-                }
-            }
-        } //end for
-
-      /* process extracted submodels and unofficial files */
-      if (csiSubModels.size() > 0){
-          if (csiSubModels.size() > 2)
-              csiSubModels.removeDuplicates();
-          if ((rc = mergeViewerCSISubModels(csiSubModels, csiSubModelParts, doFadeStep, doHighlightStep)) != 0){
-              emit gui->messageSig(LOG_ERROR,QString("Failed to process viewer CSI submodels"));
-              return rc;
-            }
-        }
-
-      /* add sub model content to csiRotatedParts file */
-      if (! csiSubModelParts.empty())
-        {
-          for (int i = 0; i < csiSubModelParts.size(); i++) {
-              QString smLine = csiSubModelParts[i];
-              csiParts << smLine;
-            }
-        }
-      csiRotatedParts = csiParts;
-    }
-  return 0;
-}
-
-int Step::mergeViewerCSISubModels(QStringList &subModels,
-                                  QStringList &subModelParts,
-                                  bool doFadeStep,
-                                  bool doHighlightStep)
-{
-  QStringList csiSubModels        = subModels;
-  QStringList csiSubModelParts    = subModelParts;
-  QStringList newSubModels;
-
-  QStringList argv;
-  int         rc;
-
-  if (csiSubModels.size() > 0) {
-
-      /* read in all detected sub model file content */
-      for (int index = 0; index < csiSubModels.size(); index++) {
-          QString ldrName(QDir::currentPath() + "/" +
-                          Paths::tmpDir + "/" +
-                          csiSubModels[index]);
-
-          /* initialize the working submodel file - define header. */
-          QString modelName = QFileInfo(csiSubModels[index]).baseName().toLower();
-          modelName = modelName.replace(modelName.at(0),modelName.at(0).toUpper());
-          csiSubModelParts << QString("0 FILE %1").arg(csiSubModels[index]);
-          csiSubModelParts << QString("0 %1").arg(modelName);
-          csiSubModelParts << QString("0 Name: %1").arg(csiSubModels[index]);
-          csiSubModelParts << QString("0 !LEOCAD MODEL NAME %1").arg(modelName);
-
-          /* read the actual submodel file */
-          QFile ldrfile(ldrName);
-          if ( ! ldrfile.open(QFile::ReadOnly | QFile::Text)) {
-              emit gui->messageSig(LOG_ERROR,QString("Could not read CSI submodel file %1: %2")
-                                   .arg(ldrName)
-                                   .arg(ldrfile.errorString()));
-              return -1;
-            }
-          /* populate file contents into working submodel csi parts */
-          QTextStream in(&ldrfile);
-          while ( ! in.atEnd()) {
-              QString csiLine = in.readLine(0);
-              split(csiLine, argv);
-
-              if (argv.size() == 15 && argv[0] == "1") {
-                  /* check and process any subfiles in csiRotatedParts */
-                  QString type = argv[argv.size()-1];
-
-                  bool isCustomSubModel = false;
-                  bool isCustomPart = false;
-                  QString customType;
-
-                  // Custom part types
-                  if (doFadeStep) {
-                      bool isFadedItem = type.contains("-fade.");
-                      // Fade file
-                      if (isFadedItem) {
-                          customType = type;
-                          customType = customType.replace("-fade.",".");
-                          isCustomSubModel = gui->isSubmodel(customType);
-                          isCustomPart = gui->isUnofficialPart(customType);
-                        }
-                    }
-                  else
-                    if (doHighlightStep) {
-                        bool isHighlightItem = type.contains("-highlight");
-                        // Highlight file
-                        if (isHighlightItem) {
-                            customType = type;
-                            customType = customType.replace("-highlight.",".");
-                            isCustomSubModel = gui->isSubmodel(customType);
-                            isCustomPart = gui->isUnofficialPart(customType);
-                          }
-                      }
-
-                  if (gui->isSubmodel(type) || gui->isUnofficialPart(type) || isCustomSubModel || isCustomPart) {
-                      /* capture all subfiles (full string) to be processed when finished */
-                      if (!newSubModels.contains(type.toLower()))
-                              newSubModels << type.toLower();
-                    }
-                }
-              csiLine = argv.join(" ");
-              csiSubModelParts << csiLine;
-            }
-          csiSubModelParts << "0 NOFILE";
-        }
-
-      /* recurse and process any identified submodel files */
-      if (newSubModels.size() > 0){
-          if (newSubModels.size() > 2)
-              newSubModels.removeDuplicates();
-          if ((rc = mergeViewerCSISubModels(newSubModels, csiSubModelParts, doFadeStep, doHighlightStep)) != 0){
-              emit gui->messageSig(LOG_ERROR,QString("Failed to recurse viewer CSI submodels"));
-              return rc;
-            }
-        }
-      subModelParts = csiSubModelParts;
-    }
   return 0;
 }
 
 bool Step::loadTheViewer(){
-    // Load the 3DViewer
     if (! gui->exporting() /* && !Preferences::usingNativeRenderer */) {
-
         if (! renderer->LoadViewer(viewerOptions)) {
             emit gui->messageSig(LOG_ERROR,QString("Could not load 3D Viewer with CSI key: %1")
                                  .arg(viewerCsiKey));

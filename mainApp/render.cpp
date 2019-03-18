@@ -1525,22 +1525,22 @@ int Native::renderCsi(
               if (gui->exportMode == EXPORT_POVRAY ||
                       gui->exportMode == EXPORT_STL ||
                       gui->exportMode == EXPORT_HTML ||
-                  gui->exportMode == EXPORT_3DS_MAX) {
+                      gui->exportMode == EXPORT_3DS_MAX) {
                   Options.IniFlag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni :
                                     gui->exportMode == EXPORT_STL ? NativeSTLIni : Native3DSIni;
-                /*  Options.IniFlag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni :
+                  /*  Options.IniFlag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni :
                                     gui->exportMode == EXPORT_STL ? NativeSTLIni : EXPORT_HTML; */
               }
 
-            ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/exportcsi.ldr";
+              ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/exportcsi.ldr";
 
-            // rotate parts for ldvExport - apply camera angles
-            int rc;
-            if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrName, QString(),meta.LPub.assem.cameraAngles,ldvExport)) < 0) {
-                return rc;
-             }
+              // rotate parts for ldvExport - apply camera angles
+              int rc;
+              if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrName, QString(),meta.LPub.assem.cameraAngles,ldvExport)) < 0) {
+                  return rc;
+              }
 
-            /* determine camera distance */
+              /* determine camera distance */
               int cd = int((stdCameraDistance(meta,meta.LPub.assem.modelScale.value())*0.775)*1700/1000);
 
               /* apply camera angles */
@@ -1554,27 +1554,27 @@ int Native::renderCsi(
                       .arg(cd);
 
               QString w  = QString("-SaveWidth=%1") .arg(Options.ImageWidth);
-            QString h  = QString("-SaveHeight=%1") .arg(Options.ImageHeight);
-            QString f  = QString("-ExportFile=%1") .arg(Options.ExportFileName);
-            QString l  = QString("-LDrawDir=%1") .arg(QDir::toNativeSeparators(Preferences::ldrawLibPath));
-            QString o  = QString("-HaveStdOut=1");
-            QString v  = QString("-vv");
+              QString h  = QString("-SaveHeight=%1") .arg(Options.ImageHeight);
+              QString f  = QString("-ExportFile=%1") .arg(Options.ExportFileName);
+              QString l  = QString("-LDrawDir=%1") .arg(QDir::toNativeSeparators(Preferences::ldrawLibPath));
+              QString o  = QString("-HaveStdOut=1");
+              QString v  = QString("-vv");
 
-            QStringList arguments;
-            arguments << CA;
-            arguments << cg;
-            arguments << w;
-            arguments << h;
-            arguments << f;
-            arguments << l;
+              QStringList arguments;
+              arguments << CA;
+              arguments << cg;
+              arguments << w;
+              arguments << h;
+              arguments << f;
+              arguments << l;
 
-            if (!Preferences::altLDConfigPath.isEmpty()) {
-               arguments << "-LDConfig=" + Preferences::altLDConfigPath;
-            }
+              if (!Preferences::altLDConfigPath.isEmpty()) {
+                  arguments << "-LDConfig=" + Preferences::altLDConfigPath;
+              }
 
-            arguments << QDir::toNativeSeparators(ldrName);
+              arguments << QDir::toNativeSeparators(ldrName);
 
-            Options.ExportArgs = arguments;
+              Options.ExportArgs = arguments;
           }
       } else {
           Options.ExportMode = EXPORT_NONE;
@@ -2036,4 +2036,187 @@ bool Render::NativeExport(const NativeOptions &Options) {
 */
 
     return good;
+}
+
+// create Native version of the csi file
+int Render::createNativeCSI(
+    QStringList &csiRotatedParts,
+    bool         doFadeStep,
+    bool         doHighlightStep)
+{
+  QStringList csiSubModels;
+  QStringList csiSubModelParts;
+  QStringList csiParts = csiRotatedParts;
+
+  QStringList argv;
+  bool        alreadyInserted;
+  int         rc;
+
+  if (csiRotatedParts.size() > 0) {
+
+      for (int index = 0; index < csiRotatedParts.size(); index++) {
+
+          QString csiLine = csiRotatedParts[index];
+          split(csiLine, argv);
+          if (argv.size() == 15 && argv[0] == "1") {
+
+              /* process subfiles in csiRotatedParts */
+              QString type = argv[argv.size()-1];
+
+              bool isCustomSubModel = false;
+              bool isCustomPart = false;
+              QString customType;
+
+              // Custom part types
+              if (doFadeStep) {
+                  bool isFadedItem = type.contains("-fade.");
+                  // Fade file
+                  if (isFadedItem) {
+                      customType = type;
+                      customType = customType.replace("-fade.",".");
+                      isCustomSubModel = gui->isSubmodel(customType);
+                      isCustomPart = gui->isUnofficialPart(customType);
+                    }
+                }
+
+              if (doHighlightStep) {
+                  bool isHighlightItem = type.contains("-highlight");
+                  // Highlight file
+                  if (isHighlightItem) {
+                      customType = type;
+                      customType = customType.replace("-highlight.",".");
+                      isCustomSubModel = gui->isSubmodel(customType);
+                      isCustomPart = gui->isUnofficialPart(customType);
+                    }
+                }
+
+              if (gui->isSubmodel(type) || gui->isUnofficialPart(type) || isCustomSubModel || isCustomPart) {
+                  /* capture subfiles (full string) to be processed when finished */
+                  if (!csiSubModels.contains(type.toLower()))
+                       csiSubModels << type.toLower();
+                }
+            }
+        } //end for
+
+      /* process extracted submodels and unofficial files */
+      if (csiSubModels.size() > 0){
+          if (csiSubModels.size() > 2)
+              csiSubModels.removeDuplicates();
+          if ((rc = mergeNativeCSISubModels(csiSubModels, csiSubModelParts, doFadeStep, doHighlightStep)) != 0){
+              emit gui->messageSig(LOG_ERROR,QString("Failed to process viewer CSI submodels"));
+              return rc;
+            }
+        }
+
+      /* add sub model content to csiRotatedParts file */
+      if (! csiSubModelParts.empty())
+        {
+          for (int i = 0; i < csiSubModelParts.size(); i++) {
+              QString smLine = csiSubModelParts[i];
+              csiParts << smLine;
+            }
+        }
+      csiRotatedParts = csiParts;
+    }
+  return 0;
+}
+
+int Render::mergeNativeCSISubModels(QStringList &subModels,
+                                  QStringList &subModelParts,
+                                  bool doFadeStep,
+                                  bool doHighlightStep)
+{
+  QStringList csiSubModels        = subModels;
+  QStringList csiSubModelParts    = subModelParts;
+  QStringList newSubModels;
+
+  QStringList argv;
+  int         rc;
+
+  if (csiSubModels.size() > 0) {
+
+      /* read in all detected sub model file content */
+      for (int index = 0; index < csiSubModels.size(); index++) {
+          QString ldrName(QDir::currentPath() + "/" +
+                          Paths::tmpDir + "/" +
+                          csiSubModels[index]);
+
+          /* initialize the working submodel file - define header. */
+          QString modelName = QFileInfo(csiSubModels[index]).baseName().toLower();
+          modelName = modelName.replace(
+                      modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper());
+          csiSubModelParts << QString("0 FILE %1").arg(csiSubModels[index]);
+          csiSubModelParts << QString("0 %1").arg(modelName);
+          csiSubModelParts << QString("0 Name: %1").arg(csiSubModels[index]);
+          csiSubModelParts << QString("0 !LEOCAD MODEL NAME %1").arg(modelName);
+
+          /* read the actual submodel file */
+          QFile ldrfile(ldrName);
+          if ( ! ldrfile.open(QFile::ReadOnly | QFile::Text)) {
+              emit gui->messageSig(LOG_ERROR,QString("Could not read CSI submodel file %1: %2")
+                                   .arg(ldrName)
+                                   .arg(ldrfile.errorString()));
+              return -1;
+            }
+          /* populate file contents into working submodel csi parts */
+          QTextStream in(&ldrfile);
+          while ( ! in.atEnd()) {
+              QString csiLine = in.readLine(0);
+              split(csiLine, argv);
+
+              if (argv.size() == 15 && argv[0] == "1") {
+                  /* check and process any subfiles in csiRotatedParts */
+                  QString type = argv[argv.size()-1];
+
+                  bool isCustomSubModel = false;
+                  bool isCustomPart = false;
+                  QString customType;
+
+                  // Custom part types
+                  if (doFadeStep) {
+                      bool isFadedItem = type.contains("-fade.");
+                      // Fade file
+                      if (isFadedItem) {
+                          customType = type;
+                          customType = customType.replace("-fade.",".");
+                          isCustomSubModel = gui->isSubmodel(customType);
+                          isCustomPart = gui->isUnofficialPart(customType);
+                        }
+                    }
+
+                  if (doHighlightStep) {
+                      bool isHighlightItem = type.contains("-highlight");
+                      // Highlight file
+                      if (isHighlightItem) {
+                          customType = type;
+                          customType = customType.replace("-highlight.",".");
+                          isCustomSubModel = gui->isSubmodel(customType);
+                          isCustomPart = gui->isUnofficialPart(customType);
+                        }
+                    }
+
+                  if (gui->isSubmodel(type) || gui->isUnofficialPart(type) || isCustomSubModel || isCustomPart) {
+                      /* capture all subfiles (full string) to be processed when finished */
+                      if (!newSubModels.contains(type.toLower()))
+                              newSubModels << type.toLower();
+                    }
+                }
+              csiLine = argv.join(" ");
+              csiSubModelParts << csiLine;
+            }
+          csiSubModelParts << "0 NOFILE";
+        }
+
+      /* recurse and process any identified submodel files */
+      if (newSubModels.size() > 0){
+          if (newSubModels.size() > 2)
+              newSubModels.removeDuplicates();
+          if ((rc = mergeNativeCSISubModels(newSubModels, csiSubModelParts, doFadeStep, doHighlightStep)) != 0){
+              emit gui->messageSig(LOG_ERROR,QString("Failed to recurse viewer CSI submodels"));
+              return rc;
+            }
+        }
+      subModelParts = csiSubModelParts;
+    }
+  return 0;
 }

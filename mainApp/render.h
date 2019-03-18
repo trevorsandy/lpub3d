@@ -62,8 +62,15 @@ public:
   bool                   NativeExport(const NativeOptions &);
   bool                   LoadViewer(const ViewerOptions &);
   bool                   LoadStepProject(Project *,
-                                  const QString &);
-  int                    rotateParts(const QString &addLine,
+                                     const QString &);
+  static int             createNativeCSI(QStringList &csiParts,
+                                     bool doFadeStep,
+                                     bool doHighlightStep);
+  static int             mergeNativeCSISubModels(QStringList &subModels,
+                                     QStringList &subModelParts,
+                                     bool doFadeStep,
+                                     bool doHighlightStep);
+  static int             rotateParts(const QString &addLine,
                                      RotStepMeta &rotStep,
                                      const QStringList &parts,
                                      QString &ldrName,
@@ -79,18 +86,18 @@ public:
                                       const QString &rotsComment,
                                       const QString &ldrName,
                                       const QString &csiKey);
-  virtual int 		 renderCsi(const QString &,
+  virtual int               renderCsi(const QString &,
                                       const QStringList &,
                                       const QStringList &,
                                       const QString &,
                                       Meta &) = 0;
-  virtual int 		 renderPli(const QStringList &,
+  virtual int               renderPli(const QStringList &,
                                       const QString &,
                                       Meta &,
                                       int pliType) = 0;
 
 protected:
-  virtual float          cameraDistance(Meta &meta, float) = 0;
+  virtual float        cameraDistance(Meta &meta, float) = 0;
 
   friend class Project;
   friend class Step;

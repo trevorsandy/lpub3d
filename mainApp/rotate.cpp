@@ -159,11 +159,17 @@ int Render::rotateParts(
           FloatPairMeta     &ca,
           bool               ldv /* false */)
 {
-  bool  nativeRenderer = (Preferences::usingNativeRenderer && ! ldv);
+  bool doFadeStep      = Preferences::enableFadeSteps;
+  bool doHighlightStep = Preferences::enableHighlightStep;
+  bool doImageMatting  = Preferences::enableImageMatting;
+  bool nativeRenderer  = (Preferences::usingNativeRenderer && ! ldv);
   QStringList rotatedParts = parts;
 
   // do not apply camera angles for native renderer
   rotateParts(addLine,rotStep,rotatedParts,ca,!nativeRenderer);
+
+  // intercept rotatedParts for imageMatting
+  QStringList imageMatteParts = rotatedParts;
 
   QFile file(ldrName);
   if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
@@ -172,31 +178,35 @@ int Render::rotateParts(
     return -1;
   }
 
-  RotStepData rotStepData = rotStep.value();
+  // add ROTSTEP command
   QString rotsComment = getRotstepMeta(rotStep);
+  rotatedParts.prepend(rotsComment);
 
-  QTextStream out(&file);
   if (nativeRenderer) {
+      // header and closing meta
       QString _modelName = QFileInfo(modelName).baseName().toLower();
-      _modelName = _modelName.replace(_modelName.at(0),_modelName.at(0).toUpper());
-      out << QString("0 %1").arg(_modelName) << endl;
-      out << QString("0 Name: %1").arg(modelName) << endl;
-      out << QString("0 !LEOCAD MODEL NAME %1").arg(_modelName) << endl;
-  }
-  out << rotsComment << endl;
+      _modelName = _modelName.replace(
+                   _modelName.indexOf(_modelName.at(0)),1,_modelName.at(0).toUpper());
+      rotatedParts.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(_modelName));
+      rotatedParts.prepend(QString("0 Name: %1").arg(modelName));
+      rotatedParts.prepend(QString("0 %1").arg(_modelName));
+      rotatedParts.append("0 NOFILE");
 
+      // consolidate subfiles and parts into single file
+      if ((createNativeCSI(rotatedParts,doFadeStep,doHighlightStep) != 0))
+          emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native CSI parts"));
+  }
+
+  // Write parts to file
+  QTextStream out(&file);
   for (int i = 0; i < rotatedParts.size(); i++) {
-    QString line = rotatedParts[i];
-    out << line << endl;
+      QString line = rotatedParts[i];
+      out << line << endl;
   }
-
-  if (nativeRenderer)
-      out << "0 NOFILE" << endl;
-
   file.close();
 
   // Split Image Matte ldr file
-  if (Preferences::enableFadeSteps && Preferences::enableImageMatting) {
+  if (doFadeStep && doImageMatting) {
       QString csiKey,csiFile;
       if (!useLDViewSCall()){
           csiKey = modelName; // use modelName to pass in csiKey from LDView::renderCli when not SingleCall
@@ -208,12 +218,11 @@ int Render::rotateParts(
           csiKey = LDVImageMatte::getMatteCSIImage(csiFile);
         }
       if (LDVImageMatte::validMatteCSIImage(csiKey)) {
-          return splitIMParts(rotatedParts,rotsComment,ldrName,csiKey);
+          return splitIMParts(imageMatteParts,rotsComment,ldrName,csiKey);
        }
     }
 
   return 0;
-
 }
 
 int Render::rotateParts(
