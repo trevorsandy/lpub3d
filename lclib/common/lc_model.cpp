@@ -212,8 +212,8 @@ bool lcModel::IncludesModel(const lcModel* Model) const
 	if (Model == this)
 		return true;
 
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
-		if (mPieces[PieceIdx]->mPieceInfo->IncludesModel(Model))
+	for (lcPiece* Piece : mPieces)
+		if (Piece->mPieceInfo->IncludesModel(Model))
 			return true;
 
 	return false;
@@ -286,10 +286,8 @@ void lcModel::UpdatePieceInfo(lcArray<lcModel*>& UpdatedModels)
 
 	lcVector3 Min(FLT_MAX, FLT_MAX, FLT_MAX), Max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : mPieces)
 	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
 		if (Piece->GetStepHide() == LC_STEP_MAX)
 		{
 			Piece->mPieceInfo->UpdateBoundingBox(UpdatedModels);
@@ -317,10 +315,8 @@ void lcModel::SaveLDraw(QTextStream& Stream, bool SelectedOnly) const
 	int CurrentLine = 0;
 	int AddedSteps = 0;
 
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : mPieces)
 	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
 		if (SelectedOnly && !Piece->IsSelected())
 			continue;
 
@@ -464,21 +460,13 @@ void lcModel::SaveLDraw(QTextStream& Stream, bool SelectedOnly) const
 		Stream << QLatin1String("0 !LEOCAD GROUP END\r\n");
 	}
 
-	for (int CameraIdx = 0; CameraIdx < mCameras.GetSize(); CameraIdx++)
-	{
-		lcCamera* Camera = mCameras[CameraIdx];
-
+	for (lcCamera* Camera : mCameras)
 		if (!SelectedOnly || Camera->IsSelected())
 			Camera->SaveLDraw(Stream);
-	}
 
-	for (int LightIdx = 0; LightIdx < mLights.GetSize(); LightIdx++)
-	{
-		lcLight* Light = mLights[LightIdx];
-
+	for (lcLight* Light : mLights)
 		if (!SelectedOnly || Light->IsSelected())
 			Light->SaveLDraw(Stream);
-	}
 
 	Stream.flush();
 }
@@ -676,7 +664,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 			lcMatrix44 IncludeTransform(lcVector4(IncludeMatrix[3], IncludeMatrix[6], IncludeMatrix[9], 0.0f), lcVector4(IncludeMatrix[4], IncludeMatrix[7], IncludeMatrix[10], 0.0f),
 										lcVector4(IncludeMatrix[5], IncludeMatrix[8], IncludeMatrix[11], 0.0f), lcVector4(IncludeMatrix[0], IncludeMatrix[1], IncludeMatrix[2], 1.0f));
 
-			QString PartId = LineStream.readAll().trimmed();    // remaining line item after transform - i.e. partId
+			QString PartId = LineStream.readAll().trimmed();
 			QByteArray CleanId = PartId.toLatin1().toUpper().replace('\\', '/');
 
 			if (Library->IsPrimitive(CleanId.constData()))
@@ -691,7 +679,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 				if (!CurrentGroups.IsEmpty())
 					Piece->SetGroup(CurrentGroups[CurrentGroups.GetSize() - 1]);
 
-				PieceInfo* Info = Library->FindPiece(CleanId.constData(), Project, true, true);
+				PieceInfo* Info = Library->FindPiece(PartId.toLatin1().constData(), Project, true, true);
 
 				float* Matrix = IncludeTransform;
 				lcMatrix44 Transform(lcVector4(Matrix[0], Matrix[2], -Matrix[1], 0.0f), lcVector4(Matrix[8], Matrix[10], -Matrix[9], 0.0f),
@@ -925,8 +913,8 @@ bool lcModel::LoadBinary(lcFile* file)
 		}
 		else
 		{
-			for (int CameraIdx = 0; CameraIdx < mCameras.GetSize(); CameraIdx++)
-				mCameras[CameraIdx]->FileLoad(*file);
+			for (lcCamera* Camera : mCameras)
+				Camera->FileLoad(*file);
 		}
 	}
 
@@ -1286,21 +1274,13 @@ void lcModel::GetScene(lcScene& Scene, lcCamera* ViewCamera, bool DrawInterface,
 
 	if (DrawInterface && !ActiveSubmodelInstance)
 	{
-		for (int CameraIdx = 0; CameraIdx < mCameras.GetSize(); CameraIdx++)
-		{
-			lcCamera* Camera = mCameras[CameraIdx];
-
+		for (lcCamera* Camera : mCameras)
 			if (Camera != ViewCamera && Camera->IsVisible())
 				Scene.AddInterfaceObject(Camera);
-		}
 
-		for (int LightIdx = 0; LightIdx < mLights.GetSize(); LightIdx++)
-		{
-			lcLight* Light = mLights[LightIdx];
-
+		for (lcLight* Light : mLights)
 			if (Light->IsVisible())
 				Scene.AddInterfaceObject(Light);
-		}
 	}
 
 	Scene.End();
@@ -1482,35 +1462,25 @@ void lcModel::RayTest(lcObjectRayTest& ObjectRayTest) const
 
 void lcModel::BoxTest(lcObjectBoxTest& ObjectBoxTest) const
 {
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
-	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
+	for (lcPiece* Piece : mPieces)
 		if (Piece->IsVisible(mCurrentStep))
 			Piece->BoxTest(ObjectBoxTest);
-	}
 
-	for (int CameraIdx = 0; CameraIdx < mCameras.GetSize(); CameraIdx++)
-	{
-		lcCamera* Camera = mCameras[CameraIdx];
-
+	for (lcCamera* Camera : mCameras)
 		if (Camera != ObjectBoxTest.ViewCamera && Camera->IsVisible())
 			Camera->BoxTest(ObjectBoxTest);
-	}
 
-	for (int LightIdx = 0; LightIdx < mLights.GetSize(); LightIdx++)
-		if (mLights[LightIdx]->IsVisible())
-			mLights[LightIdx]->BoxTest(ObjectBoxTest);
+	for (lcLight* Light : mLights)
+		if (Light->IsVisible())
+			Light->BoxTest(ObjectBoxTest);
 }
 
 bool lcModel::SubModelMinIntersectDist(const lcVector3& WorldStart, const lcVector3& WorldEnd, float& MinDistance) const
 {
 	bool MinIntersect = false;
 
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : mPieces)
 	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
 		lcMatrix44 InverseWorldMatrix = lcMatrix44AffineInverse(Piece->mModelWorld);
 		lcVector3 Start = lcMul31(WorldStart, InverseWorldMatrix);
 		lcVector3 End = lcMul31(WorldEnd, InverseWorldMatrix);
@@ -1524,10 +1494,8 @@ bool lcModel::SubModelMinIntersectDist(const lcVector3& WorldStart, const lcVect
 
 bool lcModel::SubModelBoxTest(const lcVector4 Planes[6]) const
 {
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : mPieces)
 	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
 		if (Piece->GetStepHide() != LC_STEP_MAX)
 			continue;
 
@@ -1562,9 +1530,9 @@ void lcModel::LoadCheckPoint(lcModelHistoryEntry* CheckPoint)
 	lcPiecesLibrary* Library = lcGetPiecesLibrary();
 	lcArray<PieceInfo*> Infos;
 
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : mPieces)
 	{
-		PieceInfo* Info = mPieces[PieceIdx]->mPieceInfo;
+		PieceInfo* Info = Piece->mPieceInfo;
 		Library->LoadPieceInfo(Info, true, true);
 		Infos.Add(Info);
 	}
@@ -1593,9 +1561,8 @@ void lcModel::SetActive(bool Active)
 
 void lcModel::CalculateStep(lcStep Step)
 {
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : mPieces)
 	{
-		lcPiece* Piece = mPieces[PieceIdx];
 		Piece->UpdatePosition(Step);
 
 		if (Piece->IsSelected())
@@ -1607,11 +1574,11 @@ void lcModel::CalculateStep(lcStep Step)
 		}
 	}
 
-	for (int CameraIdx = 0; CameraIdx < mCameras.GetSize(); CameraIdx++)
-		mCameras[CameraIdx]->UpdatePosition(Step);
+	for (lcCamera* Camera : mCameras)
+		Camera->UpdatePosition(Step);
 
-	for (int LightIdx = 0; LightIdx < mLights.GetSize(); LightIdx++)
-		mLights[LightIdx]->UpdatePosition(Step);
+	for (lcLight* Light : mLights)
+		Light->UpdatePosition(Step);
 }
 
 void lcModel::SetCurrentStep(lcStep Step)
@@ -1663,27 +1630,26 @@ lcStep lcModel::GetLastStep() const
 {
 	lcStep Step = 1;
 
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
-		Step = lcMax(Step, mPieces[PieceIdx]->GetStepShow());
+	for (lcPiece* Piece : mPieces)
+		Step = lcMax(Step, Piece->GetStepShow());
 
 	return Step;
 }
 
 void lcModel::InsertStep(lcStep Step)
 {
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : mPieces)
 	{
-		lcPiece* Piece = mPieces[PieceIdx];
 		Piece->InsertTime(Step, 1);
 		if (Piece->IsSelected() && !Piece->IsVisible(mCurrentStep))
 			Piece->SetSelected(false);
 	}
 
-	for (int CameraIdx = 0; CameraIdx < mCameras.GetSize(); CameraIdx++)
-		mCameras[CameraIdx]->InsertTime(Step, 1);
+	for (lcCamera* Camera : mCameras)
+		Camera->InsertTime(Step, 1);
 
-	for (int LightIdx = 0; LightIdx < mLights.GetSize(); LightIdx++)
-		mLights[LightIdx]->InsertTime(Step, 1);
+	for (lcLight* Light : mLights)
+		Light->InsertTime(Step, 1);
 
 	SaveCheckpoint(tr("Inserting Step"));
 	SetCurrentStep(mCurrentStep);
@@ -1691,19 +1657,18 @@ void lcModel::InsertStep(lcStep Step)
 
 void lcModel::RemoveStep(lcStep Step)
 {
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : mPieces)
 	{
-		lcPiece* Piece = mPieces[PieceIdx];
 		Piece->RemoveTime(Step, 1);
 		if (Piece->IsSelected() && !Piece->IsVisible(mCurrentStep))
 			Piece->SetSelected(false);
 	}
 
-	for (int CameraIdx = 0; CameraIdx < mCameras.GetSize(); CameraIdx++)
-		mCameras[CameraIdx]->RemoveTime(Step, 1);
+	for (lcCamera* Camera : mCameras)
+		Camera->RemoveTime(Step, 1);
 
-	for (int LightIdx = 0; LightIdx < mLights.GetSize(); LightIdx++)
-		mLights[LightIdx]->RemoveTime(Step, 1);
+	for (lcLight* Light : mLights)
+		Light->RemoveTime(Step, 1);
 
 	SaveCheckpoint(tr("Removing Step"));
 	SetCurrentStep(mCurrentStep);
@@ -1722,13 +1687,9 @@ lcGroup* lcModel::AddGroup(const QString& Prefix, lcGroup* Parent)
 
 lcGroup* lcModel::GetGroup(const QString& Name, bool CreateIfMissing)
 {
-	for (int GroupIdx = 0; GroupIdx < mGroups.GetSize(); GroupIdx++)
-	{
-		lcGroup* Group = mGroups[GroupIdx];
-
+	for (lcGroup* Group : mGroups)
 		if (Group->mName == Name)
 			return Group;
-	}
 
 	if (CreateIfMissing)
 	{
@@ -1764,10 +1725,8 @@ void lcModel::GroupSelection()
 
 	lcGroup* NewGroup = GetGroup(Dialog.mName, true);
 
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : mPieces)
 	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
 		if (Piece->IsSelected())
 		{
 			lcGroup* Group = Piece->GetTopGroup();
@@ -1786,10 +1745,8 @@ void lcModel::UngroupSelection()
 {
 	lcArray<lcGroup*> SelectedGroups;
 
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : mPieces)
 	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
 		if (Piece->IsSelected())
 		{
 			lcGroup* Group = Piece->GetTopGroup();
@@ -1802,22 +1759,17 @@ void lcModel::UngroupSelection()
 		}
 	}
 
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : mPieces)
 	{
-		lcPiece* Piece = mPieces[PieceIdx];
 		lcGroup* Group = Piece->GetGroup();
 
 		if (SelectedGroups.FindIndex(Group) != -1)
 			Piece->SetGroup(nullptr);
 	}
 
-	for (int GroupIdx = 0; GroupIdx < mGroups.GetSize(); GroupIdx++)
-	{
-		lcGroup* Group = mGroups[GroupIdx];
-
+	for (lcGroup* Group : mGroups)
 		if (SelectedGroups.FindIndex(Group->mGroup) != -1)
 			Group->mGroup = nullptr;
-	}
 
 	SelectedGroups.DeleteAll();
 
@@ -1829,10 +1781,8 @@ void lcModel::AddSelectedPiecesToGroup()
 {
 	lcGroup* Group = nullptr;
 
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : mPieces)
 	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
 		if (Piece->IsSelected())
 		{
 			Group = Piece->GetTopGroup();
@@ -1843,10 +1793,8 @@ void lcModel::AddSelectedPiecesToGroup()
 
 	if (Group)
 	{
-		for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+		for (lcPiece* Piece : mPieces)
 		{
-			lcPiece* Piece = mPieces[PieceIdx];
-
 			if (Piece->IsFocused())
 			{
 				Piece->SetGroup(Group);
@@ -1861,10 +1809,8 @@ void lcModel::AddSelectedPiecesToGroup()
 
 void lcModel::RemoveFocusPieceFromGroup()
 {
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : mPieces)
 	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
 		if (Piece->IsFocused())
 		{
 			Piece->SetGroup(nullptr);
@@ -1881,17 +1827,11 @@ void lcModel::ShowEditGroupsDialog()
 	QMap<lcPiece*, lcGroup*> PieceParents;
 	QMap<lcGroup*, lcGroup*> GroupParents;
 
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
-	{
-		lcPiece* Piece = mPieces[PieceIdx];
+	for (lcPiece* Piece : mPieces)
 		PieceParents[Piece] = Piece->GetGroup();
-	}
 
-	for (int GroupIdx = 0; GroupIdx < mGroups.GetSize(); GroupIdx++)
-	{
-		lcGroup* Group = mGroups[GroupIdx];
+	for (lcGroup* Group : mGroups)
 		GroupParents[Group] = Group->mGroup;
-	}
 
 	lcQEditGroupsDialog Dialog(gMainWindow, PieceParents, GroupParents, this);
 
@@ -1900,21 +1840,19 @@ void lcModel::ShowEditGroupsDialog()
 
 	bool Modified = Dialog.mNewGroups.isEmpty();
 
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : mPieces)
 	{
-		lcPiece* Piece = mPieces[PieceIdx];
 		lcGroup* ParentGroup = Dialog.mPieceParents.value(Piece);
 
 		if (ParentGroup != Piece->GetGroup())
 		{
-			mPieces[PieceIdx]->SetGroup(ParentGroup);
+			Piece->SetGroup(ParentGroup);
 			Modified = true;
 		}
 	}
 
-	for (int GroupIdx = 0; GroupIdx < mGroups.GetSize(); GroupIdx++)
+	for (lcGroup* Group : mGroups)
 	{
-		lcGroup* Group = mGroups[GroupIdx];
 		lcGroup* ParentGroup = Dialog.mGroupParents.value(Group);
 
 		if (ParentGroup != Group->mGroup)
@@ -1936,9 +1874,9 @@ QString lcModel::GetGroupName(const QString& Prefix)
 	int Length = Prefix.length();
 	int Max = 0;
 
-	for (int GroupIdx = 0; GroupIdx < mGroups.GetSize(); GroupIdx++)
+	for (lcGroup* Group : mGroups)
 	{
-		const QString& Name = mGroups[GroupIdx]->mName;
+		const QString& Name = Group->mName;
 
 		if (Name.startsWith(Prefix))
 		{
@@ -1965,8 +1903,8 @@ void lcModel::RemoveEmptyGroups()
 			lcGroup* Group = mGroups[GroupIdx];
 			int Ref = 0;
 
-			for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
-				if (mPieces[PieceIdx]->GetGroup() == Group)
+			for (lcPiece* Piece : mPieces)
+				if (Piece->GetGroup() == Group)
 					Ref++;
 
 			for (int ParentIdx = 0; ParentIdx < mGroups.GetSize(); ParentIdx++)
@@ -1981,10 +1919,8 @@ void lcModel::RemoveEmptyGroups()
 
 			if (Ref != 0)
 			{
-				for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+				for (lcPiece* Piece : mPieces)
 				{
-					lcPiece* Piece = mPieces[PieceIdx];
-
 					if (Piece->GetGroup() == Group)
 					{
 						Piece->SetGroup(Group->mGroup);
@@ -2095,10 +2031,8 @@ void lcModel::AddPiece()
 
 	lcPiece* Last = mPieces.IsEmpty() ? nullptr : mPieces[mPieces.GetSize() - 1];
 
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : mPieces)
 	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
 		if (Piece->IsFocused())
 		{
 			Last = Piece;
@@ -2188,13 +2122,9 @@ void lcModel::DeleteSelectedObjects()
 
 void lcModel::ResetSelectedPiecesPivotPoint()
 {
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
-	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
+	for (lcPiece* Piece : mPieces)
 		if (Piece->IsSelected())
 			Piece->ResetPivotPoint();
-	}
 
 	gMainWindow->UpdateAllViews();
 }
@@ -2571,10 +2501,8 @@ void lcModel::MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector
 
 		if (AlternateButtonDrag)
 		{
-			for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+			for (lcPiece* Piece : mPieces)
 			{
-				lcPiece* Piece = mPieces[PieceIdx];
-
 				if (Piece->IsFocused())
 				{
 					Piece->MovePivotPoint(TransformedPieceDistance);
@@ -2585,10 +2513,8 @@ void lcModel::MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector
 		}
 		else
 		{
-			for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+			for (lcPiece* Piece : mPieces)
 			{
-				lcPiece* Piece = mPieces[PieceIdx];
-
 				if (Piece->IsSelected())
 				{
 					Piece->MoveSelected(mCurrentStep, gMainWindow->GetAddKeys(), TransformedPieceDistance);
@@ -2603,10 +2529,8 @@ void lcModel::MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector
 	{
 		lcVector3 TransformedObjectDistance = lcMul(ObjectDistance, RelativeRotation);
 
-		for (int CameraIdx = 0; CameraIdx < mCameras.GetSize(); CameraIdx++)
+		for (lcCamera* Camera : mCameras)
 		{
-			lcCamera* Camera = mCameras[CameraIdx];
-
 			if (Camera->IsSelected())
 			{
 				Camera->MoveSelected(mCurrentStep, gMainWindow->GetAddKeys(), TransformedObjectDistance);
@@ -2615,10 +2539,8 @@ void lcModel::MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector
 			}
 		}
 
-		for (int LightIdx = 0; LightIdx < mLights.GetSize(); LightIdx++)
+		for (lcLight* Light : mLights)
 		{
-			lcLight* Light = mLights[LightIdx];
-
 			if (Light->IsSelected())
 			{
 				Light->MoveSelected(mCurrentStep, gMainWindow->GetAddKeys(), TransformedObjectDistance);
@@ -2681,10 +2603,8 @@ void lcModel::RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool 
 		else
 			WorldToFocusMatrix = lcMatrix33Identity();
 
-		for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+		for (lcPiece* Piece : mPieces)
 		{
-			lcPiece* Piece = mPieces[PieceIdx];
-
 			if (!Piece->IsSelected())
 				continue;
 
@@ -2756,10 +2676,8 @@ void lcModel::SetSelectedPiecesColorIndex(int ColorIndex)
 {
 	bool Modified = false;
 
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : mPieces)
 	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
 		if (Piece->IsSelected() && Piece->mColorIndex != ColorIndex)
 		{
 			Piece->SetColorIndex(ColorIndex);
@@ -2780,10 +2698,8 @@ void lcModel::SetSelectedPiecesPieceInfo(PieceInfo* Info)
 {
 	bool Modified = false;
 
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : mPieces)
 	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
 		if (Piece->IsSelected() && Piece->mPieceInfo != Info)
 		{
 			lcPiecesLibrary* Library = lcGetPiecesLibrary();
@@ -2807,10 +2723,8 @@ void lcModel::SetSelectedPiecesStepShow(lcStep Step)
 	bool Modified = false;
 	bool SelectionChanged = false;
 
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : mPieces)
 	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
 		if (Piece->IsSelected() && Piece->GetStepShow() != Step)
 		{
 			Piece->SetStepShow(Step);
@@ -2839,10 +2753,8 @@ void lcModel::SetSelectedPiecesStepHide(lcStep Step)
 	bool Modified = false;
 	bool SelectionChanged = false;
 
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : mPieces)
 	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
 		if (Piece->IsSelected() && Piece->GetStepHide() != Step)
 		{
 			Piece->SetStepHide(Step);
@@ -2931,8 +2843,8 @@ void lcModel::SetCameraName(lcCamera* Camera, const char* Name)
 
 bool lcModel::AnyPiecesSelected() const
 {
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
-		if (mPieces[PieceIdx]->IsSelected())
+	for (lcPiece* Piece : mPieces)
+		if (Piece->IsSelected())
 			return true;
 
 	return false;
@@ -2940,16 +2852,16 @@ bool lcModel::AnyPiecesSelected() const
 
 bool lcModel::AnyObjectsSelected() const
 {
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
-		if (mPieces[PieceIdx]->IsSelected())
+	for (lcPiece* Piece : mPieces)
+		if (Piece->IsSelected())
 			return true;
 
-	for (int CameraIdx = 0; CameraIdx < mCameras.GetSize(); CameraIdx++)
-		if (mCameras[CameraIdx]->IsSelected())
+	for (lcCamera* Camera : mCameras)
+		if (Camera->IsSelected())
 			return true;
 
-	for (int LightIdx = 0; LightIdx < mLights.GetSize(); LightIdx++)
-		if (mLights[LightIdx]->IsSelected())
+	for (lcLight* Light : mLights)
+		if (Light->IsSelected())
 			return true;
 
 	return false;
@@ -2957,52 +2869,34 @@ bool lcModel::AnyObjectsSelected() const
 
 lcObject* lcModel::GetFocusObject() const
 {
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
-	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
+	for (lcPiece* Piece : mPieces)
 		if (Piece->IsFocused())
 			return Piece;
-	}
 
-	for (int CameraIdx = 0; CameraIdx < mCameras.GetSize(); CameraIdx++)
-	{
-		lcCamera* Camera = mCameras[CameraIdx];
-
+	for (lcCamera* Camera : mCameras)
 		if (Camera->IsFocused())
 			return Camera;
-	}
 
-	for (int LightIdx = 0; LightIdx < mLights.GetSize(); LightIdx++)
-	{
-		lcLight* Light = mLights[LightIdx];
-
+	for (lcLight* Light : mLights)
 		if (Light->IsFocused())
 			return Light;
-	}
 
 	return nullptr;
 }
 
 lcModel* lcModel::GetFirstSelectedSubmodel() const
 {
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
-	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
+	for (lcPiece* Piece : mPieces)
 		if (Piece->IsSelected() && Piece->mPieceInfo->IsModel())
 			return Piece->mPieceInfo->GetModel();
-	}
 
 	return nullptr;
 }
 
 void lcModel::GetSubModels(lcArray<lcModel*> SubModels) const
 {
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : mPieces)
 	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
 		if (Piece->mPieceInfo->IsModel())
 		{
 			lcModel* SubModel = Piece->mPieceInfo->GetModel();
@@ -3020,10 +2914,8 @@ bool lcModel::GetMoveRotateTransform(lcVector3& Center, lcMatrix33& RelativeRota
 	Center = lcVector3(0.0f, 0.0f, 0.0f);
 	RelativeRotation = lcMatrix33Identity();
 
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : mPieces)
 	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
 		if (!Piece->IsSelected())
 			continue;
 
@@ -3038,10 +2930,8 @@ bool lcModel::GetMoveRotateTransform(lcVector3& Center, lcMatrix33& RelativeRota
 		NumSelected++;
 	}
 
-	for (int CameraIdx = 0; CameraIdx < mCameras.GetSize(); CameraIdx++)
+	for (lcCamera* Camera : mCameras)
 	{
-		lcCamera* Camera = mCameras[CameraIdx];
-
 		if (!Camera->IsSelected())
 			continue;
 
@@ -3058,10 +2948,8 @@ bool lcModel::GetMoveRotateTransform(lcVector3& Center, lcMatrix33& RelativeRota
 		NumSelected += 3;
 	}
 
-	for (int LightIdx = 0; LightIdx < mLights.GetSize(); LightIdx++)
+	for (lcLight* Light : mLights)
 	{
-		lcLight* Light = mLights[LightIdx];
-
 		if (!Light->IsSelected())
 			continue;
 
@@ -3096,10 +2984,8 @@ bool lcModel::GetPieceFocusOrSelectionCenter(lcVector3& Center) const
 	lcPiece* Selected = nullptr;
 	int NumSelected = 0;
 
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : mPieces)
 	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
 		if (Piece->IsFocused())
 		{
 			Center = Piece->mModelWorld.GetTranslation();
@@ -3164,10 +3050,8 @@ bool lcModel::GetSelectionCenter(lcVector3& Center) const
 	bool SinglePieceSelected = true;
 	bool Selected = false;
 
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : mPieces)
 	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
 		if (Piece->IsSelected())
 		{
 			Piece->CompareBoundingBox(Min, Max);
@@ -3180,10 +3064,8 @@ bool lcModel::GetSelectionCenter(lcVector3& Center) const
 		}
 	}
 
-	for (int CameraIdx = 0; CameraIdx < mCameras.GetSize(); CameraIdx++)
+	for (lcCamera* Camera : mCameras)
 	{
-		lcCamera* Camera = mCameras[CameraIdx];
-
 		if (Camera->IsSelected())
 		{
 			Camera->CompareBoundingBox(Min, Max);
@@ -3192,10 +3074,8 @@ bool lcModel::GetSelectionCenter(lcVector3& Center) const
 		}
 	}
 
-	for (int LightIdx = 0; LightIdx < mLights.GetSize(); LightIdx++)
+	for (lcLight* Light : mLights)
 	{
-		lcLight* Light = mLights[LightIdx];
-
 		if (Light->IsSelected())
 		{
 			Light->CompareBoundingBox(Min, Max);
@@ -3220,10 +3100,8 @@ bool lcModel::GetPiecesBoundingBox(lcVector3& Min, lcVector3& Max) const
 	Min = lcVector3(FLT_MAX, FLT_MAX, FLT_MAX);
 	Max = lcVector3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : mPieces)
 	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
 		if (Piece->IsVisible(mCurrentStep))
 		{
 			Piece->CompareBoundingBox(Min, Max);
@@ -3236,10 +3114,8 @@ bool lcModel::GetPiecesBoundingBox(lcVector3& Min, lcVector3& Max) const
 
 void lcModel::GetPartsList(int DefaultColorIndex, bool IncludeSubmodels, lcPartsList& PartsList) const
 {
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : mPieces)
 	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
 		int ColorIndex = Piece->mColorIndex;
 
 		if (ColorIndex == gDefaultColor)
@@ -3251,10 +3127,8 @@ void lcModel::GetPartsList(int DefaultColorIndex, bool IncludeSubmodels, lcParts
 
 void lcModel::GetPartsListForStep(lcStep Step, int DefaultColorIndex, lcPartsList& PartsList) const
 {
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : mPieces)
 	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
 		if (Piece->GetStepShow() != Step)
 			continue;
 
@@ -3269,10 +3143,8 @@ void lcModel::GetPartsListForStep(lcStep Step, int DefaultColorIndex, lcPartsLis
 
 void lcModel::GetModelParts(const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcArray<lcModelPartsEntry>& ModelParts) const
 {
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : mPieces)
 	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
 		int ColorIndex = Piece->mColorIndex;
 
 		if (ColorIndex == gDefaultColor)
@@ -3294,10 +3166,8 @@ void lcModel::GetSelectionInformation(int* Flags, lcArray<lcObject*>& Selection,
 		lcGroup* Group = nullptr;
 		bool First = true;
 
-		for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+		for (lcPiece* Piece : mPieces)
 		{
-			lcPiece* Piece = mPieces[PieceIdx];
-
 			if (Piece->IsSelected())
 			{
 				Selection.Add(Piece);
@@ -3357,10 +3227,8 @@ void lcModel::GetSelectionInformation(int* Flags, lcArray<lcObject*>& Selection,
 		}
 	}
 
-	for (int CameraIdx = 0; CameraIdx < mCameras.GetSize(); CameraIdx++)
+	for (lcCamera* Camera : mCameras)
 	{
-		lcCamera* Camera = mCameras[CameraIdx];
-
 		if (Camera->IsSelected())
 		{
 			Selection.Add(Camera);
@@ -3371,10 +3239,8 @@ void lcModel::GetSelectionInformation(int* Flags, lcArray<lcObject*>& Selection,
 		}
 	}
 
-	for (int LightIdx = 0; LightIdx < mLights.GetSize(); LightIdx++)
+	for (lcLight* Light : mLights)
 	{
-		lcLight* Light = mLights[LightIdx];
-
 		if (Light->IsSelected())
 		{
 			Selection.Add(Light);
@@ -3421,14 +3287,14 @@ lcArray<lcObject*> lcModel::GetSelectionModePieces(lcPiece* SelectedPiece) const
 
 void lcModel::ClearSelection(bool UpdateInterface)
 {
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
-		mPieces[PieceIdx]->SetSelected(false);
+	for (lcPiece* Piece : mPieces)
+		Piece->SetSelected(false);
 
-	for (int CameraIdx = 0; CameraIdx < mCameras.GetSize(); CameraIdx++)
-		mCameras[CameraIdx]->SetSelected(false);
+	for (lcCamera* Camera : mCameras)
+		Camera->SetSelected(false);
 
-	for (int LightIdx = 0; LightIdx < mLights.GetSize(); LightIdx++)
-		mLights[LightIdx]->SetSelected(false);
+	for (lcLight* Light : mLights)
+		Light->SetSelected(false);
 
 	if (UpdateInterface)
 	{
@@ -3442,13 +3308,9 @@ void lcModel::SelectGroup(lcGroup* TopGroup, bool Select)
 	if (!TopGroup)
 		return;
 
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
-	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
+	for (lcPiece* Piece : mPieces)
 		if (!Piece->IsSelected() && Piece->IsVisible(mCurrentStep) && (Piece->GetTopGroup() == TopGroup))
 			Piece->SetSelected(Select);
-	}
 }
 
 void lcModel::FocusOrDeselectObject(const lcObjectSection& ObjectSection)
@@ -4257,13 +4119,9 @@ void lcModel::ShowSelectByColorDialog()
 	ColorIndex = Dialog.mColorIndex;
 	lcArray<lcObject*> Selection;
 
-	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
-	{
-		lcPiece* Piece = mPieces[PieceIdx];
-
+	for (lcPiece* Piece : mPieces)
 		if (Piece->IsVisible(mCurrentStep) && Piece->mColorIndex == ColorIndex)
 			Selection.Add(Piece);
-	}
 
 	SetSelectionAndFocus(Selection, nullptr, 0, false);
 }
@@ -4307,10 +4165,8 @@ void lcModel::ShowArrayDialog()
 				lcVector3 RotationAngles = Dialog.mRotations[0] * Step1 + Dialog.mRotations[1] * Step2 + Dialog.mRotations[2] * Step3;
 				lcVector3 Offset = Dialog.mOffsets[0] * Step1 + Dialog.mOffsets[1] * Step2 + Dialog.mOffsets[2] * Step3;
 
-				for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); PieceIdx++)
+				for (lcPiece* Piece : mPieces)
 				{
-					lcPiece* Piece = mPieces[PieceIdx];
-
 					if (!Piece->IsSelected())
 						continue;
 

@@ -783,7 +783,7 @@ void lcQPropertiesTree::SetEmpty()
 	partRotationX = nullptr;
 	partRotationY = nullptr;
 	partRotationZ = nullptr;
-
+/*** LPub3D Mod - part properties ***/
     partAppearance = nullptr;
     partID = nullptr;
     partColor = nullptr;
@@ -794,7 +794,7 @@ void lcQPropertiesTree::SetEmpty()
     partVisibility = nullptr;
     partShow = nullptr;
     partHide = nullptr;
-
+/*** LPub3D Mod end ***/
 	cameraPosition = nullptr;
 	cameraPositionX = nullptr;
 	cameraPositionY = nullptr;
@@ -939,8 +939,10 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 		}
 	}
 
-    partID->setText(1, Info ? Info->m_strDescription : QString());
-    partID->setData(0, PropertyValueRole, qVariantFromValue((void*)Info));
+    QString text = Info ? Info->m_strDescription : QString();
+	partID->setText(1, text);
+	partID->setToolTip(1, text);
+	partID->setData(0, PropertyValueRole, qVariantFromValue((void*)Info));
 
     QImage img(16, 16, QImage::Format_ARGB32);
     img.fill(0);

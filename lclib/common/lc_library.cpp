@@ -1467,6 +1467,7 @@ lcMesh* lcPiecesLibrary::CreateMesh(PieceInfo* Info, lcLibraryMeshData& MeshData
 
 	lcVertex* DstVerts = (lcVertex*)Mesh->mVertexData;
 	lcVector3 Min(FLT_MAX, FLT_MAX, FLT_MAX), Max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+	bool UpdatedBoundingBox = false;
 
 	for (int MeshDataIdx = 0; MeshDataIdx < LC_NUM_MESHDATA_TYPES; MeshDataIdx++)
 	{
@@ -1486,6 +1487,8 @@ lcMesh* lcPiecesLibrary::CreateMesh(PieceInfo* Info, lcLibraryMeshData& MeshData
 			if (Section->mPrimitiveType != LC_MESH_TRIANGLES)
 				continue;
 
+			UpdatedBoundingBox = true;
+
 			for (quint32 Index : Section->mIndices)
 			{
 				lcVector3 Position = lcVector3LDrawToLeoCAD(Vertices[Index].Position);
@@ -1494,6 +1497,9 @@ lcMesh* lcPiecesLibrary::CreateMesh(PieceInfo* Info, lcLibraryMeshData& MeshData
 			}
 		}
 	}
+
+	if (!UpdatedBoundingBox)
+		Min = Max = lcVector3(0.0f, 0.0f, 0.0f);
 
 	lcVertexTextured* DstTexturedVerts = (lcVertexTextured*)DstVerts;
 

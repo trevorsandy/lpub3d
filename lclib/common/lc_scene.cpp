@@ -70,6 +70,11 @@ void lcScene::DrawRenderMeshes(lcContext* Context, int PrimitiveTypes, bool Enab
 {
 	const lcArray<int>& Meshes = DrawTranslucent ? mTranslucentMeshes : mOpaqueMeshes;
 
+	if (DrawTranslucent)
+		Context->BeginTranslucent();
+	else
+		Context->SetPolygonOffset(LC_POLYGON_OFFSET_OPAQUE);
+
 	for (int MeshIndex : Meshes)
 	{
 		const lcRenderMesh& RenderMesh = mRenderMeshes[MeshIndex];
@@ -227,6 +232,9 @@ void lcScene::DrawRenderMeshes(lcContext* Context, int PrimitiveTypes, bool Enab
 		}
 #endif
 	}
+
+	if (DrawTranslucent)
+		Context->EndTranslucent();
 }
 
 /*** LPub3D Mod - add fade ***/
@@ -324,14 +332,8 @@ void lcScene::Draw(lcContext* Context) const
 			 }
 			 else
 			 {
-				  glEnable(GL_BLEND);
-				  glDepthMask(GL_FALSE);
-
 				  DrawRenderMeshes(Context, LC_MESH_TRIANGLES, false, true, false);
-
-                                  glDepthMask(GL_TRUE);
-                                  glDisable(GL_BLEND);
-                         }
+             }
 		}
 
 		if (mHasTexture)
@@ -374,13 +376,7 @@ void lcScene::Draw(lcContext* Context) const
 				 }
 				 else
 				 {
-					 glEnable(GL_BLEND); // todo: remove GL calls
-					 glDepthMask(GL_FALSE);
-
 					 DrawRenderMeshes(Context, LC_MESH_TEXTURED_TRIANGLES, false, true, true);
-
-					 glDepthMask(GL_TRUE);
-					 glDisable(GL_BLEND);
 				 }
 			}
 
@@ -455,13 +451,7 @@ void lcScene::Draw(lcContext* Context) const
 			}
 			else
 			{
-				 glEnable(GL_BLEND);
-				 glDepthMask(GL_FALSE);
-
 				 DrawRenderMeshes(Context, LC_MESH_TRIANGLES, true, true, false);
-
-				 glDepthMask(GL_TRUE);
-				 glDisable(GL_BLEND);
 			}
 		}
 
@@ -508,13 +498,7 @@ void lcScene::Draw(lcContext* Context) const
 				}
 				else
 				{
-					 glEnable(GL_BLEND);
-					 glDepthMask(GL_FALSE);
-
 					 DrawRenderMeshes(Context, LC_MESH_TEXTURED_TRIANGLES, true, true, true);
-
-					 glDepthMask(GL_TRUE);
-					 glDisable(GL_BLEND);
 				}
 			}
 

@@ -73,7 +73,7 @@ struct lcProgram
 	GLint MaterialColorLocation;
 	GLint LightPositionLocation;
 	GLint EyePositionLocation;
-    GLint HighlightParamsLocation;
+	GLint HighlightParamsLocation;
 };
 
 class lcFramebuffer
@@ -98,6 +98,13 @@ public:
 	GLuint mDepthRenderbuffer = 0;
 	int mWidth = 0;
 	int mHeight = 0;
+};
+
+enum lcPolygonOffset
+{
+	LC_POLYGON_OFFSET_NONE,
+	LC_POLYGON_OFFSET_OPAQUE,
+	LC_POLYGON_OFFSET_TRANSLUCENT
 };
 
 class lcContext
@@ -139,8 +146,11 @@ public:
 
 	void SetMaterial(lcMaterialType MaterialType);
 	void SetViewport(int x, int y, int Width, int Height);
+	void SetPolygonOffset(lcPolygonOffset PolygonOffset);
 	void SetLineWidth(float LineWidth);
 	void SetSmoothShading(bool Smooth);
+	void BeginTranslucent();
+	void EndTranslucent();
 	void BindTexture2D(GLuint Texture);
 	void BindTexture2DMS(GLuint Texture);
 	void BindTextureCubeMap(GLuint Texture);
@@ -153,13 +163,13 @@ public:
 		mColorDirty = true;
 	}
 
-   void SetHighlightParams(const lcVector4& HighlightPosition, const lcVector4& TextColor, const lcVector4& BackgroundColor, const lcVector4& HighlightColor)
+	void SetHighlightParams(const lcVector4& HighlightPosition, const lcVector4& TextColor, const lcVector4& BackgroundColor, const lcVector4& HighlightColor)
 	{
-        mHighlightParams[0] = HighlightPosition;
-        mHighlightParams[1] = TextColor;
-        mHighlightParams[2] = BackgroundColor;
-        mHighlightParams[3] = HighlightColor;
-        mHighlightParamsDirty = true;
+		mHighlightParams[0] = HighlightPosition;
+		mHighlightParams[1] = TextColor;
+		mHighlightParams[2] = BackgroundColor;
+		mHighlightParams[3] = HighlightColor;
+		mHighlightParamsDirty = true;
 	}
 
 	void SetColor(float Red, float Green, float Blue, float Alpha);
@@ -220,6 +230,7 @@ protected:
 	GLuint mTexture2D;
 	GLuint mTexture2DMS;
 	GLuint mTextureCubeMap;
+	lcPolygonOffset mPolygonOffset;
 	float mLineWidth;
 	int mMatrixMode;
 	bool mTextureEnabled;
@@ -229,13 +240,13 @@ protected:
 	lcMatrix44 mViewMatrix;
 	lcMatrix44 mProjectionMatrix;
 	lcMatrix44 mViewProjectionMatrix;
-    lcVector4 mHighlightParams[5];
+	lcVector4 mHighlightParams[5];
 	bool mColorDirty;
 	bool mWorldMatrixDirty;
 	bool mViewMatrixDirty;
 	bool mProjectionMatrixDirty;
 	bool mViewProjectionMatrixDirty;
-    bool mHighlightParamsDirty;
+	bool mHighlightParamsDirty;
 
 	GLuint mFramebufferObject;
 

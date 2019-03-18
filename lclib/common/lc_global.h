@@ -12,7 +12,7 @@
 #include <array>
 
 #ifndef Q_FALLTHROUGH
-#define Q_FALLTHROUGH() (void)0
+#define Q_FALLTHROUGH(); [[fallthrough]];
 #endif
 
 #if !defined(EGL_VERSION_1_0) && !defined(GL_ES_VERSION_2_0) && !defined(GL_ES_VERSION_3_0) && !defined(QT_OPENGL_ES)
@@ -27,6 +27,7 @@
 
 // Old defines and declarations.
 #define LC_MAXPATH 1024
+#define LC_MAXNAME 1000
 
 #ifdef Q_OS_WIN
 char* strcasestr(const char *s, const char *find);
@@ -41,7 +42,7 @@ char* strlwr(char* string);
 #define LC_VERSION_PATCH 0
 #define LC_VERSION_TEXT "18.02"
 /*** LPub3D Mod - Git SHA ***/
-#define LC_VERSION_BUILD "19680a1"
+#define LC_VERSION_BUILD "5393573"
 /*** LPub3D Mod end ***/
 
 

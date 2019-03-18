@@ -6,6 +6,8 @@
 
 enum class lcSynthType
 {
+	HOSE_FLEXIBLE,
+	FLEX_SYSTEM_HOSE,
 	RIBBED_HOSE,
 	FLEXIBLE_AXLE,
 	STRING_BRAIDED,
@@ -45,6 +47,8 @@ protected:
 	using SectionCallbackFunc = std::function<void(const lcVector3& CurvePoint, int SegmentIndex, float t)>;
 	void CalculateCurveSections(const lcArray<lcPieceControlPoint>& ControlPoints, lcArray<lcMatrix44>& Sections, SectionCallbackFunc SectionCallback) const;
 	void CalculateLineSections(const lcArray<lcPieceControlPoint>& ControlPoints, lcArray<lcMatrix44>& Sections, SectionCallbackFunc SectionCallback) const;
+	void AddHoseFlexibleParts(lcMemFile& File, const lcArray<lcMatrix44>& Sections) const;
+	void AddFlexHoseParts(lcMemFile& File, lcLibraryMeshData& MeshData, const lcArray<lcMatrix44>& Sections) const;
 	void AddRibbedHoseParts(lcMemFile& File, const lcArray<lcMatrix44>& Sections) const;
 	void AddFlexibleAxleParts(lcMemFile& File, lcLibraryMeshData& MeshData, const lcArray<lcMatrix44>& Sections) const;
 	void AddStringBraidedParts(lcMemFile& File, lcLibraryMeshData& MeshData, lcArray<lcMatrix44>& Sections) const;
@@ -58,6 +62,7 @@ protected:
 	lcSynthComponent mEnd;
 	bool mCurve;
 	float mLength;
+	float mCenterLength;
 	int mNumSections;
 	bool mRigidEdges;
 };

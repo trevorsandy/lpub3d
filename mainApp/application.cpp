@@ -514,10 +514,24 @@ void Application::initialize()
     defaultResolutionType(Preferences::preferCentimeters);
     setResolution(150);  // DPI
 
-    // Translator
+    // Translator - not implemented
+    QTranslator QtTranslator;
+    if (QtTranslator.load(QLocale::system(), "qt", "_", QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
+    {
+         m_application.installTranslator(&QtTranslator);
+    }
+
+    QTranslator QtBaseTranslator;
+    if (QtBaseTranslator.load("qtbase_" + QLocale::system().name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
+    {
+        m_application.installTranslator(&QtBaseTranslator);
+    }
+
     QTranslator Translator;
-    Translator.load(QString("lpub_") + QLocale::system().name().section('_', 0, 0) + ".qm", ":../lclib/resources");
-    m_application.installTranslator(&Translator);
+    if (Translator.load(QString("lpub_") + QLocale::system().name().section('_', 0, 0) + ".qm", ":../lclib/resources"))
+    {
+        m_application.installTranslator(&Translator);
+    }
 
     qRegisterMetaTypeStreamOperators<QList<int> >("QList<int>");
 

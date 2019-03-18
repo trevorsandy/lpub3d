@@ -287,6 +287,9 @@ int lcApplication::Process3DViewerCommandLine()
       {
           const QString& Param = Arguments[ArgIdx];
 
+		  if (Param.isEmpty())
+			  continue;
+
           if (Param[0] != '-')
           {
               ProjectName = Param;

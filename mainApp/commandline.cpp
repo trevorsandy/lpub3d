@@ -53,6 +53,9 @@ int Gui::processCommandLine()
     {
       const QString& Param = Arguments[ArgIdx];
 
+      if (Param.isEmpty())
+          continue;
+
       if (Param[0] != '-')
       {
           commandlineFile = Param;

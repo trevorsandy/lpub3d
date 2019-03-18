@@ -35,6 +35,7 @@ lcContext::lcContext()
 	mTexture2D = 0;
 	mTexture2DMS = 0;
 	mTextureCubeMap = 0;
+	mPolygonOffset = LC_POLYGON_OFFSET_NONE;
 	mLineWidth = 1.0f;
 #ifndef LC_OPENGLES
 	mMatrixMode = GL_MODELVIEW;
@@ -48,16 +49,16 @@ lcContext::lcContext()
 	mViewMatrix = lcMatrix44Identity();
 	mProjectionMatrix = lcMatrix44Identity();
 	mViewProjectionMatrix = lcMatrix44Identity();
-    mHighlightParams[0] = lcVector4(0.0f, 0.0f, 0.0f, 0.0f);
-    mHighlightParams[1] = lcVector4(0.0f, 0.0f, 0.0f, 0.0f);
-    mHighlightParams[2] = lcVector4(0.0f, 0.0f, 0.0f, 0.0f);
-    mHighlightParams[3] = lcVector4(0.0f, 0.0f, 0.0f, 0.0f);
+	mHighlightParams[0] = lcVector4(0.0f, 0.0f, 0.0f, 0.0f);
+	mHighlightParams[1] = lcVector4(0.0f, 0.0f, 0.0f, 0.0f);
+	mHighlightParams[2] = lcVector4(0.0f, 0.0f, 0.0f, 0.0f);
+	mHighlightParams[3] = lcVector4(0.0f, 0.0f, 0.0f, 0.0f);
 	mColorDirty = false;
 	mWorldMatrixDirty = false;
 	mViewMatrixDirty = false;
 	mProjectionMatrixDirty = false;
 	mViewProjectionMatrixDirty = false;
-    mHighlightParamsDirty = false;
+	mHighlightParamsDirty = false;
 
 	mMaterialType = LC_NUM_MATERIALS;
 }
@@ -102,24 +103,24 @@ void lcContext::CreateShaderPrograms()
 
 	const char* VertexShaders[LC_NUM_MATERIALS] =
 	{
-        ":/resources/shaders/unlit_color_vs.glsl",            // LC_MATERIAL_UNLIT_COLOR
-        ":/resources/shaders/unlit_texture_modulate_vs.glsl", // LC_MATERIAL_UNLIT_TEXTURE_MODULATE
-        ":/resources/shaders/unlit_texture_decal_vs.glsl",    // LC_MATERIAL_UNLIT_TEXTURE_DECAL
-        ":/resources/shaders/unlit_vertex_color_vs.glsl",     // LC_MATERIAL_UNLIT_VERTEX_COLOR
-        ":/resources/shaders/unlit_view_sphere_vs.glsl",      // LC_MATERIAL_UNLIT_VIEW_SPHERE
-        ":/resources/shaders/fakelit_color_vs.glsl",          // LC_MATERIAL_FAKELIT_COLOR
-        ":/resources/shaders/fakelit_texture_decal_vs.glsl"   // LC_MATERIAL_FAKELIT_TEXTURE_DECAL
+		":/resources/shaders/unlit_color_vs.glsl",            // LC_MATERIAL_UNLIT_COLOR
+		":/resources/shaders/unlit_texture_modulate_vs.glsl", // LC_MATERIAL_UNLIT_TEXTURE_MODULATE
+		":/resources/shaders/unlit_texture_decal_vs.glsl",    // LC_MATERIAL_UNLIT_TEXTURE_DECAL
+		":/resources/shaders/unlit_vertex_color_vs.glsl",     // LC_MATERIAL_UNLIT_VERTEX_COLOR
+		":/resources/shaders/unlit_view_sphere_vs.glsl",      // LC_MATERIAL_UNLIT_VIEW_SPHERE
+		":/resources/shaders/fakelit_color_vs.glsl",          // LC_MATERIAL_FAKELIT_COLOR
+		":/resources/shaders/fakelit_texture_decal_vs.glsl"   // LC_MATERIAL_FAKELIT_TEXTURE_DECAL
 	};
 
 	const char* FragmentShaders[LC_NUM_MATERIALS] =
 	{
-        ":/resources/shaders/unlit_color_ps.glsl",            // LC_MATERIAL_UNLIT_COLOR
-        ":/resources/shaders/unlit_texture_modulate_ps.glsl", // LC_MATERIAL_UNLIT_TEXTURE_MODULATE
-        ":/resources/shaders/unlit_texture_decal_ps.glsl",    // LC_MATERIAL_UNLIT_TEXTURE_DECAL
-        ":/resources/shaders/unlit_vertex_color_ps.glsl",     // LC_MATERIAL_UNLIT_VERTEX_COLOR
-        ":/resources/shaders/unlit_view_sphere_ps.glsl",      // LC_MATERIAL_UNLIT_VIEW_SPHERE
-        ":/resources/shaders/fakelit_color_ps.glsl",          // LC_MATERIAL_FAKELIT_COLOR
-        ":/resources/shaders/fakelit_texture_decal_ps.glsl"   // LC_MATERIAL_FAKELIT_TEXTURE_DECAL
+		":/resources/shaders/unlit_color_ps.glsl",            // LC_MATERIAL_UNLIT_COLOR
+		":/resources/shaders/unlit_texture_modulate_ps.glsl", // LC_MATERIAL_UNLIT_TEXTURE_MODULATE
+		":/resources/shaders/unlit_texture_decal_ps.glsl",    // LC_MATERIAL_UNLIT_TEXTURE_DECAL
+		":/resources/shaders/unlit_vertex_color_ps.glsl",     // LC_MATERIAL_UNLIT_VERTEX_COLOR
+		":/resources/shaders/unlit_view_sphere_ps.glsl",      // LC_MATERIAL_UNLIT_VIEW_SPHERE
+		":/resources/shaders/fakelit_color_ps.glsl",          // LC_MATERIAL_FAKELIT_COLOR
+		":/resources/shaders/fakelit_texture_decal_ps.glsl"   // LC_MATERIAL_FAKELIT_TEXTURE_DECAL
 	};
 
 	auto LoadShader = [ShaderPrefix](const char* FileName, GLuint ShaderType) -> GLuint
@@ -207,7 +208,7 @@ void lcContext::CreateShaderPrograms()
 		mPrograms[MaterialType].MaterialColorLocation = glGetUniformLocation(Program, "MaterialColor");
 		mPrograms[MaterialType].LightPositionLocation = glGetUniformLocation(Program, "LightPosition");
 		mPrograms[MaterialType].EyePositionLocation = glGetUniformLocation(Program, "EyePosition");
-        mPrograms[MaterialType].HighlightParamsLocation = glGetUniformLocation(Program, "HighlightParams");
+		mPrograms[MaterialType].HighlightParamsLocation = glGetUniformLocation(Program, "HighlightParams");
 	}
 }
 
@@ -240,9 +241,6 @@ void lcContext::SetDefaultState()
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_DST_ALPHA, GL_ONE);
 	else
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	glEnable(GL_POLYGON_OFFSET_FILL);
-	glPolygonOffset(0.5f, 0.1f);
 
 	if (gSupportsVertexBufferObject)
 	{
@@ -294,6 +292,9 @@ void lcContext::SetDefaultState()
 	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	mTextureCubeMap = 0;
 
+	glDisable(GL_POLYGON_OFFSET_FILL);
+	mPolygonOffset = LC_POLYGON_OFFSET_NONE;
+
 	glLineWidth(1.0f);
 	mLineWidth = 1.0f;
 
@@ -336,7 +337,7 @@ void lcContext::SetMaterial(lcMaterialType MaterialType)
 		mColorDirty = true;
 		mWorldMatrixDirty = true; // todo: change dirty to a bitfield and set the lighting constants dirty here
 		mViewMatrixDirty = true;
-        mHighlightParamsDirty = true;
+		mHighlightParamsDirty = true;
 	}
 	else
 	{
@@ -374,7 +375,7 @@ void lcContext::SetMaterial(lcMaterialType MaterialType)
 			}
 			break;
 
-        case LC_MATERIAL_UNLIT_VIEW_SPHERE:
+		case LC_MATERIAL_UNLIT_VIEW_SPHERE:
 		case LC_NUM_MATERIALS:
 			break;
 		}
@@ -385,6 +386,31 @@ void lcContext::SetMaterial(lcMaterialType MaterialType)
 void lcContext::SetViewport(int x, int y, int Width, int Height)
 {
 	glViewport(x, y, Width, Height);
+}
+
+void lcContext::SetPolygonOffset(lcPolygonOffset PolygonOffset)
+{
+	if (mPolygonOffset == PolygonOffset)
+		return;
+
+	switch (PolygonOffset)
+	{
+	case LC_POLYGON_OFFSET_NONE:
+		glDisable(GL_POLYGON_OFFSET_FILL);
+		break;
+
+	case LC_POLYGON_OFFSET_OPAQUE:
+		glPolygonOffset(0.5f, 0.1f);
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		break;
+
+	case LC_POLYGON_OFFSET_TRANSLUCENT:
+		glPolygonOffset(0.25f, 0.1f);
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		break;
+	}
+
+	mPolygonOffset = PolygonOffset;
 }
 
 void lcContext::SetLineWidth(float LineWidth)
@@ -402,6 +428,20 @@ void lcContext::SetSmoothShading(bool Smooth)
 	if (gSupportsShaderObjects)
 		glShadeModel(Smooth ? GL_SMOOTH : GL_FLAT);
 #endif
+}
+
+void lcContext::BeginTranslucent()
+{
+	glEnable(GL_BLEND);
+	glDepthMask(GL_FALSE);
+	SetPolygonOffset(LC_POLYGON_OFFSET_TRANSLUCENT);
+}
+
+void lcContext::EndTranslucent()
+{
+	glDepthMask(GL_TRUE);
+	glDisable(GL_BLEND);
+	SetPolygonOffset(LC_POLYGON_OFFSET_OPAQUE);
 }
 
 void lcContext::BindTexture2D(GLuint Texture)
@@ -1184,13 +1224,13 @@ void lcContext::FlushState()
 			mColorDirty = false;
 		}
 
-        if (mHighlightParamsDirty && Program.HighlightParamsLocation != -1)
+		if (mHighlightParamsDirty && Program.HighlightParamsLocation != -1)
 		{
-            lcMatrix44 InverseViewMatrix = lcMatrix44AffineInverse(mViewMatrix);
-            mHighlightParams[4] = InverseViewMatrix[2];
+			lcMatrix44 InverseViewMatrix = lcMatrix44AffineInverse(mViewMatrix);
+			mHighlightParams[4] = InverseViewMatrix[2];
 
-            glUniform4fv(Program.HighlightParamsLocation, 5, mHighlightParams[0]);
-            mHighlightParamsDirty = false;
+			glUniform4fv(Program.HighlightParamsLocation, 5, mHighlightParams[0]);
+			mHighlightParamsDirty = false;
 		}
 	}
 	else

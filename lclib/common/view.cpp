@@ -17,7 +17,7 @@ lcVertexBuffer View::mRotateMoveVertexBuffer;
 lcIndexBuffer View::mRotateMoveIndexBuffer;
 
 View::View(lcModel* Model)
-  : mViewSphere(this)
+	: mViewSphere(this)
 {
 	mModel = Model;
 	mActiveSubmodelInstance = nullptr;
@@ -53,6 +53,19 @@ lcModel* View::GetActiveModel() const
 	return !mActiveSubmodelInstance ? mModel : mActiveSubmodelInstance->mPieceInfo->GetModel();
 }
 
+void View::SetTopSubmodelActive()
+{
+	lcModel* ActiveModel = GetActiveModel();
+
+	if (mActiveSubmodelInstance)
+	{
+		ActiveModel->SetActive(false);
+		mActiveSubmodelInstance = nullptr;
+	}
+
+	GetActiveModel()->UpdateInterface();
+}
+
 void View::SetSelectedSubmodelActive()
 {
 	lcModel* ActiveModel = GetActiveModel();
@@ -75,6 +88,7 @@ void View::SetSelectedSubmodelActive()
 			mActiveSubmodelInstance = Piece;
 			ActiveModel = mActiveSubmodelInstance->mPieceInfo->GetModel();
 			ActiveModel->SetActive(true);
+			RemoveCamera();
 		}
 	}
 
@@ -483,6 +497,7 @@ void View::ShowContextMenu() const
 	Popup->addSeparator();
 
 	Popup->addAction(Actions[LC_PIECE_EDIT_SELECTED_SUBMODEL]);
+	Popup->addAction(Actions[LC_PIECE_EDIT_END_SUBMODEL]);
 	Popup->addAction(Actions[LC_PIECE_VIEW_SELECTED_MODEL]);
 	Popup->addAction(Actions[LC_PIECE_INLINE_SELECTED_MODELS]);
 	Popup->addAction(Actions[LC_PIECE_MOVE_SELECTION_TO_MODEL]);
@@ -509,6 +524,7 @@ void View::ShowContextMenu() const
 	Popup->addMenu(gMainWindow->GetShadingMenu());
 
 	Popup->addSeparator();
+
 	Popup->addAction(Actions[LC_VIEW_SPLIT_HORIZONTAL]);
 	Popup->addAction(Actions[LC_VIEW_SPLIT_VERTICAL]);
 	Popup->addAction(Actions[LC_VIEW_REMOVE_VIEW]);
@@ -1991,6 +2007,13 @@ void View::MoveCamera(const lcVector3& Direction)
 		ActiveModel->MoveCamera(mCamera, Direction);
 }
 
+void View::Zoom(float Amount)
+{
+	lcModel* ActiveModel = GetActiveModel();
+	if (ActiveModel)
+		ActiveModel->Zoom(mCamera, Amount);
+}
+
 void View::UpdateTrackTool()
 {
 	lcTool CurrentTool = gMainWindow->GetTool();
@@ -2744,7 +2767,7 @@ void View::OnButtonDown(lcTrackButton TrackButton)
 	case LC_TRACKTOOL_CAMERA:
 		StartTracking(TrackButton);
 		break;
-
+		
 	case LC_TRACKTOOL_SELECT:
 		{
 			lcObjectSection ObjectSection = FindObjectUnderPointer(false, false);
@@ -2956,7 +2979,7 @@ void View::OnMouseMove()
 	}
 
 	mTrackUpdated = true;
-	const float MouseSensitivity = 1.0f / (21.0f - lcGetPreferences().mMouseSensitivity);
+	const float MouseSensitivity = 0.5f / (21.0f - lcGetPreferences().mMouseSensitivity);
 
 	switch (mTrackTool)
 	{

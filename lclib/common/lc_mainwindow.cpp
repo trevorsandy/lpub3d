@@ -26,7 +26,7 @@
 
 
 #if LC_ENABLE_GAMEPAD
-#if defined(QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
+#if defined(QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
 #include <QtGamepad/QGamepad>
 #endif
 #endif
@@ -1880,6 +1880,12 @@ void lcMainWindow::RemoveAllModelTabs()
 	}
 }
 
+void lcMainWindow::CloseCurrentModelTab()
+{
+	if (mModelTabWidget->count() > 1)
+		delete mModelTabWidget->currentWidget();
+}
+
 void lcMainWindow::SetCurrentModelTab(lcModel* Model)
 {
 	lcModelTabWidget* EmptyWidget = nullptr;
@@ -1980,9 +1986,13 @@ void lcMainWindow::RemoveView(View* View)
 void lcMainWindow::SetActiveView(View* ActiveView)
 {
 	lcModelTabWidget* TabWidget = GetTabForView(ActiveView);
+	View* CurrentActiveView = TabWidget->GetActiveView();
 
-	if (!TabWidget || TabWidget->GetActiveView() == ActiveView)
+	if (!TabWidget || CurrentActiveView == ActiveView)
 		return;
+
+	if (CurrentActiveView)
+		CurrentActiveView->SetTopSubmodelActive();
 
 	TabWidget->SetActiveView(ActiveView);
 
@@ -3107,6 +3117,10 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		ToggleFullScreen();
 		break;
 
+	case LC_VIEW_CLOSE_CURRENT_TAB:
+		CloseCurrentModelTab();
+		break;
+
 	case LC_VIEW_SHADING_WIREFRAME:
 		SetShadingMode(LC_SHADING_WIREFRAME);
 		break;
@@ -3248,6 +3262,11 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 			ActiveModel->InlineSelectedModels();
 		break;
 
+	case LC_PIECE_EDIT_END_SUBMODEL:
+		if (ActiveView)
+			ActiveView->SetTopSubmodelActive();
+		break;
+
 	case LC_PIECE_EDIT_SELECTED_SUBMODEL:
 		if (ActiveView)
 			ActiveView->SetSelectedSubmodelActive();
@@ -3314,12 +3333,12 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 
 	case LC_VIEW_ZOOM_IN:
 		if (ActiveView)
-			lcGetActiveModel()->Zoom(ActiveView->mCamera, 10.0f);
+			ActiveView->Zoom(10.0f);
 		break;
 
 	case LC_VIEW_ZOOM_OUT:
 		if (ActiveView)
-			lcGetActiveModel()->Zoom(ActiveView->mCamera, -10.0f);
+			ActiveView->Zoom(-10.0f);
 		break;
 
 	case LC_VIEW_ZOOM_EXTENTS:

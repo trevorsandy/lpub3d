@@ -162,9 +162,6 @@ QSize lcQGLWidget::sizeHint() const
 
 void lcQGLWidget::initializeGL()
 {
-	glEnable(GL_POLYGON_OFFSET_FILL);
-	glPolygonOffset(0.5f, 0.1f);
-
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glDepthMask(GL_TRUE);
