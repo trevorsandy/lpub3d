@@ -178,6 +178,14 @@ public:
 	bool ReloadUnoffLib();
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - unload Unofficial library ***/
+    void UnloadUnofficialLib();
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - unload Official library reload ***/
+    void UnloadOfficialLib();
+/*** LPub3D Mod end ***/
+
 	void RemoveTemporaryPieces();
 	void RemovePiece(PieceInfo* Info);
 

@@ -3509,3 +3509,19 @@ bool lcPiecesLibrary::ReloadUnoffLib()
     return true;
 }
 /*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - unload Unofficial library ***/
+void lcPiecesLibrary::UnloadUnofficialLib() {
+    //unload unofficial library content
+    delete mZipFiles[LC_ZIPFILE_UNOFFICIAL];
+    mZipFiles[LC_ZIPFILE_UNOFFICIAL] = nullptr;
+}
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - unload Official library reload ***/
+void lcPiecesLibrary::UnloadOfficialLib() {
+    mNumOfficialPieces = 0;
+    delete mZipFiles[LC_ZIPFILE_OFFICIAL];
+    mZipFiles[LC_ZIPFILE_OFFICIAL] = nullptr;
+}
+/*** LPub3D Mod end ***/
