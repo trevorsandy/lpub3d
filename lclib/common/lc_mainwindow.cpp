@@ -192,8 +192,7 @@ void lcMainWindow::CreateWidgets()
 /*** LPub3D Mod - disable 3D actions ***/
           // disable menu itmes until model loaded
           //File
-          mActions[LC_FILE_SAVEAS]->setDisabled(true);
-          mActions[LC_FILE_SAVE_IMAGE]->setDisabled(true);
+          mActions[LC_FILE_RENDER]->setDisabled(true);
           //Export
           mActions[LC_FILE_EXPORT_3DS]->setDisabled(true);
           mActions[LC_FILE_EXPORT_BRICKLINK]->setDisabled(true);
@@ -1075,8 +1074,7 @@ const QString lcMainWindow::GetFadeStepsColor()
 void lcMainWindow::Enable3DActions()
 {
         //File
-        mActions[LC_FILE_SAVEAS]->setEnabled(true);
-        mActions[LC_FILE_SAVE_IMAGE]->setEnabled(true);
+        mActions[LC_FILE_RENDER]->setEnabled(true);
         //Export
         mActions[LC_FILE_EXPORT_3DS]->setEnabled(true);
         mActions[LC_FILE_EXPORT_BRICKLINK]->setEnabled(true);
@@ -1124,8 +1122,7 @@ void lcMainWindow::Enable3DActions()
 void lcMainWindow::Disable3DActions()
 {
         //File
-        mActions[LC_FILE_SAVEAS]->setEnabled(false);
-        mActions[LC_FILE_SAVE_IMAGE]->setEnabled(false);
+        mActions[LC_FILE_RENDER]->setEnabled(false);
         //Export
         mActions[LC_FILE_EXPORT_3DS]->setEnabled(false);
         mActions[LC_FILE_EXPORT_BRICKLINK]->setEnabled(false);

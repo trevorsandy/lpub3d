@@ -125,7 +125,7 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 /*** LPub3D Mod end ***/
 	lcProfileEntry("POVRay", "LGEOPath", ""),                                               // LC_PROFILE_POVRAY_LGEO_PATH
 	lcProfileEntry("POVRay", "Width", 1280),                                                // LC_PROFILE_POVRAY_WIDTH
-	lcProfileEntry("POVRay", "Height", 720)                                                 // LC_PROFILE_POVRAY_HEIGHT
+    lcProfileEntry("POVRay", "Height", 720),                                                // LC_PROFILE_POVRAY_HEIGHT
 
 /*** LPub3D Mod - Native projection options ***/
     lcProfileEntry("Settings", "NativeViewpoint",  7),                                      // LC_PROFILE_NATIVE_VIEWPOINT  [0 = LC_VIEWPOINT_FRONT]  /*** LPub3D Mod - Native Renderer settings ***/

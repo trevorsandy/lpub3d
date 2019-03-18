@@ -3891,6 +3891,9 @@ void Gui::createMenus()
     gMainWindow->mActions[LC_FILE_EXPORT_WAVEFRONT]->setIcon(QIcon(":/resources/obj32.png"));
 
     ViewerMenu = menuBar()->addMenu(tr("&3DViewer"));
+    ViewerMenu->addAction(gMainWindow->mActions[LC_FILE_RENDER]);
+    gMainWindow->mActions[LC_FILE_RENDER]->setIcon(QIcon(":/resources/povray32.png"));
+    ViewerMenu->addSeparator();
     ViewerMenu->addMenu(ViewerExportMenu);
 
     ViewerMenu->addSeparator();
