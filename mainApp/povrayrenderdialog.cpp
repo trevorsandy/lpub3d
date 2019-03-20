@@ -307,7 +307,8 @@ void PovrayRenderDialog::on_RenderButton_clicked()
     }
     else
     {
-        QMessageBox::warning(this, tr("Error"), tr("Error starting POV-Ray."));
+        message = QString("Error starting POV-Ray.");
+        emit gui->messageSig(LOG_ERROR, message);
         CloseProcess();
     }
 #endif
@@ -315,16 +316,15 @@ void PovrayRenderDialog::on_RenderButton_clicked()
 
 QString PovrayRenderDialog::ReadStdErrLog(bool &hasError) const
 {
+    hasError = true;
     QFile file(GetLogFileName());
     if ( ! file.open(QFile::ReadOnly | QFile::Text))
     {
         QString message = QString("Failed to open log file: %1:\n%2")
                   .arg(file.fileName())
                   .arg(file.errorString());
-        emit gui->messageSig(LOG_ERROR, message);
-        return QString();
+        return message;
     }
-    hasError = true;
     QTextStream in(&file);
     QStringList lines;
     while ( ! in.atEnd())
