@@ -407,6 +407,7 @@ HEADERS += \
     pointer.h \
     pointeritem.h \
     pointerplacementdialog.h \
+	povrayrenderdialog.h \	
     preferencesdialog.h \
     range.h \
     range_element.h \
@@ -505,9 +506,10 @@ SOURCES += \
     plisubstituteparts.cpp \
     pointeritem.cpp \
     pointerplacementdialog.cpp \
+	povrayrenderdialog.cpp \	
     preferencesdialog.cpp \
     printfile.cpp \
-    projectglobals.cpp \
+    projectglobals.cpp \	
     range.cpp \
     range_element.cpp \
     ranges.cpp \
@@ -539,6 +541,7 @@ SOURCES += \
 FORMS += \
     aboutdialog.ui \
     dialogexportpages.ui \
+	povrayrenderdialog.ui \
     preferences.ui
 
 OTHER_FILES += \

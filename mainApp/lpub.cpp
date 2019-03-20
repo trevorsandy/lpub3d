@@ -42,6 +42,7 @@
 #include "lpub_preferences.h"
 #include "lpubalert.h"
 #include "preferencesdialog.h"
+#include "povrayrenderdialog.h"
 #include "render.h"
 #include "metaitem.h"
 #include "ranges_element.h"
@@ -2652,10 +2653,16 @@ void Gui::progressPermStatusRemove(){
     }
 }
 
-bool Gui::aboutDialog()
+void Gui::showPovrayRenderDialog()
 {
-    AboutDialog Dialog(this);
-    return Dialog.exec() == QDialog::Accepted;
+    PovrayRenderDialog dialog(this);
+    dialog.exec();
+}
+
+void Gui::aboutDialog()
+{
+    AboutDialog dialog(this);
+    dialog.exec();
 }
 
 void Gui::refreshLDrawUnoffParts() {
@@ -3100,6 +3107,12 @@ void Gui::createActions()
     exportBricklinkAct->setStatusTip(tr("Export your document as a Bricklink XML Part List - Alt+7"));
     exportBricklinkAct->setEnabled(false);
     connect(exportBricklinkAct, SIGNAL(triggered()), this, SLOT(exportAsBricklinkXML()));
+
+    povrayRenderAct = new QAction(QIcon(":/resources/povray32.png"),tr("Render..."), this);
+    povrayRenderAct->setShortcut(tr("Alt+9"));
+    povrayRenderAct->setStatusTip(tr("Render the current model using POV-Ray - Alt+9"));
+    povrayRenderAct->setEnabled(false);
+    connect(povrayRenderAct, SIGNAL(triggered()), this, SLOT(showPovrayRenderDialog()));
 
     exitAct = new QAction(QIcon(":/resources/exit.png"),tr("E&xit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
@@ -3602,6 +3615,8 @@ void Gui::enableActions()
   exportColladaAct->setEnabled(true);
   exportHtmlAct->setEnabled(true);
 
+  povrayRenderAct->setEnabled(true);
+
   //ViewerExportMenu->setEnabled(true); // Hide 3DViewer step export functions
 
 }
@@ -3680,6 +3695,8 @@ void Gui::disableActions()
   exportObjAct->setEnabled(false);
   exportColladaAct->setEnabled(false);
   exportHtmlAct->setEnabled(false);
+
+  povrayRenderAct->setEnabled(false);
 
   // ViewerExportMenu->setEnabled(false); // Hide 3DViewer step export functions
 
@@ -3896,8 +3913,7 @@ void Gui::createMenus()
     gMainWindow->mActions[LC_FILE_EXPORT_WAVEFRONT]->setIcon(QIcon(":/resources/obj32.png"));
 
     ViewerMenu = menuBar()->addMenu(tr("&3DViewer"));
-    ViewerMenu->addAction(gMainWindow->mActions[LC_FILE_RENDER]);
-    gMainWindow->mActions[LC_FILE_RENDER]->setIcon(QIcon(":/resources/povray32.png"));
+    ViewerMenu->addAction(povrayRenderAct);
     ViewerMenu->addSeparator();
     ViewerMenu->addMenu(ViewerExportMenu);
 

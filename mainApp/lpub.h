@@ -954,6 +954,9 @@ public slots:
   bool loadFile(const QString &file);
   int processCommandLine();
 
+
+  void showPovrayRenderDialog();
+
   void TogglePrintPreview();
 
   void DownloadFinished(lcHttpReply* Reply);
@@ -1192,7 +1195,7 @@ private slots:
     void openRecentFile();
     void clearRecentFiles();
     void updateCheck();
-    bool aboutDialog();
+    void aboutDialog();
 
     void editTitleAnnotations();
     void editFreeFormAnnitations();
@@ -1371,6 +1374,8 @@ private:
   QAction  *exportCsvAct;
   QAction  *exportBricklinkAct;
   QAction  *exportHtmlAct;
+
+  QAction  *povrayRenderAct;
 
   QAction  *clearRecentAct;
   QAction  *exitAct;
