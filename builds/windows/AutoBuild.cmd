@@ -615,6 +615,8 @@ ECHO.
 ECHO - Download archive file: %WebCONTENT%...
 ECHO.
 cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
+ECHO.
+ECHO - Rename %WebCONTENT% to %LPub3DCONTENT%
 REN "%WebCONTENT%" %LPub3DCONTENT%
 IF EXIST "%OutputPATH%\%LPub3DCONTENT%" (
   ECHO.
