@@ -577,6 +577,7 @@ int POVRay::renderCsi(
 
   QProcess povray;
   QStringList povEnv = QProcess::systemEnvironment();
+  povEnv.prepend("POV_IGNORE_SYSCONF_MSG=1");
   povray.setEnvironment(povEnv);
   povray.setWorkingDirectory(QDir::currentPath()+ "/" + Paths::assemDir); // pov win console app will not write to dir different from cwd or source file dir
   povray.setStandardErrorFile(QDir::currentPath() + "/stderr-povray");
@@ -789,6 +790,7 @@ int POVRay::renderPli(
 
   QProcess povray;
   QStringList povEnv = QProcess::systemEnvironment();
+  povEnv.prepend("POV_IGNORE_SYSCONF_MSG=1");
   QString workingDirectory = pliType == SUBMODEL ? Paths::submodelDir : Paths::partsDir;
   povray.setEnvironment(povEnv);
   povray.setWorkingDirectory(QDir::currentPath()+ "/" + workingDirectory); // pov win console app will not write to dir different from cwd or source file dir
