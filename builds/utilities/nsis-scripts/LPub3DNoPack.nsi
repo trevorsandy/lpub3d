@@ -1,5 +1,5 @@
 ;LPub3D Setup Script
-;Last Update: February 18, 2019
+;Last Update: February 19, 2019
 ;Copyright (C) 2016 - 2019 by Trevor SANDY
 
 ; Install LPub3D and pre-packaged renderers.
@@ -59,6 +59,7 @@ Var /global LPub3DViewerLibPath
 !define LICENSE_FILE "COPYING.txt" ; license file, optional
 !define README_FILE "README.txt" ; readme file, optional
 !define RELEASE_NOTES_FILE "RELEASE_NOTES.html" ; release notes file, optional
+!define RELEASE_NOTES_URL "https://trevorsandy.github.io/lpub3d/assets/docs/lpub3d/RELEASE_NOTES.html" ; release notes file, optional
 !define PUBLISHER_NAME "${Publisher}"
 !define COMPANY_URL "${CompanyURL}"
 !define SUPPORT "${SupportURL}"
@@ -112,6 +113,7 @@ SetCompressor /SOLID lzma
 !endif
 
 !define MUI_PAGE_CUSTOMFUNCTION_PRE PageReadmePre
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW PageReadmeShow
 !define MUI_PAGE_HEADER_TEXT "Readme File"
 !define MUI_PAGE_HEADER_SUBTEXT "Please review the readme file before installing ${PRODUCT_NAME} ${VERSION} ${PLATFORM}."
 !define MUI_LICENSEPAGE_TEXT_TOP "Press Page Down to see the rest of the readme file."
@@ -496,9 +498,14 @@ Function PageReadmePre
   ${if} $InstallShowPagesBeforeComponents == 0
     Abort ; don't display the Readme page for the inner instance
   ${endif}
-  GetDlgItem $0 $HWNDPARENT 1
-  EmbedHTML::Load /replace $R0 `${WinBuildDir}\docs\${RELEASE_NOTES_FILE}`
-  SendMessage $0 ${WM_SETTEXT} 0 "STR:$(^NextBtn)" ;Change 'I Agree' button to 'Next'
+  GetDlgItem $0 $HWNDPARENT 1                      ;Agree/Next/Install button           
+  SendMessage $0 ${WM_SETTEXT} 0 "STR:$(^NextBtn)" ;Change 'I Agree' to 'Next'
+FunctionEnd
+
+Function PageReadmeShow
+  FindWindow $R0 `#32770` `` $HWNDPARENT               ;Finds the inner dialog
+  GetDlgItem $R0 $R0 1000
+  EmbedHTML::Load /replace $R0 `${RELEASE_NOTES_URL}`
 FunctionEnd
 
 Function PageInstallModeChangeMode
