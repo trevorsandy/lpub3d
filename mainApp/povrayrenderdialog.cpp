@@ -61,6 +61,7 @@ PovrayRenderDialog::PovrayRenderDialog(QWidget* Parent)
     ui->HeightEdit->setText(QString::number(POVRAY_RENDER_DEFAULT_HEIGHT));
     ui->HeightEdit->setValidator(new QIntValidator(16, INT_MAX));
     ui->OutputEdit->setText(Render::getPovrayRenderFileName(mViewerCsiKey));
+    ui->OutputEdit->setValidator(new QRegExpValidator(QRegExp("^.*\\.png$")));
     ui->ScaleEdit->setText(mCsiKeyList.at(K_MODELSCALE));
     ui->ScaleEdit->setValidator(new QDoubleValidator(0.1,1000.0,1));
     ui->ResolutionEdit->setText(mCsiKeyList.at(K_RESOLUTION));
