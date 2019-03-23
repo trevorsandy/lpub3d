@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: March 01, 2019
+rem  Last Update: March 23, 2019
 rem  Copyright (c) 2017 - 2019 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -42,6 +42,7 @@ IF "%APPVEYOR%" EQU "True" (
   SET LP3D_QT32_MSVC=C:\Qt\5.11.3\msvc2015\bin
   SET LP3D_QT64_MSVC=C:\Qt\5.11.3\msvc2015_64\bin
   SET LP3D_VCVARSALL=C:\Program Files ^(x86^)\Microsoft Visual Studio 14.0\VC
+  SET UPDATE_LDRAW_LIBS=%LP3D_UPDATE_LDRAW_LIBS_VAR%
 ) ELSE (
   CALL :DIST_DIR_REL_TO_ABS ..\lpub3d_windows_3rdparty
   SET PACKAGE=LPub3D
@@ -52,6 +53,7 @@ IF "%APPVEYOR%" EQU "True" (
   SET LP3D_QT32_MSVC=C:\Qt\IDE\5.11.3\msvc2015\bin
   SET LP3D_QT64_MSVC=C:\Qt\IDE\5.11.3\msvc2015_64\bin
   SET LP3D_VCVARSALL=C:\Program Files ^(x86^)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build
+  SET UPDATE_LDRAW_LIBS=unknown
 )
 
 SET LP3D_WIN_GIT=%ProgramFiles%\Git\cmd
@@ -133,13 +135,17 @@ IF NOT [%2]==[] (
 rem Verify 3rd input flag options
 IF NOT [%3]==[] (
   IF NOT "%3"=="-ins" (
-    IF NOT "%3"=="-chk" GOTO :CONFIGURATION_ERROR
+    IF NOT "%3"=="-chk" (
+      IF NOT "%3"=="-uld" GOTO :CONFIGURATION_ERROR
+    )
   )
 )
 
 rem Verify 4th input flag options
 IF NOT [%4]==[] (
-  IF NOT "%4"=="-chk" GOTO :CONFIGURATION_ERROR
+  IF NOT "%4"=="-chk" (
+    IF NOT "%4"=="-uld" GOTO :CONFIGURATION_ERROR
+  )
 )
 
 rem Set third party install as default behaviour
@@ -214,8 +220,18 @@ IF /I "%3"=="-chk" (
   SET CHECK=1
 )
 
+rem Force update LDraw libraries
+IF /I "%3"=="-uld" (
+  SET UPDATE_LDRAW_LIBS=true
+)
+
 IF /I "%4"=="-chk" (
   SET CHECK=1
+)
+
+rem Force update LDraw libraries
+IF /I "%4"=="-uld" (
+  SET UPDATE_LDRAW_LIBS=true
 )
 
 rem Create distribution folder
@@ -539,29 +555,75 @@ ECHO - VBS file "%vbs%" is done compiling
 ECHO.
 ECHO - LDraw archive library download path: %OutputPATH%
 
+IF "%UPDATE_LDRAW_LIBS%" EQU "true" (
+  GOTO :UPDATE_ALL_LIBRARIES
+)
+
 IF NOT EXIST "%OutputPATH%\%OfficialCONTENT%" (
   CALL :GET_OFFICIAL_LIBRARY
 )  ELSE (
-  ECHO.
-  ECHO - LDraw archive library %OfficialCONTENT% exist. Nothing to do.
+  IF "%UPDATE_LDRAW_LIBS%" EQU "official" (
+    DEL /Q "%OutputPATH%\%OfficialCONTENT%"
+    CALL :GET_OFFICIAL_LIBRARY
+  ) ELSE (
+    ECHO.
+    ECHO - LDraw archive library %OfficialCONTENT% exist. Nothing to do.
+  )
 )
 IF NOT EXIST "%OutputPATH%\%TenteCONTENT%" (
   CALL :GET_TENTE_LIBRARY
 ) ELSE (
-  ECHO.
-  ECHO - LDraw archive library %TenteCONTENT% exist. Nothing to do.
+  IF "%UPDATE_LDRAW_LIBS%" EQU "tente" (
+    DEL /Q "%OutputPATH%\%TenteCONTENT%"
+    CALL :GET_TENTE_LIBRARY
+  ) ELSE (
+    ECHO.
+    ECHO - LDraw archive library %TenteCONTENT% exist. Nothing to do.
+  )
 )
 IF NOT EXIST "%OutputPATH%\%VexiqCONTENT%" (
   CALL :GET_VEXIQ_LIBRARY
 ) ELSE (
-  ECHO.
-  ECHO - LDraw archive library %VexiqCONTENT% exist. Nothing to do.
+  IF "%UPDATE_LDRAW_LIBS%" EQU "vexiq" (
+    DEL /Q "%OutputPATH%\%VexiqCONTENT%"
+    CALL :GET_VEXIQ_LIBRARY
+  ) ELSE (
+    ECHO.
+    ECHO - LDraw archive library %VexiqCONTENT% exist. Nothing to do.
+  )
 )
 IF NOT EXIST "%OutputPATH%\%LPub3DCONTENT%" (
   CALL :GET_UNOFFICIAL_LIBRARY
 ) ELSE (
-  ECHO.
-  ECHO - LDraw archive library %UnOfficialCONTENT% exist. Nothing to do.
+  IF "%UPDATE_LDRAW_LIBS%" EQU "unofficial" (
+    DEL /Q "%OutputPATH%\%LPub3DCONTENT%"
+    CALL :GET_UNOFFICIAL_LIBRARY
+  ) ELSE (
+    ECHO.
+    ECHO - LDraw archive library %LPub3DCONTENT% exist. Nothing to do.
+  )
+)
+EXIT /b
+
+:UPDATE_ALL_LIBRARIES
+ECHO.
+ECHO - Update all libraries...
+
+IF EXIST "%OutputPATH%\%OfficialCONTENT%" (
+  DEL /Q "%OutputPATH%\%OfficialCONTENT%"
+  CALL :GET_OFFICIAL_LIBRARY
+)
+IF EXIST "%OutputPATH%\%LPub3DCONTENT%" (
+  DEL /Q "%OutputPATH%\%LPub3DCONTENT%"
+  CALL :GET_UNOFFICIAL_LIBRARY
+)
+IF EXIST "%OutputPATH%\%TenteCONTENT%" (
+  DEL /Q "%OutputPATH%\%TenteCONTENT%"
+  CALL :GET_TENTE_LIBRARY
+)
+IF EXIST "%OutputPATH%\%VexiqCONTENT%" (
+  DEL /Q "%OutputPATH%\%VexiqCONTENT%
+  CALL :GET_VEXIQ_LIBRARY
 )
 EXIT /b
 
@@ -686,7 +748,7 @@ ECHO.
 ECHO ----------------------------------------------------------------
 ECHO Usage:
 ECHO  build [ -help]
-ECHO  build [ x86 ^| x86_64 ^| -all ] [ -chk ^| -ins ^| -3rd ] [ -chk ^| -ins ] [ -chk ]
+ECHO  build [ x86 ^| x86_64 ^| -all ] [ -chk ^| -ins ^| -3rd ^| -ren ] [ -chk ^| -ins ^| -uld ] [ -chk ^| -uld ]
 ECHO.
 ECHO ----------------------------------------------------------------
 ECHO Build 64bit, Release and perform build check
@@ -726,7 +788,8 @@ ECHO  -all.......1......Configuraiton flag  [Default=On ] Build both  32bit and 
 ECHO  -3rd.......2......Project flag        [Default=Off] Build 3rdparty renderers - LDGLite, LDView, and LPub3D-Trace (POV-Ray) from source
 ECHO  -ren.......2......Project flag        [Default=Off] Build 3rdparty renderers only - LPub3D not built
 ECHO  -ins.......2,3....Project flag        [Default=On ] Install distribution as LPub3D 3rd party installation
-ECHO  -chk.......2,3,4..Project flag        [Default=Off] Perform a build check [This flag is not currently functional]
+ECHO  -chk.......2,3,4..Project flag        [Default=Off] Perform a build check
+ECHO  -uld.......3,4....Project flag        [Default=Off] Force update LDraw libraries
 ECHO.
 ECHO Be sure the set your LDraw directory in the variables section above if you expect to use the '-chk' option.
 ECHO.

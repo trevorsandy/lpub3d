@@ -44,15 +44,16 @@ matrix:
 
 # The following variables can be set to true from the AppVeyor
 # via site->Project->Settings->Environment Variables
-# LP3D_SKIP_APPVEYOR_VAR   ; skip AppVeyor build
-# LP3D_BUILD_PKG_VAR       ; trigger package build
-# LP3D_TEST_SF_DEPLOY_VAR  ; deploy SourceForge
-# LP3D_SKIP_SF_DEPLOY_VAR  ; skip SourceForge deploy
-# LP3D_CLEAR_AVCACHE_VAR   ; delete cache
-# LP3D_BUILD_RENDERERS_VAR ; build specified renderer(s) in compile only configuration
-# LP3D_BUILD_LDGLITE_VAR   ; rebuild LDGLite
-# LP3D_BUILD_LDVIEW_VAR    ; rebuild LDView
-# LP3D_BUILD_POVRAY_VAR    ; rebuild LPub3D-Trace (POV-Ray)
+# LP3D_SKIP_APPVEYOR_VAR     ; skip AppVeyor build
+# LP3D_BUILD_PKG_VAR         ; trigger package build
+# LP3D_TEST_SF_DEPLOY_VAR    ; deploy SourceForge
+# LP3D_SKIP_SF_DEPLOY_VAR    ; skip SourceForge deploy
+# LP3D_CLEAR_AVCACHE_VAR     ; delete cache
+# LP3D_BUILD_RENDERERS_VAR   ; build specified renderer(s) in compile only configuration
+# LP3D_BUILD_LDGLITE_VAR     ; rebuild LDGLite
+# LP3D_BUILD_LDVIEW_VAR      ; rebuild LDView
+# LP3D_BUILD_POVRAY_VAR      ; rebuild LPub3D-Trace (POV-Ray)
+# LP3D_UPDATE_LDRAW_LIBS_VAR ; update cached LDraw libraries valid values are: true(all) | official | unofficial | tente | vexiq
 #
 environment:
   LP3D_PACKAGE: LPub3D
@@ -102,6 +103,10 @@ init:
         write-host "'Build package' detected in environment variable."
         $env:LP3D_BUILD_PKG = "yes"
       }
+ - ps: |
+     If ($env:LP3D_UPDATE_LDRAW_LIBS_VAR) {
+       write-host "'Update LDraw libraries equal $env:LP3D_UPDATE_LDRAW_LIBS_VAR' detected in environment variable."
+     }
  - ps: |
       If ($env:APPVEYOR_REPO_TAG -eq "true") {
         If ([regex]::Match($env:APPVEYOR_REPO_TAG_NAME, '^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$').Success) {
