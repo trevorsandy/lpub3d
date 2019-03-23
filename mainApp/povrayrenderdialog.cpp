@@ -142,12 +142,12 @@ void PovrayRenderDialog::reject()
 
 void PovrayRenderDialog::on_LdvExportSettingsButton_clicked()
 {
-    Render::showLdvExportSettings(NativePOVIni);
+    Render::showLdvExportSettings(POVRayRender);
 }
 
 void PovrayRenderDialog::on_LdvLDrawPreferencesButton_clicked()
 {
-    Render::showLdvLDrawPreferences(NativePOVIni);
+    Render::showLdvLDrawPreferences(POVRayRender);
 }
 
 void PovrayRenderDialog::on_RenderButton_clicked()
@@ -231,7 +231,7 @@ void PovrayRenderDialog::on_RenderButton_clicked()
     emit gui->messageSig(LOG_INFO, message);
 
     // generate POV file
-    if (!Render::doLDVCommand(Arguments,EXPORT_POVRAY))
+    if (!Render::doLDVCommand(Arguments,POVRAY_RENDER))
         return ;
 
     message = QString("LDV POV file %1 generated. %2").arg(GetPOVFileName()).arg(gui->elapsedTime(mRenderTime.elapsed()));

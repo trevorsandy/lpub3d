@@ -2091,6 +2091,9 @@ bool Render::doLDVCommand(const QStringList &args, int exportMode, int iniFlag){
     case EXPORT_POVRAY:
         iniFlag = NativePOVIni;
         break;
+    case POVRAY_RENDER:
+        iniFlag = POVRayRender;
+        break;
     case EXPORT_STL:
         iniFlag = NativeSTLIni;
         break;

@@ -434,24 +434,26 @@ enum ExportMode { EXPORT_NONE  = -1,
                   EXPORT_BRICKLINK,
                   EXPORT_CSV,
                   EXPORT_ELEMENT,
-                  EXPORT_HTML};
+                  EXPORT_HTML,
+                  POVRAY_RENDER};
 
 const QString nativeExportNames[] =
 {
-  "",          // PAGE_PROCESS
-  "PDF",       // EXPORT_PDF
-  "PNG",       // EXPORT_PNG
-  "JPG",       // EXPORT_JPG
-  "BMP",       // EXPORT_BMP
-  "3DS MAX",   // EXPORT_3DS_MAX
-  "COLLADA",   // EXPORT_COLLADA
-  "WAVEFRONT", // EXPORT_WAVEFRONT
-  "STL",       // EXPORT_STL
-  "POVRAY",    // EXPORT_POVRAY
-  "BRICKLINK", // EXPORT_BRICKLINK
-  "CSV",       // EXPORT_CSV
-  "ELEMENT",   // EXPORT_ELEMENT
-  "HTML"       // EXPORT_HTML
+  "",              // PAGE_PROCESS
+  "PDF",           // EXPORT_PDF
+  "PNG",           // EXPORT_PNG
+  "JPG",           // EXPORT_JPG
+  "BMP",           // EXPORT_BMP
+  "3DS MAX",       // EXPORT_3DS_MAX
+  "COLLADA",       // EXPORT_COLLADA
+  "WAVEFRONT",     // EXPORT_WAVEFRONT
+  "STL",           // EXPORT_STL
+  "POVRAY",        // EXPORT_POVRAY
+  "BRICKLINK",     // EXPORT_BRICKLINK
+  "CSV",           // EXPORT_CSV
+  "ELEMENT",       // EXPORT_ELEMENT
+  "HTML",          // EXPORT_HTML
+  "POV-RAY RENDER" // RENDER_POVRAY
 };
 
 class Gui : public QMainWindow

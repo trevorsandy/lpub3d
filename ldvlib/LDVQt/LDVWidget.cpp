@@ -94,6 +94,7 @@ const QString iniFlagNames [] =
     "Native STL",
     "Native 3DS",
     "Native Part List",
+    "POV-Ray Render",
     "LDView POV",
     "LDView"
 };
@@ -118,6 +119,7 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
   iniFiles[NativeSTLIni]   = { "Native STL",       Preferences::nativeExportIni };
   iniFiles[Native3DSIni]   = { "Native 3DS",       Preferences::nativeExportIni };
   iniFiles[NativePartList] = { "Native Part List", Preferences::nativeExportIni };
+  iniFiles[POVRayRender]   = { "POV-Ray Render",   Preferences::nativeExportIni };
   iniFiles[LDViewPOVIni]   = { "LDView POV",       Preferences::ldviewPOVIni };
   iniFiles[LDViewIni]      = { "LDView",           Preferences::ldviewIni };
 

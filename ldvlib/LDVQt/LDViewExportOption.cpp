@@ -52,6 +52,7 @@ LDViewExportOption::LDViewExportOption(LDVWidget *modelWidget)
         switch (iniFlag){
         case NativePOVIni:
         case LDViewPOVIni:
+        case POVRayRender:
             m_exporter  = m_modelViewer->getExporter(LDrawModelViewer::ETPov, true);
             break;
         case NativeSTLIni:
@@ -78,7 +79,7 @@ LDViewExportOption::LDViewExportOption(LDVWidget *modelWidget)
 
     populateExportSettings();
 
-    this->setWindowTitle(modelWidget->getIniTitle().append("Export Options"));
+    this->setWindowTitle(modelWidget->getIniTitle().append(" Export Options"));
 
     QPalette readOnlyPalette;
     readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);

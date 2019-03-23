@@ -228,10 +228,11 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
     }
     else
     {
-        if (iniFlag == NativePOVIni ||
+        if (iniFlag == POVRayRender ||
+            iniFlag == NativePOVIni ||
             iniFlag == NativeSTLIni ||
             iniFlag == Native3DSIni) {
-            // Default Save Directory
+            // Snapshots Save Directory
             defaultSnapshotDirLabel->hide();
             snapshotSaveDirBox->hide();
             snapshotSaveDirEdit->hide();
@@ -242,12 +243,13 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
             partsListsSaveDirEdit->hide();
             partsListsSaveDirButton->hide();
         } else {
-            // Default Save Directory
+            // iniFlag = NativePartList (HTML)
+            // Snapshots Save Directory
             defaultSnapshotDirLabel->hide();
             snapshotSaveDirBox->hide();
             snapshotSaveDirEdit->hide();
             snapshotSaveDirButton->hide();
-            // Exports Directory
+            // Exports Save Directory
             exportsDirLabel->hide();
             exportsListsSaveDirBox->hide();
             exportsSaveDirEdit->hide();
@@ -1880,6 +1882,7 @@ void LDVPreferences::selectPrefSet(const char *prefSet, bool force)
         delete savedSession;
     }
 }
+
 void LDVPreferences::setupPrefSetsList(void)
 {
     TCStringArray *sessionNames = TCUserDefaults::getAllSessionNames();
