@@ -81,12 +81,14 @@ if [ -n "$LP3D_BUILD_3RD" ]; then
 fi
 
 # Build 3rdPart renderers from environment variable flag
-[ "$LP3D_BUILD_LDGLITE_VAR" = "true" ] && export LP3D_BUILD_LDGLITE=1 \
+[ "$LP3D_BUILD_LDGLITE_VAR" = "true" ] && export LP3D_BUILD_3RD=1 && export LP3D_BUILD_LDGLITE=1 \
 && echo "'Build LDGLite' detected in environment variable." || true
-[ "$LP3D_BUILD_LDVIEW_VAR" = "true" ] && export LP3D_BUILD_LDVIEW=1 \
+[ "$LP3D_BUILD_LDVIEW_VAR" = "true" ] && export LP3D_BUILD_3RD=1 && export LP3D_BUILD_LDVIEW=1 \
 && echo "'Build LDView' detected in environment variable." || true
-[ "$LP3D_BUILD_POVRAY_VAR" = "true" ] && export LP3D_BUILD_POVRAY=1 \
+[ "$LP3D_BUILD_POVRAY_VAR" = "true" ] && export LP3D_BUILD_3RD=1 && export LP3D_BUILD_POVRAY=1 \
 && echo "'Build POV-Ray' detected in environment variable." || true
+[ "$LP3D_BUILD_MESALIB_VAR" = "true" ] && export LP3D_BUILD_3RD=1 && export LP3D_BUILD_MESALIB=1 \
+&& echo "'Build Mesa Library' detected in environment variable." || true
 
 # Update repository index and download package build dependencies if required
 # Install specific library versions:

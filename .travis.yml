@@ -26,6 +26,7 @@ cache:
 # LP3D_BUILD_LDGLITE_VAR   ; rebuild LDGLite
 # LP3D_BUILD_LDVIEW_VAR    ; rebuild LDView
 # LP3D_BUILD_POVRAY_VAR    ; rebuild LPub3D-Trace (POV-Ray)
+# LP3D_BUILD_MESALIB_VAR   ; rebuild Mesa library
 #
 env:
   global:
@@ -51,6 +52,7 @@ env:
     - LP3D_VER_LDGLITE=ldglite-1.3
     - LP3D_VER_LDVIEW=ldview-4.3
     - LP3D_VER_POVRAY=lpub3d_trace_cui-3.8
+    - LP3D_VER_MESALIB=mesa
 
 addons:
   ssh_known_hosts: trevorsandy@frs.sourceforge.net

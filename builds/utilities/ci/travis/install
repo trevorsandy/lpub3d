@@ -3,7 +3,7 @@
 # Travis-ci build [install] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: March 06, 2019
+#  Last Update: March 23, 2019
 #  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -131,6 +131,7 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
     LP3D_LDGLITE_DIR=${LP3D_DIST_DIR_PATH}/${LP3D_VER_LDGLITE};
     LP3D_LDVIEW_DIR=${LP3D_DIST_DIR_PATH}/${LP3D_VER_LDVIEW};
     LP3D_POVRAY_DIR=${LP3D_DIST_DIR_PATH}/${LP3D_VER_POVRAY};
+    LP3D_MESALIB_DIR=${LP3D_DIST_DIR_PATH}/${LP3D_VER_MESALIB};
     if [[ "$LP3D_BUILD_LDGLITE" = 1 && -d "$LP3D_LDGLITE_DIR" ]]; then
       sudo rm -rf "$LP3D_LDGLITE_DIR" && echo "cached $LP3D_LDGLITE_DIR deleted";
     fi;
@@ -139,6 +140,9 @@ if [ -z "$LP3D_DEPLOY_PACKAGES" ]; then
     fi;
     if [[ "$LP3D_BUILD_POVRAY" = 1 && -d "$LP3D_POVRAY_DIR" ]]; then
       sudo rm -rf "$LP3D_POVRAY_DIR" && echo "cached $LP3D_POVRAY_DIR deleted";
+    fi;
+    if [[ "$LP3D_BUILD_MESALIB" = 1 && -d "$LP3D_MESALIB_DIR" ]]; then
+      sudo rm -rf "$LP3D_MESALIB_DIR" && echo "cached $LP3D_MESALIB_DIR deleted";
     fi;
   fi;
 fi
