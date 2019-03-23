@@ -101,6 +101,7 @@ BuildMesaLibs() {
     OSMESA_PREFIX=$WD/${DIST_DIR}/mesa/${platform_id} \
     ${mesaUtilsDir}/build_osmesa.sh &
   else
+    #if [[ ("${platform_id}" = "fedora" && ${platform_ver} = 26) || "${platform_id}" = "arch" ]]; then
     if [ "${platform_id}" = "arch" ]; then
       osmesa_version=18.3.5
     else

@@ -103,6 +103,9 @@ BuildRequires: gcc-c++, make
 %if 0%{?buildservice}!=1
 BuildRequires: git
 %endif
+%if 0%{?fedora}==26
+%define build_osmesa 1
+%endif
 %endif
 
 %if 0%{?suse_version}
@@ -231,15 +234,14 @@ export RPM_BUILD=true
 export LP3D_BUILD_PKG=yes
 # set Qt5
 export QT_SELECT=qt5
+# 3rd-party renderers build-from-source requirements
+%if 0%{?build_osmesa}
+echo "Build OSMesa from source.......yes"
+export build_osmesa="%{build_osmesa}"
+%endif
 # build 3rd-party renderers
 export WD=$(readlink -e ../); \
 chmod a+x builds/utilities/CreateRenderers.sh && ./builds/utilities/CreateRenderers.sh
-# option flags and qmake settings
-%if 0%{?fedora}==23
-%ifarch x86_64
-export Q_CXXFLAGS="$Q_CXXFLAGS -fPIC"
-%endif
-%endif
 # Qt setup
 if which qmake-qt5 >/dev/null 2>/dev/null ; then
   QMAKE_EXEC=qmake-qt5

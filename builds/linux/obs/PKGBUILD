@@ -1,5 +1,5 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
-#  Last Update: March 06, 2019
+#  Last Update: March 23, 2019
 #  Copyright (c) 2017 - 2019 by Trevor SANDY
 pkgname=lpub3d
 pkgver=2.1.0.313
@@ -8,19 +8,15 @@ pkgdesc="An LDraw Building Instruction Editor"
 url="https://github.com/trevorsandy/lpub3d.git"
 arch=('x86_64' 'i686')
 license=('GPL3')
-depends=('qt5-base' 'libpng')
 makedepends=('unzip' 'qt5-tools')
+depends=('qt5-base' 'libpng')
 conflicts=()
 replaces=()
 backup=()
 # Build OSMesa from source
-#source=("lpub3d-git.tar.gz" "complete.zip" "lpub3dldrawunf.zip" "tenteparts.zip" "vexiqparts.zip" "povray.tar.gz" "ldview.tar.gz" "ldglite.tar.gz" "mesa-18.3.0.tar.gz" "glu-9.0.0.tar.bz2")
-#noextract=("complete.zip" "lpub3dldrawunf.zip" "tenteparts.zip" "vexiqparts.zip" "povray.tar.gz" "ldview.tar.gz" "ldglite.tar.gz" "mesa-18.3.0.tar.gz" "glu-9.0.0.tar.bz2")
-#md5sums=(SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP)
-# Use System OSMesa
-source=("lpub3d-git.tar.gz" "complete.zip" "lpub3dldrawunf.zip" "tenteparts.zip" "vexiqparts.zip" "povray.tar.gz" "ldview.tar.gz" "ldglite.tar.gz")
-noextract=("complete.zip" "lpub3dldrawunf.zip" "tenteparts.zip" "vexiqparts.zip" "povray.tar.gz" "ldview.tar.gz" "ldglite.tar.gz")
-md5sums=(SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP)
+source=("lpub3d-git.tar.gz" "complete.zip" "lpub3dldrawunf.zip" "tenteparts.zip" "vexiqparts.zip" "povray.tar.gz" "ldview.tar.gz" "ldglite.tar.gz" "mesa-18.3.5.tar.gz" "glu-9.0.0.tar.bz2")
+noextract=("complete.zip" "lpub3dldrawunf.zip" "tenteparts.zip" "vexiqparts.zip" "povray.tar.gz" "ldview.tar.gz" "ldglite.tar.gz" "mesa-18.3.5.tar.gz" "glu-9.0.0.tar.bz2")
+md5sums=(SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP SKIP)
 
 prepare() {
 	# loc = ../src
@@ -31,12 +27,12 @@ prepare() {
 	export PLATFORM_VER="2019"
 	export TARGET_CPU="$(uname -m)"
 	if [ -x /usr/lib64/libQt5Core.so.5 ]; then
-		echo "	-> Strip incompatible libQt5Core.so.5 ABI (Qt 5.12)"
+		echo "  -> Strip incompatible libQt5Core.so.5 ABI (Qt 5.12)"
 		(sudo strip --remove-section=.note.ABI-tag /usr/lib64/libQt5Core.so.5)
 	fi
-# Build OSMesa from source
-#	echo "  -> Build OSMesa from source.......yes"
-#	export build_osmesa="yes"
+	# Build OSMesa from source
+	echo "  -> Build OSMesa from source.......yes"
+	export build_osmesa="yes"
 	cd ${pkgname}-git
 	chmod +x builds/utilities/CreateRenderers.sh && \
 	./builds/utilities/CreateRenderers.sh

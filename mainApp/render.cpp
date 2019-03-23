@@ -1150,13 +1150,13 @@ int LDView::renderCsi(
             ldrNames = csiParts;
         }
 
-        if (!useLDViewSList() || (ldrNames.size() < SNAPSHOTS_LIST_THRESHOLD)) {
+        if (!useLDViewSList() || (useLDViewSList() && ldrNames.size() < SNAPSHOTS_LIST_THRESHOLD)) {
 
             f  = QString("-SaveSnapShots=1");
 
         } else {                                              // LDView SnapshotsList
 
-            QString SnapshotsList = tempPath + "/csiSnapshotsList.ldr";
+            QString SnapshotsList = tempPath + "/csiSnapshotsList.lst";
             QFile SnapshotsListFile(SnapshotsList);
             if ( ! SnapshotsListFile.open(QFile::Append | QFile::Text)) {
                 emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to create LDView (Single Call) CSI Snapshots list file!"));
@@ -1248,12 +1248,15 @@ int LDView::renderCsi(
       arguments << altldc;               // 12.Alternate LDConfig
   }
 
-  if (haveLdrNames) {
-      if ((!useLDViewSList() && useLDViewSCall()) || (ldrNames.size() < SNAPSHOTS_LIST_THRESHOLD))
-          arguments = arguments + ldrNames;  // 13. LDR input file(s)
-      else
-      if (!useLDViewSCall())
+  if (haveLdrNames) {      
+      if (useLDViewSCall()) {
+          //-SaveSnapShots=1
+          if ((!useLDViewSList()) || (useLDViewSList() && ldrNames.size() < SNAPSHOTS_LIST_THRESHOLD))
+              arguments = arguments + ldrNames;  // 13. LDR input file(s)
+      } else {
+          // SaveSnapShot=1
           arguments << ldrNames.first();
+      }
 
       emit gui->messageSig(LOG_STATUS, "Executing LDView render CSI - please wait...");
 
@@ -1368,10 +1371,10 @@ int LDView::renderPli(
   QString f;
   if (useLDViewSCall()) {
 
-      if (!useLDViewSList() || (ldrNames.size() < SNAPSHOTS_LIST_THRESHOLD)) {
+      if (!useLDViewSList() || (useLDViewSList() && ldrNames.size() < SNAPSHOTS_LIST_THRESHOLD)) {
           f  = QString("-SaveSnapShots=1");
       } else {
-          QString SnapshotsList = tempPath + "/pliSnapshotsList.ldr";
+          QString SnapshotsList = tempPath + "/pliSnapshotsList.lst";
           QFile SnapshotsListFile(SnapshotsList);
           if ( ! SnapshotsListFile.open(QFile::Append | QFile::Text)) {
               emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to create LDView (Single Call) PLI Snapshots list file!"));
@@ -1382,8 +1385,12 @@ int LDView::renderPli(
 
           for (int i = 0; i < ldrNames.size(); i++) {
               QString smLine = ldrNames[i];
-              out << smLine << endl;
-              emit gui->messageSig(LOG_INFO, QString("Wrote %1 to PLI Snapshots list").arg(smLine));
+              if (QFileInfo(smLine).exists()) {
+                  out << smLine << endl;
+                  emit gui->messageSig(LOG_INFO, QString("Wrote %1 to PLI Snapshots list").arg(smLine));
+              } else {
+                  emit gui->messageSig(LOG_ERROR, QString("Error %1 not written to Snapshots list - file does not exist").arg(smLine));
+              }
           }
           SnapshotsListFile.close();
 
@@ -1440,11 +1447,14 @@ int LDView::renderPli(
       arguments << altldc;
   }
 
-  if ((!useLDViewSList() && useLDViewSCall()) || (ldrNames.size() < SNAPSHOTS_LIST_THRESHOLD))
-      arguments = arguments + ldrNames;
-  else
-  if (!useLDViewSCall())
+  if (useLDViewSCall()) {
+      //-SaveSnapShots=1
+      if ((!useLDViewSList()) || (useLDViewSList() && ldrNames.size() < SNAPSHOTS_LIST_THRESHOLD))
+          arguments = arguments + ldrNames;  // 13. LDR input file(s)
+  } else {
+      // SaveSnapShot=1
       arguments << ldrNames.first();
+  }
 
   emit gui->messageSig(LOG_STATUS, "Executing LDView render PLI - please wait...");
 
@@ -2143,7 +2153,7 @@ const QString Render::getPovrayRenderFileName(const QString &viewerCsiKey)
 
     QDir povrayDir(QString("%1/%2").arg(QDir::currentPath()).arg(Paths::povrayRenderDir));
     if (!povrayDir.exists())
-        povrayDir.mkdir(".");
+        Paths::mkPovrayDir();
 
     QFileInfo csiFile(fileName);
     QString imageFile = QDir::toNativeSeparators(QString("%1/%2_%3.png")

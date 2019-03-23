@@ -15,8 +15,7 @@ LP3D_TARGET_ARCH="$(uname -m)"
 LP3D_PLATFORM=$(. /etc/os-release 2>/dev/null; [ -n "$ID" ] && echo $ID || echo $OS_NAME | awk '{print tolower($0)}')
 
 # Set XDG_RUNTIME_DIR
-if [[ "${LP3D_OS_NAME}" != "Darwin" && $UID -ge 1000 && -z "$(printenv | grep XDG_RUNTIME_DIR)" ]]
-then
+if [[ "${LP3D_OS_NAME}" != "Darwin" && $UID -ge 1000 && -z "$(printenv | grep XDG_RUNTIME_DIR)" ]]; then
     runtime_dir="/tmp/runtime-user-$UID"
     if [ ! -d "$runtime_dir" ]; then
        mkdir -p $runtime_dir
@@ -28,15 +27,6 @@ fi
 if [[ "${XMING}" != "true" && ("${DOCKER}" = "true" || ("${LP3D_OS_NAME}" != "Darwin")) ]]; then
     echo && echo "- Using XVFB from working directory: ${PWD}"
     USE_XVFB="true"
-fi
-
-# Interim workaround for LDView Single Call fail on Arch and Fedora Linux
-if [[ "${LP3D_PLATFORM}" = "arch" || "${LP3D_PLATFORM}" = "fedora" ]]; then
-    LP3D_RENDERER3="ldview"
-    LP3D_RENDERER7="ldview"
-else
-    LP3D_RENDERER3="ldview-sc"
-    LP3D_RENDERER7="ldview-scsl"
 fi
 
 # macOS, compile only, initialize build paths and libraries
@@ -74,6 +64,7 @@ fi
 
 # Initialize variables
 LP3D_CHECK_FILE="$(realpath ${SOURCE_DIR})/builds/check/build_checks.mpd"
+LP3D_CHECK_STDLOG="$(realpath ${SOURCE_DIR})/builds/check/LPub3D"
 LP3D_CHECK_SUCCESS="Application terminated with return code 0."
 LP3D_LOG_FILE="Check.out"
 let LP3D_CHECK_PASS=0
@@ -84,7 +75,7 @@ LP3D_CHECKS_FAIL=
 echo && echo "------------Build checks start--------------" && echo
 
 # Remove old log if exist
-if [ -e "${LP3D_LOG_FILE}" ]; then
+if [ -f "${LP3D_LOG_FILE}" ]; then
     rm -rf "${LP3D_LOG_FILE}"
 fi
 
@@ -94,38 +85,45 @@ for LP3D_BUILD_CHECK in CHECK01 CHECK02 CHECK03 CHECK04 CHECK05 CHECK06 CHECK07;
         LP3D_CHECK_LBL="Native File Process"
         LP3D_CHECK_HDR="- Check 1 of 7: ${LP3D_CHECK_LBL} Check..."
         LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --liblego --preferred-renderer native"
+        LP3D_CHECK_STDLOG=
         ;;
     CHECK02)
         LP3D_CHECK_LBL="LDView File Process"
         LP3D_CHECK_HDR="- Check 2 of 7: ${LP3D_CHECK_LBL} Check..."
         LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --liblego --preferred-renderer ldview"
+        LP3D_CHECK_STDLOG="${LP3D_CHECK_STDLOG}/stdout-ldview"
         ;;
     CHECK03)
         LP3D_CHECK_LBL="LDView (Single Call) File Process"
         LP3D_CHECK_HDR="- Check 3 of 7: ${LP3D_CHECK_LBL} Check..."
-        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --liblego --preferred-renderer ${LP3D_RENDERER3}"
+        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --liblego --preferred-renderer ldview-sc"
+        LP3D_CHECK_STDLOG="${LP3D_CHECK_STDLOG}/stdout-ldview"
         ;;
     CHECK04)
         LP3D_CHECK_LBL="LDGLite Export Range"
         LP3D_CHECK_HDR="- Check 4 of 7: ${LP3D_CHECK_LBL} Check..."
         LP3D_CHECK_OPTIONS="--no-stdout-log --process-export --range 1-3 --clear-cache --liblego --preferred-renderer ldglite"
+        LP3D_CHECK_STDLOG="${LP3D_CHECK_STDLOG}/stderr-ldglite"
         ;;
     CHECK05)
         LP3D_CHECK_LBL="Native POV Generation"
         LP3D_CHECK_HDR="- Check 5 of 7: ${LP3D_CHECK_LBL} Check..."
         LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --liblego --preferred-renderer povray"
+        LP3D_CHECK_STDLOG="${LP3D_CHECK_STDLOG}/stderr-povray"
         ;;
     CHECK06)
         LP3D_CHECK_LBL="LDView TENTE Model"
         LP3D_CHECK_HDR="- Check 6 of 7: ${LP3D_CHECK_LBL} Check..."
         LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --libtente --preferred-renderer ldview"
         LP3D_CHECK_FILE="$(realpath ${SOURCE_DIR})/builds/check/TENTE/astromovil.ldr"
+        LP3D_CHECK_STDLOG="${LP3D_CHECK_STDLOG}/stdout-ldview"
         ;;
     CHECK07)
-        LP3D_CHECK_LBL="Native VEXIQ Model"
+        LP3D_CHECK_LBL="LDView (Snapshot List) VEXIQ Model"
         LP3D_CHECK_HDR="- Check 7 of 7: ${LP3D_CHECK_LBL} Check..."
-        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --libvexiq --preferred-renderer ${LP3D_RENDERER7}"
+        LP3D_CHECK_OPTIONS="--no-stdout-log --process-file --clear-cache --libvexiq --preferred-renderer ldview-scsl"
         LP3D_CHECK_FILE="$(realpath ${SOURCE_DIR})/builds/check/VEXIQ/spider.mpd"
+        LP3D_CHECK_STDLOG="${LP3D_CHECK_STDLOG}/stdout-ldview"
         ;;
       esac
 
@@ -137,15 +135,21 @@ for LP3D_BUILD_CHECK in CHECK01 CHECK02 CHECK03 CHECK04 CHECK05 CHECK06 CHECK07;
     # check output log for build check status
     if [ -f "${LP3D_LOG_FILE}" ]; then
         if grep -q "${LP3D_CHECK_SUCCESS}" "${LP3D_LOG_FILE}"; then
-            echo "${LP3D_CHECK_HDR} SUCCESS"
+            echo "${LP3D_CHECK_HDR} PASS"
             echo "${LP3D_CHECK_LBL} Command: ${LP3D_CHECK_OPTIONS} ${LP3D_CHECK_FILE}"
             let LP3D_CHECK_PASS++
             LP3D_CHECKS_PASS="${LP3D_CHECKS_PASS},$(echo ${LP3D_CHECK_HDR} | cut -d " " -f 3)"
+            echo
         else
             echo "${LP3D_CHECK_HDR} FAIL"
             let LP3D_CHECK_FAIL++
             LP3D_CHECKS_FAIL="${LP3D_CHECKS_FAIL},$(echo ${LP3D_CHECK_HDR} | cut -d " " -f 3)"
+            echo "- LPub3D Log Trace: ${LP3D_LOG_FILE}"
             cat "${LP3D_LOG_FILE}"
+            [ -f "${LP3D_CHECK_STDLOG}" ] && \
+            echo "- Standard Error Log Trace: ${LP3D_CHECK_STDLOG}" && \
+            cat "${LP3D_CHECK_STDLOG}" || true
+            echo
         fi
         rm -rf "${LP3D_LOG_FILE}"
     else
