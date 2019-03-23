@@ -15,7 +15,7 @@ SECONDS=0
 
 # configuration options:
 # specify the osmesa verion to build
-mesaversion="${OSMESA_VERSION:-18.3.0}"
+mesaversion="${OSMESA_VERSION:-18.3.5}"
 # specify if gallium dirver not available (e.g. RHEL on OBS does not support llvm so gallium driver not available)
 nogallium="${NO_GALLIUM:-0}"
 # specify llvm-config path if different from system default
@@ -180,7 +180,7 @@ confopts="\
 --with-platforms= \
 --with-osmesa-bits=32 \
 "
-if [ "${mesaversion}" = "18.3.0" ]; then
+if [ "${mesaversion}" = "18.3.5" ]; then
   confopts="\
   $confopts \
   --disable-omx-bellagio \

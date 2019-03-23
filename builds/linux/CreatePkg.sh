@@ -108,9 +108,9 @@ then
     curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip
 fi
 
-if [ ! -f mesa-18.3.0.tar.gz ]
+if [ ! -f mesa-18.3.5.tar.gz ]
 then
-  curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/mesa-18.3.0.tar.gz
+  curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/mesa-18.3.5.tar.gz
 fi
 
 if [ ! -f glu-9.0.0.tar.bz2 ]

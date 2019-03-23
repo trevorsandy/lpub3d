@@ -118,7 +118,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d
 Icon: lpub3d.xpm
-Version: 2.3.7.1176
+Version: 2.3.7.1177
 Release: <B_CNT>%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -524,7 +524,7 @@ for TarballFile in \
   ../../SOURCES/ldview.tar.gz \
   ../../SOURCES/povray.tar.gz \
   ../../SOURCES/mesa-17.2.6.tar.gz \
-  ../../SOURCES/mesa-18.3.0.tar.gz \
+  ../../SOURCES/mesa-18.3.5.tar.gz \
   ../../SOURCES/glu-9.0.0.tar.bz2 \
   ../../SOURCES/qt5-5.9.3-gcc_64-el.tar.gz \
   ../../SOURCES/locallibs.el.x86_64.tar.gz; do
@@ -717,5 +717,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Sat Mar 23 2019 - trevor.dot.sandy.at.gmail.dot.com 2.3.7.1176
+* Sat Mar 23 2019 - trevor.dot.sandy.at.gmail.dot.com 2.3.7.1177
 - LPub3D Linux package (rpm) release

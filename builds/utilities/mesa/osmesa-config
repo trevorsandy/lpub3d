@@ -40,7 +40,7 @@ while test $# -gt 0; do
       echo $exec_prefix
       ;;
     --version)
-      echo 18.3.0
+      echo 18.3.5
       ;;
     --libdir)
       echo -L${libdir}

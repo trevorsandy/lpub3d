@@ -118,8 +118,8 @@
   <service name="download_url">
    <param name="protocol">https</param>
    <param name="host">github.com</param>
-   <param name="path">/trevorsandy/lpub3d_libs/releases/download/v1.0.1/mesa-18.3.0.tar.gz</param>
-   <param name="filename">mesa-18.3.0.tar.gz</param>
+   <param name="path">/trevorsandy/lpub3d_libs/releases/download/v1.0.1/mesa-18.3.5.tar.gz</param>
+   <param name="filename">mesa-18.3.5.tar.gz</param>
   </service>  
   <service name="download_url">
    <param name="protocol">https</param>

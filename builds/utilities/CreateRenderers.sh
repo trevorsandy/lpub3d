@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: March 18, 2019
+#  Last Update: March 23, 2019
 #  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 
@@ -90,12 +90,11 @@ BuildMesaLibs() {
   if [ "${OBS}" = "true" ]; then
     Info "Using sudo..........[No]"
     if [[ ("${platform_id}" = "redhat" && ${platform_ver} = 28) || ("${platform_id}" = "arch") ]]; then
-      Info "Building OSMesa.....[v18.3.0]"
-      osmesa_version=18.3.0
+      osmesa_version=18.3.5
     else
-      Info "Building OSMesa.....[v17.2.6]"
       osmesa_version=17.2.6
     fi
+    Info "Building OSMesa.....[${osmesa_version}]"
     env \
     NO_GALLIUM=${no_gallium} \
     OSMESA_VERSION=${osmesa_version} \
@@ -103,12 +102,12 @@ BuildMesaLibs() {
     ${mesaUtilsDir}/build_osmesa.sh &
   else
     if [ "${platform_id}" = "arch" ]; then
-       Info "Building OSMesa.....[v18.3.0]"
-       osmesa_version=18.3.0
+      osmesa_version=18.3.5
     else
-       Info "Building OSMesa.....[v17.2.6]"
-       osmesa_version=17.2.6
+      osmesa_version=17.2.6
     fi
+    Info "Building OSMesa.....[${osmesa_version}]"
+    Info "OSMesa Build Log....[${mesaBuildLog}]"
     env \
     OSMESA_VERSION=${osmesa_version} \
     OSMESA_PREFIX=$WD/${DIST_DIR}/mesa/${platform_id} \
