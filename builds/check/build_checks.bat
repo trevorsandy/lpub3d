@@ -3,7 +3,7 @@
 Title LPub3D Windows build check script
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: March 01, 2019
+rem  Last Update: March 23, 2019
 rem  Copyright (c) 2018 - 2019 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -44,6 +44,11 @@ rem Check 7 of 7
 SET PKG_CHECK_FILE=%ABS_WD%\builds\check\VEXIQ\spider.mpd
 SET PKG_CHECK_OPTIONS=--process-file --clear-cache --libvexiq --preferred-renderer ldview-scsl
 SET PKG_CHECK_VEXIQ_COMMAND=%PKG_TARGET% %PKG_CHECK_OPTIONS% %PKG_CHECK_FILE%
+SET PKG_LOG_FILE=Check.out
+SET /A PKG_CHECK_PASS=0
+SET /A PKG_CHECK_FAIL=0
+SET "PKG_CHECKS_PASS="
+SET "PKG_CHECKS_FAIL="
 
 ECHO.
 ECHO   PKG_CHECK_OPTIONS.........[%PKG_CHECK_OPTIONS%]
@@ -56,113 +61,93 @@ ECHO   LDRAW_LIB_STORE...........[%LDRAW_LIBS%]
 CALL :SET_LDRAW_LIBS
 
 ECHO.
-ECHO   Build checks start...
-ECHO ------------------------------------------------
+ECHO ------------Build checks start--------------
 ECHO.
 IF NOT EXIST "%PKG_TARGET%" (
   ECHO -ERROR - %PKG_TARGET% does not exist. The build check cannot continue.
   EXIT /b
 ) ELSE (
   ECHO -%PKG_TARGET% found.
-  IF EXIST "Check.out" DEL /Q "Check.out"
+  IF EXIST "%PKG_LOG_FILE%" DEL /Q "%PKG_LOG_FILE%"
   ECHO.
   ECHO   1 OF 7. PKG_CHECK_NATIVE_COMMAND...[%PKG_CHECK_NATIVE_COMMAND%]
-  CALL %PKG_CHECK_NATIVE_COMMAND% > Check.out 2>&1
-  FOR %%R IN (Check.out) DO (
+  CALL %PKG_CHECK_NATIVE_COMMAND% > %PKG_LOG_FILE% 2>&1
+  FOR %%R IN (%PKG_LOG_FILE%) DO (
     IF NOT %%~zR LSS 1 (
-      ECHO -BUILD_CHECK_NATIVE Output...
-      TYPE "Check.out"
-      ECHO.
-      DEL /Q "Check.out"
+      CALL :GET_CHECK_RESULT PKG_CHECK_NATIVE 1
       ECHO.
     ) ELSE (
-      ECHO. -ERROR - BUILD_CHECK_NATIVE failed.
+      ECHO. -ERROR - PKG_CHECK_NATIVE NO OUTPUT
     )
   )
   ECHO.
   ECHO   2 OF 7. PKG_CHECK_LDVIEW_COMMAND...[%PKG_CHECK_LDVIEW_COMMAND%]
-  CALL %PKG_CHECK_LDVIEW_COMMAND% > Check.out 2>&1
-  FOR %%R IN (Check.out) DO (
+  CALL %PKG_CHECK_LDVIEW_COMMAND% > %PKG_LOG_FILE% 2>&1
+  FOR %%R IN (%PKG_LOG_FILE%) DO (
     IF NOT %%~zR LSS 1 (
-      ECHO -BUILD_CHECK_LDVIEW Output...
-      TYPE "Check.out"
-      ECHO.
-      DEL /Q "Check.out"
+      CALL :GET_CHECK_RESULT PKG_CHECK_LDVIEW 2
       ECHO.
     ) ELSE (
-      ECHO. -ERROR - BUILD_CHECK_LDVIEW failed.
+      ECHO. -ERROR - PKG_CHECK_LDVIEW NO OUTPUT
     )
   )
   ECHO.
   ECHO   3 OF 7. PKG_CHECK_LDVIEW_SINGLE_CALL_COMMAND...[%PKG_CHECK_LDVIEW_COMMAND%]
-  CALL %PKG_CHECK_LDVIEW_SINGLE_CALL_COMMAND% > Check.out 2>&1
-  FOR %%R IN (Check.out) DO (
+  CALL %PKG_CHECK_LDVIEW_SINGLE_CALL_COMMAND% > %PKG_LOG_FILE% 2>&1
+  FOR %%R IN (%PKG_LOG_FILE%) DO (
     IF NOT %%~zR LSS 1 (
-      ECHO -BUILD_CHECK_LDVIEW_SINGLE_CALL Output...
-      TYPE "Check.out"
-      ECHO.
-      DEL /Q "Check.out"
+      CALL :GET_CHECK_RESULT PKG_CHECK_LDVIEW_SINGLE_CALL 3
       ECHO.
     ) ELSE (
-      ECHO. -ERROR - BUILD_CHECK_LDVIEW_SINGLE_CALL failed.
+      ECHO. -ERROR - PKG_CHECK_LDVIEW_SINGLE_CALL NO OUTPUT
     )
   )
   ECHO.
   ECHO   4 OF 7. PKG_CHECK_RANGE_COMMAND....[%PKG_CHECK_RANGE_COMMAND%]
-  CALL %PKG_CHECK_RANGE_COMMAND% > Check.out 2>&1
-  FOR %%R IN (Check.out) DO (
+  CALL %PKG_CHECK_RANGE_COMMAND% > %PKG_LOG_FILE% 2>&1
+  FOR %%R IN (%PKG_LOG_FILE%) DO (
     IF NOT %%~zR LSS 1 (
-      ECHO -BUILD_CHECK_RANGE Output...
-      TYPE "Check.out"
-      ECHO.
-      DEL /Q "Check.out"
+      CALL :GET_CHECK_RESULT PKG_CHECK_RANGE 4
       ECHO.
     ) ELSE (
-      ECHO. -ERROR - BUILD_CHECK_RANGE failed.
+      ECHO. -ERROR - PKG_CHECK_RANGE NO OUTPUT
     )
   )
   ECHO.
   ECHO   5 OF 7. PKG_CHECK_POV_COMMAND......[%PKG_CHECK_POV_COMMAND%]
-  CALL %PKG_CHECK_POV_COMMAND% > Check.out 2>&1
-  FOR %%R IN (Check.out) DO (
+  CALL %PKG_CHECK_POV_COMMAND% > %PKG_LOG_FILE% 2>&1
+  FOR %%R IN (%PKG_LOG_FILE%) DO (
     IF NOT %%~zR LSS 1 (
-      ECHO -BUILD_CHECK_POV Output...
-      TYPE "Check.out"
-      ECHO.
-      DEL /Q "Check.out"
+      CALL :GET_CHECK_RESULT PKG_CHECK_POV 5
       ECHO.
     ) ELSE (
-      ECHO. -ERROR - BUILD_CHECK_POV failed.
+      ECHO. -ERROR - PKG_CHECK_POV NO OUTPUT
     )
   )
   ECHO.
   ECHO   6 OF 7. PKG_CHECK_TENTE_COMMAND......[%PKG_CHECK_TENTE_COMMAND%]
-  CALL %PKG_CHECK_TENTE_COMMAND% > Check.out 2>&1
-  FOR %%R IN (Check.out) DO (
+  CALL %PKG_CHECK_TENTE_COMMAND% > %PKG_LOG_FILE% 2>&1
+  FOR %%R IN (%PKG_LOG_FILE%) DO (
     IF NOT %%~zR LSS 1 (
-      ECHO -BUILD_CHECK_TENTE Output...
-      TYPE "Check.out"
-      ECHO.
-      DEL /Q "Check.out"
+      CALL :GET_CHECK_RESULT PKG_CHECK_TENTE 6
       ECHO.
     ) ELSE (
-      ECHO. -ERROR - BUILD_CHECK_TENTE failed.
+      ECHO. -ERROR - PKG_CHECK_TENTE NO OUTPUT
     )
   )
   ECHO.
   ECHO   7 OF 7. PKG_CHECK_VEXIQ_COMMAND......[%PKG_CHECK_VEXIQ_COMMAND%]
-  CALL %PKG_CHECK_VEXIQ_COMMAND% > Check.out 2>&1
-  FOR %%R IN (Check.out) DO (
+  CALL %PKG_CHECK_VEXIQ_COMMAND% > %PKG_LOG_FILE% 2>&1
+  FOR %%R IN (%PKG_LOG_FILE%) DO (
     IF NOT %%~zR LSS 1 (
-      ECHO -BUILD_CHECK_VEXIQ Output...
-      TYPE "Check.out"
-      ECHO.
-      DEL /Q "Check.out"
+      CALL :GET_CHECK_RESULT PKG_CHECK_VEXIQ 7
       ECHO.
     ) ELSE (
-      ECHO. -ERROR - BUILD_CHECK_VEXIQ failed.
+      ECHO. -ERROR - PKG_CHECK_VEXIQ NO OUTPUT
     )
   )
+  ECHO.
+  ECHO ----Build Check Status: PASS ^(%PKG_CHECK_PASS%^)[%PKG_CHECKS_PASS%], FAIL ^(%PKG_CHECK_FAIL%^)[%PKG_CHECKS_FAIL%]----
   ECHO.
   ECHO   Build checks cleanup...
   RMDIR /S /Q %PKG_TARGET_DIR%\cache
@@ -171,12 +156,31 @@ IF NOT EXIST "%PKG_TARGET%" (
   RMDIR /S /Q %PKG_TARGET_DIR%\libraries
   RMDIR /S /Q %PKG_TARGET_DIR%\VEXIQParts
   RMDIR /S /Q %PKG_TARGET_DIR%\TENTEParts
-
   ECHO.
-  ECHO   Build checks completed.
-  ECHO ------------------------------------------------
+  ECHO ------------Build checks finished--------------
   ECHO.
 )
+EXIT /b
+
+:GET_CHECK_RESULT
+SET PKG_CHECK_SUCCESS=Application terminated with return code 0.
+SETLOCAL ENABLEDELAYEDEXPANSION
+FOR /F "tokens=2*" %%i IN ('FINDSTR /c:"%PKG_CHECK_SUCCESS%" %PKG_LOG_FILE%') DO (
+  SET PKG_CHECK_TMP=%%i %%j
+)
+IF "!PKG_CHECK_TMP!" EQU "%PKG_CHECK_SUCCESS%" (
+  ECHO -%1 PASS
+  SET /A PKG_CHECK_PASS=!PKG_CHECK_PASS!+1
+  SET "PKG_CHECKS_PASS=!PKG_CHECKS_PASS!,%2"
+  FOR /F %%a IN ('SET PKG_CHECK_PASS^&SET PKG_CHECKS_PASS') DO (IF "!"=="" ENDLOCAL)&SET "%%a"
+) ELSE (
+  ECHO -%1 FAIL
+  SET /A PKG_CHECK_FAIL=!PKG_CHECK_FAIL!+1
+  SET "PKG_CHECKS_FAIL=!PKG_CHECKS_FAIL!,%2"
+  FOR /F %%a IN ('SET PKG_CHECK_FAIL^&SET PKG_CHECKS_FAIL') DO (IF "!"=="" ENDLOCAL)&SET "%%a"
+  TYPE "%PKG_LOG_FILE%"
+)
+DEL /Q "%PKG_LOG_FILE%"
 EXIT /b
 
 :SET_LDRAW_LIBS

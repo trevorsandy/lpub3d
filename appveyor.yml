@@ -42,8 +42,8 @@ configuration: release
 matrix:
   fast_finish: true
 
-# The following variables can be set to true from the AppVeyor
-# via site->Project->Settings->Environment Variables
+# The following variables can be set to true from
+# AppVeyor Site->Project->Settings->Environment Variables
 # LP3D_SKIP_APPVEYOR_VAR     ; skip AppVeyor build
 # LP3D_BUILD_PKG_VAR         ; trigger package build
 # LP3D_TEST_SF_DEPLOY_VAR    ; deploy SourceForge

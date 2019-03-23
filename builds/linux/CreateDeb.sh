@@ -148,8 +148,8 @@ then
 
     echo "11-2. Build-check ${DISTRO_FILE}"
     if [ ! -f "/usr/bin/update-desktop-database" ]; then
-            echo "      Program update-desktop-database not found. Installing..."
-            sudo apt-get install -y desktop-file-utils
+        echo "      Program update-desktop-database not found. Installing..."
+        sudo apt-get install -y desktop-file-utils
     fi
     # Install package - here we use the distro file name
     echo "      11-2. Build-check install ${LPUB3D}..."
@@ -159,7 +159,7 @@ then
     if [ -f "/usr/bin/${LPUB3D_EXE}" ]; then
         # Check commands
         source ${SOURCE_DIR}/builds/check/build_checks.sh
-       # Cleanup - here we use the package name
+        # Cleanup - here we use the package name
         echo "      11-2. Build-check uninstall ${LPUB3D}..."
         sudo dpkg -r ${LPUB3D}
     else

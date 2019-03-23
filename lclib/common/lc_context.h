@@ -155,7 +155,7 @@ public:
 /*** LPub3D Mod end ***/
 	void SetLineWidth(float LineWidth);
 	void SetSmoothShading(bool Smooth);
-/*** LPub3D Mod - Disable [No1. Reduce z-fighting 31703618c]
+/*** LPub3D Mod - Disable [No1. Reduce z-fighting 31703618c] ***/
 	//void BeginTranslucent();
 	//void EndTranslucent();
 /*** LPub3D Mod end ***/

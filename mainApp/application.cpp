@@ -192,17 +192,35 @@ void Application::initialize()
     // Request console redirect
     bool consoleRedirectTreated = false;
 #endif
-    QString ldrawLibrary, loadedLibrary;
+    QString hdr, args, ldrawLibrary, loadedLibrary;
     QStringList ListArgs, Arguments = arguments();
     const int NumArguments = Arguments.size();
     for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
     ListArgs << Arguments[ArgIdx];
+    hdr = QString("%1 %2 for %3").arg(VER_PRODUCTNAME_STR).arg(VER_PRODUCTVERSION_STR).arg(VER_COMPILED_FOR);
+    args = QString("Arguments: %1").arg(ListArgs.join(" "));
     for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
     {
         const QString& Param = Arguments[ArgIdx];
         // Items in this condition execute in GUI mode - first item executes in command console mode also)
         if (Param[0] != '-')
         {
+            if (! headerPrinted)
+            {
+#ifdef QT_DEBUG_MODE
+                qDebug() << "";
+                qDebug() << hdr;
+                qDebug() << "==========================";
+                qDebug() << args;
+#else
+                fprintf(stdout, "\n%s\n",hdr.toLatin1().constData());
+                fprintf(stdout, "==========================\n");
+                fprintf(stdout, "%s\n",args.toLatin1().constData());
+                fflush(stdout);
+#endif
+                headerPrinted = true;
+            }
+
             if (m_commandline_file.isEmpty() && QFileInfo(Param).exists() && !m_console_mode)
                 m_commandline_file = Param;
 
@@ -258,11 +276,18 @@ void Application::initialize()
             // Print the console header
             if (! headerPrinted)
             {
-              m_console_mode = true;
-              fprintf(stdout, "\n%s %s for %s\n",VER_PRODUCTNAME_STR,VER_PRODUCTVERSION_STR,VER_COMPILED_FOR);
-              fprintf(stdout, "==========================\n");
-              fprintf(stdout, "Arguments: %s\n",QString(ListArgs.join(" ")).toLatin1().constData());
-              fflush(stdout);
+                m_console_mode = true;
+#ifdef QT_DEBUG_MODE
+                qDebug() << "";
+                qDebug() << hdr;
+                qDebug() << "==========================";
+                qDebug() << args;
+#else
+                fprintf(stdout, "\n%s\n",hdr.toLatin1().constData());
+                fprintf(stdout, "==========================\n");
+                fprintf(stdout, "%s\n",args.toLatin1().constData());
+                fflush(stdout);
+#endif
               headerPrinted = true;
             }
 

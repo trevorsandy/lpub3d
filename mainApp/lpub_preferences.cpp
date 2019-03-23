@@ -678,10 +678,13 @@ void Preferences::lpubPreferences()
     fprintf(stdout, "%s\n", QString(QString("LPub3D Bundle App Path.......(%1)").arg(lpub3dPath)).toLatin1().constData());
 #endif
 #else
+    QString _logPath = QString("%1/logs/%2Log.txt").arg(lpubDataPath).arg(VER_PRODUCTNAME_STR);
 #ifdef QT_DEBUG_MODE
     qDebug() << QString(QString("LPub3D Executable Path.......(%1)").arg(lpub3dPath));
+    qDebug() << QString(QString("LPub3D Log Path..............(%1)").arg(_logPath));
 #else
     fprintf(stdout, "%s\n", QString(QString("LPub3D Executable Path.......(%1)").arg(lpub3dPath)).toLatin1().constData());
+    fprintf(stdout, "%s\n", QString(QString("LPub3D Log Path..............(%1)").arg(_logPath)).toLatin1().constData());
 #endif
 #endif
 

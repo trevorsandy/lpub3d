@@ -1,3 +1,8 @@
+# Build and check LPub3D on Linux and macOS
+# Trevor SANDY <trevor.sandy@gmail.com>
+# Last Update: March 23, 2019
+# Copyright (c) 2017 - 2019 by Trevor SANDY
+#
 language: cpp
 sudo: required
 dist: trusty
@@ -11,6 +16,17 @@ cache:
   - ${LP3D_LDRAW_DIR}
   - ${LP3D_DIST_DIR_BASE}
 
+# The following variables can be set to true from
+# Travis-CI Site->More Options->Settings->Environment Variables
+# LP3D_SKIP_TRAVIS_VAR     ; skip Travis-CI build
+# LP3D_BUILD_PKG_VAR       ; trigger package build
+# LP3D_TEST_SF_DEPLOY_VAR  ; test deploy SourceForge
+# LP3D_SKIP_SF_DEPLOY_VAR  ; skip SourceForge deploy
+# LP3D_BUILD_RENDERERS_VAR ; build specified renderer(s) in compile only configuration
+# LP3D_BUILD_LDGLITE_VAR   ; rebuild LDGLite
+# LP3D_BUILD_LDVIEW_VAR    ; rebuild LDView
+# LP3D_BUILD_POVRAY_VAR    ; rebuild LPub3D-Trace (POV-Ray)
+#
 env:
   global:
     - LP3D_QT_BASE=510
