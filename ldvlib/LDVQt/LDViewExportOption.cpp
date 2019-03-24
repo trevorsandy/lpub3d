@@ -101,6 +101,7 @@ LDViewExportOption::LDViewExportOption(LDVWidget *modelWidget)
 
     applyButton->setEnabled(false);
 
+    setMinimumSize(50,50);
     adjustSize();
 }
 

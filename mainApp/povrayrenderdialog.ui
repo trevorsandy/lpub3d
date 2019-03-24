@@ -32,7 +32,7 @@
         <item>
          <widget class="QLineEdit" name="WidthEdit">
           <property name="toolTip">
-           <string>Width in pixels</string>
+           <string>Image width in pixels</string>
           </property>
          </widget>
         </item>
@@ -46,7 +46,7 @@
         <item>
          <widget class="QLineEdit" name="HeightEdit">
           <property name="toolTip">
-           <string>Height in pixels</string>
+           <string>Image height in pixels</string>
           </property>
          </widget>
         </item>
@@ -77,7 +77,7 @@
         <item>
          <widget class="QLineEdit" name="ResolutionEdit">
           <property name="toolTip">
-           <string>Resolution presumably in inches - can also be in centimetres</string>
+           <string>Resolution, presumably in inches - can also be in centimetres</string>
           </property>
          </widget>
         </item>
@@ -120,7 +120,7 @@
         <item>
          <widget class="QToolButton" name="LdvExportSettingsButton">
           <property name="toolTip">
-           <string>POV Generation Options</string>
+           <string>POV file generation options</string>
           </property>
           <property name="text">
            <string>...</string>
@@ -130,7 +130,7 @@
         <item>
          <widget class="QToolButton" name="LdvLDrawPreferencesButton">
           <property name="toolTip">
-           <string>LDraw Preferences</string>
+           <string>Model preferences</string>
           </property>
           <property name="text">
            <string>...</string>
@@ -161,7 +161,7 @@
           <item>
            <widget class="QToolButton" name="OutputBrowseButton">
             <property name="toolTip">
-             <string>Change Output File</string>
+             <string>Select output file</string>
             </property>
             <property name="text">
              <string>...</string>

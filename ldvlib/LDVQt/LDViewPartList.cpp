@@ -35,6 +35,7 @@ LDVPartList::LDVPartList(LDVWidget *modelWidget, LDVHtmlInventory *htmlInventory
 
 //	fieldOrderView->header()->hide();
 //	fieldOrderView->setSorting(-1);
+    setMinimumSize(50,50);
 }
 
 LDVPartList::~LDVPartList(void)
