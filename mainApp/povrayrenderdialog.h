@@ -43,6 +43,7 @@ public slots:
 
 protected slots:
     QString ReadStdErrLog(bool &hasError) const;
+    void UpdateElapsedTime();
 
 protected:
     QString GetOutputFileName() const;

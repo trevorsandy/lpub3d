@@ -72,6 +72,7 @@ PovrayRenderDialog::PovrayRenderDialog(QWidget* Parent)
     ui->preview->setPixmap(QPixmap::fromImage(Image));
 
     connect(&mUpdateTimer, SIGNAL(timeout()), this, SLOT(Update()));
+    connect(&mUpdateTimer, SIGNAL(timeout()), this, SLOT(UpdateElapsedTime()));
     mUpdateTimer.start(500);
 }
 
@@ -408,6 +409,14 @@ void PovrayRenderDialog::Update()
 
     if (PixelsWritten == Width * Height)
         ui->RenderProgress->setValue(ui->RenderProgress->maximum());
+}
+
+void PovrayRenderDialog::UpdateElapsedTime()
+{
+    if (mProcess)
+    {
+        ui->TimeLabel->setText(gui->elapsedTime(mRenderTime.elapsed()));
+    }
 }
 
 void PovrayRenderDialog::ShowResult()
