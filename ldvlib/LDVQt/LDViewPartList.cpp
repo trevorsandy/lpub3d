@@ -30,8 +30,8 @@ LDVPartList::LDVPartList(LDVWidget *modelWidget, LDVHtmlInventory *htmlInventory
     QValidator *validator = new QIntValidator(10, 5000, this);
     snapshotWidthEdit->setValidator(validator);
     snapshotHeightEdit->setValidator(validator);
-    QRegExp rx("^.*\\.(png)$",Qt::CaseInsensitive);
-    snapshotEdit->setValidator(new QRegExpValidator(rx, this));
+    snapshotEdit->setValidator(new QRegExpValidator(
+           QRegExp("^.*\\.png$",Qt::CaseInsensitive), this));
 
 //	fieldOrderView->header()->hide();
 //	fieldOrderView->setSorting(-1);

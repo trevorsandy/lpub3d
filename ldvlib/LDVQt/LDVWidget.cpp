@@ -115,13 +115,13 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
         imageInputFilename(nullptr),
         viewMode(LDInputHandler::VMExamine)
 {
-  iniFiles[NativePOVIni]   = { "Native POV",       Preferences::nativeExportIni };
-  iniFiles[NativeSTLIni]   = { "Native STL",       Preferences::nativeExportIni };
-  iniFiles[Native3DSIni]   = { "Native 3DS",       Preferences::nativeExportIni };
-  iniFiles[NativePartList] = { "Native Part List", Preferences::nativeExportIni };
-  iniFiles[POVRayRender]   = { "POV-Ray Render",   Preferences::nativeExportIni };
-  iniFiles[LDViewPOVIni]   = { "LDView POV",       Preferences::ldviewPOVIni };
-  iniFiles[LDViewIni]      = { "LDView",           Preferences::ldviewIni };
+  iniFiles[NativePOVIni]   = { iniFlagNames[NativePOVIni],   Preferences::nativeExportIni };
+  iniFiles[NativeSTLIni]   = { iniFlagNames[NativeSTLIni],   Preferences::nativeExportIni };
+  iniFiles[Native3DSIni]   = { iniFlagNames[Native3DSIni],   Preferences::nativeExportIni };
+  iniFiles[NativePartList] = { iniFlagNames[NativePartList], Preferences::nativeExportIni };
+  iniFiles[POVRayRender]   = { iniFlagNames[POVRayRender],   Preferences::nativeExportIni };
+  iniFiles[LDViewPOVIni]   = { iniFlagNames[LDViewPOVIni],   Preferences::ldviewPOVIni };
+  iniFiles[LDViewIni]      = { iniFlagNames[LDViewIni],      Preferences::ldviewIni };
 
   setupLDVFormat();
 
@@ -148,6 +148,24 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 
   if (LDVPreferences::getCheckPartTracker())
       LDVPreferences::setCheckPartTracker(false);
+
+  TCStringArray *sessionNames =
+      TCUserDefaults::getAllSessionNames();
+
+  if (sessionNames->indexOfString(iniFiles[iniFlag].Title.toLatin1().constData()) != -1)
+  {
+      TCUserDefaults::setSessionName(iniFiles[iniFlag].Title.toLatin1().constData(),
+          PREFERENCE_SET_KEY);
+  }
+  else
+  {
+      TCUserDefaults::setSessionName(nullptr, PREFERENCE_SET_KEY);
+  }
+  sessionNames->release();
+
+  QString prefSet = TCUserDefaults::getSessionName();
+  emit lpubAlert->messageSig(LOG_INFO, QString("LDV loaded '%1' preference set")
+                             .arg(prefSet.isEmpty() ? "Default" : prefSet));
 
   ldvWidget = this;
 }

@@ -203,8 +203,10 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
     QString iniFileMessage;
     if (TCUserDefaults::isIniFileSet())
     {
+        QString prefSet = TCUserDefaults::getSessionName();
         iniFileMessage = QString("%1").arg(modelWidget->getIniFile());
-        iniBox->setTitle(QString("%1 INI file").arg(modelWidget->getIniTitle()));
+        iniBox->setTitle(QString("INI using '%1' preference set")
+                         .arg(prefSet.isEmpty() ? "Default" : prefSet));
     } else {
         iniFileMessage = QString("INI file not specified. Using built-in default settings.");
         iniFileEdit->setStyleSheet("QLineEdit { background-color : red; color : white; }");
