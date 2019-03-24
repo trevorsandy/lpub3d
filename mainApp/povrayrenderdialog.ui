@@ -111,6 +111,16 @@
          </widget>
         </item>
         <item>
+         <widget class="QCheckBox" name="OutputAlphaBox">
+          <property name="toolTip">
+           <string>Set output alpha (UA) on - i.e. enable transparent background.</string>
+          </property>
+          <property name="text">
+           <string>Output Alpha</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="Line" name="line">
           <property name="orientation">
            <enum>Qt::Vertical</enum>

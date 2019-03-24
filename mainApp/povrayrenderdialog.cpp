@@ -56,6 +56,7 @@ PovrayRenderDialog::PovrayRenderDialog(QWidget* Parent)
     
     ui->setupUi(this);
 
+    ui->OutputAlphaBox->setChecked(true);
     ui->WidthEdit->setText(QString::number(POVRAY_RENDER_DEFAULT_WIDTH));
     ui->WidthEdit->setValidator(new QIntValidator(16, INT_MAX));
     ui->HeightEdit->setText(QString::number(POVRAY_RENDER_DEFAULT_HEIGHT));
@@ -243,6 +244,11 @@ void PovrayRenderDialog::on_RenderButton_clicked()
     emit gui->messageSig(LOG_INFO, message);
 
     Arguments.clear();
+
+    if (ui->OutputAlphaBox->isChecked()) {
+        Arguments << QString("+UA");
+    }
+
     Arguments << QString("+D");
     Arguments << QString("-O-");
     Arguments << QString("+UA");
