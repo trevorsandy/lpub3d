@@ -424,18 +424,20 @@ void MetaItem::addNextStepsMultiStep(
     Where startTopOfSteps = topOfSteps;
     Where nextStep = bottomOfSteps;
     bool firstChange = true;
+    bool amendGroup = false;
 
     for (int stepNum = 1; (stepNum <= numOfSteps) && (numOfSteps > 0); stepNum++) {
         bool lastStep = stepNum == numOfSteps;
         bool partsAdded = false;
 
-        Where walk = nextStep + 1;
+        Where walk = nextStep+1;
         Where finalTopOfSteps = startTopOfSteps;
 
         rc1 = scanForward(walk,StepMask|StepGroupMask,partsAdded);
         Where end;
 
-        if (rc1 == StepGroupEndRc) {                             // END
+        if (rc1 == StepGroupEndRc) {                            // END
+            amendGroup = true;
             end = walk++;
             rc1 = scanForward(walk,StepMask|StepGroupMask,partsAdded);
         }
@@ -445,7 +447,7 @@ void MetaItem::addNextStepsMultiStep(
             beginMacro("addNextStep1");
             removeFirstStep(bottomOfSteps);                     // remove BEGIN
             partsAdded = false;
-            rc1 = scanForwardStepGroup(walk,partsAdded);
+            rc1 = scanForward(walk,StepMask|StepGroupMask,partsAdded);
         }
 
         if (firstChange) {
@@ -484,8 +486,13 @@ void MetaItem::addNextStepsMultiStep(
 
         startTopOfSteps = finalTopOfSteps;
 
-        if (lastStep)
-            appendMeta(nextStep,stepGroupEnd);
+        if (lastStep) {
+            Where endStep = nextStep;
+            if (!amendGroup) {
+                scanForward(endStep,StepMask);
+            }
+            appendMeta(endStep,stepGroupEnd);
+        }
     }
     endMacro();
 }

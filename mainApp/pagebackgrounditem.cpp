@@ -98,20 +98,22 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   Step    *lastStep = nullptr;
   Step    *firstStep = nullptr;
 
-  int maxSteps;
+  int maxSteps = 0;
+  int lastStepNumber = 0;
   if (fullContextMenu) {
       AbstractStepsElement *range = page->list[page->list.size()-1];
       if (range->relativeType == RangeType) {
           AbstractRangeElement *rangeElement = range->list[range->list.size()-1];
           if (rangeElement->relativeType == StepType) {
               lastStep = dynamic_cast<Step *> (rangeElement);
+              lastStepNumber = lastStep->stepNumber.number;
               maxSteps = numSteps(lastStep->topOfStep().modelName);
-              if (lastStep->stepNumber.number != maxSteps) {
+              if (lastStepNumber != maxSteps) {
                   addNextStepAction = menu.addAction("Add Next Step");
                   addNextStepAction->setIcon(QIcon(":/resources/nextstep.png"));
                   addNextStepAction->setWhatsThis("Add Next Step:\n Add the first step of the next page to this page\n");
                 }
-              if ((maxSteps - lastStep->stepNumber.number) >= 2) {
+              if ((maxSteps - lastStepNumber) >= 2) {
                   addNextStepsAction = menu.addAction("Add Next Steps");
                   addNextStepsAction->setIcon(QIcon(":/resources/nextsteps.png"));
                   addNextStepsAction->setWhatsThis("Add Next Steps:\n Add a specified number of next steps to this page\n");
@@ -195,14 +197,14 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   bool useTop = relativeType == SingleStepType;
 
-  if (page->meta.LPub.page.background.value().gsize[0] == 0 &&
-      page->meta.LPub.page.background.value().gsize[1] == 0) {
+  if (page->meta.LPub.page.background.value().gsize[0] == 0.0 &&
+      page->meta.LPub.page.background.value().gsize[1] == 0.0) {
 
       page->meta.LPub.page.background.value().gsize[0] = Preferences::pageHeight;
       page->meta.LPub.page.background.value().gsize[1] = Preferences::pageWidth;
 
-      QSize gSize(page->meta.LPub.page.background.value().gsize[0],
-          page->meta.LPub.page.background.value().gsize[1]);
+      QSize gSize(int(page->meta.LPub.page.background.value().gsize[0]),
+                  int(page->meta.LPub.page.background.value().gsize[1]));
       int h_off = gSize.width() / 10;
       int v_off = gSize.height() / 8;
       page->meta.LPub.page.background.value().gpoints << QPointF(gSize.width() / 2, gSize.height() / 2)
@@ -223,7 +225,8 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
           addNextMultiStep(lastStep->topOfSteps(),lastStep->bottomOfSteps());
         } else if (selectedAction == addNextStepsAction) {
           bool ok;
-          int numOfSteps = QInputDialog::getInt(gui,"Next Steps","Number of next steps",maxSteps,1,maxSteps,1,&ok);
+          int maxNextSteps = maxSteps - lastStepNumber;
+          int numOfSteps = QInputDialog::getInt(gui,"Next Steps","Number of next steps",maxNextSteps,1,maxNextSteps,1,&ok);
           if (ok)
               addNextStepsMultiStep(lastStep->topOfSteps(),lastStep->bottomOfSteps(),numOfSteps);
         } else if (selectedAction == addPrevStepAction) {
