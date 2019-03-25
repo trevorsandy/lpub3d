@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update March 23, 2019
+# Last Update March 25, 2019
 # Copyright (c) 2018 - 2019 by Trevor SANDY
 # LPub3D Unix checks - for remote CI (Trevis, OBS)
 # NOTE: Source with variables as appropriate:
@@ -72,7 +72,7 @@ let LP3D_CHECK_FAIL=0
 LP3D_CHECKS_PASS=
 LP3D_CHECKS_FAIL=
 
-echo && echo "------------Build checks start--------------" && echo
+echo && echo "------------Build Checks Start--------------" && echo
 
 # Remove old log if exist
 if [ -f "${LP3D_LOG_FILE}" ]; then
@@ -135,13 +135,13 @@ for LP3D_BUILD_CHECK in CHECK01 CHECK02 CHECK03 CHECK04 CHECK05 CHECK06 CHECK07;
     # check output log for build check status
     if [ -f "${LP3D_LOG_FILE}" ]; then
         if grep -q "${LP3D_CHECK_SUCCESS}" "${LP3D_LOG_FILE}"; then
-            echo "${LP3D_CHECK_HDR} PASS"
+            echo "${LP3D_CHECK_HDR} PASSED"
             echo "${LP3D_CHECK_LBL} Command: ${LP3D_CHECK_OPTIONS} ${LP3D_CHECK_FILE}"
             let LP3D_CHECK_PASS++
             LP3D_CHECKS_PASS="${LP3D_CHECKS_PASS},$(echo ${LP3D_CHECK_HDR} | cut -d " " -f 3)"
             echo
         else
-            echo "${LP3D_CHECK_HDR} FAIL"
+            echo "${LP3D_CHECK_HDR} FAILED"
             let LP3D_CHECK_FAIL++
             LP3D_CHECKS_FAIL="${LP3D_CHECKS_FAIL},$(echo ${LP3D_CHECK_HDR} | cut -d " " -f 3)"
             echo "- LPub3D Log Trace: ${LP3D_LOG_FILE}"
@@ -157,6 +157,13 @@ for LP3D_BUILD_CHECK in CHECK01 CHECK02 CHECK03 CHECK04 CHECK05 CHECK06 CHECK07;
     fi
 done
 
-echo && echo "----Build Check Status: PASS (${LP3D_CHECK_PASS})[${LP3D_CHECKS_PASS}], FAIL (${LP3D_CHECK_FAIL})[${LP3D_CHECKS_FAIL}]----" && echo
-echo && echo "------------Build checks completed----------" && echo
+# remove leading ','
+if [ "${LP3D_CHECK_PASS}" -gt "0" ];then
+    LP3D_CHECKS_PASS="$(echo ${LP3D_CHECKS_PASS} | cut -c 2-)"
+fi
+if [ "${LP3D_CHECK_FAIL}" -gt "0" ];then
+    LP3D_CHECKS_FAIL="$(echo ${LP3D_CHECKS_FAIL} | cut -c 2-)"
+fi
+
+echo && echo "----Build Check Completed: PASS (${LP3D_CHECK_PASS})[${LP3D_CHECKS_PASS}], FAIL (${LP3D_CHECK_FAIL})[${LP3D_CHECKS_FAIL}]----" && echo
 
