@@ -118,10 +118,11 @@ void SubModel::setSubModel(
   QString color = "0";
   subModelMeta = _meta.LPub.subModel;
 
-  QFileInfo info(_file);
-  QString type = info.fileName().toLower();
+  QString suffix = QFileInfo(_file).suffix();
+  bool trim = suffix.contains(QRegExp("(dat|ldr|mpd)$",Qt::CaseInsensitive));
+  QString type = _file.toLower();
   QString key = QString("%1_%2_%3")
-                        .arg(info.baseName())
+                        .arg(type.left(trim ? type.lastIndexOf(QChar('.')) : type.size()))
                         .arg(DISPLAY_SUBMODEL_SUFFIX)
                         .arg(color);
 
