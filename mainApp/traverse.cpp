@@ -688,7 +688,7 @@ int Gui::drawPage(
                                     (calledOut ? steps->meta.LPub.subModel.showSubmodelInCallout.value() : true);
               bool topModel       = (topLevelFile() == topOfStep.modelName);
               bool showTopModel   = (steps->meta.LPub.subModel.showTopModel.value());
-              bool showStepOk     = (steps->meta.LPub.subModel.showStep.value());
+              bool showStepOk     = (steps->meta.LPub.subModel.showStep.value() || stepNum == 1);
               step->placeSubModel = (calloutOk && showStepOk && (! topModel || showTopModel));
           }
 
@@ -1847,7 +1847,7 @@ int Gui::findPage(LGraphicsView  *view,
               stepGroupCurrent = topOfStep;
               if (useContStepNum){    // save starting step group continuous step number
                   saveContStepNum = contStepNumber == 1 ? stepNumber : contStepNumber;
-                  if (pageNum == 1) { // set the ok to display subModel flag
+                  if (pageNum == 1) { // set ok to display subModel flag
                     meta.LPub.subModel.showStep.setValue(stepNumber == 1);
                   } else {
                     saveMeta.LPub.subModel.showStep.setValue(stepNumber == 1);
@@ -1944,7 +1944,7 @@ int Gui::findPage(LGraphicsView  *view,
                          (stepNumber > FIRST_STEP || displayPageNum > FIRST_PAGE)) { // skip the first step
                              contStepNumber += ! coverPage && ! stepPage;
                       }
-                      if (pageNum == 1) { // set the ok to display subModel flag
+                      if (pageNum == 1) { // set ok to display subModel flag
                         meta.LPub.subModel.showStep.setValue(stepNumber == 1);
                       } else {
                         saveMeta.LPub.subModel.showStep.setValue(stepNumber == 1);
