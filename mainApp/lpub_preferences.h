@@ -222,6 +222,7 @@ class Preferences
     static int     pageHeight;
     static int     pageDisplayPause;
     static int     rendererTimeout;
+    static int     povrayRenderQuality;
     static bool    povrayDisplay;
     static bool    povrayAutoCrop;
     static bool    isAppImagePayload;

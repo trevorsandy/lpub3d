@@ -7,7 +7,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>508</width>
+    <width>513</width>
     <height>633</height>
    </rect>
   </property>
@@ -39,7 +39,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tabGeneral">
       <attribute name="title">
@@ -1059,9 +1059,54 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_17">
             <item>
-             <widget class="QCheckBox" name="povrayAutoCropBox">
+             <widget class="QLabel" name="label_2">
               <property name="text">
+               <string>Quality:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="povrayRenderQualityCombo">
+              <property name="toolTip">
+               <string>Select render quality settings</string>
+              </property>
+              <item>
+               <property name="text">
+                <string>High</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Medium</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Low</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_18">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="povrayAutoCropBox">
+              <property name="toolTip">
                <string>Automatically crop rendered images</string>
+              </property>
+              <property name="text">
+               <string>Auto-Crop image</string>
               </property>
              </widget>
             </item>
@@ -1087,7 +1132,7 @@
                <string>Check to enable display window during image Raytracer rendering</string>
               </property>
               <property name="text">
-               <string>Display image during rendering (Experimental)</string>
+               <string>Display image progress</string>
               </property>
              </widget>
             </item>

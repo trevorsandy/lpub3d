@@ -210,6 +210,7 @@ bool    Preferences::suppressStdOutToLog        = false;
 bool    Preferences::missingRendererLibs        = false;
 #endif
 
+int     Preferences::povrayRenderQuality        = POVRAY_RENDER_QUALITY_DEFAULT;
 int     Preferences::fadeStepsOpacity           = FADE_OPACITY_DEFAULT;              //Default = 50 percent (half opacity)
 int     Preferences::highlightStepLineWidth     = HIGHLIGHT_LINE_WIDTH_DEFAULT;      //Default = 1
 
@@ -1989,6 +1990,15 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
         povrayDisplay = Settings.value(QString("%1/%2").arg(SETTINGS,povrayDisplayKey)).toBool();
     }
 
+    // Set POV-Ray render quality
+    QString const povrayRenderQualityKey("PovrayRenderQuality");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,povrayRenderQualityKey))) {
+        povrayRenderQuality = POVRAY_RENDER_QUALITY_DEFAULT;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,povrayRenderQualityKey),povrayRenderQuality);
+    } else {
+        povrayRenderQuality = Settings.value(QString("%1/%2").arg(SETTINGS,povrayRenderQualityKey)).toInt();
+    }
+
     // Automatically crop POV-Ray rendered images
     QString const povrayAutoCropKey("PovrayAutoCrop");
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,povrayAutoCropKey))) {
@@ -3233,6 +3243,12 @@ bool Preferences::getPreferences()
         {
             povrayDisplay = dialog->povrayDisplay();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"POVRayDisplay"),povrayDisplay);
+        }
+
+        if (povrayRenderQuality != dialog->povrayRenderQuality())
+        {
+            povrayRenderQuality = dialog->povrayRenderQuality();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"PovrayRenderQuality"),povrayRenderQuality);
         }
 
         if (povrayAutoCrop != dialog->povrayAutoCrop())

@@ -1869,6 +1869,7 @@ void Gui::preferences()
     bool perspectiveProjectionCompare   = Preferences::perspectiveProjection;
     bool loadLastOpenedFileCompare      = Preferences::loadLastOpenedFile;
     bool povrayAutoCropCompare          = Preferences::povrayAutoCrop;
+    int povrayRenderQualityCompare      = Preferences::povrayRenderQuality;
     QString altLDConfigPathCompare      = Preferences::altLDConfigPath;
     QString povFileGeneratorCompare     = Preferences::povFileGenerator;
     QString fadeStepsColourCompare      = Preferences::validFadeStepsColour;
@@ -1925,6 +1926,7 @@ void Gui::preferences()
         bool displayThemeChanged           = Preferences::displayTheme.toLower()                 != displayThemeCompare.toLower();
         bool loadLastOpenedFileChanged     = Preferences::loadLastOpenedFile                     != loadLastOpenedFileCompare;
         bool povrayAutoCropChanged         = Preferences::povrayAutoCrop                         != povrayAutoCropCompare;
+        bool povrayRenderQualityChanged    = Preferences::povrayRenderQuality                    != povrayRenderQualityCompare;
 
         if (ldrawPathChanged) {
             emit messageSig(LOG_INFO,QString("LDraw Library path changed from %1 to %2")
@@ -1974,10 +1976,18 @@ void Gui::preferences()
         if (enableHighlightStepChanged)
             emit messageSig(LOG_INFO,QString("Highlight Current Step is %1.").arg(Preferences::enableHighlightStep ? "ON" : "OFF"));
 
-        if (loadLastOpenedFileChanged     )
+        if (loadLastOpenedFileChanged)
                     emit messageSig(LOG_INFO,QString("Load Last Opened File is %1").arg(Preferences::loadLastOpenedFile ? "ON" : "OFF"));
 
-        if (povrayAutoCropChanged     )
+        if (povrayRenderQualityChanged)
+                    emit messageSig(LOG_INFO,QString("Povray Render Quality changed from %1 to %2")
+                                    .arg(povrayRenderQualityCompare == 0 ? "High" :
+                                         povrayRenderQualityCompare == 1 ? "Medium" : "Low")
+                                    .arg(Preferences::povrayRenderQuality == 0 ? "High" :
+                                         Preferences::povrayRenderQuality == 1 ? "Medium" : "Low"));
+        povrayRenderQualityChanged = (povrayRenderQualityChanged && Preferences::preferredRenderer == RENDERER_POVRAY);
+
+        if (povrayAutoCropChanged)
                     emit messageSig(LOG_INFO,QString("Povray AutoCrop is %1").arg(Preferences::povrayAutoCrop ? "ON" : "OFF"));
 
         if (highlightStepLineWidthChanged && Preferences::enableHighlightStep)
@@ -2094,6 +2104,7 @@ void Gui::preferences()
                 povFileGeneratorChanged       ||
                 enableImageMattingChanged     ||
                 perspectiveProjectionChanged  ||
+                povrayRenderQualityChanged    ||
                 generateCoverPagesChanged){
                 clearAndRedrawPage();
             }

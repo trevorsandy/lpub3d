@@ -105,6 +105,7 @@ class PreferencesDialog : public QDialog
     bool          allLogLevels();
 
     int           checkUpdateFrequency();
+    int           povrayRenderQuality();
     int           rendererTimeout();
     int           pageDisplayPause();
     int           fadeStepsOpacity();

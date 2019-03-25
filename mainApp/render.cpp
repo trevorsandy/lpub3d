@@ -533,14 +533,7 @@ int POVRay::renderCsi(
   povArguments << W;
   povArguments << H;
   povArguments << USE_ALPHA;
-
-  list = meta.LPub.assem.povrayParms.value().split(' ');
-  for (int i = 0; i < list.size(); i++) {
-      if (list[i] != "" && list[i] != " ") {
-          povArguments << list[i];
-          //logInfo() << qPrintable("-PARM META: " + list[i]);
-      }
-  }
+  povArguments << getPovrayRenderQuality();
 
   bool hasSTL       = Preferences::lgeoStlLib;
   bool hasLGEO      = Preferences::lgeoPath != "";
@@ -746,14 +739,7 @@ int POVRay::renderPli(
   povArguments << W;
   povArguments << H;
   povArguments << USE_ALPHA;
-
-  list = metaType.povrayParms.value().split(' ');
-  for (int i = 0; i < list.size(); i++) {
-      if (list[i] != "" && list[i] != " ") {
-          povArguments << list[i];
-          //logInfo() << qPrintable("-PARM META: " + list[i]);
-      }
-  }
+  povArguments << getPovrayRenderQuality();
 
   bool hasSTL       = Preferences::lgeoStlLib;
   bool hasLGEO      = Preferences::lgeoPath != "";
@@ -2129,6 +2115,34 @@ bool Render::doLDVCommand(const QStringList &args, int exportMode, int iniFlag){
         gui->disconnect(ldvWidget, SIGNAL(loadBLElementsSig()), gui, SLOT(loadBLElements()));
 
     return true;
+}
+
+const QString Render::getPovrayRenderQuality(int quality)
+{
+    if (quality == -1)
+        quality = Preferences::povrayRenderQuality;
+
+    QStringList Arguments;
+
+    switch (quality)
+    {
+    case 0:
+        Arguments << QString("+Q11");
+        Arguments << QString("+R3");
+        Arguments << QString("+A0.1");
+        Arguments << QString("+J0.5");
+        break;
+
+    case 1:
+        Arguments << QString("+Q5");
+        Arguments << QString("+A0.1");
+        break;
+
+    case 2:
+        break;
+    }
+
+    return Arguments.join(" ");
 }
 
 const QString Render::getPovrayRenderFileName(const QString &viewerCsiKey)

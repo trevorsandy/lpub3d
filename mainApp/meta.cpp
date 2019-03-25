@@ -3504,7 +3504,7 @@ AssemMeta::AssemMeta() : BranchMeta()
   modelScale.setValue(1.0);
   ldgliteParms.setValue("-l3");  // change removed -w1 duplicate on 01-25-16 v1.3.3 r578
   ldviewParms.setValue("");
-  povrayParms.setValue("+A");
+  povrayParms.setValue("+A");    // Deprecated - using Quality Settings, v2.3.7
   showStepNumber.setValue(true);
 
   // image generation
@@ -3576,7 +3576,7 @@ PliMeta::PliMeta() : BranchMeta()
   show.setValue(true);
   ldgliteParms.setValue("-l3");
   ldviewParms.setValue("");
-  povrayParms.setValue("+A");
+  povrayParms.setValue("+A");       // Deprecated - using Quality Settings, v2.3.7
   includeSubs.setValue(false);
   subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_01);
   subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_02);

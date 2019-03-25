@@ -67,6 +67,7 @@ PovrayRenderDialog::PovrayRenderDialog(QWidget* Parent)
     ui->ScaleEdit->setValidator(new QDoubleValidator(0.1,1000.0,1));
     ui->ResolutionEdit->setText(mCsiKeyList.at(K_RESOLUTION));
     ui->ResolutionEdit->setValidator(new QIntValidator(50, INT_MAX));
+    ui->QualityComboBox->setCurrentIndex(Preferences::povrayRenderQuality);
 
     QImage Image(POVRAY_RENDER_PREVIEW_WIDTH, POVRAY_RENDER_PREVIEW_HEIGHT, QImage::Format_RGB32);
     Image.fill(QColor(255, 255, 255));
@@ -167,7 +168,9 @@ void PovrayRenderDialog::on_RenderButton_clicked()
 
     mRenderTime.start();
 
-    ui->RenderProgress->setRange(0,0);
+    ui->TimeLabel->setText("Preparing POV file...");
+
+    QApplication::processEvents();
     
     mModelFile = QDir::toNativeSeparators(QDir::currentPath() + "/" + Paths::tmpDir + "/csipovray.ldr");
 
@@ -243,6 +246,7 @@ void PovrayRenderDialog::on_RenderButton_clicked()
     message = QString("LDV POV file %1 generated. %2").arg(GetPOVFileName()).arg(gui->elapsedTime(mRenderTime.elapsed()));
     emit gui->messageSig(LOG_INFO, message);
 
+    /* set POV-Ray arguments */
     Arguments.clear();
 
     if (ui->OutputAlphaBox->isChecked()) {
@@ -251,31 +255,11 @@ void PovrayRenderDialog::on_RenderButton_clicked()
 
     Arguments << QString("+D");
     Arguments << QString("-O-");
-    Arguments << QString("+UA");
+    Arguments << Render::getPovrayRenderQuality(ui->QualityComboBox->currentIndex());
     Arguments << QString("+W%1").arg(ui->WidthEdit->text());
     Arguments << QString("+H%1").arg(ui->HeightEdit->text());
     Arguments << QString("+I\"%1\"").arg(Render::fixupDirname(GetPOVFileName()));
     Arguments << QString("+SM\"%1\"").arg(Render::fixupDirname(GetOutputFileName()));
-
-    int Quality = ui->QualityComboBox->currentIndex();
-
-    switch (Quality)
-    {
-    case 0:
-        Arguments << QString("+Q11");
-        Arguments << QString("+R3");
-        Arguments << QString("+A0.1");
-        Arguments << QString("+J0.5");
-        break;
-
-    case 1:
-        Arguments << QString("+Q5");
-        Arguments << QString("+A0.1");
-        break;
-
-    case 2:
-        break;
-    }
 
     bool hasSTL       = Preferences::lgeoStlLib;
     bool hasLGEO      = Preferences::lgeoPath != "";

@@ -116,6 +116,7 @@ enum Theme { ThemeDark, ThemeDefault };
 
 #define CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT   -260  // Native camera distance factor for A4 portrait; factor is about -450 for A4 landscape
 
+#define POVRAY_RENDER_QUALITY_DEFAULT           0    // 0=High, 1-Medium, 2=Low
 #define RENDERER_TIMEOUT_DEFAULT                6    // measured in seconds
 
 #define PAGE_DISPLAY_PAUSE_DEFAULT              3    // measured in seconds

@@ -59,6 +59,7 @@ public:
   static void            setRenderer(QString const &);
   static bool            clipImage(QString const &);
   static QString const   getRotstepMeta(RotStepMeta &, bool isKey = false);
+  static QString const   getPovrayRenderQuality(int quality = -1);
   static int             executeLDViewProcess(QStringList &, Mt);
   static QString const   fixupDirname(const QString &);
   static QString const   getPovrayRenderFileName(const QString &);

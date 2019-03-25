@@ -120,6 +120,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.povrayAutoCropBox->setChecked(              Preferences::povrayAutoCrop);
   ui.loadLastOpenedFileCheck->setChecked(        Preferences::loadLastOpenedFile);
   ui.projectionCombo->setCurrentIndex(           Preferences::perspectiveProjection ? 0 : 1);
+  ui.povrayRenderQualityCombo->setCurrentIndex(  Preferences::povrayRenderQuality);
 
   ui.loggingGrpBox->setChecked(                  Preferences::logging);
   ui.logPathEdit->setEnabled(                    Preferences::logging);
@@ -332,6 +333,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   //populate readme from the web
   m_updater->setChangelogOnly(DEFS_URL, true);
   m_updater->checkForUpdates (DEFS_URL);
+
   setMinimumSize(100, 100);
   setSizeGripEnabled(true);
 }
@@ -798,6 +800,11 @@ bool PreferencesDialog::perspectiveProjection()
 bool PreferencesDialog::povrayDisplay()
 {
     return ui.povrayDisplay_Chk->isChecked();
+}
+
+int PreferencesDialog::povrayRenderQuality()
+{
+    return ui.povrayRenderQualityCombo->currentIndex();
 }
 
 bool PreferencesDialog::povrayAutoCrop()
