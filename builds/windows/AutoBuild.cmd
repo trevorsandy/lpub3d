@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: March 23, 2019
+rem  Last Update: March 25, 2019
 rem  Copyright (c) 2017 - 2019 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -347,7 +347,7 @@ FOR /R %%I IN (
   "ldvlib\LDVQt\Makefile*"
   "mainApp\Makefile*"
   "quazip\Makefile*"
-) DO DEL /S /Q "%%~I" >nul 2>&1
+) DO DEL /S /Q "%%~I" >NUL 2>&1
 ECHO.
 ECHO   PLATFORM (BUILD_ARCH)..........[%PLATFORM%]
 SET PATH=%SYS_DIR%;%LP3D_WIN_GIT%
@@ -387,7 +387,7 @@ IF %PLATFORM% EQU x86 (
 )
 rem Display MSVC Compiler settings
 echo _MSC_VER > %TEMP%\settings.c
-cl -Bv -EP %TEMP%/settings.c > NUL
+cl -Bv -EP %TEMP%\settings.c >NUL
 ECHO.
 SET LPUB3D_MAKE_ARGS=-c -f Makefile
 SET PATH_PREPENDED=True

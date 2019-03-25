@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: March 20, 2019
+rem  Last Update: March 25, 2019
 rem  Copyright (c) 2015 - 2019 by Trevor SANDY
 rem --
 SETLOCAL
@@ -834,6 +834,11 @@ IF NOT EXIST "%LDRAW_LIBS%\" (
 )
 
 SET OutputPATH=%LDRAW_LIBS%
+SET OfficialCONTENT=complete.zip
+SET UnOfficialCONTENT=ldrawunf.zip
+SET LPub3DCONTENT=lpub3dldrawunf.zip
+SET TenteCONTENT=tenteparts.zip
+SET VexiqCONTENT=vexiqparts.zip
 
 ECHO.
 ECHO - Prepare BATCH to VBS to Web Content Downloader...
