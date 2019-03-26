@@ -1,5 +1,5 @@
 ;LPub3D Setup Script
-;Last Update: February 19, 2019
+;Last Update: March 25, 2019
 ;Copyright (C) 2016 - 2019 by Trevor SANDY
 
 ; Install LPub3D and pre-packaged renderers.
@@ -10,20 +10,22 @@
 
 !include NsisMultiUser.nsh
 !include MUI2.nsh
+!include LogicLib.nsh
 !include Registry.nsh
-!include Utils.nsh
+!include StdUtils.nsh
 
 ;--------------------------------
 ;generated define statements
 !include AppVersion.nsh
 
+; Global variables
 Var /global CPUArch
 Var /global X64Flag
 Var /global StartMenuFolder
 Var /global CaptionMessage
 Var /global AppDataBaseDir
 
-;Custom page variables
+; Custom page variables
 Var /global nsDialogFilePathsPage
 Var /global nsDialogFilePathsPage_Font1
 
@@ -52,10 +54,10 @@ Var /global OldLibraryDirectoryExist
 Var /global LPub3DViewerLibFile
 Var /global LPub3DViewerLibPath
 
+; Installer defines
 !define PRODUCT_NAME "${ProductName}" ; name of the application as displayed to the user
 !define PROGEXE "${LPub3DBuildFile}" ; main application filename
 !define COMPANY_NAME "${Company}" ; company, used for registry tree hierarchy
-!define SINGLE_INSTANCE_ID "${COMPANY_NAME} ${PRODUCT_NAME} Unique ID" ; do not change this between program versions!
 !define LICENSE_FILE "COPYING.txt" ; license file, optional
 !define README_FILE "README.txt" ; readme file, optional
 !define RELEASE_NOTES_FILE "RELEASE_NOTES.html" ; release notes file, optional
@@ -67,6 +69,9 @@ Var /global LPub3DViewerLibPath
 !define VERSION_MINOR "${VersionMinor}"
 !define MIN_WIN_VER "XP"
 !define PLATFORM "$CPUArch"
+!define SETUP_MUTEX "${COMPANY_NAME} ${PRODUCT_NAME} Setup Mutex" ; do not change this between program versions!
+!define APP_MUTEX "${COMPANY_NAME} ${PRODUCT_NAME} App Mutex" ; do not change this between program versions!
+!define SETTINGS_REG_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 
 ; NsisMultiUser optional defines
 !define MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS 0
@@ -95,15 +100,25 @@ BrandingText "©2019 ${COMPANY_NAME}"
 AllowSkipFiles off
 SetOverwrite on ; (default setting) set to on except for where it is manually switched off
 ShowInstDetails hide ; Show install details (show|hide|nevershow)
+Unicode true ; properly display all languages (Our min version is XP, Unicode is KO on Windows 95, 98 or ME!)
 SetCompressor /SOLID lzma
 
-; Pages
+!include Utils.nsh ; this must come after encoding (Error: Can't change target charset after data already got compressed or header already changed!)
+
 !define MUI_ICON "..\icons\setup.ico"
 !define MUI_UNICON "..\icons\setup.ico"
 !define MUI_WELCOMEFINISHPAGE_BITMAP "..\icons\welcome.bmp"
 
+; Interface Settings
 !define MUI_ABORTWARNING ; Show a confirmation when cancelling the installation
+!define MUI_LANGDLL_ALLLANGUAGES ; Show all languages, despite user's codepage
 
+; Remember the installer language
+!define MUI_LANGDLL_REGISTRY_ROOT SHCTX
+!define MUI_LANGDLL_REGISTRY_KEY "${SETTINGS_REG_KEY}"
+!define MUI_LANGDLL_REGISTRY_VALUENAME "Language"
+
+; Pages
 !define MUI_PAGE_CUSTOMFUNCTION_PRE PageWelcomeLicensePre
 !insertmacro MUI_PAGE_WELCOME
 
@@ -124,6 +139,7 @@ SetCompressor /SOLID lzma
 !insertmacro MULTIUSER_PAGE_INSTALLMODE
 
 !define MUI_COMPONENTSPAGE_SMALLDESC
+!define MUI_PAGE_CUSTOMFUNCTION_PRE PageComponentsPre
 !insertmacro MUI_PAGE_COMPONENTS
 
 !define MUI_PAGE_CUSTOMFUNCTION_PRE PageDirectoryPre
@@ -136,11 +152,13 @@ Page custom nsDialogShowCustomPage nsDialogLeaveCustomPage
 !define MUI_STARTMENUPAGE_NODISABLE ; Do not display the checkbox to disable the creation of Start Menu shortcuts
 !define MUI_STARTMENUPAGE_DEFAULTFOLDER "${PRODUCT_NAME}"
 !define MUI_STARTMENUPAGE_REGISTRY_ROOT "SHCTX" ; writing to $StartMenuFolder happens in MUI_STARTMENU_WRITE_END, so it's safe to use "SHCTX" here
-!define MUI_STARTMENUPAGE_REGISTRY_KEY "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
+!define MUI_STARTMENUPAGE_REGISTRY_KEY "${SETTINGS_REG_KEY}"
 !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "StartMenuFolder"
 !define MUI_PAGE_CUSTOMFUNCTION_PRE PageStartMenuPre
 !insertmacro MUI_PAGE_STARTMENU "" "$StartMenuFolder"
+!define MUI_STARTMENUPAGE_DEFAULTFOLDER "${PRODUCT_NAME}" ; the MUI_PAGE_STARTMENU macro undefines MUI_STARTMENUPAGE_DEFAULTFOLDER, but we need it
 
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW PageInstFilesPre
 !insertmacro MUI_PAGE_INSTFILES
 
 !define MUI_FINISHPAGE_NOAUTOCLOSE
@@ -151,19 +169,95 @@ Page custom nsDialogShowCustomPage nsDialogLeaveCustomPage
 !insertmacro MUI_PAGE_FINISH
 
 ; remove next line if you're using signing after the uninstaller is extracted from the initially compiled setup
-!include Uninstall.nsh
+!include UninstallPages.nsh
 
+; Languages (first is default language) - must be inserted after all pages
 !insertmacro MUI_LANGUAGE "English" ; Set languages (first is default language) - must be inserted after all pages
+;!insertmacro MUI_LANGUAGE "French"
+!insertmacro MULTIUSER_LANGUAGE_INIT
+
+; Reserve files
+!insertmacro MUI_RESERVEFILE_LANGDLL
 
 ;Language strings
-LangString CUST_PAGE_TITLE ${LANG_ENGLISH} "LDraw Library"
-LangString CUST_PAGE_SUBTITLE ${LANG_ENGLISH} "Enter path for your LDraw directory and select user data options"
-LangString CUST_PAGE_OVERWRITE_TITLE ${LANG_ENGLISH} "Overwrite Configuration Files"
-LangString CUST_PAGE_OVERWRITE_SUBTITLE ${LANG_ENGLISH} "Check the box next to the configuration file you would like to overwrite."
+!ifdef LANG_ENGLISH
+  LangString CUST_PAGE_TITLE ${LANG_ENGLISH} "LDraw Library"
+  LangString CUST_PAGE_SUBTITLE ${LANG_ENGLISH} "Enter path for your LDraw directory and select user data options"
+  LangString CUST_PAGE_OVERWRITE_TITLE ${LANG_ENGLISH} "Overwrite Configuration Files"
+  LangString CUST_PAGE_OVERWRITE_SUBTITLE ${LANG_ENGLISH} "Check the box next to the configuration file you would like to overwrite."
+!endif
+
+!ifdef LANG_FRENCH
+  LangString CUST_PAGE_TITLE ${LANG_FRENCH} "LDraw Library"
+  LangString CUST_PAGE_SUBTITLE ${LANG_FRENCH} "Enter path for your LDraw directory and select user data options"
+  LangString CUST_PAGE_OVERWRITE_TITLE ${LANG_FRENCH} "Overwrite Configuration Files"
+  LangString CUST_PAGE_OVERWRITE_SUBTITLE ${LANG_FRENCH} "Check the box next to the configuration file you would like to overwrite."
+!endif
 
 ;backup legacy registry key
 !insertmacro COPY_REGISTRY_KEY
 
+; SectionCoreFiles Functions
+Function CheckInstallation 
+    ; if there's an installed version, uninstall it first (I chose not to start the uninstaller silently, so that user sees what failed)
+    ; if both per-user and per-machine versions are installed, unistall the one that matches $MultiUser.InstallMode
+    StrCpy $0 ""
+    ${if} $HasCurrentModeInstallation = 1
+        StrCpy $0 "$MultiUser.InstallMode"
+    ${else}
+        !if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} = 0
+            ${if} $HasPerMachineInstallation = 1
+                StrCpy $0 "AllUsers" ; if there's no per-user installation, but there's per-machine installation, uninstall it
+            ${elseif} $HasPerUserInstallation = 1
+                StrCpy $0 "CurrentUser" ; if there's no per-machine installation, but there's per-user installation, uninstall it
+            ${endif}
+        !endif
+    ${endif}
+
+    ${if} "$0" != ""
+        ;Set InstallString, InstallationFolder
+        ${if} $0 == "AllUsers"
+            StrCpy $1 "$PerMachineUninstallString"
+            StrCpy $3 "$PerMachineInstallationFolder"
+        ${else}
+            StrCpy $1 "$PerUserUninstallString"
+            StrCpy $3 "$PerUserInstallationFolder"
+        ${endif}
+        ${if} ${silent}
+            StrCpy $2 "/S"
+        ${else}
+            StrCpy $2 ""
+        ${endif}
+        
+        ;LPub3D - Previous installation logging
+        DetailPrint 'UninstallString $1'
+        DetailPrint 'InstallationFolder $3'
+
+        ;LPub3D - Legacy uninstall will delete everything so backup user data and registry keys
+        ${if} $HasLegacyPerMachineInstallation == 1
+            DetailPrint "Removing legacy install - using mode ($0)..."
+            StrCpy $5 "${INSTDIR_LocalAppData}\${COMPANY_NAME}\${PRODUCT_NAME}" ; $5 = LEGACY_INSTDIR_AppDataProduct
+            StrCpy $6 "${INSTDIR_LocalAppData}\Temp\${PRODUCT_NAME}"            ; $6 = LEGACY_INSTDIR_AppDataProduct_Backup
+            DetailPrint "Backup files '$5' to '$6'..."
+            !insertmacro BackupFolder "$5" "$6" ; Backup Legacy Current User Data
+            ${COPY_REGISTRY_KEY} HKCU "Software\${COMPANY_NAME}" HKCU "Software\LPUB3D_BACKUP\${COMPANY_NAME}" ; backup Legacy Current User Hive Key
+            ; manually copy uninstaller to temp dir so it can be deleted in the install folder
+            InitPluginsDir
+            DetailPrint "Copy file '$PerMachineInstallationFolder\Uninstall.exe' to '$pluginsdir\uninst\'..."
+            CreateDirectory "$pluginsdir\uninst"
+            CopyFiles /SILENT /FILESONLY "$PerMachineInstallationFolder\Uninstall.exe" "$pluginsdir\uninst\"
+            StrCpy $1 "$pluginsdir\uninst\Uninstall.exe"
+        ${endif}
+    ${endif}
+FunctionEnd
+
+Function RunUninstaller
+    StrCpy $0 0
+    DetailPrint "Uninstall Command: ExecWait '$1 /SS $2 _?=$3'"
+    ExecWait '$1 /SS $2 _?=$3' $0 ; $1 is quoted in registry; the _? param stops the uninstaller from copying itself to the temporary directory, which is the only way for ExecWait to work
+FunctionEnd
+
+; Sections
 InstType "Typical"
 InstType "Minimal"
 InstType "Full"
@@ -171,64 +265,16 @@ InstType "Full"
 Section "Core Files (required)" SectionCoreFiles
   SectionIn 1 2 3 RO
 
-  ; if there's an installed version, uninstall it first (I chose not to start the uninstaller silently, so that user sees what failed)
-  ; if both per-user and per-machine versions are installed, unistall the one that matches $MultiUser.InstallMode
-  StrCpy $0 ""
-  ${if} $HasCurrentModeInstallation == 1
-    StrCpy $0 "$MultiUser.InstallMode"
-  ${else}
-    !if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} == 0
-      ${if} $HasPerMachineInstallation == 1
-        StrCpy $0 "AllUsers"    ; if there's no per-user installation, but there's per-machine installation, uninstall it
-      ${elseif} $HasPerUserInstallation == 1
-        StrCpy $0 "CurrentUser" ; if there's no per-machine installation, but there's per-user installation, uninstall it
-      ${endif}
-    !endif
-  ${endif}
-
-  ${if} "$0" != ""
-
-    ;Set InstallString, InstallationFolder
-    ${if} $0 == "AllUsers"
-      StrCpy $1 "$PerMachineUninstallString"
-      StrCpy $3 "$PerMachineInstallationFolder"
-    ${else}
-      StrCpy $1 "$PerUserUninstallString"
-      StrCpy $3 "$PerUserInstallationFolder"
-    ${endif}
-
-    ${if} ${silent}
-      StrCpy $2 "/S"
-    ${else}
-      StrCpy $2 ""
-    ${endif}
-
-    ;Remove previous installation
-    DetailPrint 'UninstallString $1'
-    DetailPrint 'InstallationFolder $3'
-
-    ; Legacy uninstall will delete everything so backup user data and registry keys
-    ${if} $HasLegacyPerMachineInstallation == 1
-      DetailPrint "Removing legacy install - using mode ($0)..."
-      StrCpy $5 "${INSTDIR_LocalAppData}\${COMPANY_NAME}\${PRODUCT_NAME}" ; $5 = LEGACY_INSTDIR_AppDataProduct
-      StrCpy $6 "${INSTDIR_LocalAppData}\Temp\${PRODUCT_NAME}"            ; $6 = LEGACY_INSTDIR_AppDataProduct_Backup
-      DetailPrint "Backup files '$5' to '$6'..."
-      !insertmacro BackupFolder "$5" "$6" ; Backup Legacy Current User Data
-      ${COPY_REGISTRY_KEY} HKCU "Software\${COMPANY_NAME}" HKCU "Software\LPUB3D_BACKUP\${COMPANY_NAME}" ; backup Legacy Current User Hive Key
-      ; manually copy uninstaller to temp dir so it can be deleted in the install folder
-      InitPluginsDir
-      DetailPrint "Copy file '$PerMachineInstallationFolder\Uninstall.exe' to '$pluginsdir\uninst\'..."
-      CreateDirectory "$pluginsdir\uninst"
-      CopyFiles /SILENT /FILESONLY "$PerMachineInstallationFolder\Uninstall.exe" "$pluginsdir\uninst\"
-      StrCpy $1 "$pluginsdir\uninst\Uninstall.exe"
-    ${endif}
-
+  !insertmacro UAC_AsUser_Call Function CheckInstallation ${UAC_SYNCREGISTERS}
+  ${if} "$0" != ""    
     HideWindow
     ClearErrors
-    StrCpy $0 0
-    DetailPrint "Uninstall Command: ExecWait '$1 /SS $2 _?=$3'"
-    ExecWait '$1 /SS $2 _?=$3' $0 ; $1 is quoted in registry; the _? param stops the uninstaller from copying itself to the temporary directory, which is the only way for ExecWait to work
-
+    ${if} $0 == "AllUsers"
+        Call RunUninstaller
+    ${else}
+        !insertmacro UAC_AsUser_Call Function RunUninstaller ${UAC_SYNCREGISTERS}
+    ${endif}
+    
     ${if} ${errors} ; stay in installer
       SetErrorLevel 2 ; Installation aborted by script
       BringToFront
@@ -251,25 +297,26 @@ Section "Core Files (required)" SectionCoreFiles
 
     ; Restore legacy user data and registry keys
     ${if} $HasLegacyPerMachineInstallation == 1
-      DetailPrint "Restore files '$6' to '$5'..."
-      !insertmacro RestoreFolder "$6" "$5" ; Restore LEGACY_INSTDIR_AppDataProduct_Backup
-      ; Restore Reg from Current User Hive Key to Context Hive Key
-      ${COPY_REGISTRY_KEY} HKCU "Software\LPUB3D_BACKUP\${COMPANY_NAME}" HKCU "Software\${COMPANY_NAME}"
-      ; Cleanup legacy user data backup
-      DeleteRegKey HKCU "Software\LPUB3D_BACKUP"; Delete Current User Hive Key
-      ; Cleanup unused registry values
-      DeleteRegKey HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Installation"
-      DeleteRegValue HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\POVRay" "L3P"
-      DeleteRegValue HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\POVRay" "POVRayFileGenerator"
-      DeleteRegValue HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "LDGLite"
-      DeleteRegValue HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "LDView"
-      DeleteRegValue HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "POVRay"
-      ; Cleanup erroneously deposited legacy files
-      Delete "$PerMachineInstallationFolder\fadeStepColorParts.lst"
+        DetailPrint "Restore files '$6' to '$5'..."
+        !insertmacro RestoreFolder "$6" "$5" ; Restore LEGACY_INSTDIR_AppDataProduct_Backup
+        ; Restore Reg from Current User Hive Key to Context Hive Key
+        ${COPY_REGISTRY_KEY} HKCU "Software\LPUB3D_BACKUP\${COMPANY_NAME}" HKCU "Software\${COMPANY_NAME}"
+        ; Cleanup legacy user data backup
+        DeleteRegKey HKCU "Software\LPUB3D_BACKUP"; Delete Current User Hive Key
+        ; Cleanup unused registry values
+        DeleteRegKey HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Installation"
+        DeleteRegValue HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\POVRay" "L3P"
+        DeleteRegValue HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\POVRay" "POVRayFileGenerator"
+        DeleteRegValue HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "LDGLite"
+        DeleteRegValue HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "LDView"
+        DeleteRegValue HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "POVRay"
+        ; Cleanup erroneously deposited legacy files
+        Delete "$PerMachineInstallationFolder\fadeStepColorParts.lst"
     ${endif}
 
-    Delete "$2\${UNINSTALL_FILENAME}" ; the uninstaller doesn't delete itself when not copied to the temp directory
-    RMDir "$2"
+        ; Just a failsafe - should've been taken care of by cmd.exe in Uninstall.nsh
+        !insertmacro DeleteRetryAbort "$3\${UNINSTALL_FILENAME}" ; the uninstaller doesn't delete itself when not copied to the temp directory
+        RMDir "$3"
   ${endif}
 
   SetOutPath $INSTDIR
@@ -287,7 +334,7 @@ Section "Core Files (required)" SectionCoreFiles
     File "${WinBuildDir}\docs\${LICENSE_FILE}"
   !endif
 
-  ;User data setup
+  ;LPub3D User data setup
   ${If} $InstallUserData == 1       # install user data
 
     ;ldraw libraries - user data location
@@ -383,22 +430,27 @@ SectionEnd
 Section "Dektop Icon" SectionDesktopIcon
   SectionIn 1 3
 
+  !insertmacro MULTIUSER_GetCurrentUserString $0
   CreateShortCut "$DESKTOP\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}"
 SectionEnd
 
 Section /o "Start Menu Icon" SectionStartMenuIcon
   SectionIn 3
-
+  
+  !insertmacro MULTIUSER_GetCurrentUserString $0
   CreateShortCut "$STARTMENU\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}"
 SectionEnd
 
-Section /o "Quick Launch" SectionQuickLaunchIcon
-  SectionIn 3
+Section /o "Quick Launch Icon" SectionQuickLaunchIcon
+    SectionIn 3
 
-  ; The QuickLaunch is always only for the current user
-  CreateShortCut "$QUICKLAUNCH\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}"
+    ${if} ${AtLeastWin7}
+        ${StdUtils.InvokeShellVerb} $0 "$INSTDIR" "${PROGEXE}" ${StdUtils.Const.ShellVerb.PinToTaskbar}
+    ${else}
+        ; The $QUICKLAUNCH folder is always only for the current user
+        CreateShortCut "$QUICKLAUNCH\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}"
+    ${endif}
 SectionEnd
-
 SectionGroupEnd ; end 'Integrtion' group
 
 Section "-Write Install Size" ; hidden section, write install size as the final step
@@ -433,10 +485,11 @@ Function .onInit
   !insertmacro CheckMinWinVer ${MIN_WIN_VER}
 
   ${ifnot} ${UAC_IsInnerInstance}
-    !insertmacro CheckSingleInstance "${SINGLE_INSTANCE_ID}"
+    !insertmacro CheckSingleInstance "Setup" "Global" "${SETUP_MUTEX}"
+    !insertmacro CheckSingleInstance "Application" "Local" "${APP_MUTEX}"
   ${endif}
 
-  ;Set context to 'CurrentUser', capture $AppDataBaseDir then revert context to 'AllUsers' if previously set as such
+  ;LPub3D Mod, Set context to 'CurrentUser', capture $AppDataBaseDir then revert context to 'AllUsers' if previously set as such
   StrCpy $R0 "$SMPROGRAMS"
   SetShellVarContext current
   StrCpy $AppDataBaseDir "$LOCALAPPDATA"
@@ -447,7 +500,14 @@ Function .onInit
   Done:
 
   !insertmacro MULTIUSER_INIT
-
+  
+   ${if} $IsInnerInstance = 0
+       !insertmacro MUI_LANGDLL_DISPLAY
+   ${endif}
+    
+  ; LPub3D Directives
+  ; -------------------------------------
+  
   ;Get Ldraw library folder, archive file paths, and uninstall string from registry if available
   ReadRegStr $LDrawDirPath HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "LDrawDir"
   ReadRegStr $LPub3DViewerLibFile HKCU "Software\${COMPANY_NAME}\${PRODUCT_NAME}\Settings" "PartsLibrary"
@@ -498,18 +558,34 @@ Function PageReadmePre
   ${if} $InstallShowPagesBeforeComponents == 0
     Abort ; don't display the Readme page for the inner instance
   ${endif}
-  GetDlgItem $0 $HWNDPARENT 1                      ;Agree/Next/Install button           
-  SendMessage $0 ${WM_SETTEXT} 0 "STR:$(^NextBtn)" ;Change 'I Agree' to 'Next'
+  GetDlgItem $0 $HWNDPARENT 1                          ;Agree/Next/Install button           
+  SendMessage $0 ${WM_SETTEXT} 0 "STR:$(^NextBtn)"     ;Change 'I Agree' to 'Next'
 FunctionEnd
 
 Function PageReadmeShow
   FindWindow $R0 `#32770` `` $HWNDPARENT               ;Finds the inner dialog
   GetDlgItem $R0 $R0 1000
-  EmbedHTML::Load /replace $R0 `${RELEASE_NOTES_URL}`
+  EmbedHTML::Load /replace $R0 `${RELEASE_NOTES_URL}`  ;Set HTML release notes
 FunctionEnd
 
 Function PageInstallModeChangeMode
   !insertmacro MUI_STARTMENU_GETFOLDER "" $StartMenuFolder
+FunctionEnd
+
+Function PageComponentsPre
+    GetDlgItem $0 $HWNDPARENT 1
+    SendMessage $0 ${BCM_SETSHIELD} 0 0 ; hide SHIELD (Windows Vista and above)
+
+    ${if} $MultiUser.InstallMode == "AllUsers"
+        ${if} ${AtLeastWin7} ; add "(current user only)" text to section "Start Menu Icon"
+            SectionGetText ${SectionStartMenuIcon} $0
+            SectionSetText ${SectionStartMenuIcon} "$0 (current user only)"
+        ${endif}
+
+        ; add "(current user only)" text to section "Quick Launch Icon"
+        SectionGetText ${SectionQuickLaunchIcon} $0
+        SectionSetText ${SectionQuickLaunchIcon} "$0 (current user only)"
+    ${endif}
 FunctionEnd
 
 Function PageDirectoryPre
@@ -534,9 +610,20 @@ Function PageDirectoryShow
 FunctionEnd
 
 Function PageStartMenuPre
-  ${ifnot} ${SectionIsSelected} ${SectionProgramGroup}
-    Abort ; don't display this dialog if SectionProgramGroup is not selected
-  ${endif}
+    ${ifnot} ${SectionIsSelected} ${SectionProgramGroup}
+        Abort ; don't display this dialog if SectionProgramGroup is not selected
+    ${else}
+        GetDlgItem $1 $HWNDPARENT 1
+        Call MultiUser.CheckPageElevationRequired
+        ${if} $0 = 2
+            SendMessage $1 ${BCM_SETSHIELD} 0 1 ; display SHIELD (Windows Vista and above)
+        ${endif}
+    ${endif}
+FunctionEnd
+
+Function PageInstFilesPre
+    GetDlgItem $0 $HWNDPARENT 1
+    SendMessage $0 ${BCM_SETSHIELD} 0 0 ; hide SHIELD (Windows Vista and above)
 FunctionEnd
 
 Function PageFinishRun
@@ -555,7 +642,12 @@ Function .onInstFailed
   MessageBox MB_ICONSTOP "${PRODUCT_NAME} ${VERSION} could not be fully installed.$\r$\nPlease, restart Windows and run the setup program again." /SD IDOK
 FunctionEnd
 
+; remove next line if you're using signing after the uninstaller is extracted from the initially compiled setup
+!include Uninstall.nsh
+
+; LPub3D Custom Functions
 ;--------------------------------
+
 ;Custom nsDialogFilePathsPage to Capture Libraries
 Function nsDialogShowCustomPage
   ;Display the InstallOptions nsDialogFilePathsPage
