@@ -13,12 +13,14 @@
 ****************************************************************************/
 
 #include <QtOpenGL>
-#include <QSysInfo>
 #ifdef Q_OS_WIN
 #include <tchar.h>
 #endif
-#include <QtCore/QSysInfo>
-
+#if QT_VERSION >= QT_VERSION_CHECK(5,9,0)
+#include <QOperatingSystemVersion>
+#else
+#include <QSysInfo>
+#endif
 #include "aboutdialog.h"
 #include "ui_aboutdialog.h"
 #include "name.h"
@@ -290,60 +292,71 @@ void AboutDialog::showCreditDetails(bool clicked){
 
 QString AboutDialog::osName()
 {
-#ifdef Q_OS_WIN
-  #if QT_VERSION >= QT_VERSION_CHECK(5,5,0)
-    switch(QSysInfo::windowsVersion())
-    {
-      case QSysInfo::WV_5_1: return "Windows XP";
-      case QSysInfo::WV_5_2: return "Windows 2003";
-      case QSysInfo::WV_6_0: return "Windows Vista";
-      case QSysInfo::WV_6_1: return "Windows 7";
-      case QSysInfo::WV_6_2: return "Windows 8";
-      case QSysInfo::WV_6_3: return "Windows 8.1";
-      case QSysInfo::WV_10_0: return "Windows 10";
-      default: return "Windows";
-    }
-  #else
-  switch(QSysInfo::windowsVersion())
-  {
-    case QSysInfo::WV_5_1: return "Windows XP";
-    case QSysInfo::WV_5_2: return "Windows 2003";
-    case QSysInfo::WV_6_0: return "Windows Vista";
-    case QSysInfo::WV_6_1: return "Windows 7";
-    case QSysInfo::WV_6_2: return "Windows 8";
-    case QSysInfo::WV_6_3: return "Windows 8.1 or later";
-    default: return "Windows";
-  }
+#if QT_VERSION >= QT_VERSION_CHECK(5,9,0)
+    auto current = QOperatingSystemVersion::current();
+    return QString("%1 %2 %3 %4")
+                   .arg(current.name())
+                   .arg(current.majorVersion())
+                   .arg(current.minorVersion())
+                   .arg(current.microVersion());
+#else
+  #ifdef Q_OS_LINUX
+    #if QT_VERSION >= QT_VERSION_CHECK(5,4,0)
+       return QSysInfo::productVersion();
+    #else
+       return "unknown";
+    #endif
   #endif
-#endif
 
-#ifdef Q_OS_MAC
-  #if QT_VERSION >= QT_VERSION_CHECK(5,5,0)
-    switch(QSysInfo::MacintoshVersion)
-    {
-      case QSysInfo::MV_LION:         return "OS X Lion";           // Version 10.7
-      case QSysInfo::MV_MOUNTAINLION: return "OS X Mountain Lion";  // Version 10.8
-      case QSysInfo::MV_MAVERICKS:    return "OS X Mavericks";      // version 10.9
-      case QSysInfo::MV_YOSEMITE:     return "OS X Yosemite";       // Version 10.10
-      case QSysInfo::MV_ELCAPITAN:    return "OS X El Capitan";     // Version 10.11
-      default: return "OS X";
-    }
-  #else
-  switch(QSysInfo::MacintoshVersion)
-  {
-    case QSysInfo::MV_LION:         return "OS X Lion";                    // Version 10.7
-    case QSysInfo::MV_MOUNTAINLION: return "OS X Mountain Lion";           // Version 10.8
-    case QSysInfo::MV_MAVERICKS:    return "OS X Mavericks";               // version 10.9
-    case QSysInfo::MW_YOSEMITE:     return "OS X Yosemite or later";       // Version 10.10
-    default: return "OS X";
-  }
+  #ifdef Q_OS_WIN
+    #if QT_VERSION >= QT_VERSION_CHECK(5,5,0)
+        switch(QSysInfo::windowsVersion())
+        {
+          case QSysInfo::WV_5_1: return "Windows XP";
+          case QSysInfo::WV_5_2: return "Windows 2003";
+          case QSysInfo::WV_6_0: return "Windows Vista";
+          case QSysInfo::WV_6_1: return "Windows 7";
+          case QSysInfo::WV_6_2: return "Windows 8";
+          case QSysInfo::WV_6_3: return "Windows 8.1";
+          case QSysInfo::WV_10_0: return "Windows 10";
+          default: return "Windows";
+        }
+    #else
+        switch(QSysInfo::windowsVersion())
+        {
+          case QSysInfo::WV_5_1: return "Windows XP";
+          case QSysInfo::WV_5_2: return "Windows 2003";
+          case QSysInfo::WV_6_0: return "Windows Vista";
+          case QSysInfo::WV_6_1: return "Windows 7";
+          case QSysInfo::WV_6_2: return "Windows 8";
+          case QSysInfo::WV_6_3: return "Windows 8.1 or later";
+          default: return "Windows";
+        }
+    #endif
   #endif
-#endif
-#ifdef Q_OS_LINUX
-  #if QT_VERSION >= QT_VERSION_CHECK(5,4,0)
-     return QSysInfo::productVersion();
-  #else
-     return "unknown";
+
+  #ifdef Q_OS_MAC
+    #if QT_VERSION >= QT_VERSION_CHECK(5,5,0)
+       switch(QSysInfo::MacintoshVersion)
+       {
+         case QSysInfo::MV_LION:         return "OS X Lion";              // Version 10.7
+         case QSysInfo::MV_MOUNTAINLION: return "OS X Mountain Lion";     // Version 10.8
+         case QSysInfo::MV_MAVERICKS:    return "OS X Mavericks";         // version 10.9
+         case QSysInfo::MV_YOSEMITE:     return "OS X Yosemite";          // Version 10.10
+         case QSysInfo::MV_ELCAPITAN:    return "OS X El Capitan";        // Version 10.11
+         case QSysInfo::MV_SIERRA:       return "MacOS Sierra;            // Version 10.12
+         default: return "MacOS";
+       }
+    #else
+       switch(QSysInfo::MacintoshVersion)
+       {
+         case QSysInfo::MV_LION:         return "OS X Lion";              // Version 10.7
+         case QSysInfo::MV_MOUNTAINLION: return "OS X Mountain Lion";     // Version 10.8
+         case QSysInfo::MV_MAVERICKS:    return "OS X Mavericks";         // version 10.9
+         case QSysInfo::MW_YOSEMITE:     return "OS X Yosemite or later"; // Version 10.10
+         default: return "OS X";
+       }
+    #endif
   #endif
 #endif
 }
