@@ -19,7 +19,7 @@ LPub4
 Author:
 Kevin Clague <kevin.clague@gmail.com>
 
-LeoCAD 18.2 commit 19680a1
+LeoCAD 18.2 commit b18645b
 Author:
 Leonardo Zide <leozide@gmail.com>
 
@@ -30,7 +30,7 @@ LDView 4.3 commit e11ec4
 Travis Cobb <ldview@gmail.com>
 Peter Bartfai <pbartfai@stardust.hu>
 
-POV-Ray 3.8 commit fa813f1
+POV-Ray 3.8 commit 74b3ebe
 Persistence of Vision Raytracer Pty. Ltd.
 
 qSLog 2.0.0

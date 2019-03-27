@@ -1,4 +1,4 @@
-LPub3D 2.3.0.0.887 (04 09 2018 06:52:44)
+LPub3D 2.3.7.0.1195 (27 03 2019 00:12:41)
 
 Features, enhancements, fixes and changes
 ------------
@@ -13,8 +13,8 @@ New feature - Go Dark - Add dark theme - GitHub ticket #73
 New feature - "Native" renderer based on 3DViewer (LeoCAD library) - GitHub ticket #71
 New feature - "Native" POV file generation based on LDView library - GitHub ticket #77
 New feature - Multi-segment page, divider and callout pointers - GitHub ticket #67
-New feature - "True" part fade and part highlight - GitHub ticket #52
-New feature - UI dialogue to set sub-model level colour - GitHub ticket #69
+New feature - "True" part fade and part highlight - GitHub ticket #47
+New feature - UI dialogue to set sub-model level color - GitHub ticket #69
 New feature - Scene horizontal and vertical ruler and axis guides - GitHub ticket #68
 New feature - Console commands - GitHub ticket #12
 Enhancement - Default assembly orientation angles to Assembly Setup - GitHub ticket #72
@@ -99,9 +99,9 @@ Change: LDView Raytracer labels to LDView .pov Generation. Change labels for LDV
 
 Fix: Incorrectly formatted Windows paths in LDView .ini files. This correction addresses the reported bugs 1. faded parts not displayed when using the LDView renderer and 2. cannot generate multiple images in single-call when using LDView renderer. See https://github.com/trevorsandy/lpub3d/issues/38 and https://github.com/trevorsandy/lpub3d/issues/42 for further details. #38 #42
 
-Fix: Add import colours from alternate colour-code file when defined. If an alternate colour code file is defined in Preferences, give this file precedence over LDConfig.ldr.
+Fix: Add import colours from alternate color-code file when defined. If an alternate color code file is defined in Preferences, give this file precedence over LDConfig.ldr.
 
-Fix: Spelling for default fade colour name. LDConfig.ldr uses UK spelling for Grey vs. US spelling, Gray.
+Fix: Spelling for default fade color name. LDConfig.ldr uses UK spelling for Grey vs. US spelling, Gray.
 
 Fix: Add recursive function to clear Page CSI cache. This correction enables clearing all associated CSI image generation artifacts which may include multiple ldr and image files for nested callouts.
 
@@ -118,7 +118,7 @@ Fix: Newer CSI images not saved when using LDView (Single Call) render. When usi
 Fix: Appended page is not displayed. When you append a page to your sub/model where the last step does not contain any parts - for example if the last step only contains BOM-related metas (e.g. 0 !LPUB INSERT BOM), the added page meta 0 !LPUB INSERT PAGE is not preceded by a step meta 0 !LPUB STEP and, consequently, is not displayed.
 If the appended page meta is added where the last step contains parts (STEP or ROTSTEP) or is a callout step, the behaviour is as expected.
 
-Enhancement: Enable 3DViewer to use alternate LDConfig.ldr colour file. This change brings the viewer in line with functionality available in the renderers. I expect the extend this capability in the future to allow unique colour submissions per CSI, and possibly PLI if it makes sense, which can enhance part fade and highlighting. # 34
+Enhancement: Enable 3DViewer to use alternate LDConfig.ldr color file. This change brings the viewer in line with functionality available in the renderers. I expect the extend this capability in the future to allow unique color submissions per CSI, and possibly PLI if it makes sense, which can enhance part fade and highlighting. # 34
 
 Enhancement: Add LPu3D build check - macOS & Windows. DevOps feature as first step to enabling CI-based TDD, and UI checks. See https://github.com/trevorsandy/lpub3d/issues/33 for additional context. #33
 
@@ -198,8 +198,8 @@ Version 2.1.0 presents a significant update to LPub3D. Most notably is the tight
 Enhancement: A custom LDraw library LDConfig file can can now be passed to LDGlite and LDView via the renderer command call. Of course it was always possible to customize the default LDConfig but doing so had the risk of overwriting your settings with a new update. With this capability, you can choose where you want to store your modified LDConfig.ldr file and use the LPub3D preferences dialogue to set it path for LDView and LDGLite.
 
 Enhancement: All the renderer configuration files are accessible and configurable from the LPub3D user interface. Moreover, all configuration settings only affect LPub3D's renderer instances so if you have LDView installed on your system, it will not be affected by the settings you configure in LPub3D. Here is a summary of the configuration files:
-    LDGLite - LDConfig.ldr: LDraw part colour codes [Default location: LDraw/LDConfig.ldr]
-    LDView - LDConfig.ldr: LDraw part colour codes [Default location: LDraw/LDConfig.ldr]
+    LDGLite - LDConfig.ldr: LDraw part color codes [Default location: LDraw/LDConfig.ldr]
+    LDView - LDConfig.ldr: LDraw part color codes [Default location: LDraw/LDConfig.ldr]
     LDView - ldview.ini: Image generation settings [Default locations]:
       Linux   - ~/.local/share/LPub3D Software/LPub3D/3rdParty/ldview-4.3/config/ldview.ini
       macOS   -  ~/Library/Application Support/LPub3D Software/LPub3D/3rdParty/ldview-4.3/config/ldview.ini
@@ -448,7 +448,7 @@ Fix: True page background transparency (r871)
 Fix: Previewing the current page (single page) produces a blank page (r870)
  * This behaviour has been corrected.
 Fix: Page size precision to 4 decimal places (r869)
- *  When using some page sizes (e.g. A4), there was a thin white band at the right/bottom edge of the generated PDF pages when the background is set to colour or image. This issue resulted from using incorrect page sizes. The correct page size in inches sometimes require 4 digits of precision but were rounded to only 1 digit. All page sizes have been set to 4 digits of precision.
+ *  When using some page sizes (e.g. A4), there was a thin white band at the right/bottom edge of the generated PDF pages when the background is set to color or image. This issue resulted from using incorrect page sizes. The correct page size in inches sometimes require 4 digits of precision but were rounded to only 1 digit. All page sizes have been set to 4 digits of precision.
 Fix: Border meta automatically updated to LPub3D format (r868)
  * LPub3D will automatically detect and update a LPub border meta to the LPub3D format which adds a line type attribute to the meta command. The previous behaviour would display an error format message prompting the user to correct the meta. The default line type set during automatic update is 1=solid.
  Line types are  0=none,1=solid,2=dash,3=dot,4=dashDot,5=dashDotDot. An LPub meta line like this:
@@ -648,8 +648,8 @@ Fix: Front and back cover page attribute placement (r802)
   *   ModelName                       *  (Top Left of Title) [Dependent]
   *   Title                           *  (Left of Page) [Anchor]
   *   Author                          *  (Bottom of Title) [Dependent]
-  *   Pieces                          *  (Bottom of Author) [Dependent]
-  *   Model Description               *  (Bottom of Pieces) [Dependent]
+  *   Parts                          *  (Bottom of Author) [Dependent]
+  *   Model Description               *  (Bottom of Parts) [Dependent]
   *   Publisher Description           *  (Bottom of Model Description) [Dependent]
   *                                   *
   *            Cover Image            *  (Centre of page) [Independent]
@@ -742,7 +742,7 @@ Features and enhancements
 -Fix: Backup parameter files during install (r778)
  *Backup user-editable parameter files that must be overwritten during installation of updates. This way, any additions created by the user will not be lost. However, it will be necessary to manually update the new parameter file with your additions.
 -Fix: Refactor fade step behaviour (r777)
- *Update fadeStepColorParts.lst attributes to allow faster library parsing to generate static colour parts.
+ *Update fadeStepColorParts.lst attributes to allow faster library parsing to generate static color parts.
  NOTE: FILE UPDATE REQUIRED. fadeStepColourParts.lst file updated with new required column so it is necessary to update your installed file. LPub3D will automatically backup and overwrite the existing file during installation.
 -Fix: Adjustable renderer process timeout (r776)
  *All the user to manage the amount of time to keep alive the renderer process. The default is 6 minutes but can be changed between -1 which is run indefinitely and 99 minutes. For high definition using POV-Ray, rendering process time can easily exceed the default. This setting is located at Preferences/Rendering/Process timeout.
@@ -834,7 +834,7 @@ Features and enhancements
  *Use QDesktopWidget.availableGeometry(this) setting to support single and multi-screen configurations.
 -Fix: Parameter file edit window highlighting part description containing '#' (r748)
  *Highlight only lines where first character is '#'.
--Fix: Generate fade colour parts list crash (r747)
+-Fix: Generate fade color parts list crash (r747)
  *Redesigned functionality to process parts from archive libraries (unofficial and official) versus LDraw disc directories. This approach improves performance and reliability as all parts, including those from additional search directories, are collected in the archive libraries. Working with archive files is much faster than working with disc directories.
 
 LPub3D 2.0.5.744.3
@@ -933,7 +933,7 @@ Features and enhancements
 -Display application load progress during splash screen display (r676/r709)
  *User can follow the application loading progress during startup launch
 -Add context menu to pages without steps - e.g. Cover Page, BOM Page (r681)
- *Pages without steps (e.g. Cover pages, BOM pages etc.) can be modified using the context menu. For example, to change background colour.
+ *Pages without steps (e.g. Cover pages, BOM pages etc.) can be modified using the context menu. For example, to change background color.
 -Add missing context menu icons (r680)
  *Small beautification enhancement - all context menu items now show a representative icon - this can be helpful when generating user guides for example.
 -Supress rotateIcon context menu item if rotate icon already inserted for step (r670)
@@ -978,7 +978,7 @@ Features and enhancements
 -Fix: Load inline submodels break (r688)
 -Fix: Remove libpng warning: iCCP: known incorrect sRGB profile (r678)
 -Fix: Convert special characters (copyright and trademark) from Wide Char to UTF8 for MSVC build (r677)
--Fix: Remove final colour model if exist when Fade Step is not enabled (r674)
+-Fix: Remove final color model if exist when Fade Step is not enabled (r674)
 -Fix: Clear cache when turning fade on/off (r674)
 -Fix: FadeStep and preferCentimeter setting mixmatch (r674)
 -Fix: Search directories not updated when directory added to Ldraw.ini (r673)
@@ -1072,7 +1072,7 @@ Features and enhancements
  functionality, simply edit the substitution list from Configuration= BOM/PLI Substitute Parts List
 -Add LDCad PART/UNOFFICIAL PART meta to recognize LDCad template generated parts
 -Add gradients to background options
--Add Change local page background - colour, gradient, picture, submodel, none
+-Add Change local page background - color, gradient, picture, submodel, none
 -Add memu item 'Refresh Unofficial Parts' which downloads and replaces the ldrawunf.zip archive
  in the  Ldraw/LPub3DVoiewer-Library. LPub3D places all search directory parts in the ldrawunf.zip archive so they
  can be made available for the LPub3D Viewer. This feature allows you to reset the archive file to
@@ -1083,22 +1083,22 @@ Features and enhancements
 -Update 3DViewer to LeoCAD build 1867
 -Remove PartsList class, use instead lcPiecesLibrary class to verify parts and capture part title. This is a consolidation to
  improve the application's performance.
--Move process fade colour parts to separate thread.
+-Move process fade color parts to separate thread.
 -Move fade parts directory from under LDraw/Unofficial/parts and LDraw/Unofficial/p to as single directory
  under LDraw/Unofficial. So from this version of LPub3D, the fade directory will be autogenerated and populated
  as LDraw/Unofficial/fade. Old fade directories under Unofficial/parts and p must be manually removed if desired.
 -Redesign color part list and archive classes - rename and separate generate color parts list
 -Cosmetic and performance updates
 -Fix: Changing step number attributes on multi-step pages are now working
--Fix: PLI/BOM sort routine, sort on 'part colour' part(s) appear out of place relative to
- part size and colour.
+-Fix: PLI/BOM sort routine, sort on 'part color' part(s) appear out of place relative to
+ part size and color.
 -Fix: Do not create instruction page(s) for unofficial part
 -Fix: Create s/8/48 subdirectory in lpub/tmp directory when needed. This fix will resolve the issue of LPub3D not being able to create inline unofficial subparts and 8/48 primitives when rendering models where these parts are defined in the model file.
 -CHANGE: In previous versions of LPub3D, custom and fade parts were loaded under the Unofficial directory allowing detection by all renderers and the 3D viewer. From this version of LPub3D (v1.3.0), the fade directory will reside at the root of the the Unofficial directory. Custom content added to Unofficial P and Parts directories will not detected by LPub3D.
 -CHANGE: Change part count routine to use ldraw archive files to look at 'LDRAW ORG...' part type meta tag. I think there are still some issue with
  this routine however - especially with large complex models using in-lined unofficial parts that may not be in ldrawunf.zip
 -CHANGE: Change 'Reset All Caches' to 'Reset Image and Model' Caches
--CHANGE: BOM default sort to sort by colour then size, previous default was size only (PLI default sort by size)
+-CHANGE: BOM default sort to sort by color then size, previous default was size only (PLI default sort by size)
 -CHANGE: Change 'Update' tab in preferences dialogue to 'Other'.
 
 LPub3D 1.2.3.443.2
@@ -1117,19 +1117,19 @@ LPub3D 1.2.1.437.2
 
 Features and enhancements
 ------------
--Fix: PLI/BOM sort routine, sort on 'part colour' part(s) appear out of place relative to
- part size and colour.
--CHANGE: BOM default sort to sort by colour then size, previous default was size only (PLI default sort by size)
+-Fix: PLI/BOM sort routine, sort on 'part color' part(s) appear out of place relative to
+ part size and color.
+-CHANGE: BOM default sort to sort by color then size, previous default was size only (PLI default sort by size)
 
 LPub3D 1.2.0.388.4
 
 Features and enhancements
 ------------
--Sort PLI/BOM by part size (default), colour and category
+-Sort PLI/BOM by part size (default), color and category
 -Improved model navigation - display selected model from model drop-down. Ignored 'meta=IGN'
  submodels are not displayed even though they are in the drop-down list because they are
  not assigned a page number.
--Display LDraw colour code on BOM/PLI tooltip - now showing colour description, colour code and
+-Display LDraw color code on BOM/PLI tooltip - now showing color description, color code and
  part description.
 -Go To Page navigation combo box - allow page navigation using drop-down box.
 -Show progress bar during display page processing.
@@ -1180,8 +1180,8 @@ Features and enhancements
 -Integrated 3D Viewer powered by LeoCAD
 -Set ROTSTEP (step rotation) meta using 3D Viewer
 -Fade previous step's parts
--Use any LDraw colour as fade colour
--Manage colour parts for complete part fade
+-Use any LDraw color as fade color
+-Manage color parts for complete part fade
 -Unlimited PLI part annotations
 -Split the BOM (divide parts over number of BOM occurrences)
 -Formatted front and back cover pages
@@ -1201,7 +1201,7 @@ About LPub3D
 LPub3D is a WYSIWYG editing application for creating LEGO style digital building instructions.
 It is available for free under the GNU Public License v3 and works on the Windows
 Operating Systems. Portions of LPub3D are based on LPUB© 2007-2009 Kevin Clague,
-LeoCAD© 2018 Leonardo Zide.and additional third party components.
+LeoCAD© 2019 Leonardo Zide.and additional third party components.
 
 Installation
 ------------
