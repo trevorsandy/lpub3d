@@ -114,7 +114,7 @@ GlobalAssemDialog::GlobalAssemDialog(
   /* Assembly camera settings */
 
   box = new QGroupBox("Default Assembly Orientation");
-  grid->addWidget(box,1,0);
+  grid->addWidget(box);
   boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
 
@@ -134,7 +134,7 @@ GlobalAssemDialog::GlobalAssemDialog(
 
   /* Step Number */
   box = new QGroupBox("Step Number");
-  grid->addWidget(box,3,0);
+  grid->addWidget(box);
 
   boxGrid->addWidget(child);
   NumberPlacementMeta *stepNumber = &data->meta.LPub.stepNumber;
@@ -186,7 +186,7 @@ GlobalAssemDialog::GlobalAssemDialog(
   buttonBox->addButton(QDialogButtonBox::Cancel);
   connect(buttonBox,SIGNAL(rejected()),SLOT(cancel()));
 
-  grid->addWidget(buttonBox);
+  layout->addWidget(buttonBox);
 
   setModal(true);
   setMinimumSize(40,20);
