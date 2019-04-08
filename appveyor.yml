@@ -83,6 +83,7 @@ environment:
 init:
  - ps: cmd.exe /c %windir%\system32\tzutil.exe /s "Central Europe Standard Time"
  - ps: write-host "Building ${env:LP3D_PACKAGE} x86 and x86_64 architectures..."
+ - ps: write-host "Windows Version:" (Get-ItemProperty -Path c:\windows\system32\hal.dll).VersionInfo.FileVersion
  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
  - ps: |
       If ($env:LP3D_SKIP_APPVEYOR_VAR -eq "true") {
