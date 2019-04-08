@@ -3085,6 +3085,8 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
                 }
               argv[argv.size()-1] = fileNameStr;
             }
+          if (isGhost(contentLine))
+              argv.prepend(GHOST_META);
           contentLine = argv.join(" ");
           configuredContents  << contentLine;
 
@@ -3256,6 +3258,9 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
                   }
               }
           }
+
+          if (isGhost(csiLine))
+              argv.prepend(GHOST_META);
 
           // previous step parts
           csiLine = argv.join(" ");

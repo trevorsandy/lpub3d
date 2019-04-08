@@ -56,6 +56,8 @@ enum Theme { ThemeDark, ThemeDefault };
 #define NEXT          1
 #define PREVIOUS      2
 
+#define GHOST_META    "0 GHOST"
+
 #define MAX_NUM_POV_GEN_ARGS (128)
 
 #define DOT_PATH_DEFAULT                        "."

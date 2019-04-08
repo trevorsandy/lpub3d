@@ -219,5 +219,6 @@ int validSoQ(const QString &line, int soq);
 bool isHeader(QString &line);
 bool isComment(QString &line);
 bool isUnofficialFileType(QString &line);
+bool isGhost(QString &line);
 
 #endif

@@ -1486,3 +1486,10 @@ bool isUnofficialFileType(QString &line)
   }
   return false;
 }
+
+bool isGhost(QString &line){
+  QRegExp ghostMeta("^\\s*0\\s+GHOST\\s+.*$");
+  if (line.contains(ghostMeta))
+      return true;
+  return false;
+}

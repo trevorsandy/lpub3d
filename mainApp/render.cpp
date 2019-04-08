@@ -2344,6 +2344,8 @@ int Render::mergeNativeCSISubModels(QStringList &subModels,
                               newSubModels << type.toLower();
                     }
                 }
+              if (isGhost(csiLine))
+                  argv.prepend(GHOST_META);
               csiLine = argv.join(" ");
               csiSubModelParts << csiLine;
             }

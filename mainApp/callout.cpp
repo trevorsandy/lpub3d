@@ -587,6 +587,8 @@ QString Callout::wholeSubmodel(
     } else if (num_tokens == 15 && tokens[0] == "1") {
       if (gui->isSubmodel(tokens[14])) {
         tokens[14] = wholeSubmodel(meta,tokens[14],line,depth + 1);
+        if (isGhost(line))
+            tokens.prepend(GHOST_META);
         line = tokens.join(" ");
       }
     }
@@ -597,11 +599,11 @@ QString Callout::wholeSubmodel(
     //Render::rotateParts(addLine,meta.rotStep,csiParts,false);
     RotStepMeta emptyRotStep; FloatPairMeta emptyCameraAngles;
     Render::rotateParts(addLine,emptyRotStep,csiParts,emptyCameraAngles,false);
-    logDebug() << "Called rotateParts for Called out 'Rotated' parts;";
+    //logDebug() << "Called rotateParts for Called out 'Rotated' parts;";
   }
 
   gui->insertGeneratedModel(wholeName,csiParts);
-  logDebug() << "Called insertGeneratedModel with passed parms wholeName: " << wholeName << ", cisParts: " << csiParts;
+  //logDebug() << "Called insertGeneratedModel with passed parms wholeName: " << wholeName << ", cisParts: " << csiParts;
 
   return wholeName;
 }
