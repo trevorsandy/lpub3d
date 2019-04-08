@@ -998,19 +998,24 @@ bool  Gui::compareVersionStr (const QString& first, const QString& second)
 
 void Gui::displayFile(
     LDrawFile     *ldrawFile,
-    const QString &modelName)
+    const QString &modelName,
+    bool editModelFile)
 {
-  if (! exporting()) {
-      displayFileSig(ldrawFile, modelName);
-      curSubFile = modelName;
-      int currentIndex = 0;
-      for (int i = 0; i < mpdCombo->count(); i++) {
-          if (mpdCombo->itemText(i) == modelName) {
-              currentIndex = i;
-              break;
+    if (! exporting()) {
+        if (editModelFile) {
+            displayModelFileSig(ldrawFile, modelName);
+        } else {
+            displayFileSig(ldrawFile, modelName);
+            curSubFile = modelName;
+            int currentIndex = 0;
+            for (int i = 0; i < mpdCombo->count(); i++) {
+                if (mpdCombo->itemText(i) == modelName) {
+                    currentIndex = i;
+                    break;
+                }
             }
+            mpdCombo->setCurrentIndex(currentIndex);
         }
-      mpdCombo->setCurrentIndex(currentIndex);
     }
 }
 
@@ -1019,6 +1024,16 @@ void Gui::displayParmsFile(
 {
     displayParmsFileSig(fileName);
 }
+
+void Gui::editModelFile()
+{
+    if (getCurFile() != "") {
+        displayFile(&ldrawFile, getCurFile(), true);
+        editModeWindow->setWindowTitle(tr("Edit %1").arg(QFileInfo(getCurFile()).fileName()));
+        editModeWindow->show();
+    }
+}
+
 
 void Gui::deployExportBanner(bool b)
 {
@@ -1178,6 +1193,7 @@ void Gui::mpdComboChanged(int index)
         }
     }
   mpdCombo->setCurrentIndex(index);
+  mpdCombo->setToolTip(tr("Current Submodel: %1").arg(mpdCombo->currentText()));
 }
 
 void Gui::reloadViewer(){
@@ -1237,19 +1253,27 @@ void Gui::reloadCurrentModelFile(){
         emit messageSig(LOG_STATUS,"No model file to reopen.");
         return;
     }
-    if (maybeSave()) {
-        timer.start();
 
-        int savePage = displayPageNum;
-        openFile(curFile);
-        displayPageNum = savePage;
-        displayPage();
-        enableActions();
+    QObject *widget = sender();
+    if (!(widget && widget == editModeWindow))
+        if (!maybeSave())
+            return;
 
-        emit messageSig(LOG_STATUS, QString("Model file reloaded (%1 parts). %2")
-                        .arg(ldrawFile.getPartCount())
-                        .arg(elapsedTime(timer.elapsed())));
-    }
+    bool saveChange = changeAccepted;
+    changeAccepted = true;
+
+    timer.start();
+
+    int savePage = displayPageNum;
+    openFile(curFile);
+    displayPageNum = savePage;
+    displayPage();
+    enableActions();
+
+    emit messageSig(LOG_STATUS, QString("Model file reloaded (%1 parts). %2")
+                    .arg(ldrawFile.getPartCount())
+                    .arg(elapsedTime(timer.elapsed())));
+    changeAccepted = saveChange;
 }
 
 void Gui::resetModelCache(QString file)
@@ -1270,6 +1294,45 @@ void Gui::resetModelCache(QString file)
             emit messageSig(LOG_ERROR, QString("Reset cache failed to restore current directory %1").arg(saveCurrentDir));
         resetCache = false;
     }
+}
+
+void Gui::clearAndRedrawModelFile() {
+
+    if (getCurFile().isEmpty()) {
+        emit messageSig(LOG_STATUS,"A model must be open to reset its caches - no action taken.");
+        return;
+    }
+
+    bool saveChange = changeAccepted;
+    changeAccepted = true;
+
+    timer.start();
+
+    if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
+        ldrawFile.clearPrevStepPositions();
+    }
+
+    clearPLICache();
+    clearCSICache();
+    clearSubmodelCache();
+    clearTempCache();
+
+    //reload current model file
+    int savePage = displayPageNum;
+    openFile(curFile);
+    displayPageNum = savePage;
+    displayPage();
+    enableActions();
+
+    emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
+                    .arg(ldrawFile.getPartCount())
+                    .arg(elapsedTime(timer.elapsed())));
+
+    changeAccepted = saveChange;
+}
+
+void Gui::clearAndRedrawPage() {
+    clearAllCaches();
 }
 
 void Gui::clearAllCaches()
@@ -2200,7 +2263,8 @@ Gui::Gui()
 
     mHttpManager = new lcHttpManager(this);
 
-    editWindow    = new EditWindow(this);  // remove inheritance 'this' to independently manage window
+    editWindow    = new EditWindow(this);         // remove inheritance 'this' to independently manage window
+    editModeWindow= new EditWindow(nullptr,true); // true = this is a mode file edit window
     parmsWindow   = new ParmsWindow();
 
     KpageScene    = new LGraphicsScene(this);
@@ -2213,10 +2277,10 @@ Gui::Gui()
     setCentralWidget(KpageView);
 
     mpdCombo = new QComboBox(this);
-    mpdCombo->setToolTip(tr("Current Submodel: %1").arg(mpdCombo->currentText()));
     mpdCombo->setMinimumContentsLength(25);
     mpdCombo->setInsertPolicy(QComboBox::InsertAtBottom);
     mpdCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
+    mpdCombo->setToolTip(tr("Current Submodel"));
     mpdCombo->setStatusTip("Use dropdown to select submodel");
     connect(mpdCombo,SIGNAL(activated(int)),
             this,    SLOT(mpdComboChanged(int)));
@@ -2281,6 +2345,21 @@ Gui::Gui()
             this,           SLOT(  cleanChanged(bool)));
     connect(undoStack,      SIGNAL(cleanChanged(bool)),
             editWindow,     SLOT(  updateDisabled(bool)));
+
+    // edit model file
+    connect(this,           SIGNAL(displayModelFileSig(LDrawFile *, const QString &)),
+            editModeWindow, SLOT(  displayFile   (LDrawFile *, const QString &)));
+    connect(editModeWindow, SIGNAL(redrawSig()),
+            this,           SLOT(  clearAndRedrawModelFile()));
+    connect(editModeWindow, SIGNAL(updateSig()),
+            this,           SLOT(  reloadCurrentModelFile()));
+    connect(this,           SIGNAL(disableEditorActionsSig()),
+            editModeWindow, SLOT(  disableActions()));
+
+    connect(editModeWindow, SIGNAL(contentsChange(const QString &,int,int,const QString &)),
+            this,           SLOT(  contentsChange(const QString &,int,int,const QString &)));
+    connect(undoStack,      SIGNAL(cleanChanged(bool)),
+            editModeWindow, SLOT(  updateDisabled(bool)));
 
     progressLabel = new QLabel(this);
     progressLabel->setMinimumWidth(200);
@@ -3495,6 +3574,10 @@ void Gui::createActions()
     editBLColorsAct->setStatusTip(tr("Add/edit Bricklink Color ID reference"));
     connect(editBLColorsAct, SIGNAL(triggered()), this, SLOT(editBLColors()));
 
+    editModelFileAct = new QAction(QIcon(":/resources/editldraw.png"),tr("Edit current model file"), this);
+    editModelFileAct->setStatusTip(tr("Edit loaded LDraw model file"));
+    connect(editModelFileAct, SIGNAL(triggered()), this, SLOT(editModelFile()));
+
     generateCustomColourPartsAct = new QAction(QIcon(":/resources/generatecolourparts.png"),tr("Generate Static Color Parts List"), this);
     generateCustomColourPartsAct->setStatusTip(tr("Generate list of all static coloured parts"));
     connect(generateCustomColourPartsAct, SIGNAL(triggered()), this, SLOT(generateCustomColourPartsList()));
@@ -3594,6 +3677,7 @@ void Gui::enableActions()
   editAnnotationStyleAct->setEnabled(true);
   editLD2BLColorsXRefAct->setEnabled(true);
   editBLColorsAct->setEnabled(true);
+  editModelFileAct->setEnabled(true);
 
   setPageLineEdit->setEnabled(true);
 
@@ -3675,6 +3759,7 @@ void Gui::disableActions()
   editAnnotationStyleAct->setEnabled(false);
   editLD2BLColorsXRefAct->setEnabled(false);
   editBLColorsAct->setEnabled(false);
+  editModelFileAct->setEnabled(false);
 
   setPageLineEdit->setEnabled(false);
 
@@ -3874,6 +3959,8 @@ void Gui::createMenus()
     configMenu->addSeparator();
     editorMenu = configMenu->addMenu("Edit Parameter Files");
     editorMenu->setIcon(QIcon(":/resources/editparameterfiles.png"));
+    editorMenu->addAction(editModelFileAct);
+    editorMenu->addSeparator();
     editorMenu->addAction(editLDrawColourPartsAct);
     editorMenu->addAction(editTitleAnnotationsAct);
     editorMenu->addAction(editFreeFormAnnitationsAct);

@@ -318,6 +318,9 @@ void Gui::closeModelFile(){
   disableActions();
   disableActions2();
   closeFile();
+  editModeWindow->close();
+  editModelFileAct->setText(tr("Edit current model file"));
+  editModelFileAct->setStatusTip(tr("Edit loaded LDraw model file"));
   emit messageSig(LOG_INFO, QString("Model %1 unloaded.").arg(topModel));
   curFile.clear();
 }
@@ -353,6 +356,8 @@ void Gui::openFile(QString &fileName)
   QFileInfo info(fileName);
   QDir::setCurrent(info.absolutePath());
   Paths::mkDirs();
+  editModelFileAct->setText(tr("Edit %1").arg(info.fileName()));
+  editModelFileAct->setStatusTip(tr("Edit loaded LDraw model file %1").arg(info.fileName()));
   emit messageSig(LOG_INFO_STATUS, QString("Loading LDraw model file [%1]...").arg(fileName));
   ldrawFile.loadFile(fileName);
   bool overwriteCustomParts = false;
@@ -365,6 +370,7 @@ void Gui::openFile(QString &fileName)
   mpdCombo->setMaxCount(0);
   mpdCombo->setMaxCount(1000);
   mpdCombo->addItems(ldrawFile.subFileOrder());
+  mpdCombo->setToolTip(tr("Current Submodel: %1").arg(mpdCombo->currentText()));
   setCurrentFile(fileName);
   emit messageSig(LOG_STATUS, "Loading LDraw Editor display...");
   displayFile(&ldrawFile,ldrawFile.topLevelFile());

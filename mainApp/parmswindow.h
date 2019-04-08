@@ -135,8 +135,8 @@ public:
 
     void showAllCharacters(bool show);
     void lineNumberAreaPaintEvent(QPaintEvent *event);
-    void setIsUTF(bool isUTF) { _fileIsUTF = isUTF; }
-    bool getIsUTF() { return _fileIsUTF; }
+    void setIsUTF8(bool isUTF8) { _fileIsUTF8 = isUTF8; }
+    bool getIsUTF8() { return _fileIsUTF8; }
     int lineNumberAreaWidth();
     void parmsOpen(int &opt);
     bool parmsSave(int &opt);
@@ -155,7 +155,7 @@ private slots:
          QString replaceString);
 
 private:
-    bool _fileIsUTF;
+    bool _fileIsUTF8;
     QWidget *lineNumberArea;
 };
 

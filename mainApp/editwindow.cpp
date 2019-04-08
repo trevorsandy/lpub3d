@@ -39,12 +39,12 @@
 
 EditWindow *editWindow;
 
-EditWindow::EditWindow(QMainWindow *parent) :
-  QMainWindow(parent)
+EditWindow::EditWindow(QMainWindow *parent, bool modelFileEdit) :
+  QMainWindow(parent),_modelFileEdit(modelFileEdit)
 {
     editWindow  = this;
 
-    _textEdit   = new QTextEditor;
+    _textEdit   = new QTextEditor(this);
 
     highlighter = new Highlighter(_textEdit->document());
     _textEdit->setLineWrapMode(QTextEditor::NoWrap);
@@ -61,7 +61,10 @@ EditWindow::EditWindow(QMainWindow *parent) :
 
     setCentralWidget(_textEdit);
 
-    resize(QDesktopWidget().availableGeometry(this).size()*0.6);
+    if (_modelFileEdit) {
+        editWindow->statusBar()->show();
+        readSettings();
+    }
 }
 
 void EditWindow::createActions()
@@ -106,6 +109,12 @@ void EditWindow::createActions()
     selAllAct->setStatusTip(tr("Select all page content - Ctrl+A"));
     connect(selAllAct, SIGNAL(triggered()), _textEdit, SLOT(selectAll()));
 
+    showAllCharsAct = new QAction(QIcon(":/resources/showallcharacters.png"), tr("Show all characters"), this);
+    showAllCharsAct->setShortcut(tr("Ctrl+J"));
+    showAllCharsAct->setStatusTip(tr("Show all characters - Ctrl+J"));
+    showAllCharsAct->setCheckable(true);
+    connect(showAllCharsAct, SIGNAL(triggered()), this, SLOT(showAllCharacters()));
+
     topAct = new QAction(QIcon(":/resources/topofdocument.png"), tr("Top of document"), this);
     topAct->setShortcut(tr("Ctrl+T"));
     topAct->setStatusTip(tr("Navigate to the top of document - Ctrl+T"));
@@ -123,6 +132,40 @@ void EditWindow::createActions()
     connect(_textEdit, SIGNAL(copyAvailable(bool)),
              delAct,   SLOT(setEnabled(bool)));
 
+    // edit model file
+    exitAct = new QAction(QIcon(":/resources/exit.png"),tr("E&xit"), this);
+    exitAct->setShortcut(tr("Ctrl+Q"));
+    exitAct->setStatusTip(tr("Exit the application - Ctrl+Q"));
+    connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
+
+    saveAct = new QAction(QIcon(":/resources/save.png"), tr("&Save"), this);
+    saveAct->setShortcut(tr("Ctrl+S"));
+    saveAct->setStatusTip(tr("Save the document to disk - Ctrl+S"));
+    connect(saveAct, SIGNAL(triggered()), this, SLOT(saveFile()));
+
+    undoAct = new QAction(QIcon(":/resources/editundo.png"), tr("Undo"), this);
+    undoAct->setShortcut(tr("Ctrl+Z"));
+    undoAct->setStatusTip(tr("Undo last change - Ctrl+Z"));
+    connect(undoAct, SIGNAL(triggered()), _textEdit, SLOT(undo()));
+    redoAct = new QAction(QIcon(":/resources/editredo.png"), tr("Redo"), this);
+#ifdef __APPLE__
+    redoAct->setShortcut(tr("Ctrl+Shift+Z"));
+    redoAct->setStatusTip(tr("Redo last change - Ctrl+Shift+Z"));
+#else
+    redoAct->setShortcut(tr("Ctrl+Y"));
+    redoAct->setStatusTip(tr("Redo last change - Ctrl+Y"));
+#endif
+    connect(redoAct, SIGNAL(triggered()), _textEdit, SLOT(redo()));
+
+    connect(_textEdit, SIGNAL(undoAvailable(bool)),
+             undoAct,  SLOT(setEnabled(bool)));
+    connect(_textEdit, SIGNAL(redoAvailable(bool)),
+             redoAct,  SLOT(setEnabled(bool)));
+    connect(saveAct,   SIGNAL(triggered(bool)),
+             this,     SLOT(  updateDisabled(bool)));
+    connect(_textEdit, SIGNAL(textChanged()),
+             this,     SLOT(enableSave()));
+
     disableActions();
 }
 
@@ -137,14 +180,40 @@ void EditWindow::disableActions()
     findAct->setEnabled(false);
     topAct->setEnabled(false);
     bottomAct->setEnabled(false);
+    showAllCharsAct->setEnabled(false);
+
+    undoAct->setEnabled(false);
+    redoAct->setEnabled(false);
+    saveAct->setEnabled(false);
+
 }
 
 void EditWindow::createToolBars()
 {
     editToolBar = addToolBar(tr("Edit"));
     editToolBar->setObjectName("EditToolbar");
+    if (modelFileEdit()) {
+        mpdCombo = new QComboBox(this);
+        mpdCombo->setMinimumContentsLength(25);
+        mpdCombo->setInsertPolicy(QComboBox::InsertAtBottom);
+        mpdCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
+        mpdCombo->setToolTip(tr("Go to submodel"));
+        mpdCombo->setStatusTip("Use dropdown to go to submodel");
+        connect(mpdCombo,SIGNAL(activated(int)),
+                this,    SLOT(mpdComboChanged(int)));
+
+        editToolBar->addAction(exitAct);
+        editToolBar->addAction(saveAct);
+        editToolBar->addSeparator();
+        editToolBar->addAction(undoAct);
+        editToolBar->addAction(redoAct);
+        editToolBar->addSeparator();
+        editToolBar->addWidget(mpdCombo);
+        editToolBar->addSeparator();
+    }
     editToolBar->addAction(topAct);
     editToolBar->addAction(bottomAct);
+//    editToolBar->addAction(showAllCharsAct);
     editToolBar->addAction(selAllAct);
     editToolBar->addAction(cutAct);
     editToolBar->addAction(copyAct);
@@ -168,6 +237,20 @@ void EditWindow::showContextMenu(const QPoint &pt)
     delete menu;
 }
 
+void EditWindow::mpdComboChanged(int index)
+{
+    Q_UNUSED(index);
+    QString newSubFile = mpdCombo->currentText();
+    if (_curSubFile != newSubFile) {
+        _curSubFile = newSubFile;
+        QString findText = QString("0 FILE %1").arg(_curSubFile);
+        _textEdit->moveCursor(QTextCursor::Start);
+        if (!_textEdit->find(findText))
+            statusBar()->showMessage(tr("Did not find submodel '%1'").arg(findText));
+    }
+    mpdCombo->setCurrentIndex(index);
+}
+
 void EditWindow::contentsChange(
   int position,
   int charsRemoved,
@@ -185,6 +268,63 @@ void EditWindow::contentsChange(
   }
 
   contentsChange(fileName, position, charsRemoved, addedChars);
+}
+
+bool EditWindow::maybeSave()
+{
+  bool rc = true;
+
+  if (_textEdit->document()->isModified()) {
+    QMessageBox::StandardButton ret;
+    ret = QMessageBox::warning(this, tr("Model File Editor"),
+            tr("The model file has been modified.\n"
+                "Do you want to save your changes?"),
+            QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+    if (ret == QMessageBox::Save) {
+      rc = saveFile();
+    }
+  }
+  return rc;
+}
+
+bool EditWindow::saveFile()
+{
+    bool rc = false;
+    // check for dirty editor
+    if (_textEdit->document()->isModified())
+    {
+        QFile file(fileName);
+        if (! file.open(QFile::WriteOnly | QFile::Text)) {
+            QMessageBox::warning(nullptr,
+                                 tr("Model File Editor"),
+                                 tr("Cannot write file %1:\n%2.")
+                                 .arg(fileName)
+                                 .arg(file.errorString()));
+            return rc;
+        }
+
+        if (showAllCharsAct->isChecked()) {
+            _textEdit->blockSignals(true);
+            _textEdit->showAllCharacters(false);
+        }
+
+        QTextDocumentWriter writer(fileName, "plaintext");
+        writer.setCodec(_textEdit->getIsUTF8() ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
+        rc = writer.write(_textEdit->document());
+
+        if (rc){
+            saveAct->setEnabled(false);
+            _textEdit->document()->setModified(false);
+            statusBar()->showMessage(tr("File %1 saved").arg(fileName), 2000);
+        }
+
+        if (showAllCharsAct->isChecked()) {
+            _textEdit->showAllCharacters(true);
+            _textEdit->blockSignals(false);
+        }
+    }
+
+  return rc;
 }
 
 void EditWindow::highlightCurrentLine()
@@ -219,6 +359,13 @@ void EditWindow::topOfDocument(){
 
 void EditWindow::bottomOfDocument(){
     _textEdit->moveCursor(QTextCursor::End);
+}
+
+void EditWindow::showAllCharacters(){
+    _textEdit->blockSignals(true);
+    _textEdit->showAllCharacters(showAllCharsAct->isChecked());
+    _textEdit->blockSignals(false);
+    _textEdit->document()->setModified(false);
 }
 
 void EditWindow::pageUpDown(
@@ -263,7 +410,13 @@ void EditWindow::showLine(int lineNumber)
 }
 
 void EditWindow::updateDisabled(bool state){
-    updateAct->setDisabled(state);
+    QAction *action = qobject_cast<QAction *>(sender());
+    if ((action && action == saveAct))
+    {
+        updateAct->setDisabled(true);
+    } else {
+        updateAct->setDisabled(state);
+    }
 }
 
 void EditWindow::displayFile(
@@ -271,38 +424,131 @@ void EditWindow::displayFile(
   const QString &_fileName)
 {
   fileName = _fileName;
+
   disconnect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
              this,                  SLOT(  contentsChange(int,int,int)));
+
   if (fileName == "") {
     _textEdit->document()->clear();
   } else {
-    _textEdit->setPlainText(ldrawFile->contents(fileName).join("\n"));
+      if (modelFileEdit()) {
+          QFile file(fileName);
+          if (!file.open(QFile::ReadOnly | QFile::Text)) {
+              QMessageBox::warning(nullptr,
+                       QMessageBox::tr("Model File Editor"),
+                       QMessageBox::tr("Cannot read file %1:\n%2.")
+                       .arg(fileName)
+                       .arg(file.errorString()));
+
+              _textEdit->document()->clear();
+              return;
+          }
+
+          mpdCombo->setMaxCount(0);
+          mpdCombo->setMaxCount(1000);
+          mpdCombo->addItems(ldrawFile->subFileOrder());
+
+          // check file encoding
+          QTextCodec *codec = QTextCodec::codecForName("UTF-8");
+          bool isUTF8 = LDrawFile::_currFileIsUTF8;
+          _textEdit->setIsUTF8(isUTF8);
+
+          QFileInfo   fileInfo(fileName);
+          QTextStream in(&file);
+          in.setCodec(_textEdit->getIsUTF8() ? codec : QTextCodec::codecForName("System"));
+
+          disconnect(_textEdit, SIGNAL(textChanged()),
+                     this,      SLOT(enableSave()));
+
+          _textEdit->setPlainText(in.readAll());
+
+          connect(_textEdit,  SIGNAL(textChanged()),
+                   this,      SLOT(enableSave()));
+          file.close();
+
+          exitAct->setEnabled(true);
+          statusBar()->showMessage(tr("Model File %1 loaded").arg(fileName), 2000);
+      } else {
+          _textEdit->setPlainText(ldrawFile->contents(fileName).join("\n"));
+      }
   }
+
   _textEdit->document()->setModified(false);
+
   connect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
           this,                  SLOT(  contentsChange(int,int,int)));
 
   selAllAct->setEnabled(true);
+  showAllCharsAct->setEnabled(true);
   redrawAct->setEnabled(true);
   findAct->setEnabled(true);
   topAct->setEnabled(true);
   bottomAct->setEnabled(true);
-
 }
 
 void EditWindow::redraw()
 {
+  saveFile();
   redrawSig();
 }
 
 void EditWindow::update()
 {
+  saveFile();
   updateSig();
 }
 
+void EditWindow::enableSave()
+{
+  if (_textEdit->document()->isModified())
+    {
+      saveAct->setEnabled(true);
+    }
+}
+
+void EditWindow::readSettings()
+{
+    QSettings Settings;
+    Settings.beginGroup(PARMSWINDOW);
+    restoreGeometry(Settings.value("Geometry").toByteArray());
+    restoreState(Settings.value("State").toByteArray());
+    QSize size = Settings.value("Size", QDesktopWidget().availableGeometry(this).size()*0.5).toSize();
+    resize(size);
+    Settings.endGroup();
+}
+
+void EditWindow::writeSettings()
+{
+    QSettings Settings;
+    Settings.beginGroup(PARMSWINDOW);
+    Settings.setValue("Geometry", saveGeometry());
+    Settings.setValue("State", saveState());
+    Settings.setValue("Size", size());
+    Settings.endGroup();
+}
+
+void EditWindow::closeEvent(QCloseEvent *event)
+{
+    writeSettings();
+
+    mpdCombo->setMaxCount(0);
+    mpdCombo->setMaxCount(1000);
+
+    if (maybeSave()){
+        event->accept();
+    } else {
+        event->ignore();
+    }
+}
+
+/*
+ *
+ * Text Editor section
+ *
+ */
 
 QTextEditor::QTextEditor(QWidget *parent) :
-    QTextEdit(parent)
+    QTextEdit(parent),_fileIsUTF8(false)
 {
     lineNumberArea = new QLineNumberArea(this);
 
@@ -316,10 +562,28 @@ QTextEditor::QTextEditor(QWidget *parent) :
     //highlightCurrentLine();
 }
 
+void QTextEditor::showAllCharacters(bool show){
+    if (show){
+        showCharacters(" ","\u002E");
+#ifdef Q_OS_WIN
+        showCharacters("\t","\u003E");
+#else
+        showCharacters("\t","\u2192");
+#endif
+    } else {
+        showCharacters("\u002E"," ");
+#ifdef Q_OS_WIN
+        showCharacters("\u003E","\t");
+#else
+        showCharacters("\u2192","\t");
+#endif
+    }
+}
+
 int QTextEditor::lineNumberAreaWidth()
 {
     int digits = 1;
-    int max = qMax(1, this->document()->blockCount());
+    int max = qMax(1, document()->blockCount());
     while (max >= 10) {
         max /= 10;
         ++digits;

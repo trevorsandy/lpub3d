@@ -108,7 +108,6 @@ class LDrawFile {
     QStringList                 _emptyList;
     QString                     _emptyString;
     bool                        _mpd;
-    bool                        _currFileIsUTF;
     static int                  _emptyInt;
 
     ExcludedParts               excludedParts; // internal list of part count excluded parts
@@ -127,6 +126,7 @@ class LDrawFile {
     static QString              _author;
     static QString              _description;
     static QString              _category;
+    static bool                 _currFileIsUTF8;
     static int                  _partCount;
 
     int getPartCount(){

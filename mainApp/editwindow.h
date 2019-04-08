@@ -41,7 +41,6 @@
 #include <QDialog>
 #include <QLabel>
 
-class QTextEdit;
 class LDrawFile;
 class Highlighter;
 class QString;
@@ -65,7 +64,7 @@ class EditWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit EditWindow(QMainWindow *parent = nullptr);
+    explicit EditWindow(QMainWindow *parent = nullptr, bool modelFileEdit = false);
     QToolBar *editToolBar;
 
 protected:
@@ -74,10 +73,15 @@ private:
     void createActions();
     void createMenus();
     void createToolBars();
+    void readSettings();
+    void writeSettings();
 
     QTextEditor  *_textEdit;
     Highlighter  *highlighter;
-    QString       fileName;    // of file currently being displayed
+    QComboBox    *mpdCombo;
+    QString       fileName;       // of file currently being displayed
+    bool          _modelFileEdit;
+    QString       _curSubFile;         // whats being displayed in the edit window
 
     QMenu    *editMenu;
     QAction  *topAct;
@@ -90,6 +94,12 @@ private:
     QAction  *delAct;
     QAction  *selAllAct;
     QAction  *findAct;
+    QAction  *showAllCharsAct;
+
+    QAction  *exitAct;
+    QAction  *saveAct;
+    QAction  *undoAct;
+    QAction  *redoAct;
 
 signals:
     void contentsChange(const QString &, int position, int charsRemoved, const QString &charsAdded);
@@ -98,13 +108,18 @@ signals:
 
 private slots:
     void contentsChange(int position, int charsRemoved, int charsAdded);
-    // Maybe this helps resizing the editwindow (Jaco)
+    bool saveFile();
+    bool maybeSave();
     void redraw();
     void update();
+    void enableSave();
     void highlightCurrentLine();
     void topOfDocument();
     void bottomOfDocument();
+    void showAllCharacters();
+    void mpdComboChanged(int index);
     void showContextMenu(const QPoint &pt);
+    void closeEvent(QCloseEvent *event);
 
 public slots:
     void displayFile(LDrawFile *, const QString &fileName);
@@ -117,6 +132,7 @@ public slots:
 
 public:
     QTextEditor *textEdit() { return _textEdit; }
+    bool modelFileEdit() { return _modelFileEdit; }
 };
 
 extern class EditWindow *editWindow;
@@ -129,7 +145,10 @@ class QTextEditor : public QTextEdit
 public:
     explicit QTextEditor(QWidget *parent = nullptr);
 
+    void showAllCharacters(bool show);
     void lineNumberAreaPaintEvent(QPaintEvent *event);
+    void setIsUTF8(bool isUTF8) { _fileIsUTF8 = isUTF8; }
+    bool getIsUTF8() { return _fileIsUTF8; }
     int getFirstVisibleBlockId();
     int lineNumberAreaWidth();
     QFindReplace *popUp;
@@ -148,12 +167,13 @@ private slots:
          QString replaceString);
 
 private:
-
+    bool _fileIsUTF8;
     QWidget *lineNumberArea;
 
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 class QLineNumberArea : public QWidget
 {
 public:

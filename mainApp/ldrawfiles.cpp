@@ -56,6 +56,7 @@ QString LDrawFile::_description = "";
 QString LDrawFile::_category    = "";
 int     LDrawFile::_emptyInt;
 int     LDrawFile::_partCount   = 0;
+bool    LDrawFile::_currFileIsUTF8 = false;
 
 LDrawSubFile::LDrawSubFile(
   const QStringList &contents,
@@ -477,7 +478,7 @@ void LDrawFile::loadFile(const QString &fileName)
     QTextCodec::ConverterState state;
     QTextCodec *codec = QTextCodec::codecForName("UTF-8");
     QString utfTest = codec->toUnicode(qba.constData(), qba.size(), &state);
-    _currFileIsUTF = state.invalidChars == 0;
+    _currFileIsUTF8 = state.invalidChars == 0;
     utfTest = QString();
 
     // get rid of what's there before we load up new stuff
@@ -574,7 +575,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 
     QFileInfo   fileInfo(fileName);
     QTextStream in(&file);
-    in.setCodec(_currFileIsUTF ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
+    in.setCodec(_currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
     QStringList stageContents;
     QStringList contents;
     QString     mpdName;
@@ -724,7 +725,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName, bool t
          appearance */
 
       QTextStream in(&file);
-      in.setCodec(_currFileIsUTF ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
+      in.setCodec(_currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
       QStringList contents;
 
       QRegExp upAUT("^0\\s+Author:?\\s+(.*)$",Qt::CaseInsensitive);
@@ -995,7 +996,7 @@ bool LDrawFile::saveMPDFile(const QString &fileName)
     }
 
     QTextStream out(&file);
-    out.setCodec(_currFileIsUTF ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
+    out.setCodec(_currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
     for (int i = 0; i < _subFileOrder.size(); i++) {
       QString subFileName = _subFileOrder[i];
       QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(subFileName);
@@ -1110,7 +1111,7 @@ bool LDrawFile::saveLDRFile(const QString &fileName)
             return false;
           }
           QTextStream out(&file);
-          out.setCodec(_currFileIsUTF ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
+          out.setCodec(_currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
           for (int j = 0; j < f.value()._contents.size(); j++) {
             out << f.value()._contents[j] << endl;
           }

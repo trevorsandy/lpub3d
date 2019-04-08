@@ -672,7 +672,7 @@ public:
   void getRequireds();
   void initialize();
 
-  void displayFile(LDrawFile *ldrawFile, const QString &modelName);
+  void displayFile(LDrawFile *ldrawFile, const QString &modelName, bool editModelFile = false);
   void displayParmsFile(const QString &fileName);
   QString elapsedTime(const qint64 &duration);
 
@@ -938,7 +938,8 @@ public slots:
   void clearStepCSICache(QString &pngName);
   void clearPageCSICache(PlacementType relativeType, Page *page);
   void clearPageCSIGraphicsItems(Step *step);
-  void clearAndRedrawPage() { clearAllCaches(); }
+  void clearAndRedrawPage();
+  void clearAndRedrawModelFile();
   void reloadCurrentModelFile();
   void reloadModelFileAfterColorFileGen();
   void reloadCurrentPage();
@@ -969,6 +970,7 @@ signals:
   /* tell the editor to display this file */
 
   void displayFileSig(LDrawFile *ldrawFile, const QString &subFile);
+  void displayModelFileSig(LDrawFile *ldrawFile, const QString &subFile);
   void displayParmsFileSig(const QString &fileName);
   void showLineSig(int lineNumber);
   void disableEditorActionsSig();
@@ -1013,7 +1015,7 @@ signals:
 public:
   Page                  page;                         // the abstract version of page contents
 
-// multi-thread worker classes
+  // multi-thread worker classes
   PartWorker             partWorkerLDSearchDirs;      // part worker to process search directories and fade and or highlight color parts
   PartWorker             partWorkerLdgLiteSearchDirs; // part worker to process temp directory parts
   PartWorker            *partWorkerCustomColour;      // part worker to process color part fade and or highlight
@@ -1049,6 +1051,7 @@ private:
   QElapsedTimer          timer;              // measure elapsed time for slow functions
   QString                curSubFile;         // whats being displayed in the edit window
   EditWindow            *editWindow;         // the sub file editable by the user
+  EditWindow            *editModeWindow;// the model file editable by the user in
   QProgressBar          *progressBar;        // left side progress bar
   QProgressBar          *progressBarPerm;    // Right side progress bar
   QLabel                *progressLabel;
@@ -1200,6 +1203,7 @@ private slots:
     void updateCheck();
     void aboutDialog();
 
+    void editModelFile();
     void editTitleAnnotations();
     void editFreeFormAnnitations();
     void editLDrawColourParts();
@@ -1468,6 +1472,7 @@ private:
   QAction *editLD2BLColorsXRefAct;
   QAction *editBLColorsAct;
   QAction *generateCustomColourPartsAct;
+  QAction *editModelFileAct;
 
   // help
 

@@ -1,7 +1,6 @@
 /****************************************************************************
 **
 ** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
-** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -29,11 +28,10 @@
 #include <QDesktopWidget>
 #include "parmshighlighter.h"
 #include "parmswindow.h"
+#include "version.h"
 #include "name.h"
 #include "lpub_preferences.h"
 #include "lpub.h"
-#include "version.h"
-
 
 ParmsWindow *parmsWindow;
 
@@ -44,15 +42,15 @@ ParmsWindow::ParmsWindow(QMainWindow *parent) :
     parmsWindow->statusBar()->show();
 
     _textEdit          = new TextEditor(this);
-    _fadeStepFile      = false;
-    _fileModified      = false;
-    _restartRequired   = true;
 
     highlighter = new ParmsHighlighter(_textEdit->document());
     _textEdit->setLineWrapMode(TextEditor::NoWrap);
     _textEdit->setUndoRedoEnabled(true);
     _textEdit->setContextMenuPolicy(Qt::CustomContextMenu);
     _textEdit->popUp = nullptr;
+    _fadeStepFile      = false;
+    _fileModified      = false;
+    _restartRequired   = true;
 
     createActions();
     createToolBars();
@@ -345,7 +343,7 @@ void ParmsWindow::displayParmsFile(
       _restartRequired = false;
     }
 
-    if (! file.open(QIODevice::ReadOnly | QIODevice::Text)){
+    if (! file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QMessageBox::warning(nullptr,
                  QMessageBox::tr("Parameter Editor"),
                  QMessageBox::tr("Cannot read file %1:\n%2.")
@@ -355,25 +353,20 @@ void ParmsWindow::displayParmsFile(
         _textEdit->document()->clear();
         return;
     }
-    QByteArray qba(file.readAll());
-    file.close();
 
     // check file encoding
-    QTextCodec::ConverterState state;
     QTextCodec *codec = QTextCodec::codecForName("UTF-8");
-    QString utfTest = codec->toUnicode(qba.constData(), qba.size(), &state);
-    bool isUTF = state.invalidChars == 0;
-    _textEdit->setIsUTF(isUTF);
-    utfTest = QString();
+    bool isUTF8 = LDrawFile::_currFileIsUTF8;
+    _textEdit->setIsUTF8(isUTF8);
 
-    QTextStream ss(&qba);
-    ss.setCodec(_textEdit->getIsUTF() ? codec : QTextCodec::codecForName("System"));
+    QTextStream in(&file);
+    in.setCodec(_textEdit->getIsUTF8() ? codec : QTextCodec::codecForName("System"));
 
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
     _textEdit->blockSignals(true);
-    _textEdit->setPlainText(ss.readAll());
+    _textEdit->setPlainText(in.readAll());
     _textEdit->blockSignals(false);
     _textEdit->document()->setModified(false);
 
@@ -435,7 +428,7 @@ bool ParmsWindow::saveFile(bool force)
         }
 
         QTextDocumentWriter writer(fileName, "plaintext");
-        writer.setCodec(_textEdit->getIsUTF() ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
+        writer.setCodec(_textEdit->getIsUTF8() ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
         rc = writer.write(_textEdit->document());
 
         if (rc){
@@ -622,11 +615,6 @@ void ParmsWindow::readSettings()
     Settings.endGroup();
 }
 
-void ParmsWindow::setWindowTitle(const QString &title){
-    QMainWindow::setWindowTitle(title);
-
-    _textEdit->windowTitle = title;
-}
 void ParmsWindow::writeSettings()
 {
     QSettings Settings;
@@ -637,6 +625,10 @@ void ParmsWindow::writeSettings()
     Settings.endGroup();
 }
 
+void ParmsWindow::setWindowTitle(const QString &title){
+    QMainWindow::setWindowTitle(title);
+}
+
 /*
  *
  * Text Editor section
@@ -644,7 +636,7 @@ void ParmsWindow::writeSettings()
  */
 
 TextEditor::TextEditor(QWidget *parent) :
-    QPlainTextEdit(parent),_fileIsUTF(false)
+    QPlainTextEdit(parent),_fileIsUTF8(false)
 {
     lineNumberArea = new LineNumberArea(this);
 
@@ -658,18 +650,18 @@ TextEditor::TextEditor(QWidget *parent) :
 
 void TextEditor::showAllCharacters(bool show){
     if (show){
-        replaceAll(" ","\u002E");
+        showCharacters(" ","\u002E");
 #ifdef Q_OS_WIN
-        replaceAll("\t","\u003E");
+        showCharacters("\t","\u003E");
 #else
-        replaceAll("\t","\u2192");
+        showCharacters("\t","\u2192");
 #endif
     } else {
-        replaceAll("\u002E"," ");
+        showCharacters("\u002E"," ");
 #ifdef Q_OS_WIN
-        replaceAll("\u003E","\t");
+        showCharacters("\u003E","\t");
 #else
-        replaceAll("\u2192","\t");
+        showCharacters("\u2192","\t");
 #endif
     }
 }
@@ -677,7 +669,7 @@ void TextEditor::showAllCharacters(bool show){
 int TextEditor::lineNumberAreaWidth()
 {
     int digits = 1;
-    int max = qMax(1, blockCount());
+    int max = qMax(1, document()->blockCount());
     while (max >= 10) {
         max /= 10;
         ++digits;

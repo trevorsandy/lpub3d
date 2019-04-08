@@ -40,6 +40,7 @@ enum Theme { ThemeDark, ThemeDefault };
 #define SETTINGS                "Settings"
 #define MAINWINDOW              "MainWindow"
 #define PARMSWINDOW             "ParmsWindow"
+#define EDITWINDOW              "EditWindow"
 #define FINDREPLACEWINDOW       "FindReplaceWindow"
 #define UPDATES                 "Updates"
 #define LOGGING                 "Logging"
