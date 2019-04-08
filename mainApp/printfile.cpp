@@ -614,25 +614,26 @@ void Gui::exportAsHtml()
     displayPage();
 
     QStringList arguments;
-    QString ldrFile  = QDir::toNativeSeparators(QDir::currentPath()+"/"+Paths::tmpDir+"/"+QFileInfo(curFile).baseName());
-    QString snapshot = ldrFile+"_snapshot.ldr";
+    QString ldrBaseFile = QDir::toNativeSeparators(QDir::currentPath()+"/"+Paths::tmpDir+"/"+QFileInfo(curFile).baseName());
+    QString parts    = ldrBaseFile+"_parts.ldr";
+    QString snapshot = ldrBaseFile+"_snapshot.ldr";
     if (QFileInfo(snapshot).exists()) {
         // setup camera globe (latitude, longitude) using default camera distance
         bool noCA = Preferences::applyCALocally || m_partListAbsRotate;
         QString cg = QString("-cg%1,%2") .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(0)))
                                          .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(1)));
         arguments << cg;
-        arguments << QString("-Snapshot=%1").arg(snapshot);
+        arguments << QString("-Snapshot=\"%1\"").arg(snapshot);
         if (!Preferences::altLDConfigPath.isEmpty())
-           arguments << QString("-LDConfig=").arg(QDir::toNativeSeparators(Preferences::altLDConfigPath));
+           arguments << QString("-LDConfig=\"%1\"").arg(QDir::toNativeSeparators(Preferences::altLDConfigPath));
     } else {
         emit messageSig(LOG_ERROR,QMessageBox::tr("HTML snapshot model file %1 was not found.").arg(snapshot));
     }
-    arguments << QString("-LDrawDir=%1").arg(QDir::toNativeSeparators(Preferences::ldrawLibPath));
-    Options.InputFileName = ldrFile+"_parts.ldr";
+    arguments << QString("-LDrawDir=\"%1\"").arg(QDir::toNativeSeparators(Preferences::ldrawLibPath));
+    Options.InputFileName = parts;
     if (! generateBOMPartsFile(Options.InputFileName))
         return;
-    arguments << Options.InputFileName;
+    arguments << QString("\"%1\"").arg(Options.InputFileName);
     Options.ExportArgs = arguments;
     if (! renderer->NativeExport(Options)) {
         emit messageSig(LOG_ERROR,QMessageBox::tr("HTML parts list export failed."));

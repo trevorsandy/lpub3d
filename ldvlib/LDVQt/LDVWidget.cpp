@@ -454,8 +454,7 @@ bool LDVWidget::loadModel(const char *filename)
 
     bool retValue = true;
 
-    QFileInfo fi(filename);
-    filename = copyString(fi.absoluteFilePath().toLatin1().constData());
+    filename = copyString(QFileInfo(filename).absoluteFilePath().toLatin1().constData());
     if (setDirFromFilename(filename))
     {
         emit lpubAlert->messageSig(LOG_STATUS, QString("Loading %1. Please wait...")
@@ -576,7 +575,12 @@ void LDVWidget::doPartList(
                 TCUserDefaults::setLongForKey(false, SAVE_ACTUAL_SIZE_KEY, false);
                 TCUserDefaults::setLongForKey(imageWidth, SAVE_WIDTH_KEY, false);
                 TCUserDefaults::setLongForKey(imageHeight, SAVE_HEIGHT_KEY, false);
-                if (!loadModel(imageInputFilename)){
+                std::string trimmedFilename = imageInputFilename;
+                if (trimmedFilename.front() == '"' && trimmedFilename.back() == '"') {
+                    trimmedFilename.erase(0, 1);
+                    trimmedFilename.pop_back();
+                }
+                if (!loadModel(trimmedFilename.c_str())){
                     emit lpubAlert->messageSig(LOG_ERROR, QString("Snapshot image input file was not loaded."));
                 }
                 saveImage(snapshotPath, imageWidth, imageHeight);
