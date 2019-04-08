@@ -29,12 +29,19 @@
  ***************************************************************************/
 
 #include <QtWidgets>
+
+#include <QComboBox>
+#include <QLineEdit>
+#include <QGridLayout>
+#include <QPushButton>
+#include <QLabel>
+
 #include "editwindow.h"
 #include "highlighter.h"
 #include "ldrawfiles.h"
-#include "version.h"
 
 #include "name.h"
+#include "version.h"
 #include "lpub_preferences.h"
 
 EditWindow *editWindow;

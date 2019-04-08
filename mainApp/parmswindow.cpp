@@ -26,12 +26,14 @@
 
 #include <QtWidgets>
 #include <QDesktopWidget>
+
 #include "parmshighlighter.h"
 #include "parmswindow.h"
-#include "version.h"
-#include "name.h"
-#include "lpub_preferences.h"
+
 #include "lpub.h"
+#include "name.h"
+#include "version.h"
+#include "lpub_preferences.h"
 
 ParmsWindow *parmsWindow;
 

@@ -31,32 +31,31 @@
 #ifndef EDITWINDOW_H
 #define EDITWINDOW_H
 
-#include <QMainWindow>
-#include <QTextCursor>
-#include <QTextEdit>
-#include <QLineEdit>
-#include <QGridLayout>
-#include <QPushButton>
-
 #include <QDialog>
-#include <QLabel>
+#include <QMainWindow>
+#include <QTextEdit>
+#include <QTextCursor>
 
 class LDrawFile;
 class Highlighter;
+class QFindReplace;
+class QFindReplaceCtrls;
+class QLineNumberArea;
+class QTextEditor;
+
 class QString;
 class QAction;
 class QMenu;
-
 class QPaintEvent;
 class QResizeEvent;
 class QSize;
-
-
-class QLineNumberArea;
-class QTextEditor;
 class QCheckBox;
-class QFindReplace;
-class QFindReplaceCtrls;
+
+class QLineEdit;
+class QPushButton;
+class QLabel;
+class QComboBox;
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class EditWindow : public QMainWindow

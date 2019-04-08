@@ -28,32 +28,35 @@
 #ifndef PARMSWINDOW_H
 #define PARMSWINDOW_H
 
-#include "version.h"
-#include <QtWidgets>
+#include <QDialog>
 #include <QMainWindow>
-#include <QTextCursor>
+#include <QPlainTextEdit>
 
 #ifndef WATCHER
 #define WATCHER
 #endif
 
-class QPlainTextEdit;
 class LDrawFile;
 class ParmsHighlighter;
+class FindReplace;
+class FindReplaceCtrls;
+class LineNumberArea;
+class TextEditor;
+
 class QString;
 class QAction;
 class QMenu;
-class QUndoStack;
 
+class QPlainTextEdit;
 class QPaintEvent;
 class QResizeEvent;
 class QSize;
-
-class LineNumberArea;
-class TextEditor;
 class QCheckBox;
-class FindReplace;
-class FindReplaceCtrls;
+
+class QLineEdit;
+class QPushButton;
+class QLabel;
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class ParmsWindow : public QMainWindow
