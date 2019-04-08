@@ -2264,7 +2264,7 @@ Gui::Gui()
     mHttpManager = new lcHttpManager(this);
 
     editWindow    = new EditWindow(this);         // remove inheritance 'this' to independently manage window
-    editModeWindow= new EditWindow(nullptr,true); // true = this is a mode file edit window
+    editModeWindow= new EditWindow(nullptr,true); // true = this is a model file edit window
     parmsWindow   = new ParmsWindow();
 
     KpageScene    = new LGraphicsScene(this);
