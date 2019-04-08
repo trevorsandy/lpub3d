@@ -752,6 +752,11 @@ void NumberGui::value1Changed(QString const &string)
   modified = marginsModified = true;
 }
 
+void NumberGui::enableTextFormatGroup(bool checked)
+{
+    gbFormat->setEnabled(checked);
+}
+
 void NumberGui::apply(
   QString &topLevelFile)
 {
@@ -3406,7 +3411,8 @@ PliPartElementGui::PliPartElementGui(
   gbPliPartElement->setChecked(meta->display.value());
   gbPliPartElement->setLayout(hLayout);
   vLayout->addWidget(gbPliPartElement);
-
+  connect(gbPliPartElement,SIGNAL(toggled(bool)),
+          this,            SIGNAL(toggled(bool)));
   connect(gbPliPartElement,SIGNAL(toggled(bool)),
           this,            SLOT(  gbToggled(bool)));
 
@@ -3474,6 +3480,11 @@ void PliPartElementGui::gbToggled(bool toggled)
   modified = displayModified = true;
 }
 
+void PliPartElementGui::enablePliPartElementGroup(bool checked)
+{
+    gbPliPartElement->setEnabled(checked);
+}
+
 void PliPartElementGui::apply(QString &topLevelFile)
 {
   MetaItem mi;
@@ -3534,34 +3545,38 @@ PliAnnotationGui::PliAnnotationGui(
   connect(gbPLIAnnotation,SIGNAL(toggled(bool)),
           this,           SLOT(  gbToggled(bool)));
 
-  titleAnnotationButton = new QRadioButton("Title",gbPLIAnnotation);
-  titleAnnotationButton->setToolTip("Configurable-value annotations");
-  connect(titleAnnotationButton,SIGNAL(clicked(bool)),
+  bool titleAndFreeForm = meta->titleAndFreeformAnnotation.value();
+
+  titleAnnotationCheck = new QCheckBox("Title",gbPLIAnnotation);
+  titleAnnotationCheck->setChecked(titleAndFreeForm ? true : meta->titleAnnotation.value());
+  titleAnnotationCheck->setToolTip("Extended background style shape annotations - user configurable");
+  connect(titleAnnotationCheck,SIGNAL(clicked(bool)),
           this,                 SLOT(  titleAnnotation(bool)));
-  hLayout->addWidget(titleAnnotationButton);
+  connect(titleAnnotationCheck,SIGNAL(clicked()),
+          this,                 SLOT(  enableAnnotations()));
+  connect(titleAnnotationCheck,SIGNAL(clicked()),
+          this,                 SLOT(  enableExtendedStyle()));
+  hLayout->addWidget(titleAnnotationCheck);
 
-  freeformAnnotationButton = new QRadioButton("Free Form",gbPLIAnnotation);
-  freeformAnnotationButton->setToolTip("Configurable-value annotations");
-  connect(freeformAnnotationButton,SIGNAL(clicked(bool)),
+  freeformAnnotationCheck = new QCheckBox("Free Form",gbPLIAnnotation);
+  freeformAnnotationCheck->setChecked(titleAndFreeForm ? true : meta->freeformAnnotation.value());
+  freeformAnnotationCheck->setToolTip("Extended background style shape annotations - user configurable");
+  connect(freeformAnnotationCheck,SIGNAL(clicked(bool)),
           this,                    SLOT(  freeformAnnotation(bool)));
-  hLayout->addWidget(freeformAnnotationButton);
-
-  titleAndFreeformAnnotationButton = new QRadioButton("Both",gbPLIAnnotation);
-  titleAndFreeformAnnotationButton->setToolTip("Title and Free Form configurable-value annotations");
-  connect(titleAndFreeformAnnotationButton,SIGNAL(clicked(bool)),
-          this,                            SLOT(  titleAndFreeformAnnotation(bool)));
-  hLayout->addWidget(titleAndFreeformAnnotationButton);
+  connect(freeformAnnotationCheck,SIGNAL(clicked()),
+          this,                    SLOT(  enableAnnotations()));
+  connect(freeformAnnotationCheck,SIGNAL(clicked()),
+          this,                    SLOT(  enableExtendedStyle()));
+  hLayout->addWidget(freeformAnnotationCheck);
 
   fixedAnnotationsCheck = new QCheckBox("Fixed",gbPLIAnnotation);
-  fixedAnnotationsCheck->setToolTip("Fixed-value annotations - axle, beam, cable, connector, hose and panel.");
+  fixedAnnotationsCheck->setChecked(meta->fixedAnnotations.value());
+  fixedAnnotationsCheck->setToolTip("Fixed background style shape annotations - axle, beam, cable, connector, hose and panel.");
   connect(fixedAnnotationsCheck,SIGNAL(clicked(bool)),
           this,                 SLOT(  fixedAnnotations(bool)));
+  connect(fixedAnnotationsCheck,SIGNAL(clicked()),
+          this,                 SLOT(  enableAnnotations()));
   hLayout->addWidget(fixedAnnotationsCheck);
-
-  titleAnnotationButton->setChecked(meta->titleAnnotation.value());
-  freeformAnnotationButton->setChecked(meta->freeformAnnotation.value());
-  titleAndFreeformAnnotationButton->setChecked(meta->titleAndFreeformAnnotation.value());
-  fixedAnnotationsCheck->setChecked(meta->fixedAnnotations.value());
 
   // PLI Annotation Style Options
   gbPLIAnnotationStyle = new QGroupBox("Enable Annotation Style",parent);
@@ -3657,25 +3672,26 @@ PliAnnotationGui::PliAnnotationGui(
 void PliAnnotationGui::titleAnnotation(bool checked)
 {
   meta->titleAnnotation.setValue(checked);
-  meta->freeformAnnotation.setValue(! checked);
-  meta->titleAndFreeformAnnotation.setValue(! checked);
+  if (freeformAnnotationCheck->isChecked() == checked)
+      titleAndFreeformAnnotation(checked);
   modified = titleModified = true;
 }
 
 void PliAnnotationGui::freeformAnnotation(bool checked)
 {
-  meta->titleAnnotation.setValue(! checked);
   meta->freeformAnnotation.setValue( checked);
-  meta->titleAndFreeformAnnotation.setValue(! checked);
+  if (titleAnnotationCheck->isChecked() == checked)
+      titleAndFreeformAnnotation(checked);
   modified = freeformModified = true;
 }
 
 void PliAnnotationGui::titleAndFreeformAnnotation(bool checked)
-{
-  meta->titleAnnotation.setValue(! checked);
-  meta->freeformAnnotation.setValue(! checked);
+{      
+  if (meta->titleAndFreeformAnnotation.value() == checked)
+      return;
   meta->titleAndFreeformAnnotation.setValue( checked);
   modified = titleAndFreeformModified = true;
+
 }
 
 void PliAnnotationGui::fixedAnnotations(bool checked)
@@ -3691,6 +3707,36 @@ void PliAnnotationGui::fixedAnnotations(bool checked)
   modified = fixedAnnotationsModified = true;
 }
 
+void PliAnnotationGui::enableExtendedStyle()
+{
+    bool enabled = true;
+    if (!titleAnnotationCheck->isChecked() &&
+        !freeformAnnotationCheck->isChecked())
+    {
+        enabled = false;
+    }
+    extendedStyleCheck->setEnabled(enabled);
+}
+
+void PliAnnotationGui::enableAnnotations()
+{
+    bool enabled = true;
+    if (!titleAnnotationCheck->isChecked() &&
+        !freeformAnnotationCheck->isChecked() &&
+        !fixedAnnotationsCheck->isChecked())
+    {
+        enabled = false;
+    }
+    gbPLIAnnotation->setChecked(enabled);
+    if (meta->display.value() != enabled)
+    {
+        meta->display.setValue(enabled);
+        modified = displayModified = true;
+    }
+}
+
+/* Never called because fixed controls are disabled
+ * when fixedAnnotationsCheck is unchecked */
 void PliAnnotationGui::setFixedAnnotations(bool checked)
 {
   if (checked)
@@ -3763,14 +3809,19 @@ void PliAnnotationGui::gbToggled(bool checked)
     bool saveModified = meta->display.value();
     meta->display.setValue(checked);
     if(checked){
-        titleAnnotationButton->setChecked(meta->titleAnnotation.value());
-        freeformAnnotationButton->setChecked(meta->freeformAnnotation.value());
-        titleAndFreeformAnnotationButton->setChecked(meta->titleAndFreeformAnnotation.value());
+        bool titleAndFreeForm = meta->titleAndFreeformAnnotation.value();
+        titleAnnotationCheck->setChecked(titleAndFreeForm ? true : meta->titleAnnotation.value());
+        freeformAnnotationCheck->setChecked(titleAndFreeForm ? true : meta->freeformAnnotation.value());
         fixedAnnotationsCheck->setChecked(meta->fixedAnnotations.value());
     }
     gbPLIAnnotationStyle->setEnabled(checked);
     if (saveModified != meta->display.value())
         modified = displayModified = true;
+}
+
+void PliAnnotationGui::enableElementStyle(bool checked)
+{
+    elementStyleCheck->setEnabled(checked);
 }
 
 void PliAnnotationGui::apply(QString &topLevelFile)

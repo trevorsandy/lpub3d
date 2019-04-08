@@ -149,8 +149,10 @@ private:
 
   QRadioButton     *noStyle;
   QGroupBox        *annotationEditStyleBox;
+  PliAnnotationGui *childPliAnnotation;
   PliPartElementGui*childPliPartElement;
   NumberGui        *childTextFormat;
+
   QRadioButton     *squareStyle;
   QGroupBox        *squareBkGrndStyleBox;
   QGroupBox        *squareBorderStyleBox;
@@ -184,6 +186,7 @@ public:
 public slots:
   void styleOptionChanged(bool);
   void displayAnnotationsChanged(bool);
+  void enableElementStyleChanged(bool);
   void accept();
   void cancel();
 };

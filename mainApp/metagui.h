@@ -225,7 +225,7 @@ public:
 
   virtual void apply(QString &modelName);
 
-  QGroupBox   *gbFormat;
+
 
 private:
   NumberMeta  *meta;
@@ -234,6 +234,7 @@ private:
   bool        colorModified;
   bool        marginsModified;
 
+  QGroupBox   *gbFormat;
   QLabel      *fontLabel;
   QLabel      *fontExample;
   QPushButton *fontButton;
@@ -249,6 +250,7 @@ public slots:
   void browseColor(bool clicked);
   void value0Changed(QString const &);
   void value1Changed(QString const &);
+  void enableTextFormatGroup(bool);
 };
 
 /***********************************************************************
@@ -1056,7 +1058,6 @@ class PliPartElementGui : public MetaGui
 {
   Q_OBJECT
 public:
-  QGroupBox  *gbPliPartElement;          // enable access from PliGlobals
   bool        displayModified;
   bool        bricklinkElementsModified;
   bool        legoElementsModified;
@@ -1076,6 +1077,7 @@ private:
   QRadioButton      *bricklinkElementsButton;
   QRadioButton      *legoElementsButton;
   QCheckBox         *localLegoElementsCheck;
+  QGroupBox         *gbPliPartElement;
 
   PliPartElementMeta *meta;
 
@@ -1088,6 +1090,7 @@ public slots:
   void localLegoElements(bool);
 
   void gbToggled(bool toggled);
+  void enablePliPartElementGroup(bool);
 };
 
 
@@ -1130,9 +1133,8 @@ public:
 
 private:
   QLabel            *headingLabel;
-  QRadioButton      *titleAnnotationButton;
-  QRadioButton      *freeformAnnotationButton;
-  QRadioButton      *titleAndFreeformAnnotationButton;
+  QCheckBox         *titleAnnotationCheck;
+  QCheckBox         *freeformAnnotationCheck;
   QGroupBox         *gbPLIAnnotation;
   QCheckBox         *fixedAnnotationsCheck;
   QCheckBox         *axleStyleCheck;
@@ -1165,6 +1167,9 @@ public slots:
   void panelStyle(bool);
 
   void gbToggled(bool);
+  void enableElementStyle(bool);
+  void enableExtendedStyle();
+  void enableAnnotations();
   void setFixedAnnotations(bool);
 };
 

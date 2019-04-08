@@ -225,21 +225,24 @@ GlobalPliDialog::GlobalPliDialog(
   childlayout = new QVBoxLayout(nullptr);
   box->setLayout(childlayout);
 
-  child = new PliAnnotationGui("",&pliMeta->annotation,nullptr,bom);
-  connect(child, SIGNAL(toggled(bool)),
-          this,  SLOT(  displayAnnotationsChanged(bool)));
-  data->children.append(child);
-  childlayout->addWidget(child);
+  childPliAnnotation = new PliAnnotationGui("",&pliMeta->annotation,nullptr,bom);
+  childPliAnnotation->enableElementStyle(pliMeta->partElements.display.value());
+  connect(childPliAnnotation, SIGNAL(toggled(bool)),
+          this,               SLOT(  displayAnnotationsChanged(bool)));
+  data->children.append(childPliAnnotation);
+  childlayout->addWidget(childPliAnnotation);
 
   if (bom) {
       childPliPartElement = new PliPartElementGui("",&pliMeta->partElements);
-      childPliPartElement->gbPliPartElement->setEnabled(pliMeta->annotation.display.value());
+      childPliPartElement->enablePliPartElementGroup(pliMeta->annotation.display.value());
+      connect(childPliPartElement, SIGNAL(toggled(bool)),
+              this,                SLOT(  enableElementStyleChanged(bool)));
       data->children.append(childPliPartElement);
       childlayout->addWidget(childPliPartElement);
   }
 
   childTextFormat = new NumberGui(&pliMeta->annotate,nullptr,"Default Text Format");
-  childTextFormat->gbFormat->setEnabled(pliMeta->annotation.display.value());
+  childTextFormat->enableTextFormatGroup(pliMeta->annotation.display.value());
   data->children.append(childTextFormat);
   childlayout->addWidget(childTextFormat);
 
@@ -599,11 +602,15 @@ void GlobalPliDialog::styleOptionChanged(bool b){
   }
 }
 
-void GlobalPliDialog::displayAnnotationsChanged(bool b){
+void GlobalPliDialog::displayAnnotationsChanged(bool b) {
     annotationEditStyleBox->setEnabled(b);
-    childTextFormat->gbFormat->setEnabled(b);
+    childTextFormat->enableTextFormatGroup(b);
     if (data->bom)
-        childPliPartElement->setEnabled(b);
+        childPliPartElement->enablePliPartElementGroup(b);
+}
+
+void GlobalPliDialog::enableElementStyleChanged(bool b) {
+    childPliAnnotation->enableElementStyle(b);
 }
 
 void GlobalPliDialog::accept()

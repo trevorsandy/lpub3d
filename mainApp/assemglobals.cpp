@@ -173,7 +173,7 @@ GlobalAssemDialog::GlobalAssemDialog(
   vLayout->addWidget(child);
   box->setEnabled(enableAnnotations);
   if (!enableAnnotations)
-      box->setToolTip("'Display PLI Annotations' must be enabled to set Assembly (CSI) Part annotation.");
+      box->setToolTip("'Display Part List (PLI) Annotations' must be enabled to set Assembly (CSI) Part annotation.");
 
   //spacer
   QSpacerItem *vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
