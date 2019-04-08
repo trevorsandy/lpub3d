@@ -147,6 +147,9 @@ GlobalAssemDialog::GlobalAssemDialog(
    * Display tab
    */
 
+  bool enableAnnotations = data->meta.LPub.pli.annotation.display.value();
+  bool fixedAnnotations  = data->meta.LPub.pli.annotation.fixedAnnotations.value();
+
   widget = new QWidget(nullptr);
   grid = new QGridLayout(nullptr);
   widget->setLayout(grid);
@@ -165,12 +168,12 @@ GlobalAssemDialog::GlobalAssemDialog(
   vLayout = new QVBoxLayout();
   box->setLayout(vLayout);
 
-  child = new CsiAnnotationGui("",&assem->annotation);
+  child = new CsiAnnotationGui("",&assem->annotation,nullptr,fixedAnnotations);
   data->children.append(child);
   vLayout->addWidget(child);
-  box->setEnabled(data->meta.LPub.pli.annotation.display.value());
-  if (!box->isEnabled())
-      box->setToolTip("Part List annotations display must be enabled to enable Assembly annotations.");
+  box->setEnabled(enableAnnotations);
+  if (!enableAnnotations)
+      box->setToolTip("'Display PLI Annotations' must be enabled to set Assembly (CSI) Part annotation.");
 
   //spacer
   QSpacerItem *vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);

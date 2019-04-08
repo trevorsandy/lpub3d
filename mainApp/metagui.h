@@ -217,14 +217,15 @@ class QPushButton;
 class NumberGui : public MetaGui
 {
   Q_OBJECT
-public:
 
-  NumberGui(
-    NumberMeta *meta,
-    QGroupBox  *parent = nullptr);
+public:
+  NumberGui(NumberMeta *meta,
+    QGroupBox  *_parent = nullptr, QString title = "");
   ~NumberGui() {}
 
   virtual void apply(QString &modelName);
+
+  QGroupBox   *gbFormat;
 
 private:
   NumberMeta  *meta;
@@ -1055,10 +1056,11 @@ class PliPartElementGui : public MetaGui
 {
   Q_OBJECT
 public:
-  bool displayModified;
-  bool bricklinkElementsModified;
-  bool legoElementsModified;
-  bool localLegoElementsModified;
+  QGroupBox  *gbPliPartElement;          // enable access from PliGlobals
+  bool        displayModified;
+  bool        bricklinkElementsModified;
+  bool        legoElementsModified;
+  bool        localLegoElementsModified;
 
 
   PliPartElementGui(
@@ -1070,7 +1072,6 @@ public:
   virtual void apply(QString &topLevelFile);
 
 private:
-  QGroupBox         *gbPliPartElement;
   QLabel            *headingLabel;
   QRadioButton      *bricklinkElementsButton;
   QRadioButton      *legoElementsButton;
@@ -1107,6 +1108,7 @@ public:
   bool titleModified;
   bool freeformModified;
   bool titleAndFreeformModified;
+  bool fixedAnnotationsModified;
   bool axleStyleModified;
   bool beamStyleModified;
   bool cableStyleModified;
@@ -1132,6 +1134,7 @@ private:
   QRadioButton      *freeformAnnotationButton;
   QRadioButton      *titleAndFreeformAnnotationButton;
   QGroupBox         *gbPLIAnnotation;
+  QCheckBox         *fixedAnnotationsCheck;
   QCheckBox         *axleStyleCheck;
   QCheckBox         *beamStyleCheck;
   QCheckBox         *cableStyleCheck;
@@ -1151,6 +1154,7 @@ public slots:
   void titleAnnotation(bool);
   void freeformAnnotation(bool);
   void titleAndFreeformAnnotation(bool);
+  void fixedAnnotations(bool);
   void axleStyle(bool);
   void beamStyle(bool);
   void cableStyle(bool);
@@ -1160,7 +1164,8 @@ public slots:
   void hoseStyle(bool);
   void panelStyle(bool);
 
-  void gbToggled(bool checked);
+  void gbToggled(bool);
+  void setFixedAnnotations(bool);
 };
 
 /***********************************************************************
@@ -1190,7 +1195,8 @@ public:
   CsiAnnotationGui(
       QString const     &heading,
       CsiAnnotationMeta *meta,
-      QGroupBox         *parent = nullptr);
+      QGroupBox         *parent = nullptr,
+      bool               fixedAnnotations = true);
   ~CsiAnnotationGui() {}
 
   virtual void apply(QString &topLevelFile);

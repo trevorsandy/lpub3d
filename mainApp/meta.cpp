@@ -2986,7 +2986,9 @@ PliAnnotationMeta::PliAnnotationMeta() : BranchMeta()
   titleAnnotation.setValue           (true);
   freeformAnnotation.setValue        (false);
   titleAndFreeformAnnotation.setValue(false);
+  fixedAnnotations.setValue          (true);
   display.setValue                   (false);
+  enableStyle.setValue               (true);
   axleStyle.setValue                 (true);
   beamStyle.setValue                 (true);
   cableStyle.setValue                (true);
@@ -3003,7 +3005,9 @@ void PliAnnotationMeta::init(BranchMeta *parent, QString name)
   titleAnnotation.init            (this, "USE_TITLE");
   freeformAnnotation.init         (this, "USE_FREE_FORM");
   titleAndFreeformAnnotation.init (this, "USE_TITLE_AND_FREE_FORM");
+  fixedAnnotations.init           (this, "FIXED_ANNOTATIONS");
   display.init                    (this, "DISPLAY");
+  enableStyle.init                (this, "ENABLE_STYLE");
   axleStyle.init                  (this, "AXLE");
   beamStyle.init                  (this, "BEAM");
   cableStyle.init                 (this, "CABLE");

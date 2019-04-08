@@ -221,24 +221,27 @@ GlobalPliDialog::GlobalPliDialog(
 
   box = new QGroupBox("Annotation Options");
   vlayout->addWidget(box);
-  child = new PliAnnotationGui("",&pliMeta->annotation,box,bom);
+
+  childlayout = new QVBoxLayout(nullptr);
+  box->setLayout(childlayout);
+
+  child = new PliAnnotationGui("",&pliMeta->annotation,nullptr,bom);
   connect(child, SIGNAL(toggled(bool)),
           this,  SLOT(  displayAnnotationsChanged(bool)));
   data->children.append(child);
+  childlayout->addWidget(child);
 
   if (bom) {
-      partElementsBox = new QGroupBox("Part Elements");
-      partElementsBox->setEnabled(pliMeta->annotation.display.value());
-      vlayout->addWidget(partElementsBox);
-      child = new PliPartElementGui("",&pliMeta->partElements,partElementsBox);
-      data->children.append(child);
+      childPliPartElement = new PliPartElementGui("",&pliMeta->partElements);
+      childPliPartElement->gbPliPartElement->setEnabled(pliMeta->annotation.display.value());
+      data->children.append(childPliPartElement);
+      childlayout->addWidget(childPliPartElement);
   }
 
-  annotationTextBox = new QGroupBox("Annotation Text Format");
-  annotationTextBox->setEnabled(pliMeta->annotation.display.value());
-  vlayout->addWidget(annotationTextBox);
-  child = new NumberGui(&pliMeta->annotate,annotationTextBox);
-  data->children.append(child);
+  childTextFormat = new NumberGui(&pliMeta->annotate,nullptr,"Default Text Format");
+  childTextFormat->gbFormat->setEnabled(pliMeta->annotation.display.value());
+  data->children.append(childTextFormat);
+  childlayout->addWidget(childTextFormat);
 
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
@@ -598,9 +601,9 @@ void GlobalPliDialog::styleOptionChanged(bool b){
 
 void GlobalPliDialog::displayAnnotationsChanged(bool b){
     annotationEditStyleBox->setEnabled(b);
-    annotationTextBox->setEnabled(b);
+    childTextFormat->gbFormat->setEnabled(b);
     if (data->bom)
-        partElementsBox->setEnabled(b);
+        childPliPartElement->setEnabled(b);
 }
 
 void GlobalPliDialog::accept()

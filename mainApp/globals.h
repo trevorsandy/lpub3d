@@ -149,9 +149,8 @@ private:
 
   QRadioButton     *noStyle;
   QGroupBox        *annotationEditStyleBox;
-  QGroupBox        *partElementsBox;
-  QGroupBox        *annotationTextBox;
-
+  PliPartElementGui*childPliPartElement;
+  NumberGui        *childTextFormat;
   QRadioButton     *squareStyle;
   QGroupBox        *squareBkGrndStyleBox;
   QGroupBox        *squareBorderStyleBox;

@@ -2446,10 +2446,12 @@ public:
 class PliAnnotationMeta : public BranchMeta
 {
 public:
-  BoolMeta      titleAnnotation;
-  BoolMeta      freeformAnnotation;
-  BoolMeta      titleAndFreeformAnnotation;
-  BoolMeta      display;
+  BoolMeta      titleAnnotation;            // title
+  BoolMeta      freeformAnnotation;         // freeform
+  BoolMeta      titleAndFreeformAnnotation; // title and freeform
+  BoolMeta      fixedAnnotations;           // fixed annotaitons
+  BoolMeta      display;                    // global display
+  BoolMeta      enableStyle;
   BoolMeta      axleStyle;
   BoolMeta      beamStyle;
   BoolMeta      cableStyle;
