@@ -110,7 +110,7 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
         snapshotTaker(nullptr),
         ldvAlertHandler(new LDVAlertHandler(this)),
         inputHandler(nullptr),
-        commandLineFilename(nullptr),
+        modelFilename(nullptr),
         saveImageFilename(nullptr),
         imageInputFilename(nullptr),
         viewMode(LDInputHandler::VMExamine)
@@ -391,30 +391,45 @@ bool LDVWidget::setupPartList(void){
 
     TCStringArray *commandLine = (TCStringArray *)TCUserDefaults::getProcessedCommandLine();
 
-    TCUserDefaults::removeValue(HFOV_KEY, false);
-    TCUserDefaults::removeValue(CAMERA_GLOBE_KEY, false);
-
     if (commandLine)
     {
         int i;
         int count = commandLine->getCount();
-        for (i = 0; i < count && !commandLineFilename; i++)
+        for (i = 0; i < count && !modelFilename; i++)
         {
             char *arg = commandLine->stringAtIndex(i);
 
             if (arg[0] != '-')
-                commandLineFilename = arg;
+                modelFilename = arg;
             if (stringHasCaseInsensitivePrefix(arg, "-ca"))
             {
                 float value;
 
                 if (sscanf(arg + 3, "%f", &value) == 1)
                 {
+                    TCUserDefaults::removeValue(HFOV_KEY, false);
                     TCUserDefaults::setFloatForKey(value, HFOV_KEY, false);
                 }
             }
             else if (stringHasCaseInsensitivePrefix(arg, "-cg"))
             {
+                bool ok;
+                int lat,lon;
+                float distance = -1.0f;
+                QStringList cg(QString(arg + 3).split(","));
+                lat = cg.at(0).toInt(&ok);
+                if (ok) {
+                    TCUserDefaults::removeValue(LAST_LAT_KEY, false);
+                    TCUserDefaults::setFloatForKey(lat, LAST_LAT_KEY, false);
+                }
+                lon = cg.at(1).toInt(&ok);
+                if (ok) {
+                    TCUserDefaults::removeValue(LAST_LON_KEY, false);
+                    TCUserDefaults::setFloatForKey(lon, LAST_LON_KEY, false);
+                }
+                modelViewer->setLatLon(lat,lon, distance);
+
+                TCUserDefaults::removeValue(CAMERA_GLOBE_KEY, false);
                 TCUserDefaults::setStringForKey(arg + 3, CAMERA_GLOBE_KEY,false);
             }
             else if (stringHasCaseInsensitivePrefix(arg, "-Snapshot="))
@@ -422,7 +437,13 @@ bool LDVWidget::setupPartList(void){
                 imageInputFilename = (arg + 10);
             }
         }
+
+        // apply and commit LDV settings
+        LDVPreferences *ldvPreferences = new LDVPreferences(this);
+        ldvPreferences->doApply();
+        delete ldvPreferences;
     }
+
     return true;
 }
 
@@ -518,12 +539,12 @@ void LDVWidget::doPartList(
             int imageHeight = htmlInventory->getSnapshotHeightFlag();
             char *snapshotPath = copyString(htmlInventory->getSnapshotPath());
 
-            QString Result = htmlInventory->getUserDefinedSnapshot();
+            QString userDefinedSnapshot = htmlInventory->getUserDefinedSnapshot();
 
-            if (!Result.isEmpty()) {
+            if (!userDefinedSnapshot.isEmpty()) {
                 QString snapshot = QDir::toNativeSeparators(snapshotPath);
                 delete snapshotPath;
-                emit lpubAlert->messageSig(LOG_INFO, QString("Using user defined Snapshot image."));
+                emit lpubAlert->messageSig(LOG_INFO, QString("Using user defined Snapshot image %1.").arg(userDefinedSnapshot));
 
                 if (htmlInventory->getOverwriteSnapshotFlag()){
                     QFile snapshotFile(snapshot);
@@ -533,7 +554,7 @@ void LDVWidget::doPartList(
                     }
                 }
 
-                QImage image(Result);
+                QImage image(userDefinedSnapshot);
                 if (image.width() != imageWidth || image.height() != imageHeight)
                     image.scaled(imageWidth, imageHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
@@ -560,7 +581,6 @@ void LDVWidget::doPartList(
                 }
                 saveImage(snapshotPath, imageWidth, imageHeight);
                 delete snapshotPath;
-                htmlInventory->restoreAfterSnapshot(modelViewer);
             }
         }
     }
@@ -577,8 +597,8 @@ void LDVWidget::doPartList(void)
 {
     if (modelViewer)
     {
-        if (!loadModel(commandLineFilename)){
-            emit lpubAlert->messageSig(LOG_ERROR, QString("Command line file was not loaded."));
+        if (!loadModel(modelFilename)){
+            emit lpubAlert->messageSig(LOG_ERROR, QString("Model file %1 was not loaded.").arg(modelFilename));
             return;
         }
         LDPartsList *partsList = modelViewer->getPartsList();
@@ -592,7 +612,7 @@ void LDVWidget::doPartList(void)
                 QString filename = modelViewer->getFilename();
                 if (filename.isEmpty())
                 {
-                    emit lpubAlert->messageSig(LOG_STATUS, QString("No filename from modelViewer."));
+                    emit lpubAlert->messageSig(LOG_STATUS, QString("No filename received from modelViewer."));
                 }
                 filename = QFileInfo(filename).baseName();
                 filename = filename.left(int(filename.length()) - 6); // remove _parts

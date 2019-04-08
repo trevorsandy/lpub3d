@@ -101,7 +101,7 @@ protected:
   LDVAlertHandler       *ldvAlertHandler;
 
   LDInputHandler        *inputHandler;
-  char                  *commandLineFilename;
+  char                  *modelFilename;
   const char            *saveImageFilename;
   const char            *imageInputFilename;
   bool                   saveImageZoomToFit;

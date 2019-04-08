@@ -196,10 +196,11 @@ int Render::rotateParts(
           FloatPairMeta     &ca,
           bool               ldv /* false */)
 {
+  bool ldvFunction     = ldv || gui->m_partListCSIFile;
   bool doFadeStep      = Preferences::enableFadeSteps;
   bool doHighlightStep = Preferences::enableHighlightStep;
   bool doImageMatting  = Preferences::enableImageMatting;
-  bool nativeRenderer  = (Preferences::usingNativeRenderer && ! ldv);
+  bool nativeRenderer  = (Preferences::usingNativeRenderer && ! ldvFunction);
   QStringList rotatedParts = parts;
 
   // do not apply camera angles for native renderer
@@ -219,7 +220,7 @@ int Render::rotateParts(
   QString rotsComment = getRotstepMeta(rotStep);
   rotatedParts.prepend(rotsComment);
 
-  if (nativeRenderer) {
+  if (nativeRenderer && ! ldvFunction) {
       // header and closing meta
       QString _modelName = QFileInfo(modelName).baseName().toLower();
       _modelName = _modelName.replace(

@@ -513,7 +513,7 @@ void Gui::exportAsHtml()
     // 3DViewer only
     Options.ImageType         = Render::CSI;
     Options.ExportFileName    = QFileInfo(curFile).absolutePath();
-    // Native only
+    // LDV only
     Options.IniFlag           = NativePartList;
 
     // Capture the model's last CSI
@@ -616,11 +616,19 @@ void Gui::exportAsHtml()
     QStringList arguments;
     QString ldrFile  = QDir::toNativeSeparators(QDir::currentPath()+"/"+Paths::tmpDir+"/"+QFileInfo(curFile).baseName());
     QString snapshot = ldrFile+"_snapshot.ldr";
-    if (QFileInfo(snapshot).exists())
+    if (QFileInfo(snapshot).exists()) {
+        // setup camera globe (latitude, longitude) using default camera distance
+        bool noCA = Preferences::applyCALocally || m_partListAbsRotate;
+        QString cg = QString("-cg%1,%2") .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(0)))
+                                         .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(1)));
+        arguments << cg;
         arguments << QString("-Snapshot=%1").arg(snapshot);
+        if (!Preferences::altLDConfigPath.isEmpty())
+           arguments << QString("-LDConfig=").arg(QDir::toNativeSeparators(Preferences::altLDConfigPath));
+    } else {
+        emit messageSig(LOG_ERROR,QMessageBox::tr("HTML snapshot model file %1 was not found.").arg(snapshot));
+    }
     arguments << QString("-LDrawDir=%1").arg(QDir::toNativeSeparators(Preferences::ldrawLibPath));
-    if (!Preferences::altLDConfigPath.isEmpty())
-       arguments << QString("-LDConfig=").arg(QDir::toNativeSeparators(Preferences::altLDConfigPath));
     Options.InputFileName = ldrFile+"_parts.ldr";
     if (! generateBOMPartsFile(Options.InputFileName))
         return;

@@ -344,6 +344,9 @@ int Step::createCsi(
          if ((rc = renderer->rotateParts(addLine, meta.rotStep, csiParts, ldrName, top.modelName, absRotstep ? noCA : meta.LPub.assem.cameraAngles)) != 0) {
              emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate CSI ldr file: %1.")
                                                    .arg(ldrName));
+             pixmap->load(":/resources/save.png");  // just a placeholder
+             csiPlacement.size[0] = 32;
+             csiPlacement.size[1] = 32;
              return rc;
          }
      }
@@ -358,6 +361,9 @@ int Step::createCsi(
          if ((rc = renderer->renderCsi(addLine, csiParts, csiKeys, pngName, meta)) != 0) {
              emit gui->messageSig(LOG_ERROR,QString("Render CSI part failed for %1.")
                                                             .arg(pngName));
+             pixmap->load(":/resources/save.png");  // just a placeholder
+             csiPlacement.size[0] = 32;
+             csiPlacement.size[1] = 32;
              return rc;
          }
      }
@@ -376,6 +382,7 @@ int Step::createCsi(
      }
 
      if (gui->exportingObjects() && gui->m_partListCSIFile){
+         gui->m_partListAbsRotate = absRotstep;
          pixmap->load(":/resources/save.png");  // just a placeholder
          csiPlacement.size[0] = 32;
          csiPlacement.size[1] = 32;

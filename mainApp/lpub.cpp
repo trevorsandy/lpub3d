@@ -2184,6 +2184,7 @@ Gui::Gui()
     resetCache                      = false;
     m_previewDialog                 = false;
     m_partListCSIFile               = false;
+    m_partListAbsRotate             = false;
     m_exportingContent              = false;
     m_exportingObjects              = false;
     m_contPageProcessing            = false;
