@@ -3029,19 +3029,13 @@ void Gui::updateCheck()
     new UpdateCheck(this, (void*)SoftwareUpdate);
 }
 
-// Begin Jaco's code
-// Danny: web url changed, as it pointed nowhere
-
 #include <QDesktopServices>
 #include <QUrl>
 
 void Gui::onlineManual()
 {
-    QDesktopServices::openUrl(QUrl("http://sites.google.com/site/workingwithlpub/lpub3d"));
+    QDesktopServices::openUrl(QUrl(VER_LPUB3D_ONLINE_MANUAL_URL));
 }
-
-// End Jaco's code
-
 
 void Gui::meta()
 {

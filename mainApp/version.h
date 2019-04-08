@@ -129,6 +129,7 @@
 #define VER_LPUB3D_LD2BLCOLORSXREF_FILE     "ld2blcolorsxref.lst"
 #define VER_LPUB3D_LD2BLCODESXREF_FILE      "ld2blcodesxref.lst"
 #define VER_LPUB3D_BLELEMENTS_DOWNLOAD_URL  "https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/codes.txt"
+#define VER_LPUB3D_ONLINE_MANUAL_URL        "https://sites.google.com/view/workingwithlpub3d/"
 
 // ~~~~~~ Build Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 #ifdef QT_DEBUG_MODE
