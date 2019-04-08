@@ -196,7 +196,7 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 
 [sf-gen-discussion]:   https://sourceforge.net/p/lpub3d/discussion/general "Ask a question or review past discussions"
 [gh-new-issue]:        https://github.com/trevorsandy/lpub3d/issues/new "Report an issue with LPub3D"
-[working-with-lpub3d]: https://sites.google.com/site/workingwithlpub/lpub3d
+[working-with-lpub3d]: https://sites.google.com/view/workingwithlpub3d/
 [jctchang-lpub3d]:     http://jc-tchang.philohome.com/model/LPub3D.htm
 
 [ldraw-url]:           http://www.ldraw.org/
@@ -204,11 +204,11 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 
 [appimage-icon]:       https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/appimage.png "AppImage - Ubuntu Trusty 14.04"
 [macos-icon]:          https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/macos.png "macOS High Sierra 10.13.3"
-[windows-icon]:        https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/windows.png "Windows Server 2012 R2"
+[windows-icon]:        https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/windows.png "Windows Server 2012 R2 6.3.9600.18969"
 
-[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.3.7/LPub3D-2.3.7.0.1195_20190327.exe
-[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.3.7/LPub3D-2.3.7.0.1195_20190327-macos.dmg
-[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.3.7/LPub3D-2.3.7.0.1195_20190327-x86_64.AppImage
+[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.3.8/LPub3D-2.3.8.0.1210_20190408.exe
+[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.3.8/LPub3D-2.3.8.0.1210_20190408-macos.dmg
+[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.3.8/LPub3D-2.3.8.0.1210_20190408-x86_64.AppImage
 
 [arch-icon]:           https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/arch.png "Arch Linux"
 [centos-icon]:         https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/centos.png "CentOS 7"
@@ -237,8 +237,8 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [lgplv3-url]:          https://www.gnu.org/licenses/gpl-3.0.en.html
 [buildfromsource]:     https://github.com/trevorsandy/lpub3d/blob/master/builds/utilities/README.md
 
-[sfreleases]:          https://sourceforge.net/projects/lpub3d/files/2.3.7
-[githubreleases]:      https://github.com/trevorsandy/lpub3d/releases/tag/v2.3.7
+[sfreleases]:          https://sourceforge.net/projects/lpub3d/files/2.3.8
+[githubreleases]:      https://github.com/trevorsandy/lpub3d/releases/tag/v2.3.8
 [obsreleases]:         https://software.opensuse.org/download.html?project=home:trevorsandy&package=lpub3d
 
 [sf_releases]:         https://sourceforge.net/projects/lpub3d/files
