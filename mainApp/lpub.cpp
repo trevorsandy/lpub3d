@@ -3934,7 +3934,6 @@ void Gui::createMenus()
     cacheMenu->setDisabled(true);
 
     configMenu = menuBar()->addMenu(tr("&Configuration"));
-    // TODO - insert Render Preferences Action Here...
 
     setupMenu = configMenu->addMenu("Build &Instructions Setup...");
     setupMenu->setIcon(QIcon(":/resources/instructionsetup.png"));
@@ -3953,8 +3952,6 @@ void Gui::createMenus()
     configMenu->addSeparator();
     editorMenu = configMenu->addMenu("Edit Parameter Files");
     editorMenu->setIcon(QIcon(":/resources/editparameterfiles.png"));
-    editorMenu->addAction(editModelFileAct);
-    editorMenu->addSeparator();
     editorMenu->addAction(editLDrawColourPartsAct);
     editorMenu->addAction(editTitleAnnotationsAct);
     editorMenu->addAction(editFreeFormAnnitationsAct);
@@ -3983,6 +3980,7 @@ void Gui::createMenus()
     editorMenu->addAction(editLdviewPovIniAct);
     editorMenu->addAction(editPovrayIniAct);
     editorMenu->addAction(editPovrayConfAct);
+    configMenu->addAction(editModelFileAct);
     configMenu->addAction(generateCustomColourPartsAct);
     configMenu->addSeparator();
     configMenu->addAction(preferencesAct);
