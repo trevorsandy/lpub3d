@@ -37,6 +37,8 @@
 #include <QLineEdit>
 #include <QGridLayout>
 #include <QPushButton>
+
+#include <QDialog>
 #include <QLabel>
 
 class QTextEdit;
@@ -50,8 +52,12 @@ class QPaintEvent;
 class QResizeEvent;
 class QSize;
 
+
 class QLineNumberArea;
 class QTextEditor;
+class QCheckBox;
+class QFindReplace;
+class QFindReplaceCtrls;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class EditWindow : public QMainWindow
@@ -98,6 +104,7 @@ private slots:
     void highlightCurrentLine();
     void topOfDocument();
     void bottomOfDocument();
+    void showContextMenu(const QPoint &pt);
 
 public slots:
     void displayFile(LDrawFile *, const QString &fileName);
@@ -125,15 +132,7 @@ public:
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int getFirstVisibleBlockId();
     int lineNumberAreaWidth();
-    QLineEdit   *textFind;
-    QLabel      *labelMessage;
-    QPushButton *buttonFind;
-    QPushButton *buttonFindNext;
-    QPushButton *buttonFindPrevious;
-    QPushButton *buttonFindClear;
-    QGridLayout *layout;
-    QWidget     *popUp;
-
+    QFindReplace *popUp;
 
 public slots:
     void resizeEvent(QResizeEvent *e);
@@ -144,10 +143,9 @@ private slots:
     void updateLineNumberArea(int /*slider_pos*/);
     void updateLineNumberArea(); 
     void findDialog();
-    void findInText();
-    void findInTextNext();
-    void findInTextPrevious();
-    void findClear();
+    void showCharacters(
+         QString findString,
+         QString replaceString);
 
 private:
 
@@ -174,4 +172,85 @@ protected:
 private:
     QTextEditor *textEditor;
 };
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class QFindReplace : public QDialog
+{
+    Q_OBJECT
+
+public:
+    explicit QFindReplace(QTextEditor *textEdit, const QString &selectedText, QWidget *parent = nullptr);
+
+protected slots:
+    void popUpClose();
+
+protected:
+    QFindReplaceCtrls *find;
+    QFindReplaceCtrls *findReplace;
+    void readFindReplaceSettings(QFindReplaceCtrls *fr);
+    void writeFindReplaceSettings(QFindReplaceCtrls *fr);
+};
+
+class QFindReplaceCtrls : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit QFindReplaceCtrls(QTextEditor *textEdit, QWidget *parent = nullptr);
+    QTextEditor *_textEdit;
+    QLineEdit   *textFind;
+    QLineEdit   *textReplace;
+    QLabel      *labelMessage;
+
+    QPushButton *buttonFind;
+    QPushButton *buttonFindNext;
+    QPushButton *buttonFindPrevious;
+    QPushButton *buttonFindAll;
+    QPushButton *buttonFindClear;
+
+    QPushButton *buttonReplace;
+    QPushButton *buttonReplaceAndFind;
+    QPushButton *buttonReplaceAll;
+    QPushButton *buttonReplaceClear;
+
+    QLabel      *label;
+
+    QCheckBox   *checkboxCase;
+    QCheckBox   *checkboxWord;
+    QCheckBox   *checkboxRegExp;
+
+    QPushButton *buttonCancel;
+    bool        _findall;
+
+public slots:
+    void find(int direction = 0);
+
+signals:
+    void popUpClose();
+
+protected slots:
+    void findInText();
+    void findInTextNext();
+    void findInTextPrevious();
+    void findInTextAll();
+
+    void findClear();
+
+    void replaceInText();
+    void replaceInTextFind();
+    void replaceInTextAll();
+
+    void replaceClear();
+
+    void textFindChanged();
+    void textReplaceChanged();
+    void validateRegExp(const QString &text);
+    void regexpSelected(bool sel);
+
+protected:
+    void disableButtons();
+    void showError(const QString &error);
+    void showMessage(const QString &message);
+};
+
 #endif

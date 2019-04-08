@@ -40,12 +40,20 @@ enum Theme { ThemeDark, ThemeDefault };
 #define SETTINGS                "Settings"
 #define MAINWINDOW              "MainWindow"
 #define PARMSWINDOW             "ParmsWindow"
+#define FINDREPLACEWINDOW       "FindReplaceWindow"
 #define UPDATES                 "Updates"
 #define LOGGING                 "Logging"
 
 #define SAVE_DISPLAY_PAGE_NUM_KEY   "SaveDisplayPageNum"
 #define SAVE_SKIP_PARTS_ARCHIVE_KEY "SaveSkipPartsArchive"
 #define VIEW_PARTS_WIDGET           "ViewPartsWidget"
+
+#define CASE_CHECK    "CaseCheck"
+#define WORD_CHECK    "WordCheck"
+#define REGEXP_CHECK  "RegExpCheck"
+#define DEFAULT       0
+#define NEXT          1
+#define PREVIOUS      2
 
 #define MAX_NUM_POV_GEN_ARGS (128)
 
