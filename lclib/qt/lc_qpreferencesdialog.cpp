@@ -11,10 +11,10 @@
 #include "pieceinf.h"
 
 lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
-    QDialog(parent),
-    ui(new Ui::lcQPreferencesDialog)
+	QDialog(parent),
+	ui(new Ui::lcQPreferencesDialog)
 {
-    ui->setupUi(this);
+	ui->setupUi(this);
 
 /*** LPub3D Mod - suppress Win/macOS preferences dialog settings ***/
 /***
@@ -129,37 +129,38 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
 	MouseTreeItemChanged(nullptr);
 
 /*** LPub3D Mod - Native Renderer settings ***/
-    ui->ViewpointsCombo->setCurrentIndex(options->Preferences.mNativeViewpoint);
-    ui->ProjectionCombo->setCurrentIndex(options->Preferences.mNativeProjection);
+	ui->ViewpointsCombo->setCurrentIndex(options->Preferences.mNativeViewpoint);
+	ui->ProjectionCombo->setCurrentIndex(options->Preferences.mNativeProjection);
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Timeline part icons ***/
-    bool preferredIcons = options->Preferences.mViewPieceIcons;
-    ui->viewPieceIconsRadio->setChecked(preferredIcons);
-    ui->viewColorIconsRadio->setChecked(!preferredIcons);
+	bool preferredIcons = options->Preferences.mViewPieceIcons;
+	ui->viewPieceIconsRadio->setChecked(preferredIcons);
+	ui->viewColorIconsRadio->setChecked(!preferredIcons);
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - set preferences dialog properties ***/
 	ui->authorName->setDisabled(true);
 	ui->partsLibrary->setDisabled(true);
 	ui->partsLibraryBrowse->hide();
+	ui->partsArchiveBrowse->hide();
 	ui->povrayExecutable->setDisabled(true);
 	ui->povrayExecutableBrowse->hide();
 	ui->lgeoPath->setDisabled(true);
-    ui->autoLoadMostRecent->hide();
+	ui->autoLoadMostRecent->hide();
 	ui->lgeoPathBrowse->hide();
 	ui->checkForUpdates->hide();
-	ui->label_10->hide();                   //label check for updates
+	ui->label_10->hide();					//label check for updates
 	ui->fixedDirectionKeys->hide();
-    ui->tabWidget->removeTab(3);            //hide tabKeyboard
-    ui->tabWidget->removeTab(3);            //hide mouse
+	ui->tabWidget->removeTab(3);			//hide tabKeyboard
+	ui->tabWidget->removeTab(3);			//hide mouse
 /*** LPub3D Mod end ***/
 
 }
 
 lcQPreferencesDialog::~lcQPreferencesDialog()
 {
-    delete ui;
+	delete ui;
 }
 
 void lcQPreferencesDialog::accept()
@@ -220,12 +221,12 @@ void lcQPreferencesDialog::accept()
 	options->Preferences.mShadingMode = (lcShadingMode)ui->ShadingMode->currentIndex();
 
 /*** LPub3D Mod - Native Renderer settings ***/
-    options->Preferences.mNativeViewpoint = ui->ViewpointsCombo->currentIndex();
-    options->Preferences.mNativeProjection = ui->ProjectionCombo->currentIndex();
+	options->Preferences.mNativeViewpoint = ui->ViewpointsCombo->currentIndex();
+	options->Preferences.mNativeProjection = ui->ProjectionCombo->currentIndex();
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Timeline part icons ***/
-    options->Preferences.mViewPieceIcons = ui->viewPieceIconsRadio->isChecked();
+	options->Preferences.mViewPieceIcons = ui->viewPieceIconsRadio->isChecked();
 /*** LPub3D Mod end ***/
 
 	QDialog::accept();
@@ -683,7 +684,7 @@ void lcQPreferencesDialog::commandChanged(QTreeWidgetItem *current)
 
 void lcQPreferencesDialog::on_shortcutAssign_clicked()
 {
-    QTreeWidgetItem *current = ui->commandList->currentItem();
+	QTreeWidgetItem *current = ui->commandList->currentItem();
 
 	if (!current || !current->data(0, Qt::UserRole).isValid())
 		return;
@@ -964,7 +965,7 @@ void lcQPreferencesDialog::MouseTreeItemChanged(QTreeWidgetItem* Current)
 /*** LPub3D Mod - Native Renderer settings ***/
 void lcQPreferencesDialog::on_ViewpointsCombo_currentIndexChanged(int index)
 {
-    if (index <=6)
-        ui->ProjectionCombo->setCurrentIndex(2); // Default
+	if (index <=6)
+		ui->ProjectionCombo->setCurrentIndex(2); // Default
 }
 /*** LPub3D Mod end ***/

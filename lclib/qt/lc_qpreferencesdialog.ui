@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tabRendering">
       <attribute name="title">
@@ -508,6 +508,21 @@
           <widget class="QToolButton" name="partsLibraryBrowse">
            <property name="text">
             <string>...</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../leocad/leocad.qrc">
+             <normaloff>:/resources/file_open.png</normaloff>:/resources/file_open.png</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="partsArchiveBrowse">
+           <property name="text">
+            <string>...</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../leocad/leocad.qrc">
+             <normaloff>:/resources/archive.png</normaloff>:/resources/archive.png</iconset>
            </property>
           </widget>
          </item>
@@ -1194,7 +1209,9 @@
   <tabstop>mouseAssign</tabstop>
   <tabstop>mouseRemove</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../../../leocad/leocad.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>
