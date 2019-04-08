@@ -177,7 +177,11 @@ void Pli::setParts(
   splitBom = _split;
   pliMeta  = _bom ? meta.LPub.bom : meta.LPub.pli;
 
-  bool styleExtended = pliMeta.annotation.extendedStyle.value();
+  bool displayAnnotation = pliMeta.annotation.display.value();
+  bool enableStyle       = pliMeta.annotation.enableStyle.value();
+  bool displayElement    = pliMeta.partElements.display.value();
+  bool extendedStyle     = pliMeta.annotation.extendedStyle.value();
+  bool fixedAnnotations  = pliMeta.annotation.fixedAnnotations.value();
 
   for (int i = 0; i < pliParts.size(); i++) {
       QString part = pliParts[i];
@@ -200,85 +204,101 @@ void Pli::setParts(
           QString sortCategory;
           partClass(type,sortCategory);  // populate sort category using part class and
 
-          QString element;
-          if (bom && pliMeta.partElements.display.value()) {
-
-              QString _colorid = color;
-              QString _typeid  = QFileInfo(type).baseName();
-
-              int which = 0; // Bricklink
-              if ( pliMeta.partElements.legoElements.value())
-                  which = 1; // LEGO
-
-              if (pliMeta.partElements.localLegoElements.value()) {
-                  QString elementKey = QString("%1%2").arg(_typeid).arg(_colorid);
-                  element = Annotations::getLEGOElement(elementKey.toLower());
-              }
-              else
-              {
-                  if (!Annotations::loadBLElements()){
-                      QString URL(VER_LPUB3D_BLELEMENTS_DOWNLOAD_URL);
-                      gui->downloadFile(URL, "BrickLink Elements");
-                      QByteArray Buffer = gui->getDownloadedFile();
-                      Annotations::loadBLElements(Buffer);
-                  }
-                  element = Annotations::getBLElement(_colorid,_typeid,which);
-              }
-          }
-
-          float modelScale = pliMeta.modelScale.value();;
-
-          // set default annotation style settings
+          // initialize default style settings
           AnnotationStyleMeta styleMeta;
           styleMeta.margin = pliMeta.annotate.margin;
           styleMeta.font   = pliMeta.annotate.font;
           styleMeta.color  = pliMeta.annotate.color;
 
-          // get part annotation style flag - either cirle(1) or square(2)
-          AnnotationStyle style = AnnotationStyle(Annotations::getAnnotationStyle(type));
+          // initialize element id
+          QString element = QString();
 
-          // set style meta settings
-          if (style) {
-              // get style category
-              bool styleCategory = false;
-              AnnotationCategory annotationCategory = AnnotationCategory(Annotations::getAnnotationCategory(type));
-              switch (annotationCategory)
-              {
-              case AnnotationCategory::axle:
-                  styleCategory = pliMeta.annotation.axleStyle.value();
-                  break;
-              case AnnotationCategory::beam:
-                  styleCategory = pliMeta.annotation.beamStyle.value();
-                  break;
-              case AnnotationCategory::cable:
-                  styleCategory = pliMeta.annotation.cableStyle.value();
-                  break;
-              case AnnotationCategory::connector:
-                  styleCategory = pliMeta.annotation.connectorStyle.value();
-                  break;
-              case AnnotationCategory::hose:
-                  styleCategory = pliMeta.annotation.hoseStyle.value();
-                  break;
-              case AnnotationCategory::panel:
-                  styleCategory = pliMeta.annotation.panelStyle.value();
-                  break;
-              default:
-                  break;
-              }
-              // set style if category enabled
-              if (styleCategory) {
-                  if (style == AnnotationStyle::circle)
-                      styleMeta       = pliMeta.circleStyle;
+          // if display annotations is enabled
+          if (displayAnnotation) {
+
+              // populate part element id
+              if (bom && displayElement) {
+
+                  QString _colorid = color;
+                  QString _typeid  = QFileInfo(type).baseName();
+
+                  int which = 0; // Bricklink
+                  if ( pliMeta.partElements.legoElements.value())
+                      which = 1; // LEGO
+
+                  if (pliMeta.partElements.localLegoElements.value()) {
+                      QString elementKey = QString("%1%2").arg(_typeid).arg(_colorid);
+                      element = Annotations::getLEGOElement(elementKey.toLower());
+                  }
                   else
-                  if (style == AnnotationStyle::square)
-                     styleMeta        = pliMeta.squareStyle;
+                  {
+                      if (!Annotations::loadBLElements()){
+                          QString URL(VER_LPUB3D_BLELEMENTS_DOWNLOAD_URL);
+                          gui->downloadFile(URL, "BrickLink Elements");
+                          QByteArray Buffer = gui->getDownloadedFile();
+                          Annotations::loadBLElements(Buffer);
+                      }
+                      element = Annotations::getBLElement(_colorid,_typeid,which);
+                  }
+              }
+
+              // if annotation style is enabled
+              if (enableStyle) {
+
+                  // if fixed Annotations is enabled
+                  if (fixedAnnotations) {
+
+                      // get part annotation style flag for fixed annotations - either cirle(1) or square(2)
+                      AnnotationStyle fixedStyle = AnnotationStyle(Annotations::getAnnotationStyle(type));
+
+                      // set style meta settings
+                      if (fixedStyle) {
+                          // get style category
+                          bool styleCategory = false;
+                          AnnotationCategory annotationCategory = AnnotationCategory(Annotations::getAnnotationCategory(type));
+                          switch (annotationCategory)
+                          {
+                          case AnnotationCategory::axle:
+                              styleCategory = pliMeta.annotation.axleStyle.value();
+                              break;
+                          case AnnotationCategory::beam:
+                              styleCategory = pliMeta.annotation.beamStyle.value();
+                              break;
+                          case AnnotationCategory::cable:
+                              styleCategory = pliMeta.annotation.cableStyle.value();
+                              break;
+                          case AnnotationCategory::connector:
+                              styleCategory = pliMeta.annotation.connectorStyle.value();
+                              break;
+                          case AnnotationCategory::hose:
+                              styleCategory = pliMeta.annotation.hoseStyle.value();
+                              break;
+                          case AnnotationCategory::panel:
+                              styleCategory = pliMeta.annotation.panelStyle.value();
+                              break;
+                          default:
+                              break;
+                          }
+                          // set style if category enabled
+                          if (styleCategory) {
+                              if (fixedStyle == AnnotationStyle::circle)
+                                  styleMeta       = pliMeta.circleStyle;
+                              else
+                              if (fixedStyle == AnnotationStyle::square)
+                                  styleMeta       = pliMeta.squareStyle;
+                          }
+                      // if extended style annotation is enabled
+                      } else if (extendedStyle) {
+                          styleMeta = pliMeta.rectangleStyle;
+                      }
+                  // if extended style annotation is enabled
+                  } else if (extendedStyle) {
+                      styleMeta = pliMeta.rectangleStyle;
+                  }
               }
           }
-          else {
-              if (styleExtended) {
-                  styleMeta = pliMeta.rectangleStyle;
-              }
-          }
+
+          float modelScale = pliMeta.modelScale.value();
 
           bool noCA = pliMeta.rotStep.value().type == "ABS";
 
@@ -286,11 +306,11 @@ void Pli::setParts(
           QString nameKey = QString("%1_%2_%3_%4_%5_%6_%7")
               .arg(key)
               .arg(gui->pageSize(meta.LPub.page, 0))
-              .arg(resolution())
+              .arg(double(resolution()))
               .arg(resolutionType() == DPI ? "DPI" : "DPCM")
-              .arg(modelScale)
-              .arg(noCA ? 0.0 : pliMeta.cameraAngles.value(0))
-              .arg(noCA ? 0.0 : pliMeta.cameraAngles.value(1));
+              .arg(double(modelScale))
+              .arg(noCA ? 0.0 : double(pliMeta.cameraAngles.value(0)))
+              .arg(noCA ? 0.0 : double(pliMeta.cameraAngles.value(1)));
           // assemble image name
           QString imageName = QDir::currentPath() + "/" +
               Paths::partsDir + "/" + nameKey + ".png";
@@ -451,8 +471,8 @@ void Pli::getAnnotation(
 {
   annotateStr.clear();
 
-  bool enable = pliMeta.annotation.display.value();
-  if (! enable)
+  bool enableAnnotations = pliMeta.annotation.display.value();
+  if (! enableAnnotations)
     return;
 
   bool title = pliMeta.annotation.titleAnnotation.value();
@@ -557,7 +577,7 @@ QString Pli::orient(QString &color, QString type)
       .arg(type);
 }
 
-int Pli::createSubModelIcons() // NOT USED
+int Pli::createSubModelIcons() // NOT USED - Moved to SubModelItem class
 {
     int rc = 0;
     QString key   = "";
@@ -2987,16 +3007,24 @@ AnnotateTextItem::AnnotateTextItem(
 
   UnitsMeta styleSize;
 
-  if (isElement){
-      if (_pli->pliMeta.annotation.elementStyle.value()){
+  if (isElement) {
+      bool enableStyle        = _pli->pliMeta.annotation.enableStyle.value();
+      bool enableElementStyle = _pli->pliMeta.annotation.elementStyle.value();
+      if (enableStyle && enableElementStyle){
          border     = _pli->pliMeta.elementStyle.border;
          background = _pli->pliMeta.elementStyle.background;
          style      = _pli->pliMeta.elementStyle.style;
-         font       = _pli->pliMeta.elementStyle.font;
-         color      = _pli->pliMeta.elementStyle.color;
-         margin     = _pli->pliMeta.elementStyle.margin;
          styleSize  = _pli->pliMeta.elementStyle.size;
+      } else {
+         AnnotationStyleMeta elementStyle;     // default style settings
+         border     = elementStyle.border;     // Type::BdrNone, Line::BdrLnNone
+         background = elementStyle.background; // BackgroundData::BgTransparent
+         style      = elementStyle.style;      // AnnotationStyle::none
+         styleSize  = elementStyle.size;       // 0.28f,0.28f (42px @ 150DPI)
       }
+      font       = _pli->pliMeta.elementStyle.font;
+      color      = _pli->pliMeta.elementStyle.color;
+      margin     = _pli->pliMeta.elementStyle.margin;
       toolTip = QString("%1 Element Annotation - right-click to modify")
                        .arg(_pli->pliMeta.partElements.legoElements.value() ? "LEGO" : "BrickLink");
   } else {
@@ -3021,10 +3049,7 @@ AnnotateTextItem::AnnotateTextItem(
   QColor color(_colorString);
   setDefaultTextColor(color);
 
-  bool useDocSize = false;
-
-  if (!isElement)
-      useDocSize = style.value() == AnnotationStyle::none;
+  bool useDocSize = style.value() == AnnotationStyle::none;
 
   QRectF docSize  = QRectF(0,0,document()->size().width(),document()->size().height());
 
@@ -3034,6 +3059,7 @@ AnnotateTextItem::AnnotateTextItem(
       bool dw = part->styleMeta.style.value() == AnnotationStyle::rectangle || isElement;
       QRectF _styleSize = QRectF(0,0,dw ? docSize.width() : styleSize.valuePixels(XX),styleSize.valuePixels(YY));
       annotateRect = boundingRect().adjusted(0,0,_styleSize.width()-docSize.width(),_styleSize.height()-docSize.height());
+
       // center the document on the new size
       setTextWidth(-1);
       setTextWidth(annotateRect.width());
