@@ -132,7 +132,7 @@ QString Preferences::fadeStepsColourKey         = LEGO_FADE_COLOUR_KEY;
 QString Preferences::ldrawSearchDirsKey         = LEGO_SEARCH_DIR_KEY;
 QString Preferences::ldrawLibPathKey            = LEGO_LDRAW_LIB_PATH_KEY;
 
-QString Preferences::blCodesFile             = VER_LPUB3D_BLCODES_FILE;
+QString Preferences::blCodesFile                = VER_LPUB3D_BLCODES_FILE;
 QString Preferences::legoElementsFile           = VER_LPUB3D_LEGOELEMENTS_FILE;
 QString Preferences::blColorsFile               = VER_LPUB3D_BLCOLORS_FILE;
 QString Preferences::ld2blColorsXRefFile        = VER_LPUB3D_LD2BLCOLORSXREF_FILE;
@@ -818,12 +818,12 @@ void Preferences::loggingPreferences()
         includeAllLogAttributes = Settings.value(QString("%1/%2").arg(LOGGING,"IncludeAllLogAttributes")).toBool();
     }
 
-    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"Logging "))) {
+    if ( ! Settings.contains(QString("%1/%2").arg(LOGGING,"Logging"))) {
         QVariant uValue(true);
         logging = true;
-        Settings.setValue(QString("%1/%2").arg(LOGGING,"Logging "),uValue);
+        Settings.setValue(QString("%1/%2").arg(LOGGING,"Logging"),uValue);
     } else {
-        logging = Settings.value(QString("%1/%2").arg(LOGGING,"Logging ")).toBool();
+        logging = Settings.value(QString("%1/%2").arg(LOGGING,"Logging")).toBool();
     }
 
     // log levels combo
