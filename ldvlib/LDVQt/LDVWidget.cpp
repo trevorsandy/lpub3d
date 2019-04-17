@@ -114,6 +114,7 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
         modelFilename(nullptr),
         saveImageFilename(nullptr),
         imageInputFilename(nullptr),
+        partListKey(nullptr),
         viewMode(LDInputHandler::VMExamine)
 {
   iniFiles[NativePOVIni]   = { iniFlagNames[NativePOVIni],   Preferences::nativeExportIni };
@@ -437,6 +438,10 @@ bool LDVWidget::setupPartList(void){
             {
                 imageInputFilename = (arg + 10);
             }
+            else if (stringHasCaseInsensitivePrefix(arg, "-PartlistKey="))
+            {
+                partListKey = (arg + 13);
+            }
         }
 
         // apply and commit LDV settings
@@ -622,6 +627,9 @@ void LDVWidget::doPartList(void)
                 filename = QFileInfo(filename).baseName();
                 filename = filename.left(int(filename.length()) - 6); // remove _parts
                 filename += ".html";
+
+                if (partListKey)
+                    htmlInventory->setPartListKey(partListKey);
 
                 QString initialDir = QString(ldPrefs->getInvLastSavePath());
                 if (initialDir.isEmpty()) {

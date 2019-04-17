@@ -156,6 +156,10 @@ Step::Step(
   fadeSteps                 = _meta.LPub.fadeStep.fadeStep.value();
   highlightStep             = _meta.LPub.highlightStep.highlightStep.value() && !gui->suppressColourMeta();
 
+  if (gui->exportingObjects() && gui->m_partListCSIFile){
+      pliMetaCameraFoV      = _meta.LPub.bom.cameraFoV;
+      pliMetaCameraAngles   = _meta.LPub.bom.cameraAngles;
+  }
 }
 
 /* step destructor destroys all callouts */
@@ -383,6 +387,14 @@ int Step::createCsi(
 
      if (gui->exportingObjects() && gui->m_partListCSIFile){
          gui->m_partListAbsRotate = absRotstep;
+         gui->m_partListKey = QString("%1_%2_%3_%4_%5_%6_%7")
+                                      .arg(gui->pageSize(meta.LPub.page, 0))
+                                      .arg(double(resolution()))
+                                      .arg(resolutionType() == DPI ? "DPI" : "DPCM")
+                                      .arg(double(modelScale))
+                                      .arg(double(pliMetaCameraFoV.value()))
+                                      .arg(absRotstep ? double(noCA.value(0.0)) : double(pliMetaCameraAngles.value(0)))
+                                      .arg(absRotstep ? double(noCA.value(1.0)) : double(pliMetaCameraAngles.value(1)));
          pixmap->load(":/resources/save.png");  // just a placeholder
          csiPlacement.size[0] = 32;
          csiPlacement.size[1] = 32;

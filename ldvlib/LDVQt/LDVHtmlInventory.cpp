@@ -10,6 +10,7 @@
 #include <LDLib/LDUserDefaultsKeys.h>
 #include <string>
 
+#include <QDir>
 #include <QFileInfo>
 #include <QApplication>
 #include <QProgressDialog>
@@ -18,6 +19,7 @@
 #include <LDVWidgetDefaultKeys.h>
 #include "messageboxresizable.h"
 #include "annotations.h"
+#include "paths.h"
 #include "meta.h"
 #include "version.h"
 
@@ -96,7 +98,18 @@ td\n\
 \n\
 td.elementid\n\
 {\n\
+	text-align: right;\n\
+}\n\
+\n\
+td.partnum\n\
+{\n\
     text-align: right;\n\
+}\n\
+\n\
+td.invalid\n\
+{\n\
+	text-align: right;\n\
+	color: #FF0000;\n\
 }\n\
 \n\
 td.quantity\n\
@@ -196,6 +209,10 @@ a:hover\n\
 img\n\
 {\n\
 	float: right;\n\
+	width: auto;\n\
+	height: auto;\n\
+	max-height: 50%;\n\
+	max-width: 50%;\n\
 }\n\
 \n\
 th img\n\
@@ -228,7 +245,7 @@ const char *LDVHtmlInventory::sm_cssFilename = "LDViewPartsList.css";
 
 LDVHtmlInventory::LDVHtmlInventory(void) :
 	m_prefs(new LDPreferences),
-    m_viewPoint(nullptr)
+	m_viewPoint(nullptr)
 {
 	int i;
 
@@ -241,7 +258,7 @@ LDVHtmlInventory::LDVHtmlInventory(void) :
 	m_showTotal = m_prefs->getInvShowTotal();
 	m_lastSavePath = m_prefs->getInvLastSavePath();
 
-    loadOtherSettings(); // this must come before columnOrder init
+	loadOtherSettings(); // this must come before columnOrder init
 
 	const LongVector &columnOrder = m_prefs->getInvColumnOrder();
 	for (i = 0; i < (int)columnOrder.size(); i++)
@@ -249,10 +266,10 @@ LDVHtmlInventory::LDVHtmlInventory(void) :
 		m_columnOrder.push_back((LDVPartListColumn)columnOrder[i]);
 	}
 
-    Meta meta;
-    bool bl = meta.LPub.bom.partElements.bricklinkElements.value();
-    m_lookupDefault = bl ? LookUp::Bricklink : LookUp::Peeron;
-    m_elementDefault = bl ? ElementSrc::BL : ElementSrc::LEGO;
+	Meta meta;
+	bool bl = meta.LPub.bom.partElements.bricklinkElements.value();
+	m_lookupDefault = bl ? LookUp::Bricklink : LookUp::Peeron;
+	m_elementDefault = bl ? ElementSrc::BL : ElementSrc::LEGO;
 }
 
 LDVHtmlInventory::~LDVHtmlInventory(void)
@@ -278,13 +295,13 @@ void LDVHtmlInventory::populateColumnMap(void)
 		m_columnMap[column] = true;
 		switch (column)
 		{
-        case LDVPLCPart:
+		case LDVPLCPart:
 			if (m_partImages)
 			{
 				m_columns++;
 			}
 			break;
-        case LDVPLCColor:
+		case LDVPLCColor:
 			m_columns++;
 			break;
 		default:
@@ -295,86 +312,86 @@ void LDVHtmlInventory::populateColumnMap(void)
 }
 
 bool LDVHtmlInventory::generateHtml(
-    const char *filename,
-    LDPartsList *partsList,
-    const char *modelName)
+	const char *filename,
+	LDPartsList *partsList,
+	const char *modelName)
 {
-    FILE *file = ucfopen(filename, "w");
-    size_t nSlashSpot;
+	FILE *file = ucfopen(filename, "w");
+	size_t nSlashSpot;
 
-    m_lastFilename = filename;
-    m_lastSavePath = filename;
-    populateColumnMap();
-    nSlashSpot = m_lastSavePath.find_last_of("/\\");
-    if (nSlashSpot < m_lastSavePath.size())
-    {
-        m_lastSavePath = m_lastSavePath.substr(0, nSlashSpot);
-    }
-    m_prefs->setInvLastSavePath(m_lastSavePath.c_str());
-    m_prefs->commitInventorySettings();
-    m_modelName = modelName;
-    nSlashSpot = m_modelName.find_last_of("/\\");
-    if (nSlashSpot < m_modelName.size())
-    {
-        m_modelName = m_modelName.substr(nSlashSpot + 1);
-    }
-    if (file)
-    {
-        QProgressDialog* ProgressDialog = new QProgressDialog(nullptr);
-        ProgressDialog->setWindowFlags(ProgressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
-        ProgressDialog->setWindowTitle(QString("HTML Part List"));
-        ProgressDialog->setLabelText(QString("Generating %1 HTML Part List...")
-                                             .arg(QFileInfo(filename).baseName()));
-        ProgressDialog->setMinimum(0);
-        ProgressDialog->setValue(0);
-        ProgressDialog->setCancelButton(nullptr);
-        ProgressDialog->setAutoReset(false);
-        ProgressDialog->setModal(true);
-        ProgressDialog->show();
+	m_lastFilename = filename;
+	m_lastSavePath = filename;
+	populateColumnMap();
+	nSlashSpot = m_lastSavePath.find_last_of("/\\");
+	if (nSlashSpot < m_lastSavePath.size())
+	{
+		m_lastSavePath = m_lastSavePath.substr(0, nSlashSpot);
+	}
+	m_prefs->setInvLastSavePath(m_lastSavePath.c_str());
+	m_prefs->commitInventorySettings();
+	m_modelName = modelName;
+	nSlashSpot = m_modelName.find_last_of("/\\");
+	if (nSlashSpot < m_modelName.size())
+	{
+		m_modelName = m_modelName.substr(nSlashSpot + 1);
+	}
+	if (file)
+	{
+		QProgressDialog* ProgressDialog = new QProgressDialog(nullptr);
+		ProgressDialog->setWindowFlags(ProgressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
+		ProgressDialog->setWindowTitle(QString("HTML Part List"));
+		ProgressDialog->setLabelText(QString("Generating %1 HTML Part List...")
+											 .arg(QFileInfo(filename).baseName()));
+		ProgressDialog->setMinimum(0);
+		ProgressDialog->setValue(0);
+		ProgressDialog->setCancelButton(nullptr);
+		ProgressDialog->setAutoReset(false);
+		ProgressDialog->setModal(true);
+		ProgressDialog->show();
 
-        const LDPartCountVector &partCounts = partsList->getPartCounts();
-        int i, j, pc;
+		const LDPartCountVector &partCounts = partsList->getPartCounts();
+		int i, j, pc;
 
-        pc = int(partCounts.size());
+		pc = int(partCounts.size());
 
-        ProgressDialog->setMaximum(pc);
+		ProgressDialog->setMaximum(pc);
 
-        writeHeader(file);
-        writeTableHeader(file, partsList->getTotalParts());
-        for (i = 0; i < pc; i++)
-        {
-            ProgressDialog->setValue(i);
-            QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+		writeHeader(file);
+		writeTableHeader(file, partsList->getTotalParts());
+		for (i = 0; i < pc; i++)
+		{
+			ProgressDialog->setValue(i);
+			QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 
-            const LDPartCount &partCount = partCounts[i];
-            const IntVector &colors = partCount.getColors();
-            LDLModel *model = const_cast<LDLModel *>(partCount.getModel());
-            LDLPalette *palette = model->getMainModel()->getPalette();
-            //int partTotal = partCount.getTotalCount();
+			const LDPartCount &partCount = partCounts[i];
+			const IntVector &colors = partCount.getColors();
+			LDLModel *model = const_cast<LDLModel *>(partCount.getModel());
+			LDLPalette *palette = model->getMainModel()->getPalette();
+			//int partTotal = partCount.getTotalCount();
 
-            for (j = 0; j < (int)colors.size(); j++)
-            {
-                int colorNumber = colors[j];
-                LDLColorInfo colorInfo = palette->getAnyColorInfo(colorNumber);
+			for (j = 0; j < (int)colors.size(); j++)
+			{
+				int colorNumber = colors[j];
+				LDLColorInfo colorInfo = palette->getAnyColorInfo(colorNumber);
 
-                writePartRow(file, partCount, palette, colorInfo, colorNumber);
-            }
-        }
-        writeTableFooter(file);
-        writeFooter(file);
-        fclose(file);
+				writePartRow(file, partCount, palette, colorInfo, colorNumber);
+			}
+		}
+		writeTableFooter(file);
+		writeFooter(file);
+		fclose(file);
 
-        ProgressDialog->setValue(pc);
-        ProgressDialog->hide();
-        QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-        ProgressDialog->deleteLater();
+		ProgressDialog->setValue(pc);
+		ProgressDialog->hide();
+		QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+		ProgressDialog->deleteLater();
 
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 // *** Settings Flags ***
@@ -383,111 +400,111 @@ bool LDVHtmlInventory::generateHtml(
 // the value and makes sure it gets saved and restored in the user defaults.
 void LDVHtmlInventory::setGeneratePdfFlag(bool value)
 {
-    setOtherSetting(m_generatePdf, value, PARTS_LIST_GENERATE_PDF_KEY, true);
+	setOtherSetting(m_generatePdf, value, PARTS_LIST_GENERATE_PDF_KEY, true);
 }
 
 void LDVHtmlInventory::setLookupSiteFlag(int value)
 {
-    setOtherSetting(m_lookupSite, value, PARTS_LIST_LOOKUP_SITE_KEY, true);
+	setOtherSetting(m_lookupSite, value, PARTS_LIST_LOOKUP_SITE_KEY, true);
 }
 
 void LDVHtmlInventory::setElementSourceFlag(int value)
 {
-    setOtherSetting(m_elementSource, value, PARTS_LIST_ELEMENT_SRURCE_KEY, true);
+	setOtherSetting(m_elementSource, value, PARTS_LIST_ELEMENT_SRURCE_KEY, true);
 }
 
 void LDVHtmlInventory::setSnapshotWidthFlag(int value)
 {
-    setOtherSetting(m_snapshotWidth, value, SAVE_WIDTH_KEY, true);
+	setOtherSetting(m_snapshotWidth, value, SAVE_WIDTH_KEY, true);
 }
 
 void LDVHtmlInventory::setSnapshotHeightFlag(int value)
 {
-    setOtherSetting(m_snapshotHeight, value, SAVE_HEIGHT_KEY, true);
+	setOtherSetting(m_snapshotHeight, value, SAVE_HEIGHT_KEY, true);
 }
 
 bool LDVHtmlInventory::getGeneratePdfFlag()
 {
-    m_generatePdf = getBoolSetting(PARTS_LIST_GENERATE_PDF_KEY);
-    return m_generatePdf;
+	m_generatePdf = getBoolSetting(PARTS_LIST_GENERATE_PDF_KEY);
+	return m_generatePdf;
 }
 
 int LDVHtmlInventory::getLookupSiteFlag()
 {
-    m_lookupSite = getIntSetting(PARTS_LIST_LOOKUP_SITE_KEY,m_lookupDefault);
-    return m_lookupSite;
+	m_lookupSite = getIntSetting(PARTS_LIST_LOOKUP_SITE_KEY,m_lookupDefault);
+	return m_lookupSite;
 }
 
 int LDVHtmlInventory::getElementSourceFlag()
 {
-    m_elementSource = getIntSetting(PARTS_LIST_ELEMENT_SRURCE_KEY,m_elementDefault);
-    return m_elementSource;
+	m_elementSource = getIntSetting(PARTS_LIST_ELEMENT_SRURCE_KEY,m_elementDefault);
+	return m_elementSource;
 }
 
 int LDVHtmlInventory::getSnapshotWidthFlag()
 {
-    m_snapshotWidth = getIntSetting(SAVE_WIDTH_KEY,SNAPSHOT_WIDTH_DEFAULT);
-    return m_snapshotWidth;
+	m_snapshotWidth = getIntSetting(SAVE_WIDTH_KEY,SNAPSHOT_WIDTH_DEFAULT);
+	return m_snapshotWidth;
 }
 
 int LDVHtmlInventory::getSnapshotHeightFlag()
 {
-    m_snapshotHeight = getIntSetting(SAVE_HEIGHT_KEY,SNAPSHOT_HEIGHT_DEFAULT);
-    return m_snapshotHeight;
+	m_snapshotHeight = getIntSetting(SAVE_HEIGHT_KEY,SNAPSHOT_HEIGHT_DEFAULT);
+	return m_snapshotHeight;
 }
 
 void LDVHtmlInventory::loadOtherSettings(void)
 {
-    getGeneratePdfFlag();
-    getLookupSiteFlag();
-    getElementSourceFlag();
-    getSnapshotWidthFlag();
-    getSnapshotHeightFlag();
-    LongVector columnOrder;
-    columnOrder.push_back(1);	// Part
-    columnOrder.push_back(3);	// Color
-    columnOrder.push_back(4);	// Element
-    columnOrder.push_back(5);	// Quantity
-    m_prefs->setInvColumnOrder(columnOrder);
+	getGeneratePdfFlag();
+	getLookupSiteFlag();
+	getElementSourceFlag();
+	getSnapshotWidthFlag();
+	getSnapshotHeightFlag();
+	LongVector columnOrder;
+	columnOrder.push_back(1);	// Part
+	columnOrder.push_back(3);	// Color
+	columnOrder.push_back(4);	// Element
+	columnOrder.push_back(5);	// Quantity
+	m_prefs->setInvColumnOrder(columnOrder);
 }
 
 void LDVHtmlInventory::setOtherSetting(bool &setting, bool value, const char *key,
-                                       bool commit)
+									   bool commit)
 {
-    if (setting != value)
-    {
-        setting = value;
-        if (commit)
-        {
-            TCUserDefaults::setLongForKey(value ? 1 : 0, key,
-                true /*!m_globalSettings[key]*/);
-        }
-    }
+	if (setting != value)
+	{
+		setting = value;
+		if (commit)
+		{
+			TCUserDefaults::setLongForKey(value ? 1 : 0, key,
+				true /*!m_globalSettings[key]*/);
+		}
+	}
 }
 
 void LDVHtmlInventory::setOtherSetting(int &setting, int value, const char *key,
-                                       bool commit)
+									   bool commit)
 {
-    if (setting != value)
-    {
-        setting = value;
-        if (commit)
-        {
-            TCUserDefaults::setLongForKey(value, key, true /*!m_globalSettings[key]*/);
-        }
-    }
+	if (setting != value)
+	{
+		setting = value;
+		if (commit)
+		{
+			TCUserDefaults::setLongForKey(value, key, true /*!m_globalSettings[key]*/);
+		}
+	}
 }
 
 bool LDVHtmlInventory::getBoolSetting(const char *key, bool defaultValue)
 {
-    return TCUserDefaults::longForKey(key, (long)defaultValue,
-        true /*!m_globalSettings[key]*/) != 0;
+	return TCUserDefaults::longForKey(key, (long)defaultValue,
+		true /*!m_globalSettings[key]*/) != 0;
 }
 
 int LDVHtmlInventory::getIntSetting(const char *key, int defaultValue)
 {
-    return (int)TCUserDefaults::longForKey(key, defaultValue,
-            true /*!m_globalSettings[key]*/);
+	return (int)TCUserDefaults::longForKey(key, defaultValue,
+			true /*!m_globalSettings[key]*/);
 }
 
 // *** Settings Flags End ***
@@ -521,7 +538,7 @@ FILE *LDVHtmlInventory::safeOpenCssFile(const std::string &cssFilename,
 			}
 		}
 		fclose(cssFile);
-        return nullptr;
+		return nullptr;
 	}
 	return ucfopen(cssFilename.c_str(), "w");
 }
@@ -594,7 +611,7 @@ void LDVHtmlInventory::writePartHeaderCell(FILE *file)
 	{
 		colSpan = 1;
 	}
-    writeHeaderCell(file, LDVPLCPart, colSpan);
+	writeHeaderCell(file, LDVPLCPart, colSpan);
 }
 
 void LDVHtmlInventory::writeHeaderCell(
@@ -619,20 +636,20 @@ void LDVHtmlInventory::writeHeaderCell(FILE *file, LDVPartListColumn column)
 {
 	switch (column)
 	{
-    case LDVPLCPart:
+	case LDVPLCPart:
 		writePartHeaderCell(file);
 		break;
-    case LDVPLCDescription:
-        writeHeaderCell(file, LDVPLCDescription, 1);
+	case LDVPLCDescription:
+		writeHeaderCell(file, LDVPLCDescription, 1);
 		break;
-    case LDVPLCColor:
-        writeHeaderCell(file, LDVPLCColor, 2);
+	case LDVPLCColor:
+		writeHeaderCell(file, LDVPLCColor, 2);
 		break;
-    case LDVPLCElement:
-        writeHeaderCell(file, LDVPLCElement, 1);
-        break;
-    case LDVPLCQuantity:
-        writeHeaderCell(file, LDVPLCQuantity, 1);
+	case LDVPLCElement:
+		writeHeaderCell(file, LDVPLCElement, 1);
+		break;
+	case LDVPLCQuantity:
+		writeHeaderCell(file, LDVPLCQuantity, 1);
 		break;
 	}
 }
@@ -644,76 +661,70 @@ void LDVHtmlInventory::writePartCell(
 	const LDLColorInfo &colorInfo,
 	int colorNumber)
 {
-	int peeronColorNumber = colorNumber;
-	std::string imgStyle;
+    std::string className;
 	std::string partName = partCount.getFilename();
 	size_t nDotSpot = partName.find('.');
 	int r, g, b, a;
-    bool bl = m_lookupSite == LookUp::Bricklink;
+	bool bl = m_lookupSite == LookUp::Bricklink;
+    bool element = true;
 
 	palette->getRGBA(colorInfo, r, g, b, a);
 	if (nDotSpot < partName.size())
 	{
 		partName = partName.substr(0, nDotSpot);
 	}
-	if (peeronColorNumber >= 512)
-	{
-		char bgColor[10];
-
-		sprintf(bgColor, "%02X%02X%02X", r, g, b);
-		peeronColorNumber = 7;
-		imgStyle = (std::string)"style = \"padding: 4px; "
-			"background-color: #" + bgColor + "\" ";
-	}
 	if (m_partImages)
 	{
-		std::string className;
-		bool official = partCount.getModel()->isOfficial();
 
 		//if (official)
 		{
 			className = " class=\"image\"";
 		}
 
-        // https://www.bricklink.com/v2/catalog/catalogitem.page?P=2780&idColor=7
-        if (bl) {
-            QStringList element = Annotations::getBLElement(
-                QString::number(colorNumber),
-                QString::fromStdString(partName),
-                ElementSrc::BL).split("-");
-            fprintf(file, "			<td%s>"
-                "<a href=\"https://www.bricklink.com/v2/catalog/catalogitem.page?P=%s&idColor=%s\">",
-                className.c_str(),
-                element.at(0).toLatin1().constData(),
-                element.at(1).toLatin1().constData());
-        } else {
-            fprintf(file, "			<td%s>"
-                "<a href=\"http://peeron.com/inv/parts/%s\">",
-                className.c_str(), partName.c_str());
-        }
+		if (bl) {
+			QString elementId = Annotations::getBLElement(
+				QString::number(colorNumber),
+				QString::fromStdString(partName),
+				ElementSrc::BL);
 
-		if (official)
-		{
-			fprintf(file, "<img %salt=\"%s\" title=\"%s\" "
-				"src=\"http://media.peeron.com/ldraw/images/%d/100/%s.png\">",
-                imgStyle.c_str(), lsUtf8(bl ? "PLViewOnBricklink" : "PLViewOnPeeron"),
-                lsUtf8(bl ? "PLViewOnBricklink" : "PLViewOnPeeron"),
-                peeronColorNumber, partName.c_str());
+			element = !elementId.isEmpty();
+
+			QStringList elementParts = elementId.split("-");
+
+			fprintf(file, "			<td%s>"
+				"<a href=\"https://www.bricklink.com/v2/catalog/catalogitem.page?P=%s&idColor=%s\">",
+				className.c_str(),
+				element ? elementParts.at(0).toLatin1().constData() : "0000",
+				element ? elementParts.at(1).toLatin1().constData() : "00");
+		} else {
+			fprintf(file, "			<td%s>"
+				"<a href=\"http://peeron.com/inv/parts/%s\">",
+                className.c_str(), partName.c_str());
 		}
-		else
-		{
-            fprintf(file, "%s", lsUtf8(bl ? "PLViewOnBricklink" : "PLViewOnPeeron"));
-		}
+
+        QString localPartPath = QDir::toNativeSeparators(QString("%1/%2_%3_%4.png")
+                                .arg(Paths::partsDir)
+                                .arg(QString::fromStdString(partName))
+                                .arg(QString::number(colorNumber))
+                                .arg(QString::fromStdString(m_partListKey)));
+
+        fprintf(file, "<img alt=\"%s\" title=\"%s\" src=\"%s\">",
+            lsUtf8(bl ? element ? "PLViewOnBricklink" : "PLVInvalidElement" : "PLViewOnPeeron"),
+            lsUtf8(bl ? element ? "PLViewOnBricklink" : "PLVInvalidElement" : "PLViewOnPeeron"),
+            localPartPath.toLatin1().constData());
+
 		fprintf(file, "</a></td>\n");
+
 	}
-	fprintf(file, "			<td>%s</td>\n", partName.c_str());
+    element ? className = " class=\"partnum\"" : className = " class=\"invalid\"";
+    fprintf(file, "			<td%s>%s</td>\n", className.c_str(),partName.c_str());
 }
 
 void LDVHtmlInventory::writeDescriptionCell(
 	FILE *file,
 	const LDPartCount &partCount)
 {
-    if (m_columnMap[LDVPLCDescription])
+	if (m_columnMap[LDVPLCDescription])
 	{
 		const char *description = partCount.getModel()->getDescription();
 		if (description)
@@ -769,25 +780,32 @@ void LDVHtmlInventory::writeColorCell(
 }
 
 void LDVHtmlInventory::writeElementCell(
-    FILE *file,
-    const LDPartCount &partCount,
-    int colorNumber)
+	FILE *file,
+	const LDPartCount &partCount,
+	int colorNumber)
 {
-    bool bl = m_lookupSite == LookUp::Bricklink;
-    std::string partName = partCount.getFilename();
-    size_t nDotSpot = partName.find('.');
-    if (nDotSpot < partName.size())
-    {
-        partName = partName.substr(0, nDotSpot);
-    }
+	bool bl = m_lookupSite == LookUp::Bricklink;
+	std::string partName = partCount.getFilename();
+	std::string className = "elementid";
+	size_t nDotSpot = partName.find('.');
+	if (nDotSpot < partName.size())
+	{
+		partName = partName.substr(0, nDotSpot);
+	}
 
-    QString element = Annotations::getBLElement(
-        QString::number(colorNumber),
-        QString::fromStdString(partName),
-        bl ? ElementSrc::BL:ElementSrc::LEGO);
+	QString elementId = Annotations::getBLElement(
+		QString::number(colorNumber),
+		QString::fromStdString(partName),
+		bl ? ElementSrc::BL:ElementSrc::LEGO);
 
-    fprintf(file, "			<td class=\"elementid\">%s</td>\n",
-        element.toLatin1().constData());
+	if (elementId.isEmpty())
+	{
+        elementId = "Not Found";
+		className = "invalid";
+	}
+
+	fprintf(file, "			<td class=\"%s\">%s</td>\n",
+		className.c_str(), elementId.toLatin1().constData());
 }
 
 void LDVHtmlInventory::writeQuantityCell(
@@ -808,19 +826,19 @@ void LDVHtmlInventory::writeCell(
 {
 	switch (column)
 	{
-    case LDVPLCPart:
+	case LDVPLCPart:
 		writePartCell(file, partCount, palette, colorInfo, colorNumber);
 		break;
-    case LDVPLCDescription:
+	case LDVPLCDescription:
 		writeDescriptionCell(file, partCount);
 		break;
-    case LDVPLCColor:
+	case LDVPLCColor:
 		writeColorCell(file, palette, colorInfo, colorNumber);
 		break;
-    case LDVPLCElement:
-        writeElementCell(file, partCount, colorNumber);
-        break;
-    case LDVPLCQuantity:
+	case LDVPLCElement:
+		writeElementCell(file, partCount, colorNumber);
+		break;
+	case LDVPLCQuantity:
 		writeQuantityCell(file, partCount, colorNumber);
 		break;
 	}
@@ -828,7 +846,7 @@ void LDVHtmlInventory::writeCell(
 
 const char *LDVHtmlInventory::getSnapshotPath(void) const
 {
-    m_snapshotPath = m_lastSavePath + "/" + getSnapshotFilename();
+	m_snapshotPath = m_lastSavePath + "/" + getSnapshotFilename();
 	return m_snapshotPath.c_str();
 }
 
@@ -866,7 +884,8 @@ void LDVHtmlInventory::writeTableHeader(FILE *file, int totalParts)
 		fprintf(file, "			<th class=\"titleImage\" "
 			"colspan=\"%d\">\n", m_columns);
 		fprintf(file, "				<img alt=\"&lt;%s&gt;\" "
-			"title=\"&lt;%s&gt;\" src=\"%s\">\n",
+            "title=\"&lt;%s&gt;\" src=\"%s\" "
+            "style=\"max-width:100%%;max-height:100%%;\">\n",
 			m_modelName.c_str(), m_modelName.c_str(),
 			getSnapshotFilename().c_str());
 		fprintf(file, "			</th>\n");
@@ -916,13 +935,13 @@ void LDVHtmlInventory::writeTableFooter(FILE *file)
 	fprintf(file, "							<td align=\"%s\">\n",
 			ldviewCreditAlign);
 	fprintf(file, "								%s\n",
-            lsUtf8("PLVGeneratedBy"));
+			lsUtf8("PLVGeneratedBy"));
 	fprintf(file, "							</td>\n");
 	if (m_partImages)
 	{
 		fprintf(file, "							<td align=\"right\">\n");
 		fprintf(file, "								%s\n",
-                lsUtf8("PLProvidedBy"));
+				lsUtf8("PLVProvidedBy"));
 		fprintf(file, "							</td>\n");
 	}
 	fprintf(file, "						</tr>\n");
@@ -1014,15 +1033,15 @@ CUCSTR LDVHtmlInventory::getColumnNameUC(LDVPartListColumn column)
 {
 	switch (column)
 	{
-    case LDVPLCPart:
+	case LDVPLCPart:
 		return ls(_UC("PLPartColName"));
-    case LDVPLCDescription:
+	case LDVPLCDescription:
 		return ls(_UC("PLDescriptionColName"));
-    case LDVPLCColor:
+	case LDVPLCColor:
 		return ls(_UC("PLColorColName"));
-    case LDVPLCElement:
-        return ls(_UC("PLVElementColName"));
-    case LDVPLCQuantity:
+	case LDVPLCElement:
+		return ls(_UC("PLVElementColName"));
+	case LDVPLCQuantity:
 		return ls(_UC("PLQuantityColName"));
 	}
 	return _UC("<Unknown Column Name>");
@@ -1032,15 +1051,15 @@ const char *LDVHtmlInventory::getColumnName(LDVPartListColumn column)
 {
 	switch (column)
 	{
-    case LDVPLCPart:
+	case LDVPLCPart:
 		return ls("PLPartColName");
-    case LDVPLCDescription:
+	case LDVPLCDescription:
 		return ls("PLDescriptionColName");
-    case LDVPLCColor:
+	case LDVPLCColor:
 		return ls("PLColorColName");
-    case LDVPLCElement:
-        return ls("PLVElementColName");
-    case LDVPLCQuantity:
+	case LDVPLCElement:
+		return ls("PLVElementColName");
+	case LDVPLCQuantity:
 		return ls("PLQuantityColName");
 	}
 	return "<Unknown Column Name>";

@@ -104,6 +104,7 @@ protected:
   char                  *modelFilename;
   const char            *saveImageFilename;
   const char            *imageInputFilename;
+  const char            *partListKey;
   bool                   saveImageZoomToFit;
   LDInputHandler::ViewMode viewMode;
 

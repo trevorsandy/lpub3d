@@ -675,6 +675,8 @@ void Annotations::loadDefaultAnnotationStyles(QByteArray& Buffer){
 
 Annotations::Annotations()
 {
+    returnString = QString();
+
     if (titleAnnotations.size() == 0) {
         QString annotations = Preferences::titleAnnotationsFile;
         QFile file(annotations);

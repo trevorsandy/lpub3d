@@ -90,6 +90,9 @@ class Step : public AbstractRangeElement
 
     QString               foo;
 
+    FloatMeta             pliMetaCameraFoV;
+    FloatPairMeta         pliMetaCameraAngles;
+
     Step(
       Where                 &topOfStep,
       AbstractStepsElement *_parent,

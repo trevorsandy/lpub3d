@@ -44,6 +44,7 @@ public:
 	bool getShowFileFlag(void) { return m_showFile; }
 	void setShowTotalFlag(bool value);
 	bool getShowTotalFlag(void) { return m_showTotal; }
+    void setPartListKey(const char *value) { m_partListKey = value; }
     void setUserDefinedSnapshot(const char *value) { m_userDefinedSnapshot = value; }
     const char *getUserDefinedSnapshot(void) { return m_userDefinedSnapshot.c_str(); }
 
@@ -141,6 +142,7 @@ protected:
 	std::string m_lastSavePath;
 	std::string m_lastFilename;
     std::string m_imageFilename;
+    std::string m_partListKey;
     std::string m_userDefinedSnapshot;
 	int m_columns;
 	LDVPartListColumnVector m_columnOrder;

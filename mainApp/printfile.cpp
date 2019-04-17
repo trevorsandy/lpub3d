@@ -527,76 +527,64 @@ void Gui::exportAsHtml()
 
     // start at the last page moving backward until we find a valid CSI
     Meta meta;
+    MetaItem mi;
+    m_partListKey.clear();
     m_partListCSIFile  = true;
     bool modelFound    = false;
     int pageNum        = maxPages;
-    for (; pageNum > 0 && ! modelFound; pageNum--) {
 
-      // start at the bottom of the page's last step
-      Where pagePos = gui->topOfPages[pageNum];
-      pagePos.lineNumber = gui->subFileSize(pagePos.modelName);
-      pagePos--;  //adjust to start at absolute bottom of file
-      int numLines = gui->subFileSize(pagePos.modelName);
+    // start at the bottom of the page's last step
+    Where pagePos = gui->topOfPages[pageNum];
+    pagePos.lineNumber = gui->subFileSize(pagePos.modelName);
+    pagePos--;     //adjust to start at absolute bottom of file
+    int numLines = gui->subFileSize(pagePos.modelName);
 
-      // traverse backwards until we find an inserted model or part line
-      for (; pagePos < numLines && pagePos > 0 && ! modelFound; --pagePos) {
+    // traverse backwards until we find an inserted model or part line
+    for (; pagePos < numLines && pagePos > 0 && ! modelFound; --pagePos) {
         QString line = readLine(pagePos);
         Rc rc = meta.parse(line,pagePos);
-        // if the last line is STEP, scan backward to the next to last step
+
+        // if STEP_GROUP_END, scan backward to line before STEP_GROUP_BEGIN and adjust page number
+        if (rc == StepGroupEndRc) {
+            rc = mi.scanBackward(pagePos,StepGroupMask);
+            pageNum--;
+        }
+        else
+        // if STEP, scan backward to bottom of previous STEP and adjust page number
         if (rc == StepRc || rc == RotStepRc) {
-            MetaItem mi;
-            Where walk = pagePos;
-            rc = mi.scanBackward(walk,StepMask);
-            if (rc == StepRc || rc == RotStepRc) {
-                ++walk;
-                // check if step includes inserted model or part line
-                for (; walk < pagePos.lineNumber && ! modelFound; walk++) {
-                    line = readLine(walk);
-                    rc = meta.parse(line,walk);
-                    if (rc == InsertRc) {
-                        if (rc == InsertFinalModelRc) {
-                           modelFound = true;
-                           break;
-                        } else
-                           continue;
-                    }
-                    else
-                    {
-                        QStringList tokens;
-                        split(line,tokens);
-                        bool token_1_5 = tokens.size() &&
-                             tokens[0] >= "1" && tokens[0] <= "5";
-                        if (token_1_5) {
-                            modelFound = true;
-                            break;
-                        }
-                    }
-                }
-            }
+            rc = mi.scanBackward(pagePos,StepMask);
+            pageNum--;
         }
         else
-        // check if step includes inserted model or part line
-        if (rc == InsertRc) {
-            if (rc == InsertFinalModelRc) {
-               modelFound = true;
-               break;
-            } else
-               continue;
+        // if final model
+        if (rc == InsertFinalModelRc) {
+            modelFound = true;
+            break;
         }
         else
+        // if other inert
+        if (rc == InsertRc ||
+            rc == InsertPageRc ||
+            rc == InsertCoverPageRc) {
+            continue;
+        }
+        else
+        // if part or meta line
         {
             QStringList tokens;
             split(line,tokens);
             bool token_1_5 = tokens.size() &&
-                 tokens[0] >= "1" && tokens[0] <= "5";
+                    tokens[0] >= "1" && tokens[0] <= "5";
             if (token_1_5) {
                 modelFound = true;
                 break;
+            } else {
+                continue;
             }
         }
-      }
-      displayPageNum = pageNum;
     }
+
+    displayPageNum = pageNum;
 
     // setup and export the last CSI on the page
     LGraphicsScene scene;
@@ -630,6 +618,8 @@ void Gui::exportAsHtml()
         emit messageSig(LOG_ERROR,QMessageBox::tr("HTML snapshot model file %1 was not found.").arg(snapshot));
     }
     arguments << QString("-LDrawDir=\"%1\"").arg(QDir::toNativeSeparators(Preferences::ldrawLibPath));
+    if (!m_partListKey.isEmpty())
+        arguments << QString("-PartlistKey=%1").arg(m_partListKey);
     Options.InputFileName = parts;
     if (! generateBOMPartsFile(Options.InputFileName))
         return;
