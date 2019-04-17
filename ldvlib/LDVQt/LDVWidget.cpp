@@ -27,6 +27,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QImageWriter>
+#include <QTextDocument>
 #include <functional>
 
 #ifdef __APPLE__
@@ -740,7 +741,7 @@ void LDVWidget::showDocument(QString &htmlFilename){
 #endif
           return;
         } else {
-          emit lpubAlert->messageSig(LOG_STATUS, QString("HTML part list generation completed!")
+          emit lpubAlert->messageSig(LOG_STATUS, QString("%1 HTML part list generation completed!")
                                                          .arg(QFileInfo(htmlFilename).baseName()));
           return;
 

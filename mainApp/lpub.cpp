@@ -3509,27 +3509,27 @@ void Gui::createActions()
     preferencesAct->setStatusTip(tr("Set your preferences for LPub3D"));
     connect(preferencesAct, SIGNAL(triggered()), this, SLOT(preferences()));
 
-    editTitleAnnotationsAct = new QAction(QIcon(":/resources/edittitleannotations.png"),tr("Edit Part Title PLI Annotations"), this);
+    editTitleAnnotationsAct = new QAction(QIcon(":/resources/edittitleannotations.png"),tr("Edit Part Title PLI Annotations list"), this);
     editTitleAnnotationsAct->setStatusTip(tr("Add/Edit part title PLI part annotatons"));
     connect(editTitleAnnotationsAct, SIGNAL(triggered()), this, SLOT(editTitleAnnotations()));
 
-    editFreeFormAnnitationsAct = new QAction(QIcon(":/resources/editfreeformannotations.png"),tr("Edit Freeform PLI Annotations"), this);
+    editFreeFormAnnitationsAct = new QAction(QIcon(":/resources/editfreeformannotations.png"),tr("Edit Freeform PLI Annotations list"), this);
     editFreeFormAnnitationsAct->setStatusTip(tr("Add/Edit freeform PLI part annotations"));
     connect(editFreeFormAnnitationsAct, SIGNAL(triggered()), this, SLOT(editFreeFormAnnitations()));
 
-    editLDrawColourPartsAct = new QAction(QIcon(":/resources/editldrawcolourparts.png"),tr("Edit LDraw Static Color Parts List"), this);
+    editLDrawColourPartsAct = new QAction(QIcon(":/resources/editldrawcolourparts.png"),tr("Edit LDraw Static Color Parts list"), this);
     editLDrawColourPartsAct->setStatusTip(tr("Add/Edit the list of LDraw static color parts used to process fade and highlight steps"));
     connect(editLDrawColourPartsAct, SIGNAL(triggered()), this, SLOT(editLDrawColourParts()));
 
-    editPliBomSubstitutePartsAct = new QAction(QIcon(":/resources/editplisubstituteparts.png"),tr("Edit PLI/BOM Substitute Parts List"), this);
+    editPliBomSubstitutePartsAct = new QAction(QIcon(":/resources/editplisubstituteparts.png"),tr("Edit PLI/BOM Substitute Parts list"), this);
     editPliBomSubstitutePartsAct->setStatusTip(tr("Add/Edit the list of PLI/BOM substitute parts"));
     connect(editPliBomSubstitutePartsAct, SIGNAL(triggered()), this, SLOT(editPliBomSubstituteParts()));
 
-    editExcludedPartsAct = new QAction(QIcon(":/resources/editexcludedparts.png"),tr("Edit Part Count Excluded Parts List"), this);
+    editExcludedPartsAct = new QAction(QIcon(":/resources/editexcludedparts.png"),tr("Edit Part Count Excluded Parts list"), this);
     editExcludedPartsAct->setStatusTip(tr("Add/Edit the list of part count excluded parts"));
     connect(editExcludedPartsAct, SIGNAL(triggered()), this, SLOT(editExcludedParts()));
 
-    editLdrawIniFileAct = new QAction(QIcon(":/resources/editinifile.png"),tr("Edit LDraw.ini"), this);
+    editLdrawIniFileAct = new QAction(QIcon(":/resources/editinifile.png"),tr("Edit LDraw INI search directories"), this);
     editLdrawIniFileAct->setStatusTip(tr("Add/Edit LDraw.ini search directory entries"));
     connect(editLdrawIniFileAct, SIGNAL(triggered()), this, SLOT(editLdrawIniFile()));
 
@@ -3561,19 +3561,19 @@ void Gui::createActions()
     editPovrayConfAct->setStatusTip(tr("Edit Raytracer (POV-Ray) file access configuration file"));
     connect(editPovrayConfAct, SIGNAL(triggered()), this, SLOT(editPovrayConf()));
 
-    editLD2BLCodesXRefAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Edit LDraw to Bricklink Design ID Cross-reference"), this);
-    editLD2BLCodesXRefAct->setStatusTip(tr("Add/Edit LDraw to Bricklink Design ID Cross-reference"));
+    editLD2BLCodesXRefAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Edit LDraw to Bricklink Design ID reference"), this);
+    editLD2BLCodesXRefAct->setStatusTip(tr("Add/Edit LDraw to Bricklink Design ID reference"));
     connect(editLD2BLCodesXRefAct, SIGNAL(triggered()), this, SLOT(editLD2BLCodesXRef()));
 
-    editAnnotationStyleAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Edit Part Annotation Style reference"), this);
-    editAnnotationStyleAct->setStatusTip(tr("Add/edit Part Annotation Style reference"));
+    editAnnotationStyleAct = new QAction(QIcon(":/resources/editstyleref.png"),tr("Edit Part Annotation Style reference"), this);
+    editAnnotationStyleAct->setStatusTip(tr("Add/edit LDraw Design ID, Part Annotation Style, Part Category reference"));
     connect(editAnnotationStyleAct, SIGNAL(triggered()), this, SLOT(editAnnotationStyle()));
 
-    editLD2BLColorsXRefAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Edit LDraw to Bricklink Color Code cross-reference"), this);
-    editLD2BLColorsXRefAct->setStatusTip(tr("Add/edit LDraw to Bricklink Color Code cross-reference"));
+    editLD2BLColorsXRefAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Edit LDraw to Bricklink Color eference"), this);
+    editLD2BLColorsXRefAct->setStatusTip(tr("Add/edit LDraw LDConfig to Bricklink Color ID reference"));
     connect(editLD2BLColorsXRefAct, SIGNAL(triggered()), this, SLOT(editLD2BLColorsXRef()));
 
-    editBLColorsAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Edit Bricklink Color ID reference"), this);
+    editBLColorsAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Edit Bricklink Color reference"), this);
     editBLColorsAct->setStatusTip(tr("Add/edit Bricklink Color ID reference"));
     connect(editBLColorsAct, SIGNAL(triggered()), this, SLOT(editBLColors()));
 
@@ -3585,7 +3585,7 @@ void Gui::createActions()
     editModelFileAct->setStatusTip(tr("Edit loaded LDraw model file"));
     connect(editModelFileAct, SIGNAL(triggered()), this, SLOT(editModelFile()));
 
-    generateCustomColourPartsAct = new QAction(QIcon(":/resources/generatecolourparts.png"),tr("Generate Static Color Parts List"), this);
+    generateCustomColourPartsAct = new QAction(QIcon(":/resources/generatecolourparts.png"),tr("Generate Static Color Parts list"), this);
     generateCustomColourPartsAct->setStatusTip(tr("Generate list of all static coloured parts"));
     connect(generateCustomColourPartsAct, SIGNAL(triggered()), this, SLOT(generateCustomColourPartsList()));
 
@@ -3965,15 +3965,15 @@ void Gui::createMenus()
     setupMenu->setDisabled(true);
 
     configMenu->addSeparator();
-    editorMenu = configMenu->addMenu("Edit Parameter Files");
+    editorMenu = configMenu->addMenu("Edit Parameter Files...");
     editorMenu->setIcon(QIcon(":/resources/editparameterfiles.png"));
     editorMenu->addAction(editLDrawColourPartsAct);
     editorMenu->addAction(editTitleAnnotationsAct);
     editorMenu->addAction(editFreeFormAnnitationsAct);
     editorMenu->addAction(editPliBomSubstitutePartsAct);
     editorMenu->addAction(editExcludedPartsAct);
-    editorMenu->addAction(editLD2BLCodesXRefAct);
     editorMenu->addAction(editAnnotationStyleAct);
+    editorMenu->addAction(editLD2BLCodesXRefAct);
     editorMenu->addAction(editLD2BLColorsXRefAct);
     editorMenu->addAction(editBLColorsAct);
     editorMenu->addAction(editBLCodesAct);
