@@ -47,7 +47,7 @@ table\n\
 {\n\
 	border-collapse: collapse;\n\
 	border: 2px solid #000000;\n\
-	background-color: #FFFFDD;\n\
+	background-color: #F9F0F0 // #FFFFDD;\n\
 	padding: 0px;\n\
 }\n\
 \n\
@@ -261,6 +261,47 @@ a img\n\
 {\n\
 	background-color: #A0C0FF;\n\
 }\n\
+\n\
+button {\n\
+	padding: 0;\n\
+	border: none;\n\
+	font: inherit;\n\
+	color: inherit;\n\
+	background-color: inherit;\n\
+	cursor: pointer;\n\
+}\n\
+\n\
+.btn {\n\
+	display: inline-block;\n\
+	text-align: center;\n\
+	text-decoration: none;\n\
+	font-weight: normal;\n\
+\n\
+	border: solid 1px transparent;\n\
+	border-radius: 1px;\n\
+\n\
+	color: #AA0000;\n\
+	background-color: inherit;\n\
+\n\
+	outline: none;\n\
+	box-shadow: 0 0 0 1px rgba(255, 105, 180, 0.5),\n\
+		0 0 0 1px rgba(255, 105, 180, 0.5);\n\
+}\n\
+\n\
+.btn:active {\n\
+	transform: translateY(1px);\n\
+	filter: saturate(150%);\n\
+}\n\
+\n\
+.btn:hover {\n\
+	color: #C39797;\n\
+	border-color: currentColor;\n\
+	background-color: #C39797;\n\
+}\n\
+\n\
+.btn::-moz-focus-inner {\n\
+	border: none;\n\
+}\n\
 ";
 
 const char *LDVHtmlInventory::sm_cssHeader = "\
@@ -272,15 +313,104 @@ const char *LDVHtmlInventory::sm_cssFilename = "LDViewPartsList.css";
 
 const char *LDVHtmlInventory::sm_script = "\
 \n\
-function imgSize(imgSrc) {\n\
+var ascending;\n\
+var partdescAscending;\n\
+var partnumAscending;\n\
+var colorNumberAscending;\n\
+var colorpropsAscending;\n\
+var elementidAscending;\n\
+var quantityAscending;\n\
+var partdescAscending;\n\
+\n\
+function initializeGlobals() {\n\
+	ascending = true;\n\
+	partdescAscending = ascending;\n\
+	partnumAscending = ascending;\n\
+	colorNumberAscending = ascending;\n\
+	colorpropsAscending = ascending;\n\
+	elementidAscending = ascending;\n\
+	quantityAscending = ascending;\n\
+	partdescAscending = ascending;\n\
+}\n\
+\n\
+function sortDirection(set, columnClassName) {\n\
+	if (columnClassName == 'image') {\n\
+		if (set)\n\
+			partdescAscending = !partdescAscending;\n\
+		ascending = partdescAscending;\n\
+	} else if (columnClassName == 'partnum') {\n\
+		if (set)\n\
+			partnumAscending = !partnumAscending;\n\
+		ascending = partnumAscending;\n\
+	} else if (columnClassName == 'colorNumber') {\n\
+		if (set)\n\
+			colorNumberAscending = !colorNumberAscending;\n\
+		ascending = colorNumberAscending;\n\
+	} else if (columnClassName == 'colorprops') {\n\
+		if (set)\n\
+			colorpropsAscending = !colorpropsAscending;\n\
+		ascending = colorpropsAscending;\n\
+	} else if (columnClassName == 'elementid') {\n\
+		if (set)\n\
+			elementidAscending = !elementidAscending;\n\
+		ascending = elementidAscending;\n\
+	} else if (columnClassName == 'quantity') {\n\
+		if (set)\n\
+			quantityAscending = !quantityAscending;\n\
+		ascending = quantityAscending;\n\
+	} else if (columnClassName == 'partdesc') {\n\
+		if (set)\n\
+			partdescAscending = !partdescAscending;\n\
+		ascending = partdescAscending;\n\
+	}\n\
+\n\
+	if (set) {\n\
+		if (ascending)\n\
+			event.target.title = 'Sort Ascending';\n\
+		else\n\
+			event.target.title = 'Sort Descending';\n\
+	}\n\
+}\n\
+\n\
+function isValid(v1, v2) {\n\
+	return (!notDefined(v1) && !notDefined(v2));\n\
+}\n\
+\n\
+function notDefined(value){\n\
+	var undefined = void(0);\n\
+	return value === undefined;\n\
+}\n\
+\n\
+function color(row) {\n\
+	var columnClassName = 'colorNumber';\n\
+	var value = row.getElementsByClassName(columnClassName)[0].innerHTML\n\
+	if (notDefined(value))\n\
+		return null\n\
+	value = value.slice(':',-1);\n\
+	return value;\n\
+}\n\
+\n\
+function imgSize(row) {\n\
+	var columnClassName = 'image';\n\
+	var cells = row.getElementsByTagName('td');\n\
+	var cell = null;\n\
+	for (var n = 0; n < cells.length; n++) {\n\
+		if (cells[n].getAttribute('class') == columnClassName) {\n\
+			cell = cells[n];\n\
+			break;\n\
+		}\n\
+	}\n\
+	if (notDefined(cell))\n\
+		return null\n\
 	var theImg = new Image();\n\
-	theImg.src = imgSrc;\n\
+	var imgSrc = cell.getElementsByTagName('img')[0].src;\n\
+	theImg.src = imgSrc\n\
 	return (theImg.width * theImg.height);\n\
 }\n\
 \n\
 function sort(columnClassName, tableId) {\n\
-	var tbody = document.getElementById(tableId).getElementsByTagName(\"tbody\")[0];\n\
-	var rows = tbody.getElementsByTagName(\"tr\");\n\
+	var tbody = document.getElementById(tableId).getElementsByTagName('tbody')[0];\n\
+	var rows = tbody.getElementsByTagName('tr');\n\
 	var skip = 3;\n\
 \n\
 	var unsorted = true;\n\
@@ -301,27 +431,62 @@ function sort(columnClassName, tableId) {\n\
 				var value = row.getElementsByClassName(columnClassName)[0].innerHTML;\n\
 				var nextValue = nextRow.getElementsByClassName(columnClassName)[0].innerHTML;\n\
 \n\
-				if (columnClassName == 'colorNumber') {\n\
-					value = value.slice(':',-1);\n\
-					nextValue = nextValue.slice(':',-1);\n\
-				} else if (columnClassName == 'elementid') {\n\
+				var unOrderedByColor = true;\n\
+				var unOrderedByImage = true;\n\
+\n\
+				if (columnClassName == 'elementid') {\n\
 					value = value.replace('-','.');\n\
 					nextValue = nextValue.replace('-','.');\n\
+				} else if (columnClassName == 'colorprops') {\n\
+					unOrderedByColor = false;\n\
+				} else if (columnClassName == 'colorNumber') {\n\
+					value = color(row);\n\
+					nextValue = color(nextRow);\n\
+					unOrderedByColor = false;\n\
 				} else if (columnClassName == 'image') {\n\
-					var cells = row.getElementsByTagName(\"td\");\n\
-					var nextCells = nextRow.getElementsByTagName(\"td\");\n\
-					var imgSrc = cells[0].getElementsByTagName(\"img\")[0].src;\n\
-					var nextImgSrc = nextCells[0].getElementsByTagName(\"img\")[0].src;\n\
-					value = imgSize(imgSrc);\n\
-					nextValue = imgSize(nextImgSrc);\n\
+					value = imgSize(row);\n\
+					nextValue = imgSize(nextRow);\n\
+					unOrderedByImage = false;\n\
 				}\n\
 \n\
-				if (!isNaN(value)) {\n\
+				if (!isNaN(value) && !isNaN(nextValue)) {\n\
 					value = parseFloat(value);\n\
 					nextValue = parseFloat(nextValue);\n\
 				}\n\
 \n\
-				if (value > nextValue) {\n\
+				if (value == nextValue) {\n\
+					if (unOrderedByColor) {\n\
+						columnClassName = 'colorNumber';\n\
+						value = color(row);\n\
+						nextValue = color(nextRow);\n\
+						unOrderedByColor = false;\n\
+						if (isValid(value, nextValue) &&\n\
+							(value == nextValue) &&\n\
+							unOrderedByImage) {\n\
+							columnClassName = 'image';\n\
+							value = imgSize(row);\n\
+							nextValue = imgSize(nextRow);\n\
+							unOrderedByImage = false;\n\
+						}\n\
+					} else if (unOrderedByImage) {\n\
+						columnClassName = 'image';\n\
+						value = imgSize(row);\n\
+						nextValue = imgSize(nextRow);\n\
+						unOrderedByImage = false;\n\
+						if (isValid(value, nextValue) &&\n\
+							(value == nextValue) &&\n\
+							unOrderedByColor) {\n\
+							columnClassName = 'colorNumber';\n\
+							value = color(row);\n\
+							nextValue = color(nextRow);\n\
+							unOrderedByColor = false;\n\
+						}\n\
+					}\n\
+				}\n\
+\n\
+				sortDirection(false, columnClassName);\n\
+\n\
+				if (isValid(value, nextValue) && (ascending ? value > nextValue : value < nextValue)) {\n\
 					tbody.insertBefore(nextRow, row);\n\
 					unsorted = true;\n\
 				}\n\
@@ -707,7 +872,7 @@ void LDVHtmlInventory::writeHeader(FILE *file)
 	fprintf(file, "%s", sm_script);
 	fprintf(file, "</script>\n");
 	fprintf(file, "</head>\n");
-	fprintf(file, "<body>\n");
+	fprintf(file, "<body onload=\"initializeGlobals()\">\n");
 	fprintf(file, "<div>\n");
 }
 
@@ -761,6 +926,8 @@ void LDVHtmlInventory::writeHeaderCell(
 		fprintf(file, "			<th class=\"%s\">\n", className.c_str());
 		fprintf(file, "				<a class=\"header\" href=\"javascript:sort('%s', 'content-table');\" >%s</a>\n",
 									className.c_str(), utf8ColumnName.c_str());
+		fprintf(file, "				<button class=\"btn\" title=\"Sort Ascending\" onclick=\"javascript:sortDirection(true, '%s');\">I</button>\n",
+									className.c_str());
 		fprintf(file, "			</th>\n");
 	}
 	else
@@ -769,19 +936,27 @@ void LDVHtmlInventory::writeHeaderCell(
 			fprintf(file, "			<th class=\"%s\" colspan=\"%d\">\n", className.c_str(), colSpan);
 			fprintf(file, "				<a class=\"header\" href=\"javascript:sort('%s', 'content-table');\" >%s</a>\n",
 										className.c_str(), utf8ColumnName.c_str());
+			fprintf(file, "				<button class=\"btn\" title=\"Sort Ascending\" onclick=\"javascript:sortDirection(true, '%s');\">I</button>\n",
+										className.c_str());
 			fprintf(file, "				<a class=\"header\" href=\"javascript:sort('partnum', 'content-table');\" >Number</a>\n");
+			fprintf(file, "				<button class=\"btn\" title=\"Sort Ascending\" onclick=\"javascript:sortDirection(true, 'partnum');\">I</button>\n");
 			fprintf(file, "			</th>\n");
 		} else
 		if (column == LDVPLCColor) {
 			fprintf(file, "			<th class=\"%s\" colspan=\"%d\">\n", className.c_str(), colSpan);
 			fprintf(file, "				<a class=\"header\" href=\"javascript:sort('%s', 'content-table');\" >%s</a>\n",
 										className.c_str(), utf8ColumnName.c_str());
+			fprintf(file, "				<button class=\"btn\" title=\"Sort Ascending\" onclick=\"javascript:sortDirection(true, '%s');\">I</button>\n",
+										className.c_str());
 			fprintf(file, "				<a class=\"header\" href=\"javascript:sort('colorprops', 'content-table');\" >Name</a>\n");
+			fprintf(file, "				<button class=\"btn\" title=\"Sort Ascending\" onclick=\"javascript:sortDirection(true, 'colorprops');\">I</button>\n");
 			fprintf(file, "			</th>\n");
 		} else {
 			fprintf(file, "			<th class=\"%s\" colspan=\"%d\">\n", className.c_str(), colSpan);
 			fprintf(file, "				<a class=\"header\" href=\"javascript:sort('%s', 'content-table');\" >%s</a>\n",
 										className.c_str(), utf8ColumnName.c_str());
+			fprintf(file, "				<button class=\"btn\" title=\"Sort Ascending\" onclick=\"javascript:sortDirection(true, '%s');\">I</button>\n",
+										className.c_str());
 			fprintf(file, "			</th>\n");
 		}
 	}
@@ -1123,17 +1298,15 @@ void LDVHtmlInventory::writeTableFooter(FILE *file)
 	{
 		ldviewCreditAlign = "center";
 	}
-	fprintf(file, "							<td class=\"credits\" align=\"%s\">\n",
+	fprintf(file, "         <td class=\"credits\" align=\"%s\">\n",
 			ldviewCreditAlign);
-	fprintf(file, "								%s\n",
-			lsUtf8("PLVGeneratedBy"));
-	fprintf(file, "							</td>\n");
+	fprintf(file, "				%s\n", lsUtf8("PLVGeneratedBy"));
+	fprintf(file, "			</td>\n");
 	if (m_partImages)
 	{
-		fprintf(file, "							<td class=\"credits\" align=\"right\">\n");
-		fprintf(file, "								%s\n",
-				lsUtf8("PLVProvidedBy"));
-		fprintf(file, "							</td>\n");
+		fprintf(file, "		<td class=\"credits\" align=\"right\">\n");
+		fprintf(file, "			%s\n", lsUtf8("PLVProvidedBy"));
+		fprintf(file, "		</td>\n");
 	}
 	fprintf(file, "		</tr>\n");
 	fprintf(file, "	</tbody>\n");
