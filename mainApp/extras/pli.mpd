@@ -1,14 +1,14 @@
-0 FILE Untitled.ldr 
+0 FILE Pli.ldr
 
-0 Untitled
+0 Pli
 
-0 Name: Untitled.ldr
+0 Name: Pli.ldr
 
 0 Author: MLCad
 
 0 Unofficial Model
 
-0 
+0
 
 0 NOFILE
 
@@ -24,7 +24,7 @@
 
 0 Unofficial Model
 
-0 ROTATION CENTER 0 0 0 1 "Custom" 
+0 ROTATION CENTER 0 0 0 1 "Custom"
 
 0 ROTATION CONFIG 0 0
 
@@ -40,7 +40,9 @@
 
 1 0 210 -40 0 0 0 1 0 1 0 -1 0 0 32014.dat
 
-0 
+1 0 250 -40 0 -0.5 0 0.866 0.866 0 0.5 0 1 0 10288.dat
+
+0
 
 0 NOFILE
 
@@ -56,7 +58,7 @@
 
 0 Unofficial Model
 
-0 ROTATION CENTER 0 0 0 1 "Custom" 
+0 ROTATION CENTER 0 0 0 1 "Custom"
 
 0 ROTATION CONFIG 0 0
 
@@ -80,7 +82,19 @@
 
 1 0 -63 -30 -2 0 0 -1 -1 0 0 0 1 0 44809.dat
 
-0 
+0
+
+1 0 342 -36 0 -1 0 0 0 1 0 0 0 -1 98989.dat
+
+1 0 302 -36 0 -1 0 0 0 1 0 0 0 -1 32557.dat
+
+1 0 20 -20 40 -0.5 0 -0.866 -0.866 0 0.5 0 1 0 57585.dat
+
+1 0 80 -20 40 0 1 0 0 0 1 1 0 0 10197.dat
+
+1 0 100 -20 40 0 1 0 0 0 1 1 0 0 6553.dat
+
+0
 
 0 NOFILE
 
@@ -96,7 +110,7 @@
 
 0 Unofficial Model
 
-0 ROTATION CENTER 0 0 0 1 "Custom" 
+0 ROTATION CENTER 0 0 0 1 "Custom"
 
 0 ROTATION CONFIG 0 0
 
@@ -124,7 +138,7 @@
 
 1 0 110.356 30 -199.792 0 0 1 1 0 0 0 1 0 33299.dat
 
-1 0 120.356 30 -151.793 0 0 1 1 0 0 0 1 0 32449.dat
+1 0 120.356 30 -151.793 0 0 1 1 0 0 0 1 0 11478.dat
 
 1 0 90.3555 30 -119.793 0 0 1 1 0 0 0 1 0 2825.dat
 
@@ -156,13 +170,52 @@
 
 1 0 20.3555 30 72.2071 0 0 1 -1 0 0 0 -1 0 32251.dat
 
-0 
+1 0 0 0 0 0 0 1 1 0 0 0 1 0 60483.dat
+
+1 0 -50 -12 -320 -1 0 0 0 0 1 0 1 0 60484.dat
 
 1 0 0 0 0 0 0 -1 -1 0 0 0 1 0 60483.dat
 
+1 0 140.356 30 -359.793 0 0 1 0 -1 0 1 0 0 64178.dat
+
+1 0 140.356 30 -459.793 0 0 1 0 -1 0 1 0 0 64179.dat
+
+1 0 120.356 30 -171.793 0 0 1 1 0 0 0 1 0 32449.dat
+
+1 0 80.356 30 -551.793 0 -1 0 -1 0 0 0 0 -1 87408.dat
+
 0 NOFILE
 
-1 0 -50 -12 -320 -1 0 0 0 0 1 0 1 0 60484.dat
+0
+
+0 FILE Axle.ldr
+
+0 Part List Orientation for Axle
+
+0 Name: Axle.ldr
+
+0 Author: MLCad
+
+0 Unofficial Model
+
+0 ROTATION CENTER 0 0 0 1 "Custom"
+
+0 ROTATION CONFIG 0 0
+
+0
+
+1 0 -40 20 0 -1 0 0 0 0 1 0 1 0 87083.dat
+1 0 -40 20 20 -1 0 0 0 0 1 0 1 0 55013.dat
+1 0 -40 20 -20 -1 0 0 0 0 1 0 1 0 6587.dat
+
+1 0 -60 20 -80 -1 0 0 0 0 1 0 1 0 3749.dat
+1 0 -60 20 -100 -1 0 0 0 0 1 0 1 0 43093.dat
+1 0 -40 20 -40 -1 0 0 0 0 1 0 1 0 99008.dat
+1 0 -60 20 -120 -1 0 0 0 0 1 0 1 0 32002.dat
+
+0
+
+0 NOFILE
 
 0
 
@@ -176,7 +229,7 @@
 
 0 Unofficial Model
 
-0 ROTATION CENTER 0 0 0 1 "Custom" 
+0 ROTATION CENTER 0 0 0 1 "Custom"
 
 0 ROTATION CONFIG 0 0
 
@@ -206,7 +259,7 @@
 
 1 0 21.071 -48 -91.071 1 0 0 0 1 0 0 0 1 32333.dat
 
-0 
+0
 
 0 NOFILE
 
@@ -222,7 +275,7 @@
 
 0 Unofficial Model
 
-0 ROTATION CENTER 0 0 0 1 "Custom" 
+0 ROTATION CENTER 0 0 0 1 "Custom"
 
 0 ROTATION CONFIG 0 0
 
@@ -280,7 +333,27 @@
 
 1 0 -340 0 216 0 -1 0 0 0 1 -1 0 0 6641.dat
 
-0 
+0
+
+1 0 -340 -40 80 -1 0 0 0 0 1 0 1 0 92911.dat
+
+1 0 -310 0 -70 -1 0 0 0 1 0 0 0 -1 88323.dat
+
+1 0 -260 0 256 0 0 -1 -1 0 0 0 1 0 6539.dat
+
+1 0 -500 -40 80 0 1 0 -1 0 0 0 0 1 92908.dat
+
+1 0 -500 -40 180 0 0 -1 0 -1 0 -1 0 0 92910.dat
+
+1 0 -130 0 348 0 0 1 -1 0 0 0 -1 0 32005.dat
+
+1 0 10 0 368 0 0 -1 1 0 0 0 -1 0 92906.dat
+
+1 0 -460 -40 -40 0 0 1 -0.793 -0.609 0 0.609 -0.793 0 92909.dat
+
+1 0 -460 -40 -100 0.609 -0.793 0 -0.793 -0.609 0 0 0 -1 55982.dat
+
+0
 
 0 NOFILE
 
@@ -296,7 +369,7 @@
 
 0 Unofficial Model
 
-0 ROTATION CENTER 0 0 0 1 "Custom" 
+0 ROTATION CENTER 0 0 0 1 "Custom"
 
 0 ROTATION CONFIG 0 0
 
@@ -318,7 +391,29 @@
 
 1 0 -215 0 115 0 0 -1 0 -1 0 -1 0 0 3713.dat
 
-0 
+0
+
+1 0 -60 0 60 1 0 0 0 -1 0 0 0 -1 6589.dat
+
+1 0 -220 0 300 0 -1 0 -1 0 0 0 0 -1 32498.dat
+
+1 0 -90 0 10 0 0 1 0 -1 0 1 0 0 61903.dat
+
+1 0 50 0 250 0 0 -1 0 -1 0 -1 0 0 48452.dat
+
+1 0 50 20 130 -1 0 0 0 -1 0 0 0 1 99009.dat
+
+1 0 -30 20 130 1 0 0 0 1 0 0 0 1 99010.dat
+
+1 0 -90 40 250 0 0 1 0 1 0 -1 0 0 48168.dat
+
+1 0 -230 0 29.999 0 0 1 1 0 0 0 1 0 62821.dat
+
+1 0 25 0 -50 1 0 0 0 -1 0 0 0 -1 32123a.dat
+
+1 0 45 0 -50 1 0 0 0 -1 0 0 0 -1 32123.dat
+
+0
 
 0 NOFILE
 
@@ -334,7 +429,7 @@
 
 0 Unofficial Model
 
-0 ROTATION CENTER 0 0 0 1 "Custom" 
+0 ROTATION CENTER 0 0 0 1 "Custom"
 
 0 ROTATION CONFIG 0 0
 
@@ -380,7 +475,9 @@
 
 1 0 -170 20 -18 0 0 -1 -1 0 0 0 1 0 2637.dat
 
-0 
+1 0 60 20 202 1 0 0 0 0 -1 0 1 0 99773.dat
+
+0
 
 0 NOFILE
 
@@ -396,7 +493,7 @@
 
 0 Unofficial Model
 
-0 ROTATION CENTER 0 0 0 1 "Custom" 
+0 ROTATION CENTER 0 0 0 1 "Custom"
 
 0 ROTATION CONFIG 0 0
 
@@ -438,7 +535,35 @@
 
 1 0 -170 0 -550 0 0 1 0 -1 0 1 0 0 32535.dat
 
-0 
+0
+
+1 0 110 0 0 0 1 0 0 0 -1 -1 0 0 64682.dat
+
+1 0 110 0 -60 0 1 0 0 0 -1 -1 0 0 64680.dat
+
+1 0 190 0 -60 0 -1 0 0 0 -1 1 0 0 64394.dat
+
+1 0 110 0 -120 0 1 0 0 0 -1 -1 0 0 64393.dat
+
+1 0 110 0 -300 0 1 0 0 0 -1 -1 0 0 11946.dat
+
+1 0 190 0 0 0 -1 0 0 0 -1 1 0 0 64392.dat
+
+1 0 190 0 -120 0 -1 0 0 0 -1 1 0 0 64681.dat
+
+1 0 190 0 -300 0 -1 0 0 0 -1 1 0 0 11947.dat
+
+1 0 110 0 -240 0 1 0 0 0 -1 -1 0 0 87086.dat
+
+1 0 110 0 -180 0 1 0 0 0 -1 -1 0 0 64391.dat
+
+1 0 190 0 -240 0 -1 0 0 0 -1 1 0 0 87080.dat
+
+1 0 190 0 -180 0 -1 0 0 0 -1 1 0 0 64683.dat
+
+1 0 170 -20 -350 0 0 1 0 -1 0 1 0 0 11954.dat
+
+0
 
 0 NOFILE
 
@@ -454,7 +579,7 @@
 
 0 Unofficial Model
 
-0 ROTATION CENTER 0 0 0 1 "Custom" 
+0 ROTATION CENTER 0 0 0 1 "Custom"
 
 0 ROTATION CONFIG 0 0
 
@@ -496,7 +621,7 @@
 
 1 7 184 0 -624 0 0 -1 0 1 0 1 0 0 4697a.dat
 
-0 
+0
 
 0 NOFILE
 
@@ -512,7 +637,7 @@
 
 0 Unofficial Model
 
-0 ROTATION CENTER 0 0 0 1 "Custom" 
+0 ROTATION CENTER 0 0 0 1 "Custom"
 
 0 ROTATION CONFIG 0 0
 
@@ -550,7 +675,7 @@
 
 1 0 -430.001 0 -1180 0 0 1 0 1 0 -1 0 0 502.dat
 
-0 
+0
 
 1 0 540 0 -210 0 0 1 0 1 0 -1 0 0 53787.dat
 
@@ -563,6 +688,32 @@
 1 0 -270 56 -280 0 0 1 0 1 0 -1 0 0 58120.dat
 
 1 0 -230 56 -190 0 0 -1 0 1 0 1 0 0 58123.dat
+
+1 0 760 0 -370 0 0 0.75 0 0.75 0 -0.75 0 0 99141c01.dat
+
+1 0 760 67 -710 0 0 0.75 0 0.75 0 -0.75 0 0 99143.dat
+
+1 0 760 53 -530 0 0 0.75 0 0.75 0 -0.75 0 0 95656.dat
+
+1 0 700 60 -850 0 0 -1 0 1 0 1 0 0 95658.dat
+
+1 0 680 20 -970 0 0 1 0 1 0 -1 0 0 99455.dat
+
+1 0 760 60 -1070 1 0 0 0 1 0 0 0 1 95652.dat
+
+1 0 980 60 -970 0 0 1 0 1 0 -1 0 0 95648.dat
+
+1 0 980 60 -1030 0 0 1 0 1 0 -1 0 0 95650.dat
+
+1 0 980 60 -1090 0 0 1 0 1 0 -1 0 0 99380.dat
+
+1 0 980 0 -370 0 0 0.75 0 0.75 0 -0.75 0 0 95646.dat
+
+1 0 1200 0 -370 0 0 0.75 0 0.75 0 -0.75 0 0 95646c01.dat
+
+1 0 950 50 -510 -1 0 0 0 1 0 0 0 -1 u9284.dat
+
+0
 
 0 NOFILE
 
@@ -578,7 +729,7 @@
 
 0 Unofficial Model
 
-0 ROTATION CENTER 0 0 0 1 "Custom" 
+0 ROTATION CENTER 0 0 0 1 "Custom"
 
 0 ROTATION CONFIG 0 0
 
@@ -598,7 +749,7 @@
 
 1 0 -165 -8 -95 0 0 1 0 1 0 -1 0 0 6007.dat
 
-0 
+0
 
 0 NOFILE
 
@@ -614,7 +765,7 @@
 
 0 Unofficial Model
 
-0 ROTATION CENTER 0 0 0 1 "Custom" 
+0 ROTATION CENTER 0 0 0 1 "Custom"
 
 0 ROTATION CONFIG 0 0
 
@@ -880,7 +1031,7 @@
 
 1 0 -4963.81 0 -2889.19 -0.5 0 0 0 -0.5 0 0 0 0.5 385.dat
 
-0 
+0
 
 0 NOFILE
 
@@ -896,7 +1047,7 @@
 
 0 Unofficial Model
 
-0 ROTATION CENTER 0 0 0 1 "Custom" 
+0 ROTATION CENTER 0 0 0 1 "Custom"
 
 0 ROTATION CONFIG 0 0
 
@@ -962,7 +1113,7 @@
 
 1 0 -1273.06 0 -707.218 -0.353553 0 0.353553 0 0.5 0 -0.353553 0 -0.353553 866c04.dat
 
-0 
+0
 
 0 NOFILE
 
@@ -978,7 +1129,7 @@
 
 0 Unofficial Model
 
-0 ROTATION CENTER 0 0 0 1 "Custom" 
+0 ROTATION CENTER 0 0 0 1 "Custom"
 
 0 ROTATION CONFIG 0 0
 
@@ -986,9 +1137,7 @@
 
 1 0 -230 0 -85 0 0 -1 0 1 0 1 0 0 x507c01.dat
 
-0 
-
-0 
+0
 
 0 NOFILE
 
@@ -1004,7 +1153,7 @@
 
 0 Unofficial Model
 
-0 ROTATION CENTER 0 0 0 1 "Custom" 
+0 ROTATION CENTER 0 0 0 1 "Custom"
 
 0 ROTATION CONFIG 0 0
 
@@ -1150,21 +1299,4 @@
 
 1 0 335 0 -640 0 0 -1 0 1 0 1 0 0 42019.dat
 
-0 
-
-0 
-
-0 
-
-0 
-
 0 NOFILE
-
-0 
-
-0 
-
-0
-
-0
-
