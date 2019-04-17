@@ -1903,6 +1903,15 @@ void Gui::editBLColors()
     parmsWindow->show();
 }
 
+void Gui::editBLCodes()
+{
+    QFileInfo fileInfo(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_BLCODES_FILE));
+    displayParmsFile(fileInfo.absoluteFilePath());
+    parmsWindow->setWindowTitle(tr("Bricklink Codes reference",
+                                   "Edit/add Bricklink Codes reference"));
+    parmsWindow->show();
+}
+
 void Gui::viewLog()
 {
     displayParmsFile(Preferences::logPath);
@@ -3568,6 +3577,10 @@ void Gui::createActions()
     editBLColorsAct->setStatusTip(tr("Add/edit Bricklink Color ID reference"));
     connect(editBLColorsAct, SIGNAL(triggered()), this, SLOT(editBLColors()));
 
+    editBLCodesAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Edit Bricklink Codes reference"), this);
+    editBLCodesAct->setStatusTip(tr("Add/edit Bricklink Item No, Color Name, LEGO Element reference"));
+    connect(editBLCodesAct, SIGNAL(triggered()), this, SLOT(editBLCodes()));
+
     editModelFileAct = new QAction(QIcon(":/resources/editldraw.png"),tr("Edit current model file"), this);
     editModelFileAct->setStatusTip(tr("Edit loaded LDraw model file"));
     connect(editModelFileAct, SIGNAL(triggered()), this, SLOT(editModelFile()));
@@ -3671,6 +3684,7 @@ void Gui::enableActions()
   editAnnotationStyleAct->setEnabled(true);
   editLD2BLColorsXRefAct->setEnabled(true);
   editBLColorsAct->setEnabled(true);
+  editBLCodesAct->setEnabled(true);
   editModelFileAct->setEnabled(true);
 
   setPageLineEdit->setEnabled(true);
@@ -3753,6 +3767,7 @@ void Gui::disableActions()
   editAnnotationStyleAct->setEnabled(false);
   editLD2BLColorsXRefAct->setEnabled(false);
   editBLColorsAct->setEnabled(false);
+  editBLCodesAct->setEnabled(false);
   editModelFileAct->setEnabled(false);
 
   setPageLineEdit->setEnabled(false);
@@ -3961,6 +3976,7 @@ void Gui::createMenus()
     editorMenu->addAction(editAnnotationStyleAct);
     editorMenu->addAction(editLD2BLColorsXRefAct);
     editorMenu->addAction(editBLColorsAct);
+    editorMenu->addAction(editBLCodesAct);
     if (Preferences::ldrawiniFound){
       editorMenu->addAction(editLdrawIniFileAct);
     }

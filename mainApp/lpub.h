@@ -1221,6 +1221,7 @@ private slots:
     void editAnnotationStyle();
     void editLD2BLColorsXRef();
     void editBLColors();
+    void editBLCodes();
     void generateCustomColourPartsList(bool prompt = true);
     void viewLog();
 
@@ -1471,6 +1472,7 @@ private:
   QAction *editAnnotationStyleAct;
   QAction *editLD2BLColorsXRefAct;
   QAction *editBLColorsAct;
+  QAction *editBLCodesAct;
   QAction *generateCustomColourPartsAct;
   QAction *editModelFileAct;
 

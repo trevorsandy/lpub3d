@@ -66,6 +66,7 @@
         <file alias="editplisubstituteparts.png">resources/editplisubstituteparts.png</file>
         <file alias="editsetting.png">resources/editsetting.png</file>
         <file alias="editredo.png">resources/editredo.png</file>
+        <file alias="editstyleref.png">resources/editstyleref.png</file>
         <file alias="edittitleannotations.png">resources/edittitleannotations.png</file>
         <file alias="editundo.png">resources/editundo.png</file>
         <file alias="editrotateicon.png">resources/editrotateicon.png</file>
