@@ -2996,7 +2996,10 @@ AnnotateTextItem::AnnotateTextItem(
   QString       &_fontString,
   QString       &_colorString,
   PlacementType  _parentRelativeType,
-  bool           _element)
+  bool           _element,
+  PGraphicsTextItem *_parent)
+    : PGraphicsTextItem( _parent )
+    , alignment( Qt::AlignCenter | Qt::AlignVCenter )
 {
   parentRelativeType = _parentRelativeType;
   isElement          = _element;
@@ -3028,12 +3031,6 @@ AnnotateTextItem::AnnotateTextItem(
       toolTip = QString("%1 Element Annotation - right-click to modify")
                        .arg(_pli->pliMeta.partElements.legoElements.value() ? "LEGO" : "BrickLink");
   } else {
-      // TODO - automatically resize text until it fits
-      if ((_part->styleMeta.style.value() == AnnotationStyle::circle ||
-           _part->styleMeta.style.value() == AnnotationStyle::square) &&
-           _text.size() > 2) {
-         fontString = "Arial,17,-1,5,50,0,0,0,0,0";
-      }
       border     = _part->styleMeta.border;
       background = _part->styleMeta.background;
       style      = _part->styleMeta.style;
@@ -3049,27 +3046,32 @@ AnnotateTextItem::AnnotateTextItem(
   QColor color(_colorString);
   setDefaultTextColor(color);
 
-  bool useDocSize = style.value() == AnnotationStyle::none;
+  textRect  = QRectF(0,0,document()->size().width(),document()->size().height());
 
-  QRectF docSize  = QRectF(0,0,document()->size().width(),document()->size().height());
-
-  if (useDocSize) {
-      annotateRect = docSize;
+  if (style.value() == AnnotationStyle::none) {
+      styleRect = textRect;
   } else {
-      bool dw = part->styleMeta.style.value() == AnnotationStyle::rectangle || isElement;
-      QRectF _styleSize = QRectF(0,0,dw ? docSize.width() : styleSize.valuePixels(XX),styleSize.valuePixels(YY));
-      annotateRect = boundingRect().adjusted(0,0,_styleSize.width()-docSize.width(),_styleSize.height()-docSize.height());
+      // set rectangle size and dimensions parameters
+      bool fixedStyle = part->styleMeta.style.value() != AnnotationStyle::rectangle && !isElement;
+      QRectF _styleRect = QRectF(0,0,fixedStyle ? styleSize.valuePixels(XX) : textRect.width(),styleSize.valuePixels(YY));
+      styleRect = boundingRect().adjusted(0,0,_styleRect.width()-textRect.width(),_styleRect.height()-textRect.height());
 
-      // center the document on the new size
+      // scale down the font as needed
+      scaleDownFont();
+
+      // center document text in style size
       setTextWidth(-1);
-      setTextWidth(annotateRect.width());
+      setTextWidth(styleRect.width());
       QTextBlockFormat format;
-      format.setAlignment(Qt::AlignCenter);
+      format.setAlignment(alignment);
       QTextCursor cursor = textCursor();
       cursor.select(QTextCursor::Document);
       cursor.mergeBlockFormat(format);
       cursor.clearSelection();
       setTextCursor(cursor);
+
+      // adjust text horizontal alignment
+      textOffset.setX(double(border.valuePixels().thickness)/2);
   }
 
   subModelColor = pli->pliMeta.subModelColor;
@@ -3080,29 +3082,46 @@ AnnotateTextItem::AnnotateTextItem(
   setZValue(98);
 }
 
-void AnnotateTextItem::size(int &x, int &y)
-{
-    x = int(annotateRect.width());
-    y = int(annotateRect.height());
+void AnnotateTextItem::scaleDownFont() {
+    QFont font = this->QGraphicsTextItem::font();
+    int fontSize = font.pointSize();
+    QRectF saveTextRect = textRect;
+
+    while (((textRect.width() > styleRect.width()) ||
+            (textRect.height() > styleRect.height())) &&
+             fontSize > 1) {
+        font.setPointSize(fontSize--);
+        setFont(font);
+        textRect = QRectF(0,0,document()->size().width(),document()->size().height());
+    }
+
+    if (textRect == saveTextRect)
+        return;
+
+    font.setPointSize(fontSize);
+    setFont(font);
+
+    // adjust text vertical alignment
+    textOffset.setY(saveTextRect.height()-textRect.height());
 }
 
-void AnnotateTextItem::setBackground(QPainter *painter)
+void AnnotateTextItem::size(int &x, int &y)
 {
-    // set border and background parameters
-    BorderData     borderData     = border.valuePixels();
-    BackgroundData backgroundData = background.value();
+    x = int(styleRect.width());
+    y = int(styleRect.height());
+}
 
-    // set rectangle size and dimensions parameters
-    int ibt = int(borderData.thickness);
-    QRectF irect(ibt/2,ibt/2,annotateRect.width()-ibt,annotateRect.height()-ibt);
-
-    // set painter and render hints (initialized with pixmap)
+void AnnotateTextItem::setAnnotationStyle(QPainter *painter)
+{
+    // set painter and render hints
     painter->setRenderHints(QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing);
 
     // set the background then set the border and paint both in one go.
 
     /* BACKGROUND */
     QColor brushColor;
+    BackgroundData backgroundData = background.value();
+
     switch(backgroundData.type) {
     case BackgroundData::BgColor:
        brushColor = LDrawColor::color(backgroundData.string);
@@ -3119,6 +3138,7 @@ void AnnotateTextItem::setBackground(QPainter *painter)
     /* BORDER */
     QPen borderPen;
     QColor borderPenColor;
+    BorderData borderData = border.valuePixels();
     if (borderData.type == BorderData::BdrNone) {
         borderPenColor = Qt::transparent;
     } else {
@@ -3145,17 +3165,17 @@ void AnnotateTextItem::setBackground(QPainter *painter)
     else if (borderData.line == BorderData::BdrLnDashDotDot){
         borderPen.setStyle(Qt::DashDotDotLine);
     }
-    borderPen.setWidth(ibt);
+    borderPen.setWidth(int(borderData.thickness));
 
     painter->setPen(borderPen);
 
     // set icon border dimensions
-    qreal rx = borderData.radius;
-    qreal ry = borderData.radius;
-    qreal dx = annotateRect.width();
-    qreal dy = annotateRect.height();
+    qreal rx = double(borderData.radius);
+    qreal ry = double(borderData.radius);
+    qreal dx = styleRect.width();
+    qreal dy = styleRect.height();
 
-    if (dx && dy) {
+    if (int(dx) && int(dy)) {
         if (dx > dy) {
             rx *= dy;
             rx /= dx;
@@ -3165,22 +3185,28 @@ void AnnotateTextItem::setBackground(QPainter *painter)
         }
     }
 
-    // draw icon rectangle - background and border
+    // draw icon shape - background and border
+    int bt = int(borderData.thickness);
+    QRectF bgRect(bt/2,bt/2,styleRect.width()-bt,styleRect.height()-bt);
     if (style.value() != AnnotationStyle::circle) {
         if (borderData.type == BorderData::BdrRound) {
-            painter->drawRoundRect(irect,int(rx),int(ry));
+            painter->drawRoundRect(bgRect,int(rx),int(ry));
         } else {
-            painter->drawRect(irect);
+            painter->drawRect(bgRect);
         }
     } else {
-        painter->drawEllipse(irect);
+        painter->drawEllipse(bgRect);
     }
 }
 
 void AnnotateTextItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *o, QWidget *w)
 {
-    if (style.value() != AnnotationStyle::none)
-        setBackground(painter);
+    if (style.value() != AnnotationStyle::none) {
+        setAnnotationStyle(painter);
+        QRectF textBounds = boundingRect();
+        textBounds.translate(textOffset);
+        painter->translate(textBounds.left(), textBounds.top());
+    }
     QGraphicsTextItem::paint(painter, o, w);
 }
 

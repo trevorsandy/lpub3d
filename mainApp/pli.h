@@ -353,7 +353,8 @@ void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 class PGraphicsTextItem : public QGraphicsTextItem, public MetaItem
 {
 public:
-PGraphicsTextItem()
+PGraphicsTextItem(QGraphicsTextItem *_parent = nullptr)
+    :QGraphicsTextItem(_parent)
 {
   pli = nullptr;
   part = nullptr;
@@ -363,7 +364,9 @@ PGraphicsTextItem(
   PliPart *_part,
   QString &text,
   QString &fontString,
-  QString &toolTip)
+  QString &toolTip,
+  QGraphicsTextItem *_parent = nullptr)
+    :QGraphicsTextItem(_parent)
 {
   setText(_pli,
           _part,
@@ -403,12 +406,14 @@ class InstanceTextItem : public PGraphicsTextItem
 {
 public:
 InstanceTextItem(
-  Pli            *_pli,
-  PliPart        *_part,
-  QString        &text,
-  QString        &fontString,
-  QString        &colorString,
-  PlacementType _parentRelativeType)
+  Pli                *_pli,
+  PliPart            *_part,
+  QString            &text,
+  QString            &fontString,
+  QString            &colorString,
+  PlacementType      _parentRelativeType,
+  PGraphicsTextItem *_parent = nullptr)
+    : PGraphicsTextItem(_parent)
 {
   parentRelativeType = _parentRelativeType;
   QString toolTip(tr("Times used - right-click to modify"));
@@ -430,7 +435,8 @@ public:
   FontMeta       font;
   StringMeta     color;
   MarginsMeta    margin;
-  QRectF         annotateRect;
+  QRectF         textRect;
+  QRectF         styleRect;
 
   AnnotateTextItem(
     Pli           *_pli,
@@ -439,17 +445,27 @@ public:
     QString       &fontString,
     QString       &colorString,
     PlacementType _parentRelativeType,
-    bool          _element = false);
+    bool          _element = false,
+    PGraphicsTextItem *_parent = nullptr);
 
   virtual ~AnnotateTextItem(){}
 
   void size(int &x, int &y);
 
+  void scaleDownFont();
+
+  void setAlignment( Qt::Alignment flags )
+  {
+      alignment = flags;
+  }
+
 protected:
+  QPointF              textOffset;
+  Qt::Alignment	       alignment;
   StringListMeta       subModelColor;
   int                  submodelLevel;
 
-  void setBackground(QPainter *painter);
+  void setAnnotationStyle(QPainter *painter);
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *o, QWidget *w);
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 };
