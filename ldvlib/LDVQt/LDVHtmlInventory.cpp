@@ -82,8 +82,25 @@ th\n\
 th.title\n\
 {\n\
 	background-color: #EEEEEE;\n\
+	padding-bottom: 0px;\n\
+	border-bottom: 0px;\n\
 	color: #000000;\n\
 	font-size: 150%;\n\
+}\n\
+\n\
+th.unique\n\
+{\n\
+	background-color: #EEEEEE;\n\
+	padding-top: 0px;\n\
+	padding-bottom: 8px;\n\
+}\n\
+\n\
+th.uniqueitems\n\
+{\n\
+	font-weight: normal;\n\
+	background-color: #EEEEEE;\n\
+	border-style: none;\n\
+	padding: 0px;\n\
 }\n\
 \n\
 td\n\
@@ -168,6 +185,14 @@ table.credits td\n\
 	color: #808080;\n\
 	border-style: none;\n\
 	font-size: 65%;\n\
+}\n\
+\n\
+table.uniqueitems\n\
+{\n\
+	border-style: none;\n\
+	background-color: transparent;\n\
+	margin: 0px;\n\
+	width: 100%;\n\
 }\n\
 \n\
 a\n\
@@ -413,15 +438,40 @@ bool LDVHtmlInventory::generateHtml(
 		ProgressDialog->show();
 
 		const LDPartCountVector &partCounts = partsList->getPartCounts();
-		int i, j, pc;
+		int i, j;
 
-		pc = int(partCounts.size());
+		int uniqueParts = int(partCounts.size());
+		int invalidElements = 0;
+		int uniqueElements = 0;
 
-		ProgressDialog->setMaximum(pc);
+		IntVector uniqueColors;
+		for (i = 0; i < uniqueParts; i++)
+		{
+			const LDPartCount &partCount = partCounts[i];
+			const IntVector &colors = partCount.getColors();
+			int elements = (int)colors.size();
+			uniqueElements += elements;
+			for (j = 0; j < elements; j++)
+			{
+				bool bl = m_lookupSite == LookUp::Bricklink;
+				QString ldColorId(QString::number(colors[j]));
+				QString ldPartId(QFileInfo(QString::fromStdString(partCount.getFilename())).baseName());
+				QString elementId = Annotations::getBLElement(
+					ldColorId, ldPartId,
+					bl ? ElementSrc::BL:ElementSrc::LEGO);
+				if (elementId.isEmpty())
+					invalidElements++;
+				if (find(uniqueColors.begin(), uniqueColors.end(), colors[j]) == uniqueColors.end())
+					uniqueColors.push_back(colors[j]);
+			}
+		}
+
+		ProgressDialog->setMaximum(uniqueParts);
 
 		writeHeader(file);
-		writeTableHeader(file, partsList->getTotalParts());
-		for (i = 0; i < pc; i++)
+		writeTableHeader(file, partsList->getTotalParts(), invalidElements,
+						 uniqueElements, uniqueParts, uniqueColors.size());
+		for (i = 0; i < uniqueParts; i++)
 		{
 			ProgressDialog->setValue(i);
 			QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
@@ -430,7 +480,6 @@ bool LDVHtmlInventory::generateHtml(
 			const IntVector &colors = partCount.getColors();
 			LDLModel *model = const_cast<LDLModel *>(partCount.getModel());
 			LDLPalette *palette = model->getMainModel()->getPalette();
-			//int partTotal = partCount.getTotalCount();
 
 			for (j = 0; j < (int)colors.size(); j++)
 			{
@@ -444,7 +493,7 @@ bool LDVHtmlInventory::generateHtml(
 		writeFooter(file);
 		fclose(file);
 
-		ProgressDialog->setValue(pc);
+		ProgressDialog->setValue(uniqueParts);
 		ProgressDialog->hide();
 		QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 		ProgressDialog->deleteLater();
@@ -710,7 +759,7 @@ void LDVHtmlInventory::writeHeaderCell(
 	if (colSpan == 1)
 	{
 		fprintf(file, "			<th class=\"%s\">\n", className.c_str());
-		fprintf(file, "				<a class=\"header\" href=\"javascript:sort('%s', 'content-table');\" >%s</a>\n", 
+		fprintf(file, "				<a class=\"header\" href=\"javascript:sort('%s', 'content-table');\" >%s</a>\n",
 									className.c_str(), utf8ColumnName.c_str());
 		fprintf(file, "			</th>\n");
 	}
@@ -979,9 +1028,16 @@ std::string LDVHtmlInventory::getSnapshotFilename(void) const
 	return filename;
 }
 
-void LDVHtmlInventory::writeTableHeader(FILE *file, int totalParts)
+void LDVHtmlInventory::writeTableHeader(
+		FILE *file,
+		int totalParts,
+		int invalidElements,
+		int uniqueElements,
+		int uniqueParts,
+		int uniqueColors)
 {
 	size_t i;
+	std::string textAlign = "right";
 
 	fprintf(file, "<table id=\"title-table\" class=\"titleImage\">\n");
 	fprintf(file, "	<tbody>\n");
@@ -1010,6 +1066,37 @@ void LDVHtmlInventory::writeTableHeader(FILE *file, int totalParts)
 	fprintf(file, "\n");
 	fprintf(file, "			</th>\n");
 	fprintf(file, "		</tr>\n");
+	if (m_showTotal)
+	{
+		fprintf(file, "		<tr>\n");
+		fprintf(file, "			<th class=\"unique\" colspan=\"%d\">\n", m_columns);
+		fprintf(file, "				<table id=\"uniqueitems-table\"  class=\"uniqueitems\">\n");
+		fprintf(file, "					<tr>\n");
+		if (invalidElements) {
+			fprintf(file, "						<th class=\"uniqueitems\" style=\"color:#FF0000;text-align:right;\">\n");
+			fprintf(file, lsUtf8("PLVInvalidElements"), invalidElements);
+			fprintf(file, "\n");
+			fprintf(file, "						</th>\n");
+			textAlign = "center";
+		}
+		fprintf(file, "						<th class=\"uniqueitems\" style=\"text-align:%s;\">\n",textAlign.c_str());
+		fprintf(file, lsUtf8("PLVUniqueElements"), uniqueElements);
+		fprintf(file, "\n");
+		fprintf(file, "						</th>\n");
+
+		fprintf(file, "						<th class=\"uniqueitems\" style=\"text-align:center;\">\n");
+		fprintf(file, lsUtf8("PLVUniqueParts"), uniqueParts);
+		fprintf(file, "\n");
+		fprintf(file, "						</th>\n");
+		fprintf(file, "						<th class=\"uniqueitems\" style=\"text-align:left;\">\n");
+		fprintf(file, lsUtf8("PLVUniqueColors"), uniqueColors);
+		fprintf(file, "\n");
+		fprintf(file, "						</th>\n");
+		fprintf(file, "					</tr>\n");
+		fprintf(file, "				</table>\n");
+		fprintf(file, "			</th>\n");
+		fprintf(file, "		</tr>\n");
+	}
 	fprintf(file, "	</tbody>\n");
 	fprintf(file, "</table>\n");
 	fprintf(file, "<table id=\"content-table\">\n");
@@ -1215,7 +1302,7 @@ std::string LDVHtmlInventory::defaultFilename(const char *modelFilename)
 	char *filePart = filenameFromPath(modelFilename);
 	char *dirPart = directoryFromPath(modelFilename);
 	std::string htmlFilename;
-	
+
 	if (dirPart)
 	{
 		htmlFilename = dirPart;

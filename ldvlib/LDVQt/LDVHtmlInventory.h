@@ -92,7 +92,9 @@ protected:
 	virtual void dealloc(void);
 	void writeHeader(FILE *file);
 	void writeFooter(FILE *file);
-	void writeTableHeader(FILE *file, int totalParts);
+    void writeTableHeader(FILE *file, int totalParts,
+                          int invalidElements, int uniqueElements,
+                          int uniqueParts, int uniqueColors);
 	void writeTableFooter(FILE *file);
 	void writePartRow(FILE *file, const LDPartCount &partCount,
 		LDLPalette *palette, const LDLColorInfo &colorInfo, int colorNumber);

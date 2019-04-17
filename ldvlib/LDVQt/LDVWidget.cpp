@@ -472,7 +472,7 @@ bool LDVWidget::loadModel(const char *filename)
     filename = copyString(QFileInfo(filename).absoluteFilePath().toLatin1().constData());
     if (setDirFromFilename(filename))
     {
-        emit lpubAlert->messageSig(LOG_STATUS, QString("Loading %1. Please wait...")
+        emit lpubAlert->messageSig(LOG_INFO_STATUS, QString("Loading %1. Please wait...")
                                    .arg(QFileInfo(filename).baseName()));
         modelViewer->setFilename(filename);
         if (! modelViewer->loadModel())
@@ -565,7 +565,7 @@ void LDVWidget::doPartList(
             if (!userDefinedSnapshot.isEmpty()) {
                 QString snapshot = QDir::toNativeSeparators(snapshotPath);
                 delete snapshotPath;
-                emit lpubAlert->messageSig(LOG_INFO, QString("Using user defined Snapshot image %1.").arg(userDefinedSnapshot));
+                emit lpubAlert->messageSig(LOG_INFO_STATUS, QString("Using user defined Snapshot image %1.").arg(userDefinedSnapshot));
 
                 if (htmlInventory->getOverwriteSnapshotFlag()){
                     QFile snapshotFile(snapshot);
@@ -585,7 +585,7 @@ void LDVWidget::doPartList(
                     return;
                 }
             } else {
-                emit lpubAlert->messageSig(LOG_INFO, QString("Generating Snapshot image..."));
+                emit lpubAlert->messageSig(LOG_INFO_STATUS, QString("Generating Snapshot image..."));
 
                 bool seams     = TCUserDefaults::boolForKey(SEAMS_KEY, false, false);
 
@@ -765,7 +765,7 @@ void LDVWidget::showDocument(QString &htmlFilename){
 #endif
           return;
         } else {
-          emit lpubAlert->messageSig(LOG_STATUS, QString("%1 HTML part list generation completed!")
+          emit lpubAlert->messageSig(LOG_INFO_STATUS, QString("%1 HTML part list generation completed!")
                                                          .arg(QFileInfo(htmlFilename).baseName()));
           return;
 
