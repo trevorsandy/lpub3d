@@ -603,7 +603,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 
     emit gui->progressBarPermInitSig();
     emit gui->progressPermRangeSig(1, stageContents.size());
-    emit gui->progressPermMessageSig("Processing model file" + fileInfo.fileName() + "...");
+    emit gui->progressPermMessageSig("Processing model file " + fileInfo.fileName() + "...");
     emit gui->messageSig(LOG_INFO, "Loading MPD model file " + fileInfo.fileName() + "...");
 
     for (int i = 0; i < stageContents.size(); i++) {

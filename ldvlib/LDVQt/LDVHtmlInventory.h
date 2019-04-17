@@ -150,6 +150,7 @@ protected:
 	mutable std::string m_snapshotPath;
 
 	static const char *sm_style;
+    static const char *sm_script;
 	static const char *sm_cssHeader;
 	static const char *sm_cssFilename;
 };

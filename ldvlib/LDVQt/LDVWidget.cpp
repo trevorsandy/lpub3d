@@ -115,6 +115,7 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
         saveImageFilename(nullptr),
         imageInputFilename(nullptr),
         partListKey(nullptr),
+        modelExt(nullptr),
         viewMode(LDInputHandler::VMExamine)
 {
   iniFiles[NativePOVIni]   = { iniFlagNames[NativePOVIni],   Preferences::nativeExportIni };
@@ -441,6 +442,14 @@ bool LDVWidget::setupPartList(void){
             else if (stringHasCaseInsensitivePrefix(arg, "-PartlistKey="))
             {
                 partListKey = (arg + 13);
+                std::string tempStr = partListKey;
+                size_t nDotSpot = tempStr.find_last_of('.');
+                if (nDotSpot < tempStr.size())
+                {
+                    size_t nInputSize = tempStr.size();
+                    modelExt = (nInputSize > 4) ? copyString(tempStr.substr(nInputSize - 4).c_str()) : ".ldr";
+                    partListKey = copyString(tempStr.substr(0, nDotSpot).c_str());
+                }
             }
         }
 
@@ -536,7 +545,14 @@ void LDVWidget::doPartList(
     LDPartsList *partsList,
     const char *filename)
 {
-    if (htmlInventory->generateHtml(filename, partsList, filename))
+    std::string modelFile = filename;
+    size_t nDotSpot = modelFile.find_last_of('.');
+    if (nDotSpot < modelFile.size())
+    {
+        modelFile = modelFile.substr(0, nDotSpot);
+        modelFile = modelFile.append(modelExt);
+    }
+    if (htmlInventory->generateHtml(filename, partsList, modelFile.c_str()))
     {
         if (htmlInventory->isSnapshotNeeded())
         {
