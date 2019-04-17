@@ -14,6 +14,7 @@
 #include "annotations.h"
 
 #include <QMessageBox>
+#include <QIcon>
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
@@ -1279,8 +1280,40 @@ const QString &Annotations::getBLElement(QString ldcolorid, QString ldpartid, in
     return returnString;
 }
 
+bool Annotations::overwriteFile(const QString &file)
+{
+    QFileInfo fileInfo(file);
+
+    if (!fileInfo.exists())
+        return true;
+
+    // Get the application icon as a pixmap
+    QPixmap _icon = QPixmap(":/icons/lpub96.png");
+    if (_icon.isNull())
+        _icon = QPixmap (":/icons/update.png");
+
+    QMessageBox box;
+    box.setWindowIcon(QIcon());
+    box.setIconPixmap (_icon);
+    box.setTextFormat (Qt::RichText);
+    box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    QString title = "<b>" + QMessageBox::tr ("Export %1").arg(fileInfo.fileName()) + "</b>";
+    QString text = QMessageBox::tr("\"%1\"<br>This file already exists.<br>Replace existing file?").arg(fileInfo.fileName());
+    box.setText (title);
+    box.setInformativeText (text);
+    box.setStandardButtons (QMessageBox::Cancel | QMessageBox::Yes);
+    box.setDefaultButton   (QMessageBox::Yes);
+
+    return (box.exec() == QMessageBox::Yes);
+}
+
 bool Annotations::exportAnnotationStyleFile(){
+
     QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,Preferences::validAnnotationStyleFile));
+
+    if (!overwriteFile(file.fileName()))
+        return true;
+
     if(file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         int counter = 1;
@@ -1347,6 +1380,10 @@ bool Annotations::exportAnnotationStyleFile(){
 
 bool Annotations::exportBLColorsFile(){
     QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,"/" VER_LPUB3D_BLCOLORS_FILE));
+
+    if (!overwriteFile(file.fileName()))
+        return true;
+
     if(file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         int counter = 1;
@@ -1398,6 +1435,10 @@ bool Annotations::exportBLColorsFile(){
 
 bool Annotations::exportLD2BLColorsXRefFile(){
     QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,"/" VER_LPUB3D_LD2BLCOLORSXREF_FILE));
+
+    if (!overwriteFile(file.fileName()))
+        return true;
+
     if(file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         int counter = 1;
@@ -1448,6 +1489,10 @@ bool Annotations::exportLD2BLColorsXRefFile(){
 
 bool Annotations::exportLD2BLCodesXRefFile(){
     QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,"/" VER_LPUB3D_LD2BLCODESXREF_FILE));
+
+    if (!overwriteFile(file.fileName()))
+        return true;
+
     if(file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         int counter = 1;

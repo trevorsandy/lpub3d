@@ -1,4 +1,4 @@
-/****************************************************************************
+﻿/****************************************************************************
 **
 ** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
@@ -40,6 +40,7 @@ class Annotations {
     static const QString &getStyleAnnotation(QString part);
     static bool exportAnnotationStyleFile();
     static void loadDefaultAnnotationStyles(QByteArray &Buffer);
+    static bool overwriteFile(const QString &file);
 
     static void loadBLColors(QByteArray &Buffer);
     static void loadLD2BLColorsXRef(QByteArray &Buffer);
