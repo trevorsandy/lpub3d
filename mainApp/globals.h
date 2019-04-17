@@ -152,6 +152,7 @@ private:
   PliAnnotationGui *childPliAnnotation;
   PliPartElementGui*childPliPartElement;
   NumberGui        *childTextFormat;
+  NumberMeta        styleMeta;
 
   QRadioButton     *squareStyle;
   QGroupBox        *squareBkGrndStyleBox;

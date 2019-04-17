@@ -256,7 +256,6 @@ GlobalPliDialog::GlobalPliDialog(
   widget->setLayout(vlayout);
 
   //Edit PLI Annotation Style Selection
-  NumberMeta styleMeta;
   annotationEditStyleBox = new QGroupBox("Edit Annotation Style");
   annotationEditStyleBox->setLayout(svlayout);
   annotationEditStyleBox->setEnabled(pliMeta->annotation.display.value());
