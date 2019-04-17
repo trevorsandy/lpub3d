@@ -25,7 +25,7 @@ LDVPartList::LDVPartList(LDVWidget *modelWidget, LDVHtmlInventory *htmlInventory
     if (m_modelWidget &&
             m_htmlInventory->getLookupSite() ==
             LDVHtmlInventory::LookUp::Bricklink)
-        emit m_modelWidget->loadBLElementsSig();
+        emit m_modelWidget->loadBLCodesSig();
 
     QValidator *validator = new QIntValidator(10, 5000, this);
     snapshotWidthEdit->setValidator(validator);

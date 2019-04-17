@@ -832,7 +832,7 @@ public slots:
 
   //**
 
-  void loadBLElements();
+  void loadBLCodes();
 
   void loadLastOpenedFile();
 

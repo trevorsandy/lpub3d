@@ -28,7 +28,7 @@ QList<QString>              Annotations::titleAnnotations;
 QHash<QString, QString>     Annotations::freeformAnnotations;
 QHash<QString, QStringList> Annotations::annotationStyles;
 
-QHash<QString, QStringList> Annotations::blElements;
+QHash<QString, QStringList> Annotations::blCodes;
 QHash<QString, QString>     Annotations::legoElements;
 QHash<QString, QString>     Annotations::blColors;
 QHash<QString, QString>     Annotations::ld2blColorsXRef;
@@ -999,15 +999,15 @@ Annotations::Annotations()
 // key : blitemid+blcolorid
 // val1: blitemid+"-"+blcolorid
 // val2: elementid
-bool Annotations::loadBLElements(){
-    if (blElements.size() == 0) {
-        QString blElementsFile = Preferences::blElementsFile;
+bool Annotations::loadBLCodes(){
+    if (blCodes.size() == 0) {
+        QString blCodesFile = Preferences::blCodesFile;
         QRegExp rx("^([^\\t]+)\\t+\\s*([^\\t]+)\\t+\\s*([^\\t]+).*$");
-        if (! blElementsFile.isEmpty()) {
-            QFile file(blElementsFile);
+        if (! blCodesFile.isEmpty()) {
+            QFile file(blCodesFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
                 QString message = QString("Failed to open BrickLink codes.txt file: %1:\n%2")
-                                          .arg(blElementsFile)
+                                          .arg(blCodesFile)
                                           .arg(file.errorString());
                 if (Preferences::modeGUI){
                     QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
@@ -1032,7 +1032,7 @@ bool Annotations::loadBLElements(){
             in.seek(0);
 
 // DEBUG -->>>
-//            QString fooFile = Preferences::blElementsFile+"demo.txt";
+//            QString fooFile = Preferences::blCodesFile+"demo.txt";
 //            QFile File(fooFile);
 //            if (!File.open(QIODevice::WriteOnly))
 //                return false;
@@ -1046,7 +1046,7 @@ bool Annotations::loadBLElements(){
                     QString blitemid = rx.cap(1);
                     QString blcolorid = getBLColorID(rx.cap(2));
                     QString elementid = rx.cap(3);
-                    blElements[QString(blitemid+blcolorid).toLower()] << QString(blitemid+"-"+blcolorid).toUpper() << elementid;
+                    blCodes[QString(blitemid+blcolorid).toLower()] << QString(blitemid+"-"+blcolorid).toUpper() << elementid;
 // DEBUG -->>>
 //                    Stream << QString("Key: %1 Value[0]: %2 Value[1]: %3")
 //                                      .arg(QString(blitemid+blcolorid).toLower())
@@ -1066,8 +1066,8 @@ bool Annotations::loadBLElements(){
     return true;
 }
 
-bool Annotations::loadBLElements(QByteArray &Buffer){
-    if (blElements.size() == 0) {
+bool Annotations::loadBLCodes(QByteArray &Buffer){
+    if (blCodes.size() == 0) {
         QRegExp rx("^([^\\t]+)\\t+\\s*([^\\t]+)\\t+\\s*([^\\t]+).*$");
         QTextStream instream(Buffer);
 
@@ -1094,12 +1094,12 @@ bool Annotations::loadBLElements(QByteArray &Buffer){
                 QString blitemid = rx.cap(1);
                 QString blcolorid = getBLColorID(rx.cap(2));
                 QString elementid = rx.cap(3);
-                blElements[QString(blitemid+blcolorid).toLower()] << QString(blitemid+"-"+blcolorid).toUpper() << elementid;
+                blCodes[QString(blitemid+blcolorid).toLower()] << QString(blitemid+"-"+blcolorid).toUpper() << elementid;
             }
         }
 
         //    write stream to file
-        QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_BLELEMENTS_FILE));
+        QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_BLCODES_FILE));
         if(file.open(QIODevice::WriteOnly | QIODevice::Text))
         {
             int counter = 1;
@@ -1258,21 +1258,21 @@ const QString &Annotations::getLEGOElement(QString elementkey)
 
 const QString &Annotations::getBLElement(QString ldcolorid, QString ldpartid, int which)
 {
-    loadBLElements();
+    loadBLCodes();
     QString blcolorid,elementkey;
     if (ld2blColorsXRef.contains(ldcolorid.toLower())) {
         blcolorid = ld2blColorsXRef[ldcolorid.toLower()];
     }
     if (!blcolorid.isEmpty()){
         elementkey = QString(ldpartid+blcolorid).toLower();
-        if (blElements.contains(elementkey)){
-            return blElements[elementkey][which];
+        if (blCodes.contains(elementkey)){
+            return blCodes[elementkey][which];
         }
         else
         if (ld2blCodesXRef.contains(ldpartid.toLower())) {
             elementkey = QString(ld2blCodesXRef[ldpartid.toLower()]+blcolorid).toLower();
-            if (blElements.contains(elementkey)) {
-                return blElements[elementkey][which];
+            if (blCodes.contains(elementkey)) {
+                return blCodes[elementkey][which];
             }
         }
     }

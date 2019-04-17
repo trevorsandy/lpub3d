@@ -145,7 +145,7 @@ class Preferences
     static QString excludedPartsFile;
     static QString ldrawColourPartsFile;
 
-    static QString blElementsFile;
+    static QString blCodesFile;
     static QString legoElementsFile;
     static QString blColorsFile;
     static QString ld2blColorsXRefFile;

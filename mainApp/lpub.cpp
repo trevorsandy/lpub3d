@@ -2497,13 +2497,13 @@ void Gui::initialize()
   readSettings();
 }
 
-void Gui::loadBLElements()
+void Gui::loadBLCodes()
 {
-   if (!Annotations::loadBLElements()){
-       QString URL(VER_LPUB3D_BLELEMENTS_DOWNLOAD_URL);
+   if (!Annotations::loadBLCodes()){
+       QString URL(VER_LPUB3D_BLCODES_DOWNLOAD_URL);
        downloadFile(URL, "BrickLink Elements");
        QByteArray Buffer = getDownloadedFile();
-       Annotations::loadBLElements(Buffer);
+       Annotations::loadBLCodes(Buffer);
    }
 }
 

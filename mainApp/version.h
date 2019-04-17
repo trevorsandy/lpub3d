@@ -124,11 +124,11 @@
 #define VER_FADE_PART_COLOURS_FILE          "fadePartColours.lst"
 
 #define VER_LPUB3D_BLCOLORS_FILE            "colors.txt"
-#define VER_LPUB3D_BLELEMENTS_FILE          "codes.txt"
+#define VER_LPUB3D_BLCODES_FILE             "codes.txt"
 #define VER_LPUB3D_LEGOELEMENTS_FILE        "legoelements.lst"
 #define VER_LPUB3D_LD2BLCOLORSXREF_FILE     "ld2blcolorsxref.lst"
 #define VER_LPUB3D_LD2BLCODESXREF_FILE      "ld2blcodesxref.lst"
-#define VER_LPUB3D_BLELEMENTS_DOWNLOAD_URL  "https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/codes.txt"
+#define VER_LPUB3D_BLCODES_DOWNLOAD_URL     "https://trevorsandy.github.io/lpub3d/assets/resources/codes.txt"
 #define VER_LPUB3D_ONLINE_MANUAL_URL        "https://sites.google.com/view/workingwithlpub3d/"
 
 // ~~~~~~ Build Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //

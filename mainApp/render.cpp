@@ -2098,7 +2098,7 @@ bool Render::doLDVCommand(const QStringList &args, int exportMode, int iniFlag){
                                              .arg(arguments.join(" ")));
     ldvWidget = new LDVWidget(nullptr,IniFlag(iniFlag),true);
     if (exportHTML)
-        gui->connect(ldvWidget, SIGNAL(loadBLElementsSig()), gui, SLOT(loadBLElements()));
+        gui->connect(ldvWidget, SIGNAL(loadBLCodesSig()), gui, SLOT(loadBLCodes()));
     if (! ldvWidget->doCommand(arguments))  {
         emit gui->messageSig(LOG_ERROR, QString("Failed to generate CSI %1 Export for command: %2")
                                                 .arg(exportModeName)
@@ -2112,7 +2112,7 @@ bool Render::doLDVCommand(const QStringList &args, int exportMode, int iniFlag){
         return false;
     }
     if (exportHTML)
-        gui->disconnect(ldvWidget, SIGNAL(loadBLElementsSig()), gui, SLOT(loadBLElements()));
+        gui->disconnect(ldvWidget, SIGNAL(loadBLCodesSig()), gui, SLOT(loadBLCodes()));
 
     return true;
 }

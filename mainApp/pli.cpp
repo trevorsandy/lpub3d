@@ -232,11 +232,11 @@ void Pli::setParts(
                   }
                   else
                   {
-                      if (!Annotations::loadBLElements()){
-                          QString URL(VER_LPUB3D_BLELEMENTS_DOWNLOAD_URL);
+                      if (!Annotations::loadBLCodes()){
+                          QString URL(VER_LPUB3D_BLCODES_DOWNLOAD_URL);
                           gui->downloadFile(URL, "BrickLink Elements");
                           QByteArray Buffer = gui->getDownloadedFile();
-                          Annotations::loadBLElements(Buffer);
+                          Annotations::loadBLCodes(Buffer);
                       }
                       element = Annotations::getBLElement(_colorid,_typeid,which);
                   }

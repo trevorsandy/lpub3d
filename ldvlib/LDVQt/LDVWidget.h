@@ -76,7 +76,7 @@ public:
   void showDocument(QString &htmlFilename);
 
 signals:
-  void loadBLElementsSig();
+  void loadBLCodesSig();
 
 protected:
   bool setIniFile(void);

@@ -1,4 +1,4 @@
-﻿/****************************************************************************
+/****************************************************************************
 **
 ** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
@@ -27,7 +27,7 @@ class Annotations {
     static QHash<QString, QString>     freeformAnnotations;
     static QHash<QString, QStringList> annotationStyles;
 
-    static QHash<QString, QStringList> blElements;
+    static QHash<QString, QStringList> blCodes;
     static QHash<QString, QString>     legoElements;
     static QHash<QString, QString>     blColors;
     static QHash<QString, QString>     ld2blColorsXRef;
@@ -45,8 +45,8 @@ class Annotations {
     static void loadLD2BLColorsXRef(QByteArray &Buffer);
     static void loadLD2BLCodesXRef(QByteArray &Buffer);
 
-    static bool loadBLElements();
-    static bool loadBLElements(QByteArray &Buffer);
+    static bool loadBLCodes();
+    static bool loadBLCodes(QByteArray &Buffer);
     static bool loadLEGOElements();
 
     static const QString &getBLColorID(QString blcolorname);

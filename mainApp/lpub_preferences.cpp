@@ -132,7 +132,7 @@ QString Preferences::fadeStepsColourKey         = LEGO_FADE_COLOUR_KEY;
 QString Preferences::ldrawSearchDirsKey         = LEGO_SEARCH_DIR_KEY;
 QString Preferences::ldrawLibPathKey            = LEGO_LDRAW_LIB_PATH_KEY;
 
-QString Preferences::blElementsFile             = VER_LPUB3D_BLELEMENTS_FILE;
+QString Preferences::blCodesFile             = VER_LPUB3D_BLCODES_FILE;
 QString Preferences::legoElementsFile           = VER_LPUB3D_LEGOELEMENTS_FILE;
 QString Preferences::blColorsFile               = VER_LPUB3D_BLCOLORS_FILE;
 QString Preferences::ld2blColorsXRefFile        = VER_LPUB3D_LD2BLCOLORSXREF_FILE;
@@ -2793,7 +2793,7 @@ void Preferences::annotationPreferences()
     freeformAnnotationsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"FreeFormAnnotationsFile")).toString();
     annotationStyleFile     = Settings.value(QString("%1/%2").arg(SETTINGS,"AnnotationStyleFile")).toString();
 
-    blElementsFile          = Settings.value(QString("%1/%2").arg(SETTINGS,"BLElementsFile")).toString();
+    blCodesFile          = Settings.value(QString("%1/%2").arg(SETTINGS,"BLCodesFile")).toString();
     legoElementsFile        = Settings.value(QString("%1/%2").arg(SETTINGS,"LEGOElementsFile")).toString();
     blColorsFile            = Settings.value(QString("%1/%2").arg(SETTINGS,"BLColorsFile")).toString();
     ld2blColorsXRefFile     = Settings.value(QString("%1/%2").arg(SETTINGS,"LD2BLColorsXRefFile")).toString();
@@ -2817,9 +2817,9 @@ void Preferences::annotationPreferences()
         annoOk[2] = false;
     }
 
-    annoInfo.setFile(blElementsFile);
+    annoInfo.setFile(blCodesFile);
     if (! annoInfo.exists()) {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,"BLElementsFile"));
+        Settings.remove(QString("%1/%2").arg(SETTINGS,"BLCodesFile"));
         annoOk[3] = false;
     }
 
@@ -2852,12 +2852,12 @@ void Preferences::annotationPreferences()
         return;
 
     if (! annoOk[3]) {
-        blElementsFile = QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_BLELEMENTS_FILE);
-        annoInfo.setFile(blElementsFile);
+        blCodesFile = QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_BLCODES_FILE);
+        annoInfo.setFile(blCodesFile);
         if (annoInfo.exists()) {
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"BLElementsFile"),blElementsFile);
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"BLCodesFile"),blCodesFile);
         } else {
-            blElementsFile = QString();
+            blCodesFile = QString();
         }
         annoOk[3] = true;
     }
