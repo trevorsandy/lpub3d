@@ -2700,6 +2700,7 @@ FadeStepMeta::FadeStepMeta() : BranchMeta()
   fadeStep.setValue(Preferences::enableFadeSteps);                   // inherited from properties
   fadeColor.setValue(Preferences::validFadeStepsColour);             // inherited from properties
   fadeUseColor.setValue(Preferences::fadeStepsUseColour);            // inherited from properties
+  fadeOpacity.setRange(0,100);
   fadeOpacity.setValue(Preferences::fadeStepsOpacity);               // inherited from properties
 }
 
@@ -2720,6 +2721,7 @@ HighlightStepMeta::HighlightStepMeta() : BranchMeta()
 {
   highlightStep.setValue(Preferences::enableHighlightStep);         // inherited from properties
   highlightColor.setValue(Preferences::highlightStepColour);        // inherited from properties
+  highlightLineWidth.setRange(0,10);
   highlightLineWidth.setValue(Preferences::highlightStepLineWidth); // inherited from properties
 }
 
