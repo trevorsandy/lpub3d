@@ -606,6 +606,7 @@ int Gui::addGraphicsPageItems(
 
                   // center the csi's bounding box relative to the page
                   // if there is no offset, otherwise place as is
+
                   PlacementData csiPlacementData = step->csiPlacement.placement.value();
                   if (csiPlacementData.offsets[XX] == 0.0f && csiPlacementData.offsets[YY] == 0.0f) {
                       plPage.placeRelativeBounding(step->csiItem);
@@ -640,46 +641,62 @@ int Gui::addGraphicsPageItems(
                       pageNumber->placeRelative(&step->pli);
                   }
 
-                  // optional PLI placement if step number not displayed
+                  // optional if no step number
 
                   if (step->onlyChild()) {
+
+                      // Submodel and Pli placement
                       if (step->placeSubModel &&
-                          step->pli.placement.value().relativeTo == StepNumberType &&
                           step->subModel.placement.value().relativeTo == StepNumberType) {
 
                           step->subModel.placement.setValue(BottomLeftOutside,PageHeaderType);
                           pageHeader->appendRelativeTo(&step->subModel);
                           pageHeader->placeRelative(&step->subModel);
 
-                          step->pli.placement.setValue(BottomLeftOutside,SubModelType);
-                          step->subModel.appendRelativeTo(&step->pli);
-                          step->subModel.placeRelative(&step->pli);
-                      } else {
+//                          step->subModel.placement.setValue(LeftTopOutside,CsiType);
+//                          step->csiItem->appendRelativeTo(&step->subModel);
+//                          step->csiItem->placeRelative(&step->subModel);
 
+                          if (step->pli.placement.value().relativeTo == StepNumberType) {
+                              step->pli.placement.setValue(BottomLeftOutside,SubModelType);
+                              step->subModel.appendRelativeTo(&step->pli);
+                              step->subModel.placeRelative(&step->pli);
+                          }
+                      }
+                      // Pli placement
+                      else {
                           step->pli.placement.setValue(BottomLeftOutside,PageHeaderType);
                           pageHeader->appendRelativeTo(&step->pli);
                           pageHeader->placeRelative(&step->pli);
+
+//                          step->pli.placement.setValue(LeftTopOutside,CsiType);
+//                          step->csiItem->appendRelativeTo(&step->pli);
+//                          step->csiItem->placeRelative(&step->pli);
                       }
                   }
 
-                  // optional PLI placement if step number displayed
+                  // optional if step number
 
-                  if (!step->onlyChild()){
+                  else {
+                      // Submodel and Pli placement
                       if (step->placeSubModel &&
-                          step->pli.placement.value().relativeTo == StepNumberType &&
                           step->subModel.placement.value().relativeTo == StepNumberType) {
 
-                          step->pli.placement.setValue(BottomLeftOutside,SubModelType);
-                          step->subModel.appendRelativeTo(&step->pli);
-                          step->subModel.placeRelative(&step->pli);
+                          if (step->pli.placement.value().relativeTo == StepNumberType) {
+                              step->pli.placement.setValue(BottomLeftOutside,SubModelType);
+                              step->subModel.appendRelativeTo(&step->pli);
+                              step->subModel.placeRelative(&step->pli);
+                          }
                       }
                   }
 
                   // place the CSI relative to the entire step's box
+
                   step->csiItem->setPos(step->csiItem->loc[XX],
                                         step->csiItem->loc[YY]);
 
-//------------------// place CSI annotations // ----------------------------------------//
+                  // place CSI annotations //
+
                   if (step->csiItem->assem->annotation.display.value() &&
                       ! gui->exportingObjects())
                       step->csiItem->placeCsiPartAnnotations();

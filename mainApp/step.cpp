@@ -912,6 +912,13 @@ int Step::sizeit(
       subModelPlacement.relativeTo = StepNumberType;
     }
 
+  // if SubModel relative to Step Number, but no Step Number,
+  //    SubModel is relative to CSI
+
+  if (subModelPlacement.relativeTo == StepNumberType && onlyChild()) {
+      subModelPlacement.relativeTo = CsiType;
+    }
+
   if (placeSubModel){
     if (subModelPlacement.relativeTo == CsiType) {
         if (subModelPlacement.preposition == Outside) {
