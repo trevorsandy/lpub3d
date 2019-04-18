@@ -110,6 +110,7 @@ class PreferencesDialog : public QDialog
     int           pageDisplayPause();
     int           fadeStepsOpacity();
     int           highlightStepLineWidth();
+    bool          highlightFirstStep();
 
   public slots:
     void accept();

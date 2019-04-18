@@ -3126,10 +3126,11 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
   QStringList configuredCsiParts, stepColourList;
   bool doFadeStep  = page.meta.LPub.fadeStep.fadeStep.value();
   bool doHighlightStep = page.meta.LPub.highlightStep.highlightStep.value() && !suppressColourMeta();
+  bool doHighlightFirstStep = Preferences::highlightFirstStep;
   bool FadeMetaAdded = false;
   bool SilhouetteMetaAdded = false;
 
-  if (csiParts.size() > 0 && stepNum > 1) {
+  if (csiParts.size() > 0 && (doHighlightFirstStep ? true : stepNum > 1)) {
 
       QString fadeColour  = LDrawColor::ldColorCode(page.meta.LPub.fadeStep.fadeColor.value());
 
@@ -3187,7 +3188,7 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
           }
 
           // write fade step entries
-          if (doFadeStep && (updatePosition <= prevStepPosition)) {
+          if ((doHighlightFirstStep ? stepNum > 1 : true) && doFadeStep && (updatePosition <= prevStepPosition)) {
               if (type_1_5_line) {
                   // Insert opening fade meta
                   if (!FadeMetaAdded && Preferences::enableFadeSteps){
@@ -3274,6 +3275,7 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
                  configuredCsiParts.append(QString("0 !FADE"));
               }
           }
+
           // Insert closing silhouette meta
           if (index+1 == csiParts.size()){
               if (SilhouetteMetaAdded){

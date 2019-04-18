@@ -191,6 +191,7 @@ class Preferences
     static bool    enableImageMatting;
     static bool    enableHighlightStep;
     static int     highlightStepLineWidth;
+    static bool    highlightFirstStep;
     static int     cameraDistFactorNative;
     static bool    perspectiveProjection;
 

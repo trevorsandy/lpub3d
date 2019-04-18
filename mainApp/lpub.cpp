@@ -1930,6 +1930,7 @@ void Gui::preferences()
     bool enableImageMattingCompare      = Preferences::enableImageMatting;
     bool applyCALocallyCompare          = Preferences::applyCALocally;
     int  highlightStepLineWidthCompare  = Preferences::highlightStepLineWidth;
+    bool highlightFirstStepCompare      = Preferences::highlightFirstStep;
     bool doNotShowPageProcessDlgCompare = Preferences::doNotShowPageProcessDlg;
     int  pageDisplayPauseCompare        = Preferences::pageDisplayPause;
     bool addLSynthSearchDirCompare      = Preferences::addLSynthSearchDir;
@@ -1976,6 +1977,7 @@ void Gui::preferences()
         bool enableHighlightStepChanged    = Preferences::enableHighlightStep                    != enableHighlightStepCompare;
         bool highlightStepColorChanged     = QString(Preferences::highlightStepColour).toLower() != highlightStepColourCompare.toLower();
         bool highlightStepLineWidthChanged = Preferences::highlightStepLineWidth                 != highlightStepLineWidthCompare;
+        bool highlightFirstStepChanged     = Preferences::highlightFirstStep                     != highlightFirstStepCompare;
         bool enableImageMattingChanged     = Preferences::enableImageMatting                     != enableImageMattingCompare;
         bool perspectiveProjectionChanged  = Preferences::perspectiveProjection                  != perspectiveProjectionCompare;
         bool applyCALocallyChanged         = Preferences::applyCALocally                         != applyCALocallyCompare;
@@ -2043,6 +2045,9 @@ void Gui::preferences()
 
         if (enableHighlightStepChanged)
             emit messageSig(LOG_INFO,QString("Highlight Current Step is %1.").arg(Preferences::enableHighlightStep ? "ON" : "OFF"));
+
+        if (highlightFirstStepChanged     )
+                    emit messageSig(LOG_INFO,QString("Highlight First Step is %1").arg(Preferences::highlightFirstStep ? "ON" : "OFF"));
 
         if (loadLastOpenedFileChanged)
                     emit messageSig(LOG_INFO,QString("Load Last Opened File is %1").arg(Preferences::loadLastOpenedFile ? "ON" : "OFF"));
@@ -2165,6 +2170,7 @@ void Gui::preferences()
                 enableHighlightStepChanged    ||
                 highlightStepColorChanged     ||
                 highlightStepLineWidthChanged ||
+                highlightFirstStepChanged     ||
                 rendererChanged               ||
                 enableLDViewSCallChanged      ||
                 enableLDViewSListChanged      ||

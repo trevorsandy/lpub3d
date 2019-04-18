@@ -161,6 +161,9 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.highlightStepBox->setChecked(               Preferences::enableHighlightStep);
   ui.highlightStepBtn->setEnabled(               Preferences::enableHighlightStep);
   ui.highlightStepLabel->setEnabled(             Preferences::enableHighlightStep);
+
+  ui.highlightFirstStepBox->setChecked(          Preferences::highlightFirstStep);
+
   // Only enabled for LDGLite
   if (Preferences::preferredRenderer == RENDERER_LDGLITE)
     ui.highlightStepLineWidthSpin->setEnabled(   Preferences::enableHighlightStep);
@@ -843,6 +846,11 @@ int PreferencesDialog::fadeStepsOpacity()
 int PreferencesDialog::highlightStepLineWidth()
 {
   return ui.highlightStepLineWidthSpin->value();
+}
+
+bool PreferencesDialog::highlightFirstStep()
+{
+       return ui.highlightFirstStepBox->isChecked();
 }
 
 bool PreferencesDialog::enableImageMatting()

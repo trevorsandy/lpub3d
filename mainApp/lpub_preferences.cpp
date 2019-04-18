@@ -205,6 +205,7 @@ bool    Preferences::pageRuler                  = false;
 bool    Preferences::pageGuides                 = false;
 bool    Preferences::showParseErrors            = true;
 bool    Preferences::suppressStdOutToLog        = false;
+bool    Preferences::highlightFirstStep         = false;
 
 #ifdef Q_OS_MAC
 bool    Preferences::missingRendererLibs        = false;
@@ -3022,6 +3023,14 @@ void Preferences::highlightstepPreferences()
     } else {
         highlightStepLineWidth = Settings.value(QString("%1/%2").arg(SETTINGS,"HighlightStepLineWidth")).toInt();
     }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"HighlightFirstStep"))) {
+        QVariant uValue(false);
+        highlightFirstStep = false;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"HighlightFirstStep"),uValue);
+    } else {
+        highlightFirstStep = Settings.value(QString("%1/%2").arg(SETTINGS,"HighlightFirstStep")).toBool();
+    }
 }
 
 void Preferences::exportPreferences()
@@ -3413,6 +3422,12 @@ bool Preferences::getPreferences()
         {
             highlightStepLineWidth = dialog->highlightStepLineWidth();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"HighlightStepLineWidth"),highlightStepLineWidth);
+        }
+
+        if (highlightFirstStep != dialog->highlightFirstStep())
+        {
+            highlightFirstStep = dialog->highlightFirstStep();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"HighlightFirstStep"),highlightFirstStep);
         }
 
         if (enableImageMatting != dialog->enableImageMatting())
