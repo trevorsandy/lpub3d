@@ -297,9 +297,17 @@ bool EditWindow::maybeSave()
 bool EditWindow::saveFile()
 {
     bool rc = false;
+    bool disableWatcher = true;
+
     // check for dirty editor
     if (_textEdit->document()->isModified())
     {
+        QAction *action = qobject_cast<QAction *>(sender());
+        if (action == saveAct)
+            disableWatcher = false;
+        else
+            emit disableWatcherSig();
+
         QFile file(fileName);
         if (! file.open(QFile::WriteOnly | QFile::Text)) {
             QMessageBox::warning(nullptr,
@@ -324,6 +332,9 @@ bool EditWindow::saveFile()
             _textEdit->document()->setModified(false);
             statusBar()->showMessage(tr("File %1 saved").arg(fileName), 2000);
         }
+
+        if (disableWatcher)
+            emit enableWatcherSig();
 
         if (showAllCharsAct->isChecked()) {
             _textEdit->showAllCharacters(true);
@@ -495,13 +506,15 @@ void EditWindow::displayFile(
 
 void EditWindow::redraw()
 {
-  saveFile();
+  if (modelFileEdit())
+      saveFile();
   redrawSig();
 }
 
 void EditWindow::update()
 {
-  saveFile();
+  if (modelFileEdit())
+      saveFile();
   updateSig();
 }
 
@@ -536,6 +549,9 @@ void EditWindow::writeSettings()
 
 void EditWindow::closeEvent(QCloseEvent *event)
 {
+    if (!modelFileEdit())
+        return;
+
     writeSettings();
 
     mpdCombo->setMaxCount(0);

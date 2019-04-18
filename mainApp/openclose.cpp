@@ -147,56 +147,59 @@ bool Gui::loadFile(const QString &file)
     return false;
 }
 
-void Gui::save()
+void Gui::enableWatcher()
 {
 #ifdef WATCHER
-  if (isMpd()) {
-    watcher.removePath(curFile);
-  } else {
-    QStringList list = ldrawFile.subFileOrder();
-    QString foo;
-    foreach (foo,list) {
-      QString bar = QDir::currentPath() + "/" + foo;
-      watcher.removePath(bar);
+    if (curFile != "") {
+      if (isMpd()) {
+        watcher.addPath(curFile);
+      } else {
+        QStringList list = ldrawFile.subFileOrder();
+        QString foo;
+        foreach (foo,list) {
+          QString bar = QDir::currentPath() + "/" + foo;
+          watcher.addPath(bar);
+        }
+      }
     }
-  }
 #endif
+}
+
+void Gui::disableWatcher()
+{
+#ifdef WATCHER
+    if (curFile != "") {
+      if (isMpd()) {
+        watcher.removePath(curFile);
+      } else {
+        QStringList list = ldrawFile.subFileOrder();
+        QString foo;
+        foreach (foo,list) {
+          QString bar = QDir::currentPath() + "/" + foo;
+          watcher.removePath(bar);
+        }
+      }
+    }
+#endif
+}
+
+void Gui::save()
+{
+  disableWatcher();
+
   if (curFile.isEmpty()) {
     saveAs();
   } else {
     saveFile(curFile);
   }
 
-#ifdef WATCHER
-  if (isMpd()) {
-    watcher.addPath(curFile);
-  } else {
-    QStringList list = ldrawFile.subFileOrder();
-    QString foo;
-    foreach (foo,list) {
-      QString bar = QDir::currentPath() + "/" + foo;
-      watcher.addPath(bar);
-    }
-  }
-#endif
+ enableWatcher();
 }
 
 void Gui::saveAs()
 {
-#ifdef WATCHER
-  if (curFile != "") {
-    if (isMpd()) {
-      watcher.removePath(curFile);
-    } else {
-      QStringList list = ldrawFile.subFileOrder();
-      QString foo; 
-      foreach (foo,list) {
-        QString bar = QDir::currentPath() + "/" + foo;
-        watcher.removePath(bar);
-      }
-    }
-  }
-#endif
+  disableWatcher();
+
   QString fileName = QFileDialog::getSaveFileName(this,tr("Save As"),curFile,tr("LDraw (*.mpd *.ldr *.dat)"));
   if (fileName.isEmpty()) {
     return;
@@ -221,20 +224,7 @@ void Gui::saveAs()
                                 .arg(suffix));
 
   }
-#ifdef WATCHER
-  if (curFile != "") {
-    if (isMpd()) {
-      watcher.addPath(curFile);
-    } else {
-      QStringList list = ldrawFile.subFileOrder();
-      QString foo;
-      foreach (foo,list) {
-        QString bar = QDir::currentPath() + "/" + foo;
-        watcher.addPath(bar);
-      }
-    }
-  }
-#endif
+  enableWatcher();
 } 
 
 bool Gui::maybeSave(bool prompt)
@@ -292,20 +282,8 @@ void Gui::closeFile()
 }
 
 void Gui::closeModelFile(){
-#ifdef WATCHER
-  if (curFile != "") {
-    if (isMpd()) {
-      watcher.removePath(curFile);
-    } else {
-      QStringList list = ldrawFile.subFileOrder();
-      QString foo;
-      foreach (foo,list) {
-        QString bar = QDir::currentPath() + "/" + foo;
-        watcher.removePath(bar);
-      }
-    }
-  }
-#endif
+  disableWatcher();
+
   QString topModel = ldrawFile.topLevelFile();
   //3D Viewer
   emit clearViewerWindowSig();
@@ -331,20 +309,7 @@ void Gui::closeModelFile(){
 void Gui::openFile(QString &fileName)
 {
 
-#ifdef WATCHER
-  if (curFile != "") {
-    if (isMpd()) {
-      watcher.removePath(curFile);
-    } else { 
-      QStringList list = ldrawFile.subFileOrder();
-      QString foo;
-      foreach (foo,list) {
-        QString bar = QDir::currentPath() + "/" + foo;
-        watcher.removePath(bar);
-      }
-    }
-  }
-#endif
+  disableWatcher();
 
   clearPage(KpageView,KpageScene);
   closeFile();
@@ -379,18 +344,8 @@ void Gui::openFile(QString &fileName)
   insertFinalModel();    //insert final fully coloured model if fadeStep turned on
   generateCoverPages();  //auto-generate cover page
 
-#ifdef WATCHER
-  if (isMpd()) {
-    watcher.addPath(curFile);
-  } else {
-    QStringList list = ldrawFile.subFileOrder();
-    QString foo;
-    foreach (foo,list) {
-      QString bar = QDir::currentPath() + "/" + foo;
-      watcher.addPath(bar);
-    }
-  }
-#endif
+  enableWatcher();
+
   defaultResolutionType(Preferences::preferCentimeters);
   emit messageSig(LOG_DEBUG, QString("File opened - %1.").arg(fileName));
 }

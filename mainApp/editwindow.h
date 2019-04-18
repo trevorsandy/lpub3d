@@ -104,6 +104,8 @@ signals:
     void contentsChange(const QString &, int position, int charsRemoved, const QString &charsAdded);
     void redrawSig();
     void updateSig();
+    void enableWatcherSig();
+    void disableWatcherSig();
 
 private slots:
     void contentsChange(int position, int charsRemoved, int charsAdded);

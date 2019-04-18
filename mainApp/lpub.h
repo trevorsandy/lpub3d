@@ -1315,6 +1315,8 @@ private slots:
     void closeFile();
     void updateRecentFileActions();
     void closeModelFile();
+    void enableWatcher();
+    void disableWatcher();
 
 private:
   /* Initialization stuff */

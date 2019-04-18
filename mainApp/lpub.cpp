@@ -1259,9 +1259,6 @@ void Gui::reloadCurrentModelFile(){
         if (!maybeSave())
             return;
 
-    bool saveChange = changeAccepted;
-    changeAccepted = true;
-
     timer.start();
 
     int savePage = displayPageNum;
@@ -1273,7 +1270,6 @@ void Gui::reloadCurrentModelFile(){
     emit messageSig(LOG_STATUS, QString("Model file reloaded (%1 parts). %2")
                     .arg(ldrawFile.getPartCount())
                     .arg(elapsedTime(timer.elapsed())));
-    changeAccepted = saveChange;
 }
 
 void Gui::resetModelCache(QString file)
