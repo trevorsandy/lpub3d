@@ -989,31 +989,36 @@ private:
   SubModelMeta *meta;
 
   QCheckBox    *showSubmodelsBox;
-  QCheckBox    *showTopModelBox;
-  QCheckBox    *showSubmodelInCalloutBox;
-
   QCheckBox    *showSubmodelsDefaultBox;
   QCheckBox    *showSubmodelsMetaBox;
 
-
+  QCheckBox    *showTopModelBox;
   QCheckBox    *showTopModelDefaultBox;
   QCheckBox    *showTopModelMetaBox;
 
+  QCheckBox    *showSubmodelInCalloutBox;
   QCheckBox    *showSubmodelInCalloutDefaultBox;
   QCheckBox    *showSubmodelInCalloutMetaBox;
+
+  QCheckBox    *showInstanceCountBox;
+  QCheckBox    *showInstanceCountDefaultBox;
+  QCheckBox    *showInstanceCountMetaBox;
 
   bool          showSubmodelsModified;
   bool          showTopModelModified;
   bool          showSubmodelInCalloutModified;
+  bool          showInstanceCountModified;
 
   bool          showSubmodelsDefaultSettings;
   bool          showTopModelDefaultSettings;
   bool          showSubmodelInCalloutDefaultSettings;
+  bool          showInstanceCountDefaultSettings;
 
 public slots:
   void showSubmodelsChange(bool checked);
   void showTopModelChange(bool checked);
   void showSubmodelInCalloutChange(bool checked);
+  void showInstanceCountChange(bool checked);
 };
 
 /***********************************************************************

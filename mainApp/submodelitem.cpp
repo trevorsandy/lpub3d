@@ -306,9 +306,9 @@ int SubModel::generateSubModelItem()
         part->width  = image.width();
 
         /* Add instance count area if instance count > 1 */
-        int textWidth, textHeight;
+        int textWidth = 0, textHeight = 0;
 
-        bool includeInstance = part->instanceMeta.number > 1;
+        bool includeInstance = subModelMeta.showInstanceCount.value() && part->instanceMeta.number > 1;
         if (includeInstance) {
 
             QString descr;

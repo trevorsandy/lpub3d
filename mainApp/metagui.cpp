@@ -3206,9 +3206,32 @@ ShowSubModelGui::ShowSubModelGui(
     showSubmodelInCalloutMetaBox->setChecked(!showSubmodelInCalloutDefaultSettings);
     grid->addWidget(showSubmodelInCalloutMetaBox,7,1);
 
+    line = new QFrame();
+    line->setFrameShape(QFrame::HLine);
+    grid->addWidget(line,8,0,1,2);
+
+    showInstanceCountBox = new QCheckBox("Show submodel instance count",parent);
+    showInstanceCountBox->setToolTip("Show Submodel instance count");
+    showInstanceCountBox->setChecked(meta->showInstanceCount.value());
+    connect(showInstanceCountBox,SIGNAL(clicked(bool)),
+            this,                SLOT(showInstanceCountChange(bool)));
+    grid->addWidget(showInstanceCountBox,9,0,1,2);
+
+    showInstanceCountDefaultSettings = Settings.contains(QString("%1/%2").arg(SETTINGS,"ShowInstanceCount"));
+    showInstanceCountDefaultBox = new QCheckBox("Set as default",parent);
+    showInstanceCountDefaultBox->setToolTip("Save show submodel instance count to application settings.");
+    showInstanceCountDefaultBox->setChecked(showInstanceCountDefaultSettings);
+    grid->addWidget(showInstanceCountDefaultBox,10,0);
+
+    showInstanceCountMetaBox = new QCheckBox("Add meta command",parent);
+    showInstanceCountMetaBox->setToolTip("Add show submodel instance count as a global meta command to the LDraw file.");
+    showInstanceCountMetaBox->setChecked(!showInstanceCountDefaultSettings);
+    grid->addWidget(showInstanceCountMetaBox,10,1);
+
     showSubmodelsModified         = false;
     showTopModelModified          = false;
     showSubmodelInCalloutModified = false;
+    showInstanceCountModified     = false;
 }
 
 void ShowSubModelGui::showSubmodelsChange(bool checked)
@@ -3232,6 +3255,14 @@ void ShowSubModelGui::showSubmodelInCalloutChange(bool checked)
     if (meta->showSubmodelInCallout.value() != checked) {
         meta->showSubmodelInCallout.setValue(checked);
         modified = showSubmodelInCalloutModified = true;
+    }
+}
+
+void ShowSubModelGui::showInstanceCountChange(bool checked)
+{
+    if (meta->showInstanceCount.value() != checked) {
+        meta->showInstanceCount.setValue(checked);
+        modified = showInstanceCountModified = true;
     }
 }
 
@@ -3302,6 +3333,28 @@ void ShowSubModelGui::apply(QString &topLevelFile)
             MetaItem mi;
             mi.beginMacro("ShowSubmodelInCallout");
             mi.setGlobalMeta(topLevelFile,&meta->showSubmodelInCallout);
+            mi.endMacro();
+        }
+    }
+    if (showInstanceCountModified) {
+        changeMessage = QString("Show submodel instance count is %1")
+                                .arg(meta->showInstanceCount.value() ? "ON" : "OFF");
+        emit gui->messageSig(LOG_INFO, changeMessage);
+        if (showInstanceCountDefaultBox->isChecked()){
+            changeMessage = QString("Show submodel instance count added as application default.");
+            emit gui->messageSig(LOG_INFO, changeMessage);
+            Preferences::showInstanceCount = meta->showInstanceCount.value();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowInstanceCount"),meta->showInstanceCount.value());
+        }
+        else
+        if (showInstanceCountDefaultSettings) {
+            Settings.remove(QString("%1/%2").arg(SETTINGS,"ShowInstanceCount"));
+        }
+
+        if (showInstanceCountMetaBox->isChecked()){
+            MetaItem mi;
+            mi.beginMacro("ShowInstanceCount");
+            mi.setGlobalMeta(topLevelFile,&meta->showInstanceCount);
             mi.endMacro();
         }
     }

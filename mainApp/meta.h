@@ -2737,11 +2737,13 @@ class SubModelMeta  : public PliMeta
 {
 public:
   BoolMeta   showStep;
+  BoolMeta   showInstanceCount;
   void setPreferences()
   {
       Preferences::showSubmodels         = show.value();
       Preferences::showTopModel          = showTopModel.value();
       Preferences::showSubmodelInCallout = showSubmodelInCallout.value();
+      Preferences::showInstanceCount     = showInstanceCount.value();
   }
   SubModelMeta();
   SubModelMeta(const SubModelMeta &rhs) : PliMeta(rhs)

@@ -173,6 +173,7 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   data->clearCache = (data->clearCache ? data->clearCache : child->modified);
 
   box = new QGroupBox("Submodel Count");
+  box->setEnabled(subModelMeta->showInstanceCount.value());
   grid->addWidget(box);
   child = new NumberGui(&subModelMeta->instance,box);
   data->children.append(child);

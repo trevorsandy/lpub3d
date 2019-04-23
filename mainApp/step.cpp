@@ -242,8 +242,8 @@ int Step::createCsi(
       .arg(resolutionType() == DPI ? "DPI" : "DPCM")
       .arg(double(modelScale))
       .arg(double(meta.LPub.assem.cameraFoV.value()))
-      .arg(absRotstep ? double(noCA.value(0.0)) : double(meta.LPub.assem.cameraAngles.value(0)))
-      .arg(absRotstep ? double(noCA.value(1.0)) : double(meta.LPub.assem.cameraAngles.value(1)));
+      .arg(absRotstep ? double(noCA.value(0)) : double(meta.LPub.assem.cameraAngles.value(0)))
+      .arg(absRotstep ? double(noCA.value(1)) : double(meta.LPub.assem.cameraAngles.value(1)));
   QString key = QString("%1_%2").arg(keyPart1).arg(keyPart2);
 
   // append rotstep to be passed on to 3DViewer
@@ -394,8 +394,8 @@ int Step::createCsi(
                                       .arg(resolutionType() == DPI ? "DPI" : "DPCM")
                                       .arg(double(modelScale))
                                       .arg(double(pliMetaCameraFoV.value()))
-                                      .arg(absRotstep ? double(noCA.value(0.0)) : double(pliMetaCameraAngles.value(0)))
-                                      .arg(absRotstep ? double(noCA.value(1.0)) : double(pliMetaCameraAngles.value(1)))
+                                      .arg(absRotstep ? double(noCA.value(0)) : double(pliMetaCameraAngles.value(0)))
+                                      .arg(absRotstep ? double(noCA.value(1)) : double(pliMetaCameraAngles.value(1)))
                                       .arg(suffix ? QFileInfo(gui->getCurFile()).suffix() : "ldr");
          pixmap->load(":/resources/save.png");  // just a placeholder
          csiPlacement.size[0] = 32;

@@ -3097,6 +3097,7 @@ SubModelMeta::SubModelMeta() : PliMeta()
   show.setValue(Preferences::showSubmodels);
   showTopModel.setValue(Preferences::showTopModel);
   showSubmodelInCallout.setValue(Preferences::showSubmodelInCallout);
+  showInstanceCount.setValue(Preferences::showInstanceCount);
   ldgliteParms.setValue("-l3");
   ldviewParms.setValue("");
   povrayParms.setValue("+A");
@@ -3129,30 +3130,31 @@ SubModelMeta::SubModelMeta() : PliMeta()
 void SubModelMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  showStep        .init(this,"SHOW_STEP");
-  placement       .init(this,"PLACEMENT");
-  constrain       .init(this,"CONSTRAIN");
-  border          .init(this,"BORDER");
-  background      .init(this,"BACKGROUND");
-  margin          .init(this,"MARGINS");
-  instance        .init(this,"INSTANCE_COUNT");
-  includeSubs     .init(this,"INCLUDE_SUBMODELS");
-  modelScale      .init(this,"MODEL_SCALE");
-  show            .init(this,"SHOW");
-  showTopModel    .init(this,"SHOW_TOP_MODEL");
-  showSubmodelInCallout   .init(this,"SHOW_SUBMODEL_IN_CALLOUT");
-  ldviewParms     .init(this,"LDVIEW_PARMS");
-  ldgliteParms    .init(this,"LDGLITE_PARMS");
-  povrayParms     .init(this,"POVRAY_PARMS");
-  subModelColor   .init(this,"SUBMODEL_BACKGROUND_COLOR");
-  part            .init(this,"PART");
-  rotStep         .init(this,"SUBMODEL_ROTATION");
-  cameraDistNative.init(this,"CAMERA_DISTANCE_NATIVE");
-  cameraFoV       .init(this,"CAMERA_FOV");
-  cameraAngles    .init(this,"CAMERA_ANGLES");
-  distance        .init(this,"CAMERA_DISTANCE");
-  znear           .init(this,"CAMERA_ZNEAR");
-  zfar            .init(this,"CAMERA_ZFAR");
+  showStep             .init(this,"SHOW_STEP");
+  placement            .init(this,"PLACEMENT");
+  constrain            .init(this,"CONSTRAIN");
+  border               .init(this,"BORDER");
+  background           .init(this,"BACKGROUND");
+  margin               .init(this,"MARGINS");
+  instance             .init(this,"INSTANCE_COUNT");
+  includeSubs          .init(this,"INCLUDE_SUBMODELS");
+  modelScale           .init(this,"MODEL_SCALE");
+  show                 .init(this,"SHOW");
+  showTopModel         .init(this,"SHOW_TOP_MODEL");
+  showSubmodelInCallout.init(this,"SHOW_SUBMODEL_IN_CALLOUT");
+  showInstanceCount    .init(this,"SHOW_INSTANCE_COUNT");
+  ldviewParms          .init(this,"LDVIEW_PARMS");
+  ldgliteParms         .init(this,"LDGLITE_PARMS");
+  povrayParms          .init(this,"POVRAY_PARMS");
+  subModelColor        .init(this,"SUBMODEL_BACKGROUND_COLOR");
+  part                 .init(this,"PART");
+  rotStep              .init(this,"SUBMODEL_ROTATION");
+  cameraDistNative     .init(this,"CAMERA_DISTANCE_NATIVE");
+  cameraFoV            .init(this,"CAMERA_FOV");
+  cameraAngles         .init(this,"CAMERA_ANGLES");
+  distance             .init(this,"CAMERA_DISTANCE");
+  znear                .init(this,"CAMERA_ZNEAR");
+  zfar                 .init(this,"CAMERA_ZFAR");
 }
 
 /* ------------------ */
