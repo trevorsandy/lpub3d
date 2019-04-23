@@ -3601,7 +3601,7 @@ void Gui::createActions()
     editLD2BLCodesXRefAct->setStatusTip(tr("Add/Edit LDraw to Bricklink Design ID reference"));
     connect(editLD2BLCodesXRefAct, SIGNAL(triggered()), this, SLOT(editLD2BLCodesXRef()));
 
-    editLD2BLColorsXRefAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Edit LDraw to Bricklink Color eference"), this);
+    editLD2BLColorsXRefAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Edit LDraw to Bricklink Color reference"), this);
     editLD2BLColorsXRefAct->setStatusTip(tr("Add/edit LDraw LDConfig to Bricklink Color ID reference"));
     connect(editLD2BLColorsXRefAct, SIGNAL(triggered()), this, SLOT(editLD2BLColorsXRef()));
 
@@ -3609,7 +3609,7 @@ void Gui::createActions()
     editLD2RBCodesXRefAct->setStatusTip(tr("Add/Edit LDraw to Rebrickable Design ID reference"));
     connect(editLD2RBCodesXRefAct, SIGNAL(triggered()), this, SLOT(editLD2RBCodesXRef()));
 
-    editLD2RBColorsXRefAct = new QAction(QIcon(":/resources/editld2rbxref.png"),tr("Edit LDraw to Rebrickable Color eference"), this);
+    editLD2RBColorsXRefAct = new QAction(QIcon(":/resources/editld2rbxref.png"),tr("Edit LDraw to Rebrickable Color reference"), this);
     editLD2RBColorsXRefAct->setStatusTip(tr("Add/edit LDraw LDConfig to Rebrickable Color ID reference"));
     connect(editLD2RBColorsXRefAct, SIGNAL(triggered()), this, SLOT(editLD2RBColorsXRef()));
 
