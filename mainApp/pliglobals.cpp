@@ -94,9 +94,16 @@ GlobalPliDialog::GlobalPliDialog(
   widget->setLayout(vlayout);
 
   if ( ! bom) {
+    QHBoxLayout *childHLayout = new QHBoxLayout(nullptr);
     box = new QGroupBox("Parts List");
     vlayout->addWidget(box);
-    child = new CheckBoxGui("Show Parts List",&pliMeta->show, box);
+    box->setLayout(childHLayout);
+    child = new CheckBoxGui("Show Parts List",&pliMeta->show);
+    childHLayout->addWidget(child);
+    data->children.append(child);
+
+    child = new PlacementGui(&pliMeta->placement,"Pli Placement");
+    childHLayout->addWidget(child);
     data->children.append(child);
   }
 

@@ -2443,6 +2443,63 @@ void BorderGui::apply(QString &modelName)
 
 /***********************************************************************
  *
+ * Default Placement
+ *
+ **********************************************************************/
+
+PlacementGui::PlacementGui(
+        PlacementMeta *_meta,
+        QString        _title,
+        QGroupBox     *parent)
+{
+    meta = _meta;
+    title = _title;
+
+    QHBoxLayout *hlayout = new QHBoxLayout(parent);
+
+    if (parent) {
+        parent->setLayout(hlayout);
+    } else {
+        setLayout(hlayout);
+    }
+
+    placementLabel = new QLabel("Default placement",parent);
+        hlayout->addWidget(placementLabel);
+
+    placementButton = new QPushButton("Change " + title,parent);
+    placementButton->setToolTip("Set default placement");
+    hlayout->addWidget(placementButton);
+    connect(placementButton,SIGNAL(clicked(   bool)),
+            this,           SLOT(  placementChanged(bool)));
+
+    placementModified             = false;
+}
+
+void PlacementGui::placementChanged(bool clicked)
+{
+  Q_UNUSED(clicked);
+  PlacementData placementData = meta->value();
+  bool ok;
+  ok = PlacementDialog
+       ::getPlacement(SingleStepType,PartsListType,placementData,title,ContentPage);
+  if (ok) {
+      meta->setValue(placementData);
+      modified = placementModified = true;
+  }
+}
+
+void PlacementGui::apply(QString &topLevelFile)
+{
+    if (placementModified){
+        MetaItem mi;
+        mi.beginMacro("PlacementModified");
+        mi.setGlobalMeta(topLevelFile,meta);
+        mi.endMacro();
+    }
+}
+
+/***********************************************************************
+ *
  * Pointer Attributes
  *
  **********************************************************************/

@@ -772,6 +772,36 @@ public slots:
 
 /***********************************************************************
  *
+ * Default Placement
+ *
+ **********************************************************************/
+
+class PlacementGui : public MetaGui
+{
+  Q_OBJECT
+public:
+  PlacementGui(
+    PlacementMeta *_meta,
+    QString        _title,
+    QGroupBox     *parent    = nullptr);
+  ~PlacementGui() {}
+
+  virtual void apply(QString &modelName);
+
+private:
+  PlacementMeta  *meta;
+  QLabel         *placementLabel;
+  QPushButton    *placementButton;
+  bool            placementModified;
+  QString         title;
+
+public slots:
+  void placementChanged(bool);
+};
+
+
+/***********************************************************************
+ *
  * Pointer Attribute
  *
  **********************************************************************/
