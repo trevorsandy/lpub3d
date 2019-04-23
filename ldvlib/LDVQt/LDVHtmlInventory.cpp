@@ -372,8 +372,8 @@ function sortDirection(set, columnClassName) {\n\
 	}\n\
 }\n\
 \n\
-function isValid(v1, v2) {\n\
-	return (!notDefined(v1) && !notDefined(v2));\n\
+function isValid(value, nextValue) {\n\
+	return (!notDefined(value) && !notDefined(nextValue));\n\
 }\n\
 \n\
 function notDefined(value){\n\
@@ -381,47 +381,50 @@ function notDefined(value){\n\
 	return value === undefined;\n\
 }\n\
 \n\
+function image(row) {\n\
+	var cell = row.getElementsByClassName('image')[0];\n\
+	if (notDefined(cell))\n\
+		return null;\n\
+	sortDirection(false, 'image');\n\
+	var theImg = new Image();\n\
+	var imgSrc = cell.getElementsByTagName('img')[0].src;\n\
+	theImg.src = imgSrc;\n\
+	return (theImg.width * theImg.height);\n\
+}\n\
+\n\
 function color(row) {\n\
-	var columnClassName = 'colorNumber';\n\
-	var value = row.getElementsByClassName(columnClassName)[0].innerHTML\n\
+	var value = row.getElementsByClassName('colorNumber')[0].innerHTML;\n\
 	if (notDefined(value))\n\
-		return null\n\
+		return null;\n\
+	sortDirection(false, 'colorNumber');\n\
 	value = value.slice(':',-1);\n\
 	return value;\n\
 }\n\
 \n\
-function imgSize(row) {\n\
-	var columnClassName = 'image';\n\
-	var cells = row.getElementsByTagName('td');\n\
-	var cell = null;\n\
-	for (var n = 0; n < cells.length; n++) {\n\
-		if (cells[n].getAttribute('class') == columnClassName) {\n\
-			cell = cells[n];\n\
-			break;\n\
-		}\n\
-	}\n\
-	if (notDefined(cell))\n\
-		return null\n\
-	var theImg = new Image();\n\
-	var imgSrc = cell.getElementsByTagName('img')[0].src;\n\
-	theImg.src = imgSrc\n\
-	return (theImg.width * theImg.height);\n\
+function quantity(row) {\n\
+	var value = row.getElementsByClassName('quantity')[0].innerHTML;\n\
+	if (notDefined(value))\n\
+		return null;\n\
+	sortDirection(false, 'quantity');\n\
+	return value;\n\
 }\n\
 \n\
 function sort(columnClassName, tableId) {\n\
 	var tbody = document.getElementById(tableId).getElementsByTagName('tbody')[0];\n\
 	var rows = tbody.getElementsByTagName('tr');\n\
-	var skip = 3;\n\
+	var adv = 3; // skip 1 row in the color-table, 1 row in the color-box-table and advance 1 row\n\
 \n\
 	var unsorted = true;\n\
+	\n\
+	sortDirection(false, columnClassName);\n\
 \n\
 	while (unsorted) {\n\
 \n\
-		unsorted = false\n\
+		unsorted = false;\n\
 \n\
-		for (var r1 = 0; r1 < rows.length - 1; r1 += skip) {\n\
+		for (var r1 = 0; r1 < rows.length - 1; r1 += adv) {\n\
 \n\
-			var r2 = r1 + skip\n\
+			var r2 = r1 + adv;\n\
 \n\
 			if (r2 < rows.length) {\n\
 \n\
@@ -431,22 +434,25 @@ function sort(columnClassName, tableId) {\n\
 				var value = row.getElementsByClassName(columnClassName)[0].innerHTML;\n\
 				var nextValue = nextRow.getElementsByClassName(columnClassName)[0].innerHTML;\n\
 \n\
-				var unOrderedByColor = true;\n\
-				var unOrderedByImage = true;\n\
+				var orderedByColor = false;\n\
+				var orderedByImage = false;\n\
+				var orderedByQuantity = true; // disabled\n\
 \n\
-				if (columnClassName == 'elementid') {\n\
-					value = value.replace('-','.');\n\
-					nextValue = nextValue.replace('-','.');\n\
-				} else if (columnClassName == 'colorprops') {\n\
-					unOrderedByColor = false;\n\
+				if (columnClassName == 'image') {\n\
+					value = image(row);\n\
+					nextValue = image(nextRow);\n\
+					orderedByImage = true;\n\
 				} else if (columnClassName == 'colorNumber') {\n\
 					value = color(row);\n\
 					nextValue = color(nextRow);\n\
-					unOrderedByColor = false;\n\
-				} else if (columnClassName == 'image') {\n\
-					value = imgSize(row);\n\
-					nextValue = imgSize(nextRow);\n\
-					unOrderedByImage = false;\n\
+					orderedByColor = true;\n\
+				} else if (columnClassName == 'colorprops') {\n\
+					orderedByColor = true;\n\
+				} else if (columnClassName == 'elementid') {\n\
+					value = value.replace('-','.');\n\
+					nextValue = nextValue.replace('-','.');\n\
+				} else if (columnClassName == 'quantity') {\n\
+					orderedByQuantity = true;\n\
 				}\n\
 \n\
 				if (!isNaN(value) && !isNaN(nextValue)) {\n\
@@ -454,42 +460,36 @@ function sort(columnClassName, tableId) {\n\
 					nextValue = parseFloat(nextValue);\n\
 				}\n\
 \n\
-				if (value == nextValue) {\n\
-					if (unOrderedByColor) {\n\
-						columnClassName = 'colorNumber';\n\
-						value = color(row);\n\
-						nextValue = color(nextRow);\n\
-						unOrderedByColor = false;\n\
-						if (isValid(value, nextValue) &&\n\
-							(value == nextValue) &&\n\
-							unOrderedByImage) {\n\
-							columnClassName = 'image';\n\
-							value = imgSize(row);\n\
-							nextValue = imgSize(nextRow);\n\
-							unOrderedByImage = false;\n\
-						}\n\
-					} else if (unOrderedByImage) {\n\
-						columnClassName = 'image';\n\
-						value = imgSize(row);\n\
-						nextValue = imgSize(nextRow);\n\
-						unOrderedByImage = false;\n\
-						if (isValid(value, nextValue) &&\n\
-							(value == nextValue) &&\n\
-							unOrderedByColor) {\n\
-							columnClassName = 'colorNumber';\n\
-							value = color(row);\n\
-							nextValue = color(nextRow);\n\
-							unOrderedByColor = false;\n\
-						}\n\
-					}\n\
+				if (isValid(value, nextValue) &&\n\
+					(value == nextValue) &&\n\
+					!orderedByColor) {\n\
+					value = color(row);\n\
+					nextValue = color(nextRow);\n\
+					orderedByColor = true;\n\
+				}  \n\
+\n\
+				if (isValid(value, nextValue) &&\n\
+					(value == nextValue) &&\n\
+					!orderedByImage) {\n\
+					value = image(row);\n\
+					nextValue = image(nextRow);\n\
+					orderedByImage = true;\n\
 				}\n\
 \n\
-				sortDirection(false, columnClassName);\n\
+				if (isValid(value, nextValue) &&\n\
+					(value == nextValue) &&\n\
+					!orderedByQuantity) {\n\
+					value = quantity(row);\n\
+					nextValue = quantity(nextRow);\n\
+					orderedByQuantity = true;\n\
+				}\n\
 \n\
 				if (isValid(value, nextValue) && (ascending ? value > nextValue : value < nextValue)) {\n\
 					tbody.insertBefore(nextRow, row);\n\
 					unsorted = true;\n\
 				}\n\
+\n\
+				sortDirection(false, columnClassName);\n\
 			}\n\
 		}\n\
 	}\n\

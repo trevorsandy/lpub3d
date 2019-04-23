@@ -21,7 +21,7 @@ LEGO® is a trademark of the LEGO Group of companies which does not sponsor, aut
 [ldview-url]:          https://github.com/trevorsandy/ldview/tree/qmake-build
 [povray-url]:          https://github.com/trevorsandy/povray/tree/lpub3d/raytracer-cui
 
-[sfreleases]:          https://sourceforge.net/projects/lpub3d/files/2.3.9
+[sfreleases]:          https://sourceforge.net/projects/lpub3d/files/2.3.10
 [githubreleases]:      https://github.com/trevorsandy/lpub3d/releases
 [obsreleases]:         https://software.opensuse.org//download.html?project=home:trevorsandy&package=lpub3d
 [travis-badge]:        https://img.shields.io/travis/trevorsandy/lpub3d.svg?label=travis
