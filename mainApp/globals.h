@@ -204,6 +204,7 @@ class GlobalSubModelDialog : public QDialog
   Q_OBJECT
 private:
   GlobalSubModelPrivate *data;
+  QGroupBox *instanceCountBox;
 
 public:
   GlobalSubModelDialog(QString &topLevelFile, Meta &meta);
@@ -213,6 +214,7 @@ public:
 public slots:
   void accept();
   void cancel();
+  void instanceCountClicked(bool);
 };
 
 /*****************************************************************

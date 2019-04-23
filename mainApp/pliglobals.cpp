@@ -150,7 +150,7 @@ GlobalPliDialog::GlobalPliDialog(
                                 &pliMeta->modelScale,
                                 pliMeta->modelScale._min,
                                 pliMeta->modelScale._max,
-                                0.01);
+                                float(0.01));
       data->children.append(child);
       data->clearCache = child->modified;
       childlayout->addWidget(child);

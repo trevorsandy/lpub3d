@@ -68,6 +68,9 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   QWidget *widget;
   QGridLayout *grid;
 
+  QVBoxLayout *vlayout;
+  QSpacerItem *vSpacer;
+
   MetaGui *child;
   QGroupBox *box;
 
@@ -81,30 +84,52 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   grid = new QGridLayout(nullptr);
   widget->setLayout(grid);
 
-  box = new QGroupBox("Display");
-  grid->addWidget(box);
+  QTabWidget *childtab    = new QTabWidget();
+  grid->addWidget(childtab);
+  tab->addTab(widget,"Submodel");
+
+  widget = new QWidget();
+  vlayout = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
+
+  box = new QGroupBox("Display Options");
+  vlayout->addWidget(box);
   box->setLayout(childlayout);
 
   child = new ShowSubModelGui(&data->meta.LPub.subModel);
   data->children.append(child);
   childlayout->addWidget(child);
+  connect(child,SIGNAL(instanceCountClicked(bool)),
+          this, SLOT(instanceCountClicked(bool)));
+
+  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vlayout->addSpacerItem(vSpacer);
+
+  childtab->addTab(widget,"Display");
+
+  widget = new QWidget();
+  vlayout = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
 
   box = new QGroupBox("Background");
-  grid->addWidget(box);
+  vlayout->addWidget(box);
   child = new BackgroundGui(&subModelMeta->background,box);
   data->children.append(child);
 
   box = new QGroupBox("Border");
-  grid->addWidget(box);
+  vlayout->addWidget(box);
   child = new BorderGui(&subModelMeta->border,box);
   data->children.append(child);
 
   box = new QGroupBox("Margins");
-  grid->addWidget(box);
+  vlayout->addWidget(box);
   child = new UnitsGui("",&subModelMeta->margin,box);
   data->children.append(child);
 
-  tab->addTab(widget,"Submodel");
+  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vlayout->addSpacerItem(vSpacer);
+
+  childtab->addTab(widget,"Settings");
 
   /*
    * Contents tab
@@ -115,8 +140,16 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   widget->setLayout(grid);
   childlayout = new QVBoxLayout(nullptr);
 
+  childtab    = new QTabWidget();
+  grid->addWidget(childtab);
+  tab->addTab(widget,"Contents");
+
+  widget = new QWidget();
+  vlayout = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
+
   box = new QGroupBox("Submodel Image");
-  grid->addWidget(box);
+  vlayout->addWidget(box);
   box->setLayout(childlayout);
 
   if (Preferences::usingNativeRenderer) {
@@ -141,12 +174,12 @@ GlobalSubModelDialog::GlobalSubModelDialog(
 
   /* Constraints */
   box = new QGroupBox("Constrain");
-  grid->addWidget(box);
+  vlayout->addWidget(box);
   child = new ConstrainGui("",&subModelMeta->constrain,box);
   data->children.append(child);
 
   box = new QGroupBox("Default Submodel Orientation");
-  grid->addWidget(box);
+  vlayout->addWidget(box);
   QGridLayout *boxGrid = new QGridLayout();
   box->setLayout(boxGrid);
 
@@ -167,25 +200,38 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   boxGrid->addWidget(child,1,0);
 
   box = new QGroupBox("Default Step Rotation");
-  grid->addWidget(box);
+  vlayout->addWidget(box);
   child = new RotStepGui(&subModelMeta->rotStep,box);
   data->children.append(child);
   data->clearCache = (data->clearCache ? data->clearCache : child->modified);
 
-  box = new QGroupBox("Submodel Count");
-  box->setEnabled(subModelMeta->showInstanceCount.value());
-  grid->addWidget(box);
-  child = new NumberGui(&subModelMeta->instance,box);
+  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vlayout->addSpacerItem(vSpacer);
+
+  childtab->addTab(widget,"Image");
+
+  widget = new QWidget();
+  vlayout = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
+
+  instanceCountBox = new QGroupBox("Submodel Instance Count");
+  instanceCountBox->setEnabled(subModelMeta->showInstanceCount.value());
+  vlayout->addWidget(instanceCountBox);
+  child = new NumberGui(&subModelMeta->instance,instanceCountBox);
   data->children.append(child);
 
-  tab->addTab(widget,"Contents");
+  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vlayout->addSpacerItem(vSpacer);
+
+  childtab->addTab(widget,"Instance");
 
   /*
    * SM Submodel level color
    */
 
   widget = new QWidget(nullptr);
-  QVBoxLayout *vlayout = new QVBoxLayout(nullptr);
+  //QVBoxLayout *vlayout = new QVBoxLayout(nullptr);
+  vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
   box = new QGroupBox(tr("Submodel Level Colors"));
@@ -194,7 +240,8 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   data->children.append(child);
 
   //spacer
-  QSpacerItem *vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  //QSpacerItem *vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
   tab->addTab(widget,"Submodel Colors");
@@ -218,6 +265,13 @@ void GlobalSubModelDialog::getSubModelGlobals(
 {
   GlobalSubModelDialog *dialog = new GlobalSubModelDialog(topLevelFile, meta);
   dialog->exec();
+}
+
+void GlobalSubModelDialog::instanceCountClicked(bool checked)
+{
+    instanceCountBox->setEnabled(checked);
+    if (!checked)
+      instanceCountBox->setToolTip("Check 'Show submodel instance count' in the 'Display' tab to enable.");
 }
 
 void GlobalSubModelDialog::accept()

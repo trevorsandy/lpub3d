@@ -3215,6 +3215,8 @@ ShowSubModelGui::ShowSubModelGui(
     showInstanceCountBox->setChecked(meta->showInstanceCount.value());
     connect(showInstanceCountBox,SIGNAL(clicked(bool)),
             this,                SLOT(showInstanceCountChange(bool)));
+    connect(showInstanceCountBox,SIGNAL(clicked(bool)),
+            this,                SIGNAL(instanceCountClicked(bool)));
     grid->addWidget(showInstanceCountBox,9,0,1,2);
 
     showInstanceCountDefaultSettings = Settings.contains(QString("%1/%2").arg(SETTINGS,"ShowInstanceCount"));
@@ -3228,10 +3230,26 @@ ShowSubModelGui::ShowSubModelGui(
     showInstanceCountMetaBox->setChecked(!showInstanceCountDefaultSettings);
     grid->addWidget(showInstanceCountMetaBox,10,1);
 
+    line = new QFrame();
+    line->setFrameShape(QFrame::HLine);
+    grid->addWidget(line,11,0,1,2);
+
+    QLabel *placementLabel = new QLabel("Default placement",parent);
+    grid->addWidget(placementLabel,12,0);
+
+    placementButton = new QPushButton("Change Placement",parent);
+    placementButton->setToolTip("Set Submodel default placement");
+    connect(placementButton,SIGNAL(clicked(   bool)),
+            this,           SLOT(  placementChanged(bool)));
+    grid->addWidget(placementButton,12,1);
+
     showSubmodelsModified         = false;
     showTopModelModified          = false;
     showSubmodelInCalloutModified = false;
     showInstanceCountModified     = false;
+    placementModified             = false;
+
+    enableSubmodelControls(meta->show.value());
 }
 
 void ShowSubModelGui::showSubmodelsChange(bool checked)
@@ -3240,6 +3258,7 @@ void ShowSubModelGui::showSubmodelsChange(bool checked)
         meta->show.setValue(checked);
         modified = showSubmodelsModified = true;
     }
+    enableSubmodelControls(checked);
 }
 
 void ShowSubModelGui::showTopModelChange(bool checked)
@@ -3264,6 +3283,39 @@ void ShowSubModelGui::showInstanceCountChange(bool checked)
         meta->showInstanceCount.setValue(checked);
         modified = showInstanceCountModified = true;
     }
+}
+
+void ShowSubModelGui::placementChanged(bool clicked)
+{
+  Q_UNUSED(clicked);
+  PlacementData placementData = meta->placement.value();
+  bool ok;
+  ok = PlacementDialog
+       ::getPlacement(SingleStepType,SubModelType,placementData,"Submodel Placement",ContentPage);
+  if (ok) {
+      meta->placement.setValue(placementData);
+      modified = placementModified = true;
+  }
+}
+
+void ShowSubModelGui::enableSubmodelControls(bool checked)
+{
+    showSubmodelsDefaultBox->setEnabled(checked);
+    showSubmodelsMetaBox->setEnabled(checked);
+
+    showTopModelBox->setEnabled(checked);
+    showTopModelDefaultBox->setEnabled(checked);
+    showTopModelMetaBox->setEnabled(checked);
+
+    showSubmodelInCalloutBox->setEnabled(checked);
+    showSubmodelInCalloutDefaultBox->setEnabled(checked);
+    showSubmodelInCalloutMetaBox->setEnabled(checked);
+
+    showInstanceCountBox->setEnabled(checked);
+    showInstanceCountDefaultBox->setEnabled(checked);
+    showInstanceCountMetaBox->setEnabled(checked);
+
+    placementButton->setEnabled(checked);
 }
 
 void ShowSubModelGui::apply(QString &topLevelFile)
@@ -3357,6 +3409,12 @@ void ShowSubModelGui::apply(QString &topLevelFile)
             mi.setGlobalMeta(topLevelFile,&meta->showInstanceCount);
             mi.endMacro();
         }
+    }
+    if (placementModified){
+        MetaItem mi;
+        mi.beginMacro("PlacementModified");
+        mi.setGlobalMeta(topLevelFile,&meta->placement);
+        mi.endMacro();
     }
 }
 
