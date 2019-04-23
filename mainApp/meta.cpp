@@ -2139,7 +2139,14 @@ Rc SepMeta::parse(QStringList &argv, int index,Where &here)
       good &= ok;
 
       if (good) {
-          _value[pushed].type      = SepData::LengthType(tokenMap[argv[index]]);
+          // backward compatibility - ticket #193
+          QString sepLen = argv[index];
+          if (argv[index] == "CUSTOM")
+              sepLen = "CUSTOM_LENGTH";
+          else if (argv[index] == "PAGE")
+              sepLen = "PAGE_LENGTH";
+          _value[pushed].type      = SepData::LengthType(tokenMap[sepLen]);
+          // end backward compatibility
           _value[pushed].thickness = argv[index+1].toFloat();
           _value[pushed].color     = argv[index+2];
           _value[pushed].margin[0] = argv[index+3].toFloat();
@@ -2158,7 +2165,14 @@ Rc SepMeta::parse(QStringList &argv, int index,Where &here)
       good &= ok;
 
       if (good) {
-          _value[pushed].type      = SepData::LengthType(tokenMap[argv[index]]);
+          // backward compatibility - ticket #193
+          QString sepLen = argv[index];
+          if (argv[index] == "CUSTOM")
+              sepLen = "CUSTOM_LENGTH";
+          else if (argv[index] == "PAGE")
+              sepLen = "PAGE_LENGTH";
+          _value[pushed].type      = SepData::LengthType(tokenMap[sepLen]);
+          // end backward compatibility
           _value[pushed].length    = argv[index+1].toFloat();
           _value[pushed].thickness = argv[index+2].toFloat();
           _value[pushed].color     = argv[index+3];
@@ -2180,26 +2194,26 @@ QString SepMeta::format(bool local, bool global)
   QString foo;
   if (_value[pushed].type == SepData::LenCustom) {
     foo = QString("%1 %2 %3 %4 %5 %6")
-                .arg("CUSTOM")
-                .arg(_value[pushed].length)
-                .arg(_value[pushed].thickness)
+                .arg("CUSTOM_LENGTH")
+                .arg(double(_value[pushed].length))
+                .arg(double(_value[pushed].thickness))
                 .arg(_value[pushed].color)
-                .arg(_value[pushed].margin[0])
-                .arg(_value[pushed].margin[1]);
+                .arg(double(_value[pushed].margin[0]))
+                .arg(double(_value[pushed].margin[1]));
   } else
   if (_value[pushed].type == SepData::LenPage) {
     foo = QString("%1 %2 %3 %4 %5")
-                  .arg("PAGE")
-                  .arg(_value[pushed].thickness)
+                  .arg("PAGE_LENGTH")
+                  .arg(double(_value[pushed].thickness))
                   .arg(_value[pushed].color)
-                  .arg(_value[pushed].margin[0])
-                  .arg(_value[pushed].margin[1]);
+                  .arg(double(_value[pushed].margin[0]))
+                  .arg(double(_value[pushed].margin[1]));
   } else {
     foo = QString("%1 %2 %3 %4")
-                  .arg(_value[pushed].thickness)
+                  .arg(double(_value[pushed].thickness))
                   .arg(_value[pushed].color)
-                  .arg(_value[pushed].margin[0])
-                  .arg(_value[pushed].margin[1]);
+                  .arg(double(_value[pushed].margin[0]))
+                  .arg(double(_value[pushed].margin[1]));
   }
   return LeafMeta::format(local,global,foo);
 }
@@ -2581,7 +2595,7 @@ void NumberMeta::init(
 
 NumberPlacementMeta::NumberPlacementMeta() : NumberMeta()
 {
-  placement.setValue(TopLeftInsideCorner,PageType);
+  placement.setValue(TopLeftInsideCorner,PageType); // fallback - see LPubMeta
   color.setValue("black");
   // font - default
 }
@@ -4308,8 +4322,8 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
       tokenMap["BASE_BOTTOM"]          = BottomInside;
       tokenMap["BASE_BOTTOM_RIGHT"]    = BottomRightInsideCorner;
 
-      tokenMap["PAGE"]                 = SepData::LenPage;
-      tokenMap["CUSTOM"]               = SepData::LenCustom;
+      tokenMap["PAGE_LENGTH"]          = SepData::LenPage;
+      tokenMap["CUSTOM_LENGTH"]        = SepData::LenCustom;
     }
 }
 
