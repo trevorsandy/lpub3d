@@ -271,15 +271,16 @@ int Gui::addGraphicsPageItems(
 
   pageHeader = new PlacementHeader(page->meta.LPub.page.pageHeader,pageBg);
   if (pageHeader->placement.value().relativeTo == plPage.relativeType) {
-      plPage.placeRelative(pageHeader);
       plPage.appendRelativeTo(pageHeader);
+      plPage.placeRelative(pageHeader);
+
     }
   pageHeader->setPos(pageHeader->loc[XX],pageHeader->loc[YY]);
 
   pageFooter = new PlacementFooter(page->meta.LPub.page.pageFooter,pageBg);
   if (pageFooter->placement.value().relativeTo == plPage.relativeType) {
-      plPage.placeRelative(pageFooter);
       plPage.appendRelativeTo(pageFooter);
+      plPage.placeRelative(pageFooter);
     }
   pageFooter->setPos(pageFooter->loc[XX],pageFooter->loc[YY]);
 
@@ -435,7 +436,6 @@ int Gui::addGraphicsPageItems(
                   instanceCount->placement.setValue(BottomRightInsideCorner,PageType);
                   plPage.placeRelative(instanceCount);
                 }
-
               instanceCount->setPos(instanceCount->loc[XX],instanceCount->loc[YY]);
             }
         }
@@ -571,11 +571,96 @@ int Gui::addGraphicsPageItems(
                       addStepImageGraphics(step);
                     }
 
-                  // add the step number
+                  // set PLI relativeType
 
-                  if ( ! step->onlyChild() && step->showStepNumber) {
+                  if (!page->pli.bom)
+                      step->pli.relativeType = PartsListType;
+
+                  // if show step number
+
+                  if (! step->onlyChild() && step->showStepNumber) {
+
+                      // add the step number
+
                       step->stepNumber.sizeit();
+
+                      // if Submodel and Pli relative to StepNumber
+
+                      if (step->placeSubModel &&
+                              step->subModel.placement.value().relativeTo == StepNumberType) {
+
+                          // Redirect Pli relative to SubModel
+
+                          if (step->pli.placement.value().relativeTo == StepNumberType) {
+
+                              step->pli.placement.setValue(BottomLeftOutside,SubModelType);
+                              step->subModel.appendRelativeTo(&step->pli);
+                              step->subModel.placeRelative(&step->pli);
+                          }
+                      }
+                  }
+
+                  // if no step number
+
+                  else {
+
+                      // if Submodel and Pli relative to StepNumber
+
+                      if (step->placeSubModel &&
+                          step->subModel.placement.value().relativeTo == StepNumberType) {
+
+                          // Redirect Submodel relative to PageHeader
+
+                          step->subModel.placement.setValue(BottomLeftOutside,PageHeaderType);
+                          pageHeader->appendRelativeTo(&step->subModel);
+                          pageHeader->placeRelative(&step->subModel);
+
+                          if (step->pli.placement.value().relativeTo == StepNumberType) {
+
+                              // Redirect Pli relative to SubModel
+
+                              step->pli.placement.setValue(BottomLeftOutside,SubModelType);
+                              step->subModel.appendRelativeTo(&step->pli);
+                              step->subModel.placeRelative(&step->pli);
+                          }
+                      }
+
+                      // if Pli relative to StepNumber
+
+                      else {
+
+                          // Redirect Pli relative to PageHeader
+
+                          step->pli.placement.setValue(BottomLeftOutside,PageHeaderType);
+                          pageHeader->appendRelativeTo(&step->pli);
+                          pageHeader->placeRelative(&step->pli);
+                      }
+                  }
+/*
+                  // optional PLI placement relative to CSI
+
+                  if (step->pli.placement.value().relativeTo == CsiType) {
+                      step->csiItem->appendRelativeTo(&step->pli);
+                      step->csiItem->placeRelative(&step->pli);
                     }
+
+                  // optional PLI placement relative to Page Number
+
+                  if (step->pli.placement.value().relativeTo == PageNumberType) {
+                      pageNumber->appendRelativeTo(&step->pli);
+                      pageNumber->placeRelative(&step->pli);
+                  }
+*/
+
+                  // add the SM graphically to the scene
+
+                  if (step->placeSubModel) {
+                      step->subModel.addSubModel(step->submodelLevel, pageBg);
+                  }
+
+                  // add the PLI graphically to the scene
+
+                  step->pli.addPli(step->submodelLevel, pageBg);
 
                   // size the callouts
 
@@ -602,7 +687,7 @@ int Gui::addGraphicsPageItems(
 
                   // Place the step relative to the page.
 
-                  plPage.relativeTo(step);      // place everything - calculate placement for all the page's objects
+                  plPage.relativeTo(step);      // place everything - calculate placement for all page objects
 
                   // center the csi's bounding box relative to the page
                   // if there is no offset, otherwise place as is
@@ -610,7 +695,7 @@ int Gui::addGraphicsPageItems(
                   PlacementData csiPlacementData = step->csiPlacement.placement.value();
                   if (csiPlacementData.offsets[XX] == 0.0f && csiPlacementData.offsets[YY] == 0.0f) {
                       plPage.placeRelativeBounding(step->csiItem);
-                    }
+                  }
 
                   // place callouts relative to the csi bounding box
 
@@ -627,69 +712,6 @@ int Gui::addGraphicsPageItems(
                         } // if callout
                     } // callouts
 
-                  // optional PLI placement relative to CSI
-
-                  if (step->pli.placement.value().relativeTo == CsiType) {
-                      step->csiItem->appendRelativeTo(&step->pli);
-                      step->csiItem->placeRelative(&step->pli);
-                    }
-
-                  // optional PLI placement relative to Page Number
-
-                  if (step->pli.placement.value().relativeTo == PageNumberType) {
-                      pageNumber->appendRelativeTo(&step->pli);
-                      pageNumber->placeRelative(&step->pli);
-                  }
-
-                  // optional if no step number
-
-                  if (step->onlyChild()) {
-
-                      // Submodel and Pli placement
-                      if (step->placeSubModel &&
-                          step->subModel.placement.value().relativeTo == StepNumberType) {
-
-                          step->subModel.placement.setValue(BottomLeftOutside,PageHeaderType);
-                          pageHeader->appendRelativeTo(&step->subModel);
-                          pageHeader->placeRelative(&step->subModel);
-
-//                          step->subModel.placement.setValue(LeftTopOutside,CsiType);
-//                          step->csiItem->appendRelativeTo(&step->subModel);
-//                          step->csiItem->placeRelative(&step->subModel);
-
-                          if (step->pli.placement.value().relativeTo == StepNumberType) {
-                              step->pli.placement.setValue(BottomLeftOutside,SubModelType);
-                              step->subModel.appendRelativeTo(&step->pli);
-                              step->subModel.placeRelative(&step->pli);
-                          }
-                      }
-                      // Pli placement
-                      else {
-                          step->pli.placement.setValue(BottomLeftOutside,PageHeaderType);
-                          pageHeader->appendRelativeTo(&step->pli);
-                          pageHeader->placeRelative(&step->pli);
-
-//                          step->pli.placement.setValue(LeftTopOutside,CsiType);
-//                          step->csiItem->appendRelativeTo(&step->pli);
-//                          step->csiItem->placeRelative(&step->pli);
-                      }
-                  }
-
-                  // optional if step number
-
-                  else {
-                      // Submodel and Pli placement
-                      if (step->placeSubModel &&
-                          step->subModel.placement.value().relativeTo == StepNumberType) {
-
-                          if (step->pli.placement.value().relativeTo == StepNumberType) {
-                              step->pli.placement.setValue(BottomLeftOutside,SubModelType);
-                              step->subModel.appendRelativeTo(&step->pli);
-                              step->subModel.placeRelative(&step->pli);
-                          }
-                      }
-                  }
-
                   // place the CSI relative to the entire step's box
 
                   step->csiItem->setPos(step->csiItem->loc[XX],
@@ -701,27 +723,17 @@ int Gui::addGraphicsPageItems(
                       ! gui->exportingObjects())
                       step->csiItem->placeCsiPartAnnotations();
 
-                  // add the PLI graphically to the scene
+                  // add the SM relative to the entire step's box
 
-                  step->pli.addPli(step->submodelLevel, pageBg);
+                  if (step->placeSubModel) {
+                      step->subModel.setPos(step->subModel.loc[XX],
+                                            step->subModel.loc[YY]);
+                  }
 
                   // place the PLI relative to the entire step's box
 
                   step->pli.setPos(step->pli.loc[XX],
                                    step->pli.loc[YY]);
-
-                  // place the submodel
-                  if (step->placeSubModel) {
-
-                      // add the SM graphically to the scene
-
-                      step->subModel.addSubModel(step->submodelLevel, pageBg);
-
-                      // add the SM relative to the entire step's box
-
-                      step->subModel.setPos(step->subModel.loc[XX],
-                                            step->subModel.loc[YY]);
-                  }
 
                   // allocate QGraphicsPixmapItem for rotate icon
 
@@ -756,8 +768,6 @@ int Gui::addGraphicsPageItems(
                       stepNumber->relativeToSize[0] = step->stepNumber.relativeToSize[0];
                       stepNumber->relativeToSize[1] = step->stepNumber.relativeToSize[1];
 
-                    } else if (step->pli.background) {
-                      step->pli.background->setFlag(QGraphicsItem::ItemIsMovable,false);
                     }
 
                   // add callout pointer items to the scene
@@ -815,6 +825,7 @@ int Gui::addGraphicsPageItems(
 
                   if (page->pli.tsize()) {
                       if (page->pli.bom) {
+                          page->pli.relativeType = BomType;
                           page->pli.addPli(0,pageBg);
                           page->pli.setFlag(QGraphicsItem::ItemIsSelectable,true);
                           page->pli.setFlag(QGraphicsItem::ItemIsMovable,true);
@@ -912,6 +923,7 @@ int Gui::addGraphicsPageItems(
 
       if (page->pli.tsize()) {
           if (page->pli.bom) {
+              page->pli.relativeType = BomType;
               page->pli.addPli(0,pageBg);
               page->pli.setFlag(QGraphicsItem::ItemIsSelectable,true);
               page->pli.setFlag(QGraphicsItem::ItemIsMovable,true);
