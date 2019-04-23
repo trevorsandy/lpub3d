@@ -61,11 +61,13 @@ void PlacementNum::sizeit(QString format)
 void Placement::appendRelativeTo(Placement *element)
 {
   if (element->relativeType != PageType) {
+    // check if element already added to list
     for (int i = 0; i < relativeToList.size(); i++) {
       if (relativeToList[i] == element) {
         return;
       }
     }
+    // add element to list
     if (relativeToList.size() < 100) {
       relativeToList.append(element);
       element->relativeToParent = this;
@@ -91,9 +93,10 @@ int Placement::relativeTo(
     /*
      * step = a range of ranges where ranges by itself are multi-step
      * relativeTo = item is placed relative to what?
-              e.g. relativeTo PageType(Page)
-       relativeType = item's placement type is what?
-              e.g. pageHeader's placementType is PageHeaderType */
+     *        e.g. relativeTo PageType [Page]
+     * relativeType = this placement type is what?
+     *        e.g. this placementType is PageType [Page]
+     */
     PlacementType stepRelativeTo;
     /* pageHeader */
     stepRelativeTo = step->plPageHeader.placement.value().relativeTo;
@@ -119,13 +122,13 @@ int Placement::relativeTo(
       placeRelative(&step->subModel);
       appendRelativeTo(&step->subModel);
     }
-    /* step number */
+    /* stepNumber */
     stepRelativeTo = step->stepNumber.placement.value().relativeTo;
     if (stepRelativeTo == relativeType) {
       placeRelative(&step->stepNumber);
       appendRelativeTo(&step->stepNumber);
     }
-    /* rotate icon */
+    /* rotateIcon */
     stepRelativeTo = step->rotateIcon.placement.value().relativeTo;
     if (stepRelativeTo == relativeType) {
       placeRelative(&step->rotateIcon);
@@ -177,7 +180,7 @@ int Placement::relativeTo(
   return rc;
 }
 
-// Multi-step
+// RelativeTo Step Group [Multi-step]
 int Placement::relativeToSg(
   Steps *steps)
 {
@@ -188,6 +191,7 @@ int Placement::relativeToSg(
       placeRelative(&steps->pli);
       appendRelativeTo(&steps->pli);
     }
+
     // SM
     if (steps->subModel.tsize() &&
         steps->subModel.placement.value().relativeTo == relativeType) {
@@ -195,6 +199,7 @@ int Placement::relativeToSg(
       appendRelativeTo(&steps->subModel);
     }
 
+    // Step-Group, Step, Callout
     for (int j = 0; j < steps->list.size(); j++) {
       /* range (Steps) */
       if (steps->list[j]->relativeType == RangeType) {
@@ -219,6 +224,7 @@ int Placement::relativeToSg(
       } // range (Steps)
     }
 
+    // Page Pointer
     for (auto i : steps->pagePointers.keys()) {
         PagePointer *pagePointer = dynamic_cast<PagePointer *>(steps->pagePointers[i]);
         PlacementData placementData = pagePointer->placement.value();
@@ -240,14 +246,14 @@ int Placement::relativeToSg(
 
 /*
  * This recursive function is the center piece of the whole concept of
- * placing things relative to things.  At the topmost level, this is of
- * type page, and them can be of types page number, step number, csi,
- * pli, submodel, callout, or step group.
+ * placing items relative to other items.  At the topmost level, this is of
+ * type page, and items can be of types pageHeader, csiItem, pli, subModel,
+ * stepNumber, rotateIcon, pageFooter, callouts, pagePointers, or step group...
  *
- * Later as we recurse them could be step group or csi. If this->relativeType
- * is step group then callouts could be placed relative to us.  If
- * this->relativeType is csi, then step number, submodels, PLIs, or callouts could
- * be placed relative to us.
+ * As we recurse, an item could be a step group or csi. If this->relativeType
+ * is step-group then callouts could be placed relative to us.  If
+ * this->relativeType is csi, then step number, rotateIcons, submodels, PLIs,
+ * or callouts could be placed relative to us.
  */
 
 void Placement::placeRelative(
@@ -521,30 +527,30 @@ void Placement::calcOffsets(
       case TopLeft:
       case Left:
       case BottomLeft:
-        offset[0] = topLeft[0];
+        offset[0] = float(topLeft[0]);
       break;
       case TopRight:
       case Right:
       case BottomRight:
-        offset[0] = (topLeft[0]+size[0]) - relativeToSize[0];
+        offset[0] = float((topLeft[0]+size[0]) - relativeToSize[0]);
       break;
       default:
-        offset[0] = topLeft[0] + size[0]/2 - relativeToSize[0]/2;
+        offset[0] = float(topLeft[0] + size[0]/2 - relativeToSize[0]/2);
       break;
     }
     switch (placementData.placement) {
       case TopLeft:
       case Top:
       case TopRight:
-        offset[1] = topLeft[1];
+        offset[1] = float(topLeft[1]);
       break;
       case BottomLeft:
       case Bottom:
       case BottomRight:
-        offset[1] = (topLeft[1] + size[1]) - relativeToSize[1];
+        offset[1] = float((topLeft[1] + size[1]) - relativeToSize[1]);
       break;
       default:
-        offset[1] = topLeft[1] + size[1]/2 - relativeToSize[1]/2;
+        offset[1] = float(topLeft[1] + size[1]/2 - relativeToSize[1]/2);
       break;
     }
   } else {
@@ -552,30 +558,30 @@ void Placement::calcOffsets(
       case TopLeft:
       case Left:
       case BottomLeft:
-        offset[0] = topLeft[0] + size[0];
+        offset[0] = float(topLeft[0] + size[0]);
       break;
       case TopRight:
       case Right:
       case BottomRight:
-        offset[0] = topLeft[0] - relativeToSize[0];
+        offset[0] = float(topLeft[0] - relativeToSize[0]);
       break;
       default:
-        offset[0] = topLeft[0] + size[0]/2 - relativeToSize[0]/2;
+        offset[0] = float(topLeft[0] + size[0]/2 - relativeToSize[0]/2);
       break;
     }
     switch (placementData.placement) {
       case TopLeft:
       case Top:
       case TopRight:
-        offset[1] = topLeft[1] + size[1];
+        offset[1] = float(topLeft[1] + size[1]);
       break;
       case BottomLeft:
       case Bottom:
       case BottomRight:
-        offset[1] = topLeft[1] - relativeToSize[1];
+        offset[1] = float(topLeft[1] - relativeToSize[1]);
       break;
       default:
-        offset[1] = topLeft[1] + size[1]/2 - relativeToSize[0]/2;
+        offset[1] = float(topLeft[1] + size[1]/2 - relativeToSize[0]/2);
       break;
     }
   }
