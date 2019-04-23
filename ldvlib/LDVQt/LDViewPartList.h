@@ -12,11 +12,11 @@ class LDVPartList : public QDialog , Ui::LDVPartListPanel
 {
 	Q_OBJECT
 public:
-    LDVPartList(LDVWidget *modelWidget, LDVHtmlInventory *htmlInventory);
-    ~LDVPartList(void);
-    void populateColumnList();
+	LDVPartList(LDVWidget *modelWidget, LDVHtmlInventory *htmlInventory);
+	~LDVPartList(void);
+	void populateColumnList();
 //    QCheckListItem *description;
-    int exec();
+	int exec();
 
 public slots:
 	void doOk();
@@ -25,15 +25,17 @@ public slots:
 	void doDown();
 	void doHighlighted(QListWidgetItem * current, QListWidgetItem * previous );
 	void doShowModel();
-    void doShowPreferences();
-    void doBrowseSnapshotFile();
-    void doUpdateSnapshotEdit();
+	void doShowPreferences();
+	void doBrowseSnapshotFile();
+	void doUpdateSnapshotEdit();
+	void doUpdateRebrickableKey();
+	void doEnableRebrickableKeyEdit(int);
 
 protected:
-    void doSetSnapshotFile(QString &Result);
+	void doSetSnapshotFile(QString &Result);
 	void doMoveColumn(int distance);
-    LDrawModelViewer *m_modelViewer;
-    LDVWidget        *m_modelWidget;
-    LDVHtmlInventory *m_htmlInventory;
+	LDrawModelViewer *m_modelViewer;
+	LDVWidget        *m_modelWidget;
+	LDVHtmlInventory *m_htmlInventory;
 };
 #endif //__LDVIEWPARTLIST_H__

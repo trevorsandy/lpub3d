@@ -1839,21 +1839,6 @@ void Gui::editPovrayConf()
     parmsWindow->show();
 }
 
-void Gui::editLD2BLCodesXRef()
-{
-    QFileInfo fileInfo(QString("%1/extras/%2").arg(Preferences::lpubDataPath,"/" VER_LPUB3D_LD2BLCODESXREF_FILE));
-    if (!fileInfo.exists()) {
-        if (!Annotations::exportLD2BLCodesXRefFile()) {
-            emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
-            return;
-        }
-    }
-    displayParmsFile(fileInfo.absoluteFilePath());
-    parmsWindow->setWindowTitle(tr("LDraw to Bricklink Design ID Cross-reference",
-                                   "Edit/add LDraw to Bricklink design ID cross-reference"));
-    parmsWindow->show();
-}
-
 void Gui::editAnnotationStyle()
 {
     QFileInfo fileInfo(QString("%1/extras/%2").arg(Preferences::lpubDataPath,Preferences::validAnnotationStyleFile));
@@ -1866,6 +1851,21 @@ void Gui::editAnnotationStyle()
     displayParmsFile(fileInfo.absoluteFilePath());
     parmsWindow->setWindowTitle(tr("Part Annotation Style reference",
                                    "Edit/add Part Annotation Style reference"));
+    parmsWindow->show();
+}
+
+void Gui::editLD2BLCodesXRef()
+{
+    QFileInfo fileInfo(QString("%1/extras/%2").arg(Preferences::lpubDataPath,"/" VER_LPUB3D_LD2BLCODESXREF_FILE));
+    if (!fileInfo.exists()) {
+        if (!Annotations::exportLD2BLCodesXRefFile()) {
+            emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
+            return;
+        }
+    }
+    displayParmsFile(fileInfo.absoluteFilePath());
+    parmsWindow->setWindowTitle(tr("LDraw to Bricklink Design ID Cross-reference",
+                                   "Edit/add LDraw to Bricklink design ID cross-reference"));
     parmsWindow->show();
 }
 
@@ -1896,6 +1896,36 @@ void Gui::editBLColors()
     displayParmsFile(fileInfo.absoluteFilePath());
     parmsWindow->setWindowTitle(tr("Bricklink Color ID reference",
                                    "Edit/add Bricklink Color ID reference"));
+    parmsWindow->show();
+}
+
+void Gui::editLD2RBCodesXRef()
+{
+    QFileInfo fileInfo(QString("%1/extras/%2").arg(Preferences::lpubDataPath,"/" VER_LPUB3D_LD2RBCODESXREF_FILE));
+    if (!fileInfo.exists()) {
+        if (!Annotations::exportLD2RBCodesXRefFile()) {
+            emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
+            return;
+        }
+    }
+    displayParmsFile(fileInfo.absoluteFilePath());
+    parmsWindow->setWindowTitle(tr("LDraw to Rebrickable Design ID Cross-reference",
+                                   "Edit/add LDraw to Rebrickable design ID cross-reference"));
+    parmsWindow->show();
+}
+
+void Gui::editLD2RBColorsXRef()
+{
+    QFileInfo fileInfo(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_LD2RBCOLORSXREF_FILE));
+    if (!fileInfo.exists()) {
+        if (!Annotations::exportLD2RBColorsXRefFile()) {
+            emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
+            return;
+        }
+    }
+    displayParmsFile(fileInfo.absoluteFilePath());
+    parmsWindow->setWindowTitle(tr("LDraw to Rebrickable Color Code cross-reference",
+                                   "Edit/add LDraw to Rebrickable Color Code cross-reference"));
     parmsWindow->show();
 }
 
@@ -3563,17 +3593,25 @@ void Gui::createActions()
     editPovrayConfAct->setStatusTip(tr("Edit Raytracer (POV-Ray) file access configuration file"));
     connect(editPovrayConfAct, SIGNAL(triggered()), this, SLOT(editPovrayConf()));
 
-    editLD2BLCodesXRefAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Edit LDraw to Bricklink Design ID reference"), this);
-    editLD2BLCodesXRefAct->setStatusTip(tr("Add/Edit LDraw to Bricklink Design ID reference"));
-    connect(editLD2BLCodesXRefAct, SIGNAL(triggered()), this, SLOT(editLD2BLCodesXRef()));
-
     editAnnotationStyleAct = new QAction(QIcon(":/resources/editstyleref.png"),tr("Edit Part Annotation Style reference"), this);
     editAnnotationStyleAct->setStatusTip(tr("Add/edit LDraw Design ID, Part Annotation Style, Part Category reference"));
     connect(editAnnotationStyleAct, SIGNAL(triggered()), this, SLOT(editAnnotationStyle()));
 
+    editLD2BLCodesXRefAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Edit LDraw to Bricklink Design ID reference"), this);
+    editLD2BLCodesXRefAct->setStatusTip(tr("Add/Edit LDraw to Bricklink Design ID reference"));
+    connect(editLD2BLCodesXRefAct, SIGNAL(triggered()), this, SLOT(editLD2BLCodesXRef()));
+
     editLD2BLColorsXRefAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Edit LDraw to Bricklink Color eference"), this);
     editLD2BLColorsXRefAct->setStatusTip(tr("Add/edit LDraw LDConfig to Bricklink Color ID reference"));
     connect(editLD2BLColorsXRefAct, SIGNAL(triggered()), this, SLOT(editLD2BLColorsXRef()));
+
+    editLD2RBCodesXRefAct = new QAction(QIcon(":/resources/editld2rbxref.png"),tr("Edit LDraw to Rebrickable Design ID reference"), this);
+    editLD2RBCodesXRefAct->setStatusTip(tr("Add/Edit LDraw to Rebrickable Design ID reference"));
+    connect(editLD2RBCodesXRefAct, SIGNAL(triggered()), this, SLOT(editLD2RBCodesXRef()));
+
+    editLD2RBColorsXRefAct = new QAction(QIcon(":/resources/editld2rbxref.png"),tr("Edit LDraw to Rebrickable Color eference"), this);
+    editLD2RBColorsXRefAct->setStatusTip(tr("Add/edit LDraw LDConfig to Rebrickable Color ID reference"));
+    connect(editLD2RBColorsXRefAct, SIGNAL(triggered()), this, SLOT(editLD2RBColorsXRef()));
 
     editBLColorsAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Edit Bricklink Color reference"), this);
     editBLColorsAct->setStatusTip(tr("Add/edit Bricklink Color ID reference"));
@@ -3682,9 +3720,11 @@ void Gui::enableActions()
   editLdviewPovIniAct->setEnabled(true);
   editPovrayIniAct->setEnabled(true);
   editPovrayConfAct->setEnabled(true);
-  editLD2BLCodesXRefAct->setEnabled(true);
   editAnnotationStyleAct->setEnabled(true);
+  editLD2BLCodesXRefAct->setEnabled(true);
   editLD2BLColorsXRefAct->setEnabled(true);
+  editLD2RBCodesXRefAct->setEnabled(true);
+  editLD2RBColorsXRefAct->setEnabled(true);
   editBLColorsAct->setEnabled(true);
   editBLCodesAct->setEnabled(true);
   editModelFileAct->setEnabled(true);
@@ -3765,9 +3805,11 @@ void Gui::disableActions()
   editLdviewPovIniAct->setEnabled(false);
   editPovrayIniAct->setEnabled(false);
   editPovrayConfAct->setEnabled(false);
-  editLD2BLCodesXRefAct->setEnabled(false);
   editAnnotationStyleAct->setEnabled(false);
+  editLD2BLCodesXRefAct->setEnabled(false);
   editLD2BLColorsXRefAct->setEnabled(false);
+  editLD2RBCodesXRefAct->setEnabled(false);
+  editLD2RBColorsXRefAct->setEnabled(false);
   editBLColorsAct->setEnabled(false);
   editBLCodesAct->setEnabled(false);
   editModelFileAct->setEnabled(false);
@@ -3977,6 +4019,8 @@ void Gui::createMenus()
     editorMenu->addAction(editAnnotationStyleAct);
     editorMenu->addAction(editLD2BLCodesXRefAct);
     editorMenu->addAction(editLD2BLColorsXRefAct);
+    editorMenu->addAction(editLD2RBCodesXRefAct);
+    editorMenu->addAction(editLD2RBColorsXRefAct);
     editorMenu->addAction(editBLColorsAct);
     editorMenu->addAction(editBLCodesAct);
     if (Preferences::ldrawiniFound){

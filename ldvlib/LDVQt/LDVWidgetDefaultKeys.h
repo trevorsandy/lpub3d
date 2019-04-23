@@ -6,6 +6,7 @@
 #define PARTS_LIST_LOOKUP_SITE_KEY "PartsListLookupSite"
 #define PARTS_LIST_ELEMENT_SRURCE_KEY "PartsListElementSource"
 #define PARTS_LIST_GENERATE_PDF_KEY "PartsListPdf"
+#define PARTS_LIST_REBRICKABLE_KEY_KEY "RebrickableKey"
 
 
 // Edges

@@ -23,6 +23,7 @@
 #include <QGLFunctions>
 #include <QDateTime>
 #include <QFileDialog>
+#include <QtGui>
 
 #include <TCFoundation/TCAlertManager.h>
 #include <LDLib/LDInputHandler.h>
@@ -39,6 +40,9 @@ class LDrawModelViewer;
 class LDVAlertHandler;
 class LDSnapshotTaker;
 class LDVHtmlInventory;
+
+class lcHttpReply;
+class lcHttpManager;
 
 class LDVWidget : public QGLWidget, protected QGLFunctions
 {
@@ -66,17 +70,28 @@ public:
 
   bool doCommand(QStringList &arguments);
 
+  void doSetRebrickableColors();
+  void doSetRebrickableParts(const QString &list);
+  void doSetDefaultRebrickableKeys();
+  void doSetRebrickableKey(QString &key) { m_Keys.append(key); }
+
+   int doGetRebrickableColor(const int ldrawColorID, bool = false) const;
+  std::string doGetRebrickablePartURL(const std::string &ldrawPartID, bool = false) const;
+
   void doPartList(void);
   void doPartList(LDVHtmlInventory *htmlInventory, LDPartsList *partsList,
-      const char *filename);
+	  const char *filename);
   bool saveImage(char *filename, int imageWidth, int imageHeight);
   bool grabImage(int &imageWidth, int &imageHeight);
   void setViewMode(LDInputHandler::ViewMode value, bool examineLatLong,
-                       bool keepRightSideUp, bool saveSettings=true);
+					   bool keepRightSideUp, bool saveSettings=true);
   void showDocument(QString &htmlFilename);
 
 signals:
   void loadBLCodesSig();
+
+public slots:
+  void DownloadFinished(lcHttpReply* Reply);
 
 protected:
   bool setIniFile(void);
@@ -111,10 +126,18 @@ protected:
 
   struct IniFile
   {
-      QString Title;
-      QString File;
+	  QString Title;
+	  QString File;
   };
   IniFile iniFiles[NumIniFiles];
+
+  lcHttpManager* m_HttpManager;
+  lcHttpReply* m_KeyListReply;
+  lcHttpReply* m_ColorsReply;
+  lcHttpReply* m_PartsReply;
+  QStringList m_Keys;
+  QByteArray m_RebrickableColors;
+  QByteArray m_RebrickableParts;
 
 };
 

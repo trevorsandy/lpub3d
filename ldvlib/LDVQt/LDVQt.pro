@@ -1,6 +1,7 @@
 TEMPLATE = lib
 QT      += core
 QT      += opengl
+QT      += network
 QT      += widgets
 QT      += gui
 CONFIG  += thread
@@ -15,7 +16,8 @@ INCLUDEPATH += .
 DEPENDPATH  += ./include
 INCLUDEPATH += ./include
 INCLUDEPATH += ../WPngImage
-INCLUDEPATH += ../../mainApp #../../lclib/common
+INCLUDEPATH += ../../mainApp
+INCLUDEPATH += ../../lclib/common
 INCLUDEPATH += ../../qslog
 macx: \
 INCLUDEPATH += /usr/local/include

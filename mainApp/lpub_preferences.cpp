@@ -137,6 +137,8 @@ QString Preferences::legoElementsFile           = VER_LPUB3D_LEGOELEMENTS_FILE;
 QString Preferences::blColorsFile               = VER_LPUB3D_BLCOLORS_FILE;
 QString Preferences::ld2blColorsXRefFile        = VER_LPUB3D_LD2BLCOLORSXREF_FILE;
 QString Preferences::ld2blCodesXRefFile         = VER_LPUB3D_LD2BLCODESXREF_FILE;
+QString Preferences::ld2rbColorsXRefFile        = VER_LPUB3D_LD2RBCOLORSXREF_FILE;
+QString Preferences::ld2rbCodesXRefFile         = VER_LPUB3D_LD2RBCODESXREF_FILE;
 
 bool    Preferences::usingDefaultLibrary        = true;
 bool    Preferences::portableDistribution       = false;
@@ -2793,18 +2795,20 @@ void Preferences::setShowParseErrorsPreference(bool b)
 
 void Preferences::annotationPreferences()
 {
-    bool annoOk[8] = { true, true, true, true, true, true, true, true };
+    bool annoOk[10] = { true, true, true, true, true, true, true, true, true, true };
     QFileInfo annoInfo;
     QSettings Settings;
     titleAnnotationsFile    = Settings.value(QString("%1/%2").arg(SETTINGS,"TitleAnnotationFile")).toString();
     freeformAnnotationsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"FreeFormAnnotationsFile")).toString();
     annotationStyleFile     = Settings.value(QString("%1/%2").arg(SETTINGS,"AnnotationStyleFile")).toString();
 
-    blCodesFile          = Settings.value(QString("%1/%2").arg(SETTINGS,"BLCodesFile")).toString();
+    blCodesFile             = Settings.value(QString("%1/%2").arg(SETTINGS,"BLCodesFile")).toString();
     legoElementsFile        = Settings.value(QString("%1/%2").arg(SETTINGS,"LEGOElementsFile")).toString();
     blColorsFile            = Settings.value(QString("%1/%2").arg(SETTINGS,"BLColorsFile")).toString();
     ld2blColorsXRefFile     = Settings.value(QString("%1/%2").arg(SETTINGS,"LD2BLColorsXRefFile")).toString();
     ld2blCodesXRefFile      = Settings.value(QString("%1/%2").arg(SETTINGS,"LD2BLCodesXRefFile")).toString();
+    ld2rbColorsXRefFile     = Settings.value(QString("%1/%2").arg(SETTINGS,"LD2RBColorsXRefFile")).toString();
+    ld2rbCodesXRefFile      = Settings.value(QString("%1/%2").arg(SETTINGS,"LD2RBCodesXRefFile")).toString();
 
     annoInfo.setFile(titleAnnotationsFile);
     if (! annoInfo.exists()) {
@@ -2854,8 +2858,21 @@ void Preferences::annotationPreferences()
         annoOk[7] = false;
     }
 
+    annoInfo.setFile(ld2rbColorsXRefFile);
+    if (! annoInfo.exists()) {
+        Settings.remove(QString("%1/%2").arg(SETTINGS,"LD2RBColorsXRefFile"));
+        annoOk[8] = false;
+    }
+
+    annoInfo.setFile(ld2rbCodesXRefFile);
+    if (! annoInfo.exists()) {
+        Settings.remove(QString("%1/%2").arg(SETTINGS,"LD2RBCodesXRefFile"));
+        annoOk[9] = false;
+    }
+
     if (annoOk[0] && annoOk[1] && annoOk[2] && annoOk[3] &&
-        annoOk[4] && annoOk[5] && annoOk[6] && annoOk[7])
+        annoOk[4] && annoOk[5] && annoOk[6] && annoOk[7] &&
+        annoOk[8] && annoOk[9])
         return;
 
     if (! annoOk[3]) {
@@ -2911,6 +2928,28 @@ void Preferences::annotationPreferences()
             ld2blCodesXRefFile = QString();
         }
         annoOk[7] = true;
+    }
+
+    if (! annoOk[8]) {
+        ld2rbColorsXRefFile = QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_LD2RBCOLORSXREF_FILE);
+        annoInfo.setFile(ld2rbColorsXRefFile);
+        if (annoInfo.exists()) {
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"LD2RBColorsXRefFile"),ld2rbColorsXRefFile);
+        } else {
+            ld2rbColorsXRefFile = QString();
+        }
+        annoOk[8] = true;
+    }
+
+    if (! annoOk[9]) {
+        ld2rbCodesXRefFile = QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_LD2RBCODESXREF_FILE);
+        annoInfo.setFile(ld2rbCodesXRefFile);
+        if (annoInfo.exists()) {
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"LD2RBCodesXRefFile"),ld2rbCodesXRefFile);
+        } else {
+            ld2rbCodesXRefFile = QString();
+        }
+        annoOk[9] = true;
     }
 
     if (annoOk[0] && annoOk[1] && annoOk[2])

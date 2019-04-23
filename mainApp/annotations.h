@@ -32,6 +32,9 @@ class Annotations {
     static QHash<QString, QString>     blColors;
     static QHash<QString, QString>     ld2blColorsXRef;
     static QHash<QString, QString>     ld2blCodesXRef;
+
+    static QHash<QString, QString>     ld2rbColorsXRef;
+    static QHash<QString, QString>     ld2rbCodesXRef;
   public:
     Annotations();
     static const QString &freeformAnnotation(QString part);
@@ -46,6 +49,9 @@ class Annotations {
     static void loadLD2BLColorsXRef(QByteArray &Buffer);
     static void loadLD2BLCodesXRef(QByteArray &Buffer);
 
+    static void loadLD2RBColorsXRef(QByteArray &Buffer);
+    static void loadLD2RBCodesXRef(QByteArray &Buffer);
+
     static bool loadBLCodes();
     static bool loadBLCodes(QByteArray &Buffer);
     static bool loadLEGOElements();
@@ -55,10 +61,14 @@ class Annotations {
     static const QString &getBLElement(QString ldcolorid,
                                        QString ldpartid,
                                        int     which = 0);
+    static const int &getRBColorID(QString blcolorid);
+    static const QString &getRBPartID(QString blpartid);
 
     static bool exportBLColorsFile();
     static bool exportLD2BLColorsXRefFile();
     static bool exportLD2BLCodesXRefFile();
+    static bool exportLD2RBColorsXRefFile();
+    static bool exportLD2RBCodesXRefFile();
 
     static const QList<QString> getTitleAnnotations()
     {

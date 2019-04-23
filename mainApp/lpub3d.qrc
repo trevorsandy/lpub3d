@@ -58,6 +58,7 @@
         <file alias="deletepage.png">resources/deletepage.png</file>
         <file alias="editdivider.png">resources/editdivider.png</file>
         <file alias="editld2blxref.png">resources/editld2blxref.png</file>
+        <file alias="editld2rbxref.png">resources/editld2rbxref.png</file>
         <file alias="editldraw.png">resources/editldraw.png</file>
         <file alias="editldrawcolourparts.png">resources/editldrawcolourparts.png</file>
         <file alias="editfreeformannotations.png">resources/editfreeformannotations.png</file>

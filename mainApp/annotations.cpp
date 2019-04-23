@@ -35,6 +35,9 @@ QHash<QString, QString>     Annotations::blColors;
 QHash<QString, QString>     Annotations::ld2blColorsXRef;
 QHash<QString, QString>     Annotations::ld2blCodesXRef;
 
+QHash<QString, QString>     Annotations::ld2rbColorsXRef;
+QHash<QString, QString>     Annotations::ld2rbCodesXRef;
+
 void Annotations::loadLD2BLColorsXRef(QByteArray& Buffer){
 /*
 # File: ld2blcolorsxref.lst
@@ -672,6 +675,58 @@ void Annotations::loadDefaultAnnotationStyles(QByteArray& Buffer){
         Buffer.append(VEXIQDefaultAnnotationStyles, sizeof(VEXIQDefaultAnnotationStyles));
 }
 
+void Annotations::loadLD2RBColorsXRef(QByteArray& Buffer){
+/*
+# File: ld2rbcolorsxref.lst
+#
+# Tab-delmited LDConfig and Rebrickable Color code cross reference
+#
+# The Regular Expression used is: ^([^\t]+)\t+\s*([^\t]+).*$
+#
+# 1. LDConfig Color ID: LDraw Color ID             (Required)
+# 2. Color ID:          Rebrickable Color ID        (Required)
+#
+*/
+    const char LEGOLD2RBColorsXRef[] = {
+        "-1\t  -1\n"
+    };
+
+    const char LD2RBColorsXRef[] = {
+        "no colors cross-references defined\n"
+    };
+
+    if (Preferences::validLDrawLibrary == LEGO_LIBRARY)
+        Buffer.append(LEGOLD2RBColorsXRef, sizeof(LEGOLD2RBColorsXRef));
+    else
+        Buffer.append(LD2RBColorsXRef, sizeof(LD2RBColorsXRef));
+}
+
+void Annotations::loadLD2RBCodesXRef(QByteArray& Buffer){
+/*
+# File: ld2rbcodesxref.lst
+#
+# Tab-delmited LDraw Design ID and Rebrickable Part ID cross reference
+#
+# The Regular Expression used is: ^([^\t]+)\t+\s*([^\t]+).*$
+#
+# 1. Design ID:            LDraw Part Number            (Required)
+# 2. Part ID:              Rebrickable Part Number      (Required)
+#
+*/
+    const char LEGOLD2RBCodesXRef[] = {
+        "00000\t     00000\n"
+    };
+
+    const char LD2RBCodesXRef[] = {
+        "no code cross-references defined\n"
+    };
+
+    if (Preferences::validLDrawLibrary == LEGO_LIBRARY)
+        Buffer.append(LEGOLD2RBCodesXRef, sizeof(LEGOLD2RBCodesXRef));
+    else
+        Buffer.append(LD2RBCodesXRef, sizeof(LD2RBCodesXRef));
+}
+
 Annotations::Annotations()
 {
     returnString = QString();
@@ -996,6 +1051,126 @@ Annotations::Annotations()
             }
         }
     }
+
+    // Rebrickable Codes
+
+    if (ld2rbColorsXRef.size() == 0) {
+        QString ld2rbColorsXRefFile = Preferences::ld2rbColorsXRefFile;
+        QRegExp rx("^([^\\t]+)\\t+\\s*([^\\t]+).*$");
+        if (!ld2rbColorsXRefFile.isEmpty()) {
+            QFile file(ld2rbColorsXRefFile);
+            if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
+                QString message = QString("Failed to open ld2rbcolorsxref.lst file: %1:\n%2")
+                                          .arg(ld2rbColorsXRefFile)
+                                          .arg(file.errorString());
+                if (Preferences::modeGUI){
+                    QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+                } else {
+                    logError() << message;
+                }
+                return;
+            }
+            QTextStream in(&file);
+
+            // Load RegExp from file;
+            QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
+            while ( ! in.atEnd()) {
+                QString sLine = in.readLine(0);
+                if (sLine.contains(rxin)) {
+                    rx.setPattern(rxin.cap(1));
+//                    logDebug() << "LD2RB ColorsXRef RegExp Pattern: " << rxin.cap(1);
+                    break;
+                }
+            }
+
+            in.seek(0);
+
+            // Load input values
+            while ( ! in.atEnd()) {
+                QString sLine = in.readLine(0);
+                if (sLine.contains(rx)) {
+                    QString ldcolorid = rx.cap(1);
+                    QString rbcolorid = rx.cap(2).trimmed();
+                    ld2rbColorsXRef[ldcolorid.toLower()] = rbcolorid;
+                }
+            }
+        } else {
+            ld2rbColorsXRef.clear();
+            QByteArray Buffer;
+            loadLD2RBColorsXRef(Buffer);
+            QTextStream instream(Buffer);
+            for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
+            {
+                QChar comment = sLine.at(0);
+                if (comment == '#' || comment == ' ')
+                    continue;
+                if (sLine.contains(rx)) {
+                    QString ldcolorid = rx.cap(1);
+                    QString rbcolorid = rx.cap(2).trimmed();
+                    ld2rbColorsXRef[ldcolorid.toLower()] = rbcolorid;
+                }
+            }
+        }
+    }
+
+    if (ld2rbCodesXRef.size() == 0) {
+        QString ld2rbCodesXRefFile = Preferences::ld2rbCodesXRefFile;
+        QRegExp rx("^([^\\t]+)\\t+\\s*([^\\t]+).*$");
+        if (!ld2rbCodesXRefFile.isEmpty()) {
+            QFile file(ld2rbCodesXRefFile);
+            if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
+                QString message = QString("Failed to open ld2rbcodesxref.lst file: %1:\n%2")
+                                          .arg(ld2rbCodesXRefFile)
+                                          .arg(file.errorString());
+                if (Preferences::modeGUI){
+                    QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+                } else {
+                    logError() << message;
+                }
+                return;
+            }
+            QTextStream in(&file);
+
+            // Load RegExp from file;
+            QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
+            while ( ! in.atEnd()) {
+                QString sLine = in.readLine(0);
+                if (sLine.contains(rxin)) {
+                    rx.setPattern(rxin.cap(1));
+//                    logDebug() << "LD2RB CodesXRef RegExp Pattern: " << rxin.cap(1);
+                    break;
+                }
+            }
+
+           in.seek(0);
+
+            // Load input values
+            while ( ! in.atEnd()) {
+                QString sLine = in.readLine(0);
+                if (sLine.contains(rx)) {
+                    QString ldpartid = rx.cap(1);
+                    QString rbitemid = rx.cap(2).trimmed();
+                    ld2rbCodesXRef[ldpartid.toLower()] = rbitemid;
+                }
+            }
+        } else {
+            ld2rbCodesXRef.clear();
+            QByteArray Buffer;
+            loadLD2RBCodesXRef(Buffer);
+            QTextStream instream(Buffer);
+            for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
+            {
+                QChar comment = sLine.at(0);
+                if (comment == '#' || comment == ' ')
+                    continue;
+                if (sLine.contains(rx)) {
+                    QString ldpartid = rx.cap(1);
+                    QString rbitemid = rx.cap(2).trimmed();
+                    ld2rbCodesXRef[ldpartid.toLower()] = rbitemid;
+                }
+            }
+        }
+    }
 }
 
 // key : blitemid+blcolorid
@@ -1281,6 +1456,21 @@ const QString &Annotations::getBLElement(QString ldcolorid, QString ldpartid, in
     return returnString;
 }
 
+const int &Annotations::getRBColorID(QString ldcolorid)
+{
+    returnInt = 0;
+    if (ld2rbColorsXRef.contains(ldcolorid.toLower()))
+        returnInt = ld2rbColorsXRef[ldcolorid.toLower()].toInt();
+    return returnInt;
+}
+
+const QString &Annotations::getRBPartID(QString ldpartid)
+{
+    if (ld2rbCodesXRef.contains(ldpartid.toLower()))
+        returnString = ld2rbCodesXRef[ldpartid.toLower()];
+    return returnString;
+}
+
 bool Annotations::overwriteFile(const QString &file)
 {
     QFileInfo fileInfo(file);
@@ -1563,7 +1753,7 @@ bool Annotations::exportLD2BLCodesXRefFile(){
     {
         int counter = 1;
         QTextStream outstream(&file);
-        outstream << "# File:" << VER_LPUB3D_LD2BLCOLORSXREF_FILE << endl;
+        outstream << "# File:" << VER_LPUB3D_LD2BLCODESXREF_FILE << endl;
         outstream << "#" << endl;
         outstream << "# Tab-delmited LDraw Design ID and BrickLink Item Number cross reference" << endl;
         outstream << "#" << endl;
@@ -1617,6 +1807,128 @@ bool Annotations::exportLD2BLCodesXRefFile(){
     else
     {
         QString message = QString("Failed to open LDraw Design ID and BrickLink Item Number file: %1:\n%2")
+                                  .arg(file.fileName())
+                                  .arg(file.errorString());
+        if (Preferences::modeGUI){
+            QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+        } else {
+            logError() << message;
+        }
+       return false;
+    }
+    return true;
+}
+
+bool Annotations::exportLD2RBColorsXRefFile(){
+    QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,"/" VER_LPUB3D_LD2RBCOLORSXREF_FILE));
+
+    if (!overwriteFile(file.fileName()))
+        return true;
+
+    if(file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        int counter = 1;
+        QTextStream outstream(&file);
+        outstream << "# File:" << VER_LPUB3D_LD2RBCOLORSXREF_FILE << endl;
+        outstream << "#" << endl;
+        outstream << "# Tab-delmited LDConfig and Rebrickable Color code cross reference" << endl;
+        outstream << "#" << endl;
+        outstream << "# The Regular Expression used is: ^([^\\t]+)\\t+\\s*([^\\t]+).*$" << endl;
+        outstream << "#" << endl;
+        outstream << "# 1. LDConfig Color ID: LDraw Color ID             (Required)" << endl;
+        outstream << "# 2. Color ID:          Rebrickable Color ID       (Required)" << endl;
+        outstream << "#" << endl;
+        outstream << "# This is one of two parameter files that support viewing parts on Rebrickable.com." << endl;
+        outstream << "#" << endl;
+        outstream << "# ld2rbcolorsxref.lst   - Tab-delmited LDConfig and Rebrickable Color code cross reference" << endl;
+        outstream << "# ld2rbcodesxref.lst    - Tab-delmited LDraw Design ID and Rebrickable Item Number cross reference" << endl;
+        outstream << "#" << endl;
+        outstream << "# Use ld2rbcolorsxref.lst to create cross-reference entries for LDConfig and Rebrickable Color IDs." << endl;
+        outstream << "#" << endl;
+
+        QByteArray Buffer;
+        loadLD2RBColorsXRef(Buffer);
+        QTextStream instream(Buffer);
+        for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
+        {
+            outstream << sLine << endl;
+            counter++;
+        }
+
+        file.close();
+        QString message = QString("Finished Writing LDConfig and Rebrickable Color Code Entries, Processed %1 lines in file [%2]")
+                                   .arg(counter)
+                                   .arg(file.fileName());
+        if (Preferences::modeGUI){
+            QMessageBox::information(nullptr,QMessageBox::tr("LPub3D"),message);
+        } else {
+            logNotice() << message;
+        }
+    }
+    else
+    {
+        QString message = QString("Failed to open LDConfig and Rebrickable Color Code file: %1:\n%2")
+                                  .arg(file.fileName())
+                                  .arg(file.errorString());
+        if (Preferences::modeGUI){
+            QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+        } else {
+            logError() << message;
+        }
+       return false;
+    }
+    return true;
+}
+
+bool Annotations::exportLD2RBCodesXRefFile(){
+    QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,"/" VER_LPUB3D_LD2RBCODESXREF_FILE));
+
+    if (!overwriteFile(file.fileName()))
+        return true;
+
+    if(file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        int counter = 1;
+        QTextStream outstream(&file);
+        outstream << "# File:" << VER_LPUB3D_LD2RBCODESXREF_FILE << endl;
+        outstream << "#" << endl;
+        outstream << "# Tab-delmited LDraw Design ID and Rebrickable Part ID cross reference" << endl;
+        outstream << "#" << endl;
+        outstream << "# The Regular Expression used is: ^([^\\t]+)\\t+\\s*([^\\t]+).*$" << endl;
+        outstream << "#" << endl;
+        outstream << "# 1. Design ID:            LDraw Part Number            (Required)" << endl;
+        outstream << "# 2. Part ID:              Rebrickable Part Number      (Required)" << endl;
+        outstream << "#" << endl;
+        outstream << "# This is one of two parameter files that support viewing parts on Rebrickable.com." << endl;
+        outstream << "#" << endl;
+        outstream << "# ld2rbcolorsxref.lst   - Tab-delmited LDConfig and Rebrickable Color code cross reference" << endl;
+        outstream << "# ld2rbcodesxref.lst    - Tab-delmited LDraw Design ID and Rebrickable Item Number cross reference" << endl;
+        outstream << "#" << endl;
+        outstream << "# Use ld2rbcodesxref.lst to create cross-reference entries for LDraw Design ID and Rebrickable Parg ID." << endl;
+        outstream << "#" << endl;
+
+        QByteArray Buffer;
+        loadLD2RBCodesXRef(Buffer);
+        QTextStream instream(Buffer);
+        for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
+        {
+            outstream << sLine << endl;
+            counter++;
+        }
+
+        file.close();
+        QString message = QString("Finished Writing LDraw Design ID and Rebrickable Part ID Entries, Processed %1 lines in file [%2]")
+                                   .arg(counter)
+                                   .arg(file.fileName());
+        if (Preferences::modeGUI){
+            QMessageBox::information(nullptr,QMessageBox::tr("LPub3D"),message);
+        } else {
+            logNotice() << message;
+        }
+    }
+    else
+    {
+        QString message = QString("Failed to open LDraw Design ID and Rebrickable Part ID file: %1:\n%2")
                                   .arg(file.fileName())
                                   .arg(file.errorString());
         if (Preferences::modeGUI){

@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>352</width>
-    <height>495</height>
+    <height>537</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -257,34 +257,6 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <item>
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>Part lookup site:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="partLookupSiteCombo">
-            <property name="toolTip">
-             <string>Select part lookup website</string>
-            </property>
-            <item>
-             <property name="text">
-              <string>BrickLink</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Peeron</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
            <widget class="QLabel" name="label_2">
@@ -308,6 +280,62 @@
               <string>LEGO</string>
              </property>
             </item>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Part lookup site:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="partLookupSiteCombo">
+            <property name="toolTip">
+             <string>Select part lookup website</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>BrickLink</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Peeron</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Rebrickable</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>LDraw Part Tracker</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <item>
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>API Key</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="rebrickableKeyEdit">
+            <property name="toolTip">
+             <string>Enter your Rebrickable API Key or leave blank to use the LPub3D default key</string>
+            </property>
            </widget>
           </item>
          </layout>

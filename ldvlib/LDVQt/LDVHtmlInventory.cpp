@@ -16,7 +16,8 @@
 #include <QProgressDialog>
 #include <QMessageBox>
 
-#include <LDVWidgetDefaultKeys.h>
+#include "LDVWidget.h"
+#include "LDVWidgetDefaultKeys.h"
 #include "messageboxresizable.h"
 #include "annotations.h"
 #include "paths.h"
@@ -31,6 +32,7 @@
 
 #define SNAPSHOT_WIDTH_DEFAULT 400
 #define SNAPSHOT_HEIGHT_DEFAULT 300
+#define REBRICKABLE_KEY_DEFAULT ""
 
 const char *LDVHtmlInventory::sm_style = "\
 body\n\
@@ -77,6 +79,7 @@ th\n\
 	border-bottom: 1px solid #000000;\n\
 	border-right: 1px solid #00558A;\n\
 	padding: 4px 8px;\n\
+    white-space: nowrap;\n\
 }\n\
 \n\
 th.title\n\
@@ -496,7 +499,7 @@ function sort(columnClassName, tableId) {\n\
 };\n\
 ";
 
-LDVHtmlInventory::LDVHtmlInventory(void) :
+LDVHtmlInventory::LDVHtmlInventory() :
 	m_prefs(new LDPreferences),
 	m_viewPoint(nullptr)
 {
@@ -519,9 +522,9 @@ LDVHtmlInventory::LDVHtmlInventory(void) :
 		m_columnOrder.push_back((LDVPartListColumn)columnOrder[i]);
 	}
 
-	Meta meta;
+	Meta meta; // use BOM element setting
 	bool bl = meta.LPub.bom.partElements.bricklinkElements.value();
-	m_lookupDefault = bl ? LookUp::Bricklink : LookUp::Peeron;
+	m_lookupDefault = bl ? LookUp::Bricklink : LookUp::Rebrickable;
 	m_elementDefault = bl ? ElementSrc::BL : ElementSrc::LEGO;
 }
 
@@ -609,6 +612,8 @@ bool LDVHtmlInventory::generateHtml(
 		int invalidElements = 0;
 		int uniqueElements = 0;
 
+		QStringList partList;
+
 		IntVector uniqueColors;
 		for (i = 0; i < uniqueParts; i++)
 		{
@@ -616,11 +621,12 @@ bool LDVHtmlInventory::generateHtml(
 			const IntVector &colors = partCount.getColors();
 			int elements = (int)colors.size();
 			uniqueElements += elements;
+			QString ldPartId(QFileInfo(QString::fromStdString(partCount.getFilename())).baseName());
+			partList.append(ldPartId);
 			for (j = 0; j < elements; j++)
 			{
 				bool bl = m_lookupSite == LookUp::Bricklink;
 				QString ldColorId(QString::number(colors[j]));
-				QString ldPartId(QFileInfo(QString::fromStdString(partCount.getFilename())).baseName());
 				QString elementId = Annotations::getBLElement(
 					ldColorId, ldPartId,
 					bl ? ElementSrc::BL:ElementSrc::LEGO);
@@ -629,6 +635,13 @@ bool LDVHtmlInventory::generateHtml(
 				if (find(uniqueColors.begin(), uniqueColors.end(), colors[j]) == uniqueColors.end())
 					uniqueColors.push_back(colors[j]);
 			}
+		}
+
+		if (getLookupSite() == LookUp::Rebrickable &&
+			partList.size() &&
+			m_modelWidget) {
+			m_modelWidget->doSetRebrickableColors();
+			m_modelWidget->doSetRebrickableParts(partList.join(","));
 		}
 
 		ProgressDialog->setMaximum(uniqueParts);
@@ -700,6 +713,11 @@ void LDVHtmlInventory::setSnapshotHeightFlag(int value)
 	setOtherSetting(m_snapshotHeight, value, SAVE_HEIGHT_KEY, true);
 }
 
+void LDVHtmlInventory::setRebrickableKeyFlag(std::string  value)
+{
+	setOtherSetting(m_rebrickableKey, value, PARTS_LIST_REBRICKABLE_KEY_KEY, true);
+}
+
 bool LDVHtmlInventory::getGeneratePdfFlag()
 {
 	m_generatePdf = getBoolSetting(PARTS_LIST_GENERATE_PDF_KEY);
@@ -730,6 +748,12 @@ int LDVHtmlInventory::getSnapshotHeightFlag()
 	return m_snapshotHeight;
 }
 
+std::string  LDVHtmlInventory::getRebrickableKeyFlag()
+{
+	m_rebrickableKey = getStringSetting(PARTS_LIST_REBRICKABLE_KEY_KEY,REBRICKABLE_KEY_DEFAULT);
+	return m_rebrickableKey;
+}
+
 void LDVHtmlInventory::loadOtherSettings(void)
 {
 	getGeneratePdfFlag();
@@ -737,6 +761,7 @@ void LDVHtmlInventory::loadOtherSettings(void)
 	getElementSourceFlag();
 	getSnapshotWidthFlag();
 	getSnapshotHeightFlag();
+	getRebrickableKeyFlag();
 	LongVector columnOrder;
 	columnOrder.push_back(1);	// Part
 	columnOrder.push_back(3);	// Color
@@ -745,8 +770,11 @@ void LDVHtmlInventory::loadOtherSettings(void)
 	m_prefs->setInvColumnOrder(columnOrder);
 }
 
-void LDVHtmlInventory::setOtherSetting(bool &setting, bool value, const char *key,
-									   bool commit)
+void LDVHtmlInventory::setOtherSetting(
+	bool &setting,
+	bool value,
+	const char *key,
+	bool commit)
 {
 	if (setting != value)
 	{
@@ -759,8 +787,11 @@ void LDVHtmlInventory::setOtherSetting(bool &setting, bool value, const char *ke
 	}
 }
 
-void LDVHtmlInventory::setOtherSetting(int &setting, int value, const char *key,
-									   bool commit)
+void LDVHtmlInventory::setOtherSetting(
+	int &setting,
+	int value,
+	const char *key,
+	bool commit)
 {
 	if (setting != value)
 	{
@@ -768,6 +799,32 @@ void LDVHtmlInventory::setOtherSetting(int &setting, int value, const char *key,
 		if (commit)
 		{
 			TCUserDefaults::setLongForKey(value, key, true /*!m_globalSettings[key]*/);
+		}
+	}
+}
+
+void LDVHtmlInventory::setOtherSetting(
+	std::string &setting,
+	const std::string &value,
+	const char *key,
+	bool commit,
+	bool isPath /*= false*/)
+{
+	if (setting != value)
+	{
+		setting = value;
+		if (commit)
+		{
+			if (isPath)
+			{
+				TCUserDefaults::setPathForKey(value.c_str(), key,
+					true /*!m_globalSettings[key]*/);
+			}
+			else
+			{
+				TCUserDefaults::setStringForKey(value.c_str(), key,
+					true /*!m_globalSettings[key]*/);
+			}
 		}
 	}
 }
@@ -782,6 +839,32 @@ int LDVHtmlInventory::getIntSetting(const char *key, int defaultValue)
 {
 	return (int)TCUserDefaults::longForKey(key, defaultValue,
 			true /*!m_globalSettings[key]*/);
+}
+
+std::string LDVHtmlInventory::getStringSetting(
+	const char *key,
+	const char *defaultValue /*= NULL*/,
+	bool isPath /*= false*/)
+{
+	char *tmpString;
+	std::string result;
+
+	if (isPath)
+	{
+		tmpString = TCUserDefaults::pathForKey(key, defaultValue,
+			true /*!m_globalSettings[key]*/);
+	}
+	else
+	{
+		tmpString = TCUserDefaults::stringForKey(key, defaultValue,
+			true /*!m_globalSettings[key]*/);
+	}
+	if (tmpString)
+	{
+		result = tmpString;
+		delete[] tmpString;
+	}
+	return result;
 }
 
 // *** Settings Flags End ***
@@ -995,7 +1078,6 @@ void LDVHtmlInventory::writePartCell(
 	std::string partName = partCount.getFilename();
 	size_t nDotSpot = partName.find('.');
 	int r, g, b, a;
-	bool bl = m_lookupSite == LookUp::Bricklink;
 	bool element = true;
 
 	palette->getRGBA(colorInfo, r, g, b, a);
@@ -1011,25 +1093,74 @@ void LDVHtmlInventory::writePartCell(
 			className = " class=\"image\"";
 		}
 
-		if (bl) {
-			QString elementId = Annotations::getBLElement(
-				QString::number(colorNumber),
-				QString::fromStdString(partName),
-				ElementSrc::BL);
+		std::string viewOnString;
 
+		QString elementId;
+
+		if (getLookupSite() != LookUp::Peeron) {
+			elementId = Annotations::getBLElement(
+									QString::number(colorNumber),
+									QString::fromStdString(partName),
+									ElementSrc::BL);
 			element = !elementId.isEmpty();
+		}
 
+		switch (m_lookupSite)
+		{
+		case LookUp::Bricklink:
+		{
 			QStringList elementParts = elementId.split("-");
 
 			fprintf(file, "			<td%s>"
-				"<a href=\"https://www.bricklink.com/v2/catalog/catalogitem.page?P=%s&idColor=%s\">",
-				className.c_str(),
-				element ? elementParts.at(0).toLatin1().constData() : "0000",
-				element ? elementParts.at(1).toLatin1().constData() : "00");
-		} else {
+						  "<a href=\"https://www.bricklink.com/v2/catalog/catalogitem.page?P=%s&idColor=%s\">",
+					className.c_str(),
+					element ? elementParts.at(0).toLatin1().constData() : "0000",
+					element ? elementParts.at(1).toLatin1().constData() : "00");
+
+			viewOnString = lsUtf8(element ? "PLViewOnBricklink" : "PLVInvalidElement");
+		}
+			break;
+		case LookUp::Rebrickable:
+		{
+            int rebricableColor = colorNumber /*m_modelWidget->doGetRebrickableColor(colorNumber)*/;
+
+			std::string rebricablePartUrl = m_modelWidget->doGetRebrickablePartURL(partName);
+
 			fprintf(file, "			<td%s>"
-				"<a href=\"http://peeron.com/inv/parts/%s\">",
-				className.c_str(), partName.c_str());
+						  "<a href=\"%s%d/\">",
+					className.c_str(),
+					rebricablePartUrl.c_str(),
+                    rebricableColor);
+
+			viewOnString = lsUtf8(element ? "PLViewOnRebrickable" : "PLVInvalidElement");
+		}
+			break;
+		case LookUp::Peeron:
+			fprintf(file, "			<td%s>"
+						  "<a href=\"http://peeron.com/inv/parts/%s\">",
+					className.c_str(), partName.c_str());
+
+			viewOnString = lsUtf8("PLViewOnPeeron");
+			break;
+		case LookUp::PTracker:
+		{
+			if (partCount.getModel()->isOfficial()) {
+				fprintf(file, "			<td%s>"
+							  "<a href=\"http://www.ldraw.org/cgi-bin/ptscan.cgi?q=%s\">",
+						className.c_str(), partCount.getFilename());
+
+				viewOnString = lsUtf8("PLViewOnLDrawPartTracker");
+			} else {
+				fprintf(file, "			<td%s>"
+							  "<a href=\"http://www.ldraw.org/cgi-bin/ptdetail.cgi?f=parts/%s\">",
+						className.c_str(), partCount.getFilename());
+
+				viewOnString = lsUtf8("PLViewOnLDrawUnOffPartTracker");
+			}
+		}
+			break;
+		default:
+			break;
 		}
 
 		QString localPartPath = QDir::toNativeSeparators(QString("%1/%2_%3_%4.png")
@@ -1039,8 +1170,7 @@ void LDVHtmlInventory::writePartCell(
 								.arg(QString::fromStdString(m_partListKey)));
 
 		fprintf(file, "<img alt=\"%s\" title=\"%s\" src=\"%s\">",
-			lsUtf8(bl ? element ? "PLViewOnBricklink" : "PLVInvalidElement" : "PLViewOnPeeron"),
-			lsUtf8(bl ? element ? "PLViewOnBricklink" : "PLVInvalidElement" : "PLViewOnPeeron"),
+			viewOnString.c_str(), viewOnString.c_str(),
 			localPartPath.toLatin1().constData());
 
 		fprintf(file, "</a></td>\n");

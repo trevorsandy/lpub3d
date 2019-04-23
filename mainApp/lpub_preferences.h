@@ -150,6 +150,8 @@ class Preferences
     static QString blColorsFile;
     static QString ld2blColorsXRefFile;
     static QString ld2blCodesXRefFile;
+    static QString ld2rbColorsXRefFile;
+    static QString ld2rbCodesXRefFile;
 
     static QString fadeStepsColourKey;
     static QString ldrawSearchDirsKey;
