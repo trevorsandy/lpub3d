@@ -35,6 +35,8 @@ LDVPartList::LDVPartList(LDVWidget *modelWidget, LDVHtmlInventory *htmlInventory
 	snapshotHeightEdit->setValidator(validator);
 	snapshotEdit->setValidator(new QRegExpValidator(
 		   QRegExp("^.*\\.png$",Qt::CaseInsensitive), this));
+	rebrickableKeyEdit->setValidator(new QRegExpValidator(
+		   QRegExp("^[\\p{L}0-9]*$",Qt::CaseInsensitive), this));
 
 //	fieldOrderView->header()->hide();
 //	fieldOrderView->setSorting(-1);

@@ -310,6 +310,11 @@
             </item>
             <item>
              <property name="text">
+              <string>BrickSet</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
               <string>Rebrickable</string>
              </property>
             </item>

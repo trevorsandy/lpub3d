@@ -119,7 +119,7 @@ void Annotations::loadLD2BLColorsXRef(QByteArray& Buffer){
         "26\t  71\n"
         "313\t 72\n"
         "112\t 73\n"
-        "219\t 73\n"
+        "216\t 73\n"
         "41\t  74\n"
         "115\t 76\n"
         "148\t 77\n"
@@ -688,7 +688,18 @@ void Annotations::loadLD2RBColorsXRef(QByteArray& Buffer){
 #
 */
     const char LEGOLD2RBColorsXRef[] = {
-        "-1\t  -1\n"
+        "38\t  57\n"
+        "39\t  43\n"
+        "41\t  143\n"
+        "43\t  41\n"
+        "44\t  236\n"
+        "45\t  230\n"
+        "57\t  182\n"
+        "326\t  158\n"
+        "329\t  1000\n"
+        "330\t  326\n"
+        "339\t  1002\n"
+        "87\t  1040\n"
     };
 
     const char LD2RBColorsXRef[] = {
@@ -1458,7 +1469,7 @@ const QString &Annotations::getBLElement(QString ldcolorid, QString ldpartid, in
 
 const int &Annotations::getRBColorID(QString ldcolorid)
 {
-    returnInt = 0;
+    returnInt = -1;
     if (ld2rbColorsXRef.contains(ldcolorid.toLower()))
         returnInt = ld2rbColorsXRef[ldcolorid.toLower()].toInt();
     return returnInt;

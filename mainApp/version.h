@@ -130,7 +130,6 @@
 #define VER_LPUB3D_LD2BLCODESXREF_FILE      "ld2blcodesxref.lst"
 #define VER_LPUB3D_LD2RBCOLORSXREF_FILE     "ld2rbcolorsxref.lst"
 #define VER_LPUB3D_LD2RBCODESXREF_FILE      "ld2rbcodesxref.lst"
-#define VER_LPUB3D_BLCODES_DOWNLOAD_URL     "https://trevorsandy.github.io/lpub3d/assets/resources/codes.txt"
 #define VER_LPUB3D_ONLINE_MANUAL_URL        "https://sites.google.com/view/workingwithlpub3d/"
 
 // ~~~~~~ Build Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
@@ -145,8 +144,9 @@
 
 #define VER_COMPANYDOMAIN_STR               "https://trevorsandy.github.io/lpub3d/"
 #define VER_SOURCE_GITHUB_STR               "https://github.com/trevorsandy/lpub3d/"
-#define VER_REBRICKABLE_KEYS_JSON_URL       VER_COMPANYDOMAIN_STR "assets/resources/rebrickablekeys.json"
 #define VER_REBRICKABLE_API_URL             "https://rebrickable.com/api/v3/lego"
+#define VER_REBRICKABLE_KEYS_JSON_URL       VER_COMPANYDOMAIN_STR "assets/resources/rebrickablekeys.json"
+#define VER_LPUB3D_BLCODES_DOWNLOAD_URL     VER_COMPANYDOMAIN_STR "assets/resources/codes.txt"
 
 #ifdef __GNUC__
   #ifdef __MINGW64__

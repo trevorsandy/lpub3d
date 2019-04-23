@@ -4019,10 +4019,10 @@ void Gui::createMenus()
     editorMenu->addAction(editAnnotationStyleAct);
     editorMenu->addAction(editLD2BLCodesXRefAct);
     editorMenu->addAction(editLD2BLColorsXRefAct);
-    editorMenu->addAction(editLD2RBCodesXRefAct);
-    editorMenu->addAction(editLD2RBColorsXRefAct);
     editorMenu->addAction(editBLColorsAct);
     editorMenu->addAction(editBLCodesAct);
+    editorMenu->addAction(editLD2RBColorsXRefAct);
+    editorMenu->addAction(editLD2RBCodesXRefAct);
     if (Preferences::ldrawiniFound){
       editorMenu->addAction(editLdrawIniFileAct);
     }

@@ -79,7 +79,7 @@ th\n\
 	border-bottom: 1px solid #000000;\n\
 	border-right: 1px solid #00558A;\n\
 	padding: 4px 8px;\n\
-    white-space: nowrap;\n\
+	white-space: nowrap;\n\
 }\n\
 \n\
 th.title\n\
@@ -499,7 +499,7 @@ function sort(columnClassName, tableId) {\n\
 };\n\
 ";
 
-LDVHtmlInventory::LDVHtmlInventory() :
+LDVHtmlInventory::LDVHtmlInventory(void) :
 	m_prefs(new LDPreferences),
 	m_viewPoint(nullptr)
 {
@@ -625,11 +625,10 @@ bool LDVHtmlInventory::generateHtml(
 			partList.append(ldPartId);
 			for (j = 0; j < elements; j++)
 			{
-				bool bl = m_lookupSite == LookUp::Bricklink;
 				QString ldColorId(QString::number(colors[j]));
 				QString elementId = Annotations::getBLElement(
 					ldColorId, ldPartId,
-					bl ? ElementSrc::BL:ElementSrc::LEGO);
+					getElementSource());
 				if (elementId.isEmpty())
 					invalidElements++;
 				if (find(uniqueColors.begin(), uniqueColors.end(), colors[j]) == uniqueColors.end())
@@ -640,7 +639,6 @@ bool LDVHtmlInventory::generateHtml(
 		if (getLookupSite() == LookUp::Rebrickable &&
 			partList.size() &&
 			m_modelWidget) {
-			m_modelWidget->doSetRebrickableColors();
 			m_modelWidget->doSetRebrickableParts(partList.join(","));
 		}
 
@@ -935,6 +933,8 @@ void LDVHtmlInventory::writeHeader(FILE *file)
 	fprintf(file, "<head>\n");
 	fprintf(file, "<meta http-equiv=\"Content-Type\" "
 		"content=\"text/html; charset=UTF-8\">\n");
+	fprintf(file, "<link rel=\"icon\" href=\""
+		"https://trevorsandy.github.io/lpub3d/favicon.ico\">\n");
 	char title[1024];
 	sprintf(title, lsUtf8("PLTitle"), m_modelName.c_str());
 	fprintf(file, "<title>%s</title>\n", title);
@@ -1076,15 +1076,19 @@ void LDVHtmlInventory::writePartCell(
 {
 	std::string className;
 	std::string partName = partCount.getFilename();
-	size_t nDotSpot = partName.find('.');
+	std::string style = "";
+
 	int r, g, b, a;
 	bool element = true;
 
 	palette->getRGBA(colorInfo, r, g, b, a);
+
+	size_t nDotSpot = partName.find('.');
 	if (nDotSpot < partName.size())
 	{
 		partName = partName.substr(0, nDotSpot);
 	}
+
 	if (m_partImages)
 	{
 
@@ -1093,17 +1097,16 @@ void LDVHtmlInventory::writePartCell(
 			className = " class=\"image\"";
 		}
 
-		std::string viewOnString;
+		std::string viewOnString = "";
 
-		QString elementId;
+		QString elementId = Annotations::getBLElement(
+					QString::number(colorNumber),
+					QString::fromStdString(partName),
+					ElementSrc::BL);
 
-		if (getLookupSite() != LookUp::Peeron) {
-			elementId = Annotations::getBLElement(
-									QString::number(colorNumber),
-									QString::fromStdString(partName),
-									ElementSrc::BL);
-			element = !elementId.isEmpty();
-		}
+		element = !elementId.isEmpty();
+
+		style = element ? "" : " style=\"color: #FF0000;\"";
 
 		switch (m_lookupSite)
 		{
@@ -1120,9 +1123,31 @@ void LDVHtmlInventory::writePartCell(
 			viewOnString = lsUtf8(element ? "PLViewOnBricklink" : "PLVInvalidElement");
 		}
 			break;
+		case LookUp::Peeron:
+			fprintf(file, "			<td%s>"
+						  "<a href=\"http://peeron.com/inv/parts/%s\">",
+					className.c_str(), partName.c_str());
+
+			viewOnString = lsUtf8("PLViewOnPeeron");
+			break;
+		case LookUp::Brickset:
+		{
+			elementId = Annotations::getBLElement(
+								QString::number(colorNumber),
+								QString::fromStdString(partName),
+								ElementSrc::LEGO);
+
+			fprintf(file, "			<td%s>"
+						  "<a href=\"https://brickset.com/parts/%s/\">",
+					className.c_str(),
+					element ? elementId.toLatin1().constData() : partName.c_str());
+
+			viewOnString = lsUtf8(element ? "PLViewOnBrickset" : "PLVInvalidElement");
+		}
+			break;
 		case LookUp::Rebrickable:
 		{
-            int rebricableColor = colorNumber /*m_modelWidget->doGetRebrickableColor(colorNumber)*/;
+			int rebricableColor = m_modelWidget->doGetRebrickableColor(colorNumber);
 
 			std::string rebricablePartUrl = m_modelWidget->doGetRebrickablePartURL(partName);
 
@@ -1130,17 +1155,10 @@ void LDVHtmlInventory::writePartCell(
 						  "<a href=\"%s%d/\">",
 					className.c_str(),
 					rebricablePartUrl.c_str(),
-                    rebricableColor);
+					rebricableColor);
 
 			viewOnString = lsUtf8(element ? "PLViewOnRebrickable" : "PLVInvalidElement");
 		}
-			break;
-		case LookUp::Peeron:
-			fprintf(file, "			<td%s>"
-						  "<a href=\"http://peeron.com/inv/parts/%s\">",
-					className.c_str(), partName.c_str());
-
-			viewOnString = lsUtf8("PLViewOnPeeron");
 			break;
 		case LookUp::PTracker:
 		{
@@ -1176,8 +1194,7 @@ void LDVHtmlInventory::writePartCell(
 		fprintf(file, "</a></td>\n");
 
 	}
-	std::string style;
-	style = element ? "" : " style=\"color: #FF0000;\"";
+
 	fprintf(file, "			<td class=\"partnum\"%s>%s</td>\n", style.c_str(), partName.c_str());
 }
 
@@ -1257,7 +1274,7 @@ void LDVHtmlInventory::writeElementCell(
 	QString elementId = Annotations::getBLElement(
 		QString::number(colorNumber),
 		QString::fromStdString(partName),
-		bl ? ElementSrc::BL:ElementSrc::LEGO);
+		getElementSource());
 
 	if (elementId.isEmpty())
 	{
@@ -1428,15 +1445,41 @@ void LDVHtmlInventory::writeTableFooter(FILE *file)
 	{
 		ldviewCreditAlign = "center";
 	}
-	fprintf(file, "         <td class=\"credits\" align=\"%s\">\n",
+	fprintf(file, "			<td class=\"credits\" align=\"%s\">\n",
 			ldviewCreditAlign);
 	fprintf(file, "				%s\n", lsUtf8("PLVGeneratedBy"));
 	fprintf(file, "			</td>\n");
 	if (m_partImages)
 	{
-		fprintf(file, "		<td class=\"credits\" align=\"right\">\n");
-		fprintf(file, "			%s\n", lsUtf8("PLVProvidedBy"));
-		fprintf(file, "		</td>\n");
+		std::string lookupSite = "";
+		fprintf(file, "			<td class=\"credits\" align=\"right\">\n");
+		fprintf(file, "				%s ", lsUtf8("PLVProvidedBy"));
+		switch (m_lookupSite)
+		{
+		case LookUp::Bricklink:
+			fprintf(file, "%s<a href=\"https://www.bricklink.com/\"> Bricklink.com</a>.\n",
+					lsUtf8("PLVLookupSite"));
+			break;
+		case LookUp::Peeron:
+			fprintf(file, "%s<a href=\"http://peeron.com/\"> Peeron.com</a>.\n",
+					lsUtf8("PLVLookupSite"));
+			break;
+		case LookUp::Brickset:
+			fprintf(file, "%s<a href=\"https://brickset.com/\"> Brickset.com</a>.\n",
+					lsUtf8("PLVLookupSite"));
+			break;
+		case LookUp::Rebrickable:
+			fprintf(file, "%s<a href=\"https://rebrickable.com/\"> Rebrickable.com</a>.\n",
+					lsUtf8("PLVLookupSite"));
+			break;
+		case LookUp::PTracker:
+			fprintf(file, "%s<a href=\"https://http://www.ldraw.org/\"> LDraw.org</a>.\n",
+					lsUtf8("PLVLookupSite"));
+			break;
+		default:
+			break;
+		}
+		fprintf(file, "			</td>\n");
 	}
 	fprintf(file, "		</tr>\n");
 	fprintf(file, "	</tbody>\n");

@@ -981,34 +981,11 @@ void LDVWidget::displayGLExtensions()
 #endif
 }
 
-int LDVWidget::doGetRebrickableColor(const int LDrawColorID, bool alt) const
+int LDVWidget::doGetRebrickableColor(const int LDrawColorID) const
 {
-    QJsonDocument Document = QJsonDocument::fromJson(m_RebrickableColors);
-    QJsonObject Root = Document.object();
-    QJsonArray Colors = Root["results"].toArray();
-    for (const QJsonValue& Color : Colors)
-    {
-        // primary check
-        QJsonObject ColorObject = Color.toObject();
-        int RBColorCode = ColorObject["id"].toInt();
-        if (LDrawColorID == RBColorCode) {
-            emit lpubAlert->messageSig(LOG_INFO, QString("RBColorCode=%1 LDrawColorID=%2 ").arg(RBColorCode).arg(LDrawColorID));
-            return RBColorCode;
-        }
-        // secondary check
-        QJsonArray ColorArray = ColorObject["external_ids"].toObject()["LDraw"].toObject()["ext_ids"].toArray();
-        if (!ColorArray.isEmpty()) {
-            int LDColorCode = ColorArray.first().toInt();
-            emit lpubAlert->messageSig(LOG_INFO, QString("RBColorCode=%1 LDColorCode=%2 ").arg(RBColorCode).arg(LDColorCode));
-            if (LDrawColorID == LDColorCode) {
-                return RBColorCode;
-            }
-        }
-    }
-    // final check - if we get here, check cross-reference
-    int altColor = Annotations::getRBColorID(QString::number(LDrawColorID));
-    if (!alt && altColor)
-        doGetRebrickableColor(altColor, true);
+    int colorMatch = Annotations::getRBColorID(QString::number(LDrawColorID));
+    if (colorMatch != -1)
+        return colorMatch;
 
     return  LDrawColorID;
 }
@@ -1025,7 +1002,7 @@ std::string LDVWidget::doGetRebrickablePartURL(const std::string &LDrawPartID, b
         QByteArray RBPartUrl = PartObject["part_url"].toString().toLatin1();
         QByteArray RBPartCode = PartObject["part_num"].toString().toLatin1();
         if (LDrawPartID == RBPartCode.toStdString()) {
-            emit lpubAlert->messageSig(LOG_INFO, QString("LDrawPartID=%1 RBPartCode=%2 RBPartUrl=%3 ")
+            emit lpubAlert->messageSig(LOG_INFO, QString("LDID=%1 RBCode=%2 RBUrl=%3 ")
                                        .arg(QString::fromStdString(LDrawPartID))
                                        .arg(QString(RBPartCode))
                                        .arg(QString(RBPartUrl)));
@@ -1036,11 +1013,11 @@ std::string LDVWidget::doGetRebrickablePartURL(const std::string &LDrawPartID, b
         if (!PartIDArray.isEmpty()) {
             for (int i = 0; i < PartIDArray.size(); i++){
                 QByteArray LDPartCode = PartIDArray[i].toString().toLatin1();
-                emit lpubAlert->messageSig(LOG_INFO, QString("LDPartCode=%1 RBPartCode=%2 RBPartUrl=%3 ")
-                                           .arg(QString(LDPartCode))
-                                           .arg(QString(RBPartCode))
-                                           .arg(QString(RBPartUrl)));
                 if (LDrawPartID == LDPartCode.toStdString()) {
+                    emit lpubAlert->messageSig(LOG_INFO, QString("LDCode=%1 RBCode=%2 RBUrl=%3 ")
+                                               .arg(QString(LDPartCode))
+                                               .arg(QString(RBPartCode))
+                                               .arg(QString(RBPartUrl)));
                     return RBPartUrl.toStdString();
                 }
             }
@@ -1082,15 +1059,6 @@ void LDVWidget::DownloadFinished(lcHttpReply* Reply)
 
         m_KeyListReply = nullptr;
     }
-    else if (Reply == m_ColorsReply)
-    {
-        if (!Reply->error())
-            m_RebrickableColors = Reply->readAll();
-        else
-            emit lpubAlert->messageSig(LOG_ERROR, QString("%1").arg("Could not download Rebrickable colors."));
-
-        m_ColorsReply = nullptr;
-    }
     else if (Reply == m_PartsReply)
     {
         if (!Reply->error())
@@ -1108,7 +1076,7 @@ void LDVWidget::doSetRebrickableParts(const QString &parts)
 {
     QProgressDialog ProgressDialog(this);
     ProgressDialog.setWindowTitle(tr("Rebrickable parts"));
-    ProgressDialog.setLabelText(tr("Retrieve Rebrickable part information from the server"));
+    ProgressDialog.setLabelText(tr("Retrieving part information from the server"));
     ProgressDialog.setMaximum(0);
     ProgressDialog.setMinimum(0);
     ProgressDialog.setValue(0);
@@ -1131,47 +1099,11 @@ void LDVWidget::doSetRebrickableParts(const QString &parts)
     while (m_PartsReply)
     {
         QApplication::processEvents();
-
         if (ProgressDialog.wasCanceled())
         {
             m_PartsReply->abort();
             m_PartsReply->deleteLater();
             m_PartsReply = nullptr;
-            return;
-        }
-    }
-}
-
-void LDVWidget::doSetRebrickableColors()
-{
-    QProgressDialog ProgressDialog(this);
-    ProgressDialog.setWindowTitle(tr("Rebrickable colors"));
-    ProgressDialog.setLabelText(tr("Retrieving Rebrickable colors from the server"));
-    ProgressDialog.setMaximum(0);
-    ProgressDialog.setMinimum(0);
-    ProgressDialog.setValue(0);
-//    ProgressDialog.show();
-
-    if (m_Keys.isEmpty())
-        return;
-
-    int KeyIndex = m_Keys.size() > 1 ? QTime::currentTime().msec() % m_Keys.size() : 0 ;
-
-    QString SearchUrl = QString("%1/colors/?key=%2")
-            .arg(VER_REBRICKABLE_API_URL)
-            .arg(m_Keys[KeyIndex]);
-
-    m_ColorsReply = m_HttpManager->DownloadFile(SearchUrl);
-
-    while (m_ColorsReply)
-    {
-        QApplication::processEvents();
-
-        if (ProgressDialog.wasCanceled())
-        {
-            m_ColorsReply->abort();
-            m_ColorsReply->deleteLater();
-            m_ColorsReply = nullptr;
             return;
         }
     }

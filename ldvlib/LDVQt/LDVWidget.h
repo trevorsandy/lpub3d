@@ -70,12 +70,11 @@ public:
 
   bool doCommand(QStringList &arguments);
 
-  void doSetRebrickableColors();
   void doSetRebrickableParts(const QString &list);
   void doSetDefaultRebrickableKeys();
   void doSetRebrickableKey(QString &key) { m_Keys.append(key); }
 
-   int doGetRebrickableColor(const int ldrawColorID, bool = false) const;
+   int doGetRebrickableColor(const int ldrawColorID) const;
   std::string doGetRebrickablePartURL(const std::string &ldrawPartID, bool = false) const;
 
   void doPartList(void);
@@ -133,10 +132,8 @@ protected:
 
   lcHttpManager* m_HttpManager;
   lcHttpReply* m_KeyListReply;
-  lcHttpReply* m_ColorsReply;
   lcHttpReply* m_PartsReply;
   QStringList m_Keys;
-  QByteArray m_RebrickableColors;
   QByteArray m_RebrickableParts;
 
 };
