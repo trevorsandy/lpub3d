@@ -131,7 +131,7 @@ Step::Step(
       csiPlacement.margin     = _meta.LPub.assem.margin;
       csiPlacement.placement  = _meta.LPub.assem.placement;
       placement               = _meta.LPub.assem.placement;
-      pli.margin              = _meta.LPub.assem.margin;
+      pli.margin              = _meta.LPub.pli.margin;
       pli.placement           = _meta.LPub.pli.placement;
       rotateIcon.placement    = _meta.LPub.rotateIcon.placement;
       rotateIcon.margin       = _meta.LPub.rotateIcon.margin;
