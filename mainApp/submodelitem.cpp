@@ -651,7 +651,7 @@ void SubModel::positionChildren(
       (y - part->height + part->partTopMargin)/scaleY);
     part->pixmap->setTransformationMode(Qt::SmoothTransformation);
 
-    bool includeInstance = part->instanceMeta.number > 1;
+    bool includeInstance = subModelMeta.showInstanceCount.value() && part->instanceMeta.number > 1;
     if (includeInstance) {
         part->instanceText->setParentItem(background);
         part->instanceText->setPos(
