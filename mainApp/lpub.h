@@ -913,6 +913,9 @@ public slots:
   void actualSize();
   void zoomIn();
   void zoomOut();
+  void zoomSlider(int);
+  void ViewerZoomSlider(int);
+  void ResetViewerZoomSlider();
   void sceneGuides();
   void sceneRuler();
   void sceneRulerTracking();
@@ -1028,6 +1031,7 @@ protected:
 
   QMap<int, PgSizeData>  pageSizes;          // page size and orientation object
 
+  int                    mViewerZoomLevel;
   // download components
   lcHttpManager*         mHttpManager;
   lcHttpReply*           mHttpReply;
@@ -1346,11 +1350,13 @@ private:
   QMenu    *previousPageContinuousMenu;
   QMenu    *snapToGridMenu;
   QMenu    *sceneRulerTrackingMenu;
+  QMenu    *zoomSliderMenu;
 
   // 3D Viewer Menus
   QMenu* ViewerMenu;
   QMenu* FileMenuViewer;
   QMenu* ViewerExportMenu;
+  QMenu* ViewerZoomSliderMenu;
 
   QToolBar *fileToolBar;
   QToolBar *editToolBar;
@@ -1408,6 +1414,12 @@ private:
 
   QAction  *zoomInAct;
   QAction  *zoomOutAct;
+
+  QSlider  *zoomSliderWidget;
+  QWidgetAction* zoomSliderAct;
+
+  QSlider  *viewerZoomSliderWidget;
+  QWidgetAction *viewerZoomSliderAct;
 
   QAction  *sceneGuidesAct;
   QAction  *sceneRulerComboAct;

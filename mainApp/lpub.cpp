@@ -905,17 +905,20 @@ void Gui::fitVisible()
   QRectF rect(0,0,pageSize(page.meta.LPub.page, 0),
                   pageSize(page.meta.LPub.page, 1));
   KpageView->fitVisible(rect);
+  zoomSliderWidget->setValue(50);
 }
 
 void Gui::fitScene()
 {
-  QRectF rect(KpageScene->itemsBoundingRect());
+  QRectF rect(KpageView->scene()->itemsBoundingRect());
   KpageView->fitScene(rect);
+  zoomSliderWidget->setValue(50);
 }
 
 void Gui::actualSize()
 {
   KpageView->actualSize();
+  zoomSliderWidget->setValue(100);
 }
 
 void Gui::zoomIn()
@@ -926,6 +929,14 @@ void Gui::zoomIn()
 void Gui::zoomOut()
 {
   KpageView->zoomOut();
+}
+
+void Gui::zoomSlider(int value)
+{
+  const qreal z = value == 0 ? 0.1 : value*0.01;
+  KpageView->setTransformationAnchor(QGraphicsView::AnchorViewCenter);
+  KpageView->setTransform(QTransform::fromScale(z, z));
+  KpageView->fitMode = FitNone;
 }
 
 void Gui::sceneGuides()
@@ -2407,6 +2418,8 @@ Gui::Gui()
     mRotStepTransform = QString();
     mPliIconsPath.clear();
 
+    mViewerZoomLevel  = 50;
+
     mHttpManager = new lcHttpManager(this);
 
     editWindow    = new EditWindow(this);         // remove inheritance 'this' to independently manage window
@@ -3520,6 +3533,17 @@ void Gui::createActions()
 
     // zoomIn,zoomOut
 
+    zoomSliderAct = new QWidgetAction(nullptr);
+    zoomSliderWidget = new QSlider();
+    zoomSliderWidget->setSingleStep(1);
+    zoomSliderWidget->setTickInterval(10);
+    zoomSliderWidget->setTickPosition(QSlider::TicksBelow);
+    zoomSliderWidget->setMaximum(150);
+    zoomSliderWidget->setMinimum(1);
+    zoomSliderWidget->setValue(50);
+    zoomSliderAct->setDefaultWidget(zoomSliderWidget);
+    connect(zoomSliderWidget, SIGNAL(valueChanged(int)), this, SLOT(zoomSlider(int)));
+
     zoomInAct = new QAction(QIcon(":/resources/zoomin.png"), tr("&Zoom In"), this);
     zoomInAct->setShortcut(tr("Ctrl++"));
     zoomInAct->setStatusTip(tr("Zoom in - Ctrl++"));
@@ -4246,10 +4270,29 @@ void Gui::createMenus()
     ViewerMenu->addSeparator();
     ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_PREFERENCES]);
     ViewerMenu->addSeparator();
-    // 3D Viewer Menus End
+
+    viewerZoomSliderAct = new QWidgetAction(nullptr);
+    viewerZoomSliderWidget = new QSlider();
+    viewerZoomSliderWidget->setSingleStep(1);
+    viewerZoomSliderWidget->setTickInterval(10);
+    viewerZoomSliderWidget->setTickPosition(QSlider::TicksBelow);
+    viewerZoomSliderWidget->setMaximum(150);
+    viewerZoomSliderWidget->setMinimum(1);
+    viewerZoomSliderWidget->setValue(50);
+    connect(viewerZoomSliderWidget, SIGNAL(valueChanged(int)), this, SLOT(ViewerZoomSlider(int)));
+    connect(gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME], SIGNAL(triggered()), this, SLOT(ResetViewerZoomSlider()));
+
+    viewerZoomSliderAct->setDefaultWidget(viewerZoomSliderWidget);
+    ViewerZoomSliderMenu = new QMenu(tr("Zoom Slider"),this);
+    ViewerZoomSliderMenu->addAction(viewerZoomSliderAct);
+    gMainWindow->mActions[LC_EDIT_ACTION_ZOOM]->setMenu(ViewerZoomSliderMenu);
+
+    ((QToolButton*)gMainWindow->mToolsToolBar->widgetForAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM]))->setPopupMode(QToolButton::InstantPopup);
 
     QMenu* ToolBarViewerMenu = ViewerMenu->addMenu(tr("3DViewer Too&lbar"));
     ToolBarViewerMenu->addAction(gMainWindow->mToolsToolBar->toggleViewAction());
+    // 3D Viewer Menus End
+
     // Help Menus
 
     helpMenu = menuBar()->addMenu(tr("&Help"));
@@ -4310,7 +4353,11 @@ void Gui::createToolBars()
     zoomToolBar->addAction(fitSceneAct);
 
     zoomToolBar->addAction(actualSizeAct);
+    zoomSliderMenu = new QMenu(tr("Zoom Slider"),this);
+    zoomSliderMenu->addAction(zoomSliderAct);
+    zoomInAct->setMenu(zoomSliderMenu);
     zoomToolBar->addAction(zoomInAct);
+    zoomOutAct->setMenu(zoomSliderMenu);
     zoomToolBar->addAction(zoomOutAct);
     sceneRulerTrackingMenu = new QMenu(tr("Ruler Tracking"),this);
     sceneRulerTrackingMenu->addAction(sceneRulerTrackingAct);
@@ -4324,6 +4371,22 @@ void Gui::createToolBars()
         snapToGridMenu->addAction(snapGridActions[actionIdx]);
     snapToGridComboAct->setMenu(snapToGridMenu);
     zoomToolBar->addAction(snapToGridComboAct);
+}
+
+void Gui::ViewerZoomSlider(int value)
+{
+    float z = value;
+    if (value > mViewerZoomLevel)
+        z = 10.0f;
+    else
+        z = -10.0f;
+    gMainWindow->GetActiveView()->Zoom(z);
+    mViewerZoomLevel = value;
+}
+
+void Gui::ResetViewerZoomSlider()
+{
+   viewerZoomSliderWidget->setValue(50);
 }
 
 void Gui::statusBarMsg(QString msg)
