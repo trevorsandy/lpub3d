@@ -1111,16 +1111,14 @@ void MetaItem::setMetaTopOf(
   bool         global)
 {
     int  lineNumber = meta->here().lineNumber;
+
     bool metaInRange;
-    QString modelName = meta->here().modelName;
 
-    metaInRange = meta->here().modelName == topOf.modelName;
+    metaInRange = meta->here().modelName == topOf.modelName
+                  && lineNumber >= topOf.lineNumber
+                  && lineNumber <= bottomOf.lineNumber;
 
-    metaInRange = metaInRange
-            && lineNumber >= topOf.lineNumber
-            && lineNumber <= bottomOf.lineNumber;
-
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //  logTrace() << "\nSET META TOP OF PAGE WHERE:"
 //             << "\nPage TopOf Model Name:    " << topOf.modelName
 //             << "\nPage TopOf Line Number:   " << topOf.lineNumber
@@ -1134,7 +1132,7 @@ void MetaItem::setMetaTopOf(
 //             << "\nLine (Meta in Range):     " <<  meta->format(meta->pushed,meta->global)
 //             << "\nLine:                     " <<  meta->format(local, global)
 //                ;
-#endif
+//#endif
 
     if (metaInRange) {
         QString line = meta->format(meta->pushed,meta->global);
@@ -1183,11 +1181,12 @@ void MetaItem::setMetaBottomOf(
   bool         global)
 {
   int  lineNumber = meta->here().lineNumber;
+
   bool metaInRange;
 
   metaInRange = meta->here().modelName == topOf.modelName
-   && lineNumber >= topOf.lineNumber 
-   && lineNumber <= bottomOf.lineNumber;
+                && lineNumber >= topOf.lineNumber
+                && lineNumber <= bottomOf.lineNumber;
 
 #ifdef QT_DEBUG_MODE
 //  logTrace() << "\nSET META BOTTOM OF PAGE WHERE:"
@@ -1713,17 +1712,49 @@ void MetaItem::changePliSort(
   QString        title,
   const Where   &topOfStep,
   const Where   &bottomOfStep,
-  StringMeta    *sortMeta,
+  PliSortOrderMeta  *sortMeta,
   int            append,
   bool           local)
 {
-  QString sortBy = sortMeta->value();
+  PliSortOrderMeta so;
+  so.primary            = sortMeta->primary;
+  so.secondary          = sortMeta->secondary;
+  so.tertiary           = sortMeta->tertiary;
+  so.primaryDirection   = sortMeta->primaryDirection;
+  so.secondaryDirection = sortMeta->secondaryDirection;
+  so.tertiaryDirection  = sortMeta->tertiaryDirection;
+
   bool ok;
-  ok = PliSortDialog::getPliSortOption(sortBy,title,gui);
+  ok = PliSortDialog::getPliSortOption(so,title,gui);
 
   if (ok) {
-    sortMeta->setValue(sortBy);
-    setMetaTopOf(topOfStep,bottomOfStep,sortMeta,append,local, false);
+      beginMacro("changePliSort");
+      if (so.tertiaryDirection.value() != sortMeta->tertiaryDirection.value()) {
+          sortMeta->tertiaryDirection.setValue(so.tertiaryDirection.value());
+          setMetaTopOf(topOfStep,bottomOfStep,&sortMeta->tertiaryDirection,append,local, false);
+      }
+      if (so.secondaryDirection.value() != sortMeta->secondaryDirection.value()) {
+          sortMeta->secondaryDirection.setValue(so.secondaryDirection.value());
+          setMetaTopOf(topOfStep,bottomOfStep,&sortMeta->secondaryDirection,append,local, false);
+      }
+      if (so.primaryDirection.value() != sortMeta->primaryDirection.value()) {
+          sortMeta->primaryDirection.setValue(so.primaryDirection.value());
+          setMetaTopOf(topOfStep,bottomOfStep,&sortMeta->primaryDirection,append,local, false);
+      }
+
+      if (so.tertiary.value() != sortMeta->tertiary.value()) {
+          sortMeta->tertiary.setValue(so.tertiary.value());
+          setMetaTopOf(topOfStep,bottomOfStep,&sortMeta->tertiary,append,local, false);
+      }
+      if (so.secondary.value() != sortMeta->secondary.value()) {
+          sortMeta->secondary.setValue(so.secondary.value());
+          setMetaTopOf(topOfStep,bottomOfStep,&sortMeta->secondary,append,local, false);
+      }
+      if (so.primary.value() != sortMeta->primary.value()) {
+          sortMeta->primary.setValue(so.primary.value());
+          setMetaTopOf(topOfStep,bottomOfStep,&sortMeta->primary,append,local, false);
+      }
+      endMacro();
   }
 }
 
@@ -1744,22 +1775,24 @@ void MetaItem::changePliAnnotation(
   ok = PliAnnotationDialog::getPliAnnotationOption(annotation,title,gui);
 
   if (ok) {
-      if(annotation.display.value() != pliAnnotationMeta->display.value()){
-          pliAnnotationMeta->display.setValue(annotation.display.value());
-          setMetaTopOf(topOfStep,bottomOfStep,&pliAnnotationMeta->display,append,local,true);
-        }
-      if(annotation.titleAnnotation.value() != pliAnnotationMeta->titleAnnotation.value()){
-          pliAnnotationMeta->titleAnnotation.setValue(annotation.titleAnnotation.value());
-          setMetaTopOf(topOfStep,bottomOfStep,&pliAnnotationMeta->titleAnnotation,append,local,true);
-        }
-      if(annotation.freeformAnnotation.value() != pliAnnotationMeta->freeformAnnotation.value()){
-          pliAnnotationMeta->freeformAnnotation.setValue(annotation.freeformAnnotation.value());
-          setMetaTopOf(topOfStep,bottomOfStep,&pliAnnotationMeta->freeformAnnotation,append,local,true);
-        }
+      beginMacro("changePliAnnotation");
       if(annotation.titleAndFreeformAnnotation.value() != pliAnnotationMeta->titleAndFreeformAnnotation.value()){
           pliAnnotationMeta->titleAndFreeformAnnotation.setValue(annotation.titleAndFreeformAnnotation.value());
           setMetaTopOf(topOfStep,bottomOfStep,&pliAnnotationMeta->titleAndFreeformAnnotation,append,local,true);
-        }
+      }
+      if(annotation.freeformAnnotation.value() != pliAnnotationMeta->freeformAnnotation.value()){
+          pliAnnotationMeta->freeformAnnotation.setValue(annotation.freeformAnnotation.value());
+          setMetaTopOf(topOfStep,bottomOfStep,&pliAnnotationMeta->freeformAnnotation,append,local,true);
+      }
+      if(annotation.titleAnnotation.value() != pliAnnotationMeta->titleAnnotation.value()){
+          pliAnnotationMeta->titleAnnotation.setValue(annotation.titleAnnotation.value());
+          setMetaTopOf(topOfStep,bottomOfStep,&pliAnnotationMeta->titleAnnotation,append,local,true);
+      }
+      if(annotation.display.value() != pliAnnotationMeta->display.value()){
+          pliAnnotationMeta->display.setValue(annotation.display.value());
+          setMetaTopOf(topOfStep,bottomOfStep,&pliAnnotationMeta->display,append,local,true);
+      }
+      endMacro();
     }
 }
 

@@ -201,9 +201,9 @@ GlobalPliDialog::GlobalPliDialog(
   child = new NumberGui(&pliMeta->instance,box);
   data->children.append(child);
 
-  box = new QGroupBox("Sort Options");
+  box = new QGroupBox("Sort Order and Direction");
   vlayout->addWidget(box);
-  child = new PliSortGui("",&pliMeta->sortBy,box,bom);
+  child = new PliSortOrderGui("",&pliMeta->sortOrder,box,bom);
   data->children.append(child);
 
   //spacer

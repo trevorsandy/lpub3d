@@ -1092,6 +1092,69 @@ public slots:
 
 /***********************************************************************
  *
+ * PliSortOrder
+ *
+ **********************************************************************/
+
+class PliSortOrderMeta;
+class PliSortOrderGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  PliSortOrderGui(
+      QString const    &heading,
+      PliSortOrderMeta *meta,
+      QGroupBox        *parent = nullptr,
+      bool              bom = false);
+  ~PliSortOrderGui() {}
+
+  void duplicateOption(QComboBox *box, bool resetOption = false, bool resetText = false);
+
+  virtual void apply(QString &topLevelFile);
+
+private:
+  PliSortOrderMeta *meta;
+
+  QLabel           *headingLabel;
+
+  QComboBox        *primaryCombo;
+  QComboBox        *secondaryCombo;
+  QComboBox        *tertiaryCombo;
+
+  QGroupBox        *gbPrimary;
+  QGroupBox        *gbSecondary;
+  QGroupBox        *gbTertiary;
+
+  QRadioButton     *primaryAscendingRadio;
+  QRadioButton     *primaryDescendingRadio;
+  QRadioButton     *secondaryAscendingRadio;
+  QRadioButton     *secondaryDescendingRadio;
+  QRadioButton     *tertiaryAscendingRadio;
+  QRadioButton     *tertiaryDescendingRadio;
+
+  QString          sortOption;
+  QString          sortDirection;
+
+  bool             bom;
+  bool             primaryModified;
+  bool             secondaryModified;
+  bool             tertiaryModified;
+  bool             primaryDirectionModified;
+  bool             secondaryDirectionModified;
+  bool             tertiaryDirectionModified;
+
+  bool             primaryDuplicateOption;
+  bool             secondaryDuplicateOption;
+  bool             tertiaryDuplicateOption;
+
+public slots:
+  void orderChange(int);
+  void directionChange(bool);
+};
+
+/***********************************************************************
+ *
  * PliPartElements
  *
  **********************************************************************/

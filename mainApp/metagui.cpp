@@ -3550,6 +3550,322 @@ void PliSortGui::apply(QString &topLevelFile)
 
 /***********************************************************************
  *
+ * PliSortOrder
+ *
+ **********************************************************************/
+
+PliSortOrderGui::PliSortOrderGui(
+  const QString     &heading,
+  PliSortOrderMeta *_meta,
+  QGroupBox         *parent,
+  bool              _bom)
+{
+  meta = _meta;
+  bom  = _bom;
+
+  QHBoxLayout *hLayout;
+  QGridLayout *grid = new QGridLayout(parent);
+
+  if (parent) {
+    parent->setLayout(grid);
+  }
+
+  if (heading != "") {
+    headingLabel = new QLabel(heading,parent);
+    grid->addWidget(headingLabel);
+  } else {
+    headingLabel = nullptr;
+  }
+
+  int priSort = tokenMap[meta->primary.value()];
+  int secSort = tokenMap[meta->secondary.value()];
+  int triSort = tokenMap[meta->tertiary.value()];
+
+  // Direction Groups
+  gbPrimary = new QGroupBox("Primary",parent);
+  gbPrimary->setEnabled(priSort != NoSort);
+  hLayout = new QHBoxLayout();
+  gbPrimary->setLayout(hLayout);
+  grid->addWidget(gbPrimary,0,0);
+
+  primaryAscendingRadio = new QRadioButton("Asc",gbPrimary);
+  primaryAscendingRadio->setToolTip("Sort Ascending");
+  primaryAscendingRadio->setChecked(tokenMap[meta->primaryDirection.value()] == SortAscending);
+  hLayout->addWidget(primaryAscendingRadio);
+  connect(primaryAscendingRadio,SIGNAL(clicked(bool)),
+          this,                 SLOT(  directionChange(bool)));
+
+  primaryDescendingRadio = new QRadioButton("Des",gbPrimary);
+  primaryDescendingRadio->setToolTip("Sort Descending");
+  primaryDescendingRadio->setChecked(tokenMap[meta->primaryDirection.value()] == SortDescending);
+  hLayout->addWidget(primaryDescendingRadio);
+  connect(primaryDescendingRadio,SIGNAL(clicked(bool)),
+          this,                  SLOT(  directionChange(bool)));
+
+  gbSecondary = new QGroupBox("Secondary",parent);
+  gbSecondary->setEnabled(secSort != NoSort);
+  hLayout = new QHBoxLayout();
+  gbSecondary->setLayout(hLayout);
+  grid->addWidget(gbSecondary,0,1);
+
+  secondaryAscendingRadio = new QRadioButton("Asc",gbSecondary);
+  secondaryAscendingRadio->setToolTip("Sort Ascending");
+  secondaryAscendingRadio->setChecked(tokenMap[meta->secondaryDirection.value()] == SortAscending);
+  hLayout->addWidget(secondaryAscendingRadio);
+  connect(secondaryAscendingRadio,SIGNAL(clicked(bool)),
+          this,                   SLOT(  directionChange(bool)));
+
+  secondaryDescendingRadio = new QRadioButton("Des",gbSecondary);
+  secondaryDescendingRadio->setToolTip("Sort Descending");
+  secondaryDescendingRadio->setChecked(tokenMap[meta->secondaryDirection.value()] == SortDescending);
+  hLayout->addWidget(secondaryDescendingRadio);
+  connect(secondaryDescendingRadio,SIGNAL(clicked(bool)),
+          this,                    SLOT(  directionChange(bool)));
+
+  gbTertiary = new QGroupBox("Tertiary",parent);
+  gbTertiary->setEnabled(triSort != NoSort);
+  hLayout = new QHBoxLayout();
+  gbTertiary->setLayout(hLayout);
+  grid->addWidget(gbTertiary,0,2);
+
+  tertiaryAscendingRadio = new QRadioButton("Asc",gbTertiary);
+  tertiaryAscendingRadio->setToolTip("Sort Ascending");
+  tertiaryAscendingRadio->setChecked(tokenMap[meta->tertiaryDirection.value()] == SortAscending);
+  hLayout->addWidget(tertiaryAscendingRadio);
+  connect(tertiaryAscendingRadio,SIGNAL(clicked(bool)),
+          this,                  SLOT(  directionChange(bool)));
+
+  tertiaryDescendingRadio = new QRadioButton("Des",gbTertiary);
+  tertiaryDescendingRadio->setToolTip("Sort Descending");
+  tertiaryDescendingRadio->setChecked(tokenMap[meta->tertiaryDirection.value()] == SortDescending);
+  hLayout->addWidget(tertiaryDescendingRadio);
+  connect(tertiaryDescendingRadio,SIGNAL(clicked(bool)),
+          this,                   SLOT(  directionChange(bool)));
+
+  primaryCombo   = new QComboBox(parent);
+  secondaryCombo = new QComboBox(parent);
+  tertiaryCombo  = new QComboBox(parent);
+
+  QList<QComboBox *> cbl;
+  cbl << primaryCombo
+      << secondaryCombo
+      << tertiaryCombo;
+  for (const auto cb : cbl) {
+      for (const auto &so : SortOptionName) {
+          if (so == SortOptionName[PartElement] && !bom)
+              continue;
+          cb->addItem(so);
+      }
+  }
+
+  primaryCombo->setCurrentIndex(tokenMap[meta->primary.value()]);
+  connect(primaryCombo,SIGNAL(currentIndexChanged(int)),
+          this,        SLOT(  orderChange(        int)));
+  grid->addWidget(primaryCombo,1,0);
+
+  secondaryCombo->setCurrentIndex(tokenMap[meta->secondary.value()]);
+  connect(secondaryCombo,SIGNAL(currentIndexChanged(int)),
+          this,          SLOT(  orderChange(        int)));
+  grid->addWidget(secondaryCombo,1,1);
+
+  tertiaryCombo->setCurrentIndex(tokenMap[meta->tertiary.value()]);
+  connect(tertiaryCombo,SIGNAL(currentIndexChanged(int)),
+          this,         SLOT(  orderChange(        int)));
+  grid->addWidget(tertiaryCombo,1,2);
+
+  bool enable;
+  if ((enable = meta->primary.value()   != SortOptionName[NoSort] &&
+                meta->secondary.value() != SortOptionName[NoSort] &&
+                meta->tertiary.value()  != SortOptionName[NoSort])){
+      gbTertiary->setEnabled(enable);
+  }
+  if ((enable = meta->primary.value()   != SortOptionName[NoSort] &&
+                meta->secondary.value() != SortOptionName[NoSort])){
+      tertiaryCombo->setEnabled(enable);
+      gbSecondary->setEnabled(enable);
+      gbTertiary->setEnabled(enable);
+  }
+  if ((enable = meta->primary.value()   != SortOptionName[NoSort])){
+      secondaryCombo->setEnabled(enable);
+      tertiaryCombo->setEnabled(enable);
+      gbPrimary->setEnabled(enable);
+      gbSecondary->setEnabled(enable);
+      gbTertiary->setEnabled(enable);
+  }
+
+  primaryModified            = false;
+  secondaryModified          = false;
+  tertiaryModified           = false;
+  primaryDirectionModified   = false;
+  secondaryDirectionModified = false;
+  tertiaryDirectionModified  = false;
+
+  primaryDuplicateOption     = false;
+  secondaryDuplicateOption   = false;
+  tertiaryDuplicateOption    = false;
+}
+
+void PliSortOrderGui::duplicateOption(
+  QComboBox *combo,
+  bool resetOption,
+  bool resetText)
+{
+    if (resetOption){
+        resetOption = false;
+        if (primaryDuplicateOption) {
+            primaryDuplicateOption = resetOption;
+            duplicateOption(primaryCombo,resetOption,true);
+        }
+        if (secondaryDuplicateOption) {
+            secondaryDuplicateOption = resetOption;
+            duplicateOption(secondaryCombo,resetOption,true);
+        }
+        if (tertiaryDuplicateOption) {
+            tertiaryDuplicateOption = resetOption;
+            duplicateOption(tertiaryCombo,resetOption,true);
+        }
+        return;
+    }
+
+    QFont comboFont = combo->font();
+    if (resetText){
+        comboFont.setBold(false);
+        combo->setFont(comboFont);
+        combo->setPalette(QApplication::palette(combo));
+        return;
+    }
+
+    QPalette comboPalette = combo->palette();
+    QModelIndex index = ((QTreeView *)combo->view())->currentIndex();
+    if(!index.parent().isValid()) // parent index
+    {
+        comboFont.setBold(true);
+        comboPalette.setColor(QPalette::Text, Qt::red);
+        comboPalette.setColor(QPalette::WindowText, Qt::red);
+    }
+    else
+    {
+        comboFont.setBold(false);
+        if(combo->parentWidget() != nullptr)
+            comboPalette = combo->parentWidget()->palette();
+    }
+    combo->setFont(comboFont);
+    combo->setPalette(comboPalette);
+}
+
+void PliSortOrderGui::orderChange(int option)
+{
+  bool enable;
+  int NoSortIndex = bom ? NoSort : NoSort - 1;
+  if (sender() == primaryCombo) {
+      enable = option != NoSortIndex;
+      meta->primary.setValue(SortOptionName[option]);
+      secondaryCombo->setEnabled(enable);
+      tertiaryCombo->setEnabled(enable);
+      gbPrimary->setEnabled(enable);
+      gbSecondary->setEnabled(enable);
+      gbTertiary->setEnabled(enable);
+      duplicateOption(tertiaryCombo,true);
+      if ((primaryDuplicateOption =
+           secondaryCombo->currentIndex() == option ||
+           tertiaryCombo->currentIndex() == option) &&
+           option != NoSortIndex) {
+          duplicateOption(primaryCombo);
+      }
+      modified = primaryModified = true;
+  }
+  if (sender() == secondaryCombo) {
+      enable = (option != NoSortIndex &&
+                primaryCombo->currentIndex() != NoSortIndex);
+      meta->secondary.setValue(SortOptionName[option]);
+      tertiaryCombo->setEnabled(enable);
+      gbSecondary->setEnabled(enable);
+      gbTertiary->setEnabled(enable);
+      duplicateOption(tertiaryCombo,true);
+      if ((secondaryDuplicateOption =
+           primaryCombo->currentIndex() == option ||
+           tertiaryCombo->currentIndex() == option) &&
+           option != NoSortIndex) {
+          duplicateOption(secondaryCombo);
+      }
+      modified = secondaryModified = true;
+  }
+  if (sender() == tertiaryCombo) {
+      enable = (option != NoSortIndex &&
+                primaryCombo->currentIndex()   != NoSortIndex &&
+                secondaryCombo->currentIndex() != NoSortIndex);
+      meta->tertiary.setValue(SortOptionName[option]);
+      gbTertiary->setEnabled(enable);
+      duplicateOption(tertiaryCombo,true);
+      if ((tertiaryDuplicateOption =
+          (primaryCombo->currentIndex() == option ||
+           secondaryCombo->currentIndex() == option) &&
+           option != NoSortIndex)) {
+          duplicateOption(tertiaryCombo);
+      }
+      modified = tertiaryModified = true;
+  }
+}
+
+void PliSortOrderGui::directionChange(bool clicked)
+{
+    Q_UNUSED(clicked)
+    if (sender() == primaryAscendingRadio) {
+        meta->primaryDirection.setValue(SortDirectionName[SortAscending]);
+        modified = primaryDirectionModified = true;
+    }
+    if (sender() == primaryDescendingRadio) {
+        meta->primaryDirection.setValue(SortDirectionName[SortDescending]);
+        modified = primaryDirectionModified = true;
+    }
+
+    if (sender() == secondaryAscendingRadio) {
+        meta->secondaryDirection.setValue(SortDirectionName[SortAscending]);
+        modified = secondaryDirectionModified = true;
+    }
+    if (sender() == secondaryDescendingRadio) {
+        meta->secondaryDirection.setValue(SortDirectionName[SortDescending]);
+        modified = secondaryDirectionModified = true;
+    }
+
+    if (sender() == tertiaryAscendingRadio) {
+        meta->tertiaryDirection.setValue(SortDirectionName[SortAscending]);
+        modified = tertiaryDirectionModified = true;
+    }
+    if (sender() == tertiaryDescendingRadio) {
+        meta->tertiaryDirection.setValue(SortDirectionName[SortDescending]);
+        modified = tertiaryDirectionModified = true;
+    }
+}
+
+void PliSortOrderGui::apply(QString &topLevelFile)
+{
+  MetaItem mi;
+  mi.beginMacro("PliSortOrderSettings");
+  if (tertiaryDirectionModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->tertiaryDirection);
+  }
+  if (secondaryDirectionModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->secondaryDirection);
+  }
+  if (primaryDirectionModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->primaryDirection);
+  }
+
+  if (tertiaryModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->tertiary);
+  }
+  if (secondaryModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->secondary);
+  }
+  if (primaryModified) {
+      mi.setGlobalMeta(topLevelFile,&meta->primary);
+  }
+  mi.endMacro();
+}
+
+/***********************************************************************
+ *
  * PliPartElements
  *
  **********************************************************************/

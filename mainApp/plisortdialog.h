@@ -28,32 +28,32 @@
 #include <QDialog>
 #include "meta.h"
 
-class PliSortGui;
+class PliSortOrderGui;
 class PliSortDialog : public QDialog
 {
   Q_OBJECT
 public:
 
   PliSortDialog(
-    QString         &goods,
+    PliSortOrderMeta &goods,
     QString          name,
     QWidget         *parent);
 
   virtual ~PliSortDialog();
 
   static bool getPliSortOption(
-    QString       &goods,
+    PliSortOrderMeta &goods,
     QString        name,
     QWidget       *parent);
 
-    PliSortMeta    meta;
+    PliSortOrderMeta meta;
 
 public slots:
   void accept();
   void cancel();
 
 private:
-  PliSortGui *pliSortBy;
+  PliSortOrderGui *pliSortOrder;
 };
 
 #endif // PLISORTDIALOG_H

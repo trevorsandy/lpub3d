@@ -353,43 +353,9 @@ void Pli::setParts(
   // now sort then divide the list based on BOM occurrence
   if (bom && splitBom){
 
-      //sort
       sortedKeys = tempParts.keys();
 
-      if (pliMeta.sortBy.value() == SortOptionName[PartColour]){
-          // Sort tempParts by color
-          for (int i = 0; i < tempParts.size() - 1; i++) {
-              for (int j = i+1; j < tempParts.size(); j++) {
-                  if (tempParts[sortedKeys[i]]->sortColour < tempParts[sortedKeys[j]]->sortColour) {
-                      QString t = sortedKeys[i];
-                      sortedKeys[i] = sortedKeys[j];
-                      sortedKeys[j] = t;
-                    }
-                }
-            }
-        } else if (pliMeta.sortBy.value() == SortOptionName[PartCategory]){
-          // Sort tempParts by category
-          for (int i = 0; i < tempParts.size() - 1; i++) {
-              for (int j = i+1; j < tempParts.size(); j++) {
-                  if (tempParts[sortedKeys[i]]->sortCategory < tempParts[sortedKeys[j]]->sortCategory) {
-                      QString t = sortedKeys[i];
-                      sortedKeys[i] = sortedKeys[j];
-                      sortedKeys[j] = t;
-                    }
-                }
-            }
-        } else if (pliMeta.sortBy.value() == SortOptionName[PartElement]){
-          // Sort tempParts by element
-          for (int i = 0; i < tempParts.size() - 1; i++) {
-              for (int j = i+1; j < tempParts.size(); j++) {
-                  if (tempParts[sortedKeys[i]]->sortElement < tempParts[sortedKeys[j]]->sortElement) {
-                      QString t = sortedKeys[i];
-                      sortedKeys[i] = sortedKeys[j];
-                      sortedKeys[j] = t;
-                    }
-                }
-            }
-        }
+      doSortParts();
 
       int quotient    = tempParts.size() / gui->boms;
       int remainder   = tempParts.size() % gui->boms;
@@ -1521,113 +1487,142 @@ void Pli::getRightEdge(
     }
 }
 
-int Pli::sortPli()
+void Pli::doSortParts()
 {
-  // populate part size
-  partSize();
+    // initialize
+    bool ascending = true;
+    bool unsorted = true;
 
-  sortedKeys = parts.keys();
+    // set parts list
+    QHash<QString, PliPart*> sortParts;
+    if (bom && splitBom)
+        sortParts = tempParts;
+    else
+        sortParts = parts;
 
-  if (pliMeta.sortBy.value() == SortOptionName[PartColour]){
-
-      if (! bom)
-        pliMeta.sort.setValue(true);
-
-      // Sort parts by color
-      for (int i = 0; i < parts.size() - 1; i++) {
-          for (int j = i+1; j < parts.size(); j++) {
-              if (parts[sortedKeys[i]]->sortColour < parts[sortedKeys[j]]->sortColour) {
-                  QString t = sortedKeys[i];
-                  sortedKeys[i] = sortedKeys[j];
-                  sortedKeys[j] = t;
-                }
-            }
+    // sort direction lambda
+    auto setSortDirection = [this, &ascending](const int sort)
+    {
+        switch (sort){
+        case SortPrimary:
+            ascending = tokenMap[pliMeta.sortOrder.primaryDirection.value()] != SortDescending;
+            break;
+        case SortSecondary:
+            ascending = tokenMap[pliMeta.sortOrder.secondaryDirection.value()] != SortDescending;
+            break;
+        case SortTetriary:
+            ascending = tokenMap[pliMeta.sortOrder.tertiaryDirection.value()] != SortDescending;
+            break;
         }
+    };
 
-      // Sort color-sorted parts by size
-      for (int i = 0; i < parts.size() - 1; i++) {
-          for (int j = i+1; j < parts.size(); j++) {
-              if (parts[sortedKeys[i]]->sortColour == parts[sortedKeys[j]]->sortColour) {
-                  if (parts[sortedKeys[i]]->sortSize < parts[sortedKeys[j]]->sortSize) {
-                      QString t = sortedKeys[i];
-                      sortedKeys[i] = sortedKeys[j];
-                      sortedKeys[j] = t;
+    // sort
+    while (unsorted) {
+
+        unsorted = false;
+
+        for (int first = 0; first < sortParts.size() - 1; first++) {
+            for (int next = first+1; next < sortParts.size(); next++) {
+
+                QString firstValue, nextValue;
+
+                bool sortedBy[SortByOptions];
+                sortedBy[PartSize]     = false;
+                sortedBy[PartColour]   = false;
+                sortedBy[PartCategory] = false;
+                sortedBy[PartElement]  = false;
+                bool canSort           = false;
+
+                // get sortedBy lambda
+                auto isSortedBy = [&sortedBy](const int option)
+                {
+                    return sortedBy[option];
+                };
+
+                // set sortedBy lambda
+                auto setSortedBy = [&canSort,&sortedBy](const int option)
+                {
+                    canSort = sortedBy[option] = true;
+                };
+
+                // set part Values lambda
+                auto setPartValues = [this, &sortParts, &firstValue, &nextValue, &first, &next](
+                        const int option)
+                {
+                    switch (option){
+                    case PartColour:
+                        firstValue = sortParts[sortedKeys[first]]->sortColour;
+                        nextValue = sortParts[sortedKeys[next]]->sortColour;
+                        break;
+                    case PartCategory:
+                        firstValue = sortParts[sortedKeys[first]]->sortCategory;
+                        nextValue = sortParts[sortedKeys[next]]->sortCategory;
+                        break;
+                    case PartSize:
+                        firstValue = sortParts[sortedKeys[first]]->sortSize;
+                        nextValue = sortParts[sortedKeys[next]]->sortSize;
+                        break;
+                    case PartElement:
+                        firstValue = sortParts[sortedKeys[first]]->sortElement;
+                        nextValue = sortParts[sortedKeys[next]]->sortElement;
+                        break;
                     }
+                };
+
+                // process options for the primary sort
+                int option = tokenMap[pliMeta.sortOrder.primary.value()];
+                if (option != NoSort) {
+                    setSortDirection(SortPrimary);
+                    setPartValues(option);
+                    setSortedBy(option);
                 }
-            }
-        }
 
-    } else if (pliMeta.sortBy.value() == SortOptionName[PartCategory]){
-
-      if (! bom)
-        pliMeta.sort.setValue(true);
-
-      // Sort parts by category
-      for (int i = 0; i < parts.size() - 1; i++) {
-          for (int j = i+1; j < parts.size(); j++) {
-              if (parts[sortedKeys[i]]->sortCategory < parts[sortedKeys[j]]->sortCategory) {
-                  QString t = sortedKeys[i];
-                  sortedKeys[i] = sortedKeys[j];
-                  sortedKeys[j] = t;
+                // process options secondary sort
+                option = tokenMap[pliMeta.sortOrder.secondary.value()];
+                if (firstValue == nextValue &&
+                    !isSortedBy(option) &&
+                    option != NoSort) {
+                    setSortDirection(SortSecondary);
+                    setPartValues(option);
+                    setSortedBy(option);
                 }
-            }
-        }
 
-      // Sort category-sorted parts by size
-      for (int i = 0; i < parts.size() - 1; i++) {
-          for (int j = i+1; j < parts.size(); j++) {
-              if (parts[sortedKeys[i]]->sortCategory == parts[sortedKeys[j]]->sortCategory) {
-                  if (parts[sortedKeys[i]]->sortSize < parts[sortedKeys[j]]->sortSize) {
-                      QString t = sortedKeys[i];
-                      sortedKeys[i] = sortedKeys[j];
-                      sortedKeys[j] = t;
-                    }
+                // process options tertiary sort
+                option = tokenMap[pliMeta.sortOrder.tertiary.value()];
+                if (firstValue == nextValue &&
+                    !isSortedBy(option) &&
+                    option != NoSort) {
+                    setSortDirection(SortTetriary);
+                    setPartValues(option);
+                    setSortedBy(option);
                 }
-            }
-        }
 
-    } else if (pliMeta.sortBy.value() == SortOptionName[PartElement]){
-
-      if (! bom)
-        pliMeta.sort.setValue(true);
-
-      // Sort parts by element
-      for (int i = 0; i < parts.size() - 1; i++) {
-          for (int j = i+1; j < parts.size(); j++) {
-              if (parts[sortedKeys[i]]->sortElement < parts[sortedKeys[j]]->sortElement) {
-                  QString t = sortedKeys[i];
-                  sortedKeys[i] = sortedKeys[j];
-                  sortedKeys[j] = t;
+                // sort the part values
+                if (canSort && (ascending ? firstValue > nextValue : firstValue < nextValue)) {
+                    QString moved = sortedKeys[first];
+                    sortedKeys[first] = sortedKeys[next];
+                    sortedKeys[next] = moved;
+                    unsorted = true;
                 }
-            }
-        }
 
-      // Sort element-sorted parts by size
-      for (int i = 0; i < parts.size() - 1; i++) {
-          for (int j = i+1; j < parts.size(); j++) {
-              if (parts[sortedKeys[i]]->sortCategory == parts[sortedKeys[j]]->sortCategory) {
-                  if (parts[sortedKeys[i]]->sortSize < parts[sortedKeys[j]]->sortSize) {
-                      QString t = sortedKeys[i];
-                      sortedKeys[i] = sortedKeys[j];
-                      sortedKeys[j] = t;
-                    }
-                }
-            }
-        }
-
-    } else {
-
-      // Sort parts by size
-      for (int i = 0; i < parts.size() - 1; i++) {
-          for (int j = i+1; j < parts.size(); j++) {
-              if (parts[sortedKeys[i]]->sortSize < parts[sortedKeys[j]]->sortSize) {
-                  QString t = sortedKeys[i];
-                  sortedKeys[i] = sortedKeys[j];
-                  sortedKeys[j] = t;
-                }
+                // restore primary sort direction
+                setSortDirection(tokenMap[pliMeta.sortOrder.primary.value()]);
             }
         }
     }
+}
+
+int Pli::sortPli()
+{
+    // populate part size
+    partSize();
+
+    sortedKeys = parts.keys();
+
+    if (! bom)
+        pliMeta.sort.setValue(true);
+
+    doSortParts();
 
   return 0;
 }
@@ -2643,10 +2638,10 @@ void PliBackgroundItem::contextMenuEvent(
 
       QString me = pli->bom ? "BOM" : "PLI";
       if (selectedAction == sortAction) {
-          changePliSort(me+" Sort",
+          changePliSort(me+" Sort Order and Direction",
                         top,
                         bottom,
-                        &pli->pliMeta.sortBy.sortOption);
+                        &pli->pliMeta.sortOrder);
         } else if (selectedAction == annotationAction) {
           changePliAnnotation(me+" Annotaton",
                               top,

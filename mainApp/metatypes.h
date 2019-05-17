@@ -207,12 +207,43 @@ enum annotationType{
 };
 */
 
-enum sortType{
-    PartSize = 0,
-    PartColour,
-    PartCategory,
-    PartElement,
-    SortByType
+enum SortOption {   // Original Order
+    PartColour = 0, // Part Size
+    PartCategory,   // Part Color
+    PartSize,       // Part Category
+    PartElement,    // Part Element
+    NoSort,
+    SortByOptions
+};
+
+const QString SortOptionName[SortByOptions] =
+{                    // Original Order
+    "Part Color" ,   // "Part Size"
+    "Part Category", // "Part Color"
+    "Part Size",     // "Part Category"
+    "Part Element",  // "Part Element"
+    "No Sort"        //
+};
+
+enum sortDirection {
+    SortAscending = 0,
+    SortDescending,
+    SortDirections
+};
+
+const QString SortDirectionName[SortDirections] =
+{
+    "Ascending",
+    "Descending"
+};
+
+enum sortOrder {
+    SortPrimary = 0,
+    SortSecondary,
+    SortTetriary,
+    PrimaryDirection,
+    SecondaryDirection,
+    TertiaryDirection
 };
 
 class PlacementData
@@ -548,14 +579,6 @@ public:
     margin[0]  = 0;
     margin[1]  = 0;
   }
-};
-
-const QString SortOptionName[SortByType] =
-{
-    "Part Size",
-    "Part Color",
-    "Part Category",
-    "Part Element"
 };
 
 // testing and diagnostics only

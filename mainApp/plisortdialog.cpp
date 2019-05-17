@@ -29,14 +29,19 @@
 #include "metagui.h"
 
 PliSortDialog::PliSortDialog(
-  QString       &goods,
+ PliSortOrderMeta &goods,
   QString       _name,
   QWidget       *parent)
   : QDialog(parent)
 {
   setWindowTitle(_name);
 
-  meta.setValue(goods);
+  meta.primary.setValue(goods.primary.value());
+  meta.secondary.setValue(goods.secondary.value());
+  meta.tertiary.setValue(goods.tertiary.value());
+  meta.primaryDirection.setValue(goods.primaryDirection.value());
+  meta.secondaryDirection.setValue(goods.secondaryDirection.value());
+  meta.tertiaryDirection.setValue(goods.tertiaryDirection.value());
 
   QVBoxLayout *layout = new QVBoxLayout(this);
   setLayout(layout);
@@ -44,7 +49,7 @@ PliSortDialog::PliSortDialog(
   QGroupBox *box = new QGroupBox(_name,this);
   layout->addWidget(box);
   bool bom  = _name.toUpper().contains("BOM");
-  pliSortBy = new PliSortGui("",&meta,box,bom);
+  pliSortOrder = new PliSortOrderGui("",&meta,box,bom);
 
   QDialogButtonBox *buttonBox;
 
@@ -65,7 +70,7 @@ PliSortDialog::~PliSortDialog()
 }
 
 bool PliSortDialog::getPliSortOption(
-  QString        &goods,
+  PliSortOrderMeta &goods,
   QString         name,
   QWidget        *parent)
 {
@@ -74,14 +79,14 @@ bool PliSortDialog::getPliSortOption(
   bool ok = dialog->exec() == QDialog::Accepted;
 
   if (ok) {
-    goods = dialog->meta.value();
+      goods = dialog->meta;
   }
   return ok;
 }
 
 void PliSortDialog::accept()
 {
-  if (pliSortBy->modified) {
+  if (pliSortOrder->modified) {
     QDialog::accept();
   } else {
     QDialog::reject();

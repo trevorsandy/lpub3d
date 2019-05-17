@@ -225,6 +225,7 @@ class Pli : public Placement {
       return parts.size();
     }
 
+    void doSortParts();
     void clear();
 
 

@@ -3102,6 +3102,24 @@ void AnnotationStyleMeta::init(BranchMeta *parent, QString name)
 
 /* ------------------ */
 
+PliSortOrderMeta::PliSortOrderMeta() : BranchMeta()
+{
+  primary.setValue(SortOptionName[PartColour]);
+  secondary.setValue(SortOptionName[PartCategory]);
+  tertiary.setValue(SortOptionName[PartSize]);
+}
+
+void PliSortOrderMeta::init(BranchMeta *parent, QString name)
+{
+  AbstractMeta::init(parent, name);
+  primary.init           (this, "PRIMARY");
+  secondary.init         (this, "SECONDARY");
+  tertiary.init          (this, "TERTIARY");
+  primaryDirection.init  (this, "PRIMARY_DIRECTION");
+  secondaryDirection.init(this, "SECONDARY_DIRECTION");
+  tertiaryDirection.init (this, "TERTIARY_DIRECTION");
+}
+
 PliSortMeta::PliSortMeta() : BranchMeta()
 {
   sortOption.setValue("Part Size");
@@ -3809,6 +3827,7 @@ void PliMeta::init(BranchMeta *parent, QString name)
   end             .init(this,"END",           PliEndRc);
   sort            .init(this,"SORT");
   sortBy          .init(this,"SORT_BY");
+  sortOrder       .init(this,"SORT_ORDER");
   annotation      .init(this,"ANNOTATION");
   partElements    .init(this,"PART_ELEMENTS");
   rectangleStyle  .init(this,"RECTANGLE_STYLE");
@@ -3924,7 +3943,8 @@ void BomMeta::init(BranchMeta *parent, QString name)
   begin.ignore.rc = BomBeginIgnRc;
   end             .init(this,"END",BomEndRc);
   sort            .init(this,"SORT");
-  sortBy          .init(this,"SORT_BY");
+  sortBy          .init(this,"SORT_BY");  // deprecated
+  sortOrder       .init(this,"SORT_ORDER");
   annotation      .init(this,"ANNOTATION");
   partElements    .init(this,"PART_ELEMENTS");
   elementStyle    .init(this,"ELEMENT_STYLE");
@@ -4475,7 +4495,7 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
       tokenMap["PORTRAIT"]             = Portrait;
       tokenMap["LANDSCAPE"]            = Landscape;
 
-      tokenMap["SORT_BY"]              = SortByType;
+      tokenMap["SORT_BY"]              = SortByOptions;
 
       tokenMap["BASE_TOP_LEFT"]        = TopLeftInsideCorner;
       tokenMap["BASE_TOP"]             = TopInside;
@@ -4489,6 +4509,21 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
 
       tokenMap["PAGE_LENGTH"]          = SepData::LenPage;
       tokenMap["CUSTOM_LENGTH"]        = SepData::LenCustom;
+
+      tokenMap["PRIMARY"]              = SortPrimary;
+      tokenMap["SECONDARY"]            = SortSecondary;
+      tokenMap["TERTIARY"]             = SortTetriary;
+      tokenMap["PRIMARY_DIRECTION"]    = PrimaryDirection;
+      tokenMap["SECONDARY_DIRECTION"]  = SecondaryDirection;
+      tokenMap["TERTIARY_DIRECTION"]   = TertiaryDirection;
+
+      tokenMap["Part Size"]            = PartSize;
+      tokenMap["Part Color"]           = PartColour;
+      tokenMap["Part Category"]        = PartCategory;
+      tokenMap["Part Element"]         = PartElement;
+      tokenMap["No Sort"]              = NoSort;
+      tokenMap["Ascending"]            = SortAscending;
+      tokenMap["Descending"]           = SortDescending;
     }
 }
 

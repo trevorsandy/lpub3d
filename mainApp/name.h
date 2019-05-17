@@ -105,7 +105,7 @@ static const SceneObject ExemptSceneObjects[] =
     PageBackgroundObj,   //  0
     PointerFirstSegObj,  // 22
     PointerSecondSegObj, // 24
-    PointerThirdSegObj,  // 28
+    PointerThirdSegObj   // 28
 };
 
 // Excluded from triggering context action

@@ -1,4 +1,4 @@
- 
+
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
@@ -2490,6 +2490,25 @@ public:
 
 /*------------------------*/
 
+class PliSortOrderMeta : public BranchMeta
+{
+public:
+  StringMeta      primary;
+  StringMeta      secondary;
+  StringMeta      tertiary;
+  StringMeta      primaryDirection;
+  StringMeta      secondaryDirection;
+  StringMeta      tertiaryDirection;
+
+  PliSortOrderMeta();
+  PliSortOrderMeta(const PliSortOrderMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+
+  virtual ~PliSortOrderMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+};
+
 class PliSortMeta : public BranchMeta
 {
 public:
@@ -2781,7 +2800,8 @@ public:
   StringMeta           povrayParms;
   BoolMeta             pack;
   BoolMeta             sort;
-  PliSortMeta          sortBy;
+  PliSortMeta          sortBy;  //deprecated
+  PliSortOrderMeta     sortOrder;
   PliAnnotationMeta    annotation;
   PliPartElementMeta   partElements;
   AnnotationStyleMeta  elementStyle;

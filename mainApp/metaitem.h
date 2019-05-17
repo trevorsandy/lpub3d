@@ -255,7 +255,7 @@ public:
   void changePliSort(   QString,
                         const Where &,
                         const Where &,
-                        StringMeta  *,
+                        PliSortOrderMeta *,
                         int   append = 1,
                         bool checkLocal = true);
 

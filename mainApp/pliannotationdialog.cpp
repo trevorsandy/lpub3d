@@ -84,10 +84,7 @@ bool PliAnnotationDialog::getPliAnnotationOption(
 
 void PliAnnotationDialog::accept()
 {
-  if (annotation->titleModified ||
-      annotation->freeformModified ||
-      annotation->titleAndFreeformModified ||
-      annotation->displayModified) {
+  if (annotation->modified) {
     QDialog::accept();
   } else {
     QDialog::reject();
