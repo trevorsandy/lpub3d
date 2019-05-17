@@ -20,6 +20,7 @@
 #include <QDateTime>
 #include <QFileInfo>
 #include <QProcess>
+#include <QByteArray>
 #include <QApplication>
 #include <QErrorMessage>
 #include <QDesktopWidget>

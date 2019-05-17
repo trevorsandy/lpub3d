@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update October 19, 2018
+# Last Update April 25, 2019
 # This script is automatically executed by qmake from mainApp.pro
 # It is also called by other config scripts accordingly
 #
@@ -189,8 +189,6 @@ else
     Info "   ERROR - version info   - file not found";
 fi
 
-# -----
-
 FILE="$LP3D_PWD/docs/RELEASE_NOTES.html"
 Info "3. update RELEASE_NOTES   - build version         [$FILE]"
 LineToReplace=12
@@ -222,6 +220,7 @@ else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
 fi
 
+# This is call is deprecated since v2.3.9
 FILE="$LP3D_PWD/../README.md"
 Info "4. update README.md       - add version           [$FILE]"
 SFReplacement="\[sfreleases\]:          https:\/\/sourceforge.net\/projects\/lpub3d\/files"
@@ -387,8 +386,6 @@ then
 else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
 fi
-
-# -----
 
 if [ "${SOURCED}" = "false" ]
 then
