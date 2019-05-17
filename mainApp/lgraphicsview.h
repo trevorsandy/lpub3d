@@ -29,7 +29,7 @@ class LRuler;
 
 class LGraphicsView : public QGraphicsView
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
   LGraphicsView(LGraphicsScene *scene);
@@ -45,6 +45,7 @@ public:
 
 public slots:
   void setSceneGuides();
+  void setSceneGuidesLine();
   void setSceneBackgroundBrush();
   void setSceneRuler();
   void setSceneRulerTracking();
@@ -55,7 +56,8 @@ public slots:
 signals:
     void setSceneRulerSig();
     void setSceneGuidesSig(bool);
-    void setGuidePenSig(QString);
+    void setSceneGuidesLineSig(int);
+    void setGuidePenSig(QString,int);
     void setGridPenSig(QString);
     void setSnapToGridSig(bool);
     void setGridSizeSig(int);

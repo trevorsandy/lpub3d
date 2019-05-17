@@ -68,6 +68,7 @@ class Preferences
 
     static void setOverwriteCustomParts(bool);  // NO SOURCE
     static void setSceneGuidesPreference(bool);
+    static void setSceneGuidesLinePreference(int);
     static void setSnapToGridPreference(bool);
     static void setSnapGridTransBkgrndPreference(bool);
     static void setGridSizeIndexPreference(int);
@@ -211,12 +212,11 @@ class Preferences
 
     static bool    enableFadeSteps;
     static bool    fadeStepsUseColour;
-    static int     fadeStepsOpacity;
+
     static bool    enableImageMatting;
     static bool    enableHighlightStep;
     static int     highlightStepLineWidth;
     static bool    highlightFirstStep;
-    static int     cameraDistFactorNative;
     static bool    perspectiveProjection;
 
     static bool    includeLogLevel;
@@ -242,13 +242,6 @@ class Preferences
     static bool    logLevel;      // log level combo (grp box)
     static bool    logLevels;     // individual logging levels (grp box)
 
-    static int     checkUpdateFrequency;
-    static int     pageWidth;
-    static int     pageHeight;
-    static int     gridSizeIndex;
-    static int     pageDisplayPause;
-    static int     rendererTimeout;
-    static int     povrayRenderQuality;
     static bool    povrayDisplay;
     static bool    povrayAutoCrop;
     static bool    isAppImagePayload;
@@ -271,6 +264,17 @@ class Preferences
 #ifdef Q_OS_MAC
     static bool    missingRendererLibs;
 #endif
+
+    static int     cameraDistFactorNative;
+    static int     fadeStepsOpacity;
+    static int     checkUpdateFrequency;
+    static int     pageWidth;
+    static int     pageHeight;
+    static int     gridSizeIndex;
+    static int     pageDisplayPause;
+    static int     rendererTimeout;
+    static int     sceneGuidesLine;
+    static int     povrayRenderQuality;
 
     virtual ~Preferences() {}
 };

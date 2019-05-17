@@ -33,14 +33,17 @@ public:
 public slots:
   void bringSelectedItemToFront();
   void sendSelectedItemToBack();
-  void setGuidePen(QString color){
-    guidePen = QPen(QBrush(QColor(color)), 2, Qt::DashLine);
+  void setGuidePen(QString color,int line){
+    guidePen = QPen(QBrush(QColor(color)), 2, Qt::PenStyle(line));
   }
   void setGridPen(QString color){
     gridPen =  QPen(QBrush(QColor(color)), 2, Qt::SolidLine);
   }
   void setSceneGuides(bool b){
     mSceneGuides = b;
+  }
+  void setSceneGuidesLine(int line) {
+    guidePen.setStyle(Qt::PenStyle(line));
   }
   void setSnapToGrid(bool b){
     mSnapToGrid = b;

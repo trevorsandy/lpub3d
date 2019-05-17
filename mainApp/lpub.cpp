@@ -941,8 +941,22 @@ void Gui::zoomSlider(int value)
 
 void Gui::sceneGuides()
 {
-  Preferences::setSceneGuidesPreference(sceneGuidesAct->isChecked());
+  Preferences::setSceneGuidesPreference(sceneGuidesComboAct->isChecked());
   KpageView->setSceneGuides();
+}
+
+void Gui::sceneGuidesLine()
+{
+  int line = int(Qt::DashLine);
+  if (sender() == sceneGuidesSolidLineAct) {
+     line = int(Qt::SolidLine);
+     sceneGuidesDashLineAct->setChecked(false);
+  } else {
+     sceneGuidesSolidLineAct->setChecked(false);
+  }
+
+  Preferences::setSceneGuidesLinePreference(line);
+  KpageView->setSceneGuidesLine();
 }
 
 void Gui::sceneRuler()
@@ -3481,13 +3495,25 @@ void Gui::createActions()
     sceneRulerComboAct->setChecked(Preferences::sceneRuler);
     connect(sceneRulerComboAct, SIGNAL(triggered()), this, SLOT(sceneRuler()));
 
-    sceneGuidesAct = new QAction(QIcon(":/resources/pageguides.png"), tr("Scene &Guides"), this);
-    sceneGuidesAct->setShortcut(tr("Alt+G"));
-    sceneGuidesAct->setStatusTip(tr("Toggle horizontal and vertical scene guides - Alt+G"));
-    sceneGuidesAct->setEnabled(true);
-    sceneGuidesAct->setCheckable(true);
-    sceneGuidesAct->setChecked(Preferences::sceneGuides);
-    connect(sceneGuidesAct, SIGNAL(triggered()), this, SLOT(sceneGuides()));
+    sceneGuidesComboAct = new QAction(QIcon(":/resources/pageguides.png"), tr("Scene &Guides"), this);
+    sceneGuidesComboAct->setShortcut(tr("Alt+G"));
+    sceneGuidesComboAct->setStatusTip(tr("Toggle horizontal and vertical scene guides - Alt+G"));
+    sceneGuidesComboAct->setEnabled(true);
+    sceneGuidesComboAct->setCheckable(true);
+    sceneGuidesComboAct->setChecked(Preferences::sceneGuides);
+    connect(sceneGuidesComboAct, SIGNAL(triggered()), this, SLOT(sceneGuides()));
+
+    sceneGuidesDashLineAct = new QAction(tr("Dash Line"),this);
+    sceneGuidesDashLineAct->setStatusTip(tr("Select dash scene guide lines"));
+    sceneGuidesDashLineAct->setCheckable(true);
+    sceneGuidesDashLineAct->setChecked(Preferences::sceneGuidesLine == int(Qt::DashLine));
+    connect(sceneGuidesDashLineAct, SIGNAL(triggered()), this, SLOT(sceneGuidesLine()));
+
+    sceneGuidesSolidLineAct = new QAction(tr("Solid Line"),this);
+    sceneGuidesSolidLineAct->setStatusTip(tr("Select solid scene guide lines"));
+    sceneGuidesSolidLineAct->setCheckable(true);
+    sceneGuidesSolidLineAct->setChecked(Preferences::sceneGuidesLine == int(Qt::SolidLine));
+    connect(sceneGuidesSolidLineAct, SIGNAL(triggered()), this, SLOT(sceneGuidesLine()));
 
     actualSizeAct = new QAction(QIcon(":/resources/actual.png"),tr("&Actual Size"), this);
     actualSizeAct->setShortcut(tr("Alt+A"));
@@ -3916,7 +3942,7 @@ void Gui::enableActions()
   actualSizeAct->setEnabled(true);
   zoomInAct->setEnabled(true);
   zoomOutAct->setEnabled(true);
-  sceneGuidesAct->setEnabled(true);
+  sceneGuidesComboAct->setEnabled(true);
   snapToGridComboAct->setEnabled(true);
 
   setupMenu->setEnabled(true);
@@ -4002,7 +4028,7 @@ void Gui::disableActions()
   actualSizeAct->setEnabled(false);
   zoomInAct->setEnabled(false);
   zoomOutAct->setEnabled(false);
-  sceneGuidesAct->setEnabled(false);
+  sceneGuidesComboAct->setEnabled(false);
   snapToGridComboAct->setEnabled(false);
 
   setupMenu->setEnabled(false);
@@ -4135,7 +4161,7 @@ void Gui::createMenus()
     viewMenu->addAction(zoomInAct);
     viewMenu->addAction(zoomOutAct);
     viewMenu->addAction(sceneRulerComboAct);
-    viewMenu->addAction(sceneGuidesAct);
+    viewMenu->addAction(sceneGuidesComboAct);
 
     viewMenu->addSeparator();
 
@@ -4359,11 +4385,18 @@ void Gui::createToolBars()
     zoomToolBar->addAction(zoomInAct);
     zoomOutAct->setMenu(zoomSliderMenu);
     zoomToolBar->addAction(zoomOutAct);
+
     sceneRulerTrackingMenu = new QMenu(tr("Ruler Tracking"),this);
     sceneRulerTrackingMenu->addAction(sceneRulerTrackingAct);
     sceneRulerComboAct->setMenu(sceneRulerTrackingMenu);
     zoomToolBar->addAction(sceneRulerComboAct);
-    zoomToolBar->addAction(sceneGuidesAct);
+
+    sceneGuidesLineMenu = new QMenu(tr("Scene Guides Line"),this);
+    sceneGuidesLineMenu->addAction(sceneGuidesDashLineAct);
+    sceneGuidesLineMenu->addAction(sceneGuidesSolidLineAct);
+    sceneGuidesComboAct->setMenu(sceneGuidesLineMenu);
+    zoomToolBar->addAction(sceneGuidesComboAct);
+
     snapToGridMenu = new QMenu(tr("Snap to Grid"), this);
     snapToGridMenu->addAction(snapGridTransBkgrndAct);
     snapToGridMenu->addSeparator();

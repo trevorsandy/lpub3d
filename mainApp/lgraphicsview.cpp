@@ -40,11 +40,12 @@ LGraphicsView::LGraphicsView(LGraphicsScene *scene)
   setScene(scene);
   setAcceptDrops(true);
 
-  connect(this,SIGNAL(setGridSizeSig(int)),     scene,SLOT(setGridSize(int)));
-  connect(this,SIGNAL(setSnapToGridSig(bool)),  scene,SLOT(setSnapToGrid(bool)));
-  connect(this,SIGNAL(setSceneGuidesSig(bool)), scene,SLOT(setSceneGuides(bool)));
-  connect(this,SIGNAL(setGuidePenSig(QString)), scene,SLOT(setGuidePen(QString)));
-  connect(this,SIGNAL(setGridPenSig(QString)),  scene,SLOT(setGridPen(QString)));
+  connect(this,SIGNAL(setGridSizeSig(int)),        scene,SLOT(setGridSize(int)));
+  connect(this,SIGNAL(setSceneGuidesLineSig(int)), scene,SLOT(setSceneGuidesLine(int)));
+  connect(this,SIGNAL(setSnapToGridSig(bool)),     scene,SLOT(setSnapToGrid(bool)));
+  connect(this,SIGNAL(setSceneGuidesSig(bool)),    scene,SLOT(setSceneGuides(bool)));
+  connect(this,SIGNAL(setGuidePenSig(QString,int)),scene,SLOT(setGuidePen(QString,int)));
+  connect(this,SIGNAL(setGridPenSig(QString)),     scene,SLOT(setGridPen(QString)));
 }
 
 void LGraphicsView::setSceneRuler(){
@@ -81,6 +82,8 @@ void LGraphicsView::setSceneRuler(){
         } else {
           update();
         }
+
+      setSceneRulerTracking();
 
     } else {
 
@@ -120,7 +123,13 @@ void LGraphicsView::setSnapToGrid(){
 void LGraphicsView::setSceneGuides(){
   emit setSceneGuidesSig(Preferences::sceneGuides);
   if (Preferences::sceneGuides)
-    emit setGuidePenSig(Preferences::sceneGuideColor);
+    emit setGuidePenSig(Preferences::sceneGuideColor,
+                        Preferences::sceneGuidesLine);
+}
+
+void LGraphicsView::setSceneGuidesLine(){
+  if (Preferences::sceneGuides)
+    emit setSceneGuidesLineSig(Preferences::sceneGuidesLine);
 }
 
 void LGraphicsView::setSceneBackgroundBrush(){
@@ -137,6 +146,7 @@ void LGraphicsView::setSceneTheme(){
 
 void LGraphicsView::fitVisible(const QRectF rect)
 {
+
   scale(1.0,1.0);
   mPageRect = rect;
 
@@ -163,7 +173,7 @@ void LGraphicsView::fitWidth(const QRectF rect)
   mPageRect = rect;
 
   QRectF unity = matrix().mapRect(QRectF(0,0,1,1));
-  scale(1/unity.width(), 1 / unity.height());
+  scale(1 / unity.width(), 1 / unity.height());
 
   int margin = 2;
   QRectF viewRect = viewport()->rect().adjusted(margin, margin, -margin, -margin);
@@ -171,7 +181,6 @@ void LGraphicsView::fitWidth(const QRectF rect)
   qreal xratio = viewRect.width() / sceneRect.width();
 
   scale(xratio,xratio);
-  centerOn(mPageRect.center());
   fitMode = FitWidth;
 }
 
@@ -191,16 +200,6 @@ void LGraphicsView::actualSize(){
   fitMode = FitNone;
 }
 
-void LGraphicsView::zoomIn(){
-  scale(1.1,1.1);
-  fitMode = FitNone;
-}
-
-void LGraphicsView::zoomOut(){
-  scale(1.0/1.1,1.0/1.1);
-  fitMode = FitNone;
-}
-
 void LGraphicsView::resizeEvent(QResizeEvent *event)
 {
   Q_UNUSED(event);
@@ -212,6 +211,16 @@ void LGraphicsView::resizeEvent(QResizeEvent *event)
         }
     }
   centerOn(viewport()->rect().center());
+}
+
+void LGraphicsView::zoomIn(){
+  scale(1.1,1.1);
+  fitMode = FitNone;
+}
+
+void LGraphicsView::zoomOut(){
+  scale(1.0/1.1,1.0/1.1);
+  fitMode = FitNone;
 }
 
 /* drag and drop */

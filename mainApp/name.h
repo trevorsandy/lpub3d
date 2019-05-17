@@ -327,8 +327,10 @@ static const SceneObject NoContextSceneObjects[] =
 #define LPUB3D_IM_BASE_PNG_EXT                  "base.png"    // Image Matte Png working file extension
 #define LPUB3D_IM_OVERLAY_PNG_EXT               "overlay.png" // Image Matte Png working file extension
 
-#define HIGHLIGHT_COLOUR_DEFAULT                "#FFFF00"  // Bright Yellow
-#define HIGHLIGHT_LINE_WIDTH_DEFAULT            1        // line width 1 - 5
+#define HIGHLIGHT_COLOUR_DEFAULT                "#FFFF00"     // Bright Yellow
+#define HIGHLIGHT_LINE_WIDTH_DEFAULT            1             // line width 1 - 5
+
+#define SCENE_GUIDES_LINE_DEFAULT               2             // PenStyle - DashLine
 
 // Team color supplements
 #define THEME_DEFAULT                   "Default" // Default Theme

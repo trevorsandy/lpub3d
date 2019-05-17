@@ -917,6 +917,7 @@ public slots:
   void ViewerZoomSlider(int);
   void ResetViewerZoomSlider();
   void sceneGuides();
+  void sceneGuidesLine();
   void sceneRuler();
   void sceneRulerTracking();
   void snapToGrid();
@@ -1351,6 +1352,7 @@ private:
   QMenu    *snapToGridMenu;
   QMenu    *sceneRulerTrackingMenu;
   QMenu    *zoomSliderMenu;
+  QMenu    *sceneGuidesLineMenu;
 
   // 3D Viewer Menus
   QMenu* ViewerMenu;
@@ -1421,7 +1423,9 @@ private:
   QSlider  *viewerZoomSliderWidget;
   QWidgetAction *viewerZoomSliderAct;
 
-  QAction  *sceneGuidesAct;
+  QAction  *sceneGuidesComboAct;
+  QAction  *sceneGuidesSolidLineAct;
+  QAction  *sceneGuidesDashLineAct;
   QAction  *sceneRulerComboAct;
   QAction  *sceneRulerTrackingAct;
   QAction  *snapGridTransBkgrndAct;

@@ -1749,7 +1749,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
              <item>
               <widget class="QToolButton" name="sceneBackgroundColorButton">
                <property name="toolTip">
-                <string>Set custom scene background color</string>
+                <string>Set scene background color</string>
                </property>
                <property name="text">
                 <string/>
@@ -1759,7 +1759,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
              <item>
               <widget class="QLabel" name="label_14">
                <property name="toolTip">
-                <string>Set custom scene ruler tick color</string>
+                <string/>
                </property>
                <property name="text">
                 <string>Ruler</string>
@@ -1771,6 +1771,9 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
              </item>
              <item>
               <widget class="QToolButton" name="sceneRulerTickColorButton">
+               <property name="toolTip">
+                <string>Set ruler tick mark color</string>
+               </property>
                <property name="text">
                 <string/>
                </property>
@@ -1779,7 +1782,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
              <item>
               <widget class="QLabel" name="label_18">
                <property name="toolTip">
-                <string>Set custom scene guides color</string>
+                <string/>
                </property>
                <property name="text">
                 <string>Guide</string>
@@ -1791,6 +1794,9 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
              </item>
              <item>
               <widget class="QToolButton" name="sceneGuideColorButton">
+               <property name="toolTip">
+                <string>Set scene guides line color</string>
+               </property>
                <property name="text">
                 <string/>
                </property>
@@ -1809,7 +1815,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
              <item>
               <widget class="QToolButton" name="sceneGridColorButton">
                <property name="toolTip">
-                <string>Set custom scene grid color</string>
+                <string>Set scene grid lines color</string>
                </property>
                <property name="text">
                 <string/>
@@ -1818,6 +1824,9 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
              </item>
              <item>
               <widget class="QLabel" name="label_19">
+               <property name="toolTip">
+                <string/>
+               </property>
                <property name="text">
                 <string>Tracking</string>
                </property>
@@ -1825,6 +1834,9 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
              </item>
              <item>
               <widget class="QToolButton" name="sceneRulerTrackingColorButton">
+               <property name="toolTip">
+                <string>Set ruler tracking indicator color</string>
+               </property>
                <property name="text">
                 <string/>
                </property>
@@ -1846,7 +1858,7 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
                 </sizepolicy>
                </property>
                <property name="toolTip">
-                <string>Reset all colors to default</string>
+                <string>Reset all colors to default setting</string>
                </property>
                <property name="text">
                 <string>Reset</string>

@@ -934,8 +934,8 @@ int Gui::addGraphicsPageItems(
           pageBg->setGraphicsEffect(bodyShadow);
       }
 
-      view->horizontalScrollBar()->setRange(0,int(pageSize(page->meta.LPub.page, 0)));
-      view->verticalScrollBar()->setRange(  0,int(pageSize(page->meta.LPub.page, 1)));
+      view->horizontalScrollBar()->setRange(0,pW);
+      view->verticalScrollBar()->setRange(  0,pH);
 
     }
 
