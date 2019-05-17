@@ -143,7 +143,7 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   buttonBox->addButton(QDialogButtonBox::Cancel);
   connect(buttonBox,SIGNAL(rejected()),SLOT(cancel()));
 
-  grid->addWidget(buttonBox);
+  layout->addWidget(buttonBox);
 
   setModal(true);
   setMinimumSize(40,20);
