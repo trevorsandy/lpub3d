@@ -271,6 +271,7 @@ int Render::rotateParts(
         bool          applyCA /* true */)
 {
   bool cal = Preferences::applyCALocally;
+  bool defaultRot = (cal && applyCA);
 
   double min[3], max[3];
 
@@ -280,7 +281,7 @@ int Render::rotateParts(
 
   double defaultViewMatrix[3][3], defaultViewRots[3];
 
-  if (cal && applyCA) {
+  if (defaultRot) {
     defaultViewRots[0] = ca.value(0);
     defaultViewRots[1] = ca.value(1);
     defaultViewRots[2] = 0;
@@ -313,7 +314,7 @@ int Render::rotateParts(
   split(addLine,tokens);
 
   if (addLine.size() && tokens.size() == 15 && tokens[0] == "1") {
-    if (LDrawFile::mirrored(tokens) /* || ! defaultRot */) {
+    if (LDrawFile::mirrored(tokens) || ! defaultRot) {
 
       double alm[3][3];
 

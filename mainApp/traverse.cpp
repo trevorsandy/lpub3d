@@ -567,10 +567,10 @@ int Gui::drawPage(
 
           if (ldrawFile.isSubmodel(type) && callout && ! noStep) {
 
-              CalloutBeginMeta::CalloutMode mode = callout->meta.LPub.callout.begin.value();
+              CalloutBeginMeta::CalloutMode calloutMode = callout->meta.LPub.callout.begin.value();
 
-//              logDebug() << "CALLOUT MODE: " << (mode == CalloutBeginMeta::Unassembled ? "Unassembled" :
-//                                                 mode == CalloutBeginMeta::Rotated ? "Rotated" : "Assembled");
+//              logDebug() << "CALLOUT MODE: " << (calloutMode == CalloutBeginMeta::Unassembled ? "Unassembled" :
+//                                                 calloutMode == CalloutBeginMeta::Rotated ? "Rotated" : "Assembled");
 
               /* we are a callout, so gather all the steps within the callout */
               /* start with new meta, but no rotation step */
@@ -578,7 +578,7 @@ int Gui::drawPage(
               QString thisType = type;
 
              /* t.s. Rotated or assembled callout here (treated like a submodel) */
-              if (mode != CalloutBeginMeta::Unassembled) {
+              if ((assembledCallout = calloutMode != CalloutBeginMeta::Unassembled)) {
 
                   /* So, we process these callouts in-line, not when we finally hit the STEP or
                      ROTSTEP that ends this processing, but for ASSEMBLED or ROTATED
@@ -587,9 +587,6 @@ int Gui::drawPage(
                      want to be rotated.  Also, for submodel's who's scale is different
                      than their parent's scale, we want to scan ahead and find out the
                      parent's scale and "render" the submodels at the parent's scale */
-
-                  // If callout is assembled, suppress rotate icon
-                  assembledCallout = (mode == CalloutBeginMeta::Assembled);
 
                   Meta tmpMeta = curMeta;
                   Where walk = current;
@@ -605,7 +602,7 @@ int Gui::drawPage(
                         }
                     }
 
-                  if (mode == CalloutBeginMeta::Rotated) {
+                  if (calloutMode == CalloutBeginMeta::Rotated) {
                       // When renderers apply CA rotation, set cameraAngles to 0 so only ROTSTEP is sent to renderers.
                       if (! Preferences::applyCALocally)
                           callout->meta.LPub.assem.cameraAngles.setValues(0.0, 0.0);
@@ -620,7 +617,7 @@ int Gui::drawPage(
 
                   Where current2(thisType,0);
                   skipHeader(current2);
-                  if (mode == CalloutBeginMeta::Assembled) {
+                  if (calloutMode == CalloutBeginMeta::Assembled) {
                       // In this case, no additional rotation should be applied to the submodel
                       callout->meta.rotStep.clear();
                   }
@@ -661,7 +658,7 @@ int Gui::drawPage(
                   if (callout->meta.LPub.pli.show.value() &&
                       ! callout->meta.LPub.callout.pli.perStep.value() &&
                       ! pliIgnore && ! partIgnore && ! synthBegin &&
-                      mode == CalloutBeginMeta::Unassembled) {
+                      calloutMode == CalloutBeginMeta::Unassembled) {
 
                       pliParts += calloutParts;
                     }
@@ -672,7 +669,7 @@ int Gui::drawPage(
                     }
                 } else {
                   callout->instances++;
-                  if (mode == CalloutBeginMeta::Unassembled) {
+                  if (calloutMode == CalloutBeginMeta::Unassembled) {
                       pliParts += calloutParts;
                     }
                 }
@@ -1746,10 +1743,10 @@ int Gui::findPage(
               QString    type = token[token.size()-1];
 
               bool contains   = ldrawFile.isSubmodel(type);
-              CalloutBeginMeta::CalloutMode mode = meta.LPub.callout.begin.value();
+              CalloutBeginMeta::CalloutMode calloutMode = meta.LPub.callout.begin.value();
 
               // if submodel or assembled/rotated callout
-              if (contains && (!callout || (callout && mode != CalloutBeginMeta::Unassembled))) {
+              if (contains && (!callout || (callout && calloutMode != CalloutBeginMeta::Unassembled))) {
 
                   bool rendered = ldrawFile.rendered(type,ldrawFile.mirrored(token));
                   if (! meta.LPub.mergeInstanceCount.value())
