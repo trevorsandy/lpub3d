@@ -116,20 +116,25 @@ void EditWindow::createActions()
     selAllAct->setStatusTip(tr("Select all page content - Ctrl+A"));
     connect(selAllAct, SIGNAL(triggered()), _textEdit, SLOT(selectAll()));
 
-    showAllCharsAct = new QAction(QIcon(":/resources/showallcharacters.png"), tr("Show all characters"), this);
+    showAllCharsAct = new QAction(QIcon(":/resources/showallcharacters.png"), tr("Show All Characters"), this);
     showAllCharsAct->setShortcut(tr("Ctrl+J"));
     showAllCharsAct->setStatusTip(tr("Show all characters - Ctrl+J"));
     showAllCharsAct->setCheckable(true);
     connect(showAllCharsAct, SIGNAL(triggered()), this, SLOT(showAllCharacters()));
 
-    topAct = new QAction(QIcon(":/resources/topofdocument.png"), tr("Top of document"), this);
+    toggleCmmentAct = new QAction(QIcon(":/resources/togglecomment.png"), tr("Toggle Line Comment"), this);
+    toggleCmmentAct->setShortcut(tr("Ctrl+D"));
+    toggleCmmentAct->setStatusTip(tr("Add or remove comment from selected line - Ctrl+D"));
+    connect(toggleCmmentAct, SIGNAL(triggered()), _textEdit, SLOT(toggleComment()));
+
+    topAct = new QAction(QIcon(":/resources/topofdocument.png"), tr("Top of Document"), this);
     topAct->setShortcut(tr("Ctrl+T"));
-    topAct->setStatusTip(tr("Navigate to the top of document - Ctrl+T"));
+    topAct->setStatusTip(tr("Go to the top of document - Ctrl+T"));
     connect(topAct, SIGNAL(triggered()), this, SLOT(topOfDocument()));
 
-    bottomAct = new QAction(QIcon(":/resources/bottomofdocument.png"), tr("Bottom of document"), this);
+    bottomAct = new QAction(QIcon(":/resources/bottomofdocument.png"), tr("Bottom of Document"), this);
     bottomAct->setShortcut(tr("Ctrl+B"));
-    bottomAct->setStatusTip(tr("Navigate to the bottom of document - Ctrl+B"));
+    bottomAct->setStatusTip(tr("Go to the bottom of document - Ctrl+B"));
     connect(bottomAct, SIGNAL(triggered()), this, SLOT(bottomOfDocument()));
 
     connect(_textEdit, SIGNAL(copyAvailable(bool)),
@@ -186,6 +191,7 @@ void EditWindow::disableActions()
     selAllAct->setEnabled(false);
     findAct->setEnabled(false);
     topAct->setEnabled(false);
+    toggleCmmentAct->setEnabled(false);
     bottomAct->setEnabled(false);
     showAllCharsAct->setEnabled(false);
 
@@ -220,6 +226,7 @@ void EditWindow::createToolBars()
     }
     editToolBar->addAction(topAct);
     editToolBar->addAction(bottomAct);
+    editToolBar->addAction(toggleCmmentAct);
 //    editToolBar->addAction(showAllCharsAct);
     editToolBar->addAction(selAllAct);
     editToolBar->addAction(cutAct);
@@ -237,6 +244,7 @@ void EditWindow::showContextMenu(const QPoint &pt)
     menu->addSeparator();
     menu->addAction(topAct);
     menu->addAction(bottomAct);
+    menu->addAction(toggleCmmentAct);
     menu->addAction(findAct);
     menu->addAction(updateAct);
     menu->addAction(redrawAct);
@@ -500,6 +508,7 @@ void EditWindow::displayFile(
   showAllCharsAct->setEnabled(true);
   redrawAct->setEnabled(true);
   findAct->setEnabled(true);
+  toggleCmmentAct->setEnabled(true);
   topAct->setEnabled(true);
   bottomAct->setEnabled(true);
 }
@@ -583,6 +592,47 @@ QTextEditor::QTextEditor(QWidget *parent) :
 
     updateLineNumberAreaWidth(0);
     //highlightCurrentLine();
+}
+
+void QTextEditor::toggleComment(){
+    QTextCursor cursor = textCursor();
+    cursor.select(QTextCursor::LineUnderCursor);
+    QString selection = cursor.selectedText();
+    moveCursor(QTextCursor::StartOfLine);
+
+    QString replaceText;
+    bool result = false;
+
+    cursor.beginEditBlock();
+
+    if (!selection.isEmpty())
+    {
+        QString findText;
+        QTextDocument::FindFlags flags;
+        if (selection.startsWith("0 //1")) {
+            findText = "0 //1";
+            replaceText = "1";
+        } else
+        if (selection.startsWith("0 //")) {
+            findText = "0 //";
+            replaceText = "0";
+        } else
+        if (selection.startsWith("1")) {
+            findText = "1";
+            replaceText = "0 //1";
+        } else
+        if (selection.startsWith("0")) {
+            findText = "0";
+            replaceText = "0 //";
+        }
+        result = find(findText, flags);
+    }
+
+    cursor.endEditBlock();
+
+    if (result) {
+        textCursor().insertText(replaceText);
+    }
 }
 
 void QTextEditor::showAllCharacters(bool show){

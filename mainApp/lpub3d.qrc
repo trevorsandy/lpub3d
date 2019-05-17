@@ -179,6 +179,7 @@
         <file alias="submodelcolor.png">resources/submodelcolor.png</file>
         <file alias="submodelsetup.png">resources/submodelsetup.png</file>
         <file alias="textDelete.png">resources/textDelete.png</file>
+        <file alias="togglecomment.png">resources/togglecomment.png</file>
         <file alias="togglepartoutline.png">resources/togglepartoutline.png</file>
         <file alias="top.png">resources/top.png</file>
         <file alias="topofdocument.png">resources/topofdocument.png</file>

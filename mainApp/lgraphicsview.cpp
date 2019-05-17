@@ -116,7 +116,7 @@ void LGraphicsView::setSnapToGrid(){
   emit setSnapToGridSig(Preferences::snapToGrid);
   if (Preferences::snapToGrid) {
     emit setGridPenSig(Preferences::sceneGridColor);
-    setGridSize();
+    emit setGridSizeSig(GridSizeTable[Preferences::gridSizeIndex]);
   }
 }
 
@@ -133,7 +133,7 @@ void LGraphicsView::setSceneGuidesLine(){
 }
 
 void LGraphicsView::setSceneBackgroundBrush(){
-    this->scene()->setBackgroundBrush(QColor(Preferences::sceneBackgroundColor));
+  this->scene()->setBackgroundBrush(QColor(Preferences::sceneBackgroundColor));
 }
 
 void LGraphicsView::setSceneTheme(){
@@ -141,7 +141,6 @@ void LGraphicsView::setSceneTheme(){
   setSceneRuler();
   setSceneGuides();
   setSnapToGrid();
-  setSceneRulerTracking();
 }
 
 void LGraphicsView::fitVisible(const QRectF rect)

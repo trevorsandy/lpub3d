@@ -3582,6 +3582,15 @@ void Gui::createActions()
     zoomOutAct->setEnabled(false);
     connect(zoomOutAct, SIGNAL(triggered()), this, SLOT(zoomOut()));
 
+    viewerZoomSliderAct = new QWidgetAction(nullptr);
+    viewerZoomSliderWidget = new QSlider();
+    viewerZoomSliderWidget->setSingleStep(1);
+    viewerZoomSliderWidget->setTickInterval(10);
+    viewerZoomSliderWidget->setTickPosition(QSlider::TicksBelow);
+    viewerZoomSliderWidget->setMaximum(150);
+    viewerZoomSliderWidget->setMinimum(1);
+    viewerZoomSliderWidget->setValue(50);
+    connect(viewerZoomSliderWidget, SIGNAL(valueChanged(int)), this, SLOT(ViewerZoomSlider(int)));
     // firstPage,lastPage,nextPage,previousPage
 
     firstPageAct = new QAction(QIcon(":/resources/first.png"),tr("First Page"), this);
@@ -4297,15 +4306,6 @@ void Gui::createMenus()
     ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_PREFERENCES]);
     ViewerMenu->addSeparator();
 
-    viewerZoomSliderAct = new QWidgetAction(nullptr);
-    viewerZoomSliderWidget = new QSlider();
-    viewerZoomSliderWidget->setSingleStep(1);
-    viewerZoomSliderWidget->setTickInterval(10);
-    viewerZoomSliderWidget->setTickPosition(QSlider::TicksBelow);
-    viewerZoomSliderWidget->setMaximum(150);
-    viewerZoomSliderWidget->setMinimum(1);
-    viewerZoomSliderWidget->setValue(50);
-    connect(viewerZoomSliderWidget, SIGNAL(valueChanged(int)), this, SLOT(ViewerZoomSlider(int)));
     connect(gMainWindow->mActions[LC_VIEW_VIEWPOINT_HOME], SIGNAL(triggered()), this, SLOT(ResetViewerZoomSlider()));
 
     viewerZoomSliderAct->setDefaultWidget(viewerZoomSliderWidget);

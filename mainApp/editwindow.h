@@ -93,6 +93,7 @@ private:
     QAction  *delAct;
     QAction  *selAllAct;
     QAction  *findAct;
+    QAction  *toggleCmmentAct;
     QAction  *showAllCharsAct;
 
     QAction  *exitAct;
@@ -163,6 +164,7 @@ private slots:
     void updateLineNumberArea(int /*slider_pos*/);
     void updateLineNumberArea(); 
     void findDialog();
+    void toggleComment();
     void showCharacters(
          QString findString,
          QString replaceString);

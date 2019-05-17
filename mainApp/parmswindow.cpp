@@ -114,14 +114,14 @@ void ParmsWindow::createActions()
     saveCopyAsAct->setStatusTip(tr("Save a copy of the document as... to disk - Ctrl+Alt+S"));
     connect(saveCopyAsAct, SIGNAL(triggered()), this, SLOT(saveCopyAsFile()));
 
-    topAct = new QAction(QIcon(":/resources/topofdocument.png"), tr("Top of document"), this);
+    topAct = new QAction(QIcon(":/resources/topofdocument.png"), tr("Top of Document"), this);
     topAct->setShortcut(tr("Ctrl+T"));
-    topAct->setStatusTip(tr("Navigate to the top of document - Ctrl+T"));
+    topAct->setStatusTip(tr("Go to the top of document - Ctrl+T"));
     connect(topAct, SIGNAL(triggered()), this, SLOT(topOfDocument()));
 
-    bottomAct = new QAction(QIcon(":/resources/bottomofdocument.png"), tr("Bottom of document"), this);
+    bottomAct = new QAction(QIcon(":/resources/bottomofdocument.png"), tr("Bottom of Document"), this);
     bottomAct->setShortcut(tr("Ctrl+B"));
-    bottomAct->setStatusTip(tr("Navigate to the bottom of document - Ctrl+B"));
+    bottomAct->setStatusTip(tr("Go to the bottom of document - Ctrl+B"));
     connect(bottomAct, SIGNAL(triggered()), this, SLOT(bottomOfDocument()));
 
     delAct = new QAction(QIcon(":/resources/delete.png"), tr("&Delete"), this);
@@ -134,7 +134,7 @@ void ParmsWindow::createActions()
     selAllAct->setStatusTip(tr("Select all page content - Ctrl+A"));
     connect(selAllAct, SIGNAL(triggered()), _textEdit, SLOT(selectAll()));
 
-    showAllCharsAct = new QAction(QIcon(":/resources/showallcharacters.png"), tr("Show all characters"), this);
+    showAllCharsAct = new QAction(QIcon(":/resources/showallcharacters.png"), tr("Show All Characters"), this);
     showAllCharsAct->setShortcut(tr("Ctrl+J"));
     showAllCharsAct->setStatusTip(tr("Show all characters - Ctrl+J"));
     showAllCharsAct->setCheckable(true);
