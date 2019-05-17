@@ -409,6 +409,7 @@ int Gui::drawPage(
   steps->setTopOfSteps(current);
 
   QList<InsertMeta> inserts;
+  QList<PliPartGroupMeta> pliPartGroups;
 
   Where topOfStep = current;
   Rc gprc = OkRc;
@@ -1013,6 +1014,10 @@ int Gui::drawPage(
                  }
               }
               break;
+           case PliPartGroupRc:
+                curMeta.LPub.pli.pliPartGroup.setWhere(current);
+                pliPartGroups.append(curMeta.LPub.pli.pliPartGroup);
+              break;
 
             case PagePointerRc:
               {
@@ -1230,13 +1235,14 @@ int Gui::drawPage(
                           steps->stepGroupMeta.LPub.multiStep.pli.placement.setValue(placementData);
                         }
                       steps->pli.bom = false;
-                      steps->pli.setParts(pliParts,steps->stepGroupMeta);
+                      steps->pli.setParts(pliParts,pliPartGroups,steps->stepGroupMeta);
 
                       emit messageSig(LOG_STATUS, "Add PLI images for multi-step page " + current.modelName);
 
                       steps->pli.sizePli(&steps->stepGroupMeta, StepGroupType, false);
                     }
                   pliParts.clear();
+                  pliPartGroups.clear();
 
                   /* this is a page we're supposed to process */
 
@@ -1393,8 +1399,9 @@ int Gui::drawPage(
                               relativeType = SingleStepType;
                           }
 
-                          step->pli.setParts(pliParts,steps->meta);
+                          step->pli.setParts(pliParts,pliPartGroups,steps->meta);
                           pliParts.clear();
+                          pliPartGroups.clear();
 
                           emit messageSig(LOG_INFO, "Add step PLI for " + topOfStep.modelName + "...");
 
@@ -1487,6 +1494,7 @@ int Gui::drawPage(
 
                       if (pliPerStep) {
                           pliParts.clear();
+                          pliPartGroups.clear();
                       }
 
                       // Only pages or step can have inserts and pointers... not callouts
@@ -1536,9 +1544,10 @@ int Gui::drawPage(
                                   }
                               }
 
-                              step->pli.setParts(instancesPliParts,steps->meta);
+                              step->pli.setParts(instancesPliParts,pliPartGroups,steps->meta);
                               instancesPliParts.clear();
                               pliParts.clear();
+                              pliPartGroups.clear();
 
                               emit messageSig(LOG_INFO, "Add PLI images for single-step page...");
 
@@ -2248,7 +2257,8 @@ int Gui::findPage(
 int Gui::getBOMParts(
     Where        current,
     QString     &addLine,
-    QStringList &pliParts)
+    QStringList &pliParts,
+    QList<PliPartGroupMeta> &bomPartGroups)
 {
   bool partIgnore = false;
   bool pliIgnore = false;
@@ -2328,7 +2338,7 @@ int Gui::getBOMParts(
 
                       Where current2(type,0);
 
-                      getBOMParts(current2,line,pliParts);
+                      getBOMParts(current2,line,pliParts,bomPartGroups);
 
                     } else {
 
@@ -2417,6 +2427,11 @@ int Gui::getBOMParts(
               break;
             case BufferLoadRc:
               bfxLoad = true;
+              break;
+            case BomPartGroupRc:
+              meta.LPub.bom.pliPartGroup.setWhere(current);
+              meta.LPub.bom.pliPartGroup.setBomPart(true);
+              bomPartGroups.append(meta.LPub.bom.pliPartGroup);
               break;
 
               // Any of the metas that can change pliParts needs
@@ -2556,8 +2571,9 @@ int Gui::getBOMOccurrence(Where	current) {		// start at top of ldrawFile
 bool Gui::generateBOMPartsFile(const QString &bomFileName){
     QString addLine;
     QStringList tempParts, bomParts;
+    QList<PliPartGroupMeta> bomPartGroups;
     Where current(ldrawFile.topLevelFile(),0);
-    getBOMParts(current,addLine,tempParts);
+    getBOMParts(current,addLine,tempParts,bomPartGroups);
 
     if (! tempParts.size()) {
         emit messageSig(LOG_ERROR,QMessageBox::tr("No BOM parts were detected."));

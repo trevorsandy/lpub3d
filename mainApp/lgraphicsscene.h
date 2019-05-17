@@ -68,6 +68,7 @@ private:
   QPen guidePen;
   QPen gridPen;
   bool mValidItem;
+  bool mPliPartGroup;
   bool mSceneGuides;
   QPointF mGuidePos;
   int mItemType;

@@ -62,6 +62,8 @@ class InstanceTextItem;
 class AnnotateTextItem;
 class PGraphicsPixmapItem;
 class PliBackgroundItem;
+class PartGroupItem;
+class LGraphicsScene;
 
 class PliPart {
   public:
@@ -71,6 +73,7 @@ class PliPart {
     QString              color;
     QString              text;
     QString              element;
+    PliPartGroupMeta     groupMeta;
     NumberMeta           instanceMeta;
     AnnotationStyleMeta  styleMeta;
     MarginsMeta          csiMargin;
@@ -78,6 +81,7 @@ class PliPart {
     AnnotateTextItem    *annotateText;
     AnnotateTextItem    *annotateElement;
     PGraphicsPixmapItem *pixmap;
+    PartGroupItem    *pliPartGroup;
 
     QString              sortElement;
     QString              sortCategory;
@@ -118,6 +122,7 @@ class PliPart {
       annotateText    = nullptr;
       annotateElement = nullptr;
       pixmap          = nullptr;
+      pliPartGroup    = nullptr;
     }
 
     PliPart(QString _type, QString _color)
@@ -129,7 +134,10 @@ class PliPart {
       annotateText    = nullptr;
       annotateElement = nullptr;
       pixmap          = nullptr;
+      pliPartGroup    = nullptr;
     }
+
+    void addPartGroupToScene(LGraphicsScene *scene);
 
     float maxMargin();
 
@@ -215,10 +223,11 @@ class Pli : public Placement {
     static const QString titleDescription(QString &part);
     static QString partLine(QString &line, Where & /*here*/, Meta &/*meta*/);
     void setParts(
-      QStringList &csiParts,
-      Meta        &meta,
-      bool         bom = false,
-      bool       split = false);
+      QStringList             &csiParts,
+      QList<PliPartGroupMeta> &partGroups,
+      Meta                    &meta,
+      bool                    bom = false,
+      bool                    split = false);
 
     int tsize()
     {
@@ -334,21 +343,13 @@ PGraphicsPixmapItem(
   QPixmap &pixmap,
   PlacementType  _parentRelativeType,
   QString &type,
-  QString &color)
-{
-  parentRelativeType = _parentRelativeType;
-  pli = _pli;
-  part = _part;
-  setPixmap(pixmap);
-  setToolTip(pliToolTip(type,color));
-}
-QString pliToolTip(QString type, QString Color);
-PliPart *part;
-Pli     *pli;
-PlacementType  parentRelativeType;
-
-protected:
-void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+  QString &color);
+  QString pliToolTip(QString type, QString Color);
+  PliPart *part;
+  Pli     *pli;
+  PlacementType  parentRelativeType;
+  protected:
+  virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 };
 
 class PGraphicsTextItem : public QGraphicsTextItem, public MetaItem
@@ -461,6 +462,58 @@ protected:
   void setAnnotationStyle(QPainter *painter);
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *o, QWidget *w);
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+};
+
+class PartGroupItem : public QGraphicsItemGroup, public MetaItem
+{
+public:
+    PartGroupItem(){}
+    PartGroupItem(PliPartGroupMeta meta);
+    ~PartGroupItem(){}
+
+    PliPartGroupMeta meta;
+    QPointF      position;
+    bool         positionChanged;
+
+protected:
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event)
+    {
+        position = pos();
+        positionChanged = false;
+        QGraphicsItem::mousePressEvent(event);
+    }
+    virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+    {
+        positionChanged = true;
+        QGraphicsItem::mouseMoveEvent(event);
+    }
+    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+    {
+        QGraphicsItem::mouseReleaseEvent(event);
+
+        if (event->button() == Qt::LeftButton){
+            if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
+                change();
+            }
+        }
+    }
+    virtual void change()
+    {
+        if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
+            if (positionChanged) {
+
+                QPointF newPosition = pos() - position;
+
+                meta.setOffset(newPosition);
+
+                beginMacro(QString("MoveItemGroup"));
+
+                setPliPartGroupOffset(&meta);
+
+                endMacro();
+            }
+        }
+    }
 };
 
 extern QHash<int, QString>     annotationString;

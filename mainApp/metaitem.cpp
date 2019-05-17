@@ -1525,6 +1525,79 @@ void MetaItem::changeInsertOffset(
   replaceMeta(placement->here(),newMetaString);
 }
 
+void MetaItem::setPliPartGroupOffset(PliPartGroupMeta *groupMeta)
+{
+    bool canReplace = false;
+    QString metaString;
+    Where here(groupMeta->value().group.modelName,
+               groupMeta->value().group.lineNumber);
+    int nextLine  = here.lineNumber + 1;
+    int endOfFile = gui->subFileSize(here.modelName);
+
+    if (!(canReplace = groupMeta->here() == here)) {
+        if (groupMeta->bom() && !groupMeta->bomPart()) {
+            here.lineNumber = nextLine;
+        } else {
+            Rc rc;
+            Meta mi;
+            groupMeta->setWhere(here);
+            metaString = gui->readLine(here);
+            rc = mi.parse(metaString,here);
+            if (!(canReplace = rc == PliPartGroupRc || rc == BomPartGroupRc)) {
+                here.lineNumber = nextLine < endOfFile ? nextLine : endOfFile - 1;
+                groupMeta->setWhere(here);
+            }
+        }
+    }
+
+#ifdef QT_DEBUG_MODE
+    logDebug() << "\n"
+    << "03 PLI PART GROUP ATTRIBUTES [" + groupMeta->value().type + "_" + groupMeta->value().color + "] - SET OFFSET"
+    << "\n0. BOM:        " <<(groupMeta->value().bom ? "True" : "False")
+    << "\n0. Bom Part:   " <<(groupMeta->value().bom ? groupMeta->value().bPart ? "Yes" : "No" : "N/A")
+    << "\n1. Type:       " << groupMeta->value().type
+    << "\n2. Color:      " << groupMeta->value().color
+    << "\n3. ZValue:     " << groupMeta->value().zValue
+    << "\n4. OffsetX:    " << groupMeta->value().offset[0]
+    << "\n5. OffsetY:    " << groupMeta->value().offset[1]
+    << "\n6. Group Model:" << groupMeta->value().group.modelName
+    << "\n7. Group Line: " << groupMeta->value().group.lineNumber
+    << "\n8. Meta Model: " << groupMeta->here().modelName
+    << "\n9. Meta Line:  " << groupMeta->here().lineNumber
+    ;
+#endif
+
+    if (canReplace) {
+        metaString = groupMeta->format(groupMeta->pushed,groupMeta->global);
+        replaceMeta(groupMeta->here(),metaString);
+    } else {
+        metaString = groupMeta->format(false,false);
+        insertMeta(here, metaString);
+    }
+}
+
+void MetaItem::togglePartGroups(
+                  const Where &topOfStep,
+                  const Where &bottomOfStep,
+                  bool         bom,
+                  BoolMeta    *meta,
+                  bool         useTop,
+                  int          append,
+                  bool         local)
+{
+    beginMacro("RemovePartGroups");
+    meta->setValue(!meta->value());
+    setMeta(topOfStep,bottomOfStep,meta,useTop,append,local);
+    if (!meta->value()) {
+        if (bom) {
+            deleteBOMPartGroups();
+        } else {
+            deletePLIPartGroups(topOfStep,bottomOfStep);
+        }
+    }
+    endMacro();
+}
+
 void MetaItem::changeSubModelColor(
   QString title,
   const Where &topOfStep,
@@ -2684,8 +2757,9 @@ void MetaItem::insertSplitBOM()
   scanPastGlobal(topOfStep);
 
   beginMacro("splitBOM");
+  deleteBOMPartGroups();
   insertPage(pageMeta);
-  appendMeta(topOfStep,bomMeta);
+  appendMeta(topOfStep+1,bomMeta);
   endMacro();
 }
 
@@ -2704,12 +2778,53 @@ void MetaItem::deleteBOM()
 
       if (insertData.type == InsertData::InsertBom) {
         beginMacro("deleteBOM");
+        deleteBOMPartGroups();
         deleteMeta(topOfPage);
         endMacro();
         break;
       }
     }
   }
+}
+
+void MetaItem::deleteBOMPartGroups()
+{
+  Where topOfPage    = gui->topOfPages[gui->displayPageNum-1];
+  Where bottomOfPage = gui->topOfPages[gui->displayPageNum];
+  for (Where walk = bottomOfPage; walk >= topOfPage.lineNumber; walk--) {
+    Meta mi;
+    QString metaString = gui->readLine(walk);
+    Rc rc = mi.parse(metaString,walk);
+    if (rc == PliPartGroupRc || rc == BomPartGroupRc){
+        deleteMeta(walk);
+    }
+  }
+}
+
+void MetaItem::deletePLIPartGroups(
+        const Where &topOfStep,
+        const Where &bottomOfStep)
+{
+  for (Where walk = bottomOfStep; walk >= topOfStep.lineNumber; walk--) {
+    Meta mi;
+    QString metaString = gui->readLine(walk);
+    Rc rc = mi.parse(metaString,walk);
+    if (rc == PliPartGroupRc || rc == BomPartGroupRc){
+        deleteMeta(walk);
+    }
+  }
+}
+
+void MetaItem::resetPartGroup(
+        const Where &which)
+{
+    Where here = which;
+    Meta mi;
+    QString metaString = gui->readLine(here);
+    Rc rc = mi.parse(metaString,here);
+    if (rc == PliPartGroupRc || rc == BomPartGroupRc){
+        deleteMeta(here);
+    }
 }
 
 void MetaItem::changeImageItemSize(

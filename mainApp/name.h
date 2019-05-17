@@ -96,7 +96,9 @@ enum SceneObject {
     StepNumberObj            =  3, // 32 StepNumberType
     SubModelBackgroundObj    = 25, // 33 SubModelType
     SubModelInstanceObj      = 30, // 34
-    SubmodelInstanceCountObj = 18  // 35 SubmodelInstanceCountType
+    SubmodelInstanceCountObj = 18, // 35 SubmodelInstanceCountType
+    PartsListPixmapObj       = 44, // 36
+    PartsListGroupObj        = 45  // 37
 };
 
 // Exempted from detection - triggers invalid object
@@ -105,7 +107,19 @@ static const SceneObject ExemptSceneObjects[] =
     PageBackgroundObj,   //  0
     PointerFirstSegObj,  // 22
     PointerSecondSegObj, // 24
-    PointerThirdSegObj   // 28
+    PointerThirdSegObj,  // 28
+
+    PartsListPixmapObj,      // 44
+    PartsListAnnotationObj,  // 20
+    PartsListInstanceObj     // 21
+};
+
+// Trigger scene guide on PliPartGroup object
+static const SceneObject PliPartGroupSceneObjects[] =
+{
+    PartsListPixmapObj,      // 44
+    PartsListAnnotationObj,  // 20
+    PartsListInstanceObj     // 21
 };
 
 // Excluded from triggering context action
@@ -134,7 +148,8 @@ static const SceneObject IncludedSceneObjects[] =
     PartsListBackgroundObj,  //  4
     RotateIconBackgroundObj, // 26
     StepNumberObj,           //  3
-    SubModelBackgroundObj    // 25
+    SubModelBackgroundObj,   // 25
+    PartsListGroupObj        // 45
 };
 
 // TODO - Temporary abort processing list
@@ -167,8 +182,10 @@ static const SceneObject NoContextSceneObjects[] =
 #define CALLOUTINSTANCE_ZVALUE_DEFAULT        3.3
 
 #define PARTSLISTBACKGROUND_ZVALUE_DEFAULT    4.0
-#define PARTSLISTINSTANCE_ZVALUE_DEFAULT      4.1
-#define PARTSLISTANNOTATION_ZVALUE_DEFAULT    4.2
+#define PARTSLISTPARTGROUP_ZVALUE_DEFAULT     4.1
+#define PARTSLISTPARTPIXMAP_ZVALUE_DEFAULT    4.1
+#define PARTSLISTINSTANCE_ZVALUE_DEFAULT      4.3
+#define PARTSLISTANNOTATION_ZVALUE_DEFAULT    4.4
 
 #define ROTATEICONBACKGROUND_ZVALUE_DEFAULT   5.0
 
@@ -194,17 +211,17 @@ static const SceneObject NoContextSceneObjects[] =
 
 #define STEPNUMBER_ZVALUE_DEFAULT            14.0
 
-#define PAGEPOINTERBACKGROUND_ZVALUE_DEFAULT 15.0 // [same as pagePointer]
+#define PAGEPOINTERBACKGROUND_ZVALUE_DEFAULT 15.0  // [same as pagePointer]
 #define PAGEPOINTER_ZVALUE_DEFAULT           15.0
 
-#define POINTERHEAD_ZVALUE_DEFAULT            0.3 // [Plus Parent zValue]
-#define POINTERTHIRDSEG_ZVALUE_DEFAULT        1.0 // [Plus Parent zValue] [Exempt]
-#define POINTERSECONDSEG_ZVALUE_DEFAULT       2.0 // [Plus Parent zValue] [Exempt]
-#define POINTERFIRSTSEG_ZVALUE_DEFAULT        3.0 // [Plus Parent zValue] [Exempt]
+#define POINTERHEAD_ZVALUE_DEFAULT            0.3  // [Plus Parent zValue]
+#define POINTERTHIRDSEG_ZVALUE_DEFAULT        1.0  // [Plus Parent zValue] [Exempt]
+#define POINTERSECONDSEG_ZVALUE_DEFAULT       2.0  // [Plus Parent zValue] [Exempt]
+#define POINTERFIRSTSEG_ZVALUE_DEFAULT        3.0  // [Plus Parent zValue] [Exempt]
 
-#define POINTERGRABBER_ZVALUE_DEFAULT         0.4   // [Plus Parent zValue]
-#define PLIGRABBER_ZVALUE_DEFAULT             0.5   // [Plus Parent zValue]
-#define SUBMODELGRABBER_ZVALUE_DEFAULT        0.6   // [Plus Parent zValue]
+#define POINTERGRABBER_ZVALUE_DEFAULT         0.4  // [Plus Parent zValue]
+#define PLIGRABBER_ZVALUE_DEFAULT             0.5  // [Plus Parent zValue]
+#define SUBMODELGRABBER_ZVALUE_DEFAULT        0.6  // [Plus Parent zValue]
 
 #define Z_VALUE_DEFAULT                       0
 

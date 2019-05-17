@@ -136,6 +136,13 @@ GlobalPliDialog::GlobalPliDialog(
   /*
    * Contents tab
    */
+  widget = new QWidget(nullptr);
+  vlayout = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
+
+  QTabWidget *childtab    = new QTabWidget();
+  vlayout->addWidget(childtab);
+  tab->addTab(widget, "Content");
 
   widget = new QWidget(nullptr);
   vlayout = new QVBoxLayout(nullptr);
@@ -189,6 +196,30 @@ GlobalPliDialog::GlobalPliDialog(
   data->clearCache = child->modified;
   childlayout->addWidget(child);
 
+  box = new QGroupBox("Part Groups");
+  vlayout->addWidget(box);
+  child = new CheckBoxGui("Enable movable part groups",&pliMeta->enablePliPartGroup,box);
+  data->children.append(child);
+
+  box = new QGroupBox("Part Counts");
+  vlayout->addWidget(box);
+  child = new NumberGui(&pliMeta->instance,box);
+  data->children.append(child);
+
+  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vlayout->addSpacerItem(vSpacer);
+
+  childtab->addTab(widget,"Parts");
+
+  widget = new QWidget();
+  vlayout = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
+
+  box = new QGroupBox("Sort Order and Direction");
+  vlayout->addWidget(box);
+  child = new PliSortOrderGui("",&pliMeta->sortOrder,box,bom);
+  data->children.append(child);
+
   if ( ! bom) {
     box = new QGroupBox("Submodels");
     vlayout->addWidget(box);
@@ -196,21 +227,12 @@ GlobalPliDialog::GlobalPliDialog(
     data->children.append(child);
   }
 
-  box = new QGroupBox("Part Counts");
-  vlayout->addWidget(box);
-  child = new NumberGui(&pliMeta->instance,box);
-  data->children.append(child);
-
-  box = new QGroupBox("Sort Order and Direction");
-  vlayout->addWidget(box);
-  child = new PliSortOrderGui("",&pliMeta->sortOrder,box,bom);
-  data->children.append(child);
-
   //spacer
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
-  tab->addTab(widget,"Contents");
+  childtab->addTab(widget,tr("Sort/Submodels"));
+
   /*
    * PLI Annotations
    */
@@ -218,7 +240,7 @@ GlobalPliDialog::GlobalPliDialog(
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
-  QTabWidget *childtab    = new QTabWidget();
+  childtab    = new QTabWidget();
   vlayout->addWidget(childtab);
   tab->addTab(widget, "Annotations");
 

@@ -412,10 +412,25 @@ public:
                      int append = 1,
                      bool local = true);
 
+  void togglePartGroups(
+                     const    Where &,
+                     const    Where &,
+                     bool     bom,
+                     BoolMeta *,
+                     bool     useTop = true,
+                     int      append = 1,
+                     bool     local = true);
+
   void changeInsertOffset(InsertMeta *placement);
+
+  void setPliPartGroupOffset(PliPartGroupMeta *meta);
+
   //void changePageAttributePictureOffset(Where default const,PageAttributePictureMeta *pictureMeta,bool local = false,bool global = true);
 
   void hidePLIParts(    QList<Where> &parts);
+
+  void resetPartGroup(const Where &);
+  
   void removeLPubFormatting();
 
   void replaceMeta(const Where &here, const QString &line);
@@ -455,8 +470,10 @@ public:
   void insertBOM();
   void insertSplitBOM();
   void deleteBOM();
+  void deleteBOMPartGroups();
   void deletePage();
   void deleteImageItem(Where &, QString &);
+  void deletePLIPartGroups(const Where &,const Where &);
 
   Where firstLine(QString);
   void firstLine(Where &);

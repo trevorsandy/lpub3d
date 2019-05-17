@@ -131,7 +131,6 @@ PliPart::~PliPart()
   rightEdge.clear();
 }
 
-
 float PliPart::maxMargin()
 {
   float margin1 = qMax(instanceMeta.margin.valuePixels(XX),
@@ -151,6 +150,57 @@ float PliPart::maxMargin()
   return margin1;
 }
 
+void PliPart::addPartGroupToScene(
+        LGraphicsScene *scene)
+{
+    // create the part group item
+    pliPartGroup = new PartGroupItem(groupMeta);
+
+    // add the part group to the scene
+    scene->addItem(pliPartGroup);
+
+    // add part items to the group
+    if (pixmap)
+        pliPartGroup->addToGroup(pixmap);
+    if (instanceText)
+        pliPartGroup->addToGroup(instanceText);
+    if (annotateText)
+        pliPartGroup->addToGroup(annotateText);
+    if (annotateElement)
+        pliPartGroup->addToGroup(annotateElement);
+
+#ifdef QT_DEBUG_MODE
+    logTrace() << "\n"
+    << "02/06 PLI PART GROUP ATTRIBUTES [" + groupMeta.value().type + "_" + groupMeta.value().color + "] - ADD TO SCENE"
+    << "\n0. BOM:        " <<(groupMeta.value().bom ? "True" : "False")
+    << "\n0. Bom Part:   " <<(groupMeta.value().bom ? groupMeta.value().bPart ? "Yes" : "No" : "N/A")
+    << "\n1. Type:       " << groupMeta.value().type
+    << "\n2. Color:      " << groupMeta.value().color
+    << "\n3. ZValue:     " << groupMeta.value().zValue
+    << "\n4. OffsetX:    " << groupMeta.value().offset[0]
+    << "\n5. OffsetY:    " << groupMeta.value().offset[1]
+    << "\n6. Group Model:" << groupMeta.value().group.modelName
+    << "\n7. Group Line: " << groupMeta.value().group.lineNumber
+    << "\n8. Meta Model: " << groupMeta.here().modelName
+    << "\n9. Meta Line:  " << groupMeta.here().lineNumber
+    ;
+#endif
+
+    // check if we have offset
+    if (groupMeta.offset().x() == 0.0 && groupMeta.offset().y() == 0.0)
+        return;
+
+    // transform offset
+    QTransform transform;
+    transform.translate(groupMeta.offset().x(),groupMeta.offset().y());
+    pliPartGroup->setTransform(transform);
+    scene->update();
+}
+
+/****************************************************************************
+ * Part List routines
+ ***************************************************************************/
+
 int Pli::pageSizeP(Meta *meta, int which){
   int _size;
 
@@ -169,10 +219,11 @@ QString Pli::partLine(QString &line, Where &here, Meta & /*meta*/)
 }
 
 void Pli::setParts(
-    QStringList &pliParts,
-    Meta        &meta,
-    bool         _bom,
-    bool         _split)
+    QStringList             &pliParts,
+    QList<PliPartGroupMeta> &partGroups,
+    Meta                    &meta,
+    bool                    _bom,
+    bool                    _split)
 {
   bom      = _bom;
   splitBom = _split;
@@ -183,6 +234,23 @@ void Pli::setParts(
   bool displayElement    = pliMeta.partElements.display.value();
   bool extendedStyle     = pliMeta.annotation.extendedStyle.value();
   bool fixedAnnotations  = pliMeta.annotation.fixedAnnotations.value();
+
+  // get bom part group last line
+  Where where;
+  if (bom && pliMeta.enablePliPartGroup.value()) {
+      if (partGroups.size()) {
+          where = partGroups.last().here();
+      } else {
+          Page *page = dynamic_cast<Page *>(steps);
+          int nInserts = page->inserts.size();
+          for (int i = 0; i < nInserts; i++) {
+              if (page->inserts[i].value().type == InsertData::InsertBom) {
+                  where = page->inserts[i].here();
+                  break;
+              }
+          }
+      }
+  }
 
   for (int i = 0; i < pliParts.size(); i++) {
       QString part = pliParts[i];
@@ -299,6 +367,48 @@ void Pli::setParts(
               }
           }
 
+          bool found                 = false;
+          PliPartGroupMeta groupMeta = pliMeta.pliPartGroup;
+          if (!bom || where.lineNumber == 0)
+              where = here;
+
+          auto getGroupMeta = [this,&partGroups,&where,&info,
+                               &found,&meta,&key,&color,&groupMeta]( )
+          {
+              if (!pliMeta.enablePliPartGroup.value())
+                  return groupMeta;
+
+              PliPartGroupData _gd;;
+
+              // check if exists
+              for (auto &_gm : partGroups) {
+                  if (bom && (found = _gm.key() == key && _gm.bomPart())) {
+                      groupMeta = _gm;
+                      break;
+                  } else if ((found = _gm.key() == key)) {
+                      groupMeta = _gm;
+                      break;
+                  }
+              }
+
+              if (!found) {
+                  _gd.bom              = bom;
+                  _gd.type             = info.baseName();
+                  _gd.color            = color;
+                  _gd.group.modelName  = where.modelName;
+                  _gd.group.lineNumber = where.lineNumber;
+                  _gd.offset[0]        = 0.0;
+                  _gd.offset[1]        = 0.0;
+                  Where undefined;
+                  groupMeta.setWhere(undefined);
+                  groupMeta.setValue(_gd);
+              }
+
+              groupMeta.setZValue(meta.LPub.page.scene.partsListGroup.zValue());
+
+              return groupMeta;
+          };
+
           float modelScale = pliMeta.modelScale.value();
 
           bool noCA = pliMeta.rotStep.value().type == "ABS";
@@ -328,6 +438,7 @@ void Pli::setParts(
                   part->sortElement     = pliMeta.partElements.legoElements.value() ? QString("%1").arg(element,12,'0'): QString("%1").arg(element,20,' ');
                   part->nameKey         = nameKey;
                   part->imageName       = imageName;
+                  part->groupMeta       = getGroupMeta();
                   tempParts.insert(key,part);
                 }
               tempParts[key]->instances.append(here);
@@ -343,10 +454,28 @@ void Pli::setParts(
                   part->sortElement     = pliMeta.partElements.legoElements.value() ? QString("%1").arg(element,12,'0'): QString("%1").arg(element,20,' ');
                   part->nameKey         = nameKey;
                   part->imageName       = imageName;
+                  part->groupMeta       = getGroupMeta();
                   parts.insert(key,part);
                 }
               parts[key]->instances.append(here);
             }
+#ifdef QT_DEBUG_MODE
+          logNotice() << "\n"
+                      << "01/05 PLI PART GROUP ATTRIBUTES [" + key + "] - SET PART"
+                      << "\n0. Found:      " <<(found ? "Yes" : "No")
+                      << "\n0. Bom Part:   " <<(bom ? groupMeta.value().bPart ? "Yes" : "No" : "N/A")
+                      << "\n0. BOM:        " <<(groupMeta.value().bom ? "True" : "False")
+                      << "\n1. Type:       " << groupMeta.value().type
+                      << "\n2. Color:      " << groupMeta.value().color
+                      << "\n3. ZValue:     " << groupMeta.value().zValue
+                      << "\n4. OffsetX:    " << groupMeta.value().offset[0]
+                      << "\n5. OffsetY:    " << groupMeta.value().offset[1]
+                      << "\n6. Group Model:" << groupMeta.value().group.modelName
+                      << "\n7. Group Line: " << groupMeta.value().group.lineNumber
+                      << "\n8. Meta Model: " << groupMeta.here().modelName
+                      << "\n9. Meta Line:  " << groupMeta.here().lineNumber
+                         ;
+#endif
         }
     } //instances
 
@@ -2579,6 +2708,12 @@ void PliBackgroundItem::contextMenuEvent(
       QAction *subModelColorAction = commonMenus.subModelColorMenu(menu,pl);
       QAction *borderAction        = commonMenus.borderMenu(menu,pl);
       QAction *marginAction        = commonMenus.marginMenu(menu,pl);
+      QAction *pliPartGroupAction  = nullptr;
+      if (pli->pliMeta.enablePliPartGroup.value()) {
+          pliPartGroupAction = commonMenus.partGroupsOffMenu(menu,"Part");
+      } else {
+          pliPartGroupAction = commonMenus.partGroupsOnMenu(menu,"Part");
+      }
       QAction *sortAction          = commonMenus.sortMenu(menu,pl);
       QAction *annotationAction    = commonMenus.annotationMenu(menu,pl);
       QAction *cameraFoVAction     = commonMenus.cameraFoVMenu(menu,pl);
@@ -2678,7 +2813,13 @@ void PliBackgroundItem::contextMenuEvent(
                               bottom,
                               &pli->placement,true,1,0,false);
             }
-        } else if (selectedAction == marginAction) {
+        } else if (selectedAction == pliPartGroupAction) {
+          togglePartGroups(
+                           top,
+                           bottom,
+                           pli->bom,
+                           &pli->pliMeta.enablePliPartGroup);
+      } else if (selectedAction == marginAction) {
           changeMargins(me+" Margins",
                         top,
                         bottom,
@@ -2936,6 +3077,23 @@ void InstanceTextItem::contextMenuEvent(
     }
 }
 
+PGraphicsPixmapItem::PGraphicsPixmapItem(
+  Pli     *_pli,
+  PliPart *_part,
+  QPixmap &pixmap,
+  PlacementType  _parentRelativeType,
+  QString &type,
+  QString &color)
+{
+  parentRelativeType = _parentRelativeType;
+  pli = _pli;
+  part = _part;
+  setPixmap(pixmap);
+  setToolTip(pliToolTip(type,color));
+  setData(ObjectId, PartsListPixmapObj);
+  setZValue(_pli->meta->LPub.page.scene.partsListPixmap.zValue());
+}
+
 void PGraphicsPixmapItem::contextMenuEvent(
     QGraphicsSceneContextMenuEvent *event)
 {
@@ -2944,7 +3102,11 @@ void PGraphicsPixmapItem::contextMenuEvent(
   QAction *hideAction = menu.addAction("Hide Part from Parts List");
   hideAction->setIcon(QIcon(":/resources/display.png"));
 
-  QAction *marginAction      = commonMenus.marginMenu(menu,pl);
+  QAction *marginAction          = commonMenus.marginMenu(menu,pl);
+
+  QAction *resetPartGroupAction = nullptr;
+  if (pli->pliMeta.enablePliPartGroup.value())
+      resetPartGroupAction = commonMenus.resetPartGroupMenu(menu,pl);
 
   /*
   QAction *scaleAction        = commonMenus.scaleMenu(menu,pl);
@@ -2979,6 +3141,8 @@ void PGraphicsPixmapItem::contextMenuEvent(
                     &pli->pliMeta.part.margin);
     } else if (selectedAction == hideAction) {
       hidePLIParts(this->part->instances);
+    } else if (selectedAction == resetPartGroupAction) {
+      resetPartGroup(part->groupMeta.here());
     } /* else if (selectedAction == scaleAction) {
         changeFloatSpin(pl,
                         "Model Size",
@@ -3244,4 +3408,17 @@ void AnnotateTextItem::paint( QPainter *painter, const QStyleOptionGraphicsItem 
     QGraphicsTextItem::paint(painter, o, w);
 }
 
-/* CSI Icon functions */
+
+PartGroupItem::PartGroupItem(PliPartGroupMeta meta)
+: meta(meta)
+{
+    setHandlesChildEvents(false);
+    setFlag(QGraphicsItem::ItemIsSelectable,true);
+    setFlag(QGraphicsItem::ItemIsMovable,true);
+
+    setData(ObjectId, PartsListGroupObj);
+    setZValue(meta.zValue());
+}
+
+
+

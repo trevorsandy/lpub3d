@@ -29,6 +29,7 @@ LGraphicsScene::LGraphicsScene(QObject *parent)
     guidePen(QPen(QBrush(QColor(THEME_GUIDE_PEN_DEFAULT)), 2, Qt::DashLine)),
     gridPen(QPen(QBrush(QColor(THEME_GRID_PEN_DEFAULT)), 2, Qt::SolidLine)),
     mValidItem(false),
+    mPliPartGroup(false),
     mSceneGuides(false),
     mBaseItem(nullptr),
     mIsItemOnTop(false),
@@ -80,18 +81,28 @@ LGraphicsScene::LGraphicsScene(QObject *parent)
         soMap[SubModelBackgroundObj]    = QString("SUBMODEL_DISPLAY");     // 33 SubModelType
         soMap[SubModelInstanceObj]      = QString("SUBMODEL_INSTANCE");    // 34
         soMap[SubmodelInstanceCountObj] = QString("SUBMODEL_INST_COUNT");  // 35 SubmodelInstanceCountType
+        soMap[PartsListPixmapObj]       = QString("PLI_PART");             // 36
+        soMap[PartsListGroupObj]        = QString("PLI_PART_GROUP");       // 37
     }
 #endif
 }
 
 void LGraphicsScene::updateGuidePos(){
-    if (mValidItem && mSceneGuides){
+    if (!mSceneGuides)
+        return;
+
+    if (mValidItem){
         if (mItemType == PointerGrabberObj ||
             mItemType == PliGrabberObj     ||
             mItemType == SubmodelGrabberObj)
             mGuidePos = QPointF(mBaseItem->sceneBoundingRect().center().x(), mBaseItem->sceneBoundingRect().center().y());
         else
             mGuidePos = QPointF(mBaseItem->sceneBoundingRect().left(), mBaseItem->sceneBoundingRect().top());
+    }
+    else
+    if (mPliPartGroup){
+        mGuidePos = QPointF(mBaseItem->parentItem()->sceneBoundingRect().left(),
+                            mBaseItem->parentItem()->sceneBoundingRect().top());
     }
 }
 
@@ -119,6 +130,23 @@ qreal LGraphicsScene::getSelectedItemZValue()
 
 bool LGraphicsScene::setSelectedItem(const QPointF &scenePos){
     mBaseItem = itemAt(scenePos, QTransform());
+
+    auto checkPliPartGroupSceneObject = [this]()
+    {
+        if (mBaseItem) {
+            SceneObject so = SceneObject(mBaseItem->data(ObjectId).toInt());
+            for ( const auto pso : PliPartGroupSceneObjects)
+            {
+                if (pso == so) {
+                    mBaseItem = mBaseItem->parentItem();
+                    break;
+                }
+            }
+        }
+    };
+
+    checkPliPartGroupSceneObject();
+
     if (!mBaseItem)
         return false;
 
@@ -138,9 +166,7 @@ bool LGraphicsScene::setSelectedItem(const QPointF &scenePos){
         return false;
     };
 
-    mValidItem = !isExemptSceneObject(SceneObject(mItemType));
-
-    if (!mValidItem)
+    if (!(mValidItem = !isExemptSceneObject(SceneObject(mItemType))))
         return false;
 
     // TODO - Temporary workaround to disable functionality on multi-step pages
@@ -155,7 +181,7 @@ bool LGraphicsScene::setSelectedItem(const QPointF &scenePos){
     if (isNoContextSceneObject(SceneObject(mItemType)))
         return true;
 
-    return setSelectedItemZValue();;
+    return setSelectedItemZValue();
 }
 
 bool LGraphicsScene::setSelectedItemZValue()
@@ -291,11 +317,21 @@ void LGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect){
     if (! mSceneGuides || ! mValidItem)
         return;
 
+    QPointF starPt;
+    QPointF endPt;
     painter->setClipRect(rect);
     painter->setRenderHints(QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing);
     painter->setPen(guidePen);
-    painter->drawLine(int(mGuidePos.x()), int(rect.top()), int(mGuidePos.x()), int(rect.bottom()));
-    painter->drawLine(int(rect.left()), int(mGuidePos.y()), int(rect.right()), int(mGuidePos.y()));
+    starPt.setX(mGuidePos.x());
+    starPt.setY(rect.top());
+    endPt.setX(mGuidePos.x());
+    endPt.setY(rect.bottom());
+    painter->drawLine(starPt,endPt);
+    starPt.setX(rect.left());
+    starPt.setY(mGuidePos.y());
+    endPt.setX(rect.right());
+    endPt.setY(mGuidePos.y());
+    painter->drawLine(starPt,endPt);
     update();
 }
 

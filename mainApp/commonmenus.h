@@ -143,6 +143,18 @@ public:
           QMenu   &menu,
     const QString  name = "");
 
+  QAction *partGroupsOnMenu(
+          QMenu   &menu,
+    const QString  name = "");
+
+  QAction *partGroupsOffMenu(
+          QMenu   &menu,
+    const QString  name = "");
+
+  QAction *resetPartGroupMenu(
+          QMenu   &menu,
+    const QString  name = "");
+
   QAction *hideMenu(
           QMenu   &menu,
     const QString  name = "");

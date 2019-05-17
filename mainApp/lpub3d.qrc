@@ -53,6 +53,7 @@
         <file alias="delete.png">resources/delete.png</file>
         <file alias="deletepointer.png">resources/deletepointer.png</file>
         <file alias="deletedivider.png">resources/deletedivider.png</file>
+        <file alias="disablegroupmove.png">resources/disablegroupmove.png</file>
         <file alias="display.png">resources/display.png</file>
         <file alias="displayrow.png">resources/displayrow.png</file>
         <file alias="displaycolumn.png">resources/displaycolumn.png</file>
@@ -78,6 +79,7 @@
         <file alias="editparameterfiles.png">resources/editparameterfiles.png</file>
         <file alias="editldviewconf.png">resources/editldviewconf.png</file>
         <file alias="editpovrayconf.png">resources/editpovrayconf.png</file>
+        <file alias="enablegroupmove.png">resources/enablegroupmove.png</file>
         <file alias="exit.png">resources/exit.png</file>
         <file alias="exportas.png">resources/exportas.png</file>
         <file alias="exportbmp.png">resources/exportbmp.png</file>

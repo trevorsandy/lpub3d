@@ -1131,6 +1131,10 @@ private:
 
   int addStepImageGraphics(Step    *step); //recurse the step's model to add images.
 
+  int addPliPartGroupsToScene(
+          Page           *page,
+          LGraphicsScene *scene);
+
   int addGraphicsPageItems(        // this converts the abstract page into
     Steps          *steps,         // a graphics view
     bool            coverPage,
@@ -1157,9 +1161,10 @@ private:
     Placement           &plPage);
 
   int getBOMParts(
-    Where        current,
-    QString     &addLine,
-    QStringList &csiParts);
+    Where                    current,
+    QString                 &addLine,
+    QStringList             &csiParts,
+    QList<PliPartGroupMeta> &bomPartGroups);
 
   int getBOMOccurrence(
           Where  current);

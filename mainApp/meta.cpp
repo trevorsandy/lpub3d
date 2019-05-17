@@ -2298,6 +2298,8 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
 
     } else if (argv[index] == "BOM") {
       insertData.type = InsertData::InsertBom;
+      insertData.where.modelName = here.modelName;
+      insertData.where.lineNumber = here.lineNumber;
       ++index;
     }
 
@@ -2372,7 +2374,7 @@ QString InsertMeta::format(bool local, bool global)
 
 void InsertMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " <placement> PICTURE \"file\"|ARROW x y x y |BOM|TEXT|MODEL|ROTATE_ICON \"\" \"\"";
+  out << preamble + " <placement> PICTURE \"file\"|ARROW x y x y |BOM|TEXT|MODEL|ROTATE_ICON OFFSET \"<floatX>\" \"<floatY>\"";
 }
 
 /* ------------------ */
@@ -2799,6 +2801,8 @@ SceneObjectMeta::SceneObjectMeta() : BranchMeta()
    subModelBackground   .setValue(SUBMODELBACKGROUND_ZVALUE_DEFAULT);   // 33
    subModelInstance     .setValue(SUBMODELINSTANCE_ZVALUE_DEFAULT);     // 34
    submodelInstanceCount.setValue(SUBMODELINSTANCECOUNT_ZVALUE_DEFAULT);// 35
+   partsListPixmap      .setValue(PARTSLISTPARTPIXMAP_ZVALUE_DEFAULT);  // 36
+   partsListGroup       .setValue(PARTSLISTPARTGROUP_ZVALUE_DEFAULT);   // 37
 }
 
 void SceneObjectMeta::init(
@@ -2842,6 +2846,8 @@ void SceneObjectMeta::init(
    subModelBackground   .init(this, "SUBMODEL_DISPLAY");     // 33 SubModelType
    subModelInstance     .init(this, "SUBMODEL_INSTANCE");    // 34
    submodelInstanceCount.init(this, "SUBMODEL_INST_COUNT");  // 35 SubmodelInstanceCountType
+   partsListPixmap      .init(this, "PLI_PART");             // 36
+   partsListGroup       .init(this, "PLI_PART_GROUP");       // 37
 }
 
 /* ------------------ */
@@ -3102,6 +3108,91 @@ void AnnotationStyleMeta::init(BranchMeta *parent, QString name)
 
 /* ------------------ */
 
+Rc PliPartGroupMeta::parse(QStringList &argv, int index, Where &here)
+{
+  PliPartGroupData gd;
+  Rc rc = OkRc;
+  bool bomItem = false;
+
+  if (argv.size() - index > 1 &&
+      argv[index] == "ITEM") {
+      if ((bomItem = argv[index - 2] == "BOM"))
+          gd.bom = true;
+      gd.type  = argv[++index];
+      gd.color = argv[++index];
+   }
+
+   if (rc == OkRc) {
+      if (argv.size() - index == 4 && argv[++index] == "OFFSET") {
+          bool ok[2];
+          gd.offset[0] = argv[++index].toDouble(&ok[0]);
+          gd.offset[1] = argv[++index].toDouble(&ok[1]);
+          if ( ! ok[0] || ! ok[1]) {
+              rc = FailureRc;
+            }
+        } else if (argv.size() - index > 0) {
+          rc = FailureRc;
+        }
+    }
+
+    if (rc == OkRc) {
+      gd.group.modelName  = here.modelName;
+      gd.group.lineNumber = here.lineNumber;
+      _value   = gd;
+      _here[0] = here;
+
+#ifdef QT_DEBUG_MODE
+    logTrace() << "\n"
+    << "04 PLI PART GROUP ATTRIBUTES [" + _value.type + "_" + _value.color + "] - PARSE"
+    << "\n0. BOM:        " <<(gd.bom ? "True" : "False")
+    << "\n0. Bom Part:   " <<(gd.bom ? gd.bPart ? "Yes" : "No" : "N/A")
+    << "\n1. Type:       " << gd.type
+    << "\n2. Color:      " << gd.color
+    << "\n3. ZValue:     " << gd.zValue
+    << "\n4. OffsetX:    " << gd.offset[0]
+    << "\n5. OffsetY:    " << gd.offset[1]
+    << "\n6. Group Model:" << gd.group.modelName
+    << "\n7. Group Line: " << gd.group.lineNumber
+    << "\n8. Meta Model: " << _here[0].modelName
+    << "\n9. Meta Line:  " << _here[0].lineNumber
+    ;
+#endif
+
+      if (bomItem)
+          return BomPartGroupRc;
+      else
+          return PliPartGroupRc;
+    } else {
+      if (reportErrors) {
+          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Malformed PLI Group metacommand \"%1\"\n")
+                               .arg(argv.join(" ")));
+        }
+      return FailureRc;
+    }
+}
+
+
+QString PliPartGroupMeta::format(bool local, bool global)
+{
+  QString foo;
+  foo += " ITEM \"" + _value.type + "\" \"" + _value.color + "\"";
+
+  if (_value.offset[0] || _value.offset[1]) {
+    foo += QString(" OFFSET %1 %2")
+                   .arg(_value.offset[0])
+                   .arg(_value.offset[1]);
+  }
+
+  return LeafMeta::format(local,global,foo);
+}
+
+void PliPartGroupMeta::doc(QStringList &out, QString preamble)
+{
+  out << preamble + " \"<part type>\" \"<part color>\" OFFSET <floatX> <floatY>";
+}
+
+/* ------------------ */
+
 PliSortOrderMeta::PliSortOrderMeta() : BranchMeta()
 {
   primary.setValue(SortOptionName[PartColour]);
@@ -3294,6 +3385,9 @@ SubModelMeta::SubModelMeta() : PliMeta()
   cameraFoV.setValue(gui->getDefaultCameraFoV());
   znear.setValue(gui->getDefaultCameraZNear());
   zfar.setValue(gui->getDefaultCameraZFar());
+
+  // movable pli part groups
+  enablePliPartGroup.setValue(false);
 }
 
 void SubModelMeta::init(BranchMeta *parent, QString name)
@@ -3803,6 +3897,9 @@ PliMeta::PliMeta() : BranchMeta()
   cameraFoV.setValue(gui->getDefaultCameraFoV());
   znear.setValue(gui->getDefaultCameraZNear());
   zfar.setValue(gui->getDefaultCameraZFar());
+
+  // movable pli part groups
+  enablePliPartGroup.setValue(false);
 }
 
 void PliMeta::init(BranchMeta *parent, QString name)
@@ -3823,10 +3920,11 @@ void PliMeta::init(BranchMeta *parent, QString name)
   includeSubs     .init(this,"INCLUDE_SUBMODELS");
   subModelColor   .init(this,"SUBMODEL_BACKGROUND_COLOR");
   part            .init(this,"PART");
+  pliPartGroup    .init(this,"PART_GROUP");
   begin           .init(this,"BEGIN");
   end             .init(this,"END",           PliEndRc);
   sort            .init(this,"SORT");
-  sortBy          .init(this,"SORT_BY");
+  sortBy          .init(this,"SORT_BY"); // deprecated
   sortOrder       .init(this,"SORT_ORDER");
   annotation      .init(this,"ANNOTATION");
   partElements    .init(this,"PART_ELEMENTS");
@@ -3839,6 +3937,7 @@ void PliMeta::init(BranchMeta *parent, QString name)
   distance        .init(this,"CAMERA_DISTANCE");
   znear           .init(this,"CAMERA_ZNEAR");
   zfar            .init(this,"CAMERA_ZFAR");
+  enablePliPartGroup .init(this,"PART_GROUP_ENABLE");
 }
 
 /* ------------------ */ 
@@ -3919,6 +4018,9 @@ BomMeta::BomMeta() : PliMeta()
   cameraFoV.setValue(gui->getDefaultCameraFoV());
   znear.setValue(gui->getDefaultCameraZNear());
   zfar.setValue(gui->getDefaultCameraZFar());
+
+  // movable pli part groups
+  enablePliPartGroup.setValue(false);
 }
 
 void BomMeta::init(BranchMeta *parent, QString name)
@@ -3939,6 +4041,7 @@ void BomMeta::init(BranchMeta *parent, QString name)
   includeSubs     .init(this,"INCLUDE_SUBMODELS");
   subModelColor   .init(this,"SUBMODEL_BACKGROUND_COLOR");
   part            .init(this,"PART");
+  pliPartGroup    .init(this,"PART_GROUP");
   begin           .init(this,"BEGIN");
   begin.ignore.rc = BomBeginIgnRc;
   end             .init(this,"END",BomEndRc);
@@ -3958,6 +4061,7 @@ void BomMeta::init(BranchMeta *parent, QString name)
   distance        .init(this,"CAMERA_DISTANCE");
   znear           .init(this,"CAMERA_ZNEAR");
   zfar            .init(this,"CAMERA_ZFAR");
+  enablePliPartGroup .init(this,"PART_GROUP_ENABLE");
 }
 
 /* ------------------ */ 
@@ -4458,6 +4562,8 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
       tokenMap["POINTER_SEG_SECOND"]   = PointerSecondSegObj;
       tokenMap["POINTER_SEG_THIRD"]    = PointerThirdSegObj;
       tokenMap["SUBMODEL_INSTANCE"]    = SubModelInstanceObj;
+      tokenMap["PLI_PART"]             = PartsListPixmapObj;
+      tokenMap["PLI_PART_GROUP"]       = PartsListGroupObj;
 
       tokenMap["DOCUMENT_TITLE"]       = PageTitleType;
       tokenMap["MODEL_ID"]             = PageModelNameType;

@@ -130,6 +130,9 @@ enum Rc {
 
          ResolutionRc,
 
+         PliPartGroupRc,
+         BomPartGroupRc,
+
          SceneDepthRc,
          PagePointerDepthRc,
          CalloutPointerDepthRc,
@@ -2089,6 +2092,9 @@ public:
  SceneDepthMeta     subModelBackground;    // 33 SubModelType
  SceneDepthMeta     subModelInstance;      // 34
  SceneDepthMeta     submodelInstanceCount; // 35 SubmodelInstanceCountType
+ SceneDepthMeta     partsListPixmap;       // 36
+ SceneDepthMeta     partsListGroup;        // 37
+
 
  SceneObjectMeta();
  SceneObjectMeta(const SceneObjectMeta &rhs) : BranchMeta(rhs)
@@ -2490,6 +2496,80 @@ public:
 
 /*------------------------*/
 
+class PliPartGroupMeta : public LeafMeta
+{
+private:
+  PliPartGroupData _value;
+public:
+  PliPartGroupMeta() : LeafMeta()
+  {
+  }
+  PliPartGroupMeta(const PliPartGroupMeta &rhs) : LeafMeta(rhs)
+  {
+    _value = rhs._value;
+  }
+  PliPartGroupData value()
+  {
+    return _value;
+  }
+  bool bom()
+  {
+    return _value.bom;
+  }
+  bool bomPart()
+  {
+    return _value.bPart;
+  }
+  double zValue()
+  {
+    return _value.zValue;
+  }
+  QString key()
+  {
+    return _value.type + "_" + _value.color;
+  }
+  QPointF offset()
+  {
+    return QPointF(double(_value.offset[0]),
+                   double(_value.offset[1]));
+  }
+  void setValue(PliPartGroupData &value)
+  {
+    _value = value;
+  }
+  void setBom (bool b)
+  {
+    _value.bom = b;
+  }
+  void setBomPart(bool b)
+  {
+    _value.bPart = b;
+  }
+  void setKey(QString &_type, QString &_color){
+    _value.type  = _type;
+    _value.color = _color;
+  }
+  void setWhere(Where &here)
+  {
+    _here[0] = here;
+  }
+  void setOffset(QPointF offset)
+  {
+    _value.offset[0] += offset.x();
+    _value.offset[1] += offset.y();
+  }
+  void setZValue(double d)
+  {
+    _value.zValue = d;
+  }
+  virtual ~PliPartGroupMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
+};
+
+/*------------------------*/
+
 class PliSortOrderMeta : public BranchMeta
 {
 public:
@@ -2509,10 +2589,10 @@ public:
   virtual void init(BranchMeta *parent, QString name);
 };
 
-class PliSortMeta : public BranchMeta
+class PliSortMeta : public BranchMeta // DEPRECATED
 {
 public:
-  StringMeta      sortOption;
+  StringMeta sortOption;
 
   void setValue(QString _value)
   {
@@ -2788,6 +2868,8 @@ public:
   ConstrainMeta        constrain;
   FloatMeta            modelScale;
   PartMeta             part;
+  PliPartGroupMeta     pliPartGroup;
+  BoolMeta             enablePliPartGroup;
   PliBeginMeta         begin;
   RcMeta               end;
   BoolMeta             includeSubs;
@@ -3240,7 +3322,7 @@ public:
 private:
 };
 
-const QString RcNames[64] =
+const QString RcNames[66] =
 {
     "InvalidLDrawLineRc = -3",
     "RangeErrorRc = -2",
@@ -3317,6 +3399,9 @@ const QString RcNames[64] =
     "StepPliPerStepRc",
 
     "ResolutionRc",
+
+    "PliPartGroupRc",
+    "BomPartGroupRc"
 
     "SceneDepthRc",
     "PagePointerDepthRc",

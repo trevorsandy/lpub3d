@@ -380,6 +380,11 @@ public:
     InsertRotateIcon,
   } type;
 
+  struct BomWhere {
+    QString   modelName  = "undefined";
+    int       lineNumber = 0;
+  };
+  BomWhere    where;
   QString     picName;
   qreal       picScale;
   QString     text;
@@ -578,6 +583,30 @@ public:
     thickness  = 0.125;
     margin[0]  = 0;
     margin[1]  = 0;
+  }
+};
+
+class PliPartGroupData
+{
+public:
+  struct Where {
+    QString   modelName  = "undefined";
+    int       lineNumber = 0;
+  };
+  Where       group;
+  QString     type;
+  QString     color;
+  bool        bom;
+  bool        bPart;
+  double      zValue;
+  double      offset[2];
+  PliPartGroupData()
+  {
+    bom       = false;
+    bPart     = false; // to indicate if Bom part group exists
+    zValue    = 0;
+    offset[0] = 0.0;
+    offset[1] = 0.0;
   }
 };
 

@@ -446,6 +446,54 @@ QAction* CommonMenus::sortMenu(
   return action;
 }
 
+QAction* CommonMenus::partGroupsOnMenu(
+        QMenu   &menu,
+  const QString  name)
+{
+  QAction *action;
+
+  QString formatted = QString("Turn On Movable %1 Group") .arg(name);
+  action = menu.addAction(formatted);
+  action->setIcon(QIcon(":/resources/enablegroupmove.png"));
+
+  formatted = QString("Set part groups, part image, annotaiton and instance count, movable.");
+  action->setWhatsThis(formatted);
+
+  return action;
+}
+
+QAction* CommonMenus::partGroupsOffMenu(
+        QMenu   &menu,
+  const QString  name)
+{
+  QAction *action;
+
+  QString formatted = QString("Turn Off Movable %1 Group") .arg(name);
+  action = menu.addAction(formatted);
+  action->setIcon(QIcon(":/resources/disablegroupmove.png"));
+
+  formatted = QString("Set part groups, part image, annotaiton and instance count, non-movable.");
+  action->setWhatsThis(formatted);
+
+  return action;
+}
+
+QAction* CommonMenus::resetPartGroupMenu(
+        QMenu   &menu,
+  const QString  name)
+{
+  QAction *action;
+
+  QString formatted = QString("Reset %1 Group") .arg(name);
+  action = menu.addAction(formatted);
+  action->setIcon(QIcon(":/resources/disablegroupmove.png"));
+
+  formatted = QString("Reset this part group - remove meta command.");
+  action->setWhatsThis(formatted);
+
+  return action;
+}
+
 QAction* CommonMenus::hideMenu(
         QMenu   &menu,
   const QString  name)
