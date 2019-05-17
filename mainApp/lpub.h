@@ -1414,8 +1414,8 @@ private:
   QAction  *fitSceneAct;
   QAction  *actualSizeAct;
 
-  QAction  *zoomInAct;
-  QAction  *zoomOutAct;
+  QAction  *zoomInComboAct;
+  QAction  *zoomOutComboAct;
 
   QSlider  *zoomSliderWidget;
   QWidgetAction* zoomSliderAct;

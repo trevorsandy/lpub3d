@@ -3570,17 +3570,17 @@ void Gui::createActions()
     zoomSliderAct->setDefaultWidget(zoomSliderWidget);
     connect(zoomSliderWidget, SIGNAL(valueChanged(int)), this, SLOT(zoomSlider(int)));
 
-    zoomInAct = new QAction(QIcon(":/resources/zoomin.png"), tr("&Zoom In"), this);
-    zoomInAct->setShortcut(tr("Ctrl++"));
-    zoomInAct->setStatusTip(tr("Zoom in - Ctrl++"));
-    zoomInAct->setEnabled(false);
-    connect(zoomInAct, SIGNAL(triggered()), this, SLOT(zoomIn()));
+    zoomInComboAct = new QAction(QIcon(":/resources/zoomin.png"), tr("&Zoom In"), this);
+    zoomInComboAct->setShortcut(tr("Ctrl++"));
+    zoomInComboAct->setStatusTip(tr("Zoom in - Ctrl++"));
+    zoomInComboAct->setEnabled(false);
+    connect(zoomInComboAct, SIGNAL(triggered()), this, SLOT(zoomIn()));
 
-    zoomOutAct = new QAction(QIcon(":/resources/zoomout.png"),tr("Zoom &Out"),this);
-    zoomOutAct->setShortcut(tr("Ctrl+-"));
-    zoomOutAct->setStatusTip(tr("Zoom out - Ctrl+-"));
-    zoomOutAct->setEnabled(false);
-    connect(zoomOutAct, SIGNAL(triggered()), this, SLOT(zoomOut()));
+    zoomOutComboAct = new QAction(QIcon(":/resources/zoomout.png"),tr("Zoom &Out"),this);
+    zoomOutComboAct->setShortcut(tr("Ctrl+-"));
+    zoomOutComboAct->setStatusTip(tr("Zoom out - Ctrl+-"));
+    zoomOutComboAct->setEnabled(false);
+    connect(zoomOutComboAct, SIGNAL(triggered()), this, SLOT(zoomOut()));
 
     viewerZoomSliderAct = new QWidgetAction(nullptr);
     viewerZoomSliderWidget = new QSlider();
@@ -3949,8 +3949,8 @@ void Gui::enableActions()
   fitVisibleAct->setEnabled(true);
   fitSceneAct->setEnabled(true);
   actualSizeAct->setEnabled(true);
-  zoomInAct->setEnabled(true);
-  zoomOutAct->setEnabled(true);
+  zoomInComboAct->setEnabled(true);
+  zoomOutComboAct->setEnabled(true);
   sceneGuidesComboAct->setEnabled(true);
   snapToGridComboAct->setEnabled(true);
 
@@ -4035,8 +4035,8 @@ void Gui::disableActions()
   fitVisibleAct->setEnabled(false);
   fitSceneAct->setEnabled(false);
   actualSizeAct->setEnabled(false);
-  zoomInAct->setEnabled(false);
-  zoomOutAct->setEnabled(false);
+  zoomInComboAct->setEnabled(false);
+  zoomOutComboAct->setEnabled(false);
   sceneGuidesComboAct->setEnabled(false);
   snapToGridComboAct->setEnabled(false);
 
@@ -4167,10 +4167,11 @@ void Gui::createMenus()
     viewMenu->addAction(fitVisibleAct);
     viewMenu->addAction(actualSizeAct);
     viewMenu->addAction(fitSceneAct);
-    viewMenu->addAction(zoomInAct);
-    viewMenu->addAction(zoomOutAct);
+    viewMenu->addAction(zoomInComboAct);
+    viewMenu->addAction(zoomOutComboAct);
     viewMenu->addAction(sceneRulerComboAct);
     viewMenu->addAction(sceneGuidesComboAct);
+    viewMenu->addAction(snapToGridComboAct);
 
     viewMenu->addSeparator();
 
@@ -4381,10 +4382,10 @@ void Gui::createToolBars()
     zoomToolBar->addAction(actualSizeAct);
     zoomSliderMenu = new QMenu(tr("Zoom Slider"),this);
     zoomSliderMenu->addAction(zoomSliderAct);
-    zoomInAct->setMenu(zoomSliderMenu);
-    zoomToolBar->addAction(zoomInAct);
-    zoomOutAct->setMenu(zoomSliderMenu);
-    zoomToolBar->addAction(zoomOutAct);
+    zoomInComboAct->setMenu(zoomSliderMenu);
+    zoomToolBar->addAction(zoomInComboAct);
+    zoomOutComboAct->setMenu(zoomSliderMenu);
+    zoomToolBar->addAction(zoomOutComboAct);
 
     sceneRulerTrackingMenu = new QMenu(tr("Ruler Tracking"),this);
     sceneRulerTrackingMenu->addAction(sceneRulerTrackingAct);
