@@ -158,7 +158,7 @@ enum Theme { ThemeDark, ThemeDefault };
 #define THEME_DEFAULT                   "Default" // Default Theme
 #define THEME_TICK_PEN_DEFAULT          "#35322f" // Qt Dark Grey
 #define THEME_NML_PEN_DEFAULT           "#1e1b18" // Qt Double Dark Grey
-#define THEME_GUIDE_PEN_DEFAULT         "#1e1b18" // Qt Double Dark Grey
+#define THEME_GUIDE_PEN_DEFAULT         "#aa0000" // LPub3D Maroon
 #define THEME_MAIN_BGCOLOR_DEFAULT      "#aeadac" // Qt Light Gray
 #define THEME_VIEWER_BGCOLOR_DEFAULT    "#ffffff" // Qt White
 
@@ -207,7 +207,7 @@ enum Theme { ThemeDark, ThemeDefault };
 #define THEME_DARK                      "Dark"    // Dark Theme
 #define THEME_TICK_PEN_DARK             "#eff0f1" // Custom Pale Grey
 #define THEME_NML_PEN_DARK              "#ffffff" // Qt White
-#define THEME_GUIDEL_PEN_DARK           "#5d5b59" // Qt Medium Gray
+#define THEME_GUIDEL_PEN_DARK           "#aa0000" // LPub3D Maroon
 #define THEME_MAIN_BGCOLOR_DARK         "#31363b" // Custom Dark Grey
 #define THEME_VIEWER_BGCOLOR_DARK       "#808B96" // Custom Grey
 #define THEME_EDIT_MARGIN_DARK          "#ABB2B9" // Custom Gray

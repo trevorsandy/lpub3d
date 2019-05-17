@@ -24,7 +24,7 @@
 
 LGraphicsScene::LGraphicsScene(QObject *parent)
   : QGraphicsScene(parent),
-    guidePen(QPen(Qt::darkGray, 1)),
+    guidePen(QPen(QBrush(QColor(THEME_GUIDE_PEN_DEFAULT)), 1, Qt::DashLine)),
     mPageGuides(false),
     mObjCornerSet(false),
     mQGItem(nullptr),
