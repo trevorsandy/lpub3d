@@ -26,16 +26,21 @@ QHash<SceneObject, QString> soMap;
 
 LGraphicsScene::LGraphicsScene(QObject *parent)
   : QGraphicsScene(parent),
-    guidePen(QPen(QBrush(QColor(THEME_GUIDE_PEN_DEFAULT)), 1, Qt::DashLine)),
+    guidePen(QPen(QBrush(QColor(THEME_GUIDE_PEN_DEFAULT)), 2, Qt::DashLine)),
+    gridPen(QPen(QBrush(QColor(THEME_GRID_PEN_DEFAULT)), 2, Qt::SolidLine)),
     mValidItem(false),
-    mPageGuides(false),
+    mSceneGuides(false),
     mBaseItem(nullptr),
     mIsItemOnTop(false),
     mIsItemOnBottom(false),
     mShowContextAction(false),
+    mSnapToGrid(false),
+    mGridSize(GridSizeTable[GRID_SIZE_INDEX_DEFAULT]),
     minZ(Z_VALUE_DEFAULT),
     maxZ(Z_VALUE_DEFAULT)
 {
+    Q_ASSERT(mGridSize > 0);
+
 #ifdef QT_DEBUG_MODE
     // This is only used for debug tracing at this point.
     if (soMap.size() == 0) {
@@ -80,7 +85,7 @@ LGraphicsScene::LGraphicsScene(QObject *parent)
 }
 
 void LGraphicsScene::updateGuidePos(){
-    if (mValidItem && mPageGuides){
+    if (mValidItem && mSceneGuides){
         if (mItemType == PointerGrabberObj ||
             mItemType == PliGrabberObj     ||
             mItemType == SubmodelGrabberObj)
@@ -139,15 +144,15 @@ bool LGraphicsScene::setSelectedItem(const QPointF &scenePos){
         return false;
 
     // TODO - Temporary workaround to disable functionality on multi-step pages
-    auto isAbortSceneObject = [](const SceneObject so)
+    auto isNoContextSceneObject = [](const SceneObject so)
     {
-        for ( const auto aso : AbortSceneObjects)
+        for ( const auto aso : NoContextSceneObjects)
             if (aso == so)
                 return true;
         return false;
     };
 
-    if (isAbortSceneObject(SceneObject(mItemType)))
+    if (isNoContextSceneObject(SceneObject(mItemType)))
         return true;
 
     return setSelectedItemZValue();;
@@ -169,9 +174,7 @@ bool LGraphicsScene::setSelectedItemZValue()
     QMap<int, qreal> overlapItems;
     foreach (QGraphicsItem *item, mBaseItem->collidingItems(Qt::IntersectsItemBoundingRect)) {
         SceneObject so = SceneObject(item->data(ObjectId).toInt());
-
 #ifdef QT_DEBUG_MODE
-        SceneObject bo = SceneObject(mBaseItem->data(ObjectId).toInt());
         SceneObject pso = SceneObject(item->parentItem()->data(ObjectId).toInt());
         SceneObject bpso = SceneObject(mBaseItem->parentItem()->data(ObjectId).toInt());
         qDebug() << QString("DETECTED....CollidingItem [%1], CollidingParent [%2], CollidingZValue [%3]")
@@ -181,15 +184,15 @@ bool LGraphicsScene::setSelectedItemZValue()
                                 .arg(soMap[so]).arg(soMap[pso]).arg(item->zValue());
 #endif
         // TODO - Temporary workaround to disable functionality on multi-step pages
-        auto isAbortSceneObject = [](const SceneObject so)
+        auto isNoContextSceneObject = [](const SceneObject so)
         {
-            for ( const auto aso : AbortSceneObjects)
+            for ( const auto aso : NoContextSceneObjects)
                 if (aso == so)
                     return true;
             return false;
         };
 
-        if (isAbortSceneObject(so))
+        if (isNoContextSceneObject(so))
             return true;
 
         if (isIncludedSceneObject(so)) {
@@ -246,8 +249,46 @@ void LGraphicsScene::sendSelectedItemToBack(){
     }
 }
 
+void LGraphicsScene::snapToGrid()
+{
+    if (mSnapToGrid && mValidItem) {
+        qreal bx = mBaseItem->x();
+        qreal by = mBaseItem->y();
+        qreal gx = int(bx) / mGridSize;
+        qreal gy = int(by) / mGridSize;
+        qreal gs = qreal(mGridSize);
+        if(gx < bx/gs || gx > bx/gs)
+            bx = gs*qRound(bx/gs);
+        if(gy < by/gs || gy > by/gs)
+            by = gs*qRound(by/gs);
+        mBaseItem->setPos(bx,by);
+    }
+}
+
+void LGraphicsScene::drawBackground(QPainter *painter, const QRectF &rect){
+
+    QGraphicsScene::drawBackground(painter, rect);
+
+    if (! mSnapToGrid)
+        return;
+
+    painter->setPen(gridPen);
+
+    qreal left = int(rect.left()) - (int(rect.left()) % mGridSize);
+    qreal top = int(rect.top()) - (int(rect.top()) % mGridSize);
+    QVector<QPointF> points;
+    for (qreal x = left; x < rect.right(); x += mGridSize){
+        for (qreal y = top; y < rect.bottom(); y += mGridSize){
+            points.append(QPointF(x,y));
+        }
+    }
+
+    painter->drawPoints(points.data(), points.size());
+    update();
+}
+
 void LGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect){
-    if (! mPageGuides || ! mValidItem)
+    if (! mSceneGuides || ! mValidItem)
         return;
 
     painter->setClipRect(rect);
@@ -260,12 +301,14 @@ void LGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect){
 
 void LGraphicsScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event) {
     updateGuidePos();
+    snapToGrid();
     QGraphicsScene::mouseMoveEvent(event);
 }
 
 void LGraphicsScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event) {
     if (event->button() == Qt::LeftButton){
         updateGuidePos();
+        snapToGrid();
     }
     mValidItem = false;
     QGraphicsScene::mouseReleaseEvent(event);

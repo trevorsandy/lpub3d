@@ -913,18 +913,6 @@ void Gui::fitScene()
   KpageView->fitScene(rect);
 }
 
-void Gui::pageGuides()
-{
-  Preferences::setPageGuidesPreference(pageGuidesAct->isChecked());
-  KpageView->setPageGuides(getTheme());
-}
-
-void Gui::pageRuler()
-{
-  Preferences::setPageRulerPreference(pageRulerAct->isChecked());
-  KpageView->setPageRuler(getTheme());
-}
-
 void Gui::actualSize()
 {
   KpageView->actualSize();
@@ -938,6 +926,78 @@ void Gui::zoomIn()
 void Gui::zoomOut()
 {
   KpageView->zoomOut();
+}
+
+void Gui::sceneGuides()
+{
+  Preferences::setSceneGuidesPreference(sceneGuidesAct->isChecked());
+  KpageView->setSceneGuides();
+}
+
+void Gui::sceneRuler()
+{
+  Preferences::setSceneRulerPreference(sceneRulerComboAct->isChecked());
+  KpageView->setSceneRuler();
+}
+
+void Gui::sceneRulerTracking()
+{
+  Preferences::setSceneRulerTrackingPreference(sceneRulerTrackingAct->isChecked());
+  KpageView->setSceneRulerTracking();
+}
+
+void Gui::snapToGrid()
+{
+  bool checked = snapToGridComboAct->isChecked();
+  if (Preferences::snapToGrid == checked)
+      return;
+
+  Preferences::setSnapToGridPreference(checked);
+  KpageView->setSnapToGrid();
+  reloadCurrentPage();
+}
+
+void Gui::snapGridTransBkgrnd()
+{
+  Preferences::setSnapGridTransBkgrndPreference(snapGridTransBkgrndAct->isChecked());
+  reloadCurrentPage();
+}
+
+void Gui::gridSize(int index)
+{
+  if (Preferences::gridSizeIndex == index)
+    return;
+
+  Preferences::setGridSizeIndexPreference(index);
+  snapGridActions[GRID_SIZE_FIRST + index]->setChecked(true);
+  KpageView->setGridSize();
+  reloadCurrentPage();
+}
+
+void Gui::gridSizeTriggered()
+{
+    QObject* Action = sender();
+
+    for (int CommandIdx = 0; CommandIdx < NUM_GRID_SIZES; CommandIdx++)
+    {
+        if (Action == snapGridActions[CommandIdx])
+        {
+            switch (CommandIdx)
+            {
+            case SCENE_GRID_SIZE_S1:
+            case SCENE_GRID_SIZE_S2:
+            case SCENE_GRID_SIZE_S3:
+            case SCENE_GRID_SIZE_S4:
+            case SCENE_GRID_SIZE_S5:
+            case SCENE_GRID_SIZE_S6:
+            case SCENE_GRID_SIZE_S7:
+            case SCENE_GRID_SIZE_S8:
+            case SCENE_GRID_SIZE_S9:
+                gridSize(CommandIdx - GRID_SIZE_FIRST);
+                break;
+            }
+        }
+    }
 }
 
 void Gui::SetRotStepMeta()
@@ -1327,7 +1387,7 @@ void Gui::clearAndRedrawModelFile() {
     changeAccepted = saveChange;
 }
 
-void Gui::clearAndRedrawPage() {
+void Gui::clearAndReloadModelFile() {
     clearAllCaches();
 }
 
@@ -1587,7 +1647,7 @@ void Gui::clearStepCSICache(QString &pngName) {
 }
 
 void Gui::clearPageCSICache(PlacementType relativeType, Page *page) {
-  if (page->list.size()) {      
+  if (page->list.size()) {
       if (relativeType == SingleStepType) {         // single step page
           Range *range = dynamic_cast<Range *>(page->list[0]);
           if (range->relativeType == RangeType) {
@@ -1670,7 +1730,7 @@ void Gui::clearPageCSIGraphicsItems(Step *step) {
 }
 
 /***************************************************************************
- * These are infrequently used functions for basic environment 
+ * These are infrequently used functions for basic environment
  * configuration stuff
  **************************************************************************/
 
@@ -1978,6 +2038,10 @@ void Gui::preferences()
     QString lgeoPathCompare             = Preferences::lgeoPath;
     QString preferredRendererCompare    = Preferences::preferredRenderer;
     QString displayThemeCompare         = Preferences::displayTheme;
+    QString sceneBackgroundColorCompare = Preferences::sceneBackgroundColor;
+    QString sceneGridColorCompare       = Preferences::sceneGridColor;
+    QString sceneRulerTickColorCompare  = Preferences::sceneRulerTickColor;
+    QString sceneGuideColorCompare      = Preferences::sceneGuideColor;
 
     // Native POV file generation settings
     if (Preferences::preferredRenderer == RENDERER_POVRAY) {
@@ -2030,6 +2094,11 @@ void Gui::preferences()
         bool povrayAutoCropChanged         = Preferences::povrayAutoCrop                         != povrayAutoCropCompare;
         bool povrayRenderQualityChanged    = Preferences::povrayRenderQuality                    != povrayRenderQualityCompare;
 
+        bool sceneBackgroundColorChanged   = Preferences::sceneBackgroundColor.toLower()         != sceneBackgroundColorCompare.toLower();
+        bool sceneGridColorChanged         = Preferences::sceneGridColor.toLower()               != sceneGridColorCompare.toLower();
+        bool sceneRulerTickColorChanged    = Preferences::sceneRulerTickColor.toLower()          != sceneRulerTickColorCompare.toLower();
+        bool sceneGuideColorChanged        = Preferences::sceneGuideColor.toLower()              != sceneGuideColorCompare.toLower();
+
         if (defaultUnitsChanged     )
                     emit messageSig(LOG_INFO,QString("Default units changed to %1").arg(Preferences::preferCentimeters? "Centimetres" : "Inches"));
 
@@ -2052,6 +2121,26 @@ void Gui::preferences()
             emit messageSig(LOG_INFO,QString("LGEO path preference changed from %1 to %2")
                             .arg(lgeoPathCompare)
                             .arg(Preferences::lgeoPath));
+
+        if (sceneBackgroundColorChanged)
+            emit messageSig(LOG_INFO,QString("Scene Background Color changed from %1 to %2")
+                            .arg(sceneBackgroundColorCompare)
+                            .arg(Preferences::sceneBackgroundColor));
+
+        if (sceneRulerTickColorChanged)
+            emit messageSig(LOG_INFO,QString("Scene Ruler Tick Color changed from %1 to %2")
+                            .arg(sceneRulerTickColorCompare)
+                            .arg(Preferences::sceneRulerTickColor));
+
+        if (sceneGridColorChanged)
+            emit messageSig(LOG_INFO,QString("Scene Grid Color changed from %1 to %2")
+                            .arg(sceneGridColorCompare)
+                            .arg(Preferences::sceneGridColor));
+
+        if (sceneGuideColorChanged && !ldrawPathChanged)
+            emit messageSig(LOG_INFO,QString("Scene Guide Color changed from %1 to %2")
+                            .arg(sceneGuideColorCompare)
+                            .arg(Preferences::sceneGuideColor));
 
         if (enableFadeStepsChanged) {
             emit messageSig(LOG_INFO,QString("Fade Previous Steps is %1.").arg(Preferences::enableFadeSteps ? "ON" : "OFF"));
@@ -2216,7 +2305,7 @@ void Gui::preferences()
                 perspectiveProjectionChanged  ||
                 povrayRenderQualityChanged    ||
                 generateCoverPagesChanged){
-                clearAndRedrawPage();
+                clearAndReloadModelFile();
             }
         }
 
@@ -2265,13 +2354,23 @@ void Gui::preferences()
         if (displayThemeRestart || altLDConfigPathChanged || libraryChangeRestart) {
             restartApplication(libraryChangeRestart);
         }
+
+        if (sceneBackgroundColorChanged ||
+            sceneGridColorChanged       ||
+            sceneRulerTickColorChanged  ||
+            sceneGuideColorChanged)
+        {
+            KpageView->setSceneTheme();
+            if (sceneGridColorChanged)
+                reloadCurrentPage();
+        }
     }
 }
 
 
 /*******************************************************************************
  *
- * This is all the initialization stuff.  It is used once when the program 
+ * This is all the initialization stuff.  It is used once when the program
  * starts up
  *
  ******************************************************************************/
@@ -2315,12 +2414,10 @@ Gui::Gui()
     parmsWindow   = new ParmsWindow();
 
     KpageScene    = new LGraphicsScene(this);
-    KpageScene->setBackgroundBrush(Qt::lightGray);
     KpageView     = new LGraphicsView(KpageScene);
-    KpageView->setPageGuides(getTheme());
-    KpageView->setPageRuler(getTheme());
     KpageView->pageBackgroundItem = nullptr;
-    KpageView->setRenderHints(QPainter::Antialiasing | 
+    KpageView->setSceneTheme();
+    KpageView->setRenderHints(QPainter::Antialiasing |
                               QPainter::TextAntialiasing |
                               QPainter::SmoothPixmapTransform);
 
@@ -2377,7 +2474,7 @@ Gui::Gui()
             editWindow,     SLOT(  showLine(   int)));
 
     connect(editWindow,     SIGNAL(redrawSig()),
-            this,           SLOT(  clearAndRedrawPage()));
+            this,           SLOT(  clearAndReloadModelFile()));
 
     connect(editWindow,     SIGNAL(updateSig()),
             this,           SLOT(  reloadCurrentPage()));
@@ -2454,7 +2551,7 @@ Gui::Gui()
 }
 
 Gui::~Gui()
-{ 
+{
   delete KpageScene;
   delete KpageView;
   delete editWindow;
@@ -2604,7 +2701,7 @@ void Gui::reloadModelFileAfterColorFileGen(){
         box.exec();
     }
     if (!getCurFile().isEmpty())
-        clearAndRedrawPage();
+        clearAndReloadModelFile();
 }
 
 void Gui::generateCustomColourPartsList(bool prompt)
@@ -3258,7 +3355,7 @@ void Gui::createActions()
     for (int i = 0; i < MaxRecentFiles; i++) {
       recentFilesActs[i] = new QAction(this);
       recentFilesActs[i]->setVisible(false);
-      connect(recentFilesActs[i], SIGNAL(triggered()), this, 
+      connect(recentFilesActs[i], SIGNAL(triggered()), this,
                                  SLOT(openRecentFile()));
     }
 
@@ -3357,21 +3454,27 @@ void Gui::createActions()
     fitSceneAct->setEnabled(false);
     connect(fitSceneAct, SIGNAL(triggered()), this, SLOT(fitScene()));
 
-    pageRulerAct = new QAction(QIcon(":/resources/pageruler.png"), tr("Page &Ruler"), this);
-    pageRulerAct->setShortcut(tr("Alt+U"));
-    pageRulerAct->setStatusTip(tr("Display the page ruler - Alt+U"));
-    pageRulerAct->setEnabled(true);
-    pageRulerAct->setCheckable(true);
-    pageRulerAct->setChecked(Preferences::pageRuler);
-    connect(pageRulerAct, SIGNAL(triggered()), this, SLOT(pageRuler()));
+    sceneRulerTrackingAct = new QAction(tr("Ruler Tracking"),this);
+    sceneRulerTrackingAct->setStatusTip(tr("Toggle scene ruler tracking"));
+    sceneRulerTrackingAct->setCheckable(true);
+    sceneRulerTrackingAct->setChecked(Preferences::sceneRulerTracking);
+    connect(sceneRulerTrackingAct, SIGNAL(triggered()), this, SLOT(sceneRulerTracking()));
 
-    pageGuidesAct = new QAction(QIcon(":/resources/pageguides.png"), tr("Page &Guides"), this);
-    pageGuidesAct->setShortcut(tr("Alt+G"));
-    pageGuidesAct->setStatusTip(tr("Display horizontal and vertical guides - Alt+G"));
-    pageGuidesAct->setEnabled(true);
-    pageGuidesAct->setCheckable(true);
-    pageGuidesAct->setChecked(Preferences::pageGuides);
-    connect(pageGuidesAct, SIGNAL(triggered()), this, SLOT(pageGuides()));
+    sceneRulerComboAct = new QAction(QIcon(":/resources/pageruler.png"), tr("Scene &Ruler"), this);
+    sceneRulerComboAct->setShortcut(tr("Alt+U"));
+    sceneRulerComboAct->setStatusTip(tr("Toggle the scene ruler - Alt+U"));
+    sceneRulerComboAct->setEnabled(true);
+    sceneRulerComboAct->setCheckable(true);
+    sceneRulerComboAct->setChecked(Preferences::sceneRuler);
+    connect(sceneRulerComboAct, SIGNAL(triggered()), this, SLOT(sceneRuler()));
+
+    sceneGuidesAct = new QAction(QIcon(":/resources/pageguides.png"), tr("Scene &Guides"), this);
+    sceneGuidesAct->setShortcut(tr("Alt+G"));
+    sceneGuidesAct->setStatusTip(tr("Toggle horizontal and vertical scene guides - Alt+G"));
+    sceneGuidesAct->setEnabled(true);
+    sceneGuidesAct->setCheckable(true);
+    sceneGuidesAct->setChecked(Preferences::sceneGuides);
+    connect(sceneGuidesAct, SIGNAL(triggered()), this, SLOT(sceneGuides()));
 
     actualSizeAct = new QAction(QIcon(":/resources/actual.png"),tr("&Actual Size"), this);
     actualSizeAct->setShortcut(tr("Alt+A"));
@@ -3379,9 +3482,42 @@ void Gui::createActions()
     actualSizeAct->setEnabled(false);
     connect(actualSizeAct, SIGNAL(triggered()), this, SLOT(actualSize()));
 
+    // Snap to grid
+    snapGridTransBkgrndAct = new QAction(tr("Transparent Page Background"),this);
+    snapGridTransBkgrndAct->setStatusTip(tr("Toggle transparent page background"));
+    snapGridTransBkgrndAct->setCheckable(true);
+    snapGridTransBkgrndAct->setChecked(Preferences::snapGridTransBkgrnd);
+    connect(snapGridTransBkgrndAct, SIGNAL(triggered()), this, SLOT(snapGridTransBkgrnd()));
+
+    for (int CommandIdx = 0; CommandIdx < NUM_GRID_SIZES; CommandIdx++)
+    {
+        QAction* Action = new QAction(qApp->translate("Menu", sgCommands[CommandIdx].MenuName), this);
+        Action->setStatusTip(qApp->translate("Status", sgCommands[CommandIdx].StatusText));
+        connect(Action, SIGNAL(triggered()), this, SLOT(gridSizeTriggered()));
+        addAction(Action);
+        snapGridActions[CommandIdx] = Action;
+    }
+
+    QActionGroup* GridStepSizeGroup = new QActionGroup(this);
+    for (int ActionIdx = GRID_SIZE_FIRST; ActionIdx <= GRID_SIZE_LAST; ActionIdx++)
+    {
+        snapGridActions[ActionIdx]->setCheckable(true);
+        GridStepSizeGroup->addAction(snapGridActions[ActionIdx]);
+    }
+
+    snapGridActions[Preferences::gridSizeIndex]->setChecked(true);
+
+    snapToGridComboAct = new QAction(QIcon(":/resources/scenegrid.png"),tr("&Snap To Grid"),this);
+    snapToGridComboAct->setShortcut(tr("Alt+K"));
+    snapToGridComboAct->setStatusTip(tr("Toggle snap-to-grid - Alt+K"));
+    snapToGridComboAct->setEnabled(false);
+    snapToGridComboAct->setCheckable(true);
+    snapToGridComboAct->setChecked(Preferences::snapToGrid);
+    connect(snapToGridComboAct, SIGNAL(triggered()), this, SLOT(snapToGrid()));
+
     // TESTING ONLY
     //connect(actualSizeAct, SIGNAL(triggered()), this, SLOT(twoPages()));
-    
+
     // zoomIn,zoomOut
 
     zoomInAct = new QAction(QIcon(":/resources/zoomin.png"), tr("&Zoom In"), this);
@@ -3756,7 +3892,8 @@ void Gui::enableActions()
   actualSizeAct->setEnabled(true);
   zoomInAct->setEnabled(true);
   zoomOutAct->setEnabled(true);
-  pageGuidesAct->setEnabled(true);
+  sceneGuidesAct->setEnabled(true);
+  snapToGridComboAct->setEnabled(true);
 
   setupMenu->setEnabled(true);
   cacheMenu->setEnabled(true);
@@ -3841,7 +3978,8 @@ void Gui::disableActions()
   actualSizeAct->setEnabled(false);
   zoomInAct->setEnabled(false);
   zoomOutAct->setEnabled(false);
-  pageGuidesAct->setEnabled(false);
+  sceneGuidesAct->setEnabled(false);
+  snapToGridComboAct->setEnabled(false);
 
   setupMenu->setEnabled(false);
   cacheMenu->setEnabled(false);
@@ -3972,8 +4110,8 @@ void Gui::createMenus()
     viewMenu->addAction(fitSceneAct);
     viewMenu->addAction(zoomInAct);
     viewMenu->addAction(zoomOutAct);
-    viewMenu->addAction(pageRulerAct);
-    viewMenu->addAction(pageGuidesAct);
+    viewMenu->addAction(sceneRulerComboAct);
+    viewMenu->addAction(sceneGuidesAct);
 
     viewMenu->addSeparator();
 
@@ -4174,8 +4312,18 @@ void Gui::createToolBars()
     zoomToolBar->addAction(actualSizeAct);
     zoomToolBar->addAction(zoomInAct);
     zoomToolBar->addAction(zoomOutAct);
-    zoomToolBar->addAction(pageRulerAct);
-    zoomToolBar->addAction(pageGuidesAct);
+    sceneRulerTrackingMenu = new QMenu(tr("Ruler Tracking"),this);
+    sceneRulerTrackingMenu->addAction(sceneRulerTrackingAct);
+    sceneRulerComboAct->setMenu(sceneRulerTrackingMenu);
+    zoomToolBar->addAction(sceneRulerComboAct);
+    zoomToolBar->addAction(sceneGuidesAct);
+    snapToGridMenu = new QMenu(tr("Snap to Grid"), this);
+    snapToGridMenu->addAction(snapGridTransBkgrndAct);
+    snapToGridMenu->addSeparator();
+    for (int actionIdx = GRID_SIZE_FIRST; actionIdx <= GRID_SIZE_LAST; actionIdx++)
+        snapToGridMenu->addAction(snapGridActions[actionIdx]);
+    snapToGridComboAct->setMenu(snapToGridMenu);
+    zoomToolBar->addAction(snapToGridComboAct);
 }
 
 void Gui::statusBarMsg(QString msg)
@@ -4479,3 +4627,63 @@ void Gui::statusMessage(LogType logType, QString message) {
         logger.setLoggingLevel(OffLevel);
     }
 }
+
+SnapGridCommands sgCommands[NUM_GRID_SIZES] =
+{
+    // SCENE_GRID_SIZE_S1
+    {
+        QT_TRANSLATE_NOOP("Action", "Edit.GridSize.S1"),
+        QT_TRANSLATE_NOOP("Menu", "10 pixels"),
+        QT_TRANSLATE_NOOP("Status", "Set grid step to 10 pixels"),
+    },
+    // SCENE_GRID_SIZE_S2
+    {
+        QT_TRANSLATE_NOOP("Action", "Edit.GridSize.S2"),
+        QT_TRANSLATE_NOOP("Menu", "20 Pixels"),
+        QT_TRANSLATE_NOOP("Status", "Set grid step to 20 pixels"),
+    },
+    // SCENE_GRID_SIZE_S3
+    {
+        QT_TRANSLATE_NOOP("Action", "Edit.GridSize.S3"),
+        QT_TRANSLATE_NOOP("Menu", "30 Pixels"),
+        QT_TRANSLATE_NOOP("Status", "Set grid step to 30 pixels"),
+    },
+    // SCENE_GRID_SIZE_S4
+    {
+        QT_TRANSLATE_NOOP("Action", "Edit.GridSize.S4"),
+        QT_TRANSLATE_NOOP("Menu", "40 Pixels"),
+        QT_TRANSLATE_NOOP("Status", "Set grid step to 40 pixels"),
+    },
+    // SCENE_GRID_SIZE_S5
+    {
+        QT_TRANSLATE_NOOP("Action", "Edit.GridSize.S5"),
+        QT_TRANSLATE_NOOP("Menu", "50 Pixels"),
+        QT_TRANSLATE_NOOP("Status", "Set grid step to 50 pixels"),
+    },
+    // SCENE_GRID_SIZE_S6
+    {
+        QT_TRANSLATE_NOOP("Action", "Edit.GridSize.S6"),
+        QT_TRANSLATE_NOOP("Menu", "60 Pixels"),
+        QT_TRANSLATE_NOOP("Status", "Set grid step to 60 pixels"),
+    },
+    // SCENE_GRID_SIZE_S7
+    {
+        QT_TRANSLATE_NOOP("Action", "Edit.GridSize.S7"),
+        QT_TRANSLATE_NOOP("Menu", "70 pixels"),
+        QT_TRANSLATE_NOOP("Status", "Set grid step to 70 pixels"),
+    },
+    // SCENE_GRID_SIZE_S8
+    {
+        QT_TRANSLATE_NOOP("Action", "Edit.GridSize.S8"),
+        QT_TRANSLATE_NOOP("Menu", "80 pixels"),
+        QT_TRANSLATE_NOOP("Status", "Set grid step to 80 pixels"),
+    },
+    // SCENE_GRID_SIZE_S9
+    {
+        QT_TRANSLATE_NOOP("Action", "Edit.GridSize.S9"),
+        QT_TRANSLATE_NOOP("Menu", "90 pixels"),
+        QT_TRANSLATE_NOOP("Status", "Set grid step to 90 pixels"),
+    }
+};
+
+static_assert(sizeof(sgCommands)/sizeof(sgCommands[0]) == NUM_GRID_SIZES, "Array size mismatch.");

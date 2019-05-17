@@ -167,6 +167,7 @@
         <file alias="saveas.png">resources/saveas.png</file>
         <file alias="savemetacommands.png">resources/savemetacommands.png</file>
         <file alias="scale.png">resources/scale.png</file>
+        <file alias="scenegrid.png">resources/scenegrid.png</file>
         <file alias="selectall.png">resources/selectall.png</file>
         <file alias="sendtoback.png">resources/sendtoback.png</file>
         <file alias="showallcharacters.png">resources/showallcharacters.png</file>

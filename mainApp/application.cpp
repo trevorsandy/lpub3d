@@ -170,13 +170,32 @@ void Application::setTheme(){
           qApp->setStyleSheet(ts.readAll());
           vc = QColor(THEME_VIEWER_BGCOLOR_DARK);
       }
+      if (!Preferences::customSceneBackgroundColor)
+          Preferences::setSceneBackgroundColorPreference(THEME_SCENE_BGCOLOR_DARK);
+      if (!Preferences::customSceneGridColor)
+          Preferences::setSceneGridColorPreference(THEME_GRID_PEN_DARK);
+      if (!Preferences::customSceneRulerTickColor)
+          Preferences::setSceneRulerTickColorPreference(THEME_RULER_TICK_PEN_DARK);
+      if (!Preferences::customSceneRulerTrackingColor)
+          Preferences::setSceneRulerTrackingColorPreference(THEME_RULER_TRACK_PEN_DARK);
+      if (!Preferences::customSceneGuideColor)
+          Preferences::setSceneGuideColorPreference(THEME_GUIDE_PEN_DARK);
     }
   else
   if (Preferences::displayTheme == THEME_DEFAULT){
       t = ThemeDefault;
       qApp->setStyleSheet( QString() );
+      if (!Preferences::customSceneBackgroundColor)
+          Preferences::setSceneBackgroundColorPreference(THEME_SCENE_BGCOLOR_DEFAULT);
+      if (!Preferences::customSceneGridColor)
+          Preferences::setSceneGridColorPreference(THEME_GRID_PEN_DEFAULT);
+      if (!Preferences::customSceneRulerTickColor)
+          Preferences::setSceneRulerTickColorPreference(THEME_RULER_TICK_PEN_DEFAULT);
+      if (!Preferences::customSceneRulerTrackingColor)
+          Preferences::setSceneRulerTrackingColorPreference(THEME_RULER_TRACK_PEN_DEFAULT);
+      if (!Preferences::customSceneGuideColor)
+          Preferences::setSceneGuideColorPreference(THEME_GUIDE_PEN_DEFAULT);
     }
-  gui->setSceneTheme(t);
 
   lcVector3 viewerBackgroundColor = lcVector3FromColor(LC_RGB(vc.red(), vc.green(), vc.blue()));
   lcSetProfileInt(LC_PROFILE_DEFAULT_BACKGROUND_COLOR, lcColorFromVector3(viewerBackgroundColor));
@@ -420,6 +439,7 @@ void Application::initialize()
     Q_ENUMS(Theme)
     Q_ENUMS(SceneObjectDirection)
     Q_ENUMS(SceneObjectInfo)
+    Q_ENUMS(GridStepSize)
     Q_ENUMS(SceneObject)
 
     Q_ENUMS(Dimensions)
@@ -604,6 +624,9 @@ void Application::initialize()
 * initialize::toggleLCStatusBar                          (gui->initialize)
 */
 
+    // set theme
+    setTheme();
+
     emit splashMsgSig(QString("20% - %1 GUI window loading...").arg(VER_PRODUCTNAME_STR));
 
     // initialize gui
@@ -615,9 +638,6 @@ void Application::initialize()
     emit splashMsgSig("30% - 3D Viewer window loading...");
 
     gApplication = new lcApplication();
-
-    // set theme
-    setTheme();
 
     emit splashMsgSig(QString("40% - 3D Viewer initialization..."));
 
@@ -717,9 +737,9 @@ void clearCustomPartCache(bool silent)
     gui->clearCustomPartCache(silent);
 }
 
-void clearAndRedrawPage()
+void clearAndReloadModelFile()
 {
-    gui->clearAndRedrawPage();
+    gui->clearAndReloadModelFile();
 }
 
 void reloadCurrentPage(){

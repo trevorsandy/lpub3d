@@ -41,7 +41,7 @@
 #include "lpubalert.h"
 
 void BackgroundItem::setBackground(
-    QPixmap          *pixmap,
+    QPixmap         *pixmap,
     PlacementType    _parentRelativeType,
     Meta            *_meta,
     BackgroundMeta  &_background,
@@ -62,6 +62,32 @@ void BackgroundItem::setBackground(
 
   BorderData     borderData     = _border.valuePixels();
   BackgroundData backgroundData = _background.value();
+
+  if (_parentRelativeType == PageType &&
+      Preferences::snapToGrid &&
+      Preferences::snapGridTransBkgrnd &&
+      ! _exporting) {
+      backgroundData.type = BackgroundData::BgTransparent;
+      background.setValue(backgroundData);
+  }
+
+  if (_parentRelativeType == PageType &&
+      backgroundData.type == BackgroundData::BgTransparent &&
+      ! _exporting){
+      if (borderData.useDefault) {
+          borderData.type       = BorderData::BdrSquare;
+          borderData.line       = BorderData::BdrLnDash;
+          Preferences::displayTheme == THEME_DARK ?
+          borderData.color      = THEME_TRANS_PAGE_BORDER_DARK :
+          borderData.color      = THEME_TRANS_PAGE_BORDER_DEFAULT;
+          borderData.thickness  = 1.0f/48.0f;/*DEFAULT_THICKNESS*/;
+          borderData.radius     = 0;
+          borderData.margin[0]  = DEFAULT_MARGIN;
+          borderData.margin[1]  = DEFAULT_MARGIN;
+          border.setValueInches(borderData);
+          borderData = border.valuePixels();
+        }
+    }
 
   int bt = int(borderData.thickness);
 
@@ -201,6 +227,29 @@ void BackgroundItem::setBackground(
     } else {
       painter.drawRect(prect);
     }
+
+  if (_parentRelativeType == PageType &&
+      Preferences::snapToGrid &&
+      ! Preferences::snapGridTransBkgrnd &&
+      !_exporting) {
+
+      QPen pen(QPen(QBrush(QColor(Preferences::sceneGridColor)), 2, Qt::SolidLine));
+      painter.setPen(pen);
+
+      int gridSize = GridSizeTable[Preferences::gridSizeIndex];
+
+      QRectF rect = pixmap->rect();
+
+      qreal left = int(rect.left()) - (int(rect.left()) % gridSize);
+      qreal top = int(rect.top()) - (int(rect.top()) % gridSize);
+      QVector<QPointF> points;
+      for (qreal x = left; x < rect.right(); x += gridSize){
+          for (qreal y = top; y < rect.bottom(); y += gridSize){
+              points.append(QPointF(x,y));
+          }
+      }
+      painter.drawPoints(points.data(), points.size());
+  }
 
   painter.end();
 

@@ -650,10 +650,6 @@ public:
       ldrawFile.clearViewerSteps();
   }
 
-  void setSceneTheme(Theme t){
-    KpageView->setSceneThemeSig(t);
-  }
-
   bool suppressColourMeta()
   {
     return false; //Preferences::usingNativeRenderer;
@@ -662,7 +658,7 @@ public:
   void insertLine (const Where &here, const QString &line, QUndoCommand *parent = 0);
   void appendLine (const Where &here, const QString &line, QUndoCommand *parent = 0);
   void replaceLine(const Where &here, const QString &line, QUndoCommand *parent = 0);
-  void deleteLine (const Where &here, QUndoCommand *parent = 0);
+  void deleteLine (const Where &here, QUndoCommand *parent = nullptr);
   void normalizeHeader(const Where &here);
 
   QString topLevelFile();
@@ -724,16 +720,6 @@ public:
           Render::setRenderer(Preferences::preferredRenderer);
           saveRenderer = QString();
       }
-  }
-
-  Theme getTheme(){
-    if (Preferences::displayTheme == THEME_DEFAULT) {
-        return ThemeDefault;
-      } else {
-        if (Preferences::displayTheme == THEME_DARK)
-          return ThemeDark;
-      }
-    return ThemeDefault;
   }
 
   float getDefaultCameraFoV(){
@@ -927,8 +913,13 @@ public slots:
   void actualSize();
   void zoomIn();
   void zoomOut();
-  void pageGuides();
-  void pageRuler();
+  void sceneGuides();
+  void sceneRuler();
+  void sceneRulerTracking();
+  void snapToGrid();
+  void snapGridTransBkgrnd();
+  void gridSize(int index);
+  void gridSizeTriggered();
 
   void clearPLICache();
   void clearCSICache();
@@ -939,7 +930,7 @@ public slots:
   void clearStepCSICache(QString &pngName);
   void clearPageCSICache(PlacementType relativeType, Page *page);
   void clearPageCSIGraphicsItems(Step *step);
-  void clearAndRedrawPage();
+  void clearAndReloadModelFile();
   void clearAndRedrawModelFile();
   void reloadCurrentModelFile();
   void reloadModelFileAfterColorFileGen();
@@ -1353,6 +1344,8 @@ private:
 
   QMenu    *nextPageContinuousMenu;
   QMenu    *previousPageContinuousMenu;
+  QMenu    *snapToGridMenu;
+  QMenu    *sceneRulerTrackingMenu;
 
   // 3D Viewer Menus
   QMenu* ViewerMenu;
@@ -1367,7 +1360,6 @@ private:
   QComboBox *mpdCombo;
 
   // file
-
   QAction  *openAct;
   QAction  *saveAct;
   QAction  *saveAsAct;
@@ -1417,8 +1409,10 @@ private:
   QAction  *zoomInAct;
   QAction  *zoomOutAct;
 
-  QAction  *pageGuidesAct;
-  QAction  *pageRulerAct;
+  QAction  *sceneGuidesAct;
+  QAction  *sceneRulerComboAct;
+  QAction  *sceneRulerTrackingAct;
+  QAction  *snapGridTransBkgrndAct;
 
   // view
   // navigation toolbar
@@ -1435,16 +1429,16 @@ private:
   QComboBox*setGoToPageCombo;
 
   // manage Caches
-  QAction  *clearAllCachesAct;
+  QAction *clearAllCachesAct;
 
-  QAction  *clearPLICacheAct;
-  QAction  *clearCSICacheAct;
-  QAction  *clearSubmodelCacheAct;
-  QAction  *clearTempCacheAct;
-  QAction  *clearCustomPartCacheAct;
+  QAction *clearPLICacheAct;
+  QAction *clearCSICacheAct;
+  QAction *clearSubmodelCacheAct;
+  QAction *clearTempCacheAct;
+  QAction *clearCustomPartCacheAct;
 
-  QAction  *refreshLDrawUnoffPartsAct;
-  QAction  *refreshLDrawOfficialPartsAct;
+  QAction *refreshLDrawUnoffPartsAct;
+  QAction *refreshLDrawOfficialPartsAct;
 
   // config menu
 
@@ -1483,6 +1477,9 @@ private:
   QAction *editBLCodesAct;
   QAction *generateCustomColourPartsAct;
   QAction *editModelFileAct;
+
+  QAction *snapGridActions[NUM_GRID_SIZES];
+  QAction *snapToGridComboAct;
 
   // help
 
@@ -1557,6 +1554,6 @@ void clearPliCache();
 void clearCsiCache();
 void clearTempCache();
 void clearSubmodelCache();
-void clearAndRedrawPage();
+void clearAndReloadModelFile();
 
 #endif

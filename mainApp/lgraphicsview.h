@@ -25,6 +25,7 @@
 enum FitMode { FitNone, FitWidth, FitVisible, FitTwoPages, FitContinuousScroll };
 
 class PageBackgroundItem;
+class LRuler;
 
 class LGraphicsView : public QGraphicsView
 {
@@ -43,15 +44,21 @@ public:
   void zoomOut();
 
 public slots:
-  void setPageGuides(Theme t = ThemeDefault);
-  void setPageRuler(Theme t = ThemeDefault);
-  void setSceneBackground(Theme t = ThemeDefault);
+  void setSceneGuides();
+  void setSceneBackgroundBrush();
+  void setSceneRuler();
+  void setSceneRulerTracking();
+  void setSnapToGrid();
+  void setGridSize();
+  void setSceneTheme();
 
 signals:
-    void setPageRulerSig(bool);
-    void setPageGuidesSig(bool);
-    void setGuidePenSig(Theme t);
-    void setSceneThemeSig(Theme t);
+    void setSceneRulerSig();
+    void setSceneGuidesSig(bool);
+    void setGuidePenSig(QString);
+    void setGridPenSig(QString);
+    void setSnapToGridSig(bool);
+    void setGridSizeSig(int);
 
 protected:
     // toggle ruler
@@ -69,7 +76,9 @@ protected:
 private:
   QRectF mPageRect;
   bool mGridLayoutSet;
-  QGridLayout* mGridLayout;
+  QGridLayout *mGridLayout;
+  LRuler      *mHorzRuler;
+  LRuler      *mVertRuler;
 };
 
 // View Ruler Class
@@ -86,7 +95,7 @@ Q_PROPERTY(qreal rulerZoom READ rulerZoom WRITE setRulerZoom)
 
 public:
   enum RulerType { Horizontal, Vertical };
-LRuler(LRuler::RulerType rulerType, Theme t, QWidget* parent)
+LRuler(LRuler::RulerType rulerType, QWidget* parent)
 : QWidget(parent),
   mRulerType(rulerType),
   mOrigin(0.),
@@ -101,9 +110,10 @@ LRuler(LRuler::RulerType rulerType, Theme t, QWidget* parent)
   txtFont.setStyleHint(QFont::SansSerif,QFont::PreferOutline);
   txtFont.setStyleStrategy(QFont::PreferAntialias);
   setFont(txtFont);
-  setRulerColor(t);
-  setRulerNMLPen(t);
-  setRulerTickPen(t);
+  setRulerBackgroundColor();
+  setRulerNMLPen();
+  setRulerTickPen();
+  setRulerTrackingPen();
 }
 
 QSize minimumSizeHint() const
@@ -137,9 +147,10 @@ public slots:
   void setRulerZoom(const qreal rulerZoom);
   void setCursorPos(const QPoint cursorPos);
   void setMouseTrack(const bool track);
-  void setRulerTickPen(Theme = ThemeDefault);
-  void setRulerNMLPen(Theme = ThemeDefault);
-  void setRulerColor(Theme = ThemeDefault);
+  void setRulerTickPen();
+  void setRulerNMLPen();
+  void setRulerTrackingPen();
+  void setRulerBackgroundColor();
 
 protected:
   void mouseMoveEvent(QMouseEvent* event);
@@ -159,7 +170,8 @@ private:
   bool mDrawText;
   QPen mRulerTickPen;
   QPen mRulerNMLPen;
-  QColor mRulerColor;
+  QPen mRulerTrackingPen;
+  QColor mRulerBgColor;
 };
 
 #endif // LGRAPHICSVIEW_H

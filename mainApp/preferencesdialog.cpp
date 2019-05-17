@@ -42,6 +42,8 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 {
   ui.setupUi(this);
 
+  resetSceneColorsFlag = false;
+
   mLDrawLibPath = Preferences::ldrawLibPath;
 
   if (mLDrawLibPath.isEmpty()) {
@@ -302,8 +304,8 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
       ui.ldvPOVSettingsBox->setTitle("LDView POV file generation settings");
   }
 
-  connect(ui.ldvPoVFileGenOptBtn, SIGNAL(clicked()), SLOT(ldvPoVFileGenOptBtn_clicked()));
-  connect(ui.ldvPoVFileGenPrefBtn, SIGNAL(clicked()), SLOT(ldvPoVFileGenPrefBtn_clicked()));
+  connect(ui.ldvPoVFileGenOptBtn, SIGNAL(clicked()), this, SLOT(ldvPoVFileGenOptBtn_clicked()));
+  connect(ui.ldvPoVFileGenPrefBtn, SIGNAL(clicked()), this, SLOT(ldvPoVFileGenPrefBtn_clicked()));
 
   ui.ldvPreferencesBtn->setEnabled(Preferences::preferredRenderer == RENDERER_LDVIEW);
 
@@ -312,6 +314,32 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.themeCombo->addItem(THEME_DARK);
   ui.themeCombo->setCurrentText(Preferences::displayTheme);
   ui.themeAutoRestartBox->setChecked(Preferences::themeAutoRestart);
+
+  QPixmap colorPix(12, 12);
+  sceneBackgroundColorStr = Preferences::sceneBackgroundColor;
+  colorPix.fill(QColor(sceneBackgroundColorStr));
+  ui.sceneBackgroundColorButton->setIcon(colorPix);
+  connect(ui.sceneBackgroundColorButton, SIGNAL(clicked()), this, SLOT(sceneColorButtonClicked()));
+
+  sceneGridColorStr = Preferences::sceneGridColor;
+  colorPix.fill(QColor(sceneGridColorStr));
+  ui.sceneGridColorButton->setIcon(colorPix);
+  connect(ui.sceneGridColorButton, SIGNAL(clicked()), this, SLOT(sceneColorButtonClicked()));
+
+  sceneRulerTickColorStr = Preferences::sceneRulerTickColor;
+  colorPix.fill(QColor(sceneRulerTickColorStr));
+  ui.sceneRulerTickColorButton->setIcon(colorPix);
+  connect(ui.sceneRulerTickColorButton, SIGNAL(clicked()), this, SLOT(sceneColorButtonClicked()));
+
+  sceneRulerTrackingColorStr = Preferences::sceneRulerTrackingColor;
+  colorPix.fill(QColor(sceneRulerTrackingColorStr));
+  ui.sceneRulerTrackingColorButton->setIcon(colorPix);
+  connect(ui.sceneRulerTrackingColorButton, SIGNAL(clicked()), this, SLOT(sceneColorButtonClicked()));
+
+  sceneGuideColorStr = Preferences::sceneGuideColor;
+  colorPix.fill(QColor(sceneGuideColorStr));
+  ui.sceneGuideColorButton->setIcon(colorPix);
+  connect(ui.sceneGuideColorButton, SIGNAL(clicked()), this, SLOT(sceneColorButtonClicked()));
 
   /* [Experimental] LDView Image Matting */
   ui.imageMattingChk->setChecked(                Preferences::enableImageMatting);
@@ -343,6 +371,78 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
 
 PreferencesDialog::~PreferencesDialog()
 {}
+
+void PreferencesDialog::sceneColorButtonClicked()
+{
+    QObject *button = sender();
+    QString title;
+    QColor oldColor;
+    QColorDialog::ColorDialogOptions dialogOptions;
+
+    if (button == ui.sceneBackgroundColorButton)
+    {
+        oldColor = QColor(sceneBackgroundColorStr);
+        title = tr("Select Scene Background Color");
+        dialogOptions = nullptr;
+    }
+    else if (button == ui.sceneGridColorButton)
+    {
+        oldColor = QColor(sceneGridColorStr);
+        title = tr("Select Scene Grid Color");
+        dialogOptions = nullptr;
+    }
+    else if (button == ui.sceneRulerTickColorButton)
+    {
+        oldColor = QColor(sceneRulerTickColorStr);
+        title = tr("Select Scene Ruler Tick Color");
+        dialogOptions = nullptr;
+    }
+    else if (button == ui.sceneRulerTrackingColorButton)
+    {
+        oldColor = QColor(sceneRulerTrackingColorStr);
+        title = tr("Select Ruler Tracking Color");
+        dialogOptions = nullptr;
+    }
+    else if (button == ui.sceneGuideColorButton)
+    {
+        oldColor = QColor(sceneGuideColorStr);
+        title = tr("Select Scene Guide Color");
+        dialogOptions = nullptr;
+    }
+    else
+        return;
+
+    QColor newColor = QColorDialog::getColor(oldColor, this, title, dialogOptions);
+
+    if (newColor == oldColor || !newColor.isValid())
+        return;
+
+    if (button == ui.sceneBackgroundColorButton)
+    {
+        sceneBackgroundColorStr = newColor.name();
+    }
+    else if (button == ui.sceneGridColorButton)
+    {
+        sceneGridColorStr = newColor.name();
+    }
+    else if (button == ui.sceneRulerTickColorButton)
+    {
+        sceneRulerTickColorStr = newColor.name();
+    }
+    else if (button == ui.sceneRulerTrackingColorButton)
+    {
+        sceneRulerTrackingColorStr = newColor.name();
+    }
+    else if (button == ui.sceneGuideColorButton)
+    {
+        sceneGuideColorStr = newColor.name();
+    }
+
+    QPixmap pix(12, 12);
+
+    pix.fill(newColor);
+    ((QToolButton*)button)->setIcon(pix);
+}
 
 void PreferencesDialog::on_ldrawLibPathEdit_editingFinished()
 {
@@ -693,7 +793,42 @@ void PreferencesDialog::on_povGenLDViewRadio_clicked(bool checked)
         ui.ldvPoVFileGenOptBtn->setToolTip("Open LDView POV generation dialogue");
         ui.ldvPoVFileGenPrefBtn->setToolTip("Open LDView preferences dialogue");
     }
+}
 
+void PreferencesDialog::on_resetSceneColorsButton_clicked(bool checked)
+{
+    resetSceneColorsFlag = checked;
+
+    if (Preferences::displayTheme == THEME_DARK) {
+        sceneBackgroundColorStr    = THEME_SCENE_BGCOLOR_DARK;
+        sceneGridColorStr          = THEME_GRID_PEN_DARK;
+        sceneRulerTickColorStr     = THEME_RULER_TICK_PEN_DARK;
+        sceneRulerTrackingColorStr = THEME_RULER_TRACK_PEN_DARK;
+        sceneGuideColorStr         = THEME_GUIDE_PEN_DARK;
+    } else {
+        sceneBackgroundColorStr    = THEME_SCENE_BGCOLOR_DEFAULT;
+        sceneGridColorStr          = THEME_GRID_PEN_DEFAULT;
+        sceneRulerTickColorStr     = THEME_RULER_TICK_PEN_DEFAULT;
+        sceneRulerTrackingColorStr = THEME_RULER_TRACK_PEN_DEFAULT;
+        sceneGuideColorStr         = THEME_GUIDE_PEN_DEFAULT;
+    }
+
+    QPixmap pix(12, 12);
+
+    pix.fill(QColor(sceneBackgroundColorStr));
+    ui.sceneBackgroundColorButton->setIcon(pix);
+
+    pix.fill(QColor(sceneGridColorStr));
+    ui.sceneGridColorButton->setIcon(pix);
+
+    pix.fill(QColor(sceneRulerTickColorStr));
+    ui.sceneRulerTickColorButton->setIcon(pix);
+
+    pix.fill(QColor(sceneRulerTrackingColorStr));
+    ui.sceneRulerTrackingColorButton->setIcon(pix);
+
+    pix.fill(QColor(sceneGuideColorStr));
+    ui.sceneGuideColorButton->setIcon(pix);
 }
 
 void PreferencesDialog::ldvPoVFileGenOptBtn_clicked()
@@ -923,6 +1058,36 @@ QString const PreferencesDialog::displayTheme()
   return ui.themeCombo->currentText();
 }
 
+QString const PreferencesDialog::sceneBackgroundColor()
+{
+  return sceneBackgroundColorStr;
+}
+
+QString const PreferencesDialog::sceneGridColor()
+{
+  return sceneGridColorStr;
+}
+
+QString const PreferencesDialog::sceneRulerTickColor()
+{
+  return sceneRulerTickColorStr;
+}
+
+QString const PreferencesDialog::sceneRulerTrackingColor()
+{
+  return sceneRulerTrackingColorStr;
+}
+
+QString const PreferencesDialog::sceneGuideColor()
+{
+  return sceneGuideColorStr;
+}
+
+bool PreferencesDialog::resetSceneColors()
+{
+  return resetSceneColorsFlag;
+}
+
 bool PreferencesDialog::themeAutoRestart()
 {
   return ui.themeAutoRestartBox->isChecked();
@@ -1118,6 +1283,9 @@ void PreferencesDialog::accept(){
     bool missingParms = false;
     QFileInfo fileInfo;
 
+    if (resetSceneColorsFlag)
+        emit gui->messageSig(LOG_INFO,QString("Scene Colors have been reset."));
+
     if (!ui.povrayPath->text().isEmpty() && (ui.povrayPath->text() != Preferences::povrayExe)){
         fileInfo.setFile(ui.povrayPath->text());
         bool povRayExists = fileInfo.exists();
@@ -1202,4 +1370,3 @@ void PreferencesDialog::accept(){
 void PreferencesDialog::cancel(){
   QDialog::reject();
 }
-

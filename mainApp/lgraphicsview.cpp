@@ -40,21 +40,16 @@ LGraphicsView::LGraphicsView(LGraphicsScene *scene)
   setScene(scene);
   setAcceptDrops(true);
 
-  connect(this,SIGNAL(setPageGuidesSig(bool)),  scene,SLOT(setPageGuides(bool)));
-  connect(this,SIGNAL(setGuidePenSig(Theme)),   scene,SLOT(setGuidePen(Theme)));
-  connect(this,SIGNAL(setSceneThemeSig(Theme)), scene,SLOT(setGuidePen(Theme)));
-  connect(this,SIGNAL(setSceneThemeSig(Theme)), this, SLOT(setPageRuler(Theme)));
-  connect(this,SIGNAL(setSceneThemeSig(Theme)), this, SLOT(setSceneBackground(Theme)));
+  connect(this,SIGNAL(setGridSizeSig(int)),     scene,SLOT(setGridSize(int)));
+  connect(this,SIGNAL(setSnapToGridSig(bool)),  scene,SLOT(setSnapToGrid(bool)));
+  connect(this,SIGNAL(setSceneGuidesSig(bool)), scene,SLOT(setSceneGuides(bool)));
+  connect(this,SIGNAL(setGuidePenSig(QString)), scene,SLOT(setGuidePen(QString)));
+  connect(this,SIGNAL(setGridPenSig(QString)),  scene,SLOT(setGridPen(QString)));
 }
 
-void LGraphicsView::setPageGuides(Theme t){
-  emit setGuidePenSig(t);
-  emit setPageGuidesSig(Preferences::pageGuides);
-}
+void LGraphicsView::setSceneRuler(){
 
-void LGraphicsView::setPageRuler(Theme t){
-
-  if (Preferences::pageRuler) {
+  if (Preferences::sceneRuler) {
 
       if (mGridLayoutSet) {
           removeGridItem(mGridLayout,0,0,true);
@@ -72,8 +67,8 @@ void LGraphicsView::setPageRuler(Theme t){
       fake->setBackgroundRole(QPalette::Window);
       fake->setFixedSize(RULER_BREADTH,RULER_BREADTH);
 
-      LRuler * mHorzRuler = new LRuler(LRuler::Horizontal,t,fake);
-      LRuler * mVertRuler = new LRuler(LRuler::Vertical,t,fake);
+      mHorzRuler = new LRuler(LRuler::Horizontal,fake);
+      mVertRuler = new LRuler(LRuler::Vertical,fake);
 
       mGridLayout->addWidget(fake,0,0);
       mGridLayout->addWidget(mHorzRuler,0,1);
@@ -98,6 +93,46 @@ void LGraphicsView::setPageRuler(Theme t){
         }
       update();
     }
+}
+
+void LGraphicsView::setSceneRulerTracking(){
+  if (!Preferences::sceneRuler)
+    return;
+  if (mHorzRuler)
+    mHorzRuler->setMouseTrack(Preferences::sceneRulerTracking);
+  if (mVertRuler)
+    mVertRuler->setMouseTrack(Preferences::sceneRulerTracking);
+}
+
+void LGraphicsView::setGridSize(){
+  if (Preferences::snapToGrid)
+    emit setGridSizeSig(GridSizeTable[Preferences::gridSizeIndex]);
+}
+
+void LGraphicsView::setSnapToGrid(){
+  emit setSnapToGridSig(Preferences::snapToGrid);
+  if (Preferences::snapToGrid) {
+    emit setGridPenSig(Preferences::sceneGridColor);
+    setGridSize();
+  }
+}
+
+void LGraphicsView::setSceneGuides(){
+  emit setSceneGuidesSig(Preferences::sceneGuides);
+  if (Preferences::sceneGuides)
+    emit setGuidePenSig(Preferences::sceneGuideColor);
+}
+
+void LGraphicsView::setSceneBackgroundBrush(){
+    this->scene()->setBackgroundBrush(QColor(Preferences::sceneBackgroundColor));
+}
+
+void LGraphicsView::setSceneTheme(){
+  setSceneBackgroundBrush();
+  setSceneRuler();
+  setSceneGuides();
+  setSnapToGrid();
+  setSceneRulerTracking();
 }
 
 void LGraphicsView::fitVisible(const QRectF rect)
@@ -179,15 +214,6 @@ void LGraphicsView::resizeEvent(QResizeEvent *event)
   centerOn(viewport()->rect().center());
 }
 
-/* Theme related */
-void LGraphicsView::setSceneBackground(Theme t){
-  QColor c;
-  c = t == ThemeDark ? QColor(THEME_MAIN_BGCOLOR_DARK) :
-                       QColor(THEME_MAIN_BGCOLOR_DEFAULT) ;
-  this->scene()->setBackgroundBrush(c);
-}
-
-
 /* drag and drop */
 void LGraphicsView::dragMoveEvent(QDragMoveEvent *event){
   if (event->mimeData()->hasUrls()) {
@@ -265,21 +291,21 @@ void LRuler::setOrigin(const qreal origin)
   }
 }
 
-void LRuler::setRulerTickPen(Theme t) {
-  t == ThemeDark ? mRulerTickPen.setColor(THEME_TICK_PEN_DARK) :
-                   mRulerTickPen.setColor(THEME_TICK_PEN_DEFAULT);
-  mRulerTickPen.setWidth(0);  // zero width pen is cosmetic pen
+void LRuler::setRulerTickPen() {
+  // zero width pen is cosmetic pen
+  mRulerTickPen =  QPen(QBrush(QColor(Preferences::sceneRulerTickColor)), 0, Qt::SolidLine);
 }
 
-void LRuler::setRulerNMLPen(Theme t) {
-  t == ThemeDark ? mRulerNMLPen.setColor(THEME_NML_PEN_DARK) :
-                   mRulerNMLPen.setColor(THEME_NML_PEN_DEFAULT);
-  mRulerNMLPen.setWidth(2);
+void LRuler::setRulerNMLPen() {
+  mRulerNMLPen = QPen(QBrush(QColor(Preferences::sceneGridColor)), 2, Qt::SolidLine);
 }
 
-void LRuler::setRulerColor(Theme t){
-  mRulerColor = t == ThemeDark ? QColor(THEME_MAIN_BGCOLOR_DARK) :
-                                 QColor(THEME_MAIN_BGCOLOR_DEFAULT);
+void LRuler::setRulerTrackingPen() {
+  mRulerTrackingPen = QPen(QBrush(QColor(Preferences::sceneRulerTrackingColor)), 2, Qt::SolidLine);
+}
+
+void LRuler::setRulerBackgroundColor(){
+  mRulerBgColor = QColor(Preferences::sceneBackgroundColor);
 }
 
 void LRuler::setRulerUnit(const qreal rulerUnit)
@@ -336,7 +362,7 @@ void LRuler::paintEvent(QPaintEvent* event)
   QRectF rulerRect = this->rect();
 
   // at first fill the rect
-  painter.fillRect(rulerRect,mRulerColor);
+  painter.fillRect(rulerRect,mRulerBgColor);
 
   // drawing a scale of 25
   drawAScaleMeter(&painter,rulerRect,10,(Horizontal == mRulerType ? rulerRect.height()
@@ -417,7 +443,7 @@ void LRuler::drawFromOriginTo(QPainter* painter, QRectF rulerRect, qreal startMa
     if (mDrawText)
     {
       QPainterPath txtPath;
-            txtPath.addText(x1 + 1,y1 + (isHorzRuler ? 7 : -2),this->font(),QString::number(qAbs(int(step) * startTickNo++)));
+      txtPath.addText(x1 + 1,y1 + (isHorzRuler ? 7 : -2),this->font(),QString::number(qAbs(int(step) * startTickNo++)));
       painter->drawPath(txtPath);
       iterate++;
     }
@@ -428,6 +454,10 @@ void LRuler::drawMousePosTick(QPainter* painter)
 {
   if (mMouseTracking)
   {
+    QPen savedPen = painter->pen();
+    QPen pen(mRulerTrackingPen);
+    painter->setPen(pen);
+
     QPoint starPt = mCursorPos;
     QPoint endPt;
     if (Horizontal == mRulerType)
@@ -443,5 +473,6 @@ void LRuler::drawMousePosTick(QPainter* painter)
       endPt.setY(starPt.y());
     }
     painter->drawLine(starPt,endPt);
+    painter->setPen(savedPen);
   }
 }

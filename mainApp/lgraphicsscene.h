@@ -33,13 +33,20 @@ public:
 public slots:
   void bringSelectedItemToFront();
   void sendSelectedItemToBack();
-  void setPageGuides(bool b){
-    mPageGuides = b;
+  void setGuidePen(QString color){
+    guidePen = QPen(QBrush(QColor(color)), 2, Qt::DashLine);
   }
-  void setGuidePen(Theme t){
-    t == ThemeDark ? guidePen.setColor(THEME_GUIDE_PEN_DARK) :
-                     guidePen.setColor(THEME_GUIDE_PEN_DEFAULT);
-    guidePen.setWidth(2);
+  void setGridPen(QString color){
+    gridPen =  QPen(QBrush(QColor(color)), 2, Qt::SolidLine);
+  }
+  void setSceneGuides(bool b){
+    mSceneGuides = b;
+  }
+  void setSnapToGrid(bool b){
+    mSnapToGrid = b;
+  }
+  void setGridSize(int i){
+    mGridSize = i;
   }
 
 protected:
@@ -47,6 +54,8 @@ protected:
   virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+  virtual void drawBackground(QPainter *painter, const QRectF &rect);
+  void snapToGrid();
   void updateGuidePos();
   bool setSelectedItemZValue();
   bool setSelectedItem(const QPointF &);
@@ -54,15 +63,19 @@ protected:
 private:
   // guides
   QPen guidePen;
+  QPen gridPen;
   bool mValidItem;
-  bool mPageGuides;
+  bool mSceneGuides;
   QPointF mGuidePos;
   int mItemType;
   QGraphicsItem *mBaseItem;
   bool mIsItemOnTop;
   bool mIsItemOnBottom;
   bool mShowContextAction;
+  bool mSnapToGrid;
+  int mGridSize;
   qreal minZ,maxZ;
+
 };
 
 extern QHash<SceneObject, QString> soMap;

@@ -125,7 +125,7 @@ void GlobalProjectDialog::accept()
   mi.endMacro();
 
   if (data->clearCache) {
-      clearAndRedrawPage();
+      clearAndReloadModelFile();
   }
 
   QDialog::accept();

@@ -66,11 +66,26 @@ class Preferences
     static bool validLib(const QString &,const QString &);
 #endif
 
-    static void setOverwriteCustomParts(bool);
-    static void setPageGuidesPreference(bool);
-    static void setPageRulerPreference(bool);
+    static void setOverwriteCustomParts(bool);  // NO SOURCE
+    static void setSceneGuidesPreference(bool);
+    static void setSnapToGridPreference(bool);
+    static void setSnapGridTransBkgrndPreference(bool);
+    static void setGridSizeIndexPreference(int);
+    static void setSceneRulerPreference(bool);
+    static void setSceneRulerTrackingPreference(bool);
     static void setShowParseErrorsPreference(bool);
     static void setStdOutToLogPreference(bool);
+
+    static void setCustomSceneBackgroundColorPreference(bool = true);
+    static void setCustomSceneGridColorPreference(bool = true);
+    static void setCustomSceneRulerTickColorPreference(bool = true);
+    static void setCustomSceneRulerTrackingColorPreference(bool = true);
+    static void setCustomSceneGuideColorPreference(bool = true);
+    static void setSceneBackgroundColorPreference(QString);
+    static void setSceneGridColorPreference(QString);
+    static void setSceneRulerTickColorPreference(QString);
+    static void setSceneRulerTrackingColorPreference(QString);
+    static void setSceneGuideColorPreference(QString);
 
     static QString lpub3dAppName;
     static QString ldrawLibPath;
@@ -157,6 +172,12 @@ class Preferences
     static QString ldrawSearchDirsKey;
     static QString ldrawLibPathKey;
 
+    static QString sceneBackgroundColor;
+    static QString sceneGridColor;
+    static QString sceneRulerTickColor;
+    static QString sceneRulerTrackingColor;
+    static QString sceneGuideColor;
+
     static QStringList ldgliteParms;
     static QStringList ldSearchDirs;
 
@@ -224,6 +245,7 @@ class Preferences
     static int     checkUpdateFrequency;
     static int     pageWidth;
     static int     pageHeight;
+    static int     gridSizeIndex;
     static int     pageDisplayPause;
     static int     rendererTimeout;
     static int     povrayRenderQuality;
@@ -232,10 +254,19 @@ class Preferences
     static bool    isAppImagePayload;
     static bool    modeGUI;
 
-    static bool    pageRuler;
-    static bool    pageGuides;
+    static bool    sceneRuler;
+    static bool    sceneRulerTracking;
+    static bool    sceneGuides;
+    static bool    snapToGrid;
+    static bool    snapGridTransBkgrnd;
     static bool    showParseErrors;
     static bool    suppressStdOutToLog;
+
+    static bool    customSceneBackgroundColor;
+    static bool    customSceneGridColor;
+    static bool    customSceneRulerTickColor;
+    static bool    customSceneRulerTrackingColor;
+    static bool    customSceneGuideColor;
 
 #ifdef Q_OS_MAC
     static bool    missingRendererLibs;

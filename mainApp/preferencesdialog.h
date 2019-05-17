@@ -36,7 +36,7 @@ class PreferencesDialog : public QDialog
   Q_OBJECT
   
   public:
-    explicit PreferencesDialog(QWidget *parent = 0);
+    explicit PreferencesDialog(QWidget *parent = nullptr);
     ~PreferencesDialog();
 	
     QString const ldrawLibPath();
@@ -58,6 +58,11 @@ class PreferencesDialog : public QDialog
     QString const highlightStepColour();
     QString const povFileGenerator();
     QString const displayTheme();
+    QString const sceneBackgroundColor();
+    QString const sceneGridColor();
+    QString const sceneRulerTickColor();
+    QString const sceneRulerTrackingColor();
+    QString const sceneGuideColor();
     QStringList const searchDirSettings();
     bool          themeAutoRestart();
     bool          displayAllAttributes();
@@ -90,6 +95,7 @@ class PreferencesDialog : public QDialog
     bool          addLSynthSearchDir();
     bool          archiveLSynthParts();
     bool          perspectiveProjection();
+    bool          resetSceneColors();
 
     bool          loggingGrpBox();
     bool          logLevelGrpBox();
@@ -151,9 +157,12 @@ class PreferencesDialog : public QDialog
     void on_povGenLDViewRadio_clicked(bool checked);
     void on_ldviewSingleCall_Chk_clicked(bool checked);
 
+    void on_resetSceneColorsButton_clicked(bool checked);
+
     void ldvPoVFileGenOptBtn_clicked();
     void ldvPoVFileGenPrefBtn_clicked();
 
+    void sceneColorButtonClicked();
     void pushButtonReset_SetState();
     void updateChangelog (QString url);
     void checkForUpdates();
@@ -167,6 +176,12 @@ private:
     static QString   DEFS_URL;
     QString ldrawLibPathTitle;
     QString mLDrawLibPath;
+    QString sceneBackgroundColorStr;
+    QString sceneGridColorStr;
+    QString sceneRulerTickColorStr;
+    QString sceneRulerTrackingColorStr;
+    QString sceneGuideColorStr;
+    bool resetSceneColorsFlag;
 };
 
 #endif

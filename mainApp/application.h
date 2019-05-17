@@ -162,7 +162,7 @@ private:
     }
 
 void clearCustomPartCache(bool silent = false);
-void clearAndRedrawPage();
+void clearAndReloadModelFile();
 void reloadCurrentPage();
 void restartApplication();
 #endif // APPLICATION_H

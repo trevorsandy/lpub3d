@@ -140,6 +140,12 @@ QString Preferences::ld2blCodesXRefFile         = VER_LPUB3D_LD2BLCODESXREF_FILE
 QString Preferences::ld2rbColorsXRefFile        = VER_LPUB3D_LD2RBCOLORSXREF_FILE;
 QString Preferences::ld2rbCodesXRefFile         = VER_LPUB3D_LD2RBCODESXREF_FILE;
 
+QString Preferences::sceneBackgroundColor       = THEME_SCENE_BGCOLOR_DEFAULT;
+QString Preferences::sceneGridColor             = THEME_GRID_PEN_DEFAULT;
+QString Preferences::sceneRulerTickColor        = THEME_RULER_TICK_PEN_DEFAULT;
+QString Preferences::sceneRulerTrackingColor    = THEME_RULER_TRACK_PEN_DEFAULT;
+QString Preferences::sceneGuideColor            = THEME_GUIDE_PEN_DEFAULT;
+
 bool    Preferences::usingDefaultLibrary        = true;
 bool    Preferences::portableDistribution       = false;
 bool    Preferences::perspectiveProjection      = false;
@@ -204,11 +210,20 @@ bool    Preferences::fadeStepsUseColour         = false;
 bool    Preferences::enableHighlightStep        = false;
 bool    Preferences::enableImageMatting         = false;
 
-bool    Preferences::pageRuler                  = false;
-bool    Preferences::pageGuides                 = false;
+bool    Preferences::sceneRuler                 = false;
+bool    Preferences::sceneRulerTracking         = false;
+bool    Preferences::sceneGuides                = false;
+bool    Preferences::snapToGrid                 = false;
+bool    Preferences::snapGridTransBkgrnd        = false;
 bool    Preferences::showParseErrors            = true;
 bool    Preferences::suppressStdOutToLog        = false;
 bool    Preferences::highlightFirstStep         = false;
+
+bool    Preferences::customSceneBackgroundColor = false;
+bool    Preferences::customSceneGridColor       = false;
+bool    Preferences::customSceneRulerTickColor  = false;
+bool    Preferences::customSceneRulerTrackingColor = false;
+bool    Preferences::customSceneGuideColor      = false;
 
 #ifdef Q_OS_MAC
 bool    Preferences::missingRendererLibs        = false;
@@ -220,6 +235,7 @@ int     Preferences::highlightStepLineWidth     = HIGHLIGHT_LINE_WIDTH_DEFAULT; 
 
 int     Preferences::checkUpdateFrequency       = UPDATE_CHECK_FREQUENCY_DEFAULT;    //0=Never,1=Daily,2=Weekly,3=Monthly
 
+int     Preferences::gridSizeIndex              = GRID_SIZE_INDEX_DEFAULT;
 int     Preferences::pageHeight                 = PAGE_HEIGHT_DEFAULT;
 int     Preferences::pageWidth                  = PAGE_WIDTH_DEFAULT;
 int     Preferences::rendererTimeout            = RENDERER_TIMEOUT_DEFAULT;          // measured in seconds
@@ -2691,6 +2707,14 @@ void Preferences::userInterfacePreferences()
 {
   QSettings Settings;
 
+  QString const displayThemeKey("DisplayTheme");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,displayThemeKey))) {
+          displayTheme = THEME_DEFAULT;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,displayThemeKey),displayTheme);
+  } else {
+          displayTheme = Settings.value(QString("%1/%2").arg(SETTINGS,displayThemeKey)).toString();
+  }
+
   QString const themeAutoRestartKey("ThemeAutoRestart");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,themeAutoRestartKey))) {
           QVariant uValue(false);
@@ -2700,30 +2724,152 @@ void Preferences::userInterfacePreferences()
           themeAutoRestart = Settings.value(QString("%1/%2").arg(SETTINGS,themeAutoRestartKey)).toBool();
   }
 
-  QString const pageRulerKey("PageRuler");
-  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,pageRulerKey))) {
+  QString const sceneRulerKey("SceneRuler");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneRulerKey))) {
           QVariant uValue(false);
-          pageRuler = false;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,pageRulerKey),uValue);
+          sceneRuler = false;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerKey),uValue);
   } else {
-          pageRuler = Settings.value(QString("%1/%2").arg(SETTINGS,pageRulerKey)).toBool();
+          sceneRuler = Settings.value(QString("%1/%2").arg(SETTINGS,sceneRulerKey)).toBool();
   }
 
-  QString const pageGuidesKey("PageGuides");
-  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,pageGuidesKey))) {
+  QString const sceneRulerTrackingKey("SceneRulerTracking");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingKey))) {
           QVariant uValue(false);
-          pageGuides = false;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,pageGuidesKey),uValue);
+          sceneRulerTracking = false;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingKey),uValue);
   } else {
-          pageGuides = Settings.value(QString("%1/%2").arg(SETTINGS,pageGuidesKey)).toBool();
+          sceneRulerTracking = Settings.value(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingKey)).toBool();
   }
 
-  QString const displayThemeKey("DisplayTheme");
-  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,displayThemeKey))) {
-          displayTheme = THEME_DEFAULT;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,displayThemeKey),displayTheme);
+  QString const sceneGuidesKey("SceneGuides");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneGuidesKey))) {
+          QVariant uValue(false);
+          sceneGuides = false;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGuidesKey),uValue);
   } else {
-          displayTheme = Settings.value(QString("%1/%2").arg(SETTINGS,displayThemeKey)).toString();
+          sceneGuides = Settings.value(QString("%1/%2").arg(SETTINGS,sceneGuidesKey)).toBool();
+  }
+
+  QString const customSceneBackgroundColorKey("CustomSceneBackgroundColor");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,customSceneBackgroundColorKey))) {
+          QVariant uValue(false);
+          customSceneBackgroundColor = false;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,customSceneBackgroundColorKey),uValue);
+  } else {
+          customSceneBackgroundColor = Settings.value(QString("%1/%2").arg(SETTINGS,customSceneBackgroundColorKey)).toBool();
+  }
+
+  QString const customSceneGridColorKey("CustomSceneGridColor");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,customSceneGridColorKey))) {
+          QVariant uValue(false);
+          customSceneGridColor = false;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,customSceneGridColorKey),uValue);
+  } else {
+          customSceneGridColor = Settings.value(QString("%1/%2").arg(SETTINGS,customSceneGridColorKey)).toBool();
+  }
+
+  QString const customSceneRulerTickColorKey("CustomSceneRulerTickColor");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,customSceneRulerTickColorKey))) {
+          QVariant uValue(false);
+          customSceneRulerTickColor = false;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,customSceneRulerTickColorKey),uValue);
+  } else {
+          customSceneRulerTickColor = Settings.value(QString("%1/%2").arg(SETTINGS,customSceneRulerTickColorKey)).toBool();
+  }
+
+  QString const customSceneRulerTrackingColorKey("CustomSceneRulerTrackingColor");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,customSceneRulerTrackingColorKey))) {
+          QVariant uValue(false);
+          customSceneRulerTrackingColor = false;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,customSceneRulerTrackingColorKey),uValue);
+  } else {
+          customSceneRulerTrackingColor = Settings.value(QString("%1/%2").arg(SETTINGS,customSceneRulerTrackingColorKey)).toBool();
+  }
+
+  QString const customSceneGuideColorKey("CustomSceneGuideColor");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,customSceneGuideColorKey))) {
+          QVariant uValue(false);
+          customSceneGuideColor = false;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,customSceneGuideColorKey),uValue);
+  } else {
+          customSceneGuideColor = Settings.value(QString("%1/%2").arg(SETTINGS,customSceneGuideColorKey)).toBool();
+  }
+
+  QString const sceneBackgroundColorKey("SceneBackgroundColor");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneBackgroundColorKey))) {
+          displayTheme == THEME_DARK ?
+          sceneBackgroundColor = THEME_SCENE_BGCOLOR_DARK :
+          sceneBackgroundColor = THEME_SCENE_BGCOLOR_DEFAULT;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneBackgroundColorKey),sceneBackgroundColor);
+  } else {
+          sceneBackgroundColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneBackgroundColorKey)).toString();
+  }
+
+  QString const sceneGridColorKey("SceneGridColor");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneGridColorKey))) {
+          displayTheme == THEME_DARK ?
+          sceneGridColor = THEME_GRID_PEN_DARK :
+          sceneGridColor = THEME_GRID_PEN_DEFAULT;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGridColorKey),sceneGridColor);
+  } else {
+          sceneGridColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneGridColorKey)).toString();
+  }
+
+  QString const sceneRulerTickColorKey("SceneRulerTickColor");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneRulerTickColorKey))) {
+          displayTheme == THEME_DARK ?
+          sceneRulerTickColor = THEME_RULER_TICK_PEN_DARK :
+          sceneRulerTickColor = THEME_RULER_TICK_PEN_DEFAULT;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTickColorKey),sceneRulerTickColor);
+  } else {
+          sceneRulerTickColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneRulerTickColorKey)).toString();
+  }
+
+  QString const sceneRulerTrackingColorKey("SceneRulerTrackingColor");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingColorKey))) {
+          displayTheme == THEME_DARK ?
+          sceneRulerTrackingColor = THEME_RULER_TRACK_PEN_DARK :
+          sceneRulerTrackingColor = THEME_RULER_TRACK_PEN_DEFAULT;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingColorKey),sceneRulerTrackingColor);
+  } else {
+          sceneRulerTrackingColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingColorKey)).toString();
+  }
+
+  QString const sceneGuideColorKey("SceneGuideColor");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneGuideColorKey))) {
+          displayTheme == THEME_DARK ?
+          sceneGuideColor = THEME_GUIDE_PEN_DARK :
+          sceneGuideColor = THEME_GUIDE_PEN_DEFAULT;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGuideColorKey),sceneGuideColor);
+  } else {
+          sceneGuideColor = Settings.value(QString("%1/%2").arg(SETTINGS,sceneGuideColorKey)).toString();
+  }
+
+  QString const snapToGridKey("SnapToGrid");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,snapToGridKey))) {
+          QVariant uValue(false);
+          snapToGrid = false;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,snapToGridKey),uValue);
+  } else {
+          snapToGrid = Settings.value(QString("%1/%2").arg(SETTINGS,snapToGridKey)).toBool();
+  }
+
+  QString const snapGridTransBkgrndKey("SnapToGridTransparentPageBackground");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,snapGridTransBkgrndKey))) {
+          QVariant uValue(false);
+          snapGridTransBkgrnd = false;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,snapGridTransBkgrndKey),uValue);
+  } else {
+          snapGridTransBkgrnd = Settings.value(QString("%1/%2").arg(SETTINGS,snapGridTransBkgrndKey)).toBool();
+  }
+
+  QString const gridSizeIndexKey("GridSizeIndex");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,gridSizeIndexKey))) {
+      gridSizeIndex = GRID_SIZE_INDEX_DEFAULT;
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,gridSizeIndexKey),gridSizeIndex);
+  } else {
+      gridSizeIndex = Settings.value(QString("%1/%2").arg(SETTINGS,gridSizeIndexKey)).toInt();
   }
 
   QString const showParseErrorsKey("ShowParseErrors");
@@ -2765,25 +2911,6 @@ void Preferences::userInterfacePreferences()
   }
 }
 
-
-void Preferences::setPageGuidesPreference(bool b)
-{
-  QSettings Settings;
-  pageGuides = b;
-  QVariant uValue(b);
-  QString const pageGuidesKey("PageGuides");
-  Settings.setValue(QString("%1/%2").arg(SETTINGS,pageGuidesKey),uValue);
-}
-
-void Preferences::setPageRulerPreference(bool b)
-{
-  QSettings Settings;
-  pageRuler = b;
-  QVariant uValue(b);
-  QString const pageRulerKey("PageRuler");
-  Settings.setValue(QString("%1/%2").arg(SETTINGS,pageRulerKey),uValue);
-}
-
 void Preferences::setShowParseErrorsPreference(bool b)
 {
   QSettings Settings;
@@ -2791,6 +2918,150 @@ void Preferences::setShowParseErrorsPreference(bool b)
   QVariant uValue(b);
   QString const showParseErrorsKey("ShowParseErrors");
   Settings.setValue(QString("%1/%2").arg(SETTINGS,showParseErrorsKey),uValue);
+}
+
+void Preferences::setSnapToGridPreference(bool b)
+{
+  QSettings Settings;
+  snapToGrid = b;
+  QVariant uValue(b);
+  QString const snapToGridKey("SnapToGrid");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,snapToGridKey),uValue);
+}
+
+void Preferences::setSnapGridTransBkgrndPreference(bool b)
+{
+  QSettings Settings;
+  snapGridTransBkgrnd = b;
+  QVariant uValue(b);
+  QString const snapGridTransBkgrndKey("SnapToGridTransparentPageBackground");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,snapGridTransBkgrndKey),uValue);
+}
+
+void Preferences::setGridSizeIndexPreference(int i)
+{
+  QSettings Settings;
+  gridSizeIndex = i;
+  QVariant uValue(i);
+  QString const gridSizeIndex("GridSizeIndex");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,gridSizeIndex),uValue);
+}
+
+void Preferences::setSceneGuidesPreference(bool b)
+{
+  QSettings Settings;
+  sceneGuides = b;
+  QVariant uValue(b);
+  QString const sceneGuidesKey("SceneGuides");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGuidesKey),uValue);
+}
+
+void Preferences::setSceneRulerPreference(bool b)
+{
+  QSettings Settings;
+  sceneRuler = b;
+  QVariant uValue(b);
+  QString const sceneRulerKey("SceneRuler");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerKey),uValue);
+}
+
+void Preferences::setSceneRulerTrackingPreference(bool b)
+{
+  QSettings Settings;
+  sceneRulerTracking = b;
+  QVariant uValue(b);
+  QString const sceneRulerTrackingKey("SceneRulerTracking");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingKey),uValue);
+}
+
+void Preferences::setCustomSceneBackgroundColorPreference(bool b)
+{
+  QSettings Settings;
+  customSceneBackgroundColor = b;
+  QVariant uValue(b);
+  QString const sceneBackgroundColorKey("CustomSceneBackgroundColor");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneBackgroundColorKey),uValue);
+}
+
+void Preferences::setCustomSceneGridColorPreference(bool b)
+{
+  QSettings Settings;
+  customSceneGridColor = b;
+  QVariant uValue(b);
+  QString const sceneGridColorKey("CustomSceneGridColor");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGridColorKey),uValue);
+}
+
+void Preferences::setCustomSceneRulerTickColorPreference(bool b)
+{
+  QSettings Settings;
+  customSceneRulerTickColor = b;
+  QVariant uValue(b);
+  QString const sceneRulerTickColorKey("CustomSceneRulerTickColor");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTickColorKey),uValue);
+}
+
+void Preferences::setCustomSceneRulerTrackingColorPreference(bool b)
+{
+  QSettings Settings;
+  customSceneRulerTrackingColor = b;
+  QVariant uValue(b);
+  QString const sceneRulerTrackingColorKey("CustomSceneRulerTrackingColor");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingColorKey),uValue);
+}
+
+void Preferences::setCustomSceneGuideColorPreference(bool b)
+{
+  QSettings Settings;
+  customSceneGuideColor = b;
+  QVariant uValue(b);
+  QString const sceneGuideColorKey("CustomSceneGuideColor");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGuideColorKey),uValue);
+}
+
+void Preferences::setSceneBackgroundColorPreference(QString s)
+{
+  QSettings Settings;
+  sceneBackgroundColor = s;
+  QVariant uValue(s);
+  QString const sceneBackgroundColorKey("SceneBackgroundColor");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneBackgroundColorKey),uValue);
+}
+
+void Preferences::setSceneGridColorPreference(QString s)
+{
+  QSettings Settings;
+  sceneGridColor = s;
+  QVariant uValue(s);
+  QString const sceneGridColorKey("SceneGridColor");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGridColorKey),uValue);
+}
+
+void Preferences::setSceneRulerTickColorPreference(QString s)
+{
+  QSettings Settings;
+  sceneRulerTickColor = s;
+  QVariant uValue(s);
+  QString const sceneRulerTickColorKey("SceneRulerTickColor");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTickColorKey),uValue);
+}
+
+void Preferences::setSceneRulerTrackingColorPreference(QString s)
+{
+  QSettings Settings;
+  sceneRulerTrackingColor = s;
+  QVariant uValue(s);
+  QString const sceneRulerTrackingColorKey("SceneRulerTrackingColor");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingColorKey),uValue);
+}
+
+void Preferences::setSceneGuideColorPreference(QString s)
+{
+  QSettings Settings;
+  sceneGuideColor = s;
+  QVariant uValue(s);
+  QString const sceneGuideColorKey("SceneGuideColor");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGuideColorKey),uValue);
 }
 
 void Preferences::annotationPreferences()
@@ -3551,6 +3822,57 @@ bool Preferences::getPreferences()
         if (displayTheme != dialog->displayTheme()){
             displayTheme = dialog->displayTheme();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"DisplayTheme"),displayTheme);
+        }
+
+        if (sceneBackgroundColor != dialog->sceneBackgroundColor()){
+            sceneBackgroundColor = dialog->sceneBackgroundColor();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneBackgroundColor"),sceneBackgroundColor);
+            setCustomSceneBackgroundColorPreference(true);
+        }
+
+        if (sceneGridColor != dialog->sceneGridColor()){
+            sceneGridColor = dialog->sceneGridColor();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneGridColor"),sceneGridColor);
+            setCustomSceneGridColorPreference(true);
+        }
+
+        if (sceneRulerTickColor != dialog->sceneRulerTickColor()){
+            sceneRulerTickColor = dialog->sceneRulerTickColor();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneRulerTickColor"),sceneRulerTickColor);
+            setCustomSceneRulerTickColorPreference(true);
+        }
+
+        if (sceneRulerTrackingColor != dialog->sceneRulerTrackingColor()){
+            sceneRulerTrackingColor = dialog->sceneRulerTrackingColor();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneRulerTrackingColor"),sceneRulerTrackingColor);
+            setCustomSceneRulerTrackingColorPreference(true);
+        }
+
+        if (sceneGuideColor != dialog->sceneGuideColor()){
+            sceneGuideColor = dialog->sceneGuideColor();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneGuideColor"),sceneGuideColor);
+            setCustomSceneGuideColorPreference(true);
+        }
+
+        if (dialog->resetSceneColors()) {
+            if (displayTheme == THEME_DARK) {
+                sceneBackgroundColor = THEME_SCENE_BGCOLOR_DARK;
+                sceneGridColor = THEME_GRID_PEN_DARK;
+                sceneRulerTickColor = THEME_RULER_TICK_PEN_DARK;
+                sceneRulerTrackingColor = THEME_RULER_TRACK_PEN_DARK;
+                sceneGuideColor = THEME_GUIDE_PEN_DARK;
+            } else {
+                sceneBackgroundColor = THEME_SCENE_BGCOLOR_DEFAULT;
+                sceneGridColor = THEME_GRID_PEN_DEFAULT;
+                sceneRulerTickColor = THEME_RULER_TICK_PEN_DEFAULT;
+                sceneRulerTrackingColor = THEME_RULER_TRACK_PEN_DEFAULT;
+                sceneGuideColor = THEME_GUIDE_PEN_DEFAULT;
+            }
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneBackgroundColor"),sceneBackgroundColor);
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneGridColor"),sceneGridColor);
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneRulerTickColor"),sceneRulerTickColor);
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneRulerTrackingColor"),sceneRulerTrackingColor);
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"SceneGuideColor"),sceneGuideColor);
         }
 
         if (themeAutoRestart != dialog->themeAutoRestart())

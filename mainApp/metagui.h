@@ -37,7 +37,7 @@
 #include "gradients.h"
 
 void clearPliCache();
-void clearAndRedrawPage();
+void clearAndReloadModelFile();
 void clearCsiCache();
 void clearSubmodelCache();
 void clearPliCache();

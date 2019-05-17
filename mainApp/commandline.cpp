@@ -249,11 +249,14 @@ int Gui::processCommandLine()
       }
     }
 
-  if (Preferences::pageGuides)
-      Preferences::setPageGuidesPreference(false);
+  if (Preferences::sceneGuides)
+      Preferences::setSceneGuidesPreference(false);
 
-  if (Preferences::pageRuler)
-      Preferences::setPageRulerPreference(false);
+  if (Preferences::sceneRuler)
+      Preferences::setSceneRulerPreference(false);
+
+  if (Preferences::snapToGrid)
+      Preferences::setSnapToGridPreference(false);
 
   if (fadeSteps && fadeSteps != Preferences::enableFadeSteps) {
       Preferences::enableFadeSteps = fadeSteps;

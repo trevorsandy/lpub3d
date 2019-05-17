@@ -237,20 +237,6 @@ int Gui::addGraphicsPageItems(
 //  logDebug() << QString("  DRAW PAGE %3 SIZE PIXELS - WidthPx: %1 x HeightPx: %2 CurPage: %3")
 //                .arg(QString::number(pW), QString::number(pH)).arg(stepPageNum);
 
-  if (page->meta.LPub.page.background.value().type == BackgroundData::BgTransparent && ! exporting()){
-      BorderData borderData = page->meta.LPub.page.border.value();
-      if (borderData.useDefault) {
-          borderData.type      = BorderData::BdrSquare;
-          borderData.line      = BorderData::BdrLnDash;
-          borderData.color     = "#535559";
-          borderData.thickness = DEFAULT_THICKNESS;
-          borderData.radius    = 0;
-          borderData.margin[0] = DEFAULT_MARGIN;
-          borderData.margin[1] = DEFAULT_MARGIN;
-          page->meta.LPub.page.border.setValueInches(borderData);
-        }
-    }
-
   pageBg = new PageBackgroundItem(page, pW, pH, exporting());
 
   view->pageBackgroundItem = pageBg;
@@ -938,13 +924,15 @@ int Gui::addGraphicsPageItems(
 
   if ( ! printing) {
 
-      QGraphicsDropShadowEffect *bodyShadow = new QGraphicsDropShadowEffect;
-      bodyShadow->setBlurRadius(9.0);
-      bodyShadow->setColor(QColor(0, 0, 0, 160));
-      bodyShadow->setOffset(4.0);
+      if (pageBg->background.value().type != BackgroundData::BgTransparent){
 
-      if (page->meta.LPub.page.background.value().type != BackgroundData::BgTransparent)
-        pageBg->setGraphicsEffect(bodyShadow);
+          QGraphicsDropShadowEffect *bodyShadow = new QGraphicsDropShadowEffect;
+          bodyShadow->setBlurRadius(9.0);
+          bodyShadow->setColor(QColor(0, 0, 0, 160));
+          bodyShadow->setOffset(4.0);
+
+          pageBg->setGraphicsEffect(bodyShadow);
+      }
 
       view->horizontalScrollBar()->setRange(0,int(pageSize(page->meta.LPub.page, 0)));
       view->verticalScrollBar()->setRange(  0,int(pageSize(page->meta.LPub.page, 1)));

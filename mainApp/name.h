@@ -25,6 +25,13 @@ extern Gui *gui;
 class LDVWidget;
 extern LDVWidget *ldvWidget;
 
+struct SnapGridCommands
+{
+    const char* ID;
+    const char* MenuName;
+    const char* StatusText;
+};
+
 enum PartType { FADE_PART, HIGHLIGHT_PART, NORMAL_PART, NUM_PART_TYPES };
 enum PliType { PART, SUBMODEL, BOM, NUM_PLI_TYPES };
 enum LogType { LOG_STATUS, LOG_INFO, LOG_TRACE, LOG_DEBUG, LOG_NOTICE, LOG_ERROR, LOG_INFO_STATUS, LOG_FATAL, LOG_QWARNING, LOG_QDEBUG };
@@ -34,6 +41,25 @@ enum LibType { LibLEGO, LibTENTE, LibVEXIQ, NumLibs };
 enum Theme { ThemeDark, ThemeDefault };
 enum SceneObjectDirection { BringToFront = 1/*True*/, SendToBack = 0/*False*/ };
 enum SceneObjectInfo { ObjectId };
+enum GridStepSize {
+    GRID_SIZE_FIRST,
+    SCENE_GRID_SIZE_S1 = GRID_SIZE_FIRST,
+    SCENE_GRID_SIZE_S2,
+    SCENE_GRID_SIZE_S3,
+    SCENE_GRID_SIZE_S4,
+    SCENE_GRID_SIZE_S5,
+    SCENE_GRID_SIZE_S6,
+    SCENE_GRID_SIZE_S7,
+    SCENE_GRID_SIZE_S8,
+    SCENE_GRID_SIZE_S9,
+    GRID_SIZE_LAST = SCENE_GRID_SIZE_S9,
+    NUM_GRID_SIZES
+};
+
+const int GridSizeTable[] = { 10, 20, 30, 40, 50, 60, 70, 80, 90 };
+
+extern SnapGridCommands sgCommands[NUM_GRID_SIZES];
+
 enum SceneObject {
     AssemAnnotationObj       = 35, //  0 CsiAnnotationType
     AssemAnnotationPartObj   = 27, //  1 CsiPartType
@@ -112,7 +138,7 @@ static const SceneObject IncludedSceneObjects[] =
 };
 
 // TODO - Temporary abort processing list
-static const SceneObject AbortSceneObjects[] =
+static const SceneObject NoContextSceneObjects[] =
 {
     MultiStepBackgroundObj,
     MultiStepsBackgroundObj,
@@ -203,6 +229,8 @@ static const SceneObject AbortSceneObjects[] =
 #define DEFAULT       0
 #define NEXT          1
 #define PREVIOUS      2
+
+#define GRID_SIZE_INDEX_DEFAULT               1 // 20
 
 #define GHOST_META    "0 GHOST"
 
@@ -304,11 +332,14 @@ static const SceneObject AbortSceneObjects[] =
 
 // Team color supplements
 #define THEME_DEFAULT                   "Default" // Default Theme
-#define THEME_TICK_PEN_DEFAULT          "#35322f" // Qt Dark Grey
-#define THEME_NML_PEN_DEFAULT           "#1e1b18" // Qt Double Dark Grey
+#define THEME_SCENE_BGCOLOR_DEFAULT     "#aeadac" // Qt Light Gray
+#define THEME_GRID_PEN_DEFAULT          "#1e1b18" // Qt Double Dark Grey
+#define THEME_RULER_TICK_PEN_DEFAULT    "#35322f" // Qt Dark Grey
+#define THEME_RULER_TRACK_PEN_DEFAULT   "#00FF00" // Custom Neon Green
 #define THEME_GUIDE_PEN_DEFAULT         "#aa0000" // LPub3D Maroon
-#define THEME_MAIN_BGCOLOR_DEFAULT      "#aeadac" // Qt Light Gray
+#define THEME_TRANS_PAGE_BORDER_DEFAULT "#535559" // Custom Gray
 #define THEME_VIEWER_BGCOLOR_DEFAULT    "#ffffff" // Qt White
+#define THEME_NML_PEN_DEFAULT           "#1e1b18" // Qt Double Dark Grey [NOT USED]
 
 #define THEME_HIGHLIGHT_01_DEFAULT      "#006325" // 01 [LDraw Comments]
 #define THEME_HIGHLIGHT_02_DEFAULT      "#4f97ba" // 02 [LDraw Header]
@@ -353,12 +384,15 @@ static const SceneObject AbortSceneObjects[] =
 // -----------------------------------------------//
 
 #define THEME_DARK                      "Dark"    // Dark Theme
-#define THEME_TICK_PEN_DARK             "#eff0f1" // Custom Pale Grey
-#define THEME_NML_PEN_DARK              "#ffffff" // Qt White
-#define THEME_GUIDE_PEN_DARK           "#aa0000" // LPub3D Maroon
-#define THEME_MAIN_BGCOLOR_DARK         "#31363b" // Custom Dark Grey
+#define THEME_SCENE_BGCOLOR_DARK        "#31363b" // Custom Dark Grey
+#define THEME_GRID_PEN_DARK             "#ffffff" // Qt White
+#define THEME_RULER_TICK_PEN_DARK       "#eff0f1" // Custom Pale Grey
+#define THEME_RULER_TRACK_PEN_DARK      "#00FF00" // Custom Neon Green
+#define THEME_GUIDE_PEN_DARK            "#aa0000" // LPub3D Maroon
 #define THEME_VIEWER_BGCOLOR_DARK       "#808B96" // Custom Grey
 #define THEME_EDIT_MARGIN_DARK          "#ABB2B9" // Custom Gray
+#define THEME_TRANS_PAGE_BORDER_DARK    "#aeadac" // Qt Light Gray
+#define THEME_NML_PEN_DARK              "#ffffff" // Qt White [NOT USED]
 
 #define THEME_HIGHLIGHT_01_DARK         "#17c723" // 01 [LDraw Comment]
 #define THEME_HIGHLIGHT_02_DARK         "#fb743e" // 02 [LDraw Header]

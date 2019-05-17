@@ -989,7 +989,7 @@ void lcApplication::ShowPreferencesDialog()
     }
     else
     if (redrawPage) {
-        clearAndRedrawPage();
+        clearAndReloadModelFile();
     }
     else
     if (reloadPage) {
