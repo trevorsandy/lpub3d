@@ -147,32 +147,32 @@ class GlobalPliDialog : public QDialog
 private:
   GlobalPliPrivate *data;
 
-  QRadioButton     *noStyle;
+  QRadioButton     *noStyleButton;
   QGroupBox        *annotationEditStyleBox;
   PliAnnotationGui *childPliAnnotation;
   PliPartElementGui*childPliPartElement;
   NumberGui        *childTextFormat;
-  NumberMeta        styleMeta;
+  NumberMeta       *styleMeta;
 
-  QRadioButton     *squareStyle;
+  QRadioButton     *squareStyleButton;
   QGroupBox        *squareBkGrndStyleBox;
   QGroupBox        *squareBorderStyleBox;
   QGroupBox        *squareFormatStyleBox;
   QGroupBox        *squareSizeStyleBox;
 
-  QRadioButton     *circleStyle;
+  QRadioButton     *circleStyleButton;
   QGroupBox        *circleBkGrndStyleBox;
   QGroupBox        *circleBorderStyleBox;
   QGroupBox        *circleFormatStyleBox;
   QGroupBox        *circleSizeStyleBox;
 
-  QRadioButton     *elementStyle;
+  QRadioButton     *elementStyleButton;
   QGroupBox        *elementBkGrndStyleBox;
   QGroupBox        *elementBorderStyleBox;
   QGroupBox        *elementFormatStyleBox;
   QGroupBox        *elementSizeStyleBox;
 
-  QRadioButton     *rectangleStyle;
+  QRadioButton     *rectangleStyleButton;
   QGroupBox        *rectangleBkGrndStyleBox;
   QGroupBox        *rectangleBorderStyleBox;
   QGroupBox        *rectangleFormatStyleBox;

@@ -274,36 +274,36 @@ GlobalPliDialog::GlobalPliDialog(
   QHBoxLayout *shlayout = new QHBoxLayout(nullptr);
   sbox->setLayout(shlayout);
 
-  noStyle = new QRadioButton("None",sbox);
-  noStyle->setChecked(true);
-  connect(noStyle,SIGNAL(clicked(bool)),
+  noStyleButton = new QRadioButton("None",sbox);
+  noStyleButton->setChecked(true);
+  connect(noStyleButton,SIGNAL(clicked(bool)),
           this,   SLOT(  styleOptionChanged(bool)));
-  shlayout->addWidget(noStyle);
+  shlayout->addWidget(noStyleButton);
 
-  squareStyle = new QRadioButton("Square",sbox);
-  squareStyle->setChecked(false);
-  connect(squareStyle,SIGNAL(clicked(bool)),
+  squareStyleButton = new QRadioButton("Square",sbox);
+  squareStyleButton->setChecked(false);
+  connect(squareStyleButton,SIGNAL(clicked(bool)),
           this,       SLOT(  styleOptionChanged(bool)));
-  shlayout->addWidget(squareStyle);
+  shlayout->addWidget(squareStyleButton);
 
-  circleStyle = new QRadioButton("Circle",sbox);
-  circleStyle->setChecked(false);
-  connect(circleStyle,SIGNAL(clicked(bool)),
+  circleStyleButton = new QRadioButton("Circle",sbox);
+  circleStyleButton->setChecked(false);
+  connect(circleStyleButton,SIGNAL(clicked(bool)),
           this,       SLOT(  styleOptionChanged(bool)));
-  shlayout->addWidget(circleStyle);
+  shlayout->addWidget(circleStyleButton);
 
-  rectangleStyle = new QRadioButton("Rectangle",sbox);
-  rectangleStyle->setChecked(false);
-  connect(rectangleStyle,SIGNAL(clicked(bool)),
+  rectangleStyleButton = new QRadioButton("Rectangle",sbox);
+  rectangleStyleButton->setChecked(false);
+  connect(rectangleStyleButton,SIGNAL(clicked(bool)),
           this,          SLOT(  styleOptionChanged(bool)));
-  shlayout->addWidget(rectangleStyle);
+  shlayout->addWidget(rectangleStyleButton);
 
   if (bom) {
-      elementStyle = new QRadioButton("Element",sbox);
-      elementStyle->setChecked(false);
-      connect(elementStyle,SIGNAL(clicked(bool)),
+      elementStyleButton = new QRadioButton("Element",sbox);
+      elementStyleButton->setChecked(false);
+      connect(elementStyleButton,SIGNAL(clicked(bool)),
               this,        SLOT(  styleOptionChanged(bool)));
-      shlayout->addWidget(elementStyle);
+      shlayout->addWidget(elementStyleButton);
   }
 
   // square style settings
@@ -322,10 +322,11 @@ GlobalPliDialog::GlobalPliDialog(
   squareFormatStyleBox = new QGroupBox("Square Annotation Text Format");
   svlayout->addWidget(squareFormatStyleBox);
   squareFormatStyleBox->hide();
-  styleMeta.margin = pliMeta->squareStyle.margin;
-  styleMeta.font   = pliMeta->squareStyle.font;
-  styleMeta.color  = pliMeta->squareStyle.color;
-  child = new NumberGui(&styleMeta,squareFormatStyleBox);
+  styleMeta = new NumberMeta();
+  styleMeta->margin = pliMeta->squareStyle.margin;
+  styleMeta->font   = pliMeta->squareStyle.font;
+  styleMeta->color  = pliMeta->squareStyle.color;
+  child = new NumberGui(styleMeta,squareFormatStyleBox);
   data->children.append(child);
 
   squareSizeStyleBox = new QGroupBox("Square Size");
@@ -350,10 +351,11 @@ GlobalPliDialog::GlobalPliDialog(
   circleFormatStyleBox = new QGroupBox("Circle Annotation Text Format");
   svlayout->addWidget(circleFormatStyleBox);
   circleFormatStyleBox->hide();
-  styleMeta.margin = pliMeta->circleStyle.margin;
-  styleMeta.font   = pliMeta->circleStyle.font;
-  styleMeta.color  = pliMeta->circleStyle.color;
-  child = new NumberGui(&styleMeta,circleFormatStyleBox);
+  styleMeta = new NumberMeta();
+  styleMeta->margin = pliMeta->circleStyle.margin;
+  styleMeta->font   = pliMeta->circleStyle.font;
+  styleMeta->color  = pliMeta->circleStyle.color;
+  child = new NumberGui(styleMeta,circleFormatStyleBox);
   data->children.append(child);
 
   circleSizeStyleBox = new QGroupBox("Circle Size");
@@ -378,10 +380,11 @@ GlobalPliDialog::GlobalPliDialog(
   rectangleFormatStyleBox = new QGroupBox("Rectangle Annotation Text Format");
   svlayout->addWidget(rectangleFormatStyleBox);
   rectangleFormatStyleBox->hide();
-  styleMeta.margin = pliMeta->rectangleStyle.margin;
-  styleMeta.font   = pliMeta->rectangleStyle.font;
-  styleMeta.color  = pliMeta->rectangleStyle.color;
-  child = new NumberGui(&styleMeta,rectangleFormatStyleBox);
+  styleMeta = new NumberMeta();
+  styleMeta->margin = pliMeta->rectangleStyle.margin;
+  styleMeta->font   = pliMeta->rectangleStyle.font;
+  styleMeta->color  = pliMeta->rectangleStyle.color;
+  child = new NumberGui(styleMeta,rectangleFormatStyleBox);
   data->children.append(child);
 
   rectangleSizeStyleBox = new QGroupBox("Rectangle Size");
@@ -407,10 +410,11 @@ GlobalPliDialog::GlobalPliDialog(
       elementFormatStyleBox = new QGroupBox("Element Annotation Text Format");
       svlayout->addWidget(elementFormatStyleBox);
       elementFormatStyleBox->hide();
-      styleMeta.margin = pliMeta->elementStyle.margin;
-      styleMeta.font   = pliMeta->elementStyle.font;
-      styleMeta.color  = pliMeta->elementStyle.color;
-      child = new NumberGui(&styleMeta,elementFormatStyleBox);
+      styleMeta = new NumberMeta();
+      styleMeta->margin = pliMeta->elementStyle.margin;
+      styleMeta->font   = pliMeta->elementStyle.font;
+      styleMeta->color  = pliMeta->elementStyle.color;
+      child = new NumberGui(styleMeta,elementFormatStyleBox);
       data->children.append(child);
 
       elementSizeStyleBox = new QGroupBox("Element Size");
@@ -482,7 +486,7 @@ void GlobalPliDialog::styleOptionChanged(bool b){
   Q_UNUSED(b)
 
   QObject *obj = sender();
-  if (obj == squareStyle) {
+  if (obj == squareStyleButton) {
       squareBkGrndStyleBox->setDisabled(false);
       squareBorderStyleBox->setDisabled(false);
       squareFormatStyleBox->setDisabled(false);
@@ -510,7 +514,7 @@ void GlobalPliDialog::styleOptionChanged(bool b){
       }
   }
   else
-  if (obj == circleStyle) {
+  if (obj == circleStyleButton) {
       circleBkGrndStyleBox->show();
       circleBorderStyleBox->show();
       circleFormatStyleBox->show();
@@ -534,7 +538,7 @@ void GlobalPliDialog::styleOptionChanged(bool b){
       }
   }
   else
-  if (obj == rectangleStyle) {
+  if (obj == rectangleStyleButton) {
       rectangleBkGrndStyleBox->show();
       rectangleBorderStyleBox->show();
       rectangleFormatStyleBox->show();
@@ -558,7 +562,7 @@ void GlobalPliDialog::styleOptionChanged(bool b){
       }
   }
   else
-  if (data->bom && obj == elementStyle) {
+  if (data->bom && obj == elementStyleButton) {
       elementBkGrndStyleBox->show();
       elementBorderStyleBox->show();
       elementFormatStyleBox->show();
