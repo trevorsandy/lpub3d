@@ -420,22 +420,22 @@ enum Dimensions {Pixels = 0, Inches };
 enum PAction { SET_DEFAULT_ACTION, SET_STOP_ACTION };
 enum Direction { PAGE_PREVIOUS, PAGE_NEXT, DIRECTION_NOT_SET };
 enum ExportOption { EXPORT_ALL_PAGES, EXPORT_PAGE_RANGE, EXPORT_CURRENT_PAGE };
-enum ExportMode { EXPORT_NONE  = -1,
-                  PAGE_PROCESS = 0,
-                  EXPORT_PDF,
-                  EXPORT_PNG,
-                  EXPORT_JPG,
-                  EXPORT_BMP,
-                  EXPORT_3DS_MAX,
-                  EXPORT_COLLADA,
-                  EXPORT_WAVEFRONT,
-                  EXPORT_STL,
-                  EXPORT_POVRAY,
-                  EXPORT_BRICKLINK,
-                  EXPORT_CSV,
-                  EXPORT_ELEMENT,
-                  EXPORT_HTML,
-                  POVRAY_RENDER};
+enum ExportMode { EXPORT_NONE  = -1,//-1
+                  PAGE_PROCESS = 0, // 0
+                  EXPORT_PDF,       // 1
+                  EXPORT_PNG,       // 2
+                  EXPORT_JPG,       // 3
+                  EXPORT_BMP,       // 4
+                  EXPORT_3DS_MAX,   // 5
+                  EXPORT_COLLADA,   // 6
+                  EXPORT_WAVEFRONT, // 7
+                  EXPORT_STL,       // 8
+                  EXPORT_POVRAY,    // 9
+                  EXPORT_BRICKLINK, // 10
+                  EXPORT_CSV,       // 11
+                  EXPORT_ELEMENT,   // 12
+                  EXPORT_HTML,      // 13
+                  POVRAY_RENDER};   // 14
 
 const QString nativeExportNames[] =
 {

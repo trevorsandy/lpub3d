@@ -1979,9 +1979,10 @@ bool Render::NativeExport(const NativeOptions &Options) {
     QString exportModeName = nativeExportNames[Options.ExportMode];
 
     if (Options.ExportMode == EXPORT_WAVEFRONT ||
-        Options.ExportMode == EXPORT_COLLADA /*  ||
-        Options.ExportMode == EXPORT_3DS_MAX   ||
-        Options.ExportMode == EXPORT_HTML */) {
+        Options.ExportMode == EXPORT_COLLADA   ||
+        Options.ExportMode == EXPORT_CSV       ||
+        Options.ExportMode == EXPORT_BRICKLINK /*||
+        Options.ExportMode == EXPORT_3DS_MAX*/) {
         emit gui->messageSig(LOG_STATUS, QString("Native CSI %1 Export...").arg(exportModeName));
         Project* NativeExportProject = new Project();
         gApplication->SetProject(NativeExportProject);
