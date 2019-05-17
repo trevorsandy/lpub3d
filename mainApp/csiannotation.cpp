@@ -190,6 +190,7 @@ bool CsiAnnotation::setAnnotationLoc(float iconOffset[])
 CsiAnnotationItem::CsiAnnotationItem(
    QGraphicsItem  *_parent)
   : ResizeTextItem(_parent)
+  , alignment( Qt::AlignCenter | Qt::AlignVCenter )
 {
    relativeType         = CsiAnnotationType;
    placementCsiPart     = nullptr;
@@ -231,13 +232,6 @@ void CsiAnnotationItem::addGraphicsItems(
     QString fontString  = _part->styleMeta.font.valueFoo();
     QString colorString = _part->styleMeta.color.value();
 
-    // TODO - automatically resize text until it fits
-    if ((style.value() == AnnotationStyle::circle ||
-         style.value() == AnnotationStyle::square) &&
-         textString.size() > 2) {
-       fontString = "Arial,17,-1,5,50,0,0,0,0,0";
-    }
-
     QString toolTip = QString("Part %1 %2 (%3) \"%4\" - right-click to modify")
                               .arg(_part->type)
                               .arg(LDrawColor::name(_part->color))
@@ -249,27 +243,35 @@ void CsiAnnotationItem::addGraphicsItems(
     QColor color(colorString);
     setDefaultTextColor(color);
 
-    QRectF annotateRect;
-    QRectF docSize  = QRectF(0,0,document()->size().width(),document()->size().height());
+    textRect  = QRectF(0,0,document()->size().width(),document()->size().height());
+
     if (style.value() == AnnotationStyle::none) {
-        annotateRect = docSize;
+        styleRect = textRect;
     } else {
-        bool dw = style.value() == AnnotationStyle::rectangle;
-        QRectF styleSize = QRectF(0,0,dw ? docSize.width() : _part->styleMeta.size.valuePixels(XX), _part->styleMeta.size.valuePixels(YY));
-        annotateRect = boundingRect().adjusted(0,0,styleSize.width()-docSize.width(),styleSize.height()-docSize.height());
-        // center the document on the new size
+        // set rectangle size and dimensions parameters
+        bool fixedStyle = style.value() != AnnotationStyle::rectangle;
+        QRectF styleSize = QRectF(0,0,fixedStyle ? _part->styleMeta.size.valuePixels(XX) : textRect.width(), _part->styleMeta.size.valuePixels(YY));
+        styleRect = boundingRect().adjusted(0,0,styleSize.width()-textRect.width(),styleSize.height()-textRect.height());
+
+        // scale down the font as needed
+        scaleDownFont();
+
+        // center document text in style size
         setTextWidth(-1);
-        setTextWidth(annotateRect.width());
+        setTextWidth(styleRect.width());
         QTextBlockFormat format;
-        format.setAlignment(Qt::AlignCenter);
+        format.setAlignment(alignment);
         QTextCursor cursor = textCursor();
         cursor.select(QTextCursor::Document);
         cursor.mergeBlockFormat(format);
         cursor.clearSelection();
         setTextCursor(cursor);
+
+        // adjust text horizontal alignment
+        textOffset.setX(double(border.valuePixels().thickness)/2);
     }
-    size[XX] = int(annotateRect.size().width());
-    size[YY] = int(annotateRect.size().height());
+    size[XX] = int(styleRect.size().width());
+    size[YY] = int(styleRect.size().height());
 
     sizeIt();
 
@@ -303,6 +305,29 @@ void CsiAnnotationItem::addGraphicsItems(
     setFlag(QGraphicsItem::ItemIsSelectable, _movable);
 }
 
+void CsiAnnotationItem::scaleDownFont() {
+    QFont font = this->QGraphicsTextItem::font();
+    int fontSize = font.pointSize();
+    QRectF saveTextRect = textRect;
+
+    while (((textRect.width() > styleRect.width()) ||
+            (textRect.height() > styleRect.height())) &&
+             fontSize > 1) {
+        font.setPointSize(fontSize--);
+        setFont(font);
+        textRect = QRectF(0,0,document()->size().width(),document()->size().height());
+    }
+
+    if (textRect == saveTextRect)
+        return;
+
+    font.setPointSize(fontSize);
+    setFont(font);
+
+    // adjust text vertical alignment
+    textOffset.setY(saveTextRect.height()-textRect.height());
+}
+
 void CsiAnnotationItem::sizeIt()
 {
     size[XX] += int(border.valuePixels().margin[XX]);
@@ -311,23 +336,17 @@ void CsiAnnotationItem::sizeIt()
     size[YY] += int(border.valuePixels().thickness);
 }
 
-void CsiAnnotationItem::setBackground(QPainter *painter)
+void CsiAnnotationItem::setAnnotationStyle(QPainter *painter)
 {
-    // set border and background parameters
-    BorderData     borderData     = border.valuePixels();
-    BackgroundData backgroundData = background.value();
-
-    // set rectangle size and dimensions parameters
-    int ibt = int(borderData.thickness);
-    QRectF irect(ibt/2,ibt/2,size[XX]-ibt,size[YY]-ibt);
-
-    // set painter and render hints (initialized with pixmap)
+    // set painter and render hints
     painter->setRenderHints(QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing);
 
     // set the background then set the border and paint both in one go.
 
     /* BACKGROUND */
     QColor brushColor;
+    BackgroundData backgroundData = background.value();
+
     switch(backgroundData.type) {
     case BackgroundData::BgColor:
         brushColor = LDrawColor::color(backgroundData.string);
@@ -344,6 +363,7 @@ void CsiAnnotationItem::setBackground(QPainter *painter)
     /* BORDER */
     QPen borderPen;
     QColor borderPenColor;
+    BorderData borderData = border.valuePixels();
     if (borderData.type == BorderData::BdrNone) {
         borderPenColor = Qt::transparent;
     } else {
@@ -370,17 +390,17 @@ void CsiAnnotationItem::setBackground(QPainter *painter)
     else if (borderData.line == BorderData::BdrLnDashDotDot){
         borderPen.setStyle(Qt::DashDotDotLine);
     }
-    borderPen.setWidth(ibt);
+     borderPen.setWidth(int(borderData.thickness));
 
     painter->setPen(borderPen);
 
     // set icon border dimensions
-    qreal rx = borderData.radius;
-    qreal ry = borderData.radius;
+    qreal rx = double(borderData.radius);
+    qreal ry = double(borderData.radius);
     qreal dx = size[XX];
     qreal dy = size[YY];
 
-    if (dx && dy) {
+    if (int(dx) && int(dy)) {
         if (dx > dy) {
             rx *= dy;
             rx /= dx;
@@ -390,22 +410,28 @@ void CsiAnnotationItem::setBackground(QPainter *painter)
         }
     }
 
-    // draw icon rectangle - background and border
+    // draw icon shape - background and border
+    int bt = int(borderData.thickness);
+    QRectF bgRect(bt/2,bt/2,size[XX]-bt,size[YY]-bt);
     if (style.value() != AnnotationStyle::circle) {
         if (borderData.type == BorderData::BdrRound) {
-            painter->drawRoundRect(irect,int(rx),int(ry));
+            painter->drawRoundRect(bgRect,int(rx),int(ry));
         } else {
-            painter->drawRect(irect);
+            painter->drawRect(bgRect);
         }
     } else {
-        painter->drawEllipse(irect);
+        painter->drawEllipse(bgRect);
     }
 }
 
 void CsiAnnotationItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *o, QWidget *w)
 {
-    if (style.value() != AnnotationStyle::none)
-        setBackground(painter);
+    if (style.value() != AnnotationStyle::none) {
+        setAnnotationStyle(painter);
+        QRectF textBounds = boundingRect();
+        textBounds.translate(textOffset);
+        painter->translate(textBounds.left(), textBounds.top());
+    }
     QGraphicsTextItem::paint(painter, o, w);
 }
 

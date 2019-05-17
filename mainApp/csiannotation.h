@@ -79,6 +79,8 @@ public:
   int               submodelLevel;
   StringListMeta    subModelColor;
   CsiAnnotationIconMeta icon;
+  QRectF            textRect;
+  QRectF            styleRect;
 
   // DEBUG TRACE STUFF
   PageMeta          pageMeta;
@@ -86,7 +88,11 @@ public:
 
   CsiAnnotationItem(
     QGraphicsItem *_parent = nullptr);
+
+  virtual ~CsiAnnotationItem(){}
+
   void sizeIt();
+
   void setText(
     QString &text,
     QString &fontString,
@@ -98,21 +104,30 @@ public:
     setFont(font);
     setToolTip(toolTip);
   }
+
   virtual void addGraphicsItems(
      CsiAnnotation *_ca,
      Step          *_step,
      PliPart       *_part,
      CsiItem       *_csiItem,
      bool           _movable);
+
   void setPos(double x, double y)
   {
     QGraphicsTextItem::setPos(x,y);
   }
+
   void setFlag(GraphicsItemFlag flag, bool value)
   {
     QGraphicsItem::setFlag(flag,value);
   }
-  virtual ~CsiAnnotationItem(){}
+
+  void setAlignment( Qt::Alignment flags )
+  {
+      alignment = flags;
+  }
+
+  void scaleDownFont();
 
 protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
@@ -120,8 +135,11 @@ protected:
   void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
   void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
   void change();
-  void setBackground(QPainter *painter);
+  void setAnnotationStyle(QPainter *painter);
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *o, QWidget *w);
+
+  QPointF              textOffset;
+  Qt::Alignment	       alignment;
 };
 
 #endif // CSIANNOTATION_H
