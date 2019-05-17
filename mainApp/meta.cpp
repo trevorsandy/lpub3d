@@ -3142,20 +3142,20 @@ Rc PliPartGroupMeta::parse(QStringList &argv, int index, Where &here)
       _here[0] = here;
 
 #ifdef QT_DEBUG_MODE
-    logTrace() << "\n"
-    << "04 PLI PART GROUP ATTRIBUTES [" + _value.type + "_" + _value.color + "] - PARSE"
-    << "\n0. BOM:        " <<(gd.bom ? "True" : "False")
-    << "\n0. Bom Part:   " <<(gd.bom ? gd.bPart ? "Yes" : "No" : "N/A")
-    << "\n1. Type:       " << gd.type
-    << "\n2. Color:      " << gd.color
-    << "\n3. ZValue:     " << gd.zValue
-    << "\n4. OffsetX:    " << gd.offset[0]
-    << "\n5. OffsetY:    " << gd.offset[1]
-    << "\n6. Group Model:" << gd.group.modelName
-    << "\n7. Group Line: " << gd.group.lineNumber
-    << "\n8. Meta Model: " << _here[0].modelName
-    << "\n9. Meta Line:  " << _here[0].lineNumber
-    ;
+//    logTrace() << "\n"
+//    << "04 PLI PART GROUP ATTRIBUTES [" + _value.type + "_" + _value.color + "] - PARSE"
+//    << "\n0. BOM:        " <<(gd.bom ? "True" : "False")
+//    << "\n0. Bom Part:   " <<(gd.bom ? gd.bPart ? "Yes" : "No" : "N/A")
+//    << "\n1. Type:       " << gd.type
+//    << "\n2. Color:      " << gd.color
+//    << "\n3. ZValue:     " << gd.zValue
+//    << "\n4. OffsetX:    " << gd.offset[0]
+//    << "\n5. OffsetY:    " << gd.offset[1]
+//    << "\n6. Group Model:" << gd.group.modelName
+//    << "\n7. Group Line: " << gd.group.lineNumber
+//    << "\n8. Meta Model: " << _here[0].modelName
+//    << "\n9. Meta Line:  " << _here[0].lineNumber
+//    ;
 #endif
 
       if (bomItem)

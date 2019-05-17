@@ -170,20 +170,20 @@ void PliPart::addPartGroupToScene(
         pliPartGroup->addToGroup(annotateElement);
 
 #ifdef QT_DEBUG_MODE
-    logTrace() << "\n"
-    << "02/06 PLI PART GROUP ATTRIBUTES [" + groupMeta.value().type + "_" + groupMeta.value().color + "] - ADD TO SCENE"
-    << "\n0. BOM:        " <<(groupMeta.value().bom ? "True" : "False")
-    << "\n0. Bom Part:   " <<(groupMeta.value().bom ? groupMeta.value().bPart ? "Yes" : "No" : "N/A")
-    << "\n1. Type:       " << groupMeta.value().type
-    << "\n2. Color:      " << groupMeta.value().color
-    << "\n3. ZValue:     " << groupMeta.value().zValue
-    << "\n4. OffsetX:    " << groupMeta.value().offset[0]
-    << "\n5. OffsetY:    " << groupMeta.value().offset[1]
-    << "\n6. Group Model:" << groupMeta.value().group.modelName
-    << "\n7. Group Line: " << groupMeta.value().group.lineNumber
-    << "\n8. Meta Model: " << groupMeta.here().modelName
-    << "\n9. Meta Line:  " << groupMeta.here().lineNumber
-    ;
+//    logTrace() << "\n"
+//    << "02/06 PLI PART GROUP ATTRIBUTES [" + groupMeta.value().type + "_" + groupMeta.value().color + "] - ADD TO SCENE"
+//    << "\n0. BOM:        " <<(groupMeta.value().bom ? "True" : "False")
+//    << "\n0. Bom Part:   " <<(groupMeta.value().bom ? groupMeta.value().bPart ? "Yes" : "No" : "N/A")
+//    << "\n1. Type:       " << groupMeta.value().type
+//    << "\n2. Color:      " << groupMeta.value().color
+//    << "\n3. ZValue:     " << groupMeta.value().zValue
+//    << "\n4. OffsetX:    " << groupMeta.value().offset[0]
+//    << "\n5. OffsetY:    " << groupMeta.value().offset[1]
+//    << "\n6. Group Model:" << groupMeta.value().group.modelName
+//    << "\n7. Group Line: " << groupMeta.value().group.lineNumber
+//    << "\n8. Meta Model: " << groupMeta.here().modelName
+//    << "\n9. Meta Line:  " << groupMeta.here().lineNumber
+//    ;
 #endif
 
     // check if we have offset
@@ -460,21 +460,21 @@ void Pli::setParts(
               parts[key]->instances.append(here);
             }
 #ifdef QT_DEBUG_MODE
-          logNotice() << "\n"
-                      << "01/05 PLI PART GROUP ATTRIBUTES [" + key + "] - SET PART"
-                      << "\n0. Found:      " <<(found ? "Yes" : "No")
-                      << "\n0. Bom Part:   " <<(bom ? groupMeta.value().bPart ? "Yes" : "No" : "N/A")
-                      << "\n0. BOM:        " <<(groupMeta.value().bom ? "True" : "False")
-                      << "\n1. Type:       " << groupMeta.value().type
-                      << "\n2. Color:      " << groupMeta.value().color
-                      << "\n3. ZValue:     " << groupMeta.value().zValue
-                      << "\n4. OffsetX:    " << groupMeta.value().offset[0]
-                      << "\n5. OffsetY:    " << groupMeta.value().offset[1]
-                      << "\n6. Group Model:" << groupMeta.value().group.modelName
-                      << "\n7. Group Line: " << groupMeta.value().group.lineNumber
-                      << "\n8. Meta Model: " << groupMeta.here().modelName
-                      << "\n9. Meta Line:  " << groupMeta.here().lineNumber
-                         ;
+//          logNotice() << "\n"
+//                      << "01/05 PLI PART GROUP ATTRIBUTES [" + key + "] - SET PART"
+//                      << "\n0. Found:      " <<(found ? "Yes" : "No")
+//                      << "\n0. Bom Part:   " <<(bom ? groupMeta.value().bPart ? "Yes" : "No" : "N/A")
+//                      << "\n0. BOM:        " <<(groupMeta.value().bom ? "True" : "False")
+//                      << "\n1. Type:       " << groupMeta.value().type
+//                      << "\n2. Color:      " << groupMeta.value().color
+//                      << "\n3. ZValue:     " << groupMeta.value().zValue
+//                      << "\n4. OffsetX:    " << groupMeta.value().offset[0]
+//                      << "\n5. OffsetY:    " << groupMeta.value().offset[1]
+//                      << "\n6. Group Model:" << groupMeta.value().group.modelName
+//                      << "\n7. Group Line: " << groupMeta.value().group.lineNumber
+//                      << "\n8. Meta Model: " << groupMeta.here().modelName
+//                      << "\n9. Meta Line:  " << groupMeta.here().lineNumber
+//                         ;
 #endif
         }
     } //instances
