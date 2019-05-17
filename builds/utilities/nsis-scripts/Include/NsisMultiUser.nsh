@@ -8,7 +8,7 @@ Copyright 2016-2018 Ricardo Drizin, Alex Mitev
 
 LPub3D Modifications:
 Trevor SANDY <trevor.sandy@gmail.com>
-Last Update: March 25, 2019
+Last Update: April 06, 2019
 Copyright (c) 2017 - 2019 by Trevor SANDY
 
 */
@@ -31,6 +31,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 !define MULTIUSER_ERROR_INVALID_PARAMETERS 666660 ; invalid command-line parameters
 !define MULTIUSER_ERROR_ELEVATION_NOT_ALLOWED 666661 ; elevation is restricted by MULTIUSER_INSTALLMODE_ALLOW_ELEVATION or MULTIUSER_INSTALLMODE_ALLOW_ELEVATION_IF_SILENT
 !define MULTIUSER_ERROR_NOT_INSTALLED 666662 ; returned from uninstaller when no version is installed
+!define MULTIUSER_ERROR_RUN_UNINSTALLER_FAILED 666663 ; returned from installer if executing the uninstaller failed
 !define MULTIUSER_ERROR_ELEVATION_FAILED 666666 ; returned by the outer instance when the inner instance cannot start (user aborted elevation dialog, Logon service not running, UAC is not supported by the OS, user without admin priv. is used in the runas dialog), or started, but was not admin
 !define MULTIUSER_INNER_INSTANCE_BACK 666667 ; returned by the inner instance when the user presses the Back button on the first visible page (display outer instance)
 
@@ -46,6 +47,11 @@ RequestExecutionLevel user ; will ask elevation only if necessary
     ;[LPub3D, moved COMPANY_NAME to required defines]
 	; COMPANY_NAME - stored in uninstall info in registry
     ;[End LPub3D Mod]
+	; CONTACT - stored in uninstall info in registry
+	; COMMENTS - stored in uninstall info in registry
+	; URL_INFO_ABOUT - stored as the Support Link in the uninstall info of the registry, and when not included, the Help Link as well.
+	; URL_HELP_LINK - stored as the Help Link in the uninstall info of the registry.
+	; URL_UPDATE_INFO - stored as the Update Information in the uninstall info of the registry.
 	; MULTIUSER_INSTALLMODE_NO_HELP_DIALOG - don't show help dialog
 
 	!define /ifndef MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS 1 ; 0 or 1 - whether user can install BOTH per-user and per-machine; this only affects the texts and the required elevation on the page, the actual uninstall of previous version has to be implemented by script
@@ -567,36 +573,13 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 				; NOTES:
 				; - the _? param stops the uninstaller from copying itself to the temporary directory, which is the only way for waiting to work
 				; - $R0 passes the original parameters from the installer to the uninstaller (together with /uninstall so that uninstaller knows installer is running and skips opitional single instance checks)
-				; - using ExecWait fails if the new process requires elevation, see http://forums.winamp.com/showthread.php?p=3080202&posted=1#post3080202, so we use ShellExecuteEx
-				System::Call '*(i 60, i 0x140, i 0, t "open", t "$0\${UNINSTALL_FILENAME}", t "$R0 _?=$0", t, i ${SW_SHOW}, i, i, t, i, i, i, i) p .r2' ; allocate and fill values for SHELLEXECUTEINFO structure, returned in $2 (0x140 = SEE_MASK_NOCLOSEPROCESS|SEE_MASK_NOASYNC)
-
-				System::Call 'shell32::ShellExecuteEx(i r2) i .r0 ?e'
-				Pop $1
-				${if} $0 = 0
-					SetErrorLevel $1
-					Quit
+				; - using ExecWait fails if the new process requires elevation, see http://forums.winamp.com/showthread.php?p=3080202&posted=1#post3080202, so we use ExecShellWait
+				ExecShellWait "open" "$0\${UNINSTALL_FILENAME}" "$R0 _?=$0"
+				${if} ${errors}
+					SetErrorLevel ${MULTIUSER_ERROR_RUN_UNINSTALLER_FAILED}
+				${else}
+					SetErrorLevel 0
 				${endif}
-
-				System::Call '*$2(i, i, i, t, t, t, t, i, i, i, t, i, i, i, i .r3)' ; get the process handle in $3
-
-				System::Call 'kernel32::WaitForSingleObject(i r3, i -1) i .r0 ?e' ; wait indefinitely for the process to exit
-				Pop $1
-				${if} $0 <> 0 ; WAIT_OBJECT_0
-					SetErrorLevel $1
-					Quit
-				${endif}
-
-				System::Call 'kernel32::GetExitCodeProcess(i r3, *i .r4) i .r0 ?e' ; store exit code in $4
-				Pop $1
-				${if} $0 = 0
-					SetErrorLevel $1
-					Quit
-				${endif}
-
-				System::Call 'Kernel32::CloseHandle(i r3)' ; close the process handle in $3
-				System::Free $2 ; free SHELLEXECUTEINFO structure, stored in $2
-
-				SetErrorLevel $4 ; return exit code stored in $4
 				Quit
 			${endif}
 		!endif
@@ -1093,9 +1076,11 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 	${if} $MultiUser.InstallMode == "AllUsers" ; setting defaults
 		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}" "DisplayName" "${MULTIUSER_INSTALLMODE_DISPLAYNAME}"
 		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}" "UninstallString" '"$INSTDIR\${UNINSTALL_FILENAME}" /allusers'
+		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}" "QuietUninstallString" '"$INSTDIR\${UNINSTALL_FILENAME}" /allusers /S'
 	${else}
 		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "DisplayName" "${MULTIUSER_INSTALLMODE_DISPLAYNAME} (current user)" ; "add/remove programs" will show if installation is per-user
 		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "UninstallString" '"$INSTDIR\${UNINSTALL_FILENAME}" /currentuser'
+		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "QuietUninstallString" '"$INSTDIR\${UNINSTALL_FILENAME}" /currentuser /S'
 	${endif}
 
 	WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "DisplayVersion" "${VERSION}"
@@ -1109,28 +1094,48 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		!endif
 	!endif
     ;[End LPub3D Mod]
-    ;[LPub3D Mod, Extend registry attributes]
-	!ifdef COMPANY_URL
-		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "URLInfoAbout" "${COMPANY_URL}"
-		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "URLUpdateInfo" "${COMPANY_URL}"
-	!endif
-        !ifdef SUPPORT
-                WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "HelpLink" "${SUPPORT}"
-	!endif
-	!ifdef COMMENTS
-		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "Comments" "${COMMENTS}"
-	!endif
+    ;[LPub3D Mod, MAJOR AND MINIOR VERSION registry attributes]
 	!ifdef VERSION_MAJOR
 		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "VersionMajor" "${VERSION_MAJOR}"
 	!endif
 	!ifdef VERSION_MINOR
 		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "VersionMinor" "${VERSION_MINOR}"
 	!endif
-	WriteRegDWORD SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "InstallDate" "${NOW}"
-   ;[End LPub3D Mod,Extend registry attributes]
+    ;[End LPub3D Mod, MAJOR AND MINIOR VERSION registry attributes]
+	!ifdef CONTACT
+		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "Contact" "${CONTACT}"
+	!endif
+	!ifdef COMMENTS
+		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "Comments" "${COMMENTS}"
+	!endif
+	!ifdef URL_INFO_ABOUT
+		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "URLInfoAbout" "${URL_INFO_ABOUT}"
+	!endif
+	!ifdef URL_HELP_LINK
+		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "HelpLink" "${URL_HELP_LINK}"
+	!endif
+	!ifdef URL_UPDATE_INFO
+		WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "URLUpdateInfo" "${URL_UPDATE_INFO}"
+	!endif
 	WriteRegDWORD SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "NoModify" 1
 	WriteRegDWORD SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "NoRepair" 1
 
+	; Write InstallDate string value in 'YYYYMMDD' format.
+	; Without it, Windows gets the date from the registry key metadata, which might be inaccurate.
+	System::Call /NOUNLOAD "*(&i2,&i2,&i2,&i2,&i2,&i2,&i2,&i2) i .r4"
+	System::Call /NOUNLOAD "kernel32::GetLocalTime(i)i(r4)"
+	System::Call /NOUNLOAD "*$4(&i2,&i2,&i2,&i2,&i2,&i2,&i2,&i2)i(.r1,.r2,,.r3,,,,)"
+	System::Free $4
+	IntCmp $2 9 0 0 +2
+	StrCpy $2 "0$2"
+	IntCmp $3 9 0 0 +2
+	StrCpy $3 "0$3"
+	WriteRegStr SHCTX "${MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY_PATH}$0" "InstallDate" "$1$2$3"
+
+	Pop $4
+	Pop $3
+	Pop $2
+	Pop $1
 	Pop $0
 !macroend
 

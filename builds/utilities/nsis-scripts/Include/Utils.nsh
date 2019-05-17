@@ -35,9 +35,9 @@
 		Push $4
 		Push $5
 
-		!if $1 == ""
+		${if} $1 == ""
 			StrCpy $1 "Local"
-		!endif
+		${endif}
 
 		${if} $0 == "Setup"
 			StrCpy $5 "The setup of ${PRODUCT_NAME}"

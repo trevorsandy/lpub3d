@@ -3,11 +3,12 @@
 ; Variables
 Var SemiSilentMode ; installer started uninstaller in semi-silent mode using /SS parameter
 Var RunningFromInstaller ; installer started uninstaller using /uninstall parameter
+Var RunningAsShellUser ; uninstaller restarted itself under the user of the running shell
 
 Section "un.Program Files" SectionUninstallProgram
 	SectionIn RO
 
-    !insertmacro MULTIUSER_GetCurrentUserString $0
+	!insertmacro MULTIUSER_GetCurrentUserString $0
 
 	; InvokeShellVerb only works on existing files, so we call it before deleting the EXE, https://github.com/lordmulder/stdutils/issues/22
 	
@@ -43,7 +44,7 @@ Section "un.Program Files" SectionUninstallProgram
 	RMDir /r "${INSTDIR_AppDataProduct}\logs"
 	RMDir /r "${INSTDIR_AppDataProduct}\cache"
 
-    ; Clean up "Program Group" - we check that we created Start menu folder, if $StartMenuFolder is empty, the whole $SMPROGRAMS directory will be removed!
+	; Clean up "Program Group" - we check that we created Start menu folder, if $StartMenuFolder is empty, the whole $SMPROGRAMS directory will be removed!
 	${if} "$StartMenuFolder" != ""
 		RMDir /r "$SMPROGRAMS\$StartMenuFolder"
 	${endif}
@@ -103,8 +104,28 @@ Function un.onInit
 		StrCpy $SemiSilentMode 0
 	${endif}
 
+	${GetOptions} $R0 "/shelluser" $R1
+	${ifnot} ${errors}
+		StrCpy $RunningAsShellUser 1
+	${else}
+		StrCpy $RunningAsShellUser 0
+	${endif}
+
 	${ifnot} ${UAC_IsInnerInstance}
-		${andif} $RunningFromInstaller = 0
+	${andif} $RunningFromInstaller = 0
+		; Restarting the uninstaller using the user of the running shell, in order to overcome the Windows bugs that:
+		; - Elevates the uninstallers of single-user installations when called from 'Apps & features' of Windows 10
+		; causing them to fail when using a different account for elevation.
+		; - Elevates the uninstallers of all-users installations when called from 'Add/Remove Programs' of Control Panel,
+		; preventing them from eleveting on their own and correctly recognize the user that started the uninstaller. If a
+		; different account was used for elevation, all user-context operations will be performed for the user of that
+		; account. In this case, the fix causes the elevation prompt to be displayed twice (one from Control Panel and
+		; one from the uninstaller).
+		${if} ${UAC_IsAdmin}
+		${andif} $RunningAsShellUser = 0
+			${StdUtils.ExecShellAsUser} $0 "$INSTDIR\${UNINSTALL_FILENAME}" "open" "/user $R0"
+			Quit
+		${endif}
 		!insertmacro CheckSingleInstance "Setup" "Global" "${SETUP_MUTEX}"
 		!insertmacro CheckSingleInstance "Application" "Local" "${APP_MUTEX}"
 	${endif}

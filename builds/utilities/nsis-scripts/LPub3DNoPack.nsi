@@ -1,5 +1,5 @@
 ;LPub3D Setup Script
-;Last Update: March 25, 2019
+;Last Update: May 08, 2019
 ;Copyright (C) 2016 - 2019 by Trevor SANDY
 
 ; Install LPub3D and pre-packaged renderers.
@@ -63,8 +63,9 @@ Var /global LPub3DViewerLibPath
 !define RELEASE_NOTES_FILE "RELEASE_NOTES.html" ; release notes file, optional
 !define RELEASE_NOTES_URL "https://trevorsandy.github.io/lpub3d/assets/docs/lpub3d/RELEASE_NOTES.html" ; release notes file, optional
 !define PUBLISHER_NAME "${Publisher}"
-!define COMPANY_URL "${CompanyURL}"
-!define SUPPORT "${SupportURL}"
+!define URL_INFO_ABOUT "${CompanyURL}"
+!define URL_UPDATE_INFO "${CompanyURL}"
+!define URL_HELP_LINK "${SupportURL}"
 !define VERSION_MAJOR "${VersionMajor}"
 !define VERSION_MINOR "${VersionMinor}"
 !define MIN_WIN_VER "XP"
@@ -278,7 +279,7 @@ Section "Core Files (required)" SectionCoreFiles
     ${if} ${errors} ; stay in installer
       SetErrorLevel 2 ; Installation aborted by script
       BringToFront
-      Abort "Error executing uninstaller."
+	  Call fnAskForceUninstall
     ${else}
       ${Switch} $0
         ${Case} 0 ; uninstaller completed successfully - continue with installation
@@ -314,12 +315,14 @@ Section "Core Files (required)" SectionCoreFiles
         Delete "$PerMachineInstallationFolder\fadeStepColorParts.lst"
     ${endif}
 
-        ; Just a failsafe - should've been taken care of by cmd.exe in Uninstall.nsh
+        ; Just a failsafe - should've been taken care of by cmd.exe in Uninstall.nsh or fnAskForceUninstall
         !insertmacro DeleteRetryAbort "$3\${UNINSTALL_FILENAME}" ; the uninstaller doesn't delete itself when not copied to the temp directory
         RMDir "$3"
   ${endif}
 
+  ; Set the install directory path and create it (recursively if necessary), if it does not exist.
   SetOutPath $INSTDIR
+
   ; Write uninstaller and registry uninstall info as the first step,
   ; so that the user has the option to run the uninstaller if sth. goes wrong
   WriteUninstaller "${UNINSTALL_FILENAME}"
@@ -911,3 +914,43 @@ Function fnCopyLibraries
     Finish:
 FunctionEnd
 
+Function fnAskForceUninstall
+  DetailPrint "Uninstall.exe failed!"
+
+  MessageBox MB_ICONEXCLAMATION|MB_YESNO "Uninstall.exe failed!.$\r$\nDo you want to completely remove ${PRODUCT_NAME}?" IDYES Proceed
+  Abort "Error executing uninstaller."
+
+  Proceed:
+  DetailPrint "Removing all previously installed components of ${PRODUCT_NAME}..."
+  
+  ; Clean up "Quick Launch Icon"
+  ${if} ${AtLeastWin7}
+    ${StdUtils.InvokeShellVerb} $1 "$INSTDIR" "${PROGEXE}" ${StdUtils.Const.ShellVerb.UnpinFromStart}
+  ${else}
+    !insertmacro DeleteRetryAbort "$STARTMENU\${PRODUCT_NAME}$0.lnk"
+  ${endif}
+  
+  ; Clean up "Program Group" - we check that we created Start menu folder, if $StartMenuFolder is empty, the whole $SMPROGRAMS directory will be removed!
+  ${if} "$StartMenuFolder" != ""
+      RMDir /r "$SMPROGRAMS\$StartMenuFolder"
+  ${endif}
+    
+  ; Clean up "Dektop Icon"
+  !insertmacro DeleteRetryAbort "$DESKTOP\${PRODUCT_NAME}$0.lnk"
+  
+  ; Delete user data folder and all its contents
+  ${if} ${DirExists} "${INSTDIR_AppDataProduct}\${COMPANY_NAME}"
+      RMDir /r "${INSTDIR_LocalAppData}\${COMPANY_NAME}"
+  ${EndIf}
+  
+  ; Delete registry hive settings
+  DeleteRegKey HKCU "Software\${COMPANY_NAME}"
+    
+  ; Delete install folder and all its contents - this function is executed only when the normal uninstall fails and the user elects to force remove the application
+  ${if} ${DirExists} "$INSTDIR"
+      RMDir /r "$INSTDIR"
+  ${EndIf}
+  
+  ; Remove the uninstaller keys from registry
+  !insertmacro MULTIUSER_RegistryRemoveInstallInfo
+FunctionEnd
