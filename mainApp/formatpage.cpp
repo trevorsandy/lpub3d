@@ -636,31 +636,6 @@ int Gui::addGraphicsPageItems(
                           pageHeader->placeRelative(&step->pli);
                       }
                   }
-/*
-                  // optional PLI placement relative to CSI
-
-                  if (step->pli.placement.value().relativeTo == CsiType) {
-                      step->csiItem->appendRelativeTo(&step->pli);
-                      step->csiItem->placeRelative(&step->pli);
-                    }
-
-                  // optional PLI placement relative to Page Number
-
-                  if (step->pli.placement.value().relativeTo == PageNumberType) {
-                      pageNumber->appendRelativeTo(&step->pli);
-                      pageNumber->placeRelative(&step->pli);
-                  }
-*/
-
-                  // add the SM graphically to the scene
-
-                  if (step->placeSubModel) {
-                      step->subModel.addSubModel(step->submodelLevel, pageBg);
-                  }
-
-                  // add the PLI graphically to the scene
-
-                  step->pli.addPli(step->submodelLevel, pageBg);
 
                   // size the callouts
 
@@ -684,6 +659,16 @@ int Gui::addGraphicsPageItems(
                   step->csiItem->assign(&step->csiPlacement);
                   step->csiItem->boundingSize[XX] = step->csiItem->size[XX];
                   step->csiItem->boundingSize[YY] = step->csiItem->size[YY];
+
+                  // add the SM graphically to the scene
+
+                  if (step->placeSubModel) {
+                      step->subModel.addSubModel(step->submodelLevel, pageBg);
+                  }
+
+                  // add the PLI graphically to the scene
+
+                  step->pli.addPli(step->submodelLevel, pageBg);
 
                   // Place the step relative to the page.
 
