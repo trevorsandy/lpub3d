@@ -1151,6 +1151,7 @@ class PliAnnotationGui : public MetaGui
   Q_OBJECT
 public:
   bool displayModified;
+  bool enableStyleModified;
   bool titleModified;
   bool freeformModified;
   bool titleAndFreeformModified;
@@ -1210,6 +1211,7 @@ public slots:
   void panelStyle(bool);
 
   void gbToggled(bool);
+  void gbStyleToggled(bool);
   void enableElementStyle(bool);
   void enableExtendedStyle();
   void enableAnnotations();

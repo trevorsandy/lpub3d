@@ -3746,19 +3746,22 @@ PliAnnotationGui::PliAnnotationGui(
           this,                 SLOT(  enableAnnotations()));
   hLayout->addWidget(fixedAnnotationsCheck);
 
+  bool styleEnabled = meta->enableStyle.value();
+
   // PLI Annotation Style Options
   gbPLIAnnotationStyle = new QGroupBox("Enable Annotation Style",parent);
   QGridLayout *sgrid = new QGridLayout();
   gbPLIAnnotationStyle->setLayout(sgrid);
   grid->addWidget(gbPLIAnnotationStyle,1,0);
   gbPLIAnnotationStyle->setCheckable(true);
-  gbPLIAnnotationStyle->setChecked(meta->enableStyle.value());
+  gbPLIAnnotationStyle->setChecked(styleEnabled);
   gbPLIAnnotationStyle->setEnabled(meta->display.value());
-
+  connect(gbPLIAnnotationStyle,SIGNAL(toggled(bool)),
+          this,                SLOT(gbStyleToggled(bool)));
 
   axleStyleCheck = new QCheckBox("Axles",gbPLIAnnotationStyle);
   axleStyleCheck->setChecked(meta->axleStyle.value());
-  axleStyleCheck->setEnabled(meta->fixedAnnotations.value());
+  axleStyleCheck->setEnabled(styleEnabled && meta->fixedAnnotations.value());
   axleStyleCheck->setToolTip("Fixed Axle annotation on circle background");
   connect(axleStyleCheck,SIGNAL(clicked(bool)),
           this,          SLOT(  axleStyle(bool)));
@@ -3766,7 +3769,7 @@ PliAnnotationGui::PliAnnotationGui(
 
   beamStyleCheck = new QCheckBox("Beams",gbPLIAnnotationStyle);
   beamStyleCheck->setChecked(meta->beamStyle.value());
-  beamStyleCheck->setEnabled(meta->fixedAnnotations.value());
+  beamStyleCheck->setEnabled(styleEnabled && meta->fixedAnnotations.value());
   beamStyleCheck->setToolTip("Fixed Beam annotation on square background");
   connect(beamStyleCheck,SIGNAL(clicked(bool)),
           this,          SLOT(  beamStyle(bool)));
@@ -3774,7 +3777,7 @@ PliAnnotationGui::PliAnnotationGui(
 
   cableStyleCheck = new QCheckBox("Cables",gbPLIAnnotationStyle);
   cableStyleCheck->setChecked(meta->cableStyle.value());
-  cableStyleCheck->setEnabled(meta->fixedAnnotations.value());
+  cableStyleCheck->setEnabled(styleEnabled && meta->fixedAnnotations.value());
   cableStyleCheck->setToolTip("Fixed Cable annotation on square background");
   connect(cableStyleCheck,SIGNAL(clicked(bool)),
           this,           SLOT(  cableStyle(bool)));
@@ -3782,7 +3785,7 @@ PliAnnotationGui::PliAnnotationGui(
 
   connectorStyleCheck = new QCheckBox("Connectors",gbPLIAnnotationStyle);
   connectorStyleCheck->setChecked(meta->connectorStyle.value());
-  connectorStyleCheck->setEnabled(meta->fixedAnnotations.value());
+  connectorStyleCheck->setEnabled(styleEnabled && meta->fixedAnnotations.value());
   connectorStyleCheck->setToolTip("Fixed Connector annotation on square background");
   connect(connectorStyleCheck,SIGNAL(clicked(bool)),
           this,               SLOT(  connectorStyle(bool)));
@@ -3798,7 +3801,7 @@ PliAnnotationGui::PliAnnotationGui(
 
   hoseStyleCheck = new QCheckBox("Hoses",gbPLIAnnotationStyle);
   hoseStyleCheck->setChecked(meta->hoseStyle.value());
-  hoseStyleCheck->setEnabled(meta->fixedAnnotations.value());
+  hoseStyleCheck->setEnabled(styleEnabled && meta->fixedAnnotations.value());
   hoseStyleCheck->setToolTip("Fixed Hose annotation on square background");
   connect(hoseStyleCheck,SIGNAL(clicked(bool)),
           this,          SLOT(  hoseStyle(bool)));
@@ -3806,7 +3809,7 @@ PliAnnotationGui::PliAnnotationGui(
 
   panelStyleCheck = new QCheckBox("Panels",gbPLIAnnotationStyle);
   panelStyleCheck->setChecked(meta->panelStyle.value());
-  panelStyleCheck->setEnabled(meta->fixedAnnotations.value());
+  panelStyleCheck->setEnabled(styleEnabled && meta->fixedAnnotations.value());
   panelStyleCheck->setToolTip("Fixed Panel annotation on circle background");
   connect(panelStyleCheck,SIGNAL(clicked(bool)),
           this,           SLOT(  panelStyle(bool)));
@@ -3825,6 +3828,7 @@ PliAnnotationGui::PliAnnotationGui(
   fixedAnnotationsModified = false;
 
   displayModified          = false;
+  enableStyleModified      = false;
 
   axleStyleModified        = false;
   beamStyleModified        = false;
@@ -3982,9 +3986,25 @@ void PliAnnotationGui::gbToggled(bool checked)
         freeformAnnotationCheck->setChecked(titleAndFreeForm ? true : meta->freeformAnnotation.value());
         fixedAnnotationsCheck->setChecked(meta->fixedAnnotations.value());
     }
+
     gbPLIAnnotationStyle->setEnabled(checked);
+
     if (saveModified != meta->display.value())
         modified = displayModified = true;
+}
+
+void PliAnnotationGui::gbStyleToggled(bool checked)
+{
+    if (meta->enableStyle.value() != checked) {
+        meta->enableStyle.setValue(checked);
+        modified = enableStyleModified = true;
+    }
+    axleStyleCheck->setEnabled(checked);
+    beamStyleCheck->setEnabled(checked);
+    cableStyleCheck->setEnabled(checked);
+    connectorStyleCheck->setEnabled(checked);
+    hoseStyleCheck->setEnabled(checked);
+    panelStyleCheck->setEnabled(checked);
 }
 
 void PliAnnotationGui::enableElementStyle(bool checked)
@@ -4015,6 +4035,9 @@ void PliAnnotationGui::apply(QString &topLevelFile)
       mi.setGlobalMeta(topLevelFile,&meta->display);
 //      ProgressDialog->setValue(++commands);
 //      QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+  }
+  if (enableStyleModified){
+      mi.setGlobalMeta(topLevelFile, &meta->enableStyle);
   }
   if (titleModified) {
       mi.setGlobalMeta(topLevelFile,&meta->titleAnnotation);
