@@ -3278,9 +3278,9 @@ void Gui::createActions()
     saveAsAct->setEnabled(false);
     connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
 
-    closeFileAct = new QAction(QIcon(":/resources/closemodelfile.png"), tr("Cl&ose..."), this);
-    closeFileAct->setShortcut(tr("Ctrl+O"));
-    closeFileAct->setStatusTip(tr("Close an existing file - Ctrl+O"));
+    closeFileAct = new QAction(QIcon(":/resources/closemodelfile.png"), tr("Close"), this);
+    closeFileAct->setShortcut(tr("Ctrl+W"));
+    closeFileAct->setStatusTip(tr("Close current model file - Ctrl+W"));
     closeFileAct->setEnabled(false);
     connect(closeFileAct, SIGNAL(triggered()), this, SLOT(closeModelFile()));
 
