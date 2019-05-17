@@ -996,30 +996,38 @@ std::string LDVWidget::doGetRebrickablePartURL(const std::string &LDrawPartID, b
     QJsonDocument Document = QJsonDocument::fromJson(m_RebrickableParts);
     QJsonObject Root = Document.object();
     QJsonArray Parts = Root["results"].toArray();
+    // Converting QByteArray to QString Utf8 constData
+    // because QByteArray.toStdString() is only available
+    //if Qt is configured with STL compatibility enabled.
+    std::string utf8String;
     for (const QJsonValue& Part : Parts)
     {
         // primary check
         QJsonObject PartObject = Part.toObject();
         QByteArray RBPartUrl = PartObject["part_url"].toString().toLatin1();
         QByteArray RBPartCode = PartObject["part_num"].toString().toLatin1();
-        if (LDrawPartID == RBPartCode.toStdString()) {
+        utf8String = QString(RBPartCode).toUtf8().constData();
+        if (LDrawPartID == utf8String) {
             emit lpubAlert->messageSig(LOG_INFO, QString("LDID=%1 RBCode=%2 RBUrl=%3 ")
                                        .arg(QString::fromStdString(LDrawPartID))
                                        .arg(QString(RBPartCode))
                                        .arg(QString(RBPartUrl)));
-            return RBPartUrl.toStdString();
+            utf8String = QString(RBPartUrl).toUtf8().constData();
+            return utf8String;
         }
         // secondary check
         QJsonArray PartIDArray = PartObject["external_ids"].toObject()["LDraw"].toArray();
         if (!PartIDArray.isEmpty()) {
             for (int i = 0; i < PartIDArray.size(); i++){
                 QByteArray LDPartCode = PartIDArray[i].toString().toLatin1();
-                if (LDrawPartID == LDPartCode.toStdString()) {
+                utf8String = QString(LDPartCode).toUtf8().constData();
+                if (LDrawPartID == utf8String) {
                     emit lpubAlert->messageSig(LOG_INFO, QString("LDCode=%1 RBCode=%2 RBUrl=%3 ")
                                                .arg(QString(LDPartCode))
                                                .arg(QString(RBPartCode))
                                                .arg(QString(RBPartUrl)));
-                    return RBPartUrl.toStdString();
+                    std::string utf8String = QString(RBPartUrl).toUtf8().constData();
+                    return utf8String;
                 }
             }
         }
