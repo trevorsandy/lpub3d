@@ -35,6 +35,7 @@
 #include <QGraphicsRectItem>
 #include <QGraphicsTextItem>
 #include <QGraphicsSceneMouseEvent>
+#include <QApplication>
 #include <QSize>
 #include <QRect>
 #include <QPen>
@@ -99,21 +100,33 @@ class Grabber : public QGraphicsRectItem
       setPen(pen);
       setBrush(Qt::black);
       setRect(0,0,resized->grabSize(),resized->grabSize());
+      setAcceptHoverEvents(true);
     }
   protected:
-    void mousePressEvent(QGraphicsSceneMouseEvent * /* event */)
+    void mousePressEvent(QGraphicsSceneMouseEvent * /* event */) override
     {
       resized->whichGrabber(which);
     }
-    void mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override
     {
       resized->resize(event->scenePos());
     }
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent *  event )
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *  event ) override
     {
+        QApplication::setOverrideCursor(Qt::ArrowCursor);
         if (event->button() == Qt::LeftButton){
             resized->change();
         }
+    }
+    virtual void hoverEnterEvent (QGraphicsSceneHoverEvent *event) override
+    {
+      QGraphicsItem::hoverEnterEvent(event);
+      QApplication::setOverrideCursor(Qt::ClosedHandCursor);
+    }
+    virtual void hoverLeaveEvent (QGraphicsSceneHoverEvent *event) override
+    {
+      QGraphicsItem::hoverLeaveEvent(event);
+      QApplication::setOverrideCursor(Qt::ArrowCursor);
     }
 };
 
