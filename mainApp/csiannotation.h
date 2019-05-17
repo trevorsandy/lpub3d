@@ -103,6 +103,7 @@ public:
     font.fromString(fontString);
     setFont(font);
     setToolTip(toolTip);
+    setData(ObjectId, AssemAnnotationObj);
   }
 
   virtual void addGraphicsItems(
@@ -124,7 +125,7 @@ public:
 
   void setAlignment( Qt::Alignment flags )
   {
-      alignment = flags;
+    alignment = flags;
   }
 
   void scaleDownFont();
@@ -134,9 +135,9 @@ protected:
   void mousePressEvent(QGraphicsSceneMouseEvent *event);
   void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
   void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-  void change();
   void setAnnotationStyle(QPainter *painter);
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *o, QWidget *w);
+  void change();
 
   QPointF              textOffset;
   Qt::Alignment	       alignment;

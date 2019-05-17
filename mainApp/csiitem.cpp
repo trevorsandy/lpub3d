@@ -66,14 +66,16 @@ CsiItem::CsiItem(
     divider = nullptr;
   }
 
+  modelScale = meta->LPub.assem.modelScale;
+
   setTransformationMode(Qt::SmoothTransformation);
 
   setToolTip(step->path() + "- right-click to modify");
 
   setFlag(QGraphicsItem::ItemIsSelectable,true);
   setFlag(QGraphicsItem::ItemIsMovable,true);
-
-  modelScale = meta->LPub.assem.modelScale;
+  setData(ObjectId, AssemObj);
+  setZValue(meta->LPub.page.scene.assem.zValue());
 }
 
 void CsiItem::placeCsiPartAnnotations()
@@ -104,6 +106,7 @@ void CsiItem::placeCsiPartAnnotations()
             for (int i = 0; i < part->instances.size(); ++i) {
                 if (ca->partLine == part->instances[i] && part->text.size()){
                     CsiAnnotationItem *caItem = new CsiAnnotationItem();
+                    caItem->setZValue(meta->LPub.page.scene.assemAnnotation.zValue());
                     caItem->addGraphicsItems(ca,step,part,this,true);
                 }
             }
@@ -170,6 +173,8 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   Where bottomOfStep  = step->bottomOfStep();
   Where topOfSteps    = step->topOfSteps();
   Where bottomOfSteps = step->bottomOfSteps();
+
+  Callout *callout    = step->callout();
 
   if (parentRelativeType == StepGroupType) {
       Where walk = topOfStep;
@@ -346,13 +351,36 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                                                          : "Don't Show This Final Model");
   noStepAction->setIcon(QIcon(":/resources/display.png"));
 
+  QAction *bringToFrontAction = nullptr;
+  QAction *sendToBackBackAction = nullptr;
+  if (gui->pagescene()->showContextAction()) {
+      if (!gui->pagescene()->isSelectedItemOnTop())
+          bringToFrontAction = commonMenus.bringToFrontMenu(menu, pl);
+      if (!gui->pagescene()->isSelectedItemOnBottom())
+          sendToBackBackAction  = commonMenus.sendToBackMenu(menu, pl);
+  }
+
+  Where top, bottom;
+  switch (parentRelativeType) {
+    case StepGroupType:
+      top = topOfSteps;
+      bottom = bottomOfSteps;
+      break;
+    case CalloutType:
+      top = callout->topOfCallout();
+      bottom = callout->bottomOfCallout();
+      break;
+    default: /*SingleStepType*/
+      top = topOfStep;
+      bottom = bottomOfStep;
+      break;
+  }
+
   QAction *selectedAction = menu.exec(event->screenPos());
 
   if ( ! selectedAction ) {
       return;
     }
-  
-  Callout *callout = step->callout();
 
   if (selectedAction == addPrevAction) {
       addPrevMultiStep(topOfSteps,bottomOfSteps);
@@ -476,8 +504,17 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       }
       hiddenAnnotations = false;
       step->setCsiAnnotationMetas(*meta,!hiddenAnnotations);
+    } else if (selectedAction == bringToFrontAction) {
+      setSelectedItemZValue(top,
+                            bottom,
+                            BringToFront,
+                            &meta->LPub.page.scene.assem);
+    } else if (selectedAction == sendToBackBackAction) {
+      setSelectedItemZValue(top,
+                            bottom,
+                            SendToBack,
+                            &meta->LPub.page.scene.assem);
     }
-
 }
 
 void CsiItem::mousePressEvent(QGraphicsSceneMouseEvent *event)

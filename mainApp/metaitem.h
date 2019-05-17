@@ -374,14 +374,15 @@ public:
                      BoolMeta *show,
                      bool useTop = true,
                      int append = 1,
-                     bool checkLocal = true);
+                     bool local = true);
 
   void changeSubmodelRotStep(QString title,
-                             const Where &, const Where &,
+                             const Where &,
+                             const Where &,
                              RotStepMeta *rotStep,
                              bool useTop = true,
                              int append = 1,
-                             bool checkLocal = true);
+                             bool local = true);
 
   void changeConstraint(const Where &,
                         const Where &,
@@ -401,6 +402,15 @@ public:
                         int  append = 1,
                         bool local = true,
                         bool isCallout = false);
+
+  void setSelectedItemZValue(
+                     const Where &,
+                     const Where &,
+                     bool bringToFront,
+                     SceneDepthMeta *,
+                     bool useTop = true,
+                     int append = 1,
+                     bool local = true);
 
   void changeInsertOffset(InsertMeta *placement);
   //void changePageAttributePictureOffset(Where default const,PageAttributePictureMeta *pictureMeta,bool local = false,bool global = true);

@@ -24,10 +24,13 @@
 #include <QColor>
 #include <QColorDialog>
 #include "commonmenus.h"
+#include "pagebackgrounditem.h"
+#include "lpub.h"
 
 TextItem::TextItem(
   InsertMeta meta,
-  QGraphicsItem *parent) :  meta(meta)
+  QGraphicsItem *parent)
+    : meta(meta)
 {
   InsertData data = meta.value();
   setParentItem(parent);
@@ -75,7 +78,7 @@ TextItem::TextItem(
 
   setFlag(QGraphicsItem::ItemIsMovable);
   setFlag(QGraphicsItem::ItemIsSelectable);
-  setZValue(1000);
+  setData(ObjectId, InsertTextObj);
   margin.setValues(0.0,0.0);
 }
 
@@ -92,7 +95,18 @@ void TextItem::contextMenuEvent(
   deleteTextAction->setIcon(QIcon(":/resources/textDelete.png"));
   deleteTextAction->setWhatsThis("Delete this text");
 
+  QAction *bringToFrontAction = nullptr;
+  QAction *sendToBackBackAction = nullptr;
+  if (gui->pagescene()->showContextAction()) {
+      if (!gui->pagescene()->isSelectedItemOnTop())
+          bringToFrontAction = commonMenus.bringToFrontMenu(menu, pl);
+      if (!gui->pagescene()->isSelectedItemOnBottom())
+          sendToBackBackAction  = commonMenus.sendToBackMenu(menu, pl);
+  }
+
   QAction *selectedAction  = menu.exec(event->screenPos());
+
+  Where here = meta.here();
 
   if (selectedAction == nullptr) {
     return;
@@ -140,11 +154,21 @@ void TextItem::contextMenuEvent(
 
   } else if (selectedAction == deleteTextAction) {
 
-    Where here = meta.here();
-
     beginMacro("DeleteText");
     deleteMeta(here);
     endMacro();
+  } else if (selectedAction == bringToFrontAction) {
+      PageBackgroundItem * pageBgItem = qgraphicsitem_cast<PageBackgroundItem *>(parentObject());
+      setSelectedItemZValue(here,
+                            here,
+                            BringToFront,
+                            &pageBgItem->meta->LPub.page.scene.insertText);
+  } else if (selectedAction == sendToBackBackAction) {
+      PageBackgroundItem * pageBgItem = qgraphicsitem_cast<PageBackgroundItem *>(parentObject());
+      setSelectedItemZValue(here,
+                            here,
+                            SendToBack,
+                            &pageBgItem->meta->LPub.page.scene.insertText);
   }
 }
 

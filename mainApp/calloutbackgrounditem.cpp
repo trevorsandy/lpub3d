@@ -86,7 +86,8 @@ CalloutBackgroundItem::CalloutBackgroundItem(
   alloc   = &calloutMeta.alloc;
   page    = &meta->LPub.page;
 
-  setZValue(98);
+  setData(ObjectId, CalloutBackgroundObj);
+  setZValue(meta->LPub.page.scene.calloutBackground.zValue());
   setFlag(QGraphicsItem::ItemIsSelectable,true);
   setFlag(QGraphicsItem::ItemIsMovable,true);
 }
@@ -145,6 +146,15 @@ void CalloutBackgroundItem::contextMenuEvent(
   QAction *addPointerAction = menu.addAction("Add Pointer");
   addPointerAction->setWhatsThis("Add pointer from this callout to the step where it is used");
   addPointerAction->setIcon(QIcon(":/resources/addpointer.png"));
+
+  QAction *bringToFrontAction = nullptr;
+  QAction *sendToBackBackAction = nullptr;
+  if (gui->pagescene()->showContextAction()) {
+      if (!gui->pagescene()->isSelectedItemOnTop())
+          bringToFrontAction = commonMenus.bringToFrontMenu(menu, name);
+      if (!gui->pagescene()->isSelectedItemOnBottom())
+          sendToBackBackAction  = commonMenus.sendToBackMenu(menu, name);
+  }
 
   QAction *selectedAction = menu.exec(event->screenPos());
 
@@ -216,6 +226,16 @@ void CalloutBackgroundItem::contextMenuEvent(
                 callout->bottomOfCallout(),
                 callout->allocMeta(),
                 0); // append - default is no
+  } else if (selectedAction == bringToFrontAction) {
+      setSelectedItemZValue(callout->topOfCallout(),
+                            callout->bottomOfCallout(),
+                            BringToFront,
+                            &meta->LPub.page.scene.calloutBackground);
+  } else if (selectedAction == sendToBackBackAction) {
+      setSelectedItemZValue(callout->topOfCallout(),
+                            callout->bottomOfCallout(),
+                            SendToBack,
+                            &meta->LPub.page.scene.calloutBackground);
   }
 }
 

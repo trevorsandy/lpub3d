@@ -24,19 +24,6 @@
 
 enum FitMode { FitNone, FitWidth, FitVisible, FitTwoPages, FitContinuousScroll };
 
-enum zValues {
-  PageBackgroundZValue = 0,
-  PageNumberZValue = 10,
-  PagePLIZValue = 20,
-  PageInstanceZValue = 30,
-  AssemZValue = 30,
-  StepGroupZValue = 30,
-  CalloutPointerZValue = 45,
-  CalloutBackgroundZValue = 50,
-  CalloutAssemZValue = 55,
-  CalloutInstanceZValue = 60,
-};
-
 class PageBackgroundItem;
 
 class LGraphicsView : public QGraphicsView

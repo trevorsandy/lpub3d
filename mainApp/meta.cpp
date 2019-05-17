@@ -2708,6 +2708,143 @@ void PageFooterMeta::init(BranchMeta *parent, QString name)
 }
 
 /* ------------------ */
+/*
+ * Scene Depth Meta
+ */
+
+SceneDepthMeta::SceneDepthMeta() : LeafMeta()
+{
+  _value[pushed] = Z_VALUE_DEFAULT;
+}
+
+Rc SceneDepthMeta::parse(QStringList &argv, int index, Where &here)
+{
+  QRegExp rx("^(Z_VALUE)$");
+  if (argv.size() - index == 2 && argv[index].contains(rx)) {
+      bool ok;
+      float v = argv[index + 1].toFloat(&ok);
+      if (ok) {
+          _value[pushed] = double(v);
+          _here[pushed] = here;
+          switch(tokenMap[argv[index - 1]])
+          {
+          case PagePointerObj:
+              return PagePointerDepthRc;
+          case CalloutPointerObj:
+              return CalloutPointerDepthRc;
+          case DividerPointerObj:
+              return DividerPointerDepthRc;
+          default:
+              return SceneDepthRc;
+          }
+       }
+    }
+  if (reportErrors) {
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected Z_VALUE number but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
+    }
+  return FailureRc;
+}
+
+QString SceneDepthMeta::format(bool local, bool global)
+{
+  QString foo;
+  foo = QString("Z_VALUE %1").arg(double(_value[pushed]));
+  return LeafMeta::format(local,global,foo);
+}
+void SceneDepthMeta::doc(QStringList &out, QString preamble)
+{
+  out << preamble + " Z_VALUE <double>";
+}
+
+/* ------------------ */
+/*
+* Scene Object Meta - Manage ZValues
+*/
+
+SceneObjectMeta::SceneObjectMeta() : BranchMeta()
+{
+   assemAnnotation      .setValue(ASSEMANNOTATION_ZVALUE_DEFAULT);      //  0
+   assemAnnotationPart  .setValue(ASSEMANNOTATIONPART_ZVALUE_DEFAULT);  //  1
+   assem                .setValue(ASSEM_ZVALUE_DEFAULT);                //  2
+   calloutAssem         .setValue(CALLOUTASSEM_ZVALUE_DEFAULT);         //  3
+   calloutBackground    .setValue(CALLOUTBACKGROUND_ZVALUE_DEFAULT);    //  4
+   calloutInstance      .setValue(CALLOUTINSTANCE_ZVALUE_DEFAULT);      //  5
+   calloutPointer       .setValue(CALLOUTPOINTER_ZVALUE_DEFAULT);       //  6
+   calloutUnderpinning  .setValue(CALLOUTUNDERPINNING_ZVALUE_DEFAULT);  //  7
+   dividerBackground    .setValue(DIVIDERBACKGROUND_ZVALUE_DEFAULT);    //  8
+   divider              .setValue(DIVIDER_ZVALUE_DEFAULT);              //  9
+   dividerLine          .setValue(DIVIDERLINE_ZVALUE_DEFAULT);          // 10
+   dividerPointer       .setValue(DIVIDERPOINTER_ZVALUE_DEFAULT);       // 11
+   pointerGrabber       .setValue(POINTERGRABBER_ZVALUE_DEFAULT);       // 12
+   pliGrabber           .setValue(PLIGRABBER_ZVALUE_DEFAULT);           // 13
+   submodelGrabber      .setValue(SUBMODELGRABBER_ZVALUE_DEFAULT);      // 14
+   insertPicture        .setValue(INSERTPIXMAP_ZVALUE_DEFAULT);         // 15
+   insertText           .setValue(INSERTTEXT_ZVALUE_DEFAULT);           // 16
+   multiStepBackground  .setValue(MULTISTEPBACKGROUND_ZVALUE_DEFAULT);  // 17
+   multiStepsBackground .setValue(MULTISTEPSBACKGROUND_ZVALUE_DEFAULT); // 18
+   pageAttributePixmap  .setValue(PAGEATTRIBUTEPIXMAP_ZVALUE_DEFAULT);  // 19
+   pageAttributeText    .setValue(PAGEATTRIBUTETEXT_ZVALUE_DEFAULT);    // 20
+   pageBackground       .setValue(PAGEBACKGROUND_ZVALUE_DEFAULT);       // 21
+   pageNumber           .setValue(PAGENUMBER_ZVALUE_DEFAULT);           // 22
+   pagePointer          .setValue(PAGEPOINTER_ZVALUE_DEFAULT);          // 23
+   partsListAnnotation  .setValue(PARTSLISTANNOTATION_ZVALUE_DEFAULT);  // 24
+   partsListBackground  .setValue(PARTSLISTBACKGROUND_ZVALUE_DEFAULT);  // 25
+   partsListInstance    .setValue(PARTSLISTINSTANCE_ZVALUE_DEFAULT);    // 26
+   pointerFirstSeg      .setValue(POINTERFIRSTSEG_ZVALUE_DEFAULT);      // 27
+   pointerHead          .setValue(POINTERHEAD_ZVALUE_DEFAULT);          // 28
+   pointerSecondSeg     .setValue(POINTERSECONDSEG_ZVALUE_DEFAULT);     // 29
+   pointerThirdSeg      .setValue(POINTERTHIRDSEG_ZVALUE_DEFAULT);      // 30
+   rotateIconBackground .setValue(ROTATEICONBACKGROUND_ZVALUE_DEFAULT); // 31
+   stepNumber           .setValue(STEPNUMBER_ZVALUE_DEFAULT);           // 32
+   subModelBackground   .setValue(SUBMODELBACKGROUND_ZVALUE_DEFAULT);   // 33
+   subModelInstance     .setValue(SUBMODELINSTANCE_ZVALUE_DEFAULT);     // 34
+   submodelInstanceCount.setValue(SUBMODELINSTANCECOUNT_ZVALUE_DEFAULT);// 35
+}
+
+void SceneObjectMeta::init(
+   BranchMeta *parent,
+   QString name)
+{
+   AbstractMeta::init(parent, name);
+   assemAnnotation      .init(this, "CSI_ANNOTATION");       //  0 CsiAnnotationType
+   assemAnnotationPart  .init(this, "CSI_ANNOTATION_PART");  //  1 CsiPartType
+   assem                .init(this, "ASSEM");                //  2 CsiType
+   calloutAssem         .init(this, "CALLOUT_ASSEM");        //  3
+   calloutBackground    .init(this, "CALLOUT_BACKGROUND");   //  4 CalloutType
+   calloutInstance      .init(this, "CALLOUT_INSTANCE");     //  5
+   calloutPointer       .init(this, "CALLOUT_POINTER");      //  6
+   calloutUnderpinning  .init(this, "CALLOUT_UNDERPINNING"); //  7
+   dividerBackground    .init(this, "DIVIDER");              //  8
+   divider              .init(this, "DIVIDER_ITEM");         //  9
+   dividerLine          .init(this, "DIVIDER_LINE");         // 10
+   dividerPointer       .init(this, "DIVIDER_POINTER");      // 11 DividerPointerType
+   pointerGrabber       .init(this, "POINTER_GRABBER");      // 12
+   pliGrabber           .init(this, "PLI_GRABBER");          // 13
+   submodelGrabber      .init(this, "SUBMODEL_GRABBER");     // 14
+   insertPicture        .init(this, "PICTURE");              // 15
+   insertText           .init(this, "TEXT");                 // 16
+   multiStepBackground  .init(this, "MULTI_STEP");           // 17 StepGroupType
+   multiStepsBackground .init(this, "MULTI_STEPS");          // 18
+   pageAttributePixmap  .init(this, "ATTRIBUTE_PIXMAP");     // 19
+   pageAttributeText    .init(this, "ATTRIBUTE_TEXT");       // 20
+   pageBackground       .init(this, "PAGE");                 // 21 PageType
+   pageNumber           .init(this, "PAGE_NUMBER");          // 22 PageNumberType
+   pagePointer          .init(this, "PAGE_POINTER");         // 23 PagePointerType
+   partsListAnnotation  .init(this, "PLI_ANNOTATION");       // 24
+   partsListBackground  .init(this, "PLI");                  // 25 PartsListType
+   partsListInstance    .init(this, "PLI_INSTANCE");         // 26
+   pointerFirstSeg      .init(this, "POINTER_SEG_FIRST");    // 27
+   pointerHead          .init(this, "POINTER_HEAD");         // 28
+   pointerSecondSeg     .init(this, "POINTER_SEG_SECOND");   // 29
+   pointerThirdSeg      .init(this, "POINTER_SEG_THIRD");    // 30
+   rotateIconBackground .init(this, "ROTATE_ICON");          // 31 RotateIconType
+   stepNumber           .init(this, "STEP_NUMBER");          // 32 StepNumberType
+   subModelBackground   .init(this, "SUBMODEL_DISPLAY");     // 33 SubModelType
+   subModelInstance     .init(this, "SUBMODEL_INSTANCE");    // 34
+   submodelInstanceCount.init(this, "SUBMODEL_INST_COUNT");  // 35 SubmodelInstanceCountType
+}
+
+/* ------------------ */
 
 FadeStepMeta::FadeStepMeta() : BranchMeta()
 {
@@ -3489,6 +3626,8 @@ void PageMeta::init(BranchMeta *parent, QString name)
   pointer.init            (this, "POINTER");
   pointerAttrib.init      (this, "POINTER_ATTRIBUTE");
 
+  scene.init              (this, "SCENE");
+
   pageHeader.init         (this, "PAGE_HEADER");
   pageFooter.init         (this, "PAGE_FOOTER");
 
@@ -4248,50 +4387,76 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
    */
 
   if (tokenMap.size() == 0) {
-      tokenMap["TOP_LEFT"]         	   = TopLeft;
-      tokenMap["TOP"]              	   = Top;
-      tokenMap["TOP_RIGHT"]        	   = TopRight;
-      tokenMap["RIGHT"]            	   = Right;
-      tokenMap["BOTTOM_RIGHT"]     	   = BottomRight;
-      tokenMap["BOTTOM"]           	   = Bottom;
-      tokenMap["BOTTOM_LEFT"]      	   = BottomLeft;
-      tokenMap["LEFT"]             	   = Left;
-      tokenMap["CENTER"]           	   = Center;
+      tokenMap["TOP_LEFT"]             = TopLeft;
+      tokenMap["TOP"]                  = Top;
+      tokenMap["TOP_RIGHT"]            = TopRight;
+      tokenMap["RIGHT"]                = Right;
+      tokenMap["BOTTOM_RIGHT"]         = BottomRight;
+      tokenMap["BOTTOM"]               = Bottom;
+      tokenMap["BOTTOM_LEFT"]          = BottomLeft;
+      tokenMap["LEFT"]                 = Left;
+      tokenMap["CENTER"]               = Center;
 
-      tokenMap["INSIDE"]           	   = Inside;
-      tokenMap["OUTSIDE"]          	   = Outside;
+      tokenMap["INSIDE"]               = Inside;
+      tokenMap["OUTSIDE"]              = Outside;
 
-      tokenMap["PAGE"]             	   = PageType;
-      tokenMap["ASSEM"]            	   = CsiType;
-      tokenMap["MULTI_STEP"]       	   = StepGroupType;
-      tokenMap["STEP_GROUP"]       	   = StepGroupType;
-      tokenMap["STEP_NUMBER"]      	   = StepNumberType;
-      tokenMap["PLI"]              	   = PartsListType;
-      tokenMap["PAGE_NUMBER"]      	   = PageNumberType;
-      tokenMap["CALLOUT"]          	   = CalloutType;
+      tokenMap["PAGE"]                 = PageType;
+      tokenMap["ASSEM"]                = CsiType;
+      tokenMap["MULTI_STEP"]           = StepGroupType;
+      tokenMap["STEP_GROUP"]           = StepGroupType;
+      tokenMap["STEP_NUMBER"]          = StepNumberType;
+      tokenMap["PLI"]                  = PartsListType;
+      tokenMap["PAGE_NUMBER"]          = PageNumberType;
+      tokenMap["CALLOUT"]              = CalloutType;
+      tokenMap["SUBMODEL_INST_COUNT"]  = SubmodelInstanceCountType;
+      tokenMap["SUBMODEL_DISPLAY"]     = SubModelType;
+      tokenMap["ROTATE_ICON"]          = RotateIconType;
+      tokenMap["PAGE_POINTER"]         = PagePointerType;
+
+      tokenMap["CSI_ANNOTATION"]       = AssemAnnotationObj;
+      tokenMap["CSI_ANNOTATION_PART"]  = AssemAnnotationPartObj;
+      tokenMap["CALLOUT_ASSEM"]        = CalloutAssemObj;
+      tokenMap["CALLOUT_INSTANCE"]     = CalloutInstanceObj;
+      tokenMap["CALLOUT_POINTER"]      = CalloutPointerObj;
+      tokenMap["CALLOUT_UNDERPINNING"] = CalloutUnderpinningObj;
+      tokenMap["DIVIDER"]              = DividerObj;
+      tokenMap["DIVIDER_ITEM"]         = DividerBackgroundObj;
+      tokenMap["DIVIDER_LINE"]         = DividerLineObj;
+      tokenMap["DIVIDER_POINTER"]      = DividerPointerObj;
+      tokenMap["MULTI_STEPS"]          = MultiStepsBackgroundObj;
+      tokenMap["POINTER_GRABBER"]      = PointerGrabberObj;
+      tokenMap["PLI_GRABBER"]          = PliGrabberObj;
+      tokenMap["SUBMODEL_GRABBER"]     = SubmodelGrabberObj;
+      tokenMap["PICTURE"]              = InsertPixmapObj;
+      tokenMap["TEXT"]                 = InsertTextObj;
+      tokenMap["ATTRIBUTE_PIXMAP"]     = PageAttributePixmapObj;
+      tokenMap["ATTRIBUTE_TEXT"]       = PageAttributeTextObj;
+      tokenMap["PLI_ANNOTATION"]       = PartsListAnnotationObj;
+      tokenMap["PLI_INSTANCE"]         = PartsListInstanceObj;
+      tokenMap["POINTER_SEG_FIRST"]    = PointerFirstSegObj;
+      tokenMap["POINTER_HEAD"]         = PointerHeadObj;
+      tokenMap["POINTER_SEG_SECOND"]   = PointerSecondSegObj;
+      tokenMap["POINTER_SEG_THIRD"]    = PointerThirdSegObj;
+      tokenMap["SUBMODEL_INSTANCE"]    = SubModelInstanceObj;
 
       tokenMap["DOCUMENT_TITLE"]       = PageTitleType;
-      tokenMap["MODEL_ID"]    		   = PageModelNameType;
+      tokenMap["MODEL_ID"]             = PageModelNameType;
       tokenMap["DOCUMENT_AUTHOR"]      = PageAuthorType;
-      tokenMap["PUBLISH_URL"]    	   = PageURLType;
+      tokenMap["PUBLISH_URL"]          = PageURLType;
       tokenMap["MODEL_DESCRIPTION"]    = PageModelDescType;
       tokenMap["PUBLISH_DESCRIPTION"]  = PagePublishDescType;
       tokenMap["PUBLISH_COPYRIGHT"]    = PageCopyrightType;
-      tokenMap["PUBLISH_EMAIL"]    	   = PageEmailType;
+      tokenMap["PUBLISH_EMAIL"]        = PageEmailType;
       tokenMap["LEGO_DISCLAIMER"]      = PageDisclaimerType;
-      tokenMap["MODEL_PARTS"]    	   = PagePartsType;
-      tokenMap["APP_PLUG"]    		   = PagePlugType;
-      tokenMap["SUBMODEL_INST_COUNT"]  = SubmodelInstanceCountType;
-      tokenMap["DOCUMENT_LOGO"]    	   = PageDocumentLogoType;
+      tokenMap["MODEL_PARTS"]          = PagePartsType;
+      tokenMap["APP_PLUG"]             = PagePlugType;
+      tokenMap["DOCUMENT_LOGO"]        = PageDocumentLogoType;
       tokenMap["DOCUMENT_COVER_IMAGE"] = PageCoverImageType;
       tokenMap["APP_PLUG_IMAGE"]       = PagePlugImageType;
-      tokenMap["PAGE_HEADER"]    	   = PageHeaderType;
-      tokenMap["PAGE_FOOTER"]    	   = PageFooterType;
+      tokenMap["PAGE_HEADER"]          = PageHeaderType;
+      tokenMap["PAGE_FOOTER"]          = PageFooterType;
       tokenMap["MODEL_CATEGORY"]       = PageCategoryType;
-      tokenMap["SUBMODEL_DISPLAY"]     = SubModelType;
-      tokenMap["ROTATE_ICON"]          = RotateIconType;
 
-      tokenMap["PAGE_POINTER"]         = PagePointerType;
       tokenMap["SINGLE_STEP"]          = SingleStepType;
       tokenMap["STEP"]                 = StepType;
       tokenMap["RANGE"]                = RangeType;
@@ -4311,7 +4476,6 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
       tokenMap["LANDSCAPE"]            = Landscape;
 
       tokenMap["SORT_BY"]              = SortByType;
-      tokenMap["ANNOTATION"]           = AnnotationType;
 
       tokenMap["BASE_TOP_LEFT"]        = TopLeftInsideCorner;
       tokenMap["BASE_TOP"]             = TopInside;

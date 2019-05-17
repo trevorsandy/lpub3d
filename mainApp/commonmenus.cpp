@@ -224,6 +224,38 @@ action->setWhatsThis(formatted);
 return action;
 }
 
+QAction* CommonMenus::bringToFrontMenu(
+      QMenu   &menu,
+  const QString  name)
+{
+QAction *action;
+
+QString formatted = QString("Bring %1 to Front") .arg(name);
+action = menu.addAction(formatted);
+action->setIcon(QIcon(":/resources/bringtofront.png"));
+
+formatted = QString("Bring this %1 to the front.") .arg(name);
+action->setWhatsThis(formatted);
+
+return action;
+}
+
+QAction* CommonMenus::sendToBackMenu(
+      QMenu   &menu,
+  const QString  name)
+{
+QAction *action;
+
+QString formatted = QString("Send %1 to Back") .arg(name);
+action = menu.addAction(formatted);
+action->setIcon(QIcon(":/resources/sendtoback.png"));
+
+formatted = QString("Send this %1 to the back.") .arg(name);
+action->setWhatsThis(formatted);
+
+return action;
+}
+
 QAction* CommonMenus::noPartsList(
       QMenu   &menu,
   const QString  name)

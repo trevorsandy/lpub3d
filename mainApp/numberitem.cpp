@@ -41,6 +41,8 @@
 
 #include "ranges.h"
 #include "step.h"
+#include "lpub.h"
+#include "name.h"
 
 void NumberItem::setAttributes(
   PlacementType  _relativeType,
@@ -149,7 +151,7 @@ void NumberPlacementItem::setAttributes(
   margin             = _number.margin;
   placement          = _number.placement;
   value              = _value;
-  name               = _name;
+  pl                 = _name;
 
   QFont qfont;
   qfont.fromString(_number.font.valueFoo());
@@ -200,6 +202,8 @@ PageNumberItem::PageNumberItem(
                 _value,
                 toolTip,
                 _parent);
+  setData(ObjectId, PageNumberObj);
+  setZValue(PAGENUMBER_ZVALUE_DEFAULT);
 }
 
 void PageNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
@@ -211,6 +215,15 @@ void PageNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QAction *colorAction  = commonMenus.colorMenu(menu,pl);
   QAction *marginAction = commonMenus.marginMenu(menu,pl);
   QAction *placementAction  = commonMenus.placementMenu(menu,pl,"You can move this Page Number item around.");
+
+  QAction *bringToFrontAction = nullptr;
+  QAction *sendToBackBackAction = nullptr;
+  if (gui->pagescene()->showContextAction()) {
+      if (!gui->pagescene()->isSelectedItemOnTop())
+          bringToFrontAction = commonMenus.bringToFrontMenu(menu, pl);
+      if (!gui->pagescene()->isSelectedItemOnBottom())
+          sendToBackBackAction  = commonMenus.sendToBackMenu(menu, pl);
+  }
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
@@ -251,6 +264,16 @@ void PageNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                   bottomOfSteps,                                  //Trevor@vers303 change
                  &margin,
                   useTop);                                        //Trevor@vers303 add
+  } else if (selectedAction == bringToFrontAction) {
+      setSelectedItemZValue(topOfSteps,
+                          bottomOfSteps,
+                          BringToFront,
+                          &page->meta.LPub.page.scene.pageNumber);
+  } else if (selectedAction == sendToBackBackAction) {
+      setSelectedItemZValue(topOfSteps,
+                          bottomOfSteps,
+                          SendToBack,
+                          &page->meta.LPub.page.scene.pageNumber);
   }
 }
 
@@ -302,18 +325,27 @@ StepNumberItem::StepNumberItem(
                 _toolTip,
                 _parent,
                 _name);
+  setData(ObjectId, StepNumberObj);
+  setZValue(STEPNUMBER_ZVALUE_DEFAULT);
 }
 
 void StepNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
 
-  QString pl = "Step Number";
+  QAction *placementAction = commonMenus.placementMenu(menu,pl);
+  QAction *fontAction      = commonMenus.fontMenu(menu,pl);
+  QAction *colorAction     = commonMenus.colorMenu(menu,pl);
+  QAction *marginAction    = commonMenus.marginMenu(menu,pl);
 
-  QAction *placementAction = commonMenus.placementMenu(menu,name);
-  QAction *fontAction      = commonMenus.fontMenu(menu,name);
-  QAction *colorAction     = commonMenus.colorMenu(menu,name);
-  QAction *marginAction    = commonMenus.marginMenu(menu,name);
+  QAction *bringToFrontAction = nullptr;
+  QAction *sendToBackBackAction = nullptr;
+  if (gui->pagescene()->showContextAction()) {
+      if (!gui->pagescene()->isSelectedItemOnTop())
+          bringToFrontAction = commonMenus.bringToFrontMenu(menu, pl);
+      if (!gui->pagescene()->isSelectedItemOnBottom())
+          sendToBackBackAction  = commonMenus.sendToBackMenu(menu, pl);
+  }
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
@@ -355,6 +387,16 @@ void StepNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                     top,
                     bottom,
                     &margin);
+    } else if (selectedAction == bringToFrontAction) {
+      setSelectedItemZValue(top,
+                          bottom,
+                          BringToFront,
+                          &step->grandparent()->meta.LPub.page.scene.stepNumber);
+    } else if (selectedAction == sendToBackBackAction) {
+      setSelectedItemZValue(top,
+                          bottom,
+                          SendToBack,
+                          &step->grandparent()->meta.LPub.page.scene.stepNumber);
     }
 }
 

@@ -40,7 +40,7 @@
 #include "lpub_preferences.h"
 
 PageBackgroundItem::PageBackgroundItem(
-  Page   *_page,
+   Page   *_page,
   int     width,
   int     height,
   bool    _exporting)
@@ -67,6 +67,8 @@ PageBackgroundItem::PageBackgroundItem(
   setPixmap(*pixmap);
   setFlag(QGraphicsItem::ItemIsSelectable,false);
   setFlag(QGraphicsItem::ItemIsMovable,false);
+  setData(ObjectId, PageBackgroundObj);
+  setZValue(page->meta.LPub.page.scene.pageBackground.zValue());
 
   delete pixmap;
 }

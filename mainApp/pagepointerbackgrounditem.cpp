@@ -28,7 +28,7 @@
 
 #include <QtWidgets>
 #include "pagepointerbackgrounditem.h"
-#include <QGraphicsView>
+#include "name.h"
 
 PagePointerBackgroundItem::PagePointerBackgroundItem(
   QRect         &_pagePointerRect,
@@ -49,6 +49,7 @@ PagePointerBackgroundItem::PagePointerBackgroundItem(
   setPen(QPen(Qt::NoPen));
   setBrush(QBrush(Qt::NoBrush));
   setParentItem(parent);
-  setZValue(98);
+  setData(ObjectId, PagePointerObj);
+  setZValue(_meta->LPub.page.scene.pagePointer.zValue());
 }
 

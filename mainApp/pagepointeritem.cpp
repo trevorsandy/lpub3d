@@ -29,7 +29,7 @@
 
 #include "pagepointeritem.h"
 #include "pagepointer.h"
-#include "pagepointerbackgrounditem.h"              // remove
+#include "pagepointerbackgrounditem.h"
 #include "step.h"
 #include "range.h"
 
@@ -184,9 +184,11 @@ PagePointerItem::PagePointerItem(
     grabbers[i] = nullptr;
   }
 
-  drawPointerPoly();
-
   setFlag(QGraphicsItem::ItemIsFocusable,true);
+  setData(ObjectId, PagePointerObj);
+  setZValue(meta->LPub.page.scene.pagePointer.zValue());
+
+  drawPointerPoly();
 }
 
 PagePointerItem::~PagePointerItem(){

@@ -205,7 +205,7 @@ class SubModel : public Placement {
 class SubModelBackgroundItem : public BackgroundItem, public AbstractResize, public Placement
 {
 public:
-  SubModel *subModel;
+  SubModel       *subModel;
   PlacementType  parentRelativeType;
   bool           positionChanged;
   QPointF        position;
@@ -317,14 +317,7 @@ public:
     QString        &text,
     QString        &fontString,
     QString        &colorString,
-    PlacementType _parentRelativeType)
-  {
-    parentRelativeType = _parentRelativeType;
-    QString toolTip(tr("Times used - right-click to modify"));
-    setText(_subModel,_part,text,fontString,toolTip);
-    QColor color(colorString);
-    setDefaultTextColor(color);
-  }
+    PlacementType _parentRelativeType);
 
 protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);

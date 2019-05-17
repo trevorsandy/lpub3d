@@ -93,6 +93,9 @@ class Step : public AbstractRangeElement
     FloatMeta             pliMetaCameraFoV;
     FloatPairMeta         pliMetaCameraAngles;
 
+    SceneDepthMeta       sceneRotateIconZ;
+    SceneDepthMeta       sceneStepNumberZ;
+
     Step(
       Where                 &topOfStep,
       AbstractStepsElement *_parent,

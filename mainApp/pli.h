@@ -412,15 +412,7 @@ InstanceTextItem(
   QString            &fontString,
   QString            &colorString,
   PlacementType      _parentRelativeType,
-  PGraphicsTextItem *_parent = nullptr)
-    : PGraphicsTextItem(_parent)
-{
-  parentRelativeType = _parentRelativeType;
-  QString toolTip(tr("Times used - right-click to modify"));
-  setText(_pli,_part,text,fontString,toolTip);
-  QColor color(colorString);
-  setDefaultTextColor(color);
-}
+  PGraphicsTextItem *_parent = nullptr);
 
 protected:
 void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);

@@ -99,12 +99,10 @@ void PagePointer::sizeIt()
   }
 }
 
-// PagePointers that have round corners are tricky, trying to get the pointer to start/end on the
-// rounded corner.  To avoid trying to know the shape of the curve, we make sure the pointer
-// is below (think zDepth) the pagepointer.  If we make the pointer start at the center of the curved
-// corner rather than the edge, then the pagepointer hides the starting point of the pointer, and the
-// pointer always appears to start right at the edge of the pagepointer (no matter the shape of the
-// corner's curve.
+// If we make the pointer start at the center of the corner rather than the edge,
+// then the pagePointer hides the starting point of the pointer, and the
+// pointer always appears to start right at the edge of the pagepointer
+// (no matter the shape of the corner's curve.
 void PagePointer::addGraphicsItems(
   int            offsetX,
   int            offsetY,
@@ -119,6 +117,9 @@ void PagePointer::addGraphicsItems(
     offsetY = 0;
   }
   int newLoc[2] = { offsetX + loc[XX], offsetY + loc[YY] };
+
+  // This is the pagePointer origin rectangle - a tiny rect
+  // to anchor the pointer on the choosen perimeter of the page
 
   QRect pagePointerRect(newLoc[XX],newLoc[YY],size[XX],size[YY]);
 

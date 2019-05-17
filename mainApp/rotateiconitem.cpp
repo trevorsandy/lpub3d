@@ -29,7 +29,7 @@
 #include "ranges.h"
 #include "color.h"
 
-#include "lpubalert.h"
+#include "lpub.h"
 
 void RotateIcon::setSize(
     UnitsMeta _size,
@@ -93,8 +93,7 @@ void RotateIconItem::setAttributes(
 
   QString toolTip("Rotate Icon - right-click to modify");
   setToolTip(toolTip);
-
-  setZValue(10000);
+  setData(ObjectId, RotateIconBackgroundObj);
   setParentItem(parent);
   setPixmap(*pixmap);
   setTransformationMode(Qt::SmoothTransformation);
@@ -177,7 +176,7 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
         if (!fileInfo.exists()) {                                              // check 'default path'
             fileInfo.setFile(QDir::currentPath() + "/" + fileInfo.fileName()); // check 'current path'
             if (!fileInfo.exists()) {
-                emit lpubAlert->messageSig(LOG_ERROR, QString("Unable to locate 'rotate icon' image %1. Be sure image file "
+                emit gui->messageSig(LOG_ERROR, QString("Unable to locate 'rotate icon' image %1. Be sure image file "
                                                    "is relative to model file or define using an absolute path.").arg(fileInfo.fileName()));
                 return;
             }
@@ -461,6 +460,15 @@ void RotateIconItem::contextMenuEvent(
   deleteRotateIconAction->setWhatsThis("Delete this rotate icon");
   deleteRotateIconAction->setIcon(QIcon(":/resources/delete.png"));
 
+  QAction *bringToFrontAction = nullptr;
+  QAction *sendToBackBackAction = nullptr;
+  if (gui->pagescene()->showContextAction()) {
+      if (!gui->pagescene()->isSelectedItemOnTop())
+          bringToFrontAction = commonMenus.bringToFrontMenu(menu, pl);
+      if (!gui->pagescene()->isSelectedItemOnBottom())
+          sendToBackBackAction  = commonMenus.sendToBackMenu(menu, pl);
+  }
+
   QAction *selectedAction  = menu.exec(event->screenPos());
 
   if (selectedAction == nullptr) {
@@ -558,7 +566,17 @@ void RotateIconItem::contextMenuEvent(
       QString metaCommand = QString("ROTATE_ICON");
       deleteImageItem(top,metaCommand);
       endMacro();
-    }
+    } else if (selectedAction == bringToFrontAction) {
+      setSelectedItemZValue(top,
+                          bottom,
+                          BringToFront,
+                          &step->grandparent()->meta.LPub.page.scene.rotateIconBackground);
+    } else if (selectedAction == sendToBackBackAction) {
+      setSelectedItemZValue(top,
+                          bottom,
+                          SendToBack,
+                          &step->grandparent()->meta.LPub.page.scene.rotateIconBackground);
+  }
 }
 
 void RotateIconItem::mousePressEvent(QGraphicsSceneMouseEvent *event)

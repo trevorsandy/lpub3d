@@ -578,7 +578,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     in.setCodec(_currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
     QStringList stageContents;
     QStringList contents;
-    QString     mpdName;
+    QString     subfileName;
     QRegExp sofRE("^0\\s+FILE\\s+(.*)$",Qt::CaseInsensitive);
     QRegExp eofRE("^0\\s+NOFILE\\s*$",Qt::CaseInsensitive);
 
@@ -654,38 +654,38 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
             topLevelDescriptionNotCaptured = false;
         }
 
-        bool alreadyInserted = LDrawFile::contains(mpdName.toLower());
+        bool alreadyInserted = LDrawFile::contains(subfileName.toLower());
 
-        /* - if at start of file marker, populate mpdName
-         * - if at end of file marker, clear mpdName
+        /* - if at start of file marker, populate subfileName
+         * - if at end of file marker, clear subfileName
          */
         if (sof || eof) {
             /* - if at end of file marker
-             * - insert items if mpdName not empty
-             * - as mpdName not empty, unofficial part = false
+             * - insert items if subfileName not empty
+             * - as subfileName not empty, unofficial part = false
              * - after insert, clear contents item
              */
-            if (! mpdName.isEmpty() && ! alreadyInserted) {
-//                logTrace() << "Inserted Subfile: " << mpdName;
-                emit gui->messageSig(LOG_STATUS, QString("MPD submodel '" + mpdName + "' loaded."));
-                insert(mpdName,contents,datetime,unofficialPart);
+            if (! subfileName.isEmpty() && ! alreadyInserted) {
+//                logTrace() << "Inserted Subfile: " << subfileName;
+                emit gui->messageSig(LOG_STATUS, QString("MPD submodel '" + subfileName + "' loaded."));
+                insert(subfileName,contents,datetime,unofficialPart);
                 unofficialPart = false;
             }
             contents.clear();
 
             /* - if at start of file marker
-             * - set mpdName of new file
-             * - else if at end of file marker, clear mpdName
+             * - set subfileName of new file
+             * - else if at end of file marker, clear subfileName
              */
             if (sof) {
-                mpdName = sofRE.cap(1).toLower();
-                emit gui->messageSig(LOG_INFO, "Loading MPD submodel '" + mpdName + "'...");
+                subfileName = sofRE.cap(1).toLower();
+                emit gui->messageSig(LOG_INFO, "Loading MPD submodel '" + subfileName + "'...");
             } else {
-                mpdName.clear();
+                subfileName.clear();
             }
 
-        } else if ( ! mpdName.isEmpty() && smLine != "") {
-            /* - after start of file - mpdName not empty
+        } else if ( ! subfileName.isEmpty() && smLine != "") {
+            /* - after start of file - subfileName not empty
              * - if line contains unofficial part/subpart/shortcut/primitive/alias tag set unofficial part = true
              * - add line to contents
              */
@@ -697,8 +697,8 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
         }
     }
 
-    if ( ! mpdName.isEmpty() && ! contents.isEmpty()) {
-      insert(mpdName,contents,datetime,unofficialPart);
+    if ( ! subfileName.isEmpty() && ! contents.isEmpty()) {
+      insert(subfileName,contents,datetime,unofficialPart);
     }
 
     _mpd = true;

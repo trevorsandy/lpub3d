@@ -425,7 +425,30 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bVERTICAL\\b"
     << "\\bVIEW_ANGLE\\b"
     << "\\bWHOLE\\b"
-    << "\\bWIDTH\\b";
+    << "\\bWIDTH\\b"
+
+    << "\\bATTRIBUTE_PIXMAP\\b"
+    << "\\bATTRIBUTE_TEXT\\b"
+    << "\\bCALLOUT_ASSEM\\b"
+    << "\\bCALLOUT_INSTANCE\\b"
+    << "\\bCALLOUT_POINTER\\b"
+    << "\\bCALLOUT_UNDERPINNING\\b"
+    << "\\bCSI_ANNOTATION\\b"
+    << "\\bCSI_ANNOTATION_PART\\b"
+    << "\\bDIVIDER_ITEM\\b"
+    << "\\bDIVIDER_LINE\\b"
+    << "\\bGRABBER\\b"
+    << "\\bSCENE\\b"
+    << "\\bPLI_ANNOTATION\\b"
+    << "\\bPLI_INSTANCE\\b"
+    << "\\bPOINTER_HEAD\\b"
+    << "\\bPOINTER_SEG_FIRST\\b"
+    << "\\bPOINTER_SEG_SECOND\\b"
+    << "\\bPOINTER_SEG_THIRD\\b"
+    << "\\bSCENE_OBJECT\\b"
+    << "\\bSUBMODEL_INSTANCE\\b"
+    << "\\bZ_VALUE\\b"
+       ;
 
     foreach (QString pattern, LPubBodyMetaPatterns) {
         rule.pattern = QRegExp(pattern);

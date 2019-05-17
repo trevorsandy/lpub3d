@@ -45,6 +45,7 @@
 #include "metatypes.h"
 #include "resolution.h"
 #include "meta.h"
+#include "name.h"
 
 class Grabber;
 class QGraphicsItem;
@@ -94,7 +95,6 @@ class Grabber : public QGraphicsRectItem
       setParentItem(parentGraphicsItem);
       setFlag(QGraphicsItem::ItemIsSelectable,true);
       setFlag(QGraphicsItem::ItemIsMovable,true);
-      setZValue(100);
       QPen pen(Qt::black);
       setPen(pen);
       setBrush(Qt::black);
@@ -109,9 +109,11 @@ class Grabber : public QGraphicsRectItem
     {
       resized->resize(event->scenePos());
     }
-    void mouseReleaseEvent(QGraphicsSceneMouseEvent * /* event */)
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *  event )
     {
-      resized->change();
+        if (event->button() == Qt::LeftButton){
+            resized->change();
+        }
     }
 };
 
@@ -217,16 +219,17 @@ class ResizeTextItem: public QGraphicsTextItem,
 
 class InsertPixmapItem : public ResizePixmapItem
 {
+
   public:
 
-    InsertMeta insertMeta;
-    qreal      relativeToLoc[2];
-    qreal      relativeToSize[2];
+    InsertMeta meta;
+    //qreal      relativeToLoc[2];
+    //qreal      relativeToSize[2];
 
     InsertPixmapItem(
       QPixmap       &pixmap,
-      InsertMeta    &insertMeta,
-      QGraphicsItem *parent = 0);
+      InsertMeta insertMeta,
+      QGraphicsItem *parent);
 
     virtual void change();
     void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);

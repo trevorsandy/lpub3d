@@ -32,7 +32,6 @@ class QGraphicsPolygonItem;
 class BorderedLineItem;
 class QGraphicsItemGroup;
 class PagePointer;
-class PagePointerBackgroundItem;
 
 class PagePointerItem : public PointerItem
 {
@@ -40,7 +39,7 @@ public:
   PagePointerItem(
     PagePointer         *pp,
     Pointer             *pointer,
-    QGraphicsItem       *parent,            // remove this (use 'this')
+    QGraphicsItem       *parent,
     QGraphicsView       *view);
 
   virtual ~PagePointerItem();

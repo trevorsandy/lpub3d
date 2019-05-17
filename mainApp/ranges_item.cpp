@@ -1,4 +1,4 @@
- 
+
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
@@ -23,6 +23,7 @@
 #include "step.h"
 #include "color.h"
 #include "commonmenus.h"
+#include "lpub.h"
 
 /****************************************************************************
  *
@@ -35,8 +36,8 @@
 
 MultiStepRangesBackgroundItem::MultiStepRangesBackgroundItem(
   Steps *_steps,
-  QRectF rect, 
-  QGraphicsItem *parent, 
+  QRectF rect,
+  QGraphicsItem *parent,
   Meta *_meta)
 {
   meta = _meta;
@@ -46,10 +47,11 @@ MultiStepRangesBackgroundItem::MultiStepRangesBackgroundItem(
   setPen(Qt::NoPen);
   setBrush(Qt::NoBrush);
   setParentItem(parent);
-  setToolTip("Step Group - right-click to modify");
+  setToolTip("Steps Group - right-click to modify");
   setFlag(QGraphicsItem::ItemIsSelectable,true);
   setFlag(QGraphicsItem::ItemIsMovable,true);
-  setZValue(-2);
+  setData(ObjectId, MultiStepsBackgroundObj);
+  setZValue(meta->LPub.page.scene.multiStepsBackground.zValue());
 }
 
 void MultiStepRangesBackgroundItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -112,7 +114,8 @@ MultiStepRangeBackgroundItem::MultiStepRangeBackgroundItem(
   setBrush(QBrush(Qt::NoBrush));
   setToolTip("Step Group - right-click to modify");
   setParentItem(parent);
-  setZValue(-2);
+  setData(ObjectId, MultiStepBackgroundObj);
+  setZValue(meta->LPub.page.scene.multiStepBackground.zValue());
 }
 
 void MultiStepRangeBackgroundItem::contextMenuEvent(
@@ -143,7 +146,20 @@ void MultiStepRangeBackgroundItem::contextMenuEvent(
   QAction *marginAction;
   marginAction = commonMenus.marginMenu(menu,name);
 
+  QAction *bringToFrontAction = nullptr;
+  QAction *sendToBackBackAction = nullptr;
+  if (gui->pagescene()->showContextAction()) {
+      if (!gui->pagescene()->isSelectedItemOnTop())
+          bringToFrontAction = commonMenus.bringToFrontMenu(menu, name);
+      if (!gui->pagescene()->isSelectedItemOnBottom())
+          sendToBackBackAction  = commonMenus.sendToBackMenu(menu, name);
+  }
+
   QAction *selectedAction = menu.exec(event->screenPos());
+
+  if ( ! selectedAction ) {
+      return;
+  }
 
   if (selectedAction == placementAction) {
     changePlacement(PageType,
@@ -166,6 +182,16 @@ void MultiStepRangeBackgroundItem::contextMenuEvent(
     changeAlloc(page->topOfSteps(),
                 page->bottomOfSteps(),
                 page->allocMeta());
+  } else if (selectedAction == bringToFrontAction) {
+      setSelectedItemZValue(page->topOfSteps(),
+                            page->bottomOfSteps(),
+                            BringToFront,
+                            &meta->LPub.page.scene.multiStepBackground);
+  } else if (selectedAction == sendToBackBackAction) {
+      setSelectedItemZValue(page->topOfSteps(),
+                            page->bottomOfSteps(),
+                            SendToBack,
+                            &meta->LPub.page.scene.multiStepBackground);
   }
 }
 
@@ -239,6 +265,7 @@ DividerItem::DividerItem(
   setBrush(QBrush(Qt::NoBrush));
   setToolTip("Divider - right-click to modify");
   lineItem = new DividerLine(this);
+  lineItem->setZValue(_meta->LPub.page.scene.dividerLine.zValue());
 
   BorderData borderData;
 
@@ -296,8 +323,8 @@ DividerItem::DividerItem(
     pen.setCapStyle(Qt::RoundCap);
 
     lineItem->setPen(pen);
-    lineItem->setZValue(100);
-    setZValue(99);
+    setData(ObjectId, DividerObj); // CORE
+    setZValue(meta.LPub.page.scene.divider.zValue());
   }
 }
 
@@ -310,17 +337,27 @@ void DividerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
   QAction *editAction;
+  QString pl = "Divider";
 
-  editAction = menu.addAction("Edit Divider");
+  editAction = menu.addAction("Edit " + pl);
   editAction->setIcon(QIcon(":/resources/editdivider.png"));
   editAction->setWhatsThis("Edit this divider margin, thickness and color");
 
   QAction *deleteAction;
 
-  deleteAction = menu.addAction("Delete Divider");
+  deleteAction = menu.addAction("Delete " + pl);
   deleteAction->setIcon(QIcon(":/resources/deletedivider.png"));
   deleteAction->setWhatsThis("Delete this divider from the model");
   
+  QAction *bringToFrontAction = nullptr;
+  QAction *sendToBackBackAction = nullptr;
+  if (gui->pagescene()->showContextAction()) {
+      if (!gui->pagescene()->isSelectedItemOnTop())
+          bringToFrontAction = commonMenus.bringToFrontMenu(menu, pl);
+      if (!gui->pagescene()->isSelectedItemOnBottom())
+          sendToBackBackAction  = commonMenus.sendToBackMenu(menu, pl);
+  }
+
   QAction *selectedAction = menu.exec(event->screenPos());
 
   if (selectedAction == nullptr) {
@@ -399,6 +436,16 @@ void DividerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     // delete divider
     deleteDivider(parentRelativeType,topOfStep);
     endMacro();
+  } else if (selectedAction == bringToFrontAction) {
+      setSelectedItemZValue(top,
+                          bottom,
+                          BringToFront,
+                          &meta.LPub.page.scene.divider);
+  } else if (selectedAction == sendToBackBackAction) {
+      setSelectedItemZValue(top,
+                          bottom,
+                          SendToBack,
+                          &meta.LPub.page.scene.divider);
   }
 }
 
@@ -443,6 +490,12 @@ void DividerItem::drawTips(QPoint &delta)
  * Divider line routines
  *****************************************************************************/
 
+DividerLine::DividerLine(DividerItem *parent)
+{
+  setParentItem(parent);
+  setData(ObjectId, DividerLineObj);
+}
+
 void DividerLine::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   DividerItem *dividerItem = dynamic_cast<DividerItem *>(parentItem());
@@ -465,5 +518,6 @@ DividerBackgroundItem::DividerBackgroundItem(
   setPen(QPen(Qt::NoPen));
   setBrush(QBrush(Qt::NoBrush));
   setParentItem(parent);
-  setZValue(98);
+  setData(ObjectId, DividerBackgroundObj);
+  setZValue(_meta->LPub.page.scene.dividerBackground.zValue());
 }

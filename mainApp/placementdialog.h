@@ -116,8 +116,9 @@ public:
       /* 33 Reserve           */
       /* 34 CoverPage         */
       /* 35 CsiAnnotationType */
+      /* 36 DividerPointer    */
 
-      /* 36 NumRelatives      */
+      /* 37 NumRelatives      */
     };
 
   PlacementDialog(

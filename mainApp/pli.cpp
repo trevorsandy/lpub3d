@@ -29,6 +29,7 @@
  ***************************************************************************/
 #include <QMenu>
 #include <QGraphicsSceneContextMenuEvent>
+#include <QGraphicsRectItem>
 #include <QDir>
 #include <QFileInfo>
 #include <QFile>
@@ -2491,6 +2492,8 @@ PliBackgroundItem::PliBackgroundItem(
                  submodelLevel,
                  toolTip);
 
+  setData(ObjectId, PartsListBackgroundObj);
+  setZValue(pli->meta->LPub.page.scene.partsListBackground.zValue());
   setPixmap(*pixmap);
   setParentItem(parent);
   if (parentRelativeType != SingleStepType && pli->perStep) {
@@ -2504,6 +2507,8 @@ void PliBackgroundItem::placeGrabbers()
   point = QPointF(rect.left() + rect.width()/2,rect.bottom());
   if (grabber == nullptr) {
       grabber = new Grabber(BottomInside,this,myParentItem());
+      grabber->setData(ObjectId, PliGrabberObj);
+      grabber->setZValue(zValue()+pli->meta->LPub.page.scene.pliGrabber.zValue());
     }
   grabber->setPos(point.x()-grabSize()/2,point.y()-grabSize()/2);
 }
@@ -2586,6 +2591,15 @@ void PliBackgroundItem::contextMenuEvent(
 
       QAction *splitBomAction  = nullptr;
       QAction *deleteBomAction = nullptr;
+
+      QAction *bringToFrontAction = nullptr;
+      QAction *sendToBackBackAction = nullptr;
+      if (gui->pagescene()->showContextAction()) {
+          if (!gui->pagescene()->isSelectedItemOnTop())
+              bringToFrontAction = commonMenus.bringToFrontMenu(menu, pl);
+          if (!gui->pagescene()->isSelectedItemOnBottom())
+              sendToBackBackAction  = commonMenus.sendToBackMenu(menu, pl);
+      }
 
       if (pli->bom) {
           splitBomAction = menu.addAction("Split Bill of Materials");
@@ -2717,6 +2731,16 @@ void PliBackgroundItem::contextMenuEvent(
           deleteBOM();
         } else if (selectedAction == splitBomAction){
           insertSplitBOM();
+        } else if (selectedAction == bringToFrontAction) {
+          setSelectedItemZValue(top,
+                                bottom,
+                                BringToFront,
+                                &meta->LPub.page.scene.partsListBackground);
+        } else if (selectedAction == sendToBackBackAction) {
+          setSelectedItemZValue(top,
+                                bottom,
+                                SendToBack,
+                                &meta->LPub.page.scene.partsListBackground);
         }
     }
 }
@@ -2980,14 +3004,28 @@ void PGraphicsPixmapItem::contextMenuEvent(
    } */
 }
 
-
 //-----------------------------------------
 //-----------------------------------------
 //-----------------------------------------
 
-#include <QGraphicsRectItem>
-#include <QGraphicsSceneContextMenuEvent>
-#include <QGraphicsPixmapItem>
+InstanceTextItem::InstanceTextItem(
+  Pli                *_pli,
+  PliPart            *_part,
+  QString            &text,
+  QString            &fontString,
+  QString            &colorString,
+  PlacementType      _parentRelativeType,
+  PGraphicsTextItem *_parent)
+    : PGraphicsTextItem(_parent)
+{
+  parentRelativeType = _parentRelativeType;
+  QString toolTip(tr("Times used - right-click to modify"));
+  setText(_pli,_part,text,fontString,toolTip);
+  QColor color(colorString);
+  setDefaultTextColor(color);
+  setData(ObjectId, PartsListInstanceObj);
+  setZValue(_pli->meta->LPub.page.scene.partsListInstance.zValue());
+}
 
 AnnotateTextItem::AnnotateTextItem(
   Pli           *_pli,
@@ -3079,7 +3117,8 @@ AnnotateTextItem::AnnotateTextItem(
     submodelLevel = pli->background->submodelLevel;
 
   setFlag(QGraphicsItem::ItemIsSelectable,true);
-  setZValue(98);
+  setData(ObjectId, PartsListAnnotationObj);
+  setZValue(_pli->meta->LPub.page.scene.partsListAnnotation.zValue());
 }
 
 void AnnotateTextItem::scaleDownFont() {

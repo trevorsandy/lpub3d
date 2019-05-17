@@ -130,6 +130,11 @@ enum Rc {
 
          ResolutionRc,
 
+         SceneDepthRc,
+         PagePointerDepthRc,
+         CalloutPointerDepthRc,
+         DividerPointerDepthRc,
+
          IncludeRc,
 
          NoStepRc,
@@ -2010,6 +2015,91 @@ class PageFooterMeta : public BranchMeta
     virtual void init(BranchMeta *parent, QString name);
 };
 
+/* ------------------ */
+/*
+ * Scene Depth Meta
+ */
+
+class SceneDepthMeta : public LeafMeta
+{
+private:
+  qreal   _value[2];
+public:
+  qreal zValue()
+  {
+      return _value[pushed];
+  }
+  void setValue(double z)
+  {
+      _value[pushed] = z;
+  }
+  SceneDepthMeta();
+  SceneDepthMeta(const SceneDepthMeta &rhs) : LeafMeta(rhs)
+  {
+    _value[0] = rhs._value[0];
+    _value[1] = rhs._value[1];
+  }
+  virtual ~SceneDepthMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  void    pop() { pushed = 0; }
+  virtual void doc(QStringList &out, QString preamble);
+};
+
+/*------------------------*/
+/*
+* Scene Object Meta
+*/
+class SceneObjectMeta : public BranchMeta
+{
+public:
+ SceneDepthMeta     assemAnnotation;       //  0 CsiAnnotationType
+ SceneDepthMeta     assemAnnotationPart;   //  1 CsiPartType
+ SceneDepthMeta     assem;                 //  2 CsiType
+ SceneDepthMeta     calloutAssem;          //  3
+ SceneDepthMeta     calloutBackground;     //  4 CalloutType
+ SceneDepthMeta     calloutInstance;       //  5
+ SceneDepthMeta     calloutPointer;        //  6
+ SceneDepthMeta     calloutUnderpinning;   //  7
+ SceneDepthMeta     dividerBackground;     //  8
+ SceneDepthMeta     divider;               //  9
+ SceneDepthMeta     dividerLine;           // 10
+ SceneDepthMeta     dividerPointer;        // 11
+ SceneDepthMeta     pointerGrabber;        // 12
+ SceneDepthMeta     pliGrabber;            // 13
+ SceneDepthMeta     submodelGrabber;       // 14
+ SceneDepthMeta     insertPicture;         // 15
+ SceneDepthMeta     insertText;            // 16
+ SceneDepthMeta     multiStepBackground;   // 17 StepGroupType
+ SceneDepthMeta     multiStepsBackground;  // 18
+ SceneDepthMeta     pageAttributePixmap;   // 19
+ SceneDepthMeta     pageAttributeText;     // 20
+ SceneDepthMeta     pageBackground;        // 21 PageType
+ SceneDepthMeta     pageNumber;            // 22 PageNumberType
+ SceneDepthMeta     pagePointer;           // 23 PagePointerType
+ SceneDepthMeta     partsListAnnotation;   // 24
+ SceneDepthMeta     partsListBackground;   // 25 PartsListType
+ SceneDepthMeta     partsListInstance;     // 26
+ SceneDepthMeta     pointerFirstSeg;       // 27
+ SceneDepthMeta     pointerHead;           // 28
+ SceneDepthMeta     pointerSecondSeg;      // 29
+ SceneDepthMeta     pointerThirdSeg;       // 30
+ SceneDepthMeta     rotateIconBackground;  // 31 RotateIconType
+ SceneDepthMeta     stepNumber;            // 32 StepNumberType
+ SceneDepthMeta     subModelBackground;    // 33 SubModelType
+ SceneDepthMeta     subModelInstance;      // 34
+ SceneDepthMeta     submodelInstanceCount; // 35 SubmodelInstanceCountType
+
+ SceneObjectMeta();
+ SceneObjectMeta(const SceneObjectMeta &rhs) : BranchMeta(rhs)
+ {
+ }
+
+ virtual ~SceneObjectMeta() {}
+ virtual void init(BranchMeta *parent,
+                   QString name);
+};
+
 /*------------------------*/
 /*
  * Fade Step Meta
@@ -2627,6 +2717,7 @@ public:
   StringListMeta            subModelColor;
   PointerMeta               pointer;
   PointerAttribMeta         pointerAttrib;
+  SceneObjectMeta           scene;
 
   PageHeaderMeta            pageHeader;
   PageFooterMeta            pageFooter;
@@ -3129,86 +3220,94 @@ public:
 private:
 };
 
-const QString RcNames[58] =
+const QString RcNames[64] =
 {
-     "InvalidLDrawLineRc = -3",
-     "RangeErrorRc = -2",
-     "FailureRc = -1",
-     "OkRc = 0",
+    "InvalidLDrawLineRc = -3",
+    "RangeErrorRc = -2",
+    "FailureRc = -1",
+    "OkRc = 0",
 
-     "StepRc",
-     "RotStepRc",
+    "StepRc",
+    "RotStepRc",
 
-     "CalloutBeginRc",
-     "CalloutDividerRc",
-     "CalloutEndRc",
+    "CalloutBeginRc",
+    "CalloutDividerRc",
+    "CalloutEndRc",
 
-     "StepGroupBeginRc",
-     "StepGroupDividerRc",
-     "StepGroupEndRc",
+    "StepGroupBeginRc",
+    "StepGroupDividerRc",
+    "StepGroupEndRc",
 
-     "InsertRc",
-     "InsertPageRc",
-     "InsertCoverPageRc",
+    "InsertRc",
+    "InsertPageRc",
+    "InsertCoverPageRc",
 
-     "CalloutPointerRc",
-     "CalloutDividerPointerRc",
-     "CalloutPointerAttribRc",
-     "CalloutDividerPointerAttribRc",
+    "CalloutPointerRc",
+    "CalloutDividerPointerRc",
+    "CalloutPointerAttribRc",
+    "CalloutDividerPointerAttribRc",
 
-     "StepGroupDividerPointerRc",
-     "StepGroupPointerAttribRc",
-     "StepGroupDividerPointerAttribRc",
+    "StepGroupDividerPointerRc",
+    "StepGroupPointerAttribRc",
+    "StepGroupDividerPointerAttribRc",
 
-     "PagePointerAttribRc",
+    "PagePointerAttribRc",
 
-     "PagePointerRc",
-     "IllustrationPointerRc",
+    "PagePointerRc",
+    "IllustrationPointerRc",
 
-     "AssemAnnotationIconRc",
-     "InsertFinalModelRc",
+    "AssemAnnotationIconRc",
+    "InsertFinalModelRc",
 
-     "ClearRc",
-     "BufferStoreRc",
-     "BufferLoadRc",
-     "MLCadSkipBeginRc",
-     "MLCadSkipEndRc",
-     "MLCadGroupRc",
-     "LDCadGroupRc",
-     "LeoCadGroupBeginRc",
-     "LeoCadGroupEndRc",
+    "ClearRc",
+    "BufferStoreRc",
+    "BufferLoadRc",
+    "MLCadSkipBeginRc",
+    "MLCadSkipEndRc",
+    "MLCadGroupRc",
+    "LDCadGroupRc",
+    "LeoCadGroupBeginRc",
+    "LeoCadGroupEndRc",
 
-     "PliBeginIgnRc",
-     "PliBeginSub1Rc",
-     "PliBeginSub2Rc",
-     "PliEndRc",
+    "PliBeginIgnRc",
+    "PliBeginSub1Rc",
+    "PliBeginSub2Rc",
+    "PliEndRc",
 
-     "PartBeginIgnRc",
-     "PartEndRc",
+    "PartBeginIgnRc",
+    "PartEndRc",
 
-     "BomBeginIgnRc",
-     "BomEndRc",
+    "BomBeginIgnRc",
+    "BomEndRc",
 
-     "ReserveSpaceRc",
-     "PictureAsStep",
+    "PageOrientationRc",
+    "PageSizeRc",
 
-     "GroupRemoveRc",
-     "RemoveGroupRc",
-     "RemovePartRc",
-     "RemoveNameRc",
+    "ReserveSpaceRc",
+    "PictureAsStep",
 
-     "SynthBeginRc",
-     "SynthEndRc",
+    "GroupRemoveRc",
+    "RemoveGroupRc",
+    "RemovePartRc",
+    "RemoveNameRc",
 
-     "StepPliPerStepRc",
+    "SynthBeginRc",
+    "SynthEndRc",
 
-     "ResolutionRc",
+    "StepPliPerStepRc",
 
-     "IncludeRc",
+    "ResolutionRc",
 
-     "NoStepRc",
+    "SceneDepthRc",
+    "PagePointerDepthRc",
+    "CalloutPointerDepthRc",
+    "DividerPointerDepthRc",
 
-     "EndOfFileRc",
+    "IncludeRc",
+
+    "NoStepRc",
+
+    "EndOfFileRc"
 };
 
 extern const QString relativeNames[];

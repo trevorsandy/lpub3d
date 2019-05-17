@@ -38,6 +38,7 @@
 #include <math.h>
 #include "pointeritem.h"
 #include "borderedlineitem.h"
+#include "commonmenus.h"
 
 
 
@@ -55,7 +56,8 @@ bool rectLineIntersect(
 //---------------------------------------------------------------------------
 
 PointerItem::PointerItem(QGraphicsItem *parent)
-    : QGraphicsItemGroup(parent){}
+    : QGraphicsItemGroup(parent)
+{}
 
 PointerItem::~PointerItem(){
   shaftSegments.clear();
@@ -88,7 +90,8 @@ void PointerItem::drawPointerPoly()
           shaft->setSegments(segments());
           shaft->setHeadWidth(headWidth);
           shaft->setBorderedLine(linef);
-          shaft->setZValue(10);
+          shaft->setData(ObjectId, PointerFirstSegObj);
+          shaft->setZValue(zValue()+meta->LPub.page.scene.pointerFirstSeg.zValue());
           addToGroup(shaft);
       }
           break;
@@ -102,7 +105,8 @@ void PointerItem::drawPointerPoly()
               shaft->setSegments(segments());
               shaft->setHeadWidth(headWidth);
               shaft->setBorderedLine(linef);
-              shaft->setZValue(20);
+              shaft->setData(ObjectId, PointerFirstSegObj);
+              shaft->setZValue(zValue()+meta->LPub.page.scene.pointerFirstSeg.zValue());
               addToGroup(shaft);
           } else if (i == Seg::second) {
               linef = QLineF(points[MidBase],points[Tip]);
@@ -112,7 +116,8 @@ void PointerItem::drawPointerPoly()
               shaft->setSegments(segments());
               shaft->setHeadWidth(headWidth);
               shaft->setBorderedLine(linef);
-              shaft->setZValue(10);
+              shaft->setData(ObjectId, PointerSecondSegObj);
+              shaft->setZValue(zValue()+meta->LPub.page.scene.pointerSecondSeg.zValue());
               addToGroup(shaft);
           }
       }
@@ -127,7 +132,8 @@ void PointerItem::drawPointerPoly()
               shaft->setSegments(segments());
               shaft->setHeadWidth(headWidth);
               shaft->setBorderedLine(linef);
-              shaft->setZValue(30);
+              shaft->setData(ObjectId, PointerFirstSegObj);
+              shaft->setZValue(zValue()+meta->LPub.page.scene.pointerFirstSeg.zValue());
               addToGroup(shaft);
           } else if (i == Seg::second) {
               linef = QLineF(points[MidBase],points[MidTip]);
@@ -137,7 +143,8 @@ void PointerItem::drawPointerPoly()
               shaft->setSegments(segments());
               shaft->setHeadWidth(headWidth);
               shaft->setBorderedLine(linef);
-              shaft->setZValue(20);
+              shaft->setData(ObjectId, PointerSecondSegObj);
+              shaft->setZValue(zValue()+meta->LPub.page.scene.pointerSecondSeg.zValue());
               addToGroup(shaft);
           } else if (i == Seg::third) {
               linef = QLineF(points[MidTip],points[Tip]);
@@ -147,7 +154,8 @@ void PointerItem::drawPointerPoly()
               shaft->setSegments(segments());
               shaft->setHeadWidth(headWidth);
               shaft->setBorderedLine(linef);
-              shaft->setZValue(10);
+              shaft->setData(ObjectId, PointerThirdSegObj);
+              shaft->setZValue(zValue()+meta->LPub.page.scene.pointerThirdSeg.zValue());
               addToGroup(shaft);
           }
       }
@@ -216,7 +224,8 @@ void PointerItem::drawPointerPoly()
             }
           }
 
-          head->setZValue(-1);
+          head->setData(ObjectId, PointerHeadObj);
+          head->setZValue(zValue()+meta->LPub.page.scene.pointerHead.zValue());
           head->resetTransform();
           head->setRotation(rotation() + angle);
           head->setPos(points[Tip]);
@@ -259,7 +268,6 @@ void PointerItem::addShaftSegment(){
         emit gui->messageSig(LOG_ERROR, "Maximum number (%1) of pointer segments already defined.");
           return;
     }
-        break;
     default:
         break;
     }
@@ -300,7 +308,7 @@ void PointerItem::addShaftSegment(){
     shaft = new BorderedLineItem(linefNew,pad,this);
     shaft->setPen(pen);
     shaft->setFlag(QGraphicsItem::ItemIsSelectable,false);
-    shaft->setToolTip(QString("Pointer segment %1 - drag to move; right click to modify").arg(segments()+1));
+    shaft->setToolTip(QString("Pointer segment %1 - drag grabber to move; right click to modify").arg(segments()+1));
     shaftSegments.append(shaft);
     addToGroup(shaft);
 
@@ -397,6 +405,8 @@ void PointerItem::placeGrabbers()
   if (grabbers[0] == nullptr) {
     for (int i = 0; i < numGrabbers; i++) {
       grabbers[i] = new Grabber(i,this,myParentItem());
+      grabbers[i]->setData(ObjectId, PointerGrabberObj);
+      grabbers[i]->setZValue(zValue()+meta->LPub.page.scene.pointerGrabber.zValue());
     }
   }
 
@@ -628,6 +638,34 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                                            "Remove pointer shaft segment.");
   }
 
+  QString pl = "Pointer";
+  QAction *bringToFrontAction = nullptr;
+  QAction *sendToBackBackAction = nullptr;
+  if (gui->pagescene()->showContextAction()) {
+      if (!gui->pagescene()->isSelectedItemOnTop())
+          bringToFrontAction = commonMenus.bringToFrontMenu(menu, pl);
+      if (!gui->pagescene()->isSelectedItemOnBottom())
+          sendToBackBackAction  = commonMenus.sendToBackMenu(menu, pl);
+  }
+  Where sceneObjTop, sceneObjBottom;
+  SceneDepthMeta sdm;
+  switch (pointerParentType){
+  case CalloutType:
+      sdm = meta->LPub.page.scene.calloutPointer;
+      break;
+  case DividerPointerType:
+      sdm = meta->LPub.page.scene.dividerPointer;
+      break;
+  case PagePointerType:
+      sdm = meta->LPub.page.scene.pagePointer;
+      break;
+  default:
+      break;
+  }
+  sceneObjTop = Where(sdm._here[sdm.pushed].modelName,
+                      sdm._here[sdm.pushed].lineNumber);
+  sceneObjBottom = sceneObjTop;
+
   QAction *selectedAction   = menu.exec(event->screenPos());
 
   if ( ! selectedAction ) {
@@ -684,6 +722,24 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   else
   if (selectedAction == removeSegmentAction) {
     removeShaftSegment();
+  }
+  else
+  if (selectedAction == bringToFrontAction) {
+      setSelectedItemZValue(sceneObjTop,
+                            sceneObjBottom,
+                            BringToFront,
+                            &sdm,
+                            true /*useTop*/,
+                            0    /*append - prepend to populate zValue before respective item meta*/);
+  }
+  else
+  if (selectedAction == sendToBackBackAction) {
+      setSelectedItemZValue(pointerTop,
+                            pointerBottom,
+                            SendToBack,
+                            &sdm,
+                            true /*useTop*/,
+                            0    /*append - prepend to populate zValue before respective item meta*/);
   }
 }
 

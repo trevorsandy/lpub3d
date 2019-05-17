@@ -191,9 +191,11 @@ CalloutPointerItem::CalloutPointerItem(
     grabbers[i] = nullptr;
   }
 
-  drawPointerPoly();
-
   setFlag(QGraphicsItem::ItemIsFocusable,true);
+  setData(ObjectId, CalloutPointerObj);
+  setZValue(meta->LPub.page.scene.calloutPointer.zValue());
+
+  drawPointerPoly();
 }
 
 /*

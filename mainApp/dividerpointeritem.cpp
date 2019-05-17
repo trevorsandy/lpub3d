@@ -48,7 +48,7 @@ DividerPointerItem::DividerPointerItem(
 
   pointerTop         = divider->parentStep->nextStep()->topOfStep();
   pointerBottom      = divider->parentStep->nextStep()->bottomOfStep();
-  pointerParentType  = divider->parentRelativeType;;
+  pointerParentType  = DividerPointerType;
   resizeRequested    = false;
 
   PointerData pointerData = pointer.pointerMeta.value();
@@ -175,9 +175,11 @@ DividerPointerItem::DividerPointerItem(
     grabbers[i] = nullptr;
   }
 
-  drawPointerPoly();
-
   setFlag(QGraphicsItem::ItemIsFocusable,true);
+  setData(ObjectId, DividerPointerObj);
+  setZValue(meta->LPub.page.scene.dividerPointer.zValue());
+
+  drawPointerPoly();
 }
 
 DividerPointerItem::~DividerPointerItem(){

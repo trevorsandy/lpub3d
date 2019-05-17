@@ -36,7 +36,8 @@
 
 #include "QsLog.h"
 
-class Pointer {
+class Pointer
+{
 public:
     int                 id;
     Where               here;

@@ -280,12 +280,13 @@ void Callout::addGraphicsItems(
 
   underpinnings = new QGraphicsRectItem(
       qreal(newLoc[XX]),qreal(newLoc[YY]),qreal(size[XX]),qreal(size[YY]),parent);
-  underpinnings->setZValue(97);
   QPen pen;
   QColor none(0,0,0,0);
   pen.setColor(none);
   underpinnings->setPen(pen);
   underpinnings->setPos(newLoc[XX],newLoc[YY]);
+  underpinnings->setData(ObjectId, CalloutUnderpinningObj);
+  underpinnings->setZValue(meta.LPub.page.scene.calloutUnderpinning.zValue());
 
   QRect calloutRect(newLoc[XX],newLoc[YY],size[XX],size[YY]);
 
@@ -381,7 +382,8 @@ void Callout::addGraphicsItems(
     CalloutInstanceItem *item = new CalloutInstanceItem(
       this,&meta,"x%d",instanceCount.number,parent);
     item->setPos(offsetX + instanceCount.loc[0], offsetY + instanceCount.loc[1]);
-    item->setZValue(1000);
+    item->setData(ObjectId, CalloutInstanceObj);
+    item->setZValue(meta.LPub.page.scene.calloutInstance.zValue());
   }
 
   Steps::addGraphicsItems(allocEnc,

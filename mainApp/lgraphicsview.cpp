@@ -45,7 +45,6 @@ LGraphicsView::LGraphicsView(LGraphicsScene *scene)
   connect(this,SIGNAL(setSceneThemeSig(Theme)), scene,SLOT(setGuidePen(Theme)));
   connect(this,SIGNAL(setSceneThemeSig(Theme)), this, SLOT(setPageRuler(Theme)));
   connect(this,SIGNAL(setSceneThemeSig(Theme)), this, SLOT(setSceneBackground(Theme)));
-
 }
 
 void LGraphicsView::setPageGuides(Theme t){
@@ -97,7 +96,6 @@ void LGraphicsView::setPageRuler(Theme t){
           removeGridItem(mGridLayout,0,1,true);
           removeGridItem(mGridLayout,1,0,true);
         }
-
       update();
     }
 }

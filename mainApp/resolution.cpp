@@ -100,18 +100,6 @@ float toInches(
   }
 }
 
-float toCentimeters(
-  ResolutionType type,
-  float          value)
-{
-  switch (type) {
-    case DPCM:
-      return value;
-    default:
-      return inches2centimeters(value);
-  }
-}
-
 float toPixels(
   float          value,
   ResolutionType type)

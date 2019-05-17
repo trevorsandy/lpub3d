@@ -1,4 +1,4 @@
- 
+
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
@@ -32,7 +32,155 @@ enum IniFlag { NativePOVIni, NativeSTLIni, Native3DSIni, NativePartList, POVRayR
 enum DividerType { StepDivider, RangeDivider, NoDivider };
 enum LibType { LibLEGO, LibTENTE, LibVEXIQ, NumLibs };
 enum Theme { ThemeDark, ThemeDefault };
+enum SceneObjectDirection { BringToFront = 1/*True*/, SendToBack = 0/*False*/ };
+enum SceneObjectInfo { ObjectId };
+enum SceneObject {
+    AssemAnnotationObj       = 35, //  0 CsiAnnotationType
+    AssemAnnotationPartObj   = 27, //  1 CsiPartType
+    AssemObj                 =  1, //  2 CsiType
+    CalloutAssemObj          =  7, //  3
+    CalloutBackgroundObj     =  5, //  4 CalloutType
+    CalloutInstanceObj       =  8, //  5
+    CalloutPointerObj        =  9, //  6
+    CalloutUnderpinningObj   = 10, //  7
+    DividerBackgroundObj     = 11, //  8
+    DividerObj               = 12, //  9
+    DividerLineObj           = 13, // 10
+    DividerPointerObj        = 36, // 11 DividerPointerType
+    PointerGrabberObj        = 14, // 12
+    PliGrabberObj            = 41, // 13
+    SubmodelGrabberObj       = 42, // 14
+    InsertPixmapObj          = 15, // 15
+    InsertTextObj            = 16, // 16
+    MultiStepBackgroundObj   =  2, // 17 StepGroupType
+    MultiStepsBackgroundObj  = 43, // 18
+    PageAttributePixmapObj   = 17, // 19
+    PageAttributeTextObj     = 19, // 20
+    PageBackgroundObj        =  0, // 21 PageType
+    PageNumberObj            =  6, // 22 PageNumberType
+    PagePointerObj           = 29, // 23 PagePointerType
+    PartsListAnnotationObj   = 20, // 24
+    PartsListBackgroundObj   =  4, // 25 PartsListType
+    PartsListInstanceObj     = 21, // 26
+    PointerFirstSegObj       = 22, // 27
+    PointerHeadObj           = 23, // 28
+    PointerSecondSegObj      = 24, // 29
+    PointerThirdSegObj       = 28, // 30
+    RotateIconBackgroundObj  = 26, // 31 RotateIconType
+    StepNumberObj            =  3, // 32 StepNumberType
+    SubModelBackgroundObj    = 25, // 33 SubModelType
+    SubModelInstanceObj      = 30, // 34
+    SubmodelInstanceCountObj = 18  // 35 SubmodelInstanceCountType
+};
 
+// Exempted from detection - triggers invalid object
+static const SceneObject ExemptSceneObjects[] =
+{
+    PageBackgroundObj,   //  0
+    PointerFirstSegObj,  // 22
+    PointerSecondSegObj, // 24
+    PointerThirdSegObj,  // 28
+};
+
+// Excluded from triggering context action
+static const SceneObject ExcludedSceneObjects[] =
+{
+    PointerGrabberObj,      // 14
+    PliGrabberObj,          // 41
+    SubmodelGrabberObj,     // 42
+    PointerHeadObj          // 23
+};
+
+// Included in depth calculation
+static const SceneObject IncludedSceneObjects[] =
+{
+    MultiStepBackgroundObj,  //  2
+    AssemAnnotationObj,      // 35
+    AssemObj,                //  1
+    CalloutBackgroundObj,    //  5
+    CalloutPointerObj,       //  9
+    DividerObj,              // 12
+    DividerPointerObj,       // 36
+    InsertPixmapObj,         // 15
+    InsertTextObj,           // 16
+    PageNumberObj,           //  6
+    PagePointerObj,          // 29
+    PartsListBackgroundObj,  //  4
+    RotateIconBackgroundObj, // 26
+    StepNumberObj,           //  3
+    SubModelBackgroundObj    // 25
+};
+
+// TODO - Temporary abort processing list
+static const SceneObject AbortSceneObjects[] =
+{
+    MultiStepBackgroundObj,
+    MultiStepsBackgroundObj,
+    CalloutAssemObj,
+    CalloutBackgroundObj,
+    CalloutPointerObj,
+    CalloutInstanceObj,
+    CalloutUnderpinningObj
+};
+
+#define PAGEBACKGROUND_ZVALUE_DEFAULT         0    // [Exempt]
+
+#define MULTISTEPSBACKGROUND_ZVALUE_DEFAULT   0.1
+
+#define MULTISTEPBACKGROUND_ZVALUE_DEFAULT    0.2
+
+#define ASSEM_ZVALUE_DEFAULT                  1.0
+
+#define SUBMODELBACKGROUND_ZVALUE_DEFAULT     2.0
+#define SUBMODELINSTANCE_ZVALUE_DEFAULT       2.1
+
+#define CALLOUTUNDERPINNING_ZVALUE_DEFAULT    3.0
+#define CALLOUTPOINTER_ZVALUE_DEFAULT         3.0  // [same as underpinning]
+#define CALLOUTBACKGROUND_ZVALUE_DEFAULT      3.1
+#define CALLOUTASSEM_ZVALUE_DEFAULT           3.2
+#define CALLOUTINSTANCE_ZVALUE_DEFAULT        3.3
+
+#define PARTSLISTBACKGROUND_ZVALUE_DEFAULT    4.0
+#define PARTSLISTINSTANCE_ZVALUE_DEFAULT      4.1
+#define PARTSLISTANNOTATION_ZVALUE_DEFAULT    4.2
+
+#define ROTATEICONBACKGROUND_ZVALUE_DEFAULT   5.0
+
+#define DIVIDERBACKGROUND_ZVALUE_DEFAULT      6.0
+#define DIVIDERPOINTER_ZVALUE_DEFAULT         6.0  // [same as background]
+#define DIVIDERLINE_ZVALUE_DEFAULT            6.1
+#define DIVIDER_ZVALUE_DEFAULT                6.2
+
+#define ASSEMANNOTATION_ZVALUE_DEFAULT        7.0
+#define ASSEMANNOTATIONPART_ZVALUE_DEFAULT    7.1
+
+#define INSERTPIXMAP_ZVALUE_DEFAULT           8.0
+
+#define INSERTTEXT_ZVALUE_DEFAULT             9.0
+
+#define PAGEATTRIBUTEPIXMAP_ZVALUE_DEFAULT   10.0
+
+#define PAGEATTRIBUTETEXT_ZVALUE_DEFAULT     11.0
+
+#define SUBMODELINSTANCECOUNT_ZVALUE_DEFAULT 12.0
+
+#define PAGENUMBER_ZVALUE_DEFAULT            13.0
+
+#define STEPNUMBER_ZVALUE_DEFAULT            14.0
+
+#define PAGEPOINTERBACKGROUND_ZVALUE_DEFAULT 15.0 // [same as pagePointer]
+#define PAGEPOINTER_ZVALUE_DEFAULT           15.0
+
+#define POINTERHEAD_ZVALUE_DEFAULT            0.3 // [Plus Parent zValue]
+#define POINTERTHIRDSEG_ZVALUE_DEFAULT        1.0 // [Plus Parent zValue] [Exempt]
+#define POINTERSECONDSEG_ZVALUE_DEFAULT       2.0 // [Plus Parent zValue] [Exempt]
+#define POINTERFIRSTSEG_ZVALUE_DEFAULT        3.0 // [Plus Parent zValue] [Exempt]
+
+#define POINTERGRABBER_ZVALUE_DEFAULT         0.4   // [Plus Parent zValue]
+#define PLIGRABBER_ZVALUE_DEFAULT             0.5   // [Plus Parent zValue]
+#define SUBMODELGRABBER_ZVALUE_DEFAULT        0.6   // [Plus Parent zValue]
+
+#define Z_VALUE_DEFAULT                       0
 
 // registry sections
 #define DEFAULTS                "Defaults"
@@ -207,7 +355,7 @@ enum Theme { ThemeDark, ThemeDefault };
 #define THEME_DARK                      "Dark"    // Dark Theme
 #define THEME_TICK_PEN_DARK             "#eff0f1" // Custom Pale Grey
 #define THEME_NML_PEN_DARK              "#ffffff" // Qt White
-#define THEME_GUIDEL_PEN_DARK           "#aa0000" // LPub3D Maroon
+#define THEME_GUIDE_PEN_DARK           "#aa0000" // LPub3D Maroon
 #define THEME_MAIN_BGCOLOR_DARK         "#31363b" // Custom Dark Grey
 #define THEME_VIEWER_BGCOLOR_DARK       "#808B96" // Custom Grey
 #define THEME_EDIT_MARGIN_DARK          "#ABB2B9" // Custom Gray

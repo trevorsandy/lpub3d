@@ -168,8 +168,9 @@ enum PlacementType {          // placement dialogue codes:
   ReserveType,                //33
   CoverPageType,              //34
   CsiAnnotationType,          //35
+  DividerPointerType,         //36
 
-  NumRelatives                //36
+  NumRelatives                //37
 };
 
 enum pageType{
@@ -197,12 +198,14 @@ enum AnnotationCategory{
     extended
 };
 
+/*
 enum annotationType{
   TitleAnnotationType = 0,
   FreeFormAnnotationType,
   TitleAndFreeFormAnnotationType,
   AnnotationType
 };
+*/
 
 enum sortType{
     PartSize = 0,
@@ -628,9 +631,10 @@ const QString RelNames[NumRelatives] =
    "RangeType",                  //32
    "ReserveType",                //33
    "CoverPageType",              //34
-   "CsiAnnotationType"           //35
+   "CsiAnnotationType",          //35
+   "DividerPointerType"          //36
 
-}; //NumRelatives"               //36
+}; //NumRelatives"               //37
 
 const QString PlacNames[NumPlacements] =
  {

@@ -25,6 +25,7 @@
 #include "name.h"
 #include "placementdialog.h"
 #include "commonmenus.h"
+#include "lpub.h"
 
 #include "ranges.h"
 #include "step.h"
@@ -72,7 +73,8 @@ void PageAttributeTextItem::setAttributes(
     setFlag(QGraphicsItem::ItemIsMovable);
     setFlag(QGraphicsItem::ItemIsSelectable);
     setToolTip(_toolTip);
-    setZValue(1000);
+    setData(ObjectId, PageAttributeTextObj);
+    setZValue(page->meta.LPub.page.scene.pageAttributeText.zValue());
 }
 
 PageAttributeTextItem::PageAttributeTextItem(

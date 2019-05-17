@@ -41,6 +41,8 @@ PlacementCsiPart::PlacementCsiPart(
   loc[YY]     += _csiPartMeta.loc.valuePixels(YY);
   outline      = false;
 
+  setData(ObjectId, AssemAnnotationPartObj);
+
   setParentItem(_parent);
 }
 
@@ -86,8 +88,6 @@ void PlacementCsiPart::setOutline(QPainter *painter)
 
     QRectF irect(ibt/2,ibt/2,size[XX]-ibt,size[YY]-ibt);
     painter->drawRect(irect);
-
-    setZValue(10000);
 }
 
 CsiAnnotation::CsiAnnotation(
@@ -282,6 +282,7 @@ void CsiAnnotationItem::addGraphicsItems(
     // place PlacementCsiPart relative to CSI
 
     placementCsiPart = new PlacementCsiPart(_ca->csiPartMeta,_csiItem);
+    placementCsiPart->setZValue(_csiItem->meta->LPub.page.scene.assemAnnotationPart.zValue());
     if (! placementCsiPart->hasOffset())
         _csiItem->placeRelative(placementCsiPart);
 
@@ -300,7 +301,8 @@ void CsiAnnotationItem::addGraphicsItems(
     }
     setPos(loc[XX],loc[YY]);
 
-    setZValue(10000);
+    setData(ObjectId, AssemAnnotationObj);
+//    setZValue(_step->scene.assemAnnotation.zValue()); // set from csiitem
     setFlag(QGraphicsItem::ItemIsMovable, _movable);
     setFlag(QGraphicsItem::ItemIsSelectable, _movable);
 }
@@ -514,6 +516,15 @@ void CsiAnnotationItem::contextMenuEvent(
   QAction *toggleCsiPartRectAction = menu.addAction("Toggle Part Outline");
   toggleCsiPartRectAction->setIcon(QIcon(":/resources/togglepartoutline.png"));
 
+  QAction *bringToFrontAction = nullptr;
+  QAction *sendToBackBackAction = nullptr;
+  if (gui->pagescene()->showContextAction()) {
+      if (!gui->pagescene()->isSelectedItemOnTop())
+          bringToFrontAction = commonMenus.bringToFrontMenu(menu, pl);
+      if (!gui->pagescene()->isSelectedItemOnBottom())
+          sendToBackBackAction  = commonMenus.sendToBackMenu(menu, pl);
+  }
+
   QAction *selectedAction   = menu.exec(event->screenPos());
 
   if (selectedAction == nullptr) {
@@ -536,5 +547,17 @@ void CsiAnnotationItem::contextMenuEvent(
               caid.hidden = true;
               icon.setValue(caid);
               updateCsiAnnotationIconMeta(metaLine, &icon);
-   }
+   } else if (selectedAction == bringToFrontAction) {
+      CsiItem *csiItem = qgraphicsitem_cast<CsiItem *>(parentObject());
+      setSelectedItemZValue(topOf,
+                            bottomOf,
+                            BringToFront,
+                            &csiItem->meta->LPub.page.scene.assem);
+  } else if (selectedAction == sendToBackBackAction) {
+      CsiItem *csiItem = qgraphicsitem_cast<CsiItem *>(parentObject());
+      setSelectedItemZValue(topOf,
+                            bottomOf,
+                            SendToBack,
+                            &csiItem->meta->LPub.page.scene.assem);
+  }
 }

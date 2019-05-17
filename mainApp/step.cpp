@@ -155,6 +155,8 @@ Step::Step(
   placeCsiAnnotation        = false;
   fadeSteps                 = _meta.LPub.fadeStep.fadeStep.value();
   highlightStep             = _meta.LPub.highlightStep.highlightStep.value() && !gui->suppressColourMeta();
+  sceneStepNumberZ          = _meta.LPub.page.scene.stepNumber;
+  sceneRotateIconZ          = _meta.LPub.page.scene.rotateIconBackground;
 
   if (gui->exportingObjects() && gui->m_partListCSIFile){
       pliMetaCameraFoV      = _meta.LPub.bom.cameraFoV;
@@ -1753,6 +1755,7 @@ void Step::addGraphicsItems(
                               stepNumber.number,
                               parent);
 
+      sn->setZValue(sceneStepNumberZ.zValue());
       sn->setPos(offsetX + stepNumber.loc[XX],
                  offsetY + stepNumber.loc[YY]);
 
@@ -1799,6 +1802,7 @@ void Step::addGraphicsItems(
                  offsetY + rotateIcon.loc[YY]);
 
       ri->setFlag(QGraphicsItem::ItemIsMovable,movable);
+      ri->setZValue(sceneRotateIconZ.zValue());
     }
 
   // Callouts

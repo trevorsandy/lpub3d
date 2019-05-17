@@ -1395,6 +1395,7 @@ private:
 
   QAction  *undoAct;
   QAction  *redoAct;
+
   QAction  *insertCoverPageAct;
   QAction  *appendCoverPageAct;
   QAction  *insertNumberedPageAct;

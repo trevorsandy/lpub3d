@@ -25,6 +25,8 @@
 #include "ranges.h"
 #include "color.h"
 #include "commonmenus.h"
+#include "pagebackgrounditem.h"
+#include "lpub.h"
 
 qreal AbstractResize::grabsize = 0.125; // inches
 
@@ -201,26 +203,29 @@ void ResizePixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {     
   position = pos();
   positionChanged = false;
+  if (event->button() == Qt::LeftButton){
+    placeGrabbers();
+  }
   QGraphicsItem::mousePressEvent(event);
-  placeGrabbers();
 } 
   
 void ResizePixmapItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 { 
   positionChanged = true;
-  QGraphicsItem::mouseMoveEvent(event);
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
     placeGrabbers();
   }
+  QGraphicsItem::mouseMoveEvent(event);
 }
 
 void ResizePixmapItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-  QGraphicsItem::mouseReleaseEvent(event);
-
-  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
-    change();
+  if (event->button() == Qt::LeftButton){
+    if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
+      change();
+    }
   }
+  QGraphicsItem::mouseReleaseEvent(event);
 }
 
 QVariant ResizePixmapItem::itemChange(GraphicsItemChange change, const QVariant &value)
@@ -264,26 +269,29 @@ void ResizeTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
   position = pos();
   positionChanged = false;
+  if (event->button() == Qt::LeftButton){
+    placeGrabbers();
+  }
   QGraphicsItem::mousePressEvent(event);
-  placeGrabbers();
 }
 
 void ResizeTextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
   positionChanged = true;
-  QGraphicsItem::mouseMoveEvent(event);
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
     placeGrabbers();
   }
+  QGraphicsItem::mouseMoveEvent(event);
 }
 
 void ResizeTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-  QGraphicsItem::mouseReleaseEvent(event);
-
-  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
-    change();
+  if (event->button() == Qt::LeftButton){
+    if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
+      change();
+    }
   }
+  QGraphicsItem::mouseReleaseEvent(event);
 }
 
 QVariant ResizeTextItem::itemChange(GraphicsItemChange change, const QVariant &value)
@@ -301,20 +309,19 @@ QVariant ResizeTextItem::itemChange(GraphicsItemChange change, const QVariant &v
 
 InsertPixmapItem::InsertPixmapItem(
   QPixmap    &pixmap,
-  InsertMeta &insertMeta,
+  InsertMeta meta,
   QGraphicsItem *parent)
-
-  : insertMeta(insertMeta)
+  : meta(meta)
 {
   setPixmap(pixmap);
   setParentItem(parent);
   
-  size[0] = pixmap.width() *insertMeta.value().picScale;
-  size[1] = pixmap.height()*insertMeta.value().picScale;
+  size[0] = int(pixmap.width() * meta.value().picScale);
+  size[1] = int(pixmap.height()* meta.value().picScale);
 
   setFlag(QGraphicsItem::ItemIsSelectable,true);
   setFlag(QGraphicsItem::ItemIsMovable,true);
-  setZValue(500);
+  setData(ObjectId, InsertPixmapObj);
 
   margin.setValues(0.0,0.0);
 }
@@ -326,7 +333,7 @@ void InsertPixmapItem::change()
 
       beginMacro(QString("Resize"));
       
-      InsertData insertData = insertMeta.value();
+      InsertData insertData = meta.value();
       
       qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
       qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
@@ -341,9 +348,9 @@ void InsertPixmapItem::change()
       calcOffsets(pld,insertData.offsets,topLeft,size);
 
       insertData.picScale *= oldScale;
-      insertMeta.setValue(insertData);
+      meta.setValue(insertData);
       
-      changeInsertOffset(&insertMeta);
+      changeInsertOffset(&meta);
       
       endMacro();
     }
@@ -353,9 +360,19 @@ void InsertPixmapItem::change()
 void InsertPixmapItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
+  QString pl = "Picture";
 
-  QAction *deleteAction = menu.addAction("Delete this Picture");
-  deleteAction->setWhatsThis("Delete this picture");
+  QAction *deleteAction = menu.addAction("Delete this " + pl);
+  deleteAction->setWhatsThis("Delete this " + pl.toLower());
+
+  QAction *bringToFrontAction = nullptr;
+  QAction *sendToBackBackAction = nullptr;
+  if (gui->pagescene()->showContextAction()) {
+      if (!gui->pagescene()->isSelectedItemOnTop())
+          bringToFrontAction = commonMenus.bringToFrontMenu(menu, pl);
+      if (!gui->pagescene()->isSelectedItemOnBottom())
+          sendToBackBackAction  = commonMenus.sendToBackMenu(menu, pl);
+  }
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
@@ -363,7 +380,21 @@ void InsertPixmapItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     return;
   }
 
+  Where here  = meta.here();
+
   if (selectedAction == deleteAction) {
-      deleteMeta(insertMeta.here());
+      deleteMeta(meta.here());
+  } else if (selectedAction == bringToFrontAction) {
+      PageBackgroundItem * pageBgItem = qgraphicsitem_cast<PageBackgroundItem *>(parentObject());
+      setSelectedItemZValue(here,
+                            here,
+                            BringToFront,
+                            &pageBgItem->meta->LPub.page.scene.insertText);
+  } else if (selectedAction == sendToBackBackAction) {
+      PageBackgroundItem * pageBgItem = qgraphicsitem_cast<PageBackgroundItem *>(parentObject());
+      setSelectedItemZValue(here,
+                            here,
+                            SendToBack,
+                            &pageBgItem->meta->LPub.page.scene.insertText);
   }
 }

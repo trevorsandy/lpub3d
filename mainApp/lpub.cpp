@@ -1949,6 +1949,7 @@ void Gui::preferences()
 {
     bool displayThemeRestart            = false;
     bool libraryChangeRestart           = false;
+    bool defaultUnitsCompare            = Preferences::preferCentimeters;
     bool enableLDViewSCallCompare       = Preferences::enableLDViewSingleCall;
     bool enableLDViewSListCompare       = Preferences::enableLDViewSnaphsotList;
     bool displayAllAttributesCompare    = Preferences::displayAllAttributes;
@@ -1999,6 +2000,7 @@ void Gui::preferences()
         box.setDefaultButton   (QMessageBox::Ok);
         box.setStandardButtons (QMessageBox::Ok);
 
+        bool defaultUnitsChanged           = Preferences::preferCentimeters                      != defaultUnitsCompare;
         bool rendererChanged               = QString(Preferences::preferredRenderer).toLower()   != preferredRendererCompare.toLower();
         bool enableFadeStepsChanged        = Preferences::enableFadeSteps                        != enableFadeStepsCompare;
         bool fadeStepsUseColourChanged     = Preferences::fadeStepsUseColour                     != fadeStepsUseColourCompare;
@@ -2027,6 +2029,9 @@ void Gui::preferences()
         bool loadLastOpenedFileChanged     = Preferences::loadLastOpenedFile                     != loadLastOpenedFileCompare;
         bool povrayAutoCropChanged         = Preferences::povrayAutoCrop                         != povrayAutoCropCompare;
         bool povrayRenderQualityChanged    = Preferences::povrayRenderQuality                    != povrayRenderQualityCompare;
+
+        if (defaultUnitsChanged     )
+                    emit messageSig(LOG_INFO,QString("Default units changed to %1").arg(Preferences::preferCentimeters? "Centimetres" : "Inches"));
 
         if (ldrawPathChanged) {
             emit messageSig(LOG_INFO,QString("LDraw Library path changed from %1 to %2")
@@ -2192,7 +2197,8 @@ void Gui::preferences()
         }
 
         if (!getCurFile().isEmpty()) {
-            if (enableFadeStepsChanged        ||
+            if (defaultUnitsChanged           ||
+                enableFadeStepsChanged        ||
                 altLDConfigPathChanged        ||
                 fadeStepsColourChanged        ||
                 fadeStepsUseColourChanged     ||
@@ -2311,10 +2317,13 @@ Gui::Gui()
     KpageScene    = new LGraphicsScene(this);
     KpageScene->setBackgroundBrush(Qt::lightGray);
     KpageView     = new LGraphicsView(KpageScene);
+    KpageView->setPageGuides(getTheme());
+    KpageView->setPageRuler(getTheme());
     KpageView->pageBackgroundItem = nullptr;
     KpageView->setRenderHints(QPainter::Antialiasing | 
                               QPainter::TextAntialiasing |
                               QPainter::SmoothPixmapTransform);
+
     setCentralWidget(KpageView);
 
     mpdCombo = new QComboBox(this);
@@ -2339,6 +2348,7 @@ Gui::Gui()
     macroNesting = 0;
 
     lpubAlert = new LPubAlert();
+
     connect(lpubAlert,      SIGNAL(messageSig(LogType,QString)),
             this,           SLOT(statusMessage(LogType,QString)));
 

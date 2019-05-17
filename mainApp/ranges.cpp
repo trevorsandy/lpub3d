@@ -570,6 +570,9 @@ void Steps::addGraphicsItems(
 
               DividerItem *divider = new DividerItem(step,&meta,oX,oY);
               divider->setParentItem(parent);
+              divider->setZValue(meta.LPub.page.scene.divider.zValue());
+              divider->lineItem->setZValue(meta.LPub.page.scene.dividerLine.zValue());
+
 
               //   add divider pointers (if any) to the graphics scene
               for (int j = 0; j < range->stepDividerPointerList.size(); j++) {

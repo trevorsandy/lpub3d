@@ -57,8 +57,8 @@ public:
   bool                       positionChanged;
   bool                       resizeRequested;
   float                      thickness;       // only used by autoLocFromBase()
-  int			             baseX;
-  int			             baseY;
+  int                        baseX;
+  int                        baseY;
   BorderedLineItem          *shaft;
   QGraphicsPolygonItem      *head;
   QList<BorderedLineItem *>  shaftSegments;

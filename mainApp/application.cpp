@@ -410,6 +410,24 @@ void Application::initialize()
         }
     }
 
+    // Enum registrations
+    Q_ENUMS(PartType)
+    Q_ENUMS(PliType)
+    Q_ENUMS(LogType)
+    Q_ENUMS(IniFlag)
+    Q_ENUMS(DividerType)
+    Q_ENUMS(LibType)
+    Q_ENUMS(Theme)
+    Q_ENUMS(SceneObjectDirection)
+    Q_ENUMS(SceneObjectInfo)
+    Q_ENUMS(SceneObject)
+
+    Q_ENUMS(Dimensions)
+    Q_ENUMS(PAction)
+    Q_ENUMS(Direction)
+    Q_ENUMS(ExportOption)
+    Q_ENUMS(ExportMode)
+
     // Set loaded library flags and variables
     Preferences::setLPub3DAltLibPreferences(ldrawLibrary);
 

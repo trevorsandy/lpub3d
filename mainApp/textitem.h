@@ -31,7 +31,6 @@
 #include "placement.h"
 #include "meta.h"
 #include "metaitem.h"
-#include "lpub.h"
 
 class TextItem : public QGraphicsTextItem, public Placement, public MetaItem
 {

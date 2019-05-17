@@ -1,4 +1,4 @@
- 
+
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
@@ -47,7 +47,7 @@ class MultiStepRangesBackgroundItem : public QGraphicsRectItem, public MetaItem
 public:
   MultiStepRangesBackgroundItem(
     Steps *_steps,
-    QRectF rect, 
+    QRectF rect,
     QGraphicsItem *parent, 
     Meta *_meta);
 protected:
@@ -144,10 +144,8 @@ public:
 class DividerLine : public QGraphicsLineItem, public MetaItem
 {
 public:
-  DividerLine(DividerItem *parent)
-  {
-    setParentItem(parent);
-  }
+  DividerLine(DividerItem *parent);
+
 protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
 };    

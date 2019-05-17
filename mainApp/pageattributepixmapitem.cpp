@@ -20,6 +20,7 @@
 #include "commonmenus.h"
 #include "step.h"
 #include "ranges.h"
+#include "name.h"
 
 PageAttributePixmapItem::PageAttributePixmapItem(
   Page                      *_page,
@@ -49,7 +50,8 @@ PageAttributePixmapItem::PageAttributePixmapItem(
       setToolTip("Plug Image - right-click to modify");
     }
 
-  setZValue(500);
+  setData(ObjectId, PageAttributePixmapObj);
+  // setZValue(PAGEATTRIBUTEPIXMAP_ZVALUE_DEFAULT); // set from formatpage
   setParentItem(parent);
   setPixmap(pixmap);
   setFlag(QGraphicsItem::ItemIsSelectable,true);

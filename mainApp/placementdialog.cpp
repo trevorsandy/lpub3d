@@ -56,7 +56,7 @@ const QString PlacementDialog::labels[][5] =
 };
 
 const QList<int> PlacementDialog::relativeToOks[NumRelatives] =
-{ //                               {Page , Csi , Pli , Pn , Sn , Callout , Sm , PhD , Pf, Ms}
+{ //                               {Page , Csi , Pli , Pn , Sn , Callout , Sm , Ph , Pf, Ms}
   /*  0 Page             Page    */{0},
   /*  1 Csi (Assem)      Csi     */{Page},
   /*  2 MultiStep        Ms      */{Page       , Pli},
@@ -94,9 +94,10 @@ const QList<int> PlacementDialog::relativeToOks[NumRelatives] =
   /* 32 Range                    */{Page},
   /* 33 Reserve                  */{Page},
   /* 34 CoverPage                */{Page},
-  /* 35 CsiAnnotationType        */{       Cp}
+  /* 35 CsiAnnotationType        */{                             Callout ,               Ms},
+  /* 36 DividerPinter            */{       Cp}
 
-  /* 36 NumRelatives             */
+  /* 37 NumRelatives             */
 };
 
 //front cover options   Page     | Ph | Pf | Tt | At                  | mnt | pt | mdt | pdt | dlt,
@@ -141,9 +142,10 @@ const int PlacementDialog::prepositionOks[NumRelatives] = // indexed by them
   /* 32 Range                    */ OutsideOk,
   /* 33 Reserve                  */ OutsideOk,
   /* 34 CoverPage                */ InsideOk,
-  /* 35 CsiAnnotationType        */ OutsideOk
+  /* 35 CsiAnnotationType        */ OutsideOk,
+  /* 36 DividerPointer           */ InsideOk
 
-  /* 36 NumRelatives             */
+  /* 37 NumRelatives             */
 };
 
 const QString PlacementDialog::relativeNames[NumRelatives] =
@@ -186,8 +188,9 @@ const QString PlacementDialog::relativeNames[NumRelatives] =
   "Reserve",                    //33
   "Cover Page",                 //34
   "CSI Annotation"              //35
+  "Divider Pointer"             //36
 
- /*NumRelatives               *///36 NumRelatives
+ /*NumRelatives               *///37 NumRelatives
 };
 
 bool PlacementDialog::getPlacement(

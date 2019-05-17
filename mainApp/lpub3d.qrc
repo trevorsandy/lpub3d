@@ -26,6 +26,7 @@
         <file alias="bottom.png">resources/bottom.png</file>
         <file alias="bottomofdocument.png">resources/bottomofdocument.png</file>
         <file alias="bricklink32.png">resources/bricklink32.png</file>
+        <file alias="bringtofront.png">resources/bringtofront.png</file>
         <file alias="calloutsetup.png">resources/calloutsetup.png</file>
         <file alias="changedivider.png">resources/changedivider.png</file>
         <file alias="changeshape.png">resources/changeshape.png</file>
@@ -82,7 +83,7 @@
         <file alias="exportpng.png">resources/exportpng.png</file>
         <file alias="exportjpeg.png">resources/exportjpeg.png</file>
         <file alias="fadestepsetup.png">resources/fadestepsetup.png</file>
-        <file alias="fillattributes.png">resources/fillattributes.png</file>
+        <file alias="lineattributes.png">resources/lineattributes.png</file>
         <file alias="find.png">resources/find.png</file>
         <file alias="first.png">resources/first.png</file>
         <file alias="fitPage.png">resources/fitPage.png</file>
@@ -167,6 +168,7 @@
         <file alias="savemetacommands.png">resources/savemetacommands.png</file>
         <file alias="scale.png">resources/scale.png</file>
         <file alias="selectall.png">resources/selectall.png</file>
+        <file alias="sendtoback.png">resources/sendtoback.png</file>
         <file alias="showallcharacters.png">resources/showallcharacters.png</file>
         <file alias="softwareupdate.png">resources/softwareupdate.png</file>
         <file alias="sortPli.png">resources/sortPli.png</file>

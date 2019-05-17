@@ -1613,9 +1613,25 @@ void MetaItem::hideSubmodel(
         BoolMeta *show,
         bool useTop,
         int append,
-        bool checkLocal){
+        bool local){
     show->setValue(false);
-    setMeta(topOfStep,bottomOfStep,show,useTop,append,checkLocal);
+    setMeta(topOfStep,bottomOfStep,show,useTop,append,local);
+}
+
+void MetaItem::setSelectedItemZValue(
+        const Where &topOfStep,
+        const Where &bottomOfStep,
+        bool  bringToFront,
+        SceneDepthMeta *zValueMeta,
+        bool useTop,
+        int append,
+        bool local){
+    if (bringToFront)
+        gui->pagescene()->bringSelectedItemToFront();
+    else
+        gui->pagescene()->sendSelectedItemToBack();
+    zValueMeta->setValue(gui->pagescene()->getSelectedItemZValue());
+    setMeta(topOfStep,bottomOfStep,zValueMeta,useTop,append/*do not append*/,local);
 }
 
 void MetaItem::changeSubmodelRotStep(
@@ -1625,14 +1641,14 @@ void MetaItem::changeSubmodelRotStep(
         RotStepMeta *rotStep,
         bool useTop,
         int append,
-        bool checkLocal){
+        bool local){
 
     RotStepData rotStepData = rotStep->value();
     bool ok = RotStepDialog::getRotStep(rotStepData,title);
 
     if (ok) {
         rotStep->setValue(rotStepData);
-        setMeta(topOfStep,bottomOfStep,rotStep,useTop,append,checkLocal);
+        setMeta(topOfStep,bottomOfStep,rotStep,useTop,append,local);
     }
 }
 

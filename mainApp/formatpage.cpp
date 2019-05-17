@@ -50,6 +50,7 @@
 #include "paths.h"
 #include "pagepointer.h"
 #include "lgraphicsscene.h"
+#include "name.h"
 
 /*
  * We need to draw page every time there is change to the LDraw file.
@@ -83,7 +84,7 @@ void Gui::clearPage(
 class SubmodelInstanceCount : public NumberPlacementItem
 {
   Page *page;
-  
+
 public:
   SubmodelInstanceCount(
       Page                *pageIn,
@@ -100,6 +101,8 @@ public:
                   valueIn,
                   toolTip,
                   parentIn);
+    setData(ObjectId, SubmodelInstanceCountObj);
+    setZValue(page->meta.LPub.page.scene.submodelInstanceCount.zValue());
   }
 protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
@@ -303,6 +306,7 @@ int Gui::addGraphicsPageItems(
             stepPageNum,
             pageBg);
 
+      pageNumber->setZValue(page->meta.LPub.page.scene.pageNumber.zValue());
       pageNumber->relativeType = PageNumberType;
       pageNumber->size[XX]     = (int) pageNumber->document()->size().width();
       pageNumber->size[YY]     = (int) pageNumber->document()->size().height();
@@ -452,9 +456,9 @@ int Gui::addGraphicsPageItems(
     }
 
   /* Create any graphics items in the insert list */
-  
+
   int nInserts = page->inserts.size();
-  
+
   if (nInserts) {
       QFileInfo fileInfo, picInfo;
       for (int i = 0; i < nInserts; i++) {
@@ -479,6 +483,7 @@ int Gui::addGraphicsPageItems(
                     QPixmap qpixmap;
                     qpixmap.load(insert.picName);
                     InsertPixmapItem *pixmap = new InsertPixmapItem(qpixmap,page->inserts[i],pageBg);
+                    pixmap->setZValue(page->meta.LPub.page.scene.insertPicture.zValue());
 
                     page->addInsertPixmap(pixmap);
                     pixmap->setTransformationMode(Qt::SmoothTransformation);
@@ -510,6 +515,7 @@ int Gui::addGraphicsPageItems(
             case InsertData::InsertText:
               {
                 TextItem *text = new TextItem(page->inserts[i],pageBg);
+                text->setZValue(page->meta.LPub.page.scene.insertText.zValue());
 
                 PlacementData pld;
 
@@ -641,7 +647,7 @@ int Gui::addGraphicsPageItems(
 
                   for (int i = 0; i < step->list.size(); i++) {
                       step->list[i]->sizeIt();
-                    }
+                  }
 
                   // add the assembly image to the scene
 
@@ -736,6 +742,7 @@ int Gui::addGraphicsPageItems(
                       rotateIcon->relativeToSize[0] = step->rotateIcon.relativeToSize[0];
                       rotateIcon->relativeToSize[1] = step->rotateIcon.relativeToSize[1];
                       rotateIcon->setFlag(QGraphicsItem::ItemIsMovable,true);
+                      rotateIcon->setZValue(page->meta.LPub.page.scene.rotateIconBackground.zValue());
                     }
 
                   // allocate QGraphicsTextItem for step number
@@ -748,6 +755,7 @@ int Gui::addGraphicsPageItems(
                                              "%d",
                                              step->stepNumber.number,
                                              pageBg);
+                      stepNumber->setZValue(page->meta.LPub.page.scene.stepNumber.zValue());
                       stepNumber->setPos(step->stepNumber.loc[XX],
                                          step->stepNumber.loc[YY]);
                       stepNumber->relativeToSize[0] = step->stepNumber.relativeToSize[0];
@@ -756,21 +764,21 @@ int Gui::addGraphicsPageItems(
                     }
 
                   // add callout pointer items to the scene
-                  
+
                   for (int i = 0; i < step->list.size(); i++) {
-                  
+
                       // foreach callout
-                  
+
                       Callout *callout = step->list[i];
-                  
+
                       QRect    csiRect(step->csiItem->loc[XX]-callout->loc[XX],
                                        step->csiItem->loc[YY]-callout->loc[YY],
                                        step->csiItem->size[XX],
                                        step->csiItem->size[YY]);
-                  
+
                       // add the callout's graphics items to the scene
                       callout->addGraphicsItems(0,0,csiRect,pageBg,true);
-                  
+
                       // foreach pointer
                       //   add the pointer to the graphics scene
                       for (int i = 0; i < callout->pointerList.size(); i++) {
@@ -778,9 +786,9 @@ int Gui::addGraphicsPageItems(
                           callout->addGraphicsPointerItem(pointer,callout->underpinnings);
                         }
                     }
-                  
+
                   // add page pointer base and pointers to the scene
-                  
+
                   for (auto i : page->pagePointers.keys()) {
                       PagePointer *pp = page->pagePointers[i];
 
@@ -795,10 +803,10 @@ int Gui::addGraphicsPageItems(
 
                       // size the pagePointer origin (hidden page rectangle)
                       pp->sizeIt();
-                  
+
                       // add the pagePointer origin (hidden page rectangle) to the graphics scene
                       pp->addGraphicsItems(0,0,pageBg,true); // set true to make movable
-                  
+
                       //   add the pagePointer pointers to the graphics scene
                       for (int i = 0; i < pp->pointerList.size(); i++) {
                           Pointer *pointer = pp->pointerList[i];
@@ -1317,7 +1325,7 @@ int Gui::addCoverPageAttributes(
       bool displayTitleFront         = page->meta.LPub.page.titleFront.display.value();
       bool breakTitleFrontRelativeTo = false;
       PlacementData titleFrontPld;
-      if (displayTitleFront) {          
+      if (displayTitleFront) {
           titleFront->size[XX]       = (int) titleFront->document()->size().width();
           titleFront->size[YY]       = (int) titleFront->document()->size().height();
           titleFrontPld = titleFront->placement.value();
@@ -1549,6 +1557,7 @@ int Gui::addCoverPageAttributes(
               page->addPageAttributePixmap(pixmapLogoFront);
               pixmapLogoFront->setTransformationMode(Qt::SmoothTransformation);
               pixmapLogoFront->setScale(picScale,picScale);
+              pixmapLogoFront->setZValue(page->meta.LPub.page.scene.pageAttributePixmap.zValue());
               int margin[2] = {0, 0};
               PlacementData pld = pixmapLogoFront->placement.value();
               if (pld.relativeTo == PageHeaderType) {
@@ -1587,6 +1596,7 @@ int Gui::addCoverPageAttributes(
               page->addPageAttributePixmap(pixmapCoverImageFront);
               pixmapCoverImageFront->setTransformationMode(Qt::SmoothTransformation);
               pixmapCoverImageFront->setScale(picScale,picScale);
+              pixmapCoverImageFront->setZValue(page->meta.LPub.page.scene.pageAttributePixmap.zValue());
               int margin[2] = {0, 0};
               plPage.placeRelative(pixmapCoverImageFront, margin);
               pixmapCoverImageFront->setPos(pixmapCoverImageFront->loc[XX],pixmapCoverImageFront->loc[YY]);
@@ -1615,7 +1625,7 @@ int Gui::addCoverPageAttributes(
       bool displayTitleBack = page->meta.LPub.page.titleBack.display.value();
       bool breakTitleBackRelativeTo = false;
       PlacementData titleBackPld;
-      if (displayTitleBack) {    
+      if (displayTitleBack) {
           titleBack->size[XX]     = (int) titleBack->document()->size().width();
           titleBack->size[YY]     = (int) titleBack->document()->size().height();
 
@@ -1845,6 +1855,7 @@ int Gui::addCoverPageAttributes(
               page->addPageAttributePixmap(pixmapLogoBack);
               pixmapLogoBack->setTransformationMode(Qt::SmoothTransformation);
               pixmapLogoBack->setScale(picScale,picScale);
+              pixmapLogoBack->setZValue(page->meta.LPub.page.scene.pageAttributePixmap.zValue());
               int margin[2] = {0, 0};
               PlacementData pld = pixmapLogoBack->placement.value();
               if (pld.relativeTo == PageHeaderType) {
@@ -1883,6 +1894,7 @@ int Gui::addCoverPageAttributes(
               page->addPageAttributePixmap(pixmapPlugImageBack);;
               pixmapPlugImageBack->setTransformationMode(Qt::SmoothTransformation);
               pixmapPlugImageBack->setScale(picScale,picScale);
+              pixmapPlugImageBack->setZValue(page->meta.LPub.page.scene.pageAttributePixmap.zValue());
               int margin[2] = {0, 0};
               PlacementData pld = pixmapPlugImageBack->placement.value();
               if (displayPlugBack && pld.relativeTo == PagePlugType) {

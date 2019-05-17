@@ -930,6 +930,24 @@ void SubModel::getRightEdge(
 }
 
  // SMInstanceTextItem
+
+SMInstanceTextItem::SMInstanceTextItem(
+  SubModel       *_subModel,
+  SubModelPart   *_part,
+  QString        &text,
+  QString        &fontString,
+  QString        &colorString,
+  PlacementType _parentRelativeType)
+{
+  parentRelativeType = _parentRelativeType;
+  QString toolTip(tr("Times used - right-click to modify"));
+  setText(_subModel,_part,text,fontString,toolTip);
+  QColor color(colorString);
+  setDefaultTextColor(color);
+  setData(ObjectId, SubModelInstanceObj);
+  setZValue(_subModel->meta->LPub.page.scene.subModelInstance.zValue());
+}
+
 void SMInstanceTextItem::contextMenuEvent(
     QGraphicsSceneContextMenuEvent *event)
 {
@@ -1033,7 +1051,7 @@ SubModelBackgroundItem::SubModelBackgroundItem(
   int            submodelLevel,
   QGraphicsItem *parent)
 {
-  subModel       = _subModel;
+  subModel   = _subModel;
   grabHeight = height;
   grabber = nullptr;
 
@@ -1061,6 +1079,8 @@ SubModelBackgroundItem::SubModelBackgroundItem(
                  submodelLevel,
                  toolTip);
 
+  setData(ObjectId, SubModelBackgroundObj);
+  setZValue(_subModel->meta->LPub.page.scene.subModelBackground.zValue());
   setPixmap(*pixmap);
   setParentItem(parent);
   if (parentRelativeType != SingleStepType) {
@@ -1074,6 +1094,8 @@ void SubModelBackgroundItem::placeGrabbers()
   point = QPointF(rect.left() + rect.width()/2,rect.bottom());
   if (grabber == nullptr) {
     grabber = new Grabber(BottomInside,this,myParentItem());
+    grabber->setData(ObjectId, SubmodelGrabberObj);
+    grabber->setZValue(zValue()+subModel->meta->LPub.page.scene.submodelGrabber.zValue());
   }
   grabber->setPos(point.x()-grabSize()/2,point.y()-grabSize()/2);
 }
@@ -1164,6 +1186,15 @@ void SubModelBackgroundItem::contextMenuEvent(
     QAction *cameraFoVAction     = commonMenus.cameraFoVMenu(menu,pl);
     QAction *cameraAnglesAction  = commonMenus.cameraAnglesMenu(menu,pl);
     QAction *hideAction          = commonMenus.hideMenu(menu,pl);
+
+    QAction *bringToFrontAction = nullptr;
+    QAction *sendToBackBackAction = nullptr;
+    if (gui->pagescene()->showContextAction()) {
+        if (!gui->pagescene()->isSelectedItemOnTop())
+            bringToFrontAction = commonMenus.bringToFrontMenu(menu, pl);
+        if (!gui->pagescene()->isSelectedItemOnBottom())
+            sendToBackBackAction  = commonMenus.sendToBackMenu(menu, pl);
+    }
 
     QAction *selectedAction   = menu.exec(event->screenPos());
 
@@ -1268,6 +1299,16 @@ void SubModelBackgroundItem::contextMenuEvent(
         hideSubmodel(top,
                      bottom,
                      &subModel->subModelMeta.show);
+    } else if (selectedAction == bringToFrontAction) {
+        setSelectedItemZValue(top,
+                            bottom,
+                            BringToFront,
+                            &meta->LPub.page.scene.subModelBackground);
+    } else if (selectedAction == sendToBackBackAction) {
+        setSelectedItemZValue(top,
+                            bottom,
+                            SendToBack,
+                            &meta->LPub.page.scene.subModelBackground);
     }
   }
 }
