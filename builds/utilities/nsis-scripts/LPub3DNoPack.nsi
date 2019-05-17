@@ -917,7 +917,7 @@ FunctionEnd
 Function fnAskForceUninstall
   DetailPrint "Uninstall.exe failed!"
 
-  MessageBox MB_ICONEXCLAMATION|MB_YESNO "Uninstall.exe failed!.$\r$\nDo you want to completely remove ${PRODUCT_NAME}?" IDYES Proceed
+  MessageBox MB_ICONEXCLAMATION|MB_YESNO "Uninstall.exe failed!$\r$\nDo you want to completely remove ${PRODUCT_NAME}?" IDYES Proceed
   Abort "Error executing uninstaller."
 
   Proceed:
