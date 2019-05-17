@@ -4014,6 +4014,7 @@ Rc ResolutionMeta::parse(QStringList &argv, int index, Where &here)
     } else {
       return FailureRc;
     }
+  setIsDefaultResolution(false);
   return ResolutionRc;
 }
 

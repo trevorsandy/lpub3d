@@ -2876,6 +2876,10 @@ public:
 class ResolutionMeta : public LeafMeta {
 private:
 public:
+  bool isDefault()
+  {
+    return getIsDefaultResolution();
+  }
   ResolutionType type()
   {
     return resolutionType();
@@ -2887,11 +2891,13 @@ public:
   void setValue(float _resolution)
   {
     setResolution(_resolution);
+    setIsDefaultResolution(false);
   }
   void setValue(ResolutionType _type, float _resolution)
   {
     setResolutionType(_type);
     setResolution(_resolution);
+    setIsDefaultResolution(false);
   }
   float ldu()
   {
@@ -2899,11 +2905,13 @@ public:
   }
   ResolutionMeta() 
   {
+    setIsDefaultResolution(true);
   }
   ResolutionMeta(const ResolutionMeta &rhs) : LeafMeta(rhs)
   {
   }
   virtual ~ResolutionMeta() {}
+  void pop() { pushed = 0; setIsDefaultResolution(true); }
   virtual void init(BranchMeta *parent, 
                     QString name);
   virtual Rc parse(QStringList &argv, int index, Where &here);

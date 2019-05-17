@@ -29,7 +29,8 @@
 #include "resolution.h"
 
 static ResolutionType _resolutionType = DPI;
-static float          _resolution = 150;  // presumably always inches
+static float          _resolution = 150;     // presumably always inches
+static bool           _isDefault = true;
 
 float inches2centimeters(float inches)
 {
@@ -44,6 +45,16 @@ float centimeters2inches(float centimeters)
 float resolution()
 {
   return _resolution;
+}
+
+void setIsDefaultResolution(bool b)
+{
+    _isDefault = b;
+}
+
+bool getIsDefaultResolution()
+{
+    return _isDefault;
 }
 
 void setResolution(float res)
@@ -89,10 +100,24 @@ float toInches(
   }
 }
 
+float toCentimeters(
+  ResolutionType type,
+  float          value)
+{
+  switch (type) {
+    case DPCM:
+      return value;
+    default:
+      return inches2centimeters(value);
+  }
+}
+
 float toPixels(
   float          value,
   ResolutionType type)
 {
+  /*
+   * TS (v2.3.10) - This seems really wrong!
   if (type == resolutionType()) {
     if (type == DPCM) {
       value = inches2centimeters(value);
@@ -100,6 +125,10 @@ float toPixels(
       value = centimeters2inches(value);
     }
   }
+  */
+  if (type == DPCM)
+    value = centimeters2inches(value);
+
   return value*resolution();
 }
 

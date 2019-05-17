@@ -41,8 +41,11 @@ void setResolution(float);
 ResolutionType resolutionType();
 void setResolutionType(ResolutionType);
 void  defaultResolutionType(bool centimeters);
+void  setIsDefaultResolution(bool);
+bool  getIsDefaultResolution();
 float inches2centimeters(float inches);
 float centimeters2inches(float centimeters);
+float toCentimeters(ResolutionType,float);
 float toInches(ResolutionType,float);
 float toPixels(float,ResolutionType);
 

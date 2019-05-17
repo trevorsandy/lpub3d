@@ -537,7 +537,6 @@ void Application::initialize()
 
     // Resolution
     defaultResolutionType(Preferences::preferCentimeters);
-    setResolution(150);  // DPI
 
     // Translator - not implemented
     QTranslator QtTranslator;

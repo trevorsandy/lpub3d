@@ -2860,6 +2860,11 @@ ResolutionGui::ResolutionGui(
 
   type  = meta->type();
   value = meta->value();
+  // default value always inches
+  // so convert to centimeters if DPCM
+  if (meta->isDefault() && type == DPCM) {
+      value = inches2centimeters(meta->value());
+  }
 
   QComboBox *combo;
 
@@ -2884,17 +2889,16 @@ ResolutionGui::ResolutionGui(
 
 void ResolutionGui::unitsChange(QString const &units)
 {
-  if (units == "Dots Per Inch") {
-    //type = DPI;
-  } else {
+  if (units == "Dots Per Centimetre")
     type = DPCM;
-  }
+  else
+    type = DPI;
 
-  float tvalue;
+  float tvalue = 0.0;
 
   if (type == meta->type()) {
     tvalue = value;
-  } else if (type == DPI) {
+  } else if (type == DPCM /*DPI*/) { // Changed to Centimeters
     tvalue = inches2centimeters(value)+0.5;
   } else {
     tvalue = centimeters2inches(value)+0.5;
@@ -2913,7 +2917,7 @@ void ResolutionGui::valueChange(
 void ResolutionGui::differences()
 {
   if (type == meta->type()) {
-    if (value != meta->value()) {
+    if (value < meta->value() || value > meta->value()) {
       meta->setValue(type,value);
       modified = true;
     }
