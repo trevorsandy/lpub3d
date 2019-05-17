@@ -86,7 +86,7 @@ GlobalProjectDialog::GlobalProjectDialog(
   box = new QGroupBox("Step Numbers");
   layout->addWidget(box);
   child = new CheckBoxGui("Continuous step numbers.",&lpubMeta->contStepNumbers,box);
-  box->setToolTip("Enable continuous step numbers across submodels and callouts - except assembled or rotated callouts.");
+  box->setToolTip("Enable continuous step numbers across submodels and assembled or rotated callouts.");
   data->children.append(child);
 
   QDialogButtonBox *buttonBox;

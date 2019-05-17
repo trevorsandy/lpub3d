@@ -1631,7 +1631,8 @@ int Gui::drawPage(
   return 0;
 }
 
-int Gui::findPage(LGraphicsView  *view,
+int Gui::findPage(
+    LGraphicsView  *view,
     LGraphicsScene *scene,
     int            &pageNum,      //maxPages
     QString const  &addLine,
@@ -2658,7 +2659,8 @@ void Gui::countPages()
       QString empty;
       PgSizeData empty1;
       stepPageNum = 1;
-      findPage(KpageView,KpageScene,maxPages,empty,current,empty1,false,meta,false,0);
+      findPage(KpageView,KpageScene,maxPages,/*addLine*/empty,current,/*pageSize*/empty1,
+               /*isMirrored*/false,meta,/*printing*/false,/*contStepNumber*/0);
       topOfPages.append(current);
       maxPages--;
 
@@ -2694,7 +2696,7 @@ void Gui::drawPage(
   lastStepPageNum  = -1;
   renderStepNum    = 0;
   savePrevStepPosition = 0;
-  saveContStepNum = 0;
+  saveContStepNum = 1;
 
   PgSizeData pageSize;
   if (exporting()) {
