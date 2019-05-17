@@ -57,6 +57,10 @@ class QLabel;
 class QComboBox;
 
 
+class QAbstractItemModel;
+class QCompleter;
+class QProgressBar;
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 class EditWindow : public QMainWindow
 {
@@ -135,6 +139,10 @@ public slots:
 public:
     QTextEditor *textEdit() { return _textEdit; }
     bool modelFileEdit() { return _modelFileEdit; }
+
+private:
+    QAbstractItemModel *modelFromFile(const QString& fileName);
+    QCompleter *completer;
 };
 
 extern class EditWindow *editWindow;
@@ -155,6 +163,9 @@ public:
     int lineNumberAreaWidth();
     QFindReplace *popUp;
 
+    void setCompleter(QCompleter *c);
+    QCompleter *completer() const;
+
 public slots:
     void resizeEvent(QResizeEvent *e);
 
@@ -165,11 +176,18 @@ private slots:
     void updateLineNumberArea(); 
     void findDialog();
     void toggleComment();
+    void insertCompletion(const QString &completion);
     void showCharacters(
          QString findString,
          QString replaceString);
 
+protected:
+    void keyPressEvent(QKeyEvent *e) override;
+    void focusInEvent(QFocusEvent *e) override;
+
 private:
+    QString textUnderCursor() const;
+    QCompleter *c;
     bool _fileIsUTF8;
     QWidget *lineNumberArea;
 
