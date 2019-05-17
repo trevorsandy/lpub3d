@@ -3658,39 +3658,41 @@ PliSortOrderGui::PliSortOrderGui(
       }
   }
 
-  primaryCombo->setCurrentIndex(tokenMap[meta->primary.value()]);
+  // adjust indices for missing PartElement option when not bom
+  auto OptionIndex = [this](const QString &value){
+      int opt = tokenMap[value];
+      return bom ? opt : opt == NoSort ? PartElement : opt;
+  };
+
+  primaryCombo->setCurrentIndex(OptionIndex(meta->primary.value()));
   connect(primaryCombo,SIGNAL(currentIndexChanged(int)),
           this,        SLOT(  orderChange(        int)));
   grid->addWidget(primaryCombo,1,0);
 
-  secondaryCombo->setCurrentIndex(tokenMap[meta->secondary.value()]);
+  secondaryCombo->setCurrentIndex(OptionIndex(meta->secondary.value()));
   connect(secondaryCombo,SIGNAL(currentIndexChanged(int)),
           this,          SLOT(  orderChange(        int)));
   grid->addWidget(secondaryCombo,1,1);
 
-  tertiaryCombo->setCurrentIndex(tokenMap[meta->tertiary.value()]);
+  tertiaryCombo->setCurrentIndex(OptionIndex(meta->tertiary.value()));
   connect(tertiaryCombo,SIGNAL(currentIndexChanged(int)),
           this,         SLOT(  orderChange(        int)));
   grid->addWidget(tertiaryCombo,1,2);
 
-  bool enable;
-  if ((enable = meta->primary.value()   != SortOptionName[NoSort] &&
-                meta->secondary.value() != SortOptionName[NoSort] &&
-                meta->tertiary.value()  != SortOptionName[NoSort])){
-      gbTertiary->setEnabled(enable);
+  if (meta->tertiary.value()  == SortOptionName[NoSort]){
+      gbTertiary->setEnabled(false);
   }
-  if ((enable = meta->primary.value()   != SortOptionName[NoSort] &&
-                meta->secondary.value() != SortOptionName[NoSort])){
-      tertiaryCombo->setEnabled(enable);
-      gbSecondary->setEnabled(enable);
-      gbTertiary->setEnabled(enable);
+  if (meta->secondary.value() == SortOptionName[NoSort]){
+      tertiaryCombo->setEnabled(false);
+      gbSecondary->setEnabled(false);
+      gbTertiary->setEnabled(false);
   }
-  if ((enable = meta->primary.value()   != SortOptionName[NoSort])){
-      secondaryCombo->setEnabled(enable);
-      tertiaryCombo->setEnabled(enable);
-      gbPrimary->setEnabled(enable);
-      gbSecondary->setEnabled(enable);
-      gbTertiary->setEnabled(enable);
+  if (meta->primary.value()   == SortOptionName[NoSort]){
+      secondaryCombo->setEnabled(false);
+      tertiaryCombo->setEnabled(false);
+      gbPrimary->setEnabled(false);
+      gbSecondary->setEnabled(false);
+      gbTertiary->setEnabled(false);
   }
 
   primaryModified            = false;
@@ -3756,10 +3758,12 @@ void PliSortOrderGui::duplicateOption(
 void PliSortOrderGui::orderChange(int option)
 {
   bool enable;
-  int NoSortIndex = bom ? NoSort : NoSort - 1;
+  // adjust indices for missing PartElement option when not bom
+  int NoSortIndex = bom ? NoSort : PartElement;
+  int OptionIndex = bom ? option : option == PartElement ? NoSort : option;
   if (sender() == primaryCombo) {
       enable = option != NoSortIndex;
-      meta->primary.setValue(SortOptionName[option]);
+      meta->primary.setValue(SortOptionName[OptionIndex]);
       secondaryCombo->setEnabled(enable);
       tertiaryCombo->setEnabled(enable);
       gbPrimary->setEnabled(enable);
@@ -3777,7 +3781,7 @@ void PliSortOrderGui::orderChange(int option)
   if (sender() == secondaryCombo) {
       enable = (option != NoSortIndex &&
                 primaryCombo->currentIndex() != NoSortIndex);
-      meta->secondary.setValue(SortOptionName[option]);
+      meta->secondary.setValue(SortOptionName[OptionIndex]);
       tertiaryCombo->setEnabled(enable);
       gbSecondary->setEnabled(enable);
       gbTertiary->setEnabled(enable);
@@ -3794,7 +3798,7 @@ void PliSortOrderGui::orderChange(int option)
       enable = (option != NoSortIndex &&
                 primaryCombo->currentIndex()   != NoSortIndex &&
                 secondaryCombo->currentIndex() != NoSortIndex);
-      meta->tertiary.setValue(SortOptionName[option]);
+      meta->tertiary.setValue(SortOptionName[OptionIndex]);
       gbTertiary->setEnabled(enable);
       duplicateOption(tertiaryCombo,true);
       if ((tertiaryDuplicateOption =
