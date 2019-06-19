@@ -66,10 +66,7 @@ GlobalProjectDialog::GlobalProjectDialog(
 
   QGroupBox *box = new QGroupBox("Renderer");
   layout->addWidget(box);
-  MetaGui *child = new RendererGui(&lpubMeta->cameraDistNative,box);
-  RendererGui *childRenderGui = static_cast<RendererGui*>(child);;
-  data->clearCache = childRenderGui->clearCaches;
-  childRenderGui = nullptr;
+  MetaGui *child =new RendererGui(&lpubMeta->cameraDistNative,box);
   data->children.append(child);
 
   box = new QGroupBox("Resolution");
@@ -79,15 +76,17 @@ GlobalProjectDialog::GlobalProjectDialog(
   
   box = new QGroupBox("Submodel Instance Count");
   layout->addWidget(box);
-  child = new CheckBoxGui("Consolidate submodel instance count.",&lpubMeta->mergeInstanceCount,box);
+  CheckBoxGui *childInstanceCountBox = new CheckBoxGui("Consolidate submodel instance count.",&lpubMeta->mergeInstanceCount,box);
   box->setToolTip("Consolidate submodel instance count at first occurrence in model.");
-  data->children.append(child);
+  data->children.append(childInstanceCountBox);
+  connect (childInstanceCountBox->getCheckbox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
 
   box = new QGroupBox("Step Numbers");
   layout->addWidget(box);
-  child = new CheckBoxGui("Continuous step numbers.",&lpubMeta->contStepNumbers,box);
+  CheckBoxGui *childContStepNumbersBox = new CheckBoxGui("Continuous step numbers.",&lpubMeta->contStepNumbers,box);
   box->setToolTip("Enable continuous step numbers across submodels and assembled or rotated callouts.");
-  data->children.append(child);
+  data->children.append(childContStepNumbersBox);
+  connect (childContStepNumbersBox->getCheckbox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
 
   QDialogButtonBox *buttonBox;
 
@@ -108,6 +107,12 @@ void GlobalProjectDialog::getProjectGlobals(
 {
   GlobalProjectDialog *dialog = new GlobalProjectDialog(topLevelFile,meta);
   dialog->exec();
+}
+
+void GlobalProjectDialog::clearCache(bool b)
+{
+    if (!data->clearCache)
+        data->clearCache = b;
 }
 
 void GlobalProjectDialog::accept()

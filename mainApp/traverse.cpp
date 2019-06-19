@@ -1776,11 +1776,11 @@ int Gui::findPage(
                   // check if submodel was rendered
                   bool rendered = ldrawFile.rendered(type,stepNumber,ldrawFile.mirrored(token),mergedInstances);
 
-                  logTrace() << QString("Submodel %1 in parent %3 at stepNumber %4 %2")
-                                .arg(type)
-                                .arg(rendered ? "is RENDERED" : "is NOT RENDERED.")
-                                .arg(current.modelName)
-                                .arg(stepNumber);
+//                  logTrace() << QString("Submodel %1 in parent %3 at stepNumber %4 %2")
+//                                .arg(type)
+//                                .arg(rendered ? "is RENDERED" : "is NOT RENDERED.")
+//                                .arg(current.modelName)
+//                                .arg(stepNumber);
 
                   // if the submodel was not rendered, and (is not in the buffer exchange call setRendered for the submodel.
                   if (! rendered && (! bfxStore2 || ! bfxParts.contains(token[1]+type))) {
@@ -1816,10 +1816,10 @@ int Gui::findPage(
                       // store the step number where the submodel will be rendered for comparison
                       if (! mergedInstances) {
                           ldrawFile.setRendered(current2.modelName, stepNumber, isMirrored);
-                          logDebug() << QString("UNMERGED - Submodel %1 in parent %3 at stepNumber %4 is RENDERED")
-                                        .arg(type)
-                                        .arg(current2.modelName)
-                                        .arg(stepNumber);
+//                          logDebug() << QString("UNMERGED - Submodel %1 in parent %3 at stepNumber %4 is RENDERED")
+//                                        .arg(type)
+//                                        .arg(current2.modelName)
+//                                        .arg(stepNumber);
                       }
 
                       findPage(view,scene,pageNum,line,current2,pageSize,isMirrored,meta,printing,contStepNumber);
@@ -1856,8 +1856,8 @@ int Gui::findPage(
                       Where model(lineItem,0);
                       QString message("Submodel " + lineItem + " is set to ignore (IGN)");
                       statusBarMsg(message + ".");
-                      //ldrawFile.setModelStartPageNumber(model.modelName,pageNum);
-                      logTrace() << message << model.modelName << " @ Page: " << pageNum;
+//                      ldrawFile.setModelStartPageNumber(model.modelName,pageNum);
+//                      logTrace() << message << model.modelName << " @ Page: " << pageNum;
                     }
                 }
             }
@@ -2224,9 +2224,24 @@ int Gui::findPage(
     } // for every line
   csiParts.clear();
 
+  // last step in submodel
   if (partsAdded && ! noStep) {
-      if (pageNum == displayPageNum) {
+      // set ok to display subModel flag
+      // save continuous step number from current model
+      // pass continuous step number to drawPage
+      if (useContStepNum) {
+          if (! stepGroup && ! mergedInstances && pageNum < displayPageNum &&
+             (stepNumber > FIRST_STEP || displayPageNum > FIRST_PAGE)) {
+              contStepNumber += ! coverPage && ! stepPage;
+          }
+          if (pageNum == displayPageNum) {
+              saveMeta.LPub.subModel.showStep.setValue(stepNumber == 1);
+              saveStepNumber = contStepNumber;
+          }
+          saveContStepNum = contStepNumber;
+      }
 
+      if (pageNum == displayPageNum) {
           savePrevStepPosition = saveCsiParts.size();
           page.meta = saveMeta;
           QStringList pliParts;

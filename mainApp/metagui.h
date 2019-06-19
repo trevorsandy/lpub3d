@@ -90,6 +90,8 @@ public:
     QGroupBox      *parent = nullptr);
   ~CheckBoxGui() {}
 
+  QCheckBox *getCheckbox() {return check;}
+
   void setEnabled(bool enabled);
 
   virtual void apply(QString &modelName);

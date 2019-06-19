@@ -331,5 +331,6 @@ public:
 public slots:
   void accept();
   void cancel();
+  void clearCache(bool = true);
 };
 #endif
