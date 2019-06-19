@@ -305,11 +305,9 @@ int SubModel::generateSubModelItem()
 
         part->width  = image.width();
 
-        /* Add instance count area if instance count > 1 */
         int textWidth = 0, textHeight = 0;
 
-        bool includeInstance = subModelMeta.showInstanceCount.value() && part->instanceMeta.number > 1;
-        if (includeInstance) {
+        if (displayInstanceCount) {
 
             QString descr;
 
@@ -339,7 +337,7 @@ int SubModel::generateSubModelItem()
         getLeftEdge(image,part->leftEdge);
         getRightEdge(image,part->rightEdge);
 
-        if (includeInstance) {
+        if (displayInstanceCount) {
             part->partBotMargin = part->instanceMeta.margin.valuePixels(YY);
 
             /* Lets see if we can slide the text up in the bottom left corner of part image */

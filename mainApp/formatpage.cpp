@@ -345,11 +345,11 @@ int Gui::addGraphicsPageItems(
       pageNumber->setPos(pageNumber->loc[XX],pageNumber->loc[YY]);
 
       // if this page contains the last step of the submodel,
-      // and instance is > 1 then display instance
+      // and instance is > 1 and merge instance count, then display instance
 
       // allocate QGraphicsTextItem for instance number
 
-      if (endOfSubmodel && page->instances > 1) {
+      if (endOfSubmodel && page->displayInstanceCount/*page->instances > 1*/) {
 
           instanceCount = new SubmodelInstanceCount(
                 page,
@@ -1258,7 +1258,7 @@ int Gui::addContentPageAttributes(
 
       // Place insance count if end of submodel
 
-      if (endOfSubmodel && page->instances > 1) {
+      if (endOfSubmodel && page->displayInstanceCount/*page->instances > 1*/) {
 
           SubmodelInstanceCount   *instanceCount;
 

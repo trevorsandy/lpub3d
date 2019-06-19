@@ -132,6 +132,7 @@ class SubModel : public Placement {
     bool                    shared;
     // validity
     bool                    imageOutOfDate;
+    bool                    displayInstanceCount;
     SubModel()
     {
       relativeType = SubModelType;
@@ -141,6 +142,7 @@ class SubModel : public Placement {
       background = nullptr;
       imageOutOfDate = false;
       shared         = false;
+      displayInstanceCount = false;
     }
 
     ~SubModel()

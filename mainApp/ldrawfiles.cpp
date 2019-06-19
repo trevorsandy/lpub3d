@@ -71,6 +71,7 @@ LDrawSubFile::LDrawSubFile(
   _instances = 0;
   _mirrorInstances = 0;
   _rendered = false;
+  _renderedStepNumber = 0;
   _mirrorRendered = false;
   _changedSinceLastWrite = true;
   _unofficialPart = unofficialPart;
@@ -411,10 +412,11 @@ void LDrawFile::unrendered()
   foreach(key,_subFiles.keys()) {
     _subFiles[key]._rendered = false;
     _subFiles[key]._mirrorRendered = false;
+    _subFiles[key]._renderedStepNumber = 0;
   }
 }
 
-void LDrawFile::setRendered(const QString &mcFileName, bool mirrored)
+void LDrawFile::setRendered(const QString &mcFileName, int stepNumber, bool mirrored)
 {
   QString fileName = mcFileName.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
@@ -425,22 +427,25 @@ void LDrawFile::setRendered(const QString &mcFileName, bool mirrored)
     } else {
       i.value()._rendered = true;
     }
+    i.value()._renderedStepNumber = stepNumber;
   }
 }
 
-bool LDrawFile::rendered(const QString &mcFileName, bool mirrored)
+bool LDrawFile::rendered(const QString &mcFileName, int stepNumber, bool mirrored, bool merged)
 {
   QString fileName = mcFileName.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
-
+  bool retVal = false;
   if (i != _subFiles.end()) {
     if (mirrored) {
-      return i.value()._mirrorRendered;
+      retVal =  merged ?
+                  i.value()._mirrorRendered : i.value()._renderedStepNumber == stepNumber && i.value()._mirrorRendered;
     } else {
-      return i.value()._rendered;
+      retVal =  merged ?
+                  i.value()._rendered : i.value()._renderedStepNumber == stepNumber && i.value()._rendered;
     }
   }
-  return false;
+  return retVal;
 }      
 
 int LDrawFile::instances(const QString &mcFileName, bool mirrored)

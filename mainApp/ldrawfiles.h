@@ -51,6 +51,7 @@ class LDrawSubFile {
     int         _instances;
     int         _mirrorInstances;
     bool        _rendered;
+    int         _renderedStepNumber;
     bool        _mirrorRendered;
     bool        _changedSinceLastWrite;
     bool        _unofficialPart;
@@ -184,8 +185,8 @@ class LDrawFile {
                const QDateTime &lastModified);
     static bool mirrored(const QStringList &tokens);
     void unrendered();
-    void setRendered(const QString &fileName, bool mirrored);
-    bool rendered(const QString &fileName, bool mirrored);
+    void setRendered(const QString &fileName, int stepNumber, bool mirrored);
+    bool rendered(const QString &fileName, int stepNumber, bool mirrored, bool merged = true);
     int instances(const QString &fileName, bool mirrored);
     void countParts(const QString &fileName);
     void countInstances();

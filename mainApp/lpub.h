@@ -1082,7 +1082,6 @@ private:
 
   QUndoStack     *undoStack;                 // the undo/redo stack
   int             macroNesting;
-  int             renderStepNum;             // at what step in the model is a submodel detected and rendered
   bool            previousPageContinuousIsRunning;// stop the continuous previous page action
   bool            nextPageContinuousIsRunning;    // stop the continuous next page action
 
