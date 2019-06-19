@@ -534,11 +534,7 @@ int Gui::addGraphicsPageItems(
                 getBOMParts(current,addLine,bomParts,bomPartGroups);
                 page->pli.steps = steps;
                 getBOMOccurrence(current);
-                if (boms > 1){
-                  page->pli.setParts(bomParts,bomPartGroups,page->meta,true,true); //Split BOM Parts
-                } else {
-                  page->pli.setParts(bomParts,bomPartGroups,page->meta,true);
-                }
+                page->pli.setParts(bomParts,bomPartGroups,page->meta,true,(boms > 1/*Split BOM Parts*/));
                 bomParts.clear();
                 page->pli.sizePli(&page->meta,page->relativeType,false);
                 page->pli.relativeToSize[0] = plPage.size[XX];

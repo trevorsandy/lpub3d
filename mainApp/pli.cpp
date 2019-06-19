@@ -484,7 +484,7 @@ void Pli::setParts(
 
       sortedKeys = tempParts.keys();
 
-      doSortParts();
+      sortParts(tempParts, true);
 
       int quotient    = tempParts.size() / gui->boms;
       int remainder   = tempParts.size() % gui->boms;
@@ -706,12 +706,11 @@ int Pli::createSubModelIcons() // NOT USED - Moved to SubModelItem class
             QString nameKey = QString("%1_%2_%3_%4_%5_%6_%7")
                     .arg(key)
                     .arg(gui->pageSize(meta->LPub.page, 0))
-                    .arg(resolution())
+                    .arg(double(resolution()))
                     .arg(resolutionType() == DPI ? "DPI" : "DPCM")
-                    .arg(modelScale)
-                    .arg(noCA ? 0.0 : pliMeta.cameraAngles.value(0))
-                    .arg(noCA ? 0.0 : pliMeta.cameraAngles.value(1));
-
+                    .arg(double(modelScale))
+                    .arg(noCA ? 0.0 : double(pliMeta.cameraAngles.value(0)))
+                    .arg(noCA ? 0.0 : double(pliMeta.cameraAngles.value(1)));
             if ( ! parts.contains(key)) {
                 AnnotationStyleMeta styleMeta;
                 styleMeta.margin = pliMeta.annotate.margin;
@@ -805,14 +804,13 @@ int Pli::createPartImage(
         QString key = QString("%1_%2_%3_%4_%5_%6_%7_%8%9")
                 .arg(partialKey)
                 .arg(pageSizeP(meta, 0))
-                .arg(resolution())
+                .arg(double(resolution()))
                 .arg(resolutionType() == DPI ? "DPI" : "DPCM")
-                .arg(modelScale)
-                .arg(pliMeta.cameraFoV.value())
-                .arg(noCA ? 0.0 : pliMeta.cameraAngles.value(0))
-                .arg(noCA ? 0.0 : pliMeta.cameraAngles.value(1))
+                .arg(double(modelScale))
+                .arg(double(pliMeta.cameraFoV.value()))
+                .arg(noCA ? 0.0 : double(pliMeta.cameraAngles.value(0)))
+                .arg(noCA ? 0.0 : double(pliMeta.cameraAngles.value(1)))
                 .arg(ptn[pT].typeName);
-
         QString imageDir = isSubModel ? Paths::submodelDir : Paths::partsDir;
         imageName = QDir::currentPath() + "/" + imageDir + "/" + key + ".png";
         ldrNames  = (QStringList() << QDir::currentPath() + "/" + Paths::tmpDir + "/pli.ldr");
@@ -844,7 +842,7 @@ int Pli::createPartImage(
             pliFile = configurePLIPart(
                       ia.partColor[pT],
                       iconType,
-                      (PartType)pT,
+                      PartType(pT),
                       fadeSteps,
                       highlightStep);
 
@@ -1407,7 +1405,7 @@ int Pli::placePli(
 
           // try to do sub columns
 
-          if (packSubs && 0 /* && overlap == 0 */ ) {
+          if (packSubs && /* DISABLES CODE */ (0) /* && overlap == 0 */ ) {
               int subLeft = left + prevPart->width;
               int top = bot + prevPart->height - overlap + prevPart->topMargin;
 
@@ -1467,7 +1465,7 @@ int Pli::placePli(
                     }
                   subLeft += subWidth;
                 }
-            }
+            } /* DISABLED CODE */
 
           bot -= overlap;
 
@@ -1616,18 +1614,11 @@ void Pli::getRightEdge(
     }
 }
 
-void Pli::doSortParts()
+void Pli::sortParts(QHash<QString, PliPart *> &parts, bool setSplit)
 {
     // initialize
     bool ascending = true;
     bool unsorted = true;
-
-    // set parts list
-    QHash<QString, PliPart*> sortParts;
-    if (bom && splitBom)
-        sortParts = tempParts;
-    else
-        sortParts = parts;
 
     // sort direction lambda
     auto setSortDirection = [this, &ascending](const int sort)
@@ -1650,8 +1641,8 @@ void Pli::doSortParts()
 
         unsorted = false;
 
-        for (int first = 0; first < sortParts.size() - 1; first++) {
-            for (int next = first+1; next < sortParts.size(); next++) {
+        for (int firstPart = 0; firstPart < parts.size() - 1; firstPart++) {
+            for (int nextPart = firstPart+1; nextPart < parts.size(); nextPart++) {
 
                 QString firstValue, nextValue;
 
@@ -1675,25 +1666,25 @@ void Pli::doSortParts()
                 };
 
                 // set part Values lambda
-                auto setPartValues = [this, &sortParts, &firstValue, &nextValue, &first, &next](
+                auto setPartValues = [this, &parts, &firstValue, &nextValue, &firstPart, &nextPart](
                         const int option)
                 {
                     switch (option){
                     case PartColour:
-                        firstValue = sortParts[sortedKeys[first]]->sortColour;
-                        nextValue = sortParts[sortedKeys[next]]->sortColour;
+                        firstValue = parts[sortedKeys[firstPart]]->sortColour;
+                        nextValue = parts[sortedKeys[nextPart]]->sortColour;
                         break;
                     case PartCategory:
-                        firstValue = sortParts[sortedKeys[first]]->sortCategory;
-                        nextValue = sortParts[sortedKeys[next]]->sortCategory;
+                        firstValue = parts[sortedKeys[firstPart]]->sortCategory;
+                        nextValue = parts[sortedKeys[nextPart]]->sortCategory;
                         break;
                     case PartSize:
-                        firstValue = sortParts[sortedKeys[first]]->sortSize;
-                        nextValue = sortParts[sortedKeys[next]]->sortSize;
+                        firstValue = parts[sortedKeys[firstPart]]->sortSize;
+                        nextValue = parts[sortedKeys[nextPart]]->sortSize;
                         break;
                     case PartElement:
-                        firstValue = sortParts[sortedKeys[first]]->sortElement;
-                        nextValue = sortParts[sortedKeys[next]]->sortElement;
+                        firstValue = parts[sortedKeys[firstPart]]->sortElement;
+                        nextValue = parts[sortedKeys[nextPart]]->sortElement;
                         break;
                     }
                 };
@@ -1708,7 +1699,8 @@ void Pli::doSortParts()
 
                 // process options secondary sort
                 option = tokenMap[pliMeta.sortOrder.secondary.value()];
-                if (firstValue == nextValue &&
+                if (!setSplit &&
+                    firstValue == nextValue &&
                     !isSortedBy(option) &&
                     option != NoSort) {
                     setSortDirection(SortSecondary);
@@ -1718,7 +1710,8 @@ void Pli::doSortParts()
 
                 // process options tertiary sort
                 option = tokenMap[pliMeta.sortOrder.tertiary.value()];
-                if (firstValue == nextValue &&
+                if (!setSplit &&
+                    firstValue == nextValue &&
                     !isSortedBy(option) &&
                     option != NoSort) {
                     setSortDirection(SortTetriary);
@@ -1728,9 +1721,9 @@ void Pli::doSortParts()
 
                 // sort the part values
                 if (canSort && (ascending ? firstValue > nextValue : firstValue < nextValue)) {
-                    QString moved = sortedKeys[first];
-                    sortedKeys[first] = sortedKeys[next];
-                    sortedKeys[next] = moved;
+                    QString moved = sortedKeys[firstPart];
+                    sortedKeys[firstPart] = sortedKeys[nextPart];
+                    sortedKeys[nextPart] = moved;
                     unsorted = true;
                 }
 
@@ -1751,7 +1744,7 @@ int Pli::sortPli()
     if (! bom)
         pliMeta.sort.setValue(true);
 
-    doSortParts();
+    sortParts(parts);
 
   return 0;
 }
@@ -2082,7 +2075,7 @@ int Pli::partSizeLDViewSCall() {
                     pliFile = configurePLIPart(
                               ia.partColor[pT],
                               iconType,
-                              (PartType)pT,
+                              PartType(pT),
                               fadeSteps,
                               highlightStep);
 
@@ -2595,8 +2588,8 @@ PliBackgroundItem::PliBackgroundItem(
     }
 
   //gradient settings
-  if (pli->pliMeta.background.value().gsize[0] == 0 &&
-      pli->pliMeta.background.value().gsize[1] == 0) {
+  if (pli->pliMeta.background.value().gsize[0] == 0.0 &&
+      pli->pliMeta.background.value().gsize[1] == 0.0) {
       pli->pliMeta.background.value().gsize[0] = pixmap->width();
       pli->pliMeta.background.value().gsize[1] = pixmap->width();
       QSize gSize(pli->pliMeta.background.value().gsize[0],

@@ -234,7 +234,7 @@ class Pli : public Placement {
       return parts.size();
     }
 
-    void doSortParts();
+    void sortParts(QHash<QString, PliPart*> &_parts, bool setSplit = false);
     void clear();
 
 
