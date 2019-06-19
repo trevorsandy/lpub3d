@@ -3549,7 +3549,6 @@ void Gui::createActions()
     snapToGridComboAct = new QAction(QIcon(":/resources/scenegrid.png"),tr("&Snap To Grid"),this);
     snapToGridComboAct->setShortcut(tr("Alt+K"));
     snapToGridComboAct->setStatusTip(tr("Toggle snap-to-grid - Alt+K"));
-    snapToGridComboAct->setEnabled(false);
     snapToGridComboAct->setCheckable(true);
     snapToGridComboAct->setChecked(Preferences::snapToGrid);
     connect(snapToGridComboAct, SIGNAL(triggered()), this, SLOT(snapToGrid()));
