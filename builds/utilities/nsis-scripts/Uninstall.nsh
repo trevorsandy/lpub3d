@@ -5,30 +5,30 @@ Var SemiSilentMode ; installer started uninstaller in semi-silent mode using /SS
 Var RunningFromInstaller ; installer started uninstaller using /uninstall parameter
 Var RunningAsShellUser ; uninstaller restarted itself under the user of the running shell
 
+; Installer Attributes
+ShowUninstDetails hide
+
+; Pages
+!define MUI_UNWELCOMEFINISHPAGE_BITMAP "..\icons\welcome.bmp"
+!define MUI_UNABORTWARNING ; Show a confirmation when cancelling the installation
+
+!insertmacro MUI_UNPAGE_WELCOME
+
+!define MULTIUSER_INSTALLMODE_CHANGE_MODE_FUNCTION un.PageInstallModeChangeMode
+!insertmacro MULTIUSER_UNPAGE_INSTALLMODE
+
+!define MUI_PAGE_CUSTOMFUNCTION_PRE un.PageComponentsPre
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW un.PageComponentsShow
+!insertmacro MUI_UNPAGE_COMPONENTS
+
+!insertmacro MUI_UNPAGE_INSTFILES
+
 Section "un.Program Files" SectionUninstallProgram
 	SectionIn RO
 
-	!insertmacro MULTIUSER_GetCurrentUserString $0
-
-	; InvokeShellVerb only works on existing files, so we call it before deleting the EXE, https://github.com/lordmulder/stdutils/issues/22
-	
-	; Clean up "Start Menu Icon"
-	${if} ${AtLeastWin7}
-		${StdUtils.InvokeShellVerb} $1 "$INSTDIR" "${PROGEXE}" ${StdUtils.Const.ShellVerb.UnpinFromStart}
-	${else}
-		!insertmacro DeleteRetryAbort "$STARTMENU\${PRODUCT_NAME}$0.lnk"
-	${endif}
-
-	; Clean up "Quick Launch Icon"
-	${if} ${AtLeastWin7}
-		${StdUtils.InvokeShellVerb} $1 "$INSTDIR" "${PROGEXE}" ${StdUtils.Const.ShellVerb.UnpinFromTaskbar}
-	${else}
-		!insertmacro DeleteRetryAbort "$QUICKLAUNCH\${PRODUCT_NAME}.lnk"
-	${endif}	
-
 	; Try to delete the EXE as the first step - if it's in use, don't remove anything else
 	!insertmacro DeleteRetryAbort "$INSTDIR\${PROGEXE}"
-	
+
 	!ifdef LICENSE_FILE
 		!insertmacro DeleteRetryAbort "$INSTDIR\${LICENSE_FILE}"
 	!endif
@@ -44,13 +44,21 @@ Section "un.Program Files" SectionUninstallProgram
 	RMDir /r "${INSTDIR_AppDataProduct}\logs"
 	RMDir /r "${INSTDIR_AppDataProduct}\cache"
 
-	; Clean up "Program Group" - we check that we created Start menu folder, if $StartMenuFolder is empty, the whole $SMPROGRAMS directory will be removed!
+  ; Clean up "Program Group" - we check that we created Start menu folder, if $StartMenuFolder is empty, the whole $SMPROGRAMS directory will be removed!
 	${if} "$StartMenuFolder" != ""
 		RMDir /r "$SMPROGRAMS\$StartMenuFolder"
 	${endif}
-	
+
 	; Clean up "Dektop Icon"
+	!insertmacro MULTIUSER_GetCurrentUserString $0
 	!insertmacro DeleteRetryAbort "$DESKTOP\${PRODUCT_NAME}$0.lnk"
+
+	; Clean up "Start Menu Icon"
+	!insertmacro MULTIUSER_GetCurrentUserString $0
+	!insertmacro DeleteRetryAbort "$STARTMENU\${PRODUCT_NAME}$0.lnk"
+
+  ; Clean up "Quick Launch Icon"
+	!insertmacro DeleteRetryAbort "$QUICKLAUNCH\${PRODUCT_NAME}.lnk"
 SectionEnd
 
 Section /o "un.User Data" SectionRemoveUserData
@@ -58,30 +66,25 @@ Section /o "un.User Data" SectionRemoveUserData
 	RMDir /r "${INSTDIR_LocalAppData}\${COMPANY_NAME}"
 SectionEnd
 
-Section /o "un.Program User Settings" SectionRemoveProgramUserSettings
+Section /o "un.User Registry Settings" SectionRemoveUserRegistryKeys
   ; Delete all settings regisry hive keys - this section is executed only explicitly and shouldn't be placed in SectionUninstallProgram
 	DeleteRegKey HKCU "Software\${COMPANY_NAME}"
 SectionEnd
 
 Section "-Uninstall" ; hidden section, must always be the last one!
-	Delete "$INSTDIR\${UNINSTALL_FILENAME}" ; we cannot use un.DeleteRetryAbort here - when using the _? parameter the uninstaller cannot delete itself and Delete fails, which is OK
-	; remove the directory only if it is empty - the user might have saved some files in it
-	RMDir "$INSTDIR"
-	
 	; Remove the uninstaller from registry as the very last step - if sth. goes wrong, let the user run it again
-	!insertmacro MULTIUSER_RegistryRemoveInstallInfo ; Remove registry keys	
+	!insertmacro MULTIUSER_RegistryRemoveInstallInfo ; Remove registry keys
 
-	; If the uninstaller still exists, use cmd.exe on exit to remove it (along with $INSTDIR if it's empty)
-	${if} ${FileExists} "$INSTDIR\${UNINSTALL_FILENAME}"
-		Exec 'cmd.exe /c (del /f /q "$INSTDIR\${UNINSTALL_FILENAME}") && (rmdir "$INSTDIR")'
-	${endif}
+  Delete "$INSTDIR\${UNINSTALL_FILENAME}"
+  ; remove the directory only if it is empty - the user might have saved some files in it
+	RMDir "$INSTDIR"
 SectionEnd
 
 ; Modern install component descriptions
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_BEGIN
 	!insertmacro MUI_DESCRIPTION_TEXT ${SectionUninstallProgram} "Uninstall ${PRODUCT_NAME} files."
 	!insertmacro MUI_DESCRIPTION_TEXT ${SectionRemoveUserData} "Remove ${PRODUCT_NAME} User Data. Select only if this user does not plan to use the program in the future."
-	!insertmacro MUI_DESCRIPTION_TEXT ${SectionRemoveProgramUserSettings} "Remove ${PRODUCT_NAME} User Settings. Select only if you don't expect this user to reinstall the program in the future."
+	!insertmacro MUI_DESCRIPTION_TEXT ${SectionRemoveUserRegistryKeys} "Remove User ${PRODUCT_NAME} Registry Settings. Select only if you don't expect this user to reinstall the program in the future."
 !insertmacro MUI_UNFUNCTION_DESCRIPTION_END
 
 ; Callbacks
@@ -130,7 +133,7 @@ Function un.onInit
 		!insertmacro CheckSingleInstance "Application" "Local" "${APP_MUTEX}"
 	${endif}
 
-	;LPub3D Mod, Set context to 'CurrentUser', capture $AppDataBaseDir then revert context to 'AllUsers' if previously set as such
+	;Set context to 'CurrentUser', capture $AppDataBaseDir then revert context to 'AllUsers' if previously set as such
 	StrCpy $R0 "$SMPROGRAMS"
 	SetShellVarContext current
 	StrCpy $AppDataBaseDir "$LOCALAPPDATA"
@@ -141,8 +144,6 @@ Function un.onInit
 	Done:
 
 	!insertmacro MULTIUSER_UNINIT
-	
-	!insertmacro MUI_UNGETLANGUAGE ; we always get the language, since the outer and inner instance might have different language
 FunctionEnd
 
 Function un.PageInstallModeChangeMode

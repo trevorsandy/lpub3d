@@ -1,5 +1,5 @@
 ;LPub3D Setup Script
-;Last Update: May 08, 2019
+;Last Update: May 18, 2019
 ;Copyright (C) 2016 - 2019 by Trevor SANDY
 
 ; Install LPub3D and pre-packaged renderers.
@@ -13,6 +13,7 @@
 !include LogicLib.nsh
 !include Registry.nsh
 !include StdUtils.nsh
+; !include Utils.nsh
 
 ;--------------------------------
 ;generated define statements
@@ -63,9 +64,8 @@ Var /global LPub3DViewerLibPath
 !define RELEASE_NOTES_FILE "RELEASE_NOTES.html" ; release notes file, optional
 !define RELEASE_NOTES_URL "https://trevorsandy.github.io/lpub3d/assets/docs/lpub3d/RELEASE_NOTES.html" ; release notes file, optional
 !define PUBLISHER_NAME "${Publisher}"
-!define URL_INFO_ABOUT "${CompanyURL}"
-!define URL_UPDATE_INFO "${CompanyURL}"
-!define URL_HELP_LINK "${SupportURL}"
+!define COMPANY_URL "${CompanyURL}"
+!define SUPPORT "${SupportURL}"
 !define VERSION_MAJOR "${VersionMajor}"
 !define VERSION_MINOR "${VersionMinor}"
 !define MIN_WIN_VER "XP"
@@ -101,25 +101,17 @@ BrandingText "©2019 ${COMPANY_NAME}"
 AllowSkipFiles off
 SetOverwrite on ; (default setting) set to on except for where it is manually switched off
 ShowInstDetails hide ; Show install details (show|hide|nevershow)
-Unicode true ; properly display all languages (Our min version is XP, Unicode is KO on Windows 95, 98 or ME!)
 SetCompressor /SOLID lzma
 
 !include Utils.nsh ; this must come after encoding (Error: Can't change target charset after data already got compressed or header already changed!)
 
+; Pages
 !define MUI_ICON "..\icons\setup.ico"
 !define MUI_UNICON "..\icons\setup.ico"
 !define MUI_WELCOMEFINISHPAGE_BITMAP "..\icons\welcome.bmp"
 
-; Interface Settings
 !define MUI_ABORTWARNING ; Show a confirmation when cancelling the installation
-!define MUI_LANGDLL_ALLLANGUAGES ; Show all languages, despite user's codepage
 
-; Remember the installer language
-!define MUI_LANGDLL_REGISTRY_ROOT SHCTX
-!define MUI_LANGDLL_REGISTRY_KEY "${SETTINGS_REG_KEY}"
-!define MUI_LANGDLL_REGISTRY_VALUENAME "Language"
-
-; Pages
 !define MUI_PAGE_CUSTOMFUNCTION_PRE PageWelcomeLicensePre
 !insertmacro MUI_PAGE_WELCOME
 
@@ -170,95 +162,19 @@ Page custom nsDialogShowCustomPage nsDialogLeaveCustomPage
 !insertmacro MUI_PAGE_FINISH
 
 ; remove next line if you're using signing after the uninstaller is extracted from the initially compiled setup
-!include UninstallPages.nsh
+!include Uninstall.nsh
 
-; Languages (first is default language) - must be inserted after all pages
 !insertmacro MUI_LANGUAGE "English" ; Set languages (first is default language) - must be inserted after all pages
-;!insertmacro MUI_LANGUAGE "French"
-!insertmacro MULTIUSER_LANGUAGE_INIT
-
-; Reserve files
-!insertmacro MUI_RESERVEFILE_LANGDLL
 
 ;Language strings
-!ifdef LANG_ENGLISH
-  LangString CUST_PAGE_TITLE ${LANG_ENGLISH} "LDraw Library"
-  LangString CUST_PAGE_SUBTITLE ${LANG_ENGLISH} "Enter path for your LDraw directory and select user data options"
-  LangString CUST_PAGE_OVERWRITE_TITLE ${LANG_ENGLISH} "Overwrite Configuration Files"
-  LangString CUST_PAGE_OVERWRITE_SUBTITLE ${LANG_ENGLISH} "Check the box next to the configuration file you would like to overwrite."
-!endif
-
-!ifdef LANG_FRENCH
-  LangString CUST_PAGE_TITLE ${LANG_FRENCH} "LDraw Library"
-  LangString CUST_PAGE_SUBTITLE ${LANG_FRENCH} "Enter path for your LDraw directory and select user data options"
-  LangString CUST_PAGE_OVERWRITE_TITLE ${LANG_FRENCH} "Overwrite Configuration Files"
-  LangString CUST_PAGE_OVERWRITE_SUBTITLE ${LANG_FRENCH} "Check the box next to the configuration file you would like to overwrite."
-!endif
+LangString CUST_PAGE_TITLE ${LANG_ENGLISH} "LDraw Library"
+LangString CUST_PAGE_SUBTITLE ${LANG_ENGLISH} "Enter path for your LDraw directory and select user data options"
+LangString CUST_PAGE_OVERWRITE_TITLE ${LANG_ENGLISH} "Overwrite Configuration Files"
+LangString CUST_PAGE_OVERWRITE_SUBTITLE ${LANG_ENGLISH} "Check the box next to the configuration file you would like to overwrite."
 
 ;backup legacy registry key
 !insertmacro COPY_REGISTRY_KEY
 
-; SectionCoreFiles Functions
-Function CheckInstallation 
-    ; if there's an installed version, uninstall it first (I chose not to start the uninstaller silently, so that user sees what failed)
-    ; if both per-user and per-machine versions are installed, unistall the one that matches $MultiUser.InstallMode
-    StrCpy $0 ""
-    ${if} $HasCurrentModeInstallation = 1
-        StrCpy $0 "$MultiUser.InstallMode"
-    ${else}
-        !if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} = 0
-            ${if} $HasPerMachineInstallation = 1
-                StrCpy $0 "AllUsers" ; if there's no per-user installation, but there's per-machine installation, uninstall it
-            ${elseif} $HasPerUserInstallation = 1
-                StrCpy $0 "CurrentUser" ; if there's no per-machine installation, but there's per-user installation, uninstall it
-            ${endif}
-        !endif
-    ${endif}
-
-    ${if} "$0" != ""
-        ;Set InstallString, InstallationFolder
-        ${if} $0 == "AllUsers"
-            StrCpy $1 "$PerMachineUninstallString"
-            StrCpy $3 "$PerMachineInstallationFolder"
-        ${else}
-            StrCpy $1 "$PerUserUninstallString"
-            StrCpy $3 "$PerUserInstallationFolder"
-        ${endif}
-        ${if} ${silent}
-            StrCpy $2 "/S"
-        ${else}
-            StrCpy $2 ""
-        ${endif}
-        
-        ;LPub3D - Previous installation logging
-        DetailPrint 'UninstallString $1'
-        DetailPrint 'InstallationFolder $3'
-
-        ;LPub3D - Legacy uninstall will delete everything so backup user data and registry keys
-        ${if} $HasLegacyPerMachineInstallation == 1
-            DetailPrint "Removing legacy install - using mode ($0)..."
-            StrCpy $5 "${INSTDIR_LocalAppData}\${COMPANY_NAME}\${PRODUCT_NAME}" ; $5 = LEGACY_INSTDIR_AppDataProduct
-            StrCpy $6 "${INSTDIR_LocalAppData}\Temp\${PRODUCT_NAME}"            ; $6 = LEGACY_INSTDIR_AppDataProduct_Backup
-            DetailPrint "Backup files '$5' to '$6'..."
-            !insertmacro BackupFolder "$5" "$6" ; Backup Legacy Current User Data
-            ${COPY_REGISTRY_KEY} HKCU "Software\${COMPANY_NAME}" HKCU "Software\LPUB3D_BACKUP\${COMPANY_NAME}" ; backup Legacy Current User Hive Key
-            ; manually copy uninstaller to temp dir so it can be deleted in the install folder
-            InitPluginsDir
-            DetailPrint "Copy file '$PerMachineInstallationFolder\Uninstall.exe' to '$pluginsdir\uninst\'..."
-            CreateDirectory "$pluginsdir\uninst"
-            CopyFiles /SILENT /FILESONLY "$PerMachineInstallationFolder\Uninstall.exe" "$pluginsdir\uninst\"
-            StrCpy $1 "$pluginsdir\uninst\Uninstall.exe"
-        ${endif}
-    ${endif}
-FunctionEnd
-
-Function RunUninstaller
-    StrCpy $0 0
-    DetailPrint "Uninstall Command: ExecWait '$1 /SS $2 _?=$3'"
-    ExecWait '$1 /SS $2 _?=$3' $0 ; $1 is quoted in registry; the _? param stops the uninstaller from copying itself to the temporary directory, which is the only way for ExecWait to work
-FunctionEnd
-
-; Sections
 InstType "Typical"
 InstType "Minimal"
 InstType "Full"
@@ -266,16 +182,64 @@ InstType "Full"
 Section "Core Files (required)" SectionCoreFiles
   SectionIn 1 2 3 RO
 
-  !insertmacro UAC_AsUser_Call Function CheckInstallation ${UAC_SYNCREGISTERS}
-  ${if} "$0" != ""    
+  ; if there's an installed version, uninstall it first (I chose not to start the uninstaller silently, so that user sees what failed)
+  ; if both per-user and per-machine versions are installed, unistall the one that matches $MultiUser.InstallMode
+  StrCpy $0 ""
+  ${if} $HasCurrentModeInstallation == 1
+    StrCpy $0 "$MultiUser.InstallMode"
+  ${else}
+    !if ${MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS} == 0
+      ${if} $HasPerMachineInstallation == 1
+        StrCpy $0 "AllUsers"    ; if there's no per-user installation, but there's per-machine installation, uninstall it
+      ${elseif} $HasPerUserInstallation == 1
+        StrCpy $0 "CurrentUser" ; if there's no per-machine installation, but there's per-user installation, uninstall it
+      ${endif}
+    !endif
+  ${endif}
+
+  ${if} "$0" != ""
+
+    ;Set InstallString, InstallationFolder
+    ${if} $0 == "AllUsers"
+      StrCpy $1 "$PerMachineUninstallString"
+      StrCpy $3 "$PerMachineInstallationFolder"
+    ${else}
+      StrCpy $1 "$PerUserUninstallString"
+      StrCpy $3 "$PerUserInstallationFolder"
+    ${endif}
+
+    ${if} ${silent}
+      StrCpy $2 "/S"
+    ${else}
+      StrCpy $2 ""
+    ${endif}
+
+    ;Remove previous installation
+    DetailPrint 'UninstallString $1'
+    DetailPrint 'InstallationFolder $3'
+
+    ; Legacy uninstall will delete everything so backup user data and registry keys
+    ${if} $HasLegacyPerMachineInstallation == 1
+      DetailPrint "Removing legacy install - using mode ($0)..."
+      StrCpy $5 "${INSTDIR_LocalAppData}\${COMPANY_NAME}\${PRODUCT_NAME}" ; $5 = LEGACY_INSTDIR_AppDataProduct
+      StrCpy $6 "${INSTDIR_LocalAppData}\Temp\${PRODUCT_NAME}"            ; $6 = LEGACY_INSTDIR_AppDataProduct_Backup
+      DetailPrint "Backup files '$5' to '$6'..."
+      !insertmacro BackupFolder "$5" "$6" ; Backup Legacy Current User Data
+      ${COPY_REGISTRY_KEY} HKCU "Software\${COMPANY_NAME}" HKCU "Software\LPUB3D_BACKUP\${COMPANY_NAME}" ; backup Legacy Current User Hive Key
+      ; manually copy uninstaller to temp dir so it can be deleted in the install folder
+      InitPluginsDir
+      DetailPrint "Copy file '$PerMachineInstallationFolder\Uninstall.exe' to '$pluginsdir\uninst\'..."
+      CreateDirectory "$pluginsdir\uninst"
+      CopyFiles /SILENT /FILESONLY "$PerMachineInstallationFolder\Uninstall.exe" "$pluginsdir\uninst\"
+      StrCpy $1 "$pluginsdir\uninst\Uninstall.exe"
+    ${endif}
+
     HideWindow
     ClearErrors
-    ${if} $0 == "AllUsers"
-        Call RunUninstaller
-    ${else}
-        !insertmacro UAC_AsUser_Call Function RunUninstaller ${UAC_SYNCREGISTERS}
-    ${endif}
-    
+    StrCpy $0 0
+    DetailPrint "Uninstall Command: ExecWait '$1 /SS $2 _?=$3'"
+    ExecWait '$1 /SS $2 _?=$3' $0 ; $1 is quoted in registry; the _? param stops the uninstaller from copying itself to the temporary directory, which is the only way for ExecWait to work
+
     ${if} ${errors} ; stay in installer
       SetErrorLevel 2 ; Installation aborted by script
       BringToFront
@@ -292,7 +256,8 @@ Section "Core Files (required)" SectionCoreFiles
         ${Default} ; all other error codes - uninstaller could not start, elevate, etc. - Abort installer
           SetErrorLevel $0
           BringToFront
-          Abort "Error executing uninstaller."
+          ;Abort "Error executing uninstaller."
+		  Call fnAskForceUninstall
       ${EndSwitch}
     ${endif}
 
@@ -315,9 +280,8 @@ Section "Core Files (required)" SectionCoreFiles
         Delete "$PerMachineInstallationFolder\fadeStepColorParts.lst"
     ${endif}
 
-        ; Just a failsafe - should've been taken care of by cmd.exe in Uninstall.nsh or fnAskForceUninstall
-        !insertmacro DeleteRetryAbort "$3\${UNINSTALL_FILENAME}" ; the uninstaller doesn't delete itself when not copied to the temp directory
-        RMDir "$3"
+    Delete "$2\${UNINSTALL_FILENAME}" ; the uninstaller doesn't delete itself when not copied to the temp directory
+    RMDir "$2"
   ${endif}
 
   ; Set the install directory path and create it (recursively if necessary), if it does not exist.
@@ -503,11 +467,7 @@ Function .onInit
   Done:
 
   !insertmacro MULTIUSER_INIT
-  
-   ${if} $IsInnerInstance = 0
-       !insertmacro MUI_LANGDLL_DISPLAY
-   ${endif}
-    
+
   ; LPub3D Directives
   ; -------------------------------------
   
@@ -644,9 +604,6 @@ FunctionEnd
 Function .onInstFailed
   MessageBox MB_ICONSTOP "${PRODUCT_NAME} ${VERSION} could not be fully installed.$\r$\nPlease, restart Windows and run the setup program again." /SD IDOK
 FunctionEnd
-
-; remove next line if you're using signing after the uninstaller is extracted from the initially compiled setup
-!include Uninstall.nsh
 
 ; LPub3D Custom Functions
 ;--------------------------------
@@ -915,9 +872,10 @@ Function fnCopyLibraries
 FunctionEnd
 
 Function fnAskForceUninstall
-  DetailPrint "Uninstall.exe failed!"
-
-  MessageBox MB_ICONEXCLAMATION|MB_YESNO "Uninstall.exe failed!$\r$\nDo you want to completely remove ${PRODUCT_NAME}?" IDYES Proceed
+  DetailPrint "Error executing uninstaller."
+  MessageBox MB_ICONEXCLAMATION|MB_YESNO "Error executing uninstaller!.$\r$\n\
+                                          Do you want to completely remove ${PRODUCT_NAME}?$\r$\n\
+										  Warning: Custom user data and registry settings will be deleted." IDYES Proceed
   Abort "Error executing uninstaller."
 
   Proceed:
