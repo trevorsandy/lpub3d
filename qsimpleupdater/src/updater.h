@@ -80,7 +80,9 @@ public:
     QString downloadUrl() const;
     QString platformKey() const;
     QString moduleVersion() const;
+    QString moduleRevision() const;
     QString latestVersion() const;
+    QString revisionNumber() const;
     QString userAgentString() const;
 
     bool customAppcast() const;
@@ -107,6 +109,7 @@ public slots:
     void setNotifyOnFinish (const bool notify);
     void setUserAgentString (const QString& agent);
     void setModuleVersion (const QString& version);
+    void setModuleRevision (const QString& revision);
     void setDownloaderEnabled (const bool enabled);
     void setPlatformKey (const QString& platformKey);
     void setUseCustomAppcast (const bool customAppcast);
@@ -151,7 +154,9 @@ private:
     QString m_moduleName;
     QString m_downloadUrl;
     QString m_moduleVersion;
+    QString m_moduleRevision;
     QString m_latestVersion;
+    QString m_revisionNumber;
 
     Downloader* m_downloader;
     QNetworkAccessManager* m_manager;

@@ -1261,6 +1261,7 @@ QString const PreferencesDialog::moduleVersion()
 void PreferencesDialog::checkForUpdates () {
   /* Get settings from the UI */
   QString moduleVersion = ui.moduleVersion_Combo->currentText();
+  QString moduleRevision = QString::fromLatin1(VER_REVISION_STR);
   bool enableDownloader = ui.enableDownloader_Chk->isChecked();
   bool showAllNotifications = ui.showAllNotificstions_Chk->isChecked();
   bool showUpdateNotifications = ui.showUpdateNotifications_Chk->isChecked();
@@ -1268,6 +1269,8 @@ void PreferencesDialog::checkForUpdates () {
   /* Apply the settings */
   if (m_updater->getModuleVersion(DEFS_URL) != moduleVersion)
     m_updater->setModuleVersion(DEFS_URL, moduleVersion);
+  if (m_updater->getModuleRevision(DEFS_URL) != moduleRevision)
+      m_updater->setModuleRevision(DEFS_URL, moduleVersion);
   m_updater->setDownloaderEnabled(DEFS_URL, enableDownloader);
   m_updater->setNotifyOnFinish(DEFS_URL, showAllNotifications);
   m_updater->setNotifyOnUpdate (DEFS_URL, showUpdateNotifications);

@@ -97,6 +97,7 @@ public:
     QString getPlatformKey (const QString& url) const;
     QString getLatestVersion (const QString& url) const;
     QString getModuleVersion (const QString& url) const;
+    QString getModuleRevision (const QString& url) const;
     QString getUserAgentString (const QString& url) const;
 
     // LPub3D Mod
@@ -113,6 +114,7 @@ public slots:
     void setNotifyOnFinish (const QString& url, const bool notify);
     void setPlatformKey (const QString& url, const QString& platform);
     void setModuleVersion (const QString& url, const QString& version);
+    void setModuleRevision (const QString& url, const QString& revision);
     void setDownloaderEnabled (const QString& url, const bool enabled);
     void setUserAgentString (const QString& url, const QString& agent);
     void setUseCustomAppcast (const QString& url, const bool customAppcast);

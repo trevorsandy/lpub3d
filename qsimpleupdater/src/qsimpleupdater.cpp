@@ -252,6 +252,18 @@ QString QSimpleUpdater::getModuleVersion (const QString& url) const
 }
 
 /**
+ * Returns the module revision of the \c Updater instance registered with the
+ * given \a url.
+ *
+ * \note If an \c Updater instance registered with the given \a url is not
+ *       found, that \c Updater instance will be initialized automatically
+ */
+QString QSimpleUpdater::getModuleRevision (const QString& url) const
+{
+    return getUpdater (url)->moduleRevision();
+}
+
+/**
  * Returns the user-agent string used by the updater to communicate with
  * the remote HTTP(S) server.
  *
@@ -348,6 +360,15 @@ void QSimpleUpdater::setModuleVersion (const QString& url,
                                        const QString& version)
 {
     getUpdater (url)->setModuleVersion (version);
+}
+
+/**
+* \note The module revision is used to compare it with the remove revision.
+*/
+void QSimpleUpdater::setModuleRevision (const QString& url,
+                                      const QString& revision)
+{
+   getUpdater (url)->setModuleRevision (revision);
 }
 
 /**
