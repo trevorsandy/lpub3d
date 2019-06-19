@@ -43,7 +43,7 @@ class Highlighter : public QSyntaxHighlighter
     Q_OBJECT
 
 public:
-    Highlighter(QTextDocument *parent = 0);
+    Highlighter(QTextDocument *parent = nullptr);
 
 protected:
     void highlightBlock(const QString &text);
@@ -61,8 +61,8 @@ private:
 
     QTextCharFormat LDrawCommentFormat;    // b01 - Comments
 
-    QTextCharFormat LPubLocalMetaFormat;   // b02 - LPub3D Local
-    QTextCharFormat LPubGlobalMetaFormat;  // b03 - LPub3D Global
+    QTextCharFormat LPubLocalMetaFormat;   // b04 - LPub3D Local
+    QTextCharFormat LPubGlobalMetaFormat;  // b05 - LPub3D Global
     QTextCharFormat LPubFalseMetaFormat;   // b22 - LPub3D False
     QTextCharFormat LPubTrueMetaFormat;    // b23 - LPub3D True
     QTextCharFormat LPubMetaFormat;        // b24 - LPub3D
@@ -72,13 +72,15 @@ private:
     QTextCharFormat LPubHexNumberFormat;   // b15 - LPub3D Hex Number
     QTextCharFormat LPubPageSizeFormat;    // b16 - LPub3D Page Size
 
-    QTextCharFormat LDrawHeaderValueFormat;// b26 - LDraw Header
-    QTextCharFormat LDrawHeaderFormat;     // b04 - LDraw Header
-    QTextCharFormat LDrawBodyFormat;       // b05 - LDraw Body
+    QTextCharFormat LDrawHeaderValueFormat;// b26 - LDraw Header Value
+    QTextCharFormat LDrawHeaderFormat;     // b02 - LDraw Header
+    QTextCharFormat LDrawBodyFormat;       // b03 - LDraw Body
+    QTextCharFormat LDrawColourMetaFormat; // b05 - LPub3D Global
+    QTextCharFormat LDrawColourDescFormat; // b26 - LDraw Header Value
     QTextCharFormat LDrawLineType0Format;  // b28 - LDraw Line Type 0 First Character
 
     // position 0
-    QTextCharFormat LDrawLineType1Format;  // b06 - LDraw Part File Reference
+    QTextCharFormat LDrawLineType1Format;  // b06 - LDraw Line Type 1
     // position 1
     QTextCharFormat LDrawColorFormat;      // b07 - LDraw Part Colour Code
     // positions 2-4
@@ -93,9 +95,9 @@ private:
     QTextCharFormat LDrawFileFormat;       // b12 - LDraw Part File
 
     QTextCharFormat LDrawLineType2_5Format;// b13 - LDraw Line Types 2-5
-    QTextCharFormat LDrawLineType3Format;  // b14 - LDraw Triangle Line       [not used]
-    QTextCharFormat LDrawLineType4Format;  // b15 - LDraw Quadrilateral Line  [not used]
-    QTextCharFormat LDrawLineType5Format;  // b16 - LDraw Optional Line Line  [not used]
+    QTextCharFormat LDrawLineType3Format;  // bXX - LDraw Triangle Line       [not used]
+    QTextCharFormat LDrawLineType4Format;  // bXX - LDraw Quadrilateral Line  [not used]
+    QTextCharFormat LDrawLineType5Format;  // bXX - LDraw Optional Line Line  [not used]
 
     QTextCharFormat LeoCADMetaFormat;      // b17 - LeoCAD
     QTextCharFormat LSynthMetaFormat;      // b18 - LSynth

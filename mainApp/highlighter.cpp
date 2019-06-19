@@ -108,7 +108,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     // LDraw Header Value Format
     LDrawHeaderValueFormat.setForeground(br26);
     LDrawHeaderValueFormat.setFontWeight(QFont::Normal);
-    rule.pattern = QRegExp("^.*\\b(?:AUTHOR|BFC|CATEGORY|CMDLINE|COLOUR|HELP|HISTORY|KEYWORDS|LDRAW_ORG|LICENSE|NAME|FILE|THEME|~MOVED TO)\\b.*$",Qt::CaseInsensitive);
+    rule.pattern = QRegExp("^.*\\b(?:AUTHOR|BFC|CATEGORY|CMDLINE|HELP|HISTORY|KEYWORDS|LDRAW_ORG|LICENSE|NAME|FILE|THEME|~MOVED TO)\\b.*$",Qt::CaseInsensitive);
     rule.format = LDrawHeaderValueFormat;
     highlightingRules.append(rule);
 
@@ -123,7 +123,6 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "!?\\bCATEGORY\\b"
     << "\\bCLEAR\\b"
     << "!?\\bCMDLINE\\b"
-    << "!?\\bCOLOUR\\b"
     << "!?\\bHELP\\b"
     << "!?\\bHISTORY\\b"
     << "!?\\bKEYWORDS\\b"
@@ -139,13 +138,40 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bUNOFFICIAL MODEL\\b"
     << "\\bUN-OFFICIAL\\b"
     << "\\bUNOFFICIAL\\b"
-    << "\\b~MOVED TO\\b";
+    << "\\b~MOVED TO\\b"
+       ;
 
     foreach (QString pattern, LDrawHeaderPatterns) {
         rule.pattern = QRegExp(pattern,Qt::CaseInsensitive);
         rule.format = LDrawHeaderFormat;
         highlightingRules.append(rule);
     }
+
+    // LDraw Custom COLOUR Meta Format
+    LDrawColourMetaFormat.setForeground(br05);
+    LDrawColourMetaFormat.setFontWeight(QFont::Bold);
+
+    QStringList LDrawColourPatterns;
+    LDrawColourPatterns
+    << "\\bCOLOUR\\b"
+    << "\\bCODE\\b"
+    << "\\bVALUE\\b"
+    << "\\bEDGE\\b"
+    << "\\bALPHA\\b"
+    ;
+
+    foreach (QString pattern, LDrawColourPatterns) {
+        rule.pattern = QRegExp(pattern);
+        rule.format = LDrawColourMetaFormat;
+        highlightingRules.append(rule);
+    }
+
+    // LDraw Custom COLOUR Description Format
+    LDrawColourDescFormat.setForeground(br26);
+    LDrawColourDescFormat.setFontWeight(QFont::Bold);
+    rule.pattern = QRegExp("\\bLPub3D_[A-Z|a-z|_]+\\b");
+    rule.format = LDrawColourDescFormat;
+    highlightingRules.append(rule);
 
     // LDraw Body Format
     LDrawBodyFormat.setForeground(br03);
@@ -158,7 +184,8 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bSAVE\\b"
     << "\\bNOSTEP\\b"
     << "\\bSTEP\\b"
-    << "\\bWRITE\\b";
+    << "\\bWRITE\\b"
+       ;
 
     foreach (QString pattern, LDrawBodyPatterns) {
         rule.pattern = QRegExp(pattern);
@@ -516,7 +543,8 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bROTSTEP\\b"
     << "\\bSKIP_BEGIN\\b"
     << "\\bSKIP_END\\b"
-    << "\\bSTORE\\b";
+    << "\\bSTORE\\b"
+       ;
 
     foreach (QString pattern, MLCadBodyMetaPatterns) {
         rule.pattern = QRegExp(pattern);
