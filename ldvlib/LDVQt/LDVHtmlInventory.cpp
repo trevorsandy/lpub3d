@@ -1417,12 +1417,11 @@ void LDVHtmlInventory::writeTableHeader(
 			fprintf(file, "\n");
 			fprintf(file, "						</th>\n");
 			textAlign = "center";
+			fprintf(file, "						<th class=\"uniqueitems\" style=\"text-align:%s;\">\n",textAlign.c_str());
+			fprintf(file, lsUtf8("PLVUniqueElements"), uniqueElements);
+			fprintf(file, "\n");
+			fprintf(file, "						</th>\n");
 		}
-		fprintf(file, "						<th class=\"uniqueitems\" style=\"text-align:%s;\">\n",textAlign.c_str());
-		fprintf(file, lsUtf8("PLVUniqueElements"), uniqueElements);
-		fprintf(file, "\n");
-		fprintf(file, "						</th>\n");
-
 		fprintf(file, "						<th class=\"uniqueitems\" style=\"text-align:center;\">\n");
 		fprintf(file, lsUtf8("PLVUniqueParts"), uniqueParts);
 		fprintf(file, "\n");
