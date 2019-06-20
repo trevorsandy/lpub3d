@@ -58,7 +58,7 @@ SubstitutePartDialog::SubstitutePartDialog(
      QString title = QString("%1 Part")
              .arg(mAction == sSubstitute ?
                    "Substitute" : mAction == sUpdate ?
-                       "Update Substitute" : "Remove Substitute");
+                       "Change Substitute" : "Remove Substitute");
      setWindowTitle(title);
 
      // set initial attributes
@@ -182,6 +182,8 @@ void SubstitutePartDialog::initialize()
         ui->extendedSettingsBox->setToolTip(disabledMessage);
 
     if (Preferences::usingNativeRenderer){
+        ui->horizontalSpacer_12->changeSize(18,20,QSizePolicy::Fixed,QSizePolicy::Fixed);
+        ui->scale_Lbl->setText("Distance Factor:");
         min = -5000;
         max = 5000;
         step = 10.0;
