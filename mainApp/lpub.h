@@ -734,6 +734,20 @@ public:
                   CAMERA_ZNEAR_DEFAULT);
   }
 
+  float getDefaultFOVMinRange()
+  {
+      return (Preferences::usingNativeRenderer ?
+                  CAMERA_FOV_NATIVE_MIN_DEFAULT :
+                  CAMERA_FOV_MIN_DEFAULT);
+  }
+
+  float getDefaultFOVMaxRange()
+  {
+      return (Preferences::usingNativeRenderer ?
+                  CAMERA_FOV_NATIVE_MAX_DEFAULT :
+                  CAMERA_FOV_MAX_DEFAULT);
+  }
+
   float getDefaultCameraZFar(){
       return (Preferences::usingNativeRenderer ?
                   CAMERA_ZFAR_NATIVE_DEFAULT :

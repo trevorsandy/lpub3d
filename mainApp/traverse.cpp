@@ -1620,13 +1620,26 @@ int Gui::drawPage(
               noStep = false;
               break;
             case RangeErrorRc:
+            {
               showLine(current);
-              emit gui->messageSig(LOG_ERROR,
-                                    QMessageBox::tr("Parameter(s) out of range: %1:%2\n%3")
-                                    .arg(current.modelName)
-                                    .arg(current.lineNumber)
-                                    .arg(line));
+              QString message;
+              if (Preferences::usingNativeRenderer &&
+                  line.indexOf("CAMERA_FOV") != -1)
+                  message = QString("Native renderer CAMERA_FOV value is out of range [%1:%2]"
+                                    "<br>Meta command: %3"
+                                    "<br>Valid values: minimum 1.0, maximum 359.0")
+                                        .arg(current.modelName)
+                                        .arg(current.lineNumber)
+                                        .arg(line);
+              else
+                  message = QString("Parameter(s) out of range: %1:%2<br>Meta command: %3%4")
+                          .arg(current.modelName)
+                          .arg(current.lineNumber)
+                          .arg(line);
+
+              emit gui->messageSig(LOG_ERROR,message);
               return RangeErrorRc;
+            }
               break;
             default:
               break;
@@ -2875,6 +2888,7 @@ Where &Gui::bottomOfPage()
 /*
  * This function applies buffer exchange and LPub's remove
  * meta commands before writing them out for the renderers to use.
+ * Fade, Highlight and COLOUR meta commands are preserved.
  * This eliminates the need for ghosting parts removed by buffer
  * exchange
  */

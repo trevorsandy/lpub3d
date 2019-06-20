@@ -3379,7 +3379,8 @@ SubModelMeta::SubModelMeta() : PliMeta()
   cameraDistNative.factor.setRange(-5000,5000);
   cameraDistNative.factor.setValue(Preferences::cameraDistFactorNative);
   cameraFoV.setFormats(5,4,"9.999");
-  cameraFoV.setRange(0.0,360.0);
+  cameraFoV.setRange(gui->getDefaultFOVMinRange(),
+                     gui->getDefaultFOVMaxRange());
   cameraFoV.setValue(gui->getDefaultCameraFoV());
   znear.setValue(gui->getDefaultCameraZNear());
   zfar.setValue(gui->getDefaultCameraZFar());
@@ -3784,10 +3785,11 @@ AssemMeta::AssemMeta() : BranchMeta()
   cameraDistNative.factor.setRange(-5000,5000);
   cameraDistNative.factor.setValue(Preferences::cameraDistFactorNative);
   cameraFoV.setFormats(5,4,"9.999");
-  cameraFoV.setRange(0.0,360.0);
-  cameraFoV.setValue(gui->getDefaultCameraFoV());  // using LPub3D Default 0.01f
-  znear.setValue(gui->getDefaultCameraZNear());    // using LPub3D Default 10.0f
-  zfar.setValue(gui->getDefaultCameraZFar());      // using LPub3D Default 4000.0f
+  cameraFoV.setRange(gui->getDefaultFOVMinRange(),
+                     gui->getDefaultFOVMaxRange());
+  cameraFoV.setValue(gui->getDefaultCameraFoV());
+  znear.setValue(gui->getDefaultCameraZNear());
+  zfar.setValue(gui->getDefaultCameraZFar());
 
   // image display
   v_cameraFoV.setFormats(5,4,"9.999");
@@ -3890,7 +3892,8 @@ PliMeta::PliMeta() : BranchMeta()
   cameraDistNative.factor.setRange(-5000,5000);
   cameraDistNative.factor.setValue(Preferences::cameraDistFactorNative);
   cameraFoV.setFormats(5,4,"9.999");
-  cameraFoV.setRange(0.0,360.0);
+  cameraFoV.setRange(gui->getDefaultFOVMinRange(),
+                     gui->getDefaultFOVMaxRange());
   cameraFoV.setValue(gui->getDefaultCameraFoV());
   znear.setValue(gui->getDefaultCameraZNear());
   zfar.setValue(gui->getDefaultCameraZFar());
@@ -4011,7 +4014,8 @@ BomMeta::BomMeta() : PliMeta()
   cameraDistNative.factor.setRange(-5000,5000);
   cameraDistNative.factor.setValue(Preferences::cameraDistFactorNative);
   cameraFoV.setFormats(5,4,"9.999");
-  cameraFoV.setRange(0.0,360.0);
+  cameraFoV.setRange(gui->getDefaultFOVMinRange(),
+                     gui->getDefaultFOVMaxRange());
   cameraFoV.setValue(gui->getDefaultCameraFoV());
   znear.setValue(gui->getDefaultCameraZNear());
   zfar.setValue(gui->getDefaultCameraZFar());
