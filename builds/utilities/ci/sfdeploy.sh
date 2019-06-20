@@ -67,7 +67,7 @@ fi
 
 # upload assets
 if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
-  for OPTION in UDPATE DOWNLOAD; do
+  for OPTION in DOWNLOAD; do  # disable SourceForge update transfer (too big to download)
     case $OPTION in
     UDPATE)
       # Verify release files in the Update directory
