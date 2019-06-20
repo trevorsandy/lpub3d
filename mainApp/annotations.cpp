@@ -204,7 +204,25 @@ void Annotations::loadLD2BLCodesXRef(QByteArray& Buffer){
 # 2. Item No:              BrickLink Item Number        (Required)
 #
 */
-    const char LEGOLD2BLCodesXRef[] = {        
+    const char LEGOLD2BLCodesXRef[] = {
+        "3245a\t    3245b\n"
+        "3957a\t    3957\n"
+        "19475-f1\t    19475c01\n"
+        "19478-f1\t    19467c01\n"
+        "26674-f1\t    bb875\n"
+        "32123a\t    4265c\n"
+        "3648b\t    3648\n"
+        "4032a\t    4032\n"
+        "47223d-f1\t    4694cc01\n"
+        "58120\t    58120c01\n"
+        "58121\t    58121c01\n"
+        "58123\t    58123c01\n"
+        "61929\t    bb339c01\n"
+        "62821\t    62821b\n"
+        "75974\t    67c01\n"
+        "92693c01-f1\t    92693c01\n"
+        "99498\t    99498c01\n"
+// from Bricklink alternate item numbers - see https://github.com/trevorsandy/lpub3d/issues/283
         "30\t    70644\n"
         "577\t    64567\n"
         "578\t    30374\n"
