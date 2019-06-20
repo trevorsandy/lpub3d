@@ -40,6 +40,12 @@ enum AllocEnc {
   Vertical
 };
 
+enum FillEnc {
+  Aspect = 0,
+  Stretch,
+  Tile
+};
+
 enum OrientationEnc {
   Portrait = 0,
   Landscape,

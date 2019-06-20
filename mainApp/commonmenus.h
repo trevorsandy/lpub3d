@@ -47,6 +47,22 @@ public:
           QMenu   &menu, 
     const QString  name = "");
 
+  QAction *changeImageMenu(
+          QMenu   &menu,
+    const QString  name = "");
+
+  QAction *stretchImageMenu(
+          QMenu   &menu,
+    const QString  name = "");
+
+  QAction *tileImageMenu(
+          QMenu   &menu,
+    const QString  name = "");
+
+  QAction *deleteImageMenu(
+          QMenu   &menu,
+    const QString  name = "");
+
   QAction *displayMenu(
           QMenu   &menu,
     const QString  name = "");

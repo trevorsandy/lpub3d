@@ -1232,9 +1232,11 @@ void PageAttributeTextGui::apply(
   grid->addWidget(pictureButton,2,2,1,1);
 
   //scale
+  bool gbChecked = (meta->picScale.value() > 1.0 || meta->picScale.value() < 1.0) &&
+                   (meta->fill.value() == Aspect);
   gbScale = new QGroupBox("Scale", parent);
   gbScale->setCheckable(true);
-  gbScale->setChecked(false);
+  gbScale->setChecked(gbChecked);
   hLayout = new QHBoxLayout();
   gbScale->setLayout(hLayout);
   grid->addWidget(gbScale,3,0,1,3);
@@ -1253,30 +1255,29 @@ void PageAttributeTextGui::apply(
   connect(gbScale,SIGNAL(clicked(bool)),this,SLOT(gbScaleClicked(bool)));
 
   // fill
-  gbFill = new QGroupBox("Fill", parent);
+  gbFill = new QGroupBox("Picture Fill Mode", parent);
   hLayout = new QHBoxLayout();
   gbFill->setLayout(hLayout);
   grid->addWidget(gbFill,4,0,1,3);
 
-  aspectRadio = new QRadioButton("Picture Aspect",gbFill);
-  aspectRadio->setChecked(!meta->stretch.value() && !meta->tile.value());
+  aspectRadio = new QRadioButton("Aspect",gbFill);
+  aspectRadio->setChecked(meta->fill.value() == Aspect);
   connect(aspectRadio,SIGNAL(clicked(bool)),
           this,        SLOT(  pictureFill(bool)));
   hLayout->addWidget(aspectRadio);
 
-  stretchRadio = new QRadioButton("Stretch Picture",gbFill);
-  stretchRadio->setChecked(!meta->tile.value() && !aspectRadio->isChecked());
+  stretchRadio = new QRadioButton("Stretch",gbFill);
+  stretchRadio->setChecked(meta->fill.value() == Stretch);
   connect(stretchRadio,SIGNAL(clicked(bool)),
           this,        SLOT(  pictureFill(bool)));
   hLayout->addWidget(stretchRadio);
-  tileRadio    = new QRadioButton("Tile Picture",gbFill);
-  tileRadio->setChecked(!meta->stretch.value() && !aspectRadio->isChecked());
+  tileRadio    = new QRadioButton("Tile",gbFill);
+  tileRadio->setChecked(meta->fill.value() == Tile);
   connect(tileRadio,SIGNAL(clicked(bool)),
           this,     SLOT(  pictureFill(bool)));
   hLayout->addWidget(tileRadio);
 
-  stretchModified   = false;
-  tileModified      = false;
+  fillModified      = false;
   pictureModified   = false;
   marginsModified   = false;
   placementModified = false;
@@ -1286,16 +1287,20 @@ void PageAttributeTextGui::apply(
 
  void PageAttributePictureGui::pictureFill(bool checked)
  {
-   if ((stretchModified = sender() == stretchRadio)) {
-       meta->stretch.setValue(checked);
-       meta->tile.setValue(!checked);
-   } else if ((tileModified = sender() == tileRadio)) {
-       meta->tile.setValue(checked);
-       meta->stretch.setValue(!checked);
+   if (sender() == stretchRadio) {
+       meta->fill.setValue(Stretch);
+       if (checked)
+           gbScale->setEnabled(!checked);
+   } else if (sender() == tileRadio) {
+       meta->fill.setValue(Tile);
+       if (checked)
+           gbScale->setEnabled(!checked);
    } else { /*aspectRadio*/
-       meta->tile.setValue(!checked);
-       meta->stretch.setValue(!checked);
+       meta->fill.setValue(Aspect);
+       if (checked)
+           gbScale->setEnabled(checked);
    }
+   fillModified = true;
  }
 
 void PageAttributePictureGui::pictureChange(QString const &pic)
@@ -1323,10 +1328,14 @@ void PageAttributePictureGui::browsePicture(bool)
 
 void PageAttributePictureGui::gbScaleClicked(bool checked)
 {
-    Q_UNUSED(checked);
     qreal value = meta->picScale.value();
     meta->picScale.setValue(value);
     modified = scaleModified = true;
+    if (checked) {
+        aspectRadio->setChecked(checked);
+        stretchRadio->setChecked(!checked);
+        tileRadio->setChecked(!checked);
+    }
 }
 
 void PageAttributePictureGui::value0Changed(QString const &string)
@@ -1397,11 +1406,8 @@ void PageAttributePictureGui::apply(QString &topLevelFile)
     if (displayModified){
         mi.setGlobalMeta(topLevelFile,&meta->display);
     }
-    if (tileModified){
-        mi.setGlobalMeta(topLevelFile,&meta->tile);
-    }
-    if (stretchModified){
-        mi.setGlobalMeta(topLevelFile,&meta->stretch);
+    if (fillModified){
+        mi.setGlobalMeta(topLevelFile,&meta->fill);
     }
     mi.endMacro();
 }

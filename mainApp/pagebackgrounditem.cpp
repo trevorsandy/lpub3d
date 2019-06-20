@@ -94,6 +94,8 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QAction *borderAction         = nullptr;
   QAction *backgroundAction     = nullptr;
   QAction *subModelColorAction  = nullptr;
+  QAction *imageAction          = nullptr;
+  QAction *displayImageAction   = nullptr;
 
   QAction *sizeAndOrientationAction = nullptr;
 
@@ -181,6 +183,14 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   backgroundAction    = commonMenus.backgroundMenu(menu,name);
   subModelColorAction = commonMenus.subModelColorMenu(menu,name);
 
+  if (page->frontCover) {
+
+      if (page->meta.LPub.page.coverImage.file.value().isEmpty())
+          imageAction     = commonMenus.changeImageMenu(menu,"Add Cover " + name + " Image");
+      else if (!page->meta.LPub.page.coverImage.display.value())
+          displayImageAction = commonMenus.displayMenu(menu,"Show Cover " + name + " Image");
+  }
+
   sizeAndOrientationAction = menu.addAction("Change Page Size or Orientation");
   sizeAndOrientationAction->setIcon(QIcon(":/resources/pagesizeandorientation.png"));
   sizeAndOrientationAction->setWhatsThis("Change the page size and orientation");
@@ -252,6 +262,13 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                        page->top,
                        page->bottom,
                        &page->meta.LPub.page.background, useTop);
+    } else if (selectedAction == imageAction) {
+
+      changeImage("Add Cover" + name + " Image",
+                   page->top,
+                   page->bottom,
+                   &page->meta.LPub.page.coverImage.file,
+                    true,1,true/*allowLocal*/,false/*askLocal*/);
     } else if (selectedAction == subModelColorAction) {
       changeSubModelColor("Submodel Color",
                           page->top,
@@ -264,6 +281,12 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                                page->bottom,
                                &page->meta.LPub.page.size,
                                &page->meta.LPub.page.orientation, useTop);
-    }
+    } else if (selectedAction == displayImageAction){
+      changeBool(page->top,
+                 page->bottom,
+                &page->meta.LPub.page.coverImage.display,
+                 true,1,true/*allowLocal*/,false/*askLocal*/);
+
+  }
 
 }

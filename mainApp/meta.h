@@ -1563,6 +1563,35 @@ public:
 };
 
 /*
+ * This class parses the Pixmap fill mode (Axpect|Stretch|Tile)
+ */
+
+class FillMeta : public LeafMeta
+{
+private:
+  FillEnc type[2];
+public:
+  FillEnc value()
+  {
+    return type[pushed];
+  }
+  void setValue(FillEnc value)
+  {
+    type[pushed] = value;
+  }
+  FillMeta();
+  FillMeta(const FillMeta &rhs) : LeafMeta(rhs)
+  {
+    type[0] = rhs.type[0];
+    type[1] = rhs.type[1];
+  }
+  virtual ~FillMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
+};
+
+/*
  * INSERT
  *   (PICTURE "name" (SCALE x) |
  *    TEXT "font" "string" |
@@ -1969,9 +1998,8 @@ public:
   MarginsMeta   margin;
   FloatMeta     picScale;
   StringMeta    file;
-  BoolMeta      stretch;
-  BoolMeta      tile;
   BoolMeta      display;
+  FillMeta      fill;
 
   void setValue(QString _value)
   {

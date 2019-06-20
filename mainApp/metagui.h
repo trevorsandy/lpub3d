@@ -376,14 +376,12 @@ private:
   PageAttributePictureMeta *meta;
 
   int             selection;
-  bool            tileModified;
-  bool            stretchModified;
   bool            marginsModified;
   bool            placementModified;
   bool            displayModified;
   bool            pictureModified;
   bool            scaleModified;
-  bool            stretchTileModified;
+  bool            fillModified;
 
   QString         picture;
 

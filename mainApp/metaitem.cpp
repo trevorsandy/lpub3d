@@ -2144,6 +2144,54 @@ void MetaItem::changeBorder(
   }
 }
 
+void MetaItem::changeImage(
+  QString      title,
+  const Where &topOfStep,
+  const Where &bottomOfStep,
+  StringMeta  *image,
+  bool         useTop,
+  int          append,
+  bool         allowLocal,
+  bool         checkLocal)
+{
+  QString cwd = QDir::currentPath();
+  QString filter = QFileDialog::tr("Image Files (*.png *.jpg *.jpeg *.bmp)");
+  QString fileName = QFileDialog::getOpenFileName(nullptr,title, cwd, filter);
+  bool ok = !fileName.isEmpty();
+  if (ok) {
+    image->setValue(fileName);
+    setMeta(topOfStep,bottomOfStep,image,useTop,append,allowLocal,checkLocal);
+  }
+}
+
+void MetaItem::changeImageScale(
+  QString      title,
+  QString      label,
+  const Where &topOfStep,
+  const Where &bottomOfStep,
+  FloatMeta   *floatMeta,
+  float       step,
+  bool  useTop,
+  int   append,
+  bool askLocal)
+{
+    float data = floatMeta->value();
+    bool ok = DoubleSpinDialog::getFloat(
+                                    title,
+                                    label,
+                                    floatMeta,
+                                    data,
+                                    step,        // spin single step
+                                    gui);
+    if (ok) {
+      floatMeta->setValue(data);;
+    } else {
+      ok = floatMeta->value() == 1.0;
+    }
+    if (ok)
+        setMeta(topOfStep,bottomOfStep,floatMeta,useTop,append,askLocal);
+}
+
 void MetaItem::changeBool(
   const Where &topOfSteps,
   const Where &bottomOfSteps,
@@ -2155,6 +2203,18 @@ void MetaItem::changeBool(
 {
   boolMeta->setValue( ! boolMeta->value());
   setMeta(topOfSteps,bottomOfSteps,boolMeta,useTop,append,local,askLocal);
+}
+
+void MetaItem::changeImageFill(
+  const Where &topOfSteps,
+  const Where &bottomOfSteps,
+  FillMeta    *fillMeta,
+  bool         useTop,
+  int          append,
+  bool         local,
+  bool         askLocal)   // allow local metas
+{
+  setMeta(topOfSteps,bottomOfSteps,fillMeta,useTop,append,local,askLocal);
 }
 
 
@@ -2583,7 +2643,7 @@ void MetaItem::deletePage()
 
 void MetaItem::insertPicture()
 {
-  QString title = QFileDialog::tr("Open Image");
+  QString title = QFileDialog::tr("Select Image");
   QString cwd = QDir::currentPath();
   QString filter = QFileDialog::tr("Image Files (*.png *.jpg *.jpeg *.bmp)");
   QString fileName = QFileDialog::getOpenFileName(nullptr,title, cwd, filter);

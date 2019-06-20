@@ -273,6 +273,33 @@ public:
                         bool rotateArrow = false,
                         bool corners = false);
 
+  void changeImage(     QString,
+                        const Where &,
+                        const Where &,
+                        StringMeta  *,
+                        bool useTop = true,
+                        int  append = 1,
+                        bool allowLocal = true,
+                        bool checkLocal = false);
+
+  void changeImageScale(QString title,
+                        QString label,
+                        const Where &,
+                        const Where &,
+                        FloatMeta   *,
+                        float step = 0.01,
+                        bool  useTop = true,
+                        int   append = 1,
+                        bool  askLocal = true);
+
+  void changeImageFill( const Where &,
+                        const Where &,
+                        FillMeta    *,
+                        bool  useTop = true,
+                        int   append = 1,
+                        bool allowLocal = false,
+                        bool askLocal = true);
+
   void changeCameraAngles( QString,
                         const Where &,
                         const Where &,

@@ -16,38 +16,36 @@
 #define PAGEATTRIBUTEPIXMAPITEM_H
 
 #include <QGraphicsPixmapItem>
-#include <QSize>
-#include <QRect>
-#include "meta.h"
-#include "metaitem.h"
 #include "resize.h"
-
-#include "QsLog.h"
 
 class PageAttributePixmapItem : public ResizePixmapItem
 {
-    Page                        *page;
   public:
-//    PlacementType               relativeType;
+    Page                       *page;
     PlacementType               parentRelativeType;
     BorderMeta                  border;
     BoolMeta                    displayPicture;
     FloatMeta                   picScale;
-//    BoolMeta                    tile;
     BoolMeta                    display;
-//    qreal                       relativeToLoc[2];
-//    qreal                       relativeToSize[2];
     QString                     name;
-//    MetaItem                    mi;
+    int                         fillMode;
 
     PageAttributePixmapItem(
       Page                     *page,
       QPixmap                  &_pixmapPic,
-      PageAttributePictureMeta &pageAttributePictureMeta,
+      PageAttributePictureMeta &_papMeta,
       QGraphicsItem            *parent);
 
+    void adjustImage(
+      QPixmap                  *pixmap,
+      PageAttributePictureMeta &_papMeta);
+
     virtual void change();
+protected:
     void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+
+private:
+    QPixmap * pixmapPic;
 };
 
 #endif // PAGEATTRIBUTEPIXMAPITEM_H

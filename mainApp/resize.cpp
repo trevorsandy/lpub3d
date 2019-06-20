@@ -220,12 +220,12 @@ void ResizePixmapItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 void ResizePixmapItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+  QGraphicsItem::mouseReleaseEvent(event);
   if (event->button() == Qt::LeftButton){
     if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
       change();
     }
   }
-  QGraphicsItem::mouseReleaseEvent(event);
 }
 
 QVariant ResizePixmapItem::itemChange(GraphicsItemChange change, const QVariant &value)

@@ -139,6 +139,70 @@ QAction* CommonMenus::colorMenu(
   return action;
 }
 
+QAction* CommonMenus::changeImageMenu(
+        QMenu   &menu,
+  const QString  name)
+{
+  QAction *action;
+
+  QString formatted = QString("%1") .arg(name);
+  action = menu.addAction(formatted);
+  action->setIcon(QIcon(":/resources/editimage.png"));
+
+  formatted = QString("You can change the %1 image") .arg(name);
+  action->setWhatsThis(formatted);
+
+  return action;
+}
+
+QAction* CommonMenus::stretchImageMenu(
+        QMenu   &menu,
+  const QString  name)
+{
+  QAction *action;
+
+  QString formatted = QString("Stretch %1") .arg(name);
+  action = menu.addAction(formatted);
+  action->setIcon(QIcon(":/resources/stretchimage.png"));
+
+  formatted = QString("You can stretch the %1 image to the size of the page") .arg(name);
+  action->setWhatsThis(formatted);
+
+  return action;
+}
+
+QAction* CommonMenus::tileImageMenu(
+        QMenu   &menu,
+  const QString  name)
+{
+  QAction *action;
+
+  QString formatted = QString("Tile %1") .arg(name);
+  action = menu.addAction(formatted);
+  action->setIcon(QIcon(":/resources/tileimage.png"));
+
+  formatted = QString("You can tile the %1 image across the page") .arg(name);
+  action->setWhatsThis(formatted);
+
+  return action;
+}
+
+QAction* CommonMenus::deleteImageMenu(
+        QMenu   &menu,
+  const QString  name)
+{
+  QAction *action;
+
+  QString formatted = QString("Delete %1") .arg(name);
+  action = menu.addAction(formatted);
+  action->setIcon(QIcon(":/resources/deleteimage.png"));
+
+  formatted = QString("You can remove the %1 image across the page") .arg(name);
+  action->setWhatsThis(formatted);
+
+  return action;
+}
+
 QAction* CommonMenus::marginMenu(
         QMenu   &menu, 
   const QString  name,
@@ -162,7 +226,7 @@ QAction* CommonMenus::displayMenu(
 {
 QAction *action;
 
-QString formatted = QString("Hide %1") .arg(name);
+QString formatted = QString("%1") .arg(name);
 action = menu.addAction(formatted);
 action->setIcon(QIcon(":/resources/display.png"));
 
@@ -484,7 +548,7 @@ QAction* CommonMenus::substitutePartMenu(
 {
   QAction *action;
 
-  QString formatted = QString("Substitue %1") .arg(name);
+  QString formatted = QString("Substitute %1") .arg(name);
   action = menu.addAction(formatted);
   action->setIcon(QIcon(":/resources/substitutepart.png"));
 
@@ -500,7 +564,7 @@ QAction* CommonMenus::changeSubstitutePartMenu(
 {
   QAction *action;
 
-  QString formatted = QString("Change Substitue %1") .arg(name);
+  QString formatted = QString("Change Substitute %1") .arg(name);
   action = menu.addAction(formatted);
   action->setIcon(QIcon(":/resources/substitutepart.png"));
 
@@ -516,7 +580,7 @@ QAction* CommonMenus::removeSubstitutePartMenu(
 {
   QAction *action;
 
-  QString formatted = QString("Remove substitue %1") .arg(name);
+  QString formatted = QString("Remove Substitute %1") .arg(name);
   action = menu.addAction(formatted);
   action->setIcon(QIcon(":/resources/removesubstitutepart.png"));
 

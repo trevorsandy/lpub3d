@@ -52,6 +52,7 @@
         <file alias="dae32.png">resources/dae32.png</file>
         <file alias="delete.png">resources/delete.png</file>
         <file alias="deletedivider.png">resources/deletedivider.png</file>
+        <file alias="deleteimage.png">resources/deleteimage.png</file>
         <file alias="deletepage.png">resources/deletepage.png</file>
         <file alias="deletepointer.png">resources/deletepointer.png</file>
         <file alias="disablegroupmove.png">resources/disablegroupmove.png</file>
@@ -62,6 +63,7 @@
         <file alias="editdivider.png">resources/editdivider.png</file>
         <file alias="editexcludedparts.png">resources/editexcludedparts.png</file>
         <file alias="editfreeformannotations.png">resources/editfreeformannotations.png</file>
+        <file alias="editimage.png">resources/editimage.png</file>
         <file alias="editinifile.png">resources/editinifile.png</file>
         <file alias="editld2blxref.png">resources/editld2blxref.png</file>
         <file alias="editld2rbxref.png">resources/editld2rbxref.png</file>
@@ -180,10 +182,12 @@
         <file alias="splitbom.png">resources/splitbom.png</file>
         <file alias="stepgroupsetup.png">resources/stepgroupsetup.png</file>
         <file alias="stl32.png">resources/stl32.png</file>
+        <file alias="stretchimage.png">resources/stretchimage.png</file>
         <file alias="submodelcolor.png">resources/submodelcolor.png</file>
         <file alias="submodelsetup.png">resources/submodelsetup.png</file>
         <file alias="substitutepart.png">resources/substitutepart.png</file>
         <file alias="textDelete.png">resources/textDelete.png</file>
+        <file alias="tileimage.png">resources/tileimage.png</file>
         <file alias="togglecomment.png">resources/togglecomment.png</file>
         <file alias="togglepartoutline.png">resources/togglepartoutline.png</file>
         <file alias="top.png">resources/top.png</file>

@@ -1994,6 +1994,44 @@ void AllocMeta::doc(QStringList &out, QString preamble)
   out << preamble + " (HORIZONTAL|VERTICAL)";
 }
 
+/* ------------------ */
+
+FillMeta::FillMeta() : LeafMeta()
+{
+  type[0] = Aspect;
+}
+
+Rc FillMeta::parse(QStringList &argv, int index, Where &here)
+{
+  QRegExp rx("^(ASPECT|STRETCH|TILE)$");
+  if (argv.size() - index == 1 && argv[index].contains(rx)) {
+      type[pushed] = FillEnc(tokenMap[argv[index]]);
+      _here[pushed] = here;
+      return OkRc;
+    }
+  if (reportErrors) {
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected ASPECT, STRETCH, or TILE got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
+    }
+  return FailureRc;
+}
+QString FillMeta::format(bool local, bool global)
+{
+  QString foo;
+  if (type[pushed] == Stretch) {
+      foo = "STRETCH";
+    } else
+    if (type[pushed] == Tile) {
+      foo = "TILE";
+    } else {
+      foo = "ASPECT";
+    }
+  return LeafMeta::format(local,global,foo);
+}
+void FillMeta::doc(QStringList &out, QString preamble)
+{
+  out << preamble + " (ASPECT|STRETCH|TILE)";
+}
+
 /* ------------------ */ 
 
 PageOrientationMeta::PageOrientationMeta() : LeafMeta()
@@ -2642,9 +2680,9 @@ void PageAttributeTextMeta::init(
     QString name)
 {
   AbstractMeta::init(parent, name);
-  textFont.init     	(this, "FONT",OkRc, "\"");
-  textColor.init    	(this, "COLOR");
-  margin.init   	(this, "MARGINS");
+  textFont.init         (this, "FONT",OkRc, "\"");
+  textColor.init        (this, "COLOR");
+  margin.init           (this, "MARGINS");
   placement.init        (this, "PLACEMENT");
   content.init          (this, "CONTENT");
   display.init          (this, "DISPLAY");
@@ -2657,8 +2695,8 @@ PageAttributePictureMeta::PageAttributePictureMeta() : BranchMeta()
   placement.setValue(TopLeftInsideCorner,PageType);
   display.setValue(Preferences::displayAllAttributes);
   BorderData borderData;
-  borderData.type = BorderData::BdrSquare;
-  borderData.line = BorderData::BdrLnSolid;
+  borderData.type = BorderData::BdrNone;
+  borderData.line = BorderData::BdrLnNone;
   borderData.color = "Black";
   borderData.thickness = DEFAULT_THICKNESS;
   borderData.radius = 15;
@@ -2669,8 +2707,7 @@ PageAttributePictureMeta::PageAttributePictureMeta() : BranchMeta()
   picScale.setFormats(7,4,"#99999.9");
   picScale.setValue(1.0);
   margin.setValuesInches(0.0f,0.0f);
-  tile.setValue(false);
-  stretch.setValue(false);
+  fill.setValue(Aspect);
 }
 
 void PageAttributePictureMeta::init(
@@ -2684,8 +2721,7 @@ void PageAttributePictureMeta::init(
   picScale.init         (this, "SCALE");
   file.init             (this, "FILE");
   display.init          (this, "DISPLAY");
-  stretch.init          (this, "STRETCH");
-  tile.init             (this, "TILE");
+  fill.init             (this, "FILL");
 }
 
 /* ------------------ */
@@ -4692,6 +4728,10 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
 
       tokenMap["HORIZONTAL"]           = Horizontal;
       tokenMap["VERTICAL"]             = Vertical;
+
+      tokenMap["ASPECT"]               = Aspect;
+      tokenMap["STRETCH"]              = Stretch;
+      tokenMap["TILE"]                 = Tile;
 
       tokenMap["PORTRAIT"]             = Portrait;
       tokenMap["LANDSCAPE"]            = Landscape;
