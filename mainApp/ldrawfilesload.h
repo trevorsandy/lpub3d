@@ -3,6 +3,8 @@
 
 #include <QDialog>
 #include <QStandardItemModel>
+#include <QItemSelection>
+#include <QMenu>
 
 namespace Ui {
 class LdrawFilesLoadDialog;
@@ -24,9 +26,14 @@ public:
     explicit LdrawFilesLoad(QStringList &loadItems, QWidget *parent = nullptr);
     ~LdrawFilesLoad();
     static int showLoadMessages(QStringList &stringList);
+private slots:
+    void keyPressEvent(QKeyEvent * event);
+    void copy();
 private:
     Ui::LdrawFilesLoadDialog *ui;
     LdrawFilesLoadModel *lm;
+    QMenu *contextMenu;
+    QAction *copyAct;
 };
 
 #endif // LDRAWFILESLOAD_H
