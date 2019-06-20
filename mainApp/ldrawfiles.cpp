@@ -1064,25 +1064,32 @@ void LDrawFile::countParts(const QString &fileName){
                     countParts(tokens[14]);
                 } else if (! ExcludedParts::hasExcludedPart(tokens[14])) {
                     bool partVaidated = false;
+                    bool isSubPart = false;
+                    QString partFile = tokens[14].toUpper();
+                    if ((isSubPart = partFile.startsWith("S\\"))) {
+                        partFile.replace("S\\","S/");
+                    }
                     PieceInfo* pieceInfo;
-                    QFileInfo info(tokens[14]);
                     if (!(partVaidated = _uniqueParts.contains(tokens[14]))) {
-                        pieceInfo = lcGetPiecesLibrary()->FindPiece(info.fileName().toUpper().toLatin1().constData(), nullptr, false, false);
+                        pieceInfo = lcGetPiecesLibrary()->FindPiece(partFile.toLatin1().constData(), nullptr, false, false);
                         if ((partVaidated = pieceInfo && pieceInfo->IsPartType()))
                             _uniqueParts.append(tokens[14]);
                     }
                     if (partVaidated) {
                         _partCount++; sfCount++;
-                        //logTrace() << QString(" Part Line: [%2] %3 Item No %1").arg(_partCount).arg(fileName).arg(line);
+                        //logTrace() << QString(" Part Line: [%2] %3 Item No %1").arg(_partCount).arg(fileInfo).arg(line);
                         emit gui->messageSig(LOG_NOTICE,QString("Part %1 [%2] validated.").arg(_partCount).arg(tokens[14]));
-                    } else if (lcGetPiecesLibrary()->IsPrimitive(info.fileName().toUpper().toLatin1().constData())) {
-                        emit gui->messageSig(LOG_NOTICE,QString("Part [%1] is a primitive type part").arg(tokens[14]));
+                    } else if (lcGetPiecesLibrary()->IsPrimitive(partFile.toLatin1().constData())) {
+                        if (isSubPart)
+                            emit gui->messageSig(LOG_NOTICE,QString("Part [%1] is a subpart").arg(tokens[14]));
+                        else
+                            emit gui->messageSig(LOG_NOTICE,QString("Part [%1] is a primitive part").arg(tokens[14]));
                     } else {
                         if (!_missingParts.contains(tokens[14])) {
                             _missingParts << tokens[14];
-                            emit gui->messageSig(LOG_ERROR,QString("Part [%1] was not found in the %2 library archives.")
+                            emit gui->messageSig(LOG_NOTICE,QString("Part [%1] was not found in the %2 library archives.")
                                                  .arg(tokens[14])
-                                    .arg(VER_PRODUCTNAME_STR));
+                                                 .arg(VER_PRODUCTNAME_STR));
                         }
                     }
                 }  // check excluded
