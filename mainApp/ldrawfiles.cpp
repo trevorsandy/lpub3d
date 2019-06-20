@@ -755,9 +755,15 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
             QStringList tokens;
             split(smLine,tokens);
 
-            // submodel file check;
-            if (tokens.size() == 15 && tokens[0] == "1") {
-                const QString stageSubfileName = tokens[tokens.size()-1].toLower();
+            // subfile check;
+            QString stageSubfileName;
+            bool subFileFound = false;
+            if ((subFileFound = tokens.size() == 15 && tokens.at(0) == "1")) {
+                stageSubfileName = tokens.at(14).toLower();
+            } else if (isSubstitute(smLine,stageSubfileName)) {
+                subFileFound = !stageSubfileName.isEmpty();
+            }
+            if (subFileFound) {
                 PieceInfo* standardPart = lcGetPiecesLibrary()->FindPiece(stageSubfileName.toLatin1().constData(), nullptr, false, false);
                 if (! standardPart && ! LDrawFile::contains(stageSubfileName.toLower()) && ! stageSubfiles.contains(stageSubfileName)) {
                     stageSubfiles.append(stageSubfileName);
@@ -1064,19 +1070,28 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
                 }
             }
 
+            // subfile check;
+            QString subfileName;
+            bool subFileFound = false;
+            if ((subFileFound = tokens.size() == 15 && tokens.at(0) == "1")) {
+                subfileName = tokens.at(14);
+            } else if (isSubstitute(line,subfileName)) {
+                subFileFound = !subfileName.isEmpty();
+            }
+
             // resolve outstanding subfiles
-            if (tokens.size() == 15 && tokens[0] == "1") {
-                QFileInfo subFileInfo = QFileInfo(tokens[tokens.size()-1]);
+            if (subFileFound) {
+                QFileInfo subFileInfo = QFileInfo(subfileName);
                 PieceInfo* standardPart = lcGetPiecesLibrary()->FindPiece(subFileInfo.fileName().toLatin1().constData(), nullptr, false, false);
                 if (! standardPart && ! LDrawFile::contains(subFileInfo.fileName())) {
-                    bool subFileFound = false;
+                    subFileFound = false;
                     // current path
                     if ((subFileFound = QFileInfo(path + QDir::separator() + subFileInfo.fileName()).isFile())) {
                         subFileInfo = QFileInfo(path + QDir::separator() + subFileInfo.fileName());
                     } else
                     // file path
-                    if ((subFileFound = QFileInfo(subFileInfo.fileName()).isFile())){
-                        subFileInfo = QFileInfo(subFileInfo.fileName());
+                    if ((subFileFound = QFileInfo(subFileInfo.filePath()).isFile())){
+                        subFileInfo = QFileInfo(subFileInfo.filePath());
                     }
                     else
                     // extended search - LDraw subfolder paths and extra search directorie paths
@@ -1327,9 +1342,9 @@ void LDrawFile::countParts(const QString &fileName){
     emit gui->messageSig(LOG_STATUS, QString("Processing subfile '%1'").arg(fileName));
 
     int sfCount = 0;
-    bool doCountParts = true;
+    bool doCountPart = true;
 
-    QRegExp validEXT("\\.DAT|\\.LDR|\\.MPD$",Qt::CaseInsensitive);
+    QRegExp validExtRx("\\.DAT|\\.LDR|\\.MPD$",Qt::CaseInsensitive);
 
     QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(fileName.toLower());
     if (f != _subFiles.end()) {
@@ -1354,23 +1369,29 @@ void LDrawFile::countParts(const QString &fileName){
                (tokens[2] == "PART" || tokens[2] == "PLI") &&
                 tokens[3] == "BEGIN"  &&
                 tokens[4] == "IGN") {
-                doCountParts = false;
+                doCountPart = false;
             } else
             if (tokens.size() == 4 &&
                 tokens[0] == "0" &&
                (tokens[1] == "LPUB" || tokens[1] == "!LPUB") &&
                (tokens[2] == "PART" || tokens[2] == "PLI") &&
                 tokens[3] == "END") {
-               doCountParts = true;
+               doCountPart = true;
             }
 
-            if (doCountParts && tokens.size() == 15 && tokens[0] == "1" && (tokens[14].contains(validEXT))) {
-                QString partString = "|" + tokens[14] + "|";
-                bool containsSubFile = contains(tokens[14].toLower());
+            QString partToken;
+            if (doCountPart && tokens.size() == 15 && tokens[0] == "1" && (tokens[14].contains(validExtRx))) {
+                partToken = tokens[14];
+            } else if ((doCountPart = isSubstitute(line,partToken))) {
+                doCountPart = !partToken.isEmpty() && partToken.contains(validExtRx);
+            }
+            if (doCountPart) {
+                QString partString = "|" + partToken + "|";
+                bool containsSubFile = contains(partToken.toLower());
                 if (containsSubFile) {
-                    int subFileType = isUnofficialPart(tokens[14].toLower());
+                    int subFileType = isUnofficialPart(partToken.toLower());
                     if (subFileType == UNOFFICIAL_SUBMODEL){
-                        countParts(tokens[14]);
+                        countParts(partToken);
                     } else {
                         switch(subFileType){
                         case  UNOFFICIAL_PART:
@@ -1378,29 +1399,29 @@ void LDrawFile::countParts(const QString &fileName){
                             partString += QString("Unofficial inlined part");
                             if (!_loadedParts.contains(QString(VALID_LOAD_MSG) + partString)) {
                                 _loadedParts.append(QString(VALID_LOAD_MSG) + partString);
-                                emit gui->messageSig(LOG_NOTICE,QString("Unofficial inlined part %1 [%2] validated.").arg(_partCount).arg(tokens[14]));
+                                emit gui->messageSig(LOG_NOTICE,QString("Unofficial inlined part %1 [%2] validated.").arg(_partCount).arg(partToken));
                             }
                             break;
                         case  UNOFFICIAL_SUBPART:
                             partString += QString("Unofficial inlined subpart");
                             if (!_loadedParts.contains(QString(SUBPART_LOAD_MSG) + partString)) {
                                 _loadedParts.append(QString(SUBPART_LOAD_MSG) + partString);
-                                emit gui->messageSig(LOG_NOTICE,QString("Unofficial inlined part [%1] is a subpart").arg(tokens[14]));
+                                emit gui->messageSig(LOG_NOTICE,QString("Unofficial inlined part [%1] is a subpart").arg(partToken));
                             }
                             break;
                         case  UNOFFICIAL_PRIMITIVE:
                             partString += QString("Unofficial inlined primitive");
                             if (!_loadedParts.contains(QString(PRIMITIVE_LOAD_MSG) + partString)) {
                                 _loadedParts.append(QString(PRIMITIVE_LOAD_MSG) + partString);
-                                emit gui->messageSig(LOG_NOTICE,QString("Unofficial inlined part [%1] is a primitive").arg(tokens[14]));
+                                emit gui->messageSig(LOG_NOTICE,QString("Unofficial inlined part [%1] is a primitive").arg(partToken));
                             }
                             break;
                         default:
                             break;
                         }
                     }
-                } else if (! ExcludedParts::hasExcludedPart(tokens[14])) {
-                    QString partFile = tokens[14].toUpper();
+                } else if (! ExcludedParts::hasExcludedPart(partToken)) {
+                    QString partFile = partToken.toUpper();
                     if (partFile.startsWith("S\\")) {
                         partFile.replace("S\\","S/");
                     }
@@ -1412,26 +1433,26 @@ void LDrawFile::countParts(const QString &fileName){
                             if (pieceInfo->IsSubPiece()) {
                                 if (!_loadedParts.contains(QString(SUBPART_LOAD_MSG) + partString)){
                                     _loadedParts.append(QString(SUBPART_LOAD_MSG) + partString);
-                                    emit gui->messageSig(LOG_NOTICE,QString("Part [%1] is a subpart").arg(tokens[14]));
+                                    emit gui->messageSig(LOG_NOTICE,QString("Part [%1] is a subpart").arg(partToken));
                                 }
                             } else
                             if (pieceInfo->IsPartType()) {
                                 _partCount++;sfCount++;
                                 if (!_loadedParts.contains(QString(VALID_LOAD_MSG) + partString)) {
                                     _loadedParts.append(QString(VALID_LOAD_MSG) + partString);
-                                    emit gui->messageSig(LOG_NOTICE,QString("Part %1 [%2] validated.").arg(_partCount).arg(tokens[14]));
+                                    emit gui->messageSig(LOG_NOTICE,QString("Part %1 [%2] validated.").arg(_partCount).arg(partToken));
                                 }
                             } else
                             if (lcGetPiecesLibrary()->IsPrimitive(partFile.toLatin1().constData())){
                                 if (pieceInfo->IsSubPiece()) {
                                     if (!_loadedParts.contains(QString(SUBPART_LOAD_MSG) + partString)) {
                                         _loadedParts.append(QString(SUBPART_LOAD_MSG) + partString);
-                                        emit gui->messageSig(LOG_NOTICE,QString("Part [%1] is a subpart").arg(tokens[14]));
+                                        emit gui->messageSig(LOG_NOTICE,QString("Part [%1] is a subpart").arg(partToken));
                                     }
                                 } else {
                                     if (!_loadedParts.contains(QString(PRIMITIVE_LOAD_MSG) + partString)) {
                                         _loadedParts.append(QString(PRIMITIVE_LOAD_MSG) + partString);
-                                        emit gui->messageSig(LOG_NOTICE,QString("Part [%1] is a primitive part").arg(tokens[14]));
+                                        emit gui->messageSig(LOG_NOTICE,QString("Part [%1] is a primitive part").arg(partToken));
                                     }
                                 }
                             }
@@ -1440,7 +1461,7 @@ void LDrawFile::countParts(const QString &fileName){
                             if (!_loadedParts.contains(QString(MISSING_LOAD_MSG) + partString)) {
                                 _loadedParts.append(QString(MISSING_LOAD_MSG) + partString);
                                 emit gui->messageSig(LOG_NOTICE,QString("Part [%1] not excluded, not a submodel and not found in the %2 library archives.")
-                                                     .arg(tokens[14])
+                                                     .arg(partToken)
                                         .arg(VER_PRODUCTNAME_STR));
                             }
                         }
@@ -1858,6 +1879,16 @@ bool isComment(QString &line){
   QRegExp commentLine("^\\s*0\\s+\\/\\/\\s*.*");
   if (line.contains(commentLine))
       return true;
+  return false;
+}
+
+bool isSubstitute(QString &line, QString &lineOut){
+  QRegExp substitutePart("BEGIN\\sSUB\\s([A-Za-z0-9\\s_-]+.[dat|mpd|ldr]+)",Qt::CaseInsensitive);
+  if (line.contains(substitutePart)) {
+      lineOut = substitutePart.cap(1);
+      return true;
+  }
+  lineOut = QString();
   return false;
 }
 

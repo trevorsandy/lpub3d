@@ -244,5 +244,6 @@ int  getUnofficialFileType(QString &line);
 bool isHeader(QString &line);
 bool isComment(QString &line);
 bool isGhost(QString &line);
+bool isSubstitute(QString &line, QString &lineOut);
 
 #endif
