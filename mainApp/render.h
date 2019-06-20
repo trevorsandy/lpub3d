@@ -74,7 +74,7 @@ public:
                                     int = 6 /*NumIniFiles*/);
   static bool            LoadStepProject(Project *,
                                      const QString &);
-  static int             createNativeCSI(QStringList &csiParts,
+  static int             createNativeModelFile(QStringList &csiParts,
                                      bool doFadeStep,
                                      bool doHighlightStep);
   static int             mergeNativeCSISubModels(QStringList &subModels,

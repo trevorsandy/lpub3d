@@ -318,7 +318,7 @@ int Step::createCsi(
       rotatedParts.append("0 NOFILE");
 
       // consolidate subfiles and parts into single file
-      if ((rc = renderer->createNativeCSI(rotatedParts,fadeSteps,highlightStep) != 0))
+      if ((rc = renderer->createNativeModelFile(rotatedParts,fadeSteps,highlightStep) != 0))
           emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Viewer CSI parts"));
 
       // store rotated and unrotated (csiParts). Unrotated parts are used to generate LDView pov file

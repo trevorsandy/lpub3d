@@ -231,7 +231,7 @@ int Render::rotateParts(
       rotatedParts.append("0 NOFILE");
 
       // consolidate subfiles and parts into single file
-      if ((createNativeCSI(rotatedParts,doFadeStep,doHighlightStep) != 0))
+      if ((createNativeModelFile(rotatedParts,doFadeStep,doHighlightStep) != 0))
           emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native CSI parts"));
   }
 

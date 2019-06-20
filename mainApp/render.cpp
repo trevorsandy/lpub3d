@@ -2183,8 +2183,8 @@ const QString Render::getPovrayRenderFileName(const QString &viewerCsiKey)
 
 }
 
-// create Native version of the csi file
-int Render::createNativeCSI(
+// create Native version of the CSI/PLI file - consolidate subfiles and parts into single file
+int Render::createNativeModelFile(
     QStringList &csiRotatedParts,
     bool         doFadeStep,
     bool         doHighlightStep)
