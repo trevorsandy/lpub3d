@@ -1349,13 +1349,13 @@ int LDView::renderPli(
   bool hasLDViewIni = Preferences::ldviewIni != "";
 
   QString tempPath = QDir::currentPath() + "/" + Paths::tmpDir;
-  QString partsPath = QDir::currentPath() + "/" + Paths::partsDir;
+  QString partsPath = QDir::currentPath() + "/" + (pliType == SUBMODEL ? Paths::submodelDir : Paths::partsDir);
 
   //qDebug() << "LDView (Native) Camera Distance: " << cd;
 
   /* Create the CSI DAT file(s) */
   QString f;
-  if (useLDViewSCall()) {
+  if (useLDViewSCall() && pliType != SUBMODEL) {
 
       if (!useLDViewSList() || (useLDViewSList() && ldrNames.size() < SNAPSHOTS_LIST_THRESHOLD)) {
           f  = QString("-SaveSnapShots=1");
@@ -1433,7 +1433,7 @@ int LDView::renderPli(
       arguments << altldc;
   }
 
-  if (useLDViewSCall()) {
+  if (useLDViewSCall() && pliType != SUBMODEL) {
       //-SaveSnapShots=1
       if ((!useLDViewSList()) || (useLDViewSList() && ldrNames.size() < SNAPSHOTS_LIST_THRESHOLD))
           arguments = arguments + ldrNames;  // 13. LDR input file(s)
@@ -1449,7 +1449,7 @@ int LDView::renderPli(
       return -1;
 
   // move generated PLI images to parts subfolder
-  if (useLDViewSCall()){
+  if (useLDViewSCall() && pliType != SUBMODEL){
       foreach(QString ldrName, ldrNames){
           QString pngFileTmpPath = ldrName.replace(".ldr",".png");
           QString pngFilePath = partsPath + "/" + QFileInfo(pngFileTmpPath).fileName();
