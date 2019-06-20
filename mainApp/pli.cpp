@@ -1754,6 +1754,11 @@ int Pli::sortPli()
     // populate part size
     partSize();
 
+    if (parts.size() < 1) {
+        emit gui->messageSig(LOG_NOTICE, QMessageBox::tr("There are No valid parts - specified parts were not found"));
+        return 1;
+    }
+
     sortedKeys = parts.keys();
 
     if (! bom)
@@ -1978,6 +1983,7 @@ int Pli::partSize()
                   tallestPart = part->height;
                 }
             } else {
+              emit gui->messageSig(LOG_NOTICE, QMessageBox::tr("Part [%1] was not found - part removed from list").arg(parts[key]->type));
               delete parts[key];
               parts.remove(key);
             }
