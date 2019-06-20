@@ -204,6 +204,7 @@ win32-msvc*:contains(LOAD_LDV_SOURCE_FILES,True) {
 QMAKE_CFLAGS_WARN_ON += \
      -Wall -W \
      -Wno-deprecated-declarations \
+     -Wno-deprecated-copy \
      -Wno-implicit-fallthrough \
      -Wno-parentheses \
      -Wno-return-type \
@@ -238,6 +239,7 @@ QMAKE_CXXFLAGS_WARN_ON += $${QMAKE_CFLAGS_WARN_ON}
 QMAKE_CFLAGS_WARN_ON =  \
       -Wno-comment \
       -Wno-deprecated-declarations \
+      -Wno-deprecated-copy \
       -Wno-format \
       -Wno-parentheses \
       -Wno-return-type \

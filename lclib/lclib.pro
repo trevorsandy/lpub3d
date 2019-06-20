@@ -152,6 +152,7 @@ include(../LPub3DPlatformSpecific.pri)
 !win32-msvc* {
 QMAKE_CFLAGS_WARN_ON += \
     -Wno-deprecated-declarations \
+    -Wno-deprecated-copy \
     -Wno-unused-parameter \
     -Wno-sign-compare
 }

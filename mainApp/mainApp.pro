@@ -589,6 +589,7 @@ update_check: DEFINES += DISABLE_UPDATE_CHECK
 !win32-msvc* {
 QMAKE_CFLAGS_WARN_ON += \
     -Wno-deprecated-declarations \
+    -Wno-deprecated-copy \
     -Wno-unused-parameter \
     -Wno-sign-compare
 }
