@@ -4336,6 +4336,7 @@ LPubMeta::LPubMeta() : BranchMeta()
   stepNumber.color.setValue("black");
   cameraDistNative.factor.setRange(-5000,5000);
   cameraDistNative.factor.setValue(Preferences::cameraDistFactorNative);
+  contModelStepNum.setRange(1,10000);
 
   mergeInstanceCount.setValue(true);
   contStepNumbers.setValue(false);
@@ -4365,6 +4366,7 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   subModel           .init(this,"SUBMODEL_DISPLAY");
   rotateIcon         .init(this,"ROTATE_ICON");
   mergeInstanceCount .init(this,"CONSOLIDATE_INSTANCE_COUNT");
+  contModelStepNum   .init(this,"MODEL_STEP_NUMBER");
   contStepNumbers    .init(this,"CONTINUOUS_STEP_NUMBERS");
   stepPli            .init(this,"STEP_PLI");
   cameraDistNative   .init(this,"CAMERA_DISTANCE_NATIVE");

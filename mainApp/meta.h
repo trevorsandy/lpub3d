@@ -3150,6 +3150,7 @@ public:
   RotateIconMeta       rotateIcon;
   SubModelMeta         subModel;
   BoolMeta             mergeInstanceCount;
+  IntMeta              contModelStepNum;
   BoolMeta             contStepNumbers;
   StepPliMeta          stepPli;
   CameraDistFactorMeta cameraDistNative;
