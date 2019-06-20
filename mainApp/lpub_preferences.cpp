@@ -171,6 +171,7 @@ bool    Preferences::archiveLSynthParts         = false;
 bool    Preferences::usingNativeRenderer        = false;
 bool    Preferences::skipPartsArchive           = false;
 bool    Preferences::loadLastOpenedFile         = false;
+bool    Preferences::extendedSubfileSearch      = false;
 
 bool    Preferences::ignoreMixedPageSizesMsg    = false;
 
@@ -2934,6 +2935,15 @@ void Preferences::userInterfacePreferences()
       loadLastOpenedFile = Settings.value(QString("%1/%2").arg(SETTINGS,loadLastOpenedFileKey)).toBool();
   }
 
+  QString const povrayFileGeneratorKey("ExtendedSubfileSearch");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,povrayFileGeneratorKey))) {
+      QVariant uValue(false);
+      extendedSubfileSearch = false;
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,povrayFileGeneratorKey),uValue);
+  } else {
+      extendedSubfileSearch = Settings.value(QString("%1/%2").arg(SETTINGS,povrayFileGeneratorKey)).toBool();
+  }
+
   QString const ldrawFilesLoadMsgsKey("LdrawFilesLoadMsgs");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,ldrawFilesLoadMsgsKey))) {
       ldrawFilesLoadMsgs = NEVER_SHOW;
@@ -4051,6 +4061,12 @@ bool Preferences::getPreferences()
         {
             loadLastOpenedFile = dialog->loadLastOpenedFile();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"LoadLastOpenedFile"),loadLastOpenedFile);
+        }
+
+        if (extendedSubfileSearch != dialog->extendedSubfileSearch())
+        {
+            extendedSubfileSearch = dialog->extendedSubfileSearch();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ExtendedSubfileSearch"),extendedSubfileSearch);
         }
 
         if (ldrawFilesLoadMsgs != dialog->ldrawFilesLoadMsgs())

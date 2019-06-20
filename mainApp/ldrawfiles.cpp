@@ -892,8 +892,9 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
                 if ((subFileFound = QFileInfo(subfile).isFile())){
                     fileInfo = QFileInfo(subfile);
                 }
-                // search directories
-                else {
+                else
+                // extended search - LDraw subfolder paths and extra search directorie paths
+                if (Preferences::extendedSubfileSearch) {
                     for (QString subFilePath : searchPaths){
                         if ((subFileFound = QFileInfo(subFilePath + QDir::separator() + subfile).isFile())) {
                             fileInfo = QFileInfo(subFilePath + QDir::separator() + subfile);
@@ -1077,8 +1078,9 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
                     if ((subFileFound = QFileInfo(subFileInfo.fileName()).isFile())){
                         subFileInfo = QFileInfo(subFileInfo.fileName());
                     }
-                    // search directories
-                    else {
+                    else
+                    // extended search - LDraw subfolder paths and extra search directorie paths
+                    if (Preferences::extendedSubfileSearch) {
                         for (QString subFilePath : searchPaths){
                             if ((subFileFound = QFileInfo(subFilePath + QDir::separator() + subFileInfo.fileName()).isFile())) {
                                 subFileInfo = QFileInfo(subFilePath + QDir::separator() + subFileInfo.fileName());
@@ -1099,12 +1101,12 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
             }
         }
 
-      _mpd = false;
+        _mpd = false;
 
-      emit gui->progressPermSetValueSig(contents.size());
-      emit gui->progressPermStatusRemoveSig();
-      emit gui->messageSig(LOG_TRACE, QString("LDR " + modelType + " file '" + fileInfo.fileName() + "' with " +
-                                              QString::number(contents.size()) + " lines loaded."));
+        emit gui->progressPermSetValueSig(contents.size());
+        emit gui->progressPermStatusRemoveSig();
+        emit gui->messageSig(LOG_TRACE, QString("LDR " + modelType + " file '" + fileInfo.fileName() + "' with " +
+                                                 QString::number(contents.size()) + " lines loaded."));
     }
 }
 

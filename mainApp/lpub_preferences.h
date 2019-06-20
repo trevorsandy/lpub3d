@@ -210,6 +210,7 @@ class Preferences
     static bool    usingNativeRenderer;
     static bool    skipPartsArchive;
     static bool    loadLastOpenedFile;
+    static bool    extendedSubfileSearch;
 
     static bool    enableFadeSteps;
     static bool    fadeStepsUseColour;

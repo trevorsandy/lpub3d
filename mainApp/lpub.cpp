@@ -2091,6 +2091,7 @@ void Gui::preferences()
     bool archiveLSynthPartsCompare      = Preferences::archiveLSynthParts;
     bool perspectiveProjectionCompare   = Preferences::perspectiveProjection;
     bool loadLastOpenedFileCompare      = Preferences::loadLastOpenedFile;
+    bool extendedSubfileSearchCompare   = Preferences::extendedSubfileSearch;
     bool povrayAutoCropCompare          = Preferences::povrayAutoCrop;
     bool showDownloadRedirectsCompare   = Preferences::showDownloadRedirects;
     int povrayRenderQualityCompare      = Preferences::povrayRenderQuality;
@@ -2156,6 +2157,7 @@ void Gui::preferences()
         bool lgeoPathChanged               = QString(Preferences::lgeoPath).toLower()            != lgeoPathCompare.toLower();
         bool displayThemeChanged           = Preferences::displayTheme.toLower()                 != displayThemeCompare.toLower();
         bool loadLastOpenedFileChanged     = Preferences::loadLastOpenedFile                     != loadLastOpenedFileCompare;
+        bool extendedSubfileSearchChanged  = Preferences::extendedSubfileSearch                  != extendedSubfileSearchCompare;
         bool povrayAutoCropChanged         = Preferences::povrayAutoCrop                         != povrayAutoCropCompare;
         bool povrayRenderQualityChanged    = Preferences::povrayRenderQuality                    != povrayRenderQualityCompare;
         bool showDownloadRedirectsChanged  = Preferences::showDownloadRedirects                  != showDownloadRedirectsCompare;
@@ -2253,6 +2255,9 @@ void Gui::preferences()
 
         if (loadLastOpenedFileChanged)
                     emit messageSig(LOG_INFO,QString("Load Last Opened File is %1").arg(Preferences::loadLastOpenedFile ? "ON" : "OFF"));
+
+        if (extendedSubfileSearchChanged     )
+                    emit messageSig(LOG_INFO,QString("Extended Subfile Search is %1").arg(Preferences::extendedSubfileSearch ? "ON" : "OFF"));
 
         if (povrayRenderQualityChanged)
                     emit messageSig(LOG_INFO,QString("Povray Render Quality changed from %1 to %2")

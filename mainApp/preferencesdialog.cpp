@@ -122,6 +122,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.povrayDisplay_Chk->setChecked(              Preferences::povrayDisplay);
   ui.povrayAutoCropBox->setChecked(              Preferences::povrayAutoCrop);
   ui.loadLastOpenedFileCheck->setChecked(        Preferences::loadLastOpenedFile);
+  ui.extendedSubfileSearchCheck->setChecked(     Preferences::extendedSubfileSearch);
   ui.ldrawFilesLoadMsgsCombo->setCurrentIndex(   Preferences::ldrawFilesLoadMsgs);
   ui.projectionCombo->setCurrentIndex(           Preferences::perspectiveProjection ? 0 : 1);
   ui.povrayRenderQualityCombo->setCurrentIndex(  Preferences::povrayRenderQuality);
@@ -956,6 +957,11 @@ bool PreferencesDialog::povrayAutoCrop()
 bool PreferencesDialog::loadLastOpenedFile()
 {
     return ui.loadLastOpenedFileCheck->isChecked();
+}
+
+bool PreferencesDialog::extendedSubfileSearch()
+{
+    return ui.extendedSubfileSearchCheck->isChecked();
 }
 
 int PreferencesDialog::ldrawFilesLoadMsgs()
