@@ -4588,8 +4588,7 @@ void Gui::parseError(QString errorMsg,Where &here)
             box.setText(parseMessage);
             box.setIcon(QMessageBox::Icon::Warning);
             box.addButton(QMessageBox::Ok);
-            box.addButton(QMessageBox::Cancel);
-            box.setDefaultButton(QMessageBox::Cancel);
+            box.setDefaultButton(QMessageBox::Ok);
             box.setCheckBox(cb);
 
             QObject::connect(cb, &QCheckBox::stateChanged, [](int state){
@@ -4599,6 +4598,7 @@ void Gui::parseError(QString errorMsg,Where &here)
                     Preferences::setShowParseErrorsPreference(true);
                 }
             });
+            box.adjustSize();
             box.exec();
         }
     }

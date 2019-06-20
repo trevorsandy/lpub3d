@@ -284,11 +284,20 @@ static void set_divider_pointers(
             QStringList argv;
             split(stepLine,argv);
             pam.setValueInches(pam.parseAttributes(argv,walk));
-
-            int i      = pam.value().id - 1;
-            Pointer *p = rd ? range->rangeDividerPointerList[i] :
-                              range->stepDividerPointerList[i];
-            if (pam.value().id == p->id) {
+            Pointer          *p = nullptr;
+            int i               = pam.value().id - 1;
+            int validIndex      = rd ? range->rangeDividerPointerList.size() - 1 :
+                                       range->stepDividerPointerList.size() - 1; /*0-index*/
+            if (i <= validIndex) {
+                p = rd ? range->rangeDividerPointerList[i] :
+                         range->stepDividerPointerList[i];
+            } else {
+                gui->parseError(QString("Invalid Divider pointer attribute index.<br>"
+                                        "Expected value &#60;= %1, received %2")
+                                        .arg(validIndex).arg(i),current);
+                break;
+            }
+            if (p && pam.value().id == p->id) {
                 pam.setAltValueInches(p->getPointerAttribInches());
                 p->setPointerAttribInches(pam);
                 if (rd)
@@ -1105,9 +1114,18 @@ int Gui::drawPage(
 
                   PagePointer *pp = pagePointers.value(position);
                   if (pp) {
+                      Pointer          *p = nullptr;
                       int i               = pam.value().id - 1;
-                      Pointer          *p = pp->pointerList[i];
-                      if (pam.value().id == p->id) {
+                      int validIndex      = pp->pointerList.size() - 1; /*0-index*/
+                      if (i <= validIndex) {
+                          p = pp->pointerList[i];
+                      } else {
+                          parseError(QString("Invalid Page pointer attribute index.<br>"
+                                             "Expected value &#60;= %1, received %2")
+                                             .arg(validIndex).arg(i),current);
+                          break;
+                      }
+                      if (p && pam.value().id == p->id) {
                           pam.setAltValueInches(p->getPointerAttribInches());
                           p->setPointerAttribInches(pam);
                           pp->pointerList.replace(i,p);
@@ -1141,10 +1159,18 @@ int Gui::drawPage(
               if (callout) {
                   PointerAttribMeta pam = curMeta.LPub.callout.pointerAttrib;
                   pam.setValueInches(pam.parseAttributes(tokens,current));
-
+                  Pointer          *p = nullptr;
                   int i               = pam.value().id - 1;
-                  Pointer          *p = callout->pointerList[i];
-                  if (pam.value().id == p->id) {
+                  int validIndex      = callout->pointerList.size() - 1; /*0-index*/
+                  if (i <= validIndex) {
+                      p = callout->pointerList[i];
+                  } else {
+                      parseError(QString("Invalid Callout pointer attribute index.<br>"
+                                         "Expected value &#60;= %1, received %2")
+                                         .arg(validIndex).arg(i),current);
+                      break;
+                  }
+                  if (p && pam.value().id == p->id) {
                       pam.setAltValueInches(p->getPointerAttribInches());
                       p->setPointerAttribInches(pam);
                       callout->pointerList.replace(i,p);
