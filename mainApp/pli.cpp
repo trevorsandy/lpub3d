@@ -120,7 +120,7 @@ Pli::Pli(bool _bom) : bom(_bom)
   ia.sub[HIGHLIGHT_PART] = 0;
   ia.sub[NORMAL_PART] = 0;
 
-  isSubModel = false;  // isSubModel NOT USED - Moved to SubModelItem class
+  isSubModel = false;
 }
 
 /****************************************************************************
@@ -284,7 +284,9 @@ void Pli::setParts(
 
           QFileInfo info(type);
 
-          QString key = info.baseName() + "_" + color;
+          QString baseName = info.completeBaseName();
+
+          QString key = QString("%1_%2").arg(baseName).arg(color);
 
           QString sortCategory;
           partClass(type,sortCategory);  // populate sort category using part class and
@@ -305,7 +307,7 @@ void Pli::setParts(
               if (bom && displayElement) {
 
                   QString _colorid = color;
-                  QString _typeid  = QFileInfo(type).baseName();
+                  QString _typeid  = QFileInfo(type).completeBaseName();
 
                   int which = 0; // Bricklink
                   if ( pliMeta.partElements.legoElements.value())
@@ -392,7 +394,7 @@ void Pli::setParts(
           if (!bom || where.lineNumber == 0)
               where = here;
 
-          auto getGroupMeta = [this,&partGroups,&where,&info,
+          auto getGroupMeta = [this,&partGroups,&where,&baseName,
                                &found,&meta,&key,&color,&groupMeta]( )
           {
               if (!pliMeta.enablePliPartGroup.value())
@@ -413,7 +415,7 @@ void Pli::setParts(
 
               if (!found) {
                   _gd.bom              = bom;
-                  _gd.type             = info.baseName();
+                  _gd.type             = baseName;
                   _gd.color            = color;
                   _gd.group.modelName  = where.modelName;
                   _gd.group.lineNumber = where.lineNumber;
@@ -437,7 +439,6 @@ void Pli::setParts(
           }
 
           bool noCA = pliMeta.rotStep.value().type == "ABS";
-
 
           // extract substitute part arguments
           int subType = 0;
@@ -469,7 +470,7 @@ void Pli::setParts(
 
           // assemble image name key
           QString nameKey = QString("%1_%2_%3_%4_%5_%6_%7_%8_%9")
-              .arg(info.baseName())                            // 0
+              .arg(baseName)                                   // 0
               .arg(color)                                      // 1
               .arg(gui->pageSize(meta.LPub.page, 0))           // 2
               .arg(double(resolution()))                       // 3
@@ -736,60 +737,75 @@ QString Pli::orient(QString &color, QString type)
       .arg(type);
 }
 
-int Pli::createSubModelIcons() // NOT USED - Moved to SubModelItem class
+int Pli::createSubModelIcons()
 {
     int rc = 0;
-    QString key   = "";
-    QString color = "0"; // static submodel color code
-
-    Meta         _meta;
+    QString key;
+    QString type;
+    QString color;
+    Meta    _meta;
     meta       = &_meta;
     bom        = false;
     splitBom   = false;
     isSubModel = true;
     pliMeta    = meta->LPub.pli;
-    bool noCA = pliMeta.rotStep.value().type == "ABS";
+
+    auto setSubmodel = [this,&type,&color] (const int i)
+    {
+        color = "0";
+
+        type = gui->fileList()[i];
+
+        QFileInfo info(type);
+
+        QString baseName = info.completeBaseName();
+
+        QString key = QString("%1_%2").arg(baseName).arg(color);
+
+        float modelScale = 1.0;
+        if (Preferences::usingNativeRenderer) {
+            modelScale = pliMeta.cameraDistNative.factor.value();
+        } else {
+            modelScale = pliMeta.modelScale.value();
+        }
+
+        bool noCA = pliMeta.rotStep.value().type == "ABS";
+
+        // assemble icon name key
+        QString nameKey = QString("%1_%2_%3_%4_%5_%6_%7_%8_%9_%10")
+                .arg(baseName)
+                .arg(color)
+                .arg(gui->pageSize(meta->LPub.page, 0))
+                .arg(double(resolution()))
+                .arg(resolutionType() == DPI ? "DPI" : "DPCM")
+                .arg(double(modelScale))
+                .arg(double(pliMeta.cameraFoV.value()))
+                .arg(noCA ? 0.0 : double(pliMeta.cameraAngles.value(0)))
+                .arg(noCA ? 0.0 : double(pliMeta.cameraAngles.value(1)))
+                .arg(renderer->getRotstepMeta(pliMeta.rotStep,true));
+        if ( ! parts.contains(key)) {
+            AnnotationStyleMeta styleMeta;
+            styleMeta.margin = pliMeta.annotate.margin;
+            styleMeta.font   = pliMeta.annotate.font;
+            styleMeta.color  = pliMeta.annotate.color;
+
+            PliPart *part = new PliPart(type,color);
+            part->styleMeta    = styleMeta;
+            part->instanceMeta = pliMeta.instance;
+            part->csiMargin    = pliMeta.part.margin;
+            part->sortColour   = QString("%1").arg(color,5,'0');
+            part->sortCategory = QString();
+            part->nameKey      = nameKey;
+            part->imageName    = QString();
+            parts.insert(key,part);
+        }
+        return key;
+    };
 
     if (renderer->useLDViewSCall()) {
 
         for (int i = 0; i < gui->fileList().size(); i++) {
-
-            QString type = gui->fileList()[i];
-
-            key = QString("%1_%2").arg(QFileInfo(type).baseName()).arg(color);
-
-            float modelScale = 1.0f;
-            if (Preferences::usingNativeRenderer) {
-                modelScale = pliMeta.cameraDistNative.factor.value();
-            } else {
-                modelScale = pliMeta.modelScale.value();
-            }
-
-            // assemble icon name key
-            QString nameKey = QString("%1_%2_%3_%4_%5_%6_%7")
-                    .arg(key)
-                    .arg(gui->pageSize(meta->LPub.page, 0))
-                    .arg(double(resolution()))
-                    .arg(resolutionType() == DPI ? "DPI" : "DPCM")
-                    .arg(double(modelScale))
-                    .arg(noCA ? 0.0 : double(pliMeta.cameraAngles.value(0)))
-                    .arg(noCA ? 0.0 : double(pliMeta.cameraAngles.value(1)));
-            if ( ! parts.contains(key)) {
-                AnnotationStyleMeta styleMeta;
-                styleMeta.margin = pliMeta.annotate.margin;
-                styleMeta.font   = pliMeta.annotate.font;
-                styleMeta.color  = pliMeta.annotate.color;
-
-                PliPart *part = new PliPart(type,color);
-                part->styleMeta    = styleMeta;
-                part->instanceMeta = pliMeta.instance;
-                part->csiMargin    = pliMeta.part.margin;
-                part->sortColour   = QString("%1").arg(color,5,'0');
-                part->sortCategory = QString();
-                part->nameKey      = nameKey;
-                part->imageName    = QString();
-                parts.insert(key,part);
-            }
+            setSubmodel(i);
         }
         rc = partSizeLDViewSCall();
 
@@ -799,21 +815,13 @@ int Pli::createSubModelIcons() // NOT USED - Moved to SubModelItem class
             emit gui->progressPermResetSig();
             emit gui->progressPermMessageSig("Rendering submodel icons...");
             emit gui->progressPermRangeSig(1, gui->fileList().size());
-          }
-
+        }
         for (int i = 0; i < gui->fileList().size(); i++) {
-
-            if (Preferences::modeGUI && ! gui->exporting())
-                emit gui->progressPermSetValueSig(i);
-
-            QString type = gui->fileList()[i];
-            key = QString("%1_%2").arg(QFileInfo(type).baseName()).arg(color);
-
-            if ( ! parts.contains(key))
-                emit gui->messageSig(LOG_ERROR, QString("Submodel part for key %1 not found.").arg(key));
-
-            if ((rc = createPartImage(parts[key]->nameKey,type,color,nullptr)) != 0) {
-                emit gui->messageSig(LOG_ERROR, QString("Failed to create submodel icon for key %1").arg(key));
+            key = setSubmodel(i);
+            if ((createPartImage(parts[key]->nameKey,type,color,nullptr) != 0)) {
+                emit gui->messageSig(LOG_ERROR, QString("Failed to create submodel icon for key %1").arg(parts[key]->nameKey));
+                rc = -1;
+                continue;
             }
         }
         if (Preferences::modeGUI && ! gui->exporting()) {
@@ -832,6 +840,7 @@ int Pli::createPartImage(
     int       subType)
 {
 
+    int rc = 0;
     fadeSteps = Preferences::enableFadeSteps ;
     displayIcons = gApplication->mPreferences.mViewPieceIcons;
     fadeColour = LDrawColor::ldColorCode(Preferences::validFadeStepsColour);
@@ -863,7 +872,7 @@ int Pli::createPartImage(
     PliType pliType = isSubModel ? SUBMODEL: bom ? BOM : PART;
 
     for (int pT = 0; pT < ptn.size(); pT++ ) {
-
+        int ptRc = 0;
 #ifdef QT_DEBUG_MODE
         QString CurrentPartType = PartTypeNames[pT];
 #endif
@@ -875,7 +884,7 @@ int Pli::createPartImage(
         bool showElapsedTime = false;
 
         // moved from enum to save weight
-        ia.baseName[pT] = QFileInfo(type).baseName();
+        ia.baseName[pT] = QFileInfo(type).completeBaseName();
         ia.partColor[pT] = (pT == FADE_PART && fadeSteps && Preferences::fadeStepsUseColour) ? fadeColour : color;
 
         emit gui->messageSig(LOG_INFO, QString("Render PLI image for [%1] parts...").arg(PartTypeNames[pT]));
@@ -898,7 +907,8 @@ int Pli::createPartImage(
                 emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open file for writing %1:\n%2.")
                                      .arg(ldrNames.first())
                                      .arg(part.errorString()));
-                return -1;
+                ptRc = -1;
+                continue;
             }
 
             // define ldr file name
@@ -910,10 +920,10 @@ int Pli::createPartImage(
             // generate PLI Part file
             QStringList pliFile;
             pliFile = configurePLIPart(
-                      pT,
-                      typeName,
-                      nameKeys,
-                      keySub);
+                        pT,
+                        typeName,
+                        nameKeys,
+                        keySub);
 
             if (Preferences::usingNativeRenderer) {
                 // add ROTSTEP command
@@ -923,7 +933,7 @@ int Pli::createPartImage(
                     pliFile.prepend(renderer->getRotstepMeta(pliMeta.rotStep));
 
                 // header and closing meta
-                QString modelName = QFileInfo(type).baseName();
+                QString modelName = QFileInfo(type).completeBaseName();
                 modelName = modelName.replace(
                             modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper());
                 pliFile.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(modelName));
@@ -944,12 +954,14 @@ int Pli::createPartImage(
             part.close();
 
             // feed DAT to renderer
-            int rc = renderer->renderPli(ldrNames,imageName,*meta,pliType,keySub);
-
-            if (rc != 0) {
-                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render failed for %1").arg(imageName));
-                return -1;
-             }
+            if ((renderer->renderPli(ldrNames,imageName,*meta,pliType,keySub) != 0)) {
+                emit gui->messageSig(LOG_ERROR,QString("%1 PLI [%2] render failed for<br>[%3]")
+                                                       .arg(Render::getRenderer())
+                                                       .arg(PartTypeNames[pT])
+                                                       .arg(imageName));
+                imageName = QString(":/resources/missingimage.png");
+                ptRc = -1;
+            }
         }
 
         // create icon path key - using actual color code
@@ -974,31 +986,35 @@ int Pli::createPartImage(
         if (pixmap && (pT == NORMAL_PART))
             pixmap->load(imageName);
 
-        if (showElapsedTime)
-            emit gui->messageSig(LOG_INFO, QString("%1 PLI [%2] render took %3 milliseconds "
-                                                   "to render image [%4].")
-                                                   .arg(Render::getRenderer())
-                                                   .arg(PartTypeNames[pT])
-                                                   .arg(timer.elapsed())
-                                                   .arg(imageName));
+        if (showElapsedTime) {
+            if (!ptRc) {
+                emit gui->messageSig(LOG_INFO,QString("%1 PLI [%2] render took %3 milliseconds "
+                                                      "to render image [%4].")
+                                                      .arg(Render::getRenderer())
+                                                      .arg(PartTypeNames[pT])
+                                                      .arg(timer.elapsed())
+                                                      .arg(imageName));
+            } else {
+               rc = ptRc;
+            }
+        }
     }
 
-  return 0;
+  return rc;
 }
 
 // LDView performance improvement
 int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart, int sub) {
+    int rc = 0;
 
     emit gui->messageSig(LOG_INFO, "Render PLI images using LDView Single Call...");
 
     if (! ldrNames.isEmpty()) {
-
         // feed DAT to renderer
         PliType pliType = isSubModel ? SUBMODEL: bom ? BOM : PART;
-        int rc = renderer->renderPli(ldrNames,QString(),*meta,pliType,sub);
-        if (rc != 0) {
-            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render failed for Pli images."));
-            return -1;
+        renderer->renderPli(ldrNames,QString(),*meta,pliType,sub);
+        if ((renderer->renderPli(ldrNames,QString(),*meta,pliType,sub) != 0)) {
+            rc = -1;
         }
     }
 
@@ -1015,13 +1031,16 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart, i
             // instantiate pixmps //ERROR
             QPixmap *pixmap = new QPixmap();
             if (pixmap == nullptr) {
-                return -1;
+                rc = -1;
+                continue;
             }
 
             if (! pixmap->load(part->imageName)) {
-                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot load PLI pixmap image %1 is not a file.")
+                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load PLI pixmap image.<br>%1 was not found.")
                                      .arg(part->imageName));
-                return -1;
+                rc = -1;
+                if (! pixmap->load(QString(":/resources/missingimage.png")))
+                    continue;
             }
 
             // transfer image info to part
@@ -1200,7 +1219,7 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart, i
             }
         }
     }
-    return 0;
+    return rc;
 }
 
 QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKeys, int keySub) {
@@ -1909,8 +1928,7 @@ int Pli::partSize()
 
               if (createPartImage(part->nameKey,part->type,part->color,pixmap,part->subType)) {
                   emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Failed to create PLI part for key %1")
-                                       .arg(key));
-                  return -1;
+                                       .arg(part->nameKey));
               }
 
               QImage image = pixmap->toImage();
@@ -2171,7 +2189,7 @@ int Pli::partSizeLDViewSCall() {
                 // pass substitute key to single call list - createPartImagesLDViewSCall()
                 if (keySub && !ia.sub[pT])
                     ia.sub[pT] = keySub;
-                ia.baseName[pT] = QFileInfo(pliPart->type).baseName();
+                ia.baseName[pT] = QFileInfo(pliPart->type).completeBaseName();
                 ia.partColor[pT] = (pT == FADE_PART && fadeSteps && Preferences::fadeStepsUseColour) ? fadeColour : pliPart->color;
 
                 // assemble ldr name
@@ -2283,6 +2301,7 @@ int Pli::partSizeLDViewSCall() {
 
     for (int pT = 0; pT < ptn.size(); pT++ ) {   // for every part type
 
+        int ptRc = 0;
         if (isSubModel && Preferences::modeGUI && ! gui->exporting())
             emit gui->progressPermSetValueSig(pT);
 
@@ -2298,8 +2317,9 @@ int Pli::partSizeLDViewSCall() {
 
         if (ia.sub[pT])
             iaSub = ia.sub[pT]; // keySub
-        if ((rc = createPartImagesLDViewSCall(ia.ldrNames[pT],(isSubModel ? false : pT == NORMAL_PART),iaSub)) != 0) {
-            emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Failed to create PLI part images using LDView Single Call"));
+        if ((createPartImagesLDViewSCall(ia.ldrNames[pT],(isSubModel ? false : pT == NORMAL_PART),iaSub) != 0)) {
+            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView Single Call PLI render failed."));
+            ptRc = -1;
             continue;
         }
 
@@ -2307,25 +2327,27 @@ int Pli::partSizeLDViewSCall() {
             emit gui->setPliIconPathSig(ia.imageKeys[pT][i],ia.imageNames[pT][i]);
         }
 
-        if (!ia.ldrNames[pT].isEmpty())
-            emit gui->messageSig(LOG_INFO, QString("%1 PLI (Single Call) for [%2] render took "
-                                                   "%3 milliseconds to render %4.")
-                                                   .arg(Render::getRenderer())
-                                                   .arg(PartTypeNames[pT])
-                                                   .arg(timer.elapsed())
-                                                   .arg(QString("%1 %2")
-                                                                .arg(ia.ldrNames[pT].size())
-                                                                .arg(ia.ldrNames[pT].size() == 1 ? "image" : "images")));
+        if (!ia.ldrNames[pT].isEmpty()) {
+            if (!ptRc) {
+                emit gui->messageSig(LOG_INFO, QString("%1 PLI (Single Call) for [%2] render took "
+                                                       "%3 milliseconds to render %4.")
+                                                       .arg(Render::getRenderer())
+                                                       .arg(PartTypeNames[pT])
+                                                       .arg(timer.elapsed())
+                                                       .arg(QString("%1 %2")
+                                                            .arg(ia.ldrNames[pT].size())
+                                                            .arg(ia.ldrNames[pT].size() == 1 ? "image" : "images")));
+            } else {
+                rc = ptRc;
+            }
+        }
     }
 
     if (isSubModel && Preferences::modeGUI && ! gui->exporting()) {
       emit gui->progressPermSetValueSig(ptn.size());
     }
 
-    if (rc != 0)
-        return rc;
-
-    return 0;
+    return rc;
 }
 
 int Pli::sizePli(Meta *_meta, PlacementType _parentRelativeType, bool _perStep)

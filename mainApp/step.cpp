@@ -276,7 +276,7 @@ int Step::createCsi(
       }
   }
 
-  int rc;
+  int rc = 0;
 
   // Populate viewerCsiKey variable
   viewerCsiKey = QString("\"%1\"%2;%3%4")
@@ -344,10 +344,8 @@ int Step::createCsi(
          if ((rc = renderer->rotateParts(addLine, meta.rotStep, csiParts, ldrName, top.modelName, absRotstep ? noCA : meta.LPub.assem.cameraAngles)) != 0) {
              emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate CSI ldr file: %1.")
                                                    .arg(ldrName));
-             pixmap->load(":/resources/placeholderimage.png");  // image placeholder
-             csiPlacement.size[0] = 32;
-             csiPlacement.size[1] = 32;
-             return rc;
+             pngName = QString(":/resources/missingimage.png");
+             rc = -1;
          }
      }
 
@@ -359,16 +357,15 @@ int Step::createCsi(
          QStringList csiKeys = QStringList() << csiKey; // adding just a single key
 
          if ((rc = renderer->renderCsi(addLine, csiParts, csiKeys, pngName, meta)) != 0) {
-             emit gui->messageSig(LOG_ERROR,QString("Render CSI part failed for %1.")
-                                                            .arg(pngName));
-             pixmap->load(":/resources/placeholderimage.png");  // image placeholder
-             csiPlacement.size[0] = PLACEHOLDER_IMAGE_WIDTH;
-             csiPlacement.size[1] = PLACEHOLDER_IMAGE_HEIGHT;
-             return rc;
+             emit gui->messageSig(LOG_ERROR,QString("%1 CSI render failed for<br>%2")
+                                                    .arg(Render::getRenderer())
+                                                    .arg(pngName));
+             pngName = QString(":/resources/missingimage.png");
+             rc = -1;
          }
      }
 
-     if (showStatus) {
+     if (showStatus && !rc) {
          emit gui->messageSig(LOG_INFO,
                                   QString("%1 CSI render call took %2 milliseconds "
                                           "to render %3 for %4 %5 %6 on page %7.")
@@ -383,9 +380,9 @@ int Step::createCsi(
 
      if (gui->exportingObjects() && gui->m_partListCSIFile){
          pixmap->load(":/resources/placeholderimage.png");  // image placeholder
-         csiPlacement.size[0] = PLACEHOLDER_IMAGE_WIDTH;
-         csiPlacement.size[1] = PLACEHOLDER_IMAGE_HEIGHT;
-         return 0;
+         csiPlacement.size[0] = pixmap->width();
+         csiPlacement.size[1] = pixmap->height();
+         return rc;
      }
   }
 
@@ -411,7 +408,7 @@ int Step::createCsi(
       csiPlacement.size[1] = pixmap->height();
   }
 
-  return 0;
+  return rc;
 }
 
 bool Step::loadTheViewer(){

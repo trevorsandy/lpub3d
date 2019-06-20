@@ -322,8 +322,7 @@ float Render::getPovrayRenderCameraDistance(const QString &cdKeys){
 const QStringList Render::getSubAttributes(const QString &nameKey)
 {
     QFileInfo fileInfo(nameKey);
-    QString cleanString = fileInfo.fileName();
-    cleanString.chop(fileInfo.suffix().size()+1);
+    QString cleanString = fileInfo.completeBaseName();
     if (Preferences::enableFadeSteps && nameKey.endsWith(FADE_SFX))
         cleanString.chop(QString(FADE_SFX).size());
     else
@@ -1774,10 +1773,6 @@ int Native::renderCsi(
   }
 
   if (!RenderNativeImage(Options)) {
-      emit gui->messageSig(LOG_ERROR,QString("Native %1 render failed.")
-                          .arg(Options.ExportMode == EXPORT_NONE ? QString("CSI image") :
-                               QString("CSI %1 object").arg(nativeExportNames[gui->exportMode])));
-      // delete CsiImageProject;
       return -1;
   }
 
@@ -1842,8 +1837,6 @@ int Native::renderPli(
   emit gui->messageSig(LOG_STATUS, "Rendering Native PLI image - please wait...");
 
   if (!RenderNativeImage(Options)) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Native PLI image render failed."));
-      //delete PliImageProject;
       return -1;
   }
 
@@ -1891,72 +1884,81 @@ bool Render::RenderNativeImage(const NativeOptions &Options)
     const int ImageWidth  = Options.ImageWidth;
     const int ImageHeight = Options.ImageHeight;
 
-    if (!View.BeginRenderToImage(ImageWidth, ImageHeight))
+    bool rc = true;
+    if (!(rc = View.BeginRenderToImage(ImageWidth, ImageHeight)))
     {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not begin RenderToImage for Native %1 image.").arg(ImageType));
-        return false;
+        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not begin RenderToImage for Native %1 image.<br>"
+                                                       "Render framebuffer is not valid").arg(ImageType));
     }
 
-    ActiveModel->SetTemporaryStep(CurrentStep);
+    if (rc) {
 
-    View.OnDraw();
+        ActiveModel->SetTemporaryStep(CurrentStep);
 
-    struct NativeImage
-    {
-        QImage RenderedImage;
-        QRect Bounds;
-    };
+        View.OnDraw();
 
-    NativeImage Image;
-    Image.RenderedImage = View.GetRenderImage();
-
-    auto CalculateImageBounds = [](NativeImage& Image)
-    {
-        QImage& RenderedImage = Image.RenderedImage;
-        int Width = RenderedImage.width();
-        int Height = RenderedImage.height();
-
-        int MinX = Width;
-        int MinY = Height;
-        int MaxX = 0;
-        int MaxY = 0;
-
-        for (int x = 0; x < Width; x++)
+        struct NativeImage
         {
-            for (int y = 0; y < Height; y++)
+            QImage RenderedImage;
+            QRect Bounds;
+        };
+
+        NativeImage Image;
+        Image.RenderedImage = View.GetRenderImage();
+
+        auto CalculateImageBounds = [](NativeImage& Image)
+        {
+            QImage& RenderedImage = Image.RenderedImage;
+            int Width = RenderedImage.width();
+            int Height = RenderedImage.height();
+
+            int MinX = Width;
+            int MinY = Height;
+            int MaxX = 0;
+            int MaxY = 0;
+
+            for (int x = 0; x < Width; x++)
             {
-                if (qAlpha(RenderedImage.pixel(x, y)))
+                for (int y = 0; y < Height; y++)
                 {
-                    MinX = qMin(x, MinX);
-                    MinY = qMin(y, MinY);
-                    MaxX = qMax(x, MaxX);
-                    MaxY = qMax(y, MaxY);
+                    if (qAlpha(RenderedImage.pixel(x, y)))
+                    {
+                        MinX = qMin(x, MinX);
+                        MinY = qMin(y, MinY);
+                        MaxX = qMax(x, MaxX);
+                        MaxY = qMax(y, MaxY);
+                    }
                 }
             }
+
+            Image.Bounds = QRect(QPoint(MinX, MinY), QPoint(MaxX, MaxY));
+        };
+
+        CalculateImageBounds(Image);
+
+        QImageWriter Writer(Options.OutputFileName);
+
+        if (Writer.format().isEmpty())
+            Writer.setFormat("PNG");
+
+        if (!Writer.write(QImage(Image.RenderedImage.copy(Image.Bounds))))
+        {
+            emit gui->messageSig(LOG_ERROR,QString("Could not write to Native %1 %2 file:<br>[%3].<br>Reason: %4.<br>"
+                                                   "Ensure Field of View (default is 30) and Camera Distance Factor <br>"
+                                                   "are configured for the Native Renderer")
+                                                   .arg(ImageType)
+                                                   .arg(Options.ExportMode == EXPORT_NONE ?
+                                                        QString("image") :
+                                                        QString("%1 object")
+                                                                .arg(nativeExportNames[gui->exportMode]))
+                                                   .arg(Options.OutputFileName)
+                                                   .arg(Writer.errorString()));
+            rc = false;
         }
 
-        Image.Bounds = QRect(QPoint(MinX, MinY), QPoint(MaxX, MaxY));
-    };
-
-    CalculateImageBounds(Image);
-
-    QImageWriter Writer(Options.OutputFileName);
-
-    if (Writer.format().isEmpty())
-        Writer.setFormat("PNG");
-
-    bool rc = true;
-    if (!Writer.write(QImage(Image.RenderedImage.copy(Image.Bounds))))
-    {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not write to Native %1 image file '%2'.<br>%3.<br>"
-                                                       "Ensure Field of View (default is 30) and Camera Distance Factor <br>"
-                                                       "are configured for the Native Renderer.<br>")
-                             .arg(ImageType)
-                             .arg(Options.OutputFileName).arg(Writer.errorString()));
-        rc = false;
+        View.EndRenderToImage();
     }
 
-    View.EndRenderToImage();
     Context->ClearResources();
 
     ActiveModel->SetTemporaryStep(CurrentStep);
@@ -1964,12 +1966,13 @@ bool Render::RenderNativeImage(const NativeOptions &Options)
     if (!ActiveModel->mActive)
         ActiveModel->CalculateStep(LC_STEP_MAX);
 
-     emit gui->messageSig(LOG_INFO,QMessageBox::tr("Native %1 image file rendered '%2'")
+    if (rc)
+        emit gui->messageSig(LOG_INFO,QMessageBox::tr("Native %1 image file rendered '%2'")
                           .arg(ImageType).arg(Options.OutputFileName));
 
     if (Options.ExportMode != EXPORT_NONE) {
         if (!NativeExport(Options)) {
-            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("CSI Objects render failed."));
+            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("%1 Objects render failed.").arg(ImageType));
             rc = false;
         }
     }

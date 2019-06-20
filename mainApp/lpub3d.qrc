@@ -121,6 +121,7 @@
         <file alias="LPub64.png">resources/LPub64.png</file>
         <file alias="margins.png">resources/margins.png</file>
         <file alias="minus.png">resources/minus.png</file>
+        <file alias="missingimage.png">resources/missingimage.png</file>
         <file alias="new.png">resources/new.png</file>
         <file alias="next.png">resources/next.png</file>
         <file alias="nextpagecontinuous.png">resources/nextpagecontinuous.png</file>

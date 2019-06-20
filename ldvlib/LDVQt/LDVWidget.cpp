@@ -483,7 +483,7 @@ bool LDVWidget::loadModel(const char *filename)
     if (setDirFromFilename(filename))
     {
         emit lpubAlert->messageSig(LOG_INFO_STATUS, QString("Loading %1. Please wait...")
-                                   .arg(QFileInfo(filename).baseName()));
+                                   .arg(QFileInfo(filename).completeBaseName()));
         modelViewer->setFilename(filename);
         if (! modelViewer->loadModel())
         {
@@ -650,7 +650,7 @@ void LDVWidget::doPartList(void)
                 {
                     emit lpubAlert->messageSig(LOG_STATUS, QString("No filename received from modelViewer."));
                 }
-                filename = QFileInfo(filename).baseName();
+                filename = QFileInfo(filename).completeBaseName();
                 filename = filename.left(int(filename.length()) - 6); // remove _parts
                 filename += ".html";
 
@@ -794,13 +794,13 @@ void LDVWidget::showDocument(QString &htmlFilename){
           return;
         } else {
           emit lpubAlert->messageSig(LOG_INFO_STATUS, QString("%1 HTML part list generation completed!")
-                                                         .arg(QFileInfo(htmlFilename).baseName()));
+                                                         .arg(QFileInfo(htmlFilename).completeBaseName()));
           return;
 
         }
   } else {
       emit lpubAlert->messageSig(LOG_ERROR, QString("Generation failed for %1 HTML Part List.")
-                                                    .arg(QFileInfo(htmlFilename).baseName()));
+                                                    .arg(QFileInfo(htmlFilename).completeBaseName()));
   }
 }
 

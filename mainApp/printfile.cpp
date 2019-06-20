@@ -624,7 +624,7 @@ void Gui::exportAsHtml()
                                   .arg(suffix ? QFileInfo(getCurFile()).suffix() : "ldr");
 
     // generate HTML parts list
-    QString ldrBaseFile = QDir::currentPath()+QDir::separator()+Paths::tmpDir+QDir::separator()+QFileInfo(curFile).baseName();
+    QString ldrBaseFile = QDir::currentPath()+QDir::separator()+Paths::tmpDir+QDir::separator()+QFileInfo(curFile).completeBaseName();
     QString partListFile = QDir::toNativeSeparators(ldrBaseFile+"_parts.ldr");
     if (! generateBOMPartsFile(partListFile))
         return;
@@ -666,7 +666,7 @@ void Gui::exportAsCsv()
     Options.ExportMode        = EXPORT_CSV;
     Options.OutputFileName    = QDir::toNativeSeparators(QString(curFile).replace(QFileInfo(curFile).suffix(),"txt"));
     Options.InputFileName     = QDir::toNativeSeparators(QDir::currentPath()+QDir::separator()+
-                                      Paths::tmpDir+QDir::separator()+QFileInfo(curFile).baseName()+"_parts.ldr");
+                                      Paths::tmpDir+QDir::separator()+QFileInfo(curFile).completeBaseName()+"_parts.ldr");
     if (! generateBOMPartsFile(Options.InputFileName))
         return;
     if (! renderer->NativeExport(Options)) {
@@ -681,7 +681,7 @@ void Gui::exportAsBricklinkXML()
     Options.ExportMode        = EXPORT_BRICKLINK;
     Options.OutputFileName    = QDir::toNativeSeparators(QString(curFile).replace(QFileInfo(curFile).suffix(),"xml"));
     Options.InputFileName     = QDir::toNativeSeparators(QDir::currentPath()+QDir::separator()+
-                                      Paths::tmpDir+QDir::separator()+QFileInfo(curFile).baseName()+"_parts.ldr");
+                                      Paths::tmpDir+QDir::separator()+QFileInfo(curFile).completeBaseName()+"_parts.ldr");
     if (! generateBOMPartsFile(Options.InputFileName))
         return;
     if (! renderer->NativeExport(Options)) {

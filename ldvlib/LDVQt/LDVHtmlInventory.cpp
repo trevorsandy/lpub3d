@@ -602,7 +602,7 @@ bool LDVHtmlInventory::generateHtml(
 		ProgressDialog->setWindowFlags(ProgressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
 		ProgressDialog->setWindowTitle(QString("HTML Part List"));
 		ProgressDialog->setLabelText(QString("Generating %1 HTML Part List...")
-											 .arg(QFileInfo(filename).baseName()));
+											 .arg(QFileInfo(filename).completeBaseName()));
 		ProgressDialog->setMinimum(0);
 		ProgressDialog->setValue(0);
 		ProgressDialog->setCancelButton(nullptr);
@@ -626,7 +626,7 @@ bool LDVHtmlInventory::generateHtml(
 			const IntVector &colors = partCount.getColors();
 			int elements = (int)colors.size();
 			uniqueElements += elements;
-			QString ldPartId(QFileInfo(QString::fromStdString(partCount.getFilename())).baseName());
+			QString ldPartId(QFileInfo(QString::fromStdString(partCount.getFilename())).completeBaseName());
 			partList.append(ldPartId);
 			for (j = 0; j < elements; j++)
 			{
