@@ -1342,7 +1342,6 @@ void LDrawFile::countParts(const QString &fileName){
     emit gui->messageSig(LOG_STATUS, QString("Processing subfile '%1'").arg(fileName));
 
     int sfCount = 0;
-    bool doCountPart = true;
 
     QRegExp validExtRx("\\.DAT|\\.LDR|\\.MPD$",Qt::CaseInsensitive);
 
@@ -1357,6 +1356,8 @@ void LDrawFile::countParts(const QString &fileName){
             QString line = f->_contents[i];
 
             split(line,tokens);
+
+            bool doCountPart = true;
 
 // interrogate each line
 //          if (tokens[0] != "1") {
