@@ -20,6 +20,7 @@
 #include <LDLib/LDrawModelViewer.h>
 #include "ui_LDVExportOptionPanel.h"
 #include <QSpinBox>
+#include <QCheckBox>
 #include <QLabel>
 #include <QComboBox>
 
@@ -63,8 +64,10 @@ public slots:
 
 private slots:
     void applyLights(void);
+    void applyLights(bool);
     void setLights(void);
     void setLights(int);
+    void setLights(double);
     void addLight(void);
     void removeLight(void);
     void selectLight(int);
@@ -84,13 +87,16 @@ protected:
 
     QComboBox        *m_liCombo;
     QLineEdit        *m_liNumEdit;
-    QLineEdit        *m_liLatEdit;
-    QLineEdit        *m_liLonEdit;
-    QLineEdit        *m_liIntEdit;
-    QLineEdit        *m_liASizeEdit;
+    QCheckBox        *m_liShadowsChk;
+    QDoubleSpinBox   *m_liLatSpin;
+    QDoubleSpinBox   *m_liLonSpin;
+    QDoubleSpinBox   *m_liIntSpin;
+    QSpinBox         *m_liASizeSpin;
     QSpinBox         *m_liALightsSpin;
+
     QLabel           *m_messageLabel;
     QStringList       m_pov_lightList;
+    int               m_number;
 };
 
 #endif // __LDVIEWExportOption_H__

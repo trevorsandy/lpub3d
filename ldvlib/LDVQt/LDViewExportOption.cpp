@@ -42,7 +42,8 @@ LDViewExportOption::LDViewExportOption(LDVWidget *modelWidget)
     m_exporter(nullptr),
     m_box(nullptr),
     m_lay(nullptr),
-    m_POVLightsLoaded(false)
+    m_POVLightsLoaded(false),
+    m_number(0)
 {
     setupUi(this);
 
@@ -319,13 +320,16 @@ void LDViewExportOption::populateExportSettings(void)
 
                    label = new QLabel(TCObject::ls("PovLightNum"),this);
                    grid->addWidget(label,0,0,1,1);
-                   label = new QLabel(TCObject::ls("PovLatitude"),this);
+                   label = new QLabel(TCObject::ls("PovLightShads"),this);
                    grid->addWidget(label,0,1,1,1);
-                   label = new QLabel(TCObject::ls("PovLongitude"),this);
+                   label = new QLabel(TCObject::ls("PovLatitude"),this);
                    grid->addWidget(label,0,2,1,1);
+                   label = new QLabel(TCObject::ls("PovLongitude"),this);
+                   grid->addWidget(label,0,3,1,1);
 
                    vbox = new QVBoxLayout();
-                   grid->addItem(vbox,1,3,5,1);
+                   grid->addItem(vbox,1,4,5,1);
+
                    QPushButton *abut = new QPushButton(this);
                    abut->setText(TCObject::ls("PovAddLight"));
                    vbox->addWidget(abut);
@@ -337,58 +341,72 @@ void LDViewExportOption::populateExportSettings(void)
                    m_liNumEdit->setReadOnly(true);
                    validator = new QIntValidator(0, 127, this);
                    m_liNumEdit->setValidator(validator);
-                   grid->addWidget(m_liNumEdit,1,0,1,1);
+                   grid->addWidget(m_liNumEdit,2,0,1,1);
                    connect( m_liNumEdit, SIGNAL( editingFinished() ), this, SLOT( applyLights() ) );
 
-                   m_liLatEdit =  new QLineEdit(this);
-                   validator = new QDoubleValidator(-360, 360, 4,this);
-                   m_liLatEdit->setValidator(validator);
-                   grid->addWidget(m_liLatEdit,1,1,1,1);
-                   connect( m_liLatEdit, SIGNAL( editingFinished() ), this, SLOT( applyLights() ) );
+                   // insert QCheckBox here...
+                   m_liShadowsChk =  new QCheckBox(QString("Enabled"),this);
+                   grid->addWidget(m_liShadowsChk,2,1,1,1);
+                   connect( m_liShadowsChk, SIGNAL( clicked(bool) ), this, SLOT( applyLights() ) );
 
-                   m_liLonEdit =  new QLineEdit(this);
-                   validator = new QDoubleValidator(-360, 360, 4,this);
-                   m_liLonEdit->setValidator(validator);
-                   grid->addWidget(m_liLonEdit,1,2,1,1);
-                   connect( m_liLonEdit, SIGNAL( editingFinished() ), this, SLOT( applyLights() ) );
+                   m_liLatSpin =  new QDoubleSpinBox(this);
+                   m_liLatSpin->setRange(-360.0, 360.0);
+                   m_liLatSpin->setDecimals(1);
+                   m_liLatSpin->setSingleStep(1);
+                   grid->addWidget(m_liLatSpin,2,2,1,1);
+                   connect( m_liLatSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
+
+                   m_liLonSpin =  new QDoubleSpinBox(this);
+                   m_liLonSpin->setRange(-360.0, 360.0);
+                   m_liLonSpin->setDecimals(1);
+                   m_liLonSpin->setSingleStep(1);
+                   grid->addWidget(m_liLonSpin,2,3,1,1);
+                   connect( m_liLonSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
 
                    QPushButton *rbut = new QPushButton(this);
                    rbut->setText(TCObject::ls("PovRemoveLight"));
                    vbox->addWidget(rbut);
                    connect( rbut, SIGNAL( clicked() ), this, SLOT( removeLight()));
 
+                   sp = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Minimum);
+                   grid->addItem(sp,3,0,1,1);
                    label = new QLabel(TCObject::ls("PovLightIntensity"),this);
-                   grid->addWidget(label,2,0,1,1);
+                   grid->addWidget(label,3,1,1,1);
                    label = new QLabel(TCObject::ls("PovLightAreaSize"),this);
-                   grid->addWidget(label,2,1,1,1);
+                   grid->addWidget(label,3,2,1,1);
                    label = new QLabel(TCObject::ls("PovAreaLightsNum"),this);
-                   grid->addWidget(label,2,2,1,1);
+                   grid->addWidget(label,3,3,1,1);
 
                    sp = new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
                    vbox->addSpacerItem(sp);
 
-                   m_liIntEdit =  new QLineEdit(this);
-                   validator = new QDoubleValidator(0.0, 100, 4,this);
-                   m_liIntEdit->setValidator(validator);
-                   grid->addWidget(m_liIntEdit,3,0,1,1);
-                   connect( m_liIntEdit, SIGNAL( editingFinished() ), this, SLOT( applyLights() ) );
+                   sp = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Minimum);
+                   grid->addItem(sp,4,0,1,1);
+                   m_liIntSpin =  new QDoubleSpinBox(this);
+                   m_liIntSpin->setRange(0.0,100);
+                   m_liIntSpin->setDecimals(2);
+                   m_liIntSpin->setSingleStep(0.1);
+                   grid->addWidget(m_liIntSpin,4,1,1,1);
+                   connect( m_liIntSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
 
-                   m_liASizeEdit =  new QLineEdit(this);
-                   validator = new QIntValidator(0, 20000, this);
-                   m_liASizeEdit->setValidator(validator);
-                   grid->addWidget(m_liASizeEdit,3,1,1,1);
-                   connect( m_liASizeEdit, SIGNAL( editingFinished() ), this, SLOT( applyLights() ) );
+                   m_liASizeSpin =  new QSpinBox(this);
+                   m_liASizeSpin->setRange(0,10000);
+                   m_liASizeSpin->setSingleStep(1);
+                   grid->addWidget(m_liASizeSpin,4,2,1,1);
+                   connect( m_liASizeSpin, SIGNAL( valueChanged(int) ), this, SLOT( setLights(int) ) );
 
                    m_liALightsSpin =  new QSpinBox(this);
-                   grid->addWidget(m_liALightsSpin,3,2,1,1);
+                   m_liALightsSpin->setRange(0,100);
+                   m_liALightsSpin->setSingleStep(1);
+                   grid->addWidget(m_liALightsSpin,4,3,1,1);
                    connect( m_liALightsSpin, SIGNAL( valueChanged(int) ), this, SLOT( setLights(int)));
 
                    m_liCombo = new QComboBox(this);
-                   grid->addWidget(m_liCombo,4,0,1,3);
+                   grid->addWidget(m_liCombo,5,0,1,4);
                    connect( m_liCombo, SIGNAL( currentIndexChanged(int) ), this, SLOT( selectLight(int)));
 
                    m_messageLabel = new QLabel(this);
-                   grid->addWidget(m_messageLabel,5,0,1,4);
+                   grid->addWidget(m_messageLabel,6,0,1,5);
 
                    setLights();
 
@@ -533,6 +551,7 @@ void LDViewExportOption::doResetGroup()
 
 void LDViewExportOption::resetSettings(SettingsMap &settings)
 {
+    m_number = 0;
     SettingsMap::const_iterator it;
     QString value;
 
@@ -658,13 +677,16 @@ void LDViewExportOption::setLights(void)
 {
     QStringList tempList;
     QStringList lights;
+    int number = 0;
     m_liCombo->clear();
     foreach (QString light, m_pov_lightList){
+        number++;
         tempList = light.split(" ");
         lights << QString("%1. Latitude %2 Longitude %3")
-                          .arg(tempList.at(0))
+                          .arg(number)
                           .arg(tempList.at(1))
-                          .arg(tempList.at(2));
+                          .arg(tempList.at(2))
+                          /*.arg(bool(tempList.at(0).toInt()) ? "Shadowless" : "Shadows")*/;
     }
     m_liCombo->addItems(       lights);
     m_liCombo->setCurrentIndex(m_liCombo->count() - 1);
@@ -673,13 +695,17 @@ void LDViewExportOption::setLights(void)
 
     tempList = m_pov_lightList.at(lightIndex).split(" ");
 
-    m_liNumEdit->setText(     tempList.at(0));
-    m_liLatEdit->setText(     tempList.at(1));
-    m_liLonEdit->setText(     tempList.at(2));
+    m_number = lightIndex + 1;
 
-    m_liIntEdit->setText(     tempList.at(3));
-    m_liASizeEdit->setText(   tempList.at(4));
+    m_liNumEdit->setText(     QString::number(m_number));
+    m_liLatSpin->setValue(    tempList.at(1).toDouble());
+    m_liLonSpin->setValue(    tempList.at(2).toDouble());
+
+    m_liIntSpin->setValue(    tempList.at(3).toDouble());
+    m_liASizeSpin->setValue(  tempList.at(4).toInt());
     m_liALightsSpin->setValue(tempList.at(5).toInt());
+    m_liShadowsChk->setChecked(bool(tempList.at(0).toInt()) ? true : false);
+
 }
 
 void LDViewExportOption::selectLight(int lightIndex)
@@ -691,24 +717,27 @@ void LDViewExportOption::selectLight(int lightIndex)
     // populate LineEdit and Spin controls
     QStringList tempList = m_pov_lightList.at(lightIndex).split(" ");
 
-    m_liNumEdit->setText(      tempList.at(0));
-    m_liLatEdit->setText( tempList.at(1));
-    m_liLonEdit->setText(tempList.at(2));
-    m_liIntEdit->setText(  tempList.at(3));
-    m_liASizeEdit->setText(   tempList.at(4));
+    m_number = lightIndex + 1;
+
+    m_liNumEdit->setText(     QString::number(m_number));
+    m_liLatSpin->setValue(    tempList.at(1).toDouble());
+    m_liLonSpin->setValue(    tempList.at(2).toDouble());
+    m_liIntSpin->setValue(    tempList.at(3).toDouble());
+    m_liASizeSpin->setValue(  tempList.at(4).toInt());
     m_liALightsSpin->setValue(tempList.at(5).toInt());
+    m_liShadowsChk->setChecked(bool(tempList.at(0).toInt()) ? true : false);
+
 }
 
 void LDViewExportOption::addLight()
 {
-    if (m_liLatEdit->displayText().isEmpty() || m_liLonEdit->displayText().isEmpty())
-        return;
-
+//    if (m_liLatSpin->value() || m_liLonSpin->value())
+//        return;
 
     QString num = QString("%1").arg(m_liNumEdit->displayText());
     QString pos = QString("Latitude %1 Longitude %2")
-            .arg(m_liLatEdit->displayText())
-            .arg(m_liLonEdit->displayText());
+                          .arg(m_liLatSpin->value())
+                          .arg(m_liLonSpin->value());
     QString comboItem = QString("%1. %2").arg(num).arg(pos);
 
     int lightIndex = m_liCombo->findText(comboItem);
@@ -719,18 +748,19 @@ void LDViewExportOption::addLight()
         return;
     }
 
-    num = QString("%1").arg(m_liCombo->count() + 1);
+//    num = QString("%1").arg(m_liCombo->count() + 1);
 
     comboItem = QString("%1. %2").arg(num).arg(pos);
 
     pos = QString("%1 %2")
-                .arg(m_liLatEdit->displayText())
-                .arg(m_liLonEdit->displayText());
-    QString intensity  = m_liIntEdit->displayText();
-    QString aSize   = m_liASizeEdit->displayText();
-    QString aLights = QString::number(m_liALightsSpin->value());
+                  .arg(m_liLatSpin->value())
+                  .arg(m_liLonSpin->value());
+    QString intensity  = QString::number(m_liIntSpin->value());
+    QString aSize      = QString::number(m_liASizeSpin->value());
+    QString aLights    = QString::number(m_liALightsSpin->value());
+    QString shadowless = QString("%1").arg(m_liShadowsChk->isChecked() ? "1" : "0");
 
-    QString lightEntry = QString("%1 %2 %3 %4 %5").arg(num).arg(pos)
+    QString lightEntry = QString("%1 %2 %3 %4 %5").arg(shadowless).arg(pos)
                          .arg(intensity).arg(aSize).arg(aLights);
 
     m_pov_lightList.append(lightEntry);
@@ -746,9 +776,9 @@ void LDViewExportOption::removeLight()
 {
     int removeIndex = m_liNumEdit->displayText().toInt() - 1;
 
-    m_liCombo->removeItem(                 removeIndex);
-    m_liCombo->setCurrentIndex(            m_liCombo->count() - 1);
-    m_liNumEdit->setText(                 QString("%1").arg(m_liCombo->count()));
+    m_liCombo->removeItem(      removeIndex);
+    m_liCombo->setCurrentIndex( m_liCombo->count() - 1);
+    m_liNumEdit->setText(       QString("%1").arg(m_liCombo->count()));
 
     m_pov_lightList.removeAt(removeIndex);
 
@@ -756,17 +786,30 @@ void LDViewExportOption::removeLight()
 
     QStringList tempList = m_pov_lightList.at(lightIndex).split(" ");
 
-    m_liNumEdit->setText(      tempList.at(0));
-    m_liLatEdit->setText( tempList.at(1));
-    m_liLonEdit->setText(tempList.at(2));
-    m_liIntEdit->setText(  tempList.at(3));
-    m_liASizeEdit->setText(   tempList.at(4));
+    m_liNumEdit->setText(     QString::number(m_number));
+    m_liLatSpin->setValue(    tempList.at(1).toDouble());
+    m_liLonSpin->setValue(    tempList.at(2).toDouble());
+    m_liIntSpin->setValue(    tempList.at(3).toDouble());
+    m_liASizeSpin->setValue(  tempList.at(4).toInt());
     m_liALightsSpin->setValue(tempList.at(5).toInt());
+    m_liShadowsChk->setChecked(bool(tempList.at(0).toInt()) ? true : false);
 
     enableApply();
 }
 
+void LDViewExportOption::setLights(double arg1)
+{
+    Q_UNUSED(arg1)
+    applyLights();
+}
+
 void LDViewExportOption::setLights(int arg1)
+{
+    Q_UNUSED(arg1)
+    applyLights();
+}
+
+void LDViewExportOption::applyLights(bool arg1)
 {
     Q_UNUSED(arg1)
     applyLights();
@@ -781,15 +824,15 @@ void LDViewExportOption::applyLights(void)
 
     int lightIndex = m_liCombo->currentIndex();
 
-    QString num = QString("%1").arg(m_liNumEdit->displayText());
     QString pos = QString("%1 %2")
-                          .arg(m_liLatEdit->displayText())
-                          .arg(m_liLonEdit->displayText());
-    QString intensity  = m_liIntEdit->displayText();
-    QString aSize   = m_liASizeEdit->displayText();
-    QString aLights = QString::number(m_liALightsSpin->value());
+                          .arg(m_liLatSpin->value())
+                          .arg(m_liLonSpin->value());
+    QString intensity  = QString::number(m_liIntSpin->value());
+    QString aSize      = QString::number(m_liASizeSpin->value());
+    QString aLights    = QString::number(m_liALightsSpin->value());
+    QString shadowless = QString("%1").arg(m_liShadowsChk->isChecked() ? "1" : "0");
 
-    QString lightEntry = QString("%1 %2 %3 %4 %5").arg(num).arg(pos)
+    QString lightEntry = QString("%1 %2 %3 %4 %5").arg(shadowless).arg(pos)
                                  .arg(intensity).arg(aSize).arg(aLights);
 
     m_pov_lightList.replace(lightIndex,lightEntry);
