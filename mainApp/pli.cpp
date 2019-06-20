@@ -116,6 +116,9 @@ Pli::Pli(bool _bom) : bom(_bom)
   ptn.append( { FADE_PART, FADE_SFX } );
   ptn.append( { HIGHLIGHT_PART, HIGHLIGHT_SFX } );
   ptn.append( { NORMAL_PART, QString() } );
+  ia.sub[FADE_PART] = 0;
+  ia.sub[HIGHLIGHT_PART] = 0;
+  ia.sub[NORMAL_PART] = 0;
 
   isSubModel = false;  // isSubModel NOT USED - Moved to SubModelItem class
 }
@@ -843,7 +846,7 @@ int Pli::createPartImage(
     QString subRotation;
     if (sub) {
         nameKeys = nameKey.split("_");
-        if (nameKeys.size() > 9) {
+        if (nameKeys.size() > ROTATION_START) {
             for (int i = 9; i < nameKeys.size(); i++)
                 subRotation.append(nameKeys.at(i)+"_");
             subRotation.chop(1);
@@ -978,7 +981,7 @@ int Pli::createPartImage(
 }
 
 // LDView performance improvement
-int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart, int /*sub*/) {
+int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart, int sub) {
 
     emit gui->messageSig(LOG_INFO, "Render PLI images using LDView Single Call...");
 
@@ -986,7 +989,7 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart, i
 
         // feed DAT to renderer
         PliType pliType = isSubModel ? SUBMODEL: bom ? BOM : PART;
-        int rc = renderer->renderPli(ldrNames,QString(),*meta,pliType,0/*sub*/);
+        int rc = renderer->renderPli(ldrNames,QString(),*meta,pliType,sub);
         if (rc != 0) {
             emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render failed for Pli images."));
             return -1;
@@ -1217,7 +1220,7 @@ QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKe
         bool good = false, ok = false;
         // get subRotation string - if exist
         RotStepMeta rotStepMeta;
-        if (nameKeys.size() > 9) {
+        if (nameKeys.size() > ROTATION_START) {
             RotStepData rotStepData;
             rotStepData.rots[0] = nameKeys.at(nRotX).toDouble(&good);
             rotStepData.rots[1] = nameKeys.at(nRotY).toDouble(&ok);
@@ -2091,6 +2094,7 @@ int Pli::partSize()
 int Pli::partSizeLDViewSCall() {
 
     int rc = 0;
+    int iaSub = 0;
     QString key;
     widestPart = 0;
     tallestPart = 0;
@@ -2122,41 +2126,48 @@ int Pli::partSizeLDViewSCall() {
 
             bool isColorPart = gui->ldrawColourParts.isLDrawColourPart(pliPart->type);
 
-            // is it a substitute part [we do not process substitute part Extended attributes in LDView single call]
-            int sub = 0 /*pliPart->subType*/;
+            QString nameKey = pliPart->nameKey;
+
+            // is it a substitute part
+            int sub = pliPart->subType;
             // create name key list
             QStringList nameKeys;
             // get subRotation string - if exist
             QString subRotation;
             if (sub) {
-                nameKeys = pliPart->nameKey.split("_");
-                if (nameKeys.size() > 9) {
+                nameKeys = nameKey.split("_");
+                if (nameKeys.size() > ROTATION_START) {
                     for (int i = 9; i < nameKeys.size(); i++)
                         subRotation.append(nameKeys.at(i)+"_");
                     subRotation.chop(1);
                     emit gui->messageSig(LOG_TRACE, QString("Substitute type ROTSTEP meta: %1").arg(subRotation));
                 }
+                // append nameKey with 'SUB' - only for LDView Single Step Call
+                nameKey.append("_SUB"); // 14th node
             }
 
-            emit gui->messageSig(LOG_INFO, QString("Processing PLI part for nameKey [%1]").arg(pliPart->nameKey));
+            emit gui->messageSig(LOG_INFO, QString("Processing PLI part for nameKey [%1]").arg(nameKey));
 
             for (int pT = 0; pT < ptn.size(); pT++ ) {
 
 #ifdef QT_DEBUG_MODE
-        QString CurrentPartType = PartTypeNames[pT];
+                QString CurrentPartType = PartTypeNames[pT];
 #endif
                 if (((pT == FADE_PART) && !fadePartOK) || ((pT == HIGHLIGHT_PART) && !highlightPartOK))
                      continue;
 
-                // moved from enum to save weight
-                ia.sub[pT] = sub;
+                // pass substitute key to single call list - createPartImagesLDViewSCall()
+                if (sub && !ia.sub[pT])
+                    ia.sub[pT] = sub;
                 ia.baseName[pT] = QFileInfo(pliPart->type).baseName();
                 ia.partColor[pT] = (pT == FADE_PART && fadeSteps && Preferences::fadeStepsUseColour) ? fadeColour : pliPart->color;
 
                 // assemble ldr name
-                QString key = !ptn[pT].typeName.isEmpty() ? pliPart->nameKey + ptn[pT].typeName : pliPart->nameKey;
+                QString key = !ptn[pT].typeName.isEmpty() ? nameKey + ptn[pT].typeName : nameKey;
                 QString ldrName = QDir::currentPath() + QDir::separator() + Paths::tmpDir + QDir::separator() + key + ".ldr";
                 QString imageDir = isSubModel ? Paths::submodelDir : Paths::partsDir;
+                if (sub && key.endsWith("_SUB"))
+                    key.replace("_SUB","");
                 QString imageName = QDir::currentPath() + QDir::separator() + imageDir + QDir::separator() + key + ".png";
 
                 // create icon path key - using actual color code
@@ -2193,7 +2204,7 @@ int Pli::partSizeLDViewSCall() {
                         return -1;
                     }
 
-                    // store ldrName - long name includes key
+                    // store ldrName - long name includes nameKey
                     ia.ldrNames[pT] << ldrName;
 
                     // define ldr file name
@@ -2272,7 +2283,9 @@ int Pli::partSizeLDViewSCall() {
         QElapsedTimer timer;
         timer.start();
 
-        if ((rc = createPartImagesLDViewSCall(ia.ldrNames[pT],(isSubModel ? false : pT == NORMAL_PART),0/*ia.sub[pT]*/)) != 0) {
+        if (ia.sub[pT])
+            iaSub = ia.sub[pT];
+        if ((rc = createPartImagesLDViewSCall(ia.ldrNames[pT],(isSubModel ? false : pT == NORMAL_PART),iaSub)) != 0) {
             emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Failed to create PLI part images using LDView Single Call"));
             continue;
         }

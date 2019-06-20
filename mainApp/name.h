@@ -95,7 +95,8 @@ enum NameKeyAttributes {
     nRotX,            // 9
     nRotY,            // 10
     nRotZ,            // 11
-    nTransform        // 12
+    nTransform,       // 12
+    nSub              // 13 only added for LDView single call
 };
 
 const int GridSizeTable[] = { 10, 20, 30, 40, 50, 60, 70, 80, 90 };
@@ -292,7 +293,9 @@ static const SceneObject NoContextSceneObjects[] =
 #define NEXT          1
 #define PREVIOUS      2
 
-#define APPLICATION_DPI_DEFAULT               96.0;
+#define ROTATION_START                        9
+
+#define APPLICATION_DPI_DEFAULT               96.0
 
 #define GRID_SIZE_INDEX_DEFAULT               1 // 20
 

@@ -172,14 +172,7 @@ void SubstitutePartDialog::initialize()
                                .arg(LDrawColor::value(mAttributes.at(sColorCode)).toUpper()));
     }
 
-    bool enabled = !(Preferences::preferredRenderer == RENDERER_LDVIEW &&
-                     Preferences::enableLDViewSingleCall);
-    QString disabledMessage("Extended arguments group is disabled when\nLDView 'Single call' render option is enabled.");
-
     ui->extendedSettingsBox->setVisible(show);
-    ui->extendedSettingsBox->setEnabled(enabled);
-    if (!enabled)
-        ui->extendedSettingsBox->setToolTip(disabledMessage);
 
     if (Preferences::usingNativeRenderer){
         ui->horizontalSpacer_12->changeSize(18,20,QSizePolicy::Fixed,QSizePolicy::Fixed);

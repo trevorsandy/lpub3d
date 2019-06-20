@@ -71,6 +71,8 @@ public:
   static bool            difference(const float &v1, const float &v2);
   static bool            NativeExport(const NativeOptions &);
   static bool            LoadViewer(const ViewerOptions &);
+  static bool            createSnapshotList(const QStringList &,
+                                            const QString &);
   static bool            doLDVCommand(const QStringList &args,
                                     int = -1 /*EXPORT_NONE*/,
                                     int = 6 /*NumIniFiles*/);
