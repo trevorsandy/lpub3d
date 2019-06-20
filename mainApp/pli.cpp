@@ -365,6 +365,10 @@ void Pli::setParts(
                       styleMeta = pliMeta.rectangleStyle;
                   }
               }
+
+              const qreal dpiRatio = Preferences::dpiRatio;
+              styleMeta.size.setValuePixels(XX,int (styleMeta.size.valuePixels(XX) * dpiRatio));
+              styleMeta.size.setValuePixels(YY,int (styleMeta.size.valuePixels(YY) * dpiRatio));
           }
 
           bool found                 = false;
@@ -3274,26 +3278,25 @@ AnnotateTextItem::AnnotateTextItem(
 }
 
 void AnnotateTextItem::scaleDownFont() {
-    QFont font = this->QGraphicsTextItem::font();
-    int fontSize = font.pointSize();
     QRectF saveTextRect = textRect;
 
-    while (((textRect.width() > styleRect.width()) ||
-            (textRect.height() > styleRect.height())) &&
-             fontSize > 1) {
-        font.setPointSize(fontSize--);
-        setFont(font);
-        textRect = QRectF(0,0,document()->size().width(),document()->size().height());
+    if (textRect.width() > styleRect.width()) {
+        QFont font = this->QGraphicsTextItem::font();
+        qreal widthRatio = styleRect.width() / textRect.width();
+        if (widthRatio < 1)
+        {
+            font.setPointSizeF(font.pointSizeF()*widthRatio);
+            setFont(font);
+            textRect = QRectF(0,0,document()->size().width(),document()->size().height());
+        }
     }
 
-    if (textRect == saveTextRect)
-        return;
-
-    font.setPointSize(fontSize);
-    setFont(font);
-
     // adjust text vertical alignment
-    textOffset.setY(saveTextRect.height()-textRect.height());
+    if (textRect == saveTextRect) {
+        textOffset.setY((styleRect.height()-textRect.height())/2);
+    } else {
+        textOffset.setY(saveTextRect.height()-textRect.height());
+    }
 }
 
 void AnnotateTextItem::size(int &x, int &y)
@@ -3304,6 +3307,8 @@ void AnnotateTextItem::size(int &x, int &y)
 
 void AnnotateTextItem::setAnnotationStyle(QPainter *painter)
 {
+    QPixmap *pixmap = new QPixmap(int(styleRect.width()),int(styleRect.height()));
+
     // set painter and render hints
     painter->setRenderHints(QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing);
 
@@ -3363,8 +3368,8 @@ void AnnotateTextItem::setAnnotationStyle(QPainter *painter)
     // set icon border dimensions
     qreal rx = double(borderData.radius);
     qreal ry = double(borderData.radius);
-    qreal dx = styleRect.width();
-    qreal dy = styleRect.height();
+    qreal dx = pixmap->width();
+    qreal dy = pixmap->height();
 
     if (int(dx) && int(dy)) {
         if (dx > dy) {
@@ -3378,7 +3383,7 @@ void AnnotateTextItem::setAnnotationStyle(QPainter *painter)
 
     // draw icon shape - background and border
     int bt = int(borderData.thickness);
-    QRectF bgRect(bt/2,bt/2,styleRect.width()-bt,styleRect.height()-bt);
+    QRectF bgRect(bt/2,bt/2,pixmap->width()-bt,pixmap->height()-bt);
     if (style.value() != AnnotationStyle::circle) {
         if (borderData.type == BorderData::BdrRound) {
             painter->drawRoundRect(bgRect,int(rx),int(ry));
@@ -3400,7 +3405,6 @@ void AnnotateTextItem::paint( QPainter *painter, const QStyleOptionGraphicsItem 
     }
     QGraphicsTextItem::paint(painter, o, w);
 }
-
 
 PartGroupItem::PartGroupItem(PliPartGroupMeta meta)
 : meta(meta)

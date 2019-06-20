@@ -243,6 +243,8 @@ int     Preferences::rendererTimeout            = RENDERER_TIMEOUT_DEFAULT;     
 int     Preferences::pageDisplayPause           = PAGE_DISPLAY_PAUSE_DEFAULT;        // measured in seconds
 int     Preferences::cameraDistFactorNative     = CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT;
 
+qreal   Preferences::dpiRatio                   = APPLICATION_DPI_DEFAULT;
+
 // Native POV file generation settings
 QString Preferences::xmlMapPath                 = EMPTY_STRING_DEFAULT;
 
@@ -465,6 +467,7 @@ void Preferences::lpubPreferences()
 {
     lpub3dAppName = QCoreApplication::applicationName();
     modeGUI = Application::instance()->modeGUI();
+    dpiRatio = Application::instance()->dpiRatio();
     QDir cwd(QCoreApplication::applicationDirPath());
 #ifdef QT_DEBUG_MODE
     qDebug() << "";

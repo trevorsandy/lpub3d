@@ -248,6 +248,8 @@ static const SceneObject NoContextSceneObjects[] =
 #define NEXT          1
 #define PREVIOUS      2
 
+#define APPLICATION_DPI_DEFAULT               96.0;
+
 #define GRID_SIZE_INDEX_DEFAULT               1 // 20
 
 #define GHOST_META    "0 GHOST"

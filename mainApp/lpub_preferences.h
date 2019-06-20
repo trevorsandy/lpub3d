@@ -276,6 +276,8 @@ class Preferences
     static int     sceneGuidesLine;
     static int     povrayRenderQuality;
 
+    static qreal   dpiRatio;
+
     virtual ~Preferences() {}
 };
 
