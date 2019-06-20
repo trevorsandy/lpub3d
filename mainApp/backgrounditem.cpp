@@ -64,8 +64,9 @@ void BackgroundItem::setBackground(
   BackgroundData backgroundData = _background.value();
 
   if (_parentRelativeType == PageType &&
-      Preferences::snapToGrid &&
-      Preferences::snapGridTransBkgrnd &&
+     (Preferences::snapToGrid ||
+      Preferences::sceneRuler) &&
+      Preferences::hidePageBackground &&
       ! _exporting) {
       backgroundData.type = BackgroundData::BgTransparent;
       background.setValue(backgroundData);
@@ -230,7 +231,7 @@ void BackgroundItem::setBackground(
 
   if (_parentRelativeType == PageType &&
       Preferences::snapToGrid &&
-      ! Preferences::snapGridTransBkgrnd &&
+      ! Preferences::hidePageBackground &&
       !_exporting) {
 
       QPen pen(QPen(QBrush(QColor(Preferences::sceneGridColor)), 2, Qt::SolidLine));

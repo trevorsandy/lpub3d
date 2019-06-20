@@ -214,7 +214,7 @@ bool    Preferences::sceneRuler                 = false;
 bool    Preferences::sceneRulerTracking         = false;
 bool    Preferences::sceneGuides                = false;
 bool    Preferences::snapToGrid                 = false;
-bool    Preferences::snapGridTransBkgrnd        = false;
+bool    Preferences::hidePageBackground         = false;
 bool    Preferences::showParseErrors            = true;
 bool    Preferences::suppressStdOutToLog        = false;
 bool    Preferences::highlightFirstStep         = false;
@@ -2864,13 +2864,13 @@ void Preferences::userInterfacePreferences()
           snapToGrid = Settings.value(QString("%1/%2").arg(SETTINGS,snapToGridKey)).toBool();
   }
 
-  QString const snapGridTransBkgrndKey("SnapToGridTransparentPageBackground");
-  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,snapGridTransBkgrndKey))) {
+  QString const hidePageBackgroundActKey("SnapToGridTransparentPageBackground");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,hidePageBackgroundActKey))) {
           QVariant uValue(false);
-          snapGridTransBkgrnd = false;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,snapGridTransBkgrndKey),uValue);
+          hidePageBackground = false;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,hidePageBackgroundActKey),uValue);
   } else {
-          snapGridTransBkgrnd = Settings.value(QString("%1/%2").arg(SETTINGS,snapGridTransBkgrndKey)).toBool();
+          hidePageBackground = Settings.value(QString("%1/%2").arg(SETTINGS,hidePageBackgroundActKey)).toBool();
   }
 
   QString const gridSizeIndexKey("GridSizeIndex");
@@ -2938,13 +2938,13 @@ void Preferences::setSnapToGridPreference(bool b)
   Settings.setValue(QString("%1/%2").arg(SETTINGS,snapToGridKey),uValue);
 }
 
-void Preferences::setSnapGridTransBkgrndPreference(bool b)
+void Preferences::setHidePageBackgroundPreference(bool b)
 {
   QSettings Settings;
-  snapGridTransBkgrnd = b;
+  hidePageBackground = b;
   QVariant uValue(b);
-  QString const snapGridTransBkgrndKey("SnapToGridTransparentPageBackground");
-  Settings.setValue(QString("%1/%2").arg(SETTINGS,snapGridTransBkgrndKey),uValue);
+  QString const hidePageBackgroundActKey("SnapToGridTransparentPageBackground");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,hidePageBackgroundActKey),uValue);
 }
 
 void Preferences::setGridSizeIndexPreference(int i)

@@ -982,9 +982,9 @@ void Gui::snapToGrid()
   reloadCurrentPage();
 }
 
-void Gui::snapGridTransBkgrnd()
+void Gui::hidePageBackground()
 {
-  Preferences::setSnapGridTransBkgrndPreference(snapGridTransBkgrndAct->isChecked());
+  Preferences::setHidePageBackgroundPreference(hidePageBackgroundAct->isChecked());
   reloadCurrentPage();
 }
 
@@ -3522,11 +3522,11 @@ void Gui::createActions()
     connect(actualSizeAct, SIGNAL(triggered()), this, SLOT(actualSize()));
 
     // Snap to grid
-    snapGridTransBkgrndAct = new QAction(tr("Transparent Page Background"),this);
-    snapGridTransBkgrndAct->setStatusTip(tr("Toggle transparent page background"));
-    snapGridTransBkgrndAct->setCheckable(true);
-    snapGridTransBkgrndAct->setChecked(Preferences::snapGridTransBkgrnd);
-    connect(snapGridTransBkgrndAct, SIGNAL(triggered()), this, SLOT(snapGridTransBkgrnd()));
+    hidePageBackgroundAct = new QAction(tr("Hide Page Background"),this);
+    hidePageBackgroundAct->setStatusTip(tr("Toggle transparent page background"));
+    hidePageBackgroundAct->setCheckable(true);
+    hidePageBackgroundAct->setChecked(Preferences::hidePageBackground);
+    connect(hidePageBackgroundAct, SIGNAL(triggered()), this, SLOT(hidePageBackground()));
 
     for (int CommandIdx = 0; CommandIdx < NUM_GRID_SIZES; CommandIdx++)
     {
@@ -4388,6 +4388,7 @@ void Gui::createToolBars()
 
     sceneRulerTrackingMenu = new QMenu(tr("Ruler Tracking"),this);
     sceneRulerTrackingMenu->addAction(sceneRulerTrackingAct);
+    sceneRulerTrackingMenu->addAction(hidePageBackgroundAct);
     sceneRulerComboAct->setMenu(sceneRulerTrackingMenu);
     zoomToolBar->addAction(sceneRulerComboAct);
 
@@ -4398,7 +4399,7 @@ void Gui::createToolBars()
     zoomToolBar->addAction(sceneGuidesComboAct);
 
     snapToGridMenu = new QMenu(tr("Snap to Grid"), this);
-    snapToGridMenu->addAction(snapGridTransBkgrndAct);
+    snapToGridMenu->addAction(hidePageBackgroundAct);
     snapToGridMenu->addSeparator();
     for (int actionIdx = GRID_SIZE_FIRST; actionIdx <= GRID_SIZE_LAST; actionIdx++)
         snapToGridMenu->addAction(snapGridActions[actionIdx]);
