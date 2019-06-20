@@ -61,6 +61,7 @@ class Annotations {
     static const QString &getBLElement(QString ldcolorid,
                                        QString ldpartid,
                                        int     which = 0);
+    static const int &getBrickLinkColor(int ldcolorid);
     static const int &getRBColorID(QString blcolorid);
     static const QString &getRBPartID(QString blpartid);
 

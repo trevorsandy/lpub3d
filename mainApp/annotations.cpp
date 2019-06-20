@@ -1780,6 +1780,13 @@ const int &Annotations::getRBColorID(QString ldcolorid)
     return returnInt;
 }
 
+const int &Annotations::getBrickLinkColor(int ldcolorid) {
+    returnInt = 0;
+    if (ld2blColorsXRef.contains(QString::number(ldcolorid)))
+        returnInt = ld2blColorsXRef[QString::number(ldcolorid)].toInt();
+    return returnInt;
+}
+
 const QString &Annotations::getRBPartID(QString ldpartid)
 {
     if (ld2rbCodesXRef.contains(ldpartid.toLower()))

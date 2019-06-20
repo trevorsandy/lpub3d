@@ -3,6 +3,10 @@
 #include "lc_file.h"
 #include <float.h>
 
+/*** LPub3D Mod - use LPub3D exportable BrickLink color table ***/
+#include "annotations.h"
+/*** LPub3D Mod end ***/
+
 lcArray<lcColor> gColorList;
 lcColorGroup gColorGroups[LC_NUM_COLORGROUPS];
 int gNumUserColors;
@@ -34,6 +38,8 @@ static void GetToken(char*& Ptr, char* Token)
 
 int lcGetBrickLinkColor(int ColorIndex)
 {
+/*** LPub3D Mod - use LPub3D exportable BrickLink color table ***/
+/*
 	struct lcBrickLinkEntry
 	{
 		int LDraw;
@@ -179,6 +185,9 @@ int lcGetBrickLinkColor(int ColorIndex)
 			return BrickLinkColors[Color].BrickLink;
 
 	return 0;
+*/
+    return Annotations::getBrickLinkColor(int(gColorList[ColorIndex].Code));
+/*** LPub3D Mod end ***/
 }
 
 bool lcLoadColorFile(lcFile& File)
