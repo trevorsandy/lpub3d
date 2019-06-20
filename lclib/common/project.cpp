@@ -656,7 +656,11 @@ QString Project::GetExportFileName(const QString& FileName, const QString& Defau
 
 	QString SaveFileName;
 
-	if (!mFileName.isEmpty())
+/*** LPub3D Mod - Use LPub3D current file ***/
+	if (!gui->getCurFile().isEmpty())
+		SaveFileName = gui->getCurFile();
+	else if (!mFileName.isEmpty())
+/*** LPub3D Mod end ***/
 		SaveFileName = mFileName;
 	else
 		SaveFileName = GetTitle();
