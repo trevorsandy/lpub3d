@@ -1628,7 +1628,7 @@ CameraDistFactorGui::CameraDistFactorGui(
   saveFactor = meta->factor.value();
   cameraDistFactorSpin = new QSpinBox(parent);
   cameraDistFactorSpin->setToolTip(tipMessage);
-  cameraDistFactorSpin->setRange(100,5000);
+  cameraDistFactorSpin->setRange(-5000,5000);
   cameraDistFactorSpin->setSingleStep(10);
   cameraDistFactorSpin->setValue(meta->factor.value());
   connect(cameraDistFactorSpin,SIGNAL(valueChanged(int)),
@@ -3032,7 +3032,7 @@ RendererGui::RendererGui(
 
   cameraDistFactorNative = meta->factor.value();
   cameraDistFactorSpin = new QSpinBox(parent);
-  cameraDistFactorSpin->setRange(100,5000);
+  cameraDistFactorSpin->setRange(-5000,5000);
   cameraDistFactorSpin->setSingleStep(10);
   cameraDistFactorSpin->setValue(cameraDistFactorNative);
   connect(cameraDistFactorSpin,SIGNAL(valueChanged(int)),

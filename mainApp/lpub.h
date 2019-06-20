@@ -568,7 +568,11 @@ public:
   }
   bool isUnofficialPart(const QString &name)
   {
-    return ldrawFile.isUnofficialPart(name);
+    return ldrawFile.isUnofficialPart(name) == UNOFFICIAL_PART;
+  }
+  bool loadAborted()
+  {
+    return ldrawFile._loadAborted;
   }
 
   void insertGeneratedModel(const QString &name,
@@ -1325,7 +1329,7 @@ private slots:
      *****************************************************************/
 
     void setCurrentFile(const QString &fileName);
-    void openFile(QString &fileName);
+    bool openFile(QString &fileName);
     bool maybeSave(bool prompt = true);
     bool saveFile(const QString &fileName);
     void closeFile();

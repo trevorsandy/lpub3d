@@ -2070,6 +2070,7 @@ void Gui::preferences()
     bool povrayAutoCropCompare          = Preferences::povrayAutoCrop;
     bool showDownloadRedirectsCompare   = Preferences::showDownloadRedirects;
     int povrayRenderQualityCompare      = Preferences::povrayRenderQuality;
+    int ldrawFilesLoadMsgsCompare       = Preferences::ldrawFilesLoadMsgs;
     QString altLDConfigPathCompare      = Preferences::altLDConfigPath;
     QString povFileGeneratorCompare     = Preferences::povFileGenerator;
     QString fadeStepsColourCompare      = Preferences::validFadeStepsColour;
@@ -2139,6 +2140,7 @@ void Gui::preferences()
         bool sceneGridColorChanged         = Preferences::sceneGridColor.toLower()               != sceneGridColorCompare.toLower();
         bool sceneRulerTickColorChanged    = Preferences::sceneRulerTickColor.toLower()          != sceneRulerTickColorCompare.toLower();
         bool sceneGuideColorChanged        = Preferences::sceneGuideColor.toLower()              != sceneGuideColorCompare.toLower();
+        bool ldrawFilesLoadMsgsChanged     = Preferences::ldrawFilesLoadMsgs                     != ldrawFilesLoadMsgsCompare;
 
         if (defaultUnitsChanged     )
                     emit messageSig(LOG_INFO,QString("Default units changed to %1").arg(Preferences::preferCentimeters? "Centimetres" : "Inches"));
@@ -2157,6 +2159,14 @@ void Gui::preferences()
                 box.exec();
             }
         }
+
+        if (ldrawFilesLoadMsgsChanged     )
+                    emit messageSig(LOG_INFO,QString("LdrawFilesLoadMsgs is %1").arg(
+                        Preferences::ldrawFilesLoadMsgs == NEVER_SHOW ? "Never Show" :
+                        Preferences::ldrawFilesLoadMsgs == SHOW_ERROR ? "Show Error" :
+                        Preferences::ldrawFilesLoadMsgs == SHOW_WARNING ? "Show Warning" :
+                        Preferences::ldrawFilesLoadMsgs == SHOW_MESSAGE ? "Show Message" :
+                        "Always Show"));
 
         if (lgeoPathChanged && !ldrawPathChanged)
             emit messageSig(LOG_INFO,QString("LGEO path preference changed from %1 to %2")
@@ -4483,7 +4493,7 @@ void Gui::parseError(QString errorMsg,Where &here)
             box.setDefaultButton(QMessageBox::Cancel);
             box.setCheckBox(cb);
 
-            QObject::connect(cb, &QCheckBox::stateChanged, [this](int state){
+            QObject::connect(cb, &QCheckBox::stateChanged, [](int state){
                 if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked) {
                     Preferences::setShowParseErrorsPreference(false);
                 } else {

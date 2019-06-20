@@ -275,6 +275,7 @@ class Preferences
     static int     rendererTimeout;
     static int     sceneGuidesLine;
     static int     povrayRenderQuality;
+    static int     ldrawFilesLoadMsgs;
 
     static qreal   dpiRatio;
 

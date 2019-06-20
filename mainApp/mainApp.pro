@@ -434,7 +434,8 @@ HEADERS += \
     rotstepdialog.h \
     borderedlineitem.h \
     pointerattribdialog.h \
-    csiannotation.h
+    csiannotation.h \
+    ldrawfilesload.h
 
 SOURCES += \
     aboutdialog.cpp \
@@ -536,12 +537,14 @@ SOURCES += \
     rotstepdialog.cpp \
     borderedlineitem.cpp \
     pointerattribdialog.cpp \
-    csiannotation.cpp
+    csiannotation.cpp \
+    ldrawfilesload.cpp
 
 FORMS += \
     aboutdialog.ui \
     dialogexportpages.ui \
-	povrayrenderdialog.ui \
+    povrayrenderdialog.ui \
+    ldrawfilesloaddialog.ui \
     preferences.ui
 
 OTHER_FILES += \

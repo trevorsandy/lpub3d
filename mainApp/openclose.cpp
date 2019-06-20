@@ -53,12 +53,18 @@ void Gui::open()
     QFileInfo fileInfo(fileName);
     if (fileInfo.exists()) {
       Settings.setValue(QString("%1/%2").arg(SETTINGS,"ProjectsPath"),fileInfo.path());
-      openFile(fileName);
+      if (!openFile(fileName)) {
+          emit messageSig(LOG_STATUS, QString("Load LDraw model file %1 aborted.").arg(fileName));
+          return;
+      }
       displayPage();
       enableActions();
-      emit messageSig(LOG_STATUS, QString("File loaded (%1 parts). %2")
-                      .arg(ldrawFile.getPartCount())
-                      .arg(elapsedTime(timer.elapsed())));
+      ldrawFile.showLoadMessages();
+      emit messageSig(LOG_STATUS, gui->loadAborted() ?
+                       QString("Load LDraw model file %1 aborted.").arg(fileName) :
+                       QString("File loaded (%1 parts). %2")
+                               .arg(ldrawFile.getPartCount())
+                               .arg(elapsedTime(timer.elapsed())));
       return;
     }
   }
@@ -78,12 +84,18 @@ void Gui::openDropFile(QString &fileName){
       if (fileInfo.exists() && (ldr || mpd || dat)) {
           QSettings Settings;
           Settings.setValue(QString("%1/%2").arg(SETTINGS,"ProjectsPath"),fileInfo.path());
-          openFile(fileName);
+          if (!openFile(fileName)) {
+              emit messageSig(LOG_STATUS, QString("Load LDraw model file %1 aborted.").arg(fileName));
+              return;
+          }
           displayPage();
           enableActions();
-          emit messageSig(LOG_STATUS, QString("File loaded (%1 parts). %2")
-                          .arg(ldrawFile.getPartCount())
-                          .arg(elapsedTime(timer.elapsed())));
+          ldrawFile.showLoadMessages();
+          emit messageSig(LOG_STATUS, gui->loadAborted() ?
+                              QString("Load LDraw model file %1 aborted.").arg(fileName) :
+                              QString("File loaded (%1 parts). %2")
+                                      .arg(ldrawFile.getPartCount())
+                                      .arg(elapsedTime(timer.elapsed())));
         } else {
           emit messageSig(LOG_ERROR, QString("File not supported!\n%1")
                           .arg(fileName));
@@ -99,13 +111,19 @@ void Gui::openRecentFile()
     QString fileName = action->data().toString();
     QFileInfo fileInfo(fileName);
     QDir::setCurrent(fileInfo.absolutePath());
-    openFile(fileName);
+    if (!openFile(fileName)) {
+        emit messageSig(LOG_STATUS, QString("Load LDraw model file %1 aborted.").arg(fileName));
+        return;
+    }
     Paths::mkDirs();
     displayPage();
     enableActions();
-    emit messageSig(LOG_STATUS, QString("File loaded (%1 parts). %2")
-                    .arg(ldrawFile.getPartCount())
-                    .arg(elapsedTime(timer.elapsed())));
+    ldrawFile.showLoadMessages();
+    emit messageSig(LOG_STATUS, gui->loadAborted() ?
+                        QString("Load LDraw model file %1 aborted.").arg(fileName) :
+                        QString("File loaded (%1 parts). %2")
+                                .arg(ldrawFile.getPartCount())
+                                .arg(elapsedTime(timer.elapsed())));
   }
 }
 
@@ -127,7 +145,10 @@ bool Gui::loadFile(const QString &file)
     if (info.exists()) {
         timer.start();
         QDir::setCurrent(info.absolutePath());
-        openFile(fileName);
+        if (!openFile(fileName)) {
+            emit messageSig(LOG_STATUS, QString("Load LDraw model file %1 aborted.").arg(fileName));
+            return false;
+        }
         // check if possible to load page number
         QSettings Settings;
         if (Settings.contains(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM_KEY))) {
@@ -137,9 +158,12 @@ bool Gui::loadFile(const QString &file)
         Paths::mkDirs();
         displayPage();
         enableActions();
-        emit messageSig(LOG_STATUS, QString("File loaded (%1 parts). %2")
-                        .arg(ldrawFile.getPartCount())
-                        .arg(elapsedTime(timer.elapsed())));
+        ldrawFile.showLoadMessages();
+        emit messageSig(LOG_STATUS, gui->loadAborted() ?
+                            QString("Load LDraw model file %1 aborted.").arg(fileName) :
+                            QString("File loaded (%1 parts). %2")
+                                    .arg(ldrawFile.getPartCount())
+                                    .arg(elapsedTime(timer.elapsed())));
         return true;
     } else {
         emit messageSig(LOG_ERROR,QString("Unable to load file %1.").arg(fileName));
@@ -283,7 +307,6 @@ void Gui::closeFile()
 
 void Gui::closeModelFile(){
   disableWatcher();
-
   QString topModel = ldrawFile.topLevelFile();
   //3D Viewer
   emit clearViewerWindowSig();
@@ -306,7 +329,7 @@ void Gui::closeModelFile(){
  * File opening closing stuff
  **************************************************************************/
 
-void Gui::openFile(QString &fileName)
+bool Gui::openFile(QString &fileName)
 {
 
   disableWatcher();
@@ -317,14 +340,17 @@ void Gui::openFile(QString &fileName)
       mPliIconsPath.clear();
   if (Preferences::enableFadeSteps && Preferences::enableImageMatting)
     LDVImageMatte::clearMatteCSIImages();
+  emit messageSig(LOG_INFO_STATUS, QString("Loading LDraw model file [%1]...").arg(fileName));
+  if (ldrawFile.loadFile(fileName) != 0) {
+      closeModelFile();
+      return false;
+  }
   displayPageNum = 1;
   QFileInfo info(fileName);
   QDir::setCurrent(info.absolutePath());
   Paths::mkDirs();
   editModelFileAct->setText(tr("Edit %1").arg(info.fileName()));
   editModelFileAct->setStatusTip(tr("Edit loaded LDraw model file %1").arg(info.fileName()));
-  emit messageSig(LOG_INFO_STATUS, QString("Loading LDraw model file [%1]...").arg(fileName));
-  ldrawFile.loadFile(fileName);
   bool overwriteCustomParts = false;
   emit messageSig(LOG_INFO, "Loading fade color parts...");
   processFadeColourParts(overwriteCustomParts);
@@ -348,6 +374,7 @@ void Gui::openFile(QString &fileName)
 
   defaultResolutionType(Preferences::preferCentimeters);
   emit messageSig(LOG_DEBUG, QString("File opened - %1.").arg(fileName));
+  return true;
 }
 
 void Gui::updateRecentFileActions()
@@ -449,7 +476,10 @@ void Gui::fileChanged(const QString &path)
     changeAccepted = true;
     int goToPage = displayPageNum;
     QString fileName = path;
-    openFile(fileName);
+    if (!openFile(fileName)) {
+        emit messageSig(LOG_STATUS, QString("Load LDraw model file %1 aborted.").arg(fileName));
+        return;
+    }
     displayPageNum = goToPage;
     displayPage();
   }

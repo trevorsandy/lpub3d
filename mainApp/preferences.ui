@@ -39,7 +39,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>4</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tabGeneral">
       <attribute name="title">
@@ -142,10 +142,58 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="loadLastOpenedFileCheck">
-         <property name="text">
-          <string>Automatically load the last opened file on startup.</string>
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
+          <string/>
          </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_31">
+          <item>
+           <widget class="QCheckBox" name="loadLastOpenedFileCheck">
+            <property name="text">
+             <string>Load the last opened file on startup</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_20">
+            <property name="text">
+             <string>Show load messages</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="ldrawFilesLoadMsgsCombo">
+            <item>
+             <property name="text">
+              <string>Never</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>On Error</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>On Warning</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>On Message</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Always</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
        <item>

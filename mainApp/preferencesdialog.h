@@ -111,6 +111,7 @@ class PreferencesDialog : public QDialog
     bool          fatalLevel();
     bool          allLogLevels();
 
+    int           ldrawFilesLoadMsgs();
     int           checkUpdateFrequency();
     int           povrayRenderQuality();
     int           rendererTimeout();

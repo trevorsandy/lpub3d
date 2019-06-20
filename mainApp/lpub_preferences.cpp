@@ -228,6 +228,7 @@ bool    Preferences::customSceneGuideColor      = false;
 bool    Preferences::missingRendererLibs        = false;
 #endif
 
+int     Preferences::ldrawFilesLoadMsgs         = NEVER_SHOW;
 int     Preferences::sceneRulerTracking         = TRACKING_NONE;
 int     Preferences::sceneGuidesLine            = SCENE_GUIDES_LINE_DEFAULT;
 int     Preferences::povrayRenderQuality        = POVRAY_RENDER_QUALITY_DEFAULT;
@@ -2923,6 +2924,14 @@ void Preferences::userInterfacePreferences()
   } else {
       loadLastOpenedFile = Settings.value(QString("%1/%2").arg(SETTINGS,loadLastOpenedFileKey)).toBool();
   }
+
+  QString const ldrawFilesLoadMsgsKey("LdrawFilesLoadMsgs");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,ldrawFilesLoadMsgsKey))) {
+      ldrawFilesLoadMsgs = NEVER_SHOW;
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,ldrawFilesLoadMsgsKey),ldrawFilesLoadMsgs);
+  } else {
+      ldrawFilesLoadMsgs = Settings.value(QString("%1/%2").arg(SETTINGS,ldrawFilesLoadMsgsKey)).toInt();
+  }
 }
 
 void Preferences::setShowParseErrorsPreference(bool b)
@@ -4024,6 +4033,12 @@ bool Preferences::getPreferences()
         {
             loadLastOpenedFile = dialog->loadLastOpenedFile();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"LoadLastOpenedFile"),loadLastOpenedFile);
+        }
+
+        if (ldrawFilesLoadMsgs != dialog->ldrawFilesLoadMsgs())
+        {
+            ldrawFilesLoadMsgs = dialog->ldrawFilesLoadMsgs();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"LdrawFilesLoadMsgs"),ldrawFilesLoadMsgs);
         }
 
         usingNativeRenderer = preferredRenderer == RENDERER_NATIVE;

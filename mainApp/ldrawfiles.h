@@ -40,6 +40,10 @@
 #include "QsLog.h"
 
 extern QList<QRegExp> LDrawHeaderRegExp;
+extern QList<QRegExp> LDrawUnofficialPartRegExp;
+extern QList<QRegExp> LDrawUnofficialSubPartRegExp;
+extern QList<QRegExp> LDrawUnofficialPrimitiveRegExp;
+extern QList<QRegExp> LDrawUnofficialOtherRegExp;
 
 class LDrawSubFile {
   public:
@@ -54,19 +58,19 @@ class LDrawSubFile {
     int         _renderedStepNumber;
     bool        _mirrorRendered;
     bool        _changedSinceLastWrite;
-    bool        _unofficialPart;
     bool        _generated;
     int         _prevStepPosition;
     int         _startPageNumber;
+    int         _unofficialPart;
 
     LDrawSubFile()
     {
-      _unofficialPart = false;
+      _unofficialPart = 0;
     }
     LDrawSubFile(
             const QStringList &contents,
             QDateTime   &datetime,
-            bool         unofficialPart,
+            int          unofficialPart,
             bool         generated = false);
     ~LDrawSubFile()
     {
@@ -120,8 +124,7 @@ class LDrawFile {
     }
 
     QStringList                 _subFileOrder;
-    static QStringList          _uniqueParts;
-    static QStringList          _missingParts;
+    static QStringList          _loadedParts;
     static QString              _file;
     static QString              _name;
     static QString              _author;
@@ -129,10 +132,14 @@ class LDrawFile {
     static QString              _category;
     static bool                 _currFileIsUTF8;
     static int                  _partCount;
+    static bool                 _showLoadMessages;
+    static bool                 _loadAborted;
 
     int getPartCount(){
       return _partCount;
     }
+
+    static void showLoadMessages();
 
     bool saveFile(const QString &fileName);
     bool saveMPDFile(const QString &filename);
@@ -158,7 +165,7 @@ class LDrawFile {
                          const int     &startPageNumber);
     int getModelStartPageNumber(const QString &mcFileName);
     void subFileLevels(QStringList &contents, int &level);
-    void loadFile(const QString &fileName);
+    int loadFile(const QString &fileName);
     void loadMPDFile(const QString &fileName, QDateTime &datetime);
     void loadLDRFile(const QString &path, const QString &fileName, bool topLevel = true);
     QStringList subFileOrder();
@@ -174,7 +181,7 @@ class LDrawFile {
 
     bool isMpd();
     QString topLevelFile();
-    bool isUnofficialPart(const QString &name);
+    int isUnofficialPart(const QString &name);
     int numSteps(const QString &fileName);
     QDateTime lastModified(const QString &fileName);
     bool contains(const QString &file);
@@ -217,9 +224,9 @@ class LDrawFile {
 
 int split(const QString &line, QStringList &argv);
 int validSoQ(const QString &line, int soq);
+int  getUnofficialFileType(QString &line);
 bool isHeader(QString &line);
 bool isComment(QString &line);
-bool isUnofficialFileType(QString &line);
 bool isGhost(QString &line);
 
 #endif
