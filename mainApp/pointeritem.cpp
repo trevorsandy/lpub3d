@@ -556,10 +556,13 @@ void PointerItem::change()
 
 void PointerItem::drawTip(QPoint delta)
 {
+  auto tip = points[Tip];
   points[Tip] += delta;
   autoLocFromTip();
+  points[Base] -= delta;
+  points[Tip] = tip;
   drawPointerPoly();
-  points[Tip] -= delta;
+  //points[Tip] -= delta;
 }
 
 void PointerItem::updatePointer(
