@@ -2152,6 +2152,7 @@ void BackgroundGui::browseColor(bool)
     modified = true;
   }
 }
+
 void BackgroundGui::stretch(bool checked)
 {
   BackgroundData background = meta->value();
@@ -2426,7 +2427,7 @@ void BorderGui::browseColor(bool)
 
   QColor color = LDrawColor::color(border.color);
   QColor newColor = QColorDialog::getColor(color,this);
-  if (color != newColor) {
+  if (newColor.isValid() && color != newColor) {
     border.color = newColor.name();
     meta->setValue(border);
     QString styleSheet =
@@ -2682,7 +2683,7 @@ void PointerAttribGui::browseColor(bool)
       padColor = pad.borderData.color;
   QColor color = LDrawColor::color(padColor);
   QColor newColor = QColorDialog::getColor(color,this);
-  if (color != newColor) {
+  if (newColor.isValid() && color != newColor) {
     if (lineData)
         pad.lineData.color = newColor.name();
     else
