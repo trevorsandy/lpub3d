@@ -147,8 +147,8 @@ class Page : public Steps {
         delete pixmap;
       }
       for (int i = 0; i < pageAttributePixmaps.size(); i++) {
-        PageAttributePixmapItem *pixmap = pageAttributePixmaps[i];
-        delete pixmap;
+        PageAttributePixmapItem *pixmapItem = pageAttributePixmaps[i];
+        delete pixmapItem;
       }
       insertPixmaps.clear();
       pageAttributePixmaps.clear();

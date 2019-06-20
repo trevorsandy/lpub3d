@@ -543,7 +543,6 @@ GlobalPageDialog::GlobalPageDialog(
     setMinimumHeight(780);
   else
     setMinimumSize(40,20);
-
 }
 
 void GlobalPageDialog::indexChanged(int selection){

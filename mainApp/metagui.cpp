@@ -1246,18 +1246,57 @@ void PageAttributeTextGui::apply(
   spin->setRange(meta->picScale._min,meta->picScale._max);
   spin->setSingleStep(0.1);
   spin->setDecimals(6);
-  spin->setValue(meta->picScale.value());
+  spin->setValue(double(meta->picScale.value()));
   connect(spin,SIGNAL(valueChanged(double)),
           this,SLOT  (valueChanged(double)));
   hLayout->addWidget(spin);
   connect(gbScale,SIGNAL(clicked(bool)),this,SLOT(gbScaleClicked(bool)));
 
+  // fill
+  gbFill = new QGroupBox("Fill", parent);
+  hLayout = new QHBoxLayout();
+  gbFill->setLayout(hLayout);
+  grid->addWidget(gbFill,4,0,1,3);
+
+  aspectRadio = new QRadioButton("Picture Aspect",gbFill);
+  aspectRadio->setChecked(!meta->stretch.value() && !meta->tile.value());
+  connect(aspectRadio,SIGNAL(clicked(bool)),
+          this,        SLOT(  pictureFill(bool)));
+  hLayout->addWidget(aspectRadio);
+
+  stretchRadio = new QRadioButton("Stretch Picture",gbFill);
+  stretchRadio->setChecked(!meta->tile.value() && !aspectRadio->isChecked());
+  connect(stretchRadio,SIGNAL(clicked(bool)),
+          this,        SLOT(  pictureFill(bool)));
+  hLayout->addWidget(stretchRadio);
+  tileRadio    = new QRadioButton("Tile Picture",gbFill);
+  tileRadio->setChecked(!meta->stretch.value() && !aspectRadio->isChecked());
+  connect(tileRadio,SIGNAL(clicked(bool)),
+          this,     SLOT(  pictureFill(bool)));
+  hLayout->addWidget(tileRadio);
+
+  stretchModified   = false;
+  tileModified      = false;
   pictureModified   = false;
   marginsModified   = false;
   placementModified = false;
   displayModified   = false;
   scaleModified     = false;
 }
+
+ void PageAttributePictureGui::pictureFill(bool checked)
+ {
+   if ((stretchModified = sender() == stretchRadio)) {
+       meta->stretch.setValue(checked);
+       meta->tile.setValue(!checked);
+   } else if ((tileModified = sender() == tileRadio)) {
+       meta->tile.setValue(checked);
+       meta->stretch.setValue(!checked);
+   } else { /*aspectRadio*/
+       meta->tile.setValue(!checked);
+       meta->stretch.setValue(!checked);
+   }
+ }
 
 void PageAttributePictureGui::pictureChange(QString const &pic)
 {
@@ -1284,7 +1323,7 @@ void PageAttributePictureGui::browsePicture(bool)
 
 void PageAttributePictureGui::gbScaleClicked(bool checked)
 {
-    checked = checked;
+    Q_UNUSED(checked);
     qreal value = meta->picScale.value();
     meta->picScale.setValue(value);
     modified = scaleModified = true;
@@ -1357,6 +1396,12 @@ void PageAttributePictureGui::apply(QString &topLevelFile)
     }
     if (displayModified){
         mi.setGlobalMeta(topLevelFile,&meta->display);
+    }
+    if (tileModified){
+        mi.setGlobalMeta(topLevelFile,&meta->tile);
+    }
+    if (stretchModified){
+        mi.setGlobalMeta(topLevelFile,&meta->stretch);
     }
     mi.endMacro();
 }

@@ -26,21 +26,23 @@
 
 class PageAttributePixmapItem : public ResizePixmapItem
 {
-  Page                          *page;
+    Page                        *page;
   public:
-    PlacementType               relativeType;
+//    PlacementType               relativeType;
     PlacementType               parentRelativeType;
+    BorderMeta                  border;
     BoolMeta                    displayPicture;
     FloatMeta                   picScale;
-
-    qreal                       relativeToLoc[2];
-    qreal                       relativeToSize[2];
+//    BoolMeta                    tile;
+    BoolMeta                    display;
+//    qreal                       relativeToLoc[2];
+//    qreal                       relativeToSize[2];
     QString                     name;
-    MetaItem                    mi;
+//    MetaItem                    mi;
 
     PageAttributePixmapItem(
       Page                     *page,
-      QPixmap                  &pixmap,
+      QPixmap                  &_pixmapPic,
       PageAttributePictureMeta &pageAttributePictureMeta,
       QGraphicsItem            *parent);
 

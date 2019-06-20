@@ -1963,14 +1963,15 @@ public:
 class PageAttributePictureMeta : public BranchMeta
 {
 public:
-  PlacementType  type;
-  PlacementMeta  placement;
-  MarginsMeta 	 margin;
-  FloatMeta	 picScale;
-  StringMeta	 file;
-  BoolMeta	 stretch;
-  BoolMeta       tile;
-  BoolMeta       display;
+  PlacementType type;
+  PlacementMeta placement;
+  BorderMeta    border;
+  MarginsMeta   margin;
+  FloatMeta     picScale;
+  StringMeta    file;
+  BoolMeta      stretch;
+  BoolMeta      tile;
+  BoolMeta      display;
 
   void setValue(QString _value)
   {

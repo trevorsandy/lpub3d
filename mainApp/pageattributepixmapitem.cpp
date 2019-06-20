@@ -18,26 +18,28 @@
 
 #include "pageattributepixmapitem.h"
 #include "commonmenus.h"
+#include "color.h"
 #include "step.h"
 #include "ranges.h"
 #include "name.h"
 
 PageAttributePixmapItem::PageAttributePixmapItem(
   Page                      *_page,
-  QPixmap                   &pixmap,
-  PageAttributePictureMeta  &pageAttributePictureMeta,
+  QPixmap                   &_pixmapPic,
+  PageAttributePictureMeta  &papMeta,
   QGraphicsItem             *parent)
 
 {
-  page              = _page;
-  placement         = pageAttributePictureMeta.placement;
-  picScale          = pageAttributePictureMeta.picScale;
-  displayPicture    = pageAttributePictureMeta.display;
-  margin            = pageAttributePictureMeta.margin;
-  relativeType      = pageAttributePictureMeta.type;
-  size[0]           = pixmap.width() *pageAttributePictureMeta.picScale.value();
-  size[1]           = pixmap.height()*pageAttributePictureMeta.picScale.value();
-  parentRelativeType= page->relativeType;
+  page               = _page;
+  parentRelativeType = page->relativeType;
+  displayPicture     = papMeta.display;
+  placement          = papMeta.placement;
+  picScale           = papMeta.picScale;
+  border             = papMeta.border;
+  margin             = papMeta.margin;
+  relativeType       = papMeta.type;
+  size[XX]           = _pixmapPic.width()  * papMeta.picScale.value();
+  size[YY]           = _pixmapPic.height() * papMeta.picScale.value();
 
   if (relativeType == PageDocumentLogoType ) {
       name    = "Logo";
@@ -50,10 +52,106 @@ PageAttributePixmapItem::PageAttributePixmapItem(
       setToolTip("Plug Image - right-click to modify");
     }
 
+  QPixmap *pixmap = new QPixmap(size[XX],size[YY]);
+
+  BorderData  borderData = papMeta.border.valuePixels();
+
+  int bt = int(borderData.thickness);
+
+  QRectF prect(bt/2,bt/2,pixmap->width()-bt,pixmap->height()-bt);
+  pixmap->fill(Qt::transparent);
+
+  // set painter and render hints (initialized with pixmap)
+  QPainter painter;
+  painter.begin(pixmap);
+  painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+  painter.setRenderHints(QPainter::Antialiasing,true);
+
+  QImage image(_pixmapPic.toImage());
+  image = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+
+  if (papMeta.stretch.value()) {                     // stretch
+      QSize psize = pixmap->size();
+      QSize isize = image.size();
+      qreal sx = psize.width();
+      qreal sy = psize.height();
+      sx /= isize.width();
+      sy /= isize.height();
+      painter.scale(sx,sy);
+      painter.drawImage(0,0,image);
+  } else if (papMeta.tile.value()) {                  // tile
+      for (int y = 0; y < pixmap->height(); y += image.height()) {
+          for (int x = 0; x < pixmap->width(); x += image.width()) {
+              painter.drawImage(x,y,image);
+            }
+        }
+  } else {                                            // aspect
+      setPixmap(_pixmapPic);
+  }
+
+
+  qreal rx = double(borderData.radius);
+  qreal ry = double(borderData.radius);
+  qreal dx = pixmap->width();
+  qreal dy = pixmap->height();
+
+  if (dx && dy) {
+    if (dx > dy) {
+      // the rx is going to appear larger that ry, so decrease rx based on ratio
+      rx *= dy;
+      rx /= dx;
+    } else {
+      ry *= dx;
+      ry /= dy;
+    }
+  }
+
+  QColor penColor;
+  QColor brushColor = Qt::transparent;
+  if (borderData.type == BorderData::BdrNone) {
+      penColor = Qt::transparent;
+   } else {
+      penColor =  LDrawColor::color(borderData.color);
+   }
+
+  QPen pen;
+  pen.setColor(penColor);
+  pen.setCapStyle(Qt::RoundCap);
+  pen.setJoinStyle(Qt::RoundJoin);
+  if (borderData.line == BorderData::BdrLnNone){
+        pen.setStyle(Qt::NoPen);
+    }
+  else if (borderData.line == BorderData::BdrLnSolid){
+        pen.setStyle(Qt::SolidLine);
+    }
+  else if (borderData.line == BorderData::BdrLnDash){
+      pen.setStyle(Qt::DashLine);
+    }
+  else if (borderData.line == BorderData::BdrLnDot){
+      pen.setStyle(Qt::DotLine);
+    }
+  else if (borderData.line == BorderData::BdrLnDashDot){
+      pen.setStyle(Qt::DashDotLine);
+    }
+  else if (borderData.line == BorderData::BdrLnDashDotDot){
+      pen.setStyle(Qt::DashDotDotLine);
+    }
+  pen.setWidth(bt);
+
+  painter.setPen(pen);
+  painter.setBrush(brushColor);
+
+  if (borderData.type == BorderData::BdrRound) {
+    painter.drawRoundRect(prect,int(rx),int(ry));
+  } else {
+    painter.drawRect(prect);
+  }
+  painter.end();
+
   setData(ObjectId, PageAttributePixmapObj);
   // setZValue(PAGEATTRIBUTEPIXMAP_ZVALUE_DEFAULT); // set from formatpage
   setParentItem(parent);
-  setPixmap(pixmap);
+  //setPixmap(pixmap);
   setFlag(QGraphicsItem::ItemIsSelectable,true);
   setFlag(QGraphicsItem::ItemIsMovable,true);
 }

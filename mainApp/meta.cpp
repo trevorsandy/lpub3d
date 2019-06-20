@@ -2656,16 +2656,19 @@ PageAttributePictureMeta::PageAttributePictureMeta() : BranchMeta()
 {
   placement.setValue(TopLeftInsideCorner,PageType);
   display.setValue(Preferences::displayAllAttributes);
+  BorderData borderData;
+  borderData.type = BorderData::BdrSquare;
+  borderData.line = BorderData::BdrLnSolid;
+  borderData.color = "Black";
+  borderData.thickness = DEFAULT_THICKNESS;
+  borderData.radius = 15;
+  borderData.margin[0] = DEFAULT_MARGIN;
+  borderData.margin[1] = DEFAULT_MARGIN;
+  border.setValueInches(borderData);
   picScale.setRange(-10000.0,10000.0);
   picScale.setFormats(7,4,"#99999.9");
   picScale.setValue(1.0);
   margin.setValuesInches(0.0f,0.0f);
-  placement.value().placement     = TopLeft;
-  placement.value().justification = Center;
-  placement.value().preposition   = Inside;
-  placement.value().relativeTo    = PageType;
-  placement.value().offsets[0]    = 0.0;
-  placement.value().offsets[1]    = 0.0;
   tile.setValue(false);
   stretch.setValue(false);
 }
@@ -2676,7 +2679,8 @@ void PageAttributePictureMeta::init(
 {
   AbstractMeta::init(parent, name);
   placement.init        (this, "PLACEMENT");
-  margin.init        	(this, "MARGINS");
+  border.init           (this, "BORDER");
+  margin.init           (this, "MARGINS");
   picScale.init         (this, "SCALE");
   file.init             (this, "FILE");
   display.init          (this, "DISPLAY");

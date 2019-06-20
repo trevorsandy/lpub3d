@@ -376,6 +376,8 @@ private:
   PageAttributePictureMeta *meta;
 
   int             selection;
+  bool            tileModified;
+  bool            stretchModified;
   bool            marginsModified;
   bool            placementModified;
   bool            displayModified;
@@ -395,6 +397,11 @@ private:
   QLabel         *scale;
   QDoubleSpinBox *spin;
 
+  QGroupBox    *gbFill;
+  QRadioButton *stretchRadio;
+  QRadioButton *tileRadio;
+  QRadioButton *aspectRadio;
+
   QCheckBox      *display;
 
   QGroupBox      *gbPlacement;
@@ -410,6 +417,7 @@ public slots:
   void selectionChanged(int value){
       selection = value;
   }
+  void pictureFill(bool);
   void pictureChange(QString const &);
   void browsePicture(bool);
   void gbScaleClicked(bool);
