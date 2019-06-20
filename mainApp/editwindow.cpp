@@ -185,7 +185,7 @@ void EditWindow::createActions()
     // edit model file
     exitAct = new QAction(QIcon(":/resources/exit.png"),tr("E&xit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
-    exitAct->setStatusTip(tr("Exit the application - Ctrl+Q"));
+    exitAct->setStatusTip(tr("Close this window - Ctrl+Q"));
     connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
 
     saveAct = new QAction(QIcon(":/resources/save.png"), tr("&Save"), this);
