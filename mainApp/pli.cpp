@@ -915,7 +915,7 @@ int Pli::createPartImage(
             QFileInfo typeInfo = QFileInfo(type);
             QString typeName = typeInfo.fileName();
             if (pT != NORMAL_PART && (isSubModel || isColorPart))
-                typeName = typeInfo.baseName() + ptn[pT].typeName + "." + typeInfo.suffix();
+                typeName = typeInfo.completeBaseName() + ptn[pT].typeName + "." + typeInfo.suffix();
 
             // generate PLI Part file
             QStringList pliFile;
@@ -2243,7 +2243,7 @@ int Pli::partSizeLDViewSCall() {
                     QString typeName = typeInfo.fileName();
                     bool isColorPart = gui->ldrawColourParts.isLDrawColourPart(typeInfo.fileName());
                     if (pT != NORMAL_PART && (isSubModel || isColorPart))
-                        typeName = typeInfo.baseName() + ptn[pT].typeName + "." + typeInfo.suffix();
+                        typeName = typeInfo.completeBaseName() + ptn[pT].typeName + "." + typeInfo.suffix();
 
                     // generate PLI Part file
                     QStringList pliFile;
@@ -2261,7 +2261,7 @@ int Pli::partSizeLDViewSCall() {
                             pliFile.prepend(renderer->getRotstepMeta(pliMeta.rotStep));
 
                         // header and closing meta
-                        QString modelName = typeInfo.baseName();
+                        QString modelName = typeInfo.completeBaseName();
                         modelName = modelName.replace(
                                     modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper());
                         pliFile.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(modelName));

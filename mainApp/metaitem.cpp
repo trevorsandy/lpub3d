@@ -4154,9 +4154,9 @@ QString MetaItem::makeMonoName(const QString &fileName,
   QString mono = "mono_";
   QString altColor = "_" + monoColor[(color == monoColor[Blue] ? TransWhite : Blue)];
   QFileInfo info(fileName);
-  QString baseName = info.baseName();
-  if (info.baseName().right(altColor.size()) == ("_" + monoColor[TransWhite]))
-      baseName = info.baseName().left(info.baseName().length() - altColor.size());
+  QString baseName = info.completeBaseName();
+  if (info.completeBaseName().right(altColor.size()) == ("_" + monoColor[TransWhite]))
+      baseName = info.completeBaseName().left(info.completeBaseName().length() - altColor.size());
   if ((info.fileName().left(mono.size())) == mono)
       return info.absolutePath() + "/" + baseName + "_" + color + "." + info.suffix();
   return info.absolutePath() + "/" + mono + baseName + "_" + color + "." + info.suffix();
@@ -4194,7 +4194,7 @@ int MetaItem::monoColorSubmodel(
     
     if (argv.size() == 15 && argv[0] == "1") {
       QFileInfo info(argv[14]);
-      QString submodel = info.baseName();
+      QString submodel = info.completeBaseName();
       QString suffix = info.suffix();
 
       if (submodel.right(color.size()) == color) {
@@ -4262,7 +4262,7 @@ QPointF MetaItem::defaultPointerTip(
   int adjustedLineNumber = lineNumber + colorLines;
   int instances          = 0;
   QFileInfo info(subModel);
-  QString monoSubModel = "mono_" + info.baseName() + "_" + monoColor[TransWhite] + "." + info.suffix();
+  QString monoSubModel = "mono_" + info.completeBaseName() + "_" + monoColor[TransWhite] + "." + info.suffix();
   QStringList argv;
   int i;
   for (i = 0; i < numLines; i++) {
@@ -4344,7 +4344,7 @@ QPointF MetaItem::defaultPointerTip(
   bool ok[2];
   QString pngName, ldrName, monoOutPngBaseName;
 #ifdef QT_DEBUG_MODE
-  monoOutPngBaseName =   QString("mono_%1").arg(QFileInfo(subModel).baseName());
+  monoOutPngBaseName =   QString("mono_%1").arg(QFileInfo(subModel).completeBaseName());
 #else
   monoOutPngBaseName = "mono";
 #endif

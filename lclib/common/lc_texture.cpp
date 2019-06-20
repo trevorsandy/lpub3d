@@ -18,7 +18,9 @@ lcTexture* lcLoadTexture(const QString& FileName, int Flags)
 	}
 	else
 	{
-		strcpy(Texture->mName, QFileInfo(FileName).baseName().toLatin1());
+/*** LPub3D Mod - Change baseName to completeBaseName ***/
+		strcpy(Texture->mName, QFileInfo(FileName).completeBaseName().toLatin1());
+/*** LPub3D Mod end ***/
 		Texture->SetTemporary(true);
 	}
 

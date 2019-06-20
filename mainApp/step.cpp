@@ -227,7 +227,7 @@ int Step::createCsi(
   QString csiLdrFilePath = QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir);
   QString csiPngFilePath = QString("%1/%2").arg(QDir::currentPath()).arg(Paths::assemDir);
   QString csiLdrFile = QString("%1/%2").arg(csiLdrFilePath).arg(gui->m_partListCSIFile ?
-                               QFileInfo(gui->getCurFile()).baseName()+"_snapshot.ldr" : "csi.ldr");
+                               QFileInfo(gui->getCurFile()).completeBaseName()+"_snapshot.ldr" : "csi.ldr");
   QString keyPart1 = QString("%1")
       .arg(csi_Name+orient);
   QString keyPart2 = QString("%1_%2_%3_%4_%5_%6_%7_%8")
@@ -304,7 +304,7 @@ int Step::createCsi(
       rotatedParts.prepend(renderer->getRotstepMeta(meta.rotStep));
 
       // header and closing meta
-      QString modelName = QFileInfo(top.modelName).baseName().toLower();
+      QString modelName = QFileInfo(top.modelName).completeBaseName().toLower();
       modelName = QString("%1%2").arg(modelName.replace(
                                       modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper()))
                                  .arg(modelDisplayOnlyStep ? " - Final Model" : "");
@@ -474,7 +474,7 @@ void Step::setCsiAnnotationMetas(Meta &_meta, bool force)
         split(line,argv);
 
         if (argv.size() == 15 && argv[0] == "1") {
-            QString key = QString("%1_%2").arg(QFileInfo(argv[14]).baseName()).arg(argv[1]);
+            QString key = QString("%1_%2").arg(QFileInfo(argv[14]).completeBaseName()).arg(argv[1]);
             PliPart *part = pliParts[key];
 
             if (!part)
@@ -484,7 +484,7 @@ void Step::setCsiAnnotationMetas(Meta &_meta, bool force)
                 continue;
 
             if (part->annotateText) {
-                QString typeName = QFileInfo(part->type).baseName();
+                QString typeName = QFileInfo(part->type).completeBaseName();
                 QString pattern = QString("^\\s*0\\s+(\\!*LPUB ASSEM ANNOTATION ICON).*("+typeName+"|HIDDEN|HIDE).*$");
                 QRegExp rx(pattern);
                 Where walk = start;

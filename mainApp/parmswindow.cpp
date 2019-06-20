@@ -456,7 +456,7 @@ bool ParmsWindow::saveCopyAsFile()
     bool rc = false;
     // provide a file name
     QFileInfo fileInfo(fileName);
-    QString fileSaveName = QString("%1_%2.txt").arg(fileInfo.baseName()).arg(QDateTime::currentDateTime().toString(QLatin1String("yyyyMMdd-hhmmss")));
+    QString fileSaveName = QString("%1_%2.txt").arg(fileInfo.completeBaseName()).arg(QDateTime::currentDateTime().toString(QLatin1String("yyyyMMdd-hhmmss")));
     QString filter(QFileDialog::tr("All Files (*.*)"));
     QString saveCopyAsFileName = QFileDialog::getSaveFileName(nullptr,
                                  QFileDialog::tr("Save %1 log").arg(VER_PRODUCTNAME_STR),

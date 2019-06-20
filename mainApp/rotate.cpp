@@ -222,7 +222,7 @@ int Render::rotateParts(
 
   if (nativeRenderer && ! ldvFunction) {
       // header and closing meta
-      QString _modelName = QFileInfo(modelName).baseName().toLower();
+      QString _modelName = QFileInfo(modelName).completeBaseName().toLower();
       _modelName = _modelName.replace(
                    _modelName.indexOf(_modelName.at(0)),1,_modelName.at(0).toUpper());
       rotatedParts.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(_modelName));

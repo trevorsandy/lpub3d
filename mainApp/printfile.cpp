@@ -696,7 +696,7 @@ void Gui::exportAsPdf()
 
   // determine location for output file
   QFileInfo fileInfo(curFile);
-  QString baseName = fileInfo.baseName();
+  QString baseName = fileInfo.completeBaseName();
   QString fileName = QDir::currentPath() + QDir::separator() + baseName;
 
   if (Preferences::modeGUI) {
@@ -1064,7 +1064,7 @@ void Gui::exportAs(const QString &_suffix)
 
   // determine location to output images
   QFileInfo fileInfo(curFile);
-  QString baseName = fileInfo.baseName();
+  QString baseName = fileInfo.completeBaseName();
 
   if (Preferences::modeGUI && saveDirectoryName.isEmpty()) {
       directoryName = QFileDialog::getExistingDirectory(
@@ -1771,7 +1771,7 @@ void Gui::TogglePrintPreview()
 
   // determine location for output file
   QFileInfo fileInfo(curFile);
-  QString baseName = fileInfo.baseName();
+  QString baseName = fileInfo.completeBaseName();
   QString fileName = QDir::currentPath() + "/" + baseName;
   fileInfo.setFile(fileName);
   QString suffix = fileInfo.suffix();

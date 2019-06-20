@@ -2069,8 +2069,8 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerCsiKey)
     QFileInfo outFileInfo(FileName);
     QString outfileName = QString("%1/viewer_%2_%3.ldr")
             .arg(outFileInfo.absolutePath())
-            .arg(outFileInfo.baseName().replace(".ldr",""))
-            .arg(QFileInfo(modelName).baseName());
+            .arg(outFileInfo.completeBaseName().replace(".ldr",""))
+            .arg(QFileInfo(modelName).completeBaseName());
 
     QFile file(outfileName);
     if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
@@ -2356,8 +2356,8 @@ const QString Render::getPovrayRenderFileName(const QString &viewerCsiKey)
     QFileInfo csiFile(fileName);
     QString imageFile = QDir::toNativeSeparators(QString("%1/%2_%3.png")
                        .arg(povrayDir.absolutePath())
-                       .arg(csiFile.baseName().replace(".ldr",""))
-                       .arg(QFileInfo(csiModel).baseName()));
+                       .arg(csiFile.completeBaseName().replace(".ldr",""))
+                       .arg(QFileInfo(csiModel).completeBaseName()));
 
     return imageFile;
 
@@ -2468,7 +2468,7 @@ int Render::mergeNativeCSISubModels(QStringList &subModels,
                           csiSubModels[index]);
 
           /* initialize the working submodel file - define header. */
-          QString modelName = QFileInfo(csiSubModels[index]).baseName().toLower();
+          QString modelName = QFileInfo(csiSubModels[index]).completeBaseName().toLower();
           modelName = modelName.replace(
                       modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper());
           csiSubModelParts << QString("0 FILE %1").arg(csiSubModels[index]);

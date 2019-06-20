@@ -285,7 +285,7 @@ int SubModel::createSubModelImage(
           rotatedSubmodel.prepend(renderer->getRotstepMeta(subModelMeta.rotStep));
 
           // header and closing meta
-          QString modelName = QFileInfo(top.modelName).baseName().toLower();
+          QString modelName = QFileInfo(top.modelName).completeBaseName().toLower();
           modelName = QString("%1").arg(modelName.replace(
                                             modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper()));
           rotatedSubmodel.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(modelName));

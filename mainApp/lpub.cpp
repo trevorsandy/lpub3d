@@ -3053,7 +3053,7 @@ void Gui::refreshLDrawUnoffParts() {
     m_progressDialog->setWindowFlags(m_progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
     m_progressDialog->setWindowTitle(QString("LDraw Library Update"));
     m_progressDialog->progressBarSetLabelText(QString("Extracting LDraw Unofficial parts from %1...")
-                                              .arg(QFileInfo(newarchive).baseName()));
+                                              .arg(QFileInfo(newarchive).completeBaseName()));
     m_progressDialog->progressBarSetRange(0,items.count());
     m_progressDialog->setAutoHide(true);
     m_progressDialog->setModal(true);
@@ -3215,7 +3215,7 @@ void Gui::refreshLDrawOfficialParts() {
     m_progressDialog->setWindowFlags(m_progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
     m_progressDialog->setWindowTitle(QString("LDraw Library Update"));
     m_progressDialog->progressBarSetLabelText(QString("Extracting LDraw Official parts from %1...")
-                                              .arg(QFileInfo(newarchive).baseName()));
+                                              .arg(QFileInfo(newarchive).completeBaseName()));
     m_progressDialog->progressBarSetRange(0,items.count());
     m_progressDialog->setAutoHide(true);
     m_progressDialog->setModal(true);
@@ -3336,7 +3336,7 @@ void Gui::meta()
   doc.prepend(QString());
   doc.prepend(QString("%1 %2 - Generated on %3")
                        .arg(VER_PRODUCTNAME_STR)
-                       .arg(QFileInfo(fileName).baseName())
+                       .arg(QFileInfo(fileName).completeBaseName())
                        .arg(QDateTime::currentDateTime().toString(fmtDateTime)));
   doc.append(QString());
   doc.append(QString("End of file."));

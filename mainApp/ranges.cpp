@@ -71,9 +71,9 @@ QString Steps::path()
 {
   QString thePath;
   for (int i = 0; i < meta.submodelStack.size(); i++) {
-    thePath += "/" + QFileInfo(meta.submodelStack[i].modelName).baseName();
+    thePath += "/" + QFileInfo(meta.submodelStack[i].modelName).completeBaseName();
   }
-  thePath += "/" + QFileInfo(modelName()).baseName();
+  thePath += "/" + QFileInfo(modelName()).completeBaseName();
   return thePath;
 }
 
@@ -83,9 +83,9 @@ QString Steps::csiName()
 
   for (int i = 0; i < meta.submodelStack.size(); i++) {
     QString lineNum = QString("%1") .arg(meta.submodelStack[i].stepNumber);
-    thePath += QFileInfo(meta.submodelStack[i].modelName).baseName() + "_" + lineNum + "_";
+    thePath += QFileInfo(meta.submodelStack[i].modelName).completeBaseName() + "_" + lineNum + "_";
   } 
-  thePath += QFileInfo(modelName()).baseName();
+  thePath += QFileInfo(modelName()).completeBaseName();
 
   return thePath;
 }
@@ -778,7 +778,7 @@ void Steps::setCsiAnnotationMetas(bool force)
                 split(line,argv);
 
                 if (argv.size() == 15 && argv[0] == "1") {
-                  QString key = QString("%1_%2").arg(QFileInfo(argv[14]).baseName()).arg(argv[1]);
+                  QString key = QString("%1_%2").arg(QFileInfo(argv[14]).completeBaseName()).arg(argv[1]);
                   PliPart *part = pliParts[key];
 
                   if (! part)
@@ -788,7 +788,7 @@ void Steps::setCsiAnnotationMetas(bool force)
                     continue;
 
                   if (part->annotateText) {
-                    QString typeName = QFileInfo(part->type).baseName();
+                    QString typeName = QFileInfo(part->type).completeBaseName();
                     QString pattern = QString("^\\s*0\\s+(\\!*LPUB ASSEM ANNOTATION ICON).*("+typeName+"|HIDDEN|HIDE).*$");
                     QRegExp rx(pattern);
                     Where nextLine = walk;

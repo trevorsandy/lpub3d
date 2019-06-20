@@ -12,7 +12,7 @@ lcTimelineWidget::lcTimelineWidget(QWidget* Parent)
 
 	setSelectionMode(QAbstractItemView::ExtendedSelection);
 /*** LPub3D Mod - suppress item drag ***/
-    setDragEnabled(false);
+	setDragEnabled(false);
 /*** LPub3D Mod end ***/
 	setDragDropMode(QAbstractItemView::InternalMove);
 	setUniformRowHeights(true);
@@ -108,10 +108,10 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 	for (unsigned int TopLevelItemIdx = topLevelItemCount(); TopLevelItemIdx < LastStep; TopLevelItemIdx++)
 	{
 /*** LPub3D Mod - Set Timeline title to loaded model name ***/
-        QTreeWidgetItem* StepItem = new QTreeWidgetItem(this, QStringList(Model->GetName()));
+		QTreeWidgetItem* StepItem = new QTreeWidgetItem(this, QStringList(Model->GetName()));
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Set size hint ***/
-        //StepItem->setSizeHint(0,QSize(48,48));
+		//StepItem->setSizeHint(0,QSize(48,48));
 /*** LPub3D Mod end ***/
 		StepItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsDropEnabled);
 		addTopLevelItem(StepItem);
@@ -187,51 +187,51 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 
 			int ColorIndex = Piece->mColorIndex;
 /*** LPub3D Mod - Timeline part icons ***/
-            int Size = rowHeight(indexFromItem(PieceItem));
+			int Size = rowHeight(indexFromItem(PieceItem));
 
-            QFileInfo p = QFileInfo(Piece->GetID());
-            bool fPiece = (p.baseName().right(4) == QString(LPUB3D_COLOUR_FADE_SUFFIX));
-            bool hPiece = (p.baseName().right(9) == QString(LPUB3D_COLOUR_HIGHLIGHT_SUFFIX));
-            QString pieceName = p.baseName().left(p.baseName().size() - (fPiece ? 5 : hPiece ? 10 : 0)).append("." + p.suffix());
+			QFileInfo p = QFileInfo(Piece->GetID());
+			bool fPiece = (p.completeBaseName().right(4) == QString(LPUB3D_COLOUR_FADE_SUFFIX));
+			bool hPiece = (p.completeBaseName().right(9) == QString(LPUB3D_COLOUR_HIGHLIGHT_SUFFIX));
+			QString pieceName = p.completeBaseName().left(p.completeBaseName().size() - (fPiece ? 5 : hPiece ? 10 : 0)).append("." + p.suffix());
 
-            bool IsModel = gMainWindow->IsLPub3DSubModel(pieceName);
-            int IconIndex = IsModel ? SUBMODEL_ICON_INDEX_BASE + ColorIndex : ColorIndex;
+			bool IsModel = gMainWindow->IsLPub3DSubModel(pieceName);
+			int IconIndex = IsModel ? SUBMODEL_ICON_INDEX_BASE + ColorIndex : ColorIndex;
 
-            if (lcGetPreferences().mViewPieceIcons && gMainWindow->mSubmodelIconsLoaded) {
+			if (lcGetPreferences().mViewPieceIcons && gMainWindow->mSubmodelIconsLoaded) {
 
-                bool UseFColor = gApplication->UseFadeColour();
-                bool Use0Code = IsModel && (hPiece || (fPiece && !gApplication->UseFadeColour()) || (!hPiece && !fPiece));
+				bool UseFColor = gApplication->UseFadeColour();
+				bool Use0Code = IsModel && (hPiece || (fPiece && !gApplication->UseFadeColour()) || (!hPiece && !fPiece));
 
-                QString colorCode = fPiece && UseFColor ? gMainWindow->GetFadeStepsColor() : QString("%1").arg(Piece->mColorCode);
-                QString colorPrefix = IsModel ? fPiece ? LPUB3D_COLOUR_FADE_PREFIX : hPiece ? LPUB3D_COLOUR_HIGHLIGHT_PREFIX : QString() : fPiece && UseFColor ? LPUB3D_COLOUR_FADE_PREFIX : QString();
-                QString ImageKey = QString("%1_%2").arg(p.baseName()).toLower().arg(QString("%1%2").arg(colorPrefix).arg(Use0Code ? QString("0") : colorCode));
+				QString colorCode = fPiece && UseFColor ? gMainWindow->GetFadeStepsColor() : QString("%1").arg(Piece->mColorCode);
+				QString colorPrefix = IsModel ? fPiece ? LPUB3D_COLOUR_FADE_PREFIX : hPiece ? LPUB3D_COLOUR_HIGHLIGHT_PREFIX : QString() : fPiece && UseFColor ? LPUB3D_COLOUR_FADE_PREFIX : QString();
+				QString ImageKey = QString("%1_%2").arg(p.completeBaseName()).toLower().arg(QString("%1%2").arg(colorPrefix).arg(Use0Code ? QString("0") : colorCode));
 
-                if (GetPieceIcon(Size, ImageKey)) {
+				if (GetPieceIcon(Size, ImageKey)) {
 
-                    PieceItem->setIcon(0, mPieceIcons[ImageKey]);
+					PieceItem->setIcon(0, mPieceIcons[ImageKey]);
 
-                } else {
+				} else {
 
-                    GetIcon(Size,ColorIndex,IsModel);
-                    PieceItem->setIcon(0, mIcons[IconIndex]);
+					GetIcon(Size,ColorIndex,IsModel);
+					PieceItem->setIcon(0, mIcons[IconIndex]);
 #ifdef QT_DEBUG_MODE
-                    qDebug() << qPrintable(QString("ALERT - Could Not Insert %1 Icon - UID [%2]")
-                                                   .arg(IsModel ? "Submodel" : "Piece")
-                                                   .arg(ImageKey));
+					qDebug() << qPrintable(QString("ALERT - Could Not Insert %1 Icon - UID [%2]")
+												   .arg(IsModel ? "Submodel" : "Piece")
+												   .arg(ImageKey));
 //#else
 //                    fprintf(stdout, "%s", QString(QString("ALERT - Could Not Insert %1 Icon - UID [%2]")
 //                                            .arg(IsModel ? "Submodel" : "Piece")
 //                                            .arg(ImageKey)).toLatin1().constData());
 //                    fflush(stdout);
 #endif
-                }
+				}
 
-            } else {
+			} else {
 
-                GetIcon(Size,ColorIndex,IsModel);
-                PieceItem->setIcon(0, mIcons[IconIndex]);
+				GetIcon(Size,ColorIndex,IsModel);
+				PieceItem->setIcon(0, mIcons[IconIndex]);
 
-            }
+			}
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Set color only if hidden otherwise use default - original behaviour not playing well with Dark Theme ***/
@@ -275,46 +275,46 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 /*** LPub3D Mod - Timeline part icons ***/
 void lcTimelineWidget::GetIcon(int Size, int ColorIndex, bool IsModel){
 
-    int IconIndex = IsModel ? SUBMODEL_ICON_INDEX_BASE + ColorIndex : ColorIndex;
+	int IconIndex = IsModel ? SUBMODEL_ICON_INDEX_BASE + ColorIndex : ColorIndex;
 
-    if (!mIcons.contains(IconIndex))
-    {
+	if (!mIcons.contains(IconIndex))
+	{
 
 
-        QImage Image(Size, Size, QImage::Format_ARGB32);
-        Image.fill(0);
-        float* Color = gColorList[ColorIndex].Value;
-        QPainter Painter(&Image);
-        Painter.setPen(Qt::darkGray);
-        Painter.setBrush(QColor::fromRgbF(Color[0], Color[1], Color[2]));
-        IsModel ?
-        Painter.drawRect(0, 0, Size - 1, Size - 1) :
-        Painter.drawEllipse(0, 0, Size - 1, Size - 1);
+		QImage Image(Size, Size, QImage::Format_ARGB32);
+		Image.fill(0);
+		float* Color = gColorList[ColorIndex].Value;
+		QPainter Painter(&Image);
+		Painter.setPen(Qt::darkGray);
+		Painter.setBrush(QColor::fromRgbF(Color[0], Color[1], Color[2]));
+		IsModel ?
+		Painter.drawRect(0, 0, Size - 1, Size - 1) :
+		Painter.drawEllipse(0, 0, Size - 1, Size - 1);
 
-        mIcons[IconIndex] = QIcon(QPixmap::fromImage(Image));
-    }
+		mIcons[IconIndex] = QIcon(QPixmap::fromImage(Image));
+	}
 }
 
 bool lcTimelineWidget::GetPieceIcon(int Size, QString ImageKey){
 
-    if (!mPieceIcons.contains(ImageKey))
-    {
-        QFileInfo iconFile(gMainWindow->GetPliIconsPath(ImageKey));
+	if (!mPieceIcons.contains(ImageKey))
+	{
+		QFileInfo iconFile(gMainWindow->GetPliIconsPath(ImageKey));
 
-        if (!iconFile.exists())
-            return false;
+		if (!iconFile.exists())
+			return false;
 
-        QImage RawImage(iconFile.absoluteFilePath());
-        RawImage = RawImage.convertToFormat(QImage::Format_ARGB32);
+		QImage RawImage(iconFile.absoluteFilePath());
+		RawImage = RawImage.convertToFormat(QImage::Format_ARGB32);
 
-        QImage Image = RawImage.scaled(Size, Size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+		QImage Image = RawImage.scaled(Size, Size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
-        QPainter Painter(&Image);
-        Painter.setRenderHints(QPainter::Antialiasing,true);
+		QPainter Painter(&Image);
+		Painter.setRenderHints(QPainter::Antialiasing,true);
 
-        mPieceIcons[ImageKey] = QIcon(QPixmap::fromImage(Image));
-    }
-    return true;
+		mPieceIcons[ImageKey] = QIcon(QPixmap::fromImage(Image));
+	}
+	return true;
 }
 /*** LPub3D Mod end ***/
 

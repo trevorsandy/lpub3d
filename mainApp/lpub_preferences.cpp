@@ -1746,35 +1746,35 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
             if (!libInfo.exists()){
                 missingLibs << libInfo.absoluteFilePath() + " - not found.";
             } else {
-                if (!validLib(libInfo.baseName(), LIBPNG_MACOS_VERSION))
+                if (!validLib(libInfo.completeBaseName(), LIBPNG_MACOS_VERSION))
                     missingLibs << libInfo.absoluteFilePath() + " - invalid version.";
             }
             libInfo.setFile("/usr/local/opt/gl2ps/lib/libgl2ps.dylib");
             if (!libInfo.exists()){
                 missingLibs << libInfo.absoluteFilePath() + " - not found.";
             } else {
-                if (!validLib(libInfo.baseName().replace("lib",""), LIBGL2PS_MACOS_VERSION))
+                if (!validLib(libInfo.completeBaseName().replace("lib",""), LIBGL2PS_MACOS_VERSION))
                     missingLibs << libInfo.absoluteFilePath() + " - invalid version.";
             }
             libInfo.setFile("/usr/local/opt/jpeg/lib/libjpeg.dylib");
             if (!libInfo.exists()){
                 missingLibs << libInfo.absoluteFilePath() + " - not found.";
             } else {
-                if (!validLib(libInfo.baseName().replace("lib",""), LIBJPEG_MACOS_VERSION))
+                if (!validLib(libInfo.completeBaseName().replace("lib",""), LIBJPEG_MACOS_VERSION))
                     missingLibs << libInfo.absoluteFilePath() + " - invalid version.";
             }
             libInfo.setFile("/usr/local/opt/tinyxml/lib/libtinyxml.dylib");
             if (!libInfo.exists()){
                 missingLibs << libInfo.absoluteFilePath() + " - not found.";
             } else {
-                if (!validLib(libInfo.baseName().replace("lib",""), LIBXML_MACOS_VERSION))
+                if (!validLib(libInfo.completeBaseName().replace("lib",""), LIBXML_MACOS_VERSION))
                     missingLibs << libInfo.absoluteFilePath() + " - invalid version.";
             }
             libInfo.setFile("/usr/local/opt/minizip/lib/libminizip.dylib");
             if (!libInfo.exists()){
                 missingLibs << libInfo.absoluteFilePath() + " - not found.";
             } else {
-                if (!validLib(libInfo.baseName().replace("lib",""), LIBMINIZIP_MACOS_VERSION))
+                if (!validLib(libInfo.completeBaseName().replace("lib",""), LIBMINIZIP_MACOS_VERSION))
                     missingLibs << libInfo.absoluteFilePath() + " - invalid version.";
             }
 
@@ -1842,7 +1842,7 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
             if (!libInfo.exists()){
                 missingLibs << libInfo.absoluteFilePath() + " - not found.";
             } else {
-                if (!validLib(libInfo.baseName(), LIBTIFF_MACOS_VERSION))
+                if (!validLib(libInfo.completeBaseName(), LIBTIFF_MACOS_VERSION))
                     missingLibs << libInfo.absoluteFilePath() + " - invalid version.";
             }
             libInfo.setFile("/usr/local/opt/openexr/lib/libIlmImf.dylib");
@@ -1865,7 +1865,7 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
             if (!libInfo.exists()){
                 missingLibs << libInfo.absoluteFilePath() + " - not found.";
             } else {
-                if (!validLib(libInfo.baseName().replace("lib","").toLower(), LIBSDL_MACOS_VERSION))
+                if (!validLib(libInfo.completeBaseName().replace("lib","").toLower(), LIBSDL_MACOS_VERSION))
                     missingLibs << libInfo.absoluteFilePath() + " - invalid version.";
             }
 
@@ -4181,7 +4181,7 @@ bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile) {
                           if (!contentList.contains(nativePath, Qt::CaseInsensitive)) {
                               QString formattedSearchDir = QString("Dir%1=%2").arg(dirNum, 3, 10, QChar('0')).arg(nativePath);
                               contentList += formattedSearchDir;
-                              if (preferredRenderer == RENDERER_LDVIEW || confFileInfo.baseName().toLower() == "ldvexport")
+                              if (preferredRenderer == RENDERER_LDVIEW || confFileInfo.completeBaseName().toLower() == "ldvexport")
                                   logInfo() << QString("ExtraSearchDirs OUT: %1").arg(formattedSearchDir);
                           }
                        }
@@ -4205,7 +4205,7 @@ bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile) {
                           if (!contentList.contains(nativePath, Qt::CaseInsensitive)) {
                               QString formattedSearchDir = QString("%1/ExtraSearchDirs/Dir%2=%3").arg(prefSetRx.cap(1)).arg(dirNum, 3, 10, QChar('0')).arg(nativePath);
                               contentList += formattedSearchDir;
-                              if (preferredRenderer == RENDERER_LDVIEW || confFileInfo.baseName().toLower() == "ldvexport")
+                              if (preferredRenderer == RENDERER_LDVIEW || confFileInfo.completeBaseName().toLower() == "ldvexport")
                                   logInfo() << QString("ExtraSearchDirs OUT: %1").arg(formattedSearchDir);
                           }
                        }
