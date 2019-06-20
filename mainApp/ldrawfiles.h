@@ -48,6 +48,7 @@ extern QList<QRegExp> LDrawUnofficialOtherRegExp;
 class LDrawSubFile {
   public:
     QStringList _contents;
+    QString     _subFilePath;
     bool        _modified;
     QDateTime   _datetime;
     int         _numSteps;
@@ -69,9 +70,10 @@ class LDrawSubFile {
     }
     LDrawSubFile(
             const QStringList &contents,
-            QDateTime   &datetime,
-            int          unofficialPart,
-            bool         generated = false);
+            QDateTime         &datetime,
+            int                unofficialPart,
+            bool               generated = false,
+            const QString     &subFilePath = QString());
     ~LDrawSubFile()
     {
       _contents.clear();
@@ -116,6 +118,16 @@ class LDrawFile {
     static int                  _emptyInt;
 
     ExcludedParts               excludedParts; // internal list of part count excluded parts
+
+    bool topLevelFileNotCaptured;
+    bool topLevelNameNotCaptured;
+    bool topLevelAuthorNotCaptured;
+    bool topLevelDescriptionNotCaptured;
+    bool topLevelCategoryNotCaptured;
+    bool unofficialPart;
+    bool topLevelModel;
+    int  descriptionLine;
+
   public:
     LDrawFile();
     ~LDrawFile()
@@ -145,16 +157,20 @@ class LDrawFile {
     bool saveMPDFile(const QString &filename);
     bool saveLDRFile(const QString &filename);
 
-    void insert(const QString     &fileName,
-                      QStringList &contents,
-                      QDateTime   &datetime,
-                      bool         unofficialPart,
-                      bool         generated = false);
+    void insert(const QString       &fileName,
+                      QStringList   &contents,
+                      QDateTime     &datetime,
+                      bool           unofficialPart,
+                      bool           generated = false,
+                      const QString &subFilePath = QString());
 
     int  size(const QString &fileName);
     void empty();
 
+    QStringList getSubFilePaths();
     QStringList contents(const QString &fileName);
+    void setSubFilePath(const QString &mcFileName,
+                     const QString &subFilePath);
     void setContents(const QString     &fileName, 
                      const QStringList &contents);
     void setPrevStepPosition(const QString &mcFileName,
@@ -167,7 +183,7 @@ class LDrawFile {
     void subFileLevels(QStringList &contents, int &level);
     int loadFile(const QString &fileName);
     void loadMPDFile(const QString &fileName, QDateTime &datetime);
-    void loadLDRFile(const QString &path, const QString &fileName, bool topLevel = true);
+    void loadLDRFile(const QString &path, const QString &fileName);
     QStringList subFileOrder();
     
     QString readLine(const QString &fileName, int lineNumber);

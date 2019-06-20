@@ -177,12 +177,12 @@ void Gui::enableWatcher()
     if (curFile != "") {
       if (isMpd()) {
         watcher.addPath(curFile);
-      } else {
-        QStringList list = ldrawFile.subFileOrder();
-        QString foo;
-        foreach (foo,list) {
-          QString bar = QDir::currentPath() + "/" + foo;
-          watcher.addPath(bar);
+      }
+      QStringList filePaths = ldrawFile.getSubFilePaths();
+      filePaths.removeDuplicates();
+      if (filePaths.size()) {
+        for (QString filePath : filePaths) {
+          watcher.addPath(filePath);
         }
       }
     }
@@ -195,12 +195,12 @@ void Gui::disableWatcher()
     if (curFile != "") {
       if (isMpd()) {
         watcher.removePath(curFile);
-      } else {
-        QStringList list = ldrawFile.subFileOrder();
-        QString foo;
-        foreach (foo,list) {
-          QString bar = QDir::currentPath() + "/" + foo;
-          watcher.removePath(bar);
+      }
+      QStringList filePaths = ldrawFile.getSubFilePaths();
+      filePaths.removeDuplicates();
+      if (filePaths.size()) {
+        for (QString filePath : filePaths) {
+          watcher.removePath(filePath);
         }
       }
     }
