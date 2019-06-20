@@ -66,6 +66,10 @@
 
 #include "csiitem.h"
 
+enum MonoColors { Blue, TransWhite, NumColors };
+const QString monoColor[NumColors]     = { "blue", "transwhite" };
+const QString monoColorCode[NumColors] = { "1", "11015"};
+
 void MetaItem::setGlobalMeta(
   QString  &topLevelFile,
   LeafMeta *leaf)
@@ -3733,8 +3737,8 @@ bool MetaItem::offsetPoint(
    * Create a "transwhite" version of the model/submodel
    */
   QString monoOutName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + modelName;
-  monoOutName = makeMonoName(monoOutName,monoColor[transwhite]);
-  monoColorSubmodel(modelName,monoOutName,monoColor[transwhite]);
+  monoOutName = makeMonoName(monoOutName,monoColor[TransWhite]);
+  monoColorSubmodel(modelName,monoOutName,monoColor[TransWhite]);
 
   QFile inFile(monoOutName);
   if ( ! inFile.open(QFile::ReadOnly | QFile::Text)) {
@@ -3765,11 +3769,11 @@ bool MetaItem::offsetPoint(
           if (argv.size() == 15) {
               if (partAnnotation) {
                   if (i == partLineNum) {
-                      argv[1] = monoColorCode[blue];
+                      argv[1] = monoColorCode[Blue];
                       partType = argv[14];
                   }
               } else {
-                  argv[1] = monoColorCode[blue];
+                  argv[1] = monoColorCode[Blue];
               }
               line = argv.join(" ");
           }
@@ -4033,15 +4037,14 @@ void  MetaItem::deletePointerAttribute(const Where &here, bool all)
  *
  */
  
-QString MetaItem::makeMonoName(
-   const QString &fileName,
-   QString &color)
+QString MetaItem::makeMonoName(const QString &fileName,
+   const QString &color)
 {
   QString mono = "mono_";
-  QString altColor = "_" + monoColor[(color == monoColor[blue] ? transwhite : blue)];
+  QString altColor = "_" + monoColor[(color == monoColor[Blue] ? TransWhite : Blue)];
   QFileInfo info(fileName);
   QString baseName = info.baseName();
-  if (info.baseName().right(altColor.size()) == ("_" + monoColor[transwhite]))
+  if (info.baseName().right(altColor.size()) == ("_" + monoColor[TransWhite]))
       baseName = info.baseName().left(info.baseName().length() - altColor.size());
   if ((info.fileName().left(mono.size())) == mono)
       return info.absolutePath() + "/" + baseName + "_" + color + "." + info.suffix();
@@ -4049,11 +4052,11 @@ QString MetaItem::makeMonoName(
 }
   
 int MetaItem::monoColorSubmodel(
-  QString &modelName,
-  QString &monoOutName,
-  QString &color)
+  const QString &modelName,
+  const QString &monoOutName,
+  const QString &color)
 {
-  monoColors colorCode = (color == monoColor[transwhite] ? transwhite : blue);
+  MonoColors colorCode = (color == monoColor[TransWhite] ? TransWhite : Blue);
 
   QFile outFile(monoOutName);
   if ( ! outFile.open(QFile::WriteOnly | QFile::Text)) {
@@ -4124,8 +4127,8 @@ QPointF MetaItem::defaultPointerTip(
    */
 
   QString monoOutName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + modelName;
-  monoOutName = makeMonoName(monoOutName,monoColor[transwhite]);
-  monoColorSubmodel(modelName,monoOutName,monoColor[transwhite]);
+  monoOutName = makeMonoName(monoOutName,monoColor[TransWhite]);
+  monoColorSubmodel(modelName,monoOutName,monoColor[TransWhite]);
 
   QFile inFile(monoOutName);
   if ( ! inFile.open(QFile::ReadOnly | QFile::Text)) {
@@ -4148,7 +4151,7 @@ QPointF MetaItem::defaultPointerTip(
   int adjustedLineNumber = lineNumber + colorLines;
   int instances          = 0;
   QFileInfo info(subModel);
-  QString monoSubModel = "mono_" + info.baseName() + "_" + monoColor[transwhite] + "." + info.suffix();
+  QString monoSubModel = "mono_" + info.baseName() + "_" + monoColor[TransWhite] + "." + info.suffix();
   QStringList argv;
   int i;
   for (i = 0; i < numLines; i++) {
@@ -4193,11 +4196,11 @@ QPointF MetaItem::defaultPointerTip(
    */
 
   QString fileName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + argv[14]; // monoSubModel
-  fileName = makeMonoName(fileName,monoColor[blue]);
+  fileName = makeMonoName(fileName,monoColor[Blue]);
   QString tmodelName = info.fileName();
-  monoColorSubmodel(tmodelName,fileName,monoColor[blue]);
+  monoColorSubmodel(tmodelName,fileName,monoColor[Blue]);
   info.setFile(fileName);
-  argv[1] = monoColorCode[blue];
+  argv[1] = monoColorCode[Blue];
   argv[14] = info.fileName();
 
   /*
