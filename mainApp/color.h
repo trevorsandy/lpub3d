@@ -38,7 +38,8 @@
 class LDrawColor {
   private:
     static QHash<QString, int> color2alpha;
-    static QHash<QString, QColor>  name2color;
+    static QHash<QString, int> value2code;
+    static QHash<QString, QColor>  name2QColor;
     static QHash<QString, QString> color2value;
     static QHash<QString, QString> color2edge;
     static QHash<QString, QString> color2name;
@@ -84,9 +85,16 @@ class LDrawColor {
     /*
      * This function provides the translate from LDraw color code to
      * color value and returns the color value if it exist.
+     * Setting the hex argument to true prepends the returned value with '#'
      * If there is no color value, FFFF80 (material main_colour) - is returned.
      */
-    static QString value(QString code);
+    static QString value(QString code,bool hex = false);
+    /*
+     * This function provides the translate from LDraw color hex value to
+     * color code and returns the code if it exist.
+     * If there is no color code, 0 (black) is returned.
+     */
+    static int code(QString value);
     /*
      * This function provides the translate from LDraw color code to
      * color edge value and returns the color edge value if it exist.
