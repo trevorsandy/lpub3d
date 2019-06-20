@@ -40,25 +40,28 @@ int lcGetBrickLinkColor(int ColorIndex)
 		const char* Name;
 	};
 
+/*** LPub3D Mod - Updated Bricklink Colour List ***/
 	lcBrickLinkEntry BrickLinkColors[] =
 	{
+		{  0, "(Not Applicable)" },
 		{  41, "Aqua" },
 		{  11, "Black" },
-		{   7, "Blue" },
-		{  97, "Blue Violet" },                     // Blue-Violet
+		{  7, "Blue" },
+		{  97, "Blue Violet" },
 		{  36, "Bright Green" },
-		{ 105, "Bright Light Blue" },
-		{ 110, "Bright Light Orange" },
-		{ 103, "Bright Light Yellow" },
-		{ 104, "Bright Pink" },
-		{   8, "Brown" },
-		{ 153, "Dark Azure" },
+		{  105, "Bright Light Blue" },
+		{  110, "Bright Light Orange" },
+		{  103, "Bright Light Yellow" },
+		{  104, "Bright Pink" },
+		{  8, "Brown" },
+		{  220, "Coral" },
+		{  153, "Dark Azure" },
 		{  63, "Dark Blue" },
-		{ 109, "Dark Blue Violet" },                // Dark Blue-Violet
-		{  85, "Dark Bluish Gray" },
-		{ 120, "Dark Brown" },
+		{  109, "Dark Blue Violet" },
+		{  85, "Dark Bluish Grey" },
+		{  120, "Dark Brown" },
 		{  91, "Dark Flesh" },
-		{  10, "Dark Gray" },
+		{  10, "Dark Grey" },
 		{  80, "Dark Green" },
 		{  68, "Dark Orange" },
 		{  47, "Dark Pink" },
@@ -66,17 +69,18 @@ int lcGetBrickLinkColor(int ColorIndex)
 		{  59, "Dark Red" },
 		{  69, "Dark Tan" },
 		{  39, "Dark Turquoise" },
+		{  161, "Dark Yellow" },
 		{  29, "Earth Orange" },
-		{ 106, "Fabuland Brown" },
-		{ 160, "Fabuland Orange" },                 // No match
+		{  106, "Fabuland Brown" },
+		{  160, "Fabuland Orange" },
 		{  28, "Flesh" },
-		{   6, "Green" },
-		{ 154, "Lavender" },
-		{ 152, "Light Aqua" },
+		{  6, "Green" },
+		{  154, "Lavender" },
+		{  152, "Light Aqua" },
 		{  62, "Light Blue" },
-		{  86, "Light Bluish Gray" },
+		{  86, "Light Bluish Grey" },
 		{  90, "Light Flesh" },
-		{   9, "Light Gray" },
+		{  9, "Light Grey" },
 		{  38, "Light Green" },
 		{  35, "Light Lime" },
 		{  32, "Light Orange" },
@@ -89,20 +93,22 @@ int lcGetBrickLinkColor(int ColorIndex)
 		{  34, "Lime" },
 		{  72, "Maersk Blue" },
 		{  71, "Magenta" },
-		{ 156, "Medium Azure" },
+		{  156, "Medium Azure" },
 		{  42, "Medium Blue" },
-		{ 150, "Medium Dark Flesh" },
+		{  150, "Medium Dark Flesh" },
 		{  94, "Medium Dark Pink" },
 		{  37, "Medium Green" },
-		{ 157, "Medium Lavender" },
+		{  157, "Medium Lavender" },
 		{  76, "Medium Lime" },
 		{  31, "Medium Orange" },
 		{  73, "Medium Violet" },
-		{ 155, "Olive Green" },
-		{   4, "Orange" },
+		{  166, "Neon Green" },
+		{  165, "Neon Orange" },
+		{  155, "Olive Green" },
+		{  4, "Orange" },
 		{  23, "Pink" },
 		{  24, "Purple" },
-		{   5, "Red" },
+		{  5, "Red" },
 		{  88, "Reddish Brown" },
 		{  27, "Rust" },
 		{  25, "Salmon" },
@@ -111,34 +117,36 @@ int lcGetBrickLinkColor(int ColorIndex)
 		{  54, "Sand Purple" },
 		{  58, "Sand Red" },
 		{  87, "Sky Blue" },
-		{   2, "Tan" },
-		{  99, "Very Light Bluish Gray" },
-		{  49, "Very Light Gray" },
+		{  2, "Tan" },
+		{  99, "Very Light Bluish Grey" },
+		{  49, "Very Light Grey" },
 		{  96, "Very Light Orange" },
 		{  43, "Violet" },
-		{   1, "White" },
-		{   3, "Yellow" },
-		{ 158, "Yellowish Green" },
-		{  13, "Trans Black" },                     // Trans-Black
-		{ 108, "Trans Bright Green" },              // Trans-Bright Green
-		{  12, "Trans Clear" },                     // Trans-Clear
-		{  14, "Trans Dark Blue" },                 // Trans-Dark Blue
-		{  50, "Trans Dark Pink" },                 // Trans-Dark Pink
-		{  20, "Trans Green" },                     // Trans-Green
-		{  15, "Trans Light Blue" },                // Trans-Light Blue
-		{ 114, "Trans Light Purple" },              // Trans-Light Purple
-		{  74, "Trans Medium Blue" },               // Trans-Medium Blue
-		{  16, "Trans Neon Green" },                // Trans-Neon Green
-		{  18, "Trans Neon Orange" },               // Trans-Neon Orange
-		{ 121, "Trans Neon Yellow" },               // Trans-Neon Yellow
-		{  98, "Trans Orange" },                    // Trans-Orange
-		{ 107, "Trans Pink" },                      // Trans-Pink
-		{  51, "Trans Purple" },                    // Trans-Purple
-		{  17, "Trans Red" },                       // Trans-Red
-		{ 113, "Trans Very Light Blue" },           // Trans-Very Lt Blue
-		{  19, "Trans Yellow" },                    // Trans-Yellow
+		{  1, "White" },
+		{  3, "Yellow" },
+		{  158, "Yellowish Green" },
+		{  13, "Trans Black" },
+		{  108, "Trans Bright Green" },
+		{  12, "Trans Clear" },
+		{  14, "Trans Dark Blue" },
+		{  50, "Trans Dark Pink" },
+		{  20, "Trans Green" },
+		{  15, "Trans Light Blue" },
+		{  221, "Trans Light Green" },
+		{  164, "Trans Light Orange" },
+		{  114, "Trans Light Purple" },
+		{  74, "Trans Medium Blue" },
+		{  16, "Trans Neon Green" },
+		{  18, "Trans Neon Orange" },
+		{  121, "Trans Neon Yellow" },
+		{  98, "Trans Orange" },
+		{  107, "Trans Pink" },
+		{  51, "Trans Purple" },
+		{  17, "Trans Red" },
+		{  113, "Trans Very Lt Blue" },
+		{  19, "Trans Yellow" },
 		{  57, "Chrome Antique Brass" },
-		{ 122, "Chrome Black" },
+		{  122, "Chrome Black" },
 		{  52, "Chrome Blue" },
 		{  21, "Chrome Gold" },
 		{  64, "Chrome Green" },
@@ -148,27 +156,110 @@ int lcGetBrickLinkColor(int ColorIndex)
 		{  81, "Flat Dark Gold" },
 		{  95, "Flat Silver" },
 		{  78, "Metal Blue" },
-		{  77, "Pearl Dark Gray" },
-		{ 115, "Pearl Gold" },
+		{  77, "Pearl Dark Grey" },
+		{  115, "Pearl Gold" },
 		{  61, "Pearl Light Gold" },
-		{  66, "Pearl Light Gray" },
-		{ 119, "Pearl Very Light Gray" },
+		{  66, "Pearl Light Grey" },
+		{  119, "Pearl Very Light Grey" },
 		{  83, "Pearl White" },
 		{  65, "Metallic Gold" },
 		{  70, "Metallic Green" },
 		{  67, "Metallic Silver" },
 		{  46, "Glow In Dark Opaque" },
-		{ 118, "Glow In Dark Trans" },
-		{ 159, "Glow in Dark White" },              // No match
+		{  118, "Glow In Dark Trans" },
+		{  159, "Glow In Dark White" },
 		{  60, "Milky White" },
-		{ 101, "Glitter Trans Clear" },             // Glitter Trans-Clear
-		{ 100, "Glitter Trans Dark Pink" },         // Glitter Trans-Dark Pink
-		{ 102, "Glitter Trans Purple" },            // Glitter Trans-Purple
-		{ 116, "Speckle Black Copper" },            // Speckle Black-Copper
-		{ 151, "Speckle Black Gold" },              // Speckle Black-Gold
-		{ 111, "Speckle Black Silver" },            // Speckle Black-Silver
-		{ 117, "Speckle Dark Bluish Gray Silver" }, // Speckle DBGray-Silver
+		{  101, "Glitter Trans Clear" },
+		{  100, "Glitter Trans Dark Pink" },
+		{  162, "Glitter Trans Light Blue" },
+		{  163, "Glitter Trans Neon Green" },
+		{  102, "Glitter Trans Purple" },
+		{  116, "Speckle Black Copper" },
+		{  151, "Speckle Black Gold" },
+		{  111, "Speckle Black Silver" },
+		{  117, "Speckle DBGrey Silver" },
+		{  142, "Mx Aqua Green" },
+		{  128, "Mx Black" },
+		{  132, "Mx Brown" },
+		{  133, "Mx Buff" },
+		{  126, "Mx Charcoal Grey" },
+		{  149, "Mx Clear" },
+		{  214, "Mx Foil Dark Blue" },
+		{  210, "Mx Foil Dark Grey" },
+		{  212, "Mx Foil Dark Green" },
+		{  215, "Mx Foil Light Blue" },
+		{  211, "Mx Foil Light Grey" },
+		{  213, "Mx Foil Light Green" },
+		{  219, "Mx Foil Orange" },
+		{  217, "Mx Foil Red" },
+		{  216, "Mx Foil Violet" },
+		{  218, "Mx Foil Yellow" },
+		{  139, "Mx Lemon" },
+		{  124, "Mx Light Bluish Grey" },
+		{  125, "Mx Light Grey" },
+		{  136, "Mx Light Orange" },
+		{  137, "Mx Light Yellow" },
+		{  144, "Mx Medium Blue" },
+		{  138, "Mx Ochre Yellow" },
+		{  140, "Mx Olive Green" },
+		{  135, "Mx Orange" },
+		{  145, "Mx Pastel Blue" },
+		{  141, "Mx Pastel Green" },
+		{  148, "Mx Pink" },
+		{  130, "Mx Pink Red" },
+		{  129, "Mx Red" },
+		{  146, "Mx Teal Blue" },
+		{  134, "Mx Terracotta" },
+		{  143, "Mx Tile Blue" },
+		{  131, "Mx Tile Brown" },
+		{  127, "Mx Tile Grey" },
+		{  147, "Mx Violet" },
+		{  123, "Mx White" },
+		{  172, "BA Black" },
+		{  207, "BA Black Rubber" },
+		{  183, "BA Blue" },
+		{  199, "BA Blue Chrome" },
+		{  197, "BA Brass" },
+		{  198, "BA Bronze" },
+		{  177, "BA Brown" },
+		{  209, "BA Chrome" },
+		{  168, "BA Cobalt" },
+		{  190, "BA Dark Blue" },
+		{  178, "BA Dark Brown" },
+		{  175, "BA Dark Grey" },
+		{  204, "BA Dark Grey Rubber" },
+		{  179, "BA Dark Tan" },
+		{  208, "BA Glow In Dark" },
+		{  203, "BA Grey Rubber" },
+		{  182, "BA Green" },
+		{  170, "BA Gunmetal" },
+		{  205, "BA Gunmetal Rubber" },
+		{  174, "BA Light Grey" },
+		{  189, "BA OD Green" },
+		{  200, "BA OD Metallic" },
+		{  181, "BA Olive" },
+		{  192, "BA Pink" },
+		{  191, "BA Purple" },
+		{  176, "BA Red" },
+		{  201, "BA Red Chrome" },
+		{  184, "BA Sand Blue" },
+		{  195, "BA Silver" },
+		{  206, "BA Silver Rubber" },
+		{  180, "BA Tan" },
+		{  196, "BA Titanium" },
+		{  186, "BA Trans Black" },
+		{  188, "BA Trans Blue" },
+		{  185, "BA Trans Clear" },
+		{  171, "BA Trans Green" },
+		{  187, "BA Trans Orange" },
+		{  169, "BA Trans Red" },
+		{  194, "BA Trans Red Sparkle" },
+		{  193, "BA Trans Smoke" },
+		{  167, "BA UN Blue" },
+		{  173, "BA White" },
+		{  202, "BA White Rubber" },
 	};
+/*** LPub3D Mod end ***/
 
 	const char* Name = gColorList[ColorIndex].Name;
 
@@ -250,9 +341,9 @@ bool lcLoadColorFile(lcFile& File)
 		Color.Edge[2] = FLT_MAX;
 		Color.Edge[3] = 1.0f;
 /*** LPub3D Mod - use 3DViewer colors ***/
-        Color.CValue = ~0U;
-        Color.EValue = ~0U;
-        Color.Alpha = 255;
+		Color.CValue = ~0U;
+		Color.EValue = ~0U;
+		Color.Alpha = 255;
 /*** LPub3D Mod end ***/
 
 		GetToken(Ptr, Token);
@@ -282,7 +373,7 @@ bool lcLoadColorFile(lcFile& File)
 				if (sscanf(Token, "%x", &Value) != 1)
 					Value = 0;
 /*** LPub3D Mod - use 3DViewer colors ***/
-                Color.CValue = Value;
+				Color.CValue = Value;
 /*** LPub3D Mod end ***/
 				Color.Value[2] = (float)(Value & 0xff) / 255.0f;
 				Value >>= 8;
@@ -300,7 +391,7 @@ bool lcLoadColorFile(lcFile& File)
 				if (sscanf(Token, "%x", &Value) != 1)
 					Value = 0;
 /*** LPub3D Mod - use 3DViewer colors ***/
-                Color.EValue = Value;
+				Color.EValue = Value;
 /*** LPub3D Mod end ***/
 
 				Color.Edge[2] = (float)(Value & 0xff) / 255.0f;
@@ -317,7 +408,7 @@ bool lcLoadColorFile(lcFile& File)
 				if (Value != 255)
 					Color.Translucent = true;
 /*** LPub3D Mod - use 3DViewer colors ***/
-                Color.Alpha = Value;
+				Color.Alpha = Value;
 /*** LPub3D Mod end ***/
 				if (Value == 128)
 					GroupTranslucent = true;
@@ -429,9 +520,9 @@ bool lcLoadColorEntry(const char* ColorEntry)
 	Color.Edge[1] = FLT_MAX;
 	Color.Edge[2] = FLT_MAX;
 	Color.Edge[3] = 1.0f;
-    Color.CValue = ~0U;
-    Color.EValue = ~0U;
-    Color.Alpha = 255;
+	Color.CValue = ~0U;
+	Color.EValue = ~0U;
+	Color.Alpha = 255;
 
 	GetToken(Ptr, Token);
 	strncpy(Color.Name, Token, sizeof(Color.Name));
@@ -459,7 +550,7 @@ bool lcLoadColorEntry(const char* ColorEntry)
 			int Value;
 			if (sscanf(Token, "%x", &Value) != 1)
 				Value = 0;
-            Color.EValue = Value;
+			Color.EValue = Value;
 
 			Color.Value[2] = (float)(Value & 0xff) / 255.0f;
 			Value >>= 8;
@@ -476,7 +567,7 @@ bool lcLoadColorEntry(const char* ColorEntry)
 			int Value;
 			if (sscanf(Token, "%x", &Value) != 1)
 				Value = 0;
-            Color.EValue = Value;
+			Color.EValue = Value;
 
 			Color.Edge[2] = (float)(Value & 0xff) / 255.0f;
 			Value >>= 8;
@@ -488,7 +579,7 @@ bool lcLoadColorEntry(const char* ColorEntry)
 		{
 			GetToken(Ptr, Token);
 			int Value = atoi(Token);
-            Color.Alpha = Value;
+			Color.Alpha = Value;
 			Color.Value[3] = (float)(Value & 0xff) / 255.0f;
 			if (Value != 255)
 			{

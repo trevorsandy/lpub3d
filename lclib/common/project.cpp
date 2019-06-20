@@ -82,7 +82,7 @@ Project::Project()
 {
 	mModified = false;
 /*** LPub3D Mod - default model name ***/
-    mActiveModel = new lcModel(tr("LPub3D Model.ldr"));
+	mActiveModel = new lcModel(tr("LPub3D Model.ldr"));
 /*** LPub3D Mod end ***/
 	mActiveModel->CreatePieceInfo(this);
 	mActiveModel->SetSaved();
@@ -122,7 +122,7 @@ QString Project::GetTitle() const
 	if (!mFileName.isEmpty())
 		return QFileInfo(mFileName).fileName();
 /*** LPub3D Mod - default model name ***/
-    return mModels.GetSize() == 1 ? tr("LPub3D Model.ldr") : tr("LPub3D Model.mpd");
+	return mModels.GetSize() == 1 ? tr("LPub3D Model.ldr") : tr("LPub3D Model.mpd");
 /*** LPub3D Mod end ***/
 }
 
@@ -1173,11 +1173,13 @@ void Project::ExportBrickLink()
 			BrickLinkFile.WriteLine(Line);
 
 			int Count = ColorIt.second;
-			if (Count > 1)
-			{
+/*** LPub3D Mod - do not suppress MINQTY ***/
+//			if (Count > 1)
+//			{
 				sprintf(Line, "    <MINQTY>%d</MINQTY>\n", Count);
 				BrickLinkFile.WriteLine(Line);
-			}
+//			}
+/*** LPub3D Mod end ***/
 
 			int Color = lcGetBrickLinkColor(ColorIt.first);
 			if (Color)
