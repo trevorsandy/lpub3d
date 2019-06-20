@@ -143,8 +143,15 @@ Highlighter::Highlighter(QTextDocument *parent)
     // LPub3D Font Number Format
     LPubFontNumberFormat.setForeground(br14);
     LPubFontNumberFormat.setFontWeight(QFont::Normal);
-    rule.pattern = QRegExp("\\d+"); // match digit if preceded by , or -
+    rule.pattern = QRegExp("[,|-](\\d+)"); // match digit if preceded by , or -
     rule.format = LPubFontNumberFormat;
+    highlightingRules.append(rule);
+
+    // LPub3D Font Number Comma Format
+    LPubFontCommaFormat.setForeground(br27);
+    LPubFontCommaFormat.setFontWeight(QFont::Normal);
+    rule.pattern = QRegExp("[,]");
+    rule.format = LPubFontCommaFormat;
     highlightingRules.append(rule);
 
     // LPub3D Page Size Format

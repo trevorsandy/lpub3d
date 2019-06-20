@@ -68,6 +68,7 @@ private:
     QTextCharFormat LPubMetaFormat;        // b24 - LPub3D
     QTextCharFormat LPubBodyMetaFormat;    // b25 - LPub3D Body
     QTextCharFormat LPubQuotedTextFormat;  // b27 - LPub3D Quoted Text
+    QTextCharFormat LPubFontCommaFormat;   // b27 - LPub3D Number
     QTextCharFormat LPubFontNumberFormat;  // b14 - LPub3D Number
     QTextCharFormat LPubNumberFormat;      // b14 - LPub3D Number
     QTextCharFormat LPubHexNumberFormat;   // b15 - LPub3D Hex Number
