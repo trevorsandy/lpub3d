@@ -2733,22 +2733,18 @@ class CsiPartMeta : public BranchMeta
 
 /*------------------------*/
 
-class CalloutSubModelMeta : public BranchMeta
+class MultiStepSubModelMeta : public BranchMeta
 {
 public:
   PlacementMeta placement;
   MarginsMeta   margin;
   BoolMeta      show;
-  void setPreferences()
-  {
-      Preferences::showSubmodelInCallout = show.value();
-  }
-  CalloutSubModelMeta();
-  CalloutSubModelMeta(const CalloutSubModelMeta &rhs) : BranchMeta(rhs)
+  MultiStepSubModelMeta();
+  MultiStepSubModelMeta(const MultiStepSubModelMeta &rhs) : BranchMeta(rhs)
   {
   }
 
-  virtual ~CalloutSubModelMeta() {}
+  virtual ~MultiStepSubModelMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -2900,7 +2896,6 @@ public:
   CameraDistFactorMeta cameraDistNative;
   RotStepMeta          rotStep;
   BoolMeta             showTopModel;
-  BoolMeta             showSubmodelInCallout;
 
   PliMeta();
   PliMeta(const PliMeta &rhs) : BranchMeta(rhs)
@@ -2935,7 +2930,6 @@ public:
   {
       Preferences::showSubmodels         = show.value();
       Preferences::showTopModel          = showTopModel.value();
-      Preferences::showSubmodelInCallout = showSubmodelInCallout.value();
       Preferences::showInstanceCount     = showInstanceCount.value();
   }
   SubModelMeta();
@@ -2999,7 +2993,6 @@ public:
   MarginsMeta         margin;
   CalloutCsiMeta      csi;
   CalloutPliMeta      pli;
-  CalloutSubModelMeta subModel;
   RotateIconMeta      rotateIcon;
   NumberPlacementMeta stepNum;
   SepMeta             sep;
@@ -3038,7 +3031,7 @@ public:
   MarginsMeta         margin;
   CalloutCsiMeta      csi;
   CalloutPliMeta      pli;
-  CalloutSubModelMeta subModel;
+  MultiStepSubModelMeta subModel;
   RotateIconMeta      rotateIcon;
   NumberPlacementMeta stepNum;
   SepMeta             sep;

@@ -465,7 +465,6 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bSHOW\\b"
     << "\\bSHOW_STEP_NUMBER\\b"
     << "\\bSHOW_TOP_MODEL\\b"
-    << "\\bSHOW_SUBMODEL_IN_CALLOUT\\b"
     << "\\bSHOW_INSTANCE_COUNT\\b"
     << "\\bSIZE\\b"
     << "\\bSORT\\b"

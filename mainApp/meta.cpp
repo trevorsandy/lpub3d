@@ -2541,13 +2541,12 @@ void CalloutPliMeta::init(BranchMeta *parent, QString name)
 
 /* ------------------ */
 
-CalloutSubModelMeta::CalloutSubModelMeta() : BranchMeta()
+MultiStepSubModelMeta::MultiStepSubModelMeta() : BranchMeta()
 {
   placement.setValue(LeftOutside,CsiType);
-  show.setValue(Preferences::showSubmodelInCallout);
 }
 
-void CalloutSubModelMeta::init(BranchMeta *parent, QString name)
+void MultiStepSubModelMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
   placement.init(this,"PLACEMENT");
@@ -3356,7 +3355,6 @@ SubModelMeta::SubModelMeta() : PliMeta()
   modelScale.setValue(.50);
   show.setValue(Preferences::showSubmodels);
   showTopModel.setValue(Preferences::showTopModel);
-  showSubmodelInCallout.setValue(Preferences::showSubmodelInCallout);
   showInstanceCount.setValue(Preferences::showInstanceCount);
   ldgliteParms.setValue("-l3");
   ldviewParms.setValue("");
@@ -3404,7 +3402,6 @@ void SubModelMeta::init(BranchMeta *parent, QString name)
   modelScale           .init(this,"MODEL_SCALE");
   show                 .init(this,"SHOW");
   showTopModel         .init(this,"SHOW_TOP_MODEL");
-  showSubmodelInCallout.init(this,"SHOW_SUBMODEL_IN_CALLOUT");
   showInstanceCount    .init(this,"SHOW_INSTANCE_COUNT");
   ldviewParms          .init(this,"LDVIEW_PARMS");
   ldgliteParms         .init(this,"LDGLITE_PARMS");
@@ -4138,9 +4135,6 @@ CalloutMeta::CalloutMeta() : BranchMeta()
   alloc.setValue(Vertical);
   pli.placement.setValue(TopLeftOutside,CsiType);
   pli.perStep.setValue(true);
-  // Submodel
-  subModel.placement.setValue(RightTopOutside,StepNumberType);
-  subModel.show.setValue(true);
   // Rotate Icon
   rotateIcon.placement.setValue(RightOutside,CsiType);
 }
@@ -4170,7 +4164,6 @@ void CalloutMeta::init(BranchMeta *parent, QString name)
   end        .init(this,      "END",     CalloutEndRc);
   csi        .init(this,      "ASSEM");
   pli        .init(this,      "PLI");
-  subModel   .init(this,      "SUBMODEL_DISPLAY");
   rotateIcon .init(this,      "ROTATE_ICON");
 }
 

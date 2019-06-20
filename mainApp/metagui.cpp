@@ -3249,28 +3249,6 @@ ShowSubModelGui::ShowSubModelGui(
     line->setFrameShape(QFrame::HLine);
     grid->addWidget(line,5,0,1,2);
 
-    showSubmodelInCalloutBox = new QCheckBox("Show submodel in callout",parent);
-    showSubmodelInCalloutBox->setToolTip("Show Submodel image in callout");
-    showSubmodelInCalloutBox->setChecked(meta->showSubmodelInCallout.value());
-    connect(showSubmodelInCalloutBox,SIGNAL(clicked(bool)),
-            this,            SLOT(showSubmodelInCalloutChange(bool)));
-    grid->addWidget(showSubmodelInCalloutBox,6,0,1,2);
-
-    showSubmodelInCalloutDefaultSettings = Settings.contains(QString("%1/%2").arg(SETTINGS,"ShowSubmodelInCallout"));
-    showSubmodelInCalloutDefaultBox = new QCheckBox("Set as default",parent);
-    showSubmodelInCalloutDefaultBox->setToolTip("Save show submodel in callout to application settings.");
-    showSubmodelInCalloutDefaultBox->setChecked(showSubmodelInCalloutDefaultSettings);
-    grid->addWidget(showSubmodelInCalloutDefaultBox,7,0);
-
-    showSubmodelInCalloutMetaBox = new QCheckBox("Add meta command",parent);
-    showSubmodelInCalloutMetaBox->setToolTip("Add show submodel in callout as a global meta command to the LDraw file.");
-    showSubmodelInCalloutMetaBox->setChecked(!showSubmodelInCalloutDefaultSettings);
-    grid->addWidget(showSubmodelInCalloutMetaBox,7,1);
-
-    line = new QFrame();
-    line->setFrameShape(QFrame::HLine);
-    grid->addWidget(line,8,0,1,2);
-
     showInstanceCountBox = new QCheckBox("Show submodel instance count",parent);
     showInstanceCountBox->setToolTip("Show Submodel instance count");
     showInstanceCountBox->setChecked(meta->showInstanceCount.value());
@@ -3278,35 +3256,34 @@ ShowSubModelGui::ShowSubModelGui(
             this,                SLOT(showInstanceCountChange(bool)));
     connect(showInstanceCountBox,SIGNAL(clicked(bool)),
             this,                SIGNAL(instanceCountClicked(bool)));
-    grid->addWidget(showInstanceCountBox,9,0,1,2);
+    grid->addWidget(showInstanceCountBox,6,0,1,2);
 
     showInstanceCountDefaultSettings = Settings.contains(QString("%1/%2").arg(SETTINGS,"ShowInstanceCount"));
     showInstanceCountDefaultBox = new QCheckBox("Set as default",parent);
     showInstanceCountDefaultBox->setToolTip("Save show submodel instance count to application settings.");
     showInstanceCountDefaultBox->setChecked(showInstanceCountDefaultSettings);
-    grid->addWidget(showInstanceCountDefaultBox,10,0);
+    grid->addWidget(showInstanceCountDefaultBox,7,0);
 
     showInstanceCountMetaBox = new QCheckBox("Add meta command",parent);
     showInstanceCountMetaBox->setToolTip("Add show submodel instance count as a global meta command to the LDraw file.");
     showInstanceCountMetaBox->setChecked(!showInstanceCountDefaultSettings);
-    grid->addWidget(showInstanceCountMetaBox,10,1);
+    grid->addWidget(showInstanceCountMetaBox,7,1);
 
     line = new QFrame();
     line->setFrameShape(QFrame::HLine);
-    grid->addWidget(line,11,0,1,2);
+    grid->addWidget(line,8,0,1,2);
 
     QLabel *placementLabel = new QLabel("Default placement",parent);
-    grid->addWidget(placementLabel,12,0);
+    grid->addWidget(placementLabel,9,0);
 
     placementButton = new QPushButton("Change Placement",parent);
     placementButton->setToolTip("Set Submodel default placement");
     connect(placementButton,SIGNAL(clicked(   bool)),
             this,           SLOT(  placementChanged(bool)));
-    grid->addWidget(placementButton,12,1);
+    grid->addWidget(placementButton,9,1);
 
     showSubmodelsModified         = false;
     showTopModelModified          = false;
-    showSubmodelInCalloutModified = false;
     showInstanceCountModified     = false;
     placementModified             = false;
 
@@ -3327,14 +3304,6 @@ void ShowSubModelGui::showTopModelChange(bool checked)
     if (meta->showTopModel.value() != checked) {
         meta->showTopModel.setValue(checked);
         modified = showTopModelModified = true;
-    }
-}
-
-void ShowSubModelGui::showSubmodelInCalloutChange(bool checked)
-{
-    if (meta->showSubmodelInCallout.value() != checked) {
-        meta->showSubmodelInCallout.setValue(checked);
-        modified = showSubmodelInCalloutModified = true;
     }
 }
 
@@ -3367,10 +3336,6 @@ void ShowSubModelGui::enableSubmodelControls(bool checked)
     showTopModelBox->setEnabled(checked);
     showTopModelDefaultBox->setEnabled(checked);
     showTopModelMetaBox->setEnabled(checked);
-
-    showSubmodelInCalloutBox->setEnabled(checked);
-    showSubmodelInCalloutDefaultBox->setEnabled(checked);
-    showSubmodelInCalloutMetaBox->setEnabled(checked);
 
     showInstanceCountBox->setEnabled(checked);
     showInstanceCountDefaultBox->setEnabled(checked);
@@ -3424,28 +3389,6 @@ void ShowSubModelGui::apply(QString &topLevelFile)
             MetaItem mi;
             mi.beginMacro("TopModelMeta");
             mi.setGlobalMeta(topLevelFile,&meta->showTopModel);
-            mi.endMacro();
-        }
-    }
-    if (showSubmodelInCalloutModified) {
-        changeMessage = QString("Show submodel in callout is %1")
-                                .arg(meta->showSubmodelInCallout.value() ? "ON" : "OFF");
-        emit gui->messageSig(LOG_INFO, changeMessage);
-        if (showSubmodelInCalloutDefaultBox->isChecked()){
-            changeMessage = QString("Show submodel in callout added as application default.");
-            emit gui->messageSig(LOG_INFO, changeMessage);
-            Preferences::showSubmodelInCallout = meta->showSubmodelInCallout.value();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowSubmodelInCallout"),meta->showSubmodelInCallout.value());
-        }
-        else
-        if (showSubmodelInCalloutDefaultSettings) {
-            Settings.remove(QString("%1/%2").arg(SETTINGS,"ShowSubmodelInCallout"));
-        }
-
-        if (showSubmodelInCalloutMetaBox->isChecked()){
-            MetaItem mi;
-            mi.beginMacro("ShowSubmodelInCallout");
-            mi.setGlobalMeta(topLevelFile,&meta->showSubmodelInCallout);
             mi.endMacro();
         }
     }

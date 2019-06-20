@@ -683,12 +683,10 @@ int Gui::drawPage(
 
           // Set flag to display submodel at first submodel step
           if (step && steps->meta.LPub.subModel.show.value()) {
-              bool calloutOk      = (calledOut ? assembledCallout : true ) &&
-                                    (calledOut ? steps->meta.LPub.subModel.showSubmodelInCallout.value() : true);
               bool topModel       = (topLevelFile() == topOfStep.modelName);
               bool showTopModel   = (steps->meta.LPub.subModel.showTopModel.value());
-              bool showStepOk     = (steps->meta.LPub.subModel.showStep.value() || stepNum == 1);
-              step->placeSubModel = (calloutOk && showStepOk && (! topModel || showTopModel));
+              bool showStepOk     = (steps->meta.LPub.subModel.showStepNum.value() == stepNum || stepNum == 1);
+              step->placeSubModel = (showStepOk && !calledOut && (! topModel || showTopModel));
           }
 
         }

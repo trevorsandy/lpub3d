@@ -108,8 +108,6 @@ Step::Step(
       stepNumber.font         = _meta.LPub.callout.stepNum.font.valueFoo();
       stepNumber.color        = _meta.LPub.callout.stepNum.color.value();
       stepNumber.margin       = _meta.LPub.callout.stepNum.margin;
-      subModel.margin         = _meta.LPub.callout.subModel.margin;
-      subModel.placement      = _meta.LPub.callout.subModel.placement;
       pliPerStep              = _meta.LPub.callout.pli.perStep.value();
     } else if (multiStep) {
       csiPlacement.margin     = _meta.LPub.multiStep.csi.margin;

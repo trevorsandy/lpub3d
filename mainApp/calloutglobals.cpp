@@ -113,11 +113,6 @@ GlobalCalloutDialog::GlobalCalloutDialog(QString &topLevelFile, Meta &meta)
   data->children.append(child);
   childlayout->addWidget(child);
 
-  box = new QGroupBox("Submodel");
-  grid->addWidget(box);
-  child = new CheckBoxGui("Show Submodel image at first step",&calloutMeta->subModel.show, box);
-  data->children.append(child);
-
   box = new QGroupBox("Step Number");
   grid->addWidget(box);
   child = new NumberGui(&calloutMeta->stepNum,box);
