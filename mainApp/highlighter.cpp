@@ -115,7 +115,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     // LDraw Header Value Format
     LDrawHeaderValueFormat.setForeground(br26);
     LDrawHeaderValueFormat.setFontWeight(QFont::Normal);
-    rule.pattern = QRegExp("^.*\\b(?:AUTHOR|BFC|CATEGORY|CMDLINE|HELP|HISTORY|KEYWORDS|LDRAW_ORG|LICENSE|NAME|FILE|THEME|~MOVED TO)\\b.*$",Qt::CaseInsensitive);
+    rule.pattern = QRegExp("^.*\\b(?:AUTHOR|CATEGORY|CMDLINE|HELP|HISTORY|KEYWORDS|LDRAW_ORG|LICENSE|NAME|FILE|THEME|~MOVED TO)\\b.*$",Qt::CaseInsensitive);
     rule.format = LDrawHeaderValueFormat;
     highlightingRules.append(rule);
 
@@ -160,41 +160,6 @@ Highlighter::Highlighter(QTextDocument *parent)
     rule.pattern = QRegExp("\\b[A|B][0-9]0?$\\b|\\bComm10E\\b$|\\bArch[1-3]\\b$",Qt::CaseInsensitive);
     rule.format = LPubPageSizeFormat;
     highlightingRules.append(rule);
-
-    // LDraw Header Format
-    LDrawHeaderFormat.setForeground(br02);
-    LDrawHeaderFormat.setFontWeight(QFont::Bold);
-
-    QStringList LDrawHeaderPatterns;
-    LDrawHeaderPatterns
-    << "\\bAUTHOR\\b:?"
-    << "\\bBFC\\b"
-    << "!?\\bCATEGORY\\b"
-    << "\\bCLEAR\\b"
-    << "!?\\bCMDLINE\\b"
-    << "!?\\bHELP\\b"
-    << "!?\\bHISTORY\\b"
-    << "!?\\bKEYWORDS\\b"
-    << "!?\\bLDRAW_ORG\\b"
-    << "!?\\bLICENSE\\b"
-    << "\\bNAME\\b:?"
-    << "\\bFILE\\b"
-    << "\\bNOFILE\\b"
-    << "!?\\bHELP\\b"
-    << "\\bOFFICIAL\\b"
-    << "\\bORIGINAL LDRAW\\b"
-    << "!?\\bTHEME\\b"
-    << "\\bUNOFFICIAL MODEL\\b"
-    << "\\bUN-OFFICIAL\\b"
-    << "\\bUNOFFICIAL\\b"
-    << "\\b~MOVED TO\\b"
-       ;
-
-    foreach (QString pattern, LDrawHeaderPatterns) {
-        rule.pattern = QRegExp(pattern,Qt::CaseInsensitive);
-        rule.format = LDrawHeaderFormat;
-        highlightingRules.append(rule);
-    }
 
     // LDraw Custom COLOUR Meta Format
     LDrawColourMetaFormat.setForeground(br05);
@@ -533,6 +498,64 @@ Highlighter::Highlighter(QTextDocument *parent)
         highlightingRules.append(rule);
     }
 
+    // LDraw Header Format
+    LDrawHeaderFormat.setForeground(br02);
+    LDrawHeaderFormat.setFontWeight(QFont::Bold);
+
+    QStringList LDrawHeaderPatterns;
+    LDrawHeaderPatterns
+    << "\\bAUTHOR\\b:?"
+    << "\\bBFC\\b"
+    << "!?\\bCATEGORY\\b"
+    << "\\bCERTIFY\\b"
+    << "\\bCCW\\b"
+    << "\\bCLEAR\\b"
+    << "!?\\bCMDLINE\\b"
+    << "!?\\bHELP\\b"
+    << "!?\\bHISTORY\\b"
+    << "!?\\bKEYWORDS\\b"
+    << "!?\\bLDRAW_ORG\\b"
+    << "!?\\bLICENSE\\b"
+    << "\\bNAME\\b:?"
+    << "\\bFILE\\b"
+    << "\\bNOFILE\\b"
+    << "!?\\bHELP\\b"
+    << "\\bOFFICIAL\\b"
+    << "\\bORIGINAL LDRAW\\b"
+    << "!?\\bTHEME\\b"
+    << "\\bUNOFFICIAL MODEL\\b"
+    << "\\bUN-OFFICIAL\\b"
+    << "\\bUNOFFICIAL\\b"
+    << "\\UNOFFICIAL PART\\b"
+    << "\\UNOFFICIAL_PART\\b"
+    << "\\UNOFFICIAL_SUBPART\\b"
+    << "\\UNOFFICIAL_SHORTCUT\\b"
+    << "\\UNOFFICIAL_PRIMITIVE\\b"
+    << "\\UNOFFICIAL_8_PRIMITIVE\\b"
+    << "\\UNOFFICIAL_48_PRIMITIVE\\b"
+    << "\\UNOFFICIAL_PART ALIAS\\b"
+    << "\\UNOFFICIAL_SHORTCUT ALIAS\\b"
+    << "\\UNOFFICIAL_PART PHYSICAL_COLOUR\\b"
+    << "\\UNOFFICIAL_SHORTCUT PHYSICAL_COLOUR\\b"
+    << "\\UNOFFICIAL PART\\b"
+    << "\\UNOFFICIAL SUBPART\\b"
+    << "\\UNOFFICIAL SHORTCUT\\b"
+    << "\\UNOFFICIAL PRIMITIVE\\b"
+    << "\\UNOFFICIAL 8_PRIMITIVE\\b"
+    << "\\UNOFFICIAL 48_PRIMITIVE\\b"
+    << "\\UNOFFICIAL PART ALIAS\\b"
+    << "\\UNOFFICIAL SHORTCUT ALIAS\\b"
+    << "\\UNOFFICIAL PART PHYSICAL_COLOUR\\b"
+    << "\\UNOFFICIAL SHORTCUT PHYSICAL_COLOUR\\b"
+    << "\\b~MOVED TO\\b"
+       ;
+
+    foreach (QString pattern, LDrawHeaderPatterns) {
+        rule.pattern = QRegExp(pattern,Qt::CaseInsensitive);
+        rule.format = LDrawHeaderFormat;
+        highlightingRules.append(rule);
+    }
+
     // LDraw Meta Line Format - This should come at the end
     // to overwrite any formats that impact the first 0
     LDrawLineType0Format.setForeground(br28);
@@ -593,11 +616,45 @@ Highlighter::Highlighter(QTextDocument *parent)
     rule.format = LSynthMetaFormat;
     highlightingRules.append(rule);
 
-    // LDCad Format
-    LDCadMetaFormat.setForeground(br19);
-    LDCadMetaFormat.setFontWeight(QFont::Bold);
+    // LDCad Meta Key Format
+    LDCadMetaKeyFormat.setForeground(br11);
+    LDCadMetaKeyFormat.setFontWeight(QFont::Bold);
     rule.pattern = QRegExp("!?\\bLDCAD\\b[^\n]*");
-    rule.format = LDCadMetaFormat;
+    rule.format = LDCadMetaKeyFormat;
+    highlightingRules.append(rule);
+
+    // LDCad Generated Meta Format
+    LDCadGenMetaFormat.setForeground(br19);
+    LDCadGenMetaFormat.setFontWeight(QFont::Bold);
+
+    QStringList LDCadGenMetaPatterns;
+    LDCadGenMetaPatterns
+    << "!?\\bLDCAD\\b:?"
+    << "!?\\bLDCAD CONTENT\\b"
+    << "!?\\bLDCAD PATH_CAP\\b"
+    << "!?\\bLDCAD PATH_POINT\\b"
+    << "!?\\bLDCAD PATH_SKIN\\b"
+    << "!?\\bLDCAD GENERATED\\b"
+    ;
+
+    foreach (QString pattern, LDCadGenMetaPatterns) {
+        rule.pattern = QRegExp(pattern,Qt::CaseSensitive);
+        rule.format = LDCadGenMetaFormat;
+        highlightingRules.append(rule);
+    }
+
+    // LDCad Meta Value Format
+    LDCadMetaValueFormat.setForeground(br08);
+    LDCadMetaValueFormat.setFontWeight(QFont::Normal);
+    rule.pattern = QRegExp("[=]([a-zA-Z\\0-9%.\\s]+)");
+    rule.format = LDCadMetaValueFormat;
+    highlightingRules.append(rule);
+
+    // LDCad Value Bracket Format
+    LDCadGenBracketFormat.setForeground(br17);
+    LDCadGenBracketFormat.setFontWeight(QFont::Bold);
+    rule.pattern = QRegExp("[\\[|=|\\]]");
+    rule.format = LDCadGenBracketFormat;
     highlightingRules.append(rule);
 
     // LeoCAD Format
