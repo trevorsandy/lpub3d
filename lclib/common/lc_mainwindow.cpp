@@ -22,7 +22,6 @@
 #include "pieceinf.h"
 #include "lc_library.h"
 #include "lc_colors.h"
-#include <functional>
 
 #ifdef LC_ENABLE_GAMEPAD
 #include <QtGamepad/QGamepad>
@@ -2815,17 +2814,24 @@ void lcMainWindow::ImportInventory()
 	else
 		delete NewProject;
 }
-
 bool lcMainWindow::SaveProject(const QString& FileName)
 {
-	QString SaveFileName;
+	QString SaveFileName = FileName;
 	Project* Project = lcGetActiveProject();
 
-	if (!FileName.isEmpty())
-		SaveFileName = FileName;
-	else
+	if (!SaveFileName.isEmpty() && Project->GetModels().GetSize() > 1 && QFileInfo(SaveFileName).suffix().toLower() != QLatin1String("mpd"))
+		SaveFileName.clear();
+
+	if (SaveFileName.isEmpty())
 	{
 		SaveFileName = Project->GetFileName();
+
+		if (Project->GetModels().GetSize() > 1 && QFileInfo(SaveFileName).suffix().toLower() != QLatin1String("mpd"))
+		{
+			int SuffixLength = QFileInfo(SaveFileName).suffix().length();
+			if (SuffixLength)
+				SaveFileName = SaveFileName.left(SaveFileName.length() - SuffixLength - 1);
+		}
 
 		if (SaveFileName.isEmpty())
 			SaveFileName = QFileInfo(QDir(lcGetProfileString(LC_PROFILE_PROJECTS_PATH)), Project->GetTitle()).absoluteFilePath();
