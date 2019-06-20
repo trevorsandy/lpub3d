@@ -2251,11 +2251,31 @@ void MetaItem::deleteDivider(
     Rc expRc = parentRelativeType == StepGroupType ? StepGroupDividerRc : CalloutDividerRc;
 
     ++divider;
+    Where sepMeta(divider);
     rc = scanForward(divider,mask);
 
     if (rc == expRc) {
+      Meta content;
+      bool haveSepMeta = false;
+      int numLines = gui->subFileSize(sepMeta.modelName);
+      scanPastGlobal(sepMeta);
+      for ( ; sepMeta < numLines; sepMeta++) {
+          QString line = gui->readLine(sepMeta);
+          rc = content.parse(line,sepMeta);
+          if ((haveSepMeta =
+               rc == SepRc)       ||
+               rc == StepRc       ||
+               rc == RotStepRc    ||
+               rc == CalloutEndRc ||
+               rc == StepGroupEndRc ) {
+              break;
+          }
+      }
+
       beginMacro("deleteDivider");
       deleteMeta(divider);
+      if (haveSepMeta)
+          deleteMeta(sepMeta);
       endMacro();
     }
   }

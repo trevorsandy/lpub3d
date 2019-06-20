@@ -91,6 +91,8 @@ enum Rc {
          AssemAnnotationIconRc,
          InsertFinalModelRc,
 
+         SepRc,
+
          ClearRc,
          BufferStoreRc,
          BufferLoadRc,
@@ -3316,7 +3318,7 @@ public:
 private:
 };
 
-const QString RcNames[66] =
+const QString RcNames[65] =
 {
     "InvalidLDrawLineRc = -3",
     "RangeErrorRc = -2",
@@ -3354,6 +3356,8 @@ const QString RcNames[66] =
 
     "AssemAnnotationIconRc",
     "InsertFinalModelRc",
+
+    "SepRc",
 
     "ClearRc",
     "BufferStoreRc",

@@ -2197,7 +2197,7 @@ Rc SepMeta::parse(QStringList &argv, int index,Where &here)
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Malformed separator \"%1\"") .arg(argv.join(" ")));
       }
   }
-  return rc;
+  return SepRc;
 }
 QString SepMeta::format(bool local, bool global)
 {
