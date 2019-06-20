@@ -68,10 +68,9 @@ public:
   static void            showLdvExportSettings(int mode);
   static void            showLdvLDrawPreferences(int mode);
   static bool            RenderNativeImage(const NativeOptions &);
-  static bool            difference(const float &v1, const float &v2);
   static bool            NativeExport(const NativeOptions &);
   static bool            LoadViewer(const ViewerOptions &);
-  static bool            createSnapshotList(const QStringList &,
+  static bool            createSnapshotsList(const QStringList &,
                                             const QString &);
   static bool            doLDVCommand(const QStringList &args,
                                     int = -1 /*EXPORT_NONE*/,

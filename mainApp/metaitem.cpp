@@ -4514,13 +4514,14 @@ void MetaItem::hidePLIParts(
 void MetaItem::substitutePLIPart(
         const QStringList  &_attributes,
         const QList<Where> &_instances,
-        int                 _action)
+        int                 _action,
+        const QStringList  &_defaultList)
 {
   QStringList attributes = _attributes;
   QList<Where> instances = _instances;
 
   bool ok;
-  ok = SubstitutePartDialog::getSubstitutePart(attributes,gui,_action);
+  ok = SubstitutePartDialog::getSubstitutePart(attributes,gui,_action,_defaultList);
 
   if (ok) {
     QMap<QString,QString> map;

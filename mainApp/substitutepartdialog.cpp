@@ -47,7 +47,8 @@
 SubstitutePartDialog::SubstitutePartDialog(
     const QStringList &attributes,
     QWidget           *parent,
-    int                action) :
+    int                action,
+    const QStringList &defaultList) :
     QDialog(parent),
     ui(new Ui::SubstitutePartDialog),
     mTypeInfo(nullptr),
@@ -62,6 +63,7 @@ SubstitutePartDialog::SubstitutePartDialog(
      setWindowTitle(title);
 
      // set initial attributes
+     mDefaultAttributes << "type" << "color" << defaultList;
      mInitialAttributes = attributes;
 
      initialize();
@@ -116,11 +118,12 @@ SubstitutePartDialog::~SubstitutePartDialog()
 }
 
 bool SubstitutePartDialog::getSubstitutePart(
-   QStringList &attributes,
-   QWidget     *parent,
-   int          action) {
+   QStringList       &attributes,
+   QWidget           *parent,
+   int                action,
+   const QStringList &defaultList) {
 
-    SubstitutePartDialog *dialog = new SubstitutePartDialog(attributes,parent,action);
+    SubstitutePartDialog *dialog = new SubstitutePartDialog(attributes,parent,action,defaultList);
     bool ok = dialog->exec() == QDialog::Accepted;
     if (ok) {
       attributes = dialog->mAttributes;
@@ -436,72 +439,87 @@ void SubstitutePartDialog::accept()
 
         if (mAction != sRemove) {
 
+            QStringList removeAttributes;
             if (mAction == sSubstitute) {
                 label1 = "substitute";
                 label2 = "Substitution";
-
-                // Level 6 Substitution - Rotatation
-                QString removeLevel6Sub = QString("%1%2%3%4")
-                        .arg(mInitialAttributes.at(sRotX))
-                        .arg(mInitialAttributes.at(sRotY))
-                        .arg(mInitialAttributes.at(sRotZ))
-                        .arg(mInitialAttributes.at(sTransform));
-                QString level6Sub = QString("%1%2%3%4")
-                        .arg(mAttributes.at(sRotX))
-                        .arg(mAttributes.at(sRotY))
-                        .arg(mAttributes.at(sRotZ))
-                        .arg(mAttributes.at(sTransform));
-
-                if ((removeLevel[Level6] = level6Sub == removeLevel6Sub)) {
-                    mAttributes.removeAt(sTransform);
-                    mAttributes.removeAt(sRotZ);
-                    mAttributes.removeAt(sRotY);
-                    mAttributes.removeAt(sRotX);
-                }
-
-                // Level 5 Substitution - Camera Angles
-                QString removeLevel5Sub = QString("%1%2")
-                        .arg(mInitialAttributes.at(sCameraAngleXX))
-                        .arg(mInitialAttributes.at(sCameraAngleYY));
-                QString level5Sub = QString("%1%2")
-                        .arg(mAttributes.at(sCameraAngleXX))
-                        .arg(mAttributes.at(sCameraAngleYY));
-
-                if ((removeLevel[Level5] = (level5Sub == removeLevel5Sub && removeLevel[Level6]))) {
-                    mAttributes.removeAt(sCameraAngleYY);
-                    mAttributes.removeAt(sCameraAngleXX);
-                }
-
-                // Level 4 Substitution - Camera FOV
-                if ((removeLevel[Level4] =
-                     (mInitialAttributes.at(sCameraFoV) ==
-                      mAttributes.at(sCameraFoV) && removeLevel[Level5]))) {
-                    mAttributes.removeAt(sCameraFoV);
-                }
-
-                // Level 3 Substitution - Model Scale / Camera Distance Factor
-                if ((removeLevel[Level3] =
-                     (mInitialAttributes.at(sModelScale) ==
-                      mAttributes.at(sModelScale) && removeLevel[Level4]))) {
-                    mAttributes.removeAt(sModelScale);
-                }
-
-                // Level 2 Substitution - Colour
-                if ((removeLevel[Level2] =
-                     (mInitialAttributes.at(sColorCode) ==
-                      mAttributes.at(sColorCode) && removeLevel[Level3]))) {
-                    mAttributes.removeAt(sColorCode);
-                }
-
             } else if (mAction == sUpdate) {
                 label1 = "update";
                 label2 = "Substitute update";
             }
 
+            // Level 6 Substitution - Rotatation
+            QString removeLevel6Sub = QString("%1%2%3%4")
+                    .arg(mInitialAttributes.at(sRotX))
+                    .arg(mInitialAttributes.at(sRotY))
+                    .arg(mInitialAttributes.at(sRotZ))
+                    .arg(mInitialAttributes.at(sTransform));
+            QString removeLevel6DefSub = QString("%1%2%3%4")
+                    .arg(mDefaultAttributes.at(sRotX))
+                    .arg(mDefaultAttributes.at(sRotY))
+                    .arg(mDefaultAttributes.at(sRotZ))
+                    .arg(mDefaultAttributes.at(sTransform));
+            QString level6Sub = QString("%1%2%3%4")
+                    .arg(mAttributes.at(sRotX))
+                    .arg(mAttributes.at(sRotY))
+                    .arg(mAttributes.at(sRotZ))
+                    .arg(mAttributes.at(sTransform));
+
+            if ((removeLevel[Level6] = level6Sub == removeLevel6Sub &&
+                (mAction == sUpdate ? level6Sub == removeLevel6DefSub : true))) {
+                mAttributes.removeAt(sTransform);
+                mAttributes.removeAt(sRotZ);
+                mAttributes.removeAt(sRotY);
+                mAttributes.removeAt(sRotX);
+            }
+
+            // Level 5 Substitution - Camera Angles
+            QString removeLevel5Sub = QString("%1%2")
+                    .arg(mInitialAttributes.at(sCameraAngleXX))
+                    .arg(mInitialAttributes.at(sCameraAngleYY));
+            QString removeLevel5DefSub = QString("%1%2")
+                    .arg(mDefaultAttributes.at(sCameraAngleXX))
+                    .arg(mDefaultAttributes.at(sCameraAngleYY));
+            QString level5Sub = QString("%1%2")
+                    .arg(mAttributes.at(sCameraAngleXX))
+                    .arg(mAttributes.at(sCameraAngleYY));
+
+            if (removeLevel[Level6] &&
+               (removeLevel[Level5] = level5Sub == removeLevel5Sub &&
+               (mAction == sUpdate ? level5Sub == removeLevel5DefSub : true))) {
+                mAttributes.removeAt(sCameraAngleYY);
+                mAttributes.removeAt(sCameraAngleXX);
+            }
+
+            // Level 4 Substitution - Camera FOV
+            if (removeLevel[Level5] &&
+               (removeLevel[Level4] =
+                mInitialAttributes.at(sCameraFoV) == mAttributes.at(sCameraFoV) &&
+               (mAction == sUpdate ? mDefaultAttributes.at(sCameraFoV) == mAttributes.at(sCameraFoV) : true))) {
+                mAttributes.removeAt(sCameraFoV);
+            }
+
+            // Level 3 Substitution - Model Scale / Camera Distance Factor
+            if (removeLevel[Level4] &&
+               (removeLevel[Level3] =
+                mInitialAttributes.at(sModelScale) == mAttributes.at(sModelScale) &&
+               (mAction == sUpdate ? mDefaultAttributes.at(sModelScale) == mAttributes.at(sModelScale) : true))) {
+                mAttributes.removeAt(sModelScale);
+            }
+
+            // Level 2 Substitution - Colour
+            if (removeLevel[Level3] &&
+               (removeLevel[Level2] =
+                mInitialAttributes.at(sColorCode) == mAttributes.at(sColorCode) &&
+               (mAction == sUpdate ? mDefaultAttributes.at(sColorCode) == mAttributes.at(sColorCode) : true))) {
+                mAttributes.removeAt(sColorCode);
+            }
+
             // Level 1 Substitution - Part Type
             if ((removeLevel[Level1] =
-               (mInitialAttributes.at(sType) ==
-                mAttributes.at(sType) && removeLevel[Level2]))) {
+                 mInitialAttributes.at(sType) == mAttributes.at(sType) &&
+                (mAction == sUpdate ? mDefaultAttributes.at(sColorCode) == mAttributes.at(sColorCode) : true) &&
+                 removeLevel[Level2])) {
                 emit lpubAlert->messageSig(LOG_TRACE,QString("Nothing to %1 for part type [%2]: [%3]")
                                            .arg(label1).arg(mAttributes.at(sType)).arg(mAttributes.join(" ")));
                 mAttributes.clear();

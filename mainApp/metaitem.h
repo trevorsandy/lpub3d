@@ -452,7 +452,7 @@ public:
 
   void hidePLIParts(    QList<Where> &parts);
 
-  void substitutePLIPart(const QStringList &, const QList<Where> &, int = 1);
+  void substitutePLIPart(const QStringList &, const QList<Where> &, int = 1, const QStringList & = QStringList());
 
   void resetPartGroup(const Where &);
   

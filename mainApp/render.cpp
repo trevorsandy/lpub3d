@@ -333,11 +333,7 @@ const QStringList Render::getSubAttributes(const QString &nameKey)
     return cleanString.split("_");
 }
 
-bool Render::difference(const float &v1, const float &v2) {
-    return (v1 > v2 || v1 < v2);
-}
-
-bool Render::createSnapshotList(
+bool Render::createSnapshotsList(
     const QStringList &ldrNames,
     const QString &SnapshotsList)
 {
@@ -648,7 +644,7 @@ int POVRay::renderPli(
     const QString     &pngName,
     Meta    	      &meta,
     int                pliType,
-    int                sub)
+    int                keySub)
 {
   // Select meta type
   PliMeta &metaType = pliType == SUBMODEL ? static_cast<PliMeta&>(meta.LPub.subModel) :
@@ -666,19 +662,17 @@ int POVRay::renderPli(
   float cameraAngleX = metaType.cameraAngles.value(0);
   float cameraAngleY = metaType.cameraAngles.value(1);
 
-  if (sub) {
-    // process substitute attributges
+  // process substitute attributes
+  if (keySub) {
     QStringList attributes = getSubAttributes(pngName);
-    if (attributes.size() > ROTATION_START)
+    if (keySub == PliBeginSub6Rc)
       noCA = attributes.at(nTransform) == "ABS";
-    if (difference(attributes.at(nModelScale).toFloat(),modelScale))
+    if (keySub > PliBeginSub2Rc) {
       modelScale = attributes.at(nModelScale).toFloat();
-    if (difference(attributes.at(nCameraFoV).toFloat(),cameraFov))
-      cameraFov = attributes.at(nCameraFoV).toFloat();
-    if (difference(attributes.at(nCameraAngleXX).toFloat(),cameraAngleX))
+      cameraFov  = attributes.at(nCameraFoV).toFloat();
       cameraAngleX = attributes.at(nCameraAngleXX).toFloat();
-    if (difference(attributes.at(nCameraAngleYY).toFloat(),cameraAngleY))
       cameraAngleY = attributes.at(nCameraAngleYY).toFloat();
+    }
   }
 
   /* determine camera distance */
@@ -1014,7 +1008,7 @@ int LDGLite::renderPli(
   const QString     &pngName,
   Meta              &meta,
   int                pliType,
-  int                sub)
+  int                keySub)
 {
   // Select meta type
   PliMeta &metaType = pliType == SUBMODEL ? static_cast<PliMeta&>(meta.LPub.subModel) :
@@ -1028,19 +1022,17 @@ int LDGLite::renderPli(
   float cameraAngleX = metaType.cameraAngles.value(0);
   float cameraAngleY = metaType.cameraAngles.value(1);
 
-  if (sub) {
-    // process substitute attributges
+  // process substitute attributes
+  if (keySub) {
     QStringList attributes = getSubAttributes(pngName);
-    if (attributes.size() > ROTATION_START)
+    if (keySub == PliBeginSub6Rc)
       noCA = attributes.at(nTransform) == "ABS";
-    if (difference(attributes.at(nModelScale).toFloat(),modelScale))
+    if (keySub > PliBeginSub2Rc) {
       modelScale = attributes.at(nModelScale).toFloat();
-    if (difference(attributes.at(nCameraFoV).toFloat(),cameraFov))
-      cameraFov = attributes.at(nCameraFoV).toFloat();
-    if (difference(attributes.at(nCameraAngleXX).toFloat(),cameraAngleX))
+      cameraFov  = attributes.at(nCameraFoV).toFloat();
       cameraAngleX = attributes.at(nCameraAngleXX).toFloat();
-    if (difference(attributes.at(nCameraAngleYY).toFloat(),cameraAngleY))
       cameraAngleY = attributes.at(nCameraAngleYY).toFloat();
+    }
   }
 
   /* determine camera distance */
@@ -1415,7 +1407,7 @@ int LDView::renderPli(
   const QString     &pngName,
   Meta              &meta,
   int                pliType,
-  int                sub)
+  int                keySub)
 {
   // Select meta type
   PliMeta &metaType = pliType == SUBMODEL ? static_cast<PliMeta&>(meta.LPub.subModel) :
@@ -1454,17 +1446,19 @@ int LDView::renderPli(
   /* Create the CSI DAT file(s) */
   QString f;
   if (useLDViewSCall() && pliType != SUBMODEL) {  // SingleCall
-      if (sub) {
-          QStringList snapShotArgs,snapShotLdrs;
+      if (keySub) {
+          // process substitute attributes
+          QStringList snapShotArgs,snapShotsLdrs;
           foreach (QString ldrName,ldrNames) {
               if (!QFileInfo(ldrName).exists()) {
                   emit gui->messageSig(LOG_ERROR, QString("LDR file %1 not found.").arg(ldrName));
                   continue;
               }
+
               QStringList attributes = getSubAttributes(ldrName);
-              if (attributes.endsWith("SUB")) {
-                  if (attributes.size() > ROTATION_START + 1)
-                    noCA = attributes.at(nTransform) == "ABS";
+              if (attributes.endsWith("SUB")) { // based on keySub
+                  if (attributes.size() > 10)
+                      noCA = attributes.at(nTransform) == "ABS";
                   modelScale   = attributes.at(nModelScale).toFloat();
                   cameraFov    = attributes.at(nCameraFoV).toFloat();
                   cameraAngleX = attributes.at(nCameraAngleXX).toFloat();
@@ -1477,65 +1471,75 @@ int LDView::renderPli(
                   QString pngName = QString(ldrName).replace("_SUB.ldr",".png");
                   snapShotArgs.append(QString("%1 %2 -SaveSnapShot=%3 %4").arg(CA).arg(cg).arg(pngName).arg(ldrName));
               } else {
-                  snapShotLdrs.append(ldrName);
+                  snapShotsLdrs.append(ldrName);
               }
           }
 
-          QString CommandLinesList = tempPath + QDir::separator() + "pliCommandLinesList.lst";
-          QFile CommandLinesListFile(CommandLinesList);
-          if ( ! CommandLinesListFile.open(QFile::WriteOnly | QFile::Text)) {
-              emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to create LDView (Single Call) PLI CommandLines list file!"));
-              return -1;
-          }
+          QString snapShotsCmdArgs,snapShotsArgs;
+          if (snapShotsLdrs.size()) {
+              if (snapShotsLdrs.size() < SNAPSHOTS_LIST_THRESHOLD) {
 
-          QTextStream out(&CommandLinesListFile);
-
-          QString snapShotsArgs;
-          if (snapShotLdrs.size()) {
-              if (snapShotLdrs.size() < SNAPSHOTS_LIST_THRESHOLD) {
-
-                  snapShotsArgs = QString("%1 %2 -SaveSnapShots=1 %3").arg(CA).arg(cg).arg(snapShotLdrs.join(" "));
+                  snapShotsArgs = QString("-SaveSnapShots=1 %1").arg(snapShotsLdrs.join(" "));
+                  snapShotsCmdArgs = QString("%1 %2 %3").arg(CA).arg(cg).arg(snapShotsArgs);
 
               } else {
 
                   QString SnapshotsList = tempPath + QDir::separator() + "pliSnapshotsList.lst";
-                  if (!createSnapshotList(snapShotLdrs,SnapshotsList))
+                  if (!createSnapshotsList(snapShotsLdrs,SnapshotsList))
                       return -1;
-                  snapShotsArgs = QString("%1 %2 -SaveSnapshotsList=%3").arg(CA).arg(cg).arg(SnapshotsList);
+                  snapShotsArgs = QString("-SaveSnapshotsList=1 %1").arg(SnapshotsList);
+                  snapShotsCmdArgs = QString("%1 %2 %3").arg(CA).arg(cg).arg(snapShotsArgs);
               }
-              out << snapShotsArgs << endl;
           }
 
-          foreach (QString argsLine,snapShotArgs)
-              out << argsLine << endl;
-          CommandLinesListFile.close();
+          // we have commandline snapShotArgs so create a list file
+          if (snapShotArgs.size()) {
 
-          f  = QString("-CommandLinesList=%1").arg(CommandLinesList);    // run in renderCsi
+              QString CommandLinesList = tempPath + QDir::separator() + "pliCommandLinesList.lst";
+              QFile CommandLinesListFile(CommandLinesList);
+              if ( ! CommandLinesListFile.open(QFile::WriteOnly | QFile::Text)) {
+                  emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to create LDView (Single Call) PLI CommandLines list file!"));
+                  return -1;
+              }
+
+              QTextStream out(&CommandLinesListFile);
+              if (snapShotsLdrs.size())
+                  out << snapShotsCmdArgs << endl;
+              foreach (QString argsLine,snapShotArgs)
+                  out << argsLine << endl;
+              CommandLinesListFile.close();
+
+              f  = QString("-CommandLinesList=%1").arg(CommandLinesList);    // run in renderCsi
+          }
+          // otherwise just use the saveSnapShots argument
+          else {
+
+              f  = snapShotsArgs;
+          }
+
       } else if (!useLDViewSList() || (useLDViewSList() && ldrNames.size() < SNAPSHOTS_LIST_THRESHOLD)) {
 
           f  = QString("-SaveSnapShots=1");
       } else {
 
           QString SnapshotsList = tempPath + QDir::separator() + "pliSnapshotsList.lst";
-          if (!createSnapshotList(ldrNames,SnapshotsList))
+          if (!createSnapshotsList(ldrNames,SnapshotsList))
               return -1;
           f  = QString("-SaveSnapshotsList=%1").arg(SnapshotsList);    // run in renderCsi
       }
 
   } else {
-      if (sub) {
-        // process substitute attributges
+      // process substitute attributes
+      if (keySub) {
         QStringList attributes = getSubAttributes(pngName);
-        if (attributes.size() > ROTATION_START)
+        if (keySub == PliBeginSub6Rc)
           noCA = attributes.at(nTransform) == "ABS";
-        if (difference(attributes.at(nModelScale).toFloat(),modelScale))
+        if (keySub > PliBeginSub2Rc) {
           modelScale = attributes.at(nModelScale).toFloat();
-        if (difference(attributes.at(nCameraFoV).toFloat(),cameraFov))
-          cameraFov = attributes.at(nCameraFoV).toFloat();
-        if (difference(attributes.at(nCameraAngleXX).toFloat(),cameraAngleX))
+          cameraFov  = attributes.at(nCameraFoV).toFloat();
           cameraAngleX = attributes.at(nCameraAngleXX).toFloat();
-        if (difference(attributes.at(nCameraAngleYY).toFloat(),cameraAngleY))
           cameraAngleY = attributes.at(nCameraAngleYY).toFloat();
+        }
       }
 
       f  = QString("-SaveSnapShot=%1") .arg(pngName);
@@ -1552,7 +1556,7 @@ int LDView::renderPli(
   QString v  = QString("-vv");
 
   QStringList arguments;
-  if (!sub){
+  if (!keySub){
     arguments << CA;
     arguments << cg;
   }
@@ -1583,7 +1587,7 @@ int LDView::renderPli(
 
   if (useLDViewSCall() && pliType != SUBMODEL) {
       //-SaveSnapShots=1
-      if (!sub && (!useLDViewSList() || (useLDViewSList() && ldrNames.size() < SNAPSHOTS_LIST_THRESHOLD)))
+      if (!keySub && (!useLDViewSList() || (useLDViewSList() && ldrNames.size() < SNAPSHOTS_LIST_THRESHOLD)))
           arguments = arguments + ldrNames;  // 13. LDR input file(s)
   } else {
       //-SaveSnapShot=%1
@@ -1785,7 +1789,7 @@ int Native::renderPli(
   const QString     &pngName,
   Meta              &meta,
   int               pliType,
-  int               sub)
+  int               keySub)
 {
   // Select meta type
   PliMeta &metaType = pliType == SUBMODEL ? static_cast<PliMeta&>(meta.LPub.subModel) :
@@ -1800,19 +1804,18 @@ int Native::renderPli(
   float cameraAngleX = metaType.cameraAngles.value(0);
   float cameraAngleY = metaType.cameraAngles.value(1);
 
-  if (sub) {
-    // process substitute attributges
+
+  // process substitute attributes
+  if (keySub) {
     QStringList attributes = getSubAttributes(pngName);
-    if (attributes.size() > ROTATION_START)
+    if (keySub == PliBeginSub6Rc)
       noCA = attributes.at(nTransform) == "ABS";
-    if (difference(attributes.at(nModelScale).toFloat(),modelScale))
+    if (keySub > PliBeginSub2Rc) {
       modelScale = attributes.at(nModelScale).toFloat();
-    if (difference(attributes.at(nCameraFoV).toFloat(),cameraFov))
-      cameraFov = attributes.at(nCameraFoV).toFloat();
-    if (difference(attributes.at(nCameraAngleXX).toFloat(),cameraAngleX))
+      cameraFov  = attributes.at(nCameraFoV).toFloat();
       cameraAngleX = attributes.at(nCameraAngleXX).toFloat();
-    if (difference(attributes.at(nCameraAngleYY).toFloat(),cameraAngleY))
       cameraAngleY = attributes.at(nCameraAngleYY).toFloat();
+    }
   }
 
   // Renderer options

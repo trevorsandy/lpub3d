@@ -42,14 +42,16 @@ public:
     explicit SubstitutePartDialog(
       const QStringList &attributes,
       QWidget           *parent = nullptr,
-      int                action = 1);
+      int                action = 1,
+      const QStringList &defaultAttrs = QStringList());
 
     ~SubstitutePartDialog();
 
     static bool getSubstitutePart(
-            QStringList &attributes,
-            QWidget     *parent = nullptr,
-            int          action = 1/*Substitute*/);
+            QStringList       &attributes,
+            QWidget           *parent = nullptr,
+            int                action = 1/*Substitute*/,
+            const QStringList &defaultList = QStringList());
 
     bool mModified;
     QStringList mAttributes;
@@ -76,6 +78,7 @@ private:
   Ui::SubstitutePartDialog *ui;
   QPushButton              *mResetBtn;
   PieceInfo                *mTypeInfo;
+  QStringList               mDefaultAttributes;
   QStringList               mInitialAttributes;
   int                       mAction;
 };

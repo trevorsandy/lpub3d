@@ -293,8 +293,6 @@ static const SceneObject NoContextSceneObjects[] =
 #define NEXT          1
 #define PREVIOUS      2
 
-#define ROTATION_START                        9
-
 #define APPLICATION_DPI_DEFAULT               96.0
 
 #define GRID_SIZE_INDEX_DEFAULT               1 // 20
