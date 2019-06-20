@@ -49,6 +49,10 @@ public slots:
     guidePen.setStyle(Qt::PenStyle(line));
     update();
   }
+  void setSceneGuidesPos(int pos) {
+    mGuidesPlacement = pos;
+    update();
+  }
   void setSnapToGrid(bool b){
     mSnapToGrid = b;
     update();
@@ -102,6 +106,7 @@ private:
   bool mSnapToGrid;
   bool mRulerTracking;
   int mGridSize;
+  int mGuidesPlacement;
   qreal minZ,maxZ;
   QPointF mVertCursorPos;
   QPointF mHorzCursorPos;

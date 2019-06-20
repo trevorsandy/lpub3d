@@ -68,6 +68,7 @@ class Preferences
 
     static void setOverwriteCustomParts(bool);  // NO SOURCE
     static void setSceneGuidesPreference(bool);
+    static void setSceneGuidesPositionPreference(int);
     static void setSceneGuidesLinePreference(int);
     static void setSnapToGridPreference(bool);
     static void setHidePageBackgroundPreference(bool);
@@ -274,6 +275,7 @@ class Preferences
     static int     pageDisplayPause;
     static int     rendererTimeout;
     static int     sceneGuidesLine;
+    static int     sceneGuidesPosition;
     static int     povrayRenderQuality;
     static int     ldrawFilesLoadMsgs;
 

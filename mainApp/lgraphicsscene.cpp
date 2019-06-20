@@ -39,6 +39,7 @@ LGraphicsScene::LGraphicsScene(QObject *parent)
     mSnapToGrid(false),
     mRulerTracking(false),
     mGridSize(GridSizeTable[GRID_SIZE_INDEX_DEFAULT]),
+    mGuidesPlacement(GUIDES_TOP_LEFT),
     minZ(Z_VALUE_DEFAULT),
     maxZ(Z_VALUE_DEFAULT)
 {
@@ -96,15 +97,46 @@ void LGraphicsScene::updateGuidePos(){
     if (mValidItem){
         if (mItemType == PointerGrabberObj ||
             mItemType == PliGrabberObj     ||
-            mItemType == SubmodelGrabberObj)
-            mGuidePos = QPointF(mBaseItem->sceneBoundingRect().center().x(), mBaseItem->sceneBoundingRect().center().y());
+            mItemType == SubmodelGrabberObj||
+            mGuidesPlacement == GUIDES_CENTRE)
+            mGuidePos = QPointF(mBaseItem->sceneBoundingRect().center().x(),
+                                mBaseItem->sceneBoundingRect().center().y());
         else
-            mGuidePos = QPointF(mBaseItem->sceneBoundingRect().left(), mBaseItem->sceneBoundingRect().top());
+        if (mGuidesPlacement == GUIDES_TOP_LEFT)
+            mGuidePos = QPointF(mBaseItem->sceneBoundingRect().left(),
+                                mBaseItem->sceneBoundingRect().top());
+        else
+        if (mGuidesPlacement == GUIDES_TOP_RIGHT)
+            mGuidePos = QPointF(mBaseItem->sceneBoundingRect().right(),
+                                mBaseItem->sceneBoundingRect().top());
+        else
+        if (mGuidesPlacement == GUIDES_BOT_LEFT)
+            mGuidePos = QPointF(mBaseItem->sceneBoundingRect().left(),
+                                mBaseItem->sceneBoundingRect().bottom());
+        else /* GUIDES_BOT_RIGHT */
+            mGuidePos = QPointF(mBaseItem->sceneBoundingRect().right(),
+                                mBaseItem->sceneBoundingRect().bottom());
     }
     else
     if (mPliPartGroup){
-        mGuidePos = QPointF(mBaseItem->parentItem()->sceneBoundingRect().left(),
-                            mBaseItem->parentItem()->sceneBoundingRect().top());
+        if (mGuidesPlacement == GUIDES_TOP_LEFT)
+            mGuidePos = QPointF(mBaseItem->parentItem()->sceneBoundingRect().left(),
+                                mBaseItem->parentItem()->sceneBoundingRect().top());
+        else
+        if (mGuidesPlacement == GUIDES_TOP_RIGHT)
+            mGuidePos = QPointF(mBaseItem->parentItem()->sceneBoundingRect().right(),
+                                mBaseItem->parentItem()->sceneBoundingRect().top());
+        else
+        if (mGuidesPlacement == GUIDES_BOT_LEFT)
+            mGuidePos = QPointF(mBaseItem->parentItem()->sceneBoundingRect().left(),
+                                mBaseItem->parentItem()->sceneBoundingRect().bottom());
+        else
+        if (mGuidesPlacement == GUIDES_BOT_RIGHT)
+            mGuidePos = QPointF(mBaseItem->parentItem()->sceneBoundingRect().right(),
+                                mBaseItem->parentItem()->sceneBoundingRect().bottom());
+        else /* GUIDES_CENTRE */
+            mGuidePos = QPointF(mBaseItem->parentItem()->sceneBoundingRect().center().x(),
+                                mBaseItem->parentItem()->sceneBoundingRect().center().y());
     }
     update();
 }

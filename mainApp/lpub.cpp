@@ -955,6 +955,25 @@ void Gui::sceneGuidesLine()
   KpageView->setSceneGuidesLine();
 }
 
+void Gui::sceneGuidesPosition()
+{
+    int position = int(GUIDES_TOP_LEFT);
+    if (sceneGuidesPosTRightAct->isChecked())
+        position = int(GUIDES_TOP_RIGHT);
+    else
+    if (sceneGuidesPosBLeftAct->isChecked())
+        position = int(GUIDES_BOT_LEFT);
+    else
+    if (sceneGuidesPosBRightAct->isChecked())
+        position = int(GUIDES_BOT_RIGHT);
+    else
+    if (sceneGuidesPosCentreAct->isChecked())
+        position = int(GUIDES_CENTRE);
+
+    Preferences::setSceneGuidesPositionPreference(position);
+    KpageView->setSceneGuidesPos();
+}
+
 void Gui::sceneRuler()
 {
   Preferences::setSceneRulerPreference(sceneRulerComboAct->isChecked());
@@ -3500,17 +3519,17 @@ void Gui::createActions()
     connect(fitSceneAct, SIGNAL(triggered()), this, SLOT(fitScene()));
 
     sceneRulerTrackingNoneAct = new QAction(tr("Ruler Tracking Off"),this);
-    sceneRulerTrackingNoneAct->setStatusTip(tr("Toggle scene ruler tracking Off"));
+    sceneRulerTrackingNoneAct->setStatusTip(tr("Set scene ruler tracking Off"));
     sceneRulerTrackingNoneAct->setCheckable(true);
     connect(sceneRulerTrackingNoneAct, SIGNAL(triggered()), this, SLOT(sceneRulerTracking()));
 
     sceneRulerTrackingTickAct = new QAction(tr("Ruler Tracking Tick"),this);
-    sceneRulerTrackingTickAct->setStatusTip(tr("Toggle scene ruler tracking tick"));
+    sceneRulerTrackingTickAct->setStatusTip(tr("Set scene ruler tracking to use ruler tick mark"));
     sceneRulerTrackingTickAct->setCheckable(true);
     connect(sceneRulerTrackingTickAct, SIGNAL(triggered()), this, SLOT(sceneRulerTracking()));
 
     sceneRulerTrackingLineAct = new QAction(tr("Ruler Tracking Line"),this);
-    sceneRulerTrackingLineAct->setStatusTip(tr("Toggle scene ruler tracking line"));
+    sceneRulerTrackingLineAct->setStatusTip(tr("Set scene ruler tracking to use full scene line"));
     sceneRulerTrackingLineAct->setCheckable(true);
     connect(sceneRulerTrackingLineAct, SIGNAL(triggered()), this, SLOT(sceneRulerTracking()));
 
@@ -3540,11 +3559,48 @@ void Gui::createActions()
     sceneGuidesSolidLineAct->setCheckable(true);
     connect(sceneGuidesSolidLineAct, SIGNAL(triggered()), this, SLOT(sceneGuidesLine()));
 
-    QActionGroup* SceneGuidesGroup = new QActionGroup(this);
+    QActionGroup* SceneGuidesLineGroup = new QActionGroup(this);
     sceneGuidesDashLineAct->setChecked(Preferences::sceneGuidesLine == int(Qt::DashLine));
-    SceneGuidesGroup->addAction(sceneGuidesDashLineAct);
+    SceneGuidesLineGroup->addAction(sceneGuidesDashLineAct);
     sceneGuidesSolidLineAct->setChecked(Preferences::sceneGuidesLine == int(Qt::SolidLine));
-    SceneGuidesGroup->addAction(sceneGuidesSolidLineAct);
+    SceneGuidesLineGroup->addAction(sceneGuidesSolidLineAct);
+
+    sceneGuidesPosTLeftAct = new QAction(tr("Top Left"),this);
+    sceneGuidesPosTLeftAct->setStatusTip(tr("Set scene guides position to top left of graphic item"));
+    sceneGuidesPosTLeftAct->setCheckable(true);
+    connect(sceneGuidesPosTLeftAct, SIGNAL(triggered()), this, SLOT(sceneGuidesPosition()));
+
+    sceneGuidesPosTRightAct = new QAction(tr("Top Right"),this);
+    sceneGuidesPosTRightAct->setStatusTip(tr("Set scene guides position to top right of graphic item"));
+    sceneGuidesPosTRightAct->setCheckable(true);
+    connect(sceneGuidesPosTRightAct, SIGNAL(triggered()), this, SLOT(sceneGuidesPosition()));
+
+    sceneGuidesPosBLeftAct = new QAction(tr("Bottom Left"),this);
+    sceneGuidesPosBLeftAct->setStatusTip(tr("Set scene guides position to bottom left of graphic item"));
+    sceneGuidesPosBLeftAct->setCheckable(true);
+    connect(sceneGuidesPosBLeftAct, SIGNAL(triggered()), this, SLOT(sceneGuidesPosition()));
+
+    sceneGuidesPosBRightAct = new QAction(tr("Bottom Right"),this);
+    sceneGuidesPosBRightAct->setStatusTip(tr("Set scene guides position to bottom right of graphic item"));
+    sceneGuidesPosBRightAct->setCheckable(true);
+    connect(sceneGuidesPosBRightAct, SIGNAL(triggered()), this, SLOT(sceneGuidesPosition()));
+
+    sceneGuidesPosCentreAct = new QAction(tr("Centre"),this);
+    sceneGuidesPosCentreAct->setStatusTip(tr("Set scene guides position to centre of graphic item"));
+    sceneGuidesPosCentreAct->setCheckable(true);
+    connect(sceneGuidesPosCentreAct, SIGNAL(triggered()), this, SLOT(sceneGuidesPosition()));
+
+    QActionGroup* SceneGuidesPosGroup = new QActionGroup(this);
+    sceneGuidesPosTLeftAct->setChecked(Preferences::sceneGuidesPosition == int(GUIDES_TOP_LEFT));
+    SceneGuidesPosGroup->addAction(sceneGuidesPosTLeftAct);
+    sceneGuidesPosTRightAct->setChecked(Preferences::sceneGuidesPosition == int(GUIDES_TOP_RIGHT));
+    SceneGuidesPosGroup->addAction(sceneGuidesPosTRightAct);
+    sceneGuidesPosBLeftAct->setChecked(Preferences::sceneGuidesPosition == int(GUIDES_BOT_LEFT));
+    SceneGuidesPosGroup->addAction(sceneGuidesPosBLeftAct);
+    sceneGuidesPosBRightAct->setChecked(Preferences::sceneGuidesPosition == int(GUIDES_BOT_RIGHT));
+    SceneGuidesPosGroup->addAction(sceneGuidesPosBRightAct);
+    sceneGuidesPosCentreAct->setChecked(Preferences::sceneGuidesPosition == int(GUIDES_CENTRE));
+    SceneGuidesPosGroup->addAction(sceneGuidesPosCentreAct);
 
     sceneGuidesComboAct = new QAction(QIcon(":/resources/pageguides.png"), tr("Scene &Guides"), this);
     sceneGuidesComboAct->setShortcut(tr("Alt+G"));
@@ -4434,11 +4490,16 @@ void Gui::createToolBars()
     sceneRulerComboAct->setMenu(sceneRulerTrackingMenu);
     zoomToolBar->addAction(sceneRulerComboAct);
 
-    sceneGuidesLineMenu = new QMenu(tr("Scene Guides Line"),this);
-    sceneGuidesLineMenu->addAction(sceneGuidesDashLineAct);
-    sceneGuidesLineMenu->addAction(sceneGuidesSolidLineAct);
-    sceneRulerTrackingMenu->addSeparator();
-    sceneGuidesComboAct->setMenu(sceneGuidesLineMenu);
+    sceneGuidesMenu = new QMenu(tr("Scene Guides"),this);
+    sceneGuidesMenu->addAction(sceneGuidesDashLineAct);
+    sceneGuidesMenu->addAction(sceneGuidesSolidLineAct);
+    sceneGuidesMenu->addSeparator();
+    sceneGuidesMenu->addAction(sceneGuidesPosTLeftAct);
+    sceneGuidesMenu->addAction(sceneGuidesPosTRightAct);
+    sceneGuidesMenu->addAction(sceneGuidesPosCentreAct);
+    sceneGuidesMenu->addAction(sceneGuidesPosBLeftAct);
+    sceneGuidesMenu->addAction(sceneGuidesPosBRightAct);
+    sceneGuidesComboAct->setMenu(sceneGuidesMenu);
     zoomToolBar->addAction(sceneGuidesComboAct);
 
     snapToGridMenu = new QMenu(tr("Snap to Grid"), this);

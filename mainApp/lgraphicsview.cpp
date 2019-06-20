@@ -42,6 +42,7 @@ LGraphicsView::LGraphicsView(LGraphicsScene *scene)
 
   connect(this,SIGNAL(setGridSizeSig(int)),        scene,SLOT(setGridSize(int)));
   connect(this,SIGNAL(setSceneGuidesLineSig(int)), scene,SLOT(setSceneGuidesLine(int)));
+  connect(this,SIGNAL(setSceneGuidesPosSig(int)),  scene,SLOT(setSceneGuidesPos(int)));
   connect(this,SIGNAL(setSnapToGridSig(bool)),     scene,SLOT(setSnapToGrid(bool)));
   connect(this,SIGNAL(setSceneGuidesSig(bool)),    scene,SLOT(setSceneGuides(bool)));
   connect(this,SIGNAL(setGuidePenSig(QString,int)),scene,SLOT(setGuidePen(QString,int)));
@@ -158,14 +159,22 @@ void LGraphicsView::setSnapToGrid(){
 
 void LGraphicsView::setSceneGuides(){
   emit setSceneGuidesSig(Preferences::sceneGuides);
-  if (Preferences::sceneGuides)
+  if (Preferences::sceneGuides) {
     emit setGuidePenSig(Preferences::sceneGuideColor,
                         Preferences::sceneGuidesLine);
+    emit setSceneGuidesLineSig(Preferences::sceneGuidesLine);
+    emit setSceneGuidesPosSig(Preferences::sceneGuidesPosition);
+  }
 }
 
 void LGraphicsView::setSceneGuidesLine(){
   if (Preferences::sceneGuides)
     emit setSceneGuidesLineSig(Preferences::sceneGuidesLine);
+}
+
+void LGraphicsView::setSceneGuidesPos(){
+  if (Preferences::sceneGuides)
+    emit setSceneGuidesPosSig(Preferences::sceneGuidesPosition);
 }
 
 void LGraphicsView::setSceneBackgroundBrush(){
@@ -176,6 +185,8 @@ void LGraphicsView::setSceneTheme(){
   setSceneBackgroundBrush();
   setSceneRuler();
   setSceneGuides();
+  setSceneGuidesLine();
+  setSceneGuidesPos();
   setSnapToGrid();
 }
 

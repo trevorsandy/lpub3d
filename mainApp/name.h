@@ -40,6 +40,7 @@ enum DividerType { StepDivider, RangeDivider, NoDivider };
 enum ShowLoadMsgType { NEVER_SHOW, SHOW_ERROR, SHOW_WARNING, SHOW_MESSAGE, ALWAYS_SHOW };
 enum LoadMsgType { MISSING_LOAD_MSG, PRIMITIVE_LOAD_MSG, SUBPART_LOAD_MSG, VALID_LOAD_MSG, ALL_LOAD_MSG };
 enum RulerTrackingType { TRACKING_TICK, TRACKING_LINE, TRACKING_NONE};
+enum SceneGuidesPosType { GUIDES_TOP_LEFT, GUIDES_TOP_RIGHT, GUIDES_CENTRE, GUIDES_BOT_LEFT, GUIDES_BOT_RIGHT};
 enum LibType { LibLEGO, LibTENTE, LibVEXIQ, NumLibs };
 enum Theme { ThemeDark, ThemeDefault };
 enum SceneObjectDirection { BringToFront = 1/*True*/, SendToBack = 0/*False*/ };

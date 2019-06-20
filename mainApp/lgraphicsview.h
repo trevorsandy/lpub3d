@@ -46,6 +46,7 @@ public:
 public slots:
   void setSceneGuides();
   void setSceneGuidesLine();
+  void setSceneGuidesPos();
   void setSceneBackgroundBrush();
   void setSceneRuler();
   void setSceneVertRulerPosition(QPoint);
@@ -59,6 +60,7 @@ signals:
     void setSceneRulerSig();
     void setSceneGuidesSig(bool);
     void setSceneGuidesLineSig(int);
+    void setSceneGuidesPosSig(int);
     void setSceneRulerTrackingSig(bool);
     void setSceneRulerTrackingPenSig(QString);
     void setSceneVertRulerPositionSig(QPointF);

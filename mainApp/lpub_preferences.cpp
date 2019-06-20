@@ -230,6 +230,7 @@ bool    Preferences::missingRendererLibs        = false;
 
 int     Preferences::ldrawFilesLoadMsgs         = NEVER_SHOW;
 int     Preferences::sceneRulerTracking         = TRACKING_NONE;
+int     Preferences::sceneGuidesPosition        = GUIDES_TOP_LEFT;
 int     Preferences::sceneGuidesLine            = SCENE_GUIDES_LINE_DEFAULT;
 int     Preferences::povrayRenderQuality        = POVRAY_RENDER_QUALITY_DEFAULT;
 int     Preferences::fadeStepsOpacity           = FADE_OPACITY_DEFAULT;              //Default = 50 percent (half opacity)
@@ -2771,6 +2772,14 @@ void Preferences::userInterfacePreferences()
           sceneGuidesLine = Settings.value(QString("%1/%2").arg(SETTINGS,sceneGuidesLineKey)).toInt();
   }
 
+  QString const sceneGuidesPositionKey("SceneGuidesPosition");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneGuidesPositionKey))) {
+      sceneGuidesPosition = int(GUIDES_TOP_LEFT);
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGuidesPositionKey),sceneGuidesPosition);
+  } else {
+      sceneGuidesPosition = Settings.value(QString("%1/%2").arg(SETTINGS,sceneGuidesPositionKey)).toInt();
+  }
+
   QString const customSceneBackgroundColorKey("CustomSceneBackgroundColor");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,customSceneBackgroundColorKey))) {
           QVariant uValue(false);
@@ -2986,6 +2995,15 @@ void Preferences::setSceneGuidesLinePreference(int i)
   QVariant uValue(i);
   QString const sceneGuidesLineKey("SceneGuidesLine");
   Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGuidesLineKey),uValue);
+}
+
+void Preferences::setSceneGuidesPositionPreference(int i)
+{
+  QSettings Settings;
+  sceneGuidesPosition = i;
+  QVariant uValue(i);
+  QString const sceneGuidesPositionKey("SceneGuidesPosition");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGuidesPositionKey),uValue);
 }
 
 void Preferences::setSceneRulerPreference(bool b)
