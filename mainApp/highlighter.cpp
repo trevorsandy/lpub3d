@@ -623,23 +623,26 @@ Highlighter::Highlighter(QTextDocument *parent)
     rule.format = LDCadMetaKeyFormat;
     highlightingRules.append(rule);
 
-    // LDCad Generated Meta Format
-    LDCadGenMetaFormat.setForeground(br19);
-    LDCadGenMetaFormat.setFontWeight(QFont::Bold);
+    // LDCad3D Body Meta Format
+    LDCadBodyMetaFormat.setForeground(br19);
+    LDCadBodyMetaFormat.setFontWeight(QFont::Bold);
 
-    QStringList LDCadGenMetaPatterns;
-    LDCadGenMetaPatterns
+    QStringList LDCadBodyMetaPatterns;
+    LDCadBodyMetaPatterns
     << "!?\\bLDCAD\\b:?"
     << "!?\\bLDCAD CONTENT\\b"
     << "!?\\bLDCAD PATH_CAP\\b"
     << "!?\\bLDCAD PATH_POINT\\b"
     << "!?\\bLDCAD PATH_SKIN\\b"
     << "!?\\bLDCAD GENERATED\\b"
+    << "!?\\bLDCAD SCRIPT\\b"
+    << "!?\\bLDCAD GROUP_DEF\\b"
+    << "!?\\bLDCAD GROUP_NXT\\b"
     ;
 
-    foreach (QString pattern, LDCadGenMetaPatterns) {
-        rule.pattern = QRegExp(pattern,Qt::CaseSensitive);
-        rule.format = LDCadGenMetaFormat;
+    foreach (QString pattern, LDCadBodyMetaPatterns) {
+        rule.pattern = QRegExp(pattern);
+        rule.format = LDCadBodyMetaFormat;
         highlightingRules.append(rule);
     }
 
@@ -651,10 +654,10 @@ Highlighter::Highlighter(QTextDocument *parent)
     highlightingRules.append(rule);
 
     // LDCad Value Bracket Format
-    LDCadGenBracketFormat.setForeground(br17);
-    LDCadGenBracketFormat.setFontWeight(QFont::Bold);
+    LDCadBracketFormat.setForeground(br17);
+    LDCadBracketFormat.setFontWeight(QFont::Bold);
     rule.pattern = QRegExp("[\\[|=|\\]]");
-    rule.format = LDCadGenBracketFormat;
+    rule.format = LDCadBracketFormat;
     highlightingRules.append(rule);
 
     // LeoCAD Format

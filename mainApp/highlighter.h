@@ -103,10 +103,12 @@ private:
 
     QTextCharFormat LeoCADMetaFormat;      // b17 - LeoCAD
     QTextCharFormat LSynthMetaFormat;      // b18 - LSynth
+
     QTextCharFormat LDCadMetaKeyFormat;    // b11 - LDCad Key
     QTextCharFormat LDCadMetaValueFormat;  // b18 - LDCad Value
-    QTextCharFormat LDCadGenMetaFormat;    // b19 - LDCad
-    QTextCharFormat LDCadGenBracketFormat; // b17 - LDCad Value Bracket
+    QTextCharFormat LDCadBodyMetaFormat;   // b19 - LDCad
+    QTextCharFormat LDCadBracketFormat;    // b17 - LDCad Value Bracket
+
     QTextCharFormat MLCadMetaFormat;       // b20 - MLCad
     QTextCharFormat MLCadBodyMetaFormat;   // b21 - MLCad Body
 
