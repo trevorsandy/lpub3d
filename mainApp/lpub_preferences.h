@@ -73,7 +73,7 @@ class Preferences
     static void setHidePageBackgroundPreference(bool);
     static void setGridSizeIndexPreference(int);
     static void setSceneRulerPreference(bool);
-    static void setSceneRulerTrackingPreference(bool);
+    static void setSceneRulerTrackingPreference(int);
     static void setShowParseErrorsPreference(bool);
     static void setStdOutToLogPreference(bool);
 
@@ -249,7 +249,7 @@ class Preferences
     static bool    modeGUI;
 
     static bool    sceneRuler;
-    static bool    sceneRulerTracking;
+    static int     sceneRulerTracking;
     static bool    sceneGuides;
     static bool    snapToGrid;
     static bool    hidePageBackground;

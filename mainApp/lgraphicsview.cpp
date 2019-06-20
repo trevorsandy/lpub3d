@@ -117,26 +117,30 @@ void LGraphicsView::setSceneRuler(){
 }
 
 void LGraphicsView::setSceneRulerTracking(){
-  if (!Preferences::sceneRuler)
-    return;
-  if (mHorzRuler)
-    mHorzRuler->setMouseTrack(Preferences::sceneRulerTracking);
-  if (mVertRuler)
-    mVertRuler->setMouseTrack(Preferences::sceneRulerTracking);
-  emit setSceneRulerTrackingSig(Preferences::sceneRulerTracking);
-  emit setSceneRulerTrackingPenSig(Preferences::sceneRulerTrackingColor);
+    if (!Preferences::sceneRuler)
+        return;
+
+    if (mHorzRuler)
+        mHorzRuler->setMouseTrack(Preferences::sceneRulerTracking != TRACKING_NONE);
+    if (mVertRuler)
+        mVertRuler->setMouseTrack(Preferences::sceneRulerTracking != TRACKING_NONE);
+
+    emit setSceneRulerTrackingSig(Preferences::sceneRulerTracking == TRACKING_LINE);
+    if (Preferences::sceneRulerTracking == TRACKING_LINE) {
+        emit setSceneRulerTrackingPenSig(Preferences::sceneRulerTrackingColor);
+        emit setSceneVertRulerPositionSig(mapToScene(QPoint(0,0)));
+        emit setSceneHorzRulerPositionSig(mapToScene(QPoint(0,0)));
+    }
 }
 
 void LGraphicsView::setSceneVertRulerPosition(QPoint p)
 {
-    QPointF scenePosition = mapToScene(p);
-    emit setSceneVertRulerPositionSig(scenePosition);
+    emit setSceneVertRulerPositionSig(mapToScene(p));
 }
 
 void LGraphicsView::setSceneHorzRulerPosition(QPoint p)
 {
-    QPointF scenePosition = mapToScene(p);
-    emit setSceneHorzRulerPositionSig(scenePosition);
+    emit setSceneHorzRulerPositionSig(mapToScene(p));
 }
 
 void LGraphicsView::setGridSize(){

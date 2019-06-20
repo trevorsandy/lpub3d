@@ -212,7 +212,6 @@ bool    Preferences::enableHighlightStep        = false;
 bool    Preferences::enableImageMatting         = false;
 
 bool    Preferences::sceneRuler                 = false;
-bool    Preferences::sceneRulerTracking         = false;
 bool    Preferences::sceneGuides                = false;
 bool    Preferences::snapToGrid                 = false;
 bool    Preferences::hidePageBackground         = false;
@@ -230,6 +229,7 @@ bool    Preferences::customSceneGuideColor      = false;
 bool    Preferences::missingRendererLibs        = false;
 #endif
 
+int     Preferences::sceneRulerTracking         = TRACKING_NONE;
 int     Preferences::sceneGuidesLine            = SCENE_GUIDES_LINE_DEFAULT;
 int     Preferences::povrayRenderQuality        = POVRAY_RENDER_QUALITY_DEFAULT;
 int     Preferences::fadeStepsOpacity           = FADE_OPACITY_DEFAULT;              //Default = 50 percent (half opacity)
@@ -2745,11 +2745,10 @@ void Preferences::userInterfacePreferences()
 
   QString const sceneRulerTrackingKey("SceneRulerTracking");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingKey))) {
-          QVariant uValue(false);
-          sceneRulerTracking = false;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingKey),uValue);
+          sceneRulerTracking = TRACKING_NONE;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingKey),sceneRulerTracking);
   } else {
-          sceneRulerTracking = Settings.value(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingKey)).toBool();
+          sceneRulerTracking = Settings.value(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingKey)).toInt();
   }
 
   QString const sceneGuidesKey("SceneGuides");
@@ -2992,13 +2991,12 @@ void Preferences::setSceneRulerPreference(bool b)
   Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerKey),uValue);
 }
 
-void Preferences::setSceneRulerTrackingPreference(bool b)
+void Preferences::setSceneRulerTrackingPreference(int i)
 {
   QSettings Settings;
-  sceneRulerTracking = b;
-  QVariant uValue(b);
+  sceneRulerTracking = i;
   QString const sceneRulerTrackingKey("SceneRulerTracking");
-  Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingKey),uValue);
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneRulerTrackingKey),sceneRulerTracking);
 }
 
 void Preferences::setCustomSceneBackgroundColorPreference(bool b)

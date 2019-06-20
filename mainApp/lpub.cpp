@@ -967,7 +967,21 @@ void Gui::sceneRuler()
 
 void Gui::sceneRulerTracking()
 {
-  Preferences::setSceneRulerTrackingPreference(sceneRulerTrackingAct->isChecked());
+  if (sender() == sceneRulerTrackingAct) {
+      sceneRulerTrackingLineAct->setChecked(false);
+  } else {
+      sceneRulerTrackingAct->setChecked(false);
+  }
+
+  RulerTrackingType trackingStyle = TRACKING_NONE;
+  if (sceneRulerTrackingAct->isChecked()) {
+      trackingStyle = TRACKING_TICK;
+  } else
+  if (sceneRulerTrackingLineAct->isChecked()) {
+      trackingStyle = TRACKING_LINE;
+  }
+
+  Preferences::setSceneRulerTrackingPreference(int(trackingStyle));
   KpageView->setSceneRulerTracking();
 }
 
@@ -3486,11 +3500,17 @@ void Gui::createActions()
     fitSceneAct->setEnabled(false);
     connect(fitSceneAct, SIGNAL(triggered()), this, SLOT(fitScene()));
 
-    sceneRulerTrackingAct = new QAction(tr("Ruler Tracking"),this);
-    sceneRulerTrackingAct->setStatusTip(tr("Toggle scene ruler tracking"));
+    sceneRulerTrackingAct = new QAction(tr("Ruler Tracking Tick"),this);
+    sceneRulerTrackingAct->setStatusTip(tr("Toggle scene ruler tracking tick"));
+    sceneRulerTrackingAct->setChecked(Preferences::sceneRulerTracking == int(TRACKING_TICK));
     sceneRulerTrackingAct->setCheckable(true);
-    sceneRulerTrackingAct->setChecked(Preferences::sceneRulerTracking);
     connect(sceneRulerTrackingAct, SIGNAL(triggered()), this, SLOT(sceneRulerTracking()));
+
+    sceneRulerTrackingLineAct = new QAction(tr("Ruler Tracking Line"),this);
+    sceneRulerTrackingLineAct->setStatusTip(tr("Toggle scene ruler tracking line"));
+    sceneRulerTrackingLineAct->setChecked(Preferences::sceneRulerTracking == int(TRACKING_LINE));
+    sceneRulerTrackingLineAct->setCheckable(true);
+    connect(sceneRulerTrackingLineAct, SIGNAL(triggered()), this, SLOT(sceneRulerTracking()));
 
     sceneRulerComboAct = new QAction(QIcon(":/resources/pageruler.png"), tr("Scene &Ruler"), this);
     sceneRulerComboAct->setShortcut(tr("Alt+U"));
@@ -4393,6 +4413,7 @@ void Gui::createToolBars()
 
     sceneRulerTrackingMenu = new QMenu(tr("Ruler Tracking"),this);
     sceneRulerTrackingMenu->addAction(sceneRulerTrackingAct);
+    sceneRulerTrackingMenu->addAction(sceneRulerTrackingLineAct);
     sceneRulerTrackingMenu->addAction(hidePageBackgroundAct);
     sceneRulerComboAct->setMenu(sceneRulerTrackingMenu);
     zoomToolBar->addAction(sceneRulerComboAct);
