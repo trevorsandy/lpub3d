@@ -2466,7 +2466,7 @@ int Gui::getBOMParts(
                   ! partIgnore &&
                   ! synthBegin) {
 
-                  QString line = QString("1 0  0 0 0  0 0 0  0 0 0  0 0 0 %1") .arg(meta.LPub.pli.begin.sub.value().part);
+                  QString line = QString("1 0 0 0 0 1 0 0 0 1 0 0 0 1 %1") .arg(meta.LPub.pli.begin.sub.value().part);
                   pliParts << Pli::partLine(line,current,meta);
                   pliIgnore = true;
                 }
@@ -2481,7 +2481,7 @@ int Gui::getBOMParts(
               if (! pliIgnore &&
                   ! partIgnore &&
                   ! synthBegin) {
-                  QString line = QString("1 %1  0 0 0  0 0 0  0 0 0  0 0 0 %2")
+                  QString line = QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2")
                       .arg(meta.LPub.pli.begin.sub.value().color)
                       .arg(meta.LPub.pli.begin.sub.value().part);
                   pliParts << Pli::partLine(line,current,meta);
@@ -2678,6 +2678,7 @@ bool Gui::generateBOMPartsFile(const QString &bomFileName){
         if (bomPartsString.startsWith("1")) {
             QStringList partComponents = bomPartsString.split(";");
             bomParts << partComponents.at(0);
+            emit messageSig(LOG_DEBUG,QMessageBox::tr("%1 added to export list.").arg(partComponents.at(0)));
         }
     }
     emit messageSig(LOG_INFO,QMessageBox::tr("%1 BOM parts processed.").arg(bomParts.size()));
@@ -2692,6 +2693,7 @@ bool Gui::generateBOMPartsFile(const QString &bomFileName){
     }
 
     QTextStream out(&bomFile);
+    out << QString("0 Name: %1").arg(QFileInfo(bomFileName).fileName()) << endl;
     foreach (QString bomPart, bomParts)
         out << bomPart << endl;
     bomFile.close();

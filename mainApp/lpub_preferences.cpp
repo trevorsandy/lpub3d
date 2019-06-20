@@ -4108,13 +4108,17 @@ void Preferences::setLPub3DLoaded(){
 bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile) {
     bool retVal = true;
     QFile confFile(iniFile);
+    QFileInfo confFileInfo(iniFile);
     QStringList contentList;
+    QRegExp prefSetRx("^(Native POV|Native STL|Native 3DS|Native Part List|POV-Ray Render)",Qt::CaseInsensitive);
     if (preferredRenderer == RENDERER_LDVIEW)
       logInfo() << QString("Updating ExtraSearchDirs in %1").arg(iniFile);
     if (confFile.open(QIODevice::ReadOnly))
     {
+        int dirNum = 0;
         bool foundExtraSearchDirs = false;
         bool inExtraSearchDirsSection = false;
+        QString prefSet;
         QTextStream input(&confFile);
         while (!input.atEnd())
         {
@@ -4122,12 +4126,12 @@ bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile) {
             if (line.left(17) == "[ExtraSearchDirs]") {
                 foundExtraSearchDirs = true;
                 inExtraSearchDirsSection = true;
-                if (!contentList.contains(line,Qt::CaseSensitivity::CaseInsensitive))
-                    contentList += line;
+                if (!contentList.contains(line,Qt::CaseInsensitive))
+                    contentList.append( line);
             } else if (inExtraSearchDirsSection) {                  // in ExtraSearchDirs section
-                int dirNum = 0;
-                QString nativePath;
                 if (line.left(1) == "[" || line.isEmpty()) {        // at next section or empty line, insert search dirs
+                    dirNum = 0;
+                    QString nativePath;
                     foreach (QString searchDir, ldSearchDirs) {
                        dirNum++;
                        if (dirNum <= ldSearchDirs.count()) {
@@ -4136,20 +4140,44 @@ bool Preferences::setLDViewExtraSearchDirs(const QString &iniFile) {
 #else
                           nativePath = QDir::toNativeSeparators(searchDir);
 #endif
-                          if (!contentList.contains(nativePath, Qt::CaseSensitivity::CaseInsensitive)) {
+                          if (!contentList.contains(nativePath, Qt::CaseInsensitive)) {
                               QString formattedSearchDir = QString("Dir%1=%2").arg(dirNum, 3, 10, QChar('0')).arg(nativePath);
                               contentList += formattedSearchDir;
-                              if (preferredRenderer == RENDERER_LDVIEW)
+                              if (preferredRenderer == RENDERER_LDVIEW || confFileInfo.baseName().toLower() == "ldvexport")
                                   logInfo() << QString("ExtraSearchDirs OUT: %1").arg(formattedSearchDir);
                           }
                        }
                     }
                     if ( !line.isEmpty())
-                        contentList += line;
+                        contentList.append( line);
                     inExtraSearchDirsSection = false;
                 }
-            } else if (!contentList.contains(line,Qt::CaseSensitivity::CaseInsensitive) && !line.isEmpty()) {
-                contentList += line;
+            } else if (line.contains(prefSetRx)) {               // session preference set
+                if (line.contains("_SessionPlaceholder")) {      // insert search dirs before session placeholder
+                    dirNum = 0;
+                    QString nativePath;
+                    foreach (QString searchDir, ldSearchDirs) {
+                       dirNum++;
+                       if (dirNum <= ldSearchDirs.count()) {
+#ifdef Q_OS_WIN
+                          nativePath = searchDir.replace("\\","\\\\");
+#else
+                          nativePath = QDir::toNativeSeparators(searchDir);
+#endif
+                          if (!contentList.contains(nativePath, Qt::CaseInsensitive)) {
+                              QString formattedSearchDir = QString("%1/ExtraSearchDirs/Dir%2=%3").arg(prefSetRx.cap(1)).arg(dirNum, 3, 10, QChar('0')).arg(nativePath);
+                              contentList += formattedSearchDir;
+                              if (preferredRenderer == RENDERER_LDVIEW || confFileInfo.baseName().toLower() == "ldvexport")
+                                  logInfo() << QString("ExtraSearchDirs OUT: %1").arg(formattedSearchDir);
+                          }
+                       }
+                    }
+                    contentList.append( line);
+                } else if ( !line.isEmpty() && !line.contains("/ExtraSearchDirs/",Qt::CaseInsensitive)) {   // remove old ExtraSearchDirs lines
+                    contentList.append( line);
+                }
+            } else if (!contentList.contains(line,Qt::CaseInsensitive) && !line.isEmpty()) {
+                contentList.append( line);
             }
         }  // atEnd
         confFile.close();
