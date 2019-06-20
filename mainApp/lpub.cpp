@@ -2054,6 +2054,7 @@ void Gui::preferences()
     bool perspectiveProjectionCompare   = Preferences::perspectiveProjection;
     bool loadLastOpenedFileCompare      = Preferences::loadLastOpenedFile;
     bool povrayAutoCropCompare          = Preferences::povrayAutoCrop;
+    bool showDownloadRedirectsCompare   = Preferences::showDownloadRedirects;
     int povrayRenderQualityCompare      = Preferences::povrayRenderQuality;
     QString altLDConfigPathCompare      = Preferences::altLDConfigPath;
     QString povFileGeneratorCompare     = Preferences::povFileGenerator;
@@ -2118,6 +2119,7 @@ void Gui::preferences()
         bool loadLastOpenedFileChanged     = Preferences::loadLastOpenedFile                     != loadLastOpenedFileCompare;
         bool povrayAutoCropChanged         = Preferences::povrayAutoCrop                         != povrayAutoCropCompare;
         bool povrayRenderQualityChanged    = Preferences::povrayRenderQuality                    != povrayRenderQualityCompare;
+        bool showDownloadRedirectsChanged  = Preferences::showDownloadRedirects                  != showDownloadRedirectsCompare;
 
         bool sceneBackgroundColorChanged   = Preferences::sceneBackgroundColor.toLower()         != sceneBackgroundColorCompare.toLower();
         bool sceneGridColorChanged         = Preferences::sceneGridColor.toLower()               != sceneGridColorCompare.toLower();
@@ -2161,6 +2163,9 @@ void Gui::preferences()
             emit messageSig(LOG_INFO,QString("Scene Grid Color changed from %1 to %2")
                             .arg(sceneGridColorCompare)
                             .arg(Preferences::sceneGridColor));
+
+        if (showDownloadRedirectsChanged)
+                    emit messageSig(LOG_INFO,QString("Show download redirects is %1").arg(Preferences::showDownloadRedirects? "ON" : "OFF"));
 
         if (sceneGuideColorChanged && !ldrawPathChanged)
             emit messageSig(LOG_INFO,QString("Scene Guide Color changed from %1 to %2")

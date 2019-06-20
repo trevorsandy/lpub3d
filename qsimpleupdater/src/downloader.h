@@ -40,6 +40,7 @@ namespace Ui {
 class Downloader;
 }
 
+class QUrl;
 class QNetworkReply;
 class QNetworkAccessManager;
 
@@ -61,7 +62,7 @@ signals:
     // Mod End
 
 public:
-    explicit Downloader (QWidget* parent = 0);
+    explicit Downloader (QWidget* parent = nullptr);
     ~Downloader();
 
     bool customProcedure() const;
@@ -75,16 +76,22 @@ public slots:
     void setFileName (const QString& file);
     void setUserAgentString (const QString& agent);
     void setCustomProcedure (const bool custom);
+// LPub3D Mod
+    void setShowRedirects  (const bool& enabled);
+// Mod End
 
 private slots:
     void finished();
     void openDownload();
     void installUpdate();
     void cancelDownload();
-    void saveFile (qint64 received, qint64 total);
     void calculateSizes (qint64 received, qint64 total);
     void updateProgress (qint64 received, qint64 total);
     void calculateTimeRemaining (qint64 received, qint64 total);
+// LPub3D Mod
+    void httpReadyRead();
+    void startRequest(const QUrl& url);
+// Mod End
 
 private:
     qreal round (const qreal& input);
@@ -93,6 +100,7 @@ private:
     QString m_url;
     uint m_startTime;
     QDir m_downloadDir;
+    QString m_downloadUrl;
     QString m_fileName;
     Ui::Downloader* m_ui;
     QNetworkReply* m_reply;
@@ -101,7 +109,9 @@ private:
     QNetworkAccessManager* m_manager;
 
     // LPub3D Mod
+    bool m_showRedirects;
     QString m_moduleName;
+    QFile *m_file;
     // Mod End
 };
 

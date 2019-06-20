@@ -110,6 +110,7 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.publishEmail_Edit->setText(                 Preferences::defaultEmail);
   ui.publishDescriptionEdit->setText(            Preferences::publishDescription);
   ui.enableDownloader_Chk->setChecked(           Preferences::enableDownloader);
+  ui.showDownloadRedirects_Chk->setChecked(      Preferences::showDownloadRedirects);
   ui.addLSynthSearchDirBox->setEnabled(          Preferences::archiveLSynthParts);
   ui.addLSynthSearchDirBox->setChecked(          Preferences::addLSynthSearchDir);
   ui.archiveLSynthPartsBox->setChecked(          Preferences::archiveLSynthParts);
@@ -351,11 +352,12 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
            this,        SLOT (updateChangelog  (QString)));
 
   QString version = qApp->applicationVersion();
+  QString revision = QString::fromLatin1(VER_REVISION_STR);
   QStringList updatableVersions = Preferences::availableVersions.split(",");
   ui.moduleVersion_Combo->addItems(updatableVersions);
   ui.moduleVersion_Combo->setCurrentIndex(int(ui.moduleVersion_Combo->findText(version)));
 
-  ui.groupBoxChangeLog->setTitle(tr("Change Log for version %1").arg(version));
+  ui.groupBoxChangeLog->setTitle(tr("Change Log for version %1 revision %2").arg(version).arg(revision));
   ui.changeLog_txbr->setWordWrapMode(QTextOption::WordWrap);
   ui.changeLog_txbr->setLineWrapMode(QTextEdit::FixedColumnWidth);
   ui.changeLog_txbr->setLineWrapColumnOrWidth(LINE_WRAP_WIDTH);
@@ -1133,6 +1135,11 @@ bool PreferencesDialog::enableDownloader()
   return ui.enableDownloader_Chk->isChecked();
 }
 
+bool PreferencesDialog::showDownloadRedirects()
+{
+       return ui.showDownloadRedirects_Chk->isChecked();
+}
+
 bool PreferencesDialog::showAllNotifications()
 {
   return ui.showAllNotificstions_Chk->isChecked();
@@ -1244,7 +1251,9 @@ QStringList const PreferencesDialog::searchDirSettings()
 void PreferencesDialog::updateChangelog (QString url) {
     if (url == DEFS_URL) {
         if (m_updater->getUpdateAvailable(url) || m_updater->getChangelogOnly(url)) {
-            ui.groupBoxChangeLog->setTitle(tr("Change Log for version %1").arg(m_updater->getLatestVersion(url)));
+            ui.groupBoxChangeLog->setTitle(tr("Change Log for version %1 revision %2")
+                                              .arg(m_updater->getLatestVersion(url))
+                                              .arg(m_updater->getLatestRevision(DEFS_URL)));
             if (m_updater->compareVersionStr(url, m_updater->getLatestVersion(url), PLAINTEXT_CHANGE_LOG_CUTOFF_VERSION))
                 ui.changeLog_txbr->setHtml(m_updater->getChangelog (url));
             else
@@ -1262,6 +1271,7 @@ void PreferencesDialog::checkForUpdates () {
   /* Get settings from the UI */
   QString moduleVersion = ui.moduleVersion_Combo->currentText();
   QString moduleRevision = QString::fromLatin1(VER_REVISION_STR);
+  bool showRedirects = ui.showDownloadRedirects_Chk->isChecked();
   bool enableDownloader = ui.enableDownloader_Chk->isChecked();
   bool showAllNotifications = ui.showAllNotificstions_Chk->isChecked();
   bool showUpdateNotifications = ui.showUpdateNotifications_Chk->isChecked();
@@ -1270,7 +1280,8 @@ void PreferencesDialog::checkForUpdates () {
   if (m_updater->getModuleVersion(DEFS_URL) != moduleVersion)
     m_updater->setModuleVersion(DEFS_URL, moduleVersion);
   if (m_updater->getModuleRevision(DEFS_URL) != moduleRevision)
-      m_updater->setModuleRevision(DEFS_URL, moduleVersion);
+      m_updater->setModuleRevision(DEFS_URL, moduleRevision);
+  m_updater->setShowRedirects(DEFS_URL, showRedirects);
   m_updater->setDownloaderEnabled(DEFS_URL, enableDownloader);
   m_updater->setNotifyOnFinish(DEFS_URL, showAllNotifications);
   m_updater->setNotifyOnUpdate (DEFS_URL, showUpdateNotifications);

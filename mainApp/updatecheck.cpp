@@ -65,6 +65,7 @@ void UpdateCheck::applyGeneralSettings(const QString &url){
     if(url == DEFS_URL){
         QString moduleVersion = Preferences::moduleVersion;
         QString moduleRevision = QString::fromLatin1(VER_REVISION_STR);
+        bool showRedirects = Preferences::showDownloadRedirects;
         bool enableDownloader = Preferences::enableDownloader;
         bool showAllNotifications = Preferences::showAllNotifications;
         bool showUpdateNotifications = Preferences::showUpdateNotifications;
@@ -72,7 +73,8 @@ void UpdateCheck::applyGeneralSettings(const QString &url){
         if (m_updater->getModuleVersion(DEFS_URL) != moduleVersion)
             m_updater->setModuleVersion(DEFS_URL, moduleVersion);
         if (m_updater->getModuleRevision(DEFS_URL) != moduleRevision)
-            m_updater->setModuleRevision(DEFS_URL, moduleVersion);
+            m_updater->setModuleRevision(DEFS_URL, moduleRevision);
+        m_updater->setShowRedirects(DEFS_URL, showRedirects);
         m_updater->setDownloaderEnabled(DEFS_URL, enableDownloader);
         m_updater->setNotifyOnFinish(DEFS_URL, showAllNotifications);
         m_updater->setNotifyOnUpdate (DEFS_URL, showUpdateNotifications);

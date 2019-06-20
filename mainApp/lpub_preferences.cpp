@@ -199,6 +199,7 @@ bool    Preferences::preferCentimeters          = false;   // default is false, 
 bool    Preferences::showAllNotifications       = true;
 bool    Preferences::showUpdateNotifications    = true;
 bool    Preferences::enableDownloader           = true;
+bool    Preferences::showDownloadRedirects      = false;
 bool    Preferences::ldrawiniFound              = false;
 bool    Preferences::povrayDisplay              = false;
 bool    Preferences::povrayAutoCrop             = false;
@@ -1598,6 +1599,14 @@ void Preferences::lpub3dUpdatePreferences(){
         Settings.setValue(QString("%1/%2").arg(UPDATES,"EnableDownloader"),pValue);
     } else {
         enableDownloader = Settings.value(QString("%1/%2").arg(UPDATES,"EnableDownloader")).toBool();
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"ShowDownloadRedirects"))) {
+        QVariant uValue(true);
+        showDownloadRedirects = false;
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowDownloadRedirects"),uValue);
+    } else {
+        showDownloadRedirects = Settings.value(QString("%1/%2").arg(SETTINGS,"ShowDownloadRedirects")).toBool();
     }
 
     if ( ! Settings.contains(QString("%1/%2").arg(UPDATES,"ShowAllNotifications"))) {
@@ -3800,6 +3809,11 @@ bool Preferences::getPreferences()
         if (enableDownloader != dialog->enableDownloader()) {
             enableDownloader = dialog->enableDownloader();
             Settings.setValue(QString("%1/%2").arg(UPDATES,"EnableDownloader"),enableDownloader);
+        }
+
+        if (showDownloadRedirects != dialog->showDownloadRedirects()) {
+            showDownloadRedirects = dialog->showDownloadRedirects();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowDownloadRedirects"),showDownloadRedirects);
         }
 
         if (showUpdateNotifications != dialog->showUpdateNotifications()) {

@@ -50,7 +50,6 @@ Updater::Updater()
     m_changelog = "";
     m_downloadUrl = "";
     m_latestVersion = "";
-    m_revisionNumber = "";
     m_customAppcast = false;
     m_notifyOnUpdate = true;
     m_notifyOnFinish = false;
@@ -58,16 +57,17 @@ Updater::Updater()
     m_downloaderEnabled = true;
     //m_moduleName = qApp->applicationName(); // Can't use this again cuz its set to the exe name.
     m_moduleName = QString("%1").arg(VER_PRODUCTNAME_STR);
-    m_moduleRevision = QString::fromLatin1(VER_REVISION_STR);
     m_moduleVersion = qApp->applicationVersion();
 
     // LPub3D Mod
     m_fileName = "";
+    m_latestRevision = "";
     m_availableVersions = "";
     m_changeLogOnly = false;
     m_directDownload = false;
     m_promptedDownload = false;
     m_versionsRequest = false;
+    m_moduleRevision = QString::fromLatin1(VER_REVISION_STR);
 
     //m_progressDialog = new ProgressDialog();
     // End Mod
@@ -192,9 +192,9 @@ QString Updater::latestVersion() const
  * Returns the build number defined by the update definitions file.
  * \warning You should call \c checkForUpdates() before using this function
  */
-QString Updater::revisionNumber() const
+QString Updater::latestRevision() const
 {
-    return m_revisionNumber;
+    return m_latestRevision;
 }
 
 /**
@@ -498,13 +498,13 @@ void Updater::onReply (QNetworkReply* reply)
             /* We are looking to update the latest version */
             m_openUrl = platform.value ("open-url").toString();
             m_latestVersion = platform.value ("latest-version").toString();
-            m_revisionNumber = platform.value ("revision-number").toString();
+            m_latestRevision = platform.value ("latest-revision").toString();
             m_downloadUrl = platform.value ("download-url").toString();
             _changelogUrl = platform.value ("changelog-url").toString();
 
-            /* Compare latest and current version */
-            _updateAvailable  = compare (latestVersion(), moduleVersion());
-            _updateAvailable &= compare (revisionNumber(), moduleRevision());
+            /* Compare latest and current version/revision */
+             _updateAvailable = compare (latestVersion(), moduleVersion()) ||
+                                compare (latestRevision(), moduleRevision());
 
         } else {
             /* We are looking to update an alternate version */
@@ -546,7 +546,7 @@ void Updater::onReply (QNetworkReply* reply)
                             // Update to version is same as latest version - i.e. reinstall latest version
                             m_openUrl = platform.value ("open-url").toString();
                             m_latestVersion = platform.value ("latest-version").toString();
-                            m_revisionNumber = platform.value ("revision-number").toString();
+                            m_latestRevision = platform.value ("latest-revision").toString();
                             m_downloadUrl = platform.value ("download-url").toString();
                             _changelogUrl = platform.value ("changelog-url").toString();
                         } else {
@@ -562,7 +562,7 @@ void Updater::onReply (QNetworkReply* reply)
                             m_openUrl = altVersion.value ("open-url").toString();
                             m_downloadUrl = altVersion.value ("download-url").toString();
                             m_latestVersion = altVersion.value ("latest-version").toString();
-                            m_revisionNumber = platform.value ("revision-number").toString();
+                            m_latestRevision = platform.value ("latest-revision").toString();
                             _changelogUrl = altVersion.value ("changelog-url").toString();
                         }
                         break;
@@ -570,6 +570,9 @@ void Updater::onReply (QNetworkReply* reply)
                 }
             } else {return;}
         }
+
+        if (m_latestRevision.isEmpty())
+            m_latestRevision = "0";
 
         if (_updateAvailable || getChangeLogOnly()) {
             QNetworkAccessManager *_manager = new QNetworkAccessManager (this);
@@ -663,17 +666,29 @@ void Updater::setUpdateAvailable (const bool available)
         box.setWindowTitle(tr ("Software Update"));
 
         if (updateAvailable() && (notifyOnUpdate() || notifyOnFinish())) {
-            QString versionStr = compare (revisionNumber(), moduleRevision()) ? "revision" : "version";
+            QString versionStr = compare (latestRevision(), moduleRevision()) ? "revision" : "version";
             QString title = "<b>" + tr ("A new %1 of %2 is available!")
                                         .arg(versionStr)
                                         .arg (moduleName()) +
-                                        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>";
-            QString text = tr ("%1 v%2.%3 is available - you have v%4.%5.\n\nClick \"OK\" to download it now.")
-                               .arg(moduleName())
-                               .arg(latestVersion())
-                               .arg(revisionNumber())
-                               .arg(moduleVersion())
-                               .arg(moduleRevision());
+                                        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+                                        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+                                        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+                                        "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>";
+            QString versionMessage;
+            if (latestVersion() == moduleVersion()) {
+                versionMessage = tr ("revision %1")
+                                     .arg(moduleRevision());
+            } else {
+                versionMessage = tr ("v%1 revision %2")
+                                     .arg(moduleVersion())
+                                     .arg(moduleRevision());
+            }
+            QString text = tr ("%1 v%2 revision %3 is available - you have %4.\n\nClick \"OK\" to download it now.")
+                    .arg(moduleName())
+                    .arg(latestVersion())
+                    .arg(latestRevision())
+                    .arg(versionMessage);
+
             box.setText (title);
             box.setInformativeText (text);
             box.setDetailedText(changelog(), compare(latestVersion(), PLAINTEXT_CHANGE_LOG_CUTOFF_VERSION));
@@ -776,6 +791,13 @@ void Updater::setPromptedDownload (const bool& enabled) {
 }
 
 /**
+ * Sets the flag to display HTTP redirects
+ */
+void Updater::setShowRedirects (const bool& enabled) {
+    m_downloader->setShowRedirects (enabled);
+}
+
+/**
  * Sets the path for download content
  */
 void Updater::setDownloadDir (const QString& path) {
@@ -819,7 +841,7 @@ bool Updater::versionsRequested() {
 }
 
 /**
- * Returns the changeLogOnly fiag
+ * Returns the changeLogOnly flag
  */
 bool Updater::getChangeLogOnly() const
 {
@@ -863,6 +885,31 @@ bool Updater::promptedDownload() const {
  */
 QString Updater::getAvailableVersions() const {
     return m_availableVersions;
+}
+
+/**
+ * Returns the remote module revision of the \c Updater instance registered with
+ * the given \a url.
+ *
+ * \warning You should call \c checkForUpdates() before using this function
+ * \note If an \c Updater instance registered with the given \a url is not
+ *       found, that \c Updater instance will be initialized automatically
+ */
+QString QSimpleUpdater::getLatestRevision (const QString& url) const
+{
+    return getUpdater (url)->latestRevision();
+}
+
+/**
+ * Returns the module revision of the \c Updater instance registered with the
+ * given \a url.
+ *
+ * \note If an \c Updater instance registered with the given \a url is not
+ *       found, that \c Updater instance will be initialized automatically
+ */
+QString QSimpleUpdater::getModuleRevision (const QString& url) const
+{
+    return getUpdater (url)->moduleRevision();
 }
 
 /**

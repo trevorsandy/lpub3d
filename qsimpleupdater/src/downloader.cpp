@@ -30,6 +30,7 @@
  */
 
 #include <QDir>
+#include <QUrl>
 #include <QFile>
 #include <QProcess>
 #include <QDateTime>
@@ -60,6 +61,7 @@ Downloader::Downloader (QWidget* parent) : QWidget (parent)
     m_customProcedure = false;
 
     // LPub3D Mod
+    m_showRedirects = false;
     //m_moduleName = qApp->applicationName(); // Can't use this again cuz its set to the exe name.
     m_moduleName = QString("%1").arg(VER_PRODUCTNAME_STR);
     // Mod End
@@ -122,6 +124,9 @@ void Downloader::setUrlId (const QString& url)
  */
 void Downloader::startDownload (const QUrl& url)
 {
+    /* Set URL string */
+    m_downloadUrl = url.toString();
+
     /* Reset UI */
     m_ui->progressBar->setValue (0);
     m_ui->stopButton->setText (tr ("Stop"));
@@ -136,32 +141,69 @@ void Downloader::startDownload (const QUrl& url)
     // Mod End
     m_ui->timeLabel->setText (tr ("Time remaining") + ": " + tr ("unknown"));
 
-    /* Configure the network request */
-    QNetworkRequest request (url);
-    if (!m_userAgentString.isEmpty())
-        request.setRawHeader ("User-Agent", m_userAgentString.toUtf8());
-
-    /* Start download */
-    m_reply = m_manager->get (request);
-    m_startTime = QDateTime::currentDateTime().toTime_t();
-
     /* Ensure that downloads directory exists */
     if (!m_downloadDir.exists())
         m_downloadDir.mkpath (".");
 
     /* Remove old downloads */
+    QString fullFilePath = m_downloadDir.filePath (m_fileName + PARTIAL_DOWN);
     QFile::remove (m_downloadDir.filePath (m_fileName));
-    QFile::remove (m_downloadDir.filePath (m_fileName + PARTIAL_DOWN));
+    QFile::remove (fullFilePath);
 
-    /* Update UI when download progress changes or download finishes */
-    connect (m_reply, SIGNAL (downloadProgress (qint64, qint64)),
-             this,      SLOT (updateProgress   (qint64, qint64)));
-    connect (m_reply, SIGNAL (finished ()),
-             this,      SLOT (finished ()));
-    connect (m_reply, SIGNAL (redirected       (QUrl)),
-             this,      SLOT (startDownload    (QUrl)));
+    /* Create new download file */
+    m_file = new QFile(fullFilePath);
+    if (!m_file->open(QIODevice::WriteOnly)) {
+        QMessageBox::information(this, tr("HTTP"),
+                      tr("Unable to save the file %1: %2.")
+                      .arg(fullFilePath).arg(m_file->errorString()));
+        delete m_file;
+        m_file = nullptr;
+        emit downloadCancelled();
+    }
+
+    /* Start the download request */
+    startRequest(url);
 
     showNormal();
+}
+
+/**
+ * Start the dowonload request for the given \a url
+ */
+void Downloader::startRequest(const QUrl &url)
+{
+    /* Configure the network request */
+    QNetworkRequest request (url);
+    if (!m_userAgentString.isEmpty())
+        request.setRawHeader ("User-Agent", m_userAgentString.toUtf8());
+
+    // get() method posts a request
+    // to obtain the contents of the target request
+    // and returns a new QNetworkReply object
+    // opened for reading which emits
+    // the readyRead() signal whenever new data arrives.
+    m_reply = m_manager->get (request);
+    m_startTime = QDateTime::currentDateTime().toTime_t();
+
+    // Whenever more data is received from the network,
+    // this readyRead() signal is emitted
+    connect(m_reply, SIGNAL(readyRead()),
+            this, SLOT(httpReadyRead()));
+
+    // Also, downloadProgress() signal is emitted when data is received
+    connect (m_reply, SIGNAL (downloadProgress (qint64, qint64)),
+             this,      SLOT (updateProgress   (qint64, qint64)));
+
+    // This signal is emitted when the reply has finished processing.
+    // After this signal is emitted,
+    // there will be no more updates to the reply's data or metadata.
+    connect (m_reply, SIGNAL (finished ()),
+             this,      SLOT (finished ()));
+
+#if QT_VERSION >= QT_VERSION_CHECK(5,6,0)
+    connect (m_reply, SIGNAL (redirected    (QUrl)),
+             this,      SLOT (startDownload (QUrl)));
+#endif
 }
 
 /**
@@ -186,17 +228,67 @@ void Downloader::setUserAgentString (const QString& agent)
 void Downloader::finished()
 {
     /* Rename file */
-    QFile::rename (m_downloadDir.filePath (m_fileName + PARTIAL_DOWN),
+    QFile::rename (m_file->fileName(),
                    m_downloadDir.filePath (m_fileName));
 
-    /* Notify application */
-    emit downloadFinished (m_url, m_downloadDir.filePath (m_fileName));
+    /* Download finished normally */
+    m_file->flush();
+    m_file->close();
+
+    /* Setup redirection MessageBox */
+    QMessageBox box;
+    box.setWindowTitle (tr ("HTTP Redirect"));
+
+    /* Get redirection url */
+    QVariant redirectionTarget = m_reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+    if (m_reply->error()) {
+        m_file->remove();
+
+        box.setIcon (QMessageBox::Critical);
+        box.setStandardButtons (QMessageBox::Ok);
+        box.setText (tr ("Download redirect failed: %1.")
+                     .arg(m_reply->errorString()));
+
+        m_ui->stopButton->setText (tr ("Close"));
+        emit downloadCancelled();
+    } else if (!redirectionTarget.isNull()) {
+        QUrl url(m_downloadUrl);
+        QUrl newUrl = url.resolved(redirectionTarget.toUrl());
+
+        bool redirect = true;
+        if (m_showRedirects) {
+            box.setIcon (QMessageBox::Question);
+            box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
+            box.setText (tr("Follow redirect to %1 ?").arg(newUrl.toString()));
+            redirect = box.exec() == QMessageBox::Yes;
+        }
+
+        if (redirect) {
+            url = newUrl;
+            m_reply->deleteLater();
+            m_file->open(QIODevice::WriteOnly);
+            m_file->resize(0);
+            startRequest(url);
+            return;
+        }
+    } else {
+        /* Notify application */
+        emit downloadFinished (m_url, m_downloadDir.filePath (m_fileName));
+        m_ui->downloadLabel->setText (tr ("Download complete!"));
+        m_ui->stopButton->setText    (tr ("Close"));
+    }
+
+    m_reply->close();
+    m_reply->deleteLater();
+    m_reply = nullptr;
+    delete m_file;
+    m_file = nullptr;
+    m_manager = nullptr;
 
     /* Install the update */
-    m_reply->close();
     if (!customProcedure())
       installUpdate();
-    setVisible (false);
+    hide();
 }
 
 /**
@@ -231,9 +323,6 @@ void Downloader::installUpdate()
     if (customProcedure())
         return;
 
-    /* Update labels */
-    m_ui->stopButton->setText    (tr ("Close"));
-    m_ui->downloadLabel->setText (tr ("Download complete!"));
     // LPub3D Mod
     this->setWindowTitle(tr ("Software Update"));
     m_ui->timeLabel->setText (tr ("The %1 installer will open in a separate window").arg(m_moduleName)
@@ -293,14 +382,22 @@ void Downloader::cancelDownload()
         box.setText (tr ("Are you sure you want to cancel the download?"));
 
         if (box.exec() == QMessageBox::Yes) {
-            hide();
             disconnect(m_reply, SIGNAL (finished()),
                      this,      SLOT (finished()));
+
+            if (m_file) {
+                m_file->close();
+                m_file->remove();
+                delete m_file;
+                m_file = nullptr;
+            }
+
             m_reply->abort();
+            m_reply->deleteLater();
             emit downloadCancelled();
+            hide();
         }
     }
-
     else
         hide();
 }
@@ -308,25 +405,14 @@ void Downloader::cancelDownload()
 /**
  * Writes the downloaded data to the disk
  */
-void Downloader::saveFile (qint64 received, qint64 total)
+void Downloader::httpReadyRead()
 {
-    Q_UNUSED(received);
-    Q_UNUSED(total);
-
-    /* Check if we need to redirect */
-    QUrl url = m_reply->attribute (
-                QNetworkRequest::RedirectionTargetAttribute).toUrl();
-    if (!url.isEmpty()) {
-        startDownload (url);
-        return;
-    }
-
-    /* Save downloaded data to disk */
-    QFile file (m_downloadDir.filePath (m_fileName + PARTIAL_DOWN));
-    if (file.open (QIODevice::WriteOnly | QIODevice::Append)) {
-        file.write (m_reply->readAll());
-        file.close();
-    }
+    // this slot gets called every time the QNetworkReply has new data.
+    // We read all of its new data and write it into the file.
+    // That way we use less RAM than when reading it at the finished()
+    // signal of the QNetworkReply
+    if (m_file)
+        m_file->write(m_reply->readAll());
 }
 
 /**
@@ -379,11 +465,11 @@ void Downloader::updateProgress (qint64 received, qint64 total)
     if (total > 0) {
         m_ui->progressBar->setMinimum (0);
         m_ui->progressBar->setMaximum (100);
-        m_ui->progressBar->setValue ((received * 100) / total);
+        m_ui->progressBar->setValue (int((received * 100) / total));
 
         calculateSizes (received, total);
         calculateTimeRemaining (received, total);
-        saveFile (received, total);
+//        saveFile (received, total);
     }
 
     else {
@@ -482,3 +568,13 @@ void Downloader::setCustomProcedure (const bool custom)
 {
     m_customProcedure = custom;
 }
+
+// LPub3D Mod
+/**
+ * Sets the flag to display HTTP redirects
+ */
+void Downloader::setShowRedirects (const bool& enabled) {
+    m_showRedirects = enabled;
+}
+
+// Mod End

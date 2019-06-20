@@ -201,6 +201,7 @@ class Preferences
     static bool    showSubmodelInCallout;
     static bool    showInstanceCount;
     static bool    enableDownloader;
+    static bool    showDownloadRedirects;
     static bool    portableDistribution;
     static bool    lpub3dLoaded;
     static bool    lgeoStlLib;

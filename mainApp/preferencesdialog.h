@@ -81,6 +81,7 @@ class PreferencesDialog : public QDialog
     bool          enableLDViewSnaphsotList();
     bool          showUpdateNotifications();
     bool          enableDownloader();
+    bool          showDownloadRedirects();
     bool          showAllNotifications();
     bool          lgeoStlLib();
     bool          povrayDisplay();

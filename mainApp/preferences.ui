@@ -39,7 +39,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="tabGeneral">
       <attribute name="title">
@@ -2341,6 +2341,16 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
               </property>
               <property name="checked">
                <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="showDownloadRedirects_Chk">
+              <property name="toolTip">
+               <string>Show download URL redirect accept message prompt</string>
+              </property>
+              <property name="text">
+               <string>Show redirects</string>
               </property>
              </widget>
             </item>

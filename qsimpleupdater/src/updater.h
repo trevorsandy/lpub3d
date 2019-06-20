@@ -80,9 +80,7 @@ public:
     QString downloadUrl() const;
     QString platformKey() const;
     QString moduleVersion() const;
-    QString moduleRevision() const;
     QString latestVersion() const;
-    QString revisionNumber() const;
     QString userAgentString() const;
 
     bool customAppcast() const;
@@ -93,6 +91,9 @@ public:
     bool customProcedure() const;
 
     // LPub3D Mod
+    QString moduleRevision() const;
+    QString latestRevision() const;
+
     bool directDownload() const;
     bool promptedDownload() const;
     bool getChangeLogOnly() const;
@@ -109,13 +110,14 @@ public slots:
     void setNotifyOnFinish (const bool notify);
     void setUserAgentString (const QString& agent);
     void setModuleVersion (const QString& version);
-    void setModuleRevision (const QString& revision);
     void setDownloaderEnabled (const bool enabled);
     void setPlatformKey (const QString& platformKey);
     void setUseCustomAppcast (const bool customAppcast);
     void setCustomProcedure (const bool custom);
 
     // LPub3D Mod
+    void setShowRedirects  (const bool& enabled);
+    void setModuleRevision (const QString& revision);
     void setPromptedDownload (const bool& enabled);
     void setDirectDownload (const bool& enabled);
     void setDownloadDir (const QString& path);
@@ -154,14 +156,14 @@ private:
     QString m_moduleName;
     QString m_downloadUrl;
     QString m_moduleVersion;
-    QString m_moduleRevision;
     QString m_latestVersion;
-    QString m_revisionNumber;
 
     Downloader* m_downloader;
     QNetworkAccessManager* m_manager;
 
     // LPub3D Mod
+    QString m_latestRevision;
+    QString m_moduleRevision;
     bool m_directDownload;
     bool m_promptedDownload;
     bool m_versionsRequest;
