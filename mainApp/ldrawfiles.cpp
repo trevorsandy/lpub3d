@@ -756,7 +756,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
             split(smLine,tokens);
 
             // submodel file check;
-            if (tokens.size() == 15 && tokens[0] == '1') {
+            if (tokens.size() == 15 && tokens[0] == "1") {
                 const QString stageSubfileName = tokens[tokens.size()-1].toLower();
                 PieceInfo* standardPart = lcGetPiecesLibrary()->FindPiece(stageSubfileName.toLatin1().constData(), nullptr, false, false);
                 if (! standardPart && ! LDrawFile::contains(stageSubfileName.toLower()) && ! stageSubfiles.contains(stageSubfileName)) {
@@ -1065,7 +1065,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
             }
 
             // resolve outstanding subfiles
-            if (tokens.size() == 15 && tokens[0] == '1') {
+            if (tokens.size() == 15 && tokens[0] == "1") {
                 QFileInfo subFileInfo = QFileInfo(tokens[tokens.size()-1]);
                 PieceInfo* standardPart = lcGetPiecesLibrary()->FindPiece(subFileInfo.fileName().toLatin1().constData(), nullptr, false, false);
                 if (! standardPart && ! LDrawFile::contains(subFileInfo.fileName())) {

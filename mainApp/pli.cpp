@@ -3281,15 +3281,58 @@ PGraphicsPixmapItem::PGraphicsPixmapItem(
   QPixmap &pixmap,
   PlacementType  _parentRelativeType,
   QString &type,
-  QString &color)
+  QString &color) :
+    isHovered(false),
+    mouseIsDown(false)
 {
   parentRelativeType = _parentRelativeType;
   pli = _pli;
   part = _part;
   setPixmap(pixmap);
+  setFlag(QGraphicsItem::ItemIsSelectable,true);
+  setFlag(QGraphicsItem::ItemIsFocusable, true);
+  setAcceptHoverEvents(true);
   setToolTip(pliToolTip(type,color));
   setData(ObjectId, PartsListPixmapObj);
   setZValue(_pli->meta->LPub.page.scene.partsListPixmap.zValue());
+}
+
+void PGraphicsPixmapItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = !this->isSelected() && !mouseIsDown;
+    QGraphicsItem::hoverEnterEvent(event);
+}
+
+void PGraphicsPixmapItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = false;
+    QGraphicsItem::hoverLeaveEvent(event);
+}
+
+void PGraphicsPixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    mouseIsDown = true;
+    QGraphicsItem::mousePressEvent(event);
+    update();
+}
+
+void PGraphicsPixmapItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    mouseIsDown = false;
+    QGraphicsItem::mouseReleaseEvent(event);
+    update();
+}
+
+void PGraphicsPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    QPen pen;
+    pen.setColor(isHovered ? QColor(Preferences::sceneGuideColor) : Qt::black);
+    pen.setWidth(0/*cosmetic*/);
+    pen.setStyle(isHovered ? Qt::PenStyle(Preferences::sceneGuidesLine) : Qt::NoPen);
+    painter->setPen(pen);
+    painter->setBrush(Qt::transparent);
+    painter->drawRect(this->boundingRect());
+    QGraphicsPixmapItem::paint(painter,option,widget);
 }
 
 void PGraphicsPixmapItem::contextMenuEvent(
@@ -3388,6 +3431,9 @@ void PGraphicsPixmapItem::contextMenuEvent(
 
 //-----------------------------------------
 //-----------------------------------------
+
+//-----------------------------------------
+//-----------------------------------------
 //-----------------------------------------
 
 InstanceTextItem::InstanceTextItem(
@@ -3398,16 +3444,64 @@ InstanceTextItem::InstanceTextItem(
   QString            &colorString,
   PlacementType      _parentRelativeType,
   PGraphicsTextItem *_parent)
-    : PGraphicsTextItem(_parent)
+    : PGraphicsTextItem(_parent),
+      isHovered(false),
+      mouseIsDown(false)
 {
   parentRelativeType = _parentRelativeType;
   QString toolTip(tr("Times used - right-click to modify"));
   setText(_pli,_part,text,fontString,toolTip);
   QColor color(colorString);
   setDefaultTextColor(color);
+
+  setFlag(QGraphicsItem::ItemIsSelectable,true);
+  setFlag(QGraphicsItem::ItemIsFocusable, true);
+  setAcceptHoverEvents(true);
+
   setData(ObjectId, PartsListInstanceObj);
   setZValue(_pli->meta->LPub.page.scene.partsListInstance.zValue());
 }
+
+void InstanceTextItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = !this->isSelected() && !mouseIsDown;
+    QGraphicsItem::hoverEnterEvent(event);
+}
+
+void InstanceTextItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = false;
+    QGraphicsItem::hoverLeaveEvent(event);
+}
+
+void InstanceTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    mouseIsDown = true;
+    QGraphicsItem::mousePressEvent(event);
+    update();
+}
+
+void InstanceTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    mouseIsDown = false;
+    QGraphicsItem::mouseReleaseEvent(event);
+    update();
+}
+
+void InstanceTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    QPen pen;
+    pen.setColor(isHovered ? QColor(Preferences::sceneGuideColor) : Qt::black);
+    pen.setWidth(0/*cosmetic*/);
+    pen.setStyle(isHovered ? Qt::PenStyle(Preferences::sceneGuidesLine) : Qt::NoPen);
+    painter->setPen(pen);
+    painter->setBrush(Qt::transparent);
+    painter->drawRect(this->boundingRect());
+    QGraphicsTextItem::paint(painter,option,widget);
+}
+
+//-----------------------------------------
+//-----------------------------------------
 
 AnnotateTextItem::AnnotateTextItem(
   Pli           *_pli,
@@ -3418,8 +3512,10 @@ AnnotateTextItem::AnnotateTextItem(
   PlacementType  _parentRelativeType,
   bool           _element,
   PGraphicsTextItem *_parent)
-    : PGraphicsTextItem( _parent )
-    , alignment( Qt::AlignCenter | Qt::AlignVCenter )
+    : PGraphicsTextItem( _parent ),
+      alignment( Qt::AlignCenter | Qt::AlignVCenter ),
+      isHovered(false),
+      mouseIsDown(false)
 {
   parentRelativeType = _parentRelativeType;
   isElement          = _element;
@@ -3499,6 +3595,9 @@ AnnotateTextItem::AnnotateTextItem(
     submodelLevel = pli->background->submodelLevel;
 
   setFlag(QGraphicsItem::ItemIsSelectable,true);
+  setFlag(QGraphicsItem::ItemIsFocusable, true);
+  setAcceptHoverEvents(true);
+
   setData(ObjectId, PartsListAnnotationObj);
   setZValue(_pli->meta->LPub.page.scene.partsListAnnotation.zValue());
 }
@@ -3621,7 +3720,33 @@ void AnnotateTextItem::setAnnotationStyle(QPainter *painter)
     }
 }
 
-void AnnotateTextItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *o, QWidget *w)
+void AnnotateTextItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = !this->isSelected() && !mouseIsDown;
+    QGraphicsItem::hoverEnterEvent(event);
+}
+
+void AnnotateTextItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = false;
+    QGraphicsItem::hoverLeaveEvent(event);
+}
+
+void AnnotateTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    mouseIsDown = true;
+    QGraphicsItem::mousePressEvent(event);
+    update();
+}
+
+void AnnotateTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    mouseIsDown = false;
+    QGraphicsItem::mouseReleaseEvent(event);
+    update();
+}
+
+void AnnotateTextItem::paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
     if (style.value() != AnnotationStyle::none) {
         setAnnotationStyle(painter);
@@ -3629,7 +3754,14 @@ void AnnotateTextItem::paint( QPainter *painter, const QStyleOptionGraphicsItem 
         textBounds.translate(textOffset);
         painter->translate(textBounds.left(), textBounds.top());
     }
-    QGraphicsTextItem::paint(painter, o, w);
+    QPen pen;
+    pen.setColor(isHovered ? QColor(Preferences::sceneGuideColor) : Qt::black);
+    pen.setWidth(0/*cosmetic*/);
+    pen.setStyle(isHovered ? Qt::PenStyle(Preferences::sceneGuidesLine) : Qt::NoPen);
+    painter->setPen(pen);
+    painter->setBrush(Qt::transparent);
+    painter->drawRect(this->boundingRect());
+    QGraphicsTextItem::paint(painter, option, widget);
 }
 
 PartGroupItem::PartGroupItem(PliPartGroupMeta meta)

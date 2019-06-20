@@ -353,9 +353,16 @@ public:
     QString pliToolTip(QString type, QString Color);
     PliPart *part;
     Pli     *pli;
-  PlacementType  parentRelativeType;
-  protected:
-  virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+    PlacementType  parentRelativeType;
+protected:
+    virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+    virtual void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
+    virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
+    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    bool isHovered;
+    bool mouseIsDown;
 };
 
 class PGraphicsTextItem : public QGraphicsTextItem, public MetaItem
@@ -371,13 +378,13 @@ public:
             Pli     *_pli,
             PliPart *_part,
             QString &text,
-  QString &fontString,
-  QString &toolTip,
-  QGraphicsTextItem *_parent = nullptr)
-    :QGraphicsTextItem(_parent)
-{
-  setText(_pli,
-          _part,
+            QString &fontString,
+            QString &toolTip,
+            QGraphicsTextItem *_parent = nullptr)
+        : QGraphicsTextItem(_parent)
+    {
+        setText(_pli,
+                _part,
                 text,
                 fontString,
                 toolTip);
@@ -423,7 +430,14 @@ InstanceTextItem(
   PGraphicsTextItem *_parent = nullptr);
 
 protected:
-void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+  void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+  virtual void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
+  virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
+  virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+  virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+  bool isHovered;
+  bool mouseIsDown;
 };
 
 class AnnotateTextItem : public PGraphicsTextItem
@@ -466,8 +480,16 @@ protected:
   int                  submodelLevel;
 
   void setAnnotationStyle(QPainter *painter);
-  void paint(QPainter *painter, const QStyleOptionGraphicsItem *o, QWidget *w);
+
+protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+  virtual void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
+  virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
+  virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+  virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+  bool isHovered;
+  bool mouseIsDown;
 };
 
 class PartGroupItem : public QGraphicsItemGroup, public MetaItem

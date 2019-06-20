@@ -143,25 +143,22 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.fadeStepBox->setChecked(                    Preferences::enableFadeSteps);
   ui.fadeStepsUseColourBox->setEnabled(          Preferences::enableFadeSteps);
   ui.fadeStepsUseColourBox->setChecked(          Preferences::fadeStepsUseColour);
-  ui.fadeStepsColoursCombo->setEnabled(          Preferences::enableFadeSteps && Preferences::fadeStepsUseColour);
   ui.fadeStepsOpacityBox->setEnabled(            Preferences::enableFadeSteps);
   ui.fadeStepsOpacitySlider->setEnabled(         Preferences::enableFadeSteps);
   ui.fadeStepsOpacitySlider->setValue(           Preferences::fadeStepsOpacity);
 
   ui.showParseErrorsChkBox->setChecked(          Preferences::showParseErrors);
-  QString test = Preferences::validFadeStepsColour;
-  ui.fadeStepsColoursCombo->addItems(LDrawColor::names());
-  ui.fadeStepsColoursCombo->setCurrentIndex(int(ui.fadeStepsColoursCombo->findText(Preferences::validFadeStepsColour)));
-  QColor fadeColor = LDrawColor::color(Preferences::validFadeStepsColour);
+
+  QColor fadeColor = LDrawColor::color(          Preferences::validFadeStepsColour);
   if(fadeColor.isValid() ) {
       ui.fadeStepsColourLabel->setAutoFillBackground(true);
       QString styleSheet =
-          QString("QLabel { background-color: rgb(%1, %2, %3); }")
+              QString("QLabel { background-color: rgb(%1, %2, %3); }")
               .arg(fadeColor.red())
               .arg(fadeColor.green())
               .arg(fadeColor.blue());
       ui.fadeStepsColourLabel->setStyleSheet(styleSheet);
-    }
+  }
 
   ui.highlightStepBox->setChecked(               Preferences::enableHighlightStep);
   ui.highlightStepBtn->setEnabled(               Preferences::enableHighlightStep);
@@ -699,40 +696,38 @@ void PreferencesDialog::on_archiveLSynthPartsBox_clicked(bool checked)
     ui.addLSynthSearchDirBox->setEnabled(checked);
 }
 
-void PreferencesDialog::on_fadeStepsColoursCombo_currentIndexChanged(const QString &colorName)
+void PreferencesDialog::on_fadeStepsColoursBtn_clicked()
 {
-  QColor newFadeColor = LDrawColor::color(colorName);
-  if(newFadeColor.isValid() ) {
-      ui.fadeStepsColourLabel->setAutoFillBackground(true);
-      QString styleSheet =
-          QString("QLabel { background-color: rgb(%1, %2, %3); }")
-          .arg(newFadeColor.red())
-          .arg(newFadeColor.green())
-          .arg(newFadeColor.blue());
-      ui.fadeStepsColourLabel->setStyleSheet(styleSheet);
-    }
+  QColor fadeStepsColours = QColorDialog::getColor(ui.fadeStepsColourLabel->palette().background().color(), this );
+  if(fadeStepsColours.isValid() ) {
+    ui.fadeStepsColourLabel->setAutoFillBackground(true);
+    QString styleSheet =
+        QString("QLabel { background-color: rgb(%1, %2, %3); }")
+        .arg(fadeStepsColours.red())
+        .arg(fadeStepsColours.green())
+        .arg(fadeStepsColours.blue());
+    ui.fadeStepsColourLabel->setStyleSheet(styleSheet);
+  }
 }
 
 void PreferencesDialog::on_highlightStepBtn_clicked()
 {
   QColor highlightColour = QColorDialog::getColor(ui.highlightStepColorLabel->palette().background().color(), this );
-  if( highlightColour.isValid()) {
-      if(highlightColour.isValid() ) {
-          ui.highlightStepColorLabel->setAutoFillBackground(true);
-          QString styleSheet =
-              QString("QLabel { background-color: rgb(%1, %2, %3); }")
-              .arg(highlightColour.red())
-              .arg(highlightColour.green())
-              .arg(highlightColour.blue());
-          ui.highlightStepColorLabel->setStyleSheet(styleSheet);
-        }
-    }
+  if(highlightColour.isValid() ) {
+    ui.highlightStepColorLabel->setAutoFillBackground(true);
+    QString styleSheet =
+        QString("QLabel { background-color: rgb(%1, %2, %3); }")
+        .arg(highlightColour.red())
+        .arg(highlightColour.green())
+        .arg(highlightColour.blue());
+    ui.highlightStepColorLabel->setStyleSheet(styleSheet);
+  }
 }
 
 void PreferencesDialog::on_fadeStepBox_clicked(bool checked)
 {
   ui.fadeStepsUseColourBox->setEnabled(checked);
-  ui.fadeStepsColoursCombo->setEnabled(checked);
+  ui.fadeStepsColoursBtn->setEnabled(checked);
   ui.fadeStepsOpacityBox->setEnabled(checked);
   ui.fadeStepsOpacitySlider->setEnabled(checked);
 
@@ -742,7 +737,7 @@ void PreferencesDialog::on_fadeStepBox_clicked(bool checked)
 
 void PreferencesDialog::on_fadeStepsUseColourBox_clicked(bool checked)
 {
-  ui.fadeStepsColoursCombo->setEnabled(checked);
+  ui.fadeStepsColoursBtn->setEnabled(checked);
 }
 
 void PreferencesDialog::on_highlightStepBox_clicked(bool checked)
@@ -971,7 +966,7 @@ int PreferencesDialog::ldrawFilesLoadMsgs()
 
 QString const PreferencesDialog::fadeStepsColour()
 {
-    return ui.fadeStepsColoursCombo->currentText();
+    return ui.fadeStepsColourLabel->palette().background().color().name();
 }
 
 QString const PreferencesDialog::highlightStepColour()

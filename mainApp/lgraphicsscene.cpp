@@ -410,7 +410,7 @@ void LGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect){
         QString t = QString("%1,%2")
                 .arg(QString::number(mHorzCursorPos.x(),'f',0))
                 .arg(QString::number(mVertCursorPos.y(),'f',0));
-        qreal w = fm.horizontalAdvance(t);
+        qreal w = fm.width(t);
         QPointF p;
         switch (mGuidesPlacement) {
         case GUIDES_CENTRE:
@@ -463,7 +463,7 @@ void LGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect){
     QString t = QString("%1,%2")
             .arg(QString::number(mGuidePos.x(),'f',0))
             .arg(QString::number(mGuidePos.y(),'f',0));
-    qreal w = fm.horizontalAdvance(t);
+    qreal w = fm.width(t);
     QPointF p;
     qreal ver = mBaseItem->boundingRect().height()/2;
     qreal hor = mBaseItem->boundingRect().width()/2;

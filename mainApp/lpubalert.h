@@ -19,7 +19,6 @@
 
 #include "name.h"
 
-class QObject;
 class QString;
 
 class LPubAlert : public QObject

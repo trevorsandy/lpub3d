@@ -1172,14 +1172,8 @@ void Project::ExportBrickLink()
 			sprintf(Line, "    <ITEMID>%s</ITEMID>\n", FileName);
 			BrickLinkFile.WriteLine(Line);
 
-			int Count = ColorIt.second;
-/*** LPub3D Mod - do not suppress MINQTY ***/
-//			if (Count > 1)
-//			{
-				sprintf(Line, "    <MINQTY>%d</MINQTY>\n", Count);
-				BrickLinkFile.WriteLine(Line);
-//			}
-/*** LPub3D Mod end ***/
+			sprintf(Line, "    <MINQTY>%d</MINQTY>\n", ColorIt.second);
+			BrickLinkFile.WriteLine(Line);
 
 			int Color = lcGetBrickLinkColor(ColorIt.first);
 			if (Color)

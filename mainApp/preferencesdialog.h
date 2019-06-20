@@ -134,6 +134,7 @@ class PreferencesDialog : public QDialog
     void on_pushButtonReset_clicked();
     void on_checkForUpdates_btn_clicked();
     void on_highlightStepBtn_clicked();
+    void on_fadeStepsColoursBtn_clicked();
     void on_ldrawLibPathEdit_editingFinished();
 
     void on_altLDConfigBox_clicked(bool checked);
@@ -150,7 +151,6 @@ class PreferencesDialog : public QDialog
     void on_highlightStepBox_clicked(bool checked);
     void on_fadeStepBox_clicked(bool checked);
     void on_fadeStepsUseColourBox_clicked(bool checked);
-    void on_fadeStepsColoursCombo_currentIndexChanged(const QString &colorName);
 
     void on_preferredRenderer_currentIndexChanged(const QString &arg1);
     void on_loggingGrpBox_clicked(bool checked);

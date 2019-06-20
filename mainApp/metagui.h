@@ -589,10 +589,8 @@ private:
   QComboBox       *typeCombo; 
  
 public slots: 
-   void rotStepXChange(double); 
-   void rotStepYChange(double); 
-   void rotStepZChange(double); 
-   void typeChange(QString const &); 
+   void rotStepChanged(double);
+   void typeChanged(QString const &);
 }; 
  
 /*********************************************************************** 

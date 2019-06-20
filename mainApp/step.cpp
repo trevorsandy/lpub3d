@@ -244,6 +244,7 @@ int Step::createCsi(
   // append rotstep to be passed on to 3DViewer
   keyPart2 += QString("_%1_%2")
                       .arg(renderer->getRotstepMeta(meta.rotStep,true))
+                      // why is scale passed twice ?
                       .arg(double(meta.LPub.assem.modelScale.value()));
 
   // populate png name

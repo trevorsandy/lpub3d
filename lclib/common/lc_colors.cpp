@@ -36,236 +36,133 @@ int lcGetBrickLinkColor(int ColorIndex)
 {
 	struct lcBrickLinkEntry
 	{
-		int Code;
-		const char* Name;
+		int LDraw;
+		int BrickLink;
 	};
 
-/*** LPub3D Mod - Updated Bricklink Colour List ***/
 	lcBrickLinkEntry BrickLinkColors[] =
 	{
-		{  0, "(Not Applicable)" },
-		{  41, "Aqua" },
-		{  11, "Black" },
-		{  7, "Blue" },
-		{  97, "Blue Violet" },
-		{  36, "Bright Green" },
-		{  105, "Bright Light Blue" },
-		{  110, "Bright Light Orange" },
-		{  103, "Bright Light Yellow" },
-		{  104, "Bright Pink" },
-		{  8, "Brown" },
-		{  220, "Coral" },
-		{  153, "Dark Azure" },
-		{  63, "Dark Blue" },
-		{  109, "Dark Blue Violet" },
-		{  85, "Dark Bluish Grey" },
-		{  120, "Dark Brown" },
-		{  91, "Dark Flesh" },
-		{  10, "Dark Grey" },
-		{  80, "Dark Green" },
-		{  68, "Dark Orange" },
-		{  47, "Dark Pink" },
-		{  89, "Dark Purple" },
-		{  59, "Dark Red" },
-		{  69, "Dark Tan" },
-		{  39, "Dark Turquoise" },
-		{  161, "Dark Yellow" },
-		{  29, "Earth Orange" },
-		{  106, "Fabuland Brown" },
-		{  160, "Fabuland Orange" },
-		{  28, "Flesh" },
-		{  6, "Green" },
-		{  154, "Lavender" },
-		{  152, "Light Aqua" },
-		{  62, "Light Blue" },
-		{  86, "Light Bluish Grey" },
-		{  90, "Light Flesh" },
-		{  9, "Light Grey" },
-		{  38, "Light Green" },
-		{  35, "Light Lime" },
-		{  32, "Light Orange" },
-		{  56, "Light Pink" },
-		{  93, "Light Purple" },
-		{  26, "Light Salmon" },
-		{  40, "Light Turquoise" },
-		{  44, "Light Violet" },
-		{  33, "Light Yellow" },
-		{  34, "Lime" },
-		{  72, "Maersk Blue" },
-		{  71, "Magenta" },
-		{  156, "Medium Azure" },
-		{  42, "Medium Blue" },
-		{  150, "Medium Dark Flesh" },
-		{  94, "Medium Dark Pink" },
-		{  37, "Medium Green" },
-		{  157, "Medium Lavender" },
-		{  76, "Medium Lime" },
-		{  31, "Medium Orange" },
-		{  73, "Medium Violet" },
-		{  166, "Neon Green" },
-		{  165, "Neon Orange" },
-		{  155, "Olive Green" },
-		{  4, "Orange" },
-		{  23, "Pink" },
-		{  24, "Purple" },
-		{  5, "Red" },
-		{  88, "Reddish Brown" },
-		{  27, "Rust" },
-		{  25, "Salmon" },
-		{  55, "Sand Blue" },
-		{  48, "Sand Green" },
-		{  54, "Sand Purple" },
-		{  58, "Sand Red" },
-		{  87, "Sky Blue" },
-		{  2, "Tan" },
-		{  99, "Very Light Bluish Grey" },
-		{  49, "Very Light Grey" },
-		{  96, "Very Light Orange" },
-		{  43, "Violet" },
-		{  1, "White" },
-		{  3, "Yellow" },
-		{  158, "Yellowish Green" },
-		{  13, "Trans Black" },
-		{  108, "Trans Bright Green" },
-		{  12, "Trans Clear" },
-		{  14, "Trans Dark Blue" },
-		{  50, "Trans Dark Pink" },
-		{  20, "Trans Green" },
-		{  15, "Trans Light Blue" },
-		{  221, "Trans Light Green" },
-		{  164, "Trans Light Orange" },
-		{  114, "Trans Light Purple" },
-		{  74, "Trans Medium Blue" },
-		{  16, "Trans Neon Green" },
-		{  18, "Trans Neon Orange" },
-		{  121, "Trans Neon Yellow" },
-		{  98, "Trans Orange" },
-		{  107, "Trans Pink" },
-		{  51, "Trans Purple" },
-		{  17, "Trans Red" },
-		{  113, "Trans Very Lt Blue" },
-		{  19, "Trans Yellow" },
-		{  57, "Chrome Antique Brass" },
-		{  122, "Chrome Black" },
-		{  52, "Chrome Blue" },
-		{  21, "Chrome Gold" },
-		{  64, "Chrome Green" },
-		{  82, "Chrome Pink" },
-		{  22, "Chrome Silver" },
-		{  84, "Copper" },
-		{  81, "Flat Dark Gold" },
-		{  95, "Flat Silver" },
-		{  78, "Metal Blue" },
-		{  77, "Pearl Dark Grey" },
-		{  115, "Pearl Gold" },
-		{  61, "Pearl Light Gold" },
-		{  66, "Pearl Light Grey" },
-		{  119, "Pearl Very Light Grey" },
-		{  83, "Pearl White" },
-		{  65, "Metallic Gold" },
-		{  70, "Metallic Green" },
-		{  67, "Metallic Silver" },
-		{  46, "Glow In Dark Opaque" },
-		{  118, "Glow In Dark Trans" },
-		{  159, "Glow In Dark White" },
-		{  60, "Milky White" },
-		{  101, "Glitter Trans Clear" },
-		{  100, "Glitter Trans Dark Pink" },
-		{  162, "Glitter Trans Light Blue" },
-		{  163, "Glitter Trans Neon Green" },
-		{  102, "Glitter Trans Purple" },
-		{  116, "Speckle Black Copper" },
-		{  151, "Speckle Black Gold" },
-		{  111, "Speckle Black Silver" },
-		{  117, "Speckle DBGrey Silver" },
-		{  142, "Mx Aqua Green" },
-		{  128, "Mx Black" },
-		{  132, "Mx Brown" },
-		{  133, "Mx Buff" },
-		{  126, "Mx Charcoal Grey" },
-		{  149, "Mx Clear" },
-		{  214, "Mx Foil Dark Blue" },
-		{  210, "Mx Foil Dark Grey" },
-		{  212, "Mx Foil Dark Green" },
-		{  215, "Mx Foil Light Blue" },
-		{  211, "Mx Foil Light Grey" },
-		{  213, "Mx Foil Light Green" },
-		{  219, "Mx Foil Orange" },
-		{  217, "Mx Foil Red" },
-		{  216, "Mx Foil Violet" },
-		{  218, "Mx Foil Yellow" },
-		{  139, "Mx Lemon" },
-		{  124, "Mx Light Bluish Grey" },
-		{  125, "Mx Light Grey" },
-		{  136, "Mx Light Orange" },
-		{  137, "Mx Light Yellow" },
-		{  144, "Mx Medium Blue" },
-		{  138, "Mx Ochre Yellow" },
-		{  140, "Mx Olive Green" },
-		{  135, "Mx Orange" },
-		{  145, "Mx Pastel Blue" },
-		{  141, "Mx Pastel Green" },
-		{  148, "Mx Pink" },
-		{  130, "Mx Pink Red" },
-		{  129, "Mx Red" },
-		{  146, "Mx Teal Blue" },
-		{  134, "Mx Terracotta" },
-		{  143, "Mx Tile Blue" },
-		{  131, "Mx Tile Brown" },
-		{  127, "Mx Tile Grey" },
-		{  147, "Mx Violet" },
-		{  123, "Mx White" },
-		{  172, "BA Black" },
-		{  207, "BA Black Rubber" },
-		{  183, "BA Blue" },
-		{  199, "BA Blue Chrome" },
-		{  197, "BA Brass" },
-		{  198, "BA Bronze" },
-		{  177, "BA Brown" },
-		{  209, "BA Chrome" },
-		{  168, "BA Cobalt" },
-		{  190, "BA Dark Blue" },
-		{  178, "BA Dark Brown" },
-		{  175, "BA Dark Grey" },
-		{  204, "BA Dark Grey Rubber" },
-		{  179, "BA Dark Tan" },
-		{  208, "BA Glow In Dark" },
-		{  203, "BA Grey Rubber" },
-		{  182, "BA Green" },
-		{  170, "BA Gunmetal" },
-		{  205, "BA Gunmetal Rubber" },
-		{  174, "BA Light Grey" },
-		{  189, "BA OD Green" },
-		{  200, "BA OD Metallic" },
-		{  181, "BA Olive" },
-		{  192, "BA Pink" },
-		{  191, "BA Purple" },
-		{  176, "BA Red" },
-		{  201, "BA Red Chrome" },
-		{  184, "BA Sand Blue" },
-		{  195, "BA Silver" },
-		{  206, "BA Silver Rubber" },
-		{  180, "BA Tan" },
-		{  196, "BA Titanium" },
-		{  186, "BA Trans Black" },
-		{  188, "BA Trans Blue" },
-		{  185, "BA Trans Clear" },
-		{  171, "BA Trans Green" },
-		{  187, "BA Trans Orange" },
-		{  169, "BA Trans Red" },
-		{  194, "BA Trans Red Sparkle" },
-		{  193, "BA Trans Smoke" },
-		{  167, "BA UN Blue" },
-		{  173, "BA White" },
-		{  202, "BA White Rubber" },
+		{   0,  11 }, // Black
+		{   1,   7 }, // Blue
+		{   2,   6 }, // Green
+		{   3,  39 }, // Dark Turquoise
+		{   4,   5 }, // Red
+		{   5,  47 }, // Dark Pink
+		{   6,   8 }, // Brown
+		{   7,   9 }, // Light Gray
+		{   8,  10 }, // Dark Gray
+		{   9,  62 }, // Light Blue
+		{  10,  36 }, // Bright Green
+		{  11,  40 }, // Light Turquoise
+		{  12,  25 }, // Salmon
+		{  13,  23 }, // Pink
+		{  14,   3 }, // Yellow
+		{  15,   1 }, // White
+		{  17,  38 }, // Light Green
+		{  18,  33 }, // Light Yellow
+		{  19,   2 }, // Tan
+		{  20,  44 }, // Light Violet
+		{  21,  46 }, // Glow In Dark Opaque
+		{  22,  24 }, // Purple
+		{  23, 109 }, // Dark Blue-Violet
+		{  25,   4 }, // Orange
+		{  26,  71 }, // Magenta
+		{  27,  34 }, // Lime
+		{  28,  69 }, // Dark Tan
+		{  29, 104 }, // Bright Pink
+		{  33,  14 }, // Trans-Dark Blue
+		{  34,  20 }, // Trans-Green
+		{  35, 108 }, // Trans-Bright Green
+		{  36,  17 }, // Trans-Red
+		{  37,  51 }, // Trans-Purple
+		{  40,  13 }, // Trans-Black
+		{  41,  15 }, // Trans-Light Blue
+		{  42,  16 }, // Trans-Neon Green
+		{  43, 113 }, // Trans-Very Lt Blue
+		{  45,  50 }, // Trans-Dark Pink
+		{  46,  19 }, // Trans-Yellow
+		{  47,  12 }, // Trans-Clear
+		{  54, 121 }, // Trans-Neon Yellow
+		{  57,  18 }, // Trans-Neon Orange
+		{  60,  57 }, // Chrome Antique Brass
+		{  61,  52 }, // Chrome Blue
+		{  62,  64 }, // Chrome Green
+		{  63,  82 }, // Chrome Pink
+		{  64, 122 }, // Chrome Black
+		{  68,  96 }, // Very Light Orange
+		{  69,  93 }, // Light Purple
+		{  70,  88 }, // Reddish Brown
+		{  71,  86 }, // Light Bluish Gray
+		{  72,  85 }, // Dark Bluish Gray
+		{  73,  42 }, // Medium Blue
+		{  74,  37 }, // Medium Green
+		{  75, 116 }, // Speckle Black-Copper
+		{  76, 117 }, // Speckle DBGray-Silver
+		{  77,  56 }, // Light Pink
+		{  78,  90 }, // Light Flesh
+		{  79,  60 }, // Milky White
+		{  84, 150 }, // Medium Dark Flesh
+		{  85,  89 }, // Dark Purple
+		{  86,  91 }, // Dark Flesh
+		{  92,  28 }, // Flesh
+		{ 100,  26 }, // Light Salmon
+		{ 110,  43 }, // Violet
+		{ 112,  97 }, // Blue-Violet
+		{ 114, 100 }, // Glitter Trans-Dark Pink
+		{ 115,  76 }, // Medium Lime
+		{ 117, 101 }, // Glitter Trans-Clear
+		{ 118,  41 }, // Aqua
+		{ 120,  35 }, // Light Lime
+		{ 125,  32 }, // Light Orange
+		{ 129, 102 }, // Glitter Trans-Purple
+		{ 132, 111 }, // Speckle Black-Silver
+		{ 134,  84 }, // Copper
+		{ 135,  66 }, // Pearl Light Gray
+		{ 137,  78 }, // Metal Blue
+		{ 142,  61 }, // Pearl Light Gold
+		{ 143,  74 }, // Trans-Medium Blue
+		{ 148,  77 }, // Pearl Dark Gray
+		{ 150, 119 }, // Pearl Very Light Gray
+		{ 151,  99 }, // Very Light Bluish Gray
+		{ 178,  81 }, // Flat Dark Gold
+		{ 179,  95 }, // Flat Silver
+		{ 182,  98 }, // Trans-Orange
+		{ 183,  83 }, // Pearl White
+		{ 191, 110 }, // Bright Light Orange
+		{ 212, 105 }, // Bright Light Blue
+		{ 216,  27 }, // Rust
+		{ 226, 103 }, // Bright Light Yellow
+		{ 230, 107 }, // Trans-Pink
+		{ 232,  87 }, // Sky Blue
+		{ 236, 114 }, // Trans-Light Purple
+		{ 272,  63 }, // Dark Blue
+		{ 288,  80 }, // Dark Green
+		{ 294, 118 }, // Glow In Dark Trans
+		{ 297, 115 }, // Pearl Gold
+		{ 308, 120 }, // Dark Brown
+		{ 313,  72 }, // Maersk Blue
+		{ 320,  59 }, // Dark Red
+		{ 321, 153 }, // Dark Azure
+		{ 323, 152 }, // Light Aqua
+		{ 334,  21 }, // Chrome Gold
+		{ 335,  58 }, // Sand Red
+		{ 351,  94 }, // Medium Dark Pink
+		{ 366,  29 }, // Earth Orange
+		{ 373,  54 }, // Sand Purple
+		{ 378,  48 }, // Sand Green
+		{ 379,  55 }, // Sand Blue
+		{ 383,  22 }, // Chrome Silver
+		{ 450, 106 }, // Fabuland Brown
+		{ 462,  31 }, // Medium Orange
+		{ 484,  68 }, // Dark Orange
+		{ 503,  49 }, // Very Light Gray
 	};
-/*** LPub3D Mod end ***/
 
-	const char* Name = gColorList[ColorIndex].Name;
+	int ColorCode = gColorList[ColorIndex].Code;
 
 	for (unsigned int Color = 0; Color < sizeof(BrickLinkColors) / sizeof(BrickLinkColors[0]); Color++)
-		if (!strcmp(Name, BrickLinkColors[Color].Name))
-			return BrickLinkColors[Color].Code;
+		if (BrickLinkColors[Color].LDraw == ColorCode)
+			return BrickLinkColors[Color].BrickLink;
 
 	return 0;
 }

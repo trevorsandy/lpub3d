@@ -193,17 +193,19 @@ int SubModel::createSubModelImage(
   QString key = QString("%1_%2_%3_%4_%5_%6_%7_%8_%9")
                     .arg(partialKey)
                     .arg(pageSizeP(meta, 0))
-                    .arg(resolution())
+                    .arg(double(resolution()))
                     .arg(resolutionType() == DPI ? "DPI" : "DPCM")
-                    .arg(modelScale)
-                    .arg(subModelMeta.cameraFoV.value())
-                    .arg(noCA ? 0.0 : subModelMeta.cameraAngles.value(0))
-                    .arg(noCA ? 0.0 : subModelMeta.cameraAngles.value(1))
+                    .arg(double(modelScale))
+                    .arg(double(subModelMeta.cameraFoV.value()))
+                    .arg(noCA ? 0.0 : double(subModelMeta.cameraAngles.value(0)))
+                    .arg(noCA ? 0.0 : double(subModelMeta.cameraAngles.value(1)))
                     .arg(renderer->getRotstepMeta(subModelMeta.rotStep,true));
-  imageName = QDir::currentPath() + "/" +
-              Paths::submodelDir + "/" + key.toLower() + ".png";
-  QStringList ldrNames = QStringList() << QDir::currentPath() + "/" +
-                                          Paths::tmpDir + "/submodel.ldr";
+  imageName = QDir::currentPath() + QDir::separator() +
+              Paths::submodelDir + QDir::separator() + key.toLower() + ".png";
+
+  // define ldr file name
+  QStringList ldrNames = QStringList() << QDir::currentPath() + QDir::separator() +
+                                          Paths::tmpDir + QDir::separator() + "submodel.ldr";
 
   // Check if png file date modified is older than model file (on the stack) date modified
   imageOutOfDate = false;
@@ -228,6 +230,7 @@ int SubModel::createSubModelImage(
       QElapsedTimer timer;
       timer.start();
 
+      // generate Submodel file
       if (! rotateModel(ldrNames.first(),type,color,noCA)) {
           emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate Submodel ldr file: %1.")
                                                 .arg(ldrNames.first()));
@@ -237,7 +240,7 @@ int SubModel::createSubModelImage(
     // TODO - create 3DViewer entry
 
     // feed DAT to renderer
-    int rc = renderer->renderPli(ldrNames,imageName,*meta,SUBMODEL);
+    int rc = renderer->renderPli(ldrNames,imageName,*meta,SUBMODEL,0);
     if (rc != 0) {
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render failed for %1").arg(imageName));
         return -1;
