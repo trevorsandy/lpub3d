@@ -319,6 +319,22 @@ float Render::getPovrayRenderCameraDistance(const QString &cdKeys){
     return stdCameraDistance(meta,scale);
 }
 
+const QStringList Render::getSubAttributes(const QString &nameKey)
+{
+    QString cleanString = QFileInfo(nameKey).baseName().trimmed();
+    if (Preferences::enableFadeSteps && nameKey.endsWith("-fade"))
+        cleanString.chop(QString("-fade").size());
+    else
+    if (Preferences::enableHighlightStep && nameKey.endsWith("-highlight"))
+        cleanString.chop(QString("-highlight").size());
+
+    return cleanString.split("_");
+}
+
+bool Render::difference(const float &v1, const float &v2) {
+    return (v1 > v2 || v1 < v2);
+}
+
 int Render::executeLDViewProcess(QStringList &arguments, Mt module) {
 
   QString message = QString("LDView %1 %2 Arguments: %3 %4")
@@ -604,7 +620,8 @@ int POVRay::renderPli(
     const QStringList &ldrNames ,
     const QString     &pngName,
     Meta    	      &meta,
-    int               pliType)
+    int                pliType,
+    int                sub)
 {
   // Select meta type
   PliMeta &metaType = pliType == SUBMODEL ? static_cast<PliMeta&>(meta.LPub.subModel) :
@@ -614,21 +631,42 @@ int POVRay::renderPli(
   QString message;
   QString povName = ldrNames.first() +".pov";
 
+  // Populate render attributes
+  QString transform  = metaType.rotStep.value().type;
+  bool  noCA         = transform  == "ABS";
+  float modelScale   = metaType.modelScale.value();
+  float cameraFov    = metaType.cameraFoV.value();
+  float cameraAngleX = metaType.cameraAngles.value(0);
+  float cameraAngleY = metaType.cameraAngles.value(1);
+
+  if (sub) {
+    // process substitute attributges
+    QStringList attributes = getSubAttributes(pngName);
+    if (attributes.size() > 9)
+      noCA = attributes.at(nTransform) == "ABS";
+    if (difference(attributes.at(nModelScale).toFloat(),modelScale))
+      modelScale = attributes.at(nModelScale).toFloat();
+    if (difference(attributes.at(nCameraFoV).toFloat(),cameraFov))
+      cameraFov = attributes.at(nCameraFoV).toFloat();
+    if (difference(attributes.at(nCameraAngleXX).toFloat(),cameraAngleX))
+      cameraAngleX = attributes.at(nCameraAngleXX).toFloat();
+    if (difference(attributes.at(nCameraAngleYY).toFloat(),cameraAngleY))
+      cameraAngleY = attributes.at(nCameraAngleYY).toFloat();
+  }
+
+  /* determine camera distance */
+  int cd = int(cameraDistance(meta,modelScale)*1700/1000);
+
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
 
-  /* determine camera distance */
-  int cd = cameraDistance(meta,metaType.modelScale.value())*1700/1000;
-
-  bool noCA  = metaType.rotStep.value().type == "ABS";
   if (pliType == SUBMODEL)
       noCA   = Preferences::applyCALocally || noCA;
 
-  QString CA = QString("-ca%1") .arg(metaType.cameraFoV.value());
-  QString cg = QString("-cg%1,%2,%3")
-      .arg(noCA ? 0.0 : metaType.cameraAngles.value(0))
-      .arg(noCA ? 0.0 : metaType.cameraAngles.value(1))
-      .arg(cd);
+  QString CA = QString("-ca%1") .arg(double(cameraFov));
+  QString cg = QString("-cg%1,%2,%3") .arg(noCA ? 0.0 : double(cameraAngleX))
+                                      .arg(noCA ? 0.0 : double(cameraAngleY))
+                                      .arg(cd);
 
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
@@ -948,27 +986,50 @@ int LDGLite::renderPli(
   const QStringList &ldrNames,
   const QString     &pngName,
   Meta              &meta,
-  int                pliType)
+  int                pliType,
+  int                sub)
 {
   // Select meta type
   PliMeta &metaType = pliType == SUBMODEL ? static_cast<PliMeta&>(meta.LPub.subModel) :
                       pliType == BOM ? meta.LPub.bom : meta.LPub.pli;
 
+  // Populate render attributes
+  QString transform  = metaType.rotStep.value().type;
+  bool  noCA         = transform  == "ABS";
+  float modelScale   = metaType.modelScale.value();
+  float cameraFov    = metaType.cameraFoV.value();
+  float cameraAngleX = metaType.cameraAngles.value(0);
+  float cameraAngleY = metaType.cameraAngles.value(1);
+
+  if (sub) {
+    // process substitute attributges
+    QStringList attributes = getSubAttributes(pngName);
+    if (attributes.size() > 9)
+      noCA = attributes.at(nTransform) == "ABS";
+    if (difference(attributes.at(nModelScale).toFloat(),modelScale))
+      modelScale = attributes.at(nModelScale).toFloat();
+    if (difference(attributes.at(nCameraFoV).toFloat(),cameraFov))
+      cameraFov = attributes.at(nCameraFoV).toFloat();
+    if (difference(attributes.at(nCameraAngleXX).toFloat(),cameraAngleX))
+      cameraAngleX = attributes.at(nCameraAngleXX).toFloat();
+    if (difference(attributes.at(nCameraAngleYY).toFloat(),cameraAngleY))
+      cameraAngleY = attributes.at(nCameraAngleYY).toFloat();
+  }
+
+  /* determine camera distance */
+  int cd = int(cameraDistance(meta,modelScale));
+
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
 
-  int lineThickness = resolution()/72.0+0.5;
+  int lineThickness = int(double(resolution())/72.0+0.5);
 
-  /* determine camera distance */
-  int cd = cameraDistance(meta,metaType.modelScale.value());
-
-  bool noCA  = metaType.rotStep.value().type == "ABS";
   if (pliType == SUBMODEL)
       noCA   = Preferences::applyCALocally || noCA;
 
-  QString CA = QString("-ca%1") .arg(metaType.cameraFoV.value());
-  QString cg = QString("-cg%1,%2,%3") .arg(noCA ? 0.0 : metaType.cameraAngles.value(0))
-                                      .arg(noCA ? 0.0 : metaType.cameraAngles.value(1))
+  QString CA = QString("-ca%1") .arg(double(cameraFov));
+  QString cg = QString("-cg%1,%2,%3") .arg(noCA ? 0.0 : double(cameraAngleX))
+                                      .arg(noCA ? 0.0 : double(cameraAngleY))
                                       .arg(cd);
 
   QString J  = QString("-J");
@@ -1327,7 +1388,8 @@ int LDView::renderPli(
   const QStringList &ldrNames,
   const QString     &pngName,
   Meta              &meta,
-  int                pliType)
+  int                pliType,
+  int                sub)
 {
   // Select meta type
   PliMeta &metaType = pliType == SUBMODEL ? static_cast<PliMeta&>(meta.LPub.subModel) :
@@ -1339,23 +1401,20 @@ int LDView::renderPli(
     return -1;
   }
 
-  /* determine camera distance */
-  int cd = cameraDistance(meta,metaType.modelScale.value())*1700/1000;
+  QString tempPath = QDir::currentPath() + QDir::separator() + Paths::tmpDir;
+  QString partsPath = QDir::currentPath() + QDir::separator() + (pliType == SUBMODEL ? Paths::submodelDir : Paths::partsDir);
 
-  /* page size */
-  int width  = gui->pageSize(meta.LPub.page, 0);
-  int height = gui->pageSize(meta.LPub.page, 1);
-
-  bool hasLDViewIni = Preferences::ldviewIni != "";
-
-  QString tempPath = QDir::currentPath() + "/" + Paths::tmpDir;
-  QString partsPath = QDir::currentPath() + "/" + (pliType == SUBMODEL ? Paths::submodelDir : Paths::partsDir);
-
-  //qDebug() << "LDView (Native) Camera Distance: " << cd;
+  // Populate render attributes
+  QString transform  = metaType.rotStep.value().type;
+  bool  noCA         = transform  == "ABS";
+  float modelScale   = metaType.modelScale.value();
+  float cameraFov    = metaType.cameraFoV.value();
+  float cameraAngleX = metaType.cameraAngles.value(0);
+  float cameraAngleY = metaType.cameraAngles.value(1);
 
   /* Create the CSI DAT file(s) */
   QString f;
-  if (useLDViewSCall() && pliType != SUBMODEL) {
+  if (useLDViewSCall() && pliType != SUBMODEL) {  // SingleCall
 
       if (!useLDViewSList() || (useLDViewSList() && ldrNames.size() < SNAPSHOTS_LIST_THRESHOLD)) {
           f  = QString("-SaveSnapShots=1");
@@ -1384,17 +1443,41 @@ int LDView::renderPli(
       }
 
   } else {
+      if (sub) {
+        // process substitute attributges
+        QStringList attributes = getSubAttributes(pngName);
+        if (attributes.size() > 9)
+          noCA = attributes.at(nTransform) == "ABS";
+        if (difference(attributes.at(nModelScale).toFloat(),modelScale))
+          modelScale = attributes.at(nModelScale).toFloat();
+        if (difference(attributes.at(nCameraFoV).toFloat(),cameraFov))
+          cameraFov = attributes.at(nCameraFoV).toFloat();
+        if (difference(attributes.at(nCameraAngleXX).toFloat(),cameraAngleX))
+          cameraAngleX = attributes.at(nCameraAngleXX).toFloat();
+        if (difference(attributes.at(nCameraAngleYY).toFloat(),cameraAngleY))
+          cameraAngleY = attributes.at(nCameraAngleYY).toFloat();
+      }
 
       f  = QString("-SaveSnapShot=%1") .arg(pngName);
   }
 
-  bool noCA  = metaType.rotStep.value().type == "ABS";
+  /* determine camera distance */
+  int cd = int(cameraDistance(meta,modelScale)*1700/1000);
+
+  /* page size */
+  int width  = gui->pageSize(meta.LPub.page, 0);
+  int height = gui->pageSize(meta.LPub.page, 1);
+
+  bool hasLDViewIni = Preferences::ldviewIni != "";
+
+  //qDebug() << "LDView (Native) Camera Distance: " << cd;
+
   if (pliType == SUBMODEL)
       noCA   = Preferences::applyCALocally || noCA;
 
-  QString CA = QString("-ca%1") .arg(metaType.cameraFoV.value());
-  QString cg = QString("-cg%1,%2,%3") .arg(noCA ? 0.0 : metaType.cameraAngles.value(0))
-                                      .arg(noCA ? 0.0 : metaType.cameraAngles.value(1))
+  QString CA = QString("-ca%1") .arg(double(cameraFov));
+  QString cg = QString("-cg%1,%2,%3") .arg(noCA ? 0.0 : double(cameraAngleX))
+                                      .arg(noCA ? 0.0 : double(cameraAngleY))
                                       .arg(cd);
 
   QString w  = QString("-SaveWidth=%1")  .arg(width);
@@ -1634,14 +1717,36 @@ int Native::renderPli(
   const QStringList &ldrNames,
   const QString     &pngName,
   Meta              &meta,
-  int               pliType)
+  int               pliType,
+  int               sub)
 {
   // Select meta type
   PliMeta &metaType = pliType == SUBMODEL ? static_cast<PliMeta&>(meta.LPub.subModel) :
                       pliType == BOM ? meta.LPub.bom : meta.LPub.pli;
 
+  // Populate render attributes
+  QString transform  = metaType.rotStep.value().type;
   // Camera Angles always applied by Native renderer except if ABS rotstep
-  bool noCA  = metaType.rotStep.value().type == "ABS";
+  bool  noCA         = transform  == "ABS";
+  float modelScale   = metaType.modelScale.value();
+  float cameraFov    = metaType.cameraFoV.value();
+  float cameraAngleX = metaType.cameraAngles.value(0);
+  float cameraAngleY = metaType.cameraAngles.value(1);
+
+  if (sub) {
+    // process substitute attributges
+    QStringList attributes = getSubAttributes(pngName);
+    if (attributes.size() > 9)
+      noCA = attributes.at(nTransform) == "ABS";
+    if (difference(attributes.at(nModelScale).toFloat(),modelScale))
+      modelScale = attributes.at(nModelScale).toFloat();
+    if (difference(attributes.at(nCameraFoV).toFloat(),cameraFov))
+      cameraFov = attributes.at(nCameraFoV).toFloat();
+    if (difference(attributes.at(nCameraAngleXX).toFloat(),cameraAngleX))
+      cameraAngleX = attributes.at(nCameraAngleXX).toFloat();
+    if (difference(attributes.at(nCameraAngleYY).toFloat(),cameraAngleY))
+      cameraAngleY = attributes.at(nCameraAngleYY).toFloat();
+  }
 
   // Renderer options
   NativeOptions Options;
@@ -1650,12 +1755,12 @@ int Native::renderPli(
   Options.OutputFileName    = pngName;
   Options.ImageWidth        = gui->pageSize(meta.LPub.page, 0);
   Options.ImageHeight       = gui->pageSize(meta.LPub.page, 1);
-  Options.FoV               = metaType.cameraFoV.value();
+  Options.FoV               = cameraFov;
   Options.ZNear             = metaType.znear.value();
   Options.ZFar              = metaType.zfar.value();
-  Options.Latitude          = noCA ? 0.0 : metaType.cameraAngles.value(0);
-  Options.Longitude         = noCA ? 0.0 : metaType.cameraAngles.value(1);
-  Options.CameraDistance    = cameraDistance(meta,metaType.modelScale.value());
+  Options.Latitude          = noCA ? 0.0 : cameraAngleX;
+  Options.Longitude         = noCA ? 0.0 : cameraAngleY;
+  Options.CameraDistance    = cameraDistance(meta,modelScale);
   Options.LineWidth         = HIGHLIGHT_LINE_WIDTH_DEFAULT;
   Options.UsingViewpoint    = gApplication->mPreferences.mNativeViewpoint <= 6;
 

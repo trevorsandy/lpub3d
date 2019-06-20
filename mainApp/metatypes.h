@@ -538,9 +538,14 @@ class PointerAttribData
 class SubData
 {
 public:
+  QString attrs;
   QString color;
   QString part;
   int     type;
+  SubData()
+  {
+    type  = 0;
+  }
 };
 
 class FreeFormData

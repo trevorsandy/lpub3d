@@ -63,10 +63,12 @@ public:
   static int             executeLDViewProcess(QStringList &, Mt);
   static QString const   fixupDirname(const QString &);
   static QString const   getPovrayRenderFileName(const QString &);
+  static QStringList const getSubAttributes(const QString &);
   static float           getPovrayRenderCameraDistance(const QString &cdKeys);
   static void            showLdvExportSettings(int mode);
   static void            showLdvLDrawPreferences(int mode);
   static bool            RenderNativeImage(const NativeOptions &);
+  static bool            difference(const float &v1, const float &v2);
   static bool            NativeExport(const NativeOptions &);
   static bool            LoadViewer(const ViewerOptions &);
   static bool            doLDVCommand(const QStringList &args,
@@ -109,7 +111,8 @@ public:
   virtual int               renderPli(const QStringList &,
                                       const QString &,
                                       Meta &,
-                                      int pliType) = 0;
+                                      int,
+                                      int) = 0;
 
 protected:
   virtual float        cameraDistance(Meta &meta, float) = 0;
@@ -124,7 +127,7 @@ public:
   POVRay() {}
   virtual ~POVRay() {}
   virtual int renderCsi(const QString &,  const QStringList &, const QStringList &, const QString &, Meta &);
-  virtual int renderPli(                  const QStringList &, const QString &, Meta &, int pliType);
+  virtual int renderPli(                  const QStringList &, const QString &, Meta &, int, int);
   virtual float cameraDistance(Meta &meta, float);
 };
 
@@ -134,7 +137,7 @@ public:
   LDGLite() {}
   virtual ~LDGLite() {}
   virtual int renderCsi(const QString &,  const QStringList &, const QStringList &,const QString &, Meta &);
-  virtual int renderPli(                  const QStringList &, const QString &, Meta &, int pliType);
+  virtual int renderPli(                  const QStringList &, const QString &, Meta &, int, int);
   virtual float cameraDistance(Meta &meta, float);
 };
 
@@ -144,7 +147,7 @@ public:
   LDView() {}
   virtual ~LDView() {}
   virtual int renderCsi(const QString &,  const QStringList &, const QStringList &, const QString &, Meta &);
-  virtual int renderPli(                  const QStringList &, const QString &, Meta &, int pliType);
+  virtual int renderPli(                  const QStringList &, const QString &, Meta &, int, int);
   virtual float cameraDistance(Meta &meta, float);
 };
 
@@ -154,7 +157,7 @@ public:
   Native() {}
   virtual ~Native() {}
   virtual int renderCsi(const QString &,  const QStringList &, const QStringList &, const QString &, Meta &);
-  virtual int renderPli(                  const QStringList &, const QString &, Meta &, int pliType);
+  virtual int renderPli(                  const QStringList &, const QString &, Meta &, int, int);
   virtual float cameraDistance(Meta &meta, float);
 };
 

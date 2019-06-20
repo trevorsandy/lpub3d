@@ -161,6 +161,17 @@ public:
 	{
 		mPartsWidget->GetListModel()->SetColorIndex(ColorIndex);
 	}
+/*** LPub3D Mod - set category and get current part public ***/
+	void SetCategory(int CategoryIndex)
+	{
+	    mCategoriesWidget->setCurrentItem(mCategoriesWidget->topLevelItem(CategoryIndex + 2) /* adjust for 'All Parts' and 'Parts In Use' initial categories*/);
+	}
+
+	PieceInfo* GetCurrentPart() const
+	{
+		return mPartsWidget->GetCurrentPart();
+	}
+/*** LPub3D Mod end ***/
 
 protected slots:
 	void DockLocationChanged(Qt::DockWidgetArea Area);

@@ -61,6 +61,7 @@
 #include "cameradistfactordialog.h"
 #include "pointerattribdialog.h"
 #include "rotstepdialog.h"
+#include "substitutepartdialog.h"
 #include "paths.h"
 #include "render.h"
 
@@ -4448,6 +4449,74 @@ void MetaItem::hidePLIParts(
     }
   }
   endMacro();
+}
+
+void MetaItem::substitutePLIPart(
+        const QStringList  &_attributes,
+        const QList<Where> &_instances,
+        int                 _action)
+{
+  QStringList attributes = _attributes;
+  QList<Where> instances = _instances;
+
+  bool ok;
+  ok = SubstitutePartDialog::getSubstitutePart(attributes,gui,_action);
+
+  if (ok) {
+    QMap<QString,QString> map;
+
+    beginMacro("substituteParts");
+
+    // Make a list of the file names and line numbers involved
+
+    for (int i = 0; i < instances.size(); ++i) {
+      QString modelName = instances[i].modelName;
+      QString lineNumber = QString("%1").arg(instances[i].lineNumber);
+
+      map[modelName] += lineNumber + ";";
+    }
+
+    // for each filename, sort the list of lineNumbers
+
+    QStringList fileNames = map.keys();
+    for (int i = 0; i < fileNames.size(); ++i) {
+      QString fileName = fileNames[i];
+      QString line = map.value(fileName);
+      line.chop(1); // remove trailing ;
+      QStringList lineNumStrings = line.split(";");
+
+      QList<int> lineNums;
+      for (int j = 0; j < lineNumStrings.size(); ++j) {
+        lineNums << lineNumStrings[j].toInt();
+      }
+      qSort(lineNums.begin(),lineNums.end());
+
+      // work it from last to first so as to not screw up our line numbers
+
+      int lastLineNum = -1;
+      for (int j = lineNums.size() - 1; j >= 0; --j) {
+        int lineNum = lineNums[j];
+        if (lineNum != lastLineNum) {
+          Where here(fileName,lineNum);
+          if (_action == sRemove) {
+            deleteMeta(here+4);
+            deleteMeta(here+3);
+            deleteMeta(here+1);
+            deleteMeta(here);
+          } else if (_action == sUpdate){
+            replaceMeta(here,"0 !LPUB PLI BEGIN SUB " + attributes.join(" "));
+          } else {
+            appendMeta(here,"0 !LPUB PART END");
+            appendMeta(here,"0 !LPUB PLI END");
+            insertMeta(here,"0 !LPUB PART BEGIN IGN");
+            insertMeta(here,"0 !LPUB PLI BEGIN SUB " + attributes.join(" "));
+          }
+          lastLineNum = lineNum;
+        }
+      }
+    }
+    endMacro();
+  }
 }
 
 void MetaItem::removeLPubFormatting()

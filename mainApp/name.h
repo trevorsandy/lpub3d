@@ -59,13 +59,43 @@ enum GridStepSize {
     GRID_SIZE_LAST = SCENE_GRID_SIZE_S9,
     NUM_GRID_SIZES
 };
-
 enum LDrawUnofficialFileType {
     UNOFFICIAL_SUBMODEL,
     UNOFFICIAL_PART,
     UNOFFICIAL_SUBPART,
     UNOFFICIAL_PRIMITIVE,
     UNOFFICIAL_OTHER
+};
+enum SubAttributes {
+    sType = 0,        // level 1 substitution
+    sColorCode,       // level 2 substitution
+    sModelScale,      // level 3 substitution
+    sCameraFoV,       // level 4 substitution
+    sCameraAngleXX,   // level 5 substitution
+    sCameraAngleYY,   // level 5 substitution
+    sRotX,            // level 6 substitution
+    sRotY,            // level 6 substitution
+    sRotZ,            // level 6 substitution
+    sTransform,       // level 6 substitution
+    sSubType,         // levels
+    sSubstitute,
+    sUpdate,
+    sRemove
+};
+enum NameKeyAttributes {
+    nType = 0,        // 0
+    nColorCode,       // 1
+    nPageWidth,       // 2
+    nResolution,      // 3
+    nResType,         // 4
+    nModelScale,      // 5
+    nCameraFoV,       // 6
+    nCameraAngleXX,   // 7
+    nCameraAngleYY,   // 8
+    nRotX,            // 9
+    nRotY,            // 10
+    nRotZ,            // 11
+    nTransform        // 12
 };
 
 const int GridSizeTable[] = { 10, 20, 30, 40, 50, 60, 70, 80, 90 };

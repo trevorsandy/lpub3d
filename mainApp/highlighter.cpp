@@ -140,6 +140,20 @@ Highlighter::Highlighter(QTextDocument *parent)
     rule.format = LPubFontNumberFormat;
     highlightingRules.append(rule);
 
+    // LPub3D Substitute Color Format
+    LPubSubColorFormat.setForeground(br07);
+    LPubSubColorFormat.setFontWeight(QFont::Bold);
+    rule.pattern = QRegExp("BEGIN\\sSUB\\s.*.[dat|mpd|ldr]\\s([0-9]+)",Qt::CaseInsensitive); // match color format if preceded by 'BEGIN SUB *.ldr|dat|mpd '
+    rule.format = LPubSubColorFormat;
+    highlightingRules.append(rule);
+
+    // LPub3D Substitute Part Format
+    LPubSubPartFormat.setForeground(br12);
+    LPubSubPartFormat.setFontWeight(QFont::Bold);
+    rule.pattern = QRegExp("BEGIN\\sSUB\\s([A-Za-z0-9\\s_-]+.[dat|mpd|ldr]+)",Qt::CaseInsensitive); // match part format if preceded by 'BEGIN SUB '
+    rule.format = LPubSubPartFormat;
+    highlightingRules.append(rule);
+
     // LPub3D Font Number Comma Format
     LPubFontCommaFormat.setForeground(br27);
     LPubFontCommaFormat.setFontWeight(QFont::Normal);
@@ -322,6 +336,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bELEMENT_STYLE\\b"
     << "\\bENABLE_STYLE\\b"
     << "\\bEND\\b"
+    << "\\bEND_SUB\\b"
     << "\\bEXTENDED\\b"
     << "\\bFACTOR\\b"
     << "\\bFADE\\b"
@@ -557,8 +572,7 @@ Highlighter::Highlighter(QTextDocument *parent)
         highlightingRules.append(rule);
     }
 
-    // LDraw Meta Line Format - This should come at the end
-    // to overwrite any formats that impact the first 0
+    // LDraw Meta Line Format
     LDrawLineType0Format.setForeground(br28);
     LDrawLineType0Format.setFontWeight(QFont::Normal);
     rule.pattern = QRegExp("^0");
@@ -585,14 +599,11 @@ Highlighter::Highlighter(QTextDocument *parent)
 
     QStringList MLCadBodyMetaPatterns;
     MLCadBodyMetaPatterns
-    << "\\bABS\\b"
-    << "\\bADD\\b"
     << "\\bARROW\\b"
     << "\\bBTG\\b"
     << "\\bBUFEXCHG\\b"
     << "\\bGHOST\\b"
     << "\\bGROUP\\b"
-    << "\\bREL\\b"
     << "\\bRETRIEVE\\b"
     << "\\bROTATION CENTER\\b"
     << "\\bROTATION CONFIG\\b"
@@ -602,6 +613,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bSKIP_BEGIN\\b"
     << "\\bSKIP_END\\b"
     << "\\bSTORE\\b"
+    << "\\d\\.?\\d*\\s\\d\\.?\\d*\\s\\d\\.?\\d*\\s[ABS|ADD|REL]+"
        ;
 
     foreach (QString pattern, MLCadBodyMetaPatterns) {
@@ -668,6 +680,13 @@ Highlighter::Highlighter(QTextDocument *parent)
     rule.format = LeoCADMetaFormat;
     highlightingRules.append(rule);
 
+    // LDraw Comment Format
+    LDrawCommentFormat.setForeground(br01);
+    LDrawCommentFormat.setFontWeight(QFont::Normal);
+    rule.pattern = QRegExp("0\\s+\\/\\/[^\n]*",Qt::CaseInsensitive);
+    rule.format = LDrawCommentFormat;
+    highlightingRules.append(rule);
+
     /* Line format only - no rules */
 
     // LDraw Line Type Format
@@ -702,13 +721,6 @@ Highlighter::Highlighter(QTextDocument *parent)
     LDrawFileFormat.setForeground(br12);
     LDrawFileFormat.setFontWeight(QFont::Bold);
     lineType1Formats.append(LDrawFileFormat);
-
-    // LDraw Comment Format
-    LDrawCommentFormat.setForeground(br01);
-    LDrawCommentFormat.setFontWeight(QFont::Normal);
-    rule.pattern = QRegExp("0\\s+\\/\\/[^\n]*",Qt::CaseInsensitive);
-    rule.format = LDrawCommentFormat;
-    highlightingRules.append(rule);
 }
 
 void Highlighter::highlightBlock(const QString &text)

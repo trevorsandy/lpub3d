@@ -95,6 +95,8 @@ class PliPart {
 
     int                  col;
 
+    int                  subType;
+
     int                  pixmapWidth;
     int                  pixmapHeight;
     int                  textHeight;
@@ -117,6 +119,7 @@ class PliPart {
 
     PliPart()
     {
+      subType         = 0;
       placed          = false;
       instanceText    = nullptr;
       annotateText    = nullptr;
@@ -129,6 +132,7 @@ class PliPart {
     {
       type            = _type;
       color           = _color;
+      subType         = 0;
       placed          = false;
       instanceText    = nullptr;
       annotateText    = nullptr;
@@ -191,6 +195,7 @@ class Pli : public Placement {
         QStringList ldrNames[NUM_PART_TYPES];
         QString baseName[NUM_PART_TYPES];
         QString partColor[NUM_PART_TYPES];
+        int sub[NUM_PART_TYPES];
     };
 
     ImageAttribues ia;
@@ -220,7 +225,7 @@ class Pli : public Placement {
     void setPos(float x, float y);
     void setFlag(QGraphicsItem::GraphicsItemFlag flag,bool value);
 
-    static const QString titleDescription(QString &part);
+    static const QString titleDescription(const QString &part);
     static QString partLine(QString &line, Where & /*here*/, Meta &/*meta*/);
     void setParts(
       QStringList             &csiParts,
@@ -252,10 +257,11 @@ class Pli : public Placement {
     bool initAnnotationString();
     void getAnnotation(QString &, QString &);
     void partClass(QString &, QString &);
-    int  createPartImage(QString &, QString &, QString &, QPixmap*);
-    int  createPartImagesLDViewSCall(QStringList &, bool);      //LDView performance improvement
+    int  createPartImage(QString &, QString &, QString &, QPixmap*,int = 0);
+    int  createPartImagesLDViewSCall(QStringList &, bool, int);      //LDView performance improvement
     QString orient(QString &color, QString part);
-    QStringList configurePLIPart(QString &,QString &,PartType,bool,bool);
+    QStringList configurePLIPart(QString &,QString &,PartType,bool,bool); // DEPRECATED
+    QStringList configurePLIPart(int, QString &, QStringList &,int);
     int createSubModelIcons();
 
     void operator= (Pli& from)
@@ -334,19 +340,19 @@ private:
 //-----------------------------------------
 
 class PGraphicsPixmapItem : public QGraphicsPixmapItem,
-                            public MetaItem  // ResizePixmapItem
+        public MetaItem  // ResizePixmapItem
 {
 public:
-PGraphicsPixmapItem(
-  Pli     *_pli,
-  PliPart *_part,
-  QPixmap &pixmap,
-  PlacementType  _parentRelativeType,
-  QString &type,
-  QString &color);
-  QString pliToolTip(QString type, QString Color);
-  PliPart *part;
-  Pli     *pli;
+    PGraphicsPixmapItem(
+            Pli     *_pli,
+            PliPart *_part,
+            QPixmap &pixmap,
+            PlacementType  _parentRelativeType,
+            QString &type,
+            QString &color);
+    QString pliToolTip(QString type, QString Color);
+    PliPart *part;
+    Pli     *pli;
   PlacementType  parentRelativeType;
   protected:
   virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
@@ -355,16 +361,16 @@ PGraphicsPixmapItem(
 class PGraphicsTextItem : public QGraphicsTextItem, public MetaItem
 {
 public:
-PGraphicsTextItem(QGraphicsTextItem *_parent = nullptr)
-    :QGraphicsTextItem(_parent)
-{
-  pli = nullptr;
-  part = nullptr;
-}
-PGraphicsTextItem(
-  Pli     *_pli,
-  PliPart *_part,
-  QString &text,
+    PGraphicsTextItem(QGraphicsTextItem *_parent = nullptr)
+        :QGraphicsTextItem(_parent)
+    {
+        pli = nullptr;
+        part = nullptr;
+    }
+    PGraphicsTextItem(
+            Pli     *_pli,
+            PliPart *_part,
+            QString &text,
   QString &fontString,
   QString &toolTip,
   QGraphicsTextItem *_parent = nullptr)
@@ -372,36 +378,36 @@ PGraphicsTextItem(
 {
   setText(_pli,
           _part,
-          text,
-          fontString,
-          toolTip);
-}
-void setText(
-  Pli     *_pli,
-  PliPart *_part,
-  QString &text,
-  QString &fontString,
-  QString &toolTip)
-{
-  pli  = _pli;
-  part = _part;
-  setPlainText(text);
-  QFont font;
-  font.fromString(fontString);
-  setFont(font);
-  setToolTip(toolTip);
-}
+                text,
+                fontString,
+                toolTip);
+    }
+    void setText(
+            Pli     *_pli,
+            PliPart *_part,
+            QString &text,
+            QString &fontString,
+            QString &toolTip)
+    {
+        pli  = _pli;
+        part = _part;
+        setPlainText(text);
+        QFont font;
+        font.fromString(fontString);
+        setFont(font);
+        setToolTip(toolTip);
+    }
 
-virtual void size(int &x, int &y)
-{
-  QSizeF size = document()->size();
-  x = int(size.width());
-  y = int(size.height());
-}
-PliPart      *part;
-Pli          *pli;
-PlacementType parentRelativeType;
-bool          isElement;
+    virtual void size(int &x, int &y)
+    {
+        QSizeF size = document()->size();
+        x = int(size.width());
+        y = int(size.height());
+    }
+    PliPart      *part;
+    Pli          *pli;
+    PlacementType parentRelativeType;
+    bool          isElement;
 };
 
 class InstanceTextItem : public PGraphicsTextItem

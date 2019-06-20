@@ -73,6 +73,8 @@ private:
     QTextCharFormat LPubNumberFormat;      // b14 - LPub3D Number
     QTextCharFormat LPubHexNumberFormat;   // b15 - LPub3D Hex Number
     QTextCharFormat LPubPageSizeFormat;    // b16 - LPub3D Page Size
+    QTextCharFormat LPubSubPartFormat;     // b12 - LPub3D Part File
+    QTextCharFormat LPubSubColorFormat;    // b07 - LDraw Part Colour Code
 
     QTextCharFormat LDrawHeaderValueFormat;// b26 - LDraw Header Value
     QTextCharFormat LDrawHeaderFormat;     // b02 - LDraw Header

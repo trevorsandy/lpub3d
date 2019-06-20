@@ -2946,22 +2946,70 @@ void PartMeta::init(BranchMeta *parent, QString name)
 
 Rc SubMeta::parse(QStringList &argv, int index,Where &here)
 {
+  bool ok[7];
   Rc rc = FailureRc;
   int argc = argv.size() - index;
-
   if (argc == 1) {
-      _value.part = argv[index];
-      _value.color = "";
-      _value.type = rc = PliBeginSub1Rc;
-    } else if (argc == 2) {
-      _value.part  = argv[index];
-      _value.color = argv[index+1];
-      _value.type = rc = PliBeginSub2Rc;
-    }
+    _value.part  = argv[index];
+    _value.color = "";
+    _value.type  = rc = PliBeginSub1Rc;
+  } else if (argc == 2) {
+    _value.part  = argv[index];
+    _value.color = argv[index+1];
+    _value.type  = rc = PliBeginSub2Rc;
+  } else if (argc == 3) {
+    _value.part  = argv[index];
+    _value.color = argv[index+1];
+    argv[index+2].toFloat(&ok[0]);
+    if (ok[0])
+      _value.type = rc = PliBeginSub3Rc;
+  } else if (argc == 4) {
+    _value.part  = argv[index];
+    _value.color = argv[index+1];
+    argv[index+2].toFloat(&ok[0]);
+    argv[index+3].toFloat(&ok[1]);
+    ok[0] &= ok[1];
+    if (ok[0])
+      _value.type = rc = PliBeginSub4Rc;;
+  } else if (argc == 6) {
+    _value.part  = argv[index];
+    _value.color = argv[index+1];
+    argv[index+2].toFloat(&ok[0]);
+    argv[index+3].toFloat(&ok[1]);
+    argv[index+4].toFloat(&ok[2]);
+    argv[index+5].toFloat(&ok[3]);
+    ok[0] &= ok[1] &= ok[2] &= ok[3];
+    if (ok[0])
+      _value.type = rc = PliBeginSub5Rc;
+  } else if (argc == 10) {
+    _value.part  = argv[index];
+    _value.color = argv[index+1];
+    argv[index+2].toFloat(&ok[0]);
+    argv[index+3].toFloat(&ok[1]);
+    argv[index+4].toFloat(&ok[2]);
+    argv[index+5].toFloat(&ok[3]);
+    argv[index+6].toFloat(&ok[4]);
+    argv[index+7].toFloat(&ok[5]);
+    argv[index+8].toFloat(&ok[6]);
+    ok[0] &= ok[1] &= ok[2] &=
+    ok[3] &= ok[4] &= ok[5] & ok[6];
+    QRegExp rx("^(ABS|REL|ADD)$");
+    if (ok[0] && argv[index+9].contains(rx))
+      _value.type = rc = PliBeginSub6Rc;
+  }
   if (rc != FailureRc) {
-      _here[0] = here;
-      _here[1] = here;
+    // populate attrs
+    QString attributes;
+    // place argvs in string - advance past part and color +2
+    for (int i = index+2; i < argv.size(); i++){
+        attributes.append(argv.at(i)+";");
     }
+    // append line number to string - used by Pli::partLine()
+    attributes.append(QString::number(here.lineNumber));
+    _value.attrs = attributes;
+    _here[0] = here;
+    _here[1] = here;
+  }
   return rc;
 }
 
@@ -2970,15 +3018,49 @@ QString SubMeta::format(bool local, bool global)
   QString foo;
   
   if (_value.type == PliBeginSub1Rc) {
-      foo = _value.part;
-    } else {
-      foo = _value.color + " " + _value.part;
-    }
+    foo = QString("%1")
+            .arg(_value.part);
+  } else if (_value.type == PliBeginSub2Rc) {
+    foo = QString("%1 %2")
+            .arg(_value.part).arg(_value.color);
+  } else if (_value.type == PliBeginSub3Rc) {
+    foo = QString("%1 %2 %3")
+            .arg(_value.part).arg(_value.color)
+            .arg(_value.attrs[sModelScale]);
+  } else if (_value.type == PliBeginSub4Rc) {
+    foo = QString("%1 %2 %3 %4")
+            .arg(_value.part).arg(_value.color)
+            .arg(_value.attrs[sModelScale])
+            .arg(_value.attrs[sCameraFoV]);
+  } else if (_value.type == PliBeginSub5Rc) {
+    foo = QString("%1 %2 %3 %4 %5 %6")
+            .arg(_value.part).arg(_value.color)
+            .arg(_value.attrs[sModelScale])
+            .arg(_value.attrs[sCameraFoV])
+            .arg(_value.attrs[sCameraAngleXX])
+            .arg(_value.attrs[sCameraAngleYY]);
+  } else { /*PliBeginSub6Rc */
+    foo = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10")
+            .arg(_value.part).arg(_value.color)
+            .arg(_value.attrs[sModelScale])
+            .arg(_value.attrs[sCameraFoV])
+            .arg(_value.attrs[sCameraAngleXX])
+            .arg(_value.attrs[sCameraAngleYY])
+            .arg(_value.attrs[sRotX])
+            .arg(_value.attrs[sRotY])
+            .arg(_value.attrs[sRotZ])
+            .arg(_value.attrs[sTransform]);
+  }
+
   return LeafMeta::format(local,global,foo);
 }
 
 void SubMeta::doc(QStringList &out, QString preamble)
 {
+  out << preamble + " <part> <color> <scale> <fov> <camera angle lat> <camera angle long> <rotX> <rotY> <rotZ> <ABS|REL|ADD>";
+  out << preamble + " <part> <color> <scale> <fov> <camera angle lat> <camera angle long>";
+  out << preamble + " <part> <color> <scale> <fov>";
+  out << preamble + " <part> <color> <scale>";
   out << preamble + " <part> <color>";
   out << preamble + " <part>";
 }
@@ -4669,11 +4751,7 @@ Rc Meta::parse(
       argv << "LEOCAD" << "GROUP" << "END";
   } else {
 
-      /* Legacy LPub backward compatibilty: substitute VIEW_ANGLE with CAMERA_ANGLES */
-
-      QRegExp rx("^\\s*0.*\\s+(VIEW_ANGLE)\\s+.*$");
-      if (line.contains(rx))
-          line.replace(rx.cap(1),"CAMERA_ANGLES");
+      processSpecialCases(line);
 
       /* Parse the input line into argv[] */
 
@@ -4744,4 +4822,13 @@ void Meta::doc(QStringList &out)
   foreach(key, keys) {
       list[key]->doc(out, "0 " + key);
     }
+}
+
+void Meta::processSpecialCases(QString &line){
+
+    /* Legacy LPub backward compatibilty: substitute VIEW_ANGLE with CAMERA_ANGLES */
+
+    QRegExp viewAngleRx("^\\s*0.*\\s+(VIEW_ANGLE)\\s+.*$");
+    if (line.contains(viewAngleRx))
+        line.replace(viewAngleRx.cap(1),"CAMERA_ANGLES");
 }

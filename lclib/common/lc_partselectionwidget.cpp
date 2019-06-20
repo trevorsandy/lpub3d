@@ -444,7 +444,7 @@ lcPartSelectionListView::lcPartSelectionListView(QWidget* Parent)
 	setResizeMode(QListView::Adjust);
 	setWordWrap(false);
 /*** LPub3D Mod - disable drag event ***/
-    setDragEnabled(false);
+	setDragEnabled(false);
 /*** LPub3D Mod end ***/
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -516,7 +516,7 @@ void lcPartSelectionListView::CustomContextMenuRequested(QPoint Pos)
 		QAction* FixedColor = Menu->addAction(tr("Lock Preview Color"), this, SLOT(ToggleFixedColor()));
 		FixedColor->setCheckable(true);
 		FixedColor->setChecked(mListModel->IsColorLocked());
-        FixedColor->setDisabled(true);
+		FixedColor->setDisabled(true);
 ***/
 /*** LPub3D Mod end ***/
 	}
@@ -578,7 +578,7 @@ void lcPartSelectionListView::UpdateViewMode()
 	setViewMode(mListModel->GetIconSize() && !mListModel->IsListMode() ? QListView::IconMode : QListView::ListMode);
 	setWordWrap(mListModel->IsListMode());
 /*** LPub3D Mod - disable drag event ***/
-    setDragEnabled(false);
+	setDragEnabled(false);
 /*** LPub3D Mod end ***/
 }
 
@@ -795,7 +795,7 @@ void lcPartSelectionWidget::SetDefaultPart()
 	{
 		QTreeWidgetItem* CategoryItem = mCategoriesWidget->topLevelItem(CategoryIdx);
 /*** LPub3D Mod - Set part lookup default ***/
-        if (CategoryItem->text(0) == "Parts In Use") // was Brick
+		if (CategoryItem->text(0) == "Parts In Use") // was Brick
 /*** LPub3D Mod end ***/
 		{
 			mCategoriesWidget->setCurrentItem(CategoryItem);

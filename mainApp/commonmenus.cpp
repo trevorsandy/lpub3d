@@ -478,6 +478,54 @@ QAction* CommonMenus::partGroupsOffMenu(
   return action;
 }
 
+QAction* CommonMenus::substitutePartMenu(
+        QMenu   &menu,
+  const QString  name)
+{
+  QAction *action;
+
+  QString formatted = QString("Substitue %1") .arg(name);
+  action = menu.addAction(formatted);
+  action->setIcon(QIcon(":/resources/substitutepart.png"));
+
+  formatted = QString("Replace this part with a substitute.");
+  action->setWhatsThis(formatted);
+
+  return action;
+}
+
+QAction* CommonMenus::changeSubstitutePartMenu(
+        QMenu   &menu,
+  const QString  name)
+{
+  QAction *action;
+
+  QString formatted = QString("Change Substitue %1") .arg(name);
+  action = menu.addAction(formatted);
+  action->setIcon(QIcon(":/resources/substitutepart.png"));
+
+  formatted = QString("Replace this substitute part with another part.");
+  action->setWhatsThis(formatted);
+
+  return action;
+}
+
+QAction* CommonMenus::removeSubstitutePartMenu(
+        QMenu   &menu,
+  const QString  name)
+{
+  QAction *action;
+
+  QString formatted = QString("Remove substitue %1") .arg(name);
+  action = menu.addAction(formatted);
+  action->setIcon(QIcon(":/resources/removesubstitutepart.png"));
+
+  formatted = QString("Replace this substitute part with the original part.");
+  action->setWhatsThis(formatted);
+
+  return action;
+}
+
 QAction* CommonMenus::resetPartGroupMenu(
         QMenu   &menu,
   const QString  name)
@@ -505,6 +553,22 @@ QAction* CommonMenus::hideMenu(
   action->setIcon(QIcon(":/resources/display.png"));
 
   formatted = QString("You can hide %1 in the page display") .arg(name);
+  action->setWhatsThis(formatted);
+
+  return action;
+}
+
+QAction* CommonMenus::hidePliPartMenu(
+        QMenu   &menu,
+  const QString  name)
+{
+  QString formatted = QString("Hide %1") .arg(name);
+  QAction *action;
+
+  action = menu.addAction(formatted);
+  action->setIcon(QIcon(":/resources/display.png"));
+
+  formatted = QString("You can hide %1 in the Parts List") .arg(name);
   action->setWhatsThis(formatted);
 
   return action;

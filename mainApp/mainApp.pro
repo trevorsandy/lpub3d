@@ -407,7 +407,7 @@ HEADERS += \
     pointer.h \
     pointeritem.h \
     pointerplacementdialog.h \
-	povrayrenderdialog.h \	
+    povrayrenderdialog.h \  
     preferencesdialog.h \
     range.h \
     range_element.h \
@@ -435,7 +435,10 @@ HEADERS += \
     borderedlineitem.h \
     pointerattribdialog.h \
     csiannotation.h \
-    ldrawfilesload.h
+    ldrawfilesload.h \
+    substitutepartdialog.h \
+    ldrawcolordialog.h \
+    ldrawcolordialog.cpp
 
 SOURCES += \
     aboutdialog.cpp \
@@ -507,10 +510,10 @@ SOURCES += \
     plisubstituteparts.cpp \
     pointeritem.cpp \
     pointerplacementdialog.cpp \
-	povrayrenderdialog.cpp \	
+    povrayrenderdialog.cpp \    
     preferencesdialog.cpp \
     printfile.cpp \
-    projectglobals.cpp \	
+    projectglobals.cpp \    
     range.cpp \
     range_element.cpp \
     ranges.cpp \
@@ -538,13 +541,19 @@ SOURCES += \
     borderedlineitem.cpp \
     pointerattribdialog.cpp \
     csiannotation.cpp \
-    ldrawfilesload.cpp
+    ldrawfilesload.cpp \
+    substitutepartdialog.cpp \
+    ldrawcolordialog.cpp \
+    ldrawpartdialog.cpp
 
 FORMS += \
     aboutdialog.ui \
     dialogexportpages.ui \
     povrayrenderdialog.ui \
     ldrawfilesloaddialog.ui \
+    ldrawcolordialog.ui \
+    ldrawpartdialog.ui \
+    substitutepartdialog.ui \
     preferences.ui
 
 OTHER_FILES += \

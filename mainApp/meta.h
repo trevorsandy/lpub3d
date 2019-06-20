@@ -106,6 +106,11 @@ enum Rc {
          PliBeginIgnRc,
          PliBeginSub1Rc,
          PliBeginSub2Rc,
+         PliBeginSub3Rc,
+         PliBeginSub4Rc,
+         PliBeginSub5Rc,
+         PliBeginSub6Rc,
+
          PliEndRc,
 
          PartBeginIgnRc,
@@ -2245,6 +2250,11 @@ public:
   {
     _value = rhs._value;
   }
+  void clearAttributes()
+  {
+    _value.attrs.clear();
+    _value.type = 0;
+  }
 
   virtual ~SubMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
@@ -3302,6 +3312,7 @@ public:
   virtual void  init(BranchMeta *parent, QString name);
   virtual void  pop();
   void  doc(QStringList &out);
+  void  processSpecialCases(QString &);
 
   Meta (const Meta &rhs) : BranchMeta(rhs)
   {
@@ -3318,7 +3329,7 @@ public:
 private:
 };
 
-const QString RcNames[65] =
+const QString RcNames[69] =
 {
     "InvalidLDrawLineRc = -3",
     "RangeErrorRc = -2",
@@ -3372,6 +3383,10 @@ const QString RcNames[65] =
     "PliBeginIgnRc",
     "PliBeginSub1Rc",
     "PliBeginSub2Rc",
+    "PliBeginSub3Rc",
+    "PliBeginSub4Rc",
+    "PliBeginSub5Rc",
+    "PliBeginSub6Rc",
     "PliEndRc",
 
     "PartBeginIgnRc",

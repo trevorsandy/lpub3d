@@ -151,11 +151,27 @@ public:
           QMenu   &menu,
     const QString  name = "");
 
+  QAction *substitutePartMenu(
+          QMenu   &menu,
+    const QString  name = "");
+
+  QAction *removeSubstitutePartMenu(
+          QMenu   &menu,
+    const QString  name = "");
+
+  QAction *changeSubstitutePartMenu(
+          QMenu   &menu,
+    const QString  name = "");
+
   QAction *resetPartGroupMenu(
           QMenu   &menu,
     const QString  name = "");
 
   QAction *hideMenu(
+          QMenu   &menu,
+    const QString  name = "");
+
+  QAction *hidePliPartMenu(
           QMenu   &menu,
     const QString  name = "");
 

@@ -568,6 +568,10 @@ public:
   {
     return ldrawFile.isUnofficialPart(name) == UNOFFICIAL_PART;
   }
+  bool isUnofficialSubPart(const QString &name)
+  {
+    return ldrawFile.isUnofficialPart(name) == UNOFFICIAL_SUBPART;
+  }
   bool loadAborted()
   {
     return ldrawFile._loadAborted;

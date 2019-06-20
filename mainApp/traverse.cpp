@@ -812,6 +812,10 @@ int Gui::drawPage(
 
               /* substitute part/parts with this */
             case PliBeginSub2Rc:
+            case PliBeginSub3Rc:
+            case PliBeginSub4Rc:
+            case PliBeginSub5Rc:
+            case PliBeginSub6Rc:
               if (pliIgnore) {
                   parseError("Nested PLI BEGIN/ENDS not allowed",current);
                 }
@@ -854,6 +858,7 @@ int Gui::drawPage(
                   parseError("PLI END with no PLI BEGIN",current);
                 }
               pliIgnore = false;
+              curMeta.LPub.pli.begin.sub.clearAttributes();
               break;
 
             case AssemAnnotationIconRc:
@@ -2443,6 +2448,10 @@ int Gui::getBOMParts(
 
               /* substitute part/parts with this */
             case PliBeginSub2Rc:
+            case PliBeginSub3Rc:
+            case PliBeginSub4Rc:
+            case PliBeginSub5Rc:
+            case PliBeginSub6Rc:
               if (! pliIgnore &&
                   ! partIgnore &&
                   ! synthBegin) {
@@ -2460,6 +2469,7 @@ int Gui::getBOMParts(
 
             case PliEndRc:
               pliIgnore = false;
+              meta.LPub.pli.begin.sub.clearAttributes();
               break;
 
             case PartBeginIgnRc:
