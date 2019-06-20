@@ -2929,7 +2929,7 @@ public:
 class SubModelMeta  : public PliMeta
 {
 public:
-  BoolMeta   showStep;
+  IntMeta    showStepNum; // Used to indicate the 'first' step number of a step group when continuous step numbers flag is On
   BoolMeta   showInstanceCount;
   void setPreferences()
   {

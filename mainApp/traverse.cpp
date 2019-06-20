@@ -1419,16 +1419,13 @@ int Gui::drawPage(
                           // if not merge submodel instance count, count the number of submodel occurrences in the step
                           if (! mergedInstances && instances > 1) {
                               MetaItem mi;
-                              if ( ! multiStep && ! calledOut) {
-                                  instances = mi.countInstancesInStep(&steps->meta, current.modelName);
-                                  relativeType = SingleStepType;
+                              instances = mi.countInstancesInStep(&steps->meta, current.modelName);
+                              if (multiStep) {
+                                  relativeType = StepGroupType;
+                              } else if (calledOut) {
+                                  relativeType = CalloutType;
                               } else {
-                                  instances = mi.countInstancesInBlock(&steps->meta, current.modelName,CalloutMask|StepGroupMask);
-                                  if (multiStep) {
-                                      relativeType = StepGroupType;
-                                  } else if (calledOut) {
-                                      relativeType = CalloutType;
-                                  }
+                                  relativeType = SingleStepType;
                               }
                           }
 
@@ -1875,12 +1872,12 @@ int Gui::findPage(
             case StepGroupBeginRc:
               stepGroup = true;
               stepGroupCurrent = topOfStep;
-              if (useContStepNum){    // save starting step group continuous step number
-                  saveContStepNum = contStepNumber == 1 ? stepNumber : contStepNumber;
-                  if (pageNum == 1) { // set ok to display subModel flag
-                    meta.LPub.subModel.showStep.setValue(stepNumber == 1);
+              if (useContStepNum){    // save starting step group continuous step number to pass to drawPage for submodel preview
+                  int showStepNum = contStepNumber == 1 ? stepNumber : contStepNumber;
+                  if (pageNum == 1) {
+                    meta.LPub.subModel.showStepNum.setValue(showStepNum);
                   } else {
-                    saveMeta.LPub.subModel.showStep.setValue(stepNumber == 1);
+                    saveMeta.LPub.subModel.showStepNum.setValue(showStepNum);
                   }
               }
               // Steps within step group modify bfxStore2 as they progress
@@ -1910,7 +1907,7 @@ int Gui::findPage(
                           page.meta = saveMeta;
                         }
                       page.meta.pop();
-                      if (useContStepNum) {  // pass starting continuous step number to drawPage
+                      if (useContStepNum) {  // pass continuous step number to drawPage
                         saveStepNumber = saveContStepNum;
                       }
                       page.meta.rotStep = saveRotStep;
@@ -1970,19 +1967,24 @@ int Gui::findPage(
             case StepRc:
               if (partsAdded && ! noStep) {
                   if (useContStepNum) {   // increment continuous step number until we hit the display page
-                      if (! stepGroup && pageNum < displayPageNum &&
+                      if (pageNum < displayPageNum &&
                          (stepNumber > FIRST_STEP || displayPageNum > FIRST_PAGE)) { // skip the first step
-                             contStepNumber += ! coverPage && ! stepPage;
+                          contStepNumber += ! coverPage && ! stepPage;
                       }
-                      if (pageNum == 1) { // set ok to display subModel flag
-                        meta.LPub.subModel.showStep.setValue(stepNumber == 1);
-                      } else {
-                        saveMeta.LPub.subModel.showStep.setValue(stepNumber == 1);
+                      if (! stepGroup && stepNumber == 1) {
+                          if (pageNum == 1) {
+                              meta.LPub.subModel.showStepNum.setValue(contStepNumber);
+                          } else {
+                              saveMeta.LPub.subModel.showStepNum.setValue(contStepNumber);
+                          }
                       }
                   }
                   stepNumber  += ! coverPage && ! stepPage;
                   stepPageNum += ! coverPage && ! stepGroup;
                   if (pageNum < displayPageNum) {
+                      if (useContStepNum) { // save continuous step number from current model
+                          saveContStepNum = contStepNumber;
+                      }
                       if ( ! stepGroup) {
                           saveStepNumber  = stepNumber;
                           saveCsiParts    = csiParts;
@@ -1990,9 +1992,6 @@ int Gui::findPage(
                           saveBfx         = bfx;
                           saveBfxParts    = bfxParts;
                           saveStepPageNum = stepPageNum;
-                          if (useContStepNum) { // save continuous step number from current model
-                              saveContStepNum = contStepNumber;
-                          }
                           // bfxParts.clear();
                         }
                       saveCurrent = current;
@@ -2226,16 +2225,15 @@ int Gui::findPage(
 
   // last step in submodel
   if (partsAdded && ! noStep) {
-      // set ok to display subModel flag
+      // increment continuous step number
       // save continuous step number from current model
       // pass continuous step number to drawPage
       if (useContStepNum) {
-          if (! stepGroup && ! mergedInstances && pageNum < displayPageNum &&
+          if (! mergedInstances && pageNum < displayPageNum &&
              (stepNumber > FIRST_STEP || displayPageNum > FIRST_PAGE)) {
               contStepNumber += ! coverPage && ! stepPage;
           }
           if (pageNum == displayPageNum) {
-              saveMeta.LPub.subModel.showStep.setValue(stepNumber == 1);
               saveStepNumber = contStepNumber;
           }
           saveContStepNum = contStepNumber;

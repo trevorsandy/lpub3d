@@ -3336,7 +3336,7 @@ void CsiPartMeta::init(BranchMeta *parent, QString name)
 
 SubModelMeta::SubModelMeta() : PliMeta()
 {
-  showStep.setValue(false);
+  showStepNum.setRange(1,100000);
   placement.setValue(RightTopOutside,StepNumberType);
   BorderData borderData;
   borderData.type = BorderData::BdrSquare;
@@ -3393,7 +3393,7 @@ SubModelMeta::SubModelMeta() : PliMeta()
 void SubModelMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  showStep             .init(this,"SHOW_STEP");
+  showStepNum          .init(this,"SHOW_STEP_NUM");
   placement            .init(this,"PLACEMENT");
   constrain            .init(this,"CONSTRAIN");
   border               .init(this,"BORDER");

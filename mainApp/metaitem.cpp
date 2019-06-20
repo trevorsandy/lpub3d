@@ -245,6 +245,8 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
   QString firstLine;
   Where lastInstance, firstInstance;
 
+  Rc rc;
+  bool ignorePartLine = false;
   Where walkBack = step;
   for (; walkBack.lineNumber >= 0; walkBack--) {
     QString line = gui->readLine(walkBack);
@@ -259,7 +261,14 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
             argv[1] == "LPUB" || argv[1] == "!LPUB") {
           break;
         }
+        rc = meta->parse(line,walkBack);
+        if (rc == PartEndRc)
+            ignorePartLine = true;
+        if (rc == PartBeginIgnRc)
+            ignorePartLine = false;
       } else if (argv.size() == 15 && argv[0] == "1") {
+        if (ignorePartLine)
+          continue;
         if (gui->isSubmodel(argv[14])) {
           if (argv[14] == modelName) {
             if (firstLine == "") {
@@ -272,11 +281,11 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
                 firstInstance = walkBack;
                 ++instanceCount;
               } else {
-                break;
+                continue;
               }
             }
           } else {
-            break;
+            continue;
           }
         }
       }
@@ -294,8 +303,15 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
           argv[1] == "LPUB" || argv[1] == "!LPUB") {
         break;
       }
+      rc = meta->parse(line,walk);
+      if (rc == PartBeginIgnRc)
+          ignorePartLine = true;
+      if (rc == PartEndRc)
+          ignorePartLine = false;
     } else if (argv.size() == 15 && argv[0] == "1") {
       if (gui->isSubmodel(argv[14])) {
+        if (ignorePartLine)
+          continue;
         if (argv[14] == modelName) {
           if (firstLine == "") {
             firstLine = line;
@@ -306,11 +322,11 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
               lastInstance = walk;
               ++instanceCount;
             } else {
-              break;
+              continue;
             }
           }
         } else {
-          break;
+          continue;
         }
       }
     }
@@ -344,6 +360,8 @@ int MetaItem::countInstancesInBlock(Meta *meta, const QString &modelName, const 
   QString firstLine;
   Where lastInstance, firstInstance;
 
+  Rc rc;
+  bool ignorePartLine = false;
   Where walkBack = step;
   for (; walkBack.lineNumber >= 0; walkBack--) {
     QString line = gui->readLine(walkBack);
@@ -354,12 +372,18 @@ int MetaItem::countInstancesInBlock(Meta *meta, const QString &modelName, const 
       QStringList argv;
       split(line,argv);
       if (argv.size() >= 2 && argv[0] == "0") {
-        Rc rc = meta->parse(line,walkBack);
+        rc = meta->parse(line,walkBack);
         if ((rc == CalloutBeginRc && ((mask >> rc) & 1)) ||
             (rc == StepGroupBeginRc && ((mask >> rc) & 1))) {
           break;
         }
+        if (rc == PartEndRc)
+            ignorePartLine = true;
+        if (rc == PartBeginIgnRc)
+            ignorePartLine = false;
       } else if (argv.size() == 15 && argv[0] == "1") {
+        if (ignorePartLine)
+            continue;
         if (gui->isSubmodel(argv[14])) {
           if (argv[14] == modelName) {
             if (firstLine == "") {
@@ -372,11 +396,11 @@ int MetaItem::countInstancesInBlock(Meta *meta, const QString &modelName, const 
                 firstInstance = walkBack;
                 ++instanceCount;
               } else {
-                break;
+                continue;
               }
             }
           } else {
-            break;
+            continue;
           }
         }
       }
@@ -390,12 +414,18 @@ int MetaItem::countInstancesInBlock(Meta *meta, const QString &modelName, const 
     QStringList argv;
     split(line,argv);
     if (argv.size() >= 2 && argv[0] == "0") {
-        Rc rc = meta->parse(line,walk);
+        rc = meta->parse(line,walk);
         if ((rc == CalloutEndRc && ((mask >> rc) & 1)) ||
             (rc == StepGroupEndRc && ((mask >> rc) & 1))) {
           break;
         }
+        if (rc == PartBeginIgnRc)
+            ignorePartLine = true;
+        if (rc == PartEndRc)
+            ignorePartLine = false;
     } else if (argv.size() == 15 && argv[0] == "1") {
+      if (ignorePartLine)
+          continue;
       if (gui->isSubmodel(argv[14])) {
         if (argv[14] == modelName) {
           if (firstLine == "") {
@@ -407,11 +437,11 @@ int MetaItem::countInstancesInBlock(Meta *meta, const QString &modelName, const 
               lastInstance = walk;
               ++instanceCount;
             } else {
-              break;
+              continue;
             }
           }
         } else {
-          break;
+          continue;
         }
       }
     }

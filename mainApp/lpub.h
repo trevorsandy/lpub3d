@@ -468,7 +468,7 @@ public:
   int             displayPageNum;  // what page are we displaying
   int             stepPageNum;     // the number displayed on the page
   int             saveStepPageNum;
-  int             saveContStepNum; // saved continuous step number from exited submodel or step group
+  int             saveContStepNum; // saved continuous step number for steps before displayed page, exited submodels and step group end
   int             firstStepPageNum;
   int             lastStepPageNum;
   int             savePrevStepPosition; // indicate the previous step position amongst current and previous steps.
