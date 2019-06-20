@@ -271,7 +271,7 @@ void Steps::sizeit(AllocEnc allocEnc, int x, int y)
           if (divider.type == SepData::LenPage) {
             for (int i = 0; i < range->list.size(); i++) {
               Step *step = dynamic_cast<Step *>(range->list[i]);
-              if ((usePageSize = (step && step->dividerType != NoDivider))) // divider found
+              if ((usePageSize = (step && step->dividerType == RangeDivider))) // divider found
                 break;
             }
           }

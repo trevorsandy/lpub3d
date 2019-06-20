@@ -2229,7 +2229,7 @@ QString SepMeta::format(bool local, bool global)
 }
 void SepMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + "[<PAGE|CUSTOM <length>] <intThickness> <color> <marginX> <marginY>";
+  out << preamble + "[<PAGE_LENGTH|CUSTOM_LENGTH <length>] <intThickness> <color> <marginX> <marginY>";
 }
 
 /* ------------------ */ 
