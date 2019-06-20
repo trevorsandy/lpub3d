@@ -942,6 +942,8 @@ void Gui::zoomSlider(int value)
 void Gui::sceneGuides()
 {
   Preferences::setSceneGuidesPreference(sceneGuidesComboAct->isChecked());
+  SceneGuidesLineGroup->setEnabled(Preferences::sceneGuides);
+  SceneGuidesPosGroup->setEnabled(Preferences::sceneGuides);
   KpageView->setSceneGuides();
 }
 
@@ -977,6 +979,8 @@ void Gui::sceneGuidesPosition()
 void Gui::sceneRuler()
 {
   Preferences::setSceneRulerPreference(sceneRulerComboAct->isChecked());
+  hideRulerPageBackgroundAct->setEnabled(Preferences::sceneRuler);
+  SceneRulerGroup->setEnabled(Preferences::sceneRuler);
   KpageView->setSceneRuler();
 }
 
@@ -1000,13 +1004,25 @@ void Gui::snapToGrid()
       return;
 
   Preferences::setSnapToGridPreference(checked);
+  hideGridPageBackgroundAct->setEnabled(Preferences::snapToGrid);
+  GridStepSizeGroup->setEnabled(Preferences::snapToGrid);
   KpageView->setSnapToGrid();
   reloadCurrentPage();
 }
 
 void Gui::hidePageBackground()
 {
-  Preferences::setHidePageBackgroundPreference(hidePageBackgroundAct->isChecked());
+  bool checked;
+  if (sender() == hideRulerPageBackgroundAct) {
+      checked = hideRulerPageBackgroundAct->isChecked();
+      hideGridPageBackgroundAct->setChecked(checked);
+  }
+  else
+  {
+      checked = hideGridPageBackgroundAct->isChecked();
+      hideRulerPageBackgroundAct->setChecked(checked);
+  }
+  Preferences::setHidePageBackgroundPreference(checked);
   reloadCurrentPage();
 }
 
@@ -3532,7 +3548,15 @@ void Gui::createActions()
     sceneRulerTrackingLineAct->setCheckable(true);
     connect(sceneRulerTrackingLineAct, SIGNAL(triggered()), this, SLOT(sceneRulerTracking()));
 
-    QActionGroup* SceneRulerGroup = new QActionGroup(this);
+    hideRulerPageBackgroundAct = new QAction(tr("Hide Page Background"),this);
+    hideRulerPageBackgroundAct->setStatusTip(tr("Toggle hide ruler page background"));
+    hideRulerPageBackgroundAct->setCheckable(true);
+    hideRulerPageBackgroundAct->setChecked(Preferences::hidePageBackground);
+    hideRulerPageBackgroundAct->setEnabled(Preferences::sceneRuler);
+    connect(hideRulerPageBackgroundAct, SIGNAL(triggered()), this, SLOT(hidePageBackground()));
+
+    SceneRulerGroup = new QActionGroup(this);
+    SceneRulerGroup->setEnabled(Preferences::sceneRuler);
     sceneRulerTrackingNoneAct->setChecked(Preferences::sceneRulerTracking == int(TRACKING_NONE));
     SceneRulerGroup->addAction(sceneRulerTrackingNoneAct);
     sceneRulerTrackingTickAct->setChecked(Preferences::sceneRulerTracking == int(TRACKING_TICK));
@@ -3558,7 +3582,8 @@ void Gui::createActions()
     sceneGuidesSolidLineAct->setCheckable(true);
     connect(sceneGuidesSolidLineAct, SIGNAL(triggered()), this, SLOT(sceneGuidesLine()));
 
-    QActionGroup* SceneGuidesLineGroup = new QActionGroup(this);
+    SceneGuidesLineGroup = new QActionGroup(this);
+    SceneGuidesLineGroup->setEnabled(Preferences::sceneGuides);
     sceneGuidesDashLineAct->setChecked(Preferences::sceneGuidesLine == int(Qt::DashLine));
     SceneGuidesLineGroup->addAction(sceneGuidesDashLineAct);
     sceneGuidesSolidLineAct->setChecked(Preferences::sceneGuidesLine == int(Qt::SolidLine));
@@ -3589,7 +3614,8 @@ void Gui::createActions()
     sceneGuidesPosCentreAct->setCheckable(true);
     connect(sceneGuidesPosCentreAct, SIGNAL(triggered()), this, SLOT(sceneGuidesPosition()));
 
-    QActionGroup* SceneGuidesPosGroup = new QActionGroup(this);
+    SceneGuidesPosGroup = new QActionGroup(this);
+    SceneGuidesPosGroup->setEnabled(Preferences::sceneGuides);
     sceneGuidesPosTLeftAct->setChecked(Preferences::sceneGuidesPosition == int(GUIDES_TOP_LEFT));
     SceneGuidesPosGroup->addAction(sceneGuidesPosTLeftAct);
     sceneGuidesPosTRightAct->setChecked(Preferences::sceneGuidesPosition == int(GUIDES_TOP_RIGHT));
@@ -3615,12 +3641,12 @@ void Gui::createActions()
     actualSizeAct->setEnabled(false);
     connect(actualSizeAct, SIGNAL(triggered()), this, SLOT(actualSize()));
 
-    // Snap to grid
-    hidePageBackgroundAct = new QAction(tr("Hide Page Background"),this);
-    hidePageBackgroundAct->setStatusTip(tr("Toggle transparent page background"));
-    hidePageBackgroundAct->setCheckable(true);
-    hidePageBackgroundAct->setChecked(Preferences::hidePageBackground);
-    connect(hidePageBackgroundAct, SIGNAL(triggered()), this, SLOT(hidePageBackground()));
+    hideGridPageBackgroundAct = new QAction(tr("Hide Page Background"),this);
+    hideGridPageBackgroundAct->setStatusTip(tr("Toggle hide snap to grid page background"));
+    hideGridPageBackgroundAct->setCheckable(true);
+    hideGridPageBackgroundAct->setChecked(Preferences::hidePageBackground);
+    hideGridPageBackgroundAct->setEnabled(Preferences::snapToGrid);
+    connect(hideGridPageBackgroundAct, SIGNAL(triggered()), this, SLOT(hidePageBackground()));
 
     for (int CommandIdx = 0; CommandIdx < NUM_GRID_SIZES; CommandIdx++)
     {
@@ -3631,7 +3657,8 @@ void Gui::createActions()
         snapGridActions[CommandIdx] = Action;
     }
 
-    QActionGroup* GridStepSizeGroup = new QActionGroup(this);
+    GridStepSizeGroup = new QActionGroup(this);
+    GridStepSizeGroup->setEnabled(Preferences::snapToGrid);
     for (int ActionIdx = GRID_SIZE_FIRST; ActionIdx <= GRID_SIZE_LAST; ActionIdx++)
     {
         snapGridActions[ActionIdx]->setCheckable(true);
@@ -4481,7 +4508,7 @@ void Gui::createToolBars()
     zoomToolBar->addAction(zoomOutComboAct);
 
     sceneRulerTrackingMenu = new QMenu(tr("Ruler Tracking"),this);
-    sceneRulerTrackingMenu->addAction(hidePageBackgroundAct);
+    sceneRulerTrackingMenu->addAction(hideRulerPageBackgroundAct);
     sceneRulerTrackingMenu->addSeparator();
     sceneRulerTrackingMenu->addAction(sceneRulerTrackingNoneAct);
     sceneRulerTrackingMenu->addAction(sceneRulerTrackingTickAct);
@@ -4502,7 +4529,7 @@ void Gui::createToolBars()
     zoomToolBar->addAction(sceneGuidesComboAct);
 
     snapToGridMenu = new QMenu(tr("Snap to Grid"), this);
-    snapToGridMenu->addAction(hidePageBackgroundAct);
+    snapToGridMenu->addAction(hideGridPageBackgroundAct);
     snapToGridMenu->addSeparator();
     for (int actionIdx = GRID_SIZE_FIRST; actionIdx <= GRID_SIZE_LAST; actionIdx++)
         snapToGridMenu->addAction(snapGridActions[actionIdx]);

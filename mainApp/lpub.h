@@ -1456,7 +1456,13 @@ private:
   QAction  *sceneRulerTrackingTickAct;
   QAction  *sceneRulerTrackingLineAct;
   QAction  *sceneRulerTrackingNoneAct;
-  QAction  *hidePageBackgroundAct;
+  QAction  *hideRulerPageBackgroundAct;
+  QAction  *hideGridPageBackgroundAct;
+
+  QActionGroup* SceneGuidesPosGroup;
+  QActionGroup* SceneGuidesLineGroup;
+  QActionGroup* SceneRulerGroup;
+  QActionGroup* GridStepSizeGroup;
 
   // view
   // navigation toolbar
