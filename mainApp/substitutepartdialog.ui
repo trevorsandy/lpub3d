@@ -7,25 +7,25 @@
     <x>0</x>
     <y>0</y>
     <width>381</width>
-    <height>420</height>
+    <height>447</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_4">
    <item>
-    <widget class="QGroupBox" name="standardSettingsBox">
+    <widget class="QGroupBox" name="currrentPartBox">
      <property name="title">
-      <string>Standard Arguments</string>
+      <string>Current Part</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
+     <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
          <widget class="QLabel" name="name_Lbl">
           <property name="text">
-           <string>Current Part:</string>
+           <string>Current Name:</string>
           </property>
          </widget>
         </item>
@@ -39,7 +39,7 @@
           </property>
           <property name="sizeHint" stdset="0">
            <size>
-            <width>19</width>
+            <width>12</width>
             <height>20</height>
            </size>
           </property>
@@ -112,6 +112,15 @@
         </item>
        </layout>
       </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="primarySettingsBox">
+     <property name="title">
+      <string>Primary Arguments</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
@@ -313,7 +322,7 @@
      <property name="title">
       <string>Extended Arguments</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
+     <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
        <layout class="QGridLayout" name="gridLayout">
         <item row="1" column="0">

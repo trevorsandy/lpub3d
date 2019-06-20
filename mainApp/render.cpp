@@ -177,7 +177,7 @@ void Render::setRenderer(QString const &name)
   }
 }
 
-const QString Render::getRotstepMeta(RotStepMeta &rotStep, bool isKey){
+const QString Render::getRotstepMeta(RotStepMeta &rotStep, bool isKey /*false*/){
   QString rotstepString;
   if (isKey) {
       rotstepString = QString("%1_%2_%3_%4")

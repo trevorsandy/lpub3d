@@ -260,7 +260,6 @@ class Pli : public Placement {
     int  createPartImage(QString &, QString &, QString &, QPixmap*,int = 0);
     int  createPartImagesLDViewSCall(QStringList &, bool, int);      //LDView performance improvement
     QString orient(QString &color, QString part);
-    QStringList configurePLIPart(QString &,QString &,PartType,bool,bool); // DEPRECATED
     QStringList configurePLIPart(int, QString &, QStringList &,int);
     int createSubModelIcons();
 

@@ -847,7 +847,7 @@ int Pli::createPartImage(
             for (int i = 9; i < nameKeys.size(); i++)
                 subRotation.append(nameKeys.at(i)+"_");
             subRotation.chop(1);
-            emit gui->messageSig(LOG_TRACE, QString("Substitute type ROTSTEP meta: %1").arg(subRotation));
+            emit gui->messageSig(LOG_DEBUG, QString("Substitute type ROTSTEP meta: %1").arg(subRotation));
         }
     }
 
@@ -909,7 +909,7 @@ int Pli::createPartImage(
             if (Preferences::usingNativeRenderer) {
                 // add ROTSTEP command
                 if (sub && !subRotation.isEmpty())
-                    pliFile.prepend(subRotation.replace("_"," "));
+                    pliFile.prepend(QString("0 // ROTSTEP %1").arg(subRotation.replace("_"," ")));
                 else
                     pliFile.prepend(renderer->getRotstepMeta(pliMeta.rotStep));
 
@@ -1194,49 +1194,6 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart, i
     return 0;
 }
 
-QStringList Pli::configurePLIPart(  // DEPRECATED
-        QString &partColor,
-        QString &type,
-        PartType pT,
-        bool fadeSteps,
-        bool highlightStep){
-
-    QString updatedColour = partColor;
-    QStringList out;
-
-    if (fadeSteps && (pT == FADE_PART)) {
-        updatedColour = QString("%1%2").arg(LPUB3D_COLOUR_FADE_PREFIX).arg(partColor);
-        out << QString("0 // LPub3D custom colours");
-        out << gui->createColourEntry(partColor, pT);
-        out << QString("0 !FADE %1").arg(Preferences::fadeStepsOpacity);
-    }
-    if (highlightStep && (pT == HIGHLIGHT_PART)) {
-        updatedColour = QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX).arg(partColor);
-        out << QString("0 // LPub3D custom colours");
-        out << gui->createColourEntry(partColor, pT);
-        out << QString("0 !SILHOUETTE %1 %2")
-                       .arg(Preferences::highlightStepLineWidth)
-                       .arg(Preferences::highlightStepColour);
-    }
-
-//  // For POV generation, do not use pli.mpd orientation
-//  if (Preferences::preferredRenderer == RENDERER_POVRAY)
-//  {
-//      out << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(partColor).arg(type) << endl;
-//  }
-    out << orient(updatedColour, type);
-
-    if (highlightStep && (pT == HIGHLIGHT_PART))
-        out << QString("0 !SILHOUETTE");
-    if (fadeSteps && (pT == FADE_PART))
-        out << QString("0 !FADE");
-
-    if ((pT == FADE_PART) || (pT == HIGHLIGHT_PART))
-        out << QString("0 NOFILE");
-
-    return out;
-}
-
 QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKeys, int sub) {
     QString updatedColour = ia.partColor[pT];
     QStringList out;
@@ -1282,7 +1239,6 @@ QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKe
         }
 
         bool nativeRenderer  = Preferences::usingNativeRenderer;
-        //QStringList rotatedType = QStringList() << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(updatedColour).arg(typeName);
         QStringList rotatedType = QStringList() << orient(updatedColour, typeName);
         QString addLine = "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr";
 
@@ -1290,9 +1246,9 @@ QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKe
         float longitude = nameKeys.at(nCameraAngleYY).toFloat(&ok);
         good &= ok;
         if (!good){
-            emit gui->messageSig(LOG_NOTICE,QString("Malformed Camera Angle values from nameKey [%1], using 'latitude 30', 'longitude 45'.")
+            emit gui->messageSig(LOG_NOTICE,QString("Malformed Camera Angle values from nameKey [%1], using 'latitude 30', 'longitude -45'.")
                                  .arg(QString("%1 %2").arg(nameKeys.at(nCameraAngleXX)).arg(nameKeys.at(nCameraAngleYY))));
-            latitude = 30.0; longitude = 45.0;
+            latitude = 30.0; longitude = -45.0;
         }
         FloatPairMeta cameraAngles;
         cameraAngles.setValues(latitude,longitude);
@@ -1942,7 +1898,7 @@ int Pli::partSize()
                   return -1;
                 }
 
-              if (createPartImage(part->nameKey,part->type,part->color,pixmap)) {
+              if (createPartImage(part->nameKey,part->type,part->color,pixmap,part->subType)) {
                   emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Failed to create PLI part for key %1")
                                        .arg(key));
                   return -1;
@@ -2258,7 +2214,7 @@ int Pli::partSizeLDViewSCall() {
                     if (Preferences::usingNativeRenderer) {
                         // add ROTSTEP command
                         if (sub && !subRotation.isEmpty())
-                            pliFile.prepend(subRotation);
+                            pliFile.prepend(QString("0 // ROTSTEP %1").arg(subRotation.replace("_"," ")));
                         else
                             pliFile.prepend(renderer->getRotstepMeta(pliMeta.rotStep));
 

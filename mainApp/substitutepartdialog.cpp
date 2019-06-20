@@ -131,6 +131,7 @@ bool SubstitutePartDialog::getSubstitutePart(
 void SubstitutePartDialog::initialize()
 {
     mAttributes = mInitialAttributes;
+    bool show    = mAction != sRemove;
 
     emit lpubAlert->messageSig(LOG_DEBUG,QString("Loaded mInitialAttributes substitution for part type [%1]: [%2]")
                                .arg(mAttributes.at(sType)).arg(mAttributes.join(" ")));
@@ -149,6 +150,8 @@ void SubstitutePartDialog::initialize()
     ui->nameEdit->setText(mAttributes.at(sType));
     ui->titleLbl->setText(Pli::titleDescription(mAttributes.at(sType)));
     ui->titleLbl->adjustSize();
+
+    ui->primarySettingsBox->setVisible(show);
 
     ui->substituteEdit->clear();
     ui->substituteEdit->setClearButtonEnabled(true);
@@ -169,7 +172,6 @@ void SubstitutePartDialog::initialize()
                                .arg(LDrawColor::value(mAttributes.at(sColorCode)).toUpper()));
     }
 
-    bool show    = mAction != sRemove;
     bool enabled = !(Preferences::preferredRenderer == RENDERER_LDVIEW &&
                      Preferences::enableLDViewSingleCall);
     QString disabledMessage("Extended arguments group is disabled when\nLDView 'Single call' render option is enabled.");
@@ -251,7 +253,9 @@ void SubstitutePartDialog::initialize()
         ui->transformCombo->setCurrentIndex(!mAttributes.at(sTransform).isEmpty() ?
                                                 ui->transformCombo->findText(mAttributes.at(sTransform)) : 1);
 
-    mModified = false;
+    ui->messageLbl->setVisible(show);
+
+    mModified = !show;
 }
 
 void SubstitutePartDialog::reset(bool value)
