@@ -38,6 +38,7 @@
 #include "where.h"
 #include "name.h"
 #include "resize.h"
+#include "render.h"
 
 /****************************************************************************
  * Submodel Part
@@ -121,6 +122,8 @@ class SubModel : public Placement {
     SubModelBackgroundItem *background;
     SubModelMeta           subModelMeta;
     QString                imageName;
+    QString                viewerCsiKey;
+    ViewerOptions          viewerOptions;
 
     Meta                   *meta;
     Steps                  *steps;      // topOfSteps()
@@ -149,6 +152,8 @@ class SubModel : public Placement {
     {
       clear();
     }
+
+    bool loadTheViewer();
 
     const Where &topOfStep();
     const Where &bottomOfStep();
@@ -252,7 +257,6 @@ protected:
   virtual void change();
   virtual QRectF currentRect();
 
-private:
 };
 
 /****************************************************************************

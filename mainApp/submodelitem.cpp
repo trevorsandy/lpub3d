@@ -116,13 +116,12 @@ void SubModel::setSubModel(
   Meta    &_meta)
 {
   QString color = "0";
-  subModelMeta = _meta.LPub.subModel;
+  subModelMeta  = _meta.LPub.subModel;
 
-  QString suffix = QFileInfo(_file).suffix();
-  bool trim = suffix.contains(QRegExp("(dat|ldr|mpd)$",Qt::CaseInsensitive));
-  QString type = _file.toLower();
+  QFileInfo fileInfo(_file);
+  QString type = fileInfo.fileName().toLower();
   QString key = QString("%1_%2_%3")
-                        .arg(type.left(trim ? type.lastIndexOf(QChar('.')) : type.size()))
+                        .arg(fileInfo.completeBaseName())
                         .arg(PREVIEW_SUBMODEL_SUFFIX)
                         .arg(color);
 
@@ -142,9 +141,10 @@ void SubModel::clear()
 bool SubModel::rotateModel(QString ldrName, QString subModel, const QString color, bool noCA)
 {
    subModel = subModel.toLower();
-   QStringList rotatedModel = QStringList() << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(subModel);
+   QStringList rotatedModel = QStringList()
+           << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(subModel);
    QString addLine = "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr";
-   FloatPairMeta noCameraAngles;
+   FloatPairMeta cameraAngles = noCA ? FloatPairMeta() : subModelMeta.cameraAngles;
 
    // create the Submodel ldr file and rotate its parts - camera angles not applied for Native renderer
    if ((renderer->rotateParts(
@@ -153,7 +153,7 @@ bool SubModel::rotateModel(QString ldrName, QString subModel, const QString colo
             rotatedModel,
             ldrName,
             step->top.modelName,
-            noCA ? noCameraAngles : subModelMeta.cameraAngles
+            cameraAngles
             )) != 0) {
        emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate Submodel ldr file: %1.")
                                              .arg(ldrName));
@@ -180,6 +180,7 @@ int SubModel::createSubModelImage(
   QString  &color,
   QPixmap  *pixmap)
 {
+  int rc = 0;
   float modelScale = 1.0f;
   if (Preferences::usingNativeRenderer) {
       modelScale = subModelMeta.cameraDistNative.factor.value();
@@ -190,16 +191,18 @@ int SubModel::createSubModelImage(
   bool noCA = subModelMeta.rotStep.value().type == "ABS";
 
   // assemble name key - create unique file when a value that impacts the image changes
-  QString key = QString("%1_%2_%3_%4_%5_%6_%7_%8_%9")
-                    .arg(partialKey)
-                    .arg(pageSizeP(meta, 0))
-                    .arg(double(resolution()))
-                    .arg(resolutionType() == DPI ? "DPI" : "DPCM")
-                    .arg(double(modelScale))
-                    .arg(double(subModelMeta.cameraFoV.value()))
-                    .arg(noCA ? 0.0 : double(subModelMeta.cameraAngles.value(0)))
-                    .arg(noCA ? 0.0 : double(subModelMeta.cameraAngles.value(1)))
-                    .arg(renderer->getRotstepMeta(subModelMeta.rotStep,true));
+  QString keyPart1 = QString("%1").arg(partialKey);
+  QString keyPart2 = QString("%1_%2_%3_%4_%5_%6_%7_%8")
+                             .arg(pageSizeP(meta, 0))
+                             .arg(double(resolution()))
+                             .arg(resolutionType() == DPI ? "DPI" : "DPCM")
+                             .arg(double(modelScale))
+                             .arg(double(subModelMeta.cameraFoV.value()))
+                             .arg(noCA ? 0.0 : double(subModelMeta.cameraAngles.value(0)))
+                             .arg(noCA ? 0.0 : double(subModelMeta.cameraAngles.value(1)))
+                             .arg(renderer->getRotstepMeta(subModelMeta.rotStep,true));
+  QString key = QString("%1_%2").arg(keyPart1).arg(keyPart2);
+
   imageName = QDir::currentPath() + QDir::separator() +
               Paths::submodelDir + QDir::separator() + key.toLower() + ".png";
 
@@ -224,6 +227,92 @@ int SubModel::createSubModelImage(
       }
   }
 
+  // create 3DViewer entry
+  bool multistep = false,callout = false;
+  Where top,bottom;
+  switch (parentRelativeType) {
+  case StepGroupType:
+      top    = topOfSteps();
+      bottom = bottomOfSteps();
+      multistep = true;
+      break;
+  case CalloutType:
+      top    = topOfCallout();
+      bottom = bottomOfCallout();
+      callout = true;
+      break;
+  default:
+      top    = topOfStep();
+      bottom = bottomOfStep();
+      break;
+  }
+
+  // Populate viewerCsiKey variable
+  int stepNumber = subModelMeta.showStepNum.value() ?
+                   subModelMeta.showStepNum.value() : 1;
+  viewerCsiKey = QString("\"%1\"%2;%3")
+          .arg(QString("%1_%2")
+                       .arg(QFileInfo(type).completeBaseName())
+                       .arg(PREVIEW_SUBMODEL_SUFFIX))
+          .arg(bottom.lineNumber)
+          .arg(stepNumber);
+
+  // Viewer submodel does not yet exist in repository
+  bool addViewerStepContent = !gui->viewerStepContentExist(viewerCsiKey);
+
+  // We are processing again the current submodel Key so Submodel must have been updated in the viewer
+  bool viewerUpdate = viewerCsiKey == gui->getViewerCsiKey();
+
+  // Generate 3DViewer Submodel entry
+  if (! gui->exportingObjects()) {
+      if ((addViewerStepContent || imageOutOfDate || viewerUpdate)) {
+
+          FloatPairMeta cameraAngles = noCA ? FloatPairMeta() : subModelMeta.cameraAngles;
+          QString addLine = "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr";
+
+          // set submodel - unrotated
+          QStringList subModel = QStringList()
+                  << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(type.toLower());
+
+          // set rotated submodel
+          QStringList rotatedSubmodel = subModel;
+
+          // rotate submodel for 3DViewer without camera angles - this routine returns a list
+          if ((rc = renderer->rotateParts(addLine,subModelMeta.rotStep,rotatedSubmodel,cameraAngles,false)) != 0)
+              emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer Submodel"));
+
+          // add ROTSTEP command
+          rotatedSubmodel.prepend(renderer->getRotstepMeta(subModelMeta.rotStep));
+
+          // header and closing meta
+          QString modelName = QFileInfo(top.modelName).baseName().toLower();
+          modelName = QString("%1").arg(modelName.replace(
+                                            modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper()));
+          rotatedSubmodel.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(modelName));
+          rotatedSubmodel.prepend(QString("0 Name: %1").arg(top.modelName));
+          rotatedSubmodel.prepend(QString("0 %1").arg(modelName));
+          rotatedSubmodel.append("0 NOFILE");
+
+          // consolidate submodel subfiles into single file
+          if ((rc = renderer->createNativeModelFile(rotatedSubmodel,false,false) != 0))
+              emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Viewer Submodel subfiles"));
+
+          // store rotated and unrotated (csiParts). Unrotated parts are used to generate LDView pov file
+          QString unrotatedKey = QString("%1_%2_%3").arg(keyPart1).arg(stepNumber).arg(keyPart2);
+          gui->insertViewerStep(viewerCsiKey,rotatedSubmodel,subModel,ldrNames.first(),unrotatedKey,multistep,callout);
+      }
+
+      // set viewer display options
+      viewerOptions.ViewerCsiKey   = viewerCsiKey;
+      viewerOptions.UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
+      viewerOptions.FoV            = subModelMeta.v_cameraFoV.value();
+      viewerOptions.ZNear          = subModelMeta.v_znear.value();
+      viewerOptions.ZFar           = subModelMeta.v_zfar.value();
+      viewerOptions.CameraDistance = subModelMeta.cameraDistNative.factor.value();
+      viewerOptions.Latitude       = noCA ? 0.0 : subModelMeta.cameraAngles.value(0);
+      viewerOptions.Longitude      = noCA ? 0.0 : subModelMeta.cameraAngles.value(1);
+  }
+
   // Generate and renderer Submodel file
   if ( ! part.exists() || imageOutOfDate) {
 
@@ -233,34 +322,40 @@ int SubModel::createSubModelImage(
       // generate Submodel file
       if (! rotateModel(ldrNames.first(),type,color,noCA)) {
           emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate Submodel ldr file: %1.")
-                                                .arg(ldrNames.first()));
+                               .arg(ldrNames.first()));
           return -1;
       }
 
-    // TODO - create 3DViewer entry
+      // feed DAT to renderer
+      if ((renderer->renderPli(ldrNames,imageName,*meta,SUBMODEL,0) != 0)) {
+          emit gui->messageSig(LOG_ERROR,QString("%1 Submodel render failed for [%2] %3 %4 %5 on page %6")
+                                                 .arg(Render::getRenderer())
+                                                 .arg(imageName)
+                                                 .arg(step->calledOut ? "called out," : "simple,")
+                                                 .arg(step->multiStep ? "step group" : "single step")
+                                                 .arg(step->stepNumber.number)
+                                                 .arg(gui->stepPageNum));
+          imageName = QString(":/resources/missingimage.png");
+          rc = -1;
+      }
 
-    // feed DAT to renderer
-    int rc = renderer->renderPli(ldrNames,imageName,*meta,SUBMODEL,0);
-    if (rc != 0) {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Render failed for %1").arg(imageName));
-        return -1;
-    }
-
-    emit gui->messageSig(LOG_INFO,
-                             QString("%1 Submodel render call took %2 milliseconds "
-                                     "to render %3 for %4 %5 %6 on page %7.")
-                                     .arg(Render::getRenderer())
-                                     .arg(timer.elapsed())
-                                     .arg(imageName)
-                                     .arg(step->calledOut ? "called out," : "simple,")
-                                     .arg(step->multiStep ? "step group" : "single step")
-                                     .arg(step->stepNumber.number)
-                                     .arg(gui->stepPageNum));
+      if (!rc) {
+          emit gui->messageSig(LOG_INFO,
+                               QString("%1 Submodel render call took %2 milliseconds "
+                                       "to render %3 for %4 %5 %6 on page %7.")
+                               .arg(Render::getRenderer())
+                               .arg(timer.elapsed())
+                               .arg(imageName)
+                               .arg(step->calledOut ? "called out," : "simple,")
+                               .arg(step->multiStep ? "step group" : "single step")
+                               .arg(step->stepNumber.number)
+                               .arg(gui->stepPageNum));
+      }
   }
 
   pixmap->load(imageName);
 
-  return 0;
+  return rc;
 }
 
 int SubModel::generateSubModelItem()
@@ -927,6 +1022,17 @@ void SubModel::getRightEdge(
   }
 }
 
+bool SubModel::loadTheViewer(){
+    if (! gui->exporting()) {
+        if (! renderer->LoadViewer(viewerOptions)) {
+            emit gui->messageSig(LOG_ERROR,QString("Could not load 3D Viewer with Submodel key: %1")
+                                 .arg(viewerCsiKey));
+            return false;
+        }
+    }
+    return true;
+}
+
  // SMInstanceTextItem
 
 SMInstanceTextItem::SMInstanceTextItem(
@@ -1104,6 +1210,7 @@ void SubModelBackgroundItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
   positionChanged = false;
   QGraphicsItem::mousePressEvent(event);
   placeGrabbers();
+  subModel->loadTheViewer();
 }
 
 void SubModelBackgroundItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)

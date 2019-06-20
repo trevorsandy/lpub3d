@@ -3517,6 +3517,13 @@ SubModelMeta::SubModelMeta() : PliMeta()
   znear.setValue(gui->getDefaultCameraZNear());
   zfar.setValue(gui->getDefaultCameraZFar());
 
+  // image display
+  v_cameraFoV.setFormats(5,4,"9.999");
+  v_cameraFoV.setRange(0.0,360.0);
+  v_cameraFoV.setValue(CAMERA_FOV_NATIVE_DEFAULT);
+  v_znear.setValue(CAMERA_ZNEAR_NATIVE_DEFAULT);
+  v_zfar.setValue(CAMERA_ZFAR_NATIVE_DEFAULT);
+
   // movable pli part groups
   enablePliPartGroup.setValue(false);
 }
@@ -3548,6 +3555,10 @@ void SubModelMeta::init(BranchMeta *parent, QString name)
   distance             .init(this,"CAMERA_DISTANCE");
   znear                .init(this,"CAMERA_ZNEAR");
   zfar                 .init(this,"CAMERA_ZFAR");
+  v_cameraFoV          .init(this,"VIEWER_CAMERA_FOV");
+  v_distance           .init(this,"VIEWER_CAMERA_DISTANCE");
+  v_znear              .init(this,"VIEWER_CAMERA_ZNEAR");
+  v_zfar               .init(this,"VIEWER_CAMERA_ZFAR");
 }
 
 /* ------------------ */
@@ -4030,6 +4041,13 @@ PliMeta::PliMeta() : BranchMeta()
   znear.setValue(gui->getDefaultCameraZNear());
   zfar.setValue(gui->getDefaultCameraZFar());
 
+  // image display
+  v_cameraFoV.setFormats(5,4,"9.999");
+  v_cameraFoV.setRange(0.0,360.0);
+  v_cameraFoV.setValue(CAMERA_FOV_NATIVE_DEFAULT);
+  v_znear.setValue(CAMERA_ZNEAR_NATIVE_DEFAULT);
+  v_zfar.setValue(CAMERA_ZFAR_NATIVE_DEFAULT);
+
   // movable pli part groups
   enablePliPartGroup.setValue(false);
 }
@@ -4069,6 +4087,10 @@ void PliMeta::init(BranchMeta *parent, QString name)
   distance        .init(this,"CAMERA_DISTANCE");
   znear           .init(this,"CAMERA_ZNEAR");
   zfar            .init(this,"CAMERA_ZFAR");
+  v_cameraFoV     .init(this,"VIEWER_CAMERA_FOV");
+  v_distance      .init(this,"VIEWER_CAMERA_DISTANCE");
+  v_znear         .init(this,"VIEWER_CAMERA_ZNEAR");
+  v_zfar          .init(this,"VIEWER_CAMERA_ZFAR");
   enablePliPartGroup .init(this,"PART_GROUP_ENABLE");
 }
 

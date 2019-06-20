@@ -2934,6 +2934,12 @@ public:
   FloatMeta            znear;
   FloatMeta            zfar;
 
+  // display step
+  FloatMeta            v_cameraFoV;
+  IntMeta              v_distance;
+  FloatMeta            v_znear;
+  FloatMeta            v_zfar;
+
   CameraDistFactorMeta cameraDistNative;
   RotStepMeta          rotStep;
   BoolMeta             showTopModel;
