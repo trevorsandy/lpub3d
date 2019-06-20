@@ -180,6 +180,21 @@ void Annotations::loadLD2BLColorsXRef(QByteArray& Buffer){
         "329\t 159\n"
         "302\t 162\n"
         "339\t 163\n"
+// LDraw rubber colours
+        "65\t  3\n"
+        "66\t  19\n"
+        "67\t  12\n"
+        "256\t 11\n"
+        "273\t 7\n"
+        "324\t 5\n"
+        "350\t 4\n"
+        "375\t 9\n"
+        "406\t 63\n"
+        "449\t 24\n"
+        "490\t 34\n"
+        "496\t 86\n"
+        "504\t 95\n"
+        "511\t 1\n"
     };
 
     const char LD2BLColorsXRef[] = {
