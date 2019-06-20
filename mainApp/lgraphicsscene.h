@@ -35,21 +35,43 @@ public slots:
   void sendSelectedItemToBack();
   void setGuidePen(QString color,int line){
     guidePen = QPen(QBrush(QColor(color)), 2, Qt::PenStyle(line));
+    update();
   }
   void setGridPen(QString color){
     gridPen =  QPen(QBrush(QColor(color)), 2, Qt::SolidLine);
+    update();
   }
   void setSceneGuides(bool b){
     mSceneGuides = b;
+    update();
   }
   void setSceneGuidesLine(int line) {
     guidePen.setStyle(Qt::PenStyle(line));
+    update();
   }
   void setSnapToGrid(bool b){
     mSnapToGrid = b;
+    update();
   }
   void setGridSize(int i){
     mGridSize = i;
+    update();
+  }
+  void setSceneRulerTrackingPen(QString color){
+    rulerTrackingPen = QPen(QBrush(QColor(color)), 2, Qt::SolidLine);
+    update();
+  }
+  void setSceneRulerTracking(bool b){
+    mRulerTracking = b;
+    update();
+  }
+  void setSceneVertRulerPosition(QPointF p){
+    mVertCursorPos = p;
+    update();
+  }
+  void setSceneHorzRulerPosition(QPointF p){
+    mHorzCursorPos = p;
+    update();
   }
 
 protected:
@@ -67,6 +89,7 @@ private:
   // guides
   QPen guidePen;
   QPen gridPen;
+  QPen rulerTrackingPen;
   bool mValidItem;
   bool mPliPartGroup;
   bool mSceneGuides;
@@ -77,9 +100,11 @@ private:
   bool mIsItemOnBottom;
   bool mShowContextAction;
   bool mSnapToGrid;
+  bool mRulerTracking;
   int mGridSize;
   qreal minZ,maxZ;
-
+  QPointF mVertCursorPos;
+  QPointF mHorzCursorPos;
 };
 
 extern QHash<SceneObject, QString> soMap;

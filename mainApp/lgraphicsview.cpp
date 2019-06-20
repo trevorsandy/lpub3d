@@ -46,6 +46,18 @@ LGraphicsView::LGraphicsView(LGraphicsScene *scene)
   connect(this,SIGNAL(setSceneGuidesSig(bool)),    scene,SLOT(setSceneGuides(bool)));
   connect(this,SIGNAL(setGuidePenSig(QString,int)),scene,SLOT(setGuidePen(QString,int)));
   connect(this,SIGNAL(setGridPenSig(QString)),     scene,SLOT(setGridPen(QString)));
+
+  connect(this,  SIGNAL(setSceneHorzRulerPositionSig(QPointF)),
+          scene, SLOT(  setSceneHorzRulerPosition(   QPointF)));
+
+  connect(this,  SIGNAL(setSceneVertRulerPositionSig(QPointF)),
+          scene, SLOT(  setSceneVertRulerPosition(   QPointF)));
+
+  connect(this,  SIGNAL(setSceneRulerTrackingPenSig(QString)),
+          scene, SLOT(  setSceneRulerTrackingPen(   QString)));
+
+  connect(this,  SIGNAL(setSceneRulerTrackingSig(bool)),
+          scene, SLOT(  setSceneRulerTracking(   bool)));
 }
 
 void LGraphicsView::setSceneRuler(){
@@ -70,6 +82,12 @@ void LGraphicsView::setSceneRuler(){
 
       mHorzRuler = new LRuler(LRuler::Horizontal,fake);
       mVertRuler = new LRuler(LRuler::Vertical,fake);
+
+      connect(mHorzRuler,SIGNAL(setRulerPositionSig(  QPoint)),
+              this,      SLOT(  setSceneHorzRulerPosition(QPoint)));
+
+      connect(mVertRuler,SIGNAL(setRulerPositionSig(  QPoint)),
+              this,      SLOT(  setSceneVertRulerPosition(QPoint)));
 
       mGridLayout->addWidget(fake,0,0);
       mGridLayout->addWidget(mHorzRuler,0,1);
@@ -105,6 +123,20 @@ void LGraphicsView::setSceneRulerTracking(){
     mHorzRuler->setMouseTrack(Preferences::sceneRulerTracking);
   if (mVertRuler)
     mVertRuler->setMouseTrack(Preferences::sceneRulerTracking);
+  emit setSceneRulerTrackingSig(Preferences::sceneRulerTracking);
+  emit setSceneRulerTrackingPenSig(Preferences::sceneRulerTrackingColor);
+}
+
+void LGraphicsView::setSceneVertRulerPosition(QPoint p)
+{
+    QPointF scenePosition = mapToScene(p);
+    emit setSceneVertRulerPositionSig(scenePosition);
+}
+
+void LGraphicsView::setSceneHorzRulerPosition(QPoint p)
+{
+    QPointF scenePosition = mapToScene(p);
+    emit setSceneHorzRulerPositionSig(scenePosition);
 }
 
 void LGraphicsView::setGridSize(){
@@ -467,6 +499,8 @@ void LRuler::drawMousePosTick(QPainter* painter)
     painter->setPen(pen);
 
     QPoint starPt = mCursorPos;
+    emit setRulerPositionSig(mCursorPos);
+
     QPoint endPt;
     if (Horizontal == mRulerType)
     {

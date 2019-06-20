@@ -48,6 +48,8 @@ public slots:
   void setSceneGuidesLine();
   void setSceneBackgroundBrush();
   void setSceneRuler();
+  void setSceneVertRulerPosition(QPoint);
+  void setSceneHorzRulerPosition(QPoint);
   void setSceneRulerTracking();
   void setSnapToGrid();
   void setGridSize();
@@ -57,6 +59,10 @@ signals:
     void setSceneRulerSig();
     void setSceneGuidesSig(bool);
     void setSceneGuidesLineSig(int);
+    void setSceneRulerTrackingSig(bool);
+    void setSceneRulerTrackingPenSig(QString);
+    void setSceneVertRulerPositionSig(QPointF);
+    void setSceneHorzRulerPositionSig(QPointF);
     void setGuidePenSig(QString,int);
     void setGridPenSig(QString);
     void setSnapToGridSig(bool);
@@ -142,6 +148,9 @@ qreal rulerZoom() const
 {
   return mRulerZoom;
 }
+
+signals:
+  void setRulerPositionSig(QPoint);
 
 public slots:
   void setOrigin(const qreal origin);

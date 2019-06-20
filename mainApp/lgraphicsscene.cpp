@@ -22,12 +22,13 @@
 
 enum ZValueSort { largestZ, smallestZ };
 
-QHash<SceneObject, QString> soMap;
+//QHash<SceneObject, QString> soMap;
 
 LGraphicsScene::LGraphicsScene(QObject *parent)
   : QGraphicsScene(parent),
     guidePen(QPen(QBrush(QColor(THEME_GUIDE_PEN_DEFAULT)), 2, Qt::DashLine)),
     gridPen(QPen(QBrush(QColor(THEME_GRID_PEN_DEFAULT)), 2, Qt::SolidLine)),
+    rulerTrackingPen(QPen(QBrush(QColor(THEME_RULER_TRACK_PEN_DEFAULT)), 2, Qt::SolidLine)),
     mValidItem(false),
     mPliPartGroup(false),
     mSceneGuides(false),
@@ -36,6 +37,7 @@ LGraphicsScene::LGraphicsScene(QObject *parent)
     mIsItemOnBottom(false),
     mShowContextAction(false),
     mSnapToGrid(false),
+    mRulerTracking(false),
     mGridSize(GridSizeTable[GRID_SIZE_INDEX_DEFAULT]),
     minZ(Z_VALUE_DEFAULT),
     maxZ(Z_VALUE_DEFAULT)
@@ -104,6 +106,7 @@ void LGraphicsScene::updateGuidePos(){
         mGuidePos = QPointF(mBaseItem->parentItem()->sceneBoundingRect().left(),
                             mBaseItem->parentItem()->sceneBoundingRect().top());
     }
+    update();
 }
 
 bool LGraphicsScene::isSelectedItemOnTop()
@@ -288,6 +291,7 @@ void LGraphicsScene::snapToGrid()
         if(gy < by/gs || gy > by/gs)
             by = gs*qRound(by/gs);
         mBaseItem->setPos(bx,by);
+        update();
     }
 }
 
@@ -314,11 +318,32 @@ void LGraphicsScene::drawBackground(QPainter *painter, const QRectF &rect){
 }
 
 void LGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect){
-    if (! mSceneGuides || ! mValidItem)
-        return;
 
     QPointF starPt;
     QPointF endPt;
+
+    if (mRulerTracking) {
+        QPen savedPen = painter->pen();
+        painter->setRenderHints(QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing);
+        painter->setOpacity(0.6);
+        painter->setPen(rulerTrackingPen);
+        starPt = mHorzCursorPos;
+        starPt.setY(rect.top());
+        endPt.setX(starPt.x());
+        endPt.setY(rect.bottom());
+        painter->drawLine(starPt,endPt);
+        starPt = mVertCursorPos;
+        starPt.setX(rect.left());
+        endPt.setX(rect.right());
+        endPt.setY(starPt.y());
+        painter->drawLine(starPt,endPt);
+        painter->setPen(savedPen);
+        painter->setOpacity(1.0);
+    }
+
+    if (! mSceneGuides || ! mValidItem)
+        return;
+
     painter->setClipRect(rect);
     painter->setRenderHints(QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing);
     painter->setPen(guidePen);
@@ -332,7 +357,6 @@ void LGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect){
     endPt.setX(rect.right());
     endPt.setY(mGuidePos.y());
     painter->drawLine(starPt,endPt);
-    update();
 }
 
 void LGraphicsScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event) {
