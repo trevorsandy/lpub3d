@@ -1188,6 +1188,11 @@ void LDVHtmlInventory::writePartCell(
 			break;
 		}
 
+		std::string titleString = partCount.getModel()->getDescription();
+		if (titleString.empty())
+			 titleString = lsUtf8("PLNoDescription");
+		titleString.append(" - " + viewOnString);
+
 		QString localPartPath = QDir::toNativeSeparators(QString("%1/%2_%3_%4.png")
 								.arg(Paths::partsDir)
 								.arg(QString::fromStdString(partName))
@@ -1195,12 +1200,12 @@ void LDVHtmlInventory::writePartCell(
 								.arg(QString::fromStdString(m_partListKey)));
 								
 		if (!QFileInfo(localPartPath).exists()) {
-            localPartPath = QString(VER_LPUB3D_IMAGE_NOT_FOUND_URL);
-			viewOnString = lsUtf8("PLVImageNotFound") + viewOnString;
+			localPartPath = QString(VER_LPUB3D_IMAGE_NOT_FOUND_URL);
+			titleString = lsUtf8("PLVImageNotFound") + titleString;
 		}
 
 		fprintf(file, "<img alt=\"%s\" title=\"%s\" src=\"%s\">",
-			viewOnString.c_str(), viewOnString.c_str(),
+			viewOnString.c_str(), titleString.c_str(),
 			localPartPath.toLatin1().constData());
 
 		fprintf(file, "</a></td>\n");
