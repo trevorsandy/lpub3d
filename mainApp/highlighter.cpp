@@ -214,27 +214,6 @@ Highlighter::Highlighter(QTextDocument *parent)
         highlightingRules.append(rule);
     }
 
-    // LPub3D Quoted Text Format
-    LPubQuotedTextFormat.setForeground(br27);
-    LPubQuotedTextFormat.setFontWeight(QFont::Normal);
-    rule.pattern = QRegExp("\".*\"");
-    rule.format = LPubQuotedTextFormat;
-    highlightingRules.append(rule);
-
-    // LPub3D Number Format
-    LPubNumberFormat.setForeground(br14);
-    LPubNumberFormat.setFontWeight(QFont::Normal);
-    rule.pattern = QRegExp("-?(?:0|[1-9]\\d*)(?:\\.\\d+)?");
-    rule.format = LPubNumberFormat;
-    highlightingRules.append(rule);
-
-    // LPub3D Hex Number Format
-    LPubHexNumberFormat.setForeground(br15);
-    LPubHexNumberFormat.setFontWeight(QFont::Bold);
-    rule.pattern = QRegExp("#(?:[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})",Qt::CaseInsensitive);
-    rule.format = LPubHexNumberFormat;
-    highlightingRules.append(rule);
-
     // LPub3D Meta Format
     LPubMetaFormat.setForeground(br24);
     LPubMetaFormat.setFontWeight(QFont::Bold);
