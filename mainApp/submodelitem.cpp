@@ -204,7 +204,7 @@ int SubModel::createSubModelImage(
               Paths::submodelDir + QDir::separator() + key.toLower() + ".png";
 
   // define ldr file name
-  QStringList ldrNames = QStringList() << QDir::currentPath() + QDir::separator() +
+  QStringList ldrNames = QStringList() << QDir::toNativeSeparators(QDir::currentPath()) + QDir::separator() +
                                           Paths::tmpDir + QDir::separator() + "submodel.ldr";
 
   // Check if png file date modified is older than model file (on the stack) date modified

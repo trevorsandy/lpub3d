@@ -2934,7 +2934,7 @@ Where &Gui::bottomOfPage()
 void Gui::writeToTmp(const QString &fileName,
                      const QStringList &contents)
 {
-  QString fname = QDir::currentPath() + "/" + Paths::tmpDir + "/" + fileName;
+  QString fname = QDir::toNativeSeparators(QDir::currentPath()) + QDir::separator() + Paths::tmpDir + QDir::separator() + fileName;
   QFileInfo fileInfo(fname);
   if(!fileInfo.dir().exists()) {
      fileInfo.dir().mkpath(".");

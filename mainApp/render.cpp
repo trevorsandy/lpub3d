@@ -1709,7 +1709,7 @@ int Native::renderCsi(
               break;
           default:
               emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Invalid CSI Object export option."));
-              delete CsiImageProject;
+              //delete CsiImageProject;
               return -1;
           }
           // These exports are performed by the Native LDV module (LDView).
@@ -1843,7 +1843,7 @@ int Native::renderPli(
 
   if (!RenderNativeImage(Options)) {
       emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Native PLI image render failed."));
-      delete PliImageProject;
+      //delete PliImageProject;
       return -1;
   }
 
@@ -1945,12 +1945,15 @@ bool Render::RenderNativeImage(const NativeOptions &Options)
     if (Writer.format().isEmpty())
         Writer.setFormat("PNG");
 
+    bool rc = true;
     if (!Writer.write(QImage(Image.RenderedImage.copy(Image.Bounds))))
     {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not write to Native %1 image file '%2': %3.")
+        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not write to Native %1 image file '%2'.<br>%3.<br>"
+                                                       "Ensure Field of View (default is 30) and Camera Distance Factor <br>"
+                                                       "are configured for the Native Renderer.<br>")
                              .arg(ImageType)
                              .arg(Options.OutputFileName).arg(Writer.errorString()));
-        return false;
+        rc = false;
     }
 
     View.EndRenderToImage();
@@ -1967,11 +1970,11 @@ bool Render::RenderNativeImage(const NativeOptions &Options)
     if (Options.ExportMode != EXPORT_NONE) {
         if (!NativeExport(Options)) {
             emit gui->messageSig(LOG_ERROR,QMessageBox::tr("CSI Objects render failed."));
-            return false;
+            rc = false;
         }
     }
 
-    return true;
+    return rc;
 }
 
 bool Render::LoadViewer(const ViewerOptions &Options){
@@ -1988,7 +1991,7 @@ bool Render::LoadViewer(const ViewerOptions &Options){
     {
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load 3DViewer model file %1.")
                              .arg(viewerCsiKey));
-        delete StepProject;
+        //delete StepProject;
         return false;
     }
 
@@ -2164,7 +2167,7 @@ bool Render::NativeExport(const NativeOptions &Options) {
         if (! gMainWindow->OpenProject(Options.InputFileName)) {
             emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to open CSI %1 Export project")
                                                            .arg(exportModeName));
-            delete NativeExportProject;
+            //delete NativeExportProject;
             return false;
         }
     }

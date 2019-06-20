@@ -446,7 +446,6 @@ int Gui::addGraphicsPageItems(
   int nInserts = page->inserts.size();
 
   if (nInserts) {
-//      QFileInfo fileInfo, picInfo;
       QFileInfo fileInfo;
       for (int i = 0; i < nInserts; i++) {
           InsertData insert = page->inserts[i].value();
@@ -454,17 +453,6 @@ int Gui::addGraphicsPageItems(
           switch (insert.type) {
             case InsertData::InsertPicture:
               {
-//                picInfo.setFile(insert.picName);
-//                QString filename(picInfo.fileName());
-
-//                fileInfo.setFile(QDir::currentPath() + QDir::separator() + filename); // relative path
-
-//                if (!fileInfo.exists()) {
-//                  fileInfo.setFile(picInfo.absoluteFilePath());         // insert path
-//                } else {
-//                  insert.picName = fileInfo.absoluteFilePath();         // update insert path
-//                }
-
                 fileInfo.setFile(getFilePath(insert.picName));
 
                 if (fileInfo.exists()) {

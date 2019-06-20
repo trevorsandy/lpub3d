@@ -99,7 +99,7 @@ QString PovrayRenderDialog::GetPOVFileName() const
 
 QString PovrayRenderDialog::GetLogFileName() const
 {
-    return QDir::toNativeSeparators(QDir::currentPath() + "/stderr-povrayrender");
+    return QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + "stderr-povrayrender");
 }
 
 void PovrayRenderDialog::CloseProcess()
@@ -172,7 +172,7 @@ void PovrayRenderDialog::on_RenderButton_clicked()
 
     QApplication::processEvents();
     
-    mModelFile = QDir::toNativeSeparators(QDir::currentPath() + "/" + Paths::tmpDir + "/csipovray.ldr");
+    mModelFile = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + Paths::tmpDir + QDir::separator() + "csipovray.ldr");
 
     QStringList csiParts = gui->getViewerStepUnrotatedContents(mViewerCsiKey);
     if (csiParts.isEmpty())

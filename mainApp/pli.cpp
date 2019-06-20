@@ -2620,6 +2620,10 @@ void Pli::positionChildren(
                 (y - part->height /*+ part->annotHeight*/)/scaleY);
         }
 
+      if (part->pixmap == nullptr) {
+          break;
+      }
+
       part->pixmap->setParentItem(background);
       part->pixmap->setPos(
             x/scaleX,
