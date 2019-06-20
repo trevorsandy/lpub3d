@@ -2613,7 +2613,7 @@ PliBackgroundItem::PliBackgroundItem(
     }
 
   if (parentRelativeType == StepGroupType /* && pli->perStep == false */) {
-      if (pli-bom) {
+      if (pli->bom) {
           placement = pli->meta->LPub.bom.placement;
         } else {
           placement = pli->meta->LPub.multiStep.pli.placement;
