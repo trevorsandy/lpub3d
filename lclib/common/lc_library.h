@@ -22,19 +22,16 @@ enum lcLibraryFolderType
 	LC_NUM_FOLDERTYPES
 };
 
+#define LC_LIBRARY_VERTEX_UNTEXTURED 0x1
+#define LC_LIBRARY_VERTEX_TEXTURED   0x2
+
 struct lcLibraryMeshVertex
 {
 	lcVector3 Position;
 	lcVector3 Normal;
 	float NormalWeight;
-};
-
-struct lcLibraryMeshVertexTextured
-{
-	lcVector3 Position;
-	lcVector3 Normal;
-	float NormalWeight;
 	lcVector2 TexCoord;
+	quint32 Usage;
 };
 
 class lcLibraryMeshSection
@@ -68,7 +65,35 @@ enum class lcLibraryTextureMapType
 struct lcLibraryTextureMap
 {
 	lcTexture* Texture;
-	lcVector4 Params[4];
+
+	union lcTextureMapParams
+	{
+		lcTextureMapParams()
+		{
+		}
+
+		struct lcTextureMapPlanarParams
+		{
+			lcVector4 Planes[2];
+		} Planar;
+
+		struct lcTextureMapCylindricalParams
+		{
+			lcVector4 FrontPlane;
+			float UpLength;
+			lcVector4 Plane1;
+			lcVector4 Plane2;
+		} Cylindrical;
+
+		struct lcTextureMapSphericalParams
+		{
+			lcVector4 FrontPlane;
+			lcVector3 Center;
+			lcVector4 Plane1;
+			lcVector4 Plane2;
+		} Spherical;
+	} Params;
+
 	float Angle1;
 	float Angle2;
 	lcLibraryTextureMapType Type;
@@ -96,6 +121,8 @@ class lcLibraryMeshData
 public:
 	lcLibraryMeshData()
 	{
+		mHasTextures = false;
+
 		for (int MeshDataIdx = 0; MeshDataIdx < LC_NUM_MESHDATA_TYPES; MeshDataIdx++)
 			mVertices[MeshDataIdx].SetGrow(1024);
 	}
@@ -131,7 +158,7 @@ public:
 
 	lcArray<lcLibraryMeshSection*> mSections[LC_NUM_MESHDATA_TYPES];
 	lcArray<lcLibraryMeshVertex> mVertices[LC_NUM_MESHDATA_TYPES];
-	lcArray<lcLibraryMeshVertexTextured> mTexturedVertices[LC_NUM_MESHDATA_TYPES];
+	bool mHasTextures;
 };
 
 class lcLibraryPrimitive
@@ -218,7 +245,7 @@ public:
 	void SetOfficialPieces()
 	{
 		if (mZipFiles[LC_ZIPFILE_OFFICIAL])
-			mNumOfficialPieces = mPieces.size();
+			mNumOfficialPieces = (int)mPieces.size();
 	}
 
 	bool ReadMeshData(lcFile& File, const lcMatrix44& CurrentTransform, quint32 CurrentColorCode, bool InvertWinding, lcArray<lcLibraryTextureMap>& TextureStack, lcLibraryMeshData& MeshData, lcMeshDataType MeshDataType, bool Optimize, Project* CurrentProject, bool SearchProjectFolder);

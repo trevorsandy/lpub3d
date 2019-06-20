@@ -1960,8 +1960,7 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerCsiKey)
         }
     }
 
-    lcArray<lcModel*> UpdatedModels;
-    UpdatedModels.AllocGrow(StepProject->mModels.GetSize());
+    std::vector<lcModel*> UpdatedModels;
 
     for (lcModel* Model : StepProject->mModels)
     {

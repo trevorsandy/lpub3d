@@ -250,7 +250,8 @@ static const SceneObject NoContextSceneObjects[] =
 
 #define SAVE_DISPLAY_PAGE_NUM_KEY   "SaveDisplayPageNum"
 #define SAVE_SKIP_PARTS_ARCHIVE_KEY "SaveSkipPartsArchive"
-#define VIEW_PARTS_WIDGET           "ViewPartsWidget"
+#define VIEW_PARTS_WIDGET_KEY       "ViewPartsWidget"
+#define VIEW_COLORS_WIDGET_KEY      "ViewColorsWidget"
 
 #define CASE_CHECK    "CaseCheck"
 #define WORD_CHECK    "WordCheck"

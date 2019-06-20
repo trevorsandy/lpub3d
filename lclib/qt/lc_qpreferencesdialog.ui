@@ -875,7 +875,7 @@
               <item>
                <widget class="QTreeWidget" name="commandList">
                 <property name="rootIsDecorated">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </property>
                 <property name="uniformRowHeights">
                  <bool>true</bool>
@@ -893,6 +893,13 @@
                </widget>
               </item>
               <item>
+               <widget class="QLineEdit" name="KeyboardFilterEdit">
+                <property name="placeholderText">
+                 <string>Search shortcuts</string>
+                </property>
+               </widget>
+              </item>
+              <item>			  
                <layout class="QHBoxLayout" name="horizontalLayout_9">
                 <item>
                  <widget class="QPushButton" name="shortcutsImport">
@@ -1176,6 +1183,7 @@
   <tabstop>lgeoPath</tabstop>
   <tabstop>checkForUpdates</tabstop>
   <tabstop>fixedDirectionKeys</tabstop>
+  <tabstop>autoLoadMostRecent</tabstop>
   <tabstop>antiAliasing</tabstop>
   <tabstop>antiAliasingSamples</tabstop>
   <tabstop>gridStuds</tabstop>
@@ -1194,6 +1202,7 @@
   <tabstop>editCategory</tabstop>
   <tabstop>deleteCategory</tabstop>
   <tabstop>commandList</tabstop>
+  <tabstop>KeyboardFilterEdit</tabstop>
   <tabstop>shortcutsImport</tabstop>
   <tabstop>shortcutsExport</tabstop>
   <tabstop>shortcutsReset</tabstop>

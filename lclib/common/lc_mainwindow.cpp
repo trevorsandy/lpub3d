@@ -24,12 +24,8 @@
 #include "lc_colors.h"
 #include <functional>
 
-#if LC_ENABLE_GAMEPAD
-/*** LPub3D Mod - enable gamepad modification ***/
-#if defined(QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
-/*** LPub3D Mod end ***/
+#ifdef LC_ENABLE_GAMEPAD
 #include <QtGamepad/QGamepad>
-#endif
 #endif
 
 /*** LPub3D Mod - includes ***/
@@ -1347,7 +1343,7 @@ void lcMainWindow::ClipboardChanged()
 	const QMimeData* MimeData = QApplication::clipboard()->mimeData();
 	QByteArray ClipboardData;
 
-	if (MimeData->hasFormat(MimeType))
+	if (MimeData && MimeData->hasFormat(MimeType))
 		ClipboardData = MimeData->data(MimeType);
 
 	gApplication->SetClipboard(ClipboardData);
@@ -1674,8 +1670,8 @@ void lcMainWindow::SetSelectionMode(lcSelectionMode SelectionMode)
 
 QByteArray lcMainWindow::GetTabLayout()
 {
-	QByteArray TabLayout;
-	QDataStream DataStream(&TabLayout, QIODevice::WriteOnly);
+	QByteArray TabLayoutData;
+	QDataStream DataStream(&TabLayoutData, QIODevice::WriteOnly);
 
 	DataStream << (quint32)LC_TAB_LAYOUT_VERSION;
 	qint32 NumTabs = mModelTabWidget->count();
@@ -1731,7 +1727,7 @@ QByteArray lcMainWindow::GetTabLayout()
 		SaveWidget(TabLayout->itemAt(0)->widget());
 	}
 
-	return TabLayout;
+	return TabLayoutData;
 }
 
 void lcMainWindow::RestoreTabLayout(const QByteArray& TabLayout)
@@ -3274,7 +3270,7 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 			ActiveView->SetTopSubmodelActive();
 			if (ActiveModel)
 			{
-				lcArray<lcModel*> UpdatedModels;
+				std::vector<lcModel*> UpdatedModels;
 				ActiveModel->UpdatePieceInfo(UpdatedModels);
 			}
 		}

@@ -11,10 +11,10 @@
 #include "pieceinf.h"
 
 lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
-	QDialog(parent),
-	ui(new Ui::lcQPreferencesDialog)
+    QDialog(parent),
+    ui(new Ui::lcQPreferencesDialog)
 {
-	ui->setupUi(this);
+    ui->setupUi(this);
 
 /*** LPub3D Mod - suppress Win/macOS preferences dialog settings ***/
 /***
@@ -160,7 +160,7 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
 
 lcQPreferencesDialog::~lcQPreferencesDialog()
 {
-	delete ui;
+    delete ui;
 }
 
 void lcQPreferencesDialog::accept()
@@ -682,9 +682,42 @@ void lcQPreferencesDialog::commandChanged(QTreeWidgetItem *current)
 	ui->shortcutEdit->setText(key.toString(QKeySequence::NativeText));
 }
 
+void lcQPreferencesDialog::on_KeyboardFilterEdit_textEdited(const QString& Text)
+{
+	if (Text.isEmpty())
+	{
+		std::function<void(QTreeWidgetItem*)> ShowItems = [&ShowItems](QTreeWidgetItem* ParentItem)
+		{
+			for (int ChildIdx = 0; ChildIdx < ParentItem->childCount(); ChildIdx++)
+				ShowItems(ParentItem->child(ChildIdx));
+
+			ParentItem->setHidden(false);
+		};
+
+		ShowItems(ui->commandList->invisibleRootItem());
+	}
+	else
+	{
+		std::function<bool(QTreeWidgetItem*,bool)> ShowItems = [&ShowItems, &Text](QTreeWidgetItem* ParentItem, bool ForceVisible)
+		{
+			ForceVisible |= ParentItem->text(0).contains(Text, Qt::CaseInsensitive) | ParentItem->text(1).contains(Text, Qt::CaseInsensitive);
+			bool Visible = ForceVisible;
+
+			for (int ChildIdx = 0; ChildIdx < ParentItem->childCount(); ChildIdx++)
+				Visible |= ShowItems(ParentItem->child(ChildIdx), ForceVisible);
+
+			ParentItem->setHidden(!Visible);
+
+			return Visible;
+		};
+
+		ShowItems(ui->commandList->invisibleRootItem(), false);
+	}
+}
+
 void lcQPreferencesDialog::on_shortcutAssign_clicked()
 {
-	QTreeWidgetItem *current = ui->commandList->currentItem();
+    QTreeWidgetItem *current = ui->commandList->currentItem();
 
 	if (!current || !current->data(0, Qt::UserRole).isValid())
 		return;

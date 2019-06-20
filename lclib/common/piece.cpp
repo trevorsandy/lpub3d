@@ -596,17 +596,17 @@ void lcPiece::DrawInterface(lcContext* Context, const lcScene& Scene) const
 		float Verts[8 * 3];
 		float* CurVert = Verts;
 
-		lcVector3 Min(-LC_PIECE_CONTROL_POINT_SIZE, -LC_PIECE_CONTROL_POINT_SIZE, -LC_PIECE_CONTROL_POINT_SIZE);
-		lcVector3 Max(LC_PIECE_CONTROL_POINT_SIZE, LC_PIECE_CONTROL_POINT_SIZE, LC_PIECE_CONTROL_POINT_SIZE);
+		lcVector3 CubeMin(-LC_PIECE_CONTROL_POINT_SIZE, -LC_PIECE_CONTROL_POINT_SIZE, -LC_PIECE_CONTROL_POINT_SIZE);
+		lcVector3 CubeMax(LC_PIECE_CONTROL_POINT_SIZE, LC_PIECE_CONTROL_POINT_SIZE, LC_PIECE_CONTROL_POINT_SIZE);
 
-		*CurVert++ = Min[0]; *CurVert++ = Min[1]; *CurVert++ = Min[2];
-		*CurVert++ = Min[0]; *CurVert++ = Max[1]; *CurVert++ = Min[2];
-		*CurVert++ = Max[0]; *CurVert++ = Max[1]; *CurVert++ = Min[2];
-		*CurVert++ = Max[0]; *CurVert++ = Min[1]; *CurVert++ = Min[2];
-		*CurVert++ = Min[0]; *CurVert++ = Min[1]; *CurVert++ = Max[2];
-		*CurVert++ = Min[0]; *CurVert++ = Max[1]; *CurVert++ = Max[2];
-		*CurVert++ = Max[0]; *CurVert++ = Max[1]; *CurVert++ = Max[2];
-		*CurVert++ = Max[0]; *CurVert++ = Min[1]; *CurVert++ = Max[2];
+		*CurVert++ = CubeMin[0]; *CurVert++ = CubeMin[1]; *CurVert++ = CubeMin[2];
+		*CurVert++ = CubeMin[0]; *CurVert++ = CubeMax[1]; *CurVert++ = CubeMin[2];
+		*CurVert++ = CubeMax[0]; *CurVert++ = CubeMax[1]; *CurVert++ = CubeMin[2];
+		*CurVert++ = CubeMax[0]; *CurVert++ = CubeMin[1]; *CurVert++ = CubeMin[2];
+		*CurVert++ = CubeMin[0]; *CurVert++ = CubeMin[1]; *CurVert++ = CubeMax[2];
+		*CurVert++ = CubeMin[0]; *CurVert++ = CubeMax[1]; *CurVert++ = CubeMax[2];
+		*CurVert++ = CubeMax[0]; *CurVert++ = CubeMax[1]; *CurVert++ = CubeMax[2];
+		*CurVert++ = CubeMax[0]; *CurVert++ = CubeMin[1]; *CurVert++ = CubeMax[2];
 
 		const GLushort Indices[36] =
 		{
@@ -861,6 +861,22 @@ bool lcPiece::IsVisible(lcStep Step) const
 bool lcPiece::IsVisibleInSubModel() const
 {
 	return (mStepHide == LC_STEP_MAX) && !(mState & LC_PIECE_HIDDEN);
+}
+
+void lcPiece::GetModelParts(const lcMatrix44& WorldMatrix, int DefaultColorIndex, std::vector<lcModelPartsEntry>& ModelParts) const
+{
+	if (!IsVisibleInSubModel())
+		return;
+
+	int ColorIndex = mColorIndex;
+
+	if (ColorIndex == gDefaultColor)
+		ColorIndex = DefaultColorIndex;
+
+	if (!mMesh)
+		mPieceInfo->GetModelParts(lcMul(mModelWorld, WorldMatrix), ColorIndex, ModelParts);
+	else
+		ModelParts.emplace_back(lcModelPartsEntry{ WorldMatrix, mPieceInfo, mMesh, DefaultColorIndex });
 }
 
 const lcBoundingBox& lcPiece::GetBoundingBox() const

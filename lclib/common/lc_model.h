@@ -102,13 +102,6 @@ struct lcModelHistoryEntry
 	QString Description;
 };
 
-struct lcModelPartsEntry
-{
-	lcMatrix44 WorldMatrix;
-	PieceInfo* Info;
-	int ColorIndex;
-};
-
 class lcModel
 {
 public:
@@ -123,7 +116,7 @@ public:
 	bool GetPieceWorldMatrix(lcPiece* Piece, lcMatrix44& ParentWorldMatrix) const;
 	bool IncludesModel(const lcModel* Model) const;
 	void CreatePieceInfo(Project* Project);
-	void UpdatePieceInfo(lcArray<lcModel*>& UpdatedModels);
+	void UpdatePieceInfo(std::vector<lcModel*>& UpdatedModels);
 	void UpdateMesh();
 
 	PieceInfo* GetPieceInfo() const
@@ -267,7 +260,7 @@ public:
 	bool GetPiecesBoundingBox(lcVector3& Min, lcVector3& Max) const;
 	void GetPartsList(int DefaultColorIndex, bool IncludeSubmodels, lcPartsList& PartsList) const;
 	void GetPartsListForStep(lcStep Step, int DefaultColorIndex, lcPartsList& PartsList) const;
-	void GetModelParts(const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcArray<lcModelPartsEntry>& ModelParts) const;
+	void GetModelParts(const lcMatrix44& WorldMatrix, int DefaultColorIndex, std::vector<lcModelPartsEntry>& ModelParts) const;
 	void GetSelectionInformation(int* Flags, lcArray<lcObject*>& Selection, lcObject** Focus) const;
 	lcArray<lcObject*> GetSelectionModePieces(lcPiece* SelectedPiece) const;
 

@@ -205,16 +205,16 @@ bool LGraphicsScene::setSelectedItem(const QPointF &scenePos){
         return false;
 
     // TODO - Temporary workaround to disable functionality on multi-step pages
-    auto isNoContextSceneObject = [](const SceneObject so)
-    {
-        for ( const auto aso : NoContextSceneObjects)
-            if (aso == so)
-                return true;
-        return false;
-    };
+//    auto isNoContextSceneObject = [](const SceneObject so)
+//    {
+//        for ( const auto aso : NoContextSceneObjects)
+//            if (aso == so)
+//                return true;
+//        return false;
+//    };
 
-    if (isNoContextSceneObject(SceneObject(mItemType)))
-        return true;
+//    if (isNoContextSceneObject(SceneObject(mItemType)))
+//        return true;
 
     return setSelectedItemZValue();
 }
@@ -245,16 +245,16 @@ bool LGraphicsScene::setSelectedItemZValue()
 //                                .arg(soMap[so]).arg(soMap[pso]).arg(item->zValue());
 #endif
         // TODO - Temporary workaround to disable functionality on multi-step pages
-        auto isNoContextSceneObject = [](const SceneObject so)
-        {
-            for ( const auto aso : NoContextSceneObjects)
-                if (aso == so)
-                    return true;
-            return false;
-        };
+//        auto isNoContextSceneObject = [](const SceneObject so)
+//        {
+//            for ( const auto aso : NoContextSceneObjects)
+//                if (aso == so)
+//                    return true;
+//            return false;
+//        };
 
-        if (isNoContextSceneObject(so))
-            return true;
+//        if (isNoContextSceneObject(so))
+//            return true;
 
         if (isIncludedSceneObject(so)) {
             overlapItems.insert(so,item->zValue());
@@ -265,6 +265,14 @@ bool LGraphicsScene::setSelectedItemZValue()
         }
     }
 
+    auto isNoContextSceneObject = [](const SceneObject so)
+    {
+        for ( const auto aso : NoContextSceneObjects)
+            if (aso == so)
+                return true;
+        return false;
+    };
+
     auto isExcludedSceneObject = [](const SceneObject so)
     {
         for ( const auto eso : ExcludedSceneObjects)
@@ -273,8 +281,9 @@ bool LGraphicsScene::setSelectedItemZValue()
         return false;
     };
 
-     mShowContextAction = (overlapItems.size() > 0 &&
-                           !isExcludedSceneObject(SceneObject(mItemType)));
+     mShowContextAction = (overlapItems.size() &&
+                           !isExcludedSceneObject(SceneObject(mItemType)) &&
+                           !isNoContextSceneObject(SceneObject(mItemType)));
 
     qreal max = overlapItems.size() > 0 ? overlapItems.first() : 0;
     qreal min = max;

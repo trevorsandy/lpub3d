@@ -164,8 +164,8 @@ void Project::SetActiveModel(int ModelIndex)
 	for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
 		mModels[ModelIdx]->SetActive(ModelIdx == ModelIndex);
 
-	lcArray<lcModel*> UpdatedModels;
-	UpdatedModels.AllocGrow(mModels.GetSize());
+	std::vector<lcModel*> UpdatedModels;
+	UpdatedModels.reserve(mModels.GetSize());
 
 	for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
 		mModels[ModelIdx]->UpdatePieceInfo(UpdatedModels);
@@ -198,11 +198,11 @@ QString Project::GetNewModelName(QWidget* ParentWidget, const QString& DialogTit
 
 		for (int ModelIdx = 0; ModelIdx < ExistingModels.size(); ModelIdx++)
 		{
-			const QString& Name = ExistingModels[ModelIdx];
+			const QString& ExistingName = ExistingModels[ModelIdx];
 
-			if (Name.startsWith(Prefix))
+			if (ExistingName.startsWith(Prefix))
 			{
-				QString NumberString = Name.mid(Prefix.length());
+				QString NumberString = ExistingName.mid(Prefix.length());
 				QTextStream Stream(&NumberString);
 				int Number;
 				Stream >> Number;
@@ -448,8 +448,8 @@ bool Project::Load(const QString& FileName)
 		}
 	}
 
-	lcArray<lcModel*> UpdatedModels;
-	UpdatedModels.AllocGrow(mModels.GetSize());
+	std::vector<lcModel*> UpdatedModels;
+	UpdatedModels.reserve(mModels.GetSize());
 
 	for (lcModel* Model : mModels)
 	{
@@ -558,24 +558,19 @@ bool Project::ImportLDD(const QString& FileName)
 		Model->SetSaved();
 	}
 	else
-		delete Model;
-
-	if (mModels.IsEmpty())
-		return false;
-
-	if (mModels.GetSize() == 1)
 	{
-		lcModel* Model = mModels[0];
-
-		if (Model->GetProperties().mName.isEmpty())
-			Model->SetName(QFileInfo(FileName).completeBaseName());
+		delete Model;
+		return false;
 	}
+
+	if (Model->GetProperties().mName.isEmpty())
+		Model->SetName(QFileInfo(FileName).completeBaseName());
 
 	for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
 		mModels[ModelIdx]->CreatePieceInfo(this);
 
-	lcArray<lcModel*> UpdatedModels;
-	UpdatedModels.AllocGrow(mModels.GetSize());
+	std::vector<lcModel*> UpdatedModels;
+	UpdatedModels.reserve(mModels.GetSize());
 
 	for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
 		mModels[ModelIdx]->UpdatePieceInfo(UpdatedModels);
@@ -599,24 +594,19 @@ bool Project::ImportInventory(const QByteArray& Inventory, const QString& Name, 
 		Model->SetSaved();
 	}
 	else
-		delete Model;
-
-	if (mModels.IsEmpty())
-		return false;
-
-	if (mModels.GetSize() == 1)
 	{
-		lcModel* Model = mModels[0];
-
-		Model->SetName(Name);
-		Model->SetDescription(Description);
+		delete Model;
+		return false;
 	}
+
+	Model->SetName(Name);
+	Model->SetDescription(Description);
 
 	for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
 		mModels[ModelIdx]->CreatePieceInfo(this);
 
-	lcArray<lcModel*> UpdatedModels;
-	UpdatedModels.AllocGrow(mModels.GetSize());
+	std::vector<lcModel*> UpdatedModels;
+	UpdatedModels.reserve(mModels.GetSize());
 
 	for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
 		mModels[ModelIdx]->UpdatePieceInfo(UpdatedModels);
@@ -626,20 +616,24 @@ bool Project::ImportInventory(const QByteArray& Inventory, const QString& Name, 
 	return true;
 }
 
-void Project::GetModelParts(lcArray<lcModelPartsEntry>& ModelParts)
+std::vector<lcModelPartsEntry> Project::GetModelParts()
 {
-	if (mModels.IsEmpty())
-		return;
+	std::vector<lcModelPartsEntry> ModelParts;
 
-	for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
-		mModels[ModelIdx]->CalculateStep(LC_STEP_MAX);
+	if (mModels.IsEmpty())
+		return ModelParts;
+
+	for (lcModel* Model : mModels)
+		Model->CalculateStep(LC_STEP_MAX);
 
 	mModels[0]->GetModelParts(lcMatrix44Identity(), gDefaultColor, ModelParts);
 
 	SetActiveModel(mModels.FindIndex(mActiveModel));
+
+	return ModelParts;
 }
 
-bool Project::ExportModel(const QString& FileName, lcModel* Model)
+bool Project::ExportModel(const QString& FileName, lcModel* Model) const
 {
 	QFile File(FileName);
 
@@ -683,11 +677,9 @@ QString Project::GetExportFileName(const QString& FileName, const QString& Defau
 
 void Project::Export3DStudio(const QString& FileName)
 {
-	lcArray<lcModelPartsEntry> ModelParts;
+	std::vector<lcModelPartsEntry> ModelParts = GetModelParts();
 
-	GetModelParts(ModelParts);
-
-	if (ModelParts.IsEmpty())
+	if (ModelParts.empty())
 	{
 /*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to export."));
@@ -978,10 +970,9 @@ void Project::Export3DStudio(const QString& FileName)
 	}
 
 	int NumPieces = 0;
-	for (int PartIdx = 0; PartIdx < ModelParts.GetSize(); PartIdx++)
+	for (const lcModelPartsEntry& ModelPart : ModelParts)
 	{
-		PieceInfo* Info = ModelParts[PartIdx].Info;
-		lcMesh* Mesh = Info->GetMesh();
+		lcMesh* Mesh = !ModelPart.Mesh ? ModelPart.Info->GetMesh() : ModelPart.Mesh;
 
 		if (!Mesh || Mesh->mIndexType == GL_UNSIGNED_INT)
 			continue;
@@ -1005,7 +996,7 @@ void Project::Export3DStudio(const QString& FileName)
 		File.WriteU16(Mesh->mNumVertices);
 
 		lcVertex* Verts = (lcVertex*)Mesh->mVertexData;
-		const lcMatrix44& ModelWorld = ModelParts[PartIdx].WorldMatrix;
+		const lcMatrix44& ModelWorld = ModelPart.WorldMatrix;
 
 		for (int VertexIdx = 0; VertexIdx < Mesh->mNumVertices; VertexIdx++)
 		{
@@ -1074,7 +1065,7 @@ void Project::Export3DStudio(const QString& FileName)
 			if (Section->PrimitiveType != LC_MESH_TRIANGLES && Section->PrimitiveType != LC_MESH_TEXTURED_TRIANGLES)
 				continue;
 
-			int MaterialIndex = Section->ColorIndex == gDefaultColor ? ModelParts[PartIdx].ColorIndex : Section->ColorIndex;
+			int MaterialIndex = Section->ColorIndex == gDefaultColor ? ModelPart.ColorIndex : Section->ColorIndex;
 
 			File.WriteU16(0x4130); // CHK_MSH_MAT_GROUP
 			File.WriteU32(6 + MaterialNameLength + 1 + 2 + 2 * Section->NumIndices / 3);
@@ -1205,11 +1196,9 @@ void Project::ExportBrickLink()
 
 void Project::ExportCOLLADA(const QString& FileName)
 {
-	lcArray<lcModelPartsEntry> ModelParts;
+	std::vector<lcModelPartsEntry> ModelParts = GetModelParts();
 
-	GetModelParts(ModelParts);
-
-	if (ModelParts.IsEmpty())
+	if (ModelParts.empty())
 	{
 /*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to export."));
@@ -1296,18 +1285,27 @@ void Project::ExportCOLLADA(const QString& FileName)
 
 	Stream << "</library_materials>\r\n";
 	Stream << "<library_geometries>\r\n";
-	QSet<PieceInfo*> AddedPieces;
+	std::set<lcMesh*> AddedMeshes;
 
-	for (const lcModelPartsEntry& Entry : ModelParts)
+	auto GetMeshID = [](const lcModelPartsEntry& ModelPart)
 	{
-		PieceInfo* Info = Entry.Info;
-
-		if (AddedPieces.contains(Info))
-			continue;
-		AddedPieces.insert(Info);
-
+		const PieceInfo* Info = ModelPart.Info;
 		QString ID = QString(Info->mFileName).replace('.', '_');
-		lcMesh* Mesh = Info->GetMesh();
+
+		if (ModelPart.Mesh)
+			ID += "_" + QString::number((quintptr)ModelPart.Mesh, 16);
+
+		return ID;
+	};
+
+	for (const lcModelPartsEntry& ModelPart : ModelParts)
+	{
+		lcMesh* Mesh = !ModelPart.Mesh ? ModelPart.Info->GetMesh() : ModelPart.Mesh;
+
+		if (!AddedMeshes.insert(Mesh).second)
+			continue;
+
+		QString ID = GetMeshID(ModelPart);
 
 		if (!Mesh)
 			Mesh = gPlaceholderMesh;
@@ -1417,15 +1415,14 @@ void Project::ExportCOLLADA(const QString& FileName)
 	Stream << "<library_visual_scenes>\r\n";
 	Stream << "\t<visual_scene id=\"DefaultScene\">\r\n";
 
-	for (const lcModelPartsEntry& Entry : ModelParts)
+	for (const lcModelPartsEntry& ModelPart : ModelParts)
 	{
-		PieceInfo* Info = Entry.Info;
-		QString ID = QString(Info->mFileName).replace('.', '_');
+		QString ID = GetMeshID(ModelPart);
 
 		Stream << "\t\t<node>\r\n";
 		Stream << "\t\t\t<matrix>\r\n";
 
-		const lcMatrix44& Matrix = Entry.WorldMatrix;
+		const lcMatrix44& Matrix = ModelPart.WorldMatrix;
 		Stream << QString("\t\t\t\t%1 %2 %3 %4\r\n").arg(QString::number(Matrix[0][0]), QString::number(Matrix[1][0]), QString::number(Matrix[2][0]), QString::number(Matrix[3][0]));
 		Stream << QString("\t\t\t\t%1 %2 %3 %4\r\n").arg(QString::number(Matrix[0][1]), QString::number(Matrix[1][1]), QString::number(Matrix[2][1]), QString::number(Matrix[3][1]));
 		Stream << QString("\t\t\t\t%1 %2 %3 %4\r\n").arg(QString::number(Matrix[0][2]), QString::number(Matrix[1][2]), QString::number(Matrix[2][2]), QString::number(Matrix[3][2]));
@@ -1436,7 +1433,7 @@ void Project::ExportCOLLADA(const QString& FileName)
 		Stream << "\t\t\t\t<bind_material>\r\n";
 		Stream << "\t\t\t\t\t<technique_common>\r\n";
 
-		lcMesh* Mesh = Info->GetMesh();
+		lcMesh* Mesh = !ModelPart.Mesh ? ModelPart.Info->GetMesh() : ModelPart.Mesh;
 
 		if (!Mesh)
 			Mesh = gPlaceholderMesh;
@@ -1451,7 +1448,7 @@ void Project::ExportCOLLADA(const QString& FileName)
 			const char* SourceColorName = gColorList[Section->ColorIndex].SafeName;
 			const char* TargetColorName;
 			if (Section->ColorIndex == gDefaultColor)
-				TargetColorName = gColorList[Entry.ColorIndex].SafeName;
+				TargetColorName = gColorList[ModelPart.ColorIndex].SafeName;
 			else
 				TargetColorName = gColorList[Section->ColorIndex].SafeName;
 
@@ -1694,10 +1691,10 @@ QImage Project::CreatePartsListImage(lcModel* Model, lcStep Step)
 		CurrentHeight += NextHeightIncrease;
 	}
 
-	QImage Image(MaxWidth + 40, CurrentHeight + 40, QImage::Format_ARGB32);
-	Image.fill(QColor(255, 255, 255, 0));
+	QImage PainterImage(MaxWidth + 40, CurrentHeight + 40, QImage::Format_ARGB32);
+	PainterImage.fill(QColor(255, 255, 255, 0));
 
-	QPainter Painter(&Image);
+	QPainter Painter(&PainterImage);
 	Painter.setFont(Font);
 
 	for (lcPartsListImage& Image : Images)
@@ -1709,7 +1706,7 @@ QImage Project::CreatePartsListImage(lcModel* Model, lcStep Step)
 
 	Painter.end();
 
-	return Image;
+	return PainterImage;
 }
 
 void Project::CreateHTMLPieceList(QTextStream& Stream, lcModel* Model, lcStep Step, bool Images)
@@ -2065,11 +2062,9 @@ void Project::ExportHTML(const lcHTMLExportOptions& Options)
 
 bool Project::ExportPOVRay(const QString& FileName)
 {
-	lcArray<lcModelPartsEntry> ModelParts;
+	std::vector<lcModelPartsEntry> ModelParts = GetModelParts();
 
-	GetModelParts(ModelParts);
-
-	if (ModelParts.IsEmpty())
+	if (ModelParts.empty())
 	{
 /*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to export."));
@@ -2097,7 +2092,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 	char Line[1024];
 
 	lcPiecesLibrary* Library = lcGetPiecesLibrary();
-	std::map<PieceInfo*, std::pair<char[LC_PIECE_NAME_LEN], int>> PieceTable;
+	std::map<const PieceInfo*, std::pair<char[LC_PIECE_NAME_LEN], int>> PieceTable;
 	int NumColors = gColorList.GetSize();
 	std::vector<std::array<char, LC_MAX_COLOR_NAME>> ColorTable(NumColors);
 
@@ -2200,35 +2195,34 @@ bool Project::ExportPOVRay(const QString& FileName)
 		}
 	}
 
+	std::set<lcMesh*> AddedMeshes;
+
 	if (!LGEOPath.isEmpty())
 	{
 		POVFile.WriteLine("#include \"lg_defs.inc\"\n#include \"lg_color.inc\"\n\n");
 
-		for (int PartIdx = 0; PartIdx < ModelParts.GetSize(); PartIdx++)
+		for (const lcModelPartsEntry& ModelPart : ModelParts)
 		{
-			PieceInfo* Info = ModelParts[PartIdx].Info;
+			if (ModelPart.Mesh)
+				continue;
 
-			for (int CheckIdx = 0; CheckIdx < ModelParts.GetSize(); CheckIdx++)
+			auto Search = PieceTable.find(ModelPart.Info);
+			if (Search == PieceTable.end())
+				continue;
+
+			lcMesh* Mesh = ModelPart.Info->GetMesh();
+
+			if (!Mesh)
+				continue;
+
+			if (!AddedMeshes.insert(Mesh).second)
+				continue;
+
+			const std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = Search->second;
+			if (Entry.first[0])
 			{
-				if (ModelParts[CheckIdx].Info != Info)
-					continue;
-
-				if (CheckIdx != PartIdx)
-					break;
-
-				auto Search = PieceTable.find(Info);
-
-				if (Search != PieceTable.end())
-				{
-					const std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = Search->second;
-					if (Entry.first[0])
-					{
-						sprintf(Line, "#include \"%s.inc\"\n", Entry.first);
-						POVFile.WriteLine(Line);
-					}
-				}
-
-				break;
+				sprintf(Line, "#include \"%s.inc\"\n", Entry.first);
+				POVFile.WriteLine(Line);
 			}
 		}
 
@@ -2263,25 +2257,40 @@ bool Project::ExportPOVRay(const QString& FileName)
 	for (int ColorIdx = 0; ColorIdx < NumColors; ColorIdx++)
 		ColorTablePointer[ColorIdx] = ColorTable[ColorIdx].data();
 
-	for (int PartIdx = 0; PartIdx < ModelParts.GetSize(); PartIdx++)
+	auto GetMeshName = [](const lcModelPartsEntry& ModelPart, char* Name)
 	{
-		PieceInfo* Info = ModelParts[PartIdx].Info;
-		lcMesh* Mesh = Info->GetMesh();
-		std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = PieceTable[Info];
+		strcpy(Name, ModelPart.Info->mFileName);
 
-		if (!Mesh || Entry.first[0])
+		for (char* c = Name; *c; c++)
+			if (*c == '-' || *c == '.')
+				*c = '_';
+
+		if (ModelPart.Mesh)
+		{
+			char Suffix[32];
+			sprintf(Suffix, "_%p", ModelPart.Mesh);
+			strcat(Name, Suffix);
+		}
+	};
+
+	for (const lcModelPartsEntry& ModelPart : ModelParts)
+	{
+		lcMesh* Mesh = !ModelPart.Mesh ? ModelPart.Info->GetMesh() : ModelPart.Mesh;
+
+		if (!AddedMeshes.insert(Mesh).second)
+			continue;
+
+		if (!Mesh)
 			continue;
 
 		char Name[LC_PIECE_NAME_LEN];
-		char* Ptr;
+		GetMeshName(ModelPart, Name);
 
-		strcpy(Name, Info->mFileName);
-		while ((Ptr = strchr(Name, '-')))
-			*Ptr = '_';
-		while ((Ptr = strchr(Name, '.')))
-			*Ptr = '_';
-
-		sprintf(Entry.first, "lc_%s", Name);
+		if (!ModelPart.Mesh)
+		{
+			std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = PieceTable[ModelPart.Info];
+			sprintf(Entry.first, "lc_%s", Name);
+		}
 
 		Mesh->ExportPOVRay(POVFile, Name, &ColorTablePointer[0]);
 
@@ -2332,32 +2341,41 @@ bool Project::ExportPOVRay(const QString& FileName)
 	sprintf(Line, "light_source{ <%f, %f, %f>\n  color rgb 0.5\n  area_light 200, 200, 10, 10\n  jitter\n}\n\n", 2.0f * Radius + Center.x, 0.0f * Radius + Center.y, -2.0f * Radius + Center.z);
 	POVFile.WriteLine(Line);
 
-	for (int PartIdx = 0; PartIdx < ModelParts.GetSize(); PartIdx++)
+	for (const lcModelPartsEntry& ModelPart : ModelParts)
 	{
-		PieceInfo* Info = ModelParts[PartIdx].Info;
-		std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = PieceTable[Info];
-		int Color;
-
-		Color = ModelParts[PartIdx].ColorIndex;
+		int Color = ModelPart.ColorIndex;
 		const char* Suffix = lcIsColorTranslucent(Color) ? "_clear" : "";
+		const float* f = ModelPart.WorldMatrix;
 
-		const float* f = ModelParts[PartIdx].WorldMatrix;
-
-		if (Entry.second & LGEO_PIECE_SLOPE)
+		if (!ModelPart.Mesh)
 		{
-			sprintf(Line, "merge {\n object {\n  %s%s\n  texture { %s }\n }\n"
-					" object {\n  %s_slope\n  texture { %s normal { bumps 0.3 scale 0.02 } }\n }\n"
-					" matrix <%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f>\n}\n",
-					Entry.first, Suffix, ColorTable[Color].data(), Entry.first, ColorTable[Color].data(),
-					-f[5], -f[4], -f[6], -f[1], -f[0], -f[2], f[9], f[8], f[10], f[13] / 25.0f, f[12] / 25.0f, f[14] / 25.0f);
+			std::pair<char[LC_PIECE_NAME_LEN], int>& Entry = PieceTable[ModelPart.Info];
+
+			if (Entry.second & LGEO_PIECE_SLOPE)
+			{
+				sprintf(Line, "merge {\n object {\n  %s%s\n  texture { %s }\n }\n"
+						" object {\n  %s_slope\n  texture { %s normal { bumps 0.3 scale 0.02 } }\n }\n"
+						" matrix <%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f>\n}\n",
+						Entry.first, Suffix, ColorTable[Color].data(), Entry.first, ColorTable[Color].data(),
+						-f[5], -f[4], -f[6], -f[1], -f[0], -f[2], f[9], f[8], f[10], f[13] / 25.0f, f[12] / 25.0f, f[14] / 25.0f);
+			}
+			else
+			{
+				if (!ModelPart.Info || !ModelPart.Info->GetMesh())
+					continue;
+
+				sprintf(Line, "object {\n %s%s\n texture { %s }\n matrix <%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f>\n}\n",
+						Entry.first, Suffix, ColorTable[Color].data(), -f[5], -f[4], -f[6], -f[1], -f[0], -f[2], f[9], f[8], f[10], f[13] / 25.0f, f[12] / 25.0f, f[14] / 25.0f);
+
+			}
 		}
 		else
 		{
-			if (!Info || !Info->GetMesh())
-				continue;
+			char Name[LC_PIECE_NAME_LEN];
+			GetMeshName(ModelPart, Name);
 
-			sprintf(Line, "object {\n %s%s\n texture { %s }\n matrix <%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f>\n}\n",
-					Entry.first, Suffix, ColorTable[Color].data(), -f[5], -f[4], -f[6], -f[1], -f[0], -f[2], f[9], f[8], f[10], f[13] / 25.0f, f[12] / 25.0f, f[14] / 25.0f);
+			sprintf(Line, "object {\n lc_%s%s\n texture { %s }\n matrix <%.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f>\n}\n",
+					Name, Suffix, ColorTable[Color].data(), -f[5], -f[4], -f[6], -f[1], -f[0], -f[2], f[9], f[8], f[10], f[13] / 25.0f, f[12] / 25.0f, f[14] / 25.0f);
 		}
 
 		POVFile.WriteLine(Line);
@@ -2370,15 +2388,11 @@ bool Project::ExportPOVRay(const QString& FileName)
 
 void Project::ExportWavefront(const QString& FileName)
 {
-	lcArray<lcModelPartsEntry> ModelParts;
+	std::vector<lcModelPartsEntry> ModelParts = GetModelParts();
 
-	GetModelParts(ModelParts);
-
-	if (ModelParts.IsEmpty())
+	if (ModelParts.empty())
 	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::information(gMainWindow, tr("3DViewer"), tr("Nothing to export."));
-/*** LPub3D Mod end ***/
+		QMessageBox::information(gMainWindow, tr("LeoCAD"), tr("Nothing to export."));
 		return;
 	}
 
@@ -2431,14 +2445,14 @@ void Project::ExportWavefront(const QString& FileName)
 		MaterialFile.WriteLine(Line);
 	}
 
-	for (int PartIdx = 0; PartIdx < ModelParts.GetSize(); PartIdx++)
+	for (const lcModelPartsEntry& ModelPart : ModelParts)
 	{
-		lcMesh* Mesh = ModelParts[PartIdx].Info->GetMesh();
+		lcMesh* Mesh = !ModelPart.Mesh ? ModelPart.Info->GetMesh() : ModelPart.Mesh;
 
 		if (!Mesh)
 			continue;
 
-		const lcMatrix44& ModelWorld = ModelParts[PartIdx].WorldMatrix;
+		const lcMatrix44& ModelWorld = ModelPart.WorldMatrix;
 		lcVertex* Verts = (lcVertex*)Mesh->mVertexData;
 
 		for (int VertexIdx = 0; VertexIdx < Mesh->mNumVertices; VertexIdx++)
@@ -2451,14 +2465,14 @@ void Project::ExportWavefront(const QString& FileName)
 		OBJFile.WriteLine("#\n\n");
 	}
 
-	for (int PartIdx = 0; PartIdx < ModelParts.GetSize(); PartIdx++)
+	for (const lcModelPartsEntry& ModelPart : ModelParts)
 	{
-		lcMesh* Mesh = ModelParts[PartIdx].Info->GetMesh();
+		lcMesh* Mesh = !ModelPart.Mesh ? ModelPart.Info->GetMesh() : ModelPart.Mesh;
 
 		if (!Mesh)
 			continue;
 
-		const lcMatrix44& ModelWorld = ModelParts[PartIdx].WorldMatrix;
+		const lcMatrix44& ModelWorld = ModelPart.WorldMatrix;
 		lcVertex* Verts = (lcVertex*)Mesh->mVertexData;
 
 		for (int VertexIdx = 0; VertexIdx < Mesh->mNumVertices; VertexIdx++)
@@ -2471,18 +2485,17 @@ void Project::ExportWavefront(const QString& FileName)
 		OBJFile.WriteLine("#\n\n");
 	}
 
-	for (int PartIdx = 0; PartIdx < ModelParts.GetSize(); PartIdx++)
+	int NumPieces = 0;
+	for (const lcModelPartsEntry& ModelPart : ModelParts)
 	{
-		PieceInfo* Info = ModelParts[PartIdx].Info;
-
-		sprintf(Line, "g Piece%.3d\n", PartIdx);
+		sprintf(Line, "g Piece%.3d\n", NumPieces++);
 		OBJFile.WriteLine(Line);
 
-		lcMesh* Mesh = Info->GetMesh();
+		lcMesh* Mesh = !ModelPart.Mesh ? ModelPart.Info->GetMesh() : ModelPart.Mesh;
 
 		if (Mesh)
 		{
-			Mesh->ExportWavefrontIndices(OBJFile, ModelParts[PartIdx].ColorIndex, vert);
+			Mesh->ExportWavefrontIndices(OBJFile, ModelPart.ColorIndex, vert);
 			vert += Mesh->mNumVertices;
 		}
 	}
@@ -2510,7 +2523,7 @@ void Project::UpdatePieceInfo(PieceInfo* Info) const
 {
 	if (!mModels.IsEmpty())
 	{
-		lcArray<lcModel*> UpdatedModels;
+		std::vector<lcModel*> UpdatedModels;
 		mModels[0]->UpdatePieceInfo(UpdatedModels);
 
 		lcBoundingBox BoundingBox = mModels[0]->GetPieceInfo()->GetBoundingBox();

@@ -82,7 +82,7 @@ void lcPartSelectionListModel::Redraw()
 
 	beginResetModel();
 
-	for (int PartIdx = 0; PartIdx < mParts.size(); PartIdx++)
+	for (size_t PartIdx = 0; PartIdx < mParts.size(); PartIdx++)
 		mParts[PartIdx].second = QPixmap();
 
 	endResetModel();
@@ -175,7 +175,7 @@ void lcPartSelectionListModel::SetModelsCategory()
 		lcModel* Model = Models[ModelIdx];
 
 		if (!Model->IncludesModel(ActiveModel))
-			mParts.append(QPair<PieceInfo*, QPixmap>(Model->GetPieceInfo(), QPixmap()));
+			mParts.emplace_back(QPair<PieceInfo*, QPixmap>(Model->GetPieceInfo(), QPixmap()));
 	}
 
 	endResetModel();
@@ -196,7 +196,7 @@ void lcPartSelectionListModel::SetCurrentModelCategory()
 	ActiveModel->GetPartsList(gDefaultColor, true, PartsList);
 
 	for (const auto& PartIt : PartsList)
-		mParts.append(QPair<PieceInfo*, QPixmap>((PieceInfo*)PartIt.first, QPixmap()));
+		mParts.emplace_back(QPair<PieceInfo*, QPixmap>((PieceInfo*)PartIt.first, QPixmap()));
 
 	endResetModel();
 
@@ -207,7 +207,7 @@ void lcPartSelectionListModel::SetFilter(const QString& Filter)
 {
 	mFilter = Filter.toLatin1();
 
-	for (int PartIdx = 0; PartIdx < mParts.size(); PartIdx++)
+	for (size_t PartIdx = 0; PartIdx < mParts.size(); PartIdx++)
 	{
 		PieceInfo* Info = mParts[PartIdx].first;
 		bool Visible;
@@ -246,12 +246,12 @@ int lcPartSelectionListModel::rowCount(const QModelIndex& Parent) const
 {
 	Q_UNUSED(Parent);
 
-	return mParts.size();
+	return (int)mParts.size();
 }
 
 QVariant lcPartSelectionListModel::data(const QModelIndex& Index, int Role) const
 {
-	int InfoIndex = Index.row();
+	size_t InfoIndex = Index.row();
 
 	if (Index.isValid() && InfoIndex < mParts.size())
 	{
@@ -304,7 +304,7 @@ void lcPartSelectionListModel::RequestPreview(int InfoIndex)
 	if (!mIconSize || !mParts[InfoIndex].second.isNull())
 		return;
 
-	if (mRequestedPreviews.indexOf(InfoIndex) != -1)
+	if (std::find(mRequestedPreviews.begin(), mRequestedPreviews.end(), InfoIndex) != mRequestedPreviews.end())
 		return;
 
 	PieceInfo* Info = mParts[InfoIndex].first;
@@ -313,17 +313,21 @@ void lcPartSelectionListModel::RequestPreview(int InfoIndex)
 	if (Info->mState == LC_PIECEINFO_LOADED)
 		DrawPreview(InfoIndex);
 	else
-		mRequestedPreviews.append(InfoIndex);
+		mRequestedPreviews.push_back(InfoIndex);
 }
 
 void lcPartSelectionListModel::PartLoaded(PieceInfo* Info)
 {
-	for (int PartIdx = 0; PartIdx < mParts.size(); PartIdx++)
+	for (size_t PartIdx = 0; PartIdx < mParts.size(); PartIdx++)
 	{
 		if (mParts[PartIdx].first == Info)
 		{
-			if (mRequestedPreviews.removeOne(PartIdx))
+			auto PreviewIt = std::find(mRequestedPreviews.begin(), mRequestedPreviews.end(), PartIdx);
+			if (PreviewIt != mRequestedPreviews.end())
+			{
+				mRequestedPreviews.erase(PreviewIt);
 				DrawPreview(PartIdx);
+			}
 			break;
 		}
 	}
@@ -385,7 +389,9 @@ void lcPartSelectionListModel::DrawPreview(int InfoIndex)
 	Context->ClearResources();
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
-	emit dataChanged(index(InfoIndex, 0), index(InfoIndex, 0), QVector<int>() << Qt::DecorationRole);
+	QVector<int> Roles;
+	Roles.append(Qt::DecorationRole);
+	emit dataChanged(index(InfoIndex, 0), index(InfoIndex, 0), Roles);
 #else
 	emit dataChanged(index(InfoIndex, 0), index(InfoIndex, 0));
 #endif
@@ -410,7 +416,7 @@ void lcPartSelectionListModel::SetIconSize(int Size)
 
 	beginResetModel();
 
-	for (int PartIdx = 0; PartIdx < mParts.size(); PartIdx++)
+	for (size_t PartIdx = 0; PartIdx < mParts.size(); PartIdx++)
 		mParts[PartIdx].second = QPixmap();
 
 	endResetModel();
@@ -582,6 +588,14 @@ void lcPartSelectionListView::SetIconSize(int Size)
 	lcSetProfileInt(LC_PROFILE_PARTS_LIST_ICONS, Size);
 	mListModel->SetIconSize(Size);
 	UpdateViewMode();
+
+	int Width = Size + 2 * frameWidth() + 6;
+	if (verticalScrollBar())
+		Width += verticalScrollBar()->sizeHint().width();
+	int Height = Size + 2 * frameWidth() + 2;
+	if (horizontalScrollBar())
+		Height += horizontalScrollBar()->sizeHint().height();
+	setMinimumSize(Width, Height);
 }
 
 void lcPartSelectionListView::startDrag(Qt::DropActions SupportedActions)

@@ -2884,13 +2884,13 @@ void Preferences::userInterfacePreferences()
           snapToGrid = Settings.value(QString("%1/%2").arg(SETTINGS,snapToGridKey)).toBool();
   }
 
-  QString const hidePageBackgroundActKey("SnapToGridTransparentPageBackground");
-  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,hidePageBackgroundActKey))) {
+  QString const hidePageBackgroundKey("HidePageBackground");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,hidePageBackgroundKey))) {
           QVariant uValue(false);
           hidePageBackground = false;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,hidePageBackgroundActKey),uValue);
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,hidePageBackgroundKey),uValue);
   } else {
-          hidePageBackground = Settings.value(QString("%1/%2").arg(SETTINGS,hidePageBackgroundActKey)).toBool();
+          hidePageBackground = Settings.value(QString("%1/%2").arg(SETTINGS,hidePageBackgroundKey)).toBool();
   }
 
   QString const gridSizeIndexKey("GridSizeIndex");
@@ -2966,8 +2966,8 @@ void Preferences::setHidePageBackgroundPreference(bool b)
   QSettings Settings;
   hidePageBackground = b;
   QVariant uValue(b);
-  QString const hidePageBackgroundActKey("SnapToGridTransparentPageBackground");
-  Settings.setValue(QString("%1/%2").arg(SETTINGS,hidePageBackgroundActKey),uValue);
+  QString const hidePageBackgroundKey("HidePageBackground");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,hidePageBackgroundKey),uValue);
 }
 
 void Preferences::setGridSizeIndexPreference(int i)

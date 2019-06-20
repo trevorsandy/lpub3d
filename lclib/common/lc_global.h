@@ -10,6 +10,7 @@
 #include <QtGui>
 #include <QPrinter>
 #include <array>
+#include <set>
 
 #ifndef Q_FALLTHROUGH
 #define Q_FALLTHROUGH(); // fall through
@@ -42,7 +43,7 @@ char* strlwr(char* string);
 #define LC_VERSION_PATCH 0
 #define LC_VERSION_TEXT "18.02"
 /*** LPub3D Mod - Git SHA ***/
-#define LC_VERSION_BUILD "b18645b"
+#define LC_VERSION_BUILD "0d1af47"
 /*** LPub3D Mod end ***/
 
 

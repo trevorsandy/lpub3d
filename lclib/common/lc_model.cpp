@@ -268,13 +268,13 @@ void lcModel::UpdateMesh()
 	mPieceInfo->SetModel(this, true, nullptr, false);
 }
 
-void lcModel::UpdatePieceInfo(lcArray<lcModel*>& UpdatedModels)
+void lcModel::UpdatePieceInfo(std::vector<lcModel*>& UpdatedModels)
 {
-	if (UpdatedModels.FindIndex(this) != -1)
+	if (std::find(UpdatedModels.begin(), UpdatedModels.end(), this) != UpdatedModels.end())
 		return;
 
 	mPieceInfo->SetModel(this, false, nullptr, false);
-	UpdatedModels.Add(this);
+	UpdatedModels.push_back(this);
 
 	lcMesh* Mesh = mPieceInfo->GetMesh();
 
@@ -2354,7 +2354,7 @@ void lcModel::MoveSelectionToModel(lcModel* Model)
 		Model->AddPiece(Piece);
 	}
 
-	lcArray<lcModel*> UpdatedModels;
+	std::vector<lcModel*> UpdatedModels;
 	Model->UpdatePieceInfo(UpdatedModels);
 	if (ModelPiece)
 	{
@@ -3146,20 +3146,10 @@ void lcModel::GetPartsListForStep(lcStep Step, int DefaultColorIndex, lcPartsLis
 	}
 }
 
-void lcModel::GetModelParts(const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcArray<lcModelPartsEntry>& ModelParts) const
+void lcModel::GetModelParts(const lcMatrix44& WorldMatrix, int DefaultColorIndex, std::vector<lcModelPartsEntry>& ModelParts) const
 {
 	for (lcPiece* Piece : mPieces)
-	{
-		if (!Piece->IsVisibleInSubModel())
-			continue;
-
-		int ColorIndex = Piece->mColorIndex;
-
-		if (ColorIndex == gDefaultColor)
-			ColorIndex = DefaultColorIndex;
-
-		Piece->mPieceInfo->GetModelParts(lcMul(Piece->mModelWorld, WorldMatrix), ColorIndex, ModelParts);
-	}
+		Piece->GetModelParts(WorldMatrix, DefaultColorIndex, ModelParts);
 }
 
 void lcModel::GetSelectionInformation(int* Flags, lcArray<lcObject*>& Selection, lcObject** Focus) const

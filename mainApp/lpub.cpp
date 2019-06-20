@@ -4184,7 +4184,7 @@ void Gui::disableActions2()
 void Gui::partsWidgetVisibilityChanged(bool visible)
 {
     QSettings Settings;
-    Settings.setValue(QString("%1/%2").arg(SETTINGS,VIEW_PARTS_WIDGET),visible);
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,VIEW_PARTS_WIDGET_KEY),visible);
 }
 
 void Gui::createMenus()
@@ -4625,11 +4625,25 @@ void Gui::createDockWindows()
 
     bool viewable = false;
     QSettings Settings;
-    if (Settings.contains(QString("%1/%2").arg(SETTINGS,VIEW_PARTS_WIDGET)))
-        viewable = Settings.value(QString("%1/%2").arg(SETTINGS,VIEW_PARTS_WIDGET)).toBool();
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,VIEW_PARTS_WIDGET_KEY)))
+        viewable = Settings.value(QString("%1/%2").arg(SETTINGS,VIEW_PARTS_WIDGET_KEY)).toBool();
     viewMenu->actions().last()->setChecked(viewable);
 
     tabifyDockWidget(gMainWindow->mPropertiesToolBar, gMainWindow->mPartsToolBar);
+
+    //Colors Selection
+    gMainWindow->mColorsToolBar->setWindowTitle(trUtf8(wCharToUtf8("Colors")));
+    gMainWindow->mColorsToolBar->setObjectName("ColorsToolbar");
+    gMainWindow->mColorsToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->mColorsToolBar);
+    viewMenu->addAction(gMainWindow->mColorsToolBar->toggleViewAction());
+
+    viewable = false;
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,VIEW_COLORS_WIDGET_KEY)))
+        viewable = Settings.value(QString("%1/%2").arg(SETTINGS,VIEW_COLORS_WIDGET_KEY)).toBool();
+    viewMenu->actions().last()->setChecked(viewable);
+
+    tabifyDockWidget(gMainWindow->mPartsToolBar, gMainWindow->mColorsToolBar);
 
     // launching with viewerDockWindow raised is not stable so start with fileEdit until I figure out what's wrong.
     fileEditDockWindow->raise();
