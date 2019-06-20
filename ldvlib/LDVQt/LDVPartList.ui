@@ -225,7 +225,7 @@
           <item>
            <widget class="QPushButton" name="preferencesButton">
             <property name="toolTip">
-             <string>Modify generated snspshot preferences</string>
+             <string>Modify generated snapshot preferences</string>
             </property>
             <property name="text">
              <string>Snapshot Preferences...</string>

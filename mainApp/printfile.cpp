@@ -624,14 +624,14 @@ void Gui::exportAsHtml()
                                   .arg(suffix ? QFileInfo(getCurFile()).suffix() : "ldr");
 
     // generate HTML parts list
-    QString ldrBaseFile = QDir::toNativeSeparators(QDir::currentPath()+"/"+Paths::tmpDir+"/"+QFileInfo(curFile).baseName());
-    QString partListFile   = ldrBaseFile+"_parts.ldr";
+    QString ldrBaseFile = QDir::currentPath()+QDir::separator()+Paths::tmpDir+QDir::separator()+QFileInfo(curFile).baseName();
+    QString partListFile = QDir::toNativeSeparators(ldrBaseFile+"_parts.ldr");
     if (! generateBOMPartsFile(partListFile))
         return;
 
     // setup snapshot image generation arguments
     QStringList arguments;
-    QString snapshot    = ldrBaseFile+"_snapshot.ldr";
+    QString snapshot    = QDir::toNativeSeparators(ldrBaseFile+"_snapshot.ldr");
     if (QFileInfo(snapshot).exists()) {
         // always use LDView settings regardless of preferred renderer
         noCA = Preferences::applyCALocally || meta.rotStep.value().type == "ABS";
@@ -664,9 +664,9 @@ void Gui::exportAsCsv()
     NativeOptions Options;
     Options.ImageType         = Render::CSI;
     Options.ExportMode        = EXPORT_CSV;
-    Options.OutputFileName    = QString(curFile).replace(QFileInfo(curFile).suffix(),"txt");
-    Options.InputFileName     = QDir::toNativeSeparators(QDir::currentPath()+"/"+
-                                                         Paths::tmpDir+"/"+QFileInfo(curFile).baseName()+"_parts.ldr");
+    Options.OutputFileName    = QDir::toNativeSeparators(QString(curFile).replace(QFileInfo(curFile).suffix(),"txt"));
+    Options.InputFileName     = QDir::toNativeSeparators(QDir::currentPath()+QDir::separator()+
+                                      Paths::tmpDir+QDir::separator()+QFileInfo(curFile).baseName()+"_parts.ldr");
     if (! generateBOMPartsFile(Options.InputFileName))
         return;
     if (! renderer->NativeExport(Options)) {
@@ -679,9 +679,9 @@ void Gui::exportAsBricklinkXML()
     NativeOptions Options;
     Options.ImageType         = Render::CSI;
     Options.ExportMode        = EXPORT_BRICKLINK;
-    Options.OutputFileName    = QString(curFile).replace(QFileInfo(curFile).suffix(),"xml");
-    Options.InputFileName     = QDir::toNativeSeparators(QDir::currentPath()+"/"+
-                                                         Paths::tmpDir+"/"+QFileInfo(curFile).baseName()+"_parts.ldr");
+    Options.OutputFileName    = QDir::toNativeSeparators(QString(curFile).replace(QFileInfo(curFile).suffix(),"xml"));
+    Options.InputFileName     = QDir::toNativeSeparators(QDir::currentPath()+QDir::separator()+
+                                      Paths::tmpDir+QDir::separator()+QFileInfo(curFile).baseName()+"_parts.ldr");
     if (! generateBOMPartsFile(Options.InputFileName))
         return;
     if (! renderer->NativeExport(Options)) {
@@ -697,13 +697,13 @@ void Gui::exportAsPdf()
   // determine location for output file
   QFileInfo fileInfo(curFile);
   QString baseName = fileInfo.baseName();
-  QString fileName = QDir::currentPath() + "/" + baseName;
+  QString fileName = QDir::currentPath() + QDir::separator() + baseName;
 
   if (Preferences::modeGUI) {
       fileName = QFileDialog::getSaveFileName(
             this,
             tr("Export File Name"),
-            QDir::currentPath() + "/" + baseName,
+            QDir::currentPath() + QDir::separator() + baseName,
             tr("PDF (*.pdf)"));
 
       if (fileName == "") {
@@ -724,7 +724,7 @@ void Gui::exportAsPdf()
   if (suffix == "") {
       fileName += ".pdf";
     } else if (suffix != ".pdf" && suffix != ".PDF") {
-      fileName = fileInfo.path() + "/" + fileInfo.completeBaseName() + ".pdf";
+      fileName = fileInfo.path() + QDir::separator() + fileInfo.completeBaseName() + ".pdf";
     }
 
   // QMessageBox box; // old

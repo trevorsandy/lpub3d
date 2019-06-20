@@ -2108,6 +2108,7 @@ void Gui::preferences()
     QString sceneGridColorCompare       = Preferences::sceneGridColor;
     QString sceneRulerTickColorCompare  = Preferences::sceneRulerTickColor;
     QString sceneGuideColorCompare      = Preferences::sceneGuideColor;
+    QStringList ldSearchDirsCompare     = Preferences::ldSearchDirs;
 
     // Native POV file generation settings
     if (Preferences::preferredRenderer == RENDERER_POVRAY) {
@@ -2167,6 +2168,7 @@ void Gui::preferences()
         bool sceneRulerTickColorChanged    = Preferences::sceneRulerTickColor.toLower()          != sceneRulerTickColorCompare.toLower();
         bool sceneGuideColorChanged        = Preferences::sceneGuideColor.toLower()              != sceneGuideColorCompare.toLower();
         bool ldrawFilesLoadMsgsChanged     = Preferences::ldrawFilesLoadMsgs                     != ldrawFilesLoadMsgsCompare;
+        bool ldSearchDirsChanged           = Preferences::ldSearchDirs                           != ldSearchDirsCompare;
 
         if (defaultUnitsChanged     )
                     emit messageSig(LOG_INFO,QString("Default units changed to %1").arg(Preferences::preferCentimeters? "Centimetres" : "Inches"));
@@ -2193,6 +2195,18 @@ void Gui::preferences()
                         Preferences::ldrawFilesLoadMsgs == SHOW_WARNING ? "Show Warning" :
                         Preferences::ldrawFilesLoadMsgs == SHOW_MESSAGE ? "Show Message" :
                         "Always Show"));
+
+        if (ldSearchDirsChanged) {
+            emit messageSig(LOG_INFO,QString("LDraw search directories has changed"));
+            emit messageSig(LOG_INFO,QString("Previous Directories:"));
+            for(int i =0; i < ldSearchDirsCompare.size(); i++) {
+                emit messageSig(LOG_INFO,QString("    - %1. %2").arg(i).arg(QDir::toNativeSeparators(ldSearchDirsCompare.at(i))));
+            }
+            emit messageSig(LOG_INFO,QString("Updated Directories:"));
+            for(int i =0; i < Preferences::ldSearchDirs.size(); i++) {
+                emit messageSig(LOG_INFO,QString("    - %1. %2").arg(i).arg(QDir::toNativeSeparators(Preferences::ldSearchDirs.at(i))));
+            }
+        }
 
         if (lgeoPathChanged && !ldrawPathChanged)
             emit messageSig(LOG_INFO,QString("LGEO path preference changed from %1 to %2")

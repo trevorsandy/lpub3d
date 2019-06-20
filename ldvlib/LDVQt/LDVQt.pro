@@ -75,7 +75,7 @@ CONFIG(debug, debug|release) {
     LOAD_LDV_SOURCE_FILES = True
     # This line requires lpub3d/mainApp/extras to be copied to $$DESTDIR/extras
     DEVL_LDV_MESSAGES_INI = True
-    # This line is designates to ldview git extract folder name, you can set as you like
+    # This line points to ldview git extract folder name, you can set as you like
     VER_LDVSRC            = ldview
     # This line defines the path of the ldview git extract relative to this project file
     LDVSRCPATH            = $$system_path( $$absolute_path( $$PWD/../../../$${VER_LDVSRC} ) )

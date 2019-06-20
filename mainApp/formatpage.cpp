@@ -446,23 +446,26 @@ int Gui::addGraphicsPageItems(
   int nInserts = page->inserts.size();
 
   if (nInserts) {
-      QFileInfo fileInfo, picInfo;
+//      QFileInfo fileInfo, picInfo;
+      QFileInfo fileInfo;
       for (int i = 0; i < nInserts; i++) {
           InsertData insert = page->inserts[i].value();
 
           switch (insert.type) {
             case InsertData::InsertPicture:
               {
-                picInfo.setFile(insert.picName);
-                QString filename(picInfo.fileName());
+//                picInfo.setFile(insert.picName);
+//                QString filename(picInfo.fileName());
 
-                fileInfo.setFile(QDir::currentPath() + "/" + filename); // relative path
+//                fileInfo.setFile(QDir::currentPath() + QDir::separator() + filename); // relative path
 
-                if (!fileInfo.exists()) {
-                  fileInfo.setFile(picInfo.absoluteFilePath());         // insert path
-                } else {
-                  insert.picName = fileInfo.absoluteFilePath();         // update insert path
-                }
+//                if (!fileInfo.exists()) {
+//                  fileInfo.setFile(picInfo.absoluteFilePath());         // insert path
+//                } else {
+//                  insert.picName = fileInfo.absoluteFilePath();         // update insert path
+//                }
+
+                fileInfo.setFile(getFilePath(insert.picName));
 
                 if (fileInfo.exists()) {
 
@@ -494,7 +497,8 @@ int Gui::addGraphicsPageItems(
                     pixmap->relativeToSize[1] = plPage.size[YY];
                 } else {
                   emit messageSig(LOG_ERROR, QString("Unable to locate picture %1. Be sure picture file "
-                                                     "is located relative to model file or use an absolute path.").arg(filename));
+                                                     "is located relative to model file or use an absolute path.")
+                                                     .arg(fileInfo.absoluteFilePath()));
                 }
               }
               break;
@@ -1601,15 +1605,14 @@ int Gui::addCoverPageAttributes(
           categoryFront->setPos(categoryFront->loc[XX],categoryFront->loc[YY]);
       } */
 
+      QFileInfo fileInfo;
       // DocumentLogo (Front Cover) //~~~~~~~~~~~~~~~~
       if (displayDocumentLogoFront) {
-          QFileInfo fileInfo;
-          QString file   = page->meta.LPub.page.documentLogoFront.file.value();
           qreal picScale = page->meta.LPub.page.documentLogoFront.picScale.value();
-          fileInfo.setFile(file);
+          fileInfo.setFile(getFilePath(page->meta.LPub.page.documentLogoFront.file.value()));
           if (fileInfo.exists()) {
               QPixmap qpixmap;
-              qpixmap.load(file);
+              qpixmap.load(fileInfo.absoluteFilePath());
               pixmapLogoFront
                   = new PageAttributePixmapItem(
                     page,
@@ -1642,13 +1645,11 @@ int Gui::addCoverPageAttributes(
 
       // CoverImage (Front Cover) //~~~~~~~~~~~~~~~~
       if (displayCoverImage) {
-          QFileInfo fileInfo;
-          QString file = page->meta.LPub.page.coverImage.file.value();
           qreal picScale   = page->meta.LPub.page.coverImage.picScale.value();
-          fileInfo.setFile(file);
+          fileInfo.setFile(getFilePath(page->meta.LPub.page.coverImage.file.value()));
           if (fileInfo.exists()) {
               QPixmap qpixmap;
-              qpixmap.load(file);
+              qpixmap.load(fileInfo.absoluteFilePath());
               pixmapCoverImageFront
                   = new PageAttributePixmapItem(
                     page,
@@ -1900,14 +1901,13 @@ int Gui::addCoverPageAttributes(
         }
 
       // DocumentLogoBack (Back Cover) //~~~~~~~~~~~~~~~~
+      QFileInfo fileInfo;
       if (displayDocumentLogoBack) {
-          QFileInfo fileInfo;
-          QString file = page->meta.LPub.page.documentLogoBack.file.value();
           qreal picScale   = page->meta.LPub.page.documentLogoBack.picScale.value();
-          fileInfo.setFile(file);
+          fileInfo.setFile(getFilePath(page->meta.LPub.page.documentLogoBack.file.value()));
           if (fileInfo.exists()) {
               QPixmap qpixmap;
-              qpixmap.load(file);
+              qpixmap.load(fileInfo.absoluteFilePath());
               pixmapLogoBack =
                   new PageAttributePixmapItem(
                     page,
@@ -1940,13 +1940,11 @@ int Gui::addCoverPageAttributes(
 
       // PlugImage (Back Cover) //~~~~~~~~~~~~~~~~
       if (displayPlugImageBack) {
-          QFileInfo fileInfo;
-          QString file     = page->meta.LPub.page.plugImage.file.value();
           qreal picScale   = page->meta.LPub.page.plugImage.picScale.value();
-          fileInfo.setFile(file);
+          fileInfo.setFile(getFilePath(page->meta.LPub.page.plugImage.file.value()));
           if (fileInfo.exists()) {
               QPixmap qpixmap;
-              qpixmap.load(file);
+              qpixmap.load(fileInfo.absoluteFilePath());
               pixmapPlugImageBack =
                   new PageAttributePixmapItem(
                     page,
@@ -1978,4 +1976,21 @@ int Gui::addCoverPageAttributes(
         }
     }
   return 0;
+}
+
+QString Gui::getFilePath(const QString &fileName) const
+{
+    QFileInfo fileInfo(fileName);
+    QString path;
+    if (!gui->getCurFile().isEmpty())
+        path = QFileInfo(gui->getCurFile()).absolutePath();
+    // current path
+    if (QFileInfo(path + QDir::separator() + fileInfo.fileName()).isFile()) {
+        fileInfo = QFileInfo(path + QDir::separator() + fileInfo.fileName());
+    } else
+    // file path
+    if (QFileInfo(fileInfo.filePath()).isFile()){
+        fileInfo = QFileInfo(fileInfo.filePath());
+    }
+    return fileInfo.absoluteFilePath();
 }

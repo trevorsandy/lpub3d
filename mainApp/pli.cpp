@@ -2122,7 +2122,7 @@ int Pli::partSizeLDViewSCall() {
 
             bool isColorPart = gui->ldrawColourParts.isLDrawColourPart(pliPart->type);
 
-            // is it a substitute part [we do not process substitute parts in single call]
+            // is it a substitute part [we do not process substitute part Extended attributes in LDView single call]
             int sub = 0 /*pliPart->subType*/;
             // create name key list
             QStringList nameKeys;

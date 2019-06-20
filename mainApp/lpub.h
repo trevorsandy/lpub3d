@@ -1173,6 +1173,8 @@ private:
     bool                 endOfSubmodel = false
       );
 
+  QString getFilePath(const QString &fileName) const;
+
   int addCoverPageAttributes(
     Page                *page,
     PageBackgroundItem  *pageBg,
