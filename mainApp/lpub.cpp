@@ -948,12 +948,8 @@ void Gui::sceneGuides()
 void Gui::sceneGuidesLine()
 {
   int line = int(Qt::DashLine);
-  if (sender() == sceneGuidesSolidLineAct) {
-     line = int(Qt::SolidLine);
-     sceneGuidesDashLineAct->setChecked(false);
-  } else {
-     sceneGuidesSolidLineAct->setChecked(false);
-  }
+  if (sceneGuidesSolidLineAct->isChecked())
+      line = int(Qt::SolidLine);
 
   Preferences::setSceneGuidesLinePreference(line);
   KpageView->setSceneGuidesLine();
@@ -967,19 +963,12 @@ void Gui::sceneRuler()
 
 void Gui::sceneRulerTracking()
 {
-  if (sender() == sceneRulerTrackingAct) {
-      sceneRulerTrackingLineAct->setChecked(false);
-  } else {
-      sceneRulerTrackingAct->setChecked(false);
-  }
-
   RulerTrackingType trackingStyle = TRACKING_NONE;
-  if (sceneRulerTrackingAct->isChecked()) {
+  if (sceneRulerTrackingTickAct->isChecked())
       trackingStyle = TRACKING_TICK;
-  } else
-  if (sceneRulerTrackingLineAct->isChecked()) {
+  else
+  if (sceneRulerTrackingLineAct->isChecked())
       trackingStyle = TRACKING_LINE;
-  }
 
   Preferences::setSceneRulerTrackingPreference(int(trackingStyle));
   KpageView->setSceneRulerTracking();
@@ -3510,17 +3499,28 @@ void Gui::createActions()
     fitSceneAct->setEnabled(false);
     connect(fitSceneAct, SIGNAL(triggered()), this, SLOT(fitScene()));
 
-    sceneRulerTrackingAct = new QAction(tr("Ruler Tracking Tick"),this);
-    sceneRulerTrackingAct->setStatusTip(tr("Toggle scene ruler tracking tick"));
-    sceneRulerTrackingAct->setChecked(Preferences::sceneRulerTracking == int(TRACKING_TICK));
-    sceneRulerTrackingAct->setCheckable(true);
-    connect(sceneRulerTrackingAct, SIGNAL(triggered()), this, SLOT(sceneRulerTracking()));
+    sceneRulerTrackingNoneAct = new QAction(tr("Ruler Tracking Off"),this);
+    sceneRulerTrackingNoneAct->setStatusTip(tr("Toggle scene ruler tracking Off"));
+    sceneRulerTrackingNoneAct->setCheckable(true);
+    connect(sceneRulerTrackingNoneAct, SIGNAL(triggered()), this, SLOT(sceneRulerTracking()));
+
+    sceneRulerTrackingTickAct = new QAction(tr("Ruler Tracking Tick"),this);
+    sceneRulerTrackingTickAct->setStatusTip(tr("Toggle scene ruler tracking tick"));
+    sceneRulerTrackingTickAct->setCheckable(true);
+    connect(sceneRulerTrackingTickAct, SIGNAL(triggered()), this, SLOT(sceneRulerTracking()));
 
     sceneRulerTrackingLineAct = new QAction(tr("Ruler Tracking Line"),this);
     sceneRulerTrackingLineAct->setStatusTip(tr("Toggle scene ruler tracking line"));
-    sceneRulerTrackingLineAct->setChecked(Preferences::sceneRulerTracking == int(TRACKING_LINE));
     sceneRulerTrackingLineAct->setCheckable(true);
     connect(sceneRulerTrackingLineAct, SIGNAL(triggered()), this, SLOT(sceneRulerTracking()));
+
+    QActionGroup* SceneRulerGroup = new QActionGroup(this);
+    sceneRulerTrackingNoneAct->setChecked(Preferences::sceneRulerTracking == int(TRACKING_NONE));
+    SceneRulerGroup->addAction(sceneRulerTrackingNoneAct);
+    sceneRulerTrackingTickAct->setChecked(Preferences::sceneRulerTracking == int(TRACKING_TICK));
+    SceneRulerGroup->addAction(sceneRulerTrackingTickAct);
+    sceneRulerTrackingLineAct->setChecked(Preferences::sceneRulerTracking == int(TRACKING_LINE));
+    SceneRulerGroup->addAction(sceneRulerTrackingLineAct);
 
     sceneRulerComboAct = new QAction(QIcon(":/resources/pageruler.png"), tr("Scene &Ruler"), this);
     sceneRulerComboAct->setShortcut(tr("Alt+U"));
@@ -3530,6 +3530,22 @@ void Gui::createActions()
     sceneRulerComboAct->setChecked(Preferences::sceneRuler);
     connect(sceneRulerComboAct, SIGNAL(triggered()), this, SLOT(sceneRuler()));
 
+    sceneGuidesDashLineAct = new QAction(tr("Dash Line"),this);
+    sceneGuidesDashLineAct->setStatusTip(tr("Select dash scene guide lines"));
+    sceneGuidesDashLineAct->setCheckable(true);
+    connect(sceneGuidesDashLineAct, SIGNAL(triggered()), this, SLOT(sceneGuidesLine()));
+
+    sceneGuidesSolidLineAct = new QAction(tr("Solid Line"),this);
+    sceneGuidesSolidLineAct->setStatusTip(tr("Select solid scene guide lines"));
+    sceneGuidesSolidLineAct->setCheckable(true);
+    connect(sceneGuidesSolidLineAct, SIGNAL(triggered()), this, SLOT(sceneGuidesLine()));
+
+    QActionGroup* SceneGuidesGroup = new QActionGroup(this);
+    sceneGuidesDashLineAct->setChecked(Preferences::sceneGuidesLine == int(Qt::DashLine));
+    SceneGuidesGroup->addAction(sceneGuidesDashLineAct);
+    sceneGuidesSolidLineAct->setChecked(Preferences::sceneGuidesLine == int(Qt::SolidLine));
+    SceneGuidesGroup->addAction(sceneGuidesSolidLineAct);
+
     sceneGuidesComboAct = new QAction(QIcon(":/resources/pageguides.png"), tr("Scene &Guides"), this);
     sceneGuidesComboAct->setShortcut(tr("Alt+G"));
     sceneGuidesComboAct->setStatusTip(tr("Toggle horizontal and vertical scene guides - Alt+G"));
@@ -3537,18 +3553,6 @@ void Gui::createActions()
     sceneGuidesComboAct->setCheckable(true);
     sceneGuidesComboAct->setChecked(Preferences::sceneGuides);
     connect(sceneGuidesComboAct, SIGNAL(triggered()), this, SLOT(sceneGuides()));
-
-    sceneGuidesDashLineAct = new QAction(tr("Dash Line"),this);
-    sceneGuidesDashLineAct->setStatusTip(tr("Select dash scene guide lines"));
-    sceneGuidesDashLineAct->setCheckable(true);
-    sceneGuidesDashLineAct->setChecked(Preferences::sceneGuidesLine == int(Qt::DashLine));
-    connect(sceneGuidesDashLineAct, SIGNAL(triggered()), this, SLOT(sceneGuidesLine()));
-
-    sceneGuidesSolidLineAct = new QAction(tr("Solid Line"),this);
-    sceneGuidesSolidLineAct->setStatusTip(tr("Select solid scene guide lines"));
-    sceneGuidesSolidLineAct->setCheckable(true);
-    sceneGuidesSolidLineAct->setChecked(Preferences::sceneGuidesLine == int(Qt::SolidLine));
-    connect(sceneGuidesSolidLineAct, SIGNAL(triggered()), this, SLOT(sceneGuidesLine()));
 
     actualSizeAct = new QAction(QIcon(":/resources/actual.png"),tr("&Actual Size"), this);
     actualSizeAct->setShortcut(tr("Alt+A"));
@@ -4422,15 +4426,18 @@ void Gui::createToolBars()
     zoomToolBar->addAction(zoomOutComboAct);
 
     sceneRulerTrackingMenu = new QMenu(tr("Ruler Tracking"),this);
-    sceneRulerTrackingMenu->addAction(sceneRulerTrackingAct);
-    sceneRulerTrackingMenu->addAction(sceneRulerTrackingLineAct);
     sceneRulerTrackingMenu->addAction(hidePageBackgroundAct);
+    sceneRulerTrackingMenu->addSeparator();
+    sceneRulerTrackingMenu->addAction(sceneRulerTrackingNoneAct);
+    sceneRulerTrackingMenu->addAction(sceneRulerTrackingTickAct);
+    sceneRulerTrackingMenu->addAction(sceneRulerTrackingLineAct);
     sceneRulerComboAct->setMenu(sceneRulerTrackingMenu);
     zoomToolBar->addAction(sceneRulerComboAct);
 
     sceneGuidesLineMenu = new QMenu(tr("Scene Guides Line"),this);
     sceneGuidesLineMenu->addAction(sceneGuidesDashLineAct);
     sceneGuidesLineMenu->addAction(sceneGuidesSolidLineAct);
+    sceneRulerTrackingMenu->addSeparator();
     sceneGuidesComboAct->setMenu(sceneGuidesLineMenu);
     zoomToolBar->addAction(sceneGuidesComboAct);
 

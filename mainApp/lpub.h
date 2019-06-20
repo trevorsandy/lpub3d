@@ -1449,8 +1449,9 @@ private:
   QAction  *sceneGuidesSolidLineAct;
   QAction  *sceneGuidesDashLineAct;
   QAction  *sceneRulerComboAct;
-  QAction  *sceneRulerTrackingAct;
+  QAction  *sceneRulerTrackingTickAct;
   QAction  *sceneRulerTrackingLineAct;
+  QAction  *sceneRulerTrackingNoneAct;
   QAction  *hidePageBackgroundAct;
 
   // view
