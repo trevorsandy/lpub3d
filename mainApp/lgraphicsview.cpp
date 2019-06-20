@@ -40,13 +40,15 @@ LGraphicsView::LGraphicsView(LGraphicsScene *scene)
   setScene(scene);
   setAcceptDrops(true);
 
-  connect(this,SIGNAL(setGridSizeSig(int)),        scene,SLOT(setGridSize(int)));
-  connect(this,SIGNAL(setSceneGuidesLineSig(int)), scene,SLOT(setSceneGuidesLine(int)));
-  connect(this,SIGNAL(setSceneGuidesPosSig(int)),  scene,SLOT(setSceneGuidesPos(int)));
-  connect(this,SIGNAL(setSnapToGridSig(bool)),     scene,SLOT(setSnapToGrid(bool)));
-  connect(this,SIGNAL(setSceneGuidesSig(bool)),    scene,SLOT(setSceneGuides(bool)));
-  connect(this,SIGNAL(setGuidePenSig(QString,int)),scene,SLOT(setGuidePen(QString,int)));
-  connect(this,SIGNAL(setGridPenSig(QString)),     scene,SLOT(setGridPen(QString)));
+  connect(this,SIGNAL(setGridSizeSig(int)),           scene,SLOT(setGridSize(int)));
+  connect(this,SIGNAL(setSceneGuidesLineSig(int)),    scene,SLOT(setSceneGuidesLine(int)));
+  connect(this,SIGNAL(setSceneGuidesPosSig(int)),     scene,SLOT(setSceneGuidesPos(int)));
+  connect(this,SIGNAL(setSnapToGridSig(bool)),        scene,SLOT(setSnapToGrid(bool)));
+  connect(this,SIGNAL(setSceneGuidesSig(bool)),       scene,SLOT(setSceneGuides(bool)));
+  connect(this,SIGNAL(setGuidePenSig(QString,int)),   scene,SLOT(setGuidePen(QString,int)));
+  connect(this,SIGNAL(setGridPenSig(QString)),        scene,SLOT(setGridPen(QString)));
+  connect(this,SIGNAL(setResolutionSig(float)),       scene,SLOT(setResolution(float)));
+  connect(this,SIGNAL(setShowCoordinates(bool,bool)), scene,SLOT(setShowCoordinates(bool,bool)));
 
   connect(this,  SIGNAL(setSceneHorzRulerPositionSig(QPointF)),
           scene, SLOT(  setSceneHorzRulerPosition(   QPointF)));
@@ -59,6 +61,7 @@ LGraphicsView::LGraphicsView(LGraphicsScene *scene)
 
   connect(this,  SIGNAL(setSceneRulerTrackingSig(bool)),
           scene, SLOT(  setSceneRulerTracking(   bool)));
+
 }
 
 void LGraphicsView::setSceneRuler(){
@@ -131,6 +134,7 @@ void LGraphicsView::setSceneRulerTracking(){
         emit setSceneRulerTrackingPenSig(Preferences::sceneRulerTrackingColor);
         emit setSceneVertRulerPositionSig(mapToScene(QPoint(0,0)));
         emit setSceneHorzRulerPositionSig(mapToScene(QPoint(0,0)));
+        setShowCoordinates();
     }
 }
 
@@ -149,6 +153,15 @@ void LGraphicsView::setGridSize(){
     emit setGridSizeSig(GridSizeTable[Preferences::gridSizeIndex]);
 }
 
+void LGraphicsView::setShowCoordinates(){
+  bool guides = Preferences::sceneGuides &&
+                Preferences::showGuidesCoordinates;
+  bool tracking = Preferences::sceneRuler &&
+                  Preferences::sceneRulerTracking == TRACKING_LINE &&
+                  Preferences::showTrackingCoordinates;
+  emit setShowCoordinates(guides,tracking);
+}
+
 void LGraphicsView::setSnapToGrid(){
   emit setSnapToGridSig(Preferences::snapToGrid);
   if (Preferences::snapToGrid) {
@@ -164,12 +177,14 @@ void LGraphicsView::setSceneGuides(){
                         Preferences::sceneGuidesLine);
     emit setSceneGuidesLineSig(Preferences::sceneGuidesLine);
     emit setSceneGuidesPosSig(Preferences::sceneGuidesPosition);
+    setShowCoordinates();
   }
 }
 
 void LGraphicsView::setSceneGuidesLine(){
-  if (Preferences::sceneGuides)
+  if (Preferences::sceneGuides) {
     emit setSceneGuidesLineSig(Preferences::sceneGuidesLine);
+  }
 }
 
 void LGraphicsView::setSceneGuidesPos(){
@@ -188,6 +203,10 @@ void LGraphicsView::setSceneTheme(){
   setSceneGuidesLine();
   setSceneGuidesPos();
   setSnapToGrid();
+}
+
+void LGraphicsView::setResolution(float r){
+  emit setResolutionSig(r);
 }
 
 void LGraphicsView::fitVisible(const QRectF rect)

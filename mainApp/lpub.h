@@ -936,6 +936,7 @@ public slots:
   void zoomSlider(int);
   void ViewerZoomSlider(int);
   void ResetViewerZoomSlider();
+  void viewResolution();
   void sceneGuides();
   void sceneGuidesLine();
   void sceneGuidesPosition();
@@ -943,6 +944,7 @@ public slots:
   void sceneRulerTracking();
   void snapToGrid();
   void hidePageBackground();
+  void showCoordinates();
   void gridSize(int index);
   void gridSizeTriggered();
 
@@ -1464,6 +1466,8 @@ private:
   QAction  *sceneRulerTrackingNoneAct;
   QAction  *hideRulerPageBackgroundAct;
   QAction  *hideGridPageBackgroundAct;
+  QAction  *showTrackingCoordinatesAct;
+  QAction  *showGuidesCoordinatesAct;
 
   QActionGroup* SceneGuidesPosGroup;
   QActionGroup* SceneGuidesLineGroup;

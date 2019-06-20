@@ -931,6 +931,11 @@ void Gui::zoomOut()
   KpageView->zoomOut();
 }
 
+void Gui::viewResolution()
+{
+    KpageView->setResolution(resolution());
+}
+
 void Gui::zoomSlider(int value)
 {
   const qreal z = value == 0 ? 0.1 : value*0.01;
@@ -990,8 +995,10 @@ void Gui::sceneRulerTracking()
   if (sceneRulerTrackingTickAct->isChecked())
       trackingStyle = TRACKING_TICK;
   else
-  if (sceneRulerTrackingLineAct->isChecked())
+  if (sceneRulerTrackingLineAct->isChecked()) {
       trackingStyle = TRACKING_LINE;
+      showTrackingCoordinatesAct->setEnabled(true);
+  }
 
   Preferences::setSceneRulerTrackingPreference(int(trackingStyle));
   KpageView->setSceneRulerTracking();
@@ -1024,6 +1031,21 @@ void Gui::hidePageBackground()
   }
   Preferences::setHidePageBackgroundPreference(checked);
   reloadCurrentPage();
+}
+
+void Gui::showCoordinates()
+{
+  if (sender() == showTrackingCoordinatesAct) {
+      Preferences::setShowTrackingCoordinatesPreference(
+                  showTrackingCoordinatesAct->isChecked());
+  }
+  else
+  if (sender() == showGuidesCoordinatesAct)
+  {
+      Preferences::setShowGuidesCoordinatesPreference(
+                  showGuidesCoordinatesAct->isChecked());
+  }
+  KpageView->setShowCoordinates();
 }
 
 void Gui::gridSize(int index)
@@ -2518,6 +2540,7 @@ Gui::Gui()
     KpageView->setRenderHints(QPainter::Antialiasing |
                               QPainter::TextAntialiasing |
                               QPainter::SmoothPixmapTransform);
+    KpageView->setResolution(resolution());
 
     setCentralWidget(KpageView);
 
@@ -3693,6 +3716,20 @@ void Gui::createActions()
     snapToGridComboAct->setChecked(Preferences::snapToGrid);
     connect(snapToGridComboAct, SIGNAL(triggered()), this, SLOT(snapToGrid()));
 
+    showTrackingCoordinatesAct = new QAction(tr("Show Tracking Coordinates"),this);
+    showTrackingCoordinatesAct->setStatusTip(tr("Toggle show ruler tracking coordinates"));
+    showTrackingCoordinatesAct->setCheckable(true);
+    showTrackingCoordinatesAct->setChecked(Preferences::showTrackingCoordinates);
+    showTrackingCoordinatesAct->setEnabled(Preferences::sceneRulerTracking == int(TRACKING_LINE));
+    connect(showTrackingCoordinatesAct, SIGNAL(triggered()), this, SLOT(showCoordinates()));
+
+
+    showGuidesCoordinatesAct = new QAction(tr("Show Guide Coordinates"),this);
+    showGuidesCoordinatesAct->setStatusTip(tr("Toggle show scene guide coordinates"));
+    showGuidesCoordinatesAct->setCheckable(true);
+    showGuidesCoordinatesAct->setChecked(Preferences::showGuidesCoordinates);
+    showGuidesCoordinatesAct->setEnabled(Preferences::sceneGuides);
+    connect(showGuidesCoordinatesAct, SIGNAL(triggered()), this, SLOT(showCoordinates()));
     // TESTING ONLY
     //connect(actualSizeAct, SIGNAL(triggered()), this, SLOT(twoPages()));
 
@@ -4532,6 +4569,8 @@ void Gui::createToolBars()
     sceneRulerTrackingMenu->addAction(sceneRulerTrackingNoneAct);
     sceneRulerTrackingMenu->addAction(sceneRulerTrackingTickAct);
     sceneRulerTrackingMenu->addAction(sceneRulerTrackingLineAct);
+    sceneRulerTrackingMenu->addSeparator();
+    sceneRulerTrackingMenu->addAction(showTrackingCoordinatesAct);
     sceneRulerComboAct->setMenu(sceneRulerTrackingMenu);
     zoomToolBar->addAction(sceneRulerComboAct);
 
@@ -4544,6 +4583,8 @@ void Gui::createToolBars()
     sceneGuidesMenu->addAction(sceneGuidesPosCentreAct);
     sceneGuidesMenu->addAction(sceneGuidesPosBLeftAct);
     sceneGuidesMenu->addAction(sceneGuidesPosBRightAct);
+    sceneGuidesMenu->addSeparator();
+    sceneGuidesMenu->addAction(showGuidesCoordinatesAct);
     sceneGuidesComboAct->setMenu(sceneGuidesMenu);
     zoomToolBar->addAction(sceneGuidesComboAct);
 

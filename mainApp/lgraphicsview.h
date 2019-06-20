@@ -55,6 +55,8 @@ public slots:
   void setSnapToGrid();
   void setGridSize();
   void setSceneTheme();
+  void setResolution(float);
+  void setShowCoordinates();
 
 signals:
     void setSceneRulerSig();
@@ -69,6 +71,8 @@ signals:
     void setGridPenSig(QString);
     void setSnapToGridSig(bool);
     void setGridSizeSig(int);
+    void setResolutionSig(float);
+    void setShowCoordinates(bool,bool);
 
 protected:
     // toggle ruler

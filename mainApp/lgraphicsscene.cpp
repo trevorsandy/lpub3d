@@ -38,8 +38,11 @@ LGraphicsScene::LGraphicsScene(QObject *parent)
     mShowContextAction(false),
     mSnapToGrid(false),
     mRulerTracking(false),
+    mGuidesCoordinates(false),
+    mTrackingCoordinates(false),
     mGridSize(GridSizeTable[GRID_SIZE_INDEX_DEFAULT]),
     mGuidesPlacement(GUIDES_TOP_LEFT),
+    mCoordMargin(0.125), // inches
     minZ(Z_VALUE_DEFAULT),
     maxZ(Z_VALUE_DEFAULT)
 {
@@ -407,40 +410,42 @@ void LGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect){
         painter->setPen(savedPen);
         painter->setOpacity(1.0);
 
-        QString t = QString("%1,%2")
-                .arg(QString::number(mHorzCursorPos.x(),'f',0))
-                .arg(QString::number(mVertCursorPos.y(),'f',0));
-        qreal w = fm.width(t);
-        QPointF p;
-        switch (mGuidesPlacement) {
-        case GUIDES_CENTRE:
-        case GUIDES_TOP_LEFT:
-            p = QPointF(mHorzCursorPos.x() - (w*3 + 20),
-                        mVertCursorPos.y() + 20);
-            break;
-        case GUIDES_BOT_LEFT:
-            p = QPointF(mHorzCursorPos.x() - (w*3 + 20),
-                        mVertCursorPos.y() - (h*2.5 + 20));
-            break;
-        case GUIDES_TOP_RIGHT:
-            p = QPointF(mHorzCursorPos.x() + 20,
-                        mVertCursorPos.y() + 20);
-            break;
-        case GUIDES_BOT_RIGHT:
-            p = QPointF(mHorzCursorPos.x() + 20,
-                        mVertCursorPos.y() - (h*2.5 + 20));
-            break;
+        if (mTrackingCoordinates) {
+            QString t = QString("%1x%2 pixels")
+                    .arg(QString::number(mHorzCursorPos.x(),'f',0))
+                    .arg(QString::number(mVertCursorPos.y(),'f',0));
+            qreal w = fm.width(t);
+            QPointF p;
+            switch (mGuidesPlacement) {
+            case GUIDES_CENTRE:
+            case GUIDES_TOP_LEFT:
+                p = QPointF(mHorzCursorPos.x() - (w*2.5 + coordMargin()/**3 + 20*/),
+                            mVertCursorPos.y() +  coordMargin()/*20*/);
+                break;
+            case GUIDES_BOT_LEFT:
+                p = QPointF(mHorzCursorPos.x() - (w*2.5 + coordMargin()/**3 + 20*/),
+                            mVertCursorPos.y() - (h*2.5 + coordMargin()/**2.5 + 20*/));
+                break;
+            case GUIDES_TOP_RIGHT:
+                p = QPointF(mHorzCursorPos.x() + coordMargin()/*20*/,
+                            mVertCursorPos.y() + coordMargin()/*20*/);
+                break;
+            case GUIDES_BOT_RIGHT:
+                p = QPointF(mHorzCursorPos.x() +  coordMargin()/*20*/,
+                            mVertCursorPos.y() - (h*2.5 + coordMargin()/**2.5 + 20*/));
+                break;
+            }
+            QRectF r = QRectF(p.x(), p.y(), w + 5, h);
+            painter->save();
+            painter->setMatrix(stableMatrix(painter->worldMatrix(), p));
+            painter->drawText(r, Qt::AlignHCenter | Qt::AlignVCenter, t);
+            painter->setPen(rulerTrackingPosPen);
+            painter->setOpacity(0.6);
+            painter->drawRect(r);
+            painter->setPen(savedPen);
+            painter->setOpacity(1.0);
+            painter->restore();
         }
-        QRectF r = QRectF(p.x(), p.y(), w + 5, h);
-        painter->save();
-        painter->setMatrix(stableMatrix(painter->worldMatrix(), p));
-        painter->drawText(r, Qt::AlignHCenter | Qt::AlignVCenter, t);
-        painter->setPen(rulerTrackingPosPen);
-        painter->setOpacity(0.6);
-        painter->drawRect(r);
-        painter->setPen(savedPen);
-        painter->setOpacity(1.0);
-        painter->restore();
     }
 
     if (! mSceneGuides || ! mValidItem)
@@ -460,46 +465,48 @@ void LGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect){
     endPt.setY(mGuidePos.y());
     painter->drawLine(starPt,endPt);
 
-    QString t = QString("%1,%2")
-            .arg(QString::number(mGuidePos.x(),'f',0))
-            .arg(QString::number(mGuidePos.y(),'f',0));
-    qreal w = fm.width(t);
-    QPointF p;
-    qreal ver = mBaseItem->boundingRect().height()/2;
-    qreal hor = mBaseItem->boundingRect().width()/2;
-    switch (mGuidesPlacement) {
-    case GUIDES_CENTRE:
-        p = QPointF(mGuidePos.x() + (ver + 5),
-                    mGuidePos.y() + (hor + 5));
-        break;
-    case GUIDES_TOP_LEFT:
-        p = QPointF(mGuidePos.x() - (w*3 + 20),
-                    mGuidePos.y() - (h*2.5 + 20));
-        break;
-    case GUIDES_BOT_LEFT:
-        p = QPointF(mGuidePos.x() - (w*3 + 20),
-                    mGuidePos.y() + 20);
-        break;
-    case GUIDES_TOP_RIGHT:
-        p = QPointF(mGuidePos.x() + 20,
-                    mGuidePos.y() - (h*2.5 + 20));
-        break;
-    case GUIDES_BOT_RIGHT:
-        p = QPointF(mGuidePos.x() + 20,
-                    mGuidePos.y() + 20);
-        break;
-    }
-    QRectF r = QRectF(p.x(), p.y(), w + 5, h);
+    if (mGuidesCoordinates) {
+        QString t = QString("%1x%2 pixels")
+                .arg(QString::number(mGuidePos.x(),'f',0))
+                .arg(QString::number(mGuidePos.y(),'f',0));
+        qreal w = fm.width(t);
+        QPointF p;
+        qreal ver = mBaseItem->boundingRect().height()/2;
+        qreal hor = mBaseItem->boundingRect().width()/2;
+        switch (mGuidesPlacement) {
+        case GUIDES_CENTRE:
+            p = QPointF(mGuidePos.x() + (ver + 5),
+                        mGuidePos.y() + (hor + 5));
+            break;
+        case GUIDES_TOP_LEFT:
+            p = QPointF(mGuidePos.x() - (w*2.5 + coordMargin()/**3 + 20*/),
+                        mGuidePos.y() - (h*2.5 + coordMargin()/**2.5 + 20*/));
+            break;
+        case GUIDES_BOT_LEFT:
+            p = QPointF(mGuidePos.x() - (w*2.5 + coordMargin()/**3 + 20*/),
+                        mGuidePos.y() +  coordMargin()/*20*/);
+            break;
+        case GUIDES_TOP_RIGHT:
+            p = QPointF(mGuidePos.x() +  coordMargin()/*20*/,
+                        mGuidePos.y() - (h*2.5 + coordMargin()/**2.5 + 20*/));
+            break;
+        case GUIDES_BOT_RIGHT:
+            p = QPointF(mGuidePos.x() + coordMargin()/*20*/,
+                        mGuidePos.y() + coordMargin()/*20*/);
+            break;
+        }
+        QRectF r = QRectF(p.x(), p.y(), w + 5, h);
 
-    painter->setPen(savedPen);
-    painter->save();
-    painter->setMatrix(stableMatrix(painter->worldMatrix(), p));
-    painter->drawText(r, Qt::AlignHCenter | Qt::AlignVCenter, t);
-    savedPen = painter->pen();
-    painter->setPen(guidPosPen);
-    painter->drawRect(r);
-    painter->restore();
-    painter->setPen(savedPen);
+        painter->setPen(savedPen);
+        painter->save();
+        painter->setMatrix(stableMatrix(painter->worldMatrix(), p));
+        painter->drawText(r, Qt::AlignHCenter | Qt::AlignVCenter, t);
+        savedPen = painter->pen();
+        painter->setPen(guidPosPen);
+        painter->drawRect(r);
+        painter->restore();
+        painter->setPen(savedPen);
+    }
 }
 
 void LGraphicsScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event) {

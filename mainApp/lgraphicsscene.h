@@ -77,6 +77,22 @@ public slots:
     mHorzCursorPos = p;
     update();
   }
+  void setResolution(float r){
+    mResolution = r;
+  }
+  float getResolution(){
+    return mResolution;
+  }
+  qreal coordMargin()
+  {
+    return mCoordMargin*getResolution();
+  }
+  void setShowCoordinates(bool guides,bool tracking)
+  {
+    mGuidesCoordinates = guides;
+    mTrackingCoordinates = tracking;
+    update();
+  }
 
 protected:
   virtual void drawForeground(QPainter* painter, const QRectF& rect);
@@ -106,8 +122,12 @@ private:
   bool mShowContextAction;
   bool mSnapToGrid;
   bool mRulerTracking;
+  bool mGuidesCoordinates;
+  bool mTrackingCoordinates;
   int mGridSize;
   int mGuidesPlacement;
+  float mResolution;
+  qreal mCoordMargin;
   qreal minZ,maxZ;
   QPointF mVertCursorPos;
   QPointF mHorzCursorPos;

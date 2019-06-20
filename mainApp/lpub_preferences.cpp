@@ -215,6 +215,8 @@ bool    Preferences::sceneRuler                 = false;
 bool    Preferences::sceneGuides                = false;
 bool    Preferences::snapToGrid                 = false;
 bool    Preferences::hidePageBackground         = false;
+bool    Preferences::showGuidesCoordinates      = false;
+bool    Preferences::showTrackingCoordinates    = false;
 bool    Preferences::showParseErrors            = true;
 bool    Preferences::suppressStdOutToLog        = false;
 bool    Preferences::highlightFirstStep         = false;
@@ -2894,6 +2896,24 @@ void Preferences::userInterfacePreferences()
           hidePageBackground = Settings.value(QString("%1/%2").arg(SETTINGS,hidePageBackgroundKey)).toBool();
   }
 
+  QString const showGuidesCoordinatesKey("ShowGuidesCoordinates");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,showGuidesCoordinatesKey))) {
+          QVariant uValue(false);
+          showGuidesCoordinates = false;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,showGuidesCoordinatesKey),uValue);
+  } else {
+          showGuidesCoordinates = Settings.value(QString("%1/%2").arg(SETTINGS,showGuidesCoordinatesKey)).toBool();
+  }
+
+  QString const showTrackingCoordinatesKey("ShowTrackingCoordinates");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,showTrackingCoordinatesKey))) {
+          QVariant uValue(false);
+          showTrackingCoordinates = false;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,showTrackingCoordinatesKey),uValue);
+  } else {
+          showTrackingCoordinates = Settings.value(QString("%1/%2").arg(SETTINGS,showTrackingCoordinatesKey)).toBool();
+  }
+
   QString const gridSizeIndexKey("GridSizeIndex");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,gridSizeIndexKey))) {
       gridSizeIndex = GRID_SIZE_INDEX_DEFAULT;
@@ -2978,6 +2998,24 @@ void Preferences::setHidePageBackgroundPreference(bool b)
   QVariant uValue(b);
   QString const hidePageBackgroundKey("HidePageBackground");
   Settings.setValue(QString("%1/%2").arg(SETTINGS,hidePageBackgroundKey),uValue);
+}
+
+void Preferences::setShowGuidesCoordinatesPreference(bool b)
+{
+  QSettings Settings;
+  showGuidesCoordinates = b;
+  QVariant uValue(b);
+  QString const showGuidesCoordinatesKey("ShowGuidesCoordinates");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,showGuidesCoordinatesKey),uValue);
+}
+
+void Preferences::setShowTrackingCoordinatesPreference(bool b)
+{
+  QSettings Settings;
+  showTrackingCoordinates = b;
+  QVariant uValue(b);
+  QString const showTrackingCoordinatesKey("ShowTrackingCoordinates");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,showTrackingCoordinatesKey),uValue);
 }
 
 void Preferences::setGridSizeIndexPreference(int i)

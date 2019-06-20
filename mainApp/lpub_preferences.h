@@ -72,6 +72,8 @@ class Preferences
     static void setSceneGuidesLinePreference(int);
     static void setSnapToGridPreference(bool);
     static void setHidePageBackgroundPreference(bool);
+    static void setShowGuidesCoordinatesPreference(bool);
+    static void setShowTrackingCoordinatesPreference(bool);
     static void setGridSizeIndexPreference(int);
     static void setSceneRulerPreference(bool);
     static void setSceneRulerTrackingPreference(int);
@@ -254,6 +256,8 @@ class Preferences
     static bool    sceneGuides;
     static bool    snapToGrid;
     static bool    hidePageBackground;
+    static bool    showGuidesCoordinates;
+    static bool    showTrackingCoordinates;
     static bool    showParseErrors;
     static bool    suppressStdOutToLog;
 
