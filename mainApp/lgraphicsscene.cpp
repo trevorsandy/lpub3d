@@ -336,6 +336,23 @@ void LGraphicsScene::snapToGrid()
     }
 }
 
+QMatrix LGraphicsScene::stableMatrix(const QMatrix &matrix, const QPointF &p)
+{
+    QMatrix newMatrix = matrix;
+
+    qreal scaleX, scaleY;
+    scaleX = newMatrix.m11();
+    scaleY = newMatrix.m22();
+    newMatrix.scale(1.0/scaleX, 1.0/scaleY);
+
+    qreal offsetX, offsetY;
+    offsetX = p.x()*(scaleX-1.0);
+    offsetY = p.y()*(scaleY-1.0);
+    newMatrix.translate(offsetX, offsetY);
+
+    return newMatrix;
+}
+
 void LGraphicsScene::drawBackground(QPainter *painter, const QRectF &rect){
 
     QGraphicsScene::drawBackground(painter, rect);
@@ -360,11 +377,20 @@ void LGraphicsScene::drawBackground(QPainter *painter, const QRectF &rect){
 
 void LGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect){
 
+    QPen guidPosPen(QPen(QBrush(QColor(THEME_GUIDE_PEN_DEFAULT)), 0, Qt::SolidLine));
+    QPen rulerTrackingPosPen(QPen(QBrush(QColor(THEME_RULER_TRACK_PEN_DEFAULT)), 0, Qt::SolidLine));
+    QPen rulerCrosshairPen(QPen(QBrush(QColor(Qt::red)), 0, Qt::SolidLine));
+
     QPointF starPt;
     QPointF endPt;
 
+    QPen savedPen = painter->pen();
+    QFont f("times",24,0);
+    setFont(f);
+    QFontMetricsF fm(painter->font());
+    qreal h = fm.height();
+
     if (mRulerTracking) {
-        QPen savedPen = painter->pen();
         painter->setRenderHints(QPainter::TextAntialiasing | QPainter::HighQualityAntialiasing);
         painter->setOpacity(0.6);
         painter->setPen(rulerTrackingPen);
@@ -380,6 +406,41 @@ void LGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect){
         painter->drawLine(starPt,endPt);
         painter->setPen(savedPen);
         painter->setOpacity(1.0);
+
+        QString t = QString("%1,%2")
+                .arg(QString::number(mHorzCursorPos.x(),'f',0))
+                .arg(QString::number(mVertCursorPos.y(),'f',0));
+        qreal w = fm.horizontalAdvance(t);
+        QPointF p;
+        switch (mGuidesPlacement) {
+        case GUIDES_CENTRE:
+        case GUIDES_TOP_LEFT:
+            p = QPointF(mHorzCursorPos.x() - (w*3 + 20),
+                        mVertCursorPos.y() + 20);
+            break;
+        case GUIDES_BOT_LEFT:
+            p = QPointF(mHorzCursorPos.x() - (w*3 + 20),
+                        mVertCursorPos.y() - (h*2.5 + 20));
+            break;
+        case GUIDES_TOP_RIGHT:
+            p = QPointF(mHorzCursorPos.x() + 20,
+                        mVertCursorPos.y() + 20);
+            break;
+        case GUIDES_BOT_RIGHT:
+            p = QPointF(mHorzCursorPos.x() + 20,
+                        mVertCursorPos.y() - (h*2.5 + 20));
+            break;
+        }
+        QRectF r = QRectF(p.x(), p.y(), w + 5, h);
+        painter->save();
+        painter->setMatrix(stableMatrix(painter->worldMatrix(), p));
+        painter->drawText(r, Qt::AlignHCenter | Qt::AlignVCenter, t);
+        painter->setPen(rulerTrackingPosPen);
+        painter->setOpacity(0.6);
+        painter->drawRect(r);
+        painter->setPen(savedPen);
+        painter->setOpacity(1.0);
+        painter->restore();
     }
 
     if (! mSceneGuides || ! mValidItem)
@@ -398,6 +459,47 @@ void LGraphicsScene::drawForeground(QPainter *painter, const QRectF &rect){
     endPt.setX(rect.right());
     endPt.setY(mGuidePos.y());
     painter->drawLine(starPt,endPt);
+
+    QString t = QString("%1,%2")
+            .arg(QString::number(mGuidePos.x(),'f',0))
+            .arg(QString::number(mGuidePos.y(),'f',0));
+    qreal w = fm.horizontalAdvance(t);
+    QPointF p;
+    qreal ver = mBaseItem->boundingRect().height()/2;
+    qreal hor = mBaseItem->boundingRect().width()/2;
+    switch (mGuidesPlacement) {
+    case GUIDES_CENTRE:
+        p = QPointF(mGuidePos.x() + (ver + 5),
+                    mGuidePos.y() + (hor + 5));
+        break;
+    case GUIDES_TOP_LEFT:
+        p = QPointF(mGuidePos.x() - (w*3 + 20),
+                    mGuidePos.y() - (h*2.5 + 20));
+        break;
+    case GUIDES_BOT_LEFT:
+        p = QPointF(mGuidePos.x() - (w*3 + 20),
+                    mGuidePos.y() + 20);
+        break;
+    case GUIDES_TOP_RIGHT:
+        p = QPointF(mGuidePos.x() + 20,
+                    mGuidePos.y() - (h*2.5 + 20));
+        break;
+    case GUIDES_BOT_RIGHT:
+        p = QPointF(mGuidePos.x() + 20,
+                    mGuidePos.y() + 20);
+        break;
+    }
+    QRectF r = QRectF(p.x(), p.y(), w + 5, h);
+
+    painter->setPen(savedPen);
+    painter->save();
+    painter->setMatrix(stableMatrix(painter->worldMatrix(), p));
+    painter->drawText(r, Qt::AlignHCenter | Qt::AlignVCenter, t);
+    savedPen = painter->pen();
+    painter->setPen(guidPosPen);
+    painter->drawRect(r);
+    painter->restore();
+    painter->setPen(savedPen);
 }
 
 void LGraphicsScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event) {

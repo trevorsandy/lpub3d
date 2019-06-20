@@ -88,6 +88,7 @@ protected:
   void updateGuidePos();
   bool setSelectedItemZValue();
   bool setSelectedItem(const QPointF &);
+  QMatrix stableMatrix(const QMatrix &matrix, const QPointF &p);
 
 private:
   // guides

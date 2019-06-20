@@ -440,6 +440,7 @@ void PagePointerItem::calculatePointerMeta()
   calculatePointerMetaLoc();
 
   PointerData pointerData = pointer.pointerMeta.value();
+
   if (segments() == OneSegment) {
       if (pagePointer->parentStep->onlyChild()) {
           points[Tip] += QPoint(pagePointer->loc[XX],pagePointer->loc[YY]);
@@ -451,60 +452,36 @@ void PagePointerItem::calculatePointerMeta()
               points[Tip] += QPoint(pagePointer->loc[XX],pagePointer->loc[YY]);
                break;
           case StepGroupType:
+            {
               points[Tip] -= QPoint(pagePointer->parentStep->grandparent()->loc[XX],
                                     pagePointer->parentStep->grandparent()->loc[YY]);
               points[Tip] -= QPoint(pagePointer->parentStep->loc[XX],
                                     pagePointer->parentStep->loc[YY]);
               points[Tip] += QPoint(pagePointer->loc[XX],pagePointer->loc[YY]);
+            }
               break;
           default:
               break;
           }
       }
 
-      /*
-      if (pagePointer->parentStep->onlyChild()) {
-          points[Tip] += QPoint(pagePointer->loc[XX],pagePointer->loc[YY]);
-      } else {
-          PlacementData pagePointerPlacement = pagePointer->meta.LPub.pointerBase.placement.value();
+//      if (pagePointer->placement.value().relativeTo == PageType ||
+//          pagePointer->placement.value().relativeTo == StepGroupType ) {
+//          points[Tip] -= QPoint(pagePointer->parentStep->loc[XX],
+//                                pagePointer->parentStep->loc[YY]);
+//      }
 
-          switch (pagePointerPlacement.relativeTo) {
-          case CsiType:
-          case PartsListType:
-          case StepNumberType:
-              points[Tip] += QPoint(pagePointer->loc[XX],pagePointer->loc[YY]);
-              break;
-          case PageType:
-          case StepGroupType:
-              points[Tip] -= QPoint(pagePointer->parentStep->grandparent()->loc[XX],
-                                    pagePointer->parentStep->grandparent()->loc[YY]);
-              points[Tip] -= QPoint(pagePointer->parentStep->loc[XX],
-                                    pagePointer->parentStep->loc[YY]);
-              points[Tip] += QPoint(pagePointer->loc[XX],pagePointer->loc[YY]);
-              break;
-          default:
-              break;
-          }
-      }
-       */
-
-      if (pagePointer->placement.value().relativeTo == PageType ||
-          pagePointer->placement.value().relativeTo == StepGroupType ) {
-          points[Tip] -= QPoint(pagePointer->parentStep->loc[XX],
-                                pagePointer->parentStep->loc[YY]);
-      }
-
-      pointerData.x1 = (points[Tip].x() - pagePointer->parentStep->csiItem->loc[XX])/pagePointer->parentStep->csiItem->size[XX];
-      pointerData.y1 = (points[Tip].y() - pagePointer->parentStep->csiItem->loc[YY])/pagePointer->parentStep->csiItem->size[YY];
+      pointerData.x1 = float((points[Tip].x() - pagePointer->parentStep->csiItem->loc[XX])/pagePointer->parentStep->csiItem->size[XX]);
+      pointerData.y1 = float((points[Tip].y() - pagePointer->parentStep->csiItem->loc[YY])/pagePointer->parentStep->csiItem->size[YY]);
   } else {
-      pointerData.x1 = points[Tip].x();
-      pointerData.y1 = points[Tip].y();
-      pointerData.x2 = points[Base].x();
-      pointerData.y2 = points[Base].y();
-      pointerData.x3 = points[MidBase].x();
-      pointerData.y3 = points[MidBase].y();
-      pointerData.x4 = points[MidTip].x();
-      pointerData.y4 = points[MidTip].y();
+      pointerData.x1 = float(points[Tip].x());
+      pointerData.y1 = float(points[Tip].y());
+      pointerData.x2 = float(points[Base].x());
+      pointerData.y2 = float(points[Base].y());
+      pointerData.x3 = float(points[MidBase].x());
+      pointerData.y3 = float(points[MidBase].y());
+      pointerData.x4 = float(points[MidTip].x());
+      pointerData.y4 = float(points[MidTip].y());
   }
 
 //  qDebug()<< "\nPAGE POINTER DATA (Formatted)"

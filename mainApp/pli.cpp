@@ -1755,7 +1755,7 @@ int Pli::sortPli()
     partSize();
 
     if (parts.size() < 1) {
-        emit gui->messageSig(LOG_NOTICE, QMessageBox::tr("There are No valid parts - specified parts were not found"));
+        emit gui->messageSig(LOG_NOTICE, QMessageBox::tr("No valid parts were found for this PLI instance"));
         return 1;
     }
 
