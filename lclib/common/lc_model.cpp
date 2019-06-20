@@ -539,12 +539,12 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 			 }
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - process color entry ***/
-                        else if (Token == QLatin1String("!COLOUR"))
-                        {
-                                if (!lcLoadColorEntry(OriginalLine.toLatin1().constData()))
-                                        emit gui->messageSig(LOG_ERROR,QString("Could not load color entry %1.")
-                                                             .arg(OriginalLine));
-                        }
+			else if (Token == QLatin1String("!COLOUR"))
+			{
+				if (!lcLoadColorEntry(OriginalLine.toLatin1().constData()))
+					emit gui->messageSig(LOG_ERROR,QString("Could not colour meta %1.")
+										 .arg(OriginalLine));
+			}
 /*** LPub3D Mod end ***/
 			else if (Token == QLatin1String("FILE"))
 			{

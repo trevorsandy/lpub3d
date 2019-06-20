@@ -8,13 +8,26 @@ lcQColorList::lcQColorList(QWidget *parent)
 	mCellRects = new QRect[gNumUserColors];
 	mCellColors = new int[gNumUserColors];
 	mNumCells = 0;
-
+/*** LPub3D Mod - Exclude LPub3D Colour Group if empty ***/
+	mNumColorGroups = 0;
+/*** LPub3D Mod end ***/
 	mCurCell = 0;
 
 	mColumns = 14;
 	mRows = 0;
 
+/*** LPub3D Mod - Exclude LPub3D Colour Group if empty ***/
 	for (int GroupIdx = 0; GroupIdx < LC_NUM_COLORGROUPS; GroupIdx++)
+	{
+		lcColorGroup* Group = &gColorGroups[GroupIdx];
+		if (Group->Colors.GetSize())
+			mNumColorGroups++;
+	}
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - Exclude LPub3D Colour Group if empty ***/
+	for (int GroupIdx = 0; GroupIdx < mNumColorGroups; GroupIdx++)
+/*** LPub3D Mod end ***/
 	{
 		lcColorGroup* Group = &gColorGroups[GroupIdx];
 
@@ -30,7 +43,9 @@ lcQColorList::lcQColorList(QWidget *parent)
 	QFontMetrics Metrics(font());
 	int TextHeight = 0;
 
-	for (int GroupIdx = 0; GroupIdx < LC_NUM_COLORGROUPS; GroupIdx++)
+/*** LPub3D Mod - Exclude LPub3D Colour Group if empty ***/
+	for (int GroupIdx = 0; GroupIdx < mNumColorGroups; GroupIdx++)
+/*** LPub3D Mod end ***/
 	{
 		lcColorGroup* Group = &gColorGroups[GroupIdx];
 
@@ -184,8 +199,9 @@ void lcQColorList::keyPressEvent(QKeyEvent *event)
 
 		int CurGroup = 0;
 		int NumCells = 0;
-
-		for (CurGroup = 0; CurGroup < LC_NUM_COLORGROUPS; CurGroup++)
+/*** LPub3D Mod - Exclude LPub3D Colour Group if empty ***/
+		for (CurGroup = 0; CurGroup < mNumColorGroups; CurGroup++)
+/*** LPub3D Mod end ***/
 		{
 			int NumColors = gColorGroups[CurGroup].Colors.GetSize();
 
@@ -252,7 +268,9 @@ void lcQColorList::resizeEvent(QResizeEvent *event)
 	QFontMetrics Metrics(font());
 	int TextHeight = 0;
 
-	for (int GroupIdx = 0; GroupIdx < LC_NUM_COLORGROUPS; GroupIdx++)
+/*** LPub3D Mod - Exclude LPub3D Colour Group if empty ***/
+	for (int GroupIdx = 0; GroupIdx < mNumColorGroups; GroupIdx++)
+/*** LPub3D Mod end ***/
 	{
 		lcColorGroup* Group = &gColorGroups[GroupIdx];
 
@@ -271,7 +289,9 @@ void lcQColorList::resizeEvent(QResizeEvent *event)
 		mColumns++;
 		mRows = 0;
 
-		for (int GroupIdx = 0; GroupIdx < LC_NUM_COLORGROUPS; GroupIdx++)
+/*** LPub3D Mod - Exclude LPub3D Colour Group if empty ***/
+		for (int GroupIdx = 0; GroupIdx < mNumColorGroups; GroupIdx++)
+/*** LPub3D Mod end ***/
 		{
 			lcColorGroup* Group = &gColorGroups[GroupIdx];
 			mRows += (Group->Colors.GetSize() + mColumns - 1) / mColumns;
@@ -279,8 +299,9 @@ void lcQColorList::resizeEvent(QResizeEvent *event)
 
 		CellWidth = (float)(width() + 1) / (float)mColumns;
 		CellHeight = (float)(height() - TextHeight) / (float)mRows;
-
-		if (mRows <= LC_NUM_COLORGROUPS)
+/*** LPub3D Mod - Exclude LPub3D Colour Group if empty ***/
+		if (mRows <= mNumColorGroups)
+/*** LPub3D Mod end ***/
 			break;
 	}
 
@@ -289,7 +310,9 @@ void lcQColorList::resizeEvent(QResizeEvent *event)
 		mColumns--;
 		mRows = 0;
 
-		for (int GroupIdx = 0; GroupIdx < LC_NUM_COLORGROUPS; GroupIdx++)
+/*** LPub3D Mod - Exclude LPub3D Colour Group if empty ***/
+		for (int GroupIdx = 0; GroupIdx < mNumColorGroups; GroupIdx++)
+/*** LPub3D Mod end ***/
 		{
 			lcColorGroup* Group = &gColorGroups[GroupIdx];
 			mRows += (Group->Colors.GetSize() + mColumns - 1) / mColumns;
@@ -306,7 +329,9 @@ void lcQColorList::resizeEvent(QResizeEvent *event)
 	float GroupY = 0.0f;
 	int TotalRows = 1;
 
-	for (int GroupIdx = 0; GroupIdx < LC_NUM_COLORGROUPS; GroupIdx++)
+/*** LPub3D Mod - Exclude LPub3D Colour Group if empty ***/
+	for (int GroupIdx = 0; GroupIdx < mNumColorGroups; GroupIdx++)
+/*** LPub3D Mod end ***/
 	{
 		lcColorGroup* Group = &gColorGroups[GroupIdx];
 		int CurColumn = 0;
@@ -361,7 +386,9 @@ void lcQColorList::paintEvent(QPaintEvent *event)
 	painter.setFont(font());
 	painter.setPen(palette().color(QPalette::Text));
 
-	for (int GroupIdx = 0; GroupIdx < LC_NUM_COLORGROUPS; GroupIdx++)
+/*** LPub3D Mod - Exclude LPub3D Colour Group if empty ***/
+	for (int GroupIdx = 0; GroupIdx < mNumColorGroups; GroupIdx++)
+/*** LPub3D Mod end ***/
 	{
 		lcColorGroup* Group = &gColorGroups[GroupIdx];
 
@@ -422,16 +449,16 @@ void lcQColorList::SelectCell(int CellIdx)
 */
 void ColorPickerButton::focusInEvent(QFocusEvent *e)
 {
-    setFrameShadow(Raised);
-    update();
-    QFrame::focusOutEvent(e);
+	setFrameShadow(Raised);
+	update();
+	QFrame::focusOutEvent(e);
 }
 
 void ColorPickerButton::focusOutEvent(QFocusEvent *e)
 {
-    setFrameShadow(Raised);
-    update();
-    QFrame::focusOutEvent(e);
+	setFrameShadow(Raised);
+	update();
+	QFrame::focusOutEvent(e);
 }
 
 #endif

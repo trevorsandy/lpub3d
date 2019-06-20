@@ -94,9 +94,9 @@ lcPiecesLibrary::lcPiecesLibrary()
 	: mLoadMutex(QMutex::Recursive)
 {
 /*** LPub3D Mod - portable cache ***/
-        if (QDir(Preferences::lpub3dPath + "/extras").exists()) { // we have a portable distribution
-                mCachePath = Preferences::lpub3dPath + "/cache";
-        } else {
+		if (QDir(Preferences::lpub3dPath + "/extras").exists()) { // we have a portable distribution
+				mCachePath = Preferences::lpub3dPath + "/cache";
+		} else {
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 	QStringList cachePathList = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
@@ -320,7 +320,7 @@ bool lcPiecesLibrary::Load(const QString& LibraryPath, bool ShowProgress)
 
 	if (!Preferences::altLDConfigPath.isEmpty())
 	{
-        gui->messageSig(LOG_INFO, QString("Loading Alternate LDConfig file %1...").arg(Preferences::altLDConfigPath));
+		gui->messageSig(LOG_INFO, QString("Loading Alternate LDConfig file %1...").arg(Preferences::altLDConfigPath));
 		lcDiskFile ColorFile(Preferences::altLDConfigPath);
 
 		if (ColorFile.Open(QIODevice::ReadOnly) && lcLoadColorFile(ColorFile))
@@ -343,7 +343,7 @@ bool lcPiecesLibrary::Load(const QString& LibraryPath, bool ShowProgress)
 
 		mLibraryDir = QFileInfo(LibraryPath).absoluteDir();
 /*** LPub3D Mod - custom parts archive name ***/
-        QString UnofficialFileName = mLibraryDir.absoluteFilePath(Preferences::validLDrawCustomArchive);
+		QString UnofficialFileName = mLibraryDir.absoluteFilePath(Preferences::validLDrawCustomArchive);
 /*** LPub3D Mod end ***/
 
 		if (!OpenArchive(UnofficialFileName, LC_ZIPFILE_UNOFFICIAL))
@@ -1047,7 +1047,7 @@ bool lcPiecesLibrary::WriteArchiveCacheFile(const QString& FileName, lcMemFile& 
 		} while (Stream.avail_out == 0);
 	} while (FlushMode != Z_FINISH);
 
-    deflateEnd(&Stream);
+	deflateEnd(&Stream);
 
 	return true;
 }
@@ -2030,13 +2030,13 @@ bool lcPiecesLibrary::ReadMeshData(lcFile& File, const lcMatrix44& CurrentTransf
 			char* Token = Line;
 
 /*** LPub3D Mod - process part color entry ***/
-                        if (strstr(Token, "!COLOUR") != nullptr)
-                        {
-                            if (!lcLoadColorEntry(Line))
-                                    logError() << qPrintable(QString("Could not load fade part color entry %1.")
-                                                             .arg(Line));
-                            continue;
-                        }
+			if (strstr(Token, "!COLOUR") != nullptr)
+			{
+				if (!lcLoadColorEntry(Line))
+					logError() << qPrintable(QString("Could not colour meta %1.")
+											 .arg(Line));
+				continue;
+			}
 /*** LPub3D Mod end ***/
 
 			while (*Token && *Token <= 32)
@@ -3528,36 +3528,36 @@ bool lcPiecesLibrary::LoadBuiltinPieces()
 /*** LPub3D Mod - reload unofficial library ***/
 bool lcPiecesLibrary::ReloadUnoffLib()
 {
-    //unload unofficial library content
-    delete mZipFiles[LC_ZIPFILE_UNOFFICIAL];
-    mZipFiles[LC_ZIPFILE_UNOFFICIAL] = NULL;
+	//unload unofficial library content
+	delete mZipFiles[LC_ZIPFILE_UNOFFICIAL];
+	mZipFiles[LC_ZIPFILE_UNOFFICIAL] = NULL;
 
-    //load unofficial library content
-    if (mUnofficialFileName.isEmpty())
-        mUnofficialFileName = mLibraryDir.absoluteFilePath(Preferences::validLDrawCustomArchive);
-    if (OpenArchive(mUnofficialFileName, LC_ZIPFILE_UNOFFICIAL)){
-        ReadArchiveDescriptions(mLibraryFileName, mUnofficialFileName);
-    } else
-        return false;
+	//load unofficial library content
+	if (mUnofficialFileName.isEmpty())
+		mUnofficialFileName = mLibraryDir.absoluteFilePath(Preferences::validLDrawCustomArchive);
+	if (OpenArchive(mUnofficialFileName, LC_ZIPFILE_UNOFFICIAL)){
+		ReadArchiveDescriptions(mLibraryFileName, mUnofficialFileName);
+	} else
+		return false;
 
-    //load categories
-    lcLoadDefaultCategories();
-    return true;
+	//load categories
+	lcLoadDefaultCategories();
+	return true;
 }
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - unload Unofficial library ***/
 void lcPiecesLibrary::UnloadUnofficialLib() {
-    //unload unofficial library content
-    delete mZipFiles[LC_ZIPFILE_UNOFFICIAL];
-    mZipFiles[LC_ZIPFILE_UNOFFICIAL] = nullptr;
+	//unload unofficial library content
+	delete mZipFiles[LC_ZIPFILE_UNOFFICIAL];
+	mZipFiles[LC_ZIPFILE_UNOFFICIAL] = nullptr;
 }
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - unload Official library reload ***/
 void lcPiecesLibrary::UnloadOfficialLib() {
-    mNumOfficialPieces = 0;
-    delete mZipFiles[LC_ZIPFILE_OFFICIAL];
-    mZipFiles[LC_ZIPFILE_OFFICIAL] = nullptr;
+	mNumOfficialPieces = 0;
+	delete mZipFiles[LC_ZIPFILE_OFFICIAL];
+	mZipFiles[LC_ZIPFILE_OFFICIAL] = nullptr;
 }
 /*** LPub3D Mod end ***/

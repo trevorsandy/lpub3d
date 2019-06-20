@@ -15,9 +15,9 @@ struct lcColor
 	char Name[LC_MAX_COLOR_NAME];
 	char SafeName[LC_MAX_COLOR_NAME];
 /*** LPub3D Mod - use 3DViewer colors ***/
-    int CValue;
-    int EValue;
-    int Alpha;
+	int CValue;
+	int EValue;
+	int Alpha;
 /*** LPub3D Mod end ***/
 };
 
@@ -26,7 +26,9 @@ enum
 	LC_COLORGROUP_SOLID,
 	LC_COLORGROUP_TRANSLUCENT,
 	LC_COLORGROUP_SPECIAL,
-	LC_COLORGROUP_LPUB3D,          /*** LPub3D Mod - LPub3D color group ***/
+/*** LPub3D Mod - LPub3D color group ***/
+	LC_COLORGROUP_LPUB3D,
+/*** LPub3D Mod end ***/
 	LC_NUM_COLORGROUPS
 };
 

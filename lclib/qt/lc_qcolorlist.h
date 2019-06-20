@@ -33,7 +33,9 @@ protected:
 	QRect* mCellRects;
 	int* mCellColors;
 	int mNumCells;
-
+/*** LPub3D Mod - Exclude LPub3D Colour Group if empty ***/
+	int mNumColorGroups;
+/*** LPub3D Mod end ***/
 	int mColumns;
 	int mRows;
 	int mWidth;
