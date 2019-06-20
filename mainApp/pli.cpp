@@ -850,16 +850,27 @@ int Pli::createPartImage(
                       fadeSteps,
                       highlightStep);
 
-            QTextStream out(&part);
             if (Preferences::usingNativeRenderer) {
+                // add ROTSTEP command
+                pliFile.prepend(renderer->getRotstepMeta(pliMeta.rotStep));
+
+                // header and closing meta
                 QString modelName = QFileInfo(type).baseName();
                 modelName = modelName.replace(
                             modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper());
-                out << QString("0 %1").arg(modelName) << endl;
-                out << QString("0 Name: %1").arg(type) << endl;
-                out << QString("0 !LEOCAD MODEL NAME %1").arg(modelName) << endl;
-                out << renderer->getRotstepMeta(pliMeta.rotStep) << endl;
+                pliFile.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(modelName));
+                pliFile.prepend(QString("0 Name: %1").arg(type));
+                pliFile.prepend(QString("0 %1").arg(modelName));
+                pliFile.append("0 NOFILE");
             }
+
+            // consolidate subfiles and parts into single file
+            if (Preferences::usingNativeRenderer){
+                if ((renderer->createNativeModelFile(pliFile,fadeSteps,highlightStep) != 0))
+                    emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native CSI parts"));
+            }
+
+            QTextStream out(&part);
             foreach (QString line, pliFile)
                 out << line << endl;
             part.close();
@@ -2082,6 +2093,26 @@ int Pli::partSizeLDViewSCall() {
                               PartType(pT),
                               fadeSteps,
                               highlightStep);
+
+                    if (Preferences::usingNativeRenderer) {
+                        // add ROTSTEP command
+                        pliFile.prepend(renderer->getRotstepMeta(pliMeta.rotStep));
+
+                        // header and closing meta
+                        QString modelName = typeInfo.baseName();
+                        modelName = modelName.replace(
+                                    modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper());
+                        pliFile.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(modelName));
+                        pliFile.prepend(QString("0 Name: %1").arg(pliPart->type));
+                        pliFile.prepend(QString("0 %1").arg(modelName));
+                        pliFile.append("0 NOFILE");
+                    }
+
+                    // consolidate subfiles and parts into single file
+                    if (Preferences::usingNativeRenderer){
+                        if ((renderer->createNativeModelFile(pliFile,fadeSteps,highlightStep) != 0))
+                            emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native CSI parts"));
+                    }
 
                     QTextStream out(&part);
                     foreach (QString line, pliFile)
