@@ -726,44 +726,73 @@ void QTextEditor::keyPressEvent(QKeyEvent *e)
 }
 
 void QTextEditor::toggleComment(){
-    QTextCursor cursor = textCursor();
-    cursor.select(QTextCursor::LineUnderCursor);
-    QString selection = cursor.selectedText();
-    moveCursor(QTextCursor::StartOfLine);
 
-    QString replaceText;
-    bool result = false;
+    int current = 0;
+    int selectedLines = 0;
+
+    QTextCursor cursor = textCursor();
+    if(cursor.selection().isEmpty())
+        cursor.select(QTextCursor::LineUnderCursor);
+
+    QString str = cursor.selection().toPlainText();
+    selectedLines = str.count("\n")+1;
 
     cursor.beginEditBlock();
 
-    if (!selection.isEmpty())
+    while (true)
     {
-        QString findText;
-        QTextDocument::FindFlags flags;
-        if (selection.startsWith("0 //1")) {
-            findText = "0 //1";
-            replaceText = "1";
-        } else
-        if (selection.startsWith("0 //")) {
-            findText = "0 //";
-            replaceText = "0";
-        } else
-        if (selection.startsWith("1")) {
-            findText = "1";
-            replaceText = "0 //1";
-        } else
-        if (selection.startsWith("0")) {
-            findText = "0";
-            replaceText = "0 //";
+        if (current == selectedLines) {
+           break;
         }
-        result = find(findText, flags);
+
+        bool result = false;
+        QString replaceText;
+
+        cursor.select(QTextCursor::LineUnderCursor);
+        QString selection = cursor.selectedText();
+        moveCursor(QTextCursor::StartOfLine);
+
+        if (!selection.isEmpty())
+        {
+            QString findText;
+            QTextDocument::FindFlags flags;
+            // remove comments
+            if (selection.startsWith("0 //1")) {
+                findText = "0 //1";
+                replaceText = "1";
+            } else
+            if (selection.startsWith("0 // ")) {
+                findText = "0 //";
+                replaceText = "0";
+            } else
+            if (selection.startsWith("0 //")) { // no space after comment
+                findText = "0 //";
+                replaceText = "0 ";             // add space after 0
+            } else
+            // add comments
+            if (selection.startsWith("1")) {
+                findText = "1";
+                replaceText = "0 //1";
+            } else
+            if (selection.startsWith("0 ")) {
+                findText = "0 ";
+                replaceText = "0 //";
+            };
+            result = find(findText, flags);
+        } else {
+            break;
+        }
+
+        if (result) {
+            textCursor().insertText(replaceText);
+            if (++current < selectedLines) {
+                cursor.movePosition(QTextCursor::Down);
+                setTextCursor(cursor);
+            }
+        }
     }
 
     cursor.endEditBlock();
-
-    if (result) {
-        textCursor().insertText(replaceText);
-    }
 }
 
 void QTextEditor::showAllCharacters(bool show){
