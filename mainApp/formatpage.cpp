@@ -785,10 +785,10 @@ int Gui::addGraphicsPageItems(
                           pp->placement.value().placement == Bottom)
                           pp->loc[XX] = pp->loc[XX] - (plPage.size[XX]/2);
 
-                      // size the pagePointer origin (hidden page rectangle)
+                      // size the pagePointer origin (hidden base rectangle)
                       pp->sizeIt();
 
-                      // add the pagePointer origin (hidden page rectangle) to the graphics scene
+                      // add the pagePointer origin (hidden base rectangle) to the graphics scene
                       pp->addGraphicsItems(0,0,pageBg,true); // set true to make movable
 
                       //   add the pagePointer pointers to the graphics scene

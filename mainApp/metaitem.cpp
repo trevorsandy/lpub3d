@@ -3587,10 +3587,10 @@ void MetaItem::addPointerTipMetas(
          break;
   }
 
-  QString preamble = QString("0 !LPUB %1 CENTER 0")
+  QString preamble = QString("0 !LPUB %1 CENTER")
                              .arg(pointerType);
 
-  QString line = QString("%1 %2 %3 0 0 0 0 0 0 1 %4")
+  QString line = QString("%1 0.0 %2 %3 0.0 0.0 0.0 0.0 0.0 0.0 0.0 1 %4")
                          .arg(preamble)
                          .arg(centerOffset.x())
                          .arg(centerOffset.y())

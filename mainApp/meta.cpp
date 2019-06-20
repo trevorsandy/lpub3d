@@ -1377,7 +1377,7 @@ void PointerAttribMeta::doc(QStringList &out, QString preamble)
 PointerMeta::PointerMeta() : LeafMeta()
 {   
   _value[0].placement = TopLeft;
-  _value[0].loc       = 0;      // BasePoint
+  _value[0].loc       = 0;      // Location
   _value[0].x1        = 0.5;    // TipX
   _value[0].y1        = 0.5;    // TipY
   _value[0].x2        = 0.5;    // BaseX
@@ -1386,9 +1386,9 @@ PointerMeta::PointerMeta() : LeafMeta()
   _value[0].y3        = 0.5;    // MidBaseY
   _value[0].x4        = 0.5;    // MidTipX
   _value[0].y4        = 0.5;    // MidTipY
-  _value[0].base      = 0.125;
-  _value[0].segments  = 1;
-  _value[0].rectPlacement = TopLeftOutsideCorner;
+  _value[0].base      = 0.125;  // BasePoint
+  _value[0].segments  = 1;      // NumberOfSegments
+  _value[0].rectPlacement = TopLeftOutsideCorner; // Page Pointer Base Rect Placement
 }
 
 /*
@@ -1400,14 +1400,15 @@ PointerMeta::PointerMeta() : LeafMeta()
 Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
 {
   int   _segments = 1;
-  float _loc = 0.0, _x1 = 0.0, _y1 = 0.0, _base = -1.0;
-  float           _x2 = 0.0, _y2 = 0.0;
-  float           _x3 = 0.0, _y3 = 0.0;
-  float           _x4 = 0.0, _y4 = 0.0;
+  float _loc = 0.0, _base = -1.0;
+  float _x1 = 0.0, _y1 = 0.0;
+  float _x2 = 0.0, _y2 = 0.0;
+  float _x3 = 0.0, _y3 = 0.0;
+  float _x4 = 0.0, _y4 = 0.0;
   int   n_tokens = argv.size() - index;
   RectPlacement _bRect = RectPlacement(tokenMap["BASE_TOP_LEFT"]);
-  bool  fail              = true;
-  bool  pagePointer       = false;
+  bool  fail        = true;
+  bool  pagePointer = false;
 
   //logTrace() << "Pointer: " << argv.join(" ") << ", Index:" << index;
 
@@ -1439,7 +1440,7 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
 
       QRegExp rx("^(TOP_LEFT|TOP_RIGHT|BOTTOM_LEFT|BOTTOM_RIGHT)$");
 
-      // single-segment patterns
+      // legacy single-segment pattern - base included
       if (argv[index].contains(rx) && n_tokens == 4) {
           _loc = 0;
           bool ok[3];
@@ -1448,6 +1449,7 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
           _base = argv[index+3].toFloat(&ok[2]);
           fail  = ! (ok[0] && ok[1] && ok[2]);
         }
+      // legacy single-segment pattern - no base
       if (argv[index].contains(rx) && n_tokens == 3) {
           _loc = 0;
           bool ok[2];
@@ -1455,7 +1457,7 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
           _y1   = argv[index+2].toFloat(&ok[1]);
           fail  = ! (ok[0] && ok[1]);
         }
-      // new multi-segment patterns (+ 7 tokens: x2,y2,x3,y3,x4,y4,segments)
+      // new multi-segment patterns (addl tokens: x2,y2,x3,y3,x4,y4,segments,[baseRect])
       if (argv[index].contains(rx) && (pagePointer ? n_tokens == 12 : n_tokens == 11)) {
           _loc = 0;
           bool ok[10];
@@ -1500,6 +1502,7 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
           _base = argv[index+4].toFloat(&ok[3]);
           fail  = ! (ok[0] && ok[1] && ok[2] && ok[3]);
         }
+      // legacy single-segment pattern - no base
       if (argv[index].contains(rx) && n_tokens == 4) {
           bool ok[3];
           _loc  = argv[index+1].toFloat(&ok[0]);
@@ -1507,7 +1510,7 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
           _y1    = argv[index+3].toFloat(&ok[2]);
           fail  = ! (ok[0] && ok[1] && ok[2]);
         }
-      // new multi-segment patterns (+ 7 tokens: x2,y2,x3,y3,x4,y4,segments)
+      // new multi-segment pattern (addl tokens: x2,y2,x3,y3,x4,y4,segments,[baseRect])
       if (argv[index].contains(rx) && (pagePointer ? n_tokens == 13 : n_tokens == 12)) {
           bool ok[11];
           _loc      = argv[index+1].toFloat(&ok[0]);
@@ -1555,33 +1558,36 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
       _value[pushed].y3         = _y3;  //MidBase.y
       _value[pushed].x4         = _x4;  //MidTip.x
       _value[pushed].y4         = _y4;  //MidTip.y
+      if (_base > 0) {
+          _value[pushed].base = _base;
+        } else if (_value[pushed].base == 0.0) {
+          _value[pushed].base = 1.0/8;
+        }
       _value[pushed].segments   = _segments;
       if (pagePointer)
         _value[pushed].rectPlacement = _bRect; //Base Rect Placement
-      if (_base > 0) {
-          _value[pushed].base = _base;
-        } else if (_value[pushed].base == 0.0f) {
-          _value[pushed].base = 1.0/8;
-        }
 #ifdef QT_DEBUG_MODE
-//      logDebug()<< "\nPOINTER DATA " << argv[1] << " (Parsed)"
-//                << " \nPlacement:             "   << PlacNames[_value[pushed].placement]     << " (" << _value[pushed].placement << ")"
-//                << " \nLoc(fraction of side): "   << _value[pushed].loc
-//                << " \nx1 (Tip.x):            "   << _value[pushed].x1
-//                << " \ny1 (Tip.y):            "   << _value[pushed].y1
-//                << " \nx2 (Base.x):           "   << _value[pushed].x2
-//                << " \ny2 (Base.y):           "   << _value[pushed].y2
-//                << " \nx3 (MidBase.x):        "   << _value[pushed].x3
-//                << " \ny3 (MidBase.y):        "   << _value[pushed].y3
-//                << " \nx4 (MidTip.x):         "   << _value[pushed].x4
-//                << " \ny4 (MidTip.y):         "   << _value[pushed].y4
-//                << " \nBase:                  "   << _value[pushed].base
-//                << " \nSegments:              "   << _value[pushed].segments
-//                << " \nPagePointer Rect:      "   << (pagePointer ? QString("%1 (%2)")
-//                                                                            .arg(RectNames[_value[pushed]
-//                                                                            .rectPlacement]).arg(_value[pushed].rectPlacement) :
-//                                                                            "None - Not PagePointer")
-//                   ;
+//      if (/*argv[1] == "PAGE"*/ true) {
+//          logDebug()<< "\nPOINTER DATA " << argv[1] << " (Parsed)"
+//                    << " \nPlacement:             "   << PlacNames[_value[pushed].placement] << " ("
+//                                                      << _value[pushed].placement << ") of Base"
+//                    << " \nLoc(fraction of side): "   << _value[pushed].loc
+//                    << " \nx1 (Tip.x):            "   << _value[pushed].x1
+//                    << " \ny1 (Tip.y):            "   << _value[pushed].y1
+//                    << " \nx2 (Base.x):           "   << _value[pushed].x2
+//                    << " \ny2 (Base.y):           "   << _value[pushed].y2
+//                    << " \nx3 (MidBase.x):        "   << _value[pushed].x3
+//                    << " \ny3 (MidBase.y):        "   << _value[pushed].y3
+//                    << " \nx4 (MidTip.x):         "   << _value[pushed].x4
+//                    << " \ny4 (MidTip.y):         "   << _value[pushed].y4
+//                    << " \nBase:                  "   << _value[pushed].base
+//                    << " \nSegments:              "   << _value[pushed].segments
+//                    << " \nPagePointer Rect:      "   << (pagePointer ? QString("%1 (%2) of Page")
+//                                                                                .arg(RectNames[_value[pushed].rectPlacement])
+//                                                                                .arg(_value[pushed].rectPlacement) :
+//                                                                                "None - Not PagePointer")
+//                       ;
+//      }
 #endif
       _here[pushed] = here;
 
@@ -1644,11 +1650,12 @@ QString PointerMeta::format(bool local, bool global)
           .arg(_value[pushed].y3,0,'f',3)
           .arg(_value[pushed].x4,0,'f',3)
           .arg(_value[pushed].y4,0,'f',3)
-          .arg(_value[pushed].base)
-          .arg(pagePointer ? QString("%1 %2")
-                             .arg(                    _value[pushed].segments)
-                             .arg(bRectPlacementNames[_value[pushed].rectPlacement]) :
-                             QString("%1").arg(       _value[pushed].segments));
+          .arg(_value[pushed].base,0,'f',3)
+          .arg(QString("%1%2")
+                       .arg(                                     _value[pushed].segments)
+                       .arg(pagePointer ?
+                                QString(" %1")
+                                        .arg(bRectPlacementNames[_value[pushed].rectPlacement]) : ""));
       break;
     default:
       foo = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10 %11 %12")
@@ -1662,32 +1669,35 @@ QString PointerMeta::format(bool local, bool global)
           .arg(_value[pushed].y3,0,'f',3)
           .arg(_value[pushed].x4,0,'f',3)
           .arg(_value[pushed].y4,0,'f',3)
-          .arg(_value[pushed].base)
-          .arg(pagePointer ? QString("%1 %2")
-                             .arg(                    _value[pushed].segments)
-                             .arg(bRectPlacementNames[_value[pushed].rectPlacement]) :
-                             QString("%1").arg(       _value[pushed].segments));
+          .arg(_value[pushed].base,0,'f',3)
+          .arg(QString("%1%2")
+                       .arg(                                     _value[pushed].segments)
+                       .arg(pagePointer ?
+                                QString(" %1")
+                                        .arg(bRectPlacementNames[_value[pushed].rectPlacement]) : ""));
       break;
     }
 
 #ifdef QT_DEBUG_MODE
-//  qDebug() << "\nPOINTER META FORMAT >> XXXXX"
-//              "\nPreamble:       " <<  preamble <<
-//              "\nMatch Test:     " << (preamble.contains(rx)? "Success :)" : "Failed :(") <<
-//              "\nPAGE POINTER:   " << (pagePointer ? QString("\nSegments: %1    \nRectPlacement %2")
-//                                                   .arg(                    _value[pushed].segments)
-//                                                   .arg(bRectPlacementNames[_value[pushed].rectPlacement]) :
-//                                                   QString("Segments: %1").arg(_value[pushed].segments)) <<
-//              "\nNew Meta Line:" << preamble << foo;
+//  if (/*pagePointer*/ true) {
+//    qDebug() << "\nPOINTER META FORMAT"
+//                "\nPreamble:         " <<  preamble <<
+//                "\nMatch Test:       " << (preamble.contains(rx) ? "Success :)" : "Failed :(") <<
+//                "\nSegments:         " << _value[pushed].segments <<
+//                "\nPagePointer Rect: " << (pagePointer ? RectNames[_value[pushed].rectPlacement] + " (" +
+//                                           QString::number(_value[pushed].rectPlacement) + ") of Page" : "N/A") <<
+//                "\nNew Meta Line:" << preamble + foo
+//                  ;
+//  }
 #endif
   return LeafMeta::format(local,global,foo);
 }
 
 void PointerMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " (TOP_LEFT|TOP_RIGHT|BOTTOM_LEFT|BOTTOM_RIGHT) <floatLoc> <floatX1> <floatY1>"
+  out << preamble + " (TOP|BOTTOM|LEFT|RIGHT|CENTER|TOP_LEFT|TOP_RIGHT|BOTTOM_LEFT|BOTTOM_RIGHT) <floatLoc> <floatX1> <floatY1>"
                     " [<floatX2> <floatY2> <floatX3> <floatY3> <floatX4> <floatY4>] <floatBase> [intSegments]"
-                    " [(TOP|BOTTOM|LEFT|RIGHT)]";
+                    " [(BASE_TOP|BASE_BOTTOM|BASE_LEFT|BASE_RIGHT)]";
 }
 
 //--------------

@@ -2185,7 +2185,7 @@ void Gui::preferences()
         }
 
         if (ldrawFilesLoadMsgsChanged     )
-                    emit messageSig(LOG_INFO,QString("LdrawFilesLoadMsgs is %1").arg(
+                    emit messageSig(LOG_INFO,QString("LdrawFiles Load message dialogue set to %1").arg(
                         Preferences::ldrawFilesLoadMsgs == NEVER_SHOW ? "Never Show" :
                         Preferences::ldrawFilesLoadMsgs == SHOW_ERROR ? "Show Error" :
                         Preferences::ldrawFilesLoadMsgs == SHOW_WARNING ? "Show Warning" :
