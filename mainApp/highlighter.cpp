@@ -112,13 +112,6 @@ Highlighter::Highlighter(QTextDocument *parent)
     rule.format = LPubNumberFormat;
     highlightingRules.append(rule);
 
-    // LDraw Header Value Format
-    LDrawHeaderValueFormat.setForeground(br26);
-    LDrawHeaderValueFormat.setFontWeight(QFont::Normal);
-    rule.pattern = QRegExp("^.*\\b(?:AUTHOR|CATEGORY|CMDLINE|HELP|HISTORY|KEYWORDS|LDRAW_ORG|LICENSE|NAME|FILE|THEME|~MOVED TO)\\b.*$",Qt::CaseInsensitive);
-    rule.format = LDrawHeaderValueFormat;
-    highlightingRules.append(rule);
-
     // LDraw Custom COLOUR Description Format
     LDrawColourDescFormat.setForeground(br26);
     LDrawColourDescFormat.setFontWeight(QFont::Bold);
@@ -498,6 +491,13 @@ Highlighter::Highlighter(QTextDocument *parent)
         rule.format = LPubBodyMetaFormat;
         highlightingRules.append(rule);
     }
+
+    // LDraw Header Value Format
+    LDrawHeaderValueFormat.setForeground(br26);
+    LDrawHeaderValueFormat.setFontWeight(QFont::Normal);
+    rule.pattern = QRegExp("^.*\\b(?:AUTHOR|CATEGORY|CMDLINE|HELP|HISTORY|KEYWORDS|LDRAW_ORG|LICENSE|NAME|FILE|THEME|~MOVED TO)\\b.*$",Qt::CaseInsensitive);
+    rule.format = LDrawHeaderValueFormat;
+    highlightingRules.append(rule);
 
     // LDraw Header Format
     LDrawHeaderFormat.setForeground(br02);

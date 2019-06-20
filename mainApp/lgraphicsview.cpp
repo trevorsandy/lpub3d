@@ -269,6 +269,15 @@ void LGraphicsView::zoomOut(){
   fitMode = FitNone;
 }
 
+void LGraphicsView::wheelEvent(QWheelEvent *event){
+    if (event->delta() < 0) {
+        scale(1.0/1.1,1.0/1.1);
+    } else {
+        scale(1.1,1.1);
+    }
+    fitMode = FitNone;
+}
+
 /* drag and drop */
 void LGraphicsView::dragMoveEvent(QDragMoveEvent *event){
   if (event->mimeData()->hasUrls()) {
@@ -339,7 +348,7 @@ void LGraphicsView::deleteGridWidgets(QLayoutItem *item) {
 /* ruler block */
 void LRuler::setOrigin(const qreal origin)
 {
-  if (mOrigin != origin)
+  if (mOrigin < origin || mOrigin > origin)
   {
     mOrigin = origin;
     update();
@@ -365,7 +374,7 @@ void LRuler::setRulerBackgroundColor(){
 
 void LRuler::setRulerUnit(const qreal rulerUnit)
 {
-  if (mRulerUnit != rulerUnit)
+  if (mRulerUnit < rulerUnit || mRulerUnit > rulerUnit)
   {
     mRulerUnit = rulerUnit;
     update();
@@ -374,7 +383,7 @@ void LRuler::setRulerUnit(const qreal rulerUnit)
 
 void LRuler::setRulerZoom(const qreal rulerZoom)
 {
-  if (mRulerZoom != rulerZoom)
+  if (mRulerZoom < rulerZoom || mRulerZoom > rulerZoom)
   {
     mRulerZoom = rulerZoom;
     update();
