@@ -49,7 +49,7 @@ Section "un.Program Files" SectionUninstallProgram
 		RMDir /r "$SMPROGRAMS\$StartMenuFolder"
 	${endif}
 
-	; Clean up "Dektop Icon"
+        ; Clean up "Desktop Icon"
 	!insertmacro MULTIUSER_GetCurrentUserString $0
 	!insertmacro DeleteRetryAbort "$DESKTOP\${PRODUCT_NAME}$0.lnk"
 
