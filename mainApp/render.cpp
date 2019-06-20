@@ -1709,7 +1709,7 @@ int Native::renderCsi(
               break;
           default:
               emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Invalid CSI Object export option."));
-              //delete CsiImageProject;
+              delete CsiImageProject;
               return -1;
           }
           // These exports are performed by the Native LDV module (LDView).
@@ -1991,7 +1991,7 @@ bool Render::LoadViewer(const ViewerOptions &Options){
     {
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load 3DViewer model file %1.")
                              .arg(viewerCsiKey));
-        //delete StepProject;
+        delete StepProject;
         return false;
     }
 
@@ -2167,7 +2167,7 @@ bool Render::NativeExport(const NativeOptions &Options) {
         if (! gMainWindow->OpenProject(Options.InputFileName)) {
             emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to open CSI %1 Export project")
                                                            .arg(exportModeName));
-            //delete NativeExportProject;
+            delete NativeExportProject;
             return false;
         }
     }

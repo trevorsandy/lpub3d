@@ -140,6 +140,7 @@
         <file alias="paste.png">resources/paste.png</file>
         <file alias="pdf_logo.png">resources/pdf_logo.png</file>
         <file alias="pdf_print_preview.png">resources/pdf_print_preview.png</file>
+        <file alias="placeholderimage.png">resources/placeholderimage.png</file>
         <file alias="placement.png">resources/placement.png</file>
         <file alias="pliannotation.png">resources/pliannotation.png</file>
         <file alias="plus.png">resources/plus.png</file>
