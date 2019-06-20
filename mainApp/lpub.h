@@ -1135,6 +1135,7 @@ private:
     QStringList   &pliParts,
     bool           isMirrored,
     QHash<QString, QStringList> &bfx,
+    QList<PliPartGroupMeta> &pliPartGroups,
     bool           printing,
     bool           bfxStore2,
     QStringList   &bfxParts,
@@ -1151,7 +1152,9 @@ private:
             QPixmap            *pixmap,
             Meta               &meta);
 
-  int addStepImageGraphics(Step    *step); //recurse the step's model to add images.
+  int addStepImageGraphics(Step    *step); //recurse the step's model - including callouts to add images.
+
+  int addStepPliPartGroupsToScene(Step *step,LGraphicsScene *scene);  //recurse the step's PLI - including callout PLIs to add PartGroups
 
   int addPliPartGroupsToScene(
           Page           *page,

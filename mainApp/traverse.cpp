@@ -381,6 +381,7 @@ int Gui::drawPage(
     QStringList    &pliParts,
     bool            isMirrored,
     QHash<QString, QStringList> &bfx,
+    QList<PliPartGroupMeta> &pliPartGroups,
     bool            printing,
     bool            bfxStore2,
     QStringList    &bfxParts,
@@ -419,7 +420,6 @@ int Gui::drawPage(
   steps->setTopOfSteps(current);
 
   QList<InsertMeta> inserts;
-  QList<PliPartGroupMeta> pliPartGroups;
 
   Where topOfStep = current;
   Rc gprc = OkRc;
@@ -656,6 +656,7 @@ int Gui::drawPage(
                         calloutParts,
                         ldrawFile.mirrored(tokens),
                         calloutBfx,
+                        pliPartGroups,
                         printing,
                         bfxStore2,
                         bfxParts,
@@ -1744,6 +1745,7 @@ int Gui::findPage(
 
   QHash<QString, QStringList> bfx;
   QHash<QString, QStringList> saveBfx;
+  QList<PliPartGroupMeta> emptyPartGroups;
 
   int numLines = ldrawFile.size(current.modelName);
 
@@ -1974,6 +1976,7 @@ int Gui::findPage(
                                       pliParts,
                                       isMirrored,
                                       saveBfx,
+                                      emptyPartGroups,
                                       printing,
                                       stepGroupBfxStore2,
                                       saveBfxParts,
@@ -2077,6 +2080,7 @@ int Gui::findPage(
                                           pliParts,
                                           isMirrored,
                                           saveBfx,
+                                          emptyPartGroups,
                                           printing,
                                           bfxStore2,
                                           saveBfxParts,
@@ -2307,6 +2311,7 @@ int Gui::findPage(
                           pliParts,
                           isMirrored,
                           saveBfx,
+                          emptyPartGroups,
                           printing,
                           bfxStore2,
                           saveBfxParts,

@@ -963,7 +963,7 @@ int Gui::addStepImageGraphics(Step *step) {
   step->csiPixmap.load(step->pngName);
   step->csiPlacement.size[0] = step->csiPixmap.width();
   step->csiPlacement.size[1] = step->csiPixmap.height();
-  // process callout's step(s) image(s)
+  // process callout step's image(s)
   for (int k = 0; k < step->list.size(); k++) {
       if (step->list[k]->relativeType == CalloutType) {
           Callout *callout = dynamic_cast<Callout *>(step->list[k]);
@@ -983,15 +983,47 @@ int Gui::addStepImageGraphics(Step *step) {
   return retVal;
 }
 
-int Gui::addPliPartGroupsToScene(
-        Page           *page,
-        LGraphicsScene *scene)
-{
+int Gui::addStepPliPartGroupsToScene(Step *step,LGraphicsScene *scene){
+    int retVal = 0;
     // add Pli part group to scene
     QHash<QString, PliPart*> pliParts;
     PliPart *part;
     QString key;
+    if (step->pli.pliMeta.enablePliPartGroup.value() &&
+        step->pli.pliMeta.show.value() &&
+        step->pli.tsize()) {
+        step->pli.getParts(pliParts);
+        if (pliParts.size()) {
+            foreach(key,pliParts.keys()) {
+                part = pliParts[key];
+                part->addPartGroupToScene(scene);
+            }
+        }
+    }
+    // process callout step's PLI(s)
+    for (int k = 0; k < step->list.size(); k++) {
+        if (step->list[k]->relativeType == CalloutType) {
+            Callout *callout = dynamic_cast<Callout *>(step->list[k]);
+            for (int l = 0; l < callout->list.size(); l++){
+                Range *range = dynamic_cast<Range *>(callout->list[l]);
+                for (int m = 0; m < range->list.size(); m++){
+                    if (range->relativeType == RangeType) {
+                        Step *step = dynamic_cast<Step *>(range->list[m]);
+                        if (step && step->relativeType == StepType){
+                            addStepPliPartGroupsToScene(step,scene);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return retVal;
+}
 
+int Gui::addPliPartGroupsToScene(
+        Page           *page,
+        LGraphicsScene *scene)
+{
     if (page->list.size()){
         // Single Step
         if (page->relativeType == SingleStepType) {
@@ -1000,17 +1032,7 @@ int Gui::addPliPartGroupsToScene(
                 if (range->relativeType == RangeType) {
                     Step *step = dynamic_cast<Step *>(range->list[0]);
                     if (step && step->relativeType == StepType) {
-                        if (step->pli.pliMeta.enablePliPartGroup.value() &&
-                            step->pli.pliMeta.show.value() &&
-                            step->pli.tsize()) {
-                            step->pli.getParts(pliParts);
-                            if (pliParts.size()) {
-                                foreach(key,pliParts.keys()) {
-                                    part = pliParts[key];
-                                    part->addPartGroupToScene(scene);
-                                }
-                            }
-                        }
+                        addStepPliPartGroupsToScene(step,scene);
                     }
                 }
             }
@@ -1024,17 +1046,7 @@ int Gui::addPliPartGroupsToScene(
                     if (range->relativeType == RangeType) {
                         Step *step = dynamic_cast<Step *>(range->list[j]);
                         if (step && step->relativeType == StepType) {
-                            if (step->pli.pliMeta.enablePliPartGroup.value() &&
-                                step->pli.pliMeta.show.value() &&
-                                step->pli.tsize()) {
-                                step->pli.getParts(pliParts);
-                                if (pliParts.size()) {
-                                    foreach(key,pliParts.keys()) {
-                                        part = pliParts[key];
-                                        part->addPartGroupToScene(scene);
-                                    }
-                                }
-                            }
+                            addStepPliPartGroupsToScene(step,scene);
                         }
                     }
                 }
@@ -1045,6 +1057,10 @@ int Gui::addPliPartGroupsToScene(
     if (page->pli.tsize()) {
         if (page->pli.pliMeta.enablePliPartGroup.value() &&
             page->pli.bom) {
+            // add Pli part group to scene
+            QHash<QString, PliPart*> pliParts;
+            PliPart *part;
+            QString key;
             page->pli.getParts(pliParts);
             if (pliParts.size()) {
                 foreach(key,pliParts.keys()) {
