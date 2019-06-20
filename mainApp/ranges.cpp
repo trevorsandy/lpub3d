@@ -663,10 +663,10 @@ void Steps::addGraphicsItems(
  * This is used to return the best adjusted size of a divider
  */
 
-int Steps::pageSize(int axis,bool adjust){
-  int which  = allocType() == Vertical ? YY : XX;
+int Steps::pageSize(int axis, bool adjusted/*false*/, bool forDivider/*true*/){
+  int which  = forDivider ? allocType() == Vertical ? YY : XX : axis;
   int pageSizeAdjust = gui->pageSize(meta.LPub.page,which);
-  if (adjust) {
+  if (adjusted) {
    /*
     * TODO - get all items that intersect divider
     * and subtract top/bottom, left,right from retVal midpoint

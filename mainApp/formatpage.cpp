@@ -1380,7 +1380,7 @@ int Gui::addCoverPageAttributes(
       PageAttributeTextItem   *titleFront            = new PageAttributeTextItem(page,page->meta.LPub.page.titleFront,pageBg);
       PageAttributeTextItem   *modelNameFront        = new PageAttributeTextItem(page,page->meta.LPub.page.modelName,pageBg);
       PageAttributeTextItem   *authorFront           = new PageAttributeTextItem(page,page->meta.LPub.page.authorFront,pageBg);
-      PageAttributeTextItem   *partsFront           = new PageAttributeTextItem(page,page->meta.LPub.page.parts,pageBg);
+      PageAttributeTextItem   *partsFront            = new PageAttributeTextItem(page,page->meta.LPub.page.parts,pageBg);
       PageAttributeTextItem   *modelDescFront        = new PageAttributeTextItem(page,page->meta.LPub.page.modelDesc,pageBg);
       PageAttributeTextItem   *publishDescFront      = new PageAttributeTextItem(page,page->meta.LPub.page.publishDesc,pageBg);
       PageAttributePixmapItem *pixmapLogoFront;

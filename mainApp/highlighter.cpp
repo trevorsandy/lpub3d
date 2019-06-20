@@ -147,6 +147,13 @@ Highlighter::Highlighter(QTextDocument *parent)
     rule.format = LPubSubColorFormat;
     highlightingRules.append(rule);
 
+    // LPub3D Custom COLOUR Code Format
+    LPubCustomColorFormat.setForeground(br07);
+    LPubCustomColorFormat.setFontWeight(QFont::Bold);
+    rule.pattern = QRegExp("CODE\\s([0-9]+)\\sVALUE",Qt::CaseInsensitive); // match color format if preceded by 'CODE ' and followed by ' VALUE'
+    rule.format = LPubCustomColorFormat;
+    highlightingRules.append(rule);
+
     // LPub3D Substitute Part Format
     LPubSubPartFormat.setForeground(br12);
     LPubSubPartFormat.setFontWeight(QFont::Bold);
@@ -513,7 +520,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     // LDraw Header Value Format
     LDrawHeaderValueFormat.setForeground(br26);
     LDrawHeaderValueFormat.setFontWeight(QFont::Normal);
-    rule.pattern = QRegExp("^.*\\b(?:AUTHOR|CATEGORY|CMDLINE|HELP|HISTORY|KEYWORDS|LDRAW_ORG|LICENSE|NAME|FILE|THEME|~MOVED TO)\\b.*$",Qt::CaseInsensitive);
+    rule.pattern = QRegExp("^(?!0 !LPUB|1).*\\b(?:AUTHOR|CATEGORY|CMDLINE|HELP|HISTORY|KEYWORDS|LDRAW_ORG|LICENSE|NAME|FILE|THEME|~MOVED TO)\\b.*$",Qt::CaseInsensitive);
     rule.format = LDrawHeaderValueFormat;
     highlightingRules.append(rule);
 
@@ -536,7 +543,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "!?\\bLDRAW_ORG\\b"
     << "!?\\bLICENSE\\b"
     << "\\bNAME\\b:?"
-    << "\\bFILE\\b"
+    << "^(?!0 !LPUB|1).*\\bFILE\\b"
     << "\\bNOFILE\\b"
     << "!?\\bHELP\\b"
     << "\\bOFFICIAL\\b"

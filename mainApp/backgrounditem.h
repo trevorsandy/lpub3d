@@ -44,11 +44,7 @@
 
 #include <QObject>
 #include <QGraphicsPixmapItem>
-#include <QPixmap>
-#include <QGradient>
-#include "placement.h"
 #include "metaitem.h"
-#include "name.h"
 
 class BackgroundItem : public QGraphicsPixmapItem, public MetaItem   
 { 
@@ -74,6 +70,8 @@ public:
       int              submodelLevel,
       QString         &toolTip,
       bool             exporting = false);
+
+  int pageSizeP(int which);
 
 private: 
   QGradient setGradient();
@@ -102,7 +100,8 @@ public:
       int              submodelLevel,
       QString         &toolTip);
 
-  int pageSizeP(int which);
+
+  QString getFilePath(const QString &fileName) const;
 
 protected: 
   virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);

@@ -26,10 +26,12 @@
  ***************************************************************************/
 
 #include "backgrounditem.h"
+#include "placement.h"
 #include "meta.h"
 #include <QFileInfo>
 #include <QColor>
 #include <QPixmap>
+#include <QGradient>
 #include <QBitmap>
 #include <QAction>
 #include <QMenu>
@@ -39,6 +41,7 @@
 #include "color.h"
 
 #include "lpubalert.h"
+#include "name.h"
 
 void BackgroundItem::setBackground(
     QPixmap         *pixmap,
@@ -172,6 +175,7 @@ void BackgroundItem::setBackground(
       break;
     }
 
+  // Set border
   qreal rx = borderData.radius;
   qreal ry = borderData.radius;
   qreal dx = pixmap->width();
@@ -229,6 +233,7 @@ void BackgroundItem::setBackground(
       painter.drawRect(prect);
     }
 
+  // Draw grid on page background
   if (_parentRelativeType == PageType &&
       Preferences::snapToGrid &&
       ! Preferences::hidePageBackground &&
@@ -257,6 +262,18 @@ void BackgroundItem::setBackground(
   setToolTip(toolTip);
   setFlag(QGraphicsItem::ItemIsSelectable,true);
   setFlag(QGraphicsItem::ItemIsMovable,true);
+}
+
+int BackgroundItem::pageSizeP(int which){
+ int _size;
+
+ // flip orientation for landscape
+ if (meta->LPub.page.orientation.value() == Landscape){
+     which == 0 ? _size = 1 : _size = 0;
+   } else {
+     _size = which;
+   }
+ return meta->LPub.page.size.valuePixels(_size);
 }
 
 void PlacementBackgroundItem::setBackground(
@@ -389,16 +406,4 @@ void PlacementBackgroundItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
       placementData.offsets[1] += newPosition.y()/pageSizeP(1);
       placement.setValue(placementData);
     }
-}
-
-int PlacementBackgroundItem::pageSizeP(int which){
- int _size;
-
- // flip orientation for landscape
- if (meta->LPub.page.orientation.value() == Landscape){
-     which == 0 ? _size = 1 : _size = 0;
-   } else {
-     _size = which;
-   }
- return meta->LPub.page.size.valuePixels(_size);
 }
