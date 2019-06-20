@@ -92,7 +92,7 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
-  box = new QGroupBox("Display Options");
+  box = new QGroupBox("Preview Options");
   vlayout->addWidget(box);
   box->setLayout(childlayout);
 
@@ -105,7 +105,7 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
-  childtab->addTab(widget,"Display");
+  childtab->addTab(widget,"Preview");
 
   widget = new QWidget();
   vlayout = new QVBoxLayout(nullptr);
@@ -271,7 +271,7 @@ void GlobalSubModelDialog::instanceCountClicked(bool checked)
 {
     instanceCountBox->setEnabled(checked);
     if (!checked)
-      instanceCountBox->setToolTip("Check 'Show submodel instance count' in the 'Display' tab to enable.");
+      instanceCountBox->setToolTip("Check 'Show submodel instance count' in the 'Preview' tab to enable.");
 }
 
 void GlobalSubModelDialog::accept()

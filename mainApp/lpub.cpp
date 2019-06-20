@@ -3721,9 +3721,9 @@ void Gui::createActions()
     multiStepSetupAct->setStatusTip(tr("Default values for your project's step groups"));
     connect(multiStepSetupAct, SIGNAL(triggered()), this, SLOT(multiStepSetup()));
 
-    subModelSetupAct = new QAction(QIcon(":/resources/submodelsetup.png"),tr("Submodel Display Setup"), this);
+    subModelSetupAct = new QAction(QIcon(":/resources/submodelsetup.png"),tr("Submodel Preview Setup"), this);
     subModelSetupAct->setEnabled(false);
-    subModelSetupAct->setStatusTip(tr("Default values for your sub-model displayed at first step"));
+    subModelSetupAct->setStatusTip(tr("Default values for your submodel preview at first step"));
     connect(subModelSetupAct, SIGNAL(triggered()), this, SLOT(subModelSetup()));
 
     projectSetupAct = new QAction(QIcon(":/resources/projectsetup.png"),tr("Project Setup"), this);

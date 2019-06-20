@@ -123,7 +123,7 @@ void SubModel::setSubModel(
   QString type = _file.toLower();
   QString key = QString("%1_%2_%3")
                         .arg(type.left(trim ? type.lastIndexOf(QChar('.')) : type.size()))
-                        .arg(DISPLAY_SUBMODEL_SUFFIX)
+                        .arg(PREVIEW_SUBMODEL_SUFFIX)
                         .arg(color);
 
   if ( ! parts.contains(key)) {
@@ -1028,7 +1028,7 @@ void SMGraphicsPixmapItem::contextMenuEvent(
                   &subModel->subModelMeta.part.margin);
 #if 0
   } else if (selectedAction == scaleAction) {
-    gui->clearSubmodelCache(DISPLAY_SUBMODEL_SUFFIX);
+    gui->clearSubmodelCache(PREVIEW_SUBMODEL_SUFFIX);
     changeFloatSpin(
       pl,
       "Scale",

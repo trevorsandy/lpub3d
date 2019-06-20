@@ -290,7 +290,7 @@ static const SceneObject NoContextSceneObjects[] =
 
 #define SPLASH_FONT_COLOUR                      "#aa0000" // LPub3D Maroon
 
-#define DISPLAY_SUBMODEL_SUFFIX                 "@Display"
+#define PREVIEW_SUBMODEL_SUFFIX                 "@Preview"
 
 // Renderers
 #define RENDERER_POVRAY                         "POVRay"
