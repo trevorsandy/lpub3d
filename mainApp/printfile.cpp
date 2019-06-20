@@ -528,7 +528,6 @@ void Gui::exportAsHtml()
     // start at the last page moving backward until we find a valid CSI
     Meta meta;
     MetaItem mi;
-    m_partListKey.clear();
     m_partListCSIFile  = true;
     bool modelFound    = false;
     int pageNum        = maxPages;
@@ -596,20 +595,49 @@ void Gui::exportAsHtml()
     restorePreferredRenderer();
     emit setExportingSig(false);
 
+    // reset meta
+    meta = Meta();
+
     // return to whatever page we were viewing before capturing the CSI
-    m_partListCSIFile  = false;
-    displayPageNum     = savePageNumber;
+    m_partListCSIFile = false;
+    displayPageNum    = savePageNumber;
     displayPage();
 
-    QStringList arguments;
+    // create partList key
+    FloatPairMeta emptyCA;
+    float partListModelScale;
+    bool noCA = meta.rotStep.value().type == "ABS";
+    if (Preferences::usingNativeRenderer) {
+        partListModelScale = meta.LPub.bom.cameraDistNative.factor.value();
+    } else {
+        partListModelScale = meta.LPub.bom.modelScale.value();
+    }
+    bool suffix = QFileInfo(getCurFile()).suffix().contains(QRegExp("(dat|ldr|mpd)$",Qt::CaseInsensitive));
+    QString partListKey = QString("%1_%2_%3_%4_%5_%6_%7.%8")
+                                  .arg(pageSize(meta.LPub.page, 0))
+                                  .arg(double(resolution()))
+                                  .arg(resolutionType() == DPI ? "DPI" : "DPCM")
+                                  .arg(double(partListModelScale))
+                                  .arg(double(meta.LPub.bom.cameraFoV.value()))
+                                  .arg(noCA ? double(emptyCA.value(0)) : double(meta.LPub.bom.cameraAngles.value(0)))
+                                  .arg(noCA ? double(emptyCA.value(1)) : double(meta.LPub.bom.cameraAngles.value(1)))
+                                  .arg(suffix ? QFileInfo(getCurFile()).suffix() : "ldr");
+
+    // generate HTML parts list
     QString ldrBaseFile = QDir::toNativeSeparators(QDir::currentPath()+"/"+Paths::tmpDir+"/"+QFileInfo(curFile).baseName());
-    QString parts    = ldrBaseFile+"_parts.ldr";
-    QString snapshot = ldrBaseFile+"_snapshot.ldr";
+    QString partListFile   = ldrBaseFile+"_parts.ldr";
+    if (! generateBOMPartsFile(partListFile))
+        return;
+
+    // setup snapshot image generation arguments
+    QStringList arguments;
+    QString snapshot    = ldrBaseFile+"_snapshot.ldr";
     if (QFileInfo(snapshot).exists()) {
-        // setup camera globe (latitude, longitude) using default camera distance
-        bool noCA = Preferences::applyCALocally || m_partListAbsRotate;
-        QString cg = QString("-cg%1,%2") .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(0)))
-                                         .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(1)));
+        // always use LDView settings regardless of preferred renderer
+        noCA = Preferences::applyCALocally || meta.rotStep.value().type == "ABS";
+        // setup camera globe (latitude, longitude) using LDView default camera distance
+        QString cg = QString("-cg%1,%2") .arg(noCA ? double(emptyCA.value(0)) : double(meta.LPub.assem.cameraAngles.value(0)))
+                                         .arg(noCA ? double(emptyCA.value(1)) : double(meta.LPub.assem.cameraAngles.value(1)));
         arguments << cg;
         arguments << QString("-Snapshot=\"%1\"").arg(snapshot);
         if (!Preferences::altLDConfigPath.isEmpty())
@@ -617,14 +645,15 @@ void Gui::exportAsHtml()
     } else {
         emit messageSig(LOG_ERROR,QMessageBox::tr("HTML snapshot model file %1 was not found.").arg(snapshot));
     }
+
+    // setup part list arguments
     arguments << QString("-LDrawDir=\"%1\"").arg(QDir::toNativeSeparators(Preferences::ldrawLibPath));
-    if (!m_partListKey.isEmpty())
-        arguments << QString("-PartlistKey=%1").arg(m_partListKey);
-    Options.InputFileName = parts;
-    if (! generateBOMPartsFile(Options.InputFileName))
-        return;
-    arguments << QString("\"%1\"").arg(Options.InputFileName);
+    arguments << QString("-PartlistKey=%1").arg(partListKey);
+    arguments << QString("\"%1\"").arg(partListFile);
+
     Options.ExportArgs = arguments;
+    Options.InputFileName = partListFile;
+
     if (! renderer->NativeExport(Options)) {
         emit messageSig(LOG_ERROR,QMessageBox::tr("HTML parts list export failed."));
     }

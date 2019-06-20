@@ -59,6 +59,11 @@ table.titleImage\n\
 	border-bottom: 0px;\n\
 }\n\
 \n\
+table.contentTable\n\
+{\n\
+	width: 100%;\n\
+}\n\
+\n\
 th.titleImage\n\
 {\n\
 	background-color: #EEEEEE;\n\
@@ -629,8 +634,10 @@ bool LDVHtmlInventory::generateHtml(
 				QString elementId = Annotations::getBLElement(
 					ldColorId, ldPartId,
 					getElementSource());
-				if (elementId.isEmpty())
+				if (elementId.isEmpty()) {
 					invalidElements++;
+					uniqueElements--;
+				}
 				if (find(uniqueColors.begin(), uniqueColors.end(), colors[j]) == uniqueColors.end())
 					uniqueColors.push_back(colors[j]);
 			}
@@ -1186,6 +1193,11 @@ void LDVHtmlInventory::writePartCell(
 								.arg(QString::fromStdString(partName))
 								.arg(QString::number(colorNumber))
 								.arg(QString::fromStdString(m_partListKey)));
+								
+		if (!QFileInfo(localPartPath).exists()) {
+            localPartPath = QString(VER_LPUB3D_IMAGE_NOT_FOUND_URL);
+			viewOnString = lsUtf8("PLVImageNotFound") + viewOnString;
+		}
 
 		fprintf(file, "<img alt=\"%s\" title=\"%s\" src=\"%s\">",
 			viewOnString.c_str(), viewOnString.c_str(),
@@ -1421,7 +1433,7 @@ void LDVHtmlInventory::writeTableHeader(
 	}
 	fprintf(file, "	</tbody>\n");
 	fprintf(file, "</table>\n");
-	fprintf(file, "<table id=\"content-table\">\n");
+	fprintf(file, "<table id=\"content-table\" class=\"contentTable\">\n");
 	fprintf(file, "	<thead>\n");
 	fprintf(file, "		<tr>\n");
 	for (i = 0; i < m_columnOrder.size(); i++)

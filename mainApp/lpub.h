@@ -492,8 +492,6 @@ public:
   QProgressBar    *m_progressDlgProgressBar;
 
   bool             m_partListCSIFile;   // processing part list CSI file
-  bool             m_partListAbsRotate; // is the part list rotation ABS
-  QString          m_partListKey;       // pli part key;
 
   void            *noData;
 

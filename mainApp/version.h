@@ -147,6 +147,7 @@
 #define VER_REBRICKABLE_API_URL             "https://rebrickable.com/api/v3/lego"
 #define VER_REBRICKABLE_KEYS_JSON_URL       VER_COMPANYDOMAIN_STR "assets/resources/rebrickablekeys.json"
 #define VER_LPUB3D_BLCODES_DOWNLOAD_URL     VER_COMPANYDOMAIN_STR "assets/resources/codes.txt"
+#define VER_LPUB3D_IMAGE_NOT_FOUND_URL      VER_COMPANYDOMAIN_STR "assets/resources/missingimage.png"
 
 #ifdef __GNUC__
   #ifdef __MINGW64__

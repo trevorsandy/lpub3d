@@ -155,11 +155,6 @@ Step::Step(
   highlightStep             = _meta.LPub.highlightStep.highlightStep.value() && !gui->suppressColourMeta();
   sceneStepNumberZ          = _meta.LPub.page.scene.stepNumber;
   sceneRotateIconZ          = _meta.LPub.page.scene.rotateIconBackground;
-
-  if (gui->exportingObjects() && gui->m_partListCSIFile){
-      pliMetaCameraFoV      = _meta.LPub.bom.cameraFoV;
-      pliMetaCameraAngles   = _meta.LPub.bom.cameraAngles;
-  }
 }
 
 /* step destructor destroys all callouts */
@@ -386,17 +381,6 @@ int Step::createCsi(
      }
 
      if (gui->exportingObjects() && gui->m_partListCSIFile){
-         bool suffix = QFileInfo(gui->getCurFile()).suffix().contains(QRegExp("(dat|ldr|mpd)$",Qt::CaseInsensitive));
-         gui->m_partListAbsRotate = absRotstep;
-         gui->m_partListKey = QString("%1_%2_%3_%4_%5_%6_%7.%8")
-                                      .arg(gui->pageSize(meta.LPub.page, 0))
-                                      .arg(double(resolution()))
-                                      .arg(resolutionType() == DPI ? "DPI" : "DPCM")
-                                      .arg(double(modelScale))
-                                      .arg(double(pliMetaCameraFoV.value()))
-                                      .arg(absRotstep ? double(noCA.value(0)) : double(pliMetaCameraAngles.value(0)))
-                                      .arg(absRotstep ? double(noCA.value(1)) : double(pliMetaCameraAngles.value(1)))
-                                      .arg(suffix ? QFileInfo(gui->getCurFile()).suffix() : "ldr");
          pixmap->load(":/resources/save.png");  // just a placeholder
          csiPlacement.size[0] = 32;
          csiPlacement.size[1] = 32;
