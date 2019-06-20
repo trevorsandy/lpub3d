@@ -1686,11 +1686,11 @@ void ColourPartListWorker::fileSectionHeader(const int &option, const QString &h
         _ldrawStaticColourParts  << "# enabled, color codes are replaced with a custom code using the standard color code ";
         _ldrawStaticColourParts  << "# prefixed with [" LPUB3D_COLOUR_HIGHLIGHT_PREFIX "].";
         _ldrawStaticColourParts  << "";
-        _ldrawStaticColourParts  << "# When fade step is enabled, custom generated files are appended with '-fade',";
-        _ldrawStaticColourParts  << "# for example, ...\\custom\\parts\\99499-fade.dat";
+        _ldrawStaticColourParts  << "# When fade step is enabled, custom generated files are appended with '" FADE_SFX "',";
+        _ldrawStaticColourParts  << "# for example, ...\\custom\\parts\\99499"  FADE_SFX ".dat";
         _ldrawStaticColourParts  << "";
-        _ldrawStaticColourParts  << "# When highlight step is enabled, custom generated files are appended with '-highlight',";
-        _ldrawStaticColourParts  << "# for example, ...\\custom\\parts\\99499-highlight.dat";
+        _ldrawStaticColourParts  << "# When highlight step is enabled, custom generated files are appended with '" HIGHLIGHT_SFX "',";
+        _ldrawStaticColourParts  << "# for example, ...\\custom\\parts\\99499" HIGHLIGHT_SFX ".dat";
         _ldrawStaticColourParts  << "";
         _ldrawStaticColourParts  << "# Part identifiers with spaces will not be properly recognized.";
         _ldrawStaticColourParts  << "";

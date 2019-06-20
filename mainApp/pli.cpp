@@ -113,8 +113,8 @@ Pli::Pli(bool _bom) : bom(_bom)
   background = nullptr;
   splitBom = false;
 
-  ptn.append( { FADE_PART, "-fade" } );
-  ptn.append( { HIGHLIGHT_PART, "-highlight" } );
+  ptn.append( { FADE_PART, FADE_SFX } );
+  ptn.append( { HIGHLIGHT_PART, HIGHLIGHT_SFX } );
   ptn.append( { NORMAL_PART, QString() } );
 
   isSubModel = false;  // isSubModel NOT USED - Moved to SubModelItem class

@@ -3065,11 +3065,11 @@ void Gui::writeToTmp()
           if (doFadeStep) {
             QString fadeFileName = fileName;
             if (ldr) {
-              fadeFileName = fadeFileName.replace(".ldr", "-fade.ldr");
+              fadeFileName = fadeFileName.replace(".ldr", QString("%1.ldr").arg(FADE_SFX));
             } else if (mpd) {
-              fadeFileName = fadeFileName.replace(".mpd", "-fade.mpd");
+              fadeFileName = fadeFileName.replace(".mpd", QString("%1.mpd").arg(FADE_SFX));
             } else if (dat) {
-              fadeFileName = fadeFileName.replace(".dat", "-fade.dat");
+              fadeFileName = fadeFileName.replace(".dat", QString("%1.dat").arg(FADE_SFX));
             }
             /* Faded version of submodels */
             emit messageSig(LOG_INFO, "Writing fade submodels to temp directory: " + fadeFileName);
@@ -3080,11 +3080,11 @@ void Gui::writeToTmp()
           if (doHighlightStep) {
             QString highlightFileName = fileName;
             if (ldr) {
-              highlightFileName = highlightFileName.replace(".ldr", "-highlight.ldr");
+              highlightFileName = highlightFileName.replace(".ldr", QString("%1.ldr").arg(HIGHLIGHT_SFX));
             } else if (mpd) {
-              highlightFileName = highlightFileName.replace(".mpd", "-highlight.mpd");
+              highlightFileName = highlightFileName.replace(".mpd", QString("%1.mpd").arg(HIGHLIGHT_SFX));
             } else if (dat) {
-              highlightFileName = highlightFileName.replace(".dat", "-highlight.dat");
+              highlightFileName = highlightFileName.replace(".dat", QString("%1.dat").arg(HIGHLIGHT_SFX));
             }
             /* Highlighted version of submodels */
             emit messageSig(LOG_INFO, "Writing highlight submodel to temp directory: " + highlightFileName);
@@ -3315,15 +3315,15 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
                   }
                   if (type_1_line) {
                         if (is_colour_part)
-                               fileNameStr = QDir::toNativeSeparators(fileNameStr.replace(".dat", "-fade.dat"));
+                               fileNameStr = QDir::toNativeSeparators(fileNameStr.replace(".dat", QString("%1.dat").arg(FADE_SFX)));
                         // process subfiles naming
                         if (is_submodel_file) {
                                if (ldr) {
-                                 fileNameStr = fileNameStr.replace(".ldr", "-fade.ldr");
+                                 fileNameStr = fileNameStr.replace(".ldr", QString("%1.ldr").arg(FADE_SFX));
                                } else if (mpd) {
-                                 fileNameStr = fileNameStr.replace(".mpd", "-fade.mpd");
+                                 fileNameStr = fileNameStr.replace(".mpd", QString("%1.mpd").arg(FADE_SFX));
                                } else if (dat) {
-                                 fileNameStr = fileNameStr.replace(".dat", "-fade.dat");
+                                 fileNameStr = fileNameStr.replace(".dat", QString("%1.dat").arg(FADE_SFX));
                                }
                         }
                         // assign fade part name
@@ -3352,15 +3352,15 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
                   }
                   if (type_1_line) {
                         if (is_colour_part)
-                               fileNameStr = QDir::toNativeSeparators(fileNameStr.replace(".dat", "-highlight.dat"));
+                               fileNameStr = QDir::toNativeSeparators(fileNameStr.replace(".dat", QString("%1.dat").arg(HIGHLIGHT_SFX)));
                         // process subfiles naming
                         if (is_submodel_file) {
                                if (ldr) {
-                                 fileNameStr = fileNameStr.replace(".ldr", "-highlight.ldr");
+                                 fileNameStr = fileNameStr.replace(".ldr", QString("%1.ldr").arg(HIGHLIGHT_SFX));
                                } else if (mpd) {
-                                 fileNameStr = fileNameStr.replace(".mpd", "-highlight.mpd");
+                                 fileNameStr = fileNameStr.replace(".mpd", QString("%1.mpd").arg(HIGHLIGHT_SFX));
                                } else if (dat) {
-                                 fileNameStr = fileNameStr.replace(".dat", "-highlight.dat");
+                                 fileNameStr = fileNameStr.replace(".dat", QString("%1.dat").arg(HIGHLIGHT_SFX));
                                }
                         }
                         // assign fade part name

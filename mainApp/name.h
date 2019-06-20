@@ -278,6 +278,8 @@ static const SceneObject NoContextSceneObjects[] =
 #define UPDATES                 "Updates"
 #define LOGGING                 "Logging"
 
+#define FADE_SFX                    "-fade"
+#define HIGHLIGHT_SFX               "-highlight"
 #define SAVE_DISPLAY_PAGE_NUM_KEY   "SaveDisplayPageNum"
 #define SAVE_SKIP_PARTS_ARCHIVE_KEY "SaveSkipPartsArchive"
 #define VIEW_PARTS_WIDGET_KEY       "ViewPartsWidget"

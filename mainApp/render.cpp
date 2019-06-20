@@ -322,11 +322,11 @@ float Render::getPovrayRenderCameraDistance(const QString &cdKeys){
 const QStringList Render::getSubAttributes(const QString &nameKey)
 {
     QString cleanString = QFileInfo(nameKey).baseName().trimmed();
-    if (Preferences::enableFadeSteps && nameKey.endsWith("-fade"))
-        cleanString.chop(QString("-fade").size());
+    if (Preferences::enableFadeSteps && nameKey.endsWith(FADE_SFX))
+        cleanString.chop(QString(FADE_SFX).size());
     else
-    if (Preferences::enableHighlightStep && nameKey.endsWith("-highlight"))
-        cleanString.chop(QString("-highlight").size());
+    if (Preferences::enableHighlightStep && nameKey.endsWith(HIGHLIGHT_SFX))
+        cleanString.chop(QString(HIGHLIGHT_SFX).size());
 
     return cleanString.split("_");
 }
@@ -2317,22 +2317,24 @@ int Render::createNativeModelFile(
 
               // Custom part types
               if (doFadeStep) {
-                  bool isFadedItem = type.contains("-fade.");
+                  QString fadeSfx = QString("%1.").arg(FADE_SFX);
+                  bool isFadedItem = type.contains(fadeSfx);
                   // Fade file
                   if (isFadedItem) {
                       customType = type;
-                      customType = customType.replace("-fade.",".");
+                      customType = customType.replace(fadeSfx,".");
                       isCustomSubModel = gui->isSubmodel(customType);
                       isCustomPart = gui->isUnofficialPart(customType);
                     }
                 }
 
               if (doHighlightStep) {
-                  bool isHighlightItem = type.contains("-highlight");
+                  QString highlightSfx = QString("%1.").arg(HIGHLIGHT_SFX);
+                  bool isHighlightItem = type.contains(highlightSfx);
                   // Highlight file
                   if (isHighlightItem) {
                       customType = type;
-                      customType = customType.replace("-highlight.",".");
+                      customType = customType.replace(highlightSfx,".");
                       isCustomSubModel = gui->isSubmodel(customType);
                       isCustomPart = gui->isUnofficialPart(customType);
                     }
@@ -2422,22 +2424,24 @@ int Render::mergeNativeCSISubModels(QStringList &subModels,
 
                   // Custom part types
                   if (doFadeStep) {
-                      bool isFadedItem = type.contains("-fade.");
+                      QString fadeSfx = QString("%1.").arg(FADE_SFX);
+                      bool isFadedItem = type.contains(fadeSfx);
                       // Fade file
                       if (isFadedItem) {
                           customType = type;
-                          customType = customType.replace("-fade.",".");
+                          customType = customType.replace(fadeSfx,".");
                           isCustomSubModel = gui->isSubmodel(customType);
                           isCustomPart = gui->isUnofficialPart(customType);
                         }
                     }
 
                   if (doHighlightStep) {
-                      bool isHighlightItem = type.contains("-highlight");
+                      QString highlightSfx = QString("%1.").arg(HIGHLIGHT_SFX);
+                      bool isHighlightItem = type.contains(highlightSfx);
                       // Highlight file
                       if (isHighlightItem) {
                           customType = type;
-                          customType = customType.replace("-highlight.",".");
+                          customType = customType.replace(highlightSfx,".");
                           isCustomSubModel = gui->isSubmodel(customType);
                           isCustomPart = gui->isUnofficialPart(customType);
                         }
