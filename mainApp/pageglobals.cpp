@@ -173,7 +173,6 @@ GlobalPageDialog::GlobalPageDialog(
 
   /*
     Title,
-    Cover Image
   */
 
   //child body (many) start
@@ -199,13 +198,39 @@ GlobalPageDialog::GlobalPageDialog(
           SLOT(indexChanged(int)));
   //child body end
 
+  //spacer
+  childlayout->addSpacerItem(vSpacer);
+
+  // child footer (one) end
+  childtab->addTab(widget,"Title");
+  // child footer end
+
+  // child header (one) start
+  widget = new QWidget();
+  childlayout = new QVBoxLayout();
+  widget->setLayout(childlayout);
+  // child header end
+
+  /*
+    Cover Image
+  */
+
   //child body (many) start
-  box = new QGroupBox(tr("Display Cover Image"));
-  childlayout->addWidget(box);
-  //grid->addWidget(box, 1, 0);
-  child = new PageAttributePictureGui(&pageMeta->coverImage,box);
+  coverPageBox = new QGroupBox(tr("Display Cover Image"));
+  childlayout->addWidget(coverPageBox);
+  child = new PageAttributePictureGui(&pageMeta->coverImage,coverPageBox);
   chilPicdGui = static_cast<PageAttributePictureGui*>(child);
   chilPicdGui->pictureEdit->setToolTip("Enter image path");
+  data->children.append(child);
+  connect(coverPageBox, SIGNAL(toggled(bool)),
+          this,         SLOT(  displayGroup(bool)));
+  //child body end
+
+  //child body (many) start
+  coverPageBorderBox = new QGroupBox(tr("Border"));
+  coverPageBorderBox->setEnabled(coverPageBox->isChecked());
+  childlayout->addWidget(coverPageBorderBox);
+  child = new BorderGui(&pageMeta->coverImage.border,coverPageBorderBox);
   data->children.append(child);
   //child body end
 
@@ -213,7 +238,7 @@ GlobalPageDialog::GlobalPageDialog(
   childlayout->addSpacerItem(vSpacer);
 
   // child footer (one) end
-  childtab->addTab(widget,"Title/Cover Image");
+  childtab->addTab(widget,"Cover Image");
   // child footer end
 
   // child header (one) start
@@ -393,13 +418,17 @@ GlobalPageDialog::GlobalPageDialog(
 
   childtab->addTab(widget,tr("URL/Description"));
 
+  // child header (one) start
   widget = new QWidget();
   childlayout = new QVBoxLayout();
   widget->setLayout(childlayout);
+  // child header end
+
   /*
     Copyright
-    Logo
   */
+
+  //child body (many) start
   copyrightBoxBack = new QGroupBox(tr("Display Copyright Back Cover"));
   childlayout->addWidget(copyrightBoxBack);
   copyrightChildBack = new PageAttributeTextGui(&pageMeta->copyrightBack,copyrightBoxBack);
@@ -408,7 +437,9 @@ GlobalPageDialog::GlobalPageDialog(
   data->children.append(copyrightChildBack);
   connect(copyrightChildBack, SIGNAL(indexChanged(int)),
          SLOT(indexChanged(int)));
+  //child body end
 
+  //child body (many) start
   copyrightBox = new QGroupBox(tr("Display Copyright Header/Footer"));
   childlayout->addWidget(copyrightBox);
   copyrightBox->hide();
@@ -418,8 +449,27 @@ GlobalPageDialog::GlobalPageDialog(
   data->children.append(copyrightChild);
   connect(copyrightChild, SIGNAL(indexChanged(int)),
          SLOT(indexChanged(int)));
+  //child body end
 
-  documentLogoBoxFront = new QGroupBox(tr("Display Logo Front Cover"));
+  //spacer
+  childlayout->addSpacerItem(vSpacer);
+
+  // child footer (one) end
+  childtab->addTab(widget,tr("Copyright"));
+  // child footer end
+
+  // child header (one) start
+  widget = new QWidget();
+  childlayout = new QVBoxLayout();
+  widget->setLayout(childlayout);
+  // child header end
+
+  /*
+    document logo
+  */
+
+  //child body (many) start
+  documentLogoBoxFront = new QGroupBox(tr("Display Front Cover Logo"));
   childlayout->addWidget(documentLogoBoxFront);
   documentLogoChildFront = new PageAttributePictureGui(&pageMeta->documentLogoFront,documentLogoBoxFront);
   chilPicdGui = static_cast<PageAttributePictureGui*>(documentLogoChildFront);
@@ -427,8 +477,20 @@ GlobalPageDialog::GlobalPageDialog(
   data->children.append(documentLogoChildFront);
   connect(documentLogoChildFront, SIGNAL(indexChanged(int)),
          SLOT(indexChanged(int)));
+  connect(documentLogoBoxFront, SIGNAL(toggled(bool)),
+          this,                   SLOT(  displayGroup(bool)));
+  //child body end
 
-  documentLogoBoxBack = new QGroupBox(tr("Display Logo Back Cover"));
+  //child body (many) start
+  documentLogoBorderBoxFront = new QGroupBox(tr("Logo Front Cover Border"));
+  documentLogoBorderBoxFront->setEnabled(documentLogoBoxFront->isChecked());
+  childlayout->addWidget(documentLogoBorderBoxFront);
+  child = new BorderGui(&pageMeta->plugImage.border,documentLogoBorderBoxFront);
+  data->children.append(child);
+  //child body end
+
+  //child body (many) start
+  documentLogoBoxBack = new QGroupBox(tr("Display Back Cover Logo"));
   childlayout->addWidget(documentLogoBoxBack);
   documentLogoBoxBack->hide();
   documentLogoChildBack = new PageAttributePictureGui(&pageMeta->documentLogoBack,documentLogoBoxBack);
@@ -437,11 +499,25 @@ GlobalPageDialog::GlobalPageDialog(
   data->children.append(documentLogoChildBack);
   connect(documentLogoChildBack, SIGNAL(indexChanged(int)),
          SLOT(indexChanged(int)));
+  connect(documentLogoBoxBack, SIGNAL(toggled(bool)),
+          this,                SLOT(  displayGroup(bool)));
+  //child body end
+
+  //child body (many) start
+  documentLogoBorderBoxBack = new QGroupBox(tr("Logo Back Cover Border"));
+  documentLogoBorderBoxBack->hide();
+  documentLogoBorderBoxBack->setEnabled(documentLogoBoxBack->isChecked());
+  childlayout->addWidget(documentLogoBorderBoxBack);
+  child = new BorderGui(&pageMeta->plugImage.border,documentLogoBorderBoxBack);
+  data->children.append(child);
+  //child body end
 
   //spacer
   childlayout->addSpacerItem(vSpacer);
 
-  childtab->addTab(widget,tr("Copyright/Logo"));
+  // child footer (one) end
+  childtab->addTab(widget,tr("Logo"));
+  // child footer end
 
   //~~~~~~~~~~~~ disclaimer tab ~~~~~~~~~~~//
   childwidget = new QWidget();
@@ -467,13 +543,17 @@ GlobalPageDialog::GlobalPageDialog(
 
   childtab->addTab(widget,tr("Disclaimer"));
 
+  // child header (one) start
   widget = new QWidget();
   childlayout = new QVBoxLayout();
   widget->setLayout(childlayout);
+  // child header end
+
   /*
     Plug
-    Plug image
   */
+
+  //child body (many) start
   box = new QGroupBox(tr("Display LPub3D Plug"));
   childlayout->addWidget(box);
   child = new PageAttributeTextGui(&pageMeta->plug,box);
@@ -483,20 +563,53 @@ GlobalPageDialog::GlobalPageDialog(
   childTextGui->contentEdit->setReadOnly(true);
   childTextGui->contentEdit->setPalette(readOnlyPalette);
   data->children.append(child);
+  //child body end
 
-  box = new QGroupBox(tr("Display LPub3D Logo"));
-  childlayout->addWidget(box);
-  child = new PageAttributePictureGui(&pageMeta->plugImage,box);
+  //spacer
+  childlayout->addSpacerItem(vSpacer);
+
+  // child footer (one) end
+  childtab->addTab(widget,tr("LPub3D Plug"));
+  // child footer end
+
+
+  // child header (one) start
+  widget = new QWidget();
+  childlayout = new QVBoxLayout();
+  widget->setLayout(childlayout);
+  // child header end
+
+  /*
+    Logo
+  */
+
+  //child body (many) start
+  lpub3dLogoBox = new QGroupBox(tr("Display LPub3D Logo"));
+  childlayout->addWidget(lpub3dLogoBox);
+  child = new PageAttributePictureGui(&pageMeta->plugImage,lpub3dLogoBox);
   readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
   chilPicdGui = static_cast<PageAttributePictureGui*>(child);
   chilPicdGui->pictureEdit->setReadOnly(true);
   chilPicdGui->pictureEdit->setPalette(readOnlyPalette);
   data->children.append(child);
+  connect(lpub3dLogoBox, SIGNAL(toggled(bool)),
+          this,    SLOT(  displayGroup(bool)));
+  //child body end
+
+  //child body (many) start
+  lpub3dLogoBorderBox = new QGroupBox(tr("Border"));
+  lpub3dLogoBorderBox->setEnabled(lpub3dLogoBorderBox->isChecked());
+  childlayout->addWidget(lpub3dLogoBorderBox);
+  child = new BorderGui(&pageMeta->plugImage.border,lpub3dLogoBorderBox);
+  data->children.append(child);
+  //child body end
 
   //spacer
   childlayout->addSpacerItem(vSpacer);
 
-  childtab->addTab(widget,tr("LPub3D Plug"));
+  // child footer (one) end
+  childtab->addTab(widget,tr("LPub3D Logo"));
+  // child footer end
 
   //~~~~~~~~~ page number tab ~~~~~~~~~~~~//
   widget = new QWidget();
@@ -543,6 +656,18 @@ GlobalPageDialog::GlobalPageDialog(
     setMinimumHeight(780);
   else
     setMinimumSize(40,20);
+}
+
+void GlobalPageDialog::displayGroup(bool b) {
+    if (sender() == coverPageBox)
+        coverPageBorderBox->setEnabled(b);
+    if (sender() == lpub3dLogoBox)
+        lpub3dLogoBorderBox->setEnabled(b);
+
+    if (sender() == documentLogoBoxBack)
+        documentLogoBorderBoxBack->setEnabled(b);
+    if (sender() == documentLogoBoxFront)
+        documentLogoBorderBoxFront->setEnabled(b);
 }
 
 void GlobalPageDialog::indexChanged(int selection){
@@ -637,10 +762,14 @@ void GlobalPageDialog::indexChanged(int selection){
         case 0: //FrontCover
             documentLogoBoxFront->show();
             documentLogoBoxBack->hide();
+            documentLogoBorderBoxFront->show();
+            documentLogoBorderBoxBack->hide();
             break;
         case 1: //BackCover
             documentLogoBoxFront->hide();
             documentLogoBoxBack->show();
+            documentLogoBorderBoxFront->hide();
+            documentLogoBorderBoxBack->show();
             break;
         }
     }

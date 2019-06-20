@@ -63,6 +63,12 @@ public:
 
   int             sectionIndex;
 
+  QGroupBox      *coverPageBox;
+  QGroupBox      *coverPageBorderBox;
+
+  QGroupBox      *lpub3dLogoBox;
+  QGroupBox      *lpub3dLogoBorderBox;
+
   QGroupBox      *box;
 
   QGroupBox      *authorBoxFront;
@@ -77,6 +83,8 @@ public:
 
   QGroupBox      *documentLogoBoxFront;
   QGroupBox      *documentLogoBoxBack;
+  QGroupBox      *documentLogoBorderBoxFront;
+  QGroupBox      *documentLogoBorderBoxBack;
 
   QGroupBox      *copyrightBox;
   QGroupBox      *copyrightBoxBack;
@@ -109,6 +117,7 @@ public slots:
   void indexChanged(int selection);
   void accept();
   void cancel();
+  void displayGroup(bool b);
 };
 
 /*****************************************************************
