@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: June 23, 2019
+rem  Last Update: June 24, 2019
 rem  Copyright (c) 2015 - 2019 by Trevor SANDY
 rem --
 SETLOCAL
@@ -715,7 +715,7 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%     "linux-api": {
 >>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VERSION%/",
 >>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_SOURCEFORGE_BASE%/LPub3D-%LP3D_VERSION%-%LP3D_ARCH%.AppImage",
+>>%genLPub3DUpdates%       "download-url": "%LP3D_SOURCEFORGE_BASE%/LPub3D-%LP3D_APP_VERSION_LONG%-%LP3D_ARCH%.AppImage",
 >>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_BASE%/release_notes_%LP3D_VERSION%..html",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_api%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-api": {}

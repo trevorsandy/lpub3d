@@ -70,7 +70,7 @@ fi
 
 cd debbuild/SOURCES
 
-if [ "${TRAVIS}" != "true"  ]; then
+if [ "${TRAVIS}" != "true" ]; then
     echo "2. download source to SOURCES/..."
     git clone https://github.com/trevorsandy/${LPUB3D}.git
 else

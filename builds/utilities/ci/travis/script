@@ -3,7 +3,7 @@
 # Travis build [script] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: March 01, 2019
+#  Last Update: June 24, 2019
 #  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -110,10 +110,8 @@ if [ "$LP3D_DEPLOY_PACKAGES" = "" ]; then
           echo "AppImage build completed successfully.";
           AppImageExtension=${AppImageFile##*-};
           mkdir -p $AppImageBuildPath/AppImage;
-          cp -f ${AppImageFile} "${AppImageBuildPath}/AppImage/LPub3D-${LP3D_APP_VERSION_LONG}-${AppImageExtension}";
+          mv -f ${AppImageFile} "${AppImageBuildPath}/AppImage/LPub3D-${LP3D_APP_VERSION_LONG}-${AppImageExtension}";
           echo "    Download package..: LPub3D-${LP3D_APP_VERSION_LONG}-${AppImageExtension}";
-          mv -f ${AppImageFile} "${AppImageBuildPath}/AppImage/LPub3D-UpdateMaster_${LP3D_VERSION}-${AppImageExtension}";
-          echo "    Update package....: LPub3D-UpdateMaster_${LP3D_VERSION}-${AppImageExtension}";
         else
           echo "AppImage build failed. $AppImageFile not found.";
         fi

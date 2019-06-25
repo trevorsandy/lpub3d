@@ -1,6 +1,6 @@
 # Build and check LPub3D on Linux and macOS
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: June 21, 2019
+# Last Update: June 24, 2019
 # Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 language: cpp
@@ -8,7 +8,7 @@ sudo: required
 dist: trusty
 
 git:
-  depth: 1500
+  depth: 150000
 
 cache:
   ccache: true
@@ -53,6 +53,7 @@ env:
     - LP3D_VER_LDVIEW=ldview-4.3
     - LP3D_VER_POVRAY=lpub3d_trace_cui-3.8
     - LP3D_VER_MESALIB=mesa
+    - LP3D_RELEASE_DESCRIPTION="LPub3D - An LDraw™ editor for LEGO® style digital building instructions."
 
 addons:
   ssh_known_hosts: trevorsandy@frs.sourceforge.net
@@ -130,7 +131,7 @@ jobs:
     deploy:
       provider: releases
       name: $LP3D_RELEASE_LABEL
-      body: 'LPub3D - An LDraw™ editor for LEGO® style digital building instructions.'
+      body: $LP3D_RELEASE_DESCRIPTION
       api_key:
         secure: BVAK5ojmnBxuV8UIn9HZkfKLPaOZx0W5Ga3wQa3KveYiyTC0h7U9KRZr6kLQYFTZiTf/SGJTn06hiEkJfhaT3HvfuKIYzFl7kF3HnkoolG991aNtAcoCSHHxXMRT7+SYoHGOwBAlDyYgcmwGozCMD3c8cWB0o7qZuzFHr5lp+PyEZOb/OkeZvcUlb6DkK+7lYQ5RESrhSBNWBgzhS+3CuSpIAi/Zqg0CMRoIknfzw2uef1NfTTEdOGfcW499//oS9Y3Up/TruG/3EEcEXt7OXfxBPZGvtzia4NP2jGVNV4TbWuhJAx747cLAYWX0lMUnEFUpMbMNT45G+YUeO2/fNc4XeY9CfjAQkUAM0SBcbEqTfk6BBMyn6YYD574ShZOrVaLGkG/4HX36WljD9nc1rBvuKXfcU1mnKXuWPA5wYfhmJLXznd0zVpBC+3hprbC9+HOKKyjufYXCyOlTRc9Q7Iw68ot/uxqaE331mtY4vG5UetlvPWRyxoj6gwmhreaUz3MjXBs5dEozZBWNCIsFb25u/5Rpl9FoCbnuf3HFSwuq/Fw7yqq9tVyMMMHQxqQlwZHsEODBGvZ8BcGkU0Uc4b2vlDtvslmjhKZiIpVTYh63SpcyZJ9AoL8B/5BD1g8tBjaZ5uycLjYFRkeSBK/NJx9+ltFRlFWjaYl7e85gcN0=
       file_glob: true

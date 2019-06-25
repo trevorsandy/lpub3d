@@ -3,7 +3,7 @@
 # Travis build [after_script] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: June 23, 2019
+#  Last Update: June 24, 2019
 #  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -44,27 +44,29 @@ cd $LP3D_BUILD_FOLDER
 if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_STORAGE" && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
   if [ "$TRAVIS_OS_NAME" = "linux" ]; then
     echo "Docker-generated Assets:" && find $LP3D_COMPOSE_DIR -type f -not -name "*ocker*";
-    echo "Copying Docker-generated assets to release locations..."
     if [ "$LP3D_BUILD_ARCH" = "true" ]; then
-      file_DPkg=$(find $LP3D_COMPOSE_DIR -name *.pkg.tar.xz -type f);
+      echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.pkg.tar.xz from $LP3D_COMPOSE_DIR..."
+      file_DPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-${LP3D_APP_VERSION_LONG}*.pkg.tar.xz -type f);
     fi;
     if [ "$LP3D_BUILD_FEDORA" = "true" ]; then
-      file_DPkg=$(find $LP3D_COMPOSE_DIR -name *.rpm -type f);
+      echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.rpm from $LP3D_COMPOSE_DIR..."
+      file_DPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-${LP3D_APP_VERSION_LONG}*.rpm -type f);
     fi;
     if [ "$LP3D_BUILD_UBUNTU" = "true" ]; then
-      file_DPkg=$(find $LP3D_COMPOSE_DIR -name *.deb -type f);
+      echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.deb from $LP3D_COMPOSE_DIR..."
+      file_DPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-${LP3D_APP_VERSION_LONG}*.deb -type f);
     fi;
     file_Logs=$(find $LP3D_COMPOSE_DIR -name *.log -type f);
   fi;
   if [ "$LP3D_BUILD_MACOS" = "true" ]; then
-    echo "Copying macOS-generated assets to release locations..."
+    echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.dmg from $DmgBuildPath/lpub3d..."
     file_DPkg=$(find $DmgBuildPath/DMGS -name LPub3D-${LP3D_APP_VERSION_LONG}*.dmg -type f);
     file_Logs=$(find $DmgBuildPath/lpub3d -name CreateDmg.sh.log -type f);
     [ -n "$file_Logs" ] && cp -f $file_Logs $LP3D_LOGS_DIR || echo "ERROR - Logs folder empty, nothing copied";
     file_Logs=$(find $DmgBuildPath -name CreateRenderers.sh*.log -type f);
   fi;
   if [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
-    echo "Copying AppImage-generated assets to release locations..."
+    echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.AppImage from $AppImageBuildPath/AppImage..."
     file_DPkg=$(find $AppImageBuildPath/AppImage -name LPub3D-${LP3D_APP_VERSION_LONG}*.AppImage -type f);
     file_Logs=$(find ${LP3D_BUILD_FOLDER} -name CreateAppImage.log -type f);
     [ -n "$file_Logs" ] && cp -f $file_Logs $LP3D_LOGS_DIR || echo "ERROR - Logs folder empty, nothing copied";

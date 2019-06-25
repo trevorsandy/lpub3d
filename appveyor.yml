@@ -63,6 +63,7 @@ environment:
   LP3D_DIST_DIR: lpub3d_windows_3rdparty
   LP3D_DIST_DIR_PATH: $(APPVEYOR_BUILD_FOLDER)\$(LP3D_DIST_DIR)
   LP3D_SECURE_DIR: builds\utilities\ci\secure
+  LP3D_RELEASE_DESCRIPTION: "LPub3D - An LDraw™ editor for LEGO® style digital building instructions."
   SECURE_AV_SECRET:
     secure: nQtdZL7czHUCbI5HicAKEwLHmW88oGm9Y55LPalj8L4=
   SECURE_SF_SECRET:
@@ -253,15 +254,15 @@ after_build:
         builds\utilities\ci\set_ps_vars.ps1
         Get-ChildItem Env:* -Include ("LP3D_BUILD_*","LP3D_VERSION*","LP3D_APP_*") | Sort-Object name
         write-host "`n"
-        if (${env:LP3D_DOWNLOAD_ASSETS}) {
-          $root = Resolve-Path .\${env:LP3D_DOWNLOAD_ASSETS}; [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-download-package }
-        } Else {
-          Write-Error -Message "env var LP3D_DOWNLOAD_ASSETS is null." -ErrorAction Stop
-        }
         if (${env:LP3D_UPDATE_ASSETS}) {
           $root = Resolve-Path .\${env:LP3D_UPDATE_ASSETS};   [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-update-package }
         } Else {
           Write-Error -Message "env var LP3D_UPDATE_ASSETS is null." -ErrorAction Stop
+        }
+        if (${env:LP3D_DOWNLOAD_ASSETS}) {
+          $root = Resolve-Path .\${env:LP3D_DOWNLOAD_ASSETS}; [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-download-package }
+        } Else {
+          Write-Error -Message "env var LP3D_DOWNLOAD_ASSETS is null." -ErrorAction Stop
         }
         If (($env:LP3D_DEPLOY_PKG -eq $true) -or ($env:LP3D_TEST_SF_DEPLOY_VAR -eq "true")) {
           write-host "`n"
@@ -269,11 +270,14 @@ after_build:
             cmd.exe /c nuget install secure-file -ExcludeVersion
             cmd.exe /c secure-file\tools\secure-file -decrypt %LP3D_SECURE_DIR%\.sfdeploy_appveyor_rsa.enc -secret %SECURE_SF_SECRET%
             C:\msys64\usr\bin\bash -lc 'cd $APPVEYOR_BUILD_FOLDER && chmod +x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh 2>&1'
-          } else {
+          } Else {
             write-host "Skip Sourceforge deploy detected - ["(git tag -l -n $env:APPVEYOR_REPO_TAG_NAME).Replace($env:APPVEYOR_REPO_TAG_NAME,"").Trim()"]."
           }
         } Else {
           $env:LP3D_DEPLOY_PKG = "false"
+        }
+        If ($env:APPVEYOR_PROJECT_NAME -ne "lpub3d") {
+          $env:LP3D_RELEASE_DESCRIPTION = "$env:LP3D_PACKAGE - Development Release"
         }
       }
 
@@ -282,7 +286,7 @@ deploy:
  - provider: GitHub
    tag: $(APPVEYOR_REPO_TAG_NAME)
    repository: trevorsandy/lpub3d
-   description: '$(LP3D_PACKAGE) - An LDraw™ editor for LEGO® style digital building instructions.'
+   description: $($env:LP3D_RELEASE_DESCRIPTION)
    auth_token:
      secure: rnf4qpF81ISjm8q13OgkAaoKZReXpjODhU9fbGFMhMydHrda1ezLubGXRU9OKGu4
    release: $(LP3D_RELEASE_LABEL)
@@ -292,6 +296,7 @@ deploy:
    on:
      branch: $(APPVEYOR_REPO_BRANCH)
      lp3d_deploy_pkg: true
+     appveyor_project_name: lpub3d
  - provider: GitHub
    tag: $(APPVEYOR_REPO_TAG_NAME)
    repository: trevorsandy/lpub3d

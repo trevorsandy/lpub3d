@@ -3,11 +3,15 @@
 # Travis build [release] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: March 06, 2019
+#  Last Update: June 24, 2019
 #  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
 
+# Set release description
+if [ $LPUB3D_DIR != "lpub3d" ]; then
+  LP3D_RELEASE_DESCRIPTION = "LPub3D - Development Release"
+fi;
 # Download release files from temp Dropbox store
 if [ -f "/tmp/.dropbox_oauth" ]; then
   chmod +x "${LP3D_CI_DIR}/dropbox_uploader.sh";
