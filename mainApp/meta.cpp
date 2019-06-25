@@ -4010,7 +4010,7 @@ PliMeta::PliMeta() : BranchMeta()
   rectangleStyle.background.setValue(BackgroundData::BgColor,"#ffffff");
   rectangleStyle.color.setValue("#34699d"); // #3a3938
   rectangleStyle.style.setValue(AnnotationStyle::rectangle);
-  rectangleStyle.size.setValuesInches(8.0f,0.28f);
+  rectangleStyle.size.setValuesInches(0.28f,0.28f);
   rectangleStyle.size.setRange(0.1f,8.0f);
 
   squareStyle.border.setValue(BorderData::BdrSquare,BorderData::BdrLnSolid,"#3a3938");
@@ -4143,7 +4143,7 @@ BomMeta::BomMeta() : PliMeta()
   rectangleStyle.background.setValue(BackgroundData::BgColor,"#ffffff");
   rectangleStyle.color.setValue("#34699d"); // #3a3938
   rectangleStyle.style.setValue(AnnotationStyle::rectangle);
-  rectangleStyle.size.setValuesInches(8.0f,0.28f);
+  rectangleStyle.size.setValuesInches(0.28f,0.28f);
   rectangleStyle.size.setRange(0.1f,8.0f);
 
   squareStyle.border.setValue(BorderData::BdrSquare,BorderData::BdrLnSolid,"#3a3938");

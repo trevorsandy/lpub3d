@@ -3592,7 +3592,21 @@ AnnotateTextItem::AnnotateTextItem(
   } else {
       // set rectangle size and dimensions parameters
       bool fixedStyle = part->styleMeta.style.value() != AnnotationStyle::rectangle && !isElement;
-      QRectF _styleRect = QRectF(0,0,fixedStyle ? styleSize.valuePixels(XX) : textRect.width(),styleSize.valuePixels(YY));
+      bool isRectangle = part->styleMeta.style.value() == AnnotationStyle::rectangle;
+      UnitsMeta rSize;
+      if (isRectangle) {
+          if ((_part->styleMeta.size.valueInches(XX) > 0.28f  ||
+               _part->styleMeta.size.valueInches(XX) < 0.28f) ||
+              (_part->styleMeta.size.valueInches(YY) > 0.28f  ||
+               _part->styleMeta.size.valueInches(YY) < 0.28f)) {
+              rSize = _part->styleMeta.size;
+          } else {
+              rSize.setValuePixels(XX,int(textRect.width()));
+              rSize.setValuePixels(YY,int(textRect.height()));
+          }
+      }
+      QRectF _styleRect = QRectF(0,0,fixedStyle ? styleSize.valuePixels(XX) : isRectangle ? rSize.valuePixels(XX) : textRect.width(),
+                                     fixedStyle ? styleSize.valuePixels(YY) : isRectangle ? rSize.valuePixels(YY) : textRect.height());
       styleRect = boundingRect().adjusted(0,0,_styleRect.width()-textRect.width(),_styleRect.height()-textRect.height());
 
       // scale down the font as needed

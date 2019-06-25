@@ -250,8 +250,22 @@ void CsiAnnotationItem::addGraphicsItems(
     } else {
         // set rectangle size and dimensions parameters
         bool fixedStyle = style.value() != AnnotationStyle::rectangle;
-        QRectF styleSize = QRectF(0,0,fixedStyle ? _part->styleMeta.size.valuePixels(XX) : textRect.width(), _part->styleMeta.size.valuePixels(YY));
-        styleRect = boundingRect().adjusted(0,0,styleSize.width()-textRect.width(),styleSize.height()-textRect.height());
+        bool isRectangle = style.value() == AnnotationStyle::rectangle;
+        UnitsMeta rSize;
+        if (isRectangle) {
+            if ((_part->styleMeta.size.valueInches(XX) > 0.28f  ||
+                 _part->styleMeta.size.valueInches(XX) < 0.28f) ||
+                (_part->styleMeta.size.valueInches(YY) > 0.28f  ||
+                 _part->styleMeta.size.valueInches(YY) < 0.28f)) {
+                rSize = _part->styleMeta.size;
+            } else {
+                rSize.setValuePixels(XX,int(textRect.width()));
+                rSize.setValuePixels(YY,int(textRect.height()));
+            }
+        }
+        QRectF _styleRect = QRectF(0,0,fixedStyle ? _part->styleMeta.size.valuePixels(XX) : isRectangle ? rSize.valuePixels(XX) : textRect.width(),
+                                       fixedStyle ? _part->styleMeta.size.valuePixels(YY) : isRectangle ? rSize.valuePixels(YY) : textRect.height());
+        styleRect = boundingRect().adjusted(0,0,_styleRect.width()-textRect.width(),_styleRect.height()-textRect.height());
 
         // scale down the font as needed
         scaleDownFont();
