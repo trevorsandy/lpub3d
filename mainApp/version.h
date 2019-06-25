@@ -16,6 +16,7 @@
 #define VERSION_H
 
 // ~~~~~ predefines ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+
 #define STR(x)   #x
 #define STRING(x)  STR(x)
 
@@ -133,14 +134,16 @@
 #define VER_LPUB3D_ONLINE_MANUAL_URL        "https://sites.google.com/view/workingwithlpub3d/"
 
 // ~~~~~~ Build Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+
+#define VER_SOURCEFORGE_STR                 "http://lpub3d.sourceforge.net/"
+#define VER_OFFICIAL_LIBRARY_JSON_URL       VER_SOURCEFORGE_STR "complete.json"
+#define VER_UNOFFICIAL_LIBRARY_JSON_URL     VER_SOURCEFORGE_STR "lpub3dldrawunf.json"
+#define VER_CHANGE_LOG_URL                  VER_SOURCEFORGE_STR "change_log.txt"
 #ifdef QT_DEBUG_MODE
   #define VER_UPDATE_CHECK_JSON_URL         "http://lpub3d.sourceforge.net/lpub3dupdates-test.json"
 #else
   #define VER_UPDATE_CHECK_JSON_URL         "http://lpub3d.sourceforge.net/lpub3dupdates.json"
 #endif
-#define VER_OFFICIAL_LIBRARY_JSON_URL       "http://lpub3d.sourceforge.net/complete.json"
-#define VER_UNOFFICIAL_LIBRARY_JSON_URL     "http://lpub3d.sourceforge.net/lpub3dldrawunf.json"
-#define VER_CHANGE_LOG_URL                  "http://lpub3d.sourceforge.net/change_log.txt"
 
 #define VER_COMPANYDOMAIN_STR               "https://trevorsandy.github.io/lpub3d/"
 #define VER_SOURCE_GITHUB_STR               "https://github.com/trevorsandy/lpub3d/"
@@ -148,13 +151,14 @@
 #define VER_REBRICKABLE_KEYS_JSON_URL       VER_COMPANYDOMAIN_STR "assets/resources/rebrickablekeys.json"
 #define VER_LPUB3D_BLCODES_DOWNLOAD_URL     VER_COMPANYDOMAIN_STR "assets/resources/codes.txt"
 #define VER_LPUB3D_IMAGE_NOT_FOUND_URL      VER_COMPANYDOMAIN_STR "assets/resources/missingimage.png"
+#define VER_QT_URL                          "https://www.qt.io/what-is-qt/?utm_campaign=Navigation%202019&utm_source=megamenu"
 
 #ifdef __GNUC__
   #ifdef __MINGW64__
     #define VER_COMPILED_ON             "MinGW (i686-7.2.0 64bit) Windows"
     #define VER_COMPILED_FOR            "MS Windows " VER_BUILD_ARCH_STR "bit"
     #define VER_COMPILED_WITH           "Qt qtver (MinGW " VER_BUILD_ARCH_STR "bit)"
-    #define VER_IDE                     "Qt Creator 4.6.2 on Qt 5.10.1 (MSVC 2015, x32)"
+    #define VER_IDE                     "Qt Creator 4.9.1 on Qt 5.12.3 (MSVC 2017, x32)"
   #elif __MINGW32__
     #define VER_COMPILED_ON             "MinGW (i686-5.3.0 32bit) Windows"
     #define VER_COMPILED_FOR            "MS Windows " VER_BUILD_ARCH_STR "bit"
@@ -182,7 +186,7 @@
   #define VER_COMPILED_ON                "Micorsoft Visual C++ 2015"
   #define VER_COMPILED_FOR               "MS Windows " VER_BUILD_ARCH_STR "bit"
   #define VER_COMPILED_WITH              "Qt qtver (MSVC2015 " VER_BUILD_ARCH_STR "bit)"
-  #define VER_IDE                        "Qt Creator 4.7.1 on Qt 5.11.2 (MSVC 2015, x32)" // "Visual Studio 2015 v14.0.25424.00 Update 3"
+  #define VER_IDE                        "Qt Creator 4.9.1 on Qt 5.12.3 (MSVC 2017, x32)" // "Visual Studio 2015 v14.0.25424.00 Update 3"
 #endif
 
 #endif // VERSION_H

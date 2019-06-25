@@ -28,6 +28,7 @@
         <file alias="bottomofdocument.png">resources/bottomofdocument.png</file>
         <file alias="bricklink32.png">resources/bricklink32.png</file>
         <file alias="bringtofront.png">resources/bringtofront.png</file>
+        <file alias="builtwithqt.png">resources/builtwithqt.png</file>
         <file alias="calloutsetup.png">resources/calloutsetup.png</file>
         <file alias="cameradistfactor.png">resources/cameradistfactor.png</file>
         <file alias="camerafov.png">resources/camerafov.png</file>

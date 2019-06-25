@@ -43,6 +43,7 @@ quazipnobuild {
 } else {
     INCLUDEPATH += ../quazip
 }
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 LDVMESSAGESINI = ldvMessages.ini

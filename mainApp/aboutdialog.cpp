@@ -128,6 +128,12 @@ AboutDialog::AboutDialog(QWidget *parent) :
                                    "<td>Build Date:</td>"
                                    "<td>%7</td>"
                                  "</tr>"
+                                 "<tr>"
+                                   "<td></td>"
+                                   "<td valign=\"right\">"
+                                     "<a href=\"%8\"><img src=\":/resources/builtwithqt.png\"></a>"
+                                   "</td>"
+                                 "</tr>"
                                "</table>");
     QString BuildInfo = BuildInfoFormat.arg(QString::fromLatin1(VER_COMPILED_ON))
                                        .arg(QString::fromLatin1(VER_COMPILED_FOR))
@@ -136,7 +142,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
                                        .arg(QString::fromLatin1(VER_IDE))
                                        .arg(tr("%1 - Revision %2").arg(QString::fromLatin1(LC_VERSION_TEXT))
                                                                   .arg(QString::fromLatin1(LC_VERSION_BUILD)))
-                                       .arg(QString::fromLatin1(VER_COMPILE_DATE_STR));
+                                       .arg(QString::fromLatin1(VER_COMPILE_DATE_STR))
+                                       .arg(QString::fromLatin1(VER_QT_URL));
 
     ui->BuildInfo->setTextFormat(Qt::RichText);
     ui->BuildInfo->setText(BuildInfo);
