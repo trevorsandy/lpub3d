@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update April 25, 2019
+# Last Update June 25, 2019
 #
 # Purpose:
 # This script is used to 'cut-over' the development repository [lpub3d] to production [lpub3d].
@@ -18,13 +18,13 @@
 # $ chmod +x ci_cutover.sh && ./ci_cutover.sh
 #
 # Preq 2 of 2 Set 'Next' version number
-# $ sed 's/2.3.11/<next version>/g' -i ci_cutover.sh
+# $ sed 's/2.3.13/<next version>/g' -i ci_cutover.sh
 #
 # Step 1 of 2 Production commits - run for each commit except the final one 
-# $ env MSG="<commit> #No" OBS_CFG=yes TAG=v2.3.11 ./ci_cutover.sh
+# $ env MSG="<commit> #No" OBS_CFG=yes TAG=v2.3.13 ./ci_cutover.sh
 #
 # Step 2 of 2 Final commit and production version change - run once [BE CAREFUL - THIS ADDS A TAG]
-# $ env MSG="LPub3D v2.3.11" TAG=v2.3.11 REV=no CNT=yes OBS_CFG=yes ./ci_cutover.sh
+# $ env MSG="LPub3D v2.3.13" TAG=v2.3.13 RELEASE=yes REV=no CNT=yes OBS_CFG=yes ./ci_cutover.sh
 #
 # Execution sequence:
 #   - copy lpub3d content to lpub3d folder
@@ -34,35 +34,38 @@
 #   - update README.md Title - remove or change ' - Dev, CI, and Test'
 #   - create pre-commit githook
 #   - create .secrets.tar.unc file
-#   - add version to config files (create new tag, run config-files..., delete tag)
+#   - add version to config files (create new tag, run config-files...)
+#   - if standard commit, delete build tab
 #
 # Environment variables:
-#   - TAG: git tag [Default=v2.3.11] - change as needed
+#   - TAG: git tag [Default=v2.3.13] - change as needed
 #   - MSG: git commit message [Default='Continuous integration cutover [build pkg]'] - change as needed
 #   - FRESH: delete current lpub3d directory otherwise, only overwrite existing files [default=no]
 #   - REV: increment revision [Default=yes]
 #   - CNT: increment commit count [Default=yes]
 #   - OBS_CFG: Set OBS config and README file updates [Default=no]
+#   - RELEASE: Release build, do not delete build tag [Default=no]
 #
 # Command Examples:
 # $ chmod +x ci_cutover.sh && ./ci_cutover.sh
-# $ env MSG="LPub3D pre-release [build pkg]" TAG=v2.3.11 ./ci_cutover.sh
-# $ env MSG="LPub3D version 2.3.11" REV=no OBS_CFG=yes ./ci_cutover.sh
-# $ env FRESH=yes MSG="LPub3D version 2.3.11" TAG=v2.3.11 REV=no OBS_CFG=yes ./ci_cutover.sh
-# $ env FRESH=yes MSG="LPub3D pre-release [build pkg]" TAG=v2.3.11 REV=no CNT=yes OBS_CFG=yes ./ci_cutover.sh
+# $ env MSG="LPub3D pre-release [build pkg]" TAG=v2.3.13 ./ci_cutover.sh
+# $ env MSG="LPub3D version 2.3.13" RELEASE=yes REV=no OBS_CFG=yes ./ci_cutover.sh
+# $ env FRESH=yes MSG="LPub3D version 2.3.13" TAG=v2.3.13 REV=no OBS_CFG=yes ./ci_cutover.sh
+# $ env FRESH=yes MSG="LPub3D pre-release [build pkg]" TAG=v2.3.13 REV=no CNT=yes OBS_CFG=yes ./ci_cutover.sh
 # $ env FRESH=yes MSG="Issue template and renderer logging updates" OBS_CFG=yes ./ci_cutover.sh
 #
 # Move to lpub3d-obs repository
-# $ env GIT_NAME=lpub3d-obs MSG="Open Build Service Integration and Test" TAG=v2.3.11 ./ci_cutover.sh
+# $ env GIT_NAME=lpub3d-obs MSG="Open Build Service Integration and Test" TAG=v2.3.13 ./ci_cutover.sh
 
 SCRIPT_NAME=$0
 SCRIPT_ARGS=$*
-LOCAL_TAG=${TAG:-v2.3.11}
+LOCAL_TAG=${TAG:-v2.3.13}
 FRESH_BUILD=${FRESH:-no}
 INC_REVISION=${REV:-yes}
 INC_COUNT=${CNT:-yes}
 FORCE_CONFIG=${OBS_CFG:-no}
 TO_NAME=${GIT_NAME:-lpub3d}
+RELEASE_COMMIT=${RELEASE:-no}
 COMMIT_MSG="${MSG:-LPub3D ${TAG}}"
 
 function options_status
@@ -71,6 +74,7 @@ function options_status
 	echo "--Command Options:"
 	echo "--SCRIPT_NAME....$SCRIPT_NAME"
 	echo "--TO_NAME.........$TO_NAME"
+	echo "--RELEASE_COMMIT..$RELEASE_COMMIT"
 	[ -n "$SCRIPT_ARGS" ] && echo "--SCRIPT_ARGS.....$SCRIPT_ARGS" || true
 	echo "--FRESH_BUILD.....$FRESH_BUILD"
 	echo "--LOCAL_TAG.......$LOCAL_TAG"
@@ -87,7 +91,9 @@ function show_options_status
 	exit 1
 }
 
-[[ -z "$SCRIPT_ARGS" ]] && show_options_status
+# if [ -z "$SCRIPT_ARGS" ] ; then 
+	# show_options_status 
+# fi
 	
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 CWD=`pwd`
@@ -108,14 +114,11 @@ LOG="$f"
 exec > >(tee -a ${LOG} )
 exec 2> >(tee -a ${LOG} >&2)
 
-# Show options
-show_options_status
-
 # Remove current lpub3d folder and clone fresh instance if requested
 [ "$FRESH_BUILD" != "no" ] && [ -d "$TO_NAME" ] && \
 echo "--Remove old $TO_NAME instance..." && rm -rf "$TO_NAME" || true
 
-# Clone new instance if lpub3d if old instance does not exist or was removed
+# Clone new instance of lpub3d if old instance does not exist or was removed
 if [ ! -d "$TO_NAME" ]; then
     echo "1-Creating new $TO_NAME instance..."
     git clone https://github.com/trevorsandy/${TO_NAME}.git
@@ -220,12 +223,12 @@ sed s/'cacf73a1954d'/'ad0a5b26bc84'/g -i $file \
 && echo " -file $file updated with secure variable key." \
 || echo " -ERROR - file $file NOT updated."
 
-echo "10-Change *.sh line endings to from CRLF to LF"
+echo "10-Change *.sh line endings from CRLF to LF"
 for file in $(find . -type f -name *.sh)
 do
     dos2unix -k $file
 done
-echo "11-Change other line endings to from CRLF to LF"
+echo "11-Change other line endings from CRLF to LF"
 dos2unix -k builds/utilities/hooks/*
 dos2unix -k builds/utilities/create-dmg
 dos2unix -k builds/utilities/dmg-utils/*
@@ -241,7 +244,7 @@ dos2unix -k builds/linux/obs/debian/*
 dos2unix -k builds/linux/obs/debian/source/*
 dos2unix -k builds/macx/*
 
-echo "12-Change Windows script line endings to from LF to CRLF"
+echo "12-Change Windows script line endings from LF to CRLF"
 unix2dos -k builds/windows/*
 unix2dos -k builds/utilities/CreateRenderers.bat
 unix2dos -k builds/utilities/update-config-files.bat
@@ -279,8 +282,10 @@ $COMMIT_MSG
 pbEOF
 env force=$FORCE_CONFIG inc_rev=$INC_REVISION inc_cnt=$INC_COUNT git commit -m "$COMMIT_MSG"
 
-echo "18-Delete local tag"
-git tag --delete $LOCAL_TAG
-rm -f update-config-files.sh.log
+if [ "$RELEASE_COMMIT" = "no" ]; then 
+   echo "18-Delete local tag"
+   git tag --delete $LOCAL_TAG
+   rm -f update-config-files.sh.log
+fi
 
 echo "Finished"

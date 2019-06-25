@@ -93,7 +93,7 @@ then
     else
         Info "1. capture version info using git queries"
     fi
-    lp3d_git_build_type=`git describe --tags --abbrev=0`                              # continuous build check
+    lp3d_git_build_type=`git tag --points-at HEAD`                                    # continuous build check
     lp3d_git_ver_tag_long=`git describe --tags --match v* --long`
     lp3d_git_ver_tag_short=`git describe --tags --match v* --abbrev=0`
     lp3d_git_ver_commit_count=`git rev-list HEAD --count`
@@ -104,7 +104,7 @@ then
     lp3d_ver_tmp=${lp3d_git_ver_tag_short//./" "}                                     # replace . with " "
     lp3d_version_=${lp3d_ver_tmp/v/}                                                  # replace v with ""
     lp3d_ver_tmp=${lp3d_version_#*_}                                                  # remove everything before and including "_" if exist
-    if test "$lp3d_git_build_type" != "continuous"; then LP3D_BUILD_TYPE="Release"; else LP3D_BUILD_TYPE="Continuous"; fi
+    if test -z "$lp3d_git_build_type"; then LP3D_BUILD_TYPE="Continuous"; else LP3D_BUILD_TYPE="Release"; fi
     if test "$lp3d_ver_tmp" != "$lp3d_version_"; then lp3d_suffix=${lp3d_ver_tmp}; fi # check if ver_tmp not same as version_ - suffix exist
     if test -n "$lp3d_suffix"; then lp3d_version_=${lp3d_version_%_*}; fi             # remove everything after and including "_" - suffix exist
     if test -n "$lp3d_git_ver_author"; then LP3D_AUTHOR_NAME=${lp3d_git_ver_author}; else LP3D_AUTHOR_NAME=`echo $USER`; fi

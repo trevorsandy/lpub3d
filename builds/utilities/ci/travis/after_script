@@ -101,7 +101,14 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_
     curl -s -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/trevorsandy/lpub3d/commits/master -o repo.txt;
     export REMOTE=$($GREP_PATH -Po '(?<=: \")(([a-z0-9])\w+)(?=\")' -m 1 repo.txt);
     export LOCAL=$(git rev-parse HEAD);
-    if [[ "$REMOTE" != "$LOCAL" ]]; then echo "Build no longer current. $REMOTE vs $LOCAL - aborting upload."; exit 0; fi;
+    if [[ "$REMOTE" != "$LOCAL" ]]; then
+       if [ -z "$REMOTE" ]; then
+          echo "ERROR - could not retrieve remote commit hash-object. Aborting upload."
+       else
+          echo "ERROR - Build no longer current. $REMOTE vs $LOCAL. Aborting upload."
+       fi
+       exit 0;
+    fi;
     wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
     # Update  Release Title in upload.sh
     upload_script_file="$LP3D_BUILD_FOLDER/upload.sh"

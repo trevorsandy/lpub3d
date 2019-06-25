@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update June 23, 2019
+# Last Update June 25, 2019
 # Copyright (c) 2017 - 2019 by Trevor SANDY
 # To run:
 # $ chmod 755 CreateDeb.sh
@@ -64,6 +64,25 @@ cd pkgbuild/upstream
 
 echo "2. download ${LPUB3D}/ to upstream/"
 git clone https://github.com/trevorsandy/${LPUB3D}.git
+
+# For Docker build, check if there is a tag after the last commit
+if [ "$DOCKER" = "true" ]; then
+   # Setup git command
+   GIT_CMD="git --git-dir $PWD/${LPUB3D}/.git --work-tree $PWD/${LPUB3D}"
+   #1. Get the latest version tag - check across all branches
+   BUILD_TAG=$($GIT_CMD describe --tags --match v* $($GIT_CMD rev-list --tags --max-count=1) 2> /dev/null)
+   if [ -n "$BUILD_TAG" ]; then
+       #2. Get the tag datetime
+       BUILD_TAG_TIME=$($GIT_CMD log -1 --format=%ai $BUILD_TAG 2> /dev/null)
+       #3. Get the latest commit datetime from the build branch
+       GIT_COMMIT_TIME=$($GIT_CMD log -1 --format=%ai 2> /dev/null)
+           #4. If tag is newer than commit, check out the tag
+       if [ $(date -d "$GIT_COMMIT_TIME" +%s) -lt $(date -d "$BUILD_TAG_TIME" +%s) ]; then
+           echo "2a. checking out build tag $BUILD_TAG..."
+           $GIT_CMD checkout -qf $BUILD_TAG
+       fi
+   fi
+fi
 
 _PRO_FILE_PWD_=$PWD/${LPUB3D}/mainApp
 source ${LPUB3D}/builds/utilities/update-config-files.sh
