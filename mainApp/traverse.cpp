@@ -1862,7 +1862,7 @@ int Gui::findPage(
                         }
 
                       // store the step number where the submodel will be rendered for comparison
-                      if (! mergedInstances) {
+                      if (mergedInstances) {
                           ldrawFile.setRendered(current2.modelName, stepNumber, isMirrored);
 //                          logDebug() << QString("UNMERGED - Submodel %1 in parent %3 at stepNumber %4 is RENDERED")
 //                                        .arg(type)
