@@ -332,7 +332,7 @@ void Application::initialize()
             {
               m_console_mode = true;
               m_print_output = true;
-              fprintf(stdout, "%s, Version %s, Revision %s, Build %s, ShaHash %s\n",VER_PRODUCTNAME_STR,VER_PRODUCTVERSION_STR,VER_REVISION_STR,VER_BUILD_STR,VER_SHA_HASH_STR);
+              fprintf(stdout, "%s, %s %s, Revision %s, Build %s, ShaHash %s\n",VER_PRODUCTNAME_STR,VER_BUILD_TYPE_STR,VER_PRODUCTVERSION_STR,VER_REVISION_STR,VER_BUILD_STR,VER_SHA_HASH_STR);
               fprintf(stdout, "Compiled on " __DATE__ "\n");
               fflush(stdout);
               return;

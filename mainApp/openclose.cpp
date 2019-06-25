@@ -415,16 +415,22 @@ void Gui::updateRecentFileActions()
 
 void Gui::setCurrentFile(const QString &fileName)
 {
-  QString shownName;
+  QString windowName;
   if (fileName.size() == 0) {
-    shownName = VER_FILEDESCRIPTION_STR;
+    windowName = VER_FILEDESCRIPTION_STR;
   } else {
     QFileInfo fileInfo(fileName);
     
-    shownName = fileInfo.fileName();
+    windowName = fileInfo.fileName();
   }
-  
-  setWindowTitle(tr("%1[*] - %2 v%3").arg(shownName).arg(tr(VER_PRODUCTNAME_STR)).arg(VER_PRODUCTVERSION_STR));
+  QString windowVersion;
+#ifdef LP3D_CONTINUOUS_BUILD
+  windowVersion = QString("%2 v%3 (Pre-release)").arg(VER_PRODUCTNAME_STR).arg(VER_PRODUCTVERSION_STR);
+#else
+  windowVersion = QString("%2 v%3").arg(tr(VER_PRODUCTNAME_STR)).arg(VER_PRODUCTVERSION_STR);
+#endif
+
+  setWindowTitle(tr("%1[*] - %2").arg(windowName).arg(windowVersion));
 
   if (fileName.size() > 0) {
     QSettings Settings;

@@ -1,6 +1,6 @@
 # Build and check LPub3D x86 and x86_64 architectures unsing Qt/MinGW/VS2017 platforms
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: March 01, 2019
+# Last Update: June 21, 2019
 # Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 version: 'LPub3D-AV-Build-{build}'
@@ -44,6 +44,7 @@ matrix:
 
 # The following variables can be set to true from
 # AppVeyor Site->Project->Settings->Environment Variables
+# LP3D_COMPILE_SOURCE_VAR    ; compile source
 # LP3D_SKIP_APPVEYOR_VAR     ; skip AppVeyor build
 # LP3D_BUILD_PKG_VAR         ; trigger package build
 # LP3D_TEST_SF_DEPLOY_VAR    ; deploy SourceForge
@@ -57,7 +58,7 @@ matrix:
 #
 environment:
   LP3D_PACKAGE: LPub3D
-  LP3D_GIT_DEPTH: 1500
+  LP3D_GIT_DEPTH: 150000
   LP3D_PACKAGE_PATH: builds\windows\$(configuration)
   LP3D_DIST_DIR: lpub3d_windows_3rdparty
   LP3D_DIST_DIR_PATH: $(APPVEYOR_BUILD_FOLDER)\$(LP3D_DIST_DIR)
@@ -103,6 +104,14 @@ init:
       If ($env:LP3D_BUILD_PKG_VAR -eq "true") {
         write-host "'Build package' detected in environment variable."
         $env:LP3D_BUILD_PKG = "yes"
+        $env:LP3D_CONTINUOUS_BUILD_PKG = "false"
+      }
+ - ps: |
+      If ($env:LP3D_COMPILE_SOURCE_VAR -eq "true") {
+        write-host "'Compile source' detected in environment variable."
+        $env:LP3D_COMPILE_SOURCE = "true"
+        $env:LP3D_BUILD_PKG = "false"
+        $env:LP3D_CONTINUOUS_BUILD_PKG = "false"
       }
  - ps: |
      If ($env:LP3D_UPDATE_LDRAW_LIBS_VAR) {
@@ -110,10 +119,16 @@ init:
      }
  - ps: |
       If ($env:APPVEYOR_REPO_TAG -eq "true") {
-        If ([regex]::Match($env:APPVEYOR_REPO_TAG_NAME, '^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$').Success) {
+        If ([regex]::Match($env:APPVEYOR_REPO_TAG_NAME, '^continuous$').Success) {
+          write-host "Pre-release tag '$env:APPVEYOR_REPO_TAG_NAME' detected."
+          $env:LP3D_BUILD_PKG = "yes"
+          $env:LP3D_DEPLOY_PKG = "false"
+          $env:LP3D_CONTINUOUS_BUILD_PKG = "true"
+        } ElseIf ([regex]::Match($env:APPVEYOR_REPO_TAG_NAME, '^(?!$)(?:v[0-9]+\.[0-9]+\.[0-9]+_?[^\W]*)?$').Success) {
           write-host "Deploy tag $env:APPVEYOR_REPO_TAG_NAME detected."
           $env:LP3D_BUILD_PKG = "yes"
-          $env:LP3D_DEPLOY_PKG = $true
+          $env:LP3D_DEPLOY_PKG = "true"
+          $env:LP3D_CONTINUOUS_BUILD_PKG = "false"
         } Else {
           write-host "WARNING - Tag $env:APPVEYOR_REPO_TAG_NAME detected but is not a valid Deploy Tag. Deploy ingored."
         }
@@ -161,7 +176,7 @@ init:
  - ps: |
       If ($env:LP3D_BUILD_POVRAY -eq "1") {
         $env:LP3D_POVRAY = "${env:LP3D_DIST_DIR_PATH}\lpub3d_trace_cui-3.8"
-      }      
+      }
  - ps: |
       If (($env:APPVEYOR_REPO_COMMIT_MESSAGE.ToLower().Contains("[clear avcache]")) -or ($env:LP3D_CLEAR_AVCACHE_VAR -eq "true")) {
         If ($env:LP3D_CLEAR_AVCACHE_VAR -eq "true") {
@@ -205,7 +220,7 @@ install:
  - cmd: bash -lc "if test \"$LP3D_BUILD_POVRAY\" = \"1\" && test -d \"$LP3D_POVRAY\"; then rm -rf $LP3D_POVRAY; if ! test -d \"$LP3D_POVRAY\"; then echo cached $LP3D_POVRAY deleted; fi; fi"
  - cmd: C:\msys64\usr\bin\bash -lc "pacman -S --needed --noconfirm openssh rsync > InstallSecureTransfer.log 2>&1"
 
-# There are 2 modes of execution 1. build the full package or 2. compile the source.
+# There are 3 modes of execution 1. build the full package or 2. compile the source and 3 build the renderers.
 # The only difference in the script below is the '-ins[tall 3rd party renderers] flag present under build'
 build_script:
  - ps: |
@@ -216,10 +231,10 @@ build_script:
         $env:LP3D_ARTEFACT_ITEM_COUNT = (Get-ChildItem -Path $env:LP3D_PACKAGE_PATH -Recurse).count
         write-host "`n  Build Archive Item Count...[$env:LP3D_ARTEFACT_ITEM_COUNT]"
         (Get-ChildItem -Path $env:LP3D_PACKAGE_PATH -Recurse | Select-Object -ExpandProperty FullName | ft -hidetableheaders)
+      } ElseIf ($env:LP3D_COMPILE_SOURCE -eq "true") {
+        cmd.exe /c builds\windows\AutoBuild.cmd -all -3rd -chk 2`>`&1
       } ElseIf ($env:LP3D_BUILD_RENDERERS_VAR -eq "true") {
         cmd.exe /c builds\windows\AutoBuild.cmd -all -ren 2`>`&1
-      } Else {
-        cmd.exe /c builds\windows\AutoBuild.cmd -all -3rd -chk 2`>`&1
       }
 
 test: off
@@ -257,10 +272,12 @@ after_build:
           } else {
             write-host "Skip Sourceforge deploy detected - ["(git tag -l -n $env:APPVEYOR_REPO_TAG_NAME).Replace($env:APPVEYOR_REPO_TAG_NAME,"").Trim()"]."
           }
+        } Else {
+          $env:LP3D_DEPLOY_PKG = "false"
         }
       }
 
-# Nothing special here, just a standard GitHub provider
+# Nothing special here, just the standard GitHub providers
 deploy:
  - provider: GitHub
    tag: $(APPVEYOR_REPO_TAG_NAME)
@@ -273,5 +290,18 @@ deploy:
    prerelease: false
    force_update: true
    on:
-    branch: $(APPVEYOR_REPO_BRANCH)
-    lp3d_deploy_pkg: true
+     branch: $(APPVEYOR_REPO_BRANCH)
+     lp3d_deploy_pkg: true
+ - provider: GitHub
+   tag: $(APPVEYOR_REPO_TAG_NAME)
+   repository: trevorsandy/lpub3d
+   description: 'Commit: $(APPVEYOR_REPO_COMMIT_MESSAGE)'
+   auth_token:
+     secure: rnf4qpF81ISjm8q13OgkAaoKZReXpjODhU9fbGFMhMydHrda1ezLubGXRU9OKGu4
+   release: Continuous Build $(LP3D_VER_BUILD)
+   artifact: $(LP3D_PACKAGE)-download-package
+   prerelease: true
+   force_update: true
+   on:
+     branch: $(APPVEYOR_REPO_BRANCH)
+     lp3d_continuous_build_pkg: true

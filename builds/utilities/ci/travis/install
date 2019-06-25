@@ -3,7 +3,7 @@
 # Travis-ci build [install] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: March 23, 2019
+#  Last Update: June 21, 2019
 #  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -49,13 +49,8 @@ fi
 # Install qt5 on MacOS, download LDraw library archive files, and setup macos 3rd party distribution directory
 if [ "$TRAVIS_OS_NAME" = "osx" ]; then
   if [[ ("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG") || ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_MACOS" = "true") ]]; then
-    if [ "$LP3D_QT_BASE" = "55" ]; then
-      brew install qt55;
-      brew link --force qt55;
-    else
-      brew install qt5;
-      brew link --force qt5;
-    fi;
+    brew install qt5 grep;
+    brew link --force qt5;
     echo "Downloading archive libraries...";
     wget http://www.ldraw.org/library/updates/complete.zip -O ../complete.zip && cp -f ../complete.zip mainApp/extras;
     wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O mainApp/extras/lpub3dldrawunf.zip;

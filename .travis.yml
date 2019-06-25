@@ -1,6 +1,6 @@
 # Build and check LPub3D on Linux and macOS
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: March 23, 2019
+# Last Update: June 21, 2019
 # Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 language: cpp
@@ -141,6 +141,11 @@ jobs:
         repo: trevorsandy/lpub3d
         branch: $TRAVIS_BRANCH
         condition: $LP3D_DEPLOY_PKG = yes
+
+branches:
+  except:
+    - # Do not build tags that we create for upload to GitHub Releases
+    - /^(?i:continuous)/
 
 notifications:
   email:

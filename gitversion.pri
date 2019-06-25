@@ -46,7 +46,7 @@ equals(GIT_DIR, undefined) {
     BASE_GIT_COMMAND = git --git-dir $$shell_quote$$GIT_DIR --work-tree $$shell_quote$$PWD
 
     # Trying to get version from git tag / revision
-    GIT_VERSION = $$system($$BASE_GIT_COMMAND describe --tags --long 2> $$NULL_DEVICE)
+    GIT_VERSION = $$system($$BASE_GIT_COMMAND describe --tags --match v* --long 2> $$NULL_DEVICE)
 
     # Check if we only have hash without version number (i.e. not version tag found)
     !contains(GIT_VERSION,\d+\.\d+\.\d+) {
@@ -65,7 +65,7 @@ equals(GIT_DIR, undefined) {
     }
     # Token position       0 1 2  3  4   5      [6]
     # Version string       2 0 20 17 663 410fdd7 beta1
-    #message(~~~ DEBUG ~~ GIT_VERSION [RAW]: $$GIT_VERSION)
+    #message("~~~ DEBUG ~~ GIT_VERSION [RAW]: $$GIT_VERSION")
 
     # Convert output from gv2.0.20-37-ge99beed-600 into "gv2.0.20.37.ge99beed.600"
     GIT_VERSION ~= s/-/"."
@@ -86,6 +86,9 @@ equals(GIT_DIR, undefined) {
     } else {
         VER_PATCH    = $$section(GIT_VERSION, ., 2, 2)
     }
+
+    # Strip leading 'g' from sha hash
+    VER_SHA_HASH_STR ~= s/g/""
 }
 
 # Here we process the build date and time
@@ -115,6 +118,21 @@ appveyor_ci {
     DATE_YY = $$section(BUILD_DATE, /, 2, 2)
 }
 
+# Resolve Continuous Build version number
+TRAVIS_BUILD   = $$(TRAVIS_TAG)
+APPVEYOR_BUILD = $$(APPVEYOR_REPO_TAG_NAME)
+LOCAL_BUILD    = $$system($$BASE_GIT_COMMAND describe --tags --abbrev=0 2> $$NULL_DEVICE)
+contains(TRAVIS_BUILD,continuous) {
+    BUILD_TYPE = $$TRAVIS_BUILD
+} else:contains(APPVEYOR_BUILD,continuous) {
+    BUILD_TYPE = $$APPVEYOR_BUILD
+} else:contains(LOCAL_BUILD,continuous) {
+    BUILD_TYPE = $$LOCAL_BUILD
+}
+contains(BUILD_TYPE,continuous) {
+    DEFINES += LP3D_CONTINUOUS_BUILD
+}
+
 # C preprocessor #DEFINE to use in C++ code
 DEFINES += VER_MAJOR=\\\"$$VER_MAJOR\\\"
 DEFINES += VER_MINOR=\\\"$$VER_MINOR\\\"
@@ -134,8 +152,9 @@ LP3D_VERSION_INFO = $$VER_MAJOR $$VER_MINOR $$VER_PATCH $$VER_REVISION_STR $$VER
     DEFINES += VER_SUFFIX=\\\"$$VER_SUFFIX\\\"
     LP3D_VERSION_INFO += $$VER_SUFFIX
 }
+
 # Now we are ready to pass parsed version to Qt ===
 VERSION = $$VER_MAJOR"."$$VER_MINOR"."$$VER_PATCH
 
 # Display the complete version string
-message(~~~ LP3D_VERSION_INFO: $$LP3D_VERSION_INFO ~~~)
+message(~~~ LP3D_VERSION_INFO: $$LP3D_VERSION_INFO $$upper($$BUILD_TYPE) ~~~)

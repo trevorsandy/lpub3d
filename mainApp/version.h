@@ -42,7 +42,14 @@
 #define VER_COMPANYNAME_STR                 COMPANYNAME_STR                  // "LPub3D Software Maint"
 #define VER_BUILD_ARCH_STR                  VER_ARCH
 
+#ifdef LP3D_CONTINUOUS_BUILD
+  #define	VER_BUILD_TYPE_STR             "Pre-release"
+#else
+  #define	VER_BUILD_TYPE_STR             "Version"
+#endif
+
 // ~~~~~~ 3rdParty Applications ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+
 #define VER_LDVIEW_STR                      VER_LDVIEW
 #define VER_LDGLITE_STR                     VER_LDGLITE
 #define VER_POVRAY_STR                      VER_POVRAY

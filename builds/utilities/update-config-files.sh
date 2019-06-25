@@ -1,10 +1,11 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update April 25, 2019
+# Last Update June 22, 2019
 # This script is automatically executed by qmake from mainApp.pro
 # It is also called by other config scripts accordingly
 #
 # To Run:
+# cd <LPub3D root>
 # env _PRO_FILE_PWD_=$PWD/mainApp OBS=true ./builds/utilities/update-config-files.sh
 
 echo "   Start update-config-files.sh execution..."
@@ -16,7 +17,7 @@ LP3D_DATE_TIME=`date +%d\ %m\ %Y\ %H:%M:%S`
 LP3D_BUILD_DATE=`date "+%Y%m%d"`
 LP3D_CALL_DIR=`pwd`
 LP3D_OS=`uname`
-LP3D_GIT_DEPTH=1500
+LP3D_GIT_DEPTH=150000
 
 if [ "$1" = "" ]; then SOURCED="true"; LP3D_PWD=${_PRO_FILE_PWD_}; else SOURCED="false"; LP3D_PWD=$1; fi
 cd $LP3D_PWD/.. && basedir=$PWD && cd $LP3D_CALL_DIR
@@ -92,8 +93,9 @@ then
     else
         Info "1. capture version info using git queries"
     fi
-    lp3d_git_ver_tag_long=`git describe --tags --long`
-    lp3d_git_ver_tag_short=`git describe --tags --abbrev=0`
+    lp3d_git_build_type=`git describe --tags --abbrev=0`                              # continuous build check
+    lp3d_git_ver_tag_long=`git describe --tags --match v* --long`
+    lp3d_git_ver_tag_short=`git describe --tags --match v* --abbrev=0`
     lp3d_git_ver_commit_count=`git rev-list HEAD --count`
     lp3d_git_ver_sha_hash_short=`git rev-parse --short HEAD`
     cd "${LP3D_CALL_DIR}"
@@ -102,6 +104,7 @@ then
     lp3d_ver_tmp=${lp3d_git_ver_tag_short//./" "}                                     # replace . with " "
     lp3d_version_=${lp3d_ver_tmp/v/}                                                  # replace v with ""
     lp3d_ver_tmp=${lp3d_version_#*_}                                                  # remove everything before and including "_" if exist
+    if test "$lp3d_git_build_type" != "continuous"; then LP3D_BUILD_TYPE="Release"; else LP3D_BUILD_TYPE="Continuous"; fi
     if test "$lp3d_ver_tmp" != "$lp3d_version_"; then lp3d_suffix=${lp3d_ver_tmp}; fi # check if ver_tmp not same as version_ - suffix exist
     if test -n "$lp3d_suffix"; then lp3d_version_=${lp3d_version_%_*}; fi             # remove everything after and including "_" - suffix exist
     if test -n "$lp3d_git_ver_author"; then LP3D_AUTHOR_NAME=${lp3d_git_ver_author}; else LP3D_AUTHOR_NAME=`echo $USER`; fi
@@ -124,6 +127,8 @@ LP3D_BUILD_VERSION=${LP3D_VERSION}"."${LP3D_VER_REVISION}"."${LP3D_VER_BUILD}" (
 LP3D_APP_VERSION=${LP3D_VERSION}"."${LP3D_VER_BUILD}
 LP3D_APP_VERSION_LONG=${LP3D_VERSION}"."${LP3D_VER_REVISION}"."${LP3D_VER_BUILD}_${LP3D_BUILD_DATE}
 LP3D_APP_VERSION_TAG="v"${LP3D_VERSION}
+
+Info "   LP3D_BUILD_TYPE........${LP3D_BUILD_TYPE}"
 
 Info "   LPUB3D_DIR.............${LPUB3D}"
 Info "   UPDATE_OBS_CONFIG......${UPDATE_OBS_CONFIG}"
@@ -220,7 +225,7 @@ else
     Info "   Error: Cannot read ${FILE} from ${LP3D_CALL_DIR}"
 fi
 
-# This is call is deprecated since v2.3.9
+# This is deprecated since v2.3.9
 FILE="$LP3D_PWD/../README.md"
 Info "4. update README.md       - add version           [$FILE]"
 SFReplacement="\[sfreleases\]:          https:\/\/sourceforge.net\/projects\/lpub3d\/files"
@@ -254,6 +259,7 @@ then
     export LP3D_APP_VERSION_TAG=${LP3D_APP_VERSION_TAG}
     export LP3D_COMMITTER_EMAIL=${LP3D_COMMITTER_EMAIL}
     export LP3D_AUTHOR_NAME=${LP3D_AUTHOR_NAME}
+    export LP3D_BUILD_TYPE=${LP3D_BUILD_TYPE}
     if test -n "$LP3D_VER_SUFFIX"; then export LP3D_VER_SUFFIX=$LP3D_VER_SUFFIX; fi
 fi
 

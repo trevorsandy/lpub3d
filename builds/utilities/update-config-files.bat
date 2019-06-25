@@ -2,13 +2,18 @@
 Title Update LPub3D files with build version number
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: March 06, 2019
+rem  Last Update: June 22, 2019
 rem  Copyright (c) 2015 - 2019 by Trevor SANDY
 rem --
 rem --
 rem This script is distributed in the hope that it will be useful,
 rem but WITHOUT ANY WARRANTY; without even the implied warranty of
 rem MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+rem
+rem To Run:
+rem CD <LPub3D root>
+rem SET _PRO_FILE_PWD_=<LPub3D absolute path>\mainApp
+rem CALL builds/utilities/update-config-files.bat %_PRO_FILE_PWD_%
 
 SET LP3D_ME=%~nx0
 
@@ -25,7 +30,7 @@ SET LINE_README_TXT=1
 SET LINE_README_MD_VER=70
 SET LINE_RELEASE_NOTES_HTM=12
 
-SET LP3D_GIT_DEPTH=1500
+SET LP3D_GIT_DEPTH=150000
 SET LP3D_PAST_RELEASES=1.3.5,1.2.3,1.0.0
 SET LP3D_BUILDS_DIR=%LP3D_BUILDS_DIR:"=%
 SET LP3D_CALL_DIR=%CD%
@@ -112,6 +117,11 @@ SET "Replacement=[sfreleases]:       https://sourceforge.net/projects/lpub3d/fil
 ))>"%LP3D_FILE%.new"
 MOVE /Y %LP3D_FILE%.new %LP3D_FILE% | findstr /i /v /r /c:"moved\>"
 
+IF "%LP3D_BUILD_TYPE%" EQU "continuous" (
+  ECHO   LP3D_BUILD_TYPE................[Continuous]
+) ELSE (
+  ECHO   LP3D_BUILD_TYPE................[Release]
+)
 ECHO   LPUB3D_DIR.....................[%LPUB3D%]
 ECHO   LP3D_BUILDS_DIR................[%LP3D_BUILDS_DIR%]
 ECHO   LP3D_CALL_DIR..................[%LP3D_CALL_DIR%]
@@ -162,33 +172,43 @@ EXIT /b
 
 :GET_GIT_VERSION
 CD /D "%LP3D_BUILDS_DIR%\.."
+
+REM Get build type
+FOR /F "usebackq delims==" %%G IN (`git describe --tags --abbrev^=0 2^> nul`) DO SET LP3D_BUILD_TYPE=%%G
+rem ECHO  DEBUG LP3D_BUILD_TYPE IS %LP3D_BUILD_TYPE%
+
+REM Update refs and tags
 IF "%APPVEYOR%" EQU "True" (
-  REM Update refs and tags
   git fetch -qfup --depth=%LP3D_GIT_DEPTH% origin +%APPVEYOR_REPO_BRANCH% +refs/tags/*:refs/tags/*
   git checkout -qf %APPVEYOR_REPO_COMMIT%
 )
 
-REM Extract Revision Number
-FOR /F "usebackq delims==" %%G IN (`git describe --tags --long`) DO SET lp3d_git_ver_tag_long=%%G
+REM Get long tag - ignore continuous
+FOR /F "usebackq delims==" %%G IN (`git describe --tags --match v* --long 2^> nul`) DO SET lp3d_git_ver_tag_long=%%G
 SET "tag_input=%lp3d_git_ver_tag_long%"
+rem ECHO  DEBUG LP3D_GIT_VER_TAG_LONG IS %tag_input%
 
-REM Remove everything before and including "-"
+REM Get Revision - remove everything before and including "-" from long tag
 SET "tag_val_1=%tag_input:*-=%"
 IF "%tag_val_1%"=="%tag_input%" ECHO ERROR - revision prefix ending in "-" not found in %tag_input%
 FOR /F "delims=\" %%a IN ("%tag_val_1%") DO SET "tag_val_1=%%~a"
 
-REM Remove everything after and including "-"
+REM Get Revision - remove everything after and including "-" from long tag
 SET "lp3d_revision_=%tag_val_1%"
 FOR /F "tokens=1 delims=-" %%a IN ("%lp3d_revision_%") DO SET LP3D_VER_REVISION=%%~a
+rem ECHO  DEBUG LP3D_VER_REVISION IS %LP3D_VER_REVISION%
 
-REM Extract commit count (build)
-FOR /F "usebackq delims==" %%G IN (`git rev-list HEAD --count`) DO SET LP3D_VER_BUILD=%%G
+REM Extract commit count ^(build^)
+FOR /F "usebackq delims==" %%G IN (`git rev-list HEAD --count 2^> nul`) DO SET LP3D_VER_BUILD=%%G
+rem ECHO  DEBUG LP3D_VER_BUILD IS %LP3D_VER_BUILD%
 
 REM Extract short sha hash
-FOR /F "usebackq delims==" %%G IN (`git rev-parse --short HEAD`) DO SET LP3D_VER_SHA_HASH=%%G
+FOR /F "usebackq delims==" %%G IN (`git rev-parse --short HEAD 2^> nul`) DO SET LP3D_VER_SHA_HASH=%%G
+rem ECHO  DEBUG LP3D_VER_SHA_HASH IS %LP3D_VER_SHA_HASH%
 
-REM Extract version
-FOR /F "usebackq delims==" %%G IN (`git describe --tags --abbrev^=0`) DO SET lp3d_git_ver_tag_short=%%G
+REM Get short tag - ignore continuous
+FOR /F "usebackq delims==" %%G IN (`git describe --tags --match v* --abbrev^=0 2^> nul`) DO SET lp3d_git_ver_tag_short=%%G
+rem ECHO  DEBUG LP3D_GIT_VER_TAG_SHORT IS %lp3d_git_ver_tag_short%
 
 REM Remove version prefix 'v'
 SET "lp3d_version_=%lp3d_git_ver_tag_short:v=%"
@@ -319,6 +339,7 @@ ENDLOCAL & (
   SET LP3D_WEEK_DAY=%LP3D_WEEK_DAY%
   SET LP3D_MONTH_OF_YEAR=%LP3D_MONTH_OF_YEAR%
 
+  SET LP3D_BUILD_TYPE=%LP3D_BUILD_TYPE%
   SET LP3D_VER_MAJOR=%LP3D_VER_MAJOR%
   SET LP3D_VER_MINOR=%LP3D_VER_MINOR%
   SET LP3D_VER_PATCH=%LP3D_VER_PATCH%
