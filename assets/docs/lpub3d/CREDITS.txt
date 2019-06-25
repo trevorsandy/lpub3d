@@ -12,14 +12,14 @@ Trevor Sandy <trevor.sandy@gmail.com>
 LPub3D RayTrace-CUI (POV-Ray 3.8 "raytracer-cui" specifically adapted for LPub3D)
 Trevor Sandy <trevor.sandy@gmail.com>
 
-3DViewer (LeoCAD version 18.2 specifically adapted for LPub3D)
+3DViewer (LeoCAD version 18.2 50daa6a specifically adapted for LPub3D)
 Trevor Sandy <trevor.sandy@gmail.com>
 
 LPub4
 Author:
 Kevin Clague <kevin.clague@gmail.com>
 
-LeoCAD 18.2 commit b18645b
+LeoCAD 18.2 commit 50daa6a
 Author:
 Leonardo Zide <leozide@gmail.com>
 
@@ -37,9 +37,11 @@ qSLog 2.0.0
 Razvan Petru
 
 QuaZip 0.7.3
+https://github.com/stachenov/quazip
 Sergey A. Tachenov
 
-QSimpleUpdater
+QSimpleUpdater 2.0 a3e9ef2
+https://github.com/trevorsandy/QSimpleUpdater
 Alex Spataru
 
 WPngImage 1.4.0
@@ -55,21 +57,30 @@ Other Contributors (in alphabetical order):
 Daniele Benedettelli
 
 Dropbox Uploader script
+https://github.com/andreafabrizi/Dropbox-Uploader a3df727
 Andrea Fabrizi <andrea.fabrizi@gmail.com>
 
-Dmg fileicon script
+Dmg fileicon script v0.2.2
+https://github.com/mklement0/fileicon 7108132
 Michael Klement <mklement0@gmail.com>
 
+Create Dmg
+https://github.com/andreyvit/create-dmg
+Andrey Tarantsov
+
 Dmg License script
+https://github.com/andreyvit/create-dmg/blob/master/support/dmg-license.py
 Jared Hobbs
 
 LEGO LDraw Library content
 LDraw.org
 
 LSynth Version 3.1.1 commit 7c8e6fd
+https://github.com/deeice/lsynth
 Don Heyse <dheyse@hotmail.com>
 
-NsisMultiUser Plugin <https://github.com/Drizin/NsisMultiUser>
+NsisMultiUser Plugin d5da5cf
+https://github.com/trevorsandy/NsisMultiUser
 Ricardo Drizin, Alex Mitev
 
 TENTE LDraw Library content
