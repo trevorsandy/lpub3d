@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update March 06, 2019
+# Last Update June 23, 2019
 # Copyright (c) 2017 - 2019 by Trevor SANDY
 # To run:
 # $ chmod 755 CreateDeb.sh
@@ -206,18 +206,11 @@ then
     LP3D_DEB_APP_VERSION_LONG="${LP3D_DEB_APP_VERSION_LONG}-${LP3D_PLATFORM_NAME}" && \
     LP3D_DEB_VERSION="${LP3D_DEB_VERSION}-${LP3D_PLATFORM_NAME}" || true
 
-    cp -rf ${DISTRO_FILE} "LPub3D-${LP3D_DEB_APP_VERSION_LONG}-${DEB_EXTENSION}"
+    mv -f ${DISTRO_FILE} "LPub3D-${LP3D_DEB_APP_VERSION_LONG}-${DEB_EXTENSION}"
     if [ -f "LPub3D-${LP3D_DEB_APP_VERSION_LONG}-${DEB_EXTENSION}" ]; then
         echo "    Download package..: LPub3D-${LP3D_DEB_APP_VERSION_LONG}-${DEB_EXTENSION}"
     else
         echo "    ERROR - file not copied: LPub3D-${LP3D_DEB_APP_VERSION_LONG}-${DEB_EXTENSION}"
-    fi
-
-    mv -f ${DISTRO_FILE} "LPub3D-UpdateMaster_${LP3D_DEB_VERSION}-${DEB_EXTENSION}"
-    if [ -f "LPub3D-UpdateMaster_${LP3D_DEB_VERSION}-${DEB_EXTENSION}" ]; then
-        echo "    Update package....: LPub3D-UpdateMaster_${LP3D_DEB_VERSION}-${DEB_EXTENSION}"
-    else
-        echo "    ERROR - file not renamed: LPub3D-UpdateMaster_${LP3D_DEB_VERSION}-${DEB_EXTENSION}"
     fi
 
 else

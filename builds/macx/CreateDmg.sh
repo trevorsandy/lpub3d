@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: March 01, 2019
+# Last Update: June 23, 2019
 # To run:
 # $ chmod 755 CreateDmg.sh
 # $ ./CreateDmg.sh
@@ -394,10 +394,7 @@ else
 fi
 
 if [ -f "${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}-macos.dmg" ]; then
-  cp -f "${DMGDIR}/LPub3D-${LP3D_APP_VERSION_LONG}-macos.dmg" "${DMGDIR}/LPub3D-UpdateMaster_${LP3D_VERSION}-macos.dmg"
   echo "      Download package..: LPub3D-${LP3D_APP_VERSION_LONG}-macos.dmg"
-  echo "      Update package....: LPub3D-UpdateMaster_${LP3D_VERSION}-macos.dmg"
-
   echo "- cleanup..."
   rm -f -R DMGSRC
   rm -f lpub3d.icns lpub3dbkg.png setup.png README .COPYING makedmg

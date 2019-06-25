@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update March 06, 2019
+# Last Update June 23, 2019
 # Copyright (c) 2017 - 2019 by Trevor SANDY
 # To run:
 # $ chmod 755 CreateDeb.sh
@@ -146,7 +146,7 @@ then
         echo "      Program update-desktop-database not found. Installing..."
         sudo dnf install -y desktop-file-utils
     fi
-    # Install package - here we use the distro file name e.g. LPub3D-UpdateMaster_2.2.1-1.fc26.x86_64.rpm
+    # Install package - here we use the distro file name e.g. LPub3D-2.3.8.1566-1.fc26.x86_64.rpm
     echo "      15-1. Build-check install ${LPUB3D}..."
     yes | sudo rpm -Uvh ${DISTRO_FILE}
     # Check if exe exist - here we use the executable name e.g. lpub3d22
@@ -168,18 +168,11 @@ then
     echo "15-2. create update and download packages..."
     RPM_EXTENSION="${DISTRO_FILE##*-}"
 
-    cp -f ${DISTRO_FILE} "LPub3D-${LP3D_APP_VERSION_LONG}-${RPM_EXTENSION}"
+    mv -f ${DISTRO_FILE} "LPub3D-${LP3D_APP_VERSION_LONG}-${RPM_EXTENSION}"
     if [ -f "LPub3D-${LP3D_APP_VERSION_LONG}-${RPM_EXTENSION}" ]; then
         echo "    Download package..: LPub3D-${LP3D_APP_VERSION_LONG}-${RPM_EXTENSION}"
     else
         echo "    ERROR - file not copied: LPub3D-${LP3D_APP_VERSION_LONG}-${RPM_EXTENSION}"
-    fi
-
-    mv -f ${DISTRO_FILE} "LPub3D-UpdateMaster_${LP3D_VERSION}-${RPM_EXTENSION}"
-    if [ -f "LPub3D-UpdateMaster_${LP3D_VERSION}-${RPM_EXTENSION}" ]; then
-        echo "    Update package....: LPub3D-UpdateMaster_${LP3D_VERSION}-${RPM_EXTENSION}"
-    else
-        echo "    ERROR - file not renamed: LPub3D-UpdateMaster_${LP3D_VERSION}-${RPM_EXTENSION}"
     fi
 
 else
