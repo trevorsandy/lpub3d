@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: March 25, 2019
+rem  Last Update: June 23, 2019
 rem  Copyright (c) 2017 - 2019 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -208,7 +208,7 @@ ECHO.
 
 rem set application version variables
 SET _PRO_FILE_PWD_=%ABS_WD%\mainApp
-CALL builds/utilities/update-config-files.bat %_PRO_FILE_PWD_%
+CALL builds\utilities\update-config-files.bat %_PRO_FILE_PWD_%
 
 rem Perform 3rd party content install
 IF /I "%3"=="-ins" (

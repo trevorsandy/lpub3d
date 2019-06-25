@@ -197,6 +197,9 @@ CONFIG(debug, debug|release) {
 
     DO_COPY_LDVLIBS = #True
 
+    # enable copy ldvMessages to OUT_PWD/mainApp/extras
+    DEVL_LDV_MESSAGES_INI = True
+
 } else {
 
     BUILD_CONF = Release

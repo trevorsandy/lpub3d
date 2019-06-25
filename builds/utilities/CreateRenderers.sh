@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: March 23, 2019
+#  Last Update: June 23, 2019
 #  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 
@@ -284,8 +284,7 @@ InstallDependencies() {
         cp -f QT/PKGBUILD QT/OBS/PKGBUILD
         pkgbuildFile="$PWD/QT/OBS/PKGBUILD"
         sed -e "/#Qt4.x/d" -e "/depends=('qt4'/d" -e "s/#depends=/depends=/g" \
-            -e "s/'mesa-libgl'//g" -e "s/'kdelibs'/'tinyxml' 'gl2ps'/g" -e "s/'automoc4'//g" \
-            -e "s/'phonon-qt4-gstreamer'//g" -i $pkgbuildFile
+            -e "s/'mesa-libgl'/'tinyxml' 'gl2ps'/g" -i $pkgbuildFile
         if [ ! -d /usr/share/mime ]; then
           $useSudo mkdir /usr/share/mime
         fi

@@ -72,9 +72,7 @@ CONFIG(debug, debug|release) {
     # The next 5 lines adds the LDView source files...
     LOAD_LDV_HEADERS      = True
     # This line requires a git extract of ldview at the same location as the lpub3d git extract
-    LOAD_LDV_SOURCE_FILES = True
-    # This line requires lpub3d/mainApp/extras to be copied to $$DESTDIR/extras
-    DEVL_LDV_MESSAGES_INI = True
+    LOAD_LDV_SOURCE_FILES = False
     # This line points to ldview git extract folder name, you can set as you like
     VER_LDVSRC            = ldview
     # This line defines the path of the ldview git extract relative to this project file

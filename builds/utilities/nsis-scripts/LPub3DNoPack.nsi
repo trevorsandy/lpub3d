@@ -875,7 +875,7 @@ Function fnAskForceUninstall
   DetailPrint "Error executing uninstaller."
   MessageBox MB_ICONEXCLAMATION|MB_YESNO "Error executing uninstaller!.$\r$\n\
                                           Do you want to completely remove ${PRODUCT_NAME}?$\r$\n\
-										  Warning: Custom user data and registry settings will be deleted." IDYES Proceed
+                                          Warning: Custom user data and registry settings will be deleted." IDYES Proceed
   Abort "Error executing uninstaller."
 
   Proceed:

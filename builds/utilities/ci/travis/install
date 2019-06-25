@@ -3,7 +3,7 @@
 # Travis-ci build [install] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: June 21, 2019
+#  Last Update: June 23, 2019
 #  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -14,13 +14,6 @@ source builds/utilities/update-config-files.sh
 # Install qt5 on Linux
 if [[ "$TRAVIS_OS_NAME" = "linux" && (("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG") || \
      ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_APPIMAGE" = "true")) && -z "$LP3D_DEPLOY_PACKAGES" ]]; then
-  if [ "$LP3D_QT_BASE" = "53" ]; then sudo apt-get install -qq qt53base; source /opt/qt53/bin/qt53-env.sh; fi;
-  if [ "$LP3D_QT_BASE" = "54" ]; then sudo apt-get install -qq qt54base; source /opt/qt54/bin/qt54-env.sh; fi;
-  if [ "$LP3D_QT_BASE" = "55" ]; then sudo apt-get install -qq qt55base; source /opt/qt55/bin/qt55-env.sh; fi;
-  if [ "$LP3D_QT_BASE" = "56" ]; then sudo apt-get install -qq qt56base; source /opt/qt56/bin/qt56-env.sh; fi;
-  if [ "$LP3D_QT_BASE" = "57" ]; then sudo apt-get install -qq qt57base; source /opt/qt57/bin/qt57-env.sh; fi;
-  if [ "$LP3D_QT_BASE" = "58" ]; then sudo apt-get install -qq qt58base; source /opt/qt58/bin/qt58-env.sh; fi;
-  if [ "$LP3D_QT_BASE" = "59" ]; then sudo apt-get install -qq qt59base; source /opt/qt59/bin/qt59-env.sh; fi;
   if [ "$LP3D_QT_BASE" = "510" ]; then sudo apt-get install -qq qt510base; source /opt/qt510/bin/qt510-env.sh; fi
 fi
 # Setup 3rd party base distribution directory

@@ -64,6 +64,15 @@ contains(LOAD_LDV_HEADERS,True) {
 
     # These includes are only processed in debug on Windows mode
     win32-msvc*:contains(LOAD_LDV_SOURCE_FILES,True) {
+        # Copy source from LDView LDVHDRDIR - lpub3d_<platfor>_3rdParty
+        system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDLib/*.c*) $$system_path( $${LDVINCLUDE}/LDLib/ ) )
+        system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDExporter/*.c*) $$system_path( $${LDVINCLUDE}/LDExporter/ ) )
+        system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDLoader/*.c*) $$system_path( $${LDVINCLUDE}/LDLoader/) )
+        system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/TRE/*.c*) $$system_path( $${LDVINCLUDE}/TRE/) )
+        system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/TCFoundation/*.c*) $$system_path( $${LDVINCLUDE}/TCFoundation/ ) )
+        exists($$system_path( $$LDVINCLUDE/TCFoundation/TCFoundation.cpp )): \
+        message("~~~ lib$${TARGET} project source files copied to $${LDVINCLUDE} ~~~")
+
         # Copy headers from LDView LDVHDRDIR - lpub3d_<platfor>_3rdParty
         system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDLib/*.pri) $$system_path( $${LDVINCLUDE}/LDLib/ ) )
         system( $$COPY_CMD $$system_path( $${LDVHDRDIR}/LDExporter/*.pri) $$system_path( $${LDVINCLUDE}/LDExporter/ ) )
@@ -203,6 +212,7 @@ contains(LOAD_LDVLIBS,True) {
     !exists($${_ZLIB_DEP}):  USE_LOCAL_ZLIB_LIB = False
 #    else:message("~~~ Local z library $${_ZLIB_DEP} detected ~~~")
 
+# This block is executed by LPub3D mainApp
 contains(DO_COPY_LDVLIBS,True) {
         # Copy libraries from LDView
         LDLIB_LIB_cmd             = $$COPY_CMD $${_LDLIB_DEP} $${LDVLIBRARY}
@@ -424,7 +434,7 @@ contains(DO_COPY_LDVLIBS,True) {
          LDVMSGINI_COPY_CMD += \
          $$escape_expand(\n\t) \
          $$COPY_CMD \
-         $$system_path( $$LDVMESSAGESINI_DEP $$DESTDIR/extras/ )
+         $$system_path( $$LDVMESSAGESINI_DEP $$OUT_PWD/$$DESTDIR/extras/ )
     }
 
     ldvmsg_copy.target         = $$LDVMESSAGESINI_DEP
