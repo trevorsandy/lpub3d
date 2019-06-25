@@ -20,6 +20,7 @@
 #endif
 /*** LPub3D Mod - Include ***/
 #include "lpub.h"
+#include "annotations.h"
 /*** LPub3D Mod end ***/
 
 lcHTMLExportOptions::lcHTMLExportOptions(const Project* Project)
@@ -1172,14 +1173,16 @@ void Project::ExportBrickLink()
 			char* Ext = strchr(FileName, '.');
 			if (Ext)
 				*Ext = 0;
-
-			sprintf(Line, "    <ITEMID>%s</ITEMID>\n", FileName);
+/*** LPub3D Mod - use LPub3D exportable BrickLink codes table ***/
+			sprintf(Line, "    <ITEMID>%s</ITEMID>\n", Annotations::getBrickLinkPartId(FileName).toLatin1().constData());
+/*** LPub3D Mod end ***/
 			BrickLinkFile.WriteLine(Line);
 
 			sprintf(Line, "    <MINQTY>%d</MINQTY>\n", ColorIt.second);
 			BrickLinkFile.WriteLine(Line);
-
-			int Color = lcGetBrickLinkColor(ColorIt.first);
+/*** LPub3D Mod - use LPub3D exportable BrickLink color table ***/
+			int Color = Annotations::getBrickLinkColor(int(ColorIt.first));
+/*** LPub3D Mod end ***/
 			if (Color)
 			{
 				sprintf(Line, "    <COLOR>%d</COLOR>\n", Color);
