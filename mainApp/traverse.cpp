@@ -1302,7 +1302,7 @@ int Gui::drawPage(
                   if (page) {
                       page->inserts              = inserts;
                       page->instances            = instances;
-                      page->displayInstanceCount = instances > 1;
+                      page->displayInstanceCount = mergedInstances && instances > 1;
                       page->pagePointers         = pagePointers;
                     }
 
@@ -1569,7 +1569,7 @@ int Gui::drawPage(
                       Page *page = dynamic_cast<Page *>(steps);
                       if (page && instances > 1) {
                           page->instances = instances;
-                          page->displayInstanceCount = instances > 1;
+                          page->displayInstanceCount = mergedInstances && instances > 1;
 
                           if (! steps->meta.LPub.stepPli.perStep.value()) {
 
