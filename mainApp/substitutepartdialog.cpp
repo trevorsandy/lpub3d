@@ -63,7 +63,8 @@ SubstitutePartDialog::SubstitutePartDialog(
      setWindowTitle(title);
 
      // set initial attributes
-     mDefaultAttributes << "type" << "color" << defaultList;
+     mDefaultAttributes = mAction == sSubstitute ? attributes :
+                          QStringList() << "type" << "color" << defaultList;
      mInitialAttributes = attributes;
 
      initialize();
