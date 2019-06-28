@@ -1383,9 +1383,6 @@ void Gui::reloadCurrentPage(){
     bool prompt = false;
     if (maybeSave(prompt)) {
         timer.start();
-
-        int savePage = displayPageNum;
-        displayPageNum = savePage;
         displayPage();
         emit messageSig(LOG_STATUS, QString("Page %1 reloaded. %2")
                         .arg(displayPageNum)
@@ -4494,6 +4491,9 @@ void Gui::createMenus()
 
     QMenu* ToolBarViewerMenu = ViewerMenu->addMenu(tr("3DViewer Too&lbar"));
     ToolBarViewerMenu->addAction(gMainWindow->mToolsToolBar->toggleViewAction());
+    ViewerMenu->addSeparator();
+    // About 3D Viewer
+    ViewerMenu->addAction(gMainWindow->mActions[LC_HELP_ABOUT]);
     // 3D Viewer Menus End
 
     // Help Menus
@@ -4510,8 +4510,6 @@ void Gui::createMenus()
     helpMenu->addSeparator();
     // About Editor
     helpMenu->addAction(aboutAct);
-    // About 3D Viewer
-    helpMenu->addAction(gMainWindow->mActions[LC_HELP_ABOUT]);
 }
 
 void Gui::createToolBars()
