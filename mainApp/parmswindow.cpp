@@ -821,7 +821,8 @@ FindReplace::FindReplace(
     QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle("LDraw File Editor Find");
+    setWindowIcon(QIcon(":/resources/LPub32.png"));
+    setWindowTitle("Parameter File Editor Find");
 
     find = new FindReplaceCtrls(textEdit,this);
     find->textFind->setText(selectedText);
@@ -838,11 +839,12 @@ FindReplace::FindReplace(
     readFindReplaceSettings(findReplace);
 
     QTabWidget  *tabWidget = new QTabWidget;
-    QVBoxLayout *layout = new QVBoxLayout;
+    QVBoxLayout *vlayout = new QVBoxLayout;
+    QHBoxLayout *hlayout = new QHBoxLayout;
     QGridLayout *gropuLayout = new QGridLayout;
 
-    setLayout(layout);
-    layout->addWidget(tabWidget);
+    setLayout(vlayout);
+    vlayout->addWidget(tabWidget);
 
     QWidget *widget;
     QGridLayout *grid;
@@ -857,20 +859,22 @@ FindReplace::FindReplace(
     gropuLayout = new QGridLayout;
     box->setLayout(gropuLayout);
 
-    gropuLayout->addWidget(find->textFind,0,0,1,6);
+    gropuLayout->addWidget(find->textFind,0,0,1,5);
 
     gropuLayout->addWidget(find->buttonFind,1,0,1,1);
     gropuLayout->addWidget(find->buttonFindNext,1,1,1,1);
     gropuLayout->addWidget(find->buttonFindPrevious,1,2,1,1);
     gropuLayout->addWidget(find->buttonFindAll,1,3,1,1);
     gropuLayout->addWidget(find->buttonFindClear,1,4,1,1);
-    gropuLayout->addWidget(find->buttonCancel,1,5,1,1);
 
-    gropuLayout->addWidget(find->checkboxCase,2,0,1,2);
-    gropuLayout->addWidget(find->checkboxWord,2,2,1,2);
-    gropuLayout->addWidget(find->checkboxRegExp,2,4,1,2);
+    box = new QGroupBox();
+    box->setLayout(hlayout);
+    gropuLayout->addWidget(box,2,0,1,5);
+    hlayout->addWidget(find->checkboxCase);
+    hlayout->addWidget(find->checkboxWord);
+    hlayout->addWidget(find->checkboxRegExp);
 
-    gropuLayout->addWidget(find->labelMessage,3,0,1,6);
+    gropuLayout->addWidget(find->labelMessage,3,0,1,5);
 
     tabWidget->addTab(widget,"Find");
 
@@ -885,32 +889,42 @@ FindReplace::FindReplace(
 
     findReplace->label = new QLabel("Find: ");
     gropuLayout->addWidget(findReplace->label,0,0,1,1);
-    gropuLayout->addWidget(findReplace->textFind,0,1,1,5);
+    gropuLayout->addWidget(findReplace->textFind,0,1,1,4);
 
     findReplace->label = new QLabel("Replace: ");
     gropuLayout->addWidget(findReplace->label,1,0,1,1);
-    gropuLayout->addWidget(findReplace->textReplace,1,1,1,5);
+    gropuLayout->addWidget(findReplace->textReplace,1,1,1,4);
 
     gropuLayout->addWidget(findReplace->buttonFind,2,0,1,1);
     gropuLayout->addWidget(findReplace->buttonFindNext,2,1,1,1);
     gropuLayout->addWidget(findReplace->buttonFindPrevious,2,2,1,1);
     gropuLayout->addWidget(findReplace->buttonFindAll,2,3,1,1);
     gropuLayout->addWidget(findReplace->buttonFindClear,2,4,1,1);
-    gropuLayout->addWidget(findReplace->buttonCancel,2,5,1,1);
 
-    gropuLayout->addWidget(findReplace->checkboxCase,3,0,1,2);
-    gropuLayout->addWidget(findReplace->checkboxWord,3,2,1,2);
-    gropuLayout->addWidget(findReplace->checkboxRegExp,3,4,1,2);
+    gropuLayout->addWidget(findReplace->buttonReplace,3,0,1,1);
+    gropuLayout->addWidget(findReplace->buttonReplaceAndFind,3,1,1,1);
+    gropuLayout->addWidget(findReplace->buttonReplaceAll,3,2,1,1);
+    gropuLayout->addWidget(findReplace->buttonReplaceClear,3,3,1,1);
 
-    gropuLayout->addWidget(findReplace->buttonReplace,4,0,1,1);
-    gropuLayout->addWidget(findReplace->buttonReplaceAndFind,4,1,1,1);
-    gropuLayout->addWidget(findReplace->buttonReplaceAll,4,2,1,1);
-    gropuLayout->addWidget(findReplace->buttonReplaceClear,4,3,1,1);
-    gropuLayout->addWidget(findReplace->buttonCancel,4,5,1,1);
+    hlayout = new QHBoxLayout;
+    box = new QGroupBox();
+    box->setLayout(hlayout);
+    gropuLayout->addWidget(box,4,0,1,5);
+    hlayout->addWidget(findReplace->checkboxCase);
+    hlayout->addWidget(findReplace->checkboxWord);
+    hlayout->addWidget(findReplace->checkboxRegExp);
 
-    gropuLayout->addWidget(findReplace->labelMessage,5,0,1,6);
+    gropuLayout->addWidget(findReplace->labelMessage,5,0,1,5);
 
     tabWidget->addTab(widget,"Replace");
+
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(Qt::Horizontal);
+    buttonBox->addButton(findReplace->buttonCancel, QDialogButtonBox::ActionRole);
+    vlayout->addWidget(buttonBox);
+    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+
+    QTimer::singleShot(0, find->textFind, SLOT(setFocus()));
 
     setMinimumSize(100,80);
 }
@@ -919,12 +933,8 @@ void  FindReplace::popUpClose()
 {
     FindReplaceCtrls *fr = qobject_cast<FindReplaceCtrls *>(sender());
     if (fr) {
-        if (fr == findReplace)
-        {
-            writeFindReplaceSettings(findReplace);
-        } else {
-            writeFindReplaceSettings(find);
-        }
+        writeFindReplaceSettings(findReplace);
+        writeFindReplaceSettings(find);
         if (fr->_findall){
             fr->_textEdit->document()->undo();
         }
