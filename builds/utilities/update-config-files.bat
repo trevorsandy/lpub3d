@@ -2,7 +2,7 @@
 Title Update LPub3D files with build version number
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: June 22, 2019
+rem  Last Update: June 27, 2019
 rem  Copyright (c) 2015 - 2019 by Trevor SANDY
 rem --
 rem --
@@ -27,7 +27,7 @@ IF [%LP3D_BUILDS_DIR%] == [] (
 )
 
 SET LINE_README_TXT=1
-SET LINE_README_MD_VER=70
+SET LINE_README_MD_VER=61
 SET LINE_RELEASE_NOTES_HTM=12
 
 SET LP3D_GIT_DEPTH=150000
@@ -60,6 +60,7 @@ CALL :GET_DATE_AND_TIME
 
 SET LP3D_TIME=%LP3D_HOUR%:%LP3D_MIN%:%LP3D_SEC%
 SET LP3D_BUILD_DATE=%LP3D_YEAR%%LP3D_MONTH%%LP3D_DAY%
+SET LP3D_LAST_EDIT=%LP3D_DAY%-%LP3D_MONTH%-%LP3D_YEAR%
 SET LP3D_BUILD_DATE_TIME=%LP3D_DAY% %LP3D_MONTH% %LP3D_YEAR% %LP3D_TIME%
 SET LP3D_CHANGE_DATE_LONG=%LP3D_WEEK_DAY%, %LP3D_DAY% %LP3D_MONTH_OF_YEAR% %LP3D_YEAR% %LP3D_TIME% +0100
 SET LP3D_CHANGE_DATE=%LP3D_WEEK_DAY% %LP3D_MONTH_OF_YEAR% %LP3D_DAY% %LP3D_YEAR%
@@ -107,7 +108,7 @@ MOVE /Y %LP3D_FILE%.new %LP3D_FILE% | findstr /i /v /r /c:"moved\>"
 SET LP3D_FILE="%LP3D_MAIN_APP%\..\README.md"
 ECHO  update README.md version        [%LP3D_FILE%]
 SET /a LineToReplace=%LINE_README_MD_VER%
-SET "Replacement=[sfreleases]:       https://sourceforge.net/projects/lpub3d/files/%LP3D_VERSION%/"
+SET "Replacement=[gh-maintained-url]: https://github.com/trevorsandy/lpub3d/projects/1 "Last edited %LP3D_LAST_EDIT%""
 (FOR /f "tokens=1*delims=:" %%a IN ('findstr /n "^" "%LP3D_FILE%"') DO (
   SET "Line=%%b"
   IF %%a equ %LineToReplace% SET "Line=%Replacement%"
@@ -141,6 +142,7 @@ ECHO   LP3D_APP_VER_SUFFIX............[%LP3D_APP_VER_SUFFIX%]
 ECHO   LP3D_BUILD_VERSION.............[%LP3D_BUILD_VERSION%]
 ECHO   LP3D_BUILD_DATE_TIME...........[%LP3D_BUILD_DATE_TIME%]
 ECHO   LP3D_CHANGE_DATE_LONG..........[%LP3D_CHANGE_DATE_LONG%]
+ECHO   LP3D_LAST_EDIT.................[%LP3D_LAST_EDIT%]
 
 ECHO   LP3D_VERSION...................[%LP3D_VERSION%]
 ECHO   LP3D_APP_VERSION...............[%LP3D_APP_VERSION%]

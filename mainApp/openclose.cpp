@@ -420,14 +420,22 @@ void Gui::setCurrentFile(const QString &fileName)
     windowName = VER_FILEDESCRIPTION_STR;
   } else {
     QFileInfo fileInfo(fileName);
-    
     windowName = fileInfo.fileName();
   }
   QString windowVersion;
 #ifdef LP3D_CONTINUOUS_BUILD
-  windowVersion = QString("%2 v%3 (Pre-release)").arg(VER_PRODUCTNAME_STR).arg(VER_PRODUCTVERSION_STR);
+  windowVersion = QString("%1 v%2 Rev %3 (%4)")
+                          .arg(VER_PRODUCTNAME_STR)
+                          .arg(VER_PRODUCTVERSION_STR)
+                          .arg(VER_REVISION_STR)
+                          .arg(VER_BUILD_TYPE_STR);
 #else
-  windowVersion = QString("%2 v%3").arg(tr(VER_PRODUCTNAME_STR)).arg(VER_PRODUCTVERSION_STR);
+  windowVersion = QString("%1 v%2%3")
+                          .arg(VER_PRODUCTNAME_STR)
+                          .arg(VER_PRODUCTVERSION_STR)
+                          .arg(QString(VER_REVISION_STR).toInt() ?
+                                   QString("Rev %1").arg(VER_REVISION_STR) :
+                                   QString());
 #endif
 
   setWindowTitle(tr("%1[*] - %2").arg(windowName).arg(windowVersion));

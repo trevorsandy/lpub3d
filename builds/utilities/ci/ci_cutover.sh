@@ -86,13 +86,14 @@ function options_status
 
 function show_options_status
 {
-	SCRIPT_ARGS="No arguments specified: Show Options and exit"
+    COMMIT_MSG="No commit specified"
+	SCRIPT_ARGS="No arguments specified - show Options and exit"
 	options_status
 	exit 1
 }
 
 # if [ -z "$SCRIPT_ARGS" ] ; then 
-	# show_options_status 
+   # show_options_status 
 # fi
 	
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
@@ -113,6 +114,9 @@ fi
 LOG="$f"
 exec > >(tee -a ${LOG} )
 exec 2> >(tee -a ${LOG} >&2)
+
+# Show options
+options_status
 
 # Remove current lpub3d folder and clone fresh instance if requested
 [ "$FRESH_BUILD" != "no" ] && [ -d "$TO_NAME" ] && \

@@ -8,14 +8,14 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: June 23, 2019
+rem  Last Update: June 27, 2019
 rem  Copyright (c) 2017 - 2019 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
 rem but WITHOUT ANY WARRANTY; without even the implied warranty of
 rem MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-SET start=%time%
+CALL :ELAPSED_BUILD_TIME Start
 
 FOR %%* IN (.) DO SET SCRIPT_DIR=%%~nx*
 IF "%SCRIPT_DIR%" EQU "windows" (
@@ -257,6 +257,7 @@ IF /I "%PLATFORM%"=="-all" (
 rem Configure build arguments and set environment variables
 CALL :CONFIGURE_BUILD_ENV
 CD /D "%ABS_WD%"
+SET platform_build_start=%time%
 ECHO.
 ECHO -Building %PACKAGE% %PLATFORM% platform, %CONFIGURATION% configuration...
 rem Build 3rd party build from source
@@ -270,6 +271,8 @@ rem perform build
 nmake.exe
 rem Package 3rd party install content - this must come before check so check can use staged content for test
 IF %INSTALL%==1 CALL :STAGE_INSTALL
+CALL :ELAPSED_BUILD_TIME %platform_build_start%
+ECHO -Elapsed time %LP3D_ELAPSED_BUILD_TIME%
 rem Perform build check if specified
 IF %CHECK%==1 CALL :BUILD_CHECK %PLATFORM%
 GOTO :END
@@ -279,6 +282,7 @@ rem Launch qmake/make across all platform builds
 ECHO.
 ECHO -Build LPub3D x86 and x86_64 platforms...
 FOR %%P IN ( x86, x86_64 ) DO (
+  SET platform_build_start=%time%
   SET PLATFORM=%%P
   rem Configure buid arguments and set environment variables
   CALL :CONFIGURE_BUILD_ENV
@@ -298,6 +302,9 @@ FOR %%P IN ( x86, x86_64 ) DO (
   ENDLOCAL
   rem Package 3rd party install content - this must come before check so check can use staged content for test
   IF %INSTALL%==1 CALL :STAGE_INSTALL
+  ECHO.
+  CALL :ELAPSED_BUILD_TIME !platform_build_start!
+  ECHO -Elapsed time %LP3D_ELAPSED_BUILD_TIME%
   rem Perform build check if specified
   IF %CHECK%==1 CALL :BUILD_CHECK %%P
 )
@@ -704,6 +711,32 @@ SET DIST_DIR=%CD%
 POPD
 EXIT /b
 
+:ELAPSED_BUILD_TIME
+IF [%1] EQU [] (SET start=%build_start%) ELSE (
+  IF "%1"=="Start" (
+    SET build_start=%time%
+    EXIT /b
+  ) ELSE (
+    SET start=%1
+  )
+)
+SET end=%time%
+SET options="tokens=1-4 delims=:.,"
+FOR /f %options% %%a IN ("%start%") DO SET start_h=%%a&SET /a start_m=100%%b %% 100&SET /a start_s=100%%c %% 100&SET /a start_ms=100%%d %% 100
+FOR /f %options% %%a IN ("%end%") DO SET end_h=%%a&SET /a end_m=100%%b %% 100&SET /a end_s=100%%c %% 100&SET /a end_ms=100%%d %% 100
+
+SET /a hours=%end_h%-%start_h%
+SET /a mins=%end_m%-%start_m%
+SET /a secs=%end_s%-%start_s%
+SET /a ms=%end_ms%-%start_ms%
+IF %ms% lss 0 SET /a secs = %secs% - 1 & SET /a ms = 100%ms%
+IF %secs% lss 0 SET /a mins = %mins% - 1 & SET /a secs = 60%secs%
+IF %mins% lss 0 SET /a hours = %hours% - 1 & SET /a mins = 60%mins%
+IF %hours% lss 0 SET /a hours = 24%hours%
+IF 1%ms% lss 100 SET ms=0%ms%
+SET LP3D_ELAPSED_BUILD_TIME=%hours%:%mins%:%secs%.%ms%
+EXIT /b
+
 :PLATFORM_ERROR
 ECHO.
 CALL :USAGE
@@ -802,20 +835,7 @@ EXIT /b
 :END
 ECHO.
 ECHO -%PACKAGE% v%LP3D_VERSION% %~nx0 finished.
-SET end=%time%
-SET options="tokens=1-4 delims=:.,"
-FOR /f %options% %%a IN ("%start%") DO SET start_h=%%a&SET /a start_m=100%%b %% 100&SET /a start_s=100%%c %% 100&SET /a start_ms=100%%d %% 100
-FOR /f %options% %%a IN ("%end%") DO SET end_h=%%a&SET /a end_m=100%%b %% 100&SET /a end_s=100%%c %% 100&SET /a end_ms=100%%d %% 100
-
-SET /a hours=%end_h%-%start_h%
-SET /a mins=%end_m%-%start_m%
-SET /a secs=%end_s%-%start_s%
-SET /a ms=%end_ms%-%start_ms%
-IF %ms% lss 0 SET /a secs = %secs% - 1 & SET /a ms = 100%ms%
-IF %secs% lss 0 SET /a mins = %mins% - 1 & SET /a secs = 60%secs%
-IF %mins% lss 0 SET /a hours = %hours% - 1 & SET /a mins = 60%mins%
-IF %hours% lss 0 SET /a hours = 24%hours%
-IF 1%ms% lss 100 SET ms=0%ms%
-ECHO -Elapsed build time %hours%:%mins%:%secs%.%ms%
+CALL :ELAPSED_BUILD_TIME
+ECHO -Elapsed build time %LP3D_ELAPSED_BUILD_TIME%
 ENDLOCAL
 EXIT /b
