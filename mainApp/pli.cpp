@@ -383,10 +383,8 @@ void Pli::setParts(
                       styleMeta = pliMeta.rectangleStyle;
                   }
               }
-
-              const qreal dpiRatio = Preferences::dpiRatio;
-              styleMeta.size.setValuePixels(XX,int (styleMeta.size.valuePixels(XX) * dpiRatio));
-              styleMeta.size.setValuePixels(YY,int (styleMeta.size.valuePixels(YY) * dpiRatio));
+              styleMeta.size.setValuePixels(XX,int (styleMeta.size.valuePixels(XX)));
+              styleMeta.size.setValuePixels(YY,int (styleMeta.size.valuePixels(YY)));
           }
 
           bool found                 = false;

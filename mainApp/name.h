@@ -293,8 +293,6 @@ static const SceneObject NoContextSceneObjects[] =
 #define NEXT          1
 #define PREVIOUS      2
 
-#define APPLICATION_DPI_DEFAULT               96.0
-
 #define PLACEHOLDER_IMAGE_WIDTH               68 // pixels
 #define PLACEHOLDER_IMAGE_HEIGHT              79
 

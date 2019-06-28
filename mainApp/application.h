@@ -53,9 +53,6 @@ public:
     /// Returns the command line arguments
     QStringList arguments();
 
-    /// Returns the primary sceeen dpi ratio from a 96dpi standard
-    qreal dpiRatio();
-
     /// Initialize the Application and process the command line arguments.
     void initialize();
 

@@ -123,12 +123,8 @@ Application::Application(int &argc, char **argv)
 #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
   m_application.setAttribute(Qt::AA_UseDesktopOpenGL);
 #endif
+  m_application.setAttribute(Qt::AA_Use96Dpi);
 
-#if QT_VERSION >= QT_VERSION_CHECK(5,6,0)
-#ifndef Q_OS_MAC
-  QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-#endif
-#endif
   QCoreApplication::setOrganizationName(VER_COMPANYNAME_STR);
   QCoreApplication::setApplicationVersion(VER_PRODUCTVERSION_STR);
 
@@ -136,7 +132,7 @@ Application::Application(int &argc, char **argv)
 
 //qDebug() << "QStyleFactory valid styles:" << QStyleFactory::keys();
 #ifdef Q_OS_MAC
-  QCoreApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
+  m_application.setAttribute(Qt::AA_DontShowIconsInMenus);
   m_application.setStyle(QStyleFactory::create("macintosh"));
 #endif
 
@@ -150,15 +146,6 @@ Application* Application::instance()
 QStringList Application::arguments()
 {
   return m_application.arguments();
-}
-
-qreal Application::dpiRatio()
-{
-    const qreal defaultDpi = APPLICATION_DPI_DEFAULT;
-    // gets DPI
-    qreal systemDpi = m_application.primaryScreen()->logicalDotsPerInch();
-
-    return systemDpi / defaultDpi;
 }
 
 bool Application::modeGUI()

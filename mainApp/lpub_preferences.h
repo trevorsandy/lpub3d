@@ -284,8 +284,6 @@ class Preferences
     static int     povrayRenderQuality;
     static int     ldrawFilesLoadMsgs;
 
-    static qreal   dpiRatio;
-
     virtual ~Preferences() {}
 };
 
