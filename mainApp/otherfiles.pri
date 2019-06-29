@@ -94,4 +94,5 @@ docs/RELEASE_NOTES.html \
 ../builds/utilities/version.info \
 ../builds/windows/AutoBuild.cmd \
 ../builds/windows/CreateExePkg.cmd \
+../builds/windows/RunBuildCheck.bat \
 ../.github/ISSUE_TEMPLATE.md

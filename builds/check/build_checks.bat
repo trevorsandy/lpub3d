@@ -3,7 +3,7 @@
 Title LPub3D Windows build check script
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: June 27, 2019
+rem  Last Update: June 29, 2019
 rem  Copyright (c) 2018 - 2019 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -66,6 +66,7 @@ SET PKG_UPDATE_CHECKS_FAIL=%TEMP%\$\%PKG_CHECKS_FAIL_IN% ECHO
 ECHO.
 ECHO   PACKAGE...................[%PACKAGE%]
 ECHO   PKG_PLATFORM..............[%PKG_PLATFORM%]
+ECHO   CONFIGURATION.............[%CONFIGURATION%]
 ECHO   PKG_DISTRO_DIR............[%PKG_DISTRO_DIR%]
 ECHO   PKG_PRODUCT_DIR...........[%PKG_PRODUCT_DIR%]
 ECHO   PKG_TARGET_DIR............[%PKG_TARGET_DIR%]
@@ -169,6 +170,7 @@ IF NOT EXIST "%PKG_TARGET%" (
       ECHO. -ERROR - PKG_CHECK_VEXIQ NO OUTPUT
     )
   )
+
   ECHO.
   ECHO   Build checks cleanup...
   RMDIR /S /Q %PKG_TARGET_DIR%\cache
@@ -192,7 +194,7 @@ IF NOT EXIST "%PKG_TARGET%" (
   )
   CALL :ELAPSED_CHECK_TIME %overall_check_start%
   ECHO.
-  ECHO ----Build Checks Completed: PASS ^(!PKG_CHECK_PASS!^)[!PKG_CHECKS_PASS!], FAIL ^(!PKG_CHECK_FAIL!^)[!PKG_CHECKS_FAIL!], ELAPSED TIME [%LP3D_ELAPSED_CHECK_TIME%] ----
+  ECHO ----Build Checks Completed: PASS ^(!PKG_CHECK_PASS!^)[!PKG_CHECKS_PASS!], FAIL ^(!PKG_CHECK_FAIL!^)[!PKG_CHECKS_FAIL!], ELAPSED TIME !LP3D_ELAPSED_CHECK_TIME! ----
   ECHO.
   SETLOCAL DISABLEDELAYEDEXPANSION
 )
@@ -205,7 +207,7 @@ SETLOCAL ENABLEDELAYEDEXPANSION
 FOR /F "tokens=2*" %%i IN ('FINDSTR /c:"%PKG_CHECK_SUCCESS%" %PKG_LOG_FILE%') DO SET PKG_CHECK_RESULT=%%i %%j
 IF "!PKG_CHECK_RESULT!" EQU "%PKG_CHECK_SUCCESS%" (
   CALL :ELAPSED_CHECK_TIME
-  ECHO -%1 PASSED, ELAPSED TIME [%LP3D_ELAPSED_CHECK_TIME%]
+  ECHO -%1 PASSED, ELAPSED TIME !LP3D_ELAPSED_CHECK_TIME!
   SET /P PKG_CHECK_PASS=<%TEMP%\$\%PKG_CHECK_PASS_IN%
   SET /A PKG_CHECK_PASS=!PKG_CHECK_PASS!+1
 >%PKG_UPDATE_CHECK_PASS% !PKG_CHECK_PASS!
@@ -214,7 +216,7 @@ IF "!PKG_CHECK_RESULT!" EQU "%PKG_CHECK_SUCCESS%" (
 >%PKG_UPDATE_CHECKS_PASS% !PKG_CHECKS_PASS!
 ) ELSE (
   CALL :ELAPSED_CHECK_TIME
-  ECHO -%1 FAILED, ELAPSED TIME [%LP3D_ELAPSED_CHECK_TIME%]
+  ECHO -%1 FAILED, ELAPSED TIME !LP3D_ELAPSED_CHECK_TIME!
   SET /P PKG_CHECK_FAIL=<%TEMP%\$\%PKG_CHECK_FAIL_IN%
   SET /A PKG_CHECK_FAIL=!PKG_CHECK_FAIL!+1
 >%PKG_UPDATE_CHECK_FAIL% !PKG_CHECK_FAIL!
@@ -228,7 +230,7 @@ EXIT /b
 
 :ELAPSED_CHECK_TIME
 IF [%1] EQU [] (SET start=%check_start%) ELSE (
-  IF "%1"=="START" (
+  IF "%1"=="Start" (
     SET check_start=%time%
     EXIT /b
   ) ELSE (
@@ -254,7 +256,7 @@ EXIT /b
 
 :SET_LDRAW_LIBS
 ECHO.
-ECHO -Copy LDraw archive libraries to extras folder...
+ECHO - Copy LDraw archive libraries to extras folder...
 
 IF NOT EXIST "%PKG_TARGET_DIR%\extras\%OfficialCONTENT%" (
   IF EXIST "%LDRAW_LIBS%\%OfficialCONTENT%" (
