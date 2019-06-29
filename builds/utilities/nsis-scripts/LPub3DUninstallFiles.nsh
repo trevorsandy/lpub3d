@@ -1,5 +1,5 @@
 ;LPub3D Uninstall Files Script Include
-;Last Update: March 06, 2019
+;Last Update: June 28, 2019
 ;Copyright (C) 2016 - 2019 by Trevor SANDY
 
 ;Deposit new files...
@@ -51,8 +51,11 @@ Delete "$INSTDIR\3rdParty\${LPub3D_TraceDir}\resources\config\povray.conf"
 Delete "$INSTDIR\3rdParty\${LPub3D_TraceDir}\resources\config\povray.ini"
 
 ${If} ${RunningX64}
-  ;New 64bit Stuff - Qt Libraries
-  Delete "$INSTDIR\libgcc_s_seh-1.dll"
+    ;MSVC 2015 Redistributables
+    Delete "${INSTDIR}\vcredist_x86_64.exe"
+
+    ;New 64bit Stuff - Qt Libraries
+    Delete "$INSTDIR\libgcc_s_seh-1.dll"
 
 	;64bit 3rd party renderer utility - LDView
 	Delete "$INSTDIR\3rdParty\${LDViewDir}\bin\${LDViewExe}64.exe"
@@ -60,6 +63,9 @@ ${If} ${RunningX64}
 	;64bit 3rd party renderer utility - LPub3D_Trace
 	Delete "$INSTDIR\3rdParty\${LPub3D_TraceDir}\bin\${LPub3D_TraceExe}64.exe"
 ${Else}
+    ;MSVC 2015 Redistributables
+    Delete "${INSTDIR}\vcredist_x86.exe"
+
 	;New 32bit Stuff - Qt Libraries
 	Delete "$INSTDIR\libgcc_s_dw2-1.dll"
 

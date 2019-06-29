@@ -1,5 +1,5 @@
 ;LPub3D Install Files Script Include
-;Last Update: March 06, 2019
+;Last Update: June 29, 2019
 ;Copyright (C) 2016 - 2019 by Trevor SANDY
 
 StrCmp ${UniversalBuild} "1" 0 SingleArchitectureBuild
@@ -17,6 +17,9 @@ ${If} ${RunningX64}
     IfFileExists "${ProductName}_${ArchExt}.exe" 0 ContinueX64Install
     Delete "${ProductName}_${ArchExt}.exe"
     ContinueX64Install:
+
+    ;MSVC 2015 Redistributable
+    File "${Win64BuildDir}\vcredist\vcredist_x86_64.exe"
 
     ;Deposit new 64bit files...
     File "${Win64BuildDir}\${LPub3DBuildFile}"
@@ -106,6 +109,9 @@ ${Else}
     IfFileExists "${ProductName}_${ArchExt}.exe" 0 ContinueX32Install
     Delete "${ProductName}_${ArchExt}.exe"
     ContinueX32Install:
+
+    ;MSVC 2015 Redistributable
+    File "${Win32BuildDir}\vcredist\vcredist_x86.exe"
 
     ;Deposit new 32bit files...
     ;File "${Win32BuildDir}\${LPub3D32bitBuildFile}"

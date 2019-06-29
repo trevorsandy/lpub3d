@@ -1,5 +1,5 @@
 ;LPub3D Setup Script
-;Last Update: May 18, 2019
+;Last Update: June 29, 2019
 ;Copyright (C) 2016 - 2019 by Trevor SANDY
 
 ; Install LPub3D and pre-packaged renderers.
@@ -297,6 +297,13 @@ Section "Core Files (required)" SectionCoreFiles
   ; Core files to be installed.
   !include "LPub3DInstallFiles.nsh"
 
+  ;Install MSVC 2015 Redistributable
+  ${If} ${RunningX64}
+     ExecWait '"vcredist_x86_64.exe"  /quiet /norestart'
+  ${Else}
+     ExecWait '"vcredist_x86.exe"  /quiet /norestart'
+  ${EndIf}
+
   !ifdef LICENSE_FILE
     File "${WinBuildDir}\docs\${LICENSE_FILE}"
   !endif
@@ -368,7 +375,6 @@ Section "Documentation" SectionDocumentation
   SetOutPath $INSTDIR
   File "${WinBuildDir}\docs\${README_FILE}"
   File "${WinBuildDir}\docs\${RELEASE_NOTES_FILE}"
-
 
 SectionEnd
 
@@ -791,7 +797,7 @@ Function fnWarning
 FunctionEnd
 
 Function fnUserDataInfo
-          ${NSD_SetText} $UserDataLbl "NOTICE! Data created 'per user'. Only the installing user will have access."
+    ${NSD_SetText} $UserDataLbl "NOTICE! Data created 'per user'. Only the installing user will have access."
 FunctionEnd
 
 Function fnMoveLibrariesInfo

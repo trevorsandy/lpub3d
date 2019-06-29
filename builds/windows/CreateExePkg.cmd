@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: June 24, 2019
+rem  Last Update: June 28, 2019
 rem  Copyright (c) 2015 - 2019 by Trevor SANDY
 rem --
 SETLOCAL
@@ -17,16 +17,16 @@ ECHO.
 ECHO - Create windows installer and portable package archive LPub3D distributions
 
 REM Set the current working directory to the source directory root - e.g. lpub3d\
-FOR %%* IN (.) DO SET CWD=%%~nx*
-IF "%CWD%" EQU "windows" (
+FOR %%* IN (.) DO SET SCRIPT_DIR=%%~nx*
+IF "%SCRIPT_DIR%" EQU "windows" (
   CD /D ../../
 )
-FOR %%* IN (%CD%) DO SET LPUB3D=%%~nx*
-IF "%CWD%" NEQ "%LPUB3D%" (
-  IF "%CWD%" NEQ "windows" (
+FOR %%* IN (%CD%) DO SET LPUB3D_DIR=%%~nx*
+IF "%SCRIPT_DIR%" NEQ "%LPUB3D_DIR%" (
+  IF "%SCRIPT_DIR%" NEQ "windows" (
     ECHO.
-    ECHO You must run %~nx0 from either %LPUB3D% or %LPUB3D%\builds\windows source folder.
-    ECHO Example console command: CD %LPUB3D% &%~nx0
+    ECHO You must run %~nx0 from either %LPUB3D_DIR% or %LPUB3D_DIR%\builds\windows source folder.
+    ECHO Example console command: CD %LPUB3D_DIR% &%~nx0
     ECHO %~nx0 will terminate!
     GOTO :END
   )
@@ -416,6 +416,7 @@ IF %UNIVERSAL_BUILD% NEQ 1 (
     ECHO.
     ECHO   LP3D_ARCH......................[%%A]
     ECHO   PKG_DISTRO_DIR.................[%LP3D_PRODUCT%_%%A]
+    CALL :DOWNLOADMSVCREDIST %%A
     CALL :COPYFILES
   )
   IF %RUN_NSIS% == 1 CALL :DOWNLOADLDRAWLIBS
@@ -806,6 +807,85 @@ FOR %%V IN ( %LP3D_ALTERNATE_VERSIONS% ) DO (
 ECHO   Generated %1 json version insert
 EXIT /b
 
+:DOWNLOADMSVCREDIST
+ECHO.
+ECHO - Download Microsoft Visual C++ 2015 %1 Redistributable Update 3...
+
+IF "%APPVEYOR%" EQU "True" (
+  SET DIST_DIR=%LP3D_DIST_DIR_PATH%
+) ELSE (
+  CALL :DIST_DIR_REL_TO_ABS ..\..\..\..\..\lpub3d_windows_3rdparty
+)
+
+IF NOT EXIST "%DIST_DIR%\" (
+  ECHO.
+  ECHO - ERROR - Could not locate distribution path [%DIST_DIR%]
+  EXIT /b
+)
+
+SET MSVC_REDIST_DIR=%DIST_DIR%\vcredist
+
+IF NOT EXIST "%MSVC_REDIST_DIR%\" (
+  ECHO.
+  ECHO - Create MSVC 2015 %1 Redistributable store %MSVC_REDIST_DIR%
+  MKDIR "%MSVC_REDIST_DIR%\"
+)
+
+SET OutputPATH=%MSVC_REDIST_DIR%
+SET RedistCONTENT=vcredist_%1.exe
+
+CALL :CREATEWEBCONTENTDOWNLOADVBS
+
+ECHO.
+ECHO - MSVC 2015 %1 Redistributable download path: [%OutputPATH%]
+
+IF NOT EXIST "%OutputPATH%\%RedistCONTENT%" (
+  CALL :GET_MSVC_REDIST
+)  ELSE (
+  ECHO.
+  ECHO - MSVC 2015 %1 Redistributable %RedistCONTENT% exist. Nothing to do.
+)
+
+CALL :SET_MSVC_REDIST %1
+EXIT /b
+
+:GET_MSVC_REDIST
+SET WebCONTENT="%OutputPATH%\%RedistCONTENT%"
+SET WebNAME=https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/%RedistCONTENT%
+
+ECHO.
+ECHO - MSVC 2015 %1 Redistributable: %WebCONTENT%...
+ECHO.
+cscript //Nologo %TEMP%\$\%vbs% %WebNAME% %WebCONTENT% && @ECHO off
+IF EXIST "%OutputPATH%\%RedistCONTENT%" (
+  ECHO.
+  ECHO - MSVC 2015 %1 Redistributable %RedistCONTENT% is availble
+)
+EXIT /b
+
+:SET_MSVC_REDIST
+SET PKG_TARGET_DIR=%WIN_PKG_DIR%\release\%LP3D_PRODUCT_DIR%\%LP3D_PRODUCT%_%1\vcredist
+IF NOT EXIST "%PKG_TARGET_DIR%\" (
+  ECHO.
+  ECHO - Create MSVC 2015 %1 Redistributable package path %MSVC_REDIST_DIR%...
+  MKDIR "%PKG_TARGET_DIR%\"
+)
+
+IF NOT EXIST "%PKG_TARGET_DIR%\%RedistCONTENT%" (
+  ECHO.
+  ECHO - Copy MSVC 2015 %1 Redistributable to %PKG_TARGET_DIR% folder...
+  IF EXIST "%MSVC_REDIST_DIR%\%RedistCONTENT%" (
+    COPY /V /Y "%MSVC_REDIST_DIR%\%RedistCONTENT%" "%PKG_TARGET_DIR%\" /A | findstr /i /v /r /c:"copied\>"
+  ) ELSE (
+    ECHO.
+    ECHO -ERROR - MSVC 2015 %1 Redistributable %RedistCONTENT% does not exist in %MSVC_REDIST_DIR%\.
+  )
+) ELSE (
+  ECHO.
+  ECHO - MSVC 2015 %1 Redistributable %RedistCONTENT% exist in %PKG_TARGET_DIR%. Nothing to do.
+)
+EXIT /b
+
 :DOWNLOADLDRAWLIBS
 ECHO.
 ECHO - Download LDraw archive libraries...
@@ -829,68 +909,8 @@ SET LPub3DCONTENT=lpub3dldrawunf.zip
 SET TenteCONTENT=tenteparts.zip
 SET VexiqCONTENT=vexiqparts.zip
 
-ECHO.
-ECHO - Prepare BATCH to VBS to Web Content Downloader...
+CALL :CREATEWEBCONTENTDOWNLOADVBS
 
-IF NOT EXIST "%TEMP%\$" (
-  MD "%TEMP%\$"
-)
-
-SET vbs=WebContentDownload.vbs
-SET t=%TEMP%\$\%vbs% ECHO
-
-IF EXIST %TEMP%\$\%vbs% (
- DEL %TEMP%\$\%vbs%
-)
-
-:WEB CONTENT SAVE-AS Download-- VBS
->%t% Option Explicit
->>%t% On Error Resume Next
->>%t%.
->>%t% Dim args, http, fileSystem, adoStream, url, target, status
->>%t%.
->>%t% Set args = Wscript.Arguments
->>%t% Set http = CreateObject("WinHttp.WinHttpRequest.5.1")
->>%t% url = args(0)
->>%t% target = args(1)
->>%t% WScript.Echo "- Getting '" ^& target ^& "' from '" ^& url ^& "'...", vbLF
->>%t%.
->>%t% http.Open "GET", url, False
->>%t% http.Send
->>%t% status = http.Status
->>%t%.
->>%t% If status ^<^> 200 Then
->>%t% WScript.Echo "- FAILED to download: HTTP Status " ^& status, vbLF
->>%t% WScript.Quit 1
->>%t% End If
->>%t%.
->>%t% Set adoStream = CreateObject("ADODB.Stream")
->>%t% adoStream.Open
->>%t% adoStream.Type = 1
->>%t% adoStream.Write http.ResponseBody
->>%t% adoStream.Position = 0
->>%t%.
->>%t% Set fileSystem = CreateObject("Scripting.FileSystemObject")
->>%t% If fileSystem.FileExists(target) Then fileSystem.DeleteFile target
->>%t% If Err.Number ^<^> 0 Then
->>%t%   WScript.Echo "- Error - CANNOT DELETE: '" ^& target ^& "', " ^& Err.Description
->>%t%   WScript.Echo "  The file may be in use by another process.", vbLF
->>%t%   adoStream.Close
->>%t%   Err.Clear
->>%t% Else
->>%t%  adoStream.SaveToFile target
->>%t%  adoStream.Close
->>%t%  WScript.Echo "- Download successful!"
->>%t% End If
->>%t%.
->>%t% 'WebContentDownload.vbs
->>%t% 'Title: BATCH to VBS to Web Content Downloader
->>%t% 'CMD ^> cscript //Nologo %TEMP%\$\%vbs% WebNAME WebCONTENT
->>%t% 'VBS Created on %date% at %time%
->>%t%.
-
-ECHO.
-ECHO - VBS file "%vbs%" is done compiling
 ECHO.
 ECHO - LDraw archive library download path: %OutputPATH%
 
@@ -987,7 +1007,7 @@ EXIT /b
 SET PKG_TARGET_DIR=%WIN_PKG_DIR%\release\%LP3D_PRODUCT_DIR%\%LP3D_PRODUCT%_%1
 
 ECHO.
-ECHO -Copy LDraw archive libraries to %PKG_TARGET_DIR%\extras folder...
+ECHO - Copy LDraw archive libraries to %PKG_TARGET_DIR%\extras folder...
 
 IF NOT EXIST "%PKG_TARGET_DIR%\extras\%OfficialCONTENT%" (
   IF EXIST "%LDRAW_LIBS%\%OfficialCONTENT%" (
@@ -1033,6 +1053,80 @@ IF NOT EXIST "%PKG_TARGET_DIR%\extras\%LPub3DCONTENT%" (
   ECHO.
   ECHO - Archive library %LPub3DCONTENT% exist in %LP3D_PRODUCT%_%1\extras folder. Nothing to do.
 )
+EXIT /b
+
+:CREATEWEBCONTENTDOWNLOADVBS
+ECHO.
+ECHO - Prepare BATCH to VBS to Web Content Downloader...
+
+IF NOT EXIST "%TEMP%\$" (
+  MD "%TEMP%\$"
+)
+
+SET vbs=WebContentDownload.vbs
+SET t=%TEMP%\$\%vbs% ECHO
+
+IF EXIST %TEMP%\$\%vbs% (
+ DEL %TEMP%\$\%vbs%
+)
+
+:WEB CONTENT SAVE-AS Download -- VBS
+>%t% Option Explicit
+>>%t% On Error Resume Next
+>>%t%.
+>>%t% Dim args, http, fileSystem, adoStream, url, target, status
+>>%t%.
+>>%t% Set args = Wscript.Arguments
+>>%t% Set http = CreateObject("WinHttp.WinHttpRequest.5.1")
+>>%t% url = args(0)
+>>%t% target = args(1)
+>>%t% WScript.Echo "- Getting '" ^& target ^& "' from '" ^& url ^& "'...", vbLF
+>>%t%.
+>>%t% http.Open "GET", url, False
+>>%t% http.Send
+>>%t% status = http.Status
+>>%t%.
+>>%t% If status ^<^> 200 Then
+>>%t% WScript.Echo "- FAILED to download: HTTP Status " ^& status, vbLF
+>>%t% WScript.Quit 1
+>>%t% End If
+>>%t%.
+>>%t% Set adoStream = CreateObject("ADODB.Stream")
+>>%t% adoStream.Open
+>>%t% adoStream.Type = 1
+>>%t% adoStream.Write http.ResponseBody
+>>%t% adoStream.Position = 0
+>>%t%.
+>>%t% Set fileSystem = CreateObject("Scripting.FileSystemObject")
+>>%t% If fileSystem.FileExists(target) Then fileSystem.DeleteFile target
+>>%t% If Err.Number ^<^> 0 Then
+>>%t%   WScript.Echo "- Error - CANNOT DELETE: '" ^& target ^& "', " ^& Err.Description
+>>%t%   WScript.Echo "  The file may be in use by another process.", vbLF
+>>%t%   adoStream.Close
+>>%t%   Err.Clear
+>>%t% Else
+>>%t%  adoStream.SaveToFile target
+>>%t%  adoStream.Close
+>>%t%  WScript.Echo "- Download successful!"
+>>%t% End If
+>>%t%.
+>>%t% 'WebContentDownload.vbs
+>>%t% 'Title: BATCH to VBS to Web Content Downloader
+>>%t% 'CMD ^> cscript //Nologo %TEMP%\$\%vbs% WebNAME WebCONTENT
+>>%t% 'VBS Created on %date% at %time%
+>>%t%.
+
+ECHO.
+ECHO - VBS file "%vbs%" is done compiling
+EXIT /b
+
+:DIST_DIR_REL_TO_ABS
+IF [%1] EQU [] (EXIT /b) ELSE (SET REL_DIST_DIR=%1)
+SET REL_DIST_DIR=%REL_DIST_DIR:/=\%
+SET DIST_DIR=
+PUSHD %REL_DIST_DIR%
+SET DIST_DIR=%CD%
+POPD
 EXIT /b
 
 :CREATE_LP3D_PS_VARS_FILE
