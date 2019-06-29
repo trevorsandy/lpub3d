@@ -1817,6 +1817,130 @@ void RotStepGui::apply(QString &modelName)
 
 /***********************************************************************
  *
+ * ContStepNumMeta
+ *
+ **********************************************************************/
+
+ContStepNumGui::ContStepNumGui(
+  QString const   &heading,
+  ContStepNumMeta *_meta,
+  QGroupBox       *parent)
+{
+  meta = _meta;
+
+  QHBoxLayout *layout = new QHBoxLayout(parent);
+
+  if (parent) {
+    parent->setLayout(layout);
+  } else {
+    setLayout(layout);
+  }
+
+  check = new QCheckBox(heading,parent);
+  check->setChecked(meta->value());
+  layout->addWidget(check);
+  connect(check,SIGNAL(stateChanged(int)),
+          this, SLOT(  stateChanged(int)));
+}
+
+void ContStepNumGui::stateChanged(int state)
+{
+  bool checked = meta->value();
+
+  if (state == Qt::Unchecked) {
+    checked = false;
+  } else if (state == Qt::Checked) {
+    checked = true;
+  }
+  meta->setValue(checked);
+  modified = true;
+}
+
+void ContStepNumGui::apply(QString &modelName)
+{
+  if (modified) {
+    MetaItem mi;
+    mi.setGlobalMeta(modelName,meta);
+  }
+}
+
+/***********************************************************************
+ *
+ * MergeInstance
+ *
+ **********************************************************************/
+
+MergeInstanceGui::MergeInstanceGui(
+  MergeInstanceMeta *_meta,
+  QGroupBox         *parent)
+{
+  meta = _meta;
+
+  QHBoxLayout *layout = new QHBoxLayout(parent);
+
+  if (parent) {
+    parent->setLayout(layout);
+  } else {
+    setLayout(layout);
+  }
+
+  topRadio    = new QRadioButton("At Top",parent);
+  topRadio->setChecked(meta->value() == MergeAtTop);
+  topRadio->setToolTip("Consolidate instances at first occurrence in the entire model file.");
+  layout->addWidget(topRadio);
+  connect(topRadio,SIGNAL(clicked(bool)),
+          this,     SLOT(  radioChanged(bool)));
+
+  modelRadio = new QRadioButton("At Model (default)",parent);
+  modelRadio->setChecked(meta->value() > MergeFalse && meta->value() < MergeAtStep);
+  modelRadio->setToolTip("Consolidate instances at first occurrence in the parent model.");
+  layout->addWidget(modelRadio);
+  connect(modelRadio,SIGNAL(clicked(bool)),
+          this,      SLOT(  radioChanged(bool)));
+
+  stepRadio    = new QRadioButton("At Step",parent);
+  stepRadio->setChecked(meta->value() == MergeAtStep);
+  stepRadio->setToolTip("Consolidate instances at first occurrence in the current step.");
+  layout->addWidget(stepRadio);
+  connect(stepRadio,SIGNAL(clicked(bool)),
+          this,     SLOT(  radioChanged(bool)));
+
+  connect(parent,SIGNAL(clicked(bool)),
+          this, SLOT(groupBoxChanged(bool)));
+}
+
+void MergeInstanceGui::radioChanged(bool checked)
+{
+  Q_UNUSED(checked)
+
+  if (sender() == topRadio) {
+      meta->setValue(MergeAtTop);
+  } else
+  if (sender() == modelRadio) {
+      meta->setValue(MergeAtModel);
+  } else
+  if (sender() == stepRadio) {
+      meta->setValue(MergeAtStep);
+  }
+  modified = true;
+}
+
+void MergeInstanceGui::groupBoxChanged(bool checked)
+{
+  meta->setValue(checked ? MergeTrue : MergeFalse);
+  modified = true;
+}
+
+void MergeInstanceGui::apply(QString &modelName)
+{
+  if (modified) {
+    MetaItem mi;
+    mi.setGlobalMeta(modelName,meta);
+  }
+}
+
+/***********************************************************************
+ *
  * Background
  *
  **********************************************************************/
@@ -1914,7 +2038,7 @@ BackgroundGui::BackgroundGui(
   layout->addWidget(stretchRadio);
   tileRadio    = new QRadioButton("Tile Picture",fill);
   connect(tileRadio,SIGNAL(clicked(bool)),
-          this,     SLOT(  stretch(bool)));
+          this,     SLOT(  tile(bool)));
   layout->addWidget(tileRadio);
 
   if (!pictureSettings) {

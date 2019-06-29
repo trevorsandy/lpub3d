@@ -1122,7 +1122,9 @@ private:
     bool           mirrored,
     Meta           meta,
     bool           printing,
-    int            contStepNumber);
+    int            contStepNumber,
+    int            renderStepNumber = 0,
+    QString        renderParentModel = "");
 
   int drawPage(// process the page of interest and any callouts
     LGraphicsView  *view,

@@ -88,6 +88,7 @@ public:
     QString const  &heading,
     BoolMeta       *meta,
     QGroupBox      *parent = nullptr);
+  CheckBoxGui(){}
   ~CheckBoxGui() {}
 
   QCheckBox *getCheckbox() {return check;}
@@ -669,6 +670,73 @@ private:
 
 public slots:
   void valueChanged(double);
+};
+
+/***********************************************************************
+ *
+ * ContStepNumMeta
+ *
+ **********************************************************************/
+
+class ContStepNumGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  ContStepNumGui(
+    QString const  &heading,
+    ContStepNumMeta *meta,
+    QGroupBox       *parent = nullptr);
+  ContStepNumGui(){}
+  ~ContStepNumGui() {}
+
+  QCheckBox *getCheckbox() {return check;}
+
+  void setEnabled(bool enabled);
+
+  virtual void apply(QString &modelName);
+
+private:
+  ContStepNumMeta *meta;
+  QCheckBox       *check;
+
+public slots:
+  void stateChanged(int state);
+};
+
+/***********************************************************************
+ *
+ * MergeInstance
+ *
+ **********************************************************************/
+
+class MergeInstanceGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  MergeInstanceGui(
+    MergeInstanceMeta *_meta,
+    QGroupBox         *parent = nullptr);
+  ~MergeInstanceGui() {}
+
+  QRadioButton *getTopRadio() {return topRadio;}
+  QRadioButton *getModelRadio() {return modelRadio;}
+  QRadioButton *getStepRadio() {return stepRadio;}
+
+  void setEnabled(bool enabled);
+
+  virtual void apply(QString &modelName);
+
+private:
+  MergeInstanceMeta  *meta;
+  QRadioButton       *topRadio;
+  QRadioButton       *modelRadio;
+  QRadioButton       *stepRadio;
+
+public slots:
+  void radioChanged(bool checked);
+  void groupBoxChanged(bool checked);
 };
 
 /***********************************************************************

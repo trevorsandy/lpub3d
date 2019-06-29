@@ -2069,6 +2069,102 @@ void PageOrientationMeta::doc(QStringList &out, QString preamble)
 
 /* ------------------ */
 
+MergeInstanceMeta::MergeInstanceMeta() : LeafMeta()
+{
+  mergeInstanceMap["TRUE"]     = MergeTrue;
+  mergeInstanceMap["FALSE"]    = MergeFalse;
+  mergeInstanceMap["AT_TOP"]   = MergeAtTop;
+  mergeInstanceMap["AT_MODEL"] = MergeAtModel;
+  mergeInstanceMap["AT_STEP"]  = MergeAtStep;
+  type[0] = MergeAtModel;
+}
+
+Rc MergeInstanceMeta::parse(QStringList &argv, int index, Where &here)
+{
+  QRegExp rx("^(AT_TOP|AT_MODEL|AT_STEP|TRUE|FALSE)$");
+  if (argv.size() - index == 1 && argv[index].contains(rx)) {
+      type[pushed]  = MergeInstanceEnc(mergeInstanceMap[argv[index]]);;
+      _here[pushed] = here;
+      return MergeInstanceRc;
+    }
+  if (reportErrors) {
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected AT_TOP, AT_MODEL, AT_STEP, TRUE or FALSE got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
+    }
+  return FailureRc;
+}
+
+QString MergeInstanceMeta::format(bool local, bool global)
+{
+    QString foo;
+    switch (type[pushed])
+    {
+    case MergeAtTop:
+        foo = "AT_TOP";
+        break;
+    case MergeAtModel:
+        foo = "AT_MODEL";
+        break;
+    case MergeAtStep:
+        foo = "AT_STEP";
+        break;
+    case MergeTrue:
+        foo = "TRUE";
+        break;
+    default: /*MergeFalse*/
+        foo = "FALSE";
+        break;
+    }
+  return LeafMeta::format(local,global,foo);
+}
+void MergeInstanceMeta::doc(QStringList &out, QString preamble)
+{
+  out << preamble + " (AT_TOP|AT_MODEL|AT_STEP|TRUE|FALSE)";
+}
+
+/* ------------------ */
+
+ContStepNumMeta::ContStepNumMeta() : LeafMeta()
+{
+  contStepNumMap["FALSE"] = ContStepNumFalse;
+  contStepNumMap["TRUE"]  = ContStepNumTrue;
+  type[0] = ContStepNumFalse;
+}
+
+Rc ContStepNumMeta::parse(QStringList &argv, int index, Where &here)
+{
+  QRegExp rx("^(TRUE|FALSE)$");
+  if (argv.size() - index == 1 && argv[index].contains(rx)) {
+      type[pushed]  = ContStepNumEnc(contStepNumMap[argv[index]]);;
+      _here[pushed] = here;
+      return ContStepNumRc;
+    }
+  if (reportErrors) {
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected TRUE or FALSE got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
+    }
+  return FailureRc;
+}
+
+QString ContStepNumMeta::format(bool local, bool global)
+{
+    QString foo;
+    switch (type[pushed])
+    {
+    case ContStepNumTrue:
+        foo = "TRUE";
+        break;
+    default: /*ContStepNumFalse*/
+        foo = "FALSE";
+        break;
+    }
+  return LeafMeta::format(local,global,foo);
+}
+void ContStepNumMeta::doc(QStringList &out, QString preamble)
+{
+  out << preamble + " (TRUE|FALSE)";
+}
+
+/* ------------------ */
+
 void PageSizeMeta::init(
     BranchMeta *parent,
     const QString name,
@@ -4488,8 +4584,7 @@ LPubMeta::LPubMeta() : BranchMeta()
   cameraDistNative.factor.setRange(-5000,5000);
   cameraDistNative.factor.setValue(Preferences::cameraDistFactorNative);
   contModelStepNum.setRange(1,10000);
-
-  mergeInstanceCount.setValue(true);
+  mergeInstanceCount.setValue(MergeAtModel);
   contStepNumbers.setValue(false);
   // stepNumber - default
 }
@@ -4497,30 +4592,30 @@ LPubMeta::LPubMeta() : BranchMeta()
 void LPubMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  page               .init(this,"PAGE");
-  assem              .init(this,"ASSEM");
-  callout            .init(this,"CALLOUT");
-  multiStep          .init(this,"MULTI_STEP");
-  stepNumber         .init(this,"STEP_NUMBER");
-  pli                .init(this,"PLI");
-  bom                .init(this,"BOM");
-  pointerBase        .init(this,"POINTER_BASE");
-  remove             .init(this,"REMOVE");
-  reserve            .init(this,"RESERVE",ReserveSpaceRc);
-  partSub            .init(this,"PART");
-  resolution         .init(this,"RESOLUTION");
-  insert             .init(this,"INSERT");
-  include            .init(this,"INCLUDE", IncludeRc);
-  nostep             .init(this,"NOSTEP", NoStepRc);
-  fadeStep           .init(this,"FADE_STEP");
-  highlightStep      .init(this,"HIGHLIGHT_STEP");
-  subModel           .init(this,"SUBMODEL_DISPLAY");
-  rotateIcon         .init(this,"ROTATE_ICON");
-  mergeInstanceCount .init(this,"CONSOLIDATE_INSTANCE_COUNT");
-  contModelStepNum   .init(this,"MODEL_STEP_NUMBER");
-  contStepNumbers    .init(this,"CONTINUOUS_STEP_NUMBERS");
-  stepPli            .init(this,"STEP_PLI");
-  cameraDistNative   .init(this,"CAMERA_DISTANCE_NATIVE");
+  page                     .init(this,"PAGE");
+  assem                    .init(this,"ASSEM");
+  callout                  .init(this,"CALLOUT");
+  multiStep                .init(this,"MULTI_STEP");
+  stepNumber               .init(this,"STEP_NUMBER");
+  pli                      .init(this,"PLI");
+  bom                      .init(this,"BOM");
+  pointerBase              .init(this,"POINTER_BASE");
+  remove                   .init(this,"REMOVE");
+  reserve                  .init(this,"RESERVE",ReserveSpaceRc);
+  partSub                  .init(this,"PART");
+  resolution               .init(this,"RESOLUTION");
+  insert                   .init(this,"INSERT");
+  include                  .init(this,"INCLUDE", IncludeRc);
+  nostep                   .init(this,"NOSTEP", NoStepRc);
+  fadeStep                 .init(this,"FADE_STEP");
+  highlightStep            .init(this,"HIGHLIGHT_STEP");
+  subModel                 .init(this,"SUBMODEL_DISPLAY");
+  rotateIcon               .init(this,"ROTATE_ICON");
+  mergeInstanceCount       .init(this,"CONSOLIDATE_INSTANCE_COUNT");
+  contModelStepNum         .init(this,"MODEL_STEP_NUMBER");
+  contStepNumbers          .init(this,"CONTINUOUS_STEP_NUMBERS");
+  stepPli                  .init(this,"STEP_PLI");
+  cameraDistNative         .init(this,"CAMERA_DISTANCE_NATIVE");
   reserve.setRange(0.0,1000000.0);
 }
 

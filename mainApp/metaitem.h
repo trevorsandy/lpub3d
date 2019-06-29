@@ -82,8 +82,9 @@ public:
   void deletePointer(          const Where &, bool, bool);
   void changeRotation(         const Where &);
 
+  int countInstancesInModel(   Meta *, const QString &);
   int countInstancesInStep(    Meta *, const QString &);
-  int countInstancesInBlock(   Meta *, const QString &, int);
+
   void addNextMultiStep(       const Where &topOfSteps, const Where &bottomOfSteps);
   void addPrevMultiStep(       const Where &topOfSteps, const Where &bottomOfSteps);
   void addNextStepsMultiStep(  const Where &topOfSteps, const Where &bottomOfSteps, const int &numOfSteps);

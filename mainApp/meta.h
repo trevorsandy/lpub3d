@@ -140,6 +140,9 @@ enum Rc {
          PliPartGroupRc,
          BomPartGroupRc,
 
+         ContStepNumRc,
+         MergeInstanceRc,
+
          SceneDepthRc,
          PagePointerDepthRc,
          CalloutPointerDepthRc,
@@ -1630,6 +1633,66 @@ public:
     _value = value;
   }
   virtual ~InsertMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
+};
+
+
+/*
+ * This class parses the Merge Submodel Instance flag (MergeAtTop|MergeAtModel|MergeAtStep|MergeTrue|MergeFalse
+ */
+
+class MergeInstanceMeta : public LeafMeta
+{
+private:
+  MergeInstanceEnc type[2];
+public:
+  QHash<QString, int> mergeInstanceMap;
+  int value()
+  {
+    return MergeInstanceEnc(type[pushed]);
+  }
+  void setValue(int value)
+  {
+    type[pushed] = MergeInstanceEnc(value);
+  }
+  MergeInstanceMeta();
+  MergeInstanceMeta(const MergeInstanceMeta &rhs) : LeafMeta(rhs)
+  {
+    type[0] = rhs.type[0];
+    type[1] = rhs.type[1];
+  }
+  virtual ~MergeInstanceMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
+};
+
+/*
+ * This class parses the Continuous Step Number flag (ContStepNumTrue|ContStepNumFalse)
+ */
+class ContStepNumMeta : public LeafMeta
+{
+private:
+  ContStepNumEnc type[2];
+public:
+  QHash<QString, int> contStepNumMap;
+  int value()
+  {
+    return ContStepNumEnc(type[pushed]);
+  }
+  void setValue(int value)
+  {
+    type[pushed] = ContStepNumEnc(value);
+  }
+  ContStepNumMeta();
+  ContStepNumMeta(const ContStepNumMeta &rhs) : LeafMeta(rhs)
+  {
+    type[0] = rhs.type[0];
+    type[1] = rhs.type[1];
+  }
+  virtual ~ContStepNumMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
@@ -3189,9 +3252,9 @@ public:
   HighlightStepMeta    highlightStep;
   RotateIconMeta       rotateIcon;
   SubModelMeta         subModel;
-  BoolMeta             mergeInstanceCount;
+  MergeInstanceMeta    mergeInstanceCount;
+  ContStepNumMeta      contStepNumbers;
   IntMeta              contModelStepNum;
-  BoolMeta             contStepNumbers;
   StepPliMeta          stepPli;
   CameraDistFactorMeta cameraDistNative;
 
@@ -3364,7 +3427,7 @@ public:
 private:
 };
 
-const QString RcNames[69] =
+const QString RcNames[71] =
 {
     "InvalidLDrawLineRc = -3",
     "RangeErrorRc = -2",
@@ -3450,6 +3513,9 @@ const QString RcNames[69] =
 
     "PliPartGroupRc",
     "BomPartGroupRc"
+
+    "ContStepNumRc",
+    "MergeInstanceRc",
 
     "SceneDepthRc",
     "PagePointerDepthRc",

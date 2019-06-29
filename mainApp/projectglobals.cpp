@@ -74,17 +74,21 @@ GlobalProjectDialog::GlobalProjectDialog(
   child = new ResolutionGui(&lpubMeta->resolution,box);
   data->children.append(child);
   
-  box = new QGroupBox("Submodel Instance Count");
+  box = new QGroupBox("Consolidate Submodel Instances");
+  box->setCheckable(true);
+  box->setChecked(lpubMeta->mergeInstanceCount.value());
   layout->addWidget(box);
-  CheckBoxGui *childInstanceCountBox = new CheckBoxGui("Consolidate submodel instance count.",&lpubMeta->mergeInstanceCount,box);
-  box->setToolTip("Consolidate submodel instance count at first occurrence in model.");
-  data->children.append(childInstanceCountBox);
-  connect (childInstanceCountBox->getCheckbox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
+  MergeInstanceGui *childMergeInstance = new MergeInstanceGui(&lpubMeta->mergeInstanceCount,box);
+  box->setToolTip("Consolidate submodel instances on first occurrence.");
+  data->children.append(childMergeInstance);
+  connect (childMergeInstance->getTopRadio(),   SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
+  connect (childMergeInstance->getModelRadio(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
+  connect (childMergeInstance->getStepRadio(),  SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
 
   box = new QGroupBox("Step Numbers");
   layout->addWidget(box);
-  CheckBoxGui *childContStepNumbersBox = new CheckBoxGui("Continuous step numbers.",&lpubMeta->contStepNumbers,box);
-  box->setToolTip("Enable continuous step numbers across submodels and assembled or rotated callouts.");
+  ContStepNumGui *childContStepNumbersBox = new ContStepNumGui("Continuous step numbers.",&lpubMeta->contStepNumbers,box);
+  box->setToolTip("Enable continuous step numbers across submodels and unassembled callouts.");
   data->children.append(childContStepNumbersBox);
   connect (childContStepNumbersBox->getCheckbox(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
 

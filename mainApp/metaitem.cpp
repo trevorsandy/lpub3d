@@ -209,7 +209,7 @@ int MetaItem::removeFirstStep(
           }
         } else {
           if (divider.lineNumber) {
-            replaceMeta(divider,stepGroupBegin);          
+            replaceMeta(divider,stepGroupBegin);
           } else {
             appendMeta(secondStep,stepGroupBegin);
           }
@@ -227,7 +227,7 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
     Where walk(modelName,0);
 
     /* submodelStack tells us where this submodel is referenced in the
-     parent file */
+     parent file so we use it to target the correct STEP*/
 
     SubmodelStack tos = meta->submodelStack[meta->submodelStack.size() - 1];
     Where step(tos.modelName,tos.lineNumber);
@@ -239,6 +239,7 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
    *
    * In either direction, we need to stop on STEP/ROTSTEP.  We also need
    * to stop on other sub-models, or mirror images of the same sub-model.
+   * Lastly, models that are callouts are not counted as instances.
    */
 
   int instanceCount = 0;
@@ -263,10 +264,30 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
           break;
         }
         rc = meta->parse(line,walkBack);
-        if (rc == PartEndRc)
+        if (rc == PartEndRc || rc == PliEndRc || rc == MLCadSkipEndRc)
             ignorePartLine = true;
-        if (rc == PartBeginIgnRc)
+        if (rc == PartBeginIgnRc || rc == PliBeginIgnRc || rc == MLCadSkipBeginRc)
             ignorePartLine = false;
+        // Sorry, models that are callouts are not counted as instances
+        if (argv.size() == 4 && argv[0] == "0" &&
+           (argv[1] == "LPUB" || argv[1] == "!LPUB") &&
+            argv[2] == "CALLOUT" && argv[3] == "END") {
+          //process callout content
+          for (--walkBack; walkBack.lineNumber >= 0; walkBack--) {
+            QString calloutLine = gui->readLine(walkBack);
+            QStringList tokens;
+            split(calloutLine,tokens);
+            if (tokens.size() == 15 && tokens[0] == "1") {
+              ignorePartLine = true;
+            } else
+            if (tokens.size() == 4 && tokens[0] == "0" &&
+               (tokens[1] == "LPUB" || tokens[1] == "!LPUB") &&
+                tokens[2] == "CALLOUT" && tokens[3] == "BEGIN") {
+              ignorePartLine = false;
+              break;
+            }
+          }
+        }
       } else if (argv.size() == 15 && argv[0] == "1") {
         if (ignorePartLine)
           continue;
@@ -305,10 +326,30 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
         break;
       }
       rc = meta->parse(line,walk);
-      if (rc == PartBeginIgnRc)
+      if (rc == PartBeginIgnRc || rc == PliBeginIgnRc || rc == MLCadSkipBeginRc)
           ignorePartLine = true;
-      if (rc == PartEndRc)
+      if (rc == PartEndRc || rc == PliEndRc || rc == MLCadSkipEndRc)
           ignorePartLine = false;
+      // models that are callouts are not counted as instances
+      if (argv.size() == 4 && argv[0] == "0" &&
+         (argv[1] == "LPUB" || argv[1] == "!LPUB") &&
+          argv[2] == "CALLOUT" && argv[3] == "BEGIN") {
+        //process callout content
+        for (++walk; walk.lineNumber < numLines; walk++) {
+          QString calloutLine = gui->readLine(walk);
+          QStringList tokens;
+          split(calloutLine,tokens);
+          if (tokens.size() == 15 && tokens[0] == "1") {
+            ignorePartLine = true;
+          } else
+          if (tokens.size() == 4 && tokens[0] == "0" &&
+             (tokens[1] == "LPUB" || tokens[1] == "!LPUB") &&
+              tokens[2] == "CALLOUT" && tokens[3] == "END") {
+            ignorePartLine = false;
+            break;
+          }
+        }
+      }
     } else if (argv.size() == 15 && argv[0] == "1") {
       if (gui->isSubmodel(argv[14])) {
         if (ignorePartLine)
@@ -335,25 +376,23 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
   return instanceCount;
 }
 
-int MetaItem::countInstancesInBlock(Meta *meta, const QString &modelName, const int mask){
+int MetaItem::countInstancesInModel(Meta *meta, const QString &modelName){
 
     int   numLines;
-    Where walk(modelName,0);
+    Where walk(modelName,1);
 
     /* submodelStack tells us where this submodel is referenced in the
-     parent file */
+     parent file so we use it to target the correct SUBMODEL*/
 
     SubmodelStack tos = meta->submodelStack[meta->submodelStack.size() - 1];
     Where step(tos.modelName,tos.lineNumber);
 
-    /* Now scan the lines following this line, to see if there is another
+    /* Scan the lines following this line, to see if there is another
    * submodel just like this one that needs to be added as multiplier.
    *
-   * We also want to scan backward for the same submodel.
-   *
-   * In the backward direction, we need to stop on CALLOUT/MULTI_STEP BEGIN
-   * In the forward direction, we need to stop on CALLOUT/MULTI_STEP END.
-   * We also need to stop on other sub-models, or mirror images of the same sub-model.
+   * We need to stop on STEP/ROTSTEP.  We also need to stop
+   * on other sub-models, or mirror images of the same sub-model.
+   * Lastly, models that are callouts are not counted as instances.
    */
 
   int instanceCount = 0;
@@ -363,71 +402,43 @@ int MetaItem::countInstancesInBlock(Meta *meta, const QString &modelName, const 
 
   Rc rc;
   bool ignorePartLine = false;
-  Where walkBack = step;
-  for (; walkBack.lineNumber >= 0; walkBack--) {
-    QString line = gui->readLine(walkBack);
+  walk = step;
 
-    if (isHeader(line)) {
-      break;
-    } else {
-      QStringList argv;
-      split(line,argv);
-      if (argv.size() >= 2 && argv[0] == "0") {
-        rc = meta->parse(line,walkBack);
-        if ((rc == CalloutBeginRc && ((mask >> rc) & 1)) ||
-            (rc == StepGroupBeginRc && ((mask >> rc) & 1))) {
-          break;
-        }
-        if (rc == PartEndRc)
-            ignorePartLine = true;
-        if (rc == PartBeginIgnRc)
-            ignorePartLine = false;
-      } else if (argv.size() == 15 && argv[0] == "1") {
-        if (ignorePartLine)
-            continue;
-        if (gui->isSubmodel(argv[14])) {
-          if (argv[14] == modelName) {
-            if (firstLine == "") {
-              firstLine = line;
-              firstInstance = walkBack;
-              lastInstance = walkBack;
-              ++instanceCount;
-            } else {
-              if (equivalentAdds(firstLine,line)) {
-                firstInstance = walkBack;
-                ++instanceCount;
-              } else {
-                continue;
-              }
-            }
-          } else {
-            continue;
-          }
-        }
-      }
-    }
-  }
-
-  walk = step + 1;
   numLines = gui->subFileSize(walk.modelName);
   for ( ; walk.lineNumber < numLines; walk++) {
     QString line = gui->readLine(walk);
     QStringList argv;
     split(line,argv);
     if (argv.size() >= 2 && argv[0] == "0") {
-        rc = meta->parse(line,walk);
-        if ((rc == CalloutEndRc && ((mask >> rc) & 1)) ||
-            (rc == StepGroupEndRc && ((mask >> rc) & 1))) {
-          break;
-        }
-        if (rc == PartBeginIgnRc)
+      rc = meta->parse(line,walk);
+      if (rc == PartBeginIgnRc || rc == PliBeginIgnRc || rc == MLCadSkipBeginRc)
+          ignorePartLine = true;
+      if (rc == PartEndRc || rc == PliEndRc || rc == MLCadSkipEndRc)
+          ignorePartLine = false;
+      // models that are callouts are not counted as instances
+      if (argv.size() == 4 && argv[0] == "0" &&
+         (argv[1] == "LPUB" || argv[1] == "!LPUB") &&
+          argv[2] == "CALLOUT" && argv[3] == "BEGIN") {
+        //process callout content
+        for (++walk; walk.lineNumber < numLines; walk++) {
+          QString calloutLine = gui->readLine(walk);
+          QStringList tokens;
+          split(calloutLine,tokens);
+          if (tokens.size() == 15 && tokens[0] == "1") {
             ignorePartLine = true;
-        if (rc == PartEndRc)
+          } else
+          if (tokens.size() == 4 && tokens[0] == "0" &&
+             (tokens[1] == "LPUB" || tokens[1] == "!LPUB") &&
+              tokens[2] == "CALLOUT" && tokens[3] == "END") {
             ignorePartLine = false;
+            break;
+          }
+        }
+      }
     } else if (argv.size() == 15 && argv[0] == "1") {
-      if (ignorePartLine)
-          continue;
       if (gui->isSubmodel(argv[14])) {
+        if (ignorePartLine)
+          continue;
         if (argv[14] == modelName) {
           if (firstLine == "") {
             firstLine = line;

@@ -1,4 +1,4 @@
- 
+
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
@@ -51,12 +51,13 @@ class LDrawSubFile {
     QString     _subFilePath;
     bool        _modified;
     QDateTime   _datetime;
+    QStringList _renderedKeys;
+    QStringList _mirrorRenderedKeys;
     int         _numSteps;
     bool        _beenCounted;
     int         _instances;
     int         _mirrorInstances;
     bool        _rendered;
-    int         _renderedStepNumber;
     bool        _mirrorRendered;
     bool        _changedSinceLastWrite;
     bool        _generated;
@@ -200,6 +201,7 @@ class LDrawFile {
     int isUnofficialPart(const QString &name);
     int numSteps(const QString &fileName);
     QDateTime lastModified(const QString &fileName);
+    int fileOrderIndex(const QString &file);
     bool contains(const QString &file);
     bool isSubmodel(const QString &file);
     bool modified();
@@ -208,8 +210,18 @@ class LDrawFile {
                const QDateTime &lastModified);
     static bool mirrored(const QStringList &tokens);
     void unrendered();
-    void setRendered(const QString &fileName, int stepNumber, bool mirrored);
-    bool rendered(const QString &fileName, int stepNumber, bool mirrored, bool merged = true);
+    void setRendered(
+            const QString &fileName,
+            bool           mirrored,
+            const QString &renderParentModel,
+            int            renderStepNumber,
+            int            merged);
+    bool rendered(
+            const QString &fileName,
+            bool           mirrored,
+            const QString &renderParentModel,
+            int            renderStepNumber,
+            int            merged);
     int instances(const QString &fileName, bool mirrored);
     void countParts(const QString &fileName);
     void countInstances();

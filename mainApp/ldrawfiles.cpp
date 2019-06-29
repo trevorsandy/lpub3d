@@ -77,7 +77,6 @@ LDrawSubFile::LDrawSubFile(
   _instances = 0;
   _mirrorInstances = 0;
   _rendered = false;
-  _renderedStepNumber = 0;
   _mirrorRendered = false;
   _changedSinceLastWrite = true;
   _unofficialPart = unofficialPart;
@@ -174,6 +173,16 @@ QString LDrawFile::topLevelFile()
   } else {
     return _emptyString;
   }
+}
+
+int LDrawFile::fileOrderIndex(const QString &file)
+{
+  for (int i = 0; i < _subFileOrder.size(); i++) {
+    if (_subFileOrder[i].toLower() == file.toLower()) {
+      return i;
+    }
+  }
+  return -1;
 }
 
 /* return the number of steps within the file */
@@ -445,40 +454,72 @@ void LDrawFile::unrendered()
   foreach(key,_subFiles.keys()) {
     _subFiles[key]._rendered = false;
     _subFiles[key]._mirrorRendered = false;
-    _subFiles[key]._renderedStepNumber = 0;
+    _subFiles[key]._renderedKeys.clear();
+    _subFiles[key]._mirrorRenderedKeys.clear();
   }
 }
 
-void LDrawFile::setRendered(const QString &mcFileName, int stepNumber, bool mirrored)
+void LDrawFile::setRendered(
+        const QString &mcFileName,
+        bool           mirrored,
+        const QString &renderParentModel,
+        int            renderStepNumber,
+        int            merged)
 {
   QString fileName = mcFileName.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
-
   if (i != _subFiles.end()) {
+      QString key =
+        merged == MergeAtStep ?
+          QString("%1 %2").arg(renderParentModel).arg(renderStepNumber) :
+        merged > MergeFalse && merged < MergeAtStep ?
+          renderParentModel : QString();
     if (mirrored) {
       i.value()._mirrorRendered = true;
+      if (!key.isEmpty() && !i.value()._mirrorRenderedKeys.contains(key)) {
+        i.value()._mirrorRenderedKeys.append(key);
+      }
     } else {
       i.value()._rendered = true;
+      if (!key.isEmpty() && !i.value()._renderedKeys.contains(key)) {
+        i.value()._renderedKeys.append(key);
+      }
     }
-    i.value()._renderedStepNumber = stepNumber;
   }
 }
 
-bool LDrawFile::rendered(const QString &mcFileName, int stepNumber, bool mirrored, bool merged)
+bool LDrawFile::rendered(
+        const QString &mcFileName,
+        bool           mirrored,
+        const QString &renderParentModel,
+        int            renderStepNumber,
+        int            merged)
 {
+  bool rendered = false;
+  if (merged == MergeFalse)
+      return rendered;
+  bool haveKey  = false;
+
   QString fileName = mcFileName.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
-  bool retVal = false;
   if (i != _subFiles.end()) {
+    QString key =
+        merged == MergeAtStep ?
+          QString("%1 %2").arg(renderParentModel).arg(renderStepNumber) :
+        merged > MergeFalse && merged < MergeAtStep ?
+          renderParentModel : QString() ;
     if (mirrored) {
-      retVal =  merged ?
-                  i.value()._mirrorRendered : i.value()._renderedStepNumber == stepNumber && i.value()._mirrorRendered;
+      haveKey = key.isEmpty() ? merged == MergeAtTop ? true : false :
+                  i.value()._mirrorRenderedKeys.contains(key);
+      rendered  = i.value()._mirrorRendered;
     } else {
-      retVal =  merged ?
-                  i.value()._rendered : i.value()._renderedStepNumber == stepNumber && i.value()._rendered;
+      haveKey = key.isEmpty() ? merged == MergeAtTop ? true : false :
+                  i.value()._renderedKeys.contains(key);
+      rendered  = i.value()._rendered;
     }
+    return rendered && haveKey;
   }
-  return retVal;
+  return rendered;
 }      
 
 int LDrawFile::instances(const QString &mcFileName, bool mirrored)

@@ -46,6 +46,20 @@ enum FillEnc {
   Tile
 };
 
+enum MergeInstanceEnc {
+    MergeFalse = 0,
+    MergeTrue,
+    MergeAtModel,
+    MergeAtStep,
+    MergeAtTop,
+    MergeOptions
+};
+
+enum ContStepNumEnc {
+    ContStepNumFalse,
+    ContStepNumTrue
+};
+
 enum OrientationEnc {
   Portrait = 0,
   Landscape,
