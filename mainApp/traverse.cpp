@@ -410,7 +410,7 @@ int Gui::drawPage(
   bool     rotateIcon      = false;
   bool     assemAnnotation = false;
   bool     displayCount    = false;
-  int      mergedInstances = steps->meta.LPub.mergeInstanceCount.value();
+  int      countInstances = steps->meta.LPub.countInstance.value();
 
   DividerType dividerType  = NoDivider;
 
@@ -1294,13 +1294,13 @@ int Gui::drawPage(
                   // get the number of submodel instances in the model file
                   int instances = ldrawFile.instances(current.modelName, isMirrored);
                   // count the instances accordingly
-                  displayCount= mergedInstances && instances > 1;
-                  if (displayCount && mergedInstances != MergeAtTop) {
+                  displayCount= countInstances && instances > 1;
+                  if (displayCount && countInstances != CountAtTop) {
                       MetaItem mi;
-                      if (mergedInstances == MergeAtStep)
+                      if (countInstances == CountAtStep)
                           instances = mi.countInstancesInStep(&steps->meta, current.modelName);
                       else
-                      if (mergedInstances > MergeFalse && mergedInstances < MergeAtStep)
+                      if (countInstances > CountFalse && countInstances < CountAtStep)
                           instances = mi.countInstancesInModel(&steps->meta, current.modelName);
                   }
 
@@ -1456,12 +1456,12 @@ int Gui::drawPage(
                           // get the number of submodel instances in the model file
                           int instances = ldrawFile.instances(current.modelName, isMirrored);
                           displayCount = steps->meta.LPub.subModel.showInstanceCount.value() && instances > 1;
-                          if (displayCount && mergedInstances != MergeAtTop) {
+                          if (displayCount && countInstances != CountAtTop) {
                               MetaItem mi;
-                              if (mergedInstances == MergeAtStep)
+                              if (countInstances == CountAtStep)
                                   instances = mi.countInstancesInStep(&steps->meta, current.modelName);
                               else
-                              if (mergedInstances > MergeFalse && mergedInstances < MergeAtStep)
+                              if (countInstances > CountFalse && countInstances < CountAtStep)
                                   instances = mi.countInstancesInModel(&steps->meta, current.modelName);
                           }
                           if (multiStep) {
@@ -1565,13 +1565,13 @@ int Gui::drawPage(
                                   stepNum >= numSteps;
 
                       int instances = ldrawFile.instances(current.modelName, isMirrored);
-                      displayCount = mergedInstances && instances > 1;
-                      if (displayCount && mergedInstances != MergeAtTop) {
+                      displayCount = countInstances && instances > 1;
+                      if (displayCount && countInstances != CountAtTop) {
                           MetaItem mi;
-                          if (mergedInstances == MergeAtStep)
+                          if (countInstances == CountAtStep)
                               instances = mi.countInstancesInStep(&steps->meta, current.modelName);
                           else
-                          if (mergedInstances > MergeFalse && mergedInstances < MergeAtStep)
+                          if (countInstances > CountFalse && countInstances < CountAtStep)
                               instances = mi.countInstancesInModel(&steps->meta, current.modelName);
                       }
 
@@ -1758,7 +1758,7 @@ int Gui::findPage(
 
   int numLines = ldrawFile.size(current.modelName);
 
-  int  mergedInstances = meta.LPub.mergeInstanceCount.value();
+  int  countInstances = meta.LPub.countInstance.value();
 
   Where topOfStep = current;
 
@@ -1766,7 +1766,7 @@ int Gui::findPage(
 
   emit messageSig(LOG_STATUS, "Processing find page for " + current.modelName + "...");
 
-  ldrawFile.setRendered(current.modelName, isMirrored, renderParentModel, renderStepNumber, mergedInstances);
+  ldrawFile.setRendered(current.modelName, isMirrored, renderParentModel, renderStepNumber, countInstances);
 
   for ( ;
         current.lineNumber < numLines;
@@ -1817,7 +1817,7 @@ int Gui::findPage(
               if (contains && (!callout || (callout && calloutMode != CalloutBeginMeta::Unassembled))) {
 
                   // check if submodel was rendered
-                  bool rendered = ldrawFile.rendered(type,ldrawFile.mirrored(token),current.modelName,stepNumber,mergedInstances);
+                  bool rendered = ldrawFile.rendered(type,ldrawFile.mirrored(token),current.modelName,stepNumber,countInstances);
 
                   // if the submodel was not rendered, and (is not in the buffer exchange call setRendered for the submodel.
                   if (! rendered && (! bfxStore2 || ! bfxParts.contains(token[1]+type))) {
@@ -2237,8 +2237,8 @@ int Gui::findPage(
               }
               break;
 
-            case MergeInstanceRc:
-              mergedInstances = meta.LPub.mergeInstanceCount.value();
+            case CountInstanceRc:
+              countInstances = meta.LPub.countInstance.value();
               break;
 
             case ContStepNumRc:
@@ -2292,7 +2292,7 @@ int Gui::findPage(
       // save continuous step number from current model
       // pass continuous step number to drawPage
       if (useContStepNum) {
-          if (! mergedInstances && pageNum < displayPageNum &&
+          if (! countInstances && pageNum < displayPageNum &&
              (stepNumber > FIRST_STEP || displayPageNum > FIRST_PAGE)) {
               contStepNumber += ! coverPage && ! stepPage;
           }

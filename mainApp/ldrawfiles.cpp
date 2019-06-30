@@ -464,15 +464,15 @@ void LDrawFile::setRendered(
         bool           mirrored,
         const QString &renderParentModel,
         int            renderStepNumber,
-        int            merged)
+        int            howCounted)
 {
   QString fileName = mcFileName.toLower();
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
   if (i != _subFiles.end()) {
       QString key =
-        merged == MergeAtStep ?
+        howCounted == CountAtStep ?
           QString("%1 %2").arg(renderParentModel).arg(renderStepNumber) :
-        merged > MergeFalse && merged < MergeAtStep ?
+        howCounted > CountFalse && howCounted < CountAtStep ?
           renderParentModel : QString();
     if (mirrored) {
       i.value()._mirrorRendered = true;
@@ -493,10 +493,10 @@ bool LDrawFile::rendered(
         bool           mirrored,
         const QString &renderParentModel,
         int            renderStepNumber,
-        int            merged)
+        int            howCounted)
 {
   bool rendered = false;
-  if (merged == MergeFalse)
+  if (howCounted == CountFalse)
       return rendered;
   bool haveKey  = false;
 
@@ -504,16 +504,16 @@ bool LDrawFile::rendered(
   QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
   if (i != _subFiles.end()) {
     QString key =
-        merged == MergeAtStep ?
+        howCounted == CountAtStep ?
           QString("%1 %2").arg(renderParentModel).arg(renderStepNumber) :
-        merged > MergeFalse && merged < MergeAtStep ?
+        howCounted > CountFalse && howCounted < CountAtStep ?
           renderParentModel : QString() ;
     if (mirrored) {
-      haveKey = key.isEmpty() ? merged == MergeAtTop ? true : false :
+      haveKey = key.isEmpty() ? howCounted == CountAtTop ? true : false :
                   i.value()._mirrorRenderedKeys.contains(key);
       rendered  = i.value()._mirrorRendered;
     } else {
-      haveKey = key.isEmpty() ? merged == MergeAtTop ? true : false :
+      haveKey = key.isEmpty() ? howCounted == CountAtTop ? true : false :
                   i.value()._renderedKeys.contains(key);
       rendered  = i.value()._rendered;
     }

@@ -215,13 +215,13 @@ class LDrawFile {
             bool           mirrored,
             const QString &renderParentModel,
             int            renderStepNumber,
-            int            merged);
+            int            howCounted);
     bool rendered(
             const QString &fileName,
             bool           mirrored,
             const QString &renderParentModel,
             int            renderStepNumber,
-            int            merged);
+            int            howCounted);
     int instances(const QString &fileName, bool mirrored);
     void countParts(const QString &fileName);
     void countInstances();

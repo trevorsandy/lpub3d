@@ -2069,23 +2069,23 @@ void PageOrientationMeta::doc(QStringList &out, QString preamble)
 
 /* ------------------ */
 
-MergeInstanceMeta::MergeInstanceMeta() : LeafMeta()
+CountInstanceMeta::CountInstanceMeta() : LeafMeta()
 {
-  mergeInstanceMap["TRUE"]     = MergeTrue;
-  mergeInstanceMap["FALSE"]    = MergeFalse;
-  mergeInstanceMap["AT_TOP"]   = MergeAtTop;
-  mergeInstanceMap["AT_MODEL"] = MergeAtModel;
-  mergeInstanceMap["AT_STEP"]  = MergeAtStep;
-  type[0] = MergeAtModel;
+  countInstanceMap["TRUE"]     = CountTrue;
+  countInstanceMap["FALSE"]    = CountFalse;
+  countInstanceMap["AT_TOP"]   = CountAtTop;
+  countInstanceMap["AT_MODEL"] = CountAtModel;
+  countInstanceMap["AT_STEP"]  = CountAtStep;
+  type[0] = CountAtModel;
 }
 
-Rc MergeInstanceMeta::parse(QStringList &argv, int index, Where &here)
+Rc CountInstanceMeta::parse(QStringList &argv, int index, Where &here)
 {
   QRegExp rx("^(AT_TOP|AT_MODEL|AT_STEP|TRUE|FALSE)$");
   if (argv.size() - index == 1 && argv[index].contains(rx)) {
-      type[pushed]  = MergeInstanceEnc(mergeInstanceMap[argv[index]]);;
+      type[pushed]  = CountInstanceEnc(countInstanceMap[argv[index]]);;
       _here[pushed] = here;
-      return MergeInstanceRc;
+      return CountInstanceRc;
     }
   if (reportErrors) {
       emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected AT_TOP, AT_MODEL, AT_STEP, TRUE or FALSE got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
@@ -2093,30 +2093,30 @@ Rc MergeInstanceMeta::parse(QStringList &argv, int index, Where &here)
   return FailureRc;
 }
 
-QString MergeInstanceMeta::format(bool local, bool global)
+QString CountInstanceMeta::format(bool local, bool global)
 {
     QString foo;
     switch (type[pushed])
     {
-    case MergeAtTop:
+    case CountAtTop:
         foo = "AT_TOP";
         break;
-    case MergeAtModel:
+    case CountAtModel:
         foo = "AT_MODEL";
         break;
-    case MergeAtStep:
+    case CountAtStep:
         foo = "AT_STEP";
         break;
-    case MergeTrue:
+    case CountTrue:
         foo = "TRUE";
         break;
-    default: /*MergeFalse*/
+    default: /*CountFalse*/
         foo = "FALSE";
         break;
     }
   return LeafMeta::format(local,global,foo);
 }
-void MergeInstanceMeta::doc(QStringList &out, QString preamble)
+void CountInstanceMeta::doc(QStringList &out, QString preamble)
 {
   out << preamble + " (AT_TOP|AT_MODEL|AT_STEP|TRUE|FALSE)";
 }
@@ -4584,7 +4584,7 @@ LPubMeta::LPubMeta() : BranchMeta()
   cameraDistNative.factor.setRange(-5000,5000);
   cameraDistNative.factor.setValue(Preferences::cameraDistFactorNative);
   contModelStepNum.setRange(1,10000);
-  mergeInstanceCount.setValue(MergeAtModel);
+  countInstance.setValue(CountAtModel);
   contStepNumbers.setValue(false);
   // stepNumber - default
 }
@@ -4611,7 +4611,7 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   highlightStep            .init(this,"HIGHLIGHT_STEP");
   subModel                 .init(this,"SUBMODEL_DISPLAY");
   rotateIcon               .init(this,"ROTATE_ICON");
-  mergeInstanceCount       .init(this,"CONSOLIDATE_INSTANCE_COUNT");
+  countInstance       .init(this,"CONSOLIDATE_INSTANCE_COUNT");
   contModelStepNum         .init(this,"MODEL_STEP_NUMBER");
   contStepNumbers          .init(this,"CONTINUOUS_STEP_NUMBERS");
   stepPli                  .init(this,"STEP_PLI");

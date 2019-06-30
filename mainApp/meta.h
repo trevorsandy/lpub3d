@@ -141,7 +141,7 @@ enum Rc {
          BomPartGroupRc,
 
          ContStepNumRc,
-         MergeInstanceRc,
+         CountInstanceRc,
 
          SceneDepthRc,
          PagePointerDepthRc,
@@ -1640,30 +1640,30 @@ public:
 
 
 /*
- * This class parses the Merge Submodel Instance flag (MergeAtTop|MergeAtModel|MergeAtStep|MergeTrue|MergeFalse
+ * This class parses the Merge Submodel Instance flag (CountAtTop|CountAtModel|CountAtStep|CountTrue|CountFalse
  */
 
-class MergeInstanceMeta : public LeafMeta
+class CountInstanceMeta : public LeafMeta
 {
 private:
-  MergeInstanceEnc type[2];
+  CountInstanceEnc type[2];
 public:
-  QHash<QString, int> mergeInstanceMap;
+  QHash<QString, int> countInstanceMap;
   int value()
   {
-    return MergeInstanceEnc(type[pushed]);
+    return CountInstanceEnc(type[pushed]);
   }
   void setValue(int value)
   {
-    type[pushed] = MergeInstanceEnc(value);
+    type[pushed] = CountInstanceEnc(value);
   }
-  MergeInstanceMeta();
-  MergeInstanceMeta(const MergeInstanceMeta &rhs) : LeafMeta(rhs)
+  CountInstanceMeta();
+  CountInstanceMeta(const CountInstanceMeta &rhs) : LeafMeta(rhs)
   {
     type[0] = rhs.type[0];
     type[1] = rhs.type[1];
   }
-  virtual ~MergeInstanceMeta() {}
+  virtual ~CountInstanceMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
@@ -3252,7 +3252,7 @@ public:
   HighlightStepMeta    highlightStep;
   RotateIconMeta       rotateIcon;
   SubModelMeta         subModel;
-  MergeInstanceMeta    mergeInstanceCount;
+  CountInstanceMeta    countInstance;
   ContStepNumMeta      contStepNumbers;
   IntMeta              contModelStepNum;
   StepPliMeta          stepPli;
@@ -3515,7 +3515,7 @@ const QString RcNames[71] =
     "BomPartGroupRc"
 
     "ContStepNumRc",
-    "MergeInstanceRc",
+    "CountInstanceRc",
 
     "SceneDepthRc",
     "PagePointerDepthRc",

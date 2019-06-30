@@ -46,13 +46,13 @@ enum FillEnc {
   Tile
 };
 
-enum MergeInstanceEnc {
-    MergeFalse = 0,
-    MergeTrue,
-    MergeAtModel,
-    MergeAtStep,
-    MergeAtTop,
-    MergeOptions
+enum CountInstanceEnc {
+    CountFalse = 0,
+    CountTrue,
+    CountAtModel,
+    CountAtStep,
+    CountAtTop,
+    CountAtOptions
 };
 
 enum ContStepNumEnc {

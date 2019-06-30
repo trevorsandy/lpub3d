@@ -706,19 +706,19 @@ public slots:
 
 /***********************************************************************
  *
- * MergeInstance
+ * CountInstance
  *
  **********************************************************************/
 
-class MergeInstanceGui : public MetaGui
+class CountInstanceGui : public MetaGui
 {
   Q_OBJECT
 public:
 
-  MergeInstanceGui(
-    MergeInstanceMeta *_meta,
+  CountInstanceGui(
+    CountInstanceMeta *_meta,
     QGroupBox         *parent = nullptr);
-  ~MergeInstanceGui() {}
+  ~CountInstanceGui() {}
 
   QRadioButton *getTopRadio() {return topRadio;}
   QRadioButton *getModelRadio() {return modelRadio;}
@@ -729,7 +729,7 @@ public:
   virtual void apply(QString &modelName);
 
 private:
-  MergeInstanceMeta  *meta;
+  CountInstanceMeta  *meta;
   QRadioButton       *topRadio;
   QRadioButton       *modelRadio;
   QRadioButton       *stepRadio;

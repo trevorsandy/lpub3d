@@ -1866,12 +1866,12 @@ void ContStepNumGui::apply(QString &modelName)
 
 /***********************************************************************
  *
- * MergeInstance
+ * CountInstance
  *
  **********************************************************************/
 
-MergeInstanceGui::MergeInstanceGui(
-  MergeInstanceMeta *_meta,
+CountInstanceGui::CountInstanceGui(
+  CountInstanceMeta *_meta,
   QGroupBox         *parent)
 {
   meta = _meta;
@@ -1885,21 +1885,21 @@ MergeInstanceGui::MergeInstanceGui(
   }
 
   topRadio    = new QRadioButton("At Top",parent);
-  topRadio->setChecked(meta->value() == MergeAtTop);
+  topRadio->setChecked(meta->value() == CountAtTop);
   topRadio->setToolTip("Consolidate instances at first occurrence in the entire model file.");
   layout->addWidget(topRadio);
   connect(topRadio,SIGNAL(clicked(bool)),
           this,     SLOT(  radioChanged(bool)));
 
   modelRadio = new QRadioButton("At Model (default)",parent);
-  modelRadio->setChecked(meta->value() > MergeFalse && meta->value() < MergeAtStep);
+  modelRadio->setChecked(meta->value() > CountFalse && meta->value() < CountAtStep);
   modelRadio->setToolTip("Consolidate instances at first occurrence in the parent model.");
   layout->addWidget(modelRadio);
   connect(modelRadio,SIGNAL(clicked(bool)),
           this,      SLOT(  radioChanged(bool)));
 
   stepRadio    = new QRadioButton("At Step",parent);
-  stepRadio->setChecked(meta->value() == MergeAtStep);
+  stepRadio->setChecked(meta->value() == CountAtStep);
   stepRadio->setToolTip("Consolidate instances at first occurrence in the current step.");
   layout->addWidget(stepRadio);
   connect(stepRadio,SIGNAL(clicked(bool)),
@@ -1909,29 +1909,29 @@ MergeInstanceGui::MergeInstanceGui(
           this, SLOT(groupBoxChanged(bool)));
 }
 
-void MergeInstanceGui::radioChanged(bool checked)
+void CountInstanceGui::radioChanged(bool checked)
 {
   Q_UNUSED(checked)
 
   if (sender() == topRadio) {
-      meta->setValue(MergeAtTop);
+      meta->setValue(CountAtTop);
   } else
   if (sender() == modelRadio) {
-      meta->setValue(MergeAtModel);
+      meta->setValue(CountAtModel);
   } else
   if (sender() == stepRadio) {
-      meta->setValue(MergeAtStep);
+      meta->setValue(CountAtStep);
   }
   modified = true;
 }
 
-void MergeInstanceGui::groupBoxChanged(bool checked)
+void CountInstanceGui::groupBoxChanged(bool checked)
 {
-  meta->setValue(checked ? MergeTrue : MergeFalse);
+  meta->setValue(checked ? CountTrue : CountFalse);
   modified = true;
 }
 
-void MergeInstanceGui::apply(QString &modelName)
+void CountInstanceGui::apply(QString &modelName)
 {
   if (modified) {
     MetaItem mi;

@@ -76,14 +76,14 @@ GlobalProjectDialog::GlobalProjectDialog(
   
   box = new QGroupBox("Consolidate Submodel Instances");
   box->setCheckable(true);
-  box->setChecked(lpubMeta->mergeInstanceCount.value());
+  box->setChecked(lpubMeta->countInstance.value());
   layout->addWidget(box);
-  MergeInstanceGui *childMergeInstance = new MergeInstanceGui(&lpubMeta->mergeInstanceCount,box);
+  CountInstanceGui *childCountInstance = new CountInstanceGui(&lpubMeta->countInstance,box);
   box->setToolTip("Consolidate submodel instances on first occurrence.");
-  data->children.append(childMergeInstance);
-  connect (childMergeInstance->getTopRadio(),   SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
-  connect (childMergeInstance->getModelRadio(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
-  connect (childMergeInstance->getStepRadio(),  SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
+  data->children.append(childCountInstance);
+  connect (childCountInstance->getTopRadio(),   SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
+  connect (childCountInstance->getModelRadio(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
+  connect (childCountInstance->getStepRadio(),  SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
 
   box = new QGroupBox("Step Numbers");
   layout->addWidget(box);
