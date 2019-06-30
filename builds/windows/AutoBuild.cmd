@@ -284,10 +284,11 @@ IF /I "%PLATFORM%"=="-all" (
   GOTO :BUILD_ALL
 )
 
+SET platform_build_start=%time%
+
 rem Configure build arguments and set environment variables
 CALL :CONFIGURE_BUILD_ENV
 CD /D "%ABS_WD%"
-SET platform_build_start=%time%
 ECHO.
 ECHO -Building %PACKAGE% %PLATFORM% platform, %CONFIGURATION% configuration...
 rem Build 3rd party build from source
@@ -313,6 +314,8 @@ rem Launch qmake/make across all platform builds
 ECHO.
 ECHO -Build LPub3D x86 and x86_64 platforms...
 FOR %%P IN ( x86, x86_64 ) DO (
+  SETLOCAL ENABLEDELAYEDEXPANSION
+  SET platform_build_start=%time%
   SET PLATFORM=%%P
   rem Configure buid arguments and set environment variables
   CALL :CONFIGURE_BUILD_ENV
@@ -327,10 +330,7 @@ FOR %%P IN ( x86, x86_64 ) DO (
   rem Display QMake version
   qmake -v & ECHO.
   rem Configure makefiles and launch make
-  SETLOCAL ENABLEDELAYEDEXPANSION
-  SET platform_build_start=%time%
   qmake !LPUB3D_CONFIG_ARGS! & nmake.exe !LPUB3D_MAKE_ARGS!
-  ENDLOCAL
   rem Package 3rd party install content - this must come before check so check can use staged content for test
   IF %INSTALL%==1 CALL :STAGE_INSTALL
   CALL :ELAPSED_BUILD_TIME !platform_build_start!
