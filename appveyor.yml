@@ -276,8 +276,13 @@ after_build:
         } Else {
           $env:LP3D_DEPLOY_PKG = "false"
         }
-        If ($env:APPVEYOR_PROJECT_NAME -ne "lpub3d") {
-          $env:LP3D_RELEASE_DESCRIPTION = "$env:LP3D_PACKAGE - Development Release"
+        If ($env:LP3D_CONTINUOUS_BUILD_PKG -eq "true") {
+          If ($env:APPVEYOR_PROJECT_NAME -ne "lpub3d") {
+            $env:LP3D_RELEASE_LABEL = "Continuous DevOps Build $env:LP3D_VER_BUILD"
+            $env:LP3D_RELEASE_DESCRIPTION = "$env:LP3D_PACKAGE - DevOps Release"
+          } Else {
+            $env:LP3D_RELEASE_LABEL = "Continuous Build $env:LP3D_VER_BUILD"
+          }
         }
       }
 
@@ -303,7 +308,7 @@ deploy:
    description: 'Commit: $(APPVEYOR_REPO_COMMIT_MESSAGE)'
    auth_token:
      secure: rnf4qpF81ISjm8q13OgkAaoKZReXpjODhU9fbGFMhMydHrda1ezLubGXRU9OKGu4
-   release: Continuous Build $(LP3D_VER_BUILD)
+   release: $(LP3D_RELEASE_LABEL)
    artifact: $(LP3D_PACKAGE)-download-package
    prerelease: true
    force_update: true
