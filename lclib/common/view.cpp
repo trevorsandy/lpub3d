@@ -537,6 +537,7 @@ void View::ShowContextMenu() const
 /*** LPub3D Mod end ***/
 
 	Popup->exec(QCursor::pos());
+	delete Popup;
 }
 
 lcVector3 View::GetMoveDirection(const lcVector3& Direction) const

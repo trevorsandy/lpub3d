@@ -10,11 +10,10 @@
 #include "lc_glextensions.h"
 #include "pieceinf.h"
 
-lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
-    QDialog(parent),
-    ui(new Ui::lcQPreferencesDialog)
+lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogOptions* Options)
+	: QDialog(Parent), mOptions(Options), ui(new Ui::lcQPreferencesDialog)
 {
-    ui->setupUi(this);
+	ui->setupUi(this);
 
 /*** LPub3D Mod - suppress Win/macOS preferences dialog settings ***/
 /***
@@ -39,34 +38,34 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
 	connect(ui->commandList, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(commandChanged(QTreeWidgetItem*)));
 	connect(ui->mouseTree, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(MouseTreeItemChanged(QTreeWidgetItem*)));
 
-	options = (lcPreferencesDialogOptions*)data;
+	ui->partsLibrary->setText(mOptions->LibraryPath);
+	ui->ColorConfigEdit->setText(mOptions->ColorConfigPath);
+	ui->MinifigSettingsEdit->setText(mOptions->MinifigSettingsPath);
+	ui->povrayExecutable->setText(mOptions->POVRayPath);
+	ui->lgeoPath->setText(mOptions->LGEOPath);
+	ui->authorName->setText(mOptions->DefaultAuthor);
+	ui->mouseSensitivity->setValue(mOptions->Preferences.mMouseSensitivity);
+	ui->checkForUpdates->setCurrentIndex(mOptions->CheckForUpdates);
+	ui->fixedDirectionKeys->setChecked(mOptions->Preferences.mFixedAxes);
+	ui->autoLoadMostRecent->setChecked(mOptions->Preferences.mAutoLoadMostRecent);
 
-	ui->authorName->setText(options->DefaultAuthor);
-	ui->partsLibrary->setText(options->LibraryPath);
-	ui->povrayExecutable->setText(options->POVRayPath);
-	ui->lgeoPath->setText(options->LGEOPath);
-	ui->mouseSensitivity->setValue(options->Preferences.mMouseSensitivity);
-	ui->checkForUpdates->setCurrentIndex(options->CheckForUpdates);
-	ui->fixedDirectionKeys->setChecked(options->Preferences.mFixedAxes);
-	ui->autoLoadMostRecent->setChecked(options->Preferences.mAutoLoadMostRecent);
-
-	ui->antiAliasing->setChecked(options->AASamples != 1);
-	if (options->AASamples == 8)
+	ui->antiAliasing->setChecked(mOptions->AASamples != 1);
+	if (mOptions->AASamples == 8)
 		ui->antiAliasingSamples->setCurrentIndex(2);
-	else if (options->AASamples == 4)
+	else if (mOptions->AASamples == 4)
 		ui->antiAliasingSamples->setCurrentIndex(1);
 	else
 		ui->antiAliasingSamples->setCurrentIndex(0);
-	ui->edgeLines->setChecked(options->Preferences.mDrawEdgeLines);
-	ui->lineWidth->setText(lcFormatValueLocalized(options->Preferences.mLineWidth));
-	ui->gridStuds->setChecked(options->Preferences.mDrawGridStuds);
-	ui->gridLines->setChecked(options->Preferences.mDrawGridLines);
-	ui->gridLineSpacing->setText(QString::number(options->Preferences.mGridLineSpacing));
-	ui->axisIcon->setChecked(options->Preferences.mDrawAxes);
+	ui->edgeLines->setChecked(mOptions->Preferences.mDrawEdgeLines);
+	ui->lineWidth->setText(lcFormatValueLocalized(mOptions->Preferences.mLineWidth));
+	ui->gridStuds->setChecked(mOptions->Preferences.mDrawGridStuds);
+	ui->gridLines->setChecked(mOptions->Preferences.mDrawGridLines);
+	ui->gridLineSpacing->setText(QString::number(mOptions->Preferences.mGridLineSpacing));
+	ui->axisIcon->setChecked(mOptions->Preferences.mDrawAxes);
 
-	ui->ViewSphereLocationCombo->setCurrentIndex((int)options->Preferences.mViewSphereLocation);
+	ui->ViewSphereLocationCombo->setCurrentIndex((int)mOptions->Preferences.mViewSphereLocation);
 
-	switch (options->Preferences.mViewSphereSize)
+	switch (mOptions->Preferences.mViewSphereSize)
 	{
 	case 200:
 		ui->ViewSphereSizeCombo->setCurrentIndex(3);
@@ -84,30 +83,30 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
 
 	if (!gSupportsShaderObjects)
 		ui->ShadingMode->removeItem(LC_SHADING_DEFAULT_LIGHTS);
-	ui->ShadingMode->setCurrentIndex(options->Preferences.mShadingMode);
+	ui->ShadingMode->setCurrentIndex(mOptions->Preferences.mShadingMode);
 
 	QPixmap pix(12, 12);
 
-	pix.fill(QColor(LC_RGBA_RED(options->Preferences.mGridStudColor), LC_RGBA_GREEN(options->Preferences.mGridStudColor), LC_RGBA_BLUE(options->Preferences.mGridStudColor)));
+	pix.fill(QColor(LC_RGBA_RED(mOptions->Preferences.mGridStudColor), LC_RGBA_GREEN(mOptions->Preferences.mGridStudColor), LC_RGBA_BLUE(mOptions->Preferences.mGridStudColor)));
 	ui->gridStudColor->setIcon(pix);
 
-	pix.fill(QColor(LC_RGBA_RED(options->Preferences.mGridLineColor), LC_RGBA_GREEN(options->Preferences.mGridLineColor), LC_RGBA_BLUE(options->Preferences.mGridLineColor)));
+	pix.fill(QColor(LC_RGBA_RED(mOptions->Preferences.mGridLineColor), LC_RGBA_GREEN(mOptions->Preferences.mGridLineColor), LC_RGBA_BLUE(mOptions->Preferences.mGridLineColor)));
 	ui->gridLineColor->setIcon(pix);
 
-	pix.fill(QColor(LC_RGBA_RED(options->Preferences.mViewSphereColor), LC_RGBA_GREEN(options->Preferences.mViewSphereColor), LC_RGBA_BLUE(options->Preferences.mViewSphereColor)));
+	pix.fill(QColor(LC_RGBA_RED(mOptions->Preferences.mViewSphereColor), LC_RGBA_GREEN(mOptions->Preferences.mViewSphereColor), LC_RGBA_BLUE(mOptions->Preferences.mViewSphereColor)));
 	ui->ViewSphereColorButton->setIcon(pix);
 
-	pix.fill(QColor(LC_RGBA_RED(options->Preferences.mViewSphereTextColor), LC_RGBA_GREEN(options->Preferences.mViewSphereTextColor), LC_RGBA_BLUE(options->Preferences.mViewSphereTextColor)));
+	pix.fill(QColor(LC_RGBA_RED(mOptions->Preferences.mViewSphereTextColor), LC_RGBA_GREEN(mOptions->Preferences.mViewSphereTextColor), LC_RGBA_BLUE(mOptions->Preferences.mViewSphereTextColor)));
 	ui->ViewSphereTextColorButton->setIcon(pix);
 
-	pix.fill(QColor(LC_RGBA_RED(options->Preferences.mViewSphereHighlightColor), LC_RGBA_GREEN(options->Preferences.mViewSphereHighlightColor), LC_RGBA_BLUE(options->Preferences.mViewSphereHighlightColor)));
+	pix.fill(QColor(LC_RGBA_RED(mOptions->Preferences.mViewSphereHighlightColor), LC_RGBA_GREEN(mOptions->Preferences.mViewSphereHighlightColor), LC_RGBA_BLUE(mOptions->Preferences.mViewSphereHighlightColor)));
 	ui->ViewSphereHighlightColorButton->setIcon(pix);
 
 	on_antiAliasing_toggled();
 	on_edgeLines_toggled();
 	on_gridStuds_toggled();
 	on_gridLines_toggled();
-	on_ViewSphereSizeCombo_currentIndexChanged((int)options->Preferences.mViewSphereLocation);
+	on_ViewSphereSizeCombo_currentIndexChanged((int)mOptions->Preferences.mViewSphereLocation);
 
 	updateCategories();
 	ui->categoriesTree->setCurrentItem(ui->categoriesTree->topLevelItem(0));
@@ -129,12 +128,12 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
 	MouseTreeItemChanged(nullptr);
 
 /*** LPub3D Mod - Native Renderer settings ***/
-	ui->ViewpointsCombo->setCurrentIndex(options->Preferences.mNativeViewpoint);
-	ui->ProjectionCombo->setCurrentIndex(options->Preferences.mNativeProjection);
+	ui->ViewpointsCombo->setCurrentIndex(mOptions->Preferences.mNativeViewpoint);
+	ui->ProjectionCombo->setCurrentIndex(mOptions->Preferences.mNativeProjection);
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Timeline part icons ***/
-	bool preferredIcons = options->Preferences.mViewPieceIcons;
+	bool preferredIcons = mOptions->Preferences.mViewPieceIcons;
 	ui->viewPieceIconsRadio->setChecked(preferredIcons);
 	ui->viewColorIconsRadio->setChecked(!preferredIcons);
 /*** LPub3D Mod end ***/
@@ -144,9 +143,14 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
 	ui->partsLibrary->setDisabled(true);
 	ui->partsLibraryBrowse->hide();
 	ui->partsArchiveBrowse->hide();
+	ui->ColorConfigEdit->setDisabled(true);
+	ui->ColorConfigBrowse->hide();
 	ui->povrayExecutable->setDisabled(true);
 	ui->povrayExecutableBrowse->hide();
 	ui->lgeoPath->setDisabled(true);
+	ui->MinifigSettingsEdit->hide();
+	ui->MinifigSettingsBrowse->hide();
+	ui->MinifigSettingsLabel->hide();
 	ui->autoLoadMostRecent->hide();
 	ui->lgeoPathBrowse->hide();
 	ui->checkForUpdates->hide();
@@ -160,7 +164,7 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget *parent, void *data) :
 
 lcQPreferencesDialog::~lcQPreferencesDialog()
 {
-    delete ui;
+	delete ui;
 }
 
 void lcQPreferencesDialog::accept()
@@ -174,59 +178,61 @@ void lcQPreferencesDialog::accept()
 		return;
 	}
 
-	options->DefaultAuthor = ui->authorName->text();
-	options->LibraryPath = ui->partsLibrary->text();
-	options->POVRayPath = ui->povrayExecutable->text();
-	options->LGEOPath = ui->lgeoPath->text();
-	options->Preferences.mMouseSensitivity = ui->mouseSensitivity->value();
-	options->CheckForUpdates = ui->checkForUpdates->currentIndex();
-	options->Preferences.mFixedAxes = ui->fixedDirectionKeys->isChecked();
-	options->Preferences.mAutoLoadMostRecent = ui->autoLoadMostRecent->isChecked();
+	mOptions->LibraryPath = ui->partsLibrary->text();
+	mOptions->MinifigSettingsPath = ui->MinifigSettingsEdit->text();
+	mOptions->ColorConfigPath = ui->ColorConfigEdit->text();
+	mOptions->POVRayPath = ui->povrayExecutable->text();
+	mOptions->LGEOPath = ui->lgeoPath->text();
+	mOptions->DefaultAuthor = ui->authorName->text();
+	mOptions->Preferences.mMouseSensitivity = ui->mouseSensitivity->value();
+	mOptions->CheckForUpdates = ui->checkForUpdates->currentIndex();
+	mOptions->Preferences.mFixedAxes = ui->fixedDirectionKeys->isChecked();
+	mOptions->Preferences.mAutoLoadMostRecent = ui->autoLoadMostRecent->isChecked();
 
 	if (!ui->antiAliasing->isChecked())
-		options->AASamples = 1;
+		mOptions->AASamples = 1;
 	else if (ui->antiAliasingSamples->currentIndex() == 2)
-		options->AASamples = 8;
+		mOptions->AASamples = 8;
 	else if (ui->antiAliasingSamples->currentIndex() == 1)
-		options->AASamples = 4;
+		mOptions->AASamples = 4;
 	else
-		options->AASamples = 2;
+		mOptions->AASamples = 2;
 
-	options->Preferences.mDrawEdgeLines = ui->edgeLines->isChecked();
-	options->Preferences.mLineWidth = lcParseValueLocalized(ui->lineWidth->text());
+	mOptions->Preferences.mDrawEdgeLines = ui->edgeLines->isChecked();
+	mOptions->Preferences.mLineWidth = lcParseValueLocalized(ui->lineWidth->text());
 
-	options->Preferences.mDrawGridStuds = ui->gridStuds->isChecked();
-	options->Preferences.mDrawGridLines = ui->gridLines->isChecked();
-	options->Preferences.mGridLineSpacing = gridLineSpacing;
+	mOptions->Preferences.mDrawGridStuds = ui->gridStuds->isChecked();
+	mOptions->Preferences.mDrawGridLines = ui->gridLines->isChecked();
+	mOptions->Preferences.mGridLineSpacing = gridLineSpacing;
 
-	options->Preferences.mDrawAxes = ui->axisIcon->isChecked();
-	options->Preferences.mViewSphereLocation = (lcViewSphereLocation)ui->ViewSphereLocationCombo->currentIndex();
+	mOptions->Preferences.mDrawAxes = ui->axisIcon->isChecked();
+	mOptions->Preferences.mViewSphereLocation = (lcViewSphereLocation)ui->ViewSphereLocationCombo->currentIndex();
 
 	switch (ui->ViewSphereSizeCombo->currentIndex())
 	{
 	case 3:
-		options->Preferences.mViewSphereSize = 200;
+		mOptions->Preferences.mViewSphereSize = 200;
 		break;
 	case 2:
-		options->Preferences.mViewSphereSize = 100;
+		mOptions->Preferences.mViewSphereSize = 100;
 		break;
 	case 1:
-		options->Preferences.mViewSphereSize = 50;
+		mOptions->Preferences.mViewSphereSize = 50;
 		break;
 	default:
-		options->Preferences.mViewSphereSize = 0;
+		mOptions->Preferences.mViewSphereSize = 0;
 		break;
 	}
 
-	options->Preferences.mShadingMode = (lcShadingMode)ui->ShadingMode->currentIndex();
+	mOptions->Preferences.mShadingMode = (lcShadingMode)ui->ShadingMode->currentIndex();
 
 /*** LPub3D Mod - Native Renderer settings ***/
-	options->Preferences.mNativeViewpoint = ui->ViewpointsCombo->currentIndex();
-	options->Preferences.mNativeProjection = ui->ProjectionCombo->currentIndex();
+	mOptions->Preferences.mNativeViewpoint = ui->ViewpointsCombo->currentIndex();
+	mOptions->Preferences.mNativeProjection = ui->ProjectionCombo->currentIndex();
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Timeline part icons ***/
-	options->Preferences.mViewPieceIcons = ui->viewPieceIconsRadio->isChecked();
+	mOptions->Preferences.mViewPieceIcons = ui->viewPieceIconsRadio->isChecked();
 /*** LPub3D Mod end ***/
 
 	QDialog::accept();
@@ -248,6 +254,22 @@ void lcQPreferencesDialog::on_partsArchiveBrowse_clicked()
 		ui->partsLibrary->setText(QDir::toNativeSeparators(result));
 }
 
+void lcQPreferencesDialog::on_ColorConfigBrowseButton_clicked()
+{
+	QString Result = QFileDialog::getOpenFileName(this, tr("Select Color Configuration File"), ui->ColorConfigEdit->text(), tr("Settings Files (*.ldr);;All Files (*.*)"));
+
+	if (!Result.isEmpty())
+		ui->ColorConfigEdit->setText(QDir::toNativeSeparators(Result));
+}
+
+void lcQPreferencesDialog::on_MinifigSettingsBrowseButton_clicked()
+{
+	QString Result = QFileDialog::getOpenFileName(this, tr("Select Minifig Settings File"), ui->MinifigSettingsEdit->text(), tr("Settings Files (*.ini);;All Files (*.*)"));
+
+	if (!Result.isEmpty())
+		ui->MinifigSettingsEdit->setText(QDir::toNativeSeparators(Result));
+}
+
 void lcQPreferencesDialog::on_povrayExecutableBrowse_clicked()
 {
 #ifdef Q_OS_WIN
@@ -256,7 +278,7 @@ void lcQPreferencesDialog::on_povrayExecutableBrowse_clicked()
 	QString filter(tr("All Files (*.*)"));
 #endif
 
-	QString result = QFileDialog::getOpenFileName(this, tr("Open POV-Ray Executable"), ui->povrayExecutable->text(), filter);
+	QString result = QFileDialog::getOpenFileName(this, tr("Select POV-Ray Executable"), ui->povrayExecutable->text(), filter);
 
 	if (!result.isEmpty())
 		ui->povrayExecutable->setText(QDir::toNativeSeparators(result));
@@ -279,31 +301,31 @@ void lcQPreferencesDialog::ColorButtonClicked()
 
 	if (button == ui->gridStudColor)
 	{
-		color = &options->Preferences.mGridStudColor;
+		color = &mOptions->Preferences.mGridStudColor;
 		title = tr("Select Grid Stud Color");
 		dialogOptions = QColorDialog::ShowAlphaChannel;
 	}
 	else if (button == ui->gridLineColor)
 	{
-		color = &options->Preferences.mGridLineColor;
+		color = &mOptions->Preferences.mGridLineColor;
 		title = tr("Select Grid Line Color");
 		dialogOptions = 0;
 	}
 	else if (button == ui->ViewSphereColorButton)
 	{
-		color = &options->Preferences.mViewSphereColor;
+		color = &mOptions->Preferences.mViewSphereColor;
 		title = tr("Select View Sphere Color");
 		dialogOptions = 0;
 	}
 	else if (button == ui->ViewSphereTextColorButton)
 	{
-		color = &options->Preferences.mViewSphereTextColor;
+		color = &mOptions->Preferences.mViewSphereTextColor;
 		title = tr("Select View Sphere Text Color");
 		dialogOptions = 0;
 	}
 	else if (button == ui->ViewSphereHighlightColorButton)
 	{
-		color = &options->Preferences.mViewSphereHighlightColor;
+		color = &mOptions->Preferences.mViewSphereHighlightColor;
 		title = tr("Select View Sphere Highlight Color");
 		dialogOptions = 0;
 	}
@@ -362,9 +384,9 @@ void lcQPreferencesDialog::updateCategories()
 
 	tree->clear();
 
-	for (int categoryIndex = 0; categoryIndex < options->Categories.GetSize(); categoryIndex++)
+	for (int categoryIndex = 0; categoryIndex < mOptions->Categories.GetSize(); categoryIndex++)
 	{
-		categoryItem = new QTreeWidgetItem(tree, QStringList(options->Categories[categoryIndex].Name));
+		categoryItem = new QTreeWidgetItem(tree, QStringList(mOptions->Categories[categoryIndex].Name));
 		categoryItem->setData(0, CategoryRole, QVariant(categoryIndex));
 	}
 
@@ -391,7 +413,7 @@ void lcQPreferencesDialog::updateParts()
 	{
 		lcArray<PieceInfo*> singleParts, groupedParts;
 
-		Library->GetCategoryEntries(options->Categories[categoryIndex].Keywords.constData(), false, singleParts, groupedParts);
+		Library->GetCategoryEntries(mOptions->Categories[categoryIndex].Keywords.constData(), false, singleParts, groupedParts);
 
 		for (int partIndex = 0; partIndex < singleParts.GetSize(); partIndex++)
 		{
@@ -409,13 +431,13 @@ void lcQPreferencesDialog::updateParts()
 		{
 			PieceInfo* Info = PartIt.second;
 
-			for (categoryIndex = 0; categoryIndex < options->Categories.GetSize(); categoryIndex++)
+			for (categoryIndex = 0; categoryIndex < mOptions->Categories.GetSize(); categoryIndex++)
 			{
-				if (Library->PieceInCategory(Info, options->Categories[categoryIndex].Keywords.constData()))
+				if (Library->PieceInCategory(Info, mOptions->Categories[categoryIndex].Keywords.constData()))
 					break;
 			}
 
-			if (categoryIndex == options->Categories.GetSize())
+			if (categoryIndex == mOptions->Categories.GetSize())
 			{
 				QStringList rowList(Info->m_strDescription);
 				rowList.append(Info->mFileName);
@@ -437,12 +459,12 @@ void lcQPreferencesDialog::on_newCategory_clicked()
 	if (dialog.exec() != QDialog::Accepted)
 		return;
 
-	options->CategoriesModified = true;
-	options->CategoriesDefault = false;
-	options->Categories.Add(category);
+	mOptions->CategoriesModified = true;
+	mOptions->CategoriesDefault = false;
+	mOptions->Categories.Add(category);
 
 	updateCategories();
-	ui->categoriesTree->setCurrentItem(ui->categoriesTree->topLevelItem(options->Categories.GetSize() - 1));
+	ui->categoriesTree->setCurrentItem(ui->categoriesTree->topLevelItem(mOptions->Categories.GetSize() - 1));
 }
 
 void lcQPreferencesDialog::on_editCategory_clicked()
@@ -458,12 +480,12 @@ void lcQPreferencesDialog::on_editCategory_clicked()
 	if (categoryIndex == -1)
 		return;
 
-	lcQCategoryDialog dialog(this, &options->Categories[categoryIndex]);
+	lcQCategoryDialog dialog(this, &mOptions->Categories[categoryIndex]);
 	if (dialog.exec() != QDialog::Accepted)
 		return;
 
-	options->CategoriesModified = true;
-	options->CategoriesDefault = false;
+	mOptions->CategoriesModified = true;
+	mOptions->CategoriesDefault = false;
 
 	updateCategories();
 	ui->categoriesTree->setCurrentItem(ui->categoriesTree->topLevelItem(categoryIndex));
@@ -482,15 +504,15 @@ void lcQPreferencesDialog::on_deleteCategory_clicked()
 	if (categoryIndex == -1)
 		return;
 
-	QString question = tr("Are you sure you want to delete the category '%1'?").arg(options->Categories[categoryIndex].Name);
+	QString question = tr("Are you sure you want to delete the category '%1'?").arg(mOptions->Categories[categoryIndex].Name);
 /*** LPub3D Mod - set 3DViewer label ***/
 	if (QMessageBox::question(this, "3DViewer", question, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
 		return;
 /*** LPub3D Mod end ***/
 
-	options->CategoriesModified = true;
-	options->CategoriesDefault = false;
-	options->Categories.RemoveIndex(categoryIndex);
+	mOptions->CategoriesModified = true;
+	mOptions->CategoriesDefault = false;
+	mOptions->Categories.RemoveIndex(categoryIndex);
 
 	updateCategories();
 }
@@ -511,9 +533,9 @@ void lcQPreferencesDialog::on_importCategories_clicked()
 		return;
 	}
 
-	options->Categories = Categories;
-	options->CategoriesModified = true;
-	options->CategoriesDefault = false;
+	mOptions->Categories = Categories;
+	mOptions->CategoriesModified = true;
+	mOptions->CategoriesDefault = false;
 }
 
 void lcQPreferencesDialog::on_exportCategories_clicked()
@@ -523,7 +545,7 @@ void lcQPreferencesDialog::on_exportCategories_clicked()
 	if (FileName.isEmpty())
 		return;
 
-	if (!lcSaveCategories(FileName, options->Categories))
+	if (!lcSaveCategories(FileName, mOptions->Categories))
 	{
 /*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::warning(this, "3DViewer", tr("Error saving categories file."));
@@ -539,10 +561,10 @@ void lcQPreferencesDialog::on_resetCategories_clicked()
 		return;
 /*** LPub3D Mod end ***/
 
-	lcResetCategories(options->Categories);
+	lcResetCategories(mOptions->Categories);
 
-	options->CategoriesModified = true;
-	options->CategoriesDefault = true;
+	mOptions->CategoriesModified = true;
+	mOptions->CategoriesDefault = true;
 
 	updateCategories();
 }
@@ -645,12 +667,12 @@ void lcQPreferencesDialog::updateCommandList()
 		}
 
 		QTreeWidgetItem *item = new QTreeWidgetItem;
-		QKeySequence sequence(options->KeyboardShortcuts.mShortcuts[actionIdx]);
+		QKeySequence sequence(mOptions->KeyboardShortcuts.mShortcuts[actionIdx]);
 		item->setText(0, subId);
 		item->setText(1, sequence.toString(QKeySequence::NativeText));
 		item->setData(0, Qt::UserRole, qVariantFromValue(actionIdx));
 
-		if (options->KeyboardShortcuts.mShortcuts[actionIdx] != gCommands[actionIdx].DefaultShortcut)
+		if (mOptions->KeyboardShortcuts.mShortcuts[actionIdx] != gCommands[actionIdx].DefaultShortcut)
 			setShortcutModified(item, true);
 
 		sections[section]->addChild(item);
@@ -678,7 +700,7 @@ void lcQPreferencesDialog::commandChanged(QTreeWidgetItem *current)
 	ui->shortcutGroup->setEnabled(true);
 
 	int shortcutIndex = qvariant_cast<int>(current->data(0, Qt::UserRole));
-	QKeySequence key(options->KeyboardShortcuts.mShortcuts[shortcutIndex]);
+	QKeySequence key(mOptions->KeyboardShortcuts.mShortcuts[shortcutIndex]);
 	ui->shortcutEdit->setText(key.toString(QKeySequence::NativeText));
 }
 
@@ -717,20 +739,20 @@ void lcQPreferencesDialog::on_KeyboardFilterEdit_textEdited(const QString& Text)
 
 void lcQPreferencesDialog::on_shortcutAssign_clicked()
 {
-    QTreeWidgetItem *current = ui->commandList->currentItem();
+	QTreeWidgetItem *current = ui->commandList->currentItem();
 
 	if (!current || !current->data(0, Qt::UserRole).isValid())
 		return;
 
 	int shortcutIndex = qvariant_cast<int>(current->data(0, Qt::UserRole));
-	options->KeyboardShortcuts.mShortcuts[shortcutIndex] = ui->shortcutEdit->text();
+	mOptions->KeyboardShortcuts.mShortcuts[shortcutIndex] = ui->shortcutEdit->text();
 
 	current->setText(1, ui->shortcutEdit->text());
 
-	setShortcutModified(current, options->KeyboardShortcuts.mShortcuts[shortcutIndex] != gCommands[shortcutIndex].DefaultShortcut);
+	setShortcutModified(current, mOptions->KeyboardShortcuts.mShortcuts[shortcutIndex] != gCommands[shortcutIndex].DefaultShortcut);
 
-	options->KeyboardShortcutsModified = true;
-	options->KeyboardShortcutsDefault = false;
+	mOptions->KeyboardShortcutsModified = true;
+	mOptions->KeyboardShortcutsDefault = false;
 }
 
 void lcQPreferencesDialog::on_shortcutRemove_clicked()
@@ -756,10 +778,10 @@ void lcQPreferencesDialog::on_shortcutsImport_clicked()
 		return;
 	}
 
-	options->KeyboardShortcuts = Shortcuts;
+	mOptions->KeyboardShortcuts = Shortcuts;
 
-	options->KeyboardShortcutsModified = true;
-	options->KeyboardShortcutsDefault = false;
+	mOptions->KeyboardShortcutsModified = true;
+	mOptions->KeyboardShortcutsDefault = false;
 }
 
 void lcQPreferencesDialog::on_shortcutsExport_clicked()
@@ -769,7 +791,7 @@ void lcQPreferencesDialog::on_shortcutsExport_clicked()
 	if (FileName.isEmpty())
 		return;
 
-	if (!options->KeyboardShortcuts.Save(FileName))
+	if (!mOptions->KeyboardShortcuts.Save(FileName))
 	{
 /*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::warning(this, "3DViewer", tr("Error saving keyboard shortcuts file."));
@@ -785,11 +807,11 @@ void lcQPreferencesDialog::on_shortcutsReset_clicked()
 		return;
 /*** LPub3D Mod end ***/
 
-	options->KeyboardShortcuts.Reset();
+	mOptions->KeyboardShortcuts.Reset();
 	updateCommandList();
 
-	options->KeyboardShortcutsModified = true;
-	options->KeyboardShortcutsDefault = true;
+	mOptions->KeyboardShortcutsModified = true;
+	mOptions->KeyboardShortcutsDefault = true;
 }
 
 void lcQPreferencesDialog::UpdateMouseTree()
@@ -828,8 +850,8 @@ void lcQPreferencesDialog::UpdateMouseTreeItem(int ItemIndex)
 		return Shortcut;
 	};
 
-	QString Shortcut1 = GetShortcutText(options->MouseShortcuts.mShortcuts[ItemIndex].Button1, options->MouseShortcuts.mShortcuts[ItemIndex].Modifiers1);
-	QString Shortcut2 = GetShortcutText(options->MouseShortcuts.mShortcuts[ItemIndex].Button2, options->MouseShortcuts.mShortcuts[ItemIndex].Modifiers2);
+	QString Shortcut1 = GetShortcutText(mOptions->MouseShortcuts.mShortcuts[ItemIndex].Button1, mOptions->MouseShortcuts.mShortcuts[ItemIndex].Modifiers1);
+	QString Shortcut2 = GetShortcutText(mOptions->MouseShortcuts.mShortcuts[ItemIndex].Button2, mOptions->MouseShortcuts.mShortcuts[ItemIndex].Modifiers2);
 
 	QTreeWidgetItem* Item = ui->mouseTree->topLevelItem(ItemIndex);
 
@@ -886,36 +908,36 @@ void lcQPreferencesDialog::on_mouseAssign_clicked()
 			if (ToolIdx == ButtonIndex)
 				continue;
 
-			if (options->MouseShortcuts.mShortcuts[ToolIdx].Button2 == Button && options->MouseShortcuts.mShortcuts[ToolIdx].Modifiers2 == Modifiers)
+			if (mOptions->MouseShortcuts.mShortcuts[ToolIdx].Button2 == Button && mOptions->MouseShortcuts.mShortcuts[ToolIdx].Modifiers2 == Modifiers)
 			{
 				if (QMessageBox::question(this, tr("Override Shortcut"), tr("This shortcut is already assigned to '%1', do you want to replace it?").arg(tr(gToolNames[ToolIdx])), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
 					return;
 
-				options->MouseShortcuts.mShortcuts[ToolIdx].Button2 = Qt::NoButton;
-				options->MouseShortcuts.mShortcuts[ToolIdx].Modifiers2 = Qt::NoModifier;
+				mOptions->MouseShortcuts.mShortcuts[ToolIdx].Button2 = Qt::NoButton;
+				mOptions->MouseShortcuts.mShortcuts[ToolIdx].Modifiers2 = Qt::NoModifier;
 			}
 
-			if (options->MouseShortcuts.mShortcuts[ToolIdx].Button1 == Button && options->MouseShortcuts.mShortcuts[ToolIdx].Modifiers1 == Modifiers)
+			if (mOptions->MouseShortcuts.mShortcuts[ToolIdx].Button1 == Button && mOptions->MouseShortcuts.mShortcuts[ToolIdx].Modifiers1 == Modifiers)
 			{
 				if (QMessageBox::question(this, tr("Override Shortcut"), tr("This shortcut is already assigned to '%1', do you want to replace it?").arg(tr(gToolNames[ToolIdx])), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
 					return;
 
-				options->MouseShortcuts.mShortcuts[ToolIdx].Button1 = options->MouseShortcuts.mShortcuts[ToolIdx].Button2;
-				options->MouseShortcuts.mShortcuts[ToolIdx].Modifiers1 = options->MouseShortcuts.mShortcuts[ToolIdx].Modifiers2;
-				options->MouseShortcuts.mShortcuts[ToolIdx].Button2 = Qt::NoButton;
-				options->MouseShortcuts.mShortcuts[ToolIdx].Modifiers2 = Qt::NoModifier;
+				mOptions->MouseShortcuts.mShortcuts[ToolIdx].Button1 = mOptions->MouseShortcuts.mShortcuts[ToolIdx].Button2;
+				mOptions->MouseShortcuts.mShortcuts[ToolIdx].Modifiers1 = mOptions->MouseShortcuts.mShortcuts[ToolIdx].Modifiers2;
+				mOptions->MouseShortcuts.mShortcuts[ToolIdx].Button2 = Qt::NoButton;
+				mOptions->MouseShortcuts.mShortcuts[ToolIdx].Modifiers2 = Qt::NoModifier;
 			}
 		}
 	}
 
 	int ItemIndex = ui->mouseTree->indexOfTopLevelItem(Current);
-	options->MouseShortcuts.mShortcuts[ItemIndex].Button2 = options->MouseShortcuts.mShortcuts[ItemIndex].Button1;
-	options->MouseShortcuts.mShortcuts[ItemIndex].Modifiers2 = options->MouseShortcuts.mShortcuts[ItemIndex].Modifiers1;
-	options->MouseShortcuts.mShortcuts[ItemIndex].Button1 = Button;
-	options->MouseShortcuts.mShortcuts[ItemIndex].Modifiers1 = Modifiers;
+	mOptions->MouseShortcuts.mShortcuts[ItemIndex].Button2 = mOptions->MouseShortcuts.mShortcuts[ItemIndex].Button1;
+	mOptions->MouseShortcuts.mShortcuts[ItemIndex].Modifiers2 = mOptions->MouseShortcuts.mShortcuts[ItemIndex].Modifiers1;
+	mOptions->MouseShortcuts.mShortcuts[ItemIndex].Button1 = Button;
+	mOptions->MouseShortcuts.mShortcuts[ItemIndex].Modifiers1 = Modifiers;
 
-	options->MouseShortcutsModified = true;
-	options->MouseShortcutsDefault = false;
+	mOptions->MouseShortcutsModified = true;
+	mOptions->MouseShortcutsDefault = false;
 
 	UpdateMouseTreeItem(ItemIndex);
 }
@@ -928,13 +950,13 @@ void lcQPreferencesDialog::on_mouseRemove_clicked()
 		return;
 
 	int ItemIndex = ui->mouseTree->indexOfTopLevelItem(Current);
-	options->MouseShortcuts.mShortcuts[ItemIndex].Button1 = options->MouseShortcuts.mShortcuts[ItemIndex].Button2;
-	options->MouseShortcuts.mShortcuts[ItemIndex].Modifiers1 = options->MouseShortcuts.mShortcuts[ItemIndex].Modifiers2;
-	options->MouseShortcuts.mShortcuts[ItemIndex].Button2 = Qt::NoButton;
-	options->MouseShortcuts.mShortcuts[ItemIndex].Modifiers2 = Qt::NoModifier;
+	mOptions->MouseShortcuts.mShortcuts[ItemIndex].Button1 = mOptions->MouseShortcuts.mShortcuts[ItemIndex].Button2;
+	mOptions->MouseShortcuts.mShortcuts[ItemIndex].Modifiers1 = mOptions->MouseShortcuts.mShortcuts[ItemIndex].Modifiers2;
+	mOptions->MouseShortcuts.mShortcuts[ItemIndex].Button2 = Qt::NoButton;
+	mOptions->MouseShortcuts.mShortcuts[ItemIndex].Modifiers2 = Qt::NoModifier;
 
-	options->MouseShortcutsModified = true;
-	options->MouseShortcutsDefault = false;
+	mOptions->MouseShortcutsModified = true;
+	mOptions->MouseShortcutsDefault = false;
 
 	UpdateMouseTreeItem(ItemIndex);
 	MouseTreeItemChanged(Current);
@@ -947,11 +969,11 @@ void lcQPreferencesDialog::on_mouseReset_clicked()
 		return;
 /*** LPub3D Mod end ***/
 
-	options->MouseShortcuts.Reset();
+	mOptions->MouseShortcuts.Reset();
 	UpdateMouseTree();
 
-	options->MouseShortcutsModified = true;
-	options->MouseShortcutsDefault = true;
+	mOptions->MouseShortcutsModified = true;
+	mOptions->MouseShortcutsDefault = true;
 }
 
 void lcQPreferencesDialog::MouseTreeItemChanged(QTreeWidgetItem* Current)
@@ -966,7 +988,7 @@ void lcQPreferencesDialog::MouseTreeItemChanged(QTreeWidgetItem* Current)
 
 	int ToolIndex = ui->mouseTree->indexOfTopLevelItem(Current);
 
-	Qt::MouseButton Button = options->MouseShortcuts.mShortcuts[ToolIndex].Button1;
+	Qt::MouseButton Button = mOptions->MouseShortcuts.mShortcuts[ToolIndex].Button1;
 
 	switch (Button)
 	{
@@ -989,7 +1011,7 @@ void lcQPreferencesDialog::MouseTreeItemChanged(QTreeWidgetItem* Current)
 		break;
 	}
 
-	Qt::KeyboardModifiers Modifiers = options->MouseShortcuts.mShortcuts[ToolIndex].Modifiers1;
+	Qt::KeyboardModifiers Modifiers = mOptions->MouseShortcuts.mShortcuts[ToolIndex].Modifiers1;
 	ui->mouseControl->setChecked((Modifiers & Qt::ControlModifier) != 0);
 	ui->mouseShift->setChecked((Modifiers & Qt::ShiftModifier) != 0);
 	ui->mouseAlt->setChecked((Modifiers & Qt::AltModifier) != 0);

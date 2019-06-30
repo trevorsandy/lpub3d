@@ -3556,6 +3556,9 @@ void Preferences::viewerPreferences()
     if (!lgeoPath.isEmpty())
         lcSetProfileString(LC_PROFILE_POVRAY_LGEO_PATH, lgeoPath);
 
+    if (!altLDConfigPath.isEmpty())
+        lcSetProfileString(LC_PROFILE_COLOR_CONFIG, Preferences::altLDConfigPath);
+
     if (!defaultAuthor.isEmpty())
         lcSetProfileString(LC_PROFILE_DEFAULT_AUTHOR_NAME, defaultAuthor);
 

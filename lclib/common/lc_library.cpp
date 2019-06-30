@@ -11,6 +11,7 @@
 #include "lc_glextensions.h"
 #include "lc_synth.h"
 #include "project.h"
+#include "lc_profile.h"
 #include <ctype.h>
 #include <locale.h>
 #include <zlib.h>
@@ -315,28 +316,27 @@ bool lcPiecesLibrary::Load(const QString& LibraryPath, bool ShowProgress)
 {
 	Unload();
 
-/*** LPub3D Mod - Load alternate LDConfig.ldr if present ***/
-	bool loadAltLDConfig = false;
-
-	if (!Preferences::altLDConfigPath.isEmpty())
+	auto LoadCustomColors = []()
 	{
-		gui->messageSig(LOG_INFO, QString("Loading Alternate LDConfig file %1...").arg(Preferences::altLDConfigPath));
-		lcDiskFile ColorFile(Preferences::altLDConfigPath);
+		QString CustomColorsPath = lcGetProfileString(LC_PROFILE_COLOR_CONFIG);
 
-		if (ColorFile.Open(QIODevice::ReadOnly) && lcLoadColorFile(ColorFile))
-			loadAltLDConfig = true;
-		else
-			lcLoadDefaultColors();
-
-	}
+		if (CustomColorsPath.isEmpty())
+			return false;
+		
+/*** LPub3D Mod - load alternate LDConfig.ldr message ***/
+		gui->messageSig(LOG_INFO, QString("Loading Alternate LDConfig file %1...").arg(CustomColorsPath));
 /*** LPub3D Mod end ***/
+
+		lcDiskFile ColorFile(CustomColorsPath);
+		return ColorFile.Open(QIODevice::ReadOnly) && lcLoadColorFile(ColorFile);
+	};
 
 	if (OpenArchive(LibraryPath, LC_ZIPFILE_OFFICIAL))
 	{
 		lcMemFile ColorFile;
 
-/*** LPub3D Mod - rename LDConfig.ldr to use Capitol case ***/
-		if (!loadAltLDConfig)
+/*** LPub3D Mod - rename LDConfig.ldr to use Capital case ***/
+		if (!LoadCustomColors())
 			if (!mZipFiles[LC_ZIPFILE_OFFICIAL]->ExtractFile("ldraw/LDConfig.ldr", ColorFile) || !lcLoadColorFile(ColorFile))
 				lcLoadDefaultColors();
 /*** LPub3D Mod end ***/
@@ -355,18 +355,19 @@ bool lcPiecesLibrary::Load(const QString& LibraryPath, bool ShowProgress)
 	{
 		mLibraryDir = LibraryPath;
 
-/*** LPub3D Mod - add alt LDConfig load flag ***/
-		if (!loadAltLDConfig && OpenDirectory(mLibraryDir, ShowProgress))
-/*** LPub3D Mod end ***/
+		if (OpenDirectory(mLibraryDir, ShowProgress))
 		{
-			lcDiskFile ColorFile(mLibraryDir.absoluteFilePath(QLatin1String("ldconfig.ldr")));
-
-			if (!ColorFile.Open(QIODevice::ReadOnly) || !lcLoadColorFile(ColorFile))
+			if (!LoadCustomColors())
 			{
-				ColorFile.SetFileName(mLibraryDir.absoluteFilePath(QLatin1String("LDConfig.ldr")));
+				lcDiskFile ColorFile(mLibraryDir.absoluteFilePath(QLatin1String("ldconfig.ldr")));
 
 				if (!ColorFile.Open(QIODevice::ReadOnly) || !lcLoadColorFile(ColorFile))
-					lcLoadDefaultColors();
+				{
+					ColorFile.SetFileName(mLibraryDir.absoluteFilePath(QLatin1String("LDConfig.ldr")));
+
+					if (!ColorFile.Open(QIODevice::ReadOnly) || !lcLoadColorFile(ColorFile))
+						lcLoadDefaultColors();
+				}
 			}
 		}
 		else

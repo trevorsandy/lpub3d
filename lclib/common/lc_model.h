@@ -226,7 +226,7 @@ public:
 
 	void SetSaved()
 	{
-		if (mUndoHistory.IsEmpty())
+		if (mUndoHistory.empty())
 			SaveCheckpoint(QString());
 
 		mSavedHistory = mUndoHistory[0];
@@ -376,8 +376,8 @@ protected:
 	QStringList mFileLines;
 
 	lcModelHistoryEntry* mSavedHistory;
-	lcArray<lcModelHistoryEntry*> mUndoHistory;
-	lcArray<lcModelHistoryEntry*> mRedoHistory;
+	std::vector<lcModelHistoryEntry*> mUndoHistory;
+	std::vector<lcModelHistoryEntry*> mRedoHistory;
 
 	Q_DECLARE_TR_FUNCTIONS(lcModel);
 /*** LPub3D Mod - create Native PLI image and Pov File ***/
