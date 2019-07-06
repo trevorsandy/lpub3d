@@ -516,7 +516,7 @@ int Gui::drawPage(
 
           // STEP - Allocate PLI
 
-          /* check if part is in excludedPart.lst */
+          /* check if part is on excludedPart.lst and set pliIgnore*/
 
           if (ExcludedParts::hasExcludedPart(type))
               pliIgnore = true;
@@ -1696,7 +1696,12 @@ int Gui::drawPage(
                                 .arg(line));
           return InvalidLDrawLineRc;
         }
-    }
+      /* if part is on excludedPart.lst, unset pliIgnore if still set */
+      if (pliIgnore &&
+          tokens[0] == "1" &&
+          ExcludedParts::hasExcludedPart(tokens[tokens.size()-1]))
+          pliIgnore = false;
+    } // for every line
   return 0;
 }
 
@@ -2368,6 +2373,7 @@ int Gui::getBOMParts(
   bool bfxStore2 = false;
   bool bfxLoad = false;
   bool partsAdded = false;
+  bool excludedPart = false;
   QStringList bfxParts;
 
   Meta meta;
@@ -2395,12 +2401,10 @@ int Gui::getBOMParts(
 
       switch (line.toLatin1()[0]) {
         case '1':
-          /* check if part is in excludedPart.lst */
-          if (ExcludedParts::lineHasExcludedPart(line)) {
-              pliIgnore = true;
-          }
+          /* check if part is in excludedPart.lst*/
+          excludedPart = ExcludedParts::lineHasExcludedPart(line);
 
-          if ( ! partIgnore && ! pliIgnore && ! synthBegin) {
+          if ( !excludedPart && ! partIgnore && ! pliIgnore && ! synthBegin) {
 
               QStringList token,addToken;
 
