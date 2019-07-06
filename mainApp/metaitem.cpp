@@ -2310,7 +2310,7 @@ void MetaItem::addDivider(
   Where walk = bottomOfStep;
   int mask = parentRelativeType == StepGroupType ? StepMask|StepGroupMask : StepMask|CalloutMask;
   Rc  rc = scanForward(walk, mask);
-  if (rc == StepRc || rc == RotStepRc) {
+  if (rc == StepRc || rc == RotStepRc || rc == EndOfFileRc) {
       appendMeta(bottomOfStep,divString);
   }
 }

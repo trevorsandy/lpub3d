@@ -3058,7 +3058,7 @@ void Gui::refreshLDrawUnoffParts() {
     m_progressDialog->setWindowFlags(m_progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
     m_progressDialog->setWindowTitle(QString("LDraw Library Update"));
     m_progressDialog->progressBarSetLabelText(QString("Extracting LDraw Unofficial parts from %1...")
-                                              .arg(QFileInfo(newarchive).completeBaseName()));
+                                              .arg(QFileInfo(newarchive).fileName()));
     m_progressDialog->progressBarSetRange(0,items.count());
     m_progressDialog->setAutoHide(true);
     m_progressDialog->setModal(true);
@@ -3220,7 +3220,7 @@ void Gui::refreshLDrawOfficialParts() {
     m_progressDialog->setWindowFlags(m_progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
     m_progressDialog->setWindowTitle(QString("LDraw Library Update"));
     m_progressDialog->progressBarSetLabelText(QString("Extracting LDraw Official parts from %1...")
-                                              .arg(QFileInfo(newarchive).completeBaseName()));
+                                              .arg(QFileInfo(newarchive).fileName()));
     m_progressDialog->progressBarSetRange(0,items.count());
     m_progressDialog->setAutoHide(true);
     m_progressDialog->setModal(true);
