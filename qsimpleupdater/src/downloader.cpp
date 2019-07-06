@@ -227,10 +227,6 @@ void Downloader::setUserAgentString (const QString& agent)
 
 void Downloader::finished()
 {
-    /* Rename file */
-    QFile::rename (m_file->fileName(),
-                   m_downloadDir.filePath (m_fileName));
-
     /* Download finished normally */
     m_file->flush();
     m_file->close();
@@ -272,6 +268,10 @@ void Downloader::finished()
             return;
         }
     } else {
+        /* Rename file */
+        QFile::rename (m_file->fileName(),
+                       m_downloadDir.filePath (m_fileName));
+
         /* Notify application */
         emit downloadFinished (m_url, m_downloadDir.filePath (m_fileName));
         m_ui->downloadLabel->setText (tr ("Download complete!"));
