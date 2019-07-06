@@ -748,8 +748,6 @@ int Gui::drawPage(
               rc = curMeta.parse(line,current,true);
             }
 
-          InsertData insertData;
-
           /* handle specific meta-commands */
 
           switch (rc) {
@@ -1016,9 +1014,7 @@ int Gui::drawPage(
 
             case InsertRc:
               {
-                 inserts.append(curMeta.LPub.insert);                  // these are always placed before any parts in step
-                 insertData = curMeta.LPub.insert.value();
-
+                 InsertData insertData = curMeta.LPub.insert.value();
                  if (insertData.type == InsertData::InsertRotateIcon) { // indicate that we have a rotate icon for this step
                      rotateIcon = (calledOut && assembledCallout ? false : true);
                  }
@@ -1027,8 +1023,10 @@ int Gui::drawPage(
                      if (! exporting())
                          emit clearViewerWindowSig();
                  }
+                 inserts.append(curMeta.LPub.insert);                  // these are always placed before any parts in step
               }
               break;
+
            case PliPartGroupRc:
                 curMeta.LPub.pli.pliPartGroup.setWhere(current);
                 pliPartGroups.append(curMeta.LPub.pli.pliPartGroup);

@@ -29,39 +29,22 @@
 #include "metaitem.h"
 #include "resize.h"
 
-class RotateIcon: public Placement {
-public:
-  RotateIconMeta rotateIconMeta;
-  UnitsMeta      iconImageSize;
-  float          borderThickness;
-  RotateIcon(){}
-  void setSize(
-      UnitsMeta _size,
-      float     _borderThickness = 0);
-  void sizeit();
-};
-
 class RotateIconItem : public ResizePixmapItem
 {
 public:
   Step                     *step;
   QPixmap                  *pixmap;
-  PlacementType             relativeType;
   PlacementType             parentRelativeType;
-  RotateIcon                rotateIcon;
 
-  UnitsMeta                 size;
+  UnitsMeta                 iconSize;
+  float                     borderThickness;
+
   FloatMeta                 picScale;
   BorderMeta                border;
   BorderMeta                arrow;
   BackgroundMeta            background;
   BoolMeta                  display;
   StringListMeta            subModelColor;
-
-//  qreal                     relativeToLoc[2];
-//  qreal                     relativeToSize[2];
-//  bool                      positionChanged;
-//  QPointF                   position;
 
   RotateIconItem();
 
@@ -80,6 +63,10 @@ public:
       RotateIconMeta &_rotateIconMeta,
       QGraphicsItem  *parent = nullptr);
 
+  void setSize(
+          UnitsMeta _size,
+          float _borderThickness);
+  void sizeit();
   void setRotateIconImage(QPixmap *pixmap);
   QGradient setGradient();
 

@@ -1611,7 +1611,6 @@ public:
  *          ` .  \
  *              ` .
  */
-
 class InsertMeta : public LeafMeta
 {
 private:
@@ -3427,7 +3426,7 @@ public:
 private:
 };
 
-const QString RcNames[71] =
+const QString RcNames[72] =
 {
     "InvalidLDrawLineRc = -3",
     "RangeErrorRc = -2",
@@ -3512,7 +3511,7 @@ const QString RcNames[71] =
     "ResolutionRc",
 
     "PliPartGroupRc",
-    "BomPartGroupRc"
+    "BomPartGroupRc",
 
     "ContStepNumRc",
     "CountInstanceRc",

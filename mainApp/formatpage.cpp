@@ -859,7 +859,7 @@ int Gui::addGraphicsPageItems(
 
       page->relativeToSg(page);           // place callouts relative to MULTI_STEP
 
-      page->addGraphicsItems(0,0,pageBg);
+      page->addGraphicsItems(0,0,pageBg); // place all multi-step graphics items (e.g. RotateIcon...)
 
       // add page pointers to the scene
 

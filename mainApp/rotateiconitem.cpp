@@ -31,23 +31,6 @@
 
 #include "lpub.h"
 
-void RotateIcon::setSize(
-    UnitsMeta _size,
-    float _borderThickness)
-{
-  iconImageSize   = _size;
-  borderThickness =_borderThickness;
-}
-
-void RotateIcon::sizeit()
-{
-  size[0] = int(iconImageSize.valuePixels(0));
-  size[1] = int(iconImageSize.valuePixels(1));
-
-  size[0] += 2*int(borderThickness);
-  size[1] += 2*int(borderThickness);
-}
-
 void RotateIconItem::setAttributes(
   Step           *_step,
   PlacementType   _parentRelativeType,
@@ -57,7 +40,7 @@ void RotateIconItem::setAttributes(
   step               = _step;
   parentRelativeType = _parentRelativeType;
 
-  size           = _rotateIconMeta.size;
+  iconSize       = _rotateIconMeta.size;
   picScale       = _rotateIconMeta.picScale;
   border         = _rotateIconMeta.border;
   arrow          = _rotateIconMeta.arrow;
@@ -70,8 +53,8 @@ void RotateIconItem::setAttributes(
   relativeType   = RotateIconType;
 
   // initialize pixmap using icon dimensions
-  pixmap         = new QPixmap(size.valuePixels(XX),
-                               size.valuePixels(YY));
+  pixmap         = new QPixmap(iconSize.valuePixels(XX),
+                               iconSize.valuePixels(YY));
 
   //gradient settings
   if (background.value().gsize[0] == 0 &&
@@ -87,7 +70,7 @@ void RotateIconItem::setAttributes(
     }
 
   // set image size
-  rotateIcon.sizeit();
+  sizeit();
 
   setRotateIconImage(pixmap);
 
@@ -120,6 +103,23 @@ RotateIconItem::RotateIconItem(
         _parentRelativeType,
         _rotateIconMeta,
         _parent);
+}
+
+void RotateIconItem::setSize(
+    UnitsMeta _size,
+    float _borderThickness)
+{
+  iconSize        = _size;
+  borderThickness =_borderThickness;
+}
+
+void RotateIconItem::sizeit()
+{
+  size[0] = int(iconSize.valuePixels(0));
+  size[1] = int(iconSize.valuePixels(1));
+
+  size[0] += 2*int(borderThickness);
+  size[1] += 2*int(borderThickness);
 }
 
 void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
@@ -559,7 +559,7 @@ void RotateIconItem::contextMenuEvent(
       changeImageItemSize(pl+" Size",
                            top,
                            bottom,
-                           &size,
+                           &iconSize,
                            true,1,true);
     } else if (selectedAction == deleteRotateIconAction) {
       beginMacro("DeleteRotateIcon");

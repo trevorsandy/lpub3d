@@ -1728,13 +1728,22 @@ void Step::addGraphicsItems(
   // Step Number
   if (stepNumber.number > 0 && ! onlyChild() && showStepNumber) {
       StepNumberItem *sn;
-      sn = new StepNumberItem(this,
-                              parentRelativeType,
-                              numberPlacemetMeta,
-                              "%d",
-                              stepNumber.number,
-                              parent);
-
+      if (calledOut) {
+          sn = new StepNumberItem(this,
+                                  parentRelativeType,
+                                  meta->LPub.callout.stepNum,
+                                  "%d",
+                                  stepNumber.number,
+                                  parent);
+      } else {
+          sn = new StepNumberItem(this,
+                                  parentRelativeType,
+                                  meta->LPub.multiStep.stepNum,
+                                  //numberPlacemetMeta,
+                                  "%d",
+                                  stepNumber.number,
+                                  parent);
+      }
       sn->setZValue(sceneStepNumberZ.zValue());
       sn->setPos(offsetX + stepNumber.loc[XX],
                  offsetY + stepNumber.loc[YY]);
@@ -1745,43 +1754,26 @@ void Step::addGraphicsItems(
   // Rotate Icon
   if (placeRotateIcon){
       RotateIconItem *ri;
-      ri = new RotateIconItem(this,
-                              parentRelativeType,
-                              rotateIconMeta,
-                              parent);
-      //      logNotice() << "\nROTATE_ICON MULTI-STEP - "
-      //                  << "\nBACKGROUND Meta (curMeta) - "
-      //                  << "\nColour - " << rotateIconMeta.background.value().string
-      //                     ;
+      if (calledOut) {
+          ri = new RotateIconItem(this,
+                                  parentRelativeType,
+                                  meta->LPub.callout.rotateIcon,
+                                  parent);
+      } else {
+          ri = new RotateIconItem(this,
+                                  parentRelativeType,
+                                  meta->LPub.multiStep.rotateIcon,
+                                  //rotateIconMeta,   // TODO remove this from Step if not needed
+                                  parent);
+      }
+      // here we are using the placement values for this specific step in the step group
+      ri->placement    = rotateIcon.placement;
+      qreal adjOffsetX = double(offsetX + ri->placement.value().offsets[XX]);
+      qreal adjOffsetY = double(offsetY + ri->placement.value().offsets[YY]);
+      ri->setPos(adjOffsetX + rotateIcon.loc[XX],
+                 adjOffsetY + rotateIcon.loc[YY]);
 
-      //      if (calledOut){
-      //          ri = new CalloutRotateIconItem(this,
-      //                                         parentRelativeType,
-      //                                         meta->LPub.callout.rotateIcon,
-      //                                         parent);
-      //          ri = new CalloutRotateIconItem(this,
-      //                                         parentRelativeType,
-      //                                         meta->LPub.callout.rotateIcon,
-      //                                         parent);
-      //        } else {
-
-      //          ri = new MultiStepRotateIconItem(this,
-      //                                           parentRelativeType,
-      //                                           multiStepRotateIconMeta,
-      //                                           parent);
-      //          ri = new MultiStepRotateIconItem(this,
-      //                                           parentRelativeType,
-      //                                           meta->LPub.multiStep.rotateIcon,
-      //                                           parent);
-      //          logNotice() << "\nROTATE_ICON MULTI-STEP - "
-      //                      << "\nBACKGROUND Meta (curMeta) - "
-      //                      << "\nColour - " << rotateIconMeta.background.value().string
-      //                         ;
-      //        }
-      ri->setPos(offsetX + rotateIcon.loc[XX],
-                 offsetY + rotateIcon.loc[YY]);
-
-      ri->setFlag(QGraphicsItem::ItemIsMovable,movable);
+      ri->setFlag(QGraphicsItem::ItemIsMovable,/*movable*/true);
       ri->setZValue(sceneRotateIconZ.zValue());
     }
 
@@ -1799,10 +1791,10 @@ void Step::addGraphicsItems(
       if (placementData.relativeTo == CalloutType) {
           callout->addGraphicsItems(offsetX-loc[XX],offsetY-loc[YY],rect,parent, movable);
         } else {
-          bool callout_movable = true /*movable*/;
+          bool callout_movable = true /*movable*/; // huh ? this will always be true;
           if (parentRelativeType == StepGroupType && placementData.relativeTo == StepGroupType) {
               callout_movable = true;
-            }
+          }
           callout->addGraphicsItems(callout->shared ? 0 : offsetX,offsetY,rect,parent, callout_movable);
         }
       for (int i = 0; i < callout->pointerList.size(); i++) {

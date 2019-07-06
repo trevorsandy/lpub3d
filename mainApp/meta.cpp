@@ -2507,7 +2507,8 @@ QString InsertMeta::format(bool local, bool global)
       break;
     }
 
-  if (_value.offsets[0] || _value.offsets[1]) {
+  if (_value.offsets[0] > 0.5 || _value.offsets[0] < 0.5 ||
+      _value.offsets[1] > 0.5 || _value.offsets[1] < 0.5 ) {
       foo += QString(" OFFSET %1 %2")
           .arg(_value.offsets[0])
           .arg(_value.offsets[1]);

@@ -400,11 +400,11 @@ public:
     InsertRotateIcon,
   } type;
 
-  struct BomWhere {
+  struct InsertWhere {
     QString   modelName  = "undefined";
     int       lineNumber = 0;
   };
-  BomWhere    where;
+  InsertWhere where;
   QString     picName;
   qreal       picScale;
   QString     text;

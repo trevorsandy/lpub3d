@@ -69,7 +69,7 @@ class Step : public AbstractRangeElement
     Placement             csiPlacement;
     QPixmap               csiPixmap;
     RotateIconMeta        rotateIconMeta;
-    RotateIcon            rotateIcon;
+    RotateIconItem        rotateIcon;
     PlacementNum          stepNumber;
     NumberPlacementMeta   numberPlacemetMeta;
     bool                  showStepNumber;

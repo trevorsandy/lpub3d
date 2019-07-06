@@ -1435,7 +1435,7 @@ void MetaItem::changePlacementOffset(
     int eof = gui->subFileSize(defaultWhere.modelName);
     defaultWhere+1 == eof ? walk = defaultWhere : walk = defaultWhere+1;
 
-    if (scanBackward(walk,StepMask,partsAdded) == EndOfFileRc) {        
+    if (type != RotateIconType && scanBackward(walk,StepMask,partsAdded) == EndOfFileRc) {
       defaultWhere = firstLine(defaultWhere.modelName);
 
 #ifdef QT_DEBUG_MODE
