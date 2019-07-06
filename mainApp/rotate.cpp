@@ -228,6 +228,7 @@ int Render::rotateParts(
       rotatedParts.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(_modelName));
       rotatedParts.prepend(QString("0 Name: %1").arg(modelName));
       rotatedParts.prepend(QString("0 %1").arg(_modelName));
+      rotatedParts.prepend(QString("0 FILE %1").arg(modelName));
       rotatedParts.append("0 NOFILE");
 
       // consolidate subfiles and parts into single file

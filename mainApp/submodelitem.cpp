@@ -291,6 +291,7 @@ int SubModel::createSubModelImage(
           rotatedSubmodel.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(modelName));
           rotatedSubmodel.prepend(QString("0 Name: %1").arg(top.modelName));
           rotatedSubmodel.prepend(QString("0 %1").arg(modelName));
+          rotatedSubmodel.prepend(QString("0 FILE %1").arg(modelName));
           rotatedSubmodel.append("0 NOFILE");
 
           // consolidate submodel subfiles into single file

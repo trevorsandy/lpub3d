@@ -937,6 +937,7 @@ int Pli::createPartImage(
                 pliFile.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(modelName));
                 pliFile.prepend(QString("0 Name: %1").arg(type));
                 pliFile.prepend(QString("0 %1").arg(modelName));
+                pliFile.prepend(QString("0 FILE %1").arg(modelName));
                 pliFile.append("0 NOFILE");
             }
 
@@ -2265,6 +2266,7 @@ int Pli::partSizeLDViewSCall() {
                         pliFile.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(modelName));
                         pliFile.prepend(QString("0 Name: %1").arg(pliPart->type));
                         pliFile.prepend(QString("0 %1").arg(modelName));
+                        pliFile.prepend(QString("0 FILE %1").arg(modelName));
                         pliFile.append("0 NOFILE");
                     }
 
