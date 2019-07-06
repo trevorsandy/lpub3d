@@ -2875,14 +2875,15 @@ void PliBackgroundItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
           placementData.offsets[1] += newPosition.y()/pli->relativeToSize[1];
           placement.setValue(placementData);
 
-          Where here, bottom;
+          Where here, top, bottom;
           bool useBot;
 
-          useBot = pli->autoRange(here,bottom);
+          useBot = pli->autoRange(top,bottom);
 
+          here = top;
           if (useBot) {
               here = bottom;
-            }
+          }
           changePlacementOffset(here,&placement,pli->parentRelativeType);
         }
     }

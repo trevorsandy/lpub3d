@@ -657,12 +657,7 @@ int Gui::addGraphicsPageItems(
                   plPage.relativeTo(step);      // place everything - calculate placement for all page objects
 
                   // center the csi's bounding box relative to the page
-                  // if there is no offset, otherwise place as is
-
-                  PlacementData csiPlacementData = step->csiPlacement.placement.value();
-                  if (csiPlacementData.offsets[XX] == 0.0f && csiPlacementData.offsets[YY] == 0.0f) {
-                      plPage.placeRelativeBounding(step->csiItem);
-                  }
+                  plPage.placeRelativeBounding(step->csiItem);
 
                   // place callouts relative to the csi bounding box
 
