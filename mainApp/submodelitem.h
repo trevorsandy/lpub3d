@@ -327,6 +327,13 @@ public:
 
 protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+  virtual void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
+  virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
+  virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+  virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+  bool isHovered;
+  bool mouseIsDown;
 };
 
 /****************************************************************************
@@ -342,13 +349,18 @@ public:
     QPixmap        &pixmap,
     PlacementType  _parentRelativeType,
     QString        &type,
-    QString        &color)
+    QString        &color) :
+      isHovered(false),
+      mouseIsDown(false)
   {
     Q_UNUSED(color);
     parentRelativeType = _parentRelativeType;
     subModel           = _subModel;
     part               = _part;
     setPixmap(pixmap);
+    setFlag(QGraphicsItem::ItemIsSelectable,true);
+    setFlag(QGraphicsItem::ItemIsFocusable, true);
+    setAcceptHoverEvents(true);
     setToolTip(subModelToolTip(type));
   }
   QString subModelToolTip(QString type);
@@ -358,6 +370,13 @@ public:
 
 protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+  virtual void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
+  virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
+  virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+  virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+  bool isHovered;
+  bool mouseIsDown;
 };
 
 #endif // SUBMODELITEM_H

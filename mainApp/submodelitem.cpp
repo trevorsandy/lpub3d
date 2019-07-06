@@ -1033,7 +1033,11 @@ bool SubModel::loadTheViewer(){
     return true;
 }
 
- // SMInstanceTextItem
+//-----------------------------------------
+//-----------------------------------------
+//-----------------------------------------
+
+// SMInstanceTextItem
 
 SMInstanceTextItem::SMInstanceTextItem(
   SubModel       *_subModel,
@@ -1041,13 +1045,20 @@ SMInstanceTextItem::SMInstanceTextItem(
   QString        &text,
   QString        &fontString,
   QString        &colorString,
-  PlacementType _parentRelativeType)
+  PlacementType _parentRelativeType) :
+    isHovered(false),
+    mouseIsDown(false)
 {
   parentRelativeType = _parentRelativeType;
   QString toolTip(tr("Times used - right-click to modify"));
   setText(_subModel,_part,text,fontString,toolTip);
   QColor color(colorString);
   setDefaultTextColor(color);
+
+  setFlag(QGraphicsItem::ItemIsSelectable,true);
+  setFlag(QGraphicsItem::ItemIsFocusable, true);
+  setAcceptHoverEvents(true);
+
   setData(ObjectId, SubModelInstanceObj);
   setZValue(_subModel->meta->LPub.page.scene.subModelInstance.zValue());
 }
@@ -1091,6 +1102,47 @@ void SMInstanceTextItem::contextMenuEvent(
       changeMargins(pl + " Margins",top,bottom,&subModel->subModelMeta.instance.margin,true,1,false);
     }
 }
+
+void SMInstanceTextItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = !this->isSelected() && !mouseIsDown;
+    QGraphicsItem::hoverEnterEvent(event);
+}
+
+void SMInstanceTextItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = false;
+    QGraphicsItem::hoverLeaveEvent(event);
+}
+
+void SMInstanceTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    mouseIsDown = true;
+    QGraphicsItem::mousePressEvent(event);
+    update();
+}
+
+void SMInstanceTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    mouseIsDown = false;
+    QGraphicsItem::mouseReleaseEvent(event);
+    update();
+}
+
+void SMInstanceTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    QPen pen;
+    pen.setColor(isHovered ? QColor(Preferences::sceneGuideColor) : Qt::black);
+    pen.setWidth(0/*cosmetic*/);
+    pen.setStyle(isHovered ? Qt::PenStyle(Preferences::sceneGuidesLine) : Qt::NoPen);
+    painter->setPen(pen);
+    painter->setBrush(Qt::transparent);
+    painter->drawRect(this->boundingRect());
+    QGraphicsTextItem::paint(painter,option,widget);
+}
+
+//-----------------------------------------
+//-----------------------------------------
 
  // SMGraphicsPixmapItem
 QString SMGraphicsPixmapItem::subModelToolTip(QString type)
@@ -1144,6 +1196,48 @@ void SMGraphicsPixmapItem::contextMenuEvent(
 #endif
   }
 }
+
+void SMGraphicsPixmapItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = !this->isSelected() && !mouseIsDown;
+    QGraphicsItem::hoverEnterEvent(event);
+}
+
+void SMGraphicsPixmapItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = false;
+    QGraphicsItem::hoverLeaveEvent(event);
+}
+
+void SMGraphicsPixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    mouseIsDown = true;
+    QGraphicsItem::mousePressEvent(event);
+    update();
+}
+
+void SMGraphicsPixmapItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    mouseIsDown = false;
+    QGraphicsItem::mouseReleaseEvent(event);
+    update();
+}
+
+void SMGraphicsPixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    QPen pen;
+    pen.setColor(isHovered ? QColor(Preferences::sceneGuideColor) : Qt::black);
+    pen.setWidth(0/*cosmetic*/);
+    pen.setStyle(isHovered ? Qt::PenStyle(Preferences::sceneGuidesLine) : Qt::NoPen);
+    painter->setPen(pen);
+    painter->setBrush(Qt::transparent);
+    painter->drawRect(this->boundingRect());
+    QGraphicsPixmapItem::paint(painter,option,widget);
+}
+
+//-----------------------------------------
+//-----------------------------------------
+//-----------------------------------------
 
 // SubModelBackgroundItem
 
