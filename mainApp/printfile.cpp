@@ -774,7 +774,7 @@ void Gui::exportAsPdf()
   // determine size of output pages, in pixels
   float pageWidthPx, pageHeightPx;
   float pageWidthIn, pageHeightIn;
-  int adjPageWidth, adjPageHeight;
+  int adjPageWidthPx, adjPageHeightPx;
 
   // create a PDF pdfWriter
   QPdfWriter pdfWriter(fileName);
@@ -861,21 +861,21 @@ void Gui::exportAsPdf()
 
           // get size of output image, in pixels
           getExportPageSize(pageWidthPx, pageHeightPx);
-          adjPageWidth  = int(double(pageWidthPx)  * dpr);
-          adjPageHeight = int(double(pageHeightPx) * dpr);
+          adjPageWidthPx  = int(double(pageWidthPx)  * dpr);
+          adjPageHeightPx = int(double(pageHeightPx) * dpr);
 
           bool  ls = getPageOrientation() == Landscape;
           logNotice() << QString("                  Step 1. Creating image for page %3 of %4, size(pixels) W %1 x H %2, orientation %5, DPI %6, pixel ratio %7...")
-                        .arg(adjPageWidth)
-                        .arg(adjPageHeight)
+                        .arg(adjPageWidthPx)
+                        .arg(adjPageHeightPx)
                         .arg(displayPageNum)
                         .arg(_maxPages)
                         .arg(ls ? "Landscape" : "Portrait")
-                        .arg(exportPixelRatio)
+                        .arg(int(resolution()))
                         .arg(dpr);
 
           // initiialize the pixmap
-          QPixmap pixmap(adjPageWidth,adjPageHeight);
+          QPixmap pixmap(adjPageWidthPx,adjPageHeightPx);
           pixmap.setDevicePixelRatio(dpr);
 
           // paint to the pixmap the scene we view
@@ -957,7 +957,7 @@ void Gui::exportAsPdf()
           painter.drawPixmap(QRect(0,0,
                                    int(pdfWriter.logicalDpiX()*pages[page].pageWidthIn),
                                    int(pdfWriter.logicalDpiY()*pages[page].pageHeightIn)),
-                                    pages[page].pixmap);
+                                   pages[page].pixmap);
 
           // prepare to render next page
           if(page < pages.count()) {
@@ -1026,8 +1026,8 @@ void Gui::exportAsPdf()
 
           // get size of output image, in pixels
           getExportPageSize(pageWidthPx, pageHeightPx);
-          adjPageWidth  = int(double(pageWidthPx)  * dpr);
-          adjPageHeight = int(double(pageHeightPx) * dpr);
+          adjPageWidthPx  = int(double(pageWidthPx)  * dpr);
+          adjPageHeightPx = int(double(pageHeightPx) * dpr);
 
           bool  ls = getPageOrientation() == Landscape;
           logNotice() << QString("Step 1. Creating image for page %1 (%2 of %3) from the range of %4, size(in pixels) W %5 x H %6, orientation %7, DPI %8")
@@ -1035,13 +1035,13 @@ void Gui::exportAsPdf()
                         .arg(_pageCount)                      //2
                         .arg(printPages.count())              //3
                         .arg(pageRanges.join(" "))            //4
-                        .arg(adjPageWidth)                    //5
-                        .arg(adjPageHeight)                   //6
+                        .arg(adjPageWidthPx)                  //5
+                        .arg(adjPageHeightPx)                 //6
                         .arg(ls ? "Landscape" : "Portrait")   //7
-                        .arg(exportPixelRatio);               //8
+                        .arg(int(resolution()));              //8
 
           // initiialize the pixmap
-          QPixmap pixmap(adjPageWidth,adjPageHeight);
+          QPixmap pixmap(adjPageWidthPx,adjPageHeightPx);
           pixmap.setDevicePixelRatio(dpr);
 
           // paint to the pixmap the scene we view
@@ -1255,7 +1255,7 @@ void Gui::exportAs(const QString &_suffix)
   LGraphicsView view(&scene);
 
   float pageWidthPx, pageHeightPx;
-  int adjPageWidth, adjPageHeight;
+  int adjPageWidthPx, adjPageHeightPx;
 
   int _displayPageNum = 0;
   int _maxPages       = 0;
@@ -1326,23 +1326,23 @@ void Gui::exportAs(const QString &_suffix)
 
               // determine size of output image, in pixels
               getExportPageSize(pageWidthPx, pageHeightPx);
-              adjPageWidth = int(double(pageWidthPx) * dpr);
-              adjPageHeight = int(double(pageHeightPx) * dpr);
+              adjPageWidthPx = int(double(pageWidthPx) * dpr);
+              adjPageHeightPx = int(double(pageHeightPx) * dpr);
 
               bool  ls = getPageOrientation() == Landscape;
               logNotice() << QString("Exporting %9 %6 %3 of %4, size(in pixels) W %1 x H %2, orientation %5, DPI %7, pixel ratio %8")
-                             .arg(adjPageWidth)
-                             .arg(adjPageHeight)
+                             .arg(adjPageWidthPx)
+                             .arg(adjPageHeightPx)
                              .arg(displayPageNum)
                              .arg(_maxPages)
                              .arg(ls ? "Landscape" : "Portrait")
                              .arg(type)
-                             .arg(exportPixelRatio)
+                             .arg(int(resolution()))
                              .arg(dpr)
                              .arg(suffix);
 
               // paint to the pixmap the scene we view
-              QPixmap pixmap(adjPageWidth, adjPageHeight);
+              QPixmap pixmap(adjPageWidthPx, adjPageHeightPx);
               pixmap.setDevicePixelRatio(dpr);
 
               QPainter painter;
@@ -1445,23 +1445,23 @@ void Gui::exportAs(const QString &_suffix)
 
               // determine size of output image, in pixels
               getExportPageSize(pageWidthPx, pageHeightPx);
-              adjPageWidth = int(double(pageWidthPx) * dpr);
-              adjPageHeight = int(double(pageHeightPx) * dpr);
+              adjPageWidthPx  = int(double(pageWidthPx) * dpr);
+              adjPageHeightPx = int(double(pageHeightPx) * dpr);
 
               bool  ls = getPageOrientation() == Landscape;
               logNotice() << QString("Exporting %9 %6 %3 of range %4, size(in pixels) W %1 x H %2, orientation %5, DPI %7, pixel ratio %8")
-                             .arg(adjPageWidth)
-                             .arg(adjPageHeight)
+                             .arg(adjPageWidthPx)
+                             .arg(adjPageHeightPx)
                              .arg(displayPageNum)
                              .arg(pageRanges.join(" "))
                              .arg(ls ? "Landscape" : "Portrait")
                              .arg(type)
-                             .arg(exportPixelRatio)
+                             .arg(int(resolution()))
                              .arg(dpr)
                              .arg(suffix);
 
               // paint to the pixmap the scene we view
-              QPixmap pixmap(adjPageWidth, adjPageHeight);
+              QPixmap pixmap(adjPageWidthPx, adjPageHeightPx);
               pixmap.setDevicePixelRatio(dpr);
 
               QPainter painter;
