@@ -489,7 +489,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     } else if (selectedAction == noStepAction) {
       appendMeta(topOfStep,"0 !LPUB NOSTEP");
     } else if (selectedAction == insertRotateIconAction &&fullContextMenu) {
-      appendMeta(topOfStep,"0 !LPUB INSERT ROTATE_ICON OFFSET 0.5 0.5");
+      appendMeta(topOfStep,"0 !LPUB INSERT ROTATE_ICON");
     } else if (selectedAction == addCsiAnnoAction) {
       step->setCsiAnnotationMetas(*meta);
     } else if (selectedAction == refreshCsiAnnoAction) {
