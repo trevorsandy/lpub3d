@@ -35,7 +35,7 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
     if ((! preview) &&
         (gui->exportMode == EXPORT_POVRAY ||
          gui->exportMode == EXPORT_STL    ||
-        gui->exportMode == EXPORT_3DS_MAX)){
+         gui->exportMode == EXPORT_3DS_MAX)){
         flag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni :
                gui->exportMode == EXPORT_STL ? NativeSTLIni : Native3DSIni;
 //        flag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni : NativeSTLIni;
@@ -50,6 +50,9 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
     } else {
         ui->checkBoxIgnoreMixedPageSizes->setChecked(Preferences::ignoreMixedPageSizesMsg);
     }
+
+    ui->spinPixelRatio->setValue(gui->exportPixelRatio);
+    ui->spinPixelRatio->setToolTip(QString("Change the export DPI pixel ratio."));
 
     ui->radioButtonAllPages->setChecked(true);
     ui->checkBoxResetCache->setChecked(false);
@@ -139,6 +142,24 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
         ui->groupBoxMixedPageSizes->hide();
         break;
     }
+
+    switch(gui->exportMode) {
+    case EXPORT_PDF:
+    case EXPORT_PNG:
+    case EXPORT_JPG:
+    case EXPORT_BMP:
+        getPixelRatioMsg(gui->exportPixelRatio);
+        ui->labelPixelRatio->show();
+        ui->labelPixelRatioFactor->show();
+        ui->spinPixelRatio->show();
+    break;
+    default:
+        ui->labelPixelRatio->hide();
+        ui->labelPixelRatioFactor->hide();
+        ui->spinPixelRatio->hide();
+    break;
+    }
+
     setMinimumSize(40,20);
     adjustSize();
 }
@@ -146,6 +167,12 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
 DialogExportPages::~DialogExportPages()
 {
     delete ui;
+}
+
+void DialogExportPages::getPixelRatioMsg(double value)
+{
+    ui->labelPixelRatioFactor->setText(QString("Export DPI %1px")
+                                       .arg(value*int(resolution())));
 }
 
 QString const DialogExportPages::pageRangeText(){
@@ -174,6 +201,10 @@ bool DialogExportPages::ignoreMixedPageSizesMsg(){
 
 bool DialogExportPages::doNotShowPageProcessDlg(){
     return ui->doNotShowPageProcessDlgChk->isChecked();
+}
+
+qreal DialogExportPages::exportPixelRatio(){
+    return ui->spinPixelRatio->value();
 }
 
 int DialogExportPages::pageDisplayPause(){
@@ -214,4 +245,9 @@ void DialogExportPages::on_pushButtonExportPreferences_clicked()
 {
     ldvWidget = new LDVWidget(this,IniFlag(flag),true);
     ldvWidget->showLDVPreferences();
+}
+
+void DialogExportPages::on_spinPixelRatio_valueChanged(double value)
+{
+   getPixelRatioMsg(value);
 }

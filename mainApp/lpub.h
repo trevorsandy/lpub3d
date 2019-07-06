@@ -480,6 +480,7 @@ public:
   int             exportMode;       // export Mode
   int             processOption;    // export Option
   int             pageDirection;    // continuous page processing direction
+  qreal           exportPixelRatio; // export resolution pixel density
   QString         pageRangeText;    // page range parameters
   bool            submodelIconsLoaded; // load submodel images
   bool            resetCache;       // reset model, fade and highlight parts

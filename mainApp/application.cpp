@@ -112,6 +112,22 @@ Application* Application::m_instance = nullptr;
 Application::Application(int &argc, char **argv)
   : m_application(argc, argv)
 {
+
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
+#endif
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    //QCoreApplication::setAttribute(Qt::AA_Use96Dpi);
+
+    QCoreApplication::setOrganizationName(VER_COMPANYNAME_STR);
+    QCoreApplication::setApplicationVersion(VER_PRODUCTVERSION_STR);
+
+    //qDebug() << "QStyleFactory valid styles:" << QStyleFactory::keys();
+#ifdef Q_OS_MAC
+    QCoreApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
+    QCoreApplication::setStyle(QStyleFactory::create("macintosh"));
+#endif
+
   m_instance = this;
   m_console_mode = false;
   m_print_output = false;
@@ -120,21 +136,7 @@ Application::Application(int &argc, char **argv)
   m_allocated_console = false;
 #endif
 
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-  m_application.setAttribute(Qt::AA_UseDesktopOpenGL);
-#endif
-  m_application.setAttribute(Qt::AA_Use96Dpi);
-
-  QCoreApplication::setOrganizationName(VER_COMPANYNAME_STR);
-  QCoreApplication::setApplicationVersion(VER_PRODUCTVERSION_STR);
-
   connect(this, SIGNAL(splashMsgSig(QString)), this, SLOT(splashMsg(QString)));
-
-//qDebug() << "QStyleFactory valid styles:" << QStyleFactory::keys();
-#ifdef Q_OS_MAC
-  m_application.setAttribute(Qt::AA_DontShowIconsInMenus);
-  m_application.setStyle(QStyleFactory::create("macintosh"));
-#endif
 
 }
 

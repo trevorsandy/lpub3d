@@ -26,7 +26,7 @@ class DialogExportPages : public QDialog
   Q_OBJECT
 
 public:
-  explicit DialogExportPages(QWidget *parent = 0);
+  explicit DialogExportPages(QWidget *parent = nullptr);
   ~DialogExportPages();
 
   bool allPages();
@@ -36,13 +36,16 @@ public:
   bool ignoreMixedPageSizesMsg();
   bool doNotShowPageProcessDlg();
   int pageDisplayPause();
+  qreal exportPixelRatio();
   QString const pageRangeText();
+  void getPixelRatioMsg(double value);
 
 private slots:
   void on_lineEditPageRange_textChanged(const QString &arg1);
   void on_lineEditPageRange_selectionChanged();
   void on_pushButtonExportSettings_clicked();
   void on_pushButtonExportPreferences_clicked();
+  void on_spinPixelRatio_valueChanged(double arg1);
 
 private:
   Ui::DialogExportPages *ui;

@@ -2513,6 +2513,7 @@ Gui::Gui()
     processOption                   = EXPORT_ALL_PAGES;
     exportMode                      = EXPORT_PDF;
     pageRangeText                   = "1";
+    exportPixelRatio                = 1.0;
     resetCache                      = false;
     m_previewDialog                 = false;
     m_partListCSIFile               = false;

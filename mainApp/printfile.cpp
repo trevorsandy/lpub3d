@@ -226,8 +226,10 @@ void Gui::checkMixedPageSizeStatus(){
                     }
 
                   if ((pageSizes[key].sizeID != sizeID      ||
-                       pageSizes[key].sizeW  != pageWidthIn ||
-                       pageSizes[key].sizeH  != pageHeightIn) && size_warning != true) {
+                      (pageSizes[key].sizeW  < pageWidthIn  ||
+                       pageSizes[key].sizeW  > pageWidthIn) ||
+                      (pageSizes[key].sizeH  < pageHeightIn ||
+                       pageSizes[key].sizeH  > pageHeightIn)) && size_warning != true) {
                       size_warning = true;
                       text = text2;
                       title = "<b> Mixed page size detected. </b>";
@@ -445,6 +447,9 @@ bool Gui::exportAsDialog(ExportMode m)
         } else {
           return false;
         }
+
+      exportPixelRatio = dialog->exportPixelRatio();
+
       resetCache = dialog->resetCache();
 
       QSettings Settings;
@@ -699,6 +704,13 @@ void Gui::exportAsPdf()
   QString baseName = fileInfo.completeBaseName();
   QString fileName = QDir::currentPath() + QDir::separator() + baseName;
 
+  // add pixel ratio info to file name
+  QString dpiInfo = QString("_%1_DPI").arg(int(resolution()));
+  if (exportPixelRatio > 1.0 || exportPixelRatio < 1.0){
+      dpiInfo += QString("_%1x").arg(exportPixelRatio);
+  }
+  baseName += dpiInfo;
+
   if (Preferences::modeGUI) {
       fileName = QFileDialog::getSaveFileName(
             this,
@@ -742,7 +754,7 @@ void Gui::exportAsPdf()
 
       QString title = "<b> Cannot open file. </b>";
       QString text = tr ("Cannot open %1 for writing:\n%2")
-          .arg(fileName)
+          .arg(QDir::toNativeSeparators(fileName))
           .arg(printFile.errorString());
 
       box.setText (title);
@@ -761,21 +773,30 @@ void Gui::exportAsPdf()
 
   // determine size of output pages, in pixels
   float pageWidthPx, pageHeightPx;
+  float pageWidthIn, pageHeightIn;
+  int adjPageWidth, adjPageHeight;
 
   // create a PDF pdfWriter
   QPdfWriter pdfWriter(fileName);
+  pdfWriter.setCreator(QString("%1 %2")
+                       .arg(QString::fromLatin1(VER_PRODUCTNAME_STR))
+                       .arg(QString::fromLatin1(VER_PRODUCTVERSION_STR)));
+
+  // Use white for pdf
+  QColor::Spec fillClear = QColor(Qt::white).Rgb;
+
+  // calculate device pixel ratio
+  qreal dpr = exportPixelRatio;
 
   // instantiate the scene and view
   LGraphicsScene scene;
   LGraphicsView view(&scene);
 
   // initialize page sizes
-  logStatus() << "INITIALIZE PAGE SIZES START ---->>>>";
   displayPageNum = 0;
   drawPage(&view,&scene,true);
   clearPage(&view,&scene);
   displayPageNum = savePageNumber;
-  logStatus() << "INITIALIZE PAGE SIZES END  ----<<<<";
 
   int _displayPageNum = 0;
   int _maxPages       = 0;
@@ -788,6 +809,15 @@ void Gui::exportAsPdf()
   // reset page indicators
   _displayPageNum = 0;
   _maxPages       = 0;
+
+  // page store
+  struct PdfPage {
+      QPixmap pixmap;
+      float pageWidthIn;
+      float pageHeightIn;
+      QPageLayout pageLayout;
+  };
+  QMap<int, PdfPage> pages;
 
   m_progressDlgMessageLbl->setText("Exporting instructions to pdf...");
 
@@ -804,19 +834,17 @@ void Gui::exportAsPdf()
         }
 
       m_progressDlgProgressBar->setRange(1,_maxPages);
+
       // set displayPageNum so we can send the correct index to retrieve page size data
       displayPageNum = _displayPageNum;
-      // set initial page layout
+
+      // set initial pdfWriter page layout
       pdfWriter.setPageLayout(getPageLayout());
 
-      // paint to the pdfWriter the scene we view
-      QPainter painter;
-      painter.begin(&pdfWriter);
-
+      // step 1. generate page pixmaps
       for (displayPageNum = _displayPageNum; displayPageNum <= _maxPages; displayPageNum++) {
 
           if (! exporting()) {
-              painter.end();
               if (Preferences::modeGUI)
                   m_progressDialog->hide();
               displayPageNum = savePageNumber;
@@ -825,26 +853,41 @@ void Gui::exportAsPdf()
               return;
             }
 
-          m_progressDlgMessageLbl->setText(QString("Exporting page %1 of %2").arg(displayPageNum).arg(_maxPages));
+          m_progressDlgMessageLbl->setText(QString("Step 1. Creating image for page %1 of %2...")
+                                                   .arg(displayPageNum)
+                                                   .arg(_maxPages));
           m_progressDlgProgressBar->setValue(displayPageNum);
           QApplication::processEvents();
 
+          // get size of output image, in pixels
           getExportPageSize(pageWidthPx, pageHeightPx);
+          adjPageWidth  = int(double(pageWidthPx)  * dpr);
+          adjPageHeight = int(double(pageHeightPx) * dpr);
 
           bool  ls = getPageOrientation() == Landscape;
-          logNotice() << QString("                  Exporting page %3 of %4, size(pixels) W %1 x H %2, orientation %5")
-                        .arg(pageWidthPx)
-                        .arg(pageHeightPx)
+          logNotice() << QString("                  Step 1. Creating image for page %3 of %4, size(pixels) W %1 x H %2, orientation %5, DPI %6, pixel ratio %7...")
+                        .arg(adjPageWidth)
+                        .arg(adjPageHeight)
                         .arg(displayPageNum)
                         .arg(_maxPages)
-                        .arg(ls ? "Landscape" : "Portrait");
+                        .arg(ls ? "Landscape" : "Portrait")
+                        .arg(exportPixelRatio)
+                        .arg(dpr);
 
-          // set up the view
-          QRectF boundingRect(0.0, 0.0, pageWidthPx, pageHeightPx);
-          QRect bounding(0, 0, pageWidthPx, pageHeightPx);
+          // initiialize the pixmap
+          QPixmap pixmap(adjPageWidth,adjPageHeight);
+          pixmap.setDevicePixelRatio(dpr);
+
+          // paint to the pixmap the scene we view
+          QPainter painter;
+          painter.begin(&pixmap);
+
+          // set up the view - use unscaled page size
+          QRectF boundingRect(0.0, 0.0, int(pageWidthPx),int(pageHeightPx));
+          QRect bounding(0, 0, int(pageWidthPx),int(pageHeightPx));
           view.scale(1.0,1.0);
-          view.setMinimumSize(pageWidthPx,pageHeightPx);
-          view.setMaximumSize(pageWidthPx,pageHeightPx);
+          view.setMinimumSize(int(pageWidthPx),int(pageHeightPx));
+          view.setMaximumSize(int(pageWidthPx),int(pageHeightPx));
           view.setGeometry(bounding);
           view.setSceneRect(boundingRect);
           view.setRenderHints(
@@ -854,21 +897,79 @@ void Gui::exportAsPdf()
           view.centerOn(boundingRect.center());
           clearPage(&view,&scene);
 
-          // render this page
+          // clear the pixels of the pixmap
+          pixmap.fill(size_t(fillClear));
+
+          // render this page to pixmap
           drawPage(&view,&scene,true);
-          scene.setSceneRect(0.0,0.0,pageWidthPx,pageHeightPx);
+          scene.setSceneRect(0.0,0.0,pixmap.width(),pixmap.height());
           scene.render(&painter);
           clearPage(&view,&scene);
 
-          // prepare to render next page
+          // store the pixmap and required page attributes
+          getExportPageSize(pageWidthIn, pageHeightIn, Inches);
+          PdfPage pdfPage;
+          pdfPage.pixmap       = pixmap;
+          pdfPage.pageWidthIn  = pageWidthIn;
+          pdfPage.pageHeightIn = pageHeightIn;
+
+          // store pdfWriter next page layout
           if(displayPageNum < _maxPages) {
               bool nextPage = true;
-              pdfWriter.setPageLayout(getPageLayout(nextPage));
-              pdfWriter.newPage();
-            }
+              pdfPage.pageLayout = getPageLayout(nextPage);
+          }
+
+          // store the rendered page
+          QMap<int, PdfPage>::iterator i = pages.find(displayPageNum);
+          if (i != pages.end())
+            pages.erase(i);
+          pages.insert(displayPageNum,pdfPage);
+
+          // wrap up
+          painter.end();
         }
-      painter.end();
+
       m_progressDlgProgressBar->setValue(_maxPages);
+
+      // step 2. paint generated page pixmaps to the pdfWriter
+      QPainter painter;
+      painter.begin(&pdfWriter);
+
+      m_progressDlgProgressBar->setRange(1,pages.count());
+
+      int page;
+      foreach (page, pages.keys()) {
+          m_progressDlgMessageLbl->setText(QString("Step 2. Exporting pdf document page %1 of %2")
+                                           .arg(page)
+                                           .arg(pages.count()));
+          m_progressDlgProgressBar->setValue(page);
+          QApplication::processEvents();
+
+          if (! exporting()) {
+                  painter.end();
+              if (Preferences::modeGUI)
+                  m_progressDialog->hide();
+              emit messageSig(LOG_STATUS,QString("Export to pdf terminated before completion."));
+              return;
+            }
+
+          // render this page's pixmap to the pdfWriter
+          painter.drawPixmap(QRect(0,0,
+                                   int(pdfWriter.logicalDpiX()*pages[page].pageWidthIn),
+                                   int(pdfWriter.logicalDpiY()*pages[page].pageHeightIn)),
+                                    pages[page].pixmap);
+
+          // prepare to render next page
+          if(page < pages.count()) {
+              pdfWriter.setPageLayout(pages[page].pageLayout);
+              pdfWriter.newPage();
+          }
+      }
+      // wrap up
+      pages.clear();
+      painter.end();
+
+      m_progressDlgProgressBar->setValue(pages.count());
 
     } else {
 
@@ -895,19 +996,16 @@ void Gui::exportAsPdf()
 
       // set displayPageNum so we can send the correct index to retrieve page size data
       displayPageNum = printPages.first();
-      // set initial page layout
+
+      // set initial pdfWriter page layout
       pdfWriter.setPageLayout(getPageLayout());
 
-      // paint to the pdfWriter the scene we view
-      QPainter painter;
-      painter.begin(&pdfWriter);
-
+      // step 1. generate page pixmaps
       foreach(int printPage,printPages){
 
           _pageCount++;
 
           if (! exporting()) {
-              painter.end();
               if (Preferences::modeGUI)
                   m_progressDialog->hide();
               displayPageNum = savePageNumber;
@@ -918,7 +1016,7 @@ void Gui::exportAsPdf()
 
           displayPageNum = printPage;
 
-          m_progressDlgMessageLbl->setText(QString("Exporting page %1 (%2 of %3) from the range of %4...")
+          m_progressDlgMessageLbl->setText(QString("Step 1. Creating image for page %1 (%2 of %3) from the range of %4...")
                                                    .arg(displayPageNum)
                                                    .arg(_pageCount)
                                                    .arg(printPages.count())
@@ -926,25 +1024,36 @@ void Gui::exportAsPdf()
           m_progressDlgProgressBar->setValue(_pageCount);
           QApplication::processEvents();
 
-          // determine size of output image, in pixels
+          // get size of output image, in pixels
           getExportPageSize(pageWidthPx, pageHeightPx);
+          adjPageWidth  = int(double(pageWidthPx)  * dpr);
+          adjPageHeight = int(double(pageHeightPx) * dpr);
 
           bool  ls = getPageOrientation() == Landscape;
-          logNotice() << QString("Exporting page %1 (%2 of %3) from the range of %4, size(in pixels) W %5 x H %6, orientation %7")
+          logNotice() << QString("Step 1. Creating image for page %1 (%2 of %3) from the range of %4, size(in pixels) W %5 x H %6, orientation %7, DPI %8")
                         .arg(displayPageNum)                  //1
                         .arg(_pageCount)                      //2
                         .arg(printPages.count())              //3
                         .arg(pageRanges.join(" "))            //4
-                        .arg(pageWidthPx)                     //5
-                        .arg(pageHeightPx)                    //6
-                        .arg(ls ? "Landscape" : "Portrait");  //7
+                        .arg(adjPageWidth)                    //5
+                        .arg(adjPageHeight)                   //6
+                        .arg(ls ? "Landscape" : "Portrait")   //7
+                        .arg(exportPixelRatio);               //8
 
-          // set up the view
-          QRectF boundingRect(0.0, 0.0, pageWidthPx, pageHeightPx);
-          QRect bounding(0, 0, pageWidthPx, pageHeightPx);
+          // initiialize the pixmap
+          QPixmap pixmap(adjPageWidth,adjPageHeight);
+          pixmap.setDevicePixelRatio(dpr);
+
+          // paint to the pixmap the scene we view
+          QPainter painter;
+          painter.begin(&pixmap);
+
+          // set up the view - use unscaled page size
+          QRectF boundingRect(0.0, 0.0, int(pageWidthPx),int(pageHeightPx));
+          QRect bounding(0, 0, int(pageWidthPx),int(pageHeightPx));
           view.scale(1.0,1.0);
-          view.setMinimumSize(pageWidthPx,pageHeightPx);
-          view.setMaximumSize(pageWidthPx,pageHeightPx);
+          view.setMinimumSize(int(pageWidthPx),int(pageHeightPx));
+          view.setMaximumSize(int(pageWidthPx),int(pageHeightPx));
           view.setGeometry(bounding);
           view.setSceneRect(boundingRect);
           view.setRenderHints(
@@ -954,22 +1063,80 @@ void Gui::exportAsPdf()
           view.centerOn(boundingRect.center());
           clearPage(&view,&scene);
 
-          // render this page
+          // clear the pixels of the pixmap
+          pixmap.fill(size_t(fillClear));
+
+          // render this page to pixmap
           drawPage(&view,&scene,true);
-          scene.setSceneRect(0.0,0.0,pageWidthPx,pageHeightPx);
+          scene.setSceneRect(0.0,0.0,pixmap.width(),pixmap.height());
           scene.render(&painter);
           clearPage(&view,&scene);
 
-          // prepare to export another page
-          if(_pageCount < printPages.count()) {
-              displayPageNum = printPages.at(_pageCount);
-              pdfWriter.setPageLayout(getPageLayout());
-              pdfWriter.newPage();
-            }
-        }
-      painter.end();
+          // store the pixmap and required page attributes
+          getExportPageSize(pageWidthIn, pageHeightIn, Inches);
+          PdfPage pdfPage;
+          pdfPage.pixmap       = pixmap;
+          pdfPage.pageWidthIn  = pageWidthIn;
+          pdfPage.pageHeightIn = pageHeightIn;
+
+          // store pdfWriter next page layout
+          if(displayPageNum < _maxPages) {
+              bool nextPage = true;
+              pdfPage.pageLayout = getPageLayout(nextPage);
+          }
+
+          // store the rendered page
+          QMap<int, PdfPage>::iterator i = pages.find(displayPageNum);
+          if (i != pages.end())
+            pages.erase(i);
+          pages.insert(displayPageNum,pdfPage);
+
+          // wrap up
+          painter.end();
+      }
+
       m_progressDlgProgressBar->setValue(printPages.count());
-    }
+
+      // step 2. paint generated page pixmaps to the pdfWriter
+      QPainter painter;
+      painter.begin(&pdfWriter);
+
+      m_progressDlgProgressBar->setRange(1,pages.count());
+
+      int page;
+      foreach (page, pages.keys()) {
+          m_progressDlgMessageLbl->setText(QString("Step 2. Exporting pdf document page %1 of %2")
+                                           .arg(page)
+                                           .arg(pages.count()));
+          m_progressDlgProgressBar->setValue(page);
+          QApplication::processEvents();
+
+          if (! exporting()) {
+                  painter.end();
+              if (Preferences::modeGUI)
+                  m_progressDialog->hide();
+              emit messageSig(LOG_STATUS,QString("Export to pdf terminated before completion."));
+              return;
+            }
+
+          // render this page's pixmap to the pdfWriter
+          painter.drawPixmap(QRect(0,0,
+                                   int(pdfWriter.logicalDpiX()*pages[page].pageWidthIn),
+                                   int(pdfWriter.logicalDpiY()*pages[page].pageHeightIn)),
+                                   pages[page].pixmap);
+
+          // prepare to render next page
+          if(page < pages.count()) {
+              pdfWriter.setPageLayout(pages[page].pageLayout);
+              pdfWriter.newPage();
+          }
+      }
+      // wrap up
+      pages.clear();
+      painter.end();
+
+      m_progressDlgProgressBar->setValue(pages.count());
+  }
 
   // hide progress bar
   if (Preferences::modeGUI)
@@ -991,7 +1158,8 @@ void Gui::exportAsPdf()
 
   QString title = "<b> Export to pdf completed. </b>";
   QString text = tr ("Your instruction document has finished exporting.\n\n"
-                     "Do you want to open this document ?\n\n%1").arg(fileName);
+                     "Do you want to open this document ?\n\n%1")
+                     .arg(QDir::toNativeSeparators(fileName));
 
   box.setText (title);
   box.setInformativeText (text);
@@ -999,7 +1167,7 @@ void Gui::exportAsPdf()
   if (Preferences::modeGUI && (box.exec() == QMessageBox::Yes)) {
       QString CommandPath = fileName;
       QProcess *Process = new QProcess(this);
-      Process->setWorkingDirectory(QDir::currentPath() + "/");
+      Process->setWorkingDirectory(QDir::currentPath() + QDir::separator());
 
 #ifdef Q_OS_WIN
       Process->setNativeArguments(CommandPath);
@@ -1085,7 +1253,10 @@ void Gui::exportAs(const QString &_suffix)
 
   LGraphicsScene scene;
   LGraphicsView view(&scene);
+
   float pageWidthPx, pageHeightPx;
+  int adjPageWidth, adjPageHeight;
+
   int _displayPageNum = 0;
   int _maxPages       = 0;
 
@@ -1097,6 +1268,9 @@ void Gui::exportAs(const QString &_suffix)
 
   // Support transparency for formats that can handle it, but use white for those that can't.
   QColor::Spec fillClear = QColor((suffix.compare(".png", Qt::CaseInsensitive) == 0) ? Qt::transparent :  Qt::white).Rgb;
+
+  // calculate device pixel ratio
+  qreal dpr = exportPixelRatio;
 
   // initialize progress dialogue
   m_progressDialog->setAutoHide(true);
@@ -1130,7 +1304,9 @@ void Gui::exportAs(const QString &_suffix)
               return;
             }
 
-          m_progressDlgMessageLbl->setText(QString("Exporting %1: %2 of %3...").arg(type).arg(displayPageNum).arg(_maxPages));
+          m_progressDlgMessageLbl->setText(QString("Exporting %1 %2: %3 of %4...")
+                                           .arg(suffix).arg(type)
+                                           .arg(displayPageNum).arg(_maxPages));
           m_progressDlgProgressBar->setValue(displayPageNum);
           QApplication::processEvents();
 
@@ -1141,54 +1317,70 @@ void Gui::exportAs(const QString &_suffix)
               clearPage(&view,&scene);
 
           } else {
+              // add pixel ratio info to file name
+              QString dpiInfo = QString("_%1_DPI").arg(int(resolution()));
+              if (exportPixelRatio > 1.0 || exportPixelRatio < 1.0){
+                  dpiInfo += QString("_%1x").arg(exportPixelRatio);
+              }
+              baseName += dpiInfo;
+
               // determine size of output image, in pixels
               getExportPageSize(pageWidthPx, pageHeightPx);
+              adjPageWidth = int(double(pageWidthPx) * dpr);
+              adjPageHeight = int(double(pageHeightPx) * dpr);
 
               bool  ls = getPageOrientation() == Landscape;
-              logNotice() << QString("Exporting %6 %3 of %4, size(in pixels) W %1 x H %2, orientation %5")
-                             .arg(pageWidthPx)
-                             .arg(pageHeightPx)
+              logNotice() << QString("Exporting %9 %6 %3 of %4, size(in pixels) W %1 x H %2, orientation %5, DPI %7, pixel ratio %8")
+                             .arg(adjPageWidth)
+                             .arg(adjPageHeight)
                              .arg(displayPageNum)
                              .arg(_maxPages)
                              .arg(ls ? "Landscape" : "Portrait")
-                             .arg(type);
+                             .arg(type)
+                             .arg(exportPixelRatio)
+                             .arg(dpr)
+                             .arg(suffix);
 
-              // paint to the image the scene we view
-              QImage image(pageWidthPx, pageHeightPx, QImage::Format_ARGB32);
+              // paint to the pixmap the scene we view
+              QPixmap pixmap(adjPageWidth, adjPageHeight);
+              pixmap.setDevicePixelRatio(dpr);
+
               QPainter painter;
-              painter.begin(&image);
+              painter.begin(&pixmap);
 
-              QRectF boundingRect(0.0,0.0,pageWidthPx,pageHeightPx);
-              QRect  bounding(0,0,pageWidthPx,pageHeightPx);
+              // set up the view
+              QRectF boundingRect(0.0, 0.0, int(pageWidthPx),int(pageHeightPx));
+              QRect bounding(0, 0, int(pageWidthPx),int(pageHeightPx));
               view.scale(1.0,1.0);
-              view.setMinimumSize(pageWidthPx, pageHeightPx);
-              view.setMaximumSize(pageWidthPx, pageHeightPx);
+              view.setMinimumSize(int(pageWidthPx),int(pageHeightPx));
+              view.setMaximumSize(int(pageWidthPx),int(pageHeightPx));
               view.setGeometry(bounding);
               view.setSceneRect(boundingRect);
               view.setRenderHints(
-                          QPainter::Antialiasing |
-                          QPainter::TextAntialiasing |
-                          QPainter::SmoothPixmapTransform);
+                    QPainter::Antialiasing |
+                    QPainter::TextAntialiasing |
+                    QPainter::SmoothPixmapTransform);
               view.centerOn(boundingRect.center());
               clearPage(&view,&scene);
 
-              // clear the pixels of the image, just in case the background is
-              // transparent or uses a PNG image with transparency. This will
+              // clear the pixels of the pixmap, just in case the background is
+              // transparent or uses a PNG pixmap with transparency. This will
               // prevent rendered pixels from each page layering on top of each
               // other.
-              //image.fill(fillClear.Rgb);
-              image.fill(fillClear);
+              //pixmap.fill(fillClear.Rgb);
+              pixmap.fill(size_t(fillClear));
+
               // render this page
               // scene.render instead of view.render resolves "warm up" issue
-              drawPage(&view,&scene,false);
-              scene.setSceneRect(0.0,0.0,pageWidthPx,pageHeightPx);
+              drawPage(&view,&scene,true);
+              scene.setSceneRect(0.0,0.0,pixmap.width(),pixmap.height());
               scene.render(&painter);
               clearPage(&view,&scene);
-              // save the image to the selected directory
+
+              // save the pixmap to the selected directory
               // internationalization of "_page_"?
               QString pn = QString("%1") .arg(displayPageNum);
-              image.save( QDir::toNativeSeparators(directoryName + "/" + baseName + "_page_" + pn + suffix));
-
+              pixmap.toImage().save( QDir::toNativeSeparators(directoryName + "/" + baseName + "_page_" + pn + suffix));
               painter.end();
           }
       }
@@ -1230,8 +1422,8 @@ void Gui::exportAs(const QString &_suffix)
 
           displayPageNum = printPage;
 
-          m_progressDlgMessageLbl->setText(QString("Exporting %1 %2 of range %3...")
-                                                   .arg(type)
+          m_progressDlgMessageLbl->setText(QString("Exporting %1 %2 %3 of range %4...")
+                                                   .arg(suffix).arg(type)
                                                    .arg(displayPageNum)
                                                    .arg(pageRanges.join(" ")));
           m_progressDlgProgressBar->setValue(_pageCount++);
@@ -1244,54 +1436,69 @@ void Gui::exportAs(const QString &_suffix)
               clearPage(&view,&scene);
 
           } else {
+              // add pixel ratio info to file name
+              QString dpiInfo = QString("_%1_DPI").arg(int(resolution()));
+              if (exportPixelRatio > 1.0 || exportPixelRatio < 1.0){
+                  dpiInfo += QString("_%1x").arg(exportPixelRatio);
+              }
+              baseName += dpiInfo;
 
               // determine size of output image, in pixels
               getExportPageSize(pageWidthPx, pageHeightPx);
+              adjPageWidth = int(double(pageWidthPx) * dpr);
+              adjPageHeight = int(double(pageHeightPx) * dpr);
 
               bool  ls = getPageOrientation() == Landscape;
-              logNotice() << QString("Exporting %6 %3 of range %4, size(in pixels) W %1 x H %2, orientation %5")
-                             .arg(pageWidthPx)
-                             .arg(pageHeightPx)
+              logNotice() << QString("Exporting %9 %6 %3 of range %4, size(in pixels) W %1 x H %2, orientation %5, DPI %7, pixel ratio %8")
+                             .arg(adjPageWidth)
+                             .arg(adjPageHeight)
                              .arg(displayPageNum)
                              .arg(pageRanges.join(" "))
                              .arg(ls ? "Landscape" : "Portrait")
-                             .arg(type);
+                             .arg(type)
+                             .arg(exportPixelRatio)
+                             .arg(dpr)
+                             .arg(suffix);
 
-              // paint to the image the scene we view
-              QImage image(pageWidthPx, pageHeightPx, QImage::Format_ARGB32);
+              // paint to the pixmap the scene we view
+              QPixmap pixmap(adjPageWidth, adjPageHeight);
+              pixmap.setDevicePixelRatio(dpr);
+
               QPainter painter;
-              painter.begin(&image);
+              painter.begin(&pixmap);
 
-              QRectF boundingRect(0.0,0.0,pageWidthPx,pageHeightPx);
-              QRect  bounding(0,0,pageWidthPx,pageHeightPx);
+              QRectF boundingRect(0.0, 0.0, int(pageWidthPx),int(pageHeightPx));
+              QRect bounding(0, 0, int(pageWidthPx),int(pageHeightPx));
               view.scale(1.0,1.0);
-              view.setMinimumSize(pageWidthPx, pageHeightPx);
-              view.setMaximumSize(pageWidthPx, pageHeightPx);
+              view.setMinimumSize(int(pageWidthPx),int(pageHeightPx));
+              view.setMaximumSize(int(pageWidthPx),int(pageHeightPx));
               view.setGeometry(bounding);
               view.setSceneRect(boundingRect);
               view.setRenderHints(
-                          QPainter::Antialiasing |
-                          QPainter::TextAntialiasing |
-                          QPainter::SmoothPixmapTransform);
+                    QPainter::Antialiasing |
+                    QPainter::TextAntialiasing |
+                    QPainter::SmoothPixmapTransform);
               view.centerOn(boundingRect.center());
               clearPage(&view,&scene);
-              // clear the pixels of the image, just in case the background is
-              // transparent or uses a PNG image with transparency. This will
+
+              // clear the pixels of the pixmap, just in case the background is
+              // transparent or uses a PNG pixmap with transparency. This will
               // prevent rendered pixels from each page layering on top of each
               // other.
-              //image.fill(fillClear.Rgb);
-              image.fill(fillClear);
+              //pixmap.fill(fillClear.Rgb);
+              pixmap.fill(size_t(fillClear));
+
               // render this page
               // scene.render instead of view.render resolves "warm up" issue
-              drawPage(&view,&scene,false);
-              scene.setSceneRect(0.0,0.0,pageWidthPx,pageHeightPx);
+              drawPage(&view,&scene,true);
+              scene.setSceneRect(0.0,0.0,pixmap.width(),pixmap.height());
               scene.render(&painter);
               clearPage(&view,&scene);
-              // save the image to the selected directory
+
+              // save the pixmap to the selected directory
               // internationalization of "_page_"?
               QString pn = QString("%1") .arg(displayPageNum);
-              image.save( QDir::toNativeSeparators(directoryName + "/" + baseName + "_page_" + pn + suffix));
-
+              pixmap.toImage().save( QDir::toNativeSeparators(directoryName + QDir::separator() + baseName + "_page_" + pn + suffix));
               painter.end();
           }
       }
@@ -1337,7 +1544,7 @@ void Gui::exportAs(const QString &_suffix)
   if (Preferences::modeGUI && (box.exec() == QMessageBox::Yes)){
       QString CommandPath = directoryName;
       QProcess *Process = new QProcess(this);
-      Process->setWorkingDirectory(QDir::currentPath() + "/");
+      Process->setWorkingDirectory(QDir::currentPath() + QDir::separator());
 #ifdef Q_OS_WIN
       Process->setNativeArguments(CommandPath);
       QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
@@ -1357,6 +1564,8 @@ void Gui::exportAs(const QString &_suffix)
       emit messageSig(LOG_STATUS, QString("Exported %1 %2 path: %3")
                                           .arg(suffix).arg(type).arg(directoryName));
     }
+
+    saveDirectoryName.clear();
 }
 
 //-----------------PRINT FUNCTIONS------------------------//

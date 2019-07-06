@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>339</width>
-    <height>417</height>
+    <height>436</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -34,19 +34,16 @@
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
-         <widget class="QRadioButton" name="radioButtonAllPages">
+        <item row="1" column="0">
+         <widget class="QRadioButton" name="radioButtonCurrentPage">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="toolTip">
-           <string/>
-          </property>
           <property name="text">
-           <string>All Pages</string>
+           <string>Current Page</string>
           </property>
          </widget>
         </item>
@@ -69,8 +66,24 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QRadioButton" name="radioButtonCurrentPage">
+        <item row="0" column="0">
+         <widget class="QRadioButton" name="radioButtonAllPages">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string/>
+          </property>
+          <property name="text">
+           <string>All Pages</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QRadioButton" name="radioButtonPageRange">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -78,7 +91,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Current Page</string>
+           <string>Page Range</string>
           </property>
          </widget>
         </item>
@@ -98,19 +111,6 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
-         <widget class="QRadioButton" name="radioButtonPageRange">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>Page Range</string>
-          </property>
-         </widget>
-        </item>
         <item row="2" column="1" colspan="2">
          <widget class="QLineEdit" name="lineEditPageRange">
           <property name="sizePolicy">
@@ -121,6 +121,33 @@
           </property>
           <property name="toolTip">
            <string>Enter comma-separated page numbers and/or page ranges. For example, 1,3,5,7-9</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="labelPixelRatio">
+          <property name="text">
+           <string>Pixel Ratio</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2">
+         <widget class="QLabel" name="labelPixelRatioFactor">
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QDoubleSpinBox" name="spinPixelRatio">
+          <property name="decimals">
+           <number>1</number>
+          </property>
+          <property name="minimum">
+           <double>0.100000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>100.000000000000000</double>
           </property>
          </widget>
         </item>
