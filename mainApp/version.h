@@ -134,10 +134,12 @@
 #define VER_LPUB3D_BLCOLORS_FILE            "colors.txt"
 #define VER_LPUB3D_BLCODES_FILE             "codes.txt"
 #define VER_LPUB3D_LEGOELEMENTS_FILE        "legoelements.lst"
+
 #define VER_LPUB3D_LD2BLCOLORSXREF_FILE     "ld2blcolorsxref.lst"
 #define VER_LPUB3D_LD2BLCODESXREF_FILE      "ld2blcodesxref.lst"
 #define VER_LPUB3D_LD2RBCOLORSXREF_FILE     "ld2rbcolorsxref.lst"
 #define VER_LPUB3D_LD2RBCODESXREF_FILE      "ld2rbcodesxref.lst"
+
 #define VER_LPUB3D_ONLINE_MANUAL_URL        "https://sites.google.com/view/workingwithlpub3d/"
 
 // ~~~~~~ Build Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //

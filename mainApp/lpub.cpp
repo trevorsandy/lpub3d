@@ -1896,8 +1896,15 @@ void Gui::editPliBomSubstituteParts()
 
 void Gui::editExcludedParts()
 {
-    displayParmsFile(Preferences::excludedPartsFile);
-    parmsWindow->setWindowTitle(tr("Part Count Excluded Parts","Edit/add excluded parts"));
+    QFileInfo fileInfo(QString("%1/extras/%2").arg(Preferences::lpubDataPath,Preferences::excludedPartsFile));
+    if (!fileInfo.exists()) {
+        if (!ExcludedParts::exportExcludedParts()) {
+            emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
+            return;
+        }
+    }
+    displayParmsFile(fileInfo.absoluteFilePath());
+    parmsWindow->setWindowTitle(tr("Parts List Excluded Parts","Edit/add excluded parts"));
     parmsWindow->show();
 }
 

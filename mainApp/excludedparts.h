@@ -26,6 +26,9 @@ class ExcludedParts
     static QList<QString>           excludedParts;
   public:
     ExcludedParts();
+    static void loadExcludedParts(QByteArray &Buffer);
+    static bool exportExcludedParts();
+    static bool overwriteFile(const QString &file);
     static const bool &hasExcludedPart(QString part);
     static const bool &lineHasExcludedPart(const QString &line);
 };
