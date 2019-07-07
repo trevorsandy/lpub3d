@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update July 06, 2019
+# Last Update June 25, 2019
 #
 # Purpose:
 # This script is used to 'cut-over' the development repository [lpub3d] to production [lpub3d].
@@ -65,7 +65,6 @@ INC_REVISION=${REV:-yes}
 INC_COUNT=${CNT:-yes}
 FORCE_CONFIG=${OBS_CFG:-no}
 TO_NAME=${GIT_NAME:-lpub3d}
-FROM_NAME=${DEV_NAME:-lpub3d}
 RELEASE_COMMIT=${RELEASE:-no}
 COMMIT_MSG="${MSG:-LPub3D ${TAG}}"
 
@@ -74,7 +73,6 @@ function options_status
 	echo
 	echo "--Command Options:"
 	echo "--SCRIPT_NAME....$SCRIPT_NAME"
-	echo "--FROM_NAME.......$FROM_NAME"	
 	echo "--TO_NAME.........$TO_NAME"
 	echo "--RELEASE_COMMIT..$RELEASE_COMMIT"
 	[ -n "$SCRIPT_ARGS" ] && echo "--SCRIPT_ARGS.....$SCRIPT_ARGS" || true
@@ -131,13 +129,12 @@ if [ ! -d "$TO_NAME" ]; then
 else
     echo "1-Updating existing $TO_NAME instance..."
 fi
-
 cd $TO_NAME
 
 echo "2-Remove current $TO_NAME content except .git folder..."
 find . -not -path "./.git/*" -type f -exec rm -rf {} +
 
-echo "3-Copy $FROM_NAME content to $TO_NAME except .git folder..." && cd ../$FROM_NAME
+echo "3-Copy lpub3d content to $TO_NAME except .git folder..." && cd ../lpub3d
 find . -not -name '*.log*' \
        -not -name '*.user' \
        -not -name '*Makefile*' \
@@ -158,8 +155,8 @@ find . -not -name '*.log*' \
        -type f -exec cp -f --parents -t ../$TO_NAME {} +
 cp -f ./.gitignore ../$TO_NAME
 
-echo "4-Rename all files with '$FROM_NAME' in the name to '$TO_NAME'..." && cd ../$TO_NAME
-for file in $(find . -type f -name "*${FROM_NAME}*" \
+echo "4-Rename all files with 'lpub3d' in the name to '$TO_NAME'..." && cd ../$TO_NAME
+for file in $(find . -type f -name '*lpub3d*' \
               -not -path "./.git*" \
               -not -path "./mainApp/qdarkstyle*" \
               -not -path "./lclib*" \
@@ -177,7 +174,7 @@ do
     [ -f $newFile ] && echo " -file changed: $newFile."
 done
 
-echo "5-Change occurrences of '$FROM_NAME' to '$TO_NAME' in files..."
+echo "5-Change occurrences of 'lpub3d' to '$TO_NAME' in files..."
 for file in $(find . -type f \
               -not -path "./.git/*" \
               -not -path "./mainApp/images*" \
@@ -190,8 +187,8 @@ for file in $(find . -type f \
               -not -path "./qsimpleupdater*" \
               )
 do
-    cat $file | grep -qE "$FROM_NAME" \
-    && sed "s/${FROM_NAME}/${TO_NAME}/g" -i $file \
+    cat $file | grep -qE 'lpub3d' \
+    && sed "s/lpub3d/${TO_NAME}/g" -i $file \
     && echo " -file updated: $file" || true
 done
 
@@ -276,7 +273,7 @@ echo "15-Add new files..."
 git add .
 git reset HEAD 'mainApp/docs/README.txt'
 
-echo "16-Create local tag in $TO_NAME repository"
+echo "16-Create local tag"
 if GIT_DIR=./.git git rev-parse $LOCAL_TAG >/dev/null 2>&1; then git tag --delete $LOCAL_TAG; fi
 git tag -a $LOCAL_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
 git_tag="$(git tag -l -n $LOCAL_TAG)" && \
@@ -293,14 +290,6 @@ if [ "$RELEASE_COMMIT" = "no" ]; then
    echo "18-Delete local tag"
    git tag --delete $LOCAL_TAG
    rm -f update-config-files.sh.log
-else
-   echo "18-Create local tag in $FROM_NAME repository" 
-   cd ../$FROM_NAME
-   if GIT_DIR=./.git git rev-parse $LOCAL_TAG >/dev/null 2>&1; then git tag --delete $LOCAL_TAG; fi
-   git tag -a $LOCAL_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
-   git_tag="$(git tag -l -n $LOCAL_TAG)" && \
-   [ -n "$git_tag" ] && echo " -git tag $git_tag created."
-   cd ../
 fi
 
 echo "Finished"
