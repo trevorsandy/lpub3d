@@ -35,7 +35,9 @@ public:
   bool resetCache();
   bool ignoreMixedPageSizesMsg();
   bool doNotShowPageProcessDlg();
+  bool pdfPageImage();
   int pageDisplayPause();
+  void groupBoxPixelRatio(bool);
   qreal exportPixelRatio();
   QString const pageRangeText();
   void getPixelRatioMsg(double value);

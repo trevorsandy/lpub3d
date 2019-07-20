@@ -173,6 +173,7 @@ bool    Preferences::skipPartsArchive           = false;
 bool    Preferences::loadLastOpenedFile         = false;
 bool    Preferences::extendedSubfileSearch      = false;
 
+bool    Preferences::pdfPageImage               = false;
 bool    Preferences::ignoreMixedPageSizesMsg    = false;
 
 bool    Preferences::debugLevel                 = false;
@@ -3447,15 +3448,23 @@ void Preferences::exportPreferences()
 {
     QSettings Settings;
     if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"IgnoreMixedPageSizesMsg"))) {
-        QVariant uValue(false);
+      QVariant uValue(false);
+      ignoreMixedPageSizesMsg = false;
+      Settings.setValue(QString("%1/%2").arg(DEFAULTS,"IgnoreMixedPageSizesMsg"),uValue);
+    } else {
+      if (modeGUI)
+        ignoreMixedPageSizesMsg = Settings.value(QString("%1/%2").arg(DEFAULTS,"IgnoreMixedPageSizesMsg")).toBool();
+      else
         ignoreMixedPageSizesMsg = false;
-        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"IgnoreMixedPageSizesMsg"),uValue);
-      } else {
-        if (modeGUI)
-          ignoreMixedPageSizesMsg = Settings.value(QString("%1/%2").arg(DEFAULTS,"IgnoreMixedPageSizesMsg")).toBool();
-        else
-          ignoreMixedPageSizesMsg = false;
-      }
+    }
+
+    if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"PdfPageImage"))) {
+      QVariant uValue(false);
+      pdfPageImage = false;
+      Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PdfPageImage"),uValue);
+    } else {
+      pdfPageImage = Settings.value(QString("%1/%2").arg(DEFAULTS,"PdfPageImage")).toBool();
+    }
 }
 
 void Preferences::publishingPreferences()

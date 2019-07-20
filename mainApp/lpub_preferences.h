@@ -229,6 +229,7 @@ class Preferences
     static bool    includeFileName;
     static bool    includeFunction;
 
+    static bool    pdfPageImage;
     static bool    ignoreMixedPageSizesMsg;
 
     static bool    debugLevel;

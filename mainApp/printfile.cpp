@@ -454,10 +454,16 @@ bool Gui::exportAsDialog(ExportMode m)
 
       QSettings Settings;
       if (Preferences::ignoreMixedPageSizesMsg != dialog->ignoreMixedPageSizesMsg())
-        {
-          Preferences::ignoreMixedPageSizesMsg = dialog->ignoreMixedPageSizesMsg();
-          Settings.setValue(QString("%1/%2").arg(DEFAULTS,"IgnoreMixedPageSizesMsg "),Preferences::ignoreMixedPageSizesMsg);
-        }
+      {
+        Preferences::ignoreMixedPageSizesMsg = dialog->ignoreMixedPageSizesMsg();
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"IgnoreMixedPageSizesMsg "),Preferences::ignoreMixedPageSizesMsg);
+      }
+
+      if (exportMode == EXPORT_PDF && Preferences::pdfPageImage != dialog->pdfPageImage())
+      {
+        Preferences::pdfPageImage = dialog->pdfPageImage();
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PdfPageImage "),Preferences::pdfPageImage);
+      }
     }
 
   if(resetCache)
@@ -788,6 +794,11 @@ void Gui::exportAsPdf()
   // calculate device pixel ratio
   qreal dpr = exportPixelRatio;
 
+  // set export page elements or image
+  bool exportPdfElements = !Preferences::pdfPageImage && dpr == 1.0;
+
+  QString messageIntro = exportPdfElements ? "Exporting page " : "Step 1. Creating image for page ";
+
   // instantiate the scene and view
   LGraphicsScene scene;
   LGraphicsView view(&scene);
@@ -803,8 +814,8 @@ void Gui::exportAsPdf()
 
   // initialize progress bar dialog
   m_progressDialog->setWindowTitle("Export pdf");
-   if (Preferences::modeGUI)
-     m_progressDialog->show();
+  if (Preferences::modeGUI)
+      m_progressDialog->show();
 
   // reset page indicators
   _displayPageNum = 0;
@@ -821,7 +832,7 @@ void Gui::exportAsPdf()
 
   m_progressDlgMessageLbl->setText("Exporting instructions to pdf...");
 
-  if (processOption != EXPORT_PAGE_RANGE){
+  if (processOption != EXPORT_PAGE_RANGE) {
 
       if(processOption == EXPORT_ALL_PAGES){
           _displayPageNum = 1;
@@ -841,10 +852,18 @@ void Gui::exportAsPdf()
       // set initial pdfWriter page layout
       pdfWriter.setPageLayout(getPageLayout());
 
+      QPainter painter;
+      if (exportPdfElements) {
+         // initialize painter with pdfWriter
+         painter.begin(&pdfWriter);
+      }
+
       // step 1. generate page pixmaps
       for (displayPageNum = _displayPageNum; displayPageNum <= _maxPages; displayPageNum++) {
 
           if (! exporting()) {
+              if (exportPdfElements)
+                  painter.end();
               if (Preferences::modeGUI)
                   m_progressDialog->hide();
               displayPageNum = savePageNumber;
@@ -853,7 +872,7 @@ void Gui::exportAsPdf()
               return;
             }
 
-          m_progressDlgMessageLbl->setText(QString("Step 1. Creating image for page %1 of %2...")
+          m_progressDlgMessageLbl->setText(QString(messageIntro + "%1 of %2...")
                                                    .arg(displayPageNum)
                                                    .arg(_maxPages));
           m_progressDlgProgressBar->setValue(displayPageNum);
@@ -865,7 +884,7 @@ void Gui::exportAsPdf()
           adjPageHeightPx = int(double(pageHeightPx) * dpr);
 
           bool  ls = getPageOrientation() == Landscape;
-          logNotice() << QString("                  Step 1. Creating image for page %3 of %4, size(pixels) W %1 x H %2, orientation %5, DPI %6, pixel ratio %7...")
+          logNotice() << QString("                  " + messageIntro + "%3 of %4, size(pixels) W %1 x H %2, orientation %5, DPI %6, pixel ratio %7...")
                         .arg(adjPageWidthPx)
                         .arg(adjPageHeightPx)
                         .arg(displayPageNum)
@@ -877,10 +896,6 @@ void Gui::exportAsPdf()
           // initiialize the pixmap
           QPixmap pixmap(adjPageWidthPx,adjPageHeightPx);
           pixmap.setDevicePixelRatio(dpr);
-
-          // paint to the pixmap the scene we view
-          QPainter painter;
-          painter.begin(&pixmap);
 
           // set up the view - use unscaled page size
           QRectF boundingRect(0.0, 0.0, int(pageWidthPx),int(pageHeightPx));
@@ -897,79 +912,98 @@ void Gui::exportAsPdf()
           view.centerOn(boundingRect.center());
           clearPage(&view,&scene);
 
-          // clear the pixels of the pixmap
-          pixmap.fill(size_t(fillClear));
+          // paint to the pixmap the scene we view
+          if (!exportPdfElements) {
+              // initialize painter with pixmap
+              painter.begin(&pixmap);
+              // clear the pixels of the pixmap
+              pixmap.fill(size_t(fillClear));
+          }
 
-          // render this page to pixmap
+          // render this page
           drawPage(&view,&scene,true);
-          scene.setSceneRect(0.0,0.0,pixmap.width(),pixmap.height());
+          scene.setSceneRect(0.0,0.0,adjPageWidthPx,adjPageHeightPx);
           scene.render(&painter);
           clearPage(&view,&scene);
 
-          // store the pixmap and required page attributes
-          getExportPageSize(pageWidthIn, pageHeightIn, Inches);
-          PdfPage pdfPage;
-          pdfPage.pixmap       = pixmap;
-          pdfPage.pageWidthIn  = pageWidthIn;
-          pdfPage.pageHeightIn = pageHeightIn;
+          if (exportPdfElements) {
+              // prepare pdfWriter to render next page
+              if(displayPageNum < _maxPages) {
+                  bool nextPage = true;
+                  pdfWriter.setPageLayout(getPageLayout(nextPage));
+                  pdfWriter.newPage();
+              }
+          } else {
+              // store the pixmap and required page attributes
+              getExportPageSize(pageWidthIn, pageHeightIn, Inches);
+              PdfPage pdfPage;
+              pdfPage.pixmap       = pixmap;
+              pdfPage.pageWidthIn  = pageWidthIn;
+              pdfPage.pageHeightIn = pageHeightIn;
 
-          // store pdfWriter next page layout
-          if(displayPageNum < _maxPages) {
-              bool nextPage = true;
-              pdfPage.pageLayout = getPageLayout(nextPage);
+              // store pdfWriter next page layout
+              if(displayPageNum < _maxPages) {
+                  bool nextPage = true;
+                  pdfPage.pageLayout = getPageLayout(nextPage);
+              }
+
+              // store the rendered page
+              QMap<int, PdfPage>::iterator i = pages.find(displayPageNum);
+              if (i != pages.end())
+                  pages.erase(i);
+              pages.insert(displayPageNum,pdfPage);
+
+              // wrap up paint to pixmap
+              painter.end();
           }
-
-          // store the rendered page
-          QMap<int, PdfPage>::iterator i = pages.find(displayPageNum);
-          if (i != pages.end())
-            pages.erase(i);
-          pages.insert(displayPageNum,pdfPage);
-
-          // wrap up
-          painter.end();
-        }
+      }
 
       m_progressDlgProgressBar->setValue(_maxPages);
 
-      // step 2. paint generated page pixmaps to the pdfWriter
-      QPainter painter;
-      painter.begin(&pdfWriter);
+      if (exportPdfElements) {
+          // wrap up paint to pdfWriter
+          painter.end();
+      } else {
+          // step 2. paint generated page pixmaps to the pdfWriter
+          painter.begin(&pdfWriter);
 
-      m_progressDlgProgressBar->setRange(1,pages.count());
+          m_progressDlgProgressBar->setRange(1,pages.count());
 
-      int page;
-      foreach (page, pages.keys()) {
-          m_progressDlgMessageLbl->setText(QString("Step 2. Exporting pdf document page %1 of %2")
-                                           .arg(page)
-                                           .arg(pages.count()));
-          m_progressDlgProgressBar->setValue(page);
-          QApplication::processEvents();
+          int page;
+          foreach (page, pages.keys()) {
+              m_progressDlgMessageLbl->setText(QString("Step 2. Exporting pdf document page %1 of %2")
+                                               .arg(page)
+                                               .arg(pages.count()));
+              m_progressDlgProgressBar->setValue(page);
+              QApplication::processEvents();
 
-          if (! exporting()) {
-                  painter.end();
-              if (Preferences::modeGUI)
-                  m_progressDialog->hide();
-              emit messageSig(LOG_STATUS,QString("Export to pdf terminated before completion."));
-              return;
-            }
+              if (! exporting()) {
+                      painter.end();
+                  if (Preferences::modeGUI)
+                      m_progressDialog->hide();
+                  emit messageSig(LOG_STATUS,QString("Export to pdf terminated before completion."));
+                  return;
+                }
 
-          // render this page's pixmap to the pdfWriter
-          painter.drawPixmap(QRect(0,0,
-                                   int(pdfWriter.logicalDpiX()*pages[page].pageWidthIn),
-                                   int(pdfWriter.logicalDpiY()*pages[page].pageHeightIn)),
-                                   pages[page].pixmap);
+              // render this page's pixmap to the pdfWriter
+              painter.drawPixmap(QRect(0,0,
+                                       int(pdfWriter.logicalDpiX()*pages[page].pageWidthIn),
+                                       int(pdfWriter.logicalDpiY()*pages[page].pageHeightIn)),
+                                       pages[page].pixmap);
 
-          // prepare to render next page
-          if(page < pages.count()) {
-              pdfWriter.setPageLayout(pages[page].pageLayout);
-              pdfWriter.newPage();
+              // prepare to render next page
+              if(page < pages.count()) {
+                  pdfWriter.setPageLayout(pages[page].pageLayout);
+                  pdfWriter.newPage();
+              }
           }
-      }
-      // wrap up
-      pages.clear();
-      painter.end();
 
-      m_progressDlgProgressBar->setValue(pages.count());
+          m_progressDlgProgressBar->setValue(pages.count());
+
+          // wrap up paint to pdfWriter
+          pages.clear();
+          painter.end();
+      }
 
     } else {
 
@@ -1000,12 +1034,20 @@ void Gui::exportAsPdf()
       // set initial pdfWriter page layout
       pdfWriter.setPageLayout(getPageLayout());
 
+      QPainter painter;
+      if (exportPdfElements) {
+         // initialize painter with pdfWriter
+         painter.begin(&pdfWriter);
+      }
+
       // step 1. generate page pixmaps
       foreach(int printPage,printPages){
 
           _pageCount++;
 
           if (! exporting()) {
+              if (exportPdfElements)
+                  painter.end();
               if (Preferences::modeGUI)
                   m_progressDialog->hide();
               displayPageNum = savePageNumber;
@@ -1016,7 +1058,7 @@ void Gui::exportAsPdf()
 
           displayPageNum = printPage;
 
-          m_progressDlgMessageLbl->setText(QString("Step 1. Creating image for page %1 (%2 of %3) from the range of %4...")
+          m_progressDlgMessageLbl->setText(QString(messageIntro + "%1 (%2 of %3) from the range of %4...")
                                                    .arg(displayPageNum)
                                                    .arg(_pageCount)
                                                    .arg(printPages.count())
@@ -1030,7 +1072,7 @@ void Gui::exportAsPdf()
           adjPageHeightPx = int(double(pageHeightPx) * dpr);
 
           bool  ls = getPageOrientation() == Landscape;
-          logNotice() << QString("Step 1. Creating image for page %1 (%2 of %3) from the range of %4, size(in pixels) W %5 x H %6, orientation %7, DPI %8")
+          logNotice() << QString(messageIntro + "%1 (%2 of %3) from the range of %4, size(in pixels) W %5 x H %6, orientation %7, DPI %8")
                         .arg(displayPageNum)                  //1
                         .arg(_pageCount)                      //2
                         .arg(printPages.count())              //3
@@ -1043,10 +1085,6 @@ void Gui::exportAsPdf()
           // initiialize the pixmap
           QPixmap pixmap(adjPageWidthPx,adjPageHeightPx);
           pixmap.setDevicePixelRatio(dpr);
-
-          // paint to the pixmap the scene we view
-          QPainter painter;
-          painter.begin(&pixmap);
 
           // set up the view - use unscaled page size
           QRectF boundingRect(0.0, 0.0, int(pageWidthPx),int(pageHeightPx));
@@ -1063,79 +1101,98 @@ void Gui::exportAsPdf()
           view.centerOn(boundingRect.center());
           clearPage(&view,&scene);
 
-          // clear the pixels of the pixmap
-          pixmap.fill(size_t(fillClear));
+          // paint to the pixmap the scene we view
+          if (!exportPdfElements) {
+              // initialize painter with pixmap
+              painter.begin(&pixmap);
+              // clear the pixels of the pixmap
+              pixmap.fill(size_t(fillClear));
+          }
 
-          // render this page to pixmap
+          // render this page
           drawPage(&view,&scene,true);
-          scene.setSceneRect(0.0,0.0,pixmap.width(),pixmap.height());
+          scene.setSceneRect(0.0,0.0,adjPageWidthPx,adjPageHeightPx);
           scene.render(&painter);
           clearPage(&view,&scene);
 
-          // store the pixmap and required page attributes
-          getExportPageSize(pageWidthIn, pageHeightIn, Inches);
-          PdfPage pdfPage;
-          pdfPage.pixmap       = pixmap;
-          pdfPage.pageWidthIn  = pageWidthIn;
-          pdfPage.pageHeightIn = pageHeightIn;
+          if (exportPdfElements) {
+              // prepare pdfWriter to render next page
+              if(displayPageNum < _maxPages) {
+                  bool nextPage = true;
+                  pdfWriter.setPageLayout(getPageLayout(nextPage));
+                  pdfWriter.newPage();
+              }
+          } else {
+              // store the pixmap and required page attributes
+              getExportPageSize(pageWidthIn, pageHeightIn, Inches);
+              PdfPage pdfPage;
+              pdfPage.pixmap       = pixmap;
+              pdfPage.pageWidthIn  = pageWidthIn;
+              pdfPage.pageHeightIn = pageHeightIn;
 
-          // store pdfWriter next page layout
-          if(displayPageNum < _maxPages) {
-              bool nextPage = true;
-              pdfPage.pageLayout = getPageLayout(nextPage);
+              // store pdfWriter next page layout
+              if(displayPageNum < _maxPages) {
+                  bool nextPage = true;
+                  pdfPage.pageLayout = getPageLayout(nextPage);
+              }
+
+              // store the rendered page
+              QMap<int, PdfPage>::iterator i = pages.find(displayPageNum);
+              if (i != pages.end())
+                  pages.erase(i);
+              pages.insert(displayPageNum,pdfPage);
+
+              // wrap up
+              painter.end();
           }
-
-          // store the rendered page
-          QMap<int, PdfPage>::iterator i = pages.find(displayPageNum);
-          if (i != pages.end())
-            pages.erase(i);
-          pages.insert(displayPageNum,pdfPage);
-
-          // wrap up
-          painter.end();
       }
 
       m_progressDlgProgressBar->setValue(printPages.count());
 
-      // step 2. paint generated page pixmaps to the pdfWriter
-      QPainter painter;
-      painter.begin(&pdfWriter);
+      if (exportPdfElements) {
+          // wrap up paint to pdfWriter
+          painter.end();
+      } else {
+          // step 2. paint generated page pixmaps to the pdfWriter
+          painter.begin(&pdfWriter);
 
-      m_progressDlgProgressBar->setRange(1,pages.count());
+          m_progressDlgProgressBar->setRange(1,pages.count());
 
-      int page;
-      foreach (page, pages.keys()) {
-          m_progressDlgMessageLbl->setText(QString("Step 2. Exporting pdf document page %1 of %2")
-                                           .arg(page)
-                                           .arg(pages.count()));
-          m_progressDlgProgressBar->setValue(page);
-          QApplication::processEvents();
+          int page;
+          foreach (page, pages.keys()) {
+              m_progressDlgMessageLbl->setText(QString("Step 2. Exporting pdf document page %1 of %2")
+                                               .arg(page)
+                                               .arg(pages.count()));
+              m_progressDlgProgressBar->setValue(page);
+              QApplication::processEvents();
 
-          if (! exporting()) {
+              if (! exporting()) {
                   painter.end();
-              if (Preferences::modeGUI)
-                  m_progressDialog->hide();
-              emit messageSig(LOG_STATUS,QString("Export to pdf terminated before completion."));
-              return;
-            }
+                  if (Preferences::modeGUI)
+                      m_progressDialog->hide();
+                  emit messageSig(LOG_STATUS,QString("Export to pdf terminated before completion."));
+                  return;
+              }
 
-          // render this page's pixmap to the pdfWriter
-          painter.drawPixmap(QRect(0,0,
-                                   int(pdfWriter.logicalDpiX()*pages[page].pageWidthIn),
-                                   int(pdfWriter.logicalDpiY()*pages[page].pageHeightIn)),
-                                   pages[page].pixmap);
+              // render this page's pixmap to the pdfWriter
+              painter.drawPixmap(QRect(0,0,
+                                 int(pdfWriter.logicalDpiX()*pages[page].pageWidthIn),
+                                 int(pdfWriter.logicalDpiY()*pages[page].pageHeightIn)),
+                                 pages[page].pixmap);
 
-          // prepare to render next page
-          if(page < pages.count()) {
-              pdfWriter.setPageLayout(pages[page].pageLayout);
-              pdfWriter.newPage();
+              // prepare to render next page
+              if(page < pages.count()) {
+                  pdfWriter.setPageLayout(pages[page].pageLayout);
+                  pdfWriter.newPage();
+              }
           }
-      }
-      // wrap up
-      pages.clear();
-      painter.end();
 
-      m_progressDlgProgressBar->setValue(pages.count());
+          m_progressDlgProgressBar->setValue(pages.count());
+
+          // wrap up paint to pdfWriter
+          pages.clear();
+          painter.end();
+      }
   }
 
   // hide progress bar

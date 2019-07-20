@@ -149,14 +149,10 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
     case EXPORT_JPG:
     case EXPORT_BMP:
         getPixelRatioMsg(gui->exportPixelRatio);
-        ui->labelPixelRatio->show();
-        ui->labelPixelRatioFactor->show();
-        ui->spinPixelRatio->show();
+        groupBoxPixelRatio(true);
     break;
     default:
-        ui->labelPixelRatio->hide();
-        ui->labelPixelRatioFactor->hide();
-        ui->spinPixelRatio->hide();
+        groupBoxPixelRatio(false);
     break;
     }
 
@@ -169,10 +165,18 @@ DialogExportPages::~DialogExportPages()
     delete ui;
 }
 
+void DialogExportPages::groupBoxPixelRatio(bool show)
+{
+    ui->groupBoxPixelRatio->setVisible(show);
+}
+
 void DialogExportPages::getPixelRatioMsg(double value)
 {
     ui->labelPixelRatioFactor->setText(QString("Export DPI %1px")
                                        .arg(value*int(resolution())));
+    ui->checkBoxPdfPageImage->setVisible(gui->exportMode == EXPORT_PDF);
+    ui->checkBoxPdfPageImage->setChecked(Preferences::pdfPageImage || value > 1.0 || value < 1.0);
+    ui->checkBoxPdfPageImage->setEnabled(value == 1.0);
 }
 
 QString const DialogExportPages::pageRangeText(){
@@ -201,6 +205,12 @@ bool DialogExportPages::ignoreMixedPageSizesMsg(){
 
 bool DialogExportPages::doNotShowPageProcessDlg(){
     return ui->doNotShowPageProcessDlgChk->isChecked();
+}
+
+bool DialogExportPages::pdfPageImage()
+{
+    bool ok = ui->spinPixelRatio->value() > 1.0 || ui->spinPixelRatio->value() < 1.0 ? Preferences::pdfPageImage : true;
+    return ui->checkBoxPdfPageImage->isChecked() && ok;
 }
 
 qreal DialogExportPages::exportPixelRatio(){
