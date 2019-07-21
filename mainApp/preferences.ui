@@ -303,19 +303,6 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="1">
-                  <spacer name="verticalSpacer_2">
-                   <property name="orientation">
-                    <enum>Qt::Vertical</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>20</width>
-                     <height>7</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
                  <item row="0" column="1">
                   <spacer name="verticalSpacer">
                    <property name="orientation">
@@ -330,17 +317,27 @@
                   </spacer>
                  </item>
                  <item row="1" column="1">
-                  <widget class="QPushButton" name="fadeStepsColoursBtn">
+                  <widget class="QComboBox" name="fadeStepsColoursCombo">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
-                   <property name="text">
-                    <string> Fade Previous Steps...  </string>
-                   </property>
                   </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <spacer name="verticalSpacer_2">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>7</height>
+                    </size>
+                   </property>
+                  </spacer>
                  </item>
                 </layout>
                </item>
@@ -2639,6 +2636,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>preferencesTabWidget</tabstop>
   <tabstop>fadeStepBox</tabstop>
   <tabstop>fadeStepsUseColourBox</tabstop>
+  <tabstop>fadeStepsColoursCombo</tabstop>
   <tabstop>ldrawLibPathEdit</tabstop>
   <tabstop>browseLDraw</tabstop>
   <tabstop>altLDConfigBox</tabstop>
