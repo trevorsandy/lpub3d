@@ -1181,7 +1181,8 @@ void Project::ExportBrickLink()
 			sprintf(Line, "    <MINQTY>%d</MINQTY>\n", ColorIt.second);
 			BrickLinkFile.WriteLine(Line);
 /*** LPub3D Mod - use LPub3D exportable BrickLink color table ***/
-			int Color = Annotations::getBrickLinkColor(int(ColorIt.first));
+            int LDColorID = gColorList[ColorIt.first].Code;
+            int Color = Annotations::getBrickLinkColor(LDColorID);
 /*** LPub3D Mod end ***/
 			if (Color)
 			{
