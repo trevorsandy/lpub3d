@@ -116,9 +116,13 @@ Application::Application(int &argc, char **argv)
 #if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
     QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
 #endif
+
 #if QT_VERSION >= QT_VERSION_CHECK(5,6,0)
+#ifndef Q_OS_MAC
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
+#endif
+
     //QCoreApplication::setAttribute(Qt::AA_Use96Dpi);
 
     QCoreApplication::setOrganizationName(VER_COMPANYNAME_STR);
@@ -127,7 +131,7 @@ Application::Application(int &argc, char **argv)
     //qDebug() << "QStyleFactory valid styles:" << QStyleFactory::keys();
 #ifdef Q_OS_MAC
     QCoreApplication::setAttribute(Qt::AA_DontShowIconsInMenus);
-    QCoreApplication::setStyle(QStyleFactory::create("macintosh"));
+    m_application.setStyle(QStyleFactory::create("macintosh"));
 #endif
 
   m_instance = this;
