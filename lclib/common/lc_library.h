@@ -260,7 +260,7 @@ public:
 	std::map<std::string, lcLibraryPrimitive*> mPrimitives;
 	int mNumOfficialPieces;
 
-	lcArray<lcTexture*> mTextures;
+	std::vector<lcTexture*> mTextures;
 
 	QDir mLibraryDir;
 

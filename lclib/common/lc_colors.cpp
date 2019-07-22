@@ -3,7 +3,7 @@
 #include "lc_file.h"
 #include <float.h>
 
-lcArray<lcColor> gColorList;
+std::vector<lcColor> gColorList;
 lcColorGroup gColorGroups[LC_NUM_COLORGROUPS];
 int gNumUserColors;
 int gEdgeColor;
@@ -184,13 +184,13 @@ int lcGetBrickLinkColor(int ColorIndex)
 bool lcLoadColorFile(lcFile& File)
 {
 	char Line[1024], Token[1024];
-	lcArray<lcColor>& Colors = gColorList;
+	std::vector<lcColor>& Colors = gColorList;
 	lcColor Color, MainColor, EdgeColor;
 
-	Colors.RemoveAll();
+	Colors.clear();
 
 	for (int GroupIdx = 0; GroupIdx < LC_NUM_COLORGROUPS; GroupIdx++)
-		gColorGroups[GroupIdx].Colors.RemoveAll();
+		gColorGroups[GroupIdx].Colors.clear();
 
 	gColorGroups[0].Name = QApplication::tr("Solid Colors", "Colors");
 	gColorGroups[1].Name = QApplication::tr("Translucent Colors", "Colors");
@@ -350,11 +350,11 @@ bool lcLoadColorFile(lcFile& File)
 
 		bool Duplicate = false;
 
-		for (int i = 0; i < Colors.GetSize(); i++)
+		for (lcColor& ExistingColor : Colors)
 		{
-			if (Colors[i].Code == Color.Code)
+			if (ExistingColor.Code == Color.Code)
 			{
-				Colors[i] = Color;
+				ExistingColor = Color;
 				Duplicate = true;
 				break;
 			}
@@ -375,26 +375,26 @@ bool lcLoadColorFile(lcFile& File)
 			continue;
 		}
 
-		Colors.Add(Color);
+		Colors.push_back(Color);
 
 		if (GroupSpecial)
-			gColorGroups[LC_COLORGROUP_SPECIAL].Colors.Add(Colors.GetSize() - 1);
+			gColorGroups[LC_COLORGROUP_SPECIAL].Colors.push_back((int)Colors.size() - 1);
 		else if (GroupTranslucent)
-			gColorGroups[LC_COLORGROUP_TRANSLUCENT].Colors.Add(Colors.GetSize() - 1);
+			gColorGroups[LC_COLORGROUP_TRANSLUCENT].Colors.push_back((int)Colors.size() - 1);
 		else
-			gColorGroups[LC_COLORGROUP_SOLID].Colors.Add(Colors.GetSize() - 1);
+			gColorGroups[LC_COLORGROUP_SOLID].Colors.push_back((int)Colors.size() - 1);
 	}
 
-	gDefaultColor = Colors.GetSize();
-	Colors.Add(MainColor);
-	gColorGroups[LC_COLORGROUP_SOLID].Colors.Add(gDefaultColor);
+	gDefaultColor = (int)Colors.size();
+	Colors.push_back(MainColor);
+	gColorGroups[LC_COLORGROUP_SOLID].Colors.push_back(gDefaultColor);
 
-	gNumUserColors = Colors.GetSize();
+	gNumUserColors = (int)Colors.size();
 
-	gEdgeColor = Colors.GetSize();
-	Colors.Add(EdgeColor);
+	gEdgeColor = (int)Colors.size();
+	Colors.push_back(EdgeColor);
 
-	return Colors.GetSize() > 2;
+	return Colors.size() > 2;
 }
 
 /*** LPub3D Mod - load color entry ***/
@@ -403,10 +403,10 @@ bool lcLoadColorEntry(const char* ColorEntry)
 //        qDebug() << qPrintable(QString("DEBUG Load color entry %1.")
 //                               .arg(ColorEntry));
 	char Line[1024], Token[1024];
-	lcArray<lcColor>& Colors = gColorList;
+	std::vector<lcColor>& Colors = gColorList;
 	lcColor Color;
 
-	int gNumColorBeforeAdd = Colors.GetSize();
+	int gNumColorBeforeAdd = (int)Colors.size();
 
 	strncpy(Line, ColorEntry, sizeof(Line));
 
@@ -512,11 +512,11 @@ bool lcLoadColorEntry(const char* ColorEntry)
 
 	bool Duplicate = false;
 
-	for (int i = 0; i < Colors.GetSize(); i++)
+	for (lcColor& ExistingColor : Colors)
 	{
-		if (Colors[i].Code == Color.Code)
+		if (ExistingColor.Code == Color.Code)
 		{
-			Colors[i] = Color;
+			ExistingColor = Color;
 			Duplicate = true;
 			break;
 		}
@@ -525,16 +525,18 @@ bool lcLoadColorEntry(const char* ColorEntry)
 	if (Duplicate)
 		return true;
 
-	Colors.Add(Color);
+	gDefaultColor = (int)Colors.size();
 
-	gColorGroups[LC_COLORGROUP_LPUB3D].Colors.Add(Colors.GetSize() - 1);
+	Colors.push_back(Color);
 
-	gNumUserColors = Colors.GetSize();
+	gColorGroups[LC_COLORGROUP_LPUB3D].Colors.push_back(gDefaultColor);
+
+	gNumUserColors = (int)Colors.size();
 
 //        qDebug() << qPrintable(QString("DEBUG Colours New Size %1, Old Size %2.")
 //                               .arg(Colors.GetSize()).arg(gNumColorBeforeAdd));
 
-	return Colors.GetSize() > gNumColorBeforeAdd;
+	return Colors.size() > gNumColorBeforeAdd;
 }
 /*** LPub3D Mod end ***/
 
@@ -561,9 +563,9 @@ void lcLoadDefaultColors()
 
 int lcGetColorIndex(quint32 ColorCode)
 {
-	for (int ColorIdx = 0; ColorIdx < gColorList.GetSize(); ColorIdx++)
+	for (size_t ColorIdx = 0; ColorIdx < gColorList.size(); ColorIdx++)
 		if (gColorList[ColorIdx].Code == ColorCode)
-			return ColorIdx;
+			return (int)ColorIdx;
 
 	lcColor Color;
 
@@ -593,6 +595,6 @@ int lcGetColorIndex(quint32 ColorCode)
 		sprintf(Color.SafeName, "Color_%03d", ColorCode);
 	}
 
-	gColorList.Add(Color);
-	return gColorList.GetSize() - 1;
+	gColorList.push_back(Color);
+	return (int)gColorList.size() - 1;
 }

@@ -45,12 +45,12 @@ char* strlwr(char* string);
 #endif
 
 // Version number.
-#define LC_VERSION_MAJOR 18
-#define LC_VERSION_MINOR 02
-#define LC_VERSION_PATCH 0
-#define LC_VERSION_TEXT "18.02"
+#define LC_VERSION_MAJOR 19
+#define LC_VERSION_MINOR 07
+#define LC_VERSION_PATCH 1
+#define LC_VERSION_TEXT "19.07.1"
 /*** LPub3D Mod - Git SHA ***/
-#define LC_VERSION_BUILD "b42e3b7"
+#define LC_VERSION_BUILD "6c7291b"
 /*** LPub3D Mod end ***/
 
 

@@ -34,6 +34,30 @@
 lcMainWindow* gMainWindow;
 #define LC_TAB_LAYOUT_VERSION 0x0001
 
+void lcTabBar::mousePressEvent(QMouseEvent* Event)
+{
+	if (Event->button() == Qt::MidButton)
+		mMousePressTab = tabAt(Event->pos());
+	else
+		QTabBar::mousePressEvent(Event);
+}
+
+void lcTabBar::mouseReleaseEvent(QMouseEvent* Event)
+{
+	if (Event->button() == Qt::MidButton && tabAt(Event->pos()) == mMousePressTab)
+		tabCloseRequested(mMousePressTab);
+	else
+		QTabBar::mouseReleaseEvent(Event);
+}
+
+lcTabWidget::lcTabWidget()
+	: QTabWidget()
+{
+	lcTabBar* TabBar = new lcTabBar(this);
+	setTabBar(TabBar);
+	TabBar->setDrawBase(false);
+}
+
 void lcModelTabWidget::ResetLayout()
 {
 	QLayout* TabLayout = layout();
@@ -1804,12 +1828,18 @@ void lcMainWindow::RestoreTabLayout(const QByteArray& TabLayout)
 					if (CurrentView)
 					{
 						lcCamera* Camera = CurrentView->mCamera;
-						Camera->m_fovy = FoV;
-						Camera->m_zNear = ZNear;
-						Camera->m_zFar = ZFar;
-						Camera->mPosition = Position;
-						Camera->mTargetPosition = TargetPosition;
-						Camera->mUpVector = UpVector;
+						if (!std::isnan(FoV))
+							Camera->m_fovy = FoV;
+						if (!std::isnan(ZNear))
+							Camera->m_zNear = ZNear;
+						if (!std::isnan(ZFar))
+							Camera->m_zFar = ZFar;
+						if (!Position.IsNan() && !TargetPosition.IsNan() && !UpVector.IsNan())
+						{
+							Camera->mPosition = Position;
+							Camera->mTargetPosition = TargetPosition;
+							Camera->mUpVector = UpVector;
+						}
 						Camera->UpdatePosition(1);
 					}
 				}

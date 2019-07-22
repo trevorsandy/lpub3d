@@ -351,6 +351,9 @@ void Project::ShowModelListDialog()
 
 void Project::SetFileName(const QString& FileName)
 {
+	if (mFileName == FileName)
+		return;
+
 	if (!mFileName.isEmpty())
 		mFileWatcher.removePath(mFileName);
 
@@ -478,8 +481,11 @@ bool Project::Save(const QString& FileName)
 	bool Success = Save(Stream);
 	File.close();
 
-	SetFileName(FileName);
-	mModified = false;
+	if (Success)
+	{
+		SetFileName(FileName);
+		mModified = false;
+	}
 
 	return Success;
 }
@@ -488,10 +494,8 @@ bool Project::Save(QTextStream& Stream)
 {
 	bool MPD = mModels.GetSize() > 1;
 
-	for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
+	for (lcModel* Model : mModels)
 	{
-		lcModel* Model = mModels[ModelIdx];
-
 		if (MPD)
 			Stream << QLatin1String("0 FILE ") << Model->GetProperties().mName << QLatin1String("\r\n");
 
@@ -725,11 +729,11 @@ void Project::Export3DStudio(const QString& FileName)
 	const int MaterialNameLength = 11;
 	char MaterialName[32];
 
-	for (int ColorIdx = 0; ColorIdx < gColorList.GetSize(); ColorIdx++)
+	for (size_t ColorIdx = 0; ColorIdx < gColorList.size(); ColorIdx++)
 	{
 		lcColor* Color = &gColorList[ColorIdx];
 
-		sprintf(MaterialName, "Material%03d", ColorIdx);
+		sprintf(MaterialName, "Material%03d", (int)ColorIdx);
 
 		long MaterialStart = File.GetPosition();
 		File.WriteU16(0xAFFF); // CHK_MAT_ENTRY
@@ -1181,8 +1185,8 @@ void Project::ExportBrickLink()
 			sprintf(Line, "    <MINQTY>%d</MINQTY>\n", ColorIt.second);
 			BrickLinkFile.WriteLine(Line);
 /*** LPub3D Mod - use LPub3D exportable BrickLink color table ***/
-            int LDColorID = gColorList[ColorIt.first].Code;
-            int Color = Annotations::getBrickLinkColor(LDColorID);
+			int LDColorID = gColorList[ColorIt.first].Code;
+			int Color = Annotations::getBrickLinkColor(LDColorID);
 /*** LPub3D Mod end ***/
 			if (Color)
 			{
@@ -1714,7 +1718,7 @@ QImage Project::CreatePartsListImage(lcModel* Model, lcStep Step)
 
 void Project::CreateHTMLPieceList(QTextStream& Stream, lcModel* Model, lcStep Step, bool Images)
 {
-	std::vector<int> ColorsUsed(gColorList.GetSize(), 0);
+	std::vector<int> ColorsUsed(gColorList.size(), 0);
 	int NumColors = 0;
 
 	lcPartsList PartsList;
@@ -1730,7 +1734,7 @@ void Project::CreateHTMLPieceList(QTextStream& Stream, lcModel* Model, lcStep St
 
 	Stream << QLatin1String("<br><table border=1><tr><td><center>Piece</center></td>\r\n");
 
-	for (int ColorIdx = 0; ColorIdx < gColorList.GetSize(); ColorIdx++)
+	for (size_t ColorIdx = 0; ColorIdx < gColorList.size(); ColorIdx++)
 	{
 		if (ColorsUsed[ColorIdx])
 		{
@@ -2096,7 +2100,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 
 	lcPiecesLibrary* Library = lcGetPiecesLibrary();
 	std::map<const PieceInfo*, std::pair<char[LC_PIECE_NAME_LEN], int>> PieceTable;
-	int NumColors = gColorList.GetSize();
+	size_t NumColors = gColorList.size();
 	std::vector<std::array<char, LC_MAX_COLOR_NAME>> ColorTable(NumColors);
 
 	enum
@@ -2190,7 +2194,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 			if (sscanf(Line,"%d%s%s", &Code, Name, Flags) != 3)
 				continue;
 
-			int Color = lcGetColorIndex(Code);
+			size_t Color = lcGetColorIndex(Code);
 			if (Color >= NumColors)
 				continue;
 
@@ -2232,7 +2236,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 		POVFile.WriteLine("\n");
 	}
 
-	for (int ColorIdx = 0; ColorIdx < gColorList.GetSize(); ColorIdx++)
+	for (size_t ColorIdx = 0; ColorIdx < gColorList.size(); ColorIdx++)
 	{
 		lcColor* Color = &gColorList[ColorIdx];
 
@@ -2255,9 +2259,9 @@ bool Project::ExportPOVRay(const QString& FileName)
 
 	POVFile.WriteLine("\n");
 
-	lcArray<const char*> ColorTablePointer;
-	ColorTablePointer.SetSize(NumColors);
-	for (int ColorIdx = 0; ColorIdx < NumColors; ColorIdx++)
+	std::vector<const char*> ColorTablePointer;
+	ColorTablePointer.resize(NumColors);
+	for (size_t ColorIdx = 0; ColorIdx < NumColors; ColorIdx++)
 		ColorTablePointer[ColorIdx] = ColorTable[ColorIdx].data();
 
 	auto GetMeshName = [](const lcModelPartsEntry& ModelPart, char* Name)
@@ -2438,13 +2442,12 @@ void Project::ExportWavefront(const QString& FileName)
 /*** LPub3D Mod - set 3DViewer label ***/
 	MaterialFile.WriteLine("# Colors used by 3DViewer\n\n");
 /*** LPub3D Mod end ***/
-	for (int ColorIdx = 0; ColorIdx < gColorList.GetSize(); ColorIdx++)
+	for (const lcColor& Color : gColorList)
 	{
-		lcColor* Color = &gColorList[ColorIdx];
-		if (Color->Translucent)
-			sprintf(Line, "newmtl %s\nKd %.2f %.2f %.2f\nD %.2f\n\n", Color->SafeName, Color->Value[0], Color->Value[1], Color->Value[2], Color->Value[3]);
+		if (Color.Translucent)
+			sprintf(Line, "newmtl %s\nKd %.2f %.2f %.2f\nD %.2f\n\n", Color.SafeName, Color.Value[0], Color.Value[1], Color.Value[2], Color.Value[3]);
 		else
-			sprintf(Line, "newmtl %s\nKd %.2f %.2f %.2f\n\n", Color->SafeName, Color->Value[0], Color->Value[1], Color->Value[2]);
+			sprintf(Line, "newmtl %s\nKd %.2f %.2f %.2f\n\n", Color.SafeName, Color.Value[0], Color.Value[1], Color.Value[2]);
 		MaterialFile.WriteLine(Line);
 	}
 

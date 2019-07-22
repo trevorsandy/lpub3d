@@ -39,10 +39,10 @@ void LDrawColor::LDrawColorInit()
     name2QColor.clear();
     color2name.clear();
 
-    for (int ColorIdx = 0; ColorIdx < gColorList.GetSize(); ColorIdx++)
+    for (lcColor& gColor : gColorList)
     {
         bool ok;
-        lcColor* nativeColor = &gColorList[ColorIdx];
+        lcColor* nativeColor = &gColor;
         QString name   = nativeColor->SafeName;
         QString code   = QString::number(nativeColor->Code);
         QString value  = QString("%1").arg(nativeColor->CValue, 6, 16, QChar('0')).toUpper(); // does not include '#'
