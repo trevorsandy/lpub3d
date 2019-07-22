@@ -259,8 +259,7 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
       QStringList argv;
       split(line,argv);
       if (argv.size() >= 2 && argv[0] == "0") {
-        if (argv[1] == "STEP" || argv[1] == "ROTSTEP" ||
-            argv[1] == "LPUB" || argv[1] == "!LPUB") {
+        if (argv[1] == "STEP" || argv[1] == "ROTSTEP") {
           break;
         }
         rc = meta->parse(line,walkBack);
@@ -321,8 +320,7 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
     QStringList argv;
     split(line,argv);
     if (argv.size() >= 2 && argv[0] == "0") {
-      if (argv[1] == "STEP" || argv[1] == "ROTSTEP" ||
-          argv[1] == "LPUB" || argv[1] == "!LPUB") {
+      if (argv[1] == "STEP" || argv[1] == "ROTSTEP") {
         break;
       }
       rc = meta->parse(line,walk);
