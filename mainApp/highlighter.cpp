@@ -451,6 +451,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bSUBMODEL_FONT\\b"
     << "\\bSUBMODEL_FONT_COLOR\\b"
     << "\\bSUBMODEL_INSTANCE_COUNT\\b"
+    << "\\bSUBMODEL_INSTANCE_COUNT_OVERRIDE\\b"
     << "\\bSYNTHESIZED\\b"
     << "\\bTERTIARY\\b"
     << "\\bTERTIARY_DIRECTION\\b"

@@ -1793,13 +1793,12 @@ Rc CsiAnnotationIconMeta::parse(QStringList &argv, int index,Where &here)
     _value[pushed] = annotationData;
     _here[pushed]  = here;
     return AssemAnnotationIconRc;
-  } else {
-    if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Malformed CSI Annotation metacommand \"%1\"\n")
-                           .arg(argv.join(" ")));
-    }
-    return rc;
   }
+  if (reportErrors) {
+    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Malformed CSI Annotation metacommand \"%1\"\n")
+                         .arg(argv.join(" ")));
+  }
+  return rc;
 }
 
 // format() should never be used as we manage CsiAnnotationIconData directly in pliPart
@@ -3744,6 +3743,9 @@ PageMeta::PageMeta() : BranchMeta()
   subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_03);
   subModelColor.setValue(DEFAULT_SUBMODEL_COLOR_04);
 
+  countInstanceOverride.setRange(0,10000);
+  countInstanceOverride.setValue(0);
+
   /* PAGE ATTRIBUTE FORMAT
    *
    * Front Cover Default Attribute Placements
@@ -3976,6 +3978,7 @@ void PageMeta::init(BranchMeta *parent, QString name)
   pointerAttrib.init      (this, "POINTER_ATTRIBUTE");
 
   scene.init              (this, "SCENE");
+  countInstanceOverride.init(this,"SUBMODEL_INSTANCE_COUNT_OVERRIDE");
 
   pageHeader.init         (this, "PAGE_HEADER");
   pageFooter.init         (this, "PAGE_FOOTER");

@@ -171,6 +171,10 @@ public:
           QMenu   &menu,
     const QString  name = "");
 
+  QAction *overrideSubmodelCountMenu(
+          QMenu   &menu,
+    const QString  name = "");
+
   QAction *removeSubstitutePartMenu(
           QMenu   &menu,
     const QString  name = "");

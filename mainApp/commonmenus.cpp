@@ -558,6 +558,22 @@ QAction* CommonMenus::substitutePartMenu(
   return action;
 }
 
+QAction* CommonMenus::overrideSubmodelCountMenu(
+        QMenu   &menu,
+  const QString  name)
+{
+  QAction *action;
+
+  QString formatted = QString("Override %1") .arg(name);
+  action = menu.addAction(formatted);
+  action->setIcon(QIcon(":/resources/submodelsetup.png"));
+
+  formatted = QString("Replace this submodel instance count with a manually entered value.");
+  action->setWhatsThis(formatted);
+
+  return action;
+}
+
 QAction* CommonMenus::changeSubstitutePartMenu(
         QMenu   &menu,
   const QString  name)

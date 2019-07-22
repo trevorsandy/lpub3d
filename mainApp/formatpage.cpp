@@ -118,6 +118,7 @@ void SubmodelInstanceCount::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
   QAction *colorAction      = commonMenus.colorMenu(menu,name);
   QAction *marginAction     = commonMenus.marginMenu(menu,name);
   QAction *placementAction  = commonMenus.placementMenu(menu,name,"You can move this submodel count around.");
+  QAction *overrideAction   = commonMenus.overrideSubmodelCountMenu(menu,name);
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
@@ -157,6 +158,21 @@ void SubmodelInstanceCount::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
                       bottomOfSteps,
                       &placement,
                       useTop);
+    } else if (selectedAction == overrideAction) {
+      bool ok;
+      int max = (1 + gui->getSubmodelInstances(page->meta.LPub.countInstance.here().modelName, false)) * 4;
+      int override = QInputDialog::getInt(gui,"Submodel Instances","Submodel Instances",value,0,max,1,&ok);
+      if (ok) {
+          Where trueTopOfModel;
+          trueTopOfModel = firstLine(topOfSteps.modelName);
+          page->meta.LPub.page.countInstanceOverride.setValue(override);
+          setMetaTopOf(trueTopOfModel,
+                       bottomOfSteps,
+                       &page->meta.LPub.page.countInstanceOverride,
+                       1    /*append*/,
+                       true /*local*/,
+                       false/*askLocal*/);
+      }
     }
 }
 

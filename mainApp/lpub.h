@@ -595,6 +595,11 @@ public:
       return ldrawFile;
   }
 
+  int getSubmodelInstances(const QString &fileName, bool isMirrored)
+  {
+      return ldrawFile.instances(fileName, isMirrored);
+  }
+
   void updateViewerStep(const QString     &fileName,
                   const QStringList &contents)
   {

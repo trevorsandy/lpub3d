@@ -1290,10 +1290,12 @@ int Gui::drawPage(
 //                      steps->setCsiAnnotationMetas();
 
                   // get the number of submodel instances in the model file
-                  int instances = ldrawFile.instances(current.modelName, isMirrored);
+                  int countInstanceOverride = steps->meta.LPub.page.countInstanceOverride.value();
+                  int instances = countInstanceOverride ? countInstanceOverride :
+                                                          ldrawFile.instances(current.modelName, isMirrored);
                   // count the instances accordingly
                   displayCount= countInstances && instances > 1;
-                  if (displayCount && countInstances != CountAtTop) {
+                  if (displayCount && countInstances != CountAtTop && !countInstanceOverride) {
                       MetaItem mi;
                       if (countInstances == CountAtStep)
                           instances = mi.countInstancesInStep(&steps->meta, current.modelName);
@@ -1452,9 +1454,11 @@ int Gui::drawPage(
                           emit messageSig(LOG_INFO, "Set first step submodel display for " + topOfStep.modelName + "...");
 
                           // get the number of submodel instances in the model file
-                          int instances = ldrawFile.instances(current.modelName, isMirrored);
+                          int countInstanceOverride = steps->meta.LPub.page.countInstanceOverride.value();
+                          int instances = countInstanceOverride ? countInstanceOverride :
+                                                                  ldrawFile.instances(current.modelName, isMirrored);
                           displayCount = steps->meta.LPub.subModel.showInstanceCount.value() && instances > 1;
-                          if (displayCount && countInstances != CountAtTop) {
+                          if (displayCount && countInstances != CountAtTop && !countInstanceOverride) {
                               MetaItem mi;
                               if (countInstances == CountAtStep)
                                   instances = mi.countInstancesInStep(&steps->meta, current.modelName);
@@ -1562,9 +1566,11 @@ int Gui::drawPage(
                                   steps->meta.LPub.contModelStepNum.value() >= numSteps :
                                   stepNum >= numSteps;
 
-                      int instances = ldrawFile.instances(current.modelName, isMirrored);
+                      int countInstanceOverride = steps->meta.LPub.page.countInstanceOverride.value();
+                      int instances = countInstanceOverride ? countInstanceOverride :
+                                                              ldrawFile.instances(current.modelName, isMirrored);
                       displayCount = countInstances && instances > 1;
-                      if (displayCount && countInstances != CountAtTop) {
+                      if (displayCount && countInstances != CountAtTop && !countInstanceOverride) {
                           MetaItem mi;
                           if (countInstances == CountAtStep)
                               instances = mi.countInstancesInStep(&steps->meta, current.modelName);

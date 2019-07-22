@@ -2916,6 +2916,7 @@ public:
   PointerMeta               pointer;
   PointerAttribMeta         pointerAttrib;
   SceneObjectMeta           scene;
+  IntMeta                   countInstanceOverride;
 
   PageHeaderMeta            pageHeader;
   PageFooterMeta            pageFooter;
