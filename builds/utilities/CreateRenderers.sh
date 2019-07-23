@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: June 23, 2019
+#  Last Update July 23, 2019
 #  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 
@@ -283,8 +283,8 @@ InstallDependencies() {
       ldview)
         cp -f QT/PKGBUILD QT/OBS/PKGBUILD
         pkgbuildFile="$PWD/QT/OBS/PKGBUILD"
-        sed -e "/#Qt4.x/d" -e "/depends=('qt4'/d" -e "s/#depends=/depends=/g" \
-            -e "s/'mesa-libgl'/'tinyxml' 'gl2ps'/g" -i $pkgbuildFile
+        sed -e "s/pkgname=('ldview' 'ldview-osmesa')/pkgname=('ldview')/g" \
+            -e "s/'mesa-libgl'/'mesa-libgl' 'tinyxml'/g" -i $pkgbuildFile
         if [ ! -d /usr/share/mime ]; then
           $useSudo mkdir /usr/share/mime
         fi
@@ -314,9 +314,8 @@ InstallDependencies() {
         ;;
       ldview)
         controlFile="$PWD/QT/debian/control"
-        sed -e '/#Qt4.x/d' -e '/libqt4-dev/d' \
-            -e 's/#Build-Depends/Build-Depends/g' -e 's/kdelibs5-dev//g' \
-            -e '/^Build-Depends:/ s/$/ qt5-qmake libqt5opengl5-dev libosmesa6-dev libtinyxml-dev libgl2ps-dev/' -i $controlFile
+        sed -e '/#Qt4.x/d' -e '/^Build-Depends/d' \
+            -e 's/#Build-Depends/Build-Depends/g' -i $controlFile
         ;;
       povray)
         controlFile="$PWD/unix/obs/debian/control"

@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: July 22, 2019
+rem  Last Update: July 23, 2019
 rem  Copyright (c) 2015 - 2019 by Trevor SANDY
 rem --
 SETLOCAL
@@ -233,7 +233,8 @@ SET LP3D_AVAILABLE_VERSIONS_pkg=unknown
 SET LP3D_AVAILABLE_VERSIONS_api=unknown
 
 SET LP3D_GITHUB_BASE=https://github.com/trevorsandy/%LPUB3D_DIR%
-SET LP3D_SOURCEFORGE_BASE=http://lpub3d.sourceforge.net
+SET LP3D_SOURCEFORGE_OPEN_BASE=https://sourceforge.net
+SET LP3D_SOURCEFORGE_DWNLD_BASE=http://lpub3d.sourceforge.net
 
 ECHO.
 ECHO - Setting up release build parameters...
@@ -816,10 +817,10 @@ SETLOCAL ENABLEDELAYEDEXPANSION
 FOR %%V IN ( %LP3D_ALTERNATE_VERSIONS% ) DO (
   IF "%%V" LEQ "2.0.20" (
     >>%genVersionInsert% "alternate-version-%%V-%LP3D_EXT%": {
-    >>%genVersionInsert%   "open-url": "%LP3D_SOURCEFORGE_BASE%/projects/lpub3d/files/%%V/",
+    >>%genVersionInsert%   "open-url": "%LP3D_SOURCEFORGE_OPEN_BASE%/projects/lpub3d/files/%%V/",
     >>%genVersionInsert%   "latest-version": "%%V",
-    >>%genVersionInsert%   "download-url": "%LP3D_SOURCEFORGE_BASE%/%LP3D_DIST_PREFIX%%%V%LP3D_DIST_SUFFIX%",
-    >>%genVersionInsert%   "changelog-url": "%LP3D_SOURCEFORGE_BASE%/change_log_%%V.txt"
+    >>%genVersionInsert%   "download-url": "%LP3D_SOURCEFORGE_DWNLD_BASE%/%LP3D_DIST_PREFIX%%%V%LP3D_DIST_SUFFIX%",
+    >>%genVersionInsert%   "changelog-url": "%LP3D_SOURCEFORGE_DWNLD_BASE%/change_log_%%V.txt"
     >>%genVersionInsert% },
   ) ELSE (
     SET LP3D_ALT_VERSION_LONG=2.3.7.0.1195_20190327

@@ -1,14 +1,13 @@
 #
 # spec file for package lpub3d
 #
+# Last Update July 23, 2019
 # Copyright © 2018 - 2019 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
 # package are under the same license as the package itself.
 #
 # please send bugfixes or comments to Trevor SANDY <trevor.sandy@gmail.com>
-#
-# Last Update March 05, 2019
 #
 
 # set packing platform
@@ -98,6 +97,9 @@ Source10: lpub3d-rpmlintrc
 %define build_qt5 0
 %else
 BuildRequires: qt5-qtbase-devel, qt5-qttools-devel
+%endif
+%if 0%{?fedora}
+BuildRequires: hostname
 %endif
 BuildRequires: gcc-c++, make
 %if 0%{?buildservice}!=1

@@ -1,13 +1,11 @@
 #
 # spec file for package lpub3d
 #
-# Last Update: March 06, 2019
+# Last Update: July 23, 2019
 # Copyright © 2017-2019 Trevor SANDY
 # Using RPM Spec file examples by Thomas Baumgart, Peter Bartfai and others
 # This file and all modifications and additions to the pristine
 # package are under the same license as the package itself.
-#
-# Last Update: March 06, 2019
 #
 # please send bugfixes or comments to Trevor SANDY <trevor.sandy@gmail.com>
 #
@@ -118,7 +116,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d
 Icon: lpub3d.xpm
-Version: 2.3.13.1401
+Version: 2.3.13.1402
 Release: <B_CNT>%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -136,6 +134,9 @@ BuildRequires: cmake
 BuildRequires: qt5-qtbase-devel, qt5-qttools-devel
 %endif
 %if 0%{?fedora} || 0%{?centos_version} || 0%{?rhel_version} || 0%{?scientificlinux_version}
+%if 0%{?fedora}
+BuildRequires: hostname
+%endif
 %if !0%{?rhel_version}
 BuildRequires: mesa-libOSMesa-devel, OpenEXR-devel
 %endif
@@ -226,7 +227,10 @@ BuildRequires: lib64boost-devel, lib64tinyxml-devel, lib64gl2ps-devel, lib64tiff
 BuildRequires: lib64openexr-devel
 %endif
 %if 0%{?buildservice}
-BuildRequires: lib64sane1, lib64proxy-webkit, lib64openssl-devel
+BuildRequires: lib64sane1, lib64proxy-webkit
+%if 0%{?mageia} == 7
+BuildRequires: lib64openssl-devel
+%endif
 %endif
 %else
 BuildRequires: libqt5base5-devel, libsdl2.0-devel, libosmesa-devel, libmesaglu1-devel, freeglut-devel
@@ -235,7 +239,10 @@ BuildRequires: libboost-devel, libtinyxml-devel, libgl2ps-devel, libtiff-devel
 BuildRequires: libopenexr-devel
 %endif
 %if 0%{?buildservice}
-BuildRequires: libsane1, libproxy-webkit, libopenssl-devel
+BuildRequires: libsane1, libproxy-webkit
+%if 0%{?mageia} == 7
+BuildRequires: libopenssl-devel
+%endif
 %endif
 %endif
 %endif
@@ -717,5 +724,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Mon Jul 22 2019 - trevor.dot.sandy.at.gmail.dot.com 2.3.13.1401
+* Tue Jul 23 2019 - trevor.dot.sandy.at.gmail.dot.com 2.3.13.1402
 - LPub3D Linux package (rpm) release
