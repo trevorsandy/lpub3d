@@ -4640,12 +4640,13 @@ void Gui::showLCStatusMessage(){
 
 void Gui::parseError(QString errorMsg,Where &here)
 {
-    QString parseMessage = QString("%1 (file: %2, line: %3)") .arg(errorMsg) .arg(here.modelName) .arg(here.lineNumber);
+    QString parseMessage = QString("%1 (file: %2, line: %3)") .arg(errorMsg) .arg(here.modelName) .arg(here.lineNumber + 1);
     if (Preferences::modeGUI) {
         showLine(here);
         if (Preferences::showParseErrors) {
             QCheckBox *cb = new QCheckBox("Do not show this message again.");
             QMessageBoxResizable box;
+            box.setWindowTitle(tr(VER_PRODUCTNAME_STR " Line Parse Error"));
             box.setText(parseMessage);
             box.setIcon(QMessageBox::Icon::Warning);
             box.addButton(QMessageBox::Ok);

@@ -425,6 +425,7 @@ int Gui::drawPage(
   Where topOfStep = current;
   Rc gprc = OkRc;
   Rc rc;
+  int retVal = 0;
 
   page.coverPage = false;
 
@@ -702,17 +703,16 @@ int Gui::drawPage(
 
         }
       // STEP - Process line, triangle, or polygon type
-      else if (tokens.size() > 0 &&
-                   (tokens[0] == "2" ||
-                    tokens[0] == "3" ||
-                    tokens[0] == "4" ||
-                    tokens[0] == "5")) {
-
-          csiParts << line;
-          partsAdded = true;
+      else if ((tokens.size() == 8  && tokens[0] == "2") ||
+               (tokens.size() == 11 && tokens[0] == "3") ||
+               (tokens.size() == 14 && tokens[0] == "4") ||
+               (tokens.size() == 14 && tokens[0] == "5")) {
 
           /* we've got a line, triangle or polygon, so add it to the list */
           /* and make sure we know we have a step */
+
+          csiParts << line;
+          partsAdded = true;
 
           if (step == nullptr && ! noStep) {
               if (range == nullptr) {
@@ -729,10 +729,9 @@ int Gui::drawPage(
 
               range->append(step);
             }
-
         }
       // STEP - Process meta command
-      else if ( (tokens.size() > 0 && tokens[0] == "0") || gprc == EndOfFileRc) {
+      else if ( (tokens.size() && tokens[0] == "0") || gprc == EndOfFileRc) {
 
           /* must be meta-command (or comment) */
 
@@ -1693,20 +1692,18 @@ int Gui::drawPage(
       // STEP - Process invalid line
       else if (line != "") {
           showLine(current);
-          emit gui->messageSig(LOG_ERROR,
-                                QMessageBox::tr("Invalid LDraw Line Type: %1:%2\n  %3")
-                                .arg(current.modelName)
-                                .arg(current.lineNumber)
-                                .arg(line));
-          return InvalidLDrawLineRc;
-        }
+          const QChar type = line.at(0);
+          parseError(QString("Invalid LDraw type %1 line. Expected %2 elements, got \"%3\".")
+                     .arg(type).arg(type == '1' ? 15 : type == '2' ? 8 : type == '3' ? 11 : 14).arg(line),current);
+          retVal = InvalidLDrawLineRc;
+      }
       /* if part is on excludedPart.lst, unset pliIgnore if still set */
-      if (pliIgnore &&
-          tokens[0] == "1" &&
-          ExcludedParts::hasExcludedPart(tokens[tokens.size()-1]))
+      if (pliIgnore && tokens[0] == "1" &&
+          ExcludedParts::hasExcludedPart(tokens[tokens.size()-1])) {
           pliIgnore = false;
+      }
     } // for every line
-  return 0;
+  return retVal;
 }
 
 int Gui::findPage(
@@ -1793,16 +1790,16 @@ int Gui::findPage(
       QStringList tokens, addTokens;
 
       switch (line.toLatin1()[0]) {
-        case '1':
+      case '1':
           split(line,tokens);
 
-          if (tokens[1] == "16") {
+          if (tokens.size() > 2 && tokens[1] == "16") {
               split(addLine,addTokens);
               if (addTokens.size() == 15) {
                   tokens[1] = addTokens[1];
-                }
+              }
               line = tokens.join(" ");
-            }
+          }
 
           if (! partIgnore) {
 
@@ -1810,97 +1807,99 @@ int Gui::findPage(
 
               if (firstStepPageNum == -1) {
                   firstStepPageNum = pageNum;
-                }
+              }
               lastStepPageNum = pageNum;
 
               QStringList token;
 
               split(line,token);
 
-              QString    type = token[token.size()-1];
+              if (token.size() == 15) {
 
-              bool contains   = ldrawFile.isSubmodel(type);
-              CalloutBeginMeta::CalloutMode calloutMode = meta.LPub.callout.begin.value();
+                  QString    type = token[token.size()-1];
 
-              // if submodel or assembled/rotated callout
-              if (contains && (!callout || (callout && calloutMode != CalloutBeginMeta::Unassembled))) {
+                  bool contains   = ldrawFile.isSubmodel(type);
+                  CalloutBeginMeta::CalloutMode calloutMode = meta.LPub.callout.begin.value();
 
-                  // check if submodel was rendered
-                  bool rendered = ldrawFile.rendered(type,ldrawFile.mirrored(token),current.modelName,stepNumber,countInstances);
+                  // if submodel or assembled/rotated callout
+                  if (contains && (!callout || (callout && calloutMode != CalloutBeginMeta::Unassembled))) {
 
-                  // if the submodel was not rendered, and (is not in the buffer exchange call setRendered for the submodel.
-                  if (! rendered && (! bfxStore2 || ! bfxParts.contains(token[1]+type))) {
+                      // check if submodel was rendered
+                      bool rendered = ldrawFile.rendered(type,ldrawFile.mirrored(token),current.modelName,stepNumber,countInstances);
 
-                      isMirrored = ldrawFile.mirrored(token);
+                      // if the submodel was not rendered, and (is not in the buffer exchange call setRendered for the submodel.
+                      if (! rendered && (! bfxStore2 || ! bfxParts.contains(token[1]+type))) {
 
-                      // add submodel to the model stack - it can't be a callout
-                      SubmodelStack tos(current.modelName,current.lineNumber,stepNumber);
-                      meta.submodelStack << tos;
-                      Where current2(type,0);
+                          isMirrored = ldrawFile.mirrored(token);
 
-                      ldrawFile.setModelStartPageNumber(current2.modelName,pageNum);
+                          // add submodel to the model stack - it can't be a callout
+                          SubmodelStack tos(current.modelName,current.lineNumber,stepNumber);
+                          meta.submodelStack << tos;
+                          Where current2(type,0);
 
-                      // save rotStep, clear it, and restore it afterwards
-                      // since rotsteps don't affect submodels
-                      RotStepMeta saveRotStep2 = meta.rotStep;
-                      meta.rotStep.clear();
+                          ldrawFile.setModelStartPageNumber(current2.modelName,pageNum);
 
-                      // save Default pageSize information
-                      PgSizeData pageSize2;
-                      if (exporting()) {
-                          pageSize2       = pageSizes[DEF_SIZE];
-                          pageSizeUpdate  = false;
+                          // save rotStep, clear it, and restore it afterwards
+                          // since rotsteps don't affect submodels
+                          RotStepMeta saveRotStep2 = meta.rotStep;
+                          meta.rotStep.clear();
+
+                          // save Default pageSize information
+                          PgSizeData pageSize2;
+                          if (exporting()) {
+                              pageSize2       = pageSizes[DEF_SIZE];
+                              pageSizeUpdate  = false;
 #ifdef SIZE_DEBUG
-                          logDebug() << "SM: Saving    Default Page size info at PageNumber:" << pageNum
-                                     << "W:"    << pageSize2.sizeW << "H:"    << pageSize2.sizeH
-                                     << "O:"    <<(pageSize2.orientation == Portrait ? "Portrait" : "Landscape")
-                                     << "ID:"   << pageSize2.sizeID
-                                     << "Model:" << current.modelName;
+                              logDebug() << "SM: Saving    Default Page size info at PageNumber:" << pageNum
+                                         << "W:"    << pageSize2.sizeW << "H:"    << pageSize2.sizeH
+                                         << "O:"    <<(pageSize2.orientation == Portrait ? "Portrait" : "Landscape")
+                                         << "ID:"   << pageSize2.sizeID
+                                         << "Model:" << current.modelName;
 #endif
-                        }
+                          }
 
-                      // set the step number and parent model where the submodel will be rendered
-                      renderStepNumber = stepNumber;
-                      renderParentModel = current.modelName;
+                          // set the step number and parent model where the submodel will be rendered
+                          renderStepNumber = stepNumber;
+                          renderParentModel = current.modelName;
 
-                      findPage(view,
-                               scene,
-                               pageNum,
-                               line,
-                               current2,
-                               pageSize,
-                               isMirrored,
-                               meta,
-                               printing,
-                               contStepNumber,
-                               renderStepNumber,
-                               renderParentModel);
+                          findPage(view,
+                                   scene,
+                                   pageNum,
+                                   line,
+                                   current2,
+                                   pageSize,
+                                   isMirrored,
+                                   meta,
+                                   printing,
+                                   contStepNumber,
+                                   renderStepNumber,
+                                   renderParentModel);
 
-                      saveStepPageNum = stepPageNum;
-                      meta.submodelStack.pop_back();
-                      meta.rotStep = saveRotStep2;       // restore old rotstep
-                      if (useContStepNum) {              // capture continuous step number from exited submodel
-                          contStepNumber = saveContStepNum;
+                          saveStepPageNum = stepPageNum;
+                          meta.submodelStack.pop_back();
+                          meta.rotStep = saveRotStep2;       // restore old rotstep
+                          if (useContStepNum) {              // capture continuous step number from exited submodel
+                              contStepNumber = saveContStepNum;
+                          }
+
+                          if (exporting()) {
+                              pageSizes.remove(DEF_SIZE);
+                              pageSizes.insert(DEF_SIZE,pageSize2);  // restore old Default pageSize information
+#ifdef SIZE_DEBUG
+                              logDebug() << "SM: Restoring Default Page size info at PageNumber:" << pageNum
+                                         << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
+                                         << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
+                                         << "ID:"   << pageSizes[DEF_SIZE].sizeID
+                                         << "Model:" << current.modelName;
+#endif
+                          }
                       }
-
-                      if (exporting()) {
-                          pageSizes.remove(DEF_SIZE);
-                          pageSizes.insert(DEF_SIZE,pageSize2);  // restore old Default pageSize information
-#ifdef SIZE_DEBUG
-                          logDebug() << "SM: Restoring Default Page size info at PageNumber:" << pageNum
-                                     << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
-                                     << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
-                                     << "ID:"   << pageSizes[DEF_SIZE].sizeID
-                                     << "Model:" << current.modelName;
-#endif
-                        }
-                    }
-                }
-              if (bfxStore1) {
-                  bfxParts << token[1]+type;
-                }
-
-            } else if (partIgnore){
+                  }
+                 if (bfxStore1) {
+                     bfxParts << token[1]+type;
+                 }
+              }
+          } else if (partIgnore){
 
               if (tokens.size() == 15){
                   QString lineItem = tokens[tokens.size()-1];
@@ -1909,18 +1908,18 @@ int Gui::findPage(
                       Where model(lineItem,0);
                       QString message("Submodel " + lineItem + " is set to ignore (IGN)");
                       statusBarMsg(message + ".");
-//                      ldrawFile.setModelStartPageNumber(model.modelName,pageNum);
-//                      logTrace() << message << model.modelName << " @ Page: " << pageNum;
-                    }
-                }
-            }
+                      //                      ldrawFile.setModelStartPageNumber(model.modelName,pageNum);
+                      //                      logTrace() << message << model.modelName << " @ Page: " << pageNum;
+                  }
+              }
+          }
         case '2':
         case '3':
         case '4':
         case '5':
-          ++partsAdded;
-          csiParts << line;
-          break;
+            ++partsAdded;
+            csiParts << line;
+            break;
 
         case '0':
           rc = meta.parse(line,current);
