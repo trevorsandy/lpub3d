@@ -114,11 +114,15 @@ void SubmodelInstanceCount::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
   QMenu menu;
   QString name = "Submodel Instance Count";
 
-  QAction *fontAction       = commonMenus.fontMenu(menu,name);
-  QAction *colorAction      = commonMenus.colorMenu(menu,name);
-  QAction *marginAction     = commonMenus.marginMenu(menu,name);
-  QAction *placementAction  = commonMenus.placementMenu(menu,name,"You can move this submodel count around.");
-  QAction *overrideAction   = commonMenus.overrideSubmodelCountMenu(menu,name);
+  QAction *fontAction          = commonMenus.fontMenu(menu,name);
+  QAction *colorAction         = commonMenus.colorMenu(menu,name);
+  QAction *marginAction        = commonMenus.marginMenu(menu,name);
+  QAction *placementAction     = commonMenus.placementMenu(menu,name,"You can move this submodel count around.");
+  QAction *overrideCountAction = commonMenus.overrideCountMenu(menu,name);
+  QAction *restoreCountAction  = nullptr;
+  if (page->meta.LPub.page.countInstanceOverride.value()) {
+    restoreCountAction         = commonMenus.restoreCountMenu(menu,name);
+  } 
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
@@ -158,7 +162,7 @@ void SubmodelInstanceCount::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
                       bottomOfSteps,
                       &placement,
                       useTop);
-    } else if (selectedAction == overrideAction) {
+    } else if (selectedAction == overrideCountAction) {
       bool ok;
       int max = (1 + gui->getSubmodelInstances(page->meta.LPub.countInstance.here().modelName, false)) * 4;
       int override = QInputDialog::getInt(gui,"Submodel Instances","Submodel Instances",value,0,max,1,&ok);
@@ -173,6 +177,12 @@ void SubmodelInstanceCount::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
                        true /*local*/,
                        false/*askLocal*/);
       }
+    } else if (selectedAction == restoreCountAction) {
+      Where undefined, here;
+      here = page->meta.LPub.page.countInstanceOverride.here();
+      if (here == undefined)
+        return;
+      deleteMeta(here);
     }
 }
 

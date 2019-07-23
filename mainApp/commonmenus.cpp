@@ -558,7 +558,7 @@ QAction* CommonMenus::substitutePartMenu(
   return action;
 }
 
-QAction* CommonMenus::overrideSubmodelCountMenu(
+QAction* CommonMenus::overrideCountMenu(
         QMenu   &menu,
   const QString  name)
 {
@@ -573,6 +573,22 @@ QAction* CommonMenus::overrideSubmodelCountMenu(
 
   return action;
 }
+
+QAction* CommonMenus::restoreCountMenu( 
+        QMenu   &menu, 
+  const QString  name) 
+{ 
+  QAction *action; 
+ 
+  QString formatted = QString("Restore %1") .arg(name); 
+  action = menu.addAction(formatted); 
+  action->setIcon(QIcon(":/resources/clearsubmodelcache.png")); 
+ 
+  formatted = QString("Restore the default submodel instance count."); 
+  action->setWhatsThis(formatted); 
+ 
+  return action; 
+} 
 
 QAction* CommonMenus::changeSubstitutePartMenu(
         QMenu   &menu,
