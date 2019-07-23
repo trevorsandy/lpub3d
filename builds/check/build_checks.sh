@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update March 25, 2019
+# Last Update July 23, 2019
 # Copyright (c) 2018 - 2019 by Trevor SANDY
 # LPub3D Unix checks - for remote CI (Trevis, OBS)
 # NOTE: Source with variables as appropriate:
@@ -8,6 +8,24 @@
 #       $XMING = true,
 #       $LP3D_BUILD_APPIMAGE = true,
 #       $SOURCE_DIR = <lpub3d source folder>
+
+# Initialize build check elapsed time
+lp3d_elapsed_check_start=$SECONDS
+
+# Build Check Timer args: 1 = <start> (seconds mark)
+ElapsedCheckTime() {
+  if test -z "$1"; then return 0; fi
+  TIME_ELAPSED="$(((SECONDS - $1) % 60))sec"
+  TIME_MINUTES=$((((SECONDS - $1) / 60) % 60))
+  TIME_HOURS=$(((SECONDS - $1) / 3600))
+  if [ "$TIME_MINUTES" -gt 0 ]; then
+    TIME_ELAPSED="${TIME_MINUTES}mins $TIME_ELAPSED"
+  fi
+  if [ "$TIME_HOURS" -gt 0 ]; then
+    TIME_ELAPSED="${TIME_HOURS}hrs $TIME_ELAPSED"
+  fi
+  echo "$TIME_ELAPSED"
+}
 
 # Initialize platform variables
 LP3D_OS_NAME=$(uname)
@@ -80,6 +98,7 @@ if [ -f "${LP3D_LOG_FILE}" ]; then
 fi
 
 for LP3D_BUILD_CHECK in CHECK01 CHECK02 CHECK03 CHECK04 CHECK05 CHECK06 CHECK07; do
+    lp3d_check_start=$SECONDS
     case ${LP3D_BUILD_CHECK} in
     CHECK01)
         LP3D_CHECK_LBL="Native File Process"
@@ -135,13 +154,13 @@ for LP3D_BUILD_CHECK in CHECK01 CHECK02 CHECK03 CHECK04 CHECK05 CHECK06 CHECK07;
     # check output log for build check status
     if [ -f "${LP3D_LOG_FILE}" ]; then
         if grep -q "${LP3D_CHECK_SUCCESS}" "${LP3D_LOG_FILE}"; then
-            echo "${LP3D_CHECK_HDR} PASSED"
+            echo "${LP3D_CHECK_HDR} PASSED, ELAPSED TIME [`ElapsedCheckTime $lp3d_check_start`]"
             echo "${LP3D_CHECK_LBL} Command: ${LP3D_CHECK_OPTIONS} ${LP3D_CHECK_FILE}"
             let LP3D_CHECK_PASS++
             LP3D_CHECKS_PASS="${LP3D_CHECKS_PASS},$(echo ${LP3D_CHECK_HDR} | cut -d " " -f 3)"
             echo
         else
-            echo "${LP3D_CHECK_HDR} FAILED"
+            echo "${LP3D_CHECK_HDR} FAILED, ELAPSED TIME [`ElapsedCheckTime $lp3d_check_start`]"
             let LP3D_CHECK_FAIL++
             LP3D_CHECKS_FAIL="${LP3D_CHECKS_FAIL},$(echo ${LP3D_CHECK_HDR} | cut -d " " -f 3)"
             echo "- LPub3D Log Trace: ${LP3D_LOG_FILE}"
@@ -165,5 +184,9 @@ if [ "${LP3D_CHECK_FAIL}" -gt "0" ];then
     LP3D_CHECKS_FAIL="$(echo ${LP3D_CHECKS_FAIL} | cut -c 2-)"
 fi
 
-echo && echo "----Build Check Completed: PASS (${LP3D_CHECK_PASS})[${LP3D_CHECKS_PASS}], FAIL (${LP3D_CHECK_FAIL})[${LP3D_CHECKS_FAIL}]----" && echo
+SUMMARY_MSG=''
+SUMMARY_MSG+="----Build Check Completed: PASS (${LP3D_CHECK_PASS})[${LP3D_CHECKS_PASS}], "
+SUMMARY_MSG+="FAIL (${LP3D_CHECK_FAIL})[${LP3D_CHECKS_FAIL}], "
+SUMMARY_MSG+="ELAPSED TIME [`ElapsedCheckTime $lp3d_elapsed_check_start`]----"
+echo && echo $SUMMARY_MSG && echo
 
