@@ -744,7 +744,7 @@ int Gui::addGraphicsPageItems(
 
                   // allocate QGraphicsTextItem for step number
 
-                  if (! step->onlyChild() || ! step->displayModelOnlyStep()) {
+                  if ((! step->onlyChild() && step->showStepNumber) || ! step->displayModelOnlyStep()) {
                       StepNumberItem *stepNumber =
                           new StepNumberItem(step,
                                              page->relativeType,
