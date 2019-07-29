@@ -374,8 +374,6 @@ void Preferences::setDistribution(){
         QSettings::setDefaultFormat(QSettings::IniFormat);
         QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, configDir.absolutePath());
     }
-#else
-    ;
 #endif
 }
 
@@ -599,6 +597,7 @@ void Preferences::lpubPreferences()
     lpubConfigPath = configPathList.first();
 
 #ifdef Q_OS_WIN //... Windows portable or installed
+    QSettings Settings;
 
     if (portableDistribution) { // we have a portable distribution
 
@@ -665,7 +664,6 @@ void Preferences::lpubPreferences()
 
     } else {                    // we have an installed distribution
 
-        QSettings Settings;
         QString const LPub3DDataPathKey("LPub3DDataPath");
 
         if (Settings.contains(QString("%1/%2").arg(SETTINGS,LPub3DDataPathKey))) {
@@ -719,6 +717,7 @@ void Preferences::lpubPreferences()
 
 #ifdef Q_OS_WIN
     QString dataDir = "data";
+    QString dataPath = lpub3dPath;
     if (portableDistribution) {
         dataDir = "extras";
 #ifdef QT_DEBUG_MODE
@@ -726,8 +725,21 @@ void Preferences::lpubPreferences()
 #else
         fprintf(stdout, "%s\n", QString("LPub3D Portable Distribution.(Yes)").toLatin1().constData());
 #endif
+    // On Windows installer 'dataLocation' folder defaults to LPub3D install path but can be set with 'DataLocation' reg key
+    } else if (Settings.contains(QString("%1/%2").arg(SETTINGS,"DataLocation"))) {
+        QString validDataPath = Settings.value(QString("%1/%2").arg(SETTINGS,"DataLocation")).toString();
+        QDir validDataDir(QString("%1/%2/").arg(validDataPath,dataDir));
+        if(QDir(validDataDir).exists()) {
+           dataPath = validDataPath;
+#ifdef QT_DEBUG_MODE
+           qDebug() << QString(QString("LPub3D Data Location.........(%1)").arg(validDataDir.absolutePath()));
+#else
+           fprintf(stdout, "%s\n", QString(QString("LPub3D Data Location.........(%1)").arg(validDataDir.absolutePath())).toLatin1().constData());
+#endif
+        }
     }
-    dataLocation = QString("%1/%2/").arg(lpub3dPath,dataDir);
+    dataLocation = QString("%1/%2/").arg(dataPath,dataDir);
+
 #else
 #ifdef QT_DEBUG_MODE
     qDebug() << QString(QString("LPub3D Extras Resource Path..(%1)").arg(lpub3dExtrasResourcePath));
@@ -967,9 +979,14 @@ void Preferences::lpub3dLibPreferences(bool force)
 
     lpub3dLibFile = Settings.value(QString("%1/%2").arg(SETTINGS,PartsLibraryKey)).toString();
 
-    QString validFile = QString("%1/%2/%3").arg(lpubDataPath, "libraries", validLDrawPartsArchive);
+    // Set archive library path, also check alternate location (e.g. AIOI uses C:\Users\Public\Documents\LDraw)
+    QString validFile = QString("%1/libraries/%2").arg(lpubDataPath, validLDrawPartsArchive);
 
-    // Start by checking the registry value, if not exist set the user data path
+    bool altLibLocation = false;
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,"AltLibLocation")))
+        altLibLocation = Settings.value(QString("%1/%2").arg(SETTINGS,"AltLibLocation")).toBool();
+
+    // Start by checking the registry value, if not exist set to valid file path
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,PartsLibraryKey))) {
         lpub3dLibFile = Settings.value(QString("%1/%2").arg(SETTINGS,PartsLibraryKey)).toString();
     } else {
@@ -977,7 +994,8 @@ void Preferences::lpub3dLibPreferences(bool force)
         Settings.setValue(QString("%1/%2").arg(SETTINGS, PartsLibraryKey), lpub3dLibFile);
     }
 
-    if (lpub3dLibFile != validFile) {
+    // Confirm archive library location is valid
+    if (lpub3dLibFile != validFile && !altLibLocation) {
         lpub3dLibFile = QDir::toNativeSeparators(validFile);
         Settings.setValue(QString("%1/%2").arg(SETTINGS, PartsLibraryKey), lpub3dLibFile);
     }

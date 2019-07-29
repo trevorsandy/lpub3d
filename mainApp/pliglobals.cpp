@@ -198,7 +198,12 @@ GlobalPliDialog::GlobalPliDialog(
 
   box = new QGroupBox("Part Groups");
   vlayout->addWidget(box);
-  child = new CheckBoxGui("Enable movable part groups",&pliMeta->enablePliPartGroup,box);
+  QString description = "Movable part groups (part image, instance count ";
+  if (bom)
+    description += "annotation and element id)";
+  else
+    description += "and annotation)";
+  child = new CheckBoxGui(description,&pliMeta->enablePliPartGroup,box);
   data->children.append(child);
 
   box = new QGroupBox("Part Counts");
