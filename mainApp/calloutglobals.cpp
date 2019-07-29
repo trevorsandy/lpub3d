@@ -34,11 +34,13 @@ public:
   Meta       meta;
   QString    topLevelFile;
   QList<MetaGui *> children;
+  bool     clearCache;
 
   GlobalCalloutPrivate(QString &_topLevelFile, Meta &_meta)
   {
     topLevelFile = _topLevelFile;
-    meta = _meta;
+    meta         = _meta;
+    clearCache   = false;
 
     MetaItem mi; // examine all the globals and then return
 
@@ -46,7 +48,9 @@ public:
   }
 };
 
-GlobalCalloutDialog::GlobalCalloutDialog(QString &topLevelFile, Meta &meta)
+GlobalCalloutDialog::GlobalCalloutDialog(
+   QString &topLevelFile,
+   Meta &meta)
 {
   data = new GlobalCalloutPrivate(topLevelFile, meta);
 
@@ -54,55 +58,69 @@ GlobalCalloutDialog::GlobalCalloutDialog(QString &topLevelFile, Meta &meta)
 
   QTabWidget  *tab = new QTabWidget();
   QVBoxLayout *layout = new QVBoxLayout();
-  QVBoxLayout *childlayout = new QVBoxLayout();
+
   setLayout(layout);
   layout->addWidget(tab);
 
+  QVBoxLayout *vlayout;
+  QSpacerItem *vSpacer;
+
   QWidget *widget;
-  QGridLayout *grid;
-
-  widget = new QWidget();
-  grid = new QGridLayout();
-  widget->setLayout(grid);
-
   MetaGui *child;
   QGroupBox *box;
 
   CalloutMeta *calloutMeta = &data->meta.LPub.callout;
 
+  /*
+   * Background tab
+   */
+  widget = new QWidget();
+  vlayout = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
+
   box = new QGroupBox("Background");
-  grid->addWidget(box);
+  vlayout->addWidget(box);
   child = new BackgroundGui(&calloutMeta->background,box);
   data->children.append(child);
 
   box = new QGroupBox("Border");
-  grid->addWidget(box);
+  vlayout->addWidget(box);
   child = new BorderGui(&calloutMeta->border,box);
   data->children.append(child);
   
   box = new QGroupBox("Margins");
-  grid->addWidget(box);
+  vlayout->addWidget(box);
   child = new UnitsGui("",&calloutMeta->margin,box);
   data->children.append(child);
   
   box = new QGroupBox("Divider");
-  grid->addWidget(box);
+  vlayout->addWidget(box);
   child = new SepGui(&calloutMeta->sep,box);
   data->children.append(child);
 
   tab->addTab(widget,"Background/Border");
 
+  /*
+   * Contents tab
+   */
   widget = new QWidget();
-  grid = new QGridLayout();
-  widget->setLayout(grid);
+  vlayout = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
   
-  box = new QGroupBox("Assembly Margins");
-  grid->addWidget(box);
-  child = new UnitsGui("",&calloutMeta->csi.margin,box);
-  data->children.append(child);
+  QTabWidget *childtab = new QTabWidget();
+  vlayout->addWidget(childtab);
+  tab->addTab(widget, "Contents");
+
+  /*
+   * Callout Tab
+   */
+  QVBoxLayout *childlayout = new QVBoxLayout();
+  widget = new QWidget(nullptr);
+  vlayout = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
   
   box = new QGroupBox("Parts List");
-  grid->addWidget(box);
+  vlayout->addWidget(box);
   childlayout = new QVBoxLayout();
   box->setLayout(childlayout);
   child = new UnitsGui("Margins",&calloutMeta->pli.margin);
@@ -114,23 +132,93 @@ GlobalCalloutDialog::GlobalCalloutDialog(QString &topLevelFile, Meta &meta)
   childlayout->addWidget(child);
 
   box = new QGroupBox("Step Number");
-  grid->addWidget(box);
+  vlayout->addWidget(box);
   child = new NumberGui(&calloutMeta->stepNum,box);
   data->children.append(child);
 
   box = new QGroupBox("Times Used");
-  grid->addWidget(box);
+  vlayout->addWidget(box);
   child = new NumberGui(&calloutMeta->instance,box);
   data->children.append(child);
 
-  tab->addTab(widget,"Contents");
+  //spacer
+  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vlayout->addSpacerItem(vSpacer);
+
+  childtab->addTab(widget,"Callout");
+
+  /*
+   * CSI Assembly Tab
+   */
+  QGridLayout *boxGrid = new QGridLayout();
+  widget = new QWidget(nullptr);
+  vlayout = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
+
+  box = new QGroupBox("Assembly Image");
+  vlayout->addWidget(box);
+  box->setLayout(boxGrid);
+
+  // Scale/Native Camera Distance Factor
+  if (Preferences::usingNativeRenderer) {
+    child = new CameraDistFactorGui("Camera Distance Factor",
+                                    &calloutMeta->csi.cameraDistNative);
+    data->children.append(child);
+    boxGrid->addWidget(child,0,0);
+  } else {
+    child = new DoubleSpinGui("Scale",
+      &calloutMeta->csi.modelScale,
+      calloutMeta->csi.modelScale._min,
+      calloutMeta->csi.modelScale._max,
+      0.01);
+    data->children.append(child);
+    boxGrid->addWidget(child,0,0);
+  }
+  data->clearCache = (data->clearCache ? data->clearCache : child->modified);
+
+  child = new UnitsGui("Margins",&calloutMeta->csi.margin);
+  data->children.append(child);
+  boxGrid->addWidget(child,1,0);
+
+  /* Assembly camera settings */
+
+  box = new QGroupBox("Default Assembly Orientation");
+  vlayout->addWidget(box);
+  boxGrid = new QGridLayout();
+  box->setLayout(boxGrid);
+
+  // camera field of view
+  child = new DoubleSpinGui("Camera FOV",
+                            &calloutMeta->csi.cameraFoV,
+                            calloutMeta->csi.cameraFoV._min,
+                            calloutMeta->csi.cameraFoV._max,
+                            calloutMeta->csi.cameraFoV.value());
+  data->children.append(child);
+  data->clearCache = (data->clearCache ? data->clearCache : child->modified);
+  boxGrid->addWidget(child,0,0,1,2);
+
+  // view angles
+  child = new FloatsGui("Latitude","Longitude",&calloutMeta->csi.cameraAngles);
+  data->children.append(child);
+  data->clearCache = (data->clearCache ? data->clearCache : child->modified);
+  boxGrid->addWidget(child,1,0);
+
+  box = new QGroupBox("Assembly Margins");
+  vlayout->addWidget(box);
+  child = new UnitsGui("",&calloutMeta->csi.margin,box);
+  data->children.append(child);
+
+  //spacer
+  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vlayout->addSpacerItem(vSpacer);
+
+  childtab->addTab(widget,"Assembly");
 
   /*
    * Submodel colors
    */
-
   widget = new QWidget();
-  QVBoxLayout *vlayout = new QVBoxLayout(nullptr);
+  vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
   box = new QGroupBox(tr("Submodel Level Colors"));
@@ -139,7 +227,7 @@ GlobalCalloutDialog::GlobalCalloutDialog(QString &topLevelFile, Meta &meta)
   data->children.append(child);
 
   //spacer
-  QSpacerItem *vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
   vlayout->addSpacerItem(vSpacer);
 
   tab->addTab(widget,"Submodel Colors");
@@ -156,6 +244,7 @@ GlobalCalloutDialog::GlobalCalloutDialog(QString &topLevelFile, Meta &meta)
 
   setModal(true);
   setMinimumSize(40,20);
+  adjustSize();
 }
 
 void GlobalCalloutDialog::getCalloutGlobals(
@@ -168,6 +257,11 @@ void GlobalCalloutDialog::getCalloutGlobals(
 void GlobalCalloutDialog::accept()
 {
   MetaItem mi;
+
+  if (data->clearCache) {
+    clearCsiCache();
+    clearTempCache();
+  }
 
   mi.beginMacro("Global Callout");
 

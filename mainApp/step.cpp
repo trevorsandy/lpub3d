@@ -109,6 +109,7 @@ Step::Step(
       stepNumber.color        = _meta.LPub.callout.stepNum.color.value();
       stepNumber.margin       = _meta.LPub.callout.stepNum.margin;
       pliPerStep              = _meta.LPub.callout.pli.perStep.value();
+      csiCameraMeta           = _meta.LPub.callout.csi;
     } else if (multiStep) {
       csiPlacement.margin     = _meta.LPub.multiStep.csi.margin;
       csiPlacement.placement  = _meta.LPub.multiStep.csi.placement;
@@ -125,6 +126,7 @@ Step::Step(
       subModel.margin         = _meta.LPub.multiStep.subModel.margin;
       subModel.placement      = _meta.LPub.multiStep.subModel.placement;
       pliPerStep              = _meta.LPub.multiStep.pli.perStep.value();
+      csiCameraMeta           = _meta.LPub.multiStep.csi;
     } else {
       csiPlacement.margin     = _meta.LPub.assem.margin;
       csiPlacement.placement  = _meta.LPub.assem.placement;
@@ -140,6 +142,7 @@ Step::Step(
       subModel.margin         = _meta.LPub.subModel.margin;
       subModel.placement      = _meta.LPub.subModel.placement;
       pliPerStep              = false;
+      csiCameraMeta           = _meta.LPub.assem.getCsiNativeCamMeta();
     }
   pli.steps                 = grandparent();
   pli.step                  = this;
@@ -199,15 +202,19 @@ int Step::createCsi(
 {
   bool csiExist       = false;
   bool nativeRenderer = Preferences::usingNativeRenderer;
-  float modelScale    = 1.0f;
+  int  nType          = NTypeDefault;
+  FloatPairMeta cameraAngles;
+  cameraAngles.setValues( csiCameraMeta.cameraAngles.value(0),
+                          csiCameraMeta.cameraAngles.value(1));
+  float cameraFoV       = csiCameraMeta.cameraFoV.value();
+  float modelScale      = csiCameraMeta.modelScale.value();
   if (nativeRenderer) {
-      modelScale = meta.LPub.assem.cameraDistNative.factor.value();
-  } else {
-      modelScale = meta.LPub.assem.modelScale.value();
+    modelScale          = csiCameraMeta.cameraDistNative.factor.value();
+    nType = calledOut ? NTypeCalledOut : multiStep ? NTypeMultiStep : NTypeDefault;
   }
-  QString csi_Name        = modelDisplayOnlyStep ? csiName()+"_fm" : bfxLoad ? csiName()+"_bfx" : csiName();
-  bool    invalidIMStep   = ((modelDisplayOnlyStep) || (stepNumber.number == 1));
-  bool    absRotstep      = meta.rotStep.value().type == "ABS";
+  QString csi_Name      = modelDisplayOnlyStep ? csiName()+"_fm" : bfxLoad ? csiName()+"_bfx" : csiName();
+  bool    invalidIMStep = ((modelDisplayOnlyStep) || (stepNumber.number == 1));
+  bool    absRotstep    = meta.rotStep.value().type == "ABS";
   FloatPairMeta noCA;
 
   ldrName.clear();
@@ -236,16 +243,16 @@ int Step::createCsi(
       .arg(double(resolution()))
       .arg(resolutionType() == DPI ? "DPI" : "DPCM")
       .arg(double(modelScale))
-      .arg(double(meta.LPub.assem.cameraFoV.value()))
-      .arg(absRotstep ? double(noCA.value(0)) : double(meta.LPub.assem.cameraAngles.value(0)))
-      .arg(absRotstep ? double(noCA.value(1)) : double(meta.LPub.assem.cameraAngles.value(1)));
+      .arg(double(cameraFoV))
+      .arg(absRotstep ? double(noCA.value(0)) : double(cameraAngles.value(0)))
+      .arg(absRotstep ? double(noCA.value(1)) : double(cameraAngles.value(1)));
   QString key = QString("%1_%2").arg(keyPart1).arg(keyPart2);
 
   // append rotstep to be passed on to 3DViewer
   keyPart2 += QString("_%1_%2")
                       .arg(renderer->getRotstepMeta(meta.rotStep,true))
                       // why is scale passed twice ?
-                      .arg(double(meta.LPub.assem.modelScale.value()));
+                      .arg(double(modelScale));
 
   // populate png name
   pngName = QString("%1/%2.png").arg(csiPngFilePath).arg(key);
@@ -297,7 +304,7 @@ int Step::createCsi(
       QStringList rotatedParts = csiParts;
 
       // rotate parts for 3DViewer without camera angles - this rotateParts routine returns a part list
-      if ((rc = renderer->rotateParts(addLine,meta.rotStep,rotatedParts,absRotstep ? noCA : meta.LPub.assem.cameraAngles,false)) != 0)
+      if ((rc = renderer->rotateParts(addLine,meta.rotStep,rotatedParts,absRotstep ? noCA : cameraAngles,false)) != 0)
           emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer CSI parts"));
 
       // add ROTSTEP command
@@ -342,7 +349,7 @@ int Step::createCsi(
          }
 
          // Camera angles not applied to rotated parts for Native renderer - this rotateParts routine generates an ldr file
-         if ((rc = renderer->rotateParts(addLine, meta.rotStep, csiParts, ldrName, top.modelName, absRotstep ? noCA : meta.LPub.assem.cameraAngles)) != 0) {
+         if ((rc = renderer->rotateParts(addLine, meta.rotStep, csiParts, ldrName, top.modelName, absRotstep ? noCA : cameraAngles)) != 0) {
              emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate CSI ldr file: %1.")
                                                    .arg(ldrName));
              pngName = QString(":/resources/missingimage.png");
@@ -357,7 +364,7 @@ int Step::createCsi(
          // render the partially assembled model
          QStringList csiKeys = QStringList() << csiKey; // adding just a single key
 
-         if ((rc = renderer->renderCsi(addLine, csiParts, csiKeys, pngName, meta)) != 0) {
+         if ((rc = renderer->renderCsi(addLine, csiParts, csiKeys, pngName, meta, nType)) != 0) {
              emit gui->messageSig(LOG_ERROR,QString("%1 CSI render failed for<br>%2")
                                                     .arg(Render::getRenderer())
                                                     .arg(pngName));
@@ -394,7 +401,7 @@ int Step::createCsi(
       viewerOptions.FoV            = meta.LPub.assem.v_cameraFoV.value();
       viewerOptions.ZNear          = meta.LPub.assem.v_znear.value();
       viewerOptions.ZFar           = meta.LPub.assem.v_zfar.value();
-      viewerOptions.CameraDistance = meta.LPub.assem.cameraDistNative.factor.value();
+      viewerOptions.CameraDistance = modelScale;
       viewerOptions.Latitude       = absRotstep ? noCA.value(0) : meta.LPub.assem.cameraAngles.value(0);
       viewerOptions.Longitude      = absRotstep ? noCA.value(1) : meta.LPub.assem.cameraAngles.value(1);
 

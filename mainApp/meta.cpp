@@ -2657,6 +2657,23 @@ void ArrowEndMeta::doc(QStringList &out, QString preamble)
 
 CalloutCsiMeta::CalloutCsiMeta() : BranchMeta()
 {
+  // assem image generation
+  modelScale.setRange(-10000.0,10000.0);
+  modelScale.setFormats(7,4,"#99999.9");
+  modelScale.setValue(1.0);
+
+  // assem native camera position
+  cameraAngles.setFormats(7,4,"###9.90");
+  cameraAngles.setRange(-360.0,360.0);
+  cameraAngles.setValues(23,45);                   // using LPub3D Default 0.0,0.0f
+  cameraDistNative.factor.setRange(-5000,5000);
+  cameraDistNative.factor.setValue(Preferences::cameraDistFactorNative);
+  cameraFoV.setFormats(5,4,"9.999");
+  cameraFoV.setRange(gui->getDefaultFOVMinRange(),
+                     gui->getDefaultFOVMaxRange());
+  cameraFoV.setValue(gui->getDefaultCameraFoV());
+  znear.setValue(gui->getDefaultCameraZNear());
+  zfar.setValue(gui->getDefaultCameraZFar());
 }
 
 void CalloutCsiMeta::init(BranchMeta *parent, QString name)
@@ -2664,6 +2681,15 @@ void CalloutCsiMeta::init(BranchMeta *parent, QString name)
   AbstractMeta::init(parent, name);
   placement.init(this,"PLACEMENT");
   margin.init   (this,"MARGINS");
+
+  // assem image scale
+  modelScale.init       (this,"MODEL_SCALE");
+  // assem native camera position
+  cameraDistNative.init (this,"CAMERA_DISTANCE_NATIVE");
+  cameraFoV.init        (this,"CAMERA_FOV");
+  cameraAngles.init     (this,"CAMERA_ANGLES");
+  znear.init            (this,"CAMERA_ZNEAR");
+  zfar.init             (this,"CAMERA_ZFAR");
 }
 
 /* ------------------ */ 

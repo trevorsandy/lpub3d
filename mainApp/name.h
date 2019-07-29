@@ -43,6 +43,7 @@ enum RulerTrackingType { TRACKING_TICK, TRACKING_LINE, TRACKING_NONE};
 enum SceneGuidesPosType { GUIDES_TOP_LEFT, GUIDES_TOP_RIGHT, GUIDES_CENTRE, GUIDES_BOT_LEFT, GUIDES_BOT_RIGHT};
 enum LibType { LibLEGO, LibTENTE, LibVEXIQ, NumLibs };
 enum Theme { ThemeDark, ThemeDefault };
+enum NativeType { NTypeDefault, NTypeCalledOut, NTypeMultiStep };
 enum SceneObjectDirection { BringToFront = 1/*True*/, SendToBack = 0/*False*/ };
 enum SceneObjectInfo { ObjectId };
 enum GridStepSize {
@@ -89,6 +90,7 @@ enum NameKeyAttributes {
     nResolution,      // 3
     nResType,         // 4
     nModelScale,      // 5
+    nCameraDistance = nModelScale,
     nCameraFoV,       // 6
     nCameraAngleXX,   // 7
     nCameraAngleYY,   // 8

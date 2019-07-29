@@ -1932,12 +1932,44 @@ public:
 };
 
 /*------------------------*/
+/*
+ * Native Camera Distance Factor Meta
+ */
+class CameraDistFactorMeta : public BranchMeta
+{
+public:
+  IntMeta     factor;
+  void setPreferences()
+  {
+     Preferences::cameraDistFactorNative = factor.value();
+  }
+  CameraDistFactorMeta();
+  CameraDistFactorMeta(const CameraDistFactorMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+
+  virtual ~CameraDistFactorMeta() {}
+  virtual void init(BranchMeta *parent,
+                    QString name);
+};
+
+/*------------------------*/
 
 class CalloutCsiMeta : public BranchMeta
 {
 public:
   PlacementMeta placement;
   MarginsMeta   margin;
+
+  // assem image scale
+  FloatMeta            modelScale;
+  // assem native camera position
+  CameraDistFactorMeta cameraDistNative;
+  FloatMeta            cameraFoV;
+  FloatPairMeta        cameraAngles;
+  FloatMeta            znear;
+  FloatMeta            zfar;
+
   CalloutCsiMeta();
   CalloutCsiMeta(const CalloutCsiMeta &rhs) : BranchMeta(rhs)
   {
@@ -2256,28 +2288,6 @@ public:
   }
 
   virtual ~HighlightStepMeta() {}
-  virtual void init(BranchMeta *parent,
-                    QString name);
-};
-
-/*------------------------*/
-/*
- * Native Camera Distance Factor Meta
- */
-class CameraDistFactorMeta : public BranchMeta
-{
-public:
-  IntMeta     factor;
-  void setPreferences()
-  {
-     Preferences::cameraDistFactorNative = factor.value();
-  }
-  CameraDistFactorMeta();
-  CameraDistFactorMeta(const CameraDistFactorMeta &rhs) : BranchMeta(rhs)
-  {
-  }
-
-  virtual ~CameraDistFactorMeta() {}
   virtual void init(BranchMeta *parent,
                     QString name);
 };
@@ -2991,6 +3001,8 @@ public:
   AnnotationStyleMeta  circleStyle;
   AnnotationStyleMeta  squareStyle;
 
+  // pli image generation
+  CameraDistFactorMeta cameraDistNative;
   FloatMeta            cameraFoV;
   FloatPairMeta        cameraAngles;
   IntMeta              distance;
@@ -3003,7 +3015,6 @@ public:
   FloatMeta            v_znear;
   FloatMeta            v_zfar;
 
-  CameraDistFactorMeta cameraDistNative;
   RotStepMeta          rotStep;
   BoolMeta             showTopModel;
 
@@ -3079,6 +3090,15 @@ public:
   IntMeta              v_distance;
   FloatMeta            v_znear;
   FloatMeta            v_zfar;
+
+  CalloutCsiMeta       getCsiNativeCamMeta(){
+    CalloutCsiMeta       csi;
+    csi.modelScale       = modelScale;
+    csi.cameraDistNative = cameraDistNative;
+    csi.cameraFoV        = cameraFoV;
+    csi.cameraAngles     = cameraAngles;
+    return csi;
+  }
 
   AssemMeta();
   AssemMeta(const AssemMeta &rhs) : BranchMeta(rhs)

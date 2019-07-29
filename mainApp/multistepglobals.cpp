@@ -1,4 +1,4 @@
- 
+
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
@@ -33,11 +33,13 @@ public:
   Meta       meta;
   QString    topLevelFile;
   QList<MetaGui *> children;
+  bool       clearCache;
 
   GlobalMultiStepPrivate(QString &_topLevelFile, Meta &_meta)
   {
     topLevelFile = _topLevelFile;
-    meta = _meta;
+    meta         = _meta;
+    clearCache   = false;
 
     MetaItem mi; // examine all the globals and then return
 
@@ -45,13 +47,6 @@ public:
   }
 };
 
-/*
- * margin
- * csi margin
- * pli margin, perStep
- * stepNumber font,color,margins
- * divider 
- */
 
 GlobalMultiStepDialog::GlobalMultiStepDialog(
   QString &topLevelFile,
@@ -63,75 +58,138 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
 
   QTabWidget  *tab = new QTabWidget(nullptr);
   QVBoxLayout *layout = new QVBoxLayout(nullptr);
+  QVBoxLayout *childlayout = new QVBoxLayout();
+
   setLayout(layout);
   layout->addWidget(tab);
 
-  QWidget *widget;
-  QGridLayout *grid;
+  QVBoxLayout *vlayout;
+  QSpacerItem *vSpacer;
 
+  QWidget *widget;
   MetaGui *child;
   QGroupBox *box;
 
   MultiStepMeta *multiStepMeta = &data->meta.LPub.multiStep;
-  
+
   /*
-   * Contents tab
+   * Step group
    */
+  widget = new QWidget();
+  vlayout = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
 
-  widget = new QWidget(nullptr);
-  grid = new QGridLayout(nullptr);
-  widget->setLayout(grid);
-
-  box = new QGroupBox("Margins");
-  grid->addWidget(box);
+  box = new QGroupBox("Step Group Margins");
+  vlayout->addWidget(box);
   child = new UnitsGui("",&multiStepMeta->margin,box);
-  data->children.append(child);
-    
-  box = new QGroupBox("Assembly Margins");
-  grid->addWidget(box);
-  child = new UnitsGui("",&multiStepMeta->csi.margin,box);
   data->children.append(child);
   
   box = new QGroupBox("Parts List");
-  grid->addWidget(box);
-  QVBoxLayout *tempLayout = new QVBoxLayout();
-  box->setLayout(tempLayout);
+  vlayout->addWidget(box);
+  box->setLayout(childlayout);
+
   child = new UnitsGui("Margins",&multiStepMeta->pli.margin);
   data->children.append(child);
-  tempLayout->addWidget(child);
+  childlayout->addWidget(child);
 
   child = new CheckBoxGui("Per Step",&multiStepMeta->pli.perStep);
   data->children.append(child);
-  tempLayout->addWidget(child);
+  childlayout->addWidget(child);
 
   box = new QGroupBox("Submodel");
-  grid->addWidget(box);
-  child = new CheckBoxGui("Show Submodel image at first step",&multiStepMeta->subModel.show, box);
+  vlayout->addWidget(box);
+  child = new CheckBoxGui("Show Submodel image at first step",&multiStepMeta->subModel.show,box);
   data->children.append(child);
 
   box = new QGroupBox("Step Number");
-  grid->addWidget(box);
+  vlayout->addWidget(box);
   child = new NumberGui(&multiStepMeta->stepNum,box);
   data->children.append(child);
 
-  tab->addTab(widget,"Content");
+  tab->addTab(widget,"Contents");
+
+  /*
+   * CSI Assembly Tab
+   */
+   QGridLayout *boxGrid = new QGridLayout();
+   widget = new QWidget();
+   vlayout = new QVBoxLayout(nullptr);
+   widget->setLayout(vlayout);
+
+   box = new QGroupBox("Assembly Image");
+   vlayout->addWidget(box);
+   box->setLayout(boxGrid);
+
+   // Scale/Native Camera Distance Factor
+   if (Preferences::usingNativeRenderer) {
+     child = new CameraDistFactorGui("Camera Distance Factor",
+                                     &multiStepMeta->csi.cameraDistNative);
+     data->children.append(child);
+     boxGrid->addWidget(child);
+   } else {
+     child = new DoubleSpinGui("Scale",
+       &multiStepMeta->csi.modelScale,
+       multiStepMeta->csi.modelScale._min,
+       multiStepMeta->csi.modelScale._max,
+       0.01);
+     data->children.append(child);
+     boxGrid->addWidget(child);
+   }
+   data->clearCache = (data->clearCache ? data->clearCache : child->modified);
+
+   child = new UnitsGui("Margins",&multiStepMeta->csi.margin);
+   data->children.append(child);
+   boxGrid->addWidget(child);
+
+   /* Assembly camera settings */
+
+   box = new QGroupBox("Default Assembly Orientation");
+   vlayout->addWidget(box);
+   boxGrid = new QGridLayout();
+   box->setLayout(boxGrid);
+
+   // camera field of view
+   child = new DoubleSpinGui("Camera FOV",
+                             &multiStepMeta->csi.cameraFoV,
+                             multiStepMeta->csi.cameraFoV._min,
+                             multiStepMeta->csi.cameraFoV._max,
+                             multiStepMeta->csi.cameraFoV.value());
+   data->children.append(child);
+   data->clearCache = (data->clearCache ? data->clearCache : child->modified);
+   boxGrid->addWidget(child,0,0,1,2);
+
+   // view angles
+   child = new FloatsGui("Latitude","Longitude",&multiStepMeta->csi.cameraAngles);
+   data->clearCache = (data->clearCache ? data->clearCache : child->modified);
+   data->children.append(child);
+   boxGrid->addWidget(child,1,0);
+
+   box = new QGroupBox("Assembly Margins");
+   vlayout->addWidget(box);
+   child = new UnitsGui("",&multiStepMeta->csi.margin,box);
+   data->children.append(child);
+
+   //spacer
+   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+   vlayout->addSpacerItem(vSpacer);
+
+   tab->addTab(widget,"Assembly");
 
   /*
    * Divider tab
    */
-
   widget = new QWidget(nullptr);
-  QVBoxLayout *vLayout = new QVBoxLayout(nullptr);
-  widget->setLayout(vLayout);
+  vlayout = new QVBoxLayout(nullptr);
+  widget->setLayout(vlayout);
 
   box = new QGroupBox("Divider");
-  vLayout->addWidget(box);
+  vlayout->addWidget(box);
   child = new SepGui(&multiStepMeta->sep,box);
   data->children.append(child);
 
   //spacer
-  QSpacerItem *vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
-  vLayout->addSpacerItem(vSpacer);
+  vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
+  vlayout->addSpacerItem(vSpacer);
 
   tab->addTab(widget,"Divider");
 
@@ -147,7 +205,7 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
 
   setModal(true);
   setMinimumSize(40,20);
-  
+  adjustSize();
 }
 
 void GlobalMultiStepDialog::getMultiStepGlobals(
@@ -159,6 +217,11 @@ void GlobalMultiStepDialog::getMultiStepGlobals(
 
 void GlobalMultiStepDialog::accept()
 {
+  if (data->clearCache) {
+    clearCsiCache();
+    clearTempCache();
+  }
+
   MetaItem mi;
 
   mi.beginMacro("Global MultiStep");

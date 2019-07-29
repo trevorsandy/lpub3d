@@ -50,7 +50,6 @@ public:
   RcMeta            *divider;
   Step              *step;
   PlacementType      parentRelativeType;
-  bool               multiStep;
   bool               hiddenAnnotations;
   int                submodelLevel;
   FloatMeta          modelScale;

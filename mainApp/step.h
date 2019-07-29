@@ -72,6 +72,7 @@ class Step : public AbstractRangeElement
     RotateIconItem        rotateIcon;
     PlacementNum          stepNumber;
     NumberPlacementMeta   numberPlacemetMeta;
+    CalloutCsiMeta        csiCameraMeta;
     bool                  showStepNumber;
     int                   submodelLevel;
     bool                  pliPerStep;

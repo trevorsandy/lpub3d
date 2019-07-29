@@ -3820,7 +3820,7 @@ void MetaItem::writeCsiAnnotationMeta(
   endMacro();
 }
 
-/* offsetPoint is the trick - it calculates specified a position
+/* offsetPoint is the trick - it calculates a specified position
    point for part(s) in a specified modelName and at specified
    lineNumber(s). It does this by rendering the parent image with
    the model's non-step parts color A and the step's parts color B.

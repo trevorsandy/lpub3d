@@ -2903,12 +2903,9 @@ void PliBackgroundItem::contextMenuEvent(
       QString pl = pli->bom ? "Bill Of Materials" : "Parts List";
       QAction *placementAction  = commonMenus.placementMenu(menu,pl,
                                                             commonMenus.naturalLanguagePlacementWhatsThis(PartsListType,placementData,pl));
-      QAction *cameraDistFactorAction = nullptr;
       QAction *scaleAction = nullptr;
-      if (showCameraDistFactorItem){
-          cameraDistFactorAction  = commonMenus.cameraDistFactorrMenu(menu, pl);
-      } else {
-          scaleAction             = commonMenus.scaleMenu(menu, pl);
+      if (!showCameraDistFactorItem){
+          scaleAction              = commonMenus.scaleMenu(menu, pl);
       }
       QAction *constrainAction     = commonMenus.constrainMenu(menu,pl);
       QAction *backgroundAction    = commonMenus.backgroundMenu(menu,pl);
@@ -2923,6 +2920,10 @@ void PliBackgroundItem::contextMenuEvent(
       }
       QAction *sortAction          = commonMenus.sortMenu(menu,pl);
       QAction *annotationAction    = commonMenus.annotationMenu(menu,pl);
+      QAction *cameraDistFactorAction = nullptr;
+      if (showCameraDistFactorItem){
+          cameraDistFactorAction   = commonMenus.cameraDistFactorrMenu(menu, pl);
+      }
       QAction *cameraFoVAction     = commonMenus.cameraFoVMenu(menu,pl);
       QAction *cameraAnglesAction  = commonMenus.cameraAnglesMenu(menu,pl);
 

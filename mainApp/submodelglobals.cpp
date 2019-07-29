@@ -62,6 +62,7 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   QTabWidget  *tab = new QTabWidget(nullptr);
   QVBoxLayout *layout = new QVBoxLayout(nullptr);
   QVBoxLayout *childlayout = new QVBoxLayout(nullptr);
+
   setLayout(layout);
   layout->addWidget(tab);
 
@@ -79,7 +80,6 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   /*
    * Submodel tab
    */
-
   widget = new QWidget(nullptr);
   grid = new QGridLayout(nullptr);
   widget->setLayout(grid);
@@ -88,6 +88,9 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   grid->addWidget(childtab);
   tab->addTab(widget,"Submodel");
 
+  /*
+   * Options group
+   */
   widget = new QWidget();
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
@@ -95,7 +98,6 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   box = new QGroupBox("Preview Options");
   vlayout->addWidget(box);
   box->setLayout(childlayout);
-
   child = new ShowSubModelGui(&data->meta.LPub.subModel);
   data->children.append(child);
   childlayout->addWidget(child);
@@ -107,6 +109,9 @@ GlobalSubModelDialog::GlobalSubModelDialog(
 
   childtab->addTab(widget,"Preview");
 
+  /*
+   * Background Tab
+   */
   widget = new QWidget();
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
@@ -144,6 +149,9 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   grid->addWidget(childtab);
   tab->addTab(widget,"Contents");
 
+  /*
+   * Submodel Image
+   */
   widget = new QWidget();
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
@@ -210,6 +218,10 @@ GlobalSubModelDialog::GlobalSubModelDialog(
 
   childtab->addTab(widget,"Image");
 
+  /*
+   * Instance Count Tab
+   */
+
   widget = new QWidget();
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
@@ -230,7 +242,6 @@ GlobalSubModelDialog::GlobalSubModelDialog(
    */
 
   widget = new QWidget(nullptr);
-  //QVBoxLayout *vlayout = new QVBoxLayout(nullptr);
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
 
@@ -258,6 +269,7 @@ GlobalSubModelDialog::GlobalSubModelDialog(
 
   setModal(true);
   setMinimumSize(40,20);
+  adjustSize();
 }
 
 void GlobalSubModelDialog::getSubModelGlobals(

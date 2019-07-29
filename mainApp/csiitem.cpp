@@ -58,9 +58,10 @@ CsiItem::CsiItem(
   setParentItem(parent);
   
   assem = &meta->LPub.assem;
-  if (parentRelativeType == StepGroupType) {
+  // TODO - This might be suspect, consider changing to individual instance per step
+  if (step->multiStep) {
     divider = &meta->LPub.multiStep.divider;
-  } else if (parentRelativeType == CalloutType) {
+  } else if (step->calledOut) {
     divider = &meta->LPub.callout.divider;
   } else {
     divider = nullptr;
@@ -399,14 +400,14 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                       "Camera FOV",
                       topOfStep,
                       bottomOfStep,
-                      &meta->LPub.assem.cameraFoV,
-                      0.01,
+                      &step->csiCameraMeta.cameraFoV,
+                      0.01f,
                       1,allowLocal);
     } else if (selectedAction == cameraAnglesAction) {
         changeCameraAngles(pl+" Camera Angles",
                           topOfStep,
                           bottomOfStep,
-                          &meta->LPub.assem.cameraAngles,
+                          &step->csiCameraMeta.cameraAngles,
                          1,allowLocal);
      } else if (selectedAction == movePrevAction) {
 
@@ -456,15 +457,15 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     } else if (selectedAction == cameraDistFactorAction) {
         changeCameraDistFactor(pl+" Camera Distance",
                                "Native Camera Distance",
-                               topOfSteps,
-                               bottomOfSteps,
-                               &meta->LPub.assem.cameraDistNative.factor);
+                               topOfStep,
+                               bottomOfStep,
+                               &step->csiCameraMeta.cameraDistNative.factor);
     } else if (selectedAction == scaleAction){
         changeFloatSpin(pl+" Scale",
                         "Model Size",
-                        topOfSteps,
-                        bottomOfSteps,
-                        &meta->LPub.assem.modelScale);
+                        topOfStep,
+                        bottomOfStep,
+                        &step->csiCameraMeta.modelScale);
     } else if (selectedAction == marginsAction) {
 
       MarginsMeta *margins;
@@ -596,7 +597,9 @@ void CsiItem::change()
       }
       changePlacementOffset(step->topOfStep(),&meta->LPub.assem.placement,CsiType,true,false);  
       
-      modelScale.setValue(modelScale.value()*oldScale);
+      modelScale = step->csiCameraMeta.modelScale;
+      modelScale.setValue(float(modelScale.value())*float(oldScale));
+
       changeFloat(step->topOfStep(),step->bottomOfStep(),&modelScale,1,0);
       endMacro();
     }

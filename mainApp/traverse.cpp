@@ -410,7 +410,7 @@ int Gui::drawPage(
   bool     rotateIcon      = false;
   bool     assemAnnotation = false;
   bool     displayCount    = false;
-  int      countInstances = steps->meta.LPub.countInstance.value();
+  int      countInstances  = steps->meta.LPub.countInstance.value();
 
   DividerType dividerType  = NoDivider;
 
@@ -430,6 +430,30 @@ int Gui::drawPage(
   page.coverPage = false;
 
   QStringList calloutParts;
+
+  QElapsedTimer pageRenderTimer;
+  pageRenderTimer.start();
+
+  auto drawPageElapsedTime = [this, &partsAdded, &pageRenderTimer](){
+    QString pageRenderMessage = QString("%1 ").arg(VER_PRODUCTNAME_STR);
+    if (!page.coverPage && partsAdded) {
+      pageRenderMessage += QString("using %1 ").arg(Render::getRenderer());
+      QString renderAttributes;
+      if (Render::getRenderer() == RENDERER_LDVIEW) {
+        if (Preferences::enableLDViewSingleCall)
+          renderAttributes += QString("Single Call");
+        if (Preferences::enableLDViewSnaphsotList)
+          renderAttributes += QString(", Snapshot List");
+      }
+      if (!renderAttributes.isEmpty())
+        pageRenderMessage += QString("(%1) ").arg(renderAttributes);
+      pageRenderMessage += QString("render ");
+    }
+    pageRenderMessage += QString("rendered page %1. %2")
+                                 .arg(displayPageNum)
+                                 .arg(gui->elapsedTime(pageRenderTimer.elapsed()));
+    emit gui->messageSig(LOG_TRACE, pageRenderMessage);
+  };
 
   // set page header/footer width
   float pW;
@@ -1339,6 +1363,7 @@ int Gui::drawPage(
 
                   addGraphicsPageItems(steps, coverPage, endOfSubmodel, view, scene, printing);
 
+                  drawPageElapsedTime();
                   return HitEndOfPage;
                 }
               inserts.clear();
@@ -1637,6 +1662,7 @@ int Gui::drawPage(
                       addGraphicsPageItems(steps,coverPage,endOfSubmodel,view,scene,printing);
                       stepPageNum += ! coverPage;
                       steps->setBottomOfSteps(current);
+                      drawPageElapsedTime();
 
                       return HitEndOfPage;
                   }
@@ -1703,6 +1729,8 @@ int Gui::drawPage(
           pliIgnore = false;
       }
     } // for every line
+
+  drawPageElapsedTime();
   return retVal;
 }
 
