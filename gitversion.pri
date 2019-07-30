@@ -89,6 +89,10 @@ equals(GIT_DIR, undefined) {
 
     # Strip leading 'g' from sha hash
     VER_SHA_HASH_STR ~= s/g/""
+
+    # Get the git repository name
+    GIT_BASE_NAME = $$system($$BASE_GIT_COMMAND rev-parse --show-toplevel 2> $$NULL_DEVICE)
+    GIT_BASE_NAME = $$basename(GIT_BASE_NAME)
 }
 
 # Here we process the build date and time
@@ -131,6 +135,10 @@ contains(TRAVIS_BUILD,continuous) {
 }
 contains(BUILD_TYPE,continuous) {
     DEFINES += LP3D_CONTINUOUS_BUILD
+}
+
+!equals(GIT_BASE_NAME, $$lower("lpub3d")) {
+    DEFINES += LP3D_DEVOPS_BUILD
 }
 
 # C preprocessor #DEFINE to use in C++ code

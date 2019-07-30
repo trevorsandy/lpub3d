@@ -63,6 +63,7 @@ Updater::Updater()
     m_fileName = "";
     m_latestRevision = "";
     m_availableVersions = "";
+    m_winPortable = 0; // 0 = installer, 1 = x86Portable, 2 = x86_64Portable
     m_changeLogOnly = false;
     m_directDownload = false;
     m_promptedDownload = false;
@@ -490,7 +491,6 @@ void Updater::onReply (QNetworkReply* reply)
 
     } else {
 
-        QString _changelogUrl;
         bool _updateAvailable = false;
 
         if (moduleVersion() == qApp->applicationVersion()) {
@@ -499,8 +499,21 @@ void Updater::onReply (QNetworkReply* reply)
             m_openUrl = platform.value ("open-url").toString();
             m_latestVersion = platform.value ("latest-version").toString();
             m_latestRevision = platform.value ("latest-revision").toString();
-            m_downloadUrl = platform.value ("download-url").toString();
-            _changelogUrl = platform.value ("changelog-url").toString();
+            if (Preferences::portableDistribution) {
+                if (QString::fromLatin1(VER_BUILD_ARCH_STR).toInt() == 64) {
+                   m_downloadUrl = platform.value ("x86_64-win-portable-download-url").toString();
+                   m_winPortable = 2;
+                } else {
+                   m_downloadUrl = platform.value ("x86-win-portable-download-url").toString();
+                   m_winPortable = 1;
+                }
+                if (!m_downloadUrl.isEmpty()) {
+                    setPortableDistro(true);
+                }
+            } else {
+                m_downloadUrl = platform.value ("download-url").toString();
+            }
+            m_changelogUrl = platform.value ("changelog-url").toString();
 
             /* Compare latest and current version/revision */
              _updateAvailable = compare (latestVersion(), moduleVersion()) ||
@@ -547,8 +560,21 @@ void Updater::onReply (QNetworkReply* reply)
                             m_openUrl = platform.value ("open-url").toString();
                             m_latestVersion = platform.value ("latest-version").toString();
                             m_latestRevision = platform.value ("latest-revision").toString();
-                            m_downloadUrl = platform.value ("download-url").toString();
-                            _changelogUrl = platform.value ("changelog-url").toString();
+                            m_changelogUrl = platform.value ("changelog-url").toString();
+                            if (Preferences::portableDistribution) {
+                                if (QString::fromLatin1(VER_BUILD_ARCH_STR).toInt() == 64) {
+                                   m_downloadUrl = platform.value ("x86_64-win-portable-download-url").toString();
+                                   m_winPortable = 2;
+                                } else {
+                                   m_downloadUrl = platform.value ("x86-win-portable-download-url").toString();
+                                   m_winPortable = 1;
+                                }
+                                if (!m_downloadUrl.isEmpty()) {
+                                    setPortableDistro(true);
+                                }
+                            } else {
+                                m_downloadUrl = platform.value ("download-url").toString();
+                            }
                         } else {
                             // Update to version is other than the latest version
                             QString distro_suffix = m_platform.section("-",1);
@@ -560,10 +586,23 @@ void Updater::onReply (QNetworkReply* reply)
                                 return;
                             }
                             m_openUrl = altVersion.value ("open-url").toString();
-                            m_downloadUrl = altVersion.value ("download-url").toString();
                             m_latestVersion = altVersion.value ("latest-version").toString();
-                            m_latestRevision = platform.value ("latest-revision").toString();
-                            _changelogUrl = altVersion.value ("changelog-url").toString();
+                            m_latestRevision = altVersion.value ("latest-revision").toString();
+                            m_changelogUrl = altVersion.value ("changelog-url").toString();
+                            if (Preferences::portableDistribution) {
+                                if (QString::fromLatin1(VER_BUILD_ARCH_STR).toInt() == 64) {
+                                   m_downloadUrl = altVersion.value ("x86_64-win-portable-download-url").toString();
+                                   m_winPortable = 2;
+                                } else {
+                                   m_downloadUrl = altVersion.value ("x86-win-portable-download-url").toString();
+                                   m_winPortable = 1;
+                                }
+                                if (!m_downloadUrl.isEmpty()) {
+                                    setPortableDistro(true);
+                                }
+                            } else {
+                                m_downloadUrl = altVersion.value ("download-url").toString();
+                            }
                         }
                         break;
                     }
@@ -575,23 +614,11 @@ void Updater::onReply (QNetworkReply* reply)
             m_latestRevision = "0";
 
         if (_updateAvailable || getChangeLogOnly()) {
-            QNetworkAccessManager *_manager = new QNetworkAccessManager (this);
-
-            connect (_manager, SIGNAL (finished (QNetworkReply *)),
-                     this,     SLOT (changeLogReply (QNetworkReply *)));
-
-            QNetworkRequest updateRequest (_changelogUrl);
-            if (!userAgentString().isEmpty())
-                updateRequest.setRawHeader ("User-Agent", userAgentString().toUtf8());
-
-            _manager->get(updateRequest);
-
-            QEventLoop wait;
-            wait.connect(this, SIGNAL(changeLogReplyFinished()),&wait, SLOT(quit()));
-            wait.exec();
+            QUrl _url(m_changelogUrl);
+            changeLogRequest(_url);
         }
 
-        /* All done if we only wanted to get the change log */
+        /* All done if we only wanted to get the change log */      
         if (getChangeLogOnly()) {
             emit checkingFinished (url());
             return;
@@ -667,9 +694,10 @@ void Updater::setUpdateAvailable (const bool available)
 
         if (updateAvailable() && (notifyOnUpdate() || notifyOnFinish())) {
             QString versionStr = compare (latestRevision(), moduleRevision()) ? "revision" : "version";
+            QString moduleDescStr = m_winPortable == 2 ? " x86_64 Windows Portable" : m_winPortable == 1 ? " x86 Windows Portable" : "" ;
             QString title = "<b>" + tr ("A new %1 of %2 is available!")
                                         .arg(versionStr)
-                                        .arg (moduleName()) +
+                                        .arg (moduleName() + moduleDescStr) +
                                         "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
                                         "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
                                         "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
@@ -788,6 +816,13 @@ void Updater::setDirectDownload (const bool& enabled) {
  */
 void Updater::setPromptedDownload (const bool& enabled) {
     m_promptedDownload = enabled;
+}
+
+/**
+ * Sets the flag to indicate download is a portable distribution
+ */
+void Updater::setPortableDistro (const bool& enabled) {
+    m_downloader->setPortableDistro (enabled);
 }
 
 /**
@@ -943,11 +978,42 @@ void Updater::showErrorMessage (QString error)
 }
 
 /**
+ * Request the change log.
+ */
+void Updater::changeLogRequest(const QUrl &_url){
+
+    QNetworkAccessManager *_manager = new QNetworkAccessManager (this);
+
+    connect (_manager, SIGNAL (finished (QNetworkReply *)),
+             this,     SLOT (changeLogReply (QNetworkReply *)));
+
+    QNetworkRequest updateRequest (_url.toString());
+    if (!userAgentString().isEmpty())
+        updateRequest.setRawHeader ("User-Agent", userAgentString().toUtf8());
+
+    _manager->get(updateRequest);
+
+    QEventLoop wait;
+    wait.connect(this, SIGNAL(changeLogReplyFinished()),&wait, SLOT(quit()));
+    wait.exec();
+}
+
+/**
  * Reads and analyzes the downloaded change log.
  */
 void Updater::changeLogReply (QNetworkReply *reply){
      if (reply->error() == QNetworkReply::NoError) {
 
+        /* Get redirection url */
+        QVariant redirectionTarget = reply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+        if (!redirectionTarget.isNull()) {
+            QUrl url(m_changelogUrl);
+            QUrl newUrl = url.resolved(redirectionTarget.toUrl());
+            url = newUrl;
+            reply->deleteLater();
+            changeLogRequest(url);
+            return;
+        }
         QString _reply = QString::fromUtf8 (reply->readAll());
         m_changelog = _reply;
 

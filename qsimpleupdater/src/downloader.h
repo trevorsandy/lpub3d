@@ -59,6 +59,7 @@ signals:
      * You can use this to signal downstream functions.
      */
     void downloadCancelled();
+    void requestEndThreadNowSig();
     // Mod End
 
 public:
@@ -77,6 +78,7 @@ public slots:
     void setUserAgentString (const QString& agent);
     void setCustomProcedure (const bool custom);
 // LPub3D Mod
+    void setPortableDistro  (const bool& enabled);
     void setShowRedirects  (const bool& enabled);
 // Mod End
 
@@ -91,6 +93,8 @@ private slots:
 // LPub3D Mod
     void httpReadyRead();
     void startRequest(const QUrl& url);
+    void cancelExporting(){ m_exportingContent = m_exportingObjects = false; }
+    void workerJobResult(int value){ m_workerJobResult = value; }
 // Mod End
 
 private:
@@ -109,7 +113,13 @@ private:
     QNetworkAccessManager* m_manager;
 
     // LPub3D Mod
+    bool   m_exportingContent; // indicate export/printing underway
+    bool   m_exportingObjects; // indicate exporting non-image object file content
+    int    m_workerJobResult;
+
+    bool m_portableDistro;
     bool m_showRedirects;
+    QString m_extractPath;
     QString m_moduleName;
     QFile *m_file;
     // Mod End

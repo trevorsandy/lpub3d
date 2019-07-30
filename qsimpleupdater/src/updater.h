@@ -116,6 +116,7 @@ public slots:
     void setCustomProcedure (const bool custom);
 
     // LPub3D Mod
+    void setPortableDistro  (const bool& enabled);
     void setShowRedirects  (const bool& enabled);
     void setModuleRevision (const QString& revision);
     void setPromptedDownload (const bool& enabled);
@@ -133,6 +134,7 @@ private slots:
     bool versionsRequested();
     void setVersionsRequested(const bool& available);
     void changeLogReply (QNetworkReply* reply);
+    void changeLogRequest(const QUrl& _url);
     void showErrorMessage (QString error);
     void cancel (void);
     // Mod End
@@ -162,12 +164,14 @@ private:
     QNetworkAccessManager* m_manager;
 
     // LPub3D Mod
+    QString m_changelogUrl;
     QString m_latestRevision;
     QString m_moduleRevision;
     bool m_directDownload;
     bool m_promptedDownload;
     bool m_versionsRequest;
     bool m_changeLogOnly;
+    int  m_winPortable;
     QString m_fileName;
     QString m_availableVersions;
 

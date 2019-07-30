@@ -32,16 +32,22 @@
 #include <QDir>
 #include <QUrl>
 #include <QFile>
+#include <QThread>
 #include <QProcess>
 #include <QDateTime>
+#include <QFileDialog>
 #include <QMessageBox>
 #include <QNetworkReply>
 #include <QDesktopServices>
 #include <QNetworkAccessManager>
 
 #include <math.h>
+#include <JlCompress.h>
 
+#include "progress_dialog.h"
+#include "threadworkers.h"
 #include "downloader.h"
+#include "lpubalert.h"
 #include "version.h"
 
 static const QString PARTIAL_DOWN (".part");
@@ -61,6 +67,7 @@ Downloader::Downloader (QWidget* parent) : QWidget (parent)
     m_customProcedure = false;
 
     // LPub3D Mod
+    m_portableDistro = false;
     m_showRedirects = false;
     //m_moduleName = qApp->applicationName(); // Can't use this again cuz its set to the exe name.
     m_moduleName = QString("%1").arg(VER_PRODUCTNAME_STR);
@@ -299,9 +306,81 @@ void Downloader::finished()
 void Downloader::openDownload()
 {
     if (!m_fileName.isEmpty())
-        QDesktopServices::openUrl (QUrl::fromLocalFile (m_downloadDir.filePath (
-                                                            m_fileName)));
+        // LPub3D Mod
+        if (m_portableDistro) {
+            // Automatically extract portable distribution
+            QEventLoop  *wait   = new QEventLoop();
+            QString newarchive  = m_downloadDir.filePath (m_fileName);
+            QString destination = QDir::toNativeSeparators(tr("%1").arg(m_extractPath));
+            QString message     = tr("Extracting %1. Please wait...")
+                                     .arg(QFileInfo(newarchive).fileName());
+            emit lpubAlert->messageSig(LOG_STATUS,message);
 
+            QStringList items = JlCompress::getFileList(newarchive);
+            ProgressDialog  *m_progressDialog;
+            m_progressDialog  = new ProgressDialog(nullptr);
+            m_progressDialog->setWindowFlags(m_progressDialog->windowFlags() & ~Qt::WindowCloseButtonHint);
+            m_progressDialog->setWindowTitle(QString("%1 Software Update").arg(m_moduleName));
+            m_progressDialog->progressBarSetLabelText(QString("Extracting %1...")
+                                                      .arg(QFileInfo(newarchive).fileName()));
+            m_progressDialog->progressBarSetRange(0,items.count());
+            m_progressDialog->setAutoHide(false);
+            m_progressDialog->setModal(true);
+            m_progressDialog->show();
+
+            QThread *thread    = new QThread(this);
+            ExtractWorker *job = new ExtractWorker(newarchive,destination);
+            job->moveToThread(thread);
+            wait = new QEventLoop();
+
+            connect(thread, SIGNAL(started()),
+                    job, SLOT(doWork()));
+            connect(thread, SIGNAL(finished()),
+                    thread, SLOT(deleteLater()));
+            connect(job, SIGNAL(progressSetValue(int)),
+                    m_progressDialog, SLOT(progressBarSetValue(int)));
+            disconnect(m_progressDialog, SIGNAL (cancelClicked()),
+                    this, SLOT (cancelExporting()));
+            connect(m_progressDialog, SIGNAL(cancelClicked()),
+                    job, SLOT(requestEndWorkNow()));
+            connect(job, SIGNAL(result(int)),
+                    this, SLOT(workerJobResult(int)));
+            connect(this, SIGNAL(requestEndThreadNowSig()),
+                    job, SLOT(requestEndWorkNow()));
+            connect(job, SIGNAL(finished()),
+                    thread, SLOT(quit()));
+            connect(job, SIGNAL(finished()),
+                    job, SLOT(deleteLater()));
+            wait->connect(job, SIGNAL(finished()),
+                    wait, SLOT(quit()));
+
+            workerJobResult(0);
+            thread->start();
+            wait->exec();
+
+            m_progressDialog->progressBarSetValue(items.count());
+            connect (m_progressDialog, SIGNAL (cancelClicked()),
+                     this, SLOT (cancelExporting()));
+
+            if (m_workerJobResult) {
+                message = tr("Done, %1 of %2 files extracted to %3")
+                             .arg(m_workerJobResult)
+                             .arg(items.count())
+                             .arg(destination);
+                emit lpubAlert->messageSig(LOG_INFO,message);
+            } else {
+                message = tr("Failed to extract %1 library files")
+                             .arg(QFileInfo(newarchive).fileName());
+                emit lpubAlert->messageSig(LOG_ERROR,message);
+            }
+            m_progressDialog->progressBarSetLabelText(message);
+            m_progressDialog->setBtnToClose();
+
+        } else {
+            QDesktopServices::openUrl (QUrl::fromLocalFile (m_downloadDir.filePath (
+                                                                m_fileName)));
+        }
+        // Mod End
     else {
         QMessageBox::critical (this,
                                tr ("Error"),
@@ -325,7 +404,10 @@ void Downloader::installUpdate()
 
     // LPub3D Mod
     this->setWindowTitle(tr ("Software Update"));
-    m_ui->timeLabel->setText (tr ("The %1 installer will open in a separate window").arg(m_moduleName)
+    if (m_portableDistro)
+        m_ui->timeLabel->setText (tr ("%1 Windows portable distribution zip archive").arg(m_moduleName));
+    else
+        m_ui->timeLabel->setText (tr ("The %1 installer will open in a separate window").arg(m_moduleName)
                               + "...");
     // Mod End
 
@@ -342,8 +424,13 @@ void Downloader::installUpdate()
     box.setStandardButtons (QMessageBox::Ok | QMessageBox::Cancel);
     // LPub3D Mod
     box.setWindowTitle(tr ("%1 Installer").arg(m_moduleName));
-    box.setInformativeText (tr ("Click \"OK\" to begin installing the %1 update.").arg(m_moduleName));
-    box.setText ("<h3>" + tr ("To install the update, %1 will quit.").arg(m_moduleName) + "</h3>");
+    if (m_portableDistro) {
+        box.setInformativeText (tr ("Click \"OK\" to extract the %1 Windows portable distribution archvie").arg(m_moduleName));
+        box.setText ("<h3>" + tr ("Select a folder to extract the %1 archive.").arg(m_moduleName) + "</h3>");
+    } else {
+        box.setInformativeText (tr ("Click \"OK\" to begin installing the %1 update.").arg(m_moduleName));
+        box.setText ("<h3>" + tr ("To install the update, %1 will quit.").arg(m_moduleName) + "</h3>");
+    }
     // Mod End
 
     /* User wants to install the download */
@@ -351,7 +438,32 @@ void Downloader::installUpdate()
         if (!customProcedure())
         {
             // LPub3D Mod
-            qApp->closeAllWindows();
+            if (m_portableDistro) {
+                QString showMessage;
+                QDir cwd(QCoreApplication::applicationDirPath());
+                cwd.cdUp();
+                if (cwd.dirName().contains("LPub3D_x86_"))
+                    cwd.cdUp();
+                QString samplePath = cwd.absolutePath();
+                QString result = QFileDialog::getExistingDirectory(nullptr,
+                                                                   QFileDialog::tr("Select Directory"),
+                                                                   samplePath,
+                                                                   QFileDialog::ShowDirsOnly |
+                                                                   QFileDialog::DontResolveSymlinks);
+                if (! result.isEmpty()) {
+                    m_extractPath = QDir::toNativeSeparators(result);
+                } else {
+                    QMessageBox::warning (this,
+                                           tr ("Warning"),
+                                           tr (QString(QString("Empty directory path - %1 will be extracted to %2")
+                                                               .arg(m_moduleName)
+                                                               .arg(cwd.dirName())).toLatin1().constData()),
+                                           QMessageBox::Close);
+                    m_extractPath = QDir::toNativeSeparators(cwd.dirName());
+                }
+            } else {
+                qApp->closeAllWindows();
+            }
             // Mod End
             openDownload();
         }
@@ -362,8 +474,8 @@ void Downloader::installUpdate()
         m_ui->openButton->setEnabled (true);
         m_ui->openButton->setVisible (true);
         // LPub3D Mod
-        m_ui->timeLabel->setText (tr ("Click the \"Open\" button to "
-                                      "apply the %1 update").arg(m_moduleName));
+        m_ui->timeLabel->setText (tr ("Click \"Open\" apply the %1 update or "
+                                      "\"Cancel to abort.\"").arg(m_moduleName));
         // Mod End
     }
 }
@@ -575,6 +687,13 @@ void Downloader::setCustomProcedure (const bool custom)
  */
 void Downloader::setShowRedirects (const bool& enabled) {
     m_showRedirects = enabled;
+}
+
+/**
+ * Sets the flag to indicate download is a portable distribution
+ */
+void Downloader::setPortableDistro (const bool& enabled) {
+    m_portableDistro = enabled;
 }
 
 // Mod End

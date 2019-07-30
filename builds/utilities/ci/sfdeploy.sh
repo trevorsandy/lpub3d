@@ -3,7 +3,7 @@
 # Deploy LPub3D assets to Sourceforge.net using OpenSSH and rsync
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: March 06, 2019
+#  Last Update: July 30, 2019
 #  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 #  Note: this script requires SSH host public/private keys
@@ -67,7 +67,12 @@ fi
 
 # upload assets
 if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
-  for OPTION in UDPATE DOWNLOAD; do
+  if [ "$LP3D_CONTINUOUS_BUILD_PKG" = "true" ]; then
+    DEPLOY_OPTIONS="UDPATE"
+  else
+    DEPLOY_OPTIONS="UDPATE DOWNLOAD"
+  fi
+  for OPTION in $DEPLOY_OPTIONS; do
     case $OPTION in
     UDPATE)
       # Verify release files in the Update directory

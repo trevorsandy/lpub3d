@@ -43,9 +43,13 @@
 #define VER_BUILD_ARCH_STR                  VER_ARCH
 
 #ifdef LP3D_CONTINUOUS_BUILD
-  #define	VER_BUILD_TYPE_STR             "Pre-release"
+  #ifdef LP3D_DEVOPS_BUILD
+     #define    VER_BUILD_TYPE_STR          "Dev-release"
+  #else
+     #define    VER_BUILD_TYPE_STR          "Release"
+  #endif
 #else
-  #define	VER_BUILD_TYPE_STR             "Version"
+  #define    VER_BUILD_TYPE_STR             "Version"
 #endif
 
 // ~~~~~~ 3rdParty Applications ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //

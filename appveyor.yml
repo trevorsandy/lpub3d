@@ -1,6 +1,6 @@
 # Build and check LPub3D x86 and x86_64 architectures unsing Qt/MinGW/VS2017 platforms
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: June 21, 2019
+# Last Update: JUly 30, 2019
 # Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 version: 'LPub3D-AV-Build-{build}'
@@ -121,7 +121,11 @@ init:
  - ps: |
       If ($env:APPVEYOR_REPO_TAG -eq "true") {
         If ([regex]::Match($env:APPVEYOR_REPO_TAG_NAME, '^continuous$').Success) {
-          write-host "Pre-release tag '$env:APPVEYOR_REPO_TAG_NAME' detected."
+          If ($env:APPVEYOR_PROJECT_NAME -ne "lpub3d") {
+             write-host "Release tag '$env:APPVEYOR_REPO_TAG_NAME' detected."
+          } Else {
+             write-host "Pre-release tag '$env:APPVEYOR_REPO_TAG_NAME' detected."
+          }
           $env:LP3D_BUILD_PKG = "yes"
           $env:LP3D_DEPLOY_PKG = "false"
           $env:LP3D_CONTINUOUS_BUILD_PKG = "true"
@@ -133,6 +137,8 @@ init:
         } Else {
           write-host "WARNING - Tag $env:APPVEYOR_REPO_TAG_NAME detected but is not a valid Deploy Tag. Deploy ingored."
         }
+      } Else {
+        $env:LP3D_DEPLOY_PKG = "false"
       }
  - ps: |
       If ($env:LP3D_BUILD_PKG -eq "yes") {
@@ -264,7 +270,7 @@ after_build:
         } Else {
           Write-Error -Message "env var LP3D_DOWNLOAD_ASSETS is null." -ErrorAction Stop
         }
-        If (($env:LP3D_DEPLOY_PKG -eq $true) -or ($env:LP3D_TEST_SF_DEPLOY_VAR -eq "true")) {
+        If (($env:LP3D_DEPLOY_PKG -eq "true") -or ($env:LP3D_CONTINUOUS_BUILD_PKG -eq "true" -and  $env:APPVEYOR_PROJECT_NAME -ne "lpub3d") -or ($env:LP3D_TEST_SF_DEPLOY_VAR -eq "true")) {
           write-host "`n"
           If (((git tag -l -n $env:APPVEYOR_REPO_TAG_NAME) -NotLike "*skip sfr*") -and ($env:LP3D_SKIP_SF_DEPLOY_VAR -ne "true")) {
             cmd.exe /c nuget install secure-file -ExcludeVersion
@@ -273,8 +279,6 @@ after_build:
           } Else {
             write-host "Skip Sourceforge deploy detected - ["(git tag -l -n $env:APPVEYOR_REPO_TAG_NAME).Replace($env:APPVEYOR_REPO_TAG_NAME,"").Trim()"]."
           }
-        } Else {
-          $env:LP3D_DEPLOY_PKG = "false"
         }
         If ($env:LP3D_CONTINUOUS_BUILD_PKG -eq "true") {
           If ($env:APPVEYOR_PROJECT_NAME -ne "lpub3d") {
