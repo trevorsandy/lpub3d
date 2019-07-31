@@ -525,11 +525,9 @@ bool lcLoadColorEntry(const char* ColorEntry)
 	if (Duplicate)
 		return true;
 
-	gDefaultColor = (int)Colors.size();
-
 	Colors.push_back(Color);
 
-	gColorGroups[LC_COLORGROUP_LPUB3D].Colors.push_back(gDefaultColor);
+	gColorGroups[LC_COLORGROUP_LPUB3D].Colors.push_back((int)Colors.size() - 1);
 
 	gNumUserColors = (int)Colors.size();
 
