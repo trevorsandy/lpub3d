@@ -1065,29 +1065,35 @@ void PageAttributeTextGui::value1Changed(QString const &string)
 void PageAttributeTextGui::editDescChanged()
 {
   QStringList  text = editDesc->toPlainText().split("\n");
-  meta->content.setValue(text.join("\\n"));
-  modified = editModified = true;
+  if (meta->content.value() != text.join("\\n")) {
+    meta->content.setValue(text.join("\\n"));
+    modified = editModified = true;
+  }
 }
 
 void PageAttributeTextGui::editDiscChanged()
 {
   QStringList  text = editDisc->toPlainText().split("\n");
-  meta->content.setValue(text.join("\\n"));
-  modified = editModified = true;
+  if (meta->content.value() != text.join("\\n")) {
+    meta->content.setValue(text.join("\\n"));
+    modified = editModified = true;
+  }
 }
 
 void PageAttributeTextGui::editChanged(const QString &value)
 {
   QStringList  text = value.split("\n");
-  meta->content.setValue(text.join("\\n"));
-  modified = editModified = true;
+  if (meta->content.value() != text.join("\\n")) {
+    meta->content.setValue(text.join("\\n"));
+    modified = editModified = true;
+  }
 }
 
 void PageAttributeTextGui::placementChanged(bool clicked)
 {
   Q_UNUSED(clicked);
   PlacementData placementData = meta->placement.value();
-  bool ok;
+  bool ok = false;
   ok = PlacementDialog
        ::getPlacement(SingleStepType,meta->type,placementData,pageAttributeName[meta->type]);
   if (ok) {
@@ -1098,8 +1104,10 @@ void PageAttributeTextGui::placementChanged(bool clicked)
 
 void PageAttributeTextGui::toggled(bool toggled)
 {
-  meta->display.setValue(toggled);
-  modified = displayModified = true;
+  if (meta->display.value() != toggled) {
+    meta->display.setValue(toggled);
+    modified = displayModified = true;
+  }
 }
 
 void PageAttributeTextGui::apply(
@@ -1300,7 +1308,7 @@ void PageAttributeTextGui::apply(
        if (checked)
            gbScale->setEnabled(checked);
    }
-   fillModified = true;
+   modified = fillModified = true;
  }
 
 void PageAttributePictureGui::pictureChange(QString const &pic)
@@ -1328,14 +1336,14 @@ void PageAttributePictureGui::browsePicture(bool)
 
 void PageAttributePictureGui::gbScaleClicked(bool checked)
 {
-    qreal value = meta->picScale.value();
-    meta->picScale.setValue(value);
-    modified = scaleModified = true;
-    if (checked) {
-        aspectRadio->setChecked(checked);
-        stretchRadio->setChecked(!checked);
-        tileRadio->setChecked(!checked);
-    }
+  qreal value = meta->picScale.value();
+  meta->picScale.setValue(value);
+  modified = scaleModified = true;
+  if (checked) {
+      aspectRadio->setChecked(checked);
+      stretchRadio->setChecked(!checked);
+      tileRadio->setChecked(!checked);
+  }
 }
 
 void PageAttributePictureGui::value0Changed(QString const &string)

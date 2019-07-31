@@ -2761,8 +2761,6 @@ int MetaItem::okToInsertFinalModel()
   Rc rc;
   QString line;
   Meta content;
-  Where saveHere;
-  saveHere.lineNumber = 0;                                //initialize saveHere line number to -1
   Where here(gui->topLevelFile(),0);
   here.lineNumber = gui->subFileSize(here.modelName);      //start at bottom of file
   here--;                                                  //adjust lineNumber using from zero-start index
@@ -2772,7 +2770,7 @@ int MetaItem::okToInsertFinalModel()
     rc = content.parse(line,here);
     if (rc == StepRc || rc == RotStepRc ||
       rc == StepGroupEndRc || rc == CalloutEndRc) {        //if Step, StepGroup, RotStep or Callout, save the line number
-      saveHere = here;
+      return here.lineNumber;                              //reached a valid boundary so so return line number
     } else if (rc == InsertFinalModelRc) {                 //check if insert final model
       logStatus() << "Final model detected at line: " << here.lineNumber;
       return -1;
@@ -2782,17 +2780,11 @@ int MetaItem::okToInsertFinalModel()
       bool token_1_5 = tokens.size() && tokens[0].size() == 1 &&
           tokens[0] >= "1" && tokens[0] <= "5";
       if (token_1_5) {                                     //non-zero line detected so no back final model
-        if (saveHere.lineNumber > 0) {
-          return saveHere.lineNumber;                      //we have a step's lineNumber (saveHere) so return it as the poisition to insert the final model
-        } else {                                           //else check for lines starting with 1-5
-          int fileSize = gui->subFileSize(here.modelName) - 1;
-          if (here.lineNumber < (fileSize)) {              //check that we are not at the end of the file
-            Where stepForward = here;
-            stepForward++;                                 //step forward (backup one line)
-            return stepForward.lineNumber;                 //returl line number
-          } else {
-            return here.lineNumber;                        //at last line so return line number
-          }
+        int fileSize = gui->subFileSize(here.modelName) - 1;
+        if (here.lineNumber < (fileSize)) {                //check that we are not at the end of the file
+          return here.lineNumber + 1;                      //step forward (backup one line) and return line number
+        } else {
+          return here.lineNumber;                          //at last line so return line number
         }
       }
     }
