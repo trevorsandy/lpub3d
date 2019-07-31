@@ -1103,7 +1103,7 @@ int Gui::addContentPageAttributes(
     Placement           &plPage,
     bool                 endOfSubmodel)
 {
-  // Content Page Initializations and Allocations...
+  // Content Page Initializations and Placements...
   if (! page->coverPage)
     {
       // Initializations ...
@@ -1114,176 +1114,172 @@ int Gui::addContentPageAttributes(
       PageAttributeTextItem   *author    = new PageAttributeTextItem(page,page->meta.LPub.page.author,pageBg);
       bool displayPageNumber = page->meta.LPub.page.dpn.value();
 
-      //  Content Page URL,
-      bool displayURL       = page->meta.LPub.page.url.display.value();
+      //  Content Page URL (Header/Footer) Initialization //~~~~~~~~~~~~~~~~
+      bool displayURL         = page->meta.LPub.page.url.display.value();
       if (displayURL) {
-          url->size[XX]     = (int) url->document()->size().width();
-          url->size[YY]     = (int) url->document()->size().height();
-        } else {
+          url->size[XX]       = int(url->document()->size().width());
+          url->size[YY]       = int(url->document()->size().height());
+      } else {
           delete url;
-          url               = nullptr;
-        }
-      //  Content Page Email
+          url                 = nullptr;
+      }
+      //  Content Page Email (Header/Footer) Initialization //~~~~~~~~~~~~~~~~
       bool displayEmail       = page->meta.LPub.page.email.display.value();
       if (displayEmail){
-          email->size[XX]     = (int) email->document()->size().width();
-          email->size[YY]     = (int) email->document()->size().height();
-        }else {
+          email->size[XX]     = int(email->document()->size().width());
+          email->size[YY]     = int(email->document()->size().height());
+      }else {
           delete email;
           email               = nullptr;
-        }
-      //  Content Page Copyright
-      bool displayCopyright       = page->meta.LPub.page.copyright.display.value();
+      }
+      //  Content Page Copyright (Header/Footer) Initialization //~~~~~~~~~~~~~~~~
+      bool displayCopyright   = page->meta.LPub.page.copyright.display.value();
       if (displayCopyright){
-          copyright->size[XX]     = (int) copyright->document()->size().width();
-          copyright->size[YY]     = (int) copyright->document()->size().height();
-        }else {
+          copyright->size[XX] = int(copyright->document()->size().width());
+          copyright->size[YY] = int(copyright->document()->size().height());
+      }else {
           delete copyright;
-          copyright               = nullptr;
-        }
-      //  Content Page Author
-      bool displayAuthor       = page->meta.LPub.page.author.display.value();
+          copyright           = nullptr;
+      }
+      //  Content Page Author (Header/Footer) Initialization //~~~~~~~~~~~~~~~~
+      bool displayAuthor      = page->meta.LPub.page.author.display.value();
       if (displayAuthor) {
-          author->size[XX]     = (int) author->document()->size().width();
-          author->size[YY]     = (int) author->document()->size().height();
-        }else {
+          author->size[XX]    = int(author->document()->size().width());
+          author->size[YY]    = int(author->document()->size().height());
+      }else {
           delete author;
-          author               = nullptr;
-        }
+          author              = nullptr;
+      }
 
-      // Allocations...
+      // Placements...
 
-      //  Content Page URL (Header/Footer) //~~~~~~~~~~~~~~~~
+      //  Content Page URL (Header/Footer) Placement //~~~~~~~~~~~~~~~~
       if (displayURL) {
           PlacementData pld = url->placement.value();
           if (pld.relativeTo == PageType) {
               plPage.appendRelativeTo(url);
               plPage.placeRelative(url);
-            } else if (pld.relativeTo == PageHeaderType) {
+          } else if (pld.relativeTo == PageHeaderType) {
               pageHeader->appendRelativeTo(url);
               pageHeader->placeRelative(url);
-            } else if (pld.relativeTo == PageFooterType) {
+          } else if (pld.relativeTo == PageFooterType) {
               pageFooter->appendRelativeTo(url);
               pageFooter->placeRelative(url);
-            } else if (displayPageNumber && pld.relativeTo == PageNumberType) {
+          } else if (displayPageNumber && pld.relativeTo == PageNumberType) {
               pageNumber->appendRelativeTo(url);
               pageNumber->placeRelative(url);
-            } else if (displayEmail && pld.relativeTo == PageEmailType) {
+          } else if (displayEmail && pld.relativeTo == PageEmailType) {
               email->appendRelativeTo(url);
               email->placeRelative(url);
-            } else if (displayCopyright && pld.relativeTo == PageCopyrightType) {
+          } else if (displayCopyright && pld.relativeTo == PageCopyrightType) {
               copyright->appendRelativeTo(url);
               copyright->placeRelative(url);
-            } else if (displayAuthor && pld.relativeTo == PageAuthorType) {
+          } else if (displayAuthor && pld.relativeTo == PageAuthorType) {
               author->appendRelativeTo(url);
               author->placeRelative(url);
-            } else {
-              url->placement.setValue(TopLeftInsideCorner,PageType);
+          } else {
               plPage.appendRelativeTo(url);
               plPage.placeRelative(url);
-            }
+          }
           url->setPos(url->loc[XX],url->loc[YY]);
-        }
+      }
 
-      //  Content Page Email (Header/Footer) //~~~~~~~~~~~~~~~~
+      //  Content Page Email (Header/Footer) Placement //~~~~~~~~~~~~~~~~
       if (displayEmail) {
           PlacementData pld = email->placement.value();
           if (pld.relativeTo == PageType) {
               plPage.appendRelativeTo(email);
               plPage.placeRelative(email);
-            } else if (pld.relativeTo == PageHeaderType) {
+          } else if (pld.relativeTo == PageHeaderType) {
               pageHeader->appendRelativeTo(email);
               pageHeader->placeRelative(email);
-            } else if (pld.relativeTo == PageFooterType) {
+          } else if (pld.relativeTo == PageFooterType) {
               pageFooter->appendRelativeTo(email);
               pageFooter->placeRelative(email);
-            } else if (displayPageNumber && pld.relativeTo == PageNumberType) {
+          } else if (displayPageNumber && pld.relativeTo == PageNumberType) {
               pageNumber->appendRelativeTo(email);
               pageNumber->placeRelative(email);
-            } else if (displayURL && pld.relativeTo == PageURLType) {
+          } else if (displayURL && pld.relativeTo == PageURLType) {
               url->appendRelativeTo(email);
               url->placeRelative(email);
-            } else if (displayCopyright && pld.relativeTo == PageCopyrightType) {
+          } else if (displayCopyright && pld.relativeTo == PageCopyrightType) {
               copyright->appendRelativeTo(email);
               copyright->placeRelative(email);
-            } else if (displayAuthor && pld.relativeTo == PageAuthorType) {
+          } else if (displayAuthor && pld.relativeTo == PageAuthorType) {
               author->appendRelativeTo(email);
               author->placeRelative(email);
-            } else {
-              email->placement.setValue(TopRightInsideCorner,PageType);
+          } else {
               plPage.appendRelativeTo(email);
               plPage.placeRelative(email);
-            }
+          }
           email->setPos(email->loc[XX],email->loc[YY]);
-        }
+      }
 
-      //  Content Page Copyright (Header/Footer) //~~~~~~~~~~~~~~~~
+      //  Content Page Copyright (Header/Footer) Placement //~~~~~~~~~~~~~~~~
       if (displayCopyright) {
           PlacementData pld = copyright->placement.value();
           if (pld.relativeTo == PageType) {
               plPage.appendRelativeTo(copyright);
               plPage.placeRelative(copyright);
-            } else if (pld.relativeTo == PageHeaderType) {
+          } else if (pld.relativeTo == PageHeaderType) {
               pageHeader->appendRelativeTo(copyright);
               pageHeader->placeRelative(copyright);
-            } else if (pld.relativeTo == PageFooterType) {
+          } else if (pld.relativeTo == PageFooterType) {
               pageFooter->appendRelativeTo(copyright);
               pageFooter->placeRelative(copyright);
-            } else if (displayPageNumber && pld.relativeTo == PageNumberType) {
+          } else if (displayPageNumber && pld.relativeTo == PageNumberType) {
               pageNumber->appendRelativeTo(copyright);
               pageNumber->placeRelative(copyright);
-            } else if (displayURL && pld.relativeTo == PageURLType) {
+          } else if (displayURL && pld.relativeTo == PageURLType) {
               url->appendRelativeTo(copyright);
               url->placeRelative(copyright);
-            } else if (displayEmail && pld.relativeTo == PageEmailType) {
+          } else if (displayEmail && pld.relativeTo == PageEmailType) {
               email->appendRelativeTo(copyright);
               email->placeRelative(copyright);
-            } else if (displayAuthor && pld.relativeTo == PageAuthorType) {
+          } else if (displayAuthor && pld.relativeTo == PageAuthorType) {
               author->appendRelativeTo(copyright);
               author->placeRelative(copyright);
-            } else {
-              copyright->placement.setValue(BottomLeftInsideCorner,PageType);
+          } else {
               plPage.appendRelativeTo(copyright);
               plPage.placeRelative(copyright);
-            }
+          }
           copyright->setPos(copyright->loc[XX],copyright->loc[YY]);
-        }
+      }
 
-      //  Content Page Author (Header/Footer) //~~~~~~~~~~~~~~~~
+      //  Content Page Author (Header/Footer) Placement //~~~~~~~~~~~~~~~~
       if (displayAuthor) {
           PlacementData pld = author->placement.value();
           if (pld.relativeTo == PageType) {
               plPage.appendRelativeTo(author);
               plPage.placeRelative(author);
-            } else if (pld.relativeTo == PageHeaderType) {
+          } else if (pld.relativeTo == PageHeaderType) {
               pageHeader->appendRelativeTo(author);
               pageHeader->placeRelative(author);
-            } else if (pld.relativeTo == PageFooterType) {
+          } else if (pld.relativeTo == PageFooterType) {
               pageFooter->appendRelativeTo(author);
               pageFooter->placeRelative(author);
-            } else if (displayPageNumber && pld.relativeTo == PageNumberType) {
+          } else if (displayPageNumber && pld.relativeTo == PageNumberType) {
               pageNumber->appendRelativeTo(author);
               pageNumber->placeRelative(author);
-            } else if (displayURL && pld.relativeTo == PageURLType) {
+          } else if (displayURL && pld.relativeTo == PageURLType) {
               url->appendRelativeTo(author);
               url->placeRelative(author);
-            } else if (displayEmail && pld.relativeTo == PageEmailType) {
+          } else if (displayEmail && pld.relativeTo == PageEmailType) {
               email->appendRelativeTo(author);
               email->placeRelative(author);
-            } else if (displayCopyright && pld.relativeTo == PageCopyrightType) {
+          } else if (displayCopyright && pld.relativeTo == PageCopyrightType) {
               copyright->appendRelativeTo(author);
               copyright->placeRelative(author);
-            } else if (displayPageNumber) {
+          } else if (displayPageNumber) {
               author->placement.setValue(LeftBottomOutside,PageNumberType);
               pageNumber->appendRelativeTo(author);
               pageNumber->placeRelative(author);
-            } else {
-              author->placement.setValue(BottomRightInsideCorner,PageType);
+          } else {
               plPage.appendRelativeTo(author);
               plPage.placeRelative(author);
-            }
+          }
           author->setPos(author->loc[XX],author->loc[YY]);
-        }
+      }
 
       // Place insance count if end of submodel
 
@@ -1292,11 +1288,11 @@ int Gui::addContentPageAttributes(
           SubmodelInstanceCount   *instanceCount;
 
           instanceCount = new SubmodelInstanceCount(
-                page,
-                page->meta.LPub.page.instanceCount,
-                "x%d ",
-                page->instances,
-                pageBg);
+                      page,
+                      page->meta.LPub.page.instanceCount,
+                      "x%d ",
+                      page->instances,
+                      pageBg);
 
           if (instanceCount) {
               instanceCount->setSize(int(instanceCount->document()->size().width()),
@@ -1316,16 +1312,16 @@ int Gui::addContentPageAttributes(
                        pld.rectPlacement == LeftTopOutside           ||
                        pld.rectPlacement == LeftOutside              ||
                        pld.rectPlacement == LeftBottomOutside       ) &&
-                     ((pld.relativeTo    == PageNumberType          )||
-                      (pld.rectPlacement == BottomRightInsideCorner  &&
-                       pld.relativeTo    == PageType)))
-                    {
+                          ((pld.relativeTo    == PageNumberType          )||
+                           (pld.rectPlacement == BottomRightInsideCorner  &&
+                            pld.relativeTo    == PageType)))
+                  {
                       instanceCount->placement.setValue(TopOutside,PageAuthorType);
                       author->appendRelativeTo(instanceCount);
                       author->placeRelative(instanceCount);
 
-                    }
-                }
+                  }
+              }
               if (displayEmail){
                   PlacementData pld = email->placement.value();
                   if ((pld.rectPlacement == TopLeftOutsideCorner     ||
@@ -1334,15 +1330,15 @@ int Gui::addContentPageAttributes(
                        pld.rectPlacement == LeftTopOutside           ||
                        pld.rectPlacement == LeftOutside              ||
                        pld.rectPlacement == LeftBottomOutside       ) &&
-                     ((pld.relativeTo    == PageNumberType          )||
-                      (pld.rectPlacement == BottomRightInsideCorner  &&
-                       pld.relativeTo    == PageType)))
-                    {
+                          ((pld.relativeTo    == PageNumberType          )||
+                           (pld.rectPlacement == BottomRightInsideCorner  &&
+                            pld.relativeTo    == PageType)))
+                  {
                       instanceCount->placement.setValue(TopOutside,PageEmailType);
                       email->appendRelativeTo(instanceCount);
                       email->placeRelative(instanceCount);
-                    }
-                }
+                  }
+              }
               if (displayURL){
                   PlacementData pld = url->placement.value();
                   if ((pld.rectPlacement == TopLeftOutsideCorner     ||
@@ -1351,15 +1347,15 @@ int Gui::addContentPageAttributes(
                        pld.rectPlacement == LeftTopOutside           ||
                        pld.rectPlacement == LeftOutside              ||
                        pld.rectPlacement == LeftBottomOutside       ) &&
-                     ((pld.relativeTo    == PageNumberType          )||
-                      (pld.rectPlacement == BottomRightInsideCorner  &&
-                       pld.relativeTo    == PageType)))
-                    {
+                          ((pld.relativeTo    == PageNumberType          )||
+                           (pld.rectPlacement == BottomRightInsideCorner  &&
+                            pld.relativeTo    == PageType)))
+                  {
                       instanceCount->placement.setValue(TopOutside,PageURLType);
                       url->appendRelativeTo(instanceCount);
                       url->placeRelative(instanceCount);
-                    }
-                }
+                  }
+              }
               if (displayCopyright){
                   PlacementData pld = copyright->placement.value();
                   if ((pld.rectPlacement == TopLeftOutsideCorner     ||
@@ -1368,23 +1364,21 @@ int Gui::addContentPageAttributes(
                        pld.rectPlacement == LeftTopOutside           ||
                        pld.rectPlacement == LeftOutside              ||
                        pld.rectPlacement == LeftBottomOutside       ) &&
-                     ((pld.relativeTo    == PageNumberType          )||
-                      (pld.rectPlacement == BottomRightInsideCorner  &&
-                       pld.relativeTo    == PageType)))
-                    {
+                          ((pld.relativeTo    == PageNumberType          )||
+                           (pld.rectPlacement == BottomRightInsideCorner  &&
+                            pld.relativeTo    == PageType)))
+                  {
                       instanceCount->placement.setValue(TopOutside,PageCopyrightType);
                       copyright->appendRelativeTo(instanceCount);
                       copyright->placeRelative(instanceCount);
-                    }
-                }
+                  }
+              }
               else
-                {
-                  instanceCount->placement.setValue(BottomRightInsideCorner,PageType);
+              {
                   plPage.appendRelativeTo(instanceCount);
                   plPage.placeRelative(instanceCount);
-                }
-            }
-
+              }
+          }
           instanceCount->setPos(instanceCount->loc[XX],instanceCount->loc[YY]);
         }
     }
@@ -1398,7 +1392,7 @@ int Gui::addCoverPageAttributes(
     PlacementFooter     *pageFooter,
     Placement           &plPage)
 {
-  // Front Cover Page Initializations and Allocations...
+  // Front Cover Page Initializations and Placements...
   if (page->coverPage && page->frontCover) {
 
       // Initializations...
@@ -1412,238 +1406,244 @@ int Gui::addCoverPageAttributes(
       PageAttributePixmapItem *pixmapCoverImageFront;
       //PageAttributeTextItem   *categoryFront       = new PageAttributeTextItem(page,page->meta.LPub.page.category,pageBg);
 
-      // Front Cover Title
+      // Title (Front Cover) Initialization //~~~~~~~~~~~~~~~~
       bool displayTitleFront         = page->meta.LPub.page.titleFront.display.value();
-      bool breakTitleFrontRelativeTo = false;
+      bool breakTitleFrontRelativeTo = !displayTitleFront;
       PlacementData titleFrontPld;
       if (displayTitleFront) {
-          titleFront->size[XX]       = (int) titleFront->document()->size().width();
-          titleFront->size[YY]       = (int) titleFront->document()->size().height();
+          titleFront->size[XX]       = int(titleFront->document()->size().width());
+          titleFront->size[YY]       = int(titleFront->document()->size().height());
           titleFrontPld = titleFront->placement.value();
           breakTitleFrontRelativeTo  = titleFrontPld.relativeTo != PageType;
       } else {
           delete titleFront;
           titleFront                 = nullptr;
-        }
+      }
 
-      // Front Cover Model Name
-      bool displayModelNameFront       = page->meta.LPub.page.modelName.display.value();
+      // Model Name (Front Cover) Initialization //~~~~~~~~~~~~~~~~
+      bool displayModelNameFront         = page->meta.LPub.page.modelName.display.value();
+      bool breakModelNameFrontRelativeTo = !displayModelNameFront;
       PlacementData modelNameFrontPld;
       if (displayModelNameFront){
-          modelNameFront->size[XX]     = (int) modelNameFront->document()->size().width();
-          modelNameFront->size[YY]     = (int) modelNameFront->document()->size().height();
+          modelNameFront->size[XX]       = int(modelNameFront->document()->size().width());
+          modelNameFront->size[YY]       = int(modelNameFront->document()->size().height());
           modelNameFrontPld = modelNameFront->placement.value();
-        } else {
+          breakModelNameFrontRelativeTo  = modelNameFrontPld.relativeTo != PageTitleType;
+      } else {
           delete modelNameFront;
-          modelNameFront               = nullptr;
-        }
+          modelNameFront                 = nullptr;
+      }
 
-       // Front Cover Author
+       // Author (Front Cover) Initialization //~~~~~~~~~~~~~~~~
       bool displayAuthorFront         = page->meta.LPub.page.authorFront.display.value();
-      bool breakAuthorFrontRelativeTo = false;
+      bool breakAuthorFrontRelativeTo = !displayAuthorFront;
       PlacementData authorFrontPld;
       if (displayAuthorFront) {
-          authorFront->size[XX]       = (int) authorFront->document()->size().width();
-          authorFront->size[YY]       = (int) authorFront->document()->size().height();
+          authorFront->size[XX]       = int(authorFront->document()->size().width());
+          authorFront->size[YY]       = int(authorFront->document()->size().height());
           authorFrontPld = authorFront->placement.value();
           breakAuthorFrontRelativeTo  = authorFrontPld.relativeTo != PageTitleType;
       } else {
           delete authorFront;
           authorFront                 = nullptr;
-        }
+      }
 
-      // Front Page Parts Count
+      // Parts Count (Front Cover) Initialization //~~~~~~~~~~~~~~~~
       bool displayPartsFront         = page->meta.LPub.page.parts.display.value();
-      bool breakPartsFrontRelativeTo = false;
+      bool breakPartsFrontRelativeTo = !displayPartsFront;
       PlacementData PartsFrontPld;
       if (displayPartsFront) {
-          partsFront->size[XX]       = (int) partsFront->document()->size().width();
-          partsFront->size[YY]       = (int) partsFront->document()->size().height();
+          partsFront->size[XX]       = int(partsFront->document()->size().width());
+          partsFront->size[YY]       = int(partsFront->document()->size().height());
           PartsFrontPld = partsFront->placement.value();
           breakPartsFrontRelativeTo  = PartsFrontPld.relativeTo != PageAuthorType;
       } else {
           delete  partsFront;
           partsFront                 = nullptr;
-        }
+      }
 
-      // Front Page Model Description,
+      // Model Description (Front Cover) Initialization //~~~~~~~~~~~~~~~~
       bool displayModelDescFront         = page->meta.LPub.page.modelDesc.display.value();
-      bool breakModelDescFrontRelativeTo = false;
+      bool breakModelDescFrontRelativeTo = !displayModelDescFront;
       PlacementData modelDescFrontPld;
       if (displayModelDescFront) {
-          modelDescFront->size[XX]       = (int) modelDescFront->document()->size().width();
-          modelDescFront->size[YY]       = (int) modelDescFront->document()->size().height();
+          modelDescFront->size[XX]       = int(modelDescFront->document()->size().width());
+          modelDescFront->size[YY]       = int(modelDescFront->document()->size().height());
           modelDescFrontPld = modelDescFront->placement.value();
           breakModelDescFrontRelativeTo  = modelDescFrontPld.relativeTo != PagePartsType;
       } else {
           delete modelDescFront;
           modelDescFront                 = nullptr;
-        }
+      }
 
-      // Front Page Publish Description,
-      bool displayPublishDescFront       = page->meta.LPub.page.publishDesc.display.value();
+      // Publish Description (Front Cover) Initialization //~~~~~~~~~~~~~~~~
+      bool displayPublishDescFront         = page->meta.LPub.page.publishDesc.display.value();
+      bool breakPublishDescFrontRelativeTo = !displayPublishDescFront;
       PlacementData publishDescFrontPld;
       if (displayPublishDescFront) {
-          publishDescFront->size[XX]     = (int) publishDescFront->document()->size().width();
-          publishDescFront->size[YY]     = (int) publishDescFront->document()->size().height();
+          publishDescFront->size[XX]      = int(publishDescFront->document()->size().width());
+          publishDescFront->size[YY]      = int(publishDescFront->document()->size().height());
           publishDescFrontPld = publishDescFront->placement.value();
+          breakPublishDescFrontRelativeTo = publishDescFrontPld.relativeTo != PageModelDescType;
       } else {
           delete publishDescFront;
-          publishDescFront               = nullptr;
-        }
+          publishDescFront                = nullptr;
+      }
 
-      // Front Page Category,
+      // Category (Front Cover) Initialization //~~~~~~~~~~~~~~~~
       /* bool displayCategoryFront      = page->meta.LPub.page.category.display.value();
-      bool breakCategoryFrontRelativeTo = false;
+      bool breakCategoryFrontRelativeTo = !displayCategoryFront;
       PlacementData categoryFrontPld;
       if (displayCategoryFront) {
-          categoryFront->size[XX]       = (int) categoryFront->document()->size().width();
-          categoryFront->size[YY]       = (int) categoryFront->document()->size().height();
-
+          categoryFront->size[XX]       = int(categoryFront->document()->size().width());
+          categoryFront->size[YY]       = int(categoryFront->document()->size().height());
           categoryFrontPld = categoryFront->placement.value();
           breakCategoryFrontRelativeTo  = categoryFrontPld.relativeTo != PagePartsType;
       } else {
           delete  categoryFront;
           categoryFront                 = nullptr;
-        } */
+      } */
 
+      // Nothing is placed relative to the document logo or plug image so no break statement is defined.
       // Front Cover Document Logo
       bool displayDocumentLogoFront  = page->meta.LPub.page.documentLogoFront.display.value();
 
       // Front Cover Image
       bool displayCoverImage  = page->meta.LPub.page.coverImage.display.value();
 
-      // Allocations...
+      // Placements...
 
       // Title (Front Cover) //~~~~~~~~~~~~~~~~
       if (displayTitleFront) {
           plPage.appendRelativeTo(titleFront);
           plPage.placeRelative(titleFront);
           titleFront->setPos(titleFront->loc[XX],titleFront->loc[YY]);
-        }
+      }
 
-      // ModelName (Front Cover) //~~~~~~~~~~~~~~~~
-      if (displayModelNameFront) {
-          if (breakTitleFrontRelativeTo && modelNameFrontPld.relativeTo == PageTitleType) {
-              modelNameFront->placement.setValue(RightInside,PageType);
+      // ModelName (Front Cover) Placement //~~~~~~~~~~~~~~~~
+      if (displayModelNameFront) {                                   // display attribute On ?
+          if (modelNameFrontPld.relativeTo == PageTitleType) {       // default relativeTo ?
+              if (displayTitleFront && !breakTitleFrontRelativeTo){  // display and not break default relativeTo ?
+                  titleFront->appendRelativeTo(modelNameFront);
+                  titleFront->placeRelative(modelNameFront);
+              } else {                                               // break or no display default relativeTo ?
+                  titleFront->placement.setValue(RightInside,PageType);
+                  plPage.appendRelativeTo(modelNameFront);
+                  plPage.placeRelative(modelNameFront);
+              }
+          } else {                                                   // placement changed so place as is
               plPage.appendRelativeTo(modelNameFront);
               plPage.placeRelative(modelNameFront);
-            } else if (displayTitleFront && modelNameFrontPld.relativeTo == PageTitleType) {
-              titleFront->appendRelativeTo(modelNameFront);
-              titleFront->placeRelative(modelNameFront);
-            } else {
-              modelNameFront->placement.setValue(RightInside,PageType);
-              plPage.appendRelativeTo(modelNameFront);
-              plPage.placeRelative(modelNameFront);
-            }
+          }
           modelNameFront->setPos(modelNameFront->loc[XX],modelNameFront->loc[YY]);
-        }
+      }
 
-      // Author (Front Cover) //~~~~~~~~~~~~~~~~
+      // Author (Front Cover) Placement //~~~~~~~~~~~~~~~~
       if (displayAuthorFront) {
-          if (breakTitleFrontRelativeTo && authorFrontPld.relativeTo == PageTitleType) {
-              authorFront->placement.setValue(RightInside,PageType);
-              plPage.appendRelativeTo(authorFront);
-              plPage.placeRelative(authorFront);
-            } else if (displayTitleFront && authorFrontPld.relativeTo == PageTitleType) {
-              titleFront->appendRelativeTo(authorFront);
-              titleFront->placeRelative(authorFront);
-            } else {
-              authorFront->placement.setValue(RightInside,PageType);
-              plPage.appendRelativeTo(authorFront);
-              plPage.placeRelative(authorFront);
-            }
-          authorFront->setPos(authorFront->loc[XX],authorFront->loc[YY]);
-        }
-
-      // Parts (Front Cover) //~~~~~~~~~~~~~~~~
-      if (displayPartsFront) {
-          if (breakAuthorFrontRelativeTo && PartsFrontPld.relativeTo == PageAuthorType) {
-              partsFront->placement.setValue(RightInside,PageType);
-              plPage.appendRelativeTo(partsFront);
-              plPage.placeRelative(partsFront);
-            } else if (displayAuthorFront && PartsFrontPld.relativeTo == PageAuthorType) {
-              authorFront->appendRelativeTo(partsFront);
-              authorFront->placeRelative(partsFront);
-            } else {
-              partsFront->placement.setValue(RightInside,PageType);
-              plPage.appendRelativeTo(partsFront);
-              plPage.placeRelative(partsFront);
-            }
-          partsFront->setPos(partsFront->loc[XX],partsFront->loc[YY]);
-        }
-
-      // ModelDesc (Front Cover) //~~~~~~~~~~~~~~~~
-      if (displayModelDescFront) {
-          if ((breakPartsFrontRelativeTo && modelDescFrontPld.relativeTo == PagePartsType)    /* ||
-              (breakCategoryFrontRelativeTo && modelDescFrontPld.relativeTo == PageCategoryType) */) {
-              modelDescFront->placement.setValue(RightInside,PageType);
-              plPage.appendRelativeTo(modelDescFront);
-              plPage.placeRelative(modelDescFront);
-          } else if (displayPartsFront && modelDescFrontPld.relativeTo == PagePartsType) {
-              partsFront->appendRelativeTo(modelDescFront);
-              partsFront->placeRelative(modelDescFront);
-          /*
-          } else if (displayCategoryFront && modelDescFrontPld.relativeTo == PageCategoryType) {
-              partsFront->appendRelativeTo(modelDescFront);
-              partsFront->placeRelative(modelDescFront);
-          */
+          if (authorFrontPld.relativeTo == PageTitleType) {
+              if (displayTitleFront && !breakTitleFrontRelativeTo) {
+                  titleFront->appendRelativeTo(authorFront);
+                  titleFront->placeRelative(authorFront);
+              } else {
+                  authorFront->placement.setValue(LeftInside,PageType);
+                  plPage.appendRelativeTo(authorFront);
+                  plPage.placeRelative(authorFront);
+              }
           } else {
-              modelDescFront->placement.setValue(RightInside,PageType);
+              plPage.appendRelativeTo(authorFront);
+              plPage.placeRelative(authorFront);
+          }
+          authorFront->setPos(authorFront->loc[XX],authorFront->loc[YY]);
+      }
+
+      // Parts (Front Cover) Placement //~~~~~~~~~~~~~~~~
+      if (displayPartsFront) {
+          if (PartsFrontPld.relativeTo == PageAuthorType) {
+              if (displayAuthorFront && !breakAuthorFrontRelativeTo) {
+                  authorFront->appendRelativeTo(partsFront);
+                  authorFront->placeRelative(partsFront);
+              } else {
+                  partsFront->placement.setValue(RightInside,PageType);
+                  plPage.appendRelativeTo(partsFront);
+                  plPage.placeRelative(partsFront);
+              }
+          } else {
+              plPage.appendRelativeTo(partsFront);
+              plPage.placeRelative(partsFront);
+          }
+          partsFront->setPos(partsFront->loc[XX],partsFront->loc[YY]);
+      }
+
+      // ModelDesc (Front Cover) Placement //~~~~~~~~~~~~~~~~
+      if (displayModelDescFront) {
+          if (modelDescFrontPld.relativeTo == PagePartsType) {
+              if (displayPartsFront && !breakPartsFrontRelativeTo) {
+                  partsFront->appendRelativeTo(modelDescFront);
+                  partsFront->placeRelative(modelDescFront);
+              } else {
+                  modelDescFront->placement.setValue(RightInside,PageType);
+                  plPage.appendRelativeTo(modelDescFront);
+                  plPage.placeRelative(modelDescFront);
+              }
+          } else {
               plPage.appendRelativeTo(modelDescFront);
               plPage.placeRelative(modelDescFront);
           }
           modelDescFront->setPos(modelDescFront->loc[XX],modelDescFront->loc[YY]);
-        }
+      }
 
-      // PublishDesc (Front Cover) //~~~~~~~~~~~~~~~~
+      // PublishDesc (Front Cover) Placement //~~~~~~~~~~~~~~~~
       if (displayPublishDescFront) {
-          if (breakModelDescFrontRelativeTo && publishDescFrontPld.relativeTo == PageModelDescType) {
-              publishDescFront->placement.setValue(RightInside,PageType);
-              plPage.appendRelativeTo(publishDescFront);
-              plPage.placeRelative(publishDescFront);
-            } else if (displayModelDescFront && publishDescFrontPld.relativeTo == PageModelDescType) {
-              modelDescFront->appendRelativeTo(publishDescFront);
-              modelDescFront->placeRelative(publishDescFront);
-            } else {
-              publishDescFront->placement.setValue(RightInside,PageType);
-              plPage.appendRelativeTo(publishDescFront);
-              plPage.placeRelative(publishDescFront);
-            }
-          publishDescFront->setPos(publishDescFront->loc[XX],publishDescFront->loc[YY]);
-        }
-
-      // Category (Front Cover) //~~~~~~~~~~~~~~~~
-      /* if (displayCategoryFront) {
-          if (breakPartsFrontRelativeTo && categoryFrontPld.relativeTo == PagePartsType) {
-              categoryFront->placement.setValue(RightInside,PageType);
-              plPage.appendRelativeTo(categoryFront);
-              plPage.placeRelative(categoryFront);
-          } else if (displayPartsFront && categoryFrontPld.relativeTo == PagePartsType) {
-              partsFront->appendRelativeTo(categoryFront);
-              partsFront->placeRelative(categoryFront);
+          if (publishDescFrontPld.relativeTo == PageModelDescType) {
+              if (displayModelDescFront && !breakModelDescFrontRelativeTo) {
+                  modelDescFront->appendRelativeTo(publishDescFront);
+                  modelDescFront->placeRelative(publishDescFront);
+              } else {
+                  publishDescFront->placement.setValue(RightInside,PageType);
+                  plPage.appendRelativeTo(publishDescFront);
+                  plPage.placeRelative(publishDescFront);
+              }
           } else {
-              categoryFront->placement.setValue(RightInside,PageType);
+              plPage.appendRelativeTo(publishDescFront);
+              plPage.placeRelative(publishDescFront);
+          }
+          publishDescFront->setPos(publishDescFront->loc[XX],publishDescFront->loc[YY]);
+      }
+
+      // Category (Front Cover) Placement //~~~~~~~~~~~~~~~~
+      /*
+      if (displayCategoryFront) {
+          if (categoryFrontPld.relativeTo == PagePartsType) {
+              if (displayPartsFront && !breakPartsFrontRelativeTo) {
+                  partsFront->appendRelativeTo(categoryFront);
+                  partsFront->placeRelative(categoryFront);
+              } else  {
+                  categoryFront->placement.setValue(RightInside,PageType);
+                  plPage.appendRelativeTo(categoryFront);
+                  plPage.placeRelative(categoryFront);
+              }
+          } else {
               plPage.appendRelativeTo(categoryFront);
               plPage.placeRelative(categoryFront);
           }
           categoryFront->setPos(categoryFront->loc[XX],categoryFront->loc[YY]);
-      } */
+      }
+     */
 
       QFileInfo fileInfo;
       // DocumentLogo (Front Cover) //~~~~~~~~~~~~~~~~
       if (displayDocumentLogoFront) {
-          qreal picScale = page->meta.LPub.page.documentLogoFront.picScale.value();
+          qreal picScale = double(page->meta.LPub.page.documentLogoFront.picScale.value());
           fileInfo.setFile(getFilePath(page->meta.LPub.page.documentLogoFront.file.value()));
           if (fileInfo.exists()) {
               QPixmap qpixmap;
               qpixmap.load(fileInfo.absoluteFilePath());
               pixmapLogoFront
-                  = new PageAttributePixmapItem(
-                    page,
-                    qpixmap,
-                    page->meta.LPub.page.documentLogoFront,
-                    pageBg);
+                      = new PageAttributePixmapItem(
+                          page,
+                          qpixmap,
+                          page->meta.LPub.page.documentLogoFront,
+                          pageBg);
               page->addPageAttributePixmap(pixmapLogoFront);
               pixmapLogoFront->setTransformationMode(Qt::SmoothTransformation);
               pixmapLogoFront->setScale(picScale,picScale);
@@ -1651,36 +1651,38 @@ int Gui::addCoverPageAttributes(
               int margin[2] = {0, 0};
               PlacementData pld = pixmapLogoFront->placement.value();
               if (pld.relativeTo == PageHeaderType) {
+                  pageHeader->appendRelativeTo(pixmapLogoFront);
                   pageHeader->placeRelative(pixmapLogoFront, margin);
                   pixmapLogoFront->relativeToSize[0] = pageHeader->size[XX];
                   pixmapLogoFront->relativeToSize[1] = pageHeader->size[YY];
-                } else if (pld.relativeTo == PageFooterType) {
+              } else if (pld.relativeTo == PageFooterType) {
+                  pageFooter->appendRelativeTo(pixmapLogoFront);
                   pageFooter->placeRelative(pixmapLogoFront, margin);
                   pixmapLogoFront->relativeToSize[0] = pageFooter->size[XX];
                   pixmapLogoFront->relativeToSize[1] = pageFooter->size[YY];
-                } else {
-                  pixmapLogoFront->placement.setValue(TopLeftInsideCorner,PageType);
+              } else {
+                  plPage.appendRelativeTo(pixmapLogoFront);
                   plPage.placeRelative(pixmapLogoFront, margin);
                   pixmapLogoFront->relativeToSize[0] = plPage.size[XX];
                   pixmapLogoFront->relativeToSize[1] = plPage.size[YY];
-                }
+              }
               pixmapLogoFront->setPos(pixmapLogoFront->loc[XX],pixmapLogoFront->loc[YY]);
-            }
-        }
+          }
+      }
 
       // CoverImage (Front Cover) //~~~~~~~~~~~~~~~~
       if (displayCoverImage) {
-          qreal picScale   = page->meta.LPub.page.coverImage.picScale.value();
+          qreal picScale   = double(page->meta.LPub.page.coverImage.picScale.value());
           fileInfo.setFile(getFilePath(page->meta.LPub.page.coverImage.file.value()));
           if (fileInfo.exists()) {
               QPixmap qpixmap;
               qpixmap.load(fileInfo.absoluteFilePath());
               pixmapCoverImageFront
-                  = new PageAttributePixmapItem(
-                    page,
-                    qpixmap,
-                    page->meta.LPub.page.coverImage,
-                    pageBg);
+                      = new PageAttributePixmapItem(
+                          page,
+                          qpixmap,
+                          page->meta.LPub.page.coverImage,
+                          pageBg);
               page->addPageAttributePixmap(pixmapCoverImageFront);
               pixmapCoverImageFront->setTransformationMode(Qt::SmoothTransformation);
               pixmapCoverImageFront->setScale(picScale,picScale);
@@ -1690,292 +1692,301 @@ int Gui::addCoverPageAttributes(
               pixmapCoverImageFront->setPos(pixmapCoverImageFront->loc[XX],pixmapCoverImageFront->loc[YY]);
               pixmapCoverImageFront->relativeToSize[0] = plPage.size[XX];
               pixmapCoverImageFront->relativeToSize[1] = plPage.size[YY];
+          }
+      }
+  }
 
-            }
-        }
-    }
-
-  // Back Cover Page Initializations and Allocations...
+  // Back Cover Page Initializations and Placements...
   if (page->coverPage && page->backCover){
 
       // Initializations...
-      PageAttributeTextItem   *titleBack          = new PageAttributeTextItem(page,page->meta.LPub.page.titleBack,pageBg);
-      PageAttributeTextItem   *authorBack         = new PageAttributeTextItem(page,page->meta.LPub.page.authorBack,pageBg);
-      PageAttributeTextItem   *copyrightBack      = new PageAttributeTextItem(page,page->meta.LPub.page.copyrightBack,pageBg);
-      PageAttributeTextItem   *urlBack            = new PageAttributeTextItem(page,page->meta.LPub.page.urlBack,pageBg);
-      PageAttributeTextItem   *emailBack          = new PageAttributeTextItem(page,page->meta.LPub.page.emailBack,pageBg);
-      PageAttributeTextItem   *disclaimerBack     = new PageAttributeTextItem(page,page->meta.LPub.page.disclaimer,pageBg);
-      PageAttributeTextItem   *plugBack           = new PageAttributeTextItem(page,page->meta.LPub.page.plug,pageBg);;
+      PageAttributeTextItem   *titleBack      = new PageAttributeTextItem(page,page->meta.LPub.page.titleBack,pageBg);
+      PageAttributeTextItem   *authorBack     = new PageAttributeTextItem(page,page->meta.LPub.page.authorBack,pageBg);
+      PageAttributeTextItem   *copyrightBack  = new PageAttributeTextItem(page,page->meta.LPub.page.copyrightBack,pageBg);
+      PageAttributeTextItem   *urlBack        = new PageAttributeTextItem(page,page->meta.LPub.page.urlBack,pageBg);
+      PageAttributeTextItem   *emailBack      = new PageAttributeTextItem(page,page->meta.LPub.page.emailBack,pageBg);
+      PageAttributeTextItem   *disclaimerBack = new PageAttributeTextItem(page,page->meta.LPub.page.disclaimer,pageBg);
+      PageAttributeTextItem   *plugBack       = new PageAttributeTextItem(page,page->meta.LPub.page.plug,pageBg);;
       PageAttributePixmapItem *pixmapLogoBack;
       PageAttributePixmapItem *pixmapPlugImageBack;
 
-      // Back Cover Title
+      // Title (Back Cover) Initialization //~~~~~~~~~~~~~~~~
       bool displayTitleBack = page->meta.LPub.page.titleBack.display.value();
-      bool breakTitleBackRelativeTo = false;
+      bool breakTitleBackRelativeTo = !displayTitleBack;
       PlacementData titleBackPld;
       if (displayTitleBack) {
-          titleBack->size[XX]     = (int) titleBack->document()->size().width();
-          titleBack->size[YY]     = (int) titleBack->document()->size().height();
-
+          titleBack->size[XX]      = int(titleBack->document()->size().width());
+          titleBack->size[YY]      = int(titleBack->document()->size().height());
           titleBackPld = titleBack->placement.value();
           breakTitleBackRelativeTo = titleBackPld.relativeTo != PageType;
       } else {
           delete titleBack;
-          titleBack               = nullptr;
-        }
+          titleBack                = nullptr;
+      }
 
-      // Back Cover Author
+      // Author (Back Cover) Initialization //~~~~~~~~~~~~~~~~
       bool displayAuthorBack = page->meta.LPub.page.authorBack.display.value();
-      bool breakAuthorBackRelativeTo = false;
+      bool breakAuthorBackRelativeTo = !displayAuthorBack;
       PlacementData authorBackPld;
       if (displayAuthorBack) {
-          authorBack->size[XX]     = (int) authorBack->document()->size().width();
-          authorBack->size[YY]     = (int) authorBack->document()->size().height();
+          authorBack->size[XX]      = int(authorBack->document()->size().width());
+          authorBack->size[YY]      = int(authorBack->document()->size().height());
           authorBackPld = authorBack->placement.value();
           breakAuthorBackRelativeTo = authorBackPld.relativeTo != PageTitleType;
       } else {
           delete authorBack;
-          authorBack               = nullptr;
-        }
+          authorBack                = nullptr;
+      }
 
-      // Back Cover Copyright
+      // Copyright (Back Cover) Initialization //~~~~~~~~~~~~~~~~
       bool displayCopyrightBack = page->meta.LPub.page.copyrightBack.display.value();
-      bool breakCopyrightBackRelativeTo = false;
+      bool breakCopyrightBackRelativeTo = !displayCopyrightBack;
       PlacementData copyrightBackPld;
       if (displayCopyrightBack) {
-          copyrightBack->size[XX]     = (int) copyrightBack->document()->size().width();
-          copyrightBack->size[YY]     = (int) copyrightBack->document()->size().height();
+          copyrightBack->size[XX]      = int(copyrightBack->document()->size().width());
+          copyrightBack->size[YY]      = int(copyrightBack->document()->size().height());
           copyrightBackPld = copyrightBack->placement.value();
           breakCopyrightBackRelativeTo = copyrightBackPld.relativeTo != PageAuthorType;
       } else {
           delete copyrightBack;
-          copyrightBack               = nullptr;
-        }
+          copyrightBack                = nullptr;
+      }
 
-      // Back Cover URL
+      // URL (Back Cover) Initialization //~~~~~~~~~~~~~~~~
       bool displayUrlBack = page->meta.LPub.page.urlBack.display.value();
-      bool breakURLBackRelativeTo = false;
+      bool breakURLBackRelativeTo = !displayUrlBack;
       PlacementData urlBackPld;
       if (displayUrlBack) {
-          urlBack->size[XX]     = (int) urlBack->document()->size().width();
-          urlBack->size[YY]     = (int) urlBack->document()->size().height();
+          urlBack->size[XX]      = int(urlBack->document()->size().width());
+          urlBack->size[YY]      = int(urlBack->document()->size().height());
           urlBackPld = urlBack->placement.value();
           breakURLBackRelativeTo = urlBackPld.relativeTo != PageCopyrightType;
       } else {
           delete urlBack;
-          urlBack               = nullptr;
-        }
+          urlBack                = nullptr;
+      }
 
-      // Back Cover Email
+      // Email (Back Cover) Initialization //~~~~~~~~~~~~~~~~
       bool displayEmailBack = page->meta.LPub.page.emailBack.display.value();
-      bool breakEmailBackRelativeTo = false;
+      bool breakEmailBackRelativeTo = !displayEmailBack;
       PlacementData emailBackPld;
       if (displayEmailBack) {
-          emailBack->size[XX]     = (int) emailBack->document()->size().width();
-          emailBack->size[YY]     = (int) emailBack->document()->size().height();
+          emailBack->size[XX]      = int(emailBack->document()->size().width());
+          emailBack->size[YY]      = int(emailBack->document()->size().height());
           emailBackPld = emailBack->placement.value();
           breakEmailBackRelativeTo = emailBackPld.relativeTo != PageURLType;
       } else {
           delete emailBack;
           emailBack               = nullptr;
-        }
+      }
 
-      // Back Cover Disclaimer
+      // Disclaimer (Back Cover) Display //~~~~~~~~~~~~~~~~
       bool displayDisclaimerBack = page->meta.LPub.page.disclaimer.display.value();
-      bool breakDisclaimerBackRelativeTo = false;
+      bool breakDisclaimerBackRelativeTo = !displayDisclaimerBack;
       PlacementData disclaimerBackPld;
       if (displayDisclaimerBack) {
-          disclaimerBack->size[XX]     = (int) disclaimerBack->document()->size().width();
-          disclaimerBack->size[YY]     = (int) disclaimerBack->document()->size().height();
+          disclaimerBack->size[XX]      = int(disclaimerBack->document()->size().width());
+          disclaimerBack->size[YY]      = int(disclaimerBack->document()->size().height());
           disclaimerBackPld = disclaimerBack->placement.value();
           breakDisclaimerBackRelativeTo = disclaimerBackPld.relativeTo != PageEmailType;
       } else {
           delete disclaimerBack;
-          disclaimerBack               = nullptr;
-        }
+          disclaimerBack                = nullptr;
+      }
 
-      // Back Cover Plug
+      // Plug (Back Cover) Initialization //~~~~~~~~~~~~~~~~
       bool displayPlugBack = page->meta.LPub.page.plug.display.value();
+      bool breakPlugBackRelativeTo = !displayPlugBack;
       PlacementData plugBackPld;
       if (displayPlugBack) {
-          plugBack->size[XX]     = (int) plugBack->document()->size().width();
-          plugBack->size[YY]     = (int) plugBack->document()->size().height();
+          plugBack->size[XX]      = int(plugBack->document()->size().width());
+          plugBack->size[YY]      = int(plugBack->document()->size().height());
           plugBackPld = plugBack->placement.value();
+          breakPlugBackRelativeTo = plugBackPld.relativeTo != PageDisclaimerType;
       } else {
           delete plugBack;
-          plugBack               = nullptr;
-        }
+          plugBack                = nullptr;
+      }
 
+      // Nothing is placed relative to the document logo or plug image so no break statement is defined.
       // Back Cover DocumentLogo
       bool displayDocumentLogoBack = page->meta.LPub.page.documentLogoBack.display.value();
 
       // Back Cover Plug Image
       bool displayPlugImageBack    = page->meta.LPub.page.plugImage.display.value();
 
-      // Allocations...
+      // Placements...
 
-      // Title (Back Cover) //~~~~~~~~~~~~~~~~
+      // Title (Back Cover) Initialization //~~~~~~~~~~~~~~~~
       if (displayTitleBack) {
           plPage.appendRelativeTo(titleBack);
           plPage.placeRelative(titleBack);
           titleBack->setPos(titleBack->loc[XX],titleBack->loc[YY]);
         }
 
-      // Author (Back Cover) //~~~~~~~~~~~~~~~~
+      // Author (Back Cover) Placement //~~~~~~~~~~~~~~~~
       if (displayAuthorBack) {
-          if (breakTitleBackRelativeTo && authorBackPld.relativeTo == PageTitleType) {
-              authorBack->placement.setValue(CenterCenter,PageType);
+          if (authorBackPld.relativeTo == PageTitleType) {
+              if (displayTitleBack && !breakTitleBackRelativeTo){
+                  titleBack->appendRelativeTo(authorBack);
+                  titleBack->placeRelative(authorBack);
+              } else if (authorBackPld.relativeTo == PageTitleType) {
+                  authorBack->placement.setValue(CenterCenter,PageType);
+                  plPage.appendRelativeTo(authorBack);
+                  plPage.placeRelative(authorBack);
+              }
+          } else {
               plPage.appendRelativeTo(authorBack);
               plPage.placeRelative(authorBack);
-            } else if (displayTitleBack && authorBackPld.relativeTo == PageTitleType) {
-              titleBack->appendRelativeTo(authorBack);
-              titleBack->placeRelative(authorBack);
-            } else {
-              authorBack->placement.setValue(CenterCenter,PageType);
-              plPage.appendRelativeTo(authorBack);
-              plPage.placeRelative(authorBack);
-            }
+          }
           authorBack->setPos(authorBack->loc[XX],authorBack->loc[YY]);
-        }
+      }
 
-      // Copyright (Back Cover) //~~~~~~~~~~~~~~~~
+      // Copyright (Back Cover) Placement //~~~~~~~~~~~~~~~~
       if (displayCopyrightBack) {
-          if (breakAuthorBackRelativeTo && copyrightBackPld.relativeTo == PageAuthorType) {
-              copyrightBack->placement.setValue(LeftInside,PageType);
+          if (copyrightBackPld.relativeTo == PageAuthorType) {
+              if (displayAuthorBack && !breakAuthorBackRelativeTo){
+                  authorBack->appendRelativeTo(copyrightBack);
+                  authorBack->placeRelative(copyrightBack);
+              } else if (copyrightBackPld.relativeTo == PageAuthorType) {
+                  copyrightBack->placement.setValue(LeftInside,PageType);
+                  plPage.appendRelativeTo(copyrightBack);
+                  plPage.placeRelative(copyrightBack);
+              }
+          } else {
               plPage.appendRelativeTo(copyrightBack);
               plPage.placeRelative(copyrightBack);
-            } else if (displayAuthorBack && copyrightBackPld.relativeTo == PageAuthorType) {
-              authorBack->appendRelativeTo(copyrightBack);
-              authorBack->placeRelative(copyrightBack);
-            } else {
-              copyrightBack->placement.setValue(LeftInside,PageType);
-              plPage.appendRelativeTo(copyrightBack);
-              plPage.placeRelative(copyrightBack);
-            }
+          }
           copyrightBack->setPos(copyrightBack->loc[XX],copyrightBack->loc[YY]);
-        }
+      }
 
-      // Url (Back Cover) //~~~~~~~~~~~~~~~~
+      // Url (Back Cover) Placement //~~~~~~~~~~~~~~~~
       if (displayUrlBack) {
           urlBackPld = urlBack->placement.value();
-          if (breakCopyrightBackRelativeTo && urlBackPld.relativeTo == PageCopyrightType) {
-              urlBack->placement.setValue(LeftInside,PageType);
+          if (urlBackPld.relativeTo == PageCopyrightType) {
+              if (displayCopyrightBack && !breakCopyrightBackRelativeTo){
+                  copyrightBack->appendRelativeTo(urlBack);
+                  copyrightBack->placeRelative(urlBack);
+              } else if (urlBackPld.relativeTo == PageCopyrightType) {
+                  urlBack->placement.setValue(LeftInside,PageType);
+                  plPage.appendRelativeTo(urlBack);
+                  plPage.placeRelative(urlBack);
+              }
+          } else {
               plPage.appendRelativeTo(urlBack);
               plPage.placeRelative(urlBack);
-            } else if (displayCopyrightBack && urlBackPld.relativeTo == PageCopyrightType) {
-              copyrightBack->appendRelativeTo(urlBack);
-              copyrightBack->placeRelative(urlBack);
-            } else {
-              urlBack->placement.setValue(LeftInside,PageType);
-              plPage.appendRelativeTo(urlBack);
-              plPage.placeRelative(urlBack);
-            }
+          }
           urlBack->setPos(urlBack->loc[XX],urlBack->loc[YY]);
-        }
+      }
 
-      // Email (Back Cover) //~~~~~~~~~~~~~~~~
+      // Email (Back Cover) Placement //~~~~~~~~~~~~~~~~
       if (displayEmailBack) {
           emailBackPld = emailBack->placement.value();
-          if (breakURLBackRelativeTo && emailBackPld.relativeTo == PageURLType) {
-              emailBack->placement.setValue(RightInside,PageType);
+          if (emailBackPld.relativeTo == PageURLType) {
+              if (displayUrlBack && !breakURLBackRelativeTo){
+                  urlBack->appendRelativeTo(emailBack);
+                  urlBack->placeRelative(emailBack);
+              } else if (emailBackPld.relativeTo == PageURLType) {
+                  emailBack->placement.setValue(RightInside,PageType);
+                  plPage.appendRelativeTo(emailBack);
+                  plPage.placeRelative(emailBack);
+              }
+          } else {
               plPage.appendRelativeTo(emailBack);
               plPage.placeRelative(emailBack);
-            } else if (displayUrlBack && emailBackPld.relativeTo == PageURLType) {
-              urlBack->appendRelativeTo(emailBack);
-              urlBack->placeRelative(emailBack);
-            } else {
-              emailBack->placement.setValue(RightInside,PageType);
-              plPage.appendRelativeTo(emailBack);
-              plPage.placeRelative(emailBack);
-            }
+          }
           emailBack->setPos(emailBack->loc[XX],emailBack->loc[YY]);
-        }
+      }
 
-      // Disclaimer (Back Cover)//~~~~~~~~~~~~~~~~
-      if (displayDisclaimerBack) {
-          if (breakEmailBackRelativeTo && disclaimerBackPld.relativeTo == PageEmailType) {
-              disclaimerBack->placement.setValue(RightInside,PageType);
+      // Disclaimer (Back Cover) Placement //~~~~~~~~~~~~~~~~
+      if (displayDisclaimerBack) {                                 // display attribute On ?
+          if (disclaimerBackPld.relativeTo == PageEmailType) {     // default relativeTo ?
+              if (displayEmailBack && !breakEmailBackRelativeTo) { // display and not break default relativeTo ?
+                  emailBack->appendRelativeTo(disclaimerBack);
+                  emailBack->placeRelative(disclaimerBack);
+              } else {                                             // break or no display default relativeTo ?
+                  disclaimerBack->placement.setValue(RightInside,PageType);
+                  plPage.appendRelativeTo(disclaimerBack);
+                  plPage.placeRelative(disclaimerBack);
+              }
+          } else {                                                 // // placement changed so place as is
               plPage.appendRelativeTo(disclaimerBack);
               plPage.placeRelative(disclaimerBack);
-            } else if (displayEmailBack && disclaimerBackPld.relativeTo == PageEmailType) {
-              emailBack->appendRelativeTo(disclaimerBack);
-              emailBack->placeRelative(disclaimerBack);
-            } else {
-              disclaimerBack->placement.setValue(RightInside,PageType);
-              plPage.appendRelativeTo(disclaimerBack);
-              plPage.placeRelative(disclaimerBack);
-            }
+          }
           disclaimerBack->setPos(disclaimerBack->loc[XX],disclaimerBack->loc[YY]);
-        }
+      }
 
-      // Plug (Back Cover)//~~~~~~~~~~~~~~~~
+      // Plug (Back Cover) Placement //~~~~~~~~~~~~~~~~
       if (displayPlugBack) {
-          if (breakDisclaimerBackRelativeTo && plugBackPld.relativeTo == PageDisclaimerType) {
-              plugBack->placement.setValue(RightInside,PageType);
+          if (plugBackPld.relativeTo == PageDisclaimerType) {
+              if (displayDisclaimerBack && !breakDisclaimerBackRelativeTo){
+                  disclaimerBack->appendRelativeTo(plugBack);
+                  disclaimerBack->placeRelative(plugBack);
+              } else {
+                  plugBack->placement.setValue(RightInside,PageType);
+                  plPage.appendRelativeTo(plugBack);
+                  plPage.placeRelative(plugBack);
+              }
+          } else {
               plPage.appendRelativeTo(plugBack);
               plPage.placeRelative(plugBack);
-            } else if (displayDisclaimerBack && plugBackPld.relativeTo == PageDisclaimerType) {
-              disclaimerBack->appendRelativeTo(plugBack);
-              disclaimerBack->placeRelative(plugBack);
-            } else {
-              plugBack->placement.setValue(RightInside,PageType);
-              plPage.appendRelativeTo(plugBack);
-              plPage.placeRelative(plugBack);
-            }
+          }
           plugBack->setPos(plugBack->loc[XX],plugBack->loc[YY]);
-        }
+      }
 
-      // DocumentLogoBack (Back Cover) //~~~~~~~~~~~~~~~~
+      // DocumentLogoBack (Back Cover) Placement //~~~~~~~~~~~~~~~~
       QFileInfo fileInfo;
       if (displayDocumentLogoBack) {
-          qreal picScale   = page->meta.LPub.page.documentLogoBack.picScale.value();
+          qreal picScale   = double(page->meta.LPub.page.documentLogoBack.picScale.value());
           fileInfo.setFile(getFilePath(page->meta.LPub.page.documentLogoBack.file.value()));
           if (fileInfo.exists()) {
               QPixmap qpixmap;
               qpixmap.load(fileInfo.absoluteFilePath());
               pixmapLogoBack =
-                  new PageAttributePixmapItem(
-                    page,
-                    qpixmap,
-                    page->meta.LPub.page.documentLogoBack,
-                    pageBg);
+                      new PageAttributePixmapItem(
+                          page,
+                          qpixmap,
+                          page->meta.LPub.page.documentLogoBack,
+                          pageBg);
               page->addPageAttributePixmap(pixmapLogoBack);
               pixmapLogoBack->setTransformationMode(Qt::SmoothTransformation);
               pixmapLogoBack->setScale(picScale,picScale);
               pixmapLogoBack->setZValue(page->meta.LPub.page.scene.pageAttributePixmap.zValue());
               int margin[2] = {0, 0};
               PlacementData pld = pixmapLogoBack->placement.value();
-              if (pld.relativeTo == PageHeaderType) {
+              if (pld.relativeTo == PageHeaderType) {                              // Default placement
+                  pageHeader->appendRelativeTo(pixmapLogoBack);
                   pageHeader->placeRelative(pixmapLogoBack, margin);
                   pixmapLogoBack->relativeToSize[0] = pageHeader->size[XX];
                   pixmapLogoBack->relativeToSize[1] = pageHeader->size[YY];
-                } else if (pld.relativeTo == PageFooterType) {
+              } else if (pld.relativeTo == PageFooterType) {                       // Alternate placement
+                  pageFooter->appendRelativeTo(pixmapLogoBack);
                   pageFooter->placeRelative(pixmapLogoBack, margin);
                   pixmapLogoBack->relativeToSize[0] = pageFooter->size[XX];
                   pixmapLogoBack->relativeToSize[1] = pageFooter->size[YY];
-                } else {
-                  pixmapLogoBack->placement.setValue(TopLeftInsideCorner,PageType);
+              } else {
+                  plPage.appendRelativeTo(pixmapLogoBack);
                   plPage.placeRelative(pixmapLogoBack, margin);
                   pixmapLogoBack->relativeToSize[0] = plPage.size[XX];
                   pixmapLogoBack->relativeToSize[1] = plPage.size[YY];
-                }
+              }
               pixmapLogoBack->setPos(pixmapLogoBack->loc[XX],pixmapLogoBack->loc[YY]);
-            }
-        }
+          }
+      }
 
-      // PlugImage (Back Cover) //~~~~~~~~~~~~~~~~
+      // PlugImage (Back Cover) Placement //~~~~~~~~~~~~~~~~
       if (displayPlugImageBack) {
-          qreal picScale   = page->meta.LPub.page.plugImage.picScale.value();
+          qreal picScale   = double(page->meta.LPub.page.plugImage.picScale.value());
           fileInfo.setFile(getFilePath(page->meta.LPub.page.plugImage.file.value()));
           if (fileInfo.exists()) {
               QPixmap qpixmap;
               qpixmap.load(fileInfo.absoluteFilePath());
               pixmapPlugImageBack =
-                  new PageAttributePixmapItem(
-                    page,
-                    qpixmap,
-                    page->meta.LPub.page.plugImage,
-                    pageBg);
+                      new PageAttributePixmapItem(
+                          page,
+                          qpixmap,
+                          page->meta.LPub.page.plugImage,
+                          pageBg);
               page->addPageAttributePixmap(pixmapPlugImageBack);;
               pixmapPlugImageBack->setTransformationMode(Qt::SmoothTransformation);
               pixmapPlugImageBack->setScale(picScale,picScale);
@@ -1983,23 +1994,25 @@ int Gui::addCoverPageAttributes(
               int margin[2] = {0, 0};
               PlacementData pld = pixmapPlugImageBack->placement.value();
               if (displayPlugBack && pld.relativeTo == PagePlugType) {
+                  plugBack->appendRelativeTo(pixmapPlugImageBack);
                   plugBack->placeRelative(pixmapPlugImageBack, margin);
                   pixmapPlugImageBack->relativeToSize[0] = plugBack->size[XX];
                   pixmapPlugImageBack->relativeToSize[1] = plugBack->size[YY];
-                } else if (pld.relativeTo == PageFooterType) {
+              } else if (pld.relativeTo == PageFooterType) {
+                  pageFooter->appendRelativeTo(pixmapPlugImageBack);
                   pageFooter->placeRelative(pixmapPlugImageBack, margin);
                   pixmapPlugImageBack->relativeToSize[0] = pageFooter->size[XX];
                   pixmapPlugImageBack->relativeToSize[1] = pageFooter->size[YY];
-                } else {
-                  pixmapPlugImageBack->placement.setValue(BottomInside,PageType);
+              } else {
+                  plPage.appendRelativeTo(pixmapPlugImageBack);
                   plPage.placeRelative(pixmapPlugImageBack, margin);
                   pixmapPlugImageBack->relativeToSize[0] = plPage.size[XX];
                   pixmapPlugImageBack->relativeToSize[1] = plPage.size[YY];
-                }
+              }
               pixmapPlugImageBack->setPos(pixmapPlugImageBack->loc[XX],pixmapPlugImageBack->loc[YY]);
-            }
-        }
-    }
+          }
+      }
+  }
   return 0;
 }
 

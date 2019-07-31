@@ -218,10 +218,10 @@ GlobalPageDialog::GlobalPageDialog(
   //child body (many) start
   coverPageBox = new QGroupBox(tr("Display Cover Image"));
   childlayout->addWidget(coverPageBox);
-  child = new PageAttributePictureGui(&pageMeta->coverImage,coverPageBox);
-  chilPicdGui = static_cast<PageAttributePictureGui*>(child);
+  coverImageChildFront = new PageAttributePictureGui(&pageMeta->coverImage,coverPageBox);
+  chilPicdGui = static_cast<PageAttributePictureGui*>(coverImageChildFront);
   chilPicdGui->pictureEdit->setToolTip("Enter image path");
-  data->children.append(child);
+  data->children.append(coverImageChildFront);
   connect(coverPageBox, SIGNAL(toggled(bool)),
           this,         SLOT(  displayGroup(bool)));
   //child body end
@@ -253,10 +253,10 @@ GlobalPageDialog::GlobalPageDialog(
   // child body (many) start
   box = new QGroupBox(tr("Display Model Description"));
   grid->addWidget(box, 0, 0);
-  child = new PageAttributeTextGui(&pageMeta->modelDesc,box);
-  childTextGui = static_cast<PageAttributeTextGui*>(child);
+  modelDescChildFront = new PageAttributeTextGui(&pageMeta->modelDesc,box);
+  childTextGui = static_cast<PageAttributeTextGui*>(modelDescChildFront);
   childTextGui->contentEdit->setToolTip("Enter model description");
-  data->children.append(child);
+  data->children.append(modelDescChildFront);
   // child body end
 
   // child footer (one) end
@@ -275,19 +275,19 @@ GlobalPageDialog::GlobalPageDialog(
   // child body (many) start
   box = new QGroupBox(tr("Display Model Identification"));
   grid->addWidget(box, 0, 0);
-  child = new PageAttributeTextGui(&pageMeta->modelName,box);
-  childTextGui = static_cast<PageAttributeTextGui*>(child);
+  modelIdChildFront = new PageAttributeTextGui(&pageMeta->modelName,box);
+  childTextGui = static_cast<PageAttributeTextGui*>(modelIdChildFront);
   childTextGui->contentEdit->setToolTip("Enter model identification");
-  data->children.append(child);
+  data->children.append(modelIdChildFront);
   // child body end
 
   // child body (many) start
   box = new QGroupBox(tr("Display Parts"));
   grid->addWidget(box, 1, 0);
-  child = new PageAttributeTextGui(&pageMeta->parts,box);
-  childTextGui = static_cast<PageAttributeTextGui*>(child);
+  partsChildFront = new PageAttributeTextGui(&pageMeta->parts,box);
+  childTextGui = static_cast<PageAttributeTextGui*>(partsChildFront);
   childTextGui->contentEdit->setToolTip(" Enter number of parts - e.g. 420 Parts");
-  data->children.append(child);
+  data->children.append(partsChildFront);
   // child body end
 
   // child footer (one) end
@@ -411,10 +411,10 @@ GlobalPageDialog::GlobalPageDialog(
 
   box = new QGroupBox(tr("Publisher Description"));
   grid->addWidget(box, 1, 0);
-  child = new PageAttributeTextGui(&pageMeta->publishDesc,box);
-  childTextGui = static_cast<PageAttributeTextGui*>(child);
+  publishDescChildFront = new PageAttributeTextGui(&pageMeta->publishDesc,box);
+  childTextGui = static_cast<PageAttributeTextGui*>(publishDescChildFront);
   childTextGui->contentEdit->setToolTip("Enter model publisher");
-  data->children.append(child);
+  data->children.append(publishDescChildFront);
 
   childtab->addTab(widget,tr("URL/Description"));
 
@@ -536,10 +536,10 @@ GlobalPageDialog::GlobalPageDialog(
   */
   box = new QGroupBox(tr("Display LEGO Disclaimer"));
   grid->addWidget(box, 0, 0);
-  child = new PageAttributeTextGui(&pageMeta->disclaimer,box);
-  childTextGui = static_cast<PageAttributeTextGui*>(child);
+  disclaimerChildBack = new PageAttributeTextGui(&pageMeta->disclaimer,box);
+  childTextGui = static_cast<PageAttributeTextGui*>(disclaimerChildBack);
   childTextGui->contentEdit->setToolTip("Enter disclaimer paragraph");
-  data->children.append(child); 
+  data->children.append(disclaimerChildBack);
 
   childtab->addTab(widget,tr("Disclaimer"));
 
@@ -556,13 +556,13 @@ GlobalPageDialog::GlobalPageDialog(
   //child body (many) start
   box = new QGroupBox(tr("Display LPub3D Plug"));
   childlayout->addWidget(box);
-  child = new PageAttributeTextGui(&pageMeta->plug,box);
+  lpub3dPlugChildBack = new PageAttributeTextGui(&pageMeta->plug,box);
   QPalette readOnlyPalette;
   readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
-  childTextGui = static_cast<PageAttributeTextGui*>(child);
+  childTextGui = static_cast<PageAttributeTextGui*>(lpub3dPlugChildBack);
   childTextGui->contentEdit->setReadOnly(true);
   childTextGui->contentEdit->setPalette(readOnlyPalette);
-  data->children.append(child);
+  data->children.append(lpub3dPlugChildBack);
   //child body end
 
   //spacer
@@ -586,12 +586,12 @@ GlobalPageDialog::GlobalPageDialog(
   //child body (many) start
   lpub3dLogoBox = new QGroupBox(tr("Display LPub3D Logo"));
   childlayout->addWidget(lpub3dLogoBox);
-  child = new PageAttributePictureGui(&pageMeta->plugImage,lpub3dLogoBox);
+  lpub3dLogoChildBack = new PageAttributePictureGui(&pageMeta->plugImage,lpub3dLogoBox);
   readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
-  chilPicdGui = static_cast<PageAttributePictureGui*>(child);
+  chilPicdGui = static_cast<PageAttributePictureGui*>(lpub3dLogoChildBack);
   chilPicdGui->pictureEdit->setReadOnly(true);
   chilPicdGui->pictureEdit->setPalette(readOnlyPalette);
-  data->children.append(child);
+  data->children.append(lpub3dLogoChildBack);
   connect(lpub3dLogoBox, SIGNAL(toggled(bool)),
           this,    SLOT(  displayGroup(bool)));
   //child body end
@@ -790,7 +790,30 @@ void GlobalPageDialog::accept()
 
   MetaGui *child;
   foreach(child,data->children) {
-    child->apply(data->topLevelFile);
+      if ((child == authorChildFront && authorChildFront->modified) ||
+          (child == titleChildFront && titleChildFront->modified) ||
+          (child == documentLogoChildFront && documentLogoChildFront->modified) ||
+          (child == coverImageChildFront && coverImageChildFront->modified) ||
+          (child == modelDescChildFront && modelDescChildFront->modified) ||
+          (child == modelIdChildFront && modelIdChildFront->modified) ||
+          (child == partsChildFront && partsChildFront->modified) ||
+          (child == publishDescChildFront && publishDescChildFront->modified)) {
+          if (!mi.frontCoverPageExist())
+              mi.insertCoverPage();
+      }
+      if ((child == authorChildBack && authorChildBack->modified) ||
+          (child == titleChildBack && titleChildBack->modified) ||
+          (child == documentLogoChildBack && documentLogoChildBack->modified) ||
+          (child == urlChildBack && urlChildBack->modified) ||
+          (child == copyrightChildBack && copyrightChildBack->modified) ||
+          (child == emailChildBack && emailChildBack->modified) ||
+          (child == disclaimerChildBack && disclaimerChildBack->modified) ||
+          (child == lpub3dPlugChildBack && lpub3dPlugChildBack->modified) ||
+          (child == lpub3dLogoChildBack && lpub3dLogoChildBack->modified)){
+          if (!mi.backCoverPageExist())
+              mi.appendCoverPage();
+      }
+      child->apply(data->topLevelFile);
   }
   mi.endMacro();
 

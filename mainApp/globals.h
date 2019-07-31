@@ -101,6 +101,12 @@ public:
   MetaGui        *titleChildFront;
   MetaGui        *titleChildBack;
 
+  MetaGui        *coverImageChildFront;
+  MetaGui        *modelDescChildFront;
+  MetaGui        *modelIdChildFront;
+  MetaGui        *partsChildFront;
+  MetaGui        *publishDescChildFront;
+
   MetaGui        *urlChildBack;
   MetaGui        *urlChild;
 
@@ -112,6 +118,10 @@ public:
 
   MetaGui        *emailChildBack;
   MetaGui        *emailChild;
+
+  MetaGui        *disclaimerChildBack;
+  MetaGui        *lpub3dPlugChildBack;
+  MetaGui        *lpub3dLogoChildBack;
 
 public slots:
   void indexChanged(int selection);
