@@ -453,7 +453,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                         pl+" Placement",
                         topOfStep,
                         bottomOfStep,
-                        &meta->LPub.assem.placement);
+                        &step->csiPlacement.placement);
     } else if (selectedAction == cameraDistFactorAction) {
         changeCameraDistFactor(pl+" Camera Distance",
                                "Native Camera Distance",
@@ -467,24 +467,10 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                         bottomOfStep,
                         &step->csiCameraMeta.modelScale);
     } else if (selectedAction == marginsAction) {
-
-      MarginsMeta *margins;
-
-      switch (parentRelativeType) {
-        case StepGroupType:
-          margins = &meta->LPub.multiStep.csi.margin;
-          break;
-        case CalloutType:
-          margins = &meta->LPub.callout.csi.margin;
-          break;
-        default:
-          margins = &meta->LPub.assem.margin;
-          break;
-        }
       changeMargins(pl+" Margins",
                     topOfStep,
                     bottomOfStep,
-                    margins);
+                    &step->csiPlacement.margin);
     } else if (selectedAction == clearStepCacheAction) {
       gui->clearStepCSICache(step->pngName);
     } else if (selectedAction == noStepAction) {

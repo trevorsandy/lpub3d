@@ -20,7 +20,7 @@
  *
  * This file describes a class that is used to implement backannotation
  * of user Gui input into the LDraw file.  Furthermore it implements
- * some functions to provide higher level editing capabilities, such 
+ * some functions to provide higher level editing capabilities, such
  * as adding and removing steps from step groups, adding, moving and
  * deleting dividers.
  *
@@ -164,11 +164,11 @@ bool equivalentAdds(
  *
  **********************************************************************/
 
-//   TOS                   EOS 
+//   TOS                   EOS
 //   STEP (END) BEGIN PART STEP (DIVIDER)         PART STEP END
 //   STEP (END) xxxxx PART STEP xxxxxxxxx         PART STEP xxx
 
-//   TOS                   EOS 
+//   TOS                   EOS
 //   STEP (END) BEGIN PART STEP (DIVIDER)         PART STEP         PART
 //   STEP (END) xxxxx PART STEP           (BEGIN) PART STEP         PART
 
@@ -546,19 +546,19 @@ void MetaItem::addNextMultiStep(
   const Where &bottomOfSteps)  // always add at end
 {
   Rc rc1;
-  
+
   bool firstChange = true;
   bool partsAdded;
   // TOR            BOR
   // EOF       PART STEP PART EOF
   // EOF BEGIN PART STEP PART     STEP END
-  
+
   // EOF       PART STEP PART     STEP
   // EOF BEGIN PART STEP PART     STEP END
-  
+
   // STEP END PART EOF
   // STEP     PART STEP END
-  
+
   // STEP END PART STEP
   // STEP     PART STEP END
 
@@ -581,7 +581,7 @@ void MetaItem::addNextMultiStep(
   // bottomOfSteps - STEP
   // end            - StepGroupEnd
   // walk           - (STEP || EOF)
-    
+
   if (firstChange) {
     beginMacro("addNextStep2");
     firstChange = false;
@@ -615,15 +615,15 @@ void MetaItem::movePageToEndOfStepGroup(
   Where bottomOfSteps, topOfPage, bottomOfPage;
   while (1) {
     bottomOfSteps = topOfSteps;
-  
+
     // Find bottom of step group
-  
+
     scanForward(bottomOfSteps,StepGroupEndMask);
-  
+
     Meta meta;
-  
+
     // find top of page
-  
+
     topOfPage = bottomOfSteps;
     for (topOfPage = bottomOfSteps - 1; topOfPage >= topOfSteps.lineNumber; topOfPage--) {
       QString line = gui->readLine(topOfPage);
@@ -635,7 +635,7 @@ void MetaItem::movePageToEndOfStepGroup(
         break;
       }
     }
-  
+
     // find bottom of page
 
     for (bottomOfPage = topOfPage + 1; bottomOfPage < bottomOfSteps.lineNumber; bottomOfPage++) {
@@ -645,16 +645,16 @@ void MetaItem::movePageToEndOfStepGroup(
         break;
       }
     }
-  
+
     Where walk = bottomOfSteps;
-  
+
     // copy page to after step group
-      
+
     for (Where walk2 = topOfPage; walk2 <= bottomOfPage.lineNumber; walk2++) {
       QString line = gui->readLine(walk2);
       appendMeta(walk++,line);
     }
-      
+
     for (Where walk2 = topOfPage; walk2 <= bottomOfPage.lineNumber; walk2++) {
       deleteMeta(topOfPage);
     }
@@ -679,11 +679,11 @@ int MetaItem::removeLastStep(
   const Where &bottomOfSteps)
 {
   int sum = 0;
-  
+
   // Find the top of us
   Where walk = topOfSteps + 1;
   Rc rc = scanForwardStepGroup(walk);
-  
+
   if (rc == StepGroupEndRc) {
     ++walk;
     rc = scanForwardStepGroup(walk);
@@ -691,7 +691,7 @@ int MetaItem::removeLastStep(
 
   Where begin = walk;
   if (rc == StepGroupBeginRc) {                   // BEGIN
-    
+
     // Find the next step
     Where secondStep = walk + 1;
     Rc rc = scanForward(secondStep,StepMask);
@@ -700,19 +700,19 @@ int MetaItem::removeLastStep(
     if (rc == StepRc || rc == RotStepRc) {        // STEP
       Where thirdStep = secondStep + 1;
       rc = scanForwardStepGroup(thirdStep);
-    
+
       Where divider;
       if (rc == StepGroupDividerRc) {             // (DIVIDER)
         divider = thirdStep;
         ++thirdStep;
         rc = scanForwardStepGroup(thirdStep);
       }
-      
+
   //-----------------------------------------------------
-  
+
       Where lastStep = bottomOfSteps - 1;
       rc = scanBackward(lastStep,StepMask);
- 
+
       if (rc == StepRc || rc == RotStepRc) {        // STEP
         walk = lastStep + 1;
         rc = scanForward(walk,StepMask|StepGroupMask);
@@ -721,7 +721,7 @@ int MetaItem::removeLastStep(
           divider2 = walk++;
           rc = scanForwardStepGroup(walk);
         }
-    
+
         if (rc == StepRc || rc == RotStepRc) {      // STEP
           ++walk;
           rc = scanForwardStepGroup(walk);
@@ -750,7 +750,7 @@ int MetaItem::removeLastStep(
   return sum;
 }
 
-//                                                TOS 
+//                                                TOS
 // SOF                                                 PART STEP     PART (EOF|STEP)
 // SOF                                         (BEGIN) PART STEP     PART     (STEP) (END)
 
@@ -758,9 +758,9 @@ int MetaItem::removeLastStep(
 //           SOF   PART STEP                           PART STEP     PART (EOF|STEP)
 //           SOF   PART STEP                   (BEGIN) PART STEP     PART     (STEP) (END)
 
-//                      TOS           
+//                      TOS
 //           BEGIN PART STEP                           PART STEP END PART (EOF|STEP)
-//           xxxxx PART STEP                   (BEGIN) PART STEP xxx PART     (STEP) (END)  
+//           xxxxx PART STEP                   (BEGIN) PART STEP xxx PART     (STEP) (END)
 
 //                      TOS
 //           BEGIN PART STEP         DIVIDER PART STEP END PART (EOF|STEP)
@@ -786,16 +786,16 @@ void MetaItem::addPrevMultiStep(
 
   Where walk = topOfSteps + 1;
   rc1 = scanForward(walk,StepMask|StepGroupMask,partsAdded);
-    
+
     //                           TOS  end begin                BOR
     // STEP BEGIN PART STEP PART STEP END BEGIN PART STEP PART STEP END
 
   Where begin;
-  
+
   if (rc1 == StepGroupEndRc) {                        // END
     beginMacro("AddPreviousStep");
     firstChange = false;
-      
+
     Where prevTopOfSteps = topOfSteps-1;
     scanBackward(prevTopOfSteps,StepGroupBeginMask);
     --prevTopOfSteps;
@@ -803,17 +803,17 @@ void MetaItem::addPrevMultiStep(
     int removed = removeLastStep(prevTopOfSteps,topOfSteps); // shift by removal count
     topOfSteps.lineNumber += removed + 1;
     bottomOfSteps.lineNumber += removed;
-    walk = topOfSteps + 1;                            // skip past 
+    walk = topOfSteps + 1;                            // skip past
     rc1 = scanForwardStepGroup(walk, partsAdded);
   }
-  
+
   // if I'm the first step of an existing step group
 
   if (rc1 == StepGroupBeginRc) {                       // BEGIN
     begin = walk++;                                    // remember
     rc1 = scanForward(walk,StepMask,partsAdded);       // next?
   }
-    
+
   //           PREV           TOS  begin                BOR
   // STEP PART STEP END       PART STEP BEGIN PART STEP PART STEP END
   // STEP PART STEP END BEGIN PART STEP       PART STEP PART STEP END
@@ -822,27 +822,27 @@ void MetaItem::addPrevMultiStep(
     beginMacro("AddPreviousStep2");
     firstChange = false;
   }
-    
+
   // Handle end of step/group
-  if (rc1 == EndOfFileRc && partsAdded) {  
+  if (rc1 == EndOfFileRc && partsAdded) {
     insertMeta(walk,step);
   }
 
   if (begin.lineNumber == 0) {
     appendMeta(walk,stepGroupEnd);
   }
-  
+
   Where prevStep = topOfSteps - 1;
   scanBackward(prevStep,StepMask);
-  
+
   if (begin.lineNumber) {
     deleteMeta(begin);
-    
-    Where end = prevStep+1;    
+
+    Where end = prevStep+1;
     rc1 = scanForwardStepGroup(end);
     prevStep.lineNumber += rc1 == StepGroupEndRc;
   }
-  
+
   appendMeta(prevStep,stepGroupBegin);
   ++prevStep;
   movePageToBeginOfStepGroup(prevStep);
@@ -858,15 +858,15 @@ void MetaItem::movePageToBeginOfStepGroup(
   topOfSteps = topOfStepsIn;
   while (1) {
     bottomOfSteps = topOfSteps;
-  
+
     // Find bottom of step group
-  
+
     scanForward(bottomOfSteps,StepGroupEndMask);
-  
+
     Meta meta;
-  
+
     // find top of page
-  
+
     for (topOfPage = topOfSteps + 1; topOfPage <= bottomOfSteps.lineNumber; topOfPage++) {
       QString line = gui->readLine(topOfPage);
       Rc rc = meta.parse(line,topOfPage);
@@ -877,7 +877,7 @@ void MetaItem::movePageToBeginOfStepGroup(
         break;
       }
     }
-  
+
     // find bottom of page
 
     for (bottomOfPage = topOfPage + 1; bottomOfPage < bottomOfSteps.lineNumber; bottomOfPage++) {
@@ -887,11 +887,11 @@ void MetaItem::movePageToBeginOfStepGroup(
         break;
       }
     }
-  
+
     Where walk = bottomOfSteps;
-  
+
     // copy page to before step group
-    
+
     for (Where walk2 = topOfPage; walk2 <= bottomOfPage.lineNumber; walk2.lineNumber += 2) {
       QString line = gui->readLine(walk2);
       insertMeta(topOfSteps,line);
@@ -900,7 +900,7 @@ void MetaItem::movePageToBeginOfStepGroup(
       ++topOfPage;
       ++bottomOfPage;
     }
-      
+
     for (Where walk2 = topOfPage; walk2 <= bottomOfPage.lineNumber; walk2++) {
       deleteMeta(topOfPage);
     }
@@ -1001,15 +1001,15 @@ void MetaItem::addToPrev(
 
 void MetaItem::calloutAddToPrev(
   const Where &topOfStep)
-{  
+{
   Where walk = topOfStep + 1;
   Rc rc;
-    
+
   //   1      2         3*
   // TOS PART STEP PART STEP DIVIDER PART EOF
   // TOS PART STEP PART STEP         PART EOF
 
-  //     1    2                 3    
+  //     1    2                 3
   // SOF PART STEP DIVIDER PART STEP         PART EOF
   // SOF PART STEP         PART STEP DIVIDER PART EOF
 
@@ -1033,12 +1033,12 @@ void MetaItem::calloutAddToPrev(
 
 void MetaItem::stepGroupAddToPrev(
   const Where &topOfStep)
-{  
+{
   //   1      2         3*
   // TOS PART STEP PART STEP DIVIDER PART EOF
   // TOS PART STEP PART STEP         PART EOF
 
-  //     1    2                 3    
+  //     1    2                 3
   // SOF PART STEP DIVIDER PART STEP         PART EOF
   // SOF PART STEP         PART STEP DIVIDER PART EOF
 
@@ -1102,7 +1102,7 @@ void MetaItem::convertToPart(Meta *meta)
  *
  *
  ******************************************************************************/
- 
+
 void MetaItem::setMeta(
   const Where &topOf,
   const Where &bottomOf,
@@ -1142,9 +1142,9 @@ void MetaItem::setMeta(
   } else {
     setMetaBottomOf(topOf,bottomOf,meta,append,local,askLocal,global);
 //    logNotice() << "\n SET META - USE BOTTOM OF - ";
-  }  
+  }
 }
-  
+
 void MetaItem::setMetaTopOf(
   const Where &topOf,
   const Where &bottomOf,
@@ -1259,7 +1259,7 @@ void MetaItem::setMetaBottomOf(
 
     int  numLines = gui->subFileSize(topOf.modelName);
     bool eof = bottomOf.lineNumber == numLines;
-    
+
     if (eof) {
       bottomOf -1;       //fix: numLines is inclusive (starts from 1) while readline index is exclusive (i.e. starts from 0)
       QString tline = gui->readLine(bottomOf);
@@ -1450,7 +1450,7 @@ void MetaItem::changePlacementOffset(
 
     }
 
-    if (type == StepGroupType) {             
+    if (type == StepGroupType) {
       scanForward(defaultWhere,StepGroupBeginMask);
 
 #ifdef QT_DEBUG_MODE
@@ -1477,7 +1477,7 @@ void MetaItem::changePlacementOffset(
 //                     ;
 #endif
 
-    } else if (defaultWhere.modelName == gui->topLevelFile()) {       
+    } else if (defaultWhere.modelName == gui->topLevelFile()) {
       scanPastGlobal(defaultWhere);
 
 #ifdef QT_DEBUG_MODE
@@ -1993,7 +1993,7 @@ void MetaItem::changeMargins(
   bool           useTop,
   int            append,
   bool           local)
-{ 
+{
   float values[2];
 
   values[0] = margin->value(0);
@@ -2003,7 +2003,7 @@ void MetaItem::changeMargins(
 
   if (ok) {
     margin->setValues(values[0],values[1]);
-    setMeta(topOfStep,bottomOfStep,margin,append,useTop,local);
+    setMeta(topOfStep,bottomOfStep,margin,useTop,append,local);
   }
 }
 
@@ -2021,7 +2021,7 @@ void MetaItem::changeUnits(
   values[1] = units->value(1);
 
   bool ok   = UnitsDialog::getUnits(values,title,gui);
-  
+
   if (ok) {
     units->setValues(values[0],values[1]);
     setMetaTopOf(topOfStep,bottomOfStep,units,append,local);
@@ -2423,7 +2423,7 @@ void MetaItem::insertCoverPage()
   QString line;
   Meta content;
   Where here(gui->topLevelFile(),0);
-  QString meta = "0 !LPUB INSERT COVER_PAGE FRONT";  
+  QString meta = "0 !LPUB INSERT COVER_PAGE FRONT";
   int numLines = gui->subFileSize(here.modelName);
 
   scanPastGlobal(here);                         //scan past headers and global
@@ -2461,7 +2461,7 @@ bool MetaItem::frontCoverPageExist()
 {
     Rc rc;
     QString line;
-    Meta content;   
+    Meta content;
     Where here(gui->topLevelFile(),0);
     int numLines = gui->subFileSize(here.modelName);
 
@@ -3010,7 +3010,7 @@ void MetaItem::scanPastGlobal(
   Where &topOfStep)
 {
   Where walk = topOfStep + 1;
-  
+
   int  numLines  = gui->subFileSize(walk.modelName);
   if (walk < numLines) {
     QString line = gui->readLine(walk);
@@ -3061,13 +3061,13 @@ Rc  MetaItem::scanForward(
   Where &here,
   int    mask,
   bool  &partsAdded)
-{  
+{
   Meta tmpMeta;
   int  numLines  = gui->subFileSize(here.modelName);
   partsAdded = false;
 
   scanPastGlobal(here);
-      
+
   for ( ; here < numLines; here++) {
     QString line = gui->readLine(here);
     QStringList tokens;
@@ -3081,7 +3081,7 @@ Rc  MetaItem::scanForward(
 
     } else {
       Rc rc = tmpMeta.parse(line,here);
-      
+
       if (rc == InsertRc && ((mask >> rc) & 1)) {
          //return rc;
 
@@ -3115,7 +3115,7 @@ Rc MetaItem::scanBackward(
   int    mask,  // What we stop on
   bool  &partsAdded)
 {
-  Meta tmpMeta; 
+  Meta tmpMeta;
   partsAdded     = false;
 
   for ( ; here >= 0; here--) {
@@ -3147,7 +3147,7 @@ Rc MetaItem::scanBackward(
       return EndOfFileRc;
     }
     split(line,tokens);
-    
+
     bool token_1_5 = tokens.size() && tokens[0].size() == 1 && tokens[0] >= "1" && tokens[0] <= "5";
 
     if (token_1_5) {
@@ -3253,8 +3253,8 @@ Where MetaItem::sortedGlobalWhere(
 {
   Meta tmpMeta;
   return sortedGlobalWhere(tmpMeta,modelName,metaString);
-}  
-  
+}
+
 Where MetaItem::sortedGlobalWhere(
   Meta    &, /* unused */
   QString modelName,
@@ -3263,7 +3263,7 @@ Where MetaItem::sortedGlobalWhere(
   Where walk = Where(modelName,0);
   int maxLines = gui->subFileSize(modelName);
   QRegExp lines1_5("^\\s*[1-5]");
-  
+
   bool header = true;
 
   /* Skip all of the header lines */
@@ -3280,7 +3280,7 @@ Where MetaItem::sortedGlobalWhere(
         maxLines++;
       }
     }
-    
+
     if (walk > 0) {
       if (header) {
         header &= isHeader(line);
@@ -3291,7 +3291,7 @@ Where MetaItem::sortedGlobalWhere(
     }
   }
 
-  return walk;  
+  return walk;
 }
 
 int MetaItem::numSteps(QString modelName)
@@ -3304,7 +3304,7 @@ int MetaItem::numSteps(QString modelName)
  * Callout tools
  *
  **********************************************************************/
-  
+
 int MetaItem::nestCallouts(
   Meta  *meta,
   const QString &modelName,
@@ -3313,19 +3313,19 @@ int MetaItem::nestCallouts(
   bool restart = true;
 
   while (restart) {
-  
+
     restart = false;
-    
+
     Where walk(modelName,1);
 
     int numLines = gui->subFileSize(walk.modelName);
 
     bool partIgnore = false;
     bool callout = false;
-  
+
     // modelName is called out, so any submodels in modelName need to be
     // called out
-  
+
     // for all the lines in the file
 
     for ( ; walk.lineNumber < numLines; ++walk) {
@@ -3335,17 +3335,17 @@ int MetaItem::nestCallouts(
       QStringList argv;
 
       split(line,argv);
-    
+
       // Process meta-commands so we don't turn ignored or substituted
       // submodels get called out
 
       if (argv.size() >= 2 && argv[0] == "0") {
         if (argv[1] == "LPUB" || argv[1] == "!LPUB") {
-          if (argv.size() == 5 && argv[2] == "PART" 
-                               && argv[3] == "BEGIN" 
+          if (argv.size() == 5 && argv[2] == "PART"
+                               && argv[3] == "BEGIN"
                                && argv[4] == "IGN") {
             partIgnore = true;
-          } else if (argv.size() == 5 && argv[2] == "PART" 
+          } else if (argv.size() == 5 && argv[2] == "PART"
                                       && argv[3] == "END") {
             partIgnore = false;
           } else if (argv.size() == 4 && argv[2] == "CALLOUT"
@@ -3363,7 +3363,7 @@ int MetaItem::nestCallouts(
       } else if ( ! callout && ! partIgnore) {
 
         // We've got a part added
-      
+
         if (argv.size() == 15 && argv[0] == "1") {
           if (gui->isSubmodel(argv[14])) {
             meta->submodelStack << SubmodelStack(walk.modelName,walk.lineNumber,0);
@@ -3468,7 +3468,7 @@ void MetaItem::addCalloutMetas(
    */
 
   int instanceCount = 0;
-    
+
   QString firstLine;
   Where lastInstance, firstInstance;
 
@@ -4152,7 +4152,7 @@ void  MetaItem::deletePointerAttribute(const Where &here, bool all)
  * calculate offset using center of bounding box
  *
  */
- 
+
 QString MetaItem::makeMonoName(const QString &fileName,
    const QString &color)
 {
@@ -4166,7 +4166,7 @@ QString MetaItem::makeMonoName(const QString &fileName,
       return info.absolutePath() + "/" + baseName + "_" + color + "." + info.suffix();
   return info.absolutePath() + "/" + mono + baseName + "_" + color + "." + info.suffix();
 }
-  
+
 int MetaItem::monoColorSubmodel(
   const QString &modelName,
   const QString &monoOutName,
@@ -4190,13 +4190,13 @@ int MetaItem::monoColorSubmodel(
   int numLines = gui->subFileSize(modelName);
 
   Where walk(modelName,0);
-  
+
   for ( ; walk < numLines; walk++) {
     QString line = gui->readLine(walk);
     QStringList argv;
-    
+
     split(line,argv);
-    
+
     if (argv.size() == 15 && argv[0] == "1") {
       QFileInfo info(argv[14]);
       QString submodel = info.completeBaseName();

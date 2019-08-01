@@ -17,8 +17,7 @@
 
 /****************************************************************************
 *
-* These dialogs provide graphical user interfaces for the UnitMeta and
-* UnitsMeta.
+* These dialogs provide graphical user interfaces for the UnitsMeta.
 *
 * Please see lpub.h for an overall description of how the files in LPub
 * make up the LPub program.
@@ -44,7 +43,7 @@ UnitsDialog::UnitsDialog(
 
   QGroupBox *box = new QGroupBox(_name,this);
   layout->addWidget(box);
-  meta.setValue(values[0],values[1]);
+  meta.setValues(values[0],values[1]);
   units = new UnitsGui("",&meta,box);
 
   QDialogButtonBox *buttonBox;

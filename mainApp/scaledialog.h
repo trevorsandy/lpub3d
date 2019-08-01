@@ -17,8 +17,7 @@
 
 /****************************************************************************
  *
- * These dialogs provide graphical user interfaces for the UnitMeta and
- * UnitsMeta.
+ * These dialogs provide graphical user interfaces for the UnitsMeta.
  *
  * Please see lpub.h for an overall description of how the files in LPub
  * make up the LPub program.
