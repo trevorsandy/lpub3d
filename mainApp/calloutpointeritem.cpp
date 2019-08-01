@@ -187,7 +187,7 @@ CalloutPointerItem::CalloutPointerItem(
   head->setToolTip("Pointer head - drag to move");
   addToGroup(head);  
   
-  for (int i = 0; i < NumGrabbers; i++) {
+  for (int i = 0; i < NumPointerGrabbers; i++) {
     grabbers[i] = nullptr;
   }
 
@@ -472,17 +472,17 @@ void CalloutPointerItem::calculatePointerMeta()
                                 callout->parentStep->loc[YY]);
       }
 
-      pointerData.x1 = (points[Tip].x() - callout->parentStep->csiItem->loc[XX])/callout->parentStep->csiItem->size[XX];
-      pointerData.y1 = (points[Tip].y() - callout->parentStep->csiItem->loc[YY])/callout->parentStep->csiItem->size[YY];
+      pointerData.x1 = float(points[Tip].x() - callout->parentStep->csiItem->loc[XX])/callout->parentStep->csiItem->size[XX];
+      pointerData.y1 = float(points[Tip].y() - callout->parentStep->csiItem->loc[YY])/callout->parentStep->csiItem->size[YY];
   } else {
-      pointerData.x1 = points[Tip].x();
-      pointerData.y1 = points[Tip].y();
-      pointerData.x2 = points[Base].x();
-      pointerData.y2 = points[Base].y();
-      pointerData.x3 = points[MidBase].x();
-      pointerData.y3 = points[MidBase].y();
-      pointerData.x4 = points[MidTip].x();
-      pointerData.y4 = points[MidTip].y();
+      pointerData.x1 = float(points[Tip].x());
+      pointerData.y1 = float(points[Tip].y());
+      pointerData.x2 = float(points[Base].x());
+      pointerData.y2 = float(points[Base].y());
+      pointerData.x3 = float(points[MidBase].x());
+      pointerData.y3 = float(points[MidBase].y());
+      pointerData.x4 = float(points[MidTip].x());
+      pointerData.y4 = float(points[MidTip].y());
   }
   pointer.pointerMeta.setValue(
     placement,

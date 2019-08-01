@@ -163,16 +163,19 @@ void CalloutBackgroundItem::contextMenuEvent(
   } else if (selectedAction == addPointerAction) {
     int pid = callout->pointerList.size()+1;
     Pointer *pointer = new Pointer(pid,callout->topOfCallout(),calloutMeta.pointer);
-    float _loc = 0, _x1 = 0, _y1 = 0, _base = -1, _segments = 1;
+    /*
+    float _loc = 0, _x1 = 0, _y1 = 0;
     float           _x2 = 0, _y2 = 0;
     float           _x3 = 0, _y3 = 0;
     float           _x4 = 0, _y4 = 0;
+    float _base = -1, _segments = 1;
     pointer->pointerMeta.setValue(
     PlacementEnc(TopLeft),
     _loc,
     _base,
     _segments,
     _x1,_y1,_x2,_y2,_x3,_y3,_x4,_y4);
+    */
     pointer->setPointerAttribInches(calloutMeta.pointerAttrib);
     CalloutPointerItem *calloutPointer = 
       new CalloutPointerItem(callout,pointer,this,view);

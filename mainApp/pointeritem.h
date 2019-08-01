@@ -41,7 +41,7 @@ public:
   PointerItem(QGraphicsItem *parent = nullptr);
   virtual ~PointerItem();
 
-  enum SelectedPoint { Tip, Base, MidBase, MidTip, NumGrabbers };
+  enum SelectedPoint { Tip, Base, MidBase, MidTip, NumPointerGrabbers };
   enum ShaftSegments { OneSegment = 1, TwoSegments, ThreeSegments};
 
   QGraphicsView             *view;
@@ -63,8 +63,8 @@ public:
   QGraphicsPolygonItem      *head;
   QList<BorderedLineItem *>  shaftSegments;
 
-  Grabber                   *grabbers[NumGrabbers];
-  QPointF                    points[NumGrabbers];  // the max points on the inside polygon
+  Grabber                   *grabbers[NumPointerGrabbers];
+  QPointF                    points[NumPointerGrabbers];  // the max points on the inside polygon
   
   virtual void placeGrabbers();
   virtual void resize(QPointF);
@@ -164,6 +164,7 @@ public:
                                 int           base,
                                 QPoint       &intersect,
                                 PlacementEnc &placement);
+
 protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
   void mousePressEvent(QGraphicsSceneMouseEvent *event);

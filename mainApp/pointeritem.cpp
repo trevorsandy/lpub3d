@@ -312,7 +312,7 @@ void PointerItem::addShaftSegment(){
     shaftSegments.append(shaft);
     addToGroup(shaft);
 
-    for (int i = 0; i < NumGrabbers; i++) {
+    for (int i = 0; i < NumPointerGrabbers; i++) {
       grabbers[i] = nullptr;
     }
 
@@ -390,13 +390,13 @@ void PointerItem::placeGrabbers()
   int numGrabbers = 0;
   switch (segments()) {
   case OneSegment:
-      numGrabbers = NumGrabbers-2;
+      numGrabbers = NumPointerGrabbers-2;
       break;
   case TwoSegments:
-      numGrabbers = NumGrabbers-1;
+      numGrabbers = NumPointerGrabbers-1;
       break;
   case ThreeSegments:
-      numGrabbers = NumGrabbers;
+      numGrabbers = NumPointerGrabbers;
       break;
   default:
       break;
