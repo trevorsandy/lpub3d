@@ -424,7 +424,7 @@ void Gui::setCurrentFile(const QString &fileName)
   }
   QString windowVersion;
 #ifdef LP3D_CONTINUOUS_BUILD
-  windowVersion = QString("%1 v%2 Rev %3 (%4)")
+  windowVersion = QString("%1 v%2 r%3 (%4)")
                           .arg(VER_PRODUCTNAME_STR)
                           .arg(VER_PRODUCTVERSION_STR)
                           .arg(VER_REVISION_STR)
@@ -434,7 +434,7 @@ void Gui::setCurrentFile(const QString &fileName)
                           .arg(VER_PRODUCTNAME_STR)
                           .arg(VER_PRODUCTVERSION_STR)
                           .arg(QString(VER_REVISION_STR).toInt() ?
-                                   QString("Rev %1").arg(VER_REVISION_STR) :
+                                   QString(" r%1").arg(VER_REVISION_STR) :
                                    QString());
 #endif
 

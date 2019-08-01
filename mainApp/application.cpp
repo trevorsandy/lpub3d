@@ -225,7 +225,22 @@ void Application::initialize()
     const int NumArguments = Arguments.size();
     for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
     ListArgs << Arguments[ArgIdx];
-    hdr = QString("%1 %2 for %3").arg(VER_PRODUCTNAME_STR).arg(VER_PRODUCTVERSION_STR).arg(VER_COMPILED_FOR);
+#ifdef LP3D_CONTINUOUS_BUILD
+    hdr = QString("%1 v%2 r%3 (%4) for %5")
+                            .arg(VER_PRODUCTNAME_STR)
+                            .arg(VER_PRODUCTVERSION_STR)
+                            .arg(VER_REVISION_STR)
+                            .arg(VER_BUILD_TYPE_STR)
+                            .arg(VER_COMPILED_FOR);
+#else
+    hdr = QString("%1 v%2%3" for %4)
+                            .arg(VER_PRODUCTNAME_STR)
+                            .arg(VER_PRODUCTVERSION_STR)
+                            .arg(QString(VER_REVISION_STR).toInt() ?
+                                     QString(" r%1").arg(VER_REVISION_STR) :
+                                     QString())
+                            .arg(VER_COMPILED_FOR);
+#endif
     args = QString("Arguments: %1").arg(ListArgs.join(" "));
     for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
     {
