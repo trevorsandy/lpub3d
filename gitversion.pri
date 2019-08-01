@@ -161,8 +161,8 @@ LP3D_VERSION_INFO = $$VER_MAJOR $$VER_MINOR $$VER_PATCH $$VER_REVISION_STR $$VER
     LP3D_VERSION_INFO += $$VER_SUFFIX
 }
 
-# Now we are ready to pass parsed version to Qt ===
-VERSION = $$VER_MAJOR"."$$VER_MINOR"."$$VER_PATCH
+# Now we are ready to pass parsed version to Qt
+VERSION = $$VER_MAJOR"."$$VER_MINOR"."$$VER_PATCH"."$$VER_REVISION_STR
 
 # Display the complete version string
 message(~~~ LP3D_VERSION_INFO: $$LP3D_VERSION_INFO $$upper($$BUILD_TYPE) ~~~)
