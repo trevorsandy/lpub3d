@@ -108,7 +108,7 @@ public:
 
   void updatePointer(QPoint &delta);
 
-  void drawTip(QPoint delta);
+  void drawTip(QPoint delta, int type = 0);
   
   /* Drag the tip of the pointer, and calculate a good
    * location for the pointer to connect to the base object. */

@@ -111,7 +111,7 @@ class Callout : public Steps {
     virtual void addGraphicsPointerItem(
       Pointer *pointer,QGraphicsItem *parent);
 
-    virtual void drawTips(QPoint &delta);
+    virtual void drawTips(QPoint &delta, int type = 0);
     virtual void updatePointers(QPoint &delta);
 
     QString wholeSubmodel(Meta &meta,QString &modelName,QString &addLine,int depth);

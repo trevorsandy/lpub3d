@@ -577,11 +577,12 @@ void DividerItem::updatePointers(QPoint &delta)
   }
 }
 
-void DividerItem::drawTips(QPoint &delta)
+void DividerItem::drawTips(QPoint &delta, int type)
 {
   for (int i = 0; i < graphicsPointerList.size(); i++) {
     DividerPointerItem *pointerItem = graphicsPointerList[i];
-    pointerItem->drawTip(delta);
+    int initiator = type ? type : 102 /*DividerType*/;
+    pointerItem->drawTip(delta,initiator);
   }
 }
 

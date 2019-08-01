@@ -266,7 +266,7 @@ void CalloutBackgroundItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
                  int(position.y() - pos().y() + 0.5));
 
     if (delta.x() || delta.y()) {
-      callout->drawTips(delta);
+      callout->drawTips(delta,CalloutType);
       positionChanged = true;
     }
   }

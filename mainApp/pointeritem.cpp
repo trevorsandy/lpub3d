@@ -554,15 +554,29 @@ void PointerItem::change()
 
 /* Meta related stuff */
 
-void PointerItem::drawTip(QPoint delta)
+void PointerItem::drawTip(QPoint delta, int type)
 {
+  /*
+   * Types:
+   * CalloutType      [source]
+   * DividerType      [source] 102
+   * PagePointerType
+   * CsiType
+   */
+  bool source =
+          (type == CalloutType || type == 102 /*DividerType*/);
+
   auto tip = points[Tip];
   points[Tip] += delta;
   autoLocFromTip();
-  points[Base] -= delta;
-  points[Tip] = tip;
+  if (source){
+    points[Base] -= delta;
+    points[Tip] = tip;
+  }
   drawPointerPoly();
-  //points[Tip] -= delta;
+  if (!source) {
+    points[Tip] -= delta;
+  }
 }
 
 void PointerItem::updatePointer(

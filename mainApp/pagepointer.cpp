@@ -155,11 +155,12 @@ void PagePointer::updatePointers(QPoint &delta)
   }
 }
 
-void PagePointer::drawTips(QPoint &delta)
+void PagePointer::drawTips(QPoint &delta, int type)
 {
   for (int i = 0; i < graphicsPointerList.size(); i++) {
     PagePointerItem *pointer = graphicsPointerList[i];
-    pointer->drawTip(delta);
+    int initiator = type ? type : PageType;
+    pointer->drawTip(delta,initiator);
   }
 }
 

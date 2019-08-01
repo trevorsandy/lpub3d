@@ -537,7 +537,7 @@ void CsiItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     if (delta.x() || delta.y()) {
       for (int i = 0; i < step->list.size(); i++) {
         Callout *callout = step->list[i];
-        callout->drawTips(delta);
+        callout->drawTips(delta,CsiType);
       }      
       positionChanged = true;
       //placeGrabbers();

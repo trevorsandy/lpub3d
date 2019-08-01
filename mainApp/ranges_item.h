@@ -136,7 +136,7 @@ public:
 
     virtual void addGraphicsPointerItem(Pointer *pointer, QGraphicsView *view);
 
-    virtual void drawTips(QPoint &delta);
+    virtual void drawTips(QPoint &delta, int type = 0);
 
     virtual void updatePointers(QPoint &delta);
 };

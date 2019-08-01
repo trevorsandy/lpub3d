@@ -485,11 +485,12 @@ void Callout::updatePointers(QPoint &delta)
   }
 }
 
-void Callout::drawTips(QPoint &delta)
+void Callout::drawTips(QPoint &delta, int type)
 {
   for (int i = 0; i < graphicsPointerList.size(); i++) {
     CalloutPointerItem *pointer = graphicsPointerList[i];
-    pointer->drawTip(delta);
+    int initiator = type ? type : relativeType;
+    pointer->drawTip(delta,initiator);
   }
 }
 
