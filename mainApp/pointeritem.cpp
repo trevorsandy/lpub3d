@@ -47,7 +47,7 @@
 bool rectLineIntersect(
   QPoint  tip,
   QPoint  loc,
-  QRect   rect, 
+  QRect   rect,
   int     base,
   QPoint &intersect,
 
@@ -363,7 +363,7 @@ bool PointerItem::autoLocFromBase(
     placement = tplacement;
     points[Base] = intersect;
     return true;
-  }    
+  }
   return false;
 }
 
@@ -402,18 +402,29 @@ void PointerItem::placeGrabbers()
       break;
   }
 
+  if (grabbersVisible) {
+    for (int i = 0; i < numGrabbers; i++) {
+      if (grabbers[i]) {
+        view->scene()->removeItem(grabbers[i]);
+        grabbers[i] = nullptr;
+      }
+    }
+    grabbersVisible = false;
+    return;
+  }
+
   if (grabbers[0] == nullptr) {
     for (int i = 0; i < numGrabbers; i++) {
       grabbers[i] = new Grabber(i,this,myParentItem());
       grabbers[i]->setData(ObjectId, PointerGrabberObj);
       grabbers[i]->setZValue(zValue()+meta->LPub.page.scene.pointerGrabber.zValue());
     }
+    grabbersVisible = true;
   }
 
   for (int i = 0; i < numGrabbers; i++) {
     grabbers[i]->setPos(points[i].x() - grabSize()/2, points[i].y()-grabSize()/2);
   }
-
 }
       /*
        *     c1 c2  c1 c2
@@ -435,10 +446,10 @@ void PointerItem::placeGrabbers()
        *    +------------+
        *  c2|            | c2
        *    |            |
-       *    |            |   
        *    |            |
        *    |            |
-       *    |            |   
+       *    |            |
+       *    |            |
        *    |            |
        *  c2|            | c2
        *    +------------+
@@ -852,7 +863,7 @@ bool lineIntersectVertSeg(
 bool PointerItem::rectLineIntersect(
   QPoint        tip,
   QPoint        loc,
-  QRect         rect, 
+  QRect         rect,
   int           base,
   QPoint       &intersect,
   PlacementEnc &placement)
@@ -1022,7 +1033,7 @@ bool PointerItem::rectLineIntersect(
         placement = TopRight;
         intersect.setX(width);
       } else {
-        placement = Top; 
+        placement = Top;
         intersect.setX(intersect_top.x());
         if (intersect.x() < base) {
           intersect.setX(base);
@@ -1032,7 +1043,7 @@ bool PointerItem::rectLineIntersect(
     } else {
 
       /* tip to left of rectangle - line going up/right*/
-     
+
       if (height - intersect_left.y() < base) {
         placement = BottomLeft;
         intersect.setY(height);
@@ -1055,7 +1066,7 @@ bool PointerItem::rectLineIntersect(
         placement = TopLeft;
         intersect.setX(0);
       } else {
-        placement = Top; 
+        placement = Top;
         intersect.setX(intersect_top.x());
         if (width - intersect.x() < base) {
           intersect.setX(width - base);
@@ -1065,7 +1076,7 @@ bool PointerItem::rectLineIntersect(
     } else {
 
       /* tip to right of rectangle - line going up/left*/
-     
+
       if (height - intersect_left.y() < base) {
         placement = BottomRight;
         intersect.setY(height);
@@ -1088,7 +1099,7 @@ bool PointerItem::rectLineIntersect(
         placement = BottomLeft;
         intersect.setX(0);
       } else {
-        placement = Bottom; 
+        placement = Bottom;
         intersect.setX(intersect_bottom.x());
         if (width - intersect.x() < base) {
           intersect.setX(width - base);
@@ -1098,7 +1109,7 @@ bool PointerItem::rectLineIntersect(
     } else {
 
       /* tip to right of rectangle - line going down/left */
-     
+
       if (intersect_right.y() < base) {
         placement = TopRight;
         intersect.setY(0);
@@ -1121,7 +1132,7 @@ bool PointerItem::rectLineIntersect(
         placement = BottomRight;
         intersect.setX(width);
       } else {
-        placement = Bottom; 
+        placement = Bottom;
         intersect.setX(intersect_bottom.x());
         if (intersect.x() < base) {
           intersect.setX(base);
@@ -1131,7 +1142,7 @@ bool PointerItem::rectLineIntersect(
     } else {
 
       /* tip left of the rectangle */
-     
+
       if (intersect_left.y() < base) {
         placement = TopLeft;
         intersect.setY(0);

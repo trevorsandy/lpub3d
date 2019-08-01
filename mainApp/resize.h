@@ -62,9 +62,11 @@ class AbstractResize
     }
     int          selectedGrabber;
     bool         sizeChanged;
+    bool         grabbersVisible;
     AbstractResize()
     {
       sizeChanged = false;
+      grabbersVisible = false;
     }
 
     virtual ~AbstractResize()
