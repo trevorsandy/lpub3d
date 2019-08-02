@@ -352,7 +352,7 @@ QString AboutDialog::osName()
          case QSysInfo::MV_MAVERICKS:    return "OS X Mavericks";         // version 10.9
          case QSysInfo::MV_YOSEMITE:     return "OS X Yosemite";          // Version 10.10
          case QSysInfo::MV_ELCAPITAN:    return "OS X El Capitan";        // Version 10.11
-         case QSysInfo::MV_SIERRA:       return "MacOS Sierra;            // Version 10.12
+         case QSysInfo::MV_SIERRA:       return "MacOS Sierra";           // Version 10.12
          default: return "MacOS";
        }
     #else

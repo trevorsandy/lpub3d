@@ -274,7 +274,7 @@ bool ArchiveParts::GetExistingArchiveFileList(
      QString fileName = zipFile.fileName();
      QString dirName = zipFile.dir().dirName();
 
-     EntryPoint ep;
+     EntryPoint ep = parts;
      if (dirName == "parts") {
           ep = parts;
      } else
