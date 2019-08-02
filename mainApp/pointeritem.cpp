@@ -313,8 +313,10 @@ void PointerItem::addShaftSegment(){
     addToGroup(shaft);
 
     for (int i = 0; i < NumPointerGrabbers; i++) {
+      view->scene()->removeItem(grabbers[i]);
       grabbers[i] = nullptr;
     }
+    grabbersVisible = false;
 
     drawPointerPoly();
 
@@ -455,8 +457,12 @@ void PointerItem::placeGrabbers()
        *    +------------+
        *     c1        c1
        */
-void PointerItem::mousePressEvent  (QGraphicsSceneMouseEvent * /* unused */)
+void PointerItem::mousePressEvent  (QGraphicsSceneMouseEvent *event)
 {
+  // we only want to toggle the grabbers off on second left mouse click
+  if (event->button() != Qt::LeftButton){
+    grabbersVisible = false;
+  }
   placeGrabbers();
 }
 

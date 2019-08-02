@@ -1,4 +1,4 @@
-LPub3D 2.3.13.1.1423 (02 08 2019 05:13:37)
+LPub3D 2.3.13.1.1424 (02 08 2019 11:10:56)
 
 Features, enhancements, fixes and changes
 ------------
