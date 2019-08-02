@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: July 29, 2019
+rem  Last Update: Aug 02, 2019
 rem  Copyright (c) 2015 - 2019 by Trevor SANDY
 rem --
 SETLOCAL
@@ -832,7 +832,7 @@ FOR %%V IN ( %LP3D_ALTERNATE_VERSIONS% ) DO (
     >>%genVersionInsert%   "changelog-url": "%LP3D_SOURCEFORGE_DWNLD_BASE%/change_log_%%V.txt"
     >>%genVersionInsert% },
   ) ELSE (
-    SET LP3D_ALT_VERSION_LONG=2.3.7.0.1195_20190327
+    SET LP3D_ALT_VERSION_LONG=2.3.6.0.1101_20181218
     IF "%1" EQU "exe" (
       SET LP3D_DIST_SUFFIX=.exe
     )

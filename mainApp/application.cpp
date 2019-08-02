@@ -233,7 +233,7 @@ void Application::initialize()
                             .arg(VER_BUILD_TYPE_STR)
                             .arg(VER_COMPILED_FOR);
 #else
-    hdr = QString("%1 v%2%3" for %4)
+    hdr = QString("%1 v%2%3 for %4")
                             .arg(VER_PRODUCTNAME_STR)
                             .arg(VER_PRODUCTVERSION_STR)
                             .arg(QString(VER_REVISION_STR).toInt() ?
