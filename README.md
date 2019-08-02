@@ -1,4 +1,4 @@
-[![LPub3D-Icon][lpub3d-icon]][site-url]
+[![LPub3D-Logo][lpub3d-logo]][lpub3d-url]
 # LPub3D
 An LDraw™ editor for LEGO® style digital building instructions.
 
@@ -11,17 +11,26 @@ An LDraw™ editor for LEGO® style digital building instructions.
 
 **LPub3D** is an Open Source WYSIWYG editing application for creating LEGO® style digital building instructions developed and maintained by Trevor SANDY. 
 
-View the [LPub3D GitHub page][site-url] for full project details.
+View the [LPub3D GitHub page][lpub3d-url] for full project details.
 
 ### License
-LPub3D is available for free under the [GNU Public License version 3.0 (GPLv3)][copying].
 
-### Disclaimer
+:--------------------------------------|:-------------------------------------------------------------------------------------------
+[![GPLv3-logo][gplv3-logo]][lgplv3-url]|LPub3D is available for free under the [GNU Public License version 3.0 (GPLv3)][lgplv3-url].
+
+### Disclaimers
 LEGO® is a trademark of the LEGO Group of companies which does not sponsor, authorize or endorse this application.
 
-[lpub3d-icon]:         https://raw.githubusercontent.com/trevorsandy/lpub3d/master/mainApp/resources/lpub3d128.png
-[copying]:             https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/COPYING.txt
-[site-url]:            https://trevorsandy.github.io/lpub3d/
+[![Built-With-Qt-Logo][builtwithqt-logo]][qt-url]
+
+[lpub3d-logo]:         https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/LPub128.png
+[builtwithqt-logo]:    https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/builtwithqt_logo.png
+[gplv3-logo]:          https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/gplv3-127x51.png
+
+[copying-url]:         https://github.com/trevorsandy/lpub3d/blob/master/mainApp/docs/COPYING.txt
+[lpub3d-url]:          https://trevorsandy.github.io/lpub3d/
+[qt-url]:              https://www.qt.io
+[lgplv3-url]:          https://www.gnu.org/licenses/gpl-3.0.en.html
 
 [sf_releases]:         https://sourceforge.net/projects/lpub3d/files
 [github_releases]:     https://github.com/trevorsandy/lpub3d/releases

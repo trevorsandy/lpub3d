@@ -270,7 +270,7 @@ after_build:
         } Else {
           Write-Error -Message "env var LP3D_DOWNLOAD_ASSETS is null." -ErrorAction Stop
         }
-        If (($env:LP3D_DEPLOY_PKG -eq "true") -or ($env:LP3D_CONTINUOUS_BUILD_PKG -eq "true" -and  $env:APPVEYOR_PROJECT_NAME -ne "lpub3d") -or ($env:LP3D_TEST_SF_DEPLOY_VAR -eq "true")) {
+        If (($env:LP3D_DEPLOY_PKG -eq "true") -or ($env:LP3D_CONTINUOUS_BUILD_PKG -eq "true" -and  $env:APPVEYOR_PROJECT_NAME -eq "lpub3d") -or ($env:LP3D_TEST_SF_DEPLOY_VAR -eq "true")) {
           write-host "`n"
           If (((git tag -l -n $env:APPVEYOR_REPO_TAG_NAME) -NotLike "*skip sfr*") -and ($env:LP3D_SKIP_SF_DEPLOY_VAR -ne "true")) {
             cmd.exe /c nuget install secure-file -ExcludeVersion

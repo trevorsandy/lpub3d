@@ -193,19 +193,8 @@ void PartWorker::ldsearchDirPreferences(){
         Preferences::ldSearchDirs << getLSynthDir();
     if (!addSearchDir && Preferences::ldSearchDirs.size() > saveSearchDirs.size())
         Preferences::ldSearchDirs = saveSearchDirs;
-    Settings.setValue(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey), Preferences::ldSearchDirs);
 
-    // Update LDView extra search directories
-    if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni))
-       emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::ldviewIni));
-    if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni))
-       emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::ldviewPOVIni));
-    if (!Preferences::setLDViewExtraSearchDirs(Preferences::nativeExportIni))
-       emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::nativeExportIni));
-
-    // Update LDGLite extra search directories
-    if (Preferences::preferredRenderer == RENDERER_LDGLITE)
-        populateLdgLiteSearchDirs();
+    updateLDSearchDirs();
 }
 
 /*
@@ -378,6 +367,32 @@ void PartWorker::populateLdgLiteSearchDirs() {
             }
         }
     }
+}
+
+/*
+ * Update ldSearch Directory list and archvie new parts if any
+ */
+
+void PartWorker::updateLDSearchDirs(bool archive /*false*/) {
+    // Update the registry
+    QSettings Settings;
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey), Preferences::ldSearchDirs);
+
+    // Update LDView extra search directories
+    if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewIni))
+       emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::ldviewIni));
+    if (!Preferences::setLDViewExtraSearchDirs(Preferences::ldviewPOVIni))
+       emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::ldviewPOVIni));
+    if (!Preferences::setLDViewExtraSearchDirs(Preferences::nativeExportIni))
+       emit gui->messageSig(LOG_ERROR, QString("Could not update %1").arg(Preferences::nativeExportIni));
+
+    // Update LDGLite extra search directories
+    if (Preferences::preferredRenderer == RENDERER_LDGLITE)
+       populateLdgLiteSearchDirs();
+
+    // Archive search directory parts
+    if (archive)
+       processLDSearchDirParts();
 }
 
 /*

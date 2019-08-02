@@ -119,6 +119,8 @@ public:
 
     bool loadLDrawSearchDirs();
 
+    void updateLDSearchDirs(bool archive = false);
+
     QString getLSynthDir();
 
     QStringList                _partList;
