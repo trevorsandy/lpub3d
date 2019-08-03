@@ -4159,12 +4159,13 @@ QString MetaItem::makeMonoName(const QString &fileName,
   QString mono = "mono_";
   QString altColor = "_" + monoColor[(color == monoColor[Blue] ? TransWhite : Blue)];
   QFileInfo info(fileName);
+  QString suffix = info.suffix().isEmpty() ? QString() : "." + info.suffix();
   QString baseName = info.completeBaseName();
   if (info.completeBaseName().right(altColor.size()) == ("_" + monoColor[TransWhite]))
       baseName = info.completeBaseName().left(info.completeBaseName().length() - altColor.size());
   if ((info.fileName().left(mono.size())) == mono)
-      return info.absolutePath() + "/" + baseName + "_" + color + "." + info.suffix();
-  return info.absolutePath() + "/" + mono + baseName + "_" + color + "." + info.suffix();
+      return info.absolutePath() + "/" + baseName + "_" + color + suffix;
+  return info.absolutePath() + "/" + mono + baseName + "_" + color + suffix;
 }
 
 int MetaItem::monoColorSubmodel(
@@ -4200,12 +4201,12 @@ int MetaItem::monoColorSubmodel(
     if (argv.size() == 15 && argv[0] == "1") {
       QFileInfo info(argv[14]);
       QString submodel = info.completeBaseName();
-      QString suffix = info.suffix();
+      QString suffix = info.suffix().isEmpty() ? QString() : "." + info.suffix();
 
       if (submodel.right(color.size()) == color) {
         submodel = submodel.left(submodel.length() - color.size());
       }
-      submodel += "." + suffix;
+      submodel += suffix;
       if (gui->isSubmodel(submodel)) {
         QString model = QDir::currentPath() + "/" + Paths::tmpDir + "/" + argv[14];
         model = makeMonoName(model,color);
@@ -4236,7 +4237,7 @@ QPointF MetaItem::defaultPointerTip(
   int     instance,
   bool    isMirrored)
 {
-  QRectF  pagePosition = QRectF(0,0,gui->pageSize(meta.LPub.page, 0),gui->pageSize(meta.LPub.page, 1));
+  QPointF centerOffset = QPointF(0.5,0.5);
 
   /*
    * Create a "transwhite" version of the submodel that calls out our callout
@@ -4251,7 +4252,7 @@ QPointF MetaItem::defaultPointerTip(
     emit gui->messageSig(LOG_ERROR,QString("defaultPointerTip cannot read file %1: %2.")
                          .arg(monoOutName)
                          .arg(inFile.errorString()));
-    return pagePosition.center();
+    return centerOffset;
   }
 
   QTextStream in(&inFile);
@@ -4267,7 +4268,8 @@ QPointF MetaItem::defaultPointerTip(
   int adjustedLineNumber = lineNumber + colorLines;
   int instances          = 0;
   QFileInfo info(subModel);
-  QString monoSubModel = "mono_" + info.completeBaseName() + "_" + monoColor[TransWhite] + "." + info.suffix();
+  QString suffix = info.suffix().isEmpty() ? QString() : "." + info.suffix();
+  QString monoSubModel = "mono_" + info.completeBaseName() + "_" + monoColor[TransWhite] + suffix;
   QStringList argv;
   int i;
   for (i = 0; i < numLines; i++) {
@@ -4304,7 +4306,7 @@ QPointF MetaItem::defaultPointerTip(
     csiParts << line;
   }
   if (i == numLines) {
-    return pagePosition.center();
+    return centerOffset;
   }
 
   /*
@@ -4445,7 +4447,7 @@ QPointF MetaItem::defaultPointerTip(
     return QPointF(qreal(left)/width, qreal(top)/height);
   }
   emit gui->messageSig(LOG_ERROR,QString("Render momo image for pointer tip location failed."));
-  return pagePosition.center();
+  return centerOffset;
 }
 
 void MetaItem::changeRotation(
