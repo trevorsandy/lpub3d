@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update July 06, 2019
+# Last Update Aug 03, 2019
 #
 # Purpose:
 # This script is used to 'cut-over' the development repository [lpub3d] to production [lpub3d].
@@ -202,19 +202,13 @@ elif [ "$TO_NAME" = "lpub3d-obs" ]; then sed s/' - Dev, CI, and Test'/' - Open B
 else echo " -ERROR - file $file NOT updated.";
 fi
 
-echo "7-Update sfdeploy.sh"
-file=builds/utilities/ci/sfdeploy.sh
-sed s/'FOODOWNLOAD'/'DOWNLOAD'/g -i $file \
-&& echo " -file $file updated." \
-|| echo " -ERROR - file $file NOT updated."
-
-echo "8-Create pre-commit githook..."
+echo "7-Create pre-commit githook..."
 cat << pbEOF >.git/hooks/pre-commit
 #!/bin/sh
 ./builds/utilities/hooks/pre-commit   # location of pre-commit script in source repository
 pbEOF
 
-echo "9-Create .secrets.tar"
+echo "8-Create .secrets.tar"
 secretsDir=$(cd ../ && echo $PWD)/Production_cutover/secrets
 secureDir=builds/utilities/ci/secure
 file=builds/utilities/ci/travis/before_install
@@ -230,12 +224,12 @@ sed s/'cacf73a1954d'/'ad0a5b26bc84'/g -i $file \
 && echo " -file $file updated with secure variable key." \
 || echo " -ERROR - file $file NOT updated."
 
-echo "10-Change *.sh line endings from CRLF to LF"
+echo "9-Change *.sh line endings from CRLF to LF"
 for file in $(find . -type f -name *.sh)
 do
     dos2unix -k $file
 done
-echo "11-Change other line endings from CRLF to LF"
+echo "10-Change other line endings from CRLF to LF"
 dos2unix -k builds/utilities/hooks/*
 dos2unix -k builds/utilities/create-dmg
 dos2unix -k builds/utilities/dmg-utils/*
@@ -251,38 +245,38 @@ dos2unix -k builds/linux/obs/debian/*
 dos2unix -k builds/linux/obs/debian/source/*
 dos2unix -k builds/macx/*
 
-echo "12-Change Windows script line endings from LF to CRLF"
+echo "11-Change Windows script line endings from LF to CRLF"
 unix2dos -k builds/windows/*
 unix2dos -k builds/utilities/CreateRenderers.bat
 unix2dos -k builds/utilities/update-config-files.bat
 unix2dos -k builds/utilities/nsis-scripts/*
 unix2dos -k builds/utilities/nsis-scripts/Include/*
 
-echo "13-Patch update-config-files.sh"
+echo "12-Patch update-config-files.sh"
 file=builds/utilities/update-config-files.sh
 sed -e s/'.dsc   - add'/'.dsc      - add'/g \
     -e s/'.spec  - add'/'.spec     - add'/g -i $file \
 && echo " -file $file updated." \
 || echo " -ERROR - file $file NOT updated."
 
-echo "14-update github api_key for Travis CI"
+echo "13-update github api_key for Travis CI"
 source $(cd ../ && echo $PWD)/Production_cutover/secrets/.github_api_keys
 file=.travis.yml
 sed "s,^        secure: ${GITHUB_DEVL_SECURE_API_KEY},        secure: ${GITHUB_PROD_SECURE_API_KEY}," -i $file \
 && echo " -file $file updated." \
 || echo " -ERROR - file $file NOT updated."
 
-echo "15-Add new files..."
+echo "14-Add new files..."
 git add .
 git reset HEAD 'mainApp/docs/README.txt'
 
-echo "16-Create local tag in $TO_NAME repository"
+echo "15-Create local tag in $TO_NAME repository"
 if GIT_DIR=./.git git rev-parse $LOCAL_TAG >/dev/null 2>&1; then git tag --delete $LOCAL_TAG; fi
 git tag -a $LOCAL_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
 git_tag="$(git tag -l -n $LOCAL_TAG)" && \
 [ -n "$git_tag" ] && echo " -git tag $git_tag created."
 
-echo "17-Stage and commit changed files..."
+echo "16-Stage and commit changed files..."
 cat << pbEOF >.git/COMMIT_EDITMSG
 $COMMIT_MSG
 
@@ -290,11 +284,11 @@ pbEOF
 env force=$FORCE_CONFIG inc_rev=$INC_REVISION inc_cnt=$INC_COUNT git commit -m "$COMMIT_MSG"
 
 if [ "$RELEASE_COMMIT" = "no" ]; then 
-   echo "18-Delete local tag"
+   echo "17-Delete local tag"
    git tag --delete $LOCAL_TAG
    rm -f update-config-files.sh.log
 else
-   echo "18-Create local tag in $FROM_NAME repository" 
+   echo "17-Create local tag in $FROM_NAME repository" 
    cd ../$FROM_NAME
    if GIT_DIR=./.git git rev-parse $LOCAL_TAG >/dev/null 2>&1; then git tag --delete $LOCAL_TAG; fi
    git tag -a $LOCAL_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
@@ -303,4 +297,5 @@ else
    cd ../
 fi
 
-echo "Finished"
+echo "Finished - COMMIT_MSG...$COMMIT_MSG"
+

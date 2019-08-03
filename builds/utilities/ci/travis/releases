@@ -3,7 +3,7 @@
 # Travis build [release] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: June 24, 2019
+#  Last Update: Aug 03, 2019
 #  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -39,7 +39,7 @@ else
   echo "LPub3D Update Assets:" && find $LP3D_UPDATE_ASSETS -type f;
 fi
 # Deploy to Sourceforge.net
-if [[ "$LP3D_DEPLOY_PKG" = "yes" && -z "$LP3D_SKIP_SF_DEPLOY" && -z "$LP3D_SF_DEPLOY_ABORT" ]]; then
+if [[ -z "$LP3D_SKIP_SF_DEPLOY" && -z "$LP3D_SF_DEPLOY_ABORT" ]]; then
   chmod a+x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh;
 else
   echo "ERROR - There was a problem getting the deploy assets.";

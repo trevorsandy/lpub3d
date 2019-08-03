@@ -3,7 +3,7 @@
 # Deploy LPub3D assets to Sourceforge.net using OpenSSH and rsync
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: July 30, 2019
+#  Last Update: Aug 03, 2019
 #  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 #  Note: this script requires SSH host public/private keys
@@ -67,10 +67,26 @@ fi
 
 # upload assets
 if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
-  if [ "$LP3D_CONTINUOUS_BUILD_PKG" = "true" ]; then
-    DEPLOY_OPTIONS="UDPATE"
-  else
-    DEPLOY_OPTIONS="UDPATE DOWNLOAD"
+  DEPLOY_OPTIONS="NONE"
+  if [ "$TRAVIS" = "true" ]; then
+     IFS='/' read -ra SLUG_PARTS <<< $TRAVIS_REPO_SLUG; unset IFS;
+     if [ "${SLUG_PARTS[1]}" = "lpub3d" ]; then
+       DEPLOY_OPTIONS="DOWNLOAD"
+       if [ "$LP3D_DEPLOY_PKG" != "yes" ];then
+         LP3D_SF_FOLDER="Continuous"
+       else
+         LP3D_SF_FOLDER="$LP3D_VERSION"
+       fi
+     fi
+  elif [ "$APPVEYOR" = "true" ]; then
+    if [ "$APPVEYOR_PROJECT_NAME" = "lpub3d" ]; then
+      DEPLOY_OPTIONS="UDPATE DOWNLOAD"
+      if [ "$LP3D_CONTINUOUS_BUILD_PKG" = "true" ]; then
+        LP3D_SF_FOLDER="Continuous"
+      else
+        LP3D_SF_FOLDER="$LP3D_VERSION"
+      fi
+    fi
   fi
   for OPTION in $DEPLOY_OPTIONS; do
     case $OPTION in
@@ -89,7 +105,7 @@ if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
         echo && echo "$LP3D_DOWNLOAD_ASSETS is empty. Sourceforge.net download assets deploy aborted."
       else
         echo && echo "- Download Release Assets:" && find $LP3D_DOWNLOAD_ASSETS -type f && echo
-        rsync --recursive --verbose $LP3D_DOWNLOAD_ASSETS/* $LP3D_SF_DOWNLOAD_CONNECT/$LP3D_VERSION/
+        rsync --recursive --verbose $LP3D_DOWNLOAD_ASSETS/* $LP3D_SF_DOWNLOAD_CONNECT/$LP3D_SF_FOLDER/
       fi
       ;;
     esac

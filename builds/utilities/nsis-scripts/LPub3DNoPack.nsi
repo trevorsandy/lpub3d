@@ -1,5 +1,5 @@
 ;LPub3D Setup Script
-;Last Update: June 29, 2019
+;Last Update: Aug 03, 2019
 ;Copyright (C) 2016 - 2019 by Trevor SANDY
 
 ; Install LPub3D and pre-packaged renderers.
@@ -61,8 +61,8 @@ Var /global LPub3DViewerLibPath
 !define COMPANY_NAME "${Company}" ; company, used for registry tree hierarchy
 !define LICENSE_FILE "COPYING.txt" ; license file, optional
 !define README_FILE "README.txt" ; readme file, optional
-!define RELEASE_NOTES_FILE "RELEASE_NOTES.html" ; release notes file, optional
-!define RELEASE_NOTES_URL "https://trevorsandy.github.io/lpub3d/assets/docs/lpub3d/RELEASE_NOTES.html" ; release notes file, optional
+!define RELEASE_NOTES_FILE "RELEASE_NOTES.html" ; local release notes file, optional
+!define RELEASE_NOTES_URL "http://lpub3d.sourceforge.net/${ReleaseNotes}" ; hosted release notes file, optional
 !define PUBLISHER_NAME "${Publisher}"
 !define COMPANY_URL "${CompanyURL}"
 !define SUPPORT "${SupportURL}"
