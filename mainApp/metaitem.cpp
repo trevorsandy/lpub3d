@@ -1746,12 +1746,16 @@ void MetaItem::setSelectedItemZValue(
         bool useTop,
         int append,
         bool local){
+    return; /*DISABLED*/
+
+    /*
     if (bringToFront)
         gui->pagescene()->bringSelectedItemToFront();
     else
         gui->pagescene()->sendSelectedItemToBack();
     zValueMeta->setValue(gui->pagescene()->getSelectedItemZValue());
-    setMeta(topOfStep,bottomOfStep,zValueMeta,useTop,append/*do not append*/,local);
+    setMeta(topOfStep,bottomOfStep,zValueMeta,useTop,append/ *do not append* /,local);
+    */
 }
 
 void MetaItem::changeSubmodelRotStep(

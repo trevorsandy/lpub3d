@@ -156,10 +156,11 @@ bool LGraphicsScene::isSelectedItemOnBottom()
 
 bool LGraphicsScene::showContextAction()
 {
-    return mShowContextAction;
+    return false; /*DISABLED*/
+    //return mShowContextAction;
 }
 
-qreal LGraphicsScene::getSelectedItemZValue()
+qreal LGraphicsScene::getSelectedItemZValue() /*REMOVE*/
 {
     if (!mBaseItem)
         return 0;
@@ -189,12 +190,12 @@ bool LGraphicsScene::setSelectedItem(const QPointF &scenePos){
         return false;
 
     mItemType = mBaseItem->data(ObjectId).toInt();
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //    qDebug() << QString("BASE........BaseItem [%1], BaseParent [%2], BaseZValue [%3]")
 //                        .arg(soMap[SceneObject(mItemType)])
 //                        .arg(soMap[SceneObject(mBaseItem->parentItem()->data(ObjectId).toInt())])
 //                        .arg(mBaseItem->zValue());
-#endif
+//#endif
 
     auto isExemptSceneObject = [](const SceneObject so)
     {
@@ -219,10 +220,11 @@ bool LGraphicsScene::setSelectedItem(const QPointF &scenePos){
 //    if (isNoContextSceneObject(SceneObject(mItemType)))
 //        return true;
 
-    return setSelectedItemZValue();
+    return true; /*DISABLED*/
+    //return setSelectedItemZValue();
 }
 
-bool LGraphicsScene::setSelectedItemZValue()
+bool LGraphicsScene::setSelectedItemZValue() /*REMOVE*/
 {
     if (!mBaseItem)
         return false;
@@ -238,7 +240,7 @@ bool LGraphicsScene::setSelectedItemZValue()
     QMap<int, qreal> overlapItems;
     foreach (QGraphicsItem *item, mBaseItem->collidingItems(Qt::IntersectsItemBoundingRect)) {
         SceneObject so = SceneObject(item->data(ObjectId).toInt());
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //        SceneObject pso = SceneObject(item->parentItem()->data(ObjectId).toInt());
 //        SceneObject bpso = SceneObject(mBaseItem->parentItem()->data(ObjectId).toInt());
 //        qDebug() << QString("DETECTED....CollidingItem [%1], CollidingParent [%2], CollidingZValue [%3]")
@@ -246,7 +248,7 @@ bool LGraphicsScene::setSelectedItemZValue()
 //        if (pso == bpso)
 //            qDebug() << QString("SIBLING.....CollidingItem [%1], CollidingParent [%2], CollidingZValue [%3]")
 //                                .arg(soMap[so]).arg(soMap[pso]).arg(item->zValue());
-#endif
+//#endif
         // TODO - Temporary workaround to disable functionality on multi-step pages
 //        auto isNoContextSceneObject = [](const SceneObject so)
 //        {
@@ -261,10 +263,10 @@ bool LGraphicsScene::setSelectedItemZValue()
 
         if (isIncludedSceneObject(so)) {
             overlapItems.insert(so,item->zValue());
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //            qDebug() << QString("OVERLAP.....CollidingItem [%1], CollidingParent [%2], CollidingZValue [%3]")
 //                                .arg(soMap[so]).arg(soMap[pso]).arg(item->zValue());
-#endif
+//#endif
         }
     }
 
@@ -306,7 +308,7 @@ bool LGraphicsScene::setSelectedItemZValue()
     return true;
 }
 
-void LGraphicsScene::bringSelectedItemToFront(){
+void LGraphicsScene::bringSelectedItemToFront(){ /*REMOVE*/
     if (setSelectedItemZValue())
     {
         qreal z = maxZ + 0.1;
@@ -314,7 +316,7 @@ void LGraphicsScene::bringSelectedItemToFront(){
     }
 }
 
-void LGraphicsScene::sendSelectedItemToBack(){
+void LGraphicsScene::sendSelectedItemToBack(){ /*REMOVE*/
     if (setSelectedItemZValue())
     {
         qreal z = minZ - 0.1;
