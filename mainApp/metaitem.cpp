@@ -2363,37 +2363,53 @@ void MetaItem::changeAlloc(
 {
   bool metaInRange;
   int lineNumber = alloc.here().lineNumber;
+  bool calledOut = alloc.preamble.contains("CALLOUT");
+  Where topOf    = topOfSteps;
 
-  metaInRange = lineNumber >= topOfSteps.lineNumber &&
+  if (calledOut && lineNumber && lineNumber < topOf.lineNumber) {
+    Where walk = topOf+1;
+    Rc rc = scanBackward(walk,CalloutEndMask|StepMask|StepGroupMask);
+    if (rc == EndOfFileRc)
+      scanPastGlobal(walk);
+    if (walk.lineNumber <= lineNumber)
+      topOf = walk;
+  }
+
+  metaInRange = lineNumber >= topOf.lineNumber &&
                 lineNumber <= bottomOfSteps.lineNumber &&
-                alloc.here().modelName == topOfSteps.modelName;
+                alloc.here().modelName == topOf.modelName;
 
-  logInfo() << "\nCHANGE ALLOC - "
-            << " \nHere Alloc Model Name: "     << alloc.here().modelName
-            << " \nHere TopOf Model Name: "     << topOfSteps.modelName
-            << " \nHere Alloc Line Number: "    << alloc.here().lineNumber
-            << " \nHere TopOf Line Number: "    << topOfSteps.lineNumber
-            << " \nHere BottomOf Line Number: " << bottomOfSteps.lineNumber
-            << " \nAppend: "                    << (metaInRange ? "Yes" : alloc.format(false,false).contains("CALLOUT ALLOC") ? "NO" : append == 0 ? "NO" : "YES")
-            << " \nMeta In Range: "             << (metaInRange ? QString("YES - Line %1").arg(alloc.format(alloc.pushed,alloc.global)) :
-                                                                  QString("NO - Line %1").arg(alloc.format(false,false)))
-            << "\n -- "
-            ;
+//#ifdef QT_DEBUG_MODE
+//  logInfo() << "\nCHANGE ALLOC SETTINGS - "
+//            << " \nHere Alloc     Model Name: " << alloc.here().modelName
+//            << " \nHere TopOf     Model Name: " << topOf.modelName
+//            << " \nHere Alloc    Line Number: " << alloc.here().lineNumber
+//            << " \nHere TopOf    Line Number: " << topOf.lineNumber
+//            << " \nHere BottomOf Line Number: " << bottomOfSteps.lineNumber
+//            << " \nCalled out:                " << (calledOut ? "YES" : "NO")
+//            << " \nAppend:                    " << (metaInRange ? "YES" : calledOut ? "NO" : append == 0 ? "NO" : "YES")
+//            << " \nMeta In Range:             " << (metaInRange ? QString("YES - Line %1").arg(alloc.format(alloc.pushed,alloc.global)) :
+//                                                                  QString("NO - Line %1").arg(alloc.format(false,false)))
+//            << "\n -- "
+//            ;
+//#endif
 
   AllocEnc allocType = alloc.value();
   alloc.setValue(allocType == Vertical ? Horizontal : Vertical);
 
+  QString line;
   if (metaInRange) {
-      QString line = alloc.format(alloc.pushed,alloc.global);
+      line = alloc.format(alloc.pushed,alloc.global);
       replaceMeta(alloc.here(),line);
     } else {
-      QString line = alloc.format(false,false);
-      if (line.contains("CALLOUT ALLOC"))
+      line = alloc.format(false,false);
+      if (calledOut) {
         append = 0;
-//      setMetaBottomOf(topOfSteps,bottomOfSteps,&alloc,append,false,false,false);
-      setMetaTopOf(topOfSteps,bottomOfSteps,&alloc,append,false,false,false);
+        setMetaBottomOf(topOf,bottomOfSteps,&alloc,append,false,false,false);
+      } else {
+        setMetaTopOf(topOf,bottomOfSteps,&alloc,append,false,false,false);
+      }
     }
-
 }
 
 /********************************************************************
