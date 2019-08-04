@@ -1114,6 +1114,8 @@ private:
   bool            previousPageContinuousIsRunning;// stop the continuous previous page action
   bool            nextPageContinuousIsRunning;    // stop the continuous next page action
 
+  bool isUserSceneObject(const int so);
+
   void countPages();
 
   void skipHeader(Where &current);
@@ -1234,6 +1236,9 @@ private slots:
     void open();
     void save();
     void saveAs();
+
+    void bringToFront();
+    void sendToBack();
 
     void openRecentFile();
     void clearRecentFiles();
@@ -1427,6 +1432,9 @@ private:
   QAction  *exportCsvAct;
   QAction  *exportBricklinkAct;
   QAction  *exportHtmlAct;
+
+  QAction *bringToFrontAct;
+  QAction *sendToBackAct;
 
   QAction  *povrayRenderAct;
 

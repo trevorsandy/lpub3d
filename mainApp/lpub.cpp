@@ -1085,6 +1085,48 @@ void Gui::gridSizeTriggered()
     }
 }
 
+bool Gui::isUserSceneObject(const int so)
+{
+    for ( const auto iso : IncludedSceneObjects)
+        if (iso == SceneObject(so))
+            return true;
+    return false;
+}
+
+void Gui::bringToFront()
+{
+    if (KpageView->scene()->selectedItems().isEmpty())
+        return;
+
+    QGraphicsItem *selectedItem = KpageView->scene()->selectedItems().first();
+    QList<QGraphicsItem *> overlapItems = selectedItem->collidingItems();
+
+    qreal zValue = 0;
+    foreach (QGraphicsItem *item, overlapItems) {
+        if (item->zValue() >= zValue &&
+            isUserSceneObject(item->data(ObjectId).toInt()))
+            zValue = item->zValue() + 0.1;
+    }
+    selectedItem->setZValue(zValue);
+}
+
+void Gui::sendToBack()
+{
+    if (KpageView->scene()->selectedItems().isEmpty())
+        return;
+
+    QGraphicsItem *selectedItem = KpageView->scene()->selectedItems().first();
+    QList<QGraphicsItem *> overlapItems = selectedItem->collidingItems();
+
+    qreal zValue = 0;
+    foreach (QGraphicsItem *item, overlapItems) {
+        if (item->zValue() <= zValue &&
+            isUserSceneObject(item->data(ObjectId).toInt()))
+            zValue = item->zValue() - 0.1;
+    }
+    selectedItem->setZValue(zValue);
+}
+
 void Gui::SetRotStepMeta()
 {
     mStepRotation[0] = mRotStepAngleX;
@@ -3582,6 +3624,18 @@ void Gui::createActions()
     fitSceneAct->setEnabled(false);
     connect(fitSceneAct, SIGNAL(triggered()), this, SLOT(fitScene()));
 
+    bringToFrontAct = new QAction(QIcon(":/resources/bringtofront.png"), tr("Bring to &Front"), this);
+    bringToFrontAct->setShortcut(tr("Alt+Shift+F"));
+    bringToFrontAct->setStatusTip(tr("Bring item to front - Alt+Shift+F"));
+    bringToFrontAct->setEnabled(false);
+    connect(bringToFrontAct, SIGNAL(triggered()), this, SLOT(bringToFront()));
+
+    sendToBackAct = new QAction(QIcon(":/resources/sendtoback.png"), tr("Send to &Back"), this);
+    sendToBackAct->setShortcut(tr("Alt+Shift+B"));
+    sendToBackAct->setStatusTip(tr("Send item to back - Alt+Shift+B"));
+    sendToBackAct->setEnabled(false);
+    connect(sendToBackAct, SIGNAL(triggered()), this, SLOT(sendToBack()));
+
     sceneRulerTrackingNoneAct = new QAction(tr("Ruler Tracking Off"),this);
     sceneRulerTrackingNoneAct->setStatusTip(tr("Set scene ruler tracking Off"));
     sceneRulerTrackingNoneAct->setCheckable(true);
@@ -4131,6 +4185,8 @@ void Gui::enableActions()
   fitWidthAct->setEnabled(true);
   fitVisibleAct->setEnabled(true);
   fitSceneAct->setEnabled(true);
+  bringToFrontAct->setEnabled(true);
+  sendToBackAct->setEnabled(true);
   actualSizeAct->setEnabled(true);
   zoomInComboAct->setEnabled(true);
   zoomOutComboAct->setEnabled(true);
@@ -4217,7 +4273,9 @@ void Gui::disableActions()
   fitWidthAct->setEnabled(false);
   fitVisibleAct->setEnabled(false);
   fitSceneAct->setEnabled(false);
-  actualSizeAct->setEnabled(false);
+  bringToFrontAct->setEnabled(false);
+  fitSceneAct->setEnabled(false);
+  sendToBackAct->setEnabled(false);
   zoomInComboAct->setEnabled(false);
   zoomOutComboAct->setEnabled(false);
   sceneGuidesComboAct->setEnabled(false);
@@ -4350,6 +4408,8 @@ void Gui::createMenus()
     viewMenu->addAction(fitVisibleAct);
     viewMenu->addAction(actualSizeAct);
     viewMenu->addAction(fitSceneAct);
+    viewMenu->addAction(bringToFrontAct);
+    viewMenu->addAction(sendToBackAct);
     viewMenu->addAction(zoomInComboAct);
     viewMenu->addAction(zoomOutComboAct);
     viewMenu->addAction(sceneRulerComboAct);
@@ -4562,8 +4622,11 @@ void Gui::createToolBars()
     zoomToolBar->addAction(fitVisibleAct);
     zoomToolBar->addAction(fitWidthAct);
     zoomToolBar->addAction(fitSceneAct);
-
     zoomToolBar->addAction(actualSizeAct);
+
+    zoomToolBar->addAction(bringToFrontAct);
+    zoomToolBar->addAction(sendToBackAct);
+
     zoomSliderMenu = new QMenu(tr("Zoom Slider"),this);
     zoomSliderMenu->addAction(zoomSliderAct);
     zoomInComboAct->setMenu(zoomSliderMenu);
