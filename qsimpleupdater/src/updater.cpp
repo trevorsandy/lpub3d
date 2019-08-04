@@ -1010,6 +1010,7 @@ void Updater::changeLogReply (QNetworkReply *reply){
             QUrl url(m_changelogUrl);
             QUrl newUrl = url.resolved(redirectionTarget.toUrl());
             url = newUrl;
+            emit changeLogReplyFinished();
             reply->deleteLater();
             changeLogRequest(url);
             return;
