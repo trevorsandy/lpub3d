@@ -110,13 +110,34 @@ void Callout::sizeIt()
     Steps::sizeit(allocEnc,YY,XX);
   }
 
+//#ifdef QT_DEBUG_MODE
+//  logNotice() << "\nCallout Size:"
+//              << "\nSize XX W    [" << size[XX] << "]"
+//              << "\nSize YY H    [" << size[YY] << "]"
+//                ;
+//  int dbg_adj_size[2];
+//  dbg_adj_size[XX] = size[XX];
+//  dbg_adj_size[YY] = size[YY];
+//#endif
+
   BorderData borderData = meta.LPub.callout.border.valuePixels();
 
-  size[XX] += int(borderData.margin[XX]);
-  size[YY] += int(borderData.margin[YY]);
+  float borderADjustmentX = borderData.margin[XX] + borderData.thickness;
+  float borderADjustmentY = borderData.margin[YY] + borderData.thickness;
 
-  size[XX] += int(borderData.thickness);
-  size[YY] += int(borderData.thickness);
+  size[XX] += int(borderADjustmentX);
+  size[YY] += int(borderADjustmentY);
+
+//#ifdef QT_DEBUG_MODE
+//  logNotice() << "\nCallout Adjusted Size:"
+//              << "\nBorderAdjustmentX XX W [" << borderADjustmentX << "] = BorderData.margin XX W" << borderData.margin[XX] << "+ BorderData.thickness" << borderData.thickness
+//              << "\nBorderAdjustmentY YY H [" << borderADjustmentY << "] = BorderData.margin YY H" << borderData.margin[YY] << "+ BorderData.thickness" << borderData.thickness
+//              << "\nAdjusted size XX W     [" << size[XX] << "] = Size[XX]" << dbg_adj_size[XX] << "+ BorderAdjustmentX XX W" << borderADjustmentX
+//              << "\nAdjusted size YY H     [" << size[YY] << "] = Size[YY]" << dbg_adj_size[YY] << "+ BorderAdjustmentX YY H" << borderADjustmentY
+//                ;
+//  dbg_adj_size[XX] = size[XX];
+//  dbg_adj_size[YY] = size[YY];
+//#endif
 
   /* If we've got multiple instances of a submodel, we need to add
      the usage count in the lower right corner.  for assem, pli, and
@@ -141,8 +162,9 @@ void Callout::sizeIt()
 
     instanceWidth  = instanceCount.size[XX] + instanceCount.margin.valuePixels(XX);
     instanceHeight = instanceCount.size[YY] + instanceCount.margin.valuePixels(YY);
-    instanceLeft = size[XX] - instanceWidth;
-    instanceTop  = size[YY] - instanceHeight;
+
+    instanceLeft   = int(size[XX] - instanceWidth  - (borderADjustmentX/2));
+    instanceTop    = int(size[YY] - instanceHeight - (borderADjustmentY/2));
 
     for (int j = 0; j < list.size(); j++) {
       if (list[j] && list[j]->relativeType == RangeType) {
@@ -255,6 +277,16 @@ void Callout::sizeIt()
 
   size[XX] += int(borderData.thickness);
   size[YY] += int(borderData.thickness);
+
+#ifdef QT_DEBUG_MODE
+  logNotice() << "\nCallout Final Size:"
+//              << "\nAdjustment XX W (Border Thickness)  [" << borderData.thickness << "]"
+//              << "\nAdjustment XX H (Border Thickness)  [" << borderData.thickness << "]"
+//              << "\n----------------"
+              << "\nFinal Callout size XX W            [" << size[XX] << "]"
+              << "\nFinal Callout size YY H            [" << size[YY] << "]"
+                ;
+#endif
 }
 
 // Callouts that have round corners are tricky, trying to get the pointer to start/end on the
@@ -322,8 +354,13 @@ void Callout::addGraphicsItems(
 
   BorderData borderData = meta.LPub.callout.border.valuePixels();
 
-  loc[XX] = int(borderData.margin[0]);
-  loc[YY] = int(borderData.margin[1]);
+  if (instanceCount.number > 1) {
+    loc[XX] = int(borderData.margin[0])/2;
+    loc[YY] = int(borderData.margin[1])/2;
+  } else {
+    loc[XX] = int(borderData.margin[0]);
+    loc[YY] = int(borderData.margin[1]);
+  }
  
 #ifdef QT_DEBUG_MODE
   logNotice() << "\nCALLOUT PLACEMENT SUMMARY (addGraphicsItems) - "
