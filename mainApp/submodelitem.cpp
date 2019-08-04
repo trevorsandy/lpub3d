@@ -1252,7 +1252,9 @@ SubModelBackgroundItem::SubModelBackgroundItem(
 {
   subModel   = _subModel;
   grabHeight = height;
+
   grabber = nullptr;
+  grabbersVisible = false;
 
   parentRelativeType = _parentRelativeType;
 
@@ -1289,12 +1291,22 @@ SubModelBackgroundItem::SubModelBackgroundItem(
 
 void SubModelBackgroundItem::placeGrabbers()
 {
+  if (grabbersVisible) {
+      if (grabber) {
+        scene()->removeItem(grabber);
+        grabber = nullptr;
+      }
+    grabbersVisible = false;
+    return;
+  }
+
   QRectF rect = currentRect();
   point = QPointF(rect.left() + rect.width()/2,rect.bottom());
   if (grabber == nullptr) {
     grabber = new Grabber(BottomInside,this,myParentItem());
     grabber->setData(ObjectId, SubmodelGrabberObj);
     grabber->setZValue(zValue()+subModel->meta->LPub.page.scene.submodelGrabber.zValue());
+    grabbersVisible = true;
   }
   grabber->setPos(point.x()-grabSize()/2,point.y()-grabSize()/2);
 }
@@ -1303,8 +1315,14 @@ void SubModelBackgroundItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
   position = pos();
   positionChanged = false;
+  // we only want to toggle the grabbers off on second left mouse click
+  if (event->button() != Qt::LeftButton){
+    grabbersVisible = false;
+  }
   QGraphicsItem::mousePressEvent(event);
-  placeGrabbers();
+  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
+    placeGrabbers();
+  }
   subModel->loadTheViewer();
 }
 

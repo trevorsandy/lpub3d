@@ -2776,7 +2776,9 @@ PliBackgroundItem::PliBackgroundItem(
 {
   pli       = _pli;
   grabHeight = height;
+
   grabber = nullptr;
+  grabbersVisible = false;
 
   parentRelativeType = _parentRelativeType;
 
@@ -2833,12 +2835,22 @@ PliBackgroundItem::PliBackgroundItem(
 
 void PliBackgroundItem::placeGrabbers()
 {
+  if (grabbersVisible) {
+      if (grabber) {
+        scene()->removeItem(grabber);
+        grabber = nullptr;
+      }
+    grabbersVisible = false;
+    return;
+  }
+
   QRectF rect = currentRect();
   point = QPointF(rect.left() + rect.width()/2,rect.bottom());
   if (grabber == nullptr) {
       grabber = new Grabber(BottomInside,this,myParentItem());
       grabber->setData(ObjectId, PliGrabberObj);
       grabber->setZValue(zValue()+pli->meta->LPub.page.scene.pliGrabber.zValue());
+      grabbersVisible = true;
     }
   grabber->setPos(point.x()-grabSize()/2,point.y()-grabSize()/2);
 }
@@ -2847,8 +2859,14 @@ void PliBackgroundItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {     
   position = pos();
   positionChanged = false;
+  // we only want to toggle the grabbers off on second left mouse click
+  if (event->button() != Qt::LeftButton){
+    grabbersVisible = false;
+  }
   QGraphicsItem::mousePressEvent(event);
-  placeGrabbers();
+  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
+    placeGrabbers();
+  }
 } 
 
 void PliBackgroundItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
@@ -2856,8 +2874,8 @@ void PliBackgroundItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
   positionChanged = true;
   QGraphicsItem::mouseMoveEvent(event);
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
-      placeGrabbers();
-    }
+    placeGrabbers();
+  }
 }
 
 void PliBackgroundItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
