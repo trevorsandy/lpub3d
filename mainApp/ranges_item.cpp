@@ -231,7 +231,7 @@ DividerItem::DividerItem(
   else                                       // Range divider
     separatorLength = allocEnc == Vertical ? range->size[YY] : range->size[XX];
   if (sepData.type == SepData::LenCustom && separatorLength >= sepData.length)
-    separatorLength = sepData.length;
+    separatorLength = int(sepData.length);
 
   /* Size the rectangle around the divider */
 
@@ -253,8 +253,8 @@ DividerItem::DividerItem(
 #endif
 
   if(parentStep->dividerType == StepDivider) { // Step divider
-      separatorHeightY = (sepData.margin[YY]+sepData.thickness)*2;
-      separatorWidthX  = (sepData.margin[XX]+sepData.thickness)*2;
+      separatorHeightY = int(sepData.margin[YY]+sepData.thickness)*2;
+      separatorWidthX  = int(sepData.margin[XX]+sepData.thickness)*2;
       if (allocEnc == Vertical) {
           if (sepData.type == SepData::LenPage) // Manually adjust page size
               separatorLength = gui->pageSize(meta.LPub.page,XX) - (_offsetX + separatorWidthX);
@@ -287,8 +287,8 @@ DividerItem::DividerItem(
  #endif
       }
   } else {                        // Range divider
-      separatorHeightY = sepData.margin[YY]+sepData.thickness*2;
-      separatorWidthX  = sepData.margin[XX]+sepData.thickness*2;
+      separatorHeightY = int(sepData.margin[YY])+int(sepData.thickness)*2;
+      separatorWidthX  = int(sepData.margin[XX])+int(sepData.thickness)*2;
       if (allocEnc == Vertical) {
         setRect(_offsetX,
                 _offsetY,
@@ -334,12 +334,12 @@ DividerItem::DividerItem(
     borderData.thickness = 0;
   }
 
-  if (sepData.thickness > 0.5) {
+  if (double(sepData.thickness) > 0.5) {
     // determine the position of the divider
     if(parentStep->dividerType == StepDivider) {     // Step divider
         if (allocEnc == Vertical) {
-            separatorWidthX = sepData.margin[XX]+sepData.thickness/2;
-            spacingHeightY  = sepData.margin[YY]+(sepData.thickness+range->stepSpacing)/2;
+            separatorWidthX = int(sepData.margin[XX])+int(sepData.thickness)/2;
+            spacingHeightY  = int(sepData.margin[YY])+int(sepData.thickness+range->stepSpacing)/2;
             lineItem->setLine(_offsetX-separatorWidthX,
                               _offsetY-spacingHeightY,    // top
                               _offsetX+separatorLength+separatorWidthX,
@@ -353,8 +353,8 @@ DividerItem::DividerItem(
                           ;
 #endif
         } else {
-            separatorHeightY = sepData.margin[YY]+sepData.thickness/2;
-            spacingWidthX    = /*sepData.margin[XX]+*/(sepData.thickness+range->stepSpacing)/2;
+            separatorHeightY = int(sepData.margin[YY])+int(sepData.thickness)/2;
+            spacingWidthX    = /*sepData.margin[XX]+*/int(sepData.thickness+range->stepSpacing)/2;
             lineItem->setLine(_offsetX-spacingWidthX,     // left
                               _offsetY-separatorHeightY,
                               _offsetX-spacingWidthX,     // left
@@ -370,7 +370,7 @@ DividerItem::DividerItem(
         }
     } else {                            // Range divider
         if (allocEnc == Vertical) {
-          separatorWidthX = sepData.margin[XX]+sepData.thickness/2;
+          separatorWidthX = int(sepData.margin[XX])+int(sepData.thickness)/2;
           spacingHeightY =  0.0; //= (sepData.margin[YY]+sepData.thickness+range->stepSpacing)/2;
           lineItem->setLine(_offsetX+separatorWidthX,   // right
                             _offsetY-spacingHeightY,
@@ -385,7 +385,7 @@ DividerItem::DividerItem(
                         ;
 #endif
         } else {
-          separatorHeightY = sepData.margin[YY]+sepData.thickness/2;
+          separatorHeightY = int(sepData.margin[YY])+int(sepData.thickness)/2;
           spacingWidthX    = 0.0; //(sepData.margin[XX]+sepData.thickness+range->stepSpacing)/2;
           lineItem->setLine(_offsetX-spacingWidthX,
                             _offsetY+separatorHeightY,   // top

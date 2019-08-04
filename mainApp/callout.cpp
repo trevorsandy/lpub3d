@@ -127,15 +127,15 @@ void Callout::sizeIt()
      smaller area to the callout, and place the count accordingly */
 
   if (instances > 1) {
-    instanceCount.number = instances;
+    instanceCount.number    = instances;
     instanceCount.placement = meta.LPub.callout.instance.placement;
     instanceCount.margin    = meta.LPub.callout.instance.margin;
-    instanceCount.font = meta.LPub.callout.instance.font.valueFoo();
+    instanceCount.font      = meta.LPub.callout.instance.font.valueFoo();
     instanceCount.sizeit("%1x");
     
     bool fit = true;
 
-            /* Describe the instance count rectangle */
+    /* Describe the instance count rectangle */
 
     int  instanceTop, instanceLeft, instanceWidth, instanceHeight;
 
@@ -242,6 +242,17 @@ void Callout::sizeIt()
     size[YY] += int(borderData.margin[YY]);
   }
 
+//#ifdef QT_DEBUG_MODE // " <<  << " // " <<
+//  dbg_adj_size[XX] = size[XX] - dbg_adj_size[XX];
+//  dbg_adj_size[YY] = size[YY] - dbg_adj_size[YY];
+//  logNotice() << "\nCallout 2nd Adjusted Size:"
+//              << "\nAdjustment XX W (Instance Count/Border Margin) [" << dbg_adj_size[XX] << "]"
+//              << "\nAdjustment YY H (Instance Count/Border Margin) [" << dbg_adj_size[YY] << "]"
+//              << "\n2nd Adjusted size XX W                         [" << size[XX] << "]"
+//              << "\n2nd Adjusted size YY H                         [" << size[YY] << "]"
+//                ;
+//#endif
+
   size[XX] += int(borderData.thickness);
   size[YY] += int(borderData.thickness);
 }
@@ -267,7 +278,7 @@ void Callout::addGraphicsItems(
     offsetX = 0;
     offsetY = 0;
   }
-  
+
   int newLoc[2] = { offsetX + loc[XX], offsetY + loc[YY] };
 
   // Add an invisible rectangle underneath the callout background item called underpinning.
@@ -306,44 +317,52 @@ void Callout::addGraphicsItems(
   background->setPos(newLoc[XX],newLoc[YY]);
   background->setFlag(QGraphicsItem::ItemIsMovable, movable);
 
-  int saveX = loc[XX];
-  int saveY = loc[YY];
+  int saveLocX = loc[XX];
+  int saveLocY = loc[YY];
 
   BorderData borderData = meta.LPub.callout.border.valuePixels();
 
   loc[XX] = int(borderData.margin[0]);
   loc[YY] = int(borderData.margin[1]);
  
+#ifdef QT_DEBUG_MODE
+  logNotice() << "\nCALLOUT PLACEMENT SUMMARY (addGraphicsItems) - "
+              << "\nPLACEMENT DATA -       "
+              << " \nPlacement:            "   << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
+              << " \nJustification:        "   << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
+              << " \nRelativeTo:           "   << RelNames[placement.value().relativeTo]     << " (" << placement.value().relativeTo << ")"
+              << " \nPreposition:          "   << PrepNames[placement.value().preposition]   << " (" << placement.value().preposition << ")"
+              << " \nRectPlacement:        "   << RectNames[placement.value().rectPlacement] << " (" << placement.value().rectPlacement << ")"
+              << " \nOffset[0](Placement): "   << placement.value().offsets[0]
+              << " \nOffset[1](Placement): "   << placement.value().offsets[1]
+              << "\nOTHER DATA -           "
+              << " \nOffxetX:              "   << offsetX
+              << " \nOffxetY:              "   << offsetY
+              << " \nAlloc:                "   << (meta.LPub.callout.alloc.value() == Vertical ? "Vertical" : "Horizontal")
+              << " \nBorder Thickness      "   << borderData.thickness
+              << " \nRelative Type:        "   << RelNames[relativeType]       << " (" << relativeType << ")"
+              << " \nParent Relative Type: "   << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
+              << " \nSize[XX]:             "   << size[XX]
+              << " \nSize[YY]:             "   << size[YY]
+              << " \nnewLoc[XX]:           "   << newLoc[XX]
+              << " \nnewLoc[YY]:           "   << newLoc[YY]
+              << " \nLoc[XX](bdr.margin):  "   << loc[XX]
+              << " \nLoc[YY](bdr.margin):  "   << loc[YY]
+              << " \nsaveLocX:             "   << saveLocX
+              << " \nsaveLocY:             "   << saveLocY
+              << " \nRelative To Size[0]:  "   << relativeToSize[0]
+              << " \nRelative To Size[1]:  "   << relativeToSize[1]
+                ;
+#endif
+
   if (meta.LPub.callout.alloc.value() == Vertical) {
     addGraphicsItems(Vertical,0,int(borderData.thickness),background, movable);
   } else {
     addGraphicsItems(Horizontal,int(borderData.thickness),0,background, movable);
   }
-  loc[XX] = saveX;
-  loc[YY] = saveY;
 
-#ifdef QT_DEBUG_MODE
-//  qDebug() << "\nCALLOUT PLACEMENT (addGraphicsItems) - "
-//           << "\nPLACEMENT DATA -         "
-//           << " \nPlacement:              "   << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
-//           << " \nJustification:          "   << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
-//           << " \nRelativeTo:             "   << RelNames[placement.value().relativeTo]     << " (" << placement.value().relativeTo << ")"
-//           << " \nPreposition:            "   << PrepNames[placement.value().preposition]   << " (" << placement.value().preposition << ")"
-//           << " \nRectPlacement:          "   << RectNames[placement.value().rectPlacement] << " (" << placement.value().rectPlacement << ")"
-//           << " \nOffset[0]:              "   << placement.value().offsets[0]
-//           << " \nOffset[1]:              "   << placement.value().offsets[1]
-//           << "\nOTHER DATA -             "
-//           << " \nRelative Type:          "   << RelNames[relativeType]       << " (" << relativeType << ")"
-//           << " \nParent Relative Type:   "   << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
-//           << " \nSize[XX]:               "   << size[XX]
-//           << " \nSize[YY]:               "   << size[YY]
-//           << " \nnewLoc[XX]:             "   << newLoc[XX]
-//           << " \nnewLoc[YY]:             "   << newLoc[YY]
-//           << " \nRelative To Size[0]:    "   << relativeToSize[0]
-//           << " \nRelative To Size[1]:    "   << relativeToSize[1]
-//              ;
-#endif
-
+  loc[XX] = saveLocX;
+  loc[YY] = saveLocY;
 }
 
 
@@ -357,6 +376,7 @@ void Callout::addGraphicsItems(
   int margin;
 
   if (instanceCount.number > 1) {
+
     PlacementData placementData = instanceCount.placement.value();
     switch (placementData.placement) {
       case TopLeft:
@@ -379,6 +399,7 @@ void Callout::addGraphicsItems(
       default:
       break;
     }
+
     CalloutInstanceItem *item = new CalloutInstanceItem(
       this,&meta,"x%d",instanceCount.number,parent);
     item->setPos(offsetX + instanceCount.loc[0], offsetY + instanceCount.loc[1]);
