@@ -4646,7 +4646,7 @@ void Gui::parseError(QString errorMsg,Where &here)
     if (Preferences::modeGUI) {
         showLine(here);
         if (Preferences::showParseErrors) {
-            QCheckBox *cb = new QCheckBox("Do not show this message again.");
+            QCheckBox *cb = new QCheckBox("Do not show line parse error message again.");
             QMessageBoxResizable box;
             box.setWindowTitle(tr(VER_PRODUCTNAME_STR " Line Parse Error"));
             box.setText(parseMessage);

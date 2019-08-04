@@ -375,7 +375,7 @@
                </size>
               </property>
               <property name="toolTip">
-               <string>Set the percent of fade, 0 is fully opaque, 100 is fully hidden.</string>
+               <string>Set the percent of fade, 0 is fully opaque, 100 is fully transparent.</string>
               </property>
               <property name="title">
                <string>Fade Percent</string>
