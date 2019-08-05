@@ -305,6 +305,7 @@ int SubModel::createSubModelImage(
 
       // set viewer display options
       viewerOptions.ViewerCsiKey   = viewerCsiKey;
+      viewerOptions.ImageFileName  = imageName;
       viewerOptions.UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
       viewerOptions.FoV            = subModelMeta.v_cameraFoV.value();
       viewerOptions.ZNear          = subModelMeta.v_znear.value();
@@ -355,6 +356,11 @@ int SubModel::createSubModelImage(
   }
 
   pixmap->load(imageName);
+
+  if (! gui->exportingObjects()) {
+      viewerOptions.ImageWidth = pixmap->width();
+      viewerOptions.ImageHeight = pixmap->height();
+  }
 
   return rc;
 }

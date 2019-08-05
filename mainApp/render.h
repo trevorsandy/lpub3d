@@ -170,9 +170,14 @@ public:
   {
     ImageType      = Render::CSI;
     UsingViewpoint = false;
+    ImageWidth     = 800 ;
+    ImageHeight    = 600;
   }
   QString ViewerCsiKey;
   Render::Mt ImageType;
+  QString ImageFileName;
+  int ImageWidth;
+  int ImageHeight;
   float CameraDistance;
   float FoV;
   float ZNear;

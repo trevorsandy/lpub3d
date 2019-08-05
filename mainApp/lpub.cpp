@@ -1418,6 +1418,13 @@ void  Gui::restartApplication(bool changeLibrary){
     QCoreApplication::quit();
 }
 
+void Gui::loadUpdatedImages()
+{
+   m_updateViewer = false;
+   reloadCurrentPage();
+   m_updateViewer = true;
+}
+
 void Gui::reloadCurrentPage(){
     if (getCurFile().isEmpty()) {
         emit messageSig(LOG_STATUS,"No model file page to redisplay.");
@@ -2559,6 +2566,7 @@ Gui::Gui()
     pageRangeText                   = "1";
     exportPixelRatio                = 1.0;
     resetCache                      = false;
+    m_updateViewer                  = true;
     m_previewDialog                 = false;
     m_partListCSIFile               = false;
     m_exportingContent              = false;
@@ -2783,6 +2791,7 @@ void Gui::initialize()
   connect(gMainWindow, SIGNAL(SetRotStepAngleZ(float,bool)),       this,        SLOT(SetRotStepAngleZ(float,bool)));
   connect(gMainWindow, SIGNAL(SetRotStepTransform(QString&,bool)), this,        SLOT(SetRotStepTransform(QString&,bool)));
   connect(gMainWindow, SIGNAL(GetRotStepMeta()),                   this,        SLOT(GetRotStepMeta()));
+  connect(gMainWindow, SIGNAL(updateSig()),                        this,        SLOT(loadUpdatedImages()));
 
 /* Moved to PartWorker::ldsearchDirPreferences()  */
 //  if (Preferences::preferredRenderer == RENDERER_LDGLITE)
@@ -4504,7 +4513,6 @@ void Gui::createMenus()
      * Not used
     FileMenuViewer = menuBar()->addMenu(tr("&Step"));
     FileMenuViewer->addAction(gMainWindow->mActions[LC_FILE_SAVEAS]);
-    FileMenuViewer->addAction(gMainWindow->mActions[LC_FILE_SAVE_IMAGE]);
     */
 
     ViewerExportMenu = new QMenu(tr("&Export As..."), this);
@@ -4745,6 +4753,10 @@ void Gui::createDockWindows()
 
     //3D Viewer
 
+    gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setIcon(QIcon(":/resources/saveimage.png"));
+    gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setShortcut(tr("Alt+0"));
+    gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setStatusTip(tr("Save an image of the current view - Alt+0"));
+    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_FILE_SAVE_IMAGE]);
     viewerDockWindow = new QDockWidget(trUtf8(wCharToUtf8("3DViewer")), this);
     viewerDockWindow->setObjectName("ModelDockWindow");
     viewerDockWindow->setAllowedAreas(

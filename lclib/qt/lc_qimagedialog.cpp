@@ -11,31 +11,79 @@ lcQImageDialog::lcQImageDialog(QWidget* Parent)
 {
 	ui->setupUi(this);
 
-	ui->width->setValidator(new QIntValidator(1, 32768, this));
-	ui->height->setValidator(new QIntValidator(1, 32768, this));
+/*** LPub3D Mod - lpub3d image size */
+//	ui->width->setValidator(new QIntValidator(1, 32768, this));
+//	ui->height->setValidator(new QIntValidator(1, 32768, this));
+	ui->width->setRange(1,32768);
+	ui->width->setSingleStep(1);
+	ui->height->setRange(1,32768);
+	ui->height->setSingleStep(1);
+/*** LPub3D Mod end ***/
 	ui->firstStep->setValidator(new QIntValidator(this));
 	ui->lastStep->setValidator(new QIntValidator(this));
 
 	Project* Project = lcGetActiveProject();
 	lcModel* Model = Project->GetActiveModel();
-	mWidth = lcGetProfileInt(LC_PROFILE_IMAGE_WIDTH);
-	mHeight = lcGetProfileInt(LC_PROFILE_IMAGE_HEIGHT);
+/*** LPub3D Mod - lpub3d image size */
+//	mWidth = lcGetProfileInt(LC_PROFILE_IMAGE_WIDTH);
+//	mHeight = lcGetProfileInt(LC_PROFILE_IMAGE_HEIGHT);
+	mWidth  = Project->GetImageWidth();
+	mHeight = Project->GetImageHeight();
+/*** LPub3D Mod end ***/
 	mStart = Model->GetCurrentStep();
 	mEnd = Model->GetLastStep();
-	mFileName = Project->GetImageFileName(false);
+/*** LPub3D Mod - lpub3d image file name */
+//   mFileName = Project->GetImageFileName(false);
+	mFileName = Project->GetImageName();
+/*** LPub3D Mod end ***/
 
 	ui->fileName->setText(mFileName);
-	ui->width->setText(QString::number(mWidth));
-	ui->height->setText(QString::number(mHeight));
+/*** LPub3D Mod - lpub3d image size */
+	ui->aspectRatio->setChecked(true);
+	ui->width->setValue(mWidth);
+	connect(ui->width,SIGNAL(valueChanged(int)),
+				 this,SLOT  (valueChanged(int)));
+	ui->height->setValue(mHeight);
+	connect(ui->height,SIGNAL(valueChanged(int)),
+				  this,SLOT  (valueChanged(int)));
+/*** LPub3D Mod end ***/
 	ui->firstStep->setText(QString::number(mStart));
 	ui->lastStep->setText(QString::number(mEnd));
 	ui->rangeCurrent->setChecked(true);
+/*** LPub3D Mod - disable unused dialogues */
+	ui->groupBox_2->setEnabled(false);
+	ui->rangeCustom->setVisible(false);
+	ui->rangeAll->setVisible(false);
+/*** LPub3D Mod end ***/
 }
 
 lcQImageDialog::~lcQImageDialog()
 {
 	delete ui;
 }
+
+/*** LPub3D Mod - lpub3d image size */
+void lcQImageDialog::valueChanged(int value)
+{
+   /* original height x new width / original width = new height */
+   if (ui->aspectRatio->isChecked()){
+	  if (sender() == ui->width) {
+		disconnect(ui->height,SIGNAL(valueChanged(int)),
+						 this,SLOT  (valueChanged(int)));
+		ui->height->setValue(qRound(double(mHeight * value / mWidth)));
+		connect(ui->height,SIGNAL(valueChanged(int)),
+					  this,SLOT  (valueChanged(int)));
+	  } else
+	  if (sender() == ui->height){
+		disconnect(ui->width,SIGNAL(valueChanged(int)),
+					   this, SLOT  (valueChanged(int)));
+		ui->width->setValue(qRound(double(value * mWidth / mHeight)));
+		connect(ui->width,SIGNAL(valueChanged(int)),
+					  this,SLOT (valueChanged(int)));
+	  }
+   }
+}
+/*** LPub3D Mod end ***/
 
 void lcQImageDialog::accept()
 {
@@ -119,3 +167,11 @@ void lcQImageDialog::on_fileNameBrowse_clicked()
 	if (!result.isEmpty())
 		ui->fileName->setText(QDir::toNativeSeparators(result));
 }
+
+/*** LPub3D Mod - lpub3d image size */
+void lcQImageDialog::on_reset_clicked()
+{
+	ui->width->setValue(mWidth);
+	ui->height->setValue(mHeight);
+}
+/*** LPub3D Mod end ***/

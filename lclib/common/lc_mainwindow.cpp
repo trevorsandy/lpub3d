@@ -569,6 +569,10 @@ void lcMainWindow::CreateMenus()
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_ROTATESTEP]);
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - toolstoolbar add emport image ***/
+    mToolsMenu->addAction(mActions[LC_FILE_SAVE_IMAGE]);
+/*** LPub3D Mod end ***/
+
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_SELECT]);
 /*** LPub3D Mod - toolstoolbar suppress conflicting tools ***/
 /***

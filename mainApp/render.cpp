@@ -2015,6 +2015,9 @@ bool Render::LoadViewer(const ViewerOptions &Options){
 
     // Load model
     Project* StepProject = new Project();
+    StepProject->SetImageArgs(Options.ImageFileName,
+                              Options.ImageWidth,
+                              Options.ImageHeight);
     if (LoadStepProject(StepProject, viewerCsiKey)){
         gApplication->SetProject(StepProject);
         gMainWindow->UpdateAllViews();

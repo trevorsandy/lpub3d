@@ -400,9 +400,21 @@ int Step::createCsi(
      }
   }
 
+  // If not using LDView SCall, populate pixmap
+  if (! renderer->useLDViewSCall()) {
+      pixmap->load(pngName);
+      csiPlacement.size[0] = pixmap->width();
+      csiPlacement.size[1] = pixmap->height();
+      if (! gui->exportingObjects()) {
+         viewerOptions.ImageWidth  = pixmap->width();
+         viewerOptions.ImageHeight = pixmap->height();
+      }
+  }
+
   if (! gui->exportingObjects()) {
       // set viewer display options
       viewerOptions.ViewerCsiKey   = viewerCsiKey;
+      viewerOptions.ImageFileName  = pngName;
       viewerOptions.UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
       viewerOptions.FoV            = meta.LPub.assem.v_cameraFoV.value();
       viewerOptions.ZNear          = meta.LPub.assem.v_znear.value();
@@ -415,18 +427,11 @@ int Step::createCsi(
       loadTheViewer();
   }
 
-  // If not using LDView SCall, populate pixmap
-  if (! renderer->useLDViewSCall()) {
-      pixmap->load(pngName);
-      csiPlacement.size[0] = pixmap->width();
-      csiPlacement.size[1] = pixmap->height();
-  }
-
   return rc;
 }
 
 bool Step::loadTheViewer(){
-    if (! gui->exporting() /* && !Preferences::usingNativeRenderer */) {
+    if (! gui->exporting() && gui->updateViewer() /* && !Preferences::usingNativeRenderer */) {
         if (! renderer->LoadViewer(viewerOptions)) {
             emit gui->messageSig(LOG_ERROR,QString("Could not load 3D Viewer with CSI key: %1")
                                  .arg(viewerCsiKey));

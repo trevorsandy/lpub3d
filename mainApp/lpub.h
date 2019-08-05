@@ -889,6 +889,7 @@ public slots:
   void setExporting(bool b){ m_exportingContent = b; if (!b){ m_exportingObjects = b; } }
   void setExportingObjects(bool b){ m_exportingContent = m_exportingObjects = b; }
   bool exporting() { return m_exportingContent; }
+  bool updateViewer() { return m_updateViewer; }
   bool exportingImages() { return m_exportingContent && !m_exportingObjects; }
   bool exportingObjects() { return m_exportingContent && m_exportingObjects; }
   void cancelExporting(){ m_exportingContent = m_exportingObjects = false; }
@@ -1093,6 +1094,8 @@ private:
   bool                   saveProjection;
   bool                   saveSingleCall;
 
+  bool                   m_updateViewer;
+
   int                    m_workerJobResult;
 
   bool                   okToInvokeProgressBar()
@@ -1271,6 +1274,8 @@ private slots:
 
     void toggleLCStatusBar(bool);
     void showLCStatusMessage();
+
+    void loadUpdatedImages();
 
     // Begin Jaco's code
 

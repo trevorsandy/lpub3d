@@ -23,6 +23,10 @@ public:
 public slots:
 	void accept();
 	void on_fileNameBrowse_clicked();
+/*** LPub3D Mod - lpub3d image file resize */
+	void on_reset_clicked();
+	void valueChanged(int value);
+/*** LPub3D Mod end ***/
 
 private:
 	Ui::lcQImageDialog *ui;

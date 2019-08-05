@@ -85,6 +85,10 @@ Project::Project()
 /*** LPub3D Mod - default model name ***/
 	mActiveModel = new lcModel(tr("LPub3D Model.ldr"));
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - image export ***/
+	mImageWidth = 0;
+	mImageHeight = 0;
+/*** LPub3D Mod end ***/
 	mActiveModel->CreatePieceInfo(this);
 	mActiveModel->SetSaved();
 	mModels.Add(mActiveModel);
@@ -2523,6 +2527,9 @@ void Project::SaveImage()
 		Dialog.mFileName = Dialog.mFileName.insert(Dialog.mFileName.length() - Extension.length() - 1, QLatin1String("%1"));
 
 	mActiveModel->SaveStepImages(Dialog.mFileName, Dialog.mStart != Dialog.mEnd, false, false, Dialog.mWidth, Dialog.mHeight, Dialog.mStart, Dialog.mEnd);
+/*** LPub3D Mod - export image completion ***/
+	emit  gMainWindow->updateSig();
+/*** LPub3D Mod end ***/
 }
 
 void Project::UpdatePieceInfo(PieceInfo* Info) const

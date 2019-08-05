@@ -155,10 +155,10 @@ public:
 	}
 
 /*** LPub3D Mod - coord format ***/
-    lcRotateStepCoordType GetRotateStepCoordType() const
-    {
-        return mRotateStepCoordType;
-    }
+	lcRotateStepCoordType GetRotateStepCoordType() const
+	{
+		return mRotateStepCoordType;
+	}
 /*** LPub3D Mod end ***/
 
 	bool GetAddKeys() const
@@ -292,7 +292,7 @@ public:
 /***	void UpdateAllViews();                 // LPub3D Mod - moved to public slots ***/
 	void SetTool(lcTool Tool);
 	void SetTransformType(lcTransformType TransformType);
-    void SetRotateStepCoordType(lcRotateStepCoordType RotateStepCoordType);
+	void SetRotateStepCoordType(lcRotateStepCoordType RotateStepCoordType);
 
 	void SetColorIndex(int ColorIndex);
 	void SetMoveSnapEnabled(bool Enabled);
@@ -348,9 +348,9 @@ public:
 	void UpdateRecentFiles();
 	void UpdateShortcuts();
 /*** LPub3D Mod - Timeline part icons ***/
-    bool IsLPub3DSubModel(QString &Piece);
-    const QString GetPliIconsPath(QString &key);
-    const QString GetFadeStepsColor();
+	bool IsLPub3DSubModel(QString &Piece);
+	const QString GetPliIconsPath(QString &key);
+	const QString GetFadeStepsColor();
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Rotate Angles ***/
 	void GetRotStepMetaAngles();
@@ -359,7 +359,7 @@ public:
 	void ParseAndSetRotStep(QTextStream& LineStream);
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - rotstep transform ***/
-    lcVector3 GetRotStepTransformAmount();
+	lcVector3 GetRotStepTransformAmount();
 /*** LPub3D Mod end ***/
 	lcVector3 GetTransformAmount();
 
@@ -371,7 +371,7 @@ public:
 	QToolBar* mToolsToolBar;       //moved from protected:
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Timeline part icons ***/
-    bool mSubmodelIconsLoaded;
+	bool mSubmodelIconsLoaded;
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - status bar ***/
@@ -387,22 +387,25 @@ public slots:
 
 /*** LPub3D Mod - halt, disable, enable viewer ***/
 	void Halt3DViewer(bool b);
-    void Enable3DActions();
-    void Disable3DActions();
+	void Enable3DActions();
+	void Disable3DActions();
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - rotate step objects ***/
-        void SetStepRotStepMeta(lcCommandId CommandId);
+	void SetStepRotStepMeta(lcCommandId CommandId);
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - rotate step signals ***/
 signals:
-   lcVector3 GetRotStepMeta();   // used to capture step meta angles
-   void SetRotStepMeta();
-   void SetRotStepAngleX(float, bool=false);
-   void SetRotStepAngleY(float, bool=false);
-   void SetRotStepAngleZ(float, bool=false);
-   void SetRotStepTransform(QString&, bool=false);
+	lcVector3 GetRotStepMeta();   // used to capture step meta angles
+	void SetRotStepMeta();
+	void SetRotStepAngleX(float, bool=false);
+	void SetRotStepAngleY(float, bool=false);
+	void SetRotStepAngleZ(float, bool=false);
+	void SetRotStepTransform(QString&, bool=false);
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - export image completion ***/
+	void updateSig();
 /*** LPub3D Mod end ***/
 
 protected slots:
@@ -470,9 +473,9 @@ protected:
 	QToolBar* mStandardToolBar;
 /*** QToolBar* mToolsToolBar;     LPub3D Mod -  move to public ***/
 /*** LPub3D Mod - coord format ***/
-    lcRotateStepCoordType mRotateStepCoordType;
-    lcVector3 mExistingRotStep;
-    QString mRotStepTransform;
+	lcRotateStepCoordType mRotateStepCoordType;
+	lcVector3 mExistingRotStep;
+	QString mRotStepTransform;
 /*** LPub3D Mod end ***/
 
 	QToolBar* mTimeToolBar;

@@ -84,6 +84,30 @@ public:
 		return mFileName;
 	}
 
+/*** LPub3D Mod - image export ***/
+	void SetImageArgs(
+		const QString fileName,
+		const int width,
+		const int height)
+	{
+		mImageFileName = fileName;
+		mImageWidth    = width;
+		mImageHeight   = height;
+	}
+	QString GetImageName() const
+	{
+		return mImageFileName;
+	}
+	int GetImageWidth() const
+	{
+		return mImageWidth;
+	}
+	int GetImageHeight() const
+	{
+		return mImageHeight;
+	}
+/*** LPub3D Mod end ***/
+
 	QString GetImageFileName(bool AllowCurrentFolder) const;
 
 	void SetActiveModel(int ModelIndex);
@@ -127,6 +151,12 @@ protected:
 	lcModel* mActiveModel;
 
 	Q_DECLARE_TR_FUNCTIONS(Project);
+/*** LPub3D Mod - image export ***/
+	QString mImageFileName;
+	int mImageWidth;
+	int mImageHeight;
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - create Native PLI image and Pov File ***/
 	friend class Render;
 	friend class NativePov;
