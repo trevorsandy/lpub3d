@@ -189,6 +189,12 @@ Range *Step::range()
   return range;
 }
 
+Page *Step::page()
+{
+   Page *page = dynamic_cast<Page *>(range()->parent);
+   return page;
+}
+
 /*
  * given a set of parts, generate a CSI
  */

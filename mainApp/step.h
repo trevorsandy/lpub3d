@@ -117,6 +117,7 @@ class Step : public AbstractRangeElement
 
     Step  *nextStep();
     Range *range();
+    Page  *page();
 
     bool loadTheViewer();
 
