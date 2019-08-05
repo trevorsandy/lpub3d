@@ -188,7 +188,8 @@ const QString Render::getRotstepMeta(RotStepMeta &rotStep, bool isKey /*false*/)
                                    rotStep.value().type.trimmed());
   } else {
       rotstepString = QString("0 // ROTSTEP %1 %2 %3 %4")
-                              .arg(rotStep.value().type.trimmed())
+                              .arg(rotStep.value().type.isEmpty() ? "REL" :
+                                   rotStep.value().type.trimmed())
                               .arg(rotStep.value().rots[0])
                               .arg(rotStep.value().rots[1])
                               .arg(rotStep.value().rots[2]);

@@ -4651,6 +4651,10 @@ void MetaItem::writeRotateStep(QString &value)
         inside = !inside;
     }
 
+    // confirm argv01 has 6 elements, check if last element is ROTSTEP Transform Type
+    if (argv01.size() == 5 && !argv01.last().contains(QRegExp("^(ABS|REL|ADD)$")))
+        argv01.append("REL");
+
     QString modelName  = argv01[0];                                            //0=modelName
 
     QStringList argv02 = argv01[1].split(";");                                 //0=lineNumber; 1=stepNumber[_fm]
