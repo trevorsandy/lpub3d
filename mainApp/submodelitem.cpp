@@ -187,21 +187,29 @@ int SubModel::createSubModelImage(
   } else {
       modelScale = subModelMeta.modelScale.value();
   }
+  int stepNumber = subModelMeta.showStepNum.value() ?
+                   subModelMeta.showStepNum.value() : 1;
   QString unitsName = resolutionType() ? "DPI" : "DPCM";
   bool noCA = subModelMeta.rotStep.value().type == "ABS";
 
   // assemble name key - create unique file when a value that impacts the image changes
-  QString keyPart1 = QString("%1").arg(partialKey);
+  QString keyPart1 = QString("%1").arg(partialKey); /*baseName + @submodel + colour (0) */
   QString keyPart2 = QString("%1_%2_%3_%4_%5_%6_%7_%8")
+                             .arg(stepNumber)
                              .arg(pageSizeP(meta, 0))
                              .arg(double(resolution()))
                              .arg(resolutionType() == DPI ? "DPI" : "DPCM")
                              .arg(double(modelScale))
                              .arg(double(subModelMeta.cameraFoV.value()))
                              .arg(noCA ? 0.0 : double(subModelMeta.cameraAngles.value(0)))
-                             .arg(noCA ? 0.0 : double(subModelMeta.cameraAngles.value(1)))
-                             .arg(renderer->getRotstepMeta(subModelMeta.rotStep,true));
+                             .arg(noCA ? 0.0 : double(subModelMeta.cameraAngles.value(1)));
   QString key = QString("%1_%2").arg(keyPart1).arg(keyPart2);
+
+  // append rotstep to be passed on to 3DViewer
+  keyPart2 += QString("_%1_%2")
+                      .arg(renderer->getRotstepMeta(subModelMeta.rotStep,true))
+                      // temp hack - passed so we can always have scale for pov render
+                      .arg(double(subModelMeta.modelScale.value()));
 
   imageName = QDir::currentPath() + QDir::separator() +
               Paths::submodelDir + QDir::separator() + key.toLower() + ".png";
@@ -248,8 +256,6 @@ int SubModel::createSubModelImage(
   }
 
   // Populate viewerCsiKey variable
-  int stepNumber = subModelMeta.showStepNum.value() ?
-                   subModelMeta.showStepNum.value() : 1;
   viewerCsiKey = QString("\"%1\"%2;%3")
           .arg(QString("%1_%2")
                        .arg(QFileInfo(type).completeBaseName())
@@ -263,7 +269,7 @@ int SubModel::createSubModelImage(
   // We are processing again the current submodel Key so Submodel must have been updated in the viewer
   bool viewerUpdate = viewerCsiKey == gui->getViewerCsiKey();
 
-  // Generate 3DViewer Submodel entry
+  // Generate 3DViewer Submodel entry - TODO move to after Generate and renderer Submodel file
   if (! gui->exportingObjects()) {
       if ((addViewerStepContent || imageOutOfDate || viewerUpdate)) {
 
@@ -299,8 +305,8 @@ int SubModel::createSubModelImage(
               emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Viewer Submodel subfiles"));
 
           // store rotated and unrotated (csiParts). Unrotated parts are used to generate LDView pov file
-          QString unrotatedKey = QString("%1_%2_%3").arg(keyPart1).arg(stepNumber).arg(keyPart2);
-          gui->insertViewerStep(viewerCsiKey,rotatedSubmodel,subModel,ldrNames.first(),unrotatedKey,multistep,callout);
+          QString stepKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
+          gui->insertViewerStep(viewerCsiKey,rotatedSubmodel,subModel,ldrNames.first(),stepKey,multistep,callout);
       }
 
       // set viewer display options

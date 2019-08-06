@@ -28,7 +28,7 @@ enum CsiKeyList{
     K_IMAGEWIDTH,      // 1  not used
     K_RESOLUTION,      // 2
     K_RESOLUTIONTYPE,  // 3
-    K_SCALEFACTOR,     // 4
+    K_SCALEFACTOR,     // 4  not used (switches between distance factor and scale)
     K_FOV,             // 5  not used
     K_LATITUDE,        // 6
     K_LONGITUDE,       // 7
@@ -49,13 +49,13 @@ PovrayRenderDialog::PovrayRenderDialog(QWidget* Parent)
     mOutputBuffer = nullptr;
 
     mViewerCsiKey = gui->getViewerCsiKey();
-    mCsiKeyList = gui->getViewerStepCsiKey(mViewerCsiKey).split("_");
+    mCsiKeyList   = gui->getViewerConfigKey(mViewerCsiKey).split(";").last().split("_");
     
     ui->setupUi(this);
 
     mWidth         = POVRAY_RENDER_DEFAULT_WIDTH;
     mHeight        = POVRAY_RENDER_DEFAULT_HEIGHT;
-    mScale         = Preferences::usingNativeRenderer ? 1.0 : mCsiKeyList.at(K_MODELSCALE).toDouble();
+    mScale         = mCsiKeyList.at(K_MODELSCALE).toDouble();
     mResolution    = mCsiKeyList.at(K_RESOLUTION).toInt();
     mQuality       = Preferences::povrayRenderQuality;
 

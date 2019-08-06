@@ -1647,7 +1647,7 @@ QString LDrawFile::getViewerStepFilePath(const QString &fileName)
 
 /* return viewer step CSI key */
 
-QString LDrawFile::getViewerStepCsiKey(const QString &fileName)
+QString LDrawFile::getViewerConfigKey(const QString &fileName)
 {
   QString mfileName = fileName.toLower();
   QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);

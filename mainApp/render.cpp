@@ -2360,36 +2360,20 @@ const QString Render::getPovrayRenderQuality(int quality)
 
 const QString Render::getPovrayRenderFileName(const QString &viewerCsiKey)
 {
-    QString valueAt0 = viewerCsiKey.at(0);
-    bool inside = (valueAt0 == "\"");                                                 // true if the first character is "
-    QStringList tmpList = viewerCsiKey.split(QRegExp("\""), QString::SkipEmptyParts); // Split by "
-    QStringList argv01;
-    foreach (QString s, tmpList) {
-        if (inside) {                                                                 // If 's' is inside quotes ...
-            argv01.append(s);                                                         // ... get the whole string
-        } else {                                                                      // If 's' is outside quotes ...
-            argv01.append(s.split(" ", QString::SkipEmptyParts));                     // ... get the split string
-        }
-        inside = !inside;
-    }
-    QString csiModel  = argv01[0];                                                   //0=modelName
-
-    QString fileName = gui->getViewerStepFilePath(viewerCsiKey);
-
-    if (fileName.isEmpty()){
-        emit gui->messageSig(LOG_ERROR, QString("Failed to receive ldrFileName for viewerCsiKey : %1").arg(viewerCsiKey));
-        return QString();
-    }
-
     QDir povrayDir(QString("%1/%2").arg(QDir::currentPath()).arg(Paths::povrayRenderDir));
     if (!povrayDir.exists())
         Paths::mkPovrayDir();
 
-    QFileInfo csiFile(fileName);
-    QString imageFile = QDir::toNativeSeparators(QString("%1/%2_%3.png")
+    QString fileName = gui->getViewerConfigKey(viewerCsiKey).replace(";","_");
+
+    if (fileName.isEmpty()){
+        emit gui->messageSig(LOG_ERROR, QString("Failed to receive ldrFileName for viewerCsiKey : %1").arg(viewerCsiKey));
+       fileName = "imagerender";
+    }
+
+    QString imageFile = QDir::toNativeSeparators(QString("%1/%2.png")
                        .arg(povrayDir.absolutePath())
-                       .arg(csiFile.completeBaseName().replace(".ldr",""))
-                       .arg(QFileInfo(csiModel).completeBaseName()));
+                       .arg(fileName));
 
     return imageFile;
 

@@ -638,9 +638,9 @@ public:
       return ldrawFile.getViewerStepFilePath(fileName);
   }
 
-  QString getViewerStepCsiKey(const QString &fileName)
+  QString getViewerConfigKey(const QString &fileName)
   {
-      return ldrawFile.getViewerStepCsiKey(fileName);
+      return ldrawFile.getViewerConfigKey(fileName);
   }
 
   bool isViewerStepMultiStep(const QString &fileName)

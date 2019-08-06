@@ -246,24 +246,23 @@ int Step::createCsi(
   QString csiPngFilePath = QString("%1/%2").arg(QDir::currentPath()).arg(Paths::assemDir);
   QString csiLdrFile = QString("%1/%2").arg(csiLdrFilePath).arg(gui->m_partListCSIFile ?
                                QFileInfo(gui->getCurFile()).completeBaseName()+"_snapshot.ldr" : "csi.ldr");
-  QString keyPart1 = QString("%1")
-      .arg(csi_Name+orient);
+  QString keyPart1 = QString("%1").arg(csi_Name+orient);
   QString keyPart2 = QString("%1_%2_%3_%4_%5_%6_%7_%8")
-      .arg(stepNumber.number)
-      .arg(gui->pageSize(meta.LPub.page, 0))
-      .arg(double(resolution()))
-      .arg(resolutionType() == DPI ? "DPI" : "DPCM")
-      .arg(double(modelScale))
-      .arg(double(cameraFoV))
-      .arg(absRotstep ? double(noCA.value(0)) : double(cameraAngles.value(0)))
-      .arg(absRotstep ? double(noCA.value(1)) : double(cameraAngles.value(1)));
+                             .arg(stepNumber.number)
+                             .arg(gui->pageSize(meta.LPub.page, 0))
+                             .arg(double(resolution()))
+                             .arg(resolutionType() == DPI ? "DPI" : "DPCM")
+                             .arg(double(modelScale))
+                             .arg(double(cameraFoV))
+                             .arg(absRotstep ? double(noCA.value(0)) : double(cameraAngles.value(0)))
+                             .arg(absRotstep ? double(noCA.value(1)) : double(cameraAngles.value(1)));
   QString key = QString("%1_%2").arg(keyPart1).arg(keyPart2);
 
   // append rotstep to be passed on to 3DViewer
   keyPart2 += QString("_%1_%2")
                       .arg(renderer->getRotstepMeta(meta.rotStep,true))
-                      // why is scale passed twice ?
-                      .arg(double(modelScale));
+                      // temp hack - passed so we can always have scale for pov render
+                      .arg(double(csiCameraMeta.modelScale.value()));
 
   // populate png name
   pngName = QString("%1/%2.png").arg(csiPngFilePath).arg(key);
@@ -308,7 +307,7 @@ int Step::createCsi(
   // We are processing again the current step so Csi must have been updated in the viewer
   bool viewerUpdate = viewerCsiKey == gui->getViewerCsiKey();
 
-  // Generate 3DViewer CSI entry
+  // Generate 3DViewer CSI entry - TODO move to after generate renderer CSI file
   if ((addViewerStepContent || csiOutOfDate || viewerUpdate) && ! gui->exportingObjects()) {
 
       // set rotated parts
@@ -337,7 +336,8 @@ int Step::createCsi(
           emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Viewer CSI parts"));
 
       // store rotated and unrotated (csiParts). Unrotated parts are used to generate LDView pov file
-      gui->insertViewerStep(viewerCsiKey,rotatedParts,csiParts,csiLdrFile,keyPart2,multiStep,calledOut);
+      QString stepKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
+      gui->insertViewerStep(viewerCsiKey,rotatedParts,csiParts,csiLdrFile,stepKey/*keyPart2*/,multiStep,calledOut);
   }
 
   // generate renderer CSI file

@@ -243,7 +243,7 @@ class LDrawFile {
     QStringList getViewerStepRotatedContents(const QString &fileName);
     QStringList getViewerStepUnrotatedContents(const QString &fileName);
     QString     getViewerStepFilePath(const QString &fileName);
-    QString     getViewerStepCsiKey(const QString &fileName);
+    QString     getViewerConfigKey(const QString &fileName);
     bool        isViewerStepMultiStep(const QString &fileName);
     bool        isViewerStepCalledOut(const QString &fileName);
     bool        viewerStepContentExist(      const QString &fileName);
