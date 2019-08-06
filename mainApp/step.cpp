@@ -142,7 +142,12 @@ Step::Step(
       subModel.margin         = _meta.LPub.subModel.margin;
       subModel.placement      = _meta.LPub.subModel.placement;
       pliPerStep              = false;
-      csiCameraMeta           = _meta.LPub.assem.getCsiNativeCamMeta();
+
+      csiCameraMeta.cameraAngles     = _meta.LPub.assem.cameraAngles;
+      csiCameraMeta.cameraDistNative = _meta.LPub.assem.cameraDistNative;
+      csiCameraMeta.cameraFoV        = _meta.LPub.assem.cameraFoV;
+      csiCameraMeta.zfar             = _meta.LPub.assem.zfar;
+      csiCameraMeta.znear            = _meta.LPub.assem.znear;
     }
   pli.steps                 = grandparent();
   pli.step                  = this;
