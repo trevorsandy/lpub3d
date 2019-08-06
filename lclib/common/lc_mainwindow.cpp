@@ -98,7 +98,7 @@ lcMainWindow::lcMainWindow(QMainWindow *parent) :
 	memset(mActions, 0, sizeof(mActions));
 
 /*** LPub3D Mod - set relative rotation ***/
-    mRotateStepCoordType = LC_ROTATESTEP_COORD_FORMAT_LDRAW;
+	mRotateStepCoordType = LC_ROTATESTEP_COORD_FORMAT_LDRAW;
 	mTransformType = LC_TRANSFORM_RELATIVE_ROTATION;
 /*** LPub3D Mod end ***/
 
@@ -117,7 +117,7 @@ lcMainWindow::lcMainWindow(QMainWindow *parent) :
 	mSelectionMode = lcSelectionMode::SINGLE;
 	mModelTabWidget = nullptr;
 /*** LPub3D Mod - submodel icon ***/
-    mSubmodelIconsLoaded = false;
+	mSubmodelIconsLoaded = false;
 /*** LPub3D Mod end ***/
 
 	memset(&mSearchOptions, 0, sizeof(mSearchOptions));
@@ -189,10 +189,10 @@ void lcMainWindow::CreateWidgets()
 	connect(mModelTabWidget->tabBar(), SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(ModelTabContextMenuRequested(const QPoint&)));
 #else
 /*** LPub3D Mod - hide tab bar (Qt < 5) ***/
-        mModelTabWidget->hide();
+		mModelTabWidget->hide();
 /*** LPub3D Mod end ***/
-        mModelTabWidget->setMovable(true);
-        mModelTabWidget->setTabsClosable(true);
+		mModelTabWidget->setMovable(true);
+		mModelTabWidget->setTabsClosable(true);
 	connect(mModelTabWidget, SIGNAL(tabCloseRequested(int)), this, SLOT(ModelTabClosed(int)));
 #endif
 	setCentralWidget(mModelTabWidget);
@@ -209,25 +209,25 @@ void lcMainWindow::CreateWidgets()
 	ClipboardChanged();
 
 /*** LPub3D Mod - disable 3D actions ***/
-          // disable menu itmes until model loaded
-          //File
-          mActions[LC_FILE_RENDER]->setDisabled(true);
-          //Export
-          mActions[LC_FILE_EXPORT_3DS]->setDisabled(true);
-          mActions[LC_FILE_EXPORT_BRICKLINK]->setDisabled(true);
-          mActions[LC_FILE_EXPORT_CSV]->setDisabled(true);
-          mActions[LC_FILE_EXPORT_HTML]->setDisabled(true);
-          mActions[LC_FILE_EXPORT_POVRAY]->setDisabled(true);
-          mActions[LC_FILE_EXPORT_WAVEFRONT]->setDisabled(true);
-          //Tools
-          mActions[LC_EDIT_ACTION_ROTATESTEP]->setDisabled(true);
-          mActions[LC_EDIT_ACTION_SELECT]->setDisabled(true);
-          mActions[LC_EDIT_ACTION_ROTATE]->setDisabled(true);
-          mActions[LC_EDIT_ACTION_PAN]->setDisabled(true);
-          mActions[LC_EDIT_ACTION_ROTATE_VIEW]->setDisabled(true);
-          mActions[LC_EDIT_ACTION_ZOOM_REGION]->setDisabled(true);
-          mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT]->setDisabled(true);
-          mActions[LC_EDIT_ACTION_CLEAR_TRANSFORM]->setDisabled(true);
+	// disable menu itmes until model loaded
+	//File
+	mActions[LC_FILE_RENDER]->setDisabled(true);
+	//Export
+	mActions[LC_FILE_EXPORT_3DS]->setDisabled(true);
+	mActions[LC_FILE_EXPORT_BRICKLINK]->setDisabled(true);
+	mActions[LC_FILE_EXPORT_CSV]->setDisabled(true);
+	mActions[LC_FILE_EXPORT_HTML]->setDisabled(true);
+	mActions[LC_FILE_EXPORT_POVRAY]->setDisabled(true);
+	mActions[LC_FILE_EXPORT_WAVEFRONT]->setDisabled(true);
+	//Tools
+	mActions[LC_EDIT_ACTION_ROTATESTEP]->setDisabled(true);
+	mActions[LC_EDIT_ACTION_SELECT]->setDisabled(true);
+	mActions[LC_EDIT_ACTION_ROTATE]->setDisabled(true);
+	mActions[LC_EDIT_ACTION_PAN]->setDisabled(true);
+	mActions[LC_EDIT_ACTION_ROTATE_VIEW]->setDisabled(true);
+	mActions[LC_EDIT_ACTION_ZOOM_REGION]->setDisabled(true);
+	mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT]->setDisabled(true);
+	mActions[LC_EDIT_ACTION_CLEAR_TRANSFORM]->setDisabled(true);
 
 /*** LPub3D Mod end ***/
 
@@ -369,11 +369,11 @@ void lcMainWindow::CreateActions()
 
 /*** LPub3D Mod - add edit rotstep icon ***/
 	QIcon EditActionRotstepIcon;
-    EditActionRotstepIcon.addFile(":/resources/edit_rotatestep.png");
-    EditActionRotstepIcon.addFile(":/resources/edit_rotatestep_16.png");
-    mActions[LC_EDIT_ACTION_ROTATESTEP]->setIcon(EditActionRotstepIcon);
+	EditActionRotstepIcon.addFile(":/resources/edit_rotatestep.png");
+	EditActionRotstepIcon.addFile(":/resources/edit_rotatestep_16.png");
+	mActions[LC_EDIT_ACTION_ROTATESTEP]->setIcon(EditActionRotstepIcon);
 
-    mActions[LC_EDIT_ACTION_CLEAR_TRANSFORM]->setIcon(QIcon(":/resources/clear_transform.png"));
+	mActions[LC_EDIT_ACTION_CLEAR_TRANSFORM]->setIcon(QIcon(":/resources/clear_transform.png"));
 /*** LPub3D Mod end ***/
 
 	mActions[LC_EDIT_ACTION_CAMERA]->setIcon(QIcon(":/resources/action_camera.png"));
@@ -439,12 +439,12 @@ void lcMainWindow::CreateActions()
 	}
 
 /*** LPub3D Mod - coord format ***/
-    QActionGroup* ActionCoordFormatTypeGroup = new QActionGroup(this);
-    for (int ActionIdx = LC_EDIT_ROTATESTEP_COORD_FORMAT_LDRAW; ActionIdx <= LC_EDIT_ROTATESTEP_COORD_FORMAT_LEOCAD; ActionIdx++)
-    {
-        mActions[ActionIdx]->setCheckable(true);
-        ActionCoordFormatTypeGroup->addAction(mActions[ActionIdx]);
-    }
+	QActionGroup* ActionCoordFormatTypeGroup = new QActionGroup(this);
+	for (int ActionIdx = LC_EDIT_ROTATESTEP_COORD_FORMAT_LDRAW; ActionIdx <= LC_EDIT_ROTATESTEP_COORD_FORMAT_LEOCAD; ActionIdx++)
+	{
+		mActions[ActionIdx]->setCheckable(true);
+		ActionCoordFormatTypeGroup->addAction(mActions[ActionIdx]);
+	}
 /*** LPub3D Mod end ***/
 
 	QActionGroup* ActionToolGroup = new QActionGroup(this);
@@ -454,8 +454,8 @@ void lcMainWindow::CreateActions()
 		ActionToolGroup->addAction(mActions[ActionIdx]);
 	}
 /*** LPub3D Mod - undo set rotestep and clear transform checkable ***/
-    mActions[LC_EDIT_ACTION_ROTATESTEP]->setCheckable(false);
-    mActions[LC_EDIT_ACTION_CLEAR_TRANSFORM]->setCheckable(false);
+	mActions[LC_EDIT_ACTION_ROTATESTEP]->setCheckable(false);
+	mActions[LC_EDIT_ACTION_CLEAR_TRANSFORM]->setCheckable(false);
 /*** LPub3D Mod end ***/
 
 	QActionGroup* ActionCameraGroup = new QActionGroup(this);
@@ -517,10 +517,10 @@ void lcMainWindow::CreateMenus()
 	mActions[LC_EDIT_TRANSFORM]->setMenu(TransformMenu);
 
 /*** LPub3D Mod - coord format ***/
-    QMenu* CoordFormatMenu = new QMenu(tr("Coordinate Format"), this);
-    CoordFormatMenu->addAction(mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT_LDRAW]);
-    CoordFormatMenu->addAction(mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT_LEOCAD]);
-    mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT]->setMenu(CoordFormatMenu);
+	QMenu* CoordFormatMenu = new QMenu(tr("Coordinate Format"), this);
+	CoordFormatMenu->addAction(mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT_LDRAW]);
+	CoordFormatMenu->addAction(mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT_LEOCAD]);
+	mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT]->setMenu(CoordFormatMenu);
 /*** LPub3D Mod end ***/
 
 	mCameraMenu = new QMenu(tr("C&ameras"), this);
@@ -556,13 +556,16 @@ void lcMainWindow::CreateMenus()
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_INSERT]);
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_LIGHT]);
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_SPOTLIGHT]);
-	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_CAMERA]);
-	mToolsMenu->addSeparator();
 ***/
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - toolstoolbar camera ***/
+	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_CAMERA]);
+	mToolsMenu->addSeparator();
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - toolstoolbar viewpoint home ***/
-    mToolsMenu->addAction(mActions[LC_VIEW_VIEWPOINT_HOME]);
+	mToolsMenu->addAction(mActions[LC_VIEW_VIEWPOINT_HOME]);
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - toolstoolbar add rotate step ***/
@@ -570,7 +573,7 @@ void lcMainWindow::CreateMenus()
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - toolstoolbar add emport image ***/
-    mToolsMenu->addAction(mActions[LC_FILE_SAVE_IMAGE]);
+	mToolsMenu->addAction(mActions[LC_FILE_SAVE_IMAGE]);
 /*** LPub3D Mod end ***/
 
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_SELECT]);
@@ -808,20 +811,22 @@ void lcMainWindow::CreateToolBars()
 	mToolsToolBar->setObjectName("ToolsToolbar");
 	insertToolBarBreak(mToolsToolBar);
 /*** LPub3D Mod - toolstoolbar undo/redo ***/
-    mToolsToolBar->addAction(mActions[LC_EDIT_UNDO]);
-    mToolsToolBar->addAction(mActions[LC_EDIT_REDO]);
+	mToolsToolBar->addAction(mActions[LC_EDIT_UNDO]);
+	mToolsToolBar->addAction(mActions[LC_EDIT_REDO]);
 /*** LPub3D Mod end ***/
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_INSERT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_LIGHT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_SPOTLIGHT]);
-	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_CAMERA]);
+/*** LPub3D Mod - moved lower down on menu ***/
+//	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_CAMERA]);
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - toolstoolbar snap angle ***/
-    mToolsToolBar->addSeparator();
-    mToolsToolBar->addAction(AngleAction);                       // Snap Rotations to Fixed Intervals menu item
+	mToolsToolBar->addSeparator();
+	mToolsToolBar->addAction(AngleAction);                       // Snap Rotations to Fixed Intervals menu item
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - toolstoolbar viewpoint home ***/
-    mToolsToolBar->addAction(mActions[LC_VIEW_VIEWPOINT_HOME]);
+	mToolsToolBar->addAction(mActions[LC_VIEW_VIEWPOINT_HOME]);
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - toolstoolbar rotate step ***/
@@ -841,6 +846,10 @@ void lcMainWindow::CreateToolBars()
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROTATE_VIEW]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROLL]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ZOOM_REGION]);
+/*** LPub3D Mod - moved from highter up ***/
+	mToolsToolBar->addAction(mActions[LC_FILE_SAVE_IMAGE]);
+	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_CAMERA]);
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Disable ToolBar hide ***/
 	//mToolsToolBar->hide();
 /*** LPub3D Mod end ***/
@@ -886,10 +895,10 @@ void lcMainWindow::CreateToolBars()
 	TransformWidget->setLayout(TransformLayout);
 
 /*** LPub3D Mod - coord format ***/
-    QToolButton* CoordFormatButton = new QToolButton(TransformWidget);
-    CoordFormatButton->setDefaultAction(mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT]);
-    CoordFormatButton->setPopupMode(QToolButton::InstantPopup);
-    TransformLayout->addWidget(CoordFormatButton);
+	QToolButton* CoordFormatButton = new QToolButton(TransformWidget);
+	CoordFormatButton->setDefaultAction(mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT]);
+	CoordFormatButton->setPopupMode(QToolButton::InstantPopup);
+	TransformLayout->addWidget(CoordFormatButton);
 /*** LPub3D Mod end ***/
 
 	QToolButton* TransformButton = new QToolButton(TransformWidget);
@@ -898,23 +907,23 @@ void lcMainWindow::CreateToolBars()
 	TransformLayout->addWidget(TransformButton);
 
 /*** LPub3D Mod - Add transform X,Y,Z status messages ***/
-    QLabel* mTransformLabel;
-    mTransformLabel = new QLabel(" X:");
-    TransformLayout->addWidget(mTransformLabel);
-    mTransformXEdit = new lcTransformLineEdit();
-    TransformLayout->addWidget(mTransformXEdit);
-    mTransformLabel = new QLabel(" Y:");
-    TransformLayout->addWidget(mTransformLabel);
-    mTransformYEdit = new lcTransformLineEdit();
-    TransformLayout->addWidget(mTransformYEdit);
-    mTransformLabel = new QLabel(" Z:");
-    TransformLayout->addWidget(mTransformLabel);
-    mTransformZEdit = new lcTransformLineEdit();
-    TransformLayout->addWidget(mTransformZEdit);
+	QLabel* mTransformLabel;
+	mTransformLabel = new QLabel(" X:");
+	TransformLayout->addWidget(mTransformLabel);
+	mTransformXEdit = new lcTransformLineEdit();
+	TransformLayout->addWidget(mTransformXEdit);
+	mTransformLabel = new QLabel(" Y:");
+	TransformLayout->addWidget(mTransformLabel);
+	mTransformYEdit = new lcTransformLineEdit();
+	TransformLayout->addWidget(mTransformYEdit);
+	mTransformLabel = new QLabel(" Z:");
+	TransformLayout->addWidget(mTransformLabel);
+	mTransformZEdit = new lcTransformLineEdit();
+	TransformLayout->addWidget(mTransformZEdit);
 
-    QToolButton* ClearTransformButton = new QToolButton(TransformWidget);
-    ClearTransformButton->setDefaultAction(mActions[LC_EDIT_ACTION_CLEAR_TRANSFORM]);
-    TransformLayout->addWidget(ClearTransformButton);
+	QToolButton* ClearTransformButton = new QToolButton(TransformWidget);
+	ClearTransformButton->setDefaultAction(mActions[LC_EDIT_ACTION_CLEAR_TRANSFORM]);
+	TransformLayout->addWidget(ClearTransformButton);
 /*** LPub3D Mod end ***/
 
 	PropertiesLayout->addWidget(TransformWidget);
@@ -948,32 +957,31 @@ void lcMainWindow::CreateToolBars()
 	mPartsToolBar->setVisible(false);
 	mColorsToolBar->setVisible(false);
 
-    // remove Tools actions
-    mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_INSERT]);
-    mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_LIGHT]);
-    mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_SPOTLIGHT]);
-    mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_CAMERA]);
-    mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_MOVE]);
-    mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_ROLL]);
-    mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_DELETE]);
-    mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_PAINT]);
+	// remove Tools actions
+	mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_INSERT]);
+	mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_LIGHT]);
+	mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_SPOTLIGHT]);
+	mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_MOVE]);
+	mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_ROLL]);
+	mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_DELETE]);
+	mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_PAINT]);
 
-    foreach(QAction* tbAction, mToolsToolBar->actions())
-    {
-        if (tbAction->isSeparator()) {
-            mToolsToolBar->removeAction(tbAction);
-            break;      //remove first separator only
-        }
-    }
+	foreach(QAction* tbAction, mToolsToolBar->actions())
+	{
+		if (tbAction->isSeparator()) {
+			mToolsToolBar->removeAction(tbAction);
+			break;      //remove first separator only
+		}
+	}
 /*** LPub3D Mod end ***/
 }
 
 void lcMainWindow::CreateStatusBar()
 {
 /*** LPub3D Mod - statusbar management ***/
-        setStatusBar(mLCStatusBar);
-        //QStatusBar* StatusBar = new QStatusBar(this);
-        //setStatusBar(StatusBar);
+	setStatusBar(mLCStatusBar);
+	//QStatusBar* StatusBar = new QStatusBar(this);
+	//setStatusBar(StatusBar);
 
 	mStatusBarLabel = new QLabel();
 	mLCStatusBar->addWidget(mStatusBarLabel);
@@ -1044,9 +1052,9 @@ QMenu* lcMainWindow::createPopupMenu()
 	Menu->removeAction(mColorsToolBar->toggleViewAction());
 	Menu->removeAction(mStandardToolBar->toggleViewAction());
 	Menu->removeAction(mTimeToolBar->toggleViewAction());
-    Menu->removeAction(mStandardToolBar->toggleViewAction());
-    Menu->removeAction(mToolsToolBar->toggleViewAction());
-    Menu->removeAction(mTimeToolBar->toggleViewAction());
+	Menu->removeAction(mStandardToolBar->toggleViewAction());
+	Menu->removeAction(mToolsToolBar->toggleViewAction());
+	Menu->removeAction(mTimeToolBar->toggleViewAction());
 /*** LPub3D Mod end ***/
 	return Menu;
 }
@@ -1081,126 +1089,130 @@ void lcMainWindow::UpdateGamepads()
 
 /*** LPub3D Mod - Timeline part icons ***/
 bool lcMainWindow::IsLPub3DSubModel(QString &Piece){
-    return gui->isSubmodel(Piece);
+	return gui->isSubmodel(Piece);
 }
 const QString lcMainWindow::GetPliIconsPath(QString &key)
 {
-    return gui->GetPliIconsPath(key);
+	return gui->GetPliIconsPath(key);
 }
 const QString lcMainWindow::GetFadeStepsColor()
 {
-    return LDrawColor::ldColorCode(Preferences::validFadeStepsColour);
+	return LDrawColor::ldColorCode(Preferences::validFadeStepsColour);
 }
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Enable3DActions ***/
 void lcMainWindow::Enable3DActions()
 {
-        //File
-        mActions[LC_FILE_RENDER]->setEnabled(true);
-        //Export
-        mActions[LC_FILE_EXPORT_3DS]->setEnabled(true);
-        mActions[LC_FILE_EXPORT_BRICKLINK]->setEnabled(true);
-        mActions[LC_FILE_EXPORT_COLLADA]->setEnabled(true);
-        mActions[LC_FILE_EXPORT_CSV]->setEnabled(true);
-        mActions[LC_FILE_EXPORT_HTML]->setEnabled(true);
-        mActions[LC_FILE_EXPORT_POVRAY]->setEnabled(true);
-        mActions[LC_FILE_EXPORT_WAVEFRONT]->setEnabled(true);
-        //Tools
-        mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(true);
-        mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT]->setEnabled(true);
-        mActions[LC_EDIT_ACTION_CLEAR_TRANSFORM]->setEnabled(true);
-        mActions[LC_EDIT_ACTION_SELECT]->setEnabled(true);
-        mActions[LC_EDIT_ACTION_ROTATE]->setEnabled(true);
-        mActions[LC_EDIT_ACTION_PAN]->setEnabled(true);
-        mActions[LC_EDIT_ACTION_ROTATE_VIEW]->setEnabled(true);
-        mActions[LC_EDIT_ACTION_ZOOM_REGION]->setEnabled(true);
-        //Shading
-        mActions[LC_VIEW_SHADING_WIREFRAME]->setEnabled(true);
-        mActions[LC_VIEW_SHADING_FLAT]->setEnabled(true);
-        mActions[LC_VIEW_SHADING_DEFAULT_LIGHTS]->setEnabled(true);
-        //View
-        mActions[LC_EDIT_ACTION_ZOOM]->setEnabled(true);
-        mActions[LC_VIEW_ZOOM_EXTENTS]->setEnabled(true);
-        mActions[LC_VIEW_LOOK_AT]->setEnabled(true);
-        mActions[LC_VIEW_SPLIT_HORIZONTAL]->setEnabled(true);
-        mActions[LC_VIEW_SPLIT_VERTICAL]->setEnabled(true);
-        mActions[LC_VIEW_REMOVE_VIEW]->setEnabled(true);
-        mActions[LC_VIEW_RESET_VIEWS]->setEnabled(true);
-        mActions[LC_VIEW_VIEWPOINT_FRONT]->setEnabled(true);
-        mActions[LC_VIEW_VIEWPOINT_BACK]->setEnabled(true);
-        mActions[LC_VIEW_VIEWPOINT_LEFT]->setEnabled(true);
-        mActions[LC_VIEW_VIEWPOINT_RIGHT]->setEnabled(true);
-        mActions[LC_VIEW_VIEWPOINT_TOP]->setEnabled(true);
-        mActions[LC_VIEW_VIEWPOINT_BOTTOM]->setEnabled(true);
-        mActions[LC_VIEW_VIEWPOINT_HOME]->setEnabled(true);
-        mActions[LC_VIEW_CAMERA_NONE]->setEnabled(true);
-        mActions[LC_VIEW_CAMERA_RESET]->setEnabled(true);
-        mActions[LC_VIEW_PROJECTION_PERSPECTIVE]->setEnabled(true);
-        mActions[LC_VIEW_PROJECTION_ORTHO]->setEnabled(true);
+	//File
+	mActions[LC_FILE_RENDER]->setEnabled(true);
+	mActions[LC_FILE_SAVE_IMAGE]->setEnabled(true);
+	//Export
+	mActions[LC_FILE_EXPORT_3DS]->setEnabled(true);
+	mActions[LC_FILE_EXPORT_BRICKLINK]->setEnabled(true);
+	mActions[LC_FILE_EXPORT_COLLADA]->setEnabled(true);
+	mActions[LC_FILE_EXPORT_CSV]->setEnabled(true);
+	mActions[LC_FILE_EXPORT_HTML]->setEnabled(true);
+	mActions[LC_FILE_EXPORT_POVRAY]->setEnabled(true);
+	mActions[LC_FILE_EXPORT_WAVEFRONT]->setEnabled(true);
+	//Tools
+	mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(true);
+	mActions[LC_EDIT_ACTION_CAMERA]->setEnabled(true);
+	mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT]->setEnabled(true);
+	mActions[LC_EDIT_ACTION_CLEAR_TRANSFORM]->setEnabled(true);
+	mActions[LC_EDIT_ACTION_SELECT]->setEnabled(true);
+	mActions[LC_EDIT_ACTION_ROTATE]->setEnabled(true);
+	mActions[LC_EDIT_ACTION_PAN]->setEnabled(true);
+	mActions[LC_EDIT_ACTION_ROTATE_VIEW]->setEnabled(true);
+	mActions[LC_EDIT_ACTION_ZOOM_REGION]->setEnabled(true);
+	//Shading
+	mActions[LC_VIEW_SHADING_WIREFRAME]->setEnabled(true);
+	mActions[LC_VIEW_SHADING_FLAT]->setEnabled(true);
+	mActions[LC_VIEW_SHADING_DEFAULT_LIGHTS]->setEnabled(true);
+	//View
+	mActions[LC_EDIT_ACTION_ZOOM]->setEnabled(true);
+	mActions[LC_VIEW_ZOOM_EXTENTS]->setEnabled(true);
+	mActions[LC_VIEW_LOOK_AT]->setEnabled(true);
+	mActions[LC_VIEW_SPLIT_HORIZONTAL]->setEnabled(true);
+	mActions[LC_VIEW_SPLIT_VERTICAL]->setEnabled(true);
+	mActions[LC_VIEW_REMOVE_VIEW]->setEnabled(true);
+	mActions[LC_VIEW_RESET_VIEWS]->setEnabled(true);
+	mActions[LC_VIEW_VIEWPOINT_FRONT]->setEnabled(true);
+	mActions[LC_VIEW_VIEWPOINT_BACK]->setEnabled(true);
+	mActions[LC_VIEW_VIEWPOINT_LEFT]->setEnabled(true);
+	mActions[LC_VIEW_VIEWPOINT_RIGHT]->setEnabled(true);
+	mActions[LC_VIEW_VIEWPOINT_TOP]->setEnabled(true);
+	mActions[LC_VIEW_VIEWPOINT_BOTTOM]->setEnabled(true);
+	mActions[LC_VIEW_VIEWPOINT_HOME]->setEnabled(true);
+	mActions[LC_VIEW_CAMERA_NONE]->setEnabled(true);
+	mActions[LC_VIEW_CAMERA_RESET]->setEnabled(true);
+	mActions[LC_VIEW_PROJECTION_PERSPECTIVE]->setEnabled(true);
+	mActions[LC_VIEW_PROJECTION_ORTHO]->setEnabled(true);
 }
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Disable3DActions ***/
 void lcMainWindow::Disable3DActions()
 {
-        //File
-        mActions[LC_FILE_RENDER]->setEnabled(false);
-        //Export
-        mActions[LC_FILE_EXPORT_3DS]->setEnabled(false);
-        mActions[LC_FILE_EXPORT_BRICKLINK]->setEnabled(false);
-         mActions[LC_FILE_EXPORT_COLLADA]->setEnabled(false);
-        mActions[LC_FILE_EXPORT_CSV]->setEnabled(false);
-        mActions[LC_FILE_EXPORT_HTML]->setEnabled(false);
-        mActions[LC_FILE_EXPORT_POVRAY]->setEnabled(false);
-        mActions[LC_FILE_EXPORT_WAVEFRONT]->setEnabled(false);
-        //Tools
-        mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(false);
-        mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT]->setEnabled(true);
-        mActions[LC_EDIT_ACTION_CLEAR_TRANSFORM]->setEnabled(true);
-        mActions[LC_EDIT_ACTION_SELECT]->setEnabled(false);
-        mActions[LC_EDIT_ACTION_ROTATE]->setEnabled(false);
-        mActions[LC_EDIT_ACTION_PAN]->setEnabled(false);
-        mActions[LC_EDIT_ACTION_ROTATE_VIEW]->setEnabled(false);
-        mActions[LC_EDIT_ACTION_ZOOM_REGION]->setEnabled(false);
-        //Shading
-        mActions[LC_VIEW_SHADING_WIREFRAME]->setEnabled(false);
-        mActions[LC_VIEW_SHADING_FLAT]->setEnabled(false);
-        mActions[LC_VIEW_SHADING_DEFAULT_LIGHTS]->setEnabled(false);
-        //Viewer
-        mActions[LC_EDIT_ACTION_ZOOM]->setEnabled(false);
-        mActions[LC_VIEW_ZOOM_EXTENTS]->setEnabled(false);
-        mActions[LC_VIEW_LOOK_AT]->setEnabled(false);
-        mActions[LC_VIEW_SPLIT_HORIZONTAL]->setEnabled(false);
-        mActions[LC_VIEW_SPLIT_VERTICAL]->setEnabled(false);
-        mActions[LC_VIEW_REMOVE_VIEW]->setEnabled(false);
-        mActions[LC_VIEW_RESET_VIEWS]->setEnabled(false);
-        mActions[LC_VIEW_VIEWPOINT_FRONT]->setEnabled(false);
-        mActions[LC_VIEW_VIEWPOINT_BACK]->setEnabled(false);
-        mActions[LC_VIEW_VIEWPOINT_LEFT]->setEnabled(false);
-        mActions[LC_VIEW_VIEWPOINT_RIGHT]->setEnabled(false);
-        mActions[LC_VIEW_VIEWPOINT_TOP]->setEnabled(false);
-        mActions[LC_VIEW_VIEWPOINT_BOTTOM]->setEnabled(false);
-        mActions[LC_VIEW_VIEWPOINT_HOME]->setEnabled(false);
-        mActions[LC_VIEW_CAMERA_NONE]->setEnabled(false);
-        mActions[LC_VIEW_CAMERA_RESET]->setEnabled(false);
-        mActions[LC_VIEW_PROJECTION_PERSPECTIVE]->setEnabled(false);
-        mActions[LC_VIEW_PROJECTION_ORTHO]->setEnabled(false);
+	//File
+	mActions[LC_FILE_RENDER]->setEnabled(false);
+	mActions[LC_FILE_SAVE_IMAGE]->setEnabled(false);
+	//Export
+	mActions[LC_FILE_EXPORT_3DS]->setEnabled(false);
+	mActions[LC_FILE_EXPORT_BRICKLINK]->setEnabled(false);
+	 mActions[LC_FILE_EXPORT_COLLADA]->setEnabled(false);
+	mActions[LC_FILE_EXPORT_CSV]->setEnabled(false);
+	mActions[LC_FILE_EXPORT_HTML]->setEnabled(false);
+	mActions[LC_FILE_EXPORT_POVRAY]->setEnabled(false);
+	mActions[LC_FILE_EXPORT_WAVEFRONT]->setEnabled(false);
+	//Tools
+	mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(false);
+	mActions[LC_EDIT_ACTION_CAMERA]->setEnabled(false);
+	mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT]->setEnabled(true);
+	mActions[LC_EDIT_ACTION_CLEAR_TRANSFORM]->setEnabled(true);
+	mActions[LC_EDIT_ACTION_SELECT]->setEnabled(false);
+	mActions[LC_EDIT_ACTION_ROTATE]->setEnabled(false);
+	mActions[LC_EDIT_ACTION_PAN]->setEnabled(false);
+	mActions[LC_EDIT_ACTION_ROTATE_VIEW]->setEnabled(false);
+	mActions[LC_EDIT_ACTION_ZOOM_REGION]->setEnabled(false);
+	//Shading
+	mActions[LC_VIEW_SHADING_WIREFRAME]->setEnabled(false);
+	mActions[LC_VIEW_SHADING_FLAT]->setEnabled(false);
+	mActions[LC_VIEW_SHADING_DEFAULT_LIGHTS]->setEnabled(false);
+	//Viewer
+	mActions[LC_EDIT_ACTION_ZOOM]->setEnabled(false);
+	mActions[LC_VIEW_ZOOM_EXTENTS]->setEnabled(false);
+	mActions[LC_VIEW_LOOK_AT]->setEnabled(false);
+	mActions[LC_VIEW_SPLIT_HORIZONTAL]->setEnabled(false);
+	mActions[LC_VIEW_SPLIT_VERTICAL]->setEnabled(false);
+	mActions[LC_VIEW_REMOVE_VIEW]->setEnabled(false);
+	mActions[LC_VIEW_RESET_VIEWS]->setEnabled(false);
+	mActions[LC_VIEW_VIEWPOINT_FRONT]->setEnabled(false);
+	mActions[LC_VIEW_VIEWPOINT_BACK]->setEnabled(false);
+	mActions[LC_VIEW_VIEWPOINT_LEFT]->setEnabled(false);
+	mActions[LC_VIEW_VIEWPOINT_RIGHT]->setEnabled(false);
+	mActions[LC_VIEW_VIEWPOINT_TOP]->setEnabled(false);
+	mActions[LC_VIEW_VIEWPOINT_BOTTOM]->setEnabled(false);
+	mActions[LC_VIEW_VIEWPOINT_HOME]->setEnabled(false);
+	mActions[LC_VIEW_CAMERA_NONE]->setEnabled(false);
+	mActions[LC_VIEW_CAMERA_RESET]->setEnabled(false);
+	mActions[LC_VIEW_PROJECTION_PERSPECTIVE]->setEnabled(false);
+	mActions[LC_VIEW_PROJECTION_ORTHO]->setEnabled(false);
 }
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Halt3DViewer ***/
 void lcMainWindow::Halt3DViewer(bool b)
 {
-       logStatus() << "2. lcMainWindow (SLOT) Halt3DViewer Status: " << b;
+	logStatus() << "2. lcMainWindow (SLOT) Halt3DViewer Status: " << b;
 
-       if(b){
-           mToolsToolBar->setEnabled(false);
-           menuBar()->setEnabled(false);
-       } else {
-           mToolsToolBar->setEnabled(true);
-           menuBar()->setEnabled(true);
-       }
+	if(b){
+		mToolsToolBar->setEnabled(false);
+		menuBar()->setEnabled(false);
+	} else {
+		mToolsToolBar->setEnabled(true);
+		menuBar()->setEnabled(true);
+	}
 }
 /*** LPub3D Mod end ***/
 
@@ -1210,35 +1222,35 @@ void lcMainWindow::SetStepRotStepMeta(lcCommandId CommandId)
   bool okToPropagate = false;
 
   if (CommandId == LC_EDIT_TRANSFORM){
-      QString TransformType = (GetTransformType() == LC_TRANSFORM_RELATIVE_ROTATION) ? "REL" :
-                              (GetTransformType() == LC_TRANSFORM_ABSOLUTE_ROTATION) ? "ABS" : QString();
-      lcVector3 RotStepAngles = GetRotStepTransformAmount();
-      okToPropagate = ((mExistingRotStep != RotStepAngles) ||
-                       (mRotStepTransform != TransformType));
-      if (okToPropagate) {
-          emit SetRotStepAngleX(RotStepAngles.x);
-          emit SetRotStepAngleY(RotStepAngles.y);
-          emit SetRotStepAngleZ(RotStepAngles.z);
-          emit SetRotStepTransform(TransformType);
-          mExistingRotStep = RotStepAngles;
-          mRotStepTransform = TransformType;
-      } else {
-          emit gui->statusBarMsg(QString("ROTSTEP %1 %2 %3 %7 and entered %4 %5 %6 %8 are the same. Nothing to do.")
-                                         .arg(QString::number(mExistingRotStep[0], 'f', 2),
-                                              QString::number(mExistingRotStep[1], 'f', 2),
-                                              QString::number(mExistingRotStep[2], 'f', 2),
-                                              QString::number(RotStepAngles[0], 'f', 2),
-                                              QString::number(RotStepAngles[1], 'f', 2),
-                                              QString::number(RotStepAngles[2], 'f', 2))
-                                          .arg(mRotStepTransform,TransformType));
-      }
+	  QString TransformType = (GetTransformType() == LC_TRANSFORM_RELATIVE_ROTATION) ? "REL" :
+							  (GetTransformType() == LC_TRANSFORM_ABSOLUTE_ROTATION) ? "ABS" : QString();
+	  lcVector3 RotStepAngles = GetRotStepTransformAmount();
+	  okToPropagate = ((mExistingRotStep != RotStepAngles) ||
+					   (mRotStepTransform != TransformType));
+	  if (okToPropagate) {
+		  emit SetRotStepAngleX(RotStepAngles.x);
+		  emit SetRotStepAngleY(RotStepAngles.y);
+		  emit SetRotStepAngleZ(RotStepAngles.z);
+		  emit SetRotStepTransform(TransformType);
+		  mExistingRotStep = RotStepAngles;
+		  mRotStepTransform = TransformType;
+	  } else {
+		  emit gui->statusBarMsg(QString("ROTSTEP %1 %2 %3 %7 and entered %4 %5 %6 %8 are the same. Nothing to do.")
+										 .arg(QString::number(mExistingRotStep[0], 'f', 2),
+											  QString::number(mExistingRotStep[1], 'f', 2),
+											  QString::number(mExistingRotStep[2], 'f', 2),
+											  QString::number(RotStepAngles[0], 'f', 2),
+											  QString::number(RotStepAngles[1], 'f', 2),
+											  QString::number(RotStepAngles[2], 'f', 2))
+										  .arg(mRotStepTransform,TransformType));
+	  }
   } else if (CommandId == LC_EDIT_ACTION_ROTATESTEP) {
-      okToPropagate = true;
+	  okToPropagate = true;
   }
 
   if (okToPropagate) {
-      emit SetRotStepMeta();
-      UpdateAllViews();
+	  emit SetRotStepMeta();
+	  UpdateAllViews();
   }
 }
 /*** LPub3D Mod end ***/
@@ -1252,35 +1264,35 @@ void lcMainWindow::GetRotStepMetaAngles()
   lcVector3 MouseToolDistance = mModel->SnapRotation(mModel->GetMouseToolDistance());
 
   if (mView->mTrackButton != LC_TRACKBUTTON_NONE)
-    {
-      bool display = true;
-      lcVector3 mExistingRotStep = GetRotStepMeta();
-      lcVector3 RotStepAngles = lcVector3(0.0f,0.0f,0.0f);
-      switch (GetActiveView()->mTrackTool)
-        {
-        case LC_TRACKTOOL_ROTATE_X:
-          RotStepAngles.x = normaliseRotation(MouseToolDistance[0] + mExistingRotStep[0],-360.0,360.0);
-          emit SetRotStepAngleX(RotStepAngles.x,display);
-          qDebug() << "Rotate X: " << RotStepAngles.x;
-          break;
-        case LC_TRACKTOOL_ROTATE_Y:
-          RotStepAngles.y = normaliseRotation(MouseToolDistance[1] + mExistingRotStep[2],-360.0,360.0);
-          emit SetRotStepAngleZ(RotStepAngles.y,display);          //Switch Y and Z coordinates to match LDraw
-          qDebug() << "Rotate Y(Z): " << RotStepAngles.y;
-          break;
-        case LC_TRACKTOOL_ROTATE_Z:
-          RotStepAngles.z = normaliseRotation(MouseToolDistance[2] - mExistingRotStep[1],-360.0,360.0);
-          emit SetRotStepAngleY(-RotStepAngles.z,display);         //LDraw Y axis is vertical, with negative value in the up direction
-          qDebug() << "Rotate Z(Y): " << -RotStepAngles.z;
-          break;
-        default:
-          RotStepAngles = lcVector3(0.0f,0.0f,0.0f);
-          break;
-        };
-      QString Transform = (GetTransformType() == LC_TRANSFORM_RELATIVE_ROTATION) ? "REL" :
-                          (GetTransformType() == LC_TRANSFORM_ABSOLUTE_ROTATION) ? "ABS" : QString();
-      emit SetRotStepTransform(Transform,display);
-    }
+	{
+	  bool display = true;
+	  lcVector3 mExistingRotStep = GetRotStepMeta();
+	  lcVector3 RotStepAngles = lcVector3(0.0f,0.0f,0.0f);
+	  switch (GetActiveView()->mTrackTool)
+		{
+		case LC_TRACKTOOL_ROTATE_X:
+		  RotStepAngles.x = normaliseRotation(MouseToolDistance[0] + mExistingRotStep[0],-360.0,360.0);
+		  emit SetRotStepAngleX(RotStepAngles.x,display);
+		  qDebug() << "Rotate X: " << RotStepAngles.x;
+		  break;
+		case LC_TRACKTOOL_ROTATE_Y:
+		  RotStepAngles.y = normaliseRotation(MouseToolDistance[1] + mExistingRotStep[2],-360.0,360.0);
+		  emit SetRotStepAngleZ(RotStepAngles.y,display);          //Switch Y and Z coordinates to match LDraw
+		  qDebug() << "Rotate Y(Z): " << RotStepAngles.y;
+		  break;
+		case LC_TRACKTOOL_ROTATE_Z:
+		  RotStepAngles.z = normaliseRotation(MouseToolDistance[2] - mExistingRotStep[1],-360.0,360.0);
+		  emit SetRotStepAngleY(-RotStepAngles.z,display);         //LDraw Y axis is vertical, with negative value in the up direction
+		  qDebug() << "Rotate Z(Y): " << -RotStepAngles.z;
+		  break;
+		default:
+		  RotStepAngles = lcVector3(0.0f,0.0f,0.0f);
+		  break;
+		};
+	  QString Transform = (GetTransformType() == LC_TRANSFORM_RELATIVE_ROTATION) ? "REL" :
+						  (GetTransformType() == LC_TRANSFORM_ABSOLUTE_ROTATION) ? "ABS" : QString();
+	  emit SetRotStepTransform(Transform,display);
+	}
 }
 /*** LPub3D Mod end ***/
 
@@ -1289,32 +1301,32 @@ void lcMainWindow::ParseAndSetRotStep(QTextStream& LineStream)
 {
   while (!LineStream.atEnd())
   {
-      mExistingRotStep = lcVector3(0.0f,0.0f,0.0f);
-      mRotStepTransform = QString();
-      QString Token;
-      LineStream >> Token;
+	  mExistingRotStep = lcVector3(0.0f,0.0f,0.0f);
+	  mRotStepTransform = QString();
+	  QString Token;
+	  LineStream >> Token;
 
-      if (Token == QLatin1String("ROTSTEP")) {
+	  if (Token == QLatin1String("ROTSTEP")) {
 
-          LineStream >> Token;
+		  LineStream >> Token;
 
-          if(Token == QLatin1String("REL")) {
-              SetTransformType(LC_TRANSFORM_RELATIVE_ROTATION);
-              mRotStepTransform = Token;
-          } else
-          if(Token == QLatin1String("ABS")) {
-              SetTransformType(LC_TRANSFORM_ABSOLUTE_ROTATION);
-              mRotStepTransform = Token;
-          }
+		  if(Token == QLatin1String("REL")) {
+			  SetTransformType(LC_TRANSFORM_RELATIVE_ROTATION);
+			  mRotStepTransform = Token;
+		  } else
+		  if(Token == QLatin1String("ABS")) {
+			  SetTransformType(LC_TRANSFORM_ABSOLUTE_ROTATION);
+			  mRotStepTransform = Token;
+		  }
 
-          LineStream >> mExistingRotStep[0] >> mExistingRotStep[1] >> mExistingRotStep[2];
+		  LineStream >> mExistingRotStep[0] >> mExistingRotStep[1] >> mExistingRotStep[2];
 
-          emit SetRotStepAngleX(mExistingRotStep.x);
-          emit SetRotStepAngleY(mExistingRotStep.y);
-          emit SetRotStepAngleZ(mExistingRotStep.z);
-          emit SetRotStepTransform(mRotStepTransform);
-          break;
-      }
+		  emit SetRotStepAngleX(mExistingRotStep.x);
+		  emit SetRotStepAngleY(mExistingRotStep.y);
+		  emit SetRotStepAngleZ(mExistingRotStep.z);
+		  emit SetRotStepTransform(mRotStepTransform);
+		  break;
+	  }
    }
 }
 /*** LPub3D Mod end ***/
@@ -2130,29 +2142,29 @@ void lcMainWindow::SetTransformType(lcTransformType TransformType)
 /*** LPub3D Mod - Rotate Step ***/
 void lcMainWindow::SetRotateStepCoordType(lcRotateStepCoordType RotateStepCoordType)
 {
-    mRotateStepCoordType = RotateStepCoordType;
+	mRotateStepCoordType = RotateStepCoordType;
 
-    const char* IconNames[] =
-    {
-        ":/resources/edit_rotatestep_coord_format_ldraw.png",
-        ":/resources/edit_rotatestep_coord_format_leocad.png"
-    };
+	const char* IconNames[] =
+	{
+		":/resources/edit_rotatestep_coord_format_ldraw.png",
+		":/resources/edit_rotatestep_coord_format_leocad.png"
+	};
 
-    const char* StatusMessages[] =
-    {
-        "LDraw Format - Enter ROTSTEP meta",
-        "3DViewer Format - Enter ROTSTEP meta"
-    };
+	const char* StatusMessages[] =
+	{
+		"LDraw Format - Enter ROTSTEP meta",
+		"3DViewer Format - Enter ROTSTEP meta"
+	};
 
-    if (RotateStepCoordType >= 0 && RotateStepCoordType <= 1)
-    {
-        mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT_LDRAW + RotateStepCoordType]->setChecked(true);
-        mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT]->setIcon(QIcon(IconNames[RotateStepCoordType]));
+	if (RotateStepCoordType >= 0 && RotateStepCoordType <= 1)
+	{
+		mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT_LDRAW + RotateStepCoordType]->setChecked(true);
+		mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT]->setIcon(QIcon(IconNames[RotateStepCoordType]));
 
-        mTransformXEdit->setStatusTip(tr("%1 X coordinate").arg(StatusMessages[RotateStepCoordType]));
-        mTransformYEdit->setStatusTip(tr("%1 Y coordinate").arg(StatusMessages[RotateStepCoordType]));
-        mTransformZEdit->setStatusTip(tr("%1 Z coordinate").arg(StatusMessages[RotateStepCoordType]));
-    }
+		mTransformXEdit->setStatusTip(tr("%1 X coordinate").arg(StatusMessages[RotateStepCoordType]));
+		mTransformYEdit->setStatusTip(tr("%1 Y coordinate").arg(StatusMessages[RotateStepCoordType]));
+		mTransformZEdit->setStatusTip(tr("%1 Z coordinate").arg(StatusMessages[RotateStepCoordType]));
+	}
 }
 /*** LPub3D Mod end ***/
 
@@ -2178,11 +2190,11 @@ lcVector3 lcMainWindow::GetTransformAmount()
 	Transform.z = lcParseValueLocalized(mTransformZEdit->text());
 
 /*** LPub3D Mod - rotstep transform ***/
-    if (GetRotateStepCoordType() == LC_ROTATESTEP_COORD_FORMAT_LDRAW)
-       return lcVector3LDrawToLeoCAD(Transform);
+	if (GetRotateStepCoordType() == LC_ROTATESTEP_COORD_FORMAT_LDRAW)
+	   return lcVector3LDrawToLeoCAD(Transform);
 /*** LPub3D Mod end ***/
 
-    return Transform;
+	return Transform;
 }
 
 /*** LPub3D Mod - rotstep transform ***/
@@ -2194,8 +2206,8 @@ lcVector3 lcMainWindow::GetRotStepTransformAmount()
 	Transform.y = lcParseValueLocalized(mTransformYEdit->text());
 	Transform.z = lcParseValueLocalized(mTransformZEdit->text());
 
-    if (GetRotateStepCoordType() == LC_ROTATESTEP_COORD_FORMAT_LEOCAD)
-       return lcVector3LeoCADToLDraw(Transform);
+	if (GetRotateStepCoordType() == LC_ROTATESTEP_COORD_FORMAT_LEOCAD)
+	   return lcVector3LeoCADToLDraw(Transform);
 
 	return Transform;
 }
@@ -2380,21 +2392,21 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged)
 	lcGetActiveModel()->GetSelectionInformation(&Flags, Selection, &Focus);
 
 /*** LPub3D Mod - Select whole model if Rotate Tool selected  ***/
-    lcTool Tool = GetTool();
-    QAction* Action = mActions[LC_EDIT_ACTION_FIRST + Tool];
-    if (Tool == LC_TOOL_ROTATE && Action && Action->isChecked()) {
-        View* ActiveView = GetActiveView();
-        lcModel* ActiveModel = ActiveView ? ActiveView->GetActiveModel() : nullptr;
-        if (ActiveModel) {
-            for (lcPiece* Piece : ActiveModel->GetPieces())
-                if (Piece->IsVisible(ActiveModel->GetCurrentStep()))
-                    Piece->SetSelected(true);
-            if (!SelectionChanged)
-                SelectionChanged = true;
-            lcObject* ThrowAway;
-            lcGetActiveModel()->GetSelectionInformation(&Flags, Selection, &ThrowAway);
-        }
-    }
+	lcTool Tool = GetTool();
+	QAction* Action = mActions[LC_EDIT_ACTION_FIRST + Tool];
+	if (Tool == LC_TOOL_ROTATE && Action && Action->isChecked()) {
+		View* ActiveView = GetActiveView();
+		lcModel* ActiveModel = ActiveView ? ActiveView->GetActiveModel() : nullptr;
+		if (ActiveModel) {
+			for (lcPiece* Piece : ActiveModel->GetPieces())
+				if (Piece->IsVisible(ActiveModel->GetCurrentStep()))
+					Piece->SetSelected(true);
+			if (!SelectionChanged)
+				SelectionChanged = true;
+			lcObject* ThrowAway;
+			lcGetActiveModel()->GetSelectionInformation(&Flags, Selection, &ThrowAway);
+		}
+	}
 /*** LPub3D Mod end ***/
 
 	if (SelectionChanged)
@@ -2455,8 +2467,8 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged)
 		if (Focus && Focus->IsPiece())
 		{
 /*** LPub3D Mod - add transformation focus part message    ***/
-            QString focusPart = GetTool() == LC_TOOL_ROTATE ? ". Transform focus object: " : " -";
-            Message.append(tr("%1 %2 (ID: %3)").arg(focusPart).arg(Focus->GetName()).arg(((lcPiece*)Focus)->GetID()));
+			QString focusPart = GetTool() == LC_TOOL_ROTATE ? ". Transform focus object: " : " -";
+			Message.append(tr("%1 %2 (ID: %3)").arg(focusPart).arg(Focus->GetName()).arg(((lcPiece*)Focus)->GetID()));
 /*** LPub3D Mod end ***/
 			const lcGroup* Group = ((lcPiece*)Focus)->GetGroup();
 			if (Group && !Group->mName.isEmpty())
@@ -2465,7 +2477,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged)
 	}
 
 /*** LPub3D Mod - replace mStatusBarLabel    ***/
-    statusBar()->showMessage(Message);
+	statusBar()->showMessage(Message);
 /*** LPub3D Mod end ***/
 
 	lcVector3 Position;
@@ -3641,16 +3653,16 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		if (ActiveModel)
 			ActiveModel->TransformSelectedObjects(GetTransformType(), GetTransformAmount());
 /*** LPub3D Mod - rotate step objects ***/
-        SetStepRotStepMeta(LC_EDIT_TRANSFORM);
+		SetStepRotStepMeta(LC_EDIT_TRANSFORM);
 		break;
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - coord format ***/
-    case LC_EDIT_ROTATESTEP_COORD_FORMAT:
-    case LC_EDIT_ROTATESTEP_COORD_FORMAT_LDRAW:
-    case LC_EDIT_ROTATESTEP_COORD_FORMAT_LEOCAD:
-        SetRotateStepCoordType((lcRotateStepCoordType)(CommandId - LC_EDIT_ROTATESTEP_COORD_FORMAT_LDRAW));
-        break;
+	case LC_EDIT_ROTATESTEP_COORD_FORMAT:
+	case LC_EDIT_ROTATESTEP_COORD_FORMAT_LDRAW:
+	case LC_EDIT_ROTATESTEP_COORD_FORMAT_LEOCAD:
+		SetRotateStepCoordType((lcRotateStepCoordType)(CommandId - LC_EDIT_ROTATESTEP_COORD_FORMAT_LDRAW));
+		break;
 /*** LPub3D Mod end ***/
 
 	case LC_EDIT_TRANSFORM_ABSOLUTE_TRANSLATION:
@@ -3687,7 +3699,7 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 	case LC_EDIT_ACTION_ROTATE:
 		SetTool(LC_TOOL_ROTATE);
 /*** LPub3D Mod - rotate step ***/
-        if (ActiveModel)
+		if (ActiveModel)
 			ActiveModel->SelectAllPieces();
 /*** LPub3D Mod end ***/
 		break;
@@ -3723,14 +3735,14 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 /*** LPub3D Mod - rotate step objects ***/
 	case LC_EDIT_ACTION_ROTATESTEP:
 		SetTool(LC_TOOL_ROTATESTEP);
-        SetStepRotStepMeta(LC_EDIT_ACTION_ROTATESTEP);
+		SetStepRotStepMeta(LC_EDIT_ACTION_ROTATESTEP);
 
-        break;
-    case LC_EDIT_ACTION_CLEAR_TRANSFORM:
-        mTransformXEdit->clear();
-        mTransformYEdit->clear();
-        mTransformZEdit->clear();
-        break;
+		break;
+	case LC_EDIT_ACTION_CLEAR_TRANSFORM:
+		mTransformXEdit->clear();
+		mTransformYEdit->clear();
+		mTransformZEdit->clear();
+		break;
 /*** LPub3D Mod end ***/
 	case LC_EDIT_CANCEL:
 		if (ActiveView)

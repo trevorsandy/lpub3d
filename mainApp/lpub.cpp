@@ -4756,7 +4756,6 @@ void Gui::createDockWindows()
     gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setIcon(QIcon(":/resources/saveimage.png"));
     gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setShortcut(tr("Alt+0"));
     gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setStatusTip(tr("Save an image of the current view - Alt+0"));
-    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_FILE_SAVE_IMAGE]);
     viewerDockWindow = new QDockWidget(trUtf8(wCharToUtf8("3DViewer")), this);
     viewerDockWindow->setObjectName("ModelDockWindow");
     viewerDockWindow->setAllowedAreas(
