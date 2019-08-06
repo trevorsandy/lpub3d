@@ -39,6 +39,8 @@ public slots:
     void on_OutputBrowseButton_clicked();
     void on_LdvLDrawPreferencesButton_clicked();
     void on_LdvExportSettingsButton_clicked();
+    void on_ResetButton_clicked();
+    void textChanged(const QString &);
     void Update();
 
 protected slots:
@@ -46,6 +48,7 @@ protected slots:
     void UpdateElapsedTime();
 
 protected:
+    void resizeEvent(QResizeEvent* event);
     QString GetOutputFileName() const;
     QString GetPOVFileName() const;
     QString GetLogFileName() const;
@@ -64,6 +67,15 @@ protected:
     QStringList mCsiKeyList;
     QString mViewerCsiKey;
     QString mModelFile;
+
+    int mWidth;
+    int mHeight;
+    int mValue;
+    int mResolution;
+    int mQuality;
+    int mPreviewWidth;
+    int mPreviewHeight;
+    double mScale;
     
     Ui::PovrayRenderDialog* ui;
 };

@@ -23,9 +23,6 @@
 #define POVRAY_RENDER_DEFAULT_WIDTH 1280
 #define POVRAY_RENDER_DEFAULT_HEIGHT 720
 
-#define POVRAY_RENDER_PREVIEW_WIDTH 768
-#define POVRAY_RENDER_PREVIEW_HEIGHT 432
-
 enum CsiKeyList{
     K_STEPNUMBER = 0,  // 0  not used
     K_IMAGEWIDTH,      // 1  not used
@@ -56,22 +53,29 @@ PovrayRenderDialog::PovrayRenderDialog(QWidget* Parent)
     
     ui->setupUi(this);
 
+    mWidth         = POVRAY_RENDER_DEFAULT_WIDTH;
+    mHeight        = POVRAY_RENDER_DEFAULT_HEIGHT;
+    mScale         = Preferences::usingNativeRenderer ? 1.0 : mCsiKeyList.at(K_MODELSCALE).toDouble();
+    mResolution    = mCsiKeyList.at(K_RESOLUTION).toInt();
+    mQuality       = Preferences::povrayRenderQuality;
+
+    ui->AspectRatioBox->setChecked(true);
     ui->OutputAlphaBox->setChecked(true);
-    ui->WidthEdit->setText(QString::number(POVRAY_RENDER_DEFAULT_WIDTH));
-    ui->WidthEdit->setValidator(new QIntValidator(16, INT_MAX));
-    ui->HeightEdit->setText(QString::number(POVRAY_RENDER_DEFAULT_HEIGHT));
-    ui->HeightEdit->setValidator(new QIntValidator(16, INT_MAX));
+    ui->WidthEdit->setValidator(new QIntValidator(16, RENDER_IMAGE_MAX_SIZE));
+    ui->WidthEdit->setText(QString::number(mWidth));
+    connect(ui->WidthEdit,SIGNAL(textChanged(const QString &)),
+                       this,SLOT  (textChanged(const QString &)));
+    ui->HeightEdit->setValidator(new QIntValidator(16, RENDER_IMAGE_MAX_SIZE));
+    ui->HeightEdit->setText(QString::number(mHeight));
+    connect(ui->HeightEdit,SIGNAL(textChanged(const QString &)),
+                        this,SLOT  (textChanged(const QString &)));
+    ui->ScaleEdit->setText(QString::number(mScale));
+    ui->ScaleEdit->setValidator(new QDoubleValidator(0.1,1000.0,1));
+    ui->ResolutionEdit->setText(QString::number(mResolution));
+    ui->ResolutionEdit->setValidator(new QIntValidator(50, INT_MAX));
+    ui->QualityComboBox->setCurrentIndex(mQuality);
     ui->OutputEdit->setText(Render::getPovrayRenderFileName(mViewerCsiKey));
     ui->OutputEdit->setValidator(new QRegExpValidator(QRegExp("^.*\\.png$",Qt::CaseInsensitive)));
-    ui->ScaleEdit->setText(mCsiKeyList.at(K_MODELSCALE));
-    ui->ScaleEdit->setValidator(new QDoubleValidator(0.1,1000.0,1));
-    ui->ResolutionEdit->setText(mCsiKeyList.at(K_RESOLUTION));
-    ui->ResolutionEdit->setValidator(new QIntValidator(50, INT_MAX));
-    ui->QualityComboBox->setCurrentIndex(Preferences::povrayRenderQuality);
-
-    QImage Image(POVRAY_RENDER_PREVIEW_WIDTH, POVRAY_RENDER_PREVIEW_HEIGHT, QImage::Format_RGB32);
-    Image.fill(QColor(255, 255, 255));
-    ui->preview->setPixmap(QPixmap::fromImage(Image));
 
     connect(&mUpdateTimer, SIGNAL(timeout()), this, SLOT(Update()));
     connect(&mUpdateTimer, SIGNAL(timeout()), this, SLOT(UpdateElapsedTime()));
@@ -165,6 +169,13 @@ void PovrayRenderDialog::on_RenderButton_clicked()
         PromptCancel();
         return;
     }
+
+    mPreviewWidth  = ui->preview->width();
+    mPreviewHeight = ui->preview->height();
+
+    QImage Image(mPreviewWidth, mPreviewHeight, QImage::Format_RGB32);
+    Image.fill(QColor(255, 255, 255));
+    ui->preview->setPixmap(QPixmap::fromImage(Image));
 
     mRenderTime.start();
 
@@ -396,7 +407,7 @@ void PovrayRenderDialog::Update()
 
     Header->PixelsRead = quint32(PixelsWritten);
 
-    ui->preview->setPixmap(QPixmap::fromImage(mImage.scaled(POVRAY_RENDER_PREVIEW_WIDTH, POVRAY_RENDER_PREVIEW_HEIGHT, Qt::KeepAspectRatio, Qt::SmoothTransformation)));
+    ui->preview->setPixmap(QPixmap::fromImage(mImage.scaled(mPreviewWidth, mPreviewHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation)));
 
     ui->RenderProgress->setMaximum(mImage.width() * mImage.height());
     ui->RenderProgress->setValue(int(Header->PixelsRead));
@@ -446,7 +457,7 @@ void PovrayRenderDialog::ShowResult()
     }
 #endif
 
-    ui->preview->setPixmap(QPixmap::fromImage(mImage.scaled(POVRAY_RENDER_PREVIEW_WIDTH, POVRAY_RENDER_PREVIEW_HEIGHT, Qt::KeepAspectRatio, Qt::SmoothTransformation)));
+    ui->preview->setPixmap(QPixmap::fromImage(mImage.scaled(mPreviewWidth, mPreviewHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation)));
 
     emit gui->messageSig(LOG_INFO,QString("Writing POV-Ray rendered image '%1'...").arg(ui->OutputEdit->text()));
     
@@ -478,4 +489,45 @@ void PovrayRenderDialog::on_OutputBrowseButton_clicked()
 
     if (!Result.isEmpty())
         ui->OutputEdit->setText(QDir::toNativeSeparators(Result));
+}
+
+void PovrayRenderDialog::on_ResetButton_clicked()
+{
+    ui->AspectRatioBox->setChecked(true);
+    ui->OutputAlphaBox->setChecked(true);
+    ui->WidthEdit->setText(QString::number(mWidth));
+    ui->HeightEdit->setText(QString::number(mHeight));
+    ui->ScaleEdit->setText(QString::number(mScale));
+    ui->ResolutionEdit->setText(QString::number(mResolution));
+    ui->QualityComboBox->setCurrentIndex(mQuality);
+    ui->OutputEdit->setText(Render::getPovrayRenderFileName(mViewerCsiKey));
+}
+
+void PovrayRenderDialog::textChanged(const QString &value)
+{
+   /* original height x new width / original width = new height */
+    mValue = value.toInt();
+   if (ui->AspectRatioBox->isChecked()){
+      if (sender() == ui->WidthEdit) {
+        disconnect(ui->HeightEdit,SIGNAL(textChanged(const QString &)),
+                         this,SLOT  (textChanged(const QString &)));
+        ui->HeightEdit->setText(QString::number(qRound(double(mHeight * mValue / mWidth))));
+        connect(ui->HeightEdit,SIGNAL(textChanged(const QString &)),
+                            this,SLOT  (textChanged(const QString &)));
+      } else
+      if (sender() == ui->HeightEdit){
+        disconnect(ui->WidthEdit,SIGNAL(textChanged(const QString &)),
+                       this, SLOT  (textChanged(const QString &)));
+        ui->WidthEdit->setText(QString::number(qRound(double(mValue * mWidth / mHeight))));
+        connect(ui->WidthEdit,SIGNAL(textChanged(const QString &)),
+                           this,SLOT (textChanged(const QString &)));
+      }
+   }
+}
+
+void PovrayRenderDialog::resizeEvent(QResizeEvent* event)
+{
+   QDialog::resizeEvent(event);
+   mPreviewWidth  = ui->preview->geometry().width();
+   mPreviewHeight = ui->preview->geometry().height();
 }

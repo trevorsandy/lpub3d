@@ -295,7 +295,8 @@ static const SceneObject NoContextSceneObjects[] =
 #define NEXT          1
 #define PREVIOUS      2
 
-#define PLACEHOLDER_IMAGE_WIDTH               68 // pixels
+#define RENDER_IMAGE_MAX_SIZE                 32768 // pixels
+#define PLACEHOLDER_IMAGE_WIDTH               68    // pixels
 #define PLACEHOLDER_IMAGE_HEIGHT              79
 
 #define GRID_SIZE_INDEX_DEFAULT               1 // 20
