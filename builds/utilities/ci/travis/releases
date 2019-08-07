@@ -3,24 +3,25 @@
 # Travis build [release] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: Aug 03, 2019
+#  Last Update: Aug 07, 2019
 #  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
 
 # Set release description
-if [ $LPUB3D_DIR != "lpub3d" ]; then
+if [ "$LPUB3D_DIR" != "lpub3d" ]; then
   LP3D_RELEASE_DESCRIPTION = "LPub3D - Development Release"
 fi;
-# Download release files from temp Dropbox store
-if [ -f "/tmp/.dropbox_oauth" ]; then
-  chmod +x "${LP3D_CI_DIR}/dropbox_uploader.sh";
-  ./"${LP3D_CI_DIR}/dropbox_uploader.sh" list "$LP3D_DROPBOX_UPDATES_DIR";
-  ./"${LP3D_CI_DIR}/dropbox_uploader.sh" download /"$LP3D_DROPBOX_UPDATES_DIR" "$LP3D_RELEASES_DIR"/;
-  ./"${LP3D_CI_DIR}/dropbox_uploader.sh" list "$LP3D_DROPBOX_DOWNLOADS_DIR";
-  ./"${LP3D_CI_DIR}/dropbox_uploader.sh" download /"$LP3D_DROPBOX_DOWNLOADS_DIR" "$LP3D_RELEASES_DIR"/;
-else
-  echo "ERROR - /tmp/.dropbox_oauth token file not found - cannot perform file download";
+if [ "$LP3D_DEPLOY_PKG" = "yes" ]; then
+  # Download assets from Dropbox store
+  if [ -f "/tmp/.dropbox_oauth" ]; then
+    echo && echo "Downloading Travis release assets from Dropbox..."
+    chmod +x "${LP3D_CI_DIR}/dropbox_uploader.sh";
+    ./"${LP3D_CI_DIR}/dropbox_uploader.sh" list "$LP3D_DROPBOX_DOWNLOADS_DIR";
+    ./"${LP3D_CI_DIR}/dropbox_uploader.sh" download /"$LP3D_DROPBOX_DOWNLOADS_DIR" "$LP3D_RELEASES_DIR"/;
+  else
+    echo "ERROR - /tmp/.dropbox_oauth token file not found - cannot perform file download";
+  fi;
 fi;
 # Verify release files in the Download directory
 if [ -n "$(find "$LP3D_DOWNLOAD_ASSETS" -maxdepth 0 -type d -empty 2>/dev/null)" ]; then
@@ -29,14 +30,6 @@ if [ -n "$(find "$LP3D_DOWNLOAD_ASSETS" -maxdepth 0 -type d -empty 2>/dev/null)"
   export LP3D_DEPLOY_PKG="no";
 else
   echo "LPub3D Download Assets:" && find $LP3D_DOWNLOAD_ASSETS -type f;
-fi
-# Verify release files in the Updates directory for Sourceforge upload
-if [ -n "$(find "$LP3D_UPDATE_ASSETS" -maxdepth 0 -type d -empty 2>/dev/null)" ]; then
-  echo "ERROR - The $LP3D_UPDATE_ASSETS folder is empty.";
-  echo "Sourceforge.net update assets deploy aborted.";
-  export LP3D_SF_DEPLOY_ABORT="true";
-else
-  echo "LPub3D Update Assets:" && find $LP3D_UPDATE_ASSETS -type f;
 fi
 # Deploy to Sourceforge.net
 if [[ -z "$LP3D_SKIP_SF_DEPLOY" && -z "$LP3D_SF_DEPLOY_ABORT" ]]; then

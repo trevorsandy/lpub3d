@@ -144,5 +144,7 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_
     if [ "$LP3D_BUILD_MACOS" = "true" ]; then
       bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.dmg*
     fi;
+    # Sourceforge.net Continuous Deploy
+    source ${LP3D_CI_SCRIPT_DIR}/releases
   fi;
 fi

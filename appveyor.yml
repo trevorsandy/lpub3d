@@ -1,6 +1,6 @@
 # Build and check LPub3D x86 and x86_64 architectures unsing Qt/MinGW/VS2017 platforms
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: JUly 30, 2019
+# Last Update: Aug 07, 2019
 # Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 version: 'LPub3D-AV-Build-{build}'
@@ -121,7 +121,7 @@ init:
  - ps: |
       If ($env:APPVEYOR_REPO_TAG -eq "true") {
         If ([regex]::Match($env:APPVEYOR_REPO_TAG_NAME, '^continuous$').Success) {
-          If ($env:APPVEYOR_PROJECT_NAME -ne "lpub3d") {
+          If ($env:APPVEYOR_PROJECT_NAME -eq "lpub3d") {
              write-host "Release tag '$env:APPVEYOR_REPO_TAG_NAME' detected."
           } Else {
              write-host "Pre-release tag '$env:APPVEYOR_REPO_TAG_NAME' detected."
