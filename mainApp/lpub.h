@@ -600,6 +600,11 @@ public:
       return ldrawFile.instances(fileName, isMirrored);
   }
 
+  bool ldcadGroupMatch(const QString &name, QStringList &lids)
+  {
+      return ldrawFile.ldcadGroupMatch(name,lids);
+  }
+
   void updateViewerStep(const QString     &fileName,
                   const QStringList &contents)
   {

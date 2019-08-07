@@ -42,7 +42,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     HighlightingRule rule;
 
     QBrush br01,br02,br03,br04,br05,br06,br07,br08,br09,br10,br11,br12,br13,br14;
-    QBrush br15,br16,br17,br18,br19,br20,br21,br22,br23,br24,br25,br26,br27,br28;
+    QBrush br15,br16,br17,br18,br19,br20,br21,br22,br23,br24,br25,br26,br27,br28,br29;
     if (Preferences::displayTheme == THEME_DEFAULT) {
         br01 = QBrush(QColor(THEME_HIGHLIGHT_01_DEFAULT));
         br02 = QBrush(QColor(THEME_HIGHLIGHT_02_DEFAULT));
@@ -72,6 +72,7 @@ Highlighter::Highlighter(QTextDocument *parent)
         br26 = QBrush(QColor(THEME_HIGHLIGHT_26_DEFAULT));
         br27 = QBrush(QColor(THEME_HIGHLIGHT_27_DEFAULT));
         br28 = QBrush(QColor(THEME_HIGHLIGHT_28_DEFAULT));
+        br29 = QBrush(QColor(THEME_HIGHLIGHT_29_DEFAULT));
       }
     else
     if (Preferences::displayTheme == THEME_DARK) {
@@ -103,6 +104,7 @@ Highlighter::Highlighter(QTextDocument *parent)
         br26 = QBrush(QColor(THEME_HIGHLIGHT_26_DARK));
         br27 = QBrush(QColor(THEME_HIGHLIGHT_27_DARK));
         br28 = QBrush(QColor(THEME_HIGHLIGHT_28_DARK));
+        br29 = QBrush(QColor(THEME_HIGHLIGHT_29_DARK));
       }
 
     // LPub3D Number Format
@@ -629,7 +631,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     rule.format = LDCadMetaKeyFormat;
     highlightingRules.append(rule);
 
-    // LDCad3D Body Meta Format
+    // LDCad Body Meta Format
     LDCadBodyMetaFormat.setForeground(br19);
     LDCadBodyMetaFormat.setFontWeight(QFont::Bold);
 
@@ -642,7 +644,6 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "!?\\bLDCAD PATH_SKIN\\b"
     << "!?\\bLDCAD GENERATED\\b"
     << "!?\\bLDCAD SCRIPT\\b"
-    << "!?\\bLDCAD GROUP_DEF\\b"
     << "!?\\bLDCAD GROUP_NXT\\b"
     ;
 
@@ -657,6 +658,13 @@ Highlighter::Highlighter(QTextDocument *parent)
     LDCadMetaValueFormat.setFontWeight(QFont::Normal);
     rule.pattern = QRegExp("[=]([a-zA-Z\\0-9%.\\s]+)");
     rule.format = LDCadMetaValueFormat;
+    highlightingRules.append(rule);
+
+    // LDCad Meta Group Def Format
+    LDCadMetaGrpDefFormat.setForeground(br29);
+    LDCadMetaGrpDefFormat.setFontWeight(QFont::Bold);
+    rule.pattern = QRegExp("!?\\bLDCAD GROUP_DEF\\b");
+    rule.format = LDCadMetaGrpDefFormat;
     highlightingRules.append(rule);
 
     // LDCad Value Bracket Format

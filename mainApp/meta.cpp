@@ -4922,23 +4922,23 @@ Rc Meta::parse(
   QStringList argv;
   
   QRegExp bgt(  "^\\s*0\\s+(MLCAD)\\s+(BTG)\\s+(.*)$");
-  QRegExp ldcg( "^\\s*0\\s+!?(LDCAD)\\s+(GROUP_NXT)\\s+\\[ids=(\\d[^\\]]*)");
+  QRegExp ldcg( "^\\s*0\\s+!?(LDCAD)\\s+(GROUP_NXT)\\s+\\[ids=([\\d\\s\\,]+)\\].*$");
   QRegExp leogb("^\\s*0\\s+!?(LEOCAD)\\s+(GROUP)\\s+(BEGIN)\\s+Group\\s+(.*)$",Qt::CaseInsensitive);
   QRegExp leoge("^\\s*0\\s+!?(LEOCAD)\\s+(GROUP)\\s+(END)$");
 
   AbstractMeta::reportErrors = reportErrors;
 
   if (line.contains(bgt)) {
-      argv << "MLCAD" << "BTG" << bgt.cap(3);
+      argv << bgt.cap(1) << bgt.cap(2) << bgt.cap(3);
   } else
   if (line.contains(ldcg)) {
-      argv << "LDCAD" << "GROUP_NXT" << ldcg.cap(3);
+      argv << ldcg.cap(1) << ldcg.cap(2) << ldcg.cap(3); // one or more groups
   } else
   if (line.contains(leogb)) {
-      argv << "LEOCAD" << "GROUP" << "BEGIN" << ldcg.cap(4);
+      argv << ldcg.cap(1) << ldcg.cap(2) << ldcg.cap(3) << ldcg.cap(4);
   }  else
   if (line.contains(leoge)) {
-      argv << "LEOCAD" << "GROUP" << "END";
+      argv << leoge.cap(1) << leoge.cap(2) << leoge.cap(3);
   } else {
 
       processSpecialCases(line);

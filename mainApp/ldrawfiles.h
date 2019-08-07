@@ -113,6 +113,7 @@ class LDrawFile {
   private:
     QMap<QString, LDrawSubFile> _subFiles;
     QMap<QString, ViewerStep>   _viewerSteps;
+    QMultiHash<QString, int>    _ldcadGroups;
     QStringList                 _emptyList;
     QString                     _emptyString;
     bool                        _mpd;
@@ -127,6 +128,7 @@ class LDrawFile {
     bool topLevelCategoryNotCaptured;
     bool unofficialPart;
     bool topLevelModel;
+    bool ldcadGroupsLoaded;
     int  descriptionLine;
 
   public:
@@ -134,6 +136,8 @@ class LDrawFile {
     ~LDrawFile()
     {
       _subFiles.empty();
+      _viewerSteps.empty();
+      _ldcadGroups.empty();
     }
 
     QStringList                 _subFileOrder;
@@ -228,6 +232,9 @@ class LDrawFile {
     void countInstances(const QString &fileName, bool mirrored, const bool callout = false);
     bool changedSinceLastWrite(const QString &fileName);
     void tempCacheCleared();
+
+    void insertLDCadGroup(const QString &name, int lid);
+    bool ldcadGroupMatch(const QString &name, QStringList &lids);
 
     /* ViewerStep functions */
     void insertViewerStep(const QString     &fileName,

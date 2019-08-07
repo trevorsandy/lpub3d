@@ -1,4 +1,4 @@
- 
+
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
@@ -591,6 +591,7 @@ int LDrawFile::loadFile(const QString &fileName)
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
+    ldcadGroupsLoaded = false;
 
     if (mpd) {
       QDateTime datetime = QFileInfo(fileName).lastModified();
@@ -775,15 +776,16 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
         QRegExp upNAM("^0\\s+Name:?\\s+(.*)$",Qt::CaseInsensitive);
         QRegExp upCAT("^0\\s+!?CATEGORY\\s+(.*)$",Qt::CaseInsensitive);
 
+        QRegExp ldcGRP( "^\\s*0\\s+!?LDCAD\\s+GROUP_DEF.*\\s+\\[LID=(\\d+)\\]\\s+\\[GID=([\\d\\w]+)\\]\\s+\\[name=(.[^\\]]+)\\].*$");
+
         emit gui->progressBarPermInitSig();
         emit gui->progressPermRangeSig(1, stageContents.size());
         emit gui->progressPermMessageSig("Processing " + modelType() + " file " + fileInfo.fileName() + "...");
         emit gui->messageSig(LOG_INFO, "Loading MPD " + modelType() + " file " + fileInfo.fileName() + "...");
-
-        // Debug
+#ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_DEBUG, QString("Stage Contents Size: %1, Start Index %2")
                              .arg(stageContents.size()).arg(i));
-
+#endif
         for (; i < stageContents.size(); i++) {
 
             QString smLine = stageContents.at(i);
@@ -792,6 +794,14 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 
             bool sof = smLine.contains(sofRE);  //start of file
             bool eof = smLine.contains(eofRE);  //end of file
+
+            // load LDCad groups
+            if (!ldcadGroupsLoaded && smLine.contains(ldcGRP)){
+               insertLDCadGroup(ldcGRP.cap(3),ldcGRP.cap(1).toInt());
+               insertLDCadGroup(ldcGRP.cap(2),ldcGRP.cap(1).toInt());
+            } else if (smLine.contains("0 STEP")) {
+               ldcadGroupsLoaded = true;
+            }
 
             QStringList tokens;
             split(smLine,tokens);
@@ -983,6 +993,15 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 
     loadMPDContents(0);
 
+#ifdef QT_DEBUG_MODE
+    QHashIterator<QString, int> i(_ldcadGroups);
+    while (i.hasNext()) {
+        i.next();
+        emit gui->messageSig(LOG_TRACE, QString("LDCad Groups: Name[%1], LineID[%2].")
+                             .arg(i.key()).arg(i.value()));
+    }
+#endif
+
     _mpd = true;
 
     emit gui->progressPermSetValueSig(stageContents.size());
@@ -1061,6 +1080,8 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
         QRegExp upNAM("^0\\s+Name:?\\s+(.*)$",Qt::CaseInsensitive);
         QRegExp upCAT("^0\\s+!?CATEGORY\\s+(.*)$",Qt::CaseInsensitive);
 
+        QRegExp ldcGRP( "^\\s*0\\s+!?LDCAD\\s+GROUP_DEF.*\\s+\\[LID=(\\d+)\\]\\s+\\[GID=([\\d\\w]+)\\]\\s+\\[name=(.[^\\]]+)\\].*$");
+
         emit gui->progressBarPermInitSig();
         emit gui->progressPermRangeSig(1, contents.size());
         emit gui->progressPermMessageSig("Processing model file...");
@@ -1078,6 +1099,14 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
             QString line = contents.at(i);
 
             emit gui->progressPermSetValueSig(i);
+
+            // load LDCad groups
+            if (!ldcadGroupsLoaded && line.contains(ldcGRP)){
+               insertLDCadGroup(ldcGRP.cap(3),ldcGRP.cap(1).toInt());
+               insertLDCadGroup(ldcGRP.cap(2),ldcGRP.cap(1).toInt());
+            } else if (line.contains("0 STEP")) {
+               ldcadGroupsLoaded = true;
+            }
 
             QStringList tokens;
             split(line,tokens);
@@ -1571,6 +1600,27 @@ void LDrawFile::tempCacheCleared()
   foreach(key,_subFiles.keys()) {
     _subFiles[key]._changedSinceLastWrite = true;
   }
+}
+
+void LDrawFile::insertLDCadGroup(const QString &name, int lid)
+{
+  QHash<QString, int>::const_iterator i = _ldcadGroups.constBegin();
+  while (i != _ldcadGroups.constEnd()) {
+    if (i.key() == name && i.value() == lid)
+      return;
+    ++i;
+  }
+  _ldcadGroups.insert(name,lid);
+}
+
+bool LDrawFile::ldcadGroupMatch(const QString &name, QStringList &lids)
+{
+  QList<int> values = _ldcadGroups.values(name);
+  foreach(QString lid, lids){
+    if (values.contains(lid.toInt()))
+      return true;
+  }
+  return false;
 }
 
 /* Add a new Viewer Step */

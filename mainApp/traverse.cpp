@@ -94,7 +94,7 @@ static void remove_group(
     QStringList &out)     // newCSIParts
 {
   QRegExp bgt(  "^\\s*0\\s+MLCAD\\s+BTG\\s+(.*)$");
-  QRegExp ldcg( "^\\s*0\\s+!?LDCAD\\s+GROUP_NXT\\s+\\[ids=(\\d[^\\]]*)");
+  QRegExp ldcg( "^\\s*0\\s+!?LDCAD\\s+GROUP_NXT\\s+\\[ids=([\\d\\s]+)\\].*$");
   QRegExp leogb("^\\s*0\\s+!?LEOCAD\\s+GROUP\\s+BEGIN\\s+Group\\s+(#\\d+)$",Qt::CaseInsensitive);
   QRegExp leoge("^\\s*0\\s+!?LEOCAD\\s+GROUP\\s+END$");
 
@@ -102,16 +102,23 @@ static void remove_group(
   int leoNest = 0;
   for (int i = 0; i < in.size(); i++) {
     QString line = in.at(i);
-
-      // MLCad and LDCad Groups
-      if (line.contains(bgt) ||
-          line.contains(ldcg)) {
-          if ((bgt.cap(bgt.captureCount()) == group) ||
-              (ldcg.cap(ldcg.captureCount()) == group)) {
+      // MLCad Groups
+      if (line.contains(bgt)) {
+         if (bgt.cap(bgt.captureCount()) == group) {
+           i++;
+         } else {
+           out << line;
+         }
+      }
+      // LDCad Groups
+      else
+      if (line.contains(ldcg)) {
+          QStringList lids = ldcg.cap(ldcg.captureCount()).split(" ");
+          if (lids.size() && gui->ldcadGroupMatch(group,lids)) {
               i++;
-            } else {
+          } else {
               out << line;
-            }
+          }
       }
       // LeoCAD	Group Begin
       else
@@ -150,6 +157,7 @@ static void remove_group(
       else {
          out << line;
       }
+      // End groups
     }
 
   return;

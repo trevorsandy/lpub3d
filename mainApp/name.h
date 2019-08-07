@@ -446,6 +446,7 @@ static const SceneObject NoContextSceneObjects[] =
 #define THEME_HIGHLIGHT_26_DEFAULT      "#545454" // 26 [LDraw Header Value]
 #define THEME_HIGHLIGHT_27_DEFAULT      "#231aff" // 27 [LPub3D Quoted Text]
 #define THEME_HIGHLIGHT_28_DEFAULT      "#000000" // 28 [LDraw Line Type 0 First Character]
+#define THEME_HIGHLIGHT_29_DEFAULT      "#bd4900" // 29 [LDCad Group Define]
 
 #define THEME_HIGHLIGHT_A_DEFAULT       "#006325" // Qt
 #define THEME_HIGHLIGHT_B_DEFAULT       "#14148c" // Qt
@@ -499,6 +500,7 @@ static const SceneObject NoContextSceneObjects[] =
 #define THEME_HIGHLIGHT_26_DARK         "#aeaeae" // 26 [LDraw Header Value]
 #define THEME_HIGHLIGHT_27_DARK         "#81d4fa" // 27 [LPub3D Quoted text]
 #define THEME_HIGHLIGHT_28_DARK         "#ffffff" // 28 [LDraw Line type 0 First Character]
+#define THEME_HIGHLIGHT_29_DARK         "#bd4900" // 29 [LDCad Group Define]
 
 #define THEME_HIGHLIGHT_A_DARK          "#17c723" // 01 Custom Green
 #define THEME_HIGHLIGHT_B_DARK          "#0079cf" // 02 Custom Blue
