@@ -450,7 +450,7 @@ public:
   BackgroundData()
   {
     type     = BgTransparent;
-    stretch  = false;
+    stretch  = true;
     string   = "";
     //gradient initialization
     gmode    = LogicalMode;

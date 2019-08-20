@@ -1968,10 +1968,20 @@ BackgroundGui::BackgroundGui(
 
   BackgroundData background = meta->value();
 
-  if (background.type == BackgroundData::BgImage)
-      picture = background.string;
-  else
+  bool rotateIcon = false;
+  QDialog *parentDialog = dynamic_cast<QDialog*>(parent->parent());
+  if (parentDialog) {
+          logDebug() << "Grandparent Window TITLE " + parentDialog->windowTitle();
+      rotateIcon = parentDialog->windowTitle().contains("Rotate Icon");
+  }
+  picture = QString(":/resources/rotate-icon.png");
+
+  if (background.type == BackgroundData::BgImage) {
+      if (!background.string.isEmpty())
+          picture = background.string;
+  } else {
       color = background.string;
+  }
 
   grid = new QGridLayout(parent);
   parent->setLayout(grid);
@@ -1986,7 +1996,7 @@ BackgroundGui::BackgroundGui(
      combo->setCurrentIndex(int(background.type));
   } else {
      combo->addItem("Submodel Level Color");    //3
-     combo->setCurrentIndex(background.type == 4 ? 3 : (int)background.type);
+     combo->setCurrentIndex(background.type == 4 ? 3 : int(background.type));
   }
   connect(combo,SIGNAL(currentIndexChanged(QString const &)),
           this, SLOT(  typeChange(         QString const &)));
@@ -2112,6 +2122,9 @@ void BackgroundGui::typeChange(QString const &type)
   if (type == "None (transparent)") {
       background.type = BackgroundData::BgTransparent;
     } else if (type == "Picture") {
+      picture = QString(":/resources/rotate-icon.png");
+      pictureEdit->setText(picture);
+      background.string = picture;
       background.type = BackgroundData::BgImage;
     } else if (type == "Solid Color") {
       background.type = BackgroundData::BgColor;

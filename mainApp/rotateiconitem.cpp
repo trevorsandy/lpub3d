@@ -51,6 +51,7 @@ void RotateIconItem::setAttributes(
   placement      = _rotateIconMeta.placement;
   margin         = _rotateIconMeta.margin;
   relativeType   = RotateIconType;
+  backgroundImage= false;
 
   // initialize pixmap using icon dimensions
   pixmap         = new QPixmap(iconSize.valuePixels(XX),
@@ -90,6 +91,7 @@ RotateIconItem::RotateIconItem(){
   relativeType       = RotateIconType;
   step               = nullptr;
   pixmap             = nullptr;
+  backgroundImage    = false;
 }
 
 RotateIconItem::RotateIconItem(
@@ -132,12 +134,19 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
   BorderData     arrowData      = arrow.valuePixels();
   BackgroundData backgroundData = background.value();
 
+  int saveFill = backgroundData.stretch;
+  int saveBorderType = borderData.type;
+  int saveBorderLine = borderData.line;
+
   // set defaults for using a background image only
-  if (arrowData.hideArrows &&
-      (backgroundData.type == BackgroundData::BgImage) &&
-      !backgroundData.stretch) {
+  if (backgroundData.type == BackgroundData::BgImage &&
+     !backgroundData.string.isEmpty()) {
+      backgroundImage = true;
+      arrowData.hideArrows = true;
       backgroundData.stretch = true;
-    }
+      borderData.type = BorderData::BdrNone;
+      borderData.line = BorderData::BdrLnNone;
+  }
 
   // set rectangle size and dimensions parameters
   int ibt = int(borderData.thickness);
@@ -146,6 +155,7 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
   // set painter and render hints (initialized with pixmap)
   QPainter painter;
   painter.begin(pixmap);
+  painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
   painter.setRenderHints(QPainter::Antialiasing,true);
 
   // set the background then set the border and paint both in one go.
@@ -174,16 +184,22 @@ void RotateIconItem::setRotateIconImage(QPixmap *pixmap)
         // confirm valid file path
         QFileInfo fileInfo(backgroundData.string);                             // set 'default path'
         if (!fileInfo.exists()) {                                              // check 'default path'
-            fileInfo.setFile(QDir::currentPath() + "/" + fileInfo.fileName()); // check 'current path'
+            fileInfo.setFile(QDir::currentPath() + QDir::separator() + fileInfo.fileName()); // check 'current path'
             if (!fileInfo.exists()) {
                 emit gui->messageSig(LOG_ERROR, QString("Unable to locate 'rotate icon' image %1. Be sure image file "
                                                    "is relative to model file or define using an absolute path.").arg(fileInfo.fileName()));
-                return;
+                backgroundImage = false;
+                arrowData.hideArrows = false;
+                backgroundData.stretch = saveFill;
+                borderData.type = BorderData::Border(saveBorderType);
+                borderData.line = BorderData::Line(saveBorderLine);
+                brushColor = Qt::transparent;
+                break;
             }
         }
-
-        QImage _image(fileInfo.absoluteFilePath());
-        QImage image = _image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+        QImageReader reader(fileInfo.absoluteFilePath());
+        QImage image = reader.read();
+        image = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
         if (backgroundData.stretch) {
             QSize psize = pixmap->size();
             QSize isize = image.size();
@@ -443,14 +459,20 @@ void RotateIconItem::contextMenuEvent(
     }
 
   QAction *backgroundAction    = commonMenus.backgroundMenu(menu,pl);
-  QAction *borderAction        = commonMenus.borderMenu(menu,pl);
-  QAction *subModelColorAction = commonMenus.subModelColorMenu(menu,pl);
   QAction *marginAction        = commonMenus.marginMenu(menu,pl);
   QAction *displayAction       = commonMenus.displayMenu(menu,pl);
 
-  QAction *editArrowAction = menu.addAction("Edit "+pl+" Arrows");
-  editArrowAction->setWhatsThis("Edit this rotation icon arrows");
-  editArrowAction->setIcon(QIcon(":/resources/editrotateicon.png"));
+  QAction *borderAction        = nullptr;
+  QAction *subModelColorAction = nullptr;
+  QAction *editArrowAction     = nullptr;
+  if (!backgroundImage) {
+      borderAction        = commonMenus.borderMenu(menu,pl);
+      subModelColorAction = commonMenus.subModelColorMenu(menu,pl);
+
+      editArrowAction = menu.addAction("Edit "+pl+" Arrows");
+      editArrowAction->setWhatsThis("Edit this rotation icon arrows");
+      editArrowAction->setIcon(QIcon(":/resources/editrotateicon.png"));
+  }
 
   QAction *rotateIconSizeAction = menu.addAction("Change "+pl+" Size");
   rotateIconSizeAction->setWhatsThis("Change the rotateIcon size");

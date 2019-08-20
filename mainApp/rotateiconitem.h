@@ -45,6 +45,7 @@ public:
   BackgroundMeta            background;
   BoolMeta                  display;
   StringListMeta            subModelColor;
+  bool                      backgroundImage;
 
   RotateIconItem();
 

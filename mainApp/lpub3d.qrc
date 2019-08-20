@@ -171,6 +171,7 @@
         <file alias="right.png">resources/right.png</file>
         <file alias="rotate.png">resources/rotate.png</file>
         <file alias="rotateicon.png">resources/rotateicon.png</file>
+        <file alias="rotate-icon.png">resources/rotate-icon.png</file>
         <file alias="rotateiconsize.png">resources/rotateiconsize.png</file>
         <file alias="save.png">resources/save.png</file>
         <file alias="saveas.png">resources/saveas.png</file>
