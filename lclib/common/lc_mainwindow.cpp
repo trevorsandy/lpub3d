@@ -2699,6 +2699,16 @@ void lcMainWindow::UpdateModels()
 		SetCurrentPieceInfo(nullptr);
 }
 
+/*** LPub3D Mod - Update Default Camera ***/
+void lcMainWindow::UpdateDefaultCamera(lcCamera* DefaultCamera)
+{
+	lcArray<lcObject*> Selection;
+	Selection.Add(DefaultCamera);
+
+	mPropertiesWidget->Update(Selection, DefaultCamera);
+}
+/*** LPub3D Mod end ***/
+
 void lcMainWindow::UpdateCategories()
 {
 	mPartSelectionWidget->UpdateCategories();

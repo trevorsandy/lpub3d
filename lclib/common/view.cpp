@@ -2038,6 +2038,9 @@ void View::ZoomExtents()
 	lcModel* ActiveModel = GetActiveModel();
 	if (ActiveModel)
 		ActiveModel->ZoomExtents(mCamera, (float)mWidth / (float)mHeight);
+/*** LPub3D Mod - Update Default Camera ***/
+	gMainWindow->UpdateDefaultCamera(mCamera);
+/*** LPub3D Mod end ***/
 }
 
 void View::MoveCamera(const lcVector3& Direction)
@@ -2621,6 +2624,17 @@ void View::StartTracking(lcTrackButton TrackButton)
 		break;
 
 	case LC_TOOL_SELECT:
+/*** LPub3D Mod - Update Default Camera ***/
+		{
+			int Flags = 0;
+			lcArray<lcObject*> Selection;
+			lcObject* Focus = nullptr;
+
+			ActiveModel->GetSelectionInformation(&Flags, Selection, &Focus);
+			if (!Selection.GetSize() && !Focus)
+				gMainWindow->UpdateDefaultCamera(mCamera);
+		}
+/*** LPub3D Mod end ***/
 		break;
 
 	case LC_TOOL_MOVE:
@@ -3007,6 +3021,12 @@ void View::OnMouseMove()
 
 		return;
 	}
+/*** LPub3D Mod - Update Default Camera ***/
+	else if (mTrackTool != LC_TRACKTOOL_ZOOM_REGION)
+	{
+		gMainWindow->UpdateDefaultCamera(mCamera);
+	}
+/*** LPub3D Mod end ***/
 
 	mTrackUpdated = true;
 	const float MouseSensitivity = 0.5f / (21.0f - lcGetPreferences().mMouseSensitivity);

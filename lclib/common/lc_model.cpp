@@ -3984,7 +3984,10 @@ void lcModel::ZoomRegionToolClicked(lcCamera* Camera, float AspectRatio, const l
 {
 	Camera->ZoomRegion(AspectRatio, Position, TargetPosition, Corners, mCurrentStep, gMainWindow->GetAddKeys());
 
-	gMainWindow->UpdateSelectedObjects(false);
+/*** LPub3D Mod - Update Default Camera ***/
+//	gMainWindow->UpdateSelectedObjects(false);
+	gMainWindow->UpdateDefaultCamera(Camera);
+/*** LPub3D Mod end ***/
 	gMainWindow->UpdateAllViews();
 
 	if (!Camera->IsSimple())
@@ -4038,7 +4041,10 @@ void lcModel::ZoomExtents(lcCamera* Camera, float Aspect)
 
 	Camera->ZoomExtents(Aspect, Center, Points, 8, mCurrentStep, gMainWindow->GetAddKeys());
 
-	gMainWindow->UpdateSelectedObjects(false);
+/*** LPub3D Mod - Update Default Camera ***/
+//	gMainWindow->UpdateSelectedObjects(false);
+	gMainWindow->UpdateDefaultCamera(Camera);
+/*** LPub3D Mod end ***/
 	gMainWindow->UpdateAllViews();
 
 	if (!Camera->IsSimple())
@@ -4048,7 +4054,10 @@ void lcModel::ZoomExtents(lcCamera* Camera, float Aspect)
 void lcModel::Zoom(lcCamera* Camera, float Amount)
 {
 	Camera->Zoom(Amount, mCurrentStep, gMainWindow->GetAddKeys());
-	gMainWindow->UpdateSelectedObjects(false);
+/*** LPub3D Mod - Update Default Camera ***/
+//	gMainWindow->UpdateSelectedObjects(false);
+	gMainWindow->UpdateDefaultCamera(Camera);
+/*** LPub3D Mod end ***/
 	gMainWindow->UpdateAllViews();
 
 	if (!Camera->IsSimple())

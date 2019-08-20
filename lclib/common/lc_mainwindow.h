@@ -347,6 +347,9 @@ public:
 	void UpdateModified(bool Modified);
 	void UpdateRecentFiles();
 	void UpdateShortcuts();
+/*** LPub3D Mod - Update Default Camera ***/
+	void UpdateDefaultCamera(lcCamera* DefaultCamera);
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Timeline part icons ***/
 	bool IsLPub3DSubModel(QString &Piece);
 	const QString GetPliIconsPath(QString &key);
