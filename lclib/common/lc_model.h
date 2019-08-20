@@ -380,8 +380,10 @@ protected:
 	std::vector<lcModelHistoryEntry*> mRedoHistory;
 
 	Q_DECLARE_TR_FUNCTIONS(lcModel);
-/*** LPub3D Mod - create Native PLI image and Pov File ***/
+/*** LPub3D Mod - Expose Model to LPub3D ***/
 	friend class Render;
+    friend class Gui;
+    friend class Step;
 /*** LPub3D Mod end ***/
 };
 

@@ -88,11 +88,13 @@ public:
 	void SetImageArgs(
 		const QString fileName,
 		const int width,
-		const int height)
+		const int height,
+		const int type)
 	{
 		mImageFileName = fileName;
 		mImageWidth    = width;
 		mImageHeight   = height;
+		mImageType     = type;
 	}
 	QString GetImageName() const
 	{
@@ -105,6 +107,10 @@ public:
 	int GetImageHeight() const
 	{
 		return mImageHeight;
+	}
+	int GetImageType() const
+	{
+		return mImageType;
 	}
 /*** LPub3D Mod end ***/
 
@@ -155,11 +161,11 @@ protected:
 	QString mImageFileName;
 	int mImageWidth;
 	int mImageHeight;
+	int mImageType;
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - create Native PLI image and Pov File ***/
+/*** LPub3D Mod - create Native PLI image ***/
 	friend class Render;
-	friend class NativePov;
 /*** LPub3D Mod end ***/
 };
 
