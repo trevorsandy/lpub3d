@@ -97,8 +97,11 @@ void Gui::openDropFile(QString &fileName){
                                       .arg(ldrawFile.getPartCount())
                                       .arg(elapsedTime(timer.elapsed())));
         } else {
-          emit messageSig(LOG_ERROR, QString("File not supported!\n%1")
-                          .arg(fileName));
+          QString noExtension;
+          if (extension.isEmpty())
+              noExtension = QString("<br>No file exension specified. Set the file extension to .mpd,.ldr, or .dat.");
+          emit messageSig(LOG_ERROR, QString("File not supported!<br>%1%2")
+                          .arg(fileName).arg(noExtension));
         }
     }
 }
@@ -229,23 +232,19 @@ void Gui::saveAs()
     return;
   }
   QFileInfo fileInfo(fileName);
-  QString suffix = fileInfo.suffix();
+  QString extension = fileInfo.suffix().toLower();
 
-  if (suffix == "mpd" ||
-      suffix == "MPD" ||
-      suffix == "ldr" ||
-      suffix == "LDR" ||
-      suffix == "dat" ||
-      suffix == "DAT") {
-
+  if (extension == "mpd" ||
+      extension == "ldr" ||
+      extension == "dat") {
     saveFile(fileName);
     closeFile();
     openFile(fileName);
     displayPage();
   } else {
     QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                              QMessageBox::tr("Invalid LDraw suffix %1.  File not saved.")
-                                .arg(suffix));
+                              QMessageBox::tr("Invalid LDraw extension %1 specified.  File not saved.")
+                                .arg(extension));
 
   }
   enableWatcher();
@@ -383,7 +382,7 @@ void Gui::updateRecentFileActions()
   if (Settings.contains(QString("%1/%2").arg(SETTINGS,"LPRecentFileList"))) {
     QStringList files = Settings.value(QString("%1/%2").arg(SETTINGS,"LPRecentFileList")).toStringList();
 
-    int numRecentFiles = qMin(files.size(), (int)MaxRecentFiles);
+    int numRecentFiles = qMin(files.size(), int(MaxRecentFiles));
 
     // filter filest that don't exist
 
