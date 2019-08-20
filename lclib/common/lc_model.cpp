@@ -2859,18 +2859,20 @@ bool lcModel::AnyPiecesSelected() const
 
 bool lcModel::AnyObjectsSelected() const
 {
-	for (lcPiece* Piece : mPieces)
-		if (Piece->IsSelected())
-			return true;
-
-	for (lcCamera* Camera : mCameras)
-		if (Camera->IsSelected())
-			return true;
+/*** LPub3D Mod - Suppress select move overlay ***/
+    for (lcCamera* Camera : mCameras)
+        if (Camera->IsSelected())
+            return true;
+/***
+    for (lcPiece* Piece : mPieces)
+        if (Piece->IsSelected())
+            return true;
 
 	for (lcLight* Light : mLights)
 		if (Light->IsSelected())
 			return true;
-
+***/
+/*** LPub3D Mod end ***/
 	return false;
 }
 

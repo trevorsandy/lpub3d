@@ -515,11 +515,7 @@ void View::ShowContextMenu() const
 
 	Popup->addMenu(gMainWindow->GetToolsMenu());
 	Popup->addMenu(gMainWindow->GetViewpointMenu());
-/*** LPub3D Mod - hide camera menu ***/
-/***
     Popup->addMenu(gMainWindow->GetCameraMenu());
-***/
-/*** LPub3D Mod end ***/
 	Popup->addMenu(gMainWindow->GetProjectionMenu());
 	Popup->addMenu(gMainWindow->GetShadingMenu());
 
@@ -899,15 +895,11 @@ void View::OnDraw()
 		lcTool Tool = gMainWindow->GetTool();
 		lcModel* ActiveModel = GetActiveModel();
 
-/*** LPub3D Mod - Suppress select move overlay ***/
-/***
 		if ((Tool == LC_TOOL_SELECT || Tool == LC_TOOL_MOVE) && mTrackButton == LC_TRACKBUTTON_NONE && ActiveModel->AnyObjectsSelected())
 			DrawSelectMoveOverlay();
 		else if (GetCurrentTool() == LC_TOOL_MOVE && mTrackButton != LC_TRACKBUTTON_NONE)
 			DrawSelectMoveOverlay();
 		else
-***/
-/*** LPub3D Mod end ***/
 		if ((Tool == LC_TOOL_ROTATE || (Tool == LC_TOOL_SELECT && mTrackButton != LC_TRACKBUTTON_NONE && mTrackTool >= LC_TRACKTOOL_ROTATE_X && mTrackTool <= LC_TRACKTOOL_ROTATE_XYZ)) && ActiveModel->AnyPiecesSelected())
 /*** LPub3D Mod - Rotate Step onDraw ***/
 		{
@@ -2438,11 +2430,11 @@ void View::UpdateTrackTool()
 		NewTrackTool = LC_TRACKTOOL_ZOOM_REGION;
 		break;
 
-        case LC_TOOL_ROTATESTEP:
+    case LC_TOOL_ROTATESTEP:
 /*** LPub3D Mod - rotate step tool ***/
-                NewTrackTool = LC_TRACKTOOL_ROTATESTEP;
+        NewTrackTool = LC_TRACKTOOL_ROTATESTEP;
 /*** LPub3D Mod end ***/
-                break;
+        break;
 
 	case LC_NUM_TOOLS:
 		break;

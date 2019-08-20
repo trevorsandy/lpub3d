@@ -340,7 +340,7 @@ void lcQPropertiesTree::Update(const lcArray<lcObject*>& Selection, lcObject* Fo
 				{
 					Mode = LC_PROPERTY_WIDGET_PIECE;
 /*** LPub3D Mod - set the focus on the first piece ***/
-                    Focus = (lcObject*)Selection[ObjectIdx];
+					Focus = (lcObject*)Selection[ObjectIdx];
 /*** LPub3D Mod end ***/
 				}
 				else if (Mode != LC_PROPERTY_WIDGET_PIECE)
@@ -784,16 +784,16 @@ void lcQPropertiesTree::SetEmpty()
 	partRotationY = nullptr;
 	partRotationZ = nullptr;
 /*** LPub3D Mod - part properties ***/
-    partAppearance = nullptr;
-    partID = nullptr;
-    partColor = nullptr;
-    partFileName = nullptr;
-    partModel = nullptr;
-    partType = nullptr;
-    partIsSubmodel = nullptr;
-    partVisibility = nullptr;
-    partShow = nullptr;
-    partHide = nullptr;
+	partAppearance = nullptr;
+	partID = nullptr;
+	partColor = nullptr;
+	partFileName = nullptr;
+	partModel = nullptr;
+	partType = nullptr;
+	partIsSubmodel = nullptr;
+	partVisibility = nullptr;
+	partShow = nullptr;
+	partHide = nullptr;
 /*** LPub3D Mod end ***/
 	cameraPosition = nullptr;
 	cameraPositionX = nullptr;
@@ -838,16 +838,16 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 
 
 /*** LPub3D Mod - Add LPub3D attributes ***/
-        partAppearance = addProperty(nullptr, tr("Appearance"), PropertyGroup);
-        partID = addProperty(partAppearance, tr("Part"), PropertyPart);
-        partColor = addProperty(partAppearance, tr("Color"), PropertyColor);
-        partFileName = addProperty(partAppearance, tr("File ID"), PropertyPart);
-        partModel = addProperty(partAppearance, tr("Model"), PropertyPart);
-        partType = addProperty(partAppearance, tr("Type"), PropertyPart);
-        partIsSubmodel = addProperty(partAppearance, tr("Submodel"), PropertyPart);
+		partAppearance = addProperty(nullptr, tr("Appearance"), PropertyGroup);
+		partID = addProperty(partAppearance, tr("Part"), PropertyPart);
+		partColor = addProperty(partAppearance, tr("Color"), PropertyColor);
+		partFileName = addProperty(partAppearance, tr("File ID"), PropertyPart);
+		partModel = addProperty(partAppearance, tr("Model"), PropertyPart);
+		partType = addProperty(partAppearance, tr("Type"), PropertyPart);
+		partIsSubmodel = addProperty(partAppearance, tr("Submodel"), PropertyPart);
 /*** LPub3D Mod end ***/
 
-        partVisibility = addProperty(nullptr, tr("Visibility"), PropertyGroup);
+		partVisibility = addProperty(nullptr, tr("Visibility"), PropertyGroup);
 		partShow = addProperty(partVisibility, tr("Show"), PropertyInt);
 		partHide = addProperty(partVisibility, tr("Hide"), PropertyInt);
 
@@ -864,8 +864,8 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 /*** LPub3D Mod - Switch Y and Z axis ***/
 	partPositionX->setText(1, lcFormatValueLocalized(Position[0]));
 	partPositionX->setData(0, PropertyValueRole, Position[0]);
-    partPositionY->setText(1, lcFormatValueLocalized(Position[2]));
-    partPositionY->setData(0, PropertyValueRole, Position[2]);
+	partPositionY->setText(1, lcFormatValueLocalized(Position[2]));
+	partPositionY->setData(0, PropertyValueRole, Position[2]);
 	partPositionZ->setText(1, lcFormatValueLocalized(Position[1]));
 	partPositionZ->setData(0, PropertyValueRole, Position[1]);
 /*** LPub3D Mod end ***/
@@ -878,10 +878,10 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 /*** LPub3D Mod - Switch Y and Z axis ***/
 	partRotationX->setText(1, lcFormatValueLocalized(Rotation[0]));
 	partRotationX->setData(0, PropertyValueRole, Rotation[0]);
-    partRotationY->setText(1, lcFormatValueLocalized(Rotation[1]));
-    partRotationY->setData(0, PropertyValueRole, Rotation[1]);
-    partRotationZ->setText(1, lcFormatValueLocalized(Rotation[2]));
-    partRotationZ->setData(0, PropertyValueRole, Rotation[2]);
+	partRotationY->setText(1, lcFormatValueLocalized(Rotation[1]));
+	partRotationY->setData(0, PropertyValueRole, Rotation[1]);
+	partRotationZ->setText(1, lcFormatValueLocalized(Rotation[2]));
+	partRotationZ->setData(0, PropertyValueRole, Rotation[2]);
 /*** LPub3D Mod end ***/
 
 	lcStep Show = 0;
@@ -890,7 +890,7 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 	PieceInfo* Info = nullptr;
 
 /*** LPub3D Mod - Add Model Properties ***/
-    const lcModelProperties& ModelInfo = Model->GetProperties();
+	const lcModelProperties& ModelInfo = Model->GetProperties();
 /*** LPub3D Mod end ***/
 
 	if (Piece)
@@ -939,44 +939,44 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 		}
 	}
 
-    QString text = Info ? Info->m_strDescription : QString();
+	QString text = Info ? Info->m_strDescription : QString();
 	partID->setText(1, text);
 	partID->setToolTip(1, text);
 	partID->setData(0, PropertyValueRole, qVariantFromValue((void*)Info));
 
-    QImage img(16, 16, QImage::Format_ARGB32);
-    img.fill(0);
+	QImage img(16, 16, QImage::Format_ARGB32);
+	img.fill(0);
 
-    lcColor* color = &gColorList[ColorIndex];
-    QPainter painter(&img);
-    painter.setCompositionMode(QPainter::CompositionMode_Source);
-    painter.setPen(Qt::darkGray);
-    painter.setBrush(QColor::fromRgbF(color->Value[0], color->Value[1], color->Value[2]));
-    painter.drawRect(0, 0, img.width() - 1, img.height() - 1);
-    painter.end();
+	lcColor* color = &gColorList[ColorIndex];
+	QPainter painter(&img);
+	painter.setCompositionMode(QPainter::CompositionMode_Source);
+	painter.setPen(Qt::darkGray);
+	painter.setBrush(QColor::fromRgbF(color->Value[0], color->Value[1], color->Value[2]));
+	painter.drawRect(0, 0, img.width() - 1, img.height() - 1);
+	painter.end();
 
-    partColor->setIcon(1, QIcon(QPixmap::fromImage(img)));
-    partColor->setText(1, color->Name);
-    partColor->setData(0, PropertyValueRole, ColorIndex);
+	partColor->setIcon(1, QIcon(QPixmap::fromImage(img)));
+	partColor->setText(1, color->Name);
+	partColor->setData(0, PropertyValueRole, ColorIndex);
 
-    partFileName->setText(1, Info ? Info->mFileName : QString());
-    partFileName->setData(0, PropertyValueRole, qVariantFromValue((void*)Info));
+	partFileName->setText(1, Info ? Info->mFileName : QString());
+	partFileName->setData(0, PropertyValueRole, qVariantFromValue((void*)Info));
 
-    partModel->setText(1, ModelInfo.mName);
-    partModel->setData(0, PropertyValueRole, qVariantFromValue((void*)Info));
+	partModel->setText(1, ModelInfo.mName);
+	partModel->setData(0, PropertyValueRole, qVariantFromValue((void*)Info));
 
-    partType->setText(1, Info ? Info->mZipFileType == LC_ZIPFILE_OFFICIAL ? QString("Official Part") : QString("Unofficial Part") : QString());
-    partType->setData(0, PropertyValueRole, qVariantFromValue((void*)Info));
+	partType->setText(1, Info ? Info->mZipFileType == LC_ZIPFILE_OFFICIAL ? QString("Official Part") : QString("Unofficial Part") : QString());
+	partType->setData(0, PropertyValueRole, qVariantFromValue((void*)Info));
 
-    partIsSubmodel->setText(1, Info ? Info->IsModel() ? QString("Yes") : QString("No") : QString());
-    partIsSubmodel->setData(0, PropertyValueRole, qVariantFromValue((void*)Info));
+	partIsSubmodel->setText(1, Info ? Info->IsModel() ? QString("Yes") : QString("No") : QString());
+	partIsSubmodel->setData(0, PropertyValueRole, qVariantFromValue((void*)Info));
 
-    partShow->setText(1, Show == 1 ? QString("Yes") : QString("No"));   // QString::number(Show)
-    partShow->setData(0, PropertyValueRole, Show);
-    partHide->setText(1, Hide == 1 ? QString("Yes") : QString("No"));   // QString::number(Hide)
-    partHide->setData(0, PropertyValueRole, Hide);
+	partShow->setText(1, Show == 1 ? QString("Yes") : QString("No"));   // QString::number(Show)
+	partShow->setData(0, PropertyValueRole, Show);
+	partHide->setText(1, Hide == 1 ? QString("Yes") : QString("No"));   // QString::number(Hide)
+	partHide->setData(0, PropertyValueRole, Hide);
 
-    FirstHit = false;
+	FirstHit = false;
 }
 
 void lcQPropertiesTree::SetCamera(lcObject* Focus)
@@ -999,8 +999,9 @@ void lcQPropertiesTree::SetCamera(lcObject* Focus)
 		cameraUpX = addProperty(cameraUp, tr("X"), PropertyFloat);
 		cameraUpY = addProperty(cameraUp, tr("Y"), PropertyFloat);
 		cameraUpZ = addProperty(cameraUp, tr("Z"), PropertyFloat);
-
-		cameraSettings = addProperty(nullptr, tr("Up"), PropertyGroup);
+/*** LPub3D Mod - Rename Properties ***/
+		cameraSettings = addProperty(nullptr, tr("Settings"), PropertyGroup);
+/*** LPub3D Mod end ***/
 		cameraOrtho = addProperty(cameraSettings, tr("Orthographic"), PropertyBool);
 		cameraFOV = addProperty(cameraSettings, tr("FOV"), PropertyFloat);
 		cameraNear = addProperty(cameraSettings, tr("Near"), PropertyFloat);
