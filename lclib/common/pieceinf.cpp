@@ -1,6 +1,7 @@
 #include "lc_global.h"
 #include "lc_math.h"
 #include "lc_mesh.h"
+#include "lc_meshloader.h"
 #include "lc_colors.h"
 #include "lc_texture.h"
 #include "pieceinf.h"
@@ -17,9 +18,9 @@ PieceInfo::PieceInfo()
 {
 	mZipFileType = LC_NUM_ZIPFILES;
 	mZipFileIndex = -1;
-	mFlags = 0;
 	mState = LC_PIECEINFO_UNLOADED;
 	mRefCount = 0;
+	mType = lcPieceInfoType::Part;
 	mMesh = nullptr;
 	mModel = nullptr;
 	mProject = nullptr;
@@ -47,7 +48,7 @@ void PieceInfo::SetPlaceholder()
 	mBoundingBox.Max = lcVector3(10.0f, 10.0f, 4.0f);
 	ReleaseMesh();
 
-	mFlags = LC_PIECE_PLACEHOLDER | LC_PIECE_HAS_DEFAULT | LC_PIECE_HAS_LINES;
+	mType = lcPieceInfoType::Placeholder;
 	mModel = nullptr;
 	mProject = nullptr;
 }
@@ -56,7 +57,7 @@ void PieceInfo::SetModel(lcModel* Model, bool UpdateMesh, Project* CurrentProjec
 {
 	if (mModel != Model)
 	{
-		mFlags = LC_PIECE_MODEL;
+		mType = lcPieceInfoType::Model;
 		mModel = Model;
 	}
 
@@ -82,10 +83,11 @@ void PieceInfo::SetModel(lcModel* Model, bool UpdateMesh, Project* CurrentProjec
 		lcArray<lcLibraryTextureMap> TextureStack;
 		PieceFile.Seek(0, SEEK_SET);
 
-		bool Ret = lcGetPiecesLibrary()->ReadMeshData(PieceFile, lcMatrix44Identity(), 16, false, TextureStack, MeshData, LC_MESHDATA_SHARED, true, CurrentProject, SearchProjectFolder);
+		lcMeshLoader MeshLoader(MeshData, true, CurrentProject, SearchProjectFolder);
+		bool Ret = MeshLoader.LoadMesh(PieceFile, LC_MESHDATA_SHARED);
 
 		if (Ret && !MeshData.IsEmpty())
-			lcGetPiecesLibrary()->CreateMesh(this, MeshData);
+			SetMesh(MeshData.CreateMesh());
 	}
 }
 
@@ -93,7 +95,7 @@ void PieceInfo::CreateProject(Project* Project, const char* PieceName)
 {
 	if (mProject != Project)
 	{
-		mFlags = LC_PIECE_PROJECT;
+		mType = lcPieceInfoType::Project;
 		mProject = Project;
 		mState = LC_PIECEINFO_LOADED;
 	}
@@ -106,7 +108,7 @@ void PieceInfo::CreateProject(Project* Project, const char* PieceName)
 
 bool PieceInfo::GetPieceWorldMatrix(lcPiece* Piece, lcMatrix44& WorldMatrix) const
 {
-	if (mFlags & LC_PIECE_MODEL)
+	if (IsModel())
 		return mModel->GetPieceWorldMatrix(Piece, WorldMatrix);
 
 	return false;
@@ -114,7 +116,7 @@ bool PieceInfo::GetPieceWorldMatrix(lcPiece* Piece, lcMatrix44& WorldMatrix) con
 
 bool PieceInfo::IncludesModel(const lcModel* Model) const
 {
-	if (mFlags & LC_PIECE_MODEL)
+	if (IsModel())
 	{
 		if (mModel == Model)
 			return true;
@@ -137,19 +139,16 @@ void PieceInfo::CreatePlaceholder(const char* Name)
 
 void PieceInfo::Load()
 {
-	if ((mFlags & (LC_PIECE_MODEL | LC_PIECE_PROJECT)) == 0)
+	if (!IsModel() && !IsProject())
 	{
 		mState = LC_PIECEINFO_LOADING; // todo: mutex lock when changing load state
 
-		if (mFlags & LC_PIECE_PLACEHOLDER)
+		if (IsPlaceholder())
 		{
 			if (lcGetPiecesLibrary()->LoadPieceData(this))
-				mFlags &= ~LC_PIECE_PLACEHOLDER;
+				mType = lcPieceInfoType::Part;
 			else
-			{
-				mFlags |= LC_PIECE_HAS_DEFAULT | LC_PIECE_HAS_LINES;
 				mBoundingBox = gPlaceholderMesh->mBoundingBox;
-			}
 		}
 		else
 			lcGetPiecesLibrary()->LoadPieceData(this);
@@ -198,18 +197,18 @@ bool PieceInfo::MinIntersectDist(const lcVector3& Start, const lcVector3& End, f
 {
 	bool Intersect = false;
 
-	if (mFlags & (LC_PIECE_PLACEHOLDER | LC_PIECE_MODEL | LC_PIECE_PROJECT))
+	if (IsPlaceholder() || IsModel() || IsProject())
 	{
 		float Distance;
 		if (!lcBoundingBoxRayIntersectDistance(mBoundingBox.Min, mBoundingBox.Max, Start, End, &Distance, nullptr) || (Distance >= MinDistance))
 			return false;
 
-		if (mFlags & LC_PIECE_PLACEHOLDER)
+		if (IsPlaceholder())
 			return true;
 
-		if (mFlags & LC_PIECE_MODEL)
+		if (IsModel())
 			Intersect |= mModel->SubModelMinIntersectDist(Start, End, MinDistance);
-		else if (mFlags & LC_PIECE_PROJECT)
+		else if (IsProject())
 		{
 			lcModel* Model = mProject->GetMainModel();
 			if (Model)
@@ -267,15 +266,15 @@ bool PieceInfo::BoxTest(const lcMatrix44& WorldMatrix, const lcVector4 WorldPlan
 	if (OutcodesOR == 0)
 		return true;
 
-	if (mFlags & LC_PIECE_PLACEHOLDER)
+	if (IsPlaceholder())
 		return gPlaceholderMesh->IntersectsPlanes(LocalPlanes);
 
 	if (mMesh && mMesh->IntersectsPlanes(LocalPlanes))
 		return true;
 
-	if (mFlags & LC_PIECE_MODEL)
+	if (IsModel())
 		return mModel->SubModelBoxTest(LocalPlanes);
-	else if (mFlags & LC_PIECE_PROJECT)
+	else if (IsProject())
 	{
 		lcModel* Model = mProject->GetMainModel();
 		return Model ? Model->SubModelBoxTest(LocalPlanes) : false;
@@ -303,17 +302,17 @@ void PieceInfo::ZoomExtents(float FoV, float AspectRatio, lcMatrix44& Projection
 void PieceInfo::AddRenderMesh(lcScene& Scene)
 {
 	if (mMesh)
-		Scene.AddMesh(mMesh, lcMatrix44Identity(), gDefaultColor, lcRenderMeshState::NORMAL, mFlags);
+		Scene.AddMesh(mMesh, lcMatrix44Identity(), gDefaultColor, lcRenderMeshState::NORMAL);
 }
 
 void PieceInfo::AddRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int ColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive) const
 {
-	if ((mMesh) || (mFlags & LC_PIECE_PLACEHOLDER))
-		Scene.AddMesh((mFlags & LC_PIECE_PLACEHOLDER) ? gPlaceholderMesh : mMesh, WorldMatrix, ColorIndex, RenderMeshState, mFlags);
+	if (mMesh || IsPlaceholder())
+		Scene.AddMesh(IsPlaceholder() ? gPlaceholderMesh : mMesh, WorldMatrix, ColorIndex, RenderMeshState);
 
-	if (mFlags & LC_PIECE_MODEL)
+	if (IsModel())
 		mModel->AddSubModelRenderMeshes(Scene, WorldMatrix, ColorIndex, RenderMeshState, ParentActive);
-	else if (mFlags & LC_PIECE_PROJECT)
+	else if (IsProject())
 	{
 		lcModel* Model = mProject->GetMainModel();
 		if (Model)
@@ -323,9 +322,9 @@ void PieceInfo::AddRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, i
 
 void PieceInfo::GetPartsList(int DefaultColorIndex, bool IncludeSubmodels, lcPartsList& PartsList) const
 {
-	if (mFlags & LC_PIECE_MODEL && IncludeSubmodels)
+	if (IsModel() && IncludeSubmodels)
 		mModel->GetPartsList(DefaultColorIndex, IncludeSubmodels, PartsList);
-	else if (mFlags & LC_PIECE_PROJECT)
+	else if (IsProject())
 	{
 		lcModel* Model = mProject->GetMainModel();
 		if (Model)
@@ -337,12 +336,12 @@ void PieceInfo::GetPartsList(int DefaultColorIndex, bool IncludeSubmodels, lcPar
 
 void PieceInfo::GetModelParts(const lcMatrix44& WorldMatrix, int DefaultColorIndex, std::vector<lcModelPartsEntry>& ModelParts) const
 {
-	if (mFlags & LC_PIECE_MODEL)
+	if (IsModel())
 	{
 		mModel->GetModelParts(WorldMatrix, DefaultColorIndex, ModelParts);
 		return;
 	}
-	else if (mFlags & LC_PIECE_PROJECT)
+	else if (IsProject())
 	{
 		lcModel* Model = mProject->GetMainModel();
 		if (Model)
@@ -355,8 +354,8 @@ void PieceInfo::GetModelParts(const lcMatrix44& WorldMatrix, int DefaultColorInd
 
 void PieceInfo::UpdateBoundingBox(std::vector<lcModel*>& UpdatedModels)
 {
-	if (mFlags & LC_PIECE_MODEL)
+	if (IsModel())
 		mModel->UpdatePieceInfo(UpdatedModels);
-	else if (mFlags & LC_PIECE_PROJECT)
+	else if (IsProject())
 		mProject->UpdatePieceInfo(this);
 }

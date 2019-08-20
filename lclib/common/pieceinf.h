@@ -4,14 +4,13 @@
 #include "lc_math.h"
 #include "lc_array.h"
 
-#define LC_PIECE_HAS_DEFAULT        0x01 // Piece has triangles using the default color
-#define LC_PIECE_HAS_SOLID          0x02 // Piece has triangles using a solid color
-#define LC_PIECE_HAS_TRANSLUCENT    0x04 // Piece has triangles using a translucent color
-#define LC_PIECE_HAS_LINES          0x08 // Piece has lines
-#define LC_PIECE_PLACEHOLDER        0x10 // Placeholder for a piece not in the library
-#define LC_PIECE_MODEL              0x20 // Piece is a model
-#define LC_PIECE_PROJECT            0x40 // Piece is a project
-#define LC_PIECE_HAS_TEXTURE        0x80 // Piece has sections using textures
+enum class lcPieceInfoType
+{
+	Part,
+	Placeholder,
+	Model,
+	Project
+};
 
 #define LC_PIECE_NAME_LEN 256
 
@@ -95,22 +94,22 @@ public:
 
 	bool IsPlaceholder() const
 	{
-		return (mFlags & LC_PIECE_PLACEHOLDER) != 0;
+		return mType == lcPieceInfoType::Placeholder;
 	}
 
 	bool IsModel() const
 	{
-		return (mFlags & LC_PIECE_MODEL) != 0;
+		return mType == lcPieceInfoType::Model;
 	}
 
 	bool IsProject() const
 	{
-		return (mFlags & LC_PIECE_PROJECT) != 0;
+		return mType == lcPieceInfoType::Project;
 	}
 
 	bool IsTemporary() const
 	{
-		return (mFlags & (LC_PIECE_PLACEHOLDER | LC_PIECE_MODEL | LC_PIECE_PROJECT)) != 0;
+		return mType != lcPieceInfoType::Part;
 	}
 
 	void SetZipFile(int ZipFileType, int ZipFileIndex)
@@ -177,7 +176,6 @@ public:
 /*** LPub3D Mod end ***/
 	int mZipFileType;
 	int mZipFileIndex;
-	quint32 mFlags;
 	lcPieceInfoState mState;
 	int mFolderType;
 	int mFolderIndex;
@@ -186,6 +184,7 @@ protected:
 	void ReleaseMesh();
 
 	int mRefCount;
+	lcPieceInfoType mType;
 	lcModel* mModel;
 	Project* mProject;
 	lcMesh* mMesh;

@@ -2392,8 +2392,6 @@ bool Project::ExportPOVRay(const QString& FileName)
 		POVFile.WriteLine(Line);
 	}
 
-	POVFile.Close();
-
 	return true;
 }
 

@@ -3,7 +3,7 @@
 #include "lc_math.h"
 
 #define LC_MESH_FILE_ID      LC_FOURCC('M', 'E', 'S', 'H')
-#define LC_MESH_FILE_VERSION 0x0114
+#define LC_MESH_FILE_VERSION 0x0115
 
 enum lcMeshPrimitiveType
 {
@@ -50,6 +50,22 @@ enum
 	LC_NUM_MESH_LODS
 };
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+enum class lcMeshFlag
+#else
+enum lcMeshFlag
+#endif
+{
+	HasDefault     = 0x01, // Mesh has triangles using the default color
+	HasSolid       = 0x02, // Mesh has triangles using a solid color
+	HasTranslucent = 0x04, // Mesh has triangles using a translucent color
+	HasLines       = 0x08, // Mesh has lines
+	HasTexture     = 0x10  // Mesh has sections using textures
+};
+
+Q_DECLARE_FLAGS(lcMeshFlags, lcMeshFlag)
+Q_DECLARE_OPERATORS_FOR_FLAGS(lcMeshFlags)
+
 class lcMesh
 {
 public:
@@ -83,6 +99,7 @@ public:
 	lcMeshLod mLods[LC_NUM_MESH_LODS];
 	lcBoundingBox mBoundingBox;
 	float mRadius;
+	lcMeshFlags mFlags;
 
 	void* mVertexData;
 	int mVertexDataSize;

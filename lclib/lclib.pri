@@ -22,6 +22,7 @@ HEADERS += \
     $$PWD/common/lc_mainwindow.h \
     $$PWD/common/lc_math.h \
     $$PWD/common/lc_mesh.h \
+	$$PWD/common/lc_meshloader.h \
     $$PWD/common/lc_model.h \
     $$PWD/common/lc_partselectionwidget.h \
     $$PWD/common/lc_profile.h \
@@ -80,6 +81,7 @@ SOURCES +=  \
     $$PWD/common/lc_lxf.cpp \
     $$PWD/common/lc_mainwindow.cpp \
     $$PWD/common/lc_mesh.cpp \
+	$$PWD/common/lc_meshloader.cpp \
     $$PWD/common/lc_model.cpp \
     $$PWD/common/lc_partselectionwidget.cpp \
     $$PWD/common/lc_profile.cpp \
