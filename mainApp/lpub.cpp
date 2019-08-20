@@ -15,7 +15,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#include "lpub.h"
+
 #include <QWidget>
 #include <QDesktopWidget>
 #include <QSizePolicy>
@@ -28,10 +28,14 @@
 #include <QTextStream>
 #include <QStringList>
 #include <JlCompress.h>
+#include <QPushButton>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QProgressDialog>
 
-#include "QPushButton"
-#include "QHBoxLayout"
-#include "QVBoxLayout"
+#include <ui_progress_dialog.h>
+
+#include "lpub.h"
 
 #include "name.h"
 #include "editwindow.h"
@@ -39,21 +43,21 @@
 #include "paths.h"
 #include "globals.h"
 #include "resolution.h"
-#include "lpub_preferences.h"
 #include "lpubalert.h"
 #include "preferencesdialog.h"
 #include "povrayrenderdialog.h"
-#include "render.h"
 #include "metaitem.h"
 #include "ranges_element.h"
 #include "updatecheck.h"
 #include "step.h"
 #include "messageboxresizable.h"
 
-#include "QProgressDialog"
-#include "lc_http.h"
+#include "aboutdialog.h"
+#include "dialogexportpages.h"
+#include "numberitem.h"
+#include "progress_dialog.h"
 
-//** 3D
+//3D Viewer
 #include "camera.h"
 #include "project.h"
 #include "view.h"
@@ -61,14 +65,12 @@
 #include "lc_profile.h"
 #include "application.h"
 #include "lc_partselectionwidget.h"
+#include "lc_http.h"
 
-#include <ui_progress_dialog.h>
-
+//** LDVLib
 #include <TCFoundation/TCUserDefaults.h>
 #include <LDLib/LDUserDefaultsKeys.h>
 #include <LDVQt/LDVWidget.h>
-
-//**
 
 #if _MSC_VER > 1310
 // Visual C++ 2005 and later require the source files in UTF-8, and all strings

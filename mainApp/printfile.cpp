@@ -33,7 +33,10 @@
 
 #include "paths.h"
 #include "lpub.h"
+#include "progress_dialog.h"
+#include "dialogexportpages.h"
 #include "messageboxresizable.h"
+
 #include <TCFoundation/TCUserDefaults.h>
 #include <LDLib/LDUserDefaultsKeys.h>
 

@@ -348,25 +348,23 @@
 #include "lgraphicsview.h"
 #include "lgraphicsscene.h"
 
+#include "version.h"
+#include "ranges.h"
+#include "render.h"
+#include "where.h"
+#include "color.h"
+#include "ldrawfiles.h"
+#include "threadworkers.h"
+#include "lpub_preferences.h"
+#include "ldrawcolourparts.h"
+#include "plisubstituteparts.h"
+#include "QsLog.h"
+
 //3D Viewer
 #include "lc_global.h"
 #include "lc_math.h"
 #include "lc_library.h"
 #include "lc_mainwindow.h"
-
-#include "color.h"
-#include "ranges.h"
-#include "ldrawfiles.h"
-#include "where.h"
-#include "aboutdialog.h"
-#include "version.h"
-#include "threadworkers.h"
-#include "ldrawcolourparts.h"
-#include "plisubstituteparts.h"
-#include "dialogexportpages.h"
-#include "numberitem.h"
-#include "progress_dialog.h"
-#include "QsLog.h"
 
 // Set to enable file watcher
 #ifndef WATCHER
@@ -414,6 +412,32 @@ class PagePointer;
 
 class lcHttpReply;
 class lcHttpManager;
+
+class ColourPartListWorker;
+class DialogExportPages;
+class FadeStepMeta;
+class FadeStepMeta;
+class HighlightStepMeta;
+class LDrawColor;
+class LDrawColourParts;
+class LDrawFile;
+class MetaItem;
+class Page;
+class PageMeta;
+class PageNumberItem;
+class PartWorker;
+class PgSizeData;
+class PgSizeData;
+class Placement;
+class PlacementFooter;
+class PlacementHeader;
+class PliPartGroupMeta;
+class PliSubstituteParts;
+class Preferences;
+class ProgressDialog;
+class Render;
+class Steps;
+class Where;
 
 enum traverseRc { HitEndOfPage = 1 };
 enum Dimensions {Pixels = 0, Inches };

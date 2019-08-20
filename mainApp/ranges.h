@@ -33,12 +33,20 @@
 #include "pli.h"
 #include "meta.h"
 #include "placement.h"
-#include "resize.h"
 #include "submodelitem.h"
-#include "rotateiconitem.h"
 #include "pageattributepixmapitem.h"
-#include "pointer.h"
-#include "pagepointeritem.h"
+
+class Meta;
+class Render;
+class Pli;
+class Placement;
+class SubmodelItem;
+class SubModel;
+class RotateIcon;
+class PageAttributePixmapItem;
+class InsertPixmapItem;
+class Pointer;
+class PagePointer;
 
 /*
  * This is a base class for multi-step and
@@ -98,8 +106,6 @@ class Steps : public Placement {
     void  setBottomOfSteps(const Where &bos);
     AbstractStepsElement *nextRange(const AbstractStepsElement *me);
 };
-
-#include "render.h"
 
 class PageAttributePixmapItem;
 

@@ -37,6 +37,13 @@
 #include "lpub.h"
 #include "dividerdialog.h"
 
+#include "render.h"
+#include "resize.h"
+#include "submodelitem.h"
+#include "rotateiconitem.h"
+#include "pointer.h"
+#include "pagepointeritem.h"
+
 Steps::Steps()
 {
   relativeType  = SingleStepType;
