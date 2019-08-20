@@ -2880,16 +2880,19 @@ void MetaItem::deleteFinalModel(){
                   finalModelLine = lineBefore;                  //adjust starting point for deletion
                 }
             }
-          logStatus() << "Final model detected at line: " << here.lineNumber;
-          continue;
+          logInfo() << "Final model metas detected at lines: " << here.lineNumber << "and" << finalModelLine.lineNumber;
         }
       else
-      if (foundFinalModel && rc == StepRc){                     //at at models's STEP ...
+      if (foundFinalModel && rc == StepRc){                     //at at final model STEP command ...
           beginMacro("deleteFinalModel");
-          stopAtThisLine = here - 1;
+          stopAtThisLine = here/* - 1*/;
           Where walk = finalModelLine;
-          for (; walk > stopAtThisLine.lineNumber ; walk-- ){   //remove lines between model insert and model insert step
-              logDebug() << "Deleting inserted final model line No" << walk.lineNumber << " in " << walk.modelName;
+          for (; walk >= stopAtThisLine.lineNumber ; walk-- ){   //remove lines between model insert and model insert step
+              logDebug() << "Deleting inserted final model line No"
+                         << walk.lineNumber << " in "
+                         << walk.modelName << "["
+                         << gui->readLine(walk) << "]"
+                            ;
               deleteMeta(walk);
             }
           endMacro();
