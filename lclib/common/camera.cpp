@@ -15,6 +15,10 @@
 
 #define LC_CAMERA_SAVE_VERSION 7 // LeoCAD 0.80
 
+/*** LPub3D Mod - LPub3D Camera Globe ***/
+#define LC_CAMERA_DISTANCE_FACTOR -5.0f
+/*** LPub3D Mod end ***/
+
 lcCamera::lcCamera(bool Simple)
 	: lcObject(LC_OBJECT_CAMERA)
 {
@@ -1027,7 +1031,7 @@ void lcCamera::SetViewpoint(const lcVector3& Position)
 	UpdatePosition(1);
 }
 
-void lcCamera::SetAngles(float Latitude, float Longitude)
+void lcCamera::SetAngles(float Latitude, float Longitude, float Distance)
 {
 	mPosition = lcVector3(0, -1, 0);
 	mTargetPosition = lcVector3(0, 0, 0);
@@ -1038,7 +1042,9 @@ void lcCamera::SetAngles(float Latitude, float Longitude)
 
 	lcVector3 SideVector = lcMul(lcVector3(-1, 0, 0), LongitudeMatrix);
 	lcMatrix33 LatitudeMatrix = lcMatrix33FromAxisAngle(SideVector, LC_DTOR * Latitude);
-	mPosition = lcMul(mPosition, LatitudeMatrix);
+/*** LPub3D Mod - LPub3D Camera Globe ***/
+	mPosition = lcMul(mPosition, LatitudeMatrix) * LC_CAMERA_DISTANCE_FACTOR * Distance;
+/*** LPub3D Mod end ***/
 	mUpVector = lcMul(mUpVector, LatitudeMatrix);
 
 	ChangeKey(mPositionKeys, mPosition, 1, false);
@@ -1046,4 +1052,24 @@ void lcCamera::SetAngles(float Latitude, float Longitude)
 	ChangeKey(mUpVectorKeys, mUpVector, 1, false);
 
 	UpdatePosition(1);
+}
+
+void lcCamera::GetAngles(float& Latitude, float& Longitude, float& Distance) const
+{
+	lcVector3 FrontVector(mPosition - mTargetPosition);
+	lcVector3 X(1, 0, 0);
+	lcVector3 Y(0, 1, 0);
+	lcVector3 Z(0, 0, 1);
+
+	FrontVector.Normalize();
+	Latitude = acos(lcDot(-FrontVector, Z)) * LC_RTOD - 90.0f;
+
+	lcVector3 CameraXY = -lcNormalize(lcVector3(FrontVector.x, FrontVector.y, 0.0f));
+	Longitude = acos(lcDot(CameraXY, Y)) * LC_RTOD;
+
+	if (lcDot(CameraXY, X) > 0)
+		Longitude = -Longitude;
+/*** LPub3D Mod - LPub3D Camera Globe ***/
+	Distance = lcLength(mPosition) / LC_CAMERA_DISTANCE_FACTOR;
+/*** LPub3D Mod end ***/
 }

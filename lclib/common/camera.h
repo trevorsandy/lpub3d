@@ -286,7 +286,8 @@ public:
 	void MoveRelative(const lcVector3& Distance, lcStep Step, bool AddKey);
 	void SetViewpoint(lcViewpoint Viewpoint);
 	void SetViewpoint(const lcVector3& Position);
-	void SetAngles(float Latitude, float Longitude);
+	void GetAngles(float& Latitude, float& Longitude, float& Distance) const;
+	void SetAngles(float Latitude, float Longitude, float Distance);
 
 	char m_strName[81];
 
