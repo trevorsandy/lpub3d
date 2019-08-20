@@ -423,7 +423,7 @@ void Gui::setCurrentFile(const QString &fileName)
     windowName = fileInfo.fileName();
   }
   QString windowVersion;
-#ifdef LP3D_CONTINUOUS_BUILD
+#if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD
   windowVersion = QString("%1 v%2 r%3 (%4)")
                           .arg(VER_PRODUCTNAME_STR)
                           .arg(VER_PRODUCTVERSION_STR)

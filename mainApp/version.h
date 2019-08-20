@@ -48,6 +48,8 @@
   #else
      #define    VER_BUILD_TYPE_STR          "Release"
   #endif
+#elif defined LP3D_DEVOPS_BUILD
+  #define    VER_BUILD_TYPE_STR             "Dev-release"
 #else
   #define    VER_BUILD_TYPE_STR             "Version"
 #endif
