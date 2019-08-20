@@ -185,10 +185,12 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   if (page->frontCover) {
 
-      if (page->meta.LPub.page.coverImage.file.value().isEmpty())
+      if (page->meta.LPub.page.coverImage.file.value().isEmpty()){
           imageAction     = commonMenus.changeImageMenu(menu,"Add Cover " + name + " Image");
-      else if (!page->meta.LPub.page.coverImage.display.value())
-          displayImageAction = commonMenus.displayMenu(menu,"Show Cover " + name + " Image");
+      } else if (!page->meta.LPub.page.coverImage.display.value()) {
+          displayImageAction = commonMenus.displayMenu(menu,name);
+          displayImageAction->setText("Show Cover " + name + " Image");
+      }
   }
 
   sizeAndOrientationAction = menu.addAction("Change Page Size or Orientation");
@@ -198,8 +200,6 @@ void PageBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   if(page->meta.LPub.page.background.value().type == BackgroundData::BgTransparent) {
       borderAction = commonMenus.borderMenu(menu,name);
     }
-
-
 
   QAction *selectedAction     = menu.exec(event->screenPos());
 

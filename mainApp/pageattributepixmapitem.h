@@ -20,32 +20,26 @@
 
 class PageAttributePixmapItem : public ResizePixmapItem
 {
+  Page                          *page;
   public:
-    Page                       *page;
     PlacementType               parentRelativeType;
-    BorderMeta                  border;
     BoolMeta                    displayPicture;
     FloatMeta                   picScale;
-    BoolMeta                    display;
     QString                     name;
+    BorderMeta                  border;
     int                         fillMode;
 
     PageAttributePixmapItem(
       Page                     *page,
-      QPixmap                  &_pixmapPic,
-      PageAttributePictureMeta &_papMeta,
+      QPixmap                  &pixmap,
+      PageAttributePictureMeta &pageAttributePictureMeta,
       QGraphicsItem            *parent);
 
-    void adjustImage(
-      QPixmap                  *pixmap,
-      PageAttributePictureMeta &_papMeta);
-
     virtual void change();
+
 protected:
     void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
-
-private:
-    QPixmap * pixmapPic;
+    void mousePressEvent(QGraphicsSceneMouseEvent *event);
 };
 
 #endif // PAGEATTRIBUTEPIXMAPITEM_H

@@ -1240,11 +1240,13 @@ void PageAttributeTextGui::apply(
   grid->addWidget(pictureButton,2,2,1,1);
 
   //scale
-  bool gbChecked = (meta->picScale.value() > 1.0 || meta->picScale.value() < 1.0) &&
+  bool gbChecked = (meta->picScale.value() > 1.0 ||
+                    meta->picScale.value() < 1.0) &&
                    (meta->fill.value() == Aspect);
   gbScale = new QGroupBox("Scale", parent);
   gbScale->setCheckable(true);
   gbScale->setChecked(gbChecked);
+  gbScale->setEnabled(meta->fill.value() == Aspect);
   hLayout = new QHBoxLayout();
   gbScale->setLayout(hLayout);
   grid->addWidget(gbScale,3,0,1,3);

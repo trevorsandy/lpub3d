@@ -226,7 +226,7 @@ QAction* CommonMenus::displayMenu(
 {
 QAction *action;
 
-QString formatted = QString("%1") .arg(name);
+QString formatted = QString("Hide %1") .arg(name);
 action = menu.addAction(formatted);
 action->setIcon(QIcon(":/resources/display.png"));
 

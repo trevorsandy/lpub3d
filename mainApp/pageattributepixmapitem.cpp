@@ -13,167 +13,158 @@
 ****************************************************************************/
 #include <QMenu>
 #include <QAction>
-#include <QSize>
-#include <QRect>
 #include <QGraphicsRectItem>
 #include <QGraphicsSceneContextMenuEvent>
+
 #include "pageattributepixmapitem.h"
 #include "commonmenus.h"
-#include "meta.h"
 #include "color.h"
 #include "step.h"
 #include "ranges.h"
 #include "name.h"
-#include "QsLog.h"
 
 PageAttributePixmapItem::PageAttributePixmapItem(
   Page                      *_page,
-  QPixmap                   &_pixmapPic,
-  PageAttributePictureMeta  &_papMeta,
+  QPixmap                   &pixmap,
+  PageAttributePictureMeta  &pageAttributePictureMeta,
   QGraphicsItem             *parent)
+
 {
-  page           = _page;
-  relativeType   = _papMeta.type;
-  placement      = _papMeta.placement;
-  border         = _papMeta.border;
-  margin         = _papMeta.margin;
-  displayPicture = _papMeta.display;
-  picScale       = _papMeta.picScale;
-  pixmapPic      = &_pixmapPic;
-
-  fillMode       = _papMeta.fill.value();
-
-  QPixmap *pixmap = nullptr;
-  if (fillMode == Aspect) {
-    size[XX]     = int(_pixmapPic.width()  * _papMeta.picScale.value());
-    size[YY]     = int(_pixmapPic.height() * _papMeta.picScale.value());
-  } else {
-    size[XX]     = page->pageSize(XX,false/*adjusted*/,false/*forDivider*/);
-    size[YY]     = page->pageSize(YY,false,false);
-  }
-  pixmap = new QPixmap(size[XX],size[YY]);
-
-  adjustImage(
-          pixmap,   /* size info only */
-          _papMeta);
+  page               = _page;
+  placement          = pageAttributePictureMeta.placement;
+  picScale           = pageAttributePictureMeta.picScale;
+  border             = pageAttributePictureMeta.border;
+  displayPicture     = pageAttributePictureMeta.display;
+  margin             = pageAttributePictureMeta.margin;
+  relativeType       = pageAttributePictureMeta.type;
+  fillMode           = pageAttributePictureMeta.fill.value();
+  parentRelativeType = page->relativeType;
 
   if (relativeType == PageDocumentLogoType ) {
     name    = "Logo";
+    setToolTip("Logo - right-click to modify");
   } else if (relativeType == PageCoverImageType) {
     name    = "Cover Image";
+    setToolTip("Cover Image - right-click to modify");
   } else if (relativeType == PagePlugImageType) {
     name    = "Plug Image";
+    setToolTip("Plug Image - right-click to modify");
   }
 
-  setToolTip(name + " - right-click to modify");
-  setData(ObjectId, PageAttributePixmapObj);
-  setPixmap(*pixmap);
-  setParentItem(parent);
-  setFlag(QGraphicsItem::ItemIsSelectable,true);
-  setFlag(QGraphicsItem::ItemIsMovable,true);
-}
+  bool movable = true;
+  if (fillMode == Aspect) {
+    size[XX] = int(pixmap.width() * pageAttributePictureMeta.picScale.value());
+    size[YY] = int(pixmap.height() * pageAttributePictureMeta.picScale.value());
+  } else {
+    movable  = false;
+    size[XX] = page->pageSize(XX,false/*adjusted*/,false/*forDivider*/);
+    size[YY] = page->pageSize(YY,false,false);
+  }
 
-void PageAttributePixmapItem::adjustImage(
-        QPixmap                  *pixmap,
-        PageAttributePictureMeta &_papMeta)
-{
-    parentRelativeType = page->relativeType;
+  // create image from pixmap
+  QImage image(pixmap.toImage());
+  image = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
 
-    pixmap->fill(Qt::transparent);
+  if (fillMode != Aspect)
+      pixmap = pixmap.scaled(size[XX],size[YY]);
+  pixmap.fill(Qt::transparent);
 
-    // set painter and render hints (initialized with pixmap)
-    QPainter painter;
-    painter.begin(pixmap);
-    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-    painter.setRenderHints(QPainter::Antialiasing,true);
+  // set painter and render hints (initialized with pixmap)
+  QPainter painter;
+  painter.begin(&pixmap);
+  painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+  painter.setRenderHints(QPainter::Antialiasing,true);
 
-    // Set border
-    BorderData  borderData = _papMeta.border.valuePixels();
+  // Set border
+  BorderData  borderData = pageAttributePictureMeta.border.valuePixels();
 
-    qreal rx = double(borderData.radius);
-    qreal ry = double(borderData.radius);
-    qreal dx = pixmap->width();
-    qreal dy = pixmap->height();
+  qreal rx = double(borderData.radius);
+  qreal ry = double(borderData.radius);
+  qreal dx = pixmap.width();
+  qreal dy = pixmap.height();
 
-    if (dx && dy) {
-      if (dx > dy) {
-        // the rx is going to appear larger that ry, so decrease rx based on ratio
-        rx *= dy;
-        rx /= dx;
-      } else {
-        ry *= dx;
-        ry /= dy;
-      }
-    }
-
-    QColor penColor;
-    QColor brushColor = Qt::transparent;
-    if (borderData.type == BorderData::BdrNone) {
-        penColor = Qt::transparent;
+  if (dx > 0 && dy > 0) {
+    if (dx > dy) {
+      rx *= dy;
+      rx /= dx;
     } else {
-       penColor =  LDrawColor::color(borderData.color);
+      ry *= dx;
+      ry /= dy;
     }
+  }
 
-    QPen pen;
-    pen.setColor(penColor);
-    pen.setCapStyle(Qt::RoundCap);
-    pen.setJoinStyle(Qt::RoundJoin);
-    if (borderData.line == BorderData::BdrLnNone){
-      pen.setStyle(Qt::NoPen);
-    }
-    else if (borderData.line == BorderData::BdrLnSolid){
-      pen.setStyle(Qt::SolidLine);
-    }
-    else if (borderData.line == BorderData::BdrLnDash){
-      pen.setStyle(Qt::DashLine);
-    }
-    else if (borderData.line == BorderData::BdrLnDot){
-      pen.setStyle(Qt::DotLine);
-    }
-    else if (borderData.line == BorderData::BdrLnDashDot){
-      pen.setStyle(Qt::DashDotLine);
-    }
-    else if (borderData.line == BorderData::BdrLnDashDotDot){
-      pen.setStyle(Qt::DashDotDotLine);
-    }
+  QColor penColor;
+  QColor brushColor = Qt::transparent;
+  if (borderData.type == BorderData::BdrNone) {
+     penColor = Qt::transparent;
+  } else {
+     penColor =  LDrawColor::color(borderData.color);
+  }
 
-    int bt = int(borderData.thickness);
+  QPen pen;
+  pen.setColor(penColor);
+  pen.setCapStyle(Qt::RoundCap);
+  pen.setJoinStyle(Qt::RoundJoin);
+  if (borderData.line == BorderData::BdrLnNone){
+    pen.setStyle(Qt::NoPen);
+  }
+  else if (borderData.line == BorderData::BdrLnSolid){
+    pen.setStyle(Qt::SolidLine);
+  }
+  else if (borderData.line == BorderData::BdrLnDash){
+    pen.setStyle(Qt::DashLine);
+  }
+  else if (borderData.line == BorderData::BdrLnDot){
+    pen.setStyle(Qt::DotLine);
+  }
+  else if (borderData.line == BorderData::BdrLnDashDot){
+    pen.setStyle(Qt::DashDotLine);
+  }
+  else if (borderData.line == BorderData::BdrLnDashDotDot){
+    pen.setStyle(Qt::DashDotDotLine);
+  }
 
-    QRectF prect(bt/2,bt/2,pixmap->width()-bt,pixmap->height()-bt);
+  int bt = int(borderData.thickness);
 
-    pen.setWidth(bt);
+  QRectF prect(bt/2,bt/2,pixmap.width()-bt,pixmap.height()-bt);
 
-    painter.setPen(pen);
-    painter.setBrush(brushColor);
+  pen.setWidth(bt);
 
-    if (borderData.type == BorderData::BdrRound) {
-      painter.drawRoundRect(prect,int(rx),int(ry));
-    } else {
-      painter.drawRect(prect);
-    }
+  painter.setPen(pen);
+  painter.setBrush(brushColor);
 
-    // Adjust and draw image
-    QImage image(pixmapPic->toImage());
-    if (fillMode == Stretch) {
-        pen.setCosmetic(true);
-        QSize psize = pixmap->size();
-        QSize isize = image.size();
-        qreal sx = psize.width();
-        qreal sy = psize.height();
-        sx /= isize.width();
-        sy /= isize.height();
-        painter.scale(sx,sy);
-        painter.drawImage(0,0,image);
-    } else if (fillMode == Tile) {
-        for (int y = 0; y < pixmap->height(); y += image.height()) {
-            for (int x = 0; x < pixmap->width(); x += image.width()) {
-                painter.drawImage(x,y,image);
+  if (borderData.type == BorderData::BdrRound) {
+    painter.drawRoundRect(prect,int(rx),int(ry));
+  } else {
+    painter.drawRect(prect);
+  }
+
+  // Adjust and draw image
+  if (fillMode == Stretch) {                                         // stretch
+      QSize psize = pixmap.size();
+      QSize isize = image.size();
+      qreal sx = psize.width();
+      qreal sy = psize.height();
+      sx /= isize.width();
+      sy /= isize.height();
+      painter.scale(sx,sy);
+      painter.drawImage(0,0,image);
+  } else if (fillMode == Tile) {                                    // tile
+      for (int y = 0; y < pixmap.height(); y += image.height()) {
+          for (int x = 0; x < pixmap.width(); x += image.width()) {
+              painter.drawImage(x,y,image);
             }
         }
-    } else {  // Aspect
-        painter.drawImage(0,0,image);
-    }
-    painter.end();
+  } else {                                                          // aspect
+      painter.drawImage(0,0,image);
+  }
+  painter.end();
+
+  setData(ObjectId, PageAttributePixmapObj);
+  setParentItem(parent);
+  setPixmap(pixmap);
+  setFlag(QGraphicsItem::ItemIsSelectable,movable);
+  setFlag(QGraphicsItem::ItemIsMovable,movable);
 }
 
 void PageAttributePixmapItem::change()
@@ -265,6 +256,18 @@ void PageAttributePixmapItem::change()
   }
 }
 
+void PageAttributePixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+  position = pos();
+  positionChanged = false;
+  if (fillMode == Aspect) {
+    if (event->button() == Qt::LeftButton){
+      placeGrabbers();
+    }
+  }
+  QGraphicsItem::mousePressEvent(event);
+}
+
 void PageAttributePixmapItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
@@ -288,7 +291,7 @@ void PageAttributePixmapItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *e
   QAction *imageAction          = commonMenus.changeImageMenu(menu,"Change " + name);
   QAction *borderAction         = commonMenus.borderMenu(menu,name);
   QAction *marginAction         = commonMenus.marginMenu(menu,name);
-  QAction *displayPictureAction = commonMenus.displayMenu(menu, "Hide " + name);
+  QAction *displayPictureAction = commonMenus.displayMenu(menu,name);
   QAction *deleteImageAction    = commonMenus.deleteImageMenu(menu,name);
 
   Where topOfSteps              = page->topOfSteps();
@@ -352,47 +355,43 @@ void PageAttributePixmapItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *e
                      &picScale);
 
    } else if (selectedAction == imageAction) {
-
       changeImage("Change " + name,
                    topOfSteps,
                    bottomOfSteps,
                    &page->meta.LPub.page.coverImage.file);
+
     } else if (selectedAction == borderAction) {
       changeBorder(name + " Border",
                    topOfSteps,
                    bottomOfSteps,
                    &border,
                    true,1,true,false,true/*corners*/);
-    } else if (selectedAction == marginAction) {
 
+    } else if (selectedAction == marginAction) {
       changeMargins(name + " Margins",
                     topOfSteps,
                     bottomOfSteps,
                    &margin);
 
   } else if (selectedAction == displayPictureAction){
-
       changeBool(topOfSteps,
                  bottomOfSteps,
                 &displayPicture,
                  true,1,true/*allowLocal*/,false/*askLocal*/);
 
   } else if (selectedAction == stretchAction){
-
       page->meta.LPub.page.coverImage.fill.setValue(Stretch);
       changeImageFill(topOfSteps,
                       bottomOfSteps,
                      &page->meta.LPub.page.coverImage.fill);
 
   } else if (selectedAction == tileAction){
-
       page->meta.LPub.page.coverImage.fill.setValue(Tile);
       changeImageFill(topOfSteps,
                       bottomOfSteps,
                      &page->meta.LPub.page.coverImage.fill);
 
   } else if (selectedAction == deleteImageAction){
-
       deleteMeta(page->meta.LPub.page.coverImage.file.here());
   }
 }
