@@ -52,7 +52,7 @@
  * that it was created.
  *
  ********************************************************************/
-
+Step* gStep;
 Step::Step(
     Where                  &topOfStep,
     AbstractStepsElement  *_parent,
@@ -163,6 +163,8 @@ Step::Step(
   highlightStep             = _meta.LPub.highlightStep.highlightStep.value() && !gui->suppressColourMeta();
   sceneStepNumberZ          = _meta.LPub.page.scene.stepNumber;
   sceneRotateIconZ          = _meta.LPub.page.scene.rotateIconBackground;
+
+  gStep = this;
 }
 
 /* step destructor destroys all callouts */
@@ -180,6 +182,7 @@ Step::~Step() {
       delete ca;
   }
   csiAnnotations.clear();
+  gStep = nullptr;
 }
 
 Step *Step::nextStep()
@@ -444,6 +447,19 @@ bool Step::loadTheViewer(){
         }
     }
     return true;
+}
+
+void Step::getStepLocation(Where &top, Where &bottom) {
+  if (multiStep){
+        top = topOfSteps();
+        bottom = bottomOfSteps();
+   } else if (calledOut) {
+       top = callout()->topOfCallout();
+       bottom = callout()->bottomOfCallout();
+   } else /*Single Step*/ {
+       top = topOfStep();
+       bottom = bottomOfStep();
+   }
 }
 
 /*

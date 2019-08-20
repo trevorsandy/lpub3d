@@ -726,6 +726,8 @@ public:
       return KpageScene;
   }
 
+  Step *getCurStep();
+
   QString getCurFile()
   {
       return curFile;

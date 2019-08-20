@@ -47,6 +47,7 @@
 class Meta;
 class Callout;
 class Range;
+class MetaItem;
 class ImageMatt;
 class PagePointer;
 class QGraphicsView;
@@ -121,6 +122,20 @@ class Step : public AbstractRangeElement
 
     bool loadTheViewer();
 
+    MetaItem *mi(int which)
+    {
+        switch(which){
+        case Render::Mt::PLI:
+            return static_cast<MetaItem *>(pli.background);
+        case Render::Mt::SMP:
+            return static_cast<MetaItem *>(subModel.background);
+        default:
+           return static_cast<MetaItem *>(csiItem);
+        }
+    }
+
+    void getStepLocation(Where &top, Where &bottom);
+
     void setCsiAnnotationMetas(Meta &_meta,bool = false);
 
     void appendCsiAnnotation(
@@ -167,4 +182,7 @@ class Step : public AbstractRangeElement
     virtual void addGraphicsItems(int ox, int oy, Meta *, PlacementType, QGraphicsItem *, bool);
 
 };
+
+extern class Step* gStep;
+
 #endif // stepH

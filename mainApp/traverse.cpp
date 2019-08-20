@@ -317,6 +317,11 @@ static void set_divider_pointers(
     }
 }
 
+Step *Gui::getCurStep()
+{
+    return gStep;
+}
+
 /*
  * This function, drawPage, is handed the parse state going into the page
  * that is to be displayed.  It gathers up a step group, or a single step,
