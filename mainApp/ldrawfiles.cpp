@@ -1613,7 +1613,7 @@ void LDrawFile::insertLDCadGroup(const QString &name, int lid)
   _ldcadGroups.insert(name,lid);
 }
 
-bool LDrawFile::ldcadGroupMatch(const QString &name, QStringList &lids)
+bool LDrawFile::ldcadGroupMatch(const QString &name, const QStringList &lids)
 {
   QList<int> values = _ldcadGroups.values(name);
   foreach(QString lid, lids){

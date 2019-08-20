@@ -600,7 +600,7 @@ public:
       return ldrawFile.instances(fileName, isMirrored);
   }
 
-  bool ldcadGroupMatch(const QString &name, QStringList &lids)
+  bool ldcadGroupMatch(const QString &name, const QStringList &lids)
   {
       return ldrawFile.ldcadGroupMatch(name,lids);
   }
