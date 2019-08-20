@@ -221,14 +221,17 @@ void Gui::generateCoverPages()
 void Gui::insertFinalModel(){
   MetaItem mi;
   static int modelExist = -1;
-  // get line to insert final model
-  int modelStatus = mi.okToInsertFinalModel();
-
-  if ((Preferences::enableFadeSteps || Preferences::enableHighlightStep) && modelStatus != modelExist){
-      mi.insertFinalModel(modelStatus);
-    } else if ((! Preferences::enableFadeSteps && ! Preferences::enableHighlightStep) && modelStatus == modelExist){
-      mi.deleteFinalModel();
-    }
+  if (Preferences::enableFadeSteps ||
+      Preferences::enableHighlightStep){
+      int modelStatus = mi.okToInsertFinalModel();
+      if (modelStatus != modelExist)
+        mi.insertFinalModel(modelStatus);
+  } else
+  if (! Preferences::enableFadeSteps &&
+      ! Preferences::enableHighlightStep){
+      if (mi.okToInsertFinalModel() == modelExist)
+        mi.deleteFinalModel();
+  }
 }
 
 //void Gui::insertCoverPage()
@@ -1946,7 +1949,7 @@ void Gui::editPliBomSubstituteParts()
 
 void Gui::editExcludedParts()
 {
-    QFileInfo fileInfo(QString("%1/extras/%2").arg(Preferences::lpubDataPath,Preferences::excludedPartsFile));
+    QFileInfo fileInfo(Preferences::excludedPartsFile);
     if (!fileInfo.exists()) {
         if (!ExcludedParts::exportExcludedParts()) {
             emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
@@ -2055,7 +2058,7 @@ void Gui::editAnnotationStyle()
 
 void Gui::editLD2BLCodesXRef()
 {
-    QFileInfo fileInfo(QString("%1/extras/%2").arg(Preferences::lpubDataPath,"/" VER_LPUB3D_LD2BLCODESXREF_FILE));
+    QFileInfo fileInfo(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_LD2BLCODESXREF_FILE));
     if (!fileInfo.exists()) {
         if (!Annotations::exportLD2BLCodesXRefFile()) {
             emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
@@ -2100,7 +2103,7 @@ void Gui::editBLColors()
 
 void Gui::editLD2RBCodesXRef()
 {
-    QFileInfo fileInfo(QString("%1/extras/%2").arg(Preferences::lpubDataPath,"/" VER_LPUB3D_LD2RBCODESXREF_FILE));
+    QFileInfo fileInfo(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_LD2RBCODESXREF_FILE));
     if (!fileInfo.exists()) {
         if (!Annotations::exportLD2RBCodesXRefFile()) {
             emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
