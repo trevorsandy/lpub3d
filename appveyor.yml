@@ -1,6 +1,6 @@
 # Build and check LPub3D x86 and x86_64 architectures unsing Qt/MinGW/VS2017 platforms
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: Aug 07, 2019
+# Last Update: Aug 13, 2019
 # Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 version: 'LPub3D-AV-Build-{build}'
@@ -55,6 +55,8 @@ matrix:
 # LP3D_BUILD_LDVIEW_VAR      ; rebuild LDView
 # LP3D_BUILD_POVRAY_VAR      ; rebuild LPub3D-Trace (POV-Ray)
 # LP3D_UPDATE_LDRAW_LIBS_VAR ; update cached LDraw libraries valid values are: true(all) | official | unofficial | tente | vexiq
+#
+# Set LP3D_COMPILE_SOURCE_VAR to enable LP3D_COMPILE_SOURCE (compile source only)
 #
 environment:
   LP3D_PACKAGE: LPub3D
@@ -119,7 +121,7 @@ init:
        write-host "'Update LDraw libraries equal $env:LP3D_UPDATE_LDRAW_LIBS_VAR' detected in environment variable."
      }
  - ps: |
-      If ($env:APPVEYOR_REPO_TAG -eq "true") {
+      If (($env:APPVEYOR_REPO_TAG -eq "true") -And ($env:LP3D_COMPILE_SOURCE -ne "true")) {
         If ([regex]::Match($env:APPVEYOR_REPO_TAG_NAME, '^continuous$').Success) {
           If ($env:APPVEYOR_PROJECT_NAME -eq "lpub3d") {
              write-host "Release tag '$env:APPVEYOR_REPO_TAG_NAME' detected."
