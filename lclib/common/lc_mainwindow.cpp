@@ -2702,6 +2702,10 @@ void lcMainWindow::UpdateModels()
 /*** LPub3D Mod - Update Default Camera ***/
 void lcMainWindow::UpdateDefaultCamera(lcCamera* DefaultCamera)
 {
+	if (!lcGetPreferences().mDefaultCameraProperties ||
+		!lcGetActiveProject()->GetViewerLoaded())
+		return;
+
 	lcArray<lcObject*> Selection;
 	Selection.Add(DefaultCamera);
 

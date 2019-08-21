@@ -2626,13 +2626,16 @@ void View::StartTracking(lcTrackButton TrackButton)
 	case LC_TOOL_SELECT:
 /*** LPub3D Mod - Update Default Camera ***/
 		{
-			int Flags = 0;
-			lcArray<lcObject*> Selection;
-			lcObject* Focus = nullptr;
+			if (lcGetPreferences().mDefaultCameraProperties)
+			{
+				int Flags = 0;
+				lcArray<lcObject*> Selection;
+				lcObject* Focus = nullptr;
 
 			ActiveModel->GetSelectionInformation(&Flags, Selection, &Focus);
-			if (!Selection.GetSize() && !Focus)
-				gMainWindow->UpdateDefaultCamera(mCamera);
+				if (!Selection.GetSize() && !Focus)
+					gMainWindow->UpdateDefaultCamera(mCamera);
+			}
 		}
 /*** LPub3D Mod end ***/
 		break;

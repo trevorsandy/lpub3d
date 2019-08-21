@@ -75,7 +75,7 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "ViewSphereTextColor", LC_RGBA(0, 0, 0, 255)),               // LC_PROFILE_VIEW_SPHERE_TEXT_COLOR
 	lcProfileEntry("Settings", "ViewSphereHighlightColor", LC_RGBA(255, 0, 0, 255)),        // LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR
 /*** LPub3D Mod - piece icons ***/
-    lcProfileEntry("Settings", "ViewPieceIcons", 0),                                        // LC_PROFILE_VIEW_PIECE_ICONS                          /*** LPub3D Mod - View piece icons ***/
+	lcProfileEntry("Settings", "ViewPieceIcons", 0),                                        // LC_PROFILE_VIEW_PIECE_ICONS                          /*** LPub3D Mod - View piece icons ***/
 /*** LPub3D Mod end ***/
 	lcProfileEntry("Settings", "CheckUpdates", 1),                                          // LC_PROFILE_CHECK_UPDATES
 	lcProfileEntry("Settings", "ProjectsPath", ""),                                         // LC_PROFILE_PROJECTS_PATH
@@ -124,15 +124,18 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("HTML", "PartsHeight", 128),                                             // LC_PROFILE_HTML_PARTS_HEIGHT
 
 /*** LPub3D Mod - modified POVRay path ***/
-    lcProfileEntry("POVRay", "POVRayPath", ""),                                             // LC_PROFILE_POVRAY_PATH                                 /*** LPub3D Mod - POV-ray remove default path ***/
+	lcProfileEntry("POVRay", "POVRayPath", ""),                                             // LC_PROFILE_POVRAY_PATH                                 /*** LPub3D Mod - POV-ray remove default path ***/
 /*** LPub3D Mod end ***/
 	lcProfileEntry("POVRay", "LGEOPath", ""),                                               // LC_PROFILE_POVRAY_LGEO_PATH
 	lcProfileEntry("POVRay", "Width", 1280),                                                // LC_PROFILE_POVRAY_WIDTH
-    lcProfileEntry("POVRay", "Height", 720),                                                // LC_PROFILE_POVRAY_HEIGHT
+	lcProfileEntry("POVRay", "Height", 720),                                                // LC_PROFILE_POVRAY_HEIGHT
 
+/*** LPub3D Mod - Update Default Camera ***/
+	lcProfileEntry("Settings", "DefaultCameraProperties", 0),                               //LC_PROFILE_DEFAULT_CAMERA_PROPERTIES,                  /*** LPub3D Mod - Update Default Camera ***/
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Native projection options ***/
-    lcProfileEntry("Settings", "NativeViewpoint",  7),                                      // LC_PROFILE_NATIVE_VIEWPOINT  [0 = LC_VIEWPOINT_FRONT]  /*** LPub3D Mod - Native Renderer settings ***/
-    lcProfileEntry("Settings", "NativeProjection", 0)                                       // LC_PROFILE_NATIVE_PROJECTION [0 = PERSPECTIVE, 1 = ORTHOGRAPHIC]  /*** LPub3D Mod - Native Renderer settings ***/
+	lcProfileEntry("Settings", "NativeViewpoint",  7),                                      // LC_PROFILE_NATIVE_VIEWPOINT  [0 = LC_VIEWPOINT_FRONT]  /*** LPub3D Mod - Native Renderer settings ***/
+	lcProfileEntry("Settings", "NativeProjection", 0)                                       // LC_PROFILE_NATIVE_PROJECTION [0 = PERSPECTIVE, 1 = ORTHOGRAPHIC]  /*** LPub3D Mod - Native Renderer settings ***/
 /*** LPub3D Mod end ***/
 };
 

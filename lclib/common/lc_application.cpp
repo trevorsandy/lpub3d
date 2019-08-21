@@ -42,6 +42,10 @@ void lcPreferences::LoadDefaults()
 	mViewSphereHighlightColor = lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR);
 	mAutoLoadMostRecent = lcGetProfileInt(LC_PROFILE_AUTOLOAD_MOSTRECENT);
 
+/*** LPub3D Mod - Update Default Camera ***/
+	mDefaultCameraProperties = lcGetProfileInt(LC_PROFILE_DEFAULT_CAMERA_PROPERTIES);
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - Native Renderer settings ***/
 	mNativeViewpoint = lcGetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT);
 	mNativeProjection = lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION);
@@ -72,6 +76,10 @@ void lcPreferences::SaveDefaults()
 	lcSetProfileInt(LC_PROFILE_VIEW_SPHERE_TEXT_COLOR, mViewSphereTextColor);
 	lcSetProfileInt(LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR, mViewSphereHighlightColor);
 	lcSetProfileInt(LC_PROFILE_AUTOLOAD_MOSTRECENT, mAutoLoadMostRecent);
+
+/*** LPub3D Mod - Update Default Camera ***/
+	lcSetProfileInt(LC_PROFILE_DEFAULT_CAMERA_PROPERTIES, mDefaultCameraProperties);
+/*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Native Renderer settings ***/
 	lcSetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT, mNativeViewpoint);

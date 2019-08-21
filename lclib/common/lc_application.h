@@ -49,13 +49,17 @@ public:
 	quint32 mViewSphereHighlightColor;
 	bool mAutoLoadMostRecent;
 
+/*** LPub3D Mod - Update Default Camera ***/
+	bool mDefaultCameraProperties;
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - Native Renderer settings ***/
-    int mNativeViewpoint;
-    int mNativeProjection;
+	int mNativeViewpoint;
+	int mNativeProjection;
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Timeline part icons ***/
-    bool mViewPieceIcons;
+	bool mViewPieceIcons;
 /*** LPub3D Mod end ***/
 };
 
@@ -88,10 +92,10 @@ public:
 	void ExportClipboard(const QByteArray& Clipboard);
 
 /*** LPub3D Mod - process fade parts ***/
-    bool HighlightStep();
-    bool FadePreviousSteps();
-    bool UseFadeColour();
-    QString FadeColour();
+	bool HighlightStep();
+	bool FadePreviousSteps();
+	bool UseFadeColour();
+	QString FadeColour();
 /*** LPub3D Mod end ***/
 
 	Project* mProject;

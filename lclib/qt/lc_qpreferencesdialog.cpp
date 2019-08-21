@@ -127,6 +127,10 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 #endif
 	MouseTreeItemChanged(nullptr);
 
+/*** LPub3D Mod - Update Default Camera ***/
+	ui->defaultCameraProperties->setChecked(mOptions->Preferences.mDefaultCameraProperties);
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - Native Renderer settings ***/
 	ui->ViewpointsCombo->setCurrentIndex(mOptions->Preferences.mNativeViewpoint);
 	ui->ProjectionCombo->setCurrentIndex(mOptions->Preferences.mNativeProjection);
@@ -225,6 +229,10 @@ void lcQPreferencesDialog::accept()
 	}
 
 	mOptions->Preferences.mShadingMode = (lcShadingMode)ui->ShadingMode->currentIndex();
+
+/*** LPub3D Mod - Update Default Camera ***/
+	mOptions->Preferences.mDefaultCameraProperties = ui->defaultCameraProperties->isChecked();
+/*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Native Renderer settings ***/
 	mOptions->Preferences.mNativeViewpoint = ui->ViewpointsCombo->currentIndex();
