@@ -91,7 +91,9 @@ public:
       NumberPlacementMeta &numberMetaIn,
       const char          *formatIn,
       int                  valueIn,
-      QGraphicsItem       *parentIn)    {
+      QGraphicsItem       *parentIn) :
+      isHovered(false),
+      mouseIsDown(false) {
     page = pageIn;
     QString toolTip("Times used - right-click to modify");
     setAttributes(SubmodelInstanceCountType,
@@ -103,10 +105,19 @@ public:
                   parentIn);
     setData(ObjectId, SubmodelInstanceCountObj);
     setZValue(page->meta.LPub.page.scene.submodelInstanceCount.zValue());
+    setFlag(QGraphicsItem::ItemIsSelectable,true);
+    setFlag(QGraphicsItem::ItemIsFocusable, true);
+    setAcceptHoverEvents(true);
   }
 protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+  virtual void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
+  virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+  virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+  bool isHovered;
+  bool mouseIsDown;
 };
 
 void SubmodelInstanceCount::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
@@ -186,8 +197,28 @@ void SubmodelInstanceCount::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
     }
 }
 
+void SubmodelInstanceCount::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = !this->isSelected() && !mouseIsDown;
+    QGraphicsItem::hoverEnterEvent(event);
+}
+
+void SubmodelInstanceCount::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = false;
+    QGraphicsItem::hoverLeaveEvent(event);
+}
+
+void SubmodelInstanceCount::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    mouseIsDown = true;
+    QGraphicsItem::mousePressEvent(event);
+    update();
+}
+
 void SubmodelInstanceCount::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+  mouseIsDown = false;
   QGraphicsItem::mouseReleaseEvent(event);
 
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
@@ -215,6 +246,20 @@ void SubmodelInstanceCount::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
                                 &placement,StepNumberType);
         }
     }
+
+  update();
+}
+
+void SubmodelInstanceCount::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    QPen pen;
+    pen.setColor(isHovered ? QColor(Preferences::sceneGuideColor) : Qt::black);
+    pen.setWidth(0/*cosmetic*/);
+    pen.setStyle(isHovered ? Qt::PenStyle(Preferences::sceneGuidesLine) : Qt::NoPen);
+    painter->setPen(pen);
+    painter->setBrush(Qt::transparent);
+    painter->drawRect(this->boundingRect());
+    QGraphicsTextItem::paint(painter,option,widget);
 }
 
 /*********************************************************************************

@@ -186,12 +186,16 @@ void NumberPlacementItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
   QGraphicsItem::mouseReleaseEvent(event);
 } 
 
+// Step Number
+
 PageNumberItem::PageNumberItem(
   Page                *_page,
   NumberPlacementMeta &_number,
   const char          *_format,
   int                  _value,
-  QGraphicsItem       *_parent)
+  QGraphicsItem       *_parent) :
+  isHovered(false),
+  mouseIsDown(false)
 {
   page = _page;
   QString toolTip("Page Number - use popu menu");
@@ -204,6 +208,9 @@ PageNumberItem::PageNumberItem(
                 _parent);
   setData(ObjectId, PageNumberObj);
   setZValue(PAGENUMBER_ZVALUE_DEFAULT);
+  setFlag(QGraphicsItem::ItemIsSelectable,true);
+  setFlag(QGraphicsItem::ItemIsFocusable, true);
+  setAcceptHoverEvents(true);
 }
 
 void PageNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
@@ -277,8 +284,29 @@ void PageNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   }
 }
 
+void PageNumberItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = !this->isSelected() && !mouseIsDown;
+    QGraphicsItem::hoverEnterEvent(event);
+}
+
+void PageNumberItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = false;
+    QGraphicsItem::hoverLeaveEvent(event);
+}
+
+void PageNumberItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    mouseIsDown = true;
+    QGraphicsItem::mousePressEvent(event);
+    update();
+}
+
 void PageNumberItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+  mouseIsDown = false;
+
   QGraphicsItem::mouseReleaseEvent(event);
 
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
@@ -304,7 +332,22 @@ void PageNumberItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
                             StepNumberType);
     }
   }
+  update();
 }
+
+void PageNumberItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    QPen pen;
+    pen.setColor(isHovered ? QColor(Preferences::sceneGuideColor) : Qt::black);
+    pen.setWidth(0/*cosmetic*/);
+    pen.setStyle(isHovered ? Qt::PenStyle(Preferences::sceneGuidesLine) : Qt::NoPen);
+    painter->setPen(pen);
+    painter->setBrush(Qt::transparent);
+    painter->drawRect(this->boundingRect());
+    QGraphicsTextItem::paint(painter,option,widget);
+}
+
+// Step Number
 
 StepNumberItem::StepNumberItem(
   Step                *_step,
@@ -313,7 +356,9 @@ StepNumberItem::StepNumberItem(
   const char          *_format,
   int                  _value,
   QGraphicsItem       *_parent,
-  QString              _name)
+  QString              _name) :
+  isHovered(false),
+  mouseIsDown(false)
 {
   step = _step;
   QString _toolTip("Step Number - right-click to modify");
@@ -400,8 +445,29 @@ void StepNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     }
 }
 
+void StepNumberItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = !this->isSelected() && !mouseIsDown;
+    QGraphicsItem::hoverEnterEvent(event);
+}
+
+void StepNumberItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = false;
+    QGraphicsItem::hoverLeaveEvent(event);
+}
+
+void StepNumberItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    mouseIsDown = true;
+    QGraphicsItem::mousePressEvent(event);
+    update();
+}
+
 void StepNumberItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+  mouseIsDown = false;
+
   QGraphicsItem::mouseReleaseEvent(event);
 
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
@@ -423,5 +489,18 @@ void StepNumberItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
       changePlacementOffset(step->topOfStep(),&placement,StepNumberType);
     }
   }
+  update();
+}
+
+void StepNumberItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    QPen pen;
+    pen.setColor(isHovered ? QColor(Preferences::sceneGuideColor) : Qt::black);
+    pen.setWidth(0/*cosmetic*/);
+    pen.setStyle(isHovered ? Qt::PenStyle(Preferences::sceneGuidesLine) : Qt::NoPen);
+    painter->setPen(pen);
+    painter->setBrush(Qt::transparent);
+    painter->drawRect(this->boundingRect());
+    QGraphicsTextItem::paint(painter,option,widget);
 }
 

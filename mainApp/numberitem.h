@@ -139,7 +139,13 @@ public:
     QGraphicsItem *parent);
 protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+  virtual void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
+  virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+  virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+  bool isHovered;
+  bool mouseIsDown;
 };
 
 class StepNumberItem : public NumberPlacementItem
@@ -157,5 +163,11 @@ public:
 protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+  virtual void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
+  virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
+  virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+  bool isHovered;
+  bool mouseIsDown;
 };
 #endif

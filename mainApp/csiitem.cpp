@@ -46,7 +46,9 @@ CsiItem::CsiItem(
   QPixmap       &pixmap,
   int            _submodelLevel,
   QGraphicsItem *parent,
-  PlacementType  _parentRelativeType)
+  PlacementType  _parentRelativeType) :
+  isHovered(false),
+  mouseIsDown(false)
 {
   step               = _step;
   meta               = _meta;
@@ -74,7 +76,9 @@ CsiItem::CsiItem(
   setToolTip(step->path() + "- right-click to modify");
 
   setFlag(QGraphicsItem::ItemIsSelectable,true);
+  setFlag(QGraphicsItem::ItemIsFocusable, true);
   setFlag(QGraphicsItem::ItemIsMovable,true);
+  setAcceptHoverEvents(true);
   setData(ObjectId, AssemObj);
   setZValue(meta->LPub.page.scene.assem.zValue());
 }
@@ -504,14 +508,28 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     }
 }
 
+void CsiItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = !this->isSelected() && !mouseIsDown;
+    QGraphicsItem::hoverEnterEvent(event);
+}
+
+void CsiItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = false;
+    QGraphicsItem::hoverLeaveEvent(event);
+}
+
 void CsiItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+  mouseIsDown = true;
   QGraphicsItem::mousePressEvent(event);
   positionChanged = false;
   //placeGrabbers();
   position = pos();
   gui->showLine(step->topOfStep());
   step->loadTheViewer();
+  update();
 }
 
 void CsiItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
@@ -534,6 +552,8 @@ void CsiItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 void CsiItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+  mouseIsDown = false;
+
   QGraphicsItem::mouseReleaseEvent(event);
 
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
@@ -560,6 +580,7 @@ void CsiItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
       endMacro();
     }
   }
+  update();
 }
 
 void CsiItem::change()
@@ -590,4 +611,16 @@ void CsiItem::change()
       endMacro();
     }
   }
+}
+
+void CsiItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    QPen pen;
+    pen.setColor(isHovered ? QColor(Preferences::sceneGuideColor) : Qt::black);
+    pen.setWidth(0/*cosmetic*/);
+    pen.setStyle(isHovered ? Qt::PenStyle(Preferences::sceneGuidesLine) : Qt::NoPen);
+    painter->setPen(pen);
+    painter->setBrush(Qt::transparent);
+    painter->drawRect(this->boundingRect());
+    QGraphicsPixmapItem::paint(painter,option,widget);
 }
