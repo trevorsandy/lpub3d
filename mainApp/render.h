@@ -42,15 +42,13 @@ class RotStepMeta;
 class FloatPairMeta;
 class NativeOptions;
 class ViewerOptions;
-class NativePov;
-class lcVector3;
 class Project;
 
 class Render
 {
 public:
   Render() {}
-  enum Mt { PLI, CSI };
+  enum Mt { PLI, CSI ,SMP};
   virtual ~Render() {}
   static QString const   getRenderer();
   static bool            useLDViewSCall();

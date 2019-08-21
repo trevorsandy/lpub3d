@@ -2017,7 +2017,8 @@ bool Render::LoadViewer(const ViewerOptions &Options){
     Project* StepProject = new Project();
     StepProject->SetImageArgs(Options.ImageFileName,
                               Options.ImageWidth,
-                              Options.ImageHeight);
+                              Options.ImageHeight,
+                              Options.ImageType);
     if (LoadStepProject(StepProject, viewerCsiKey)){
         gApplication->SetProject(StepProject);
         gMainWindow->UpdateAllViews();
