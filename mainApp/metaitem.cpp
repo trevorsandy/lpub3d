@@ -2603,60 +2603,62 @@ void MetaItem::insertPage(QString &meta)
   endMacro();
 }
 
-void MetaItem::appendPage(QString &meta)
+void MetaItem::appendPage(QString &metaCommand)
 {
-  // start at the bottom of the page's last step
-  Where bottomOfStep = gui->topOfPages[gui->displayPageNum+1];
-  bottomOfStep.lineNumber = gui->subFileSize(bottomOfStep.modelName); //adjust to start at absolute bottom of file
-  bottomOfStep--;                                                     //adjust for zero-start index
+  Rc rc;
+  QString line;
+  Meta mi;
+  Where bottomOfStep(gui->topOfPages[gui->displayPageNum]);  //start at the bottom of the page's last step
 
-  bool addStep = false;
-  bool token_1_5 = false;
+  bool addStepMeta = false;
+  Where here = bottomOfStep;
+  int numLines = gui->subFileSize(here.modelName);
 
-  Where walk = bottomOfStep;
-  int numLines = gui->subFileSize(walk.modelName);
-
-  // walk backwards (towards the top of the page) until we hit one of the following...
-  for (; walk < numLines && walk > 0; --walk) {
-    QString line = gui->readLine(walk);
-    QStringList tokens;
-    split(line,tokens);
-    // if we hit COVER_PAGE, set addStep and stop the loop.
-    token_1_5 = tokens.size() && tokens[0].size() == 1 && tokens[0] >= "1" && tokens[0] <= "5"; //non-zeor line detected
-    if (token_1_5 || (tokens.size() == 4  && tokens[2] == "INSERT" && tokens[3] == "COVER_PAGE")) {
-      addStep = true;
+  for ( ; here > 0; --here) {                                //scan from bottom to top of file
+    line = gui->readLine(here);
+    rc = mi.parse(line,here);
+    if (rc == StepRc || rc == RotStepRc ||
+        rc == StepGroupEndRc || rc == CalloutEndRc) {         //we are on a boundary command so advance one line and break
+        here++;
       break;
     }
-    // if we hit STEP or ROTSTEP, stop the loop.
-    if ((tokens.size() == 2 && tokens[0] == "0" && tokens[1] == "STEP") ||
-        (tokens.size() > 2  && tokens[0] == "0" && tokens[1] == "ROTSTEP")) {
+
+    QStringList tokens;
+    split(line,tokens);
+    bool token_1_5 = tokens.size() &&                        //no boundary command so check for valid step content
+         tokens[0].size() == 1 &&
+         tokens[0] >= "1" && tokens[0] <= "5";
+    if (token_1_5 || isHeader(line) ||
+       (tokens.size() == 4 &&
+        tokens[2] == "INSERT" &&
+        tokens[3] == "COVER_PAGE")) {
+      addStepMeta = true;
       break;
     }
   }
-  // from the bottom of the page, if addStep not step, walk forward (towards the bottom of the page)
-  // until we hit a valid part (type 1) line, PAGE, or BOM meta and set addStep.
-  walk = bottomOfStep;
-  if ( ! addStep) {
-    for ( ; walk < numLines; ++walk) {
-      QString line = gui->readLine(walk);
+
+  if ( ! addStepMeta) {
+    for ( ; here < numLines; ++here) {
+      QString line = gui->readLine(here);
       QStringList tokens;
       split(line,tokens);
-
-      token_1_5 = tokens.size() && tokens[0].size() == 1 && tokens[0] >= "1" && tokens[0] <= "5"; //non-zeor line detected
-      if (token_1_5 ||
-          (tokens.size() == 4  && tokens[2] == "INSERT" && tokens[3] == "PAGE") ||
-          (tokens.size() == 4  && tokens[2] == "INSERT" && tokens[3] == "BOM")) {
-        addStep = true;
+      bool token_1_5 = tokens.size() &&
+                       tokens[0].size() == 1 &&
+                       tokens[0] >= "1" &&
+                       tokens[0] <= "5";                      //non-zeor line detected
+      if (token_1_5 || (tokens.size() >= 4  && tokens[2].contains(QRegExp("^INSERT$")))) {
+        addStepMeta = true;
         break;
       }
     }
   }
+
   beginMacro("appendPage");
-  if (addStep) {
-    appendMeta(bottomOfStep,"0 STEP");
+  appendMeta(bottomOfStep,metaCommand);
+  if (addStepMeta) {
     bottomOfStep++;
+    appendMeta(bottomOfStep,"0 STEP");
   }
-  appendMeta(bottomOfStep,meta);
   endMacro();
 }
 
