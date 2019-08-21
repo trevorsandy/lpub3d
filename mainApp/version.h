@@ -78,6 +78,7 @@
 #define VER_PDFPRINT_IMAGE_FILE             "PDFPrint.jpg"
 #define VER_LDVMESSAGESINI_FILE             "ldvMessages.ini"
 
+#define VER_ROTATE_ICON_FILE                "rotate-icon.png"
 #define VER_PLI_CONTROL_FILE                "pli.mpd"
 #define VER_LEGO_PLI_CONTROL_FILE           "LEGOPliControl.ldr"
 #define VER_TENTE_PLI_CONTROL_FILE          "TENTEPliControl.ldr"

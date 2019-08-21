@@ -1971,10 +1971,18 @@ BackgroundGui::BackgroundGui(
   bool rotateIcon = false;
   QDialog *parentDialog = dynamic_cast<QDialog*>(parent->parent());
   if (parentDialog) {
-          logDebug() << "Grandparent Window TITLE " + parentDialog->windowTitle();
+      //logDebug() << "Grandparent Window TITLE " + parentDialog->windowTitle();
       rotateIcon = parentDialog->windowTitle().contains("Rotate Icon");
   }
-  picture = QString(":/resources/rotate-icon.png");
+
+  if (rotateIcon){
+      QDir extrasDir(Preferences::lpubDataPath + QDir::separator() + "extras");
+      QFileInfo rotateIconFileInfo(extrasDir.absolutePath() + QDir::separator() + VER_ROTATE_ICON_FILE);
+      if (rotateIconFileInfo.exists())
+          picture = QString(rotateIconFileInfo.absoluteFilePath());
+      else
+          picture = QString(":/resources/rotate-icon.png");
+  }
 
   if (background.type == BackgroundData::BgImage) {
       if (!background.string.isEmpty())
@@ -2122,7 +2130,6 @@ void BackgroundGui::typeChange(QString const &type)
   if (type == "None (transparent)") {
       background.type = BackgroundData::BgTransparent;
     } else if (type == "Picture") {
-      picture = QString(":/resources/rotate-icon.png");
       pictureEdit->setText(picture);
       background.string = picture;
       background.type = BackgroundData::BgImage;
