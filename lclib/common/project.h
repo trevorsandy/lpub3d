@@ -95,6 +95,7 @@ public:
 		mImageWidth    = width;
 		mImageHeight   = height;
 		mImageType     = type;
+		mViewerLoaded  = true;
 	}
 	QString GetImageName() const
 	{
@@ -111,6 +112,10 @@ public:
 	int GetImageType() const
 	{
 		return mImageType;
+	}
+	bool GetViewerLoaded() const
+	{
+		return mViewerLoaded;
 	}
 /*** LPub3D Mod end ***/
 
@@ -162,6 +167,7 @@ protected:
 	int mImageWidth;
 	int mImageHeight;
 	int mImageType;
+	bool mViewerLoaded;
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - create Native PLI image ***/
