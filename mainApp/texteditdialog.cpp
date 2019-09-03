@@ -41,6 +41,9 @@ TextEditDialog::TextEditDialog(QString &goods, QString windowTitle, bool richTex
 
     text = goods;
 
+    if (windowTitle.contains("Renderer Arguments"))
+        ui->statusBar->showMessage("Enter space delimited renderer arguments.");
+
 // Disable menu actions for unavailable features
 #if !QT_CONFIG(clipboard)
     ui->actionCut->setEnabled(false);
