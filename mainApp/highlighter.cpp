@@ -353,6 +353,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bHIGHLIGHT_STEP\\b"
     << "\\bHORIZONTAL\\b"
     << "\\bHOSE\\b"
+    << "\\bHTML_TEXT\\b"
     << "\\bICON\\b"
     << "\\bIGN\\b"
     << "\\bINCLUDE\\b"

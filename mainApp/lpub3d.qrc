@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/resources">
         <file alias="3ds32.png">resources/3ds32.png</file>
+        <file alias="accept.png">resources/accept.png</file>
         <file alias="actual.png">resources/actual.png</file>
         <file alias="add.png">resources/add.png</file>
         <file alias="addassembledimage.png">resources/addassembledimage.png</file>
@@ -20,6 +21,7 @@
         <file alias="autocomplete.lst">resources/autocomplete.lst</file>
         <file alias="back.png">resources/back.png</file>
         <file alias="background.png">resources/background.png</file>
+		<file alias="bold.png">resources/bold.png</file>
         <file alias="bomannotation.png">resources/bomannotation.png</file>
         <file alias="bomsetup.png">resources/bomsetup.png</file>
         <file alias="border.png">resources/border.png</file>
@@ -107,6 +109,7 @@
         <file alias="insertcoverpage.png">resources/insertcoverpage.png</file>
         <file alias="insertpage.png">resources/insertpage.png</file>
         <file alias="instructionsetup.png">resources/instructionsetup.png</file>
+		<file alias="italic.png">resources/italic.png</file>
         <file alias="last.png">resources/last.png</file>
         <file alias="ldraw_document.icns">ldraw_document.icns</file>
         <file alias="left.png">resources/left.png</file>
@@ -168,6 +171,7 @@
         <file alias="resetcache.png">resources/resetcache.png</file>
         <file alias="resetlineattributes.png">resources/resetlineattributes.png</file>
         <file alias="resetsetting.png">resources/resetsetting.png</file>
+		<file alias="richtext.png">resources/richtext.png</file>
         <file alias="right.png">resources/right.png</file>
         <file alias="rotate.png">resources/rotate.png</file>
         <file alias="rotateicon.png">resources/rotateicon.png</file>
@@ -192,12 +196,14 @@
         <file alias="submodelsetup.png">resources/submodelsetup.png</file>
         <file alias="substitutepart.png">resources/substitutepart.png</file>
         <file alias="textDelete.png">resources/textDelete.png</file>
+		<file alias="textedit.png">resources/textedit.png</file>
         <file alias="tileimage.png">resources/tileimage.png</file>
         <file alias="togglecomment.png">resources/togglecomment.png</file>
         <file alias="togglepartoutline.png">resources/togglepartoutline.png</file>
         <file alias="top.png">resources/top.png</file>
         <file alias="topofdocument.png">resources/topofdocument.png</file>
         <file alias="treataspart.png">resources/treataspart.png</file>
+		<file alias="underline.png">resources/underline.png</file>
         <file alias="unpackcallout.png">resources/unpackcallout.png</file>
         <file alias="unrotate.png">resources/unrotate.png</file>
         <file alias="update.png">resources/update.png</file>

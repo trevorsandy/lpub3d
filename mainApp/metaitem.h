@@ -498,6 +498,7 @@ public:
   void deleteBOM();
   void deleteBOMPartGroups();
   void deletePage();
+  void updateText(const Where &, const QString &, bool, bool = false);
   void deleteImageItem(Where &, QString &);
   void deletePLIPartGroups(const Where &,const Where &);
 

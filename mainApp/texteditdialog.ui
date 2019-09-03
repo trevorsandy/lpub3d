@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TextEditDialog</class>
+ <widget class="QDialog" name="TextEditDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>569</width>
+    <height>157</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>TextEditDialog</string>
+  </property>
+  <property name="sizeGripEnabled">
+   <bool>true</bool>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QToolBar" name="mainToolBar">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <addaction name="actionNew"/>
+       <addaction name="separator"/>
+       <addaction name="actionCopy"/>
+       <addaction name="actionCut"/>
+       <addaction name="actionPaste"/>
+       <addaction name="actionUndo"/>
+       <addaction name="actionRedo"/>
+       <addaction name="separator"/>
+       <addaction name="actionFont"/>
+       <addaction name="actionRichText"/>
+       <addaction name="actionFontColor"/>
+       <addaction name="actionBold"/>
+       <addaction name="actionItalic"/>
+       <addaction name="actionUnderline"/>
+       <addaction name="separator"/>
+       <addaction name="actionAccept"/>
+       <addaction name="actionCancel"/>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>48</width>
+         <height>31</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QTextEdit" name="textEdit"/>
+   </item>
+   <item>
+    <widget class="QStatusBar" name="statusBar">
+     <property name="sizeGripEnabled">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+  <action name="actionNew">
+   <property name="icon">
+    <iconset resource="lpub3d.qrc">
+     <normaloff>:/resources/new.png</normaloff>:/resources/new.png</iconset>
+   </property>
+   <property name="text">
+    <string>New</string>
+   </property>
+   <property name="toolTip">
+    <string>New</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionAccept">
+   <property name="icon">
+    <iconset resource="lpub3d.qrc">
+     <normaloff>:/resources/accept.png</normaloff>:/resources/accept.png</iconset>
+   </property>
+   <property name="text">
+    <string>Accept</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
+   </property>
+  </action>
+  <action name="actionCancel">
+   <property name="icon">
+    <iconset theme="exit.png" resource="lpub3d.qrc">
+     <normaloff>:/resources/exit.png</normaloff>:/resources/exit.png</iconset>
+   </property>
+   <property name="text">
+    <string>Cancel</string>
+   </property>
+   <property name="toolTip">
+    <string>Cancel</string>
+   </property>
+  </action>
+  <action name="actionCopy">
+   <property name="icon">
+    <iconset resource="lpub3d.qrc">
+     <normaloff>:/resources/copy.png</normaloff>:/resources/copy.png</iconset>
+   </property>
+   <property name="text">
+    <string>Copy</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionCut">
+   <property name="icon">
+    <iconset resource="lpub3d.qrc">
+     <normaloff>:/resources/cut.png</normaloff>:/resources/cut.png</iconset>
+   </property>
+   <property name="text">
+    <string>Cut</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
+   </property>
+  </action>
+  <action name="actionPaste">
+   <property name="icon">
+    <iconset resource="lpub3d.qrc">
+     <normaloff>:/resources/paste.png</normaloff>:/resources/paste.png</iconset>
+   </property>
+   <property name="text">
+    <string>Paste</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="icon">
+    <iconset resource="lpub3d.qrc">
+     <normaloff>:/resources/editundo.png</normaloff>:/resources/editundo.png</iconset>
+   </property>
+   <property name="text">
+    <string>Undo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="icon">
+    <iconset resource="lpub3d.qrc">
+     <normaloff>:/resources/editredo.png</normaloff>:/resources/editredo.png</iconset>
+   </property>
+   <property name="text">
+    <string>Redo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Y</string>
+   </property>
+  </action>
+  <action name="actionFont">
+   <property name="icon">
+    <iconset resource="lpub3d.qrc">
+     <normaloff>:/resources/font.png</normaloff>:/resources/font.png</iconset>
+   </property>
+   <property name="text">
+    <string>Font</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
+   </property>
+  </action>
+  <action name="actionItalic">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="lpub3d.qrc">
+     <normaloff>:/resources/italic.png</normaloff>:/resources/italic.png</iconset>
+   </property>
+   <property name="text">
+    <string>Italic</string>
+   </property>
+   <property name="toolTip">
+    <string>Italic font</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
+   </property>
+  </action>
+  <action name="actionBold">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="lpub3d.qrc">
+     <normaloff>:/resources/bold.png</normaloff>:/resources/bold.png</iconset>
+   </property>
+   <property name="text">
+    <string>Bold</string>
+   </property>
+   <property name="toolTip">
+    <string>Bold</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+B</string>
+   </property>
+  </action>
+  <action name="actionUnderline">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="lpub3d.qrc">
+     <normaloff>:/resources/underline.png</normaloff>:/resources/underline.png</iconset>
+   </property>
+   <property name="text">
+    <string>Underline</string>
+   </property>
+   <property name="toolTip">
+    <string>Underline</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+U</string>
+   </property>
+  </action>
+  <action name="actionRichText">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="lpub3d.qrc">
+     <normaloff>:/resources/richtext.png</normaloff>:/resources/richtext.png</iconset>
+   </property>
+   <property name="text">
+    <string>Rich Text</string>
+   </property>
+   <property name="toolTip">
+    <string>Rich text</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionFontColor">
+   <property name="icon">
+    <iconset resource="lpub3d.qrc">
+     <normaloff>:/resources/fontColour.png</normaloff>:/resources/fontColour.png</iconset>
+   </property>
+   <property name="text">
+    <string>FontColor</string>
+   </property>
+   <property name="toolTip">
+    <string>Font color</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources>
+  <include location="lpub3d.qrc"/>
+  <include location="lpub3d.qrc"/>
+ </resources>
+ <connections/>
+</ui>

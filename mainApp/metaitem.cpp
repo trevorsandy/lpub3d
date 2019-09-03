@@ -60,6 +60,7 @@
 #include "submodelcolordialog.h"
 #include "cameradistfactordialog.h"
 #include "pointerattribdialog.h"
+#include "texteditdialog.h"
 #include "rotstepdialog.h"
 #include "substitutepartdialog.h"
 #include "paths.h"
@@ -2691,19 +2692,23 @@ void MetaItem::insertPicture()
   }
 }
 
-void MetaItem::insertText()
+void MetaItem::updateText(const Where &here, const QString &_text, bool _isHtml, bool insert)
 {
-  bool ok;
-  QString text = QInputDialog::getMultiLineText(nullptr, QInputDialog::tr("Text"),
-                                                QInputDialog::tr("Input:"),
-                                                QString(), &ok);
-  if (ok && !text.isEmpty()) {
+    QString text = _text;
+    bool isHtml = _isHtml;
 
-      QStringList list = text.split("\n");
+    if (!text.isEmpty()){
+      QStringList pre = text.split("\\n");
+      text = pre.join(" ");
+    }
 
-      QStringList list2;
-      foreach (QString string, list){
-        string = string.trimmed();
+    bool ok = TextEditDialog::getText(text,isHtml,QString("Edit %1 Text").arg(isHtml ? "HTML" : "Plain"),true);
+    if (ok && !text.isEmpty()) {
+
+    QStringList list = text.split("\n");
+    QStringList list2;
+    foreach (QString string, list){
+      string = string.trimmed();
         QRegExp rx2("\"");
         int pos = 0;
         QChar esc('\\');
@@ -2720,13 +2725,27 @@ void MetaItem::insertText()
         // if last character is \, append space ' ' so not to escape closing string double quote
         if (string.at(string.size()-1) == QChar('\\'))
           string.append(QChar(' '));
-        list2 << string;
-      }
+      list2 << string;
+    }
 
-      QString meta = QString("0 !LPUB INSERT TEXT \"%1\" \"%2\" \"%3\"") .arg(list2.join("\\n")) .arg("Arial,36,-1,255,75,0,0,0,0,0") .arg("Black");
-      Where insertPosition, walkBack, topOfStep, bottomOfStep;
+    QString meta;
+    if (isHtml)
+      meta = QString("0 !LPUB INSERT HTML_TEXT \"%1\"") .arg(list2.join("\\n"));
+    else
+      meta = QString("0 !LPUB INSERT TEXT \"%1\" \"%2\" \"%3\"") .arg(list2.join("\\n")) .arg("Arial,36,-1,255,75,0,0,0,0,0") .arg("Black");
 
-      bool multiStep = false;
+    if (insert)
+      appendMeta(here,meta);
+    else
+      replaceMeta(here,meta);
+  }
+}
+
+void MetaItem::insertText()
+{
+    Where insertPosition, walkBack, topOfStep, bottomOfStep;
+
+    bool multiStep = false;
 
       Steps *steps = dynamic_cast<Steps *>(&gui->page);
       if (steps && steps->list.size() > 0) {
@@ -2738,10 +2757,10 @@ void MetaItem::insertText()
                   multiStep = true;
                 }
             }
-        }
+      }
 
       if (multiStep) {
-          topOfStep = steps->bottomOfSteps();
+          insertPosition = steps->bottomOfSteps();
         } else {
           topOfStep = gui->topOfPages[gui->displayPageNum-1];
           // capture model when different from model at top of page
@@ -2763,11 +2782,10 @@ void MetaItem::insertText()
               }
             }
             insertPosition = walkBack;
-          }
-          scanPastGlobal(insertPosition);
-        }
-      appendMeta(insertPosition,meta);
+      }
+      scanPastGlobal(insertPosition);
     }
+    updateText(insertPosition, QString(), false, true /*insert*/);
 }
 
 void MetaItem::insertBOM()

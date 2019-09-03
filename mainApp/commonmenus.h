@@ -43,6 +43,10 @@ public:
             QMenu   &menu,
       const QString  name = "");
 
+  QAction *textMenu(
+          QMenu   &menu,
+    const QString  name = "");
+
   QAction *colorMenu(
           QMenu   &menu, 
     const QString  name = "");

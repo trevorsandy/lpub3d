@@ -395,6 +395,7 @@ public:
   {
     InsertPicture,
     InsertText,
+    InsertHtmlText,
     InsertArrow,
     InsertBom,
     InsertRotateIcon,

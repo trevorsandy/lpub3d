@@ -47,11 +47,10 @@ TextItem::TextItem(
   QColor color(data.textColor);
   setDefaultTextColor(color);
 
-  QString string;
-
   QStringList list = data.text.split("\\n");
 
   QStringList list2;
+
   foreach (QString string, list){
     string = string.trimmed();
     QRegExp rx2("\"");
@@ -70,9 +69,13 @@ TextItem::TextItem(
     if (string.at(string.size()-1) == QChar('\\'))
       string.append(QChar(' '));
     list2 << string;
-  }
 
-  setPlainText(list2.join("\n"));
+    if (data.type == InsertData::InsertHtmlText)
+      setHtml(list2.join("\n"));
+    else
+    if (data.type == InsertData::InsertText)
+      setPlainText(list2.join("\n"));
+  }
 
   setTextInteractionFlags(Qt::TextEditorInteraction);
 
@@ -82,14 +85,54 @@ TextItem::TextItem(
   margin.setValues(0.0,0.0);
 }
 
+void TextItem::formatText(const QString &input, QString &output)
+{
+    QStringList list = input.split("\n");
+
+    QStringList list2;
+    foreach (QString string, list){
+      string = string.trimmed();
+      QRegExp rx2("\"");
+      int pos = 0;
+      QChar esc('\\');
+      while ((pos = rx2.indexIn(string, pos)) != -1) {
+        pos += rx2.matchedLength();
+        if (pos < string.size()) {
+          QChar ch = string.at(pos-1);
+          if (ch != esc) {
+            string.insert(pos-1,&esc,1);
+            pos++;
+          }
+        }
+      }
+      // if last character is \, append space ' ' so not to escape closing string double quote
+      if (string.at(string.size()-1) == QChar('\\'))
+        string.append(QChar(' '));
+      list2 << string;
+    }
+
+   output = list2.join("\\n");
+}
+
 void TextItem::contextMenuEvent(
   QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
   QString pl = "Text";
 
-  QAction *editFontAction  = commonMenus.fontMenu(menu,pl);
-  QAction *editColorAction = commonMenus.colorMenu(menu,pl);
+  InsertData data = meta.value();
+  bool richText = data.type == InsertData::InsertHtmlText;
+
+  QAction *editTextAction  = nullptr;
+  QAction *editFontAction  = nullptr;
+  QAction *editColorAction = nullptr;
+
+  if (richText) {
+      editTextAction = commonMenus.textMenu(menu,pl);
+  } else {
+      editFontAction  = commonMenus.fontMenu(menu,pl);
+      editColorAction = commonMenus.colorMenu(menu,pl);
+  }
 
   QAction *deleteTextAction = menu.addAction("Delete This Text");
   deleteTextAction->setIcon(QIcon(":/resources/textDelete.png"));
@@ -112,9 +155,12 @@ void TextItem::contextMenuEvent(
     return;
   }
 
-  if (selectedAction == editFontAction) {
+  if (selectedAction == editTextAction) {
 
-    InsertData data = meta.value();
+    updateText(here, data.text, richText);
+
+  } else if (selectedAction == editFontAction) {
+
     FontMeta font;
     font.setValuePoints(data.textFont);
 
@@ -205,31 +251,15 @@ void TextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
     calcOffsets(pld,insertData.offsets,topLeft,size);
 
-    QStringList list = toPlainText().split("\n");
+    QString input,output;
+    if (insertData.type == InsertData::InsertHtmlText)
+       input = toHtml();
+    else
+       input = toPlainText();
 
-    QStringList list2;
-    foreach (QString string, list){
-      string = string.trimmed();
-      QRegExp rx2("\"");
-      int pos = 0;
-      QChar esc('\\');
-      while ((pos = rx2.indexIn(string, pos)) != -1) {
-        pos += rx2.matchedLength();
-        if (pos < string.size()) {
-          QChar ch = string.at(pos-1);
-          if (ch != esc) {
-            string.insert(pos-1,&esc,1);
-            pos++;
-          }
-        }
-      }
-      // if last character is \, append space ' ' so not to escape closing string double quote
-      if (string.at(string.size()-1) == QChar('\\'))
-        string.append(QChar(' '));
-      list2 << string;
-    }
+    formatText(input, output);
 
-    insertData.text = list2.join("\\n");
+    insertData.text = output;
     meta.setValue(insertData);
 
     beginMacro(QString("MoveText"));
@@ -252,31 +282,15 @@ void TextItem::focusOutEvent(QFocusEvent *event)
   if (textChanged) {
     InsertData insertData = meta.value();
 
-    QStringList list = toPlainText().split("\n");
+    QString input,output;
+    if (insertData.type == InsertData::InsertHtmlText)
+       input = toHtml();
+    else
+       input = toPlainText();
 
-    QStringList list2;
-    foreach (QString string, list){
-      string = string.trimmed();
-      QRegExp rx2("\"");
-      int pos = 0;
-      QChar esc('\\');
-      while ((pos = rx2.indexIn(string, pos)) != -1) {
-        pos += rx2.matchedLength();
-        if (pos < string.size()) {
-          QChar ch = string.at(pos-1);
-          if (ch != esc) {
-            string.insert(pos-1,&esc,1);
-            pos++;
-          }
-        }
-      }
-      // if last character is \, append space ' ' so not to escape closing string double quote
-      if (string.at(string.size()-1) == QChar('\\'))
-        string.append(QChar(' '));
-      list2 << string;
-    }
+    formatText(input, output);
 
-    insertData.text = list2.join("\\n");
+    insertData.text = output;
     meta.setValue(insertData);
 
     beginMacro(QString("EditText"));

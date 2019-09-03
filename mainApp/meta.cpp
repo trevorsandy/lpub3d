@@ -2415,6 +2415,12 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
       insertData.textFont   = argv[++index];
       insertData.textColor  = argv[++index];
       ++index;
+    } else if (argv.size() - index > 3 && argv[index] == "HTML_TEXT") {
+      insertData.type       = InsertData::InsertHtmlText;
+      insertData.text       = argv[++index];
+//      insertData.textFont   = argv[++index];
+//      insertData.textColor  = argv[++index];
+      ++index;
     } else if (argv[index] == "ROTATE_ICON"){
       insertData.type = InsertData::InsertRotateIcon;
       ++index;

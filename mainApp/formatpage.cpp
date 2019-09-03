@@ -562,6 +562,7 @@ int Gui::addGraphicsPageItems(
               }
               break;
             case InsertData::InsertText:
+            case InsertData::InsertHtmlText:
               {
                 TextItem *text = new TextItem(page->inserts[i],pageBg);
                 text->setZValue(page->meta.LPub.page.scene.insertText.zValue());

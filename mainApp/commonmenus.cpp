@@ -123,6 +123,22 @@ QAction* CommonMenus::constrainMenu(
   return action;
 }
 
+QAction* CommonMenus::textMenu(
+        QMenu   &menu,
+  const QString  name)
+{
+  QAction *action;
+
+  QString formatted = QString("Edit %1...") .arg(name);
+  action = menu.addAction(formatted);
+  action->setIcon(QIcon(":/resources/textedit.png"));
+
+  formatted = QString("You can edit the text with this dialog %1") .arg(name);
+  action->setWhatsThis(formatted);
+
+  return action;
+}
+
 QAction* CommonMenus::colorMenu(
         QMenu   &menu, 
   const QString  name)

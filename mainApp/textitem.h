@@ -47,6 +47,8 @@ public:
     InsertMeta meta,
     QGraphicsItem *parent);
 
+ void formatText(const QString &input, QString &output);
+
 protected:
   void mousePressEvent(QGraphicsSceneMouseEvent * /* event */);
   void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
