@@ -530,15 +530,6 @@ void CsiAnnotationItem::contextMenuEvent(
   QAction *toggleCsiPartRectAction = menu.addAction("Toggle Part Outline");
   toggleCsiPartRectAction->setIcon(QIcon(":/resources/togglepartoutline.png"));
 
-  QAction *bringToFrontAction = nullptr;
-  QAction *sendToBackBackAction = nullptr;
-  if (gui->pagescene()->showContextAction()) {
-      if (!gui->pagescene()->isSelectedItemOnTop())
-          bringToFrontAction = commonMenus.bringToFrontMenu(menu, pl);
-      if (!gui->pagescene()->isSelectedItemOnBottom())
-          sendToBackBackAction  = commonMenus.sendToBackMenu(menu, pl);
-  }
-
   QAction *selectedAction   = menu.exec(event->screenPos());
 
   if (selectedAction == nullptr) {
@@ -561,17 +552,5 @@ void CsiAnnotationItem::contextMenuEvent(
               caid.hidden = true;
               icon.setValue(caid);
               updateCsiAnnotationIconMeta(metaLine, &icon);
-   } else if (selectedAction == bringToFrontAction) {
-      CsiItem *csiItem = qgraphicsitem_cast<CsiItem *>(parentObject());
-      setSelectedItemZValue(topOf,
-                            bottomOf,
-                            BringToFront,
-                            &csiItem->meta->LPub.page.scene.assem);
-  } else if (selectedAction == sendToBackBackAction) {
-      CsiItem *csiItem = qgraphicsitem_cast<CsiItem *>(parentObject());
-      setSelectedItemZValue(topOf,
-                            bottomOf,
-                            SendToBack,
-                            &csiItem->meta->LPub.page.scene.assem);
-  }
+   }
 }

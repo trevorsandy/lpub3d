@@ -105,14 +105,6 @@ public:
           QMenu   &menu,
     const QString  name = "");
 
-  QAction *bringToFrontMenu(
-          QMenu   &menu,
-    const QString  name = "");
-
-  QAction *sendToBackMenu(
-          QMenu   &menu,
-    const QString  name = "");
-
   QAction *placementMenu(
           QMenu   &menu, 
     const QString  name = "",

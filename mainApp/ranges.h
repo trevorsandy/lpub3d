@@ -116,6 +116,7 @@ class Page : public Steps {
     QList<InsertMeta> inserts;
     QList<InsertPixmapItem *> insertPixmaps;
     QList<PageAttributePixmapItem *> pageAttributePixmaps;
+    bool setItemDirection;
     bool coverPage;
     bool frontCover;
     bool backCover;
@@ -129,6 +130,7 @@ class Page : public Steps {
       backCover            = false;
       modelDisplayOnlyStep = false;
       displayInstanceCount = false;
+      setItemDirection     = false;
       instances            = 1;
     }
     
@@ -149,6 +151,7 @@ class Page : public Steps {
       backCover            = false;
       modelDisplayOnlyStep = false;
       displayInstanceCount = false;
+      setItemDirection     = false;
       instances            = 1;
       for (int i = 0; i < insertPixmaps.size(); i++) {
         InsertPixmapItem *pixmap = insertPixmaps[i];

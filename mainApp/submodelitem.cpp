@@ -1317,7 +1317,7 @@ void SubModelBackgroundItem::placeGrabbers()
   if (grabber == nullptr) {
     grabber = new Grabber(BottomInside,this,myParentItem());
     grabber->setData(ObjectId, SubmodelGrabberObj);
-    grabber->setZValue(zValue()+subModel->meta->LPub.page.scene.submodelGrabber.zValue());
+    grabber->setZValue(/*subModel->meta->LPub.page.scene.submodelGrabber.zValue()*/100);
     grabbersVisible = true;
   }
   grabber->setPos(point.x()-grabSize()/2,point.y()-grabSize()/2);
@@ -1433,15 +1433,6 @@ void SubModelBackgroundItem::contextMenuEvent(
             povrayRendererArgumentsAction->setWhatsThis("Add POV-Ray custom renderer arguments for this step");
             povrayRendererArgumentsAction->setIcon(QIcon(":/resources/rendererarguments.png"));
         }
-    }
-
-    QAction *bringToFrontAction = nullptr;
-    QAction *sendToBackBackAction = nullptr;
-    if (gui->pagescene()->showContextAction()) {
-        if (!gui->pagescene()->isSelectedItemOnTop())
-            bringToFrontAction = commonMenus.bringToFrontMenu(menu, pl);
-        if (!gui->pagescene()->isSelectedItemOnBottom())
-            sendToBackBackAction  = commonMenus.sendToBackMenu(menu, pl);
     }
 
     QAction *selectedAction   = menu.exec(event->screenPos());
@@ -1561,16 +1552,6 @@ void SubModelBackgroundItem::contextMenuEvent(
                          bottomOfStep,
                          Render::getRenderer(),
                          &subModel->subModelMeta.povrayParms);
-    } else if (selectedAction == bringToFrontAction) {
-      setSelectedItemZValue(top,
-                          bottom,
-                            BringToFront,
-                            &meta->LPub.page.scene.subModelBackground);
-    } else if (selectedAction == sendToBackBackAction) {
-        setSelectedItemZValue(top,
-                            bottom,
-                            SendToBack,
-                            &meta->LPub.page.scene.subModelBackground);
     }
   }
 }

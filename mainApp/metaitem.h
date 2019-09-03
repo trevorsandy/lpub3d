@@ -430,8 +430,7 @@ public:
   void setSelectedItemZValue(
                      const Where &,
                      const Where &,
-                     bool bringToFront,
-                     SceneDepthMeta *,
+                     SceneObjectMeta *,
                      bool useTop = true,
                      int append = 1,
                      bool local = true);

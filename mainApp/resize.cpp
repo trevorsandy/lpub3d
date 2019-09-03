@@ -365,15 +365,6 @@ void InsertPixmapItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QAction *deleteAction = menu.addAction("Delete this " + pl);
   deleteAction->setWhatsThis("Delete this " + pl.toLower());
 
-  QAction *bringToFrontAction = nullptr;
-  QAction *sendToBackBackAction = nullptr;
-  if (gui->pagescene()->showContextAction()) {
-      if (!gui->pagescene()->isSelectedItemOnTop())
-          bringToFrontAction = commonMenus.bringToFrontMenu(menu, pl);
-      if (!gui->pagescene()->isSelectedItemOnBottom())
-          sendToBackBackAction  = commonMenus.sendToBackMenu(menu, pl);
-  }
-
   QAction *selectedAction   = menu.exec(event->screenPos());
 
   if (selectedAction == nullptr) {
@@ -384,17 +375,5 @@ void InsertPixmapItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   if (selectedAction == deleteAction) {
       deleteMeta(meta.here());
-  } else if (selectedAction == bringToFrontAction) {
-      PageBackgroundItem * pageBgItem = qgraphicsitem_cast<PageBackgroundItem *>(parentObject());
-      setSelectedItemZValue(here,
-                            here,
-                            BringToFront,
-                            &pageBgItem->meta->LPub.page.scene.insertText);
-  } else if (selectedAction == sendToBackBackAction) {
-      PageBackgroundItem * pageBgItem = qgraphicsitem_cast<PageBackgroundItem *>(parentObject());
-      setSelectedItemZValue(here,
-                            here,
-                            SendToBack,
-                            &pageBgItem->meta->LPub.page.scene.insertText);
   }
 }

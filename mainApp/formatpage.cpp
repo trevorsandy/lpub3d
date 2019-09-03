@@ -1045,6 +1045,11 @@ int Gui::addGraphicsPageItems(
 
   addPliPartGroupsToScene(page, scene);
 
+  if (page->setItemDirection) {
+      setSelectedItemZValue(page, scene);
+      page->setItemDirection = false;
+  }
+
   view->setSceneRect(pageBg->sceneBoundingRect());
 
   QRectF pageRect = QRectF(0,0,pW,pH);
@@ -1185,6 +1190,41 @@ int Gui::addPliPartGroupsToScene(
         }
     }
     return 0;
+}
+
+void Gui::setSelectedItemZValue(Page *page, LGraphicsScene *scene)
+{
+    QHash<QString, AbstractMeta *>::iterator i;
+    for (i = page->meta.LPub.page.scene.list.begin();
+         i != page->meta.LPub.page.scene.list.end(); i++) {
+        SceneObjectMeta *som = dynamic_cast<SceneObjectMeta*>(i.value());
+        if (som && som->value().armed) {
+           SceneObjectData sod = som->value();
+           SceneObjectDirection direction = sod.direction;
+           QPointF scenePos = QPointF(double(sod.scenePos[XX]),double(sod.scenePos[YY]));
+
+           QGraphicsItem *selectedItem = scene->itemAt(scenePos, QTransform());
+
+           if (!selectedItem)
+               continue;
+
+           qreal zValue = 0;
+           QList<QGraphicsItem *> overlapItems = selectedItem->collidingItems();
+           foreach (QGraphicsItem *item, overlapItems) {
+               if (direction == SendToBack) {
+                   if (item->zValue() <= zValue &&
+                       isUserSceneObject(item->data(ObjectId).toInt()))
+                       zValue = item->zValue() - 0.1;
+               } else {
+                   if (item->zValue() >= zValue &&
+                       isUserSceneObject(item->data(ObjectId).toInt()))
+                       zValue = item->zValue() + 0.1;
+               }
+           }
+           selectedItem->setZValue(zValue);
+           break;
+        } else { continue; }
+    }
 }
 
 int Gui::addContentPageAttributes(

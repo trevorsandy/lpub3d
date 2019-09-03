@@ -142,15 +142,6 @@ void TextItem::contextMenuEvent(
   deleteTextAction->setIcon(QIcon(":/resources/textDelete.png"));
   deleteTextAction->setWhatsThis("Delete this text");
 
-  QAction *bringToFrontAction = nullptr;
-  QAction *sendToBackBackAction = nullptr;
-  if (gui->pagescene()->showContextAction()) {
-      if (!gui->pagescene()->isSelectedItemOnTop())
-          bringToFrontAction = commonMenus.bringToFrontMenu(menu, pl);
-      if (!gui->pagescene()->isSelectedItemOnBottom())
-          sendToBackBackAction  = commonMenus.sendToBackMenu(menu, pl);
-  }
-
   QAction *selectedAction  = menu.exec(event->screenPos());
 
   Where here = meta.here();
@@ -207,18 +198,6 @@ void TextItem::contextMenuEvent(
     beginMacro("DeleteText");
     deleteMeta(here);
     endMacro();
-  } else if (selectedAction == bringToFrontAction) {
-      PageBackgroundItem * pageBgItem = qgraphicsitem_cast<PageBackgroundItem *>(parentObject());
-      setSelectedItemZValue(here,
-                            here,
-                            BringToFront,
-                            &pageBgItem->meta->LPub.page.scene.insertText);
-  } else if (selectedAction == sendToBackBackAction) {
-      PageBackgroundItem * pageBgItem = qgraphicsitem_cast<PageBackgroundItem *>(parentObject());
-      setSelectedItemZValue(here,
-                            here,
-                            SendToBack,
-                            &pageBgItem->meta->LPub.page.scene.insertText);
   }
 }
 

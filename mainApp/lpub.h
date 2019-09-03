@@ -1267,6 +1267,9 @@ private:
 
   bool processPageRange(const QString &range);
 
+  void setSelectedItemZValue(Page *page, LGraphicsScene *scene);
+  void setSelectedItemZValue(SceneObjectDirection direction);
+
 private slots:
     void open();
     void save();
@@ -1666,6 +1669,7 @@ public:
 };
 
 extern class Gui *gui;
+extern QHash<SceneObject, QString> soMap;
 
 inline Preferences& lpub3DGetPreferences()
 {

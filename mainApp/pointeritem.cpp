@@ -673,16 +673,8 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   }
 
   QString pl = "Pointer";
-  QAction *bringToFrontAction = nullptr;
-  QAction *sendToBackBackAction = nullptr;
-  if (gui->pagescene()->showContextAction()) {
-      if (!gui->pagescene()->isSelectedItemOnTop())
-          bringToFrontAction = commonMenus.bringToFrontMenu(menu, pl);
-      if (!gui->pagescene()->isSelectedItemOnBottom())
-          sendToBackBackAction  = commonMenus.sendToBackMenu(menu, pl);
-  }
   Where sceneObjTop, sceneObjBottom;
-  SceneDepthMeta sdm;
+  SceneObjectMeta sdm;
   switch (pointerParentType){
   case CalloutType:
       sdm = meta->LPub.page.scene.calloutPointer;
@@ -756,24 +748,6 @@ void PointerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   else
   if (selectedAction == removeSegmentAction) {
     removeShaftSegment();
-  }
-  else
-  if (selectedAction == bringToFrontAction) {
-      setSelectedItemZValue(sceneObjTop,
-                            sceneObjBottom,
-                            BringToFront,
-                            &sdm,
-                            true /*useTop*/,
-                            0    /*append - prepend to populate zValue before respective item meta*/);
-  }
-  else
-  if (selectedAction == sendToBackBackAction) {
-      setSelectedItemZValue(pointerTop,
-                            pointerBottom,
-                            SendToBack,
-                            &sdm,
-                            true /*useTop*/,
-                            0    /*append - prepend to populate zValue before respective item meta*/);
   }
 }
 

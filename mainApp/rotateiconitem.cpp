@@ -482,15 +482,6 @@ void RotateIconItem::contextMenuEvent(
   deleteRotateIconAction->setWhatsThis("Delete this rotate icon");
   deleteRotateIconAction->setIcon(QIcon(":/resources/delete.png"));
 
-  QAction *bringToFrontAction = nullptr;
-  QAction *sendToBackBackAction = nullptr;
-  if (gui->pagescene()->showContextAction()) {
-      if (!gui->pagescene()->isSelectedItemOnTop())
-          bringToFrontAction = commonMenus.bringToFrontMenu(menu, pl);
-      if (!gui->pagescene()->isSelectedItemOnBottom())
-          sendToBackBackAction  = commonMenus.sendToBackMenu(menu, pl);
-  }
-
   QAction *selectedAction  = menu.exec(event->screenPos());
 
   if (selectedAction == nullptr) {
@@ -588,17 +579,7 @@ void RotateIconItem::contextMenuEvent(
       QString metaCommand = QString("ROTATE_ICON");
       deleteImageItem(top,metaCommand);
       endMacro();
-    } else if (selectedAction == bringToFrontAction) {
-      setSelectedItemZValue(top,
-                          bottom,
-                          BringToFront,
-                          &step->grandparent()->meta.LPub.page.scene.rotateIconBackground);
-    } else if (selectedAction == sendToBackBackAction) {
-      setSelectedItemZValue(top,
-                          bottom,
-                          SendToBack,
-                          &step->grandparent()->meta.LPub.page.scene.rotateIconBackground);
-  }
+    }
 }
 
 void RotateIconItem::mousePressEvent(QGraphicsSceneMouseEvent *event)

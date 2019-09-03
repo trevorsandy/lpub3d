@@ -51,7 +51,7 @@ MultiStepRangesBackgroundItem::MultiStepRangesBackgroundItem(
   setFlag(QGraphicsItem::ItemIsSelectable,true);
   setFlag(QGraphicsItem::ItemIsMovable,true);
   setData(ObjectId, MultiStepsBackgroundObj);
-  setZValue(meta->LPub.page.scene.multiStepsBackground.zValue());
+  setZValue(/*meta->LPub.page.scene.multiStepsBackground.zValue()*/-1);
 }
 
 void MultiStepRangesBackgroundItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -115,7 +115,7 @@ MultiStepRangeBackgroundItem::MultiStepRangeBackgroundItem(
   setToolTip("Step Group - right-click to modify");
   setParentItem(parent);
   setData(ObjectId, MultiStepBackgroundObj);
-  setZValue(meta->LPub.page.scene.multiStepBackground.zValue());
+  setZValue(/*meta->LPub.page.scene.multiStepBackground.zValue()*/-1);
 }
 
 void MultiStepRangeBackgroundItem::contextMenuEvent(
@@ -146,15 +146,6 @@ void MultiStepRangeBackgroundItem::contextMenuEvent(
   QAction *marginAction;
   marginAction = commonMenus.marginMenu(menu,name);
 
-  QAction *bringToFrontAction = nullptr;
-  QAction *sendToBackBackAction = nullptr;
-  if (gui->pagescene()->showContextAction()) {
-      if (!gui->pagescene()->isSelectedItemOnTop())
-          bringToFrontAction = commonMenus.bringToFrontMenu(menu, name);
-      if (!gui->pagescene()->isSelectedItemOnBottom())
-          sendToBackBackAction  = commonMenus.sendToBackMenu(menu, name);
-  }
-
   QAction *selectedAction = menu.exec(event->screenPos());
 
   if ( ! selectedAction ) {
@@ -182,16 +173,6 @@ void MultiStepRangeBackgroundItem::contextMenuEvent(
     changeAlloc(page->topOfSteps(),
                 page->bottomOfSteps(),
                 page->allocMeta());
-  } else if (selectedAction == bringToFrontAction) {
-      setSelectedItemZValue(page->topOfSteps(),
-                            page->bottomOfSteps(),
-                            BringToFront,
-                            &meta->LPub.page.scene.multiStepBackground);
-  } else if (selectedAction == sendToBackBackAction) {
-      setSelectedItemZValue(page->topOfSteps(),
-                            page->bottomOfSteps(),
-                            SendToBack,
-                            &meta->LPub.page.scene.multiStepBackground);
   }
 }
 
@@ -322,7 +303,6 @@ DividerItem::DividerItem(
   setBrush(QBrush(Qt::NoBrush));
   setToolTip("Divider - right-click to modify");
   lineItem = new DividerLine(this);
-  lineItem->setZValue(_meta->LPub.page.scene.dividerLine.zValue());
 
   BorderData borderData;
 
@@ -422,8 +402,9 @@ DividerItem::DividerItem(
     pen.setCapStyle(Qt::RoundCap);
 
     lineItem->setPen(pen);
+    lineItem->setZValue(/*_meta->LPub.page.scene.dividerLine.zValue()*/100);
     setData(ObjectId, DividerObj); // CORE
-    setZValue(meta.LPub.page.scene.divider.zValue());
+    setZValue(/*meta.LPub.page.scene.divider.zValue()*/99);
   }
 }
 
@@ -447,15 +428,6 @@ void DividerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   deleteAction = menu.addAction("Delete " + pl);
   deleteAction->setIcon(QIcon(":/resources/deletedivider.png"));
   deleteAction->setWhatsThis("Delete this divider from the model");
-  
-  QAction *bringToFrontAction = nullptr;
-  QAction *sendToBackBackAction = nullptr;
-  if (gui->pagescene()->showContextAction()) {
-      if (!gui->pagescene()->isSelectedItemOnTop())
-          bringToFrontAction = commonMenus.bringToFrontMenu(menu, pl);
-      if (!gui->pagescene()->isSelectedItemOnBottom())
-          sendToBackBackAction  = commonMenus.sendToBackMenu(menu, pl);
-  }
 
   QAction *selectedAction = menu.exec(event->screenPos());
 
@@ -535,16 +507,6 @@ void DividerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     // delete divider
     deleteDivider(parentRelativeType,topOfStep);
     endMacro();
-  } else if (selectedAction == bringToFrontAction) {
-      setSelectedItemZValue(top,
-                          bottom,
-                          BringToFront,
-                          &meta.LPub.page.scene.divider);
-  } else if (selectedAction == sendToBackBackAction) {
-      setSelectedItemZValue(top,
-                          bottom,
-                          SendToBack,
-                          &meta.LPub.page.scene.divider);
   }
 }
 

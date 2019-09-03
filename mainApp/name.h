@@ -44,7 +44,6 @@ enum SceneGuidesPosType { GUIDES_TOP_LEFT, GUIDES_TOP_RIGHT, GUIDES_CENTRE, GUID
 enum LibType { LibLEGO, LibTENTE, LibVEXIQ, NumLibs };
 enum Theme { ThemeDark, ThemeDefault };
 enum NativeType { NTypeDefault, NTypeCalledOut, NTypeMultiStep };
-enum SceneObjectDirection { BringToFront = 1/*True*/, SendToBack = 0/*False*/ };
 enum SceneObjectInfo { ObjectId };
 enum GridStepSize {
     GRID_SIZE_FIRST,
@@ -105,6 +104,7 @@ const int GridSizeTable[] = { 10, 20, 30, 40, 50, 60, 70, 80, 90 };
 
 extern SnapGridCommands sgCommands[NUM_GRID_SIZES];
 
+// All Scene items
 enum SceneObject {
     AssemAnnotationObj       = 35, //  0 CsiAnnotationType
     AssemAnnotationPartObj   = 27, //  1 CsiPartType
@@ -149,22 +149,22 @@ enum SceneObject {
 // Exempted from detection - triggers invalid object
 static const SceneObject ExemptSceneObjects[] =
 {
-    PageBackgroundObj,   //  0
-    PointerFirstSegObj,  // 22
-    PointerSecondSegObj, // 24
-    PointerThirdSegObj,  // 28
+    PageBackgroundObj,      //  0
+    PointerFirstSegObj,     // 22
+    PointerSecondSegObj,    // 24
+    PointerThirdSegObj,     // 28
 
-    PartsListPixmapObj,      // 44
-    PartsListAnnotationObj,  // 20
-    PartsListInstanceObj     // 21
+    PartsListPixmapObj,     // 44
+    PartsListAnnotationObj, // 20
+    PartsListInstanceObj    // 21
 };
 
 // Trigger scene guide on PliPartGroup object
 static const SceneObject PliPartGroupSceneObjects[] =
 {
-    PartsListPixmapObj,      // 44
-    PartsListAnnotationObj,  // 20
-    PartsListInstanceObj     // 21
+    PartsListPixmapObj,     // 44
+    PartsListAnnotationObj, // 20
+    PartsListInstanceObj    // 21
 };
 
 // Excluded from triggering context action
@@ -209,77 +209,18 @@ static const SceneObject NoContextSceneObjects[] =
     CalloutUnderpinningObj
 };
 
-#define PAGEBACKGROUND_ZVALUE_DEFAULT         0    // [Exempt]
-
-#define MULTISTEPSBACKGROUND_ZVALUE_DEFAULT   0.1
-
-#define MULTISTEPBACKGROUND_ZVALUE_DEFAULT    0.2
-
-#define ASSEM_ZVALUE_DEFAULT                  1.0
-
-#define SUBMODELBACKGROUND_ZVALUE_DEFAULT     2.0
-#define SUBMODELINSTANCE_ZVALUE_DEFAULT       2.1
-
-#define CALLOUTUNDERPINNING_ZVALUE_DEFAULT    3.0
-#define CALLOUTPOINTER_ZVALUE_DEFAULT         3.0  // [same as underpinning]
-#define CALLOUTBACKGROUND_ZVALUE_DEFAULT      3.1
-#define CALLOUTASSEM_ZVALUE_DEFAULT           3.2
-#define CALLOUTINSTANCE_ZVALUE_DEFAULT        3.3
-
-#define PARTSLISTBACKGROUND_ZVALUE_DEFAULT    4.0
-#define PARTSLISTPARTGROUP_ZVALUE_DEFAULT     4.1
-#define PARTSLISTPARTPIXMAP_ZVALUE_DEFAULT    4.1
-#define PARTSLISTINSTANCE_ZVALUE_DEFAULT      4.3
-#define PARTSLISTANNOTATION_ZVALUE_DEFAULT    4.4
-
-#define ROTATEICONBACKGROUND_ZVALUE_DEFAULT   5.0
-
-#define DIVIDERBACKGROUND_ZVALUE_DEFAULT      6.0
-#define DIVIDERPOINTER_ZVALUE_DEFAULT         6.0  // [same as background]
-#define DIVIDERLINE_ZVALUE_DEFAULT            6.1
-#define DIVIDER_ZVALUE_DEFAULT                6.2
-
-#define ASSEMANNOTATION_ZVALUE_DEFAULT        7.0
-#define ASSEMANNOTATIONPART_ZVALUE_DEFAULT    7.1
-
-#define INSERTPIXMAP_ZVALUE_DEFAULT           8.0
-
-#define INSERTTEXT_ZVALUE_DEFAULT             9.0
-
-#define PAGEATTRIBUTEPIXMAP_ZVALUE_DEFAULT   10.0
-
-#define PAGEATTRIBUTETEXT_ZVALUE_DEFAULT     11.0
-
-#define SUBMODELINSTANCECOUNT_ZVALUE_DEFAULT 12.0
-
-#define PAGENUMBER_ZVALUE_DEFAULT            13.0
-
-#define STEPNUMBER_ZVALUE_DEFAULT            14.0
-
-#define PAGEPOINTERBACKGROUND_ZVALUE_DEFAULT 15.0  // [same as pagePointer]
-#define PAGEPOINTER_ZVALUE_DEFAULT           15.0
-
-#define POINTERHEAD_ZVALUE_DEFAULT            0.3  // [Plus Parent zValue]
-#define POINTERTHIRDSEG_ZVALUE_DEFAULT        1.0  // [Plus Parent zValue] [Exempt]
-#define POINTERSECONDSEG_ZVALUE_DEFAULT       2.0  // [Plus Parent zValue] [Exempt]
-#define POINTERFIRSTSEG_ZVALUE_DEFAULT        3.0  // [Plus Parent zValue] [Exempt]
-
-#define POINTERGRABBER_ZVALUE_DEFAULT         0.4  // [Plus Parent zValue]
-#define PLIGRABBER_ZVALUE_DEFAULT             0.5  // [Plus Parent zValue]
-#define SUBMODELGRABBER_ZVALUE_DEFAULT        0.6  // [Plus Parent zValue]
-
-#define Z_VALUE_DEFAULT                       0
+#define Z_VALUE_DEFAULT  0
 
 // registry sections
-#define DEFAULTS                "Defaults"
-#define POVRAY                  "POVRay"
-#define SETTINGS                "Settings"
-#define MAINWINDOW              "MainWindow"
-#define PARMSWINDOW             "ParmsWindow"
-#define EDITWINDOW              "EditWindow"
-#define FINDREPLACEWINDOW       "FindReplaceWindow"
-#define UPDATES                 "Updates"
-#define LOGGING                 "Logging"
+#define DEFAULTS                   "Defaults"
+#define POVRAY                     "POVRay"
+#define SETTINGS                   "Settings"
+#define MAINWINDOW                 "MainWindow"
+#define PARMSWINDOW                "ParmsWindow"
+#define EDITWINDOW                 "EditWindow"
+#define FINDREPLACEWINDOW          "FindReplaceWindow"
+#define UPDATES                    "Updates"
+#define LOGGING                    "Logging"
 
 #define FADE_SFX                    "-fade"
 #define HIGHLIGHT_SFX               "-highlight"

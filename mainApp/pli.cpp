@@ -2964,15 +2964,6 @@ void PliBackgroundItem::contextMenuEvent(
           }
       }
 
-      QAction *bringToFrontAction = nullptr;
-      QAction *sendToBackBackAction = nullptr;
-      if (gui->pagescene()->showContextAction()) {
-          if (!gui->pagescene()->isSelectedItemOnTop())
-              bringToFrontAction = commonMenus.bringToFrontMenu(menu, pl);
-          if (!gui->pagescene()->isSelectedItemOnBottom())
-              sendToBackBackAction  = commonMenus.sendToBackMenu(menu, pl);
-      }
-
       if (pli->bom) {
           splitBomAction = menu.addAction("Split Bill of Materials");
           splitBomAction->setIcon(QIcon(":/resources/splitbom.png"));
@@ -3123,16 +3114,6 @@ void PliBackgroundItem::contextMenuEvent(
                              bottom,
                              Render::getRenderer(),
                              &pli->pliMeta.povrayParms);
-        } else if (selectedAction == bringToFrontAction) {
-          setSelectedItemZValue(top,
-                                bottom,
-                                BringToFront,
-                                &meta->LPub.page.scene.partsListBackground);
-        } else if (selectedAction == sendToBackBackAction) {
-          setSelectedItemZValue(top,
-                                bottom,
-                                SendToBack,
-                                &meta->LPub.page.scene.partsListBackground);
         }
     }
 }

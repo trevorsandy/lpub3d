@@ -1788,15 +1788,14 @@ void MetaItem::setRendererArguments(
 void MetaItem::setSelectedItemZValue(
         const Where &topOfStep,
         const Where &bottomOfStep,
-        bool  bringToFront,
-        SceneDepthMeta *zValueMeta,
+        SceneObjectMeta *sceneObjectMeta,
         bool useTop,
         int append,
         bool local){
     return; /*DISABLED*/
 
     /*
-    if (bringToFront)
+    if (front)
         gui->pagescene()->bringSelectedItemToFront();
     else
         gui->pagescene()->sendSelectedItemToBack();

@@ -25,14 +25,9 @@ class LGraphicsScene : public QGraphicsScene
 
 public:
   LGraphicsScene(QObject *parent = nullptr);
-  bool showContextAction();
-  bool isSelectedItemOnTop();
-  bool isSelectedItemOnBottom();
-  qreal getSelectedItemZValue();
+  bool setSelectedItem(const QPointF &);
 
 public slots:
-  void bringSelectedItemToFront();
-  void sendSelectedItemToBack();
   void setGuidePen(QString color,int line){
     guidePen = QPen(QBrush(QColor(color)), 2, Qt::PenStyle(line));
     update();
@@ -80,8 +75,8 @@ public slots:
   void setResolution(float r){
     mResolution = r;
   }
-  float getResolution(){
-    return mResolution;
+  qreal getResolution(){
+    return double(mResolution);
   }
   qreal coordMargin()
   {
@@ -93,6 +88,10 @@ public slots:
     mTrackingCoordinates = tracking;
     update();
   }
+  qreal mPos(int which)
+  {
+    return which ? mMouseUpPos.y() : mMouseUpPos.x();
+  }
 
 protected:
   virtual void drawForeground(QPainter* painter, const QRectF& rect);
@@ -102,8 +101,6 @@ protected:
   virtual void drawBackground(QPainter *painter, const QRectF &rect);
   void snapToGrid();
   void updateGuidePos();
-  bool setSelectedItemZValue();
-  bool setSelectedItem(const QPointF &);
   QMatrix stableMatrix(const QMatrix &matrix, const QPointF &p);
 
 private:
@@ -115,11 +112,8 @@ private:
   bool mPliPartGroup;
   bool mSceneGuides;
   QPointF mGuidePos;
-  int mItemType;
+  SceneObject mItemType;
   QGraphicsItem *mBaseItem;
-  bool mIsItemOnTop;
-  bool mIsItemOnBottom;
-  bool mShowContextAction;
   bool mSnapToGrid;
   bool mRulerTracking;
   bool mGuidesCoordinates;
@@ -128,11 +122,9 @@ private:
   int mGuidesPlacement;
   float mResolution;
   qreal mCoordMargin;
-  qreal minZ,maxZ;
   QPointF mVertCursorPos;
   QPointF mHorzCursorPos;
+  QPointF mMouseUpPos;
 };
-
-extern QHash<SceneObject, QString> soMap;
 
 #endif // LGRAPHICSSCENE_H

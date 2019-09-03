@@ -143,10 +143,7 @@ enum Rc {
          ContStepNumRc,
          CountInstanceRc,
 
-         SceneDepthRc,
-         PagePointerDepthRc,
-         CalloutPointerDepthRc,
-         DividerPointerDepthRc,
+         SceneItemDirectionRc,
 
          IncludeRc,
 
@@ -2156,26 +2153,53 @@ class PageFooterMeta : public BranchMeta
  * Scene Depth Meta
  */
 
-class SceneDepthMeta : public LeafMeta
+class SceneObjectMeta : public LeafMeta
 {
 private:
-  qreal   _value[2];
+  SceneObjectData _value[2];
 public:
-  qreal zValue()
+  SceneObjectData &value()
   {
-      return _value[pushed];
+    return _value[pushed];
   }
-  void setValue(double z)
+  void setValue(SceneObjectData &value)
   {
-      _value[pushed] = z;
+    _value[pushed] = value;
   }
-  SceneDepthMeta();
-  SceneDepthMeta(const SceneDepthMeta &rhs) : LeafMeta(rhs)
+  float posX()
+  {
+    return _value[pushed].scenePos[0];
+  }
+  float posY()
+  {
+    return _value[pushed].scenePos[1];
+  }
+  SceneObjectDirection direction()
+  {
+    return _value[pushed].direction;
+  }
+  bool isArmed()
+  {
+    return _value[pushed].armed;
+  }
+  float zValue()
+  {
+    return _value[pushed].z;
+  }
+  void setValues(int direction, float v1, float v2, float z)
+  {
+    _value[pushed].direction   = SceneObjectDirection(direction);
+    _value[pushed].scenePos[0] = v1;
+    _value[pushed].scenePos[1] = v2;
+    _value[pushed].z           = z;
+  }
+  SceneObjectMeta();
+  SceneObjectMeta(const SceneObjectMeta &rhs) : LeafMeta(rhs)
   {
     _value[0] = rhs._value[0];
     _value[1] = rhs._value[1];
   }
-//  virtual ~SceneDepthMeta() {}
+//  virtual ~SceneObjectMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   void    pop() { pushed = 0; }
@@ -2186,55 +2210,54 @@ public:
 /*
 * Scene Object Meta
 */
-class SceneObjectMeta : public BranchMeta
+class SceneItemMeta : public BranchMeta
 {
 public:
- SceneDepthMeta     assemAnnotation;       //  0 CsiAnnotationType
- SceneDepthMeta     assemAnnotationPart;   //  1 CsiPartType
- SceneDepthMeta     assem;                 //  2 CsiType
- SceneDepthMeta     calloutAssem;          //  3
- SceneDepthMeta     calloutBackground;     //  4 CalloutType
- SceneDepthMeta     calloutInstance;       //  5
- SceneDepthMeta     calloutPointer;        //  6
- SceneDepthMeta     calloutUnderpinning;   //  7
- SceneDepthMeta     dividerBackground;     //  8
- SceneDepthMeta     divider;               //  9
- SceneDepthMeta     dividerLine;           // 10
- SceneDepthMeta     dividerPointer;        // 11
- SceneDepthMeta     pointerGrabber;        // 12
- SceneDepthMeta     pliGrabber;            // 13
- SceneDepthMeta     submodelGrabber;       // 14
- SceneDepthMeta     insertPicture;         // 15
- SceneDepthMeta     insertText;            // 16
- SceneDepthMeta     multiStepBackground;   // 17 StepGroupType
- SceneDepthMeta     multiStepsBackground;  // 18
- SceneDepthMeta     pageAttributePixmap;   // 19
- SceneDepthMeta     pageAttributeText;     // 20
- SceneDepthMeta     pageBackground;        // 21 PageType
- SceneDepthMeta     pageNumber;            // 22 PageNumberType
- SceneDepthMeta     pagePointer;           // 23 PagePointerType
- SceneDepthMeta     partsListAnnotation;   // 24
- SceneDepthMeta     partsListBackground;   // 25 PartsListType
- SceneDepthMeta     partsListInstance;     // 26
- SceneDepthMeta     pointerFirstSeg;       // 27
- SceneDepthMeta     pointerHead;           // 28
- SceneDepthMeta     pointerSecondSeg;      // 29
- SceneDepthMeta     pointerThirdSeg;       // 30
- SceneDepthMeta     rotateIconBackground;  // 31 RotateIconType
- SceneDepthMeta     stepNumber;            // 32 StepNumberType
- SceneDepthMeta     subModelBackground;    // 33 SubModelType
- SceneDepthMeta     subModelInstance;      // 34
- SceneDepthMeta     submodelInstanceCount; // 35 SubmodelInstanceCountType
- SceneDepthMeta     partsListPixmap;       // 36
- SceneDepthMeta     partsListGroup;        // 37
+ SceneObjectMeta     assemAnnotation;       //  0 CsiAnnotationType
+ SceneObjectMeta     assemAnnotationPart;   //  1 CsiPartType
+ SceneObjectMeta     assem;                 //  2 CsiType
+ SceneObjectMeta     calloutAssem;          //  3
+ SceneObjectMeta     calloutBackground;     //  4 CalloutType
+ SceneObjectMeta     calloutInstance;       //  5
+ SceneObjectMeta     calloutPointer;        //  6
+ SceneObjectMeta     calloutUnderpinning;   //  7
+ SceneObjectMeta     dividerBackground;     //  8
+ SceneObjectMeta     divider;               //  9
+ SceneObjectMeta     dividerLine;           // 10
+ SceneObjectMeta     dividerPointer;        // 11
+ SceneObjectMeta     pointerGrabber;        // 12
+ SceneObjectMeta     pliGrabber;            // 13
+ SceneObjectMeta     submodelGrabber;       // 14
+ SceneObjectMeta     insertPicture;         // 15
+ SceneObjectMeta     insertText;            // 16
+ SceneObjectMeta     multiStepBackground;   // 17 StepGroupType
+ SceneObjectMeta     multiStepsBackground;  // 18
+ SceneObjectMeta     pageAttributePixmap;   // 19
+ SceneObjectMeta     pageAttributeText;     // 20
+ SceneObjectMeta     pageBackground;        // 21 PageType
+ SceneObjectMeta     pageNumber;            // 22 PageNumberType
+ SceneObjectMeta     pagePointer;           // 23 PagePointerType
+ SceneObjectMeta     partsListAnnotation;   // 24
+ SceneObjectMeta     partsListBackground;   // 25 PartsListType
+ SceneObjectMeta     partsListInstance;     // 26
+ SceneObjectMeta     pointerFirstSeg;       // 27
+ SceneObjectMeta     pointerHead;           // 28
+ SceneObjectMeta     pointerSecondSeg;      // 29
+ SceneObjectMeta     pointerThirdSeg;       // 30
+ SceneObjectMeta     rotateIconBackground;  // 31 RotateIconType
+ SceneObjectMeta     stepNumber;            // 32 StepNumberType
+ SceneObjectMeta     subModelBackground;    // 33 SubModelType
+ SceneObjectMeta     subModelInstance;      // 34
+ SceneObjectMeta     submodelInstanceCount; // 35 SubmodelInstanceCountType
+ SceneObjectMeta     partsListPixmap;       // 36
+ SceneObjectMeta     partsListGroup;        // 37
 
-
- SceneObjectMeta();
- SceneObjectMeta(const SceneObjectMeta &rhs) : BranchMeta(rhs)
+ SceneItemMeta();
+ SceneItemMeta(const SceneItemMeta &rhs) : BranchMeta(rhs)
  {
  }
 
- //  virtual ~SceneObjectMeta() {}
+ //  virtual ~SceneItemMeta() {}
  virtual void init(BranchMeta *parent,
                    QString name);
 };
@@ -2928,7 +2951,7 @@ public:
   StringListMeta            subModelColor;
   PointerMeta               pointer;
   PointerAttribMeta         pointerAttrib;
-  SceneObjectMeta           scene;
+  SceneItemMeta           scene;
   IntMeta                   countInstanceOverride;
 
   PageHeaderMeta            pageHeader;
@@ -3541,10 +3564,7 @@ const QString RcNames[72] =
     "ContStepNumRc",
     "CountInstanceRc",
 
-    "SceneDepthRc",
-    "PagePointerDepthRc",
-    "CalloutPointerDepthRc",
-    "DividerPointerDepthRc",
+    "SceneItemDirectionRc",
 
     "IncludeRc",
 

@@ -94,8 +94,8 @@ class Step : public AbstractRangeElement
 
     QString               foo;
 
-    SceneDepthMeta       sceneRotateIconZ;
-    SceneDepthMeta       sceneStepNumberZ;
+    SceneObjectMeta       sceneRotateIconZ;
+    SceneObjectMeta       sceneStepNumberZ;
 
     Step(
       Where                 &topOfStep,

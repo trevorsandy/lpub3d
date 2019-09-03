@@ -245,6 +245,12 @@ const QString SortOptionName[SortByOptions] =
     "No Sort"        //
 };
 
+enum SceneObjectDirection
+{
+    BringToFront = 1/*True*/,
+    SendToBack   = 0/*False*/
+};
+
 enum sortDirection {
     SortAscending = 0,
     SortDescending,
@@ -372,6 +378,23 @@ public:
     sizeW       = 0;
     sizeH       = 0;
     orientation = Portrait;
+  }
+};
+
+class SceneObjectData
+{
+public:
+  float z;
+  float scenePos[2];
+  SceneObjectDirection direction;
+  bool  armed;
+  SceneObjectData()
+  {
+    direction   = SendToBack;
+    scenePos[0] = 0.0f;
+    scenePos[1] = 0.0f;
+    z           = 0.0f;
+    armed       = false;
   }
 };
 

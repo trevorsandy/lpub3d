@@ -116,6 +116,8 @@ void clearTempCache()
   gui->clearTempCache();
 }
 
+QHash<SceneObject, QString> soMap;
+
 /****************************************************************************
  *
  * Download with progress monotor
@@ -1098,38 +1100,39 @@ bool Gui::isUserSceneObject(const int so)
     return false;
 }
 
-void Gui::bringToFront()
+void Gui::setSelectedItemZValue(SceneObjectDirection direction)
 {
-    if (KpageView->scene()->selectedItems().isEmpty())
+    QPointF scenePosition(KpageScene->mPos(XX),KpageScene->mPos(YY));
+    QGraphicsItem *selectedItem = KpageScene->itemAt(scenePosition, QTransform());
+
+    if (!selectedItem)
         return;
 
-    QGraphicsItem *selectedItem = KpageView->scene()->selectedItems().first();
-    QList<QGraphicsItem *> overlapItems = selectedItem->collidingItems();
+    Where top = gStep->topOfStep();
+    Where bottom = gStep->bottomOfStep();
 
-    qreal zValue = 0;
-    foreach (QGraphicsItem *item, overlapItems) {
-        if (item->zValue() >= zValue &&
-            isUserSceneObject(item->data(ObjectId).toInt()))
-            zValue = item->zValue() + 0.1;
+    SceneObject itemObj = SceneObject(selectedItem->data(ObjectId).toInt());
+    SceneObjectMeta *som = dynamic_cast<SceneObjectMeta*>(
+                gStep->page()->meta.LPub.page.scene.list.value(soMap[itemObj]));
+    if (som) {
+        SceneObjectData sod = som->value();
+        sod.direction    = direction;
+        sod.scenePos[XX] = float(scenePosition.x());
+        sod.scenePos[YY] = float(scenePosition.y());
+        som->setValue(sod);
+        gStep->mi(Render::Mt::CSI)->setMeta(
+                    top,bottom,som,true/*use top*/,0/*do not append*/);;
     }
-    selectedItem->setZValue(zValue);
+}
+
+void Gui::bringToFront()
+{
+    setSelectedItemZValue(BringToFront);
 }
 
 void Gui::sendToBack()
 {
-    if (KpageView->scene()->selectedItems().isEmpty())
-        return;
-
-    QGraphicsItem *selectedItem = KpageView->scene()->selectedItems().first();
-    QList<QGraphicsItem *> overlapItems = selectedItem->collidingItems();
-
-    qreal zValue = 0;
-    foreach (QGraphicsItem *item, overlapItems) {
-        if (item->zValue() <= zValue &&
-            isUserSceneObject(item->data(ObjectId).toInt()))
-            zValue = item->zValue() - 0.1;
-    }
-    selectedItem->setZValue(zValue);
+    setSelectedItemZValue(SendToBack);
 }
 
 void Gui::SetRotStepMeta()
@@ -2836,6 +2839,47 @@ void Gui::initialize()
   emit disable3DActionsSig();
   setCurrentFile("");
   readSettings();
+
+  if (soMap.size() == 0) {
+      soMap[AssemAnnotationObj]       = QString("CSI_ANNOTATION");       //  0 CsiAnnotationType
+      soMap[AssemAnnotationPartObj]   = QString("CSI_ANNOTATION_PART");  //  1 CsiPartType
+      soMap[AssemObj]                 = QString("ASSEM");                //  2 CsiType
+      soMap[CalloutAssemObj]          = QString("CALLOUT_ASSEM");        //  3
+      soMap[CalloutBackgroundObj]     = QString("CALLOUT");              //  4 CalloutType
+      soMap[CalloutInstanceObj]       = QString("CALLOUT_INSTANCE");     //  5
+      soMap[CalloutPointerObj]        = QString("CALLOUT_POINTER");      //  6
+      soMap[CalloutUnderpinningObj]   = QString("CALLOUT_UNDERPINNING"); //  7
+      soMap[DividerBackgroundObj]     = QString("DIVIDER_ITEM");         //  8
+      soMap[DividerObj]               = QString("DIVIDER");              //  9
+      soMap[DividerLineObj]           = QString("DIVIDER_LINE");         // 10
+      soMap[DividerPointerObj]        = QString("DIVIDER_POINTER");      // 11 DividerPointerType
+      soMap[PointerGrabberObj]        = QString("POINTER_GRABBER");      // 12
+      soMap[PliGrabberObj]            = QString("PLI_GRABBER");          // 13
+      soMap[SubmodelGrabberObj]       = QString("SUBMODEL_GRABBER");     // 14
+      soMap[InsertPixmapObj]          = QString("PICTURE");              // 15
+      soMap[InsertTextObj]            = QString("TEXT");                 // 16
+      soMap[MultiStepBackgroundObj]   = QString("MULTI_STEP");           // 17 StepGroupType
+      soMap[MultiStepsBackgroundObj]  = QString("MULTI_STEPS");          // 18
+      soMap[PageAttributePixmapObj]   = QString("ATTRIBUTE_PIXMAP");     // 19
+      soMap[PageAttributeTextObj]     = QString("ATTRIBUTE_TEXT");       // 20
+      soMap[PageBackgroundObj]        = QString("PAGE [ROOT]");          // 21 PageType [Root Item]
+      soMap[PageNumberObj]            = QString("PAGE_NUMBER");          // 22 PageNumberType
+      soMap[PagePointerObj]           = QString("PAGE_POINTER");         // 23 PagePointerType
+      soMap[PartsListAnnotationObj]   = QString("PLI_ANNOTATION");       // 24
+      soMap[PartsListBackgroundObj]   = QString("PLI");                  // 25 PartsListType
+      soMap[PartsListInstanceObj]     = QString("PLI_INSTANCE");         // 26
+      soMap[PointerFirstSegObj]       = QString("POINTER_SEG_FIRST");    // 27
+      soMap[PointerHeadObj]           = QString("POINTER_HEAD");         // 28
+      soMap[PointerSecondSegObj]      = QString("POINTER_SEG_SECOND");   // 29
+      soMap[PointerThirdSegObj]       = QString("POINTER_SEG_THIRD");    // 30
+      soMap[RotateIconBackgroundObj]  = QString("ROTATE_ICON");          // 31 RotateIconType
+      soMap[StepNumberObj]            = QString("STEP_NUMBER");          // 32 StepNumberType
+      soMap[SubModelBackgroundObj]    = QString("SUBMODEL_DISPLAY");     // 33 SubModelType
+      soMap[SubModelInstanceObj]      = QString("SUBMODEL_INSTANCE");    // 34
+      soMap[SubmodelInstanceCountObj] = QString("SUBMODEL_INST_COUNT");  // 35 SubmodelInstanceCountType
+      soMap[PartsListPixmapObj]       = QString("PLI_PART");             // 36
+      soMap[PartsListGroupObj]        = QString("PLI_PART_GROUP");       // 37
+  }
 }
 
 void Gui::loadBLCodes()

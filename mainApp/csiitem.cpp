@@ -380,15 +380,6 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                                                          : "Don't Show This Final Model");
   noStepAction->setIcon(QIcon(":/resources/display.png"));
 
-  QAction *bringToFrontAction = nullptr;
-  QAction *sendToBackBackAction = nullptr;
-  if (gui->pagescene()->showContextAction()) {
-      if (!gui->pagescene()->isSelectedItemOnTop())
-          bringToFrontAction = commonMenus.bringToFrontMenu(menu, pl);
-      if (!gui->pagescene()->isSelectedItemOnBottom())
-          sendToBackBackAction  = commonMenus.sendToBackMenu(menu, pl);
-  }
-
   Where top, bottom;
   switch (parentRelativeType) {
     case StepGroupType:
@@ -533,16 +524,6 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                          bottomOfStep,
                          Render::getRenderer(),
                          &step->povrayParms);
-    } else if (selectedAction == bringToFrontAction) {
-      setSelectedItemZValue(top,
-                            bottom,
-                            BringToFront,
-                            &meta->LPub.page.scene.assem);
-    } else if (selectedAction == sendToBackBackAction) {
-      setSelectedItemZValue(top,
-                            bottom,
-                            SendToBack,
-                            &meta->LPub.page.scene.assem);
     }
 }
 

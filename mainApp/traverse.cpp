@@ -423,6 +423,7 @@ int Gui::drawPage(
   bool     rotateIcon      = false;
   bool     assemAnnotation = false;
   bool     displayCount    = false;
+  bool     itemDirection   = false;
   int      countInstances  = steps->meta.LPub.countInstance.value();
 
   DividerType dividerType  = NoDivider;
@@ -1063,6 +1064,10 @@ int Gui::drawPage(
               }
               break;
 
+           case SceneItemDirectionRc:
+              itemDirection = true;
+              break;
+
            case PliPartGroupRc:
                 curMeta.LPub.pli.pliPartGroup.setWhere(current);
                 pliPartGroups.append(curMeta.LPub.pli.pliPartGroup);
@@ -1346,6 +1351,7 @@ int Gui::drawPage(
                       page->instances            = instances;
                       page->displayInstanceCount = displayCount;
                       page->pagePointers         = pagePointers;
+                      page->setItemDirection     = itemDirection;
                     }
 
                   emit messageSig(LOG_STATUS, "Add CSI images for multi-step page " + current.modelName);
@@ -1475,6 +1481,7 @@ int Gui::drawPage(
                           page->inserts              = inserts;
                           page->pagePointers         = pagePointers;
                           page->modelDisplayOnlyStep = step->modelDisplayOnlyStep;
+                          page->setItemDirection     = itemDirection;
                       }
 
                       PlacementType relativeType = SingleStepType;
@@ -1627,8 +1634,9 @@ int Gui::drawPage(
 
                       Page *page = dynamic_cast<Page *>(steps);
                       if (page && instances > 1) {
-                          page->instances = instances;
+                          page->instances            = instances;
                           page->displayInstanceCount = displayCount;
+                          page->setItemDirection     = itemDirection;
 
                           if (! steps->meta.LPub.stepPli.perStep.value()) {
 
@@ -1705,13 +1713,14 @@ int Gui::drawPage(
                   stepNum += partsAdded;
                   topOfStep = current;
 
-                  partsAdded = false;
-                  coverPage = false;
-                  rotateIcon = false;
-                  step = nullptr;
-                  bfxStore2 = bfxStore1;
-                  bfxStore1 = false;
-                  bfxLoad = false;
+                  partsAdded    = false;
+                  coverPage     = false;
+                  rotateIcon    = false;
+                  itemDirection = false;
+                  step          = nullptr;
+                  bfxStore2     = bfxStore1;
+                  bfxStore1     = false;
+                  bfxLoad       = false;
               }
 
               if ( ! multiStep) {

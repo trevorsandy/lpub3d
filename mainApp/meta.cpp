@@ -2366,6 +2366,57 @@ void SepMeta::doc(QStringList &out, QString preamble)
   out << preamble + "[<PAGE_LENGTH|CUSTOM_LENGTH <length>] <intThickness> <color> <marginX> <marginY>";
 }
 
+/* ------------------ */
+/*
+ * Scene Depth Meta
+ */
+SceneObjectMeta::SceneObjectMeta() : LeafMeta()
+{
+
+}
+
+Rc SceneObjectMeta::parse(QStringList &argv, int index, Where &here)
+{
+  QRegExp rx("^(BRING_TO_FRONT|SEND_TO_BACK)$");
+  if (argv.size() - index == 3 && argv[index].contains(rx)) {
+    bool good, ok;
+    float x = argv[index+1].toFloat(&good);
+    float y = argv[index+2].toFloat(&ok);
+    good &= ok;
+    if (good) {
+      _value[pushed].direction  = SceneObjectDirection(tokenMap[argv[index]]);
+      _value[pushed].scenePos[0] = x;
+      _value[pushed].scenePos[1] = y;
+      _value[pushed].armed = true;
+      _here[pushed] = here;
+      return SceneItemDirectionRc;
+    }
+  }
+  if (reportErrors) {
+    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected BRING_TO_FRONT|SEND_TO_BACK <float XPos> <float YPos> but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
+  }
+  return FailureRc;
+}
+
+QString SceneObjectMeta::format(bool local, bool global)
+{
+  QString foo;
+  if (_value[pushed].direction == SendToBack) {
+    foo = "SEND_TO_BACK";
+  } else {
+    foo = "BRING_TO_FRONT";
+  }
+  foo += QString(" %1 %2").arg(double(_value[pushed].scenePos[0]))
+                          .arg(double(_value[pushed].scenePos[1]));
+
+  return LeafMeta::format(local,global,foo);
+}
+
+void SceneObjectMeta::doc(QStringList &out, QString preamble)
+{
+  out << preamble + " BRING_TO_FRONT|SEND_TO_BACK <float XPos> <float YPos>";
+}
+
 /* ------------------ */ 
 
 /*
@@ -2889,101 +2940,13 @@ void PageFooterMeta::init(BranchMeta *parent, QString name)
 
 /* ------------------ */
 /*
- * Scene Depth Meta
- */
-
-SceneDepthMeta::SceneDepthMeta() : LeafMeta()
-{
-  _value[pushed] = Z_VALUE_DEFAULT;
-}
-
-Rc SceneDepthMeta::parse(QStringList &argv, int index, Where &here)
-{
-  QRegExp rx("^(Z_VALUE)$");
-  if (argv.size() - index == 2 && argv[index].contains(rx)) {
-      bool ok;
-      float v = argv[index + 1].toFloat(&ok);
-      if (ok) {
-          _value[pushed] = double(v);
-          _here[pushed] = here;
-          switch(tokenMap[argv[index - 1]])
-          {
-          case PagePointerObj:
-              return PagePointerDepthRc;
-          case CalloutPointerObj:
-              return CalloutPointerDepthRc;
-          case DividerPointerObj:
-              return DividerPointerDepthRc;
-          default:
-              return SceneDepthRc;
-          }
-       }
-    }
-  if (reportErrors) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected Z_VALUE number but got \"%1\" %2") .arg(argv[index]) .arg(argv.join(" ")));
-    }
-  return FailureRc;
-}
-
-QString SceneDepthMeta::format(bool local, bool global)
-{
-  QString foo;
-  foo = QString("Z_VALUE %1").arg(double(_value[pushed]));
-  return LeafMeta::format(local,global,foo);
-}
-void SceneDepthMeta::doc(QStringList &out, QString preamble)
-{
-  out << preamble + " Z_VALUE <double>";
-}
-
-/* ------------------ */
-/*
 * Scene Object Meta - Manage ZValues
 */
 
-SceneObjectMeta::SceneObjectMeta() : BranchMeta()
-{
-   assemAnnotation      .setValue(ASSEMANNOTATION_ZVALUE_DEFAULT);      //  0
-   assemAnnotationPart  .setValue(ASSEMANNOTATIONPART_ZVALUE_DEFAULT);  //  1
-   assem                .setValue(ASSEM_ZVALUE_DEFAULT);                //  2
-   calloutAssem         .setValue(CALLOUTASSEM_ZVALUE_DEFAULT);         //  3
-   calloutBackground    .setValue(CALLOUTBACKGROUND_ZVALUE_DEFAULT);    //  4
-   calloutInstance      .setValue(CALLOUTINSTANCE_ZVALUE_DEFAULT);      //  5
-   calloutPointer       .setValue(CALLOUTPOINTER_ZVALUE_DEFAULT);       //  6
-   calloutUnderpinning  .setValue(CALLOUTUNDERPINNING_ZVALUE_DEFAULT);  //  7
-   dividerBackground    .setValue(DIVIDERBACKGROUND_ZVALUE_DEFAULT);    //  8
-   divider              .setValue(DIVIDER_ZVALUE_DEFAULT);              //  9
-   dividerLine          .setValue(DIVIDERLINE_ZVALUE_DEFAULT);          // 10
-   dividerPointer       .setValue(DIVIDERPOINTER_ZVALUE_DEFAULT);       // 11
-   pointerGrabber       .setValue(POINTERGRABBER_ZVALUE_DEFAULT);       // 12
-   pliGrabber           .setValue(PLIGRABBER_ZVALUE_DEFAULT);           // 13
-   submodelGrabber      .setValue(SUBMODELGRABBER_ZVALUE_DEFAULT);      // 14
-   insertPicture        .setValue(INSERTPIXMAP_ZVALUE_DEFAULT);         // 15
-   insertText           .setValue(INSERTTEXT_ZVALUE_DEFAULT);           // 16
-   multiStepBackground  .setValue(MULTISTEPBACKGROUND_ZVALUE_DEFAULT);  // 17
-   multiStepsBackground .setValue(MULTISTEPSBACKGROUND_ZVALUE_DEFAULT); // 18
-   pageAttributePixmap  .setValue(PAGEATTRIBUTEPIXMAP_ZVALUE_DEFAULT);  // 19
-   pageAttributeText    .setValue(PAGEATTRIBUTETEXT_ZVALUE_DEFAULT);    // 20
-   pageBackground       .setValue(PAGEBACKGROUND_ZVALUE_DEFAULT);       // 21
-   pageNumber           .setValue(PAGENUMBER_ZVALUE_DEFAULT);           // 22
-   pagePointer          .setValue(PAGEPOINTER_ZVALUE_DEFAULT);          // 23
-   partsListAnnotation  .setValue(PARTSLISTANNOTATION_ZVALUE_DEFAULT);  // 24
-   partsListBackground  .setValue(PARTSLISTBACKGROUND_ZVALUE_DEFAULT);  // 25
-   partsListInstance    .setValue(PARTSLISTINSTANCE_ZVALUE_DEFAULT);    // 26
-   pointerFirstSeg      .setValue(POINTERFIRSTSEG_ZVALUE_DEFAULT);      // 27
-   pointerHead          .setValue(POINTERHEAD_ZVALUE_DEFAULT);          // 28
-   pointerSecondSeg     .setValue(POINTERSECONDSEG_ZVALUE_DEFAULT);     // 29
-   pointerThirdSeg      .setValue(POINTERTHIRDSEG_ZVALUE_DEFAULT);      // 30
-   rotateIconBackground .setValue(ROTATEICONBACKGROUND_ZVALUE_DEFAULT); // 31
-   stepNumber           .setValue(STEPNUMBER_ZVALUE_DEFAULT);           // 32
-   subModelBackground   .setValue(SUBMODELBACKGROUND_ZVALUE_DEFAULT);   // 33
-   subModelInstance     .setValue(SUBMODELINSTANCE_ZVALUE_DEFAULT);     // 34
-   submodelInstanceCount.setValue(SUBMODELINSTANCECOUNT_ZVALUE_DEFAULT);// 35
-   partsListPixmap      .setValue(PARTSLISTPARTPIXMAP_ZVALUE_DEFAULT);  // 36
-   partsListGroup       .setValue(PARTSLISTPARTGROUP_ZVALUE_DEFAULT);   // 37
-}
+SceneItemMeta::SceneItemMeta() : BranchMeta()
+{}
 
-void SceneObjectMeta::init(
+void SceneItemMeta::init(
    BranchMeta *parent,
    QString name)
 {
@@ -4570,7 +4533,7 @@ Rc ResolutionMeta::parse(QStringList &argv, int index, Where &here)
 QString ResolutionMeta::format(bool local, bool global)
 {
   QString res;
-  res = QString("%1 DPI") .arg(resolution(),0,'f',0);
+  res = QString("%1 DPI") .arg(double(resolution()),0,'f',0);
   return LeafMeta::format(local,global,res);
 } 
 
@@ -4921,6 +4884,9 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
       tokenMap["No Sort"]              = NoSort;
       tokenMap["Ascending"]            = SortAscending;
       tokenMap["Descending"]           = SortDescending;
+
+      tokenMap["BRING_TO_FRONT"]       = BringToFront;
+      tokenMap["SEND_TO_BACK"]         = SendToBack;
     }
 }
 
