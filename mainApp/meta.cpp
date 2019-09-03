@@ -4951,7 +4951,7 @@ Rc Meta::parse(
       argv << leoge.cap(1) << leoge.cap(2) << leoge.cap(3);
   } else {
 
-      processSpecialCases(line);
+      processSpecialCases(line,here);
 
       /* Parse the input line into argv[] */
 
@@ -5024,11 +5024,29 @@ void Meta::doc(QStringList &out)
     }
 }
 
-void Meta::processSpecialCases(QString &line){
+void Meta::processSpecialCases(QString &line, Where &here){
 
     /* Legacy LPub backward compatibilty: substitute VIEW_ANGLE with CAMERA_ANGLES */
 
     QRegExp viewAngleRx("^\\s*0.*\\s+(VIEW_ANGLE)\\s+.*$");
     if (line.contains(viewAngleRx))
         line.replace(viewAngleRx.cap(1),"CAMERA_ANGLES");
+
+    if (line.contains("CAMERA_DISTANCE_NATIVE")) {
+        if (gui->parsedMessages.contains(here)) {
+            line = "0 // IGNORED";
+        } else {
+            QRegExp typesRx("(ASSEM|PLI|BOM|SUBMODEL|LOCAL)");
+            if (line.contains(typesRx)) {
+                QString message = QString("CAMERA_DISTANCE_NATIVE meta command is no longer supported for %1 type. "
+                                          "Only application at GLOBAL scope is permitted. "
+                                          "Reclassify or remove this command and use MODEL_SCALE to implicate camera distance. "
+                                          "This command will be ignored. %2")
+                                          .arg(typesRx.cap(1))
+                                          .arg(line);
+                gui->parseError(message,here);
+                line = "0 // IGNORED";
+            }
+        }
+    }
 }

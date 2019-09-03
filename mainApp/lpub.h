@@ -497,6 +497,7 @@ public:
   int             lastStepPageNum;
   int             savePrevStepPosition; // indicate the previous step position amongst current and previous steps.
   QList<Where>    topOfPages;
+  QList<Where>    parsedMessages;       // previously parsed messages
 
   int             boms;            // the number of pli BOMs in the document
   int             bomOccurrence;   // the actual occurrence of each pli BOM

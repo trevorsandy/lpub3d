@@ -333,6 +333,7 @@ bool Gui::openFile(QString &fileName)
 
   disableWatcher();
 
+  parsedMessages.clear();
   clearPage(KpageView,KpageScene);
   closeFile();
   if (lcGetPreferences().mViewPieceIcons)

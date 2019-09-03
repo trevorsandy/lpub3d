@@ -4894,33 +4894,38 @@ void Gui::showLCStatusMessage(){
     statusBarMsg(gMainWindow->mLCStatusBar->currentMessage());
 }
 
-void Gui::parseError(QString errorMsg,Where &here)
-{
-    QString parseMessage = QString("%1 (file: %2, line: %3)") .arg(errorMsg) .arg(here.modelName) .arg(here.lineNumber + 1);
-    if (Preferences::modeGUI) {
-        showLine(here);
-        if (Preferences::showParseErrors) {
-            QCheckBox *cb = new QCheckBox("Do not show line parse error message again.");
-            QMessageBoxResizable box;
-            box.setWindowTitle(tr(VER_PRODUCTNAME_STR " Line Parse Error"));
-            box.setText(parseMessage);
-            box.setIcon(QMessageBox::Icon::Warning);
-            box.addButton(QMessageBox::Ok);
-            box.setDefaultButton(QMessageBox::Ok);
-            box.setCheckBox(cb);
-
-            QObject::connect(cb, &QCheckBox::stateChanged, [](int state){
-                if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked) {
-                    Preferences::setShowParseErrorsPreference(false);
-                } else {
-                    Preferences::setShowParseErrorsPreference(true);
-                }
-            });
-            box.adjustSize();
-            box.exec();
-        }
-    }
-    logError() << qPrintable(parseMessage);
+void Gui::parseError(QString errorMsg,Where &here) 
+{ 
+    if (parsedMessages.contains(here)) 
+        return; 
+ 
+    QString parseMessage = QString("%1 (file: %2, line: %3)") .arg(errorMsg) .arg(here.modelName) .arg(here.lineNumber + 1); 
+    if (Preferences::modeGUI) { 
+        showLine(here); 
+        if (Preferences::showParseErrors) { 
+            QCheckBox *cb = new QCheckBox("Do not show line parse error message again."); 
+            QMessageBoxResizable box; 
+            box.setWindowTitle(tr(VER_PRODUCTNAME_STR " Line Parse Error")); 
+            box.setText(parseMessage); 
+            box.setIcon(QMessageBox::Icon::Warning); 
+            box.addButton(QMessageBox::Ok); 
+            box.setDefaultButton(QMessageBox::Ok); 
+            box.setCheckBox(cb); 
+ 
+            QObject::connect(cb, &QCheckBox::stateChanged, [](int state){ 
+                if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked) { 
+                    Preferences::setShowParseErrorsPreference(false); 
+                } else { 
+                    Preferences::setShowParseErrorsPreference(true); 
+                } 
+            }); 
+            box.adjustSize(); 
+            box.exec(); 
+        } 
+    } 
+    logError() << qPrintable(parseMessage); 
+ 
+    parsedMessages.append(here); 
 }
 
 void Gui::createDockWindows()
