@@ -72,6 +72,10 @@ Dmg License script
 https://github.com/andreyvit/create-dmg/blob/master/support/dmg-license.py
 Jared Hobbs
 
+Qt-History-LineEdit c6c6992
+https://gitlab.com/mattia.basaglia/Qt-History-LineEdit
+Mattia Basaglia <mattia.basaglia@gmail.com>
+
 LEGO LDraw Library content
 LDraw.org
 

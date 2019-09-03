@@ -37,6 +37,8 @@
 #include <QTextCursor>
 #include <QFileSystemWatcher>
 
+#include "historylineedit.h"
+
 class LDrawFile;
 class Highlighter;
 class QFindReplace;
@@ -160,6 +162,8 @@ class QTextEditor : public QTextEdit
 public:
     explicit QTextEditor(QWidget *parent = nullptr);
 
+    ~QTextEditor()override{}
+
     void showAllCharacters(bool show);
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     void setIsUTF8(bool isUTF8) { _fileIsUTF8 = isUTF8; }
@@ -169,10 +173,12 @@ public:
     QFindReplace *popUp;
 
     void setCompleter(QCompleter *c);
-    QCompleter *completer() const;
+    void setCompleterMinChars(int min_chars);
+    void setCompleterMaxSuggestions(int max);
+    void setCompleterPrefix(const QString& prefix);
 
 public slots:
-    void resizeEvent(QResizeEvent *e);
+    void resizeEvent(QResizeEvent *e) override;
 
 private slots:
     void updateLineNumberAreaWidth(int newBlockCount);
@@ -181,21 +187,25 @@ private slots:
     void updateLineNumberArea(); 
     void findDialog();
     void toggleComment();
-    void insertCompletion(const QString &completion);
     void showCharacters(
          QString findString,
          QString replaceString);
+    void autocomplete(const QString &completion);
 
 protected:
     void keyPressEvent(QKeyEvent *e) override;
     void focusInEvent(QFocusEvent *e) override;
+    QString currentWord() const;
 
 private:
     QString textUnderCursor() const;
-    QCompleter *c;
-    bool _fileIsUTF8;
-    QWidget *lineNumberArea;
-
+    int wordStart() const;
+    QCompleter *completer;
+    int         completion_minchars;
+    int         completion_max;
+    QString     completion_prefix;
+    bool        _fileIsUTF8;
+    QWidget    *lineNumberArea;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -235,6 +245,9 @@ protected:
     QFindReplaceCtrls *findReplace;
     void readFindReplaceSettings(QFindReplaceCtrls *fr);
     void writeFindReplaceSettings(QFindReplaceCtrls *fr);
+private:
+    QAbstractItemModel *modelFromFile(const QString& fileName);
+    QCompleter *completer;
 };
 
 class QFindReplaceCtrls : public QWidget
@@ -244,8 +257,8 @@ class QFindReplaceCtrls : public QWidget
 public:
     explicit QFindReplaceCtrls(QTextEditor *textEdit, QWidget *parent = nullptr);
     QTextEditor *_textEdit;
-    QLineEdit   *textFind;
-    QLineEdit   *textReplace;
+    HistoryLineEdit *textFind;
+    HistoryLineEdit *textReplace;
     QLabel      *labelMessage;
 
     QPushButton *buttonFind;

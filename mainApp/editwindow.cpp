@@ -646,7 +646,11 @@ void EditWindow::closeEvent(QCloseEvent *event)
  */
 
 QTextEditor::QTextEditor(QWidget *parent) :
-    QTextEdit(parent),c(nullptr),_fileIsUTF8(false)
+    QTextEdit(parent),
+    completer(nullptr),
+    completion_minchars(1),
+    completion_max(0),
+    _fileIsUTF8(false)
 {
     lineNumberArea = new QLineNumberArea(this);
 
@@ -660,37 +664,70 @@ QTextEditor::QTextEditor(QWidget *parent) :
     //highlightCurrentLine();
 }
 
-void QTextEditor::setCompleter(QCompleter *completer)
+void QTextEditor::setCompleter(QCompleter *comp)
 {
-    if (c)
-        QObject::disconnect(c, nullptr, this, nullptr);
+    if (completer)
+        QObject::disconnect(completer, nullptr, this, nullptr);
 
-    c = completer;
+    completer = comp;
 
-    if (!c)
+    if (!completer)
         return;
 
-    c->setWidget(this);
-    c->setCompletionMode(QCompleter::PopupCompletion);
-    c->setCaseSensitivity(Qt::CaseInsensitive);
-    QObject::connect(c, SIGNAL(activated(QString)),
-                     this, SLOT(insertCompletion(QString)));
+    completer->setWidget(this);
+    completer->setCompletionMode(QCompleter::PopupCompletion);
+    completer->setCaseSensitivity(Qt::CaseInsensitive);
+    QObject::connect(completer, SIGNAL(activated(QString)),
+                     this, SLOT(autocomplete(QString)));
+    QObject::connect(completer, SIGNAL(highlighted(QString)),
+                     this, SLOT(autocomplete(QString)));
 }
 
-QCompleter *QTextEditor::completer() const
-{
-    return c;
+void QTextEditor::setCompleterMinChars(int min_chars) {
+    completion_minchars = min_chars;
 }
 
-void QTextEditor::insertCompletion(const QString& completion)
+void QTextEditor::setCompleterMaxSuggestions(int max) {
+    completion_max = max;
+}
+
+void QTextEditor::setCompleterPrefix(const QString& prefix)
 {
-    if (c->widget() != this)
-        return;
+    completion_prefix = prefix;
+}
+
+int QTextEditor::wordStart() const
+{
+    // lastIndexOf returns the index of the last space, new line or -1 if there are no spaces
+    // or new lines so that + 1 returns the index of the character starting the word or 0
     QTextCursor tc = textCursor();
-    int extra = completion.length() - c->completionPrefix().length();
-    tc.movePosition(QTextCursor::Left);
-    tc.movePosition(QTextCursor::EndOfWord);
-    tc.insertText(completion.right(extra));
+    int start_pos = toPlainText().leftRef(tc.position()).lastIndexOf(' ') + 1;
+    int after_new_line = 0;
+    if ((after_new_line = toPlainText().leftRef(tc.position()).lastIndexOf('\n') + 1) > start_pos)
+        start_pos = after_new_line;
+    if (toPlainText().rightRef(toPlainText().size()-start_pos).startsWith(completion_prefix))
+        start_pos += completion_prefix.size();
+    return start_pos;
+}
+
+QString QTextEditor::currentWord() const
+{
+    QTextCursor tc = textCursor();
+    int completion_index = wordStart();
+    return toPlainText().mid(completion_index, tc.position() - completion_index);
+}
+
+void QTextEditor::autocomplete(const QString& completion)
+{
+    if (completer->widget() != this)
+        return;
+
+    QTextCursor tc = textCursor();
+    int startIndex = wordStart();
+    setText(toPlainText().replace(
+            startIndex, tc.position() - startIndex,
+            completion));
+    tc.setPosition(startIndex + completion.size());
     setTextCursor(tc);
 }
 
@@ -703,14 +740,14 @@ QString QTextEditor::textUnderCursor() const
 
 void QTextEditor::focusInEvent(QFocusEvent *e)
 {
-    if (c)
-        c->setWidget(this);
+    if (completer)
+        completer->setWidget(this);
     QTextEdit::focusInEvent(e);
 }
 
 void QTextEditor::keyPressEvent(QKeyEvent *e)
 {
-    if (c && c->popup()->isVisible()) {
+    if (completer && completer->popup()->isVisible()) {
         // The following keys are forwarded by the completer to the widget
        switch (e->key()) {
        case Qt::Key_Enter:
@@ -726,31 +763,34 @@ void QTextEditor::keyPressEvent(QKeyEvent *e)
     }
 
     bool isShortcut = ((e->modifiers() & Qt::ControlModifier) && e->key() == Qt::Key_E); // CTRL+E
-    if (!c || !isShortcut) // do not process the shortcut when we have a completer
+    if (!completer || !isShortcut) // do not process the shortcut when we have a completer
         QTextEdit::keyPressEvent(e);
 
     const bool ctrlOrShift = e->modifiers() & (Qt::ControlModifier | Qt::ShiftModifier);
-    if (!c || (ctrlOrShift && e->text().isEmpty()))
+    if (!completer || (ctrlOrShift && e->text().isEmpty()))
         return;
 
     static QString eow("~!@#$%^&*()_+{}|:\"<>?,./;'[]\\-="); // end of word
     bool hasModifier = (e->modifiers() != Qt::NoModifier) && !ctrlOrShift;
     QString completionPrefix = textUnderCursor();
 
-    if (!isShortcut && (hasModifier || e->text().isEmpty()|| completionPrefix.length() < 3
-                      || eow.contains(e->text().right(1)))) {
-        c->popup()->hide();
+    if (!isShortcut &&
+       (hasModifier ||
+        e->text().isEmpty() ||
+        completionPrefix.length() < completion_minchars ||
+        eow.contains(e->text().right(1)) ||
+       (completion_max > 0 && completer->completionCount() > completion_max))) {
+        completer->popup()->hide();
         return;
+    } else {
+        if (completionPrefix != completer->completionPrefix()) {
+            completer->setCompletionPrefix(completionPrefix);
+        }
+        QRect cr = cursorRect();
+        cr.setWidth(completer->popup()->sizeHintForColumn(0)
+                    + completer->popup()->verticalScrollBar()->sizeHint().width());
+        completer->complete(cr); // popup it up!
     }
-
-    if (completionPrefix != c->completionPrefix()) {
-        c->setCompletionPrefix(completionPrefix);
-        c->popup()->setCurrentIndex(c->completionModel()->index(0, 0));
-    }
-    QRect cr = cursorRect();
-    cr.setWidth(c->popup()->sizeHintForColumn(0)
-                + c->popup()->verticalScrollBar()->sizeHint().width());
-    c->complete(cr); // popup it up!
 }
 
 void QTextEditor::toggleComment(){
@@ -1072,8 +1112,22 @@ QFindReplace::QFindReplace(
     find = new QFindReplaceCtrls(textEdit,this);
     find->textFind->setText(selectedText);
 
+    completer = new QCompleter(this);
+    completer->setModel(modelFromFile(":/resources/autocomplete.lst"));
+    completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
+    completer->setCaseSensitivity(Qt::CaseInsensitive);
+    completer->setWrapAround(false);
+    find->textFind->setWordCompleter(completer);
+
     findReplace = new QFindReplaceCtrls(textEdit,this);
     findReplace->textFind->setText(selectedText);
+
+    completer = new QCompleter(this);
+    completer->setModel(modelFromFile(":/resources/autocomplete.lst"));
+    completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
+    completer->setCaseSensitivity(Qt::CaseInsensitive);
+    completer->setWrapAround(false);
+    findReplace->textFind->setWordCompleter(completer);
 
     connect(find, SIGNAL(popUpClose()), this, SLOT(popUpClose()));
     connect(findReplace, SIGNAL(popUpClose()), this, SLOT(popUpClose()));
@@ -1174,6 +1228,29 @@ QFindReplace::QFindReplace(
     setMinimumSize(100,80);
 }
 
+QAbstractItemModel *QFindReplace::modelFromFile(const QString& fileName)
+{
+    QFile file(fileName);
+    if (!file.open(QFile::ReadOnly))
+        return new QStringListModel(completer);
+
+#ifndef QT_NO_CURSOR
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+#endif
+    QStringList words;
+
+    while (!file.atEnd()) {
+        QByteArray line = file.readLine();
+        if (!line.isEmpty())
+            words << line.trimmed();
+    }
+
+#ifndef QT_NO_CURSOR
+    QApplication::restoreOverrideCursor();
+#endif
+    return new QStringListModel(words, completer);
+}
+
 void  QFindReplace::popUpClose()
 {
     QFindReplaceCtrls *fr = qobject_cast<QFindReplaceCtrls *>(sender());
@@ -1209,7 +1286,7 @@ QFindReplaceCtrls::QFindReplaceCtrls(QTextEditor *textEdit, QWidget *parent)
     : QWidget(parent),_textEdit(textEdit)
 {
     // find items
-    textFind    = new QLineEdit;
+    textFind    = new HistoryLineEdit/*QLineEdit*/;
 
     buttonFind  = new QPushButton("Find");
     buttonFindNext = new QPushButton("Find Next");
@@ -1223,7 +1300,7 @@ QFindReplaceCtrls::QFindReplaceCtrls(QTextEditor *textEdit, QWidget *parent)
     checkboxRegExp = new QCheckBox("Regular Expression");
 
     // replace items
-    textReplace = new QLineEdit;
+    textReplace = new HistoryLineEdit/*QLineEdit*/;
 
     buttonReplace = new QPushButton("Replace");
     buttonReplaceAndFind = new QPushButton("Replace && Find");
