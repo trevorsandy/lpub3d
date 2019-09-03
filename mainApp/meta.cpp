@@ -430,6 +430,7 @@ Rc StringMeta::parse(QStringList &argv, int index,Where &here)
 {
   if (argv.size() - index == 1) {
       //_value[pushed] = argv[index].replace("\\""","""");
+      QString foo = argv[index];
       _value[pushed] = argv[index];
       _here[pushed] = here;
       return rc;
@@ -2402,7 +2403,7 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
       ++index;
       if (argv.size() - index >= 2 && argv[index] == "SCALE") {
           bool good;
-          insertData.picScale = argv[++index].toFloat(&good);
+          insertData.picScale = double(argv[++index].toFloat(&good));
           ++index;
 
           if (! good) {
@@ -2415,11 +2416,9 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
       insertData.textFont   = argv[++index];
       insertData.textColor  = argv[++index];
       ++index;
-    } else if (argv.size() - index > 3 && argv[index] == "HTML_TEXT") {
+    } else if (argv.size() - index >= 2 && argv[index] == "HTML_TEXT") {
       insertData.type       = InsertData::InsertHtmlText;
       insertData.text       = argv[++index];
-//      insertData.textFont   = argv[++index];
-//      insertData.textColor  = argv[++index];
       ++index;
     } else if (argv[index] == "ROTATE_ICON"){
       insertData.type = InsertData::InsertRotateIcon;
@@ -2485,7 +2484,7 @@ QString InsertMeta::format(bool local, bool global)
   switch (_value.type) {
     case InsertData::InsertPicture:
       foo += " PICTURE \"" + _value.picName + "\"";
-      if (_value.picScale) {
+      if (_value.picScale > 0.0) {
           foo += QString(" SCALE %1") .arg(_value.picScale);
         }
       break;
@@ -2493,6 +2492,9 @@ QString InsertMeta::format(bool local, bool global)
       foo += QString("TEXT \"%1\" \"%2\" \"%3\"") .arg(_value.text)
           .arg(_value.textFont)
           .arg(_value.textColor);
+      break;
+    case InsertData::InsertHtmlText:
+      foo += QString("HTML_TEXT \"%1\"") .arg(_value.text);
       break;
     case InsertData::InsertRotateIcon:
       foo += " ROTATE_ICON";

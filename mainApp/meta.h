@@ -188,7 +188,7 @@ class AbstractMeta
 public:
   int       pushed;
   bool      global;
-  QString            preamble;
+  QString   preamble;
 
   static bool reportErrors;
 
@@ -203,9 +203,9 @@ public:
      global   = rhs.global;
      preamble = rhs.preamble;
   }
-  virtual           ~AbstractMeta() { preamble.clear(); }
-  AbstractMeta(AbstractMeta&&rhs) = default; 
-  AbstractMeta& operator=(const AbstractMeta&rhs) = default; 
+  virtual  ~AbstractMeta() { preamble.clear(); }
+  AbstractMeta(AbstractMeta&&rhs) = default;
+  AbstractMeta& operator=(const AbstractMeta&rhs) = default;
   AbstractMeta& operator=(AbstractMeta&&rhs) = default;
   
   /* Initialize thyself */
@@ -331,8 +331,8 @@ public:
   {
     rc = rhs.rc;
   }
-  virtual ~RcMeta() {}
-  virtual void    init(BranchMeta *parent, const QString name, Rc _rc=OkRc);
+//  virtual ~RcMeta() {}
+  virtual void init(BranchMeta *parent, const QString name, Rc _rc=OkRc);
   virtual Rc parse(QStringList &argv, int index, Where &here);
   virtual QString format(bool,bool) { QString foo; return foo; }
   virtual void    doc(QStringList &out, QString preamble);
@@ -378,7 +378,7 @@ public:
     _min = min;
     _max = max;
   }
-  virtual ~IntMeta() {}
+//  virtual ~IntMeta() {}
   virtual void init(BranchMeta *parent, 
                     const QString name, 
                     Rc _rc=OkRc);
@@ -414,7 +414,7 @@ public:
     _fieldWidth = rhs._fieldWidth;
     _precision  = rhs._precision;
   }
-  virtual ~FloatMeta() {}
+//  virtual ~FloatMeta() {}
   QString   _inputMask;
   virtual float value()
   {
@@ -516,7 +516,7 @@ public:
   {
     return _default;
   }
-  virtual ~FloatPairMeta() {}
+//  virtual ~FloatPairMeta() {}
   virtual void    init(BranchMeta *parent, 
                     const QString name,
                     Rc _rc=OkRc);
@@ -551,7 +551,7 @@ public:
     _value[1] = rhs._value[1];
     delim     = rhs.delim;
   }
-  virtual ~StringMeta() {}
+//  virtual ~StringMeta() {}
   virtual void    init(BranchMeta *parent,
                     QString name,
                     Rc _rc=OkRc,
@@ -614,7 +614,7 @@ public:
     _value[1] = rhs._value[1];
     delim     = rhs.delim;
   }
-  virtual ~StringListMeta() {}
+//  virtual ~StringListMeta() {}
   virtual void init(BranchMeta *parent,
                     QString name,
                     Rc _rc=OkRc,
@@ -734,7 +734,7 @@ public:
     _precision  = 2;
     _inputMask  = "999.99";
   }
-  virtual ~UnitsMeta() {}
+//  virtual ~UnitsMeta() {}
   virtual QString format(bool,bool);
 };
 
@@ -888,7 +888,7 @@ public:
   {
     return _default;
   }
-  virtual ~PageSizeMeta() {}
+//  virtual ~PageSizeMeta() {}
   virtual void    init(BranchMeta *parent,
                        const QString name,
                        Rc _rc=OkRc);
@@ -912,7 +912,7 @@ public:
     _precision = 4;
     _inputMask = "9.9999";
   }
-  virtual ~MarginsMeta() {}
+//  virtual ~MarginsMeta() {}
 };
 
 /* This leaf class is used for fonts */
@@ -996,7 +996,7 @@ public:
     _value[0] = "Arial,64,-1,255,75,0,0,0,0,0";
   }
   FontMeta(const FontMeta &rhs) : StringMeta(rhs) {}
-  virtual ~FontMeta() {}
+//  virtual ~FontMeta() {}
 };
 
 /* This leaf class is used for fonts */
@@ -1006,7 +1006,7 @@ private:
 public:
   FontListMeta() : StringListMeta() {}
   FontListMeta(const FontListMeta &rhs) : StringListMeta(rhs) {}
-  virtual ~FontListMeta() {}
+//  virtual ~FontListMeta() {}
 };
 
 /* This leaf is to catch booleans (TRUE or FALSE) */
@@ -1031,7 +1031,7 @@ public:
     _value[0] = rhs._value[0];
     _value[1] = rhs._value[1];
   }
-  virtual ~BoolMeta() {}
+//  virtual ~BoolMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
@@ -1064,7 +1064,7 @@ public:
     _value[0] = rhs._value[0];
     _value[1] = rhs._value[1];
   }
-  virtual ~PlacementMeta() {}
+//  virtual ~PlacementMeta() {}
   void clear()
   {
     LeafMeta::clear();
@@ -1112,7 +1112,7 @@ public:
     _value[0] = rhs._value[0];
     _value[1] = rhs._value[1];
   }
-  virtual ~BackgroundMeta() {}
+//  virtual ~BackgroundMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   void    pop()
@@ -1211,7 +1211,7 @@ public:
     _value[1] = rhs._value[1];
     _result = rhs._result;
   }
-  virtual ~BorderMeta() { }
+//  virtual ~BorderMeta() { }
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   void    pop() 
@@ -1392,7 +1392,7 @@ public:
     _result = rhs._result;
   }
 
-  virtual ~PointerAttribMeta() {}
+//  virtual ~PointerAttribMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
@@ -1509,7 +1509,7 @@ public:
     _value[1] = rhs._value[1];
     _result   = rhs._result;
   }
-  virtual ~PointerMeta() {}
+//  virtual ~PointerMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
@@ -1533,7 +1533,7 @@ public:
     _value[0] = rhs._value[0];
     _value[1] = rhs._value[1];
   }
-  virtual ~FreeFormMeta() {}
+//  virtual ~FreeFormMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
@@ -1562,7 +1562,7 @@ public:
     type[0] = rhs.type[0];
     type[1] = rhs.type[1];
   }
-  virtual ~AllocMeta() {}
+//  virtual ~AllocMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
@@ -1591,7 +1591,7 @@ public:
     type[0] = rhs.type[0];
     type[1] = rhs.type[1];
   }
-  virtual ~FillMeta() {}
+//  virtual ~FillMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
@@ -1634,7 +1634,7 @@ public:
   {
     _value = value;
   }
-  virtual ~InsertMeta() {}
+//  virtual ~InsertMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
@@ -1665,7 +1665,7 @@ public:
     type[0] = rhs.type[0];
     type[1] = rhs.type[1];
   }
-  virtual ~CountInstanceMeta() {}
+//  virtual ~CountInstanceMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
@@ -1694,7 +1694,7 @@ public:
     type[0] = rhs.type[0];
     type[1] = rhs.type[1];
   }
-  virtual ~ContStepNumMeta() {}
+//  virtual ~ContStepNumMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
@@ -1892,7 +1892,7 @@ public:
     _value[1] = rhs._value[1];
   }
 
-  virtual ~SepMeta() { }
+//  virtual ~SepMeta() { }
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool local,bool);
   void pop()
@@ -1928,7 +1928,7 @@ public:
     type[0] = rhs.type[0];
     type[1] = rhs.type[1];
   }
-  virtual ~PageOrientationMeta() {}
+//  virtual ~PageOrientationMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
@@ -1941,7 +1941,7 @@ public:
 class CameraDistFactorMeta : public BranchMeta
 {
 public:
-  IntMeta     factor;
+  IntMeta factor;
   void setPreferences()
   {
      Preferences::cameraDistFactorNative = factor.value();
@@ -1951,7 +1951,7 @@ public:
   {
   }
 
-  virtual ~CameraDistFactorMeta() {}
+//  virtual ~NativeCDMeta() {}
   virtual void init(BranchMeta *parent,
                     QString name);
 };
@@ -1978,9 +1978,8 @@ public:
   {
   }
 
-  virtual ~CalloutCsiMeta() {}
+//  virtual ~SettingsMeta() {}
   virtual void init(BranchMeta *parent, QString name);
-  //virtual void doc(QStringList &out, QString preamble);
 };
 
 /*------------------------*/
@@ -1996,7 +1995,7 @@ public:
   {
   }
 
-  virtual ~CalloutPliMeta() {}
+//  virtual ~CalloutPliMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -2011,7 +2010,7 @@ public:
   {
   }
 
-  virtual ~StepPliMeta() {}
+//  virtual ~StepPliMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -2033,7 +2032,7 @@ public:
   {
   }
 
-  virtual ~NumberMeta() {}
+//  virtual ~NumberMeta() {}
 
   virtual void init(BranchMeta *parent, 
                     QString name);
@@ -2048,7 +2047,7 @@ public:
   {
   }
 
-  virtual ~NumberPlacementMeta() {}
+//  virtual ~NumberPlacementMeta() {}
   virtual void init(BranchMeta *parent, 
                     QString name);
 };
@@ -2078,7 +2077,7 @@ public:
   {
   }
 
-  virtual ~PageAttributeTextMeta() {}
+//  virtual ~PageAttributeTextMeta() {}
 
   virtual void init(BranchMeta *parent,
                     QString name);
@@ -2111,7 +2110,7 @@ public:
   {
   }
 
-  virtual ~PageAttributePictureMeta() {}
+//  virtual ~PageAttributePictureMeta() {}
 
   virtual void init(BranchMeta *parent,
                     QString name);
@@ -2130,7 +2129,7 @@ class PageHeaderMeta : public BranchMeta
     {
     }
 
-    virtual ~PageHeaderMeta() {}
+//  virtual ~PageHeaderMeta() {}
     virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -2147,7 +2146,7 @@ class PageFooterMeta : public BranchMeta
     {
     }
 
-    virtual ~PageFooterMeta() {}
+//  virtual ~PageFooterMeta() {}
     virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -2175,7 +2174,7 @@ public:
     _value[0] = rhs._value[0];
     _value[1] = rhs._value[1];
   }
-  virtual ~SceneDepthMeta() {}
+//  virtual ~SceneDepthMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   void    pop() { pushed = 0; }
@@ -2234,7 +2233,7 @@ public:
  {
  }
 
- virtual ~SceneObjectMeta() {}
+ //  virtual ~SceneObjectMeta() {}
  virtual void init(BranchMeta *parent,
                    QString name);
 };
@@ -2262,7 +2261,7 @@ public:
   {
   }
 
-  virtual ~FadeStepMeta() {}
+//  virtual ~FadeStepMeta() {}
   virtual void init(BranchMeta *parent,
                     QString name);
 };
@@ -2290,7 +2289,7 @@ public:
   {
   }
 
-  virtual ~HighlightStepMeta() {}
+//  virtual ~HighlightStepMeta() {}
   virtual void init(BranchMeta *parent,
                     QString name);
 };
@@ -2310,7 +2309,7 @@ public:
   {
   }
 
-  virtual ~RemoveMeta() {}
+//  virtual ~RemoveMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
   
@@ -2329,7 +2328,7 @@ public:
   {
   }
 
-  virtual ~PartMeta() {}
+//  virtual ~PartMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -2360,7 +2359,7 @@ public:
     _value.type = 0;
   }
 
-  virtual ~SubMeta() {}
+//  virtual ~SubMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
@@ -2422,7 +2421,7 @@ public:
     _default  = rhs._default;
   }
 
-  virtual ~ConstrainMeta() {}
+//  virtual ~ConstrainMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
@@ -2443,7 +2442,7 @@ public:
   {
   }
 
-  virtual ~PliBeginMeta() {}
+//  virtual ~PliBeginMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -2462,7 +2461,7 @@ public:
   {
   }
 
-  virtual ~PartBeginMeta() {}
+//  virtual ~PartBeginMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -2482,7 +2481,7 @@ public:
   {
   }
 
-  virtual ~PartIgnMeta() {}
+//  virtual ~PartIgnMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -2510,7 +2509,7 @@ public:
     mode = rhs.mode;
   }
 
-  virtual ~CalloutBeginMeta() {}
+//  virtual ~CalloutBeginMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
@@ -2606,7 +2605,7 @@ public:
   {
   }
 
-  virtual ~AnnotationStyleMeta() {}
+//  virtual ~AnnotationStyleMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -2678,7 +2677,7 @@ public:
   {
     _value.zValue = d;
   }
-  virtual ~PliPartGroupMeta() {}
+//  virtual ~PliPartGroupMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
@@ -2701,7 +2700,7 @@ public:
   {
   }
 
-  virtual ~PliSortOrderMeta() {}
+//  virtual ~PliSortOrderMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -2723,7 +2722,7 @@ public:
   {
   }
 
-  virtual ~PliSortMeta() {}
+//  virtual ~PliSortMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -2742,7 +2741,7 @@ public:
   {
   }
 
-  virtual ~PliPartElementMeta() {}
+//  virtual ~PliPartElementMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -2771,7 +2770,7 @@ public:
   {
   }
 
-  virtual ~PliAnnotationMeta() {}
+//  virtual ~PliAnnotationMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -2797,7 +2796,7 @@ public:
     _value[0] = rhs._value[0];
     _value[1] = rhs._value[1];
   }
-  virtual ~CsiAnnotationIconMeta() {}
+//  virtual ~CsiAnnotationIconMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
@@ -2824,7 +2823,7 @@ public:
   {
   }
 
-  virtual ~CsiAnnotationMeta() {}
+//  virtual ~CsiAnnotationMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -2860,7 +2859,7 @@ public:
   {
   }
 
-  virtual ~MultiStepSubModelMeta() {}
+//  virtual ~MultiStepSubModelMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -2883,7 +2882,7 @@ public:
   RotateIconMeta(const RotateIconMeta &rhs) : BranchMeta(rhs)
   {
   }
-  virtual ~RotateIconMeta() {}
+//  virtual ~RotateIconMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -2904,7 +2903,7 @@ public:
   {
   }
 
-  virtual ~PointerBaseMeta() {}
+//  virtual ~PointerBaseMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -2963,7 +2962,7 @@ public:
   {
   }
 
-  virtual ~PageMeta() {}
+//  virtual ~PageMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -3025,7 +3024,7 @@ public:
   PliMeta(const PliMeta &rhs) : BranchMeta(rhs)
   {
   }
-  virtual ~PliMeta() {}
+//  virtual ~PliMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -3039,7 +3038,7 @@ public:
   {
   }
 
-  virtual ~BomMeta() {}
+//  virtual ~BomMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -3061,7 +3060,7 @@ public:
   {
   }
 
-  virtual ~SubModelMeta() {}
+//  virtual ~SubModelMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -3108,7 +3107,7 @@ public:
   {
   }
 
-  virtual ~AssemMeta() {}
+//  virtual ~AssemMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -3149,7 +3148,7 @@ public:
   {
   }
 
-  virtual ~CalloutMeta() {}
+//  virtual ~CalloutMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -3183,7 +3182,7 @@ public:
   {
   }
 
-  virtual ~MultiStepMeta() {}
+//  virtual ~MultiStepMeta() {}
   virtual void init(BranchMeta *parent, QString name);
 };
 
@@ -3230,7 +3229,7 @@ public:
   ResolutionMeta(const ResolutionMeta &rhs) : LeafMeta(rhs)
   {
   }
-  virtual ~ResolutionMeta() {}
+//  virtual ~ResolutionMeta() {}
   void pop() { pushed = 0; setIsDefaultResolution(true); }
   virtual void init(BranchMeta *parent, 
                     QString name);
@@ -3245,7 +3244,7 @@ public:
   NoStepMeta()
   {
   }
-  virtual ~NoStepMeta() {}
+//  virtual ~NoStepMeta() {}
   virtual void init(BranchMeta *parent,
                     const QString name,
                     Rc _rc=OkRc);
@@ -3283,7 +3282,7 @@ public:
   CameraDistFactorMeta cameraDistNative;
 
   LPubMeta();
-  virtual ~LPubMeta() {}
+//  virtual ~LPubMeta() {}
   virtual void init(BranchMeta *parent, QString name);
   LPubMeta(const LPubMeta &rhs) : BranchMeta(rhs)
   {
@@ -3368,7 +3367,7 @@ public:
   RcMeta        outside;
   RcMeta        cross;
   LSynthMeta() {}
-  virtual ~LSynthMeta() {}
+//  virtual ~LSynthMeta() {}
   virtual void init(BranchMeta *parent, QString name);
   LSynthMeta(const LSynthMeta &rhs) : BranchMeta(rhs)
   {

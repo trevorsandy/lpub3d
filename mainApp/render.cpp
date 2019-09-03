@@ -391,6 +391,16 @@ int Render::executeLDViewProcess(QStringList &arguments, Mt module) {
           return -1;
         }
     }
+
+  QFile outputImageFile(arguments.last());
+  if (! outputImageFile.exists()) {
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView %1 image generation failed for %2 with message %3")
+                           .arg(module == CSI ? "CSI" : "PLI")
+                           .arg(outputImageFile.fileName())
+                           .arg(outputImageFile.errorString()));
+      return -1;
+  }
+
   return 0;
 }
 
@@ -420,7 +430,7 @@ float POVRay::cameraDistance(
     Meta &meta,
     float scale)
 {
-  return stdCameraDistance(meta, scale)*0.455;
+  return stdCameraDistance(meta, scale)*0.455f;
 }
 
 int POVRay::renderCsi(
@@ -455,10 +465,10 @@ int POVRay::renderCsi(
   int width  = gui->pageSize(meta.LPub.page, 0);
   int height = gui->pageSize(meta.LPub.page, 1);
 
-  QString CA = QString("-ca%1") .arg(pp ? meta.LPub.assem.cameraFoV.value() : 0.01);
+  QString CA = QString("-ca%1") .arg(pp ? double(meta.LPub.assem.cameraFoV.value()) : 0.01);
   QString cg = QString("-cg%1,%2,%3")
-      .arg(noCA ? 0.0 : meta.LPub.assem.cameraAngles.value(0))
-      .arg(noCA ? 0.0 : meta.LPub.assem.cameraAngles.value(1))
+      .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(0)))
+      .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(1)))
       .arg(cd);
 
   QString w  = QString("-SaveWidth=%1") .arg(width);
@@ -509,6 +519,8 @@ int POVRay::renderCsi(
 
       arguments << QDir::toNativeSeparators(ldrName);
 
+      removeEmptyStrings(arguments);
+
       emit gui->messageSig(LOG_STATUS, "LDView POV CSI file generation...");
 
       QProcess    ldview;
@@ -542,6 +554,8 @@ int POVRay::renderCsi(
       QString workingDirectory = QDir::currentPath();
 
       arguments << QDir::toNativeSeparators(ldrName);
+
+      removeEmptyStrings(arguments);
 
       emit gui->messageSig(LOG_STATUS, "Native POV CSI file generation...");
 
@@ -619,6 +633,8 @@ int POVRay::renderCsi(
 //#ifndef __APPLE__
 //  povArguments << "/EXIT";
 //#endif
+
+  removeEmptyStrings(povArguments);
 
   emit gui->messageSig(LOG_STATUS, "Executing POVRay render CSI - please wait...");
 
@@ -749,6 +765,8 @@ int POVRay::renderPli(
 
       arguments << QDir::toNativeSeparators(ldrNames.first());
 
+      removeEmptyStrings(arguments);
+
       emit gui->messageSig(LOG_STATUS, "LDView POV PLI file generation...");
 
       QProcess    ldview;
@@ -782,6 +800,8 @@ int POVRay::renderPli(
       QString workingDirectory = QDir::currentPath();
 
       arguments << QDir::toNativeSeparators(ldrNames.first());
+
+      removeEmptyStrings(arguments);
 
       emit gui->messageSig(LOG_STATUS, "Native POV PLI file generation...");
 
@@ -859,6 +879,8 @@ int POVRay::renderPli(
 //#ifndef __APPLE__
 //  povArguments << "/EXIT";
 //#endif
+
+  removeEmptyStrings(povArguments);
 
   emit gui->messageSig(LOG_STATUS, "Executing POVRay render PLI - please wait...");
 
@@ -947,16 +969,15 @@ int LDGLite::renderCsi(
   QString o  = QString("-o0,-%1")   .arg(height/6);
   QString mf = QString("-mF%1")     .arg(pngName);
 
-  int lineThickness = resolution()/150+0.5;
+  int lineThickness = int(resolution()/150+0.5f);
   if (lineThickness == 0) {
     lineThickness = 1;
   }
-
   QString w  = QString("-W%1")      .arg(lineThickness); // ldglite always deals in 72 DPI
 
-  QString CA = QString("-ca%1") .arg(pp ? meta.LPub.assem.cameraFoV.value() : 0.01);
-  QString cg = QString("-cg%1,%2,%3") .arg(noCA ? 0.0 : meta.LPub.assem.cameraAngles.value(0))
-                                      .arg(noCA ? 0.0 : meta.LPub.assem.cameraAngles.value(1))
+  QString CA = QString("-ca%1") .arg(pp ? double(meta.LPub.assem.cameraFoV.value()) : 0.01);
+  QString cg = QString("-cg%1,%2,%3") .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(0)))
+                                      .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(1)))
                                       .arg(cd);
 
   QString J  = QString("-%1").arg(pp ? "J" : "j");
@@ -997,6 +1018,8 @@ int LDGLite::renderCsi(
   arguments << QDir::toNativeSeparators(mf);                  // .png file name
   arguments << QDir::toNativeSeparators(ldrFile);             // csi.ldr (input file)
 
+  removeEmptyStrings(arguments);
+
   emit gui->messageSig(LOG_STATUS, "Executing LDGLite render CSI - please wait...");
 
   QProcess    ldglite;
@@ -1032,6 +1055,13 @@ int LDGLite::renderCsi(
       emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDGlite failed\n%1") .arg(str));
       return -1;
     }
+  }
+
+  QFile outputImageFile(pngName);
+  if (! outputImageFile.exists()) {
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDGLite CSI image generation failed for %1 with message %2")
+                           .arg(outputImageFile.fileName()).arg(outputImageFile.errorString()));
+      return -1;
   }
 
   return 0;
@@ -1087,12 +1117,10 @@ int LDGLite::renderPli(
                                       .arg(cd);
 
   QString J  = QString("-J");
-
   QString v  = QString("-v%1,%2")   .arg(width)
                                     .arg(height);
   QString o  = QString("-o0,-%1")   .arg(height/6);
   QString mf = QString("-mF%1")     .arg(pngName);
-
   QString w  = QString("-W%1")      .arg(lineThickness);  // ldglite always deals in 72 DPI
 
   QStringList arguments;
@@ -1131,6 +1159,8 @@ int LDGLite::renderPli(
   arguments << QDir::toNativeSeparators(mf);
   arguments << QDir::toNativeSeparators(ldrNames.first());
 
+  removeEmptyStrings(arguments);
+
   emit gui->messageSig(LOG_STATUS, "Executing LDGLite render PLI - please wait...");
 
   QProcess    ldglite;
@@ -1156,7 +1186,7 @@ int LDGLite::renderPli(
 #endif
 
   ldglite.start(Preferences::ldgliteExe,arguments);
-  if (! ldglite.waitForFinished()) {
+  if (! ldglite.waitForFinished(rendererTimeout())) {
     if (ldglite.exitCode()) {
       QByteArray status = ldglite.readAll();
       QString str;
@@ -1165,6 +1195,14 @@ int LDGLite::renderPli(
       return -1;
     }
   }
+
+  QFile outputImageFile(pngName);
+  if (! outputImageFile.exists()) {
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDGLite PLI image generation failed for %1 with message %2")
+                           .arg(outputImageFile.fileName()).arg(outputImageFile.errorString()));
+      return -1;
+  }
+
   return 0;
 }
 
@@ -1202,7 +1240,7 @@ float LDView::cameraDistance(
   Meta &meta,
   float scale)
 {
-    return stdCameraDistance(meta, scale)*0.775;
+    return stdCameraDistance(meta, scale)*0.775f;
 }
 
 int LDView::renderCsi(
@@ -1307,9 +1345,9 @@ int LDView::renderCsi(
   bool haveLdrNamesIM = !ldrNamesIM.isEmpty();
 
   // Build (Native) arguments
-  QString CA = QString("-ca%1") .arg(pp ? meta.LPub.assem.cameraFoV.value() : 0.01);
-  QString cg = QString("-cg%1,%2,%3") .arg(noCA ? 0.0f : meta.LPub.assem.cameraAngles.value(0))
-                                      .arg(noCA ? 0.0f : meta.LPub.assem.cameraAngles.value(1))
+  QString CA = QString("-ca%1") .arg(pp ? double(meta.LPub.assem.cameraFoV.value()) : 0.01);
+  QString cg = QString("-cg%1,%2,%3") .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(0)))
+                                      .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(1)))
                                       .arg(cd);
 
   QString w  = QString("-SaveWidth=%1")  .arg(width);
@@ -1366,10 +1404,12 @@ int LDView::renderCsi(
           arguments << ldrNames.first();
       }
 
+      removeEmptyStrings(arguments);
+
       emit gui->messageSig(LOG_STATUS, "Executing LDView render CSI - please wait...");
 
       // execute LDView process
-      if (executeLDViewProcess(arguments, CSI) != 0) // ldrName entries that ARE NOT IM exist - e.g. first step
+      if (executeLDViewProcess(arguments, PLI) != 0) // ldrName entries that ARE NOT IM exist - e.g. first step
           return -1;
   }
 
@@ -1395,6 +1435,8 @@ int LDView::renderCsi(
       im_arguments << ini;                        // 11. LDView.ini
       if (!altldc.isEmpty())
           im_arguments << altldc;                 // 12.Alternate LDConfig
+
+      removeEmptyStrings(arguments);
 
       if (useLDViewSCall()){
 
@@ -1640,6 +1682,8 @@ int LDView::renderPli(
       arguments << ldrNames.first();
   }
 
+  removeEmptyStrings(arguments);
+
   emit gui->messageSig(LOG_STATUS, "Executing LDView render PLI - please wait...");
 
   // execute LDView process
@@ -1677,9 +1721,7 @@ float Native::cameraDistance(
     Meta &meta,
     float scale)
 {
-  Q_UNUSED(scale);
-  Q_UNUSED(meta)
-  return 0.0;
+  return stdCameraDistance(meta,scale);
 }
 
 int Native::renderCsi(
@@ -1807,8 +1849,8 @@ int Native::renderCsi(
 
               QString CA = QString("-ca%1") .arg(/*pp ? Options.FoV : */ 0.01);  // Effectively defaults to orthographic projection.
               QString cg = QString("-cg%1,%2,%3")
-                      .arg(noCA ? 0.0 : meta.LPub.assem.cameraAngles.value(0))
-                      .arg(noCA ? 0.0 : meta.LPub.assem.cameraAngles.value(1))
+                      .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(0)))
+                      .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(1)))
                       .arg(cd);
 
               QString w  = QString("-SaveWidth=%1") .arg(Options.ImageWidth);
@@ -1831,6 +1873,8 @@ int Native::renderCsi(
               }
 
               arguments << QDir::toNativeSeparators(ldrName);
+
+              removeEmptyStrings(arguments);
 
               Options.ExportArgs = arguments;
           }

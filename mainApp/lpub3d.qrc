@@ -166,6 +166,7 @@
         <file alias="removelpubformat.png">resources/removelpubformat.png</file>
         <file alias="removepointersegment.png">resources/removepointersegment.png</file>
         <file alias="removesubstitutepart.png">resources/removesubstitutepart.png</file>
+		<file alias="rendererarguments.png">resources/rendererarguments.png</file>		
         <file alias="renderersetup.png">resources/renderersetup.png</file>
         <file alias="resetborderattributes.png">resources/resetborderattributes.png</file>
         <file alias="resetcache.png">resources/resetcache.png</file>

@@ -531,7 +531,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       setRendererArguments(topOfStep,
                          bottomOfStep,
                          Render::getRenderer(),
-                         &step->csiItem->assem->povrayParms);
+                         &step->povrayParms);
     } else if (selectedAction == bringToFrontAction) {
       setSelectedItemZValue(top,
                             bottom,

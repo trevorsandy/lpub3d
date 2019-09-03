@@ -219,6 +219,11 @@ public:
   bool UsingViewpoint;
 };
 
+inline void removeEmptyStrings(QStringList &l)
+{
+  l.removeAll({});
+}
+
 extern Render *renderer;
 extern LDGLite ldglite;
 extern LDView  ldview;
