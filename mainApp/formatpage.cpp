@@ -630,6 +630,7 @@ int Gui::addGraphicsPageItems(
                   if (!page->pli.bom)
                       step->pli.relativeType = PartsListType;
 
+                  bool redirectPliToPageHeader = false;
                   // if show step number
 
                   if (! step->onlyChild() && step->showStepNumber) {
@@ -641,11 +642,12 @@ int Gui::addGraphicsPageItems(
                       // if Submodel and Pli relative to StepNumber
 
                       if (step->placeSubModel &&
-                              step->subModel.placement.value().relativeTo == StepNumberType) {
+                          step->subModel.placement.value().relativeTo == StepNumberType) {
 
                           // Redirect Pli relative to SubModel
 
-                          if (step->pli.placement.value().relativeTo == StepNumberType) {
+                          if (step->pli.pliMeta.show.value() &&
+                              step->pli.placement.value().relativeTo == StepNumberType) {
 
                               step->pli.placement.setValue(BottomLeftOutside,SubModelType);
                               step->subModel.appendRelativeTo(&step->pli);
@@ -658,7 +660,7 @@ int Gui::addGraphicsPageItems(
 
                   else {
 
-                      // if Submodel and Pli relative to StepNumber
+                      // if Submodel relative to StepNumber
 
                       if (step->placeSubModel &&
                           step->subModel.placement.value().relativeTo == StepNumberType) {
@@ -668,27 +670,45 @@ int Gui::addGraphicsPageItems(
                           step->subModel.placement.setValue(BottomLeftOutside,PageHeaderType);
                           pageHeader->appendRelativeTo(&step->subModel);
                           pageHeader->placeRelative(&step->subModel);
+                      }
 
-                          if (step->pli.placement.value().relativeTo == StepNumberType) {
+                      // if Pli relative to StepNumber
 
+                      if (step->pli.pliMeta.show.value() &&
+                          step->pli.pliMeta.placement.value().relativeTo == StepNumberType) {
+
+                          if (step->placeSubModel)
+                          {
                               // Redirect Pli relative to SubModel
 
                               step->pli.placement.setValue(BottomLeftOutside,SubModelType);
                               step->subModel.appendRelativeTo(&step->pli);
                               step->subModel.placeRelative(&step->pli);
+                          } else {
+
+                              // Redirect Pli relative to PageHeader
+
+                              redirectPliToPageHeader = true;
                           }
                       }
+                  }
 
-                      // if Pli relative to StepNumber
+                  if (step->pli.pliMeta.show.value() &&
+                      step->pli.pliMeta.placement.value().relativeTo == SubModelType) {
 
-                      else {
-
+                      if (!step->placeSubModel)
+                      {
                           // Redirect Pli relative to PageHeader
 
-                          step->pli.placement.setValue(BottomLeftOutside,PageHeaderType);
-                          pageHeader->appendRelativeTo(&step->pli);
-                          pageHeader->placeRelative(&step->pli);
+                          redirectPliToPageHeader = true;
                       }
+                  }
+
+                  if (redirectPliToPageHeader)
+                  {
+                      step->pli.placement.setValue(BottomLeftOutside,PageHeaderType);
+                      pageHeader->appendRelativeTo(&step->pli);
+                      pageHeader->placeRelative(&step->pli);
                   }
 
                   // size the callouts
