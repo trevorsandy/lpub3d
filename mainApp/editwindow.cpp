@@ -244,7 +244,7 @@ void EditWindow::disableActions()
 
 void EditWindow::createToolBars()
 {
-    editToolBar = addToolBar(tr("Edit"));
+    editToolBar = addToolBar(tr("LDraw Editor Toolbar"));
     editToolBar->setObjectName("EditToolbar");
     if (modelFileEdit()) {
         mpdCombo = new QComboBox(this);

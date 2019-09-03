@@ -287,6 +287,11 @@ static const SceneObject NoContextSceneObjects[] =
 #define SAVE_SKIP_PARTS_ARCHIVE_KEY "SaveSkipPartsArchive"
 #define VIEW_PARTS_WIDGET_KEY       "ViewPartsWidget"
 #define VIEW_COLORS_WIDGET_KEY      "ViewColorsWidget"
+#define VIEW_EXPORT_TOOLBAR_KEY     "ViewExportToolbar"
+#define VIEW_CACHE_TOOLBAR_KEY      "ViewCacheToolbar"
+#define VIEW_SETUP_TOOLBAR_KEY      "ViewSetupToolbar"
+#define VIEW_EDIT_TOOLBAR_KEY       "ViewEditToolbar"
+#define VIEW_EDITPARAMS_TOOLBAR_KEY "ViewEditParamsToolbar"
 
 #define CASE_CHECK    "CaseCheck"
 #define WORD_CHECK    "WordCheck"

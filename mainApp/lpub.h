@@ -696,9 +696,9 @@ public:
     return false; //Preferences::usingNativeRenderer;
   }
 
-  void insertLine (const Where &here, const QString &line, QUndoCommand *parent = 0);
-  void appendLine (const Where &here, const QString &line, QUndoCommand *parent = 0);
-  void replaceLine(const Where &here, const QString &line, QUndoCommand *parent = 0);
+  void insertLine (const Where &here, const QString &line, QUndoCommand *parent = nullptr);
+  void appendLine (const Where &here, const QString &line, QUndoCommand *parent = nullptr);
+  void replaceLine(const Where &here, const QString &line, QUndoCommand *parent = nullptr);
   void deleteLine (const Where &here, QUndoCommand *parent = nullptr);
   void normalizeHeader(const Where &here);
 
@@ -1383,6 +1383,11 @@ private slots:
 
     void partsWidgetVisibilityChanged(bool);
 
+    void exportToolBarVisibilityChanged(bool);
+    void cacheToolBarVisibilityChanged(bool);
+    void setupToolBarVisibilityChanged(bool);
+    void editToolBarVisibilityChanged(bool);
+    void editParamsToolBarVisibilityChanged(bool);
     /******************************************************************
      * File management functions
      *****************************************************************/
@@ -1441,8 +1446,14 @@ private:
   QMenu* ViewerExportMenu;
   QMenu* ViewerZoomSliderMenu;
 
+  // toolbars
   QToolBar *fileToolBar;
+  QToolBar *undoredoToolBar;
+  QToolBar *exportToolBar;
   QToolBar *editToolBar;
+  QToolBar *cacheToolBar;
+  QToolBar *setupToolBar;
+  QToolBar *editParamsToolBar;
   QToolBar *zoomToolBar;
   QToolBar *navigationToolBar;
   QToolBar *mpdToolBar;

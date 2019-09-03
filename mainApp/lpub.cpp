@@ -4351,6 +4351,36 @@ void Gui::partsWidgetVisibilityChanged(bool visible)
     Settings.setValue(QString("%1/%2").arg(SETTINGS,VIEW_PARTS_WIDGET_KEY),visible);
 }
 
+void Gui::exportToolBarVisibilityChanged(bool visible)
+{
+    QSettings Settings;
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,VIEW_EXPORT_TOOLBAR_KEY),visible);
+}
+
+void Gui::cacheToolBarVisibilityChanged(bool visible)
+{
+    QSettings Settings;
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,VIEW_CACHE_TOOLBAR_KEY),visible);
+}
+
+void Gui::setupToolBarVisibilityChanged(bool visible)
+{
+    QSettings Settings;
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,VIEW_SETUP_TOOLBAR_KEY),visible);
+}
+
+void Gui::editToolBarVisibilityChanged(bool visible)
+{
+    QSettings Settings;
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,VIEW_EDIT_TOOLBAR_KEY),visible);
+}
+
+void Gui::editParamsToolBarVisibilityChanged(bool visible)
+{
+    QSettings Settings;
+    Settings.setValue(QString("%1/%2").arg(SETTINGS,VIEW_EDITPARAMS_TOOLBAR_KEY),visible);
+}
+
 void Gui::createMenus()
 {
   // Editor Menus
@@ -4378,6 +4408,7 @@ void Gui::createMenus()
     exportMenu->addAction(exportHtmlAct);
     exportMenu->addAction(exportBricklinkAct);
     exportMenu->addAction(exportCsvAct);
+    exportMenu->addSeparator();
     exportMenu->setDisabled(true);
 
     //fileMenu->addAction(printToFileAct);
@@ -4413,11 +4444,7 @@ void Gui::createMenus()
     editMenu->addAction(addTextAct);
     editMenu->addAction(addBomAct);
     editMenu->addAction(removeLPubFormattingAct);
-
     editMenu->addSeparator();
-
-    QMenu* ToolBarEditorMenu = editMenu->addMenu(tr("LDraw File Editor T&oolbar"));
-    ToolBarEditorMenu->addAction(editWindow->editToolBar->toggleViewAction());
 
     viewMenu = menuBar()->addMenu(tr("&View"));
     viewMenu->addAction(fitWidthAct);
@@ -4431,36 +4458,33 @@ void Gui::createMenus()
     viewMenu->addAction(sceneRulerComboAct);
     viewMenu->addAction(sceneGuidesComboAct);
     viewMenu->addAction(snapToGridComboAct);
-
     viewMenu->addSeparator();
 
     toolsMenu = menuBar()->addMenu(tr("&Tools"));
     toolsMenu->addAction(firstPageAct);
-
     toolsMenu->addAction(nextPageAct);
     toolsMenu->addAction(nextPageContinuousAct);
-
     toolsMenu->addAction(previousPageAct);
     toolsMenu->addAction(previousPageContinuousAct);
-
     toolsMenu->addAction(lastPageAct);
-
     toolsMenu->addSeparator();
 
     cacheMenu = toolsMenu->addMenu("Reset Cache");
     cacheMenu->setIcon(QIcon(":/resources/resetcache.png"));
-    toolsMenu->addAction(refreshLDrawUnoffPartsAct);
-    toolsMenu->addAction(refreshLDrawOfficialPartsAct);
     cacheMenu->addAction(clearAllCachesAct);
     cacheMenu->addAction(clearPLICacheAct);
     cacheMenu->addAction(clearSubmodelCacheAct);
     cacheMenu->addAction(clearCSICacheAct);
     cacheMenu->addAction(clearTempCacheAct);
     cacheMenu->addAction(clearCustomPartCacheAct);
+    cacheMenu->addSeparator();
     cacheMenu->setDisabled(true);
 
-    configMenu = menuBar()->addMenu(tr("&Configuration"));
+    toolsMenu->addAction(refreshLDrawUnoffPartsAct);
+    toolsMenu->addAction(refreshLDrawOfficialPartsAct);
+    toolsMenu->addSeparator();
 
+    configMenu = menuBar()->addMenu(tr("&Configuration"));
     setupMenu = configMenu->addMenu("Build &Instructions Setup...");
     setupMenu->setIcon(QIcon(":/resources/instructionsetup.png"));
     setupMenu->addAction(pageSetupAct);
@@ -4473,6 +4497,7 @@ void Gui::createMenus()
     setupMenu->addAction(projectSetupAct);
     setupMenu->addAction(fadeStepSetupAct);
     setupMenu->addAction(highlightStepSetupAct);
+    setupMenu->addSeparator();
     setupMenu->setDisabled(true);
 
     configMenu->addSeparator();
@@ -4509,6 +4534,8 @@ void Gui::createMenus()
     editorMenu->addAction(editLdviewPovIniAct);
     editorMenu->addAction(editPovrayIniAct);
     editorMenu->addAction(editPovrayConfAct);
+    editorMenu->addSeparator();
+
     configMenu->addAction(editModelFileAct);
     configMenu->addAction(generateCustomColourPartsAct);
     configMenu->addSeparator();
@@ -4599,7 +4626,9 @@ void Gui::createMenus()
 
 void Gui::createToolBars()
 {
-    fileToolBar = addToolBar(tr("File"));
+    QSettings Settings;
+
+    fileToolBar = addToolBar(tr("File Toolbar"));
     fileToolBar->setObjectName("FileToolbar");
     fileToolBar->addAction(openAct);
     fileToolBar->addAction(saveAct);
@@ -4607,20 +4636,151 @@ void Gui::createToolBars()
     //fileToolBar->addAction(printToFileAct);
     fileToolBar->addAction(exportAsPdfPreviewAct);
     fileToolBar->addAction(exportAsPdfAct);
+    fileToolBar->addAction(closeFileAct);
 
-    editToolBar = addToolBar(tr("Edit"));
+    exportToolBar = addToolBar(tr("Export Toolbar"));
+    exportToolBar->setObjectName("ExportToolbar");
+    exportToolBar->addAction(exportPngAct);
+    exportToolBar->addAction(exportJpgAct);
+#ifdef Q_OS_WIN
+    exportToolBar->addAction(exportBmpAct);
+#endif
+    exportToolBar->addSeparator();
+    exportToolBar->addAction(exportObjAct);
+    exportToolBar->addAction(exportStlAct);
+    exportToolBar->addAction(exportPovAct);
+    exportToolBar->addAction(exportColladaAct);
+    exportToolBar->addSeparator();
+    exportToolBar->addAction(exportHtmlAct);
+    exportToolBar->addAction(exportBricklinkAct);
+    exportToolBar->addAction(exportCsvAct);
+    bool visible = false;
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS, VIEW_EXPORT_TOOLBAR_KEY)))
+        visible = Settings.value(QString("%1/%2").arg(SETTINGS, VIEW_EXPORT_TOOLBAR_KEY)).toBool();
+    exportMenu->addAction(exportToolBar->toggleViewAction());
+    exportToolBar->setVisible(visible);
+    connect (exportToolBar, SIGNAL (visibilityChanged(bool)),
+                      this, SLOT (exportToolBarVisibilityChanged(bool)));
+
+    undoredoToolBar = addToolBar(tr("UndoRedo Toolbar"));
+    undoredoToolBar->setObjectName("UndoRedoToolbar");
+    undoredoToolBar->addAction(undoAct);
+    undoredoToolBar->addAction(redoAct);
+
+    cacheToolBar = addToolBar(tr("Cache Toolbar"));
+    cacheToolBar->setObjectName("CacheToolbar");
+    cacheToolBar->addSeparator();
+    cacheToolBar->addAction(clearAllCachesAct);
+    cacheToolBar->addAction(clearPLICacheAct);
+    cacheToolBar->addAction(clearSubmodelCacheAct);
+    cacheToolBar->addAction(clearCSICacheAct);
+    cacheToolBar->addAction(clearTempCacheAct);
+    cacheToolBar->addAction(clearCustomPartCacheAct);
+    visible = false;
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,VIEW_CACHE_TOOLBAR_KEY)))
+        visible = Settings.value(QString("%1/%2").arg(SETTINGS,VIEW_CACHE_TOOLBAR_KEY)).toBool();
+    cacheMenu->addAction(cacheToolBar->toggleViewAction());
+    cacheToolBar->setVisible(visible);
+    connect (cacheToolBar, SIGNAL (visibilityChanged(bool)),
+                     this, SLOT (cacheToolBarVisibilityChanged(bool)));
+
+    setupToolBar = addToolBar(tr("Global Setup Toolbar"));
+    setupToolBar->setObjectName("ToolsToolbar");
+    setupToolBar->addAction(pageSetupAct);
+    setupToolBar->addAction(assemSetupAct);
+    setupToolBar->addAction(pliSetupAct);
+    setupToolBar->addAction(bomSetupAct);
+    setupToolBar->addAction(calloutSetupAct);
+    setupToolBar->addAction(multiStepSetupAct);
+    setupToolBar->addAction(subModelSetupAct);
+    setupToolBar->addAction(projectSetupAct);
+    setupToolBar->addAction(fadeStepSetupAct);
+    setupToolBar->addAction(highlightStepSetupAct);
+    visible = false;
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,VIEW_SETUP_TOOLBAR_KEY)))
+        visible = Settings.value(QString("%1/%2").arg(SETTINGS,VIEW_SETUP_TOOLBAR_KEY)).toBool();
+    setupMenu->addAction(setupToolBar->toggleViewAction());
+    setupToolBar->setVisible(visible);
+    connect (setupToolBar, SIGNAL (visibilityChanged(bool)),
+                     this, SLOT (setupToolBarVisibilityChanged(bool)));
+
+    editToolBar = addToolBar(tr("Edit Toolbar"));
     editToolBar->setObjectName("EditToolbar");
-    editToolBar->addAction(undoAct);
-    editToolBar->addAction(redoAct);
+    editToolBar->addAction(insertCoverPageAct);
+    editToolBar->addAction(appendCoverPageAct);
+    editToolBar->addAction(insertNumberedPageAct);
+    editToolBar->addAction(appendNumberedPageAct);
+    editToolBar->addAction(deletePageAct);
+    editToolBar->addAction(addPictureAct);
+    editToolBar->addAction(addTextAct);
+    editToolBar->addAction(addBomAct);
+    editToolBar->addAction(removeLPubFormattingAct);
+    visible = false;
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,VIEW_EDIT_TOOLBAR_KEY)))
+        visible = Settings.value(QString("%1/%2").arg(SETTINGS,VIEW_EDIT_TOOLBAR_KEY)).toBool();
+    editMenu->addAction(editToolBar->toggleViewAction());
+    editMenu->addAction(editWindow->editToolBar->toggleViewAction());
+    editToolBar->setVisible(visible);
+    connect (editToolBar, SIGNAL (visibilityChanged(bool)),
+                     this, SLOT (editToolBarVisibilityChanged(bool)));
 
-    navigationToolBar = addToolBar(tr("Navigation"));
+    editParamsToolBar = addToolBar(tr("Edit Parameters Toolbar"));
+    editParamsToolBar->setObjectName("EditParamsToolbar");
+    editParamsToolBar->addAction(editModelFileAct);
+    editParamsToolBar->addSeparator();
+    editParamsToolBar->addAction(editLDrawColourPartsAct);
+    editParamsToolBar->addAction(editTitleAnnotationsAct);
+    editParamsToolBar->addAction(editFreeFormAnnitationsAct);
+    editParamsToolBar->addAction(editPliBomSubstitutePartsAct);
+    editParamsToolBar->addAction(editExcludedPartsAct);
+    editParamsToolBar->addAction(editAnnotationStyleAct);
+    editParamsToolBar->addAction(editLD2BLCodesXRefAct);
+    editParamsToolBar->addAction(editLD2BLColorsXRefAct);
+    editParamsToolBar->addAction(editBLColorsAct);
+    editParamsToolBar->addAction(editBLCodesAct);
+    editParamsToolBar->addAction(editLD2RBColorsXRefAct);
+    editParamsToolBar->addAction(editLD2RBCodesXRefAct);
+    if (Preferences::ldrawiniFound){
+        editParamsToolBar->addAction(editLdrawIniFileAct);
+    }
+    editParamsToolBar->addSeparator();
+#if defined Q_OS_WIN
+    if (Preferences::portableDistribution){
+        editParamsToolBar->addAction(editLPub3DIniFileAct);
+        editParamsToolBar->addSeparator();
+    }
+#else
+    editParamsToolBar->addAction(editLPub3DIniFileAct);
+    editParamsToolBar->addSeparator();
+#endif
+    editParamsToolBar->addAction(editNativePOVIniAct);
+    editParamsToolBar->addAction(editLdgliteIniAct);
+    editParamsToolBar->addAction(editLdviewIniAct);
+    editParamsToolBar->addAction(editLdviewPovIniAct);
+    editParamsToolBar->addAction(editPovrayIniAct);
+    editParamsToolBar->addAction(editPovrayConfAct);
+    editParamsToolBar->addSeparator();
+    editParamsToolBar->addAction(generateCustomColourPartsAct);
+    editParamsToolBar->addSeparator();
+    editParamsToolBar->addAction(viewLogAct);
+    visible = false;
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,VIEW_EDITPARAMS_TOOLBAR_KEY)))
+        visible = Settings.value(QString("%1/%2").arg(SETTINGS,VIEW_EDITPARAMS_TOOLBAR_KEY)).toBool();
+    editorMenu->addAction(editParamsToolBar->toggleViewAction());
+    editParamsToolBar->setVisible(visible);
+    connect (editParamsToolBar, SIGNAL (visibilityChanged(bool)),
+                          this, SLOT (editParamsToolBarVisibilityChanged(bool)));
+
+    navigationToolBar = addToolBar(tr("Navigation Toolbar"));
     navigationToolBar->setObjectName("NavigationToolbar");
     navigationToolBar->addAction(firstPageAct);
+
     previousPageContinuousMenu = new QMenu(tr("Continuous Page Previous"), this);
     previousPageContinuousMenu->addAction(previousPageContinuousAct);
     previousPageComboAct->setMenu(previousPageContinuousMenu);
     navigationToolBar->addAction(previousPageComboAct);
     navigationToolBar->addWidget(setPageLineEdit);
+
     nextPageContinuousMenu = new QMenu(tr("Continuous Page Next"), this);
     nextPageContinuousMenu->addAction(nextPageContinuousAct);
     nextPageComboAct->setMenu(nextPageContinuousMenu);
@@ -4628,11 +4788,11 @@ void Gui::createToolBars()
     navigationToolBar->addAction(lastPageAct);
     navigationToolBar->addWidget(setGoToPageCombo);
 
-    mpdToolBar = addToolBar(tr("MPD"));
+    mpdToolBar = addToolBar(tr("MPD Toolbar"));
     mpdToolBar->setObjectName("MPDToolbar");
     mpdToolBar->addWidget(mpdCombo);
 
-    zoomToolBar = addToolBar(tr("Zoom"));
+    zoomToolBar = addToolBar(tr("Zoom Toolbar"));
     zoomToolBar->setObjectName("ZoomToolbar");
     zoomToolBar->addAction(fitVisibleAct);
     zoomToolBar->addAction(fitWidthAct);
@@ -4800,11 +4960,14 @@ void Gui::createDockWindows()
     addDockWidget(Qt::RightDockWidgetArea, gMainWindow->mPartsToolBar);
     viewMenu->addAction(gMainWindow->mPartsToolBar->toggleViewAction());
 
-    bool viewable = false;
     QSettings Settings;
+    bool viewable = false;
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,VIEW_PARTS_WIDGET_KEY)))
         viewable = Settings.value(QString("%1/%2").arg(SETTINGS,VIEW_PARTS_WIDGET_KEY)).toBool();
-    viewMenu->actions().last()->setChecked(viewable);
+    viewMenu->addAction(gMainWindow->mPartsToolBar->toggleViewAction());
+    gMainWindow->mPartsToolBar->toggleViewAction()->setChecked(viewable);
+    connect (gMainWindow->mPartsToolBar, SIGNAL (visibilityChanged(bool)),
+                                   this, SLOT (partsWidgetVisibilityChanged(bool)));
 
     tabifyDockWidget(gMainWindow->mPropertiesToolBar, gMainWindow->mPartsToolBar);
 
@@ -4818,7 +4981,8 @@ void Gui::createDockWindows()
     viewable = false;
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,VIEW_COLORS_WIDGET_KEY)))
         viewable = Settings.value(QString("%1/%2").arg(SETTINGS,VIEW_COLORS_WIDGET_KEY)).toBool();
-    viewMenu->actions().last()->setChecked(viewable);
+    viewMenu->addAction(gMainWindow->mColorsToolBar->toggleViewAction());
+    gMainWindow->mColorsToolBar->toggleViewAction()->setChecked(viewable);
 
     tabifyDockWidget(gMainWindow->mPartsToolBar, gMainWindow->mColorsToolBar);
 
@@ -4831,7 +4995,6 @@ void Gui::createDockWindows()
 //#endif
 
     connect(viewerDockWindow, SIGNAL (topLevelChanged(bool)), this, SLOT (toggleLCStatusBar(bool)));
-    connect (gMainWindow->mPartsToolBar, SIGNAL (visibilityChanged(bool)), this, SLOT (partsWidgetVisibilityChanged(bool)));
     //**
 }
 
