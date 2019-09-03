@@ -49,6 +49,7 @@ class SubModelPart;            // PliPart
 class SMGraphicsPixmapItem;    // PGraphicsPixmapItem
 class SMInstanceTextItem;      // InstanceTextItem
 class SubModelBackgroundItem;  // PliBackgroundItem
+class ViewerOptions;
 
 class SubModelPart {
   public:

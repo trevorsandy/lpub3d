@@ -102,7 +102,7 @@ GlobalAssemDialog::GlobalAssemDialog(
         &assem->modelScale,
         assem->modelScale._min,
         assem->modelScale._max,
-        0.01);
+                            0.01f);
       data->children.append(child);
       data->clearCache = child->modified;
       boxGrid->addWidget(child,0,0);

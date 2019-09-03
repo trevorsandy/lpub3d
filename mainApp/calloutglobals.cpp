@@ -170,7 +170,7 @@ GlobalCalloutDialog::GlobalCalloutDialog(
       &calloutMeta->csi.modelScale,
       calloutMeta->csi.modelScale._min,
       calloutMeta->csi.modelScale._max,
-      0.01);
+                            0.01f);
     data->children.append(child);
     boxGrid->addWidget(child,0,0);
   }

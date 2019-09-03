@@ -914,9 +914,18 @@ int Gui::addGraphicsPageItems(
       // place all the steps in the group relative to each other, including
       // any callouts placed relative to steps
 
+      // sizeIt() sequence
+      // formatpage.cpp page->sizeIt();                      - size multi-step
+      // void Steps::sizeIt(void)                            - size horiz or vertical (freeform/size)
+      // void Steps::sizeit(AllocEnc allocEnc, int x, int y) - vertical packing
+      // void Range::sizeitHoriz()                           - accumulate the tallest of the rows
+      // int Step::sizeit()                                  - Size components within a step
+      // range.cpp sizeMargins(cols,colsMargin,margins);     - size margins
+
       page->sizeIt();             // size multi-step
 
       plPage.relativeToSg(page);  // place callouts and page pointers relative to PAGE
+
       plPage.placeRelative(page); // place multi-step relative to the page
 
       page->relativeToSg(page);   // compute bounding box of step group and callouts

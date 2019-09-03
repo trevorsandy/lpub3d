@@ -211,12 +211,12 @@ int SubModel::createSubModelImage(
                       // temp hack - passed so we can always have scale for pov render
                       .arg(double(subModelMeta.modelScale.value()));
 
-  imageName = QDir::currentPath() + QDir::separator() +
-              Paths::submodelDir + QDir::separator() + key.toLower() + ".png";
+  imageName = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() +
+                                       Paths::submodelDir + QDir::separator() + key.toLower() + ".png");
 
   // define ldr file name
-  QStringList ldrNames = QStringList() << QDir::toNativeSeparators(QDir::currentPath()) + QDir::separator() +
-                                          Paths::tmpDir + QDir::separator() + "submodel.ldr";
+  QStringList ldrNames = QStringList() << QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() +
+                                                                   Paths::tmpDir + QDir::separator() + "submodel.ldr");
 
   // Check if png file date modified is older than model file (on the stack) date modified
   imageOutOfDate = false;
@@ -256,18 +256,18 @@ int SubModel::createSubModelImage(
   }
 
   // Populate viewerCsiKey variable
-  viewerCsiKey = QString("\"%1\"%2;%3")
-          .arg(QString("%1_%2")
-                       .arg(QFileInfo(type).completeBaseName())
-                       .arg(PREVIEW_SUBMODEL_SUFFIX))
-          .arg(bottom.lineNumber)
-          .arg(stepNumber);
+  viewerCsiKey = QDir::toNativeSeparators(QString("\"%1\"%2;%3")
+                                                  .arg(QString("%1_%2")
+                                                               .arg(QFileInfo(type).completeBaseName())
+                                                               .arg(PREVIEW_SUBMODEL_SUFFIX))
+                                                  .arg(bottom.lineNumber)
+                                                  .arg(stepNumber));
 
   // Viewer submodel does not yet exist in repository
   bool addViewerStepContent = !gui->viewerStepContentExist(viewerCsiKey);
 
   // We are processing again the current submodel Key so Submodel must have been updated in the viewer
-  bool viewerUpdate = viewerCsiKey == gui->getViewerCsiKey();
+  bool viewerUpdate = viewerCsiKey == QDir::toNativeSeparators(gui->getViewerCsiKey());
 
   // Generate 3DViewer Submodel entry - TODO move to after Generate and renderer Submodel file
   if (! gui->exportingObjects()) {
@@ -399,7 +399,7 @@ int SubModel::generateSubModelItem()
         }
 
         if (createSubModelImage(key,part->type,part->color,pixmap)) {
-            QString imageName = Paths::partsDir + "/" + key + ".png";
+            QString imageName = QDir::toNativeSeparators(Paths::partsDir + QDir::separator() + key + ".png");
             emit gui->messageSig(LOG_ERROR, QMessageBox::tr("Failed to create Submodel image for %1")
                                  .arg(imageName));
             return -1;

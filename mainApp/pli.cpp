@@ -889,8 +889,8 @@ int Pli::createPartImage(
 
         // assemble image name using nameKey - create unique file when a value that impacts the image changes
         QString imageDir = isSubModel ? Paths::submodelDir : Paths::partsDir;
-        imageName = QDir::toNativeSeparators(QDir::currentPath()) + QDir::separator() + imageDir + QDir::separator() + nameKey + ptn[pT].typeName + ".png";
-        ldrNames  = QStringList() << QDir::toNativeSeparators(QDir::currentPath()) + QDir::separator() + Paths::tmpDir + QDir::separator() + "pli.ldr";
+        imageName = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + imageDir + QDir::separator() + nameKey + ptn[pT].typeName + ".png");
+        ldrNames  = QStringList() << QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + Paths::tmpDir + QDir::separator() + "pli.ldr");
 
         QFile part(imageName);
 
@@ -978,7 +978,6 @@ int Pli::createPartImage(
             colourCode = ia.partColor[pT];
             imageKey = QString("%1_%2").arg(ia.baseName[pT]).arg(colourCode);
         }
-        imageKey = imageKey;
 
         emit gui->setPliIconPathSig(imageKey,imageName);
 
@@ -1011,7 +1010,6 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart, i
     if (! ldrNames.isEmpty()) {
         // feed DAT to renderer
         PliType pliType = isSubModel ? SUBMODEL: bom ? BOM : PART;
-        renderer->renderPli(ldrNames,QString(),*meta,pliType,sub);
         if ((renderer->renderPli(ldrNames,QString(),*meta,pliType,sub) != 0)) {
             rc = -1;
         }
@@ -2193,12 +2191,12 @@ int Pli::partSizeLDViewSCall() {
 
                 // assemble ldr name
                 QString key = !ptn[pT].typeName.isEmpty() ? nameKey + ptn[pT].typeName : nameKey;
-                QString ldrName = QDir::currentPath() + QDir::separator() + Paths::tmpDir + QDir::separator() + key + ".ldr";
+                QString ldrName = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + Paths::tmpDir + QDir::separator() + key + ".ldr");
                 QString imageDir = isSubModel ? Paths::submodelDir : Paths::partsDir;
                 // remove _SUB for imageName
                 if (keySub && key.endsWith("_SUB"))
                     key.replace("_SUB","");
-                QString imageName = QDir::toNativeSeparators(QDir::currentPath()) + QDir::separator() + imageDir + QDir::separator() + key + ".png";
+                QString imageName = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + imageDir + QDir::separator() + key + ".png");
 
                 // create icon path key - using actual color code
                 QString colourCode, imageKey;

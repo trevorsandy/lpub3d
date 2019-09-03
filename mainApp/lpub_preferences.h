@@ -268,6 +268,7 @@ class Preferences
     static bool    customSceneRulerTrackingColor;
     static bool    customSceneGuideColor;
 
+
 #ifdef Q_OS_MAC
     static bool    missingRendererLibs;
 #endif

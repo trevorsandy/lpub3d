@@ -17,6 +17,7 @@
 ****************************************************************************/
 
 #include "lpub.h"
+#include "step.h"
 #include <QtWidgets>
 #include <QStringList>
 #include <QFile>
@@ -201,6 +202,7 @@ int Render::rotateParts(
   bool doHighlightStep = Preferences::enableHighlightStep;
   bool doImageMatting  = Preferences::enableImageMatting;
   bool nativeRenderer  = (Preferences::usingNativeRenderer && ! ldvFunction);
+
   QStringList rotatedParts = parts;
 
   // do not apply camera angles for native renderer

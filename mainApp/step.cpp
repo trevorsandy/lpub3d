@@ -273,7 +273,7 @@ int Step::createCsi(
                       .arg(double(csiCameraMeta.modelScale.value()));
 
   // populate png name
-  pngName = QString("%1/%2.png").arg(csiPngFilePath).arg(key);
+  pngName = QDir::toNativeSeparators(QString("%1/%2.png").arg(csiPngFilePath).arg(key));
 
   // create ImageMatte csiKey
   csiKey = QString("%1_%2").arg(csi_Name).arg(stepNumber.number);
@@ -304,16 +304,16 @@ int Step::createCsi(
   int rc = 0;
 
   // Populate viewerCsiKey variable
-  viewerCsiKey = QString("\"%1\"%2;%3%4")
-                          .arg(top.modelName)
-                          .arg(top.lineNumber)
-                          .arg(stepNumber.number)
-                          .arg(modelDisplayOnlyStep ? "_fm" : "");
+  viewerCsiKey = QDir::toNativeSeparators(QString("\"%1\"%2;%3%4")
+                                                  .arg(top.modelName)
+                                                  .arg(top.lineNumber)
+                                                  .arg(stepNumber.number)
+                                                  .arg(modelDisplayOnlyStep ? "_fm" : ""));
 
   // Viewer Csi does not yet exist in repository
   bool addViewerStepContent = !gui->viewerStepContentExist(viewerCsiKey);
   // We are processing again the current step so Csi must have been updated in the viewer
-  bool viewerUpdate = viewerCsiKey == gui->getViewerCsiKey();
+  bool viewerUpdate = viewerCsiKey == QDir::toNativeSeparators(gui->getViewerCsiKey());
 
   // Generate 3DViewer CSI entry - TODO move to after generate renderer CSI file
   if ((addViewerStepContent || csiOutOfDate || viewerUpdate) && ! gui->exportingObjects()) {
@@ -329,6 +329,7 @@ int Step::createCsi(
       rotatedParts.prepend(renderer->getRotstepMeta(meta.rotStep));
 
       // header and closing meta
+
       QString modelName = QFileInfo(top.modelName).completeBaseName().toLower();
       modelName = QString("%1%2").arg(modelName.replace(
                                       modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper()))
@@ -355,7 +356,7 @@ int Step::createCsi(
      timer.start();
 
      // populate ldr file name
-     ldrName = QString("%1/%2.ldr").arg(csiLdrFilePath).arg(key);
+     ldrName = QDir::toNativeSeparators(QString("%1/%2.ldr").arg(csiLdrFilePath).arg(key));
 
      // rotate parts and create the CSI file for LDView single call and Native renderering
      if (renderer->useLDViewSCall() || nativeRenderer) {
@@ -451,7 +452,7 @@ int Step::createCsi(
 }
 
 bool Step::loadTheViewer(){
-    if (! gui->exporting() && gui->updateViewer() /* && !Preferences::usingNativeRenderer */) {
+    if (! gui->exporting() && gui->updateViewer()) {
         if (! renderer->LoadViewer(viewerOptions)) {
             emit gui->messageSig(LOG_ERROR,QString("Could not load 3D Viewer with CSI key: %1")
                                  .arg(viewerCsiKey));

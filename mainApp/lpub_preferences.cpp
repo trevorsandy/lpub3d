@@ -759,7 +759,7 @@ void Preferences::lpubPreferences()
 #endif
 #endif
 
-    QDir extrasDir(lpubDataPath + "/extras");
+    QDir extrasDir(lpubDataPath + QDir::separator() + "extras");
     if(!QDir(extrasDir).exists())
         extrasDir.mkpath(".");
 

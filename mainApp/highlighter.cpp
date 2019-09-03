@@ -315,6 +315,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bDISPLAY\\b"
     << "\\bDISPLAY_PAGE_NUMBER\\b"
     << "\\bDIVIDER\\b"
+    << "\\bDIVIDER_POINTER\\b"
     << "\\bDIVIDER_POINTER_ATTRIBUTE\\b"
     << "\\bDOCUMENT_AUTHOR\\b"
     << "\\bDOCUMENT_AUTHOR_BACK\\b"
