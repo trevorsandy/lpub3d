@@ -30,7 +30,9 @@
 TextItem::TextItem(
   InsertMeta meta,
   QGraphicsItem *parent)
-    : meta(meta)
+    : meta(meta),
+      isHovered(false),
+      mouseIsDown(false)
 {
   InsertData data = meta.value();
   setParentItem(parent);
@@ -77,12 +79,14 @@ TextItem::TextItem(
       setPlainText(list2.join("\n"));
   }
 
-  setTextInteractionFlags(Qt::TextEditorInteraction);
+  margin.setValues(0.0,0.0);
 
+  setTextInteractionFlags(Qt::TextEditorInteraction);
+  setAcceptHoverEvents(true);
   setFlag(QGraphicsItem::ItemIsMovable);
   setFlag(QGraphicsItem::ItemIsSelectable);
+  setFlag(QGraphicsItem::ItemIsFocusable, true);
   setData(ObjectId, InsertTextObj);
-  margin.setValues(0.0,0.0);
 }
 
 void TextItem::formatText(const QString &input, QString &output)
@@ -218,21 +222,37 @@ void TextItem::contextMenuEvent(
   }
 }
 
-void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-  position = pos();
-  positionChanged = false;
-  QGraphicsItem::mousePressEvent(event);
-}
-
 void TextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
   positionChanged = true;
   QGraphicsItem::mouseMoveEvent(event);
 }
 
+void TextItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = !this->isSelected() && !mouseIsDown;
+    QGraphicsItem::hoverEnterEvent(event);
+}
+
+void TextItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = false;
+    QGraphicsItem::hoverLeaveEvent(event);
+}
+
+void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+  position = pos();
+  positionChanged = false;
+  mouseIsDown = true;
+  QGraphicsItem::mousePressEvent(event);
+  update();
+}
+
 void TextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+
+  mouseIsDown = false;
   QGraphicsItem::mouseReleaseEvent(event);
 
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable) && positionChanged) {
@@ -268,6 +288,7 @@ void TextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
     endMacro();
   }
+  update();
 }
 
 void TextItem::focusInEvent(QFocusEvent *event)
@@ -309,4 +330,16 @@ void TextItem::keyReleaseEvent(QKeyEvent *event)
 {
   textChanged = true;
   QGraphicsTextItem::keyReleaseEvent(event);
+}
+
+void TextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+  QPen pen;
+  pen.setColor(isHovered ? QColor(Preferences::sceneGuideColor) : Qt::black);
+  pen.setWidth(0/*cosmetic*/);
+  pen.setStyle(isHovered ? Qt::PenStyle(Preferences::sceneGuidesLine) : Qt::NoPen);
+  painter->setPen(pen);
+  painter->setBrush(Qt::transparent);
+  painter->drawRect(this->boundingRect());
+  QGraphicsTextItem::paint(painter,option,widget);
 }

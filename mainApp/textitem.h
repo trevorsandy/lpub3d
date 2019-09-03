@@ -50,14 +50,19 @@ public:
  void formatText(const QString &input, QString &output);
 
 protected:
-  void mousePressEvent(QGraphicsSceneMouseEvent * /* event */);
-  void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-  void mouseReleaseEvent(QGraphicsSceneMouseEvent * /* event */);
-  void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
-  void focusInEvent(QFocusEvent *event);
-  void focusOutEvent(QFocusEvent *event);
-  void keyPressEvent(QKeyEvent *event);
-  void keyReleaseEvent(QKeyEvent *event);
+  virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+  virtual void mousePressEvent(QGraphicsSceneMouseEvent * /* event */);
+  virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent * /* event */);
+  virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+  virtual void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
+  virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
+  virtual void focusInEvent(QFocusEvent *event);
+  virtual void focusOutEvent(QFocusEvent *event);
+  virtual void keyPressEvent(QKeyEvent *event);
+  virtual void keyReleaseEvent(QKeyEvent *event);
+  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+  bool isHovered;
+  bool mouseIsDown;
 };
 
 #endif
