@@ -692,35 +692,35 @@ void Step::appendCsiAnnotation(
  * -- see step.cpp for detail walkthrough --
  *
  *  CCCCCCCCCCCCCCCCCCC
- *  CMMMMMMMMMMMMMMMMMC
- *  CMCCCCCCCCCCCCCCCMC
- *  CMCRRRRRRRRRRRRRCMC
- *  CMCRCCCCCCCCCCCRCMC
- *  CMCRCSSSSSSSSSCRCMC
- *  CMCRCSCCCCCCCSCRCMC
- *  CMCRCSCPPPPPCSCRCMC
- *  CMCRCSCPCCCPCSCRCMC
- *  CMCRCSCPCACPCSCRCMC
- *  CMCRCSCPCCCPCSCRCMC
- *  CMCRCSCPPPPPCSCRCMC
- *  CMCRCSCCCCCCCSCRCMC
- *  CMCRCSSSSSSSSSCRCMC
- *  CMCRCCCCCCCCCCCRCMC
- *  CMCRRRRRRRRRRRRRCMC
- *  CMCCCCCCCCCCCCCCCMC
- *  CMMMMMMMMMMMMMMMMMC
+ *  CSSSSSSSSSSSSSSSSSC
+ *  CSCCCCCCCCCCCCCCCSC
+ *  CSCRRRRRRRRRRRRRCSC
+ *  CSCRCCCCCCCCCCCRCSC
+ *  CSCRCMMMMMMMMMCRCSC
+ *  CSCRCMCCCCCCCMCRCSC
+ *  CSCRCMCPPPPPCMCRCSC
+ *  CSCRCMCPCCCPCMCRCSC
+ *  CSCRCMCPCACPCMCRCSC
+ *  CSCRCMCPCCCPCMCRCSC
+ *  CSCRCMCPPPPPCMCRCSC
+ *  CSCRCMCCCCCCCMCRCSC
+ *  CSCRCMMMMMMMMMCRCSC
+ *  CSCRCCCCCCCCCCCRCSC
+ *  CSCRRRRRRRRRRRRRCSC
+ *  CSCCCCCCCCCCCCCCCSC
+ *  CSSSSSSSSSSSSSSSSSC
  *  CCCCCCCCCCCCCCCCCCC
  *
  *  The table above represents either the Horizontal slice
  *  going through the CSI (represented by A for assembly),
  *  or the Vertical slice going through the CSI.
  *
- * C0 - Callout relative to Submodel
- * M0 - Submodel relative to CSI
+ * C0 - Callout relative to StepNumber
+ * S0 - StepNumber relative to CSI
  * C1 - Callout relative to RotateIcon
  * R0 - RotateIcon relative to CSI
- * C2 - Callout relative to StepNumber
- * S0 - StepNumber relative to CSI
+ * C2 - Callout relative to Submodel
+ * M0 - Submodel relative to CSI
  * C3 - Callout relative to PLI
  * P0 - Pli relative to CSI
  * C4 - Callout relative to CSI
@@ -728,12 +728,13 @@ void Step::appendCsiAnnotation(
  * C5 - Callout relative to CSI
  * P1 - Pli relative to CSI
  * C6 - Callout relative to PLI
- * S1 - StepNumber relative to CSI
- * C7 - Callout relative to StepNumber
+ * M1 - Submodel relative to CSI
+ * C7 - Callout relative to Submodel
  * R1 - RotateIcon relative to CSI
  * C8 - Callout relative to RotateIcon
- * M1 - Submodel relative to CSI
- * C9 - Callout relative to Submodel
+ * S1 - StepNumber relative to CSI
+ * C9 - Callout relative to StepNumber
+ *
  */
 
 /*

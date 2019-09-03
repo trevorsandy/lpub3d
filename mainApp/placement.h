@@ -51,35 +51,35 @@ class Steps;
  * -- see step.cpp for detail walkthrough --
  *
  *  CCCCCCCCCCCCCCCCCCC
- *  CMMMMMMMMMMMMMMMMMC
- *  CMCCCCCCCCCCCCCCCMC
- *  CMCRRRRRRRRRRRRRCMC
- *  CMCRCCCCCCCCCCCRCMC
- *  CMCRCSSSSSSSSSCRCMC
- *  CMCRCSCCCCCCCSCRCMC
- *  CMCRCSCPPPPPCSCRCMC
- *  CMCRCSCPCCCPCSCRCMC
- *  CMCRCSCPCACPCSCRCMC
- *  CMCRCSCPCCCPCSCRCMC
- *  CMCRCSCPPPPPCSCRCMC
- *  CMCRCSCCCCCCCSCRCMC
- *  CMCRCSSSSSSSSSCRCMC
- *  CMCRCCCCCCCCCCCRCMC
- *  CMCRRRRRRRRRRRRRCMC
- *  CMCCCCCCCCCCCCCCCMC
- *  CMMMMMMMMMMMMMMMMMC
+ *  CSSSSSSSSSSSSSSSSSC
+ *  CSCCCCCCCCCCCCCCCSC
+ *  CSCRRRRRRRRRRRRRCSC
+ *  CSCRCCCCCCCCCCCRCSC
+ *  CSCRCMMMMMMMMMCRCSC
+ *  CSCRCMCCCCCCCMCRCSC
+ *  CSCRCMCPPPPPCMCRCSC
+ *  CSCRCMCPCCCPCMCRCSC
+ *  CSCRCMCPCACPCMCRCSC
+ *  CSCRCMCPCCCPCMCRCSC
+ *  CSCRCMCPPPPPCMCRCSC
+ *  CSCRCMCCCCCCCMCRCSC
+ *  CSCRCMMMMMMMMMCRCSC
+ *  CSCRCCCCCCCCCCCRCSC
+ *  CSCRRRRRRRRRRRRRCSC
+ *  CSCCCCCCCCCCCCCCCSC
+ *  CSSSSSSSSSSSSSSSSSC
  *  CCCCCCCCCCCCCCCCCCC
  *
  *  The table above represents either the Horizontal slice
  *  going through the CSI (represented by A for assembly),
  *  or the Vertical slice going through the CSI.
  *
- * C0 - Callout relative to Submodel
- * M0 - Submodel relative to CSI
+ * C0 - Callout relative to StepNumber
+ * S0 - StepNumber relative to CSI
  * C1 - Callout relative to RotateIcon
  * R0 - RotateIcon relative to CSI
- * C2 - Callout relative to StepNumber
- * S0 - StepNumber relative to CSI
+ * C2 - Callout relative to Submodel
+ * M0 - Submodel relative to CSI
  * C3 - Callout relative to PLI
  * P0 - Pli relative to CSI
  * C4 - Callout relative to CSI
@@ -87,12 +87,12 @@ class Steps;
  * C5 - Callout relative to CSI
  * P1 - Pli relative to CSI
  * C6 - Callout relative to PLI
- * S1 - StepNumber relative to CSI
- * C7 - Callout relative to StepNumber
+ * M1 - Submodel relative to CSI
+ * C7 - Callout relative to Submodel
  * R1 - RotateIcon relative to CSI
  * C8 - Callout relative to RotateIcon
- * M1 - Submodel relative to CSI
- * C9 - Callout relative to Submodel
+ * S1 - StepNumber relative to CSI
+ * C9 - Callout relative to StepNumber
  *
  */
 //---------------------------------------------------------------------------
@@ -107,27 +107,27 @@ enum Boundary {
   Middle             = 16
 };
 
-enum {      // -1
-TblCo0 = 0, //  0  C0 - Callout relative to Submodel
-TblSm0,     //  1  M0 - Submodel relative to CSI
-TblCo1,     //  2  C1 - Callout relative to RotateIcon
-TblRi0,     //  3  R0 - RotateIcon relative to CSI
-TblCo2,     //  4  C2 - Callout relative to StepNumber
-TblSn0,     //  5  S0 - StepNumber relative to CSI
-TblCo3,     //  6  C3 - Callout relative to PLI
-TblPli0,    //  7  P0 - Pli relative to CSI
-TblCo4,     //  8  C4 - Callout relative to CSI
-TblCsi,     //  9  A  - CSI
-TblCo5,     //  10 C5 - Callout relative to CSI
-TblPli1,    //  11 P1 - Pli relative to CSI
-TblCo6,     //  12 C6 - Callout relative to PLI
-TblSn1,     //  13 S1 - StepNumber relative to CSI
-TblCo7,     //  14 C7 - Callout relative to StepNumber
-TblRi1,     //  15 R1 - RotateIcon relative to CSI
-TblCo8,     //  16 C8 - Callout relative to RotateIcon
-TblSm1,   	//  17 M1 - Submodel relative to CSI
-TblCo9,     //  18 C9 - Callout relative to Submodel
-NumPlaces   //  19
+enum {        // -1
+  TblCo0 = 0, //  0  C0 - Callout relative to StepNumber
+  TblSn0,     //  5  S0 - StepNumber relative to CSI
+  TblCo1,     //  2  C1 - Callout relative to RotateIcon
+  TblRi0,     //  3  R0 - RotateIcon relative to CSI
+  TblCo2,     //  4  C2 - Callout relative to Submodel
+  TblSm0,     //  1  M0 - Submodel relative to CSI
+  TblCo3,     //  6  C3 - Callout relative to PLI
+  TblPli0,    //  7  P0 - Pli relative to CSI
+  TblCo4,     //  8  C4 - Callout relative to CSI
+  TblCsi,     //  9  A  - CSI
+  TblCo5,     //  10 C5 - Callout relative to CSI
+  TblPli1,    //  11 P1 - Pli relative to CSI
+  TblCo6,     //  12 C6 - Callout relative to PLI
+  TblSm1,     //  13 M1 - Submodel relative to CSI
+  TblCo7,     //  14 C7 - Callout relative to Submodel
+  TblRi1,     //  15 R1 - RotateIcon relative to CSI
+  TblCo8,     //  16 C8 - Callout relative to RotateIcon
+  TblSn1,     //  17 S1 - StepNumber relative to CSI
+  TblCo9,     //  18 C9 - Callout relative to StepNumber
+  NumPlaces   //  19
 };
 
 // without RotateIcon and Submodel placement value
