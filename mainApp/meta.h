@@ -3434,7 +3434,7 @@ public:
   virtual void  init(BranchMeta *parent, QString name);
   virtual void  pop();
   void  doc(QStringList &out);
-  void  processSpecialCases(QString &);
+  void  processSpecialCases(QString &, Where &);
 
   Meta (const Meta &rhs) : BranchMeta(rhs)
   {
