@@ -95,7 +95,7 @@ void Range::sizeMargins(
     }
   }
 
-  for (int i = TblSn0; active && i < TblCo5 - 1; i++) {
+  for (int i = TblSn0; active && i < TblCo9 - 1; i++) {
     if (cols[i] && --active) {
       margins[i] = qMax(colsMargin[i][1],colsMargin[i+1][0]);
       for (int j = i + 1; j < NumPlaces; j++) {
