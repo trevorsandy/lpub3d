@@ -24,14 +24,8 @@ lcQImageDialog::lcQImageDialog(QWidget* Parent)
 
 	Project* Project = lcGetActiveProject();
 	lcModel* Model = Project->GetActiveModel();
-/*** LPub3D Mod - lpub3d image size */
-//	mWidth = lcGetProfileInt(LC_PROFILE_IMAGE_WIDTH);
-//	mHeight = lcGetProfileInt(LC_PROFILE_IMAGE_HEIGHT);
-	mWidth  = Project->GetImageWidth();
-	mHeight = Project->GetImageHeight();
-/*** LPub3D Mod end ***/
-	mStart = Model->GetCurrentStep();
-	mEnd = Model->GetLastStep();
+    mWidth = lcGetProfileInt(LC_PROFILE_IMAGE_WIDTH);
+    mHeight = lcGetProfileInt(LC_PROFILE_IMAGE_HEIGHT);
 /*** LPub3D Mod - lpub3d image file name */
 //   mFileName = Project->GetImageFileName(false);
 	mFileName = Project->GetImageName();

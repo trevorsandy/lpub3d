@@ -244,7 +244,7 @@ void lcContext::SetDefaultState()
 	else
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-/*** LPub3D Mod - Revert  [No1. Reduce z-fighting 31703618c] ***/
+/*** LPub3D Mod - Revert [No1. Reduce z-fighting 31703618c] ***/
     glEnable(GL_POLYGON_OFFSET_FILL);
     // Add back [No2. Enabled polygon offset  0abc4a258a]
     //glDisable(GL_POLYGON_OFFSET_FILL);

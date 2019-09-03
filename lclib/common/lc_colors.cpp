@@ -529,12 +529,12 @@ bool lcLoadColorEntry(const char* ColorEntry)
 
 	gColorGroups[LC_COLORGROUP_LPUB3D].Colors.push_back((int)Colors.size() - 1);
 
-	gNumUserColors = (int)Colors.size();
+    gNumUserColors = int(Colors.size());
 
 //        qDebug() << qPrintable(QString("DEBUG Colours New Size %1, Old Size %2.")
 //                               .arg(Colors.GetSize()).arg(gNumColorBeforeAdd));
 
-	return Colors.size() > gNumColorBeforeAdd;
+    return int(Colors.size()) > gNumColorBeforeAdd;
 }
 /*** LPub3D Mod end ***/
 

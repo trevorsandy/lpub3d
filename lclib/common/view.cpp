@@ -2031,14 +2031,17 @@ void View::LookAt()
 	lcModel* ActiveModel = GetActiveModel();
 	if (ActiveModel)
 		ActiveModel->LookAt(mCamera);
+/*** LPub3D Mod - Update Default Camera ***/
+	gMainWindow->UpdateDefaultCamera(mCamera);
+/*** LPub3D Mod end ***/
 }
 
 void View::ZoomExtents()
 {
 	lcModel* ActiveModel = GetActiveModel();
-	if (ActiveModel)
-		ActiveModel->ZoomExtents(mCamera, (float)mWidth / (float)mHeight);
 /*** LPub3D Mod - Update Default Camera ***/
+	if (ActiveModel)
+		ActiveModel->ZoomExtents(mCamera, float(mWidth) / float(mHeight));
 	gMainWindow->UpdateDefaultCamera(mCamera);
 /*** LPub3D Mod end ***/
 }
