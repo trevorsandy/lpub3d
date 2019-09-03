@@ -1109,7 +1109,7 @@ private:
   QElapsedTimer          timer;              // measure elapsed time for slow functions
   QString                curSubFile;         // whats being displayed in the edit window
   EditWindow            *editWindow;         // the sub file editable by the user
-  EditWindow            *editModeWindow;// the model file editable by the user in
+  EditWindow            *editModeWindow;     // the model file editable by the user in
   QProgressBar          *progressBar;        // left side progress bar
   QProgressBar          *progressBarPerm;    // Right side progress bar
   QLabel                *progressLabel;

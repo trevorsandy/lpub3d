@@ -35,6 +35,7 @@
 #include <QMainWindow>
 #include <QTextEdit>
 #include <QTextCursor>
+#include <QFileSystemWatcher>
 
 class LDrawFile;
 class Highlighter;
@@ -82,9 +83,11 @@ private:
     QTextEditor  *_textEdit;
     Highlighter  *highlighter;
     QComboBox    *mpdCombo;
-    QString       fileName;       // of file currently being displayed
+    QString       fileName;            // of model file currently being displayed
     bool          _modelFileEdit;
-    QString       _curSubFile;         // whats being displayed in the edit window
+    QString       _curSubFile;         // currently displayed submodel
+    int           _saveSubfileIndex;
+    QFileSystemWatcher fileWatcher;
 
     QMenu    *editMenu;
     QAction  *topAct;
@@ -107,6 +110,7 @@ private:
 
 signals:
     void contentsChange(const QString &, int position, int charsRemoved, const QString &charsAdded);
+    void editModelFileSig();
     void redrawSig();
     void updateSig();
     void enableWatcherSig();
@@ -129,6 +133,7 @@ private slots:
 
 public slots:
     void displayFile(LDrawFile *, const QString &fileName);
+    void modelFileChanged(const QString &fileName);
     void showLine(int);
     void updateDisabled(bool);
     void disableActions();

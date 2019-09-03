@@ -47,6 +47,7 @@
 #include "editwindow.h"
 #include "highlighter.h"
 #include "ldrawfiles.h"
+#include "messageboxresizable.h"
 
 #include "name.h"
 #include "version.h"
@@ -54,8 +55,8 @@
 
 EditWindow *editWindow;
 
-EditWindow::EditWindow(QMainWindow *parent, bool modelFileEdit) :
-  QMainWindow(parent),_modelFileEdit(modelFileEdit)
+EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
+  QMainWindow(parent),_modelFileEdit(_modelFileEdit_)
 {
     editWindow  = this;
 
@@ -83,7 +84,9 @@ EditWindow::EditWindow(QMainWindow *parent, bool modelFileEdit) :
 
     setCentralWidget(_textEdit);
 
-    if (_modelFileEdit) {
+    if (modelFileEdit()) {
+        _saveSubfileIndex = 0;
+        QObject::connect(&fileWatcher, SIGNAL(fileChanged(const QString&)), this, SLOT(modelFileChanged(const QString&)));
         editWindow->statusBar()->show();
         readSettings();
     }
@@ -292,7 +295,7 @@ void EditWindow::showContextMenu(const QPoint &pt)
 
 void EditWindow::mpdComboChanged(int index)
 {
-    Q_UNUSED(index);
+    Q_UNUSED(index)
     QString newSubFile = mpdCombo->currentText();
     if (_curSubFile != newSubFile) {
         _curSubFile = newSubFile;
@@ -301,7 +304,6 @@ void EditWindow::mpdComboChanged(int index)
         if (!_textEdit->find(findText))
             statusBar()->showMessage(tr("Did not find submodel '%1'").arg(findText));
     }
-    mpdCombo->setCurrentIndex(index);
 }
 
 void EditWindow::contentsChange(
@@ -321,6 +323,13 @@ void EditWindow::contentsChange(
   }
 
   contentsChange(fileName, position, charsRemoved, addedChars);
+}
+
+void EditWindow::modelFileChanged(const QString &_fileName)
+{
+  _saveSubfileIndex = mpdCombo->currentIndex();
+  fileWatcher.removePath(_fileName);
+  emit editModelFileSig();
 }
 
 bool EditWindow::maybeSave()
@@ -348,6 +357,9 @@ bool EditWindow::saveFile()
     // check for dirty editor
     if (_textEdit->document()->isModified())
     {
+        if (_modelFileEdit && !fileName.isEmpty())
+            fileWatcher.removePath(fileName);
+
         QAction *action = qobject_cast<QAction *>(sender());
         if (action == saveAct)
             disableWatcher = false;
@@ -386,6 +398,9 @@ bool EditWindow::saveFile()
             _textEdit->showAllCharacters(true);
             _textEdit->blockSignals(false);
         }
+
+        if (_modelFileEdit && !fileName.isEmpty())
+            fileWatcher.addPath(fileName);
     }
 
   return rc;
@@ -487,7 +502,12 @@ void EditWindow::displayFile(
   LDrawFile     *ldrawFile,
   const QString &_fileName)
 {
+  bool reloaded = _fileName == fileName;
+
   fileName = _fileName;
+
+  if (modelFileEdit() && !fileName.isEmpty())
+      fileWatcher.removePath(fileName);
 
   disconnect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
              this,                  SLOT(  contentsChange(int,int,int)));
@@ -511,6 +531,10 @@ void EditWindow::displayFile(
           mpdCombo->setMaxCount(0);
           mpdCombo->setMaxCount(1000);
           mpdCombo->addItems(ldrawFile->subFileOrder());
+          if(_saveSubfileIndex) {
+              mpdCombo->setCurrentIndex(_saveSubfileIndex);
+              _saveSubfileIndex = 0;
+          }
 
           // check file encoding
           QTextCodec *codec = QTextCodec::codecForName("UTF-8");
@@ -531,7 +555,8 @@ void EditWindow::displayFile(
           file.close();
 
           exitAct->setEnabled(true);
-          statusBar()->showMessage(tr("Model File %1 loaded").arg(fileName), 2000);
+          statusBar()->showMessage(tr("Model File %1 %2")
+                                   .arg(fileName).arg(reloaded ? "updated" : "loaded"), 2000);
       } else {
           _textEdit->setPlainText(ldrawFile->contents(fileName).join("\n"));
       }
@@ -549,6 +574,9 @@ void EditWindow::displayFile(
   toggleCmmentAct->setEnabled(true);
   topAct->setEnabled(true);
   bottomAct->setEnabled(true);
+
+  if (modelFileEdit() && !fileName.isEmpty())
+      fileWatcher.addPath(fileName);
 }
 
 void EditWindow::redraw()

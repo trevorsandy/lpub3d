@@ -1219,12 +1219,12 @@ void Gui::displayParmsFile(
 
 void Gui::editModelFile()
 {
-    if (getCurFile() != "") {
-        save();
-        displayFile(&ldrawFile, getCurFile(), true);
-        editModeWindow->setWindowTitle(tr("Edit %1").arg(QFileInfo(getCurFile()).fileName()));
-        editModeWindow->show();
-    }
+    if (getCurFile().isEmpty())
+        return;
+    save();
+    displayFile(&ldrawFile, getCurFile(), true);
+    editModeWindow->setWindowTitle(tr("Edit %1").arg(QFileInfo(getCurFile()).fileName()));
+    editModeWindow->show();
 }
 
 
@@ -2680,6 +2680,8 @@ Gui::Gui()
     // edit model file
     connect(this,           SIGNAL(displayModelFileSig(LDrawFile *, const QString &)),
             editModeWindow, SLOT(  displayFile   (LDrawFile *, const QString &)));
+    connect(editModeWindow, SIGNAL(editModelFileSig()),
+            this,           SLOT(  editModelFile()));
     connect(editModeWindow, SIGNAL(redrawSig()),
             this,           SLOT(  clearAndRedrawModelFile()));
     connect(editModeWindow, SIGNAL(updateSig()),
