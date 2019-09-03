@@ -44,13 +44,6 @@ TextEditDialog::TextEditDialog(QString &goods, QString windowTitle, bool richTex
     if (windowTitle.contains("Renderer Arguments"))
         ui->statusBar->showMessage("Enter space delimited renderer arguments.");
 
-// Disable menu actions for unavailable features
-#if !QT_CONFIG(clipboard)
-    ui->actionCut->setEnabled(false);
-    ui->actionCopy->setEnabled(false);
-    ui->actionPaste->setEnabled(false);
-#endif
-
 // Suppress font actions
     if (!fontActions && !richText)
     {
@@ -137,23 +130,17 @@ void TextEditDialog::on_actionNew_triggered()
 
 void TextEditDialog::on_actionCopy_triggered()
 {
-#if QT_CONFIG(clipboard)
     ui->textEdit->copy();
-#endif
 }
 
 void TextEditDialog::on_actionCut_triggered()
 {
-#if QT_CONFIG(clipboard)
     ui->textEdit->cut();
-#endif
 }
 
 void TextEditDialog::on_actionPaste_triggered()
 {
-#if QT_CONFIG(clipboard)
     ui->textEdit->paste();
-#endif
 }
 
 void TextEditDialog::on_actionUndo_triggered()
