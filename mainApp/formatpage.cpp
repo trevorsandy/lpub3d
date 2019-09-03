@@ -64,14 +64,19 @@ void Gui::clearPage(
     LGraphicsView *view,
     LGraphicsScene *scene)
 {
+  Q_UNUSED(view)
+  Q_UNUSED(scene)
+
   page.freePage();
   page.pli.clear();
+  page.subModel.clear();
 
-  if (view->pageBackgroundItem) {
-      delete view->pageBackgroundItem;
-      view->pageBackgroundItem = nullptr;
-    }
-  scene->clear();
+//  Moved to end of GraphicsPageItems()
+//  if (view->pageBackgroundItem) {
+//      delete view->pageBackgroundItem;
+//      view->pageBackgroundItem = nullptr;
+//  }
+//  scene->clear();
 }
 
 /*********************************************
@@ -310,8 +315,9 @@ int Gui::addGraphicsPageItems(
 
   pageBg = new PageBackgroundItem(page, pW, pH, exporting());
 
-  view->pageBackgroundItem = pageBg;
-  pageBg->setPos(0,0);
+//  Moved to end of GraphicsPageItems()
+//  view->pageBackgroundItem = pageBg;
+//  pageBg->setPos(0,0);
 
   // Set up the placement aspects of the page in the Qt space
 
@@ -1007,6 +1013,16 @@ int Gui::addGraphicsPageItems(
           page->pli.setPos(page->pli.loc[XX],page->pli.loc[YY]);
         }
     }
+
+  // Moved from clearPage() to reduce page update lag.
+  if (view->pageBackgroundItem) {
+      delete view->pageBackgroundItem;
+      view->pageBackgroundItem = nullptr;
+  }
+  scene->clear();
+  // Moved from beginning of GraphicsPageItems() to reduce page update lag
+  view->pageBackgroundItem = pageBg;
+  pageBg->setPos(0,0);
 
   if ( ! printing) {
 
