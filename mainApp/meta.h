@@ -3168,6 +3168,7 @@ public:
   RotateIconMeta      rotateIcon;
   NumberPlacementMeta stepNum;
   SepMeta             sep;
+  BoolMeta            centerSteps;
   FreeFormMeta        freeform;
   RcMeta              begin;
   RcMeta              divider;

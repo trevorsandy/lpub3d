@@ -163,8 +163,8 @@ class Step : public AbstractRangeElement
                  int x,
                  int y);
 
-    void maxMargin(MarginsMeta &marvin, int tbl[2], int r[][2], int c[][2]);
-    void maxMargin(int &top, int &bot, int y = YY);
+    void maxMargin(MarginsMeta &margin, int tbl[2], int r[][2], int c[][2]);
+    int maxMargin(int &top, int &bot, int y = YY);
 
     void placeit(int rows[],
                      int margin[],

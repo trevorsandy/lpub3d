@@ -58,7 +58,7 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
 
   QTabWidget  *tab = new QTabWidget(nullptr);
   QVBoxLayout *layout = new QVBoxLayout(nullptr);
-  QVBoxLayout *childlayout = new QVBoxLayout();
+  QHBoxLayout *childlayout = new QHBoxLayout();
 
   setLayout(layout);
   layout->addWidget(tab);
@@ -88,13 +88,18 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   vlayout->addWidget(box);
   box->setLayout(childlayout);
 
+  child = new CheckBoxGui("Per Step",&multiStepMeta->pli.perStep);
+  data->children.append(child);
+  childlayout->addWidget(child);
+
   child = new UnitsGui("Margins",&multiStepMeta->pli.margin);
   data->children.append(child);
   childlayout->addWidget(child);
 
-  child = new CheckBoxGui("Per Step",&multiStepMeta->pli.perStep);
+  box = new QGroupBox("Step Justification");
+  vlayout->addWidget(box);
+  child = new CheckBoxGui("Center steps vertically",&multiStepMeta->centerSteps,box);
   data->children.append(child);
-  childlayout->addWidget(child);
 
   box = new QGroupBox("Submodel");
   vlayout->addWidget(box);
@@ -120,21 +125,15 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
    vlayout->addWidget(box);
    box->setLayout(boxGrid);
 
-   // Scale/Native Camera Distance Factor
-   if (Preferences::usingNativeRenderer) {
-     child = new CameraDistFactorGui("Camera Distance Factor",
-                                     &multiStepMeta->csi.cameraDistNative);
-     data->children.append(child);
-     boxGrid->addWidget(child);
-   } else {
-     child = new DoubleSpinGui("Scale",
-       &multiStepMeta->csi.modelScale,
-       multiStepMeta->csi.modelScale._min,
-       multiStepMeta->csi.modelScale._max,
-       0.01);
-     data->children.append(child);
-     boxGrid->addWidget(child);
-   }
+   // Scale
+   child = new DoubleSpinGui("Scale",
+                             &multiStepMeta->csi.modelScale,
+                             multiStepMeta->csi.modelScale._min,
+                             multiStepMeta->csi.modelScale._max,
+                             0.01f);
+   data->children.append(child);
+   boxGrid->addWidget(child);
+
    data->clearCache = (data->clearCache ? data->clearCache : child->modified);
 
    child = new UnitsGui("Margins",&multiStepMeta->csi.margin);

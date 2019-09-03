@@ -1515,69 +1515,83 @@ bool Step::collide(
   return false;
 }
 
-void Step::maxMargin(int &top, int &bot, int y)
+int Step::maxMargin(int &top, int &bot, int y)
 {
   top = csiPlacement.margin.valuePixels(y);
   bot = top;
+  int top_tbl = TblCsi;
+  int bot_tbl = TblCsi;
 
   if (stepNumber.tbl[YY] < TblCsi) {
-      top = stepNumber.margin.valuePixels(y);
+    top = stepNumber.margin.valuePixels(y);
+    top_tbl = stepNumber.tbl[y];
+  } else if (stepNumber.tbl[y] == TblCsi) {
+    int margin = stepNumber.margin.valuePixels(y);
+    top = qMax(top,margin);
+    bot = qMax(bot,margin);
+  } else {
+    bot = stepNumber.margin.valuePixels(y);
+    bot_tbl = stepNumber.tbl[y];
+  }
+
+  if (pli.size[y]) {
+    if (pli.tbl[y] < TblCsi) {
+      top = pli.margin.valuePixels(y);
+      top_tbl = pli.tbl[y];
     } else if (stepNumber.tbl[y] == TblCsi) {
-      int margin = stepNumber.margin.valuePixels(y);
+      int margin = pli.margin.valuePixels(y);
       top = qMax(top,margin);
       bot = qMax(bot,margin);
     } else {
-      bot = stepNumber.margin.valuePixels(y);
+      bot = pli.margin.valuePixels(y);
+      bot_tbl = pli.tbl[y];
     }
-
-  if (pli.size[y]) {
-      if (pli.tbl[y] < TblCsi) {
-          top = pli.margin.valuePixels(y);
-        } else if (stepNumber.tbl[y] == TblCsi) {
-          int margin = pli.margin.valuePixels(y);
-          top = qMax(top,margin);
-          bot = qMax(bot,margin);
-        } else {
-          bot = pli.margin.valuePixels(y);
-        }
-    }
+  }
 
   if (placeSubModel) {
-      if (subModel.tbl[y] < TblCsi) {
-          top = subModel.margin.valuePixels(y);
-        } else if (stepNumber.tbl[y] == TblCsi) {
-          int margin = subModel.margin.valuePixels(y);
-          top = qMax(top,margin);
-          bot = qMax(bot,margin);
-        } else {
-          bot = subModel.margin.valuePixels(y);
-        }
+    if (subModel.tbl[y] < TblCsi) {
+      top = subModel.margin.valuePixels(y);
+      top_tbl = subModel.tbl[y];
+    } else if (stepNumber.tbl[y] == TblCsi) {
+      int margin = subModel.margin.valuePixels(y);
+      top = qMax(top,margin);
+      bot = qMax(bot,margin);
+    } else {
+      bot = subModel.margin.valuePixels(y);
+      bot_tbl = subModel.tbl[y];
     }
+  }
 
   if (placeRotateIcon){
-      if (rotateIcon.tbl[YY] < TblCsi) {
-          top = rotateIcon.margin.valuePixels(y);
-        } else if (stepNumber.tbl[y] == TblCsi) {
-          int margin = rotateIcon.margin.valuePixels(y);
-          top = qMax(top,margin);
-          bot = qMax(bot,margin);
-        } else {
-          bot = rotateIcon.margin.valuePixels(y);
-        }
+    if (rotateIcon.tbl[YY] < TblCsi) {
+      top = rotateIcon.margin.valuePixels(y);
+      top_tbl = rotateIcon.tbl[y];
+    } else if (stepNumber.tbl[y] == TblCsi) {
+      int margin = rotateIcon.margin.valuePixels(y);
+      top = qMax(top,margin);
+      bot = qMax(bot,margin);
+    } else {
+      bot = rotateIcon.margin.valuePixels(y);
+      bot_tbl = rotateIcon.tbl[y];
     }
+  }
 
   for (int i = 0; i < list.size(); i++) {
-      Callout *callout = list[i];
-      if (callout->tbl[y] < TblCsi) {
-          top = callout->margin.valuePixels(y);
-        } else if (stepNumber.tbl[y] == TblCsi) {
-          int margin = callout->margin.valuePixels(y);
-          top = qMax(top,margin);
-          bot = qMax(bot,margin);
-        } else {
-          bot = callout->margin.valuePixels(y);
-        }
+    Callout *callout = list[i];
+    if (callout->tbl[y] < TblCsi) {
+      top = callout->margin.valuePixels(y);
+      top_tbl = callout->tbl[y];
+    } else if (stepNumber.tbl[y] == TblCsi) {
+      int margin = callout->margin.valuePixels(y);
+      top = qMax(top,margin);
+      bot = qMax(bot,margin);
+    } else {
+      bot = callout->margin.valuePixels(y);
+      bot_tbl = callout->tbl[y];
     }
+  }
+
+  return top > bot ? top_tbl : bot_tbl;
 }
 
 /***************************************************************************

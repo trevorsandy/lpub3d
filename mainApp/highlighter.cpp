@@ -299,6 +299,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bCABLE\\b"
     << "\\bCAMERA_FOV\\b"
     << "\\bCENTER\\b"
+    << "\\bCENTER_STEPS_VERTICALLY\\b"
     << "\\bCLEAR\\b"
     << "\\bCIRCLE_STYLE\\b"
     << "\\bCOLOR\\b"

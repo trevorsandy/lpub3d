@@ -271,7 +271,7 @@ void Steps::sizeit(AllocEnc allocEnc, int x, int y)
         
         SepData divider = range->sepMeta.valuePixels();
 
-        /* find the tallest range */
+        /* find the tallest (if vertical alloc) / widest (if horizontal alloc) range */
 
         bool usePageSize = false;
         if (range->size[y] > size[y]) {
@@ -293,7 +293,7 @@ void Steps::sizeit(AllocEnc allocEnc, int x, int y)
         if (! usePageSize)
           size[y] += range->sizeRangeDividers(y);
 
-        /* place each range Horizontally */
+        /* place each range Horizontally (if vertical alloc) / Vertically (if horizontal alloc) */
 
         range->loc[y] = 0;
         range->loc[x] = size[x];
@@ -302,7 +302,7 @@ void Steps::sizeit(AllocEnc allocEnc, int x, int y)
 
         if (i + 1 < list.size()) {
 
-          /* accumulate total width of ranges */
+          /* accumulate total width (if vertical alloc) / height (if horizontal alloc) of ranges */
 
           size[x] += 2*divider.margin[x] + divider.thickness;
         }

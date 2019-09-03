@@ -245,8 +245,8 @@ void Range::sizeitVert()
   setBoundingSize();
 
 #ifdef QT_DEBUG_MODE
-  logTrace() << "\nRange.cpp Range::sizeVert()"
-             << "\nRangeDivider Vertical Range Size:"
+  logTrace() << "\nRange.cpp Range::sizeitVert()"
+             << "\nVertical Range Size:"
              << "\nRange::size XX     [" << size[XX] << "]"
              << "\nRange::size YY     [" << size[YY] << "]"
                 ;
@@ -285,12 +285,10 @@ void Range::placeit(int max, int x, int y)
     if (list[i]->relativeType == StepType) {
       Step *step = dynamic_cast<Step *>(list[i]);
 
-      step->loc[x] = 0;
-      step->loc[y] = top;
-
 //      logNotice() << "\nRangeDivider Range Top for Step [" << step->stepNumber.number << "]:"
 //                  << "\nStep::top         [" << top << "]"
 //                     ;
+      int xPos = 0, yPos = top;
 
       top += step->size[y] + stepSpacing;
 
@@ -304,6 +302,14 @@ void Range::placeit(int max, int x, int y)
       }
 
       top += lastMargin;
+
+      if (parent->meta.LPub.multiStep.centerSteps.value()) {
+        int centre = step->size[YY] + margin.valuePixels(YY) - lastMargin;
+         xPos = centre < step->size[YY] ? centre : 0;
+      }
+
+      step->loc[x] = xPos;
+      step->loc[y] = yPos;
 
 //      logNotice() << "\nRangeDivider adjusted Top and Size (top - stepSpacing) Height for Step [" << step->stepNumber.number << "]:"
 //                  << "\nRange::adj top     [" << top << "] top += step->size[y] + stepSpacing + lastMargin"
@@ -340,7 +346,7 @@ void Range::sizeitHoriz()
 
   /* size each step, and place its components Horizontally */
 
-  int lastMargin = 0;
+  int lastMargin = 0, lastTbl = 0;
 
   size[XX] = 0;
   for (int i = 0; i < list.size(); i++) {
@@ -365,18 +371,21 @@ void Range::sizeitHoriz()
 
       /* accumulate minimum width of row */
 
-      int topMargin, botMargin;
+      int topMargin, botMargin, maxTbl;
 
-      step->maxMargin(topMargin,botMargin,XX);
+      maxTbl = step->maxMargin(topMargin,botMargin);
       if (topMargin > lastMargin) {
         lastMargin = topMargin;
+      }
+      if (maxTbl > lastTbl) {
+        lastTbl = maxTbl;
       }
 
       /*  adjust size height */
 
       size[XX] += step->size[XX] + lastMargin;
 
-//      logTrace() << "\nRangeDivider Horizontal Step [" << step->stepNumber.number << "] Width:"
+//      logTrace() << "\nHorizontal Step [" << step->stepNumber.number << "] Width:"
 //                 << "\nStep::size XX     [" << step->size[XX] << "]"
 //                    ;
 
@@ -391,6 +400,16 @@ void Range::sizeitHoriz()
   /* place all step's components into rows */
 
   sizeMargins(rows,rowsMargin,margins);
+
+  /*  add the last margin to margins */
+
+  int active = 0;
+  for (int i = 0; i < NumPlaces; i++) {
+     if (rows[i])
+         ++active;
+  }
+  if (active == 1)
+      margins[lastTbl] = lastMargin;
 
   size[YY] = 0;
   for (int i = 0; i < list.size(); i++) {
@@ -421,10 +440,13 @@ void Range::sizeitHoriz()
 
   setBoundingSize();
 
-  logTrace() << "\nRangeDivider Horizontal Range Size:"
+#ifdef QT_DEBUG_MODE
+  logTrace() << "\nRange.cpp Range::sizeitHoriz()"
+             << "\nHorizontal Range Size:"
              << "\nRange::size XX     [" << size[XX] << "]"
              << "\nRange::size YY     [" << size[YY] << "]"
                 ;
+#endif
 }
 
 /*****************************************************************************

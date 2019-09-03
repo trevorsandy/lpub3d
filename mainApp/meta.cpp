@@ -4489,6 +4489,7 @@ MultiStepMeta::MultiStepMeta() : BranchMeta()
 {
   stepNum.placement.setValue(LeftTopOutside,PartsListType);
   stepNum.color.setValue("black");
+  centerSteps.setValue(false);
   // stepNum.font - default
   placement.setValue(CenterCenter,PageType);
   sep.setValue("black",DEFAULT_THICKNESS,DEFAULT_MARGINS);
@@ -4512,6 +4513,7 @@ void MultiStepMeta::init(BranchMeta *parent, QString name)
   stepNum  .init(this,    "STEP_NUMBER");
   placement.init(this,    "PLACEMENT");
   sep      .init(this,    "SEPARATOR");
+  centerSteps.init(this,  "CENTER_STEPS_VERTICALLY");
 
   divPointer.init(this,   "DIVIDER_POINTER");
   divPointerAttrib.init(this,
