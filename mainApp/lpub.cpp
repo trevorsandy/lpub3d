@@ -1435,14 +1435,17 @@ void Gui::reloadCurrentPage(){
         emit messageSig(LOG_STATUS,"No model file page to redisplay.");
         return;
     }
-    bool prompt = false;
-    if (maybeSave(prompt)) {
-        timer.start();
-        displayPage();
-        emit messageSig(LOG_STATUS, QString("Page %1 reloaded. %2")
-                        .arg(displayPageNum)
-                        .arg(elapsedTime(timer.elapsed())));
+
+    if (Preferences::saveOnRedraw) {
+        maybeSave(false); // No prompt
     }
+
+    timer.start();
+    displayPage();
+    emit messageSig(LOG_STATUS, QString("Page %1 reloaded. %2")
+                    .arg(displayPageNum)
+                    .arg(elapsedTime(timer.elapsed())));
+
 }
 
 void Gui::reloadCurrentModelFile(){
@@ -1535,10 +1538,13 @@ void Gui::clearAllCaches()
         return;
     }
 
-    if (maybeSave(false)) {  // No prompt
-        timer.start();
+    if (Preferences::saveOnRedraw) {
+        maybeSave(false); // No prompt
+    }
 
-        if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
+    timer.start();
+
+    if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
             ldrawFile.clearPrevStepPositions();
         }
 
@@ -1554,10 +1560,10 @@ void Gui::clearAllCaches()
         displayPage();
         enableActions();
 
-        emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
-                                            .arg(ldrawFile.getPartCount())
-                                            .arg(elapsedTime(timer.elapsed())));
-    }
+    emit messageSig(LOG_STATUS, QString("All caches reset and model file reloaded (%1 parts). %2")
+                                        .arg(ldrawFile.getPartCount())
+                                        .arg(elapsedTime(timer.elapsed())));
+
 }
 
 void Gui::clearCustomPartCache(bool silent)
@@ -2171,6 +2177,8 @@ void Gui::preferences()
     bool addLSynthSearchDirCompare      = Preferences::addLSynthSearchDir;
     bool archiveLSynthPartsCompare      = Preferences::archiveLSynthParts;
     bool perspectiveProjectionCompare   = Preferences::perspectiveProjection;
+    bool saveOnUpdateCompare            = Preferences::saveOnUpdate;
+    bool saveOnRedrawCompare            = Preferences::saveOnRedraw;
     bool loadLastOpenedFileCompare      = Preferences::loadLastOpenedFile;
     bool extendedSubfileSearchCompare   = Preferences::extendedSubfileSearch;
     bool povrayAutoCropCompare          = Preferences::povrayAutoCrop;
@@ -2224,6 +2232,8 @@ void Gui::preferences()
         bool highlightFirstStepChanged     = Preferences::highlightFirstStep                     != highlightFirstStepCompare;
         bool enableImageMattingChanged     = Preferences::enableImageMatting                     != enableImageMattingCompare;
         bool perspectiveProjectionChanged  = Preferences::perspectiveProjection                  != perspectiveProjectionCompare;
+        bool saveOnRedrawChanged           = Preferences::saveOnRedraw                           != saveOnRedrawCompare;
+        bool saveOnUpdateChanged           = Preferences::saveOnUpdate                           != saveOnUpdateCompare;
         bool applyCALocallyChanged         = Preferences::applyCALocally                         != applyCALocallyCompare;
         bool enableLDViewSCallChanged      = Preferences::enableLDViewSingleCall                 != enableLDViewSCallCompare;
         bool enableLDViewSListChanged      = Preferences::enableLDViewSnaphsotList               != enableLDViewSListCompare;
@@ -2384,6 +2394,12 @@ void Gui::preferences()
            gApplication->mPreferences.LoadDefaults();
            emit messageSig(LOG_INFO,QString("Projection set to %1").arg(Preferences::perspectiveProjection ? "Perspective" : "Orthographic"));
         }
+
+        if (saveOnRedrawChanged     )
+                    emit messageSig(LOG_INFO,QString("Save On Redraw is %1").arg(Preferences::saveOnRedraw? "ON" : "OFF"));
+
+        if (saveOnUpdateChanged     )
+                    emit messageSig(LOG_INFO,QString("Save On Update is %1").arg(Preferences::saveOnUpdate? "ON" : "OFF"));
 
         if (pageDisplayPauseChanged)
             emit messageSig(LOG_INFO,QString("Continuous process page display pause changed from %1 to %2")

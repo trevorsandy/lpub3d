@@ -98,6 +98,8 @@ class PreferencesDialog : public QDialog
     bool          archiveLSynthParts();
     bool          perspectiveProjection();
     bool          resetSceneColors();
+    bool          saveOnRedraw();
+    bool          saveOnUpdate();
 
     bool          loggingGrpBox();
     bool          logLevelGrpBox();

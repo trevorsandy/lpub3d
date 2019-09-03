@@ -222,6 +222,8 @@ class Preferences
     static int     highlightStepLineWidth;
     static bool    highlightFirstStep;
     static bool    perspectiveProjection;
+    static bool    saveOnRedraw;
+    static bool    saveOnUpdate;
 
     static bool    includeLogLevel;
     static bool    includeTimestamp;

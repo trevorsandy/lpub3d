@@ -149,6 +149,8 @@ QString Preferences::sceneGuideColor            = THEME_GUIDE_PEN_DEFAULT;
 bool    Preferences::usingDefaultLibrary        = true;
 bool    Preferences::portableDistribution       = false;
 bool    Preferences::perspectiveProjection      = false;
+bool    Preferences::saveOnRedraw               = true;
+bool    Preferences::saveOnUpdate               = true;
 
 bool    Preferences::themeAutoRestart           = false;
 bool    Preferences::lgeoStlLib                 = false;
@@ -2987,6 +2989,24 @@ void Preferences::userInterfacePreferences()
   } else {
       ldrawFilesLoadMsgs = Settings.value(QString("%1/%2").arg(SETTINGS,ldrawFilesLoadMsgsKey)).toInt();
   }
+
+  QString const saveOnRedrawKey("SaveOnRedraw");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,saveOnRedrawKey))) {
+      QVariant uValue(true);
+      saveOnRedraw = true;
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,saveOnRedrawKey),uValue);
+  } else {
+      saveOnRedraw = Settings.value(QString("%1/%2").arg(SETTINGS,saveOnRedrawKey)).toBool();
+  }
+
+  QString const saveOnUpdateKey("SaveOnUpdate");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,saveOnUpdateKey))) {
+      QVariant uValue(true);
+      saveOnUpdate = true;
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,saveOnUpdateKey),uValue);
+  } else {
+      saveOnUpdate = Settings.value(QString("%1/%2").arg(SETTINGS,saveOnUpdateKey)).toBool();
+  }
 }
 
 void Preferences::setShowParseErrorsPreference(bool b)
@@ -4120,6 +4140,18 @@ bool Preferences::getPreferences()
         {
             perspectiveProjection = dialog->perspectiveProjection();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"PerspectiveProjection"),perspectiveProjection);
+        }
+
+        if (saveOnRedraw != dialog->saveOnRedraw())
+        {
+            saveOnRedraw = dialog->saveOnRedraw();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"SaveOnRedraw"),saveOnRedraw);
+        }
+
+        if (saveOnUpdate != dialog->saveOnUpdate())
+        {
+            saveOnUpdate = dialog->saveOnUpdate();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"SaveOnUpdate"),saveOnUpdate);
         }
 
         if (loadLastOpenedFile != dialog->loadLastOpenedFile())

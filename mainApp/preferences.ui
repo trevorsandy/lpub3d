@@ -157,6 +157,19 @@
              </widget>
             </item>
             <item>
+             <spacer name="horizontalSpacer_20">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
              <widget class="QLabel" name="label_20">
               <property name="text">
                <string>Show load messages</string>
@@ -198,14 +211,51 @@
            </layout>
           </item>
           <item>
-           <widget class="QCheckBox" name="extendedSubfileSearchCheck">
-            <property name="toolTip">
-             <string>Search current folder, content search directories and LDraw subfolders for subfile references.</string>
-            </property>
-            <property name="text">
-             <string>Extended subfile reference search</string>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="horizontalLayout_32">
+            <item>
+             <widget class="QCheckBox" name="extendedSubfileSearchCheck">
+              <property name="toolTip">
+               <string>Search current folder, content search directories and LDraw subfolders for subfile references.</string>
+              </property>
+              <property name="text">
+               <string>Extended subfile reference search</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_19">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="saveOnUpdateChkBox">
+              <property name="toolTip">
+               <string>Save file when Update button is pressed.</string>
+              </property>
+              <property name="text">
+               <string>Save on Update</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="saveOnRedrawChkBox">
+              <property name="toolTip">
+               <string>Save file when Redraw or Clear Cache tool button is pressed</string>
+              </property>
+              <property name="text">
+               <string>Save on Redraw</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>

@@ -581,14 +581,14 @@ void EditWindow::displayFile(
 
 void EditWindow::redraw()
 {
-  if (modelFileEdit())
+  if (modelFileEdit() && Preferences::saveOnRedraw)
       saveFile();
   redrawSig();
 }
 
 void EditWindow::update()
 {
-  if (modelFileEdit())
+  if (modelFileEdit() && Preferences::saveOnUpdate)
       saveFile();
   updateSig();
 }

@@ -126,6 +126,8 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.ldrawFilesLoadMsgsCombo->setCurrentIndex(   Preferences::ldrawFilesLoadMsgs);
   ui.projectionCombo->setCurrentIndex(           Preferences::perspectiveProjection ? 0 : 1);
   ui.povrayRenderQualityCombo->setCurrentIndex(  Preferences::povrayRenderQuality);
+  ui.saveOnRedrawChkBox->setChecked(             Preferences::saveOnRedraw);
+  ui.saveOnUpdateChkBox->setChecked(             Preferences::saveOnUpdate);
 
   ui.loggingGrpBox->setChecked(                  Preferences::logging);
   ui.logPathEdit->setEnabled(                    Preferences::logging);
@@ -935,6 +937,16 @@ QString const PreferencesDialog::povFileGenerator()
 bool PreferencesDialog::perspectiveProjection()
 {
    return ui.projectionCombo->currentIndex() == 0 ? true : false;
+}
+
+bool PreferencesDialog::saveOnRedraw()
+{
+       return ui.saveOnRedrawChkBox->isChecked();
+}
+
+bool PreferencesDialog::saveOnUpdate()
+{
+       return ui.saveOnUpdateChkBox->isChecked();
 }
 
 bool PreferencesDialog::povrayDisplay()
