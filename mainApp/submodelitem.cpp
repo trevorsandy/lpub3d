@@ -1417,6 +1417,24 @@ void SubModelBackgroundItem::contextMenuEvent(
     QAction *cameraAnglesAction  = commonMenus.cameraAnglesMenu(menu,pl);
     QAction *hideAction          = commonMenus.hideMenu(menu,pl);
 
+    QAction *povrayRendererArgumentsAction = nullptr;
+    QAction *rendererArgumentsAction = nullptr;
+    bool usingPovray = Preferences::preferredRenderer == RENDERER_POVRAY;
+    QString rendererName = QString("Add %1 Arguments")
+                                   .arg(usingPovray ? "POV Generation":
+                                                      QString("%1 Renderer").arg(Render::getRenderer()));
+    if (!Preferences::usingNativeRenderer) {
+        rendererArgumentsAction = menu.addAction(rendererName);
+        rendererArgumentsAction->setWhatsThis("Add custom renderer arguments for this step");
+        rendererArgumentsAction->setIcon(QIcon(":/resources/rendererarguments.png"));
+        if (usingPovray) {
+            povrayRendererArgumentsAction = menu.addAction(QString("Add %1 Renderer Arguments")
+                                                                    .arg(Render::getRenderer()));
+            povrayRendererArgumentsAction->setWhatsThis("Add POV-Ray custom renderer arguments for this step");
+            povrayRendererArgumentsAction->setIcon(QIcon(":/resources/rendererarguments.png"));
+        }
+    }
+
     QAction *bringToFrontAction = nullptr;
     QAction *sendToBackBackAction = nullptr;
     if (gui->pagescene()->showContextAction()) {
@@ -1529,9 +1547,23 @@ void SubModelBackgroundItem::contextMenuEvent(
         hideSubmodel(top,
                      bottom,
                      &subModel->subModelMeta.show);
+    } else if (selectedAction == rendererArgumentsAction) {
+      StringMeta rendererArguments =
+                 Render::getRenderer() == RENDERER_LDVIEW ? subModel->subModelMeta.ldviewParms :
+                 Render::getRenderer() == RENDERER_LDGLITE ? subModel->subModelMeta.ldgliteParms :
+                               /*POV scene file generator*/  subModel->subModelMeta.ldviewParms ;
+      setRendererArguments( topOfStep,
+                         bottomOfStep,
+                         rendererName,
+                         &rendererArguments);
+    } else if (selectedAction == povrayRendererArgumentsAction) {
+      setRendererArguments( topOfStep,
+                         bottomOfStep,
+                         Render::getRenderer(),
+                         &subModel->subModelMeta.povrayParms);
     } else if (selectedAction == bringToFrontAction) {
-        setSelectedItemZValue(top,
-                            bottom,
+      setSelectedItemZValue(top,
+                          bottom,
                             BringToFront,
                             &meta->LPub.page.scene.subModelBackground);
     } else if (selectedAction == sendToBackBackAction) {

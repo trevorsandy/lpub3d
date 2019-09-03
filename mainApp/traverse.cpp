@@ -1351,10 +1351,19 @@ int Gui::drawPage(
                   emit messageSig(LOG_STATUS, "Add CSI images for multi-step page " + current.modelName);
 
                   if (renderer->useLDViewSCall() && ldrStepFiles.size() > 0){
+
                       QElapsedTimer timer;
                       timer.start();
-
                       QString empty("");
+
+                      // set the extra renderer parms
+                      steps->meta.LPub.assem.ldviewParms =
+                           Render::getRenderer() == RENDERER_LDVIEW ? step->ldviewParms :
+                           Render::getRenderer() == RENDERER_LDGLITE ? step->ldgliteParms :
+                                         /*POV scene file generator*/  step->ldviewParms ;
+                      if (Preferences::preferredRenderer == RENDERER_POVRAY)
+                          steps->meta.LPub.assem.povrayParms = step->povrayParms;
+
                       int rc = renderer->renderCsi(empty,ldrStepFiles,csiKeys,empty,steps->meta);
                       if (rc != 0) {
                           emit messageSig(LOG_ERROR,QMessageBox::tr("Render CSI images failed."));
@@ -1653,6 +1662,16 @@ int Gui::drawPage(
                           QElapsedTimer timer;
                           timer.start();
                           QString empty("");
+
+                          // set the extra renderer parms
+                          steps->meta.LPub.assem.ldviewParms =
+                               Render::getRenderer() == RENDERER_LDVIEW ? step->ldviewParms :
+                               Render::getRenderer() == RENDERER_LDGLITE ? step->ldgliteParms :
+                                             /*POV scene file generator*/  step->ldviewParms ;
+                          if (Preferences::preferredRenderer == RENDERER_POVRAY)
+                              steps->meta.LPub.assem.povrayParms = step->povrayParms;
+
+                          // render the partially assembled model
                           int rc = renderer->renderCsi(empty,ldrStepFiles,csiKeys,empty,steps->meta);
                           if (rc != 0) {
                               emit messageSig(LOG_ERROR,QMessageBox::tr("Render CSI images failed."));

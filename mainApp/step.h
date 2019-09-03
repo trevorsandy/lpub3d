@@ -73,7 +73,10 @@ class Step : public AbstractRangeElement
     RotateIconItem        rotateIcon;
     PlacementNum          stepNumber;
     NumberPlacementMeta   numberPlacemetMeta;
-    CalloutCsiMeta        csiCameraMeta;
+    SettingsMeta          csiCameraMeta;
+    StringMeta            ldviewParms;
+    StringMeta            ldgliteParms;
+    StringMeta            povrayParms;
     bool                  showStepNumber;
     int                   submodelLevel;
     bool                  pliPerStep;
@@ -81,7 +84,6 @@ class Step : public AbstractRangeElement
     bool                  modelDisplayOnlyStep;
     bool                  fadeSteps;
     bool                  highlightStep;
-    PlacementMeta         placement;
     QString               ldrName;
     QString               pngName;
     QString               csiKey;

@@ -445,6 +445,15 @@ public:
                      int      append = 1,
                      bool     local = true);
 
+  void setRendererArguments(
+                     const Where &,
+                     const Where &,
+                     const QString &,
+                     StringMeta *,
+                     bool  useTop = true,
+                     int   append = 1,
+                     bool  local = false);
+
   void changeInsertOffset(InsertMeta *placement);
 
   void setPliPartGroupOffset(PliPartGroupMeta *meta);

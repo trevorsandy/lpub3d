@@ -352,6 +352,24 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       addDividerPointerAction->setIcon(QIcon(":/resources/adddividerpointer.png"));
   }
 
+  QAction *povrayRendererArgumentsAction = nullptr;
+  QAction *rendererArgumentsAction = nullptr;
+  bool usingPovray = Preferences::preferredRenderer == RENDERER_POVRAY;
+  QString rendererName = QString("Add %1 Arguments")
+                                 .arg(usingPovray ? "POV Generation":
+                                                    QString("%1 Renderer").arg(Render::getRenderer()));
+  if (!Preferences::usingNativeRenderer) {
+      rendererArgumentsAction = menu.addAction(rendererName);
+      rendererArgumentsAction->setWhatsThis("Add custom renderer arguments for this step");
+      rendererArgumentsAction->setIcon(QIcon(":/resources/rendererarguments.png"));
+      if (usingPovray) {
+          povrayRendererArgumentsAction = menu.addAction(QString("Add %1 Renderer Arguments")
+                                                                  .arg(Render::getRenderer()));
+          povrayRendererArgumentsAction->setWhatsThis("Add POV-Ray custom renderer arguments for this step");
+          povrayRendererArgumentsAction->setIcon(QIcon(":/resources/rendererarguments.png"));
+      }
+  }
+
   QAction *noStepAction = menu.addAction(fullContextMenu ? "Don't Show This Step"
                                                          : "Don't Show This Final Model");
   noStepAction->setIcon(QIcon(":/resources/display.png"));
@@ -495,6 +513,20 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       }
       hiddenAnnotations = false;
       step->setCsiAnnotationMetas(*meta,!hiddenAnnotations);
+    } else if (selectedAction == rendererArgumentsAction) {
+      StringMeta rendererArguments =
+                 Render::getRenderer() == RENDERER_LDVIEW ? step->ldviewParms :
+                 Render::getRenderer() == RENDERER_LDGLITE ? step->ldgliteParms :
+                               /*POV scene file generator*/  step->ldviewParms ;
+      setRendererArguments(topOfStep,
+                         bottomOfStep,
+                         rendererName,
+                         &rendererArguments);
+    } else if (selectedAction == povrayRendererArgumentsAction) {
+      setRendererArguments(topOfStep,
+                         bottomOfStep,
+                         Render::getRenderer(),
+                         &step->csiItem->assem->povrayParms);
     } else if (selectedAction == bringToFrontAction) {
       setSelectedItemZValue(top,
                             bottom,

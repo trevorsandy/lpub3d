@@ -1739,6 +1739,52 @@ void MetaItem::hideSubmodel(
     setMeta(topOfStep,bottomOfStep,show,useTop,append,local);
 }
 
+void MetaItem::setRendererArguments(
+        const Where &top,
+        const Where &bottom,
+        const QString &renderer,
+        StringMeta *rendererArguments,
+        bool  useTop,
+        int   append,
+        bool  local)
+{
+    QString arguments = rendererArguments->value();
+
+    bool ok = TextEditDialog::getText(arguments,renderer/*QString("%1 Renderer Arguments").arg(renderer)*/);
+
+    if (ok && !arguments.isEmpty()) {
+
+        QStringList list = arguments.split("\n");
+
+        QStringList list2;
+        foreach (QString string, list){
+          string = string.trimmed();
+          QRegExp rx2("\"");
+          int pos = 0;
+          QChar esc('\\');
+          while ((pos = rx2.indexIn(string, pos)) != -1) {
+            pos += rx2.matchedLength();
+            if (pos < string.size()) {
+              QChar ch = string.at(pos-1);
+              if (ch != esc) {
+                string.insert(pos-1,&esc,1);
+                pos++;
+              }
+            }
+          }
+          // if last character is \, append space ' ' so not to escape closing string double quote
+          if (string.at(string.size()-1) == QChar('\\'))
+            string.append(QChar(' '));
+          list2 << string;
+        }
+        rendererArguments->setValue(list2.join("\\n"));
+
+        if (ok) {
+            setMeta(top,bottom,rendererArguments,useTop,append,local);
+        }
+    }
+}
+
 void MetaItem::setSelectedItemZValue(
         const Where &topOfStep,
         const Where &bottomOfStep,

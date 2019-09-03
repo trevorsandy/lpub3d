@@ -153,6 +153,11 @@ Step::Step(
   pli.step                  = this;
   subModel.steps            = grandparent();
   subModel.step             = this;
+
+  ldviewParms               = _meta.LPub.assem.ldviewParms;
+  ldgliteParms              = _meta.LPub.assem.ldgliteParms;
+  povrayParms               = _meta.LPub.assem.povrayParms;
+
   showStepNumber            = _meta.LPub.assem.showStepNumber.value();
   rotateIcon.setSize(         _meta.LPub.rotateIcon.size,
                               _meta.LPub.rotateIcon.border.valuePixels().thickness);
@@ -375,6 +380,13 @@ int Step::createCsi(
 
      if (!renderer->useLDViewSCall() && ! gui->m_partListCSIFile) {
          showStatus = true;
+         // set the extra renderer parms
+         meta.LPub.assem.ldviewParms =
+              Render::getRenderer() == RENDERER_LDVIEW ? ldviewParms :
+              Render::getRenderer() == RENDERER_LDGLITE ? ldgliteParms :
+                            /*POV scene file generator*/  ldviewParms ;
+         if (Preferences::preferredRenderer == RENDERER_POVRAY)
+             meta.LPub.assem.povrayParms = povrayParms;
          // render the partially assembled model
          QStringList csiKeys = QStringList() << csiKey; // adding just a single key
 

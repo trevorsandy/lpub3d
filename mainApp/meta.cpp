@@ -4079,8 +4079,8 @@ void AssemMeta::init(BranchMeta *parent, QString name)
   margin.init         (this,"MARGINS");
   placement.init      (this,"PLACEMENT");
   modelScale.init     (this,"MODEL_SCALE");
-  ldviewParms.init    (this,"LDGLITE_PARMS");
-  ldgliteParms.init   (this,"LDVIEW_PARMS");
+  ldviewParms.init    (this,"LDVIEW_PARMS");
+  ldgliteParms.init   (this,"LDGLITE_PARMS");
   povrayParms .init   (this,"POVRAY_PARMS");
   showStepNumber.init (this,"SHOW_STEP_NUMBER");
   annotation.init     (this,"ANNOTATION");

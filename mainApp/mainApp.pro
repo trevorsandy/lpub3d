@@ -372,6 +372,7 @@ HEADERS += \
     globals.h \
     gradients.h \
     highlighter.h \
+	historylineedit.h \
     hoverpoints.h \
     ldrawcolourparts.h \
     ldrawfiles.h \
@@ -442,7 +443,8 @@ HEADERS += \
     ldrawfilesload.h \
     substitutepartdialog.h \
     ldrawcolordialog.h \
-    ldrawcolordialog.cpp
+    ldrawcolordialog.cpp \
+    texteditdialog.h
 
 SOURCES += \
     aboutdialog.cpp \
@@ -474,6 +476,7 @@ SOURCES += \
     gradients.cpp \
     highlighter.cpp \
     highlightstepglobals.cpp \
+	historylineedit.cpp \
     hoverpoints.cpp \
     ldrawcolourparts.cpp \
     ldrawfiles.cpp \
@@ -548,7 +551,9 @@ SOURCES += \
     ldrawfilesload.cpp \
     substitutepartdialog.cpp \
     ldrawcolordialog.cpp \
-    ldrawpartdialog.cpp
+    ldrawpartdialog.cpp \
+    nativeviewer.cpp \
+    texteditdialog.cpp
 
 FORMS += \
     aboutdialog.ui \
@@ -558,7 +563,8 @@ FORMS += \
     ldrawcolordialog.ui \
     ldrawpartdialog.ui \
     substitutepartdialog.ui \
-    preferences.ui
+    preferences.ui \
+    texteditdialog.ui
 
 OTHER_FILES += \
     $$lower($$MAN_PAGE) \
@@ -580,7 +586,7 @@ RESOURCES += \
     ../ldvlib/LDVQt/resources.qrc \
     qdarkstyle/style.qrc \
     resources/lsynth/lsynth.qrc \
-    lpub3d.qrc \
+    lpub3d.qrc
 
 DISTFILES += \
     ldraw_document.icns

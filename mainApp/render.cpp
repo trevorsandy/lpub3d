@@ -497,6 +497,9 @@ int POVRay::renderCsi(
               //logInfo() << qPrintable("-PARM META: " + list[i]);
             }
         }
+      if (list.size())
+          emit gui->messageSig(LOG_INFO,QMessageBox::tr("LDView extra POV-Ray CSI renderer parameters: %1")
+                               .arg(list.join(" ")));
 
       bool hasLDViewIni = Preferences::ldviewPOVIni != "";
       if(hasLDViewIni){
@@ -601,6 +604,17 @@ int POVRay::renderCsi(
 
   QString I = QString("+I\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(povName)));
   povArguments.insert(2,I);
+
+  list = meta.LPub.assem.povrayParms.value().split(' ');
+  for (int i = 0; i < list.size(); i++) {
+      if (list[i] != "" && list[i] != " ") {
+          povArguments << list[i];
+          //logInfo() << qPrintable("-PARM META: " + list[i]);
+        }
+    }
+  if (list.size())
+      emit gui->messageSig(LOG_INFO,QMessageBox::tr("POV-Ray extra CSI renderer parameters: %1")
+                           .arg(list.join(" ")));
 
 //#ifndef __APPLE__
 //  povArguments << "/EXIT";
@@ -723,6 +737,9 @@ int POVRay::renderPli(
               //logInfo() << qPrintable("-PARM META: " + list[i]);
             }
         }
+      if (list.size())
+          emit gui->messageSig(LOG_INFO,QMessageBox::tr("LDView extra POV-Ray PLI renderer parameters: %1")
+                               .arg(list.join(" ")));
 
       bool hasLDViewIni = Preferences::ldviewPOVIni != "";
       if(hasLDViewIni){
@@ -827,6 +844,17 @@ int POVRay::renderPli(
 
   QString I = QString("+I\"%1\"").arg(fixupDirname(QDir::toNativeSeparators(povName)));
   povArguments.insert(2,I);
+
+  list = meta.LPub.assem.povrayParms.value().split(' ');
+  for (int i = 0; i < list.size(); i++) {
+      if (list[i] != "" && list[i] != " ") {
+          povArguments << list[i];
+          //logInfo() << qPrintable("-PARM META: " + list[i]);
+        }
+    }
+  if (list.size())
+      emit gui->messageSig(LOG_INFO,QMessageBox::tr("POV-Ray extra PLI renderer parameters: %1")
+                           .arg(list.join(" ")));
 
 //#ifndef __APPLE__
 //  povArguments << "/EXIT";
@@ -942,14 +970,16 @@ int LDGLite::renderCsi(
   arguments << w;                   // line thickness
 
   QStringList list;
-  // First, load parms from meta
+  // First, load parms from meta if any
   list = meta.LPub.assem.ldgliteParms.value().split(' ');
   for (int i = 0; i < list.size(); i++) {
      if (list[i] != "" && list[i] != " ") {
          arguments << list[i];
-         //logInfo() << qPrintable("-PARM META: " + list[i]);
       }
   }
+  if (list.size())
+      emit gui->messageSig(LOG_INFO,QMessageBox::tr("LDGlite extra CSI renderer parameters: %1") .arg(list.join(" ")));
+
   // Add ini parms if not already added from meta
   for (int i = 0; i < Preferences::ldgliteParms.size(); i++) {
       if (list.indexOf(QRegExp("^" + QRegExp::escape(Preferences::ldgliteParms[i]))) < 0) {
@@ -1074,14 +1104,16 @@ int LDGLite::renderPli(
   arguments << w;                   // line thickness
 
   QStringList list;
-  // First, load parms from meta
+  // First, load extra parms from meta if any
   list = metaType.ldgliteParms.value().split(' ');
   for (int i = 0; i < list.size(); i++) {
      if (list[i] != "" && list[i] != " ") {
          arguments << list[i];
-         //logInfo() << qPrintable("-PARM META: " + list[i]);
       }
   }
+  if (list.size())
+      emit gui->messageSig(LOG_INFO,QMessageBox::tr("LDGlite extra PLI renderer parameters %1") .arg(list.join(" ")));
+
   // Add ini parms if not already added from meta
   for (int i = 0; i < Preferences::ldgliteParms.size(); i++) {
       if (list.indexOf(QRegExp("^" + QRegExp::escape(Preferences::ldgliteParms[i]))) < 0) {
@@ -1307,6 +1339,9 @@ int LDView::renderCsi(
       arguments << ldviewParmslist[i];    // 10. ldviewParms [usually empty]
     }
   }
+  if (ldviewParmslist.size())
+      emit gui->messageSig(LOG_INFO,QMessageBox::tr("LDView extra CSI renderer parameters: %1")
+                           .arg(ldviewParmslist.join(" ")));
 
   bool hasLDViewIni = Preferences::ldviewIni != "";
   QString ini;
@@ -1582,6 +1617,9 @@ int LDView::renderPli(
       arguments << ldviewParmslist[i];    // 10. ldviewParms [usually empty]
     }
   }
+  if (ldviewParmslist.size())
+      emit gui->messageSig(LOG_INFO,QMessageBox::tr("LDView extra PLI renderer parameters: %1")
+                           .arg(ldviewParmslist.join(" ")));
 
   if(Preferences::ldviewIni != ""){
       arguments << QString("-IniFile=%1") .arg(Preferences::ldviewIni);;

@@ -2948,6 +2948,24 @@ void PliBackgroundItem::contextMenuEvent(
       QAction *splitBomAction  = nullptr;
       QAction *deleteBomAction = nullptr;
 
+      QAction *povrayRendererArgumentsAction = nullptr;
+      QAction *rendererArgumentsAction = nullptr;
+      bool usingPovray = Preferences::preferredRenderer == RENDERER_POVRAY;
+      QString rendererName = QString("Add %1 Arguments")
+                                     .arg(usingPovray ? "POV Generation":
+                                                        QString("%1 Renderer").arg(Render::getRenderer()));
+      if (!Preferences::usingNativeRenderer) {
+          rendererArgumentsAction = menu.addAction(rendererName);
+          rendererArgumentsAction->setWhatsThis("Add custom renderer arguments for this step");
+          rendererArgumentsAction->setIcon(QIcon(":/resources/rendererarguments.png"));
+          if (usingPovray) {
+              povrayRendererArgumentsAction = menu.addAction(QString("Add %1 Renderer Arguments")
+                                                                      .arg(Render::getRenderer()));
+              povrayRendererArgumentsAction->setWhatsThis("Add POV-Ray custom renderer arguments for this step");
+              povrayRendererArgumentsAction->setIcon(QIcon(":/resources/rendererarguments.png"));
+          }
+      }
+
       QAction *bringToFrontAction = nullptr;
       QAction *sendToBackBackAction = nullptr;
       if (gui->pagescene()->showContextAction()) {
@@ -3093,6 +3111,20 @@ void PliBackgroundItem::contextMenuEvent(
           deleteBOM();
         } else if (selectedAction == splitBomAction){
           insertSplitBOM();
+        }  else if (selectedAction == rendererArgumentsAction) {
+          StringMeta rendererArguments =
+                     Render::getRenderer() == RENDERER_LDVIEW ? pli->pliMeta.ldviewParms :
+                     Render::getRenderer() == RENDERER_LDGLITE ? pli->pliMeta.ldgliteParms :
+                                   /*POV scene file generator*/  pli->pliMeta.ldviewParms ;
+          setRendererArguments(top,
+                             bottom,
+                             rendererName,
+                             &rendererArguments);
+        } else if (selectedAction == povrayRendererArgumentsAction) {
+          setRendererArguments(top,
+                             bottom,
+                             Render::getRenderer(),
+                             &pli->pliMeta.povrayParms);
         } else if (selectedAction == bringToFrontAction) {
           setSelectedItemZValue(top,
                                 bottom,
