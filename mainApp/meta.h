@@ -204,6 +204,9 @@ public:
      preamble = rhs.preamble;
   }
   virtual           ~AbstractMeta() { preamble.clear(); }
+  AbstractMeta(AbstractMeta&&rhs) = default; 
+  AbstractMeta& operator=(const AbstractMeta&rhs) = default; 
+  AbstractMeta& operator=(AbstractMeta&&rhs) = default;
   
   /* Initialize thyself */
 
