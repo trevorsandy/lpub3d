@@ -117,7 +117,6 @@ public:
     Step                        *parentStep;
     DividerLine                 *lineItem;
     DividerBackgroundItem       *background;
-    QList<DividerPointerItem *>  graphicsPointerList; /* Pointer and pointer tips graphics */
     PlacementType                parentRelativeType;
 
     DividerItem() {}

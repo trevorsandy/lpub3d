@@ -35,6 +35,7 @@
 #include "placement.h"
 #include "submodelitem.h"
 #include "pageattributepixmapitem.h"
+#include "dividerpointeritem.h"
 
 class Meta;
 class Render;
@@ -62,12 +63,13 @@ class Steps : public Placement {
   public:
     Meta                           meta;
     Meta                           stepGroupMeta;
-    QList<AbstractStepsElement *>  list;         // of range
-    QMap<Positions,PagePointer *>  pagePointers; // of pagePointers
+    QList<AbstractStepsElement *>  list;                // of range
+    QMap<Positions,PagePointer *>  pagePointers;        // of pagePointers
+    QList<DividerPointerItem *>    graphicsPointerList; // of dividerPointers
     QGraphicsView                 *view;
     Pli                            pli;
     SubModel                       subModel;
-    Where                          top;          // needed for non-step pages
+    Where                          top;                 // needed for non-step pages
     Where                          bottom;
     bool                           isMirrored;
 

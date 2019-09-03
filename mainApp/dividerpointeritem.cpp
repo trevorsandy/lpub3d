@@ -26,8 +26,6 @@
 #include "dividerpointeritem.h"
 #include "ranges_item.h"
 #include "step.h"
-#include "range.h"
-#include "ranges.h"
 
 /*
  * This is the constructor of a graphical pointer

@@ -39,6 +39,7 @@
 #include "csiannotation.h"
 #include "metaitem.h"
 #include "commonmenus.h"
+#include "pointer.h"
 
 CsiItem::CsiItem(
   Step          *_step,
@@ -576,10 +577,27 @@ void CsiItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
                  int(pos().y() - position.y() + 0.5));
 
     if (delta.x() || delta.y()) {
+      // callouts
       for (int i = 0; i < step->list.size(); i++) {
         Callout *callout = step->list[i];
         callout->drawTips(delta,CsiType);
-      }      
+      }
+      // page pointers
+      for (int i = 0; i < PP_POSITIONS; i++) {
+          Positions position = Positions(i);
+          PagePointer *pagePointer = step->page()->pagePointers.value(position);
+          if (pagePointer)
+              pagePointer->drawTips(delta,this,CsiType);
+      }
+      // dividers
+      for (int i = 0; i < step->page()->graphicsPointerList.size(); i++) {
+        DividerPointerItem *pointerItem = step->page()->graphicsPointerList[i];
+        int initiator = CsiType;
+        foreach (QGraphicsItem *item, pointerItem->collidingItems(Qt::IntersectsItemBoundingRect)) {
+            if (item == this)
+                pointerItem->drawTip(delta,initiator);
+        }
+      }
       positionChanged = true;
       //placeGrabbers();
     }
@@ -606,18 +624,32 @@ void CsiItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
       QPoint deltaI(int(pos().x() - position.x()),
                     int(pos().y() - position.y()));
-
       if (step) {
+        // callouts
         for (int i = 0; i < step->list.size(); i++) {
           Callout *callout = step->list[i];
           callout->updatePointers(deltaI);
+        }
+        // page pointers
+        for (int i = 0; i < PP_POSITIONS; i++){
+            Positions position = Positions(i);
+            PagePointer *pagePointer = step->page()->pagePointers.value(position);
+            if (pagePointer)
+                pagePointer->updatePointers(deltaI,this);
+        }
+        // dividers
+        for (int i = 0; i < step->page()->graphicsPointerList.size(); i++) {
+          DividerPointerItem *pointerItem = step->page()->graphicsPointerList[i];
+          foreach (QGraphicsItem *item, pointerItem->collidingItems(Qt::IntersectsItemBoundingRect)) {
+              if (item == this)
+                  pointerItem->updatePointer(deltaI);
+          }
         }
       }
       changePlacementOffset(step->topOfStep(),&step->csiPlacement.placement,CsiType);  
       endMacro();
     }
   }
-  update();
 }
 
 void CsiItem::change()
@@ -635,10 +667,27 @@ void CsiItem::change()
 
       QPoint deltaI(int(pos().x() - position.x()),
                     int(pos().y() - position.y()));
+      // callouts
       for (int i = 0; i < step->list.size(); i++) {
         Callout *callout = step->list[i];
         callout->updatePointers(deltaI);
       }
+      // page pointers
+      for (int i = 0; i < PP_POSITIONS; i++){
+          Positions position = Positions(i);
+          PagePointer *pagePointer = step->page()->pagePointers.value(position);
+          if (pagePointer)
+              pagePointer->updatePointers(deltaI,this);
+      }
+      // dividers
+      for (int i = 0; i < step->page()->graphicsPointerList.size(); i++) {
+        DividerPointerItem *pointerItem = step->page()->graphicsPointerList[i];
+        foreach (QGraphicsItem *item, pointerItem->collidingItems(Qt::IntersectsItemBoundingRect)) {
+            if (item == this)
+                pointerItem->updatePointer(deltaI);
+        }
+      }
+
       changePlacementOffset(step->topOfStep(),&meta->LPub.assem.placement,CsiType,true,false);  
       
       modelScale = step->csiCameraMeta.modelScale;

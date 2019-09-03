@@ -160,7 +160,8 @@ enum Positions {
   PP_TOP = 0,
   PP_BOTTOM,
   PP_LEFT,
-  PP_RIGHT
+  PP_RIGHT,
+  PP_POSITIONS
 };
 
 #define DEFAULT_MARGIN  0.05f

@@ -95,9 +95,9 @@ class PagePointer : public Steps {
 
     virtual void addGraphicsPointerItem(Pointer *pointer);
 
-    virtual void drawTips(QPoint &delta, int type = 0);
+    virtual void drawTips(QPoint &delta, QGraphicsItem *target, int type = 0);
 
-    virtual void updatePointers(QPoint &delta);
+    virtual void updatePointers(QPoint &delta, QGraphicsItem *target);
 };
 
 

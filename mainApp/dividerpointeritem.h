@@ -28,7 +28,6 @@
 
 #include "pointeritem.h"
 #include "metaitem.h"
-#include "ranges_item.h"
 
 class QGraphicsPolygonItem;
 class QGraphicsLineItem;
