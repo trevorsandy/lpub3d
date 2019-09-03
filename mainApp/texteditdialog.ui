@@ -83,6 +83,9 @@
    <property name="toolTip">
     <string>New</string>
    </property>
+   <property name="statusTip">
+    <string>New entry = Ctrl+N</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
    </property>
@@ -94,6 +97,9 @@
    </property>
    <property name="text">
     <string>Accept</string>
+   </property>
+   <property name="statusTip">
+    <string>Accept and close window - Ctrl+A</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+A</string>
@@ -110,6 +116,9 @@
    <property name="toolTip">
     <string>Cancel</string>
    </property>
+   <property name="statusTip">
+    <string>Cancel and close window</string>
+   </property>
   </action>
   <action name="actionCopy">
    <property name="icon">
@@ -118,6 +127,9 @@
    </property>
    <property name="text">
     <string>Copy</string>
+   </property>
+   <property name="statusTip">
+    <string>Copy - Ctrl+C</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+C</string>
@@ -131,6 +143,9 @@
    <property name="text">
     <string>Cut</string>
    </property>
+   <property name="statusTip">
+    <string>Cut = Ctrl+X</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+X</string>
    </property>
@@ -142,6 +157,9 @@
    </property>
    <property name="text">
     <string>Paste</string>
+   </property>
+   <property name="statusTip">
+    <string>Paste - Ctrl+V</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+V</string>
@@ -155,6 +173,9 @@
    <property name="text">
     <string>Undo</string>
    </property>
+   <property name="statusTip">
+    <string>Undo - Ctrl+Z</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+Z</string>
    </property>
@@ -167,6 +188,9 @@
    <property name="text">
     <string>Redo</string>
    </property>
+   <property name="statusTip">
+    <string>Redo - Ctrl+Y</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+Y</string>
    </property>
@@ -178,6 +202,9 @@
    </property>
    <property name="text">
     <string>Font</string>
+   </property>
+   <property name="statusTip">
+    <string>Select Font - Ctrl+F</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+F</string>
@@ -197,6 +224,9 @@
    <property name="toolTip">
     <string>Italic font</string>
    </property>
+   <property name="statusTip">
+    <string>Italic - Ctrl+I</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+I</string>
    </property>
@@ -214,6 +244,9 @@
    </property>
    <property name="toolTip">
     <string>Bold</string>
+   </property>
+   <property name="statusTip">
+    <string>Bold - Ctrl+B</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+B</string>
@@ -233,6 +266,9 @@
    <property name="toolTip">
     <string>Underline</string>
    </property>
+   <property name="statusTip">
+    <string>Underline - Ctrl+U</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+U</string>
    </property>
@@ -251,6 +287,9 @@
    <property name="toolTip">
     <string>Rich text</string>
    </property>
+   <property name="statusTip">
+    <string>Enable rich text - Ctrl+R</string>
+   </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
    </property>
@@ -265,6 +304,9 @@
    </property>
    <property name="toolTip">
     <string>Font color</string>
+   </property>
+   <property name="statusTip">
+    <string>Font color - Ctrl+L</string>
    </property>
   </action>
  </widget>

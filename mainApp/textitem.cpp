@@ -222,75 +222,6 @@ void TextItem::contextMenuEvent(
   }
 }
 
-void TextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-{
-  positionChanged = true;
-  QGraphicsItem::mouseMoveEvent(event);
-}
-
-void TextItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
-{
-    isHovered = !this->isSelected() && !mouseIsDown;
-    QGraphicsItem::hoverEnterEvent(event);
-}
-
-void TextItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
-{
-    isHovered = false;
-    QGraphicsItem::hoverLeaveEvent(event);
-}
-
-void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-  position = pos();
-  positionChanged = false;
-  mouseIsDown = true;
-  QGraphicsItem::mousePressEvent(event);
-  update();
-}
-
-void TextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-{
-
-  mouseIsDown = false;
-  QGraphicsItem::mouseReleaseEvent(event);
-
-  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable) && positionChanged) {
-
-    InsertData insertData = meta.value();
-
-    qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
-    qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
-
-    PlacementData pld;
-
-    pld.placement    = TopLeft;
-    pld.justification    = Center;
-    pld.relativeTo      = PageType;
-    pld.preposition   = Inside;
-
-    calcOffsets(pld,insertData.offsets,topLeft,size);
-
-    QString input,output;
-    if (insertData.type == InsertData::InsertHtmlText)
-       input = toHtml();
-    else
-       input = toPlainText();
-
-    formatText(input, output);
-
-    insertData.text = output;
-    meta.setValue(insertData);
-
-    beginMacro(QString("MoveText"));
-
-    changeInsertOffset(&meta);
-
-    endMacro();
-  }
-  update();
-}
-
 void TextItem::focusInEvent(QFocusEvent *event)
 {
   textChanged = false;
@@ -330,6 +261,73 @@ void TextItem::keyReleaseEvent(QKeyEvent *event)
 {
   textChanged = true;
   QGraphicsTextItem::keyReleaseEvent(event);
+}
+
+void TextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+  positionChanged = true;
+  QGraphicsItem::mouseMoveEvent(event);
+}
+
+void TextItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = !this->isSelected() && !mouseIsDown;
+    QGraphicsItem::hoverEnterEvent(event);
+}
+
+void TextItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = false;
+    QGraphicsItem::hoverLeaveEvent(event);
+}
+
+void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+  position = pos();
+  positionChanged = false;
+  mouseIsDown = true;
+  QGraphicsItem::mousePressEvent(event);
+  update();
+}
+
+void TextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+  mouseIsDown = false;
+  QGraphicsItem::mouseReleaseEvent(event);
+
+  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable) && positionChanged) {
+
+    InsertData insertData = meta.value();
+
+    qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
+    qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
+
+    PlacementData pld;
+
+    pld.placement    = TopLeft;
+    pld.justification    = Center;
+    pld.relativeTo      = PageType;
+    pld.preposition   = Inside;
+
+    calcOffsets(pld,insertData.offsets,topLeft,size);
+
+    QString input,output;
+    if (insertData.type == InsertData::InsertHtmlText)
+       input = toHtml();
+    else
+       input = toPlainText();
+
+    formatText(input, output);
+
+    insertData.text = output;
+    meta.setValue(insertData);
+
+    beginMacro(QString("MoveText"));
+
+    changeInsertOffset(&meta);
+
+    endMacro();
+  }
 }
 
 void TextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
