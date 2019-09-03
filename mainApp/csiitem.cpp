@@ -130,6 +130,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
   QString name          = "Step";
   QString whatsThis     = QString();
   bool dividerDetected  = false;
+  bool offerStepDivider = false;
   int numOfSteps        = numSteps(step->top.modelName);
   bool fullContextMenu  = ! step->modelDisplayOnlyStep;
   bool allowLocal       = (parentRelativeType != StepGroupType) && (parentRelativeType != CalloutType);
@@ -183,9 +184,13 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
   if (parentRelativeType == StepGroupType) {
       Where walk = topOfStep;
+      Where walk2 = walk;
       Rc rc = scanForward(walk,StepMask);
+      Rc rc2 = scanForward(walk2,StepGroupDividerMask|StepMask);
+      offerStepDivider = rc2 == StepGroupDividerRc;
       if (rc == StepRc || rc == RotStepRc) {
           ++walk;
+          QString line = gui->readLine(walk);
           rc = scanForward(walk,StepGroupDividerMask|StepMask);
           dividerDetected = rc == StepGroupDividerRc;
       }
@@ -441,7 +446,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 
     } else if (selectedAction == addDividerAction) {
 
-      addDivider(parentRelativeType,bottomOfStep,divider,allocType);
+      addDivider(parentRelativeType,bottomOfStep,divider,allocType,offerStepDivider);
 
     } else if (selectedAction == addPagePointerAction) {
 

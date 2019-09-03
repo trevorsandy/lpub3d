@@ -2303,13 +2303,15 @@ void MetaItem::addDivider(
   PlacementType parentRelativeType,
   const Where &bottomOfStep,
   RcMeta *divider,
-  AllocEnc defAlloc)
+  AllocEnc defAlloc,
+  bool offerStepDivider)
 {
   QString divString = divider->preamble;
 
-  QDialog *dialog = new QDialog();
+  if (offerStepDivider) {
+    QDialog *dialog = new QDialog();
 
-  QFormLayout *form = new QFormLayout(dialog);
+    QFormLayout *form = new QFormLayout(dialog);
   form->addRow(new QLabel("Divider Allocation"));
 
   QGroupBox *box = new QGroupBox("Select Allocation");
@@ -2323,11 +2325,15 @@ void MetaItem::addDivider(
   for(int i = 0; i < allocLabels.size(); ++i) {
       QRadioButton *option = new QRadioButton(allocLabels[i],dialog);
       if (allocLabels[i] == "Vertical")
-          option->setChecked(defAlloc == Vertical);
-      if (allocLabels[i] == "Horizontal")
-          option->setChecked(defAlloc == Horizontal);
-      options << option;
-  }
+            option->setChecked(defAlloc == Vertical);
+        if (allocLabels[i] == "Horizontal")
+            option->setChecked(defAlloc == Horizontal);
+        if (option->isChecked())
+            option->setToolTip("This option places the traditional divider that bisects the current range.");
+        else
+            option->setToolTip("This option places a divider perpendicular to the previous range divider.");
+        options << option;
+    }
 
   QFormLayout *subform = new QFormLayout(box);
   subform->addRow(options[0],options[1]);
@@ -2351,8 +2357,9 @@ void MetaItem::addDivider(
   }
 
   bool stepDivider = alloc != defAlloc;
-  if (stepDivider) {
-       divString += QString(" STEPS");
+    if (stepDivider) {
+         divString += QString(" STEPS");
+    }
   }
 
   // set the DIVIDER meta as the first line in the next STEP
