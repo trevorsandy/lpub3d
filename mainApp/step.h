@@ -73,7 +73,7 @@ class Step : public AbstractRangeElement
     RotateIconItem        rotateIcon;
     PlacementNum          stepNumber;
     NumberPlacementMeta   numberPlacemetMeta;
-    SettingsMeta          csiCameraMeta;
+    CalloutCsiMeta        csiCameraMeta;
     StringMeta            ldviewParms;
     StringMeta            ldgliteParms;
     StringMeta            povrayParms;

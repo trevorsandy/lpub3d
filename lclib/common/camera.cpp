@@ -15,10 +15,6 @@
 
 #define LC_CAMERA_SAVE_VERSION 7 // LeoCAD 0.80
 
-/*** LPub3D Mod - LPub3D Camera Globe ***/
-#define LC_CAMERA_DISTANCE_FACTOR -5.0f
-/*** LPub3D Mod end ***/
-
 lcCamera::lcCamera(bool Simple)
 	: lcObject(LC_OBJECT_CAMERA)
 {
@@ -1042,9 +1038,7 @@ void lcCamera::SetAngles(float Latitude, float Longitude, float Distance)
 
 	lcVector3 SideVector = lcMul(lcVector3(-1, 0, 0), LongitudeMatrix);
 	lcMatrix33 LatitudeMatrix = lcMatrix33FromAxisAngle(SideVector, LC_DTOR * Latitude);
-/*** LPub3D Mod - LPub3D Camera Globe ***/
-	mPosition = lcMul(mPosition, LatitudeMatrix) * LC_CAMERA_DISTANCE_FACTOR * Distance;
-/*** LPub3D Mod end ***/
+    mPosition = lcMul(mPosition, LatitudeMatrix) * Distance;
 	mUpVector = lcMul(mUpVector, LatitudeMatrix);
 
 	ChangeKey(mPositionKeys, mPosition, 1, false);
@@ -1069,7 +1063,5 @@ void lcCamera::GetAngles(float& Latitude, float& Longitude, float& Distance) con
 
 	if (lcDot(CameraXY, X) > 0)
 		Longitude = -Longitude;
-/*** LPub3D Mod - LPub3D Camera Globe ***/
-	Distance = lcLength(mPosition) / LC_CAMERA_DISTANCE_FACTOR;
-/*** LPub3D Mod end ***/
+	Distance = lcLength(mPosition);
 }
