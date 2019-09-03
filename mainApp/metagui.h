@@ -164,6 +164,7 @@ public:
 private:
   UnitsMeta *meta;
   QLabel    *label;
+  QLabel    *label2;
   QLineEdit *value0;
   QLineEdit *value1;
 

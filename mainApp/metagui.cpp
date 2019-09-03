@@ -188,11 +188,16 @@ UnitsGui::UnitsGui(
     setLayout(layout);
   }
 
+  bool secondLabel = false;
+  QStringList labels;
   if (heading != "") {
-    label = new QLabel(heading,parent);
+    labels = heading.split("|");
+    secondLabel = labels.size() > 1;
+    label = new QLabel(labels.first(),parent);
     layout->addWidget(label);
   } else {
     label = nullptr;
+    label2 = nullptr;
   }
 
   QString      string;
@@ -205,6 +210,11 @@ UnitsGui::UnitsGui(
   connect(value0,SIGNAL(textEdited(  QString const &)),
           this,  SLOT(  value0Change(QString const &)));
   layout->addWidget(value0);
+
+  if (secondLabel) {
+    label2 = new QLabel(labels.last(),parent);
+    layout->addWidget(label2);
+  }
 
   string = QString("%1") .arg(meta->value(1),
                               meta->_fieldWidth,
@@ -234,6 +244,9 @@ void UnitsGui::setEnabled(bool enable)
 {
   if (label) {
     label->setEnabled(enable);
+  }
+  if (label2) {
+    label2->setEnabled(enable);
   }
   value0->setEnabled(enable);
   value1->setEnabled(enable);
