@@ -372,7 +372,7 @@ HEADERS += \
     globals.h \
     gradients.h \
     highlighter.h \
-	historylineedit.h \
+    historylineedit.h \
     hoverpoints.h \
     ldrawcolourparts.h \
     ldrawfiles.h \
@@ -476,7 +476,7 @@ SOURCES += \
     gradients.cpp \
     highlighter.cpp \
     highlightstepglobals.cpp \
-	historylineedit.cpp \
+    historylineedit.cpp \
     hoverpoints.cpp \
     ldrawcolourparts.cpp \
     ldrawfiles.cpp \
@@ -552,7 +552,7 @@ SOURCES += \
     substitutepartdialog.cpp \
     ldrawcolordialog.cpp \
     ldrawpartdialog.cpp \
-    nativeviewer.cpp \
+#    nativeviewer.cpp \
     texteditdialog.cpp
 
 FORMS += \
