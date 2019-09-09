@@ -124,11 +124,13 @@ class Step : public AbstractRangeElement
 
     bool loadTheViewer();
 
-    MetaItem *mi(int which)
+    MetaItem *mi(int which = -1)
     {
         switch(which){
         case Render::Mt::PLI:
             return static_cast<MetaItem *>(pli.background);
+        case Render::Mt::CSI:
+            return static_cast<MetaItem *>(csiItem);
         case Render::Mt::SMP:
             return static_cast<MetaItem *>(subModel.background);
         default:
