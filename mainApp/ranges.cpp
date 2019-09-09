@@ -274,23 +274,25 @@ void Steps::sizeit(AllocEnc allocEnc, int x, int y)
         /* find the tallest (if vertical alloc) / widest (if horizontal alloc) range */
 
         bool usePageSize = false;
+        bool useCustomSize = false;
         if (range->size[y] > size[y]) {
-          if (divider.type == SepData::LenPage) {
-            for (int i = 0; i < range->list.size(); i++) {
-              Step *step = dynamic_cast<Step *>(range->list[i]);
-              if ((usePageSize = (step && step->dividerType == RangeDivider))) // divider found
-                break;
-            }
+          int i = range->list.size() - 1; // check last step in range fro RangeDivider
+          Step *lastStep = dynamic_cast<Step *>(range->list[i]);
+          if (lastStep && lastStep->dividerType == RangeDivider)  {// divider found
+              usePageSize = divider.type == SepData::LenPage;
+              useCustomSize = divider.type == SepData::LenCustom;
           }
           if (usePageSize)
             size[y] = pageSize(y,true);
+          else if (useCustomSize)
+            size[y] = int(divider.length);
           else
             size[y] = range->size[y];
         }
 
         /* add range divider size adjustment */
 
-        if (! usePageSize)
+        if (! usePageSize && !useCustomSize)
           size[y] += range->sizeRangeDividers(y);
 
         /* place each range Horizontally (if vertical alloc) / Vertically (if horizontal alloc) */

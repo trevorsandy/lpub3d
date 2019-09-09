@@ -207,12 +207,14 @@ DividerItem::DividerItem(
 
   QString dividerType = QString("%1").arg(parentStep->dividerType == StepDivider ? "Step" : "Range");
   int separatorLength, separatorWidthX, separatorHeightY, spacingWidthX, spacingHeightY;
-  if(parentStep->dividerType == StepDivider) // Step divider
-    separatorLength = allocEnc == Vertical ? range->size[XX] : range->size[YY];
-  else                                       // Range divider
+  if(parentStep->dividerType == StepDivider) {// Step divider
+    if (sepData.type != SepData::Default)
+      separatorLength = int(sepData.length);
+    else
+      separatorLength = allocEnc == Vertical ? range->size[XX] : range->size[YY];
+  } else {                                    // Range divider
     separatorLength = allocEnc == Vertical ? range->size[YY] : range->size[XX];
-  if (sepData.type == SepData::LenCustom && separatorLength >= sepData.length)
-    separatorLength = int(sepData.length);
+  }
 
   /* Size the rectangle around the divider */
 

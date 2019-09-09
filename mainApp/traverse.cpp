@@ -1254,6 +1254,7 @@ int Gui::drawPage(
 //                      callout->setCsiAnnotationMetas();
                   callout->pli.clear();
                   callout->placement = curMeta.LPub.callout.placement;
+                  callout->margin = curMeta.LPub.callout.margin;
                   callout->setBottomOfCallout(current);
                   callout = nullptr;
                 }
@@ -1544,7 +1545,8 @@ int Gui::drawPage(
                               if (previousRange){
                                   i = previousRange->list.size()-1;   // last step index in previous range
                                   Step *lastStep = dynamic_cast<Step *>(previousRange->list[i]);
-                                  lastStep->dividerType = dividerType;
+                                  if (lastStep)
+                                    lastStep->dividerType = dividerType;
                               }
                           }
                           break;
@@ -1553,7 +1555,8 @@ int Gui::drawPage(
                           if (range && range->list.size() > 1) {
                              int i = range->list.size()-2;            // previous step index
                              Step *previousStep = dynamic_cast<Step *>(range->list[i]);
-                             previousStep->dividerType = dividerType;
+                             if (previousStep)
+                               previousStep->dividerType = dividerType;
                           }
                           break;
                       // no divider
