@@ -314,7 +314,7 @@ void Gui::closeModelFile(){
   // Editor
   emit disableEditorActionsSig();
   // Gui
-  clearPage(KpageView,KpageScene);
+  clearPage(KpageView,KpageScene,true);
   disableActions();
   disableActions2();
   closeFile();

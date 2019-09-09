@@ -62,21 +62,21 @@
 
 void Gui::clearPage(
     LGraphicsView *view,
-    LGraphicsScene *scene)
+    LGraphicsScene *scene,
+    bool clearViewPageBg)
 {
-  Q_UNUSED(view)
-  Q_UNUSED(scene)
-
   page.freePage();
   page.pli.clear();
   page.subModel.clear();
 
-//  Moved to end of GraphicsPageItems()
-//  if (view->pageBackgroundItem) {
-//      delete view->pageBackgroundItem;
-//      view->pageBackgroundItem = nullptr;
-//  }
-//  scene->clear();
+  if (clearViewPageBg) {
+    //  Moved to end of GraphicsPageItems()
+    if (view->pageBackgroundItem) {
+      delete view->pageBackgroundItem;
+      view->pageBackgroundItem = nullptr;
+    }
+    scene->clear();
+  }
 }
 
 /*********************************************

@@ -1378,7 +1378,8 @@ private slots:
 
     void clearPage(
       LGraphicsView  *view,
-      LGraphicsScene *scene);
+      LGraphicsScene *scene,
+      bool clearViewPageBg = false);
     
     void enableActions();
     void enableActions2();
