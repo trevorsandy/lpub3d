@@ -191,7 +191,6 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       offerStepDivider = rc2 == StepGroupDividerRc;
       if (rc == StepRc || rc == RotStepRc) {
           ++walk;
-          QString line = gui->readLine(walk);
           rc = scanForward(walk,StepGroupDividerMask|StepMask);
           dividerDetected = rc == StepGroupDividerRc;
       }

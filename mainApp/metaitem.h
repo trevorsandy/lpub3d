@@ -427,14 +427,6 @@ public:
                         bool local = true,
                         bool isCallout = false);
 
-  void setSelectedItemZValue(
-                     const Where &,
-                     const Where &,
-                     SceneObjectMeta *,
-                     bool useTop = true,
-                     int append = 1,
-                     bool local = true);
-
   void togglePartGroups(
                      const    Where &,
                      const    Where &,

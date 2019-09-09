@@ -1785,25 +1785,6 @@ void MetaItem::setRendererArguments(
     }
 }
 
-void MetaItem::setSelectedItemZValue(
-        const Where &topOfStep,
-        const Where &bottomOfStep,
-        SceneObjectMeta *sceneObjectMeta,
-        bool useTop,
-        int append,
-        bool local){
-    return; /*DISABLED*/
-
-    /*
-    if (front)
-        gui->pagescene()->bringSelectedItemToFront();
-    else
-        gui->pagescene()->sendSelectedItemToBack();
-    zValueMeta->setValue(gui->pagescene()->getSelectedItemZValue());
-    setMeta(topOfStep,bottomOfStep,zValueMeta,useTop,append/ *do not append* /,local);
-    */
-}
-
 void MetaItem::changeSubmodelRotStep(
         QString title,
         const Where &topOfStep,

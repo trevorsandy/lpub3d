@@ -1112,16 +1112,24 @@ void Gui::setSelectedItemZValue(SceneObjectDirection direction)
     Where bottom = gStep->bottomOfStep();
 
     SceneObject itemObj = SceneObject(selectedItem->data(ObjectId).toInt());
-    SceneObjectMeta *som = dynamic_cast<SceneObjectMeta*>(
+    SceneObjectMeta *soMeta = dynamic_cast<SceneObjectMeta*>(
                 gStep->page()->meta.LPub.page.scene.list.value(soMap[itemObj]));
-    if (som) {
-        SceneObjectData sod = som->value();
-        sod.direction    = direction;
-        sod.scenePos[XX] = float(scenePosition.x());
-        sod.scenePos[YY] = float(scenePosition.y());
-        som->setValue(sod);
-        gStep->mi(Render::Mt::CSI)->setMeta(
-                    top,bottom,som,true/*use top*/,0/*do not append*/);;
+    if (soMeta->here() == Where())
+        gStep->mi()->scanForward(top,StepMask);
+    if (soMeta) {
+        SceneObjectData soData = soMeta->value();
+        soData.direction    = direction;
+        soData.scenePos[XX] = float(scenePosition.x());
+        soData.scenePos[YY] = float(scenePosition.y());
+        soMeta->setValue(soData);
+        gStep->mi()->setMeta(
+                    top,
+                    bottom,
+                    soMeta,
+                    true,/*use top*/
+                    0,   /*do not append*/
+                    true,/*set local*/
+                    false/*do not ask local*/);
     }
 }
 
