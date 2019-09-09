@@ -2862,9 +2862,7 @@ void PliBackgroundItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     grabbersVisible = false;
   }
   QGraphicsItem::mousePressEvent(event);
-  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
-    placeGrabbers();
-  }
+  placeGrabbers();
 } 
 
 void PliBackgroundItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
