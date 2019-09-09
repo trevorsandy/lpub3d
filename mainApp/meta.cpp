@@ -2265,7 +2265,6 @@ Rc SepMeta::parse(QStringList &argv, int index,Where &here)
       good &= ok;
       argv[index+3].toFloat(&ok);
       good &= ok;
-
       if (good) {
           _value[pushed].thickness = argv[index].toFloat();
           _value[pushed].color     = argv[index+1];
@@ -2275,19 +2274,16 @@ Rc SepMeta::parse(QStringList &argv, int index,Where &here)
           rc = OkRc;
         }
     } else
-  if (argv.size() - index == 5) {
+  if (argv.size() - index == 5) {       // legacy
       argv[index+1].toFloat(&good);
       argv[index+3].toFloat(&ok);
       good &= ok;
       argv[index+4].toFloat(&ok);
       good &= ok;
-
       if (good) {
           // backward compatibility - ticket #193
           QString sepLen = argv[index];
-          if (argv[index] == "CUSTOM")
-              sepLen = "CUSTOM_LENGTH";
-          else if (argv[index] == "PAGE")
+          if (argv[index] == "PAGE")
               sepLen = "PAGE_LENGTH";
           _value[pushed].type      = SepData::LengthType(tokenMap[sepLen]);
           // end backward compatibility
@@ -2298,34 +2294,84 @@ Rc SepMeta::parse(QStringList &argv, int index,Where &here)
           _here[pushed] = here;
           rc = OkRc;
         }
-    } else
-  if (argv.size() - index == 6) {
-      argv[index+1].toFloat(&good);
-      argv[index+3].toFloat(&ok);
-      good &= ok;
-      argv[index+4].toFloat(&ok);
-      good &= ok;
+    } else // PAGE_LENGTH
+  if (argv.size() - index == 7) {
+      argv[index+2].toFloat(&good);
       argv[index+5].toFloat(&ok);
       good &= ok;
-
+      argv[index+6].toFloat(&ok);
+      good &= ok;
       if (good) {
-          // backward compatibility - ticket #193
-          QString sepLen = argv[index];
-          if (argv[index] == "CUSTOM")
-              sepLen = "CUSTOM_LENGTH";
-          else if (argv[index] == "PAGE")
-              sepLen = "PAGE_LENGTH";
-          _value[pushed].type      = SepData::LengthType(tokenMap[sepLen]);
-          // end backward compatibility
-          _value[pushed].length    = argv[index+1].toFloat();
+          _value[pushed].type      = SepData::LengthType(tokenMap[argv[index]]);
           _value[pushed].thickness = argv[index+2].toFloat();
           _value[pushed].color     = argv[index+3];
-          _value[pushed].margin[0] = argv[index+4].toFloat();
-          _value[pushed].margin[1] = argv[index+5].toFloat();
+          _value[pushed].margin[0] = argv[index+5].toFloat();
+          _value[pushed].margin[1] = argv[index+6].toFloat();
           _here[pushed] = here;
           rc = OkRc;
         }
-    }
+    } else
+  if (argv.size() - index == 6) {
+      QRegExp rx("CUSTOM|CUSTOM_LENGTH"); // legacy
+      if (argv[index].contains(rx)) {
+          argv[index+1].toFloat(&good);
+          argv[index+2].toFloat(&ok);
+          good &= ok;
+          argv[index+4].toFloat(&ok);
+          good &= ok;
+          argv[index+5].toFloat(&ok);
+          good &= ok;
+          if (good) {
+              // backward compatibility - ticket #193
+              QString sepLen = argv[index];
+              if (argv[index] == "CUSTOM")
+                  sepLen = "CUSTOM_LENGTH";
+              _value[pushed].type      = SepData::LengthType(tokenMap[sepLen]);
+              // end backward compatibility
+              _value[pushed].length    = argv[index+1].toFloat();
+              _value[pushed].thickness = argv[index+2].toFloat();
+              _value[pushed].color     = argv[index+3];
+              _value[pushed].margin[0] = argv[index+4].toFloat();
+              _value[pushed].margin[1] = argv[index+5].toFloat();
+              _here[pushed] = here;
+              rc = OkRc;
+            }
+      } else
+      if (argv[index].contains("THICKNESS")){
+          argv[index+1 ].toFloat(&good);
+          argv[index+4].toFloat(&ok);
+          good &= ok;
+          argv[index+5].toFloat(&ok);
+          good &= ok;
+          if (good) {
+              _value[pushed].thickness = argv[index+1].toFloat();
+              _value[pushed].color     = argv[index+2];
+              _value[pushed].margin[0] = argv[index+4].toFloat();
+              _value[pushed].margin[1] = argv[index+5].toFloat();
+              _here[pushed] = here;
+              rc = OkRc;
+            }
+      }
+    } else // CUSTOM_LENGTH
+    if (argv.size() - index == 8) {
+        argv[index+1].toFloat(&good);
+        argv[index+3].toFloat(&ok);
+        good &= ok;
+        argv[index+6].toFloat(&ok);
+        good &= ok;
+        argv[index+7].toFloat(&ok);
+        good &= ok;
+        if (good) {
+            _value[pushed].type      = SepData::LengthType(tokenMap[argv[index]]);
+            _value[pushed].length    = argv[index+1].toFloat();
+            _value[pushed].thickness = argv[index+3].toFloat();
+            _value[pushed].color     = argv[index+4];
+            _value[pushed].margin[0] = argv[index+6].toFloat();
+            _value[pushed].margin[1] = argv[index+7].toFloat();
+            _here[pushed] = here;
+            rc = OkRc;
+          }
+      }
   if (rc == FailureRc) {
     if (reportErrors) {
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Malformed separator \"%1\"") .arg(argv.join(" ")));
@@ -2337,25 +2383,31 @@ QString SepMeta::format(bool local, bool global)
 {
   QString foo;
   if (_value[pushed].type == SepData::LenCustom) {
-    foo = QString("%1 %2 %3 %4 %5 %6")
+    foo = QString("%1 %2 %3 %4 \"%5\" %6 %7 %8")
                 .arg("CUSTOM_LENGTH")
                 .arg(double(_value[pushed].length))
+                .arg("THICKNESS")
                 .arg(double(_value[pushed].thickness))
                 .arg(_value[pushed].color)
+                .arg("MARGINS")
                 .arg(double(_value[pushed].margin[0]))
                 .arg(double(_value[pushed].margin[1]));
   } else
   if (_value[pushed].type == SepData::LenPage) {
-    foo = QString("%1 %2 %3 %4 %5")
+    foo = QString("%1 %2 %3 \"%4\" %5 %6 %7")
                   .arg("PAGE_LENGTH")
+                  .arg("THICKNESS")
                   .arg(double(_value[pushed].thickness))
                   .arg(_value[pushed].color)
+                  .arg("MARGINS")
                   .arg(double(_value[pushed].margin[0]))
                   .arg(double(_value[pushed].margin[1]));
   } else {
-    foo = QString("%1 %2 %3 %4")
+    foo = QString("%1 %2 \"%3\" %4 %5 %6")
+                  .arg("THICKNESS")
                   .arg(double(_value[pushed].thickness))
                   .arg(_value[pushed].color)
+                  .arg("MARGINS")
                   .arg(double(_value[pushed].margin[0]))
                   .arg(double(_value[pushed].margin[1]));
   }
@@ -2363,7 +2415,7 @@ QString SepMeta::format(bool local, bool global)
 }
 void SepMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + "[<PAGE_LENGTH|CUSTOM_LENGTH <length>] <intThickness> <color> <marginX> <marginY>";
+  out << preamble + "[<PAGE_LENGTH|CUSTOM_LENGTH <length>] THICKNESS <integer> <color> MARGINS <float> <float>";
 }
 
 /* ------------------ */

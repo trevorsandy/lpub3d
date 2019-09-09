@@ -483,6 +483,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bTERTIARY\\b"
     << "\\bTERTIARY_DIRECTION\\b"
     << "\\bTEXT\\b"
+    << "\\bTHICKNESS\\b"
     << "\\bTILE\\b"
     << "\\bTOGGLE_PAGE_NUMBER_PLACEMENT\\b"
     << "\\bTOP\\b"
