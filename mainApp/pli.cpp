@@ -2906,212 +2906,212 @@ void PliBackgroundItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 }
 
 void PliBackgroundItem::contextMenuEvent(
-    QGraphicsSceneContextMenuEvent *event)
+        QGraphicsSceneContextMenuEvent *event)
 {
-  if (pli) {
-      QMenu menu;
-      bool showCameraDistFactorItem = (Preferences::usingNativeRenderer);
+    if (pli) {
+        QMenu menu;
+        bool showCameraDistFactorItem = (Preferences::usingNativeRenderer);
 
-      PlacementData placementData = pli->placement.value();
+        PlacementData placementData = pli->placement.value();
 
-      QString pl = pli->bom ? "Bill Of Materials" : "Parts List";
-      QAction *placementAction  = commonMenus.placementMenu(menu,pl,
-                                                            commonMenus.naturalLanguagePlacementWhatsThis(PartsListType,placementData,pl));
-      QAction *scaleAction = nullptr;
-      if (!showCameraDistFactorItem){
-          scaleAction              = commonMenus.scaleMenu(menu, pl);
-      }
-      QAction *constrainAction     = commonMenus.constrainMenu(menu,pl);
-      QAction *backgroundAction    = commonMenus.backgroundMenu(menu,pl);
-      QAction *subModelColorAction = commonMenus.subModelColorMenu(menu,pl);
-      QAction *borderAction        = commonMenus.borderMenu(menu,pl);
-      QAction *marginAction        = commonMenus.marginMenu(menu,pl);
-      QAction *pliPartGroupAction  = nullptr;
-      if (pli->pliMeta.enablePliPartGroup.value()) {
-          pliPartGroupAction = commonMenus.partGroupsOffMenu(menu,"Part");
-      } else {
-          pliPartGroupAction = commonMenus.partGroupsOnMenu(menu,"Part");
-      }
-      QAction *sortAction          = commonMenus.sortMenu(menu,pl);
-      QAction *annotationAction    = commonMenus.annotationMenu(menu,pl);
-      QAction *cameraDistFactorAction = nullptr;
-      if (showCameraDistFactorItem){
-          cameraDistFactorAction   = commonMenus.cameraDistFactorrMenu(menu, pl);
-      }
-      QAction *cameraFoVAction     = commonMenus.cameraFoVMenu(menu,pl);
-      QAction *cameraAnglesAction  = commonMenus.cameraAnglesMenu(menu,pl);
+        QString pl = pli->bom ? "Bill Of Materials" : "Parts List";
+        QAction *placementAction  = commonMenus.placementMenu(menu,pl,
+                                                              commonMenus.naturalLanguagePlacementWhatsThis(PartsListType,placementData,pl));
+        QAction *scaleAction = nullptr;
+        if (!showCameraDistFactorItem){
+            scaleAction              = commonMenus.scaleMenu(menu, pl);
+        }
+        QAction *constrainAction     = commonMenus.constrainMenu(menu,pl);
+        QAction *backgroundAction    = commonMenus.backgroundMenu(menu,pl);
+        QAction *subModelColorAction = commonMenus.subModelColorMenu(menu,pl);
+        QAction *borderAction        = commonMenus.borderMenu(menu,pl);
+        QAction *marginAction        = commonMenus.marginMenu(menu,pl);
+        QAction *pliPartGroupAction  = nullptr;
+        if (pli->pliMeta.enablePliPartGroup.value()) {
+            pliPartGroupAction = commonMenus.partGroupsOffMenu(menu,"Part");
+        } else {
+            pliPartGroupAction = commonMenus.partGroupsOnMenu(menu,"Part");
+        }
+        QAction *sortAction          = commonMenus.sortMenu(menu,pl);
+        QAction *annotationAction    = commonMenus.annotationMenu(menu,pl);
+        QAction *cameraDistFactorAction = nullptr;
+        if (showCameraDistFactorItem){
+            cameraDistFactorAction   = commonMenus.cameraDistFactorrMenu(menu, pl);
+        }
+        QAction *cameraFoVAction     = commonMenus.cameraFoVMenu(menu,pl);
+        QAction *cameraAnglesAction  = commonMenus.cameraAnglesMenu(menu,pl);
 
-      QAction *splitBomAction  = nullptr;
-      QAction *deleteBomAction = nullptr;
+        QAction *splitBomAction  = nullptr;
+        QAction *deleteBomAction = nullptr;
 
-      QAction *povrayRendererArgumentsAction = nullptr;
-      QAction *rendererArgumentsAction = nullptr;
-      bool usingPovray = Preferences::preferredRenderer == RENDERER_POVRAY;
-      QString rendererName = QString("Add %1 Arguments")
-                                     .arg(usingPovray ? "POV Generation":
-                                                        QString("%1 Renderer").arg(Render::getRenderer()));
-      if (!Preferences::usingNativeRenderer) {
-          rendererArgumentsAction = menu.addAction(rendererName);
-          rendererArgumentsAction->setWhatsThis("Add custom renderer arguments for this step");
-          rendererArgumentsAction->setIcon(QIcon(":/resources/rendererarguments.png"));
-          if (usingPovray) {
-              povrayRendererArgumentsAction = menu.addAction(QString("Add %1 Renderer Arguments")
-                                                                      .arg(Render::getRenderer()));
-              povrayRendererArgumentsAction->setWhatsThis("Add POV-Ray custom renderer arguments for this step");
-              povrayRendererArgumentsAction->setIcon(QIcon(":/resources/rendererarguments.png"));
-          }
-      }
-
-      if (pli->bom) {
-          splitBomAction = menu.addAction("Split Bill of Materials");
-          splitBomAction->setIcon(QIcon(":/resources/splitbom.png"));
-
-          deleteBomAction = menu.addAction("Delete Bill of Materials");
-          deleteBomAction->setIcon(QIcon(":/resources/delete.png"));
-
-          annotationAction->setIcon(QIcon(":/resources/bomannotation.png"));
+        QAction *povrayRendererArgumentsAction = nullptr;
+        QAction *rendererArgumentsAction = nullptr;
+        bool usingPovray = Preferences::preferredRenderer == RENDERER_POVRAY;
+        QString rendererName = QString("Add %1 Arguments")
+                .arg(usingPovray ? "POV Generation":
+                                   QString("%1 Renderer").arg(Render::getRenderer()));
+        if (!Preferences::usingNativeRenderer) {
+            rendererArgumentsAction = menu.addAction(rendererName);
+            rendererArgumentsAction->setWhatsThis("Add custom renderer arguments for this step");
+            rendererArgumentsAction->setIcon(QIcon(":/resources/rendererarguments.png"));
+            if (usingPovray) {
+                povrayRendererArgumentsAction = menu.addAction(QString("Add %1 Renderer Arguments")
+                                                               .arg(Render::getRenderer()));
+                povrayRendererArgumentsAction->setWhatsThis("Add POV-Ray custom renderer arguments for this step");
+                povrayRendererArgumentsAction->setIcon(QIcon(":/resources/rendererarguments.png"));
+            }
         }
 
-      QAction *selectedAction   = menu.exec(event->screenPos());
+        if (pli->bom) {
+            splitBomAction = menu.addAction("Split Bill of Materials");
+            splitBomAction->setIcon(QIcon(":/resources/splitbom.png"));
 
-      if (selectedAction == nullptr) {
-          return;
+            deleteBomAction = menu.addAction("Delete Bill of Materials");
+            deleteBomAction->setIcon(QIcon(":/resources/delete.png"));
+
+            annotationAction->setIcon(QIcon(":/resources/bomannotation.png"));
         }
 
-      Where top;
-      Where bottom;
+        QAction *selectedAction   = menu.exec(event->screenPos());
 
-      switch (parentRelativeType) {
+        if (selectedAction == nullptr) {
+            return;
+        }
+
+        Where top;
+        Where bottom;
+
+        switch (parentRelativeType) {
         case CalloutType:
-          top    = pli->topOfCallout();
-          bottom = pli->bottomOfCallout();
-          break;
+            top    = pli->topOfCallout();
+            bottom = pli->bottomOfCallout();
+            break;
         default:
-          if (pli->step) {
-              if (pli->bom) {
-                  top = pli->topOfSteps();
-                  bottom = pli->bottomOfSteps();
+            if (pli->step) {
+                if (pli->bom) {
+                    top = pli->topOfSteps();
+                    bottom = pli->bottomOfSteps();
                 } else {
-                  top = pli->topOfStep();
-                  bottom = pli->bottomOfStep();
+                    top = pli->topOfStep();
+                    bottom = pli->bottomOfStep();
                 }
             } else {
-              top = pli->topOfSteps();
-              bottom = pli->bottomOfSteps();
+                top = pli->topOfSteps();
+                bottom = pli->bottomOfSteps();
             }
-          break;
+            break;
         }
 
-      QString me = pli->bom ? "BOM" : "PLI";
-      if (selectedAction == sortAction) {
-          changePliSort(me+" Sort Order and Direction",
-                        top,
-                        bottom,
-                        &pli->pliMeta.sortOrder);
-        } else if (selectedAction == annotationAction) {
-          changePliAnnotation(me+" Annotaton",
-                              top,
-                              bottom,
-                              &pli->pliMeta.annotation);
-        } else if (selectedAction == constrainAction) {
-          changeConstraint(me+" Constraint",
-                           top,
-                           bottom,
-                           &pli->pliMeta.constrain);
-        } else if (selectedAction == placementAction) {
-          if (pli->bom) {
-              changePlacement(parentRelativeType,
-                              pli->perStep,
-                              PartsListType,
-                              me+" Placement",
-                              top,
-                              bottom,
-                              &pli->pliMeta.placement,true,1,0,false);
-            } else if (pli->perStep) {
-              changePlacement(parentRelativeType,
-                              pli->perStep,
-                              PartsListType,
-                              me+" Placement",
-                              top,
-                              bottom,
-                              &pli->placement);
-            } else {
-              changePlacement(parentRelativeType,
-                              pli->perStep,
-                              PartsListType,
-                              me+" Placement",
-                              top,
-                              bottom,
-                              &pli->placement,true,1,0,false);
-            }
-        } else if (selectedAction == pliPartGroupAction) {
-          togglePartGroups(
-                           top,
-                           bottom,
-                           pli->bom,
-                           &pli->pliMeta.enablePliPartGroup);
-      } else if (selectedAction == marginAction) {
-          changeMargins(me+" Margins",
-                        top,
-                        bottom,
-                        &pli->pliMeta.margin);
-        } else if (selectedAction == backgroundAction) {
-          changeBackground(me+" Background",
-                           top,
-                           bottom,
-                           &pli->pliMeta.background);
-        } else if (selectedAction == subModelColorAction) {
-          changeSubModelColor(me+" Background Color",
-                           top,
-                           bottom,
-                           &pli->pliMeta.subModelColor);
-
-        } else if (selectedAction == borderAction) {
-          changeBorder(me+" Border",
-                       top,
-                       bottom,
-                       &pli->pliMeta.border);
-        } else if (selectedAction == cameraDistFactorAction) {
-              changeCameraDistFactor(pl+" Camera Distance",
-                                     "Native Camera Distance",
-                                     top,
-                                     bottom,
-                                     &pli->pliMeta.cameraDistNative.factor);
-        } else if (selectedAction == scaleAction){
-              changeFloatSpin(pl+" Scale",
-                              "Model Size",
-                              top,
-                              bottom,
-                              &pli->pliMeta.modelScale);
-        } else if (selectedAction == cameraFoVAction) {
-          changeFloatSpin(me+" Camera Angle",
-                          "Camera FOV",
+        QString me = pli->bom ? "BOM" : "PLI";
+        if (selectedAction == sortAction) {
+            changePliSort(me+" Sort Order and Direction",
                           top,
                           bottom,
-                          &pli->pliMeta.cameraFoV);
-        } else if (selectedAction == cameraAnglesAction) {
-            changeCameraAngles(me+" Camera Angles",
+                          &pli->pliMeta.sortOrder);
+        } else if (selectedAction == annotationAction) {
+            changePliAnnotation(me+" Annotaton",
+                                top,
+                                bottom,
+                                &pli->pliMeta.annotation);
+        } else if (selectedAction == constrainAction) {
+            changeConstraint(me+" Constraint",
+                             top,
+                             bottom,
+                             &pli->pliMeta.constrain);
+        } else if (selectedAction == placementAction) {
+            if (pli->bom) {
+                changePlacement(parentRelativeType,
+                                pli->perStep,
+                                PartsListType,
+                                me+" Placement",
+                                top,
+                                bottom,
+                                &pli->pliMeta.placement,true,1,0,false);
+            } else if (pli->perStep) {
+                changePlacement(parentRelativeType,
+                                pli->perStep,
+                                PartsListType,
+                                me+" Placement",
+                                top,
+                                bottom,
+                                &pli->placement);
+            } else {
+                changePlacement(parentRelativeType,
+                                pli->perStep,
+                                PartsListType,
+                                me+" Placement",
+                                top,
+                                bottom,
+                                &pli->placement,true,1,0,false);
+            }
+        } else if (selectedAction == marginAction) {
+            changeMargins(me+" Margins",
+                          top,
+                          bottom,
+                          &pli->margin);
+        } else if (selectedAction == pliPartGroupAction) {
+            togglePartGroups(
+                        top,
+                        bottom,
+                        pli->bom,
+                        &pli->pliMeta.enablePliPartGroup);
+        } else if (selectedAction == backgroundAction) {
+            changeBackground(me+" Background",
+                             top,
+                             bottom,
+                             &pli->pliMeta.background);
+        } else if (selectedAction == subModelColorAction) {
+            changeSubModelColor(me+" Background Color",
+                                top,
+                                bottom,
+                                &pli->pliMeta.subModelColor);
+
+        } else if (selectedAction == borderAction) {
+            changeBorder(me+" Border",
+                         top,
+                         bottom,
+                         &pli->pliMeta.border);
+        } else if (selectedAction == cameraDistFactorAction) {
+            changeCameraDistFactor(pl+" Camera Distance",
+                                   "Native Camera Distance",
+                                   top,
+                                   bottom,
+                                   &pli->pliMeta.cameraDistNative.factor);
+        } else if (selectedAction == scaleAction){
+            changeFloatSpin(pl+" Scale",
+                            "Model Size",
                             top,
                             bottom,
-                            &pli->pliMeta.cameraAngles);
+                            &pli->pliMeta.modelScale);
+        } else if (selectedAction == cameraFoVAction) {
+            changeFloatSpin(me+" Camera Angle",
+                            "Camera FOV",
+                            top,
+                            bottom,
+                            &pli->pliMeta.cameraFoV);
+        } else if (selectedAction == cameraAnglesAction) {
+            changeCameraAngles(me+" Camera Angles",
+                               top,
+                               bottom,
+                               &pli->pliMeta.cameraAngles);
         } else if (selectedAction == deleteBomAction) {
-          deleteBOM();
+            deleteBOM();
         } else if (selectedAction == splitBomAction){
-          insertSplitBOM();
+            insertSplitBOM();
         }  else if (selectedAction == rendererArgumentsAction) {
-          StringMeta rendererArguments =
-                     Render::getRenderer() == RENDERER_LDVIEW ? pli->pliMeta.ldviewParms :
-                     Render::getRenderer() == RENDERER_LDGLITE ? pli->pliMeta.ldgliteParms :
-                                   /*POV scene file generator*/  pli->pliMeta.ldviewParms ;
-          setRendererArguments(top,
-                             bottom,
-                             rendererName,
-                             &rendererArguments);
+            StringMeta rendererArguments =
+                    Render::getRenderer() == RENDERER_LDVIEW ? pli->pliMeta.ldviewParms :
+                                                               Render::getRenderer() == RENDERER_LDGLITE ? pli->pliMeta.ldgliteParms :
+                                                                                                           /*POV scene file generator*/  pli->pliMeta.ldviewParms ;
+            setRendererArguments(top,
+                                 bottom,
+                                 rendererName,
+                                 &rendererArguments);
         } else if (selectedAction == povrayRendererArgumentsAction) {
-          setRendererArguments(top,
-                             bottom,
-                             Render::getRenderer(),
-                             &pli->pliMeta.povrayParms);
+            setRendererArguments(top,
+                                 bottom,
+                                 Render::getRenderer(),
+                                 &pli->pliMeta.povrayParms);
         }
     }
 }

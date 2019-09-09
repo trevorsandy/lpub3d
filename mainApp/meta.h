@@ -1904,6 +1904,50 @@ public:
 };
 
 /*
+ * This class sets the justification for steps in a step group
+ */
+
+class JustifyStepMeta : public LeafMeta
+{
+private:
+  JustifyStepData _value[2];
+  JustifyStepData _result;
+public:
+  JustifyStepData &value()
+  {
+    _result = _value[pushed];
+    if (resolutionType() == DPCM) {
+      _result.spacing = inches2centimeters(_value[pushed].spacing);
+    }
+    return _result;
+  }
+  int spacingValuePixels()
+  {
+    float spacing = _value[pushed].spacing;
+    return int(spacing*resolution());
+  }
+  void setValue(JustifyStepData &value)
+  {
+    float spacing = value.spacing;
+    if (resolutionType() == DPCM) {
+      value.spacing = centimeters2inches(spacing);
+    }
+    _value[pushed] = value;
+  }
+  JustifyStepMeta();
+  JustifyStepMeta(const JustifyStepMeta &rhs) : LeafMeta(rhs)
+  {
+    _value[0] = rhs._value[0];
+    _value[1] = rhs._value[1];
+    _result   = rhs._result;
+  }
+//  virtual ~JustifyStepMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
+};
+
+/*
  * This class parses (Portrait|Landscape)
  */
 
@@ -3157,6 +3201,7 @@ public:
   RcMeta              divider;
   RcMeta              end;
   AllocMeta           alloc;
+  JustifyStepMeta     justifyStep;
   NumberPlacementMeta instance;
   BorderMeta          border;
   BackgroundMeta      background;
@@ -3191,7 +3236,7 @@ public:
   RotateIconMeta      rotateIcon;
   NumberPlacementMeta stepNum;
   SepMeta             sep;
-  BoolMeta            centerSteps;
+  JustifyStepMeta     justifyStep;
   FreeFormMeta        freeform;
   RcMeta              begin;
   RcMeta              divider;

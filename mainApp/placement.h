@@ -332,4 +332,7 @@ public:
     }
 };
 
+// for debugging tables
+extern QString tblNames[];
+
 #endif

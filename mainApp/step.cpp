@@ -110,6 +110,7 @@ Step::Step(
       stepNumber.margin       = _meta.LPub.callout.stepNum.margin;
       pliPerStep              = _meta.LPub.callout.pli.perStep.value();
       csiCameraMeta           = _meta.LPub.callout.csi;
+      justifyStep             = _meta.LPub.callout.justifyStep;
     } else if (multiStep) {
       csiPlacement.margin     = _meta.LPub.multiStep.csi.margin;
       csiPlacement.placement  = _meta.LPub.multiStep.csi.placement;
@@ -127,6 +128,7 @@ Step::Step(
       subModel.placement      = _meta.LPub.multiStep.subModel.placement;
       pliPerStep              = _meta.LPub.multiStep.pli.perStep.value();
       csiCameraMeta           = _meta.LPub.multiStep.csi;
+      justifyStep             = _meta.LPub.multiStep.justifyStep;
     } else {
       csiPlacement.margin     = _meta.LPub.assem.margin;
       csiPlacement.placement  = _meta.LPub.assem.placement;
@@ -1611,18 +1613,38 @@ void Step::placeit(
   /* record the origin of each row */
   /*********************************/
 
-  int origin = 0;
+  int origin         = 0;
+  int space          = 0;
+  int marginAccum    = 0;
+  int spacing        = justifyStep.spacingValuePixels() / 2;
+  bool centerJustify = justifyStep.value().type == JustifyCenter ||
+                       justifyStep.value().type == JustifyCenterVertical;
 
+  int originsIni[NumPlaces];
   int origins[NumPlaces];
+  int spaceOffset[NumPlaces];
 
   for (int i = 0; i < NumPlaces; i++) {
-     origins[i] = origin;
+     originsIni[i]  = origin;
+     spaceOffset[i] = space;
+
      if (rows[i]) {
-         origin += rows[i] + margins[i];
+        marginAccum += margins[i];
+        space       += spacing;
+        origin      += centerJustify ? rows[i] : rows[i] + margins[i];
      }
   }
 
-  size[y] = origin;
+  size[y] = centerJustify ? origin + marginAccum : origin;
+
+  for (int i = 0; i < NumPlaces; i++) {
+     origins[i] = originsIni[i];
+     if (rows[i]) {
+        if (centerJustify) {
+           origins[i] += spaceOffset[i] + (marginAccum / 2);
+        }
+     }
+  }
 
   /*******************************************/
   /* Now place the components in pixel units */

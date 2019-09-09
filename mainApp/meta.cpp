@@ -2032,6 +2032,58 @@ void FillMeta::doc(QStringList &out, QString preamble)
   out << preamble + " (ASPECT|STRETCH|TILE)";
 }
 
+/* ------------------ */
+
+JustifyStepMeta::JustifyStepMeta() : LeafMeta()
+{
+  _value[0].type    = JustifyLeft;
+  _value[0].spacing = STEP_SPACING_DEFAULT;
+}
+Rc JustifyStepMeta::parse(QStringList &argv, int index, Where &here)
+{
+  QRegExp rx("^(JUSTIFY_LEFT|JUSTIFY_CENTER|JUSTIFY_CENTER_HORIZONTAL|JUSTIFY_CENTER_VERTICAL)$");
+  if (argv[index].contains(rx)) {
+      if (argv.size() - index >= 1)
+          _value[pushed].type = JustifyStepEnc(tokenMap[argv[index]]);
+      if (argv.size() - index == 3 && argv[index+1].contains("SPACING")) {
+          bool ok;
+          float spacing = argv[index+2].toFloat(&ok);
+          if (!ok)
+              return FailureRc;
+          _value[pushed].spacing = spacing;
+      }
+      _here[pushed] = here;
+      return OkRc;
+    }
+  if (reportErrors) {
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected JUSTIFY_LEFT,JUSTIFY_CENTER,JUSTIFY_CENTER_HORIZONTAL or JUSTIFY_CENTER_VERTICAL got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
+    }
+  return FailureRc;
+}
+
+QString JustifyStepMeta::format(bool local, bool global)
+{
+  QString foo;
+  if (_value[pushed].type == JustifyLeft) {
+      foo = "JUSTIFY_LEFT";
+    } else if (_value[pushed].type == JustifyCenter) {
+      foo = "JUSTIFY_CENTER";
+    } else if (_value[pushed].type == JustifyCenterHorizontal) {
+      foo = "JUSTIFY_CENTER_HORIZONTAL";
+    } else {
+      foo = "JUSTIFY_CENTER_VERTICAL";
+    }
+  if (_value[pushed].spacing > STEP_SPACING_DEFAULT ||
+      _value[pushed].spacing < STEP_SPACING_DEFAULT){
+    foo += QString(" SPACING %1").arg(QString::number(double(_value[pushed].spacing),'f',2));
+  }
+  return LeafMeta::format(local,global,foo);
+}
+void JustifyStepMeta::doc(QStringList &out, QString preamble)
+{
+  out << preamble + " (JUSTIFY_LEFT|JUSTIFY_CENTER|JUSTIFY_CENTER_HORIZONTAL|JUSTIFY_CENTER_VERTICAL)";
+}
+
 /* ------------------ */ 
 
 PageOrientationMeta::PageOrientationMeta() : LeafMeta()
@@ -4460,6 +4512,7 @@ void CalloutMeta::init(BranchMeta *parent, QString name)
   placement  .init(this,      "PLACEMENT");
   freeform   .init(this,      "FREEFORM");
   alloc      .init(this,      "ALLOC");
+  justifyStep.init(this,      "STEPS");
   pointer    .init(this,      "POINTER");
   divPointer .init(this,      "DIVIDER_POINTER");
   pointerAttrib.init(this,    "POINTER_ATTRIBUTE");
@@ -4506,7 +4559,6 @@ MultiStepMeta::MultiStepMeta() : BranchMeta()
 {
   stepNum.placement.setValue(LeftTopOutside,PartsListType);
   stepNum.color.setValue("black");
-  centerSteps.setValue(false);
   // stepNum.font - default
   placement.setValue(CenterCenter,PageType);
   sep.setValue("black",DEFAULT_THICKNESS,DEFAULT_MARGINS);
@@ -4530,7 +4582,7 @@ void MultiStepMeta::init(BranchMeta *parent, QString name)
   stepNum  .init(this,    "STEP_NUMBER");
   placement.init(this,    "PLACEMENT");
   sep      .init(this,    "SEPARATOR");
-  centerSteps.init(this,  "CENTER_STEPS_VERTICALLY");
+  justifyStep.init(this,  "STEPS");
 
   divPointer.init(this,   "DIVIDER_POINTER");
   divPointerAttrib.init(this,
@@ -4939,6 +4991,11 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
 
       tokenMap["BRING_TO_FRONT"]       = BringToFront;
       tokenMap["SEND_TO_BACK"]         = SendToBack;
+
+      tokenMap["JUSTIFY_CENTER"]            = JustifyCenter;
+      tokenMap["JUSTIFY_CENTER_HORIZONTAL"] = JustifyCenterHorizontal;
+      tokenMap["JUSTIFY_CENTER_VERTICAL"]   = JustifyCenterVertical;
+      tokenMap["JUSTIFY_LEFT"]              = JustifyLeft;
     }
 }
 

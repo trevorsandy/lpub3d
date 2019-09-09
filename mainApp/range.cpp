@@ -84,9 +84,25 @@ void Range::append(AbstractRangeElement *gi)
 void Range::sizeMargins(
   int cols[NumPlaces],
   int colsMargin[][2],
-  int margins[NumPlaces])
+  int margins[NumPlaces],
+  int element)
 {
-  int active = 0;
+  int active   = 0;
+
+  int tblStart = TblSn0;
+  int tblEnd   = TblCo9;
+  JustifyStepMeta justifyStep;
+  if (parent->relativeType == CalloutType)
+      justifyStep = parent->meta.LPub.callout.justifyStep;
+  else
+      justifyStep = parent->meta.LPub.multiStep.justifyStep;
+  if (justifyStep.value().type == JustifyCenter ||
+      justifyStep.value().type == JustifyCenterVertical) {
+    tblStart = TblCo0;
+    tblEnd   = NumPlaces;
+  }
+
+Q_UNUSED(element /*for debugging*/)
 
   for (int i = 0; i < NumPlaces; i++) {
     margins[i] = 0;
@@ -94,8 +110,7 @@ void Range::sizeMargins(
       ++active;
     }
   }
-
-  for (int i = TblSn0; active && i < TblCo9 - 1; i++) {
+  for (int i = tblStart; (active) && i < tblEnd - 1; i++) {
     if (cols[i] && --active) {
       margins[i] = qMax(colsMargin[i][1],colsMargin[i+1][0]);
       for (int j = i + 1; j < NumPlaces; j++) {
@@ -281,6 +296,7 @@ void Range::placeit(int max, int x, int y)
   /* evenly space the steps Vertically */
 
   int lastMargin = 0;
+
   for (int i = 0; i < list.size(); i++) {
     if (list[i]->relativeType == StepType) {
       Step *step = dynamic_cast<Step *>(list[i]);
@@ -303,9 +319,11 @@ void Range::placeit(int max, int x, int y)
 
       top += lastMargin;
 
-      if (parent->meta.LPub.multiStep.centerSteps.value()) {
-        int centre = step->size[YY] + margin.valuePixels(YY) - lastMargin;
-         xPos = centre < step->size[YY] ? centre : 0;
+      if (step->justifyStep.value().type == JustifyCenter ||
+          step->justifyStep.value().type == JustifyCenterHorizontal) {
+          int axis = allocType == Vertical ? XX : YY;
+          int height = step->size[axis] - lastMargin;
+          xPos = height > step->size[axis] ? height : 0;
       }
 
       step->loc[x] = xPos;

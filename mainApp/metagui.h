@@ -568,6 +568,35 @@ public slots:
    void cameraDistFactorChange(int factor);
 };
 
+/***********************************************************************
+ *
+ * JustifyStep
+ *
+ **********************************************************************/
+
+class JustifyStepGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  JustifyStepGui(
+    QString const   &label,
+    JustifyStepMeta *meta,
+    QGroupBox       *parent = nullptr);
+  ~JustifyStepGui() {}
+
+  virtual void apply(QString &modelName);
+
+private:
+  JustifyStepMeta *meta;
+  QComboBox       *typeCombo;
+  QDoubleSpinBox  *spacingSpinBox;
+
+public slots:
+   void typeChanged(int);
+   void spacingChanged(double);
+};
+
 /*********************************************************************** 
  * 
  * RotStep 

@@ -60,7 +60,7 @@ class Range : public AbstractStepsElement {
 
     void append(AbstractRangeElement *gi);
 
-    virtual void sizeMargins(int cols[], int colMargins[][2], int margins[]);
+    virtual void sizeMargins(int cols[], int colMargins[][2], int margins[], int element = 0/*cols*/);
     virtual int sizeRangeDividers(int axis);
     virtual void sizeitVert();
     virtual void sizeitHoriz();

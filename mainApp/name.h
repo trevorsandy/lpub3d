@@ -286,6 +286,8 @@ static const SceneObject NoContextSceneObjects[] =
 #define PAGE_WIDTH_DEFAULT                      600
 #define LINE_WRAP_WIDTH                         160      //Text browser line width (change log)
 
+#define STEP_SPACING_DEFAULT                    0.05f    // Step group step default spacing when center justified
+
 #define PLAINTEXT_CHANGE_LOG_CUTOFF_VERSION    "2.2.2"   // last version of LPub3D to use html change notes
 
 #define DURAT_LGEO_STL_LIB_INFO                 "LGEO Stl library is available"

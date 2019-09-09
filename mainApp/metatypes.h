@@ -46,6 +46,13 @@ enum FillEnc {
   Tile
 };
 
+enum JustifyStepEnc {
+    JustifyCenter,
+    JustifyCenterHorizontal,
+    JustifyCenterVertical,
+    JustifyLeft
+};
+
 enum CountInstanceEnc {
     CountFalse = 0,
     CountTrue,
@@ -378,6 +385,18 @@ public:
     sizeW       = 0;
     sizeH       = 0;
     orientation = Portrait;
+  }
+};
+
+class JustifyStepData
+{
+public:
+  JustifyStepEnc type;
+  float          spacing;
+  JustifyStepData()
+  {
+    type    = JustifyLeft;
+    spacing = 0.05f;
   }
 };
 

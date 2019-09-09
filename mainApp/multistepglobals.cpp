@@ -98,7 +98,7 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
 
   box = new QGroupBox("Step Justification");
   vlayout->addWidget(box);
-  child = new CheckBoxGui("Center steps vertically",&multiStepMeta->centerSteps,box);
+  child = new JustifyStepGui("Set step justification",&multiStepMeta->justifyStep,box);
   data->children.append(child);
 
   box = new QGroupBox("Submodel");

@@ -1731,6 +1731,87 @@ void CameraDistFactorGui::apply(
 
 /***********************************************************************
  *
+ * JustifyStep
+ *
+ **********************************************************************/
+
+JustifyStepGui::JustifyStepGui(
+        const QString &_label,
+        JustifyStepMeta *_meta,
+        QGroupBox       *parent)
+{
+
+  meta = _meta;
+
+  JustifyStepData data = meta->value();
+
+  QGridLayout *grid = new QGridLayout();
+
+  if (parent) {
+      parent->setLayout(grid);
+    } else {
+      setLayout(grid);
+    }
+
+  QLabel    *label;
+  label = new QLabel(_label, parent);
+  grid->addWidget(label,0,0);
+
+  typeCombo = new QComboBox(parent);
+  typeCombo->addItem("Center");
+  typeCombo->addItem("Center Horizontal");
+  typeCombo->addItem("Center Vertical");
+  typeCombo->addItem("Left (Default)");
+  typeCombo->setCurrentIndex(int(data.type));
+  connect(typeCombo,SIGNAL(currentIndexChanged(int)),
+          this,     SLOT(  typeChanged(        int)));
+  grid->addWidget(typeCombo,0,1);
+
+  label = new QLabel("Spacing",parent);
+  grid->addWidget(label,0,3);
+  grid->setAlignment(label, Qt::AlignRight);
+
+  spacingSpinBox = new QDoubleSpinBox(parent);
+  spacingSpinBox->setRange(0.0,25.0);
+  spacingSpinBox->setSingleStep(0.1);
+  spacingSpinBox->setDecimals(4);
+  spacingSpinBox->setValue(double(data.spacing));
+  spacingSpinBox->setToolTip(QString("Set the spaceing, in %1, between items when step "
+                                     "is center justified").arg(units2name()));
+  spacingSpinBox->setEnabled(data.type != JustifyLeft);
+  connect(spacingSpinBox,SIGNAL(valueChanged(double)),
+          this,          SLOT(spacingChanged(double)));
+  grid->addWidget(spacingSpinBox,0,4);
+}
+
+void JustifyStepGui::typeChanged(int value)
+{
+  spacingSpinBox->setEnabled(value != JustifyLeft);
+
+  JustifyStepData data = meta->value();
+  data.type = JustifyStepEnc(value);
+  meta->setValue(data);
+  modified = true;
+}
+
+void JustifyStepGui::spacingChanged(double value)
+{
+  JustifyStepData data = meta->value();
+  data.spacing = float(value);
+  meta->setValue(data);
+  modified = true;
+}
+
+void JustifyStepGui::apply(QString &modelName)
+{
+  if (modified) {
+    MetaItem mi;
+    mi.setGlobalMeta(modelName,meta);
+  }
+}
+
+/***********************************************************************
+ *
  * RotStep
  *
  **********************************************************************/

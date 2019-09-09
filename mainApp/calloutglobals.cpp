@@ -114,22 +114,27 @@ GlobalCalloutDialog::GlobalCalloutDialog(
   /*
    * Callout Tab
    */
-  QVBoxLayout *childlayout = new QVBoxLayout();
+  QHBoxLayout *childlayout = new QHBoxLayout();
   widget = new QWidget(nullptr);
   vlayout = new QVBoxLayout(nullptr);
   widget->setLayout(vlayout);
   
   box = new QGroupBox("Parts List");
   vlayout->addWidget(box);
-  childlayout = new QVBoxLayout();
   box->setLayout(childlayout);
-  child = new UnitsGui("Margins L/R|T/B",&calloutMeta->pli.margin);
-  data->children.append(child);
-  childlayout->addWidget(child);
 
   child = new CheckBoxGui("Per Step",&calloutMeta->pli.perStep);
   data->children.append(child);
   childlayout->addWidget(child);
+
+  child = new UnitsGui("Margins L/R|T/B",&calloutMeta->pli.margin);
+  data->children.append(child);
+  childlayout->addWidget(child);
+
+  box = new QGroupBox("Step Justification");
+  vlayout->addWidget(box);
+  child = new JustifyStepGui("Set step justification",&calloutMeta->justifyStep,box);
+  data->children.append(child);
 
   box = new QGroupBox("Step Number");
   vlayout->addWidget(box);
