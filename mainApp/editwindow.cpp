@@ -329,7 +329,7 @@ void EditWindow::modelFileChanged(const QString &_fileName)
 {
   _saveSubfileIndex = mpdCombo->currentIndex();
   fileWatcher.removePath(_fileName);
-  emit editModelFileSig();
+  emit refreshModelFileSig();
 }
 
 bool EditWindow::maybeSave()
@@ -631,6 +631,7 @@ void EditWindow::closeEvent(QCloseEvent *event)
 
     mpdCombo->setMaxCount(0);
     mpdCombo->setMaxCount(1000);
+    _modelFileEdit = false;
 
     if (maybeSave()){
         event->accept();

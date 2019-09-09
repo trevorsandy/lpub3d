@@ -112,7 +112,7 @@ private:
 
 signals:
     void contentsChange(const QString &, int position, int charsRemoved, const QString &charsAdded);
-    void editModelFileSig();
+    void refreshModelFileSig();
     void redrawSig();
     void updateSig();
     void enableWatcherSig();

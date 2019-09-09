@@ -1228,12 +1228,23 @@ void Gui::displayParmsFile(
     displayParmsFileSig(fileName);
 }
 
+void Gui::refreshModelFile()
+{
+     editModelFile(/*saveBefore*/false);
+}
+
 void Gui::editModelFile()
+{
+    editModelFile(/*saveBefore*/true);
+}
+
+void Gui::editModelFile(bool saveBefore)
 {
     if (getCurFile().isEmpty())
         return;
-    save();
-    displayFile(&ldrawFile, getCurFile(), true);
+    if (saveBefore)
+        save();
+    displayFile(&ldrawFile, getCurFile(), /*modelFile*/true);
     editModeWindow->setWindowTitle(tr("Edit %1").arg(QFileInfo(getCurFile()).fileName()));
     editModeWindow->show();
 }
@@ -2707,8 +2718,8 @@ Gui::Gui()
     // edit model file
     connect(this,           SIGNAL(displayModelFileSig(LDrawFile *, const QString &)),
             editModeWindow, SLOT(  displayFile   (LDrawFile *, const QString &)));
-    connect(editModeWindow, SIGNAL(editModelFileSig()),
-            this,           SLOT(  editModelFile()));
+    connect(editModeWindow, SIGNAL(refreshModelFileSig()),
+            this,           SLOT(  refreshModelFile()));
     connect(editModeWindow, SIGNAL(redrawSig()),
             this,           SLOT(  clearAndRedrawModelFile()));
     connect(editModeWindow, SIGNAL(updateSig()),

@@ -1023,6 +1023,8 @@ public slots:
 
   void DownloadFinished(lcHttpReply* Reply);
 
+  void editModelFile(bool saveBefore);
+
 signals:       
 
   /* tell the editor to display this file */
@@ -1068,7 +1070,6 @@ signals:
   void operateHighlightParts(bool overwriteCustomParts);
   void operateFadeParts(bool overwriteCustomParts);
   void setPliIconPathSig(QString &,QString &);
-
 
 public:
   Page                  page;                         // the abstract version of page contents
@@ -1284,6 +1285,7 @@ private slots:
     void aboutDialog();
 
     void editModelFile();
+    void refreshModelFile();
     void editTitleAnnotations();
     void editFreeFormAnnitations();
     void editLDrawColourParts();
