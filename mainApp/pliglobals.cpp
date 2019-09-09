@@ -119,7 +119,7 @@ GlobalPliDialog::GlobalPliDialog(
   
   box = new QGroupBox("Margins");
   vlayout->addWidget(box);
-  child = new UnitsGui("",&pliMeta->margin,box);
+  child = new UnitsGui("L/R|T/B",&pliMeta->margin,box);
   data->children.append(child);
   
   box = new QGroupBox("Constrain");
@@ -170,7 +170,7 @@ GlobalPliDialog::GlobalPliDialog(
       childlayout->addWidget(child);
   }
 
-  child = new UnitsGui("Margins",&pliMeta->part.margin);
+  child = new UnitsGui("Margins L/R|T/B",&pliMeta->part.margin);
   data->children.append(child);
   childlayout->addWidget(child);
 

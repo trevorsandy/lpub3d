@@ -90,7 +90,7 @@ GlobalCalloutDialog::GlobalCalloutDialog(
   
   box = new QGroupBox("Margins");
   vlayout->addWidget(box);
-  child = new UnitsGui("",&calloutMeta->margin,box);
+  child = new UnitsGui("L/R|T/B",&calloutMeta->margin,box);
   data->children.append(child);
   
   box = new QGroupBox("Divider");
@@ -123,7 +123,7 @@ GlobalCalloutDialog::GlobalCalloutDialog(
   vlayout->addWidget(box);
   childlayout = new QVBoxLayout();
   box->setLayout(childlayout);
-  child = new UnitsGui("Margins",&calloutMeta->pli.margin);
+  child = new UnitsGui("Margins L/R|T/B",&calloutMeta->pli.margin);
   data->children.append(child);
   childlayout->addWidget(child);
 
@@ -176,7 +176,7 @@ GlobalCalloutDialog::GlobalCalloutDialog(
   }
   data->clearCache = (data->clearCache ? data->clearCache : child->modified);
 
-  child = new UnitsGui("Margins",&calloutMeta->csi.margin);
+  child = new UnitsGui("Margins L/R|T/B",&calloutMeta->csi.margin);
   data->children.append(child);
   boxGrid->addWidget(child,1,0);
 
@@ -205,7 +205,7 @@ GlobalCalloutDialog::GlobalCalloutDialog(
 
   box = new QGroupBox("Assembly Margins");
   vlayout->addWidget(box);
-  child = new UnitsGui("",&calloutMeta->csi.margin,box);
+  child = new UnitsGui("L/R|T/B",&calloutMeta->csi.margin,box);
   data->children.append(child);
 
   //spacer

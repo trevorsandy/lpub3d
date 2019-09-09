@@ -140,7 +140,7 @@ GlobalPageDialog::GlobalPageDialog(
 
   box = new QGroupBox(tr("Margins"));
   grid->addWidget(box,4,0);
-  child = new UnitsGui("",&pageMeta->margin,box);
+  child = new UnitsGui("L/R|T/B",&pageMeta->margin,box);
   data->children.append(child);
 
   box = new QGroupBox(tr("Header Height"));

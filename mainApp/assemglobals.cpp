@@ -108,7 +108,7 @@ GlobalAssemDialog::GlobalAssemDialog(
       boxGrid->addWidget(child,0,0);
   }
 
-  child = new UnitsGui("Margins",&assem->margin);
+  child = new UnitsGui("Margins L/R|T/B",&assem->margin);
   data->children.append(child);
   boxGrid->addWidget(child,1,0);
 

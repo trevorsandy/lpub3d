@@ -81,7 +81,7 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
 
   box = new QGroupBox("Step Group Margins");
   vlayout->addWidget(box);
-  child = new UnitsGui("",&multiStepMeta->margin,box);
+  child = new UnitsGui("L/R|T/B",&multiStepMeta->margin,box);
   data->children.append(child);
   
   box = new QGroupBox("Parts List");
@@ -92,7 +92,7 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   data->children.append(child);
   childlayout->addWidget(child);
 
-  child = new UnitsGui("Margins",&multiStepMeta->pli.margin);
+  child = new UnitsGui("Margins L/R|T/B",&multiStepMeta->pli.margin);
   data->children.append(child);
   childlayout->addWidget(child);
 
@@ -136,7 +136,7 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
 
    data->clearCache = (data->clearCache ? data->clearCache : child->modified);
 
-   child = new UnitsGui("Margins",&multiStepMeta->csi.margin);
+   child = new UnitsGui("Margins L/R|T/B",&multiStepMeta->csi.margin);
    data->children.append(child);
    boxGrid->addWidget(child);
 
@@ -165,7 +165,7 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
 
    box = new QGroupBox("Assembly Margins");
    vlayout->addWidget(box);
-   child = new UnitsGui("",&multiStepMeta->csi.margin,box);
+   child = new UnitsGui("L/R|T/B",&multiStepMeta->csi.margin,box);
    data->children.append(child);
 
    //spacer

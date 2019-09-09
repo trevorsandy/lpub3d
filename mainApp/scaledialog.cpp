@@ -44,7 +44,7 @@ UnitsDialog::UnitsDialog(
   QGroupBox *box = new QGroupBox(_name,this);
   layout->addWidget(box);
   meta.setValues(values[0],values[1]);
-  units = new UnitsGui("",&meta,box);
+  units = new UnitsGui("L/R|T/B",&meta,box);
 
   QDialogButtonBox *buttonBox;
   buttonBox = new QDialogButtonBox(this);

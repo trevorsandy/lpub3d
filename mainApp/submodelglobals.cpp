@@ -128,7 +128,7 @@ GlobalSubModelDialog::GlobalSubModelDialog(
 
   box = new QGroupBox("Margins");
   vlayout->addWidget(box);
-  child = new UnitsGui("",&subModelMeta->margin,box);
+  child = new UnitsGui("L/R|T/B",&subModelMeta->margin,box);
   data->children.append(child);
 
   vSpacer = new QSpacerItem(1,1,QSizePolicy::Fixed,QSizePolicy::Expanding);
@@ -176,7 +176,7 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   }
   data->clearCache = (data->clearCache ? data->clearCache : child->modified);
 
-  child = new UnitsGui("Margins",&subModelMeta->part.margin);
+  child = new UnitsGui("Margins L/R|T/B",&subModelMeta->part.margin);
   data->children.append(child);
   childlayout->addWidget(child);
 
