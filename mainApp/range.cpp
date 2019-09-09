@@ -178,7 +178,7 @@ void Range::sizeitVert()
 
       /* place the step components Vertically */
 
-      step->placeit(rows,margins,YY);
+      step->placeit(rows,margins,YY/*,shared=false*/);
       
       /* accumulate minimum height of column */
 
@@ -222,7 +222,7 @@ void Range::sizeitVert()
 
       /* place the step's components Horizontally (columns) */
 
-      step->placeit(cols,margins,XX, true);
+      step->placeit(cols,margins,XX,/*shared=*/true);
 
       if (step->size[XX] > size[XX]) {
         size[XX] = step->size[XX];
@@ -367,7 +367,7 @@ void Range::sizeitHoriz()
 
       /* place the step components Horizontally */
 
-      step->placeit(cols,margins,XX);
+      step->placeit(cols,margins,XX/*,shared=false*/);
 
       /* accumulate minimum width of row */
 
@@ -418,7 +418,7 @@ void Range::sizeitHoriz()
 
       /* place the step's components Horizontally (columns) */
 
-      step->placeit(rows,margins,YY, true);
+      step->placeit(rows,margins,YY,/*shared=*/true);
 
       if (step->size[YY] > size[YY]) {
         size[YY] = step->size[YY];

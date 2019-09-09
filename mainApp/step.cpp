@@ -1641,11 +1641,11 @@ void Step::placeit(
           if(placeSubModel){
             subModel.justifyX(origins[subModel.tbl[y]],rows[subModel.tbl[y]]);
           }
+          if(placeRotateIcon) {
+              rotateIcon.justifyX(origins[rotateIcon.tbl[y]],rows[rotateIcon.tbl[y]]);
+          }
         }
       stepNumber.justifyX(origins[stepNumber.tbl[y]],rows[stepNumber.tbl[y]]);
-      if(placeRotateIcon) {
-          rotateIcon.justifyX(origins[rotateIcon.tbl[y]],rows[rotateIcon.tbl[y]]);
-        }
       break;
     case YY:
       if ( ! shared) {
@@ -1653,11 +1653,11 @@ void Step::placeit(
           if(placeSubModel) {
             subModel.justifyY(origins[subModel.tbl[y]],rows[subModel.tbl[y]]);
           }
+          if(placeRotateIcon){
+              rotateIcon.justifyY(origins[rotateIcon.tbl[y]],rows[rotateIcon.tbl[y]]);
+          }
         }
       stepNumber.justifyY(origins[stepNumber.tbl[y]],rows[stepNumber.tbl[y]]);
-      if(placeRotateIcon){
-          rotateIcon.justifyY(origins[rotateIcon.tbl[y]],rows[rotateIcon.tbl[y]]);
-        }
       break;
     default:
       break;
