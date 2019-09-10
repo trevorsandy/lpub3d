@@ -387,6 +387,11 @@ BuildLDView() {
   arch)
     ApplyLDViewStdlibHack
     ;;
+  ubuntu)
+    if [[ "${DOCKER}" = "true" && "${platform_ver}" = "18.04" ]]; then
+      ApplyLDViewStdlibHack
+    fi
+    ;;
   esac
   BUILD_CONFIG="CONFIG+=BUILD_CUI_ONLY CONFIG+=USE_SYSTEM_LIBS CONFIG+=BUILD_CHECK CONFIG-=debug_and_release"
   if [ "$1" = "debug" ]; then
