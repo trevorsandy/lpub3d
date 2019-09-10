@@ -1,6 +1,6 @@
 # Build and check LPub3D x86 and x86_64 architectures unsing Qt/MinGW/VS2017 platforms
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: Aug 13, 2019
+# Last Update: Sep 10, 2019
 # Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 version: 'LPub3D-AV-Build-{build}'
@@ -297,7 +297,7 @@ deploy:
  - provider: GitHub
    tag: $(APPVEYOR_REPO_TAG_NAME)
    repository: trevorsandy/lpub3d
-   description: $($env:LP3D_RELEASE_DESCRIPTION)
+   description: $(LP3D_RELEASE_DESCRIPTION)
    auth_token:
      secure: rnf4qpF81ISjm8q13OgkAaoKZReXpjODhU9fbGFMhMydHrda1ezLubGXRU9OKGu4
    release: $(LP3D_RELEASE_LABEL)
