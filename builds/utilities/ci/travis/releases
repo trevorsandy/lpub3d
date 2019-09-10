@@ -3,14 +3,14 @@
 # Travis build [release] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: Aug 07, 2019
+#  Last Update: Sep 10, 2019
 #  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
 
 # Set release description
 if [ "$LPUB3D_DIR" != "lpub3d" ]; then
-  LP3D_RELEASE_DESCRIPTION = "LPub3D - Development Release"
+  LP3D_RELEASE_DESCRIPTION="LPub3D - Development Release"
 fi;
 if [ "$LP3D_DEPLOY_PKG" = "yes" ]; then
   # Download assets from Dropbox store
@@ -35,5 +35,10 @@ fi
 if [[ -z "$LP3D_SKIP_SF_DEPLOY" && -z "$LP3D_SF_DEPLOY_ABORT" ]]; then
   chmod a+x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh;
 else
-  echo "ERROR - There was a problem getting the deploy assets.";
+  if [ -n "$LP3D_SKIP_SF_DEPLOY" ]; then
+    echo "NOTICE - LP3D_SKIP_SF_DEPLOY detected. Deploy to Sourceforge skipped.";
+  fi
+  if [ -n "$LP3D_SF_DEPLOY_ABORT" ]; then
+    echo "NOTICE - LP3D_SF_DEPLOY_ABORT detected. Deploy to Sourceforge aborted.";
+  fi
 fi
