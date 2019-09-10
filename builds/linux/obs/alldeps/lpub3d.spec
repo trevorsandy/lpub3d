@@ -116,7 +116,7 @@ BuildRequires: fdupes
 Summary: An LDraw Building Instruction Editor
 Name: lpub3d
 Icon: lpub3d.xpm
-Version: 2.3.14.1516
+Version: 2.3.14.1517
 Release: <B_CNT>%{?dist}
 URL: https://trevorsandy.github.io/lpub3d
 Vendor: Trevor SANDY
@@ -198,7 +198,7 @@ BuildRequires: libOSMesa-devel, glu-devel, openexr-devel
 BuildRequires: libpng16-compat-devel, libjpeg8-devel
 BuildRequires: update-desktop-files
 BuildRequires: zlib-devel
-%if (0%{?suse_version}>1210 && 0%{?suse_version}!=1315 && 0%{?sle_version}!=150000)
+%if (0%{?suse_version}>1210 && 0%{?suse_version}!=1315 && 0%{?sle_version}!=150000 && 0%{?sle_version}!=150100 && 0%{?sle_version}!=150200)
 BuildRequires: gl2ps-devel
 %else
 %define build_gl2ps 1
@@ -368,7 +368,11 @@ BuildRequires:  pkgconfig(libdrm_intel) >= 2.4.75
 %endif
 %else
 %endif
-%if 0%{?suse_version} > 1320 || (0%{?sle_version} >= 120300 && 0%{?is_opensuse})
+%if 0%{?suse_version} > 1320 || (0%{?sle_version} >= 120300 && 0%{?is_opensuse}) || 0%{?scientificlinux_version} == 700
+# needed by gtk3
+%if 0%{?scientificlinux_version}==700
+BuildRequires:  wayland-devel
+%endif
 BuildRequires:  pkgconfig(wayland-client) >= 1.11
 BuildRequires:  pkgconfig(wayland-protocols) >= 1.8
 BuildRequires:  pkgconfig(wayland-server) >= 1.11
@@ -452,8 +456,8 @@ BuildRequires:  pkgconfig(xxf86vm)
  sponsor, authorize or endorse this application.
  © 2015-2019 Trevor SANDY
 
-# work around fc27 and fc28 build error: Empty files file /home/abuild/rpmbuild/BUILD/lpub3d-git/debugsourcefiles.list
-%if 0%{?fedora_version}==27 || 0%{?fedora_version}==28 || 0%{?fedora_version}==29
+# workaround from fc27 onwards build error: Empty files file /home/abuild/rpmbuild/BUILD/lpub3d-git/debugsourcefiles.list
+%if 0%{?fedora_version}>=27
 %global debug_package %{nil}
 %endif
 
@@ -724,5 +728,5 @@ update-mime-database /usr/share/mime >/dev/null || true
 update-desktop-database || true
 %endif
 
-* Wed Sep 11 2019 - trevor.dot.sandy.at.gmail.dot.com 2.3.14.1516
+* Wed Sep 11 2019 - trevor.dot.sandy.at.gmail.dot.com 2.3.14.1517
 - LPub3D Linux package (rpm) release
