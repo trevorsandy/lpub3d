@@ -711,7 +711,7 @@ SET genLPub3DUpdates=%updatesFile% ECHO
 >>%genLPub3DUpdates%       "open-url": "%LP3D_GITHUB_BASE%/releases/tag/%LP3D_VER_TAG_NAME%/",
 >>%genLPub3DUpdates%       "latest-version": "%LP3D_VERSION%",
 >>%genLPub3DUpdates%       "latest-revision": "%LP3D_VER_REVISION%",
->>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-xenial-%LP3D_AMDARCH%.deb",
+>>%genLPub3DUpdates%       "download-url": "%LP3D_GITHUB_BASE%/releases/download/%LP3D_VER_TAG_NAME%/LPub3D-%LP3D_APP_VERSION_LONG%-bionic-%LP3D_AMDARCH%.deb",
 >>%genLPub3DUpdates%       "changelog-url": "%LP3D_SOURCEFORGE_UPDATE_BASE%/release_notes_%LP3D_VERSION%.%LP3D_VER_REVISION%.html",
 >>%genLPub3DUpdates%       "available-versions": "%LP3D_AVAILABLE_VERSIONS_deb%",
 >>%genLPub3DUpdates%       "alt-version-gen-placeholder-linux-deb": {}
@@ -843,7 +843,7 @@ FOR %%V IN ( %LP3D_ALTERNATE_VERSIONS% ) DO (
       SET LP3D_DIST_SUFFIX=-macos.dmg
     )
     IF "%1" EQU "deb" (
-      SET LP3D_DIST_SUFFIX=-xenial-%LP3D_AMDARCH%.deb
+      SET LP3D_DIST_SUFFIX=-bionic-%LP3D_AMDARCH%.deb
     )
     IF "%1" EQU "rpm" (
       SET LP3D_DIST_SUFFIX=-1.fc26.%LP3D_ARCH%.rpm

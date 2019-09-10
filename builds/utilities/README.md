@@ -62,7 +62,7 @@ The LPub3D build process automatically resolves required build dependencies acro
 - [ ] 3. enable execute permissions and execute package script  
 `$ chmod +x CreateDeb.sh && ./CreateDeb.sh`
 - [ ] 4. install package availavble in ./debbuild  
-`$ sudo dpkg --install -y debbuild/LPub3D-2.3.9.0.1228_20190418-xenial-amd64.deb`
+`$ sudo dpkg --install -y debbuild/LPub3D-2.3.9.0.1228_20190418-bionic-amd64.deb`
 - [ ] 5. have a :beer:
 
 #### ___________ LINUX: BUILD REDHAT/FEDORA/SUSE 'RPM' PACKAGE ___________

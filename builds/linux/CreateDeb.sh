@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update June 25, 2019
+# Last Update Sep 10, 2019
 # Copyright (c) 2017 - 2019 by Trevor SANDY
 # To run:
 # $ chmod 755 CreateDeb.sh
@@ -206,6 +206,12 @@ then
             LP3D_PLATFORM_NAME="artful" ;;
         18.04)
             LP3D_PLATFORM_NAME="bionic" ;;
+        18.10)
+            LP3D_PLATFORM_NAME="cosmic" ;;
+        19.04)
+            LP3D_PLATFORM_NAME="disco" ;;
+        19.10)
+            LP3D_PLATFORM_NAME="eoan" ;;
         *)
             LP3D_PLATFORM_NAME="ubuntu" ;;
         esac
@@ -216,6 +222,10 @@ then
             LP3D_PLATFORM_NAME="jessie" ;;
         9)
             LP3D_PLATFORM_NAME="stretch" ;;
+        10)
+            LP3D_PLATFORM_NAME="buster" ;;
+        11)
+            LP3D_PLATFORM_NAME="bullseye" ;;
         *)
             LP3D_PLATFORM_NAME="debian" ;;
         esac
