@@ -156,6 +156,9 @@ DialogExportPages::DialogExportPages(QWidget *parent) :
     break;
     }
 
+    connect(new FocusWatcher(ui->lineEditPageRange), SIGNAL(focusChanged(bool)),
+            this,                                    SLOT(  lineEditPageRangeFocusChanged(bool)));
+
     setMinimumSize(40,20);
     adjustSize();
 }
@@ -239,10 +242,11 @@ void DialogExportPages::on_lineEditPageRange_textChanged(const QString &arg1)
     }
 }
 
-void DialogExportPages::on_lineEditPageRange_selectionChanged()
+void DialogExportPages::lineEditPageRangeFocusChanged(bool focus)
 {
-    // if line selected, move radio to page range
-    ui->radioButtonPageRange->setChecked(true);
+    // if line takes focus, set the page range radio button
+    if (focus)
+        ui->radioButtonPageRange->setChecked(focus);
 }
 
 void DialogExportPages::on_pushButtonExportSettings_clicked()
