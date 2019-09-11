@@ -5,6 +5,8 @@ services:
     build:
       context: ./dockerfiles
       dockerfile: Dockerfile-cibuild-archlinux
+    security_opt:
+     - seccomp:unconfined
     volumes:
      - .:/buildpkg
      - ./lpub3d_linux_3rdparty:/user/pkgbuild/src/lpub3d_linux_3rdparty
