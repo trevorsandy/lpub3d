@@ -5107,21 +5107,22 @@ void Meta::processSpecialCases(QString &line, Where &here){
     if (line.contains(viewAngleRx))
         line.replace(viewAngleRx.cap(1),"CAMERA_ANGLES");
 
-    if (line.contains("CAMERA_DISTANCE_NATIVE")) {
-        if (gui->parsedMessages.contains(here)) {
-            line = "0 // IGNORED";
-        } else {
-            QRegExp typesRx("(ASSEM|PLI|BOM|SUBMODEL|LOCAL)");
-            if (line.contains(typesRx)) {
-                QString message = QString("CAMERA_DISTANCE_NATIVE meta command is no longer supported for %1 type. "
-                                          "Only application at GLOBAL scope is permitted. "
-                                          "Reclassify or remove this command and use MODEL_SCALE to implicate camera distance. "
-                                          "This command will be ignored. %2")
-                                          .arg(typesRx.cap(1))
-                                          .arg(line);
-                gui->parseError(message,here);
-                line = "0 // IGNORED";
-            }
-        }
-    }
+    // Disabled until #331 is pushed
+    // if (line.contains("CAMERA_DISTANCE_NATIVE")) {
+    //     if (gui->parsedMessages.contains(here)) {
+    //         line = "0 // IGNORED";
+    //     } else {
+    //         QRegExp typesRx("(ASSEM|PLI|BOM|SUBMODEL|LOCAL)");
+    //         if (line.contains(typesRx)) {
+    //             QString message = QString("CAMERA_DISTANCE_NATIVE meta command is no longer supported for %1 type. "
+    //                                       "Only application at GLOBAL scope is permitted. "
+    //                                       "Reclassify or remove this command and use MODEL_SCALE to implicate camera distance. "
+    //                                       "This command will be ignored. %2")
+    //                                       .arg(typesRx.cap(1))
+    //                                       .arg(line);
+    //             gui->parseError(message,here);
+    //             line = "0 // IGNORED";
+    //         }
+    //     }
+    // }
 }
