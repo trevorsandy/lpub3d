@@ -1120,7 +1120,7 @@ void Gui::exportAsPdf()
 
           if (exportPdfElements) {
               // prepare pdfWriter to render next page
-              if(displayPageNum < _maxPages) {
+              if(_pageCount < printPages.count()) {
                   bool nextPage = true;
                   pdfWriter.setPageLayout(getPageLayout(nextPage));
                   pdfWriter.newPage();
@@ -1134,7 +1134,7 @@ void Gui::exportAsPdf()
               pdfPage.pageHeightIn = pageHeightIn;
 
               // store pdfWriter next page layout
-              if(displayPageNum < _maxPages) {
+              if(_pageCount < printPages.count()) {
                   bool nextPage = true;
                   pdfPage.pageLayout = getPageLayout(nextPage);
               }
