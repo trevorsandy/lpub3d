@@ -4711,11 +4711,12 @@ void Gui::createToolBars()
     fileToolBar->setObjectName("FileToolbar");
     fileToolBar->addAction(openAct);
     fileToolBar->addAction(saveAct);
+    fileToolBar->addAction(saveAsAct);
+    fileToolBar->addAction(closeFileAct);
 
     //fileToolBar->addAction(printToFileAct);
     fileToolBar->addAction(exportAsPdfPreviewAct);
     fileToolBar->addAction(exportAsPdfAct);
-    fileToolBar->addAction(closeFileAct);
 
     exportToolBar = addToolBar(tr("Export Toolbar"));
     exportToolBar->setObjectName("ExportToolbar");
