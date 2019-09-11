@@ -97,7 +97,7 @@ public:
   DividerBackgroundItem(
     Meta         *_meta,
     QRect        &_dividerRect,
-    QGraphicsItem *parent);
+    QGraphicsItem *parent = nullptr);
 
   void setPos(float x, float y)
   {
@@ -127,7 +127,12 @@ public:
       int         offsetY);
     ~DividerItem();
 
-    void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+    virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+    virtual void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
+    virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
+    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
     /******************************************************************************
      * Divider pointer item routines
@@ -138,6 +143,10 @@ public:
     virtual void drawTips(QPoint &delta, int type = 0);
 
     virtual void updatePointers(QPoint &delta);
+
+protected:
+    bool isHovered;
+    bool mouseIsDown;
 };
 
 class DividerLine : public QGraphicsLineItem, public MetaItem

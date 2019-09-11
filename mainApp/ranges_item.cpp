@@ -186,7 +186,9 @@ DividerItem::DividerItem(
   Step       *_step,
   Meta       *_meta,
   int         _offsetX,
-  int         _offsetY)
+  int         _offsetY):
+    isHovered(false),
+    mouseIsDown(false)
 {
   meta               = *_meta;
   parentStep         =  _step;
@@ -408,6 +410,9 @@ DividerItem::DividerItem(
     setData(ObjectId, DividerObj); // CORE
     setZValue(/*meta.LPub.page.scene.divider.zValue()*/99);
   }
+  setFlag(QGraphicsItem::ItemIsSelectable,true);
+  setFlag(QGraphicsItem::ItemIsFocusable, true);
+  setAcceptHoverEvents(true);
 }
 
 DividerItem::~DividerItem()
@@ -550,6 +555,44 @@ void DividerItem::drawTips(QPoint &delta, int type)
   }
 }
 
+void DividerItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = !this->isSelected() && !mouseIsDown;
+    QGraphicsItem::hoverEnterEvent(event);
+}
+
+void DividerItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = false;
+    QGraphicsItem::hoverLeaveEvent(event);
+}
+
+void DividerItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    mouseIsDown = true;
+    QGraphicsItem::mousePressEvent(event);
+    update();
+}
+
+void DividerItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    mouseIsDown = false;
+    QGraphicsItem::mouseReleaseEvent(event);
+    update();
+}
+
+void DividerItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    QPen pen;
+    pen.setColor(isHovered ? QColor(Preferences::sceneGuideColor) : Qt::black);
+    pen.setWidth(0/*cosmetic*/);
+    pen.setStyle(isHovered ? Qt::PenStyle(Preferences::sceneGuidesLine) : Qt::NoPen);
+    painter->setPen(pen);
+    painter->setBrush(Qt::transparent);
+    painter->drawRect(this->boundingRect());
+    QGraphicsRectItem::paint(painter,option,widget);
+}
+
 /******************************************************************************
  * Divider line routines
  *****************************************************************************/
@@ -574,6 +617,7 @@ DividerBackgroundItem::DividerBackgroundItem(
   Meta          *_meta,
   QRect         &_dividerRect,
   QGraphicsItem *parent)
+    :QGraphicsRectItem(parent)
 {
   border = &_meta->LPub.pointerBase.border;
 
