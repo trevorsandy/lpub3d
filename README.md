@@ -15,8 +15,8 @@ View the [LPub3D GitHub page][lpub3d-url] for full project details.
 
 ### License
 
-:--------------------------------------|:-------------------------------------------------------------------------------------------
 [![GPLv3-logo][gplv3-logo]][lgplv3-url]|LPub3D is available for free under the [GNU Public License version 3.0 (GPLv3)][lgplv3-url].
+:--------------------------------------|:-------------------------------------------------------------------------------------------
 
 ### Disclaimers
 LEGO® is a trademark of the LEGO Group of companies which does not sponsor, authorize or endorse this application.

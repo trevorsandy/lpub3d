@@ -1409,7 +1409,7 @@ int LDView::renderCsi(
       emit gui->messageSig(LOG_STATUS, "Executing LDView render CSI - please wait...");
 
       // execute LDView process
-      if (executeLDViewProcess(arguments, PLI) != 0) // ldrName entries that ARE NOT IM exist - e.g. first step
+      if (executeLDViewProcess(arguments, CSI) != 0) // ldrName entries that ARE NOT IM exist - e.g. first step
           return -1;
   }
 
