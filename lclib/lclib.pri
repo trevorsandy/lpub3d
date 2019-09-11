@@ -144,4 +144,4 @@ FORMS += \
     $$PWD/qt/lc_setsdatabasedialog.ui
 
 RESOURCES += \
-    $$PWD/resources/lclib.qrc
+    $$PWD/lclib.qrc

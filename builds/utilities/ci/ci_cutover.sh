@@ -1,9 +1,9 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update Aug 03, 2019
+# Last Update Sep 11, 2019
 #
 # Purpose:
-# This script is used to 'cut-over' the development repository [lpub3d] to production [lpub3d].
+# This script is used to 'cut-over' the development repository [lpub3d] commits to production [lpub3d].
 #
 # Setup:
 # For successful execution it must be placed at the root of the repositories, for example:
@@ -13,18 +13,26 @@
 # GitHub API, Dropbox oauth, Sourceforge rsa keys must be placed in specific folder at the repositories root:
 #   ./Production_cutover/secrets/
 #
-# Execution Commands:
-# Preq 1 of 2 Enable script execution [run once] 
+# Execution Steps:
+]
+# Preq 1 of 3 Enable script execution [execute once] 
 # $ chmod +x ci_cutover.sh && ./ci_cutover.sh
 #
-# Preq 2 of 2 Set 'Next' version number
-# $ sed 's/2.3.13/<next version>/g' -i ci_cutover.sh
+# Preq 2 of 3 Set 'Next' version number [execute once]
+# $ sed 's/2.3.14/<next version>/g' -i ci_cutover.sh
 #
-# Step 1 of 2 Production commits - run for each commit except the final one 
-# $ env MSG="<commit> #No" OBS_CFG=yes TAG=v2.3.13 ./ci_cutover.sh
+# Preq 3 of 3 create and checkout a CUTOVER branch in the lpub3d repository at the 
+#   last production commit. [execute once]
 #
-# Step 2 of 2 Final commit and production version change - run once [BE CAREFUL - THIS ADDS A TAG]
-# $ env MSG="LPub3D v2.3.13" TAG=v2.3.13 RELEASE=yes REV=no CNT=yes OBS_CFG=yes ./ci_cutover.sh
+# Step 1 of 3 from the CUTOVER branch add your master/dev branch commit by executing 
+#   'reset to this commit' or 'cherrypick commit' [execute for each commit]
+#
+# Step 2 of 3 Production commits [execute for each commit except the final one for version change]
+# $ env MSG="<commit> #No" OBS_CFG=yes TAG=v2.3.14 ./ci_cutover.sh
+#
+# Step 3 of 3 Final commit and production version change [execute once for version 
+#   change [BE CAREFUL - THIS ADDS A TAG]
+# $ env MSG="LPub3D v2.3.14" TAG=v2.3.14 RELEASE=yes REV=no CNT=yes OBS_CFG=yes ./ci_cutover.sh
 #
 # Execution sequence:
 #   - copy lpub3d content to lpub3d folder
@@ -38,7 +46,7 @@
 #   - if standard commit, delete build tab
 #
 # Environment variables:
-#   - TAG: git tag [Default=v2.3.13] - change as needed
+#   - TAG: git tag [Default=v2.3.14] - change as needed
 #   - MSG: git commit message [Default='Continuous integration cutover [build pkg]'] - change as needed
 #   - FRESH: delete current lpub3d directory otherwise, only overwrite existing files [default=no]
 #   - REV: increment revision [Default=yes]
@@ -48,18 +56,18 @@
 #
 # Command Examples:
 # $ chmod +x ci_cutover.sh && ./ci_cutover.sh
-# $ env MSG="LPub3D pre-release [build pkg]" TAG=v2.3.13 ./ci_cutover.sh
-# $ env MSG="LPub3D version 2.3.13" RELEASE=yes REV=no OBS_CFG=yes ./ci_cutover.sh
-# $ env FRESH=yes MSG="LPub3D version 2.3.13" TAG=v2.3.13 REV=no OBS_CFG=yes ./ci_cutover.sh
-# $ env FRESH=yes MSG="LPub3D pre-release [build pkg]" TAG=v2.3.13 REV=no CNT=yes OBS_CFG=yes ./ci_cutover.sh
+# $ env MSG="LPub3D pre-release [build pkg]" TAG=v2.3.14 ./ci_cutover.sh
+# $ env MSG="LPub3D version 2.3.14" RELEASE=yes REV=no OBS_CFG=yes ./ci_cutover.sh
+# $ env FRESH=yes MSG="LPub3D version 2.3.14" TAG=v2.3.14 REV=no OBS_CFG=yes ./ci_cutover.sh
+# $ env FRESH=yes MSG="LPub3D pre-release [build pkg]" TAG=v2.3.14 REV=no CNT=yes OBS_CFG=yes ./ci_cutover.sh
 # $ env FRESH=yes MSG="Issue template and renderer logging updates" OBS_CFG=yes ./ci_cutover.sh
 #
 # Move to lpub3d-obs repository
-# $ env GIT_NAME=lpub3d-obs MSG="Open Build Service Integration and Test" TAG=v2.3.13 ./ci_cutover.sh
+# $ env GIT_NAME=lpub3d-obs MSG="Open Build Service Integration and Test" TAG=v2.3.14 ./ci_cutover.sh
 
 SCRIPT_NAME=$0
 SCRIPT_ARGS=$*
-LOCAL_TAG=${TAG:-v2.3.13}
+LOCAL_TAG=${TAG:-v2.3.14}
 FRESH_BUILD=${FRESH:-no}
 INC_REVISION=${REV:-yes}
 INC_COUNT=${CNT:-yes}

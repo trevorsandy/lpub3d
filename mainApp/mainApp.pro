@@ -582,7 +582,7 @@ OTHER_FILES += \
 include(otherfiles.pri)
 
 RESOURCES += \
-    ../lclib/resources/lclib.qrc \
+    ../lclib/lclib.qrc \
     ../ldvlib/LDVQt/resources.qrc \
     qdarkstyle/style.qrc \
     resources/lsynth/lsynth.qrc \
