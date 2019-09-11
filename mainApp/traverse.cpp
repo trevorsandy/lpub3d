@@ -1363,6 +1363,13 @@ int Gui::drawPage(
                       timer.start();
                       QString empty("");
 
+                      // set camera
+                      steps->meta.LPub.assem.cameraAngles            = step->csiCameraMeta.cameraAngles;
+                      steps->meta.LPub.assem.cameraDistNative.factor = step->csiCameraMeta.cameraDistNative.factor;
+                      steps->meta.LPub.assem.modelScale              = step->csiCameraMeta.modelScale;
+                      steps->meta.LPub.assem.cameraFoV               = step->csiCameraMeta.cameraFoV;
+                      steps->meta.LPub.assem.zfar                    = step->csiCameraMeta.zfar;
+                      steps->meta.LPub.assem.znear                   = step->csiCameraMeta.znear;
                       // set the extra renderer parms
                       steps->meta.LPub.assem.ldviewParms =
                            Render::getRenderer() == RENDERER_LDVIEW ? step->ldviewParms :
@@ -1674,6 +1681,13 @@ int Gui::drawPage(
                           timer.start();
                           QString empty("");
 
+                          // set camera
+                          steps->meta.LPub.assem.cameraAngles            = step->csiCameraMeta.cameraAngles;
+                          steps->meta.LPub.assem.cameraDistNative.factor = step->csiCameraMeta.cameraDistNative.factor;
+                          steps->meta.LPub.assem.modelScale              = step->csiCameraMeta.modelScale;
+                          steps->meta.LPub.assem.cameraFoV               = step->csiCameraMeta.cameraFoV;
+                          steps->meta.LPub.assem.zfar                    = step->csiCameraMeta.zfar;
+                          steps->meta.LPub.assem.znear                   = step->csiCameraMeta.znear;
                           // set the extra renderer parms
                           steps->meta.LPub.assem.ldviewParms =
                                Render::getRenderer() == RENDERER_LDVIEW ? step->ldviewParms :

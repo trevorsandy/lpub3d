@@ -383,6 +383,13 @@ int Step::createCsi(
 
      if (!renderer->useLDViewSCall() && ! gui->m_partListCSIFile) {
          showStatus = true;
+         // set camera
+         meta.LPub.assem.cameraAngles            = csiCameraMeta.cameraAngles;
+         meta.LPub.assem.cameraDistNative.factor = csiCameraMeta.cameraDistNative.factor;
+         meta.LPub.assem.modelScale              = csiCameraMeta.modelScale;
+         meta.LPub.assem.cameraFoV               = csiCameraMeta.cameraFoV;
+         meta.LPub.assem.zfar                    = csiCameraMeta.zfar;
+         meta.LPub.assem.znear                   = csiCameraMeta.znear;
          // set the extra renderer parms
          meta.LPub.assem.ldviewParms =
               Render::getRenderer() == RENDERER_LDVIEW ? ldviewParms :
@@ -439,12 +446,12 @@ int Step::createCsi(
       viewerOptions.ViewerCsiKey   = viewerCsiKey;
       viewerOptions.ImageFileName  = pngName;
       viewerOptions.UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
-      viewerOptions.FoV            = meta.LPub.assem.v_cameraFoV.value();
-      viewerOptions.ZNear          = meta.LPub.assem.v_znear.value();
-      viewerOptions.ZFar           = meta.LPub.assem.v_zfar.value();
-      viewerOptions.CameraDistance = modelScale;
-      viewerOptions.Latitude       = absRotstep ? noCA.value(0) : meta.LPub.assem.cameraAngles.value(0);
-      viewerOptions.Longitude      = absRotstep ? noCA.value(1) : meta.LPub.assem.cameraAngles.value(1);
+      viewerOptions.FoV            = csiCameraMeta.cameraFoV.value();
+      viewerOptions.ZNear          = csiCameraMeta.znear.value();
+      viewerOptions.ZFar           = csiCameraMeta.zfar.value();
+      viewerOptions.CameraDistance = csiCameraMeta.cameraDistNative.factor.value();
+      viewerOptions.Latitude       = absRotstep ? noCA.value(0) : csiCameraMeta.cameraAngles.value(0);
+      viewerOptions.Longitude      = absRotstep ? noCA.value(1) : csiCameraMeta.cameraAngles.value(1);
 
       // Load the 3DViewer
       loadTheViewer();
