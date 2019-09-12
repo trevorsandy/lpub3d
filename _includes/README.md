@@ -25,7 +25,7 @@ LPub3D **output** include <span style="color:#b03060">instruction document</span
 LPub3D uses the LDraw standard and LGEO photorealistic **part libraries** and reads the LDraw DAT, LDR and MPD model file formats. The LDraw libraries are not required to be preinstalled. Archive (.zip) library files for both official and unofficial LDraw parts are bundled with LPub3D. Follow the linked image below to acquire the LGEO photorealistic part library.
 
 :-----------------|:------------------------------------:|:--------------------
-[LDraw][ldraw-url]|[![LDraw-Logo][ldraw-logo]][ldraw-url]|LDraw™ ([LDraw.org][ldraw-url]) parts is an open standard library that allow users to create virtual models and scenes. Three LDraw part libraries are bundled with LPub3D.<br>![LEGO][lego-logo] LDraw.org official and unofficial LEGO® part library.<br>![TENTE][tente-logo] TENTE® unofficial LDraw part library created by (Jasolo). <br>![VEXIQ][vexiq-logo] VEX IQ® unofficial LDraw library created by Philippe Hurbain (Philo).<br>![LSynth][lsynth-logo] [LSynth][lsynth-url] bendable parts synthesis elements created by Don Heyse (deeice).
+[LDraw][ldraw-url]|[![LDraw-Logo][ldraw-logo]][ldraw-url]|LDraw™ ([LDraw.org][ldraw-url]) parts is an open standard library that allow users to create virtual models and scenes. Three LDraw part libraries are bundled with LPub3D.<br>![LEGO][lego-logo] LDraw.org official and unofficial LEGO® part library.<br>![TENTE][tente-logo] TENTE® unofficial LDraw part library created by (Jasolo). <br>![VEXIQ][vexiq-logo] VEX IQ® unofficial LDraw library created by Philippe Hurbain (Philo).<br>![LSynth][lsynth-logo] [LSynth][lsynth-url] bendable parts synthesis elements created by Kevin Clague and updated by Don Heyse (deeice).
 [LGEO][lgeo-url]  |[![LGEO-Logo][lgeo-logo]][lgeo-url]   |POV-Ray photorealistic part library created by Lutz Uhlmann (El Lutzo), updated by Owen Burgoyne (C3POwen) and extended with STL object files by Damien Roux (Darats).
 
 LPub3D provides "native" **3D-viewer**, **POV scene file generation**, and POV-Ray PNG image rendering using integrated modules based on LeoCAD and LDView. Additionally, LDView, LDGLite and POV-Ray 3rd-party stand-alone **LDraw model renderers** are bundled in each LPub3D distribution. All stand-alone renderers are console applications custom adapted to LPub3D for tight integration, optimum configurability and robust performance.
@@ -94,14 +94,17 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
  - [LPub3D par J.C Tchang (en français)][jctchang-lpub3d]
 
 ### Features
- - Add, remove, edit substitute part from PLI context menu [#280](https://github.com/trevorsandy/lpub3d/issues/280) <span style="color:red">(NEW!)</span>
- - Automatically load LDCad generated flex parts [#272](https://github.com/trevorsandy/lpub3d/issues/272) <span style="color:red">(NEW!)</span>
- - Configurable LEGO style CSI, PLI and BOM annotation formatting [#186](https://github.com/trevorsandy/lpub3d/issues/186) [#187](https://github.com/trevorsandy/lpub3d/issues/187) <span style="color:red">(NEW!)</span>
- - Step and range dividers with configurable pointer arrows [#185](https://github.com/trevorsandy/lpub3d/issues/185) <span style="color:red">(NEW!)</span>
- - Render highly configurable POV-Ray generated images [#207](https://github.com/trevorsandy/lpub3d/issues/207) <span style="color:red">(NEW!)</span>
- - Continuous submodel step numbering [#179](https://github.com/trevorsandy/lpub3d/issues/179) <span style="color:red">(NEW!)</span>
- - Generate Sortable HTML part list with element ID [#196](https://github.com/trevorsandy/lpub3d/issues/196) <span style="color:red">(NEW!)</span>
- - OBJ, 3DS, STL, DAE, CSV and BrickLink XML exports [#188](https://github.com/trevorsandy/lpub3d/issues/188) [#195](https://github.com/trevorsandy/lpub3d/issues/195) <span style="color:red">(NEW!)</span>
+ - Set PDF, PNG, JPG and BMP pixel ratio for output resolution [#333](https://github.com/trevorsandy/lpub3d/issues/333) <span style="color:red">(NEW!)</span>
+ - Center justify step group and callout steps [#333](https://github.com/trevorsandy/lpub3d/issues/333) <span style="color:red">(NEW!)</span>
+ - Page items bring to front and send to back [#244](https://github.com/trevorsandy/lpub3d/issues/244) <span style="color:red">(NEW!)</span>
+ - Add, remove, edit substitute part from PLI context menu [#244](https://github.com/trevorsandy/lpub3d/issues/244) <span style="color:red">(NEW!)</span>
+ - Automatically load LDCad generated flex parts [#272](https://github.com/trevorsandy/lpub3d/issues/272)
+ - Configurable LEGO style CSI, PLI and BOM annotation formatting [#186](https://github.com/trevorsandy/lpub3d/issues/186) [#187](https://github.com/trevorsandy/lpub3d/issues/187)
+ - Step and range dividers with configurable pointer arrows [#185](https://github.com/trevorsandy/lpub3d/issues/185)
+ - Render configurable POV-Ray generated images [#207](https://github.com/trevorsandy/lpub3d/issues/207)
+ - Continuous submodel step numbering [#179](https://github.com/trevorsandy/lpub3d/issues/179)
+ - Generate Sortable HTML part list with element ID [#196](https://github.com/trevorsandy/lpub3d/issues/196)
+ - OBJ, 3DS, STL, DAE, CSV and BrickLink XML exports [#188](https://github.com/trevorsandy/lpub3d/issues/188) [#195](https://github.com/trevorsandy/lpub3d/issues/195)
  - Show submodel image at first step
  - Pre-bundled LSynth bendable part elements. Add to archive and, optionally, extract to LDraw folder
  - Pre-bundled and fully integrated LDraw part libraries for LEGO, TENTE and VEXIQ models
@@ -211,9 +214,9 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [macos-icon]:          https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/macos.png "macOS High Sierra 10.13.3"
 [windows-icon]:        https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/windows.png "Windows Server 2012 R2 6.3.9600.18969"
 
-[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.3.12/LPub3D-2.3.12.0.1356_20190620.exe
-[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.3.12/LPub3D-2.3.12.0.1356_20190620-macos.dmg
-[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.3.12/LPub3D-2.3.12.0.1356_20190620-x86_64.AppImage
+[windows-url]:         https://github.com/trevorsandy/lpub3d/releases/download/v2.3.13/LPub3D-2.3.13.0.1511_20190910.exe
+[macos-url]:           https://github.com/trevorsandy/lpub3d/releases/download/v2.3.13/LPub3D-2.3.13.0.1511_20190910-macos.dmg
+[appimage-url]:        https://github.com/trevorsandy/lpub3d/releases/download/v2.3.13/LPub3D-2.3.13.0.1511_20190910-x86_64.AppImage
 
 [arch-icon]:           https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/arch.png "Arch Linux"
 [centos-icon]:         https://raw.githubusercontent.com/trevorsandy/lpub3d/master/builds/utilities/icons/centos.png "CentOS 7"
@@ -243,8 +246,8 @@ VEX IQ® is a trademarks or service mark of Innovation First International, Inc,
 [buildfromsource]:     https://github.com/trevorsandy/lpub3d/blob/master/builds/utilities/README.md
 [qt-url]:              https://www.qt.io
 
-[sfreleases]:          https://sourceforge.net/projects/lpub3d/files/2.3.12
-[githubreleases]:      https://github.com/trevorsandy/lpub3d/releases/tag/v2.3.12
+[sfreleases]:          https://sourceforge.net/projects/lpub3d/files/2.3.13
+[githubreleases]:      https://github.com/trevorsandy/lpub3d/releases/tag/v2.3.13
 [obsreleases]:         https://software.opensuse.org/download.html?project=home:trevorsandy&package=lpub3d
 
 [sf_releases]:         https://sourceforge.net/projects/lpub3d/files
