@@ -70,7 +70,7 @@ if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
   echo
   LP3D_SF_DEPLOY_OPTIONS="NONE"
   if [[ "$TRAVIS_OS_NAME" == "linux" || "$TRAVIS_OS_NAME" == "osx" ]]; then
-     IFS='/' read -ra LP3D_SLUG_PARTS <<< $TRAVIS_REPO_SLUG; unset IFS;
+     IFS='/' read -ra LP3D_SLUG_PARTS <<< "$TRAVIS_REPO_SLUG"; unset IFS;
      echo "  TRAVIS_PROJECT_NAME..........[${LP3D_SLUG_PARTS[1]}]"
      if [ "${LP3D_SLUG_PARTS[1]}" = "lpub3d" ]; then
        LP3D_SF_DEPLOY_OPTIONS="DOWNLOAD"
