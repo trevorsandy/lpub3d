@@ -2118,7 +2118,7 @@ int Gui::findPage(
                           contStepNumber += ! coverPage && ! stepPage;
                       }
                       if (! stepGroup && stepNumber == 1) {
-                          if (pageNum == 1) {
+                          if (pageNum == 1 && topOfStep.modelName == topLevelFile()) { // when pageNum is 1 and not multistep, persist contStepNumber to 'meta' only if we are in the main model
                               meta.LPub.subModel.showStepNum.setValue(contStepNumber);
                           } else {
                               saveMeta.LPub.subModel.showStepNum.setValue(contStepNumber);
