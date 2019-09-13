@@ -146,6 +146,7 @@ Step::Step(
       pliPerStep              = false;
 
       csiCameraMeta.cameraAngles     = _meta.LPub.assem.cameraAngles;
+      csiCameraMeta.modelScale       = _meta.LPub.assem.modelScale;
       csiCameraMeta.cameraDistNative = _meta.LPub.assem.cameraDistNative;
       csiCameraMeta.cameraFoV        = _meta.LPub.assem.cameraFoV;
       csiCameraMeta.zfar             = _meta.LPub.assem.zfar;
