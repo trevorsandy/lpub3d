@@ -1858,11 +1858,6 @@ int Gui::findPage(
 
   ldrawFile.setRendered(current.modelName, isMirrored, renderParentModel, renderStepNumber, countInstances);
 
-  auto useContStepNum = [this, &contStepNumber, &topOfStep] ()
-  {
-      return contStepNumber && topOfStep.modelName != topLevelFile();
-  };
-
   for ( ;
         current.lineNumber < numLines;
         current.lineNumber++) {
@@ -1967,7 +1962,7 @@ int Gui::findPage(
                           saveStepPageNum = stepPageNum;
                           meta.submodelStack.pop_back();
                           meta.rotStep = saveRotStep2;       // restore old rotstep
-                          if (useContStepNum()) {              // capture continuous step number from exited submodel
+                          if (contStepNumber) {              // capture continuous step number from exited submodel
                               contStepNumber = saveContStepNum;
                           }
 
@@ -2016,7 +2011,7 @@ int Gui::findPage(
             case StepGroupBeginRc:
               stepGroup = true;
               stepGroupCurrent = topOfStep;
-              if (useContStepNum()){    // save starting step group continuous step number to pass to drawPage for submodel preview
+              if (contStepNumber){    // save starting step group continuous step number to pass to drawPage for submodel preview
                   int showStepNum = contStepNumber == 1 ? stepNumber : contStepNumber;
                   if (pageNum == 1) {
                       meta.LPub.subModel.showStepNum.setValue(showStepNum);
@@ -2050,7 +2045,7 @@ int Gui::findPage(
                       } else {
                         page.meta = saveMeta;
                       }
-                      if (useContStepNum()) {  // pass continuous step number to drawPage
+                      if (contStepNumber) {  // pass continuous step number to drawPage
                         page.meta.LPub.contModelStepNum.setValue(saveStepNumber);
                         saveStepNumber = saveContStepNum;
                       }
@@ -2112,7 +2107,7 @@ int Gui::findPage(
             case RotStepRc:
             case StepRc:
               if (partsAdded && ! noStep) {
-                  if (useContStepNum()) {   // increment continuous step number until we hit the display page
+                  if (contStepNumber) {   // increment continuous step number until we hit the display page
                       if (pageNum < displayPageNum &&
                          (stepNumber > FIRST_STEP || displayPageNum > FIRST_PAGE)) { // skip the first step
                           contStepNumber += ! coverPage && ! stepPage;
@@ -2137,7 +2132,7 @@ int Gui::findPage(
                           saveStepPageNum = stepPageNum;
                           // bfxParts.clear();
                         }
-                      if (useContStepNum()) { // save continuous step number from current model
+                      if (contStepNumber) { // save continuous step number from current model
                           saveContStepNum = contStepNumber;
                       }
                       saveCurrent = current;
@@ -2153,7 +2148,7 @@ int Gui::findPage(
                           } else {
                               page.meta = saveMeta;
                           }
-                          if (useContStepNum()) { // pass continuous step number to drawPage
+                          if (contStepNumber) { // pass continuous step number to drawPage
                               page.meta.LPub.contModelStepNum.setValue(saveStepNumber);
                               saveStepNumber = contStepNumber;
                           }
@@ -2392,7 +2387,7 @@ int Gui::findPage(
       // increment continuous step number
       // save continuous step number from current model
       // pass continuous step number to drawPage
-      if (useContStepNum()) {
+      if (contStepNumber) {
           if (! countInstances && pageNum < displayPageNum &&
              (stepNumber > FIRST_STEP || displayPageNum > FIRST_PAGE)) {
               contStepNumber += ! coverPage && ! stepPage;
