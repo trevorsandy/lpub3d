@@ -3,7 +3,7 @@
 # Deploy LPub3D assets to Sourceforge.net using OpenSSH and rsync
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: Aug 07, 2019
+#  Last Update: Sep 13, 2019
 #  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 #  Note: this script requires SSH host public/private keys
@@ -110,7 +110,22 @@ if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
         echo && echo "$LP3D_DOWNLOAD_ASSETS is empty. Sourceforge.net download assets deploy aborted."
       else
         echo && echo "- Download Release Assets:" && find $LP3D_DOWNLOAD_ASSETS -type f && echo
-        rsync --recursive --verbose $LP3D_DOWNLOAD_ASSETS/* $LP3D_SF_DOWNLOAD_CONNECT/$LP3D_SF_FOLDER/
+        if [ "$APPVEYOR" = "True" ]; then
+          rsync --recursive --verbose --delete-before \
+          --include "$LP3D_DOWNLOAD_ASSETS/" \
+          --include "$LP3D_DOWNLOAD_ASSETS/*.exe" \
+          --include "$LP3D_DOWNLOAD_ASSETS/*.zip" \
+          --include "$LP3D_DOWNLOAD_ASSETS/*.html" \
+          --include "$LP3D_DOWNLOAD_ASSETS/*.txt" \
+          --exclude "*" \
+          $LP3D_DOWNLOAD_ASSETS/ $LP3D_SF_DOWNLOAD_CONNECT/$LP3D_SF_FOLDER/
+        else
+          rsync --recursive --verbose --delete-before \
+          --include "$LP3D_DOWNLOAD_ASSETS/" \
+          --include "$LP3D_DOWNLOAD_ASSETS/$LP3D_ASSET_EXT" \
+          --exclude "*" \
+          $LP3D_DOWNLOAD_ASSETS/ $LP3D_SF_DOWNLOAD_CONNECT/$LP3D_SF_FOLDER/
+        fi
       fi
       ;;
     esac

@@ -3,7 +3,7 @@
 # Travis build [release] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: Sep 10, 2019
+#  Last Update: Sep 13, 2019
 #  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -33,6 +33,23 @@ else
 fi
 # Deploy to Sourceforge.net
 if [[ -z "$LP3D_SKIP_SF_DEPLOY" && -z "$LP3D_SF_DEPLOY_ABORT" ]]; then
+  if [ "$TRAVIS_OS_NAME" = "linux" ]; then
+    if [ "$LP3D_BUILD_ARCH" = "true" ]; then
+      export LP3D_ASSET_EXT="*.pkg.tar.xz"
+    fi;
+    if [ "$LP3D_BUILD_FEDORA" = "true" ]; then
+      export LP3D_ASSET_EXT="*.rpm"
+    fi;
+    if [ "$LP3D_BUILD_UBUNTU" = "true" ]; then
+      export LP3D_ASSET_EXT="*.deb"
+    fi;
+  fi;
+  if [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
+    export LP3D_ASSET_EXT="*.AppImage"
+  fi;
+  if [ "$LP3D_BUILD_MACOS" = "true" ]; then
+    export LP3D_ASSET_EXT="*.dmg"
+  fi;
   chmod a+x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh;
 else
   if [ -n "$LP3D_SKIP_SF_DEPLOY" ]; then
