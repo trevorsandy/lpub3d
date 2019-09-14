@@ -3,7 +3,7 @@
 # Travis build [release] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: Sep 13, 2019
+#  Last Update: Sep 14, 2019
 #  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -12,10 +12,16 @@ cd $LP3D_BUILD_FOLDER
 if [ "$LPUB3D_DIR" != "lpub3d" ]; then
   LP3D_RELEASE_DESCRIPTION="LPub3D - Development Release"
 fi;
-if [ "$LP3D_DEPLOY_PKG" = "yes" ]; then
+if [[ "$LP3D_DEPLOY_PKG" = "yes" || "$LP3D_TEST_SF_DEPLOY_VAR" = "true" ]]; then
   # Download assets from Dropbox store
   if [ -f "/tmp/.dropbox_oauth" ]; then
-    echo && echo "Downloading Travis release assets from Dropbox..."
+    # Set release or build Dropbox storage path
+    if [ "$LP3D_DEPLOY_PKG" = "yes" ]; then
+      echo && echo "Downloading Travis-CI release assets from Dropbox..."
+    else
+      echo && echo "Downloading Travis-CI build assets from Dropbox..."
+      LP3D_DROPBOX_DOWNLOADS_DIR=${LP3D_DROPBOX_BUILDS_DIR}/downloads
+    fi;
     chmod +x "${LP3D_CI_DIR}/dropbox_uploader.sh";
     ./"${LP3D_CI_DIR}/dropbox_uploader.sh" list "$LP3D_DROPBOX_DOWNLOADS_DIR";
     ./"${LP3D_CI_DIR}/dropbox_uploader.sh" download /"$LP3D_DROPBOX_DOWNLOADS_DIR" "$LP3D_RELEASES_DIR"/;
@@ -26,8 +32,9 @@ fi;
 # Verify release files in the Download directory
 if [ -n "$(find "$LP3D_DOWNLOAD_ASSETS" -maxdepth 0 -type d -empty 2>/dev/null)" ]; then
   echo "ERROR - The $LP3D_DOWNLOAD_ASSETS folder is empty.";
-  echo "GitHub release and Sourceforge.net download assets deploy aborted.";
+  echo "No download files detected, GitHub release and Sourceforge.net download assets deploy aborted.";
   export LP3D_DEPLOY_PKG="no";
+  export LP3D_SF_DEPLOY_ABORT="true"
 else
   echo "LPub3D Download Assets:" && find $LP3D_DOWNLOAD_ASSETS -type f;
 fi
@@ -35,20 +42,20 @@ fi
 if [[ -z "$LP3D_SKIP_SF_DEPLOY" && -z "$LP3D_SF_DEPLOY_ABORT" ]]; then
   if [ "$TRAVIS_OS_NAME" = "linux" ]; then
     if [ "$LP3D_BUILD_ARCH" = "true" ]; then
-      export LP3D_ASSET_EXT="*.pkg.tar.xz"
+      export LP3D_ASSET_EXT="*.pkg.tar.xz*"
     fi;
     if [ "$LP3D_BUILD_FEDORA" = "true" ]; then
-      export LP3D_ASSET_EXT="*.rpm"
+      export LP3D_ASSET_EXT="*.rpm*"
     fi;
     if [ "$LP3D_BUILD_UBUNTU" = "true" ]; then
-      export LP3D_ASSET_EXT="*.deb"
+      export LP3D_ASSET_EXT="*.deb*"
     fi;
   fi;
   if [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
-    export LP3D_ASSET_EXT="*.AppImage"
+    export LP3D_ASSET_EXT="*.AppImage*"
   fi;
   if [ "$LP3D_BUILD_MACOS" = "true" ]; then
-    export LP3D_ASSET_EXT="*.dmg"
+    export LP3D_ASSET_EXT="*.dmg*"
   fi;
   chmod a+x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh;
 else

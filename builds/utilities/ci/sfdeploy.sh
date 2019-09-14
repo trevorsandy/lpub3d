@@ -3,7 +3,7 @@
 # Deploy LPub3D assets to Sourceforge.net using OpenSSH and rsync
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: Sep 13, 2019
+#  Last Update: Sep 14, 2019
 #  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 #  Note: this script requires SSH host public/private keys
@@ -70,25 +70,21 @@ if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
   echo
   LP3D_SF_DEPLOY_OPTIONS="NONE"
   if [[ "$TRAVIS_OS_NAME" == "linux" || "$TRAVIS_OS_NAME" == "osx" ]]; then
-     IFS='/' read -ra LP3D_SLUG_PARTS <<< "$TRAVIS_REPO_SLUG"; unset IFS;
-     echo "  TRAVIS_PROJECT_NAME..........[${LP3D_SLUG_PARTS[1]}]"
-     if [ "${LP3D_SLUG_PARTS[1]}" = "lpub3d" ]; then
-       LP3D_SF_DEPLOY_OPTIONS="DOWNLOAD"
-       if [ "$LP3D_DEPLOY_PKG" != "yes" ];then
-         LP3D_SF_FOLDER="Continuous"
-       else
-         LP3D_SF_FOLDER="$LP3D_VERSION"
-       fi
-     fi
+    IFS='/' read -ra LP3D_SLUG_PARTS <<< "$TRAVIS_REPO_SLUG"; unset IFS;
+    echo "  TRAVIS_PROJECT_NAME..........[${LP3D_SLUG_PARTS[1]}]"
+    LP3D_SF_DEPLOY_OPTIONS="DOWNLOAD"
+    if [ "$LP3D_DEPLOY_PKG" != "yes" ];then
+      LP3D_SF_FOLDER="Continuous"
+    else
+      LP3D_SF_FOLDER="$LP3D_VERSION"
+    fi
   elif [ "$APPVEYOR" = "True" ]; then
-    if [ "$APPVEYOR_PROJECT_NAME" = "lpub3d" ]; then
-      echo "  APPVEYOR_PROJECT_NAME........[$APPVEYOR_PROJECT_NAME]"
-      LP3D_SF_DEPLOY_OPTIONS="UDPATE DOWNLOAD"
-      if [ "$LP3D_CONTINUOUS_BUILD_PKG" = "true" ]; then
-        LP3D_SF_FOLDER="Continuous"
-      else
-        LP3D_SF_FOLDER="$LP3D_VERSION"
-      fi
+    echo "  APPVEYOR_PROJECT_NAME........[$APPVEYOR_PROJECT_NAME]"
+    LP3D_SF_DEPLOY_OPTIONS="UDPATE DOWNLOAD"
+    if [ "$LP3D_CONTINUOUS_BUILD_PKG" = "true" ]; then
+      LP3D_SF_FOLDER="Continuous"
+    else
+      LP3D_SF_FOLDER="$LP3D_VERSION"
     fi
   fi
   echo "  LP3D_SF_DEPLOY_OPTIONS.......[$LP3D_SF_DEPLOY_OPTIONS]"
@@ -100,7 +96,7 @@ if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
       if [ -n "$(find "$LP3D_UPDATE_ASSETS" -maxdepth 0 -type d -empty 2>/dev/null)" ]; then
         echo && echo "$LP3D_UPDATE_ASSETS is empty. Sourceforge.net update assets deploy aborted."
       else
-        echo && echo "- Update Release Assets:" && find $LP3D_UPDATE_ASSETS -type f && echo
+        echo && echo "- LPub3D Update Assets:" && find $LP3D_UPDATE_ASSETS -type f && echo
         rsync --recursive --verbose $LP3D_UPDATE_ASSETS/* $LP3D_SF_UDPATE_CONNECT/
       fi
       ;;
@@ -109,21 +105,15 @@ if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
       if [ -n "$(find "$LP3D_DOWNLOAD_ASSETS" -maxdepth 0 -type d -empty 2>/dev/null)" ]; then
         echo && echo "$LP3D_DOWNLOAD_ASSETS is empty. Sourceforge.net download assets deploy aborted."
       else
-        echo && echo "- Download Release Assets:" && find $LP3D_DOWNLOAD_ASSETS -type f && echo
+        echo && echo "- LPub3D Download Assets:" && find $LP3D_DOWNLOAD_ASSETS -type f && echo
         if [ "$APPVEYOR" = "True" ]; then
           rsync --recursive --verbose --delete-before \
-          --include "$LP3D_DOWNLOAD_ASSETS/" \
-          --include "$LP3D_DOWNLOAD_ASSETS/*.exe" \
-          --include "$LP3D_DOWNLOAD_ASSETS/*.zip" \
-          --include "$LP3D_DOWNLOAD_ASSETS/*.html" \
-          --include "$LP3D_DOWNLOAD_ASSETS/*.txt" \
-          --exclude "*" \
+          --include={'*.exe','*.zip','*.html','*.txt'} --exclude '*' \
           $LP3D_DOWNLOAD_ASSETS/ $LP3D_SF_DOWNLOAD_CONNECT/$LP3D_SF_FOLDER/
         else
+          echo "- Asset Wildcard: $LP3D_ASSET_EXT" && echo
           rsync --recursive --verbose --delete-before \
-          --include "$LP3D_DOWNLOAD_ASSETS/" \
-          --include "$LP3D_DOWNLOAD_ASSETS/$LP3D_ASSET_EXT" \
-          --exclude "*" \
+          --include $LP3D_ASSET_EXT --exclude '*' \
           $LP3D_DOWNLOAD_ASSETS/ $LP3D_SF_DOWNLOAD_CONNECT/$LP3D_SF_FOLDER/
         fi
       fi

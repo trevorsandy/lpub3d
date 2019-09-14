@@ -3,7 +3,7 @@
 # Travis build [before_install] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: Sep 10, 2019
+#  Last Update: Sep 14, 2019
 #  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 
@@ -12,7 +12,7 @@
 echo "$TRAVIS_COMMIT_MESSAGE" | awk '{print tolower($0)}' | grep -E '\[(skip travis|travis skip)\]' \
 && echo "[skip travis] detected, exiting." \
 && exit 0 || [ "$LP3D_SKIP_TRAVIS_VAR" = "true" ] \
-&& echo "Skip Travis-CI detected in environment variable." \
+&& echo "'Skip Travis-CI' detected in environment variable." \
 && exit 0 || true
 
 # Build package if commit message contains [build pkg] 
@@ -25,14 +25,12 @@ echo "$TRAVIS_COMMIT_MESSAGE" | awk '{print tolower($0)}' | grep -E '\[build pkg
 
 # Deploy package if environment variable LP3D_TEST_SF_DEPLOY_VAR is true
 [ "$LP3D_TEST_SF_DEPLOY_VAR" = "true" ] \
-&& export LP3D_BUILD_PKG=yes \
-&& export LP3D_DEPLOY_PKG=yes \
-&& echo "Deploy package detected in environment variable." || true
+&& echo "'Test Sourceforge deploy' detected in environment variable." || true
 
 # Skip Sourceforge deploy if LP3D_SKIP_SF_DEPLOY_VAR is true
 [ "$LP3D_SKIP_SF_DEPLOY_VAR" = "true" ] \
 && export LP3D_SKIP_SF_DEPLOY=yes \
-&& echo "Skip Sourceforge deploy detected in environment variable." || true;
+&& echo "'Skip Sourceforge deploy' detected in environment variable." || true;
 
 # Deploy package if pushed tag exists and has a valid format (vN.N.N[_A])
 # Automatically deploy to GitHub Release and Sourceforge.net.

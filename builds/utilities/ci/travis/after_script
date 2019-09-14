@@ -3,7 +3,7 @@
 # Travis build [after_script] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: June 24, 2019
+#  Last Update: Sep 14, 2019
 #  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -74,12 +74,13 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_
   fi;
   [ -n "$file_Logs" ] && cp -f $file_Logs $LP3D_LOGS_DIR || echo "ERROR - Logs folder empty, nothing copied";
   [ -n "$file_DPkg" ] && cp -f $file_DPkg $LP3D_DOWNLOAD_ASSETS || echo "ERROR - Download assets folder empty, nothing copied";
-  echo "Release Assets:" && find $LP3D_RELEASES_DIR -type f;
 
   # Set release or build Dropbox storage path
   if [ "$LP3D_DEPLOY_PKG" = "yes" ]; then
+    echo "Travis-CI Release Assets:" && find $LP3D_RELEASES_DIR -type f;
     LP3D_DROPBOX_DIR="$LP3D_DROPBOX_RELEASES_DIR";
   else
+    echo "Travis-CI Build Assets:" && find $LP3D_RELEASES_DIR -type f;
     LP3D_DROPBOX_DIR="$LP3D_DROPBOX_BUILDS_DIR";
   fi;
 
@@ -94,7 +95,7 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_
     echo "ERROR - /tmp/.dropbox_oauth token file not found - cannot perform upload";
   fi;
 
-  # Upload continuous build assets
+  # Upload continuous build assets to GitHub
   if [ "$LP3D_DEPLOY_PKG" != "yes" ]; then
     export GREP_PATH=grep;
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export GREP_PATH=ggrep; fi
