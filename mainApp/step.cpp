@@ -447,9 +447,9 @@ int Step::createCsi(
       viewerOptions.ViewerCsiKey   = viewerCsiKey;
       viewerOptions.ImageFileName  = pngName;
       viewerOptions.UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
-      viewerOptions.FoV            = csiCameraMeta.cameraFoV.value();
-      viewerOptions.ZNear          = csiCameraMeta.znear.value();
-      viewerOptions.ZFar           = csiCameraMeta.zfar.value();
+      viewerOptions.FoV            = CAMERA_FOV_NATIVE_DEFAULT;
+      viewerOptions.ZNear          = CAMERA_ZNEAR_NATIVE_DEFAULT;
+      viewerOptions.ZFar           = CAMERA_ZFAR_NATIVE_DEFAULT;
       viewerOptions.CameraDistance = csiCameraMeta.cameraDistNative.factor.value();
       viewerOptions.Latitude       = absRotstep ? noCA.value(0) : csiCameraMeta.cameraAngles.value(0);
       viewerOptions.Longitude      = absRotstep ? noCA.value(1) : csiCameraMeta.cameraAngles.value(1);

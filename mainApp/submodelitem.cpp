@@ -313,10 +313,10 @@ int SubModel::createSubModelImage(
       viewerOptions.ViewerCsiKey   = viewerCsiKey;
       viewerOptions.ImageFileName  = imageName;
       viewerOptions.UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
-      viewerOptions.FoV            = subModelMeta.cameraFoV.value();
       viewerOptions.CameraDistance = subModelMeta.cameraDistNative.factor.value();
-      viewerOptions.ZNear          = subModelMeta.znear.value();
-      viewerOptions.ZFar           = subModelMeta.zfar.value();
+      viewerOptions.FoV            = CAMERA_FOV_NATIVE_DEFAULT;
+      viewerOptions.ZNear          = CAMERA_ZNEAR_NATIVE_DEFAULT;
+      viewerOptions.ZFar           = CAMERA_ZFAR_NATIVE_DEFAULT;
       viewerOptions.Latitude       = noCA ? 0.0 : subModelMeta.cameraAngles.value(0);
       viewerOptions.Longitude      = noCA ? 0.0 : subModelMeta.cameraAngles.value(1);
   }
