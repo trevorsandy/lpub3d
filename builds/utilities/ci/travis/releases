@@ -58,6 +58,18 @@ if [[ -z "$LP3D_SKIP_SF_DEPLOY" && -z "$LP3D_SF_DEPLOY_ABORT" ]]; then
     export LP3D_ASSET_EXT="*.dmg*"
   fi;
   chmod a+x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh;
+  # Upload Sourceforge deploy log to Dropbox for temp storage
+  if [ -f "/tmp/.dropbox_oauth" ]; then
+    chmod +x "${LP3D_CI_DIR}/dropbox_uploader.sh";
+    if [ -f "./sfdeploy.sh.log" ]; then
+      cp -f "./sfdeploy.sh.log" $LP3D_LOGS_DIR;
+      ./"${LP3D_CI_DIR}/dropbox_uploader.sh" upload "$LP3D_LOGS_DIR/sfdeploy.sh.log" "$LP3D_DROPBOX_DIR"/;
+    else
+      echo "ERROR - Sourceforge deploy log not found, nothing copied";
+    fi
+  else
+    echo "ERROR - /tmp/.dropbox_oauth token file not found - cannot perform Sourceforge deploy log upload";
+  fi;
 else
   if [ -n "$LP3D_SKIP_SF_DEPLOY" ]; then
     echo "NOTICE - LP3D_SKIP_SF_DEPLOY detected. Deploy to Sourceforge skipped.";

@@ -39,23 +39,6 @@ realpath() {
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 CWD=`pwd`
 
-echo "Start $ME execution at $CWD..."
-
-# Change these when you change the LPub3D root directory (e.g. if using a different root folder when testing)
-LPUB3D="${LPUB3D:-lpub3d}"
-echo && echo "   LPUB3D SOURCE DIR......[$(realpath .)]"
-
-if [ "$BUILD_OPT" = "compile" ]; then
-  echo "   BUILD OPTION...........[comple only]"
-elif [ "$BUILD_OPT" = "renderers" ]; then
-  echo "   BUILD OPTION...........[renderers only]"
-else
-  echo "   BUILD OPTION...........[build package]"
-fi
-
-# tell curl to be silent, continue downloads and follow redirects
-curlopts="-sL -C -"
-
 # logging stuff
 # increment log file name
 f="${CWD}/$ME"
@@ -74,6 +57,24 @@ fi
 LOG="$f"
 exec > >(tee -a ${LOG} )
 exec 2> >(tee -a ${LOG} >&2)
+
+echo "Start $ME execution at $CWD..."
+
+# Change these when you change the LPub3D root directory (e.g. if using a different root folder when testing)
+LPUB3D="${LPUB3D:-lpub3d}"
+echo && echo "   LPUB3D SOURCE DIR......[$(realpath .)]"
+
+if [ "$BUILD_OPT" = "compile" ]; then
+  echo "   BUILD OPTION...........[comple only]"
+elif [ "$BUILD_OPT" = "renderers" ]; then
+  echo "   BUILD OPTION...........[renderers only]"
+else
+  echo "   BUILD OPTION...........[build package]"
+fi
+
+# tell curl to be silent, continue downloads and follow redirects
+curlopts="-sL -C -"
+
 echo "   LOG FILE...............[${LOG}]" && echo
 
 # when running locally, use this block...
@@ -132,6 +133,7 @@ else
 fi
 
 echo "-  source update_config_files.sh..." && echo
+
 _PRO_FILE_PWD_=$PWD/${LPUB3D}/mainApp
 source ${LPUB3D}/builds/utilities/update-config-files.sh
 SOURCE_DIR=${LPUB3D}-${LP3D_VERSION}

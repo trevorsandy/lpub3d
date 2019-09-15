@@ -8,6 +8,42 @@
 #
 #  Note: this script requires SSH host public/private keys
 
+# Capture elapsed time - reset BASH time counter
+SECONDS=0
+SfElapsedTime() {
+  # Elapsed execution time
+  ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
+  echo "----------------------------------------------------"
+  echo "$ME Finished!"
+  echo "$ELAPSED"
+  echo "----------------------------------------------------"
+}
+
+ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
+CWD=`pwd`
+
+if [[ "$TRAVIS_OS_NAME" == "linux" || "$TRAVIS_OS_NAME" == "osx" ]]; then
+  # logging stuff - increment log file name
+  f="${CWD}/$ME"
+  ext=".log"
+  if [[ -e "$f$ext" ]] ; then
+    i=1
+    f="${f%.*}";
+    while [[ -e "${f}_${i}${ext}" ]]; do
+      let i++
+    done
+    f="${f}_${i}${ext}"
+  else
+    f="${f}${ext}"
+  fi
+  # output log file
+  LOG="$f"
+  exec > >(tee -a ${LOG} )
+  exec 2> >(tee -a ${LOG} >&2)
+fi
+
+echo "Start $ME execution"
+
 # set working directory
 sfParent_dir=${PWD##*/}
 if  [ "$sfParent_dir" = "ci" ]; then
@@ -72,6 +108,7 @@ if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
   if [[ "$TRAVIS_OS_NAME" == "linux" || "$TRAVIS_OS_NAME" == "osx" ]]; then
     IFS='/' read -ra LP3D_SLUG_PARTS <<< "$TRAVIS_REPO_SLUG"; unset IFS;
     echo "  TRAVIS_PROJECT_NAME..........[${LP3D_SLUG_PARTS[1]}]"
+    echo "  LP3D_ASSET_EXTENSION.........[${LP3D_ASSET_EXT}]"
     LP3D_SF_DEPLOY_OPTIONS="DOWNLOAD"
     if [ "$LP3D_DEPLOY_PKG" != "yes" ];then
       LP3D_SF_FOLDER="Continuous"
@@ -111,9 +148,8 @@ if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
           --include={'*.exe','*.zip','*.html','*.txt'} --exclude '*' \
           $LP3D_DOWNLOAD_ASSETS/ $LP3D_SF_DOWNLOAD_CONNECT/$LP3D_SF_FOLDER/
         else
-          echo "- Asset Wildcard: $LP3D_ASSET_EXT" && echo
           rsync --recursive --verbose --delete-before \
-          --include $LP3D_ASSET_EXT --exclude '*' \
+          --include "$LP3D_ASSET_EXT" --exclude '*' \
           $LP3D_DOWNLOAD_ASSETS/ $LP3D_SF_DOWNLOAD_CONNECT/$LP3D_SF_FOLDER/
         fi
       fi
@@ -122,3 +158,5 @@ if [ -z "$LP3D_SF_DEPLOY_ABORT" ]; then
   done
 fi
 
+# Elapsed execution time
+SfElapsedTime
