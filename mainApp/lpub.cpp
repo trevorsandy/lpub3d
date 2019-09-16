@@ -1460,6 +1460,8 @@ void Gui::reloadCurrentPage(){
 
     if (Preferences::saveOnRedraw) {
         maybeSave(false); // No prompt
+    } else {
+        maybeSave();
     }
 
     timer.start();
@@ -1562,6 +1564,8 @@ void Gui::clearAllCaches()
 
     if (Preferences::saveOnRedraw) {
         maybeSave(false); // No prompt
+    } else {
+        maybeSave();
     }
 
     timer.start();
