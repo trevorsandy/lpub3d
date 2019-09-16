@@ -3,7 +3,7 @@
 # Travis build [after_script] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: Sep 14, 2019
+#  Last Update: Sep 16, 2019
 #  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -116,7 +116,11 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_
     if [ -f ${upload_script_file} -a -r ${upload_script_file} ]; then
       IFS='/' read -ra SLUG_PARTS <<< "$TRAVIS_REPO_SLUG"; unset IFS;
       if [ "${SLUG_PARTS[1]}" != "lpub3d" ]; then
-        LP3D_RELEASE_LABEL="Continuous DevOps Build ${LP3D_VER_BUILD} (r${LP3D_VER_REVISION})"
+        if [ "${SLUG_PARTS[1]}" = "lpub3dnext" ]; then
+          LP3D_RELEASE_LABEL="Continuous Next Build ${LP3D_VER_BUILD} (r${LP3D_VER_REVISION})"
+        else
+          LP3D_RELEASE_LABEL="Continuous DevOps Build ${LP3D_VER_BUILD} (r${LP3D_VER_REVISION})"
+        fi
       else
         LP3D_RELEASE_LABEL="Continuous Build ${LP3D_VER_BUILD} (r${LP3D_VER_REVISION})"
       fi

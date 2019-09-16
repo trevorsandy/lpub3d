@@ -3,14 +3,18 @@
 # Travis build [release] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: Sep 15, 2019
+#  Last Update: Sep 16, 2019
 #  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
 
 # Set release description
 if [ "$LPUB3D_DIR" != "lpub3d" ]; then
-  LP3D_RELEASE_DESCRIPTION="LPub3D - Development Release"
+  if [ "$LPUB3D_DIR" = "lpub3dnext" ]; then
+    LP3D_RELEASE_DESCRIPTION="LPub3D - Next Release"
+  else
+    LP3D_RELEASE_DESCRIPTION="LPub3D - Development Release"
+  fi
 fi;
 if [[ "$LP3D_DEPLOY_PKG" = "yes" || "$LP3D_TEST_SF_DEPLOY_VAR" = "true" ]]; then
   # Download assets from Dropbox store
@@ -61,7 +65,7 @@ if [[ -z "$LP3D_SKIP_SF_DEPLOY" && -z "$LP3D_SF_DEPLOY_ABORT" ]]; then
   # Upload Sourceforge deploy log to Dropbox for temp storage
   if [ -f "/tmp/.dropbox_oauth" ]; then
     chmod +x "${LP3D_CI_DIR}/dropbox_uploader.sh";
-    sfdeployLog="CreateSfdeploy.sh$(echo "$LP3D_ASSET_EXT" | sed -r 's/\*//g').log"
+    sfdeployLog="CreateSfdeploy.sh$(echo "$LP3D_ASSET_EXT" | sed 's/\*//g').log"
     if [ -f "$sfdeployLog" ]; then
       cp -f "$sfdeployLog" $LP3D_LOGS_DIR;
       ./"${LP3D_CI_DIR}/dropbox_uploader.sh" upload "$LP3D_LOGS_DIR/$sfdeployLog" "$LP3D_DROPBOX_DIR/logs"/;

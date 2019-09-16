@@ -225,7 +225,7 @@ void Application::initialize()
     const int NumArguments = Arguments.size();
     for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
     ListArgs << Arguments[ArgIdx];
-#if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD
+#if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
     hdr = QString("%1 v%2 r%3 (%4) for %5")
                             .arg(VER_PRODUCTNAME_STR)
                             .arg(VER_PRODUCTVERSION_STR)

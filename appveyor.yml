@@ -1,6 +1,6 @@
 # Build and check LPub3D x86 and x86_64 architectures unsing Qt/MinGW/VS2017 platforms
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: Sep 10, 2019
+# Last Update: Sep 16, 2019
 # Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 version: 'LPub3D-AV-Build-{build}'
@@ -283,11 +283,14 @@ after_build:
           }
         }
         If ($env:LP3D_CONTINUOUS_BUILD_PKG -eq "true") {
-          If ($env:APPVEYOR_PROJECT_NAME -ne "lpub3d") {
-            $env:LP3D_RELEASE_LABEL = "Continuous DevOps Build $env:LP3D_VER_BUILD (r$env:LP3D_VER_REVISION)"
-            $env:LP3D_RELEASE_DESCRIPTION = "$env:LP3D_PACKAGE - DevOps Release"
-          } Else {
+          If ($env:APPVEYOR_PROJECT_NAME -eq "lpub3d") {
             $env:LP3D_RELEASE_LABEL = "Continuous Build $env:LP3D_VER_BUILD (r$env:LP3D_VER_REVISION)"
+          } ElseIf ($env:APPVEYOR_PROJECT_NAME -eq "lpub3dnext") {
+            $env:LP3D_RELEASE_LABEL = "Continuous Next Build $env:LP3D_VER_BUILD (r$env:LP3D_VER_REVISION)"
+            $env:LP3D_RELEASE_DESCRIPTION = "$env:LP3D_PACKAGE - Next Release"
+          } Else {
+            $env:LP3D_RELEASE_LABEL = "Continuous DevOps Build $env:LP3D_VER_BUILD (r$env:LP3D_VER_REVISION)"
+            $env:LP3D_RELEASE_DESCRIPTION = "$env:LP3D_PACKAGE - Development Release"
           }
         }
       }

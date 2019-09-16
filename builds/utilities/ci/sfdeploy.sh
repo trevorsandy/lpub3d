@@ -3,7 +3,7 @@
 # Deploy LPub3D assets to Sourceforge.net using OpenSSH and rsync
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: Sep 15, 2019
+#  Last Update: Sep 16, 2019
 #  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 #  Note: this script requires SSH host public/private keys
@@ -25,7 +25,7 @@ CWD=`pwd`
 if [[ "$TRAVIS_OS_NAME" == "linux" || "$TRAVIS_OS_NAME" == "osx" ]]; then
   # logging stuff - increment log file name
   f="${CWD}/CreateS${ME:1}"
-  ext="$(echo "$LP3D_ASSET_EXT" | sed -r 's/\*//g').log"
+  ext="$(echo "$LP3D_ASSET_EXT" | sed 's/\*//g').log"
   if [[ -e "$f$ext" ]] ; then
     i=1
     f="${f%.*}";
