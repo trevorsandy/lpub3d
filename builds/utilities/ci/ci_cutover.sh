@@ -173,8 +173,8 @@ fi
 cd $HOME_DIR/$TO_REPO_NAME
 if [ "$TO_REPO_NAME" = "lpub3dnext" ];then git checkout CUTOVER_IN; fi
 
-echo "2-Remove current $TO_REPO_NAME content except .git folder..."
-find . -not -path "./.git/*" -type f -exec rm -rf {} +
+echo "2-Remove current $TO_REPO_NAME content except .git folder and .user file..."
+find . -not -name '*.user' -not -path "./.git/*" -type f -exec rm -rf {} +
 
 echo "3-Copy $FROM_REPO_NAME content to $TO_REPO_NAME except .git folder..." && cd ../$FROM_REPO_NAME
 find . -not -name '*.log*' \
@@ -353,7 +353,6 @@ if [ "$RELEASE_COMMIT" = "no" ]; then
    echo "18-Delete local tag"
    git tag --delete $LOCAL_TAG
    rm -f update-config-files.sh.log
-   cd $HOME_DIR
 else
    echo "18-Create local tag in $FROM_REPO_NAME repository" 
    cd ../$FROM_REPO_NAME
@@ -361,7 +360,15 @@ else
    git tag -a $LOCAL_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
    git_tag="$(git tag -l -n $LOCAL_TAG)" && \
    [ -n "$git_tag" ] && echo " -git tag $git_tag created."
-   cd $HOME_DIR
+fi
+cd $HOME_DIR/$FROM_REPO_NAME
+if [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then
+  git checkout master;
+  cd $HOME_DIR/$TO_REPO_NAME
+  git checkout master;
+elif [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3d" ]]; then 
+  git checkout master;
+  cd $HOME_DIR
 fi
 
 echo "Finished - COMMIT_MSG...$COMMIT_MSG" && echo

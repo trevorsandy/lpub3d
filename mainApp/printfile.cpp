@@ -1292,7 +1292,16 @@ void Gui::exportAs(const QString &_suffix)
 
   // determine location to output images
   QFileInfo fileInfo(curFile);
+
+  // set the file name
   QString baseName = fileInfo.completeBaseName();
+
+  // add pixel ratio info to file name
+  QString dpiInfo = QString("_%1_DPI").arg(int(resolution()));
+  if (exportPixelRatio > 1.0 || exportPixelRatio < 1.0){
+      dpiInfo += QString("_%1x").arg(exportPixelRatio);
+  }
+  baseName += dpiInfo;
 
   if (Preferences::modeGUI && saveDirectoryName.isEmpty()) {
       directoryName = QFileDialog::getExistingDirectory(
@@ -1377,13 +1386,6 @@ void Gui::exportAs(const QString &_suffix)
               clearPage(&view,&scene);
 
           } else {
-              // add pixel ratio info to file name
-              QString dpiInfo = QString("_%1_DPI").arg(int(resolution()));
-              if (exportPixelRatio > 1.0 || exportPixelRatio < 1.0){
-                  dpiInfo += QString("_%1x").arg(exportPixelRatio);
-              }
-              baseName += dpiInfo;
-
               // determine size of output image, in pixels
               getExportPageSize(pageWidthPx, pageHeightPx);
               adjPageWidthPx = int(double(pageWidthPx) * dpr);
@@ -1496,13 +1498,6 @@ void Gui::exportAs(const QString &_suffix)
               clearPage(&view,&scene);
 
           } else {
-              // add pixel ratio info to file name
-              QString dpiInfo = QString("_%1_DPI").arg(int(resolution()));
-              if (exportPixelRatio > 1.0 || exportPixelRatio < 1.0){
-                  dpiInfo += QString("_%1x").arg(exportPixelRatio);
-              }
-              baseName += dpiInfo;
-
               // determine size of output image, in pixels
               getExportPageSize(pageWidthPx, pageHeightPx);
               adjPageWidthPx  = int(double(pageWidthPx) * dpr);
