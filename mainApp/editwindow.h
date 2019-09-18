@@ -117,6 +117,7 @@ signals:
     void updateSig();
     void enableWatcherSig();
     void disableWatcherSig();
+    void updateDisabledSig(bool);
 
 private slots:
     void contentsChange(int position, int charsRemoved, int charsAdded);

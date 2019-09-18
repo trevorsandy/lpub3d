@@ -94,6 +94,8 @@ class PreferencesDialog : public QDialog
     bool          includeFunction();
     bool          includeAllLogAttrib();
     bool          showParseErrors();
+    bool          showSaveOnRedraw();
+    bool          showSaveOnUpdate();
     bool          addLSynthSearchDir();
     bool          archiveLSynthParts();
     bool          perspectiveProjection();
@@ -163,6 +165,8 @@ class PreferencesDialog : public QDialog
     void on_ldviewSingleCall_Chk_clicked(bool checked);
 
     void on_resetSceneColorsButton_clicked(bool checked);
+    void on_saveOnRedrawChkBox_clicked(bool checked);
+    void on_saveOnUpdateChkBox_clicked(bool checked);
 
     void ldvPoVFileGenOptBtn_clicked();
     void ldvPoVFileGenPrefBtn_clicked();
@@ -187,6 +191,8 @@ private:
     QString sceneRulerTrackingColorStr;
     QString sceneGuideColorStr;
     bool resetSceneColorsFlag;
+    bool showSaveOnRedrawFlag;
+    bool showSaveOnUpdateFlag;
 };
 
 #endif

@@ -1458,10 +1458,12 @@ void Gui::reloadCurrentPage(){
         return;
     }
 
-    if (Preferences::saveOnRedraw) {
-        maybeSave(false); // No prompt
-    } else {
-        maybeSave();
+    if (sender() == editWindow) {
+        if (Preferences::saveOnUpdate) {
+            maybeSave(false); // No prompt
+        } else {
+            maybeSave(true,SaveOnUpdate);
+        }
     }
 
     timer.start();
@@ -1478,10 +1480,13 @@ void Gui::reloadCurrentModelFile(){
         return;
     }
 
-    QObject *widget = sender();
-    if (!(widget && widget == editModeWindow))
-        if (!maybeSave())
-            return;
+    if (sender() == editModeWindow) {
+        if (Preferences::saveOnUpdate) {
+            maybeSave(false); // No prompt
+        } else {
+            maybeSave(true, SaveOnUpdate);
+        }
+    }
 
     timer.start();
 
@@ -1526,6 +1531,14 @@ void Gui::clearAndRedrawModelFile() {
     bool saveChange = changeAccepted;
     changeAccepted = true;
 
+    if (sender() == editModeWindow) {
+        if (Preferences::saveOnRedraw) {
+            maybeSave(false); // No prompt
+        } else {
+            maybeSave(true,SaveOnRedraw);
+        }
+    }
+
     timer.start();
 
     if (Preferences::enableFadeSteps || Preferences::enableHighlightStep) {
@@ -1552,6 +1565,13 @@ void Gui::clearAndRedrawModelFile() {
 }
 
 void Gui::clearAndReloadModelFile() {
+    if (sender() == editWindow) {
+        if (Preferences::saveOnRedraw) {
+            maybeSave(false); // No prompt
+        } else {
+            maybeSave(true, SaveOnRedraw);
+        }
+    }
     clearAllCaches();
 }
 
@@ -1560,12 +1580,6 @@ void Gui::clearAllCaches()
     if (getCurFile().isEmpty()) {
         emit messageSig(LOG_STATUS,"A model must be open to reset its caches - no action taken.");
         return;
-    }
-
-    if (Preferences::saveOnRedraw) {
-        maybeSave(false); // No prompt
-    } else {
-        maybeSave();
     }
 
     timer.start();
@@ -2718,6 +2732,9 @@ Gui::Gui()
             this,           SLOT(  cleanChanged(bool)));
     connect(undoStack,      SIGNAL(cleanChanged(bool)),
             editWindow,     SLOT(  updateDisabled(bool)));
+
+    connect(editWindow,     SIGNAL(updateDisabledSig(bool)),
+            editModeWindow, SLOT(  updateDisabled(bool)));
 
     // edit model file
     connect(this,           SIGNAL(displayModelFileSig(LDrawFile *, const QString &)),

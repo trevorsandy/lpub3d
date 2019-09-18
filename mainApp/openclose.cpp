@@ -250,9 +250,21 @@ void Gui::saveAs()
   enableWatcher();
 } 
 
-bool Gui::maybeSave(bool prompt)
+bool Gui::maybeSave(bool prompt, int sender /*SaveOnNone=0*/)
 {
-  if ( ! undoStack->isClean() ) {
+  QString senderLabel;
+  bool proceed = true;
+  SaveOnSender saveSender = SaveOnSender(sender);
+  if (saveSender ==  SaveOnRedraw) {
+      senderLabel = "redraw";
+      proceed = Preferences::showSaveOnRedraw;
+  } else
+  if (saveSender ==  SaveOnUpdate) {
+     senderLabel = "update";
+     proceed = Preferences::showSaveOnUpdate;
+  }
+
+  if ( ! undoStack->isClean() && proceed) {
     if (Preferences::modeGUI && prompt) {
       // Get the application icon as a pixmap
       QPixmap _icon = QPixmap(":/icons/lpub96.png");
@@ -272,10 +284,25 @@ bool Gui::maybeSave(bool prompt)
       box.setInformativeText (text);
       box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
       box.setDefaultButton   (QMessageBox::Yes);
+
+      if (saveSender){
+          QCheckBox *cb = new QCheckBox(tr("Do not show save changes on %1 message again.").arg(senderLabel));
+          box.setCheckBox(cb);
+          QObject::connect(cb, &QCheckBox::stateChanged, [&saveSender](int state) {
+              bool checked = true;
+              if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked) {
+                  checked = false;
+              }
+              if (saveSender == SaveOnRedraw) {
+                  Preferences::setShowSaveOnRedrawPreference(checked);
+              } else {
+                  Preferences::setShowSaveOnUpdatePreference(checked);
+              }
+          });
+      }
+
       if (box.exec() == QMessageBox::Yes) {
         save();
-      } else {
-        return false;
       }
     } else {
       save();

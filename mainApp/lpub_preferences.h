@@ -78,6 +78,8 @@ class Preferences
     static void setSceneRulerPreference(bool);
     static void setSceneRulerTrackingPreference(int);
     static void setShowParseErrorsPreference(bool);
+    static void setShowSaveOnRedrawPreference(bool);
+    static void setShowSaveOnUpdatePreference(bool);
     static void setStdOutToLogPreference(bool);
 
     static void setCustomSceneBackgroundColorPreference(bool = true);
@@ -262,6 +264,8 @@ class Preferences
     static bool    showGuidesCoordinates;
     static bool    showTrackingCoordinates;
     static bool    showParseErrors;
+    static bool    showSaveOnRedraw;
+    static bool    showSaveOnUpdate;
     static bool    suppressStdOutToLog;
 
     static bool    customSceneBackgroundColor;
