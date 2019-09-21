@@ -282,8 +282,8 @@ bool Gui::maybeSave(bool prompt, int sender /*SaveOnNone=0*/)
                         "Do you want to save your changes?");
       box.setText (title);
       box.setInformativeText (text);
-      box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
-      box.setDefaultButton   (QMessageBox::Yes);
+      box.setStandardButtons (QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+      box.setDefaultButton   (QMessageBox::Save);
 
       if (saveSender){
           QCheckBox *cb = new QCheckBox(tr("Do not show save changes on %1 message again.").arg(senderLabel));
@@ -301,8 +301,12 @@ bool Gui::maybeSave(bool prompt, int sender /*SaveOnNone=0*/)
           });
       }
 
-      if (box.exec() == QMessageBox::Yes) {
+      int ExecReturn = box.exec();
+      if (ExecReturn == QMessageBox::Save) {
         save();
+      } else
+      if (ExecReturn == QMessageBox::Cancel) {
+        return false;
       }
     } else {
       save();
@@ -537,10 +541,10 @@ void Gui::fileChanged(const QString &path)
   QString text = tr("\"%1\" contents were changed by an external source. Reload?").arg(path);
   box.setText (title);
   box.setInformativeText (text);
-  box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
-  box.setDefaultButton   (QMessageBox::Yes);
+  box.setStandardButtons (QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+  box.setDefaultButton   (QMessageBox::Save);
 
-  if (box.exec() == QMessageBox::Yes) {
+  if (box.exec() == QMessageBox::Save) {
     changeAccepted = true;
     int goToPage = displayPageNum;
     QString fileName = path;
