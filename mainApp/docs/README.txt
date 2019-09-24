@@ -1,4 +1,4 @@
-LPub3D 2.3.13.1.1546 (24 09 2019 21:24:13)
+LPub3D 2.3.13.1.1547 (25 09 2019 01:56:54)
 
 Features, enhancements, fixes and changes
 ------------
@@ -13,6 +13,7 @@ Revisions:
 - Change - DPI and scale info is added to filename in PNG export #346
 - Change - Enable rotate icon placement on single step page #348
 - Change - No response to MODEL_SCALE meta command #342
+- Change - Page items bring to front and send to back - third pass, set z values #244
 - Fix - 3DViewer not displayed when renderer set to other than Native #345
 - Fix - Export to pdf using page range generates single page #341
 - Fix - Single step MODEL_SCALE meta command not working #343

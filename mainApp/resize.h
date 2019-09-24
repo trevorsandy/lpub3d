@@ -98,7 +98,7 @@ class Grabber : public QGraphicsRectItem
       setParentItem(parentGraphicsItem);
       setFlag(QGraphicsItem::ItemIsSelectable,true);
       setFlag(QGraphicsItem::ItemIsMovable,true);
-      setZValue(100);
+      setZValue(GRABBER_ZVALUE_DEFAULT);
 
       QPen pen(Qt::black);
       setPen(pen);
