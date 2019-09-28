@@ -775,18 +775,18 @@ void Annotations::loadDefaultAnnotationStyles(QByteArray& Buffer){
 #
 # The Regular Expression used is: ^(\b[^=]+\b)=([1|2])\s+([1-6])?\s*([^\s]+).*$
 #
-# 1. Design ID:           LDraw Part Name                (Required)
-# 2. Annotation Style:    1 for Square or 2 for Circle   (Required)
-# 3. Part Category:       LDraw Part category            (Required)
-# 4. Annotation:          Annotation text                (Optional - uses title annotation if not defined)
-# 5. Part Description:    Description for reference only (Optional - not loaded)
+# 1. Design ID:           LDraw Part Name                 (Required)
+# 2. Annotation Style:    1 Square, 2 Circle, 3 Rectangle (Required)
+# 3. Part Category:       LDraw Part category             (Required)
+# 4. Annotation:          Annotation text                 (Optional - uses title annotation if not defined)
+# 5. Part Description:    Description for reference only  (Optional - not loaded)
 #
 # ---------------------------------------
 # |No |Annotation Style | Part Category |
 # |---|---------------------------------|
 # | 1 |circle(1)        |axle(1)        |
 # | 2 |square(2)        |beam(2)        |
-# | 3 |square(2)        |cable(3)       |
+# | 3 |rectangle(3)     |cable(3)       |
 # | 4 |square(2)        |connector(4)   |
 # | 5 |square(2)        |hose(5)        |
 # | 6 |square(2)        |panel(6)       |
@@ -839,13 +839,13 @@ void Annotations::loadDefaultAnnotationStyles(QByteArray& Buffer){
         "41239.dat=2   2  13    Technic Beam 13\n"
         "32278.dat=2   2  15    Technic Beam 15\n"
 
-        "11145.dat=2   3  25    Electric Mindstorms EV3 Cable 25 cm\n"
-        "11146.dat=2   3  35    Electric Mindstorms EV3 Cable 35 cm\n"
-        "11147.dat=2   3  50    Electric Mindstorms EV3 Cable 50 cm\n"
+        "11145.dat=3   3  25cm  Electric Mindstorms EV3 Cable 25 cm\n"
+        "11146.dat=3   3  35cm  Electric Mindstorms EV3 Cable 35 cm\n"
+        "11147.dat=3   3  50cm  Electric Mindstorms EV3 Cable 50 cm\n"
 
-        "55804.dat=2   3  20    Electric Mindstorms NXT Cable 20 cm\n"
-        "55805.dat=2   3  35    Electric Mindstorms NXT Cable 35 cm\n"
-        "55806.dat=2   3  50    Electric Mindstorms NXT Cable 50 cm\n"
+        "55804.dat=3   3  20cm  Electric Mindstorms NXT Cable 20 cm\n"
+        "55805.dat=3   3  35cm  Electric Mindstorms NXT Cable 35 cm\n"
+        "55806.dat=3   3  50cm  Electric Mindstorms NXT Cable 50 cm\n"
 
         "32013.dat=2   4   1    Technic Angle Connector #1\n"
         "32034.dat=2   4   2    Technic Angle Connector #2 (180 degree)\n"
@@ -1846,18 +1846,18 @@ bool Annotations::exportAnnotationStyleFile(){
         outstream << "#" << endl;
         outstream << "# The Regular Expression used is: ^(\\b[^=]+\\b)=([1|2])\\s+([1-6])?\\s*([^\\s]+).*$" << endl;
         outstream << "#" << endl;
-        outstream << "# 1. Design ID:           LDraw Part Name                (Required)" << endl;
-        outstream << "# 2. Annotation Style:    1 for Square or 2 for Circle   (Required)" << endl;
-        outstream << "# 3. Part Category:       LDraw Part category            (Required)" << endl;
-        outstream << "# 4. Annotation:          Annotation text                (Optional - uses title annotation if not defined)" << endl;
-        outstream << "# 5. Part Description:    Description for reference only (Optional - not loaded)" << endl;
+        outstream << "# 1. Design ID:           LDraw Part Name                 (Required)" << endl;
+        outstream << "# 2. Annotation Style:    1 Square, 2 Circle, 3 Rectangle (Required)" << endl;
+        outstream << "# 3. Part Category:       LDraw Part category             (Required)" << endl;
+        outstream << "# 4. Annotation:          Annotation text                 (Optional - uses title annotation if not defined)" << endl;
+        outstream << "# 5. Part Description:    Description for reference only  (Optional - not loaded)" << endl;
         outstream << "#" << endl;
         outstream << "# ---------------------------------------" << endl;
         outstream << "# |No |Annotation Style | Part Category |" << endl;
         outstream << "# |---|---------------------------------|" << endl;
         outstream << "# | 1 |circle(1)        |axle(1)        |" << endl;
         outstream << "# | 2 |square(2)        |beam(2)        |" << endl;
-        outstream << "# | 3 |square(2)        |cable(3)       |" << endl;
+        outstream << "# | 3 |rectangle(3)     |cable(3)       |" << endl;
         outstream << "# | 4 |square(2)        |connector(4)   |" << endl;
         outstream << "# | 5 |square(2)        |hose(5)        |" << endl;
         outstream << "# | 6 |square(2)        |panel(6)       |" << endl;

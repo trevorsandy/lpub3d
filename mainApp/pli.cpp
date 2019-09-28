@@ -335,7 +335,7 @@ void Pli::setParts(
                   // if fixed Annotations is enabled
                   if (fixedAnnotations) {
 
-                      // get part annotation style flag for fixed annotations - either cirle(1) or square(2)
+                      // get part annotation style flag for fixed annotations - cirle(1), square(2), or rectangle(3)
                       AnnotationStyle fixedStyle = AnnotationStyle(Annotations::getAnnotationStyle(type));
 
                       // set style meta settings
@@ -373,6 +373,9 @@ void Pli::setParts(
                               else
                               if (fixedStyle == AnnotationStyle::square)
                                   styleMeta       = pliMeta.squareStyle;
+                              else
+                              if (fixedStyle == AnnotationStyle::rectangle)
+                                  styleMeta       = pliMeta.rectangleStyle;
                           }
                       // if extended style annotation is enabled
                       } else if (extendedStyle) {
