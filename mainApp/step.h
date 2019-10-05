@@ -161,6 +161,11 @@ class Step : public AbstractRangeElement
                 int  x,
                 int  y);
 
+    bool adjustSize(
+      Placement &pl1, // placement with offset
+      int  rows[],    // accumulate sub-row heights here
+      int  cols[]);   // accumulate sub-col widths here
+
     bool collide(int square[][NumPlaces],
                  int tbl[],
                  int x,
