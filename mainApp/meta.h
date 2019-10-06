@@ -3250,6 +3250,7 @@ public:
   AllocMeta           alloc;
   FontListMeta        subModelFont;
   StringListMeta      subModelFontColor;
+  BoolMeta            adjustOnItemOffset;
   MultiStepMeta();
   MultiStepMeta(const MultiStepMeta &rhs) : BranchMeta(rhs)
   {

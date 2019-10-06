@@ -257,7 +257,8 @@ Highlighter::Highlighter(QTextDocument *parent)
 
     QStringList LPubBodyMetaPatterns;
     LPubBodyMetaPatterns
-    << "\\ASSEM_PART\\b"
+    << "\\bADJUST_ON_ITEM_OFFSET\\b"
+    << "\\bASSEM_PART\\b"
     << "\\bAFTER\\b"
     << "\\bALLOC\\b"
     << "\\bANNOTATE\\b"

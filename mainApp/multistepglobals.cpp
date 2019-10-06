@@ -106,6 +106,11 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   child = new CheckBoxGui("Show Submodel image at first step",&multiStepMeta->subModel.show,box);
   data->children.append(child);
 
+  box = new QGroupBox("Callout and Rotate Icon");
+  vlayout->addWidget(box);
+  child = new CheckBoxGui("Adjust Step row or column when Callout or Rotate Icon dragged.",&multiStepMeta->adjustOnItemOffset,box);
+  data->children.append(child);
+
   box = new QGroupBox("Step Number");
   vlayout->addWidget(box);
   child = new NumberGui(&multiStepMeta->stepNum,box);

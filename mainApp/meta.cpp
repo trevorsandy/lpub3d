@@ -4612,6 +4612,7 @@ MultiStepMeta::MultiStepMeta() : BranchMeta()
   subModel.show.setValue(true);
   // Rotate Icon
   rotateIcon.placement.setValue(RightOutside,CsiType);
+  adjustOnItemOffset.setValue(false);
 }
 
 void MultiStepMeta::init(BranchMeta *parent, QString name)
@@ -4636,6 +4637,8 @@ void MultiStepMeta::init(BranchMeta *parent, QString name)
   pli      .init(this,    "PLI");
   subModel .init(this,    "SUBMODEL_DISPLAY");
   rotateIcon .init(this,  "ROTATE_ICON");
+
+  adjustOnItemOffset.init(this, "ADJUST_ON_ITEM_OFFSET");
 
   begin    .init(this,    "BEGIN",  StepGroupBeginRc);
   divider  .init(this,    "DIVIDER",StepGroupDividerRc);

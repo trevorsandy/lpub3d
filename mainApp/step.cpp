@@ -68,6 +68,7 @@ Step::Step(
   submodelLevel             = _meta.submodelStack.size();
   stepNumber.number         =  num;             // record step number
   csiItem                   = nullptr;
+  adjustOnItemOffset          = false;
 
   modelDisplayOnlyStep      = false;
   dividerType               = NoDivider;
@@ -125,6 +126,7 @@ Step::Step(
       pliPerStep              = _meta.LPub.multiStep.pli.perStep.value();
       csiCameraMeta           = _meta.LPub.multiStep.csi;
       justifyStep             = _meta.LPub.multiStep.justifyStep;
+      adjustOnItemOffset        = _meta.LPub.multiStep.adjustOnItemOffset.value();
     } else {
       csiPlacement.margin     = _meta.LPub.assem.margin;
       csiPlacement.placement  = _meta.LPub.assem.placement;
@@ -1443,7 +1445,9 @@ int Step::sizeit(
       rows[rotateIcon.tbl[YY]] = rotateIcon.size[YY];
     }
 
-  adjustSize(*dynamic_cast<Placement*>(&rotateIcon),
+  // adjust rows and columns for rotate icon offset
+  if (adjustOnItemOffset)
+      adjustSize(*dynamic_cast<Placement*>(&rotateIcon),
              rows,cols);
 
   /******************************************************************/
@@ -1475,8 +1479,9 @@ int Step::sizeit(
                         marginCols);
             }
 
-          // adjust rows and columns for offset items
-          adjustSize(*dynamic_cast<Placement*>(callout),
+          // adjust rows and columns for callout offset
+          if (adjustOnItemOffset)
+              adjustSize(*dynamic_cast<Placement*>(callout),
                      rows,cols);
 
           break;
