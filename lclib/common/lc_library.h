@@ -53,6 +53,12 @@ public:
 		mZipFileIndex = ZipFileIndex;
 	}
 
+	void Unload()
+	{
+		mState = lcPrimitiveState::NOT_LOADED;
+		mMeshData.RemoveAll();
+	}
+
 	QString mFileName;
 	char mName[LC_MAXNAME];
 	lcZipFileType mZipFileType;
@@ -125,6 +131,13 @@ public:
 
 	bool LoadPrimitive(lcLibraryPrimitive* Primitive);
 
+	void SetStudLogo(int StudLogo, bool Reload);
+
+	int GetStudLogo() const
+	{
+		return mStudLogo;
+	}
+
 	void SetOfficialPieces()
 	{
 		if (mZipFiles[LC_ZIPFILE_OFFICIAL])
@@ -171,12 +184,16 @@ protected:
 	bool ReadDirectoryCacheFile(const QString& FileName, lcMemFile& CacheFile);
 	bool WriteDirectoryCacheFile(const QString& FileName, lcMemFile& CacheFile);
 
+	bool GetStudLogoFile(lcMemFile& PrimFile, int StudLogo, bool OpenStud);
+
 	QMutex mLoadMutex;
 	QList<QFuture<void>> mLoadFutures;
 	QList<PieceInfo*> mLoadQueue;
 
 	QMutex mTextureMutex;
 	std::vector<lcTexture*> mTextureUploads;
+
+	int mStudLogo;
 
 	QString mCachePath;
 	qint64 mArchiveCheckSum[4];
