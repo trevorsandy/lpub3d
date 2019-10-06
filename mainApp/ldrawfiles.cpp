@@ -666,13 +666,14 @@ int LDrawFile::loadFile(const QString &fileName)
                 .arg(spc > 0 ? QString("<br>Subparts:               <b>%1</b>").arg(spc) : "")
                 .arg(QString("<br>%1").arg(gui->elapsedTime(t.elapsed())))
                 .arg(mpc > 0 ? QString("<br><br>Missing %1 %2 not found in the %3 or %4 archive.<br>"
-                                       "If %5 %1, be sure %6 location is captured in the LDraw search directory list.")
-                                       .arg(mpc > 1 ? "parts" : "part")
-                                       .arg(mpc > 1 ? "were" : "was")
-                                       .arg(VER_LPUB3D_UNOFFICIAL_ARCHIVE)
-                                       .arg(VER_LDRAW_OFFICIAL_ARCHIVE)
-                                       .arg(mpc > 1 ? "these are custom" : "this is a custom")
-                                       .arg(mpc > 1 ? "their" : "its") : "");
+                                       "If %5 custom %1, be sure %7 location is captured in the LDraw search directory list.<br>"
+                                       "If %5 new unofficial %1, be sure the unofficial archive library is up to date.")
+                                       .arg(mpc > 1 ? "parts" : "part")                        //1
+                                       .arg(mpc > 1 ? "were" : "was")                          //2
+                                       .arg(VER_LPUB3D_UNOFFICIAL_ARCHIVE)                     //3
+                                       .arg(VER_LDRAW_OFFICIAL_ARCHIVE)                        //4
+                                       .arg(mpc > 1 ? "these are" : "this is a")               //5
+                                       .arg(mpc > 1 ? "their" : "its") : "");                  //7
         _loadedParts << message;
         if (mpc > 0) {
             if (_showLoadMessages) {
