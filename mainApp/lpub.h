@@ -1377,6 +1377,7 @@ private slots:
     void mpdComboChanged(int index);
     void refreshLDrawUnoffParts();
     void refreshLDrawOfficialParts();
+    void writeGeneratedColorPartsToTemp();
 
     void clearPage(
       LGraphicsView  *view,

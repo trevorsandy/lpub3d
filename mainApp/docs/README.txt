@@ -1,4 +1,4 @@
-LPub3D 2.3.13.1.1557 (06 10 2019 15:40:27)
+LPub3D 2.3.13.1.1558 (09 10 2019 21:49:23)
 
 Features, enhancements, fixes and changes
 ------------
@@ -15,6 +15,7 @@ Revisions:
 - Enhancement - Adjust Step column/row on Callout/Rotate Icon move #352
 - Change - DPI and scale info is added to filename in PNG export #346
 - Change - Enable rotate icon placement on single step page #348
+- Change - LDCad flexible parts new parts per step highlighting #354
 - Change - No response to MODEL_SCALE meta command #342
 - Change - Page items bring to front and send to back - third pass, set z values #244
 - Fix - 3DViewer not displayed when renderer set to other than Native #345

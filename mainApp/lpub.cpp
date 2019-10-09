@@ -2946,7 +2946,7 @@ void Gui::loadBLCodes()
 
 void Gui::ldrawColorPartsLoad()
 {
-    if (Preferences::enableFadeSteps && !ldrawColourParts.ldrawColorPartsIsLoaded()) {
+    if ((Preferences::enableFadeSteps || Preferences::enableHighlightStep) && !ldrawColourParts.ldrawColorPartsIsLoaded()) {
         QString result;
         if (!LDrawColourParts::LDrawColorPartsLoad(result)){
             QString message = QString("Could not open the %1 LDraw color parts file [%2], Error: %3")

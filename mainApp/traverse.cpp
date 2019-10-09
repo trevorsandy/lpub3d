@@ -3230,10 +3230,10 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
 {
   QString nameMod, colourPrefix;
   if (partType == FADE_PART){
-    nameMod = LPUB3D_COLOUR_FADE_SUFFIX;
+    nameMod = FADE_SFX;
     colourPrefix = LPUB3D_COLOUR_FADE_PREFIX;
   } else if (partType == HIGHLIGHT_PART) {
-    nameMod = LPUB3D_COLOUR_HIGHLIGHT_SUFFIX;
+    nameMod = HIGHLIGHT_SFX;
     colourPrefix = LPUB3D_COLOUR_HIGHLIGHT_PREFIX;
   }
 
@@ -3277,24 +3277,24 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
                   // set color code - fade, highlight or both
                   argv[1] = QString("%1%2").arg(colourPrefix).arg(colourCode);
               }
-              // process static colored parts
+              // process file naming
               QString fileNameStr = QString(argv[argv.size()-1]).toLower();
+              QString extension = QFileInfo(fileNameStr).suffix().toLower();
+              // static color parts
               if (ldrawColourParts.isLDrawColourPart(fileNameStr)){
-                  fileNameStr = QDir::toNativeSeparators(fileNameStr.replace(".dat", "-" + nameMod + ".dat"));
+                  if (extension.isEmpty()) {
+                    fileNameStr = fileNameStr.append(QString("%1.ldr").arg(nameMod));
+                  } else {
+                    fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(nameMod).arg(extension));
+                  }
                 }
-              // process subfile naming
+              // subfiles
               if (ldrawFile.isSubmodel(fileNameStr)) {
-                  QString extension = QFileInfo(fileNameStr).suffix().toLower();
-                  bool ldr = extension == "ldr";
-                  bool mpd = extension == "mpd";
-                  bool dat = extension == "dat";
-                  if (ldr) {
-                      fileNameStr = fileNameStr.replace(".ldr", "-" + nameMod + ".ldr");
-                    } else if (mpd) {
-                      fileNameStr = fileNameStr.replace(".mpd", "-" + nameMod + ".mpd");
-                    } else if (dat) {
-                      fileNameStr = fileNameStr.replace(".dat", "-" + nameMod + ".dat");
-                    }
+                  if (extension.isEmpty()) {
+                    fileNameStr = fileNameStr.append(QString("%1.ldr").arg(nameMod));
+                  } else {
+                    fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(nameMod).arg(extension));
+                  }
                 }
               argv[argv.size()-1] = fileNameStr;
             }
@@ -3361,14 +3361,12 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
 
       for (int index = 0; index < csiParts.size(); index++) {
 
-          bool ldr = false, mpd = false, dat= false;
           bool type_1_line = false;
           bool type_1_5_line = false;
           bool is_colour_part = false;
           bool is_submodel_file = false;
 
           int updatePosition = index+1;
-          QString fileNameStr;
           QString csiLine = csiParts[index];
           split(csiLine, argv);
 
@@ -3380,22 +3378,20 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
                   type_1_line = true;
           }
 
+          // process parts naming
+          QString fileNameStr, extension;
           if (type_1_line){
-              // process color parts naming
               fileNameStr = argv[argv.size()-1].toLower();
+              extension = QFileInfo(fileNameStr).suffix().toLower();
 
               // check if is color part
               is_colour_part = ldrawColourParts.isLDrawColourPart(fileNameStr);
 
+              // check if is submodel
+              is_submodel_file = ldrawFile.isSubmodel(fileNameStr);
+
               //if (is_colour_part)
               //    emit messageSig(LOG_NOTICE, "Static color part - " + fileNameStr);
-          }
-
-          // check if is submodel
-          QString extension;
-          if (ldrawFile.isSubmodel(fileNameStr)) {
-                 is_submodel_file = true;
-                 extension = QFileInfo(fileNameStr).suffix().toLower();
           }
 
           // write fade step entries
@@ -3416,18 +3412,24 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
                       argv[1] = QString("%1%2").arg(LPUB3D_COLOUR_FADE_PREFIX).arg(colourCode);
                   }
                   if (type_1_line) {
-                        if (is_colour_part)
-                               fileNameStr = QDir::toNativeSeparators(fileNameStr.replace(".dat", QString("%1.dat").arg(FADE_SFX)));
-                        // process subfiles naming
-                        if (is_submodel_file) {
-                            if (extension.isEmpty()) {
-                              fileNameStr = fileNameStr.append(QString("%1.ldr").arg(FADE_SFX));
-                            } else {
-                              fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(FADE_SFX).arg(extension));
-                            }
-                        }
-                        // assign fade part name
-                        argv[argv.size()-1] = fileNameStr;
+                      // process static color part naming
+                      if (is_colour_part) {
+                          if (extension.isEmpty()) {
+                            fileNameStr = fileNameStr.append(QString("%1.dat").arg(FADE_SFX));
+                          } else {
+                            fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(FADE_SFX).arg(extension));
+                          }
+                      }
+                      // process subfiles naming
+                      if (is_submodel_file) {
+                          if (extension.isEmpty()) {
+                            fileNameStr = fileNameStr.append(QString("%1.ldr").arg(FADE_SFX));
+                          } else {
+                            fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(FADE_SFX).arg(extension));
+                          }
+                      }
+                      // assign fade part name
+                      argv[argv.size()-1] = fileNameStr;
                   }
               }
           }
@@ -3451,18 +3453,24 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
                       argv[1] = QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX).arg(colourCode);
                   }
                   if (type_1_line) {
-                        if (is_colour_part)
-                               fileNameStr = QDir::toNativeSeparators(fileNameStr.replace(".dat", QString("%1.dat").arg(HIGHLIGHT_SFX)));
-                        // process subfiles naming
-                        if (is_submodel_file) {
-                            if (extension.isEmpty()) {
-                              fileNameStr = fileNameStr.append(QString("%1.ldr").arg(HIGHLIGHT_SFX));
-                            } else {
-                              fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(HIGHLIGHT_SFX).arg(extension));
-                            }
-                        }
-                        // assign fade part name
-                        argv[argv.size()-1] = fileNameStr;
+                      // process static color part naming
+                      if (is_colour_part) {
+                          if (extension.isEmpty()) {
+                            fileNameStr = fileNameStr.append(QString("%1.dat").arg(HIGHLIGHT_SFX));
+                          } else {
+                            fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(HIGHLIGHT_SFX).arg(extension));
+                          }
+                      }
+                      // process subfiles naming
+                      if (is_submodel_file) {
+                          if (extension.isEmpty()) {
+                            fileNameStr = fileNameStr.append(QString("%1.ldr").arg(HIGHLIGHT_SFX));
+                          } else {
+                            fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(HIGHLIGHT_SFX).arg(extension));
+                          }
+                      }
+                      // assign fade part name
+                      argv[argv.size()-1] = fileNameStr;
                   }
               }
           }
