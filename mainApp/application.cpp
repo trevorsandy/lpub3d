@@ -456,18 +456,28 @@ void Application::initialize()
         }
     }
 
-    // Enum registrations
+    // Enum registrations from name.h
     Q_ENUMS(PartType)
     Q_ENUMS(PliType)
     Q_ENUMS(LogType)
     Q_ENUMS(IniFlag)
     Q_ENUMS(DividerType)
+    Q_ENUMS(ShowLoadMsgType)
+    Q_ENUMS(LoadMsgType)
+    Q_ENUMS(RulerTrackingType)
+    Q_ENUMS(SceneGuidesPosType)
     Q_ENUMS(LibType)
     Q_ENUMS(Theme)
+    Q_ENUMS(SaveOnSender)
+    Q_ENUMS(NativeType)
     Q_ENUMS(SceneObjectInfo)
     Q_ENUMS(GridStepSize)
+    Q_ENUMS(LDrawUnofficialFileType)
+    Q_ENUMS(SubAttributes)
+    Q_ENUMS(NameKeyAttributes)
     Q_ENUMS(SceneObject)
 
+    // other enum registrations
     Q_ENUMS(Dimensions)
     Q_ENUMS(PAction)
     Q_ENUMS(Direction)

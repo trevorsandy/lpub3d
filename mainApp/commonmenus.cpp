@@ -103,7 +103,7 @@ QAction* CommonMenus::constrainMenu(
     const QString  name)
 {
   QAction *action;
-  QString formatted = QString("Change %1 shape") .arg(name);
+  QString formatted = QString("Change %1 Shape") .arg(name);
   action = menu.addAction(formatted);
   action->setIcon(QIcon(":/resources/changeshape.png"));
 

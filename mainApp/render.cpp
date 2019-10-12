@@ -1841,7 +1841,7 @@ int Native::renderCsi(
               }
 
               /* determine camera distance */
-              int cd = int((stdCameraDistance(meta,meta.LPub.assem.modelScale.value())*0.775)*1700/1000);
+              int cd = int((stdCameraDistance(meta,meta.LPub.assem.modelScale.value())*0.775f)*1700/1000);
 
               /* apply camera angles */
               noCA  = Preferences::applyCALocally || noCA;

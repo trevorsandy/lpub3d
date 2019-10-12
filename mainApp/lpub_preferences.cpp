@@ -193,7 +193,7 @@ bool    Preferences::showInstanceCount          = false;
 bool    Preferences::includeAllLogAttributes    = false;
 bool    Preferences::allLogLevels               = false;
 
-bool    Preferences::logLevel                   = false;
+bool    Preferences::logLevel                   = false;   // logging level (combo box)
 bool    Preferences::logging                    = false;   // logging on/off offLevel (grp box)
 bool    Preferences::logLevels                  = false;   // individual logging levels (grp box)
 

@@ -4759,7 +4759,7 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   highlightStep            .init(this,"HIGHLIGHT_STEP");
   subModel                 .init(this,"SUBMODEL_DISPLAY");
   rotateIcon               .init(this,"ROTATE_ICON");
-  countInstance       .init(this,"CONSOLIDATE_INSTANCE_COUNT");
+  countInstance            .init(this,"CONSOLIDATE_INSTANCE_COUNT");
   contModelStepNum         .init(this,"MODEL_STEP_NUMBER");
   contStepNumbers          .init(this,"CONTINUOUS_STEP_NUMBERS");
   stepPli                  .init(this,"STEP_PLI");
