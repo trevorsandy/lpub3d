@@ -30,8 +30,9 @@
 
 #include "texteditdialog.h"
 #include "ui_texteditdialog.h"
+#include "name.h"
 
-TextEditDialog::TextEditDialog(QString &goods, QString windowTitle, bool richText, bool fontActions, QWidget *parent) :
+TextEditDialog::TextEditDialog(QString &goods, QString &editFont, QString &editFontColor, QString windowTitle, bool _richText, bool fontActions, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::TextEditDialog)
 {
@@ -39,10 +40,16 @@ TextEditDialog::TextEditDialog(QString &goods, QString windowTitle, bool richTex
 
     setWindowTitle(windowTitle);
 
-    text = goods;
-
     if (windowTitle.contains("Renderer Arguments"))
         ui->statusBar->showMessage("Enter space delimited renderer arguments.");
+
+    QString _fontString = "Arial,24,-1,255,75,0,0,0,0,0";
+    QString _fontColor = "Black";
+
+    text = goods;
+    richText  = _richText;
+    font.fromString(editFont.isEmpty() ? _fontString : editFont);
+    fontColor.setNamedColor(editFontColor.isEmpty() ? _fontColor : editFontColor);
 
 // Suppress font actions
     if (!fontActions && !richText)
@@ -57,15 +64,14 @@ TextEditDialog::TextEditDialog(QString &goods, QString windowTitle, bool richTex
     }
     else
     {
-        QString fontString = "Arial,24,-1,255,75,0,0,0,0,0";
-        QFont font;
-        font.fromString(fontString);
         ui->textEdit->setFont(font);
-        if (!text.isEmpty())
-            ui->actionRichText->setChecked(richText);
-        ui->textEdit->setHtml(text);
-
-        ui->actionFontColor->setEnabled(richText);
+        ui->actionRichText->setChecked(richText);
+        if (richText)
+            ui->textEdit->setHtml(text);
+        else
+            ui->textEdit->setPlainText(text);
+        if (fontColor.isValid())
+            ui->textEdit->setTextColor(fontColor);
         ui->actionBold->setEnabled(richText);
         ui->actionItalic->setEnabled(richText);
         ui->actionUnderline->setEnabled(richText);
@@ -84,29 +90,36 @@ bool TextEditDialog::getText(
       QString &goods,
       QString  windowTitle)
 {
-  TextEditDialog *dialog = new TextEditDialog(goods,windowTitle);
+    QString empty = QString();
+    TextEditDialog *dialog = new TextEditDialog(goods,empty,empty,windowTitle);
 
-  bool ok = dialog->exec() == QDialog::Accepted;
-  if (ok) {
-    goods = dialog->text;
-  }
-  return ok;
+    bool ok = dialog->exec() == QDialog::Accepted;
+    if (ok) {
+        goods = dialog->text;
+    }
+    return ok;
 }
 
 bool TextEditDialog::getText(
       QString &goods,
+      QString &editFont,
+      QString &editFontColor,
       bool    &richText,
       QString  windowTitle,
       bool     fontActions)
 {
-  TextEditDialog *dialog = new TextEditDialog(goods,windowTitle,richText,fontActions);
+    TextEditDialog *dialog = new TextEditDialog(goods,editFont,editFontColor,windowTitle,richText,fontActions);
 
-  bool ok = dialog->exec() == QDialog::Accepted;
-  if (ok) {
-    goods = dialog->text;
-    richText = dialog->richText;
-  }
-  return ok;
+    bool ok = dialog->exec() == QDialog::Accepted;
+    if (ok) {
+        goods = dialog->text;
+        richText = dialog->richText;
+    }
+    if (!richText){
+        editFont = dialog->font.toString();
+        editFontColor = dialog->fontColor.name();
+    }
+    return ok;
 }
 
 void TextEditDialog::on_actionAccept_triggered()
@@ -155,14 +168,8 @@ void TextEditDialog::on_actionRedo_triggered()
 
 void TextEditDialog::on_actionRichText_triggered()
 {
-    if (richText){
-        ui->textEdit->setText(QString());
-        QString fontString = "Arial,24,-1,255,75,0,0,0,0,0";
-        QFont font;
-        font.fromString(fontString);
-        ui->textEdit->setFont(font);
-    }
-    ui->actionFontColor->setEnabled(richText);
+    richText = ui->actionRichText->isChecked();
+    setWindowTitle(QString("Edit %1 Text").arg(richText ? "Rich" : "Plain"));
     ui->actionBold->setEnabled(richText);
     ui->actionItalic->setEnabled(richText);
     ui->actionUnderline->setEnabled(richText);
@@ -171,17 +178,17 @@ void TextEditDialog::on_actionRichText_triggered()
 void TextEditDialog::on_actionFont_triggered()
 {
     bool fontSelected;
-    QFont font = QFontDialog::getFont(&fontSelected, this);
+    font = QFontDialog::getFont(&fontSelected, font);
     if (fontSelected)
         ui->textEdit->setFont(font);
 }
 
 void TextEditDialog::on_actionFontColor_triggered()
 {
-    QColor _color = ui->textEdit->textColor();
-    _color = QColorDialog::getColor(_color,nullptr);
-    if (_color.isValid()) {
-        ui->textEdit->setTextColor(_color);
+    fontColor = ui->textEdit->textColor();
+    fontColor = QColorDialog::getColor(fontColor,nullptr);
+    if (fontColor.isValid()) {
+        ui->textEdit->setTextColor(fontColor);
     }
 }
 

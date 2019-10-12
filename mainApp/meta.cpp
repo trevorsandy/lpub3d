@@ -2571,8 +2571,8 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
       insertData.textFont   = argv[++index];
       insertData.textColor  = argv[++index];
       ++index;
-    } else if (argv.size() - index >= 2 && argv[index] == "HTML_TEXT") {
-      insertData.type       = InsertData::InsertHtmlText;
+    } else if (argv.size() - index >= 2 && (argv[index] == "RICH_TEXT" || argv[index] == "HTML_TEXT")) {
+      insertData.type       = InsertData::InsertRichText;
       insertData.text       = argv[++index];
       ++index;
     } else if (argv[index] == "ROTATE_ICON"){
@@ -2648,8 +2648,8 @@ QString InsertMeta::format(bool local, bool global)
           .arg(_value.textFont)
           .arg(_value.textColor);
       break;
-    case InsertData::InsertHtmlText:
-      foo += QString("HTML_TEXT \"%1\"") .arg(_value.text);
+    case InsertData::InsertRichText:
+      foo += QString("RICH_TEXT \"%1\"") .arg(_value.text);
       break;
     case InsertData::InsertRotateIcon:
       foo += " ROTATE_ICON";

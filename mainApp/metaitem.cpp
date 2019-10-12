@@ -2725,17 +2725,32 @@ void MetaItem::insertPicture()
   }
 }
 
-void MetaItem::updateText(const Where &here, const QString &_text, bool _isHtml, bool insert)
+void MetaItem::updateText(
+   const Where &here,
+   const QString &_text,
+   QString       &_editFont,
+   QString       &_editFontColor,
+   float          _offsetX,
+   float          _offsetY,
+   bool _isRichText,
+   bool insert)
 {
     QString text = _text;
-    bool isHtml = _isHtml;
-
     if (!text.isEmpty()){
       QStringList pre = text.split("\\n");
       text = pre.join(" ");
     }
 
-    bool ok = TextEditDialog::getText(text,isHtml,QString("Edit %1 Text").arg(isHtml ? "HTML" : "Plain"),true);
+    bool isRichText       = _isRichText;
+    QString windowTitle   = QString("Edit %1 Text").arg(isRichText ? "Rich" : "Plain");
+    QString editFont      = _editFont;
+    QString editFontColor = _editFontColor;
+    bool hasOffset        = _offsetX != 0.0f || _offsetY != 0.0f;
+    QString offset        = hasOffset ? QString(" OFFSET %1 %2")
+                                                .arg(qreal(_offsetX))
+                                                .arg(qreal(_offsetY)) : QString();
+
+    bool ok = TextEditDialog::getText(text,editFont,editFontColor,isRichText,windowTitle,true);
     if (ok && !text.isEmpty()) {
 
     QStringList list = text.split("\n");
@@ -2760,12 +2775,13 @@ void MetaItem::updateText(const Where &here, const QString &_text, bool _isHtml,
           string.append(QChar(' '));
       list2 << string;
     }
-
     QString meta;
-    if (isHtml)
-      meta = QString("0 !LPUB INSERT HTML_TEXT \"%1\"") .arg(list2.join("\\n"));
+    if (isRichText)
+      meta = QString("0 !LPUB INSERT RICH_TEXT \"%1\"%2")
+             .arg(list2.join("\\n")) .arg(offset);
     else
-      meta = QString("0 !LPUB INSERT TEXT \"%1\" \"%2\" \"%3\"") .arg(list2.join("\\n")) .arg("Arial,36,-1,255,75,0,0,0,0,0") .arg("Black");
+      meta = QString("0 !LPUB INSERT TEXT \"%1\" \"%2\" \"%3\"%4")
+             .arg(list2.join("\\n")) .arg(editFont) .arg(editFontColor) .arg(offset);
 
     if (insert)
       appendMeta(here,meta);
@@ -2818,7 +2834,8 @@ void MetaItem::insertText()
       }
       scanPastGlobal(insertPosition);
     }
-    updateText(insertPosition, QString(), false, true /*insert*/);
+    QString empty = QString();
+    updateText(insertPosition, empty, empty, empty, 0.0f, 0.0f, false/*isRichText*/, true /*insert*/);
 }
 
 void MetaItem::insertBOM()

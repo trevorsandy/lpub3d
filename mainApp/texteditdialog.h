@@ -37,6 +37,8 @@ class TextEditDialog : public QDialog
     Q_OBJECT
 public:
     explicit TextEditDialog(QString  &goods,
+                            QString  &editFont,
+                            QString  &editFontColor,
                             QString   windowTitle,
                             bool      richText = false,
                             bool      fontActions = false,
@@ -49,6 +51,8 @@ public:
 
     static bool getText(
       QString  &goods,
+      QString  &editFont,
+      QString  &editFontColor,
       bool     &richText,
       QString   windowTitle,
       bool      fontActions = false);
@@ -56,6 +60,8 @@ public:
     bool richText;
 
     QString   text;
+    QFont     font;
+    QColor    fontColor;
 
 private slots:
     void on_actionNew_triggered();

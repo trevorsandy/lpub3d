@@ -72,7 +72,7 @@ TextItem::TextItem(
       string.append(QChar(' '));
     list2 << string;
 
-    if (data.type == InsertData::InsertHtmlText)
+    if (data.type == InsertData::InsertRichText)
       setHtml(list2.join("\n"));
     else
     if (data.type == InsertData::InsertText)
@@ -125,17 +125,16 @@ void TextItem::contextMenuEvent(
   QString pl = "Text";
 
   InsertData data = meta.value();
-  bool richText = data.type == InsertData::InsertHtmlText;
+  bool richText = data.type == InsertData::InsertRichText;
 
   QAction *editTextAction  = nullptr;
   QAction *editFontAction  = nullptr;
   QAction *editColorAction = nullptr;
 
-  if (richText) {
-      editTextAction = commonMenus.textMenu(menu,pl);
-  } else {
-      editFontAction  = commonMenus.fontMenu(menu,pl);
-      editColorAction = commonMenus.colorMenu(menu,pl);
+  editTextAction  = commonMenus.textMenu(menu,pl);
+  if (!richText){
+    editFontAction  = commonMenus.fontMenu(menu,pl);
+    editColorAction = commonMenus.colorMenu(menu,pl);
   }
 
   QAction *deleteTextAction = menu.addAction("Delete This Text");
@@ -152,7 +151,13 @@ void TextItem::contextMenuEvent(
 
   if (selectedAction == editTextAction) {
 
-    updateText(here, data.text, richText);
+    updateText(here,
+               data.text,
+               data.textFont,
+               data.textColor,
+               data.offsets[XX],
+               data.offsets[YY],
+               richText);
 
   } else if (selectedAction == editFontAction) {
 
@@ -214,7 +219,7 @@ void TextItem::focusOutEvent(QFocusEvent *event)
     InsertData insertData = meta.value();
 
     QString input,output;
-    if (insertData.type == InsertData::InsertHtmlText)
+    if (insertData.type == InsertData::InsertRichText)
        input = toHtml();
     else
        input = toPlainText();
@@ -291,7 +296,7 @@ void TextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     calcOffsets(pld,insertData.offsets,topLeft,size);
 
     QString input,output;
-    if (insertData.type == InsertData::InsertHtmlText)
+    if (insertData.type == InsertData::InsertRichText)
        input = toHtml();
     else
        input = toPlainText();
