@@ -322,26 +322,28 @@ void CsiAnnotationItem::addGraphicsItems(
 }
 
 void CsiAnnotationItem::scaleDownFont() {
-    QRectF saveTextRect = textRect;
-
-    if ((textRect.width() > styleRect.width() ||
-         textRect.height() > styleRect.height())) {
-        QFont font = this->QGraphicsTextItem::font();
-        qreal widthRatio = styleRect.width() / textRect.width();
-        if (widthRatio < 1.0)
-        {
-            font.setPointSizeF(font.pointSizeF()*widthRatio);
-            setFont(font);
-            textRect = QRectF(0,0,document()->size().width(),document()->size().height());
-        }
+  qreal widthRatio  = styleRect.width()  / textRect.width();
+  qreal heightRatio = styleRect.height() / textRect.height();
+  if (widthRatio < 1 || heightRatio < 1)
+  {
+    QFont font = this->QGraphicsTextItem::font();
+    qreal saveFontSizeF = font.pointSizeF();
+    font.setPointSizeF(font.pointSizeF()*qMin(widthRatio,heightRatio));
+    setFont(font);
+    textRect = QRectF(0,0,document()->size().width(),document()->size().height());
+    if (textRect.width()  > styleRect.width()  ||
+        textRect.height() > styleRect.height())
+    {
+      scaleDownFont();
     }
-
-    // adjust text vertical alignment
-    if (textRect == saveTextRect) {
-        textOffset.setY((styleRect.height()-textRect.height())/2);
-    } else {
-        textOffset.setY(saveTextRect.height()-textRect.height());
+    else
+    {
+      // adjust text vertical alignment
+      textOffset.setY((styleRect.height()-textRect.height())/2);
     }
+    emit gui->messageSig(LOG_INFO,QMessageBox::tr("CSI annotation font size was adjusted from %1 to %2.")
+                                                  .arg(saveFontSizeF).arg(font.pointSizeF()));
+  }
 }
 
 void CsiAnnotationItem::sizeIt()
