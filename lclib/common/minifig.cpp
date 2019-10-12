@@ -104,12 +104,12 @@ void MinifigWizard::OnInitialUpdate()
 	for (int i = 0; i < LC_MFW_NUMITEMS; i++)
 	{
 		mMinifig.Colors[i] = lcGetColorIndex(ColorCodes[i]);
-        mMinifig.Angles[i] = 0.0f;
-        mMinifig.Matrices[i] = lcMatrix44Identity();
+		mMinifig.Angles[i] = 0.0f;
+		mMinifig.Matrices[i] = lcMatrix44Identity();
 
 		PieceInfo* Info = Library->FindPiece(Pieces[i], nullptr, false, false);
-        mMinifig.Parts[i] = Info;
-        if (Info)
+		mMinifig.Parts[i] = Info;
+		if (Info)
 			Library->LoadPieceInfo(Info, false, true);
 	}
 
@@ -233,7 +233,13 @@ void MinifigWizard::AddTemplatesJson(const QByteArray& TemplateData)
 	QJsonDocument Document = QJsonDocument::fromJson(TemplateData);
 	QJsonObject RootObject = Document.object();
 
-	int Version = RootObject["Version"].toInt(0);
+/*** LPub3D Mod - fix OBS legacy builds break ***/
+	//int Version = RootObject["Version"].toInt(0);
+	QString VersionStr = RootObject["Version"].toString();
+	bool ok = false;
+	VersionStr.toInt(&ok);
+	int Version = ok ? VersionStr.toInt() : 0;
+/*** LPub3D Mod end ***/
 	QJsonObject TemplatesObject;
 
 	if (Version > 0)
