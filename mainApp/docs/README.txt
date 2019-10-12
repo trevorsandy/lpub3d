@@ -1,4 +1,4 @@
-LPub3D 2.3.13.1.1559 (12 10 2019 12:11:21)
+LPub3D 2.3.13.1.1560 (12 10 2019 12:15:42)
 
 Features, enhancements, fixes and changes
 ------------
@@ -18,6 +18,7 @@ Revisions:
 - Change - LDCad flexible parts new parts per step highlighting #354
 - Change - No response to MODEL_SCALE meta command #342
 - Change - Page items bring to front and send to back - third pass, set z values #244
+- Change - Pointer segment line is interrupted by border colour at each joint #356
 - Fix - 3DViewer not displayed when renderer set to other than Native #345
 - Fix - Export to pdf using page range generates single page #341
 - Fix - Single step MODEL_SCALE meta command not working #343
