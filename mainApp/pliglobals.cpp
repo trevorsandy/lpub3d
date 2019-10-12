@@ -388,7 +388,7 @@ GlobalPliDialog::GlobalPliDialog(
   circleSizeStyleBox = new QGroupBox("Circle Size");
   svlayout->addWidget(circleSizeStyleBox);
   circleSizeStyleBox->hide();
-  child = new FloatsGui("Width","Height",&pliMeta->circleStyle.size,circleSizeStyleBox,3);
+  child = new FloatsGui("Diameter","",&pliMeta->circleStyle.size,circleSizeStyleBox,3,false/*show pair*/);
   data->children.append(child);
 
   // rectangle style settings
@@ -416,7 +416,6 @@ GlobalPliDialog::GlobalPliDialog(
 
   rectangleSizeStyleBox = new QGroupBox("Rectangle Size");
   svlayout->addWidget(rectangleSizeStyleBox);
-  rectangleSizeStyleBox->hide();
   child = new FloatsGui("Width","Height",&pliMeta->rectangleStyle.size,rectangleSizeStyleBox,3);
   data->children.append(child);
 
@@ -446,8 +445,9 @@ GlobalPliDialog::GlobalPliDialog(
 
       elementSizeStyleBox = new QGroupBox("Element Size");
       svlayout->addWidget(elementSizeStyleBox);
-      elementSizeStyleBox->hide();
       child = new FloatsGui("Width","Height",&pliMeta->elementStyle.size,elementSizeStyleBox,3);
+      elementSizeStyleBox->setDisabled(true);
+      elementSizeStyleBox->setToolTip("Size automatically adjusts to the size of the annotation text");
       data->children.append(child);
   }
   //Edit PLI Annotation Style Selection END

@@ -271,9 +271,11 @@ FloatsGui::FloatsGui(
   QString const &heading1,
   FloatPairMeta *_meta,
   QGroupBox     *parent,
-  int            decPlaces)
+  int            decPlaces,
+  bool           _showPair)
 {
   meta = _meta;
+  showPair = _showPair;
 
   QHBoxLayout *layout = new QHBoxLayout(parent);
 
@@ -295,12 +297,12 @@ FloatsGui::FloatsGui(
   float        val;
 
   val = meta->value(0);
-  a = val - (int)val;
+  a = val - int(val);
   dec = (a <= 0 ? 0 : QString::number(a).size() - 2);                          // shameless hack for the number of input decimals
   numStr = dec > 0 ? QString::number(val): QString::number(val,'f',decPlaces); // add 1 decimal place for whole numbers
   for (int i = 0; i < numStr.size(); i++) dynMask.append("x");                 // dynamically create the input mask
 
-  string = QString("%1") .arg(val,
+  string = QString("%1") .arg(double(val),
                               meta->_fieldWidth,
                               'f',
                               meta->_precision);
@@ -310,33 +312,41 @@ FloatsGui::FloatsGui(
           this,  SLOT(  value0Change(QString const &)));
   layout->addWidget(value0);
 
-  if (heading1 == "") {
-    label1 = nullptr;
-  } else {
-    label1 = new QLabel(heading1,parent);
-    layout->addWidget(label1);
-  }
+  if (showPair) {
+    if (heading1 == "") {
+      label1 = nullptr;
+    } else {
+      label1 = new QLabel(heading1,parent);
+      layout->addWidget(label1);
+    }
 
-  val = meta->value(1);
-  dynMask.clear();
-  a = val - (int)val;
-  dec = (a <= 0 ? 0 : QString::number(a).size() - 2);                           // shameless hack for the number of input decimals
-  numStr = dec > 0 ? QString::number(val): QString::number(val,'f',decPlaces);
-  for (int i = 0; i < numStr.size(); i++) dynMask.append("x");                  // dynamically create the input mask
-  string = QString("%1") .arg(val,
-                              meta->_fieldWidth,
-                              'f',
-                              meta->_precision);
-  value1 = new QLineEdit(string,parent);
-  value1->setInputMask(dynMask);
-  connect(value1,SIGNAL(textEdited(  QString const &)),
-          this,  SLOT(  value1Change(QString const &)));
-  layout->addWidget(value1);
+    val = meta->value(1);
+    dynMask.clear();
+    a = val - (int)val;
+    dec = (a <= 0 ? 0 : QString::number(a).size() - 2);                           // shameless hack for the number of input decimals
+    numStr = dec > 0 ? QString::number(val): QString::number(val,'f',decPlaces);
+    for (int i = 0; i < numStr.size(); i++) dynMask.append("x");                  // dynamically create the input mask
+    string = QString("%1") .arg(val,
+                                meta->_fieldWidth,
+                                'f',
+                                meta->_precision);
+    value1 = new QLineEdit(string,parent);
+    value1->setInputMask(dynMask);
+    connect(value1,SIGNAL(textEdited(  QString const &)),
+            this,  SLOT(  value1Change(QString const &)));
+    layout->addWidget(value1);
+  } else {
+      QSpacerItem *hSpacer;
+      hSpacer = new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed);
+      layout->addSpacerItem(hSpacer);
+  }
 }
 
 void FloatsGui::value0Change(QString const &string)
 {
   meta->setValue(0,string.toFloat());
+  if (!showPair)
+     meta->setValue(1,string.toFloat());
   modified = true;
 }
 
@@ -355,7 +365,9 @@ void FloatsGui::setEnabled(bool enable)
     label1->setEnabled(enable);
   }
   value0->setEnabled(enable);
-  value1->setEnabled(enable);
+  if (value1) {
+    value1->setEnabled(enable);
+  }
 }
 
 void FloatsGui::apply(QString &modelName)

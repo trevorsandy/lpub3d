@@ -190,7 +190,8 @@ public:
     QString const &heading1,
     FloatPairMeta *meta,
     QGroupBox     *parent = nullptr,
-    int            decPlaces = 1);
+    int            decPlaces = 1,
+    bool           showPair = true);
   ~FloatsGui() {}
 
   void setEnabled(bool enabled);
@@ -198,6 +199,7 @@ public:
   virtual void apply(QString &modelName);
 
 private:
+  bool          showPair;
   FloatPairMeta *meta;
   QLabel        *label0;
   QLabel        *label1;
