@@ -39,7 +39,7 @@ TextItem::TextItem(
 
   QString fontString = data.textFont;
   if (fontString.length() == 0) {
-    fontString = "Arial,48,-1,255,75,0,0,0,0,0";
+    fontString = "Arial,24,-1,255,75,0,0,0,0,0";
   }
 
   QFont font;

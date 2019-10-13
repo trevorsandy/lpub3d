@@ -46,7 +46,7 @@ TextEditDialog::TextEditDialog(QString &goods, QString &editFont, QString &editF
     QString _fontString = "Arial,24,-1,255,75,0,0,0,0,0";
     QString _fontColor = "Black";
 
-    text = goods;
+    text      = goods;
     richText  = _richText;
     font.fromString(editFont.isEmpty() ? _fontString : editFont);
     fontColor.setNamedColor(editFontColor.isEmpty() ? _fontColor : editFontColor);
@@ -65,13 +65,13 @@ TextEditDialog::TextEditDialog(QString &goods, QString &editFont, QString &editF
     else
     {
         ui->textEdit->setFont(font);
+        if (fontColor.isValid())
+            ui->textEdit->setTextColor(fontColor);
         ui->actionRichText->setChecked(richText);
         if (richText)
             ui->textEdit->setHtml(text);
         else
             ui->textEdit->setPlainText(text);
-        if (fontColor.isValid())
-            ui->textEdit->setTextColor(fontColor);
         ui->actionBold->setEnabled(richText);
         ui->actionItalic->setEnabled(richText);
         ui->actionUnderline->setEnabled(richText);
