@@ -68,7 +68,7 @@ Step::Step(
   submodelLevel             = _meta.submodelStack.size();
   stepNumber.number         =  num;             // record step number
   csiItem                   = nullptr;
-  adjustOnItemOffset          = false;
+  adjustOnItemOffset        = false;
 
   modelDisplayOnlyStep      = false;
   dividerType               = NoDivider;
@@ -126,7 +126,8 @@ Step::Step(
       pliPerStep              = _meta.LPub.multiStep.pli.perStep.value();
       csiCameraMeta           = _meta.LPub.multiStep.csi;
       justifyStep             = _meta.LPub.multiStep.justifyStep;
-      adjustOnItemOffset        = _meta.LPub.multiStep.adjustOnItemOffset.value();
+      adjustOnItemOffset      = _meta.LPub.multiStep.adjustOnItemOffset.value();
+      stepSize                = _meta.LPub.multiStep.stepSize;
     } else {
       csiPlacement.margin     = _meta.LPub.assem.margin;
       csiPlacement.placement  = _meta.LPub.assem.placement;
@@ -1890,7 +1891,13 @@ void Step::placeit(
      }
   }
 
-  size[y] = centerJustify ? origin + marginAccum : origin;
+ //size[y] = centerJustify ? origin + marginAccum : origin;
+  int calculatedSize = centerJustify ? origin + marginAccum : origin;
+  if (stepSize.valuePixels(y) && stepSize.valuePixels(y) > calculatedSize) {
+      size[y] = stepSize.valuePixels(y);
+  } else {
+      size[y] = calculatedSize;
+  }
 
   for (int i = 0; i < NumPlaces; i++) {
      origins[i] = originsIni[i];
@@ -2036,6 +2043,16 @@ void Step::addGraphicsItems(
   offsetX += loc[XX];
   offsetY += loc[YY];
 
+  // Background Rectangle Item
+  if (multiStep) {
+      stepBackground =
+              new MultiStepStepBackgroundItem(
+                  this,
+                  parent);
+      stepBackground->setPos(offsetX,
+                             offsetY);
+  }
+
   // CSI
   csiItem = new CsiItem(
                         this,
@@ -2066,7 +2083,7 @@ void Step::addGraphicsItems(
     if (subModel.tsize()) {
         subModel.addSubModel(submodelLevel, parent);
         subModel.setPos(offsetX + subModel.loc[XX],
-                   offsetY + subModel.loc[YY]);
+                        offsetY + subModel.loc[YY]);
       }
   }
 

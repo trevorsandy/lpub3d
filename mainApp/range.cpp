@@ -26,13 +26,15 @@
  *
  ***************************************************************************/
 
+#include <QMenu>
+
 #include "range.h"
 #include "ranges_item.h"
 #include "pointer.h"
 #include "step.h"
 #include "reserve.h"
 #include "meta.h"
-#include <QMenu>
+#include "commonmenus.h"
 
 Range::Range(
   Steps        *_parent,
@@ -602,4 +604,97 @@ void Range::addGraphicsItems(
       step->addGraphicsItems(xx+loc[XX],yy+loc[YY],meta,parentRelativeType,parent,false);
     }
   }
+}
+
+/******************************************************************************
+ * Step background item
+ *****************************************************************************/
+
+MultiStepStepBackgroundItem::MultiStepStepBackgroundItem(
+  Step          *_step,
+  QGraphicsItem *parent):
+    isHovered(false),
+    mouseIsDown(false)
+{
+    step = _step;
+
+    setRect(0,0,step->size[XX],step->size[YY]);
+    setPen(Qt::NoPen);
+    setBrush(Qt::NoBrush);
+    setParentItem(parent);
+    setToolTip(QString("Step Rectangle - right-click to modify"));
+
+    setFlag(QGraphicsItem::ItemIsMovable,false);
+    setFlag(QGraphicsItem::ItemIsSelectable,true);
+    setFlag(QGraphicsItem::ItemIsFocusable, true);
+    setAcceptHoverEvents(true);
+    setData(ObjectId, StepBackgroundObj);
+    setZValue(STEP_BACKGROUND_ZVALUE_DEFAULT);
+}
+
+void MultiStepStepBackgroundItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+{
+      QMenu menu;
+      QString name = "Step";
+
+      QAction *sizeStepAction = nullptr;
+      if (step->multiStep)
+          sizeStepAction = commonMenus.sizeMenu(menu,name);
+
+      QAction *selectedAction = menu.exec(event->screenPos());
+
+      if ( ! selectedAction ) {
+          return;
+      }
+
+      if (selectedAction == sizeStepAction) {
+        changeStepSize("Change " + name + " size",
+                       step->topOfStep(),
+                       step->bottomOfStep(),
+                       "Width|Height",
+                       &step->stepSize,
+                       step->size[XX],
+                       step->size[YY],
+                       1    /*append*/,
+                       true /*local*/,
+                       false/*askLocal*/);
+      }
+}
+
+void MultiStepStepBackgroundItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = !this->isSelected() && !mouseIsDown;
+    QGraphicsItem::hoverEnterEvent(event);
+}
+
+void MultiStepStepBackgroundItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = false;
+    QGraphicsItem::hoverLeaveEvent(event);
+}
+
+void MultiStepStepBackgroundItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    mouseIsDown = true;
+    QGraphicsItem::mousePressEvent(event);
+    update();
+}
+
+void MultiStepStepBackgroundItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    mouseIsDown = false;
+    QGraphicsItem::mouseReleaseEvent(event);
+    update();
+}
+
+void MultiStepStepBackgroundItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    QPen pen;
+    pen.setColor(isHovered ? QColor(Preferences::sceneGuideColor) : Qt::black);
+    pen.setWidth(0/*cosmetic*/);
+    pen.setStyle(isHovered ? Qt::PenStyle(Preferences::sceneGuidesLine) : Qt::NoPen);
+    painter->setPen(pen);
+    painter->setBrush(Qt::transparent);
+    painter->drawRect(this->boundingRect());
+    QGraphicsRectItem::paint(painter,option,widget);
 }

@@ -2299,6 +2299,7 @@ public:
  SceneObjectMeta     submodelInstanceCount; // 35 SubmodelInstanceCountType
  SceneObjectMeta     partsListPixmap;       // 36
  SceneObjectMeta     partsListGroup;        // 37
+ SceneObjectMeta     stepBackground;        // 38
 
  SceneItemMeta();
  SceneItemMeta(const SceneItemMeta &rhs) : BranchMeta(rhs)
@@ -3251,6 +3252,7 @@ public:
   FontListMeta        subModelFont;
   StringListMeta      subModelFontColor;
   BoolMeta            adjustOnItemOffset;
+  UnitsMeta           stepSize;
   MultiStepMeta();
   MultiStepMeta(const MultiStepMeta &rhs) : BranchMeta(rhs)
   {

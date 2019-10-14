@@ -3087,6 +3087,7 @@ SceneItemMeta::SceneItemMeta() : BranchMeta()
     submodelInstanceCount.setZValue(SUBMODELINSTANCECOUNT_ZVALUE_DEFAULT);// 35
     partsListPixmap      .setZValue(PARTSLISTPARTPIXMAP_ZVALUE_DEFAULT);  // 36
     partsListGroup       .setZValue(PARTSLISTPARTGROUP_ZVALUE_DEFAULT);   // 37
+    stepBackground       .setZValue(STEP_BACKGROUND_ZVALUE_DEFAULT);      // 38
 }
 
 void SceneItemMeta::init(
@@ -3132,6 +3133,7 @@ void SceneItemMeta::init(
    submodelInstanceCount.init(this, "SUBMODEL_INST_COUNT");  // 35 SubmodelInstanceCountType
    partsListPixmap      .init(this, "PLI_PART");             // 36
    partsListGroup       .init(this, "PLI_PART_GROUP");       // 37
+   stepBackground       .init(this, "STEP_BACKGROUND");      // 38
 }
 
 /* ------------------ */
@@ -4613,6 +4615,10 @@ MultiStepMeta::MultiStepMeta() : BranchMeta()
   // Rotate Icon
   rotateIcon.placement.setValue(RightOutside,CsiType);
   adjustOnItemOffset.setValue(false);
+  // Set explicit step size
+  stepSize.setValuesInches(0.0f,0.0f);
+  stepSize.setRange(0.0f,1000.0f);
+  stepSize.setFormats(6,4,"9.9999");
 }
 
 void MultiStepMeta::init(BranchMeta *parent, QString name)
@@ -4639,6 +4645,7 @@ void MultiStepMeta::init(BranchMeta *parent, QString name)
   rotateIcon .init(this,  "ROTATE_ICON");
 
   adjustOnItemOffset.init(this, "ADJUST_ON_ITEM_OFFSET");
+  stepSize .init(this,    "STEP_SIZE");
 
   begin    .init(this,    "BEGIN",  StepGroupBeginRc);
   divider  .init(this,    "DIVIDER",StepGroupDividerRc);

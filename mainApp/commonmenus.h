@@ -110,6 +110,11 @@ public:
     const QString  name = "",
     const QString  whatsThis = "");
 
+  QAction *sizeMenu(
+          QMenu   &menu,
+    const QString  name = "",
+    const QString  whatsThis = "");
+
   QAction *subModelColorMenu(
           QMenu   &menu,
     const QString  name = "");

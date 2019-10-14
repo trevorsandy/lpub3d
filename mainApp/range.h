@@ -95,4 +95,27 @@ class Range : public AbstractStepsElement {
 
 };
 
+/******************************************************************************
+ * Step background item
+ *****************************************************************************/
+
+class MultiStepStepBackgroundItem : public QGraphicsRectItem, public MetaItem
+{
+  Step *step;
+
+public:
+  MultiStepStepBackgroundItem(
+    Step *step,
+    QGraphicsItem *parent);
+protected:
+  virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+  virtual void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
+  virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
+  virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+  virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+  bool isHovered;
+  bool mouseIsDown;
+};
+
 #endif

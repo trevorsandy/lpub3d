@@ -39,14 +39,16 @@ public:
   UnitsDialog(
     float    values[],
     QString  name,
+    QString  labels,
     QWidget *parent);
 
   virtual ~UnitsDialog();
 
   static bool getUnits(
-    float        values[],
+   float         values[],
     QString      name,
-    QWidget     *parent = 0);
+    QString      labels,
+    QWidget     *parent = nullptr);
 
   UnitsMeta meta;
 

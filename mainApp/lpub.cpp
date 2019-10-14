@@ -2931,6 +2931,7 @@ void Gui::initialize()
       soMap[SubmodelInstanceCountObj] = QString("SUBMODEL_INST_COUNT");  // 35 SubmodelInstanceCountType
       soMap[PartsListPixmapObj]       = QString("PLI_PART");             // 36
       soMap[PartsListGroupObj]        = QString("PLI_PART_GROUP");       // 37
+      soMap[StepBackgroundObj]        = QString("STEP_BACKGROUND");      // 38
   }
 }
 

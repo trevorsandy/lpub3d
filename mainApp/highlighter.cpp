@@ -471,6 +471,8 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bSQUARE_STYLE\\b"
     << "\\bSTEP_NUMBER\\b"
     << "\\bSTEP_PLI\\b"
+    << "\\bSTEP_BACKGROUND\\b"
+    << "\\bSTEP_SIZE\\b"
     << "\\bSTEPS\\b"
     << "\\bSTRETCH\\b"
     << "\\bSTYLE\\b"

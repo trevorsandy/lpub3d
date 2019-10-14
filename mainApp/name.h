@@ -144,7 +144,8 @@ enum SceneObject {
     SubModelInstanceObj      = 30, // 34
     SubmodelInstanceCountObj = 18, // 35 SubmodelInstanceCountType
     PartsListPixmapObj       = 44, // 36
-    PartsListGroupObj        = 45  // 37
+    PartsListGroupObj        = 45, // 37
+    StepBackgroundObj        = 46  // 38
 };
 
 // Exempted from detection - triggers invalid object
@@ -195,7 +196,8 @@ static const SceneObject IncludedSceneObjects[] =
     RotateIconBackgroundObj, // 26
     StepNumberObj,           //  3
     SubModelBackgroundObj,   // 25
-    PartsListGroupObj        // 45
+    PartsListGroupObj,       // 45
+    StepBackgroundObj        // 46
 };
 
 // TODO - Temporary abort processing list
@@ -250,6 +252,7 @@ static const SceneObject NoContextSceneObjects[] =
 #define SUBMODELGRABBER_ZVALUE_DEFAULT           100.0
 #define SUBMODELINSTANCE_ZVALUE_DEFAULT            0.0
 #define SUBMODELINSTANCECOUNT_ZVALUE_DEFAULT       0.0
+#define STEP_BACKGROUND_ZVALUE_DEFAULT             0.0
 #define Z_VALUE_DEFAULT                            0.0
 
 // registry sections

@@ -2030,11 +2030,47 @@ void MetaItem::changeMargins(
   values[0] = margin->value(0);
   values[1] = margin->value(1);
 
-  bool ok   = UnitsDialog::getUnits(values,title,gui);
+  bool ok   = UnitsDialog::getUnits(values,title,QString(),gui);
 
   if (ok) {
     margin->setValues(values[0],values[1]);
     setMeta(topOfStep,bottomOfStep,margin,useTop,append,local);
+  }
+}
+
+void MetaItem::changeStepSize(
+  QString        title,
+  const Where   &topOfStep,
+  const Where   &bottomOfStep,
+  const QString &labels,
+  UnitsMeta     *units,
+  int            sizeX,
+  int            sizeY,
+  int            append,
+  bool           local,
+  bool           askLocal)
+{
+  UnitsMeta size;
+  size.setValuePixels(XX,sizeX);
+  size.setValuePixels(YY,sizeY);
+
+  float values[2];
+  if (units->value(XX) == 0.0f)
+     values[XX] = size.value(XX);
+  else
+     values[XX] = units->value(0);
+  if (units->value(YY) == 0.0f)
+     values[YY] = size.value(YY);
+  else
+     values[YY] = units->value(1);
+
+  bool ok   = UnitsDialog::getUnits(values,title,labels,gui);
+  bool changeX = values[XX] > size.value(XX) || values[XX] < size.value(XX);
+  bool changeY = values[YY] > size.value(YY) || values[YY] < size.value(YY);
+
+  if (ok && (changeX || changeY)) {
+    units->setValues(values[XX],values[YY]);
+    setMetaTopOf(topOfStep,bottomOfStep,units,append,local,askLocal);
   }
 }
 
@@ -2051,7 +2087,7 @@ void MetaItem::changeUnits(
   values[0] = units->value(0);
   values[1] = units->value(1);
 
-  bool ok   = UnitsDialog::getUnits(values,title,gui);
+  bool ok   = UnitsDialog::getUnits(values,title,QString(),gui);
 
   if (ok) {
     units->setValues(values[0],values[1]);

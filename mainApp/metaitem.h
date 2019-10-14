@@ -315,6 +315,17 @@ public:
                         int   append = 1,
                         bool checkLocal = true);
 
+  void changeStepSize(  QString,
+                        const Where &,
+                        const Where &,
+                        const QString &,
+                        UnitsMeta *,
+                        int  sizeX,
+                        int  sizeY,
+                        int  append = 1,
+                        bool local = false,
+                        bool askLocal = true);
+
   void changeDivider(   QString,
                         const Where &,
                         const Where &,
@@ -358,7 +369,7 @@ public:
                         const Where &,
                         const Where &,
                         FloatMeta *,
-                        float step = 0.01,
+                        float step = 0.01f,
                         int  append = 1,
                         bool checkLocal = true);
 

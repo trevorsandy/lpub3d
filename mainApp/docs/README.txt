@@ -1,4 +1,4 @@
-LPub3D 2.3.13.1.1566 (13 10 2019 15:58:17)
+LPub3D 2.3.13.1.1567 (14 10 2019 02:39:48)
 
 Features, enhancements, fixes and changes
 ------------
@@ -13,6 +13,7 @@ Revisions:
 - Enhancement - Add Rectangle to fixed annotations styles #350
 - Enhancement - Add stud logo command line option #347
 - Enhancement - Adjust Step column/row on Callout/Rotate Icon move #352
+- Enhancement - Define width/height for a step in a step group #358
 - Enhancement - Edit plain and rich text with new text edit dialogue #357
 - Change - Adjust style size dialogue for circle and rectangle #229
 - Change - DPI and scale info is added to filename in PNG export #346
