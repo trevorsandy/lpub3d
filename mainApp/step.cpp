@@ -1891,16 +1891,36 @@ void Step::placeit(
      }
   }
 
- //size[y] = centerJustify ? origin + marginAccum : origin;
   int calculatedSize = centerJustify ? origin + marginAccum : origin;
-  if (stepSize.valuePixels(y) && stepSize.valuePixels(y) > calculatedSize) {
-      size[y] = stepSize.valuePixels(y);
-  } else {
-      size[y] = calculatedSize;
+  bool adjustSize    = stepSize.valuePixels(y) && stepSize.valuePixels(y) != calculatedSize;
+  int sizeAdjustment = 0; // contents justify top/left
+  if (adjustSize) {
+    // justify center, horizontal and vertical when manual step size specified
+    bool justify = false;
+    if (justifyStep.value().type == JustifyCenter)
+      justify = true;
+    else if (justifyStep.value().type == JustifyCenterVertical && y == XX)
+      justify = true;
+    else if (justifyStep.value().type == JustifyCenterHorizontal && y == YY)
+      justify = true;
+    sizeAdjustment = justify ? (stepSize.valuePixels(y) - calculatedSize) / 2 : 0;
+
+    if (stepSize.valuePixels(y) < calculatedSize) {
+      Where here       = stepSize.here();
+      float sizeValue  = float(calculatedSize/resolution());
+      QString message  = QString("The specified Step %1 %2 is less than its calculated %1 %3.")
+                                 .arg(y == XX ? "width" : "height")
+                                 .arg(QString::number(double(stepSize.value(y)),'f',4))
+                                 .arg(resolutionType() == DPCM ? QString::number(double(centimeters2inches(sizeValue)),'f',4)
+                                                               : QString::number(double(sizeValue),'f',4));
+      logInfo() << qPrintable(message);
+    }
   }
 
+  size[y] = adjustSize ? stepSize.valuePixels(y) : calculatedSize;
+
   for (int i = 0; i < NumPlaces; i++) {
-     origins[i] = originsIni[i];
+     origins[i] = originsIni[i] + sizeAdjustment;
      if (rows[i]) {
         if (centerJustify) {
            origins[i] += spaceOffset[i] + (marginAccum / 2);
