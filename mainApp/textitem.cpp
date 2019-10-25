@@ -49,6 +49,7 @@ TextItem::TextItem(
   QColor color(data.textColor);
   setDefaultTextColor(color);
 
+ // unformat text - remove quote escapte
   QStringList list = data.text.split("\\n");
 
   QStringList list2;
@@ -91,9 +92,11 @@ TextItem::TextItem(
 
 void TextItem::formatText(const QString &input, QString &output)
 {
+    // format text - escapte quotes
     QStringList list = input.split("\n");
 
     QStringList list2;
+
     foreach (QString string, list){
       string = string.trimmed();
       QRegExp rx2("\"");
