@@ -1,4 +1,4 @@
-LPub3D 2.3.13.1.1574 (27 10 2019 02:49:04)
+LPub3D 2.3.13.1.1575 (27 10 2019 02:50:25)
 
 Features, enhancements, fixes and changes
 ------------
@@ -15,6 +15,7 @@ Revisions:
 - Enhancement - Adjust Step column/row on Callout/Rotate Icon move #352
 - Enhancement - Define width/height for a step in a step group #358
 - Enhancement - Edit plain and rich text with new text edit dialogue #357
+- Enhancement - Enable texture mapping with Native renderer #374
 - Enhancement - Justify step contents for defined step width/height #358
 - Enhancement - Second pass to adjust Step column/row on Callout/Rotate Icon move #352
 - Change - Adjust style size dialogue for circle and rectangle #229
