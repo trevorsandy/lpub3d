@@ -4997,8 +4997,8 @@ void Gui::parseError(QString errorMsg,Where &here)
     if (parsedMessages.contains(here)) 
         return; 
  
-    QString parseMessage = QString("%1 (file: %2, line: %3)") .arg(errorMsg) .arg(here.modelName) .arg(here.lineNumber + 1); 
-    if (Preferences::modeGUI) { 
+    QString parseMessage = QString("%1<br>(file: %2, line: %3)") .arg(errorMsg) .arg(here.modelName) .arg(here.lineNumber + 1);
+    if (Preferences::modeGUI) {
         showLine(here); 
         if (Preferences::showParseErrors) { 
             QCheckBox *cb = new QCheckBox("Do not show line parse error message again."); 
@@ -5186,7 +5186,7 @@ void Gui::statusMessage(LogType logType, QString message) {
             QString Message = QString("Failed to set log level %1.\n"
                                               "Logging is off - level set to OffLevel")
                     .arg(Preferences::loggingLevel);
-            fprintf(stderr, "%s", Message.toLatin1().constData());
+            fprintf(stderr, "%s", Message.append("\n").toLatin1().constData());
         }
         logger.setLoggingLevel(logLevel);
 
@@ -5201,7 +5201,7 @@ void Gui::statusMessage(LogType logType, QString message) {
         bool guiEnabled = (Preferences::modeGUI && Preferences::lpub3dLoaded);
         if (logType == LOG_STATUS ){
 
-            logStatus() << message;
+            logStatus() << message.replace("<br>"," ");
 
             if (guiEnabled) {
                 statusBarMsg(message);
@@ -5212,7 +5212,7 @@ void Gui::statusMessage(LogType logType, QString message) {
         } else
             if (logType == LOG_INFO) {
 
-                logInfo() << message;
+                logInfo() << message.replace("<br>"," ");
 
                 if (!guiEnabled && !Preferences::suppressStdOutToLog) {
                     fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
@@ -5222,7 +5222,7 @@ void Gui::statusMessage(LogType logType, QString message) {
             } else
               if (logType == LOG_NOTICE) {
 
-                  logNotice() << message;
+                  logNotice() << message.replace("<br>"," ");
 
                   if (!guiEnabled && !Preferences::suppressStdOutToLog) {
                       fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
@@ -5232,7 +5232,7 @@ void Gui::statusMessage(LogType logType, QString message) {
             } else
               if (logType == LOG_TRACE) {
 
-                  logTrace() << message;
+                  logTrace() << message.replace("<br>"," ");
 
                   if (!guiEnabled && !Preferences::suppressStdOutToLog) {
                       fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
@@ -5242,18 +5242,17 @@ void Gui::statusMessage(LogType logType, QString message) {
             } else
               if (logType == LOG_DEBUG) {
 #ifdef QT_DEBUG_MODE
-                  logDebug() << message;
-
+                  logDebug() << message.replace("<br>"," ");
 
                   if (!guiEnabled && !Preferences::suppressStdOutToLog) {
-                      fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
+                      fprintf(stdout,"%s",QString(message).replace("<br>"," ").append("\n").toLatin1().constData());
                       fflush(stdout);
                   }
 #endif
                 } else
               if (logType == LOG_INFO_STATUS) {
 
-                  statusBarMsg(message);
+                  statusBarMsg(message.replace("<br>"," "));
 
                   logInfo() << message;
 
@@ -5264,16 +5263,16 @@ void Gui::statusMessage(LogType logType, QString message) {
             } else
               if (logType == LOG_ERROR) {
 
-                  logError() << message;
+                  logError() << QString(message).replace("<br>"," ");
 
                   if (guiEnabled) {
                       if (ContinuousPage()) {
-                          statusBarMsg(message.prepend("ERROR: "));
+                          statusBarMsg(QString(message).replace("<br>"," ").prepend("ERROR: "));
                       } else {
                           QMessageBox::warning(this,tr(VER_PRODUCTNAME_STR),tr(message.toLatin1()));
                       }
                   } else if (!Preferences::suppressStdOutToLog) {
-                      fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
+                      fprintf(stdout,"%s",QString(message).replace("<br>"," ").append("\n").toLatin1().constData());
                       fflush(stdout);
                   }
             }
