@@ -107,7 +107,7 @@ extern SnapGridCommands sgCommands[NUM_GRID_SIZES];
 
 // All Scene items
 enum SceneObject {
-    AssemAnnotationObj       = 35, //  0 CsiAnnotationType
+    AssemAnnotationObj       = 36, //  0 CsiAnnotationType
     AssemAnnotationPartObj   = 27, //  1 CsiPartType
     AssemObj                 =  1, //  2 CsiType
     CalloutAssemObj          =  7, //  3
@@ -118,12 +118,12 @@ enum SceneObject {
     DividerBackgroundObj     = 11, //  8
     DividerObj               = 12, //  9
     DividerLineObj           = 13, // 10
-    DividerPointerObj        = 36, // 11 DividerPointerType
+    DividerPointerObj        = 37, // 11 DividerPointerType
     PointerGrabberObj        = 14, // 12
     PliGrabberObj            = 41, // 13
     SubmodelGrabberObj       = 42, // 14
     InsertPixmapObj          = 15, // 15
-    InsertTextObj            = 16, // 16
+    InsertTextObj            = 30, // 16 TextType
     MultiStepBackgroundObj   =  2, // 17 StepGroupType
     MultiStepsBackgroundObj  = 43, // 18
     PageAttributePixmapObj   = 17, // 19
@@ -141,7 +141,7 @@ enum SceneObject {
     RotateIconBackgroundObj  = 26, // 31 RotateIconType
     StepNumberObj            =  3, // 32 StepNumberType
     SubModelBackgroundObj    = 25, // 33 SubModelType
-    SubModelInstanceObj      = 30, // 34
+    SubModelInstanceObj      = 16, // 34
     SubmodelInstanceCountObj = 18, // 35 SubmodelInstanceCountType
     PartsListPixmapObj       = 44, // 36
     PartsListGroupObj        = 45, // 37

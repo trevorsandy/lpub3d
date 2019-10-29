@@ -65,6 +65,8 @@
 #include "substitutepartdialog.h"
 #include "paths.h"
 #include "render.h"
+#include "messageboxresizable.h"
+#include "step.h"
 
 #include "csiitem.h"
 
@@ -2762,21 +2764,28 @@ void MetaItem::insertPicture()
 }
 
 void MetaItem::updateText(
-   const Where &here,
+   const Where   &here,
    const QString &_text,
    QString       &_editFont,
    QString       &_editFontColor,
    float          _offsetX,
    float          _offsetY,
-   bool _isRichText,
-   bool insert)
+   int            _parentRelaiveType,
+   bool           _isRichText,
+   bool           append)
 {
-    QString text = _text;
+    bool ok         = true;
+    bool initialAdd = true;
+    bool stepFound  = true;
+    QString text    = _text;
     if (!text.isEmpty()){
+      initialAdd      = false;
       QStringList pre = text.split("\\n");
       text = pre.join(" ");
     }
 
+    int thisStep          = 1;
+    Where insertPosition  = here;
     bool isRichText       = _isRichText;
     QString windowTitle   = QString("Edit %1 Text").arg(isRichText ? "Rich" : "Plain");
     QString editFont      = _editFont;
@@ -2785,8 +2794,81 @@ void MetaItem::updateText(
     QString offset        = hasOffset ? QString(" OFFSET %1 %2")
                                                 .arg(qreal(_offsetX))
                                                 .arg(qreal(_offsetY)) : QString();
+    bool textPlacement    = gui->page.meta.LPub.page.textPlacement.value();
+    QString placementStr;
+    if (textPlacement && initialAdd) {
+      PlacementMeta placementMeta = gui->page.meta.LPub.page.textPlacementMeta;
+      placementMeta.preamble = QString("0 !LPUB INSERT %1 PLACEMENT ")
+                                       .arg(isRichText ? "RICH_TEXT" : "TEXT");
+      PlacementData placementData = placementMeta.value();
+      textPlacement = PlacementDialog
+           ::getPlacement(PlacementType(_parentRelaiveType),TextType,placementData,"Placement",DefaultPage);
+      if (textPlacement) {
+        if (hasOffset){
+          placementData.offsets[XX] = _offsetX;
+          placementData.offsets[YY] = _offsetY;
+        }
+        placementMeta.setValue(placementData);;
+        placementStr = placementMeta.format(true/*local*/,false);
+        bool getStep = (_parentRelaiveType == StepGroupType &&
+                        placementData.relativeTo != PageType &&
+                        placementData.relativeTo != PageHeaderType &&
+                        placementData.relativeTo != PageFooterType && false /*KO - disabled until fixed*/);
+        if (getStep) {
+            // set step to insert
+            thisStep = QInputDialog::getInt(gui,"Steps","Which Step",1,1,100,1,&ok);
+            Steps *steps = dynamic_cast<Steps *>(&gui->page);
+            if (ok && steps){
+                /* foreach range */
+                stepFound = false;
+                for (int i = 0; i < steps->list.size() && !stepFound; i++) {
+                    if (steps->list[i]->relativeType == RangeType){
+                       Range *range = dynamic_cast<Range *>(steps->list[i]);
+                       if (range) {
+                           /* foreach step*/
+                           for (int j = 0; j < range->list.size(); j++) {
+                              Step *step = dynamic_cast<Step *>(range->list[j]);
+                              if (step && step->stepNumber.number == thisStep) {
+                                  insertPosition = step->topOfStep();
+                                  stepFound      = true;
+                                  break;
+                              }
+                           }
+                       }
+                    }
+                }
+            }
+         }
+      }
 
-    bool ok = TextEditDialog::getText(text,editFont,editFontColor,isRichText,windowTitle,true);
+      bool showMessage = !textPlacement || !ok ||!stepFound;
+
+      if (showMessage) {
+        QPixmap _icon = QPixmap(":/icons/lpub96.png");
+        QMessageBoxResizable box;
+        box.setWindowIcon(QIcon());
+        box.setIconPixmap (_icon);
+        box.setTextFormat (Qt::RichText);
+
+        box.setWindowTitle(QMessageBox::tr ("Text Placement Select"));
+        box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+        box.setMinimumSize(40,20);
+
+        QString message = !textPlacement ? QString("Placement selection was cancelled or not valid.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;") :
+                          !ok ?            QString("Specified step number %1 is not valid. Bottom of multi steps will be used.").arg(thisStep) :
+                                           QString("Step number %1 was not found. Bottom of multi steps will be used.").arg(thisStep);
+        QString body = QMessageBox::tr ("Woulld you like to cancel the %1 text action ?").arg(initialAdd ? "add" : "update");
+        box.setText (message);
+        box.setInformativeText (body);
+        box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
+        box.setDefaultButton   (QMessageBox::No);
+        if (box.exec() == QMessageBox::Yes) {
+            return;
+        }
+      }
+    }
+
+    ok = TextEditDialog::getText(text,editFont,editFontColor,isRichText,windowTitle,true);
     if (ok && !text.isEmpty()) {
 
     QStringList list = text.split("\n");
@@ -2811,18 +2893,25 @@ void MetaItem::updateText(
           string.append(QChar(' '));
       list2 << string;
     }
-    QString meta;
-    if (isRichText)
-      meta = QString("0 !LPUB INSERT RICH_TEXT \"%1\"%2")
-             .arg(list2.join("\\n")) .arg(offset);
-    else
-      meta = QString("0 !LPUB INSERT TEXT \"%1\" \"%2\" \"%3\"%4")
-             .arg(list2.join("\\n")) .arg(editFont) .arg(editFontColor) .arg(offset);
 
-    if (insert)
-      appendMeta(here,meta);
+    QString strMeta;
+    if (isRichText)
+      strMeta = QString("0 !LPUB INSERT RICH_TEXT \"%1\"%2")
+                        .arg(list2.join("\\n")) .arg(textPlacement ? "" : offset);
     else
-      replaceMeta(here,meta);
+      strMeta = QString("0 !LPUB INSERT TEXT \"%1\" \"%2\" \"%3\"%4")
+                        .arg(list2.join("\\n")) .arg(editFont) .arg(editFontColor) .arg(textPlacement ? "" : offset);
+
+    beginMacro("UpdateText");
+    if (append)
+      appendMeta(insertPosition,strMeta);
+    else
+      replaceMeta(insertPosition,strMeta);
+    if (textPlacement && initialAdd) {
+      Where walkFwd = insertPosition+1;
+      appendMeta(walkFwd,placementStr);
+    }
+    endMacro();
   }
 }
 
@@ -2830,48 +2919,94 @@ void MetaItem::insertText()
 {
     Where insertPosition, walkBack, topOfStep, bottomOfStep;
 
-    bool multiStep = false;
+    bool append        = true;
+    bool multiStep     = false;
+    bool isRichText    = false;
+    bool textPlacement = gui->page.meta.LPub.page.textPlacement.value();
+    PlacementType parentRelativeType = PageType;
 
-      Steps *steps = dynamic_cast<Steps *>(&gui->page);
-      if (steps && steps->list.size() > 0) {
-          if (steps->list.size() > 1) {
-              multiStep = true;
-            } else {
-              Range *range = dynamic_cast<Range *>(steps->list[0]);
-              if (range && range->list.size() > 1) {
-                  multiStep = true;
-                }
-            }
+    Steps *steps = dynamic_cast<Steps *>(&gui->page);
+    if (steps && steps->list.size() > 0) {
+      if (steps->list.size() > 1) {
+        multiStep = true;
+      } else {
+        Range *range = dynamic_cast<Range *>(steps->list[0]);
+        if (range && range->list.size() > 1) {
+          multiStep = true;
+        }
       }
+    }
 
-      if (multiStep) {
-          insertPosition = steps->bottomOfSteps();
-        } else {
-          topOfStep = gui->topOfPages[gui->displayPageNum-1];
-          // capture model when different from model at top of page
-          bottomOfStep = gui->topOfPages[gui->displayPageNum];
-          if (topOfStep.modelName == bottomOfStep.modelName) {
-            // well the model has not changed
-            insertPosition = topOfStep;
-          } else {
-            // we are entering or leaving a submodel
-            Meta mi;
-            Rc rc;
-            // walk back to top of step, - 1 to avoid advacing 1 STEP if we land on a STEP
-            walkBack = bottomOfStep - 1;
-            for (; walkBack.lineNumber >= 0; walkBack--) {
-              QString line = gui->readLine(walkBack);
-              rc = mi.parse(line,walkBack);
-              if (isHeader(line) || rc == StepRc || rc == RotStepRc) {
-                break;
-              }
-            }
-            insertPosition = walkBack;
-      }
+    if (multiStep) {
+        insertPosition = steps->bottomOfSteps();
+      } else {
+        insertPosition = gStep->topOfStep();
+//        topOfStep = gui->topOfPages[gui->displayPageNum-1];
+//        // capture model when different from model at top of page
+//        bottomOfStep = gui->topOfPages[gui->displayPageNum];
+//        if (topOfStep.modelName == bottomOfStep.modelName) {
+//          // well the model has not changed
+//          insertPosition = topOfStep;
+//        } else {
+//          // we are entering or leaving a submodel
+//        Rc rc;
+//        // walk back to top of step, - 1 to avoid advacing 1 STEP if we land on a STEP command
+//        walkBack = bottomOfStep - 1;
+//        for (; walkBack.lineNumber >= 0; walkBack--) {
+//          QString line = gui->readLine(walkBack);
+//          Meta mi;
+//          rc = mi.parse(line,walkBack);
+//          if (isHeader(line) || rc == StepRc || rc == RotStepRc) {
+//            break;
+//          }
+//        }
+//        insertPosition = walkBack;
+//      }
       scanPastGlobal(insertPosition);
     }
-    QString empty = QString();
-    updateText(insertPosition, empty, empty, empty, 0.0f, 0.0f, false/*isRichText*/, true /*insert*/);
+
+    if (textPlacement) {
+      QStringList textFormatOptions;
+      textFormatOptions << "Plain Text" << "Rich Text";
+      QInputDialog textTypeDlg;
+      bool ok;
+      QString textFormat =
+              QInputDialog::getItem(gui,
+                                    QString("Add Text"),
+                                    QString("Text Format:"),
+                                    textFormatOptions, 0,false,&ok);
+      if (ok && !textFormat.isEmpty())
+        isRichText = textFormat.contains(textFormatOptions.last());
+
+      if (!ok) {
+          QPixmap _icon = QPixmap(":/icons/lpub96.png");
+          QMessageBoxResizable box;
+          box.setWindowIcon(QIcon());
+          box.setIconPixmap (_icon);
+          box.setTextFormat (Qt::RichText);
+
+          box.setWindowTitle(QMessageBox::tr ("Text Format Select"));
+          box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+          box.setMinimumSize(40,20);
+
+          QString message = QString("Text format selection was cancelled or not valid.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+          QString body = QMessageBox::tr ("Woulld you like to cancel the add text action ?");
+          box.setText (message);
+          box.setInformativeText (body);
+          box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
+          box.setDefaultButton   (QMessageBox::No);
+          if (box.exec() == QMessageBox::Yes) {
+              return;
+          }
+      }
+    }
+
+    if (multiStep)
+        parentRelativeType = StepGroupType;
+
+    QString empty;
+    QString fontString = QString("Arial,24,-1,255,%1,0,0,0,0,0").arg(isRichText ? "75" /*Bold*/ : "50" /*Normal*/);
+    updateText(insertPosition, empty, fontString, empty, 0.0f, 0.0f, parentRelativeType, isRichText, append);
 }
 
 void MetaItem::insertBOM()

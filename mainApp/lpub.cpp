@@ -2930,7 +2930,7 @@ void Gui::initialize()
       soMap[PliGrabberObj]            = QString("PLI_GRABBER");          // 13
       soMap[SubmodelGrabberObj]       = QString("SUBMODEL_GRABBER");     // 14
       soMap[InsertPixmapObj]          = QString("PICTURE");              // 15
-      soMap[InsertTextObj]            = QString("TEXT");                 // 16
+      soMap[InsertTextObj]            = QString("TEXT");                 // 16 TextType
       soMap[MultiStepBackgroundObj]   = QString("MULTI_STEP");           // 17 StepGroupType
       soMap[MultiStepsBackgroundObj]  = QString("MULTI_STEPS");          // 18
       soMap[PageAttributePixmapObj]   = QString("ATTRIBUTE_PIXMAP");     // 19
@@ -2952,7 +2952,7 @@ void Gui::initialize()
       soMap[SubmodelInstanceCountObj] = QString("SUBMODEL_INST_COUNT");  // 35 SubmodelInstanceCountType
       soMap[PartsListPixmapObj]       = QString("PLI_PART");             // 36
       soMap[PartsListGroupObj]        = QString("PLI_PART_GROUP");       // 37
-      soMap[StepBackgroundObj]        = QString("STEP_BACKGROUND");      // 38
+      soMap[StepBackgroundObj]        = QString("STEP_BACKGROUND");      // 38 [StepType]
   }
 }
 

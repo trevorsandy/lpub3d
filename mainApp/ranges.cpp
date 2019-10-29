@@ -195,6 +195,7 @@ void Steps::freeSteps()
     delete re;
   }
   list.clear();
+  textItemList.clear();
   relativeType = SingleStepType;
   relativeToList.clear();
 }

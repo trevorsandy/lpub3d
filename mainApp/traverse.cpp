@@ -1060,6 +1060,12 @@ int Gui::drawPage(
                      if (! exporting())
                          emit clearViewerWindowSig();
                  }
+                 if (insertData.type == InsertData::InsertText ||
+                     insertData.type == InsertData::InsertRichText) {
+                     if (insertData.defaultPlacement &&
+                         !curMeta.LPub.page.textPlacement.value())
+                         curMeta.LPub.insert.initPlacement();
+                 }
                  inserts.append(curMeta.LPub.insert);                  // these are always placed before any parts in step
               }
               break;

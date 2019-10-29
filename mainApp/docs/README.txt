@@ -1,4 +1,4 @@
-LPub3D 2.3.13.1.1578 (29 10 2019 08:11:31)
+LPub3D 2.3.13.1.1579 (29 10 2019 08:12:57)
 
 Features, enhancements, fixes and changes
 ------------
@@ -12,6 +12,7 @@ Revisions:
 - Enhancement - 3DViewer Display Default Camera Properties #344
 - Enhancement - Add Rectangle to fixed annotations styles #350
 - Enhancement - Add stud logo command line option #347
+- Enhancement - Add text placement #375
 - Enhancement - Adjust Step column/row on Callout/Rotate Icon move #352
 - Enhancement - Define width/height for a step in a step group #358
 - Enhancement - Edit plain and rich text with new text edit dialogue #357

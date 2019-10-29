@@ -515,6 +515,7 @@ public:
                   QString &,
                   float,
                   float,
+                  int,
                   bool,
                   bool = false);
   void deleteImageItem(Where &, QString &);

@@ -36,6 +36,7 @@
 #include "submodelitem.h"
 #include "pageattributepixmapitem.h"
 #include "dividerpointeritem.h"
+#include "textitem.h"
 
 class Meta;
 class Render;
@@ -66,6 +67,7 @@ class Steps : public Placement {
     QList<AbstractStepsElement *>  list;                // of range
     QMap<Positions,PagePointer *>  pagePointers;        // of pagePointers
     QList<DividerPointerItem *>    graphicsPointerList; // of dividerPointers
+    QList<TextItem*>               textItemList;        // of page Texts
     QGraphicsView                 *view;
     Pli                            pli;
     SubModel                       subModel;

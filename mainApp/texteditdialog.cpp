@@ -117,10 +117,13 @@ void TextEditDialog::currentCharFormatChanged(const QTextCharFormat &format)
 
 void TextEditDialog::fontChanged(const QFont &f)
 {
-    if (richText) {
-        ui->actionBold->setChecked(f.bold());
+    ui->actionBold->setChecked(f.bold());
+    if (richText){
         ui->actionItalic->setChecked(f.italic());
         ui->actionUnderline->setChecked(f.underline());
+    } else {
+        ui->actionItalic->setVisible(false);
+        ui->actionUnderline->setVisible(false);
     }
 
     QString fontProperties = QString("Font: %1, Size: %2")
@@ -231,29 +234,32 @@ bool TextEditDialog::getText(
       QString  windowTitle,
       bool     fontActions)
 {
-    QStringList list;
-    foreach (QString string, QStringList(goods.split("\\n"))){
-      string = string.trimmed();
-      QRegExp rx2("\"");
-      int pos = 0;
-      QChar esc('\\');
-      while ((pos = rx2.indexIn(string, pos)) != -1) {
-        if (pos < string.size()) {
-          QChar ch = string.at(pos-1);
-          if (ch == esc) {
-            string.remove(pos-1,1);
-            pos += rx2.matchedLength() - 1;
-          }
+    QString unformattedGoods = goods;
+    if (!goods.isEmpty()) {
+        QStringList list;
+        foreach (QString string, QStringList(goods.split("\\n"))){
+            string = string.trimmed();
+            QRegExp rx2("\"");
+            int pos = 0;
+            QChar esc('\\');
+            while ((pos = rx2.indexIn(string, pos)) != -1) {
+                if (pos < string.size()) {
+                    QChar ch = string.at(pos-1);
+                    if (ch == esc) {
+                        string.remove(pos-1,1);
+                        pos += rx2.matchedLength() - 1;
+                    }
+                }
+            }
+            // if last character is \, append space ' ' so not to escape closing string double quote
+            if (string.at(string.size()-1) == QChar('\\'))
+                string.append(QChar(' '));
+            list << string;
         }
-      }
-      // if last character is \, append space ' ' so not to escape closing string double quote
-      if (string.at(string.size()-1) == QChar('\\'))
-        string.append(QChar(' '));
-      list << string;
+        unformattedGoods = list.join(" ");
     }
-    QString unformattedGoods = list.join(" ");
 
-    TextEditDialog *dialog = new TextEditDialog(/*unformattedG*/goods,editFont,editFontColor,windowTitle,richText,fontActions);
+    TextEditDialog *dialog = new TextEditDialog(unformattedGoods,editFont,editFontColor,windowTitle,richText,fontActions);
 
     bool ok = dialog->exec() == QDialog::Accepted;
     if (ok) {

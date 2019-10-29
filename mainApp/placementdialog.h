@@ -106,19 +106,20 @@ public:
       /* 24 Category          */ Cat,
       /* 25 Submodel          */ Sm,
       /* 26 Rotate Icon       */ Ri,
-      /* 27 Csi Part          */ Cp
-      /* 28 Bom               */ // plus 8 more...
+      /* 27 Csi Part          */ Cp,
+      /* 28 Step              */ Stp,
+      /* 29 Range             */ Rng
+      /* 30 Text              */ // plus 8 more...
+      /* 31 Bom               */
 
-      /* 29 PagePointer       */
-      /* 30 SingleStep        */
-      /* 31 Step              */
-      /* 32 Range             */
-      /* 33 Reserve           */
-      /* 34 CoverPage         */
-      /* 35 CsiAnnotationType */
-      /* 36 DividerPointer    */
+      /* 32 PagePointer       */
+      /* 33 SingleStep        */
+      /* 34 Reserve           */
+      /* 35 CoverPage         */
+      /* 36 CsiAnnotationType */
+      /* 37 DividerPointer    */
 
-      /* 37 NumRelatives      */
+      /* 38 NumRelatives      */
     };
 
   PlacementDialog(

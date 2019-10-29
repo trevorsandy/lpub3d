@@ -1618,8 +1618,7 @@ private:
 public:
   InsertData _value;
   InsertMeta() : LeafMeta()
-  {
-  }
+  {}
   InsertMeta(const InsertMeta &rhs) : LeafMeta(rhs)
   {
     _value = rhs._value;
@@ -1632,6 +1631,7 @@ public:
   {
     _value = value;
   }
+  void initPlacement();
 //  virtual ~InsertMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
@@ -3000,8 +3000,10 @@ public:
   StringListMeta            subModelColor;
   PointerMeta               pointer;
   PointerAttribMeta         pointerAttrib;
-  SceneItemMeta           scene;
+  SceneItemMeta             scene;
   IntMeta                   countInstanceOverride;
+  BoolMeta                  textPlacement;
+  PlacementMeta             textPlacementMeta;
 
   PageHeaderMeta            pageHeader;
   PageFooterMeta            pageFooter;
