@@ -1981,6 +1981,13 @@ void Gui::highlightStepSetup()
 
 void Gui::editTitleAnnotations()
 {
+    QFileInfo fileInfo(Preferences::titleAnnotationsFile);
+    if (!fileInfo.exists()) {
+        if (!Annotations::exportTitleAnnotationsFile()) {
+            emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
+            return;
+        }
+    }
     displayParmsFile(Preferences::titleAnnotationsFile);
     parmsWindow->setWindowTitle(tr("Part Title Annotation","Edit/add part title part annotations"));
     parmsWindow->show();
@@ -1988,6 +1995,13 @@ void Gui::editTitleAnnotations()
 
 void Gui::editFreeFormAnnitations()
 {
+    QFileInfo fileInfo(Preferences::freeformAnnotationsFile);
+    if (!fileInfo.exists()) {
+        if (!Annotations::exportfreeformAnnotationsHeader()) {
+            emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
+            return;
+        }
+    }
     displayParmsFile(Preferences::freeformAnnotationsFile);
     parmsWindow->setWindowTitle(tr("Freeform Annotation","Edit/add freeform part annotations"));
     parmsWindow->show();
@@ -2002,6 +2016,13 @@ void Gui::editLDrawColourParts()
 
 void Gui::editPliBomSubstituteParts()
 {
+    QFileInfo fileInfo(Preferences::pliSubstitutePartsFile);
+    if (!fileInfo.exists()) {
+        if (!PliSubstituteParts::exportSubstitutePartsHeader()) {
+            emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
+            return;
+        }
+    }
     displayParmsFile(Preferences::pliSubstitutePartsFile);
     parmsWindow->setWindowTitle(tr("PLI/BOM Substitute Parts","Edit/add PLI/BOM substitute parts"));
     parmsWindow->show();

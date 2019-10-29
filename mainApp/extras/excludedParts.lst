@@ -1,6 +1,6 @@
 # File: excludedParts.lst
 
-# This list captures excluded parts to support accurate part count.
+# This space-delimited list captures excluded parts to support accurate part count.
 # Excluded parts must be defined using the file name.
 # Parts on this list are excluded from the part count and PLI.
 
@@ -17,6 +17,7 @@
 
 # Part ID (LDraw Name:)  Part Description - for reference only
 
+# ----------------------Do not delete above this line----------------------------------
 
 arrow80.dat       helper arrow 08
 arrow88.dat       helper arrow 88

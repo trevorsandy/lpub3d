@@ -6,7 +6,7 @@
 # and at worst, exclude the entire category (e.g. Technic Axle) annotations from being captured.
 # EDIT THIS FILE ONLY IF YOU ARE COMFORTABLE WITH THE REQUIREMENTS STATED ABOVE.
 #
-# Enter part category and annotation Regular Expression.
+# This space-delimited list captures part category and annotation Regular Expression.
 # Follow this format to define annotations derived from part title (LDraw Parts.lst)
 # The format is category followed by regex string
 # Annotations are extracted from the part title and further processed in LPub3D
@@ -22,6 +22,8 @@
 # and paste to a new line with starting phrase other than 'The Regular Expression..."
 
 # The Regular Expression used is: ^(\b.*[^\s]\b:)\s+([\(|\^].*)$
+
+# ----------------------Do not delete above this line----------------------------------
 
 #Category   Regex (to identify and extract annotation)
 Technic:    ^Technic Axle\s+(\d+\.*\d*)\s*.*$

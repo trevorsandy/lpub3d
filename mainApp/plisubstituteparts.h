@@ -28,6 +28,8 @@ class PliSubstituteParts
     static QMap<QString, QString>               substituteParts;
   public:
     PliSubstituteParts();
+    static bool exportSubstitutePartsHeader();
+    static bool overwriteFile(const QString &file);
     static const bool &hasSubstitutePart(QString part);
     static const bool &getSubstitutePart(QString &part);
 };

@@ -31,6 +31,7 @@ QList<QString>  ExcludedParts::excludedParts;
 ExcludedParts::ExcludedParts()
 {
     if (excludedParts.size() == 0) {
+        bool rxFound = false;
         QString excludedPartsFile = Preferences::excludedPartsFile;
         QRegExp rx("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
         if (!excludedPartsFile.isEmpty()) {
@@ -48,20 +49,35 @@ ExcludedParts::ExcludedParts()
             QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rxin)) {
+                if ((rxFound = sLine.contains(rxin))) {
                    rx.setPattern(rxin.cap(1));
                    //logDebug() << "ExcludedParts RegExp Pattern: " << rxin.cap(1);
                    break;
                 }
             }
 
-            // Load input values
-            while ( ! in.atEnd()) {
-                QString sLine = in.readLine(0);
-                if (sLine.contains(rx)) {
-                    QString excludedPartID = rx.cap(1);
-                    excludedParts.append(excludedPartID.toLower().trimmed());
-                    //logDebug() << "** ExcludedPartID: " << excludedPartID.toLower();
+            if (rxFound) {
+                in.seek(0);
+
+                // Load input values
+                while ( ! in.atEnd()) {
+                    QString sLine = in.readLine(0);
+                    if (sLine.contains(rx)) {
+                        QString excludedPartID = rx.cap(1);
+                        excludedParts.append(excludedPartID.toLower().trimmed());
+                        //logDebug() << "** ExcludedPartID: " << excludedPartID.toLower();
+                    }
+                }
+            } else {
+                QString message = QString("Regular expression pattern was not found in %1.<br>"
+                                  "Be sure the following lines exist in the file header:<br>"
+                                  "# File: %1<br>"
+                                  "# The Regular Expression used is: ^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$")
+                                  .arg(QFileInfo(excludedPartsFile).fileName());
+                if (Preferences::modeGUI){
+                    QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+                } else {
+                    logError() << message.replace("<br>"," ");
                 }
             }
         } else {
@@ -109,7 +125,7 @@ void ExcludedParts::loadExcludedParts(QByteArray &Buffer)
 /*
 # File: excludedParts.lst
 
-# Space-delmited list of part name and, optionally, part descripton
+# This space-delimited list captures excluded part name and, optionally, part descripton
 
 # This list captures excluded parts to support accurate part count.
 # Excluded parts must be defined using the file name.
@@ -205,14 +221,9 @@ bool ExcludedParts::exportExcludedParts(){
 
     if(file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
-        // insert header here
         int counter = 1;
         QTextStream outstream(&file);
         outstream << "# File:" << Preferences::validAnnotationStyleFile << endl;
-        outstream << "#" << endl;
-        outstream << "# File: excludedParts.lst" << endl;
-        outstream << "# " << endl;
-        outstream << "# Space-delmited list of part name and, optionally, part descripton" << endl;
         outstream << "# " << endl;
         outstream << "# This list captures excluded parts to support accurate part count." << endl;
         outstream << "# Excluded parts must be defined using the file name." << endl;
@@ -231,6 +242,9 @@ bool ExcludedParts::exportExcludedParts(){
         outstream << "# " << endl;
         outstream << "# 1. Part ID:          LDraw Part Name                               (Required)" << endl;
         outstream << "# 2. Part Description: LDraw Part Description - for reference only   (Optional)" << endl;
+        outstream << "#" << endl;
+        outstream << "#" << endl;
+        outstream << "# ----------------------Do not delete above this line----------------------------------" << endl;
         outstream << "#" << endl;
 
         QByteArray Buffer;

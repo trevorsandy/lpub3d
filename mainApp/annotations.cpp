@@ -821,14 +821,14 @@ void Annotations::loadDefaultAnnotationStyles(QByteArray& Buffer){
         "3708.dat=1    1  12    Technic Axle 12\n"
         "50451.dat=1   1  16    Technic Axle 16\n"
         "50450.dat=1   1  32    Technic Axle 32\n"
-
+        "\n"
         "32580.dat=1   1   7    Technic Axle Flexible  7\n"
         "32199.dat=1   1  11    Technic Axle Flexible 11\n"
         "32200.dat=1   1  12    Technic Axle Flexible 12\n"
         "32201.dat=1   1  14    Technic Axle Flexible 14\n"
         "32202.dat=1   1  16    Technic Axle Flexible 16\n"
         "32235.dat=1   1  19    Technic Axle Flexible 19\n"
-
+        "\n"
         "18654.dat=2   2   1    Technic Beam  1\n"
         "43857.dat=2   2   2    Technic Beam  2\n"
         "32523.dat=2   2   3    Technic Beam  3\n"
@@ -838,22 +838,22 @@ void Annotations::loadDefaultAnnotationStyles(QByteArray& Buffer){
         "32525.dat=2   2  11    Technic Beam 11\n"
         "41239.dat=2   2  13    Technic Beam 13\n"
         "32278.dat=2   2  15    Technic Beam 15\n"
-
+        "\n"
         "11145.dat=3   3  25cm  Electric Mindstorms EV3 Cable 25 cm\n"
         "11146.dat=3   3  35cm  Electric Mindstorms EV3 Cable 35 cm\n"
         "11147.dat=3   3  50cm  Electric Mindstorms EV3 Cable 50 cm\n"
-
+        "\n"
         "55804.dat=3   3  20cm  Electric Mindstorms NXT Cable 20 cm\n"
         "55805.dat=3   3  35cm  Electric Mindstorms NXT Cable 35 cm\n"
         "55806.dat=3   3  50cm  Electric Mindstorms NXT Cable 50 cm\n"
-
+        "\n"
         "32013.dat=2   4   1    Technic Angle Connector #1\n"
         "32034.dat=2   4   2    Technic Angle Connector #2 (180 degree)\n"
         "32016.dat=2   4   3    Technic Angle Connector #3 (157.5 degree)\n"
         "32192.dat=2   4   4    Technic Angle Connector #4 (135 degree)\n"
         "32015.dat=2   4   5    Technic Angle Connector #5 (112.5 degree)\n"
         "32014.dat=2   4   6    Technic Angle Connector #6 (90 degree)\n"
-
+        "\n"
         "76263.dat=2   5   3    Technic Flex-System Hose  3L (60LDU)\n"
         "76250.dat=2   5   4    Technic Flex-System Hose  4L (80LDU)\n"
         "76307.dat=2   5   5    Technic Flex-System Hose  5L (100LDU)\n"
@@ -887,7 +887,7 @@ void Annotations::loadDefaultAnnotationStyles(QByteArray& Buffer){
         "46305.dat=2   5  40    Technic Flex-System Hose 40L (800LDU)\n"
         "76281.dat=2   5  45    Technic Flex-System Hose 45L (900LDU)\n"
         "22296.dat=2   5  53    Technic Flex-System Hose 53L (1060LDU)\n"
-
+        "\n"
         "72504.dat=2   5   2    Technic Ribbed Hose  2L\n"
         "72706.dat=2   5   3    Technic Ribbed Hose  3L\n"
         "71952.dat=2   5   4    Technic Ribbed Hose  4L\n"
@@ -906,7 +906,7 @@ void Annotations::loadDefaultAnnotationStyles(QByteArray& Buffer){
         "72039.dat=2   5  18    Technic Ribbed Hose 18L\n"
         "43675.dat=2   5  19    Technic Ribbed Hose 19L\n"
         "23397.dat=2   5  24    Technic Ribbed Hose 24L\n"
-
+        "\n"
         "32190.dat=1   6   1    Technic Panel Fairing #1\n"
         "32191.dat=1   6   2    Technic Panel Fairing #2\n"
         "44350.dat=1   6  20    Technic Panel Fairing #20\n"
@@ -921,7 +921,7 @@ void Annotations::loadDefaultAnnotationStyles(QByteArray& Buffer){
         "32528.dat=1   6   6    Technic Panel Fairing #6\n"
         "32534.dat=1   6   7    Technic Panel Fairing #7\n"
         "32535.dat=1   6   8    Technic Panel Fairing #8\n"
-
+        "\n"
         "87080.dat=1   6   1    Technic Panel Fairing Smooth #1 (Short)\n"
         "64394.dat=1   6  13    Technic Panel Fairing Smooth #13 (Wide Medium)\n"
         "64680.dat=1   6  14    Technic Panel Fairing Smooth #14 (Wide Medium)\n"
@@ -934,7 +934,7 @@ void Annotations::loadDefaultAnnotationStyles(QByteArray& Buffer){
         "64391.dat=1   6   4    Technic Panel Fairing Smooth #4 (Medium)\n"
         "64681.dat=1   6   5    Technic Panel Fairing Smooth #5 (Long)\n"
         "64393.dat=1   6   6    Technic Panel Fairing Smooth #6 (Long)\n"
-
+        "\n"
         "4109810.dat=1 1   2    _Technic Axle  2 Notched Black\n"
         "4211815.dat=1 1   3    _Technic Axle  3 Light_Bluish_Gray\n"
         "370526.dat=1  1   4    _Technic Axle  4 Black\n"
@@ -945,17 +945,17 @@ void Annotations::loadDefaultAnnotationStyles(QByteArray& Buffer){
         "370826.dat=1  1  12    _Technic Axle 12 Black\n"
         "4263624.dat=1 1  5.5   _Technic Axle 5.5 With Stop Dark_Bluish_Gray\n"
         "55709.dat=1   1  11    =Technic Axle Flexible 11\n"
-
+        "\n"
         "17141.dat=2   2   3    =Technic Beam  3\n"
         "16615.dat=2   2   7    =Technic Beam  7\n"
         "64289.dat=2   2   9    =Technic Beam  9\n"
         "64290.dat=2   2  11    =Technic Beam 11\n"
         "64871.dat=2   2  15    =Technic Beam 15\n"
-
+        "\n"
         "4211550.dat=2 4   1    _Technic Angle Connector #1 Light_Bluish_Gray\n"
         "4506697.dat=2 4   5    _Technic Angle Connector #5 (112.5 degree) White\n"
         "4107767.dat=2 4   6    _Technic Angle Connector #6 (90 degree) Black\n"
-
+        "\n"
         "22749.dat=1   6   1    =Technic Panel Fairing #1\n"
         "22750.dat=1   6   2    =Technic Panel Fairing #2\n"
         "22972.dat=1   6   3    =Technic Panel Fairing #3\n"
@@ -1043,46 +1043,226 @@ void Annotations::loadLD2RBCodesXRef(QByteArray& Buffer){
         Buffer.append(LD2RBCodesXRef, sizeof(LD2RBCodesXRef));
 }
 
+void Annotations::loadTitleAnnotations(QByteArray &Buffer) {
+/*
+# File: titleAnnotations.lst
+#
+# This space-delimited list captures part category and annotation Regular Expression.
+#
+# The Regular Expression used is: ^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$
+#
+*/
+    const char LEGOLDefaultTitleAnnotations[] = {
+        "Technic:    ^Technic Axle\\s+(\\d+\\.*\\d*)\\s*.*$\n"
+        "Technic:    ^Technic Axle Flexible\\s+(\\d+)\\s*.*$\n"
+        "Technic:    ^Technic Angle Connector\\s+\\(*(#*\\d*\\s*x*\\s*\\d*)\\s*\\w*\\)*\\s*.*$\n"
+        "Technic:    ^Technic Arm\\s+(\\d+\\s+(x|X)\\s+\\d+)\\s*.*$\n"
+        "Technic:    (?i)^(?!.*(?:Bent))Technic Beam*\\s+(\\d+\\.*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Technic:    ^Technic Brick\\s+(\\d+\\s+(x|X)\\s+\\d+\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Technic:    ^Technic Chain Tread\\s+(\\d+)$\n"
+        "Technic:    ^Technic Connector\\s*\\w*\\s+(\\d+\\s+(x|X)\\s+\\d+\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Technic:    ^Technic Cross Block\\s+(\\d+\\s+(x|X)\\s+\\d+\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Technic:    ^Technic Excavator Bucket\\s+(\\d+\\s+(x|X)\\s+\\d+\\s*(x*|X*)\\s*\\d*)\\s*.*$\n"
+        "Technic:    ^Technic Flex-System\\s*\\w*\\s+(\\d+L).*$\n"
+        "Technic:    ^Technic Gear\\s*\\w*\\s*(\\d+\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Technic:    ^Technic\\s+\\w*\\s*Link\\s*(\\d+L*\\s*(x*|X*)\\s*\\d*)\\s*.*$\n"
+        "Technic:    ^Technic Motor Pull Back\\s+(\\d+\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*)\\s*.*$\n"
+        "Technic:    ^Technic Panel\\s*\\w*\\s+(\\d+\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*)$\n"
+        "Technic:    ^Technic Panel Fairing\\s*\\w*\\s+(#+\\d+)\\s*.*$\n"
+        "Technic:    ^Technic Panel Flat Sheet\\s*(\\d+\\s*(x*|X*)\\s*\\d*)\\s*.*$\n"
+        "Technic:    ^Technic Plate\\s*(\\d+\\s*(x*|X*)\\s*\\d*)\\s*.*$\n"
+        "Technic:    ^Technic Pneumatic\\s*\\w*\\s+(\\d+\\.*\\d*\\s*(x*|X*)\\s*\\d*\\s*\\d*L*\\s*(x*|X*)\\s*\\d*\\.*\\d*L*)\\s*.*$\n"
+        "Technic:    ^Technic Rotor\\s+(\\d+\\s*B)\\w*\\s*(\\d*L*\\s*D*)\\s*.*$\n"
+        "Technic:    ^Technic Shock Absorber\\s+(\\d+\\.*\\d*L*)\\s*.*$\n"
+        "Technic:    ^Technic Sprocket Wheel\\s+(\\d+\\.*\\d*)\\s*.*$\n"
+        "Technic:    ^Technic Suspension Arm\\s+(\\d+\\s+(x|X)\\s+\\d+\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Technic:    ^Technic Universal Joint\\s+(\\d+\\.*\\d*L*)\\s*.*$\n"
+        "\n"
+        "Antenna:    ^Antenna\\s+(\\dH)\\s*.*$\n"
+        "Arch:       ^Arch\\s+(\\d+\\s+(x|X)\\s+\\d+\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Bar:        ^Bar\\s+(\\d+\\.*\\d*L*\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*)\\s*.*$\n"
+        "Barrel:     ^Barrel\\s+(\\d+\\.*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Baseplate:  ^Baseplate\\s+(\\d+\\s*(x*|X*)\\s*\\d*+\\s*)\\s*.*$\n"
+        "Belt:       ^Rubber Belt Round\\s+(\\d+\\s*\\/+\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Boat:       ^Boat\\s*\\w*\\s*\\w*\\s+(\\d+\\s+(x|X)\\s+\\d+\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Bone:       ^Bone\\s+(\\dL)$\n"
+        "Bracket:    ^Bracket\\s+(\\d+\\s+(x|X)\\s+\\d+\\s*(x*|X*)-*\\s*\\d*\\/*\\.*\\d*\\s*(x*|X*)\\s*\\d*)\\s*.*$\n"
+        "Brick:      ^Brick\\s+(\\d+\\s+(x|X)\\s+\\d+\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Brick:      ^Mursten Brick\\s+(\\d+\\s+(x|X)\\s+\\d+)\\s*.*$\n"
+        "Brick:      ^Quatro Brick\\s+(\\d+\\s+(x|X)\\s+\\d+)\\s*.*$\n"
+        "Bucket:     ^Bucket\\s+(\\d+\\s+(x|X)\\s+\\d+\\s*(x*|X*)\\s*\\d*)\\s*.*$\n"
+        "Car:        ^Car\\s*\\w*\\s+(\\d+\\s+(x|X)\\s+\\d+\\.*\\d*\\s*(x*|X*)\\s*\\d*\\/*\\.*\\d*)\\s*.*$\n"
+        "Claw:       ^Claw\\s+(\\dL)$\n"
+        "Cockpit:    ^Cockpit\\s+(\\d+\\s+(x|X)\\s+\\d+\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Cocoon:     ^Cocoon\\s+(\\d+\\s+(x|X)\\s+\\d+\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Cone:       ^Cocoon\\s+(\\d+\\s+(x|X)\\s+\\d+\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Container:  ^Container\\s*\\w*\\s+(\\d+\\.*\\d*\\s+(x|X)\\s+\\d+\\.*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Cylinder:   ^Cylinder\\s*\\w*\\s+(\\d+\\s+(x|X)\\s+\\d+\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Dish:       ^Dish\\s+(\\d+\\s+(x|X)\\s+\\d+)\\s*.*$\n"
+        "Door:       ^Door\\s*\\w*\\s+(\\d+\\s+(x|X)\\s+\\d+\\.*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Electric:   ^Electric\\s*9V\\s*\\w*\\s*\\w*\\s*(\\d*\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Electric:   ^Electric\\s*4\\.5V\\s*\\w*\\s*\\w*\\s*(\\d*\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Electric:   ^Electric Brick\\s*(\\d*\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Electric:   ^Electric Lightbrick\\s*(\\d*\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Electric:   ^Electric Sound Brick\\s*(\\d*\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Electric:   ^Electric Light & Sound\\s*\\w*\\s*(\\d*\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Electric:   ^Electric Light Prism\\s*(\\d*\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Electric:   ^Electric Mindstorms EV3 Cable\\s+([0-9].*)$\n"
+        "Electric:   ^Electric Mindstorms NXT Cable\\s+([0-9].*)$\n"
+        "Electric:   ^Electric Plate\\s+(\\d*\\s*(x*|X*)\\s*\\d*)\\s*.*$\n"
+        "Electric:   ^Electric Train Light Prism\\s*(\\d*\\s*(x*|X*)\\s*\\d*)\\s*.*$\n"
+        "Flag:       ^Flag\\s+(\\d+\\s+(x|X)\\s+\\d+)\\s*.*$\n"
+        "Gate:       ^Gate\\s+(\\d+\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Glass:      ^Glass for Window\\s+(\\d+\\s+(x|X)\\s+\\d+\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Hinge:      ^Hinge\\s+(\\d+\\s+(x|X)\\s+\\d+)\\s*.*$\n"
+        "Hinge:      ^Hinge Car Roof\\s+(\\d+\\s+(x|X)\\s+\\d+)\\s*.*$\n"
+        "Hinge:      ^Hinge Panel\\s+(\\d+\\s+(x|X)\\s+\\d+\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Hinge:      ^Hinge\\s*\\w*\\s+(\\d+\\s+(x|X)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Homemaker:  ^Homemaker\\s*\\w*\\s*\\w*\\s+(\\d+\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Hose:       ^Hose\\s*\\w*\\s*\\w*\\s+(\\d+\\.*\\d*L*\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*)\\s*.*$\n"
+        "Minifig:    ^Minifig Flame\\s+(\\d\\s*L)\\s*.*$\n"
+        "MInifig:    ^Minifig Surf Board\\s+(\\d+\\s+(x|X)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Motor:      ^Motor\\s*\\w*-*\\s*\\w*\\s+(\\d+\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Misc:       ^Mursten\\s*\\w*\\s+(\\d+\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Misc:       ^Rack Winder\\s+(\\d+\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Misc:       ^Roadsign Clip-on\\s+(\\d+\\.*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Misc:       ^Rock\\s+(\\d+\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Misc:       ^Tap\\s+(\\d+\\s+(x|X)\\s+\\d+)\\s*.*$\n"
+        "Panel:      ^Panel\\s*\\w*\\s+(\\d+\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Plate:      ^Plate\\s+(\\d+\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Propellor:  ^Propellor\\s+(\\d\\s+B)\\w+\\s+(\\d+\\.*\\d*\\s+D)\\s*.*$\n"
+        "Roof:       ^Roof\\s*\\w*\\s+(\\d+\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Slope:      ^Slope Brick\\s+(\\d*\\/*\\d*\\s*\\d+\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Slope:      ^Slope Brick Curved\\s+(\\d+\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Tail:       ^Tail\\s*\\w*\\s+(\\d+\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Tile:       ^Tile\\s+(\\d+\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Train:      ^Train\\s*\\w*\\s+(\\d+V*\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Turntable:  ^Turntable\\s+(\\d+\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Wheel:      ^Tyre\\s+(\\d+\\.*\\d*\\/*d*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Wedge:      ^Wedge\\s*\\w*\\s+(\\d+\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Wheel:      ^Wheel\\s*\\w*\\s+(\\d+\\.*\\d*\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "Winch:      ^Winch\\s+(\\d+\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*)\\s*.*$\n"
+        "Window:     ^Window\\s+(\\d+\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*)\\s*.*$\n"
+        "Windscreen: ^Windscreen\\s+(\\d+\\s*(x*|X*)\\s*\\d*\\s*(x*|X*)\\s*\\d*)\\s*.*$\n"
+        "Wing:       ^Wing\\s+(\\d+\\s+(x|X)\\s+\\d+\\s*(x*|X*)-*\\s*\\d*\\/*\\.*\\d*\\s*(x*|X*)\\s*\\d*\\.*\\d*)\\s*.*$\n"
+        "\n"
+        "VEX:        ^VEX Beam  1 x\\s+(\\d+)\\s*$\n"
+        "VEX:        ^VEX Beam  2 x\\s+(\\d+)\\s*$\n"
+        "VEX:        ^VEX Pin Standoff\\s+([0-9]*\\.?[0-9]*)\\sM$\n"
+        "VEX:        ^VEX Beam(?:\\s)(?:(?!Double Bent).)*(?!90)(\\d\\d)$\n"
+        "VEX:        ^VEX Plate  4 x\\s+(\\d+)\\s*$\n"
+        "VEX:        ^VEX Axle\\s+(\\d+)\\s*.*$\n"
+        "VEX:        ^VEX-2 Smart Cable\\s+([0-9].*)$\n"
+        "#VEX:       ^VEX-2 Rubber Belt\\s+([0-9].*)Diameter\n"
+        "\n"
+        "Bitbeam:    ^Bitbeam Beam  1 x\\s+(\\d+)\\s*$\n"
+        "Bitbeam:    ^Bitbeam Beam  2 x\\s+(\\d+)\\s*$\n"
+        "Bitbeam:    ^Bitbeam Beam  8 x\\s+(\\d+)\\s*$\n"
+        "Bitbeam:    ^Bitbeam Beam 10 x\\s+(\\d+)\\s*$\n"
+        "Bitbeam:    ^Bitbeam Beam 12 x\\s+(\\d+)\\s*$\n"
+        "Bitbeam:    ^Bitbeam Beam 16 x\\s+(\\d+)\\s*$\n"
+        "Bitbeam:    ^Bitbeam Beam 20 x\\s+(\\d+)\\s*$\n"
+        "Bitbeam:    ^Bitbeam Beam L90\\s+([0-9].*)$\n"
+        "Bitbeam:    ^Bitbeam Beam L45\\s+([0-9].*)$\n"
+        "Bitbeam:    ^Bitbeam Beam T\\s+([0-9].*)$\n"
+        "Bitbeam:    ^Bitbeam Beam X\\s+([0-9].*)$\n"
+        "Bitbeam:    ^Bitbeam Axle\\s+([0-9].*)$\n"
+        "Bitbeam:    ^Bitbeam Wheel Tire\\s+([0-9].*)$\n"
+        "Bitbeam:    ^Bitbeam Wheel\\s+([0-9].*)$\n"
+        "Bitbeam:    ^Bitbeam Screw Nut\\s+(.[0-9].*)$\n"
+        "Bitbeam:    ^Bitbeam Screw Pad\\s+(.[0-9].*)$\n"
+        "Bitbeam:    ^Bitbeam Screw\\s+(.[0-9].*)$\n"
+        "Bitbeam:    ^Bitbeam Case for Breadboard\\s+(.[0-9].*)$\n"
+    };
+    const char TENTEDefaultTitleAnnotations[] = {
+        "no default title annotation defined\n"
+    };
+
+    const char VEXIQDefaultTitleAnnotations[] = {
+        "no default title annotation defined1\n"
+    };
+
+    if (Preferences::validLDrawLibrary == LEGO_LIBRARY)
+        Buffer.append(LEGOLDefaultTitleAnnotations, sizeof(LEGOLDefaultTitleAnnotations));
+    else
+    if (Preferences::validLDrawLibrary == TENTE_LIBRARY)
+        Buffer.append(TENTEDefaultTitleAnnotations, sizeof(TENTEDefaultTitleAnnotations));
+    else
+    if (Preferences::validLDrawLibrary == VEXIQ_LIBRARY)
+        Buffer.append(VEXIQDefaultTitleAnnotations, sizeof(VEXIQDefaultTitleAnnotations));
+}
+
 Annotations::Annotations()
 {
     returnString = QString();
-
+    bool rxFound = false;
+    QString message;
     if (titleAnnotations.size() == 0) {
         QString annotations = Preferences::titleAnnotationsFile;
-        QFile file(annotations);
-        if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-            QString message = QString("Failed to open Title Annotations file: %1:\n%2")
-                                      .arg(annotations)
-                                      .arg(file.errorString());
-            if (Preferences::modeGUI){
-                QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
-            } else {
-                logError() << message;
-            }
-            return;
-        }
-        QTextStream in(&file);
-
-        // Load RegExp from file;
         QRegExp rx("^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$");
-        QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
-        while ( ! in.atEnd()) {
-            QString sLine = in.readLine(0);
-            if (sLine.contains(rxin)) {
-                rx.setPattern(rxin.cap(1));
-                //logDebug() << "TitleAnnotations RegExp Pattern: " << rxin.cap(1);
-                break;
+        if (!annotations.isEmpty()) {
+            QFile file(annotations);
+            if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
+                message = QString("Failed to open Title Annotations file: %1:<br>%2")
+                                  .arg(annotations)
+                                  .arg(file.errorString());
+                if (Preferences::modeGUI){
+                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
+                } else {
+                    logError() << message.replace("<br>"," ");
+                }
+                return;
             }
-        }
+            QTextStream in(&file);
 
-        in.seek(0);
+            // Load RegExp from file;
+            QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
+            while ( ! in.atEnd()) {
+                QString sLine = in.readLine(0);
+                if ((rxFound = sLine.contains(rxin))) {
+                    rx.setPattern(rxin.cap(1));
+                    //logDebug() << "TitleAnnotations RegExp Pattern: " << rxin.cap(1);
+                    break;
+                }
+            }
 
-        // Load input values
-        while ( ! in.atEnd()) {
-            QString sLine = in.readLine(0);
-            if (sLine.contains(rx)) {
-                QString annotation = rx.cap(2);
-                titleAnnotations << annotation;
+            if (rxFound) {
+                in.seek(0);
+
+                // Load input values
+                while ( ! in.atEnd()) {
+                    QString sLine = in.readLine(0);
+                    if (sLine.contains(rx)) {
+                        QString annotation = rx.cap(2);
+                        titleAnnotations << annotation;
+                    }
+                }
+            } else {
+                message = QString("Regular expression pattern was not found in %1.<br>"
+                                  "Be sure the following lines exist in the file header:<br>"
+                                  "# File: %1<br>"
+                                  "# The Regular Expression used is: ^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$")
+                                  .arg(QFileInfo(annotations).fileName());
+                if (Preferences::modeGUI){
+                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
+                } else {
+                    logError() << message.replace("<br>"," ");
+                }
+            }
+        } else {
+            titleAnnotations.clear();
+            QByteArray Buffer;
+            loadTitleAnnotations(Buffer);
+            QTextStream instream(Buffer);
+            for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
+            {
+                QChar comment = sLine.at(0);
+                if (comment == '#' || comment == ' ')
+                    continue;
+                if (sLine.contains(rx)) {
+                    QString annotation = rx.cap(2);
+                    titleAnnotations << annotation;
+                }
             }
         }
     }
@@ -1091,13 +1271,13 @@ Annotations::Annotations()
         QString annotations = Preferences::freeformAnnotationsFile;
         QFile file(annotations);
         if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-            QString message = QString("Failed to open Freeform Annotations file: %1:\n%2")
+            QString message = QString("Failed to open Freeform Annotations file: %1:<br>%2")
                                       .arg(annotations)
                                       .arg(file.errorString());
             if (Preferences::modeGUI){
-                QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+                QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
             } else {
-                logError() << message;
+                logError() << message.replace("<br>"," ");
             }
             return;
         }
@@ -1108,22 +1288,35 @@ Annotations::Annotations()
         QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
         while ( ! in.atEnd()) {
             QString sLine = in.readLine(0);
-            if (sLine.contains(rxin)) {
+            if ((rxFound = sLine.contains(rxin))) {
                 rx.setPattern(rxin.cap(1));
                 //logDebug() << "FreeFormAnnotations RegExp Pattern: " << rxin.cap(1);
                 break;
             }
         }
 
-        in.seek(0);
+        if (rxFound) {
+            in.seek(0);
 
-        // Load input values
-        while ( ! in.atEnd()) {
-            QString sLine = in.readLine(0);
-            if (sLine.contains(rx)) {
-                QString parttype = rx.cap(1);
-                QString annotation = rx.cap(2);
-                freeformAnnotations[parttype.toLower()] = annotation;
+            // Load input values
+            while ( ! in.atEnd()) {
+                QString sLine = in.readLine(0);
+                if (sLine.contains(rx)) {
+                    QString parttype = rx.cap(1);
+                    QString annotation = rx.cap(2);
+                    freeformAnnotations[parttype.toLower()] = annotation;
+                }
+            }
+        } else {
+            message = QString("Regular expression pattern was not found in %1.<br>"
+                              "Be sure the following lines exist in the file header:<br>"
+                              "# File: %1<br>"
+                              "# The Regular Expression used is: ^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$")
+                              .arg(QFileInfo(annotations).fileName());
+            if (Preferences::modeGUI){
+                QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
+            } else {
+                logError() << message.replace("<br>"," ");
             }
         }
     }
@@ -1134,13 +1327,13 @@ Annotations::Annotations()
         if (!styleFile.isEmpty()) {
             QFile file(styleFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-                QString message = QString("Failed to open Annotation style file: %1:\n%2")
+                QString message = QString("Failed to open Annotation style file: %1:<br>%2")
                                           .arg(styleFile)
                                           .arg(file.errorString());
                 if (Preferences::modeGUI){
-                    QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
                 } else {
-                    logError() << message;
+                    logError() << message.replace("<br>"," ");
                 }
                 return;
             }
@@ -1150,24 +1343,36 @@ Annotations::Annotations()
             QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rxin)) {
+                if ((rxFound = sLine.contains(rxin))) {
                     rx.setPattern(rxin.cap(1));
 //                    logDebug() << "AnnotationStyle RegExp Pattern: " << rxin.cap(1);
                     break;
                 }
             }
 
-            in.seek(0);
+            if (rxFound) {
+                in.seek(0);
 
-            // Load input values
-            while ( ! in.atEnd()) {
-                QString sLine = in.readLine(0);
-                if (sLine.contains(rx)) {
-                    QString parttype = rx.cap(1);
-                    QString style = rx.cap(2).isEmpty() ? QString() : rx.cap(2);
-                    QString category = rx.cap(3).isEmpty() ? QString() : rx.cap(3);
-                    QString annotation = rx.cap(4).isEmpty() ? QString() : rx.cap(4);
-                    annotationStyles[parttype.toLower()] << style << category << annotation;
+                // Load input values
+                while ( ! in.atEnd()) {
+                    QString sLine = in.readLine(0);
+                    if (sLine.contains(rx)) {
+                        QString parttype = rx.cap(1);
+                        QString style = rx.cap(2).isEmpty() ? QString() : rx.cap(2);
+                        QString category = rx.cap(3).isEmpty() ? QString() : rx.cap(3);
+                        QString annotation = rx.cap(4).isEmpty() ? QString() : rx.cap(4);
+                        annotationStyles[parttype.toLower()] << style << category << annotation;
+                    }
+                }
+            } else {
+                message = QString("Regular expression pattern was not found in %1.<br>"
+                                  "Regenerate %1 by renaming the existing file and<br>"
+                                  "select edit %1 from the configuraiton menu.")
+                                  .arg(QFileInfo(styleFile).fileName());
+                if (Preferences::modeGUI){
+                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
+                } else {
+                    logError() << message.replace("<br>"," ");
                 }
             }
         } else {
@@ -1197,13 +1402,13 @@ Annotations::Annotations()
         if (!blColorsFile.isEmpty()) {
             QFile file(blColorsFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-                QString message = QString("Failed to open BrickLink colors.txt file: %1:\n%2")
+                QString message = QString("Failed to open BrickLink colors.txt file: %1:<br>%2")
                                           .arg(blColorsFile)
                                           .arg(file.errorString());
                 if (Preferences::modeGUI){
-                    QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
                 } else {
-                    logError() << message;
+                    logError() << message.replace("<br>"," ");
                 }
                 return;
             }
@@ -1213,24 +1418,36 @@ Annotations::Annotations()
             QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rxin)) {
+                if ((rxFound = sLine.contains(rxin))) {
                     rx.setPattern(rxin.cap(1));
 //                    logDebug() << "Bricklink Colors RegExp Pattern: " << rxin.cap(1);
                     break;
                 }
             }
 
-           in.seek(0);
+           if (rxFound) {
+                in.seek(0);
 
-            // Load input values
-            while ( ! in.atEnd()) {
-                QString sLine = in.readLine(0);
-                if (sLine.contains(rx)) {
-                    QString colorid = rx.cap(1);
-                    QString colorname = rx.cap(2).trimmed();
-                    blColors[colorname.toLower()] = colorid;
+                // Load input values
+                while ( ! in.atEnd()) {
+                    QString sLine = in.readLine(0);
+                    if (sLine.contains(rx)) {
+                        QString colorid = rx.cap(1);
+                        QString colorname = rx.cap(2).trimmed();
+                        blColors[colorname.toLower()] = colorid;
+                    }
                 }
-            }
+           } else {
+               message = QString("Regular expression pattern was not found in %1.<br>"
+                                 "Regenerate %1 by renaming the existing file and<br>"
+                                 "select edit %1 from the configuraiton menu.")
+                                 .arg(QFileInfo(blColorsFile).fileName());
+               if (Preferences::modeGUI){
+                   QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
+               } else {
+                   logError() << message.replace("<br>"," ");
+               }
+           }
         } else {
             blColors.clear();
             QByteArray Buffer;
@@ -1256,13 +1473,13 @@ Annotations::Annotations()
         if (!ld2blColorsXRefFile.isEmpty()) {
             QFile file(ld2blColorsXRefFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-                QString message = QString("Failed to open ld2blcolorsxref.lst file: %1:\n%2")
+                QString message = QString("Failed to open ld2blcolorsxref.lst file: %1:<br>%2")
                                           .arg(ld2blColorsXRefFile)
                                           .arg(file.errorString());
                 if (Preferences::modeGUI){
-                    QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
                 } else {
-                    logError() << message;
+                    logError() << message.replace("<br>"," ");
                 }
                 return;
             }
@@ -1272,22 +1489,34 @@ Annotations::Annotations()
             QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rxin)) {
+                if ((rxFound = sLine.contains(rxin))) {
                     rx.setPattern(rxin.cap(1));
 //                    logDebug() << "LD2BL ColorsXRef RegExp Pattern: " << rxin.cap(1);
                     break;
                 }
             }
 
-            in.seek(0);
+            if (rxFound) {
+                in.seek(0);
 
-            // Load input values
-            while ( ! in.atEnd()) {
-                QString sLine = in.readLine(0);
-                if (sLine.contains(rx)) {
-                    QString ldcolorid = rx.cap(1);
-                    QString blcolorid = rx.cap(2).trimmed();
-                    ld2blColorsXRef[ldcolorid.toLower()] = blcolorid;
+                // Load input values
+                while ( ! in.atEnd()) {
+                    QString sLine = in.readLine(0);
+                    if (sLine.contains(rx)) {
+                        QString ldcolorid = rx.cap(1);
+                        QString blcolorid = rx.cap(2).trimmed();
+                        ld2blColorsXRef[ldcolorid.toLower()] = blcolorid;
+                    }
+                }
+            } else {
+                message = QString("Regular expression pattern was not found in %1.<br>"
+                                  "Regenerate %1 by renaming the existing file and<br>"
+                                  "select edit %1 from the configuraiton menu.")
+                                  .arg(QFileInfo(ld2blColorsXRefFile).fileName());
+                if (Preferences::modeGUI){
+                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
+                } else {
+                    logError() << message.replace("<br>"," ");
                 }
             }
         } else {
@@ -1315,13 +1544,13 @@ Annotations::Annotations()
         if (!ld2blCodesXRefFile.isEmpty()) {
             QFile file(ld2blCodesXRefFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-                QString message = QString("Failed to open ld2blcodesxref.lst file: %1:\n%2")
+                QString message = QString("Failed to open ld2blcodesxref.lst file: %1:<br>%2")
                                           .arg(ld2blCodesXRefFile)
                                           .arg(file.errorString());
                 if (Preferences::modeGUI){
-                    QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
                 } else {
-                    logError() << message;
+                    logError() << message.replace("<br>"," ");
                 }
                 return;
             }
@@ -1331,22 +1560,34 @@ Annotations::Annotations()
             QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rxin)) {
+                if ((rxFound = sLine.contains(rxin))) {
                     rx.setPattern(rxin.cap(1));
 //                    logDebug() << "LD2BL CodesXRef RegExp Pattern: " << rxin.cap(1);
                     break;
                 }
             }
 
-           in.seek(0);
+            if (rxFound) {
+                in.seek(0);
 
-            // Load input values
-            while ( ! in.atEnd()) {
-                QString sLine = in.readLine(0);
-                if (sLine.contains(rx)) {
-                    QString ldpartid = rx.cap(1);
-                    QString blitemid = rx.cap(2).trimmed();
-                    ld2blCodesXRef[ldpartid.toLower()] = blitemid;
+                // Load input values
+                while ( ! in.atEnd()) {
+                    QString sLine = in.readLine(0);
+                    if (sLine.contains(rx)) {
+                        QString ldpartid = rx.cap(1);
+                        QString blitemid = rx.cap(2).trimmed();
+                        ld2blCodesXRef[ldpartid.toLower()] = blitemid;
+                    }
+                }
+            } else {
+                message = QString("Regular expression pattern was not found in %1.<br>"
+                                  "Regenerate %1 by renaming the existing file and<br>"
+                                  "select edit %1 from the configuraiton menu.")
+                                  .arg(QFileInfo(ld2blCodesXRefFile).fileName());
+                if (Preferences::modeGUI){
+                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
+                } else {
+                    logError() << message.replace("<br>"," ");
                 }
             }
         } else {
@@ -1376,13 +1617,13 @@ Annotations::Annotations()
         if (!ld2rbColorsXRefFile.isEmpty()) {
             QFile file(ld2rbColorsXRefFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-                QString message = QString("Failed to open ld2rbcolorsxref.lst file: %1:\n%2")
+                QString message = QString("Failed to open ld2rbcolorsxref.lst file: %1:<br>%2")
                                           .arg(ld2rbColorsXRefFile)
                                           .arg(file.errorString());
                 if (Preferences::modeGUI){
-                    QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
                 } else {
-                    logError() << message;
+                    logError() << message.replace("<br>"," ");
                 }
                 return;
             }
@@ -1392,22 +1633,34 @@ Annotations::Annotations()
             QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rxin)) {
+                if ((rxFound = sLine.contains(rxin))) {
                     rx.setPattern(rxin.cap(1));
 //                    logDebug() << "LD2RB ColorsXRef RegExp Pattern: " << rxin.cap(1);
                     break;
                 }
             }
 
-            in.seek(0);
+            if (rxFound) {
+                in.seek(0);
 
-            // Load input values
-            while ( ! in.atEnd()) {
-                QString sLine = in.readLine(0);
-                if (sLine.contains(rx)) {
-                    QString ldcolorid = rx.cap(1);
-                    QString rbcolorid = rx.cap(2).trimmed();
-                    ld2rbColorsXRef[ldcolorid.toLower()] = rbcolorid;
+                // Load input values
+                while ( ! in.atEnd()) {
+                    QString sLine = in.readLine(0);
+                    if (sLine.contains(rx)) {
+                        QString ldcolorid = rx.cap(1);
+                        QString rbcolorid = rx.cap(2).trimmed();
+                        ld2rbColorsXRef[ldcolorid.toLower()] = rbcolorid;
+                    }
+                }
+            } else {
+                message = QString("Regular expression pattern was not found in %1.<br>"
+                                  "Regenerate %1 by renaming the existing file and<br>"
+                                  "select edit %1 from the configuraiton menu.")
+                                  .arg(QFileInfo(ld2rbColorsXRefFile).fileName());
+                if (Preferences::modeGUI){
+                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
+                } else {
+                    logError() << message.replace("<br>"," ");
                 }
             }
         } else {
@@ -1435,13 +1688,13 @@ Annotations::Annotations()
         if (!ld2rbCodesXRefFile.isEmpty()) {
             QFile file(ld2rbCodesXRefFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-                QString message = QString("Failed to open ld2rbcodesxref.lst file: %1:\n%2")
+                QString message = QString("Failed to open ld2rbcodesxref.lst file: %1:<br>%2")
                                           .arg(ld2rbCodesXRefFile)
                                           .arg(file.errorString());
                 if (Preferences::modeGUI){
-                    QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
                 } else {
-                    logError() << message;
+                    logError() << message.replace("<br>"," ");
                 }
                 return;
             }
@@ -1451,22 +1704,34 @@ Annotations::Annotations()
             QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rxin)) {
+                if ((rxFound = sLine.contains(rxin))) {
                     rx.setPattern(rxin.cap(1));
 //                    logDebug() << "LD2RB CodesXRef RegExp Pattern: " << rxin.cap(1);
                     break;
                 }
             }
 
-           in.seek(0);
+           if (rxFound) {
+                in.seek(0);
 
-            // Load input values
-            while ( ! in.atEnd()) {
-                QString sLine = in.readLine(0);
-                if (sLine.contains(rx)) {
-                    QString ldpartid = rx.cap(1);
-                    QString rbitemid = rx.cap(2).trimmed();
-                    ld2rbCodesXRef[ldpartid.toLower()] = rbitemid;
+                // Load input values
+                while ( ! in.atEnd()) {
+                    QString sLine = in.readLine(0);
+                    if (sLine.contains(rx)) {
+                        QString ldpartid = rx.cap(1);
+                        QString rbitemid = rx.cap(2).trimmed();
+                        ld2rbCodesXRef[ldpartid.toLower()] = rbitemid;
+                    }
+                }
+            } else {
+                message = QString("Regular expression pattern was not found in %1.<br>"
+                                  "Regenerate %1 by renaming the existing file and<br>"
+                                  "select edit %1 from the configuraiton menu.")
+                                  .arg(QFileInfo(ld2rbCodesXRefFile).fileName());
+                if (Preferences::modeGUI){
+                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
+                } else {
+                    logError() << message.replace("<br>"," ");
                 }
             }
         } else {
@@ -1494,18 +1759,20 @@ Annotations::Annotations()
 // val2: elementid
 bool Annotations::loadBLCodes(){
     if (blCodes.size() == 0) {
+        bool rxFound = false;
+        QString message;
         QString blCodesFile = Preferences::blCodesFile;
         QRegExp rx("^([^\\t]+)\\t+\\s*([^\\t]+)\\t+\\s*([^\\t]+).*$");
         if (! blCodesFile.isEmpty()) {
             QFile file(blCodesFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-                QString message = QString("Failed to open BrickLink codes.txt file: %1:\n%2")
-                                          .arg(blCodesFile)
-                                          .arg(file.errorString());
+                message = QString("Failed to open BrickLink codes.txt file: %1:<br>%2")
+                                  .arg(blCodesFile)
+                                  .arg(file.errorString());
                 if (Preferences::modeGUI){
-                    QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
                 } else {
-                    logError() << message;
+                    logError() << message.replace("<br>"," ");
                 }
                 return false;
             }
@@ -1515,14 +1782,15 @@ bool Annotations::loadBLCodes(){
             QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rxin)) {
+                if ((rxFound = sLine.contains(rxin))) {
                     rx.setPattern(rxin.cap(1));
 //                    logDebug() << "Bricklink elements RegExp Pattern: " << rxin.cap(1);
                     break;
                 }
             }
 
-            in.seek(0);
+            if (rxFound) {
+                in.seek(0);
 
 // DEBUG -->>>
 //            QString fooFile = Preferences::blCodesFile+"demo.txt";
@@ -1533,19 +1801,30 @@ bool Annotations::loadBLCodes(){
 // DEBUG <<<---
 
             // Load input values
-            while ( ! in.atEnd()) {
-                QString sLine = in.readLine(0);
-                if (sLine.contains(rx)) {
-                    QString blitemid = rx.cap(1);
-                    QString blcolorid = getBLColorID(rx.cap(2));
-                    QString elementid = rx.cap(3);
-                    blCodes[QString(blitemid+blcolorid).toLower()] << QString(blitemid+"-"+blcolorid).toUpper() << elementid;
+                while ( ! in.atEnd()) {
+                    QString sLine = in.readLine(0);
+                    if (sLine.contains(rx)) {
+                        QString blitemid = rx.cap(1);
+                        QString blcolorid = getBLColorID(rx.cap(2));
+                        QString elementid = rx.cap(3);
+                        blCodes[QString(blitemid+blcolorid).toLower()] << QString(blitemid+"-"+blcolorid).toUpper() << elementid;
 // DEBUG -->>>
 //                    Stream << QString("Key: %1 Value[0]: %2 Value[1]: %3")
 //                                      .arg(QString(blitemid+blcolorid).toLower())
 //                                      .arg(QString(blitemid+"-"+blcolorid).toUpper())
 //                                      .arg(elementid);
 // DEBUG <<<---
+                    }
+                }
+            } else {
+                message = QString("Regular expression pattern was not found in %1.<br>"
+                                  "Regenerate %1 by renaming the existing file and<br>"
+                                  "select edit %1 from the configuraiton menu.")
+                                  .arg(QFileInfo(blCodesFile).fileName());
+                if (Preferences::modeGUI){
+                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
+                } else {
+                    logError() << message.replace("<br>"," ");
                 }
             }
 // DEBUG -->>>
@@ -1561,6 +1840,8 @@ bool Annotations::loadBLCodes(){
 
 bool Annotations::loadBLCodes(QByteArray &Buffer){
     if (blCodes.size() == 0) {
+        QString message;
+        bool rxFound = false;
         QRegExp rx("^([^\\t]+)\\t+\\s*([^\\t]+)\\t+\\s*([^\\t]+).*$");
         QTextStream instream(Buffer);
 
@@ -1568,66 +1849,78 @@ bool Annotations::loadBLCodes(QByteArray &Buffer){
         QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
         while ( ! instream.atEnd()) {
             QString sLine = instream.readLine(0);
-            if (sLine.contains(rxin)) {
+            if ((rxFound = sLine.contains(rxin))) {
                 rx.setPattern(rxin.cap(1));
 //                logDebug() << "Bricklink elements RegExp Pattern: " << rxin.cap(1);
                 break;
             }
         }
 
-        instream.seek(0);
+        if (rxFound) {
+            instream.seek(0);
 
-        //     Load input values from instream
-        for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
-        {
-            QChar comment = sLine.at(0);
-            if (comment == '#' || comment == ' ')
-                continue;
-            if (sLine.contains(rx)) {
-                QString blitemid = rx.cap(1);
-                QString blcolorid = getBLColorID(rx.cap(2));
-                QString elementid = rx.cap(3);
-                blCodes[QString(blitemid+blcolorid).toLower()] << QString(blitemid+"-"+blcolorid).toUpper() << elementid;
-            }
-        }
-
-        //    write stream to file
-        QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_BLCODES_FILE));
-        if(file.open(QIODevice::WriteOnly | QIODevice::Text))
-        {
-            int counter = 1;
-            QTextStream instream(Buffer);
-            QTextStream outstream(&file);
-
-            while ( ! instream.atEnd()) {
-                QString sLine = instream.readLine(0);
-                outstream << sLine << endl;
-                counter++;
+            //     Load input values from instream
+            for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
+            {
+                QChar comment = sLine.at(0);
+                if (comment == '#' || comment == ' ')
+                    continue;
+                if (sLine.contains(rx)) {
+                    QString blitemid = rx.cap(1);
+                    QString blcolorid = getBLColorID(rx.cap(2));
+                    QString elementid = rx.cap(3);
+                    blCodes[QString(blitemid+blcolorid).toLower()] << QString(blitemid+"-"+blcolorid).toUpper() << elementid;
+                }
             }
 
-            outstream.flush();
-            file.close();
+            //    write stream to file
+            QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_BLCODES_FILE));
+            if(file.open(QIODevice::WriteOnly | QIODevice::Text))
+            {
+                int counter = 1;
+                QTextStream instream(Buffer);
+                QTextStream outstream(&file);
 
-            QString message = QString("Finished Writing, Proceed %1 lines for file [%2]")
-                                      .arg(counter)
-                                      .arg(file.fileName());
+                while ( ! instream.atEnd()) {
+                    QString sLine = instream.readLine(0);
+                    outstream << sLine << endl;
+                    counter++;
+                }
+
+                outstream.flush();
+                file.close();
+
+                message = QString("Finished Writing, Proceed %1 lines for file [%2]")
+                                  .arg(counter)
+                                  .arg(file.fileName());
+                if (Preferences::modeGUI){
+                    QMessageBox::information(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
+                } else {
+                    logInfo() << message;
+                }
+            }
+            else
+            {
+               message = QString("Failed to write file: %1:<br>%2")
+                                 .arg(file.fileName())
+                                 .arg(file.errorString());
+               if (Preferences::modeGUI){
+                   QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
+               } else {
+                   logError() << message.replace("<br>"," ");
+               }
+               return false;
+            }
+        } else {
+            message = QString("Regular expression pattern was not found in %1.<br>"
+                              "Regenerate %1 by renaming the existing file and<br>"
+                              "select edit %1 from the configuraiton menu.")
+                              .arg(QFileInfo(VER_LPUB3D_BLCODES_FILE).fileName());
             if (Preferences::modeGUI){
-                QMessageBox::information(nullptr,QMessageBox::tr("LPub3D"),message);
+                QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
             } else {
-                logInfo() << message;
+                logError() << message.replace("<br>"," ");
             }
-        }
-        else
-        {
-           QString message = QString("Failed to write file: %1:\n%2")
-                                     .arg(file.fileName())
-                                     .arg(file.errorString());
-           if (Preferences::modeGUI){
-               QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
-           } else {
-               logError() << message;
-           }
-           return false;
         }
         return true;
     }
@@ -1638,18 +1931,20 @@ bool Annotations::loadBLCodes(QByteArray &Buffer){
 // val: elementid
 bool Annotations::loadLEGOElements(){
     if (legoElements.size() == 0) {
+        QString message;
+        bool rxFound = false;
         QString legoElementsFile = Preferences::legoElementsFile;
         QRegExp rx("^([^\\t]+)\\t+\\s*([^\\t]+)\\t+\\s*([^\\t]+).*$");
         if (!legoElementsFile.isEmpty()) {
             QFile file(legoElementsFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-                QString message = QString("Failed to open legoelements.lst file: %1:\n%2")
+                QString message = QString("Failed to open legoelements.lst file: %1:<br>%2")
                                           .arg(legoElementsFile)
                                           .arg(file.errorString());
                 if (Preferences::modeGUI){
-                    QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
                 } else {
-                    logError() << message;
+                    logError() << message.replace("<br>"," ");
                 }
                 return false;
             }
@@ -1659,31 +1954,43 @@ bool Annotations::loadLEGOElements(){
             QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rxin)) {
+                if ((rxFound = sLine.contains(rxin))) {
                     rx.setPattern(rxin.cap(1));
 //                    logDebug() << "LEGO elements RegExp Pattern: " << rxin.cap(1);
                     break;
                 }
             }
 
-            in.seek(0);
+            if (rxFound) {
+                in.seek(0);
 
-            // Load input values
-            while ( ! in.atEnd()) {
-                QString sLine = in.readLine(0);
-                if (sLine.contains(rx)) {
-                    QString ldpartid = rx.cap(1);
-                    QString ldcolorid = rx.cap(2);
-                    QString elementid = rx.cap(3);
-                    legoElements[QString(ldpartid+ldcolorid).toLower()] = elementid;
+                // Load input values
+                while ( ! in.atEnd()) {
+                    QString sLine = in.readLine(0);
+                    if (sLine.contains(rx)) {
+                        QString ldpartid = rx.cap(1);
+                        QString ldcolorid = rx.cap(2);
+                        QString elementid = rx.cap(3);
+                        legoElements[QString(ldpartid+ldcolorid).toLower()] = elementid;
+                    }
+                }
+            } else {
+                message = QString("Regular expression pattern was not found in %1.<br>"
+                                  "Regenerate %1 by renaming the existing file and<br>"
+                                  "select edit %1 from the configuraiton menu.")
+                                  .arg(QFileInfo(legoElementsFile).fileName());
+                if (Preferences::modeGUI){
+                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
+                } else {
+                    logError() << message.replace("<br>"," ");
                 }
             }
         } else {
-            QString message = QString("LEGO Elements file was not found : %1").arg(legoElementsFile);
+            message = QString("LEGO Elements file was not found : %1").arg(legoElementsFile);
             if (Preferences::modeGUI){
-                QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+                QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
             } else {
-                logError() << message;
+                logError() << message.replace("<br>"," ");
             }
             return  false;
         }
@@ -1887,6 +2194,8 @@ bool Annotations::exportAnnotationStyleFile(){
         outstream << "# To get the Bricklink element ID, the Bricklink Color Name is matched with its Bricklink Color ID from the " << endl;
         outstream << "# Color ID reference and then the Bricklink Item No is prepended to the Bricklink Color ID." << endl;
         outstream << "#" << endl;
+        outstream << "# ----------------------Do not delete above this line----------------------------------" << endl;
+        outstream << "#" << endl;
 
         QByteArray Buffer;
         loadDefaultAnnotationStyles(Buffer);
@@ -1902,20 +2211,20 @@ bool Annotations::exportAnnotationStyleFile(){
                                    .arg(counter)
                                    .arg(file.fileName());
         if (Preferences::modeGUI){
-            QMessageBox::information(nullptr,QMessageBox::tr("LPub3D"),message);
+            QMessageBox::information(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
         } else {
             logNotice() << message;
         }
     }
     else
     {
-        QString message = QString("Failed to open Annotation style file: %1:\n%2")
+        QString message = QString("Failed to open Annotation style file: %1:<br>%2")
                                   .arg(file.fileName())
                                   .arg(file.errorString());
         if (Preferences::modeGUI){
-            QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+            QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
         } else {
-            logError() << message;
+            logError() << message.replace("<br>"," ");
         }
        return false;
     }
@@ -1963,6 +2272,8 @@ bool Annotations::exportBLColorsFile(){
         outstream << "# To get the Bricklink element ID, the Bricklink Color Name is matched with its Bricklink Color ID from the " << endl;
         outstream << "# Color ID reference and then the Bricklink Item No is prepended to the Bricklink Color ID." << endl;
         outstream << "#" << endl;
+        outstream << "# ----------------------Do not delete above this line----------------------------------" << endl;
+        outstream << "#" << endl;
 
         QByteArray Buffer;
         loadBLColors(Buffer);
@@ -1978,20 +2289,20 @@ bool Annotations::exportBLColorsFile(){
                                    .arg(counter)
                                    .arg(file.fileName());
         if (Preferences::modeGUI){
-            QMessageBox::information(nullptr,QMessageBox::tr("LPub3D"),message);
+            QMessageBox::information(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
         } else {
             logNotice() << message;
         }
     }
     else
     {
-        QString message = QString("Failed to open BrickLink Color Code file: %1:\n%2")
+        QString message = QString("Failed to open BrickLink Color Code file: %1:<br>%2")
                                   .arg(file.fileName())
                                   .arg(file.errorString());
         if (Preferences::modeGUI){
-            QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+            QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
         } else {
-            logError() << message;
+            logError() << message.replace("<br>"," ");
         }
        return false;
     }
@@ -2039,6 +2350,8 @@ bool Annotations::exportLD2BLColorsXRefFile(){
         outstream << "# To get the Bricklink element ID, the Bricklink Color Name is matched with its Bricklink Color ID from the " << endl;
         outstream << "# Color ID reference and then the Bricklink Item No is prepended to the Bricklink Color ID." << endl;
         outstream << "#" << endl;
+        outstream << "# ----------------------Do not delete above this line----------------------------------" << endl;
+        outstream << "#" << endl;
 
         QByteArray Buffer;
         loadLD2BLColorsXRef(Buffer);
@@ -2054,20 +2367,20 @@ bool Annotations::exportLD2BLColorsXRefFile(){
                                    .arg(counter)
                                    .arg(file.fileName());
         if (Preferences::modeGUI){
-            QMessageBox::information(nullptr,QMessageBox::tr("LPub3D"),message);
+            QMessageBox::information(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
         } else {
             logNotice() << message;
         }
     }
     else
     {
-        QString message = QString("Failed to open LDConfig and BrickLink Color Code file: %1:\n%2")
+        QString message = QString("Failed to open LDConfig and BrickLink Color Code file: %1:<br>%2")
                                   .arg(file.fileName())
                                   .arg(file.errorString());
         if (Preferences::modeGUI){
-            QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+            QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
         } else {
-            logError() << message;
+            logError() << message.replace("<br>"," ");
         }
        return false;
     }
@@ -2115,6 +2428,8 @@ bool Annotations::exportLD2BLCodesXRefFile(){
         outstream << "# To get the Bricklink element ID, the Bricklink Color Name is matched with its Bricklink Color ID from the " << endl;
         outstream << "# Color ID reference and then the Bricklink Item No is prepended to the Bricklink Color ID." << endl;
         outstream << "#" << endl;
+        outstream << "# ----------------------Do not delete above this line----------------------------------" << endl;
+        outstream << "#" << endl;
 
         QByteArray Buffer;
         loadLD2BLCodesXRef(Buffer);
@@ -2130,20 +2445,20 @@ bool Annotations::exportLD2BLCodesXRefFile(){
                                    .arg(counter)
                                    .arg(file.fileName());
         if (Preferences::modeGUI){
-            QMessageBox::information(nullptr,QMessageBox::tr("LPub3D"),message);
+            QMessageBox::information(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
         } else {
             logNotice() << message;
         }
     }
     else
     {
-        QString message = QString("Failed to open LDraw Design ID and BrickLink Item Number file: %1:\n%2")
+        QString message = QString("Failed to open LDraw Design ID and BrickLink Item Number file: %1:<br>%2")
                                   .arg(file.fileName())
                                   .arg(file.errorString());
         if (Preferences::modeGUI){
-            QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+            QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
         } else {
-            logError() << message;
+            logError() << message.replace("<br>"," ");
         }
        return false;
     }
@@ -2176,6 +2491,8 @@ bool Annotations::exportLD2RBColorsXRefFile(){
         outstream << "#" << endl;
         outstream << "# Use ld2rbcolorsxref.lst to create cross-reference entries for LDConfig and Rebrickable Color IDs." << endl;
         outstream << "#" << endl;
+        outstream << "# ----------------------Do not delete above this line----------------------------------" << endl;
+        outstream << "#" << endl;
 
         QByteArray Buffer;
         loadLD2RBColorsXRef(Buffer);
@@ -2191,20 +2508,20 @@ bool Annotations::exportLD2RBColorsXRefFile(){
                                    .arg(counter)
                                    .arg(file.fileName());
         if (Preferences::modeGUI){
-            QMessageBox::information(nullptr,QMessageBox::tr("LPub3D"),message);
+            QMessageBox::information(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
         } else {
             logNotice() << message;
         }
     }
     else
     {
-        QString message = QString("Failed to open LDConfig and Rebrickable Color Code file: %1:\n%2")
+        QString message = QString("Failed to open LDConfig and Rebrickable Color Code file: %1:<br>%2")
                                   .arg(file.fileName())
                                   .arg(file.errorString());
         if (Preferences::modeGUI){
-            QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+            QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
         } else {
-            logError() << message;
+            logError() << message.replace("<br>"," ");
         }
        return false;
     }
@@ -2237,6 +2554,8 @@ bool Annotations::exportLD2RBCodesXRefFile(){
         outstream << "#" << endl;
         outstream << "# Use ld2rbcodesxref.lst to create cross-reference entries for LDraw Design ID and Rebrickable Parg ID." << endl;
         outstream << "#" << endl;
+        outstream << "# ----------------------Do not delete above this line----------------------------------" << endl;
+        outstream << "#" << endl;
 
         QByteArray Buffer;
         loadLD2RBCodesXRef(Buffer);
@@ -2252,6 +2571,144 @@ bool Annotations::exportLD2RBCodesXRefFile(){
                                    .arg(counter)
                                    .arg(file.fileName());
         if (Preferences::modeGUI){
+            QMessageBox::information(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
+        } else {
+            logNotice() << message;
+        }
+    }
+    else
+    {
+        QString message = QString("Failed to open LDraw Design ID and Rebrickable Part ID file: %1:<br>%2")
+                                  .arg(file.fileName())
+                                  .arg(file.errorString());
+        if (Preferences::modeGUI){
+            QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
+        } else {
+            logError() << message.replace("<br>"," ");
+        }
+       return false;
+    }
+    return true;
+}
+
+bool Annotations::exportTitleAnnotationsFile(){
+    QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,Preferences::titleAnnotationsFile));
+
+    if (!overwriteFile(file.fileName()))
+        return true;
+
+    if(file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        int counter = 1;
+        QTextStream outstream(&file);
+        outstream << "# File:" << Preferences::titleAnnotationsFile << endl;
+        outstream << "#" << endl;
+        outstream << "# CAUTION: Editing this file requires some knowledge/experience using Regular Expressions." << endl;
+        outstream << "# Additionally, you must be familiar with LDraw Parts.lst conventions." << endl;
+        outstream << "# Incorrectly changing the expressions below will at best, exclude some annotations from being captured" << endl;
+        outstream << "# and at worst, exclude the entire category (e.g. Technic Axle) annotations from being captured." << endl;
+        outstream << "# EDIT THIS FILE ONLY IF YOU ARE COMFORTABLE WITH THE REQUIREMENTS STATED ABOVE." << endl;
+        outstream << "#" << endl;
+        outstream << "# This space-delimited list captures part category and annotation Regular Expression." << endl;
+        outstream << "# Follow this format to define annotations derived from part title (LDraw Parts.lst)" << endl;
+        outstream << "# The format is category followed by regex string" << endl;
+        outstream << "# Annotations are extracted from the part title and further processed in LPub3D" << endl;
+        outstream << "# For efficiency put most used parts first." << endl;
+        outstream << "" << endl;
+        outstream << "# This file can be edited from LPub3D from:" << endl;
+        outstream << "#    Configuration=>Edit Parameter Files=>Edit Part Title PLI Annotations" << endl;
+        outstream << "" << endl;
+        outstream << "# LPub3D will attempt to load the regular expression below first, if the" << endl;
+        outstream << "# load fails, LPub3D will load the hard-coded (default) regular expression." << endl;
+        outstream << "# If you wish to modify the file import, you can edit this regular expression." << endl;
+        outstream << "# It would be wise to backup the default entry before performing and update - copy" << endl;
+        outstream << "# and paste to a new line with starting phrase other than 'The Regular Expression...'" << endl;
+        outstream << "" << endl;
+        outstream << "# The Regular Expression used is: ^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$" << endl;
+        outstream << "" << endl;
+        outstream << "# ----------------------Do not delete above this line----------------------------------" << endl;
+        outstream << "" << endl;
+        outstream << "#Category   Regex (to identify and extract annotation)" << endl;
+
+        QByteArray Buffer;
+        QTextStream instream(Buffer);
+        loadTitleAnnotations(Buffer);
+        for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
+        {
+            outstream << sLine << endl;
+            counter++;
+        }
+
+        file.close();
+        QString message = QString("Finished Writing Title Annotation Entries, Processed %1 lines in file [%2]")
+                                   .arg(counter)
+                                   .arg(file.fileName());
+        if (Preferences::modeGUI){
+            QMessageBox::information(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
+        } else {
+            logNotice() << message;
+        }
+    }
+    else
+    {
+        QString message = QString("Failed to open Title Annotations file: %1:\n%2")
+                                  .arg(file.fileName())
+                                  .arg(file.errorString());
+        if (Preferences::modeGUI){
+            QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
+        } else {
+            logError() << message;
+        }
+       return false;
+    }
+    return true;
+}
+
+bool Annotations::exportfreeformAnnotationsHeader(){
+    QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,Preferences::freeformAnnotationsFile));
+
+    if (!overwriteFile(file.fileName()))
+        return true;
+
+    if(file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        int counter = 1;
+        QTextStream outstream(&file);
+        outstream << "# File:" << Preferences::freeformAnnotationsFile << endl;
+        outstream << "#" << endl;
+        outstream << "# This space-delimited list captures part ID and its free form annotation." << endl;
+        outstream << "# Follow this format to define freeform annotations." << endl;
+        outstream << "# The format is part ID followed free-form annotation (some special characters may not be supported)." << endl;
+        outstream << "" << endl;
+        outstream << "# This file can be edited from LPub3D from:" << endl;
+        outstream << "#    Configuration=>Edit Parameter Files=>Edit Freeform PLI Annotations" << endl;
+        outstream << "" << endl;
+        outstream << "# LPub3D will attempt to load the regular expression below first, if the" << endl;
+        outstream << "# load fails, LPub3D will load the hard-coded (default) regular expression." << endl;
+        outstream << "# If you wish to modify the file import, you can edit this regular expression." << endl;
+        outstream << "# It would be wise to backup the default entry before performing and update - copy" << endl;
+        outstream << "# and paste to a new line with starting phrase other than 'The Regular Expression...'" << endl;
+        outstream << "" << endl;
+        outstream << "# The Regular Expression used is: ^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$" << endl;
+        outstream << "" << endl;
+        outstream << "# ----------------------Do not delete above this line----------------------------------" << endl;
+        outstream << "" << endl;
+        outstream << "#ID         Annotation" << endl;
+        outstream << "" << endl;
+
+        QByteArray Buffer;
+        QTextStream instream(Buffer);
+        for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
+        {
+            outstream << sLine << endl;
+            counter++;
+        }
+
+        file.close();
+        QString message = QString("Finished Writing Free-form Annotation Entries, Processed %1 lines in file [%2]")
+                                   .arg(counter)
+                                   .arg(file.fileName());
+        if (Preferences::modeGUI){
             QMessageBox::information(nullptr,QMessageBox::tr("LPub3D"),message);
         } else {
             logNotice() << message;
@@ -2259,7 +2716,7 @@ bool Annotations::exportLD2RBCodesXRefFile(){
     }
     else
     {
-        QString message = QString("Failed to open LDraw Design ID and Rebrickable Part ID file: %1:\n%2")
+        QString message = QString("Failed to open Free-form Annotations file: %1:\n%2")
                                   .arg(file.fileName())
                                   .arg(file.errorString());
         if (Preferences::modeGUI){

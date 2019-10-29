@@ -1,6 +1,6 @@
 ﻿# File: freeformAnnotations.lst
 
-# Enter free form part annotations on this list.
+# This space-delimited list captures part ID and its free form annotation.
 # Follow this format to define freeform annotations.
 # The format is part ID followed free-form annotation (some special characters may not be supported).
 
@@ -14,6 +14,8 @@
 # and paste to a new line with starting phrase other than 'The Regular Expression..."
 
 # The Regular Expression used is: ^(\b.*[^\s]\b)(?:\s)\s+(.*)$
+
+# ----------------------Do not delete above this line----------------------------------
 
 #ID         Annotation
 3024.dat    1x1

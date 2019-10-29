@@ -1357,6 +1357,9 @@ void ColourPartListWorker::generateCustomColourPartsList()
     foreach (QString partTypeDir, partTypeDirs){
       _ldrawStaticColourParts  << QString("# %1. %2").arg(dirCount++).arg(partTypeDir);
     }
+    _ldrawStaticColourParts  << "# ----------------------Do not delete above this line----------------------------------";
+    _ldrawStaticColourParts  << "";
+
     fileSectionHeader(FADESTEP_FILE_HEADER);
 
     emit progressBarInitSig();
@@ -1706,8 +1709,8 @@ void ColourPartListWorker::fileSectionHeader(const int &option, const QString &h
                                     .arg(Preferences::validLDrawColorParts)
                                     .arg(QDateTime::currentDateTime().toString(fmtDateTime));
         _ldrawStaticColourParts  << "";
-        _ldrawStaticColourParts  << "# This list captures the LDraw static color parts (and their subfiles) to support step fade";
-        _ldrawStaticColourParts  << "# and step highlight. Parts on this list are identified in the LDraw library and copied to";
+        _ldrawStaticColourParts  << "# This space-delimited list captures the LDraw static color parts (and their subfiles) to support";
+        _ldrawStaticColourParts  << "# step fade and step highlight. Parts on this list are identified in the LDraw library and copied to";
         _ldrawStaticColourParts  << "# their respective custom directory. Copied files are modified as described in the following";
         _ldrawStaticColourParts  << "# lines. If fade step is enabled, color codes are replaced with a custom code using the standard";
         _ldrawStaticColourParts  << "# color code prefixed with [" LPUB3D_COLOUR_FADE_PREFIX "].";
