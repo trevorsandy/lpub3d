@@ -500,6 +500,8 @@ void Application::initialize()
     // set default log options
     if (Preferences::logging)
     {
+        bool debugLogging = false;
+        int logLevelIndex = -1;
         if (Preferences::logLevels)
         {
             logger.setLoggingLevels();
@@ -510,6 +512,9 @@ void Application::initialize()
             logger.setStatusLevel(Preferences::statusLevel);
             logger.setErrorLevel( Preferences::errorLevel);
             logger.setFatalLevel( Preferences::fatalLevel);
+
+            debugLogging = Preferences::debugLevel;
+            qDebug() << "\nDEBUG LOG LEVEL:" << (debugLogging ? "ENABLED" : "DISABLED");
         }
         else if (Preferences::logLevel)
         {
@@ -525,8 +530,16 @@ void Application::initialize()
                 else
                     fprintf(stderr, "%s", Message.toLatin1().constData());
             }
+            logLevelIndex = QStringList(QString(VER_LOGGING_LEVELS_STR).split(",")).indexOf(Preferences::loggingLevel,0);
+            debugLogging = logLevelIndex > -1 && logLevelIndex <= 3;
             logger.setLoggingLevel(logLevel);
+
+            qDebug() << "\nLOGGING LEVEL:  " <<  Preferences::loggingLevel << ", LEVELS [" << VER_LOGGING_LEVELS_STR << "]"
+                     << "\nLOGGING INDEX:  " << logLevelIndex;
         }
+
+        Preferences::setDebugLogging(debugLogging);
+        qDebug() << "DEBUG LOGGING:  " << (debugLogging ? "ENABLED\n" : "DISABLED\n");
 
         logger.setIncludeLogLevel(    Preferences::includeLogLevel);
         logger.setIncludeTimestamp(   Preferences::includeTimestamp);

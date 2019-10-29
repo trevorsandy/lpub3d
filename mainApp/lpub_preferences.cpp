@@ -231,6 +231,7 @@ bool    Preferences::customSceneGridColor       = false;
 bool    Preferences::customSceneRulerTickColor  = false;
 bool    Preferences::customSceneRulerTrackingColor = false;
 bool    Preferences::customSceneGuideColor      = false;
+bool    Preferences::debugLogging               = false;
 
 #ifdef Q_OS_MAC
 bool    Preferences::missingRendererLibs        = false;
@@ -3233,6 +3234,10 @@ void Preferences::setSceneGuideColorPreference(QString s)
   QVariant uValue(s);
   QString const sceneGuideColorKey("SceneGuideColor");
   Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGuideColorKey),uValue);
+}
+
+void Preferences::setDebugLogging(bool b){
+    debugLogging = b;
 }
 
 void Preferences::annotationPreferences()
