@@ -1,4 +1,4 @@
-LPub3D 2.3.13.1.1579 (29 10 2019 08:12:57)
+LPub3D 2.3.13.1.1580 (30 10 2019 15:56:57)
 
 Features, enhancements, fixes and changes
 ------------
@@ -26,6 +26,7 @@ Revisions:
 - Change - No response to MODEL_SCALE meta command #342
 - Change - Page items bring to front and send to back - third pass, set z values #244
 - Change - Pointer segment line is interrupted by border colour at each joint #356
+- Change - Rotated Callout not displayed when last step contains NOSTEP #376
 - Change - Set default text edit text size to 24 point #357
 - Fix - 3DViewer not displayed when renderer set to other than Native #345
 - Fix - Export to pdf using page range generates single page #341
