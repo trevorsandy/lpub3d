@@ -157,12 +157,14 @@ class PreferencesDialog : public QDialog
     void on_fadeStepsColoursCombo_currentIndexChanged(const QString &colorName);
 
     void on_preferredRenderer_currentIndexChanged(const QString &arg1);
+    void on_projectionCombo_currentIndexChanged(const QString &arg1);
     void on_loggingGrpBox_clicked(bool checked);
 
     void on_ldvPreferencesBtn_clicked();
     void on_povGenNativeRadio_clicked(bool checked);
     void on_povGenLDViewRadio_clicked(bool checked);
     void on_ldviewSingleCall_Chk_clicked(bool checked);
+    void on_applyCALocallyRadio_clicked(bool checked);
 
     void on_resetSceneColorsButton_clicked(bool checked);
     void on_saveOnRedrawChkBox_clicked(bool checked);

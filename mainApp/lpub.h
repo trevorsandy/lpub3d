@@ -769,13 +769,9 @@ public:
   float getDefaultCameraFoV(){
       return (Preferences::usingNativeRenderer ?
                   CAMERA_FOV_NATIVE_DEFAULT :
+                  Preferences::preferredRenderer == RENDERER_LDVIEW && Preferences::perspectiveProjection ?
+                  CAMERA_FOV_LDVIEW_P_DEFAULT :
                   CAMERA_FOV_DEFAULT);
-  }
-
-  float getDefaultCameraZNear(){
-      return (Preferences::usingNativeRenderer ?
-                  CAMERA_ZNEAR_NATIVE_DEFAULT :
-                  CAMERA_ZNEAR_DEFAULT);
   }
 
   float getDefaultFOVMinRange()
@@ -789,7 +785,15 @@ public:
   {
       return (Preferences::usingNativeRenderer ?
                   CAMERA_FOV_NATIVE_MAX_DEFAULT :
+                  Preferences::preferredRenderer == RENDERER_LDVIEW && Preferences::perspectiveProjection ?
+                  CAMERA_FOV_LDVIEW_P_MAX_DEFAULT :
                   CAMERA_FOV_MAX_DEFAULT);
+  }
+
+  float getDefaultCameraZNear(){
+      return (Preferences::usingNativeRenderer ?
+                  CAMERA_ZNEAR_NATIVE_DEFAULT :
+                  CAMERA_ZNEAR_DEFAULT);
   }
 
   float getDefaultCameraZFar(){

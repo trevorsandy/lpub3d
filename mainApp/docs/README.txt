@@ -1,4 +1,4 @@
-LPub3D 2.3.13.1.1580 (30 10 2019 15:56:57)
+LPub3D 2.3.13.1.1581 (31 10 2019 13:06:57)
 
 Features, enhancements, fixes and changes
 ------------
@@ -28,6 +28,7 @@ Revisions:
 - Change - Pointer segment line is interrupted by border colour at each joint #356
 - Change - Rotated Callout not displayed when last step contains NOSTEP #376
 - Change - Set default text edit text size to 24 point #357
+- Change - Setting perspective view with LDView renderer #378
 - Fix - 3DViewer not displayed when renderer set to other than Native #345
 - Fix - Export to pdf using page range generates single page #341
 - Fix - LPub3D crash when using LDView "multiple file single call" #363

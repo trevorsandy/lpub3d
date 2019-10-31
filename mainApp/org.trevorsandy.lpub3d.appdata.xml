@@ -68,7 +68,7 @@
         <binary>lpub3d23</binary>
     ​</provides>
     <releases>
-        <release version="2.3.13.1580" date="2019-10-30">
+        <release version="2.3.13.1581" date="2019-10-31">
             <description>
                 <p>LPub3D Linux AppImage package</p>
             </description>

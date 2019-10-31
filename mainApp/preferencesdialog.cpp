@@ -774,8 +774,44 @@ void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &
       if (ui.povGenLDViewRadio->isChecked())
           ui.ldvPOVSettingsBox->setTitle("LDView POV file generation settings");
 
+      bool applyCARenderer = ldviewEnabled && ui.projectionCombo->currentText() == "Perspective";
+      ui.applyCALocallyRadio->setChecked(! applyCARenderer);
+      ui.applyCARendererRadio->setChecked(applyCARenderer);
+
       /* [Experimental] LDView Image Matting */
       ui.imageMattingChk->setEnabled(ldviewEnabled && Preferences::enableFadeSteps);
+}
+
+void PreferencesDialog::on_projectionCombo_currentIndexChanged(const QString &currentText)
+{
+    bool applyCARenderer = ui.preferredRenderer->currentText() == RENDERER_LDVIEW &&
+                           currentText == "Perspective";
+    ui.applyCALocallyRadio->setChecked(! applyCARenderer);
+    ui.applyCARendererRadio->setChecked(applyCARenderer);
+}
+
+void PreferencesDialog::on_applyCALocallyRadio_clicked(bool checked)
+{
+    bool applyCARenderer = ui.preferredRenderer->currentText() == RENDERER_LDVIEW &&
+                           ui.projectionCombo->currentText() == "Perspective";
+    if (checked && applyCARenderer) {
+      QMessageBox box;
+      box.setIcon (QMessageBox::Warning);
+      box.setStandardButtons (QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
+      box.setWindowTitle(tr ("Perspective Projection"));
+      box.setText (tr("The preferred renderer is set to %1 and projection is Perspective.<br>"
+                      "This configureaiton requires camera angles to be set by %1.<br>"
+                      "Are you sure you want to change the camera angles settings ?")
+                      .arg(RENDERER_LDVIEW));
+      box.setDefaultButton(QMessageBox::No);
+      if (box.exec() == QMessageBox::No) {
+          ui.applyCALocallyRadio->setChecked(!checked);
+          ui.applyCARendererRadio->setChecked(checked);
+      } else {
+          ui.applyCALocallyRadio->setChecked(checked);
+          ui.applyCARendererRadio->setChecked(!checked);
+      }
+    }
 }
 
 void PreferencesDialog::on_ldvPreferencesBtn_clicked()
