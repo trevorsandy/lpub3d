@@ -553,7 +553,7 @@ int POVRay::renderCsi(
   arguments << f;
   arguments << l;
 
-  // ortho settings
+  // projection settings
   qreal cdf = LP3D_CDF;
   bool pl = false, pf = false, pz = false, pd = false;
   QString df = QString("-FOV=%1").arg(double(meta.LPub.assem.cameraFoV.value()));
@@ -812,7 +812,7 @@ int POVRay::renderPli(
   int height = gui->pageSize(meta.LPub.page, 1);
 
   bool pp    = Preferences::perspectiveProjection;
-  if (pliType == SUBMODEL || pp)
+  if (pliType == SUBMODEL)
       noCA   = Preferences::applyCALocally || noCA;
 
   QString CA = QString("-ca%1")       .arg(LP3D_CA);
@@ -835,7 +835,7 @@ int POVRay::renderPli(
   arguments << f;
   arguments << l;
 
-  // ortho settings
+  // projection settings
   qreal cdf = LP3D_CDF;
   bool pl = false, pf = false, pz = false, pd = false;
   QString df = QString("-FOV=%1").arg(double(cameraFov));
@@ -1497,7 +1497,7 @@ int LDView::renderCsi(
 //  if (!enableIM)
 //    arguments.insert(2,a);                // 02. AutoCrop On if IM Off
 
-  // ortho settings
+  // projection settings
   qreal cdf = LP3D_CDF;
   bool pl = false, pf = false, pz = false, pd = false;
   QStringList cgl;
@@ -1683,15 +1683,10 @@ int LDView::renderPli(
   //qDebug() << "LDView (Default) Camera Distance: " << cd;
 
   bool pp    = Preferences::perspectiveProjection;
-  if (pliType == SUBMODEL || pp)
+  if (pliType == SUBMODEL)
       noCA   = Preferences::applyCALocally || noCA;
 
-  QString CA = QString("-ca%1")       .arg(LP3D_CA);
-  QString cg = QString("-cg%1,%2,%3") .arg(noCA ? 0.0 : double(cameraAngleX))
-                                      .arg(noCA ? 0.0 : double(cameraAngleY))
-                                      .arg(QString::number(pp ? cd * LP3D_CDF : cd,'f',0));
-
-  // ortho settings
+  // projection settings
   qreal cdf = LP3D_CDF;
   bool pl = false, pf = false, pz = false, pd = false;
   QString dl;
@@ -1723,8 +1718,25 @@ int LDView::renderPli(
     }
   }
 
+  // Set camera angle and camera globe and update arguments with perspective projection settings
+  QString CA = pp ? QString("-FOV=%1") .arg(double(cameraFov)) :
+                    QString("-ca%1") .arg(LP3D_CA);                   // replace CA with FOV
+  QString cg = pp ? pl ? QString("-DefaultLatLong=%1,%2%3")
+                                 .arg(noCA ? 0.0 : double(cameraAngleX))
+                                 .arg(noCA ? 0.0 : double(cameraAngleY))
+                                 .arg(dz)                             // replace Camera Globe with DefaultLatLon and add DefaultZoom
+                       : QString("-cg%1,%2,%3")
+                                 .arg(noCA ? 0.0 : double(cameraAngleX))
+                                 .arg(noCA ? 0.0 : double(cameraAngleY))
+                                 .arg(QString::number(cd * cdf,'f',0) )
+                  : QString("-cg%1,%2,%3")
+                            .arg(noCA ? 0.0 : double(cameraAngleX))
+                            .arg(noCA ? 0.0 : double(cameraAngleY))
+                            .arg(cd);
+
   /* Create the CSI DAT file(s) */
   QString f;
+  bool useSnapshotArgs = false;
   if (useLDViewSCall() && pliType != SUBMODEL) {  // SingleCall
       if (keySub) {
           // process substitute attributes
@@ -1745,19 +1757,19 @@ int LDView::renderPli(
                   cameraAngleY = attributes.at(nCameraAngleYY).toFloat();
                   cd = int(cameraDistance(meta,modelScale)*1700/1000);
 
-                  CA = pp && !pf ? QString("-FOV=%1") .arg(double(cameraFov)) : CA;
+                  CA = pp ? QString("-FOV=%1").arg(double(cameraFov)) : CA;
                   cg = pp ? pl ? QString("-DefaultLatLong=%1,%2%3")
-                                         .arg(double(cameraAngleX))
-                                         .arg(double(cameraAngleY))
-                                         .arg(dz)
-                               : QString("-cg%1,%2,%3")
-                                         .arg(double(cameraAngleX))
-                                         .arg(double(cameraAngleY))
-                                         .arg(QString::number(cd * cdf,'f',0) )
-                          : QString("-cg%1,%2,%3")
-                                    .arg(noCA ? 0.0 : double(cameraAngleX))
-                                    .arg(noCA ? 0.0 : double(cameraAngleY))
-                                    .arg(cd);
+                                                   .arg(noCA ? 0.0 : double(cameraAngleX))
+                                                   .arg(noCA ? 0.0 : double(cameraAngleY))
+                                                   .arg(dz)
+                                         : QString("-cg%1,%2,%3")
+                                                   .arg(noCA ? 0.0 : double(cameraAngleX))
+                                                   .arg(noCA ? 0.0 : double(cameraAngleY))
+                                                   .arg(QString::number(cd * cdf,'f',0) )
+                                    : QString("-cg%1,%2,%3")
+                                              .arg(noCA ? 0.0 : double(cameraAngleX))
+                                              .arg(noCA ? 0.0 : double(cameraAngleY))
+                                              .arg(cd);
                   QString pngName = QString(ldrName).replace("_SUB.ldr",".png");
                   snapShotArgs.append(QString("%1 %2 -SaveSnapShot=%3 %4").arg(CA).arg(cg).arg(pngName).arg(ldrName));
               } else {
@@ -1765,19 +1777,6 @@ int LDView::renderPli(
               }
           }
 
-          CA = pp && !pf ? QString("-FOV=%1") .arg(double(cameraFov)) : CA;
-          cg = pp ? pl ? QString("-DefaultLatLong=%1,%2%3")
-                                 .arg(double(cameraAngleX))
-                                 .arg(double(cameraAngleY))
-                                 .arg(dz)
-                       : QString("-cg%1,%2,%3")
-                                 .arg(double(cameraAngleX))
-                                 .arg(double(cameraAngleY))
-                                 .arg(QString::number(cd * cdf,'f',0) )
-                  : QString("-cg%1,%2,%3")
-                            .arg(noCA ? 0.0 : double(cameraAngleX))
-                            .arg(noCA ? 0.0 : double(cameraAngleY))
-                            .arg(cd);
           QString snapShotsCmdArgs,snapShotsArgs;
           if (snapShotsLdrs.size()) {
               if (snapShotsLdrs.size() < SNAPSHOTS_LIST_THRESHOLD) {
@@ -1796,7 +1795,7 @@ int LDView::renderPli(
           }
 
           // we have commandline snapShotArgs so create a list file
-          if (snapShotArgs.size()) {
+          if ((useSnapshotArgs = snapShotArgs.size())) {
 
               QString CommandLinesList = tempPath + QDir::separator() + "pliCommandLinesList.lst";
               QFile CommandLinesListFile(CommandLinesList);
@@ -1838,11 +1837,26 @@ int LDView::renderPli(
         if (keySub == PliBeginSub6Rc)
           noCA = attributes.at(nTransform) == "ABS";
         if (keySub > PliBeginSub2Rc) {
-          modelScale = attributes.at(nModelScale).toFloat();
-          cameraFov  = attributes.at(nCameraFoV).toFloat();
+          modelScale   = attributes.at(nModelScale).toFloat();
+          cameraFov    = attributes.at(nCameraFoV).toFloat();
           cameraAngleX = attributes.at(nCameraAngleXX).toFloat();
           cameraAngleY = attributes.at(nCameraAngleYY).toFloat();
         }
+        cd = int(cameraDistance(meta,modelScale)*1700/1000);
+
+        CA = pp ? QString("-FOV=%1").arg(double(cameraFov)) : CA;
+        cg = pp ? pl ? QString("-DefaultLatLong=%1,%2%3")
+                                         .arg(noCA ? 0.0 : double(cameraAngleX))
+                                         .arg(noCA ? 0.0 : double(cameraAngleY))
+                                         .arg(dz)                             // replace Camera Globe with DefaultLatLon and add DefaultZoom
+                               : QString("-cg%1,%2,%3")
+                                         .arg(noCA ? 0.0 : double(cameraAngleX))
+                                         .arg(noCA ? 0.0 : double(cameraAngleY))
+                                         .arg(QString::number(cd * cdf,'f',0) )
+                          : QString("-cg%1,%2,%3")
+                                    .arg(noCA ? 0.0 : double(cameraAngleX))
+                                    .arg(noCA ? 0.0 : double(cameraAngleY))
+                                    .arg(cd);
       }
 
       f  = QString("-SaveSnapShot=%1") .arg(pngName);
@@ -1859,23 +1873,9 @@ int LDView::renderPli(
   QString v  = QString("-vv");
 
   QStringList arguments;
-  if (!keySub){
+  if (!useSnapshotArgs){
     arguments << CA;
     arguments << cg;
-    // update arguments with perspective projection settings
-    if (pp) {
-      arguments.replace(arguments.indexOf(CA),df);    // replace CA with FOV
-      if (pl) {
-         arguments.replace(arguments.indexOf(cg),dl); // remove Camera globe
-         arguments.insert(2,dz);                      // add DefaultZoom
-      }
-      if (!pl && cdf < LP3D_CDF) { // update camera distance factor if custom value specified
-        QStringList cgl;
-        cgl = cg.split(",");
-        cgl.replace(cgl.indexOf(cgl.last()),QString::number(cd * cdf,'f',0));
-        arguments.replace(arguments.indexOf(cg),cgl.join(","));
-      }
-    }
   }
 
   // append additional LDView parameters
