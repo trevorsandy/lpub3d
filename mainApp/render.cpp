@@ -260,6 +260,71 @@ bool Render::clipImage(QString const &pngName) {
     return true;
  }
 
+void Render::addArgument(
+        QStringList   &arguments,
+        const QString &newArg,
+        const QString &argChk,
+        const int      povGenerator,
+        const int      additionalArgs) {
+
+    if (!additionalArgs) {
+        arguments.append(newArg);
+        return;
+    }
+
+    auto isMatch = [&newArg] (QString &oldArg) {
+        QStringList flags = QStringList()
+            << "-ca" << "-cg"
+                ;
+        if (getRenderer() == RENDERER_LDGLITE) {
+            flags
+            << "-J" << "-j" << "-v" << "-o"
+            << "-w"  << "-mF" << "-ldcF" << "-i2"
+            << "-fh" << "-q"    << "-2g,2x"
+            << "-N"  << "-2g" << "-l3"   << "-fe"
+            << "-fr" << "-ff" << "-x"    << "-ms"
+            << "-mS" << "-e"  << "-p"    << "-ld"
+            << "-z"  << "-Z"  << "-cc"   << "-co"
+            << "-cla"<< "-cu" << "-lc"   << "-lC"
+               ;
+        } else {
+            flags
+            << "-vv" << "-q" << "-qq"
+               ;
+        }
+        for (int i = 0; i < flags.size(); i++){
+            if (newArg.startsWith(flags[i]) && oldArg.startsWith(flags[i]))
+               return true;
+        }
+        return false;
+    };
+
+    int insertIndex = -1;
+    for (int i = 0; i < arguments.size(); i++) {
+        if (arguments[i] != "" && arguments[i] != " ") {
+            if (argChk.isEmpty()) {
+                if (!(getRenderer() == RENDERER_POVRAY && !povGenerator)){
+                    if (isMatch(arguments[i]) ||
+                        arguments[i].startsWith(newArg.left(newArg.indexOf("=")))) {
+                        insertIndex = arguments.indexOf(arguments[i]);
+                        break;
+                    }
+                }
+            } else
+            if (arguments[i].contains(argChk)) {
+                insertIndex = arguments.indexOf(arguments[i]);
+                break;
+            }
+        }
+    }
+
+    if (insertIndex < 0) {
+        arguments.append(newArg);
+    } else {
+        arguments.replace(insertIndex,newArg);
+    }
+}
+
 // Shared calculations
 float stdCameraDistance(Meta &meta, float scale) {
     float onexone;
@@ -511,9 +576,8 @@ int POVRay::renderCsi(
           }
           pz = list[i].contains("-DefaultZoom=");
         }
-      if (!pd && !arguments.contains(list[i])) {
-        arguments << list[i];    // 10. ldviewParms
-        //logInfo() << qPrintable("-PARM META: " + list[i]);
+      if (!pl && !pf && !pd) {
+        addArgument(arguments,list[i]);    // 10. ldviewParms
       }
     }
   }
@@ -534,23 +598,23 @@ int POVRay::renderCsi(
                            .arg(list.join(" ")));
 
   if (!Preferences::altLDConfigPath.isEmpty()) {
-     arguments << "-LDConfig=" + Preferences::altLDConfigPath;
-     //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
+     QString altldc = "-LDConfig=" + Preferences::altLDConfigPath;
+     addArgument(arguments, altldc, "-LDConfig", 0, list.size());
   }
 
   // LDView block begin
   if (Preferences::povFileGenerator == RENDERER_LDVIEW) {
 
-      arguments << o;
-      arguments << v;
+      addArgument(arguments, o, "-HaveStdOut", 0, list.size());
+      addArgument(arguments, v, "-vv", 0, list.size());
 
-      if (Preferences::enableFadeSteps)
-        arguments <<  QString("-SaveZMap=1");
+//      if (Preferences::enableFadeSteps)
+//        arguments <<  QString("-SaveZMap=1");
 
       bool hasLDViewIni = Preferences::ldviewPOVIni != "";
       if(hasLDViewIni){
           QString ini  = QString("-IniFile=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldviewPOVIni)));
-          arguments << ini;
+          addArgument(arguments, ini, "-IniFile", 0, list.size());
         }
 
       arguments << QDir::toNativeSeparators(ldrName);
@@ -658,8 +722,7 @@ int POVRay::renderCsi(
   list = meta.LPub.assem.povrayParms.value().split(' ');
   for (int i = 0; i < list.size(); i++) {
       if (list[i] != "" && list[i] != " ") {
-          povArguments << list[i];
-          //logInfo() << qPrintable("-PARM META: " + list[i]);
+          addArgument(povArguments, list[i], QString(), true);
         }
     }
   if (list.size())
@@ -795,9 +858,8 @@ int POVRay::renderPli(
           }
           pz = list[i].contains("-DefaultZoom=");
         }
-      if (!pd && !arguments.contains(list[i])) {
-        arguments << list[i];    // 10. ldviewParms
-        //logInfo() << qPrintable("-PARM META: " + list[i]);
+      if (!pl && !pf && !pd) {
+        addArgument(arguments, list[i]); // 10. ldviewParms
       }
     }
   }
@@ -818,20 +880,20 @@ int POVRay::renderPli(
                            .arg(list.join(" ")));
 
   if (!Preferences::altLDConfigPath.isEmpty()) {
-     arguments << "-LDConfig=" + Preferences::altLDConfigPath;
-     //logDebug() << qPrintable("-LDConfig=" + Preferences::altLDConfigPath);
+     QString altldc = "-LDConfig=" + Preferences::altLDConfigPath;
+     addArgument(arguments, altldc, "-LDConfig", 0, list.size());
   }
 
   // LDView block begin
   if (Preferences::povFileGenerator == RENDERER_LDVIEW) {
 
-      arguments << o;
-      arguments << v;
+      addArgument(arguments, o, "-HaveStdOut", 0, list.size());
+      addArgument(arguments, v, "-vv", 0, list.size());
 
       bool hasLDViewIni = Preferences::ldviewPOVIni != "";
       if(hasLDViewIni){
           QString ini  = QString("-IniFile=%1") .arg(fixupDirname(QDir::toNativeSeparators(Preferences::ldviewPOVIni)));
-          arguments << ini;
+          addArgument(arguments, ini, "-IniFile", 0, list.size());
         }
 
       arguments << QDir::toNativeSeparators(ldrNames.first());
@@ -939,8 +1001,7 @@ int POVRay::renderPli(
   list = meta.LPub.assem.povrayParms.value().split(' ');
   for (int i = 0; i < list.size(); i++) {
       if (list[i] != "" && list[i] != " ") {
-          povArguments << list[i];
-          //logInfo() << qPrintable("-PARM META: " + list[i]);
+          addArgument(povArguments, list[i], QString(), true);
         }
     }
   if (list.size())
@@ -1046,7 +1107,7 @@ int LDGLite::renderCsi(
   }
   QString w  = QString("-W%1")      .arg(lineThickness); // ldglite always deals in 72 DPI
 
-  QString CA = QString("-ca%1") .arg(pp ? double(meta.LPub.assem.cameraFoV.value()) : 0.01);
+  QString CA = QString("-ca%1") .arg(pp ? double(meta.LPub.assem.cameraFoV.value()) : LP3D_CA);
   QString cg = QString("-cg%1,%2,%3") .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(0)))
                                       .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(1)))
                                       .arg(cd);
@@ -1066,24 +1127,22 @@ int LDGLite::renderCsi(
   list = meta.LPub.assem.ldgliteParms.value().split(' ');
   for (int i = 0; i < list.size(); i++) {
      if (list[i] != "" && list[i] != " ") {
-         arguments << list[i];
+         addArgument(arguments, list[i]);
       }
   }
   if (list.size())
       emit gui->messageSig(LOG_INFO,QMessageBox::tr("LDGlite additional CSI renderer parameters: %1") .arg(list.join(" ")));
 
-  // Add ini parms if not already added from meta
+  // Add ini arguments if not already in additional parameters
   for (int i = 0; i < Preferences::ldgliteParms.size(); i++) {
       if (list.indexOf(QRegExp("^" + QRegExp::escape(Preferences::ldgliteParms[i]))) < 0) {
-        arguments << Preferences::ldgliteParms[i];
-        //logInfo() << qPrintable("-PARM INI : " + Preferences::ldgliteParms[i]);
+        addArgument(arguments, Preferences::ldgliteParms[i], "", 0, list.size());
       }
   }
 
-  // add custom color file if exist
+  // Add custom color file if exist
   if (!Preferences::altLDConfigPath.isEmpty()) {
-    arguments << "-ldcF" + Preferences::altLDConfigPath;
-    //logDebug() << qPrintable("=" + Preferences::altLDConfigPath);
+    addArgument(arguments, QString("-ldcF%1").arg(Preferences::altLDConfigPath), "-ldcF", 0, list.size());
   }
 
   arguments << QDir::toNativeSeparators(mf);                  // .png file name
@@ -1158,14 +1217,14 @@ int LDGLite::renderPli(
   float cameraAngleX = metaType.cameraAngles.value(0);
   float cameraAngleY = metaType.cameraAngles.value(1);
 
-  // process substitute attributes
+  // Process substitute part attributes
   if (keySub) {
     QStringList attributes = getSubAttributes(pngName);
     if (keySub == PliBeginSub6Rc)
       noCA = attributes.at(nTransform) == "ABS";
     if (keySub > PliBeginSub2Rc) {
-      modelScale = attributes.at(nModelScale).toFloat();
-      cameraFov  = attributes.at(nCameraFoV).toFloat();
+      modelScale   = attributes.at(nModelScale).toFloat();
+      cameraFov    = attributes.at(nCameraFoV).toFloat();
       cameraAngleX = attributes.at(nCameraAngleXX).toFloat();
       cameraAngleY = attributes.at(nCameraAngleYY).toFloat();
     }
@@ -1207,7 +1266,7 @@ int LDGLite::renderPli(
   list = metaType.ldgliteParms.value().split(' ');
   for (int i = 0; i < list.size(); i++) {
      if (list[i] != "" && list[i] != " ") {
-         arguments << list[i];
+         addArgument(arguments, list[i]);
       }
   }
   if (list.size())
@@ -1216,15 +1275,13 @@ int LDGLite::renderPli(
   // Add ini parms if not already added from meta
   for (int i = 0; i < Preferences::ldgliteParms.size(); i++) {
       if (list.indexOf(QRegExp("^" + QRegExp::escape(Preferences::ldgliteParms[i]))) < 0) {
-        arguments << Preferences::ldgliteParms[i];
-        //logInfo() << qPrintable("-PARM INI : " + Preferences::ldgliteParms[i]);
+        addArgument(arguments, Preferences::ldgliteParms[i], "", 0, list.size());
       }
   }
 
   // add custom color file if exist
   if (!Preferences::altLDConfigPath.isEmpty()) {
-    arguments << "-ldcF" + Preferences::altLDConfigPath;
-    //logDebug() << qPrintable("=" + Preferences::altLDConfigPath);
+    addArgument(arguments, QString("-ldcF%1").arg(Preferences::altLDConfigPath), "-ldcF", 0, list.size());
   }
 
   arguments << QDir::toNativeSeparators(mf);
@@ -1465,15 +1522,15 @@ int LDView::renderCsi(
           }
           pz = ldviewParmslist[i].contains("-DefaultZoom=");
         }
-      if (!pd && !arguments.contains(ldviewParmslist[i]))
-        arguments << ldviewParmslist[i];    // 10. ldviewParms
+      if (!pd && !pl && !pf)
+        addArgument(arguments, ldviewParmslist[i]);    // 10. ldviewParms
     }
   }
   if (pp) {
     if (!pf)
       arguments.replace(arguments.indexOf(CA),df);    // replace CA with FOV
     if (!pz && pl)
-      arguments << dz;                                // add DefaultZoom if DefaultLatLon specified
+      addArgument(arguments ,dz, "-DefaultZoom");     // add DefaultZoom if DefaultLatLon specified
     if (!pl && cdf < LP3D_CDF) {                      // update camera distance factor if custom value specified
       QStringList cgl;
       cgl = cg.split(",");
@@ -1489,13 +1546,13 @@ int LDView::renderCsi(
   QString ini;
   if(hasLDViewIni){
       ini  = QString("-IniFile=%1") .arg(Preferences::ldviewIni);
-      arguments << ini;                  // 11. LDView.ini
+      addArgument(arguments, ini, "-IniFile", 0, ldviewParmslist.size());        // 11. LDView.ini
   }
 
   QString altldc;
   if (!Preferences::altLDConfigPath.isEmpty()) {
-      altldc = QString("-LDConfig=%1").arg(Preferences::altLDConfigPath);
-      arguments << altldc;               // 12.Alternate LDConfig
+      altldc = QString("-LDConfig=%1").arg(Preferences::altLDConfigPath); 
+      addArgument(arguments, altldc, "-LDConfig", 0, ldviewParmslist.size());    // 12.Alternate LDConfig
   }
 
   if (haveLdrNames) {      
@@ -1506,6 +1563,7 @@ int LDView::renderCsi(
       } else {
           // SaveSnapShot=1
           arguments << QDir::toNativeSeparators(ldrNames.first());
+
       }
 
       removeEmptyStrings(arguments);
@@ -1661,7 +1719,7 @@ int LDView::renderPli(
         }
       }
       if (!pd && !pl && !pf && !pz)
-        ldviewParmsArgs << ldviewParmslist[i];    // 10. ldviewParms [usually empty]
+        addArgument(ldviewParmsArgs, ldviewParmslist[i]);    // 10. ldviewParms [usually empty]
     }
   }
 
@@ -1822,8 +1880,9 @@ int LDView::renderPli(
 
   // append additional LDView parameters
   if (ldviewParmsArgs.size()) {
-    arguments << ldviewParmsArgs.join(" ");
-
+    for (int i = 0; i < ldviewParmsArgs.size(); i++) {
+      addArgument(arguments, ldviewParmsArgs[i]);
+    }
     emit gui->messageSig(LOG_INFO,QMessageBox::tr("LDView additional PLI renderer parameters: %1")
                          .arg(ldviewParmsArgs.join(" ")));
   }
@@ -1836,13 +1895,15 @@ int LDView::renderPli(
   arguments << v;
 
   if(Preferences::ldviewIni != ""){
-      arguments << QString("-IniFile=%1") .arg(Preferences::ldviewIni);;
+      QString ini;
+      ini = QString("-IniFile=%1") .arg(Preferences::ldviewIni);
+      addArgument(arguments, ini, "-IniFile", 0, ldviewParmsArgs.size());
   }
 
   QString altldc;
   if (!Preferences::altLDConfigPath.isEmpty()) {
       altldc = QString("-LDConfig=%1").arg(Preferences::altLDConfigPath);
-      arguments << altldc;
+      addArgument(arguments, altldc, "-LDConfig", 0, ldviewParmsArgs.size());
   }
 
   if (useLDViewSCall() && pliType != SUBMODEL) {
