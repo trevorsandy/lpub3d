@@ -58,8 +58,8 @@ void RotateIconItem::setAttributes(
                                iconSize.valuePixels(YY));
 
   //gradient settings
-  if (background.value().gsize[0] == 0 &&
-      background.value().gsize[1] == 0) {
+  if (background.value().gsize[0] == 0.0f &&
+      background.value().gsize[1] == 0.0f) {
       background.value().gsize[0] = pixmap->width();
       background.value().gsize[1] = pixmap->width();
       QSize gSize(background.value().gsize[0],

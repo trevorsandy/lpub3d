@@ -58,8 +58,8 @@ class PagePointer : public Steps {
     Step                      *parentStep;
     PlacementType              parentRelativeType;
 
-    QList<Pointer *>           pointerList;         /* Pointers and pointer tips data */
-    QList<PagePointerItem *>   graphicsPointerList; /* Pointer and pointer tips graphics */
+    QList<Pointer *>           pointerList;             /* Pointers and pointer tips data */
+    QList<PagePointerItem *>   graphicsPagePointerList; /* Pointer and pointer tips graphics */
 
     PagePointerBackgroundItem *background;
     Where  		               topPage,bottomPage;

@@ -532,21 +532,21 @@ void Callout::addGraphicsPointerItem(
           pointer,
            parent,
           view);
-  graphicsPointerList.append(t);
+  graphicsCalloutPointerList.append(t);
 }
 
 void Callout::updatePointers(QPoint &delta)
 {
-  for (int i = 0; i < graphicsPointerList.size(); i++) {
-    CalloutPointerItem *pointer = graphicsPointerList[i];
+  for (int i = 0; i < graphicsCalloutPointerList.size(); i++) {
+    CalloutPointerItem *pointer = graphicsCalloutPointerList[i];
     pointer->updatePointer(delta);
   }
 }
 
 void Callout::drawTips(QPoint &delta, int type)
 {
-  for (int i = 0; i < graphicsPointerList.size(); i++) {
-    CalloutPointerItem *pointer = graphicsPointerList[i];
+  for (int i = 0; i < graphicsCalloutPointerList.size(); i++) {
+    CalloutPointerItem *pointer = graphicsCalloutPointerList[i];
     int initiator = type ? type : relativeType;
     pointer->drawTip(delta,initiator);
   }

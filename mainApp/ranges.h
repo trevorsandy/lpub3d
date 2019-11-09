@@ -64,14 +64,14 @@ class Steps : public Placement {
   public:
     Meta                           meta;
     Meta                           stepGroupMeta;
-    QList<AbstractStepsElement *>  list;                // of range
-    QMap<Positions,PagePointer *>  pagePointers;        // of pagePointers
-    QList<DividerPointerItem *>    graphicsPointerList; // of dividerPointers
-    QList<TextItem*>               textItemList;        // of page Texts
+    QList<AbstractStepsElement *>  list;                       // of range
+    QMap<Positions,PagePointer *>  pagePointers;               // of pagePointers
+    QList<DividerPointerItem *>    graphicsDividerPointerList; // of dividerPointers
+    QList<TextItem*>               textItemList;               // of page Texts
     QGraphicsView                 *view;
     Pli                            pli;
     SubModel                       subModel;
-    Where                          top;                 // needed for non-step pages
+    Where                          top;                        // needed for non-step pages
     Where                          bottom;
     bool                           isMirrored;
 
