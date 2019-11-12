@@ -1,4 +1,4 @@
-LPub3D 2.3.13.1.1584 (09 11 2019 21:48:06)
+LPub3D 2.3.13.1.1585 (12 11 2019 14:41:08)
 
 Features, enhancements, fixes and changes
 ------------
@@ -26,6 +26,7 @@ Revisions:
 - Change - LDCad flexible parts new parts per step highlighting #354
 - Change - No response to MODEL_SCALE meta command #342
 - Change - Page items bring to front and send to back - third pass, set z values #244
+- Change - PNG Export - transparent background exports as black background. #380
 - Change - Pointer segment line is interrupted by border colour at each joint #356
 - Change - Rotated Callout not displayed when last step contains NOSTEP #376
 - Change - Set default text edit text size to 24 point #357
