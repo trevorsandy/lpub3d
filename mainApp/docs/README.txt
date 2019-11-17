@@ -1,4 +1,4 @@
-LPub3D 2.3.13.1.1588 (17 11 2019 13:54:00)
+LPub3D 2.3.13.1.1589 (17 11 2019 13:57:16)
 
 Features, enhancements, fixes and changes
 ------------
@@ -38,6 +38,7 @@ Revisions:
 - Fix - Export to pdf using page range generates single page #341
 - Fix - LPub3D crash when using LDView "multiple file single call" #363
 - Fix - Single step MODEL_SCALE meta command not working #343
+- Fix - Substitute part flag ignored when no attributes specified #377
 - Fix - Update apply camera angle locally initialisation #378
 
 --------------------------------------------------------------------------------------------------

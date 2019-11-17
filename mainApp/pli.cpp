@@ -228,12 +228,12 @@ QString Pli::partLine(QString &line, Where &here, Meta &meta)
   if (meta.LPub.pli.begin.sub.value().type) {
       SubData subData = meta.LPub.pli.begin.sub.value();
       QStringList attrArgs = subData.attrs.split(";");
-      // check if substitute type and type applicable to this line
+      // check if substitute type is not 0 and substitute lineNumber matches here.lineNumber (this line)
       if (subData.type && attrArgs.last().toInt() == here.lineNumber) {
-          // remove line number and ';' delimiter from string
-          subData.attrs.chop(attrArgs.last().size()+1);
-          // append substitute type to string - used by Pli::setParts()
-          attributes.append(QString("|%1|%2").arg(subData.attrs).arg(subData.type));
+          // remove substitues line number from substitute attributes
+          attrArgs.removeLast();
+          // append substitute type and attributes, if any, to attributes - used by Pli::setParts()
+          attributes.append(QString("|%1%2").arg(subData.type).arg(attrArgs.size() ? QString("|%1").arg(attrArgs.join(";")) : ""));
       }
   }
   return line + attributes;
@@ -466,14 +466,13 @@ void Pli::setParts(
           bool noCA = pliMeta.rotStep.value().type == "ABS";
 
           // extract substitute part arguments
-          int subType = 0;
           QString subRotation = QString();
+          int subType         = segments.size() > 1 ? segments.at(1).toInt() : 0;
           qreal cameraFoV     = double(pliMeta.cameraFoV.value());
           qreal cameraAngleXX = noCA ? 0.0 : double(pliMeta.cameraAngles.value(0));
           qreal cameraAngleYY = noCA ? 0.0 : double(pliMeta.cameraAngles.value(1));
           if (segments.size() == 3) {
               QStringList attributes = segments.at(1).split(";");
-              subType = segments.at(2).toInt();
               if (subType > PliBeginSub2Rc){
                   modelScale = attributes.at(0).toDouble();
               }
