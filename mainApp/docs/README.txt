@@ -1,4 +1,4 @@
-LPub3D 2.3.13.1.1586 (17 11 2019 13:48:45)
+LPub3D 2.3.13.1.1587 (17 11 2019 13:51:00)
 
 Features, enhancements, fixes and changes
 ------------
@@ -28,6 +28,7 @@ Revisions:
 - Change - Page items bring to front and send to back - third pass, set z values #244
 - Change - Page items bring to front and send to back - fourth pass, redesign #244
 - Change - PNG Export - transparent background exports as black background. #380
+- Change - Remove check Bricklink codes.txt for RegExp import pattern. #381
 - Change - Pointer segment line is interrupted by border colour at each joint #356
 - Change - Rotated Callout not displayed when last step contains NOSTEP #376
 - Change - Set default text edit text size to 24 point #357

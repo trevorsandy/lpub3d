@@ -1759,7 +1759,6 @@ Annotations::Annotations()
 // val2: elementid
 bool Annotations::loadBLCodes(){
     if (blCodes.size() == 0) {
-        bool rxFound = false;
         QString message;
         QString blCodesFile = Preferences::blCodesFile;
         QRegExp rx("^([^\\t]+)\\t+\\s*([^\\t]+)\\t+\\s*([^\\t]+).*$");
@@ -1767,8 +1766,8 @@ bool Annotations::loadBLCodes(){
             QFile file(blCodesFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
                 message = QString("Failed to open BrickLink codes.txt file: %1:<br>%2")
-                                  .arg(blCodesFile)
-                                  .arg(file.errorString());
+                        .arg(blCodesFile)
+                        .arg(file.errorString());
                 if (Preferences::modeGUI){
                     QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
                 } else {
@@ -1778,19 +1777,7 @@ bool Annotations::loadBLCodes(){
             }
             QTextStream in(&file);
 
-            // Load RegExp from file;
-            QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
-            while ( ! in.atEnd()) {
-                QString sLine = in.readLine(0);
-                if ((rxFound = sLine.contains(rxin))) {
-                    rx.setPattern(rxin.cap(1));
-//                    logDebug() << "Bricklink elements RegExp Pattern: " << rxin.cap(1);
-                    break;
-                }
-            }
-
-            if (rxFound) {
-                in.seek(0);
+            in.seek(0);
 
 // DEBUG -->>>
 //            QString fooFile = Preferences::blCodesFile+"demo.txt";
@@ -1801,30 +1788,19 @@ bool Annotations::loadBLCodes(){
 // DEBUG <<<---
 
             // Load input values
-                while ( ! in.atEnd()) {
-                    QString sLine = in.readLine(0);
-                    if (sLine.contains(rx)) {
-                        QString blitemid = rx.cap(1);
-                        QString blcolorid = getBLColorID(rx.cap(2));
-                        QString elementid = rx.cap(3);
-                        blCodes[QString(blitemid+blcolorid).toLower()] << QString(blitemid+"-"+blcolorid).toUpper() << elementid;
+            while ( ! in.atEnd()) {
+                QString sLine = in.readLine(0);
+                if (sLine.contains(rx)) {
+                    QString blitemid = rx.cap(1);
+                    QString blcolorid = getBLColorID(rx.cap(2));
+                    QString elementid = rx.cap(3);
+                    blCodes[QString(blitemid+blcolorid).toLower()] << QString(blitemid+"-"+blcolorid).toUpper() << elementid;
 // DEBUG -->>>
 //                    Stream << QString("Key: %1 Value[0]: %2 Value[1]: %3")
 //                                      .arg(QString(blitemid+blcolorid).toLower())
 //                                      .arg(QString(blitemid+"-"+blcolorid).toUpper())
 //                                      .arg(elementid);
 // DEBUG <<<---
-                    }
-                }
-            } else {
-                message = QString("Regular expression pattern was not found in %1.<br>"
-                                  "Regenerate %1 by renaming the existing file and<br>"
-                                  "select edit %1 from the configuraiton menu.")
-                                  .arg(QFileInfo(blCodesFile).fileName());
-                if (Preferences::modeGUI){
-                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
-                } else {
-                    logError() << message.replace("<br>"," ");
                 }
             }
 // DEBUG -->>>
@@ -1832,7 +1808,7 @@ bool Annotations::loadBLCodes(){
 // DEBUG <<<---
 
         } else {
-           return  false;
+            return  false;
         }
     }
     return true;
@@ -1841,88 +1817,63 @@ bool Annotations::loadBLCodes(){
 bool Annotations::loadBLCodes(QByteArray &Buffer){
     if (blCodes.size() == 0) {
         QString message;
-        bool rxFound = false;
         QRegExp rx("^([^\\t]+)\\t+\\s*([^\\t]+)\\t+\\s*([^\\t]+).*$");
         QTextStream instream(Buffer);
 
-        // Load RegExp pattern from Buffer;
-        QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
-        while ( ! instream.atEnd()) {
-            QString sLine = instream.readLine(0);
-            if ((rxFound = sLine.contains(rxin))) {
-                rx.setPattern(rxin.cap(1));
-//                logDebug() << "Bricklink elements RegExp Pattern: " << rxin.cap(1);
-                break;
+        instream.seek(0);
+
+        //     Load input values from instream
+        for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
+        {
+            QChar comment = sLine.at(0);
+            if (comment == '#' || comment == ' ')
+                continue;
+            if (sLine.contains(rx)) {
+                QString blitemid = rx.cap(1);
+                QString blcolorid = getBLColorID(rx.cap(2));
+                QString elementid = rx.cap(3);
+                blCodes[QString(blitemid+blcolorid).toLower()] << QString(blitemid+"-"+blcolorid).toUpper() << elementid;
             }
         }
 
-        if (rxFound) {
-            instream.seek(0);
+        //    write stream to file
+        QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_BLCODES_FILE));
+        if(file.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            int counter = 1;
+            QTextStream instream(Buffer);
+            QTextStream outstream(&file);
 
-            //     Load input values from instream
-            for (QString sLine = instream.readLine(); !sLine.isNull(); sLine = instream.readLine())
-            {
-                QChar comment = sLine.at(0);
-                if (comment == '#' || comment == ' ')
-                    continue;
-                if (sLine.contains(rx)) {
-                    QString blitemid = rx.cap(1);
-                    QString blcolorid = getBLColorID(rx.cap(2));
-                    QString elementid = rx.cap(3);
-                    blCodes[QString(blitemid+blcolorid).toLower()] << QString(blitemid+"-"+blcolorid).toUpper() << elementid;
-                }
+            while ( ! instream.atEnd()) {
+                QString sLine = instream.readLine(0);
+                outstream << sLine << endl;
+                counter++;
             }
 
-            //    write stream to file
-            QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_BLCODES_FILE));
-            if(file.open(QIODevice::WriteOnly | QIODevice::Text))
-            {
-                int counter = 1;
-                QTextStream instream(Buffer);
-                QTextStream outstream(&file);
+            outstream.flush();
+            file.close();
 
-                while ( ! instream.atEnd()) {
-                    QString sLine = instream.readLine(0);
-                    outstream << sLine << endl;
-                    counter++;
-                }
-
-                outstream.flush();
-                file.close();
-
-                message = QString("Finished Writing, Proceed %1 lines for file [%2]")
-                                  .arg(counter)
-                                  .arg(file.fileName());
-                if (Preferences::modeGUI){
-                    QMessageBox::information(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
-                } else {
-                    logInfo() << message;
-                }
-            }
-            else
-            {
-               message = QString("Failed to write file: %1:<br>%2")
-                                 .arg(file.fileName())
-                                 .arg(file.errorString());
-               if (Preferences::modeGUI){
-                   QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
-               } else {
-                   logError() << message.replace("<br>"," ");
-               }
-               return false;
-            }
-        } else {
-            message = QString("Regular expression pattern was not found in %1.<br>"
-                              "Regenerate %1 by renaming the existing file and<br>"
-                              "select edit %1 from the configuraiton menu.")
-                              .arg(QFileInfo(VER_LPUB3D_BLCODES_FILE).fileName());
+            message = QString("Finished Writing, Proceed %1 lines for file [%2]")
+                              .arg(counter)
+                              .arg(file.fileName());
             if (Preferences::modeGUI){
-                QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
+                QMessageBox::information(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
             } else {
-                logError() << message.replace("<br>"," ");
+                logInfo() << message;
             }
         }
-        return true;
+        else
+        {
+           message = QString("Failed to write file: %1:<br>%2")
+                             .arg(file.fileName())
+                             .arg(file.errorString());
+           if (Preferences::modeGUI){
+               QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
+           } else {
+               logError() << message.replace("<br>"," ");
+           }
+           return false;
+        }
     }
     return true;
 }
