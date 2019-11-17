@@ -68,6 +68,7 @@ private slots:
   void valueChanged(double value);
   void transformChanged(QString const &);
   void reset(bool);
+  void showExtendedAttributes(bool);
 
 protected:
   void initialize();
@@ -77,6 +78,7 @@ protected:
 private:
   Ui::SubstitutePartDialog *ui;
   QPushButton              *mResetBtn;
+  QPushButton              *mShowExtAttrsBtn;
   PieceInfo                *mTypeInfo;
   QStringList               mDefaultAttributes;
   QStringList               mInitialAttributes;

@@ -67,6 +67,16 @@ SubstitutePartDialog::SubstitutePartDialog(
                           QStringList() << "type" << "color" << defaultList;
      mInitialAttributes = attributes;
 
+     if (mAction != sRemove){
+         mShowExtAttrsBtn = new QPushButton(tr("More..."));
+         ui->buttonBox->addButton(mShowExtAttrsBtn, QDialogButtonBox::ActionRole);
+         connect(mShowExtAttrsBtn,SIGNAL(clicked(bool)),
+                 this,            SLOT(  showExtendedAttributes(bool)));
+
+         ui->extendedSettingsBox->setVisible(false);
+         this->adjustSize();
+     }
+
      initialize();
 
      connect(ui->typeBtn,SIGNAL(clicked(bool)),
@@ -105,7 +115,7 @@ SubstitutePartDialog::SubstitutePartDialog(
      mResetBtn = new QPushButton(tr("Reset"));
      ui->buttonBox->addButton(mResetBtn, QDialogButtonBox::ActionRole);
      connect(mResetBtn,SIGNAL(clicked(bool)),
-             this,    SLOT(  reset(bool)));
+             this,     SLOT(  reset(bool)));
 
      setMinimumSize(40, 40);
 
@@ -143,12 +153,32 @@ void SubstitutePartDialog::initialize()
     qreal min = -10000.0, max = 10000.0, step = 0.1, val = 1.0;
     auto dec = [] (const qreal v)
     {
+        auto places = [&v] () {
+            if (v == 0.0)
+                return 2;
+
+            int count = 0;
+            qreal num = v;
+            num = abs(num);
+            num = num - int(num);
+            while (abs(num) >= 0.0000001) {
+                num = num * 10;
+                count = count + 1;
+                num = num - int(num);
+            }
+            return count;
+        };
+
         int a = v - int(v);
-        return (a <= 0 ? 2 : QString::number(a).size() < 3 ? 2 : QString::number(a).size());
+        return (a < 1 ? places() : QString::number(a).size() < 3 ? 2 : QString::number(a).size());
     };
 
     QPalette readOnlyPalette;
     readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
+    if (mAction == sUpdate) {
+        ui->name_Lbl->setText("Substitute Name:");
+        ui->label_2->setText("Substitute Title:");
+    }
     ui->nameEdit->setReadOnly(true);
     ui->nameEdit->setPalette(readOnlyPalette);
     ui->nameEdit->setText(mAttributes.at(sType));
@@ -157,6 +187,10 @@ void SubstitutePartDialog::initialize()
 
     ui->primarySettingsBox->setVisible(show);
 
+    if (mAction == sUpdate) {
+        ui->substitute_Lbl->setText("New Substitute:");
+        ui->label_3->setText("New Substitute Title:");
+    }
     ui->substituteEdit->clear();
     ui->substituteEdit->setClearButtonEnabled(true);
     ui->substitueTitleLbl->clear();
@@ -176,7 +210,7 @@ void SubstitutePartDialog::initialize()
                                .arg(LDrawColor::value(mAttributes.at(sColorCode)).toUpper()));
     }
 
-    ui->extendedSettingsBox->setVisible(show);
+    // Extended settings
 
     if (Preferences::usingNativeRenderer){
         ui->horizontalSpacer_12->changeSize(18,20,QSizePolicy::Fixed,QSizePolicy::Fixed);
@@ -255,6 +289,21 @@ void SubstitutePartDialog::initialize()
     ui->messageLbl->setVisible(show);
 
     mModified = !show;
+}
+
+void SubstitutePartDialog::showExtendedAttributes(bool clicked){
+    Q_UNUSED(clicked);
+
+    if (ui->extendedSettingsBox->isHidden()){
+        ui->extendedSettingsBox->show();
+        mShowExtAttrsBtn->setText("Less...");
+        this->adjustSize();
+    }
+    else{
+        ui->extendedSettingsBox->hide();
+        mShowExtAttrsBtn->setText("More...");
+        this->adjustSize();
+    }
 }
 
 void SubstitutePartDialog::reset(bool value)

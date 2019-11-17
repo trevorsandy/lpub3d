@@ -628,7 +628,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bSKIP_BEGIN\\b"
     << "\\bSKIP_END\\b"
     << "\\bSTORE\\b"
-    << "\\d\\.?\\d*\\s\\d\\.?\\d*\\s\\d\\.?\\d*\\s[ABS|ADD|REL]+"
+    << "\\bABS|ADD|REL\\b"
        ;
 
     foreach (QString pattern, MLCadBodyMetaPatterns) {
