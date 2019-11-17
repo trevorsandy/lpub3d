@@ -616,7 +616,10 @@ MultiStepStepBackgroundItem::MultiStepStepBackgroundItem(
     isHovered(false),
     mouseIsDown(false)
 {
-    step = _step;
+    step   = _step;
+    top    = _step->topOfStep();
+    bottom = _step->bottomOfStep();
+    stepNumber = _step->stepNumber.number;
 
     setRect(0,0,step->size[XX],step->size[YY]);
     setPen(Qt::NoPen);

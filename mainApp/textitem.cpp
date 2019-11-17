@@ -337,7 +337,7 @@ void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
   positionChanged = false;
   mouseIsDown = true;
   QGraphicsItem::mousePressEvent(event);
-  update();
+//  update();
 }
 
 void TextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)

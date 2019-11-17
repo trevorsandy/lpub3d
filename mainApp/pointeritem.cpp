@@ -86,6 +86,9 @@ void PointerItem::drawPointerPoly()
           linef = QLineF(points[Base],points[Tip]);
           removeFromGroup(shaftSegments[i]);
           BorderedLineItem *shaft = shaftSegments[i];
+          shaft->top        = pointerTop;
+          shaft->bottom     = pointerBottom;
+          shaft->stepNumber = stepNumber;
           shaft->setSegment(OneSegment);
           shaft->setSegments(segments());
           shaft->setHeadWidth(headWidth);
@@ -101,6 +104,9 @@ void PointerItem::drawPointerPoly()
               linef = QLineF(points[Base],points[MidBase]);
               removeFromGroup(shaftSegments[i]);
               BorderedLineItem *shaft = shaftSegments[i];
+              shaft->top        = pointerTop;
+              shaft->bottom     = pointerBottom;
+              shaft->stepNumber = stepNumber;
               shaft->setSegment(OneSegment);
               shaft->setSegments(segments());
               shaft->setHeadWidth(headWidth);
@@ -112,6 +118,9 @@ void PointerItem::drawPointerPoly()
               linef = QLineF(points[MidBase],points[Tip]);
               removeFromGroup(shaftSegments[i]);
               BorderedLineItem *shaft = shaftSegments[i];
+              shaft->top        = pointerTop;
+              shaft->bottom     = pointerBottom;
+              shaft->stepNumber = stepNumber;
               shaft->setSegment(TwoSegments);
               shaft->setSegments(segments());
               shaft->setHeadWidth(headWidth);
@@ -128,6 +137,9 @@ void PointerItem::drawPointerPoly()
               linef = QLineF(points[Base],points[MidBase]);
               removeFromGroup(shaftSegments[i]);
               BorderedLineItem *shaft = shaftSegments[i];
+              shaft->top        = pointerTop;
+              shaft->bottom     = pointerBottom;
+              shaft->stepNumber = stepNumber;
               shaft->setSegment(OneSegment);
               shaft->setSegments(segments());
               shaft->setHeadWidth(headWidth);
@@ -139,6 +151,9 @@ void PointerItem::drawPointerPoly()
               linef = QLineF(points[MidBase],points[MidTip]);
               removeFromGroup(shaftSegments[i]);
               BorderedLineItem *shaft = shaftSegments[i];
+              shaft->top        = pointerTop;
+              shaft->bottom     = pointerBottom;
+              shaft->stepNumber = stepNumber;
               shaft->setSegment(TwoSegments);
               shaft->setSegments(segments());
               shaft->setHeadWidth(headWidth);
@@ -150,6 +165,9 @@ void PointerItem::drawPointerPoly()
               linef = QLineF(points[MidTip],points[Tip]);
               removeFromGroup(shaftSegments[i]);
               BorderedLineItem *shaft = shaftSegments[i];
+              shaft->top        = pointerTop;
+              shaft->bottom     = pointerBottom;
+              shaft->stepNumber = stepNumber;
               shaft->setSegment(ThreeSegments);
               shaft->setSegments(segments());
               shaft->setHeadWidth(headWidth);
@@ -170,6 +188,9 @@ void PointerItem::drawPointerPoly()
           removeFromGroup(head);
 
           head->setPolygon(poly);
+          head->top        = pointerTop;
+          head->bottom     = pointerBottom;
+          head->stepNumber = stepNumber;
 
           qreal x = 0.0;
           qreal y = 0.0;
@@ -306,6 +327,9 @@ void PointerItem::addShaftSegment(){
     }
 
     shaft = new BorderedLineItem(linefNew,pad,this);
+    shaft->top    = pointerTop;
+    shaft->bottom = pointerBottom;
+    shaft->stepNumber = stepNumber;
     shaft->setPen(pen);
     shaft->setFlag(QGraphicsItem::ItemIsSelectable,false);
     shaft->setToolTip(QString("Pointer segment %1 - drag grabber to move; right click to modify").arg(segments()+1));
@@ -420,6 +444,9 @@ void PointerItem::placeGrabbers()
       grabbers[i] = new Grabber(i,this,myParentItem());
       grabbers[i]->setData(ObjectId, PointerGrabberObj);
       grabbers[i]->setZValue(zValue()+meta->LPub.page.scene.pointerGrabber.zValue());
+      grabbers[i]->top        = pointerTop;
+      grabbers[i]->bottom     = pointerBottom;
+      grabbers[i]->stepNumber = stepNumber;
     }
     grabbersVisible = true;
   }

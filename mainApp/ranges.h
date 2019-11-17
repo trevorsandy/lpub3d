@@ -118,13 +118,14 @@ class Page : public Steps {
     QList<InsertMeta> inserts;
     QList<InsertPixmapItem *> insertPixmaps;
     QList<PageAttributePixmapItem *> pageAttributePixmaps;
-    bool setItemDirection;
+    QMap<Where, SceneObjectData> selectedSceneItems;     // page items whose depth is explicitly defined
     bool coverPage;
     bool frontCover;
     bool backCover;
     bool modelDisplayOnlyStep;
     bool displayInstanceCount;
     int  instances;
+    int  stepNumber;
     Page()
     {
       coverPage            = false;
@@ -132,8 +133,8 @@ class Page : public Steps {
       backCover            = false;
       modelDisplayOnlyStep = false;
       displayInstanceCount = false;
-      setItemDirection     = false;
       instances            = 1;
+      stepNumber           = 0;
     }
     
     void addInsertPixmap(InsertPixmapItem *pixMap)
@@ -153,8 +154,8 @@ class Page : public Steps {
       backCover            = false;
       modelDisplayOnlyStep = false;
       displayInstanceCount = false;
-      setItemDirection     = false;
       instances            = 1;
+      stepNumber           = 0;
       for (int i = 0; i < insertPixmaps.size(); i++) {
         InsertPixmapItem *pixmap = insertPixmaps[i];
         delete pixmap;
@@ -166,6 +167,7 @@ class Page : public Steps {
       insertPixmaps.clear();
       pageAttributePixmaps.clear();
       inserts.clear();
+      selectedSceneItems.clear();
       freeSteps();
     }
 };

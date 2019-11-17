@@ -51,6 +51,7 @@ PagePointerItem::PagePointerItem(
   view              = _view;
   pointer           = *_pointer;
   pagePointer       = pp;
+  stepNumber        = pp->parentStep->stepNumber.number;
   pointerTop        = pp->topOfPagePointer();
   pointerBottom     = pp->bottomOfPagePointer();
   pointerParentType = PagePointerType;
@@ -173,7 +174,7 @@ PagePointerItem::PagePointerItem(
       tipPen.setStyle(Qt::DashDotDotLine);
   }
 
-  head = new QGraphicsPolygonItem(poly, this);
+  head = new PointerHeadItem(poly, this);
   head->setPen(tipPen);
   head->setBrush(brushColor);
   head->setFlag(QGraphicsItem::ItemIsSelectable,false);

@@ -154,10 +154,16 @@ float PliPart::maxMargin()
 }
 
 void PliPart::addPartGroupToScene(
-        LGraphicsScene *scene)
+        LGraphicsScene *scene,
+        Where &top,
+        Where &bottom,
+        int stepNumber)
 {
     // create the part group item
     pliPartGroup = new PartGroupItem(groupMeta);
+    pliPartGroup->top = top; 
+    pliPartGroup->bottom = bottom; 
+    pliPartGroup->stepNumber = stepNumber;
 
     // add the part group to the scene
     scene->addItem(pliPartGroup);
@@ -249,6 +255,24 @@ void Pli::setParts(
   bool displayElement    = pliMeta.partElements.display.value();
   bool extendedStyle     = pliMeta.annotation.extendedStyle.value();
   bool fixedAnnotations  = pliMeta.annotation.fixedAnnotations.value();
+
+  // setup 3DViewer entry
+  switch (parentRelativeType) {
+  case StepGroupType:
+      top    = topOfSteps();
+      bottom = bottomOfSteps();
+      multistep = true;
+      break;
+  case CalloutType:
+      top    = topOfCallout();
+      bottom = bottomOfCallout();
+      callout = true;
+      break;
+  default:
+      top    = topOfStep();
+      bottom = bottomOfStep();
+      break;
+  }
 
   // get bom part group last line
   Where where;
@@ -2851,6 +2875,9 @@ void PliBackgroundItem::placeGrabbers()
       grabber = new Grabber(BottomInside,this,myParentItem());
       grabber->setData(ObjectId, PliGrabberObj);
       grabber->setZValue(pli->meta->LPub.page.scene.pliGrabber.zValue());
+      grabber->top        = pli->top;
+      grabber->bottom     = pli->bottom;
+      grabber->stepNumber = pli->step ? pli->step->stepNumber.number : 0;
       grabbersVisible = true;
     }
   grabber->setPos(point.x()-grabSize()/2,point.y()-grabSize()/2);

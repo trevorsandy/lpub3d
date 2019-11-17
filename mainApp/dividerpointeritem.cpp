@@ -46,6 +46,7 @@ DividerPointerItem::DividerPointerItem(
 
   pointerTop         = divider->parentStep->nextStep()->topOfStep();
   pointerBottom      = divider->parentStep->nextStep()->bottomOfStep();
+  stepNumber         = divider->parentStep->stepNumber.number;
   pointerParentType  = DividerPointerType;
   resizeRequested    = false;
 
@@ -162,7 +163,7 @@ DividerPointerItem::DividerPointerItem(
       tipPen.setStyle(Qt::DashDotDotLine);
   }
 
-  head = new QGraphicsPolygonItem(poly, this);
+  head = new PointerHeadItem(poly, this);
   head->setPen(tipPen);
   head->setBrush(brushColor);
   head->setFlag(QGraphicsItem::ItemIsSelectable,false);

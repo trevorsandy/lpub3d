@@ -1,4 +1,4 @@
-LPub3D 2.3.13.1.1585 (12 11 2019 14:41:08)
+LPub3D 2.3.13.1.1586 (17 11 2019 13:48:45)
 
 Features, enhancements, fixes and changes
 ------------
@@ -26,6 +26,7 @@ Revisions:
 - Change - LDCad flexible parts new parts per step highlighting #354
 - Change - No response to MODEL_SCALE meta command #342
 - Change - Page items bring to front and send to back - third pass, set z values #244
+- Change - Page items bring to front and send to back - fourth pass, redesign #244
 - Change - PNG Export - transparent background exports as black background. #380
 - Change - Pointer segment line is interrupted by border colour at each joint #356
 - Change - Rotated Callout not displayed when last step contains NOSTEP #376
@@ -37,7 +38,12 @@ Revisions:
 - Fix - Single step MODEL_SCALE meta command not working #343
 - Fix - Update apply camera angle locally initialisation #378
 
- Base:
+--------------------------------------------------------------------------------------------------
+
+LPub3D 2.3.13.0.1511 (09 09 2019 20:05:22)
+
+Features, enhancements, fixes and changes
+------------
 
 - Enhancement - Add option to centre justify step group steps #333
 - Enhancement - Add pixel ratio setting to PDF, PNG, JPG and BMP exports #304

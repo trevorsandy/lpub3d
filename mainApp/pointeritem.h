@@ -34,6 +34,7 @@
 class QGraphicsPolygonItem;
 class QGraphicsItemGroup;
 class QGraphicsView;
+class PointerHeadItem;
 
 class PointerItem : public QGraphicsItemGroup, public MetaItem, public AbstractResize 
 {
@@ -50,6 +51,7 @@ public:
 
   PlacementType              pointerParentType;
 
+  int                        stepNumber;
   Where                      pointerTop, pointerBottom;
 
   Pointer                    pointer;
@@ -60,7 +62,7 @@ public:
   int                        baseX;
   int                        baseY;
   BorderedLineItem          *shaft;
-  QGraphicsPolygonItem      *head;
+  PointerHeadItem           *head;
   QList<BorderedLineItem *>  shaftSegments;
 
   Grabber                   *grabbers[NumPointerGrabbers];
@@ -168,6 +170,16 @@ public:
 protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
   void mousePressEvent(QGraphicsSceneMouseEvent *event);
+};
+
+class PointerHeadItem : public QGraphicsPolygonItem
+{
+public:
+  int stepNumber;
+  Where top,bottom;
+  PointerHeadItem(const QPolygonF &poly,
+                  QGraphicsItem *parent = nullptr)
+      :QGraphicsPolygonItem(poly, parent){}
 };
 
 #endif

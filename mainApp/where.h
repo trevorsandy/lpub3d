@@ -178,6 +178,12 @@ class Where
       return lineNumber != other;
     }
 
+    bool operator<(const Where &other) const
+    {
+      return modelName  == other.modelName &&
+             lineNumber < other.lineNumber;
+    }
+
     bool operator==(const Where &other) const
     {
       return modelName  == other.modelName &&

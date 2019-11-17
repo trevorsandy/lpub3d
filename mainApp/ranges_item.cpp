@@ -306,7 +306,11 @@ DividerItem::DividerItem(
   setPen(QPen(Qt::NoPen));
   setBrush(QBrush(Qt::NoBrush));
   setToolTip("Divider - right-click to modify");
+
   lineItem = new DividerLine(this);
+  lineItem->stepNumber = parentStep->stepNumber.number;
+  lineItem->top = parentStep->topOfStep();
+  lineItem->bottom = parentStep->bottomOfStep();
 
   BorderData borderData;
 
@@ -521,10 +525,13 @@ void DividerItem::addGraphicsPointerItem(Pointer *pointer, QGraphicsView *view)
 {
     // This is the background for the dividerPointer line.
     QRect dividerRect(loc[XX],loc[YY],size[XX],size[YY]);
-    background = new DividerBackgroundItem (
+    background = new DividerBackgroundItem(
                 &meta,
                 dividerRect,
                 parentItem());
+    background->stepNumber = parentStep->stepNumber.number;
+    background->top        = parentStep->topOfStep();
+    background->bottom     = parentStep->bottomOfStep();
     background->setPos(loc[XX],loc[YY]);
     background->setFlag(QGraphicsItem::ItemIsMovable, false);
     background->setFlag(QGraphicsItem::ItemIsSelectable, false);
