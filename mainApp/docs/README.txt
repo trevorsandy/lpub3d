@@ -1,4 +1,4 @@
-LPub3D 2.3.13.1.1590 (19 11 2019 08:51:53)
+LPub3D 2.3.13.1.1591 (19 11 2019 08:59:14)
 
 Features, enhancements, fixes and changes
 ------------
@@ -34,6 +34,7 @@ Revisions:
 - Change - Rotated Callout not displayed when last step contains NOSTEP #376
 - Change - Set default text edit text size to 24 point #357
 - Change - Setting perspective view with LDView renderer #378
+- Change - Update scene items bring to front send to back #379
 - Fix - 3DViewer not displayed when renderer set to other than Native #345
 - Fix - Export to pdf using page range generates single page #341
 - Fix - LPub3D crash when using LDView "multiple file single call" #363
