@@ -31,6 +31,7 @@
 
 #include <QString>
 #include <QStringList>
+#include <options.h>
 
 class QString;
 class QStringList;
@@ -48,7 +49,6 @@ class Render
 {
 public:
   Render() {}
-  enum Mt { PLI, CSI ,SMP};
   virtual ~Render() {}
   static QString const   getRenderer();
   static bool            useLDViewSCall();
@@ -58,7 +58,7 @@ public:
   static bool            clipImage(QString const &);
   static QString const   getRotstepMeta(RotStepMeta &, bool isKey = false);
   static QString const   getPovrayRenderQuality(int quality = -1);
-  static int             executeLDViewProcess(QStringList &, Mt);
+  static int             executeLDViewProcess(QStringList &, Options::Mt);
   static QString const   fixupDirname(const QString &);
   static QString const   getPovrayRenderFileName(const QString &);
   static QStringList const getSubAttributes(const QString &);
@@ -166,63 +166,7 @@ public:
   virtual float cameraDistance(Meta &meta, float);
 };
 
-class ViewerOptions
-{
-public:
-  ViewerOptions()
-  {
-    ImageType      = Render::CSI;
-    UsingViewpoint = false;
-    ImageWidth     = 800 ;
-    ImageHeight    = 600;
-  }
-  QString ViewerCsiKey;
-  Render::Mt ImageType;
-  QString ImageFileName;
-  int ImageWidth;
-  int ImageHeight;
-  float CameraDistance;
-  float FoV;
-  float ZNear;
-  float ZFar;
-  float Latitude;
-  float Longitude;
-  bool UsingViewpoint;
-};
 
-class NativeOptions
-{
-public:
-  NativeOptions()
-  {
-    ImageType         = Render::CSI;
-    TransBackground   = true;
-    HighlightNewParts = false;
-    UsingViewpoint    = false;
-    LineWidth         = 1.0;
-    ExportMode        = -1; //NONE
-    IniFlag           = -1; //NONE
-  }
-  QStringList ExportArgs;
-  QString InputFileName;
-  QString OutputFileName;
-  QString ExportFileName;
-  Render::Mt ImageType;
-  int ExportMode;
-  int IniFlag;
-  float ImageWidth;
-  float ImageHeight;
-  float FoV;
-  float ZNear;
-  float ZFar;
-  float Latitude;
-  float Longitude;
-  float CameraDistance;
-  float LineWidth;
-  bool HighlightNewParts;
-  bool TransBackground;
-  bool UsingViewpoint;
-};
 
 inline void removeEmptyStrings(QStringList &l)
 {
