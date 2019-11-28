@@ -31,6 +31,8 @@ struct lcMeshSection
 	int NumIndices;
 	lcMeshPrimitiveType PrimitiveType;
 	lcTexture* Texture;
+	lcBoundingBox BoundingBox;
+	float Radius;
 };
 
 struct lcMeshLod
@@ -108,25 +110,6 @@ public:
 	int mNumVertices;
 	int mNumTexturedVertices;
 	int mIndexType;
-};
-
-enum class lcRenderMeshState : int
-{
-	NORMAL,
-	SELECTED,
-	FOCUSED,
-	DISABLED,
-	HIGHLIGHT
-};
-
-struct lcRenderMesh
-{
-	lcMatrix44 WorldMatrix;
-	lcMesh* Mesh;
-	float Distance;
-	int ColorIndex;
-	int LodIndex;
-	lcRenderMeshState State;
 };
 
 extern lcMesh* gPlaceholderMesh;

@@ -144,12 +144,13 @@ void lcPartSelectionListModel::SetCategory(int CategoryIndex)
 		}
 	}
 
-	auto lcPartSortFunc=[](PieceInfo* const& a, PieceInfo* const& b)
+	auto lcPartSortFunc=[](const PieceInfo* a, const PieceInfo* b)
 	{
-		return strcmp(a->m_strDescription, b->m_strDescription);
+		return strcmp(a->m_strDescription, b->m_strDescription) < 0;
 	};
 
-	SingleParts.Sort(lcPartSortFunc);
+	std::sort(SingleParts.begin(), SingleParts.end(), lcPartSortFunc);
+
 	mParts.resize(SingleParts.GetSize());
 
 	for (int PartIdx = 0; PartIdx < SingleParts.GetSize(); PartIdx++)
@@ -650,6 +651,7 @@ lcPartSelectionWidget::lcPartSelectionWidget(QWidget* Parent)
 {
 	mSplitter = new QSplitter(this);
 	mSplitter->setOrientation(Qt::Vertical);
+	mSplitter->setChildrenCollapsible(false);
 
 	mCategoriesWidget = new QTreeWidget(mSplitter);
 	mCategoriesWidget->setHeaderHidden(true);
@@ -820,7 +822,7 @@ void lcPartSelectionWidget::SetDefaultPart()
 	{
 		QTreeWidgetItem* CategoryItem = mCategoriesWidget->topLevelItem(CategoryIdx);
 /*** LPub3D Mod - Set part lookup default ***/
-		if (CategoryItem->text(0) == "Parts In Use") // was Brick
+		if (CategoryItem->text(0) == "Parts In Use") // previous: "Brick"
 /*** LPub3D Mod end ***/
 		{
 			mCategoriesWidget->setCurrentItem(CategoryItem);
