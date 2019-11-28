@@ -180,3 +180,29 @@ void Gui::scanPast(Where &topOfStep, const QRegExp &lineRx)
     }
   }
 }
+
+bool Gui::stepContains(Where &here, QRegExp &lineRx, QString &result, int capGrp) {
+    bool found = false;
+    if ((found = stepContains(here,lineRx))){
+        if (capGrp)
+            result = lineRx.cap(capGrp);
+        else
+            result = "true";
+    }
+    return found;
+}
+
+bool Gui::stepContains(Where &topOfStep, QRegExp &lineRx)
+{
+  bool found = false;
+  Where walk    = topOfStep;
+  int  numLines = gui->subFileSize(walk.modelName);
+  for (; walk < numLines; ++walk) {
+    QString line = gui->readLine(walk);
+    if ((found = line.contains(lineRx)))
+      topOfStep = walk;
+    if (found || line.contains("0 STEP") || line.contains("0 ROTSTEP"))
+      break;
+  }
+  return found;
+}

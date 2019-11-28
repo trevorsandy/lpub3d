@@ -708,6 +708,8 @@ public:
   void deleteLine (const Where &here, QUndoCommand *parent = nullptr);
   void normalizeHeader(const Where &here);
   void scanPast(Where &here, const QRegExp &lineRx);
+  bool stepContains(Where &here, QRegExp &lineRx, QString &result, int capGrp = 0);
+  bool stepContains(Where &here, QRegExp &lineRx);
 
   QString topLevelFile();
 
