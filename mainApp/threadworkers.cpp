@@ -527,7 +527,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
       QString subFileString = ldrawFile._subFileOrder[i].toLower();
       contents = ldrawFile.contents(subFileString);
       //emit progressSetValueSig(i);
-      emit gui->messageSig(LOG_INFO,QString("00 PROCESSING SUBFILE CUSTOM COLOR PARTS: %1").arg(subFileString));
+      emit gui->messageSig(LOG_INFO,QString("00 PROCESSING SUBFILE CUSTOM COLOR PARTS FOR SUBMODEL: %1").arg(subFileString));
       for (int i = 0; i < contents.size() && endThreadNotRequested(); i++) {
           QString line = contents[i];
           QStringList tokens;
@@ -590,7 +590,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
                       }
                   }
                   // add part entry to list
-                  if (!entryExists) {
+                  if (!entryExists || overwriteCustomParts) {
                       colourPartList << fileString;
                       logNotice() << "01 SUBMIT COLOUR PART INFO:" << fileString.replace(":::", " ") << " Line: " << i ;
                   } else {
@@ -728,8 +728,8 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
     //emit progressResetSig();
     //emit progressMessageSig("Process Color Parts...");
     //emit progressRangeSig(1, colourPartList.size());
+    //int partCount = 0;
 
-    int partCount = 0;
     int partsProcessed = 0;
     QStringList childrenColourParts;
 
@@ -891,7 +891,7 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
 }
 
 
-bool PartWorker::createCustomPartFiles(const PartType partType){
+bool PartWorker::createCustomPartFiles(const PartType partType, bool  overwriteCustomParts){
 
      QString nameMod, colourPrefix;
      if (partType == FADE_PART){
@@ -902,8 +902,8 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
        colourPrefix = LPUB3D_COLOUR_HIGHLIGHT_PREFIX;
      }
 
-    int maxValue            = _partList.size();
     //DISABLE PROGRESS BAR - CAUSING MESSAGEBAR OVERLOAD
+    //int maxValue            = _partList.size();
     //emit progressResetSig();
     //emit progressMessageSig("Creating Custom Color Parts");
     //emit progressRangeSig(1, maxValue);
@@ -941,7 +941,7 @@ bool PartWorker::createCustomPartFiles(const PartType partType){
             }
             QString customFile = cp.value()._fileNameStr;
             QFileInfo customStepColourPartFileInfo(customPartDirPath,customFile.replace(".dat", "-" + nameMod + ".dat"));
-            if (customStepColourPartFileInfo.exists()){
+            if (customStepColourPartFileInfo.exists() && !overwriteCustomParts){
                 logNotice() << "PART ALREADY EXISTS: " << customStepColourPartFileInfo.absoluteFilePath();
                 continue;
             } else {

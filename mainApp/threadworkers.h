@@ -187,7 +187,8 @@ private:
         const QStringList    &customPartContent);
 
    bool createCustomPartFiles(
-        const PartType       partType); // convert static color files // replace color code with fade color or highlight edge color
+        const PartType       partType,
+        bool                 overwriteCustomParts = false); // convert static color files // replace color code with fade color or highlight edge color
 
    bool processColourParts(
        const QStringList      &colourPartList,
