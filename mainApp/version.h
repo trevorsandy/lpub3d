@@ -155,14 +155,14 @@
 
 // ~~~~~~ Build Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
-#define VER_SOURCEFORGE_STR                 "http://lpub3d.sourceforge.net/"
+#define VER_SOURCEFORGE_STR                 "https://lpub3d.sourceforge.io/"
 #define VER_OFFICIAL_LIBRARY_JSON_URL       VER_SOURCEFORGE_STR "complete.json"
 #define VER_UNOFFICIAL_LIBRARY_JSON_URL     VER_SOURCEFORGE_STR "lpub3dldrawunf.json"
 #define VER_CHANGE_LOG_URL                  VER_SOURCEFORGE_STR "change_log.txt"
 #ifdef QT_DEBUG_MODE
-  #define VER_UPDATE_CHECK_JSON_URL         "http://lpub3d.sourceforge.net/lpub3dupdates-test.json"
+  #define VER_UPDATE_CHECK_JSON_URL         "https://lpub3d.sourceforge.io/lpub3dupdates-test.json"
 #else
-  #define VER_UPDATE_CHECK_JSON_URL         "http://lpub3d.sourceforge.net/lpub3dupdates.json"
+  #define VER_UPDATE_CHECK_JSON_URL         "https://lpub3d.sourceforge.io/lpub3dupdates.json"
 #endif
 
 #define VER_COMPANYDOMAIN_STR               "https://trevorsandy.github.io/lpub3d/"

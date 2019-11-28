@@ -234,7 +234,7 @@ SET LP3D_AVAILABLE_VERSIONS_api=unknown
 
 SET LP3D_GITHUB_BASE=https://github.com/trevorsandy/%LPUB3D_DIR%
 SET LP3D_SOURCEFORGE_OPEN_BASE=https://sourceforge.net
-SET LP3D_SOURCEFORGE_UPDATE_BASE=http://lpub3d.sourceforge.net
+SET LP3D_SOURCEFORGE_UPDATE_BASE=https://lpub3d.sourceforge.io
 
 ECHO.
 ECHO - Setting up release build parameters...

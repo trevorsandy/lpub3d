@@ -1,4 +1,4 @@
-LPub3D 2.3.13.1.1596 (28 11 2019 18:58:48)
+LPub3D 2.3.13.1.1597 (28 11 2019 19:00:14)
 
 Features, enhancements, fixes and changes
 ------------
@@ -35,6 +35,7 @@ Revisions:
 - Change - Set default text edit text size to 24 point #357
 - Change - Setting perspective view with LDView renderer #378
 - Change - Update scene items bring to front send to back #379
+- Change - Upgrade Sourceforge site from http sf.net to https sf.io
 - Fix - 3DViewer not displayed when renderer set to other than Native #345
 - Fix - Export to pdf using page range generates single page #341
 - Fix - LPub3D crash when using LDView "multiple file single call" #363

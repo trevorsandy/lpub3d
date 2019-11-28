@@ -62,7 +62,7 @@ Var /global LPub3DViewerLibPath
 !define LICENSE_FILE "COPYING.txt" ; license file, optional
 !define README_FILE "README.txt" ; readme file, optional
 !define RELEASE_NOTES_FILE "RELEASE_NOTES.html" ; local release notes file, optional
-!define RELEASE_NOTES_URL "http://lpub3d.sourceforge.net/${ReleaseNotes}" ; hosted release notes file, optional
+!define RELEASE_NOTES_URL "https://lpub3d.sourceforge.io/${ReleaseNotes}" ; hosted release notes file, optional
 !define PUBLISHER_NAME "${Publisher}"
 !define COMPANY_URL "${CompanyURL}"
 !define SUPPORT "${SupportURL}"
