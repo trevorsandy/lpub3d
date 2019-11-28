@@ -94,4 +94,102 @@ public:
   bool UsingViewpoint;
 };
 
+class Meta;
+class Where;
+class PgSizeData;
+class PliPartGroupMeta;
+
+class FindPageOptions
+{
+
+public:
+    FindPageOptions(
+            int             &_pageNum,
+            Where           &_current,
+            PgSizeData      &_pageSize,
+
+            bool             _isMirrored,
+            bool             _printing,
+            int              _contStepNumber,
+            int              _renderStepNumber  = 0,
+            QString          _renderParentModel = "")
+        :
+          pageNum           (_pageNum),
+          current           (_current),
+          pageSize          (_pageSize),
+
+          isMirrored        (_isMirrored),
+          printing          (_printing),
+          contStepNumber    (_contStepNumber),
+          renderStepNumber  (_renderStepNumber),
+          renderParentModel (_renderParentModel)
+    {  }
+    int           &pageNum;
+    Where         &current;
+    PgSizeData    &pageSize;
+
+    bool           isMirrored;
+    bool           printing;
+    int            contStepNumber;
+    int            renderStepNumber;
+    QString        renderParentModel;
+};
+
+class DrawPageOptions
+{
+
+public:
+    DrawPageOptions(
+            Where                       &_current,
+            QStringList                 &_csiParts,
+            QStringList                 &_pliParts,
+            QStringList                 &_bfxParts,
+            QStringList                 &_ldrStepFiles,
+            QStringList                 &_csiKeys,
+            QHash<QString, QStringList> &_bfx,
+            QList<PliPartGroupMeta>     &_pliPartGroups,
+
+            int                          _stepNum,
+            int                          _groupStepNumber,
+            bool                         _isMirrored,
+            bool                         _printing,
+            bool                         _bfxStore2,
+            bool                         _assembledCallout = false,
+            bool                         _calledOut        = false)
+        :
+          current                       (_current),
+          csiParts                      (_csiParts),
+          pliParts                      (_pliParts),
+          bfxParts                      (_bfxParts),
+          ldrStepFiles                  (_ldrStepFiles),
+          csiKeys                       (_csiKeys),
+          bfx                           (_bfx),
+          pliPartGroups                 (_pliPartGroups),
+
+          stepNum                       (_stepNum),
+          groupStepNumber               (_groupStepNumber),
+          isMirrored                    (_isMirrored),
+          printing                      (_printing),
+          bfxStore2                     (_bfxStore2),
+          assembledCallout              (_assembledCallout),
+          calledOut                     (_calledOut)
+    {  }
+    Where                       &current;
+    QStringList                 &csiParts;
+    QStringList                 &pliParts;
+    QStringList                 &bfxParts;
+    QStringList                 &ldrStepFiles;
+    QStringList                 &csiKeys;
+    QHash<QString, QStringList> &bfx;
+    QList<PliPartGroupMeta>     &pliPartGroups;
+
+    int                          stepNum;
+    int                          groupStepNumber;
+    bool                         isMirrored;
+    bool                         printing;
+    bool                         bfxStore2;
+    bool                         assembledCallout;
+    bool                         calledOut;
+};
+
 #endif // OPTIONS_H
