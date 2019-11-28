@@ -771,7 +771,8 @@ void Application::mainApp()
 
     availableVersions = new AvailableVersions(this);
 
-    gui->ldrawColorPartsLoad();
+    if ((Preferences::enableFadeSteps || Preferences::enableHighlightStep))
+        gui->ldrawColorPartsLoad();
 
     if (modeGUI()) {
         splash->finish(gui);

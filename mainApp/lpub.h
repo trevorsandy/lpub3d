@@ -1412,6 +1412,10 @@ private slots:
     void setupToolBarVisibilityChanged(bool);
     void editToolBarVisibilityChanged(bool);
     void editParamsToolBarVisibilityChanged(bool);
+    void setFadeStepsFromCommandMeta();
+    void setHighlightStepFromCommandMeta();
+
+
     /******************************************************************
      * File management functions
      *****************************************************************/

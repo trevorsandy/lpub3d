@@ -121,6 +121,8 @@ public:
 
     void updateLDSearchDirs(bool archive = false);
 
+    void addCustomDirs();
+
     QString getLSynthDir();
 
     QStringList                _partList;
