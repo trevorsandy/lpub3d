@@ -29,6 +29,7 @@
 #include <QDateTime>
 
 bool isMpd();
-bool isOlder(const QStringList &parsedStack, const QDateTime &);
+bool isOlder(const QString &, const QDateTime &);
+bool isOlder(const QStringList &, const QDateTime &);
 
 #endif
