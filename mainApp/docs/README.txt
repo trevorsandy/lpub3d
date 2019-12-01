@@ -1,4 +1,4 @@
-LPub3D 2.3.13.1.1602 (28 11 2019 19:07:21)
+LPub3D 2.3.13.1.1603 (01 12 2019 07:45:39)
 
 Features, enhancements, fixes and changes
 ------------
@@ -18,6 +18,7 @@ Revisions:
 - Enhancement - Edit plain and rich text with new text edit dialogue #357
 - Enhancement - Enable texture mapping with Native renderer #374
 - Enhancement - Justify step contents for defined step width/height #358
+- Enhancement - Multi step PLI per step with step number and submodel preview #382
 - Enhancement - Override LPub3D-set renderer flags #332
 - Enhancement - Second pass to adjust Step column/row on Callout/Rotate Icon move #352
 - Enhancement - Show and hide substitute parts extended attributes #280

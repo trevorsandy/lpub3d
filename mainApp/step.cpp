@@ -953,15 +953,7 @@ int Step::sizeit(
 
   PlacementData subModelPlacement = subModel.placement.value();
 
-  // if SubModel relative to PLI, but no PLI,
-  //    SubModel is relative to Step Number
-
-  if (subModelPlacement.relativeTo == PartsListType && ! pliPerStep) {
-      subModelPlacement.relativeTo = StepNumberType;
-    }
-
-  // if SubModel relative to Step Number, but no Step Number,
-  //    SubModel is relative to CSI
+  // if SubModel relative to Step Number, but no Step Number, SubModel is relative to CSI
 
   if (subModelPlacement.relativeTo == StepNumberType && onlyChild()) {
       subModelPlacement.relativeTo = CsiType;
@@ -984,7 +976,6 @@ int Step::sizeit(
   PlacementData rotateIconPlacement = rotateIcon.placement.value();
 
   if (placeRotateIcon){
-
       if (rotateIconPlacement.relativeTo == CsiType){
           if (rotateIconPlacement.preposition == Outside) {
               rotateIcon.tbl[XX] = rotateIconPlace[rotateIconPlacement.placement][XX];
@@ -1050,7 +1041,7 @@ int Step::sizeit(
     }
 
   if (subModelPlacement.relativeTo == PartsListType) {
-      if (placeSubModel) {
+      if (pliPerStep && placeSubModel) {
           subModel.tbl[XX] = pli.tbl[XX]+relativePlace[subModelPlacement.placement][XX];
           subModel.tbl[YY] = pli.tbl[YY]+relativePlace[subModelPlacement.placement][YY];
         } else {
@@ -1060,7 +1051,7 @@ int Step::sizeit(
     }
 
   if (subModelPlacement.relativeTo == RotateIconType) {
-      if (placeSubModel) {
+      if (pliPerStep && placeSubModel) {
           subModel.tbl[XX] = rotateIcon.tbl[XX]+relativePlace[subModelPlacement.placement][XX];
           subModel.tbl[YY] = rotateIcon.tbl[YY]+relativePlace[subModelPlacement.placement][YY];
         } else {
@@ -1070,7 +1061,7 @@ int Step::sizeit(
     }
 
   if (subModelPlacement.relativeTo == StepNumberType) {
-      if (placeSubModel) {
+      if (pliPerStep && placeSubModel) {
           subModel.tbl[XX] = stepNumber.tbl[XX]+relativePlace[subModelPlacement.placement][XX];
           subModel.tbl[YY] = stepNumber.tbl[YY]+relativePlace[subModelPlacement.placement][YY];
         } else {
@@ -1201,7 +1192,7 @@ int Step::sizeit(
 
       if ( ! pliPerStep ) {
           sharable = false;
-        }
+        } 
 
       square[callout->tbl[XX]][callout->tbl[YY]] = i + 1;
       int size = callout->submodelStack().size();
@@ -1217,7 +1208,7 @@ int Step::sizeit(
         }
     }
 
-  /* now place the SubModel relative to the known items (CSI, PLI, SN, RI) */
+  /*now place the SubModel relative to the known items (CSI, PLI, SN, RI) */
 
   int subModelSize[2] = { 0, 0 };
   bool smShared = false;
@@ -1264,6 +1255,10 @@ int Step::sizeit(
          smSharable = false;
          break;
      }
+
+     if ( ! pliPerStep ) {
+         smSharable = false;
+       }
 
      square[_subModel->tbl[XX]][_subModel->tbl[YY]] = 1;
      /*int size = _subModel->submodelStack().size(); */
@@ -1495,6 +1490,7 @@ int Step::sizeit(
   /* Determine col/row and margin for subModel that is relative     */
   /* to step components (e.g. not page or multiStep)                */
   /******************************************************************/
+
 
   if (placeSubModel) {
     SubModel *_subModel = &subModel;
@@ -2034,12 +2030,10 @@ void Step::addGraphicsItems(
     }
 
   // SM
-  if (placeSubModel){
-    if (subModel.tsize()) {
-        subModel.addSubModel(submodelLevel, parent);
-        subModel.setPos(offsetX + subModel.loc[XX],
-                        offsetY + subModel.loc[YY]);
-      }
+  if (subModel.tsize()) {
+      subModel.addSubModel(submodelLevel, parent);
+      subModel.setPos(offsetX + subModel.loc[XX],
+                      offsetY + subModel.loc[YY]);
   }
 
   // Step Number

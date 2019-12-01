@@ -80,6 +80,28 @@ void PlacementNum::sizeit(QString format)
   }
 }
 
+int PlacementNum::addStepNumber(
+    Page          *page,
+    QGraphicsItem *parent)
+{
+    stepNumber =
+        new GroupStepNumberItem(
+          page,
+          page->groupStepMeta.LPub.multiStep.stepNum,
+          "%d",
+          page->groupStepNumber.number,
+          parent);
+
+    if (!stepNumber)
+        return -1;
+
+    stepNumber->relativeType = StepNumberType;
+    stepNumber->size[XX]     = int(stepNumber->document()->size().width());
+    stepNumber->size[YY]     = int(stepNumber->document()->size().height());
+
+    return 0;
+}
+
 /* add a placement element (ranges, range, setep, callout, pli ...) to the list */
 
 void Placement::appendRelativeTo(Placement *element)
