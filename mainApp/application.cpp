@@ -104,6 +104,75 @@
     std::wcin.clear();
     std::cin.clear();
   }
+
+  #pragma warning(push)
+  #pragma warning(disable : 4091)
+  #include <DbgHelp.h>
+  #include <direct.h>
+  #include <ShlObj.h>
+  #pragma warning(pop)
+
+  #ifdef UNICODE
+  #ifndef _UNICODE
+  #define _UNICODE
+  #endif
+  #endif
+
+  #include <tchar.h>
+
+  static TCHAR gMinidumpPath[_MAX_PATH];
+
+  LONG WINAPI Application::lcSehHandler(PEXCEPTION_POINTERS exceptionPointers)
+  {
+      if (IsDebuggerPresent())
+          return EXCEPTION_CONTINUE_SEARCH;
+
+      HMODULE dbgHelp = LoadLibrary(TEXT("dbghelp.dll"));
+
+      if (dbgHelp == nullptr)
+          return EXCEPTION_EXECUTE_HANDLER;
+
+      HANDLE file = CreateFile(gMinidumpPath, GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+
+      if (file == INVALID_HANDLE_VALUE)
+          return EXCEPTION_EXECUTE_HANDLER;
+
+      typedef BOOL (WINAPI *LPMINIDUMPWRITEDUMP)(HANDLE hProcess, DWORD ProcessId, HANDLE hFile, MINIDUMP_TYPE DumpType, CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, CONST PMINIDUMP_USER_STREAM_INFORMATION UserEncoderParam, CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
+      LPMINIDUMPWRITEDUMP miniDumpWriteDump = (LPMINIDUMPWRITEDUMP)GetProcAddress(dbgHelp, "MiniDumpWriteDump");
+      if (!miniDumpWriteDump)
+          return EXCEPTION_EXECUTE_HANDLER;
+
+      MINIDUMP_EXCEPTION_INFORMATION mei;
+
+      mei.ThreadId = GetCurrentThreadId();
+      mei.ExceptionPointers = exceptionPointers;
+      mei.ClientPointers = TRUE;
+
+      BOOL writeDump = miniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), file, MiniDumpNormal, exceptionPointers ? &mei : nullptr, nullptr, nullptr);
+
+      CloseHandle(file);
+      FreeLibrary(dbgHelp);
+
+      if (writeDump)
+      {
+          TCHAR message[_MAX_PATH + 256];
+          lstrcpy(message, TEXT(VER_PRODUCTNAME_STR " crashed. Crash information was saved to the file '"));
+          lstrcat(message, gMinidumpPath);
+          lstrcat(message, TEXT("', please send it to the developer for debugging."));
+
+          MessageBox(nullptr, message, TEXT(VER_PRODUCTNAME_STR), MB_OK);
+      }
+
+      return EXCEPTION_EXECUTE_HANDLER;
+  }
+
+  void Application::lcSehInit()
+  {
+      if (GetTempPath(sizeof(gMinidumpPath) / sizeof(gMinidumpPath[0]), gMinidumpPath))
+          lstrcat(gMinidumpPath, TEXT(VER_PRODUCTNAME_STR ".dmp"));
+
+      SetUnhandledExceptionFilter(lcSehHandler);
+  }
 #endif
 
 // Initializes the Application instance as null
@@ -690,27 +759,39 @@ void Application::initialize()
     defaultResolutionType(Preferences::preferCentimeters);
 
     // Translator - not implemented
+    QString Language = lcGetProfileString(LC_PROFILE_LANGUAGE);
+    QLocale Locale;
+
+    if (!Language.isEmpty())
+        Locale = QLocale(Language);
+
     QTranslator QtTranslator;
-    if (QtTranslator.load(QLocale::system(), "qt", "_", QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
-    {
-         m_application.installTranslator(&QtTranslator);
-    }
+    if (QtTranslator.load(Locale, "qt", "_", QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
+        m_application.installTranslator(&QtTranslator);
+#ifdef Q_OS_WIN
+    else if (QtTranslator.load(Locale, "qt", "_", qApp->applicationDirPath() + "/translations"))
+        m_application.installTranslator(&QtTranslator);
+#endif
 
     QTranslator QtBaseTranslator;
-    if (QtBaseTranslator.load("qtbase_" + QLocale::system().name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
-    {
+    if (QtBaseTranslator.load("qtbase_" + Locale.name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
         m_application.installTranslator(&QtBaseTranslator);
-    }
+#ifdef Q_OS_WIN
+    else if (QtBaseTranslator.load("qtbase_" + Locale.name(), qApp->applicationDirPath() + "/translations"))
+        m_application.installTranslator(&QtBaseTranslator);
+#endif
 
     QTranslator Translator;
-    if (Translator.load(QString("lpub_") + QLocale::system().name().section('_', 0, 0) + ".qm", ":../lclib/resources"))
-    {
+    if (Translator.load("lpub_" + Locale.name(), ":../lclib/resources"))
         m_application.installTranslator(&Translator);
-    }
 
     qRegisterMetaTypeStreamOperators<QList<int> >("QList<int>");
 
     QList<QPair<QString, bool>> LibraryPaths;
+
+#ifdef Q_OS_WIN
+    lcSehInit();
+#endif
 
     setlocale(LC_NUMERIC, "C");
 

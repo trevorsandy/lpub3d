@@ -10,6 +10,11 @@
 #include "lc_glextensions.h"
 #include "pieceinf.h"
 
+static const char* gLanguageLocales[] =
+{
+	"", "de_DE", "en_US", "fr_FR", "pt_PT"
+};
+
 lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogOptions* Options)
 	: QDialog(Parent), mOptions(Options), ui(new Ui::lcQPreferencesDialog)
 {
@@ -45,6 +50,14 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	ui->lgeoPath->setText(mOptions->LGEOPath);
 	ui->authorName->setText(mOptions->DefaultAuthor);
 	ui->mouseSensitivity->setValue(mOptions->Preferences.mMouseSensitivity);
+	for (unsigned int LanguageIdx = 0; LanguageIdx < sizeof(gLanguageLocales) / sizeof(gLanguageLocales[0]); LanguageIdx++)
+	{
+		if (mOptions->Language == gLanguageLocales[LanguageIdx])
+		{
+			ui->Language->setCurrentIndex(LanguageIdx);
+			break;
+		}
+	}
 	ui->checkForUpdates->setCurrentIndex(mOptions->CheckForUpdates);
 	ui->fixedDirectionKeys->setChecked(mOptions->Preferences.mFixedAxes);
 	ui->autoLoadMostRecent->setChecked(mOptions->Preferences.mAutoLoadMostRecent);
@@ -58,6 +71,7 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 		ui->antiAliasingSamples->setCurrentIndex(0);
 	ui->edgeLines->setChecked(mOptions->Preferences.mDrawEdgeLines);
 	ui->lineWidth->setText(lcFormatValueLocalized(mOptions->Preferences.mLineWidth));
+	ui->MeshLOD->setChecked(mOptions->Preferences.mAllowLOD);
 	ui->gridStuds->setChecked(mOptions->Preferences.mDrawGridStuds);
 	ui->gridLines->setChecked(mOptions->Preferences.mDrawGridLines);
 	ui->gridLineSpacing->setText(QString::number(mOptions->Preferences.mGridLineSpacing));
@@ -155,16 +169,18 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	ui->partsLibraryBrowse->hide();
 	ui->partsArchiveBrowse->hide();
 	ui->ColorConfigEdit->setDisabled(true);
-    ui->ColorConfigBrowseButton->hide();
+	ui->ColorConfigBrowseButton->hide();
 	ui->povrayExecutable->setDisabled(true);
 	ui->povrayExecutableBrowse->hide();
 	ui->lgeoPath->setDisabled(true);
 	ui->MinifigSettingsEdit->hide();
-    ui->MinifigSettingsBrowseButton->hide();
+	ui->MinifigSettingsBrowseButton->hide();
 	ui->MinifigSettingsLabel->hide();
 	ui->autoLoadMostRecent->hide();
 	ui->lgeoPathBrowse->hide();
+	ui->Language->hide();
 	ui->checkForUpdates->hide();
+	ui->label_6->hide();					//label Language
 	ui->label_10->hide();					//label check for updates
 	ui->fixedDirectionKeys->hide();
 	ui->tabWidget->removeTab(3);			//hide tabKeyboard
@@ -196,6 +212,13 @@ void lcQPreferencesDialog::accept()
 	mOptions->LGEOPath = ui->lgeoPath->text();
 	mOptions->DefaultAuthor = ui->authorName->text();
 	mOptions->Preferences.mMouseSensitivity = ui->mouseSensitivity->value();
+
+	int Language = ui->Language->currentIndex();
+	if (Language < 0 || Language > sizeof(gLanguageLocales) / sizeof(gLanguageLocales[0]))
+		Language = 0;
+
+	mOptions->Language = gLanguageLocales[Language];
+
 	mOptions->CheckForUpdates = ui->checkForUpdates->currentIndex();
 	mOptions->Preferences.mFixedAxes = ui->fixedDirectionKeys->isChecked();
 	mOptions->Preferences.mAutoLoadMostRecent = ui->autoLoadMostRecent->isChecked();
@@ -211,6 +234,7 @@ void lcQPreferencesDialog::accept()
 
 	mOptions->Preferences.mDrawEdgeLines = ui->edgeLines->isChecked();
 	mOptions->Preferences.mLineWidth = lcParseValueLocalized(ui->lineWidth->text());
+	mOptions->Preferences.mAllowLOD = ui->MeshLOD->isChecked();
 
 	mOptions->Preferences.mDrawGridStuds = ui->gridStuds->isChecked();
 	mOptions->Preferences.mDrawGridLines = ui->gridLines->isChecked();

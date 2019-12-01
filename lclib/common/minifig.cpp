@@ -104,12 +104,12 @@ void MinifigWizard::OnInitialUpdate()
 	for (int i = 0; i < LC_MFW_NUMITEMS; i++)
 	{
 		mMinifig.Colors[i] = lcGetColorIndex(ColorCodes[i]);
-		mMinifig.Angles[i] = 0.0f;
-		mMinifig.Matrices[i] = lcMatrix44Identity();
+        mMinifig.Angles[i] = 0.0f;
+        mMinifig.Matrices[i] = lcMatrix44Identity();
 
 		PieceInfo* Info = Library->FindPiece(Pieces[i], nullptr, false, false);
-		mMinifig.Parts[i] = Info;
-		if (Info)
+        mMinifig.Parts[i] = Info;
+        if (Info)
 			Library->LoadPieceInfo(Info, false, true);
 	}
 
@@ -391,6 +391,7 @@ void MinifigWizard::OnDraw()
 
 	lcScene Scene;
 	Scene.Begin(ViewMatrix);
+	Scene.SetAllowLOD(false);
 
 	for (int PieceIdx = 0; PieceIdx < LC_MFW_NUMITEMS; PieceIdx++)
 		if (mMinifig.Parts[PieceIdx])

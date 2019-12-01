@@ -64,6 +64,16 @@ public:
 		mAllowWireframe = AllowWireframe;
 	}
 
+	void SetAllowLOD(bool AllowLOD)
+	{
+		mAllowLOD = AllowLOD;
+	}
+
+	void SetPreTranslucentCallback(std::function<void()> Callback)
+	{
+		mPreTranslucentCallback = Callback;
+	}
+
 	lcMatrix44 ApplyActiveSubmodelTransform(const lcMatrix44& WorldMatrix) const
 	{
 		return !mActiveSubmodelInstance ? WorldMatrix : lcMul(WorldMatrix, mActiveSubmodelTransform);
@@ -93,7 +103,9 @@ protected:
 	lcPiece* mActiveSubmodelInstance;
 	bool mDrawInterface;
 	bool mAllowWireframe;
+	bool mAllowLOD;
 
+	std::function<void()> mPreTranslucentCallback;
 	lcArray<lcRenderMesh> mRenderMeshes;
 	lcArray<int> mOpaqueMeshes;
 	lcArray<lcTranslucentMeshInstance> mTranslucentMeshes;

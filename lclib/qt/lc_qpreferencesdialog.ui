@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>534</width>
-    <height>440</height>
+    <height>467</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tabRendering">
       <attribute name="title">
@@ -498,6 +498,13 @@
             </property>
            </widget>
           </item>
+          <item row="2" column="5">
+           <widget class="QCheckBox" name="MeshLOD">
+            <property name="text">
+             <string>Mesh LOD</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -542,221 +549,121 @@
          <property name="title">
           <string>Custom Paths</string>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_11">
-            <item>
-             <widget class="QLabel" name="label_5">
-              <property name="text">
-               <string>Parts Library:</string>
-              </property>
-              <property name="buddy">
-               <cstring>partsLibrary</cstring>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_8">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Fixed</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>42</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="partsLibrary"/>
-            </item>
-            <item>
-             <widget class="QToolButton" name="partsLibraryBrowse">
-              <property name="text">
-               <string>...</string>
-              </property>
-              <property name="icon">
-               <iconset>
-                <normaloff>:/resources/file_open.png</normaloff>:/resources/file_open.png</iconset>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QToolButton" name="partsArchiveBrowse">
-              <property name="text">
-               <string>...</string>
-              </property>
-              <property name="icon">
-               <iconset>
-                <normaloff>:/resources/archive.png</normaloff>:/resources/archive.png</iconset>
-              </property>
-             </widget>
-            </item>
-           </layout>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_5">
+            <property name="text">
+             <string>Parts Library:</string>
+            </property>
+            <property name="buddy">
+             <cstring>partsLibrary</cstring>
+            </property>
+           </widget>
           </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_22">
-            <item>
-             <widget class="QLabel" name="ColorConfigLabel">
-              <property name="text">
-               <string>Color Configuration:</string>
-              </property>
-              <property name="buddy">
-               <cstring>ColorConfigEdit</cstring>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_10">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Fixed</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>7</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="ColorConfigEdit"/>
-            </item>
-            <item>
-             <widget class="QToolButton" name="ColorConfigBrowseButton">
-              <property name="text">
-               <string>...</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="partsLibrary"/>
           </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_23">
-            <item>
-             <widget class="QLabel" name="MinifigSettingsLabel">
-              <property name="text">
-               <string>Minifig Settings:</string>
-              </property>
-              <property name="buddy">
-               <cstring>MinifigSettingsEdit</cstring>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_9">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Fixed</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>28</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="MinifigSettingsEdit"/>
-            </item>
-            <item>
-             <widget class="QToolButton" name="MinifigSettingsBrowseButton">
-              <property name="text">
-               <string>...</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
+          <item row="0" column="2">
+           <widget class="QToolButton" name="partsLibraryBrowse">
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../lclib.qrc">
+              <normaloff>:/resources/file_open.png</normaloff>:/resources/file_open.png</iconset>
+            </property>
+           </widget>
           </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_15">
-            <item>
-             <widget class="QLabel" name="povrayLabel">
-              <property name="text">
-               <string>PO&amp;V-Ray Executable:</string>
-              </property>
-              <property name="buddy">
-               <cstring>povrayExecutable</cstring>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_11">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Fixed</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>2</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="povrayExecutable"/>
-            </item>
-            <item>
-             <widget class="QToolButton" name="povrayExecutableBrowse">
-              <property name="text">
-               <string>...</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
+          <item row="0" column="3">
+           <widget class="QToolButton" name="partsArchiveBrowse">
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="icon">
+             <iconset>
+              <normaloff>:/resources/archive.png</normaloff>:/resources/archive.png</iconset>
+            </property>
+           </widget>
           </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_16">
-            <item>
-             <widget class="QLabel" name="label_9">
-              <property name="text">
-               <string>&amp;LGEO Library:</string>
-              </property>
-              <property name="buddy">
-               <cstring>lgeoPath</cstring>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_12">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Fixed</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>39</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="lgeoPath"/>
-            </item>
-            <item>
-             <widget class="QToolButton" name="lgeoPathBrowse">
-              <property name="text">
-               <string>...</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
+          <item row="1" column="0">
+           <widget class="QLabel" name="ColorConfigLabel">
+            <property name="text">
+             <string>Color Configuration:</string>
+            </property>
+            <property name="buddy">
+             <cstring>ColorConfigEdit</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="ColorConfigEdit"/>
+          </item>
+          <item row="1" column="2">
+           <widget class="QToolButton" name="ColorConfigBrowseButton">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="MinifigSettingsLabel">
+            <property name="text">
+             <string>Minifig Settings:</string>
+            </property>
+            <property name="buddy">
+             <cstring>MinifigSettingsEdit</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="MinifigSettingsEdit"/>
+          </item>
+          <item row="2" column="2">
+           <widget class="QToolButton" name="MinifigSettingsBrowseButton">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="povrayLabel">
+            <property name="text">
+             <string>PO&amp;V-Ray Executable:</string>
+            </property>
+            <property name="buddy">
+             <cstring>povrayExecutable</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="povrayExecutable"/>
+          </item>
+          <item row="3" column="2">
+           <widget class="QToolButton" name="povrayExecutableBrowse">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_9">
+            <property name="text">
+             <string>&amp;LGEO Library:</string>
+            </property>
+            <property name="buddy">
+             <cstring>lgeoPath</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QLineEdit" name="lgeoPath"/>
+          </item>
+          <item row="4" column="2">
+           <widget class="QToolButton" name="lgeoPathBrowse">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -824,8 +731,63 @@
         </layout>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_8">
-         <item>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_6">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Language:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="Language">
+           <item>
+            <property name="text">
+             <string>Default</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Deutsch</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>English</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Français</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Português</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <spacer name="horizontalSpacer_7">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="1" column="0">
           <widget class="QLabel" name="label_10">
            <property name="text">
             <string>Check for updates:</string>
@@ -835,7 +797,7 @@
            </property>
           </widget>
          </item>
-         <item>
+         <item row="1" column="1">
           <widget class="QComboBox" name="checkForUpdates">
            <item>
             <property name="text">
@@ -854,8 +816,8 @@
            </item>
           </widget>
          </item>
-         <item>
-          <spacer name="horizontalSpacer_7">
+         <item row="1" column="2">
+          <spacer name="horizontalSpacer_14">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
