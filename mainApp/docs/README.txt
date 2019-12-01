@@ -1,4 +1,4 @@
-LPub3D 2.3.13.1.1607 (01 12 2019 07:53:05)
+LPub3D 2.3.13.1.1608 (01 12 2019 07:57:33)
 
 Features, enhancements, fixes and changes
 ------------
@@ -41,6 +41,7 @@ Revisions:
 - Change - Upgrade Sourceforge site from http sf.net to https sf.io
 - Fix - 3DViewer not displayed when renderer set to other than Native #345
 - Fix - Export to pdf using page range generates single page #341
+- Fix - Keyword OUTIDE used where the intention is to use OUTSIDE #384
 - Fix - LPub3D crash when using LDView "multiple file single call" #363
 - Fix - Single step MODEL_SCALE meta command not working #343
 - Fix - Substitute part flag ignored when no attributes specified #377

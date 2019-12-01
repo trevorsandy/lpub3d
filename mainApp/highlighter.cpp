@@ -406,7 +406,6 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bNUMBER\\b"
     << "\\bOFFSET\\b"
     << "\\bORIENTATION\\b"
-    << "\\bOUTIDE\\b"
     << "\\bOUTSIDE\\b"
     << "\\bPAGE\\b"
     << "\\bPAGE_FOOTER\\b"
