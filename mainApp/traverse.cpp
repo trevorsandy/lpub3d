@@ -1546,21 +1546,13 @@ int Gui::drawPage(
                       timer.start();
                       QString empty("");
 
-                      // set camera
-                      steps->meta.LPub.assem.cameraAngles            = gStep->csiCameraMeta.cameraAngles;
-                      steps->meta.LPub.assem.cameraDistNative.factor = gStep->csiCameraMeta.cameraDistNative.factor;
-                      steps->meta.LPub.assem.modelScale              = gStep->csiCameraMeta.modelScale;
-                      steps->meta.LPub.assem.cameraFoV               = gStep->csiCameraMeta.cameraFoV;
-                      steps->meta.LPub.assem.zfar                    = gStep->csiCameraMeta.zfar;
-                      steps->meta.LPub.assem.znear                   = gStep->csiCameraMeta.znear;
                       // set the extra renderer parms
                       steps->meta.LPub.assem.ldviewParms =
-                           Render::getRenderer() == RENDERER_LDVIEW ?  gStep->ldviewParms :
-                           Render::getRenderer() == RENDERER_LDGLITE ? gStep->ldgliteParms :
-                                         /*POV scene file generator*/  gStep->ldviewParms ;
+                           Render::getRenderer() == RENDERER_LDVIEW ?  step->ldviewParms :
+                           Render::getRenderer() == RENDERER_LDGLITE ? step->ldgliteParms :
+                                         /*POV scene file generator*/  step->ldviewParms ;
                       if (Preferences::preferredRenderer == RENDERER_POVRAY)
-                          steps->meta.LPub.assem.povrayParms = gStep->povrayParms;
-
+                          steps->meta.LPub.assem.povrayParms = step->povrayParms;
                       int rc = renderer->renderCsi(empty,opts.ldrStepFiles,opts.csiKeys,empty,steps->meta);
                       if (rc != 0) {
                           emit messageSig(LOG_ERROR,QMessageBox::tr("Render CSI images failed."));
@@ -1943,20 +1935,13 @@ int Gui::drawPage(
                           timer.start();
                           QString empty("");
 
-                          // set camera
-                          steps->meta.LPub.assem.cameraAngles            = gStep->csiCameraMeta.cameraAngles;
-                          steps->meta.LPub.assem.cameraDistNative.factor = gStep->csiCameraMeta.cameraDistNative.factor;
-                          steps->meta.LPub.assem.modelScale              = gStep->csiCameraMeta.modelScale;
-                          steps->meta.LPub.assem.cameraFoV               = gStep->csiCameraMeta.cameraFoV;
-                          steps->meta.LPub.assem.zfar                    = gStep->csiCameraMeta.zfar;
-                          steps->meta.LPub.assem.znear                   = gStep->csiCameraMeta.znear;
                           // set the extra renderer parms
                           steps->meta.LPub.assem.ldviewParms =
-                               Render::getRenderer() == RENDERER_LDVIEW ?  gStep->ldviewParms :
-                               Render::getRenderer() == RENDERER_LDGLITE ? gStep->ldgliteParms :
-                                             /*POV scene file generator*/  gStep->ldviewParms ;
+                               Render::getRenderer() == RENDERER_LDVIEW ?  step->ldviewParms :
+                               Render::getRenderer() == RENDERER_LDGLITE ? step->ldgliteParms :
+                                             /*POV scene file generator*/  step->ldviewParms ;
                           if (Preferences::preferredRenderer == RENDERER_POVRAY)
-                              steps->meta.LPub.assem.povrayParms = gStep->povrayParms;
+                              steps->meta.LPub.assem.povrayParms = step->povrayParms;
 
                           // render the partially assembled model
                           int rc = renderer->renderCsi(empty,opts.ldrStepFiles,opts.csiKeys,empty,steps->meta);
