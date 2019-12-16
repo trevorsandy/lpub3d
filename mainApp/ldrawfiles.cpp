@@ -372,10 +372,11 @@ bool LDrawFile::older(const QString &fileName,
         return false;
       }
     }
+    return true;
 }
 
 bool LDrawFile::older(const QStringList &parsedStack,
-           const QDateTime &lastModified)
+                      const QDateTime &lastModified)
 {
   QString fileName;
   foreach (fileName, parsedStack) {
