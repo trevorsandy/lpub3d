@@ -1,5 +1,6 @@
 #include "lc_global.h"
 #include "lc_partselectionwidget.h"
+#include "lc_partpalettedialog.h"
 #include "lc_profile.h"
 #include "lc_application.h"
 #include "lc_mainwindow.h"
@@ -179,6 +180,35 @@ void lcPartSelectionListModel::SetModelsCategory()
 		if (!Model->IncludesModel(ActiveModel))
 			mParts.emplace_back(QPair<PieceInfo*, QPixmap>(Model->GetPieceInfo(), QPixmap()));
 	}
+
+	endResetModel();
+
+	SetFilter(mFilter);
+}
+
+void lcPartSelectionListModel::SetPaletteCategory(int SetIndex)
+{
+	ClearRequests();
+
+	beginResetModel();
+
+	mParts.clear();
+
+	lcPartSelectionWidget* PartSelectionWidget = mListView->GetPartSelectionWidget();
+	const std::vector<lcPartPalette>& Palettes = PartSelectionWidget->GetPartPalettes();
+	std::vector<PieceInfo*> PartsList = lcGetPiecesLibrary()->GetPartsFromSet(Palettes[SetIndex].Parts);
+
+	auto lcPartSortFunc = [](const PieceInfo* a, const PieceInfo* b)
+	{
+		return strcmp(a->m_strDescription, b->m_strDescription) < 0;
+	};
+
+	std::sort(PartsList.begin(), PartsList.end(), lcPartSortFunc);
+
+	mParts.reserve(PartsList.size());
+
+	for (PieceInfo* Favorite : PartsList)
+		mParts.emplace_back(QPair<PieceInfo*, QPixmap>(Favorite, QPixmap()));
 
 	endResetModel();
 
@@ -452,9 +482,13 @@ void lcPartSelectionListModel::SetShowPartNames(bool Show)
 	SetFilter(mFilter);
 }
 
-lcPartSelectionListView::lcPartSelectionListView(QWidget* Parent)
+lcPartSelectionListView::lcPartSelectionListView(QWidget* Parent, lcPartSelectionWidget* PartSelectionWidget)
 	: QListView(Parent)
 {
+	mPartSelectionWidget = PartSelectionWidget;
+	mCategoryType = lcPartCategoryType::AllParts;
+	mCategoryIndex = 0;
+
 	setUniformItemSizes(true);
 	setResizeMode(QListView::Adjust);
 	setWordWrap(false);
@@ -468,7 +502,9 @@ lcPartSelectionListView::lcPartSelectionListView(QWidget* Parent)
 	lcPartSelectionItemDelegate* ItemDelegate = new lcPartSelectionItemDelegate(this, mListModel);
 	setItemDelegate(ItemDelegate);
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 	connect(this, SIGNAL(customContextMenuRequested(QPoint)), SLOT(CustomContextMenuRequested(QPoint)));
+#endif
 
 	SetIconSize(lcGetProfileInt(LC_PROFILE_PARTS_LIST_ICONS));
 }
@@ -477,71 +513,56 @@ void lcPartSelectionListView::CustomContextMenuRequested(QPoint Pos)
 {
 	QMenu* Menu = new QMenu(this);
 
-	if (gSupportsFramebufferObjectARB || gSupportsFramebufferObjectEXT)
+	QModelIndex Index = indexAt(Pos);
+	mContextInfo = Index.isValid() ? mListModel->GetPieceInfo(Index.row()) : nullptr;
+
+	QMenu* SetMenu = Menu->addMenu(tr("Add to Palette"));
+
+	const std::vector<lcPartPalette>& Palettes = mPartSelectionWidget->GetPartPalettes();
+
+	if (!Palettes.empty())
 	{
-		QActionGroup* IconGroup = new QActionGroup(Menu);
-
-		QAction* NoIcons = Menu->addAction(tr("No Icons"), this, SLOT(SetNoIcons()));
-		NoIcons->setCheckable(true);
-		NoIcons->setChecked(mListModel->GetIconSize() == 0);
-		IconGroup->addAction(NoIcons);
-
-		QAction* SmallIcons = Menu->addAction(tr("Small Icons"), this, SLOT(SetSmallIcons()));
-		SmallIcons->setCheckable(true);
-		SmallIcons->setChecked(mListModel->GetIconSize() == 32);
-		IconGroup->addAction(SmallIcons);
-
-		QAction* MediumIcons = Menu->addAction(tr("Medium Icons"), this, SLOT(SetMediumIcons()));
-		MediumIcons->setCheckable(true);
-		MediumIcons->setChecked(mListModel->GetIconSize() == 64);
-		IconGroup->addAction(MediumIcons);
-
-		QAction* LargeIcons = Menu->addAction(tr("Large Icons"), this, SLOT(SetLargeIcons()));
-		LargeIcons->setCheckable(true);
-		LargeIcons->setChecked(mListModel->GetIconSize() == 96);
-		IconGroup->addAction(LargeIcons);
-
-		QAction* ExtraLargeIcons = Menu->addAction(tr("Extra Large Icons"), this, SLOT(SetExtraLargeIcons()));
-		ExtraLargeIcons->setCheckable(true);
-		ExtraLargeIcons->setChecked(mListModel->GetIconSize() == 192);
-		IconGroup->addAction(ExtraLargeIcons);
-
-		Menu->addSeparator();
+		for (const lcPartPalette& Palette : Palettes)
+			SetMenu->addAction(Palette.Name, mPartSelectionWidget, SLOT(AddToPalette()));
+	}
+	else
+	{
+		QAction* Action = SetMenu->addAction(tr("None"));
+		Action->setEnabled(false);
 	}
 
-	if (mListModel->GetIconSize() != 0 && !mListModel->IsListMode())
-	{
-		QAction* PartNames = Menu->addAction(tr("Show Part Names"), this, SLOT(TogglePartNames()));
-		PartNames->setCheckable(true);
-		PartNames->setChecked(mListModel->GetShowPartNames());
-	}
-
-	QAction* DecoratedParts = Menu->addAction(tr("Show Decorated Parts"), this, SLOT(ToggleDecoratedParts()));
-	DecoratedParts->setCheckable(true);
-	DecoratedParts->setChecked(mListModel->GetShowDecoratedParts());
-
-	QAction* PartAliases = Menu->addAction(tr("Show Part Aliases"), this, SLOT(TogglePartAliases()));
-	PartAliases->setCheckable(true);
-	PartAliases->setChecked(mListModel->GetShowPartAliases());
-
-	if (mListModel->GetIconSize() != 0)
-	{
-		QAction* ListMode = Menu->addAction(tr("List Mode"), this, SLOT(ToggleListMode()));
-		ListMode->setCheckable(true);
-		ListMode->setChecked(mListModel->IsListMode());
-
-/*** LPub3D Mod - Disable preview color lock ***/
-/***
-		QAction* FixedColor = Menu->addAction(tr("Lock Preview Color"), this, SLOT(ToggleFixedColor()));
-		FixedColor->setCheckable(true);
-		FixedColor->setChecked(mListModel->IsColorLocked());
-		FixedColor->setDisabled(true);
-***/
-/*** LPub3D Mod end ***/
-	}
+	QAction* RemoveAction = Menu->addAction(tr("Remove from Palette"), mPartSelectionWidget, SLOT(RemoveFromPalette()));
+	RemoveAction->setEnabled(mCategoryType == lcPartCategoryType::Palette);
 
 	Menu->exec(viewport()->mapToGlobal(Pos));
 	delete Menu;
+}
+
+void lcPartSelectionListView::SetCategory(lcPartCategoryType Type, int Index)
+{
+	mCategoryType = Type;
+	mCategoryIndex = Index;
+
+	switch (Type)
+	{
+	case lcPartCategoryType::AllParts:
+		mListModel->SetCategory(-1);
+		break;
+	case lcPartCategoryType::PartsInUse:
+		mListModel->SetCurrentModelCategory();
+		break;
+	case lcPartCategoryType::Submodels:
+		mListModel->SetModelsCategory();
+		break;
+	case lcPartCategoryType::Palette:
+		mListModel->SetPaletteCategory(Index);
+		break;
+	case lcPartCategoryType::Category:
+		mListModel->SetCategory(Index);
+		break;
+	}
+
+	setCurrentIndex(mListModel->index(0, 0));
 }
 
 void lcPartSelectionListView::SetNoIcons()
@@ -665,15 +686,29 @@ lcPartSelectionWidget::lcPartSelectionWidget(QWidget* Parent)
 	PartsLayout->setContentsMargins(0, 0, 0, 0);
 	PartsGroupWidget->setLayout(PartsLayout);
 
+	QHBoxLayout* SearchLayout = new QHBoxLayout();
+	SearchLayout->setContentsMargins(0, 0, 0, 0);
+	PartsLayout->addLayout(SearchLayout);
+
 	mFilterWidget = new QLineEdit(PartsGroupWidget);
 	mFilterWidget->setPlaceholderText(tr("Search Parts"));
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 2, 0))
 	mFilterAction = mFilterWidget->addAction(QIcon(":/resources/parts_search.png"), QLineEdit::TrailingPosition);
 	connect(mFilterAction, SIGNAL(triggered()), this, SLOT(FilterTriggered()));
 #endif
-	PartsLayout->addWidget(mFilterWidget);
+	SearchLayout->addWidget(mFilterWidget);
 
-	mPartsWidget = new lcPartSelectionListView(PartsGroupWidget);
+	QToolButton* OptionsButton = new QToolButton();
+	OptionsButton->setIcon(QIcon(":/resources/gear_in.png"));
+	OptionsButton->setToolTip(tr("Options"));
+	OptionsButton->setPopupMode(QToolButton::InstantPopup);
+	SearchLayout->addWidget(OptionsButton);
+
+	QMenu* OptionsMenu = new QMenu(this);
+	OptionsButton->setMenu(OptionsMenu);
+	connect(OptionsMenu, SIGNAL(aboutToShow()), this, SLOT(OptionsMenuAboutToShow()));
+
+	mPartsWidget = new lcPartSelectionListView(PartsGroupWidget, this);
 	PartsLayout->addWidget(mPartsWidget);
 
 	QHBoxLayout* Layout = new QHBoxLayout(this);
@@ -685,6 +720,7 @@ lcPartSelectionWidget::lcPartSelectionWidget(QWidget* Parent)
 	connect(mFilterWidget, SIGNAL(textChanged(const QString&)), this, SLOT(FilterChanged(const QString&)));
 	connect(mCategoriesWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(CategoryChanged(QTreeWidgetItem*, QTreeWidgetItem*)));
 
+	LoadPartPalettes();
 	UpdateCategories();
 
 	mSplitter->setStretchFactor(0, 0);
@@ -790,18 +826,14 @@ void lcPartSelectionWidget::FilterTriggered()
 void lcPartSelectionWidget::CategoryChanged(QTreeWidgetItem* Current, QTreeWidgetItem* Previous)
 {
 	Q_UNUSED(Previous);
-	lcPartSelectionListModel* ListModel = mPartsWidget->GetListModel();
 
-	if (Current == mModelsCategoryItem)
-		ListModel->SetModelsCategory();
-	else if (Current == mCurrentModelCategoryItem)
-		ListModel->SetCurrentModelCategory();
-	else if (Current == mAllPartsCategoryItem)
-		ListModel->SetCategory(-1);
-	else
-		ListModel->SetCategory(mCategoriesWidget->indexOfTopLevelItem(Current) - 2);
+	if (!Current)
+		return;
 
-	mPartsWidget->setCurrentIndex(ListModel->index(0, 0));
+	int Type = Current->data(0, static_cast<int>(lcPartCategoryRole::Type)).toInt();
+	int Index = Current->data(0, static_cast<int>(lcPartCategoryRole::Index)).toInt();
+
+	mPartsWidget->SetCategory(static_cast<lcPartCategoryType>(Type), Index);
 }
 
 void lcPartSelectionWidget::PartChanged(const QModelIndex& Current, const QModelIndex& Previous)
@@ -810,6 +842,90 @@ void lcPartSelectionWidget::PartChanged(const QModelIndex& Current, const QModel
 	Q_UNUSED(Previous);
 
 	gMainWindow->SetCurrentPieceInfo(mPartsWidget->GetCurrentPart());
+}
+
+void lcPartSelectionWidget::OptionsMenuAboutToShow()
+{
+	QMenu* Menu = (QMenu*)sender();
+	Menu->clear();
+
+	Menu->addAction("Edit Palettes...", this, SLOT(EditPartPalettes()));
+	Menu->addSeparator();
+
+	lcPartSelectionListModel* ListModel = mPartsWidget->GetListModel();
+
+	if (gSupportsFramebufferObjectARB || gSupportsFramebufferObjectEXT)
+	{
+		QActionGroup* IconGroup = new QActionGroup(Menu);
+
+		QAction* NoIcons = Menu->addAction(tr("No Icons"), mPartsWidget, SLOT(SetNoIcons()));
+		NoIcons->setCheckable(true);
+		NoIcons->setChecked(ListModel->GetIconSize() == 0);
+		IconGroup->addAction(NoIcons);
+
+		QAction* SmallIcons = Menu->addAction(tr("Small Icons"), mPartsWidget, SLOT(SetSmallIcons()));
+		SmallIcons->setCheckable(true);
+		SmallIcons->setChecked(ListModel->GetIconSize() == 32);
+		IconGroup->addAction(SmallIcons);
+
+		QAction* MediumIcons = Menu->addAction(tr("Medium Icons"), mPartsWidget, SLOT(SetMediumIcons()));
+		MediumIcons->setCheckable(true);
+		MediumIcons->setChecked(ListModel->GetIconSize() == 64);
+		IconGroup->addAction(MediumIcons);
+
+		QAction* LargeIcons = Menu->addAction(tr("Large Icons"), mPartsWidget, SLOT(SetLargeIcons()));
+		LargeIcons->setCheckable(true);
+		LargeIcons->setChecked(ListModel->GetIconSize() == 96);
+		IconGroup->addAction(LargeIcons);
+
+		QAction* ExtraLargeIcons = Menu->addAction(tr("Extra Large Icons"), mPartsWidget, SLOT(SetExtraLargeIcons()));
+		ExtraLargeIcons->setCheckable(true);
+		ExtraLargeIcons->setChecked(ListModel->GetIconSize() == 192);
+		IconGroup->addAction(ExtraLargeIcons);
+
+		Menu->addSeparator();
+	}
+
+	if (ListModel->GetIconSize() != 0 && !ListModel->IsListMode())
+	{
+		QAction* PartNames = Menu->addAction(tr("Show Part Names"), mPartsWidget, SLOT(TogglePartNames()));
+		PartNames->setCheckable(true);
+		PartNames->setChecked(ListModel->GetShowPartNames());
+	}
+
+	QAction* DecoratedParts = Menu->addAction(tr("Show Decorated Parts"), mPartsWidget, SLOT(ToggleDecoratedParts()));
+	DecoratedParts->setCheckable(true);
+	DecoratedParts->setChecked(ListModel->GetShowDecoratedParts());
+
+	QAction* PartAliases = Menu->addAction(tr("Show Part Aliases"), mPartsWidget, SLOT(TogglePartAliases()));
+	PartAliases->setCheckable(true);
+	PartAliases->setChecked(ListModel->GetShowPartAliases());
+
+	if (ListModel->GetIconSize() != 0)
+	{
+		QAction* ListMode = Menu->addAction(tr("List Mode"), mPartsWidget, SLOT(ToggleListMode()));
+		ListMode->setCheckable(true);
+		ListMode->setChecked(ListModel->IsListMode());
+
+/*** LPub3D Mod - Disable preview color lock ***/
+/***
+		QAction* FixedColor = Menu->addAction(tr("Lock Preview Color"), mPartsWidget, SLOT(ToggleFixedColor()));
+		FixedColor->setCheckable(true);
+		FixedColor->setChecked(ListModel->IsColorLocked());
+***/
+/*** LPub3D Mod end ***/		
+	}
+}
+
+void lcPartSelectionWidget::EditPartPalettes()
+{
+	lcPartPaletteDialog Dialog(this, mPartPalettes);
+
+	if (Dialog.exec() != QDialog::Accepted)
+		return;
+
+	SavePartPalettes();
+	UpdateCategories();
 }
 
 void lcPartSelectionWidget::Redraw()
@@ -832,26 +948,179 @@ void lcPartSelectionWidget::SetDefaultPart()
 	}
 }
 
+void lcPartSelectionWidget::LoadPartPalettes()
+{
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+	QByteArray Buffer = lcGetProfileBuffer(LC_PROFILE_PART_PALETTES);
+	QJsonDocument Document = QJsonDocument::fromJson(Buffer);
+
+	if (Document.isNull())
+		Document = QJsonDocument::fromJson((QString("{ \"Version\":1, \"Palettes\": { \"%1\": [] } }").arg(tr("Favorites"))).toUtf8());
+
+	QJsonObject RootObject = Document.object();
+	mPartPalettes.clear();
+
+	int Version = RootObject["Version"].toInt(0);
+	if (Version != 1)
+		return;
+
+	QJsonObject PalettesObject = RootObject["Palettes"].toObject();
+
+	for (QJsonObject::const_iterator ElementIt = PalettesObject.constBegin(); ElementIt != PalettesObject.constEnd(); ElementIt++)
+	{
+		if (!ElementIt.value().isArray())
+			continue;
+
+		lcPartPalette Palette;
+		Palette.Name = ElementIt.key();
+
+		QJsonArray Parts = ElementIt.value().toArray();
+
+		for (const QJsonValue& Part : Parts)
+			Palette.Parts.emplace_back(Part.toString().toStdString());
+
+		mPartPalettes.emplace_back(std::move(Palette));
+	}
+#endif
+}
+
+void lcPartSelectionWidget::SavePartPalettes()
+{
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+	QJsonObject RootObject;
+
+	RootObject["Version"] = 1;
+	QJsonObject PalettesObject;
+
+	for (const lcPartPalette& Palette : mPartPalettes)
+	{
+		QJsonArray Parts;
+
+		for (const std::string& PartId : Palette.Parts)
+			Parts.append(QString::fromStdString(PartId));
+
+		PalettesObject[Palette.Name] = Parts;
+	}
+
+	RootObject["Palettes"] = PalettesObject;
+
+	QByteArray Buffer = QJsonDocument(RootObject).toJson();
+	lcSetProfileBuffer(LC_PROFILE_PART_PALETTES, Buffer);
+#endif
+}
+
+void lcPartSelectionWidget::AddToPalette()
+{
+	PieceInfo* Info = mPartsWidget->GetContextInfo();
+	if (!Info)
+		return;
+
+	QString SetName = ((QAction*)sender())->text();
+
+	std::vector<lcPartPalette>::iterator SetIt = std::find_if(mPartPalettes.begin(), mPartPalettes.end(), [&SetName](const lcPartPalette& Set)
+	{
+		return Set.Name == SetName;
+	});
+
+	if (SetIt == mPartPalettes.end())
+		return;
+
+	std::string PartId = lcGetPiecesLibrary()->GetPartId(Info);
+	std::vector<std::string>& Parts = SetIt->Parts;
+
+	if (std::find(Parts.begin(), Parts.end(), PartId) == Parts.end())
+	{
+		Parts.emplace_back(PartId);
+		SavePartPalettes();
+	}
+}
+
+void lcPartSelectionWidget::RemoveFromPalette()
+{
+	PieceInfo* Info = mPartsWidget->GetContextInfo();
+	if (!Info)
+		return;
+
+	QTreeWidgetItem* CurrentItem = mCategoriesWidget->currentItem();
+	if (!CurrentItem || CurrentItem->data(0, static_cast<int>(lcPartCategoryRole::Type)) != static_cast<int>(lcPartCategoryType::Palette))
+		return;
+
+	int SetIndex = CurrentItem->data(0, static_cast<int>(lcPartCategoryRole::Index)).toInt();
+	lcPartPalette& Palette = mPartPalettes[SetIndex];
+
+	std::string PartId = lcGetPiecesLibrary()->GetPartId(Info);
+	std::vector<std::string>::iterator PartIt = std::find(Palette.Parts.begin(), Palette.Parts.end(), PartId);
+
+	if (PartIt != Palette.Parts.end())
+	{
+		Palette.Parts.erase(PartIt);
+		mPartsWidget->SetCategory(lcPartCategoryType::Palette, SetIndex);
+		SavePartPalettes();
+	}
+}
+
 void lcPartSelectionWidget::UpdateCategories()
 {
-	int CurrentIndex = mCategoriesWidget->indexOfTopLevelItem(mCategoriesWidget->currentItem());
+	QTreeWidgetItem* CurrentItem = mCategoriesWidget->currentItem();
+	lcPartCategoryType CurrentType = lcPartCategoryType::Count;
+	int CurrentIndex = -1;
+
+	if (CurrentItem)
+	{
+		CurrentType = static_cast<lcPartCategoryType>(CurrentItem->data(0, static_cast<int>(lcPartCategoryRole::Type)).toInt());
+		CurrentIndex = CurrentItem->data(0, static_cast<int>(lcPartCategoryRole::Index)).toInt();
+		CurrentItem = nullptr;
+	}
 
 	mCategoriesWidget->clear();
 
-	mAllPartsCategoryItem = new QTreeWidgetItem(mCategoriesWidget, QStringList(tr("All Parts")));
-	mCurrentModelCategoryItem = new QTreeWidgetItem(mCategoriesWidget, QStringList(tr("Parts In Use")));
+	QTreeWidgetItem* AllPartsCategoryItem = new QTreeWidgetItem(mCategoriesWidget, QStringList(tr("All Parts")));
+	AllPartsCategoryItem->setData(0, static_cast<int>(lcPartCategoryRole::Type), static_cast<int>(lcPartCategoryType::AllParts));
+
+	if (CurrentType == lcPartCategoryType::AllParts && CurrentIndex == 0)
+		CurrentItem = AllPartsCategoryItem;
+
+	QTreeWidgetItem* CurrentModelCategoryItem = new QTreeWidgetItem(mCategoriesWidget, QStringList(tr("Parts In Use")));
+	CurrentModelCategoryItem->setData(0, static_cast<int>(lcPartCategoryRole::Type), static_cast<int>(lcPartCategoryType::PartsInUse));
+
+	if (CurrentType == lcPartCategoryType::PartsInUse && CurrentIndex == 0)
+		CurrentItem = AllPartsCategoryItem;
+
+	QTreeWidgetItem* SubmodelsCategoryItem = new QTreeWidgetItem(mCategoriesWidget, QStringList(tr("Submodels")));
+	SubmodelsCategoryItem->setData(0, static_cast<int>(lcPartCategoryRole::Type), static_cast<int>(lcPartCategoryType::Submodels));
+
+	if (CurrentType == lcPartCategoryType::Submodels && CurrentIndex == 0)
+		CurrentItem = AllPartsCategoryItem;
+
+	for (int PaletteIdx = 0; PaletteIdx < static_cast<int>(mPartPalettes.size()); PaletteIdx++)
+	{
+		const lcPartPalette& Set = mPartPalettes[PaletteIdx];
+		QTreeWidgetItem* PaletteCategoryItem = new QTreeWidgetItem(mCategoriesWidget, QStringList(Set.Name));
+		PaletteCategoryItem->setData(0, static_cast<int>(lcPartCategoryRole::Type), static_cast<int>(lcPartCategoryType::Palette));
+		PaletteCategoryItem->setData(0, static_cast<int>(lcPartCategoryRole::Index), PaletteIdx);
+
+		if (CurrentType == lcPartCategoryType::Palette && CurrentIndex == PaletteIdx)
+			CurrentItem = PaletteCategoryItem;
+	}
 
 	for (int CategoryIdx = 0; CategoryIdx < gCategories.GetSize(); CategoryIdx++)
-		new QTreeWidgetItem(mCategoriesWidget, QStringList(gCategories[CategoryIdx].Name));
+	{
+		QTreeWidgetItem* CategoryItem = new QTreeWidgetItem(mCategoriesWidget, QStringList(gCategories[CategoryIdx].Name));
+		CategoryItem->setData(0, static_cast<int>(lcPartCategoryRole::Type), static_cast<int>(lcPartCategoryType::Category));
+		CategoryItem->setData(0, static_cast<int>(lcPartCategoryRole::Index), CategoryIdx);
 
-	mModelsCategoryItem = new QTreeWidgetItem(mCategoriesWidget, QStringList(tr("Submodels")));
+		if (CurrentType == lcPartCategoryType::Category && CurrentIndex == CategoryIdx)
+			CurrentItem = CategoryItem;
+	}
 
-	if (CurrentIndex != -1)
-		mCategoriesWidget->setCurrentItem(mCategoriesWidget->topLevelItem(CurrentIndex));
+	if (CurrentItem)
+		mCategoriesWidget->setCurrentItem(CurrentItem);
 }
 
 void lcPartSelectionWidget::UpdateModels()
 {
-	if (mCategoriesWidget->currentItem() == mModelsCategoryItem)
-		mPartsWidget->GetListModel()->SetModelsCategory();
+	QTreeWidgetItem* CurrentItem = mCategoriesWidget->currentItem();
+
+	if (CurrentItem && CurrentItem->data(0, static_cast<int>(lcPartCategoryRole::Type)) == static_cast<int>(lcPartCategoryType::Submodels))
+		mPartsWidget->SetCategory(lcPartCategoryType::Submodels, 0);
 }

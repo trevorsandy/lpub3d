@@ -24,6 +24,7 @@ HEADERS += \
     $$PWD/common/lc_mesh.h \
 	$$PWD/common/lc_meshloader.h \
     $$PWD/common/lc_model.h \
+    $$PWD/common/lc_partpalettedialog.h \
     $$PWD/common/lc_partselectionwidget.h \
     $$PWD/common/lc_profile.h \
     $$PWD/common/lc_scene.h \
@@ -87,6 +88,7 @@ SOURCES +=  \
     $$PWD/common/lc_profile.cpp \
     $$PWD/common/lc_scene.cpp \
     $$PWD/common/lc_selectbycolordialog.cpp \
+	$$PWD/common/lc_partpalettedialog.cpp \
     $$PWD/common/lc_shortcuts.cpp \
     $$PWD/common/lc_stringcache.cpp \
     $$PWD/common/lc_synth.cpp \
@@ -135,13 +137,14 @@ FORMS += \
     $$PWD/qt/lc_qhtmldialog.ui \
     $$PWD/qt/lc_qimagedialog.ui \
     $$PWD/qt/lc_qminifigdialog.ui \
-    $$PWD/qt/lc_qmodellistdialog.ui \
+    $$PWD/qt/lc_qmodellistdialog.ui \ 
     $$PWD/qt/lc_qpreferencesdialog.ui \
     $$PWD/qt/lc_qpropertiesdialog.ui \
     $$PWD/qt/lc_qselectdialog.ui \
     $$PWD/qt/lc_qupdatedialog.ui \
     $$PWD/qt/lc_renderdialog.ui \
-    $$PWD/qt/lc_setsdatabasedialog.ui
+    $$PWD/qt/lc_setsdatabasedialog.ui \
+	$$PWD/common/lc_partpalettedialog.ui
 
 RESOURCES += \
     $$PWD/lclib.qrc

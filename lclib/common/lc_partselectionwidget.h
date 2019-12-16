@@ -4,6 +4,29 @@
 
 class lcPartSelectionListModel;
 class lcPartSelectionListView;
+class lcPartSelectionWidget;
+
+enum class lcPartCategoryType
+{
+	AllParts,
+	PartsInUse,
+	Submodels,
+	Palette,
+	Category,
+	Count
+};
+
+enum class lcPartCategoryRole
+{
+	Type = Qt::UserRole,
+	Index
+};
+
+struct lcPartPalette
+{
+	QString Name;
+	std::vector<std::string> Parts;
+};
 
 class lcPartSelectionItemDelegate : public QStyledItemDelegate
 {
@@ -81,6 +104,7 @@ public:
 	void ToggleListMode();
 	void SetCategory(int CategoryIndex);
 	void SetModelsCategory();
+	void SetPaletteCategory(int SetIndex);
 	void SetCurrentModelCategory();
 	void SetFilter(const QString& Filter);
 	void RequestPreview(int InfoIndex);
@@ -115,9 +139,11 @@ class lcPartSelectionListView : public QListView
 	Q_OBJECT
 
 public:
-	lcPartSelectionListView(QWidget* Parent);
+	lcPartSelectionListView(QWidget* Parent, lcPartSelectionWidget* PartSelectionWidget);
 
 	virtual void startDrag(Qt::DropActions SupportedActions);
+
+	void SetCategory(lcPartCategoryType Type, int Index);
 
 	PieceInfo* GetCurrentPart() const
 	{
@@ -127,6 +153,16 @@ public:
 	lcPartSelectionListModel* GetListModel() const
 	{
 		return mListModel;
+	}
+
+	lcPartSelectionWidget* GetPartSelectionWidget() const
+	{
+		return mPartSelectionWidget;
+	}
+
+	PieceInfo* GetContextInfo() const
+	{
+		return mContextInfo;
 	}
 
 	void UpdateViewMode();
@@ -148,6 +184,10 @@ protected:
 	void SetIconSize(int Size);
 
 	lcPartSelectionListModel* mListModel;
+	lcPartSelectionWidget* mPartSelectionWidget;
+	PieceInfo* mContextInfo;
+	lcPartCategoryType mCategoryType;
+	int mCategoryIndex;
 };
 
 class lcPartSelectionWidget : public QWidget
@@ -169,6 +209,11 @@ public:
 	{
 		mPartsWidget->GetListModel()->SetColorIndex(ColorIndex);
 	}
+
+	const std::vector<lcPartPalette>& GetPartPalettes() const
+	{
+		return mPartPalettes;
+	}
 /*** LPub3D Mod - set category and get current part public ***/
 	void SetCategory(int CategoryIndex)
 	{
@@ -181,23 +226,30 @@ public:
 	}
 /*** LPub3D Mod end ***/
 
+public slots:
+	void AddToPalette();
+	void RemoveFromPalette();
+
 protected slots:
 	void DockLocationChanged(Qt::DockWidgetArea Area);
 	void FilterChanged(const QString& Text);
 	void FilterTriggered();
 	void CategoryChanged(QTreeWidgetItem* Current, QTreeWidgetItem* Previous);
 	void PartChanged(const QModelIndex& Current, const QModelIndex& Previous);
+	void OptionsMenuAboutToShow();
+	void EditPartPalettes();
 
 protected:
+	void LoadPartPalettes();
+	void SavePartPalettes();
+
 	virtual void resizeEvent(QResizeEvent* Event);
 	virtual bool event(QEvent* Event);
 
 	QTreeWidget* mCategoriesWidget;
-	QTreeWidgetItem* mAllPartsCategoryItem;
-	QTreeWidgetItem* mCurrentModelCategoryItem;
-	QTreeWidgetItem* mModelsCategoryItem;
 	QLineEdit* mFilterWidget;
 	QAction* mFilterAction;
 	lcPartSelectionListView* mPartsWidget;
 	QSplitter* mSplitter;
+	std::vector<lcPartPalette> mPartPalettes;
 };

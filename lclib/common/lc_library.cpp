@@ -526,7 +526,7 @@ void lcPiecesLibrary::ReadArchiveDescriptions(const QString& OfficialFileName, c
 bool lcPiecesLibrary::OpenDirectory(const QDir& LibraryDir, bool ShowProgress)
 {
 	const QLatin1String BaseFolders[LC_NUM_FOLDERTYPES] = { QLatin1String("unofficial/"), QLatin1String("") };
-	const int NumBaseFolders = sizeof(BaseFolders) / sizeof(BaseFolders[0]);
+	const int NumBaseFolders = LC_ARRAY_COUNT(BaseFolders);
 
 	QFileInfoList FileLists[NumBaseFolders];
 
@@ -543,13 +543,13 @@ bool lcPiecesLibrary::OpenDirectory(const QDir& LibraryDir, bool ShowProgress)
 	mHasUnofficial = !FileLists[LC_FOLDER_UNOFFICIAL].isEmpty();
 	ReadDirectoryDescriptions(FileLists, ShowProgress);
 
-	for (unsigned int BaseFolderIdx = 0; BaseFolderIdx < sizeof(BaseFolders) / sizeof(BaseFolders[0]); BaseFolderIdx++)
+	for (unsigned int BaseFolderIdx = 0; BaseFolderIdx < LC_ARRAY_COUNT(BaseFolders); BaseFolderIdx++)
 	{
 		const char* PrimitiveDirectories[] = { "p/", "parts/s/" };
 		bool SubFileDirectories[] = { false, false, true };
 		QDir BaseDir(LibraryDir.absoluteFilePath(QLatin1String(BaseFolders[BaseFolderIdx])));
 
-		for (int DirectoryIdx = 0; DirectoryIdx < (int)(sizeof(PrimitiveDirectories) / sizeof(PrimitiveDirectories[0])); DirectoryIdx++)
+		for (int DirectoryIdx = 0; DirectoryIdx < (int)(LC_ARRAY_COUNT(PrimitiveDirectories)); DirectoryIdx++)
 		{
 			QString ChildPath = BaseDir.absoluteFilePath(QLatin1String(PrimitiveDirectories[DirectoryIdx]));
 			QDirIterator DirIterator(ChildPath, QStringList() << QLatin1String("*.dat"), QDir::Files | QDir::Hidden | QDir::Readable, QDirIterator::Subdirectories);
@@ -595,7 +595,7 @@ bool lcPiecesLibrary::OpenDirectory(const QDir& LibraryDir, bool ShowProgress)
 		}
 	}
 
-	for (unsigned int BaseFolderIdx = 0; BaseFolderIdx < sizeof(BaseFolders) / sizeof(BaseFolders[0]); BaseFolderIdx++)
+	for (unsigned int BaseFolderIdx = 0; BaseFolderIdx < LC_ARRAY_COUNT(BaseFolders); BaseFolderIdx++)
 	{
 		QDir BaseDir(LibraryDir.absoluteFilePath(QLatin1String(BaseFolders[BaseFolderIdx])));
 		QDir Dir(BaseDir.absoluteFilePath(QLatin1String("parts/textures/")), QLatin1String("*.png"), QDir::SortFlags(QDir::Name | QDir::IgnoreCase), QDir::Files | QDir::Hidden | QDir::Readable);
@@ -1855,13 +1855,42 @@ void lcPiecesLibrary::GetPatternedPieces(PieceInfo* Parent, lcArray<PieceInfo*>&
 	}
 }
 
-void lcPiecesLibrary::GetParts(lcArray<PieceInfo*>& Parts)
+void lcPiecesLibrary::GetParts(lcArray<PieceInfo*>& Parts) const
 {
 	Parts.SetSize(0);
 	Parts.AllocGrow(mPieces.size());
 
 	for (const auto& PartIt : mPieces)
 		Parts.Add(PartIt.second);
+}
+
+std::vector<PieceInfo*> lcPiecesLibrary::GetPartsFromSet(const std::vector<std::string>& PartIds) const
+{
+	std::vector<PieceInfo*> Parts;
+	Parts.reserve(PartIds.size());
+
+	for (const std::string& PartId : PartIds)
+	{
+		std::map<std::string, PieceInfo*>::const_iterator PartIt = mPieces.find(PartId);
+
+		if (PartIt != mPieces.end())
+			Parts.push_back(PartIt->second);
+	}
+
+	return Parts;
+}
+
+std::string lcPiecesLibrary::GetPartId(const PieceInfo* Info) const
+{
+	std::map<std::string, PieceInfo*>::const_iterator PartIt = std::find_if(mPieces.begin(), mPieces.end(), [Info](const std::pair<std::string, PieceInfo*>& PartIt)
+	{
+		return PartIt.second == Info;
+	});
+
+	if (PartIt != mPieces.end())
+		return PartIt->first;
+	else
+		return std::string();
 }
 
 bool lcPiecesLibrary::LoadBuiltinPieces()

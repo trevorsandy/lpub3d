@@ -113,7 +113,10 @@ public:
 	void GetCategoryEntries(int CategoryIndex, bool GroupPieces, lcArray<PieceInfo*>& SinglePieces, lcArray<PieceInfo*>& GroupedPieces);
 	void GetCategoryEntries(const char* CategoryKeywords, bool GroupPieces, lcArray<PieceInfo*>& SinglePieces, lcArray<PieceInfo*>& GroupedPieces);
 	void GetPatternedPieces(PieceInfo* Parent, lcArray<PieceInfo*>& Pieces) const;
-	void GetParts(lcArray<PieceInfo*>& Parts);
+	void GetParts(lcArray<PieceInfo*>& Parts) const;
+
+	std::vector<PieceInfo*> GetPartsFromSet(const std::vector<std::string>& PartIds) const;
+	std::string GetPartId(const PieceInfo* Info) const;
 
 	void GetPrimitiveFile(lcLibraryPrimitive* Primitive, std::function<void(lcFile& File)> Callback);
 	void GetPieceFile(const char* FileName, std::function<void(lcFile& File)> Callback);
