@@ -261,27 +261,32 @@ int Step::createCsi(
                                QFileInfo(gui->getCurFile()).completeBaseName()+"_snapshot.ldr" : "csi.ldr");
   QString keyPart1 = QString("%1").arg(csi_Name+orient);
   QString keyPart2 = QString("%1_%2_%3_%4_%5_%6_%7_%8")
-                             .arg(stepNumber.number)
-                             .arg(gui->pageSize(meta.LPub.page, 0))
-                             .arg(double(resolution()))
-                             .arg(resolutionType() == DPI ? "DPI" : "DPCM")
-                             .arg(double(modelScale))
-                             .arg(double(cameraFoV))
-                             .arg(absRotstep ? double(noCA.value(0)) : double(cameraAngles.value(0)))
-                             .arg(absRotstep ? double(noCA.value(1)) : double(cameraAngles.value(1)));
-  QString key = QString("%1_%2").arg(keyPart1).arg(keyPart2);
+                               .arg(stepNumber.number)
+                               .arg(gui->pageSize(meta.LPub.page, 0))
+                               .arg(double(resolution()))
+                               .arg(resolutionType() == DPI ? "DPI" : "DPCM")
+                               .arg(double(modelScale))
+                               .arg(double(cameraFoV))
+                               .arg(absRotstep ? double(noCA.value(0)) : double(cameraAngles.value(0)))
+                               .arg(absRotstep ? double(noCA.value(1)) : double(cameraAngles.value(1)));
+  QString key      = QString("%1_%2").arg(keyPart1).arg(keyPart2);
 
   // append rotstep to be passed on to 3DViewer
-  keyPart2 += QString("_%1_%2")
-                      .arg(renderer->getRotstepMeta(meta.rotStep,true))
-                      // temp hack - passed so we can always have scale for pov render
+  keyPart2 += QString("_%1")
+                      .arg(renderer->getRotstepMeta(meta.rotStep,true));
+
+  // commandeer csiKey for LDViewSCall compareString
+  csiKey = QString("CSI_%1").arg(keyPart2);
+
+  // temp hack - passed so we can always have scale for pov render
+  keyPart2 += QString("_%1")
                       .arg(double(csiCameraMeta.modelScale.value()));
 
   // populate png name
   pngName = QDir::toNativeSeparators(QString("%1/%2.png").arg(csiPngFilePath).arg(key));
 
-  // create ImageMatte csiKey
-  csiKey = QString("%1_%2").arg(csi_Name).arg(stepNumber.number);
+  // create ImageMatte csiKey - userped for LDViewSCall compareString
+//  csiKey = QString("%1_%2").arg(csi_Name).arg(stepNumber.number);
 
   // add csiKey and pngName to ImageMatte repository - exclude first step
   if (Preferences::enableFadeSteps && Preferences::enableImageMatting && !invalidIMStep) {

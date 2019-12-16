@@ -387,7 +387,7 @@ float Render::getPovrayRenderCameraDistance(const QString &cdKeys){
     return stdCameraDistance(meta,scale);
 }
 
-const QStringList Render::getSubAttributes(const QString &nameKey)
+const QStringList Render::getImageAttributes(const QString &nameKey)
 {
     QFileInfo fileInfo(nameKey);
     QString cleanString = fileInfo.completeBaseName();
@@ -459,13 +459,24 @@ int Render::executeLDViewProcess(QStringList &arguments, Options::Mt module) {
         }
     }
 
-  QFile outputImageFile(arguments.last());
-  if (! outputImageFile.exists()) {
-      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView %1 image generation failed for %2 with message %3")
-                           .arg(module == Options::CSI ? "CSI" : "PLI")
-                           .arg(outputImageFile.fileName())
-                           .arg(outputImageFile.errorString()));
-      return -1;
+  bool usingInputFileList = false;
+  foreach(QString argument, arguments){
+      if (argument.startsWith("-CommandLinesList=") ||
+          argument.startsWith("-SaveSnapshotsList=")) {
+          usingInputFileList = true;
+          break;
+      }
+  }
+
+  if (!usingInputFileList) {
+      QFile outputImageFile(arguments.last());
+      if (! outputImageFile.exists()) {
+          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView %1 image generation failed for %2 with message %3")
+                               .arg(module == Options::CSI ? "CSI" : "PLI")
+                               .arg(outputImageFile.fileName())
+                               .arg(outputImageFile.errorString()));
+          return -1;
+      }
   }
 
   return 0;
@@ -788,18 +799,18 @@ int POVRay::renderPli(
   QString transform  = metaType.rotStep.value().type;
   bool  noCA         = transform  == "ABS";
   float modelScale   = metaType.modelScale.value();
-  float cameraFov    = metaType.cameraFoV.value();
+  float cameraFoV    = metaType.cameraFoV.value();
   float cameraAngleX = metaType.cameraAngles.value(0);
   float cameraAngleY = metaType.cameraAngles.value(1);
 
   // process substitute attributes
   if (keySub) {
-    QStringList attributes = getSubAttributes(pngName);
+    QStringList attributes = getImageAttributes(pngName);
     if (keySub == PliBeginSub6Rc)
       noCA = attributes.at(nTransform) == "ABS";
     if (keySub > PliBeginSub2Rc) {
       modelScale = attributes.at(nModelScale).toFloat();
-      cameraFov  = attributes.at(nCameraFoV).toFloat();
+      cameraFoV  = attributes.at(nCameraFoV).toFloat();
       cameraAngleX = attributes.at(nCameraAngleXX).toFloat();
       cameraAngleY = attributes.at(nCameraAngleYY).toFloat();
     }
@@ -838,7 +849,7 @@ int POVRay::renderPli(
   // projection settings
   qreal cdf = LP3D_CDF;
   bool pl = false, pf = false, pz = false, pd = false;
-  QString df = QString("-FOV=%1").arg(double(cameraFov));
+  QString df = QString("-FOV=%1").arg(double(cameraFoV));
   QString dz = QString("-DefaultZoom=%1").arg(1.0);
 
   // additional LDView parameters;
@@ -1213,18 +1224,18 @@ int LDGLite::renderPli(
   QString transform  = metaType.rotStep.value().type;
   bool  noCA         = transform  == "ABS";
   float modelScale   = metaType.modelScale.value();
-  float cameraFov    = metaType.cameraFoV.value();
+  float cameraFoV    = metaType.cameraFoV.value();
   float cameraAngleX = metaType.cameraAngles.value(0);
   float cameraAngleY = metaType.cameraAngles.value(1);
 
   // Process substitute part attributes
   if (keySub) {
-    QStringList attributes = getSubAttributes(pngName);
+    QStringList attributes = getImageAttributes(pngName);
     if (keySub == PliBeginSub6Rc)
       noCA = attributes.at(nTransform) == "ABS";
     if (keySub > PliBeginSub2Rc) {
       modelScale   = attributes.at(nModelScale).toFloat();
-      cameraFov    = attributes.at(nCameraFoV).toFloat();
+      cameraFoV    = attributes.at(nCameraFoV).toFloat();
       cameraAngleX = attributes.at(nCameraAngleXX).toFloat();
       cameraAngleY = attributes.at(nCameraAngleYY).toFloat();
     }
@@ -1241,7 +1252,7 @@ int LDGLite::renderPli(
   if (pliType == SUBMODEL)
       noCA   = Preferences::applyCALocally || noCA;
 
-  QString CA = QString("-ca%1") .arg(double(cameraFov));
+  QString CA = QString("-ca%1") .arg(double(cameraFoV));
   QString cg = QString("-cg%1,%2,%3") .arg(noCA ? 0.0 : double(cameraAngleX))
                                       .arg(noCA ? 0.0 : double(cameraAngleY))
                                       .arg(cd);
@@ -1372,111 +1383,316 @@ float LDView::cameraDistance(
 }
 
 int LDView::renderCsi(
-        const QString     &addLine,
-        const QStringList &csiParts,   // this is ldrNames when useLDViewSCall = true
-        const QStringList &csiKeys,
-        const QString     &pngName,
-        Meta              &meta,
-        int                nType)
+  const QString     &addLine,
+  const QStringList &csiParts,   // this is ldrNames when useLDViewSCall = true
+  const QStringList &csiKeys,
+  const QString     &pngName,
+  Meta              &meta,
+  int                nType)
 {
-    Q_UNUSED(nType)
+  Q_UNUSED(nType)
 
-    /* determine camera distance */
-    int cd = int(cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000);
+  // test csiParts
+  QFileInfo fileInfo(csiParts.first());
+  if ( ! fileInfo.exists()) {
+    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("File csiParts does not exist!"));
+    return -1;
+  }
 
-    /* apply camera angle */
-    bool pp    = Preferences::perspectiveProjection;
-    bool noCA  = Preferences::applyCALocally;
+  // paths
+  QString tempPath  = QDir::currentPath() + QDir::separator() + Paths::tmpDir;
+  QString assemPath = QDir::currentPath() + QDir::separator() + Paths::assemDir;
 
-    /* page size */
-    int width  = gui->pageSize(meta.LPub.page, 0);
-    int height = gui->pageSize(meta.LPub.page, 1);
+  // Populate render attributes
+  QString transform  = meta.rotStep.value().type;
+  bool  noCA         = transform == "ABS";
+  noCA               = Preferences::applyCALocally || noCA;
+  float modelScale   = meta.LPub.assem.modelScale.value();
+  float cameraFoV    = meta.LPub.assem.cameraFoV.value();
+  float cameraAngleX = meta.LPub.assem.cameraAngles.value(0);
+  float cameraAngleY = meta.LPub.assem.cameraAngles.value(1);
+  QString compareStr = QString("%1_%2_%3_%4_%5")
+                               .arg(double(modelScale))    // 1
+                               .arg(double(cameraFoV))     // 2
+                               .arg(double(cameraAngleX))  // 3
+                               .arg(double(cameraAngleY))  // 4
+                               .arg(renderer->getRotstepMeta(meta.rotStep,true)); // 5,6,7,8
 
-    // initialize ImageMatte flag
-    bool enableIM = false;
+  /* set default camera distance */
+  int cd = int(cameraDistance(meta,modelScale)*1700/1000);
 
-    QString tempPath = QDir::currentPath() + "/" + Paths::tmpDir;
-    QString assemPath = QDir::currentPath() + "/" + Paths::assemDir;
+  //qDebug() << "LDView (Default) Camera Distance: " << cd;
 
-    /* Create the CSI DAT file(s) */
-    QString f;
-    QStringList ldrNames = QStringList(), ldrNamesIM = QStringList();
-    if (useLDViewSCall()) {
+  // set page size
+  int width  = gui->pageSize(meta.LPub.page, 0);
+  int height = gui->pageSize(meta.LPub.page, 1);
 
-        if (Preferences::enableFadeSteps && Preferences::enableImageMatting){  // ldrName entries (IM ON)
+  // initialize ImageMatte flag
+  bool enableIM = false;
 
-            enableIM = true;
-            foreach(QString csiEntry, csiParts){              // csiParts are ldrNames under LDViewSingleCall
-                QString csiFile = QString("%1/%2").arg(assemPath).arg(QFileInfo(QString(csiEntry).replace(".ldr",".png")).fileName());
-                if (LDVImageMatte::validMatteCSIImage(csiFile)) {
-                    ldrNamesIM << csiEntry;                   // ldrName entries that ARE IM
-                } else {
-                    ldrNames << csiEntry;                     // ldrName entries that ARE NOT IM
-                }
-            }
+  // initialize perspective projection and camera angels flags
+  bool pp    = Preferences::perspectiveProjection;
 
-        } else {                                              // ldrName entries (IM off)
+  // projection settings
+  qreal cdf = LP3D_CDF;
+  bool pl = false, pf = false, pz = false, pd = false;
+  QString df = QString("-FOV=%1").arg(double(cameraFoV));
+  QString dl,dz,sz;
 
-            ldrNames = csiParts;
+  // additional LDView parameters;
+  QStringList ldviewParmsArgs,ldviewParmslist;
+  ldviewParmslist = meta.LPub.assem.ldviewParms.value().split(' ');
+  for (int i = 0; i < ldviewParmslist.size(); i++) {
+    if (ldviewParmslist[i] != "" && ldviewParmslist[i] != " ") {
+      if (pp) {
+        if ((pl = ldviewParmslist[i].contains("-DefaultLatLong=")))
+             dl = ldviewParmslist[i];
+        if ((pz = ldviewParmslist[i].contains("-DefaultZoom=")))
+             dz = ldviewParmslist[i];
+        if ((pf = ldviewParmslist[i].contains("-FOV=")))
+             df = ldviewParmslist[i];
+        if ((pd = ldviewParmslist[i].contains("-LDViewPerspectiveDistanceFactor="))) {
+          bool ok;
+          qreal _cdf = QStringList(ldviewParmslist[i].split("=")).last().toDouble(&ok);
+          if (ok && _cdf < LP3D_CDF)
+              cdf = _cdf;
         }
-
-        if (!useLDViewSList() || (useLDViewSList() && ldrNames.size() < SNAPSHOTS_LIST_THRESHOLD)) {
-
-            f  = QString("-SaveSnapShots=1");
-
-        } else {                                              // LDView SnapshotsList
-
-            QString SnapshotsList = tempPath + "/csiSnapshotsList.lst";
-            QFile SnapshotsListFile(SnapshotsList);
-            if ( ! SnapshotsListFile.open(QFile::Append | QFile::Text)) {
-                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to create LDView (Single Call) CSI Snapshots list file!"));
-                return -1;
-            }
-
-            QTextStream out(&SnapshotsListFile);
-
-            for (int i = 0; i < ldrNames.size(); i++) {
-                QString smLine = ldrNames[i];
-                out << smLine << endl;                          // ldrNames that ARE NOT IM
-                emit gui->messageSig(LOG_INFO, QString("Wrote %1 to CSI Snapshots list").arg(smLine));
-            }
-            SnapshotsListFile.close();
-
-            f  = QString("-SaveSnapshotsList=%1").arg(SnapshotsList);     // run in renderCsi
-        }
-
-    } else {                                                    // LDView (Default)
-
-        int rc;
-        QString csiKey = QString();
-        if (Preferences::enableFadeSteps && Preferences::enableImageMatting &&
-                LDVImageMatte::validMatteCSIImage(csiKeys.first())) {                    // ldrName entries (IM ON)
-            enableIM = true;
-            csiKey = csiKeys.first();
-        }
-
-        ldrNames << tempPath + "/csi.ldr";
-
-        if ((rc = rotateParts(addLine, meta.rotStep, csiParts,ldrNames.first(), csiKey, meta.LPub.assem.cameraAngles)) < 0) {
-            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView (Single Call) CSI rotate parts failed!"));
-            return rc;
-        } else
-          // recheck csiKey - may have been deleted by rotateParts if IM files not created.
-          if (enableIM) {
-            enableIM = LDVImageMatte::validMatteCSIImage(csiKeys.first());
-        }
-
-        f  = QString("-SaveSnapShot=%1") .arg(pngName);     // applied for ldrName entry that IS NOT IM
+      }
+      if (!pd && !pl && !pf && !pz)
+        addArgument(ldviewParmsArgs, ldviewParmslist[i]);    // 10. ldviewParms [usually empty]
     }
+  }
+
+  // Set camera angle and camera globe and update arguments with perspective projection settings
+  if (pp && !pz && pl)
+      dz = QString(" -DefaultZoom=%1").arg(double(meta.LPub.assem.modelScale.value()));
+
+  QString CA = pp ? QString("-FOV=%1") .arg(double(cameraFoV)) :
+                    QString("-ca%1") .arg(LP3D_CA);                   // replace CA with FOV
+  QString cg = pp ? pl ? QString("-DefaultLatLong=%1,%2%3")
+                                 .arg(noCA ? 0.0 : double(cameraAngleX))
+                                 .arg(noCA ? 0.0 : double(cameraAngleY))
+                                 .arg(dz)                             // replace Camera Globe with DefaultLatLon and add DefaultZoom
+                       : QString("-cg%1,%2,%3")
+                                 .arg(noCA ? 0.0 : double(cameraAngleX))
+                                 .arg(noCA ? 0.0 : double(cameraAngleY))
+                                 .arg(QString::number(cd * cdf,'f',0) )
+                  : QString("-cg%1,%2,%3")
+                            .arg(noCA ? 0.0 : double(cameraAngleX))
+                            .arg(noCA ? 0.0 : double(cameraAngleY))
+                            .arg(cd);
+
+  /* Create the CSI DAT file(s) */
+
+  bool usingSnapshotArgs = false;
+  QStringList attributes;
+  auto processAttributes = [this, &meta, &pp, &pl, &dz, &cdf, &usingSnapshotArgs] (
+          QStringList &attributes,
+          bool        &noCA,
+          int         &cd,
+          QString     &CA,
+          QString     &cg,
+          float       &modelScale,
+          float       &cameraFoV,
+          float       &cameraAngleX,
+          float       &cameraAngleY) {
+      if (usingSnapshotArgs) {
+          // set camera angles flag
+          if ((attributes.size() == nHasRotstep))
+              noCA = attributes.at(nTransform) == "ABS";
+          // set scale FOV and camera angles
+
+          modelScale   = attributes.at(nModelScale).toFloat();
+          cameraFoV    = attributes.at(nCameraFoV).toFloat();
+          cameraAngleX = attributes.at(nCameraAngleXX).toFloat();
+          cameraAngleY = attributes.at(nCameraAngleYY).toFloat();
+
+          cd = int(cameraDistance(meta,modelScale)*1700/1000);
+
+          CA = pp ? QString("-FOV=%1").arg(double(cameraFoV)) : CA;
+
+          cg = pp ? pl ? QString("-DefaultLatLong=%1,%2%3")
+                         .arg(noCA ? 0.0 : double(cameraAngleX))
+                         .arg(noCA ? 0.0 : double(cameraAngleY))
+                         .arg(dz) // replace Camera Globe with DefaultLatLon and add DefaultZoom
+                       : QString("-cg%1,%2,%3")
+                         .arg(noCA ? 0.0 : double(cameraAngleX))
+                         .arg(noCA ? 0.0 : double(cameraAngleY))
+                         .arg(QString::number(cd * cdf,'f',0) )
+                       : QString("-cg%1,%2,%3")
+                         .arg(noCA ? 0.0 : double(cameraAngleX))
+                         .arg(noCA ? 0.0 : double(cameraAngleY))
+                         .arg(cd);
+      }
+  };
+
+  auto compareAttributes = [&attributes,&compareStr] (bool pare = true)
+  {
+      bool result;
+      QString message;
+      QStringList attributesList = attributes;
+      if (attributesList.size() >= nBaseAttributes) {
+          if (pare) {
+              attributesList.removeAt(4);      // Resolution Type
+              attributesList.removeAt(3);      // Resolution
+              attributesList.removeAt(2);      // Page Size
+              attributesList.removeAt(1);      // Colour/Step Number
+              attributesList.removeAt(0);      // Base Name
+          }
+          QString attributesCompare = attributesList.join("_");
+          result = compareStr != attributesCompare;
+          if (Preferences::debugLogging) {
+              message             = QString("CSI file attributes compare [%1], attributesCompare [%2], compareStr [%3]")
+                                            .arg(result ? "No Match - usingSnapshotArgs" : "Match" )
+                                            .arg(attributesCompare).arg(compareStr);
+              gui->messageSig(LOG_DEBUG, message);
+          }
+      } else {
+          result = false;
+          message           = QString("Malforded image file attributes list [%1]")
+                                      .arg(attributesList.join("_"));
+          gui->messageSig(LOG_NOTICE, message);
+      }
+      return result;
+  };
+
+  QString f;
+  bool usingListCmdArg     = false;
+  bool usingDefaultArgs    = true;
+  bool snapshotArgsChanged = false;
+  QStringList ldrNames, ldrNamesIM;
+  if (useLDViewSCall()) {  // Use LDView SingleCall
+      // populate ldrNames
+      if (Preferences::enableFadeSteps && Preferences::enableImageMatting){  // ldrName entries (IM ON)
+          enableIM = true;
+          foreach(QString csiEntry, csiParts){              // csiParts are ldrNames under LDViewSingleCall
+              QString csiFile = QString("%1/%2").arg(assemPath).arg(QFileInfo(QString(csiEntry).replace(".ldr",".png")).fileName());
+              if (LDVImageMatte::validMatteCSIImage(csiFile)) {
+                  ldrNamesIM << csiEntry;                   // ldrName entries that ARE IM
+              } else {
+                  ldrNames << csiEntry;                     // ldrName entries that ARE NOT IM
+              }
+          }
+      } else {                                              // ldrName entries (IM off)
+          ldrNames = csiParts;
+      }
+
+      // process substitute attributes
+      QString snapshotsCmdLineArgs,snapshotArgs;
+      QStringList snapShotsListArgs,snapShotsLdrs;
+      for (int i = 0; i < ldrNames.size(); i++) {
+          QString ldrName = ldrNames.at(i);
+
+          if (!QFileInfo(ldrName).exists()) {
+              emit gui->messageSig(LOG_ERROR, QString("LDR file %1 not found.").arg(ldrName));
+              continue;
+          }
+
+          attributes = csiKeys.at(i).split("_");
+          if (attributes.size() > 2)
+              attributes.replace(1,"0");
+
+          // attributes are different from default
+          if ((usingSnapshotArgs  = compareAttributes(usingDefaultArgs))){
+              processAttributes(attributes, noCA, cd, CA, cg, modelScale, cameraFoV, cameraAngleX, cameraAngleY);
+              snapshotArgsChanged = !usingDefaultArgs;
+              usingDefaultArgs    = usingDefaultArgs ? false: usingDefaultArgs;
+              usingSnapshotArgs   = false;                // reset
+              compareStr          = attributes.join("_");
+
+              if (!snapshotArgsChanged)
+                  snapshotArgs = QString("%1 %2").arg(CA).arg(cg);
+          }
+
+          snapShotsLdrs.append(ldrName);
+
+          if (!usingDefaultArgs) {
+
+              QString saveArgs = QString("-SaveSnapShots=1 %1").arg(ldrName);
+              snapShotsListArgs.append(QString("%1 %2 %3").arg(CA).arg(cg).arg(saveArgs));
+          }
+      }
+
+      // using same snapshot args for all parts
+      usingSnapshotArgs = !usingDefaultArgs && !snapshotArgsChanged;
+
+      if (snapShotsLdrs.size() ) {
+          // using default args or same snapshot args for all parts
+          if (usingDefaultArgs || usingSnapshotArgs) {
+
+              // using same snapshot args for all parts
+              if (usingSnapshotArgs) {
+                  CA = snapshotArgs.split(" ").first();
+                  cg = snapshotArgs.split(" ").last();
+              }
+
+              if (snapShotsLdrs.size() < SNAPSHOTS_LIST_THRESHOLD) {
+
+                  // use single line snapshots command
+                  snapshotsCmdLineArgs = QString("-SaveSnapShots=1 %1").arg(snapShotsLdrs.join(" "));
+
+              } else {
+
+                  // create snapshot list
+                  usingListCmdArg = true;
+                  QString SnapshotsList = tempPath + QDir::separator() + "pliSnapshotsList.lst";
+                  if (!createSnapshotsList(snapShotsLdrs,SnapshotsList))
+                      return -1;
+                  snapshotsCmdLineArgs = QString("-SaveSnapshotsList=1 %1").arg(SnapshotsList);
+              }
+
+              f  = snapshotsCmdLineArgs;
+          }
+          // we have subSnapShotsListArgs or not usingDefaultArgs so create a CommandLinesList file
+          else
+          {
+              usingListCmdArg = true;
+              QString CommandLinesList = tempPath + QDir::separator() + "pliCommandLinesList.lst";
+              QFile CommandLinesListFile(CommandLinesList);
+              if ( ! CommandLinesListFile.open(QFile::WriteOnly | QFile::Text)) {
+                  emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to create LDView (Single Call) PLI CommandLines list file!"));
+                  return -1;
+              }
+
+              QTextStream out(&CommandLinesListFile);
+              // add normal snapshot lines
+              if (snapShotsLdrs.size())
+                  foreach (QString argsLine,snapShotsListArgs)
+                      out << argsLine << endl;
+
+              CommandLinesListFile.close();
+
+              f  = QString("-CommandLinesList=%1").arg(CommandLinesList);    // run in renderCsi
+          }
+      }
+
+  } else { // End Use SingleCall
+
+      int rc;
+      QString csiKey = QString();
+      if (Preferences::enableFadeSteps && Preferences::enableImageMatting &&
+              LDVImageMatte::validMatteCSIImage(csiKeys.first())) {                    // ldrName entries (IM ON)
+          enableIM = true;
+          csiKey = csiKeys.first();
+      }
+
+      ldrNames << tempPath + "/csi.ldr";
+
+      if ((rc = rotateParts(addLine, meta.rotStep, csiParts,ldrNames.first(), csiKey, meta.LPub.assem.cameraAngles)) < 0) {
+          emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView (Single Call) CSI rotate parts failed!"));
+          return rc;
+      } else
+        // recheck csiKey - may have been deleted by rotateParts if IM files not created.
+        if (enableIM) {
+          enableIM = LDVImageMatte::validMatteCSIImage(csiKeys.first());
+      }
+
+      f  = QString("-SaveSnapShot=%1") .arg(pngName);
+  }
 
   bool haveLdrNames   = !ldrNames.isEmpty();
   bool haveLdrNamesIM = !ldrNamesIM.isEmpty();
 
-  // Build (Native) arguments
-  QString CA = QString("-ca%1")       .arg(LP3D_CA);
-  QString cg = QString("-cg%1,%2,%3") .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(0)))
-                                      .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(1)))
-                                      .arg(QString::number(pp ? cd * LP3D_CDF : cd,'f',0));
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
   QString l  = QString("-LDrawDir=%1")   .arg(Preferences::ldrawLibPath);
@@ -1484,81 +1700,47 @@ int LDView::renderCsi(
   QString v  = QString("-vv");
 
   QStringList arguments;
-  arguments << CA;                        // 00. Camera FOV in degrees
-  arguments << cg;                        // 01. Camera globe
-  arguments << w;                         // 03. SaveWidth
-  arguments << h;                         // 04. SaveHeight
-  arguments << f;                         // 05. SaveSnapshot/SaveSnapshots/SaveSnapshotsList
-  arguments << l;                         // 06. LDrawDir
-  arguments << o;                         // 07. HaveStdOut
-  arguments << v;                         // 09. Verbose
-
-//  QString a  = QString("-AutoCrop=1");
-//  if (!enableIM)
-//    arguments.insert(2,a);                // 02. AutoCrop On if IM Off
-
-  // projection settings
-  qreal cdf = LP3D_CDF;
-  bool pl = false, pf = false, pz = false, pd = false;
-  QStringList cgl;
-  QString df = QString("-FOV=%1").arg(double(meta.LPub.assem.cameraFoV.value()));
-  QString dz = QString("-DefaultZoom=%1").arg(1.0);
-
-  // additional LDView parameters;
-  QStringList ldviewParmslist;
-  ldviewParmslist = meta.LPub.assem.ldviewParms.value().split(' ');
-  for (int i = 0; i < ldviewParmslist.size(); i++) {
-    if (ldviewParmslist[i] != "" && ldviewParmslist[i] != " ") {
-        if (pp) {
-          if ((pl = ldviewParmslist[i].contains("-DefaultLatLong=")))
-            arguments.replace(arguments.indexOf(cg),ldviewParmslist[i]); // replace Camera globe
-          if ((pf = ldviewParmslist[i].contains("-FOV=")))
-            arguments.replace(arguments.indexOf(CA),ldviewParmslist[i]); // replace Camera CA
-          if ((pd = ldviewParmslist[i].contains("-LDViewPerspectiveDistanceFactor="))) {
-              bool ok;
-              qreal _cdf = QStringList(ldviewParmslist[i].split("=")).last().toDouble(&ok);
-              if (ok && _cdf < LP3D_CDF)
-                  cdf = _cdf;
-          }
-          pz = ldviewParmslist[i].contains("-DefaultZoom=");
-        }
-      if (!pd && !pl && !pf)
-        addArgument(arguments, ldviewParmslist[i]);    // 10. ldviewParms
-    }
+  if (useLDViewSCall() && usingDefaultArgs){
+    arguments << CA; // Camera Angle
+    arguments << cg; // Camera Globe
+    arguments << dl; // -DefaultLatLong
+    arguments << dz; // -DefaultZoom
+    arguments << sz; // -SaveZoomToFit
   }
-  if (pp) {
-    if (!pf)
-      arguments.replace(arguments.indexOf(CA),df);    // replace CA with FOV
-    if (!pz && pl)
-      addArgument(arguments ,dz, "-DefaultZoom");     // add DefaultZoom if DefaultLatLon specified
-    if (!pl && cdf < LP3D_CDF) {                      // update camera distance factor if custom value specified
-      QStringList cgl;
-      cgl = cg.split(",");
-      cgl.replace(cgl.indexOf(cgl.last()),QString::number(cd * cdf,'f',0));
-      arguments.replace(arguments.indexOf(cg),cgl.join(","));
-    }
-  }
-  if (ldviewParmslist.size())
-      emit gui->messageSig(LOG_INFO,QMessageBox::tr("LDView additional CSI renderer parameters: %1")
-                           .arg(ldviewParmslist.join(" ")));
 
-  bool hasLDViewIni = Preferences::ldviewIni != "";
+  // append additional LDView parameters
+  if (ldviewParmsArgs.size()) {
+    for (int i = 0; i < ldviewParmsArgs.size(); i++) {
+      addArgument(arguments, ldviewParmsArgs[i]);
+    }
+    emit gui->messageSig(LOG_INFO,QMessageBox::tr("LDView additional CSI renderer parameters: %1")
+                         .arg(ldviewParmsArgs.join(" ")));
+  }
+
+  arguments << w; // -SaveWidth
+  arguments << h; // -SaveHeight
+  arguments << f; // -CommandLinesList | -SaveSnapshotsList | -SaveSnapShots | -SaveSnapShot
+  arguments << l; // -LDrawDir
+  arguments << o; // -HaveStdOut
+  arguments << v; // -vv (Verbose)
+
   QString ini;
-  if(hasLDViewIni){
-      ini  = QString("-IniFile=%1") .arg(Preferences::ldviewIni);
-      addArgument(arguments, ini, "-IniFile", 0, ldviewParmslist.size());        // 11. LDView.ini
+  if(Preferences::ldviewIni != ""){
+      ini = QString("-IniFile=%1") .arg(Preferences::ldviewIni);
+      addArgument(arguments, ini, "-IniFile", 0, ldviewParmsArgs.size());
   }
 
   QString altldc;
   if (!Preferences::altLDConfigPath.isEmpty()) {
-      altldc = QString("-LDConfig=%1").arg(Preferences::altLDConfigPath); 
-      addArgument(arguments, altldc, "-LDConfig", 0, ldviewParmslist.size());    // 12.Alternate LDConfig
+      altldc = QString("-LDConfig=%1").arg(Preferences::altLDConfigPath);
+      addArgument(arguments, altldc, "-LDConfig", 0, ldviewParmsArgs.size());
   }
 
-  if (haveLdrNames) {      
+  if (haveLdrNames) {
       if (useLDViewSCall()) {
           //-SaveSnapShots=1
-          if ((!useLDViewSList()) || (useLDViewSList() && ldrNames.size() < SNAPSHOTS_LIST_THRESHOLD))
+          if ((!useLDViewSList() && !usingListCmdArg) ||
+              (useLDViewSList() && ldrNames.size() < SNAPSHOTS_LIST_THRESHOLD))
               arguments = arguments + ldrNames;  // 13. LDR input file(s)
       } else {
           // SaveSnapShot=1
@@ -1634,7 +1816,7 @@ int LDView::renderCsi(
   if (useLDViewSCall()){
       foreach(QString ldrName, ldrNames){
           QString pngFileTmpPath = ldrName.replace(".ldr",".png");
-          QString pngFilePath = QString("%1/%2").arg(assemPath).arg(QFileInfo(pngFileTmpPath).fileName());
+          QString pngFilePath = QDir::toNativeSeparators(QString("%1/%2").arg(assemPath).arg(QFileInfo(pngFileTmpPath).fileName()));
           QFile destinationFile(pngFilePath);
           QFile sourceFile(pngFileTmpPath);
           if (! destinationFile.exists() || destinationFile.remove()) {
@@ -1660,28 +1842,42 @@ int LDView::renderPli(
   PliMeta &metaType = pliType == SUBMODEL ? static_cast<PliMeta&>(meta.LPub.subModel) :
                       pliType == BOM ? meta.LPub.bom : meta.LPub.pli;
 
+  // test ldrNames
   QFileInfo fileInfo(ldrNames.first());
   if ( ! fileInfo.exists()) {
     emit gui->messageSig(LOG_ERROR,QMessageBox::tr("File ldrNames does not exist!"));
     return -1;
   }
 
-  QString tempPath = QDir::currentPath() + QDir::separator() + Paths::tmpDir;
+  // paths
+  QString tempPath  = QDir::currentPath() + QDir::separator() + Paths::tmpDir;
   QString partsPath = QDir::currentPath() + QDir::separator() + (pliType == SUBMODEL ? Paths::submodelDir : Paths::partsDir);
 
   // Populate render attributes
   QString transform  = metaType.rotStep.value().type;
-  bool  noCA         = transform  == "ABS";
+  bool  noCA         = transform == "ABS";
   float modelScale   = metaType.modelScale.value();
-  float cameraFov    = metaType.cameraFoV.value();
+  float cameraFoV    = metaType.cameraFoV.value();
   float cameraAngleX = metaType.cameraAngles.value(0);
   float cameraAngleY = metaType.cameraAngles.value(1);
+  QString compareStr = QString("%1_%2_%3_%4")
+                               .arg(double(modelScale))    // 1
+                               .arg(double(cameraFoV))     // 2
+                               .arg(double(cameraAngleX))  // 3
+                               .arg(double(cameraAngleY)); // 4
+  if (keySub > PliBeginSub5Rc)
+      compareStr.append("_" + renderer->getRotstepMeta(metaType.rotStep,true)); // 5,6,7,8
 
-  /* determine camera distance */
+  /* set default camera distance */
   int cd = int(cameraDistance(meta,modelScale)*1700/1000);
 
   //qDebug() << "LDView (Default) Camera Distance: " << cd;
 
+  // set page size
+  int width  = gui->pageSize(meta.LPub.page, 0);
+  int height = gui->pageSize(meta.LPub.page, 1);
+
+  // initialize perspective projection and camera angels flags
   bool pp    = Preferences::perspectiveProjection;
   if (pliType == SUBMODEL)
       noCA   = Preferences::applyCALocally || noCA;
@@ -1689,13 +1885,11 @@ int LDView::renderPli(
   // projection settings
   qreal cdf = LP3D_CDF;
   bool pl = false, pf = false, pz = false, pd = false;
-  QString dl;
-  QString df = QString("-FOV=%1").arg(double(cameraFov));
-  QString dz = QString("-DefaultZoom=%1").arg(1.0);
+  QString df = QString("-FOV=%1").arg(double(cameraFoV));
+  QString dl,dz,sz;
 
   // additional LDView parameters;
-  QStringList ldviewParmslist;
-  QStringList ldviewParmsArgs;
+  QStringList ldviewParmsArgs,ldviewParmslist;
   ldviewParmslist = metaType.ldviewParms.value().split(' ');
   for (int i = 0; i < ldviewParmslist.size(); i++) {
     if (ldviewParmslist[i] != "" && ldviewParmslist[i] != " ") {
@@ -1719,7 +1913,10 @@ int LDView::renderPli(
   }
 
   // Set camera angle and camera globe and update arguments with perspective projection settings
-  QString CA = pp ? QString("-FOV=%1") .arg(double(cameraFov)) :
+  if (pp && !pz && pl)
+      dz = QString(" -DefaultZoom=%1").arg(double(metaType.modelScale.value()));
+
+  QString CA = pp ? QString("-FOV=%1") .arg(double(cameraFoV)) :
                     QString("-ca%1") .arg(LP3D_CA);                   // replace CA with FOV
   QString cg = pp ? pl ? QString("-DefaultLatLong=%1,%2%3")
                                  .arg(noCA ? 0.0 : double(cameraAngleX))
@@ -1734,69 +1931,163 @@ int LDView::renderPli(
                             .arg(noCA ? 0.0 : double(cameraAngleY))
                             .arg(cd);
 
-  /* Create the CSI DAT file(s) */
+  /* Create the PLI DAT file(s) */
+
+  bool usingListCmdArg   = false;
+  bool usingSnapshotArgs = false;
+  QStringList attributes;
+  auto processAttributes = [this, &meta, &keySub, &pp, &pl, &dz, &cdf, &usingSnapshotArgs] (
+          QStringList &attributes,
+          bool        &noCA,
+          int         &cd,
+          QString     &CA,
+          QString     &cg,
+          float       &modelScale,
+          float       &cameraFoV,
+          float       &cameraAngleX,
+          float       &cameraAngleY) {
+      if (keySub > PliBeginSub2Rc || usingSnapshotArgs) {
+          // set camera angles flag
+          if (attributes.size() == nHasRotstep)
+              noCA = attributes.at(nTransform) == "ABS";
+          // set scale FOV and camera angles
+          modelScale   = attributes.at(nModelScale).toFloat();
+          cameraFoV    = attributes.at(nCameraFoV).toFloat();
+          cameraAngleX = attributes.at(nCameraAngleXX).toFloat();
+          cameraAngleY = attributes.at(nCameraAngleYY).toFloat();
+          cd = int(cameraDistance(meta,modelScale)*1700/1000);
+
+          CA = pp ? QString("-FOV=%1").arg(double(cameraFoV)) : CA;
+
+          cg = pp ? pl ? QString("-DefaultLatLong=%1,%2%3")
+                         .arg(noCA ? 0.0 : double(cameraAngleX))
+                         .arg(noCA ? 0.0 : double(cameraAngleY))
+                         .arg(dz) // replace Camera Globe with DefaultLatLon and add DefaultZoom
+                       : QString("-cg%1,%2,%3")
+                         .arg(noCA ? 0.0 : double(cameraAngleX))
+                         .arg(noCA ? 0.0 : double(cameraAngleY))
+                         .arg(QString::number(cd * cdf,'f',0) )
+                       : QString("-cg%1,%2,%3")
+                         .arg(noCA ? 0.0 : double(cameraAngleX))
+                         .arg(noCA ? 0.0 : double(cameraAngleY))
+                         .arg(cd);
+      }
+  };
+
+  auto compareAttributes = [&attributes,&compareStr] (bool pare = true)
+  {
+      bool result;
+      QString message;
+      QStringList attributesList = attributes;
+      if (attributesList.size() >= nBaseAttributes) {
+          if (pare) {
+              attributesList.removeAt(4);      // Resolution Type
+              attributesList.removeAt(3);      // Resolution
+              attributesList.removeAt(2);      // Page Size
+              attributesList.removeAt(1);      // Colour/Step Number
+              attributesList.removeAt(0);      // Base Name
+          }
+          QString attributesCompare = attributesList.join("_");
+          result = compareStr != attributesCompare;
+          if (Preferences::debugLogging) {
+              message             = QString("PLI file attributes compare [%1], attributesCompare [%2], compareStr [%3]")
+                                            .arg(result ? "No Match - usingSnapshotArgs" : "Match" )
+                                            .arg(attributesCompare).arg(compareStr);
+              gui->messageSig(LOG_DEBUG, message);
+          }
+      } else {
+          result = false;
+          message           = QString("Malforded image file attributes list [%1]")
+                                      .arg(attributesList.join("_"));
+          gui->messageSig(LOG_NOTICE, message);
+      }
+      return result;
+  };
+
   QString f;
-  bool useSnapshotArgs = false;
-  if (useLDViewSCall() && pliType != SUBMODEL) {  // SingleCall
-      if (keySub) {
-          // process substitute attributes
-          QStringList snapShotArgs,snapShotsLdrs;
-          foreach (QString ldrName,ldrNames) {
-              if (!QFileInfo(ldrName).exists()) {
-                  emit gui->messageSig(LOG_ERROR, QString("LDR file %1 not found.").arg(ldrName));
-                  continue;
-              }
+  bool usingDefaultArgs    = true;
+  bool snapshotArgsChanged = false;
+  if (useLDViewSCall() && pliType != SUBMODEL) {  // Use LDView SingleCall
 
-              QStringList attributes = getSubAttributes(ldrName);
-              if (attributes.endsWith("SUB")) { // based on keySub
-                  if (attributes.size() > 10)
-                      noCA = attributes.at(nTransform) == "ABS";
-                  modelScale   = attributes.at(nModelScale).toFloat();
-                  cameraFov    = attributes.at(nCameraFoV).toFloat();
-                  cameraAngleX = attributes.at(nCameraAngleXX).toFloat();
-                  cameraAngleY = attributes.at(nCameraAngleYY).toFloat();
-                  cd = int(cameraDistance(meta,modelScale)*1700/1000);
+      // process substitute attributes
+      QString snapshotsCmdLineArgs,snapshotArgs;
+      QStringList snapShotsListArgs, subSnapShotsListArgs, snapShotsLdrs;
 
-                  CA = pp ? QString("-FOV=%1").arg(double(cameraFov)) : CA;
-                  cg = pp ? pl ? QString("-DefaultLatLong=%1,%2%3")
-                                                   .arg(noCA ? 0.0 : double(cameraAngleX))
-                                                   .arg(noCA ? 0.0 : double(cameraAngleY))
-                                                   .arg(dz)
-                                         : QString("-cg%1,%2,%3")
-                                                   .arg(noCA ? 0.0 : double(cameraAngleX))
-                                                   .arg(noCA ? 0.0 : double(cameraAngleY))
-                                                   .arg(QString::number(cd * cdf,'f',0) )
-                                    : QString("-cg%1,%2,%3")
-                                              .arg(noCA ? 0.0 : double(cameraAngleX))
-                                              .arg(noCA ? 0.0 : double(cameraAngleY))
-                                              .arg(cd);
-                  QString pngName = QString(ldrName).replace("_SUB.ldr",".png");
-                  snapShotArgs.append(QString("%1 %2 -SaveSnapShot=%3 %4").arg(CA).arg(cg).arg(pngName).arg(ldrName));
-              } else {
-                  snapShotsLdrs.append(ldrName);
-              }
+      foreach (QString ldrName,ldrNames) {
+          if (!QFileInfo(ldrName).exists()) {
+              emit gui->messageSig(LOG_ERROR, QString("LDR file %1 not found.").arg(ldrName));
+              continue;
           }
 
-          QString snapShotsCmdArgs,snapShotsArgs;
-          if (snapShotsLdrs.size()) {
-              if (snapShotsLdrs.size() < SNAPSHOTS_LIST_THRESHOLD) {
+          // get attribues from ldrName key
+          attributes = getImageAttributes(ldrName);
 
-                  snapShotsArgs = QString("-SaveSnapShots=1 %1").arg(snapShotsLdrs.join(" "));
-                  snapShotsCmdArgs = QString("%1 %2 %3").arg(CA).arg(cg).arg(snapShotsArgs);
+          // attributes are different from default
+          if ((usingSnapshotArgs  = compareAttributes(usingDefaultArgs))){
+              processAttributes(attributes, noCA, cd, CA, cg, modelScale, cameraFoV, cameraAngleX, cameraAngleY);
+              snapshotArgsChanged = !usingDefaultArgs;
+              usingDefaultArgs    = usingDefaultArgs ? false : usingDefaultArgs;
+              usingSnapshotArgs   = false;                // reset
+              compareStr          = attributes.join("_");
+
+              if (!snapshotArgsChanged)
+                  snapshotArgs = QString("%1 %2").arg(CA).arg(cg);
+
+          }
+
+          // if substitute, trigger command list
+          if (keySub && attributes.endsWith("SUB")) {
+
+             usingDefaultArgs = false;
+             QString pngName = QString(ldrName).replace("_SUB.ldr",".png");
+             subSnapShotsListArgs.append(QString("%1 %2 -SaveSnapShot=%3 %4").arg(CA).arg(cg).arg(pngName).arg(ldrName));
+
+          } else {
+
+             snapShotsLdrs.append(ldrName);
+
+             // if using different snapshot args, trigger command list
+             if (!usingDefaultArgs) {
+
+                 QString saveArgs = QString("-SaveSnapShots=1 %1").arg(ldrName);
+                 snapShotsListArgs.append(QString("%1 %2 %3").arg(CA).arg(cg).arg(saveArgs));
+             }
+          }
+      }
+
+      // using same snapshot args for all parts
+      usingSnapshotArgs = !usingDefaultArgs && !snapshotArgsChanged;
+
+      if (snapShotsLdrs.size()) {
+          // using default args or same snapshot args for all parts
+          if (usingDefaultArgs || usingSnapshotArgs) {
+              if (snapShotsLdrs.size() < SNAPSHOTS_LIST_THRESHOLD || !useLDViewSList()) {
+
+                  // use single line snapshots command
+                  snapshotsCmdLineArgs = QString("-SaveSnapShots=1 %1").arg(snapShotsLdrs.join(" "));
 
               } else {
 
+                  // create snapshot list
+                  usingListCmdArg = true;
                   QString SnapshotsList = tempPath + QDir::separator() + "pliSnapshotsList.lst";
                   if (!createSnapshotsList(snapShotsLdrs,SnapshotsList))
                       return -1;
-                  snapShotsArgs = QString("-SaveSnapshotsList=1 %1").arg(SnapshotsList);
-                  snapShotsCmdArgs = QString("%1 %2 %3").arg(CA).arg(cg).arg(snapShotsArgs);
+                  snapshotsCmdLineArgs = QString("-SaveSnapshotsList=1 %1").arg(SnapshotsList);
               }
+
+              // using same snapshot args for all parts
+              if (usingSnapshotArgs) {
+                  CA = snapshotArgs.split(" ").first();
+                  cg = snapshotArgs.split(" ").last();
+              }
+
+              f  = snapshotsCmdLineArgs;
           }
-
-          // we have commandline snapShotArgs so create a list file
-          if ((useSnapshotArgs = snapShotArgs.size())) {
-
+          // we have subSnapShotsListArgs or not usingDefaultArgs so create a CommandLinesList file
+          else
+          {
+              usingListCmdArg = true;
               QString CommandLinesList = tempPath + QDir::separator() + "pliCommandLinesList.lst";
               QFile CommandLinesListFile(CommandLinesList);
               if ( ! CommandLinesListFile.open(QFile::WriteOnly | QFile::Text)) {
@@ -1805,66 +2096,30 @@ int LDView::renderPli(
               }
 
               QTextStream out(&CommandLinesListFile);
+              // add normal snapshot lines
               if (snapShotsLdrs.size())
-                  out << snapShotsCmdArgs << endl;
-              foreach (QString argsLine,snapShotArgs)
+                  foreach (QString argsLine,snapShotsListArgs)
+                      out << argsLine << endl;
+              // add substitute snapshot lines
+              foreach (QString argsLine,subSnapShotsListArgs)
                   out << argsLine << endl;
+
               CommandLinesListFile.close();
 
               f  = QString("-CommandLinesList=%1").arg(CommandLinesList);    // run in renderCsi
           }
-          // otherwise just use the saveSnapShots argument
-          else {
-
-              f  = snapShotsArgs;
-          }
-
-      } else if (!useLDViewSList() || (useLDViewSList() && ldrNames.size() < SNAPSHOTS_LIST_THRESHOLD)) {
-
-          f  = QString("-SaveSnapShots=1");
-      } else {
-
-          QString SnapshotsList = tempPath + QDir::separator() + "pliSnapshotsList.lst";
-          if (!createSnapshotsList(ldrNames,SnapshotsList))
-              return -1;
-          f  = QString("-SaveSnapshotsList=%1").arg(SnapshotsList);    // run in renderCsi
       }
 
-  } else {
-      // process substitute attributes
-      if (keySub) {
-        QStringList attributes = getSubAttributes(pngName);
-        if (keySub == PliBeginSub6Rc)
-          noCA = attributes.at(nTransform) == "ABS";
-        if (keySub > PliBeginSub2Rc) {
-          modelScale   = attributes.at(nModelScale).toFloat();
-          cameraFov    = attributes.at(nCameraFoV).toFloat();
-          cameraAngleX = attributes.at(nCameraAngleXX).toFloat();
-          cameraAngleY = attributes.at(nCameraAngleYY).toFloat();
-        }
-        cd = int(cameraDistance(meta,modelScale)*1700/1000);
+  } else { // End Use SingleCall
 
-        CA = pp ? QString("-FOV=%1").arg(double(cameraFov)) : CA;
-        cg = pp ? pl ? QString("-DefaultLatLong=%1,%2%3")
-                                         .arg(noCA ? 0.0 : double(cameraAngleX))
-                                         .arg(noCA ? 0.0 : double(cameraAngleY))
-                                         .arg(dz)                             // replace Camera Globe with DefaultLatLon and add DefaultZoom
-                               : QString("-cg%1,%2,%3")
-                                         .arg(noCA ? 0.0 : double(cameraAngleX))
-                                         .arg(noCA ? 0.0 : double(cameraAngleY))
-                                         .arg(QString::number(cd * cdf,'f',0) )
-                          : QString("-cg%1,%2,%3")
-                                    .arg(noCA ? 0.0 : double(cameraAngleX))
-                                    .arg(noCA ? 0.0 : double(cameraAngleY))
-                                    .arg(cd);
+      if (keySub) {
+          // process substitute attributes
+          attributes = getImageAttributes(pngName);
+          processAttributes(attributes, noCA, cd, CA, cg, modelScale, cameraFoV, cameraAngleX, cameraAngleY);
       }
 
       f  = QString("-SaveSnapShot=%1") .arg(pngName);
   }
-
-  /* page size */
-  int width  = gui->pageSize(meta.LPub.page, 0);
-  int height = gui->pageSize(meta.LPub.page, 1);
 
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
@@ -1873,9 +2128,12 @@ int LDView::renderPli(
   QString v  = QString("-vv");
 
   QStringList arguments;
-  if (!useSnapshotArgs){
-    arguments << CA;
-    arguments << cg;
+  if (useLDViewSCall() && usingDefaultArgs){
+    arguments << CA; // Camera Angle
+    arguments << cg; // Camera Globe
+    arguments << dl; // -DefaultLatLong
+    arguments << dz; // -DefaultZoom
+    arguments << sz; // -SaveZoomToFit
   }
 
   // append additional LDView parameters
@@ -1887,12 +2145,12 @@ int LDView::renderPli(
                          .arg(ldviewParmsArgs.join(" ")));
   }
 
-  arguments << w;
-  arguments << h;
-  arguments << f;
-  arguments << l;
-  arguments << o;
-  arguments << v;
+  arguments << w; // -SaveWidth
+  arguments << h; // -SaveHeight
+  arguments << f; // -CommandLinesList | -SaveSnapshotsList | -SaveSnapShots | -SaveSnapShot
+  arguments << l; // -LDrawDir
+  arguments << o; // -HaveStdOut
+  arguments << v; // -vv (Verbose)
 
   if(Preferences::ldviewIni != ""){
       QString ini;
@@ -1908,11 +2166,11 @@ int LDView::renderPli(
 
   if (useLDViewSCall() && pliType != SUBMODEL) {
       //-SaveSnapShots=1
-      if (!keySub && (!useLDViewSList() || (useLDViewSList() && ldrNames.size() < SNAPSHOTS_LIST_THRESHOLD)))
+      if (!keySub && ((!useLDViewSList() && !usingListCmdArg) || (useLDViewSList() && ldrNames.size() < SNAPSHOTS_LIST_THRESHOLD)))
           arguments = arguments + ldrNames;  // 13. LDR input file(s)
   } else {
       //-SaveSnapShot=%1
-      arguments << ldrNames.first();
+      arguments << QDir::toNativeSeparators(ldrNames.first());
   }
 
   removeEmptyStrings(arguments);
@@ -1929,7 +2187,7 @@ int LDView::renderPli(
           QString pngFileTmpPath = ldrName.endsWith("_SUB.ldr") ?
                                    ldrName.replace("_SUB.ldr",".png") :
                                    ldrName.replace(".ldr",".png");
-          QString pngFilePath = partsPath + QDir::separator() + QFileInfo(pngFileTmpPath).fileName();
+          QString pngFilePath = QDir::toNativeSeparators(partsPath + "/" + QFileInfo(pngFileTmpPath).fileName());
           QFile destinationFile(pngFilePath);
           QFile sourceFile(pngFileTmpPath);
           if (! destinationFile.exists() || destinationFile.remove()) {
@@ -2136,7 +2394,7 @@ int Native::renderPli(
 
   // Populate render attributes
   float cameraDistance = metaType.cameraDistNative.factor.value();
-  float cameraFov      = metaType.cameraFoV.value();
+  float cameraFoV      = metaType.cameraFoV.value();
   float cameraAngleX   = metaType.cameraAngles.value(0);
   float cameraAngleY   = metaType.cameraAngles.value(1);
   float zNear          = metaType.znear.value();
@@ -2147,12 +2405,12 @@ int Native::renderPli(
 
   // process substitute attributes
   if (keySub) {
-    QStringList attributes = getSubAttributes(pngName);
+    QStringList attributes = getImageAttributes(pngName);
     if (keySub == PliBeginSub6Rc)
       noCA = attributes.at(nTransform) == "ABS";
     if (keySub > PliBeginSub2Rc) {
       cameraDistance = attributes.at(nModelScale).toFloat();
-      cameraFov      = attributes.at(nCameraFoV).toFloat();
+      cameraFoV      = attributes.at(nCameraFoV).toFloat();
       cameraAngleX   = attributes.at(nCameraAngleXX).toFloat();
       cameraAngleY   = attributes.at(nCameraAngleYY).toFloat();
     }
@@ -2165,7 +2423,7 @@ int Native::renderPli(
   Options.OutputFileName    = pngName;
   Options.ImageWidth        = gui->pageSize(meta.LPub.page, 0);
   Options.ImageHeight       = gui->pageSize(meta.LPub.page, 1);
-  Options.FoV               = cameraFov;
+  Options.FoV               = cameraFoV;
   Options.ZNear             = zNear;
   Options.ZFar              = zFar;
   Options.Latitude          = noCA ? 0.0 : cameraAngleX;

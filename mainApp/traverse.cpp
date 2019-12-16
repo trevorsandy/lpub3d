@@ -1538,7 +1538,7 @@ int Gui::drawPage(
                       page->selectedSceneItems   = selectedSceneItems;
                     }
 
-                  emit messageSig(LOG_STATUS, "Add CSI images for multi-step page " + opts.current.modelName);
+                  emit messageSig(LOG_STATUS, "Generate CSI images for multi-step page " + opts.current.modelName);
 
                   if (renderer->useLDViewSCall() && opts.ldrStepFiles.size() > 0){
 
@@ -1927,7 +1927,7 @@ int Gui::drawPage(
                           }
                       }
 
-                      emit messageSig(LOG_INFO, "Add CSI image for single-step page...");
+                      emit messageSig(LOG_INFO, "Generate CSI image for single-step page...");
 
                       if (renderer->useLDViewSCall() && opts.ldrStepFiles.size() > 0){
 

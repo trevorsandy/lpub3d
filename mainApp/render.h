@@ -61,13 +61,13 @@ public:
   static int             executeLDViewProcess(QStringList &, Options::Mt);
   static QString const   fixupDirname(const QString &);
   static QString const   getPovrayRenderFileName(const QString &);
-  static QStringList const getSubAttributes(const QString &);
   static float           getPovrayRenderCameraDistance(const QString &cdKeys);
   static void            showLdvExportSettings(int mode);
   static void            showLdvLDrawPreferences(int mode);
   static bool            RenderNativeImage(const NativeOptions &);
   static bool            NativeExport(const NativeOptions &);
   static bool            LoadViewer(const ViewerOptions &);
+  static QStringList const getImageAttributes(const QString &);
   static bool            createSnapshotsList(const QStringList &,
                                             const QString &);
   static void            addArgument(QStringList &arguments,

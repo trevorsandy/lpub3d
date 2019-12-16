@@ -84,21 +84,22 @@ enum SubAttributes {
     sRemove
 };
 enum NameKeyAttributes {
-    nType = 0,        // 0
-    nColorCode,       // 1
+    nType = 0,        // 0 Defaults to csi.ldr for CSI
+    nColorCode,       // 1 This is Step Number for CSI
     nPageWidth,       // 2
     nResolution,      // 3
     nResType,         // 4
     nModelScale,      // 5
-    nCameraDistance = nModelScale,
     nCameraFoV,       // 6
     nCameraAngleXX,   // 7
     nCameraAngleYY,   // 8
+    nBaseAttributes = nCameraAngleYY, // 8 elements
     nRotX,            // 9
     nRotY,            // 10
     nRotZ,            // 11
     nTransform,       // 12
-    nSub              // 13 only added for LDView single call
+    nHasRotstep = nTransform,         // 12 elements
+    nSub              // 13 Used by LDView single call
 };
 
 const int GridSizeTable[] = { 10, 20, 30, 40, 50, 60, 70, 80, 90 };
