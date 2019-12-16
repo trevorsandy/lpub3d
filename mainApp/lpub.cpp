@@ -2225,6 +2225,8 @@ void Gui::preferences()
     bool showDownloadRedirectsCompare   = Preferences::showDownloadRedirects;
     int povrayRenderQualityCompare      = Preferences::povrayRenderQuality;
     int ldrawFilesLoadMsgsCompare       = Preferences::ldrawFilesLoadMsgs;
+    bool showParseErrorsCompare         = Preferences::showParseErrors;
+    bool showAnnotationMessagesCompare  = Preferences::showAnnotationMessages;
     QString altLDConfigPathCompare      = Preferences::altLDConfigPath;
     QString povFileGeneratorCompare     = Preferences::povFileGenerator;
     QString fadeStepsColourCompare      = Preferences::validFadeStepsColour;
@@ -2300,6 +2302,9 @@ void Gui::preferences()
         bool sceneGuideColorChanged        = Preferences::sceneGuideColor.toLower()              != sceneGuideColorCompare.toLower();
         bool ldrawFilesLoadMsgsChanged     = Preferences::ldrawFilesLoadMsgs                     != ldrawFilesLoadMsgsCompare;
         bool ldSearchDirsChanged           = Preferences::ldSearchDirs                           != ldSearchDirsCompare;
+
+        bool showParseErrorsChanged        = Preferences::showParseErrors                        != showParseErrorsCompare;
+        bool showAnnotationMessagesChanged = Preferences::showAnnotationMessages                 != showAnnotationMessagesCompare;
 
         if (defaultUnitsChanged     )
                     emit messageSig(LOG_INFO,QString("Default units changed to %1").arg(Preferences::preferCentimeters? "Centimetres" : "Inches"));
@@ -2499,6 +2504,13 @@ void Gui::preferences()
             box.setText (QString("%1 will restart to properly load the alternate LDConfig file.").arg(VER_PRODUCTNAME_STR));
             box.exec();
         }
+
+        if (showParseErrorsChanged     )
+                    emit messageSig(LOG_INFO,QString("Show Parse Errors is %1").arg(Preferences::showParseErrors? "ON" : "OFF"));
+
+        if (showAnnotationMessagesChanged     )
+                    emit messageSig(LOG_INFO,QString("Show Parse Errors is %1").arg(Preferences::showAnnotationMessages? "ON" : "OFF"));
+
 
         if (displayThemeChanged) {
             if( Preferences::themeAutoRestart) {

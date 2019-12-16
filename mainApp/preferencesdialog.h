@@ -94,6 +94,7 @@ class PreferencesDialog : public QDialog
     bool          includeFunction();
     bool          includeAllLogAttrib();
     bool          showParseErrors();
+    bool          showAnnotationMessages();
     bool          showSaveOnRedraw();
     bool          showSaveOnUpdate();
     bool          addLSynthSearchDir();
@@ -170,6 +171,8 @@ class PreferencesDialog : public QDialog
     void on_saveOnRedrawChkBox_clicked(bool checked);
     void on_saveOnUpdateChkBox_clicked(bool checked);
 
+    void on_optionsButton_clicked(bool checked);
+
     void ldvPoVFileGenOptBtn_clicked();
     void ldvPoVFileGenPrefBtn_clicked();
 
@@ -182,6 +185,9 @@ private:
     Ui::PreferencesDialog ui;
 
     QWidget       *parent;
+
+    QCheckBox     *showParseErrorsChkBox;
+    QCheckBox     *showAnnotationMessagesChkBox;
 
     QSimpleUpdater  *m_updater;
     static QString   DEFS_URL;
