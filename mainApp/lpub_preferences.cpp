@@ -448,22 +448,75 @@ bool Preferences::validLib(const QString &libName, const QString &libVersion) {
         return false;
     }
 
-    QString v1 = libVersion;
-    QString v2 = pr.readAllStandardOutput().trimmed();
+    QString val1 = libVersion;
+    QString val2 = pr.readAllStandardOutput().trimmed();
 
     // Compare v1 with v2 and return an integer:
     // Return -1 when v1 < v2
     // Return  0 when v1 = v2
     // Return  1 when v1 > v2
 
-    int vc = QString::compare(v1, v2, Qt::CaseInsensitive);
+    auto compareLibVersion = [&val1, &val2] ()
+    {
+        int result = 0;
+        int v1 = 0,v2 = 0;
+        QString _val1 = val1;
+        QString _val2 = val2;
+        bool good = false, ok = false;
+        if (_val1 == LIBJPEG_MACOS_VERSION) {
+            _val1.chop(val1.size() - 1);
+            _val2.chop(val2.size() - 1);
+            v1 = _val1.toInt(&good);
+            v2 = _val2.toInt(&ok);
+            good &= ok;
+            if (good) {
+                if (v1 < v2)
+                    return -1;
+                else if (v1 == v2)
+                    return 0;
+                else
+                    return 1;
+            } else {
+                return QString::compare(_val1, _val2, Qt::CaseInsensitive);
+            }
+        } else {
+            QStringList _vals1 = _val1.split(".");
+            QStringList _vals2 = _val2.split(".");
+            if (_vals1.size() == _vals2.size()) {
+                bool good = false, ok = false;
+                for(int i = 0; i < _vals1.size(); i++){
+                    v1 = _vals1.at(i).toInt(&good);
+                    v2 = _vals2.at(i).toInt(&ok);
+                    good &= ok;
+                    if (good) {
+                        if (v1 < v2)
+                            result = -1;
+                        else if (v1 == v2)
+                            result = 0;
+                        else
+                            result = 1;
+                        // if value is not 0 (equal), return result (-1, or 1)
+                        if (result)
+                            return result;
+                    } else {
+                       return QString::compare(_val1, _val2, Qt::CaseInsensitive);
+                    }
+                }
+            } else {
+                return QString::compare(_val1, _val2, Qt::CaseInsensitive);
+            }
+        }
+        return result;
+    };
+
+    int vc =  compareLibVersion(); // QString::compare(val1, val2, Qt::CaseInsensitive);
 
     logInfo() << QString("Library version check - [%1] minimum :[%2] installed:[%3] vc(%4): %5]")
-                         .arg(libName).arg(v1).arg(v2).arg(vc).arg(vc < 0 ? "v1 < v2" : vc == 0 ? "v1 = v2" : "v1 > v2");
+                         .arg(libName).arg(val1).arg(val2).arg(vc).arg(vc < 0 ? "v1 < v2" : vc == 0 ? "v1 = v2" : "v1 > v2");
 
     if (vc > 0) {
         logTrace() << QString("Library %1 version [%2] is less than required version [%3]")
-                              .arg(libName).arg(v2).arg(libVersion);
+                              .arg(libName).arg(val2).arg(libVersion);
         return false;
     }
 

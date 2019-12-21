@@ -90,15 +90,16 @@ enum NameKeyAttributes {
     nResolution,      // 3
     nResType,         // 4
     nModelScale,      // 5
+    nCameraDistance = nModelScale,    // 5th element
     nCameraFoV,       // 6
     nCameraAngleXX,   // 7
     nCameraAngleYY,   // 8
-    nBaseAttributes = nCameraAngleYY, // 8 elements
+    nBaseAttributes = nCameraAngleYY, // 8th element
     nRotX,            // 9
     nRotY,            // 10
     nRotZ,            // 11
     nTransform,       // 12
-    nHasRotstep = nTransform,         // 12 elements
+    nHasRotstep = nTransform,         // 12th element
     nSub              // 13 Used by LDView single call
 };
 

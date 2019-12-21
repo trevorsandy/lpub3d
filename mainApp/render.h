@@ -68,6 +68,9 @@ public:
   static bool            NativeExport(const NativeOptions &);
   static bool            LoadViewer(const ViewerOptions &);
   static QStringList const getImageAttributes(const QString &);
+  static bool            compareImageAttributes(const QStringList &,
+                                                const QString &,
+                                                bool pare = true);
   static bool            createSnapshotsList(const QStringList &,
                                             const QString &);
   static void            addArgument(QStringList &arguments,

@@ -271,28 +271,36 @@ int Step::createCsi(
                                .arg(absRotstep ? double(noCA.value(1)) : double(cameraAngles.value(1)));
   QString key      = QString("%1_%2").arg(keyPart1).arg(keyPart2);
 
-  // append rotstep to be passed on to 3DViewer
-  keyPart2 += QString("_%1")
-                      .arg(renderer->getRotstepMeta(meta.rotStep,true));
+  // append rotstep to be passed on to 3DViewer and LDView Single Call CompareString
+  keyPart2 += QString("_%1").arg(renderer->getRotstepMeta(meta.rotStep,true));
 
-  // commandeer csiKey for LDViewSCall compareString
-  csiKey = QString("CSI_%1").arg(keyPart2);
+  // set imageMatteKey
+  QString imageMatteKey = QString("%1_%2").arg(csi_Name).arg(stepNumber.number);
 
-  // temp hack - passed so we can always have scale for pov render
+  // populate csiKey - Add CompareString and ImageMatteKey if LDView Single Call
+  if (renderer->useLDViewSCall()) {
+      csiKey = QString("CSI_%1|%2").arg(keyPart2).arg(imageMatteKey);
+      // add LDView parms to csiKey if not empty
+      if (!ldviewParms.value().isEmpty())
+          csiKey.append(QString("|%1").arg(ldviewParms.value()));
+  }
+  // add add ImageMatteKey
+  else {
+      csiKey = imageMatteKey;
+  }
+
+  // temp hack - passed so we can always have scale for POV render
   keyPart2 += QString("_%1")
                       .arg(double(csiCameraMeta.modelScale.value()));
 
   // populate png name
   pngName = QDir::toNativeSeparators(QString("%1/%2.png").arg(csiPngFilePath).arg(key));
 
-  // create ImageMatte csiKey - userped for LDViewSCall compareString
-//  csiKey = QString("%1_%2").arg(csi_Name).arg(stepNumber.number);
-
-  // add csiKey and pngName to ImageMatte repository - exclude first step
+  // add imageMatteKey and pngName to ImageMatte repository - exclude first step
   if (Preferences::enableFadeSteps && Preferences::enableImageMatting && !invalidIMStep) {
-      if (!LDVImageMatte::validMatteCSIImage(csiKey))
-          LDVImageMatte::insertMatteCSIImage(csiKey, pngName);
-    }
+      if (!LDVImageMatte::validMatteCSIImage(imageMatteKey))
+          LDVImageMatte::insertMatteCSIImage(imageMatteKey, pngName);
+  }
 
   // Check if png file date modified is older than model file (on the stack) date modified
   csiOutOfDate = false;
