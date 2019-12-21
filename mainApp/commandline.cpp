@@ -29,22 +29,23 @@ int Gui::processCommandLine()
     return 0;
 
   // Declarations
-   int fadeStepsOpacity    = FADE_OPACITY_DEFAULT;
-   int highlightLineWidth  = HIGHLIGHT_LINE_WIDTH_DEFAULT;
-   int StudLogo            = lcGetProfileInt(LC_PROFILE_STUD_LOGO);
-  bool processExport       = false;
-  bool processFile         = false;
-  bool fadeSteps           = false;
-  bool highlightStep       = false;
-// bool imageMatting        = false;
-  bool resetSearchDirs     = false;
-  bool useLDVSingleCall    = false;
-  bool useLDVSnapShotList  = false;
-  bool useNativeRenderer   = false;
-  QString generator        = RENDERER_NATIVE;
+   int fadeStepsOpacity      = FADE_OPACITY_DEFAULT;
+   int highlightLineWidth    = HIGHLIGHT_LINE_WIDTH_DEFAULT;
+   int StudLogo              = lcGetProfileInt(LC_PROFILE_STUD_LOGO);
+  bool processExport         = false;
+  bool processFile           = false;
+  bool perspectiveProjection = false;
+  bool fadeSteps             = false;
+  bool highlightStep         = false;
+// bool imageMatting          = false;
+  bool resetSearchDirs       = false;
+  bool useLDVSingleCall      = false;
+  bool useLDVSnapShotList    = false;
+  bool useNativeRenderer     = false;
+  QString generator          = RENDERER_NATIVE;
 
   QString pageRange, exportOption,
-          commandlineFile, preferredRenderer,
+          commandlineFile, preferredRenderer, projection,
           fadeStepsColour, highlightStepColour, message;
 
   // Process parameters
@@ -52,7 +53,7 @@ int Gui::processCommandLine()
 
   const int NumArguments = Arguments.size();
   for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
-    {
+  {
       const QString& Param = Arguments[ArgIdx];
 
       if (Param.isEmpty())
@@ -69,7 +70,7 @@ int Gui::processCommandLine()
             (Param == QLatin1String("-ll") || Param == QLatin1String("--liblego"))  ||
             (Param == QLatin1String("-lt") || Param == QLatin1String("--libtente")) ||
             (Param == QLatin1String("-lv") || Param == QLatin1String("--libvexiq"))
-         )
+            )
       {
           continue;
       }
@@ -77,13 +78,13 @@ int Gui::processCommandLine()
       auto ParseString = [&ArgIdx, &Arguments, NumArguments](QString& Value, bool Required)
       {
           if (ArgIdx < NumArguments - 1 && Arguments[ArgIdx + 1][0] != '-')
-            {
+          {
               ArgIdx++;
               Value = Arguments[ArgIdx];
-            }
+          }
           else if (Required)
-            printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
-        };
+              printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
+      };
 
       auto ParseInteger = [&ArgIdx, &Arguments, NumArguments](int& Value)
       {
@@ -110,13 +111,13 @@ int Gui::processCommandLine()
               ArgIdx++;
               int NewValue = Arguments[ArgIdx].toFloat(&Ok);
 
-	      if (Ok)
-		  Value = NewValue;
-	      else
-		  printf("Invalid value specified for the '%s' argument.\n", Arguments[ArgIdx - 1].toLatin1().constData());
-	  }
-	  else
-	      printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
+              if (Ok)
+                  Value = NewValue;
+              else
+                  printf("Invalid value specified for the '%s' argument.\n", Arguments[ArgIdx - 1].toLatin1().constData());
+          }
+          else
+              printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
       };
 
       if (Param == QLatin1String("-pf") || Param == QLatin1String("--process-file"))
@@ -152,7 +153,7 @@ int Gui::processCommandLine()
 //        imageMatting = true;
 //      else
       if (Param == QLatin1String("-of") || Param == QLatin1String("--pdf-output-file"))
-        ParseString(saveFileName, false);
+        ParseString(saveFileName, true);
       else
       if (Param == QLatin1String("-rs") || Param == QLatin1String("--reset-search-dirs"))
           resetSearchDirs = true;
@@ -161,16 +162,19 @@ int Gui::processCommandLine()
         resetCache = true;
       else
       if (Param == QLatin1String("-p") || Param == QLatin1String("--preferred-renderer"))
-        ParseString(preferredRenderer, false);
+        ParseString(preferredRenderer, true);
+      else
+      if (Param == QLatin1String("-pr") || Param == QLatin1String("--projection"))
+        ParseString(projection, true);
       else
       if (Param == QLatin1String("-o") || Param == QLatin1String("--export-option"))
-        ParseString(exportOption, false);
+        ParseString(exportOption, true);
       else
       if (Param == QLatin1String("-d") || Param == QLatin1String("--image-output-directory"))
-        ParseString(saveFileName, false);
+        ParseString(saveFileName, true);
       else
       if (Param == QLatin1String("-r") || Param == QLatin1String("--range"))
-        ParseString(pageRange, false);
+        ParseString(pageRange, true);
       else
       if (Param == QLatin1String("--line-width"))
         ParseInteger(highlightLineWidth);
@@ -257,7 +261,21 @@ int Gui::processCommandLine()
           Render::setRenderer(Preferences::preferredRenderer);
           Preferences::updatePOVRayConfigFiles();
       }
-    }
+  }
+
+  if (projection.toLower() == "p" || projection.toLower() == "projection") {
+      bool applyCARenderer = Preferences::preferredRenderer == RENDERER_LDVIEW;
+      message = QString("Camera projection set to Perspective.%1")
+                        .arg(applyCARenderer ?
+                                 QString(" Apply camera angles locally set to false") : "");
+      emit messageSig(LOG_INFO,message);
+      Preferences::applyCALocally = !applyCARenderer;
+      Preferences::perspectiveProjection = true;
+  } else if (projection.toLower() == "o" || projection.toLower() == "orthographic") {
+      message = QString("Camera projection set to Orthographic");
+      emit messageSig(LOG_INFO,message);
+      Preferences::perspectiveProjection = false;
+  }
 
   if (Preferences::sceneGuides)
       Preferences::setSceneGuidesPreference(false);

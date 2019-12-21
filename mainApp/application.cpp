@@ -462,6 +462,7 @@ void Application::initialize()
                 fprintf(stdout, "  -p, --preferred-renderer <renderer>: Set renderer native, ldglite, ldview, ldview-sc, ldview-scsl, povray, or povray-ldv. Default is native.\n ");
                 fprintf(stdout, "  -pe, --process-export: Export instruction document or images. Used with export-option. Default is pdf document.\n");
                 fprintf(stdout, "  -pf, --process-file: Process ldraw file and generate images in png format.\n");
+                fprintf(stdout, "  -pr, --projection <p,projection|o,orthographic>: Set camera projection.\n");
                 fprintf(stdout, "  -r, --range <page range>: Set page range - e.g. 1,2,9,10-42. Default is all pages.\n");
                 fprintf(stdout, "  -rs, --reset-search-dirs: Reset the LDraw parts directories to those searched by default. Default is off.\n");
                 fprintf(stdout, "  -v, --version: Output LPub3D version information and exit.\n");
