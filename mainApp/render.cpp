@@ -402,7 +402,7 @@ const QStringList Render::getImageAttributes(const QString &nameKey)
 
 bool Render::compareImageAttributes(
     const QStringList &attributes,
-    const QString &compareStr,
+    const QString &compareKey,
     bool pare)
 {
     bool result;
@@ -417,11 +417,11 @@ bool Render::compareImageAttributes(
             attributesList.removeAt(nType);
         }
         const QString attributesCompare = attributesList.join("_");
-        result = compareStr != attributesCompare;
+        result = compareKey != attributesCompare;
         if (Preferences::debugLogging) {
-            message             = QString("File attributes compare [%1], attributesCompare [%2], compareStr [%3]")
+            message             = QString("File attributes compare [%1], attributesCompare [%2], compareKey [%3]")
                                           .arg(result ? "No Match - usingSnapshotArgs" : "Match" )
-                                          .arg(attributesCompare).arg(compareStr);
+                                          .arg(attributesCompare).arg(compareKey);
             gui->messageSig(LOG_DEBUG, message);
         }
     } else {
@@ -449,7 +449,8 @@ bool Render::createSnapshotsList(
         QString smLine = ldrNames[i];
         if (QFileInfo(smLine).exists()) {
             out << smLine << endl;
-            emit gui->messageSig(LOG_INFO, QString("Wrote %1 to PLI Snapshots list").arg(smLine));
+            if (Preferences::debugLogging)
+                emit gui->messageSig(LOG_DEBUG, QString("Wrote %1 to PLI Snapshots list").arg(smLine));
         } else {
             emit gui->messageSig(LOG_ERROR, QString("Error %1 not written to Snapshots list - file does not exist").arg(smLine));
         }
@@ -1488,8 +1489,8 @@ int LDView::renderCsi(
   float cameraAngleX = noCA ? 0.0f : meta.LPub.assem.cameraAngles.value(0);
   float cameraAngleY = noCA ? 0.0f : meta.LPub.assem.cameraAngles.value(1);
 
-  // Assemble compareString and test csiParts if Single Call
-  QString compareStr;
+  // Assemble compareKey and test csiParts if Single Call
+  QString compareKey;
   if (useLDViewSCall()){
 
       // test first csiParts
@@ -1500,15 +1501,14 @@ int LDView::renderCsi(
         return -1;
       }
 
-      compareStr = QString("%1_%2_%3_%4_%5")
-                           .arg(double(modelScale))    // 1
-                           .arg(double(cameraFoV))     // 2
-                           .arg(double(cameraAngleX))  // 3
-                           .arg(double(cameraAngleY))  // 4
-                           .arg(renderer->getRotstepMeta(meta.rotStep,true)); // 5,6,7,8
-      removeEmptyStrings(ldviewParmslist);
+      compareKey = QString("%1_%2_%3_%4_%5")
+                           .arg(double(modelScale))                       // 1
+                           .arg(double(cameraFoV))                        // 2
+                           .arg(double(cameraAngleX))                     // 3
+                           .arg(double(cameraAngleY))                     // 4
+                           .arg(transform.isEmpty() ? "REL" : transform); // 5
       if (ldviewParmslist.size() && (ldviewParmslist[0] != "" && ldviewParmslist[0] != " "))
-          compareStr.append(QString("_%1").arg(meta.LPub.assem.ldviewParms.value()));
+          compareKey.append(QString("_%1").arg(meta.LPub.assem.ldviewParms.value()));
   }
 
   /* set default camera distance */
@@ -1627,7 +1627,7 @@ int LDView::renderCsi(
   bool usingListCmdArg     = false;
   bool usingDefaultArgs    = true;
   bool snapshotArgsChanged = false;
-  QStringList ldrNames, ldrNamesIM;
+  QStringList ldrNames, ldrNamesIM, snapshotLdrs;
   if (useLDViewSCall()) {  // Use LDView SingleCall
       // populate ldrNames
       if (Preferences::enableFadeSteps && Preferences::enableImageMatting){  // ldrName entries (IM ON)
@@ -1646,7 +1646,7 @@ int LDView::renderCsi(
 
       // process substitute attributes
       QString snapshotsCmdLineArgs,snapshotArgs;
-      QStringList snapShotsListArgs,snapShotsLdrs,keys;
+      QStringList snapShotsListArgs,keys;
       for (int i = 0; i < ldrNames.size(); i++) {
           QString ldrName = ldrNames.at(i);
 
@@ -1668,14 +1668,14 @@ int LDView::renderCsi(
               attributes.replace(1,"0");
 
           // attributes are different from default
-          usingSnapshotArgs = compareImageAttributes(attributes, compareStr, usingDefaultArgs);
+          usingSnapshotArgs = compareImageAttributes(attributes, compareKey, usingDefaultArgs);
           if (usingSnapshotArgs){
               processAttributes(attributes, noCA, cd, CA, cg, ldviewParmsArgs,
                                 modelScale, cameraFoV, cameraAngleX, cameraAngleY);
               snapshotArgsChanged = !usingDefaultArgs;
               usingDefaultArgs    = usingDefaultArgs ? false: usingDefaultArgs;
               usingSnapshotArgs   = false;                // reset
-              compareStr          = attributes.join("_");
+              compareKey          = attributes.join("_");
 
               if (!snapshotArgsChanged) {
                   snapshotArgs = QString("%1 %2").arg(CA).arg(cg);
@@ -1689,7 +1689,7 @@ int LDView::renderCsi(
               getRendererSettings(CA, cg, ldviewParmsArgs);
           }
 
-          snapShotsLdrs.append(ldrName);
+          snapshotLdrs.append(ldrName);
 
           if (!usingDefaultArgs) {
 
@@ -1707,7 +1707,7 @@ int LDView::renderCsi(
       // using same snapshot args for all parts
       usingSnapshotArgs = !usingDefaultArgs && !snapshotArgsChanged;
 
-      if (snapShotsLdrs.size() ) {
+      if (snapshotLdrs.size() ) {
           // using default args or same snapshot args for all parts
           if (usingDefaultArgs || usingSnapshotArgs) {
 
@@ -1721,10 +1721,10 @@ int LDView::renderCsi(
               }
 
               // use single line snapshots command
-              if (snapShotsLdrs.size() < SNAPSHOTS_LIST_THRESHOLD || !useLDViewSList()) {
+              if (snapshotLdrs.size() < SNAPSHOTS_LIST_THRESHOLD || !useLDViewSList()) {
 
                   // use single line snapshots command
-                  snapshotsCmdLineArgs = QString("-SaveSnapShots=1 %1").arg(snapShotsLdrs.join(" "));
+                  snapshotsCmdLineArgs = QString("-SaveSnapShots=1");
 
               }
               // create snapshot list
@@ -1732,14 +1732,14 @@ int LDView::renderCsi(
 
                   usingListCmdArg = true;
                   QString SnapshotsList = tempPath + QDir::separator() + "pliSnapshotsList.lst";
-                  if (!createSnapshotsList(snapShotsLdrs,SnapshotsList))
+                  if (!createSnapshotsList(snapshotLdrs,SnapshotsList))
                       return -1;
-                  snapshotsCmdLineArgs = QString("-SaveSnapshotsList=1 %1").arg(SnapshotsList);
+                  snapshotsCmdLineArgs = QString("-SaveSnapshotsList=%1").arg(SnapshotsList);
               }
 
               f  = snapshotsCmdLineArgs;
           }
-          // we have subSnapShotsListArgs or not usingDefaultArgs so create a CommandLinesList file
+          // create a command lines list - we have subSnapShotsListArgs or not usingDefaultArgs
           else
           {
               usingListCmdArg = true;
@@ -1752,10 +1752,11 @@ int LDView::renderCsi(
 
               QTextStream out(&CommandLinesListFile);
               // add normal snapshot lines
-              if (snapShotsLdrs.size()) {
+              if (snapshotLdrs.size()) {
                   foreach (QString argsLine,snapShotsListArgs) {
                       out << argsLine << endl;
-                      emit gui->messageSig(LOG_INFO, QString("Wrote %1 to CSI Command line list").arg(argsLine));
+                      if (Preferences::debugLogging)
+                          emit gui->messageSig(LOG_DEBUG, QString("Wrote %1 to CSI Command line list").arg(argsLine));
                   }
               }
               CommandLinesListFile.close();
@@ -1833,8 +1834,8 @@ int LDView::renderCsi(
       if (useLDViewSCall()) {
           //-SaveSnapShots=1
           if ((!useLDViewSList() && !usingListCmdArg) ||
-              (useLDViewSList() && ldrNames.size() < SNAPSHOTS_LIST_THRESHOLD))
-              arguments = arguments + ldrNames;  // 13. LDR input file(s)
+              (useLDViewSList() && snapshotLdrs.size() < SNAPSHOTS_LIST_THRESHOLD))
+              arguments = arguments + snapshotLdrs;  // 13. LDR input file(s)
       } else {
           // SaveSnapShot=1
           arguments << QDir::toNativeSeparators(ldrNames.first());
@@ -1958,16 +1959,17 @@ int LDView::renderPli(
   float cameraAngleX = noCA ? 0.0f : metaType.cameraAngles.value(0);
   float cameraAngleY = noCA ? 0.0f : metaType.cameraAngles.value(1);
 
-  // Assemble compareString if Single Call
-  QString compareStr;
+  // Assemble compareKey if Single Call
+  QString compareKey;
   if (useLDViewSCall()){
-      compareStr = QString("%1_%2_%3_%4")
-                           .arg(double(modelScale))    // 1
-                           .arg(double(cameraFoV))     // 2
-                           .arg(double(cameraAngleX))  // 3
-                           .arg(double(cameraAngleY)); // 4
+      compareKey = QString("%1_%2_%3_%4")
+                           .arg(double(modelScale))        // 1
+                           .arg(double(cameraFoV))         // 2
+                           .arg(double(cameraAngleX))      // 3
+                           .arg(double(cameraAngleY));     // 4
       if (keySub > PliBeginSub5Rc)
-          compareStr.append("_" + renderer->getRotstepMeta(metaType.rotStep,true)); // 5,6,7,8
+          compareKey.append(QString("_%1")                 // 5
+                                    .arg(transform.isEmpty() ? "REL" : transform));
   }
 
   /* set default camera distance */
@@ -1982,7 +1984,7 @@ int LDView::renderPli(
   // arguments settings
   bool usingListCmdArg   = false;
   bool usingSnapshotArgs = false;
-  QStringList attributes;
+  QStringList attributes, snapshotLdrs;
 
   // projection settings
   qreal cdf = LP3D_CDF;
@@ -2067,7 +2069,7 @@ int LDView::renderPli(
 
       // process substitute attributes
       QString snapshotsCmdLineArgs,snapshotArgs;
-      QStringList snapShotsListArgs, subSnapShotsListArgs, snapShotsLdrs;
+      QStringList snapShotsListArgs, subSnapShotsListArgs;
 
       foreach (QString ldrName,ldrNames) {
           if (!QFileInfo(ldrName).exists()) {
@@ -2079,13 +2081,13 @@ int LDView::renderPli(
           attributes = getImageAttributes(ldrName);
 
           // attributes are different from default
-          usingSnapshotArgs = compareImageAttributes(attributes, compareStr, usingDefaultArgs);
+          usingSnapshotArgs = compareImageAttributes(attributes, compareKey, usingDefaultArgs);
           if (usingSnapshotArgs){
               processAttributes(attributes, noCA, cd, CA, cg, modelScale, cameraFoV, cameraAngleX, cameraAngleY);
               snapshotArgsChanged = !usingDefaultArgs;
               usingDefaultArgs    = usingDefaultArgs ? false : usingDefaultArgs;
               usingSnapshotArgs   = false;                // reset
-              compareStr          = attributes.join("_");
+              compareKey          = attributes.join("_");
 
               if (!snapshotArgsChanged)
                   snapshotArgs = QString("%1 %2").arg(CA).arg(cg);
@@ -2103,7 +2105,7 @@ int LDView::renderPli(
 
           } else {
 
-             snapShotsLdrs.append(ldrName);
+             snapshotLdrs.append(ldrName);
 
              // if using different snapshot args, trigger command list
              if (!usingDefaultArgs) {
@@ -2117,7 +2119,7 @@ int LDView::renderPli(
       // using same snapshot args for all parts
       usingSnapshotArgs = !usingDefaultArgs && !snapshotArgsChanged;
 
-      if (snapShotsLdrs.size()) {
+      if (snapshotLdrs.size()) {
           // using default args or same snapshot args for all parts
           if (usingDefaultArgs || usingSnapshotArgs) {
 
@@ -2128,9 +2130,9 @@ int LDView::renderPli(
               }
 
               // use single line snapshots command
-              if (snapShotsLdrs.size() < SNAPSHOTS_LIST_THRESHOLD || !useLDViewSList()) {
+              if (snapshotLdrs.size() < SNAPSHOTS_LIST_THRESHOLD || !useLDViewSList()) {
 
-                  snapshotsCmdLineArgs = QString("-SaveSnapShots=1 %1").arg(snapShotsLdrs.join(" "));
+                  snapshotsCmdLineArgs = QString("-SaveSnapShots=1");
 
               }
               // create snapshot list
@@ -2138,14 +2140,14 @@ int LDView::renderPli(
 
                   usingListCmdArg = true;
                   QString SnapshotsList = tempPath + QDir::separator() + "pliSnapshotsList.lst";
-                  if (!createSnapshotsList(snapShotsLdrs,SnapshotsList))
+                  if (!createSnapshotsList(snapshotLdrs,SnapshotsList))
                       return -1;
-                  snapshotsCmdLineArgs = QString("-SaveSnapshotsList=1 %1").arg(SnapshotsList);
+                  snapshotsCmdLineArgs = QString("-SaveSnapshotsList=%1").arg(SnapshotsList);
               }
 
               f  = snapshotsCmdLineArgs;
           }
-          // we have subSnapShotsListArgs or not usingDefaultArgs so create a CommandLinesList file
+          // create a command lines list - we have subSnapShotsListArgs or not usingDefaultArgs
           else
           {
               usingListCmdArg = true;
@@ -2158,12 +2160,19 @@ int LDView::renderPli(
 
               QTextStream out(&CommandLinesListFile);
               // add normal snapshot lines
-              if (snapShotsLdrs.size())
-                  foreach (QString argsLine,snapShotsListArgs)
+              if (snapshotLdrs.size()) {
+                  foreach (QString argsLine,snapShotsListArgs) {
                       out << argsLine << endl;
+                      if (Preferences::debugLogging)
+                          emit gui->messageSig(LOG_DEBUG, QString("Wrote %1 to PLI Command line list").arg(argsLine));
+                  }
+              }
               // add substitute snapshot lines
-              foreach (QString argsLine,subSnapShotsListArgs)
+              foreach (QString argsLine,subSnapShotsListArgs) {
                   out << argsLine << endl;
+                  if (Preferences::debugLogging)
+                      emit gui->messageSig(LOG_DEBUG, QString("Wrote %1 to PLI Substitute Command line list").arg(argsLine));
+              }
 
               CommandLinesListFile.close();
 
@@ -2212,7 +2221,7 @@ int LDView::renderPli(
   arguments << o; // -HaveStdOut
   arguments << v; // -vv (Verbose)
 
-  if(Preferences::ldviewIni != ""){
+  if(!Preferences::ldviewIni.isEmpty()){
       QString ini;
       ini = QString("-IniFile=%1") .arg(Preferences::ldviewIni);
       addArgument(arguments, ini, "-IniFile", 0, ldviewParmsArgs.size());
@@ -2226,8 +2235,8 @@ int LDView::renderPli(
 
   if (useLDViewSCall() && pliType != SUBMODEL) {
       //-SaveSnapShots=1
-      if (!keySub && ((!useLDViewSList() && !usingListCmdArg) || (useLDViewSList() && ldrNames.size() < SNAPSHOTS_LIST_THRESHOLD)))
-          arguments = arguments + ldrNames;  // 13. LDR input file(s)
+      if (!keySub && ((!useLDViewSList() && !usingListCmdArg) || (useLDViewSList() && snapshotLdrs.size() < SNAPSHOTS_LIST_THRESHOLD)))
+          arguments = arguments + snapshotLdrs;  // 13. LDR input file(s)
   } else {
       //-SaveSnapShot=%1
       arguments << QDir::toNativeSeparators(ldrNames.first());

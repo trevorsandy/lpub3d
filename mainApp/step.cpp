@@ -271,15 +271,15 @@ int Step::createCsi(
                                .arg(absRotstep ? double(noCA.value(1)) : double(cameraAngles.value(1)));
   QString key      = QString("%1_%2").arg(keyPart1).arg(keyPart2);
 
-  // append rotstep to be passed on to 3DViewer and LDView Single Call CompareString
-  keyPart2 += QString("_%1").arg(renderer->getRotstepMeta(meta.rotStep,true));
-
   // set imageMatteKey
   QString imageMatteKey = QString("%1_%2").arg(csi_Name).arg(stepNumber.number);
 
-  // populate csiKey - Add CompareString and ImageMatteKey if LDView Single Call
+  // populate csiKey - Add CompareKey and ImageMatteKey if LDView Single Call
   if (renderer->useLDViewSCall()) {
-      csiKey = QString("CSI_%1|%2").arg(keyPart2).arg(imageMatteKey);
+      QString compareKey = QString("%1_%2")
+              .arg(keyPart2).arg(meta.rotStep.value().type.isEmpty() ? "REL" :
+                                 meta.rotStep.value().type);
+      csiKey = QString("CSI_%1|%2").arg(compareKey).arg(imageMatteKey);
       // add LDView parms to csiKey if not empty
       if (!ldviewParms.value().isEmpty())
           csiKey.append(QString("|%1").arg(ldviewParms.value()));
@@ -290,7 +290,8 @@ int Step::createCsi(
   }
 
   // temp hack - passed so we can always have scale for POV render
-  keyPart2 += QString("_%1")
+  keyPart2 += QString("_%1_%2")
+                      .arg(renderer->getRotstepMeta(meta.rotStep,true))
                       .arg(double(csiCameraMeta.modelScale.value()));
 
   // populate png name

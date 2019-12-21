@@ -1547,17 +1547,20 @@ int Gui::drawPage(
                       QString empty("");
 
                       // set the extra renderer parms
-                      steps->meta.LPub.assem.ldviewParms =
-                           Render::getRenderer() == RENDERER_LDVIEW ?  step->ldviewParms :
-                           Render::getRenderer() == RENDERER_LDGLITE ? step->ldgliteParms :
-                                         /*POV scene file generator*/  step->ldviewParms ;
-                      if (Preferences::preferredRenderer == RENDERER_POVRAY)
-                          steps->meta.LPub.assem.povrayParms = step->povrayParms;
+                      if(step){
+                          steps->meta.LPub.assem.ldviewParms =
+                               Render::getRenderer() == RENDERER_LDVIEW ?  step->ldviewParms :
+                               Render::getRenderer() == RENDERER_LDGLITE ? step->ldgliteParms :
+                                             /*POV scene file generator*/  step->ldviewParms ;
+                          if (Preferences::preferredRenderer == RENDERER_POVRAY)
+                              steps->meta.LPub.assem.povrayParms = step->povrayParms;
+                      }
+
                       int rc = renderer->renderCsi(empty,opts.ldrStepFiles,opts.csiKeys,empty,steps->meta);
                       if (rc != 0) {
                           emit messageSig(LOG_ERROR,QMessageBox::tr("Render CSI images failed."));
                           return rc;
-                        }
+                      }
 
                       emit gui->messageSig(LOG_INFO,
                                           QString("%1 CSI (Single Call) render took "
