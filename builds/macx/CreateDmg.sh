@@ -309,10 +309,10 @@ LDView:
 - XQuartz 11.0 (for OSMesa)
   https://www.xquartz.org
 
-- LibPNG version 1.6.35 or above
+- LibPNG version 1.6.37 or above
   http://www.libpng.org
 
-- GL2PS version 1.6.0 or above
+- GL2PS version 1.4.0 or above
   http://geuz.org/gl2ps
 
 - LibJPEG version 9c or above
@@ -332,10 +332,10 @@ POVRay:
 - LibTIFF version 4.0.10 or above
   http://www.libtiff.org
 
-- OpenEXR version 2.2.0 or above
+- OpenEXR version 2.3.0 or above
   http://www.openexr.com
 
-- SDL2 version 2.0.9 or above (for display preview)
+- SDL2 version 2.0.10 or above (for display preview)
   http://www.libsdl.org
 
 Install brew (if not already installed)
@@ -345,8 +345,7 @@ Install brew (if not already installed)
 Install libraries
 =================
 - \$ brew update
-- \$ brew reinstall libpng
-- \$ brew install tinyxml gl2ps libjpeg minizip openexr sdl2 libtiff
+- \$ brew reinstall libpng tinyxml gl2ps libjpeg minizip openexr sdl2 libtiff
 - Download XQuartz at https://dl.bintray.com/xquartz/downloads/XQuartz-2.7.11.dmg
 - Double click the XQuartz-2.7.11.dmg and follow the dialogue instructions.
 
