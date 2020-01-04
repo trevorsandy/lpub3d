@@ -1,7 +1,7 @@
 /**************************************************************************** 
 **
 ** Copyright (C) 2005-2009 Trolltech ASA. All rights reserved.
-** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
 **
 ** This file is part of the example classes of the Qt Toolkit.
 **

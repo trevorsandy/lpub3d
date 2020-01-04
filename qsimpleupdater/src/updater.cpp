@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2014-2016 Alex Spataru <alex_spataru@outlook.com>
- * Copyright (C) 2018 - 2019 Trevor SANDY. All rights reserved.
+ * Copyright (C) 2018 - 2020 Trevor SANDY. All rights reserved.
  *
  * This file is part of the QSimpleUpdater library, which is released under
  * the DBAD license, you can read a copy of it below:

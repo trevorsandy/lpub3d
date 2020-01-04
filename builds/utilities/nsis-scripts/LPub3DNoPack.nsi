@@ -1,6 +1,6 @@
 ;LPub3D Setup Script
 ;Last Update: Aug 03, 2019
-;Copyright (C) 2016 - 2019 by Trevor SANDY
+;Copyright (C) 2016 - 2020 by Trevor SANDY
 
 ; Install LPub3D and pre-packaged renderers.
 
@@ -91,7 +91,7 @@ Name "${PRODUCT_NAME} ${VERSION} Rev ${BuildRevision} Build ${BuildNumber} ${PLA
 Caption $CaptionMessage
 Icon "..\icons\setup.ico"
 UninstallIcon "..\icons\setup.ico"
-BrandingText "©2019 ${COMPANY_NAME}"
+BrandingText "©2020 ${COMPANY_NAME}"
 !ifdef UpdateMaster
   OutFile "${OutFileDir}\${PRODUCT_NAME}-UpdateMaster_${VERSION}.exe"
 !else

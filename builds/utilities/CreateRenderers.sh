@@ -3,8 +3,8 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update Oct 09, 2019
-#  Copyright (c) 2017 - 2019 by Trevor SANDY
+#  Last Update Oct 09, 2020
+#  Copyright (c) 2017 - 2020 by Trevor SANDY
 #
 
 # sample commands [call from root build directory - e.g. lpub3d]:
