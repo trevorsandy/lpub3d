@@ -1,4 +1,4 @@
-LPub3D 2.3.13.1.1622 (24 12 2019 10:04:27)
+LPub3D 2.3.13.1.1623 (04 01 2020 16:14:17)
 
 Features, enhancements, fixes and changes
 ------------
@@ -38,7 +38,7 @@ Revisions:
 - Change - Rotated Callout not displayed when last step contains NOSTEP #376
 - Change - Set default text edit text size to 24 point #357
 - Change - Setting perspective view with LDView renderer #378
-- Change - Update lclib to LeoCAD commit 75bc3cf
+- Change - Update lclib to LeoCAD commit 1c5c82a
 - Change - Update scene items bring to front send to back #379
 - Change - Upgrade Sourceforge site from http sf.net to https sf.io
 - Fix - 3DViewer not displayed when renderer set to other than Native #345
