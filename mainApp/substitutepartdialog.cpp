@@ -190,8 +190,12 @@ void SubstitutePartDialog::initialize()
         return (a < 1 ? places() : QString::number(a).size() < 3 ? 2 : QString::number(a).size());
     };
 
-    QPalette readOnlyPalette;
-    readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
+    QPalette readOnlyPalette = QApplication::palette();
+    if (Preferences::displayTheme == THEME_DARK)
+        readOnlyPalette.setColor(QPalette::Base,QColor(THEME_DARK_PALETTE_MIDLIGHT));
+    else
+        readOnlyPalette.setColor(QPalette::Base,QColor(THEME_DEFAULT_PALETTE_LIGHT));
+    readOnlyPalette.setColor(QPalette::Text,QColor(THEME_PALETTE_DISABLED_TEXT));
     ui->nameEdit->setReadOnly(true);
     ui->nameEdit->setPalette(readOnlyPalette);
     ui->nameEdit->setText(type);

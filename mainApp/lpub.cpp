@@ -2762,18 +2762,26 @@ void Gui::preferences()
             }
             else
             if (displayThemeChanged) {
-                box.setStandardButtons (QMessageBox::Ok | QMessageBox::Close);
+                box.setStandardButtons (QMessageBox::Ok | QMessageBox::Close | QMessageBox::Cancel);
                 box.setText (QString("You must close and restart %1 to fully configure the Theme.\n"
                                      "Editor syntax highlighting will update the next time you start %1")
                                      .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
                 box.setInformativeText (QString("Click \"OK\" to close and restart %1 or \"Close\" set the Theme without restart.\n\n"
                                                 "You can suppress this message in Preferences, Themes")
                                                 .arg(QString::fromLatin1(VER_PRODUCTNAME_STR)));
-                if (box.exec() == QMessageBox::Ok) {
+                int execReturn = box.exec();
+                if (execReturn == QMessageBox::Ok) {
                     displayThemeRestart = true;
+                } else if (execReturn == QMessageBox::Cancel) {
+                    displayThemeChanged = false;
+                    if (Preferences::displayTheme == THEME_DARK)
+                        Preferences::displayTheme = THEME_DEFAULT;
+                    else
+                        Preferences::displayTheme = THEME_DARK;
                 }
             }
-            loadTheme(displayThemeRestart);
+            if (displayThemeChanged)
+                loadTheme(displayThemeRestart);
         }
 
         if (!getCurFile().isEmpty()) {

@@ -176,7 +176,7 @@ lcApplication::lcApplication()
 	gApplication = this;
 	mProject = nullptr;
 	mLibrary = nullptr;
-/*** LPub3D Mod - Initialize default style from QApplication ***/
+/*** LPub3D Mod - Initialize default style, not used ***/
 	mDefaultStyle = QApplication::style()->objectName();
 /*** LPub3D Mod end ***/
 
@@ -190,10 +190,6 @@ lcApplication::lcApplication()
 	mPreferences.LoadDefaults();
 	
 	UpdateStyle();
-
-/*** LPub3D Mod - Set interface colours ***/
-	mPreferences.SetInterfaceColors(mPreferences.mColorTheme);
-/*** LPub3D Mod end ***/
 }
 
 /*** LPub3D Mod - initialize fade vars ***/
@@ -220,6 +216,10 @@ lcApplication::~lcApplication()
 
 void lcApplication::UpdateStyle()
 {
+/*** LPub3D Mod - behaviour moved to LPub3D application ***/
+	return;
+/*** LPub3D Mod end ***/
+
 	if (mPreferences.mColorTheme == lcColorTheme::Dark)
 	{
 		if (!QApplication::setStyle("fusion"))

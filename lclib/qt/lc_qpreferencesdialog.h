@@ -32,7 +32,9 @@ public slots:
 	void on_MinifigSettingsBrowseButton_clicked();
 	void on_povrayExecutableBrowse_clicked();
 	void on_lgeoPathBrowse_clicked();
-	void on_ColorTheme_currentIndexChanged();
+/*** LPub3D Mod - Suppress compatible signals warning ***/
+	void on_ColorTheme_currentIndexChanged(int Index);
+/*** LPub3D Mod end ***/
 	void ColorButtonClicked();
 	void on_antiAliasing_toggled();
 	void on_edgeLines_toggled();

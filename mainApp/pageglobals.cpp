@@ -557,8 +557,12 @@ GlobalPageDialog::GlobalPageDialog(
   box = new QGroupBox(tr("Display LPub3D Plug"));
   childlayout->addWidget(box);
   lpub3dPlugChildBack = new PageAttributeTextGui(&pageMeta->plug,box);
-  QPalette readOnlyPalette;
-  readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
+  QPalette readOnlyPalette = QApplication::palette();
+  if (Preferences::displayTheme == THEME_DARK)
+      readOnlyPalette.setColor(QPalette::Base,QColor(THEME_DARK_PALETTE_MIDLIGHT));
+  else
+      readOnlyPalette.setColor(QPalette::Base,QColor(THEME_DEFAULT_PALETTE_LIGHT));
+  readOnlyPalette.setColor(QPalette::Text,QColor(THEME_PALETTE_DISABLED_TEXT));
   childTextGui = static_cast<PageAttributeTextGui*>(lpub3dPlugChildBack);
   childTextGui->contentEdit->setReadOnly(true);
   childTextGui->contentEdit->setPalette(readOnlyPalette);

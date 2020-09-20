@@ -498,8 +498,19 @@ static const SceneObject PliPartGroupSceneObjects[] =
 #define THEME_RULER_TRACK_PEN_DEFAULT   "#00FF00" // Custom Neon Green
 #define THEME_GUIDE_PEN_DEFAULT         "#aa0000" // LPub3D Maroon
 #define THEME_TRANS_PAGE_BORDER_DEFAULT "#535559" // Custom Gray
-#define THEME_VIEWER_BGCOLOR_DEFAULT    "#ffffff" // Qt White
 #define THEME_NML_PEN_DEFAULT           "#1e1b18" // Qt Double Dark Grey [NOT USED]
+
+#define THEME_DEFAULT_PALETTE_LIGHT      THEME_SCENE_BGCOLOR_DEFAULT
+
+#define THEME_DEFAULT_VIEWER_BACKGROUND_COLOR  "#FFFFFF"                             // 255, 255, 255, 255
+#define THEME_DEFAULT_AXES_COLOR               "#000000"                             // 0, 0, 0, 255
+#define THEME_DEFAULT_OVERLAY_COLOR            THEME_DEFAULT_AXES_COLOR              // 0, 0, 0, 255
+#define THEME_DEFAULT_ACTIVE_VIEW_COLOR        "#FF0000"                             // 255, 0, 0, 255
+#define THEME_DEFAULT_GRID_STUD_COLOR          "#404040"                             // 64, 64, 64, 192/.75
+#define THEME_DEFAULT_GRID_LINE_COLOR          THEME_DEFAULT_AXES_COLOR              // 0, 0, 0, 255
+#define THEME_DEFAULT_VIEW_SPHERE_COLOR        THEME_DEFAULT_VIEWER_BACKGROUND_COLOR // 255, 255, 255, 255
+#define THEME_DEFAULT_VIEW_SPHERE_TEXT_COLOR   "#646464"                             // 100, 100, 100
+#define THEME_DEFAULT_VIEW_SPHERE_HLIGHT_COLOR THEME_DEFAULT_ACTIVE_VIEW_COLOR       // 255, 0, 0, 255
 
 #define THEME_HIGHLIGHT_01_DEFAULT      "#006325" // 01 [LDraw Comments]
 #define THEME_HIGHLIGHT_02_DEFAULT      "#4f97ba" // 02 [LDraw Header]
@@ -550,9 +561,9 @@ static const SceneObject PliPartGroupSceneObjects[] =
 #define THEME_RULER_TICK_PEN_DARK       "#eff0f1" // Custom Pale Grey
 #define THEME_RULER_TRACK_PEN_DARK      "#00FF00" // Custom Neon Green
 #define THEME_GUIDE_PEN_DARK            "#aa0000" // LPub3D Maroon
-#define THEME_VIEWER_BGCOLOR_DARK       "#808B96" // Custom Grey
 #define THEME_EDIT_MARGIN_DARK          "#ABB2B9" // Custom Gray
 #define THEME_TRANS_PAGE_BORDER_DARK    "#aeadac" // Qt Light Gray
+#define THEME_PALETTE_DISABLED_TEXT     "#808080" // 128, 128, 128
 #define THEME_NML_PEN_DARK              "#ffffff" // Qt White [NOT USED]
 
 #define THEME_HIGHLIGHT_01_DARK         "#17c723" // 01 [LDraw Comment]
@@ -597,4 +608,37 @@ static const SceneObject PliPartGroupSceneObjects[] =
 #define THEME_HIGHLIGHT_G_DARK          "#aa0000" // br07 Part Description
 
 #define THEME_EDITWINDOW_LINE_DARK      "#5d5b59" // 06 Qt Medium Gray
-#endif
+
+#define THEME_DARK_PALETTE_WINDOW        "#313437"   // 49, 52, 55,
+#define THEME_DARK_PALETTE_WINDOW_TEXT   "#F0F0F0"   // 240, 240, 240
+#define THEME_DARK_PALETTE_BASE          "#232629"   // 35, 38, 41
+#define THEME_DARK_PALETTE_ALT_BASE      "#2C2F32"   // 44, 47, 50
+#define THEME_DARK_PALETTE_TIP_BASE      "#E0E0F4"   // 224, 224, 244
+#define THEME_DARK_PALETTE_TIP_TEXT      "#3A3A3A"   // 58, 58, 58
+
+#define THEME_DARK_PALETTE_PHOLDER_TEXT  "#646464"   // 100, 100, 100
+
+#define THEME_DARK_PALETTE_TEXT          "#E0E0E0"   // 224, 224, 224
+#define THEME_DARK_PALETTE_BUTTON        "#2D3033"   // 45, 48, 51
+#define THEME_DARK_PALETTE_BUTTON_TEXT   THEME_DARK_PALETTE_TIP_BASE
+#define THEME_DARK_PALETTE_LIGHT         "#414141"   // 65, 65, 65
+#define THEME_DARK_PALETTE_MIDLIGHT      "#3E3E3E"   // 62, 62, 62
+#define THEME_DARK_PALETTE_DARK          "#232323"   // 35, 35, 35
+#define THEME_DARK_PALETTE_MID           "#323232"   // 50, 50, 50
+#define THEME_DARK_PALETTE_SHADOW        "#141414"   // 20, 20, 20
+#define THEME_DARK_PALETTE_HILIGHT       "#2980B9"   // 41, 128, 185
+#define THEME_DARK_PALETTE_HILIGHT_TEXT  "#E8E8E8"   // 232, 232, 232
+#define THEME_DARK_PALETTE_LINK          THEME_DARK_PALETTE_HILIGHT
+#define THEME_DARK_PALETTE_DISABLED_TEXT THEME_PALETTE_DISABLED_TEXT
+
+#define THEME_DARK_VIEWER_BACKGROUND_COLOR  "#808B96"                    // 128,139,150, 255   LC_PROFILE_DEFAULT_BACKGROUND_COLOR
+#define THEME_DARK_AXES_COLOR               THEME_DEFAULT_AXES_COLOR     // 0, 0, 0, 255       LC_PROFILE_AXES_COLOR
+#define THEME_DARK_OVERLAY_COLOR            THEME_DEFAULT_AXES_COLOR     // 0, 0, 0, 255       LC_PROFILE_OVERLAY_COLOR
+#define THEME_DARK_ACTIVE_VIEW_COLOR        "#2980B9"                    // 41, 128, 185, 255  LC_PROFILE_ACTIVE_VIEW_COLOR
+#define THEME_DARK_GRID_STUD_COLOR          "#181818"                    // 24, 24, 24, 192    LC_PROFILE_GRID_STUD_COLOR
+#define THEME_DARK_GRID_LINE_COLOR          THEME_DARK_GRID_STUD_COLOR   // 24, 24, 24, 255    LC_PROFILE_GRID_LINE_COLOR
+#define THEME_DARK_VIEW_SPHERE_COLOR        "#232629"                    // 35, 38, 41, 255    LC_PROFILE_VIEW_SPHERE_COLOR
+#define THEME_DARK_VIEW_SPHERE_TEXT_COLOR   "#E0E0E0"                    // 224, 224, 224, 255 LC_PROFILE_VIEW_SPHERE_TEXT_COLOR
+#define THEME_DARK_VIEW_SPHERE_HLIGHT_COLOR THEME_DARK_ACTIVE_VIEW_COLOR // 41, 128, 185, 255  LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR
+
+#endif // NAME_H

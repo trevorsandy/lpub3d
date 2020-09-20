@@ -195,6 +195,13 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	MouseTreeItemChanged(nullptr);
 
 /*** LPub3D Mod - Update Default Camera ***/
+	QPalette readOnlyPalette = QApplication::palette();
+	if (mOptions->Preferences.mColorTheme == lcColorTheme::Dark)
+		readOnlyPalette.setColor(QPalette::Base,QColor("#3E3E3E")); // THEME_DARK_PALETTE_MIDLIGHT
+	else
+		readOnlyPalette.setColor(QPalette::Base,QColor("#AEADAC")); // THEME_DEFAULT_PALETTE_LIGHT
+	readOnlyPalette.setColor(QPalette::Text,QColor("#808080"));     // THEME_PALETTE_DISABLED_TEXT
+
 	ui->defaultCameraProperties->setChecked(mOptions->Preferences.mDefaultCameraProperties);
 	ui->cameraDefaultDistanceFactor->setValue(qreal(mOptions->Preferences.mDDF));
 	ui->cameraDefaultPosition->setValue(qreal(mOptions->Preferences.mCDP));
@@ -203,7 +210,7 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	ui->cameraFarPlane->setValue(qreal(mOptions->Preferences.mCFar));
 	ui->cameraDistanceFactor->setText(QString::number(qreal(mOptions->Preferences.mCDP) /
 													  -qreal(mOptions->Preferences.mDDF)));
-	ui->cameraDistanceFactor->setStyleSheet("QLabel { background-color : lightGray; }");
+
 	connect(ui->resetDefaultDistanceFactor, SIGNAL(clicked()), this, SLOT(cameraPropertyReset()));
 	connect(ui->resetDefaultPosition, SIGNAL(clicked()), this, SLOT(cameraPropertyReset()));
 	connect(ui->resetFoV, SIGNAL(clicked()), this, SLOT(cameraPropertyReset()));
@@ -227,15 +234,22 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - set preferences dialog properties ***/
-	ui->authorName->setDisabled(true);
-	ui->partsLibrary->setDisabled(true);
+	ui->authorName->setReadOnly(true);
+	ui->authorName->setPalette(readOnlyPalette);
+	ui->partsLibrary->setReadOnly(true);
+	ui->partsLibrary->setPalette(readOnlyPalette);
 	ui->partsLibraryBrowse->hide();
 	ui->partsArchiveBrowse->hide();
-	ui->ColorConfigEdit->setDisabled(true);
+	ui->cameraDistanceFactor->setReadOnly(true);
+	ui->cameraDistanceFactor->setPalette(readOnlyPalette);
+	ui->ColorConfigEdit->setReadOnly(true);
+	ui->ColorConfigEdit->setPalette(readOnlyPalette);
 	ui->ColorConfigBrowseButton->hide();
-	ui->povrayExecutable->setDisabled(true);
+	ui->povrayExecutable->setReadOnly(true);
+	ui->povrayExecutable->setPalette(readOnlyPalette);
 	ui->povrayExecutableBrowse->hide();
-	ui->lgeoPath->setDisabled(true);
+	ui->lgeoPath->setReadOnly(true);
+	ui->lgeoPath->setPalette(readOnlyPalette);
 	ui->MinifigSettingsEdit->hide();
 	ui->MinifigSettingsBrowseButton->hide();
 	ui->MinifigSettingsLabel->hide();
@@ -413,11 +427,13 @@ void lcQPreferencesDialog::on_lgeoPathBrowse_clicked()
 		ui->lgeoPath->setText(QDir::toNativeSeparators(result));
 }
 
-void lcQPreferencesDialog::on_ColorTheme_currentIndexChanged()
+/*** LPub3D Mod - Suppress compatible signals warning ***/
+void lcQPreferencesDialog::on_ColorTheme_currentIndexChanged(int Index)
 {
 	if (QMessageBox::question(this, tr("Reset Colors"), tr("Would you like to also reset the interface colors to match the color theme?")) == QMessageBox::Yes)
-		mOptions->Preferences.SetInterfaceColors(static_cast<lcColorTheme>(ui->ColorTheme->currentIndex()));
+		mOptions->Preferences.SetInterfaceColors(static_cast<lcColorTheme>(Index));
 }
+/*** LPub3D Mod end ***/
 
 void lcQPreferencesDialog::ColorButtonClicked()
 {

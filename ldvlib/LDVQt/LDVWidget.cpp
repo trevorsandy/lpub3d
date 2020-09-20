@@ -107,6 +107,7 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 		: QGLWidget(parent),
 		iniFlag(iniflag),
 		forceIni(forceIni),
+		darkTheme(Preferences::displayTheme == THEME_DARK),
 		ldvFormat(nullptr),
 		ldvContext(nullptr),
 		ldPrefs(nullptr),
@@ -121,59 +122,59 @@ LDVWidget::LDVWidget(QWidget *parent, IniFlag iniflag, bool forceIni)
 		modelExt(nullptr),
 		viewMode(LDInputHandler::VMExamine)
 {
-  iniFiles[NativePOVIni]   = { iniFlagNames[NativePOVIni],   Preferences::nativeExportIni };
-  iniFiles[NativeSTLIni]   = { iniFlagNames[NativeSTLIni],   Preferences::nativeExportIni };
-  iniFiles[Native3DSIni]   = { iniFlagNames[Native3DSIni],   Preferences::nativeExportIni };
-  iniFiles[NativePartList] = { iniFlagNames[NativePartList], Preferences::nativeExportIni };
-  iniFiles[POVRayRender]   = { iniFlagNames[POVRayRender],   Preferences::nativeExportIni };
-  iniFiles[LDViewPOVIni]   = { iniFlagNames[LDViewPOVIni],   Preferences::ldviewPOVIni };
-  iniFiles[LDViewIni]      = { iniFlagNames[LDViewIni],      Preferences::ldviewIni };
+	iniFiles[NativePOVIni]   = { iniFlagNames[NativePOVIni],   Preferences::nativeExportIni };
+	iniFiles[NativeSTLIni]   = { iniFlagNames[NativeSTLIni],   Preferences::nativeExportIni };
+	iniFiles[Native3DSIni]   = { iniFlagNames[Native3DSIni],   Preferences::nativeExportIni };
+	iniFiles[NativePartList] = { iniFlagNames[NativePartList], Preferences::nativeExportIni };
+	iniFiles[POVRayRender]   = { iniFlagNames[POVRayRender],   Preferences::nativeExportIni };
+	iniFiles[LDViewPOVIni]   = { iniFlagNames[LDViewPOVIni],   Preferences::ldviewPOVIni };
+	iniFiles[LDViewIni]      = { iniFlagNames[LDViewIni],      Preferences::ldviewIni };
 
-  setupLDVFormat();
+	setupLDVFormat();
 
-  setupLDVContext();
+	setupLDVContext();
 
-  if (!setIniFile())
-	  return;
+	if (!setIniFile())
+		return;
 
-  QString messagesPath = QDir::toNativeSeparators(QString("%1%2")
+	QString messagesPath = QDir::toNativeSeparators(QString("%1%2")
 												  .arg(Preferences::dataLocation)
 												  .arg(VER_LDVMESSAGESINI_FILE));
-  if (!TCLocalStrings::loadStringTable(messagesPath.toUtf8().constData()))
-  {
-	  emit lpubAlert->messageSig(LOG_ERROR, QString("Could not load file %1")
-								 .arg(messagesPath));
-  }
+	if (!TCLocalStrings::loadStringTable(messagesPath.toUtf8().constData()))
+	{
+		emit lpubAlert->messageSig(LOG_ERROR, QString("Could not load file %1")
+													  .arg(messagesPath));
+	}
 
-  LDLModel::setFileCaseCallback(staticFileCaseCallback);
+	LDLModel::setFileCaseCallback(staticFileCaseCallback);
 
-  QString programPath = QCoreApplication::applicationFilePath();
-  TCUserDefaults::setCommandLine(programPath.toUtf8().constData());
+	QString programPath = QCoreApplication::applicationFilePath();
+	TCUserDefaults::setCommandLine(programPath.toUtf8().constData());
 
-  TCUserDefaults::setAppName(Preferences::lpub3dAppName.toUtf8().constData());
+	TCUserDefaults::setAppName(Preferences::lpub3dAppName.toUtf8().constData());
 
-  if (LDVPreferences::getCheckPartTracker())
-	  LDVPreferences::setCheckPartTracker(false);
+	if (LDVPreferences::getCheckPartTracker())
+		LDVPreferences::setCheckPartTracker(false);
 
-  TCStringArray *sessionNames =
-	  TCUserDefaults::getAllSessionNames();
+	TCStringArray *sessionNames =
+		TCUserDefaults::getAllSessionNames();
 
-  if (sessionNames->indexOfString(iniFiles[iniFlag].Title.toUtf8().constData()) != -1)
-  {
-	  TCUserDefaults::setSessionName(iniFiles[iniFlag].Title.toUtf8().constData(),
+	if (sessionNames->indexOfString(iniFiles[iniFlag].Title.toUtf8().constData()) != -1)
+	{
+		TCUserDefaults::setSessionName(iniFiles[iniFlag].Title.toUtf8().constData(),
 		  PREFERENCE_SET_KEY);
-  }
-  else
-  {
-	  TCUserDefaults::setSessionName(nullptr, PREFERENCE_SET_KEY);
-  }
-  sessionNames->release();
+	}
+	else
+	{
+		TCUserDefaults::setSessionName(nullptr, PREFERENCE_SET_KEY);
+	}
+	sessionNames->release();
 
-  QString prefSet = TCUserDefaults::getSessionName();
-  emit lpubAlert->messageSig(LOG_INFO, QString("LDV loaded '%1' preference set")
+	QString prefSet = TCUserDefaults::getSessionName();
+	emit lpubAlert->messageSig(LOG_INFO, QString("LDV loaded '%1' preference set")
 							 .arg(prefSet.isEmpty() ? "Default" : prefSet));
 
-  ldvWidget = this;
+	ldvWidget = this;
 }
 
 LDVWidget::~LDVWidget(void)

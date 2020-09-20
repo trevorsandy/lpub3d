@@ -599,8 +599,8 @@ include(otherfiles.pri)
 
 RESOURCES += \
     ../lclib/lclib.qrc \
+    ../lclib/resources/stylesheet/stylesheet.qrc \
     ../ldvlib/LDVQt/resources.qrc \
-    qdarkstyle/style.qrc \
     resources/lsynth/lsynth.qrc \
     lpub3d.qrc
 

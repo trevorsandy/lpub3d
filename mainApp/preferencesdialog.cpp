@@ -55,8 +55,12 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.browseLDView->hide();
   ui.browsePOVRAY->hide();
 
-  QPalette readOnlyPalette;
-  readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
+  QPalette readOnlyPalette = QApplication::palette();
+  if (Preferences::displayTheme == THEME_DARK)
+      readOnlyPalette.setColor(QPalette::Base,QColor(THEME_DARK_PALETTE_MIDLIGHT));
+  else
+      readOnlyPalette.setColor(QPalette::Base,QColor(THEME_DEFAULT_PALETTE_LIGHT));
+  readOnlyPalette.setColor(QPalette::Text,QColor(THEME_PALETTE_DISABLED_TEXT));
 
   ldrawLibPathTitle            = QString("LDraw Library Path for %1").arg(Preferences::validLDrawPartsLibrary);
   QString fadeStepsColorTitle  = QString("Use %1 Global Fade Color").arg(Preferences::validLDrawPartsLibrary);
