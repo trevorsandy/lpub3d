@@ -67,7 +67,7 @@ void lcGLWidget::SetCursor(LC_CURSOR_TYPE CursorType)
 		{  0,  0, "" },		                             /*** LPub3D Mod - rotate step ***/
 	};
 
-	static_assert(sizeof(Cursors) / sizeof(Cursors[0]) == LC_CURSOR_COUNT, "Array size mismatch");
+	static_assert(LC_ARRAY_COUNT(Cursors) == LC_CURSOR_COUNT, "Array size mismatch");
 
 	QGLWidget* widget = (QGLWidget*)mWidget;
 /*** LPub3D Mod - rotate step ***/

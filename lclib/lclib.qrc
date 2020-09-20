@@ -81,6 +81,7 @@
         <file alias="file_save.png">resources/file_save.png</file>
         <file alias="file_save_16.png">resources/file_save_16.png</file>
         <file alias="help_homepage.png">resources/help_homepage.png</file>
+        <file alias="gear_in.png">resources/gear_in.png</file>
         <file alias="ldconfig.ldr">resources/ldconfig.ldr</file>
         <file alias="ldraw.xml">resources/ldraw.xml</file>
         <file alias="leocad.icns">resources/leocad.icns</file>

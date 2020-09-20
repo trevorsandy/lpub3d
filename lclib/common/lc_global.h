@@ -20,8 +20,11 @@
 #endif
 
 #ifndef QT_STRINGIFY
-#define QT_STRINGIFY(s) ""
+#define QT_STRINGIFY2(x) #x
+#define QT_STRINGIFY(x) QT_STRINGIFY2(x)
 #endif
+
+#define LC_ARRAY_COUNT(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
 
 #if !defined(EGL_VERSION_1_0) && !defined(GL_ES_VERSION_2_0) && !defined(GL_ES_VERSION_3_0) && !defined(QT_OPENGL_ES)
 #undef GL_LINES_ADJACENCY_EXT
@@ -50,7 +53,7 @@ char* strlwr(char* string);
 #define LC_VERSION_PATCH 1
 #define LC_VERSION_TEXT "19.07.1"
 /*** LPub3D Mod - Git SHA ***/
-#define LC_VERSION_BUILD "9ad9675"
+#define LC_VERSION_BUILD "ca53610"
 /*** LPub3D Mod end ***/
 
 

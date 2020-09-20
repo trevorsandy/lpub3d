@@ -651,8 +651,6 @@ void Application::initialize()
         logger.setLoggingLevel(OffLevel);
     }
 
-    qRegisterMetaType<LogType>("LogType");
-
     logInfo() << QString("Initializing application...");
 
     // application version information

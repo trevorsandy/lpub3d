@@ -1605,4 +1605,4 @@ const char* gToolNames[LC_NUM_TOOLS] =
 	QT_TRANSLATE_NOOP("Mouse", "RotateStep")     // LC_TOOL_ROTATESTEP  /*** LPub3D Mod - Rotate Step Menu ***/
 };
 
-static_assert(sizeof(gToolNames) / sizeof(gToolNames[0]) == LC_NUM_TOOLS, "Array size mismatch.");
+static_assert(LC_ARRAY_COUNT(gToolNames) == LC_NUM_TOOLS, "Array size mismatch.");
