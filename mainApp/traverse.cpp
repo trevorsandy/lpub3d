@@ -922,7 +922,7 @@ int Gui::drawPage(
           case BuildModEndModRc:
             if (opts.buildModLevel > 1 && curMeta.LPub.buildMod.key().isEmpty())
                 parseError("Key required for nested build mod meta command",
-                           opts.current,Preferences::ParseErrors);
+                           opts.current,Preferences::BuildModErrors);
             buildModIgnore    = true;
             buildModPliIgnore = false;
             break;
@@ -2592,7 +2592,7 @@ int Gui::findPage(
                 if (opts.current.lineNumber < buildModNextStepEnd) {
                     if (opts.buildModLevel > 1 && meta.LPub.buildMod.key().isEmpty())
                             parseError("Key required for nested build mod meta command",
-                                       opts.current,Preferences::ParseErrors);
+                                       opts.current,Preferences::BuildModErrors);
                     if (buildModAction == BuildModApplyRc){
                         buildModIgnore = true;
                     } else if (buildModAction == BuildModRemoveRc) {
@@ -3814,9 +3814,9 @@ void Gui::setBuildModNextStepAction(Where topOfNextStep, bool isSubmodelFile)
             case BuildModEndModRc:
                 if (buildModLevel > 1 && page.meta.LPub.buildMod.key().isEmpty())
                     parseError("Key required for nested build mod meta command",
-                               here,Preferences::ParseErrors);
+                               here,Preferences::BuildModErrors);
                 if (!buildMod[BM_BEGIN])
-                    parseError(QString("Required meta BUILD_MOD BEGIN not found"), here, Preferences::ParseErrors);
+                    parseError(QString("Required meta BUILD_MOD BEGIN not found"), here, Preferences::BuildModErrors);
                 insertAttribute(buildModAttributes, BM_ACTION_LINE_NUM, here);
                 buildMod[BM_END_MOD] = true;
                 break;
@@ -3824,7 +3824,7 @@ void Gui::setBuildModNextStepAction(Where topOfNextStep, bool isSubmodelFile)
             // Insert buildModAttributes and reset buildModLevel and buildModIgnore to default
             case BuildModEndRc:
                 if (!buildMod[BM_END_MOD])
-                    parseError(QString("Required meta BUILD_MOD END_MOD not found"), here, Preferences::ParseErrors);
+                    parseError(QString("Required meta BUILD_MOD END_MOD not found"), here, Preferences::BuildModErrors);
                 insertAttribute(buildModAttributes, BM_END_LINE_NUM, here);
                 buildModLevel  = getLevel(QString(), BM_END);
                 buildMod[BM_END] = true;
@@ -3833,8 +3833,8 @@ void Gui::setBuildModNextStepAction(Where topOfNextStep, bool isSubmodelFile)
             // Search until next step/rotstep meta
             case RotStepRc:
             case StepRc:
-                if (!buildMod[BM_END])
-                    parseError(QString("Required meta BUILD_MOD END not found"), here, Preferences::ParseErrors);
+                if (buildMod[BM_BEGIN] && !buildMod[BM_END])
+                    parseError(QString("Required meta BUILD_MOD END not found"), here, Preferences::BuildModErrors);
                 foreach (int buildModLevel, buildModKeys.keys())
                     insertBuildModification(buildModLevel);
                 topOfNextStep = here;
@@ -3972,7 +3972,7 @@ void Gui::writeToTmp(const QString &fileName,
                       if (i < buildModNextStepEnd) {
                           if (buildModLevel > 1 && meta.LPub.buildMod.key().isEmpty())
                                   parseError("Key required for nested build mod meta command",
-                                             here,Preferences::ParseErrors);
+                                             here,Preferences::BuildModErrors);
                           if (buildModActions.value(buildModLevel) == BuildModApplyRc){
                               buildModIgnore = true;
                           } else if (buildModActions.value(buildModLevel) == BuildModRemoveRc){

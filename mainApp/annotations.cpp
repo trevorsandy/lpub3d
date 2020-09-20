@@ -2689,9 +2689,9 @@ void Annotations::annotationMessage(QString &message, Where &here)
 
             QObject::connect(cb, &QCheckBox::stateChanged, [](int state){
                 if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked) {
-                    Preferences::setShowAnnotationMessagesPreference(false);
+                    Preferences::setShowMessagePreference(false, Preferences::AnnotationMessages);
                 } else {
-                    Preferences::setShowAnnotationMessagesPreference(true);
+                    Preferences::setShowMessagePreference(true, Preferences::AnnotationMessages);
                 }
             });
             box.adjustSize();

@@ -46,8 +46,9 @@ Preferences preferences;
 
 const QString MsgKeys[Preferences::MsgKey::NumKeys] =
 {
-    "LineParseErrors",
-    "BuildModErrors"
+    "ShowLineParseErrors",
+    "ShowBuildModErrors",
+    "ShowAnnotationMessages"
 };
 
 QString Preferences::lpub3dAppName              = EMPTY_STRING_DEFAULT;
@@ -231,6 +232,7 @@ bool    Preferences::hidePageBackground         = false;
 bool    Preferences::showGuidesCoordinates      = false;
 bool    Preferences::showTrackingCoordinates    = false;
 bool    Preferences::lineParseErrors            = true;
+bool    Preferences::showBuildModErrors         = true;
 bool    Preferences::showAnnotationMessages     = true;
 bool    Preferences::showSaveOnRedraw           = true;
 bool    Preferences::showSaveOnUpdate           = true;
@@ -3077,22 +3079,31 @@ void Preferences::userInterfacePreferences()
       gridSizeIndex = Settings.value(QString("%1/%2").arg(SETTINGS,gridSizeIndexKey)).toInt();
   }
 
-  QString const lineParseErrorsKey("LineParseErrors");
-  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,lineParseErrorsKey))) {
+  QString const lineParseErrorsKey("ShowLineParseErrors");
+  if ( ! Settings.contains(QString("%1/%2").arg(MESSAGES,lineParseErrorsKey))) {
           QVariant uValue(true);
           lineParseErrors = true;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,lineParseErrorsKey),uValue);
+          Settings.setValue(QString("%1/%2").arg(MESSAGES,lineParseErrorsKey),uValue);
   } else {
-          lineParseErrors = Settings.value(QString("%1/%2").arg(SETTINGS,lineParseErrorsKey)).toBool();
+          lineParseErrors = Settings.value(QString("%1/%2").arg(MESSAGES,lineParseErrorsKey)).toBool();
+  }
+
+  QString const showBuildModErrorsKey("ShowBuildModErrors");
+  if ( ! Settings.contains(QString("%1/%2").arg(MESSAGES,showBuildModErrorsKey))) {
+          QVariant uValue(true);
+          showBuildModErrors = true;
+          Settings.setValue(QString("%1/%2").arg(MESSAGES,showBuildModErrorsKey),uValue);
+  } else {
+          showBuildModErrors = Settings.value(QString("%1/%2").arg(MESSAGES,showBuildModErrorsKey)).toBool();
   }
 
   QString const showAnnotationMessagesKey("ShowAnnotationMessages");
-  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,showAnnotationMessagesKey))) {
+  if ( ! Settings.contains(QString("%1/%2").arg(MESSAGES,showAnnotationMessagesKey))) {
           QVariant uValue(true);
           showAnnotationMessages = true;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,showAnnotationMessagesKey),uValue);
+          Settings.setValue(QString("%1/%2").arg(MESSAGES,showAnnotationMessagesKey),uValue);
   } else {
-          showAnnotationMessages = Settings.value(QString("%1/%2").arg(SETTINGS,showAnnotationMessagesKey)).toBool();
+          showAnnotationMessages = Settings.value(QString("%1/%2").arg(MESSAGES,showAnnotationMessagesKey)).toBool();
   }
 
   QString const showSaveOnRedrawKey("ShowSaveOnRedraw");
@@ -3192,10 +3203,23 @@ void Preferences::userInterfacePreferences()
 
 void Preferences::setShowMessagePreference(bool b,MsgKey key)
 {
-  QSettings Settings;
-  QVariant uValue(b);
-  QString const showMessageKey(MsgKeys[key]);
-  Settings.setValue(QString("%1/%2").arg(MESSAGES,showMessageKey),uValue);
+    QSettings Settings;
+    QVariant uValue(b);
+    QString const showMessageKey(MsgKeys[key]);
+    Settings.setValue(QString("%1/%2").arg(MESSAGES,showMessageKey),uValue);
+    switch(key){
+    case ParseErrors:
+        lineParseErrors = b;
+        break;
+    case BuildModErrors:
+        showBuildModErrors = b;
+        break;
+    case AnnotationMessages:
+        showAnnotationMessages = b;
+        break;
+    default:
+        break;
+    }
 }
 
 bool Preferences::getShowMessagePreference(MsgKey key)
@@ -3209,16 +3233,20 @@ bool Preferences::getShowMessagePreference(MsgKey key)
     } else {
         result = Settings.value(QString("%1/%2").arg(MESSAGES,showMessageKey)).toBool();
     }
+    switch(key){
+    case ParseErrors:
+        lineParseErrors = result;
+        break;
+    case BuildModErrors:
+        showBuildModErrors = result;
+        break;
+    case AnnotationMessages:
+        showAnnotationMessages = result;
+        break;
+    default:
+        break;
+    }
     return result;
-}
-
-void Preferences::setShowAnnotationMessagesPreference(bool b)
-{
-QSettings Settings;
-showAnnotationMessages = b;
-QVariant uValue(b);
-QString const showAnnotationMessagesKey("ShowAnnotationMessages");
-Settings.setValue(QString("%1/%2").arg(SETTINGS,showAnnotationMessagesKey),uValue);
 }
 
 void Preferences::setShowSaveOnRedrawPreference(bool b)
@@ -4116,13 +4144,19 @@ bool Preferences::getPreferences()
         if (lineParseErrors != dialog->lineParseErrors())
         {
             lineParseErrors = dialog->lineParseErrors();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"LineParseErrors"),lineParseErrors);
+            Settings.setValue(QString("%1/%2").arg(MESSAGES,"ShowLineParseErrors"),lineParseErrors);
+        }
+
+        if (showBuildModErrors != dialog->showBuildModErrors())
+        {
+            showBuildModErrors = dialog->showBuildModErrors();
+            Settings.setValue(QString("%1/%2").arg(MESSAGES,"ShowBuildModErrors"),showBuildModErrors);
         }
 
         if (showAnnotationMessages != dialog->showAnnotationMessages())
         {
             showAnnotationMessages = dialog->showAnnotationMessages();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowAnnotationMessages"),showAnnotationMessages);
+            Settings.setValue(QString("%1/%2").arg(MESSAGES,"ShowAnnotationMessages"),showAnnotationMessages);
         }
 
         if (showSaveOnRedraw != dialog->showSaveOnRedraw())

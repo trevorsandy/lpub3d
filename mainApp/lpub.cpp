@@ -5319,7 +5319,8 @@ void Gui::showLineMessage(QString errorMsg, Where &here, Preferences::MsgKey msg
     QString parseMessage = QString("%1 (file: %2, line: %3)") .arg(errorMsg) .arg(here.modelName) .arg(here.lineNumber + 1);
     if (Preferences::modeGUI) {
         showLine(here);
-        if (Preferences::lineParseErrors && Preferences::getShowMessagePreference(msgKey)) {
+        bool showMessagePreference = Preferences::getShowMessagePreference(msgKey);
+        if (showMessagePreference) {
             QCheckBox *cb = new QCheckBox("Do not show this line message again.");
             QMessageBoxResizable box;
             box.setWindowTitle(tr(VER_PRODUCTNAME_STR " Line Message"));

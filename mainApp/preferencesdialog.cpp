@@ -375,6 +375,8 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   // options
   lineParseErrorsChkBox = new QCheckBox(_parent);
   lineParseErrorsChkBox->setChecked(          Preferences::lineParseErrors);
+  showBuildModErrorsChkBox = new QCheckBox(_parent);
+  showBuildModErrorsChkBox->setChecked(   Preferences::showBuildModErrors);
   showAnnotationMessagesChkBox = new QCheckBox(_parent);
   showAnnotationMessagesChkBox->setChecked(   Preferences::showAnnotationMessages);
 
@@ -928,17 +930,26 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
     form->addWidget(parseErrorGrpBox);
     QFormLayout *parseErrorSubform = new QFormLayout(parseErrorGrpBox);
 
-    QCheckBox * parseErrorChkBox = new QCheckBox("Show all", dialog);
-    parseErrorChkBox->setChecked(                 Preferences::lineParseErrors);
+    QCheckBox * parseErrorChkBox = new QCheckBox("Show errors", dialog);
+    parseErrorChkBox->setChecked(Preferences::lineParseErrors);
     parseErrorSubform->addRow(parseErrorChkBox);
+
+    // options - build modification errors
+    QGroupBox *buildModErrorGrpBox = new QGroupBox("Build Modification Errors");
+    form->addWidget(buildModErrorGrpBox);
+    QFormLayout *buildModErrorSubform = new QFormLayout(buildModErrorGrpBox);
+
+    QCheckBox * buildModErrorChkBox = new QCheckBox("Show errors", dialog);
+    buildModErrorChkBox->setChecked(Preferences::showBuildModErrors);
+    buildModErrorSubform->addRow(buildModErrorChkBox);
 
     // options - annotation message
     QGroupBox *annotationMessageGrpBox = new QGroupBox("Annotation Messages");
     form->addWidget(annotationMessageGrpBox);
     QFormLayout *annotationMessageSubform = new QFormLayout(annotationMessageGrpBox);
 
-    QCheckBox * annotationMessageChkBox = new QCheckBox("Show all", dialog);
-    annotationMessageChkBox->setChecked(         Preferences::showAnnotationMessages);
+    QCheckBox * annotationMessageChkBox = new QCheckBox("Show messages", dialog);
+    annotationMessageChkBox->setChecked(Preferences::showAnnotationMessages);
     annotationMessageSubform->addRow(annotationMessageChkBox);
 
     // options - button box
@@ -951,6 +962,7 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
 
     if (dialog->exec() == QDialog::Accepted) {
         lineParseErrorsChkBox->setChecked(parseErrorChkBox->isChecked());
+        showBuildModErrorsChkBox->setChecked(buildModErrorChkBox->isChecked());
         showAnnotationMessagesChkBox->setChecked(annotationMessageChkBox->isChecked());
     }
 }
@@ -1290,6 +1302,11 @@ int PreferencesDialog::pageDisplayPause()
 bool PreferencesDialog::lineParseErrors()
 {
  return lineParseErrorsChkBox->isChecked();
+}
+
+bool PreferencesDialog::showBuildModErrors()
+{
+ return showBuildModErrorsChkBox->isChecked();
 }
 
 bool PreferencesDialog::showAnnotationMessages()

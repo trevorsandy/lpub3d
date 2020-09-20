@@ -30,6 +30,7 @@ class Preferences
     enum MsgKey {
         ParseErrors,
         BuildModErrors,
+        AnnotationMessages,
         NumKeys
     };
     Preferences();
@@ -86,7 +87,6 @@ class Preferences
     static void setSceneRulerPreference(bool);
     static void setSceneRulerTrackingPreference(int);
     static void setShowMessagePreference(bool,MsgKey = ParseErrors);
-    static void setShowAnnotationMessagesPreference(bool);
     static void setShowSaveOnRedrawPreference(bool);
     static void setShowSaveOnUpdatePreference(bool);
     static void setStdOutToLogPreference(bool);
@@ -283,6 +283,7 @@ class Preferences
     static bool    showGuidesCoordinates;
     static bool    showTrackingCoordinates;
     static bool    lineParseErrors;
+    static bool    showBuildModErrors;
     static bool    showAnnotationMessages;
     static bool    showSaveOnRedraw;
     static bool    showSaveOnUpdate;
