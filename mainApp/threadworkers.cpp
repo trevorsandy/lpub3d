@@ -1200,8 +1200,14 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
       return true;
   }
 
+  auto emitSplashMessage = [this] (const QString message) {
+      if (! okToEmitToProgressBar()) {
+          emit Application::instance()->splashMsgSig(message);
+      }
+  };
+
   // Append custom parts to custom parts library for 3D Viewer's consumption
-  QTime t, tf;
+  QTime t, tf, dt;
   bool reloadLibrary = true;
   QString archiveFile = _ldrawArchiveFile;
   if (archiveFile.isEmpty()) {
@@ -1215,12 +1221,7 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
   int returnMessageSeverity = 1; // 1=Error, 2=Notice
   emit gui->messageSig(LOG_INFO,QString("Archiving %1 parts to %2.").arg(comment,archiveFile));
 
-  if (okToEmitToProgressBar()) {
-      //emit progressResetSig();
-      ;
-    } else {
-      emit Application::instance()->splashMsgSig(QString("60% - Archiving %1 parts, please wait...").arg(comment));
-    }
+  emitSplashMessage(QString("60% - Archiving %1 parts, please wait...").arg(comment));
 
   //if (okToEmitToProgressBar())
   //    emit progressRangeSig(0, 0);
@@ -1239,6 +1240,9 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
       QString progressMessage = QString("Archiving custom parts...\nProcessing: " +
                                         QDir::toNativeSeparators(ldPartsDirs[i]));
       emit progressMessageSig(progressMessage);
+
+      emitSplashMessage(QString("60% - Archiving %1, please wait...")
+                                .arg(QDir(ldPartsDirs[i]).dirName()));
 
       if (!archiveParts.Archive( archiveFile,
                                  partDir.absolutePath(),
@@ -1289,17 +1293,26 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
                          .arg(totalPartCount).arg(comment).arg(partsLabel).arg(gui->elapsedTime(tf.elapsed()));
 
       emit partsArchiveResultSig(totalPartCount);
+
+      emitSplashMessage(QString("70% - Finished. Archived %1 %2 parts.").arg(totalPartCount).arg(comment));
+
       _partsArchived = true;
+
   } else {
       returnMessage = tr("Finished. Parts exist in custom %1 archive. No new %2 parts archived.")
                          .arg(Preferences::validLDrawLibrary).arg(comment);
+
+      emitSplashMessage(QString("70% - Finished. No new %1 parts archived.").arg(comment));
+
       _partsArchived = false;
   }
   emit gui->messageSig(LOG_INFO,returnMessage);
 
-  if (!okToEmitToProgressBar()) {
-      emit Application::instance()->splashMsgSig(tr("70% - Finished archiving %1 parts.").arg(comment));
-  }
+  // time delay to display archive totals
+  dt = QTime::currentTime().addSecs(3);
+  while (QTime::currentTime() < dt)
+      QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+
   return true;
 }
 
