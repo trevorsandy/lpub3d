@@ -2990,7 +2990,7 @@ bool lcModel::AnyObjectsSelected() const
 			return true;
 /*** LPub3D Mod - New BuildMod  ***/
 /***/
-	if (gMainWindow->GetImageType() == Options::CSI) {
+	if (gMainWindow->GetImageType() != Options::PLI) {
 		for (lcPiece* Piece : mPieces)
 			if (Piece->IsSelected())
 				return true;

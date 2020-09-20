@@ -2392,7 +2392,7 @@ void lcMainWindow::RemoveRecentFile(int FileIndex)
 
 /*** LPub3D Mod - Selected Parts ***/
 void lcMainWindow::SetSelectedPieces(QVector<int> &LineTypeIndexes){
-	if (GetImageType() == Options::CSI) {
+	if (GetImageType() != Options::PLI) {
 
 		lcModel* ActiveModel = GetActiveModel();
 
@@ -2437,7 +2437,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int EmitSelectio
 			} else 
 
 			/*** LPub3D Mod - Selected Parts ***/
-			if (EmitSelection && Tool == LC_TOOL_SELECT && GetImageType() == Options::CSI) {
+			if (EmitSelection && Tool == LC_TOOL_SELECT && GetImageType() != Options::PLI) {
 
 				QVector<TypeLine> LineTypeIndexes;
 
