@@ -194,8 +194,8 @@ void LDrawFile::empty()
   _buildMods.clear();
   _buildModList.clear();
   _loadedParts.clear();
-  _mpd = false;
-  _partCount = 0;
+  _mpd                   = false;
+  _partCount             = 0;
   _buildModNextStepIndex = -1;
   _buildModPrevStepIndex =  0;
 }
@@ -1037,6 +1037,8 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
         return NoneMissing;
     };
 
+    emit gui->progressBarPermInitSig();
+
     std::function<void(int)> loadMPDContents;
     loadMPDContents = [
             this,
@@ -1054,7 +1056,6 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
         QString     subfileName;
         MissingHeader  headerMissing = NoneMissing;
 
-        emit gui->progressBarPermInitSig();
         emit gui->progressPermRangeSig(1, stageContents.size());
         emit gui->progressPermMessageSig("Loading " + fileType() + " " +  fileInfo.fileName() + "...");
 #ifdef QT_DEBUG_MODE
@@ -1231,8 +1232,9 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 #endif
             QString projectPath = QDir::toNativeSeparators(fileInfo.absolutePath());
 
-            bool subFileFound =false;
+            // set index to bottom of stageContents
             int i = stageContents.size();
+            bool subFileFound =false;
             for (QString subfile : stageSubfiles) {
 #ifdef QT_DEBUG_MODE
                 emit gui->messageSig(LOG_DEBUG, QString("Processing stage subfile %1...").arg(subfile));
@@ -1877,150 +1879,184 @@ bool LDrawFile::saveMPDFile(const QString &fileName)
     return true;
 }
 
-void LDrawFile::countParts(const QString &fileName){
+void LDrawFile::countParts(const QString &fileName) {
 
-    //logDebug() << QString("  Subfile: %1, Subfile Parts Count: %2").arg(fileName).arg(count);
-    emit gui->messageSig(LOG_STATUS, QString("Processing subfile '%1'").arg(fileName));
+    emit gui->progressBarPermInitSig();
+    emit gui->progressPermRangeSig(1, size(fileName));
+    emit gui->progressPermMessageSig("Counting parts...");
+    emit gui->messageSig(LOG_INFO, "Counting parts for " + fileName + "...");
 
-    int sfCount = 0;
+    int topModelIndx = getSubmodelIndex(fileName);
 
-    QRegExp validExtRx("\\.DAT|\\.LDR|\\.MPD$",Qt::CaseInsensitive);
+    std::function<void(int)> countModelParts;
+    countModelParts = [this, &countModelParts, &topModelIndx] (int modelIndx)
+    {
+        QString modelName = getSubmodelName(modelIndx);
+        QStringList content = contents(modelName);
+        if (content.size()) {
+            // initialize model parts count
+            int modelPartCount = 0;
 
-    QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(fileName.toLower());
-    if (f != _subFiles.end()) {
-        // get content size and reset numSteps
-        int j = f->_contents.size();
+            // get content size
+            int c = content.size();
 
-        // process submodel content...
-        for (int i = 0; i < j; i++) {
-            QStringList tokens;
-            QString line = f->_contents[i];
+            // initialize valid line
+            bool lineIncluded  = true;
 
-            split(line,tokens);
+            // process submodel content...
+            for (int i = 0; i < c; i++) {
 
-            bool doCountPart = true;
+                QStringList tokens;
+                QString line = content.at(i);
 
-// interrogate each line
-//          if (tokens[0] != "1") {
-//              logNotice() << QString("     Line: [%1] %2").arg(fileName).arg(line);
-//            }
+                if (modelIndx == topModelIndx)
+                    emit gui->progressPermSetValueSig(i);
 
-            // build modification - begins at BEGIN command and ends at END_MOD action
-            if (tokens.size() >= 4 && tokens[0] == "0"  &&
-               (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
-                tokens[2] == "BUILD_MOD") {
-                if (tokens[3] == "BEGIN") {
-                    buildModLevel = getLevel(tokens[4], BM_BEGIN);
-                } else if (tokens[3] == "END_MOD") {
-                    buildModLevel = getLevel("", BM_END);
+                // adjust ghost lines
+                if (line.startsWith("0 GHOST "))
+                    line = line.mid(8).trimmed();
+
+                split(line,tokens);
+
+                // build modification - starts at BEGIN command and ends at END_MOD action
+                if (tokens.size() >= 4 && tokens[0] == "0"  &&
+                   (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
+                    tokens[2] == "BUILD_MOD") {
+                    if (tokens[3] == "BEGIN") {
+                        buildModLevel = getLevel(tokens[4], BM_BEGIN);
+                    } else if (tokens[3] == "END_MOD") {
+                        buildModLevel = getLevel("", BM_END);
+                    }
+                    lineIncluded = ! buildModLevel;
                 }
-                doCountPart = ! buildModLevel;
-            } else
-            if (tokens.size() == 5 && tokens[0] == "0" &&
-               (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
-               (tokens[2] == "PART" || tokens[2] == "PLI") &&
-                tokens[3] == "BEGIN"  &&
-                tokens[4] == "IGN") {
-                doCountPart = false;
-            } else
-            if (tokens.size() == 4 && tokens[0] == "0" &&
-               (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
-               (tokens[2] == "PART" || tokens[2] == "PLI") &&
-                tokens[3] == "END") {
-               doCountPart = true;
-            }
 
-            QString partToken;
-            if (doCountPart && tokens.size() == 15 && tokens[0] == "1" && (tokens[14].contains(validExtRx))) {
-                partToken = tokens[14];
-            } else if ((doCountPart = isSubstitute(line,partToken))) {
-                doCountPart = !partToken.isEmpty() && partToken.contains(validExtRx);
-            }
-            if (doCountPart) {
-                QString partString = "|" + partToken + "|";
-                bool containsSubFile = contains(partToken.toLower());
-                if (containsSubFile) {
-                    int subFileType = isUnofficialPart(partToken.toLower());
-                    if (subFileType == UNOFFICIAL_SUBMODEL){
-                        countParts(partToken);
-                    } else {
-                        switch(subFileType){
-                        case  UNOFFICIAL_PART:
-                            _partCount++;sfCount++;
-                            partString += QString("Unofficial inlined part");
-                            if (!_loadedParts.contains(QString(VALID_LOAD_MSG) + partString)) {
-                                _loadedParts.append(QString(VALID_LOAD_MSG) + partString);
-                                emit gui->messageSig(LOG_NOTICE,QString("Unofficial inlined part %1 [%2] validated.").arg(_partCount).arg(partToken));
-                            }
-                            break;
-                        case  UNOFFICIAL_SUBPART:
-                            partString += QString("Unofficial inlined subpart");
-                            if (!_loadedParts.contains(QString(SUBPART_LOAD_MSG) + partString)) {
-                                _loadedParts.append(QString(SUBPART_LOAD_MSG) + partString);
-                                emit gui->messageSig(LOG_NOTICE,QString("Unofficial inlined part [%1] is a subpart").arg(partToken));
-                            }
-                            break;
-                        case  UNOFFICIAL_PRIMITIVE:
-                            partString += QString("Unofficial inlined primitive");
-                            if (!_loadedParts.contains(QString(PRIMITIVE_LOAD_MSG) + partString)) {
-                                _loadedParts.append(QString(PRIMITIVE_LOAD_MSG) + partString);
-                                emit gui->messageSig(LOG_NOTICE,QString("Unofficial inlined part [%1] is a primitive").arg(partToken));
-                            }
-                            break;
-                        default:
-                            break;
-                        }
-                    }
-                } else if (! ExcludedParts::hasExcludedPart(partToken)) {
-                    QString partFile = partToken.toUpper();
-                    if (partFile.startsWith("S\\")) {
-                        partFile.replace("S\\","S/");
-                    }
-                    PieceInfo* pieceInfo;
-                    if (!_loadedParts.contains(QString(VALID_LOAD_MSG) + partString)) {
-                        pieceInfo = lcGetPiecesLibrary()->FindPiece(partFile.toLatin1().constData(), nullptr, false, false);
-                        if (pieceInfo) {
-                            partString += pieceInfo->m_strDescription;
-                            if (pieceInfo->IsSubPiece()) {
-                                if (!_loadedParts.contains(QString(SUBPART_LOAD_MSG) + partString)){
-                                    _loadedParts.append(QString(SUBPART_LOAD_MSG) + partString);
-                                    emit gui->messageSig(LOG_NOTICE,QString("Part [%1] is a subpart").arg(partToken));
-                                }
-                            } else
-                            if (pieceInfo->IsPartType()) {
-                                _partCount++;sfCount++;
+                // ignore parts begin
+                if (tokens.size() == 5 && tokens[0] == "0" &&
+                   (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
+                   (tokens[2] == "PART" || tokens[2] == "PLI") &&
+                    tokens[3] == "BEGIN"  &&
+                    tokens[4] == "IGN") {
+                    lineIncluded = false;
+                } else
+                // ignore part end
+                if (tokens.size() == 4 && tokens[0] == "0" &&
+                   (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
+                   (tokens[2] == "PART" || tokens[2] == "PLI") &&
+                    tokens[3] == "END") {
+                   lineIncluded = true;
+                }
+
+                QString type;
+                bool countThisLine = true;
+                if ((countThisLine = tokens[0] == "1" && tokens.size() == 15))
+                    type = tokens[14];
+                else if (isSubstitute(line, type))
+                    countThisLine = !type.isEmpty();
+
+                bool partIncluded = !ExcludedParts::hasExcludedPart(type);
+
+                if (countThisLine && lineIncluded && partIncluded) {
+                    QString partString = "|" + type + "|";
+                    bool containsSubFile = contains(type.toLower());
+                    if (containsSubFile) {
+                        LDrawUnofficialFileType subFileType = LDrawUnofficialFileType(isUnofficialPart(type.toLower()));
+                        if (subFileType == UNOFFICIAL_SUBMODEL){
+                            //emit gui->messageSig(LOG_TRACE,QString("UNOFFICIAL_SUBMODEL %1 LINE %2 MODEL %3").arg(type).arg(i).arg(modelName));
+                            countModelParts(getSubmodelIndex(type));
+                        } else {
+                            switch(subFileType){
+                            case  UNOFFICIAL_PART:
+                                _partCount++;modelPartCount++;
+                                //emit gui->messageSig(LOG_TRACE,QString("UNOFFICIAL_PART %1 LINE %2 MODEL %3 COUNT %4").arg(type).arg(i).arg(modelName).arg(_partCount));
+                                //emit gui->messageSig(LOG_STATUS, QString("Part count for [%1] %2").arg(modelName).arg(modelPartCount));
+                                partString += QString("Unofficial inlined part");
                                 if (!_loadedParts.contains(QString(VALID_LOAD_MSG) + partString)) {
                                     _loadedParts.append(QString(VALID_LOAD_MSG) + partString);
-                                    emit gui->messageSig(LOG_NOTICE,QString("Part %1 [%2] validated.").arg(_partCount).arg(partToken));
+                                    emit gui->messageSig(LOG_NOTICE,QString("Unofficial inlined part %1 [%2] validated.").arg(_partCount).arg(type));
                                 }
-                            } else
-                            if (lcGetPiecesLibrary()->IsPrimitive(partFile.toLatin1().constData())){
-                                if (pieceInfo->IsSubPiece()) {
-                                    if (!_loadedParts.contains(QString(SUBPART_LOAD_MSG) + partString)) {
-                                        _loadedParts.append(QString(SUBPART_LOAD_MSG) + partString);
-                                        emit gui->messageSig(LOG_NOTICE,QString("Part [%1] is a subpart").arg(partToken));
-                                    }
-                                } else {
-                                    if (!_loadedParts.contains(QString(PRIMITIVE_LOAD_MSG) + partString)) {
-                                        _loadedParts.append(QString(PRIMITIVE_LOAD_MSG) + partString);
-                                        emit gui->messageSig(LOG_NOTICE,QString("Part [%1] is a primitive part").arg(partToken));
-                                    }
+                                break;
+                            case  UNOFFICIAL_SUBPART:
+                                partString += QString("Unofficial inlined subpart");
+                                //emit gui->messageSig(LOG_DEBUG,QString("UNOFFICIAL_SUBPART %1 LINE %2 MODEL %3").arg(type).arg(i).arg(modelName));
+                                if (!_loadedParts.contains(QString(SUBPART_LOAD_MSG) + partString)) {
+                                    _loadedParts.append(QString(SUBPART_LOAD_MSG) + partString);
+                                    emit gui->messageSig(LOG_NOTICE,QString("Unofficial inlined part [%1] is a SUBPART").arg(type));
                                 }
-                            }
-                        } else {
-                            partString += QString("Part not found");
-                            if (!_loadedParts.contains(QString(MISSING_LOAD_MSG) + partString)) {
-                                _loadedParts.append(QString(MISSING_LOAD_MSG) + partString);
-                                emit gui->messageSig(LOG_NOTICE,QString("Part [%1] not excluded, not a submodel and not found in the %2 library archives.")
-                                                     .arg(partToken)
-                                        .arg(VER_PRODUCTNAME_STR));
+                                break;
+                            case  UNOFFICIAL_PRIMITIVE:
+                                partString += QString("Unofficial inlined primitive");
+                                //emit gui->messageSig(LOG_DEBUG,QString("UNOFFICIAL_PRIMITIVE %1 LINE %2 MODEL %3").arg(type).arg(i).arg(modelName));
+                                if (!_loadedParts.contains(QString(PRIMITIVE_LOAD_MSG) + partString)) {
+                                    _loadedParts.append(QString(PRIMITIVE_LOAD_MSG) + partString);
+                                    emit gui->messageSig(LOG_NOTICE,QString("Unofficial inlined part [%1] is a PRIMITIVE").arg(type));
+                                }
+                                break;
+                            default:
+                                break;
                             }
                         }
-                    }
-                }  // check excluded
-            }
+                    } else {
+                        QString partFile = type.toUpper();
+                        if (partFile.startsWith("S\\")) {
+                            partFile.replace("S\\","S/");
+                        }
+                        PieceInfo* pieceInfo;
+                        if (!_loadedParts.contains(QString(VALID_LOAD_MSG) + partString)) {
+                            pieceInfo = lcGetPiecesLibrary()->FindPiece(partFile.toLatin1().constData(), nullptr, false, false);
+                            if (pieceInfo) {
+                                partString += pieceInfo->m_strDescription;
+                                if (pieceInfo->IsSubPiece()) {
+                                    //emit gui->messageSig(LOG_DEBUG,QString("PIECE_SUBPART %1 LINE %2 MODEL %3").arg(type).arg(i).arg(modelName));
+                                    if (!_loadedParts.contains(QString(SUBPART_LOAD_MSG) + partString)){
+                                        _loadedParts.append(QString(SUBPART_LOAD_MSG) + partString);
+                                        emit gui->messageSig(LOG_NOTICE,QString("Part [%1] is a SUBPART").arg(type));
+                                    }
+                                } else
+                                if (pieceInfo->IsPartType()) {
+                                    _partCount++;modelPartCount++;;
+                                    //emit gui->messageSig(LOG_TRACE,QString("PIECE_PART %1 LINE %2 MODEL %3 COUNT %4").arg(type).arg(i).arg(modelName).arg(_partCount));
+                                    //emit gui->messageSig(LOG_STATUS, QString("Part count for [%1] %2").arg(modelName).arg(modelPartCount));
+                                    if (!_loadedParts.contains(QString(VALID_LOAD_MSG) + partString)) {
+                                        _loadedParts.append(QString(VALID_LOAD_MSG) + partString);
+                                        emit gui->messageSig(LOG_NOTICE,QString("Part %1 [%2] validated.").arg(_partCount).arg(type));
+                                    }
+                                } else
+                                if (lcGetPiecesLibrary()->IsPrimitive(partFile.toLatin1().constData())){
+                                    if (pieceInfo->IsSubPiece()) {
+                                        //emit gui->messageSig(LOG_DEBUG,QString("PIECE_SUBPART_PRIMITIVE %1 LINE %2 MODEL %3").arg(type).arg(i).arg(modelName));
+                                        if (!_loadedParts.contains(QString(SUBPART_LOAD_MSG) + partString)) {
+                                            _loadedParts.append(QString(SUBPART_LOAD_MSG) + partString);
+                                            emit gui->messageSig(LOG_NOTICE,QString("Part [%1] is a SUBPART").arg(type));
+                                        }
+                                    } else {
+                                        //emit gui->messageSig(LOG_DEBUG,QString("PIECE_PRIMITIVE %1 LINE %2 MODEL %3").arg(type).arg(i).arg(modelName));
+                                        if (!_loadedParts.contains(QString(PRIMITIVE_LOAD_MSG) + partString)) {
+                                            _loadedParts.append(QString(PRIMITIVE_LOAD_MSG) + partString);
+                                            emit gui->messageSig(LOG_NOTICE,QString("Part [%1] is a PRIMITIVE").arg(type));
+                                        }
+                                    }
+                                }
+                            } else {
+                                partString += QString("Part not found");
+                                if (!_loadedParts.contains(QString(MISSING_LOAD_MSG) + partString)) {
+                                    _loadedParts.append(QString(MISSING_LOAD_MSG) + partString);
+                                    emit gui->messageSig(LOG_NOTICE,QString("Part [%1] not excluded, not a submodel and not found in the %2 library archives.")
+                                                         .arg(type).arg(VER_PRODUCTNAME_STR));
+                                }
+                            }
+                        }
+                    }  // check archive
+                }
+            } // process submodel content
         }
-    }
+    };
+
+    countModelParts(topModelIndx);
+
+    emit gui->messageSig(LOG_STATUS, QString("Parts count for %1 is %2").arg(fileName).arg(_partCount));
+    emit gui->progressPermSetValueSig(size(fileName));
+    emit gui->progressPermStatusRemoveSig();
+
 }
 
 bool LDrawFile::saveLDRFile(const QString &fileName)
@@ -2991,10 +3027,16 @@ bool isComment(QString &line){
   return false;
 }
 
+/*
+ * Assume extensions are up to 4 chars in length so part.lfx_01
+ * is not considered as having an extension, but part.dat
+ * is considered as having extensions
+ */
 bool isSubstitute(QString &line, QString &lineOut){
-  QRegExp substitutePart("BEGIN\\sSUB\\s([A-Za-z0-9\\s_-]+.[dat|mpd|ldr]+)",Qt::CaseInsensitive);
-  if (line.contains(substitutePart)) {
-      lineOut = substitutePart.cap(1);
+  QRegExp substitutePartRx("\\sBEGIN\\sSUB\\s(.*(?:\\.dat|\\.ldr)|[^.]{5})",Qt::CaseInsensitive);
+  if (line.contains(substitutePartRx)) {
+      lineOut = substitutePartRx.cap(1);
+      emit gui->messageSig(LOG_NOTICE,QString("Part [%1] is a SUBSTITUTE").arg(lineOut));
       return true;
   }
   lineOut = QString();
