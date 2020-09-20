@@ -215,10 +215,9 @@ const QString Render::getRotstepMeta(RotStepMeta &rotStep, bool isKey /*false*/)
 void Render::setNativeHeaderAndNoFileMeta(QStringList &parts, const QString &modelName, int imageType, bool displayOnly) {
 
     QStringList tokens;
-    QString subModelName = modelName;
-    QString baseName     = QFileInfo(subModelName).completeBaseName().toLower();
-    bool isMPD           = imageType == Options::Mt::SMP;         // always MPD
-    baseName             = QString("%1").arg(baseName.replace(baseName.indexOf(baseName.at(0)),1,baseName.at(0).toUpper()));
+    QString baseName = QFileInfo(modelName).completeBaseName().toLower();
+    bool isMPD       = imageType == Options::Mt::SMP;  // always MPD if imageType is SMP
+    baseName         = QString("%1").arg(baseName.replace(baseName.indexOf(baseName.at(0)),1,baseName.at(0).toUpper()));
 
     // Test for MPD
     if (!isMPD) {
@@ -236,21 +235,16 @@ void Render::setNativeHeaderAndNoFileMeta(QStringList &parts, const QString &mod
          baseName = baseName.append("_Preview");
     }
 
-    //
+    // special case where model file is a display model or final step in fade step document
     if (displayOnly) {
-        baseName = baseName.append(" - Final Model");
+        baseName = baseName.append("_Display_Model");
     }
 
-    if (isMPD) {
-        parts.prepend(QString("0 !LPUB MODEL NAME \"%1\"").arg(baseName));
-        subModelName = QString(baseName).append(".mpd");
-    }
-
-    parts.prepend(QString("0 Name: %1").arg(subModelName));
+    parts.prepend(QString("0 Name: %1").arg(modelName));
     parts.prepend(QString("0 %1").arg(baseName));
 
     if (isMPD) {
-        parts.prepend(QString("0 FILE %1").arg(subModelName));
+        parts.prepend(QString("0 FILE %1").arg(modelName));
         parts.append("0 NOFILE");
     }
 }
