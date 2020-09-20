@@ -91,7 +91,9 @@ void lcPreferences::SaveDefaults()
 /*** LPub3D Mod end ***/
 }
 
+/*** LPub3D Mod - Relocate Argc and Argv ***/
 lcApplication::lcApplication()
+/*** LPub3D Mod end ***/
 {
 
 /*** LPub3D Mod - disable leoCAD application vars ***/
@@ -717,6 +719,7 @@ void lcApplication::ShowPreferencesDialog()
 {
 	lcPreferencesDialogOptions Options;
 	int CurrentAASamples = lcGetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES);
+	int CurrentStudLogo = lcGetProfileInt(LC_PROFILE_STUD_LOGO);
 
 	Options.Preferences = mPreferences;
 
@@ -729,6 +732,7 @@ void lcApplication::ShowPreferencesDialog()
 	Options.CheckForUpdates = lcGetProfileInt(LC_PROFILE_CHECK_UPDATES);
 
 	Options.AASamples = CurrentAASamples;
+	Options.StudLogo = CurrentStudLogo;
 
 	Options.Categories = gCategories;
 	Options.CategoriesModified = false;
@@ -740,7 +744,6 @@ void lcApplication::ShowPreferencesDialog()
 	Options.MouseShortcuts = gMouseShortcuts;
 	Options.MouseShortcutsModified = false;
 	Options.MouseShortcutsDefault = false;
-
 
 /*** LPub3D Mod - preference refresh ***/
 	if (Preferences::usingNativeRenderer)
@@ -767,6 +770,7 @@ void lcApplication::ShowPreferencesDialog()
 	bool LibraryChanged = Options.LibraryPath != lcGetProfileString(LC_PROFILE_PARTS_LIBRARY);
 	bool ColorsChanged = Options.ColorConfigPath != lcGetProfileString(LC_PROFILE_COLOR_CONFIG);
 	bool AAChanged = CurrentAASamples != Options.AASamples;
+	bool StudLogoChanged = CurrentStudLogo != Options.StudLogo;
 
 /*** LPub3D Mod - preference refresh ***/
 	bool drawEdgeLinesChanged = false;
@@ -806,6 +810,7 @@ void lcApplication::ShowPreferencesDialog()
 	lcSetProfileString(LC_PROFILE_POVRAY_LGEO_PATH, Options.LGEOPath);
 	lcSetProfileInt(LC_PROFILE_CHECK_UPDATES, Options.CheckForUpdates);
 	lcSetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES, Options.AASamples);
+	lcSetProfileInt(LC_PROFILE_STUD_LOGO, Options.StudLogo);
 
 /*** LPub3D Mod - preference refresh ***/
 
@@ -819,8 +824,10 @@ void lcApplication::ShowPreferencesDialog()
 	box.setDefaultButton   (QMessageBox::Ok);
 	box.setStandardButtons (QMessageBox::Ok | QMessageBox::Cancel);
 
-	if (LibraryChanged || ColorsChanged || AAChanged) {
-		QString thisChange = LibraryChanged ? "Library" : ColorsChanged ? "Colors" : "Anti Aliasing";
+	if (LibraryChanged || ColorsChanged || AAChanged || StudLogoChanged) {
+		QString thisChange = LibraryChanged ? "Library" :
+							 ColorsChanged ? "Colors" :
+							 AAChanged ? "Anti Aliasing" : "Stud Logo";
 		box.setText (QString("You must close and restart %1 to enable %2 change.")
 					 .arg(QString::fromLatin1(VER_PRODUCTNAME_STR))
 					 .arg(thisChange));
@@ -885,10 +892,6 @@ void lcApplication::ShowPreferencesDialog()
 			  logInfo() << QString("Shading mode changed from %1 to %2.")
 						   .arg(oldShadingMode)
 						   .arg(newShadingMode);
-		  if (AAChanged)
-			  logInfo() << QString("Anti Aliasing samples changed from %1 to %2.")
-						   .arg(CurrentAASamples)
-						   .arg(Options.AASamples);
 		  if (lineWidthChanged)
 			  logInfo() << QString("Edge line width changed from %1 to %2.")
 						   .arg(lcGetProfileFloat(LC_PROFILE_LINE_WIDTH))
