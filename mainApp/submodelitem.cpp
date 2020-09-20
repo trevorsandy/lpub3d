@@ -24,6 +24,7 @@
 #include <QFileInfo>
 #include <QFile>
 #include <QTextStream>
+
 #include "submodelitem.h"
 #include "step.h"
 #include "ranges.h"
@@ -111,12 +112,43 @@ float SubModelPart::maxMargin()
 
  // SubModel
 
+SubModel::SubModel()
+{
+  relativeType = SubModelType;
+  steps = nullptr;
+  step = nullptr;
+  meta = nullptr;
+  background = nullptr;
+  imageOutOfDate = false;
+  shared         = false;
+  displayInstanceCount = false;
+}
+
 void SubModel::setSubModel(
   QString &_file,
   Meta    &_meta)
 {
   QString color = "0";
   subModelMeta  = _meta.LPub.subModel;
+
+  // setup 3DViewer entry
+  switch (parentRelativeType) {
+  case CalloutType:
+      top     = topOfCallout();
+      bottom  = bottomOfCallout();
+      callout = true;
+      break;
+  default:
+      if (step) {
+          top = topOfStep();
+          bottom = bottomOfStep();
+      } else {
+          top = topOfSteps();
+          bottom = bottomOfSteps();
+      }
+      multistep = parentRelativeType == StepGroupType;
+      break;
+  }
 
   QFileInfo fileInfo(_file);
   QString type = fileInfo.fileName().toLower();
@@ -152,7 +184,7 @@ bool SubModel::rotateModel(QString ldrName, QString subModel, const QString colo
             subModelMeta.rotStep,
             rotatedModel,
             ldrName,
-            step->top.modelName,
+            step ? step->top.modelName : gui->topOfPage().modelName,
             cameraAngles
             )) != 0) {
        emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate Submodel ldr file: %1.")
@@ -231,34 +263,23 @@ int SubModel::createSubModelImage(
 
   if (part.exists()) {
       QDateTime lastModified = QFileInfo(imageName).lastModified();
-      QStringList parsedStack = step->submodelStack();
-      parsedStack << step->parent->modelName();
-      if ( ! isOlder(parsedStack,lastModified)) {
-          imageOutOfDate = true;
-          if (imageOutOfDate && ! part.remove()) {
-              emit gui->messageSig(LOG_ERROR,QString("Failed to remove out of date CSI PNG file."));
+      if (meta->LPub.multiStep.pli.perStep.value() == true){
+          QStringList parsedStack = step->submodelStack();
+          parsedStack << step->parent->modelName();
+          if ( ! isOlder(parsedStack,lastModified)) {
+              imageOutOfDate = true;
+              if (imageOutOfDate && ! part.remove()) {
+                  emit gui->messageSig(LOG_ERROR,QString("Failed to remove out of date SubModel Preview PNG file."));
+              }
+          }
+      } else {
+          if ( ! isOlder(type,lastModified)) {
+              imageOutOfDate = true;
+              if (imageOutOfDate && ! part.remove()) {
+                  emit gui->messageSig(LOG_ERROR,QString("Failed to remove out of date SubModel Preview PNG file."));
+              }
           }
       }
-  }
-
-  // create 3DViewer entry
-  bool multistep = false,callout = false;
-  Where top,bottom;
-  switch (parentRelativeType) {
-  case StepGroupType:
-      top    = topOfSteps();
-      bottom = bottomOfSteps();
-      multistep = true;
-      break;
-  case CalloutType:
-      top    = topOfCallout();
-      bottom = bottomOfCallout();
-      callout = true;
-      break;
-  default:
-      top    = topOfStep();
-      bottom = bottomOfStep();
-      break;
   }
 
   // Populate viewerStepKey variable
@@ -360,9 +381,9 @@ int SubModel::createSubModelImage(
           emit gui->messageSig(LOG_ERROR,QString("%1 Submodel render failed for [%2] %3 %4 %5 on page %6")
                                                  .arg(Render::getRenderer())
                                                  .arg(imageName)
-                                                 .arg(step->calledOut ? "called out," : "simple,")
-                                                 .arg(step->multiStep ? "step group" : "single step")
-                                                 .arg(step->stepNumber.number)
+                                                 .arg(callout ? "called out," : "simple,")
+                                                 .arg(multistep ? "step group" : "single step")
+                                                 .arg(step ? step->stepNumber.number : 0)
                                                  .arg(gui->stepPageNum));
           imageName = QString(":/resources/missingimage.png");
           rc = -1;
@@ -375,9 +396,9 @@ int SubModel::createSubModelImage(
                                .arg(Render::getRenderer())
                                .arg(timer.elapsed())
                                .arg(imageName)
-                               .arg(step->calledOut ? "called out," : "simple,")
-                               .arg(step->multiStep ? "step group" : "single step")
-                               .arg(step->stepNumber.number)
+                               .arg(callout ? "called out," : "simple,")
+                               .arg(multistep ? "step group" : "single step")
+                               .arg(step ? step->stepNumber.number : 0)
                                .arg(gui->stepPageNum));
       }
   }
@@ -511,11 +532,12 @@ int SubModel::generateSubModelItem()
   return 0;
 }
 
-int SubModel::sizeSubModel(Meta *_meta, PlacementType _parentRelativeType)
+int SubModel::sizeSubModel(Meta *_meta, PlacementType _parentRelativeType, bool _perStep)
 {
   int rc;
 
   parentRelativeType = _parentRelativeType;
+  perStep = _perStep;
 
   if (parts.size() == 0) {
     return 1;
@@ -830,16 +852,22 @@ void SubModel::setFlag(QGraphicsItem::GraphicsItemFlag flag, bool value)
 }
 
  /*
- * Single step per page                   case 3 top/bottom of step
+ * Single step per page                        case 3 top/bottom of step
  * step in step group subModel per step = true case 3 top/bottom of step
- * step in callout                        case 3 top/bottom of step
+ * step in callout                             case 3 top/bottom of step
  * step group global subModel                  case 2 topOfSteps/bottomOfSteps
  */
 bool SubModel::autoRange(Where &top, Where &bottom)
 {
+  if (! perStep) {
     top = topOfSteps();
     bottom = bottomOfSteps();
-    return steps->list.size();
+    return steps->list.size() && perStep;
+  } else {
+    top = topOfStep();
+    bottom = bottomOfStep();
+    return false;
+  }
 }
 
 int SubModel::placeSubModel(
@@ -1114,19 +1142,8 @@ void SMInstanceTextItem::contextMenuEvent(
       return;
     }
 
-  Where top;
-  Where bottom;
-
-  switch (parentRelativeType) {
-    case CalloutType:
-      top    = subModel->topOfCallout();
-      bottom = subModel->bottomOfCallout();
-      break;
-    default:
-      top    = subModel->topOfStep();
-      bottom = subModel->bottomOfStep();
-      break;
-    }
+  Where top = subModel->top;
+  Where bottom = subModel->bottom;
 
   if (selectedAction == fontAction) {
       changeFont(top,bottom,&subModel->subModelMeta.instance.font,1,false);
@@ -1196,16 +1213,13 @@ void SMGraphicsPixmapItem::contextMenuEvent(
   QGraphicsSceneContextMenuEvent *event)
 {
   QMenu menu;
-  QString pl = "Submodel Part";
+  QString partlbl = part->type.size() > 15 ?
+                    part->type.left(12) + "..." +
+                    part->type.right(3) : part->type;
+  QString pl = QString("%1").arg(partlbl);
   QAction *marginAction = commonMenus.marginMenu(menu,pl);
-
-#if 0
   QAction *scaleAction  = commonMenus.scaleMenu(menu,pl);
 
-  QAction *orientationAction= menu.addAction("Change Part Orientation");
-  orientationAction->setDisabled(true);
-  orientationAction->setWhatsThis("This doesn't work right now");
-#endif
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
@@ -1213,21 +1227,21 @@ void SMGraphicsPixmapItem::contextMenuEvent(
     return;
   }
 
+  Where top = subModel->top;
+  Where bottom = subModel->bottom;
+
   if (selectedAction == marginAction) {
-    changeMargins(pl+" Image Margins",
-                  subModel->topOfStep(),
-                  subModel->bottomOfStep(),
+    changeMargins(pl+" Margins",
+                  top,
+                  bottom,
                   &subModel->subModelMeta.part.margin);
-#if 0
   } else if (selectedAction == scaleAction) {
-    gui->clearSubmodelCache(PREVIEW_SUBMODEL_SUFFIX);
     changeFloatSpin(
       pl,
       "Scale",
-      subModel->topOfStep(),
-      subModel->bottomOfStep(),
+      top,
+      bottom,
      &subModel->subModelMeta.modelScale,0);
-#endif
   }
 }
 
@@ -1245,6 +1259,8 @@ void SMGraphicsPixmapItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 
 void SMGraphicsPixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+    subModel->loadTheViewer();
+
     mouseIsDown = true;
     QGraphicsItem::mousePressEvent(event);
     update();
@@ -1317,7 +1333,7 @@ SubModelBackgroundItem::SubModelBackgroundItem(
   setZValue(SUBMODELBACKGROUND_ZVALUE_DEFAULT);
   setPixmap(*pixmap);
   setParentItem(parent);
-  if (parentRelativeType != SingleStepType) {
+  if (parentRelativeType != SingleStepType && subModel->perStep) {
     setFlag(QGraphicsItem::ItemIsMovable,false);
   }
 }
@@ -1338,10 +1354,10 @@ void SubModelBackgroundItem::placeGrabbers()
   if (grabber == nullptr) {
     grabber = new Grabber(BottomInside,this,myParentItem());
     grabber->setData(ObjectId, SubmodelGrabberObj);
-    grabber->top        = subModel->step->topOfStep();
-    grabber->bottom     = subModel->step->bottomOfStep();
-    grabber->stepNumber = subModel->step->stepNumber.number;
-    grabbersVisible = true;
+    grabber->top        = subModel->top;
+    grabber->bottom     = subModel->bottom;
+    grabber->stepNumber = subModel->step ? subModel->step->stepNumber.number : 0;
+    grabbersVisible     = true;
   }
   grabber->setPos(point.x()-grabSize()/2,point.y()-grabSize()/2);
 }
@@ -1355,10 +1371,7 @@ void SubModelBackgroundItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     grabbersVisible = false;
   }
   QGraphicsItem::mousePressEvent(event);
-  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
-    placeGrabbers();
-  }
-  subModel->loadTheViewer();
+  placeGrabbers();
 }
 
 void SubModelBackgroundItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
@@ -1458,55 +1471,36 @@ void SubModelBackgroundItem::contextMenuEvent(
       return;
     }
 
-    Where top;
-    Where bottom;
-    bool  local;
+    Where top = subModel->top;
+    Where bottom = subModel->bottom;
 
-    Where topOfStep;
-    Where bottomOfStep;
-
-    if (subModel->step) {
-        topOfStep = subModel->topOfStep();
-        bottomOfStep = subModel->bottomOfStep();
-    } else {
-        topOfStep = subModel->topOfSteps();
-        bottomOfStep = subModel->bottomOfSteps();
-    }
-
-    switch (parentRelativeType) {
-      case StepGroupType:
-        top    = subModel->topOfSteps();
-        bottom = subModel->bottomOfSteps();
-        local = false;
-      break;
-      case CalloutType:
-        top    = subModel->topOfCallout();
-        bottom = subModel->bottomOfCallout();
-        local = false;
-      break;
-      default:
-        top    = subModel->topOfStep();
-        bottom = subModel->bottomOfStep();
-        local = true;
-      break;
-    }
-
-    if (selectedAction == placementAction) {
-          changePlacement(parentRelativeType,
-                          SubModelType,
-                          pl+" Placement",
-                          top,
-                          bottom,
-                         &subModel->placement,true,1,0,false);
-    } else if (selectedAction == constrainAction) {
-      changeConstraint(pl+" Constraint",
-                       topOfStep,
-                       bottomOfStep,
-                       &subModel->subModelMeta.constrain);
+    if (selectedAction == constrainAction) {
+        changeConstraint(pl+" Constraint",
+                         top,
+                         bottom,
+                         &subModel->subModelMeta.constrain);
+    } else if (selectedAction == placementAction) {
+        if (subModel->perStep) {
+            changePlacement(parentRelativeType,
+                            subModel->perStep,
+                            SubModelType,
+                            pl+" Placement",
+                            top,
+                            bottom,
+                            &subModel->placement);
+        } else {
+            changePlacement(parentRelativeType,
+                            subModel->perStep,
+                            SubModelType,
+                            pl+" Placement",
+                            top,
+                            bottom,
+                            &subModel->placement,true,1,0,false);
+        }
     } else if (selectedAction == marginAction) {
       changeMargins(pl+" Margins",
-                    topOfStep,
-                    bottomOfStep,
+                    top,
+                    bottom,
                     &subModel->subModelMeta.margin);
     } else if (selectedAction == backgroundAction) {
       changeBackground(pl+" Background",
@@ -1554,15 +1548,15 @@ void SubModelBackgroundItem::contextMenuEvent(
                  Render::getRenderer() == RENDERER_LDVIEW ? subModel->subModelMeta.ldviewParms :
                  Render::getRenderer() == RENDERER_LDGLITE ? subModel->subModelMeta.ldgliteParms :
                                /*POV scene file generator*/  subModel->subModelMeta.ldviewParms ;
-      setRendererArguments( topOfStep,
-                         bottomOfStep,
-                         rendererName,
-                         &rendererArguments);
+      setRendererArguments(top,
+                           bottom,
+                           rendererName,
+                           &rendererArguments);
     } else if (selectedAction == povrayRendererArgumentsAction) {
-      setRendererArguments( topOfStep,
-                         bottomOfStep,
-                         Render::getRenderer(),
-                         &subModel->subModelMeta.povrayParms);
+      setRendererArguments(top,
+                           bottom,
+                           Render::getRenderer(),
+                           &subModel->subModelMeta.povrayParms);
     }
   }
 }

@@ -531,6 +531,7 @@ int Gui::drawPage(
   bool     assemAnnotation = false;
   bool     displayCount    = false;
   int      countInstances  = steps->meta.LPub.countInstance.value();
+  bool     previewNotPerStep = false;
 
   DividerType dividerType  = NoDivider;
 
@@ -850,8 +851,7 @@ int Gui::drawPage(
                   }
               }
           }
-
-        }
+      }
       // STEP - Process line, triangle, or polygon type
       else if ((tokens.size() == 8  && tokens[0] == "2") ||
                (tokens.size() == 11 && tokens[0] == "3") ||
@@ -1522,46 +1522,89 @@ int Gui::drawPage(
                   }
 
                   if (opts.pliParts.size() && steps->meta.LPub.multiStep.pli.perStep.value() == false) {
-                      PlacementData placementData = steps->stepGroupMeta.LPub.multiStep.pli.placement.value();
-                      // Override default, which is for PliPerStep true
-                      if (placementData.relativeTo != PageType &&
-                          placementData.relativeTo != StepGroupType) {
-                          placementData.relativeTo  = PageType;
-                          placementData.placement   = TopLeft;
-                          placementData.preposition = Inside;
-                          placementData.offsets[0]  = 0;
-                          placementData.offsets[1]  = 0;
-                          steps->stepGroupMeta.LPub.multiStep.pli.placement.setValue(placementData);
-                        }
-                      steps->pli.bom = false;
-                      steps->pli.setParts(opts.pliParts,opts.pliPartGroups,steps->stepGroupMeta);
+                      //steps->groupStepMeta = curMeta;
+                      PlacementData placementData;
+                      // Step Number
+                      if (steps->meta.LPub.assem.showStepNumber.value()) {
+                          placementData = steps->groupStepMeta.LPub.multiStep.stepNum.placement.value();
+                          if ((placementData.relativeTo    == CsiType ||
+                              (placementData.relativeTo    == PartsListType &&
+                               placementData.justification == Top &&
+                               placementData.placement     == Left &&
+                               placementData.preposition   == Outside))) {
+                              steps->groupStepMeta.LPub.multiStep.stepNum.placement.setValue(BottomLeftOutside,PageHeaderType);
+                            }
+
+                          // add the step number
+                          steps->groupStepNumber.placement = steps->groupStepMeta.LPub.multiStep.stepNum.placement;
+                          steps->groupStepNumber.margin    = steps->groupStepMeta.LPub.multiStep.stepNum.margin;
+                          steps->groupStepNumber.number    = opts.groupStepNumber;
+                          steps->groupStepNumber.sizeit();
+
+                          emit messageSig(LOG_INFO_STATUS, "Add Step group step number for multi-step page " + opts.current.modelName);
+
+                          // if PLI and Submodel Preview are relative to StepNumber or PLI relative to CSI (default)
+                          placementData = steps->groupStepMeta.LPub.multiStep.pli.placement.value();
+                          if (previewNotPerStep &&
+                             ((steps->groupStepMeta.LPub.multiStep.subModel.placement.value().relativeTo == StepNumberType &&
+                              placementData.relativeTo == StepNumberType) || placementData.relativeTo == CsiType))
+                          {
+                              // Redirect Pli relative to SubModel Preview
+                              steps->groupStepMeta.LPub.multiStep.pli.placement.setValue(BottomLeftOutside,SubModelType);
+                          }
+                          // Redirect Pli relative to Step Number if relative to CSI (default)
+                          else if(placementData.relativeTo == CsiType) {
+                              steps->groupStepMeta.LPub.multiStep.pli.placement.setValue(RightTopOutside,StepNumberType);
+                          }
+                      }
+                      //if no step number
+                      else {
+                          // if Submodel Preview relative to StepNumber
+                          if (previewNotPerStep &&
+                                  steps->groupStepMeta.LPub.multiStep.subModel.placement.value().relativeTo == StepNumberType) {
+                              // Redirect Submodel Preview relative to Page
+                              steps->groupStepMeta.LPub.multiStep.subModel.placement.setValue(BottomLeftOutside,PageHeaderType);
+                          }
+                          // if Pli relative to StepNumber or CSI
+                          if (steps->groupStepMeta.LPub.multiStep.pli.placement.value().relativeTo == StepNumberType ||
+                              steps->groupStepMeta.LPub.multiStep.pli.placement.value().relativeTo == CsiType) {
+                              if (previewNotPerStep)
+                              {
+                                  // Redirect Pli relative to SubModel Preview
+                                  steps->groupStepMeta.LPub.multiStep.pli.placement.setValue(BottomLeftOutside,SubModelType);
+                              }
+                              // Redirect Pli relative to Page if relative to CSI (default)
+                              else if(placementData.relativeTo == CsiType) {
+                                  steps->groupStepMeta.LPub.multiStep.pli.placement.setValue(BottomLeftOutside,PageHeaderType);
+                              }
+                          }
+                      }
+
+                      // PLI
+                      steps->pli.bom    = false;
+                      steps->pli.margin = steps->groupStepMeta.LPub.multiStep.pli.margin;
+                      steps->pli.setParts(opts.pliParts,opts.pliPartGroups,steps->groupStepMeta);
 
                       emit messageSig(LOG_STATUS, "Add PLI images for multi-step page " + opts.current.modelName);
 
-                      steps->pli.sizePli(&steps->stepGroupMeta, StepGroupType, false);
+                      if (steps->pli.sizePli(&steps->groupStepMeta, StepGroupType, false) != 0)
+                          emit messageSig(LOG_ERROR, "Failed to set PLI (per Page) for " + topOfStep.modelName + "...");
 
+                      // SubModel Preview
                       if (previewNotPerStep) {
-                          placementData = steps->stepGroupMeta.LPub.multiStep.subModel.placement.value();
-                          // Override default, which is for PliPerStep true
-                          if (placementData.relativeTo != PageType/*PartsListType*/ &&
-                              placementData.relativeTo != StepGroupType) {
-                              placementData.relativeTo  = PageType/*PartsListType*/;
-                              placementData.placement   = TopLeft/*BottomLeft*/;
-                              placementData.preposition = Inside/*Outside*/;
-                              placementData.offsets[0]  = 0;
-                              placementData.offsets[1]  = 0;
-                              steps->stepGroupMeta.LPub.multiStep.subModel.placement.setValue(placementData);
-                          }
-
-                          steps->stepGroupMeta.LPub.subModel.instance.setValue(instances);
-                          steps->subModel.setSubModel(opts.current.modelName,steps->stepGroupMeta);
+                          steps->groupStepMeta.LPub.subModel.instance.setValue(instances);
+                          steps->subModel.margin = steps->groupStepMeta.LPub.subModel.margin;
+                          steps->subModel.setSubModel(opts.current.modelName,steps->groupStepMeta);
 
                           emit messageSig(LOG_INFO_STATUS, "Add Submodel Preview for multi-step page " + opts.current.modelName);
 
                           steps->subModel.displayInstanceCount = displayCount;
-                          if (steps->subModel.sizeSubModel(&steps->stepGroupMeta,StepGroupType,false) != 0)
-                              emit messageSig(LOG_ERROR, "Failed to set first step submodel display for " + topOfStep.modelName + "...");
+                          if (steps->subModel.sizeSubModel(&steps->groupStepMeta,StepGroupType,false) != 0)
+                              emit messageSig(LOG_ERROR, "Failed to set Submodel Preview for " + topOfStep.modelName + "...");
                       }
+                  } else {
+                      steps->groupStepNumber.number     = 0;
+                      steps->groupStepNumber.stepNumber = nullptr;
                   }
                   opts.pliParts.clear();
                   opts.pliPartGroups.clear();
@@ -1580,21 +1623,6 @@ int Gui::drawPage(
                   // set csi annotations - multistep
 //                  if (! gui->exportingObjects())
 //                      steps->setCsiAnnotationMetas();
-
-                  // get the number of submodel instances in the model file
-                  int countInstanceOverride = steps->meta.LPub.page.countInstanceOverride.value();
-                  int instances = countInstanceOverride ? countInstanceOverride :
-                                                          ldrawFile.instances(current.modelName, isMirrored);
-                  // count the instances accordingly
-                  displayCount= countInstances && instances > 1;
-                  if (displayCount && countInstances != CountAtTop && !countInstanceOverride) {
-                      MetaItem mi;
-                      if (countInstances == CountAtStep)
-                          instances = mi.countInstancesInStep(&steps->meta, current.modelName);
-                      else
-                      if (countInstances > CountFalse && countInstances < CountAtStep)
-                          instances = mi.countInstancesInModel(&steps->meta, current.modelName);
-                  }
 
                   Page *page = dynamic_cast<Page *>(steps);
                   if (page) {
@@ -1653,6 +1681,7 @@ int Gui::drawPage(
 
                   addGraphicsPageItems(steps, coverPage, endOfSubmodel, view, scene, opts.printing);
 
+                  previewNotPerStep = false;
                   drawPageElapsedTime();
                   return HitEndOfPage;
                 }
@@ -1774,7 +1803,7 @@ int Gui::drawPage(
               if (partsAdded && ! noStep) {
 
                   if (firstStep) {
-                      steps->stepGroupMeta = curMeta;
+                      steps->groupStepMeta = curMeta;
                       firstStep = false;
                   }
 
@@ -1830,10 +1859,9 @@ int Gui::drawPage(
                           emit messageSig(LOG_INFO, "Add step PLI for " + topOfStep.modelName + "...");
 
                           step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
-                      }
 
-                      if (step->placeSubModel){
-                          emit messageSig(LOG_INFO, "Set first step submodel display for " + topOfStep.modelName + "...");
+                          if (step->placeSubModel){
+                              emit messageSig(LOG_INFO, "Set first step submodel display for " + topOfStep.modelName + "...");
 
                               // get the number of submodel instances in the model file
                               int countInstanceOverride = steps->meta.LPub.page.countInstanceOverride.value();
@@ -1857,15 +1885,8 @@ int Gui::drawPage(
                               if (step->subModel.sizeSubModel(&steps->meta,relativeType,pliPerStep) != 0)
                                   emit messageSig(LOG_ERROR, "Failed to set first step submodel display for " + topOfStep.modelName + "...");
                           } else {
-                              relativeType = SingleStepType;
+                              step->subModel.clear();
                           }
-                          steps->meta.LPub.subModel.instance.setValue(instances);
-                          step->subModel.setSubModel(current.modelName,steps->meta);
-                          step->subModel.displayInstanceCount = displayCount;
-                          if (step->subModel.sizeSubModel(&steps->meta,relativeType) != 0)
-                              emit messageSig(LOG_ERROR, "Failed to set first step submodel display for " + topOfStep.modelName + "...");
-                      } else {
-                          step->subModel.clear();
                       }
 
                       switch (dividerType){

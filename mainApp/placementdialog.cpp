@@ -277,13 +277,24 @@ PlacementDialog::PlacementDialog(
         break;
         case PartsListType:             //placed type
           if (pliPerStep) {
-            oks << Page << Csi  << Sm << Sn /*<< Stp*/;
+            oks << Csi  << Sm << Sn /*<< Stp*/;
           } else {
-            oks << Page << Sm << Ms;
+            oks << Page << Sm << Sn << Ph << Pf << Ms;
           }
         break;
         case StepNumberType:            //placed type
-          oks << Csi << Pli << Sm /*<< Stp*/;
+          if (pliPerStep) {
+            oks << Csi << Pli << Sm /*<< Stp*/;
+          } else {
+            oks << Page << Pli  << Sm << Ph << Pf << Ms;
+          }
+        break;
+        case SubModelType:              //placed type
+          if (pliPerStep) {
+            oks << Csi << Pli << Sn /*<< Stp*/;
+          } else {
+            oks << Page << Pli << Sn << Ph << Pf << Ms;
+          }
         break;
         case CalloutType:               //placed type
           oks << Page << Csi << Pli << Sn /*<< Stp*/;
@@ -293,9 +304,6 @@ PlacementDialog::PlacementDialog(
         break;
         case PagePointerType:           //placed type
           oks << Page << Csi << Ph << Pf;
-        break;
-        case SubModelType:              //placed type
-          oks << Page << Csi << Pli << Sn << Ph << Pf /*<< Stp*/;
         break;
         case RotateIconType:            //placed type
           oks << Csi << Pli << Sn /*<< Stp*/;

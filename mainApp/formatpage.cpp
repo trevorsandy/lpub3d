@@ -1042,8 +1042,7 @@ int Gui::addGraphicsPageItems(
 
       plPage.placeRelative(page); // place multi-step relative to the page
 
-      page->relativeToSg(page);   // compute bounding box of step group and callouts
-                                  // placed relative to it.
+      page->relativeToSg(page);   // compute bounding box of step group and callouts placed relative to it.
 
       plPage.placeRelativeBounding(page); // center multi-step in page's bounding box
 
@@ -1058,12 +1057,12 @@ int Gui::addGraphicsPageItems(
 
           // override the default location
           if (pp->placement.value().placement == Left ||
-              pp->placement.value().placement == Right)
+                  pp->placement.value().placement == Right)
               pp->loc[YY] = pp->loc[YY] - (plPage.size[YY]/2);
           else
-          if (pp->placement.value().placement == Top ||
-              pp->placement.value().placement == Bottom)
-              pp->loc[XX] = pp->loc[XX] - (plPage.size[XX]/2);
+              if (pp->placement.value().placement == Top ||
+                      pp->placement.value().placement == Bottom)
+                  pp->loc[XX] = pp->loc[XX] - (plPage.size[XX]/2);
 
           // size the pagePointer origin (hidden page rectangle)
           pp->sizeIt();
@@ -1075,12 +1074,28 @@ int Gui::addGraphicsPageItems(
           for (int i = 0; i < pp->pointerList.size(); i++) {
               Pointer *pointer = pp->pointerList[i];
               pp->addGraphicsPointerItem(pointer);
-            }
-        }
+          }
+      }
 
-      // Place the Bill of materials on the page along with step group?????
+      //  Place BOM and pli per page items
 
       if (page->pli.tsize()) {
+
+          // Add pli per page items
+          if (page->meta.LPub.multiStep.pli.perStep.value() == false){
+              addPliPerPageItems(page,pageHeader,pageFooter,pageNumber,plPage);
+          }
+
+          // Place the group step number on the page if pliPerStep = false
+
+          if (page->groupStepNumber.number) {
+              page->groupStepNumber.stepNumber->setPos(
+                          page->groupStepNumber.stepNumber->loc[XX],
+                          page->groupStepNumber.stepNumber->loc[YY]);
+          }
+
+          // Place the Bill of materials on the page if specified
+
           if (page->pli.bom) {
               page->pli.relativeType = BomType;
               page->pli.addPli(0,pageBg);
@@ -1092,23 +1107,35 @@ int Gui::addGraphicsPageItems(
               page->pli.placement.setValue(pld);
               if (pld.relativeTo == PageType) {
                   plPage.placeRelative(page->pli.background);
-                } else {
+              } else {
                   page->placeRelative(page->pli.background);
-                }
+              }
               page->pli.loc[XX] = page->pli.background->loc[XX];
               page->pli.loc[YY] = page->pli.background->loc[YY];
-            }
+          }
+
+          // Place the PLI on the page if pliPerStep = false
+
           page->pli.setPos(page->pli.loc[XX],page->pli.loc[YY]);
-        }
-    }
+      }
+
+      // Place the SubModel Preview on the page if pliPerStep = false
+
+      if (page->subModel.tsize()){
+          page->subModel.setPos(page->subModel.loc[XX],page->subModel.loc[YY]);
+      }
+  }
 
   // Moved from clearPage() to reduce page update lag.
+
   if (view->pageBackgroundItem) {
       delete view->pageBackgroundItem;
       view->pageBackgroundItem = nullptr;
   }
   scene->clear();
+
   // Moved from beginning of GraphicsPageItems() to reduce page update lag
+
   view->pageBackgroundItem = pageBg;
   pageBg->setPos(0,0);
 
@@ -1888,6 +1915,98 @@ void Gui::setSceneItemZValue(Page *page, LGraphicsScene *scene)
 //    selectedItemObj = UndefinedObj;
     if (debugLogging)
         emit messageSig(LOG_DEBUG, QString("----------------------------------"));
+}
+
+int Gui::addPliPerPageItems(
+  Page            *page,
+  PlacementHeader *pageHeader,
+  PlacementFooter *pageFooter,
+  PageNumberItem  *pageNumber,
+  Placement       &plPage){
+
+  Pli                 *pli               = &page->pli;
+  SubModel            *subModel          = &page->subModel;
+  GroupStepNumberItem *groupStepNumber   = page->groupStepNumber.stepNumber;
+  bool                 displayPageNumber = page->meta.LPub.page.dpn.value();
+
+  if (groupStepNumber && page->groupStepNumber.number){
+      PlacementData pld = groupStepNumber->placement.value();
+      if (pld.relativeTo == PageType) {
+          plPage.appendRelativeTo(groupStepNumber);
+          plPage.placeRelative(groupStepNumber);
+      } else if (pageHeader && pld.relativeTo == PageHeaderType) {
+          pageHeader->appendRelativeTo(groupStepNumber);
+          pageHeader->placeRelative(groupStepNumber);
+      } else if (pageFooter && pld.relativeTo == PageFooterType) {
+          pageFooter->appendRelativeTo(groupStepNumber);
+          pageFooter->placeRelative(groupStepNumber);
+      } else if (pli && pld.relativeTo == PartsListType) {
+          pli->appendRelativeTo(groupStepNumber);
+          pli->placeRelative(groupStepNumber);
+      } else if (subModel && pld.relativeTo == SubModelType) {
+          subModel->appendRelativeTo(groupStepNumber);
+          subModel->placeRelative(groupStepNumber);
+      } else if (displayPageNumber && pageNumber && pld.relativeTo == PageNumberType) {
+          pageNumber->appendRelativeTo(groupStepNumber);
+          pageNumber->placeRelative(groupStepNumber);
+      } else {
+          plPage.appendRelativeTo(groupStepNumber);
+          plPage.placeRelative(groupStepNumber);
+      }
+  }
+
+  if (subModel){
+      PlacementData pld = subModel->placement.value();
+      if (pld.relativeTo == PageType) {
+          plPage.appendRelativeTo(subModel);
+          plPage.placeRelative(subModel);
+      } else if (pageHeader && pld.relativeTo == PageHeaderType) {
+          pageHeader->appendRelativeTo(subModel);
+          pageHeader->placeRelative(subModel);
+      } else if (pageFooter && pld.relativeTo == PageFooterType) {
+          pageFooter->appendRelativeTo(subModel);
+          pageFooter->placeRelative(subModel);
+      } else if (pli && pld.relativeTo == PartsListType) {
+          pli->appendRelativeTo(subModel);
+          pli->placeRelative(subModel);
+      } else if (groupStepNumber && pld.relativeTo == StepNumberType) {
+          groupStepNumber->appendRelativeTo(subModel);
+          groupStepNumber->placeRelative(subModel);
+      } else if (displayPageNumber && pageNumber && pld.relativeTo == PageNumberType) {
+          pageNumber->appendRelativeTo(subModel);
+          pageNumber->placeRelative(subModel);
+      } else {
+          plPage.appendRelativeTo(subModel);
+          plPage.placeRelative(subModel);
+      }
+  }
+
+  if (pli){
+      PlacementData pld = pli->placement.value();
+      if (pld.relativeTo == PageType) {
+          plPage.appendRelativeTo(pli);
+          plPage.placeRelative(pli);
+      } else if (pageHeader && pld.relativeTo == PageHeaderType) {
+          pageHeader->appendRelativeTo(pli);
+          pageHeader->placeRelative(pli);
+      } else if (pageFooter && pld.relativeTo == PageFooterType) {
+          pageFooter->appendRelativeTo(pli);
+          pageFooter->placeRelative(pli);
+      } else if (groupStepNumber && pld.relativeTo == StepNumberType) {
+          groupStepNumber->appendRelativeTo(pli);
+          groupStepNumber->placeRelative(pli);
+      } else if (subModel && pld.relativeTo == SubModelType) {
+          subModel->appendRelativeTo(pli);
+          subModel->placeRelative(pli);
+      } else if (displayPageNumber && pageNumber && pld.relativeTo == PageNumberType) {
+          pageNumber->appendRelativeTo(pli);
+          pageNumber->placeRelative(pli);
+      } else {
+          plPage.appendRelativeTo(pli);
+          plPage.placeRelative(pli);
+      }
+  }
+  return 0;
 }
 
 int Gui::addContentPageAttributes(

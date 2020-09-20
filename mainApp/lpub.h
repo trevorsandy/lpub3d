@@ -1252,8 +1252,14 @@ private:
     PlacementFooter     *pageFooter,
     PageNumberItem      *pageNumber,
     Placement           &plPage,
-    bool                 endOfSubmodel = false
-      );
+    bool                 endOfSubmodel = false);
+
+  int addPliPerPageItems(
+    Page                *page,
+    PlacementHeader     *pageHeader,
+    PlacementFooter     *pageFooter,
+    PageNumberItem      *pageNumber,
+    Placement           &plPage);
 
   QString getFilePath(const QString &fileName) const;
 

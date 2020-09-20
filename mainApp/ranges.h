@@ -63,7 +63,7 @@ class QGraphicsView;
 class Steps : public Placement {
   public:
     Meta                           meta;
-    Meta                           stepGroupMeta;
+    Meta                           groupStepMeta;
     QList<AbstractStepsElement *>  list;                       // of range
     QMap<Positions,PagePointer *>  pagePointers;               // of pagePointers
     QList<DividerPointerItem *>    graphicsDividerPointerList; // of dividerPointers
@@ -71,6 +71,7 @@ class Steps : public Placement {
     QGraphicsView                 *view;
     Pli                            pli;
     SubModel                       subModel;
+    PlacementNum                   groupStepNumber;            // stepNumber for pli per page
     Where                          top;                        // needed for non-step pages
     Where                          bottom;
     bool                           isMirrored;

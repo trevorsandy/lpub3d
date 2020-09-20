@@ -281,8 +281,11 @@ class PlacementPixmap : public Placement {
     }
 };
 
+class Page;
+class GroupStepNumberItem;
 class PlacementNum : public Placement {
   public:
+    GroupStepNumberItem *stepNumber;
     QString str;
     QString font;
     QString color;
@@ -298,6 +301,7 @@ class PlacementNum : public Placement {
     }
     void sizeit();
     void sizeit(QString fmt);
+    int addStepNumber(Page *page, QGraphicsItem *parent);
 };
 
 class PlacementHeader : public Placement,

@@ -119,7 +119,8 @@ class SubModel : public Placement {
     int pageSizeP(Meta *, int which);
 
   public:
-    PlacementType           parentRelativeType;
+    PlacementType          parentRelativeType;
+    bool                   perStep;
     SubModelBackgroundItem *background;
     SubModelMeta            subModelMeta;
     QString                 imageName;
@@ -137,17 +138,11 @@ class SubModel : public Placement {
     // validity
     bool                    imageOutOfDate;
     bool                    displayInstanceCount;
-    SubModel()
-    {
-      relativeType = SubModelType;
-      steps = nullptr;
-      step = nullptr;
-      meta = nullptr;
-      background = nullptr;
-      imageOutOfDate = false;
-      shared         = false;
-      displayInstanceCount = false;
-    }
+
+    Where                   top,bottom;
+    bool                    multistep,callout;
+
+    SubModel();
 
     ~SubModel()
     {
@@ -169,9 +164,7 @@ class SubModel : public Placement {
     void setFlag(QGraphicsItem::GraphicsItemFlag flag,bool value);
     bool rotateModel(QString ldrName, QString subModel, const QString color, bool noCA);
 
-    void setSubModel(
-      QString &modelName,
-      Meta    &meta);
+    void setSubModel(QString &modelName, Meta &meta);
 
     int tsize() // always 1
     {
@@ -180,7 +173,7 @@ class SubModel : public Placement {
 
     void clear();
 
-    int  sizeSubModel(Meta *, PlacementType);
+    int  sizeSubModel(Meta *, PlacementType, bool _perStep);
     int  sizeSubModel(ConstrainData::PliConstrain, unsigned height);
     int  resizeSubModel(Meta *, ConstrainData &constrainData);
     int  generateSubModelItem();

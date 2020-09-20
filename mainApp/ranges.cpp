@@ -46,9 +46,10 @@
 
 Steps::Steps()
 {
-  relativeType  = SingleStepType;
-  pli.steps = this;
-  isMirrored = false;
+  relativeType   = SingleStepType;
+  pli.steps      = this;
+  subModel.steps = this;
+  isMirrored     = false;
 }
 
 Steps::Steps(Meta &_meta,QGraphicsView *_view)
@@ -490,7 +491,7 @@ void Steps::sizeitFreeform(
 void Steps::addGraphicsItems(
   int ox,
   int oy,
-  QGraphicsItem *parent)
+  QGraphicsItem *parent /*pageBg*/)
 {
   QGraphicsItem *backDrop;
   QRectF rect = QRectF(ox + loc[XX], oy + loc[YY],size[XX],size[YY]);
@@ -503,6 +504,7 @@ void Steps::addGraphicsItems(
   } else {
     allocEnc = meta.LPub.multiStep.alloc.value();
   }
+
   addGraphicsItems(allocEnc,ox,oy,backDrop);
 }
 
@@ -518,10 +520,21 @@ void Steps::addGraphicsItems(
   AllocEnc allocEnc,
   int offsetX,
   int offsetY,
-  QGraphicsItem *parent)
+  QGraphicsItem *parent/*backdrop*/)
 {
+  // SN
+  if (groupStepNumber.number) {
+    groupStepNumber.addStepNumber(dynamic_cast<Page *>(this), parent);
+  }
+
+  // PLI
   if (pli.tsize() && ! pli.bom) {
     pli.addPli(meta.submodelStack.size(), parent);
+  }
+
+  // SM
+  if (subModel.tsize()) {
+    subModel.addSubModel(meta.submodelStack.size(), parent);
   }
 
 //#ifdef QT_DEBUG_MODE
