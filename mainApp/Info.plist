@@ -88,7 +88,7 @@
 		<string>MacOSX</string>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>1.0.0.257.258-13f884e</string>
+	<string>1.0.0.257.258-b9c1278</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2015-2020 Trevor SANDY</string>
 	<key>NSMainNibFile</key>

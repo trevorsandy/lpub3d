@@ -2100,9 +2100,12 @@ void Gui::editLDrawColourParts()
         emit messageSig(LOG_ERROR, QString("Static colour part list does not exist. Generate from the Configuration menu."));
     } else {
         if (Preferences::useSystemEditor) {
+#ifndef Q_OS_MACOS
             if (Preferences::systemEditor.isEmpty())
-                QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::ldrawColourPartsFile));
+
+                QDesktopServices::openUrl(QUrl("file:///"+Preferences::ldrawColourPartsFile, QUrl::TolerantMode));
             else
+#endif
                 openWith(Preferences::ldrawColourPartsFile);
         } else {
             displayParmsFile(Preferences::ldrawColourPartsFile);
@@ -2119,9 +2122,11 @@ void Gui::editPliControlFile()
         emit messageSig(LOG_ERROR, QString("PLI control file does not exist."));
     } else {
         if (Preferences::useSystemEditor) {
+#ifndef Q_OS_MACOS
             if (Preferences::systemEditor.isEmpty())
-                QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::pliControlFile));
+                QDesktopServices::openUrl(QUrl("file:///"+Preferences::pliControlFile, QUrl::TolerantMode));
             else
+#endif
                 openWith(Preferences::pliControlFile);
         } else {
             displayParmsFile(Preferences::pliControlFile);
@@ -2145,9 +2150,11 @@ void Gui::editAnnotationStyle()
     }
 
     if (Preferences::useSystemEditor) {
+#ifndef Q_OS_MACOS
         if (Preferences::systemEditor.isEmpty())
-            QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+            QDesktopServices::openUrl(QUrl("file:///"+fileInfo.absoluteFilePath(), QUrl::TolerantMode));
         else
+#endif
             openWith(fileInfo.absoluteFilePath());
     } else {
         displayParmsFile(fileInfo.absoluteFilePath());
@@ -2171,9 +2178,11 @@ void Gui::editTitleAnnotations()
     }
 
     if (Preferences::useSystemEditor) {
+#ifndef Q_OS_MACOS
         if (Preferences::systemEditor.isEmpty())
-            QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::titleAnnotationsFile));
+            QDesktopServices::openUrl(QUrl("file:///"+Preferences::titleAnnotationsFile, QUrl::TolerantMode));
         else
+#endif
             openWith(Preferences::titleAnnotationsFile);
     } else {
         displayParmsFile(Preferences::titleAnnotationsFile);
@@ -2196,9 +2205,11 @@ void Gui::editFreeFormAnnitations()
     }
 
     if (Preferences::useSystemEditor) {
+#ifndef Q_OS_MACOS
         if (Preferences::systemEditor.isEmpty())
-            QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::freeformAnnotationsFile));
+            QDesktopServices::openUrl(QUrl("file:///"+Preferences::freeformAnnotationsFile, QUrl::TolerantMode));
         else
+#endif
             openWith(Preferences::freeformAnnotationsFile);
     } else {
         displayParmsFile(Preferences::freeformAnnotationsFile);
@@ -2221,9 +2232,11 @@ void Gui::editPliBomSubstituteParts()
     }
 
     if (Preferences::useSystemEditor) {
+#ifndef Q_OS_MACOS
         if (Preferences::systemEditor.isEmpty())
-            QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::pliSubstitutePartsFile));
+            QDesktopServices::openUrl(QUrl("file:///"+Preferences::pliSubstitutePartsFile, QUrl::TolerantMode));
         else
+#endif
             openWith(Preferences::pliSubstitutePartsFile);
     } else {
         displayParmsFile(Preferences::pliSubstitutePartsFile);
@@ -2246,9 +2259,11 @@ void Gui::editExcludedParts()
     }
 
     if (Preferences::useSystemEditor) {
+#ifndef Q_OS_MACOS
         if (Preferences::systemEditor.isEmpty())
-            QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+            QDesktopServices::openUrl(QUrl("file:///"+fileInfo.absoluteFilePath(), QUrl::TolerantMode));
         else
+#endif
             openWith(fileInfo.absoluteFilePath());
     } else {
         displayParmsFile(fileInfo.absoluteFilePath());
@@ -2271,9 +2286,11 @@ void Gui::editStickerParts()
    }
 
    if (Preferences::useSystemEditor) {
+#ifndef Q_OS_MACOS
        if (Preferences::systemEditor.isEmpty())
-           QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+           QDesktopServices::openUrl(QUrl("file:///"+fileInfo.absoluteFilePath(), QUrl::TolerantMode));
        else
+#endif
            openWith(fileInfo.absoluteFilePath());
    } else {
        displayParmsFile(fileInfo.absoluteFilePath());
@@ -2286,9 +2303,11 @@ void Gui::editLdrawIniFile()
 {
   if (!Preferences::ldSearchDirs.isEmpty()) {
       if (Preferences::useSystemEditor) {
+#ifndef Q_OS_MACOS
           if (Preferences::systemEditor.isEmpty())
-              QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::ldrawiniFile));
+              QDesktopServices::openUrl(QUrl("file:///"+Preferences::ldrawiniFile, QUrl::TolerantMode));
           else
+#endif
               openWith(Preferences::ldrawiniFile);
       } else {
           displayParmsFile(Preferences::ldrawiniFile);
@@ -2301,30 +2320,31 @@ void Gui::editLdrawIniFile()
 void Gui::editLPub3DIniFile()
 {
     QString lpubConfigFile,fileExt;
+    QString companyName = QString(COMPANYNAME_STR).toLower();
 #if defined Q_OS_WIN
     fileExt = "ini";
     if (Preferences::portableDistribution)
         lpubConfigFile = QString("%1/config/%2/%3.%4")
                                  .arg(Preferences::lpub3dPath)
-                                 .arg(COMPANYNAME_STR).arg(Preferences::lpub3dAppName).arg(fileExt);
-#else
-#if defined Q_OS_MACOS
+                                 .arg(companyName)
+                                 .arg(Preferences::lpub3dAppName).arg(fileExt);
+#elif defined Q_OS_MACOS
     fileExt = "plist";
-    lpubConfigFile = QString("%1/com.lpub3d-software.%2.%3")
+    lpubConfigFile = QString("%1/com.%2.%3.%4")
                              .arg(Preferences::lpubConfigPath)
+                             .arg(companyName.replace(" ","-"))
                              .arg(QString(Preferences::lpub3dAppName).replace(".app","")).arg(fileExt);
 #elif defined Q_OS_LINUX
     fileExt = "conf";
     lpubConfigFile = QString("%1/%2/%3.%4")
                              .arg(Preferences::lpubConfigPath)
-                             .arg(COMPANYNAME_STR)
+                             .arg(companyName)
                              .arg(Preferences::lpub3dAppName).arg(fileExt);
-#endif
 #endif
 
     if (Preferences::useSystemEditor) {
         if (Preferences::systemEditor.isEmpty())
-            QDesktopServices::openUrl(QUrl::fromLocalFile(lpubConfigFile));
+            QDesktopServices::openUrl(QUrl("file:///"+lpubConfigFile, QUrl::TolerantMode));
         else
             openWith(lpubConfigFile);
     } else {
@@ -2338,9 +2358,11 @@ void Gui::editLPub3DIniFile()
 void Gui::editLdgliteIni()
 {
     if (Preferences::useSystemEditor) {
+#ifndef Q_OS_MACOS
         if (Preferences::systemEditor.isEmpty())
-            QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::ldgliteIni));
+            QDesktopServices::openUrl(QUrl("file:///"+Preferences::ldgliteIni, QUrl::TolerantMode));
         else
+#endif
             openWith(Preferences::ldgliteIni);
     } else {
         displayParmsFile(Preferences::ldgliteIni);
@@ -2352,9 +2374,11 @@ void Gui::editLdgliteIni()
 void Gui::editNativePovIni()
 {
     if (Preferences::useSystemEditor) {
+#ifndef Q_OS_MACOS
         if (Preferences::systemEditor.isEmpty())
-            QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::nativeExportIni));
+            QDesktopServices::openUrl(QUrl("file:///"+Preferences::nativeExportIni, QUrl::TolerantMode));
         else
+#endif
             openWith(Preferences::nativeExportIni);
     } else {
         displayParmsFile(Preferences::nativeExportIni);
@@ -2366,9 +2390,11 @@ void Gui::editNativePovIni()
 void Gui::editLdviewIni()
 {
     if (Preferences::useSystemEditor) {
+#ifndef Q_OS_MACOS
         if (Preferences::systemEditor.isEmpty())
-            QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::ldviewIni));
+            QDesktopServices::openUrl(QUrl("file:///"+Preferences::ldviewIni, QUrl::TolerantMode));
         else
+#endif
             openWith(Preferences::ldviewIni);
     } else {
         displayParmsFile(Preferences::ldviewIni);
@@ -2389,9 +2415,11 @@ void Gui::editBlenderParameters()
     }
 
     if (Preferences::useSystemEditor) {
+#ifndef Q_OS_MACOS
         if (Preferences::systemEditor.isEmpty())
-            QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+            QDesktopServices::openUrl(QUrl("file:///"+fileInfo.absoluteFilePath(), QUrl::TolerantMode));
         else
+#endif
             openWith(fileInfo.absoluteFilePath());
     } else {
         displayParmsFile(fileInfo.absoluteFilePath());
@@ -2404,9 +2432,11 @@ void Gui::editBlenderParameters()
 void Gui::editLdviewPovIni()
 {
     if (Preferences::useSystemEditor) {
+#ifndef Q_OS_MACOS
         if (Preferences::systemEditor.isEmpty())
-            QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::ldviewPOVIni));
+            QDesktopServices::openUrl(QUrl("file:///"+Preferences::ldviewPOVIni, QUrl::TolerantMode));
         else
+#endif
             openWith(Preferences::ldviewPOVIni);
     } else {
         displayParmsFile(Preferences::ldviewPOVIni);
@@ -2418,9 +2448,11 @@ void Gui::editLdviewPovIni()
 void Gui::editPovrayIni()
 {
     if (Preferences::useSystemEditor) {
+#ifndef Q_OS_MACOS
         if (Preferences::systemEditor.isEmpty())
-            QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::povrayIni));
+            QDesktopServices::openUrl(QUrl("file:///"+Preferences::povrayIni, QUrl::TolerantMode));
         else
+#endif
             openWith(Preferences::povrayIni);
     } else {
         displayParmsFile(Preferences::povrayIni);
@@ -2432,9 +2464,11 @@ void Gui::editPovrayIni()
 void Gui::editPovrayConf()
 {
     if (Preferences::useSystemEditor) {
+#ifndef Q_OS_MACOS
         if (Preferences::systemEditor.isEmpty())
-            QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::povrayConf));
+            QDesktopServices::openUrl(QUrl("file:///"+Preferences::povrayConf, QUrl::TolerantMode));
         else
+#endif
             openWith(Preferences::povrayConf);
     } else {
         displayParmsFile(Preferences::povrayConf);
@@ -2454,9 +2488,11 @@ void Gui::editLD2BLCodesXRef()
     }
 
     if (Preferences::useSystemEditor) {
+#ifndef Q_OS_MACOS
         if (Preferences::systemEditor.isEmpty())
-            QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+            QDesktopServices::openUrl(QUrl("file:///"+fileInfo.absoluteFilePath(), QUrl::TolerantMode));
         else
+#endif
             openWith(fileInfo.absoluteFilePath());
     } else {
         displayParmsFile(fileInfo.absoluteFilePath());
@@ -2477,9 +2513,11 @@ void Gui::editLD2BLColorsXRef()
     }
 
     if (Preferences::useSystemEditor) {
+#ifndef Q_OS_MACOS
         if (Preferences::systemEditor.isEmpty())
-            QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+            QDesktopServices::openUrl(QUrl("file:///"+fileInfo.absoluteFilePath(), QUrl::TolerantMode));
         else
+#endif
             openWith(fileInfo.absoluteFilePath());
     } else {
         displayParmsFile(fileInfo.absoluteFilePath());
@@ -2500,9 +2538,11 @@ void Gui::editBLColors()
     }
 
     if (Preferences::useSystemEditor) {
+#ifndef Q_OS_MACOS
         if (Preferences::systemEditor.isEmpty())
-            QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+            QDesktopServices::openUrl(QUrl("file:///"+fileInfo.absoluteFilePath(), QUrl::TolerantMode));
         else
+#endif
             openWith(fileInfo.absoluteFilePath());
     } else {
         displayParmsFile(fileInfo.absoluteFilePath());
@@ -2523,9 +2563,11 @@ void Gui::editLD2RBCodesXRef()
     }
 
     if (Preferences::useSystemEditor) {
+#ifndef Q_OS_MACOS
         if (Preferences::systemEditor.isEmpty())
-            QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+            QDesktopServices::openUrl(QUrl("file:///"+fileInfo.absoluteFilePath(), QUrl::TolerantMode));
         else
+#endif
             openWith(fileInfo.absoluteFilePath());
     } else {
         displayParmsFile(fileInfo.absoluteFilePath());
@@ -2546,9 +2588,11 @@ void Gui::editLD2RBColorsXRef()
     }
 
     if (Preferences::useSystemEditor) {
+#ifndef Q_OS_MACOS
         if (Preferences::systemEditor.isEmpty())
-            QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+            QDesktopServices::openUrl(QUrl("file:///"+fileInfo.absoluteFilePath(), QUrl::TolerantMode));
         else
+#endif
             openWith(fileInfo.absoluteFilePath());
     } else {
         displayParmsFile(fileInfo.absoluteFilePath());
@@ -2563,9 +2607,11 @@ void Gui::editBLCodes()
     QFileInfo fileInfo(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_BLCODES_FILE));
 
     if (Preferences::useSystemEditor) {
+#ifndef Q_OS_MACOS
         if (Preferences::systemEditor.isEmpty())
-            QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+            QDesktopServices::openUrl(QUrl("file:///"+fileInfo.absoluteFilePath(), QUrl::TolerantMode));
         else
+#endif
             openWith(fileInfo.absoluteFilePath());
     } else {
         displayParmsFile(fileInfo.absoluteFilePath());
@@ -2578,9 +2624,11 @@ void Gui::editBLCodes()
 void Gui::viewLog()
 {
     if (Preferences::useSystemEditor) {
+#ifndef Q_OS_MACOS
         if (Preferences::systemEditor.isEmpty())
-            QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::logPath));
+            QDesktopServices::openUrl(QUrl("file:///"+Preferences::logPath, QUrl::TolerantMode));
         else
+#endif
             openWith(Preferences::logPath);
     } else {
         displayParmsFile(Preferences::logPath);
@@ -3099,6 +3147,11 @@ Gui::Gui()
     macroNesting = 0;
     viewerUndo = false;
     viewerRedo = false;
+
+#if defined Q_OS_MACOS
+    if (Preferences::systemEditor.isEmpty())
+        Preferences::systemEditor = QString("");
+#endif
 
     lpubAlert = new LPubAlert();
 
@@ -4854,7 +4907,7 @@ void Gui::enableActions()
   setupMenu->setEnabled(true);
   cacheMenu->setEnabled(true);
   exportMenu->setEnabled(true);
-  openWithMenu->setEnabled(numPrograms > 0);
+  openWithMenu->setEnabled(numPrograms);
 
   exportBricklinkAct->setEnabled(true);
   exportCsvAct->setEnabled(true);

@@ -5984,19 +5984,24 @@ void OpenWithProgramDialogGui::setOpenWithProgram()
 
     setProgramEntries();
 
-    // max programs box
+    // system editor box
     QGroupBox *systemEditorBox = new QGroupBox("System Editor", dialog);
     mainLayout->addWidget(systemEditorBox);
     QHBoxLayout *systemEditorLayout = new QHBoxLayout(systemEditorBox);
     systemEditorBox->setLayout(systemEditorLayout);
 
     systemEditorEdit = new QLineEdit(Preferences::systemEditor, dialog);
-    systemEditorEdit->setToolTip("Select text editor or leave blank to use the operating system designated editor");
+#ifdef Q_OS_MACOS
+    systemEditorEdit->setToolTip("Select text editor and arguments or leave blank to use 'open -e' - TextEdit");
+#else
+    systemEditorEdit->setToolTip("Select text editor and arguments or leave blank to use the operating system designated editor");
+#endif
     systemEditorLayout->addWidget(systemEditorEdit);
     systemEditorButton = new QPushButton(QString("Browse..."), dialog);
     systemEditorLayout->addWidget(systemEditorButton);
     QObject::connect(systemEditorButton, SIGNAL(clicked(bool)), this, SLOT(browseSystemEditor(bool)));
 
+    // ok cancel button box
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
                                      Qt::Horizontal, dialog);
     mainLayout->addWidget(buttonBox);
@@ -6030,7 +6035,6 @@ void OpenWithProgramDialogGui::setOpenWithProgram()
             }
             gui->statusBar()->showMessage(QString("Open with programs updated."));
         }
-
         if (systemEditorEdit->text().toLower() != Preferences::systemEditor.toLower()) {
             QString const systemEditorKey("SystemEditor");
             QFileInfo systemEditorInfo(systemEditorEdit->text());

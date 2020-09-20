@@ -116,7 +116,7 @@ void Gui::openFolder(const QString &folder)
     Process->setNativeArguments(CommandPath);
     QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
 #else
-    Process->execute(CommandPath);
+    Process->execute(CommandPath, QStringList());
     Process->waitForFinished();
 
     QProcess::ExitStatus Status = Process->exitStatus();
@@ -206,17 +206,49 @@ void Gui::openWithSetup()
 
 void Gui::openWith(const QString &filePath)
 {
+
     QAction *action = qobject_cast<QAction *>(sender());
     QStringList arguments = QStringList() << filePath;
     QString program;
+
+    auto parseProgramAndArguments = [] (QString &program, QStringList &arguments) {
+        QString valueAt0 = program.at(0);
+        bool inside = (valueAt0 == "\"");                                            // true if the first character is "
+        QStringList list = program.split(QRegExp("\""), QString::SkipEmptyParts);    // Split by "
+        QStringList values;
+        foreach (QString item, list) {
+            if (inside) {                                                            // If 's' is inside quotes ...
+                values.append(item);                                                 // ... get the whole string
+            } else {                                                                 // If 's' is outside quotes ...
+                values.append(item.split(" ", QString::SkipEmptyParts));             // ... get the split string
+            }
+            inside = !inside;
+        }
+        program = values.first();                                                     //first value is application path
+        values.removeFirst();                                                         // remove application path from values
+        arguments = values + arguments;                                               // prepend values to arguments
+    };
+
     if (action) {
         program = action->data().toString();
-        if (program.isEmpty())
-            program = Preferences::systemEditor;
+        if (program.isEmpty()) {
+#ifdef Q_OS_MACOS
+            if (Preferences::systemEditor.isEmpty()) {
+                program = QString("open");
+                arguments.prepend("-e");
+            } else {
+                parseProgramAndArguments(Preferences::systemEditor,arguments);
+            }
+#else
+            parseProgramAndArguments(Preferences::systemEditor,arguments);
+#endif
+        } else {
+            parseProgramAndArguments(program,arguments);
+        }
         qint64 pid;
         QString workingDirectory = QDir::currentPath() + QDir::separator();
         QProcess::startDetached(program, {arguments}, workingDirectory, &pid);
-        emit messageSig(LOG_INFO, QString("Launched external applicatin %1...")
+        emit messageSig(LOG_INFO, QString("Launched external application %1...")
                         .arg(QFileInfo(program).fileName()));
     }
 }
