@@ -913,8 +913,9 @@ public:
   void replaceLine(const Where &here, const QString &line, QUndoCommand *parent = nullptr);
   void deleteLine (const Where &here, QUndoCommand *parent = nullptr);
   void scanPast(Where &here, const QRegExp &lineRx);
-  bool stepContains(Where &here, QRegExp &lineRx, QString &result, int capGrp = 0);
-  bool stepContains(Where &here, QRegExp &lineRx);
+  bool stepContains(Where &here, const QRegExp &lineRx, QString &result, int capGrp = 0);
+  bool stepContains(Where &here, const QRegExp &lineRx);
+  bool stepContains(Where &here, const QString value);
 
   QString topLevelFile();
 

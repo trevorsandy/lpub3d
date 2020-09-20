@@ -428,7 +428,10 @@ int Gui::drawPage(
     QString const   &addLine,
     DrawPageOptions &opts)
 {
-  emit messageSig(LOG_INFO_STATUS, "Processing draw page for " + opts.current.modelName + "...");
+  emit messageSig(LOG_INFO_STATUS, QString("Processing draw %1  page for step %2 [%3]...")
+                  .arg(stepContains(opts.current,"MULTI_STEP BEGIN") ? "multi-step" : "single-step")
+                  .arg(opts.stepNum)
+                  .arg(opts.current.modelName));
   QApplication::processEvents();
 
   QElapsedTimer pageRenderTimer;

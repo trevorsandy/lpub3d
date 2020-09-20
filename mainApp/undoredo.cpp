@@ -163,7 +163,8 @@ void Gui::scanPast(Where &topOfStep, const QRegExp &lineRx)
   }
 }
 
-bool Gui::stepContains(Where &here, QRegExp &lineRx, QString &result, int capGrp) {
+// special case - used in setting fade step from command meta
+bool Gui::stepContains(Where &here, const QRegExp &lineRx, QString &result, int capGrp) {
     bool found = false;
     if ((found = stepContains(here,lineRx))){
         if (capGrp)
@@ -174,7 +175,15 @@ bool Gui::stepContains(Where &here, QRegExp &lineRx, QString &result, int capGrp
     return found;
 }
 
-bool Gui::stepContains(Where &topOfStep, QRegExp &lineRx)
+// general case string
+bool Gui::stepContains(Where &topOfStep, const QString value)
+{
+    QRegExp lineRx(value);
+    return stepContains(topOfStep, lineRx);
+}
+
+// general case regex
+bool Gui::stepContains(Where &topOfStep, const QRegExp &lineRx)
 {
   bool found = false;
   Where walk    = topOfStep;
