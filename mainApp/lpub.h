@@ -581,6 +581,11 @@ public:
   {
     return ldrawFile.isMpd();
   }
+  bool isOlder(const QString &fileName,const QDateTime &lastModified)
+  {
+    bool older = ldrawFile.older(fileName,lastModified);
+    return older;
+  }
   bool isOlder(const QStringList &parsedStack,const QDateTime &lastModified)
   {
     bool older = ldrawFile.older(parsedStack,lastModified);

@@ -24,6 +24,12 @@ bool isMpd()
   return gui->isMpd();
 }
 
+bool isOlder(const QString &fileName,
+  const QDateTime   &lastModified)
+{
+  return gui->isOlder(fileName,lastModified);
+}
+
 bool isOlder(
   const QStringList &parsedStack,
   const QDateTime   &lastModified)
