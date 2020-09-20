@@ -22,9 +22,6 @@ enum LC_PROFILE_KEY
 	LC_PROFILE_VIEW_SPHERE_COLOR,
 	LC_PROFILE_VIEW_SPHERE_TEXT_COLOR,
 	LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR,
-/*** LPub3D Mod - Timeline part icons ***/
-	LC_PROFILE_VIEW_PIECE_ICONS,
-/*** LPub3D Mod end ***/
 
 	LC_PROFILE_LANGUAGE,
 	LC_PROFILE_CHECK_UPDATES,
@@ -95,6 +92,9 @@ enum LC_PROFILE_KEY
 	// Native Renderer.
 	LC_PROFILE_NATIVE_VIEWPOINT,
 	LC_PROFILE_NATIVE_PROJECTION,
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - Timeline part icons ***/
+	LC_PROFILE_VIEW_PIECE_ICONS,
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - View point zoom extent ***/
 	LC_PROFILE_VIEWPOINT_ZOOM_EXTENT,

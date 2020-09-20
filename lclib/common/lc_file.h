@@ -18,6 +18,11 @@ public:
 	{
 	}
 
+	lcFile(const lcFile&) = delete;
+	lcFile(lcFile&&) = delete;
+	lcFile& operator=(const lcFile&) = delete;
+	lcFile& operator=(lcFile&&) = delete;
+
 	virtual long GetPosition() const = 0;
 	virtual void Seek(qint64 Offset, int From) = 0;
 	virtual size_t GetLength() const = 0;
@@ -162,7 +167,7 @@ public:
 
 	QString ReadQString()
 	{
-		quint32 Size = ReadU32();
+		const quint32 Size = ReadU32();
 		char* Buffer = new char[Size];
 		ReadBuffer(Buffer, Size);
 		QString String = QString::fromUtf8(Buffer, Size);
@@ -454,7 +459,12 @@ class lcMemFile : public lcFile
 {
 public:
 	lcMemFile();
-	virtual ~lcMemFile();
+	~lcMemFile();
+
+	lcMemFile(const lcMemFile&) = delete;
+	lcMemFile(lcMemFile&&) = delete;
+	lcMemFile& operator=(const lcMemFile&) = delete;
+	lcMemFile& operator=(lcMemFile&&) = delete;
 
 	long GetPosition() const override;
 	void Seek(qint64 Offset, int From) override;
@@ -488,10 +498,15 @@ public:
 	{
 	}
 
-	virtual ~lcDiskFile()
+	~lcDiskFile()
 	{
 		Close();
 	}
+
+	lcDiskFile(const lcDiskFile&) = delete;
+	lcDiskFile(lcDiskFile&&) = delete;
+	lcDiskFile& operator=(const lcDiskFile&) = delete;
+	lcDiskFile& operator=(lcDiskFile&&) = delete;
 
 	void SetFileName(const QString& FileName)
 	{
@@ -530,7 +545,7 @@ public:
 
 	char* ReadLine(char* Buffer, size_t BufferSize) override
 	{
-		qint64 LineLength = mFile.readLine(Buffer, BufferSize);
+		const qint64 LineLength = mFile.readLine(Buffer, BufferSize);
 		return LineLength != -1 ? Buffer : nullptr;
 	}
 

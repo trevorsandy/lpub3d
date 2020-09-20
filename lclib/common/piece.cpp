@@ -563,7 +563,7 @@ void lcPiece::DrawInterface(lcContext* Context, const lcScene& Scene) const
 	};
 
 	lcMatrix44 WorldMatrix = Scene.ApplyActiveSubmodelTransform(mModelWorld);
-	Context->SetMaterial(LC_MATERIAL_UNLIT_COLOR);
+	Context->SetMaterial(lcMaterialType::UnlitColor);
 	Context->SetWorldMatrix(WorldMatrix);
 
 	if (IsFocused(LC_PIECE_SECTION_POSITION))
@@ -803,32 +803,56 @@ void lcPiece::RotatePivotPoint(const lcMatrix33& RotationMatrix)
 
 quint32 lcPiece::GetAllowedTransforms() const
 {
+	const quint32 Move = LC_OBJECT_TRANSFORM_MOVE_X | LC_OBJECT_TRANSFORM_MOVE_Y | LC_OBJECT_TRANSFORM_MOVE_Z;
+	const quint32 Rotate = LC_OBJECT_TRANSFORM_ROTATE_X | LC_OBJECT_TRANSFORM_ROTATE_Y | LC_OBJECT_TRANSFORM_ROTATE_Z;
 	quint32 Section = GetFocusSection();
 
 	if (Section == LC_PIECE_SECTION_POSITION || Section == LC_PIECE_SECTION_INVALID)
-		return LC_OBJECT_TRANSFORM_MOVE_X | LC_OBJECT_TRANSFORM_MOVE_Y | LC_OBJECT_TRANSFORM_MOVE_Z | LC_OBJECT_TRANSFORM_ROTATE_X | LC_OBJECT_TRANSFORM_ROTATE_Y | LC_OBJECT_TRANSFORM_ROTATE_Z;
+		return Move | Rotate;
 
 	lcSynthInfo* SynthInfo = mPieceInfo->GetSynthInfo();
-	if (!SynthInfo)
-		return 0;
+	if (SynthInfo)
+	{
+		if (SynthInfo->IsUnidirectional())
+			return LC_OBJECT_TRANSFORM_MOVE_Z;
 
-	if (SynthInfo->IsCurve())
-		return LC_OBJECT_TRANSFORM_MOVE_X | LC_OBJECT_TRANSFORM_MOVE_Y | LC_OBJECT_TRANSFORM_MOVE_Z | LC_OBJECT_TRANSFORM_ROTATE_X | LC_OBJECT_TRANSFORM_ROTATE_Y | LC_OBJECT_TRANSFORM_ROTATE_Z | LC_OBJECT_TRANSFORM_SCALE_X;
-	else
-		return LC_OBJECT_TRANSFORM_MOVE_Z;
+		if (SynthInfo->IsCurve())
+			return Move | Rotate | LC_OBJECT_TRANSFORM_SCALE_X;
+
+		if (SynthInfo->IsNondirectional())
+			return Move;
+	}
+
+	return 0;
+}
+
+bool lcPiece::CanAddControlPoint() const
+{
+	if (mControlPoints.GetSize() >= LC_MAX_CONTROL_POINTS)
+		return false;
+
+	lcSynthInfo* SynthInfo = mPieceInfo->GetSynthInfo();
+	return SynthInfo && SynthInfo->CanAddControlPoints();
+}
+
+bool lcPiece::CanRemoveControlPoint() const
+{
+	quint32 Section = GetFocusSection();
+	return Section >= LC_PIECE_SECTION_CONTROL_POINT_FIRST && Section <= LC_PIECE_SECTION_CONTROL_POINT_LAST && mControlPoints.GetSize() > 2;
 }
 
 bool lcPiece::InsertControlPoint(const lcVector3& WorldStart, const lcVector3& WorldEnd)
 {
-	lcSynthInfo* SynthInfo = mPieceInfo->GetSynthInfo();
-	if (!SynthInfo || !SynthInfo->CanAddControlPoints())
+	if (!CanAddControlPoint())
 		return false;
 
 	lcMatrix44 InverseWorldMatrix = lcMatrix44AffineInverse(mModelWorld);
 	lcVector3 Start = lcMul31(WorldStart, InverseWorldMatrix);
 	lcVector3 End = lcMul31(WorldEnd, InverseWorldMatrix);
 
+	lcSynthInfo* SynthInfo = mPieceInfo->GetSynthInfo();
 	int ControlPointIndex = SynthInfo->InsertControlPoint(mControlPoints, Start, End);
+
 	if (ControlPointIndex)
 	{
 		SetFocused(GetFocusSection(), false);
@@ -854,6 +878,22 @@ bool lcPiece::RemoveFocusedControlPoint()
 	UpdateMesh();
 
 	return true;
+}
+
+void lcPiece::VerifyControlPoints(lcArray<lcPieceControlPoint>& ControlPoints) const
+{
+	lcSynthInfo* SynthInfo = mPieceInfo->GetSynthInfo();
+	if (!SynthInfo)
+	{
+		ControlPoints.RemoveAll();
+	}
+	else
+	{
+		if (ControlPoints.GetSize() > LC_MAX_CONTROL_POINTS)
+			ControlPoints.SetSize(LC_MAX_CONTROL_POINTS);
+
+		SynthInfo->VerifyControlPoints(ControlPoints);
+	}
 }
 
 const char* lcPiece::GetName() const

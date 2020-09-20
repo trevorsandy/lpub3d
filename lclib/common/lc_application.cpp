@@ -26,7 +26,7 @@ void lcPreferences::LoadDefaults()
 
 	mFixedAxes = lcGetProfileInt(LC_PROFILE_FIXED_AXES);
 	mMouseSensitivity = lcGetProfileInt(LC_PROFILE_MOUSE_SENSITIVITY);
-	mShadingMode = (lcShadingMode)lcGetProfileInt(LC_PROFILE_SHADING_MODE);
+	mShadingMode = static_cast<lcShadingMode>(lcGetProfileInt(LC_PROFILE_SHADING_MODE));
 	mDrawAxes = lcGetProfileInt(LC_PROFILE_DRAW_AXES);
 	mDrawEdgeLines = lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
 	mLineWidth = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
@@ -38,7 +38,7 @@ void lcPreferences::LoadDefaults()
 	mGridLineSpacing = lcGetProfileInt(LC_PROFILE_GRID_LINE_SPACING);
 	mGridLineColor = lcGetProfileInt(LC_PROFILE_GRID_LINE_COLOR);
 	mViewSphereEnabled = lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_ENABLED);
-	mViewSphereLocation = (lcViewSphereLocation)lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_LOCATION);
+	mViewSphereLocation = static_cast<lcViewSphereLocation>(lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_LOCATION));
 	mViewSphereSize = lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_SIZE);
 	mViewSphereColor = lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_COLOR);
 	mViewSphereTextColor = lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_TEXT_COLOR);
@@ -69,7 +69,7 @@ void lcPreferences::SaveDefaults()
 {
 	lcSetProfileInt(LC_PROFILE_FIXED_AXES, mFixedAxes);
 	lcSetProfileInt(LC_PROFILE_MOUSE_SENSITIVITY, mMouseSensitivity);
-	lcSetProfileInt(LC_PROFILE_SHADING_MODE, mShadingMode);
+	lcSetProfileInt(LC_PROFILE_SHADING_MODE, static_cast<int>(mShadingMode));
 	lcSetProfileInt(LC_PROFILE_DRAW_AXES, mDrawAxes);
 	lcSetProfileInt(LC_PROFILE_DRAW_EDGE_LINES, mDrawEdgeLines);
 	lcSetProfileFloat(LC_PROFILE_LINE_WIDTH, mLineWidth);
@@ -129,10 +129,10 @@ lcApplication::lcApplication()
 	mLibrary = nullptr;
 
 /*** LPub3D Mod - initialize set 3DViewer profile defaults ***/
-  lcSetProfileInt(LC_PROFILE_DRAW_AXES, 1);
-  lcSetProfileInt(LC_PROFILE_GRID_LINES, 0);
-  lcSetProfileInt(LC_PROFILE_GRID_STUDS, 0);
-  lcSetProfileInt(LC_PROFILE_CHECK_UPDATES, 0);
+	lcSetProfileInt(LC_PROFILE_DRAW_AXES, 1);
+	lcSetProfileInt(LC_PROFILE_GRID_LINES, 0);
+	lcSetProfileInt(LC_PROFILE_GRID_STUDS, 0);
+	lcSetProfileInt(LC_PROFILE_CHECK_UPDATES, 0);
 /*** LPub3D Mod end ***/
 
 	mPreferences.LoadDefaults();
@@ -163,7 +163,7 @@ lcApplication::~lcApplication()
 void lcApplication::SaveTabLayout() const
 {
 /*** LPub3D - Disable save tab layout ***/
-  return;
+	return;
 /*** LPub3D Mod end ***/
 
 	if (!mProject || mProject->GetFileName().isEmpty())
@@ -264,7 +264,7 @@ bool lcApplication::LoadPartsLibrary(const QList<QPair<QString, bool>>& LibraryP
 			return mLibrary->Load(CustomPath, ShowProgress);
 	}
 
-/*** LPub3D Mod - disable LibraryPaths load  ***/
+/*** LPub3D Mod - disable LibraryPaths load	 ***/
 /***
 	for (const QPair<QString, bool>& LibraryPathEntry : LibraryPaths)
 	{
@@ -284,363 +284,363 @@ bool lcApplication::LoadPartsLibrary(const QList<QPair<QString, bool>>& LibraryP
 /*** LPub3D Mod - process command line ***/
 int lcApplication::Process3DViewerCommandLine()
 {
-	  bool SaveImage = false;
-	  bool SaveWavefront = false;
-	  bool Save3DS = false;
-	  bool SaveCOLLADA = false;
-	  bool SaveHTML = false;
-	  bool SetCameraAngles = false;
-	  bool Orthographic = false;
-	  bool ImageHighlight = false;
-	  int ImageWidth = lcGetProfileInt(LC_PROFILE_IMAGE_WIDTH);
-	  int ImageHeight = lcGetProfileInt(LC_PROFILE_IMAGE_HEIGHT);
-	  int ImageStart = 0;
-	  int ImageEnd = 0;
-	  float CameraLatitude = 0.0f;
-	  float CameraLongitude = 0.0f;
-	  QString ImageName;
-	  QString ModelName;
-	  QString CameraName;
-	  QString ViewpointName;
-	  QString ProjectName;
-	  QString SaveWavefrontName;
-	  QString Save3DSName;
-	  QString SaveCOLLADAName;
-	  QString SaveHTMLName;
+	bool SaveImage = false;
+	bool SaveWavefront = false;
+	bool Save3DS = false;
+	bool SaveCOLLADA = false;
+	bool SaveHTML = false;
+	bool SetCameraAngles = false;
+	bool Orthographic = false;
+	bool ImageHighlight = false;
+	int ImageWidth = lcGetProfileInt(LC_PROFILE_IMAGE_WIDTH);
+	int ImageHeight = lcGetProfileInt(LC_PROFILE_IMAGE_HEIGHT);
+	int ImageStart = 0;
+	int ImageEnd = 0;
+	float CameraLatitude = 0.0f;
+	float CameraLongitude = 0.0f;
+	QString ImageName;
+	QString ModelName;
+	QString CameraName;
+	QString ViewpointName;
+	QString ProjectName;
+	QString SaveWavefrontName;
+	QString Save3DSName;
+	QString SaveCOLLADAName;
+	QString SaveHTMLName;
 
-	  QStringList Arguments = Application::instance()->arguments();
+	QStringList Arguments = Application::instance()->arguments();
 
-	  const int NumArguments = Arguments.size();
-	  for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
-	  {
-		  const QString& Param = Arguments[ArgIdx];
+	const int NumArguments = Arguments.size();
+	for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
+	{
+		const QString& Param = Arguments[ArgIdx];
 
-		  if (Param.isEmpty())
-			  continue;
+		if (Param.isEmpty())
+			continue;
 
-		  if (Param[0] != '-')
-		  {
-			  ProjectName = Param;
-			  continue;
-		  }
+		if (Param[0] != '-')
+		{
+			ProjectName = Param;
+			continue;
+		}
 
-		  auto ParseString = [&ArgIdx, &Arguments, NumArguments](QString& Value, bool Required)
-		  {
-			  if (ArgIdx < NumArguments - 1 && Arguments[ArgIdx + 1][0] != '-')
-			  {
-				  ArgIdx++;
-				  Value = Arguments[ArgIdx];
-			  }
-			  else if (Required)
-				  printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
-		  };
+		auto ParseString = [&ArgIdx, &Arguments, NumArguments](QString& Value, bool Required)
+		{
+			if (ArgIdx < NumArguments - 1 && Arguments[ArgIdx + 1][0] != '-')
+			{
+				ArgIdx++;
+				Value = Arguments[ArgIdx];
+			}
+			else if (Required)
+				printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
+		};
 
-		  auto ParseInteger = [&ArgIdx, &Arguments, NumArguments](int& Value)
-		  {
-			  if (ArgIdx < NumArguments - 1 && Arguments[ArgIdx + 1][0] != '-')
-			  {
-				  bool Ok = false;
-				  ArgIdx++;
-				  int NewValue = Arguments[ArgIdx].toInt(&Ok);
+		auto ParseInteger = [&ArgIdx, &Arguments, NumArguments](int& Value)
+		{
+			if (ArgIdx < NumArguments - 1 && Arguments[ArgIdx + 1][0] != '-')
+			{
+				bool Ok = false;
+				ArgIdx++;
+				int NewValue = Arguments[ArgIdx].toInt(&Ok);
 
-				  if (Ok)
-					  Value = NewValue;
-				  else
-					  printf("Invalid value specified for the '%s' argument.\n", Arguments[ArgIdx - 1].toLatin1().constData());
-			  }
-			  else
-				  printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
-		  };
+				if (Ok)
+					Value = NewValue;
+				else
+					printf("Invalid value specified for the '%s' argument.\n", Arguments[ArgIdx - 1].toLatin1().constData());
+			}
+			else
+				printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
+		};
 
-	  auto ParseFloat = [&ArgIdx, &Arguments, NumArguments](float& Value)
-	  {
-	      if (ArgIdx < NumArguments - 1 && Arguments[ArgIdx + 1][0] != '-')
-	      {
-		  bool Ok = false;
-		  ArgIdx++;
-		  int NewValue = Arguments[ArgIdx].toFloat(&Ok);
+		auto ParseFloat = [&ArgIdx, &Arguments, NumArguments](float& Value)
+		{
+			if (ArgIdx < NumArguments - 1 && Arguments[ArgIdx + 1][0] != '-')
+			{
+				bool Ok = false;
+				ArgIdx++;
+				int NewValue = Arguments[ArgIdx].toFloat(&Ok);
 
-		  if (Ok)
-		      Value = NewValue;
-		  else
-		      printf("Invalid value specified for the '%s' argument.\n", Arguments[ArgIdx - 1].toLatin1().constData());
-	      }
-	      else
-		  printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
-	  };
+				if (Ok)
+					Value = NewValue;
+				else
+					printf("Invalid value specified for the '%s' argument.\n", Arguments[ArgIdx - 1].toLatin1().constData());
+			}
+			else
+				printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
+		};
 
-		  auto ParseVector2 = [&ArgIdx, &Arguments, NumArguments](float& Value1, float& Value2)
-		  {
-			  if (ArgIdx < NumArguments - 2 && Arguments[ArgIdx + 1][0] != '-' && Arguments[ArgIdx + 2][0] != '-')
-			  {
-				  bool Ok1 = false, Ok2 = false;
+		auto ParseVector2 = [&ArgIdx, &Arguments, NumArguments](float& Value1, float& Value2)
+		{
+			if (ArgIdx < NumArguments - 2 && Arguments[ArgIdx + 1][0] != '-' && Arguments[ArgIdx + 2][0] != '-')
+			{
+				bool Ok1 = false, Ok2 = false;
 
-				  ArgIdx++;
-				  float NewValue1 = Arguments[ArgIdx].toFloat(&Ok1);
-				  ArgIdx++;
-				  float NewValue2 = Arguments[ArgIdx].toFloat(&Ok2);
+				ArgIdx++;
+				float NewValue1 = Arguments[ArgIdx].toFloat(&Ok1);
+				ArgIdx++;
+				float NewValue2 = Arguments[ArgIdx].toFloat(&Ok2);
 
-				  if (Ok1 && Ok2)
-				  {
-					  Value1 = NewValue1;
-					  Value2 = NewValue2;
-					  return 1;
-				  }
-				  else
-					  printf("Invalid value specified for the '%s' argument.\n", Arguments[ArgIdx - 2].toLatin1().constData());
-			  }
-			  else
-				  printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
+				if (Ok1 && Ok2)
+				{
+					Value1 = NewValue1;
+					Value2 = NewValue2;
+					return 1;
+				}
+				else
+					printf("Invalid value specified for the '%s' argument.\n", Arguments[ArgIdx - 2].toLatin1().constData());
+			}
+			else
+				printf("Not enough parameters for the '%s' argument.\n", Arguments[ArgIdx].toLatin1().constData());
 
-			  return -1;
-		  };
+			return -1;
+		};
 
-		  if (Param == QLatin1String("-i") || Param == QLatin1String("--image"))
-		  {
-			  SaveImage = true;
-			  ParseString(ImageName, false);
-		  }
-		  else if (Param == QLatin1String("-w") || Param == QLatin1String("--width"))
-			  ParseInteger(ImageWidth);
-		  else if (Param == QLatin1String("-h") || Param == QLatin1String("--height"))
-			  ParseInteger(ImageHeight);
-		  else if (Param == QLatin1String("-f") || Param == QLatin1String("--from"))
-			  ParseInteger(ImageStart);
-		  else if (Param == QLatin1String("-t") || Param == QLatin1String("--to"))
-			  ParseInteger(ImageEnd);
-		  else if (Param == QLatin1String("-s") || Param == QLatin1String("--submodel"))
-			  ParseString(ModelName, true);
-		  else if (Param == QLatin1String("-c") || Param == QLatin1String("--camera"))
-			  ParseString(CameraName, true);
-		  else if (Param == QLatin1String("--viewpoint"))
-			  ParseString(ViewpointName, true);
-		  else if (Param == QLatin1String("--camera-angles"))
-			  SetCameraAngles = ParseVector2(CameraLatitude, CameraLongitude);
-		  else if (Param == QLatin1String("--orthographic"))
-			  Orthographic = true;
-		  else if (Param == QLatin1String("--highlight"))
-			  ImageHighlight = true;
-		  else if (Param == QLatin1String("--shading"))
-		  {
-			  QString ShadingString;
-			  ParseString(ShadingString, true);
+		if (Param == QLatin1String("-i") || Param == QLatin1String("--image"))
+		{
+			SaveImage = true;
+			ParseString(ImageName, false);
+		}
+		else if (Param == QLatin1String("-w") || Param == QLatin1String("--width"))
+			ParseInteger(ImageWidth);
+		else if (Param == QLatin1String("-h") || Param == QLatin1String("--height"))
+			ParseInteger(ImageHeight);
+		else if (Param == QLatin1String("-f") || Param == QLatin1String("--from"))
+			ParseInteger(ImageStart);
+		else if (Param == QLatin1String("-t") || Param == QLatin1String("--to"))
+			ParseInteger(ImageEnd);
+		else if (Param == QLatin1String("-s") || Param == QLatin1String("--submodel"))
+			ParseString(ModelName, true);
+		else if (Param == QLatin1String("-c") || Param == QLatin1String("--camera"))
+			ParseString(CameraName, true);
+		else if (Param == QLatin1String("--viewpoint"))
+			ParseString(ViewpointName, true);
+		else if (Param == QLatin1String("--camera-angles"))
+			SetCameraAngles = ParseVector2(CameraLatitude, CameraLongitude);
+		else if (Param == QLatin1String("--orthographic"))
+			Orthographic = true;
+		else if (Param == QLatin1String("--highlight"))
+			ImageHighlight = true;
+		else if (Param == QLatin1String("--shading"))
+		{
+			QString ShadingString;
+			ParseString(ShadingString, true);
 
-	      if (ShadingString == QLatin1String("wireframe"))
-		    mPreferences.mShadingMode = LC_SHADING_WIREFRAME;
-	      else if (ShadingString == QLatin1String("flat"))
-		    mPreferences.mShadingMode = LC_SHADING_FLAT;
-	      else if (ShadingString == QLatin1String("default"))
-		    mPreferences.mShadingMode = LC_SHADING_DEFAULT_LIGHTS;
-	      else if (ShadingString == QLatin1String("full"))
-		    mPreferences.mShadingMode = LC_SHADING_FULL;
-	  }
-	  else if (Param == QLatin1String("--line-width"))
-		  ParseFloat(mPreferences.mLineWidth);
-		  else if (Param == QLatin1String("-obj") || Param == QLatin1String("--export-wavefront"))
-		  {
-			  SaveWavefront = true;
-			  ParseString(SaveWavefrontName, false);
-		  }
-		  else if (Param == QLatin1String("-3ds") || Param == QLatin1String("--export-3ds"))
-		  {
-			  Save3DS = true;
-			  ParseString(Save3DSName, false);
-		  }
-		  else if (Param == QLatin1String("-dae") || Param == QLatin1String("--export-collada"))
-		  {
-			  SaveCOLLADA = true;
-			  ParseString(SaveCOLLADAName, false);
-		  }
-		  else if (Param == QLatin1String("-html") || Param == QLatin1String("--export-html"))
-		  {
-			  SaveHTML = true;
-			  ParseString(SaveHTMLName, false);
-		  }
-	  }
+			if (ShadingString == QLatin1String("wireframe"))
+				mPreferences.mShadingMode = lcShadingMode::Wireframe;
+			else if (ShadingString == QLatin1String("flat"))
+				mPreferences.mShadingMode = lcShadingMode::Flat;
+			else if (ShadingString == QLatin1String("default"))
+				mPreferences.mShadingMode = lcShadingMode::DefaultLights;
+			else if (ShadingString == QLatin1String("full"))
+				mPreferences.mShadingMode = lcShadingMode::Full;
+		}
+		else if (Param == QLatin1String("--line-width"))
+			ParseFloat(mPreferences.mLineWidth);
+		else if (Param == QLatin1String("-obj") || Param == QLatin1String("--export-wavefront"))
+		{
+			SaveWavefront = true;
+			ParseString(SaveWavefrontName, false);
+		}
+		else if (Param == QLatin1String("-3ds") || Param == QLatin1String("--export-3ds"))
+		{
+			Save3DS = true;
+			ParseString(Save3DSName, false);
+		}
+		else if (Param == QLatin1String("-dae") || Param == QLatin1String("--export-collada"))
+		{
+			SaveCOLLADA = true;
+			ParseString(SaveCOLLADAName, false);
+		}
+		else if (Param == QLatin1String("-html") || Param == QLatin1String("--export-html"))
+		{
+			SaveHTML = true;
+			ParseString(SaveHTMLName, false);
+		}
+	}
 
-	  Project* NewProject = new Project();
-	  SetProject(NewProject);
+	Project* NewProject = new Project();
+	SetProject(NewProject);
 
-	  if (!ProjectName.isEmpty() && gMainWindow->OpenProject(ProjectName))
-	  {
-		  if (!ModelName.isEmpty())
-			  mProject->SetActiveModel(ModelName);
+	if (!ProjectName.isEmpty() && gMainWindow->OpenProject(ProjectName))
+	{
+		if (!ModelName.isEmpty())
+			mProject->SetActiveModel(ModelName);
 
-		  View* ActiveView = gMainWindow->GetActiveView();
+		View* ActiveView = gMainWindow->GetActiveView();
 
-		  if (!CameraName.isEmpty())
-		  {
-			  ActiveView->SetCamera(CameraName.toLatin1()); // todo: qstring
+		if (!CameraName.isEmpty())
+		{
+			ActiveView->SetCamera(CameraName.toLatin1()); // todo: qstring
 
-			  if (!ViewpointName.isEmpty())
-				  printf("Warning: --viewpoint is ignored when --camera is set.\n");
+			if (!ViewpointName.isEmpty())
+				printf("Warning: --viewpoint is ignored when --camera is set.\n");
 
-			  if (Orthographic)
-				  printf("Warning: --orthographic is ignored when --camera is set.\n");
+			if (Orthographic)
+				printf("Warning: --orthographic is ignored when --camera is set.\n");
 
-			  if (SetCameraAngles)
-				  printf("Warning: --camera-angles is ignored when --camera is set.\n");
-		  }
-		  else
-		  {
-			  if (!ViewpointName.isEmpty())
-			  {
-				  if (ViewpointName == QLatin1String("front"))
-					  ActiveView->SetViewpoint(LC_VIEWPOINT_FRONT);
-				  else if (ViewpointName == QLatin1String("back"))
-					  ActiveView->SetViewpoint(LC_VIEWPOINT_BACK);
-				  else if (ViewpointName == QLatin1String("top"))
-					  ActiveView->SetViewpoint(LC_VIEWPOINT_TOP);
-				  else if (ViewpointName == QLatin1String("bottom"))
-					  ActiveView->SetViewpoint(LC_VIEWPOINT_BOTTOM);
-				  else if (ViewpointName == QLatin1String("left"))
-					  ActiveView->SetViewpoint(LC_VIEWPOINT_LEFT);
-				  else if (ViewpointName == QLatin1String("right"))
-					  ActiveView->SetViewpoint(LC_VIEWPOINT_RIGHT);
-				  else if (ViewpointName == QLatin1String("home"))
-					  ActiveView->SetViewpoint(LC_VIEWPOINT_HOME);
-				  else
-					  printf("Unknown viewpoint: '%s'\n", ViewpointName.toLatin1().constData());
+			if (SetCameraAngles)
+				printf("Warning: --camera-angles is ignored when --camera is set.\n");
+		}
+		else
+		{
+			if (!ViewpointName.isEmpty())
+			{
+				if (ViewpointName == QLatin1String("front"))
+					ActiveView->SetViewpoint(LC_VIEWPOINT_FRONT);
+				else if (ViewpointName == QLatin1String("back"))
+					ActiveView->SetViewpoint(LC_VIEWPOINT_BACK);
+				else if (ViewpointName == QLatin1String("top"))
+					ActiveView->SetViewpoint(LC_VIEWPOINT_TOP);
+				else if (ViewpointName == QLatin1String("bottom"))
+					ActiveView->SetViewpoint(LC_VIEWPOINT_BOTTOM);
+				else if (ViewpointName == QLatin1String("left"))
+					ActiveView->SetViewpoint(LC_VIEWPOINT_LEFT);
+				else if (ViewpointName == QLatin1String("right"))
+					ActiveView->SetViewpoint(LC_VIEWPOINT_RIGHT);
+				else if (ViewpointName == QLatin1String("home"))
+					ActiveView->SetViewpoint(LC_VIEWPOINT_HOME);
+				else
+					printf("Unknown viewpoint: '%s'\n", ViewpointName.toLatin1().constData());
 
-				  if (SetCameraAngles)
-					  printf("Warning: --camera-angles is ignored when --viewpoint is set.\n");
-			  }
-			  else if (SetCameraAngles)
-				  ActiveView->SetCameraAngles(CameraLatitude, CameraLongitude);
+				if (SetCameraAngles)
+					printf("Warning: --camera-angles is ignored when --viewpoint is set.\n");
+			}
+			else if (SetCameraAngles)
+				ActiveView->SetCameraAngles(CameraLatitude, CameraLongitude);
 
-			  ActiveView->SetProjection(Orthographic);
-		  }
+			ActiveView->SetProjection(Orthographic);
+		}
 
-		  if (SaveImage)
-		  {
-			  lcModel* ActiveModel;
+		if (SaveImage)
+		{
+			lcModel* ActiveModel;
 
-			  if (ModelName.isEmpty())
-				  ActiveModel = mProject->GetMainModel();
-			  else
-				  ActiveModel = mProject->GetActiveModel();
+			if (ModelName.isEmpty())
+				ActiveModel = mProject->GetMainModel();
+			else
+				ActiveModel = mProject->GetActiveModel();
 
-			  if (ImageName.isEmpty())
-				  ImageName = mProject->GetImageFileName(true);
+			if (ImageName.isEmpty())
+				ImageName = mProject->GetImageFileName(true);
 
-			  if (ImageEnd < ImageStart)
-				  ImageEnd = ImageStart;
-			  else if (ImageStart > ImageEnd)
-				  ImageStart = ImageEnd;
+			if (ImageEnd < ImageStart)
+				ImageEnd = ImageStart;
+			else if (ImageStart > ImageEnd)
+				ImageStart = ImageEnd;
 
-			  if ((ImageStart == 0) && (ImageEnd == 0))
-				  ImageStart = ImageEnd = ActiveModel->GetCurrentStep();
-			  else if ((ImageStart == 0) && (ImageEnd != 0))
-				  ImageStart = ImageEnd;
-			  else if ((ImageStart != 0) && (ImageEnd == 0))
-				  ImageEnd = ImageStart;
+			if ((ImageStart == 0) && (ImageEnd == 0))
+				ImageStart = ImageEnd = ActiveModel->GetCurrentStep();
+			else if ((ImageStart == 0) && (ImageEnd != 0))
+				ImageStart = ImageEnd;
+			else if ((ImageStart != 0) && (ImageEnd == 0))
+				ImageEnd = ImageStart;
 
-			  if (ImageStart > 255)
-				  ImageStart = 255;
+			if (ImageStart > 255)
+				ImageStart = 255;
 
-			  if (ImageEnd > 255)
-				  ImageEnd = 255;
+			if (ImageEnd > 255)
+				ImageEnd = 255;
 
-			  QString Frame;
+			QString Frame;
 
-			  if (ImageStart != ImageEnd)
-			  {
-				  QString Extension = QFileInfo(ImageName).suffix();
-				  Frame = ImageName.left(ImageName.length() - Extension.length() - 1) + QLatin1String("%1.") + Extension;
-			  }
-			  else
-				  Frame = ImageName;
+			if (ImageStart != ImageEnd)
+			{
+				QString Extension = QFileInfo(ImageName).suffix();
+				Frame = ImageName.left(ImageName.length() - Extension.length() - 1) + QLatin1String("%1.") + Extension;
+			}
+			else
+				Frame = ImageName;
 
-			  ActiveModel->SaveStepImages(Frame, ImageStart != ImageEnd, CameraName == nullptr, ImageHighlight, ImageWidth, ImageHeight, ImageStart, ImageEnd);
-		  }
+			ActiveModel->SaveStepImages(Frame, ImageStart != ImageEnd, CameraName == nullptr, ImageHighlight, ImageWidth, ImageHeight, ImageStart, ImageEnd);
+		}
 
-		  if (SaveWavefront)
-		  {
-			  QString FileName;
+		if (SaveWavefront)
+		{
+			QString FileName;
 
-			  if (!SaveWavefrontName.isEmpty())
-				  FileName = SaveWavefrontName;
-			  else
-				  FileName = ProjectName;
+			if (!SaveWavefrontName.isEmpty())
+				FileName = SaveWavefrontName;
+			else
+				FileName = ProjectName;
 
-			  QString Extension = QFileInfo(FileName).suffix().toLower();
+			QString Extension = QFileInfo(FileName).suffix().toLower();
 
-			  if (Extension.isEmpty())
-			  {
-				  FileName += ".obj";
-			  }
-			  else if (Extension != "obj")
-			  {
-				  FileName = FileName.left(FileName.length() - Extension.length() - 1);
-				  FileName += ".obj";
-			  }
+			if (Extension.isEmpty())
+			{
+				FileName += ".obj";
+			}
+			else if (Extension != "obj")
+			{
+				FileName = FileName.left(FileName.length() - Extension.length() - 1);
+				FileName += ".obj";
+			}
 
-			  mProject->ExportWavefront(FileName);
-		  }
+			mProject->ExportWavefront(FileName);
+		}
 
-		  if (Save3DS)
-		  {
-			  QString FileName;
+		if (Save3DS)
+		{
+			QString FileName;
 
-			  if (!Save3DSName.isEmpty())
-				  FileName = Save3DSName;
-			  else
-				  FileName = ProjectName;
+			if (!Save3DSName.isEmpty())
+				FileName = Save3DSName;
+			else
+				FileName = ProjectName;
 
-			  QString Extension = QFileInfo(FileName).suffix().toLower();
+			QString Extension = QFileInfo(FileName).suffix().toLower();
 
-			  if (Extension.isEmpty())
-			  {
-				  FileName += ".3ds";
-			  }
-			  else if (Extension != "3ds")
-			  {
-				  FileName = FileName.left(FileName.length() - Extension.length() - 1);
-				  FileName += ".3ds";
-			  }
+			if (Extension.isEmpty())
+			{
+				FileName += ".3ds";
+			}
+			else if (Extension != "3ds")
+			{
+				FileName = FileName.left(FileName.length() - Extension.length() - 1);
+				FileName += ".3ds";
+			}
 
-			  mProject->Export3DStudio(FileName);
-		  }
+			mProject->Export3DStudio(FileName);
+		}
 
-		  if (SaveCOLLADA)
-		  {
-			  QString FileName;
+		if (SaveCOLLADA)
+		{
+			QString FileName;
 
-			  if (!SaveCOLLADAName.isEmpty())
-				  FileName = SaveCOLLADAName;
-			  else
-				  FileName = ProjectName;
+			if (!SaveCOLLADAName.isEmpty())
+				FileName = SaveCOLLADAName;
+			else
+				FileName = ProjectName;
 
-			  QString Extension = QFileInfo(FileName).suffix().toLower();
+			QString Extension = QFileInfo(FileName).suffix().toLower();
 
-			  if (Extension.isEmpty())
-			  {
-				  FileName += ".dae";
-			  }
-			  else if (Extension != "dae")
-			  {
-				  FileName = FileName.left(FileName.length() - Extension.length() - 1);
-				  FileName += ".dae";
-			  }
+			if (Extension.isEmpty())
+			{
+				FileName += ".dae";
+			}
+			else if (Extension != "dae")
+			{
+				FileName = FileName.left(FileName.length() - Extension.length() - 1);
+				FileName += ".dae";
+			}
 
-			  mProject->ExportCOLLADA(FileName);
-		  }
+			mProject->ExportCOLLADA(FileName);
+		}
 
-		  if (SaveHTML)
-		  {
-			  lcHTMLExportOptions Options(mProject);
+		if (SaveHTML)
+		{
+			lcHTMLExportOptions Options(mProject);
 
-			  if (!SaveHTMLName.isEmpty())
-				  Options.PathName = SaveHTMLName;
+			if (!SaveHTMLName.isEmpty())
+				Options.PathName = SaveHTMLName;
 
-			  mProject->ExportHTML(Options);
-		  }
-	  }
+			mProject->ExportHTML(Options);
+		}
+	}
 
-	  if (!SaveImage && !SaveWavefront && !Save3DS && !SaveCOLLADA && !SaveHTML)
+	if (!SaveImage && !SaveWavefront && !Save3DS && !SaveCOLLADA && !SaveHTML)
 		return 0;
 
-	  return 1;
+	return 1;
 }
 /*** LPub3D Mod end ***/
 
@@ -663,7 +663,7 @@ bool lcApplication::Initialize(QList<QPair<QString, bool>>& LibraryPaths, QMainW
 	lcLoadDefaultMouseShortcuts();
 
 /*** LPub3D Mod - add modeGUI to ShowWindow var ***/
-//    ShowWindow = Application::instance()->modeGUI() && !SaveImage && !SaveWavefront && !Save3DS && !SaveCOLLADA && !SaveHTML;
+	//	  ShowWindow = Application::instance()->modeGUI() && !SaveImage && !SaveWavefront && !Save3DS && !SaveCOLLADA && !SaveHTML;
 /*** LPub3D Mod end ***/
 
 	if (!LoadPartsLibrary(LibraryPaths, OnlyUseLibraryPaths, ShowWindow))
@@ -702,11 +702,11 @@ bool lcApplication::Initialize(QList<QPair<QString, bool>>& LibraryPaths, QMainW
 		gMainWindow->SetColorIndex(lcGetColorIndex(7)); // was 4 (Red)
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - moved to Render::LoadViewer(const ViewerOptions &Options) ***/
-//        gMainWindow->GetPartSelectionWidget()->SetDefaultPart();
+//		  gMainWindow->GetPartSelectionWidget()->SetDefaultPart();
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - suppress recent files and mainwindow show ***/
-//        gMainWindow->UpdateRecentFiles();
-//        gMainWindow->show();
+//		  gMainWindow->UpdateRecentFiles();
+//		  gMainWindow->show();
 /*** LPub3D Mod end ***/
 	}
 
@@ -753,9 +753,9 @@ void lcApplication::ShowPreferencesDialog()
 /*** LPub3D Mod - preference refresh ***/
 	if (Preferences::usingNativeRenderer)
 	{
-	  Options.Preferences.mShadingMode   = (lcShadingMode)lcGetProfileInt(LC_PROFILE_SHADING_MODE);
-	  Options.Preferences.mDrawEdgeLines = lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
-	  Options.Preferences.mLineWidth     = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
+		Options.Preferences.mShadingMode   = (lcShadingMode)lcGetProfileInt(LC_PROFILE_SHADING_MODE);
+		Options.Preferences.mDrawEdgeLines = lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
+		Options.Preferences.mLineWidth	   = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
 	}
 /*** LPub3D Mod end ***/
 
@@ -785,12 +785,12 @@ void lcApplication::ShowPreferencesDialog()
 	if (Preferences::usingNativeRenderer)
 	{
 		float mLineWidth  = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
-		bool mDrawEdgeLInes   = lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
+		bool mDrawEdgeLInes	  = lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
 		lcShadingMode mShadingMode = (lcShadingMode)lcGetProfileInt(LC_PROFILE_SHADING_MODE);
 
 		drawEdgeLinesChanged = Options.Preferences.mDrawEdgeLines != mDrawEdgeLInes;
-		shadingModeChanged = Options.Preferences.mShadingMode     != mShadingMode;
-		lineWidthChanged = Options.Preferences.mLineWidth         != mLineWidth;
+		shadingModeChanged = Options.Preferences.mShadingMode	  != mShadingMode;
+		lineWidthChanged = Options.Preferences.mLineWidth		  != mLineWidth;
 	}
 /*** LPub3D Mod end ***/
 
@@ -833,7 +833,7 @@ void lcApplication::ShowPreferencesDialog()
 
 	if (LanguageChanged || LibraryChanged || ColorsChanged || AAChanged) {
 		QString thisChange = LibraryChanged ? "Library" :
-							 ColorsChanged ? "Colors" : "Anti Aliasing";
+											  ColorsChanged ? "Colors" : "Anti Aliasing";
 		box.setText (QString("You must close and restart %1 to enable %2 change.")
 					 .arg(QString::fromLatin1(VER_PRODUCTNAME_STR))
 					 .arg(thisChange));
@@ -849,115 +849,115 @@ void lcApplication::ShowPreferencesDialog()
 
 	if (Preferences::usingNativeRenderer && !restartApp)
 	{
-	  if (shadingModeChanged ||
-		  drawEdgeLinesChanged ||
-		  lineWidthChanged ||
-		  NativeViewpointChanged ||
-		  NativeProjectionChanged)
-	  {
-		  redrawPage = true;
+		if (shadingModeChanged ||
+				drawEdgeLinesChanged ||
+				lineWidthChanged ||
+				NativeViewpointChanged ||
+				NativeProjectionChanged)
+		{
+			redrawPage = true;
 
-		  QString oldShadingMode, newShadingMode;
-		  switch (Options.Preferences.mShadingMode)
-		  {
-		   case LC_SHADING_FLAT:
-			  oldShadingMode = "flat";
-			  break;
-		   case LC_SHADING_DEFAULT_LIGHTS:
-			  oldShadingMode = "default lights";
-			  break;
-			case LC_SHADING_FULL:
-			   oldShadingMode = "full";
-			   break;
-			case LC_SHADING_WIREFRAME:
-			   oldShadingMode = "wire frame";
-			   break;
+			QString oldShadingMode, newShadingMode;
+			switch (int(Options.Preferences.mShadingMode))
+			{
+			case int(lcShadingMode::Flat):
+				newShadingMode = "flat";
+				break;
+			case int(lcShadingMode::DefaultLights):
+				newShadingMode = "default lights";
+				break;
+			case int(lcShadingMode::Full):
+				newShadingMode = "full";
+				break;
+			case int(lcShadingMode::Wireframe):
+				newShadingMode = "wire frame";
+				break;
 			default:
-			   oldShadingMode = "unknown";
-		  }
+				newShadingMode = "unknown";
+			}
 
-		  switch (lcGetProfileInt(LC_PROFILE_SHADING_MODE))
-		  {
-		  case LC_SHADING_FLAT:
-			  oldShadingMode = "flat";
-			  break;
-		  case LC_SHADING_DEFAULT_LIGHTS:
-			  oldShadingMode = "default lights";
-			  break;
-		  case LC_SHADING_FULL:
-			  oldShadingMode = "full";
-			  break;
-		  case LC_SHADING_WIREFRAME:
-			  oldShadingMode = "wire frame";
-			  break;
-		  default:
-			  oldShadingMode = "unknown";
-		  }
+			switch (lcGetProfileInt(LC_PROFILE_SHADING_MODE))
+			{
+			case int(lcShadingMode::Flat):
+				oldShadingMode = "flat";
+				break;
+			case int(lcShadingMode::DefaultLights):
+				oldShadingMode = "default lights";
+				break;
+			case int(lcShadingMode::Full):
+				oldShadingMode = "full";
+				break;
+			case int(lcShadingMode::Wireframe):
+				oldShadingMode = "wire frame";
+				break;
+			default:
+				oldShadingMode = "unknown";
+			}
 
-		  if (shadingModeChanged)
-			  logInfo() << QString("Shading mode changed from %1 to %2.")
-						   .arg(oldShadingMode)
-						   .arg(newShadingMode);
-		  if (lineWidthChanged)
-			  logInfo() << QString("Edge line width changed from %1 to %2.")
-						   .arg(lcGetProfileFloat(LC_PROFILE_LINE_WIDTH))
-						   .arg(Options.Preferences.mLineWidth);
-		  if (drawEdgeLinesChanged)
-			  logInfo() << QString("Draw edge lines is %1.").arg(Options.Preferences.mDrawEdgeLines ? "ON" : "OFF");
+			if (shadingModeChanged)
+				logInfo() << QString("Shading mode changed from %1 to %2.")
+							 .arg(oldShadingMode)
+							 .arg(newShadingMode);
+			if (lineWidthChanged)
+				logInfo() << QString("Edge line width changed from %1 to %2.")
+							 .arg(lcGetProfileFloat(LC_PROFILE_LINE_WIDTH))
+							 .arg(Options.Preferences.mLineWidth);
+			if (drawEdgeLinesChanged)
+				logInfo() << QString("Draw edge lines is %1.").arg(Options.Preferences.mDrawEdgeLines ? "ON" : "OFF");
 
-		  if (NativeViewpointChanged) {
-			  QString Viewpoint;
-			  switch (lcGetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT))
-			  {
-			  case 0:
-				  Viewpoint = "Front";
-				  break;
-			  case 1:
-				  Viewpoint = "Back";
-				  break;
-			  case 2:
-				  Viewpoint = "Top";
-				  break;
-			  case 3:
-				  Viewpoint = "Bottom";
-				  break;
-			  case 4:
-				  Viewpoint = "Left";
-				  break;
-			  case 5:
-				  Viewpoint = "Right";
-				  break;
-			  case 6:
-				  Viewpoint = "Home";
-				  break;
-			  default:
-				  Viewpoint = "Front";
-			  }
-			  logInfo() << QString("Native Viewport changed to '%1'.").arg(Viewpoint.toUpper());
+			if (NativeViewpointChanged) {
+				QString Viewpoint;
+				switch (lcGetProfileInt(LC_PROFILE_NATIVE_VIEWPOINT))
+				{
+				case 0:
+					Viewpoint = "Front";
+					break;
+				case 1:
+					Viewpoint = "Back";
+					break;
+				case 2:
+					Viewpoint = "Top";
+					break;
+				case 3:
+					Viewpoint = "Bottom";
+					break;
+				case 4:
+					Viewpoint = "Left";
+					break;
+				case 5:
+					Viewpoint = "Right";
+					break;
+				case 6:
+					Viewpoint = "Home";
+					break;
+				default:
+					Viewpoint = "Front";
+				}
+				logInfo() << QString("Native Viewport changed to '%1'.").arg(Viewpoint.toUpper());
 
-		  }
+			}
 
-		  if (NativeProjectionChanged) {
-			  QVariant uValue(true);
-			  QString Projection;
-			  switch (lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION))
-			  {
-			  case 0:
-				  Projection = "Perscpective";
-				  break;
-			  case 1:
-				  Projection = "Ortographic";
-				  uValue = false;
-				  break;
-			  default:
-				  Projection = "Perscpective";
-				  break;
-			  }
-			  logInfo() << QString("Native Projection changed to '%1'.").arg(Projection.toUpper());
-			  QSettings Settings;
-			  Settings.setValue(QString("%1/%2").arg(SETTINGS,"PerspectiveProjection"),uValue);
-		  }
-	  }
+			if (NativeProjectionChanged) {
+				QVariant uValue(true);
+				QString Projection;
+				switch (lcGetProfileInt(LC_PROFILE_NATIVE_PROJECTION))
+				{
+				case 0:
+					Projection = "Perscpective";
+					break;
+				case 1:
+					Projection = "Ortographic";
+					uValue = false;
+					break;
+				default:
+					Projection = "Perscpective";
+					break;
+				}
+				logInfo() << QString("Native Projection changed to '%1'.").arg(Projection.toUpper());
+				QSettings Settings;
+				Settings.setValue(QString("%1/%2").arg(SETTINGS,"PerspectiveProjection"),uValue);
+			}
+		}
 	}
 /*** LPub3D Mod end ***/
 
@@ -1018,12 +1018,12 @@ void lcApplication::ShowPreferencesDialog()
 		restartApplication();
 	}
 	else
-	if (redrawPage) {
-		clearAndReloadModelFile();
-	}
-	else
-	if (reloadPage) {
-		reloadCurrentPage();
-	}
+		if (redrawPage) {
+			clearAndReloadModelFile();
+		}
+		else
+			if (reloadPage) {
+				reloadCurrentPage();
+			}
 /*** LPub3D Mod end ***/
 }

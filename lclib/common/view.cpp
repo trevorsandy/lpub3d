@@ -1017,7 +1017,7 @@ void View::OnDraw()
 
 void View::DrawSelectMoveOverlay()
 {
-	mContext->SetMaterial(LC_MATERIAL_UNLIT_COLOR);
+	mContext->SetMaterial(lcMaterialType::UnlitColor);
 	mContext->SetViewMatrix(mCamera->mWorldView);
 	mContext->SetProjectionMatrix(GetProjectionMatrix());
 
@@ -1149,9 +1149,9 @@ void View::DrawSelectMoveOverlay()
 		lcPiece* Piece = (lcPiece*)Focus;
 		quint32 Section = Piece->GetFocusSection();
 
-		if (Section >= LC_PIECE_SECTION_CONTROL_POINT_1 && Section <= LC_PIECE_SECTION_CONTROL_POINT_8 && Piece->mPieceInfo->GetSynthInfo() && Piece->mPieceInfo->GetSynthInfo()->IsCurve())
+		if (Section >= LC_PIECE_SECTION_CONTROL_POINT_FIRST && Section <= LC_PIECE_SECTION_CONTROL_POINT_LAST && Piece->mPieceInfo->GetSynthInfo() && Piece->mPieceInfo->GetSynthInfo()->IsCurve())
 		{
-			int ControlPointIndex = Section - LC_PIECE_SECTION_CONTROL_POINT_1;
+			int ControlPointIndex = Section - LC_PIECE_SECTION_CONTROL_POINT_FIRST;
 			float Strength = Piece->GetControlPoints()[ControlPointIndex].Scale;
 			const float ScaleStart = 2.0f;
 			float Length = ScaleStart + Strength / OverlayScale;
@@ -1213,7 +1213,7 @@ void View::DrawRotateOverlay()
 	const float OverlayScale = GetOverlayScale();
 	const float OverlayRotateRadius = 2.0f;
 
-	mContext->SetMaterial(LC_MATERIAL_UNLIT_COLOR);
+	mContext->SetMaterial(lcMaterialType::UnlitColor);
 	mContext->SetViewMatrix(mCamera->mWorldView);
 	mContext->SetProjectionMatrix(GetProjectionMatrix());
 
@@ -1483,7 +1483,7 @@ void View::DrawRotateOverlay()
 		// Draw text.
 		lcVector3 ScreenPos = ProjectPoint(OverlayCenter);
 
-		mContext->SetMaterial(LC_MATERIAL_UNLIT_TEXTURE_MODULATE);
+		mContext->SetMaterial(lcMaterialType::UnlitTextureModulate);
 		mContext->SetWorldMatrix(lcMatrix44Identity());
 		mContext->SetViewMatrix(lcMatrix44Translation(lcVector3(0.375, 0.375, 0.0)));
 		mContext->SetProjectionMatrix(lcMatrix44Ortho(0.0f, mWidth, 0.0f, mHeight, -1.0f, 1.0f));
@@ -1507,7 +1507,7 @@ void View::DrawRotateOverlay()
 
 void View::DrawSelectZoomRegionOverlay()
 {
-	mContext->SetMaterial(LC_MATERIAL_UNLIT_COLOR);
+	mContext->SetMaterial(lcMaterialType::UnlitColor);
 	mContext->SetWorldMatrix(lcMatrix44Identity());
 	mContext->SetViewMatrix(lcMatrix44Translation(lcVector3(0.375, 0.375, 0.0)));
 	mContext->SetProjectionMatrix(lcMatrix44Ortho(0.0f, mWidth, 0.0f, mHeight, -1.0f, 1.0f));
@@ -1593,7 +1593,7 @@ void View::DrawRotateViewOverlay()
 	w = mWidth;
 	h = mHeight;
 
-	mContext->SetMaterial(LC_MATERIAL_UNLIT_COLOR);
+	mContext->SetMaterial(lcMaterialType::UnlitColor);
 	mContext->SetWorldMatrix(lcMatrix44Identity());
 	mContext->SetViewMatrix(lcMatrix44Translation(lcVector3(0.375, 0.375, 0.0)));
 	mContext->SetProjectionMatrix(lcMatrix44Ortho(0, w, 0, h, -1, 1));
@@ -1636,7 +1636,7 @@ void View::DrawRotateViewOverlay()
 	mContext->SetVertexBufferPointer(Verts);
 	mContext->SetVertexFormatPosition(2);
 
-	GLushort Indices[64 + 32] =
+	GLushort Indices[64 + 32] = 
 	{
 		0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16,
 		17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23, 23, 24, 24, 25, 25, 26, 26, 27, 27, 28, 28, 29, 29, 30, 30, 31, 31, 0,
@@ -1804,7 +1804,7 @@ void View::DrawGrid()
 		mContext->SetDepthWrite(false);
 		glEnable(GL_BLEND);
 
-		mContext->SetMaterial(LC_MATERIAL_UNLIT_TEXTURE_MODULATE);
+		mContext->SetMaterial(lcMaterialType::UnlitTextureModulate);
 		mContext->SetColor(lcVector4FromColor(Preferences.mGridStudColor));
 
 		mContext->SetVertexFormat(0, 3, 0, 2, 0, false);
@@ -1819,7 +1819,7 @@ void View::DrawGrid()
 	if (Preferences.mDrawGridLines)
 	{
 		mContext->SetLineWidth(1.0f);
-		mContext->SetMaterial(LC_MATERIAL_UNLIT_COLOR);
+		mContext->SetMaterial(lcMaterialType::UnlitColor);
 		mContext->SetColor(lcVector4FromColor(Preferences.mGridLineColor));
 
 		int NumVerts = 2 * (MaxX - MinX + MaxY - MinY + 2);
@@ -1856,7 +1856,7 @@ void View::DrawAxes()
 	lcMatrix44 WorldViewMatrix = mCamera->mWorldView;
 	WorldViewMatrix.SetTranslation(lcVector3(0, 0, 0));
 
-	mContext->SetMaterial(LC_MATERIAL_UNLIT_COLOR);
+	mContext->SetMaterial(lcMaterialType::UnlitColor);
 	mContext->SetWorldMatrix(lcMatrix44Identity());
 	mContext->SetViewMatrix(lcMul(WorldViewMatrix, TranslationMatrix));
 	mContext->SetProjectionMatrix(lcMatrix44Ortho(0, mWidth, 0, mHeight, -50, 50));
@@ -1875,7 +1875,7 @@ void View::DrawAxes()
 	mContext->SetColor(0.0f, 0.0f, 0.8f, 1.0f);
 	mContext->DrawIndexedPrimitives(GL_TRIANGLES, 24, GL_UNSIGNED_SHORT, (6 + 48) * 2);
 
-	mContext->SetMaterial(LC_MATERIAL_UNLIT_TEXTURE_MODULATE);
+	mContext->SetMaterial(lcMaterialType::UnlitTextureModulate);
 	mContext->SetViewMatrix(TranslationMatrix);
 	mContext->BindTexture2D(gTexFont.GetTexture());
 	glEnable(GL_BLEND);
@@ -1910,7 +1910,7 @@ void View::DrawViewport()
 
 	if (gMainWindow->GetActiveView() == this)
 	{
-		mContext->SetMaterial(LC_MATERIAL_UNLIT_COLOR);
+		mContext->SetMaterial(lcMaterialType::UnlitColor);
 		mContext->SetColor(1.0f, 0.0f, 0.0f, 1.0f);
 		float Verts[8] = { 0.0f, 0.0f, mWidth - 1.0f, 0.0f, mWidth - 1.0f, mHeight - 1.0f, 0.0f, mHeight - 1.0f };
 
@@ -1923,7 +1923,7 @@ void View::DrawViewport()
 
 	if (CameraName[0])
 	{
-		mContext->SetMaterial(LC_MATERIAL_UNLIT_TEXTURE_MODULATE);
+		mContext->SetMaterial(lcMaterialType::UnlitTextureModulate);
 		mContext->SetColor(0.0f, 0.0f, 0.0f, 1.0f);
 		mContext->BindTexture2D(gTexFont.GetTexture());
 
@@ -2210,7 +2210,7 @@ void View::UpdateTrackTool()
 				lcPiece* Piece = (lcPiece*)Focus;
 				quint32 Section = Piece->GetFocusSection();
 
-				if (Section >= LC_PIECE_SECTION_CONTROL_POINT_1 && Section <= LC_PIECE_SECTION_CONTROL_POINT_8)
+				if (Section >= LC_PIECE_SECTION_CONTROL_POINT_FIRST && Section <= LC_PIECE_SECTION_CONTROL_POINT_LAST)
 					ControlPointIndex = Section - LC_PIECE_SECTION_CONTROL_POINT_1;
 			}
 
@@ -3268,7 +3268,7 @@ void View::OnMouseMove()
 					lcPiece* Piece = (lcPiece*)Focus;
 					quint32 Section = Piece->GetFocusSection();
 
-					if (Section >= LC_PIECE_SECTION_CONTROL_POINT_1 && Section <= LC_PIECE_SECTION_CONTROL_POINT_8)
+					if (Section >= LC_PIECE_SECTION_CONTROL_POINT_FIRST && Section <= LC_PIECE_SECTION_CONTROL_POINT_LAST)
 					{
 						const float ScaleMax = 200.0f;
 						const float OverlayScale = GetOverlayScale();

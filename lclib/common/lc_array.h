@@ -41,6 +41,28 @@ public:
 		return *this;
 	}
 
+	lcArray(lcArray<T>&& Array)
+	{
+		mData = nullptr;
+		*this = std::move(Array);
+	}
+
+	lcArray<T>& operator=(lcArray<T>&& Array)
+	{
+		delete[] mData;
+
+		mData = Array.mData;
+		Array.mData = nullptr;
+		mLength = Array.mLength;
+		Array.mLength = 0;
+		mAlloc = Array.mAlloc;
+		Array.mAlloc = 0;
+		mGrow = Array.mGrow;
+		Array.mGrow = 16;
+
+		return *this;
+	}
+
 	const T& operator[](int Index) const
 	{
 		return mData[Index];
@@ -111,7 +133,7 @@ public:
 	{
 		if ((mLength + Grow) > mAlloc)
 		{
-			size_t NewSize = ((mLength + Grow + mGrow - 1) / mGrow) * mGrow;
+			const size_t NewSize = ((mLength + Grow + mGrow - 1) / mGrow) * mGrow;
 			T* NewData = new T[NewSize];
 
 			for (int i = 0; i < mLength; i++)

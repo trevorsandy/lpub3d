@@ -46,8 +46,8 @@ public:
 	}
 
 protected:
-	virtual void mousePressEvent(QMouseEvent* Event) override;
-	virtual void mouseReleaseEvent(QMouseEvent* Event) override;
+	void mousePressEvent(QMouseEvent* Event) override;
+	void mouseReleaseEvent(QMouseEvent* Event) override;
 
 	int mMousePressTab;
 };
@@ -219,7 +219,7 @@ public:
 
 	View* GetActiveView() const
 	{
-		lcModelTabWidget* CurrentTab = mModelTabWidget ? (lcModelTabWidget*)mModelTabWidget->currentWidget() : nullptr;
+		const lcModelTabWidget* const CurrentTab = mModelTabWidget ? (lcModelTabWidget*)mModelTabWidget->currentWidget() : nullptr;
 		return CurrentTab ? CurrentTab->GetActiveView() : nullptr;
 	}
 
@@ -227,13 +227,13 @@ public:
 
 	lcModel* GetCurrentTabModel() const
 	{
-		lcModelTabWidget* CurrentTab = (lcModelTabWidget*)mModelTabWidget->currentWidget();
+		const lcModelTabWidget* const CurrentTab = (lcModelTabWidget*)mModelTabWidget->currentWidget();
 		return CurrentTab ? CurrentTab->GetModel() : nullptr;
 	}
 
-	const lcArray<View*>* GetViewsForModel(lcModel* Model) const
+	const lcArray<View*>* GetViewsForModel(const lcModel* Model) const
 	{
-		lcModelTabWidget* TabWidget = GetTabWidgetForModel(Model);
+		const lcModelTabWidget* const TabWidget = GetTabWidgetForModel(Model);
 		return TabWidget ? TabWidget->GetViews() : nullptr;
 	}
 
@@ -243,7 +243,7 @@ public:
 		{
 			lcModelTabWidget* TabWidget = (lcModelTabWidget*)mModelTabWidget->widget(TabIdx);
 
-			int ViewIndex = TabWidget->GetViews()->FindIndex(View);
+			const int ViewIndex = TabWidget->GetViews()->FindIndex(View);
 			if (ViewIndex != -1)
 				return TabWidget;
 		}
@@ -441,10 +441,10 @@ protected slots:
 	void Print(QPrinter* Printer);
 
 protected:
-	void closeEvent(QCloseEvent *event);
-	void dragEnterEvent(QDragEnterEvent* Event);
-	void dropEvent(QDropEvent* Event);
-	QMenu* createPopupMenu();
+	void closeEvent(QCloseEvent *event) override;
+	void dragEnterEvent(QDragEnterEvent* Event) override;
+	void dropEvent(QDropEvent* Event) override;
+	QMenu* createPopupMenu() override;
 
 	void CreateActions();
 	void CreateMenus();
@@ -460,7 +460,7 @@ protected:
 
 	bool OpenProjectFile(const QString& FileName);
 
-	lcModelTabWidget* GetTabWidgetForModel(lcModel* Model) const
+	lcModelTabWidget* GetTabWidgetForModel(const lcModel* Model) const
 	{
 		for (int TabIdx = 0; TabIdx < mModelTabWidget->count(); TabIdx++)
 		{

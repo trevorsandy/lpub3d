@@ -21,7 +21,7 @@ public:
 	int mEnd;
 
 public slots:
-	void accept();
+	void accept() override;
 	void on_fileNameBrowse_clicked();
 /*** LPub3D Mod - lpub3d image file resize */
 	void on_reset_clicked();

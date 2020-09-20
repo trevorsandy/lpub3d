@@ -21,7 +21,7 @@ class lcQPropertiesTree : public QTreeWidget
 public:
 	lcQPropertiesTree(QWidget *parent = 0);
 
-	QSize sizeHint() const;
+	QSize sizeHint() const override;
 
 	QTreeWidgetItem *indexToItem(const QModelIndex &index) const
 	{
@@ -77,9 +77,9 @@ protected slots:
 /*** LPub3D Mod end ***/
 
 protected:
-	void keyPressEvent(QKeyEvent *event);
-	void mousePressEvent(QMouseEvent *event);
-	void drawRow(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+	void keyPressEvent(QKeyEvent *event) override;
+	void mousePressEvent(QMouseEvent *event) override;
+	void drawRow(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 	void updateColorEditor(QPushButton *editor, int value) const;
 /*** LPub3D Mod - enable lights ***/
 	void updateLightColorEditor(QPushButton *editor, QColor value) const;
@@ -203,13 +203,13 @@ public:
 		m_treeWidget = treeWidget;
 	}
 
-	QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-	void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-	void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-	QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const;
-	void setModelData(QWidget *, QAbstractItemModel *, const QModelIndex &) const {}
-	void setEditorData(QWidget *, const QModelIndex &) const {}
-	bool eventFilter(QObject *object, QEvent *event);
+	QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+	void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+	void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+	QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+	void setModelData(QWidget *, QAbstractItemModel *, const QModelIndex &) const override {}
+	void setEditorData(QWidget *, const QModelIndex &) const override {}
+	bool eventFilter(QObject *object, QEvent *event) override;
 
 	QTreeWidgetItem *editedItem() const
 	{
@@ -222,8 +222,8 @@ public:
 	}
 
 protected:
-	void drawDecoration(QPainter *painter, const QStyleOptionViewItem &option, const QRect &rect, const QPixmap &pixmap) const;
-	void drawDisplay(QPainter *painter, const QStyleOptionViewItem &option, const QRect &rect, const QString &text) const;
+	void drawDecoration(QPainter *painter, const QStyleOptionViewItem &option, const QRect &rect, const QPixmap &pixmap) const override;
+	void drawDisplay(QPainter *painter, const QStyleOptionViewItem &option, const QRect &rect, const QString &text) const override;
 
 private slots:
 	void slotEditorDestroyed(QObject *object);

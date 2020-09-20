@@ -414,7 +414,7 @@ public:
 	{
 	}
 
-	QValidator::State validate(QString& Input, int& Pos) const
+	QValidator::State validate(QString& Input, int& Pos) const override
 	{
 		if (mAllowEmpty && Input.isEmpty())
 			return Acceptable;
@@ -1600,9 +1600,9 @@ void lcQPropertiesTree::SetCamera(lcObject* Focus)
 /*** LPub3D Mod - Camera Globe ***/
 		Camera->GetAngles(Latitude,Longitude,Distance);
 
-		Position = normalizeDegrees(Camera->mPosition);
-		Target   = normalizeDegrees(Camera->mTargetPosition);
-		UpVector = normalizeDegrees(Camera->mUpVector);
+		Position = Camera->mPosition; // normalizeDegrees(Camera->mPosition);
+		Target	 = Camera->mTargetPosition; // normalizeDegrees(Camera->mTargetPosition);
+		UpVector = Camera->mUpVector; // normalizeDegrees(Camera->mUpVector);
 /*** LPub3D Mod end ***/
 
 		Ortho = Camera->IsOrtho();
@@ -1716,11 +1716,11 @@ void lcQPropertiesTree::SetLight(lcObject* Focus)
 	{
 		Name = Light->GetName();
 
-		Position       = normalizeDegrees(Light->mPosition);
-		Target         = normalizeDegrees(Light->mTargetPosition);
-		Color          = Light->mLightColor;
-		Factor         = Light->mLightFactor;
-		LightIndex     = Light->mLightType;
+		Position	   = Light->mPosition; // normalizeDegrees(Light->mPosition);
+		Target		   = Light->mTargetPosition; // normalizeDegrees(Light->mTargetPosition);
+		Color		   = Light->mLightColor;
+		Factor		   = Light->mLightFactor;
+		LightIndex	   = Light->mLightType;
 		switch(LightIndex){
 		case LC_POINTLIGHT:
 			Type = "Point";

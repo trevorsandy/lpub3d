@@ -109,8 +109,8 @@ lcQGLWidget::lcQGLWidget(QWidget *parent, lcGLWidget *owner, bool view)
 		View::CreateResources(widget->mContext);
 		lcViewSphere::CreateResources(widget->mContext);
 
-		if (!gSupportsShaderObjects && lcGetPreferences().mShadingMode == LC_SHADING_DEFAULT_LIGHTS)
-			lcGetPreferences().mShadingMode = LC_SHADING_FLAT;
+		if (!gSupportsShaderObjects && lcGetPreferences().mShadingMode == lcShadingMode::DefaultLights)
+			lcGetPreferences().mShadingMode = lcShadingMode::Flat;
 
 		if (!gSupportsFramebufferObjectARB && !gSupportsFramebufferObjectEXT)
 			gMainWindow->GetPartSelectionWidget()->DisableIconMode();

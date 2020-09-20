@@ -96,7 +96,7 @@ protected:
 /*** LPub3D Mod - true fade ***/
 	void DrawTranslucentMeshes(lcContext* Context, bool DrawLit, int FadeArgs = 0/*NoFade*/) const;
 /*** LPub3D Mod end ***/
-	void DrawDebugNormals(lcContext* Context, lcMesh* Mesh) const;
+	void DrawDebugNormals(lcContext* Context, const lcMesh* Mesh) const;
 
 	lcMatrix44 mViewMatrix;
 	lcMatrix44 mActiveSubmodelTransform;

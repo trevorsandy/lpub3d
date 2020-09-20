@@ -720,13 +720,14 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 				Piece->SetPieceInfo(Info, PartId, false);
 				Piece->Initialize(Transform, CurrentStep);
 				Piece->SetColorCode(ColorCode);
+				Piece->VerifyControlPoints(ControlPoints);
 				Piece->SetControlPoints(ControlPoints);
 				AddPiece(Piece);
 				Piece = nullptr;
 			}
 		}
 		else
-			mFileLines.append(OriginalLine);
+			mFileLines.append(OriginalLine); 
 	}
 
 	mCurrentStep = CurrentStep;
@@ -1361,7 +1362,7 @@ void lcModel::DrawBackground(lcGLWidget* Widget)
 			ViewWidth, 0.0f,       Color2[0], Color2[1], Color2[2], 1.0f
 		};
 
-		Context->SetMaterial(LC_MATERIAL_UNLIT_VERTEX_COLOR);
+		Context->SetMaterial(lcMaterialType::UnlitVertexColor);
 		Context->SetVertexBufferPointer(Verts);
 		Context->SetVertexFormat(0, 2, 0, 0, 4, false);
 
@@ -1390,7 +1391,7 @@ void lcModel::DrawBackground(lcGLWidget* Widget)
 		};
 
 		Context->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
-		Context->SetMaterial(LC_MATERIAL_UNLIT_TEXTURE_DECAL);
+		Context->SetMaterial(lcMaterialType::UnlitTextureDecal);
 		Context->SetVertexBufferPointer(Verts);
 		Context->SetVertexFormat(0, 2, 0, 2, 0, false);
 
@@ -3043,9 +3044,9 @@ void lcModel::ScaleSelectedPieces(const float Scale, bool Update, bool Checkpoin
 	lcPiece* Piece = (lcPiece*)Focus;
 	quint32 Section = Piece->GetFocusSection();
 
-	if (Section >= LC_PIECE_SECTION_CONTROL_POINT_1 && Section <= LC_PIECE_SECTION_CONTROL_POINT_8)
+	if (Section >= LC_PIECE_SECTION_CONTROL_POINT_FIRST && Section <= LC_PIECE_SECTION_CONTROL_POINT_LAST)
 	{
-		int ControlPointIndex = Section - LC_PIECE_SECTION_CONTROL_POINT_1;
+		int ControlPointIndex = Section - LC_PIECE_SECTION_CONTROL_POINT_FIRST;
 		Piece->SetControlPointScale(ControlPointIndex, Scale);
 
 		if (Update)
@@ -3642,16 +3643,11 @@ void lcModel::GetSelectionInformation(int* Flags, lcArray<lcObject*>& Selection,
 
 				*Flags |= LC_SEL_PIECE | LC_SEL_SELECTED;
 
-				lcSynthInfo* SynthInfo = Piece->mPieceInfo->GetSynthInfo();
-				if (SynthInfo && SynthInfo->CanAddControlPoints())
-				{
+				if (Piece->CanAddControlPoint())
 					*Flags |= LC_SEL_CAN_ADD_CONTROL_POINT;
 
-					quint32 Section = Piece->GetFocusSection();
-
-					if (Section >= LC_PIECE_SECTION_CONTROL_POINT_1 && Section <= LC_PIECE_SECTION_CONTROL_POINT_8 && Piece->GetControlPoints().GetSize() > 2)
-						*Flags |= LC_SEL_CAN_REMOVE_CONTROL_POINT;
-				}
+				if (Piece->CanRemoveControlPoint())
+					*Flags |= LC_SEL_CAN_REMOVE_CONTROL_POINT;
 
 				if (Piece->GetGroup() != nullptr)
 				{
