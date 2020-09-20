@@ -437,6 +437,7 @@ int Gui::drawPage(
   QElapsedTimer pageRenderTimer;
   pageRenderTimer.start();
 
+  QRegExp partLineRx("^\\s*1|\\bBEGIN SUB\\b");
   QStringList configuredCsiParts; // fade and highlight configuration
   QString  line, csiName;
   Callout *callout         = nullptr;
@@ -508,6 +509,14 @@ int Gui::drawPage(
       steps->meta.LPub.page.pageHeader.size.setValue(0,pW);
       steps->meta.LPub.page.pageFooter.size.setValue(0,pW);
     }
+
+  auto getTopOfPreviousStep = [this,&topOfStep] () {
+      int displayPageIndx = exporting() ? displayPageNum : displayPageNum - 1;
+      displayPageIndx = displayPageIndx ? displayPageIndx-- : displayPageIndx; // top of 1 step back
+      bool displayPageIndxOk = topOfPages.size() && topOfPages.size() >= displayPageIndx;
+      Where top = displayPageIndxOk ? topOfPages[displayPageIndx] : topOfStep;
+      return top;
+  };
 
   auto drawPageElapsedTime = [this, &partsAdded, &pageRenderTimer](){
     QString pageRenderMessage = QString("%1 ").arg(VER_PRODUCTNAME_STR);
@@ -1181,9 +1190,23 @@ int Gui::drawPage(
                 // 0 !LPUB INSERT DISPLAY_MODEL
                 // 0 STEP
                 // Note that LOCAL settings must be placed before INSERT PAGE meta command
+
+                Where top;
+                QString message;
                 bool proceed = true;
-                if (rc == InsertFinalModelRc)
+                if (rc == InsertFinalModelRc) {
+                    // for final model, check from top of previous step
+                    top = getTopOfPreviousStep();
+                    message = QString("INSERT MODEL meta must be preceded by 0 STEP before part (type 1) at line");
+
                     proceed = curMeta.LPub.fadeStep.fadeStep.value() || curMeta.LPub.highlightStep.highlightStep.value();
+                } else { /*InsertDisplayModelRc*/
+                    top = opts.current;
+                    message = QString("INSERT DISPLAY_MODEL meta must be followed by 0 STEP before part (type 1) at line");
+                }
+                if (stepContains(top,partLineRx)) {
+                    parseError(message.append(QString("%1.").arg(top.lineNumber+1)), opts.current);
+                }
                 if (proceed) {
                     opts.stepNum--;
                     if (step == nullptr) {
@@ -1208,19 +1231,38 @@ int Gui::drawPage(
 
             case InsertCoverPageRc:
               {
+                Where top;
+                QString message;
                 coverPage = true;
+                partsAdded = true;
                 page.coverPage = true;
                 QRegExp backCoverPage("^\\s*0\\s+!LPUB\\s+.*BACK");
                 if (line.contains(backCoverPage)){
                     page.backCover  = true;
                     page.frontCover = false;
+
+                    // for back cover page, check from top of previous step
+                    top = getTopOfPreviousStep();
+                    message = QString("INSERT COVER_PAGE BACK meta must be preceded by 0 STEP before part (type 1) at line");
                   } else {
                     page.frontCover = true;
                     page.backCover  = false;
+
+                    top = topOfStep;
+                    message = QString("INSERT COVER_PAGE FRONT meta must be followed by 0 STEP before part (type 1) at line");
+                  }
+                  if (stepContains(top,partLineRx)) {
+                      parseError(message.append(QString("%1.").arg(top.lineNumber+1)), opts.current);
                   }
               }
+              break;
+
             case InsertPageRc:
               {
+                if (stepContains(topOfStep,partLineRx))
+                    parseError(QString("INSERT PAGE meta must be followed by 0 STEP before part (type 1) at line %1.").arg(topOfStep.lineNumber+1),
+                               opts.current);
+
                 partsAdded = true;
 
                 // nothing to display in 3D Window
@@ -3665,8 +3707,10 @@ void Gui::drawPage(
 
       // Set BuildMod action options for next step
       int displayPageIndx = exporting() ? displayPageNum : displayPageNum - 1;
-      if (Preferences::buildModEnabled)
-          setBuildModForNextStep(topOfPages.size() ? topOfPages[displayPageIndx] : current);
+      if (Preferences::buildModEnabled) {
+          bool displayPageIndxOk = topOfPages.size() && topOfPages.size() >= displayPageIndx;
+          setBuildModForNextStep(displayPageIndxOk ? topOfPages[displayPageIndx] : current);
+      }
   }
 
   writeToTmp();
