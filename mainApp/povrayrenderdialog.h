@@ -35,6 +35,7 @@ public:
 
 public slots:
     void reject();
+    void on_TargetButton_clicked();
     void on_RenderButton_clicked();
     void on_OutputBrowseButton_clicked();
     void on_LdvLDrawPreferencesButton_clicked();

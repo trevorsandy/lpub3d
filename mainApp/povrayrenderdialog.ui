@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>827</width>
+    <width>908</width>
     <height>631</height>
    </rect>
   </property>
@@ -94,6 +94,13 @@
          <widget class="QLineEdit" name="ResolutionEdit">
           <property name="toolTip">
            <string>Resolution, presumably in inches - can also be in centimetres</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="TargetButton">
+          <property name="text">
+           <string>Target...</string>
           </property>
          </widget>
         </item>
@@ -267,7 +274,18 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>RenderButton</tabstop>
+  <tabstop>AspectRatioBox</tabstop>
+  <tabstop>WidthEdit</tabstop>
+  <tabstop>HeightEdit</tabstop>
+  <tabstop>ScaleEdit</tabstop>
+  <tabstop>ResolutionEdit</tabstop>
+  <tabstop>TargetButton</tabstop>
   <tabstop>QualityComboBox</tabstop>
+  <tabstop>OutputAlphaBox</tabstop>
+  <tabstop>LdvExportSettingsButton</tabstop>
+  <tabstop>LdvLDrawPreferencesButton</tabstop>
+  <tabstop>ResetButton</tabstop>
   <tabstop>OutputEdit</tabstop>
   <tabstop>OutputBrowseButton</tabstop>
  </tabstops>

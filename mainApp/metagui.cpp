@@ -5751,3 +5751,107 @@ void SubModelColorGui::apply(
     mi.setGlobalMeta(topLevelFile,meta);
   }
 }
+
+/***********************************************************************
+ *
+ * Universal Roate Step and Target
+ *
+ **********************************************************************/
+
+void TargetRotateDialogGui::getTargetAndRotateValues(QStringList &keyList){
+
+    QDialog *dialog = new QDialog();
+
+    QFormLayout *form = new QFormLayout(dialog);
+    form->addRow(new QLabel("LookAt Target"));
+    QGroupBox *targetBbox = new QGroupBox("Enter axis distance");
+    form->addWidget(targetBbox);
+    QFormLayout *targetSubform = new QFormLayout(targetBbox);
+
+    // Target
+    int targetValues[3] = {keyList.at(K_TARGETX).toInt(),
+                           keyList.at(K_TARGETY).toInt(),
+                           keyList.at(K_TARGETZ).toInt()};
+
+    QList<QLabel *> targetLabelList;
+    QList<QSpinBox *> targetSpinBoxList;
+    QStringList targetLabels = QStringList()
+            << QString("X Distance:")
+            << QString("Y Distance:")
+            << QString("Z Distance:");
+
+    for(int i = 0; i < targetLabels.size(); ++i) {
+        QLabel *label = new QLabel(targetLabels[i], dialog);
+        targetLabelList << label;
+        QSpinBox * spinBox = new QSpinBox(dialog);
+        spinBox->setRange(0,1000);
+        spinBox->setSingleStep(1);
+        spinBox->setValue(targetValues[i]);
+        targetSpinBoxList << spinBox;
+        targetSubform->addRow(label,spinBox);
+    }
+
+    form->addRow(new QLabel("Rotate"));
+    QGroupBox *rotateBox = new QGroupBox("Enter axis rotation");
+    form->addWidget(rotateBox);
+    QFormLayout *rotateSubform = new QFormLayout(rotateBox);
+
+    // Rotstep
+    auto dec = [] (const qreal v)
+    {
+        int a = v - int(v);
+        return (a <= 0 ? 2 : QString::number(a).size() < 3 ? 2 : QString::number(a).size());
+    };
+
+    double rotateValues[3] = {keyList.at(K_ROTSX).toDouble(),
+                              keyList.at(K_ROTSY).toDouble(),
+                              keyList.at(K_ROTSZ).toDouble()};
+
+    QList<QLabel *> rotateLabelList;
+    QList<QDoubleSpinBox *> rotateDoubleSpinBoxList;
+    QStringList rotateLabels = QStringList()
+            << QString("X Rotation:")
+            << QString("Y Rotation:")
+            << QString("Z Rotation:");
+
+    for(int i = 0; i < rotateLabels.size(); ++i) {
+        QLabel *label = new QLabel(rotateLabels[i], dialog);
+        rotateLabelList << label;
+        QDoubleSpinBox * doubleSpinBox = new QDoubleSpinBox(dialog);
+        doubleSpinBox->setRange(0.0,360.0);
+        doubleSpinBox->setSingleStep(1.0);
+        doubleSpinBox->setDecimals(dec(rotateValues[i]));
+        doubleSpinBox->setValue(rotateValues[i]);
+        rotateDoubleSpinBoxList << doubleSpinBox;
+        rotateSubform->addRow(label,doubleSpinBox);
+    }
+
+    QComboBox *typeCombo;
+    QLabel *label = new QLabel("Transform:", dialog);
+    typeCombo = new QComboBox(dialog);
+    typeCombo->addItem("ABS");
+    typeCombo->addItem("REL");
+    typeCombo->addItem("ADD");
+    typeCombo->setCurrentIndex(typeCombo->findText(keyList.at(K_ROTSTYPE)));
+    rotateSubform->addRow(label,typeCombo);
+
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                               Qt::Horizontal, dialog);
+    form->addRow(&buttonBox);
+    QObject::connect(&buttonBox, SIGNAL(accepted()), dialog, SLOT(accept()));
+    QObject::connect(&buttonBox, SIGNAL(rejected()), dialog, SLOT(reject()));
+    dialog->setMinimumWidth(250);
+
+    if (dialog->exec() == QDialog::Accepted) {
+        keyList.replace(K_TARGETX,QString::number(targetSpinBoxList[0]->value()));
+        keyList.replace(K_TARGETY,QString::number(targetSpinBoxList[1]->value()));
+        keyList.replace(K_TARGETZ,QString::number(targetSpinBoxList[2]->value()));
+
+        keyList.replace(K_ROTSX,QString::number(rotateDoubleSpinBoxList[0]->value()));
+        keyList.replace(K_ROTSY,QString::number(rotateDoubleSpinBoxList[1]->value()));
+        keyList.replace(K_ROTSZ,QString::number(rotateDoubleSpinBoxList[2]->value()));
+        keyList.replace(K_ROTSTYPE,typeCombo->currentText());
+    } else {
+        return;
+    }
+}

@@ -116,6 +116,24 @@ enum NameKeyAttributes {
     nSub              // 16 Used by LDView single call
 };
 
+enum NameKeyAttributes2{
+    K_STEPNUMBER = 0,  // 0  not used
+    K_IMAGEWIDTH,      // 1  not used
+    K_RESOLUTION,      // 2
+    K_RESOLUTIONTYPE,  // 3
+    K_MODELSCALE,      // 4
+    K_FOV,             // 5  not used
+    K_LATITUDE,        // 6
+    K_LONGITUDE,       // 7
+    K_TARGETX,         // 8
+    K_TARGETY,         // 9
+    K_TARGETZ,         // 10
+    K_ROTSX,           // 11
+    K_ROTSY,           // 12
+    K_ROTSZ,           // 13
+    K_ROTSTYPE         // 14
+};
+
 const int GridSizeTable[] = { 10, 20, 30, 40, 50, 60, 70, 80, 90 };
 
 extern SnapGridCommands sgCommands[NUM_GRID_SIZES];

@@ -1637,4 +1637,14 @@ public slots:
   void browseSubModelColor3(bool);
 };
 
+
+class TargetRotateDialogGui : public QObject
+{
+    Q_OBJECT
+public:
+    TargetRotateDialogGui(){}
+    void getTargetAndRotateValues(QStringList & keyList);
+
+};
+
 #endif

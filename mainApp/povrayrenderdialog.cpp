@@ -19,25 +19,12 @@
 #include "render.h"
 #include "paths.h"
 #include "lpub.h"
+#include "metagui.h"
 
 #define POVRAY_RENDER_DEFAULT_WIDTH 1280
 #define POVRAY_RENDER_DEFAULT_HEIGHT 720
-
-enum CsiKeyList{
-    K_STEPNUMBER = 0,  // 0  not used
-    K_IMAGEWIDTH,      // 1  not used
-    K_RESOLUTION,      // 2
-    K_RESOLUTIONTYPE,  // 3
-    K_SCALEFACTOR,     // 4  not used (switches between distance factor and scale)
-    K_FOV,             // 5  not used
-    K_LATITUDE,        // 6
-    K_LONGITUDE,       // 7
-    K_ROTSX,           // 8
-    K_ROTSY,           // 9
-    K_ROTSZ,           // 10
-    K_ROTSTYPE,        // 11
-    K_MODELSCALE       // 12
-};
+#define LP3D_CA 0.01
+#define LP3D_CDF 1.0
 
 PovrayRenderDialog::PovrayRenderDialog(QWidget* Parent)
     : QDialog(Parent),
@@ -161,6 +148,13 @@ void PovrayRenderDialog::on_LdvLDrawPreferencesButton_clicked()
     Render::showLdvLDrawPreferences(POVRayRender);
 }
 
+void PovrayRenderDialog::on_TargetButton_clicked()
+{
+    TargetRotateDialogGui *targetRotateDialogGui =
+            new TargetRotateDialogGui();
+    targetRotateDialogGui->getTargetAndRotateValues(mCsiKeyList);
+}
+
 void PovrayRenderDialog::on_RenderButton_clicked()
 {
 #ifndef QT_NO_PROCESS
@@ -195,6 +189,12 @@ void PovrayRenderDialog::on_RenderButton_clicked()
     // Camera angle keys
     QString caKey = mCsiKeyList.at(K_LATITUDE)+" "+  // latitude
                     mCsiKeyList.at(K_LONGITUDE);     // longitude
+
+    // Target keys
+    QString mKey =  mCsiKeyList.at(K_TARGETX)+" "+   // target[X]
+                    mCsiKeyList.at(K_TARGETY)+" "+   // target[Y]
+                    mCsiKeyList.at(K_TARGETZ)+" ";   // target[Z]
+
     // Rotstep keys
     QString rsKey = mCsiKeyList.at(K_ROTSX)+" "+     // rots[X]
                     mCsiKeyList.at(K_ROTSY)+" "+     // rots[Y]
@@ -213,19 +213,23 @@ void PovrayRenderDialog::on_RenderButton_clicked()
                     mCsiKeyList.at(K_RESOLUTION)+" "+  // resolution
                     mCsiKeyList.at(K_RESOLUTIONTYPE);  // resolutionType (DPI,DPCM)
 
-    /* determine camera distance - use LDView POV file generation values */
-    int cd = int((double(Render::getPovrayRenderCameraDistance(cdKey))*0.455)*1700/1000);
+    /* perspective projection settings */
+    bool pp    = Preferences::perspectiveProjection;
 
     /* set camera angles */
     bool noCA  = Preferences::applyCALocally;
+
+    /* determine camera distance - use LDView POV file generation values */
+    int cd = int((double(Render::getPovrayRenderCameraDistance(cdKey))*0.455)*1700/1000);
 
     /* set LDV arguments */
     QString CA = QString("-ca%1") .arg(0.01);  // Effectively defaults to orthographic projection.
     QString cg = QString("-cg%1,%2,%3")
             .arg(noCA ? 0.0 : mCsiKeyList.at(K_LATITUDE).toDouble())
             .arg(noCA ? 0.0 : mCsiKeyList.at(K_LONGITUDE).toDouble())
-            .arg(cd);
+            .arg(QString::number(pp ? cd * LP3D_CDF : cd,'f',0));
 
+    QString m  = mKey == "0 0 0" ? QString() : mKey;
     QString w  = QString("-SaveWidth=%1") .arg(ui->WidthEdit->text());
     QString h  = QString("-SaveHeight=%1") .arg(ui->HeightEdit->text());
     QString f  = QString("-ExportFile=%1") .arg(GetPOVFileName());
@@ -234,6 +238,43 @@ void PovrayRenderDialog::on_RenderButton_clicked()
     QStringList Arguments;
     Arguments << CA;
     Arguments << cg;
+
+/*
+    K_STEPNUMBER = 0,  // 0  not used
+    K_IMAGEWIDTH,      // 1  not used
+    K_RESOLUTION,      // 2
+    K_RESOLUTIONTYPE,  // 3
+    K_MODELSCALE,      // 4
+    K_FOV,             // 5  not used
+    K_LATITUDE,        // 6
+    K_LONGITUDE,       // 7
+    K_TARGETX,         // 8
+    K_TARGETY,         // 9
+    K_TARGETZ,         // 10
+    K_ROTSX,           // 11
+    K_ROTSY,           // 12
+    K_ROTSZ,           // 13
+    K_ROTSTYPE         // 14
+*/
+    // replace CA with FOV
+    if (pp) {
+        QString df = QString("-FOV=%1").arg(mCsiKeyList.at(K_FOV).toDouble());
+        Arguments.replace(Arguments.indexOf(CA),df);
+    }
+
+    // Set alternate target position or use specified image size
+    if (!m.isEmpty()){
+        Arguments.removeAt(Arguments.indexOf(cg)); // remove camera globe
+        QString dz = QString("-DefaultZoom=%1")
+                             .arg(mCsiKeyList.at(K_MODELSCALE).toDouble());
+        QString dl = QString("-DefaultLatLong=%1,%2")
+                             .arg(noCA ? 0.0 : mCsiKeyList.at(K_LATITUDE).toDouble())
+                             .arg(noCA ? 0.0 : mCsiKeyList.at(K_LONGITUDE).toDouble());
+        Render::addArgument(Arguments, dz, "-DefaultZoom");
+        Render::addArgument(Arguments, dl, "-DefaultLatLong");
+    }
+
+    Arguments << m;
     Arguments << w;
     Arguments << h;
     Arguments << f;
