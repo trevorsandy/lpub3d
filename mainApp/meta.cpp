@@ -3325,6 +3325,8 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
       }
      if ((ldrawType && argc == 1) || !ldrawType) {
          // lets try to get the original type
+         bool newStep    = false;
+         bool validLine  = false;
          bool configured = false;
          bool fade       = gui->page.meta.LPub.fadeStep.fadeStep.value();
          bool highlight  = gui->page.meta.LPub.highlightStep.highlightStep.value() && !gui->suppressColourMeta();
@@ -3343,11 +3345,12 @@ Rc SubMeta::parse(QStringList &argv, int index,Where &here)
                 originalTypeLine =  configured ? gui->readConfiguredLine(lineBelow) : gui->readLine(lineBelow);
              }
          }
+
          QStringList tokens;
          split(originalTypeLine,tokens);
          if (tokens.size() == 15 && tokens[0] == "1") {
              if(!ldrawType)
-                 attributes    = tokens[14]+":0;";    // originalType
+                 attributes  = tokens[14]+":0;";    // originalType
              originalColor = tokens[1];
          } else {
              QString message = QString("Failed to locate substitute original part type below %1.<br>Got %2.")
