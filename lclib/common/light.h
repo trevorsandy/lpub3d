@@ -68,7 +68,9 @@ public:
 class lcLight : public lcObject
 {
 public:
-	lcLight(float px, float py, float pz);
+/*** LPub3D Mod - LPUB meta command ***/
+	lcLight(float px, float py, float pz, bool lpubmeta = true);
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - enable lights ***/
 	lcLight(float px, float py, float pz, float tx, float ty, float tz, int LightType);
 /*** LPub3D Mod end ***/
@@ -276,6 +278,9 @@ public:
 	bool  mSpotCutoffSet;
 	bool  mHeightSet;
 	bool  mEnableCutoff;
+/*** LPub3D Mod - LPUB meta command ***/
+	bool mLPubMeta;
+/*** LPub3D Mod end ***/
 	int   mLightType;
 	int   mLightShape;
 	float mLightSpecular;

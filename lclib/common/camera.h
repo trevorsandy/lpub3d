@@ -38,7 +38,9 @@ enum lcCameraSection
 class lcCamera : public lcObject
 {
 public:
-	lcCamera(bool Simple);
+/*** LPub3D Mod - LPUB meta command ***/
+	lcCamera(bool Simple, bool lpubmeta = true);
+/*** LPub3D Mod end ***/
 	lcCamera(float ex, float ey, float ez, float tx, float ty, float tz);
 	~lcCamera();
 
@@ -295,6 +297,9 @@ public:
 	float GetCDF() const;
 	float GetDDF() const;
 	float GetCDP() const;
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - LPUB meta command ***/
+	bool mLPubMeta;
 /*** LPub3D Mod end ***/
 
 	char m_strName[81];

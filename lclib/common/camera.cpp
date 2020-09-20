@@ -18,9 +18,12 @@
 
 #define LC_CAMERA_SAVE_VERSION 7 // LeoCAD 0.80
 
-lcCamera::lcCamera(bool Simple)
+/*** LPub3D Mod - LPUB meta command ***/
+lcCamera::lcCamera(bool Simple, bool lpubmeta)
 	: lcObject(LC_OBJECT_CAMERA)
 {
+	mLPubMeta = lpubmeta;
+/*** LPub3D Mod end ***/
 	Initialize();
 
 	if (Simple)
@@ -43,6 +46,10 @@ lcCamera::lcCamera(bool Simple)
 lcCamera::lcCamera(float ex, float ey, float ez, float tx, float ty, float tz)
 	: lcObject(LC_OBJECT_CAMERA)
 {
+/*** LPub3D Mod - LPUB meta command ***/
+	mLPubMeta = true;
+/*** LPub3D Mod end ***/
+
 	// Fix the up vector
 	lcVector3 UpVector(0, 0, 1), FrontVector(ex - tx, ey - ty, ez - tz), SideVector;
 	FrontVector.Normalize();
@@ -108,8 +115,9 @@ void lcCamera::CreateName(const lcArray<lcCamera*>& Cameras)
 void lcCamera::SaveLDraw(QTextStream& Stream) const
 {
 	QLatin1String LineEnding("\r\n");
-
-	Stream << QLatin1String("0 !LPUB CAMERA FOV ") << m_fovy << QLatin1String(" ZNEAR ") << m_zNear << QLatin1String(" ZFAR ") << m_zFar << LineEnding; /*** LPub3D Mod - LPUB meta command ***/
+/*** LPub3D Mod - LPUB meta command ***/
+	Stream << QLatin1String(QString("0 %1 CAMERA FOV ").arg(mLPubMeta ? "!LPUB" : "!LEOCAD").toLatin1()) << m_fovy << QLatin1String(" ZNEAR ") << m_zNear << QLatin1String(" ZFAR ") << m_zFar << LineEnding;
+/*** LPub3D Mod end ***/
 
 	if (mPositionKeys.GetSize() > 1)
 		SaveKeysLDraw(Stream, mPositionKeys, "CAMERA POSITION_KEY ");
@@ -126,7 +134,9 @@ void lcCamera::SaveLDraw(QTextStream& Stream) const
 	else
 		Stream << QLatin1String("0 !LPUB CAMERA UP_VECTOR ") << mUpVector[0] << ' ' << mUpVector[1] << ' ' << mUpVector[2] << LineEnding; /*** LPub3D Mod - LPUB meta command ***/
 
-	Stream << QLatin1String("0 !LPUB CAMERA "); /*** LPub3D Mod - LPUB meta command ***/
+/*** LPub3D Mod - LPUB meta command ***/
+	Stream << QLatin1String(QString("0 %1 CAMERA ").arg(mLPubMeta ? "!LPUB" : "!LEOCAD").toLatin1());
+/*** LPub3D Mod end ***/
 
 	if (IsHidden())
 		Stream << QLatin1String("HIDDEN");
@@ -209,8 +219,6 @@ bool lcCamera::ParseLDrawLine(QTextStream& Stream)
 
 	return false;
 }
-
-/////////////////////////////////////////////////////////////////////////////
 // Camera save/load
 
 bool lcCamera::FileLoad(lcFile& file)

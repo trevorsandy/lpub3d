@@ -532,6 +532,37 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 	mProperties.mDescription.clear();
 	mProperties.mComments.clear();
 
+/*** LPub3D Mod - LPUB meta command ***/
+	bool mLPubMeta = true;
+
+	auto ViewerMetaCommandLine = [] (QTextStream &Stream, bool &mLPubMeta)
+	{
+		qint64 savePosition = Stream.pos();
+		QString Token;
+		Stream >> Token;
+		bool retValue = false;
+		if (Token == QLatin1String("!LPUB"))
+		{
+			Stream >> Token;
+			retValue = mLPubMeta = Token == QLatin1String("MODEL")  ||
+								   Token == QLatin1String("PIECE")  ||
+								   Token == QLatin1String("CAMERA") ||
+								   Token == QLatin1String("LIGHT")  ||
+								   Token == QLatin1String("GROUP")  ||
+								   Token == QLatin1String("SYNTH");
+		}
+		else if (Token == QLatin1String("!LEOCAD"))
+		{
+			mLPubMeta = false;
+			retValue = true;
+		}
+
+		Stream.seek(savePosition);
+
+		return retValue;
+	};
+/*** LPub3D Mod end ***/
+
 	while (!Device.atEnd())
 	{
 		qint64 Pos = Device.pos();
@@ -582,13 +613,13 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 				mFileLines.append(OriginalLine);
 				continue;
 			}
-
-			if (Token != QLatin1String("!LPUB"))
+/*** LPub3D Mod - LPUB meta command ***/
+			if (!ViewerMetaCommandLine(LineStream, mLPubMeta))
 			{
 				mFileLines.append(OriginalLine);
 				continue;
 			}
-
+/*** LPub3D Mod end ***/
 			LineStream >> Token;
 
 			if (Token == QLatin1String("MODEL"))
@@ -618,7 +649,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 			{
 /*** LPub3D Mod - enable lights ***/
 				if (!Light)
-					Light = new lcLight(0.0f, 0.0f, 0.0f);
+					Light = new lcLight(0.0f, 0.0f, 0.0f, mLPubMeta);
 
 				if (Light->ParseLDrawLine(LineStream))
 				{
@@ -626,7 +657,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 					mLights.Add(Light);
 					Light = nullptr;
 				}
- /*** LPub3D Mod end ***/
+/*** LPub3D Mod end ***/
 			}
 			else if (Token == QLatin1String("GROUP"))
 			{
