@@ -26,10 +26,6 @@ prepare() {
 	export PLATFORM_CODE="ar"
 	export PLATFORM_VER="2020"
 	export TARGET_CPU="$(uname -m)"
-	if [ -x /usr/lib64/libQt5Core.so.5 ]; then
-		echo "  -> Strip incompatible libQt5Core.so.5 ABI (Qt 5.12)"
-		(sudo strip --remove-section=.note.ABI-tag /usr/lib64/libQt5Core.so.5)
-	fi
 	# Build OSMesa from source
 	echo "  -> Build OSMesa from source.......yes"
 	export build_osmesa="yes"
