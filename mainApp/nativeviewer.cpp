@@ -288,26 +288,38 @@ void Gui::ResetViewerZoomSlider()
 
 void Gui::applyCameraSettings()
 {
-    auto validCameraValue = [] (const float value, const CamFlag flag)
+    SettingsMeta cameraMeta;
+
+    View* ActiveView = gMainWindow->GetActiveView();
+
+    lcCamera* Camera = ActiveView->mCamera;
+
+    auto validCameraValue = [&cameraMeta, &Camera] (const CamFlag flag)
     {
         if (Preferences::usingNativeRenderer)
-            return value;
+            return qRound(flag == DefFoV ?
+                               Camera->m_fovy :
+                          flag == DefZNear ?
+                               Camera->m_zNear : Camera->m_zFar);
 
         float result;
         switch (flag)
         {
         case DefFoV:
-            result = value + CAMERA_FOV_DEFAULT - CAMERA_FOV_NATIVE_DEFAULT;
+            // e.g.            30.0  +                 0.01         - 30.0
+            result = Camera->m_fovy  + cameraMeta.cameraFoV.value() - CAMERA_FOV_NATIVE_DEFAULT;
             break;
         case DefZNear:
-            result = value + CAMERA_ZNEAR_DEFAULT - CAMERA_ZNEAR_NATIVE_DEFAULT;
+            // e.g.            25.0  +             10.0         - 25.0
+            result = Camera->m_zNear + cameraMeta.znear.value() - CAMERA_ZNEAR_NATIVE_DEFAULT;
             break;
         case DefZFar:
-            result = value + CAMERA_ZFAR_DEFAULT - CAMERA_ZFAR_NATIVE_DEFAULT;
+            // e.g.         50000.0  +         4000.0          - 50000.0
+            result = Camera->m_zFar  + cameraMeta.zfar.value() - CAMERA_ZFAR_NATIVE_DEFAULT;
             break;
         }
 
-        return result;
+        return qRound(result);
     };
 
     auto notEqual = [] (const float v1, const float v2)
@@ -315,29 +327,10 @@ void Gui::applyCameraSettings()
         return qAbs(v1 - v2) > 0.1f;
     };
 
-    View* ActiveView = gMainWindow->GetActiveView();
-
-    lcCamera* Camera = ActiveView->mCamera;
-
-    float Latitude, Longitude, Distance;
-    Camera->GetAngles(Latitude, Longitude, Distance);
-
-    if (setTargetPositionAct->isChecked()) {
-        lcModel* ActiveModel = ActiveView->GetActiveModel();
-        if (ActiveModel && ActiveModel->AnyPiecesSelected()) {
-            lcVector3 Min(FLT_MAX, FLT_MAX, FLT_MAX), Max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-            if (ActiveModel->GetPiecesBoundingBox(Min, Max))
-            {
-               lcVector3 Target = (Min + Max) / 2.0f;
-               Camera->SetAngles(Latitude,Longitude,Distance,Target);
-            }
-        }
-    }
-
     emit messageSig(LOG_STATUS,QString("Setting Camera %1").arg(Camera->m_strName));
 
+    QString imageFileName;
     if (gStep){
-        SettingsMeta cameraMeta;
         int it = lcGetActiveProject()->GetImageType();
         switch(it){
         case Render::Mt::PLI:
@@ -362,48 +355,87 @@ void Gui::applyCameraSettings()
             cameraMeta.imageSize      = gStep->subModel.subModelMeta.imageSize;
             cameraMeta.target         = gStep->subModel.subModelMeta.target;
             break;
-        default:
+        default: /*Render::Mt::CSI:*/
             cameraMeta                = gStep->csiCameraMeta;
+            imageFileName             = gStep->pngName;
             break;
         }
+
         Where top = gStep->topOfStep();
         Where bottom = gStep->bottomOfStep();
 
-//        gStep->getStepLocation(top, bottom);
-
+        float Latitude, Longitude, Distance;
         Camera->GetAngles(Latitude, Longitude, Distance);
+
+        // get target position
+
+        bool applyTarget = !(Camera->mTargetPosition[0] == 0.0f  &&
+                             Camera->mTargetPosition[1] == 0.0f  &&
+                             Camera->mTargetPosition[2] == 0.0f) &&
+                             setTargetPositionAct->isChecked();
+        if (applyTarget) {
+            lcModel* ActiveModel = ActiveView->GetActiveModel();
+            if (ActiveModel && ActiveModel->AnyPiecesSelected()) {
+                lcVector3 Min(FLT_MAX, FLT_MAX, FLT_MAX), Max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+                if (ActiveModel->GetPiecesBoundingBox(Min, Max))
+                {
+                   lcVector3 Target = (Min + Max) / 2.0f;
+                   Camera->SetAngles(Latitude,Longitude,Distance,Target);
+                }
+            }
+        }
 
         beginMacro("CameraSettings");
 
         // execute first in last out
 
         // LeoCAD flips Y an Z axis so that Z is up and Y represents depth
-        cameraMeta.target.setValues(Camera->mTargetPosition[0],Camera->mTargetPosition[2],Camera->mTargetPosition[1]);
-        gStep->mi(it)->setMeta(top,bottom,&cameraMeta.target,true,1,true,false);
+        if (applyTarget) {
+            if (!imageFileName.isEmpty())
+                gui->clearStepCSICache(imageFileName);
+            cameraMeta.target.setValues(Camera->mTargetPosition[0],
+                                        Camera->mTargetPosition[2],
+                                        Camera->mTargetPosition[1]);
+            gStep->mi(it)->setMeta(top,bottom,&cameraMeta.target,true,1,true,false);
+        }
 
-        cameraMeta.modelScale.setValue(Camera->GetScale());
-        gStep->mi(it)->setMeta(top,bottom,&cameraMeta.modelScale,true,1,true,false);
+        if (useImageSizeAct->isChecked()) {
+            cameraMeta.imageSize.setValues(lcGetActiveProject()->GetImageWidth(),
+                                           lcGetActiveProject()->GetImageHeight());
+            gStep->mi(it)->setMeta(top,bottom,&cameraMeta.imageSize,true,1,true,false);
+        }
 
-        cameraMeta.cameraDistance.setValue(qRound(Distance));
-        gStep->mi(it)->setMeta(top,bottom,&cameraMeta.cameraDistance,true,1,true,false);
+        if (notEqual(Camera->GetScale(), cameraMeta.modelScale.value())) {
+            cameraMeta.modelScale.setValue(Camera->GetScale());
+            gStep->mi(it)->setMeta(top,bottom,&cameraMeta.modelScale,true,1,true,false);
+        }
 
-        cameraMeta.cameraAngles.setValues(Latitude, Longitude);
-        gStep->mi(it)->setMeta(top,bottom,&cameraMeta.cameraAngles,true,1,true,false);
+        if (notEqual(qRound(Distance), cameraMeta.cameraDistance.value()) &&
+            !useImageSizeAct->isChecked()) {
+            cameraMeta.cameraDistance.setValue(qRound(Distance));
+            gStep->mi(it)->setMeta(top,bottom,&cameraMeta.cameraDistance,true,1,true,false);
+        }
 
-        float zFar = validCameraValue(Camera->m_zFar,DefZFar);
+        if (notEqual(qRound(Latitude), cameraMeta.cameraAngles.value(0)) ||
+            notEqual(qRound(Longitude),cameraMeta.cameraAngles.value(1))) {
+            cameraMeta.cameraAngles.setValues(qRound(Latitude), qRound(Longitude));
+            gStep->mi(it)->setMeta(top,bottom,&cameraMeta.cameraAngles,true,1,true,false);
+        }
+
+        float zFar = validCameraValue(DefZFar);
         if (notEqual(cameraMeta.zfar.value(),zFar)) {
             cameraMeta.zfar.setValue(zFar);
             gStep->mi(it)->setMeta(top,bottom,&cameraMeta.zfar,true,1,true,false);
         }
 
-        float zNear = validCameraValue(Camera->m_zNear,DefZNear);
-        if (notEqual(cameraMeta.znear.value(),zNear)) {
+        float zNear = validCameraValue(DefZNear);
+        if (notEqual(cameraMeta.znear.value(), zNear)) {
             cameraMeta.znear.setValue(zNear);
             gStep->mi(it)->setMeta(top,bottom,&cameraMeta.znear,true,1,true,false);
         }
 
-        float fovy = validCameraValue(Camera->m_fovy,DefFoV);
-        if (notEqual(cameraMeta.cameraFoV.value(),fovy)) {
+        float fovy = validCameraValue(DefFoV);
+        if (notEqual(cameraMeta.cameraFoV.value(), fovy)) {
             cameraMeta.cameraFoV.setValue(fovy);
             gStep->mi(it)->setMeta(top,bottom,&cameraMeta.cameraFoV,true,1,true,false);
         }

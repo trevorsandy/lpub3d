@@ -443,7 +443,7 @@ Rc FloatXYZMeta::parse(QStringList &argv, int index,Where &here)
           _y[pushed] = y;
           _z[pushed] = z;
           _here[pushed] = here;
-          _populated    = true;
+          _populated    = !(x == 0.0f && y == 0.0f && z == 0.0f);
           return rc;
         }
     }

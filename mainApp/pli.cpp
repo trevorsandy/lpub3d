@@ -465,7 +465,7 @@ void Pli::setParts(
               QStringList attributes = segments.at(1).split(";");
               subType = segments.at(2).toInt();
               if (subType > PliBeginSub2Rc){
-                  modelScale = attributes.at(0).toDouble();
+                  modelScale = attributes.at(0).toFloat();
               }
               if (subType > PliBeginSub3Rc){
                   cameraFoV = attributes.at(1).toDouble();

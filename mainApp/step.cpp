@@ -404,7 +404,7 @@ int Step::createCsi(
          meta.LPub.assem.modelScale     = csiCameraMeta.modelScale;
          meta.LPub.assem.cameraFoV      = csiCameraMeta.cameraFoV;
          meta.LPub.assem.isOrtho        = csiCameraMeta.isOrtho;
-         meta.LPub.assem.imageSize  = csiCameraMeta.imageSize;
+         meta.LPub.assem.imageSize      = csiCameraMeta.imageSize;
          meta.LPub.assem.zfar           = csiCameraMeta.zfar;
          meta.LPub.assem.znear          = csiCameraMeta.znear;
          meta.LPub.assem.target         = csiCameraMeta.target;

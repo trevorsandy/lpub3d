@@ -596,12 +596,14 @@ void lcQPropertiesTree::slotReturnPressed()
 			lcVector3 Position = Center;
 			float Value = lcParseValueLocalized(Editor->text());
 
+/*** LPub3D Mod - Switch Y and Z axis ***/
 			if (Item == partPositionX)
 				Position[0] = Value;
 			else if (Item == partPositionY)
-				Position[1] = Value;
-			else if (Item == partPositionZ)
 				Position[2] = Value;
+			else if (Item == partPositionZ)
+				Position[1] = Value;
+/*** LPub3D Mod end ***/
 
 			lcVector3 Distance = Position - Center;
 
@@ -618,12 +620,14 @@ void lcQPropertiesTree::slotReturnPressed()
 
 			float Value = lcParseValueLocalized(Editor->text());
 
+/*** LPub3D Mod - Switch Y and Z axis ***/
 			if (Item == partRotationX)
 				Rotation[0] = Value;
 			else if (Item == partRotationY)
-				Rotation[1] = Value;
-			else if (Item == partRotationZ)
 				Rotation[2] = Value;
+			else if (Item == partRotationZ)
+				Rotation[1] = Value;
+/*** LPub3D Mod end ***/
 
 			Model->RotateSelectedPieces(Rotation - InitialRotation, true, false, true, true);
 		}
@@ -646,22 +650,34 @@ void lcQPropertiesTree::slotReturnPressed()
 
 		if (Camera)
 		{
+			const char* Name = "";
+			Name = Camera->GetName();
+			bool isDefault = Name && !Name[0];
+
 			if (Item == cameraPositionX || Item == cameraPositionY || Item == cameraPositionZ)
 			{
 				lcVector3 Center = Camera->mPosition;
 				lcVector3 Position = Center;
 				float Value = lcParseValueLocalized(Editor->text());
 
+/*** LPub3D Mod - Camera Globe, Switch Y and Z axis ***/
 				if (Item == cameraPositionX)
 					Position[0] = Value;
 				else if (Item == cameraPositionY)
-					Position[1] = Value;
-				else if (Item == cameraPositionZ)
 					Position[2] = Value;
+				else if (Item == cameraPositionZ)
+					Position[1] = Value;
+/*** LPub3D Mod end ***/
 
 				lcVector3 Distance = Position - Center;
 
-				Model->MoveSelectedObjects(Distance, Distance, false, false, true, true);
+/*** LPub3D Mod - Camera Globe  ***/
+				if (isDefault) {
+					Camera->mPosition = Position;
+					Model->MoveDefaultCamera(Camera, Distance);
+				} else
+/*** LPub3D Mod end ***/
+					Model->MoveSelectedObjects(Distance, Distance, false, false, true, true);
 			}
 			else if (Item == cameraTargetX || Item == cameraTargetY || Item == cameraTargetZ)
 			{
@@ -669,16 +685,24 @@ void lcQPropertiesTree::slotReturnPressed()
 				lcVector3 Position = Center;
 				float Value = lcParseValueLocalized(Editor->text());
 
+/*** LPub3D Mod - Camera Globe, Switch Y and Z axis ***/
 				if (Item == cameraTargetX)
 					Position[0] = Value;
 				else if (Item == cameraTargetY)
-					Position[1] = Value;
-				else if (Item == cameraTargetZ)
 					Position[2] = Value;
+				else if (Item == cameraTargetZ)
+					Position[1] = Value;
+/*** LPub3D Mod end ***/
 
 				lcVector3 Distance = Position - Center;
 
-				Model->MoveSelectedObjects(Distance, Distance, false, false, true, true);
+/*** LPub3D Mod - Camera Globe  ***/
+				if (isDefault) {
+					Camera->mTargetPosition = Position;
+					Model->MoveDefaultCamera(Camera, Distance);
+				} else
+/*** LPub3D Mod end ***/
+					Model->MoveSelectedObjects(Distance, Distance, false, false, true, true);
 			}
 			else if (Item == cameraUpX || Item == cameraUpY || Item == cameraUpZ)
 			{
@@ -686,16 +710,24 @@ void lcQPropertiesTree::slotReturnPressed()
 				lcVector3 Position = Center;
 				float Value = lcParseValueLocalized(Editor->text());
 
+/*** LPub3D Mod - Camera Globe, Switch Y and Z axis ***/
 				if (Item == cameraUpX)
 					Position[0] = Value;
 				else if (Item == cameraUpY)
-					Position[1] = Value;
-				else if (Item == cameraUpZ)
 					Position[2] = Value;
+				else if (Item == cameraUpZ)
+					Position[1] = Value;
+/*** LPub3D Mod end ***/
 
 				lcVector3 Distance = Position - Center;
 
-				Model->MoveSelectedObjects(Distance, Distance, false, false, true, true);
+/*** LPub3D Mod - Camera Globe  ***/
+				if (isDefault) {
+					Camera->mUpVector = Position;
+					Model->MoveDefaultCamera(Camera, Distance);
+				} else
+/*** LPub3D Mod end ***/
+					Model->MoveSelectedObjects(Distance, Distance, false, false, true, true);
 			}
 /*** LPub3D Mod - Camera Globe ***/
 			else if (Item == cameraGlobeLatitude || Item == cameraGlobeLongitude /*|| Item == cameraGlobeDistance*/)
@@ -708,11 +740,23 @@ void lcQPropertiesTree::slotReturnPressed()
 					Latitude = Value;
 				} else if (Item == cameraGlobeLongitude) {
 					Longitude = Value;
-				} /*else if (Item == cameraGlobeDistance) {
-					Distance = Value;
-				}*/
+				}
 
 				Model->SetCameraGlobe(Camera, Latitude, Longitude, Distance);
+			}
+			else if (Item == pictureImageSizeWidth || Item == pictureImageSizeHeight)
+			{
+				float Value = lcParseValueLocalized(Editor->text());
+
+				if (Item == pictureImageSizeWidth) {
+					lcGetActiveProject()->SetImageSize(
+								int(Value),
+								lcGetActiveProject()->GetImageHeight());
+				} else if (Item == pictureImageSizeHeight) {
+					lcGetActiveProject()->SetImageSize(
+								lcGetActiveProject()->GetImageWidth(),
+								int(Value));
+				}
 			}
 /*** LPub3D Mod end ***/
 			else if (Item == cameraFOV)
@@ -739,6 +783,10 @@ void lcQPropertiesTree::slotReturnPressed()
 
 				Model->SetCameraName(Camera, Value.toLocal8Bit().data());
 			}
+/*** LPub3D Mod - Camera Globe ***/
+			lcArray<lcObject*> Selection;
+			Update(Selection, Camera);
+/*** LPub3D Mod end ***/
 		}
 	}
 }
@@ -940,10 +988,10 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 /*** LPub3D Mod - Switch Y and Z axis ***/
 	partRotationX->setText(1, lcFormatValueLocalized(Rotation[0]));
 	partRotationX->setData(0, PropertyValueRole, Rotation[0]);
-	partRotationY->setText(1, lcFormatValueLocalized(Rotation[1]));
-	partRotationY->setData(0, PropertyValueRole, Rotation[1]);
-	partRotationZ->setText(1, lcFormatValueLocalized(Rotation[2]));
-	partRotationZ->setData(0, PropertyValueRole, Rotation[2]);
+	partRotationY->setText(1, lcFormatValueLocalized(Rotation[2]));
+	partRotationY->setData(0, PropertyValueRole, Rotation[2]);
+	partRotationZ->setText(1, lcFormatValueLocalized(Rotation[1]));
+	partRotationZ->setData(0, PropertyValueRole, Rotation[1]);
 /*** LPub3D Mod end ***/
 
 	lcStep Show = 0;
@@ -1084,8 +1132,8 @@ void lcQPropertiesTree::SetCamera(lcObject* Focus)
 		pictureResolution = addProperty(picture, tr("Resolution"), PropertyFloatReadOnly);
 		picturePageSizeWidth = addProperty(picture, tr("Page Width"), PropertyFloatReadOnly);
 		picturePageSizeHeight = addProperty(picture, tr("Page Height"), PropertyFloatReadOnly);
-		pictureImageSizeWidth = addProperty(picture, tr("Image Width"), PropertyFloatReadOnly);
-		pictureImageSizeHeight = addProperty(picture, tr("Image Height"), PropertyFloatReadOnly);
+		pictureImageSizeWidth = addProperty(picture, tr("Image Width"), PropertyFloat);
+		pictureImageSizeHeight = addProperty(picture, tr("Image Height"), PropertyFloat);
 /*** LPub3D Mod end ***/
 
 		mWidgetMode = LC_PROPERTY_WIDGET_CAMERA;
@@ -1098,15 +1146,15 @@ void lcQPropertiesTree::SetCamera(lcObject* Focus)
 	lcVector3 Target(0.0f, 0.0f, 0.0f);
 	lcVector3 UpVector(0.0f, 0.0f, 0.0f);
 /*** LPub3D Mod - Camera Globe ***/
-	float Latitude = 0.0f;
-	float Longitude = 0.0f;
-	float Distance = 0.0f;
-	float ModelScale = 0.0f;
-	float Resolution = 0.0f;
-	float PageSizeWidth = 0.0f;
-	float PageSizeHeight = 0.0f;
-	float ImageSizeWidth = 0.0f;
-	float ImageSizeHeight = 0.0f;
+	float Latitude      = 0.0f;
+	float Longitude     = 0.0f;
+	float ModelScale    = 0.0f;
+	float Distance      = 0.0f;
+	float Resolution    = 0.0f;
+	int PageSizeWidth   = 0;
+	int PageSizeHeight  = 0;
+	int ImageSizeWidth  = 0;
+	int ImageSizeHeight = 0;
 /*** LPub3D Mod end ***/
 	bool Ortho = false;
 	float FoV = 60.0f;
@@ -1114,18 +1162,20 @@ void lcQPropertiesTree::SetCamera(lcObject* Focus)
 	float ZNear = 1.0f;
 	float ZFar = 100.0f;
 	const char* Name = "";
-	float LPub3D_FoV = FoV;
+/*** LPub3D Mod - Camera Globe ***/
+	float LPub3D_FoV   = FoV;
 	float LPub3D_ZNear = ZNear;
-	float LPub3D_ZFar = ZFar;
-
+	float LPub3D_ZFar  = ZFar;
+/*** LPub3D Mod end ***/
 	if (Camera)
 	{
 /*** LPub3D Mod - Camera Globe ***/
 		Camera->GetAngles(Latitude,Longitude,Distance);
+
+		Position = normalizeDegrees(Camera->mPosition);
+		Target   = normalizeDegrees(Camera->mTargetPosition);
+		UpVector = normalizeDegrees(Camera->mUpVector);
 /*** LPub3D Mod end ***/
-		Position = Camera->mPosition;
-		Target = Camera->mTargetPosition;
-		UpVector = Camera->mUpVector;
 
 		Ortho = Camera->IsOrtho();
 		FoV = Camera->m_fovy;
@@ -1135,15 +1185,15 @@ void lcQPropertiesTree::SetCamera(lcObject* Focus)
 /*** LPub3D Mod - Camera Globe ***/
 		if (Name && !Name[0])
 			Name = "Default";
-		ModelScale = Camera->GetScale();
-		Resolution = lcGetActiveProject()->GetResolution();
-		PageSizeWidth = lcGetActiveProject()->GetPageWidth();
-		PageSizeHeight = lcGetActiveProject()->GetPageHeight();
-		ImageSizeWidth = lcGetActiveProject()->GetImageWidth();
+		ModelScale      = Camera->GetScale();
+		Resolution      = lcGetActiveProject()->GetResolution();
+		PageSizeWidth   = lcGetActiveProject()->GetPageWidth();
+		PageSizeHeight  = lcGetActiveProject()->GetPageHeight();
+		ImageSizeWidth  = lcGetActiveProject()->GetImageWidth();
 		ImageSizeHeight = lcGetActiveProject()->GetImageHeight();
-		LPub3D_FoV = FoV + CAMERA_FOV_DEFAULT - CAMERA_FOV_NATIVE_DEFAULT;
-		LPub3D_ZNear = ZNear + CAMERA_ZNEAR_DEFAULT - CAMERA_ZNEAR_NATIVE_DEFAULT;
-		LPub3D_ZFar = ZFar + CAMERA_ZFAR_DEFAULT - CAMERA_ZFAR_NATIVE_DEFAULT;
+		LPub3D_FoV      = FoV   + CAMERA_FOV_DEFAULT   - CAMERA_FOV_NATIVE_DEFAULT;
+		LPub3D_ZNear    = ZNear + CAMERA_ZNEAR_DEFAULT - CAMERA_ZNEAR_NATIVE_DEFAULT;
+		LPub3D_ZFar     = ZFar  + CAMERA_ZFAR_DEFAULT  - CAMERA_ZFAR_NATIVE_DEFAULT;
 /*** LPub3D Mod end ***/
 	}
 
@@ -1152,30 +1202,36 @@ void lcQPropertiesTree::SetCamera(lcObject* Focus)
 	cameraGlobeLatitude->setData(0, PropertyValueRole, Latitude);
 	cameraGlobeLongitude->setText(1, lcFormatValueLocalized(Longitude));
 	cameraGlobeLongitude->setData(0, PropertyValueRole, Longitude);
-	cameraGlobeDistance->setText(1, lcFormatValueLocalized(Distance));
-	cameraGlobeDistance->setData(0, PropertyValueRole, Distance);
+	cameraGlobeDistance->setText(1, lcFormatValueLocalized(qRound(Distance)));
+	cameraGlobeDistance->setData(0, PropertyValueRole, qRound(Distance));
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - Camera Globe, Switch Y and Z axis ***/
 	cameraPositionX->setText(1, lcFormatValueLocalized(Position[0]));
 	cameraPositionX->setData(0, PropertyValueRole, Position[0]);
-	cameraPositionY->setText(1, lcFormatValueLocalized(Position[1]));
-	cameraPositionY->setData(0, PropertyValueRole, Position[1]);
-	cameraPositionZ->setText(1, lcFormatValueLocalized(Position[2]));
-	cameraPositionZ->setData(0, PropertyValueRole, Position[2]);
+	cameraPositionY->setText(1, lcFormatValueLocalized(Position[2]));
+	cameraPositionY->setData(0, PropertyValueRole, Position[2]);
+	cameraPositionZ->setText(1, lcFormatValueLocalized(Position[1]));
+	cameraPositionZ->setData(0, PropertyValueRole, Position[1]);
+/*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - Camera Globe, Switch Y and Z axis ***/
 	cameraTargetX->setText(1, lcFormatValueLocalized(Target[0]));
 	cameraTargetX->setData(0, PropertyValueRole, Target[0]);
-	cameraTargetY->setText(1, lcFormatValueLocalized(Target[1]));
-	cameraTargetY->setData(0, PropertyValueRole, Target[1]);
-	cameraTargetZ->setText(1, lcFormatValueLocalized(Target[2]));
-	cameraTargetZ->setData(0, PropertyValueRole, Target[2]);
+	cameraTargetY->setText(1, lcFormatValueLocalized(Target[2]));
+	cameraTargetY->setData(0, PropertyValueRole, Target[2]);
+	cameraTargetZ->setText(1, lcFormatValueLocalized(Target[1]));
+	cameraTargetZ->setData(0, PropertyValueRole, Target[1]);
+/*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - Camera Globe, Switch Y and Z axis ***/
 	cameraUpX->setText(1, lcFormatValueLocalized(UpVector[0]));
 	cameraUpX->setData(0, PropertyValueRole, UpVector[0]);
-	cameraUpY->setText(1, lcFormatValueLocalized(UpVector[1]));
-	cameraUpY->setData(0, PropertyValueRole, UpVector[1]);
-	cameraUpZ->setText(1, lcFormatValueLocalized(UpVector[2]));
-	cameraUpZ->setData(0, PropertyValueRole, UpVector[2]);
+	cameraUpY->setText(1, lcFormatValueLocalized(UpVector[2]));
+	cameraUpY->setData(0, PropertyValueRole, UpVector[2]);
+	cameraUpZ->setText(1, lcFormatValueLocalized(UpVector[1]));
+	cameraUpZ->setData(0, PropertyValueRole, UpVector[1]);
+/*** LPub3D Mod end ***/
 
 	cameraOrtho->setText(1, Ortho ? "True" : "False");
 	cameraOrtho->setData(0, PropertyValueRole, Ortho);

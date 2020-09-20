@@ -528,10 +528,9 @@ int POVRay::renderCsi(
   /* determine camera distance */
   int cd = int(meta.LPub.assem.cameraDistance.value());
   if (cd){
-      logDebug() << QString("\nDEBUG - CUSTOM CAMERA DISTANCE: %1").arg(cd);
-      cd = (cd*0.455)*1700/1000;
+      cd = int((cd*0.455)*1700/1000);
   } else {
-      cd = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
+      cd = int(cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000);
   }
 
   /* apply camera angle */
@@ -546,9 +545,9 @@ int POVRay::renderCsi(
                        .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(0)))
                        .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(1)))
                        .arg(QString::number(pp ? cd * LP3D_CDF : cd,'f',0));
-
-  int studLogo = meta.LPub.assem.studLogo.value();
-  QString sl = QString("-StudLogo=%1") .arg(studLogo);
+  QString sl = meta.LPub.assem.studLogo.value() ?
+                         QString("-StudLogo=%1")
+                                 .arg(meta.LPub.assem.studLogo.value()) : QString();
   QString m  = meta.LPub.assem.target.isPopulated() ?
                          QString("-ModelCenter=%1,%2,%3")
                                  .arg(double(meta.LPub.assem.target.x()))
@@ -562,22 +561,16 @@ int POVRay::renderCsi(
   QString o  = QString("-HaveStdOut=1");
   QString v  = QString("-vv");
 
+  // projection settings
+  QString df = QString("-FOV=%1").arg(double(meta.LPub.assem.cameraFoV.value()));
+  QString dz = QString("-DefaultZoom=%1").arg(double(meta.LPub.assem.modelScale.value()));
+  bool pl    = false, pf = false, pz = false, pd = false;
+  qreal cdf  = LP3D_CDF;
+
   QStringList arguments;
   arguments << CA;
   arguments << cg;
-  if (studLogo)
-        arguments << sl;
-  arguments << m;
-  arguments << w;
-  arguments << h;
-  arguments << f;
-  arguments << l;
-
-  // projection settings
-  qreal cdf = LP3D_CDF;
-  bool pl = false, pf = false, pz = false, pd = false;
-  QString df = QString("-FOV=%1").arg(double(meta.LPub.assem.cameraFoV.value()));
-  QString dz = QString("-DefaultZoom=%1").arg(1.0);
+  arguments << sl;
 
   // additional LDView parameters;
   list = meta.LPub.assem.ldviewParms.value().split(' ');
@@ -616,6 +609,30 @@ int POVRay::renderCsi(
   if (list.size())
       emit gui->messageSig(LOG_INFO,QMessageBox::tr("LDView additional POV-Ray CSI renderer parameters: %1")
                            .arg(list.join(" ")));
+
+  // Set alternate target position or use specified image size
+  if ((!m.isEmpty() && !pl) || (useImageSize && m.isEmpty())){
+    arguments.removeAt(arguments.indexOf(cg));      // remove camera globe
+    QString dl;
+    dl = QString("-DefaultLatLong=%1,%2")
+                  .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(0)))
+                  .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(1)));
+    dz = QString("-DefaultZoom=%1").arg(double(meta.LPub.assem.modelScale.value()));
+    addArgument(arguments, dl, "-DefaultLatLong");
+    addArgument(arguments, dz, "-DefaultZoom");
+
+    // Set zoom to fit when image size specified
+    if (useImageSize && m.isEmpty()){
+      QString sz = QString("-SaveZoomToFit=1");
+      addArgument(arguments, sz, "SaveZoomToFit");
+    }
+  }
+
+  arguments << m;
+  arguments << w;
+  arguments << h;
+  arguments << f;
+  arguments << l;
 
   if (!Preferences::altLDConfigPath.isEmpty()) {
      QString altldc = "-LDConfig=" + Preferences::altLDConfigPath;
@@ -828,10 +845,9 @@ int POVRay::renderPli(
   /* determine camera distance */
   int cd = int(metaType.cameraDistance.value());
   if (cd){
-      logDebug() << QString("\nDEBUG - CUSTOM CAMERA DISTANCE: %1").arg(cd);
-      cd = (cd*0.455)*1700/1000;
+      cd = int((cd*0.455)*1700/1000);
   } else {
-      cd = (cameraDistance(meta,modelScale))*1700/1000;
+      cd = int((cameraDistance(meta,modelScale))*1700/1000);
   }
 
 
@@ -847,14 +863,14 @@ int POVRay::renderPli(
                                       .arg(noCA ? 0.0 : double(cameraAngleY))
                                       .arg(QString::number(pp ? cd * LP3D_CDF : cd,'f',0));
 
-  int studLogo = meta.LPub.assem.studLogo.value();
-  QString sl = QString("-StudLogo=%1") .arg(studLogo);
-  QString m  = meta.LPub.assem.target.isPopulated() ?
+  QString m  = metaType.target.isPopulated() ?
                          QString("-ModelCenter=%1,%2,%3")
                                  .arg(double(metaType.target.x()))
                                  .arg(double(metaType.target.y()))
                                  .arg(double(metaType.target.z())) : QString();
-
+  QString sl = metaType.studLogo.value() ?
+                         QString("-StudLogo=%1")
+                                 .arg(metaType.studLogo.value()) : QString();
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
   QString f  = QString("-ExportFile=%1") .arg(povName);  // -ExportSuffix not required
@@ -862,22 +878,16 @@ int POVRay::renderPli(
   QString o  = QString("-HaveStdOut=1");
   QString v  = QString("-vv");
 
+  // projection settings
+  QString df = QString("-FOV=%1").arg(double(cameraFov));
+  QString dz = QString("-DefaultZoom=%1").arg(double(metaType.modelScale.value()));
+  bool pl    = false, pf = false, pz = false, pd = false;
+  qreal cdf  = LP3D_CDF;
+
   QStringList arguments;
   arguments << CA;
   arguments << cg;
-  if (studLogo)
-      arguments << sl;
-  arguments << m;
-  arguments << w;
-  arguments << h;
-  arguments << f;
-  arguments << l;
-
-  // projection settings
-  qreal cdf = LP3D_CDF;
-  bool pl = false, pf = false, pz = false, pd = false;
-  QString df = QString("-FOV=%1").arg(double(cameraFov));
-  QString dz = QString("-DefaultZoom=%1").arg(1.0);
+  arguments << sl;
 
   // additional LDView parameters;
   list = metaType.ldviewParms.value().split(' ');
@@ -916,6 +926,30 @@ int POVRay::renderPli(
   if (list.size())
       emit gui->messageSig(LOG_INFO,QMessageBox::tr("LDView additional POV-Ray PLI renderer parameters: %1")
                            .arg(list.join(" ")));
+
+  // Set alternate target position or use specified image size
+  if ((!m.isEmpty() && !pl) || (useImageSize && m.isEmpty())){
+    arguments.removeAt(arguments.indexOf(cg));      // remove camera globe
+    QString dl;
+    dl = QString("-DefaultLatLong=%1,%2")
+                  .arg(noCA ? 0.0 : double(metaType.cameraAngles.value(0)))
+                  .arg(noCA ? 0.0 : double(metaType.cameraAngles.value(1)));
+    dz = QString("-DefaultZoom=%1").arg(double(metaType.modelScale.value()));
+    addArgument(arguments, dl, "-DefaultLatLong");
+    addArgument(arguments, dz, "-DefaultZoom");
+
+    // Set zoom to fit when image size specified
+    if (useImageSize && m.isEmpty()){
+      QString sz = QString("-SaveZoomToFit=1");
+      addArgument(arguments, sz, "SaveZoomToFit");
+    }
+  }
+
+  arguments << m;
+  arguments << w;
+  arguments << h;
+  arguments << f;
+  arguments << l;
 
   if (!Preferences::altLDConfigPath.isEmpty()) {
      QString altldc = "-LDConfig=" + Preferences::altLDConfigPath;
@@ -1125,10 +1159,9 @@ int LDGLite::renderCsi(
   /* determine camera distance */
   int cd = int(meta.LPub.assem.cameraDistance.value());
   if (cd){
-      cd = meta.LPub.assem.cameraDistance.value();
-      logDebug() << QString("\nDEBUG - CUSTOM CAMERA DISTANCE: %1").arg(cd);
+      cd = int(meta.LPub.assem.cameraDistance.value());
   } else {
-      cd = cameraDistance(meta,meta.LPub.assem.modelScale.value());
+      cd = int(cameraDistance(meta,meta.LPub.assem.modelScale.value()));
   }
 
   /* apply camera angle */
@@ -1163,9 +1196,9 @@ int LDGLite::renderCsi(
                                  .arg(double(meta.LPub.assem.target.x()))
                                  .arg(double(meta.LPub.assem.target.y()))
                                  .arg(double(meta.LPub.assem.target.z())) : QString();
-
-  int studLogo = meta.LPub.assem.studLogo.value();
-  QString sl = QString("-sl%1") .arg(studLogo);
+  QString sl = meta.LPub.assem.studLogo.value() ?
+                         QString("-sl%1")
+                                 .arg(meta.LPub.assem.studLogo.value()) : QString();
 
   QStringList arguments;
   arguments << CA;                  // camera FOV in degrees
@@ -1175,8 +1208,7 @@ int LDGLite::renderCsi(
   arguments << v;                   // display in X wide by Y high window
   arguments << o;                   // changes the centre X across and Y down
   arguments << w;                   // line thickness
-  if (studLogo)
-      arguments << sl;              // stud logo
+  arguments << sl;                  // stud logo
 
   QStringList list;
   // First, load parms from meta if any
@@ -1289,10 +1321,9 @@ int LDGLite::renderPli(
   /* determine camera distance */
   int cd = int(metaType.cameraDistance.value());
   if (cd){
-      cd = metaType.cameraDistance.value();
-      logDebug() << QString("\nDEBUG - CUSTOM CAMERA DISTANCE: %1").arg(cd);
+      cd = int(metaType.cameraDistance.value());
   } else {
-      cd = cameraDistance(meta,modelScale);
+      cd = int(cameraDistance(meta,modelScale));
   }
 
   bool useImageSize = !(metaType.imageSize.value(0) == 0.0f && metaType.imageSize.value(1) == 0.0f);
@@ -1316,14 +1347,14 @@ int LDGLite::renderPli(
   QString mf = QString("-mF%1")     .arg(pngName);
   QString w  = QString("-W%1")      .arg(lineThickness);  // ldglite always deals in 72 DPI
 
-  QString m  = meta.LPub.assem.target.isPopulated() ?
+  QString m  = metaType.target.isPopulated() ?
                          QString("-co%1,%2,%3")
                                  .arg(double(metaType.target.x()))
                                  .arg(double(metaType.target.y()))
                                  .arg(double(metaType.target.z())) : QString();
-
-  int studLogo = meta.LPub.assem.studLogo.value();
-  QString sl = QString("-sl%1") .arg(studLogo);
+  QString sl = metaType.studLogo.value() ?
+                         QString("-sl%1")
+                                 .arg(metaType.studLogo.value()) : QString();
 
   QStringList arguments;
   arguments << CA;                  // Camera FOV in degrees
@@ -1333,8 +1364,7 @@ int LDGLite::renderPli(
   arguments << v;                   // display in X wide by Y high window
   arguments << o;                   // changes the centre X across and Y down
   arguments << w;                   // line thickness
-  if (studLogo)
-      arguments << sl;              // stud logo
+  arguments << sl;                  // stud logo
 
   QStringList list;
   // First, load additional parms from meta if any
@@ -1459,10 +1489,9 @@ int LDView::renderCsi(
     /* determine camera distance */
     int cd = int(meta.LPub.assem.cameraDistance.value());
     if (cd){
-        cd = cd*0.775*1700/1000;
-        logDebug() << QString("\nDEBUG - CUSTOM CAMERA DISTANCE: %1").arg(cd);
+        cd = int(cd*0.775*1700/1000);
     } else {
-        cd = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
+        cd = int(cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000);
     }
 
     /* apply camera angle */
@@ -1565,41 +1594,32 @@ int LDView::renderCsi(
                                  .arg(double(meta.LPub.assem.target.x()))
                                  .arg(double(meta.LPub.assem.target.y()))
                                  .arg(double(meta.LPub.assem.target.z())) : QString();
-
-  int studLogo = meta.LPub.assem.studLogo.value();
-  QString sl = QString("-StudLogo=%1") .arg(studLogo);
+  QString sl = meta.LPub.assem.studLogo.value() ?
+                         QString("-StudLogo=%1")
+                                 .arg(meta.LPub.assem.studLogo.value()) : QString();
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
   QString l  = QString("-LDrawDir=%1")   .arg(Preferences::ldrawLibPath);
   QString o  = QString("-HaveStdOut=1");
   QString v  = QString("-vv");
 
+  // projection settings
+  QString df = QString("-FOV=%1").arg(double(meta.LPub.assem.cameraFoV.value()));
+  QString dz = QString("-DefaultZoom=%1").arg(double(meta.LPub.assem.modelScale.value()));
+  bool pl = false, pf = false, pz = false, pd = false;
+  qreal cdf = LP3D_CDF;
+
   QStringList arguments;
   arguments << CA;                        // 00. Camera FOV in degrees
   arguments << cg;                        // 01. Camera globe
-  if (studLogo)
-      arguments << sl;              // stud logo
-  arguments << m;                         // 03. model origin for the camera to look at
-  arguments << w;                         // 04. SaveWidth
-  arguments << h;                         // 05. SaveHeight
-  arguments << f;                         // 06. SaveSnapshot/SaveSnapshots/SaveSnapshotsList
-  arguments << l;                         // 07. LDrawDir
-  arguments << o;                         // 08. HaveStdOut
-  arguments << v;                         // 09. Verbose
+  arguments << sl;                        // stud logo
 
 //  QString a  = QString("-AutoCrop=1");
 //  if (!enableIM)
 //    arguments.insert(2,a);                // 02. AutoCrop On if IM Off
 
-  // projection settings
-  qreal cdf = LP3D_CDF;
-  bool pl = false, pf = false, pz = false, pd = false;
-  QStringList cgl;
-  QString df = QString("-FOV=%1").arg(double(meta.LPub.assem.cameraFoV.value()));
-  QString dz = QString("-DefaultZoom=%1").arg(1.0);
-
   // additional LDView parameters;
-  QStringList ldviewParmslist;
+  QStringList cgl,ldviewParmslist;
   ldviewParmslist = meta.LPub.assem.ldviewParms.value().split(' ');
   for (int i = 0; i < ldviewParmslist.size(); i++) {
     if (ldviewParmslist[i] != "" && ldviewParmslist[i] != " ") {
@@ -1632,6 +1652,33 @@ int LDView::renderCsi(
       arguments.replace(arguments.indexOf(cg),cgl.join(","));
     }
   }
+
+  // Set alternate target position or use specified image size
+  if ((!m.isEmpty() && !pl) || (useImageSize && m.isEmpty())){
+    arguments.removeAt(arguments.indexOf(cg));      // remove camera globe
+    QString dl;
+    dl = QString("-DefaultLatLong=%1,%2")
+                  .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(0)))
+                  .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(1)));
+    dz = QString("-DefaultZoom=%1").arg(double(meta.LPub.assem.modelScale.value()));
+    addArgument(arguments, dl, "-DefaultLatLong");
+    addArgument(arguments, dz, "-DefaultZoom");
+
+    // Set zoom to fit when image size specified
+    if (useImageSize && m.isEmpty()){
+      QString sz = QString("-SaveZoomToFit=1");
+      addArgument(arguments, sz, "SaveZoomToFit");
+    }
+  }
+
+  arguments << m;                         // 03. model origin for the camera to look at
+  arguments << w;                         // 04. SaveWidth
+  arguments << h;                         // 05. SaveHeight
+  arguments << f;                         // 06. SaveSnapshot/SaveSnapshots/SaveSnapshotsList
+  arguments << l;                         // 07. LDrawDir
+  arguments << o;                         // 08. HaveStdOut
+  arguments << v;                         // 09. Verbose
+
   if (ldviewParmslist.size())
       emit gui->messageSig(LOG_INFO,QMessageBox::tr("LDView additional CSI renderer parameters: %1")
                            .arg(ldviewParmslist.join(" ")));
@@ -1774,10 +1821,9 @@ int LDView::renderPli(
   /* determine camera distance */
   int cd = int(metaType.cameraDistance.value());
   if (cd){
-      cd = cd*0.775*1700/1000;
-      logDebug() << QString("\nDEBUG - CUSTOM CAMERA DISTANCE: %1").arg(cd);
+      cd = int(cd*0.775*1700/1000);
   } else {
-      cd = cameraDistance(meta,modelScale)*1700/1000;
+      cd = int(cameraDistance(meta,modelScale)*1700/1000);
   }
 
   //qDebug() << "LDView (Default) Camera Distance: " << cd;
@@ -1791,11 +1837,10 @@ int LDView::renderPli(
   bool pl = false, pf = false, pz = false, pd = false;
   QString dl;
   QString df = QString("-FOV=%1").arg(double(cameraFov));
-  QString dz = QString("-DefaultZoom=%1").arg(1.0);
+  QString dz = QString("-DefaultZoom=%1").arg(double(metaType.modelScale.value()));
 
   // additional LDView parameters;
-  QStringList ldviewParmslist;
-  QStringList ldviewParmsArgs;
+  QStringList ldviewParmsArgs,ldviewParmslist;
   ldviewParmslist = metaType.ldviewParms.value().split(' ');
   for (int i = 0; i < ldviewParmslist.size(); i++) {
     if (ldviewParmslist[i] != "" && ldviewParmslist[i] != " ") {
@@ -1967,9 +2012,10 @@ int LDView::renderPli(
   int width  = useImageSize ? int(metaType.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
   int height = useImageSize ? int(metaType.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
 
-  int studLogo = meta.LPub.assem.studLogo.value();
-  QString sl = QString("-StudLogo=%1") .arg(studLogo);
-  QString m  = meta.LPub.assem.target.isPopulated() ?
+  QString sl = metaType.studLogo.value() ?
+                         QString("-StudLogo=%1")
+                                 .arg(metaType.studLogo.value()) : QString();
+  QString m  = metaType.target.isPopulated() ?
                          QString("-ModelCenter=%1,%2,%3")
                                  .arg(double(metaType.target.x()))
                                  .arg(double(metaType.target.y()))
@@ -1996,9 +2042,27 @@ int LDView::renderPli(
                          .arg(ldviewParmsArgs.join(" ")));
   }
 
-  if (studLogo)
-      arguments << sl;
+  arguments << sl;
   arguments << m;
+
+  // Set alternate target position or use specified image size
+  if ((!m.isEmpty() && !pl) || (useImageSize && m.isEmpty())){
+    arguments.removeAt(arguments.indexOf(cg));      // remove camera globe
+    QString dl;
+    dl = QString("-DefaultLatLong=%1,%2")
+                  .arg(noCA ? 0.0 : double(metaType.cameraAngles.value(0)))
+                  .arg(noCA ? 0.0 : double(metaType.cameraAngles.value(1)));
+    dz = QString("-DefaultZoom=%1").arg(double(metaType.modelScale.value()));
+    addArgument(arguments, dl, "-DefaultLatLong");
+    addArgument(arguments, dz, "-DefaultZoom");
+
+    // Set zoom to fit when image size specified
+    if (useImageSize && m.isEmpty()){
+      QString sz = QString("-SaveZoomToFit=1");
+      addArgument(arguments, sz, "SaveZoomToFit");
+    }
+  }
+
   arguments << w;
   arguments << h;
   arguments << f;
@@ -2213,10 +2277,9 @@ int Native::renderCsi(
               /* determine camera distance */
               int cd = int(meta.LPub.assem.cameraDistance.value());
               if (cd){
-                  logDebug() << QString("\nDEBUG - CUSTOM CAMERA DISTANCE: %1").arg(cd);
-                  cd = cd*0.775*1700/1000;
+                  cd = int(cd*0.775*1700/1000);
               } else {
-                  cd = cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000;
+                  cd = int(cameraDistance(meta,meta.LPub.assem.modelScale.value())*1700/1000);
               }
 
               /* apply camera angles */
@@ -2357,7 +2420,7 @@ bool Render::ExecuteViewer(const NativeOptions &O, bool Export/*false*/){
                 O.ImageType,
                 O.ImageWidth,
                 O.ImageHeight,
-                Export ? O.ImageHeight : O.PageWidth,
+                Export ? O.ImageWidth : O.PageWidth,
                 Export ? O.ImageHeight : O.PageHeight,
                 O.ImageFileName,
                 O.Resolution,
@@ -2383,37 +2446,45 @@ bool Render::ExecuteViewer(const NativeOptions &O, bool Export/*false*/){
     if (O.UsingViewpoint) {   // ViewPoints (Front, Back, Top, Bottom, Left, Right, Home)
         ActiveView->SetViewpoint(lcViewpoint(gApplication->mPreferences.mNativeViewpoint));
     } else {                  // Default View (Angles + Distance + Perspective|Orthographic)
-        auto validCameraValue = [] (const float value, const CamFlag flag)
+        auto validCameraValue = [&O, &Camera] (const CamFlag flag)
         {
             if (Preferences::usingNativeRenderer)
-                return value;
+                return flag == DefFoV ?
+                            Camera->m_fovy :
+                       flag == DefZNear ?
+                            Camera->m_zNear : Camera->m_zFar;
 
             float result;
             switch (flag)
             {
             case DefFoV:
-                result = value + CAMERA_FOV_NATIVE_DEFAULT - CAMERA_FOV_DEFAULT;
+                // e.g.  0.01  + 30.0           - 0.01
+                result = O.FoV + Camera->m_fovy - CAMERA_FOV_DEFAULT;
                 break;
             case DefZNear:
-                result = value + CAMERA_ZNEAR_NATIVE_DEFAULT - CAMERA_ZNEAR_DEFAULT;
+                // e.g.     10.0 +            25.0 - 10.0
+                result = O.ZNear + Camera->m_zNear - CAMERA_ZNEAR_DEFAULT;
                 break;
             case DefZFar:
-                result = value + CAMERA_ZFAR_NATIVE_DEFAULT - CAMERA_ZFAR_DEFAULT;
+                // e.g.  4000.0 + 50000.0         - 4000.0
+                result = O.ZFar + Camera->m_zFar  - CAMERA_ZFAR_DEFAULT;
                 break;
             }
 
             return result;
         };
 
-        Camera->m_fovy  = validCameraValue(O.FoV,DefFoV);
-        Camera->m_zNear = validCameraValue(O.ZNear,DefZNear);
-        Camera->m_zFar  = validCameraValue(O.ZFar,DefZFar);
+        if (Export) {
+            Camera->m_fovy  = validCameraValue(DefFoV);
+            Camera->m_zNear = validCameraValue(DefZNear);
+            Camera->m_zFar  = validCameraValue(DefZFar);
+        }
 
-        bool NoCamera   = O.CameraName.isEmpty();
-        bool IsOrtho = NoCamera ? gApplication->mPreferences.mNativeProjection : O.IsOrtho;
-        ActiveView->SetProjection(IsOrtho);
-
+        bool NoCamera    = O.CameraName.isEmpty();
+        bool IsOrtho     = NoCamera ? gApplication->mPreferences.mNativeProjection : O.IsOrtho;
         bool ZoomExtents = !Export && IsOrtho;
+
+        ActiveView->SetProjection(IsOrtho);
         ActiveView->SetCameraGlobe(O.Latitude, O.Longitude, O.CameraDistance, Target, ZoomExtents);
     }
 

@@ -43,8 +43,8 @@ enum lcTransformType
 /*** LPub3D Mod - coord format ***/
 enum lcRotateStepCoordType
 {
-    LC_ROTATESTEP_COORD_FORMAT_LDRAW,
-    LC_ROTATESTEP_COORD_FORMAT_LEOCAD
+	LC_ROTATESTEP_COORD_FORMAT_LDRAW,
+	LC_ROTATESTEP_COORD_FORMAT_LEOCAD
 };
 /*** LPub3D Mod end ***/
 
@@ -317,6 +317,9 @@ public:
 	void ZoomExtents(lcCamera* Camera, float Aspect);
 	void Zoom(lcCamera* Camera, float Amount);
 
+/*** LPub3D Mod - Camera Globe ***/
+	void MoveDefaultCamera(lcCamera *Camera, const lcVector3& ObjectDistance);
+/*** LPub3D Mod end ***/
 	void MoveSelectedObjects(const lcVector3& Distance, bool Relative, bool AlternateButtonDrag, bool Update, bool Checkpoint)
 	{
 		MoveSelectedObjects(Distance, Distance, Relative, AlternateButtonDrag, Update, Checkpoint);

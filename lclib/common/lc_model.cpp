@@ -2313,6 +2313,24 @@ void lcModel::RenamePiece(PieceInfo* Info)
 			Piece->UpdateID();
 }
 
+/*** LPub3D Mod - Camera Globe ***/
+void lcModel::MoveDefaultCamera(lcCamera *Camera, const lcVector3& ObjectDistance)
+{
+    if (ObjectDistance.LengthSquared() >= 0.001f)
+    {
+        lcMatrix33 RelativeRotation = lcMatrix33Identity();
+        lcVector3 TransformedObjectDistance = lcMul(ObjectDistance, RelativeRotation);
+
+        Camera->MoveSelected(mCurrentStep, gMainWindow->GetAddKeys(), TransformedObjectDistance);
+        Camera->UpdatePosition(mCurrentStep);
+
+        gMainWindow->UpdateAllViews();
+        SaveCheckpoint(tr("MovingDefaultCamera"));
+        gMainWindow->UpdateDefaultCamera(Camera);
+    }
+}
+/*** LPub3D Mod end ***/
+
 void lcModel::MoveSelectionToModel(lcModel* Model)
 {
 	if (!Model)
