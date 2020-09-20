@@ -63,6 +63,7 @@ class Preferences
     static void updatePOVRayConfFile(UpdateFlag);
     static void updatePOVRayIniFile(UpdateFlag);
     static void updatePOVRayConfigFiles();
+    static bool isBlender28OrLater();
 
     static void setLPub3DAltLibPreferences(const QString &);
     static bool checkLDrawLibrary(const QString &);
@@ -99,7 +100,9 @@ class Preferences
     static void setSceneRulerTickColorPreference(QString);
     static void setSceneRulerTrackingColorPreference(QString);
     static void setSceneGuideColorPreference(QString);
-    static void setDebugLogging(bool);
+    static void setBlenderExePathPreference(QString);
+    static void setBlenderVersionPreference(QString);
+    static void setDebugLogging(bool); 
 
     static QString lpub3dAppName;
     static QString ldrawLibPath;
@@ -174,6 +177,11 @@ class Preferences
     static QString excludedPartsFile;
     static QString ldrawColourPartsFile;
 
+    static QString blenderVersion;
+    static QString blenderRenderConfigFile;
+    static QString blenderDocumentConfigFile;
+    static QString blenderExe;
+
     static QString blCodesFile;
     static QString legoElementsFile;
     static QString blColorsFile;
@@ -234,6 +242,8 @@ class Preferences
     static bool    perspectiveProjection;
     static bool    saveOnRedraw;
     static bool    saveOnUpdate;
+    static bool    defaultBlendFile;
+    static bool    blenderIs28OrLater;
 
     static bool    includeLogLevel;
     static bool    includeTimestamp;

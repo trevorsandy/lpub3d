@@ -613,73 +613,73 @@ public slots:
    void spacingChanged(double);
 };
 
-/*********************************************************************** 
- * 
- * RotStep 
- * 
- **********************************************************************/ 
- 
-class RotStepData; 
-class RotStepGui : public MetaGui 
-{ 
-  Q_OBJECT 
-public: 
- 
-  RotStepGui(RotStepMeta   *meta, 
-    QGroupBox     *parent = nullptr); 
-  ~RotStepGui() {} 
- 
-  virtual void apply(QString &modelName); 
- 
-private: 
-  RotStepMeta     *meta; 
- 
-  QDoubleSpinBox  *rotStepSpinX; 
-  QDoubleSpinBox  *rotStepSpinY; 
-  QDoubleSpinBox  *rotStepSpinZ; 
-  QComboBox       *typeCombo; 
- 
-public slots: 
+/***********************************************************************
+ *
+ * RotStep
+ *
+ **********************************************************************/
+
+class RotStepData;
+class RotStepGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  RotStepGui(RotStepMeta   *meta,
+    QGroupBox     *parent = nullptr);
+  ~RotStepGui() {}
+
+  virtual void apply(QString &modelName);
+
+private:
+  RotStepMeta     *meta;
+
+  QDoubleSpinBox  *rotStepSpinX;
+  QDoubleSpinBox  *rotStepSpinY;
+  QDoubleSpinBox  *rotStepSpinZ;
+  QComboBox       *typeCombo;
+
+public slots:
    void rotStepChanged(double);
    void typeChanged(QString const &);
-}; 
- 
-/*********************************************************************** 
- * 
- * Integer Spin Box 
- * 
- **********************************************************************/ 
+};
 
-class SpinGui : public MetaGui 
-{ 
-  Q_OBJECT 
-public: 
- 
-  SpinGui( 
-    QString const &heading, 
-    IntMeta       *meta, 
-    int            min, 
-    int            max, 
-    int            step, 
-    QGroupBox     *parent = nullptr); 
-  ~SpinGui() {} 
- 
-  virtual void apply(QString &modelName); 
- 
-  void setEnabled(bool enabled); 
- 
-private: 
-  IntMeta      *meta; 
-  QLabel         *label; 
-  QSpinBox *spin; 
- 
-public slots: 
-  void valueChanged(int); 
-}; 
- 
-/*********************************************************************** 
- * 
- * Double Spin Box 
+/***********************************************************************
+ *
+ * Integer Spin Box
+ *
+ **********************************************************************/
+
+class SpinGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  SpinGui(
+    QString const &heading,
+    IntMeta       *meta,
+    int            min,
+    int            max,
+    int            step,
+    QGroupBox     *parent = nullptr);
+  ~SpinGui() {}
+
+  virtual void apply(QString &modelName);
+
+  void setEnabled(bool enabled);
+
+private:
+  IntMeta      *meta;
+  QLabel         *label;
+  QSpinBox *spin;
+
+public slots:
+  void valueChanged(int);
+};
+
+/***********************************************************************
+ *
+ * Double Spin Box
  *
  **********************************************************************/
 
@@ -1091,7 +1091,7 @@ private:
   bool          cameraDistFactorDefaulSetting;
 
 public slots:
-  void typeChange(QString const &); 
+  void typeChange(QString const &);
   void singleCallChange(bool checked);
   void snapshotListChange(bool checked);
   void povFileGenNativeChange(bool checked);
@@ -1720,6 +1720,7 @@ public:
                            int       &height,
                            int       &quality,
                            bool      &alpha);
+    static int numSettings();
 
 public slots:
     void setLookAtTargetAndRotate();
@@ -1729,6 +1730,11 @@ public slots:
     void textChanged(const QString &value);
 
 private:
+    struct PovraySettings {
+        QString label;
+        QString tooltip;
+    };
+
     enum {
         LBL_ALPHA,               // 0  QCheckBox
         LBL_ASPECT,              // 1  QCheckBox
@@ -1741,7 +1747,9 @@ private:
         LBL_QUALITY,             // 8  QComboBox
         LBL_TARGET_AND_ROTATE,   // 9  QToolButton
         LBL_LDV_EXPORT_SETTINGS, // 10 QToolButton
-        LBL_LDV_LDRAW_SETTINGS   // 11 QToolButton
+        LBL_LDV_LDRAW_SETTINGS,  // 11 QToolButton
+
+        NUM_SETTINGS
     };
 
     enum {                                       // Index
@@ -1758,7 +1766,8 @@ private:
         SCALE_EDIT                               // 5
     };
 
-    QStringList settingLabels;
+    static PovraySettings povraySettings [];
+
     QComboBox *qualityCombo;
     QList<QLabel *> settingLabelList;
     QList<QCheckBox *> checkBoxList;
@@ -1770,6 +1779,236 @@ private:
     int mWidth;
     int mHeight;
     int mQuality;
+};
+
+/***********************************************************************
+ *
+ * Blender renderer
+ *
+ **********************************************************************/
+
+class BlenderRenderDialogGui : public QWidget
+{
+    Q_OBJECT
+public:
+    BlenderRenderDialogGui(){}
+    ~BlenderRenderDialogGui(){}
+
+    void getRenderSettings(int &width,
+                           int &height,
+                           double &scale,
+                           bool docRender);
+
+    static void loadSettings();
+    static void saveSettings();
+
+    static int numPaths(bool = false);
+    static int numSettings(bool = false);
+    static int numComboOptItems();
+    static bool extractBlenderAddon(const QString &);
+    static void loadDefaultParameters(QByteArray& Buffer, int Which);
+    static bool exportParameterFile();
+    static bool overwriteFile(const QString &file);
+
+protected:
+    bool settingsModified(int &width, int &height, double &scale);
+
+public slots:
+    void resetSettings();
+    void browseBlender(bool);
+    void configureBlender();
+    void updateLDrawAddon();
+    void showPathsGroup();
+    void sizeChanged(const QString &);
+    bool promptAccept();
+    void setDefaultColor(int value) const;
+    void colorButtonClicked(bool);
+    void setModelSize(bool);
+
+    void update();
+    void reject();
+    void readStdOut();
+    void writeStdOut();
+    bool promptCancel();
+    void showResult();
+    QString readStdErr(bool &hasError) const;
+    void showMessage(const QString &message);
+    void statusUpdate(bool ok = false, const QString &message = QString());
+
+private:
+    QFormLayout *blenderForm;
+    QWidget     *blenderContent;
+    QHBoxLayout *blenderVersionHLayout;
+
+    QGroupBox   *blenderPathsBox;
+    QGroupBox   *blenderSettingsBox;
+    QLineEdit   *blenderVersionEdit;
+    QLabel      *blenderLabel;
+
+    QDialog      *dialog;
+    QProgressBar *progressBar;
+    QProcess     *process;
+    QTimer       updateTimer;
+    QStringList  stdOutList;
+    QString      versionText;
+    int          lineCount;
+
+    enum {
+        LBL_BLENDER_PATH,                       //  0 QLineEdit/QPushButton
+        LBL_BLENDFILE_PATH,                     //  1 QLineEdit/QPushButton
+        LBL_ENVIRONMENT_PATH,                   //  2 QLineEdit/QPushButton
+        LBL_LDCONFIG_PATH,                      //  3 QLineEdit/QPushButton
+        LBL_LDRAW_DIRECTORY,                    //  4 QLineEdit/QPushButton
+        LBL_IMAGES_DIRECTORY,                   //  5 QLineEdit/QPushButton
+        LBL_LSYNTH_DIRECTORY,                   //  6 QLineEdit/QPushButton
+        LBL_STUDLOGO_DIRECTORY,                 //  7 QLineEdit/QPushButton
+
+        NUM_BLENDER_PATHS
+    };
+
+    enum {
+        LBL_ADD_ENVIRONMENT,                    //  0   QCheckBox
+        LBL_ADD_GAPS,                           //  1   QCheckBox
+        LBL_BEVEL_EDGES,                        //  2   QCheckBox
+        LBL_BLENDFILE_TRUSTED,                  //  3   QCheckBox
+        LBL_CROP_IMAGE,                         //  4   QCheckBox
+        LBL_CURVED_WALLS,                       //  5   QCheckBox
+        LBL_FLATTEN_HIERARCHY,                  //  6   QCheckBox
+        LBL_IMPORT_CAMERAS,                     //  7   QCheckBox
+        LBL_IMPORT_LIGHTS,                      //  8   QCheckBox
+        LBL_INSTANCE_STUDS,                     //  9   QCheckBox
+        LBL_KEEP_ASPECT_RATIO,                  // 10   QCheckBox
+        LBL_LINK_PARTS,                         // 11   QCheckBox
+        LBL_NUMBER_NODES,                       // 12   QCheckBox
+        LBL_OVERWRITE_IMAGE,                    // 13   QCheckBox
+        LBL_OVERWRITE_MATERIALS,                // 14   QCheckBox
+        LBL_OVERWRITE_MESHES,                   // 15   QCheckBox
+        LBL_POSITION_CAMERA,                    // 16   QCheckBox
+        LBL_REMOVE_DOUBLES,                     // 17   QCheckBox
+        LBL_RENDER_WINDOW,                      // 18   QCheckBox
+        LBL_SEARCH_ADDL_PATHS,                  // 19   QCheckBox
+        LBL_SMOOTH_SHADING,                     // 20   QCheckBox
+        LBL_TRANSPARENT_BACKGROUND,             // 21   QCheckBox
+        LBL_UNOFFICIAL_PARTS,                   // 22   QCheckBox
+        LBL_USE_LOGO_STUDS,                     // 23   QCheckBox
+        LBL_VERBOSE,                            // 24   QCheckBox
+
+        LBL_BEVEL_WIDTH,                        // 25/0 QLineEdit
+        LBL_CAMERA_BORDER_PERCENT,              // 26/1 QLineEdit
+        LBL_DEFAULT_COLOUR,                     // 27/2 QLineEdit
+        LBL_GAPS_SIZE,                          // 28/3 QLineEdit
+        LBL_IMAGE_WIDTH,                        // 29/4 QLineEdit
+        LBL_IMAGE_HEIGHT,                       // 30/5 QLineEdit
+        LBL_IMAGE_SCALE,                        // 31/6 QLineEdit
+
+        LBL_COLOUR_SCHEME,                      // 32/0 QComboBox
+        LBL_FLEX_PARTS_SOURCE,                  // 33/1 QComboBox
+        LBL_LOGO_STUD_VERSION,                  // 34/2 QComboBox
+        LBL_LOOK,                               // 25/3 QComboBox
+        LBL_POSITION_OBJECT,                    // 36/4 QComboBox
+        LBL_RESOLUTION,                         // 37/5 QComboBox
+        LBL_RESOLVE_NORMALS,                    // 38/6 QComboBox
+
+        NUM_SETTINGS
+    };
+
+    enum {                                               // Index
+        BLENDER_PATH_EDIT,                               // 0
+        ADD_ENVIRONMENT_BOX     = BLENDER_PATH_EDIT,     // 0
+        BEVEL_WIDTH_EDIT        = BLENDER_PATH_EDIT,     // 0
+        COLOUR_SCHEME_COMBO     = BLENDER_PATH_EDIT,     // 0
+        ADD_GAPS_BOX,                                    // 1
+        CAMERA_BORDER_PERCENT_EDIT = ADD_GAPS_BOX,       // 1
+        FLEX_PARTS_SOURCE_COMBO = ADD_GAPS_BOX,          // 1
+        DEFAULT_SETTINGS        = ADD_GAPS_BOX,          // 1
+        BEVEL_EDGES_BOX,                                 // 2
+        DEFAULT_COLOUR_EDIT     = BEVEL_EDGES_BOX,       // 2
+        LOGO_STUD_VERSION_COMBO = BEVEL_EDGES_BOX,       // 2
+        BLENDFILE_TRUSTED_BOX,                           // 3
+        GAPS_SIZE_EDIT          = BLENDFILE_TRUSTED_BOX, // 3
+        LOOK_COMBO              = BLENDFILE_TRUSTED_BOX, // 3
+        CROP_IMAGE_BOX,                                  // 4
+        IMAGE_SCALE_EDIT        = CROP_IMAGE_BOX,        // 4
+        POSITION_OBJECT_COMBO   = CROP_IMAGE_BOX,        // 4
+        IMAGE_WIDTH_EDIT        = CROP_IMAGE_BOX,        // 4
+        CURVED_WALLS_BOX,                                // 5
+        RESOLUTION_COMBO        = CURVED_WALLS_BOX,      // 5
+        IMAGE_HEIGHT_EDIT       = CURVED_WALLS_BOX,      // 5
+        FLATTEN_HIERARCHY_BOX,                           // 6
+        RESOLVE_NORMALS_COMBO   = FLATTEN_HIERARCHY_BOX, // 6
+        LINE_EDIT_ITEMS         = FLATTEN_HIERARCHY_BOX, // 6
+        COMBO_BOX_ITEMS         = FLATTEN_HIERARCHY_BOX, // 6
+        IMPORT_CAMERAS_BOX,                              // 7
+        IMPORT_LIGHTS_BOX,                               // 8
+        INSTANCE_STUDS_BOX,                              // 9
+        KEEP_ASPECT_RATIO_BOX,                           //10
+        LINK_PARTS_BOX,                                  //11
+        NUMBER_NODES_BOX,                                //12
+        OVERWRITE_IMAGE_BOX,                             //13
+        OVERWRITE_MATERIALS_BOX,                         //14
+        OVERWRITE_MESHES_BOX,                            //15
+        POSITION_CAMERA_BOX,                             //16
+        REMOVE_DOUBLES_BOX,                              //17
+        RENDER_WINDOW_BOX,                               //18
+        SEARCH_ADDL_PATHS_BOX,                           //19
+        SMOOTH_SHADING_BOX,                              //20
+        TRANSPARENT_BACKGROUND_BOX,                      //21
+        UNOFFICIAL_PARTS_BOX,                            //22
+        USE_LOGO_STUDS_BOX,                              //23
+        VERBOSE_BOX                                      //24
+    };
+
+    enum {
+       PARAMS_CUSTOM_COLOURS,
+       PARAMS_SLOPED_BRICKS,
+       PARAMS_LIGHTED_BRICKS
+    };
+
+    struct BlenderSettings {
+        QString key;
+        QString value;
+        QString label;
+        QString tooltip;
+    };
+
+    struct ComboOptItems {
+        QString valueStr;
+        QString labelStr;
+    };
+
+    static BlenderSettings blenderSettings [];
+    static BlenderSettings defaultSettings [];
+    static BlenderSettings blenderPaths [];
+    static BlenderSettings defaultPaths [];
+    static ComboOptItems comboOptItems [];
+
+    static QString ldrawDirectoryKey;
+    static QString customLDConfigKey;
+    static QString fadeStepsKey;
+    static QString highlightStepKey;
+    static QString searchDirectoriesKey;
+    static QString parameterFileKey;
+    static QString blenderVersion;
+
+    static bool documentRender;
+
+    QAction     *defaultColourEditAction;
+    QAction     *blenderPathEditAction;
+    QPushButton *pathsGroupButton;
+
+    QList<QLabel *> settingLabelList;
+    QList<QLineEdit   *> sizeLineEditList;
+    QList<QLineEdit   *> pathLineEditList;
+    QList<QPushButton *> pathBrowseButtonList;
+    QList<QCheckBox *> checkBoxList;
+    QList<QLineEdit *> lineEditList;
+    QList<QComboBox *> comboBoxList;
+
+    bool mBlenderConfigured;
+    bool mBlenderAddonUpdate;
+    int mWidth;
+    int mHeight;
+    qreal mScale;
 };
 
 #endif

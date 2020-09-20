@@ -95,6 +95,11 @@ QString Preferences::pliSubstitutePartsFile;
 QString Preferences::excludedPartsFile;
 QString Preferences::ldrawColourPartsFile;
 
+QString Preferences::blenderVersion;
+QString Preferences::blenderRenderConfigFile;
+QString Preferences::blenderDocumentConfigFile;
+QString Preferences::blenderExe;
+
 QStringList Preferences::ldSearchDirs;
 QStringList Preferences::ldgliteParms;
 
@@ -239,6 +244,8 @@ bool    Preferences::customSceneRulerTrackingColor = false;
 bool    Preferences::customSceneGuideColor      = false;
 bool    Preferences::debugLogging               = false;
 bool    Preferences::enableLineTypeIndexes      = true;
+bool    Preferences::blenderIs28OrLater         = true;
+bool    Preferences::defaultBlendFile           = false;
 
 #ifdef Q_OS_MAC
 bool    Preferences::missingRendererLibs        = false;
@@ -1776,6 +1783,7 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
     bool    ldgliteInstalled = false;
     bool    ldviewInstalled = false;
     bool    povRayInstalled = false;
+    bool    blenderInstalled = false;
 
     // LDGLite EXE
     if (ldgliteInfo.exists()) {
@@ -2144,7 +2152,8 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
         Settings.setValue(QString("%1/%2").arg(SETTINGS,enableImageMattingKey),uValue);
     } else {
         enableImageMatting = Settings.value(QString("%1/%2").arg(SETTINGS,enableImageMattingKey)).toBool();
-    }
+    }  
+
 
     // Write config files
     logInfo() << QString("Processing renderer configuration files...");
@@ -2157,6 +2166,70 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
     updateLDViewPOVIniFile(updateFlag);
     updatePOVRayConfFile(updateFlag);
     updatePOVRayIniFile(updateFlag);
+
+    // Blender config files
+    QString const blenderConfigDir = QString("%1/Blender/config").arg(lpub3d3rdPartyConfigDir);
+
+    // Individual render config file
+    QString const blenderRenderConfigFileKey("BlenderConfigFile");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,blenderRenderConfigFileKey))) {
+        blenderRenderConfigFile = QString("%1/%2").arg(blenderConfigDir,VER_BLENDER_RENDER_CONFIG_FILE);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderRenderConfigFileKey),QVariant(blenderRenderConfigFile));
+    } else {
+        blenderRenderConfigFile = Settings.value(QString("%1/%2").arg(SETTINGS,blenderRenderConfigFileKey)).toString();
+        if (!QFileInfo(blenderRenderConfigFile).exists()) {
+            blenderRenderConfigFile =  QString("%1/%2").arg(blenderConfigDir,VER_BLENDER_RENDER_CONFIG_FILE);
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderRenderConfigFileKey),QVariant(blenderRenderConfigFile));
+        }
+    }
+
+    // Document render config file
+    QString const blenderDocumentConfigFileKey("BlenderConfigFile");
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,blenderDocumentConfigFileKey))) {
+        blenderDocumentConfigFile = QString("%1/%2").arg(blenderConfigDir,VER_BLENDER_DOCUMENT_CONFIG_FILE);
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderDocumentConfigFileKey),QVariant(blenderDocumentConfigFile));
+    } else {
+        blenderDocumentConfigFile = Settings.value(QString("%1/%2").arg(SETTINGS,blenderDocumentConfigFileKey)).toString();
+        if (!QFileInfo(blenderDocumentConfigFile).exists()) {
+            blenderDocumentConfigFile =  QString("%1/%2").arg(blenderConfigDir,VER_BLENDER_DOCUMENT_CONFIG_FILE);
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderDocumentConfigFileKey),QVariant(blenderDocumentConfigFile));
+        }
+    }
+
+    // Blender executable
+    QString const blenderExeKey("BlenderExeFile");
+    blenderExe = Settings.value(QString("%1/%2").arg(SETTINGS,blenderExeKey)).toString();
+    QFileInfo blenderFileInfo(blenderExe);
+    if (blenderFileInfo.exists()) {
+        blenderInstalled = true;
+        blenderExe = QDir::toNativeSeparators(blenderFileInfo.absoluteFilePath());
+        logInfo() << QString("Blender : %1").arg(blenderExe);
+        QFileInfo blendFileInfo(QString("%1/%2").arg(blenderConfigDir).arg(VER_BLENDER_DEFAULT_BLEND_FILE));
+        if ((defaultBlendFile = blendFileInfo.exists())) {
+            logInfo() << QString("Blendfile (default): %1").arg(blendFileInfo.absoluteFilePath());
+        } else {
+            logNotice() << QString("Default blendfile does not exist: %1").arg(blendFileInfo.absoluteFilePath());
+        }
+    } else {
+        if (!blenderExe.isEmpty())
+            logNotice() << QString("Blender : %1 not installed").arg(blenderExe);
+        Settings.remove(QString("%1/%2").arg(SETTINGS,blenderExeKey));
+        blenderExe = QString();
+    }
+
+    // Blender version
+    QString const blenderVersionKey("BlenderVersion");
+    if (blenderInstalled){
+        if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,blenderVersionKey))) {
+            blenderVersion = "2.81";
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderVersionKey),QVariant(blenderVersion));
+        } else {
+            blenderVersion = Settings.value(QString("%1/%2").arg(SETTINGS,blenderVersionKey)).toString();
+        }
+    } else if (Settings.contains(QString("%1/%2").arg(SETTINGS,blenderVersionKey))) {
+        Settings.remove(QString("%1/%2").arg(SETTINGS,blenderExeKey));
+        blenderVersion = QString();
+    }
 
     // Populate POVRay Library paths
     QFileInfo resourceFile;
@@ -3334,6 +3407,41 @@ void Preferences::setSceneGuideColorPreference(QString s)
   QVariant uValue(s);
   QString const sceneGuideColorKey("SceneGuideColor");
   Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGuideColorKey),uValue);
+}
+
+void Preferences::setBlenderExePathPreference(QString s)
+{
+  QSettings Settings;
+  blenderExe = s;
+  QVariant uValue(s);
+  QString const blenderExeKey("BlenderExeFile");
+  if (blenderExe.isEmpty())
+      Settings.remove(QString("%1/%2").arg(SETTINGS,blenderExeKey));
+  else
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderExeKey),uValue);
+}
+
+void Preferences::setBlenderVersionPreference(QString s)
+{
+    QSettings Settings;
+    blenderVersion = s;
+    QVariant uValue(s);
+    QString const blenderVersionKey("BlenderVersion");
+    if (blenderVersion.isEmpty())
+        Settings.remove(QString("%1/%2").arg(SETTINGS,blenderVersionKey));
+    else
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderVersionKey),uValue);
+}
+
+bool Preferences::isBlender28OrLater()
+{
+    QStringList items = blenderVersion.split(" ");
+    QString vesionString = items.size() ? items.first() : QString();
+    bool ok;
+    qreal version = vesionString.toDouble(&ok);
+    if (ok)
+        return version > 2.79;
+    return true;
 }
 
 void Preferences::setDebugLogging(bool b){

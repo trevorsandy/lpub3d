@@ -151,27 +151,38 @@
 #define VER_LPUB3D_LD2RBCOLORSXREF_FILE     "ld2rbcolorsxref.lst"
 #define VER_LPUB3D_LD2RBCODESXREF_FILE      "ld2rbcodesxref.lst"
 
-#define VER_LPUB3D_ONLINE_MANUAL_URL        "https://sites.google.com/view/workingwithlpub3d/"
+#define VER_BLENDER_DEFAULT_BLEND_FILE      "lpub3d.blend"
+#define VER_BLENDER_ADDON_FILE              "LDrawBlenderRenderAddons.zip"
+#define VER_BLENDER_ADDON_INSTALL_FILE      "installBlenderAddons.py"
+#define VER_BLENDER_RENDER_CONFIG_FILE      "LDrawRendererPreferences.ini"
+#define VER_BLENDER_DOCUMENT_CONFIG_FILE    "PreferredRendererPreferences.ini"
+#define VER_BLENDER_PARAMS_FILE             "BlenderLDrawParameters.lst"
 
-// ~~~~~~ Build Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
+// ~~~~~~ Resource Locators ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+
+#define VER_COMPANYDOMAIN_STR               "https://trevorsandy.github.io/lpub3d/"
+#define VER_SOURCE_GITHUB_STR               "https://github.com/trevorsandy/lpub3d/"
+#define VER_BLENDER_RENDER_STR              "https://github.com/trevorsandy/blenderldrawrender/"
 #define VER_SOURCEFORGE_STR                 "https://lpub3d.sourceforge.io/"
+
+#define VER_QT_URL                          "https://www.qt.io/product"
+#define VER_LPUB3D_ONLINE_MANUAL_URL        "https://sites.google.com/view/workingwithlpub3d/"
+#define VER_REBRICKABLE_API_URL             "https://rebrickable.com/api/v3/lego"
 #define VER_OFFICIAL_LIBRARY_JSON_URL       VER_SOURCEFORGE_STR "complete.json"
 #define VER_UNOFFICIAL_LIBRARY_JSON_URL     VER_SOURCEFORGE_STR "lpub3dldrawunf.json"
 #define VER_CHANGE_LOG_URL                  VER_SOURCEFORGE_STR "change_log.txt"
 #ifdef QT_DEBUG_MODE
-  #define VER_UPDATE_CHECK_JSON_URL         "https://lpub3d.sourceforge.io/lpub3dupdates-test.json"
+  #define VER_UPDATE_CHECK_JSON_URL         VER_SOURCEFORGE_STR "lpub3dupdates-test.json"
 #else
-  #define VER_UPDATE_CHECK_JSON_URL         "https://lpub3d.sourceforge.io/lpub3dupdates.json"
+  #define VER_UPDATE_CHECK_JSON_URL         VER_SOURCEFORGE_STR "lpub3dupdates.json"
 #endif
-
-#define VER_COMPANYDOMAIN_STR               "https://trevorsandy.github.io/lpub3d/"
-#define VER_SOURCE_GITHUB_STR               "https://github.com/trevorsandy/lpub3d/"
-#define VER_REBRICKABLE_API_URL             "https://rebrickable.com/api/v3/lego"
 #define VER_REBRICKABLE_KEYS_JSON_URL       VER_COMPANYDOMAIN_STR "assets/resources/rebrickablekeys.json"
 #define VER_LPUB3D_BLCODES_DOWNLOAD_URL     VER_COMPANYDOMAIN_STR "assets/resources/codes.txt"
 #define VER_LPUB3D_IMAGE_NOT_FOUND_URL      VER_COMPANYDOMAIN_STR "assets/resources/missingimage.png"
-#define VER_QT_URL                          "https://www.qt.io/what-is-qt/?utm_campaign=Navigation%202019&utm_source=megamenu"
+#define VER_BLENDER_RENDER_ADDONS_URL       VER_BLENDER_RENDER_STR "releases/latest/download/" VER_BLENDER_ADDON_FILE
+
+// ~~~~~~ Build Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
 #ifdef __GNUC__
   #ifdef __MINGW64__

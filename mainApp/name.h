@@ -329,6 +329,8 @@ static const SceneObject PliPartGroupSceneObjects[] =
 #define FINDREPLACEWINDOW          "FindReplaceWindow"
 #define UPDATES                    "Updates"
 #define LOGGING                    "Logging"
+#define IMPORTLDRAW                "importldraw"
+#define IMPORTDEFAULT              "DEFAULT"
 
 #define FADE_SFX                    "-fade"
 #define HIGHLIGHT_SFX               "-highlight"

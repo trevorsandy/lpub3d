@@ -47,6 +47,7 @@
 #include <QColorDialog>
 #include <QFileDialog>
 #include <QString>
+#include <JlCompress.h>
 
 //gradient
 #include <QGradient>
@@ -61,6 +62,7 @@
 #include "lpub_preferences.h"
 #include "resolution.h"
 #include "render.h"
+#include "lc_qcolorpicker.h"
 
 #include "gradients.h"
 #include "pagesizes.h"
@@ -1489,7 +1491,7 @@ void PageAttributePictureGui::placementChanged(bool clicked)
 //                << " \nOffset[1]: "                 << placementData.offsets[1]
 //                ;
     modified = placementModified = true;
-  }  
+  }
 }
 
 void PageAttributePictureGui::toggled(bool toggled)
@@ -4508,7 +4510,7 @@ void PliAnnotationGui::freeformAnnotation(bool checked)
 }
 
 void PliAnnotationGui::titleAndFreeformAnnotation(bool checked)
-{      
+{
   if (meta->titleAndFreeformAnnotation.value() == checked)
       return;
   meta->titleAndFreeformAnnotation.setValue( checked);
@@ -4889,7 +4891,7 @@ void CsiAnnotationGui::hoseDisplay(bool checked)
 }
 
 void CsiAnnotationGui::panelDisplay(bool checked)
-{    
+{
   meta->panelDisplay.setValue(checked);
   modified = panelDisplayModified = true;
 }
@@ -6161,6 +6163,23 @@ void BuildModDialogGui::getBuildMod(QStringList & buildModKeys, bool apply){
     K_ROTSTYPE         // 14
 */
 
+POVRayRenderDialogGui::PovraySettings POVRayRenderDialogGui::povraySettings[] = {
+/* 0  LBL_ALPHA                0   QCheckBox   */ {"Transparent Background   ", "Specify whether to render a background"},
+/* 1  LBL_ASPECT               1   QCheckBox   */ {"Maintain Aspect Ratio    ", "Specify whether maintain a one to one image aspect ratio"},
+/* 2  LBL_WIDTH                2/0 QLineEdit   */ {"Width                    ", "Specify the image width in pixels"},
+/* 3  LBL_HEIGHT               3/1 QLineEdit   */ {"Height                   ", "Specify the image height in pixels"},
+/* 4  LBL_LATITUDE             4/2 QLineEdit   */ {"Camera Anlge - Latitude  ", "Set the longitudinal camera angle for the rendered image"},
+/* 5  LBL_LONGITUDE            5/3 QLineEdit   */ {"Camera Anlge - Longitude ", "Set the latitudinal camera angle for the rendered image"},
+/* 6  LBL_RESOLUTION           6/4 QLineEdit   */ {"Resolution               ", "Specify the resolution in pixels per inch"},
+/* 7  LBL_SCALE                7/5 QLineEdit   */ {"Scale                    ", "Specify the output image scale"},
+
+/* 8  LBL_QUALITY              8   QComboBox   */ {"Quality                  ", "Select the POV-Ray render level of quality"},
+
+/* 9  LBL_TARGET_AND_ROTATE    9/0 QToolButton */ {"LookAt Target and Rotstep", "Specify the target 'Look At' position and/or apply ROTSTEP coordinates"},
+/* 10 LBL_LDV_EXPORT_SETTINGS 10/1 QToolButton */ {"LDV Export Settings      ", "Specify LDView POV-Ray export settings"},
+/* 11 LBL_LDV_LDRAW_SETTINGS  11/2 QToolButton */ {"LDV LDraw Settings       ", "Specify LDView LDraw settings"}
+};
+
 void POVRayRenderDialogGui::getRenderSettings(
         QStringList &csiKeyList,
         int         &width,
@@ -6168,11 +6187,11 @@ void POVRayRenderDialogGui::getRenderSettings(
         int         &quality,
         bool        &alpha)
 {
-    QDialog *dialog = new QDialog();
+    QDialog *dialog = new QDialog(nullptr);
     dialog->setWindowTitle(tr("POV-Ray Render Settings"));
 
     QFormLayout *form = new QFormLayout(dialog);
-    QGroupBox *settingsBox = new QGroupBox("Select output image settings",dialog);
+    QGroupBox *settingsBox = new QGroupBox("Select rendered image settings",dialog);
     form->addWidget(settingsBox);
     QFormLayout *settingsSubform = new QFormLayout(settingsBox);
 
@@ -6182,29 +6201,17 @@ void POVRayRenderDialogGui::getRenderSettings(
     mCsiKeyList = csiKeyList;
     editedCsiKeyList = csiKeyList;
 
-    settingLabels
-    << QString("Transparent Background:")    //  0   LBL_ALPHA,               QCheckBox
-    << QString("Maintain Aspect Ratio:")     //  1   LBL_ASPECT,              QCheckBox
-    << QString("Width:")                     //  2/0 LBL_WIDTH,               QLineEdit
-    << QString("Height:")                    //  3/1 LBL_HEIGHT,              QLineEdit
-    << QString("Camera Anlge - Latitude:")   //  4/2 LBL_LATITUDE,            QLineEdit
-    << QString("Camera Anlge - Longitude:")  //  5/3 LBL_LONGITUDE            QLineEdit
-    << QString("Resolution:")                //  6/4 LBL_RESOLUTION,          QLineEdit
-    << QString("Scale:")                     //  7/5 LBL_SCALE,               QLineEdit
-    << QString("Quality:")                   //  8   LBL_QUALITY,             QComboBox
-    << QString("LookAt Target and Rotstep:") //  9/0 LBL_TARGET_AND_ROTATE,   QToolButton
-    << QString("LDV Export Settings:")       // 10/1 LBL_LDV_EXPORT_SETTINGS, QToolButton
-    << QString("LDV LDraw Settings:")        // 11/2 LBL_LDV_LDRAW_SETTINGS   QToolButton
-       ;
+    for(int i = 0; i < numSettings(); ++i) {
 
-    for(int i = 0; i < settingLabels.size(); ++i) {
-
-        QLabel *label = new QLabel(settingLabels[i], dialog);
+        QLabel *label = new QLabel(dialog);
+        label->setText(povraySettings[i].label);
+        label->setToolTip(povraySettings[i].tooltip);
         settingLabelList << label;
 
         if (i < LBL_WIDTH){
             QCheckBox *checkBox = new QCheckBox(dialog);
             checkBox->setChecked(true);
+            checkBox->setToolTip(povraySettings[i].tooltip);
             checkBoxList << checkBox;
             settingsSubform->addRow(label,checkBox);
         } else if (i < LBL_QUALITY) {
@@ -6227,6 +6234,7 @@ void POVRayRenderDialogGui::getRenderSettings(
                 lineEdit->setValidator(new QIntValidator(50, INT_MAX));
             else                         // scale
                 lineEdit->setValidator(new QDoubleValidator(0.1,1000.0,1));
+            lineEdit->setToolTip(povraySettings[i].tooltip);
             lineEditList << lineEdit;
             settingsSubform->addRow(label,lineEdit);
         } else if (i < LBL_TARGET_AND_ROTATE) {
@@ -6234,6 +6242,7 @@ void POVRayRenderDialogGui::getRenderSettings(
             qualityCombo = new QComboBox(dialog);
             qualityCombo->setCurrentIndex(mQuality);
             qualityCombo->addItems(items.split("|"));
+            qualityCombo->setToolTip(povraySettings[i].tooltip);
             settingsSubform->addRow(label,qualityCombo);
         } else {
             QToolButton *toolButton = new QToolButton(dialog);
@@ -6247,6 +6256,7 @@ void POVRayRenderDialogGui::getRenderSettings(
             else if (i == LBL_LDV_LDRAW_SETTINGS)
                 connect(toolButton,SIGNAL(clicked()),
                               this,SLOT  (setLdvLDrawPreferences()));
+            toolButton->setToolTip(povraySettings[i].tooltip);
             toolButtonList << toolButton;
             settingsSubform->addRow(label,toolButton);
         }
@@ -6275,6 +6285,13 @@ void POVRayRenderDialogGui::getRenderSettings(
     }
 }
 
+int POVRayRenderDialogGui::numSettings(){
+  int size = 0;
+  if (!povraySettings[0].label.isEmpty())
+      size = sizeof(povraySettings)/sizeof(povraySettings[0]);
+  return size;
+}
+
 void POVRayRenderDialogGui::setLookAtTargetAndRotate()
 {
     TargetRotateDialogGui *targetRotateDialogGui =
@@ -6300,7 +6317,7 @@ void POVRayRenderDialogGui::resetSettings()
                                            mCsiKeyList.at(K_LONGITUDE),
                                            mCsiKeyList.at(K_RESOLUTION),
                                            mCsiKeyList.at(K_MODELSCALE) };
-    for(int i = 0; i < settingLabels.size(); ++i) {
+    for(int i = 0; i < numSettings(); ++i) {
         if (i < LBL_WIDTH) {                        // alpha, aspect
             for(int j = 0; j < checkBoxList.size(); ++j)
                 checkBoxList[j]->setChecked(true);
@@ -6337,4 +6354,1586 @@ void POVRayRenderDialogGui::textChanged(const QString &value)
                             this,SLOT (textChanged(const QString &)));
        }
     }
+}
+
+/***********************************************************************
+ *
+ * Blender renderer
+ *
+ **********************************************************************/
+
+bool    BlenderRenderDialogGui::documentRender       = false;
+QString BlenderRenderDialogGui::blenderVersion;
+QString BlenderRenderDialogGui::ldrawDirectoryKey    = QString("ldrawDirectory");
+QString BlenderRenderDialogGui::searchDirectoriesKey = QString("additionalSearchDirectories");
+QString BlenderRenderDialogGui::parameterFileKey     = QString("parameterFile");
+QString BlenderRenderDialogGui::customLDConfigKey    = QString("customLDConfigFile");
+QString BlenderRenderDialogGui::fadeStepsKey         = QString("fadePreviousSteps");
+QString BlenderRenderDialogGui::highlightStepKey     = QString("highlightCurrentStep");
+
+BlenderRenderDialogGui::BlenderSettings  BlenderRenderDialogGui::blenderPaths [NUM_BLENDER_PATHS];
+BlenderRenderDialogGui::BlenderSettings  BlenderRenderDialogGui::defaultPaths [] = {
+/*                                   Key:                 Value:                   Label                         Tooltip (Description)*/
+/* 0   LBL_BLENDER_PATH          */ {"blenderPath",       "",                      "Blender Path",               "Full file path to Blender application executable"},
+/* 1   LBL_BLENDFILE_PATH        */ {"blendFile",         "",                      "Blendfile Path",             "Full file path to a supplement .blend file - specify to append additional settings"},
+/* 2.  LBL_ENVIRONMENT_PATH      */ {"environmentFile",   "",                      "Environment Texture Path",   "Full file path to .exr environment texture file - specify if not using default bundled in addon"},
+/* 3   LBL_LDCONFIG_PATH         */ {"customLDConfigFile","",                      "Custom LDConfig Path",       "Full file path to custom LDConfig file - specify if not LPub3D alternate LDConfig file"},
+/* 4   LBL_LDRAW_DIRECTORY       */ {"ldrawDirectory",    "",                      "LDraw Directory",            "Full directory path to the LDraw parts library (download from http://www.ldraw.org)"},
+/* 5   LBL_IMAGES_DIRECTORY      */ {"imagesDirectory",   "",                      "Images Directory",           "Full directory path to image files for compositor image node - specify to load image nodes if in use."},
+/* 3   LBL_LSYNTH_DIRECTORY      */ {"lsynthDirectory",   "",                      "LSynth Directory",           "Full directory path to LSynth primitives - specify if not using default bundled in addon"},
+/* 4   LBL_STUDLOGO_DIRECTORY    */ {"studLogoDirectory", "",                      "Stud Logo Directory",        "Full directory path to stud logo primitives - if stud logo enabled, specify if unofficial parts not used or not using default bundled in addon"}
+};
+BlenderRenderDialogGui::BlenderSettings  BlenderRenderDialogGui::blenderSettings [NUM_SETTINGS];
+BlenderRenderDialogGui::BlenderSettings  BlenderRenderDialogGui::defaultSettings [] = {
+/*                                   Key:                              Value:      Label                     Tooltip (Description)*/
+/* 0   LBL_ADD_ENVIRONMENT       */ {"addEnvironment",                 "1",        "Add Environment",        "Adds a ground plane and environment texture (affects 'Photo-realistic' look only)"},
+/* 1   LBL_ADD_GAPS              */ {"gaps",                           "0",        "Add Part Gap",           "Add a small space between each part"},
+/* 2   LBL_BEVEL_EDGES           */ {"bevelEdges",                     "1",        "Bevel Edges",            "Adds a Bevel modifier for rounding off sharp edges"},
+/* 3   LBL_BLENDFILE_TRUSTED     */ {"blendfileTrusted",               "0",        "Trusted Blend File",     "Specify whether to treat the .blend file as being loaded from a trusted source"},
+/* 4   LBL_CROP_IMAGE            */ {"cropImage",                      "0",        "Crop Image",             "Crop the image border at opaque content. Requires transparent background set to True"},
+/* 5   LBL_CURVED_WALLS          */ {"curvedWalls",                    "1",        "Curved Walls",           "Makes surfaces look slightly concave"},
+/* 6   LBL_FLATTEN_HIERARCHY     */ {"flattenHierarchy",               "0",        "Flatten Hierarchy",      "In Scene Outline, all parts are placed directly below the root - there's no tree of submodels"},
+/* 7   LBL_IMPORT_CAMERAS        */ {"importCameras",                  "1",        "Import Cameras",         "LPub3D can specify camera definitions within the ldraw data. Choose to load them or ignore them."},
+/* 8   LBL_IMPORT_LIGHTS         */ {"importLights",                   "1",        "Import Lights",          "LPub3D can specify point and sunlight definitions within the ldraw data. Choose to load them or ignore them."},
+/* 9   LBL_INSTANCE_STUDS        */ {"instanceStuds",                  "0",        "Instance Studs",         "Creates a Blender Object for each and every stud (WARNING: can be slow to import and edit in Blender if there are lots of studs)"},
+/*10   LBL_KEEP_ASPECT_RATIO     */ {"keepAspectRatio",                "1",        "Keep Aspect Ratio",      "Maintain the aspect ratio when resizing the output image - this attribute is not passed to Blender"},
+/*11   LBL_LINK_PARTS            */ {"linkParts",                      "1",        "Link Like Parts",        "Identical parts (of the same type and colour) share the same mesh"},
+/*12   LBL_NUMBER_NODES          */ {"numberNodes",                    "1",        "Number Objects",         "Each object has a five digit prefix eg. 00001_car. This keeps the list in it's proper order"},
+/*13   LBL_OVERWRITE_IMAGE       */ {"overwriteImage",                 "1",        "Overwrite Image",        "Specify whether to overwrite an existing rendered image file"},
+/*14   LBL_OVERWRITE_MATERIALS   */ {"overwriteExistingMaterials",     "0",        "Use Existing Material",  "Overwrite existing material with the same name"},
+/*15   LBL_OVERWRITE_MESHES      */ {"overwriteExistingMeshes",        "0",        "Use Existing Mesh",      "Overwrite existing mesh with the same name"},
+/*16   LBL_POSITION_CAMERA       */ {"positionCamera",                 "1",        "Position Camera",        "Position the camera to show the whole model"},
+/*17   LBL_REMOVE_DOUBLES        */ {"removeDoubles",                  "1",        "No Duplicate Vertices",  "Remove duplicate vertices (recommended)"},
+/*18   LBL_RENDER_WINDOW         */ {"renderWindow",                   "1",        "Display Render Window",  "Specify whether to display the render window during Blender user interface image file render"},
+/*19   LBL_SEARCH_ADDL_PATHS     */ {"searchAdditionalPaths",          "0",        "Search Additional Paths","Specify whether to search additional LDraw paths"},
+/*20   LBL_SMOOTH_SHADING        */ {"smoothShading",                  "1",        "Smooth Shading",         "Smooth faces and add an edge-split modifier (recommended)"},
+/*21   LBL_TRANSPARENT_BACKGROUND*/ {"transparentBackground",          "0",        "Transparent Background", "Specify whether to render a background (affects 'Photo-realistic look only)"},
+/*22   LBL_UNOFFICIAL_PARTS      */ {"useUnofficialParts",             "1",        "Use Unofficial Parts",   "Specify whether to use parts from the LDraw unofficial parts library path"},
+/*23   LBL_USE_LOGO_STUDS        */ {"useLogoStuds",                   "0",        "Use Logo Studs",         "Shows the LEGO logo on each stud (at the expense of some extra geometry and import time)"},
+/*24   LBL_VERBOSE               */ {"verbose",                        "1",        "Verbose output",         "Output all messages while working, else only show warnings and errors"},
+
+/*25/0 LBL_BEVEL_WIDTH           */ {"bevelWidth",                     "0.5",      "Bevel Width",            "Width of the bevelled edges"},
+/*26/1 LBL_CAMERA_BORDER_PERCENT */ {"cameraBorderPercentage",         "5.0",      "Camera Border Percent",  "When positioning the camera, include a (percentage) border around the model in the render"},
+/*27/2 LBL_DEFAULT_COLOUR        */ {"defaultColour",                  "4",        "Default Colour",         "Sets the default part colour"},
+/*28/3 LBL_GAPS_SIZE             */ {"gapWidth",                       "0.01",     "Gap Width",              "Amount of gap space between each part"},
+/*29/4 LBL_IMAGE_WIDTH           */ {"-",                              "1",        "Image Width",            "Sets the rendered image width in pixels."},
+/*30/5 LBL_IMAGE_HEIGHT          */ {"-",                              "1",        "Image Height",           "Sets the rendered image height in pixels."},
+/*31/6 LBL_IMAGE_SCALE           */ {"scale",                          "1.0",      "Image Scale",            "Sets the rendered image percentage scale for its pixel resolution (enter between .01 and 1)"},
+
+/*32/0 LBL_COLOUR_SCHEME         */ {"useColourScheme",                "lgeo",     "Colour Scheme",          "Colour scheme options - Realistic (lgeo), Original (LDConfig), Alternate (LDCfgalt), Custom (User Defined)"},
+/*33/1 LBL_FLEX_PARTS_SOURCE     */ {"useLSynthParts",                 "1",        "Flex Parts Source",      "Source used to create flexible parts - string, hoses etc. (LDCad, LSynth or both"},
+/*34/2 LBL_LOGO_STUD_VERSION     */ {"logoStudVersion",                "4",        "Logo Version",           "Which version of the logo to use ('3' (flat), '4' (rounded) or '5' (subtle rounded))"},
+/*25/3 LBL_LOOK                  */ {"useLook",                        "normal",   "Look",                   "Photo-realistic or Schematic 'Instruction' look"},
+/*36/4 LBL_POSITION_OBJECT       */ {"positionObjectOnGroundAtOrigin", "1",        "Position Object",        "The object is centred at the origin, and on the ground plane"},
+/*37/5 LBL_RESOLUTION            */ {"resolution",                     "Standard", "Resolution",             "Resolution of part primitives, ie. how much geometry they have"},
+/*38/6 LBL_RESOLVE_NORMALS       */ {"resolveNormals",                 "guess",    "Resolve Normals",        "Some older LDraw parts have faces with ambiguous normals, this specifies what do do with them"}
+} ;
+BlenderRenderDialogGui::ComboOptItems  BlenderRenderDialogGui::comboOptItems [] = {
+/*  FIRST item set as default    */
+/*0 LBL_COLOUR_SCHEME            */ {"lgeo|ldraw|alt|custom","Realistic Colours|Original LDraw Colours|Alternate LDraw Colours|Custom Colours"},
+/*1 LBL_FLEX_PARTS_SOURCE (t/f)  */ {"1|0|1","LSynth|LDCad|LDCad and LSynth"},
+/*2 LBL_LOGO_STUD_VERSION        */ {"4|3|5","Rounded(4)|Flat(3)|Subtle Rounded(5)"},
+/*3 LBL_LOOK                     */ {"normal|instructions","Photo Realistic|Lego Instructions"},
+/*4 LBL_POSITION_OBJECT (t/f)    */ {"1|0","Centered At Origin On Ground|Centered At Origin"},
+/*5 LBL_RESOLUTION               */ {"Standard|High|Low","Standard Primitives|High Resolution Primitives|Low Resolution Primitives"},
+/*6 LBL_RESOLVE_NORMALS          */ {"guess|double","Recalculate Normals|Two Faces Back To Back"}
+};
+
+void BlenderRenderDialogGui::getRenderSettings(
+        int    &width,
+        int    &height,
+        double &scale,
+        bool docRender)
+{
+#ifndef QT_NO_PROCESS
+    process = nullptr;
+#endif
+
+    mWidth  = width;
+    mHeight = height;
+    mScale  = scale;
+
+    documentRender = docRender;
+
+    dialog = new QDialog(this);
+    dialog->setWindowTitle(tr("Blender Render Settings"));
+
+    mBlenderConfigured = !Preferences::blenderExe.isEmpty();
+
+    loadSettings();
+
+    blenderContent = new QWidget(dialog);
+
+    blenderForm = new QFormLayout(blenderContent);
+
+    // Version
+    QGroupBox *blenderVersionBox = new QGroupBox(QString(),blenderContent);
+    blenderForm->addRow(blenderVersionBox);
+
+    blenderVersionHLayout = new QHBoxLayout(blenderVersionBox);
+    blenderVersionBox->setLayout(blenderVersionHLayout);
+
+    blenderLabel = new QLabel(blenderContent);
+    blenderVersionHLayout->addWidget(blenderLabel);
+
+    blenderVersionEdit = new QLineEdit(blenderContent);
+    blenderVersionEdit->setEnabled(false);
+    blenderVersionHLayout->addWidget(blenderVersionEdit);
+
+    if (mBlenderConfigured){
+        blenderLabel->setText("Blender Version");
+        blenderVersionEdit->setText(Preferences::blenderVersion);
+    } else {
+        blenderLabel->setStyleSheet("QLabel { color : blue; }");
+        blenderLabel->setText("Blender not configured");
+        blenderVersionEdit->setVisible(mBlenderConfigured);
+    }
+
+    // Executable
+    QGroupBox *blenderExeBox = new QGroupBox(QString("Select Blender executable"),blenderContent);
+    blenderForm->addRow(blenderExeBox);
+    QHBoxLayout *hLayout = new QHBoxLayout(blenderExeBox);
+    blenderExeBox->setLayout(hLayout);
+
+    // Paths
+    blenderPathsBox = new QGroupBox(QString("Select Blender paths"),blenderContent);
+    blenderForm->addRow(blenderPathsBox);
+    QGridLayout *gridLayout = new QGridLayout(blenderPathsBox);
+    blenderPathsBox->setLayout(gridLayout);
+
+    QList<QLabel *> pathLabelList;
+    for(int i = 0; i < numPaths(); ++i) {
+        int j = i - 1; // adjust for ignoring first item - blender executable
+        QLabel *pathLabel = new QLabel(blenderPaths[i].label, blenderContent);
+        pathLabel->setToolTip(blenderPaths[i].tooltip);
+        pathLabelList << pathLabel;
+        if (i)
+            gridLayout->addWidget(pathLabel,j,0);
+        else
+            hLayout->addWidget(pathLabel);
+
+        QLineEdit *pathLineEdit = new QLineEdit(QString(blenderPaths[i].value), blenderContent);
+        pathLineEdit->setToolTip(blenderPaths[i].tooltip);
+        pathLineEditList << pathLineEdit;
+        if (i)
+            gridLayout->addWidget(pathLineEdit,j,1);
+        else
+            hLayout->addWidget(pathLineEdit);
+
+        QPushButton *pathBrowseButton = new QPushButton(QString("Browse..."), blenderContent);
+        pathBrowseButtonList << pathBrowseButton;
+        if (i)
+            gridLayout->addWidget(pathBrowseButton,j,2);
+        else
+            hLayout->addWidget(pathBrowseButton);
+
+        QObject::connect(pathBrowseButtonList[i], SIGNAL(clicked(bool)), this, SLOT(browseBlender(bool)));
+    }
+    QObject::connect(pathLineEditList[LBL_BLENDER_PATH], SIGNAL(editingFinished()), this,
+                                                         SLOT(configureBlender()));
+    blenderPathEditAction = pathLineEditList[LBL_BLENDER_PATH]->addAction(QIcon(":/resources/resetlineedit.png"), QLineEdit::TrailingPosition);
+    blenderPathEditAction->setToolTip("Update LDraw render addon");
+    QObject::connect(blenderPathEditAction, SIGNAL(triggered(bool)), this, SLOT(updateLDrawAddon()));
+    blenderPathEditAction->setEnabled(mBlenderConfigured);
+    blenderPathsBox->hide();
+    mBlenderAddonUpdate = false;
+
+    // Settings
+    blenderSettingsBox = new QGroupBox(QString("Select rendered image settings"),blenderContent);
+    blenderForm->addRow(blenderSettingsBox);
+    QFormLayout *settingsSubform = new QFormLayout(blenderSettingsBox);
+
+    int comboBoxItemsIndex = 0;
+    for(int i = 0; i < numSettings(); i++) {
+
+        QLabel *label = new QLabel(blenderContent);
+        if (i == LBL_CROP_IMAGE)
+            label->setText(QString("%1 (%2 x %3)")
+                                   .arg(blenderSettings[i].label)
+                                   .arg(gui->GetImageWidth()).arg(gui->GetImageHeight()));
+        else
+            label->setText(blenderSettings[i].label);
+        label->setToolTip(blenderSettings[i].tooltip);
+        settingLabelList << label;
+
+        if (i < LBL_BEVEL_WIDTH){           // QCheckBoxes
+            QCheckBox *checkBox = new QCheckBox(blenderContent);
+            checkBox->setChecked(blenderSettings[i].value.toInt());
+            checkBox->setToolTip(blenderSettings[i].tooltip);
+            if (documentRender &&
+                    (i == LBL_ADD_ENVIRONMENT ||
+                     i == LBL_CROP_IMAGE ||
+                     i == LBL_TRANSPARENT_BACKGROUND)) {
+                checkBox->setEnabled(false);
+            }
+            if (!documentRender &&
+                    i == LBL_CROP_IMAGE)
+                connect(checkBox,SIGNAL(toggled(bool)),
+                            this,SLOT  (setModelSize(bool)));
+            checkBoxList << checkBox;
+            settingsSubform->addRow(label,checkBox);
+        } else if (i < LBL_COLOUR_SCHEME) { // QLineEdits
+            QLineEdit *lineEdit = new QLineEdit(blenderContent);
+            if (i == LBL_IMAGE_WIDTH || i == LBL_IMAGE_HEIGHT){
+                connect(lineEdit,SIGNAL(textChanged(const QString &)),
+                            this,SLOT  (sizeChanged(const QString &)));
+                lineEdit->setValidator(new QIntValidator(16, RENDER_IMAGE_MAX_SIZE));
+            } else if(i == LBL_DEFAULT_COLOUR) {
+                lineEdit->setReadOnly(true);
+                lineEdit->setStyleSheet("Text-align:left");
+                QImage img(16, 16, QImage::Format_ARGB32);
+                img.fill(0);
+                defaultColourEditAction = lineEdit->addAction(QIcon(QPixmap::fromImage(img)), QLineEdit::TrailingPosition);
+                connect(defaultColourEditAction, SIGNAL(triggered(bool)), this, SLOT(colorButtonClicked(bool)));
+            } else {
+                if (i == LBL_IMAGE_SCALE)
+                    lineEdit->setText(QString::number(mScale, 'g', 1));
+                else
+                    lineEdit->setText(blenderSettings[i].value);
+                lineEdit->setValidator(new QDoubleValidator(0.01,100.0,2));
+            }
+            lineEdit->setToolTip(blenderSettings[i].tooltip);
+            lineEditList << lineEdit;
+            settingsSubform->addRow(label,lineEdit);
+        } else {                            // QComboBoxes
+            QComboBox *comboBox = new QComboBox(blenderContent);
+            comboBox->addItems(comboOptItems[comboBoxItemsIndex].labelStr.split("|"));
+            QStringList dataList = comboOptItems[comboBoxItemsIndex].valueStr.split("|");
+            for (int j = 0; j < comboBox->count(); j++)
+                comboBox->setItemData(j, dataList.at(j));
+            comboBox->setToolTip(blenderSettings[i].tooltip);
+            comboBox->setCurrentIndex(0);
+            comboBoxList << comboBox;
+            comboBoxItemsIndex++;
+            settingsSubform->addRow(label,comboBox);
+        }
+    }
+
+    setModelSize(blenderSettings[LBL_CROP_IMAGE].value.toInt());
+    setDefaultColor(blenderSettings[LBL_DEFAULT_COLOUR].value.toInt());
+
+    QScrollArea *scrollArea = new QScrollArea;
+    scrollArea->setWidget(blenderContent);
+    dialog->setLayout(new QVBoxLayout);
+    dialog->layout()->addWidget(scrollArea);
+
+    blenderPathsBox->setEnabled(mBlenderConfigured);
+    blenderSettingsBox->setEnabled(mBlenderConfigured);
+
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                               Qt::Horizontal, dialog);
+    dialog->layout()->addWidget(&buttonBox);
+    QObject::connect(&buttonBox, SIGNAL(accepted()), dialog, SLOT(accept()));
+    QObject::connect(&buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+
+    pathsGroupButton = new QPushButton(tr("Show Paths"));
+    buttonBox.addButton(pathsGroupButton,QDialogButtonBox::ActionRole);
+    QObject::connect(pathsGroupButton,SIGNAL(clicked()), this,SLOT(showPathsGroup()));
+
+    QPushButton *resetButton = new QPushButton(tr("Reset"));
+    buttonBox.addButton(resetButton,QDialogButtonBox::ActionRole);
+    QObject::connect(resetButton,SIGNAL(clicked()), this,SLOT(resetSettings()));
+
+    blenderContent->setMinimumWidth(int(1280*.3));
+
+    setMinimumSize(200,400);
+
+    int accepted = dialog->exec();
+    if (accepted) {
+        if (settingsModified(width, height, scale))
+            saveSettings();
+    } else {
+        if (settingsModified(width, height, scale))
+            if (promptAccept())
+                saveSettings();
+    }
+}
+
+bool BlenderRenderDialogGui::settingsModified(int &width, int &height, double &scale)
+{
+    bool ok, modified = false;
+    qreal _width = 0.0, _height = 0.0, _scale = 0.0, _value = 0.0;
+    QString oldValue;
+
+    // settings
+    for(int i = 0; i < numSettings(); i++) {
+        // checkboxes
+        if (i < LBL_BEVEL_WIDTH) {
+            for(int j = 0; j < checkBoxList.size(); j++) {
+                oldValue = blenderSettings[i].value;
+                blenderSettings[i].value = QString::number(checkBoxList[j]->isChecked());
+                if (!modified)
+                    modified = blenderSettings[i].value != oldValue;
+                if (i < LBL_VERBOSE)
+                    i++;
+            }
+        }
+        // lineedits
+        else if (i < LBL_COLOUR_SCHEME) {
+            qreal oldValue = 0.0;
+            auto itemChanged = [&oldValue] (qreal newValue) {
+                return newValue > oldValue || newValue < oldValue;
+            };
+            for(int j = 0; j < lineEditList.size(); j++) {
+                if (j == IMAGE_WIDTH_EDIT) {
+                    oldValue = width;
+                    _width  = lineEditList[j]->text().toDouble(&ok);
+                    if (ok) {
+                        width = int(_width);
+                        if (!modified)
+                            modified = itemChanged(_width);
+                    }
+                } else if (j == IMAGE_HEIGHT_EDIT) {
+                    oldValue = height;
+                    _height = lineEditList[j]->text().toDouble(&ok);
+                    if (ok) {
+                        height = int(_height);
+                        if (!modified)
+                            modified = itemChanged(_height);
+                    }
+                } else if (j == IMAGE_SCALE_EDIT) {
+                    oldValue = scale;
+                    _scale = lineEditList[j]->text().toDouble(&ok);
+                    if (ok) {
+                        scale = _scale;
+                        if (!modified)
+                            modified = itemChanged(_scale);
+                    }
+                } else {
+                    oldValue = blenderSettings[i].value.toDouble();
+                    _value = j == DEFAULT_COLOUR_EDIT ? lineEditList[j]->property("ColourID").toDouble(&ok)
+                                                      : lineEditList[j]->text().toDouble(&ok);
+                    if (ok) {
+                        blenderSettings[i].value = QString::number(j == DEFAULT_COLOUR_EDIT ? int(_value) : _value);
+                        if (!modified)
+                            modified = itemChanged(_value);
+                    }
+                }
+                if (i < LBL_IMAGE_SCALE)
+                    i++;
+            }
+        }
+        // comboboxes
+        else {
+            for(int j = 0; j < comboBoxList.size(); j++) {
+                oldValue = blenderSettings[i].value;
+                blenderSettings[i].value = comboBoxList[j]->itemData(comboBoxList[j]->currentIndex()).toString();
+                if (!modified)
+                    modified = blenderSettings[i].value != oldValue;
+                i++;
+            }
+        }
+    }
+
+    // paths
+    for (int i = 0; i < numPaths(); i++) {
+         oldValue = blenderPaths[i].value;
+        blenderPaths[i].value = pathLineEditList[i]->text();
+        if (!modified)
+            modified = blenderPaths[i].value != oldValue;
+    }
+
+    return modified;
+}
+
+void BlenderRenderDialogGui::showPathsGroup()
+{
+    if (blenderPathsBox->isHidden()){
+        blenderPathsBox->show();
+        pathsGroupButton->setText("Hide Paths");
+        blenderContent->adjustSize();
+    }
+    else{
+        blenderPathsBox->hide();
+        pathsGroupButton->setText("Show Paths");
+        blenderContent->adjustSize();
+    }
+}
+void BlenderRenderDialogGui::resetSettings()
+{
+    blenderVersion                       = Preferences::blenderVersion;
+    blenderPaths[LBL_BLENDER_PATH].value = Preferences::blenderExe;
+
+    blenderVersionEdit->setText(blenderVersion);
+    mBlenderConfigured = !Preferences::blenderExe.isEmpty();
+
+    disconnect(lineEditList[IMAGE_HEIGHT_EDIT],SIGNAL(textChanged(const QString &)),
+                                          this,SLOT  (sizeChanged(const QString &)));
+    disconnect(lineEditList[IMAGE_WIDTH_EDIT],SIGNAL(textChanged(const QString &)),
+                                        this, SLOT  (sizeChanged(const QString &)));
+
+    for(int i = 0; i < numSettings(); i++) {
+        if (i < LBL_BEVEL_WIDTH) {
+            for(int j = 0; j < checkBoxList.size(); j++) {
+                checkBoxList[j]->setChecked(blenderSettings[i].value.toInt());
+                if (i < LBL_VERBOSE)
+                    i++;
+            }
+        } else if (i < LBL_COLOUR_SCHEME) {
+            for(int j = 0; j < lineEditList.size(); j++) {
+                if (j == IMAGE_WIDTH_EDIT)
+                    lineEditList[j]->setText(QString::number(mWidth));
+                else if (j == IMAGE_HEIGHT_EDIT)
+                    lineEditList[j]->setText(QString::number(mHeight));
+                else if (j == IMAGE_SCALE_EDIT)
+                    lineEditList[j]->setText(QString::number(mScale, 'g', 1));
+                else if (j == DEFAULT_COLOUR_EDIT)
+                    setDefaultColor(blenderSettings[LBL_DEFAULT_COLOUR].value.toInt());
+                else
+                    lineEditList[j]->setText(blenderSettings[i].value);
+                if (i < LBL_IMAGE_SCALE)
+                    i++;
+            }
+        } else {
+            for(int j = 0; j < comboBoxList.size(); j++) {
+                comboBoxList[j]->setCurrentIndex(0);
+                i++;
+            }
+        }
+    }
+    for (int i = 0; i < numPaths(); i++) {
+        pathLineEditList[i]->setText(blenderPaths[i].value);
+    }
+
+    connect(lineEditList[IMAGE_HEIGHT_EDIT],SIGNAL(textChanged(const QString &)),
+                                       this,SLOT  (sizeChanged(const QString &)));
+    connect(lineEditList[IMAGE_WIDTH_EDIT],SIGNAL(textChanged(const QString &)),
+                                      this,SLOT  (sizeChanged(const QString &)));
+}
+
+void BlenderRenderDialogGui::loadSettings(){
+
+    if (numSettings())
+        return;
+
+    for (int i = 0; i < numSettings(DEFAULT_SETTINGS); i++) {
+        blenderSettings[i] = {
+            defaultSettings[i].key,
+            defaultSettings[i].value,
+            defaultSettings[i].label,
+            defaultSettings[i].tooltip
+        };
+    }
+
+    blenderSettings[LBL_DEFAULT_COLOUR].value = QString::number(gDefaultColor);
+
+    if (!numPaths()) {
+        QString defaultBlendFile = QString("%1/Blender/config/%2")
+                .arg(Preferences::lpub3d3rdPartyConfigDir)
+                .arg(VER_BLENDER_DEFAULT_BLEND_FILE);
+        QStringList addonPaths =     QStringList()
+        /* LBL_BLENDER_PATH       */ << Preferences::blenderExe
+        /* LBL_BLENDFILE_PATH     */ << (Preferences::defaultBlendFile ? defaultBlendFile : QString())
+        /* LBL_ENVIRONMENT_PATH   */ << QString()
+        /* LBL_LDCONFIG_PATH      */ << Preferences::altLDConfigPath
+        /* LBL_LDRAW_DIRECTORY    */ << Preferences::Preferences::ldrawLibPath
+        /* LBL_IMAGES_DIRECTORY   */ << QString()
+        /* LBL_LSYNTH_DIRECTORY   */ << QString()
+        /* LBL_STUDLOGO_DIRECTORY */ << QString();
+        for (int i = 0; i < numPaths(DEFAULT_SETTINGS); i++) {
+            blenderPaths[i] = {
+                defaultPaths[i].key,
+                addonPaths.at(i),
+                defaultPaths[i].label,
+                defaultPaths[i].tooltip
+            };
+        }
+    }
+
+    QFileInfo blenderConfigFileInfo;
+    if (documentRender) {
+        blenderConfigFileInfo.setFile(Preferences::blenderDocumentConfigFile);
+        blenderSettings[LBL_ADD_ENVIRONMENT].value        = "0";
+        blenderSettings[LBL_TRANSPARENT_BACKGROUND].value = "1";
+        blenderSettings[LBL_CROP_IMAGE].value             = "1";
+    } else
+        blenderConfigFileInfo.setFile(Preferences::blenderRenderConfigFile);
+
+    if (blenderConfigFileInfo.exists()) {
+        QSettings Settings(blenderConfigFileInfo.absoluteFilePath(), QSettings::IniFormat);
+        for (int i = 0; i < numSettings(); i++) {
+            if (i == LBL_IMAGE_WIDTH || i == LBL_IMAGE_HEIGHT)
+                continue;
+            QString key = QString("%1/%2").arg(IMPORTLDRAW,blenderSettings[i].key);
+            QString value = Settings.value(key, QString()).toString();
+            blenderSettings[i].value = value == "True" ? "1" : value == "False" ? "0" : value;
+        }
+        for (int i = 1/*skip blenderExe*/; i < numPaths(); i++) {
+            QString key = QString("%1/%2").arg(IMPORTLDRAW,blenderPaths[i].key);
+            blenderPaths[i].value = Settings.value(key, QString()).toString();
+        }
+    }
+
+    blenderVersion                       = Preferences::blenderVersion;
+    blenderPaths[LBL_BLENDER_PATH].value = Preferences::blenderExe;
+}
+
+void BlenderRenderDialogGui::saveSettings()
+{
+    if (!numSettings())
+        loadSettings();
+
+    QString label;
+//    label = blenderPaths[LBL_BLENDER_PATH].label;
+    QString value = blenderPaths[LBL_BLENDER_PATH].value;
+    Preferences::setBlenderExePathPreference(value);
+//    label = "Blender Version";
+    value = blenderVersion;
+    Preferences::setBlenderVersionPreference(value);
+
+    QString blenderConfigFile;
+    if (documentRender)
+        blenderConfigFile = Preferences::blenderDocumentConfigFile;
+    else
+        blenderConfigFile = Preferences::blenderRenderConfigFile;
+    QSettings Settings(blenderConfigFile, QSettings::IniFormat);
+
+    Settings.beginGroup(IMPORTLDRAW);
+//    label = "LDraw Path";
+    value = QDir::toNativeSeparators(Preferences::ldrawLibPath);
+    Settings.setValue(ldrawDirectoryKey, QVariant(value));
+//    label = "Parameter File Path";
+    value = QDir::toNativeSeparators(QString("%1/%2").arg(QFileInfo(blenderConfigFile).absolutePath()).arg(VER_BLENDER_PARAMS_FILE));
+    Settings.setValue(parameterFileKey, QVariant(value));
+    if (!QFileInfo(value).exists())
+        exportParameterFile();
+//    label = "Alternate (Custom) LDConfig";
+    value = QDir::toNativeSeparators(Preferences::altLDConfigPath);
+    Settings.setValue(customLDConfigKey, QVariant(value));
+    for (int i = 1/*skip blenderExe*/; i < numPaths(); i++) {
+//        label = blenderPaths[i].label;
+        value = QDir::toNativeSeparators(blenderPaths[i].value);
+        Settings.setValue(QString("%1").arg(blenderPaths[i].key), QVariant(value));
+    }
+//    label = "Search Directories";
+    value = QDir::toNativeSeparators(Preferences::ldSearchDirs.join(","));
+    Settings.setValue(searchDirectoriesKey, QVariant(value));
+
+    for (int i = 0; i < numSettings(); i++) {
+//        label = blenderSettings[i].label;
+        value = blenderSettings[i].value == "1" ? "True" : blenderSettings[i].value == "0" ? "False" : blenderSettings[i].value;
+        if (i == LBL_BEVEL_WIDTH ||
+            i == LBL_CAMERA_BORDER_PERCENT ||
+            i == LBL_DEFAULT_COLOUR ||
+            i == LBL_GAPS_SIZE ||
+            i == LBL_IMAGE_SCALE ||
+            i == LBL_LOGO_STUD_VERSION)
+            value = blenderSettings[i].value;
+        if (i == LBL_IMAGE_WIDTH ||
+            i == LBL_IMAGE_HEIGHT ||
+            i == LBL_KEEP_ASPECT_RATIO)
+            continue;
+        if (i == LBL_COLOUR_SCHEME){
+            if (blenderSettings[i].value == "custom" &&
+                blenderPaths[LBL_LDCONFIG_PATH].value.isEmpty() &&
+                Preferences::altLDConfigPath.isEmpty()){
+                blenderSettings[i].value = defaultSettings[i].value;
+                QMessageBox box;
+                box.setTextFormat (Qt::RichText);
+                box.setIcon (QMessageBox::Critical);
+                box.setStandardButtons (QMessageBox::Ok);
+                box.setDefaultButton   (QMessageBox::Ok);
+                box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+                box.setWindowTitle(tr ("Custom LDraw Colours"));
+                QString header = "<b>" + tr ("Custom LDConfig file not found.") + "</b>";
+                QString body = tr ("Colour scheme 'custom' selected but no LDConfig file was specified.<br>"
+                                   "The default colour scheme '%1' will be used.")
+                                   .arg(blenderSettings[i].value);
+                box.setText (header);
+                box.setInformativeText (body);
+                box.exec();
+            } else if (!blenderPaths[LBL_LDCONFIG_PATH].value.isEmpty()){
+                Settings.setValue(customLDConfigKey, QVariant(blenderPaths[LBL_LDCONFIG_PATH].value));
+            }
+        }
+        Settings.setValue(QString("%1").arg(blenderSettings[i].key), QVariant(value));
+    }
+    Settings.endGroup();
+}
+
+int BlenderRenderDialogGui::numSettings(bool defaultSettings){
+  int size = 0;
+  if (!blenderSettings[0].key.isEmpty() || defaultSettings)
+      size = sizeof(blenderSettings)/sizeof(blenderSettings[0]);
+  return size;
+}
+
+int BlenderRenderDialogGui::numPaths(bool defaultSettings){
+  int size = 0;
+  if (!blenderPaths[0].key.isEmpty() || defaultSettings)
+      size = sizeof(blenderPaths)/sizeof(blenderPaths[0]);
+  return size;
+}
+
+int BlenderRenderDialogGui::numComboOptItems(){
+    return sizeof(comboOptItems)/sizeof(comboOptItems[0]);
+}
+
+void BlenderRenderDialogGui::colorButtonClicked(bool)
+{
+    int ColorIndex = lineEditList[DEFAULT_COLOUR_EDIT]->property("ColourID").toInt();
+
+    QWidget *parent = lineEditList[DEFAULT_COLOUR_EDIT];
+    lcQColorPickerPopup *popup = new lcQColorPickerPopup(parent, ColorIndex);
+    connect(popup, SIGNAL(selected(int)), SLOT(setDefaultColor(int)));
+    popup->setMinimumSize(300, 200);
+
+    const QRect desktop = QApplication::desktop()->geometry();
+
+    QPoint pos = parent->mapToGlobal(parent->rect().bottomLeft());
+    if (pos.x() < desktop.left())
+        pos.setX(desktop.left());
+    if (pos.y() < desktop.top())
+        pos.setY(desktop.top());
+
+    if ((pos.x() + popup->width()) > desktop.width())
+        pos.setX(desktop.width() - popup->width());
+    if ((pos.y() + popup->height()) > desktop.bottom())
+        pos.setY(desktop.bottom() - popup->height());
+    popup->move(pos);
+
+    popup->setFocus();
+    popup->show();
+}
+
+void BlenderRenderDialogGui::setDefaultColor(int value) const
+{
+    QImage img(12, 12, QImage::Format_ARGB32);
+    img.fill(0);
+
+    lcColor* color = &gColorList[uint(value)];
+    QPainter painter(&img);
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
+    painter.setPen(Qt::darkGray);
+    painter.setBrush(QColor::fromRgbF(qreal(color->Value[0]), qreal(color->Value[1]), qreal(color->Value[2])));
+    painter.drawRect(0, 0, img.width() - 1, img.height() - 1);
+    painter.end();
+
+    lineEditList[DEFAULT_COLOUR_EDIT]->setText(QString("%1 (%2)").arg(color->Name).arg(value));
+    lineEditList[DEFAULT_COLOUR_EDIT]->setProperty("ColourID", qVariantFromValue(value));
+    defaultColourEditAction->setIcon(QPixmap::fromImage(img));
+    defaultColourEditAction->setToolTip(tr("Select Colour"));
+}
+
+void BlenderRenderDialogGui::browseBlender(bool unused)
+{
+    Q_UNUSED(unused)
+    for(int i = 0; i < numPaths(); ++i) {
+        if (sender() == pathBrowseButtonList.at(i)) {
+            QString blenderPath = QDir::toNativeSeparators(blenderPaths[i].value);
+            QFileDialog dialog(nullptr);
+            dialog.setWindowTitle(tr("Locate %1").arg(blenderPaths[i].label));
+            if (i < LBL_LSYNTH_DIRECTORY)
+                dialog.setFileMode(QFileDialog::ExistingFile);
+            else
+                dialog.setFileMode(QFileDialog::Directory);
+            if (!blenderPath.isEmpty())
+                dialog.setDirectory(QFileInfo(blenderPath).absolutePath());
+            if (dialog.exec()) {
+                QStringList selectedPath = dialog.selectedFiles();
+                if (selectedPath.size() == 1) {
+                    QFileInfo  pathInfo(selectedPath.at(0));
+                    if (pathInfo.exists()) {
+                        pathLineEditList[i]->setText(selectedPath.at(0));
+                    }
+                }
+            }
+        }
+    }
+}
+
+void BlenderRenderDialogGui::sizeChanged(const QString &value)
+{
+    /* original height x new width / original width = new height */
+    int mNewValue = value.toInt();
+    if (checkBoxList[LBL_KEEP_ASPECT_RATIO]->isChecked())
+    {
+        if (sender() == lineEditList[IMAGE_WIDTH_EDIT])
+        {
+            disconnect(lineEditList[IMAGE_HEIGHT_EDIT],SIGNAL(textChanged(const QString &)),
+                                                  this,SLOT  (sizeChanged(const QString &)));
+            lineEditList[IMAGE_HEIGHT_EDIT]->setText(QString::number(qRound(double(mHeight * mNewValue / mWidth))));
+            connect(lineEditList[IMAGE_HEIGHT_EDIT],SIGNAL(textChanged(const QString &)),
+                                               this,SLOT  (sizeChanged(const QString &)));
+        }
+        else if (sender() == lineEditList[IMAGE_HEIGHT_EDIT])
+        {
+            disconnect(lineEditList[IMAGE_WIDTH_EDIT],SIGNAL(textChanged(const QString &)),
+                                                this, SLOT  (sizeChanged(const QString &)));
+            lineEditList[IMAGE_WIDTH_EDIT]->setText(QString::number(qRound(double(mNewValue * mWidth / mHeight))));
+            connect(lineEditList[IMAGE_WIDTH_EDIT],SIGNAL(textChanged(const QString &)),
+                                              this,SLOT  (sizeChanged(const QString &)));
+        }
+    }
+}
+
+void BlenderRenderDialogGui::setModelSize(bool checked)
+{
+    disconnect(lineEditList[IMAGE_HEIGHT_EDIT],SIGNAL(textChanged(const QString &)),
+                                          this,SLOT  (sizeChanged(const QString &)));
+    disconnect(lineEditList[IMAGE_WIDTH_EDIT],SIGNAL(textChanged(const QString &)),
+                                        this, SLOT  (sizeChanged(const QString &)));
+
+    checkBoxList[LBL_KEEP_ASPECT_RATIO]->setChecked(!checked);
+    if (checked)
+    {
+        lineEditList[IMAGE_WIDTH_EDIT]->setText(QString::number(gui->GetImageWidth()));
+        lineEditList[IMAGE_HEIGHT_EDIT]->setText(QString::number(gui->GetImageHeight()));
+    }
+    else
+    {
+        lineEditList[IMAGE_WIDTH_EDIT]->setText(QString::number(mWidth));
+        lineEditList[IMAGE_HEIGHT_EDIT]->setText(QString::number(mHeight));
+    }
+
+    connect(lineEditList[IMAGE_HEIGHT_EDIT],SIGNAL(textChanged(const QString &)),
+                                       this,SLOT  (sizeChanged(const QString &)));
+    connect(lineEditList[IMAGE_WIDTH_EDIT],SIGNAL(textChanged(const QString &)),
+                                      this,SLOT  (sizeChanged(const QString &)));
+}
+
+bool BlenderRenderDialogGui::promptAccept()
+{
+    if (QMessageBox::question(nullptr,
+                              QString("Render Settings Modified"),
+                              QString("Do you want to accept the modified settings before quitting ?"),
+                              QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel) == QMessageBox::Yes)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+void BlenderRenderDialogGui::updateLDrawAddon()
+{
+    QObject::disconnect(pathLineEditList[LBL_BLENDER_PATH], SIGNAL(editingFinished()), this,
+                                                            SLOT(configureBlender()));
+    mBlenderAddonUpdate = true;
+    blenderVersionEdit->setVisible(false);
+    configureBlender();
+
+    QObject::connect(pathLineEditList[LBL_BLENDER_PATH], SIGNAL(editingFinished()), this,
+                                                         SLOT(configureBlender()));
+}
+
+void BlenderRenderDialogGui::configureBlender()
+{
+    progressBar = nullptr;
+
+    // Confirm blender exe exist
+    QString blenderFile = pathLineEditList[LBL_BLENDER_PATH]->text();
+    if (blenderFile.isEmpty()) {
+        blenderVersion.clear();
+        mBlenderConfigured = false;
+        mBlenderAddonUpdate = !mBlenderConfigured;
+        blenderLabel->setStyleSheet("QLabel { color : blue; }");
+        blenderLabel->setText("Blender not configured");
+        blenderVersionEdit->setVisible(mBlenderConfigured);
+        blenderPathEditAction->setEnabled(mBlenderConfigured);
+        blenderPathsBox->setEnabled(mBlenderConfigured);
+        blenderSettingsBox->setEnabled(mBlenderConfigured);
+        emit gui->messageSig(LOG_INFO, QString("Blender path is empty. Quitting."));
+        return;
+    }
+
+    if (mBlenderConfigured && !mBlenderAddonUpdate)
+        return;
+
+    connect(&updateTimer, SIGNAL(timeout()), this, SLOT(update()));
+    updateTimer.start(500);
+    lineCount = 1;
+
+    progressBar = new QProgressBar(blenderContent);
+    progressBar->setMaximum(0);
+    progressBar->setMinimum(0);
+    progressBar->setValue(1);
+    blenderVersionHLayout->replaceWidget(blenderVersionEdit, progressBar);
+    progressBar->show();
+
+    if (QFileInfo(blenderFile).exists()) {
+        statusUpdate(true, "Downloading Blender addon...");
+
+        // Setup
+        QString const blenderExe = QDir::toNativeSeparators(blenderFile);
+        QString const blenderDir = QString("%1/Blender").arg(Preferences::lpub3d3rdPartyConfigDir);
+        QString const blenderConfigDir   = QString("%1/config").arg(blenderDir);
+        QString const blenderInstallFile = QDir::toNativeSeparators(QString("%1/%2").arg(blenderDir).arg(VER_BLENDER_ADDON_INSTALL_FILE));
+
+        // Download and extract blender addon
+        if (!extractBlenderAddon(blenderDir)) {
+            if (mBlenderAddonUpdate) {
+                blenderVersionHLayout->replaceWidget(progressBar, blenderVersionEdit);
+                mBlenderConfigured = true;
+                mBlenderAddonUpdate = !mBlenderConfigured;
+                blenderLabel->setText("Blender Version");
+                blenderLabel->setStyleSheet("QLabel { color : black; }");
+                blenderVersionEdit->setText(Preferences::blenderVersion);
+                blenderVersionEdit->setToolTip("Display the Blender and LPub3D Render addon version");
+                blenderVersionEdit->setVisible(mBlenderConfigured);
+                blenderPathEditAction->setEnabled(mBlenderConfigured);
+            } else {
+                statusUpdate();
+            }
+            return;
+        }
+        if (!QFileInfo(blenderInstallFile).exists()) {
+            gui->messageSig(LOG_ERROR, QString("Could not find addon install file: %1").arg(blenderInstallFile));
+            statusUpdate();
+            return;
+        }
+
+        // Create Blender config directory
+        QDir configDir(blenderConfigDir);
+        if(!QDir(configDir).exists())
+            configDir.mkpath(".");
+
+        // Save Blender settings
+        saveSettings();
+
+        // Install Blender addon
+        QStringList arguments;
+        arguments << QString("--background");
+        arguments << QString("--python");
+        arguments << blenderInstallFile;
+
+        QString message = QString("Blender Addon Arguments: %1 %2").arg(blenderExe).arg(arguments.join(" "));
+        emit gui->messageSig(LOG_INFO, message);
+
+        process = new QProcess();
+
+        connect(process, SIGNAL(readyReadStandardOutput()), this, SLOT(readStdOut()));
+
+        QStringList systemEnvironment = QProcess::systemEnvironment();
+        systemEnvironment.prepend("LDRAW_DIRECTORY=" + Preferences::ldrawLibPath);
+
+        process->setEnvironment(systemEnvironment);
+
+        process->setWorkingDirectory(blenderDir);
+
+        process->setStandardErrorFile(QString("%1/stderr-blender-addon-install").arg(blenderDir));
+
+        process->start(blenderExe, arguments);
+
+        if (! process->waitForStarted()) {
+            message = QString("Cannot start addon install process.");
+            emit gui->messageSig(LOG_ERROR, message);
+            statusUpdate();
+            // Close process
+            delete process;
+            process = nullptr;
+            return;
+        } else{
+            statusUpdate(true, "Installing Blender addon... ");
+            emit gui->messageSig(LOG_INFO, QString("Addon install process [%1] running...").arg(process->processId()));
+        }
+    } else {
+        emit gui->messageSig(LOG_ERROR, QString("Blender executable not found at [%1]").arg(blenderFile));
+    }
+}
+
+void BlenderRenderDialogGui::statusUpdate(bool ok, const QString &message)
+{
+    QString label, colour;
+    if (ok){
+        label  = ! message.isEmpty() ? message : "Installing Blender addon... ";
+        colour = "black";
+    } else {
+        if (progressBar) {
+            blenderVersionHLayout->replaceWidget(progressBar, blenderVersionEdit);
+            progressBar->close();
+        }
+        pathLineEditList[LBL_BLENDER_PATH]->text() = QString();
+        label  = ! message.isEmpty() ? message : "Blender not configured";
+        colour = message.startsWith("Error:", Qt::CaseInsensitive) ? "red" : "blue";
+    }
+    blenderLabel->setText(label);
+    blenderLabel->setStyleSheet(QString("QLabel { color : %1; }").arg(colour));
+}
+
+void BlenderRenderDialogGui::update()
+{
+#ifndef QT_NO_PROCESS
+    if (!process)
+        return;
+
+    if (process->state() == QProcess::NotRunning)
+    {
+        emit gui->messageSig(LOG_INFO, QString("Addon install finished"));
+        showResult();
+    }
+#endif
+    QApplication::processEvents();
+}
+
+# include "messageboxresizable.h"
+
+void BlenderRenderDialogGui::readStdOut()
+{
+    QString StdOut = QString(process->readAllStandardOutput());
+
+    stdOutList.append(StdOut);
+
+    QRegExp rxInfo("^INFO: ");
+    QRegExp rxData("^DATA: ");
+    QRegExp rxError("^WARNING: |ERROR: ", Qt::CaseInsensitive);
+    QRegExp rxAddonVersion("^ADDON VERSION: ", Qt::CaseInsensitive);
+
+    QStringList items;
+    QStringList stdOutLines = StdOut.split(QRegExp("\n|\r\n|\r"));
+
+    for (QString stdOutLine: stdOutLines) {
+        if (stdOutLine.isEmpty())
+            continue;
+
+        //emit gui->messageSig(LOG_DEBUG, QString("STD_OUT: %1").arg(stdOutLine));
+
+        if (lineCount == 1) {
+            // Get Blender Version
+            items = stdOutLine.split(" ");
+            if (items.count() > 6) {
+                blenderVersion.clear();
+                blenderVersion.append(items.at(1)+" ");  // 0 version number - 2.81
+                blenderVersion.append(items.at(2)+" ");  // 1 sub id - (sub
+                blenderVersion.append(items.at(3)+" ");  // 2 sub id - 16)
+                blenderVersion.append(items.at(5));      // 3 hash value
+                emit gui->messageSig(LOG_DEBUG, QString("Blender version: %1").arg(blenderVersion));
+            } else {
+                QString message = QString("Invaid Blender version: %1").arg(stdOutLine);
+                emit gui->messageSig(LOG_NOTICE, message);
+                statusUpdate(false, message);
+                return;
+            }
+            lineCount++;
+        } else if (stdOutLine.contains(rxInfo)) {
+            items = stdOutLine.split(": ");
+            statusUpdate(true, items.last());
+        } else if (stdOutLine.contains(rxData)) {
+            items = stdOutLine.split(": ");
+            if (items.at(1) == "ENVIRONMENT_FILE") {
+                blenderPaths[LBL_ENVIRONMENT_PATH].value = items.at(2);
+                pathLineEditList[LBL_ENVIRONMENT_PATH]->setText(items.at(2));
+            } else if (items.at(1) == "LSYNTH_DIRECTORY") {
+                blenderPaths[LBL_LSYNTH_DIRECTORY].value = items.at(2);
+                pathLineEditList[LBL_LSYNTH_DIRECTORY]->setText(items.at(2));
+            } else if (items.at(1) == "STUDLOGO_DIRECTORY") {
+                blenderPaths[LBL_STUDLOGO_DIRECTORY].value = items.at(2);
+                pathLineEditList[LBL_STUDLOGO_DIRECTORY]->setText(items.at(2));
+            }
+        } else if (stdOutLine.contains(rxError)){
+            QString detailedText = stdOutLine.trimmed()
+                    .replace("<","&lt;")
+                    .replace(">","&gt;")
+                    .replace("&","&amp;") + "<br>";
+            if (Preferences::modeGUI){
+                showMessage(detailedText);
+            } else {
+                emit gui->messageSig(LOG_ERROR, detailedText);
+            }
+        } else if (stdOutLine.contains(rxAddonVersion)) {
+            // Get Addon version
+            items = stdOutLine.split(":");
+            blenderVersion.append(", LDraw Addon v"+items.at(1).trimmed()); // 1 addon version
+        }
+    }
+}
+
+QString BlenderRenderDialogGui::readStdErr(bool &hasError) const
+{
+    hasError = false;
+    QStringList returnLines;
+    QString const blenderDir = QString("%1/Blender").arg(Preferences::lpub3d3rdPartyConfigDir);
+    QFile file(QString("%1/stderr-blender-addon-install").arg(blenderDir));
+    if ( ! file.open(QFile::ReadOnly | QFile::Text))
+    {
+        QString message = QString("Failed to open log file: %1:\n%2")
+                .arg(file.fileName())
+                .arg(file.errorString());
+        return message;
+    }
+    QTextStream in(&file);
+    while ( ! in.atEnd())
+    {
+        QString line = in.readLine(0);
+        returnLines << line.trimmed().replace("<","&lt;")
+                                     .replace(">","&gt;")
+                                     .replace("&","&amp;") + "<br>";
+        if (!hasError)
+            hasError = !line.isEmpty();
+    }
+    return returnLines.join(" ");
+}
+
+void BlenderRenderDialogGui::writeStdOut()
+{
+    QString const blenderDir = QString("%1/Blender").arg(Preferences::lpub3d3rdPartyConfigDir);
+    QFile file(QString("%1/stdout-blender-addon-install").arg(blenderDir));
+    if (file.open(QFile::WriteOnly | QIODevice::Truncate | QFile::Text))
+    {
+        QTextStream Out(&file);
+        for (const QString& Line : stdOutList)
+            Out << Line;
+        file.close();
+    }
+    else
+    {
+        emit gui->messageSig(LOG_NOTICE, QString("Error writing to %1 file '%2':\n%3")
+                             .arg("stdout").arg(file.fileName(), file.errorString()));
+    }
+}
+
+bool BlenderRenderDialogGui::promptCancel()
+{
+#ifndef QT_NO_PROCESS
+    if (process) {
+        if (QMessageBox::question(nullptr,
+                                  QString("Cancel Addon Install"),
+                                  QString("Are you sure you want to cancel the add on install?"),
+                                  QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+        {
+            process->kill();
+
+            // Close process
+            delete process;
+            process = nullptr;
+
+        }
+        else
+            return false;
+    }
+#endif
+    return true;
+}
+
+void BlenderRenderDialogGui::reject()
+{
+    if (promptCancel())
+        dialog->reject();
+}
+
+void BlenderRenderDialogGui::showResult()
+{
+    QString message;
+    bool hasError;
+    const QString StdErrLog = readStdErr(hasError);
+
+    progressBar->close();
+
+    writeStdOut();
+
+    if (process->exitStatus() != QProcess::NormalExit || process->exitCode() != 0 || hasError)
+    {
+        QString const blenderDir = QString("%1/Blender").arg(Preferences::lpub3d3rdPartyConfigDir);
+        message = QString("Addon install failed. See %1/stderr-blender-addon-install for details.").arg(blenderDir);
+        statusUpdate(false, "Error: Addon install failed.");
+        showMessage(StdErrLog);
+    } else {
+        blenderVersionHLayout->replaceWidget(progressBar, blenderVersionEdit);
+        message = QString("Blender version %1").arg(blenderVersion);
+        mBlenderConfigured = true;
+        mBlenderAddonUpdate = !mBlenderConfigured;
+        blenderLabel->setText("Blender Version");
+        blenderLabel->setStyleSheet("QLabel { color : black; }");
+        blenderVersionEdit->setText(blenderVersion);
+        blenderVersionEdit->setToolTip("Display the Blender and LPub3D Render addon version");
+        blenderVersionEdit->setVisible(mBlenderConfigured);
+        blenderPathEditAction->setEnabled(mBlenderConfigured);
+        blenderPathsBox->setEnabled(mBlenderConfigured);
+        blenderSettingsBox->setEnabled(mBlenderConfigured);
+    }
+
+    // Close process
+    delete process;
+    process = nullptr;
+
+    emit gui->messageSig(hasError ? LOG_NOTICE : LOG_INFO, message);
+}
+
+void BlenderRenderDialogGui::showMessage(const QString &message)
+{
+    QPixmap _icon = QPixmap(":/icons/lpub96.png");
+    if (_icon.isNull())
+        _icon = QPixmap (":/icons/update.png");
+    QMessageBoxResizable box;
+    box.setTextFormat (Qt::RichText);
+    box.setIcon (QMessageBox::Critical);
+    box.setStandardButtons (QMessageBox::Ok);
+    box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    box.setWindowTitle("Blender Addon Install");
+    QString header = "<b>" + tr ("Addon install error.") + "&nbsp;</b>";
+    QString body = tr ("An error occurred. See Show Details...");
+    box.setText (header);
+    box.setInformativeText (body);
+    box.setDetailedText(message);
+    box.exec();
+}
+
+bool BlenderRenderDialogGui::extractBlenderAddon(const QString &blenderDir)
+{
+    QString const blenderAddonDir    = QString("%1/addons").arg(blenderDir);
+    QString const blenderAddonFile   = QString("%1/%2").arg(blenderDir).arg(VER_BLENDER_ADDON_FILE);
+    QString const blenderInstallFile = QString("%1/%2").arg(blenderDir).arg(VER_BLENDER_ADDON_INSTALL_FILE);
+
+    QDir dir(blenderDir);
+    if (!dir.exists())
+        dir.mkdir(blenderDir);
+
+    // Remove old addon archive if exist
+    if (QFileInfo(blenderAddonDir).exists()) {
+        if (QFileInfo(blenderInstallFile).exists()){
+            if (Preferences::modeGUI){
+                QPixmap _icon = QPixmap(":/icons/lpub96.png");
+                if (_icon.isNull())
+                    _icon = QPixmap (":/icons/update.png");
+
+                QMessageBox box;
+                box.setWindowIcon(QIcon());
+                box.setIconPixmap (_icon);
+                box.setTextFormat (Qt::RichText);
+                box.setWindowTitle(tr ("Blender Addon"));
+                box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+                QString title = tr("An existing LDraw Blender addon was detected.");
+                box.setText (title);
+                QString text  = tr("Do you want to download the addon again?");
+                box.setInformativeText (text);
+                box.setStandardButtons (QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+                box.setDefaultButton   (QMessageBox::No);
+                int execReturn = box.exec();
+                if (execReturn == QMessageBox::No) {
+                    return true;
+                } else if (execReturn == QMessageBox::Cancel) {
+                    return false;
+                }
+            }
+        }
+        QDir dir(blenderAddonDir);
+        dir.setNameFilters(QStringList() << "*.*");
+        dir.setFilter(QDir::Files);
+        foreach(QString dirFile, dir.entryList()) {
+            dir.remove(dirFile);
+            emit gui->messageSig(LOG_INFO, QString("Removed Blender addon item: [%1]").arg(dirFile));
+        }
+        if (!dir.rmdir("."))
+            emit gui->messageSig(LOG_NOTICE, QString("Failed to remove Blender folder: %1")
+                                                     .arg(blenderAddonDir));
+    }
+
+    // Download Blender addon
+    gui->downloadFile(VER_BLENDER_RENDER_ADDONS_URL, "Blender Addon");
+    QByteArray Buffer = gui->getDownloadedFile();
+    QFile file(blenderAddonFile);
+    if (! file.open(QIODevice::WriteOnly)) {
+        emit gui->messageSig(LOG_ERROR, QString("Failed to open Blender file: %1:<br>%2")
+                                  .arg(blenderAddonFile)
+                                  .arg(file.errorString()));
+        return false;
+    }
+    file.write(Buffer);
+    file.close();
+
+    // Extract Blender addon
+    QStringList result = JlCompress::extractDir(blenderAddonFile, blenderDir);
+    if (result.isEmpty()){
+        emit gui->messageSig(LOG_ERROR, QString("Failed to extract %1 to %2")
+                             .arg(blenderAddonFile).arg(blenderDir));
+        return false;
+    } else {
+        QDir dir(blenderDir);
+        dir.remove(blenderAddonFile);
+        emit gui->messageSig(LOG_INFO, QString("%1 items archive extracted to %2")
+                             .arg(result.size()).arg(blenderDir));
+    }
+    return true;
+}
+
+void BlenderRenderDialogGui::loadDefaultParameters(QByteArray& Buffer, int Which)
+{
+
+    /*
+    # File: BlenderLDrawParameters.lst
+    #
+    # This config file captures parameters for the Blender LDraw Render addon
+    # Parameters must be prefixed using one of the following predefined
+    # 'Item' labels:
+    # - lgeo_colour
+    # - sloped_brick
+    # - light_brick
+
+    # LGEO CUSTOM COLOURS
+    # LGEO is a parts library for rendering LEGO using the POV-Ray
+    # rendering software. This is the list of LEGO colours suitable
+    # for realistic rendering extracted from the LGEO file 'lg_color.inc'.
+    # When the 'Colour Scheme' option is set to 'Realistic', the standard
+    # LDraw colours RGB value is overwritten with the values defined here.
+    # Note: You can customize these RGB values as you want.
+
+    #   Item-------  ID--    R--   G--   B--
+    */
+    const char DefaultCustomColours[] = {
+       "lgeo_colour,   0,    33,   33,   33\n"
+       "lgeo_colour,   1,    13,  105,  171\n"
+       "lgeo_colour,   2,    40,  127,   70\n"
+       "lgeo_colour,   3,     0,  143,  155\n"
+       "lgeo_colour,   4,   196,   40,   27\n"
+       "lgeo_colour,   5,   205,   98,  152\n"
+       "lgeo_colour,   6,    98,   71,   50\n"
+       "lgeo_colour,   7,   161,  165,  162\n"
+       "lgeo_colour,   8,   109,  110,  108\n"
+       "lgeo_colour,   9,   180,  210,  227\n"
+       "lgeo_colour,   10,   75,  151,   74\n"
+       "lgeo_colour,   11,   85,  165,  175\n"
+       "lgeo_colour,   12,  242,  112,   94\n"
+       "lgeo_colour,   13,  252,  151,  172\n"
+       "lgeo_colour,   14,  245,  205,   47\n"
+       "lgeo_colour,   15,  242,  243,  242\n"
+       "lgeo_colour,   17,  194,  218,  184\n"
+       "lgeo_colour,   18,  249,  233,  153\n"
+       "lgeo_colour,   19,  215,  197,  153\n"
+       "lgeo_colour,   20,  193,  202,  222\n"
+       "lgeo_colour,   21,  224,  255,  176\n"
+       "lgeo_colour,   22,  107,   50,  123\n"
+       "lgeo_colour,   23,   35,   71,  139\n"
+       "lgeo_colour,   25,  218,  133,   64\n"
+       "lgeo_colour,   26,  146,   57,  120\n"
+       "lgeo_colour,   27,  164,  189,   70\n"
+       "lgeo_colour,   28,  149,  138,  115\n"
+       "lgeo_colour,   29,  228,  173,  200\n"
+       "lgeo_colour,   30,  172,  120,  186\n"
+       "lgeo_colour,   31,  225,  213,  237\n"
+       "lgeo_colour,   32,    0,   20,   20\n"
+       "lgeo_colour,   33,  123,  182,  232\n"
+       "lgeo_colour,   34,  132,  182,  141\n"
+       "lgeo_colour,   35,  217,  228,  167\n"
+       "lgeo_colour,   36,  205,   84,   75\n"
+       "lgeo_colour,   37,  228,  173,  200\n"
+       "lgeo_colour,   38,  255,   43,    0\n"
+       "lgeo_colour,   40,  166,  145,  130\n"
+       "lgeo_colour,   41,  170,  229,  255\n"
+       "lgeo_colour,   42,  198,  255,    0\n"
+       "lgeo_colour,   43,  193,  223,  240\n"
+       "lgeo_colour,   44,  150,  112,  159\n"
+       "lgeo_colour,   46,  247,  241,  141\n"
+       "lgeo_colour,   47,  252,  252,  252\n"
+       "lgeo_colour,   52,  156,  149,  199\n"
+       "lgeo_colour,   54,  255,  246,  123\n"
+       "lgeo_colour,   57,  226,  176,   96\n"
+       "lgeo_colour,   65,  236,  201,   53\n"
+       "lgeo_colour,   66,  202,  176,    0\n"
+       "lgeo_colour,   67,  255,  255,  255\n"
+       "lgeo_colour,   68,  243,  207,  155\n"
+       "lgeo_colour,   69,  142,   66,  133\n"
+       "lgeo_colour,   70,  105,   64,   39\n"
+       "lgeo_colour,   71,  163,  162,  164\n"
+       "lgeo_colour,   72,   99,   95,   97\n"
+       "lgeo_colour,   73,  110,  153,  201\n"
+       "lgeo_colour,   74,  161,  196,  139\n"
+       "lgeo_colour,   77,  220,  144,  149\n"
+       "lgeo_colour,   78,  246,  215,  179\n"
+       "lgeo_colour,   79,  255,  255,  255\n"
+       "lgeo_colour,   80,  140,  140,  140\n"
+       "lgeo_colour,   82,  219,  172,   52\n"
+       "lgeo_colour,   84,  170,  125,   85\n"
+       "lgeo_colour,   85,   52,   43,  117\n"
+       "lgeo_colour,   86,  124,   92,   69\n"
+       "lgeo_colour,   89,  155,  178,  239\n"
+       "lgeo_colour,   92,  204,  142,  104\n"
+       "lgeo_colour,  100,  238,  196,  182\n"
+       "lgeo_colour,  115,  199,  210,   60\n"
+       "lgeo_colour,  134,  174,  122,   89\n"
+       "lgeo_colour,  135,  171,  173,  172\n"
+       "lgeo_colour,  137,  106,  122,  150\n"
+       "lgeo_colour,  142,  220,  188,  129\n"
+       "lgeo_colour,  148,   62,   60,   57\n"
+       "lgeo_colour,  151,   14,   94,   77\n"
+       "lgeo_colour,  179,  160,  160,  160\n"
+       "lgeo_colour,  183,  242,  243,  242\n"
+       "lgeo_colour,  191,  248,  187,   61\n"
+       "lgeo_colour,  212,  159,  195,  233\n"
+       "lgeo_colour,  216,  143,   76,   42\n"
+       "lgeo_colour,  226,  253,  234,  140\n"
+       "lgeo_colour,  232,  125,  187,  221\n"
+       "lgeo_colour,  256,   33,   33,   33\n"
+       "lgeo_colour,  272,   32,   58,   86\n"
+       "lgeo_colour,  273,   13,  105,  171\n"
+       "lgeo_colour,  288,   39,   70,   44\n"
+       "lgeo_colour,  294,  189,  198,  173\n"
+       "lgeo_colour,  297,  170,  127,   46\n"
+       "lgeo_colour,  308,   53,   33,    0\n"
+       "lgeo_colour,  313,  171,  217,  255\n"
+       "lgeo_colour,  320,  123,   46,   47\n"
+       "lgeo_colour,  321,   70,  155,  195\n"
+       "lgeo_colour,  322,  104,  195,  226\n"
+       "lgeo_colour,  323,  211,  242,  234\n"
+       "lgeo_colour,  324,  196,    0,   38\n"
+       "lgeo_colour,  326,  226,  249,  154\n"
+       "lgeo_colour,  330,  119,  119,   78\n"
+       "lgeo_colour,  334,  187,  165,   61\n"
+       "lgeo_colour,  335,  149,  121,  118\n"
+       "lgeo_colour,  366,  209,  131,    4\n"
+       "lgeo_colour,  373,  135,  124,  144\n"
+       "lgeo_colour,  375,  193,  194,  193\n"
+       "lgeo_colour,  378,  120,  144,  129\n"
+       "lgeo_colour,  379,   94,  116,  140\n"
+       "lgeo_colour,  383,  224,  224,  224\n"
+       "lgeo_colour,  406,    0,   29,  104\n"
+       "lgeo_colour,  449,  129,    0,  123\n"
+       "lgeo_colour,  450,  203,  132,   66\n"
+       "lgeo_colour,  462,  226,  155,   63\n"
+       "lgeo_colour,  484,  160,   95,   52\n"
+       "lgeo_colour,  490,  215,  240,    0\n"
+       "lgeo_colour,  493,  101,  103,   97\n"
+       "lgeo_colour,  494,  208,  208,  208\n"
+       "lgeo_colour,  496,  163,  162,  164\n"
+       "lgeo_colour,  503,  199,  193,  183\n"
+       "lgeo_colour,  504,  137,  135,  136\n"
+       "lgeo_colour,  511,  250,  250,  250\n"
+    };
+
+    /*
+    # SLOPED BRICKS
+    # Dictionary with part number (without any extension for decorations), as key,
+    # of pieces that have grainy slopes, and, as values, a set containing the angles (in
+    # degrees) of the face's normal to the horizontal plane. Use a | delimited tuple to
+    # represent a range within which the angle must lie.
+
+    #   Item--------  PartID-  Angle/Angle Range (in degrees)
+    */
+    const char DefaultSlopedBricks[] = {
+       "sloped_brick,     962,  45\n"
+       "sloped_brick,    2341, -45\n"
+       "sloped_brick,    2449, -16\n"
+       "sloped_brick,    2875,  45\n"
+       "sloped_brick,    2876,  40|63\n"
+       "sloped_brick,    3037,  45\n"
+       "sloped_brick,    3038,  45\n"
+       "sloped_brick,    3039,  45\n"
+       "sloped_brick,    3040,  45\n"
+       "sloped_brick,    3041,  45\n"
+       "sloped_brick,    3042,  45\n"
+       "sloped_brick,    3043,  45\n"
+       "sloped_brick,    3044,  45\n"
+       "sloped_brick,    3045,  45\n"
+       "sloped_brick,    3046,  45\n"
+       "sloped_brick,    3048,  45\n"
+       "sloped_brick,    3049,  45\n"
+       "sloped_brick,    3135,  45\n"
+       "sloped_brick,    3297,  63\n"
+       "sloped_brick,    3298,  63\n"
+       "sloped_brick,    3299,  63\n"
+       "sloped_brick,    3300,  63\n"
+       "sloped_brick,    3660, -45\n"
+       "sloped_brick,    3665, -45\n"
+       "sloped_brick,    3675,  63\n"
+       "sloped_brick,    3676, -45\n"
+       "sloped_brick,   3678b,  24\n"
+       "sloped_brick,    3684,  15\n"
+       "sloped_brick,    3685,  16\n"
+       "sloped_brick,    3688,  15\n"
+       "sloped_brick,    3747, -63\n"
+       "sloped_brick,    4089, -63\n"
+       "sloped_brick,    4161,  63\n"
+       "sloped_brick,    4286,  63\n"
+       "sloped_brick,    4287, -63\n"
+       "sloped_brick,    4445,  45\n"
+       "sloped_brick,    4460,  16\n"
+       "sloped_brick,    4509,  63\n"
+       "sloped_brick,    4854, -45\n"
+       "sloped_brick,    4856, -60|-70, -45\n"
+       "sloped_brick,    4857,  45\n"
+       "sloped_brick,    4858,  72\n"
+       "sloped_brick,    4861,  45,      63\n"
+       "sloped_brick,    4871, -45\n"
+       "sloped_brick,    4885,  72\n"
+       "sloped_brick,    6069,  72,      45\n"
+       "sloped_brick,    6153,  60|70,   26|4\n"
+       "sloped_brick,    6227,  45\n"
+       "sloped_brick,    6270,  45\n"
+       "sloped_brick,   13269,  40|63\n"
+       "sloped_brick,   13548,  45\n"
+       "sloped_brick,   15571,  45\n"
+       "sloped_brick,   18759, -45\n"
+       "sloped_brick,   22390,  40|55\n"
+       "sloped_brick,   22391,  40|55\n"
+       "sloped_brick,   22889, -45\n"
+       "sloped_brick,   28192,  45\n"
+       "sloped_brick,   30180,  47\n"
+       "sloped_brick,   30182,  45\n"
+       "sloped_brick,   30183, -45\n"
+       "sloped_brick,   30249,  35\n"
+       "sloped_brick,   30283, -45\n"
+       "sloped_brick,   30363,  72\n"
+       "sloped_brick,   30373, -24\n"
+       "sloped_brick,   30382,  11,      45\n"
+       "sloped_brick,   30390, -45\n"
+       "sloped_brick,   30499,  16\n"
+       "sloped_brick,   32083,  45\n"
+       "sloped_brick,   43708,  72\n"
+       "sloped_brick,   43710,  72,      45\n"
+       "sloped_brick,   43711,  72,      45\n"
+       "sloped_brick,   47759,  40|63\n"
+       "sloped_brick,   52501, -45\n"
+       "sloped_brick,   60219, -45\n"
+       "sloped_brick,   60477,  72\n"
+       "sloped_brick,   60481,  24\n"
+       "sloped_brick,   63341,  45\n"
+       "sloped_brick,   72454, -45\n"
+       "sloped_brick,   92946,  45\n"
+       "sloped_brick,   93348,  72\n"
+       "sloped_brick,   95188,  65\n"
+       "sloped_brick,   99301,  63\n"
+       "sloped_brick,  303923,  45\n"
+       "sloped_brick,  303926,  45\n"
+       "sloped_brick,  304826,  45\n"
+       "sloped_brick,  329826,  64\n"
+       "sloped_brick,  374726, -64\n"
+       "sloped_brick,  428621,  64\n"
+       "sloped_brick, 4162628,  17\n"
+       "sloped_brick, 4195004,  45\n"
+    };
+
+    /*
+    # LIGHTED BRICKS
+    # Specify the light emission colour and intensity for lighted bricks
+
+    #    Item---------  PartID---  Light--------------  Intensity
+    */
+     const char DefaultLightedBricks[] = {
+        "lighted_brick, 62930.dat, 1.000, 0.373, 0.059, 1.0\n"
+        "lighted_brick, 54869.dat, 1.000, 0.052, 0.017, 1.0\n"
+    };
+
+    Buffer.clear();
+    if (Which == PARAMS_CUSTOM_COLOURS)
+        Buffer.append(DefaultCustomColours, sizeof(DefaultCustomColours));
+    else if (Which == PARAMS_SLOPED_BRICKS)
+        Buffer.append(DefaultSlopedBricks, sizeof(DefaultSlopedBricks));
+    else if (Which == PARAMS_LIGHTED_BRICKS)
+        Buffer.append(DefaultLightedBricks, sizeof(DefaultLightedBricks));
+}
+
+bool BlenderRenderDialogGui::exportParameterFile(){
+
+    QString const blenderConfigDir = QString("%1/Blender/config").arg(Preferences::lpub3d3rdPartyConfigDir);
+    QString parameterFile = QString("%1/%2").arg(blenderConfigDir).arg(VER_BLENDER_PARAMS_FILE);
+    QFile file(parameterFile);
+
+    if (!overwriteFile(file.fileName()))
+        return true;
+
+    QString message;
+    if(file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        int counter = 1;
+        QByteArray Buffer;
+        QTextStream outstream(&file);
+        outstream << "# File: " << QFileInfo(parameterFile).fileName() << endl;
+        outstream << "" << endl;
+        outstream << "# This config file captures parameters for the Blender LDraw Render addon" << endl;
+        outstream << "# Parameters must be prefixed using one of the following predefined" << endl;
+        outstream << "# 'Item' labels:" << endl;
+        outstream << "# - lgeo_colour" << endl;
+        outstream << "# - sloped_brick" << endl;
+        outstream << "# - light_brick" << endl;
+        outstream << "" << endl;
+        outstream << "# All items must use a comma',' delimiter as the primary delimiter." << endl;
+        outstream << "# For sloped_brick items, a pipe'|' delimiter must be used to specify" << endl;
+        outstream << "# a range (min|max) within which the angle must lie when appropriate." << endl;
+        outstream << "# Spaces between item attributes are not required and are used to" << endl;
+        outstream << "# facilitate human readability." << endl;
+        outstream << "" << endl;
+        outstream << "" << endl;
+        outstream << "# LGEO CUSTOM COLOURS" << endl;
+        outstream << "# LGEO is a parts library for rendering LEGO using the POV-Ray" << endl;
+        outstream << "# rendering software. This is the list of LEGO colours suitable" << endl;
+        outstream << "# for realistic rendering extracted from the LGEO file 'lg_color.inc'." << endl;
+        outstream << "# When the 'Colour Scheme' option is set to 'Realistic', the standard" << endl;
+        outstream << "# LDraw colours RGB value is overwritten with the values defined here." << endl;
+        outstream << "# Note: You can customize these RGB values as you want." << endl;
+        outstream << "" << endl;
+        outstream << "# Item-----  ID-    R--   G--   B--" << endl;
+
+        loadDefaultParameters(Buffer, PARAMS_CUSTOM_COLOURS);
+        QTextStream colourstream(Buffer);
+        for (QString sLine = colourstream.readLine(); !sLine.isNull(); sLine = colourstream.readLine())
+        {
+            outstream << sLine << endl;
+            counter++;
+        }
+
+        outstream << "" << endl;
+        outstream << "# SLOPED BRICKS" << endl;
+        outstream << "# Dictionary with part number (without any extension for decorations), as key," << endl;
+        outstream << "# of pieces that have grainy slopes, and, as values, a set containing the angles (in" << endl;
+        outstream << "# degrees) of the face's normal to the horizontal plane. Use a | delimited tuple to" << endl;
+        outstream << "# represent a range within which the angle must lie." << endl;
+        outstream << "" << endl;
+        outstream << "# Item------  PartID-  Angle/Angle Range (in degrees)" << endl;
+
+        loadDefaultParameters(Buffer, PARAMS_SLOPED_BRICKS);
+        QTextStream slopedstream(Buffer);
+        for (QString sLine = slopedstream.readLine(); !sLine.isNull(); sLine = slopedstream.readLine())
+        {
+            outstream << sLine << endl;
+            counter++;
+        }
+
+        outstream << "" << endl;
+        outstream << "# LIGHTED BRICKS" << endl;
+        outstream << "# Specify the light emission colour and intensity for lighted bricks" << endl;
+        outstream << "" << endl;
+        outstream << "# Item-------  PartID---  Light--------------  Intensity" << endl;
+
+        loadDefaultParameters(Buffer, PARAMS_LIGHTED_BRICKS);
+        QTextStream lightedstream(Buffer);
+        for (QString sLine = lightedstream.readLine(); !sLine.isNull(); sLine = lightedstream.readLine())
+        {
+            outstream << sLine << endl;
+            counter++;
+        }
+
+        outstream << "" << endl;
+        outstream << "# end of parameters" << endl;
+
+        file.close();
+        message = QString("Finished writing Blender parameter entries. Processed %1 lines in file [%2].")
+                          .arg(counter)
+                          .arg(file.fileName());
+        emit gui->messageSig(LOG_INFO, message);
+    }
+    else
+    {
+        message = QString("Failed to open Blender parameter file: %1:<br>%2")
+                          .arg(file.fileName())
+                          .arg(file.errorString());
+        emit gui->messageSig(LOG_ERROR, message);
+        return false;
+    }
+    return true;
+}
+
+bool BlenderRenderDialogGui::overwriteFile(const QString &file)
+{
+    QFileInfo fileInfo(file);
+
+    if (!fileInfo.exists())
+        return true;
+
+    // Get the application icon as a pixmap
+    QPixmap _icon = QPixmap(":/icons/lpub96.png");
+    if (_icon.isNull())
+        _icon = QPixmap (":/icons/update.png");
+
+    QMessageBox box;
+    box.setWindowIcon(QIcon());
+    box.setIconPixmap (_icon);
+    box.setTextFormat (Qt::RichText);
+    box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    QString title = "<b>" + QMessageBox::tr ("Export %1").arg(fileInfo.fileName()) + "</b>";
+    QString text = QMessageBox::tr("\"%1\"<br>This file already exists.<br>Replace existing file?").arg(fileInfo.fileName());
+    box.setText (title);
+    box.setInformativeText (text);
+    box.setStandardButtons (QMessageBox::Cancel | QMessageBox::Yes);
+    box.setDefaultButton   (QMessageBox::Yes);
+
+    return (box.exec() == QMessageBox::Yes);
 }

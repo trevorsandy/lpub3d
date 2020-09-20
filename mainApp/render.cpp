@@ -3341,25 +3341,48 @@ const QString Render::getPovrayRenderQuality(int quality)
     return Arguments.join(" ");
 }
 
-const QString Render::getPovrayRenderFileName(const QString &viewerStepKey)
+const QString Render::getRenderImageFile(int renderType)
 {
-    QDir povrayDir(QString("%1/%2").arg(QDir::currentPath()).arg(Paths::povrayRenderDir));
-    if (!povrayDir.exists())
-        Paths::mkPovrayDir();
+    QDir renderDir(QString("%1/%2").arg(QDir::currentPath())
+                   .arg(renderType == POVRAY_RENDER ? Paths::povrayRenderDir : Paths::blenderRenderDir));
+    if (!renderDir.exists()) {
+        if (renderType == POVRAY_RENDER)
+            Paths::mkPovrayDir();
+        else
+            Paths::mkBlenderDir();
+    }
 
-    QString fileName = gui->getViewerConfigKey(viewerStepKey).replace(";","_");
+    QString fileName = gui->getViewerConfigKey(gui->getViewerStepKey()).replace(";","_");
 
     if (fileName.isEmpty()){
-        emit gui->messageSig(LOG_ERROR, QString("Failed to receive ldrFileName for viewerStepKey : %1").arg(viewerStepKey));
-       fileName = "imagerender";
+        fileName = renderType == POVRAY_RENDER ? "povray_image_render" : "blender_image_render";
+        emit gui->messageSig(LOG_NOTICE, QString("Failed to receive model file name - using [%1]").arg(fileName));
     }
 
     QString imageFile = QDir::toNativeSeparators(QString("%1/%2.png")
-                       .arg(povrayDir.absolutePath())
+                       .arg(renderDir.absolutePath())
                        .arg(fileName));
 
     return imageFile;
 
+}
+
+const QString Render::getRenderModelFile(int renderType) {
+
+    QString modelFile;
+    QString filePath = QDir::currentPath() + QDir::separator() + Paths::tmpDir + QDir::separator();
+
+    if (renderType == POVRAY_RENDER) {
+
+        modelFile = QDir::toNativeSeparators(filePath + "csi_povray.ldr");
+
+    } else if (renderType == BLENDER_RENDER) {
+
+        modelFile = QDir::toNativeSeparators(filePath + "csi_blender.ldr");
+
+        gui->saveCurrent3DViewerModel(modelFile);
+    }
+    return modelFile;
 }
 
 // create Native version of the CSI/PLI file - consolidate subfiles and parts into single file

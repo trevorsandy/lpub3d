@@ -2060,7 +2060,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 	for (const lcModelPartsEntry& ModelPart : ModelParts)
 	{
 		lcVector3 Points[8];
-		
+
 		lcGetBoxCorners(ModelPart.Info->GetBoundingBox(), Points);
 
 		for (int PointIdx = 0; PointIdx < 8; PointIdx++)
@@ -2248,7 +2248,7 @@ void Project::SaveImage()
 
 	if (Dialog.exec() != QDialog::Accepted)
 		return;
-	
+
 	QString Extension = QFileInfo(Dialog.mFileName).suffix();
 
 	if (!Extension.isEmpty())

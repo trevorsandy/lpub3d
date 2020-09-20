@@ -386,6 +386,9 @@ class QComboBox;
 class QUndoStack;
 class QUndoCommand;
 
+class QNetworkReply;
+class QNetworkAccessManager;
+
 class EditWindow;
 class ParmsWindow;
 
@@ -460,7 +463,9 @@ enum ExportMode { PRINT_FILE   = -2,//-2
                   EXPORT_ELEMENT,   // 12
                   EXPORT_HTML_PARTS,// 13
                   EXPORT_HTML_STEPS,// 14
-                  POVRAY_RENDER     // 15
+                  POVRAY_RENDER,    // 15
+                  BLENDER_RENDER,   // 16
+                  BLENDER_IMPORT    // 17
                   };
 
 const QString nativeExportNames[] =
@@ -479,8 +484,9 @@ const QString nativeExportNames[] =
   "CSV",           // 11 EXPORT_CSV
   "ELEMENT",       // 12 EXPORT_ELEMENT
   "HTML PARTS",    // 13 EXPORT_HTML_PARTS
-  "HTML STEPS"     // 14 EXPORT_HTML_STEPS
-  "POV-RAY RENDER" // 15 RENDER_POVRAY
+  "HTML STEPS",    // 14 EXPORT_HTML_STEPS
+  "POV-RAY RENDER",// 15 RENDER_POVRAY
+  "BLENDER RENDER" // 16 BLENDER_RENDER
 };
 
 class Gui : public QMainWindow
@@ -926,16 +932,26 @@ public:
 
   bool compareVersionStr(const QString &first, const QString &second);
 
-  // download components
-  void downloadFile(QString URL, QString title);
+  void createOpenWithActions(int maxPrograms = 0);
+
+  // Download components
+  void downloadFile(QString URL, QString title, bool promptRedirect = false);
+  void startRequest(QUrl url);
   QByteArray getDownloadedFile() const
   {
       return mByteArray;
   }
-
-  void createOpenWithActions(int maxPrograms = 0);
+  QProgressDialog *mProgressDialog;
+  bool mPromptRedirect;
+  bool mHttpRequestAborted;
+  QUrl mUrl;
 
 public slots:
+  void httpDownloadFinished();
+  void cancelDownload();
+  void updateDownloadProgress(qint64, qint64);
+  // End Download components
+
   //**3D Viewer Manage Step Rotation
   void Disable3DActions();
   void Enable3DActions();
@@ -1012,6 +1028,9 @@ public slots:
       if (display)
           ShowStepRotationStatus();
   }
+
+  int GetImageWidth();
+  int GetImageHeight();
 
   //**
 
@@ -1174,8 +1193,6 @@ public slots:
   void TogglePrintToFilePreview();
   void TogglePrintPreview(ExportMode m);
 
-  void DownloadFinished(lcHttpReply* Reply);
-
   void editModelFile(bool saveBefore);
 
 signals:       
@@ -1252,8 +1269,8 @@ protected:
 
   int                    mViewerZoomLevel;
   // download components
-  lcHttpManager*         mHttpManager;
-  lcHttpReply*           mHttpReply;
+  QNetworkAccessManager* mHttpManager;
+  QNetworkReply*         mHttpReply;
   QByteArray             mByteArray;
   QString                mTitle;
   SceneObject            selectedItemObj;
@@ -1481,6 +1498,7 @@ private slots:
     void editNativePovIni();
     void editLdviewIni();
     void editLdviewPovIni();
+    void editBlenderParameters();
     void editPovrayIni();
     void editPovrayConf();
     void editLD2BLCodesXRef();
@@ -1694,6 +1712,7 @@ private:
 
   QAction  *povrayRenderAct;
   QAction  *blenderRenderAct;
+  QAction  *blenderImportAct;
 
   QAction  *clearRecentAct;
   QAction  *exitAct;
@@ -1804,6 +1823,7 @@ private:
   QAction *editNativePOVIniAct;
   QAction *editLdviewIniAct;
   QAction *editLdviewPovIniAct;
+  QAction *editBlenderParametersAct;
   QAction *editPovrayIniAct;
   QAction *editPovrayConfAct;
   QAction *editAnnotationStyleAct;

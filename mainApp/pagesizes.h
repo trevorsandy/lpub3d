@@ -23,7 +23,7 @@
 class PageSizes
 {
 public:
-  PageSizes(){};
+  PageSizes(){}
   static int numPageTypes();
   static QString pageTypeSizeID(int);
   static float pageWidthCm(int);

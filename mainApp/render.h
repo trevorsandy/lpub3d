@@ -59,7 +59,8 @@ public:
   static QString const   getPovrayRenderQuality(int quality = -1);
   static int             executeLDViewProcess(QStringList &, Options::Mt);
   static QString const   fixupDirname(const QString &);
-  static QString const   getPovrayRenderFileName(const QString &);
+  static QString const   getRenderImageFile(int);
+  static QString const   getRenderModelFile(int);
   static float           getPovrayRenderCameraDistance(const QString &cdKeys);
   static void            showLdvExportSettings(int mode);
   static void            showLdvLDrawPreferences(int mode);

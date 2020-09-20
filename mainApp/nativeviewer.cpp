@@ -194,6 +194,8 @@ void Gui::create3DMenus()
      // Viewer menus
      ViewerMenu = menuBar()->addMenu(tr("&3DViewer"));
      // Render menu
+     ViewerMenu->addAction(blenderRenderAct);
+     ViewerMenu->addAction(blenderImportAct);
      ViewerMenu->addAction(povrayRenderAct);
      ViewerMenu->addSeparator();
      // Save Image menu
@@ -279,6 +281,8 @@ void Gui::create3DMenus()
 void Gui::create3DToolBars()
 {
     exportToolBar->addSeparator();
+    exportToolBar->addAction(blenderRenderAct);
+    exportToolBar->addAction(blenderImportAct);
     exportToolBar->addAction(povrayRenderAct);
     exportToolBar->addSeparator();
     exportToolBar->addAction(gMainWindow->mActions[LC_FILE_SAVE_IMAGE]);
@@ -694,6 +698,62 @@ void Gui::SetActiveModel(const QString &fileName,bool newSubmodel)
     }
 }
 
+int Gui::GetImageWidth()
+{
+    return lcGetActiveProject()->GetImageWidth();
+}
+
+int Gui::GetImageHeight()
+{
+    return lcGetActiveProject()->GetImageHeight();
+}
+
+void Gui::saveCurrent3DViewerModel(const QString &modelFile)
+{
+    View* ActiveView     = gMainWindow->GetActiveView();
+    lcModel* ActiveModel = ActiveView->GetActiveModel();
+
+    if (ActiveModel){
+        // Create a copy of the current camera and add it cameras
+        lcCamera* Camera = ActiveView->mCamera;
+        Camera->CreateName(ActiveModel->mCameras);
+        Camera->SetSelected(true);
+        ActiveModel->mCameras.Add(ActiveView->mCamera);
+
+        // Get the created camera name
+        char cameraName[81];
+        const char* Prefix = "Camera ";
+        sprintf(cameraName, "%s %d", Prefix, ActiveModel->GetCameras().GetSize());
+
+        // Set the created camera
+        ActiveView->SetCamera(cameraName/*cameraName.toLatin1().constData()*/);
+
+        // Save the current model
+        if (!lcGetActiveProject()->Save(modelFile))
+            emit gui->messageSig(LOG_ERROR, QString("Failed to save current model to file [%1]").arg(modelFile));
+
+        // Reset the camera
+        bool RemovedCamera = false;
+        for (int CameraIdx = 0; CameraIdx < ActiveModel->GetCameras().GetSize(); )
+        {
+            if (!strcmp(ActiveModel->mCameras[CameraIdx]->m_strName, cameraName))
+            {
+                RemovedCamera = true;
+                ActiveModel->mCameras.RemoveIndex(CameraIdx);
+            }
+            else
+                CameraIdx++;
+        }
+
+        ActiveView->SetCamera(Camera, true);
+        strcpy(ActiveView->mCamera->m_strName, "");
+
+        if (RemovedCamera)
+            gMainWindow->UpdateCameraMenu();
+
+        Camera = nullptr;
+    }
+}
 /*********************************************
  *
  * build modificaitons

@@ -20,17 +20,33 @@
 #include <QTimer>
 #include <QTime>
 
+#include <QProcess>
+
 namespace Ui {
 class RenderDialog;
 }
 
 class QProcess;
+class RenderProcess : public QProcess
+{
+    Q_OBJECT
+
+public:
+    explicit RenderProcess(
+            QObject *parent = nullptr) :
+        QProcess(parent){}
+    ~RenderProcess();
+};
+
 class RenderDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit RenderDialog(QWidget* Parent = nullptr, int type = 0);
+    explicit RenderDialog(
+            QWidget* Parent = nullptr,
+            int renderType = 0,
+            int importOnly = 0);
     ~RenderDialog();
 
 public slots:
@@ -38,24 +54,30 @@ public slots:
     void on_RenderSettingsButton_clicked();
     void on_RenderButton_clicked();
     void on_OutputBrowseButton_clicked();
-    void on_OutputResetButton_clicked();
+    void resetOutputEdit(bool);
     void Update();
 
 protected slots:
-    QString ReadStdErrLog(bool &hasError) const;
+    QString ReadStdErr(bool &hasError) const;
+    void ReadStdOut();
+    void WriteStdOut();
     void UpdateElapsedTime();
 
 protected:
     void resizeEvent(QResizeEvent* event);
     QString GetOutputFileName() const;
     QString GetPOVFileName() const;
-    QString GetLogFileName() const;
+    QString GetLogFileName(bool = true) const;
     void CloseProcess();
     bool PromptCancel();
     void ShowResult();
+#ifdef Q_OS_WIN
+    int TerminateChildProcess(const qint64 pid, const qint64 ppid);
+#endif
 
 #ifndef QT_NO_PROCESS
-    QProcess* mProcess;
+//    QProcess* mProcess;
+    RenderProcess* mProcess;
 #endif
     void* mOutputBuffer;
     QTimer mUpdateTimer;
@@ -66,6 +88,7 @@ protected:
     QString mModelFile;
 
     QStringList mCsiKeyList;
+    QStringList mStdOutList;
 
     bool mTransBackground;
     int mWidth;
@@ -75,8 +98,11 @@ protected:
     double mScale;
 
     int mRenderType;
+    int mImportOnly;
     int mPreviewWidth;
     int mPreviewHeight;
+    int mBlendProgValue;
+    int mBlendProgMax;
 
     Ui::RenderDialog* ui;
 };

@@ -26,6 +26,7 @@ public:
 
     static void mkDirs();
     static void mkPovrayDir();
+    static void mkBlenderDir();
     static void mkCustomDirs();
     static QString lpubDir;
     static QString tmpDir;
@@ -43,6 +44,7 @@ public:
     static QString customPrim8Dir;
     static QString customPrim48Dir;
     static QString povrayRenderDir;
+    static QString blenderRenderDir;
     static QStringList customDirs;
 };
 

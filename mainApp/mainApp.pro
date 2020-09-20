@@ -576,7 +576,7 @@ SOURCES += \
 FORMS += \
     aboutdialog.ui \
     dialogexportpages.ui \
-    povrayrenderdialog.ui \
+    renderdialog.ui \
     ldrawfilesloaddialog.ui \
     ldrawcolordialog.ui \
     ldrawpartdialog.ui \

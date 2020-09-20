@@ -38,27 +38,17 @@
            <widget class="QLineEdit" name="OutputEdit"/>
           </item>
           <item>
-           <widget class="QToolButton" name="OutputBrowseButton">
+           <widget class="QPushButton" name="OutputBrowseButton">
             <property name="toolTip">
              <string>Browse and select output file</string>
             </property>
             <property name="text">
-             <string>...</string>
+             <string>Browse...</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QToolButton" name="OutputResetButton">
-            <property name="toolTip">
-             <string>Reset output file</string>
-            </property>
-            <property name="text">
-             <string>...</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="Line" name="line_2">
+           <widget class="Line" name="OutputLine">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
@@ -99,6 +89,13 @@
            </widget>
           </item>
           <item>
+           <widget class="Line" name="ProgressLine">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="RenderButton">
             <property name="text">
              <string>Render</string>
@@ -133,7 +130,6 @@
  <tabstops>
   <tabstop>OutputEdit</tabstop>
   <tabstop>OutputBrowseButton</tabstop>
-  <tabstop>OutputResetButton</tabstop>
   <tabstop>RenderSettingsButton</tabstop>
   <tabstop>RenderButton</tabstop>
  </tabstops>

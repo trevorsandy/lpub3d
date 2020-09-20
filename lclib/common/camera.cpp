@@ -1062,7 +1062,17 @@ void lcCamera::SetViewpoint(const lcVector3& Position)
 }
 
 /*** LPub3D Mod - Camera Globe ***/
+void lcCamera::SetAngles(float Latitude, float Longitude, float Distance)
+{
+	SetAngles(Latitude, Longitude, Distance, mTargetPosition, 1, false);
+}
+
 void lcCamera::SetAngles(float Latitude, float Longitude, float Distance, lcVector3 Target)
+{
+	SetAngles(Latitude, Longitude, Distance, Target, 1, false);
+}
+
+void lcCamera::SetAngles(float Latitude, float Longitude, float Distance, lcVector3 Target, lcStep Step, bool AddKey)
 {
 	mPosition = lcVector3(0, -1, 0);
     mTargetPosition = Target; //lcVector3(0, 0, 0);
@@ -1085,11 +1095,11 @@ void lcCamera::SetAngles(float Latitude, float Longitude, float Distance, lcVect
 /*** LPub3D Mod end ***/
 	mUpVector = lcMul(mUpVector, LatitudeMatrix);
 
-	ChangeKey(mPositionKeys, mPosition, 1, false);
-	ChangeKey(mTargetPositionKeys, mTargetPosition, 1, false);
-	ChangeKey(mUpVectorKeys, mUpVector, 1, false);
+	ChangeKey(mPositionKeys, mPosition, Step, AddKey);
+	ChangeKey(mTargetPositionKeys, mTargetPosition, Step, AddKey);
+	ChangeKey(mUpVectorKeys, mUpVector, Step, AddKey);
 
-	UpdatePosition(1);
+	UpdatePosition(Step);
 }
 
 void lcCamera::GetAngles(float& Latitude, float& Longitude, float& Distance) const

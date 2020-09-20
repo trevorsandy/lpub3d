@@ -123,46 +123,108 @@ QHash<SceneObject, QString> soMap;
  * Download with progress monotor
  *
  ***************************************************************************/
-void Gui::downloadFile(QString URL, QString title)
+void Gui::downloadFile(QString URL, QString title, bool promptRedirect)
 {
     mTitle = title;
-    QProgressDialog ProgressDialog(nullptr);
-    ProgressDialog.setWindowTitle(tr("Downloading"));
-    ProgressDialog.setLabelText(tr("Downloading %1").arg(mTitle));
-    ProgressDialog.setMaximum(0);
-    ProgressDialog.setMinimum(0);
-    ProgressDialog.setValue(0);
-    ProgressDialog.show();
+    mPromptRedirect = promptRedirect;
+    mProgressDialog = new QProgressDialog(nullptr);
+    connect(mProgressDialog, SIGNAL(canceled()), this, SLOT(cancelDownload()));
 
-    QString DownloadUrl = QString(URL);
-    mHttpReply = mHttpManager->DownloadFile(DownloadUrl);
-    while (mHttpReply) {
+    mProgressDialog->setWindowTitle(tr("Downloading"));
+    mProgressDialog->setLabelText(tr("Downloading %1").arg(mTitle));
+    mProgressDialog->show();
+
+    mHttpManager   = new QNetworkAccessManager(this);
+
+    mUrl = URL;
+
+    mHttpRequestAborted = false;
+
+    startRequest(mUrl);
+
+    while (mHttpReply)
         QApplication::processEvents();
-        if (ProgressDialog.wasCanceled()){
-            mHttpReply->abort();
-            mHttpReply->deleteLater();
-            mHttpReply = nullptr;
-            return;
-        }
-    }
 }
 
-void Gui::DownloadFinished(lcHttpReply* Reply){
-    if (Reply == mHttpReply)
-    {
-        if (!Reply->error()) {
-            mByteArray = Reply->readAll();
-        } else {
-            QString message = QString("Error downloading %1").arg(mTitle);
-            if (Preferences::modeGUI){
-                QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),  message);
-            } else {
-                logError() << message;
-            }
-        }
+void Gui::updateDownloadProgress(qint64 bytesRead, qint64 totalBytes)
+{
+    if (mHttpRequestAborted)
+        return;
+
+    mProgressDialog->setMaximum(int(totalBytes));
+    mProgressDialog->setValue(int(bytesRead));
+}
+
+void Gui::startRequest(QUrl url)
+{
+    QNetworkRequest request(url);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
+    request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+#endif
+    mHttpReply = mHttpManager->get(request);
+
+    connect(mHttpReply, SIGNAL(downloadProgress(qint64,qint64)),
+            this, SLOT(updateDownloadProgress(qint64,qint64)));
+
+    connect(mHttpReply, SIGNAL(finished()),
+            this, SLOT(httpDownloadFinished()));
+}
+
+void Gui::cancelDownload()
+{
+    mHttpRequestAborted = true;
+    mHttpReply->abort();
+}
+
+void Gui::httpDownloadFinished()
+{
+    if (mHttpRequestAborted) {
+        mByteArray.clear();
+        mHttpReply->deleteLater();
         mHttpReply = nullptr;
+        mProgressDialog->close();
+        return;
     }
-    Reply->deleteLater();
+
+    QString message;
+    QVariant redirectionTarget = mHttpReply->attribute(QNetworkRequest::RedirectionTargetAttribute);
+    if (mHttpReply->error()) {
+        mByteArray.clear();
+        message = QString("%1 Download failed: %2.")
+                          .arg(mTitle).arg(mHttpReply->errorString());
+        if (Preferences::modeGUI){
+            QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),  message);
+        } else {
+            logError() << message;
+        }
+    } else if (!redirectionTarget.isNull()) {
+        // This block should only trigger for redirects
+        // when Qt is less than 5.6.0
+        QUrl newUrl = mUrl.resolved(redirectionTarget.toUrl());
+        bool proceedToRedirect = true;
+        if (mPromptRedirect && Preferences::modeGUI) {
+            proceedToRedirect = QMessageBox::question(this, tr("HTTP"),
+                                              tr("Download redirect to %1 ?").arg(newUrl.toString()),
+                                              QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes;
+        } else {
+            logNotice() << QString("Download redirect to %1 ?").arg(newUrl.toString());
+        }
+        if (proceedToRedirect) {
+            mUrl = newUrl;
+            mHttpReply->deleteLater();
+            mByteArray.resize(0);
+            startRequest(mUrl);
+            return;
+        }
+    } else {
+        mByteArray = mHttpReply->readAll();
+    }
+
+    mProgressDialog->close();
+
+    mHttpReply->deleteLater();
+    mHttpReply = nullptr;
+    mHttpManager = nullptr;
 }
 
 /****************************************************************************
@@ -2113,6 +2175,22 @@ void Gui::editLdviewIni()
     parmsWindow->show();
 }
 
+void Gui::editBlenderParameters()
+{
+    QString const blenderConfigDir = QString("%1/Blender/config").arg(Preferences::lpub3d3rdPartyConfigDir);
+    QFileInfo fileInfo(QString("%1/%2").arg(blenderConfigDir).arg(VER_BLENDER_PARAMS_FILE));
+    if (!fileInfo.exists()) {
+        if (!BlenderRenderDialogGui::exportParameterFile()) {
+            emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
+            return;
+        }
+    }
+    displayParmsFile(fileInfo.absoluteFilePath());
+    parmsWindow->setWindowTitle(tr("Part Blender LDraw Parameters reference",
+                                   "Edit/add Part Blender LDraw Parameters reference"));
+    parmsWindow->show();
+}
+
 void Gui::editLdviewPovIni()
 {
     displayParmsFile(Preferences::ldviewPOVIni);
@@ -2704,8 +2782,6 @@ Gui::Gui()
     selectedItemObj   = UndefinedObj;
     mViewerZoomLevel  = 50;
 
-    mHttpManager = new lcHttpManager(this);
-
     editWindow    = new EditWindow(this);         // remove inheritance 'this' to independently manage window
     editModeWindow= new EditWindow(nullptr,true); // true = this is a model file edit window
     parmsWindow   = new ParmsWindow();
@@ -2749,9 +2825,6 @@ Gui::Gui()
 
     connect(this,           SIGNAL(messageSig(LogType,QString)),
             this,           SLOT(statusMessage(LogType,QString)));
-
-    connect(mHttpManager,   SIGNAL(DownloadFinished(lcHttpReply*)),
-            this,           SLOT(DownloadFinished(lcHttpReply*)));
 
     connect(this,           SIGNAL(setExportingSig(bool)),
             this,           SLOT(  setExporting(   bool)));
@@ -3254,8 +3327,12 @@ void Gui::progressPermStatusRemove(){
 
 void Gui::showRenderDialog()
 {
-    RenderDialog dialog(this,POVRAY_RENDER);
-    dialog.exec();
+    int importOnly = sender() == blenderImportAct ? BLENDER_IMPORT : 0;
+    int renderType = sender() == blenderRenderAct || importOnly ? BLENDER_RENDER : POVRAY_RENDER;
+
+    RenderDialog *dialog = new RenderDialog(nullptr/*set null for full non-modal*/, renderType, importOnly);
+    dialog->setModal(false);
+    dialog->show();
 }
 
 void Gui::aboutDialog()
@@ -3747,6 +3824,21 @@ void Gui::createActions()
     exportBricklinkAct->setEnabled(false);
     connect(exportBricklinkAct, SIGNAL(triggered()), this, SLOT(exportAsBricklinkXML()));
 
+    QIcon blenderIcon;
+    blenderIcon.addFile(":/resources/blendericon.png");
+    blenderIcon.addFile(":/resources/blendericon16.png");
+    blenderRenderAct = new QAction(blenderIcon,tr("Blender Render..."), this);
+    blenderRenderAct->setShortcut(tr("Alt+Shift+9"));
+    blenderRenderAct->setStatusTip(tr("Render the current step using Blender Cycles - Alt+Shift+8"));
+    blenderRenderAct->setEnabled(false);
+    connect(blenderRenderAct, SIGNAL(triggered()), this, SLOT(showRenderDialog()));
+
+    blenderImportAct = new QAction(blenderIcon,tr("Blender Import..."), this);
+    blenderImportAct->setShortcut(tr("Alt+Shift+8"));
+    blenderImportAct->setStatusTip(tr("Import the current step and launch Blender - Alt+Shift+9"));
+    blenderImportAct->setEnabled(false);
+    connect(blenderImportAct, SIGNAL(triggered()), this, SLOT(showRenderDialog()));
+    
     povrayRenderAct = new QAction(QIcon(":/resources/povray32.png"),tr("POVRay Render..."), this);
     povrayRenderAct->setShortcut(tr("Alt+9"));
     povrayRenderAct->setStatusTip(tr("Render the current model using POV-Ray - Alt+9"));
@@ -4252,6 +4344,10 @@ void Gui::createActions()
     editLdviewPovIniAct->setStatusTip(tr("Edit LDView POV file generation configuration file"));
     connect(editLdviewPovIniAct, SIGNAL(triggered()), this, SLOT(editLdviewPovIni()));
 
+    editBlenderParametersAct = new QAction(QIcon(":/resources/blendericon.png"),tr("Edit Blender LDraw Parameters"), this);
+    editBlenderParametersAct->setStatusTip(tr("Add/edit LDraw Blender LDraw LGEO colours, sloped bricks and lighted bricks, reference"));
+    connect(editBlenderParametersAct, SIGNAL(triggered()), this, SLOT(editBlenderParameters()));
+
     editPovrayIniAct = new QAction(QIcon(":/resources/editpovrayconf.png"),tr("Edit Raytracer (POV-Ray) INI configuration file"), this);
     editPovrayIniAct->setStatusTip(tr("Edit Raytracer (POV-Ray) INI configuration file"));
     connect(editPovrayIniAct, SIGNAL(triggered()), this, SLOT(editPovrayIni()));
@@ -4394,6 +4490,7 @@ void Gui::enableActions()
   editNativePOVIniAct->setEnabled(true);
   editLdviewIniAct->setEnabled(true);
   editLdviewPovIniAct->setEnabled(true);
+  editBlenderParametersAct->setEnabled(true);
   editPovrayIniAct->setEnabled(true);
   editPovrayConfAct->setEnabled(true);
   editAnnotationStyleAct->setEnabled(true);
@@ -4443,6 +4540,8 @@ void Gui::enableActions()
   exportHtmlAct->setEnabled(true);
   exportHtmlStepsAct->setEnabled(true);
 
+  blenderRenderAct->setEnabled(true);
+  blenderImportAct->setEnabled(true);
   povrayRenderAct->setEnabled(true);
 
   //3DViewer
@@ -4517,6 +4616,8 @@ void Gui::disableActions()
   exportHtmlAct->setEnabled(false);
   exportHtmlStepsAct->setEnabled(false);
 
+  blenderRenderAct->setEnabled(false);
+  blenderImportAct->setEnabled(false);
   povrayRenderAct->setEnabled(false);
 
   // 3DViewer
@@ -4686,9 +4787,19 @@ void Gui::createMenus()
     setupMenu->setDisabled(true);
 
     configMenu->addSeparator();
+
     editorMenu = configMenu->addMenu("Edit Parameter Files...");
     editorMenu->setIcon(QIcon(":/resources/editparameterfiles.png"));
     editorMenu->setStatusTip(tr("Edit %1 parameter files").arg(VER_PRODUCTNAME_STR));
+#if defined Q_OS_WIN
+    if (Preferences::portableDistribution){
+      editorMenu->addAction(editLPub3DIniFileAct);
+      editorMenu->addSeparator();
+    }
+#else
+    editorMenu->addAction(editLPub3DIniFileAct);
+    editorMenu->addSeparator();
+#endif
     editorMenu->addAction(editLDrawColourPartsAct);
     editorMenu->addAction(editTitleAnnotationsAct);
     editorMenu->addAction(editFreeFormAnnitationsAct);
@@ -4701,19 +4812,11 @@ void Gui::createMenus()
     editorMenu->addAction(editBLCodesAct);
     editorMenu->addAction(editLD2RBColorsXRefAct);
     editorMenu->addAction(editLD2RBCodesXRefAct);
-    if (Preferences::ldrawiniFound){
+    editorMenu->addSeparator();
+    if (!Preferences::blenderExe.isEmpty())
+        editorMenu->addAction(editBlenderParametersAct);
+    if (Preferences::ldrawiniFound)
       editorMenu->addAction(editLdrawIniFileAct);
-    }
-    editorMenu->addSeparator();
-#if defined Q_OS_WIN
-    if (Preferences::portableDistribution){
-      editorMenu->addAction(editLPub3DIniFileAct);
-      editorMenu->addSeparator();
-    }
-#else
-    editorMenu->addAction(editLPub3DIniFileAct);
-    editorMenu->addSeparator();
-#endif
     editorMenu->addAction(editNativePOVIniAct);
     editorMenu->addAction(editLdgliteIniAct);
     editorMenu->addAction(editLdviewIniAct);
@@ -4921,6 +5024,7 @@ void Gui::createToolBars()
     editParamsToolBar->addAction(editLdgliteIniAct);
     editParamsToolBar->addAction(editLdviewIniAct);
     editParamsToolBar->addAction(editLdviewPovIniAct);
+    editParamsToolBar->addAction(editBlenderParametersAct);
     editParamsToolBar->addAction(editPovrayIniAct);
     editParamsToolBar->addAction(editPovrayConfAct);
     editParamsToolBar->addSeparator();

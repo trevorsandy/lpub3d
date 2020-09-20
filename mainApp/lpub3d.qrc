@@ -25,6 +25,8 @@
         <file alias="autocomplete.lst">resources/autocomplete.lst</file>
         <file alias="back.png">resources/back.png</file>
         <file alias="background.png">resources/background.png</file>
+        <file alias="blendericon.png">resources/blendericon.png</file>
+        <file alias="blendericon16.png">resources/blendericon16.png</file>
         <file alias="bold.png">resources/bold.png</file>
         <file alias="bomannotation.png">resources/bomannotation.png</file>
         <file alias="bomsetup.png">resources/bomsetup.png</file>
@@ -186,6 +188,7 @@
         <file alias="resetborderattributes.png">resources/resetborderattributes.png</file>
         <file alias="resetcache.png">resources/resetcache.png</file>
         <file alias="resetlineattributes.png">resources/resetlineattributes.png</file>
+        <file alias="resetlineedit.png">resources/resetlineedit.png</file>
         <file alias="resetsetting.png">resources/resetsetting.png</file>
         <file alias="richtext.png">resources/richtext.png</file>
         <file alias="right.png">resources/right.png</file>
