@@ -91,9 +91,7 @@ void lcModelTabWidget::Clear()
 }
 
 /*** LPub3D Mod - set lcMainWindow parent ***/
-// lcMainWindow::lcMainWindow()
-lcMainWindow::lcMainWindow(QMainWindow *parent) :
-  QMainWindow(parent)
+lcMainWindow::lcMainWindow(QMainWindow *parent) : QMainWindow(parent)
 {
 /*** LPub3D Mod end ***/
 	memset(mActions, 0, sizeof(mActions));
@@ -102,9 +100,7 @@ lcMainWindow::lcMainWindow(QMainWindow *parent) :
 	mTransformType = lcTransformType::RelativeRotation;
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - set default color ***/
-	mColorIndex = lcGetColorIndex(71); //Light Bluish Grey
-/*** LPub3D Mod end ***/
+	mColorIndex = lcGetColorIndex(7);
 	mTool = LC_TOOL_SELECT;
 	mAddKeys = false;
 	mMoveSnapEnabled = true;
@@ -819,22 +815,12 @@ void lcMainWindow::CreateToolBars()
 	mColorsToolBar->setObjectName("ColorsToolbar");
 	mColorsToolBar->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
 
-	QFrame* ColorFrame = new QFrame(mColorsToolBar);
-	ColorFrame->setFrameShape(QFrame::StyledPanel);
-	ColorFrame->setFrameShadow(QFrame::Sunken);
-
-	QGridLayout* ColorLayout = new QGridLayout(ColorFrame);
-	ColorLayout->setContentsMargins(0, 0, 0, 0);
-
-	mColorList = new lcQColorList(ColorFrame);
-	ColorLayout->addWidget(mColorList);
+	mColorList = new lcQColorList();
 	connect(mColorList, SIGNAL(colorChanged(int)), this, SLOT(ColorChanged(int)));
 
-	mColorsToolBar->setWidget(ColorFrame);
+	mColorsToolBar->setWidget(mColorList);
 /*** LPub3D Mod - hide mColorsToolBar ***/
-/***
-	addDockWidget(Qt::RightDockWidgetArea, mColorsToolBar);
-***/
+//	addDockWidget(Qt::RightDockWidgetArea, mColorsToolBar);
 /*** LPub3D Mod end ***/
 	mPropertiesToolBar = new QDockWidget(tr("Properties"), this);
 	mPropertiesToolBar->setObjectName("PropertiesToolbar");

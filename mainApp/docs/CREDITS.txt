@@ -12,14 +12,14 @@ Trevor Sandy <trevor.sandy@gmail.com>
 LPub3D RayTrace-CUI (POV-Ray 3.8 "raytracer-cui" specifically adapted for LPub3D)
 Trevor Sandy <trevor.sandy@gmail.com>
 
-3DViewer (LeoCAD version 19.07.1 92d75c4 specifically adapted for LPub3D)
+3DViewer (LeoCAD version 19.07.1 2f94f2d specifically adapted for LPub3D)
 Trevor Sandy <trevor.sandy@gmail.com>
 
 LPub4
 Author:
 Kevin Clague <kevin.clague@gmail.com>
 
-LeoCAD 19.07.1 commit 92d75c4
+LeoCAD 19.07.1 commit 2f94f2d
 Author:
 Leonardo Zide <leozide@gmail.com>
 

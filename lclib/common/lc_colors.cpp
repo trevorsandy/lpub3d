@@ -220,11 +220,11 @@ bool lcLoadColorFile(lcFile& File)
 	for (int GroupIdx = 0; GroupIdx < LC_NUM_COLORGROUPS; GroupIdx++)
 		gColorGroups[GroupIdx].Colors.clear();
 
-	gColorGroups[0].Name = QApplication::tr("Solid Colors", "Colors");
-	gColorGroups[1].Name = QApplication::tr("Translucent Colors", "Colors");
-	gColorGroups[2].Name = QApplication::tr("Special Colors", "Colors");
+	gColorGroups[0].Name = QApplication::tr("Solid", "Colors");
+	gColorGroups[1].Name = QApplication::tr("Translucent", "Colors");
+	gColorGroups[2].Name = QApplication::tr("Special", "Colors");
 /*** LPub3D Mod - load color entry - add LPub3D color group ***/
-	gColorGroups[3].Name = QApplication::tr("LPub3D Colors", "Colors");
+	gColorGroups[3].Name = QApplication::tr("LPub3D", "Colors");
 /*** LPub3D Mod end ***/
 
 	MainColor.Code = 16;
