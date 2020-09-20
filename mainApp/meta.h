@@ -944,26 +944,17 @@ public:
   virtual void setValuePixels(int which, int pixels)
   {
     float r = resolution();
-
     float value = float(pixels/r);
 
-    if (resolutionType() == DPCM) {
-        value = centimeters2inches(value);
-    }
     _value[pushed].pagesize[pushed][which] = value;
     _default                               = false;
   }
   virtual void setValuesPixels(float v1pixels, float v2pixels)
   {
     float r = resolution();
-
     float v1 = float(v1pixels/r);
     float v2 = float(v2pixels/r);
 
-    if (resolutionType() == DPCM) {
-      v1 = centimeters2inches(v1);
-      v2 = centimeters2inches(v2);
-    }
     _value[pushed].pagesize[pushed][0] = v1;
     _value[pushed].pagesize[pushed][1] = v2;
     _value[pushed].sizeid              = QString("Custom");
