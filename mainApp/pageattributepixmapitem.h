@@ -40,6 +40,13 @@ class PageAttributePixmapItem : public ResizePixmapItem
 protected:
     void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    /* Highlight bounding rectangle on hover */
+    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+    virtual void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
+    virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
+    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    bool isHovered;
+    bool mouseIsDown;
 };
 
 #endif // PAGEATTRIBUTEPIXMAPITEM_H

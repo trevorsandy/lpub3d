@@ -27,8 +27,9 @@ PageAttributePixmapItem::PageAttributePixmapItem(
   Page                      *_page,
   QPixmap                   &pixmap,
   PageAttributePictureMeta  &pageAttributePictureMeta,
-  QGraphicsItem             *parent)
-
+  QGraphicsItem             *parent):
+    isHovered(false),
+    mouseIsDown(false)
 {
   page               = _page;
   placement          = pageAttributePictureMeta.placement;
@@ -163,6 +164,8 @@ PageAttributePixmapItem::PageAttributePixmapItem(
 
   setParentItem(parent);
   setPixmap(pixmap);
+  setAcceptHoverEvents(true);
+  setFlag(QGraphicsItem::ItemIsFocusable,true);
   setFlag(QGraphicsItem::ItemIsSelectable,movable);
   setFlag(QGraphicsItem::ItemIsMovable,movable);
   setData(ObjectId, PageAttributePixmapObj);
@@ -260,6 +263,7 @@ void PageAttributePixmapItem::change()
 
 void PageAttributePixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+  mouseIsDown = true;
   position = pos();
   positionChanged = false;
   if (fillMode == Aspect) {
@@ -396,4 +400,36 @@ void PageAttributePixmapItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *e
   } else if (selectedAction == deleteImageAction){
       deleteMeta(page->meta.LPub.page.coverImage.file.here());
   }
+}
+
+/* Highlight bounding rectangle on hover */
+
+void PageAttributePixmapItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+  mouseIsDown = false;
+  QGraphicsItem::mouseReleaseEvent(event);
+}
+
+void PageAttributePixmapItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+  isHovered = !this->isSelected() && !mouseIsDown;
+  QGraphicsItem::hoverEnterEvent(event);
+}
+
+void PageAttributePixmapItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+  isHovered = false;
+  QGraphicsItem::hoverLeaveEvent(event);
+}
+
+void PageAttributePixmapItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+  QPen pen;
+  pen.setColor(isHovered ? QColor(Preferences::sceneGuideColor) : Qt::black);
+  pen.setWidth(0/*cosmetic*/);
+  pen.setStyle(isHovered ? Qt::PenStyle(Preferences::sceneGuidesLine) : Qt::NoPen);
+  painter->setPen(pen);
+  painter->setBrush(Qt::transparent);
+  painter->drawRect(this->boundingRect());
+  QGraphicsPixmapItem::paint(painter,option,widget);
 }
