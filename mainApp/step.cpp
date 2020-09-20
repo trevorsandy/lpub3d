@@ -151,6 +151,7 @@ Step::Step(
       csiCameraMeta.cameraName       = _meta.LPub.assem.cameraName;
       csiCameraMeta.cameraFoV        = _meta.LPub.assem.cameraFoV;
       csiCameraMeta.isOrtho          = _meta.LPub.assem.isOrtho;
+      csiCameraMeta.imageSize    = _meta.LPub.assem.imageSize;
       csiCameraMeta.zfar             = _meta.LPub.assem.zfar;
       csiCameraMeta.znear            = _meta.LPub.assem.znear;
       csiCameraMeta.target           = _meta.LPub.assem.target;
@@ -403,6 +404,7 @@ int Step::createCsi(
          meta.LPub.assem.modelScale     = csiCameraMeta.modelScale;
          meta.LPub.assem.cameraFoV      = csiCameraMeta.cameraFoV;
          meta.LPub.assem.isOrtho        = csiCameraMeta.isOrtho;
+         meta.LPub.assem.imageSize  = csiCameraMeta.imageSize;
          meta.LPub.assem.zfar           = csiCameraMeta.zfar;
          meta.LPub.assem.znear          = csiCameraMeta.znear;
          meta.LPub.assem.target         = csiCameraMeta.target;

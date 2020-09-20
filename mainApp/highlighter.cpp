@@ -376,6 +376,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bRICH_TEXT\\b"
     << "\\bICON\\b"
     << "\\bIGN\\b"
+    << "\\bIMAGE_SIZE\\b"
     << "\\bINCLUDE\\b"
     << "\\bINCLUDE_SUBMODELS\\b"
     << "\\bINSERT MODEL\\b"

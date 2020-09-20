@@ -48,6 +48,12 @@ void Gui::create3DActions()
     setTargetPositionAct->setChecked(lcGetProfileInt(LC_PROFILE_SET_TARGET_POSITION));
     connect(setTargetPositionAct, SIGNAL(triggered()), this, SLOT(setTargetPosition()));
 
+    useImageSizeAct = new QAction(tr("Keep Image Size"),this);
+    useImageSizeAct->setStatusTip(tr("Maintain image width and height when setting camera target"));
+    useImageSizeAct->setCheckable(true);
+    useImageSizeAct->setChecked(lcGetProfileInt(LC_PROFILE_USE_IMAGE_SIZE));
+    connect(useImageSizeAct, SIGNAL(triggered()), this, SLOT(useImageSize()));
+
     defaultCameraPropertiesAct = new QAction(tr("Display Properties"),this);
     defaultCameraPropertiesAct->setStatusTip(tr("Display camera propeties in Properties window"));
     defaultCameraPropertiesAct->setCheckable(true);
@@ -138,6 +144,7 @@ void Gui::create3DMenus()
      cameraMenu->addAction(defaultCameraPropertiesAct);
      cameraMenu->addSeparator();
      cameraMenu->addAction(setTargetPositionAct);
+     cameraMenu->addAction(useImageSizeAct);
      applyCameraAct->setMenu(cameraMenu);
 }
 
@@ -341,6 +348,7 @@ void Gui::applyCameraSettings()
             cameraMeta.zfar           = gStep->pli.pliMeta.zfar;
             cameraMeta.znear          = gStep->pli.pliMeta.znear;
             cameraMeta.isOrtho        = gStep->pli.pliMeta.isOrtho;
+            cameraMeta.imageSize      = gStep->pli.pliMeta.imageSize;
             cameraMeta.target         = gStep->pli.pliMeta.target;
             break;
         case Render::Mt::SMP:
@@ -351,6 +359,7 @@ void Gui::applyCameraSettings()
             cameraMeta.zfar           = gStep->subModel.subModelMeta.zfar;
             cameraMeta.znear          = gStep->subModel.subModelMeta.znear;
             cameraMeta.isOrtho        = gStep->subModel.subModelMeta.isOrtho;
+            cameraMeta.imageSize      = gStep->subModel.subModelMeta.imageSize;
             cameraMeta.target         = gStep->subModel.subModelMeta.target;
             break;
         default:
@@ -421,6 +430,12 @@ void Gui::setTargetPosition()
       applyCameraAct->setIcon(QIcon(":/resources/applycamerasettingsposition.png"));
   else
       applyCameraAct->setIcon(QIcon(":/resources/applycamerasettings.png"));
+  }
+}
+
+void Gui::useImageSize()
+{
+   lcSetProfileInt(LC_PROFILE_USE_IMAGE_SIZE, useImageSizeAct->isChecked());
 }
 
 void Gui::showDefaultCameraProperties()

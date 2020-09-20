@@ -1375,6 +1375,7 @@ int Gui::drawPage(
                       steps->meta.LPub.assem.modelScale     = gStep->csiCameraMeta.modelScale;
                       steps->meta.LPub.assem.cameraFoV      = gStep->csiCameraMeta.cameraFoV;
                       steps->meta.LPub.assem.isOrtho        = gStep->csiCameraMeta.isOrtho;
+                      steps->meta.LPub.assem.imageSize  = gStep->csiCameraMeta.imageSize;
                       steps->meta.LPub.assem.zfar           = gStep->csiCameraMeta.zfar;
                       steps->meta.LPub.assem.znear          = gStep->csiCameraMeta.znear;
                       steps->meta.LPub.assem.target         = gStep->csiCameraMeta.target;

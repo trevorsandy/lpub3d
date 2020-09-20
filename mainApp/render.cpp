@@ -1136,8 +1136,9 @@ int LDGLite::renderCsi(
   bool noCA  = Preferences::applyCALocally;
   bool pp    = Preferences::perspectiveProjection;
 
-  int width  = gui->pageSize(meta.LPub.page, 0);
-  int height = gui->pageSize(meta.LPub.page, 1);
+  bool useImageSize = !(meta.LPub.assem.imageSize.value(0) == 0.0f && meta.LPub.assem.imageSize.value(1) == 0.0f);
+  int width  = useImageSize ? int(meta.LPub.assem.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
+  int height = useImageSize ? int(meta.LPub.assem.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
 
   QString v  = QString("-v%1,%2")   .arg(width)
                                     .arg(height);
@@ -1294,8 +1295,9 @@ int LDGLite::renderPli(
       cd = cameraDistance(meta,modelScale);
   }
 
-  int width  = gui->pageSize(meta.LPub.page, 0);
-  int height = gui->pageSize(meta.LPub.page, 1);
+  bool useImageSize = !(metaType.imageSize.value(0) == 0.0f && metaType.imageSize.value(1) == 0.0f);
+  int width  = useImageSize ? int(metaType.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
+  int height = useImageSize ? int(metaType.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
 
   int lineThickness = int(double(resolution())/72.0+0.5);
 
@@ -1468,8 +1470,9 @@ int LDView::renderCsi(
     bool noCA  = Preferences::applyCALocally;
 
     /* page size */
-    int width  = gui->pageSize(meta.LPub.page, 0);
-    int height = gui->pageSize(meta.LPub.page, 1);
+    bool useImageSize = !(meta.LPub.assem.imageSize.value(0) == 0.0f && meta.LPub.assem.imageSize.value(1) == 0.0f);
+    int width  = useImageSize ? int(meta.LPub.assem.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
+    int height = useImageSize ? int(meta.LPub.assem.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
 
     // initialize ImageMatte flag
     bool enableIM = false;
@@ -1960,8 +1963,9 @@ int LDView::renderPli(
   }
 
   /* page size */
-  int width  = gui->pageSize(meta.LPub.page, 0);
-  int height = gui->pageSize(meta.LPub.page, 1);
+  bool useImageSize = !(metaType.imageSize.value(0) == 0.0f && metaType.imageSize.value(1) == 0.0f);
+  int width  = useImageSize ? int(metaType.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
+  int height = useImageSize ? int(metaType.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
 
   int studLogo = meta.LPub.assem.studLogo.value();
   QString sl = QString("-StudLogo=%1") .arg(studLogo);
@@ -2118,6 +2122,7 @@ int Native::renderCsi(
   // Camera Angles always passed to Native renderer except if ABS rotstep
   QString rotstepType      = meta.rotStep.value().type;
   bool noCA = rotstepType == "ABS";
+  bool useImageSize = !(meta.LPub.assem.imageSize.value(0) == 0.0f && meta.LPub.assem.imageSize.value(1) == 0.0f);
 
   // Renderer options
   NativeOptions Options;
@@ -2126,8 +2131,8 @@ int Native::renderCsi(
   Options.OutputFileName    = pngName;
   Options.StudLogo          = studLogo;
   Options.Resolution        = resolution();
-  Options.ImageWidth        = gui->pageSize(meta.LPub.page, 0);
-  Options.ImageHeight       = gui->pageSize(meta.LPub.page, 1);
+  Options.ImageWidth        = useImageSize ? int(meta.LPub.assem.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
+  Options.ImageHeight       = useImageSize ? int(meta.LPub.assem.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
   Options.IsOrtho           = isOrtho;
   Options.CameraName        = cameraName;
   Options.FoV               = cameraFoV;
@@ -2309,8 +2314,8 @@ int Native::renderPli(
   Options.OutputFileName = pngName;
   Options.StudLogo       = studLogo;
   Options.Resolution     = resolution();
-  Options.ImageWidth     = gui->pageSize(meta.LPub.page, 0);
-  Options.ImageHeight    = gui->pageSize(meta.LPub.page, 1);
+  Options.ImageWidth     = useImageSize ? int(metaType.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
+  Options.ImageHeight    = useImageSize ? int(metaType.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
   Options.IsOrtho        = isOrtho;
   Options.CameraName     = cameraName;
   Options.FoV            = cameraFov;

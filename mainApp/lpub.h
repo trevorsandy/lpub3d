@@ -993,6 +993,7 @@ public slots:
   void gridSize(int index);
   void gridSizeTriggered();
   void setTargetPosition();
+  void useImageSize();
 
   void showDefaultCameraProperties();
   void applyCameraSettings();
@@ -1636,6 +1637,7 @@ private:
 
   QAction *applyCameraAct;
   QAction *setTargetPositionAct;
+  QAction *useImageSizeAct;
 
   // help
 

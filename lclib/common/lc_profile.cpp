@@ -133,9 +133,10 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 
 /*** LPub3D Mod - Camera Globe Target Position ***/
 	lcProfileEntry("Settings", "SetTargetPosition", 0),                                     // LC_PROFILE_SET_TARGET_POSITION                        /*** LPub3D Mod - Camera Globe Target Position ***/
-/*** LPub3D Mod end ***/
+	lcProfileEntry("Settings", "UseImageSize", 0),                                          // LC_PROFILE_USE_IMAGE_SIZE                             /*** LPub3D Mod - Camera Globe Target Position ***/
+	/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Update Default Camera ***/
-	lcProfileEntry("Settings", "DefaultCameraProperties", 0),                               //LC_PROFILE_DEFAULT_CAMERA_PROPERTIES,                  /*** LPub3D Mod - Update Default Camera ***/
+	lcProfileEntry("Settings", "DefaultCameraProperties", 0),                               //LC_PROFILE_DEFAULT_CAMERA_PROPERTIES,                  /*** LPub3D Mod - Update Default Camera ***/ 
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Native projection options ***/
 	lcProfileEntry("Settings", "NativeViewpoint",  7),                                      // LC_PROFILE_NATIVE_VIEWPOINT  [0 = LC_VIEWPOINT_FRONT]  /*** LPub3D Mod - Native Renderer settings ***/

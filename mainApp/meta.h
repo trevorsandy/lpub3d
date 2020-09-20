@@ -2107,6 +2107,7 @@ public:
   FloatMeta            znear;
   FloatMeta            zfar;
   BoolMeta             isOrtho;
+  FloatPairMeta        imageSize;
   StringMeta           cameraName;
   FloatXYZMeta         target;
 
@@ -3181,6 +3182,7 @@ public:
   FloatMeta            znear;
   FloatMeta            zfar;
   BoolMeta             isOrtho;
+  FloatPairMeta        imageSize;
   StringMeta           cameraName;
   FloatXYZMeta         target;
 
@@ -3255,6 +3257,7 @@ public:
   FloatMeta            znear;
   FloatMeta            zfar;
   BoolMeta             isOrtho;
+  FloatPairMeta        imageSize;
   StringMeta           cameraName;
   FloatXYZMeta         target;
 

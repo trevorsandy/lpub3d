@@ -2139,7 +2139,7 @@ void JustifyStepMeta::doc(QStringList &out, QString preamble)
   out << preamble + " (JUSTIFY_LEFT|JUSTIFY_CENTER|JUSTIFY_CENTER_HORIZONTAL|JUSTIFY_CENTER_VERTICAL)";
 }
 
-/* ------------------ */ 
+/* ------------------ */
 
 PageOrientationMeta::PageOrientationMeta() : LeafMeta()
 {
@@ -2940,6 +2940,9 @@ SettingsMeta::SettingsMeta() : BranchMeta()
   zfar.setRange(1.0f,FLT_MAX);
   zfar.setValue(gui->getDefaultCameraZFar());
   isOrtho.setValue(false);
+  imageSize.setFormats(7,4,"###9");
+  imageSize.setRange(0.0f,1000.0f);
+  imageSize.setValues(0.0f,0.0f);
 }
 
 void SettingsMeta::init(BranchMeta *parent, QString name)
@@ -2952,6 +2955,7 @@ void SettingsMeta::init(BranchMeta *parent, QString name)
   // assem image scale
   modelScale.init       (this,"MODEL_SCALE");
   // assem native camera position
+  imageSize.init        (this,"IMAGE_SIZE");
   cameraDistance.init   (this,"CAMERA_DISTANCE");
   cameraFoV.init        (this,"CAMERA_FOV");
   cameraAngles.init     (this,"CAMERA_ANGLES");
@@ -4284,6 +4288,9 @@ AssemMeta::AssemMeta() : BranchMeta()
   zfar.setRange(1.0f,FLT_MAX);
   zfar.setValue(gui->getDefaultCameraZFar());
   isOrtho.setValue(false);
+  imageSize.setFormats(7,4,"###9");
+  imageSize.setRange(0.0f,1000.0f);
+  imageSize.setValues(0.0f,0.0f);
 }
 
 void AssemMeta::init(BranchMeta *parent, QString name)
@@ -4298,14 +4305,15 @@ void AssemMeta::init(BranchMeta *parent, QString name)
   studLogo.init       (this,"STUD_LOGO");
   showStepNumber.init (this,"SHOW_STEP_NUMBER");
   annotation.init     (this,"ANNOTATION");
-  cameraFoV.init        (this,"CAMERA_FOV");
-  cameraAngles.init     (this,"CAMERA_ANGLES");
-  cameraDistance.init   (this,"CAMERA_DISTANCE");
-  znear.init            (this,"CAMERA_ZNEAR");
-  zfar.init             (this,"CAMERA_ZFAR");
-  isOrtho.init          (this,"CAMERA_ORTHOGRAPHIC");
-  cameraName.init       (this,"CAMERA_NAME");
-  target.init           (this,"CAMERA_TARGET");
+  imageSize.init      (this,"IMAGE_SIZE");
+  cameraFoV.init      (this,"CAMERA_FOV");
+  cameraAngles.init   (this,"CAMERA_ANGLES");
+  cameraDistance.init (this,"CAMERA_DISTANCE");
+  znear.init          (this,"CAMERA_ZNEAR");
+  zfar.init           (this,"CAMERA_ZFAR");
+  isOrtho.init        (this,"CAMERA_ORTHOGRAPHIC");
+  cameraName.init     (this,"CAMERA_NAME");
+  target.init         (this,"CAMERA_TARGET");
 }
 
 /* ------------------ */
@@ -4385,6 +4393,9 @@ PliMeta::PliMeta() : BranchMeta()
   zfar.setValue(gui->getDefaultCameraZFar());
   zfar.setRange(1.0f,FLT_MAX);
   isOrtho.setValue(false);
+  imageSize.setFormats(7,4,"###9");
+  imageSize.setRange(0.0f,1000.0f);
+  imageSize.setValues(0.0f,0.0f);
 
   // movable pli part groups
   enablePliPartGroup.setValue(false);
@@ -4420,6 +4431,7 @@ void PliMeta::init(BranchMeta *parent, QString name)
   rectangleStyle  .init(this,"RECTANGLE_STYLE");
   circleStyle     .init(this,"CIRCLE_STYLE");
   squareStyle     .init(this,"SQUARE_STYLE");
+  imageSize       .init(this,"IMAGE_SIZE");
   cameraFoV       .init(this,"CAMERA_FOV");
   cameraAngles    .init(this,"CAMERA_ANGLES");
   cameraDistance  .init(this,"CAMERA_DISTANCE");
@@ -4512,6 +4524,9 @@ BomMeta::BomMeta() : PliMeta()
   zfar.setRange(1.0f,FLT_MAX);
   zfar.setValue(gui->getDefaultCameraZFar());
   isOrtho.setValue(false);
+  imageSize.setFormats(7,4,"###9");
+  imageSize.setRange(0.0f,1000.0f);
+  imageSize.setValues(0.0f,0.0f);
 
   // movable pli part groups
   enablePliPartGroup.setValue(false);
@@ -4549,6 +4564,7 @@ void BomMeta::init(BranchMeta *parent, QString name)
   rectangleStyle  .init(this,"RECTANGLE_STYLE");
   circleStyle     .init(this,"CIRCLE_STYLE");
   squareStyle     .init(this,"SQUARE_STYLE");
+  imageSize       .init(this,"IMAGE_SIZE");
   cameraFoV       .init(this,"CAMERA_FOV");
   cameraAngles    .init(this,"CAMERA_ANGLES");
   cameraDistance  .init(this,"CAMERA_DISTANCE");
