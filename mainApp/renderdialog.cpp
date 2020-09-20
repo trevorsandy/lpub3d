@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#include "povrayrenderdialog.h"
-#include "ui_povrayrenderdialog.h"
+#include "renderdialog.h"
+#include "ui_renderdialog.h"
 #include "messageboxresizable.h"
 #include "lpub_preferences.h"
 #include "render.h"
@@ -26,9 +26,9 @@
 #define LP3D_CA 0.01
 #define LP3D_CDF 1.0
 
-PovrayRenderDialog::PovrayRenderDialog(QWidget* Parent)
+RenderDialog::RenderDialog(QWidget* Parent)
     : QDialog(Parent),
-    ui(new Ui::PovrayRenderDialog)
+    ui(new Ui::RenderDialog)
 {
 #ifndef QT_NO_PROCESS
     mProcess = nullptr;
@@ -48,19 +48,21 @@ PovrayRenderDialog::PovrayRenderDialog(QWidget* Parent)
 
     ui->AspectRatioBox->setChecked(true);
     ui->OutputAlphaBox->setChecked(true);
+
     ui->WidthEdit->setValidator(new QIntValidator(16, RENDER_IMAGE_MAX_SIZE));
     ui->WidthEdit->setText(QString::number(mWidth));
     connect(ui->WidthEdit,SIGNAL(textChanged(const QString &)),
-                       this,SLOT  (textChanged(const QString &)));
+                     this,SLOT  (textChanged(const QString &)));
     ui->HeightEdit->setValidator(new QIntValidator(16, RENDER_IMAGE_MAX_SIZE));
     ui->HeightEdit->setText(QString::number(mHeight));
     connect(ui->HeightEdit,SIGNAL(textChanged(const QString &)),
-                        this,SLOT  (textChanged(const QString &)));
+                      this,SLOT  (textChanged(const QString &)));
     ui->ScaleEdit->setText(QString::number(mScale));
     ui->ScaleEdit->setValidator(new QDoubleValidator(0.1,1000.0,1));
     ui->ResolutionEdit->setText(QString::number(mResolution));
     ui->ResolutionEdit->setValidator(new QIntValidator(50, INT_MAX));
     ui->QualityComboBox->setCurrentIndex(mQuality);
+
     ui->OutputEdit->setText(Render::getPovrayRenderFileName(mViewerStepKey));
     ui->OutputEdit->setValidator(new QRegExpValidator(QRegExp("^.*\\.png$",Qt::CaseInsensitive)));
 
@@ -73,27 +75,27 @@ PovrayRenderDialog::PovrayRenderDialog(QWidget* Parent)
     setSizeGripEnabled(true);
 }
 
-PovrayRenderDialog::~PovrayRenderDialog()
+RenderDialog::~RenderDialog()
 {
     delete ui;
 }
 
-QString PovrayRenderDialog::GetOutputFileName() const
+QString RenderDialog::GetOutputFileName() const
 {
     return QDir(QDir::tempPath()).absoluteFilePath("lpub3d-render-map.out");
 }
 
-QString PovrayRenderDialog::GetPOVFileName() const
+QString RenderDialog::GetPOVFileName() const
 {
     return QDir::toNativeSeparators(mModelFile + ".pov");
 }
 
-QString PovrayRenderDialog::GetLogFileName() const
+QString RenderDialog::GetLogFileName() const
 {
     return QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + "stderr-povrayrender");
 }
 
-void PovrayRenderDialog::CloseProcess()
+void RenderDialog::CloseProcess()
 {
 #ifndef QT_NO_PROCESS
     delete mProcess;
@@ -111,7 +113,7 @@ void PovrayRenderDialog::CloseProcess()
     ui->RenderButton->setText(tr("Render"));
 }
 
-bool PovrayRenderDialog::PromptCancel()
+bool RenderDialog::PromptCancel()
 {
 #ifndef QT_NO_PROCESS
     if (mProcess)
@@ -132,30 +134,30 @@ bool PovrayRenderDialog::PromptCancel()
     return true;
 }
 
-void PovrayRenderDialog::reject()
+void RenderDialog::reject()
 {
     if (PromptCancel())
         QDialog::reject();
 }
 
-void PovrayRenderDialog::on_LdvExportSettingsButton_clicked()
+void RenderDialog::on_LdvExportSettingsButton_clicked()
 {
     Render::showLdvExportSettings(POVRayRender);
 }
 
-void PovrayRenderDialog::on_LdvLDrawPreferencesButton_clicked()
+void RenderDialog::on_LdvLDrawPreferencesButton_clicked()
 {
     Render::showLdvLDrawPreferences(POVRayRender);
 }
 
-void PovrayRenderDialog::on_TargetButton_clicked()
+void RenderDialog::on_TargetButton_clicked()
 {
     TargetRotateDialogGui *targetRotateDialogGui =
             new TargetRotateDialogGui();
     targetRotateDialogGui->getTargetAndRotateValues(mCsiKeyList);
 }
 
-void PovrayRenderDialog::on_RenderButton_clicked()
+void RenderDialog::on_RenderButton_clicked()
 {
 #ifndef QT_NO_PROCESS
     if (mProcess)
@@ -362,7 +364,7 @@ void PovrayRenderDialog::on_RenderButton_clicked()
 #endif
 }
 
-QString PovrayRenderDialog::ReadStdErrLog(bool &hasError) const
+QString RenderDialog::ReadStdErrLog(bool &hasError) const
 {
     hasError = true;
     QFile file(GetLogFileName());
@@ -385,7 +387,7 @@ QString PovrayRenderDialog::ReadStdErrLog(bool &hasError) const
     return lines.join(" ");
 }
 
-void PovrayRenderDialog::Update()
+void RenderDialog::Update()
 {
 #ifndef QT_NO_PROCESS
     if (!mProcess)
@@ -457,7 +459,7 @@ void PovrayRenderDialog::Update()
         ui->RenderProgress->setValue(ui->RenderProgress->maximum());
 }
 
-void PovrayRenderDialog::UpdateElapsedTime()
+void RenderDialog::UpdateElapsedTime()
 {
     if (mProcess)
     {
@@ -465,7 +467,7 @@ void PovrayRenderDialog::UpdateElapsedTime()
     }
 }
 
-void PovrayRenderDialog::ShowResult()
+void RenderDialog::ShowResult()
 {
 #ifndef QT_NO_PROCESS
     bool hasError;
@@ -524,7 +526,7 @@ void PovrayRenderDialog::ShowResult()
     emit gui->messageSig(Result ? LOG_INFO : LOG_ERROR, message);
 }
 
-void PovrayRenderDialog::on_OutputBrowseButton_clicked()
+void RenderDialog::on_OutputBrowseButton_clicked()
 {
     QString Result = QFileDialog::getSaveFileName(this, tr("Select Output File"), ui->OutputEdit->text(), tr("Supported Image Files (*.bmp *.png *.jpg);;BMP Files (*.bmp);;PNG Files (*.png);;JPEG Files (*.jpg);;All Files (*.*)"));
 
@@ -532,7 +534,7 @@ void PovrayRenderDialog::on_OutputBrowseButton_clicked()
         ui->OutputEdit->setText(QDir::toNativeSeparators(Result));
 }
 
-void PovrayRenderDialog::on_ResetButton_clicked()
+void RenderDialog::on_ResetButton_clicked()
 {
     ui->AspectRatioBox->setChecked(true);
     ui->OutputAlphaBox->setChecked(true);
@@ -544,7 +546,7 @@ void PovrayRenderDialog::on_ResetButton_clicked()
     ui->OutputEdit->setText(Render::getPovrayRenderFileName(mViewerStepKey));
 }
 
-void PovrayRenderDialog::textChanged(const QString &value)
+void RenderDialog::textChanged(const QString &value)
 {
    /* original height x new width / original width = new height */
     mValue = value.toInt();
@@ -566,7 +568,7 @@ void PovrayRenderDialog::textChanged(const QString &value)
    }
 }
 
-void PovrayRenderDialog::resizeEvent(QResizeEvent* event)
+void RenderDialog::resizeEvent(QResizeEvent* event)
 {
    QDialog::resizeEvent(event);
    mPreviewWidth  = ui->preview->geometry().width();

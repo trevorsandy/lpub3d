@@ -389,7 +389,7 @@ HEADERS += \
     globals.h \
     gradients.h \
     highlighter.h \
-	historylineedit.h \
+    historylineedit.h \
     hoverpoints.h \
     ldrawcolourparts.h \
     ldrawfiles.h \
@@ -429,7 +429,7 @@ HEADERS += \
     pointer.h \
     pointeritem.h \
     pointerplacementdialog.h \
-    povrayrenderdialog.h \  
+    renderdialog.h \
     preferencesdialog.h \
     range.h \
     range_element.h \
@@ -494,7 +494,7 @@ SOURCES += \
     gradients.cpp \
     highlighter.cpp \
     highlightstepglobals.cpp \
-	historylineedit.cpp \
+    historylineedit.cpp \
     hoverpoints.cpp \
     ldrawcolourparts.cpp \
     ldrawfiles.cpp \
@@ -535,7 +535,7 @@ SOURCES += \
     plisubstituteparts.cpp \
     pointeritem.cpp \
     pointerplacementdialog.cpp \
-    povrayrenderdialog.cpp \    
+    renderdialog.cpp \
     preferencesdialog.cpp \
     printfile.cpp \
     projectglobals.cpp \    

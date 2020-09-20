@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>PovrayRenderDialog</class>
- <widget class="QDialog" name="PovrayRenderDialog">
+ <class>RenderDialog</class>
+ <widget class="QDialog" name="RenderDialog">
   <property name="geometry">
    <rect>
     <x>0</x>

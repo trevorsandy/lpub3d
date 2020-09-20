@@ -45,7 +45,7 @@
 #include "resolution.h"
 #include "lpubalert.h"
 #include "preferencesdialog.h"
-#include "povrayrenderdialog.h"
+#include "renderdialog.h"
 #include "metaitem.h"
 #include "ranges_element.h"
 #include "updatecheck.h"
@@ -3252,9 +3252,9 @@ void Gui::progressPermStatusRemove(){
     }
 }
 
-void Gui::showPovrayRenderDialog()
+void Gui::showRenderDialog()
 {
-    PovrayRenderDialog dialog(this);
+    RenderDialog dialog(this);
     dialog.exec();
 }
 
@@ -3639,7 +3639,7 @@ void Gui::createActions()
     saveCopyAct->setEnabled(false);
     connect(saveCopyAct, SIGNAL(triggered()), this, SLOT(saveCopy()));
 
-    closeFileAct = new QAction(QIcon(":/resources/closemodelfile.png"), tr("Close"), this);
+    closeFileAct = new QAction(QIcon(":/resources/closemodelfile.png"), tr("Close File"), this);
     closeFileAct->setShortcut(tr("Ctrl+W"));
     closeFileAct->setStatusTip(tr("Close current model file - Ctrl+W"));
     closeFileAct->setEnabled(false);
@@ -3751,7 +3751,7 @@ void Gui::createActions()
     povrayRenderAct->setShortcut(tr("Alt+9"));
     povrayRenderAct->setStatusTip(tr("Render the current model using POV-Ray - Alt+9"));
     povrayRenderAct->setEnabled(false);
-    connect(povrayRenderAct, SIGNAL(triggered()), this, SLOT(showPovrayRenderDialog()));
+    connect(povrayRenderAct, SIGNAL(triggered()), this, SLOT(showRenderDialog()));
 
     exitAct = new QAction(QIcon(":/resources/exit.png"),tr("E&xit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));

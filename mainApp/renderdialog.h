@@ -12,8 +12,8 @@
 **
 ****************************************************************************/
 
-#ifndef POVRAYRENDERDIALOG_H
-#define POVRAYRENDERDIALOG_H
+#ifndef RENDERDIALOG_H
+#define RENDERDIALOG_H
 
 #include <QDialog>
 #include <QFile>
@@ -21,17 +21,17 @@
 #include <QTime>
 
 namespace Ui {
-class PovrayRenderDialog;
+class RenderDialog;
 }
 
 class QProcess;
-class PovrayRenderDialog : public QDialog
+class RenderDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit PovrayRenderDialog(QWidget* Parent);
-    ~PovrayRenderDialog();
+    explicit RenderDialog(QWidget* Parent);
+    ~RenderDialog();
 
 public slots:
     void reject();
@@ -78,7 +78,7 @@ protected:
     int mPreviewHeight;
     double mScale;
     
-    Ui::PovrayRenderDialog* ui;
+    Ui::RenderDialog* ui;
 };
 
-#endif // POVRAYRENDERDIALOG_H_
+#endif // RENDERDIALOG_H_

@@ -1168,7 +1168,7 @@ public slots:
   int processCommandLine();
 
 
-  void showPovrayRenderDialog();
+  void showRenderDialog();
 
   void TogglePdfExportPreview();
   void TogglePrintToFilePreview();
