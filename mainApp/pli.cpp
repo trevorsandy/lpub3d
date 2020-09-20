@@ -756,8 +756,8 @@ QString Pli::orient(QString &color, QString type)
   QString *cached = orientation[type];
 
   if ( ! cached) {
-      QString name(Preferences::pliControlFile);
-      QFile file(name);
+      QString filePath(Preferences::pliControlFile);
+      QFile file(filePath);
 
       if (file.open(QFile::ReadOnly | QFile::Text)) {
           QTextStream in(&file);
@@ -781,7 +781,12 @@ QString Pli::orient(QString &color, QString type)
                 }
             }
           file.close();
-        }
+      } else {
+          emit gui->messageSig(LOG_ERROR, QString("Failed to open PLI control file: %1:<br>%2")
+                               .arg(filePath)
+                               .arg(file.errorString()));
+          return QString();
+      }
     }
 
   if (cached) {

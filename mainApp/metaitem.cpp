@@ -2252,10 +2252,11 @@ void MetaItem::changeImage(
 {
   QString cwd = QDir::currentPath();
   QString filter = QFileDialog::tr("Image Files (*.png *.jpg *.jpeg *.bmp)");
-  QString fileName = QFileDialog::getOpenFileName(nullptr,title, cwd, filter);
-  bool ok = !fileName.isEmpty();
-  if (ok) {
-    image->setValue(fileName);
+  QString filePath = QFileDialog::getOpenFileName(nullptr,title, cwd, filter);
+ if (!filePath.isEmpty()) {
+    if (filePath.startsWith(cwd))
+       filePath = filePath.replace(cwd,".");
+    image->setValue(filePath);
     setMeta(topOfStep,bottomOfStep,image,useTop,append,allowLocal,checkLocal);
   }
 }

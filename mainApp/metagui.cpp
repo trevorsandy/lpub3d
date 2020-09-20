@@ -1426,15 +1426,17 @@ void PageAttributePictureGui::pictureChange(QString const &pic)
 void PageAttributePictureGui::browsePicture(bool)
 {
   QString picture = meta->file.value();
-
-  QString foo = QFileDialog::getOpenFileName(
+  QString cwd = QDir::currentPath();
+  QString filePath = QFileDialog::getOpenFileName(
     gui,
     tr("Choose Picture File"),
     picture,
     tr("Image Files (*.png *.jpg *.jpeg *.bmp)"));
-  if (foo != "") {
-    picture = foo;
-    pictureEdit->setText(foo);
+  if (!filePath.isEmpty()) {
+    if (filePath.startsWith(cwd))
+      filePath = filePath.replace(cwd,".");
+    picture = filePath;
+    pictureEdit->setText(filePath);
     meta->file.setValue(picture);
     modified = pictureModified = true;
   }
@@ -2477,16 +2479,18 @@ void BackgroundGui::setGradient(bool){
 void BackgroundGui::browsePicture(bool)
 {
   BackgroundData background = meta->value();
-
-  QString foo = QFileDialog::getOpenFileName(
+  QString cwd = QDir::currentPath();
+  QString filePath = QFileDialog::getOpenFileName(
     gui,
     tr("Choose Picture File"),
     picture,
     tr("Image Files (*.png *.jpg *.jpeg *.bmp)"));
-  if (foo != "") {
-    picture = foo;
-    background.string = foo;
-    pictureEdit->setText(foo);
+  if (!filePath.isEmpty()) {
+    if (filePath.startsWith(cwd))
+      filePath = filePath.replace(cwd,".");
+    picture = filePath;
+    background.string = filePath;
+    pictureEdit->setText(filePath);
     meta->setValue(background);
     modified = true;
   }

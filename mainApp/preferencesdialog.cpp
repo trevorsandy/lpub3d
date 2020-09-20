@@ -548,13 +548,15 @@ void PreferencesDialog::on_browsePli_clicked()
 #else
     QString filter(tr("All Files (*.*)"));
 #endif
-
-    QString result = QFileDialog::getOpenFileName(this, tr("Locate Parts List orientation/size file"),
-                                                  ui.pliControlEdit->text().isEmpty() ? Preferences::lpubDataPath + "/extras" : ui.pliControlEdit->text(),
-                                                  filter);
-
-    if (!result.isEmpty()) {
-      ui.pliControlEdit->setText(QDir::toNativeSeparators(result));
+    QString filePath = QFileDialog::getOpenFileName(
+                this, tr("Locate Parts List orientation/size file"),
+                ui.pliControlEdit->text().isEmpty() ? Preferences::lpubDataPath + "/extras" : ui.pliControlEdit->text(),
+                filter);
+    if (!filePath.isEmpty()) {
+      QString cwd = QDir::currentPath();
+      if (filePath.startsWith(cwd))
+        filePath = filePath.replace(cwd,".");
+      ui.pliControlEdit->setText(QDir::toNativeSeparators(filePath));
       ui.pliControlBox->setChecked(true);
     }
 }
@@ -566,14 +568,16 @@ void PreferencesDialog::on_browsePublishLogo_clicked()
 #else
     QString filter(tr("All Files (*.*)"));
 #endif
-
-    QString result = QFileDialog::getOpenFileName(this, tr("Select Document Logo"),
-                                                  ui.publishLogoPath->text().isEmpty() ? Preferences::lpubDataPath + "/extras" : ui.publishLogoPath->text(),
-                                                  filter);
-
-    if (!result.isEmpty()) {
-      result = QDir::toNativeSeparators(result);
-      ui.publishLogoPath->setText(result);
+    QString filePath = QFileDialog::getOpenFileName(
+                this, tr("Select Document Logo"),
+                ui.publishLogoPath->text().isEmpty() ? Preferences::lpubDataPath + "/extras" : ui.publishLogoPath->text(),
+                filter);
+    if (!filePath.isEmpty()) {
+      QString cwd = QDir::currentPath();
+      if (filePath.startsWith(cwd))
+        filePath = filePath.replace(cwd,".");
+      filePath = QDir::toNativeSeparators(filePath);
+      ui.publishLogoPath->setText(filePath);
       ui.publishLogoBox->setChecked(true);
     }
 }

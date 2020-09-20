@@ -2929,17 +2929,22 @@ int Gui::addCoverPageAttributes(
 
 QString Gui::getFilePath(const QString &fileName) const
 {
-    QFileInfo fileInfo(fileName);
-    QString path;
-    if (!gui->getCurFile().isEmpty())
-        path = QFileInfo(gui->getCurFile()).absolutePath();
+    QString file = fileName, path;
+    QString cwd = QDir::currentPath();
+    if (!cwd.isEmpty())
+        path = cwd;
     // current path
-    if (QFileInfo(path + QDir::separator() + fileInfo.fileName()).isFile()) {
-        fileInfo = QFileInfo(path + QDir::separator() + fileInfo.fileName());
-    } else
-    // file path
-    if (QFileInfo(fileInfo.filePath()).isFile()){
-        fileInfo = QFileInfo(fileInfo.filePath());
-    }
-    return fileInfo.absoluteFilePath();
+    QString relPrefix = QString(".%1").arg(QDir::separator());
+    if (QDir::toNativeSeparators(file).startsWith(relPrefix))
+        file = file.replace(relPrefix,"");
+    QFileInfo fileInfo(QDir::toNativeSeparators(path+"/"+file));
+    if (fileInfo.isFile())
+        return fileInfo.absoluteFilePath();
+    // absolute path
+    fileInfo.setFile(fileName);
+    if (fileInfo.isFile())
+        return QFileInfo(fileName).absoluteFilePath();
+
+    emit gui->messageSig(LOG_ERROR,QString("Failed to resolve file at path:<br>[%1]").arg(fileName));
+    return QString();
 }
