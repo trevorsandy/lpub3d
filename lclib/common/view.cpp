@@ -1849,12 +1849,14 @@ void View::DrawAxes()
 	glEnable(GL_BLEND);
 
 	float TextBuffer[6 * 5 * 3];
+/*** LPub3D Mod - Camera Globe, Switch Y and Z axis label ***/
 	lcVector3 PosX = lcMul30(lcVector3(25.0f, 0.0f, 0.0f), WorldViewMatrix);
 	gTexFont.GetGlyphTriangles(PosX.x, PosX.y, PosX.z, 'X', TextBuffer);
 	lcVector3 PosY = lcMul30(lcVector3(0.0f, 25.0f, 0.0f), WorldViewMatrix);
-	gTexFont.GetGlyphTriangles(PosY.x, PosY.y, PosY.z, 'Y', TextBuffer + 5 * 6);
+	gTexFont.GetGlyphTriangles(PosY.x, PosY.y, PosY.z, 'Z', TextBuffer + 5 * 6);
 	lcVector3 PosZ = lcMul30(lcVector3(0.0f, 0.0f, 25.0f), WorldViewMatrix);
-	gTexFont.GetGlyphTriangles(PosZ.x, PosZ.y, PosZ.z, 'Z', TextBuffer + 5 * 6 * 2);
+	gTexFont.GetGlyphTriangles(PosZ.x, PosZ.y, PosZ.z, 'Y', TextBuffer + 5 * 6 * 2);
+/*** LPub3D Mod end ***/
 
 	mContext->SetVertexBufferPointer(TextBuffer);
 	mContext->SetVertexFormat(0, 3, 0, 2, 0, false);
