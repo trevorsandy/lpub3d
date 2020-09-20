@@ -500,19 +500,16 @@ void SubstitutePartDialog::accept()
                 mAttributes.removeAt(sModelScale);
             }
 
-            // Level 2 Substitution - Colour
-            if (removeLevel[Level3] &&
-               (removeLevel[Level2] =
-                mInitialAttributes.at(sColorCode) == mAttributes.at(sColorCode) &&
-               (mAction == sUpdate ? mDefaultAttributes.at(sColorCode) == mAttributes.at(sColorCode) : true))) {
-                mAttributes.removeAt(sColorCode);
-            }
+            // Level 2 Substitution - Colour [always populate colour]
+            removeLevel[Level2] =
+                            mInitialAttributes.at(sColorCode) == mAttributes.at(sColorCode) &&
+                           (mAction == sUpdate ? mDefaultAttributes.at(sColorCode) == mAttributes.at(sColorCode) : true);
 
             // Level 1 Substitution - Part Type
-            if ((removeLevel[Level1] =
+            if (removeLevel[Level2] &&
+               (removeLevel[Level1] =
                  mInitialAttributes.at(sType) == mAttributes.at(sType) &&
-                (mAction == sUpdate ? mDefaultAttributes.at(sColorCode) == mAttributes.at(sColorCode) : true) &&
-                 removeLevel[Level2])) {
+               (mAction == sUpdate ? mDefaultAttributes.at(sColorCode) == mAttributes.at(sColorCode) : true))) {
                 emit lpubAlert->messageSig(LOG_TRACE,QString("Nothing to %1 for part type [%2]: [%3]")
                                            .arg(label1).arg(mAttributes.at(sType)).arg(mAttributes.join(" ")));
                 mAttributes.clear();
