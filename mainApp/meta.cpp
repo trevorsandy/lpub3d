@@ -352,12 +352,7 @@ int UnitsMeta::valuePixels(int which)
 void UnitsMeta::setValuePixels(int which, int pixels)
 {
   float r = resolution();
-
   float value = float(pixels/r);
-
-  if (resolutionType() == DPCM) {
-    value = centimeters2inches(value);
-  }
 
   _value[pushed][which] = value;
 }
