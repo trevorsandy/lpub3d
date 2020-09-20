@@ -196,10 +196,10 @@ CONFIG(debug, debug|release) {
     unix:!macx: TARGET = $$join(TARGET,,,d$$VER_MAJOR$$VER_MINOR)
 
     # enable this to copy LDView libraries to DESTDIR - a one-time action
-    DO_COPY_LDVLIBS = #True
+    DO_COPY_LDVLIBS = True
 
-    # enable copy ldvMessages to OUT_PWD/mainApp/extras
-    DEVL_LDV_MESSAGES_INI = True
+    # enable copy ldvMessages to OUT_PWD/mainApp/extras (except macOS)
+    !macx:DEVL_LDV_MESSAGES_INI = True
 
 } else {
 
@@ -276,9 +276,8 @@ isEmpty(THIRD_PARTY_DIST_DIR_PATH):THIRD_PARTY_DIST_DIR_PATH = NotDefined
 }
 message("~~~ 3RD PARTY DISTRIBUTION REPO $$THIRD_PARTY_DIST_DIR_PATH ~~~")
 
-# To build and install, set CONFIG+=deb|rpm|pkg|exe respectively.
-macx: build_package = $$(INSTALL_3RD_PARTY)       # INSTALL_3RD_PARTY no longer used
-else: build_package = $$(LP3D_BUILD_PKG)
+# To build and install locally or from QC, set CONFIG+=dmg|deb|rpm|pkg|exe respectively.
+build_package = $$(LP3D_BUILD_PKG) # triggered from cloud build scripts
 if(deb|rpm|pkg|dmg|exe|contains(build_package, yes)) {
     args = deb rpm pkg dmg exe
     for(arg, args) {

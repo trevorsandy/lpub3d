@@ -211,7 +211,7 @@ win32-msvc*:contains(LOAD_LDV_SOURCE_FILES,True) {
 }
 
 # suppress warnings
-!win32-msvc* {
+!win32-msvc*:!macx {
 QMAKE_CFLAGS_WARN_ON += \
      -Wall -W \
      -Wno-deprecated-declarations \

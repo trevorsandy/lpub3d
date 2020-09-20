@@ -88,7 +88,7 @@ contains(LOAD_LDVLIBS,True) {
     isEmpty(LDVLIBRARY):LDVLIBRARY = $$system_path( $$absolute_path( $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR ) )
     win32-msvc*:CONFIG(debug, debug|release): \
     LDVLIBDIR = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/Build/Debug$$LIB_ARCH )
-    else:CONFIG(release, debug|release): \
+    else: \
     LDVLIBDIR = $$system_path( $${THIRD_PARTY_DIST_DIR_PATH}/$$VER_LDVIEW/bin/$$QT_ARCH )
 
 #    message("~~~ lib$${TARGET} Library path: $$LDVLIBRARY ~~~ ")
@@ -200,17 +200,19 @@ contains(LOAD_LDVLIBS,True) {
     !exists($${_3DS_DEP}): USE_LOCAL_3DS_LIB = False
 #    else:message("~~~ Local 3ds library $${_3DS_DEP} detected ~~~")
 
-    !exists($${_MINIZIP_DEP}): USE_LOCAL_MINIZIP_LIB = False
-#    else:message("~~~ Local minizip library $${_MINIZIP_DEP} detected ~~~")
-
     !exists($${_PNG_DEP}): USE_LOCAL_PNG_LIB = False
 #    else:message("~~~ Local png library $${_PNG_DEP} detected ~~~")
 
     !exists($${_JPEG_DEP}): USE_LOCAL_JPEG_LIB = False
 #    else:message("~~~ Local jpeg library $${_JPEG_DEP} detected ~~~")
 
-    !exists($${_ZLIB_DEP}):  USE_LOCAL_ZLIB_LIB = False
-#    else:message("~~~ Local z library $${_ZLIB_DEP} detected ~~~")
+     win32-msvc* {
+         !exists($${_ZLIB_DEP}):  USE_LOCAL_ZLIB_LIB = False
+#        else:message("~~~ Local z library $${_ZLIB_DEP} detected ~~~")
+    } else {
+         !exists($${_MINIZIP_DEP}): USE_LOCAL_MINIZIP_LIB = False
+#        else:message("~~~ Local minizip library $${_MINIZIP_DEP} detected ~~~")
+    }
 
 # This block is executed by LPub3D mainApp
 contains(DO_COPY_LDVLIBS,True) {
@@ -430,6 +432,7 @@ contains(DO_COPY_LDVLIBS,True) {
     $$system_path( $${LDVRESDIR}/LDExportMessages.ini ) $$PLUS_CMD \
     $$system_path( $$PWD/LDVWidgetMessages.ini ) $$REDIRECT_CMD \
     $$system_path( $$LDVMESSAGESINI_DEP )
+# When compiling from QC, add ldvMessages.ini to destination directory extras folder - except for macOS
     contains(DEVL_LDV_MESSAGES_INI,True) {
          LDVMSGINI_COPY_CMD += \
          $$escape_expand(\n\t) \

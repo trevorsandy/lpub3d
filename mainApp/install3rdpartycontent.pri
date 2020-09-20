@@ -12,7 +12,7 @@ if (copy3rdexe|copy3rdexeconfig|copy3rdcontent) {
 
 copy3rdexe {
     # renderer executables
-    message("~~~ RELEASE BUILD - 3RD PARTY $${BUILD} EXECUTABLES WILL BE INSTALLED ~~~")
+    message("~~~ $$upper($${BUILD_CONF}) BUILD - 3RD PARTY $${BUILD} EXECUTABLES WILL BE INSTALLED ~~~")
     ldglite_ins.files += $$LDGLITE_INS_EXE
     ldglite_ins.path = $$LDGLITE_INS_DIR
 
