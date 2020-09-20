@@ -1079,6 +1079,7 @@ int Step::sizeit(
         }
     }
 
+  /*
   if (subModelPlacement.relativeTo == PartsListType) {
       if (pliPerStep && placeSubModel) {
           subModel.tbl[XX] = pli.tbl[XX]+relativePlace[subModelPlacement.placement][XX];
@@ -1108,6 +1109,7 @@ int Step::sizeit(
           stepNumber.tbl[YY] = stepNumberPlace[stepNumberPlacement.placement][YY];
         }
     }
+  */
 
   if (stepNumberPlacement.relativeTo == PartsListType) {
       stepNumber.tbl[XX] = pli.tbl[XX]+relativePlace[stepNumberPlacement.placement][XX];
@@ -1155,7 +1157,7 @@ int Step::sizeit(
     }
 
   maxMargin(pli.margin,pli.tbl,marginRows,marginCols);
-  maxMargin(subModel.margin,subModel.tbl,marginRows,marginCols);
+//  maxMargin(subModel.margin,subModel.tbl,marginRows,marginCols);
   maxMargin(stepNumber.margin,stepNumber.tbl,marginRows,marginCols);
   maxMargin(csiPlacement.margin,csiPlacement.tbl,marginRows,marginCols);
   maxMargin(rotateIcon.margin,rotateIcon.tbl,marginRows,marginCols);
@@ -1175,7 +1177,7 @@ int Step::sizeit(
 
   square[TblCsi][TblCsi] = CsiType;
   square[pli.tbl[XX]][pli.tbl[YY]] = PartsListType;
-  square[subModel.tbl[XX]][subModel.tbl[YY]] = SubModelType;
+//  square[subModel.tbl[XX]][subModel.tbl[YY]] = SubModelType;
   square[stepNumber.tbl[XX]][stepNumber.tbl[YY]] = StepNumberType;
   square[rotateIcon.tbl[XX]][rotateIcon.tbl[YY]] = RotateIconType;
 
@@ -1431,6 +1433,64 @@ int Step::sizeit(
             }
         }
     }
+
+  // Allow SUBMODEL and CALLOUT to share one column
+
+  if (shared && subModel.tbl[y] == TblCsi) {
+      int wX = 0, wY = 0;
+      if (x == XX) {
+          wX = subModel.size[XX] + calloutSize[XX];
+          wY = subModel.size[YY];
+      } else {
+          wX = subModel.size[XX];
+          wY = subModel.size[YY] + calloutSize[YY];
+      }
+      if (cols[subModel.tbl[XX]] < wX) {
+          cols[subModel.tbl[XX]] = wX;
+      }
+      if (rows[subModel.tbl[YY]] < wY) {
+          rows[subModel.tbl[YY]] = wY;
+      }
+
+  } else {
+
+      bool addOn = true;
+
+      /* Drop the SubModel down on top of the CSI, and reduce the SubModel's size */
+
+      if (onlyChild()) {
+          switch (pliPlacement.placement) {
+          case Top:
+          case Bottom:
+              if (pliPlacement.relativeTo == CsiType) {
+                  if ( ! collide(square,subModel.tbl,y, x)) {
+                      int height = (max - pixmapSize[y])/2;
+                      if (height > 0) {
+                          if (height >= subModel.size[y]) { // entire thing fits
+                              rows[subModel.tbl[y]] = 0;
+                              addOn = false;
+                          } else {                        // fit what we can
+                              rows[subModel.tbl[y]] = subModel.size[y] - height;
+                              addOn = false;
+                          }
+                      }
+                  }
+              }
+              break;
+          default:
+              break;
+          }
+      }
+
+      if (cols[subModel.tbl[XX]] < subModel.size[XX]) {
+          cols[subModel.tbl[XX]] = subModel.size[XX];  // HINT 1
+      }
+      if (addOn) {
+          if (rows[subModel.tbl[YY]] < subModel.size[YY]) {
+              rows[subModel.tbl[YY]] = subModel.size[YY];
+          }
+      }
+  }
 
   // Allow PLI and SUBMODEL to share one column
 
