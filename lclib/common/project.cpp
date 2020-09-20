@@ -2251,7 +2251,21 @@ void Project::SaveImage()
 	if (Dialog.mStart != Dialog.mEnd)
 		Dialog.mFileName = Dialog.mFileName.insert(Dialog.mFileName.length() - Extension.length() - 1, QLatin1String("%1"));
 
+/*** LPub3D Mod - Save FadeStep Setting ***/
+	bool saveFadeStep = false;
+	if (Dialog.mStart == Dialog.mEnd == 1)
+		saveFadeStep = gApplication->mPreferences.mFadeSteps;
+
+	if (saveFadeStep)
+		lcSetProfileInt(LC_PROFILE_FADE_STEPS, false);
+/*** LPub3D Mod end ***/
+
 	mActiveModel->SaveStepImages(Dialog.mFileName, Dialog.mStart != Dialog.mEnd, false, false, Dialog.mWidth, Dialog.mHeight, Dialog.mStart, Dialog.mEnd);
+
+/*** LPub3D Mod - Save FadeStep Setting ***/
+	if (saveFadeStep)
+		lcSetProfileInt(LC_PROFILE_FADE_STEPS, saveFadeStep);
+/*** LPub3D Mod end ***/
 }
 
 void Project::UpdatePieceInfo(PieceInfo* Info) const
