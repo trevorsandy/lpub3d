@@ -48,8 +48,8 @@ void Gui::create3DActions()
     setTargetPositionAct->setChecked(lcGetProfileInt(LC_PROFILE_SET_TARGET_POSITION));
     connect(setTargetPositionAct, SIGNAL(triggered()), this, SLOT(setTargetPosition()));
 
-    useImageSizeAct = new QAction(tr("Keep Image Size"),this);
-    useImageSizeAct->setStatusTip(tr("Maintain image width and height when setting camera target"));
+    useImageSizeAct = new QAction(tr("Custom Image Size"),this);
+    useImageSizeAct->setStatusTip(tr("Maintain initial image width and height or enter custom image size"));
     useImageSizeAct->setCheckable(true);
     useImageSizeAct->setChecked(lcGetProfileInt(LC_PROFILE_USE_IMAGE_SIZE));
     connect(useImageSizeAct, SIGNAL(triggered()), this, SLOT(useImageSize()));
@@ -330,39 +330,44 @@ void Gui::applyCameraSettings()
     emit messageSig(LOG_STATUS,QString("Setting Camera %1").arg(Camera->m_strName));
 
     QString imageFileName;
-    if (gStep){
+    Step *currentStep = gui->getCurrentStep();
+
+    if (currentStep){
         int it = lcGetActiveProject()->GetImageType();
         switch(it){
         case Render::Mt::PLI:
-            cameraMeta.cameraAngles   = gStep->pli.pliMeta.cameraAngles;
-            cameraMeta.cameraDistance = gStep->pli.pliMeta.cameraDistance;
-            cameraMeta.modelScale     = gStep->pli.pliMeta.modelScale;
-            cameraMeta.cameraFoV      = gStep->pli.pliMeta.cameraFoV;
-            cameraMeta.zfar           = gStep->pli.pliMeta.zfar;
-            cameraMeta.znear          = gStep->pli.pliMeta.znear;
-            cameraMeta.isOrtho        = gStep->pli.pliMeta.isOrtho;
-            cameraMeta.imageSize      = gStep->pli.pliMeta.imageSize;
-            cameraMeta.target         = gStep->pli.pliMeta.target;
+            cameraMeta.cameraAngles   = currentStep->pli.pliMeta.cameraAngles;
+            cameraMeta.cameraDistance = currentStep->pli.pliMeta.cameraDistance;
+            cameraMeta.modelScale     = currentStep->pli.pliMeta.modelScale;
+            cameraMeta.cameraFoV      = currentStep->pli.pliMeta.cameraFoV;
+            cameraMeta.zfar           = currentStep->pli.pliMeta.zfar;
+            cameraMeta.znear          = currentStep->pli.pliMeta.znear;
+            cameraMeta.isOrtho        = currentStep->pli.pliMeta.isOrtho;
+            cameraMeta.imageSize      = currentStep->pli.pliMeta.imageSize;
+            cameraMeta.target         = currentStep->pli.pliMeta.target;
             break;
         case Render::Mt::SMP:
-            cameraMeta.cameraAngles   = gStep->subModel.subModelMeta.cameraAngles;
-            cameraMeta.cameraDistance = gStep->subModel.subModelMeta.cameraDistance;
-            cameraMeta.modelScale     = gStep->subModel.subModelMeta.modelScale;
-            cameraMeta.cameraFoV      = gStep->subModel.subModelMeta.cameraFoV;
-            cameraMeta.zfar           = gStep->subModel.subModelMeta.zfar;
-            cameraMeta.znear          = gStep->subModel.subModelMeta.znear;
-            cameraMeta.isOrtho        = gStep->subModel.subModelMeta.isOrtho;
-            cameraMeta.imageSize      = gStep->subModel.subModelMeta.imageSize;
-            cameraMeta.target         = gStep->subModel.subModelMeta.target;
+            cameraMeta.cameraAngles   = currentStep->subModel.subModelMeta.cameraAngles;
+            cameraMeta.cameraDistance = currentStep->subModel.subModelMeta.cameraDistance;
+            cameraMeta.modelScale     = currentStep->subModel.subModelMeta.modelScale;
+            cameraMeta.cameraFoV      = currentStep->subModel.subModelMeta.cameraFoV;
+            cameraMeta.zfar           = currentStep->subModel.subModelMeta.zfar;
+            cameraMeta.znear          = currentStep->subModel.subModelMeta.znear;
+            cameraMeta.isOrtho        = currentStep->subModel.subModelMeta.isOrtho;
+            cameraMeta.imageSize      = currentStep->subModel.subModelMeta.imageSize;
+            cameraMeta.target         = currentStep->subModel.subModelMeta.target;
             break;
         default: /*Render::Mt::CSI:*/
-            cameraMeta                = gStep->csiCameraMeta;
-            imageFileName             = gStep->pngName;
+            cameraMeta                = currentStep->csiCameraMeta;
+            imageFileName             = currentStep->pngName;
             break;
         }
 
-        Where top = gStep->topOfStep();
-        Where bottom = gStep->bottomOfStep();
+        QString metaString;
+        bool newCommand = false;
+        Where undefined = Where();
+        Where top = currentStep->topOfStep();
+        Where bottom = currentStep->bottomOfStep();
 
         float Latitude, Longitude, Distance;
         Camera->GetAngles(Latitude, Longitude, Distance);
@@ -396,59 +401,80 @@ void Gui::applyCameraSettings()
             cameraMeta.target.setValues(Camera->mTargetPosition[0],
                                         Camera->mTargetPosition[2],
                                         Camera->mTargetPosition[1]);
-            gStep->mi(it)->setMeta(top,bottom,&cameraMeta.target,true,1,true,false);
+            metaString = cameraMeta.target.format(true/*local*/,false/*global*/);
+            newCommand = cameraMeta.target.here() == undefined;
+            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+//            currentStep->mi(it)->setMeta(top,bottom,&cameraMeta.target,true/*useTop*/,1/*append*/,true/*local*/,false/*askLocal,global=false*/);
         }
 
         if (useImageSizeAct->isChecked()) {
             cameraMeta.imageSize.setValues(lcGetActiveProject()->GetImageWidth(),
                                            lcGetActiveProject()->GetImageHeight());
-            gStep->mi(it)->setMeta(top,bottom,&cameraMeta.imageSize,true,1,true,false);
+            metaString = cameraMeta.imageSize.format(true,false);
+            newCommand = cameraMeta.imageSize.here() == undefined;
+            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
         }
 
         if (notEqual(Camera->GetScale(), cameraMeta.modelScale.value())) {
             cameraMeta.modelScale.setValue(Camera->GetScale());
-            gStep->mi(it)->setMeta(top,bottom,&cameraMeta.modelScale,true,1,true,false);
+            metaString = cameraMeta.modelScale.format(true,false);
+            newCommand = cameraMeta.modelScale.here() == undefined;
+            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
         }
 
         if (notEqual(qRound(Distance), cameraMeta.cameraDistance.value()) &&
             !useImageSizeAct->isChecked()) {
             cameraMeta.cameraDistance.setValue(qRound(Distance));
-            gStep->mi(it)->setMeta(top,bottom,&cameraMeta.cameraDistance,true,1,true,false);
+            metaString = cameraMeta.cameraDistance.format(true,false);
+            newCommand = cameraMeta.cameraDistance.here() == undefined;
+            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
         }
 
         if (notEqual(qRound(Latitude), cameraMeta.cameraAngles.value(0)) ||
             notEqual(qRound(Longitude),cameraMeta.cameraAngles.value(1))) {
             cameraMeta.cameraAngles.setValues(qRound(Latitude), qRound(Longitude));
-            gStep->mi(it)->setMeta(top,bottom,&cameraMeta.cameraAngles,true,1,true,false);
+            metaString = cameraMeta.cameraAngles.format(true,false);
+            newCommand = cameraMeta.cameraAngles.here() == undefined;
+            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
         }
 
         float zFar = validCameraValue(DefZFar);
         if (notEqual(cameraMeta.zfar.value(),zFar)) {
             cameraMeta.zfar.setValue(zFar);
-            gStep->mi(it)->setMeta(top,bottom,&cameraMeta.zfar,true,1,true,false);
+            metaString = cameraMeta.zfar.format(true,false);
+            newCommand = cameraMeta.zfar.here() == undefined;
+            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
         }
 
         float zNear = validCameraValue(DefZNear);
         if (notEqual(cameraMeta.znear.value(), zNear)) {
             cameraMeta.znear.setValue(zNear);
-            gStep->mi(it)->setMeta(top,bottom,&cameraMeta.znear,true,1,true,false);
+            metaString = cameraMeta.znear.format(true,false);
+            newCommand = cameraMeta.znear.here() == undefined;
+            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
         }
 
         float fovy = validCameraValue(DefFoV);
         if (notEqual(cameraMeta.cameraFoV.value(), fovy)) {
             cameraMeta.cameraFoV.setValue(fovy);
-            gStep->mi(it)->setMeta(top,bottom,&cameraMeta.cameraFoV,true,1,true,false);
+            metaString = cameraMeta.cameraFoV.format(true,false);
+            newCommand = cameraMeta.cameraFoV.here() == undefined;
+            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
         }
 
         bool isOrtho = Camera->IsOrtho();
         cameraMeta.isOrtho.setValue(isOrtho);
         if (cameraMeta.isOrtho.value()) {
-            gStep->mi(it)->setMeta(top,bottom,&cameraMeta.isOrtho,true,1,true,false);
+            metaString = cameraMeta.isOrtho.format(true,false);
+            newCommand = cameraMeta.isOrtho.here() == undefined;
+            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
         }
 
         if (!QString(Camera->m_strName).isEmpty()) {
             cameraMeta.cameraName.setValue(Camera->m_strName);
-            gStep->mi(it)->setMeta(top,bottom,&cameraMeta.cameraName,true,1,true,false);
+            metaString = cameraMeta.cameraName.format(true,false);
+            newCommand = cameraMeta.cameraName.here() == undefined;
+            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
         }
 
         endMacro();

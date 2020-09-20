@@ -317,9 +317,129 @@ static void set_divider_pointers(
     }
 }
 
-Step *Gui::getCurStep()
+/*********************************************
+ *
+ * extract stepKey
+ *
+ ********************************************/
+
+  bool Gui::extractStepKey(Where &here, int &stepNumber)
+  {
+      // format= "modelName"lineNumber;stepNumber[_fm]
+      //         stepKey first element  = "modelName"
+      //         stepKey second element = lineNumber;stepNumber[_fm]
+      QString valueAt0 = getViewerCsiKey().at(0);
+      bool inside = (valueAt0 == "\"");                                        // Get the open quote " of the first parameter - modelName
+      QStringList tmpList = getViewerCsiKey().split(QRegExp("\""),             // Split by quote " to extract model name
+                                                    QString::SkipEmptyParts);
+      QStringList keyArg01;
+      foreach (QString s, tmpList) {
+          if (inside) {                                                        // If 's' is inside quotes ...
+              keyArg01.append(s);                                              // ... put everyting inside quotes in the first element
+          } else {                                                             // If 's' is outside quotes ...
+              keyArg01.append(s.split(" ", QString::SkipEmptyParts));          // ... split the rest of the string by space " " and place in the second element
+          }
+          inside = !inside;
+      }
+
+      // confirm keyArg01 has 2 stepKey elements
+      if (keyArg01.size() != 2) {
+          if (Preferences::debugLogging) {
+              emit messageSig(LOG_DEBUG, QString("Parse stepKey [%1] failed").arg(getViewerCsiKey()));
+              return false;
+          }
+      }
+
+      // populate modelName;
+      QString modelName  = keyArg01[0];                                            //0=modelName
+
+      // extract sub elements from stepKey second element
+      QStringList keyArg02 = keyArg01[1].split(";");                                //0=lineNumber; 1=stepNumber[_fm]
+
+      bool ok[2];
+      // first sub element is line Number
+      int lineNumber = keyArg02[0].toInt(&ok[0]);
+      if (!ok[0]) {
+          emit gui->messageSig(LOG_ERROR,QString("Line number is not an integer [%1]").arg(keyArg02[0]));
+          return false;
+      } else {
+          here = Where(modelName,lineNumber);
+      }
+
+      // split second sub element in case it is a final Model
+      int tempStepNum;
+      if (page.modelDisplayOnlyStep) {
+          tempStepNum = QStringList(keyArg02[1].split("_")).first().toInt(&ok[1]);
+      } else {
+          tempStepNum = keyArg02[1].toInt(&ok[1]);
+      }
+      if (!ok[1]) {
+          emit gui->messageSig(LOG_NOTICE,QString("Step number is not an integer [%1]").arg(keyArg02[1]));
+          return false;
+      } else {
+          stepNumber = tempStepNum;
+      }
+
+      if (Preferences::debugLogging) {
+          QString messsage = QString("Step Key parse OK, modelName: %1, lineNumber: %2, stepNumber: %3")
+                                     .arg(modelName).arg(lineNumber).arg(stepNumber);
+          if (!stepNumber && page.pli.tsize() && page.pli.bom)
+              messsage = QString("Step Key parse OK but this is a BOM page, step pageNumber: %1")
+                                 .arg(stepPageNum);
+          emit messageSig(LOG_DEBUG, messsage);
+      }
+
+      return true;
+  }
+
+/*********************************************
+ *
+ * current step
+ *
+ ********************************************/
+
+Step *Gui::getCurrentStep()
 {
-    return gStep;
+    Where here;
+    int stepNumber;
+
+    extractStepKey(here,stepNumber);
+
+    if (!stepNumber)
+        return nullptr;
+
+    Step *step = nullptr;
+    bool multiStep = false;
+    bool stepMatch = false;
+    if ((multiStep = page.list.size())) {
+        for (int i = 0; i < page.list.size(); i++){
+            Range *range = dynamic_cast<Range *>(page.list[i]);
+            for (int j = 0; j < range->list.size(); j++){
+                if (range->relativeType == RangeType) {
+                    step = dynamic_cast<Step *>(range->list[j]);
+                    if (step && step->relativeType == StepType){
+                        stepMatch = step->stepNumber.number == stepNumber;
+                        if (stepMatch)
+                            break;
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        if (gStep)     // get current step
+            stepMatch = gStep->stepNumber.number == stepNumber;
+        if (stepMatch)
+            step = gStep;
+    }
+    if (Preferences::debugLogging)
+        emit messageSig(LOG_DEBUG, QString("%1 Step number %2 for %3")
+                        .arg(stepMatch ? "Match!" : "Oh oh!")
+                        .arg(QString("%1 %2").arg(stepNumber)
+                             .arg(stepMatch ? "found" : "was not found"))
+                        .arg(multiStep ? "multistep" : "single step"));
+    return step;
 }
 
 /*
@@ -1469,7 +1589,7 @@ int Gui::drawPage(
                       steps->meta.LPub.assem.modelScale     = gStep->csiCameraMeta.modelScale;
                       steps->meta.LPub.assem.cameraFoV      = gStep->csiCameraMeta.cameraFoV;
                       steps->meta.LPub.assem.isOrtho        = gStep->csiCameraMeta.isOrtho;
-                      steps->meta.LPub.assem.imageSize  = gStep->csiCameraMeta.imageSize;
+                      steps->meta.LPub.assem.imageSize      = gStep->csiCameraMeta.imageSize;
                       steps->meta.LPub.assem.zfar           = gStep->csiCameraMeta.zfar;
                       steps->meta.LPub.assem.znear          = gStep->csiCameraMeta.znear;
                       steps->meta.LPub.assem.target         = gStep->csiCameraMeta.target;
@@ -1853,15 +1973,15 @@ int Gui::drawPage(
                           timer.start();
                           QString empty("");
 
-                          // set camera - REMOVE REDUNDANT AND NOT USED
-//                          steps->meta.LPub.assem.cameraAngles   = step->csiCameraMeta.cameraAngles;
-//                          steps->meta.LPub.assem.cameraDistance = step->csiCameraMeta.cameraDistance;
-//                          steps->meta.LPub.assem.modelScale     = step->csiCameraMeta.modelScale;
-//                          steps->meta.LPub.assem.cameraFoV      = step->csiCameraMeta.cameraFoV;
-//                          steps->meta.LPub.assem.isOrtho        = step->csiCameraMeta.isOrtho;
-//                          steps->meta.LPub.assem.zfar           = step->csiCameraMeta.zfar;
-//                          steps->meta.LPub.assem.znear          = step->csiCameraMeta.znear;
-//                          steps->meta.LPub.assem.target         = step->csiCameraMeta.target;
+                          // set camera
+                          steps->meta.LPub.assem.cameraAngles   = gStep->csiCameraMeta.cameraAngles;
+                          steps->meta.LPub.assem.cameraDistance = gStep->csiCameraMeta.cameraDistance;
+                          steps->meta.LPub.assem.modelScale     = gStep->csiCameraMeta.modelScale;
+                          steps->meta.LPub.assem.cameraFoV      = gStep->csiCameraMeta.cameraFoV;
+                          steps->meta.LPub.assem.isOrtho        = gStep->csiCameraMeta.isOrtho;
+                          steps->meta.LPub.assem.zfar           = gStep->csiCameraMeta.zfar;
+                          steps->meta.LPub.assem.znear          = gStep->csiCameraMeta.znear;
+                          steps->meta.LPub.assem.target         = gStep->csiCameraMeta.target;
 
                           // set the extra renderer parms
                           steps->meta.LPub.assem.ldviewParms =

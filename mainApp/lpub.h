@@ -728,12 +728,14 @@ public:
       return KpageScene;
   }
 
-  Step *getCurStep();
+  Step *getCurrentStep();
 
   QString getCurFile()
   {
       return curFile;
   }
+
+  bool extractStepKey(Where &here, int &stepNumber);
 
   /***********************************************************************
    * set Native renderer for fast processing
@@ -819,9 +821,9 @@ public slots:
 
   void ShowStepRotationStatus();
   void SetRotStepMeta();
-  void setViewerCsiKey(QString &csiName)
+  void setViewerCsiKey(QString &stepKey)
   {
-      viewerCsiKey = csiName;
+      viewerCsiKey = stepKey;
   }
 
   QString getViewerCsiKey()
@@ -1102,10 +1104,10 @@ protected:
   float                  mRotStepAngleY;
   float                  mRotStepAngleZ;
   QString                mRotStepTransform;
-  QString                viewerCsiKey;      // currently loaded CSI in 3DViewer
+  QString                viewerCsiKey;        // currently loaded CSI in 3DViewer
   QMap<QString, QString> mPliIconsPath;       // used to set an icon image in the 3DViewer timeline view
 
-  QMap<int, PgSizeData>  pageSizes;          // page size and orientation object
+  QMap<int, PgSizeData>  pageSizes;           // page size and orientation object
 
   int                    mViewerZoomLevel;
   // download components
