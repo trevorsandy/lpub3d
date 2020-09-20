@@ -1406,7 +1406,7 @@ void Gui::createBuildModification()
                     {
                         QString Name = LineStream.readAll().trimmed();
 
-                        if (mViewerProperties.mName != Name)
+                        if (mViewerProperties.mFileName != Name)
                         {
                             Buffer.seek(Pos);
                             break;

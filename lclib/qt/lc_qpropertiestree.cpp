@@ -168,7 +168,7 @@ void lcQPropertiesTreeDelegate::paint(QPainter *painter, const QStyleOptionViewI
 	QColor color = static_cast<QRgb>(QApplication::style()->styleHint(QStyle::SH_Table_GridLineColor, &opt));
 	painter->save();
 	painter->setPen(QPen(color));
- 
+
 	if (!m_treeWidget || (!m_treeWidget->lastColumn(index.column()) && hasValue))
 	{
 		int right = (option.direction == Qt::LeftToRight) ? option.rect.right() : option.rect.left();
@@ -1512,7 +1512,7 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 	partFileName->setText(1, Info ? Info->mFileName : QString());
 	partFileName->setData(0, PropertyValueRole, QVariant::fromValue((void*)Info));
 
-	partModel->setText(1, ModelInfo.mName);
+	partModel->setText(1, ModelInfo.mFileName);
 	partModel->setData(0, PropertyValueRole, QVariant::fromValue((void*)Info));
 
 	partType->setText(1, Info ? Info->mZipFileType == LC_ZIPFILE_OFFICIAL ? QString("Official Part") : QString("Unofficial Part") : QString());

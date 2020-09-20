@@ -62,11 +62,9 @@ void lcModelProperties::SaveLDraw(QTextStream& Stream) const
 {
 	QLatin1String LineEnding("\r\n");
 
-	if (!mAuthor.isEmpty())
-		Stream << QLatin1String("0 !LPUB MODEL AUTHOR ") << mAuthor << LineEnding;
-
-	if (!mDescription.isEmpty())
-		Stream << QLatin1String("0 !LPUB MODEL DESCRIPTION ") << mDescription << LineEnding;
+	Stream << QLatin1String("0 ") << mDescription << LineEnding;
+	Stream << QLatin1String("0 Name: ") << mModelName << LineEnding;
+	Stream << QLatin1String("0 Author: ") << mAuthor << LineEnding;
 
 	if (!mComments.isEmpty())
 	{
@@ -101,7 +99,41 @@ void lcModelProperties::SaveLDraw(QTextStream& Stream) const
 		break;
 	}
 
-//  lcVector3 mAmbientColor;
+//	lcVector3 mAmbientColor;
+}
+
+bool lcModelProperties::ParseLDrawHeader(QString Line, bool FirstLine)
+{
+	QTextStream LineStream(&Line, QIODevice::ReadOnly);
+
+	QString Token;
+	LineStream >> Token;
+	int StartPos = LineStream.pos();
+	LineStream >> Token;
+
+	if (Token == QLatin1String("!LEOCAD"))
+		return false;
+
+	if (FirstLine)
+	{
+		LineStream.seek(StartPos);
+		mDescription = LineStream.readLine().mid(1);
+		return true;
+	}
+
+	if (Token == QLatin1String("Name:"))
+	{
+		mModelName = LineStream.readLine().mid(1);
+		return true;
+	}
+
+	if (Token == QLatin1String("Author:"))
+	{
+		mAuthor = LineStream.readLine().mid(1);
+		return true;
+	}
+
+	return false;
 }
 
 void lcModelProperties::ParseLDrawLine(QTextStream& Stream)
@@ -153,9 +185,10 @@ void lcModelProperties::ParseLDrawLine(QTextStream& Stream)
 	}
 }
 
-lcModel::lcModel(const QString& Name)
+lcModel::lcModel(const QString& FileName)
 {
-	mProperties.mName = Name;
+	mProperties.mModelName = FileName;
+	mProperties.mFileName = FileName;
 	mProperties.LoadDefaults();
 
 	mActive = false;
@@ -264,7 +297,7 @@ void lcModel::DeleteModel()
 void lcModel::CreatePieceInfo(Project* Project)
 {
 	lcPiecesLibrary* Library = lcGetPiecesLibrary();
-	mPieceInfo = Library->FindPiece(mProperties.mName.toLatin1().constData(), Project, true, false);
+	mPieceInfo = Library->FindPiece(mProperties.mFileName.toLatin1().constData(), Project, true, false);
 	mPieceInfo->SetModel(this, true, Project, true);
 	Library->LoadPieceInfo(mPieceInfo, true, true);
 }
@@ -497,13 +530,13 @@ int lcModel::SplitMPD(QIODevice& Device)
 
 			if (Token == QLatin1String("FILE"))
 			{
-				if (!mProperties.mName.isEmpty())
+				if (!mProperties.mFileName.isEmpty())
 				{
 					Device.seek(Pos);
 					break;
 				}
 
-				mProperties.mName = LineStream.readAll().trimmed();
+				SetFileName(LineStream.readAll().trimmed());
 				ModelPos = Pos;
 			}
 			else if (Token == QLatin1String("NOFILE"))
@@ -528,6 +561,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 	int LineTypeIndex = -1;
 /*** LPub3D Mod end ***/
 	lcPiecesLibrary* Library = lcGetPiecesLibrary();
+
 	mProperties.mAuthor.clear();
 	mProperties.mDescription.clear();
 	mProperties.mComments.clear();
@@ -563,6 +597,9 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 	};
 /*** LPub3D Mod end ***/
 
+	bool ReadingHeader = true;
+	bool FirstLine = true;
+
 	while (!Device.atEnd())
 	{
 		qint64 Pos = Device.pos();
@@ -595,7 +632,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 			{
 				QString Name = LineStream.readAll().trimmed();
 
-				if (mProperties.mName != Name)
+				if (mProperties.mFileName != Name)
 				{
 					Device.seek(Pos);
 					break;
@@ -607,7 +644,17 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 			{
 				break;
 			}
-			else if (Token == QLatin1String("STEP"))
+
+			if (ReadingHeader)
+			{
+				ReadingHeader = mProperties.ParseLDrawHeader(Line, FirstLine);
+				FirstLine = false;
+
+				if (ReadingHeader)
+					continue;
+			}
+
+			if (Token == QLatin1String("STEP"))
 			{
 				CurrentStep++;
 				mFileLines.append(OriginalLine);
@@ -699,7 +746,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 
 					lcPieceControlPoint& PieceControlPoint = ControlPoints.Add();
 					PieceControlPoint.Transform = lcMatrix44(lcVector4(Numbers[3], Numbers[9], -Numbers[6], 0.0f), lcVector4(Numbers[5], Numbers[11], -Numbers[8], 0.0f),
-															 lcVector4(-Numbers[4], -Numbers[10], Numbers[7], 0.0f), lcVector4(Numbers[0], Numbers[2], -Numbers[1], 1.0f));
+					                                         lcVector4(-Numbers[4], -Numbers[10], Numbers[7], 0.0f), lcVector4(Numbers[0], Numbers[2], -Numbers[1], 1.0f));
 					PieceControlPoint.Scale = Numbers[12];
 				}
 			}
@@ -708,6 +755,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 		}
 		else if (Token == QLatin1String("1"))
 		{
+			ReadingHeader = false;
 			int ColorCode;
 			LineStream >> ColorCode;
 
@@ -758,7 +806,12 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 			}
 		}
 		else
+		{
+			ReadingHeader = false;
 			mFileLines.append(OriginalLine);
+		}
+
+		FirstLine = false;
 	}
 
 	mCurrentStep = CurrentStep;
@@ -1898,7 +1951,7 @@ void lcModel::SetActive(bool Active)
 	CalculateStep(Active ? mCurrentStep : LC_STEP_MAX);
 	mActive = Active;
 /*** LPub3D Mod - Selected Parts ***/
-	emit gMainWindow->SetActiveModelSig(mProperties.mName,Active);
+	emit gMainWindow->SetActiveModelSig(mProperties.mFileName,Active);
 /*** LPub3D Mod end ***/
 }
 
@@ -3168,19 +3221,19 @@ void lcModel::TransformSelectedObjects(lcTransformType TransformType, const lcVe
 {
 	switch (TransformType)
 	{
-	case LC_TRANSFORM_ABSOLUTE_TRANSLATION:
+	case lcTransformType::AbsoluteTranslation:
 		MoveSelectedObjects(Transform, false, false, true, true);
 		break;
 
-	case LC_TRANSFORM_RELATIVE_TRANSLATION:
+	case lcTransformType::RelativeTranslation:
 		MoveSelectedObjects(Transform, true, false, true, true);
 		break;
 
-	case LC_TRANSFORM_ABSOLUTE_ROTATION:
+	case lcTransformType::AbsoluteRotation:
 		RotateSelectedPieces(Transform, false, false, true, true);
 		break;
 
-	case LC_TRANSFORM_RELATIVE_ROTATION:
+	case lcTransformType::RelativeRotation:
 		RotateSelectedPieces(Transform, true, false, true, true);
 		break;
 	}
@@ -3821,22 +3874,22 @@ lcArray<lcObject*> lcModel::GetSelectionModePieces(lcPiece* SelectedPiece) const
 
 	switch (gMainWindow->GetSelectionMode())
 	{
-	case lcSelectionMode::SINGLE:
+	case lcSelectionMode::Single:
 		break;
 
-	case lcSelectionMode::PIECE:
+	case lcSelectionMode::Piece:
 		for (lcPiece* Piece : mPieces)
 			if (Piece->IsVisible(mCurrentStep) && Piece->mPieceInfo == Info && Piece != SelectedPiece)
 				Pieces.Add(Piece);
 		break;
 
-	case lcSelectionMode::COLOR:
+	case lcSelectionMode::Color:
 		for (lcPiece* Piece : mPieces)
 			if (Piece->IsVisible(mCurrentStep) && Piece->mColorIndex == ColorIndex && Piece != SelectedPiece)
 				Pieces.Add(Piece);
 		break;
 
-	case lcSelectionMode::PIECE_COLOR:
+	case lcSelectionMode::PieceColor:
 		for (lcPiece* Piece : mPieces)
 			if (Piece->IsVisible(mCurrentStep) && Piece->mPieceInfo == Info && Piece->mColorIndex == ColorIndex && Piece != SelectedPiece)
 				Pieces.Add(Piece);
@@ -3900,7 +3953,7 @@ void lcModel::FocusOrDeselectObject(const lcObjectSection& ObjectSection)
 		{
 			lcPiece* Piece = (lcPiece*)Object;
 
-			if (gMainWindow->GetSelectionMode() == lcSelectionMode::SINGLE)
+			if (gMainWindow->GetSelectionMode() == lcSelectionMode::Single)
 				SelectGroup(Piece->GetTopGroup(), IsSelected);
 			else
 			{
@@ -3922,12 +3975,17 @@ void lcModel::FocusOrDeselectObject(const lcObjectSection& ObjectSection)
 void lcModel::ClearSelectionAndSetFocus(lcObject* Object, quint32 Section, bool EnableSelectionMode)
 {
 	ClearSelection(false);
+/*** LPub3D Mod - Build Modification ***/
+	bool IsPiece = false;
+/*** LPub3D Mod end ***/
 
 	if (Object)
 	{
 		Object->SetFocused(Section, true);
 
-		if (Object->IsPiece())
+/*** LPub3D Mod - Build Modification ***/
+		if ((IsPiece = Object->IsPiece()))
+/*** LPub3D Mod end ***/
 		{
 			SelectGroup(((lcPiece*)Object)->GetTopGroup(), true);
 
@@ -3937,10 +3995,10 @@ void lcModel::ClearSelectionAndSetFocus(lcObject* Object, quint32 Section, bool 
 				AddToSelection(Pieces, false, false);
 			}
 		}
-/*** LPub3D Mod - Build Modification ***/
-			gMainWindow->UpdateSelectedObjects(true, Object->IsPiece() ? VIEWER_MOD : VIEWER_LINE);
-/*** LPub3D Mod end ***/
 	}
+/*** LPub3D Mod - Build Modification ***/
+	gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_MOD : VIEWER_LINE);
+/*** LPub3D Mod end ***/
 	gMainWindow->UpdateAllViews();
 }
 
@@ -4010,7 +4068,7 @@ void lcModel::RemoveFromSelection(const lcArray<lcObject*>& Objects)
 		{
 			lcPiece* Piece = (lcPiece*)SelectedObject;
 
-			if (gMainWindow->GetSelectionMode() == lcSelectionMode::SINGLE)
+			if (gMainWindow->GetSelectionMode() == lcSelectionMode::Single)
 				SelectGroup(Piece->GetTopGroup(), false);
 			else
 			{
@@ -4051,7 +4109,7 @@ void lcModel::RemoveFromSelection(const lcObjectSection& ObjectSection)
 	{
 		lcPiece* Piece = (lcPiece*)SelectedObject;
 
-		if (gMainWindow->GetSelectionMode() == lcSelectionMode::SINGLE)
+		if (gMainWindow->GetSelectionMode() == lcSelectionMode::Single)
 			SelectGroup(Piece->GetTopGroup(), false);
 		else
 		{
@@ -4288,6 +4346,10 @@ void lcModel::EndMouseTool(lcTool Tool, bool Accept)
 	{
 	case LC_TOOL_INSERT:
 	case LC_TOOL_LIGHT:
+/*** LPub3D Mod - enable lights ***/
+	case LC_TOOL_AREALIGHT:
+	case LC_TOOL_SUNLIGHT:
+/*** LPub3D Mod end ***/
 		break;
 
 	case LC_TOOL_SPOTLIGHT:

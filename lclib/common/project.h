@@ -53,7 +53,7 @@ public:
 		return mModels;
 	}
 
-	lcModel* GetModel(const QString& Name) const;
+	lcModel* GetModel(const QString& FileName) const;
 
 	lcModel* GetActiveModel() const
 	{
@@ -130,7 +130,7 @@ public:
 	std::vector<std::pair<lcModel*, lcStep>> GetPageLayouts() const;
 
 	void SetActiveModel(int ModelIndex);
-	void SetActiveModel(const QString& ModelName);
+	void SetActiveModel(const QString& FileName);
 
 	lcModel* CreateNewModel(bool ShowModel);
 	QString GetNewModelName(QWidget* ParentWidget, const QString& DialogTitle, const QString& CurrentName, const QStringList& ExistingModels) const;

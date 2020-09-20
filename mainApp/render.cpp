@@ -3069,7 +3069,7 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerStepKey)
         lcModel* Model = new lcModel(QString());
         Model->SplitMPD(Buffer);
 
-        if (StepProject->mModels.IsEmpty() || !Model->GetProperties().mName.isEmpty())
+        if (StepProject->mModels.IsEmpty() || !Model->GetProperties().mFileName.isEmpty())
         {
             StepProject->mModels.Add(Model);
             Model->CreatePieceInfo(StepProject);
@@ -3094,9 +3094,9 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerStepKey)
     {
         lcModel* Model = StepProject->mModels[0];
 
-        if (Model->GetProperties().mName.isEmpty())
+        if (Model->GetProperties().mFileName.isEmpty())
         {
-            Model->SetName(FileInfo.fileName());
+            Model->SetFileName(FileInfo.fileName());
             lcGetPiecesLibrary()->RenamePiece(Model->GetPieceInfo(), FileInfo.fileName().toLatin1());
         }
     }

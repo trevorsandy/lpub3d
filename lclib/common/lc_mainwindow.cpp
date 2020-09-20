@@ -98,7 +98,7 @@ lcMainWindow::lcMainWindow(QMainWindow *parent) :
 	memset(mActions, 0, sizeof(mActions));
 
 /*** LPub3D Mod - set relative rotation ***/
-	mTransformType = LC_TRANSFORM_RELATIVE_ROTATION;
+	mTransformType = lcTransformType::RelativeRotation;
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - set default color ***/
@@ -114,7 +114,7 @@ lcMainWindow::lcMainWindow(QMainWindow *parent) :
 	mRelativeTransform = true;
 	mLocalTransform = false;
 	mCurrentPieceInfo = nullptr;
-	mSelectionMode = lcSelectionMode::SINGLE;
+	mSelectionMode = lcSelectionMode::Single;
 	mModelTabWidget = nullptr;
 /*** LPub3D Mod - submodel icon ***/
 	mSubmodelIconsLoaded = false;
@@ -1239,8 +1239,8 @@ void lcMainWindow::SetStepRotStepMeta(lcCommandId CommandId)
   bool okToPropagate = false;
 
   if (CommandId == LC_EDIT_TRANSFORM){
-	  QString TransformType = (GetTransformType() == LC_TRANSFORM_RELATIVE_ROTATION) ? "REL" :
-							  (GetTransformType() == LC_TRANSFORM_ABSOLUTE_ROTATION) ? "ABS" : QString();
+	  QString TransformType = (GetTransformType() == lcTransformType::RelativeRotation) ? "REL" :
+							  (GetTransformType() == lcTransformType::AbsoluteRotation) ? "ABS" : QString();
 	  lcVector3 RotStepAngles = GetRotStepTransformAmount();
 	  okToPropagate = ((mExistingRotStep != RotStepAngles) ||
 					   (mRotStepTransform != TransformType));
@@ -1308,8 +1308,8 @@ void lcMainWindow::GetRotStepMetaAngles()
 		  RotStepAngles = lcVector3(0.0f,0.0f,0.0f);
 		  break;
 		};
-	  QString Transform = (GetTransformType() == LC_TRANSFORM_RELATIVE_ROTATION) ? "REL" :
-						  (GetTransformType() == LC_TRANSFORM_ABSOLUTE_ROTATION) ? "ABS" : QString();
+	  QString Transform = (GetTransformType() == lcTransformType::RelativeRotation) ? "REL" :
+						  (GetTransformType() == lcTransformType::AbsoluteRotation) ? "ABS" : QString();
 	  emit SetRotStepTransform(Transform,display);
 	}
 }
@@ -1330,11 +1330,11 @@ void lcMainWindow::ParseAndSetRotStep(QTextStream& LineStream)
 		  LineStream >> Token;
 
 		  if(Token == QLatin1String("REL")) {
-			  SetTransformType(LC_TRANSFORM_RELATIVE_ROTATION);
+			  SetTransformType(lcTransformType::RelativeRotation);
 			  mRotStepTransform = Token;
 		  } else
 		  if(Token == QLatin1String("ABS")) {
-			  SetTransformType(LC_TRANSFORM_ABSOLUTE_ROTATION);
+			  SetTransformType(lcTransformType::AbsoluteRotation);
 			  mRotStepTransform = Token;
 		  }
 
@@ -1695,13 +1695,13 @@ QByteArray lcMainWindow::GetTabLayout()
 	DataStream << (quint32)LC_TAB_LAYOUT_VERSION;
 	qint32 NumTabs = mModelTabWidget->count();
 	DataStream << NumTabs;
-	DataStream << ((lcModelTabWidget*)mModelTabWidget->currentWidget())->GetModel()->GetProperties().mName;
+	DataStream << ((lcModelTabWidget*)mModelTabWidget->currentWidget())->GetModel()->GetProperties().mFileName;
 
 	for (int TabIdx = 0; TabIdx < NumTabs; TabIdx++)
 	{
 		lcModelTabWidget* TabWidget = (lcModelTabWidget*)mModelTabWidget->widget(TabIdx);
 
-		DataStream << TabWidget->GetModel()->GetProperties().mName;
+		DataStream << TabWidget->GetModel()->GetProperties().mFileName;
 
 		std::function<void (QWidget*)> SaveWidget = [&DataStream, &SaveWidget, &TabWidget](QWidget* Widget)
 		{
@@ -1938,7 +1938,7 @@ void lcMainWindow::SetCurrentModelTab(lcModel* Model)
 	if (!EmptyWidget)
 	{
 		TabWidget = new lcModelTabWidget(Model);
-		mModelTabWidget->addTab(TabWidget, Model->GetProperties().mName);
+		mModelTabWidget->addTab(TabWidget, Model->GetProperties().mFileName);
 
 		QGridLayout* CentralLayout = new QGridLayout(TabWidget);
 		CentralLayout->setContentsMargins(0, 0, 0, 0);
@@ -2109,9 +2109,12 @@ void lcMainWindow::SetLocalTransform(bool SelectionTransform)
 
 void lcMainWindow::SetTransformType(lcTransformType TransformType)
 {
+	if (TransformType < lcTransformType::First || TransformType >= lcTransformType::Count)
+		return;
+
 	mTransformType = TransformType;
 
-	const char* IconNames[] =
+	const char* IconNames[static_cast<int>(lcTransformType::Count)] =
 	{
 		":/resources/edit_transform_absolute_translation.png",
 		":/resources/edit_transform_relative_translation.png",
@@ -2119,11 +2122,9 @@ void lcMainWindow::SetTransformType(lcTransformType TransformType)
 		":/resources/edit_transform_relative_rotation.png"
 	};
 
-	if (TransformType >= 0 && TransformType <= 3)
-	{
-		mActions[LC_EDIT_TRANSFORM_ABSOLUTE_TRANSLATION + TransformType]->setChecked(true);
-		mActions[LC_EDIT_TRANSFORM]->setIcon(QIcon(IconNames[TransformType]));
-	}
+	int TransformIndex = static_cast<int>(TransformType);
+	mActions[LC_EDIT_TRANSFORM_ABSOLUTE_TRANSLATION + TransformIndex]->setChecked(true);
+	mActions[LC_EDIT_TRANSFORM]->setIcon(QIcon(IconNames[TransformIndex]));
 }
 
 /*** LPub3D Mod - View point zoom extent ***/
@@ -2394,7 +2395,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int EmitSelectio
 
 					QString Message;
 					if (Preferences::debugLogging) {
-						Message = tr("%1 viewer object(s) selected in model [%2]").arg(Selection.GetSize()).arg(ActiveModel->GetName());
+						Message = tr("%1 viewer object(s) selected in model [%2]").arg(Selection.GetSize()).arg(ActiveModel->GetFileName());
 						gui->statusMessage(LOG_DEBUG, Message);
 					}
 
@@ -2404,7 +2405,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int EmitSelectio
 
 						if (SelectedItem && SelectedItem->IsPiece()) {
 
-							TypeLine typeLine(gui->getSubmodelIndex(ActiveModel->GetName()),((lcPiece*)SelectedItem)->GetLineTypeIndex());
+							TypeLine typeLine(gui->getSubmodelIndex(ActiveModel->GetFileName()),((lcPiece*)SelectedItem)->GetLineTypeIndex());
 							LineTypeIndexes.append(typeLine);
 
 							Message = tr("Selected Piece: %1 (ID: %2), LineTypeIndex: %3")
@@ -2420,7 +2421,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int EmitSelectio
 
 							if (SelectedItem->IsPiece()) {
 
-								TypeLine typeLine(gui->getSubmodelIndex(ActiveModel->GetName()),((lcPiece*)SelectedItem)->GetLineTypeIndex());
+								TypeLine typeLine(gui->getSubmodelIndex(ActiveModel->GetFileName()),((lcPiece*)SelectedItem)->GetLineTypeIndex());
 								LineTypeIndexes.append(typeLine);
 
 								if (Preferences::debugLogging) {
@@ -2677,19 +2678,19 @@ void lcMainWindow::UpdateSelectionMode()
 {
 	switch (mSelectionMode)
 	{
-	case lcSelectionMode::SINGLE:
+	case lcSelectionMode::Single:
 		mActions[LC_EDIT_SELECTION_SINGLE]->setChecked(true);
 		break;
 
-	case lcSelectionMode::PIECE:
+	case lcSelectionMode::Piece:
 		mActions[LC_EDIT_SELECTION_PIECE]->setChecked(true);
 		break;
 
-	case lcSelectionMode::COLOR:
+	case lcSelectionMode::Color:
 		mActions[LC_EDIT_SELECTION_COLOR]->setChecked(true);
 		break;
 
-	case lcSelectionMode::PIECE_COLOR:
+	case lcSelectionMode::PieceColor:
 		mActions[LC_EDIT_SELECTION_PIECE_COLOR]->setChecked(true);
 		break;
 	}
@@ -2708,7 +2709,7 @@ void lcMainWindow::UpdateModels()
 		if (ModelIdx < Models.GetSize())
 		{
 			Action->setChecked(CurrentModel == Models[ModelIdx]);
-			Action->setText(QString::fromLatin1("&%1 %2").arg(QString::number(ModelIdx + 1), Models[ModelIdx]->GetProperties().mName));
+			Action->setText(QString::fromLatin1("&%1 %2").arg(QString::number(ModelIdx + 1), Models[ModelIdx]->GetProperties().mFileName));
 			Action->setVisible(true);
 		}
 		else
@@ -2724,7 +2725,7 @@ void lcMainWindow::UpdateModels()
 			TabIdx++;
 		else if (Models.FindIndex(Model) != -1)
 		{
-			mModelTabWidget->setTabText(TabIdx, Model->GetProperties().mName);
+			mModelTabWidget->setTabText(TabIdx, Model->GetProperties().mFileName);
 			TabIdx++;
 		}
 		else
@@ -3203,19 +3204,19 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		break;
 
 	case LC_EDIT_SELECTION_SINGLE:
-		SetSelectionMode(lcSelectionMode::SINGLE);
+		SetSelectionMode(lcSelectionMode::Single);
 		break;
 
 	case LC_EDIT_SELECTION_PIECE:
-		SetSelectionMode(lcSelectionMode::PIECE);
+		SetSelectionMode(lcSelectionMode::Piece);
 		break;
 
 	case LC_EDIT_SELECTION_COLOR:
-		SetSelectionMode(lcSelectionMode::COLOR);
+		SetSelectionMode(lcSelectionMode::Color);
 		break;
 
 	case LC_EDIT_SELECTION_PIECE_COLOR:
-		SetSelectionMode(lcSelectionMode::PIECE_COLOR);
+		SetSelectionMode(lcSelectionMode::PieceColor);
 		break;
 
 	case LC_VIEW_SPLIT_HORIZONTAL:
@@ -3740,10 +3741,19 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 /*** LPub3D Mod end ***/
 
 	case LC_EDIT_TRANSFORM_ABSOLUTE_TRANSLATION:
+		SetTransformType(lcTransformType::AbsoluteTranslation);
+		break;
+
 	case LC_EDIT_TRANSFORM_RELATIVE_TRANSLATION:
+		SetTransformType(lcTransformType::RelativeTranslation);
+		break;
+
 	case LC_EDIT_TRANSFORM_ABSOLUTE_ROTATION:
+		SetTransformType(lcTransformType::AbsoluteRotation);
+		break;
+
 	case LC_EDIT_TRANSFORM_RELATIVE_ROTATION:
-		SetTransformType((lcTransformType)(CommandId - LC_EDIT_TRANSFORM_ABSOLUTE_TRANSLATION));
+		SetTransformType(lcTransformType::RelativeRotation);
 		break;
 
 	case LC_EDIT_ACTION_SELECT:
