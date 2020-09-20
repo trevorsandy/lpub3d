@@ -468,7 +468,7 @@ bool Gui::exportAsDialog(ExportMode m)
       if (exportMode == EXPORT_PDF && Preferences::pdfPageImage != dialog->pdfPageImage())
       {
         Preferences::pdfPageImage = dialog->pdfPageImage();
-        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PdfPageImage "),Preferences::pdfPageImage);
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PdfPageImage"),Preferences::pdfPageImage);
       }
     }
 
