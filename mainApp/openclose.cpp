@@ -613,6 +613,7 @@ bool Gui::saveFile(const QString &fileName)
   return rc;
 }
 
+// This call performs LPub3D file close operations - does not clear curFile
 void Gui::closeFile()
 {
   ldrawFile.empty();
@@ -634,14 +635,14 @@ void Gui::closeFile()
   SetSubmodelIconsLoaded(submodelIconsLoaded);
   if (!curFile.isEmpty()) {
       emit messageSig(LOG_DEBUG, QString("File closed - %1.").arg(curFile));
-      curFile.clear();
   }
 }
 
+// This call definitively closes and clears from curFile, the current model file
 void Gui::closeModelFile(){
   disableWatcher();
   QString topModel = ldrawFile.topLevelFile();
-  curFile.clear();
+  curFile.clear();       // clear file from curFile here...
   //3D Viewer
   reset3DViewerMenusAndToolbars();
   emit clearViewerWindowSig();
@@ -653,11 +654,11 @@ void Gui::closeModelFile(){
   clearPage(KpageView,KpageScene,true);
   disableActions();
   disableActions2();
-  closeFile();
+  closeFile();           // perform LPub3D file close operations here...
   editModeWindow->close();
   editModelFileAct->setText(tr("Edit current model file"));
   editModelFileAct->setStatusTip(tr("Edit loaded LDraw model file with detached LDraw Editor"));
-  emit messageSig(LOG_INFO, QString("Model %1 unloaded. File closed.").arg(topModel));
+  emit messageSig(LOG_INFO, QString("Model unloaded. File closed - %1.").arg(topModel));
 
   QString windowName = VER_FILEDESCRIPTION_STR;
   QString windowVersion;
