@@ -1154,6 +1154,7 @@ public slots:
   void groupActionTriggered();
   void enableBuildModification();
   void useImageSize();
+  void autoCenterSelection();
 
   void showDefaultCameraProperties();
   void restoreLightAndViewpointDefaults();
@@ -1859,6 +1860,7 @@ private:
   QAction *createBuildModAct;
   QAction *setTargetPositionAct;
   QAction *useImageSizeAct;
+  QAction *autoCenterSelectionAct;
   QAction *enableBuildModAct;
   QAction *enableRotstepRotateAct;
   QAction *exportHtmlStepsAct;

@@ -2770,8 +2770,6 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
 
     lcCamera* Camera =  ActiveView->mCamera;
 
-    lcStep CurrentStep = ActiveModel->GetCurrentStep();
-
     // LeoCAD flips Y an Z axis so that Z is up and Y represents depth
     lcVector3 Target = lcVector3(O->Target.x,O->Target.z,O->Target.y);
 
@@ -2845,6 +2843,17 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
     // generate image
     if (RenderImage) {
 
+        const bool UseImageSize = O->ImageWidth != O->PageWidth || O->ImageHeight != O->PageHeight;
+        const int ImageWidth  = int(O->PageWidth);
+        const int ImageHeight = int(UseImageSize ? O->PageHeight / 2 : O->PageHeight);
+        QString ImageType     = O->ImageType == Options::CSI ? "CSI" : O->ImageType == Options::CSI ? "PLI" : "SMP";
+
+        lcStep ImageStep      = 1;
+        lcStep CurrentStep    = ActiveModel->GetCurrentStep();
+
+        if (ZoomExtents)
+            ActiveModel->ZoomExtents(Camera, float(ImageWidth) / float(ImageHeight));
+
         ActiveView->MakeCurrent();
         lcContext* Context = ActiveView->mContext;
         View View(ActiveModel);
@@ -2852,63 +2861,68 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
         View.SetHighlight(false);
         View.SetContext(Context);
 
-        const int ImageWidth  = int(O->PageWidth);
-        const int ImageHeight = int(O->PageHeight);
-        QString ImageType     = O->ImageType == Options::CSI ? "CSI" : O->ImageType == Options::CSI ? "PLI" : "SMP";
-
-
-        if (!(rc = View.BeginRenderToImage(ImageWidth, ImageHeight)))
-        {
-            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not begin RenderToImage for Native %1 image.<br>"
-                                                           "Render framebuffer is not valid").arg(ImageType));
-        }
-
-        if (rc) {
-
-            ActiveModel->SetTemporaryStep(CurrentStep);
-
-            View.OnDraw();
+        if ((rc = View.BeginRenderToImage(ImageWidth, ImageHeight))) {
 
             struct NativeImage
             {
                 QImage RenderedImage;
                 QRect Bounds;
             };
-
             NativeImage Image;
+
+            ActiveModel->SetTemporaryStep(ImageStep);
+
+            View.OnDraw();
+
             Image.RenderedImage = View.GetRenderImage();
 
-            auto CalculateImageBounds = [](NativeImage& Image)
+            View.EndRenderToImage();
+
+            Context->ClearResources();
+
+            ActiveModel->SetTemporaryStep(CurrentStep);
+
+            if (!ActiveModel->mActive)
+                ActiveModel->CalculateStep(LC_STEP_MAX);
+
+            auto CalculateImageBounds = [&O, &UseImageSize](NativeImage& Image)
             {
                 QImage& RenderedImage = Image.RenderedImage;
-                int Width = RenderedImage.width();
+                int Width  = RenderedImage.width();
                 int Height = RenderedImage.height();
 
-                int MinX = Width;
-                int MinY = Height;
-                int MaxX = 0;
-                int MaxY = 0;
-
-                for (int x = 0; x < Width; x++)
+                if (UseImageSize)
                 {
-                    for (int y = 0; y < Height; y++)
+                    int AdjX = (Width - O->ImageWidth) / 2;
+                    int AdjY = (Height - O->ImageHeight) / 2;
+                    Image.Bounds = QRect(QPoint(AdjX, AdjY), QPoint(QPoint(Width, Height) - QPoint(AdjX, AdjY)));
+
+                } else {
+
+                    int MinX = Width;
+                    int MinY = Height;
+                    int MaxX = 0;
+                    int MaxY = 0;
+
+                    for (int x = 0; x < Width; x++)
                     {
-                        if (qAlpha(RenderedImage.pixel(x, y)))
+                        for (int y = 0; y < Height; y++)
                         {
-                            MinX = qMin(x, MinX);
-                            MinY = qMin(y, MinY);
-                            MaxX = qMax(x, MaxX);
-                            MaxY = qMax(y, MaxY);
+                            if (qAlpha(RenderedImage.pixel(x, y)))
+                            {
+                                MinX = qMin(x, MinX);
+                                MinY = qMin(y, MinY);
+                                MaxX = qMax(x, MaxX);
+                                MaxY = qMax(y, MaxY);
+                            }
                         }
                     }
-                }
 
-                Image.Bounds = QRect(QPoint(MinX, MinY), QPoint(MaxX, MaxY));
+                    Image.Bounds = QRect(QPoint(MinX, MinY), QPoint(MaxX, MaxY));
+                }
             };
 
             CalculateImageBounds(Image);
-
-            lcGetActiveProject()->SetImageSize(Image.Bounds.width(), Image.Bounds.height());
 
             QImageWriter Writer(O->OutputFileName);
 
@@ -2929,20 +2943,18 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
                         .arg(Writer.errorString()));
                 rc = false;
             }
+            else
+            {
+                emit gui->messageSig(LOG_INFO,QMessageBox::tr("Native %1 image file rendered '%2'")
+                                     .arg(ImageType).arg(O->OutputFileName));
+            }
 
-            View.EndRenderToImage();
+            lcGetActiveProject()->SetImageSize(Image.Bounds.width(), Image.Bounds.height());
+
+        } else {
+            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not begin RenderToImage for Native %1 image.<br>"
+                                                           "Render framebuffer is not valid").arg(ImageType));
         }
-
-        Context->ClearResources();
-
-        ActiveModel->SetTemporaryStep(CurrentStep);
-
-        if (!ActiveModel->mActive)
-            ActiveModel->CalculateStep(LC_STEP_MAX);
-
-        if (rc)
-            emit gui->messageSig(LOG_INFO,QMessageBox::tr("Native %1 image file rendered '%2'")
-                                 .arg(ImageType).arg(O->OutputFileName));
 
         if (O->ExportMode != EXPORT_NONE) {
             if (!NativeExport(O)) {

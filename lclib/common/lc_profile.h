@@ -79,6 +79,7 @@ enum LC_PROFILE_KEY
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Camera Globe Target Position ***/
 	LC_PROFILE_USE_IMAGE_SIZE,
+	LC_PROFILE_AUTO_CENTER_SELECTION,
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Update Default Camera ***/
 	LC_PROFILE_DEFAULT_CAMERA_PROPERTIES,

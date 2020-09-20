@@ -135,7 +135,8 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Camera Globe Target Position ***/
 	lcProfileEntry("Settings", "UseImageSize", 1),                                             // LC_PROFILE_USE_IMAGE_SIZE                             /*** LPub3D Mod - Camera Globe Target Position ***/
-	/*** LPub3D Mod end ***/
+	lcProfileEntry("Settings", "AutoCenterSelection", 1),                                      // LC_PROFILE_AUTO_CENTER_SELECTION                      /*** LPub3D Mod - Camera Globe Target Position ***/
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Update Default Camera ***/
 	lcProfileEntry("Settings", "DefaultCameraProperties", 0),                                  //LC_PROFILE_DEFAULT_CAMERA_PROPERTIES                   /*** LPub3D Mod - Update Default Camera ***/
 	lcProfileEntry("Settings", "DefaultDistanceFactor", 5.0f),                                 //LC_PROFILE_DEFAULT_DISTANCE_FACTOR                     /*** LPub3D Mod - Update Default Camera ***/
@@ -149,7 +150,7 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "NativeProjection", 0),                                         // LC_PROFILE_NATIVE_PROJECTION [0 = PERSPECTIVE, 1 = ORTHOGRAPHIC]  /*** LPub3D Mod - Native Renderer settings ***/
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - piece icons ***/
-    lcProfileEntry("Settings", "ViewPieceIcons", 0),                                           // LC_PROFILE_VIEW_PIECE_ICONS                          /*** LPub3D Mod - View piece icons ***/
+	lcProfileEntry("Settings", "ViewPieceIcons", 0),                                           // LC_PROFILE_VIEW_PIECE_ICONS                          /*** LPub3D Mod - View piece icons ***/
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Viewpoint zoom extent ***/
 	lcProfileEntry("Settings", "ViewpointZoomExtent", 1)                                       // LC_PROFILE_VIEWPOINT_ZOOM_EXTENT                      /*** LPub3D Mod - View point zoom extent ***/

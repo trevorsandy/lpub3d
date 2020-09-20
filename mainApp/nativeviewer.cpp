@@ -79,8 +79,8 @@ void Gui::create3DActions()
     QIcon ApplyCameraIcon;
     ApplyCameraIcon.addFile(":/resources/applycamerasettings.png");
     ApplyCameraIcon.addFile(":/resources/applycamerasettings_16.png");
-    applyCameraAct = new QAction(ApplyCameraIcon,tr("Save Settings"),this);
-    applyCameraAct->setStatusTip(tr("Save current camera settings to current step - Shift+A"));
+    applyCameraAct = new QAction(ApplyCameraIcon,tr("Save Camera Settings"),this);
+    applyCameraAct->setStatusTip(tr("Save current camera settings to current step and regenerate image - Shift+A"));
     applyCameraAct->setShortcut(tr("Shift+A"));
     connect(applyCameraAct, SIGNAL(triggered()), this, SLOT(applyCameraSettings()));
 
@@ -94,10 +94,16 @@ void Gui::create3DActions()
     connect(applyLightAct, SIGNAL(triggered()), this, SLOT(applyLightSettings()));
 
     useImageSizeAct = new QAction(tr("Use Image Size"),this);
-    useImageSizeAct->setStatusTip(tr("Use image width and height - set custom size in camera Properties tab"));
+    useImageSizeAct->setStatusTip(tr("Use image width and height - you can also edit width and height in camera Properties tab"));
     useImageSizeAct->setCheckable(true);
     useImageSizeAct->setChecked(lcGetProfileInt(LC_PROFILE_USE_IMAGE_SIZE));
     connect(useImageSizeAct, SIGNAL(triggered()), this, SLOT(useImageSize()));
+
+    autoCenterSelectionAct = new QAction(tr("Look At Selection"),this);
+    autoCenterSelectionAct->setStatusTip(tr("Automatically rotate view so selected pieces are at center"));
+    autoCenterSelectionAct->setCheckable(true);
+    autoCenterSelectionAct->setChecked(lcGetProfileInt(LC_PROFILE_AUTO_CENTER_SELECTION));
+    connect(autoCenterSelectionAct, SIGNAL(triggered()), this, SLOT(autoCenterSelection()));
 
     defaultCameraPropertiesAct = new QAction(tr("Default Properties"),this);
     defaultCameraPropertiesAct->setStatusTip(tr("Display default camera properties in Properties tab"));
@@ -357,6 +363,7 @@ void Gui::create3DMenus()
      cameraMenu->addAction(applyCameraAct);
      cameraMenu->addSeparator();
      cameraMenu->addAction(useImageSizeAct);
+     cameraMenu->addAction(autoCenterSelectionAct);
      cameraMenu->addAction(defaultCameraPropertiesAct);
      gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]->setMenu(cameraMenu);
 }
@@ -747,6 +754,11 @@ void Gui::applyCameraSettings()
 
         View* ActiveView = gMainWindow->GetActiveView();
 
+        if (!ActiveView)
+            return;
+        else if (autoCenterSelectionAct->isChecked())
+            ActiveView->LookAt();
+
         lcCamera* Camera = ActiveView->mCamera;
 
         auto validCameraFoV = [&cameraMeta, &Camera] ()
@@ -828,8 +840,7 @@ void Gui::applyCameraSettings()
 //            currentStep->mi(it)->setMeta(top,bottom,&cameraMeta.target,true/*useTop*/,1/*append*/,true/*local*/,false/*askLocal,global=false*/);
         }
 
-        if (notEqual(lcGetActiveProject()->GetImageWidth(),  cameraMeta.imageSize.value(0)) ||
-            notEqual(lcGetActiveProject()->GetImageHeight(), cameraMeta.imageSize.value(1))) {
+        if (useImageSizeAct->isChecked()) {
             cameraMeta.imageSize.setValues(lcGetActiveProject()->GetImageWidth(),
                                            lcGetActiveProject()->GetImageHeight());
             metaString = cameraMeta.imageSize.format(true,false);
@@ -982,7 +993,12 @@ void Gui::showDefaultCameraProperties()
 
 void Gui::useImageSize()
 {
-   lcSetProfileInt(LC_PROFILE_USE_IMAGE_SIZE, useImageSizeAct->isChecked());
+  lcSetProfileInt(LC_PROFILE_USE_IMAGE_SIZE, useImageSizeAct->isChecked());
+}
+
+void Gui::autoCenterSelection()
+{
+  lcSetProfileInt(LC_PROFILE_AUTO_CENTER_SELECTION, autoCenterSelectionAct->isChecked());
 }
 
 void Gui::createStatusBar()
