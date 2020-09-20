@@ -2576,11 +2576,16 @@ void SceneObjectMeta::doc(QStringList &out, QString preamble)
 
 /*
  *  INSERT (
- *   PICTURE "name" (SCALE x) |
- *   TEXT "text" "font" color  |
- *   ARROW HDX HDY TLX TLY HD HFX HFY |
+ *   PICTURE "name" (SCALE x)
+ *   ARROW HDX HDY TLX TLY HD HFX HFY
+ *   TEXT "text" "font" color (PLACEMENT)
+ *   RICH_TEXT | HTML_TEXT "text" (PLACEMENT)
+ *   PAGE
  *   BOM
- *   MODEL)
+ *   MODEL
+ *   DISPLAY_MODEL
+ *   COVER_PAGE
+ *   ROTATE_ICON)
  *   OFFSET x y
  */
 
@@ -2774,7 +2779,7 @@ QString InsertMeta::format(bool local, bool global)
 
 void InsertMeta::doc(QStringList &out, QString preamble)
 {
-  out << preamble + " <placement> PICTURE \"file\"|ARROW x y x y |BOM|TEXT|MODEL|ROTATE_ICON OFFSET \"<floatX>\" \"<floatY>\"";
+   out << preamble + " <placement> PICTURE \"<file>\"|ARROW x y x y|TEXT \"text\" \"<text>\" <color> |RICH_TEXT \"<text>\"|HTML_TEXT \"<text>\"|PAGE|BOM|MODEL|DISPLAY_MODEL|COVER_PAGE|ROTATE_ICON OFFSET \"<floatX>\" \"<floatY>\"";
 }
 
 /* ------------------ */

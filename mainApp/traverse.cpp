@@ -1103,14 +1103,21 @@ int Gui::drawPage(
             case InsertFinalModelRc:
             case InsertDisplayModelRc:
               {
-                // this is not a step but it's necessary to use the step object to place the model
-                // increment the step number down - so basically use the previous step number for this step.
-                // Do this before creating the step so we can use in the file name during
-                // csi generation to indicate this step file is not an actual step - just a model display
+                // This is not a step but it's necessary to use the step object to place the model
+                // Increment the step number down - so basically use the previous step number for this step.
+                // Do this before creating the step so we can use the file name during csi generation
+                // to indicate this step file is not an actual step - just a model display
+                // The Display Model command syntax is:
+                // 0 STEP
+                // 0 !LPUB ASSEM CAMERA_ANGLES LOCAL 40.0000 65.0000
+                // 0 !LPUB ASSEM MODEL_SCALE LOCAL  2.0000
+                // 0 !LPUB INSERT PAGE
+                // 0 !LPUB INSERT DISPLAY_MODEL
+                // 0 STEP
+                // Note that LOCAL settings must be placed before INSERT PAGE meta command
                 bool proceed = true;
-                if (rc == InsertFinalModelRc) {
+                if (rc == InsertFinalModelRc)
                     proceed = curMeta.LPub.fadeStep.fadeStep.value() || curMeta.LPub.highlightStep.highlightStep.value();
-                }
                 if (proceed) {
                     opts.stepNum--;
                     if (step == nullptr) {
