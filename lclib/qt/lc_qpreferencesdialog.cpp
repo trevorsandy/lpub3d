@@ -1187,6 +1187,40 @@ void lcQPreferencesDialog::on_mouseRemove_clicked()
 	MouseTreeItemChanged(Current);
 }
 
+void lcQPreferencesDialog::on_MouseImportButton_clicked()
+{
+	QString FileName = QFileDialog::getOpenFileName(this, tr("Import Shortcuts"), "", tr("Text Files (*.txt);;All Files (*.*)"));
+
+	if (FileName.isEmpty())
+		return;
+
+	lcMouseShortcuts Shortcuts;
+	if (!Shortcuts.Load(FileName))
+	{
+/*** LPub3D Mod - set 3DViewer label ***/		
+		QMessageBox::warning(this, "3DViewer", tr("Error loading mouse shortcuts file."));
+		return;
+/*** LPub3D Mod end ***/		
+	}
+
+	mOptions->MouseShortcuts = Shortcuts;
+	UpdateMouseTree();
+
+	mOptions->MouseShortcutsModified = true;
+	mOptions->MouseShortcutsDefault = false;
+}
+
+void lcQPreferencesDialog::on_MouseExportButton_clicked()
+{
+	QString FileName = QFileDialog::getSaveFileName(this, tr("Export Shortcuts"), "", tr("Text Files (*.txt);;All Files (*.*)"));
+
+	if (FileName.isEmpty())
+		return;
+
+	if (!mOptions->MouseShortcuts.Save(FileName))
+		QMessageBox::warning(this, "LeoCAD", tr("Error saving mouse shortcuts file."));
+}
+
 void lcQPreferencesDialog::on_mouseReset_clicked()
 {
 /*** LPub3D Mod - set 3DViewer label ***/

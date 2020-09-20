@@ -1007,7 +1007,7 @@ void View::OnDraw()
 			  gMainWindow->GetRotStepMetaAngles();
 		}
 /*** LPub3D Mod end ***/
-		else if ((mTrackTool == LC_TRACKTOOL_SELECT || mTrackTool == LC_TRACKTOOL_ZOOM_REGION) && mTrackButton == lcTrackButton::Left)
+		else if ((mTrackTool == LC_TRACKTOOL_SELECT || mTrackTool == LC_TRACKTOOL_ZOOM_REGION) && mTrackButton != lcTrackButton::None)
 			DrawSelectZoomRegionOverlay();
 		else if (Tool == LC_TOOL_ROTATE_VIEW && mTrackButton == lcTrackButton::None)
 			DrawRotateViewOverlay();

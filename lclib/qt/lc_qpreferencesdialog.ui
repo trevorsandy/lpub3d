@@ -453,13 +453,6 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="2">
-           <widget class="QLabel" name="LineWidthLabel">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
           <item row="3" column="3">
            <widget class="QCheckBox" name="FadeSteps">
             <property name="toolTip">
@@ -577,6 +570,13 @@
           </item>
           <item row="6" column="2">
            <widget class="QLabel" name="MeshLODLabel">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="2">
+           <widget class="QLabel" name="LineWidthLabel">
             <property name="text">
              <string/>
             </property>
@@ -1676,6 +1676,20 @@
               </item>
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_13">
+                <item>
+                 <widget class="QPushButton" name="MouseImportButton">
+                  <property name="text">
+                   <string>Import...</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="MouseExportButton">
+                  <property name="text">
+                   <string>Export...</string>
+                  </property>
+                 </widget>
+                </item>
                 <item>
                  <widget class="QPushButton" name="mouseReset">
                   <property name="text">
