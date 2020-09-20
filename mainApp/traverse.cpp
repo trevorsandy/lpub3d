@@ -826,37 +826,6 @@ int Gui::drawPage(
               /* substitute part/parts with this */
 
             case PliBeginSub1Rc:
-              if (pliIgnore) {
-                  parseError("Nested PLI BEGIN/ENDS not allowed",current);
-                }
-              if (steps->meta.LPub.pli.show.value() &&
-                  ! pliIgnore &&
-                  ! partIgnore &&
-                  ! synthBegin) {
-
-                  SubData subData = curMeta.LPub.pli.begin.sub.value();
-                  QString addPart = QString("1 0  0 0 0  0 0 0 0 0 0 0 0 0 %1") .arg(subData.part);
-                  pliParts << Pli::partLine(addPart,current,curMeta);
-                }
-
-              if (step == nullptr && ! noStep) {
-                  if (range == nullptr) {
-                      range = newRange(steps,calledOut);
-                      steps->append(range);
-                    }
-                  step = new Step(topOfStep,
-                                  range,
-                                  stepNum,
-                                  curMeta,
-                                  calledOut,
-                                  multiStep);
-
-                  range->append(step);
-                }
-              pliIgnore = true;
-              break;
-
-              /* substitute part/parts with this */
             case PliBeginSub2Rc:
             case PliBeginSub3Rc:
             case PliBeginSub4Rc:
@@ -871,9 +840,9 @@ int Gui::drawPage(
                   ! pliIgnore &&
                   ! partIgnore &&
                   ! synthBegin) {
-
-                  SubData subData = curMeta.LPub.pli.begin.sub.value();
-                  QString addPart = QString("1 %1  0 0 0  0 0 0 0 0 0 0 0 0 %2") .arg(subData.color) .arg(subData.part);
+                  QString addPart = QString("1 %1  0 0 0  0 0 0 0 0 0 0 0 0 %2")
+                                            .arg(curMeta.LPub.pli.begin.sub.value().color)
+                                            .arg(curMeta.LPub.pli.begin.sub.value().part);
                   pliParts << Pli::partLine(addPart,current,curMeta);
                 }
 
@@ -2774,17 +2743,6 @@ int Gui::getBOMParts(
 
           switch (rc) {
             case PliBeginSub1Rc:
-              if (! pliIgnore &&
-                  ! partIgnore &&
-                  ! synthBegin) {
-
-                  QString line = QString("1 0 0 0 0 1 0 0 0 1 0 0 0 1 %1") .arg(meta.LPub.pli.begin.sub.value().part);
-                  pliParts << Pli::partLine(line,current,meta);
-                  pliIgnore = true;
-                }
-              break;
-
-              /* substitute part/parts with this */
             case PliBeginSub2Rc:
             case PliBeginSub3Rc:
             case PliBeginSub4Rc:
@@ -2795,10 +2753,10 @@ int Gui::getBOMParts(
               if (! pliIgnore &&
                   ! partIgnore &&
                   ! synthBegin) {
-                  QString line = QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2")
-                      .arg(meta.LPub.pli.begin.sub.value().color)
-                      .arg(meta.LPub.pli.begin.sub.value().part);
-                  pliParts << Pli::partLine(line,current,meta);
+                  QString addPart = QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2")
+                                            .arg(meta.LPub.pli.begin.sub.value().color)
+                                            .arg(meta.LPub.pli.begin.sub.value().part);
+                  pliParts << Pli::partLine(addPart,current,meta);
                   pliIgnore = true;
                 }
               break;

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>381</width>
-    <height>447</height>
+    <height>475</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -545,6 +545,58 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_12">
         <item>
+         <widget class="QLabel" name="target_Lbl">
+          <property name="text">
+           <string>Target:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_7">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>38</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="targetSpinX"/>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="targetSpinY"/>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="targetSpinZ"/>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_10">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Fixed</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>70</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_13">
+        <item>
          <widget class="QLabel" name="rotation_Lbl">
           <property name="text">
            <string>Rotation:</string>
@@ -552,7 +604,7 @@
          </widget>
         </item>
         <item>
-         <spacer name="horizontalSpacer_7">
+         <spacer name="horizontalSpacer_9">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>

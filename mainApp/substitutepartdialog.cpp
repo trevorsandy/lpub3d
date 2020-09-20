@@ -90,6 +90,15 @@ SubstitutePartDialog::SubstitutePartDialog(
      connect(ui->longitudeSpin,SIGNAL(valueChanged(double)),
              this,             SLOT  (valueChanged(double)));
 
+     connect(ui->targetSpinX,SIGNAL(valueChanged(int)),
+             this,           SLOT(valueChanged(int)));
+
+     connect(ui->targetSpinY,SIGNAL(valueChanged(int)),
+             this,           SLOT(valueChanged(int)));
+
+     connect(ui->targetSpinZ,SIGNAL(valueChanged(int)),
+             this,           SLOT(valueChanged(int)));
+
      connect(ui->rotateSpinX,SIGNAL(valueChanged(double)),
              this,           SLOT(valueChanged(double)));
 
@@ -137,14 +146,31 @@ void SubstitutePartDialog::initialize()
     mAttributes = mInitialAttributes;
     bool show    = mAction != sRemove;
 
-    emit lpubAlert->messageSig(LOG_DEBUG,QString("Loaded mInitialAttributes substitution for part type [%1]: [%2]")
-                               .arg(mAttributes.at(sType)).arg(mAttributes.join(" ")));
+    if (Preferences::debugLogging)
+        emit lpubAlert->messageSig(LOG_DEBUG,QString("Loaded substitution part args for type [%1]: [%2]")
+                                   .arg(mAttributes.at(sType)).arg(mAttributes.join(" ")));
 
     qreal min = -10000.0, max = 10000.0, step = 0.1, val = 1.0;
     auto dec = [] (const qreal v)
     {
+        auto places = [&v] () {
+            if (v == 0.0)
+                return 2;
+
+            int count = 0;
+            qreal num = v;
+            num = abs(num);
+            num = num - int(num);
+            while (abs(num) >= 0.0000001) {
+                num = num * 10;
+                count = count + 1;
+                num = num - int(num);
+            }
+            return count;
+        };
+
         int a = v - int(v);
-        return (a <= 0 ? 2 : QString::number(a).size() < 3 ? 2 : QString::number(a).size());
+        return (a < 1 ? places() : QString::number(a).size() < 3 ? 2 : QString::number(a).size());
     };
 
     QPalette readOnlyPalette;
@@ -216,6 +242,18 @@ void SubstitutePartDialog::initialize()
     ui->longitudeSpin->setDecimals(dec(val));
     ui->longitudeSpin->setValue(val);
 
+    ui->targetSpinX->setRange(0,10000);
+    ui->targetSpinX->setSingleStep(1);
+    ui->targetSpinX->setValue(mAttributes.at(sTargetX).toInt());
+
+    ui->targetSpinY->setRange(0,10000);
+    ui->targetSpinY->setSingleStep(1);
+    ui->targetSpinY->setValue(mAttributes.at(sTargetY).toInt());
+
+    ui->targetSpinZ->setRange(0,10000);
+    ui->targetSpinZ->setSingleStep(1);
+    ui->targetSpinZ->setValue(mAttributes.at(sTargetZ).toInt());
+
     if (show)
         val = mAttributes.at(sRotX).toDouble();
     ui->rotateSpinX->setRange(0.0,360.0);
@@ -255,7 +293,19 @@ void SubstitutePartDialog::reset(bool value)
     Q_UNUSED(value)
     initialize();
 }
-
+void SubstitutePartDialog::valueChanged(int value)
+{
+    if (sender() == ui->targetSpinX) {
+            mAttributes[sTargetX] = QString::number(value);
+    } else
+    if (sender() == ui->targetSpinY) {
+            mAttributes[sTargetY] = QString::number(value);
+    } else
+    if (sender() == ui->targetSpinZ) {
+            mAttributes[sTargetZ] = QString::number(value);
+    }
+    mModified = true;
+}
 void SubstitutePartDialog::valueChanged(double value)
 {
     if (sender() == ui->scaleSpin) {
@@ -268,7 +318,7 @@ void SubstitutePartDialog::valueChanged(double value)
             mAttributes[sCameraAngleXX] = QString::number(value);
     } else
     if (sender() == ui->longitudeSpin) {
-        mAttributes[sCameraAngleYY] = QString::number(value);
+            mAttributes[sCameraAngleYY] = QString::number(value);
     } else
     if (sender() == ui->rotateSpinX) {
             mAttributes[sRotX] = QString::number(value);
@@ -277,7 +327,7 @@ void SubstitutePartDialog::valueChanged(double value)
             mAttributes[sRotY] = QString::number(value);
     } else
     if (sender() == ui->rotateSpinZ) {
-        mAttributes[sRotZ] = QString::number(value);
+            mAttributes[sRotZ] = QString::number(value);
     }
     mModified = true;
 }
@@ -422,7 +472,7 @@ void SubstitutePartDialog::accept()
 {
     auto setAttributes = [this] ()
     {
-        enum Levels{ Level1,Level2,Level3,Level4,Level5,Level6,NumLevels };
+        enum Levels{ Level1,Level2,Level3,Level4,Level5,Level6,Level7,Level8,NumLevels };
         bool removeLevel[NumLevels];
         removeLevel[Level1] = removeLevel[Level2] = removeLevel[Level3] =
         removeLevel[Level4] = removeLevel[Level5] = removeLevel[Level6] = false;
@@ -441,29 +491,90 @@ void SubstitutePartDialog::accept()
                 label2 = "Substitute update";
             }
 
-            // Level 6 Substitution - Rotatation
-            QString removeLevel6Sub = QString("%1%2%3%4")
+            // Level 8 Substitution - Target and Rotation
+            QString removeLevel8Sub = QString("%1%2%3%4%5%6%7")
+                    .arg(mInitialAttributes.at(sTargetX))
+                    .arg(mInitialAttributes.at(sTargetY))
+                    .arg(mInitialAttributes.at(sTargetZ))
                     .arg(mInitialAttributes.at(sRotX))
                     .arg(mInitialAttributes.at(sRotY))
                     .arg(mInitialAttributes.at(sRotZ))
                     .arg(mInitialAttributes.at(sTransform));
-            QString removeLevel6DefSub = QString("%1%2%3%4")
+            QString removeLevel8DefSub = QString("%1%2%3%4%5%6%7")
+                    .arg(mDefaultAttributes.at(sTargetX))
+                    .arg(mDefaultAttributes.at(sTargetY))
+                    .arg(mDefaultAttributes.at(sTargetZ))
                     .arg(mDefaultAttributes.at(sRotX))
                     .arg(mDefaultAttributes.at(sRotY))
                     .arg(mDefaultAttributes.at(sRotZ))
                     .arg(mDefaultAttributes.at(sTransform));
-            QString level6Sub = QString("%1%2%3%4")
+            QString level8Sub = QString("%1%2%3%4%5%6%7")
+                    .arg(mAttributes.at(sTargetX))
+                    .arg(mAttributes.at(sTargetY))
+                    .arg(mAttributes.at(sTargetZ))
                     .arg(mAttributes.at(sRotX))
                     .arg(mAttributes.at(sRotY))
                     .arg(mAttributes.at(sRotZ))
                     .arg(mAttributes.at(sTransform));
 
-            if ((removeLevel[Level6] = level6Sub == removeLevel6Sub &&
-                (mAction == sUpdate ? level6Sub == removeLevel6DefSub : true))) {
+            if ((removeLevel[Level8] = level8Sub == removeLevel8Sub &&
+                (mAction == sUpdate ? level8Sub == removeLevel8DefSub : true))) {
                 mAttributes.removeAt(sTransform);
                 mAttributes.removeAt(sRotZ);
                 mAttributes.removeAt(sRotY);
                 mAttributes.removeAt(sRotX);
+                mAttributes.removeAt(sTargetZ);
+                mAttributes.removeAt(sTargetY);
+                mAttributes.removeAt(sTargetX);
+            }
+
+            if (!removeLevel[Level8]) {
+                // Level 7 Substitution - Rotation
+                QString removeLevel7Sub = QString("%1%2%3%4")
+                        .arg(mInitialAttributes.at(sRotX))
+                        .arg(mInitialAttributes.at(sRotY))
+                        .arg(mInitialAttributes.at(sRotZ))
+                        .arg(mInitialAttributes.at(sTransform));
+                QString removeLevel7DefSub = QString("%1%2%3%4")
+                        .arg(mDefaultAttributes.at(sRotX))
+                        .arg(mDefaultAttributes.at(sRotY))
+                        .arg(mDefaultAttributes.at(sRotZ))
+                        .arg(mDefaultAttributes.at(sTransform));
+                QString level7Sub = QString("%1%2%3%4")
+                        .arg(mAttributes.at(sRotX))
+                        .arg(mAttributes.at(sRotY))
+                        .arg(mAttributes.at(sRotZ))
+                        .arg(mAttributes.at(sTransform));
+
+                if ((removeLevel[Level7] = level7Sub == removeLevel7Sub &&
+                   (mAction == sUpdate ? level7Sub == removeLevel7DefSub : true))) {
+                    mAttributes.removeAt(sTransform);
+                    mAttributes.removeAt(sRotZ);
+                    mAttributes.removeAt(sRotY);
+                    mAttributes.removeAt(sRotX);
+                }
+
+                // Level 6 Substitution - Target
+                QString removeLevel6Sub = QString("%1%2%3%4")
+                        .arg(mInitialAttributes.at(sTargetX))
+                        .arg(mInitialAttributes.at(sTargetY))
+                        .arg(mInitialAttributes.at(sTargetZ));
+                QString removeLevel6DefSub = QString("%1%2%3%4")
+                        .arg(mDefaultAttributes.at(sTargetX))
+                        .arg(mDefaultAttributes.at(sTargetY))
+                        .arg(mDefaultAttributes.at(sTargetZ));
+                QString level6Sub = QString("%1%2%3")
+                        .arg(mAttributes.at(sTargetX))
+                        .arg(mAttributes.at(sTargetY))
+                        .arg(mAttributes.at(sTargetZ));
+
+                if (removeLevel[Level7] &&
+                   (removeLevel[Level6] = level6Sub == removeLevel6Sub &&
+                   (mAction == sUpdate ? level6Sub == removeLevel6DefSub : true))) {
+                    mAttributes.removeAt(sTargetZ);
+                    mAttributes.removeAt(sTargetY);
+                    mAttributes.removeAt(sTargetX);
+                }
             }
 
             // Level 5 Substitution - Camera Angles
@@ -477,7 +588,7 @@ void SubstitutePartDialog::accept()
                     .arg(mAttributes.at(sCameraAngleXX))
                     .arg(mAttributes.at(sCameraAngleYY));
 
-            if (removeLevel[Level6] &&
+            if ((removeLevel[Level8] || removeLevel[Level6]) &&
                (removeLevel[Level5] = level5Sub == removeLevel5Sub &&
                (mAction == sUpdate ? level5Sub == removeLevel5DefSub : true))) {
                 mAttributes.removeAt(sCameraAngleYY);
@@ -522,11 +633,14 @@ void SubstitutePartDialog::accept()
             label2 = "Substitute removal";
         }
 
-        emit lpubAlert->messageSig(LOG_TRACE,QString("%1 for Part type [%2] Initial: [%3], Replacement: [%4]")
-                         .arg(label2).arg(mInitialAttributes.at(sType)).arg(mInitialAttributes.join(" ")).arg(mAttributes.join(" ")));
+        emit lpubAlert->messageSig(LOG_TRACE,QString("%1 for part type %2: [%3], Input: [%4]")
+                         .arg(label2).arg(mAttributes.at(sType)).arg(mAttributes.join(" ")).arg(mInitialAttributes.join(" ")));
     };
 
     if (mModified) {
+      if (Preferences::debugLogging)
+          emit lpubAlert->messageSig(LOG_DEBUG,QString("Set substitution for part type %1: [%2], Input: [%3]")
+                                   .arg(mAttributes.at(sType)).arg(mAttributes.join(" ")).arg(mInitialAttributes.join(" ")));
       setAttributes();
     }
 

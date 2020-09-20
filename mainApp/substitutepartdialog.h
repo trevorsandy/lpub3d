@@ -66,6 +66,7 @@ private slots:
   void browseColor(bool);
   void colorChanged(const QString &);
   void valueChanged(double value);
+  void valueChanged(int value);
   void transformChanged(QString const &);
   void reset(bool);
 

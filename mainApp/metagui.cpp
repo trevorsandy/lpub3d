@@ -1929,8 +1929,24 @@ RotStepGui::RotStepGui(
   qreal val;
   auto dec = [] (const qreal v)
   {
+      auto places = [&v] () {
+          if (v == 0.0)
+              return 2;
+
+          int count = 0;
+          qreal num = v;
+          num = abs(num);
+          num = num - int(num);
+          while (abs(num) >= 0.00001) {
+              num = num * 10;
+              count = count + 1;
+              num = num - int(num);
+          }
+          return count;
+      };
+
       int a = v - int(v);
-      return (a <= 0 ? 2 : QString::number(a).size() < 3 ? 2 : QString::number(a).size());
+      return (a < 1 ? places() : QString::number(a).size() < 3 ? 2 : QString::number(a).size());
   };
 
   val = rotStep.rots[0];
@@ -5784,7 +5800,7 @@ void TargetRotateDialogGui::getTargetAndRotateValues(QStringList &keyList){
         QLabel *label = new QLabel(targetLabels[i], dialog);
         targetLabelList << label;
         QSpinBox * spinBox = new QSpinBox(dialog);
-        spinBox->setRange(0,1000);
+        spinBox->setRange(0,10000);
         spinBox->setSingleStep(1);
         spinBox->setValue(targetValues[i]);
         targetSpinBoxList << spinBox;
@@ -5799,8 +5815,24 @@ void TargetRotateDialogGui::getTargetAndRotateValues(QStringList &keyList){
     // Rotstep
     auto dec = [] (const qreal v)
     {
+        auto places = [&v] () {
+            if (v == 0.0)
+                return 2;
+
+            int count = 0;
+            qreal num = v;
+            num = abs(num);
+            num = num - int(num);
+            while (abs(num) >= 0.00001) {
+                num = num * 10;
+                count = count + 1;
+                num = num - int(num);
+            }
+            return count;
+        };
+
         int a = v - int(v);
-        return (a <= 0 ? 2 : QString::number(a).size() < 3 ? 2 : QString::number(a).size());
+        return (a < 1 ? places() : QString::number(a).size() < 3 ? 2 : QString::number(a).size());
     };
 
     double rotateValues[3] = {keyList.at(K_ROTSX).toDouble(),
