@@ -379,8 +379,8 @@ int Step::createCsi(
       // set rotated parts
       QStringList rotatedParts = csiParts;
 
-      // rotate parts for 3DViewer, apply ROTSTEP without camera angles - this rotateParts routine returns a part list
-      if ((rc = renderer->rotateParts(addLine,meta.rotStep,rotatedParts,absRotstep ? noCA : cameraAngles,false)) != 0)
+       // RotateParts #3 - 5 parms, rotate parts for 3DViewer, apply ROTSTEP without camera angles - this rotateParts routine returns a part list
+      if ((rc = renderer->rotateParts(addLine,meta.rotStep,rotatedParts,absRotstep ? noCA : cameraAngles, false/*applyCA*/)) != 0)
           emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer CSI parts"));
 
       // add ROTSTEP command - used by 3DViewer to properly adjust rotated parts
@@ -388,7 +388,7 @@ int Step::createCsi(
 
       // header and closing meta
 
-      renderer->setNativeHeaderAndNoFileMeta(rotatedParts,top.modelName,false/*pliPart*/,modelDisplayOnlyStep);
+      renderer->setNativeHeaderAndNoFileMeta(rotatedParts,top.modelName,Options::Mt::CSI,modelDisplayOnlyStep);
 
       // consolidate subfiles and parts into single file
       if ((rc = renderer->createNativeModelFile(rotatedParts,fadeSteps,highlightStep) != 0))
@@ -422,8 +422,8 @@ int Step::createCsi(
             meta.LPub.highlightStep.setPreferences();
          }
 
-         // Camera angles not applied but ROTSTEP applied to rotated parts for Native renderer - this rotateParts routine generates an ldr file
-         if ((rc = renderer->rotateParts(addLine, meta.rotStep, csiParts, ldrName, top.modelName, absRotstep ? noCA : cameraAngles)) != 0) {
+         // RotateParts #2 - 8 parms, Camera angles not applied but ROTSTEP applied to rotated parts for Native renderer - this rotateParts routine generates an ldr file
+         if ((rc = renderer->rotateParts(addLine, meta.rotStep, csiParts, ldrName, top.modelName, absRotstep ? noCA : cameraAngles,false/*ldv*/,Options::Mt::CSI)) != 0) {
              emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate CSI ldr file: %1.")
                                                    .arg(ldrName));
              pngName = QString(":/resources/missingimage.png");

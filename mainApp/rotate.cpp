@@ -151,7 +151,13 @@ void rotateMatrix(
   }
 }
 
-int Render::rotateParts(const QStringList &parts, QString &ldrName, const QString &rs, QString &ca)
+// RotateParts #1 - 5 parms, used exclusively by renderDialog
+int Render::rotateParts(
+        const QStringList &parts,
+        QString &ldrName,
+        const QString &rs,
+        QString &ca,
+        int imageType)
 {
     bool ldvExport = true, good = false, ok = false;
     const QString addLine = "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr";
@@ -185,17 +191,18 @@ int Render::rotateParts(const QStringList &parts, QString &ldrName, const QStrin
     FloatPairMeta cameraAngles;
     cameraAngles.setValues(latitude,longitude);
 
-    return rotateParts(addLine, rotStepMeta, parts, ldrName, QString(),cameraAngles,ldvExport);
+    return rotateParts(addLine, rotStepMeta, parts, ldrName, QString(),cameraAngles, ldvExport, imageType);
 }
 
-int Render::rotateParts(
-          const QString     &addLine,
+// RotateParts #2 - 8 parms (never called by pli type)
+int Render::rotateParts(const QString     &addLine,
           RotStepMeta       &rotStep,
           const QStringList &parts,
           QString           &ldrName,
           const QString     &modelName,
           FloatPairMeta     &ca,
-          bool               ldv /* false */)
+          bool               ldv       /* false */,
+          int                imageType /* CSI */)
 {
   bool ldvFunction     = ldv || gui->m_partListCSIFile;
   bool doFadeStep      = Preferences::enableFadeSteps;
@@ -205,7 +212,7 @@ int Render::rotateParts(
 
   QStringList rotatedParts = parts;
 
-  // do not apply camera angles for native renderer
+  // // RotateParts #3 - 5 parms, do not apply camera angles for native renderer
   rotateParts(addLine,rotStep,rotatedParts,ca,!nativeRenderer);
 
   // intercept rotatedParts for imageMatting
@@ -224,11 +231,12 @@ int Render::rotateParts(
 
   if (nativeRenderer && ! ldvFunction) {
       // header and closing meta
-      setNativeHeaderAndNoFileMeta(rotatedParts,modelName,false/*pliPart*/,false/*finalModel*/);
+      setNativeHeaderAndNoFileMeta(rotatedParts,modelName,imageType);
 
       // consolidate subfiles and parts into single file
       if ((createNativeModelFile(rotatedParts,doFadeStep,doHighlightStep) != 0))
-          emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native CSI parts"));
+          emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native %1 parts")
+                               .arg(imageType == Options::Mt::CSI ? "CSI" : "SMP"));
   }
 
   // Write parts to file
@@ -259,6 +267,7 @@ int Render::rotateParts(
   return 0;
 }
 
+// RotateParts #3 - 5 parms
 int Render::rotateParts(
         const QString &addLine,
         RotStepMeta   &rotStep,

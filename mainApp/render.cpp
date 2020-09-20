@@ -212,17 +212,45 @@ const QString Render::getRotstepMeta(RotStepMeta &rotStep, bool isKey /*false*/)
   return rotstepString;
 }
 
-void Render::setNativeHeaderAndNoFileMeta(QStringList &parts,
-                                  const QString &modelName,
-                                  bool pliPart,
-                                  bool displayOnly){
-    QString baseName = QFileInfo(modelName).completeBaseName().toLower();
-    baseName = QString("%1%2").arg(baseName.replace(baseName.indexOf(baseName.at(0)),1,baseName.at(0).toUpper()))
-                              .arg(displayOnly ? " - Final Model" : "");
-    parts.prepend(QString("0 Name: %1").arg(modelName));
+void Render::setNativeHeaderAndNoFileMeta(QStringList &parts, const QString &modelName, int imageType, bool displayOnly) {
+
+    QStringList tokens;
+    QString subModelName = modelName;
+    QString baseName     = QFileInfo(subModelName).completeBaseName().toLower();
+    bool isMPD           = imageType == Options::Mt::SMP;         // always MPD
+    baseName             = QString("%1").arg(baseName.replace(baseName.indexOf(baseName.at(0)),1,baseName.at(0).toUpper()));
+
+    // Test for MPD
+    if (!isMPD) {
+        for (int i = 0; i < parts.size(); i++) {
+            QString line = parts.at(i);
+            split(line, tokens);
+            if ((isMPD = tokens[0] == "1" && tokens.size() == 15 && gui->isSubmodel(tokens[14]))) {
+                break;
+            }
+        }
+    }
+
+    // special case where the modelName will match the line type name so we append '_Preview' to the modelName
+    if (imageType == Options::Mt::SMP) {
+         baseName = baseName.append("_Preview");
+    }
+
+    //
+    if (displayOnly) {
+        baseName = baseName.append(" - Final Model");
+    }
+
+    if (isMPD) {
+        parts.prepend(QString("0 !LPUB MODEL NAME \"%1\"").arg(baseName));
+        subModelName = QString(baseName).append(".mpd");
+    }
+
+    parts.prepend(QString("0 Name: %1").arg(subModelName));
     parts.prepend(QString("0 %1").arg(baseName));
-    if (!pliPart){
-        parts.prepend(QString("0 FILE %1").arg(modelName));
+
+    if (isMPD) {
+        parts.prepend(QString("0 FILE %1").arg(subModelName));
         parts.append("0 NOFILE");
     }
 }
@@ -592,8 +620,9 @@ int POVRay::renderCsi(
   QString ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
   QString povName = ldrName + ".pov";
 
+  // RotateParts #2 - 8 parms
   int rc;
-  if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrName, QString(),meta.LPub.assem.cameraAngles)) < 0) {
+  if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrName, QString(),meta.LPub.assem.cameraAngles,false/*ldv*/,Options::Mt::CSI)) < 0) {
       return rc;
    }
 
@@ -1277,7 +1306,8 @@ int LDGLite::renderCsi(
   ldrName = "csi.ldr";
   ldrPath = QDir::currentPath() + "/" + Paths::tmpDir;
   ldrFile = ldrPath + "/" + ldrName;
-  if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrFile,QString(),meta.LPub.assem.cameraAngles)) < 0) {
+  // RotateParts #2 - 8 parms
+  if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrFile,QString(),meta.LPub.assem.cameraAngles,false/*ldv*/,Options::Mt::CSI)) < 0) {
      return rc;
   }
 
@@ -1947,7 +1977,8 @@ int LDView::renderCsi(
 
         getRendererSettings(CA, cg, ldviewParmsArgs);
 
-        if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrNames.first(), csiKey, meta.LPub.assem.cameraAngles)) < 0) {
+        // RotateParts #2 - 8 parms
+        if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrNames.first(), csiKey, meta.LPub.assem.cameraAngles,false/*ldv*/,Options::Mt::CSI)) < 0) {
             emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView (Single Call) CSI rotate parts failed!"));
             return rc;
         } else
@@ -2649,9 +2680,9 @@ int Native::renderCsi(
 
               ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/exportcsi.ldr";
 
-              // rotate parts for ldvExport - apply camera angles
+              // RotateParts #2 - 8 parms, rotate parts for ldvExport - apply camera angles
               int rc;
-              if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrName, QString(),meta.LPub.assem.cameraAngles,ldvExport)) < 0) {
+              if ((rc = rotateParts(addLine, meta.rotStep, csiParts, ldrName, QString(),meta.LPub.assem.cameraAngles,ldvExport,Options::Mt::CSI)) < 0) {
                   return rc;
               }
 
@@ -3441,6 +3472,11 @@ int Render::createNativeModelFile(
 
   if (csiRotatedParts.size() > 0) {
 
+      /* Parse the rotated parts looking for subModels,
+       * renaming fade and highlight step parts (not sure this is used here)
+       * merging and formatting submodels by calling mergeNativeCSISubModels and
+       * returning all parts by reference
+      */
       for (int index = 0; index < csiRotatedParts.size(); index++) {
 
           QString csiLine = csiRotatedParts[index];
@@ -3505,8 +3541,11 @@ int Render::createNativeModelFile(
               csiParts << smLine;
             }
         }
+
+      /* return rotated parts by reference */
       csiRotatedParts = csiParts;
     }
+
   return 0;
 }
 
@@ -3526,6 +3565,7 @@ int Render::mergeNativeCSISubModels(QStringList &subModels,
 
       /* read in all detected sub model file content */
       for (int index = 0; index < csiSubModels.size(); index++) {
+
           QString ldrName(QDir::currentPath() + "/" +
                           Paths::tmpDir + "/" +
                           csiSubModels[index]);
@@ -3534,6 +3574,7 @@ int Render::mergeNativeCSISubModels(QStringList &subModels,
           QString modelName = QFileInfo(csiSubModels[index]).completeBaseName().toLower();
           modelName = modelName.replace(
                       modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper());
+
           csiSubModelParts << QString("0 FILE %1").arg(csiSubModels[index]);
           csiSubModelParts << QString("0 %1").arg(modelName);
           csiSubModelParts << QString("0 Name: %1").arg(csiSubModels[index]);

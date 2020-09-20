@@ -4196,14 +4196,16 @@ bool MetaItem::offsetPoint(
       pngName = QDir::currentPath() + "/" + Paths::assemDir + "/" + label + "Mono.png";
       ldrNames << ldrName;
       csiKeys << title + "Mono";
-      ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles) == 0);
+      // RotateParts #2 - 8 parms
+      ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles,false/*ldv*/,Options::Mt::CSI) == 0);
       ok[1] = (renderer->renderCsi(addLine,ldrNames,csiKeys,pngName,meta) == 0);
     } else {
       ok[0] = true;
       pngName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + label + "Mono.png";
       if (Preferences::usingNativeRenderer){
           ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
-          ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles) == 0);
+          // RotateParts #2 - 8 parms
+          ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles,false/*ldv*/,Options::Mt::CSI) == 0);
       }
       ok[1] = (renderer->renderCsi(addLine,csiParts,csiKeys,pngName,meta) == 0);
     }
@@ -4645,14 +4647,16 @@ QPointF MetaItem::defaultPointerTip(
       ldrNames << monoOutName;
       ldrName = ldrNames.first();
       pngName = QDir::currentPath() + "/" + Paths::assemDir + "/" + monoOutPngBaseName + ".png";
-      ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles) == 0);
+      // RotateParts #2 - 8 parms
+      ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles,false/*ldv*/,Options::Mt::CSI) == 0);
       ok[1] = (renderer->renderCsi(addLine,ldrNames,csiKeys,pngName,meta) == 0);
   } else {
       ok[0] = true;
       pngName = QDir::currentPath() + "/" + Paths::tmpDir + "/" + monoOutPngBaseName + ".png";
       if (Preferences::usingNativeRenderer){
          ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/csi.ldr";
-         ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles) == 0);
+         // RotateParts #2 - 8 parms
+         ok[0] = (renderer->rotateParts(addLine,meta.rotStep,csiParts,ldrName,modelName,meta.LPub.assem.cameraAngles,false/*ldv*/,Options::Mt::CSI) == 0);
       }
       ok[1] = (renderer->renderCsi(addLine,csiParts,csiKeys,pngName,meta) == 0);
   }

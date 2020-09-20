@@ -1205,7 +1205,7 @@ int Gui::drawPage(
                     message = QString("INSERT DISPLAY_MODEL meta must be followed by 0 STEP before part (type 1) at line");
                 }
                 if (stepContains(top,partLineRx)) {
-                    parseError(message.append(QString("%1.").arg(top.lineNumber+1)), opts.current);
+                    parseError(message.append(QString(" %1.").arg(top.lineNumber+1)), opts.current);
                 }
                 if (proceed) {
                     opts.stepNum--;
@@ -1252,7 +1252,7 @@ int Gui::drawPage(
                     message = QString("INSERT COVER_PAGE FRONT meta must be followed by 0 STEP before part (type 1) at line");
                   }
                   if (stepContains(top,partLineRx)) {
-                      parseError(message.append(QString("%1.").arg(top.lineNumber+1)), opts.current);
+                      parseError(message.append(QString(" %1.").arg(top.lineNumber+1)), opts.current);
                   }
               }
               break;
@@ -2372,7 +2372,6 @@ int Gui::drawPage(
         }
       // STEP - Process invalid line
       else if (line != "") {
-          showLine(opts.current);
           const QChar type = line.at(0);
           parseError(QString("Invalid LDraw type %1 line. Expected %2 elements, got \"%3\".")
                      .arg(type).arg(type == '1' ? 15 : type == '2' ? 8 : type == '3' ? 11 : 14).arg(line),opts.current);
@@ -4353,6 +4352,8 @@ void Gui::writeToTmp()
       emit progressPermMessageSig("Writing submodels...");
     }
   emit messageSig(LOG_INFO_STATUS, "Writing submodels to temp directory...");
+
+  QApplication::processEvents();
 
   bool upToDate = true;
   bool doFadeStep  = page.meta.LPub.fadeStep.fadeStep.value();

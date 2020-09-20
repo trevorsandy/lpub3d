@@ -96,20 +96,22 @@ public:
                                      bool doHighlightStep);
   static void            setNativeHeaderAndNoFileMeta(QStringList &parts,
                                      const QString &modelName,
-                                     bool pliPart,
-                                     bool displayOnly);
-  static int             rotateParts(const QString &addLine,
+                                     int imageType,
+                                     bool displayOnly = false);
+  static int             rotateParts(const QStringList &parts,   // RotateParts #1 - 5 parms
+                                     QString &ldrName,
+                                     const QString &rs,
+                                     QString &ca,
+                                     int imageType);
+  static int             rotateParts(const QString &addLine,     // RotateParts #2 - 8 parms
                                      RotStepMeta &rotStep,
                                      const QStringList &parts,
                                      QString &ldrName,
                                      const QString &modelName,
                                      FloatPairMeta &ca,
-                                     bool ldv = false);
-  static int             rotateParts(const QStringList &parts,
-                                     QString &ldrName,
-                                     const QString &rs,
-                                     QString &ca);
-  static int             rotateParts(const QString &addLine,
+                                     bool ldv,
+                                     int imageType);
+  static int             rotateParts(const QString &addLine,     // RotateParts #3 - 5 parms
                                      RotStepMeta &rotStep,
                                      QStringList &parts,
                                      FloatPairMeta &ca,

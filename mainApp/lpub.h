@@ -1157,13 +1157,7 @@ public slots:
   void statusBarMsg(QString msg);
 
   void showExportedFile();
-  void showLine(const Where &topOfStep, int type = LINE_HIGHLIGHT)
-  {
-    if (! exporting()) {
-        displayFile(&ldrawFile,topOfStep.modelName);
-        showLineSig(topOfStep.lineNumber, type);
-      }
-  }
+  void showLine(const Where &topOfStep, int type = LINE_HIGHLIGHT);
 
   void enableApplyLightAction();
 

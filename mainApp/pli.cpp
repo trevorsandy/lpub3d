@@ -1041,7 +1041,7 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
             pliFile.prepend(QString("0 // ROTSTEP %1").arg(rotStep.isEmpty() ? "0 0 0" : rotStep.replace("_"," ")));
 
             // header and closing meta
-            renderer->setNativeHeaderAndNoFileMeta(pliFile,type,true/*pliPart*/,false/*finalModel*/);
+            renderer->setNativeHeaderAndNoFileMeta(pliFile,type,Options::Mt::PLI);
 
             // consolidate subfiles and parts into single file
             if ((renderer->createNativeModelFile(pliFile,fadeSteps,highlightStep) != 0))
@@ -1434,8 +1434,8 @@ QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKe
         FloatPairMeta cameraAngles;
         cameraAngles.setValues(latitude,longitude);
 
-        // do not apply camera angles for native renderer
-        if ((renderer->rotateParts(addLine,rotStepMeta,rotatedType,cameraAngles,!nativeRenderer)) != 0)
+        // RotateParts #3 - 5 parms, do not apply camera angles for native renderer
+        if ((renderer->rotateParts(addLine,rotStepMeta,rotatedType,cameraAngles,!nativeRenderer/*applyCA*/)) != 0)
                 emit gui->messageSig(LOG_ERROR,QString("Failed to rotate type: %1.").arg(typeName));
 
         out << rotatedType;
@@ -2456,11 +2456,11 @@ int Pli::partSizeLDViewSCall() {
 
 
                     // header and closing meta
-                    renderer->setNativeHeaderAndNoFileMeta(pliFile,pliPart->type,true/*pliPart*/,false/*finalModel*/);
+                    renderer->setNativeHeaderAndNoFileMeta(pliFile,pliPart->type,Options::Mt::PLI);
 
                     // consolidate subfiles and parts into single file
                     if ((renderer->createNativeModelFile(pliFile,fadeSteps,highlightStep) != 0))
-                        emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native CSI parts"));
+                        emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native PLI part"));
 
                     // unrotated part
                     QStringList pliFileU = QStringList()

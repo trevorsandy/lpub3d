@@ -5561,6 +5561,14 @@ void Gui::writeSettings()
     gApplication->SaveTabLayout();
 }
 
+void Gui::showLine(const Where &topOfStep, int type)
+{
+  if (Preferences::modeGUI && ! exporting()) {
+      displayFile(&ldrawFile,topOfStep.modelName);
+      showLineSig(topOfStep.lineNumber, type);
+    }
+}
+
 void Gui::showLineMessage(const QString errorMsg, const Where &here, Preferences::MsgKey msgKey, bool override)
 {
     if (parsedMessages.contains(here))
@@ -5569,7 +5577,8 @@ void Gui::showLineMessage(const QString errorMsg, const Where &here, Preferences
     bool showMessagePreference = Preferences::getShowMessagePreference(msgKey);
     QString parseMessage = QString("%1 (file: %2, line: %3)") .arg(errorMsg) .arg(here.modelName) .arg(here.lineNumber + 1);
     if (Preferences::modeGUI) {
-        showLine(here, LINE_ERROR);
+        if (subFileSize(here.modelName) < 500)
+            showLine(here, LINE_ERROR);
         if (showMessagePreference || override) {
             QMessageBoxResizable box;
             box.setWindowTitle(tr(VER_PRODUCTNAME_STR " Parse Message"));

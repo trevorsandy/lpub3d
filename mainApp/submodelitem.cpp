@@ -178,15 +178,15 @@ bool SubModel::rotateModel(QString ldrName, QString subModel, const QString colo
    QString addLine = "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr";
    FloatPairMeta cameraAngles = noCA ? FloatPairMeta() : subModelMeta.cameraAngles;
 
-   // create the Submodel ldr file and rotate its parts - camera angles not applied for Native renderer
+   // RotateParts #2 - 8 parms, create the Submodel ldr file and rotate its parts - camera angles not applied for Native renderer
    if ((renderer->rotateParts(
             addLine,
             subModelMeta.rotStep,
             rotatedModel,
             ldrName,
             step ? step->top.modelName : gui->topOfPage().modelName,
-            cameraAngles
-            )) != 0) {
+            cameraAngles,
+            false/*ldv*/,Options::Mt::SMP)) != 0) {
        emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate Submodel ldr file: %1.")
                                              .arg(ldrName));
        return false;
@@ -303,24 +303,22 @@ int SubModel::createSubModelImage(
       if ((addViewerStepContent || imageOutOfDate || viewerUpdate)) {
 
           FloatPairMeta cameraAngles = noCA ? FloatPairMeta() : subModelMeta.cameraAngles;
-          QString addLine = "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr";
+          QString addLine  =  QString("1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr");
 
-          // set submodel - unrotated
+          // set submodel entries - unrotated and rotated
           QStringList subModel = QStringList()
                   << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(type.toLower());
-
-          // set rotated submodel
           QStringList rotatedSubmodel = subModel;
 
-          // rotate submodel for 3DViewer, apply ROTSTEP without camera angles - this routine returns a list
+          // RotateParts #3 - 5 parms, submodel for 3DViewer, apply ROTSTEP without camera angles - this routine returns a list
           if ((rc = renderer->rotateParts(addLine,subModelMeta.rotStep,rotatedSubmodel,cameraAngles,false)) != 0)
               emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer Submodel"));
 
           // add ROTSTEP command - used by 3DViewer to properly adjust rotated parts
           rotatedSubmodel.prepend(renderer->getRotstepMeta(subModelMeta.rotStep));
 
-          // header and closing meta
-          renderer->setNativeHeaderAndNoFileMeta(rotatedSubmodel,top.modelName,false/*pliPart*/,false/*finalModel*/);
+          // header and closing meta for 3DViewer
+          renderer->setNativeHeaderAndNoFileMeta(rotatedSubmodel,top.modelName,Options::Mt::SMP,false/*displayModel*/);
 
           // consolidate submodel subfiles into single file
           if ((rc = renderer->createNativeModelFile(rotatedSubmodel,false,false) != 0))
@@ -361,7 +359,7 @@ int SubModel::createSubModelImage(
       QElapsedTimer timer;
       timer.start();
 
-      // Camera angles not applied but ROTSTEP applied to rotated Submodel for Native renderer
+      // Camera angles not applied but ROTSTEP applied to rotated (#1) Submodel for Native renderer
       if (! rotateModel(ldrNames.first(),type,color,noCA)) {
           emit gui->messageSig(LOG_ERROR,QString("Failed to create and rotate Submodel ldr file: %1.")
                                .arg(ldrNames.first()));
