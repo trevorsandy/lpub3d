@@ -857,6 +857,12 @@ public:
 
   void setBuildModNextStepAction();
 
+  bool setBuildModChangeKey();
+  QString getBuildModChangeKey()
+  {
+      return buildModChangeKey;
+  }
+
   /* End Build Modifications */
 
   void setExportedFile(const QString &fileName)
@@ -1219,6 +1225,7 @@ public slots:
   void loadBuildModification();
   void updateBuildModification();
   void deleteBuildModification();
+  bool saveBuildModification();
 
   void clearPLICache();
   void clearCSICache();

@@ -2052,46 +2052,56 @@ void Gui::loadBuildModification()
     }
 }
 
+bool Gui::setBuildModChangeKey()
+{
+    if (!currentStep)
+        return false;
+
+    int it = lcGetActiveProject()->GetImageType();
+    switch(it) {
+    case Options::Mt::CSI:
+    case Options::Mt::SMP:
+    {
+        Rc rc;
+        Where walk = currentStep->top;
+        walk++;   // Advance past STEP meta
+
+        // Parse the step lines
+        for ( ;
+              walk.lineNumber < subFileSize(walk.modelName);
+              walk.lineNumber++) {
+            QString line = readLine(walk);
+            Where here(walk.modelName,walk.lineNumber);
+            rc =  page.meta.parse(line,here,false);
+
+            switch (rc) {
+            case BuildModBeginRc:
+                buildModChangeKey = page.meta.LPub.buildMod.key();
+                return true;
+
+            // Search until next step/rotstep meta
+            case RotStepRc:
+            case StepRc:
+                return false;
+
+            default:
+                break;
+            }
+        }
+    }
+        break;
+    default: /*Options::Mt::PLI:*/
+        break;
+    }
+
+    return false;
+}
+
 void Gui::updateBuildModification()
 {
     if (buildModChangeKey.isEmpty()) {
-        int it = lcGetActiveProject()->GetImageType();
-        switch(it) {
-        case Options::Mt::CSI:
-        case Options::Mt::SMP:
-        {
-            Rc   rc;
-            Meta meta;
-            Where step = currentStep->top;
-            step++;   // Advance past STEP meta
-
-            // Parse the step lines
-            for ( ;
-                  step.lineNumber < subFileSize(step.modelName);
-                  step.lineNumber++) {
-                QString line = readLine(step);
-                Where here(step.modelName,step.lineNumber);
-                rc =  meta.parse(line,here,false);
-
-                switch (rc) {
-                case BuildModBeginRc:
-                    buildModChangeKey = meta.LPub.buildMod.key();
-                    createBuildModification();
-                    return;
-
-                // Search until next step/rotstep meta
-                case RotStepRc:
-                case StepRc:
-                    return;
-                default:
-                    break;
-                }
-            }
-        }
-            break;
-        default: /*Options::Mt::PLI:*/
-            break;
-        }
+        setBuildModChangeKey();
+        createBuildModification();
     } else {
         createBuildModification();
     }
@@ -2184,6 +2194,57 @@ void Gui::deleteBuildModification()
     loadBuildModAct->setEnabled(enabled);
     updateBuildModAct->setEnabled(enabled);
     deleteBuildModAct->setEnabled(enabled);
+}
+
+/*********************************************
+ *
+ * save viewer model if modified
+ *
+ ********************************************/
+
+bool Gui::saveBuildModification()
+{
+    Project* Project = lcGetActiveProject();
+    if (Project->GetImageType() == Options::Mt::PLI)
+        return true;
+
+    if (!Project->IsModified())
+        return true;
+
+    QPixmap _icon = QPixmap(":/icons/lpub96.png");
+    if (_icon.isNull())
+        _icon = QPixmap (":/icons/update.png");
+
+    QMessageBox box;
+    box.setWindowIcon(QIcon());
+    box.setIconPixmap (_icon);
+    box.setTextFormat (Qt::RichText);
+    box.setWindowTitle(tr ("%1 Save Model Change").arg(VER_PRODUCTNAME_STR));
+    box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    QString title = "<b>" +
+            (setBuildModChangeKey()
+             ? tr("Save model changes to build modification '%1'?").arg(getBuildModChangeKey())
+             : tr("Save model changes as build modification?")) + "</b>";
+    QString text = tr("Save changes as a build modification to this step?");
+    box.setText (title);
+    box.setInformativeText (text);
+    box.setStandardButtons (QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+    box.setDefaultButton   (QMessageBox::Cancel);
+    switch (box.exec())
+    {
+    default:
+    case QMessageBox::Cancel:
+        return false;
+
+    case QMessageBox::Yes:
+        updateBuildModification();
+        break;
+
+    case QMessageBox::No:
+        break;
+    }
+
+    return true;
 }
 
 /*********************************************

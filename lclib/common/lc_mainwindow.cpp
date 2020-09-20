@@ -2978,7 +2978,7 @@ bool lcMainWindow::SaveProject(const QString& FileName)
 
 bool lcMainWindow::SaveProjectIfModified()
 {
-/*** LPub3D Mod - shortcut, return true on save project if modified ***/
+/*** LPub3D Mod - disable save project if modified ***/
 	return true;
 /*** LPub3D Mod end ***/
 

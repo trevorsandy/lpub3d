@@ -297,16 +297,15 @@ class LDrawFile {
     void insertLDCadGroup(const QString &name, int lid);
     bool ldcadGroupMatch(const QString &name, const QStringList &lids);
 
-    /* Build Modifications */
-    int buildModsSize();
+    /* Build Modification functions */
     void insertBuildMod(const QString      &buildModKey,
                         const QString      &modStepKey,
                         const QVector<int> &modAttributes,
                         int                 action,
                         int                 stepIndex);
     int setBuildModAction(const QString &buildModKey,
-                            int           stepIndex,
-                            int           modAction);
+                          int            stepIndex,
+                          int            modAction);
     int getBuildModStepIndex(int modelIndex, int lineNumber);
     int getBuildModStepLineNumber(int stepIndex, bool bottom);
     int getBuildModBeginLineNumber(const QString &buildModKey);
@@ -317,10 +316,11 @@ class LDrawFile {
     int setBuildModDisplayPageNumber(const QString &buildModKey, int displayPageNum);
     int getBuildModStepPieces(const QString &buildModKey);
     int setBuildModStepPieces(const QString &buildModKey, int pieces);
+    int getBuildModNextStepIndex();
+    int buildModsSize();
     void setBuildModStepKey(const QString &buildModKey, const QString &modStepKey);
     bool getBuildModStepIndexKeys(int stepIndex, QString &modelName, int &lineNumber);
     bool setBuildModNextStepIndex(const QString &modelName, const int &lineNumber);
-    int getBuildModNextStepIndex();
     bool buildModContains(const QString &buildModKey);
     bool removeBuildMod(const QString &buildModKey);
     QString getBuildModStepKey(const QString &buildModKey);
