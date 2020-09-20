@@ -48,7 +48,7 @@ public:
 		PropertyFloatCameraAngle,
 		PropertyFloatTarget,
 /*** LPub3D Mod end ***/
-		PropertyInt,
+		PropertyStep,
 		PropertyString,
 		PropertyColor,
 		PropertyPart,

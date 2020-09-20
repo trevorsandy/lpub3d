@@ -866,12 +866,12 @@ void View::OnDraw()
 
 		if (Info)
 		{
-			lcMatrix44 WorldMatrix = GetPieceInsertPosition(false, gMainWindow->GetCurrentPieceInfo());
+			lcMatrix44 WorldMatrix = GetPieceInsertPosition(false, Info);
 
 			if (GetActiveModel() != mModel)
 				WorldMatrix = lcMul(WorldMatrix, mActiveSubmodelTransform);
 
-			Info->AddRenderMeshes(mScene, WorldMatrix, gMainWindow->mColorIndex, lcRenderMeshState::Focused, true);
+			Info->AddRenderMeshes(mScene, WorldMatrix, gMainWindow->mColorIndex, lcRenderMeshState::Focused, false);
 		}
 	}
 
@@ -2034,8 +2034,11 @@ void View::EndDrag(bool Accept)
 			break;
 
 		case lcDragState::PIECE:
-			ActiveModel->InsertPieceToolClicked(GetPieceInsertPosition(false, gMainWindow->GetCurrentPieceInfo()));
-			break;
+			{
+				PieceInfo* Info = gMainWindow->GetCurrentPieceInfo();
+				if (Info)
+					ActiveModel->InsertPieceToolClicked(GetPieceInsertPosition(false, Info));
+			} break;
 
 		case lcDragState::COLOR:
 			ActiveModel->PaintToolClicked(FindObjectUnderPointer(true, false).Object);
@@ -2045,6 +2048,7 @@ void View::EndDrag(bool Accept)
 
 	mDragState = lcDragState::NONE;
 	UpdateTrackTool();
+	gMainWindow->UpdateAllViews();
 }
 
 void View::SetProjection(bool Ortho)

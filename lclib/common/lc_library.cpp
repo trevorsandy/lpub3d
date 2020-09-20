@@ -1449,6 +1449,7 @@ void lcPiecesLibrary::UpdateBuffers(lcContext* Context)
 
 	int VertexDataSize = 0;
 	int IndexDataSize = 0;
+	std::vector<lcMesh*> Meshes;
 
 	for (const auto& PieceIt : mPieces)
 	{
@@ -1463,6 +1464,8 @@ void lcPiecesLibrary::UpdateBuffers(lcContext* Context)
 
 		VertexDataSize += Mesh->mVertexDataSize;
 		IndexDataSize += Mesh->mIndexDataSize;
+
+		Meshes.push_back(Mesh);
 	}
 
 	Context->DestroyVertexBuffer(mVertexBuffer);
@@ -1477,17 +1480,8 @@ void lcPiecesLibrary::UpdateBuffers(lcContext* Context)
 	VertexDataSize = 0;
 	IndexDataSize = 0;
 
-	for (const auto& PieceIt : mPieces)
+	for (lcMesh* Mesh : Meshes)
 	{
-		PieceInfo* Info = PieceIt.second;
-		lcMesh* Mesh = Info->IsPlaceholder() ? gPlaceholderMesh : Info->GetMesh();
-
-		if (!Mesh)
-			continue;
-
-		if (Mesh->mVertexDataSize > 16 * 1024 * 1024 || Mesh->mIndexDataSize > 16 * 1024 * 1024)
-			continue;
-
 		Mesh->mVertexCacheOffset = VertexDataSize;
 		Mesh->mIndexCacheOffset = IndexDataSize;
 

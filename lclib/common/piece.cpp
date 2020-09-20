@@ -527,7 +527,7 @@ void lcPiece::DrawInterface(lcContext* Context, const lcScene& Scene) const
 	const lcVector3& Max = BoundingBox.Max;
 	lcVector3 Edge((Max - Min) * 0.33f);
 
-	float LineVerts[48][3] =
+	const float LineVerts[48][3] =
 	{
 		{ Max[0], Max[1], Max[2] }, { Max[0] - Edge[0], Max[1], Max[2] },
 		{ Max[0], Max[1], Max[2] }, { Max[0], Max[1] - Edge[1], Max[2] },
@@ -599,7 +599,7 @@ void lcPiece::DrawInterface(lcContext* Context, const lcScene& Scene) const
 		Context->DrawIndexedPrimitives(GL_LINES, 24, GL_UNSIGNED_SHORT, 0);
 	}
 
-	if (AreControlPointsVisible())
+	if (!mControlPoints.IsEmpty() && AreControlPointsVisible())
 	{
 		float Verts[8 * 3];
 		float* CurVert = Verts;
