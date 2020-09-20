@@ -478,9 +478,6 @@ int Gui::drawPage(
   // Build mod update flags
 
   Rc   buildModAction    = BuildModApplyRc;
-  int  modBeginLineNum   = 0;
-  int  modActionLineNum  = 0;
-  int  modEndLineNum     = 0;
   bool buildModItems     = false;
   bool buildModIgnore    = false;
   bool buildModPliIgnore = false;
@@ -496,51 +493,6 @@ int Gui::drawPage(
      opts.buildMod,
      buildModIgnore,
      buildModItems);
-
-  auto insertBuildModification =
-         [this,
-          &modBeginLineNum,
-          &modActionLineNum,
-          &modEndLineNum,
-          &buildModKey,
-          &opts,
-          &topOfStep] (int modAction)
-  {
-      int buildModStepIndex = getBuildModStepIndex(topOfStep);
-      int fileNameIndex     = getSubmodelIndex(topOfStep.modelName);
-      int lineNumber        = topOfStep.lineNumber;
-      int stepNumber        = opts.stepNum;
-
-      QVector<int> modAttributes = { modBeginLineNum,
-                                     modActionLineNum,
-                                     modEndLineNum,
-                                     fileNameIndex };
-
-      QString modStepKey = QString("%1;%2;%3")
-                                  .arg(fileNameIndex)
-                                  .arg(lineNumber)
-                                  .arg(stepNumber);
-
-      insertBuildMod(buildModKey,
-                     modStepKey,
-                     modAttributes,
-                     modAction,
-                     buildModStepIndex);
-
-      emit messageSig(LOG_DEBUG, QString("DrawPage StepIndex: %1, "
-                                         "ModAttributes: %2 %3 %4 %5, "
-                                         "ModStepKey: %6 [ModelIndex: %5; LineNumber: %7; StepNumber: %8], "
-                                         "BuildModKey: %9")
-                                         .arg(buildModStepIndex)
-                                         .arg(modBeginLineNum)
-                                         .arg(modActionLineNum)
-                                         .arg(modEndLineNum)
-                                         .arg(fileNameIndex)
-                                         .arg(modStepKey)
-                                         .arg(lineNumber)
-                                         .arg(stepNumber)
-                                         .arg(buildModKey));
-  };
 
   auto drawPageElapsedTime = [this, &partsAdded, &pageRenderTimer](){
     QString pageRenderMessage = QString("%1 ").arg(VER_PRODUCTNAME_STR);
@@ -959,11 +911,9 @@ int Gui::drawPage(
             case BuildModBeginRc:
               buildModKey     = curMeta.LPub.buildMod.key();
               opts.buildMod   = getLevel(buildModKey,BM_BEGIN);
-              modBeginLineNum = opts.current.lineNumber;
-              if (!buildModContains(buildModKey)) {
-                  insertBuildModification(buildModAction);
-              } else {
-                  buildModAction  = Rc(getBuildModAction(buildModKey, getBuildModStepIndex(topOfStep)));
+              buildModAction  = Rc(getBuildModAction(buildModKey, getBuildModStepIndex(topOfStep)));
+              if (! buildModKeys.contains(buildModKey)){
+                buildModKeys.append(buildModKey);
               }
               if (buildModAction == BuildModApplyRc){
                   buildModIgnore    = false;
@@ -978,7 +928,6 @@ int Gui::drawPage(
             if (opts.buildMod > 1 && curMeta.LPub.buildMod.key().isEmpty())
                 parseError("Key required for nested build mod meta command",
                            opts.current,Preferences::ParseErrors);
-            modActionLineNum = opts.current.lineNumber;
             if (buildModAction == BuildModApplyRc){
                 buildModIgnore    = true;
                 buildModPliIgnore = false;
@@ -990,7 +939,6 @@ int Gui::drawPage(
             // Get buildMod reset ModIgnore to default
             case BuildModEndRc:
               opts.buildMod  = getLevel(QString(),BM_END);
-              modEndLineNum  = opts.current.lineNumber;
               buildModIgnore = buildModPliIgnore = false;
               break;
 
@@ -1895,7 +1843,6 @@ int Gui::drawPage(
                     }
 
                   emit messageSig(LOG_INFO, "Processing CSI bfx load special case for " + topOfStep.modelName + "...");
-                  csiName = step->csiName();
                   (void) step->createCsi(
                         opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
                         configuredCsiParts = configureModelStep(opts.csiParts, opts.stepNum, topOfStep),
@@ -1914,23 +1861,6 @@ int Gui::drawPage(
 
               // STEP - normal case of parts added, and not NOSTEP
               if (partsAdded && ! noStep && ! buildModIgnore) {
-
-                  // Insert BuildMod and set buildMod keys
-                  if (modEndLineNum) {
-                      insertBuildModification(buildModAction);
-                      if (step && buildModKeys.size()) {
-                          BuildModData buildModData = step->buildMod.value();
-                          buildModData.buildModKeys = buildModKeys;
-                          step->buildMod.setValue(buildModData);
-                      }
-                      modBeginLineNum  = 0;
-                      modActionLineNum = 0;
-                      modEndLineNum    = 0;
-                  }
-
-                  // Set BuildMod next step to be accessed by WriteToTmp() and finePage()
-                  buildModNextStep = opts.current;
-                  buildModKeys.clear();
                       
                   if (firstStep) {
                       steps->groupStepMeta = curMeta;
@@ -2053,7 +1983,6 @@ int Gui::drawPage(
                       step->placeRotateIcon = rotateIcon;
 
                       emit messageSig(LOG_STATUS, "Processing CSI for " + topOfStep.modelName + "...");
-                      csiName = step->csiName();
                       int rc = step->createCsi(
                                   opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
                                   configuredCsiParts = configureModelStep(opts.csiParts, step->modelDisplayOnlyStep ? -1 : opts.stepNum, topOfStep),
@@ -2066,7 +1995,19 @@ int Gui::drawPage(
                           return rc;
                       }
 
-                      // set csi annotations - single step only
+                      // Populate BuildMods viewerStepKey and displayPageNum
+                      if (buildModKeys.size()) {
+                          for (int i = 0; i < buildModKeys.size(); i++) {
+                              gui->setBuildModStepKey(buildModKeys.at(i), step->viewerStepKey);
+                              gui->setBuildModDisplayPageNumber(buildModKeys.at(i), displayPageNum);
+                          }
+                      }
+
+                      // Set BuildMod next step to be accessed by WriteToTmp() and finePage()
+                      buildModNextStep = opts.current;
+                      buildModKeys.clear();
+
+                      // Set CSI annotations - single step only
                       if (! gui->exportingObjects() &&  ! multiStep && ! opts.calledOut)
                           step->setCsiAnnotationMetas(steps->meta);
 
@@ -2221,7 +2162,7 @@ int Gui::drawPage(
                   steps->meta.LPub.buildMod.clear();
                   curMeta.LPub.buildMod.clear();
                   opts.stepNum += partsAdded;
-                  topOfStep = opts.current;                  
+                  topOfStep = opts.current;
 
                   partsAdded    = false;
                   coverPage     = false;
@@ -3894,12 +3835,13 @@ void Gui::writeToTmp(const QString &fileName,
           QVector<int> modAttributes = { modBeginLineNum,
                                          modActionLineNum,
                                          modEndLineNum,
+                                         1/*displayPageNumber placeholder*/,
                                          fileNameIndex };
 
           QString modStepKey = QString("%1;%2;%3")
                                       .arg(fileNameIndex)
                                       .arg(lineNumber)
-                                      .arg(1/*placeholder*/);
+                                      .arg(1/*stepNumber placeholder*/);
 
           insertBuildMod(buildModKey,
                          modStepKey,
@@ -3908,9 +3850,9 @@ void Gui::writeToTmp(const QString &fileName,
                          buildModStepIndex);
 
           emit messageSig(LOG_DEBUG, QString("WriteToTmp StepIndex: %1, "
-                                             "ModAttributes: %2 %3 %4 %5, "
-                                             "ModStepKey: %6 [ModelIndex: %5; LineNumber: %7; StepNumber(placeholder): 1], "
-                                             "BuildModKey: %8")
+                                             "ModAttributes: %2 %3 %4 1* %5, "
+                                             "ModStepKey: %6 [ModelIndex: %5; LineNumber: %7; StepNumber: 1*], "
+                                             "BuildModKey: %8, * = placeholder")
                                              .arg(buildModStepIndex)
                                              .arg(modBeginLineNum)
                                              .arg(modActionLineNum)
@@ -4012,13 +3954,12 @@ void Gui::writeToTmp(const QString &fileName,
                       }
                     break;
 
-                  // Build mod
+                  // Build Mod - Update Begin, Action and End line numbers
                   case RotStepRc:
                   case StepRc:
                       if (partsAdded && ! noStep && ! buildModIgnore) {
                           if (i < buildModNextStepEnd) {
                               if (modEndLineNum) {;
-                                  // Insert BuildMod
                                   insertBuildModification(buildModAction);
                                   modBeginLineNum  = 0;
                                   modActionLineNum = 0;
@@ -4040,7 +3981,7 @@ void Gui::writeToTmp(const QString &fileName,
                   case NoStepRc:
                     noStep = true;
                     break;
-                  // End Build mod
+                  // End Build Mod
 
                   case PartNameRc:
                   case PartTypeRc:

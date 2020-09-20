@@ -767,6 +767,16 @@ public:
       return ldrawFile.setBuildModAction(buildModKey, stepIndex, modAction);
   }
 
+  int getBuildModDisplayPageNumber(const QString &buildModKey)
+  {
+      return ldrawFile.getBuildModDisplayPageNumber(buildModKey);
+  }
+
+  int setBuildModDisplayPageNumber(const QString &buildModKey, int displayPageNum)
+  {
+      return ldrawFile.setBuildModDisplayPageNumber(buildModKey, displayPageNum);
+  }
+
   int getBuildModStepIndex(const Where &here)
   {
       return ldrawFile.getBuildModStepIndex(getSubmodelIndex(here.modelName), here.lineNumber);

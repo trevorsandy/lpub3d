@@ -59,12 +59,13 @@ enum SaveOnSender { SaveOnNone, SaveOnRedraw, SaveOnUpdate };
 enum NativeType { NTypeDefault, NTypeCalledOut, NTypeMultiStep };
 enum SceneObjectInfo { ObjectId };
 enum BuildModFlags {
-    BM_BEGIN,                          // MOD LEVEL BEGIN
-    BM_BEGIN_LINE  = BM_BEGIN,
-    BM_ACTION_LINE,
-    BM_MODEL_INDEX = BM_ACTION_LINE,   // MODEL_INDEX for BuildModRange
+    BM_BEGIN,                                // MOD LEVEL BEGIN
+    BM_BEGIN_LINE_NUM  = BM_BEGIN,
+    BM_ACTION_LINE_NUM,
+    BM_MODEL_INDEX     = BM_ACTION_LINE_NUM, // MODEL_INDEX for BuildModRange
     BM_END,
-    BM_END_LINE    = BM_END,           // MOD LEVEL END
+    BM_END_LINE_NUM    = BM_END,             // MOD LEVEL END
+    BM_DISPLAY_PAGE_NUM,
     BM_MODEL_NAME_INDEX,
     BM_SINGLE_STEP,
     BM_MULTI_STEP,

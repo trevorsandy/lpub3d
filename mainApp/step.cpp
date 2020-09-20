@@ -345,21 +345,12 @@ int Step::createCsi(
 
   int rc = 0;
 
-  // Populate viewerStepKey variable
+  // populate viewerStepKey variable
   viewerStepKey = QString("%1;%2;%3%4")
                           .arg(gui->getSubmodelIndex(top.modelName))
                           .arg(top.lineNumber)
                           .arg(stepNumber.number)
                           .arg(modelDisplayOnlyStep ? "_dm" : "");
-
-  // Populate build mods with view keys
-  if (buildMod.value().buildModKeys.size()) {
-      BuildModData bmd = buildMod.value();
-      for (int i = 0; i < bmd.buildModKeys.size(); i++)
-          gui->setBuildModStepKey(bmd.buildModKeys.at(i), viewerStepKey);
-      bmd.buildModKeys.clear();
-      buildMod.setValue(bmd);
-  }
 
   if (Preferences::debugLogging)
       emit gui->messageSig(LOG_DEBUG,

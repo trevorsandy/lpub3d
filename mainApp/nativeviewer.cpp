@@ -1132,12 +1132,13 @@ void Gui::createBuildModification()
             mSavePieces          = ActiveModel->GetPieces();
             lcPiecesLibrary *Library = lcGetPiecesLibrary();
 
-            int ModelIndex      = buildModRange.at(BM_MODEL_INDEX);
-            int ModBeginLineNum = buildModRange.at(BM_BEGIN_LINE);
-            int ModEndLineNum   = buildModRange.at(BM_END_LINE);
-            int ModStepIndex    = getBuildModStepIndex(currentStep ? currentStep->top : 0);
-            QString ModelName   = getSubmodelName(ModelIndex);
-            QString ModStepKey  = currentStep ? viewerStepKey : QString();
+            int ModelIndex        = buildModRange.at(BM_MODEL_INDEX);
+            int ModBeginLineNum   = buildModRange.at(BM_BEGIN_LINE_NUM);
+            int ModEndLineNum     = buildModRange.at(BM_END_LINE_NUM);
+            int ModDisplayPageNum = displayPageNum;
+            int ModStepIndex      = getBuildModStepIndex(currentStep ? currentStep->top : 0);
+            QString ModelName     = getSubmodelName(ModelIndex);
+            QString ModStepKey    = currentStep ? viewerStepKey : QString();
 
             bool FadeStep = page.meta.LPub.fadeStep.fadeStep.value();
             bool HighlightStep = page.meta.LPub.highlightStep.highlightStep.value() && !suppressColourMeta();
@@ -1711,16 +1712,18 @@ void Gui::createBuildModification()
             // Switch ModEndLineNum to line number for BUILD_MOD END command
             ModEndLineNum = ModActionLineNum + DefaultContents.size() + 1;
 
-            QVector<int> ModAttributes = { ModBeginLineNum,   // BM_BEGIN_LINE
-                                           ModActionLineNum,  // BM_ACTION_LINE
-                                           ModEndLineNum,     // BM_END_LINE
+            QVector<int> ModAttributes = { ModBeginLineNum,   // BM_BEGIN_LINE_NUM
+                                           ModActionLineNum,  // BM_ACTION_LINE_NUM
+                                           ModEndLineNum,     // BM_END_LINE_NUM
+                                           ModDisplayPageNum, // BM_DISPLAY_PAGE_NUM
                                            ModelIndex };      // BM_MODEL_NAME_INDEX
+
 
             insertBuildMod(BuildModKey,
                            ModStepKey,
                            ModAttributes,
                            BuildModApplyRc,
-                           ModStepIndex);
+                           ModStepIndex);                     // Unique ID
 
             // Reset the build mod range
             buildModRange = { 0, -1, 0 };
@@ -2181,9 +2184,9 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
                     if (buildModRange.first()) {
                         buildModRange[BM_MODEL_INDEX] = modelIndex;
                         if (lineNumber < buildModRange.first())
-                            buildModRange[BM_BEGIN_LINE] = lineNumber;
+                            buildModRange[BM_BEGIN_LINE_NUM] = lineNumber;
                         else if (lineNumber > buildModRange.last())
-                            buildModRange[BM_END_LINE] = lineNumber;
+                            buildModRange[BM_END_LINE_NUM] = lineNumber;
                     } else {
                         buildModRange = { lineNumber, modelIndex, lineNumber};
                     }

@@ -311,6 +311,8 @@ class LDrawFile {
     int getBuildModEndLineNumber(const QString &buildModKey);
     int getBuildModActionLineNumber(const QString &buildModKey);
     int getBuildModAction(const QString &buildModKey, int stepIndex);
+    int getBuildModDisplayPageNumber(const QString &buildModKey);
+    int setBuildModDisplayPageNumber(const QString &buildModKey, int displayPageNum);
     void setBuildModStepKey(const QString &buildModKey, const QString &modStepKey);
     QString getBuildModStepKey(const QString &buildModKey);
     QString getBuildModModelName(const QString &buildModKey);
