@@ -2270,7 +2270,7 @@ void Gui::preferences()
     bool showDownloadRedirectsCompare   = Preferences::showDownloadRedirects;
     int povrayRenderQualityCompare      = Preferences::povrayRenderQuality;
     int ldrawFilesLoadMsgsCompare       = Preferences::ldrawFilesLoadMsgs;
-    bool showParseErrorsCompare         = Preferences::showParseErrors;
+    bool lineParseErrorsCompare         = Preferences::lineParseErrors;
     bool showAnnotationMessagesCompare  = Preferences::showAnnotationMessages;
     QString altLDConfigPathCompare      = Preferences::altLDConfigPath;
     QString povFileGeneratorCompare     = Preferences::povFileGenerator;
@@ -2348,7 +2348,7 @@ void Gui::preferences()
         bool ldrawFilesLoadMsgsChanged     = Preferences::ldrawFilesLoadMsgs                     != ldrawFilesLoadMsgsCompare;
         bool ldSearchDirsChanged           = Preferences::ldSearchDirs                           != ldSearchDirsCompare;
 
-        bool showParseErrorsChanged        = Preferences::showParseErrors                        != showParseErrorsCompare;
+        bool lineParseErrorsChanged        = Preferences::lineParseErrors                        != lineParseErrorsCompare;
         bool showAnnotationMessagesChanged = Preferences::showAnnotationMessages                 != showAnnotationMessagesCompare;
 
         if (defaultUnitsChanged     )
@@ -2550,8 +2550,8 @@ void Gui::preferences()
             box.exec();
         }
 
-        if (showParseErrorsChanged     )
-                    emit messageSig(LOG_INFO,QString("Show Parse Errors is %1").arg(Preferences::showParseErrors? "ON" : "OFF"));
+        if (lineParseErrorsChanged     )
+                    emit messageSig(LOG_INFO,QString("Show Parse Errors is %1").arg(Preferences::lineParseErrors? "ON" : "OFF"));
 
         if (showAnnotationMessagesChanged     )
                     emit messageSig(LOG_INFO,QString("Show Parse Errors is %1").arg(Preferences::showAnnotationMessages? "ON" : "OFF"));
@@ -5042,7 +5042,7 @@ void Gui::writeSettings()
     gApplication->SaveTabLayout();
 }
 
-void Gui::parseError(QString errorMsg,Where &here)
+void Gui::showLineMessage(QString errorMsg, Where &here, Preferences::MsgKey msgKey)
 {
     if (parsedMessages.contains(here))
         return;
@@ -5050,22 +5050,21 @@ void Gui::parseError(QString errorMsg,Where &here)
     QString parseMessage = QString("%1 (file: %2, line: %3)") .arg(errorMsg) .arg(here.modelName) .arg(here.lineNumber + 1);
     if (Preferences::modeGUI) {
         showLine(here);
-        if (Preferences::showParseErrors) {
-            QCheckBox *cb = new QCheckBox("Do not show line parse error message again.");
+        if (Preferences::lineParseErrors && Preferences::getShowMessagePreference(msgKey)) {
+            QCheckBox *cb = new QCheckBox("Do not show this line message again.");
             QMessageBoxResizable box;
-            box.setWindowTitle(tr(VER_PRODUCTNAME_STR " Line Parse Error"));
+            box.setWindowTitle(tr(VER_PRODUCTNAME_STR " Line Message"));
             box.setText(parseMessage);
             box.setIcon(QMessageBox::Icon::Warning);
             box.addButton(QMessageBox::Ok);
             box.setDefaultButton(QMessageBox::Ok);
             box.setCheckBox(cb);
 
-            QObject::connect(cb, &QCheckBox::stateChanged, [](int state){
-                if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked) {
-                    Preferences::setShowParseErrorsPreference(false);
-                } else {
-                    Preferences::setShowParseErrorsPreference(true);
-                }
+            QObject::connect(cb, &QCheckBox::stateChanged, [&msgKey](int state){
+                if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
+                    Preferences::setShowMessagePreference(false,msgKey);
+                else
+                    Preferences::setShowMessagePreference(true,msgKey);
             });
             box.adjustSize();
             box.exec();

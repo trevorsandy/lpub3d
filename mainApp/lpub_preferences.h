@@ -27,6 +27,11 @@ class QStringList;
 class Preferences
 {
   public:
+    enum MsgKey {
+        ParseErrors,
+        BuildModErrors,
+        NumKeys
+    };
     Preferences();
     static void lpubPreferences();
     static void ldrawPreferences(bool);
@@ -48,6 +53,7 @@ class Preferences
     static bool extractLDrawLib();
     static void getRequireds();
     static bool getPreferences();
+    static bool getShowMessagePreference(MsgKey = ParseErrors);
     static void setLPub3DLoaded();
     static void setLDGLiteIniParams();
     static void setDistribution();
@@ -77,7 +83,7 @@ class Preferences
     static void setGridSizeIndexPreference(int);
     static void setSceneRulerPreference(bool);
     static void setSceneRulerTrackingPreference(int);
-    static void setShowParseErrorsPreference(bool);
+    static void setShowMessagePreference(bool,MsgKey = ParseErrors);
     static void setShowAnnotationMessagesPreference(bool);
     static void setShowSaveOnRedrawPreference(bool);
     static void setShowSaveOnUpdatePreference(bool);
@@ -265,7 +271,7 @@ class Preferences
     static bool    hidePageBackground;
     static bool    showGuidesCoordinates;
     static bool    showTrackingCoordinates;
-    static bool    showParseErrors;
+    static bool    lineParseErrors;
     static bool    showAnnotationMessages;
     static bool    showSaveOnRedraw;
     static bool    showSaveOnUpdate;
@@ -300,5 +306,7 @@ class Preferences
 
     virtual ~Preferences() {}
 };
+
+extern Preferences preferences;
 
 #endif

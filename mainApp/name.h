@@ -315,6 +315,7 @@ static const SceneObject PliPartGroupSceneObjects[] =
 #define DEFAULTS                   "Defaults"
 #define POVRAY                     "POVRay"
 #define SETTINGS                   "Settings"
+#define MESSAGES                   "Messages"
 #define MAINWINDOW                 "MainWindow"
 #define PARMSWINDOW                "ParmsWindow"
 #define EDITWINDOW                 "EditWindow"

@@ -93,7 +93,7 @@ class PreferencesDialog : public QDialog
     bool          includeFileName();
     bool          includeFunction();
     bool          includeAllLogAttrib();
-    bool          showParseErrors();
+    bool          lineParseErrors();
     bool          showAnnotationMessages();
     bool          showSaveOnRedraw();
     bool          showSaveOnUpdate();
@@ -186,7 +186,7 @@ private:
 
     QWidget       *parent;
 
-    QCheckBox     *showParseErrorsChkBox;
+    QCheckBox     *lineParseErrorsChkBox;
     QCheckBox     *showAnnotationMessagesChkBox;
 
     QSimpleUpdater  *m_updater;

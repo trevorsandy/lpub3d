@@ -43,7 +43,12 @@
 //**
 
 Preferences preferences;
-QDate date = QDate::currentDate();
+
+const QString MsgKeys[Preferences::MsgKey::NumKeys] =
+{
+    "LineParseErrors",
+    "BuildModErrors"
+};
 
 QString Preferences::lpub3dAppName              = EMPTY_STRING_DEFAULT;
 QString Preferences::ldrawLibPath               = EMPTY_STRING_DEFAULT;
@@ -103,7 +108,7 @@ QString Preferences::documentLogoFile;
 QString Preferences::disclaimer                 = QString(QObject::trUtf8("LEGO® is a registered trademark of the LEGO Group, \n"
                                                                           "which does not sponsor, endorse, or authorize these \n"
                                                                           "instructions or the model they depict."));
-QString Preferences::copyright                  = QString(QObject::trUtf8("Copyright © %1").arg(date.toString("yyyy")));
+QString Preferences::copyright                  = QString(QObject::trUtf8("Copyright © %1").arg(QDate::currentDate().toString("yyyy")));
 QString Preferences::plugImage                  = QString(":/resources/LPub64.png");
 QString Preferences::plug                       = QString(QObject::trUtf8("Instructions configured and generated using %1 %2 \n Download %1 at %3")
                                                           .arg(QString::fromLatin1(VER_PRODUCTNAME_STR),
@@ -220,7 +225,7 @@ bool    Preferences::snapToGrid                 = false;
 bool    Preferences::hidePageBackground         = false;
 bool    Preferences::showGuidesCoordinates      = false;
 bool    Preferences::showTrackingCoordinates    = false;
-bool    Preferences::showParseErrors            = true;
+bool    Preferences::lineParseErrors            = true;
 bool    Preferences::showAnnotationMessages     = true;
 bool    Preferences::showSaveOnRedraw           = true;
 bool    Preferences::showSaveOnUpdate           = true;
@@ -2998,13 +3003,13 @@ void Preferences::userInterfacePreferences()
       gridSizeIndex = Settings.value(QString("%1/%2").arg(SETTINGS,gridSizeIndexKey)).toInt();
   }
 
-  QString const showParseErrorsKey("ShowParseErrors");
-  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,showParseErrorsKey))) {
+  QString const lineParseErrorsKey("LineParseErrors");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,lineParseErrorsKey))) {
           QVariant uValue(true);
-          showParseErrors = true;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,showParseErrorsKey),uValue);
+          lineParseErrors = true;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,lineParseErrorsKey),uValue);
   } else {
-          showParseErrors = Settings.value(QString("%1/%2").arg(SETTINGS,showParseErrorsKey)).toBool();
+          lineParseErrors = Settings.value(QString("%1/%2").arg(SETTINGS,lineParseErrorsKey)).toBool();
   }
 
   QString const showAnnotationMessagesKey("ShowAnnotationMessages");
@@ -3103,13 +3108,26 @@ void Preferences::userInterfacePreferences()
   }
 }
 
-void Preferences::setShowParseErrorsPreference(bool b)
+void Preferences::setShowMessagePreference(bool b,MsgKey key)
 {
   QSettings Settings;
-  showParseErrors = b;
   QVariant uValue(b);
-  QString const showParseErrorsKey("ShowParseErrors");
-  Settings.setValue(QString("%1/%2").arg(SETTINGS,showParseErrorsKey),uValue);
+  QString const showMessageKey(MsgKeys[key]);
+  Settings.setValue(QString("%1/%2").arg(MESSAGES,showMessageKey),uValue);
+}
+
+bool Preferences::getShowMessagePreference(MsgKey key)
+{
+    bool result = true;
+    QSettings Settings;
+    QString const showMessageKey(MsgKeys[key]);
+    if ( ! Settings.contains(QString("%1/%2").arg(MESSAGES,showMessageKey))) {
+        QVariant uValue(result);
+        Settings.setValue(QString("%1/%2").arg(MESSAGES,showMessageKey),uValue);
+    } else {
+        result = Settings.value(QString("%1/%2").arg(MESSAGES,showMessageKey)).toBool();
+    }
+    return result;
 }
 
 void Preferences::setShowAnnotationMessagesPreference(bool b)
@@ -3969,10 +3987,10 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableFadeSteps"),enableFadeSteps);
         }
 
-        if (showParseErrors != dialog->showParseErrors())
+        if (lineParseErrors != dialog->lineParseErrors())
         {
-            showParseErrors = dialog->showParseErrors();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowParseErrors"),showParseErrors);
+            lineParseErrors = dialog->lineParseErrors();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"LineParseErrors"),lineParseErrors);
         }
 
         if (showAnnotationMessages != dialog->showAnnotationMessages())

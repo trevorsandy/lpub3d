@@ -373,8 +373,8 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   m_updater->checkForUpdates (DEFS_URL);
 
   // options
-  showParseErrorsChkBox = new QCheckBox(_parent);
-  showParseErrorsChkBox->setChecked(          Preferences::showParseErrors);
+  lineParseErrorsChkBox = new QCheckBox(_parent);
+  lineParseErrorsChkBox->setChecked(          Preferences::lineParseErrors);
   showAnnotationMessagesChkBox = new QCheckBox(_parent);
   showAnnotationMessagesChkBox->setChecked(   Preferences::showAnnotationMessages);
 
@@ -924,12 +924,12 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
     form->addRow(new QLabel("Message Options"));
 
     // options - parse errors
-    QGroupBox *parseErrorGrpBox = new QGroupBox("Model Meta Parse Errors");
+    QGroupBox *parseErrorGrpBox = new QGroupBox("Model Line Parse Errors");
     form->addWidget(parseErrorGrpBox);
     QFormLayout *parseErrorSubform = new QFormLayout(parseErrorGrpBox);
 
     QCheckBox * parseErrorChkBox = new QCheckBox("Show all", dialog);
-    parseErrorChkBox->setChecked(                 Preferences::showParseErrors);
+    parseErrorChkBox->setChecked(                 Preferences::lineParseErrors);
     parseErrorSubform->addRow(parseErrorChkBox);
 
     // options - annotation message
@@ -950,7 +950,7 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
     dialog->setMinimumWidth(250);
 
     if (dialog->exec() == QDialog::Accepted) {
-        showParseErrorsChkBox->setChecked(parseErrorChkBox->isChecked());
+        lineParseErrorsChkBox->setChecked(parseErrorChkBox->isChecked());
         showAnnotationMessagesChkBox->setChecked(annotationMessageChkBox->isChecked());
     }
 }
@@ -1287,9 +1287,9 @@ int PreferencesDialog::pageDisplayPause()
   return ui.pageDisplayPauseSpin->value();
 }
 
-bool PreferencesDialog::showParseErrors()
+bool PreferencesDialog::lineParseErrors()
 {
- return showParseErrorsChkBox->isChecked();
+ return lineParseErrorsChkBox->isChecked();
 }
 
 bool PreferencesDialog::showAnnotationMessages()

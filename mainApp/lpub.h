@@ -945,7 +945,11 @@ public slots:
 
   void contentsChange(const QString &fileName,int position, int charsRemoved, const QString &charsAdded);
 
-  void parseError(QString errorMsg,Where &here);
+  void showLineMessage(QString message, Where &here, Preferences::MsgKey = Preferences::ParseErrors);
+  void parseError(QString errorMsg, Where &here, Preferences::MsgKey key = Preferences::ParseErrors)
+  {
+      showLineMessage(errorMsg,here,key);
+  }
 
   void statusMessage(LogType logType, QString message);
   void statusBarMsg(QString msg);
