@@ -13,6 +13,13 @@
 #include "lc_qutils.h"
 /*** LPub3D Mod - Camera Globe ***/
 #include "project.h"
+
+enum axis
+{
+ X = 0,
+ Y = 1,
+ Z = 2
+};
 /*** LPub3D Mod end ***/
 
 // Draw an icon indicating opened/closing branches
@@ -769,13 +776,13 @@ void lcQPropertiesTree::slotReturnPressed()
 			lcVector3 Position = Center;
 			float Value = lcParseValueLocalized(Editor->text());
 
-/*** LPub3D Mod - Switch Y and Z axis ***/
+/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 			if (Item == partPositionX)
-				Position[0] = Value;
+				Position[X] = Value;
 			else if (Item == partPositionY)
-				Position[2] = Value;
+				Position[Z] = -Value;
 			else if (Item == partPositionZ)
-				Position[1] = Value;
+				Position[Y] = Value;
 /*** LPub3D Mod end ***/
 
 			lcVector3 Distance = Position - Center;
@@ -793,13 +800,13 @@ void lcQPropertiesTree::slotReturnPressed()
 
 			float Value = lcParseValueLocalized(Editor->text());
 
-/*** LPub3D Mod - Switch Y and Z axis ***/
+/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 			if (Item == partRotationX)
-				Rotation[0] = Value;
+				Rotation[X] = Value;
 			else if (Item == partRotationY)
-				Rotation[2] = Value;
+				Rotation[Z] = -Value;
 			else if (Item == partRotationZ)
-				Rotation[1] = Value;
+				Rotation[Y] = Value;
 /*** LPub3D Mod end ***/
 
 			Model->RotateSelectedPieces(Rotation - InitialRotation, true, false, true, true);
@@ -846,13 +853,13 @@ void lcQPropertiesTree::slotReturnPressed()
 				lcVector3 Position = Center;
 				float Value = lcParseValueLocalized(Editor->text());
 
-/*** LPub3D Mod - Camera Globe, Switch Y and Z axis ***/
+/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 				if (Item == cameraPositionX)
-					Position[0] = Value;
+					Position[X] = Value;
 				else if (Item == cameraPositionY)
-					Position[2] = Value;
+					Position[Z] = -Value;
 				else if (Item == cameraPositionZ)
-					Position[1] = Value;
+					Position[Y] = Value;
 /*** LPub3D Mod end ***/
 
 				lcVector3 Distance = Position - Center;
@@ -870,67 +877,68 @@ void lcQPropertiesTree::slotReturnPressed()
 				lcVector3 Center = Camera->mTargetPosition;
 				lcVector3 Position = Center;
 
-/*** LPub3D Mod - Camera Globe, Switch Y and Z axis ***/
+/*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 				QStringList ValueList = QString(Editor->text()).trimmed().split(" ");
 
-				float Value       = 0.0f;
+				float FirstValue  = 0.0f;
 				float SecondValue = 0.0f;
 				float ThirdValue  = 0.0f;
 
 				switch (ValueList.size()){
 				case 1:
-					Value       = lcParseValueLocalized(ValueList.first());
+					FirstValue  = lcParseValueLocalized(ValueList.first());
 					break;
 				case 2:
-					Value       = lcParseValueLocalized(ValueList.first());
+					FirstValue  = lcParseValueLocalized(ValueList.first());
 					SecondValue = lcParseValueLocalized(ValueList.last());
 					break;
 				case 3:
-					Value       = lcParseValueLocalized(ValueList.at(0));
+					FirstValue  = lcParseValueLocalized(ValueList.at(0));
 					SecondValue = lcParseValueLocalized(ValueList.at(1));
 					ThirdValue  = lcParseValueLocalized(ValueList.at(2));
 					break;
 				}
 
-				bool hasSingleVal = ValueList.size() == 2;
+				bool hasSingleVal = ValueList.size() == 1;
 				bool hasOneOther  = ValueList.size() == 2;
 				bool hasTwoOther  = ValueList.size() == 3;
 
-				// Switch Y and Z axis
 				if (Item == cameraTargetX) {
-					Position[0] = Value;
-					if (hasOneOther) {
-						Position[2] = SecondValue;
+					if (hasSingleVal) {
+						Position[X] =  FirstValue;
 					}
-					if (hasTwoOther) {
-						Position[2] = SecondValue;
-						Position[1] = ThirdValue;
+					else if (hasOneOther) {
+						Position[Z] = -SecondValue;
+					}
+					else if (hasTwoOther) {
+						Position[Z] = -SecondValue;
+						Position[Y] =  ThirdValue;
 					}
 				} else if (Item == cameraTargetY) {
 					if (hasSingleVal) {
-						Position[2] = Value;
+						Position[Z] = -FirstValue;
 					}
-					if (hasOneOther) {
-						Position[0] = SecondValue;
-						Position[2] = Value;
+					else if (hasOneOther) {
+						Position[X] =  SecondValue;
+						Position[Z] = -FirstValue;
 					}
-					if (hasTwoOther) {
-						Position[0] = Value ;
-						Position[2] = SecondValue;
-						Position[1] = ThirdValue;
+					else if (hasTwoOther) {
+						Position[X] =  FirstValue ;
+						Position[Z] = -SecondValue;
+						Position[Y] =  ThirdValue;
 					}
 				} else if (Item == cameraTargetZ) {
 					if (hasSingleVal) {
-						Position[1] = Value;
+						Position[Y] =  FirstValue;
 					}
-					if (hasOneOther) {
-						Position[2] = Value;
-						Position[1] = SecondValue;
+					else if (hasOneOther) {
+						Position[Z] = -FirstValue;
+						Position[Y] =  SecondValue;
 					}
-					if (hasTwoOther) {
-						Position[0] = Value ;
-						Position[2] = SecondValue;
-						Position[1] = ThirdValue;
+					else if (hasTwoOther) {
+						Position[X] =  FirstValue ;
+						Position[Z] = -SecondValue;
+						Position[Y] =  ThirdValue;
 					}
 				}
 /*** LPub3D Mod end ***/
@@ -951,13 +959,13 @@ void lcQPropertiesTree::slotReturnPressed()
 				lcVector3 Position = Center;
 				float Value = lcParseValueLocalized(Editor->text());
 
-/*** LPub3D Mod - Camera Globe, Switch Y and Z axis ***/
+/*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 				if (Item == cameraUpX)
-					Position[0] = Value;
+					Position[X] = Value;
 				else if (Item == cameraUpY)
-					Position[2] = Value;
+					Position[Z] = -Value;
 				else if (Item == cameraUpZ)
-					Position[1] = Value;
+					Position[Y] = Value;
 /*** LPub3D Mod end ***/
 
 				lcVector3 Distance = Position - Center;
@@ -1055,13 +1063,13 @@ void lcQPropertiesTree::slotReturnPressed()
 				lcVector3 Center = Light->mPosition;
 				lcVector3 Position = Center;
 				float Value = lcParseValueLocalized(Editor->text());
-				// Switch Y and Z axis
+/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 				if (Item == lightPositionX)
-					Position[0] = Value;
+					Position[X] = Value;
 				else if (Item == lightPositionY)
-					Position[2] = Value;
+					Position[Z] = -Value;
 				else if (Item == lightPositionZ)
-					Position[1] = Value;
+					Position[Y] = Value;
 
 				lcVector3 Distance = Position - Center;
 
@@ -1072,13 +1080,13 @@ void lcQPropertiesTree::slotReturnPressed()
 				lcVector3 Center = Light->mTargetPosition;
 				lcVector3 Position = Center;
 				float Value = lcParseValueLocalized(Editor->text());
-				// Switch Y and Z axis
+/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 				if (Item == lightTargetX)
-					Position[0] = Value;
+					Position[X] = Value;
 				else if (Item == lightTargetY)
-					Position[2] = Value;
+					Position[Z] = -Value;
 				else if (Item == lightTargetZ)
-					Position[1] = Value;
+					Position[Y] = Value;
 
 				lcVector3 Distance = Position - Center;
 
@@ -1088,11 +1096,11 @@ void lcQPropertiesTree::slotReturnPressed()
 			{
 				float Value = lcParseValueLocalized(Editor->text());
 				if (Item == lightColorR)
-					Props.mLightColor[0] = Value;
+					Props.mLightColor[X] = Value;
 				else if (Item == lightColorG)
-					Props.mLightColor[1] = Value;
+					Props.mLightColor[Y] = Value;
 				else if (Item == lightColorB)
-					Props.mLightColor[2] = Value;
+					Props.mLightColor[Z] = Value;
 
 				Model->UpdateLight(Light, Props, LC_LIGHT_COLOR);
 			}
@@ -1367,12 +1375,12 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 		SetEmpty();
 
 /*** LPub3D Mod - Switch Rotation and Position attributes ***/
-		partRotation = addProperty(nullptr, tr("Rotation"), PropertyGroup);
+		partRotation  = addProperty(nullptr, tr("Rotation"), PropertyGroup);
 		partRotationX = addProperty(partRotation, tr("X"), PropertyFloat);
 		partRotationY = addProperty(partRotation, tr("Y"), PropertyFloat);
 		partRotationZ = addProperty(partRotation, tr("Z"), PropertyFloat);
 
-		partPosition = addProperty(nullptr, tr("Position"), PropertyGroup);
+		partPosition  = addProperty(nullptr, tr("Position"), PropertyGroup);
 		partPositionX = addProperty(partPosition, tr("X"), PropertyFloat);
 		partPositionY = addProperty(partPosition, tr("Y"), PropertyFloat);
 		partPositionZ = addProperty(partPosition, tr("Z"), PropertyFloat);
@@ -1403,13 +1411,13 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 	lcVector3 Position;
 	lcMatrix33 RelativeRotation;
 	Model->GetMoveRotateTransform(Position, RelativeRotation);
-/*** LPub3D Mod - Switch Y and Z axis ***/
-	partPositionX->setText(1, lcFormatValueLocalized(Position[0]));
-	partPositionX->setData(0, PropertyValueRole, Position[0]);
-	partPositionY->setText(1, lcFormatValueLocalized(Position[2]));
-	partPositionY->setData(0, PropertyValueRole, Position[2]);
-	partPositionZ->setText(1, lcFormatValueLocalized(Position[1]));
-	partPositionZ->setData(0, PropertyValueRole, Position[1]);
+/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+	partPositionX->setText(1, lcFormatValueLocalized(Position[X]));
+	partPositionX->setData(0, PropertyValueRole, Position[X]);
+	partPositionY->setText(1, lcFormatValueLocalized(-Position[Z]));
+	partPositionY->setData(0, PropertyValueRole, -Position[Z]);
+	partPositionZ->setText(1, lcFormatValueLocalized(Position[Y]));
+	partPositionZ->setData(0, PropertyValueRole, Position[Y]);
 /*** LPub3D Mod end ***/
 
 	lcVector3 Rotation;
@@ -1417,13 +1425,13 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 		Rotation = lcMatrix44ToEulerAngles(Piece->mModelWorld) * LC_RTOD;
 	else
 		Rotation = lcVector3(0.0f, 0.0f, 0.0f);
-/*** LPub3D Mod - Switch Y and Z axis ***/
-	partRotationX->setText(1, lcFormatValueLocalized(Rotation[0]));
-	partRotationX->setData(0, PropertyValueRole, Rotation[0]);
-	partRotationY->setText(1, lcFormatValueLocalized(Rotation[2]));
-	partRotationY->setData(0, PropertyValueRole, Rotation[2]);
-	partRotationZ->setText(1, lcFormatValueLocalized(Rotation[1]));
-	partRotationZ->setData(0, PropertyValueRole, Rotation[1]);
+/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+	partRotationX->setText(1, lcFormatValueLocalized(Rotation[X]));
+	partRotationX->setData(0, PropertyValueRole, Rotation[X]);
+	partRotationY->setText(1, lcFormatValueLocalized(-Rotation[Z]));
+	partRotationY->setData(0, PropertyValueRole, -Rotation[Z]);
+	partRotationZ->setText(1, lcFormatValueLocalized(Rotation[Y]));
+	partRotationZ->setData(0, PropertyValueRole, Rotation[Y]);
 /*** LPub3D Mod end ***/
 
 	lcStep Show = 0;
@@ -1631,31 +1639,31 @@ void lcQPropertiesTree::SetCamera(lcObject* Focus)
 	cameraGlobeDistance->setData(0, PropertyValueRole, qRound(Distance));
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - Camera Globe, Switch Y and Z axis ***/
-	cameraPositionX->setText(1, lcFormatValueLocalized(Position[0]));
-	cameraPositionX->setData(0, PropertyValueRole, Position[0]);
-	cameraPositionY->setText(1, lcFormatValueLocalized(Position[2]));
-	cameraPositionY->setData(0, PropertyValueRole, Position[2]);
-	cameraPositionZ->setText(1, lcFormatValueLocalized(Position[1]));
-	cameraPositionZ->setData(0, PropertyValueRole, Position[1]);
+/*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+	cameraPositionX->setText(1, lcFormatValueLocalized(Position[X]));
+	cameraPositionX->setData(0, PropertyValueRole, Position[X]);
+	cameraPositionY->setText(1, lcFormatValueLocalized(-Position[Z]));
+	cameraPositionY->setData(0, PropertyValueRole, -Position[Z]);
+	cameraPositionZ->setText(1, lcFormatValueLocalized(Position[Y]));
+	cameraPositionZ->setData(0, PropertyValueRole, Position[Y]);
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - Camera Globe, Switch Y and Z axis ***/
-	cameraTargetX->setText(1, lcFormatValueLocalized(Target[0]));
-	cameraTargetX->setData(0, PropertyValueRole, Target[0]);
-	cameraTargetY->setText(1, lcFormatValueLocalized(Target[2]));
-	cameraTargetY->setData(0, PropertyValueRole, Target[2]);
-	cameraTargetZ->setText(1, lcFormatValueLocalized(Target[1]));
-	cameraTargetZ->setData(0, PropertyValueRole, Target[1]);
+/*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+	cameraTargetX->setText(1, lcFormatValueLocalized(Target[X]));
+	cameraTargetX->setData(0, PropertyValueRole, Target[X]);
+	cameraTargetY->setText(1, lcFormatValueLocalized(-Target[Z]));
+	cameraTargetY->setData(0, PropertyValueRole, -Target[Z]);
+	cameraTargetZ->setText(1, lcFormatValueLocalized(Target[Y]));
+	cameraTargetZ->setData(0, PropertyValueRole, Target[Y]);
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - Camera Globe, Switch Y and Z axis ***/
-	cameraUpX->setText(1, lcFormatValueLocalized(UpVector[0]));
-	cameraUpX->setData(0, PropertyValueRole, UpVector[0]);
-	cameraUpY->setText(1, lcFormatValueLocalized(UpVector[2]));
-	cameraUpY->setData(0, PropertyValueRole, UpVector[2]);
-	cameraUpZ->setText(1, lcFormatValueLocalized(UpVector[1]));
-	cameraUpZ->setData(0, PropertyValueRole, UpVector[1]);
+/*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+	cameraUpX->setText(1, lcFormatValueLocalized(UpVector[X]));
+	cameraUpX->setData(0, PropertyValueRole, UpVector[X]);
+	cameraUpY->setText(1, lcFormatValueLocalized(-UpVector[Z]));
+	cameraUpY->setData(0, PropertyValueRole, -UpVector[Z]);
+	cameraUpZ->setText(1, lcFormatValueLocalized(UpVector[Y]));
+	cameraUpZ->setData(0, PropertyValueRole, UpVector[Y]);
 /*** LPub3D Mod end ***/
 
 	cameraFOV->setText(1, lcFormatValueLocalized(FoV));
@@ -1825,20 +1833,22 @@ void lcQPropertiesTree::SetLight(lcObject* Focus)
 
 	mFocus = Light;
 
-	lightPositionX->setText(1, lcFormatValueLocalized(Position[0]));
-	lightPositionX->setData(0, PropertyValueRole, Position[0]);
-	lightPositionY->setText(1, lcFormatValueLocalized(Position[2]));
-	lightPositionY->setData(0, PropertyValueRole, Position[2]);
-	lightPositionZ->setText(1, lcFormatValueLocalized(Position[1]));
-	lightPositionZ->setData(0, PropertyValueRole, Position[1]);
+/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+	lightPositionX->setText(1, lcFormatValueLocalized(Position[X]));
+	lightPositionX->setData(0, PropertyValueRole, Position[X]);
+	lightPositionY->setText(1, lcFormatValueLocalized(-Position[Z]));
+	lightPositionY->setData(0, PropertyValueRole, -Position[Z]);
+	lightPositionZ->setText(1, lcFormatValueLocalized(Position[Y]));
+	lightPositionZ->setData(0, PropertyValueRole, Position[Y]);
 
+/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 	if (LightIndex != LC_POINTLIGHT) {
-		lightTargetX->setText(1, lcFormatValueLocalized(Target[0]));
-		lightTargetX->setData(0, PropertyValueRole, Target[0]);
-		lightTargetY->setText(1, lcFormatValueLocalized(Target[2]));
-		lightTargetY->setData(0, PropertyValueRole, Target[2]);
-		lightTargetZ->setText(1, lcFormatValueLocalized(Target[1]));
-		lightTargetZ->setData(0, PropertyValueRole, Target[1]);
+		lightTargetX->setText(1, lcFormatValueLocalized(Target[X]));
+		lightTargetX->setData(0, PropertyValueRole, Target[X]);
+		lightTargetY->setText(1, lcFormatValueLocalized(-Target[Z]));
+		lightTargetY->setData(0, PropertyValueRole, -Target[Z]);
+		lightTargetZ->setText(1, lcFormatValueLocalized(Target[Y]));
+		lightTargetZ->setData(0, PropertyValueRole, Target[Y]);
 	}
 
 	QImage img(16, 16, QImage::Format_ARGB32);

@@ -151,12 +151,20 @@ void lcLight::SaveLDraw(QTextStream& Stream) const
 	if (mPositionKeys.GetSize() > 1)
 		SaveKeysLDraw(Stream, mPositionKeys, "LIGHT POSITION_KEY ");
 	else
-		Stream << QLatin1String("0 !LPUB LIGHT POSITION ") << mPosition[0] << ' ' << mPosition[1] << ' ' << mPosition[2] << LineEnding;
+		if (mLPubMeta)
+/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+			Stream << QLatin1String("0 !LPUB LIGHT POSITION ") << mPosition[0] << ' ' << -mPosition[2] << ' ' << mPosition[1] << LineEnding;
+		else
+			Stream << QLatin1String("0 !LEOCAD LIGHT POSITION ") << mPosition[0] << ' ' << mPosition[1] << ' ' << mPosition[2] << LineEnding;
 
 	if (mTargetPositionKeys.GetSize() > 1)
 		SaveKeysLDraw(Stream, mTargetPositionKeys, "LIGHT TARGET_POSITION_KEY ");
 	else
-		Stream << QLatin1String("0 !LPUB LIGHT TARGET_POSITION ") << mTargetPosition[0] << ' ' << mTargetPosition[1] << ' ' << mTargetPosition[2] << LineEnding;
+		if (mLPubMeta)
+/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
+			Stream << QLatin1String("0 !LPUB LIGHT TARGET_POSITION ") << mTargetPosition[0] << ' ' << -mTargetPosition[2] << ' ' << mTargetPosition[1] << LineEnding;
+		else
+			Stream << QLatin1String("0 !LEOCAD LIGHT TARGET_POSITION ") << mTargetPosition[0] << ' ' << mTargetPosition[1] << ' ' << mTargetPosition[2] << LineEnding;
 
 	if (mLightColorKeys.GetSize() > 1)
 		SaveKeysLDraw(Stream, mLightColorKeys, "LIGHT COLOR_RGB_KEY ");
@@ -360,12 +368,26 @@ bool lcLight::ParseLDrawLine(QTextStream& Stream)
 		}
 		else if (Token == QLatin1String("POSITION"))
 		{
-			Stream >> mPosition[0] >> mPosition[1] >> mPosition[2];
+			if (mLPubMeta)
+			{
+/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset) ***/
+				Stream >> mPosition[0] >> mPosition[2] >> mPosition[1];
+				mPosition[2] = -mPosition[2];
+			}
+			else
+				Stream >> mPosition[0] >> mPosition[1] >> mPosition[2];
 			ChangeKey(mPositionKeys, mPosition, 1, true);
 		}
 		else if (Token == QLatin1String("TARGET_POSITION"))
 		{
-			Stream >> mTargetPosition[0] >> mTargetPosition[1] >> mTargetPosition[2];
+			if (mLPubMeta)
+			{
+/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset) ***/
+				Stream >> mTargetPosition[0] >> mTargetPosition[2] >> mTargetPosition[1];
+				mTargetPosition[2] = -mTargetPosition[2];
+			}
+			else
+				Stream >> mTargetPosition[0] >> mTargetPosition[1] >> mTargetPosition[2];
 			ChangeKey(mTargetPositionKeys, mTargetPosition, 1, true);
 		}
 		else if (Token == QLatin1String("COLOR_RGB_KEY"))

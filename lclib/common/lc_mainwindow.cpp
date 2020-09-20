@@ -1252,12 +1252,12 @@ void lcMainWindow::SetStepRotStepMeta(lcCommandId CommandId)
 		  mRotStepTransform = TransformType;
 	  } else {
 		  emit gui->statusBarMsg(QString("ROTSTEP %1 %2 %3 %7 and entered %4 %5 %6 %8 are the same. Nothing to do.")
-										 .arg(QString::number(mExistingRotStep[0], 'f', 2),
-											  QString::number(mExistingRotStep[1], 'f', 2),
-											  QString::number(mExistingRotStep[2], 'f', 2),
-											  QString::number(RotStepAngles[0], 'f', 2),
-											  QString::number(RotStepAngles[1], 'f', 2),
-											  QString::number(RotStepAngles[2], 'f', 2))
+										 .arg(QString::number(double(mExistingRotStep[0]), 'f', 2),
+											  QString::number(double(mExistingRotStep[1]), 'f', 2),
+											  QString::number(double(mExistingRotStep[2]), 'f', 2),
+											  QString::number(double(RotStepAngles[0]), 'f', 2),
+											  QString::number(double(RotStepAngles[1]), 'f', 2),
+											  QString::number(double(RotStepAngles[2]), 'f', 2))
 										  .arg(mRotStepTransform,TransformType));
 	  }
   } else if (CommandId == LC_EDIT_ACTION_ROTATESTEP) {
@@ -1292,13 +1292,15 @@ void lcMainWindow::GetRotStepMetaAngles()
 		  qDebug() << "Rotate X: " << RotStepAngles.x;
 		  break;
 		case LC_TRACKTOOL_ROTATE_Y:
+/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset) ***/
 		  RotStepAngles.y = normaliseRotation(MouseToolDistance[1] + mExistingRotStep[2],-360.0,360.0);
-		  emit SetRotStepAngleZ(RotStepAngles.y,display);          //Switch Y and Z coordinates to match LDraw
+		  emit SetRotStepAngleZ(RotStepAngles.y,display);
 		  qDebug() << "Rotate Y(Z): " << RotStepAngles.y;
 		  break;
 		case LC_TRACKTOOL_ROTATE_Z:
+/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset) ***/
 		  RotStepAngles.z = normaliseRotation(MouseToolDistance[2] - mExistingRotStep[1],-360.0,360.0);
-		  emit SetRotStepAngleY(-RotStepAngles.z,display);         //LDraw Y axis is vertical, with negative value in the up direction
+		  emit SetRotStepAngleY(-RotStepAngles.z,display);
 		  qDebug() << "Rotate Z(Y): " << -RotStepAngles.z;
 		  break;
 		default:
@@ -2539,9 +2541,9 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int EmitSelectio
 	lcVector3 Position;
 	lcGetActiveModel()->GetFocusPosition(Position);
 
-/*** LPub3D Mod - add Position label and switch Y and Z axes ***/
+/*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction and add Position label ***/
 	QString Label("Position X: %1 Y: %2 Z: %3");
-	Label = Label.arg(QLocale::system().toString(Position[0], 'f', 2), QLocale::system().toString(Position[2], 'f', 2), QLocale::system().toString(Position[1], 'f', 2));
+	Label = Label.arg(QLocale::system().toString(Position[0], 'f', 2), QLocale::system().toString(-Position[2], 'f', 2), QLocale::system().toString(Position[1], 'f', 2));
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - replace mStatusBarLabel ***/

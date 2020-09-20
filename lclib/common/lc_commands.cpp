@@ -575,7 +575,7 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	{
 		 QT_TRANSLATE_NOOP("Action","Edit.Leocad.Coord.Format"),
 		 QT_TRANSLATE_NOOP("Menu", "Set LeoCAD XYZ Format"),
-		 QT_TRANSLATE_NOOP("Status", "Enter rotation using 3DViewer XYZ coordinates (switch Y and Z with -Z in up direction). It will be translated to LDraw format - Shift+D"),
+         QT_TRANSLATE_NOOP("Status", "Enter rotation using 3DViewer XYZ coordinates"),
 		 "Shift+D"
 	},
 /*** LPub3D Mod end ***/

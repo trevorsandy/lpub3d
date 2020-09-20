@@ -1881,7 +1881,7 @@ void View::DrawAxes()
 	glEnable(GL_BLEND);
 
 	float TextBuffer[6 * 5 * 3];
-/*** LPub3D Mod - Camera Globe, Switch Y and Z axis label ***/
+/*** LPub3D Mod - Camera Globe, Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
 	lcVector3 PosX = lcMul30(lcVector3(25.0f, 0.0f, 0.0f), WorldViewMatrix);
 	gTexFont.GetGlyphTriangles(PosX.x, PosX.y, PosX.z, 'X', TextBuffer);
 	lcVector3 PosY = lcMul30(lcVector3(0.0f, 25.0f, 0.0f), WorldViewMatrix);

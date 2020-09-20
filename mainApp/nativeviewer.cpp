@@ -853,7 +853,7 @@ void Gui::applyCameraSettings()
             if (QFileInfo(imageFileName).exists())
                 gui->clearStepCSICache(imageFileName);
 
-            // LeoCAD flips Y an Z axis so that Z is up and Y represents depth
+            // Switch Y and Z axis with -Y(LC -Z) in the up direction
             cameraMeta.target.setValues(Camera->mTargetPosition[0],
                                         Camera->mTargetPosition[2],
                                         Camera->mTargetPosition[1]);

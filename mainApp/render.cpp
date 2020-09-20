@@ -2770,7 +2770,7 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
 
     lcCamera* Camera =  ActiveView->mCamera;
 
-    // LeoCAD flips Y an Z axis so that Z is up and Y represents depth
+    // Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset)
     lcVector3 Target = lcVector3(O->Target.x,O->Target.z,O->Target.y);
 
     bool DefaultCamera = O->CameraName.isEmpty();
@@ -2822,7 +2822,7 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
         arguments << QString("ZoomExtents: %1").arg(ZoomExtents ? "True" : "False");
         arguments << QString("CameraLatitude: %1").arg(double(O->Latitude));
         arguments << QString("CameraLongitude: %1").arg(double(O->Longitude));
-        arguments << QString("CameraTarget: X(%1) Y(%2) Z(%3)").arg(double(Target[0])).arg(double(Target[1])).arg(double(Target[2]));
+        arguments << QString("CameraTarget: X(%1) Y(%2) Z(%3)").arg(double(O->Target.x)).arg(double(O->Target.y)).arg(double(O->Target.z));
 
         removeEmptyStrings(arguments);
 
