@@ -70,6 +70,8 @@ void PageAttributeTextItem::setAttributes(
 
     setTextInteractionFlags(Qt::TextEditorInteraction);
 
+    setAcceptHoverEvents(true);
+    setFlag(QGraphicsItem::ItemIsFocusable);
     setFlag(QGraphicsItem::ItemIsMovable);
     setFlag(QGraphicsItem::ItemIsSelectable);
     setToolTip(_toolTip);
@@ -80,7 +82,9 @@ void PageAttributeTextItem::setAttributes(
 PageAttributeTextItem::PageAttributeTextItem(
   Page                      *_page,
   PageAttributeTextMeta     &_pageAttributeText,
-  QGraphicsItem             *_parent)
+  QGraphicsItem             *_parent):
+    isHovered(false),
+    mouseIsDown(false)
 {
   page          = _page;
 
@@ -301,6 +305,7 @@ void PageAttributeTextItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
 
 void PageAttributeTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+  mouseIsDown = true;
   positionChanged = false;
   position = pos();
   QGraphicsItem::mousePressEvent(event);
@@ -316,6 +321,7 @@ void PageAttributeTextItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 void PageAttributeTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+  mouseIsDown = false;
   QGraphicsItem::mouseReleaseEvent(event);
 
   if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable/* && positionChanged */)) {
@@ -337,6 +343,7 @@ void PageAttributeTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
           placementData.offsets[1] += newPosition.y()/relativeToSize[1];
           placement.setValue(placementData);
 
+#ifdef QT_DEBUG_MODE
           logInfo() << "\nDRAG TEXT- "
                     << "\nPAGE- "
                     << (useTop ? " \nSingle-Step Page" : " \nMulti-Step Page")
@@ -357,7 +364,7 @@ void PageAttributeTextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
                     << " \nRelativeType:                " << RelNames[relativeType]       << " (" << relativeType << ")"
                     << " \nParentRelativeType:          " << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
                        ;
-
+#endif
           changePlacementOffset( useTop ? topOfSteps : bottomOfSteps,
                                 &placement,
                                  relativeType);
@@ -415,4 +422,26 @@ PageAttributeTextItem::PageAttributeTextItem()
   setFlag(QGraphicsItem::ItemIsSelectable,true);
 }
 
+void PageAttributeTextItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+  isHovered = !this->isSelected() && !mouseIsDown;
+  QGraphicsItem::hoverEnterEvent(event);
+}
 
+void PageAttributeTextItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+  isHovered = false;
+  QGraphicsItem::hoverLeaveEvent(event);
+}
+
+void PageAttributeTextItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+  QPen pen;
+  pen.setColor(isHovered ? QColor(Preferences::sceneGuideColor) : Qt::black);
+  pen.setWidth(0/*cosmetic*/);
+  pen.setStyle(isHovered ? Qt::PenStyle(Preferences::sceneGuidesLine) : Qt::NoPen);
+  painter->setPen(pen);
+  painter->setBrush(Qt::transparent);
+  painter->drawRect(this->boundingRect());
+  QGraphicsTextItem::paint(painter,option,widget);
+}

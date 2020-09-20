@@ -28,8 +28,7 @@ class Step;
 class PageAttributeTextItem : public QGraphicsTextItem, public MetaItem, public Placement
 {
     Page                    *page;
-public:   
-    PlacementType          relativeType;
+public:
     PlacementType          parentRelativeType;
     FontMeta               textFont;
     StringMeta             textColor;
@@ -66,6 +65,12 @@ protected:
     virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
     virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+    /* Highlight bounding rectangle on hover */
+    virtual void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
+    virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
+    virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    bool isHovered;
+    bool mouseIsDown;
 
     virtual void focusInEvent(QFocusEvent *event);
     virtual void focusOutEvent(QFocusEvent *event);
