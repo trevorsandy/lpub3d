@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>536</width>
-    <height>467</height>
+    <height>472</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -52,7 +52,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Viewpoint</string>
+             <string>Viewpoint:</string>
             </property>
            </widget>
           </item>
@@ -131,7 +131,7 @@
           <item>
            <widget class="QLabel" name="label_16">
             <property name="text">
-             <string>Projection</string>
+             <string>Projection:</string>
             </property>
            </widget>
           </item>
@@ -202,6 +202,19 @@
                <string/>
               </property>
              </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_8">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
             </item>
             <item>
              <widget class="QLabel" name="label">
@@ -427,7 +440,7 @@
              <string>Enable anti-aliasing</string>
             </property>
             <property name="text">
-             <string>Anti-aliasing</string>
+             <string>Anti-aliasing:</string>
             </property>
            </widget>
           </item>
@@ -450,7 +463,7 @@
              <string>Enable edge lines</string>
             </property>
             <property name="text">
-             <string>Edge lines</string>
+             <string>Edge lines:</string>
             </property>
            </widget>
           </item>
@@ -531,7 +544,7 @@
              <string>Enable LEGO stud logo</string>
             </property>
             <property name="text">
-             <string>Stud Logo</string>
+             <string>Stud Logo:</string>
             </property>
            </widget>
           </item>
@@ -645,7 +658,7 @@
              <string>Set default field of view</string>
             </property>
             <property name="text">
-             <string>Field of View</string>
+             <string>Field of View:</string>
             </property>
            </widget>
           </item>
@@ -672,7 +685,7 @@
              <string>Set default far plane</string>
             </property>
             <property name="text">
-             <string>Far Plane</string>
+             <string>Far Plane:</string>
             </property>
            </widget>
           </item>
@@ -689,7 +702,7 @@
              <string>Set default near plane</string>
             </property>
             <property name="text">
-             <string>Near Plane</string>
+             <string>Near Plane:</string>
             </property>
            </widget>
           </item>
@@ -706,7 +719,7 @@
           <item row="6" column="3">
            <widget class="QLabel" name="label_26">
             <property name="text">
-             <string>Camera Distance Factor</string>
+             <string>Camera Distance Factor:</string>
             </property>
            </widget>
           </item>
@@ -733,7 +746,7 @@
              <string>Set the default camera position</string>
             </property>
             <property name="text">
-             <string>Default Camera Position</string>
+             <string>Default Camera Position:</string>
             </property>
            </widget>
           </item>
@@ -743,7 +756,7 @@
              <string>Set default camera distance factor (automatically multiplied by -1)</string>
             </property>
             <property name="text">
-             <string>Default Distance Factor</string>
+             <string>Default Distance Factor:</string>
             </property>
            </widget>
           </item>

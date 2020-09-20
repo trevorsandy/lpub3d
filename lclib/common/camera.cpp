@@ -1173,6 +1173,6 @@ float lcCamera::GetDDF() const
 float lcCamera::GetCDF() const
 {
 	// Camera Distance Factor = Camera Default Position / Default Distance Factor
-	return (gApplication->mPreferences.mCDP / -gApplication->mPreferences.mDDF) * -gApplication->mPreferences.mDDF;
+	return (gApplication->mPreferences.mCDP / -gApplication->mPreferences.mDDF) * -5.0f/*Default Distance Factor*/;
 }
 /*** LPub3D Mod end ***/

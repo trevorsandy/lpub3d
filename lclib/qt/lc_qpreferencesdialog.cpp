@@ -1118,15 +1118,15 @@ void lcQPreferencesDialog::on_cameraDefaultPosition_valueChanged(double value)
 void lcQPreferencesDialog::cameraPropertyReset()
 {
 	if (sender() == ui->resetDefaultDistanceFactor) {
-		ui->cameraDefaultDistanceFactor->setValue(qreal(mOptions->Preferences.mDDF));
+		ui->cameraDefaultDistanceFactor->setValue(qreal(5.0));
 	} else if (sender() == ui->resetDefaultPosition) {
-		ui->cameraDefaultPosition->setValue(qreal(mOptions->Preferences.mCDP));
+		ui->cameraDefaultPosition->setValue(qreal(1250.0));
 	} else if (sender() == ui->resetFoV) {
-		ui->cameraFoV->setValue(qreal(mOptions->Preferences.mCFoV));
+		ui->cameraFoV->setValue(qreal(30.0));
 	} else if (sender() == ui->resetNearPlane) {
-		ui->cameraNearPlane->setValue(qreal(mOptions->Preferences.mCNear));
+		ui->cameraNearPlane->setValue(qreal(25));
 	} else if (sender() == ui->resetFarPlane) {
-		ui->cameraFarPlane->setValue(qreal(mOptions->Preferences.mCFar));
+		ui->cameraFarPlane->setValue(qreal(50000.0));
 	}
 }
 /*** LPub3D Mod end ***/
