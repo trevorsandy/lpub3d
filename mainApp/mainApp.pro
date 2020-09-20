@@ -195,6 +195,7 @@ CONFIG(debug, debug|release) {
     win32:TARGET = $$join(TARGET,,,d)
     unix:!macx: TARGET = $$join(TARGET,,,d$$VER_MAJOR$$VER_MINOR)
 
+    # enable this to copy LDView libraries to DESTDIR - this copy should be a one-time action
     DO_COPY_LDVLIBS = #True
 
     # enable copy ldvMessages to OUT_PWD/mainApp/extras
@@ -233,6 +234,7 @@ CONFIG(debug, debug|release) {
     # executable target
     !macx:!win32: TARGET = $$join(TARGET,,,$$VER_MAJOR$$VER_MINOR)
 
+   # copy LDView libraries to DESTDIR
     DO_COPY_LDVLIBS = True
 }
 BUILD += $$BUILD_CONF
@@ -337,6 +339,7 @@ LIBS += -L$$OUT_PWD/../quazip/$$DESTDIR -l$$QUAZIP_LIB
 LIBS += -L$$OUT_PWD/../ldrawini/$$DESTDIR -l$$LDRAWINI_LIB
 
 win32 {
+    DEFINES += _WIN_UTF8_PATHS
     LIBS += -ladvapi32 -lshell32 -lopengl32 -lglu32 -lwininet -luser32 -lws2_32 -lgdi32
 } else:!macx {
     LIBS += -lGL -lGLU
