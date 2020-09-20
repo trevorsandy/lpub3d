@@ -59,6 +59,7 @@ enum LibType { LibLEGO, LibTENTE, LibVEXIQ, NumLibs };
 enum Theme { ThemeDark, ThemeDefault };
 enum SaveOnSender { SaveOnNone, SaveOnRedraw, SaveOnUpdate };
 enum NativeType { NTypeDefault, NTypeCalledOut, NTypeMultiStep };
+enum ShowLineType { LINE_HIGHLIGHT, LINE_ERROR };
 enum SceneObjectInfo { ObjectId };
 enum PartSource {
     NEW_PART           = -1,                   // -1
@@ -559,6 +560,9 @@ static const SceneObject PliPartGroupSceneObjects[] =
 #define THEME_HIGHLIGHT_F_DEFAULT       "#9421a6" // br06 Part Control
 #define THEME_HIGHLIGHT_G_DEFAULT       "#aa0000" // br07 Part Description
 
+#define THEME_LINE_HIGHLIGHT_DEFAULT    "#ccccff" // Qt:blue:lighter(180)
+#define THEME_LINE_ERROR_DEFAULT        "#ffcccc" // Qt:Red:lighter(180)
+
 // -----------------------------------------------//
 
 #define THEME_DARK                      "Dark"    // Dark Theme
@@ -613,7 +617,8 @@ static const SceneObject PliPartGroupSceneObjects[] =
 #define THEME_HIGHLIGHT_F_DARK          "#9421a6" // br06 Part Control
 #define THEME_HIGHLIGHT_G_DARK          "#aa0000" // br07 Part Description
 
-#define THEME_EDITWINDOW_LINE_DARK      "#5d5b59" // 06 Qt Medium Gray
+#define THEME_LINE_HIGHLIGHT_DARK       "#5d5b59" // 06 Qt Medium Gray
+#define THEME_LINE_ERROR_DARK           "#ffcccc" // Qt:Red:lighter(180)
 
 #define THEME_DARK_PALETTE_WINDOW        "#313437"   // 49, 52, 55,
 #define THEME_DARK_PALETTE_WINDOW_TEXT   "#F0F0F0"   // 240, 240, 240

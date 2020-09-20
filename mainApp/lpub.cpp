@@ -1294,7 +1294,7 @@ void Gui::displayFile(
                }
             } else if (displayPageNum < modelPageNum) {
                 Where topOfSteps(modelName,0);
-                showLineSig(topOfSteps.lineNumber);
+                showLineSig(topOfSteps.lineNumber, LINE_HIGHLIGHT);
             }
 
             int saveIndex = mpdCombo->currentIndex();
@@ -1493,7 +1493,7 @@ void Gui::mpdComboChanged(int index)
           Where topOfSteps(newSubFile,0);
           curSubFile = newSubFile;
           displayFileSig(&ldrawFile, curSubFile);
-          showLineSig(topOfSteps.lineNumber);
+          showLineSig(topOfSteps.lineNumber, LINE_HIGHLIGHT);
         }
       mpdCombo->setCurrentIndex(index);
       mpdCombo->setToolTip(tr("Current Submodel: %1").arg(mpdCombo->currentText()));
@@ -3053,8 +3053,8 @@ Gui::Gui()
     connect(this,           SIGNAL(displayParmsFileSig(const QString &)),
             parmsWindow,    SLOT( displayParmsFile   (const QString &)));
 
-    connect(this,           SIGNAL(showLineSig(int)),
-            editWindow,     SLOT(  showLine(   int)));
+    connect(this,           SIGNAL(showLineSig(int, int)),
+            editWindow,     SLOT(  showLine(   int, int)));
 
     connect(this,           SIGNAL(highlightSelectedLinesSig(QVector<int> &)),
             editWindow,     SLOT(  highlightSelectedLines(   QVector<int> &)));
@@ -5429,7 +5429,7 @@ void Gui::showLineMessage(QString errorMsg, Where &here, Preferences::MsgKey msg
 
     QString parseMessage = QString("%1 (file: %2, line: %3)") .arg(errorMsg) .arg(here.modelName) .arg(here.lineNumber + 1);
     if (Preferences::modeGUI) {
-        showLine(here);
+        showLine(here, LINE_ERROR);
         bool showMessagePreference = Preferences::getShowMessagePreference(msgKey);
         if (showMessagePreference) {
             QCheckBox *cb = new QCheckBox("Do not show this line message again.");

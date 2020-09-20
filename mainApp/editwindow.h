@@ -87,6 +87,7 @@ private:
     Highlighter  *highlighter;
     QComboBox    *mpdCombo;
     QString       fileName;            // of model file currently being displayed
+    int           showLineType;
     int           fileOrderIndex;
     bool          _modelFileEdit;
     QString       _curSubFile;         // currently displayed submodel
@@ -141,7 +142,7 @@ private slots:
 public slots:
     void displayFile(LDrawFile *, const QString &fileName);
     void modelFileChanged(const QString &fileName);
-    void showLine(int);
+    void showLine(int, int);
     void highlightSelectedLines(QVector<int> &lines);
     void updateDisabled(bool);
     void disableActions();

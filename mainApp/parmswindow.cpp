@@ -747,11 +747,11 @@ void TextEditor::highlightCurrentLine()
 
         QColor lineColor;
         if (Preferences::displayTheme == THEME_DEFAULT) {
-            lineColor = QColor(Qt::blue).lighter(180);
+            lineColor = QColor(THEME_LINE_HIGHLIGHT_DEFAULT);
           }
         else
         if (Preferences::displayTheme == THEME_DARK) {
-            lineColor = QColor(THEME_EDITWINDOW_LINE_DARK);
+            lineColor = QColor(THEME_LINE_HIGHLIGHT_DARK);
         }
 
         selection.format.setBackground(lineColor);

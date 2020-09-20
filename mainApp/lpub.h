@@ -1150,11 +1150,11 @@ public slots:
   void statusBarMsg(QString msg);
 
   void showExportedFile();
-  void showLine(const Where &topOfStep)
+  void showLine(const Where &topOfStep, int type = LINE_HIGHLIGHT)
   {
     if (! exporting()) {
         displayFile(&ldrawFile,topOfStep.modelName);
-        showLineSig(topOfStep.lineNumber);
+        showLineSig(topOfStep.lineNumber, type);
       }
   }
 
@@ -1306,7 +1306,7 @@ signals:
   void displayParmsFileSig(const QString &fileName);
   void highlightSelectedLinesSig(QVector<int> &indexes);
   void setSelectedPiecesSig(QVector<int> &indexes);
-  void showLineSig(int lineNumber);
+  void showLineSig(int lineNumber, int type);
   void disableEditorActionsSig();
 
   void enable3DActionsSig();

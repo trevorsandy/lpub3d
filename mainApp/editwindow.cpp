@@ -74,6 +74,8 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
     completer->setWrapAround(false);
     _textEdit->setCompleter(completer);
 
+    showLineType = LINE_HIGHLIGHT;
+
     createActions();
     createToolBars();
 
@@ -492,11 +494,17 @@ void EditWindow::highlightCurrentLine()
 
         QColor lineColor;
         if (Preferences::displayTheme == THEME_DEFAULT) {
-            lineColor = QColor(Qt::blue).lighter(180);
+            if (showLineType == LINE_ERROR)
+                lineColor = QColor(THEME_LINE_ERROR_DEFAULT);
+             else
+                lineColor = QColor(THEME_LINE_HIGHLIGHT_DEFAULT);
           }
         else
         if (Preferences::displayTheme == THEME_DARK) {
-            lineColor = QColor(THEME_EDITWINDOW_LINE_DARK);
+            if (showLineType == LINE_ERROR)
+                lineColor = QColor(THEME_LINE_ERROR_DARK);
+            else
+                lineColor = QColor(THEME_LINE_HIGHLIGHT_DARK);
         }
 
         selection.format.setBackground(lineColor);
@@ -620,8 +628,9 @@ void EditWindow::updateSelectedParts() {
     emit SelectedPartLinesSig(lineTypeIndexes);
 }
 
-void EditWindow::showLine(int lineNumber)
+void EditWindow::showLine(int lineNumber, int lineType)
 {
+  showLineType = lineType;
   _textEdit->moveCursor(QTextCursor::Start,QTextCursor::MoveAnchor);
   for (int i = 0; i < lineNumber; i++) {
     _textEdit->moveCursor(QTextCursor::Down,QTextCursor::MoveAnchor);
