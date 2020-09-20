@@ -328,6 +328,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bCSI_ANNOTATION_PART\\b"
     << "\\bCUSTOM_LENGTH\\b"
     << "\\bDISPLAY\\b"
+    << "\\bDISPLAY_MODEL\\b"
     << "\\bDISPLAY_PAGE_NUMBER\\b"
     << "\\bDIVIDER\\b"
     << "\\bDIVIDER_ITEM\\b"

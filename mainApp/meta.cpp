@@ -2602,6 +2602,8 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
           return InsertPageRc;
         } else if (argv[index] == "MODEL") {
           return InsertFinalModelRc;
+        } else if (argv[index] == "DISPLAY_MODEL") {
+          return InsertDisplayModelRc;
         } else if (argv[index] == "COVER_PAGE") {
           return InsertCoverPageRc;
         }

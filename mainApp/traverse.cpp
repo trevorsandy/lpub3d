@@ -1101,18 +1101,23 @@ int Gui::drawPage(
               break;
 
             case InsertFinalModelRc:
+            case InsertDisplayModelRc:
               {
-                if (curMeta.LPub.fadeStep.fadeStep.value() || curMeta.LPub.highlightStep.highlightStep.value()){
-                    // this is not a step but it's necessary to use the step object to place the model
-                    // increment the step number down - so basically use previous number for step
-                    // do this before creating the step so we can use in the file name during
-                    // csi generation to indicate this step file is not an actual step - just a model display
+                // this is not a step but it's necessary to use the step object to place the model
+                // increment the step number down - so basically use the previous step number for this step.
+                // Do this before creating the step so we can use in the file name during
+                // csi generation to indicate this step file is not an actual step - just a model display
+                bool proceed = true;
+                if (rc == InsertFinalModelRc) {
+                    proceed = curMeta.LPub.fadeStep.fadeStep.value() || curMeta.LPub.highlightStep.highlightStep.value();
+                }
+                if (proceed) {
                     opts.stepNum--;
                     if (step == nullptr) {
                         if (range == nullptr) {
                             range = newRange(steps,opts.calledOut);
                             steps->append(range);
-                          }
+                        }
                         step = new Step(topOfStep,
                                         range,
                                         opts.stepNum,
@@ -1123,8 +1128,8 @@ int Gui::drawPage(
                         step->modelDisplayOnlyStep = true;
 
                         range->append(step);
-                      }
-                  }
+                    }
+                 }
               }
               break;
 

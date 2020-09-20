@@ -493,6 +493,7 @@ public:
   void insertPage(QString &meta);
   void appendPage(QString &meta);
   void insertFinalModel(int atLine);
+  void insertDisplayModel(Where &here, bool = false);
   void deleteFinalModel();
 
   void insertPicture();

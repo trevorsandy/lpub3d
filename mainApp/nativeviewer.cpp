@@ -1377,7 +1377,7 @@ void Gui::removeBuildModification()
 QStringList Gui::getViewerStepKeys(bool modelName, bool pliPart)
 {
     // viewerStepKey - 3 elements:
-    // CSI: 0=modelNameIndex, 1=lineNumber,   2=stepNumber [_fm (finalModel)]
+    // CSI: 0=modelNameIndex, 1=lineNumber,   2=stepNumber [_dm (displayModel)]
     // SMP: 0=modelNameIndex, 1=lineNumber,   2=stepNumber [_Preview (Submodel Preview)]
     // PLI: 0=partNameString, 1=colourNumber, 2=stepNumber
     QStringList keys = viewerStepKey.split(";");
@@ -1412,7 +1412,7 @@ QStringList Gui::getViewerStepKeys(bool modelName, bool pliPart)
 
   bool Gui::extractStepKey(Where &here, int &stepNumber)
   {
-      // viewerStepKey elements CSI: 0=modelName, 1=lineNumber, 2=stepNumber [,3=_fm (finalModel)]
+      // viewerStepKey elements CSI: 0=modelName, 1=lineNumber, 2=stepNumber [,3=_dm (displayModel)]
       QStringList keyArgs = getViewerStepKeys();
 
       if (!keyArgs.size())

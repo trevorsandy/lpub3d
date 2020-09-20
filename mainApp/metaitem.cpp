@@ -3050,6 +3050,29 @@ int MetaItem::okToInsertFinalModel()
   return -1;
 }
 
+void MetaItem::insertDisplayModel(Where &here, bool finalModel)
+{
+    bool atStep = (QString(gui->readLine(here))
+                   .contains(QRegExp("^0 STEP$")));
+
+    QString modelMeta = finalModel ? QString("0 !LPUB INSERT MODEL") :
+                                     QString("0 !LPUB INSERT DISPLAY_MODEL");
+    QString pageMeta  = QString("0 !LPUB INSERT PAGE");
+
+    beginMacro("insertFinalModel");
+
+    if (atStep) {
+      appendMeta(here,modelMeta);
+      appendMeta(++here,pageMeta);
+      appendMeta(++here,step);
+    } else {
+      appendMeta(here,step);
+      appendMeta(++here,modelMeta);
+      appendMeta(++here,pageMeta);
+    }
+
+    endMacro();
+}
 
 void MetaItem::insertFinalModel(int atLine)
 {
@@ -3060,24 +3083,10 @@ void MetaItem::insertFinalModel(int atLine)
 
   // grab the passed in line
   Where here(gui->topLevelFile(),atLine);
-  bool atStep = (QString(gui->readLine(here))
-                 .contains(QRegExp("^0 STEP$")));
 
-  QString modelMeta = QString("0 !LPUB INSERT MODEL");
-  QString pageMeta  = QString("0 !LPUB INSERT PAGE");
-
-  beginMacro("insertFinalModel");
-  if (atStep) {
-    appendMeta(here,modelMeta);
-    appendMeta(++here,pageMeta);
-    appendMeta(++here,step);
-  } else {
-    appendMeta(here,step);
-    appendMeta(++here,modelMeta);
-    appendMeta(++here,pageMeta);
-  }
+  // insert final model
+  insertDisplayModel(here, true /*Final Model*/);
   emit gui->messageSig(LOG_INFO, QString("Final model inserted at lines: %1 to %2").arg(atLine+1).arg(here.lineNumber+1));
-  endMacro();
 }
 
 void MetaItem::deleteFinalModel(){

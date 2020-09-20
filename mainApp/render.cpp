@@ -3043,7 +3043,7 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerStepKey)
 
 #ifdef QT_DEBUG_MODE
     // viewerStepKey - 3 elements:
-    // CSI: 0=modelName, 1=lineNumber,   2=stepNumber [_fm (finalModel)]
+    // CSI: 0=modelName, 1=lineNumber,   2=stepNumber [_dm (displayModel)]
     // SMP: 0=modelName, 1=lineNumber,   2=stepNumber [_Preview (Submodel Preview)]
     // PLI: 0=partName,  1=colourNumber, 2=stepNumber
     QFileInfo outFileInfo(FileName);

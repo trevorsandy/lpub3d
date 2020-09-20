@@ -92,6 +92,7 @@ enum Rc {
 
          AssemAnnotationIconRc,
          InsertFinalModelRc,
+         InsertDisplayModelRc,
 
          SepRc,
 

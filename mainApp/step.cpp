@@ -241,7 +241,7 @@ int Step::createCsi(
   if (nativeRenderer) {
     nType = calledOut ? NTypeCalledOut : multiStep ? NTypeMultiStep : NTypeDefault;
   }
-  QString csi_Name      = modelDisplayOnlyStep ? csiName()+"_fm" : bfxLoad ? csiName()+"_bfx" : csiName();
+  QString csi_Name      = modelDisplayOnlyStep ? csiName()+"_dm" : bfxLoad ? csiName()+"_bfx" : csiName();
   bool    invalidIMStep = ((modelDisplayOnlyStep) || (stepNumber.number == 1));
   bool    absRotstep    = meta.rotStep.value().type == "ABS";
   bool    useImageSize  = csiStepMeta.imageSize.value(0) > 0;
@@ -352,12 +352,12 @@ int Step::createCsi(
                           .arg(gui->getSubmodelIndex(top.modelName))
                           .arg(top.lineNumber)
                           .arg(stepNumber.number)
-                          .arg(modelDisplayOnlyStep ? "_fm" : "");
+                          .arg(modelDisplayOnlyStep ? "_dm" : "");
 
   if (Preferences::debugLogging)
       emit gui->messageSig(LOG_DEBUG,
                            QString("DEBUG - CSI ViewerStepKey Attributes "
-                                   "Key(modelNameIndex;lineNumber;stepNumber[_fm]) [%1], "
+                                   "Key(modelNameIndex;lineNumber;stepNumber[_dm]) [%1], "
                                    "modelName [%2], "
                                    "top lineNumber [%3], "
                                    "step type [%4], "
