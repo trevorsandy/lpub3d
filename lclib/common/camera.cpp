@@ -551,7 +551,7 @@ void lcCamera::DrawInterface(lcContext* Context, const lcScene& Scene) const
 	*CurVert++ = 0.0f; *CurVert++ = 0.0f; *CurVert++ = -Length;
 	*CurVert++ = 0.0f; *CurVert++ = 25.0f; *CurVert++ = 0.0f;
 
-	const GLushort Indices[40 + 24 + 24 + 4 + 16] =
+	const GLushort Indices[40 + 24 + 24 + 4 + 16] = 
 	{
 		0, 1, 1, 2, 2, 3, 3, 0,
 		4, 5, 5, 6, 6, 7, 7, 4,
@@ -811,7 +811,7 @@ void lcCamera::ZoomExtents(float AspectRatio, const lcVector3& Center, const lcV
 		lcVector3 Position(mPosition + Center - mTargetPosition);
 		lcMatrix44 ProjectionMatrix = lcMatrix44Perspective(m_fovy, AspectRatio, m_zNear, m_zFar);
 
-        std::tie(mPosition, std::ignore) = lcZoomExtents(Position, mWorldView, ProjectionMatrix, Points, NumPoints);
+		std::tie(mPosition, std::ignore) = lcZoomExtents(Position, mWorldView, ProjectionMatrix, Points, NumPoints);
 		mTargetPosition = Center;
 	}
 
@@ -926,7 +926,7 @@ void lcCamera::Orbit(float DistanceX, float DistanceY, const lcVector3& CenterPo
 		Z[0] = -Z[0];
 		Z[1] = -Z[1];
 	}
-
+ 
 	lcMatrix44 YRot(lcVector4(Z[0], Z[1], 0.0f, 0.0f), lcVector4(-Z[1], Z[0], 0.0f, 0.0f), lcVector4(0.0f, 0.0f, 1.0f, 0.0f), lcVector4(0.0f, 0.0f, 0.0f, 1.0f));
 	lcMatrix44 transform = lcMul(lcMul(lcMul(lcMatrix44AffineInverse(YRot), lcMatrix44RotationY(DistanceY)), YRot), lcMatrix44RotationZ(-DistanceX));
 
@@ -960,15 +960,46 @@ void lcCamera::Roll(float Distance, lcStep Step, bool AddKey)
 	UpdatePosition(Step);
 }
 
-void lcCamera::Center(lcVector3& point, lcStep Step, bool AddKey)
+void lcCamera::Center(const lcVector3& NewCenter, lcStep Step, bool AddKey)
 {
-	lcAlign(mTargetPosition, mPosition, point);
+	const lcMatrix44 Inverse = lcMatrix44AffineInverse(mWorldView);
+	const lcVector3 Direction = -lcVector3(Inverse[2]);
+
+	float Yaw, Pitch, Roll;
+
+	if (fabsf(Direction.z) < 0.9999f)
+	{
+		Yaw = atan2f(Direction.y, Direction.x);
+		Pitch = asinf(Direction.z);
+		Roll = atan2f(Inverse[0][2], Inverse[1][2]);
+	}
+	else
+	{
+		Yaw = 0.0f;
+		Pitch = asinf(Direction.z);
+		Roll = atan2f(Inverse[0][1], Inverse[1][1]);
+	}
+
+	mTargetPosition = NewCenter;
+
+	lcVector3 FrontVector(mPosition - mTargetPosition);
+	lcMatrix44 Rotation = lcMatrix44FromAxisAngle(FrontVector, Roll);
+
+	lcVector3 UpVector(0, 0, 1), SideVector;
+	FrontVector.Normalize();
+	if (fabsf(lcDot(UpVector, FrontVector)) > 0.99f)
+		SideVector = lcVector3(-1, 0, 0);
+	else
+		SideVector = lcCross(FrontVector, UpVector);
+	UpVector = lcCross(SideVector, FrontVector);
+	UpVector.Normalize();
+	mUpVector = lcMul30(UpVector, Rotation);
 
 	if (IsSimple())
 		AddKey = false;
 
-	ChangeKey(mPositionKeys, mPosition, Step, AddKey);
 	ChangeKey(mTargetPositionKeys, mTargetPosition, Step, AddKey);
+	ChangeKey(mUpVectorKeys, mUpVector, Step, AddKey);
 
 	UpdatePosition(Step);
 }

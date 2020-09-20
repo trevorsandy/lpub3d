@@ -53,7 +53,7 @@ char* strlwr(char* string);
 #define LC_VERSION_PATCH 1
 #define LC_VERSION_TEXT "19.07.1"
 /*** LPub3D Mod - Git SHA ***/
-#define LC_VERSION_BUILD "ca53610"
+#define LC_VERSION_BUILD "1c5c82a"
 /*** LPub3D Mod end ***/
 
 
