@@ -3494,6 +3494,8 @@ void PGraphicsPixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     QString viewerOptKey = QString("%1_%2").arg(QFileInfo(part->type).completeBaseName()).arg(part->color);
     pli->viewerOptions = pli->viewerOptsList[viewerOptKey];
+    pli->viewerOptions.ImageWidth  = part->pixmapWidth;
+    pli->viewerOptions.ImageHeight = part->pixmapHeight;
     pli->loadTheViewer();
 
     mouseIsDown = true;
