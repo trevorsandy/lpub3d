@@ -71,6 +71,7 @@ void lcPreferences::LoadDefaults()
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - true fade ***/
+	mLPubTrueFade     = lcGetProfileInt(LC_PROFILE_LPUB_TRUE_FADE);
 	mConditionalLines = lcGetProfileInt(LC_PROFILE_CONDITIONAL_LINES);
 /*** LPub3D Mod end ***/
 
@@ -129,6 +130,7 @@ void lcPreferences::SaveDefaults()
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - true fade ***/
+	lcSetProfileInt(LC_PROFILE_LPUB_TRUE_FADE, mLPubTrueFade);
 	lcSetProfileInt(LC_PROFILE_CONDITIONAL_LINES, mConditionalLines);
 /*** LPub3D Mod end ***/
 
@@ -201,7 +203,7 @@ lcApplication::lcApplication()
 /*** LPub3D Mod end ***/
 
 	mPreferences.LoadDefaults();
-	
+
 	UpdateStyle();
 }
 
@@ -887,6 +889,7 @@ void lcApplication::ShowPreferencesDialog()
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - true fade ***/
+	Options.Preferences.mLPubTrueFade = lcGetProfileInt(LC_PROFILE_LPUB_TRUE_FADE);
 	Options.Preferences.mConditionalLines = lcGetProfileInt(LC_PROFILE_CONDITIONAL_LINES);
 /*** LPub3D Mod end ***/
 
@@ -927,6 +930,7 @@ void lcApplication::ShowPreferencesDialog()
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - true fade ***/
+	bool LPubTrueFadeChanged = Options.Preferences.mLPubTrueFade != bool(lcGetProfileInt(LC_PROFILE_LPUB_TRUE_FADE));
 	bool DrawConditionalChanged = Options.Preferences.mConditionalLines != bool(lcGetProfileInt(LC_PROFILE_CONDITIONAL_LINES));
 /*** LPub3D Mod end ***/
 
@@ -972,7 +976,9 @@ void lcApplication::ShowPreferencesDialog()
 		}
 	}
 
-	if ((ViewPieceIconsChangd || DrawConditionalChanged) && !restartApp && !redrawPage)
+	if ((ViewPieceIconsChangd ||
+		 LPubTrueFadeChanged ||
+		 DrawConditionalChanged) && !restartApp && !redrawPage)
 		reloadPage = true;
 
 	if (Preferences::usingNativeRenderer && !restartApp)
@@ -1146,12 +1152,12 @@ void lcApplication::ShowPreferencesDialog()
 		restartApplication();
 	}
 	else
-		if (redrawPage) {
-			clearAndReloadModelFile();
-		}
-		else
-			if (reloadPage) {
-				reloadCurrentPage();
-			}
+	if (redrawPage) {
+		clearAndReloadModelFile();
+	}
+	else
+	if (reloadPage) {
+		reloadCurrentPage();
+	}
 /*** LPub3D Mod end ***/
 }

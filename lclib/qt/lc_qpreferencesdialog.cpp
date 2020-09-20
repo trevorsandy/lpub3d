@@ -238,6 +238,7 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - true fade ***/
+	ui->LPubTrueFade->setChecked(mOptions->Preferences.mLPubTrueFade);
 	ui->ConditionalLines->setChecked(mOptions->Preferences.mConditionalLines);
 /*** LPub3D Mod end ***/
 
@@ -375,6 +376,7 @@ void lcQPreferencesDialog::accept()
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - true fade ***/
+	mOptions->Preferences.mLPubTrueFade = ui->LPubTrueFade->isChecked();
 	mOptions->Preferences.mConditionalLines = ui->ConditionalLines->isChecked();
 /*** LPub3D Mod end ***/
 

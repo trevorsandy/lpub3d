@@ -83,6 +83,7 @@ public:
 	bool mViewPieceIcons;
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - true fade ***/
+	bool mLPubTrueFade;
 	bool mConditionalLines;
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - add background colour to preferences ***/

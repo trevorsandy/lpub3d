@@ -24,9 +24,9 @@ lcScene::lcScene()
 	mAllowWireframe = true;
 	mAllowLOD = true;
 	mHasFadedParts = false;
-/*** LPub3D Mod - true fade ***/	
+/*** LPub3D Mod - true fade ***/
 	mHasLPubFadedParts = false;
-/*** LPub3D Mod end ***/	
+/*** LPub3D Mod end ***/
 
 	mPreTranslucentCallback = nullptr;
 }
@@ -45,9 +45,9 @@ void lcScene::Begin(const lcMatrix44& ViewMatrix)
 	mHighlightColor = lcVector4FromColor(Preferences.mHighlightNewPartsColor);
 	mFadeColor = lcVector4FromColor(Preferences.mFadeStepsColor);
 	mHasFadedParts = false;
-/*** LPub3D Mod - true fade ***/	
+/*** LPub3D Mod - true fade ***/
 	mHasLPubFadedParts = false;
-/*** LPub3D Mod end ***/	
+/*** LPub3D Mod end ***/
 	mTranslucentFade = mFadeColor.w != 1.0f;
 }
 
@@ -94,9 +94,9 @@ void lcScene::AddMesh(lcMesh* Mesh, const lcMatrix44& WorldMatrix, int ColorInde
 	const bool Translucent = lcIsColorTranslucent(size_t(ColorIndex)) || ForceTranslucent;
 	const lcMeshFlags Flags = Mesh->mFlags;
 	mHasFadedParts |= State == lcRenderMeshState::Faded;
-/*** LPub3D Mod - true fade ***/	
+/*** LPub3D Mod - true fade ***/
 	mHasLPubFadedParts |= LPubFade;
-/*** LPub3D Mod end ***/	
+/*** LPub3D Mod end ***/
 
 	if ((Flags & (lcMeshFlag::HasSolid | lcMeshFlag::HasLines)) || ((Flags & lcMeshFlag::HasDefault) && !Translucent))
 		mOpaqueMeshes.Add(mRenderMeshes.GetSize() - 1);
@@ -399,9 +399,9 @@ void lcScene::DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawF
 
 /*** LPub3D Mod - true fade ***/
 		if (!LPubFade && DrawFadePrepass && lcIsColorTranslucent(ColorIndex))
-			continue;	    	
+			continue;
 /*** LPub3D Mod end ***/
-		
+
 		switch (RenderMesh.State)
 		{
 		case lcRenderMeshState::Default:
@@ -484,7 +484,10 @@ void lcScene::Draw(lcContext* Context) const
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - true fade ***/
-	const bool LPubFade = gApplication->LPubFadeSteps() && mHasLPubFadedParts && !mTranslucentMeshes.IsEmpty();
+	const bool LPubTrueFade = gApplication->LPubFadeSteps() && // to turn off during HTML Steps export
+							  gApplication->mPreferences.mLPubTrueFade &&
+							  mHasLPubFadedParts &&
+							  !mTranslucentMeshes.IsEmpty();
 /*** LPub3D Mod end ***/
 
 	lcShadingMode ShadingMode = Preferences.mShadingMode;
@@ -521,7 +524,7 @@ void lcScene::Draw(lcContext* Context) const
 
 
 /*** LPub3D Mod - true fade ***/
-		if (LPubFade) // Fade - Flat
+		if (LPubTrueFade) // Fade - Flat
 		{
 			// 1. Draw opaque mesh triangles - without mesh lines
 			DrawOpaqueMeshes(Context, false, SolidPrimitiveTypes, false, true);
@@ -578,7 +581,7 @@ void lcScene::Draw(lcContext* Context) const
 /*** LPub3D Mod - true fade ***/
 		const int SolidPrimitiveTypes = LC_MESH_TRIANGLES | LC_MESH_TEXTURED_TRIANGLES;
 
-		if (LPubFade)           // Fade - Default
+		if (LPubTrueFade)           // Fade - Default
 		{
 
 			// 1. Draw opaque mesh triangles - without mesh lines

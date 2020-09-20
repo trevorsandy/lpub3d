@@ -346,16 +346,6 @@
        <item row="0" column="0" colspan="2">
         <widget class="QWidget" name="widget" native="true">
          <layout class="QGridLayout" name="gridLayout">
-          <item row="0" column="0">
-           <widget class="QCheckBox" name="antiAliasing">
-            <property name="toolTip">
-             <string>Enable anti-aliasing</string>
-            </property>
-            <property name="text">
-             <string>Anti-aliasing:</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="1">
            <widget class="QComboBox" name="antiAliasingSamples">
             <property name="toolTip">
@@ -391,26 +381,13 @@
             </property>
            </spacer>
           </item>
-          <item row="0" column="3">
-           <widget class="QCheckBox" name="MeshLOD">
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="antiAliasing">
             <property name="toolTip">
-             <string>Enable switching from high to low level of detail during zoom</string>
-            </property>
-            <property name="statusTip">
-             <string>Enable mesh level of detail</string>
+             <string>Enable anti-aliasing</string>
             </property>
             <property name="text">
-             <string>Mesh LOD</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0" rowspan="2">
-           <widget class="QCheckBox" name="studLogo">
-            <property name="toolTip">
-             <string>Enable LEGO stud logo</string>
-            </property>
-            <property name="text">
-             <string>Stud Logo:</string>
+             <string>Anti-aliasing:</string>
             </property>
            </widget>
           </item>
@@ -447,6 +424,16 @@
               <string>Subtle Rounded</string>
              </property>
             </item>
+           </widget>
+          </item>
+          <item row="1" column="0" rowspan="2">
+           <widget class="QCheckBox" name="studLogo">
+            <property name="toolTip">
+             <string>Enable LEGO stud logo</string>
+            </property>
+            <property name="text">
+             <string>Stud Logo:</string>
+            </property>
            </widget>
           </item>
           <item row="1" column="3" colspan="2">
@@ -502,17 +489,10 @@
           <item row="3" column="3">
            <widget class="QCheckBox" name="FadeSteps">
             <property name="toolTip">
-             <string>Enable fade previous step when in HTML export</string>
+             <string>Enable fade previous steps when exporting HTML Steps</string>
             </property>
             <property name="text">
-             <string>HTML Export Fade Previous Steps:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="3" rowspan="2">
-           <widget class="QCheckBox" name="HighlightNewParts">
-            <property name="text">
-             <string>HTML Export Highlight New Parts:</string>
+             <string>HTML Steps Export Fade Previous Steps:</string>
             </property>
            </widget>
           </item>
@@ -550,6 +530,39 @@
               <string>Default Lights</string>
              </property>
             </item>
+           </widget>
+          </item>
+          <item row="4" column="3" rowspan="2">
+           <widget class="QCheckBox" name="HighlightNewParts">
+            <property name="toolTip">
+             <string>Enable highlight current step parts when exporting HTML Steps</string>
+            </property>
+            <property name="text">
+             <string>HTML Steps Export Highlight New Parts:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0" colspan="2">
+           <widget class="QCheckBox" name="MeshLOD">
+            <property name="toolTip">
+             <string>Enable switching from high to low level of detail during zoom</string>
+            </property>
+            <property name="statusTip">
+             <string>Enable mesh level of detail</string>
+            </property>
+            <property name="text">
+             <string>Mesh LOD (level of detail)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QCheckBox" name="LPubTrueFade">
+            <property name="toolTip">
+             <string>Make faded parts translucent but do not draw back faces</string>
+            </property>
+            <property name="text">
+             <string>LPub True Fade</string>
+            </property>
            </widget>
           </item>
          </layout>
