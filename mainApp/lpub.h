@@ -1178,24 +1178,32 @@ private:
 
   void skipHeader(Where &current);
 
-  int findPage(                    // traverse the hierarchy until we get to the
-    LGraphicsView  *view,          // page of interest, let traverse process the
-    LGraphicsScene *scene,         // page, and then finish by counting the rest
-    int           &pageNum,
-    QString const &addLine,
-    Where         &current,
-    PgSizeData    &pageSize,
-    bool           mirrored,
-    Meta           meta,
-    bool           printing,
-    int            contStepNumber,
-    int            renderStepNumber = 0,
-    QString        renderParentModel = "");
+  int findPage(                     // traverse the hierarchy until we get to the
+    LGraphicsView   *view,          // page of interest, let traverse process the
+    LGraphicsScene  *scene,         // page, and then finish by counting the rest
+    Meta             meta,
+    QString const   &addLine,
+    FindPageOptions &opts
+    /*
+    int            &pageNum,        //maxPages
+    QString const  &addLine,
+    Where          &current,
+    PgSizeData     &pageSize,
+    bool            isMirrored,
+    Meta            meta,
+    bool            printing,
+    int             contStepNumber,
+    int             renderStepNumber = 0,
+    QString         renderParentModel = ""
+    */);
 
   int drawPage(// process the page of interest and any callouts
     LGraphicsView  *view,
     LGraphicsScene *scene,
     Steps          *steps,
+    QString const   &addLine,
+    DrawPageOptions &opts
+    /*
     int            stepNum,
     QString const &addLine,
     Where         &current,
@@ -1210,7 +1218,8 @@ private:
     QStringList   &ldrStepFiles,
     QStringList   &csiKeys,
     bool           assembledCallout = false,
-    bool           calledOut = false);
+    bool           calledOut = false
+    */);
 
   void attitudeAdjustment(); // reformat the LDraw file to fix LPub backward compatibility issues 
     
