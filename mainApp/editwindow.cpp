@@ -555,10 +555,10 @@ void EditWindow::updateSelectedParts() {
 
     QTextCursor cursor = _textEdit->textCursor();
 
+    QTextCursor saveCursor = cursor;
+
     if(!(hasSelection = cursor.hasSelection()))
         cursor.select(QTextCursor::LineUnderCursor);
-
-    QTextCursor saveCursor = cursor;
 
     QString content = cursor.selection().toPlainText();
     selectedLines   = content.count("\n")+1;
@@ -607,8 +607,6 @@ void EditWindow::updateSelectedParts() {
 
     // restore selection
    _textEdit->setTextCursor(saveCursor);
-   if (!hasSelection)
-       _textEdit->moveCursor(QTextCursor::StartOfLine);
 
     cursor.endEditBlock();
 
