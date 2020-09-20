@@ -411,6 +411,17 @@ public:
 		return mLineTypeIndex;
 	}
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - Piece modified ***/
+	void SetPieceModified(bool Modified)
+	{
+		mPieceModified = Modified;
+	}
+
+	bool PieceModified() const
+	{
+		return mPieceModified;
+	}
+/*** LPub3D Mod end ***/
 
 	void RayTest(lcObjectRayTest& ObjectRayTest) const override;
 	void BoxTest(lcObjectBoxTest& ObjectBoxTest) const override;
@@ -638,6 +649,9 @@ protected:
 	int mFileLine;
 /*** LPub3D Mod - Selected Parts ***/
 	int mLineTypeIndex;
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - Piece modified ***/
+	int mPieceModified;
 /*** LPub3D Mod end ***/
 	QString mID;
 

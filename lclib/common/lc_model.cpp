@@ -2949,6 +2949,9 @@ void lcModel::MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector
 				{
 					Piece->MovePivotPoint(TransformedPieceDistance);
 					Moved = true;
+/*** LPub3D Mod - Piece modified ***/
+					Piece->SetPieceModified(Moved);
+/*** LPub3D Mod end ***/
 					break;
 				}
 			}
@@ -2962,6 +2965,9 @@ void lcModel::MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector
 					Piece->MoveSelected(mCurrentStep, gMainWindow->GetAddKeys(), TransformedPieceDistance);
 					Piece->UpdatePosition(mCurrentStep);
 					Moved = true;
+/*** LPub3D Mod - Piece modified ***/
+					Piece->SetPieceModified(Moved);
+/*** LPub3D Mod end ***/
 				}
 			}
 		}
@@ -3026,6 +3032,9 @@ void lcModel::RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool 
 		{
 			((lcPiece*)Focus)->RotatePivotPoint(RotationMatrix);
 			Rotated = true;
+/*** LPub3D Mod - Piece modified ***/
+			((lcPiece*)Focus)->SetPieceModified(Rotated);
+/*** LPub3D Mod end ***/
 		}
 	}
 	else
@@ -3055,6 +3064,9 @@ void lcModel::RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool 
 				Piece->Rotate(mCurrentStep, gMainWindow->GetAddKeys(), RotationMatrix, Center, WorldToFocusMatrix);
 				Piece->UpdatePosition(mCurrentStep);
 				Rotated = true;
+/*** LPub3D Mod - Piece modified ***/
+				Piece->SetPieceModified(Rotated);
+/*** LPub3D Mod end ***/
 			}
 		}
 		else
@@ -3083,6 +3095,9 @@ void lcModel::RotateSelectedPieces(const lcVector3& Angles, bool Relative, bool 
 				Piece->Rotate(mCurrentStep, gMainWindow->GetAddKeys(), RelativeRotationMatrix, Center, WorldToFocusMatrix);
 				Piece->UpdatePosition(mCurrentStep);
 				Rotated = true;
+/*** LPub3D Mod - Piece modified ***/
+				Piece->SetPieceModified(Rotated);
+/*** LPub3D Mod end ***/
 			}
 		}
 	}
@@ -3155,6 +3170,9 @@ void lcModel::SetSelectedPiecesColorIndex(int ColorIndex)
 		{
 			Piece->SetColorIndex(ColorIndex);
 			Modified = true;
+/*** LPub3D Mod - Piece modified ***/
+			Piece->SetPieceModified(Modified);
+/*** LPub3D Mod end ***/
 		}
 	}
 

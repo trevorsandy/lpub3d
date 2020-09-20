@@ -1137,10 +1137,16 @@ void Gui::createBuildModification()
     if (ActiveModel) {
         QString BuildModKey = buildModChangeKey;
         bool edit = ! BuildModKey.isEmpty();
+        QString statusLabel = edit ? "Updating" : "Creating";
+
+        emit progressBarPermInitSig();
+        emit progressPermRangeSig(0, 0);   // Busy indicator
+        emit progressPermMessageSig(QString("%1 Build Modification...").arg(statusLabel));
+
         if (buildModRange.first() || edit){
 
             emit messageSig(LOG_INFO, QString("%1 BuildMod for Step %2...")
-                            .arg(edit ? "Updating" : "Creating")
+                            .arg(statusLabel)
                             .arg(currentStep->stepNumber.number));
 
             // 'load...' default lines from modelFile and 'save...' buildMod lines from 3DViewer
@@ -1331,6 +1337,29 @@ void Gui::createBuildModification()
                 }
 
                 InsertPiece(mLPubPieces, Piece, mLPubPieces.GetSize());
+            };
+
+            auto GetAddedPieces = [this, &mViewerPieces]()
+            {
+                Rc rc;
+                Where walk = currentStep->top;
+                QString line = readLine(walk);
+                rc =  page.meta.parse(line, walk, false);
+                if (rc == StepRc || rc == RotStepRc)
+                    walk++;   // Advance past STEP meta
+                int stepParts = 0;
+                for ( ;
+                      walk.lineNumber < subFileSize(walk.modelName);
+                      walk.lineNumber++) {
+                    line = readLine(walk);
+                    rc =  page.meta.parse(line, walk, false);
+                    if (line.toLatin1()[0] == '1')
+                        stepParts++;
+                    if (rc == StepRc || rc == RotStepRc)
+                        break;
+                }
+                int result = mViewerPieces.GetSize() - stepParts;
+                return result;
             };
 
             // load LPub content
@@ -1548,12 +1577,13 @@ void Gui::createBuildModification()
 
             int LineIndex     = NEW_PART;
             int LineNumber    = 0;
+            int PieceAdjustment = 0;
             int EndModLineNum = ModActionLineNum;
 
             // Do we have a difference between the number of LPub pieces and Viewer pieces ?
             // If pieces have been added or removed, we capture the delta in PieceAdjustment
             // and AddedPieces.
-            int PieceAdjustment = AddedPieces = edit ? mViewerPieces.GetSize() - ModStepPieces : 0;
+            PieceAdjustment = AddedPieces = edit ? mViewerPieces.GetSize() - ModStepPieces : GetAddedPieces();
 
             // Adjust EndModLineNum to accomodate removed pieces
             if (PieceAdjustment < 0)
@@ -1589,7 +1619,7 @@ void Gui::createBuildModification()
                 }
 
                 // Set PieceModified. Only modified pieces are added to ViewerModContents
-                PieceModified = LineNumber <= ModActionLineNum || NewPiece;
+                PieceModified = LineNumber <= ModActionLineNum || Piece->PieceModified() || NewPiece;
 
 #ifdef QT_DEBUG_MODE
                 emit messageSig(LOG_DEBUG, QString("Viewer Piece LineIndex [%1], ID [%2], Name [%3], LineNumber [%4], Modified: [%5]")
@@ -1775,21 +1805,24 @@ void Gui::createBuildModification()
             int SaveModBeginLineNum  = edit ? BuildModBegin  : ModBeginLineNum;
             int SaveModActionLineNum = edit ? BuildModAction : ModActionLineNum;
             int SaveModEndLineNum    = edit ? BuildModEnd    : ModEndLineNum;
+            int SaveModPieces        = edit ? SaveModEndLineNum - SaveModActionLineNum - 1/*Meta Line*/
+                                            : BuildModPieces - (AddedPieces > 0 ? AddedPieces : 0);
 
 #ifdef QT_DEBUG_MODE
-            emit messageSig(LOG_DEBUG, QString("%1 BuildMod Save LineNumbers "
-                                               "Begin: %2, Action: %3, End: %4")
+            emit messageSig(LOG_TRACE, QString("%1 BuildMod Save LineNumbers "
+                                               "Begin: %2, Action: %3, End: %4, ModPieces: %5")
                                                .arg(edit ? "Update" : "Create")
                                                .arg(SaveModBeginLineNum)
                                                .arg(SaveModActionLineNum)
-                                               .arg(SaveModEndLineNum));
+                                               .arg(SaveModEndLineNum)
+                                               .arg(SaveModPieces));
 #endif
 
             // BuildMod meta command lines are written in a bottom up manner
 
-            // Set ModBeginLineNum to the top of the step plus the number of BuildMod lines
+            // Set ModBeginLineNum to top of step parts plus the number of parts replacec by BuildMod
             // This is the position for BUILD_MOD END
-            ModBeginLineNum += (BuildModPieces - (AddedPieces > 0 ? AddedPieces : 0));
+            ModBeginLineNum += SaveModPieces;
 
             // Set ModActionLineNum to SaveModBeginLineNum - initial BuildMod insertion line
             // This is the position of BUILD_MOD MOD_END
@@ -1870,7 +1903,7 @@ void Gui::createBuildModification()
             ModActionLineNum = ModBeginLineNum + BuildModPieces + 1;
 
             // Set to BUILD_MOD END command line number - add 1 for meta command
-            ModEndLineNum = ModActionLineNum + (BuildModPieces - (AddedPieces > 0 ? AddedPieces : 0)) + 1;
+            ModEndLineNum = ModActionLineNum + SaveModPieces + 1;
 
             // Set to updated number of pieces in the current Step
             ModStepPieces = mViewerPieces.GetSize();
@@ -1909,6 +1942,8 @@ void Gui::createBuildModification()
             // Reset the build mod range
             buildModRange = { 0/*BM_BEGIN_LINE_NUM*/, 0/*BM_ACTION_LINE_NUM*/, -1/*BM_MODEL_INDEX*/ };
         } // buildModRange || edit
+
+        emit progressPermStatusRemoveSig();
     }
 }
 
@@ -2064,13 +2099,17 @@ bool Gui::setBuildModChangeKey()
     {
         Rc rc;
         Where walk = currentStep->top;
-        walk++;   // Advance past STEP meta
+
+        QString line = readLine(walk);
+        rc =  page.meta.parse(line,walk,false);
+        if (rc == StepRc || rc == RotStepRc)
+            walk++;   // Advance past STEP meta
 
         // Parse the step lines
         for ( ;
               walk.lineNumber < subFileSize(walk.modelName);
               walk.lineNumber++) {
-            QString line = readLine(walk);
+            line = readLine(walk);
             Where here(walk.modelName,walk.lineNumber);
             rc =  page.meta.parse(line,here,false);
 
