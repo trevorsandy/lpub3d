@@ -100,16 +100,12 @@ public:
 	int mHeight = 0;
 };
 
-/*** LPub3D Mod - Disable [No2. Enabled polygon offset  0abc4a258a] ***/
-/***
 enum lcPolygonOffset
 {
 	LC_POLYGON_OFFSET_NONE,
 	LC_POLYGON_OFFSET_OPAQUE,
 	LC_POLYGON_OFFSET_TRANSLUCENT
 };
-***/
-/*** LPub3D Mod end ***/
 
 class lcContext
 {
@@ -150,15 +146,10 @@ public:
 
 	void SetMaterial(lcMaterialType MaterialType);
 	void SetViewport(int x, int y, int Width, int Height);
-/*** LPub3D Mod - Disable [No2. Enabled polygon offset  0abc4a258a] ***/
-    //void SetPolygonOffset(lcPolygonOffset PolygonOffset);
-/*** LPub3D Mod end ***/
+	void SetPolygonOffset(lcPolygonOffset PolygonOffset);
+	void SetDepthWrite(bool Enable);
 	void SetLineWidth(float LineWidth);
 	void SetSmoothShading(bool Smooth);
-/*** LPub3D Mod - Disable [No1. Reduce z-fighting 31703618c] ***/
-	//void BeginTranslucent();
-	//void EndTranslucent();
-/*** LPub3D Mod end ***/
 	void BindTexture2D(GLuint Texture);
 	void BindTexture2DMS(GLuint Texture);
 	void BindTextureCubeMap(GLuint Texture);
@@ -238,9 +229,8 @@ protected:
 	GLuint mTexture2D;
 	GLuint mTexture2DMS;
 	GLuint mTextureCubeMap;
-/*** LPub3D Mod - Disable [No2. Enabled polygon offset  0abc4a258a] ***/
-   //lcPolygonOffset mPolygonOffset;
-/*** LPub3D Mod end ***/
+	lcPolygonOffset mPolygonOffset;
+	bool mDepthWrite;
 	float mLineWidth;
 	int mMatrixMode;
 	bool mTextureEnabled;

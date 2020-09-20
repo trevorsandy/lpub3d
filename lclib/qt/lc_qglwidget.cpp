@@ -71,8 +71,8 @@ void lcGLWidget::SetCursor(LC_CURSOR_TYPE CursorType)
 
 	QGLWidget* widget = (QGLWidget*)mWidget;
 /*** LPub3D Mod - rotate step ***/
-       //if (CursorType != LC_CURSOR_DEFAULT && CursorType < LC_CURSOR_COUNT)
-        if (CursorType != LC_CURSOR_DEFAULT && CursorType < LC_CURSOR_COUNT - 1)
+	   //if (CursorType != LC_CURSOR_DEFAULT && CursorType < LC_CURSOR_COUNT)
+		if (CursorType != LC_CURSOR_DEFAULT && CursorType < LC_CURSOR_COUNT - 1)
 /*** LPub3D Mod end ***/
 	{
 		const lcCursorInfo& Cursor = Cursors[CursorType];
@@ -162,17 +162,8 @@ QSize lcQGLWidget::sizeHint() const
 
 void lcQGLWidget::initializeGL()
 {
-/*** LPub3D Mod - Revert [No1. Reduce z-fighting 31703618c] ***/
-    glEnable(GL_POLYGON_OFFSET_FILL);
-    // Revert [No2. Enabled polygon offset  0abc4a258a]
-    //glDisable(GL_POLYGON_OFFSET_FILL);
-    // End revert
-    glPolygonOffset(0.5f, 0.1f);
-/*** LPub3D Mod end ***/
-
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
-	glDepthMask(GL_TRUE);
 }
 
 void lcQGLWidget::resizeGL(int width, int height)

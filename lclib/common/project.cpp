@@ -447,26 +447,27 @@ bool Project::Load(const QString& FileName)
 	{
 		QBuffer Buffer(&FileData);
 		Buffer.open(QIODevice::ReadOnly);
+		std::vector<std::pair<int, lcModel*>> Models;
 
 		while (!Buffer.atEnd())
 		{
 			lcModel* Model = new lcModel(QString());
-			Model->SplitMPD(Buffer);
+			int Pos = Model->SplitMPD(Buffer);
 
-			if (mModels.IsEmpty() || !Model->GetProperties().mName.isEmpty())
+			if (Models.empty() || !Model->GetProperties().mName.isEmpty())
 			{
 				mModels.Add(Model);
+				Models.emplace_back(std::make_pair(Pos, Model));
 				Model->CreatePieceInfo(this);
 			}
 			else
 				delete Model;
 		}
 
-		Buffer.seek(0);
-
-		for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
+		for (size_t ModelIdx = 0; ModelIdx < Models.size(); ModelIdx++)
 		{
-			lcModel* Model = mModels[ModelIdx];
+			Buffer.seek(Models[ModelIdx].first);
+			lcModel* Model = Models[ModelIdx].second;
 			Model->LoadLDraw(Buffer, this);
 			Model->SetSaved();
 		}
@@ -2378,7 +2379,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 	for (const lcModelPartsEntry& ModelPart : ModelParts)
 	{
 		lcVector3 Points[8];
-
+		
 		lcGetBoxCorners(ModelPart.Info->GetBoundingBox(), Points);
 
 		for (int PointIdx = 0; PointIdx < 8; PointIdx++)
@@ -2566,7 +2567,7 @@ void Project::SaveImage()
 
 	if (Dialog.exec() != QDialog::Accepted)
 		return;
-
+	
 	QString Extension = QFileInfo(Dialog.mFileName).suffix();
 
 	if (!Extension.isEmpty())

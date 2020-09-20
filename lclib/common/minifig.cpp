@@ -529,7 +529,7 @@ void MinifigWizard::Calculate()
 			Mat2 = lcMatrix44Identity();
 		else
 			Mat2 = lcMatrix44RotationY(-LC_DTOR * 9.791f);
-		Mat2.SetTranslation(lcVector3(15.5f, 0, -8.0f));
+		Mat2.SetTranslation(lcVector3(15.552f, 0, -8.88f));
 
 		Mat = lcMul(mSettings[LC_MFW_RARM][GetSelectionIndex(LC_MFW_RARM)].Offset, Mat);
 		Mat = lcMul(Mat, Mat2);
@@ -563,7 +563,7 @@ void MinifigWizard::Calculate()
 			Mat2 = lcMatrix44Identity();
 		else
 			Mat2 = lcMatrix44RotationY(LC_DTOR * 9.791f);
-		Mat2.SetTranslation(lcVector3(-15.5f, 0.0f, -8.0f));
+		Mat2.SetTranslation(lcVector3(-15.552f, 0.0f, -8.88f));
 
 		Mat = lcMul(mSettings[LC_MFW_LARM][GetSelectionIndex(LC_MFW_LARM)].Offset, Mat);
 		Mat = lcMul(Mat, Mat2);

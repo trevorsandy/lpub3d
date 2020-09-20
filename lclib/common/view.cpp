@@ -918,6 +918,12 @@ void View::OnDraw()
 				mContext->SetProjectionMatrix(GetProjectionMatrix());
 			}
 
+			if (DrawInterface)
+			{
+				mContext->SetViewMatrix(mScene.GetViewMatrix());
+				DrawGrid();
+			}
+
 			mContext->SetLineWidth(Preferences.mLineWidth);
 
 			mScene.Draw(mContext);
@@ -956,8 +962,6 @@ void View::OnDraw()
 
 		mContext->SetLineWidth(1.0f);
 
-		DrawGrid();
-
 		if (Preferences.mDrawAxes)
 			DrawAxes();
 
@@ -970,7 +974,7 @@ void View::OnDraw()
 			DrawSelectMoveOverlay();
 		else
 		if ((Tool == LC_TOOL_ROTATE || (Tool == LC_TOOL_SELECT && mTrackButton != LC_TRACKBUTTON_NONE && mTrackTool >= LC_TRACKTOOL_ROTATE_X && mTrackTool <= LC_TRACKTOOL_ROTATE_XYZ)) && ActiveModel->AnyPiecesSelected())
-/*** LPub3D Mod - Rotate Step onDraw ***/
+/*** LPub3D Mod - Get rotate step angles ***/
 		{
 			  DrawRotateOverlay();
 			  gMainWindow->GetRotStepMetaAngles();
@@ -1772,6 +1776,8 @@ void View::DrawGrid()
 	{
 		mContext->BindTexture2D(gGridTexture->mTexture);
 		glEnable(GL_BLEND);
+		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GREATER, 0.25f);
 
 		mContext->SetMaterial(LC_MATERIAL_UNLIT_TEXTURE_MODULATE);
 		mContext->SetColor(lcVector4FromColor(Preferences.mGridStudColor));
@@ -1779,6 +1785,7 @@ void View::DrawGrid()
 		mContext->SetVertexFormat(0, 3, 0, 2, 0, false);
 		mContext->DrawPrimitives(GL_TRIANGLE_STRIP, 0, 4);
 
+		glDisable(GL_ALPHA_TEST);
 		glDisable(GL_BLEND);
 
 		BufferOffset = 4 * 5 * sizeof(float);
@@ -1873,7 +1880,7 @@ void View::DrawViewport()
 	mContext->SetViewMatrix(lcMatrix44Translation(lcVector3(0.375, 0.375, 0.0)));
 	mContext->SetProjectionMatrix(lcMatrix44Ortho(0.0f, mWidth, 0.0f, mHeight, -1.0f, 1.0f));
 
-	glDepthMask(GL_FALSE);
+	mContext->SetDepthWrite(false);
 	glDisable(GL_DEPTH_TEST);
 
 	if (gMainWindow->GetActiveView() == this)
@@ -1902,7 +1909,7 @@ void View::DrawViewport()
 		glDisable(GL_BLEND);
 	}
 
-	glDepthMask(GL_TRUE);
+	mContext->SetDepthWrite(true);
 	glEnable(GL_DEPTH_TEST);
 }
 

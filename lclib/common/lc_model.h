@@ -43,8 +43,8 @@ enum lcTransformType
 /*** LPub3D Mod - coord format ***/
 enum lcRotateStepCoordType
 {
-	LC_ROTATESTEP_COORD_FORMAT_LDRAW,
-	LC_ROTATESTEP_COORD_FORMAT_LEOCAD
+    LC_ROTATESTEP_COORD_FORMAT_LDRAW,
+    LC_ROTATESTEP_COORD_FORMAT_LEOCAD
 };
 /*** LPub3D Mod end ***/
 
@@ -221,7 +221,7 @@ public:
 	bool LoadBinary(lcFile* File);
 	bool LoadLDD(const QString& FileData);
 	bool LoadInventory(const QByteArray& Inventory);
-	void SplitMPD(QIODevice& Device);
+	int SplitMPD(QIODevice& Device);
 	void Merge(lcModel* Other);
 
 	void SetSaved()
@@ -388,8 +388,8 @@ protected:
 	Q_DECLARE_TR_FUNCTIONS(lcModel);
 /*** LPub3D Mod - Expose Model to LPub3D ***/
 	friend class Render;
-	friend class Gui;
-	friend class Step;
+    friend class Gui;
+    friend class Step;
 /*** LPub3D Mod end ***/
 };
 

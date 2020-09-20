@@ -1,4 +1,4 @@
-LPub3D 2.4.0.1.1691 (20 09 2020 09:23:34)
+LPub3D 2.4.0.1.1692 (20 09 2020 09:24:11)
 
 Features, enhancements, fixes and changes
 ------------
@@ -33,6 +33,9 @@ Revisions:
 - Change - Rotated Callout not displayed when last step contains NOSTEP #376
 - Change - Set default text edit text size to 24 point #357
 - Change - Setting perspective view with LDView renderer #378
+- Change - Update lclib to LeoCAD commit 9e41edf
+- Change - Update scene items bring to front send to back #379
+- Change - Upgrade Sourceforge site from http sf.net to https sf.io
 - Fix - 3DViewer not displayed when renderer set to other than Native #345
 - Fix - Export to pdf using page range generates single page #341
 - Fix - Crash when substituting a submodell that was threaded as part #377
