@@ -553,60 +553,60 @@ void Steps::addGraphicsItems(
             if (step && step->dividerType == RangeDivider) {
               int oX = offsetX + loc[XX] + range->loc[XX];
               int oY = offsetY + loc[YY] + range->loc[YY];
-#ifdef QT_DEBUG_MODE
-                logDebug() << "\nRange Divider offset before alloc adjust for Step [" << step->stepNumber.number << "]:"
-                           << "\noX (pre Alloc) [" << oX << "] = offsetX" << offsetX << "+ loc[XX]" << loc[XX]  << "+ range->loc[XX]"  << range->loc[XX]
-                           << "\noY (pre Alloc) [" << oY << "] = offsetY" << offsetY << "+ loc[YY]" << loc[YY] << "+ range->loc[YY]" << range->loc[YY]
-                              ;
-#endif
+//#ifdef QT_DEBUG_MODE
+//                logDebug() << "\nRange Divider offset before alloc adjust for Step [" << step->stepNumber.number << "]:"
+//                           << "\noX (pre Alloc) [" << oX << "] = offsetX" << offsetX << "+ loc[XX]" << loc[XX]  << "+ range->loc[XX]"  << range->loc[XX]
+//                           << "\noY (pre Alloc) [" << oY << "] = offsetY" << offsetY << "+ loc[YY]" << loc[YY] << "+ range->loc[YY]" << range->loc[YY]
+//                              ;
+//#endif
               if (allocEnc == Vertical) {
-                int dbg_oX = oX;
+//                int dbg_oX = oX;
                 oX += range->size[XX];
-#ifdef QT_DEBUG_MODE
-                logDebug() << "\nRange Divider Vertical alloc (Left/Right view) offset adjust for Step [" << step->stepNumber.number << "]:"
-                           << "\noX Vertical  [" << oX << "] = oX" << dbg_oX << "+= range->size[XX]" << range->size[XX]
-                              ;
-#endif
+//#ifdef QT_DEBUG_MODE
+//                logDebug() << "\nRange Divider Vertical alloc (Left/Right view) offset adjust for Step [" << step->stepNumber.number << "]:"
+//                           << "\noX Vertical  [" << oX << "] = oX" << dbg_oX << "+= range->size[XX]" << range->size[XX]
+//                              ;
+//#endif
               } else {
-                int dbg_oY = oY;
+//                int dbg_oY = oY;
                 oY += range->size[YY];
-#ifdef QT_DEBUG_MODE
-                logDebug() << "\nRange Divider Horizontal alloc (Top/Bottom view) offset adjust for Step [" << step->stepNumber.number << "]:"
-                           << "\noY Horizontal[" << oY << "] = oX" << dbg_oY << "+= range->size[YY]" << range->size[YY]
-                              ;
-#endif
+//#ifdef QT_DEBUG_MODE
+//                logDebug() << "\nRange Divider Horizontal alloc (Top/Bottom view) offset adjust for Step [" << step->stepNumber.number << "]:"
+//                           << "\noY Horizontal[" << oY << "] = oX" << dbg_oY << "+= range->size[YY]" << range->size[YY]
+//                              ;
+//#endif
               }
-#ifdef QT_DEBUG_MODE
-              logDebug() << "\nRange Divider - Ranges and Range Dimensions for Step [" << step->stepNumber.number << "]:"
-                         << "\nPage Size XX W        [" << gui->pageSize(meta.LPub.page,XX) << "]"
-                         << "\nPage Size YY H        [" << gui->pageSize(meta.LPub.page,YY) << "]"
-                         << "\nRanges::loc XX        [" << Steps::loc[XX] << "]"
-                         << "\nRanges::loc YY        [" << Steps::loc[YY] << "]"
-                         << "\nRanges::size XX W     [" << Steps::size[XX] << "]"
-                         << "\nRanges::size YY H     [" << Steps::size[YY] << "]"
-                         << "\nRange[" << i << "]::loc XX    [" << range->loc[XX] << "]"
-                         << "\nRange[" << i << "]::loc YY    [" << range->loc[YY] << "]"
-                         << "\nRange[" << i << "]::size XX W [" << range->size[XX] << "]"
-                         << "\nRange[" << i << "]::size YY H [" << range->size[YY] << "]"
-                         << "\noffsetX W             [" << offsetX << "] offsetX"
-                         << "\noffsetY H             [" << offsetY << "] offsetY"
-                         << "\noX (Divider)          [" << oX << "] = offsetX" << offsetX << " + ranges->loc[XX]" << Steps::loc[XX] << " + range->loc[XX]" << range->loc[XX]
-                         << "\noY (Divider)          [" << oY << "] = offsetY" << offsetY << " + ranges->loc[YY]" << Steps::loc[YY] << " + range->loc[YY]" << range->loc[YY]
-                         << "\n----------------"
-                         << "\nDivider::oX           [" << oX << "] = offsetX" << offsetX << " + ranges->loc[XX]" << Steps::loc[XX] << " + step->loc[XX]" << step->loc[XX]
-                         << "\nDivider::oY           [" << oY << "] = offsetY" << offsetY << " + ranges->loc[YY]" << Steps::loc[YY] << " + range->loc[YY]" << range->loc[YY]
-                            ;
-#endif
+//#ifdef QT_DEBUG_MODE
+//              logDebug() << "\nRange Divider - Ranges and Range Dimensions for Step [" << step->stepNumber.number << "]:"
+//                         << "\nPage Size XX W        [" << gui->pageSize(meta.LPub.page,XX) << "]"
+//                         << "\nPage Size YY H        [" << gui->pageSize(meta.LPub.page,YY) << "]"
+//                         << "\nRanges::loc XX        [" << Steps::loc[XX] << "]"
+//                         << "\nRanges::loc YY        [" << Steps::loc[YY] << "]"
+//                         << "\nRanges::size XX W     [" << Steps::size[XX] << "]"
+//                         << "\nRanges::size YY H     [" << Steps::size[YY] << "]"
+//                         << "\nRange[" << i << "]::loc XX    [" << range->loc[XX] << "]"
+//                         << "\nRange[" << i << "]::loc YY    [" << range->loc[YY] << "]"
+//                         << "\nRange[" << i << "]::size XX W [" << range->size[XX] << "]"
+//                         << "\nRange[" << i << "]::size YY H [" << range->size[YY] << "]"
+//                         << "\noffsetX W             [" << offsetX << "] offsetX"
+//                         << "\noffsetY H             [" << offsetY << "] offsetY"
+//                         << "\noX (Divider)          [" << oX << "] = offsetX" << offsetX << " + ranges->loc[XX]" << Steps::loc[XX] << " + range->loc[XX]" << range->loc[XX]
+//                         << "\noY (Divider)          [" << oY << "] = offsetY" << offsetY << " + ranges->loc[YY]" << Steps::loc[YY] << " + range->loc[YY]" << range->loc[YY]
+//                         << "\n----------------"
+//                         << "\nDivider::oX           [" << oX << "] = offsetX" << offsetX << " + ranges->loc[XX]" << Steps::loc[XX] << " + step->loc[XX]" << step->loc[XX]
+//                         << "\nDivider::oY           [" << oY << "] = offsetY" << offsetY << " + ranges->loc[YY]" << Steps::loc[YY] << " + range->loc[YY]" << range->loc[YY]
+//                            ;
+//#endif
               DividerItem *divider = new DividerItem(step,&meta,oX,oY);
               divider->setParentItem(parent);
-#ifdef QT_DEBUG_MODE
-              logDebug() << "\nRange Divider - Dimensions for Step [" << step->stepNumber.number << "]:"
-                         << "\nDivider::loc XX    [" << divider->loc[XX] << "]"
-                         << "\nDivider::loc YY    [" << divider->loc[YY] << "]"
-                         << "\nDivider::size XX W [" << divider->size[XX] << "]"
-                         << "\nDivider::size YY H [" << divider->size[YY] << "]"
-                            ;
-#endif
+//#ifdef QT_DEBUG_MODE
+//              logDebug() << "\nRange Divider - Dimensions for Step [" << step->stepNumber.number << "]:"
+//                         << "\nDivider::loc XX    [" << divider->loc[XX] << "]"
+//                         << "\nDivider::loc YY    [" << divider->loc[YY] << "]"
+//                         << "\nDivider::size XX W [" << divider->size[XX] << "]"
+//                         << "\nDivider::size YY H [" << divider->size[YY] << "]"
+//                            ;
+//#endif
               //   add divider pointers (if any) to the graphics scene
               for (int j = 0; j < range->rangeDividerPointerList.size(); j++) {
                   Pointer *pointer = range->rangeDividerPointerList[j];
@@ -629,40 +629,40 @@ void Steps::addGraphicsItems(
                 oX = offsetX + loc[XX] + step->loc[XX];
                 oY = offsetY + loc[YY] + range->loc[YY];
               }
-#ifdef QT_DEBUG_MODE //int which  = allocType() == Vertical ? YY : XX;  // " <<  << " // " <<
-              logDebug() << "\nStep Divider - Ranges and Range Dimensions for Step [" << step->stepNumber.number << "]:"
-                         << "\nPage Size XX W       [" << gui->pageSize(meta.LPub.page,XX) << "]"
-                         << "\nPage Size YY H       [" << gui->pageSize(meta.LPub.page,YY) << "]"
-                         << "\nRanges::loc XX       [" << Steps::loc[XX] << "]"
-                         << "\nRanges::loc YY       [" << Steps::loc[YY] << "]"
-                         << "\nRanges::size XX W    [" << Steps::size[XX] << "]"
-                         << "\nRanges::size YY H    [" << Steps::size[YY] << "]"
-                         << (allocEnc == Vertical ? "\nStep[" : "\nRange[")
-                         << (allocEnc == Vertical ? i : step->stepNumber.number) << "]::loc XX   ["
-                         << (allocEnc == Vertical ? step->loc[XX] : range->loc[XX]) << "]"
-                         << (allocEnc == Vertical ? "\nStep[" : "\nRange[")
-                         << (allocEnc == Vertical ? i : step->stepNumber.number) << "]::loc YY   ["
-                         << (allocEnc == Vertical ? step->loc[YY] : range->loc[YY])  << "]"
-                         << "\nStep[" << step->stepNumber.number << "]::size XX W [" << step->size[XX] << "]"
-                         << "\nStep[" << step->stepNumber.number << "]::size YY H [" << step->size[YY] << "]"
-                         << "\noffsetX              [" << offsetX << "] offsetX"
-                         << "\noffsetY              [" << offsetY << "] offsetY"
-                         << "\nDivider::oX          [" << oX << "] = offsetX" << offsetX << "+ ranges->loc[XX]" << Steps::loc[XX] << "+ step->loc[XX]" << step->loc[XX]
-                         << "\nDivider::oY          [" << oY << "] = offsetY" << offsetY << "+ ranges->loc[YY]" << Steps::loc[YY] << "+ range->loc[YY]" << range->loc[YY]
-                            ;
-#endif
+//#ifdef QT_DEBUG_MODE //int which  = allocType() == Vertical ? YY : XX;  // " <<  << " // " <<
+//              logDebug() << "\nStep Divider - Ranges and Range Dimensions for Step [" << step->stepNumber.number << "]:"
+//                         << "\nPage Size XX W       [" << gui->pageSize(meta.LPub.page,XX) << "]"
+//                         << "\nPage Size YY H       [" << gui->pageSize(meta.LPub.page,YY) << "]"
+//                         << "\nRanges::loc XX       [" << Steps::loc[XX] << "]"
+//                         << "\nRanges::loc YY       [" << Steps::loc[YY] << "]"
+//                         << "\nRanges::size XX W    [" << Steps::size[XX] << "]"
+//                         << "\nRanges::size YY H    [" << Steps::size[YY] << "]"
+//                         << (allocEnc == Vertical ? "\nStep[" : "\nRange[")
+//                         << (allocEnc == Vertical ? i : step->stepNumber.number) << "]::loc XX   ["
+//                         << (allocEnc == Vertical ? step->loc[XX] : range->loc[XX]) << "]"
+//                         << (allocEnc == Vertical ? "\nStep[" : "\nRange[")
+//                         << (allocEnc == Vertical ? i : step->stepNumber.number) << "]::loc YY   ["
+//                         << (allocEnc == Vertical ? step->loc[YY] : range->loc[YY])  << "]"
+//                         << "\nStep[" << step->stepNumber.number << "]::size XX W [" << step->size[XX] << "]"
+//                         << "\nStep[" << step->stepNumber.number << "]::size YY H [" << step->size[YY] << "]"
+//                         << "\noffsetX              [" << offsetX << "] offsetX"
+//                         << "\noffsetY              [" << offsetY << "] offsetY"
+//                         << "\nDivider::oX          [" << oX << "] = offsetX" << offsetX << "+ ranges->loc[XX]" << Steps::loc[XX] << "+ step->loc[XX]" << step->loc[XX]
+//                         << "\nDivider::oY          [" << oY << "] = offsetY" << offsetY << "+ ranges->loc[YY]" << Steps::loc[YY] << "+ range->loc[YY]" << range->loc[YY]
+//                            ;
+//#endif
               DividerItem *divider = new DividerItem(step,&meta,oX,oY);
               divider->setParentItem(parent);
               divider->setZValue(meta.LPub.page.scene.divider.zValue());
               divider->lineItem->setZValue(meta.LPub.page.scene.dividerLine.zValue());
-#ifdef QT_DEBUG_MODE
-              logDebug() << "\nStep Divider - Dimensions for Step [" << step->stepNumber.number << "]:"
-                         << "\nDivider::loc XX    [" << divider->loc[XX] << "]"
-                         << "\nDivider::loc YY    [" << divider->loc[YY] << "]"
-                         << "\nDivider::size XX W [" << divider->size[XX] << "]"
-                         << "\nDivider::size YY H [" << divider->size[YY] << "]"
-                            ;
-#endif
+//#ifdef QT_DEBUG_MODE
+//              logDebug() << "\nStep Divider - Dimensions for Step [" << step->stepNumber.number << "]:"
+//                         << "\nDivider::loc XX    [" << divider->loc[XX] << "]"
+//                         << "\nDivider::loc YY    [" << divider->loc[YY] << "]"
+//                         << "\nDivider::size XX W [" << divider->size[XX] << "]"
+//                         << "\nDivider::size YY H [" << divider->size[YY] << "]"
+//                            ;
+//#endif
               //   add divider pointers (if any) to the graphics scene
               for (int j = 0; j < range->stepDividerPointerList.size(); j++) {
                 Pointer *pointer = range->stepDividerPointerList[j];

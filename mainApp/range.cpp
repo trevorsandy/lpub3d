@@ -210,12 +210,12 @@ void Range::sizeitVert()
 
       size[YY] += step->size[YY] + lastMargin;
 
-#ifdef QT_DEBUG_MODE
-      logTrace() << "\nRange.cpp Range::sizeVert()"
-                 << "\nRangeDivider Vertical Step [" << step->stepNumber.number << "] Height:"
-                 << "\nStep::size YY     [" << step->size[YY] << "]"
-                    ;
-#endif
+//#ifdef QT_DEBUG_MODE
+//      logTrace() << "\nRange.cpp Range::sizeVert()"
+//                 << "\nRangeDivider Vertical Step [" << step->stepNumber.number << "] Height:"
+//                 << "\nStep::size YY     [" << step->size[YY] << "]"
+//                    ;
+//#endif
     } else if (list[i]->relativeType == ReserveType) {
       Reserve *reserve = dynamic_cast<Reserve *>(list[i]);
       size[YY] += reserve->size[YY];
@@ -261,13 +261,13 @@ void Range::sizeitVert()
   
   setBoundingSize();
 
-#ifdef QT_DEBUG_MODE
-  logTrace() << "\nRange.cpp Range::sizeitVert()"
-             << "\nVertical Range Size:"
-             << "\nRange::size XX     [" << size[XX] << "]"
-             << "\nRange::size YY     [" << size[YY] << "]"
-                ;
-#endif
+//#ifdef QT_DEBUG_MODE
+//  logTrace() << "\nRange.cpp Range::sizeitVert()"
+//             << "\nVertical Range Size:"
+//             << "\nRange::size XX     [" << size[XX] << "]"
+//             << "\nRange::size YY     [" << size[YY] << "]"
+//                ;
+//#endif
 }
 
 /*
@@ -288,13 +288,13 @@ void Range::placeit(int max, int x, int y)
     stepSpacing = (max - size[y])/(list.size() - 1);
   }
 
-#ifdef QT_DEBUG_MODE
+//#ifdef QT_DEBUG_MODE
 //  logNotice() << "\nRange.cpp Range::placeit()"
 //              << "\nRangeDivider Range Spacing and Size Height (Start):"
 //              << "\nRange::stepSpacing [" << stepSpacing << "]"
 //              << "\nRange::size YY     [" << size[y] << "]"
 //                 ;
-#endif
+//#endif
   /* evenly space the steps Vertically */
 
   int lastMargin = 0;
@@ -460,13 +460,13 @@ void Range::sizeitHoriz()
 
   setBoundingSize();
 
-#ifdef QT_DEBUG_MODE
-  logTrace() << "\nRange.cpp Range::sizeitHoriz()"
-             << "\nHorizontal Range Size:"
-             << "\nRange::size XX     [" << size[XX] << "]"
-             << "\nRange::size YY     [" << size[YY] << "]"
-                ;
-#endif
+//#ifdef QT_DEBUG_MODE
+//  logTrace() << "\nRange.cpp Range::sizeitHoriz()"
+//             << "\nHorizontal Range Size:"
+//             << "\nRange::size XX     [" << size[XX] << "]"
+//             << "\nRange::size YY     [" << size[YY] << "]"
+//                ;
+//#endif
 }
 
 /*****************************************************************************

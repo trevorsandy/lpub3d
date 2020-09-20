@@ -278,15 +278,15 @@ void Callout::sizeIt()
   size[XX] += int(borderData.thickness);
   size[YY] += int(borderData.thickness);
 
-#ifdef QT_DEBUG_MODE
-  logNotice() << "\nCallout Final Size:"
+//#ifdef QT_DEBUG_MODE
+//  logNotice() << "\nCallout Final Size:"
 //              << "\nAdjustment XX W (Border Thickness)  [" << borderData.thickness << "]"
 //              << "\nAdjustment XX H (Border Thickness)  [" << borderData.thickness << "]"
 //              << "\n----------------"
-              << "\nFinal Callout size XX W            [" << size[XX] << "]"
-              << "\nFinal Callout size YY H            [" << size[YY] << "]"
-                ;
-#endif
+//              << "\nFinal Callout size XX W            [" << size[XX] << "]"
+//              << "\nFinal Callout size YY H            [" << size[YY] << "]"
+//                ;
+//#endif
 }
 
 // Callouts that have round corners are tricky, trying to get the pointer to start/end on the
@@ -362,35 +362,35 @@ void Callout::addGraphicsItems(
     loc[YY] = int(borderData.margin[1]);
   }
  
-#ifdef QT_DEBUG_MODE
-  logNotice() << "\nCALLOUT PLACEMENT SUMMARY (addGraphicsItems) - "
-              << "\nPLACEMENT DATA -       "
-              << " \nPlacement:            "   << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
-              << " \nJustification:        "   << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
-              << " \nRelativeTo:           "   << RelNames[placement.value().relativeTo]     << " (" << placement.value().relativeTo << ")"
-              << " \nPreposition:          "   << PrepNames[placement.value().preposition]   << " (" << placement.value().preposition << ")"
-              << " \nRectPlacement:        "   << RectNames[placement.value().rectPlacement] << " (" << placement.value().rectPlacement << ")"
-              << " \nOffset[0](Placement): "   << placement.value().offsets[0]
-              << " \nOffset[1](Placement): "   << placement.value().offsets[1]
-              << "\nOTHER DATA -           "
-              << " \nOffxetX:              "   << offsetX
-              << " \nOffxetY:              "   << offsetY
-              << " \nAlloc:                "   << (meta.LPub.callout.alloc.value() == Vertical ? "Vertical" : "Horizontal")
-              << " \nBorder Thickness      "   << borderData.thickness
-              << " \nRelative Type:        "   << RelNames[relativeType]       << " (" << relativeType << ")"
-              << " \nParent Relative Type: "   << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
-              << " \nSize[XX]:             "   << size[XX]
-              << " \nSize[YY]:             "   << size[YY]
-              << " \nnewLoc[XX]:           "   << newLoc[XX]
-              << " \nnewLoc[YY]:           "   << newLoc[YY]
-              << " \nLoc[XX](bdr.margin):  "   << loc[XX]
-              << " \nLoc[YY](bdr.margin):  "   << loc[YY]
-              << " \nsaveLocX:             "   << saveLocX
-              << " \nsaveLocY:             "   << saveLocY
-              << " \nRelative To Size[0]:  "   << relativeToSize[0]
-              << " \nRelative To Size[1]:  "   << relativeToSize[1]
-                ;
-#endif
+//#ifdef QT_DEBUG_MODE
+//  logNotice() << "\nCALLOUT PLACEMENT SUMMARY (addGraphicsItems) - "
+//              << "\nPLACEMENT DATA -       "
+//              << " \nPlacement:            "   << PlacNames[placement.value().placement]     << " (" << placement.value().placement << ")"
+//              << " \nJustification:        "   << PlacNames[placement.value().justification] << " (" << placement.value().justification << ")"
+//              << " \nRelativeTo:           "   << RelNames[placement.value().relativeTo]     << " (" << placement.value().relativeTo << ")"
+//              << " \nPreposition:          "   << PrepNames[placement.value().preposition]   << " (" << placement.value().preposition << ")"
+//              << " \nRectPlacement:        "   << RectNames[placement.value().rectPlacement] << " (" << placement.value().rectPlacement << ")"
+//              << " \nOffset[0](Placement): "   << placement.value().offsets[0]
+//              << " \nOffset[1](Placement): "   << placement.value().offsets[1]
+//              << "\nOTHER DATA -           "
+//              << " \nOffxetX:              "   << offsetX
+//              << " \nOffxetY:              "   << offsetY
+//              << " \nAlloc:                "   << (meta.LPub.callout.alloc.value() == Vertical ? "Vertical" : "Horizontal")
+//              << " \nBorder Thickness      "   << borderData.thickness
+//              << " \nRelative Type:        "   << RelNames[relativeType]       << " (" << relativeType << ")"
+//              << " \nParent Relative Type: "   << RelNames[parentRelativeType] << " (" << parentRelativeType << ")"
+//              << " \nSize[XX]:             "   << size[XX]
+//              << " \nSize[YY]:             "   << size[YY]
+//              << " \nnewLoc[XX]:           "   << newLoc[XX]
+//              << " \nnewLoc[YY]:           "   << newLoc[YY]
+//              << " \nLoc[XX](bdr.margin):  "   << loc[XX]
+//              << " \nLoc[YY](bdr.margin):  "   << loc[YY]
+//              << " \nsaveLocX:             "   << saveLocX
+//              << " \nsaveLocY:             "   << saveLocY
+//              << " \nRelative To Size[0]:  "   << relativeToSize[0]
+//              << " \nRelative To Size[1]:  "   << relativeToSize[1]
+//                ;
+//#endif
 
   if (meta.LPub.callout.alloc.value() == Vertical) {
     addGraphicsItems(Vertical,0,int(borderData.thickness),background, movable);

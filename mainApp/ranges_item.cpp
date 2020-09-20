@@ -220,22 +220,22 @@ DividerItem::DividerItem(
 
   /* Size the rectangle around the divider */
 
-#ifdef QT_DEBUG_MODE
-          logDebug() << "\n" << dividerType << " Divider Attributes for Step [" << _step->stepNumber.number << "]:"
-                     << "\nseparatorLength    [" << separatorLength << "]"
-                     << "\nallocEnc           [" << (allocEnc == Vertical ? "Vertical" : "Horizontal") << "]"
-                     << "\nsepData.margin[XX] [" << sepData.margin[XX] << "]"
-                     << "\nsepData.margin[YY] [" << sepData.margin[YY] << "]"
-                     << "\nsepData.thickness  [" << sepData.thickness << "]"
-                     << "\nrange->stepSpacing [" << range->stepSpacing << "]"
-                     << "\nseparatorHeightX   [" << sepData.margin[XX]+sepData.thickness*2 << "]  sepData.margin[XX] + sepData.thickness * 2"
-                     << "\nseparatorHeightY   [" << sepData.margin[YY]+sepData.thickness*2 << "]  sepData.margin[YY] + sepData.thickness * 2"
-                     << "\nseparatorWidthX V  [" << sepData.margin[XX]+sepData.thickness/2 << "] sepData.margin[XX] + sepData.thickness / 2"
-                     << "\nseparatorWidthY H  [" << sepData.margin[YY]+sepData.thickness/2 << "] sepData.margin[YY] + sepData.thickness / 2"
-                     << "\nspacingHeightY  V  [" << (sepData.margin[YY]+sepData.thickness+range->stepSpacing)/2 << "] (sepData.margin[YY]+sepData.thickness+range->stepSpacing) / 2"
-                     << "\nspacingHeightX  H  [" << (sepData.margin[XX]+sepData.thickness+range->stepSpacing)/2 << "] (sepData.margin[XX]+sepData.thickness+range->stepSpacing) / 2"
-                        ;
-#endif
+//#ifdef QT_DEBUG_MODE
+//          logDebug() << "\n" << dividerType << " Divider Attributes for Step [" << _step->stepNumber.number << "]:"
+//                     << "\nseparatorLength    [" << separatorLength << "]"
+//                     << "\nallocEnc           [" << (allocEnc == Vertical ? "Vertical" : "Horizontal") << "]"
+//                     << "\nsepData.margin[XX] [" << sepData.margin[XX] << "]"
+//                     << "\nsepData.margin[YY] [" << sepData.margin[YY] << "]"
+//                     << "\nsepData.thickness  [" << sepData.thickness << "]"
+//                     << "\nrange->stepSpacing [" << range->stepSpacing << "]"
+//                     << "\nseparatorHeightX   [" << sepData.margin[XX]+sepData.thickness*2 << "]  sepData.margin[XX] + sepData.thickness * 2"
+//                     << "\nseparatorHeightY   [" << sepData.margin[YY]+sepData.thickness*2 << "]  sepData.margin[YY] + sepData.thickness * 2"
+//                     << "\nseparatorWidthX V  [" << sepData.margin[XX]+sepData.thickness/2 << "] sepData.margin[XX] + sepData.thickness / 2"
+//                     << "\nseparatorWidthY H  [" << sepData.margin[YY]+sepData.thickness/2 << "] sepData.margin[YY] + sepData.thickness / 2"
+//                     << "\nspacingHeightY  V  [" << (sepData.margin[YY]+sepData.thickness+range->stepSpacing)/2 << "] (sepData.margin[YY]+sepData.thickness+range->stepSpacing) / 2"
+//                     << "\nspacingHeightX  H  [" << (sepData.margin[XX]+sepData.thickness+range->stepSpacing)/2 << "] (sepData.margin[XX]+sepData.thickness+range->stepSpacing) / 2"
+//                        ;
+//#endif
 
   if(parentStep->dividerType == StepDivider) { // Step divider
       separatorHeightY = int(sepData.margin[YY]+sepData.thickness)*2;
@@ -247,14 +247,14 @@ DividerItem::DividerItem(
                   _offsetY,
                   separatorLength,
                   separatorHeightY);
-#ifdef QT_DEBUG_MODE
-          logDebug() << "\nStep Divider Vertical Rectangle for Step [" << _step->stepNumber.number << "]:"
-                     << "\nrectangle::(x1) [" << _offsetX << "] offsetX"
-                     << "\nrectangle::(y1) [" << _offsetY << "] offsetY"
-                     << "\nrectangle::(x2) [" << separatorLength << "] separatorLength"
-                     << "\nrectangle::(y2) [" << separatorHeightY << "] separatorHeightY"
-                        ;
-#endif
+//#ifdef QT_DEBUG_MODE
+//          logDebug() << "\nStep Divider Vertical Rectangle for Step [" << _step->stepNumber.number << "]:"
+//                     << "\nrectangle::(x1) [" << _offsetX << "] offsetX"
+//                     << "\nrectangle::(y1) [" << _offsetY << "] offsetY"
+//                     << "\nrectangle::(x2) [" << separatorLength << "] separatorLength"
+//                     << "\nrectangle::(y2) [" << separatorHeightY << "] separatorHeightY"
+//                        ;
+//#endif
       } else {
           if (sepData.type == SepData::LenPage) // // Manually adjust page size
               separatorLength = gui->pageSize(meta.LPub.page,YY) - (_offsetY + separatorHeightY);
@@ -262,14 +262,14 @@ DividerItem::DividerItem(
                   _offsetY,
                   separatorWidthX,
                   separatorLength);
-#ifdef QT_DEBUG_MODE
-          logDebug() << "\nStep Divider Horizontal Rectangle for Step [" << _step->stepNumber.number << "]:"
-                     << "\nrectangle::(x1) [" << _offsetX << "] offsetX"
-                     << "\nrectangle::(y1) [" << _offsetY << "] offsetY"
-                     << "\nrectangle::(x2) [" << separatorWidthX << "] separatorWidthX"
-                     << "\nrectangle::(y2) [" << separatorLength << "] separatorLength"
-                        ;
- #endif
+//#ifdef QT_DEBUG_MODE
+//          logDebug() << "\nStep Divider Horizontal Rectangle for Step [" << _step->stepNumber.number << "]:"
+//                     << "\nrectangle::(x1) [" << _offsetX << "] offsetX"
+//                     << "\nrectangle::(y1) [" << _offsetY << "] offsetY"
+//                     << "\nrectangle::(x2) [" << separatorWidthX << "] separatorWidthX"
+//                     << "\nrectangle::(y2) [" << separatorLength << "] separatorLength"
+//                        ;
+// #endif
       }
   } else {                        // Range divider
       separatorHeightY = int(sepData.margin[YY])+int(sepData.thickness)*2;
@@ -279,27 +279,27 @@ DividerItem::DividerItem(
                 _offsetY,
                 separatorWidthX,
                 separatorLength);
-#ifdef QT_DEBUG_MODE
-        logDebug() << "\nRange Divider Horizontal Rectangle for Step [" << _step->stepNumber.number << "]:"
-                   << "\nrectangle::(x1) [" << _offsetX << "] offsetX"
-                   << "\nrectangle::(y1) [" << _offsetY << "] offsetY"
-                   << "\nrectangle::(x2) [" << separatorWidthX << "] separatorWidthX"
-                   << "\nrectangle::(y2) [" << separatorLength << "] separatorLength"
-                      ;
-#endif
+//#ifdef QT_DEBUG_MODE
+//        logDebug() << "\nRange Divider Horizontal Rectangle for Step [" << _step->stepNumber.number << "]:"
+//                   << "\nrectangle::(x1) [" << _offsetX << "] offsetX"
+//                   << "\nrectangle::(y1) [" << _offsetY << "] offsetY"
+//                   << "\nrectangle::(x2) [" << separatorWidthX << "] separatorWidthX"
+//                   << "\nrectangle::(y2) [" << separatorLength << "] separatorLength"
+//                      ;
+//#endif
       } else {
         setRect(_offsetX,
                 _offsetY,
                 separatorLength,
                 separatorHeightY);
-#ifdef QT_DEBUG_MODE
-        logDebug() << "\nRange Divider Vertical Rectangle for Step [" << _step->stepNumber.number << "]:"
-                   << "\nrectangle::(x1) [" << _offsetX << "] offsetX"
-                   << "\nrectangle::(y1) [" << _offsetY << "] offsetY"
-                   << "\nrectangle::(x2) [" << separatorLength << "] separatorLength"
-                   << "\nrectangle::(y2) [" << separatorHeightY << "] separatorHeightY"
-                      ;
-#endif
+//#ifdef QT_DEBUG_MODE
+//        logDebug() << "\nRange Divider Vertical Rectangle for Step [" << _step->stepNumber.number << "]:"
+//                   << "\nrectangle::(x1) [" << _offsetX << "] offsetX"
+//                   << "\nrectangle::(y1) [" << _offsetY << "] offsetY"
+//                   << "\nrectangle::(x2) [" << separatorLength << "] separatorLength"
+//                   << "\nrectangle::(y2) [" << separatorHeightY << "] separatorHeightY"
+//                      ;
+//#endif
       }
   }
 
@@ -328,14 +328,14 @@ DividerItem::DividerItem(
                               _offsetY-spacingHeightY,    // top
                               _offsetX+separatorLength+separatorWidthX,
                               _offsetY-spacingHeightY);   // top
-#ifdef QT_DEBUG_MODE
-            logDebug() << "\nStep Divider Line Vertical Position points for Step [" << _step->stepNumber.number << "]:"
-                       << "\nlineItem::(x1) [" << _offsetX-separatorWidthX << "] offsetX - separatorWidthX"
-                       << "\nlineItem::(y1) [" << _offsetY-spacingHeightY << "] offsetY - spacingHeightY"
-                       << "\nlineItem::(x2) [" << _offsetX+separatorLength-separatorWidthX << "] offsetX + separatorLength - separatorWidthX"
-                       << "\nlineItem::(y2) [" << _offsetY-spacingHeightY << "] offsetY - (sepData.margin[YY] + spacingHeightY"
-                          ;
-#endif
+//#ifdef QT_DEBUG_MODE
+//            logDebug() << "\nStep Divider Line Vertical Position points for Step [" << _step->stepNumber.number << "]:"
+//                       << "\nlineItem::(x1) [" << _offsetX-separatorWidthX << "] offsetX - separatorWidthX"
+//                       << "\nlineItem::(y1) [" << _offsetY-spacingHeightY << "] offsetY - spacingHeightY"
+//                       << "\nlineItem::(x2) [" << _offsetX+separatorLength-separatorWidthX << "] offsetX + separatorLength - separatorWidthX"
+//                       << "\nlineItem::(y2) [" << _offsetY-spacingHeightY << "] offsetY - (sepData.margin[YY] + spacingHeightY"
+//                          ;
+//#endif
         } else {
             separatorHeightY = int(sepData.margin[YY])+int(sepData.thickness)/2;
             spacingWidthX    = /*sepData.margin[XX]+*/int(sepData.thickness+range->stepSpacing)/2;
@@ -343,14 +343,14 @@ DividerItem::DividerItem(
                               _offsetY-separatorHeightY,
                               _offsetX-spacingWidthX,     // left
                               _offsetY+separatorLength-separatorHeightY);
-#ifdef QT_DEBUG_MODE
-            logDebug() << "\nStep Divider Line Horizontal Position points for Step [" << _step->stepNumber.number << "]:"
-                       << "\nlineItem::(x1) [" << _offsetX-spacingWidthX << "] offsetX - spacingWidthX"
-                       << "\nlineItem::(y1) [" << _offsetY-separatorHeightY << "] offsetY - separatorHeightY"
-                       << "\nlineItem::(x2) [" << _offsetX-spacingWidthX << "] offsetX - spacingWidthX"
-                       << "\nlineItem::(y2) [" << _offsetY+separatorLength-separatorHeightY << "] offsetY + separatorLength - separatorHeightY"
-                          ;
-#endif
+//#ifdef QT_DEBUG_MODE
+//            logDebug() << "\nStep Divider Line Horizontal Position points for Step [" << _step->stepNumber.number << "]:"
+//                       << "\nlineItem::(x1) [" << _offsetX-spacingWidthX << "] offsetX - spacingWidthX"
+//                       << "\nlineItem::(y1) [" << _offsetY-separatorHeightY << "] offsetY - separatorHeightY"
+//                       << "\nlineItem::(x2) [" << _offsetX-spacingWidthX << "] offsetX - spacingWidthX"
+//                       << "\nlineItem::(y2) [" << _offsetY+separatorLength-separatorHeightY << "] offsetY + separatorLength - separatorHeightY"
+//                          ;
+//#endif
         }
     } else {                            // Range divider
         if (allocEnc == Vertical) {
@@ -360,14 +360,14 @@ DividerItem::DividerItem(
                             _offsetY-spacingHeightY,
                             _offsetX+separatorWidthX,   // right
                             _offsetY+separatorLength-spacingHeightY);
-#ifdef QT_DEBUG_MODE
-          logDebug() << "\nRange Divider Line Vertical Position points for Step [" << _step->stepNumber.number << "]:"
-                     << "\nlineItem::(x1) [" << _offsetX+separatorWidthX << "] offsetX + separatorWidth"
-                     << "\nlineItem::(y1) [" << _offsetY << "] offsetY"
-                     << "\nlineItem::(x2) [" << _offsetX+separatorWidthX << "] offsetX + separatorWidth"
-                     << "\nlineItem::(y2) [" << _offsetY+separatorLength << "] offsetY + separatorLength"
-                        ;
-#endif
+//#ifdef QT_DEBUG_MODE
+//          logDebug() << "\nRange Divider Line Vertical Position points for Step [" << _step->stepNumber.number << "]:"
+//                     << "\nlineItem::(x1) [" << _offsetX+separatorWidthX << "] offsetX + separatorWidth"
+//                     << "\nlineItem::(y1) [" << _offsetY << "] offsetY"
+//                     << "\nlineItem::(x2) [" << _offsetX+separatorWidthX << "] offsetX + separatorWidth"
+//                     << "\nlineItem::(y2) [" << _offsetY+separatorLength << "] offsetY + separatorLength"
+//                        ;
+//#endif
         } else {
           separatorHeightY = int(sepData.margin[YY])+int(sepData.thickness)/2;
           spacingWidthX    = 0.0; //(sepData.margin[XX]+sepData.thickness+range->stepSpacing)/2;
@@ -375,14 +375,14 @@ DividerItem::DividerItem(
                             _offsetY+separatorHeightY,   // top
                             _offsetX+separatorLength-spacingWidthX,
                             _offsetY+separatorHeightY);  // top
-#ifdef QT_DEBUG_MODE
-          logDebug() << "\nRange Divider Line Horizontal Position points for Step [" << _step->stepNumber.number << "]:"
-                     << "\nlineItem::(x1) [" << _offsetX-spacingWidthX << "] offsetX - spacingWidthX"
-                     << "\nlineItem::(y1) [" << _offsetY+separatorHeightY << "] offsetY + separatorHeightY"
-                     << "\nlineItem::(x2) [" << _offsetX+separatorLength-spacingWidthX << "] offsetX + separatorLength - spacingWidthX"
-                     << "\nlineItem::(y2) [" << _offsetY+separatorHeightY << "] offsetY + separatorHeightY"
-                        ;
-#endif
+//#ifdef QT_DEBUG_MODE
+//          logDebug() << "\nRange Divider Line Horizontal Position points for Step [" << _step->stepNumber.number << "]:"
+//                     << "\nlineItem::(x1) [" << _offsetX-spacingWidthX << "] offsetX - spacingWidthX"
+//                     << "\nlineItem::(y1) [" << _offsetY+separatorHeightY << "] offsetY + separatorHeightY"
+//                     << "\nlineItem::(x2) [" << _offsetX+separatorLength-spacingWidthX << "] offsetX + separatorLength - spacingWidthX"
+//                     << "\nlineItem::(y2) [" << _offsetY+separatorHeightY << "] offsetY + separatorHeightY"
+//                        ;
+//#endif
         }
     }
 
@@ -391,15 +391,15 @@ DividerItem::DividerItem(
     size[XX] = int(lineItem->boundingRect().size().width());
     size[YY] = int(lineItem->boundingRect().size().height());
 
-#ifdef QT_DEBUG_MODE
-    logDebug() << "\nFinal " << dividerType << " Divider Dimensions for Step [" << _step->stepNumber.number << "]:"
-               << "\nlineItem::loc XX  [" << loc[XX] << "]"
-               << "\nlineItem::loc YY  [" << loc[YY] << "]"
-               << "\nlineItem::size XX [" << size[XX] << "]"
-               << "\nlineItem::size YY [" << size[YY] << "]"
-               << "\nlineItem::size    [" << lineItem->boundingRect().size() << "]"
-                  ;
-#endif
+//#ifdef QT_DEBUG_MODE
+//    logDebug() << "\nFinal " << dividerType << " Divider Dimensions for Step [" << _step->stepNumber.number << "]:"
+//               << "\nlineItem::loc XX  [" << loc[XX] << "]"
+//               << "\nlineItem::loc YY  [" << loc[YY] << "]"
+//               << "\nlineItem::size XX [" << size[XX] << "]"
+//               << "\nlineItem::size YY [" << size[YY] << "]"
+//               << "\nlineItem::size    [" << lineItem->boundingRect().size() << "]"
+//                  ;
+//#endif
 
     QPen pen(LDrawColor::color(sepData.color));
     pen.setWidth(int(sepData.thickness));
