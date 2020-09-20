@@ -403,6 +403,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bMODEL_PARTS\\b"
     << "\\bMODEL_SCALE\\b"
     << "\\bMULTI_STEP\\b"
+    << "\\bNAME\\b"
     << "\\bNONE\\b"
     << "\\bNOSTEP\\b"
     << "\\bNUMBER\\b"

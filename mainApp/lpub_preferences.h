@@ -277,6 +277,7 @@ class Preferences
     static bool    customSceneRulerTrackingColor;
     static bool    customSceneGuideColor;
     static bool    debugLogging;
+    static bool    enableLineTypeIndexes;
 
 
 #ifdef Q_OS_MAC

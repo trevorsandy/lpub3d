@@ -155,6 +155,8 @@ public:
   bool HighlightNewParts;
 };
 
+// Page Options Routines
+
 class Meta;
 class Where;
 class PgSizeData;
@@ -210,6 +212,7 @@ public:
             QHash<QString, QStringList> &_bfx,
             QList<PliPartGroupMeta>     &_pliPartGroups,
             QVector<int>                &_lineTypeIndexes,
+            QHash<QString, QVector<int>>&_bfxLineTypeIndexes,
 
             int                          _stepNum,
             int                          _groupStepNumber,
@@ -228,6 +231,7 @@ public:
           bfx                           (_bfx),
           pliPartGroups                 (_pliPartGroups),
           lineTypeIndexes               (_lineTypeIndexes),
+          bfxLineTypeIndexes            (_bfxLineTypeIndexes),
 
           stepNum                       (_stepNum),
           groupStepNumber               (_groupStepNumber),
@@ -246,6 +250,7 @@ public:
     QHash<QString, QStringList> &bfx;
     QList<PliPartGroupMeta>     &pliPartGroups;
     QVector<int>                &lineTypeIndexes;
+    QHash<QString, QVector<int>>&bfxLineTypeIndexes;
 
     int                          stepNum;
     int                          groupStepNumber;

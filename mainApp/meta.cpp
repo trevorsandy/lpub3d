@@ -48,6 +48,7 @@
  */
 
 QHash<QString, int> tokenMap;
+QList<QRegExp> groupRegExp;
 
 bool AbstractMeta::reportErrors = false;
 
@@ -3307,8 +3308,8 @@ void RemoveMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
   group.init(   this,"GROUP",RemoveGroupRc);
-  parttype.init(this,"PART", RemovePartRc);
-  partname.init(this,"NAME", RemoveNameRc);
+  parttype.init(this,"PART", RemovePartTypeRc);
+  partname.init(this,"NAME", RemovePartNameRc);
 }
 
 /* ------------------ */
@@ -4970,6 +4971,52 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   reserve.setRange(0.0,1000000.0);
 }
 
+/* ------------------ */
+
+void PartTypeMeta::init(BranchMeta *parent, QString name)
+{
+  AbstractMeta::init(parent, name);
+  partType .init(this,"TYPE", PartTypeRc);
+}
+
+/* ------------------ */
+
+Rc PartTypeMeta::parse(QStringList &argv, int index,Where &here)
+{
+  Rc rc;
+
+  QHash<QString, AbstractMeta *>::iterator i = list.find(argv[index]);
+  if (i == list.end() || index == argv.size()) {
+      rc = OkRc;
+    } else {
+      rc = i.value()->parse(argv,index+1,here);
+    }
+  return rc;
+}
+
+/* ------------------ */
+
+void PartNameMeta::init(BranchMeta *parent, QString name)
+{
+  AbstractMeta::init(parent, name);
+  partName .init(this,"NAME", PartNameRc);
+}
+
+/* ------------------ */
+
+Rc PartNameMeta::parse(QStringList &argv, int index,Where &here)
+{
+  Rc rc;
+
+  QHash<QString, AbstractMeta *>::iterator i = list.find(argv[index]);
+  if (i == list.end() || index == argv.size()) {
+      rc = OkRc;
+    } else {
+      rc = i.value()->parse(argv,index+1,here);
+    }
+  return rc;
+}
+
 /* ------------------ */ 
 
 void MLCadMeta::init(BranchMeta *parent, QString name)
@@ -4998,7 +5045,7 @@ Rc MLCadMeta::parse(QStringList &argv, int index,Where &here)
 void LDCadMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  LDCadGrp.       init(this,"GROUP_NXT",  LDCadGroupRc);
+  LDCadGrp.       init(this,"GROUP_NXT", LDCadGroupRc);
 }
 
 /* ------------------ */
@@ -5244,6 +5291,31 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
       tokenMap["JUSTIFY_CENTER_VERTICAL"]   = JustifyCenterVertical;
       tokenMap["JUSTIFY_LEFT"]              = JustifyLeft;
     }
+
+  {
+    groupRegExp
+      << QRegExp ("^\\s*0\\s+(MLCAD)\\s+(BTG)\\s+(.*)$")
+      << QRegExp ("^\\s*0\\s+!?(LDCAD)\\s+(GROUP_NXT)\\s+\\[ids=([\\d\\s\\,]+)\\].*$")
+      << QRegExp ("^\\s*0\\s+!?(LEOCAD)\\s+(GROUP BEGIN)\\s+Group\\s+(.*)$",Qt::CaseInsensitive)
+      << QRegExp ("^\\s*0\\s+!?(LEOCAD)\\s+(GROUP)\\s+(END)$")
+      ;
+  }
+}
+
+QRegExp Meta::groupRx(QString &line, Rc &rc) {
+    int rxSize = groupRegExp.size();
+    for (int i = 0; i < rxSize; i++) {
+        if (line.contains(groupRegExp[i])) {
+            rc = i == 0 ? MLCadGroupRc :
+                 i == 1 ? LDCadGroupRc :
+                 i == 2 ? LeoCadGroupBeginRc :
+                          LeoCadGroupEndRc
+                          ;
+            return groupRegExp[i];
+        }
+    }
+    rc = OkRc;
+    return QRegExp();
 }
 
 Rc Meta::parse(
@@ -5251,26 +5323,17 @@ Rc Meta::parse(
     Where    &here,
     bool      reportErrors)
 {
-  QStringList argv;
-  
-  QRegExp bgt(  "^\\s*0\\s+(MLCAD)\\s+(BTG)\\s+(.*)$");
-  QRegExp ldcg( "^\\s*0\\s+!?(LDCAD)\\s+(GROUP_NXT)\\s+\\[ids=([\\d\\s\\,]+)\\].*$");
-  QRegExp leogb("^\\s*0\\s+!?(LEOCAD)\\s+(GROUP)\\s+(BEGIN)\\s+Group\\s+(.*)$",Qt::CaseInsensitive);
-  QRegExp leoge("^\\s*0\\s+!?(LEOCAD)\\s+(GROUP)\\s+(END)$");
 
   AbstractMeta::reportErrors = reportErrors;
 
-  if (line.contains(bgt)) {
-      argv << bgt.cap(1) << bgt.cap(2) << bgt.cap(3);
-  } else
-  if (line.contains(ldcg)) {
-      argv << ldcg.cap(1) << ldcg.cap(2) << ldcg.cap(3); // one or more groups
-  } else
-  if (line.contains(leogb)) {
-      argv << ldcg.cap(1) << ldcg.cap(2) << ldcg.cap(3) << ldcg.cap(4);
-  }  else
-  if (line.contains(leoge)) {
-      argv << leoge.cap(1) << leoge.cap(2) << leoge.cap(3);
+  Rc notUsed;
+  QRegExp grpRx = groupRx(line,notUsed);
+  QStringList argv;
+
+  if (!grpRx.isEmpty()) {
+
+      argv << grpRx.cap(1) << grpRx.cap(2) << grpRx.cap(3);
+
   } else {
 
       processSpecialCases(line,here);

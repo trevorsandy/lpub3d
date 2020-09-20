@@ -121,6 +121,8 @@ enum Rc {
 
          PartBeginIgnRc,
          PartEndRc,
+         PartTypeRc,
+         PartNameRc,
 
          BomBeginIgnRc,
          BomEndRc,
@@ -131,10 +133,9 @@ enum Rc {
          ReserveSpaceRc,
          PictureAsStep,
 
-         GroupRemoveRc,
          RemoveGroupRc,
-         RemovePartRc,
-         RemoveNameRc,
+         RemovePartTypeRc,
+         RemovePartNameRc,
 
          SynthBeginRc,
          SynthEndRc,
@@ -3538,6 +3539,36 @@ public:
 
 /*------------------------*/
 
+class PartTypeMeta : public BranchMeta
+{
+public:
+  StringMeta partType;
+  PartTypeMeta() {}
+  virtual ~PartTypeMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+  virtual Rc parse(QStringList &argv, int index, Where &here);
+  PartTypeMeta(const PartTypeMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+};
+
+/*------------------------*/
+
+class PartNameMeta : public BranchMeta
+{
+public:
+  StringMeta partName;
+  PartNameMeta() {}
+  virtual ~PartNameMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+  virtual Rc parse(QStringList &argv, int index, Where &here);
+  PartNameMeta(const PartNameMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+};
+
+/*------------------------*/
+
 class SubmodelStack
 {
 public:
@@ -3593,6 +3624,7 @@ public:
 
   Meta();
   virtual ~Meta();
+  QRegExp groupRx(QString &line, Rc &rc);
   Rc    parse(QString &line, Where &here, bool reportErrors = 0);
   bool  preambleMatch(QString &line, QString &preamble);
   virtual void  init(BranchMeta *parent, QString name);
@@ -3623,5 +3655,6 @@ extern const QString prepositionNames[];
 extern const QString placementOptions[][3];
 extern int placementDecode[][3];
 extern QHash<QString, int> tokenMap;
+extern QList<QRegExp> groupRegExp;
 
 #endif

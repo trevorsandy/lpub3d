@@ -2112,7 +2112,6 @@ LDrawFile::LDrawFile()
               << QRegExp("^0\\s+!?(?:LDRAW_ORG)*\\s?(Unofficial Shortcut Physical_Colour)[^\n]*",Qt::CaseInsensitive)
               ;
   }
-
 }
 
 bool isHeader(QString &line)

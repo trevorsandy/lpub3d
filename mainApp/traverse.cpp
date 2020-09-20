@@ -95,12 +95,16 @@ static void partLine(
    QStringList  &csiParts,
    QVector<int> &typeIndexes,
    int           lineNumber,
-   Rc            rc,
-   bool          appendIndex = true)
+   Rc            rc)
 {
     // for group meta lines, substitute lineNumber with Rc
     int indexValue;
     switch (rc){
+    case FadeRc:
+    case SilhouetteRc:
+    case ColourRc:
+    case PartNameRc:
+    case PartTypeRc:
     case MLCadGroupRc:
     case LDCadGroupRc:
     case LeoCadGroupBeginRc:
@@ -112,8 +116,7 @@ static void partLine(
         break;
     }
     csiParts.append(line);
-    if (appendIndex)
-        typeIndexes.append(indexValue);
+    typeIndexes.append(indexValue);
 }
 
 /*********************************************
@@ -126,75 +129,94 @@ static void partLine(
  ********************************************/
 
 static void remove_group(
-    QStringList  in,      // csiParts
-    QString      group,   // steps->meta.LPub.remove.group.value()
-    QStringList &out)     // newCSIParts
+    QStringList  in,     // csiParts
+    QVector<int> tin,    // typeIndexes
+    QString      group,  // steps->meta.LPub.remove.group.value()
+    QStringList  &out,   // newCSIParts
+    QVector<int> &tiout, // newTypeIndexes
+    Meta         &meta)
 {
-  QRegExp bgt(  "^\\s*0\\s+MLCAD\\s+BTG\\s+(.*)$");
-  QRegExp ldcg( "^\\s*0\\s+!?LDCAD\\s+GROUP_NXT\\s+\\[ids=([\\d\\s]+)\\].*$");
-  QRegExp leogb("^\\s*0\\s+!?LEOCAD\\s+GROUP\\s+BEGIN\\s+Group\\s+(#\\d+)$",Qt::CaseInsensitive);
-  QRegExp leoge("^\\s*0\\s+!?LEOCAD\\s+GROUP\\s+END$");
 
   bool leoRemove = false;
   int leoNest = 0;
+  Rc grpType;
+  QRegExp grpRx;
+
+  if (in.size() != tin.size()) {
+      Preferences::enableLineTypeIndexes = false;
+      QString message(QString("CSI part list size [%1] does not match line index size [%2]. Line type indexes disabled.")
+                              .arg(in.size()).arg(tin.size()));
+      emit gui->messageSig(LOG_NOTICE, message);
+  }
+
   for (int i = 0; i < in.size(); i++) {
-    QString line = in.at(i);
-      // MLCad Groups
-      if (line.contains(bgt)) {
-         if (bgt.cap(bgt.captureCount()) == group) {
-           i++;
-         } else {
-           out << line;
-         }
-      }
-      // LDCad Groups
-      else
-      if (line.contains(ldcg)) {
-          QStringList lids = ldcg.cap(ldcg.captureCount()).split(" ");
-          if (lids.size() && gui->ldcadGroupMatch(group,lids)) {
-              i++;
-          } else {
-              out << line;
+
+      QString line = in.at(i);
+      grpRx = meta.groupRx(line,grpType);
+
+      if (!grpRx.isEmpty() && grpType) {
+          // MLCad Groups
+          if (grpType == MLCadGroupRc) {
+             if (grpRx.cap(grpRx.captureCount()) == group) {
+               i++;
+             } else {
+               out << line;
+               tiout << tin.at(i);
+             }
           }
-      }
-      // LeoCAD	Group Begin
-      else
-      if (line.contains(leogb)) {
-          if ((leogb.cap(leogb.captureCount()) == group)){
-            leoRemove = true;
-            i++;
+          // LDCad Groups
+          else
+          if (grpType == LDCadGroupRc) {
+              QStringList lids = grpRx.cap(grpRx.captureCount()).split(" ");
+              if (lids.size() && gui->ldcadGroupMatch(group,lids)) {
+                  i++;
+              } else {
+                  out << line;
+                  tiout << tin.at(i);
+              }
+          }
+          // LeoCAD	Group Begin
+          else
+          if (grpType == LeoCadGroupBeginRc) {
+              if ((grpRx.cap(grpRx.captureCount()) == group)){
+                leoRemove = true;
+                i++;
+              }
+              else
+              if (leoRemove) {
+                  leoNest++;
+                  i++;
+              }
+              else {
+                 out << line;
+                 tiout << tin.at(i);
+              }
+          }
+          // LeoCAD	Group End
+          else
+          if (grpType == LeoCadGroupEndRc) {
+              if (leoRemove) {
+                  if (leoNest == 0) {
+                    leoRemove = false;
+                  } else {
+                    leoNest--;
+                  }
+              }
+              else {
+                  out << line;
+                  tiout << tin.at(i);
+              }
           }
           else
           if (leoRemove) {
-              leoNest++;
-              i++;
+                 i++;
           }
           else {
              out << line;
+             tiout << tin.at(i);
           }
+          // End groups
       }
-      // LeoCAD	Group End
-      else
-      if (line.contains(leoge)) {
-          if (leoRemove) {
-              if (leoNest == 0) {
-                leoRemove = false;
-              } else {
-                leoNest--;
-              }
-          }
-          else {
-              out << line;
-          }
-      }
-      else
-      if (leoRemove) {
-             i++;
-      }
-      else {
-         out << line;
-      }
-      // End groups
     }
 
   return;
@@ -210,12 +232,21 @@ static void remove_group(
  ********************************************/
 
 static void remove_parttype(
-    QStringList  in,
-    QString      model,
-    QStringList &out)
+    QStringList   in,    // csiParts
+    QVector<int>  tin,   // typeIndexes
+    QString       model, // part type
+    QStringList  &out,   // newCSIParts
+    QVector<int> &tiout) // newTypeIndexes
 {
 
   model = model.toLower();
+
+  if (in.size() != tin.size()) {
+      Preferences::enableLineTypeIndexes = false;
+      QString message(QString("CSI part list size [%1] does not match line index size [%2]. Line type indexes disabled.")
+                              .arg(in.size()).arg(tin.size()));
+      emit gui->messageSig(LOG_NOTICE, message);
+  }
 
   for (int i = 0; i < in.size(); i++) {
       QString line = in.at(i);
@@ -227,9 +258,11 @@ static void remove_parttype(
           QString type = tokens[14].toLower();
           if (type != model) {
               out << line;
+              tiout << tin.at(i);
             }
         } else {
           out << line;
+          tiout << tin.at(i);
         }
     }
 
@@ -243,11 +276,20 @@ static void remove_parttype(
  ********************************************/
 
 static void remove_partname(
-    QStringList  in,
-    QString      name,
-    QStringList &out)
+    QStringList   in,    // csiParts
+    QVector<int>  tin,   // typeIndexes
+    QString       name,  // partName
+    QStringList  &out,   // newCSIParts
+    QVector<int> &tiout) // newCSIParts
 {
   name = name.toLower();
+
+  if (in.size() != tin.size()) {
+      Preferences::enableLineTypeIndexes = false;
+      QString message(QString("CSI part list size [%1] does not match line index size [%2]. Line type indexes disabled.")
+                              .arg(in.size()).arg(tin.size()));
+      emit gui->messageSig(LOG_NOTICE, message);
+  }
 
   for (int i = 0; i < in.size(); i++) {
       QString line = in.at(i);
@@ -256,7 +298,7 @@ static void remove_partname(
       split(line,tokens);
 
       if (tokens.size() == 4 && tokens[0] == "0" &&
-          tokens[1] == "LPUB" &&
+          (tokens[1] == "LPUB" || tokens[1] == "!LPUB") &&
           tokens[2] == "NAME") {
           QString type = tokens[3].toLower();
           if (type == name) {
@@ -267,13 +309,16 @@ static void remove_partname(
                       break;
                     } else {
                       out << line;
+                      tiout << tin.at(i);
                     }
                 }
             } else {
               out << line;
+              tiout << tin.at(i);
             }
         } else {
           out << line;
+          tiout << tin.at(i);
         }
     }
 
@@ -422,7 +467,7 @@ int Gui::drawPage(
     QString const   &addLine,
     DrawPageOptions &opts)
 {
-  QStringList saveCsiParts;
+  QStringList configuredCsiParts; // fade and highlight configuration
   bool     global = true;
   QString  line, csiName;
   Callout *callout         = nullptr;
@@ -702,19 +747,22 @@ int Gui::drawPage(
                   calloutParts.clear();
 
                   QStringList csiParts2;
+                  QVector<int> lineTypeIndexes2;
 
                   QHash<QString, QStringList> calloutBfx;
+                  QHash<QString, QVector<int>> calloutBfxLineTypeIndexes;
 
                   DrawPageOptions calloutOpts(
-                              current2,
-                              csiParts2,
-                              calloutParts,
+                              current2,           /*where*/
+                              csiParts2,          /*CSI parts*/
+                              calloutParts,       /*PLI parts*/
                               opts.bfxParts,
                               opts.ldrStepFiles,
                               opts.csiKeys,
                               calloutBfx,
                               opts.pliPartGroups,
-                              opts.lineTypeIndexes,
+                              lineTypeIndexes2,
+                              calloutBfxLineTypeIndexes,
                               1                   /*stepNum*/,
                               opts.groupStepNumber,
                               ldrawFile.mirrored(tokens),
@@ -774,7 +822,7 @@ int Gui::drawPage(
           /* we've got a line, triangle or polygon, so add it to the list */
           /* and make sure we know we have a step */
 
-          opts.csiParts << line;
+          partLine(line,opts.csiParts,opts.lineTypeIndexes,opts.current.lineNumber,OkRc);
           partsAdded = true;
 
           if (step == nullptr && ! noStep) {
@@ -825,12 +873,14 @@ int Gui::drawPage(
               /* Buffer exchange */
             case BufferStoreRc:
               opts.bfx[curMeta.bfx.value()] = opts.csiParts;
+              opts.bfxLineTypeIndexes[curMeta.bfx.value()] = opts.lineTypeIndexes;
               bfxStore1 = true;
               opts.bfxParts.clear();
               break;
 
             case BufferLoadRc:
               opts.csiParts = opts.bfx[curMeta.bfx.value()];
+              opts.lineTypeIndexes = opts.bfxLineTypeIndexes[curMeta.bfx.value()];
               if (!partsAdded) {
                   ldrawFile.setPrevStepPosition(opts.current.modelName,opts.csiParts.size());
                   //qDebug() << "Model:" << current.modelName << ", Step:"  << stepNum << ", bfx Set Fade Position:" << csiParts.size();
@@ -838,6 +888,8 @@ int Gui::drawPage(
               bfxLoad = true;
               break;
 
+            case PartNameRc:
+            case PartTypeRc:
             case MLCadGroupRc:
             case LDCadGroupRc:
             case LeoCadGroupBeginRc:
@@ -946,21 +998,21 @@ int Gui::drawPage(
               break;
 
               /* remove a group or all instances of a part type */
-            case GroupRemoveRc:
             case RemoveGroupRc:
-            case RemovePartRc:
-            case RemoveNameRc:
+            case RemovePartTypeRc:
+            case RemovePartNameRc:
               {
-                QStringList newCSIParts;
-
-                if (rc == RemoveGroupRc) {
-                    remove_group(opts.csiParts,steps->meta.LPub.remove.group.value(),newCSIParts);
-                  } else if (rc == RemovePartRc) {
-                    remove_parttype(opts.csiParts, steps->meta.LPub.remove.parttype.value(),newCSIParts);
-                  } else {
-                    remove_partname(opts.csiParts, steps->meta.LPub.remove.partname.value(),newCSIParts);
-                  }
-                opts.csiParts = newCSIParts;
+              QStringList newCSIParts;
+              QVector<int> newLineTypeIndexes;
+              if (rc == RemoveGroupRc) {
+                  remove_group(opts.csiParts,opts.lineTypeIndexes,curMeta.LPub.remove.group.value(),newCSIParts,newLineTypeIndexes,curMeta);
+              } else if (rc == RemovePartTypeRc) {
+                  remove_parttype(opts.csiParts,opts.lineTypeIndexes,curMeta.LPub.remove.parttype.value(),newCSIParts,newLineTypeIndexes);
+              } else {
+                  remove_partname(opts.csiParts,opts.lineTypeIndexes,curMeta.LPub.remove.partname.value(),newCSIParts,newLineTypeIndexes);
+              }
+              opts.csiParts = newCSIParts;
+              opts.lineTypeIndexes = newLineTypeIndexes;
 
                 if (step == nullptr && ! noStep) {
                     if (range == nullptr) {
@@ -1690,7 +1742,7 @@ int Gui::drawPage(
                   csiName = step->csiName();
                   (void) step->createCsi(
                         opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
-                        saveCsiParts = configureModelStep(opts.csiParts, opts.stepNum, topOfStep),
+                        configuredCsiParts = configureModelStep(opts.csiParts, opts.stepNum, topOfStep),
                         opts.lineTypeIndexes,
                         &step->csiPixmap,
                         steps->meta,
@@ -1829,7 +1881,7 @@ int Gui::drawPage(
                       csiName = step->csiName();
                       int rc = step->createCsi(
                                   opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
-                                  saveCsiParts = configureModelStep(opts.csiParts, step->modelDisplayOnlyStep ? -1 : opts.stepNum, topOfStep),
+                                  configuredCsiParts = configureModelStep(opts.csiParts, step->modelDisplayOnlyStep ? -1 : opts.stepNum, topOfStep),
                                   opts.lineTypeIndexes,
                                   &step->csiPixmap,
                                   steps->meta);
@@ -1993,7 +2045,7 @@ int Gui::drawPage(
                   coverPage     = false;
                   rotateIcon    = false;
                   step          = nullptr;
-                  opts.bfxStore2     = bfxStore1;
+                  opts.bfxStore2= bfxStore1;
                   bfxStore1     = false;
                   bfxLoad       = false;
               }
@@ -2084,20 +2136,23 @@ int Gui::findPage(
       topOfPages.append(opts.current);
   }
 
-  QStringList csiParts;
-  QStringList saveCsiParts;
-  Where       saveCurrent = opts.current;
-  Where       stepGroupCurrent;
-  int         saveStepNumber = 1;
+  QStringList  csiParts;
+  QStringList  saveCsiParts;
+  QVector<int> lineTypeIndexes;
+  QVector<int> saveLineTypeIndexes;
+  Where        saveCurrent = opts.current;
+  Where        stepGroupCurrent;
+  int          saveStepNumber = 1;
 
   saveStepPageNum = stepPageNum;
 
   Meta        saveMeta = meta;
 
-  QHash<QString, QStringList> bfx;
-  QHash<QString, QStringList> saveBfx;
-  QList<PliPartGroupMeta> emptyPartGroups;
-  QVector<int>            lineTypeIndexes;
+  QHash<QString, QStringList>  bfx;
+  QHash<QString, QStringList>  saveBfx;
+  QHash<QString, QVector<int>> bfxLineTypeIndexes;
+  QHash<QString, QVector<int>> saveBfxLineTypeIndexes;
+  QList<PliPartGroupMeta>      emptyPartGroups;
 
   int numLines = ldrawFile.size(opts.current.modelName);
 
@@ -2154,6 +2209,7 @@ int Gui::findPage(
               if (token.size() == 15) {
 
                   QString    type = token[token.size()-1];
+                  QString colorType = token[1]+type;
 
                   bool contains   = ldrawFile.isSubmodel(type);
                   CalloutBeginMeta::CalloutMode calloutMode = meta.LPub.callout.begin.value();
@@ -2165,7 +2221,7 @@ int Gui::findPage(
                       bool rendered = ldrawFile.rendered(type,ldrawFile.mirrored(token),opts.current.modelName,stepNumber,countInstances);
 
                       // if the submodel was not rendered, and (is not in the buffer exchange call setRendered for the submodel.
-                      if (! rendered && (! bfxStore2 || ! bfxParts.contains(token[1]+type))) {
+                      if (! rendered && (! bfxStore2 || ! bfxParts.contains(colorType))) {
 
                           opts.isMirrored = ldrawFile.mirrored(token);
 
@@ -2228,7 +2284,7 @@ int Gui::findPage(
                       }
                   }
                  if (bfxStore1) {
-                     bfxParts << token[1]+type;
+                     bfxParts << colorType;
                  }
               }
           } else if (partIgnore){
@@ -2250,7 +2306,7 @@ int Gui::findPage(
         case '4':
         case '5':
             ++partsAdded;
-            partLine(line,csiParts,lineTypeIndexes,opts.current.lineNumber,OkRc,line.toLatin1()[0] == '1');
+            partLine(line,csiParts,lineTypeIndexes,opts.current.lineNumber,OkRc);
             break;
 
         case '0':
@@ -2277,14 +2333,17 @@ int Gui::findPage(
               if (stepGroup && ! noStep2) {
                   stepGroup = false;
                   if (opts.pageNum < displayPageNum) {
-                      saveCsiParts   = csiParts;
-                      saveStepNumber = stepNumber;
-                      saveMeta       = meta;
-                      saveBfx        = bfx;
-                      saveBfxParts   = bfxParts;
+                      saveLineTypeIndexes    = lineTypeIndexes;
+                      saveCsiParts           = csiParts;
+                      saveStepNumber         = stepNumber;
+                      saveMeta               = meta;
+                      saveBfx                = bfx;
+                      saveBfxParts           = bfxParts;
+                      saveBfxLineTypeIndexes = bfxLineTypeIndexes;
+                      saveRotStep            = meta.rotStep;
                       bfxParts.clear();
-                      saveRotStep = meta.rotStep;
                     } else if (opts.pageNum == displayPageNum) {
+                      lineTypeIndexes.clear();
                       csiParts.clear();
                       savePrevStepPosition = saveCsiParts.size();
                       stepPageNum = saveStepPageNum;
@@ -2310,7 +2369,8 @@ int Gui::findPage(
                                   csiKeys,
                                   saveBfx,
                                   emptyPartGroups,
-                                  lineTypeIndexes,
+                                  saveLineTypeIndexes,
+                                  saveBfxLineTypeIndexes,
                                   saveStepNumber,
                                   opts.renderStepNumber,
                                   opts.isMirrored,
@@ -2320,7 +2380,7 @@ int Gui::findPage(
 
                       saveCurrent.modelName.clear();
                       saveCsiParts.clear();
-                      lineTypeIndexes.clear();
+                      saveLineTypeIndexes.clear();
                     }
                   if (exporting()) {
                       pageSizes.remove(opts.pageNum);
@@ -2372,12 +2432,14 @@ int Gui::findPage(
                   stepPageNum += ! coverPage && ! stepGroup;
                   if (opts.pageNum < displayPageNum) {
                       if ( ! stepGroup) {
-                          saveStepNumber  = stepNumber;
-                          saveCsiParts    = csiParts;
-                          saveMeta        = meta;
-                          saveBfx         = bfx;
-                          saveBfxParts    = bfxParts;
-                          saveStepPageNum = stepPageNum;
+                          saveLineTypeIndexes    = lineTypeIndexes;
+                          saveStepNumber         = stepNumber;
+                          saveCsiParts           = csiParts;
+                          saveMeta               = meta;
+                          saveBfx                = bfx;
+                          saveBfxParts           = bfxParts;
+                          saveBfxLineTypeIndexes = bfxLineTypeIndexes;
+                          saveStepPageNum        = stepPageNum;
                           // bfxParts.clear();
                         }
                       if (opts.contStepNumber) { // save continuous step number from current model
@@ -2388,6 +2450,7 @@ int Gui::findPage(
                     }
                   if ( ! stepGroup) {
                       if (opts.pageNum == displayPageNum) {
+                          lineTypeIndexes.clear();
                           csiParts.clear();
                           savePrevStepPosition = saveCsiParts.size();
                           stepPageNum = saveStepPageNum;
@@ -2414,7 +2477,8 @@ int Gui::findPage(
                                       csiKeys,
                                       saveBfx,
                                       emptyPartGroups,
-                                      lineTypeIndexes,
+                                      saveLineTypeIndexes,
+                                      saveBfxLineTypeIndexes,
                                       saveStepNumber,
                                       opts.renderStepNumber,
                                       opts.isMirrored,
@@ -2424,7 +2488,7 @@ int Gui::findPage(
 
                           saveCurrent.modelName.clear();
                           saveCsiParts.clear();
-                          lineTypeIndexes.clear();
+                          saveLineTypeIndexes.clear();
                         }
                       if (exporting()) {
                           pageSizes.remove(opts.pageNum);
@@ -2504,6 +2568,7 @@ int Gui::findPage(
                   csiParts.clear();
                   saveCsiParts.clear();
                   lineTypeIndexes.clear();
+                  saveLineTypeIndexes.clear();
                 }
               break;
 
@@ -2511,6 +2576,7 @@ int Gui::findPage(
             case BufferStoreRc:
               if (opts.pageNum < displayPageNum) {
                   bfx[meta.bfx.value()] = csiParts;
+                  bfxLineTypeIndexes[meta.bfx.value()] = lineTypeIndexes;
                 }
               bfxStore1 = true;
               bfxParts.clear();
@@ -2519,10 +2585,13 @@ int Gui::findPage(
             case BufferLoadRc:
               if (opts.pageNum < displayPageNum) {
                   csiParts = bfx[meta.bfx.value()];
+                  lineTypeIndexes = bfxLineTypeIndexes[meta.bfx.value()];
                 }
               partsAdded = true;
               break;
 
+            case PartNameRc:
+            case PartTypeRc:
             case MLCadGroupRc:
             case LDCadGroupRc:
             case LeoCadGroupBeginRc:
@@ -2534,21 +2603,21 @@ int Gui::findPage(
               break;
 
               /* remove a group or all instances of a part type */
-            case GroupRemoveRc:
             case RemoveGroupRc:
-            case RemovePartRc:
-            case RemoveNameRc:
+            case RemovePartTypeRc:
+            case RemovePartNameRc:
               if (opts.pageNum < displayPageNum) {
                   QStringList newCSIParts;
+                  QVector<int> newLineTypeIndexes;
                   if (rc == RemoveGroupRc) {
-                      remove_group(csiParts,    meta.LPub.remove.group.value(),newCSIParts);
-                    } else if (rc == RemovePartRc) {
-                      remove_parttype(csiParts, meta.LPub.remove.parttype.value(),newCSIParts);
-                    } else {
-                      remove_partname(csiParts, meta.LPub.remove.partname.value(),newCSIParts);
-                    }
+                      remove_group(csiParts,lineTypeIndexes,meta.LPub.remove.group.value(),newCSIParts,newLineTypeIndexes,meta);
+                  } else if (rc == RemovePartTypeRc) {
+                      remove_parttype(csiParts,lineTypeIndexes,meta.LPub.remove.parttype.value(),newCSIParts,newLineTypeIndexes);
+                  } else {
+                      remove_partname(csiParts,lineTypeIndexes,meta.LPub.remove.partname.value(),newCSIParts,newLineTypeIndexes);
+                  }
                   csiParts = newCSIParts;
-                  newCSIParts.empty();
+                  lineTypeIndexes = newLineTypeIndexes;
                 }
               break;
 
@@ -2629,6 +2698,7 @@ int Gui::findPage(
         }
     } // for every line
   csiParts.clear();
+  lineTypeIndexes.clear();
 
   // last step in submodel
   if (partsAdded && ! noStep) {
@@ -2660,7 +2730,8 @@ int Gui::findPage(
                       csiKeys,
                       saveBfx,
                       emptyPartGroups,
-                      lineTypeIndexes,
+                      saveLineTypeIndexes,
+                      saveBfxLineTypeIndexes,
                       saveStepNumber,
                       opts.renderStepNumber,
                       opts.isMirrored,
@@ -2880,6 +2951,8 @@ int Gui::getBOMParts(
               pliParts.empty();
               break;
 
+            case PartNameRc:
+            case PartTypeRc:
             case MLCadGroupRc:
             case LDCadGroupRc:
             case LeoCadGroupBeginRc:
@@ -2888,20 +2961,20 @@ int Gui::getBOMParts(
               break;
 
               /* remove a group or all instances of a part type */
-            case GroupRemoveRc:
             case RemoveGroupRc:
-            case RemovePartRc:
-            case RemoveNameRc:
+            case RemovePartTypeRc:
+            case RemovePartNameRc:
               {
-                QStringList newCSIParts;
+                QStringList newPLIParts;
+                QVector<int> dummy;
                 if (rc == RemoveGroupRc) {
-                    remove_group(pliParts,meta.LPub.remove.group.value(),newCSIParts);
-                  } else if (rc == RemovePartRc) {
-                    remove_parttype(pliParts, meta.LPub.remove.parttype.value(),newCSIParts);
+                    remove_group(pliParts,dummy,meta.LPub.remove.group.value(),newPLIParts,dummy,meta);
+                  } else if (rc == RemovePartTypeRc) {
+                    remove_parttype(pliParts,dummy,meta.LPub.remove.parttype.value(),newPLIParts,dummy);
                   } else {
-                    remove_partname(pliParts, meta.LPub.remove.partname.value(),newCSIParts);
+                    remove_partname(pliParts,dummy,meta.LPub.remove.partname.value(),newPLIParts,dummy);
                   }
-                pliParts = newCSIParts;
+                pliParts = newPLIParts;
               }
               break;
 
@@ -3331,7 +3404,7 @@ void Gui::writeToTmp(const QString &fileName,
                   case FadeRc:
                   case SilhouetteRc:
                   case ColourRc:
-                      csiParts << line;
+                      partLine(line,csiParts,lineTypeIndexes,i/*relativeTypeIndx*/,rc);
                       break;
                       /* Buffer exchange */
                   case BufferStoreRc:
@@ -3340,6 +3413,8 @@ void Gui::writeToTmp(const QString &fileName,
                   case BufferLoadRc:
                       csiParts = bfx[meta.bfx.value()];
                       break;
+                  case PartNameRc:
+                  case PartTypeRc:
                   case MLCadGroupRc:
                   case LDCadGroupRc:
                   case LeoCadGroupBeginRc:
@@ -3347,20 +3422,21 @@ void Gui::writeToTmp(const QString &fileName,
                       partLine(line,csiParts,lineTypeIndexes,i/*relativeTypeIndx*/,rc);
                       break;
                       /* remove a group or all instances of a part type */
-                  case GroupRemoveRc:
                   case RemoveGroupRc:
-                  case RemovePartRc:
-                  case RemoveNameRc:
+                  case RemovePartTypeRc:
+                  case RemovePartNameRc:
                   {
                       QStringList newCSIParts;
+                      QVector<int> newLineTypeIndexes;
                       if (rc == RemoveGroupRc) {
-                          remove_group(csiParts,meta.LPub.remove.group.value(),newCSIParts);
-                      } else if (rc == RemovePartRc) {
-                          remove_parttype(csiParts, meta.LPub.remove.parttype.value(),newCSIParts);
+                          remove_group(csiParts,lineTypeIndexes,meta.LPub.remove.group.value(),newCSIParts,newLineTypeIndexes,meta);
+                      } else if (rc == RemovePartTypeRc) {
+                          remove_parttype(csiParts,lineTypeIndexes,meta.LPub.remove.parttype.value(),newCSIParts,newLineTypeIndexes);
                       } else {
-                          remove_partname(csiParts, meta.LPub.remove.partname.value(),newCSIParts);
+                          remove_partname(csiParts,lineTypeIndexes,meta.LPub.remove.partname.value(),newCSIParts,newLineTypeIndexes);
                       }
                       csiParts = newCSIParts;
+                      lineTypeIndexes = newLineTypeIndexes;
                   }
                       break;
                   default:

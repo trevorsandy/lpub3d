@@ -233,6 +233,7 @@ bool    Preferences::customSceneRulerTickColor  = false;
 bool    Preferences::customSceneRulerTrackingColor = false;
 bool    Preferences::customSceneGuideColor      = false;
 bool    Preferences::debugLogging               = false;
+bool    Preferences::enableLineTypeIndexes      = true;
 
 #ifdef Q_OS_MAC
 bool    Preferences::missingRendererLibs        = false;
