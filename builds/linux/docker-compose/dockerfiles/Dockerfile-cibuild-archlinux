@@ -19,7 +19,7 @@ CMD sudo chown -R user:user /user/pkgbuild/.* \
     && chmod a+x CreatePkg.sh \
     && ./CreatePkg.sh \
     && if test -d /buildpkg; then \
-      sudo cp -f /user/pkgbuild/*.pkg.tar.xz /buildpkg/; \
+      sudo cp -f /user/pkgbuild/*.pkg.tar.zst /buildpkg/; \
       sudo cp -f /user/pkgbuild/src/*.log /buildpkg/; \
       sudo cp -f /user/*.log /buildpkg/; \
       sudo cp -f /*.log /buildpkg/; \

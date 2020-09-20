@@ -46,7 +46,7 @@ fi
 if [[ -z "$LP3D_SKIP_SF_DEPLOY" && -z "$LP3D_SF_DEPLOY_ABORT" ]]; then
   if [ "$TRAVIS_OS_NAME" = "linux" ]; then
     if [ "$LP3D_BUILD_ARCH" = "true" ]; then
-      export LP3D_ASSET_EXT="*.pkg.tar.xz*"
+      export LP3D_ASSET_EXT="*.pkg.tar.zst*"
     fi;
     if [ "$LP3D_BUILD_FEDORA" = "true" ]; then
       export LP3D_ASSET_EXT="*.rpm*"

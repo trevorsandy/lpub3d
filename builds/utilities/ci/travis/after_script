@@ -45,8 +45,8 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_
   if [ "$TRAVIS_OS_NAME" = "linux" ]; then
     echo "Docker-generated Assets:" && find $LP3D_COMPOSE_DIR -type f -not -name "*ocker*";
     if [ "$LP3D_BUILD_ARCH" = "true" ]; then
-      echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.pkg.tar.xz from $LP3D_COMPOSE_DIR..."
-      file_DPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-${LP3D_APP_VERSION_LONG}*.pkg.tar.xz -type f);
+      echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.pkg.tar.zst from $LP3D_COMPOSE_DIR..."
+      file_DPkg=$(find $LP3D_COMPOSE_DIR -name LPub3D-${LP3D_APP_VERSION_LONG}*.pkg.tar.zst -type f);
     fi;
     if [ "$LP3D_BUILD_FEDORA" = "true" ]; then
       echo "Copying LPub3D-${LP3D_APP_VERSION_LONG}*.rpm from $LP3D_COMPOSE_DIR..."
@@ -134,7 +134,7 @@ if [[ "$LP3D_BUILD_PKG" = "yes" && -z "$LP3D_COMPILE_SOURCE" && -z "$LP3D_BUILD_
     fi;
     if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       if [ "$LP3D_BUILD_ARCH" = "true" ]; then
-        bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.pkg.tar.xz*
+        bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.pkg.tar.zst*
       fi;
       if [ "$LP3D_BUILD_FEDORA" = "true" ]; then
         bash upload.sh $LP3D_DOWNLOAD_ASSETS/LPub3D-${LP3D_APP_VERSION_LONG}*.rpm*

@@ -150,7 +150,7 @@ done
 echo "8. build application package"
 makepkg --syncdeps --noconfirm --needed
 
-DISTRO_FILE=`ls ${LPUB3D}-${LP3D_APP_VERSION}*.pkg.tar.xz`
+DISTRO_FILE=`ls ${LPUB3D}-${LP3D_APP_VERSION}*.pkg.tar.zst`
 if [ -f "${DISTRO_FILE}" ]
 then
     echo "9-1. Build-check ${DISTRO_FILE}"
@@ -158,7 +158,7 @@ then
         echo "      Program update-desktop-database not found. Installing..."
         sudo pacman -S --noconfirm --needed desktop-file-utils
     fi
-    # Install package - here we use the distro file name e.g. LPub3D-2.3.8.1566-1-x86_64.pkg.tar.xz
+    # Install package - here we use the distro file name e.g. LPub3D-2.3.8.1566-1-x86_64.pkg.tar.zst
     echo "      9-1. Build-check install ${LPUB3D}..."
     sudo pacman -U --noconfirm ${DISTRO_FILE}
     # Check if exe exist - here we use the executable name e.g. lpub3d22

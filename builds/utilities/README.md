@@ -39,7 +39,7 @@ The LPub3D build process automatically resolves required build dependencies acro
 `$ hdiutil attach dmgbuild/DMGS/LPub3D-2.3.9.0.1228_20190418-macos.dmg`
 - [ ] 6. have a :beer:
 
-#### ___________ LINUX: BUILD ARCH 'PKG.TAR.XZ' PACKAGE ___________
+#### ___________ LINUX: BUILD ARCH 'PKG.TAR.ZST' PACKAGE __________
 
 **Steps:**
 - [ ] 1. enter directory  
@@ -49,7 +49,7 @@ The LPub3D build process automatically resolves required build dependencies acro
 - [ ] 3. enable execute permissions and execute package script  
 `$ chmod +x CreatePkg.sh && ./CreatePkg.sh`
 - [ ] 4. install package availavble in ./pkgbuild  
-`$ sudo pacman -U --needed --noconfirm pkgbuild/LPub3D-2.3.9.0.1228_20190418-x86_64.pkg.tar.xz`
+`$ sudo pacman -U --needed --noconfirm pkgbuild/LPub3D-2.3.9.0.1228_20190418-x86_64.pkg.tar.zst`
 - [ ] 5. have a :beer:
 
 #### ___________ LINUX: BUILD UBUNTU/DEBIAN 'DEB' PACKAGE ___________
