@@ -17,6 +17,8 @@
 #include "lpub.h"
 #include "commands.h"
 
+#include "view.h"
+
 QString Gui::topLevelFile()
 {
   return ldrawFile.topLevelFile();
@@ -97,6 +99,11 @@ void Gui::contentsChange(
 
 void Gui::undo()
 {
+  View* ActiveView = gMainWindow->GetActiveView();
+  lcModel* ActiveModel = ActiveView ? ActiveView->GetActiveModel() : nullptr;
+  if (ActiveModel)
+    ActiveModel->UndoAction();
+
   macroNesting++;
   undoStack->undo();
   macroNesting--;
@@ -105,6 +112,11 @@ void Gui::undo()
 
 void Gui::redo()
 {
+  View* ActiveView = gMainWindow->GetActiveView();
+  lcModel* ActiveModel = ActiveView ? ActiveView->GetActiveModel() : nullptr;
+  if (ActiveModel)
+    ActiveModel->RedoAction();
+
   macroNesting++;
   undoStack->redo();
   macroNesting--;

@@ -324,13 +324,13 @@ void Gui::create3DMenus()
      // Camera menu
      ViewerMenu->addMenu(gMainWindow->GetCameraMenu());
      // Tools menu
-     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_UNDO]);
-     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_REDO]);
      gMainWindow->GetToolsMenu()->addSeparator();
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_SELECT]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]);
+     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_MOVE]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]);
      gMainWindow->GetToolsMenu()->addAction(createBuildModAct);
+     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_INSERT]);
      gMainWindow->GetToolsMenu()->addAction(lightGroupAct);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]);
      gMainWindow->GetToolsMenu()->addSeparator();
@@ -341,6 +341,9 @@ void Gui::create3DMenus()
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAN]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE_VIEW]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM_REGION]);
+     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAINT]);
+     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_COLOR_PICKER]);
+     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_DELETE]);
      gMainWindow->GetToolsMenu()->addSeparator();
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_TRANSFORM_RELATIVE]);
      gMainWindow->GetToolsMenu()->addAction(MoveAction);
@@ -399,13 +402,13 @@ void Gui::create3DToolBars()
     exportToolBar->addAction(gMainWindow->mActions[LC_FILE_EXPORT_COLLADA]);
     exportToolBar->addAction(gMainWindow->mActions[LC_FILE_EXPORT_WAVEFRONT]);
 
-    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_UNDO]);
-    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_REDO]);
     gMainWindow->mToolsToolBar->addSeparator();
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_SELECT]);
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]);
+    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_MOVE]);
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]);
     gMainWindow->mToolsToolBar->addAction(createBuildModAct);
+    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_INSERT]);
     gMainWindow->mToolsToolBar->addAction(lightGroupAct);
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]);
     gMainWindow->mToolsToolBar->addSeparator();
@@ -416,6 +419,9 @@ void Gui::create3DToolBars()
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAN]);
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE_VIEW]);
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM_REGION]);
+    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAINT]);
+    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_COLOR_PICKER]);
+    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_DELETE]);
     gMainWindow->mToolsToolBar->addSeparator();
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_TRANSFORM_RELATIVE]);
     gMainWindow->mToolsToolBar->addAction(MoveAction);
@@ -507,6 +513,31 @@ void Gui::create3DDockWindows()
     tabifyDockWidget(viewerDockWindow/*gMainWindow->mPartsToolBar*/, gMainWindow->mColorsToolBar);
 
     connect(viewerDockWindow, SIGNAL (topLevelChanged(bool)), this, SLOT (toggleLCStatusBar(bool)));
+}
+
+void Gui::UpdateViewerUndoRedo(const QString& UndoText, const QString& RedoText)
+{
+    if (!UndoText.isEmpty())
+    {
+        undoAct->setEnabled(true);
+        undoAct->setText(QString(tr("&Undo %1")).arg(UndoText));
+    }
+    else
+    {
+        undoAct->setEnabled(false);
+        undoAct->setText(tr("&Undo"));
+    }
+
+    if (!RedoText.isEmpty())
+    {
+        redoAct->setEnabled(true);
+        redoAct->setText(QString(tr("&Redo %1")).arg(RedoText));
+    }
+    else
+    {
+        redoAct->setEnabled(false);
+        redoAct->setText(tr("&Redo"));
+    }
 }
 
 void Gui::partsWidgetVisibilityChanged(bool visible)

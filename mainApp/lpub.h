@@ -988,6 +988,7 @@ public slots:
   //**3D Viewer Manage Step Rotation
   void Disable3DActions();
   void Enable3DActions();
+  void UpdateViewerUndoRedo(const QString& UndoText, const QString& RedoText);
 
   void ShowStepRotationStatus();
   void SetRotStepMeta();

@@ -740,6 +740,8 @@ void lcMainWindow::CreateToolBars()
 
 	mStandardToolBar = addToolBar(tr("Standard"));
 	mStandardToolBar->setObjectName("StandardToolbar");
+/*** LPub3D Mod - suppress mStandardToolBar ***/
+/***
 	mStandardToolBar->addAction(mActions[LC_FILE_NEW]);
 	mStandardToolBar->addAction(mActions[LC_FILE_OPEN]);
 	mStandardToolBar->addAction(mActions[LC_FILE_SAVE]);
@@ -754,14 +756,20 @@ void lcMainWindow::CreateToolBars()
 	((QToolButton*)mStandardToolBar->widgetForAction(SelectionModeAction))->setPopupMode(QToolButton::InstantPopup);
 	((QToolButton*)mStandardToolBar->widgetForAction(MoveAction))->setPopupMode(QToolButton::InstantPopup);
 	((QToolButton*)mStandardToolBar->widgetForAction(AngleAction))->setPopupMode(QToolButton::InstantPopup);
+***/
+/*** LPub3D Mod end ***/
 
 	mTimeToolBar = addToolBar(tr("Time"));
 	mTimeToolBar->setObjectName("TimeToolbar");
+/*** LPub3D Mod - suppress mTimeToolBar ***/
+/***
 	mTimeToolBar->addAction(mActions[LC_VIEW_TIME_FIRST]);
 	mTimeToolBar->addAction(mActions[LC_VIEW_TIME_PREVIOUS]);
 	mTimeToolBar->addAction(mActions[LC_VIEW_TIME_NEXT]);
 	mTimeToolBar->addAction(mActions[LC_VIEW_TIME_LAST]);
 	mTimeToolBar->addAction(mActions[LC_VIEW_TIME_ADD_KEYS]);
+***/
+/*** LPub3D Mod end ***/
 
 	mToolsToolBar = addToolBar(tr("Tools"));
 	mToolsToolBar->setObjectName("ToolsToolbar");
@@ -1109,6 +1117,11 @@ void lcMainWindow::Enable3DActions()
 	mActions[LC_EDIT_ACTION_ROTATE_VIEW]->setEnabled(true);
 	mActions[LC_EDIT_ACTION_ROLL]->setEnabled(true);
 	mActions[LC_EDIT_ACTION_ZOOM_REGION]->setEnabled(true);
+	mActions[LC_EDIT_ACTION_MOVE]->setEnabled(true);
+	mActions[LC_EDIT_ACTION_INSERT]->setEnabled(true);
+	mActions[LC_EDIT_ACTION_PAINT]->setEnabled(true);
+	mActions[LC_EDIT_ACTION_COLOR_PICKER]->setEnabled(true);
+	mActions[LC_EDIT_ACTION_DELETE]->setEnabled(true);
 	//Shading
 	mActions[LC_VIEW_SHADING_WIREFRAME]->setEnabled(true);
 	mActions[LC_VIEW_SHADING_FLAT]->setEnabled(true);
@@ -1144,7 +1157,7 @@ void lcMainWindow::Disable3DActions()
 	//Export
 	mActions[LC_FILE_EXPORT_3DS]->setEnabled(false);
 	mActions[LC_FILE_EXPORT_BRICKLINK]->setEnabled(false);
-	 mActions[LC_FILE_EXPORT_COLLADA]->setEnabled(false);
+	mActions[LC_FILE_EXPORT_COLLADA]->setEnabled(false);
 	mActions[LC_FILE_EXPORT_CSV]->setEnabled(false);
 	mActions[LC_FILE_EXPORT_HTML]->setEnabled(false);
 	mActions[LC_FILE_EXPORT_POVRAY]->setEnabled(false);
@@ -1159,6 +1172,11 @@ void lcMainWindow::Disable3DActions()
 	mActions[LC_EDIT_ACTION_ROTATE_VIEW]->setEnabled(false);
 	mActions[LC_EDIT_ACTION_ROLL]->setEnabled(false);
 	mActions[LC_EDIT_ACTION_ZOOM_REGION]->setEnabled(false);
+	mActions[LC_EDIT_ACTION_MOVE]->setEnabled(false);
+	mActions[LC_EDIT_ACTION_INSERT]->setEnabled(false);
+	mActions[LC_EDIT_ACTION_PAINT]->setEnabled(false);
+	mActions[LC_EDIT_ACTION_COLOR_PICKER]->setEnabled(false);
+	mActions[LC_EDIT_ACTION_DELETE]->setEnabled(false);
 	//Shading
 	mActions[LC_VIEW_SHADING_WIREFRAME]->setEnabled(false);
 	mActions[LC_VIEW_SHADING_FLAT]->setEnabled(false);
@@ -2553,6 +2571,9 @@ void lcMainWindow::UpdateColor()
 
 void lcMainWindow::UpdateUndoRedo(const QString& UndoText, const QString& RedoText)
 {
+/*** LPub3D Mod - Move unod/redo trigger to LPub3D ***/
+	emit UpdateUndoRedoSig(UndoText, RedoText);
+/***
 	QAction* UndoAction = mActions[LC_EDIT_UNDO];
 	QAction* RedoAction = mActions[LC_EDIT_REDO];
 
@@ -2577,6 +2598,8 @@ void lcMainWindow::UpdateUndoRedo(const QString& UndoText, const QString& RedoTe
 		RedoAction->setEnabled(false);
 		RedoAction->setText(tr("&Redo"));
 	}
+***/
+/*** LPub3D Mod end ***/
 }
 
 void lcMainWindow::UpdateCameraMenu()

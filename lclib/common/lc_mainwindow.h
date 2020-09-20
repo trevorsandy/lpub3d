@@ -422,6 +422,9 @@ signals:
 	void SetActiveModelSig(const QString &, bool);
 	void SelectedPartLinesSig(QVector<TypeLine> &, PartSource);
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - Move unod/redo trigger to LPub3D ***/
+	void UpdateUndoRedoSig(const QString&, const QString&);
+/*** LPub3D Mod end ***/
 protected slots:
 	void UpdateGamepads();
 	void ModelTabContextMenuRequested(const QPoint& Point);

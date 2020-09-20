@@ -3002,6 +3002,7 @@ void Gui::initialize()
   connect(gMainWindow, SIGNAL(updateSig()),                              this,        SLOT(loadUpdatedImages()));
   connect(gMainWindow, SIGNAL(SetActiveModelSig(const QString&,bool)),   this,        SLOT(SetActiveModel(const QString&,bool)));
   connect(gMainWindow, SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),this,SLOT(SelectedPartLines(QVector<TypeLine>&,PartSource)));
+  connect(gMainWindow, SIGNAL(UpdateUndoRedoSig(const QString&,const QString&)),   this,SLOT(UpdateViewerUndoRedo(const QString&,const QString&)));
 
 /* Moved to PartWorker::ldsearchDirPreferences()  */
 //  if (Preferences::preferredRenderer == RENDERER_LDGLITE)
@@ -3862,12 +3863,12 @@ void Gui::createActions()
     connect(clearRecentAct, SIGNAL(triggered()), this, SLOT(clearRecentFiles()));
     // undo/redo
 
-    undoAct = new QAction(QIcon(":/resources/editundo.png"), tr("Undo"), this);
+    undoAct = new QAction(QIcon(":/resources/editundo.png"), tr("&Undo"), this);
     undoAct->setShortcut(tr("Ctrl+Z"));
     undoAct->setStatusTip(tr("Undo last change - Ctrl+Z"));
     undoAct->setEnabled(false);
     connect(undoAct, SIGNAL(triggered()), this, SLOT(undo()));
-    redoAct = new QAction(QIcon(":/resources/editredo.png"), tr("Redo"), this);
+    redoAct = new QAction(QIcon(":/resources/editredo.png"), tr("&Redo"), this);
 #ifdef __APPLE__
     redoAct->setShortcut(tr("Ctrl+Shift+Z"));
     redoAct->setStatusTip(tr("Redo last change - Ctrl+Shift+Z"));
