@@ -93,7 +93,7 @@ class PreferencesDialog : public QDialog
     bool          includeFileName();
     bool          includeFunction();
     bool          includeAllLogAttrib();
-    bool          lineParseErrors();
+    bool          showLineParseErrors();
     bool          showBuildModErrors();
     bool          showIncludeFileErrors();
     bool          showAnnotationMessages();
@@ -188,10 +188,10 @@ private:
 
     QWidget       *parent;
 
-    QCheckBox     *lineParseErrorsChkBox;
-    QCheckBox     *showBuildModErrorsChkBox;
-    QCheckBox     *showIncludeFileErrorsChkBox;
-    QCheckBox     *showAnnotationMessagesChkBox;
+    bool mShowLineParseErrors;
+    bool mShowBuildModErrors;
+    bool mShowIncludeFileErrors;
+    bool mShowAnnotationMessages;
 
     QSimpleUpdater  *m_updater;
     static QString   DEFS_URL;

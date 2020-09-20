@@ -3030,6 +3030,7 @@ int Gui::findPage(
                 }
               noStep2 = noStep;
               noStep = false;
+              emit messageSig(LOG_STATUS, QString("Parsing remaining modle file pages..."));
               break;
 
             case CalloutBeginRc:
@@ -3296,6 +3297,7 @@ int Gui::findPage(
       ++opts.pageNum;
       topOfPages.append(opts.current); // TopOfStep (Last Step)
       ++stepPageNum;
+      emit messageSig(LOG_STATUS, QString("Parsing remaining modle file pages..."));
     }  // Last Step in Submodel
   return 0;
 }

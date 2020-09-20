@@ -4253,9 +4253,9 @@ bool Preferences::getPreferences()
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableFadeSteps"),enableFadeSteps);
         }
 
-        if (lineParseErrors != dialog->lineParseErrors())
+        if (lineParseErrors != dialog->showLineParseErrors())
         {
-            lineParseErrors = dialog->lineParseErrors();
+            lineParseErrors = dialog->showLineParseErrors();
             Settings.setValue(QString("%1/%2").arg(MESSAGES,"ShowLineParseErrors"),lineParseErrors);
         }
 

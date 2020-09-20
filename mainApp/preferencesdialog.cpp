@@ -375,15 +375,11 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   m_updater->setChangelogOnly(DEFS_URL, true);
   m_updater->checkForUpdates (DEFS_URL);
 
-  // options
-  lineParseErrorsChkBox = new QCheckBox(_parent);
-  lineParseErrorsChkBox->setChecked(          Preferences::lineParseErrors);
-  showBuildModErrorsChkBox = new QCheckBox(_parent);
-  showBuildModErrorsChkBox->setChecked(   Preferences::showBuildModErrors);
-  showIncludeFileErrorsChkBox = new QCheckBox(_parent);
-  showIncludeFileErrorsChkBox->setChecked(   Preferences::showIncludeFileErrors);
-  showAnnotationMessagesChkBox = new QCheckBox(_parent);
-  showAnnotationMessagesChkBox->setChecked(   Preferences::showAnnotationMessages);
+  // show message options
+  mShowLineParseErrors    = Preferences::lineParseErrors;
+  mShowBuildModErrors     = Preferences::showBuildModErrors;
+  mShowIncludeFileErrors  = Preferences::showIncludeFileErrors;
+  mShowAnnotationMessages = Preferences::showAnnotationMessages;
 
 #ifdef Q_OS_MACOS
   resize(640, 835);
@@ -936,6 +932,7 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
     Q_UNUSED(checked)
     // options dialogue
     QDialog *dialog = new QDialog();
+    dialog->setWindowTitle("Parse Messages");
     QFormLayout *form = new QFormLayout(dialog);
     form->addRow(new QLabel("Message Options"));
 
@@ -981,13 +978,13 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
     form->addRow(&buttonBox);
     QObject::connect(&buttonBox, SIGNAL(accepted()), dialog, SLOT(accept()));
     QObject::connect(&buttonBox, SIGNAL(rejected()), dialog, SLOT(reject()));
-    dialog->setMinimumWidth(250);
+    dialog->setMinimumSize(200,200);
 
     if (dialog->exec() == QDialog::Accepted) {
-        lineParseErrorsChkBox->setChecked(parseErrorChkBox->isChecked());
-        showBuildModErrorsChkBox->setChecked(buildModErrorChkBox->isChecked());
-        showIncludeFileErrorsChkBox->setChecked(includeFileErrorChkBox->isChecked());
-        showAnnotationMessagesChkBox->setChecked(annotationMessageChkBox->isChecked());
+        mShowLineParseErrors    = parseErrorChkBox->isChecked();
+        mShowBuildModErrors     = buildModErrorChkBox->isChecked();
+        mShowIncludeFileErrors  = includeFileErrorChkBox->isChecked();
+        mShowAnnotationMessages = annotationMessageChkBox->isChecked();
     }
 }
 
@@ -1323,24 +1320,24 @@ int PreferencesDialog::pageDisplayPause()
   return ui.pageDisplayPauseSpin->value();
 }
 
-bool PreferencesDialog::lineParseErrors()
+bool PreferencesDialog::showLineParseErrors()
 {
- return lineParseErrorsChkBox->isChecked();
+ return mShowLineParseErrors;
 }
 
 bool PreferencesDialog::showBuildModErrors()
 {
- return showBuildModErrorsChkBox->isChecked();
+ return mShowBuildModErrors;
 }
 
 bool PreferencesDialog::showIncludeFileErrors()
 {
- return showIncludeFileErrorsChkBox->isChecked();
+ return mShowIncludeFileErrors;
 }
 
 bool PreferencesDialog::showAnnotationMessages()
 {
- return showAnnotationMessagesChkBox->isChecked();
+ return mShowAnnotationMessages;
 }
 
 bool PreferencesDialog::includeLogLevel()
