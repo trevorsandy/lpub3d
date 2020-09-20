@@ -795,6 +795,8 @@ void Application::initialize()
     logInfo() << "-----------------------------";
 
     // splash
+    // if you want to rewrite, here is a good example:
+    // https://wiki.qt.io/Custom_splashscreen_with_text
     if (modeGUI())
     {
         QPixmap pixmap(":/resources/LPub512Splash.png");
@@ -802,7 +804,11 @@ void Application::initialize()
 
         QFont splashFont;
         splashFont.setFamily("Arial");
+#ifdef Q_OS_MACOS
+        splashFont.setPixelSize(10);
+#else
         splashFont.setPixelSize(16);
+#endif
         splashFont.setStretch(130);
 
         splash->setFont(splashFont);
