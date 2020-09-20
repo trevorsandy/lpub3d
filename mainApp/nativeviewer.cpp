@@ -871,7 +871,7 @@ void Gui::saveCurrent3DViewerModel(const QString &modelFile)
         ActiveView->SetCamera(cameraName/*cameraName.toLatin1().constData()*/);
 
         // Save the current model
-        if (!lcGetActiveProject()->Save(modelFile, true /*saveImageSize*/))
+        if (!lcGetActiveProject()->Save(modelFile))
             emit gui->messageSig(LOG_ERROR, QString("Failed to save current model to file [%1]").arg(modelFile));
 
         // Reset the camera

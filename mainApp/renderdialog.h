@@ -49,11 +49,12 @@ public:
             int importOnly = 0);
     ~RenderDialog();
 
-public slots:
+private slots:
     void reject();
     void on_RenderSettingsButton_clicked();
     void on_RenderButton_clicked();
     void on_OutputBrowseButton_clicked();
+    void on_StandardOutButton_clicked();
     void resetOutputEdit(bool);
     void Update();
 

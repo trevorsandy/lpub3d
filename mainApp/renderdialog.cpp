@@ -20,6 +20,7 @@
 #include "paths.h"
 #include "lpub.h"
 #include "metagui.h"
+#include "parmswindow.h"
 
 #define RENDER_DEFAULT_WIDTH 1280
 #define RENDER_DEFAULT_HEIGHT 720
@@ -49,6 +50,7 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 
     ui->OutputEdit->setText(Render::getRenderImageFile(renderType));
     ui->OutputEdit->setValidator(new QRegExpValidator(QRegExp("^.*\\.png$",Qt::CaseInsensitive)));
+    ui->StandardOutButton->setEnabled(false);
 
     mCsiKeyList      = gui->getViewerConfigKey(mViewerStepKey).split(";").last().split("_");
 
@@ -69,6 +71,8 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
         mQuality         = Preferences::povrayRenderQuality;
 
         mTransBackground = true;
+
+        setMinimumSize(100, 100);
 
     } else if (mRenderType == BLENDER_RENDER) {
 
@@ -96,15 +100,22 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
         if (!blenderInstalled)
             ui->RenderButton->setToolTip(tr("Blender not configured. Click 'Settings' to configure."));
 
+        bool useConfigSize = false;
         if (QFileInfo(Preferences::blenderRenderConfigFile).exists())
         {
             QSettings Settings(Preferences::blenderRenderConfigFile, QSettings::IniFormat);
             if (Settings.value(QString("%1/cropImage").arg(IMPORTLDRAW), QString()).toBool())
             {
+                useConfigSize = true;
                 mWidth  = gui->GetImageWidth();
                 mHeight = gui->GetImageHeight();
             }
         }
+
+        adjustSize();
+        if (!mImportOnly)
+            setMinimumWidth(useConfigSize ? mWidth : ui->preview->geometry().width());
+        ui->preview->hide();
     }
 
     connect(&mUpdateTimer, SIGNAL(timeout()), this, SLOT(Update()));
@@ -112,14 +123,6 @@ RenderDialog::RenderDialog(QWidget* Parent, int renderType, int importOnly)
 
     mUpdateTimer.start(500);
 
-    if (mRenderType == BLENDER_RENDER) {
-        adjustSize();
-        if (!mImportOnly)
-            setMinimumWidth(int(ui->preview->geometry().width()));
-        ui->preview->hide();
-    } else {
-        setMinimumSize(100, 100);
-    }
     setSizeGripEnabled(true);
 }
 
@@ -173,6 +176,7 @@ void RenderDialog::on_RenderButton_clicked()
         return;
     }
 
+    ui->StandardOutButton->setEnabled(false);
     mPreviewWidth  = ui->preview->width();
     mPreviewHeight = ui->preview->height();
 
@@ -511,6 +515,9 @@ void RenderDialog::on_RenderButton_clicked()
         {
             ui->RenderButton->setText(tr("Cancel"));
             ui->RenderProgress->setValue(ui->RenderProgress->minimum());
+            ui->TimeLabel->setText(QString("Loading LDraw model... %1")
+                                   .arg(gui->elapsedTime(mRenderTime.elapsed())));
+            QApplication::processEvents();
             emit gui->messageSig(LOG_INFO, QString("Blender render process [%1] running...").arg(mProcess->processId()));
         }
         else
@@ -573,11 +580,11 @@ void RenderDialog::ReadStdOut()
 {
     QString StdOut = QString(mProcess->readAllStandardOutput());
     mStdOutList.append(StdOut);
-    QRegExp rxBlenderProgress("\\/(\\d+) Tiles, Denoised (\\d+) tiles",Qt::CaseInsensitive);
-    if (StdOut.contains(rxBlenderProgress))
+    QRegExp rxRenderProgress("\\/(\\d+) Tiles, Denoised (\\d+) tiles",Qt::CaseInsensitive);
+    if (StdOut.contains(rxRenderProgress))
     {
-        mBlendProgValue = rxBlenderProgress.cap(2).toInt();
-        mBlendProgMax   = rxBlenderProgress.cap(1).toInt();
+        mBlendProgValue = rxRenderProgress.cap(2).toInt();
+        mBlendProgMax   = rxRenderProgress.cap(1).toInt();
         ui->RenderProgress->setMaximum(mBlendProgMax);
         ui->RenderProgress->setValue(mBlendProgValue);
         emit gui->messageSig(LOG_INFO, QString("Rendered Tile %1/%2")
@@ -631,6 +638,8 @@ void RenderDialog::WriteStdOut()
         for (const QString& Line : mStdOutList)
             Out << Line;
         file.close();
+        if (mStdOutList.size())
+            ui->StandardOutButton->setEnabled(true);
     }
     else
     {
@@ -713,7 +722,6 @@ void RenderDialog::Update()
 
         if (PixelsWritten == Width * Height)
             ui->RenderProgress->setValue(ui->RenderProgress->maximum());
-
     }
 }
 
@@ -790,14 +798,16 @@ void RenderDialog::ShowResult()
         Success = QFileInfo(FileName).exists();
         if (Success){
 
-            mPreviewWidth  = mWidth;
-            mPreviewHeight = mHeight;
-
             QImageReader reader(FileName);
             mImage = reader.read();
-            mImage = mImage.convertToFormat(QImage::Format_ARGB32_Premultiplied);;
+            mImage = mImage.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+
+            mPreviewWidth  = mImage.width();
+            mPreviewHeight = mImage.height();
 
             ui->preview->setPixmap(QPixmap::fromImage(mImage.scaled(mPreviewWidth, mPreviewHeight, Qt::KeepAspectRatio, Qt::SmoothTransformation)));
+            setMinimumSize(100, 100);
+            adjustSize();
             ui->preview->show();
         }
     }
@@ -888,6 +898,10 @@ bool RenderDialog::PromptCancel()
 #endif
             mProcess->kill();
             CloseProcess();
+            if (mStdOutList.size()){
+                WriteStdOut();
+                ui->StandardOutButton->setEnabled(true);
+            }
             ui->TimeLabel->setText(QString("Tiles: %1/%2, Render Cancelled.")
                                            .arg(mBlendProgValue)
                                            .arg(mBlendProgMax));
@@ -920,6 +934,7 @@ void RenderDialog::resetOutputEdit(bool)
     ui->RenderProgress->setRange(0,1);
     ui->RenderProgress->setValue(0);
     ui->TimeLabel->setText(QString());
+    ui->StandardOutButton->setEnabled(false);
     if (mRenderType == BLENDER_RENDER ) {
         ui->preview->hide();
         adjustSize();
@@ -941,4 +956,20 @@ RenderProcess::~RenderProcess(){
         terminate();
         waitForFinished();
     }
+}
+
+void RenderDialog::on_StandardOutButton_clicked()
+{
+    QString renderType = mRenderType == POVRAY_RENDER ? "POVRay" : "Blender";
+    QFileInfo fileInfo(GetLogFileName(true/*stdOut*/));
+    if (!fileInfo.exists()) {
+        emit gui->messageSig(LOG_ERROR, QString("%1 Standard output file not found: %2.")
+                             .arg(renderType).arg(fileInfo.absoluteFilePath()));
+        return;
+    }
+    QString title = QString("%1 Render Standard Output").arg(renderType);
+    QString status = QString("View %1 render process standard output").arg(renderType);
+    gui->displayParmsFile(fileInfo.absoluteFilePath());
+    gui->parmsWindow->setWindowTitle(tr(title.toLatin1(),status.toLatin1()));
+    gui->parmsWindow->show();
 }

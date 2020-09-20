@@ -30,7 +30,7 @@
           <item>
            <widget class="QLabel" name="outputLabel">
             <property name="text">
-             <string>Output:</string>
+             <string>Rendered Image:</string>
             </property>
            </widget>
           </item>
@@ -89,6 +89,13 @@
            </widget>
           </item>
           <item>
+           <widget class="QPushButton" name="RenderButton">
+            <property name="text">
+             <string>Render</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="Line" name="ProgressLine">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
@@ -96,9 +103,12 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="RenderButton">
+           <widget class="QPushButton" name="StandardOutButton">
+            <property name="toolTip">
+             <string>View render process standard output</string>
+            </property>
             <property name="text">
-             <string>Render</string>
+             <string>Output...</string>
             </property>
            </widget>
           </item>
@@ -131,7 +141,6 @@
   <tabstop>OutputEdit</tabstop>
   <tabstop>OutputBrowseButton</tabstop>
   <tabstop>RenderSettingsButton</tabstop>
-  <tabstop>RenderButton</tabstop>
  </tabstops>
  <resources/>
  <connections/>

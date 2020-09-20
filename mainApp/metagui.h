@@ -1824,6 +1824,7 @@ public slots:
     void setDefaultColor(int value) const;
     void colorButtonClicked(bool);
     void setModelSize(bool);
+    void validateColourScheme(QString const &);
 
     void update();
     void reject();
@@ -1859,9 +1860,8 @@ private:
         LBL_ENVIRONMENT_PATH,                   //  2 QLineEdit/QPushButton
         LBL_LDCONFIG_PATH,                      //  3 QLineEdit/QPushButton
         LBL_LDRAW_DIRECTORY,                    //  4 QLineEdit/QPushButton
-        LBL_IMAGES_DIRECTORY,                   //  5 QLineEdit/QPushButton
-        LBL_LSYNTH_DIRECTORY,                   //  6 QLineEdit/QPushButton
-        LBL_STUDLOGO_DIRECTORY,                 //  7 QLineEdit/QPushButton
+        LBL_LSYNTH_DIRECTORY,                   //  5 QLineEdit/QPushButton
+        LBL_STUDLOGO_DIRECTORY,                 //  6 QLineEdit/QPushButton
 
         NUM_BLENDER_PATHS
     };
@@ -1972,8 +1972,8 @@ private:
     };
 
     struct ComboOptItems {
-        QString valueStr;
-        QString labelStr;
+        QString data;
+        QString items;
     };
 
     static BlenderSettings blenderSettings [];
@@ -1982,15 +1982,10 @@ private:
     static BlenderSettings defaultPaths [];
     static ComboOptItems comboOptItems [];
 
-    static QString ldrawDirectoryKey;
-    static QString customLDConfigKey;
-    static QString fadeStepsKey;
-    static QString highlightStepKey;
+    static bool    documentRender;
+    static QString blenderVersion;
     static QString searchDirectoriesKey;
     static QString parameterFileKey;
-    static QString blenderVersion;
-
-    static bool documentRender;
 
     QAction     *defaultColourEditAction;
     QAction     *blenderPathEditAction;
