@@ -114,7 +114,7 @@ SubstitutePartDialog::SubstitutePartDialog(
      mResetBtn = new QPushButton(tr("Reset"));
      ui->buttonBox->addButton(mResetBtn, QDialogButtonBox::ActionRole);
      connect(mResetBtn,SIGNAL(clicked(bool)),
-             this,    SLOT(  reset(bool)));
+             this,     SLOT(  reset(bool)));
 
      setMinimumSize(40, 40);
 
@@ -202,7 +202,16 @@ void SubstitutePartDialog::initialize()
                                .arg(LDrawColor::value(mAttributes.at(sColorCode)).toUpper()));
     }
 
-    ui->extendedSettingsBox->setVisible(show);
+    // Extended settings
+
+    if (show){
+        mShowExtAttrsBtn = new QPushButton(tr("More..."));
+        ui->buttonBox->addButton(mShowExtAttrsBtn, QDialogButtonBox::ActionRole);
+        connect(mShowExtAttrsBtn,SIGNAL(clicked(bool)),
+                this,            SLOT(  showExtendedAttributes(bool)));
+
+        ui->extendedSettingsBox->setVisible(false);
+    }
 
     if (show)
         val = mAttributes.at(sModelScale).toDouble();
@@ -288,11 +297,27 @@ void SubstitutePartDialog::initialize()
     mModified = !show;
 }
 
+void SubstitutePartDialog::showExtendedAttributes(bool clicked){
+    Q_UNUSED(clicked);
+
+    if (ui->extendedSettingsBox->isHidden()){
+        ui->extendedSettingsBox->show();
+        mShowExtAttrsBtn->setText("Less...");
+        this->adjustSize();
+    }
+    else{
+        ui->extendedSettingsBox->hide();
+        mShowExtAttrsBtn->setText("More...");
+        this->adjustSize();
+    }
+}
+
 void SubstitutePartDialog::reset(bool value)
 {
     Q_UNUSED(value)
     initialize();
 }
+
 void SubstitutePartDialog::valueChanged(int value)
 {
     if (sender() == ui->targetSpinX) {
