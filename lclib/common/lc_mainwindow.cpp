@@ -98,7 +98,6 @@ lcMainWindow::lcMainWindow(QMainWindow *parent) :
 	memset(mActions, 0, sizeof(mActions));
 
 /*** LPub3D Mod - set relative rotation ***/
-	mRotateStepCoordType = LC_ROTATESTEP_COORD_FORMAT_LDRAW;
 	mTransformType = LC_TRANSFORM_RELATIVE_ROTATION;
 /*** LPub3D Mod end ***/
 
@@ -226,7 +225,6 @@ void lcMainWindow::CreateWidgets()
 	mActions[LC_EDIT_ACTION_PAN]->setDisabled(true);
 	mActions[LC_EDIT_ACTION_ROTATE_VIEW]->setDisabled(true);
 	mActions[LC_EDIT_ACTION_ZOOM_REGION]->setDisabled(true);
-	mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT]->setDisabled(true);
 	mActions[LC_EDIT_ACTION_CLEAR_TRANSFORM]->setDisabled(true);
 
 /*** LPub3D Mod end ***/
@@ -439,15 +437,6 @@ void lcMainWindow::CreateActions()
 		ActionTransformTypeGroup->addAction(mActions[ActionIdx]);
 	}
 
-/*** LPub3D Mod - coord format DEPRECATED ***/
-	QActionGroup* ActionCoordFormatTypeGroup = new QActionGroup(this);
-	for (int ActionIdx = LC_EDIT_ROTATESTEP_COORD_FORMAT_LDRAW; ActionIdx <= LC_EDIT_ROTATESTEP_COORD_FORMAT_LEOCAD; ActionIdx++)
-	{
-		mActions[ActionIdx]->setCheckable(true);
-		ActionCoordFormatTypeGroup->addAction(mActions[ActionIdx]);
-	}
-/*** LPub3D Mod end ***/
-
 	QActionGroup* ActionToolGroup = new QActionGroup(this);
 	for (int ActionIdx = LC_EDIT_ACTION_FIRST; ActionIdx <= LC_EDIT_ACTION_LAST; ActionIdx++)
 	{
@@ -514,13 +503,6 @@ void lcMainWindow::CreateMenus()
 	TransformMenu->addAction(mActions[LC_EDIT_TRANSFORM_RELATIVE_ROTATION]);
 	TransformMenu->addAction(mActions[LC_EDIT_TRANSFORM_ABSOLUTE_ROTATION]);
 	mActions[LC_EDIT_TRANSFORM]->setMenu(TransformMenu);
-
-/*** LPub3D Mod - coord format DEPRECATED ***/
-	QMenu* CoordFormatMenu = new QMenu(tr("Coordinate Format"), this);
-	CoordFormatMenu->addAction(mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT_LDRAW]);
-	CoordFormatMenu->addAction(mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT_LEOCAD]);
-	mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT]->setMenu(CoordFormatMenu);
-/*** LPub3D Mod end ***/
 
 	mCameraMenu = new QMenu(tr("C&ameras"), this);
 	mCameraMenu->addAction(mActions[LC_VIEW_CAMERA_NONE]);
@@ -846,15 +828,6 @@ void lcMainWindow::CreateToolBars()
 	QWidget* TransformWidget = new QWidget();
 	TransformWidget->setLayout(TransformLayout);
 
-/*** LPub3D Mod - coord format DEPRECATED ***/
-/***
-	QToolButton* CoordFormatButton = new QToolButton(TransformWidget);
-	CoordFormatButton->setDefaultAction(mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT]);
-	CoordFormatButton->setPopupMode(QToolButton::InstantPopup);
-	TransformLayout->addWidget(CoordFormatButton);
-***/
-/*** LPub3D Mod end ***/
-
 	QToolButton* TransformButton = new QToolButton(TransformWidget);
 	TransformButton->setDefaultAction(mActions[LC_EDIT_TRANSFORM]);
 	TransformButton->setPopupMode(QToolButton::InstantPopup);
@@ -865,14 +838,17 @@ void lcMainWindow::CreateToolBars()
 	mTransformLabel = new QLabel(" X:");
 	TransformLayout->addWidget(mTransformLabel);
 	mTransformXEdit = new lcTransformLineEdit();
+	mTransformXEdit->setStatusTip(tr("LDraw Format - Enter ROTSTEP meta X coordinate"));
 	TransformLayout->addWidget(mTransformXEdit);
 	mTransformLabel = new QLabel(" Y:");
 	TransformLayout->addWidget(mTransformLabel);
 	mTransformYEdit = new lcTransformLineEdit();
+	mTransformYEdit->setStatusTip(tr("LDraw Format - Enter ROTSTEP meta Y coordinate"));
 	TransformLayout->addWidget(mTransformYEdit);
 	mTransformLabel = new QLabel(" Z:");
 	TransformLayout->addWidget(mTransformLabel);
 	mTransformZEdit = new lcTransformLineEdit();
+	mTransformZEdit->setStatusTip(tr("LDraw Format - Enter ROTSTEP meta Z coordinate"));
 	TransformLayout->addWidget(mTransformZEdit);
 
 	QToolButton* ClearTransformButton = new QToolButton(TransformWidget);
@@ -1126,7 +1102,6 @@ void lcMainWindow::Enable3DActions()
 	//Tools
 	mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(true);
 	mActions[LC_EDIT_ACTION_CAMERA]->setEnabled(true);
-	mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT]->setEnabled(true);
 	mActions[LC_EDIT_ACTION_CLEAR_TRANSFORM]->setEnabled(true);
 	mActions[LC_EDIT_ACTION_SELECT]->setEnabled(true);
 	mActions[LC_EDIT_ACTION_ROTATE]->setEnabled(true);
@@ -1177,7 +1152,6 @@ void lcMainWindow::Disable3DActions()
 	//Tools
 	mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(false);
 	mActions[LC_EDIT_ACTION_CAMERA]->setEnabled(false);
-	mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT]->setEnabled(true);
 	mActions[LC_EDIT_ACTION_CLEAR_TRANSFORM]->setEnabled(true);
 	mActions[LC_EDIT_ACTION_SELECT]->setEnabled(false);
 	mActions[LC_EDIT_ACTION_ROTATE]->setEnabled(false);
@@ -2120,35 +2094,6 @@ void lcMainWindow::SetTransformType(lcTransformType TransformType)
 	}
 }
 
-/*** LPub3D Mod - Rotate Step ***/
-void lcMainWindow::SetRotateStepCoordType(lcRotateStepCoordType RotateStepCoordType)
-{
-	mRotateStepCoordType = RotateStepCoordType;
-
-	const char* IconNames[] =
-	{
-		":/resources/edit_rotatestep_coord_format_ldraw.png",
-		":/resources/edit_rotatestep_coord_format_leocad.png"
-	};
-
-	const char* StatusMessages[] =
-	{
-		"LDraw Format - Enter ROTSTEP meta",
-		"3DViewer Format - Enter ROTSTEP meta"
-	};
-
-	if (RotateStepCoordType >= 0 && RotateStepCoordType <= 1)
-	{
-		mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT_LDRAW + RotateStepCoordType]->setChecked(true);
-		mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT]->setIcon(QIcon(IconNames[RotateStepCoordType]));
-
-		mTransformXEdit->setStatusTip(tr("%1 X coordinate").arg(StatusMessages[RotateStepCoordType]));
-		mTransformYEdit->setStatusTip(tr("%1 Y coordinate").arg(StatusMessages[RotateStepCoordType]));
-		mTransformZEdit->setStatusTip(tr("%1 Z coordinate").arg(StatusMessages[RotateStepCoordType]));
-	}
-}
-/*** LPub3D Mod end ***/
-
 /*** LPub3D Mod - View point zoom extent ***/
 bool lcMainWindow::viewportZoomExtent()
 {
@@ -2178,11 +2123,8 @@ lcVector3 lcMainWindow::GetTransformAmount()
 	Transform.z = lcParseValueLocalized(mTransformZEdit->text());
 
 /*** LPub3D Mod - rotstep transform ***/
-	if (GetRotateStepCoordType() == LC_ROTATESTEP_COORD_FORMAT_LDRAW)
-	   return lcVector3LDrawToLeoCAD(Transform);
+	return lcVector3LDrawToLeoCAD(Transform); // return Transform;
 /*** LPub3D Mod end ***/
-
-	return Transform;
 }
 
 /*** LPub3D Mod - rotstep transform ***/
@@ -2193,9 +2135,6 @@ lcVector3 lcMainWindow::GetRotStepTransformAmount()
 	Transform.x = lcParseValueLocalized(mTransformXEdit->text());
 	Transform.y = lcParseValueLocalized(mTransformYEdit->text());
 	Transform.z = lcParseValueLocalized(mTransformZEdit->text());
-
-	if (GetRotateStepCoordType() == LC_ROTATESTEP_COORD_FORMAT_LEOCAD)
-	   return lcVector3LeoCADToLDraw(Transform);
 
 	return Transform;
 }
@@ -3755,14 +3694,6 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 			ActiveModel->TransformSelectedObjects(GetTransformType(), GetTransformAmount());
 /*** LPub3D Mod - rotate step objects ***/
 		SetStepRotStepMeta(LC_EDIT_TRANSFORM);
-		break;
-/*** LPub3D Mod end ***/
-
-/*** LPub3D Mod - coord format DEPRECATED ***/
-	case LC_EDIT_ROTATESTEP_COORD_FORMAT:
-	case LC_EDIT_ROTATESTEP_COORD_FORMAT_LDRAW:
-	case LC_EDIT_ROTATESTEP_COORD_FORMAT_LEOCAD:
-		SetRotateStepCoordType((lcRotateStepCoordType)(CommandId - LC_EDIT_ROTATESTEP_COORD_FORMAT_LDRAW));
 		break;
 /*** LPub3D Mod end ***/
 

@@ -42,14 +42,6 @@ enum lcTransformType
 	LC_TRANSFORM_RELATIVE_ROTATION
 };
 
-/*** LPub3D Mod - coord format DEPRECATED ***/
-enum lcRotateStepCoordType
-{
-	LC_ROTATESTEP_COORD_FORMAT_LDRAW,
-	LC_ROTATESTEP_COORD_FORMAT_LEOCAD
-};
-/*** LPub3D Mod end ***/
-
 enum lcBackgroundType
 {
 	LC_BACKGROUND_SOLID,

@@ -556,29 +556,6 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Status", "Switch to relative rotation mode when applying transforms - Shift+E"),   /*** LPub3D Mod - LPub3D Menu update ***/
 		"Shift+E"
 	},
-/*** LPub3D Mod - coord format commands ***/
-	// LC_EDIT_ROTATESTEP_COORD_FORMAT
-	{
-		QT_TRANSLATE_NOOP("Action", "Edit.Coord.Format"),
-		QT_TRANSLATE_NOOP("Menu", "Coordinate Format"),
-		QT_TRANSLATE_NOOP("Status", "3DViewer and LPub3D use different XYZ coordinates - select format"),
-		""
-	},
-	// LC_EDIT_ROTATESTEP_COORD_FORMAT_LDRAW
-	{
-		QT_TRANSLATE_NOOP("Action","Edit.Ldraw.Coord.Format"),
-		QT_TRANSLATE_NOOP("Menu", "Set LDraw XYZ Format"),
-		QT_TRANSLATE_NOOP("Status", "Enter rotation using LDraw XYZ coordinates - Shift+L"),
-		"Shift+L"
-	},
-	// LC_EDIT_ROTATESTEP_COORD_FORMAT_LEOCAD
-	{
-		 QT_TRANSLATE_NOOP("Action","Edit.Leocad.Coord.Format"),
-		 QT_TRANSLATE_NOOP("Menu", "Set LeoCAD XYZ Format"),
-         QT_TRANSLATE_NOOP("Status", "Enter rotation using 3DViewer XYZ coordinates"),
-		 "Shift+D"
-	},
-/*** LPub3D Mod end ***/
 	// LC_EDIT_ACTION_INSERT
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Insert"),
@@ -590,7 +567,7 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Light"),
 		QT_TRANSLATE_NOOP("Menu", "Pointlight"),
-        QT_TRANSLATE_NOOP("Status", "Add new omnidirectional pointlight sources to the model - edit in Properties tab"), /*** LPub3D Mod - enable lights ***/
+		QT_TRANSLATE_NOOP("Status", "Add new omnidirectional pointlight sources to the model - edit in Properties tab"), /*** LPub3D Mod - enable lights ***/
 		""
 	},
 /*** LPub3D Mod - enable lights ***/
@@ -598,14 +575,14 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Sunlight"),
 		QT_TRANSLATE_NOOP("Menu", "Sunlight"),
-        QT_TRANSLATE_NOOP("Status", "Add new omnidirectional sunlight sources to the model - edit in Properties tab"),
+		QT_TRANSLATE_NOOP("Status", "Add new omnidirectional sunlight sources to the model - edit in Properties tab"),
 		""
 	},
 	// LC_EDIT_ACTION_AREALIGHT
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Arealight"),
 		QT_TRANSLATE_NOOP("Menu", "Arealight"),
-        QT_TRANSLATE_NOOP("Status", "Add new arealight sources to the model - edit in Properties tab"),
+		QT_TRANSLATE_NOOP("Status", "Add new arealight sources to the model - edit in Properties tab"),
 		""
 	},
 /*** LPub3D Mod end ***/
@@ -613,14 +590,14 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Spotlight"),
 		QT_TRANSLATE_NOOP("Menu", "Spotlight"),
-        QT_TRANSLATE_NOOP("Status", "Add new spotlight sources to the model - edit in Properties tab"),  /*** LPub3D Mod - enable lights ***/
+		QT_TRANSLATE_NOOP("Status", "Add new spotlight sources to the model - edit in Properties tab"),  /*** LPub3D Mod - enable lights ***/
 		""
 	},
 	// LC_EDIT_ACTION_CAMERA
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Camera"),
 		QT_TRANSLATE_NOOP("Menu", "Camera"),
-        QT_TRANSLATE_NOOP("Status", "Add a new camera - edit in Properties tab"),              /*** LPub3D Mod - LPub3D Menu update ***/
+		QT_TRANSLATE_NOOP("Status", "Add a new camera - edit in Properties tab"),              /*** LPub3D Mod - LPub3D Menu update ***/
 		""
 	},
 	// LC_EDIT_ACTION_SELECT
@@ -1650,7 +1627,7 @@ const char* gToolNames[LC_NUM_TOOLS] =
 	QT_TRANSLATE_NOOP("Mouse", "Rotate"),        // LC_TOOL_ROTATE
 	QT_TRANSLATE_NOOP("Mouse", "Delete"),        // LC_TOOL_ERASER
 	QT_TRANSLATE_NOOP("Mouse", "Paint"),         // LC_TOOL_PAINT
-    QT_TRANSLATE_NOOP("Mouse", "ColorPicker"),   // LC_TOOL_COLOR_PICKER
+	QT_TRANSLATE_NOOP("Mouse", "ColorPicker"),   // LC_TOOL_COLOR_PICKER
 	QT_TRANSLATE_NOOP("Mouse", "Zoom"),          // LC_TOOL_ZOOM
 	QT_TRANSLATE_NOOP("Mouse", "Pan"),           // LC_TOOL_PAN
 	QT_TRANSLATE_NOOP("Mouse", "Orbit"),         // LC_TOOL_ROTATE_VIEW

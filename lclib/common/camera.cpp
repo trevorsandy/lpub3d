@@ -122,31 +122,31 @@ void lcCamera::SaveLDraw(QTextStream& Stream) const
 	if (mPositionKeys.GetSize() > 1)
 		SaveKeysLDraw(Stream, mPositionKeys, "CAMERA POSITION_KEY ");
 	else
-        if (mLPubMeta)
+		if (mLPubMeta)
 /*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-            Stream << QLatin1String("0 !LPUB CAMERA POSITION ") << mPosition[0] << ' ' << -mPosition[2] << ' ' << mPosition[1] << LineEnding;
-        else
-            Stream << QLatin1String("0 !LEOCAD CAMERA POSITION ") << mPosition[0] << ' ' << mPosition[1] << ' ' << mPosition[2] << LineEnding;
+			Stream << QLatin1String("0 !LPUB CAMERA POSITION ") << mPosition[0] << ' ' << -mPosition[2] << ' ' << mPosition[1] << LineEnding;
+		else
+			Stream << QLatin1String("0 !LEOCAD CAMERA POSITION ") << mPosition[0] << ' ' << mPosition[1] << ' ' << mPosition[2] << LineEnding;
 /*** LPub3D Mod end ***/
 
 	if (mTargetPositionKeys.GetSize() > 1)
 		SaveKeysLDraw(Stream, mTargetPositionKeys, "CAMERA TARGET_POSITION_KEY ");
 	else
-        if (mLPubMeta)
+		if (mLPubMeta)
 /*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-            Stream << QLatin1String("0 !LPUB CAMERA TARGET_POSITION ") << mTargetPosition[0] << ' ' << -mTargetPosition[2] << ' ' << mTargetPosition[1] << LineEnding;
-        else
-            Stream << QLatin1String("0 !LEOCAD CAMERA TARGET_POSITION ") << mTargetPosition[0] << ' ' << mTargetPosition[1] << ' ' << mTargetPosition[2] << LineEnding;
+			Stream << QLatin1String("0 !LPUB CAMERA TARGET_POSITION ") << mTargetPosition[0] << ' ' << -mTargetPosition[2] << ' ' << mTargetPosition[1] << LineEnding;
+		else
+			Stream << QLatin1String("0 !LEOCAD CAMERA TARGET_POSITION ") << mTargetPosition[0] << ' ' << mTargetPosition[1] << ' ' << mTargetPosition[2] << LineEnding;
 /*** LPub3D Mod end ***/
 
 	if (mUpVectorKeys.GetSize() > 1)
 		SaveKeysLDraw(Stream, mUpVectorKeys, "CAMERA UP_VECTOR_KEY ");
 	else
-        if (mLPubMeta)
+		if (mLPubMeta)
 /*** LPub3D Mod - Switch Y and Z axis with -Y(LC -Z) in the up direction ***/
-            Stream << QLatin1String("0 !LPUB CAMERA UP_VECTOR ") << mUpVector[0] << ' ' << -mUpVector[2] << ' ' << mUpVector[1] << LineEnding;
-        else
-            Stream << QLatin1String("0 !LEOCAD CAMERA UP_VECTOR ") << mUpVector[0] << ' ' << mUpVector[1] << ' ' << mUpVector[2] << LineEnding;
+			Stream << QLatin1String("0 !LPUB CAMERA UP_VECTOR ") << mUpVector[0] << ' ' << -mUpVector[2] << ' ' << mUpVector[1] << LineEnding;
+		else
+			Stream << QLatin1String("0 !LEOCAD CAMERA UP_VECTOR ") << mUpVector[0] << ' ' << mUpVector[1] << ' ' << mUpVector[2] << LineEnding;
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - LPUB meta command ***/

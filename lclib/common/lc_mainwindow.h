@@ -155,13 +155,6 @@ public:
 		return mTransformType;
 	}
 
-/*** LPub3D Mod - coord format DEPRECATED ***/
-	lcRotateStepCoordType GetRotateStepCoordType() const
-	{
-		return mRotateStepCoordType;
-	}
-/*** LPub3D Mod end ***/
-
 	bool GetAddKeys() const
 	{
 		return mAddKeys;
@@ -297,7 +290,6 @@ public:
 /***    void UpdateAllViews();                 // LPub3D Mod - moved to public slots ***/
 	void SetTool(lcTool Tool);
 	void SetTransformType(lcTransformType TransformType);
-	void SetRotateStepCoordType(lcRotateStepCoordType RotateStepCoordType); // LPub3D Mod
 
 	void SetColorIndex(int ColorIndex);
 	void SetMoveSnapEnabled(bool Enabled);
@@ -495,8 +487,7 @@ protected:
 	lcTabWidget* mModelTabWidget;
 	QToolBar* mStandardToolBar;
 /*** QToolBar* mToolsToolBar;     LPub3D Mod -  move to public ***/
-/*** LPub3D Mod - coord format DEPRECATED ***/
-	lcRotateStepCoordType mRotateStepCoordType;
+/*** LPub3D Mod - rotate step ***/
 	lcVector3 mExistingRotStep;
 	QString mRotStepTransform;
 /*** LPub3D Mod end ***/
