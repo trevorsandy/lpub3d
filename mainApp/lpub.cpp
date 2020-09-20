@@ -51,6 +51,7 @@
 #include "updatecheck.h"
 #include "step.h"
 #include "messageboxresizable.h"
+#include "separatorcombobox.h"
 
 #include "aboutdialog.h"
 #include "dialogexportpages.h"

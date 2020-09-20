@@ -385,6 +385,7 @@ class QLineEdit;
 class QComboBox;
 class QUndoStack;
 class QUndoCommand;
+class SeparatorComboBox;
 
 class QNetworkReply;
 class QNetworkAccessManager;

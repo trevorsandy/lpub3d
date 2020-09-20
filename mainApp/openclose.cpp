@@ -28,6 +28,7 @@
 #include "paths.h"
 #include "threadworkers.h"
 #include "messageboxresizable.h"
+#include "separatorcombobox.h"
 #include "metagui.h"
 
 #include <LDVQt/LDVImageMatte.h>

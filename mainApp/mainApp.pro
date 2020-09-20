@@ -450,6 +450,7 @@ HEADERS += \
     rotstepdialog.h \
     rx.h \
     scaledialog.h \
+    separatorcombobox.h \
     sizeandorientationdialog.h \
     step.h \
     stickerparts.h \
@@ -558,6 +559,7 @@ SOURCES += \
     rotstepdialog.cpp \
     rx.cpp \
     scaledialog.cpp \
+    separatorcombobox.cpp \
     sizeandorientationdialog.cpp \
     step.cpp \
     stickerparts.cpp \
