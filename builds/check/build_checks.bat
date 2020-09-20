@@ -3,7 +3,7 @@
 Title LPub3D Windows build check script
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: June 29, 2019
+rem  Last Update: August 21, 2020
 rem  Copyright (c) 2018 - 2020 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -13,8 +13,10 @@ rem MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 rem Construct the staged files path
 SET PKG_DISTRO_DIR=%PACKAGE%_%PKG_PLATFORM%
 SET PKG_PRODUCT_DIR=%PACKAGE%-Any-%LP3D_APP_VERSION_LONG%
+SET PKG_TARGET_RUNLOG=builds\windows\%CONFIGURATION%\%PKG_PRODUCT_DIR%\%PACKAGE%_Logs
 SET PKG_TARGET_DIR=builds\windows\%CONFIGURATION%\%PKG_PRODUCT_DIR%\%PKG_DISTRO_DIR%
 SET PKG_TARGET=%PKG_TARGET_DIR%\%PACKAGE%.exe
+SET PKG_RUNLOG=%PKG_TARGET_DIR%\logs\%PACKAGE%Log.txt
 
 rem Check 1 of 7
 SET PKG_CHECK_FILE=%ABS_WD%\builds\check\build_checks.mpd
@@ -173,6 +175,17 @@ IF NOT EXIST "%PKG_TARGET%" (
 
   ECHO.
   ECHO   Build checks cleanup...
+  IF EXIST %PKG_RUNLOG% (
+    ECHO.
+    ECHO   Copying %PKG_DISTRO_DIR%_RunLog.txt to log asset folder...
+    IF NOT EXIST %PKG_TARGET_RUNLOG% (
+      MKDIR %PKG_TARGET_RUNLOG%
+    )
+    COPY /V /Y %PKG_RUNLOG% %PKG_TARGET_RUNLOG%\%PKG_DISTRO_DIR%_RunLog.txt /A | findstr /i /v /r /c:"copied\>"
+  ) ELSE (
+    ECHO.
+    ECHO -[WARNING] Could not find %PKG_RUNLOG%.
+  )
   RMDIR /S /Q %PKG_TARGET_DIR%\cache
   RMDIR /S /Q %PKG_TARGET_DIR%\logs
   RMDIR /S /Q %PKG_TARGET_DIR%\config

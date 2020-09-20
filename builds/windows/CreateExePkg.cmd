@@ -2,7 +2,7 @@
 Title Create windows installer and portable package archive LPub3D distributions
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: Aug 06, 2019
+rem  Last Update: August 21, 2020
 rem  Copyright (c) 2015 - 2020 by Trevor SANDY
 rem --
 SETLOCAL
@@ -1244,6 +1244,7 @@ IF [%LP3D_VER_SUFFIX%] NEQ [] (
 >>%genFile% $env:LP3D_BUILD_TARGET = "${env:LP3D_PACKAGE_PATH}\${env:LP3D_BUILD_PACKAGE}"
 >>%genFile% $env:LP3D_DOWNLOAD_ASSETS = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Download"
 >>%genFile% $env:LP3D_UPDATE_ASSETS = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Update"
+>>%genFile% $env:LP3D_RUNLOG_ASSETS = "${env:LP3D_BUILD_TARGET}\${env:LP3D_PACKAGE}_Logs"
 >>%genFile% write-host "`n- Update-config-files environment variables set in Powershell"
 IF EXIST "%set_ps_vars%" (
   ECHO   FILE set_ps_vars.ps1...........[written to %set_ps_vars%]

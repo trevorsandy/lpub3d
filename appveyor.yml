@@ -1,6 +1,6 @@
 # Build and check LPub3D x86 and x86_64 architectures unsing Qt/MinGW/VS2017 platforms
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: Oct 13, 2019
+# Last Update: August 21, 2020
 # Copyright (c) 2017 - 2020 by Trevor SANDY
 #
 version: 'LPub3D-AV-Build-{build}'
@@ -241,7 +241,6 @@ build_script:
         cmd.exe /c builds\windows\AutoBuild.cmd -all -3rd -ins -chk 2`>`&1
         $env:LP3D_ARTEFACT_ITEM_COUNT = (Get-ChildItem -Path $env:LP3D_PACKAGE_PATH -Recurse).count
         write-host "`n  Build Archive Item Count...[$env:LP3D_ARTEFACT_ITEM_COUNT]"
-        (Get-ChildItem -Path $env:LP3D_PACKAGE_PATH -Recurse | Select-Object -ExpandProperty FullName | ft -hidetableheaders)
       } ElseIf ($env:LP3D_COMPILE_SOURCE -eq "true") {
         cmd.exe /c builds\windows\AutoBuild.cmd -all -3rd -chk 2`>`&1
       } ElseIf ($env:LP3D_BUILD_RENDERERS_VAR -eq "true") {
@@ -273,6 +272,11 @@ after_build:
           $root = Resolve-Path .\${env:LP3D_DOWNLOAD_ASSETS}; [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-download-package }
         } Else {
           Write-Error -Message "env var LP3D_DOWNLOAD_ASSETS is null." -ErrorAction Stop
+        }
+        if (${env:LP3D_RUNLOG_ASSETS}) {
+          $root = Resolve-Path .\${env:LP3D_RUNLOG_ASSETS}; [IO.Directory]::GetFiles($root.Path, '*.*', 'AllDirectories') | % { Push-AppveyorArtifact $_ -FileName $_.Substring($root.Path.Length + 1) -DeploymentName ${env:LP3D_PACKAGE}-runlog-package }
+        } Else {
+          Write-Error -Message "env var LP3D_RUNLOG_ASSETS is null." -ErrorAction Continue
         }
         If (($env:LP3D_DEPLOY_PKG -eq "true") -or ($env:LP3D_CONTINUOUS_BUILD_PKG -eq "true" -and  $env:APPVEYOR_PROJECT_NAME -eq "lpub3d") -or ($env:LP3D_TEST_SF_DEPLOY_VAR -eq "true")) {
           write-host "`n"
