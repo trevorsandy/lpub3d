@@ -198,6 +198,7 @@ class LDrawFile {
     bool hdrAuthorNotFound;
     bool hdrDescNotFound;
     bool hdrCategNotFound;
+    bool metaBuildModNotFund;
     bool unofficialPart;
     bool topLevelModel;
     bool ldcadGroupsLoaded;

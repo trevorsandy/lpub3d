@@ -949,6 +949,9 @@ int LDrawFile::loadFile(const QString &fileName)
 
     emit gui->messageSig(LOG_INFO_STATUS, QString("%1").arg(statusMessage));
 
+    emit gui->messageSig(LOG_INFO, QString("Build Modifications are %1")
+                                            .arg(Preferences::buildModEnabled ? "Enabled" : "Disabled"));
+
     switch (Preferences::ldrawFilesLoadMsgs)
     {
     case NEVER_SHOW:
@@ -1039,15 +1042,16 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     }
     file.close();
 
-    hdrTopFileNotFound = true;
-    hdrDescNotFound    = true;
-    hdrNameNotFound    = true;
-    hdrAuthorNotFound  = true;
-    hdrCategNotFound   = true;
+    hdrTopFileNotFound  = true;
+    hdrDescNotFound     = true;
+    hdrNameNotFound     = true;
+    hdrAuthorNotFound   = true;
+    hdrCategNotFound    = true;
 
-    unofficialPart     = false;
-    topLevelModel      = true;
-    descriptionLine    = 0;
+    metaBuildModNotFund = true;
+    unofficialPart      = false;
+    topLevelModel       = true;
+    descriptionLine     = 0;
 
     QStringList searchPaths = Preferences::ldSearchDirs;
     QString ldrawPath = QDir::toNativeSeparators(Preferences::ldrawLibPath);
@@ -1183,16 +1187,13 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
             }
 
             // Check if BuildMod is disabled
-            if (smLine.startsWith("0 !LPUB BUILD_MOD_ENABLED")) {
-                bool state = tokens.last() == "FALSE" ? false : true ;
-                if (Preferences::buildModEnabled != state) {
+            if (metaBuildModNotFund) {
+                if (smLine.startsWith("0 !LPUB BUILD_MOD_ENABLED")) {
+                    bool state = tokens.last() == "FALSE" ? false : true ;
                     Preferences::buildModEnabled  = state;
-                    gui->reset3DViewerMenusAndToolbars();
-                    emit gui->messageSig(LOG_INFO, QString("Build Modifications are %1")
-                                         .arg(state ? "Enabled" : "Disabled"));
+                    metaBuildModNotFund = false;
                 }
             }
-
 
             if ((alreadyLoaded = LDrawFile::contains(subfileName.toLower()))) {
                 emit gui->messageSig(LOG_TRACE, QString("MPD " + fileType() + " '" + subfileName + "' already loaded."));
@@ -1351,6 +1352,9 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 
     _mpd = true;
 
+    if (metaBuildModNotFund)
+        Preferences::buildModEnabled = false;
+
     emit gui->progressPermSetValueSig(stageContents.size());
     emit gui->progressPermStatusRemoveSig();
 }
@@ -1403,12 +1407,13 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
         file.close();
 
         if (topLevelModel) {
-            hdrTopFileNotFound = true;
-            hdrNameNotFound    = true;
-            hdrDescNotFound    = true;
-            hdrAuthorNotFound  = true;
-            hdrCategNotFound   = true;
-            descriptionLine    = 0;
+            hdrTopFileNotFound  = true;
+            hdrNameNotFound     = true;
+            hdrDescNotFound     = true;
+            hdrAuthorNotFound   = true;
+            hdrCategNotFound    = true;
+            metaBuildModNotFund = true;
+            descriptionLine     = 0;
         }
 
         QStringList searchPaths = Preferences::ldSearchDirs;
@@ -1456,6 +1461,15 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
                 _file = QString(fileName).replace(QFileInfo(fileName).suffix(),"");
                 descriptionLine = i+1;      //next line should be description
                 hdrTopFileNotFound = false;
+            }
+
+            // Check if BuildMod meta is present
+            if (metaBuildModNotFund) {
+                if (smLine.startsWith("0 !LPUB BUILD_MOD_ENABLED")) {
+                    bool state = tokens.last() == "FALSE" ? false : true ;
+                    Preferences::buildModEnabled  = state;
+                    metaBuildModNotFund = false;
+                }
             }
 
             if (!headerFinished) {
@@ -1546,6 +1560,10 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
 
         _mpd = false;
 
+        // Check if BuildMod meta is present
+        if (metaBuildModNotFund)
+            Preferences::buildModEnabled = false;
+
         emit gui->progressPermSetValueSig(contents.size());
         emit gui->progressPermStatusRemoveSig();
 
@@ -1558,6 +1576,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
            headerMissing = AuthorMissing;
         if (headerMissing)
             normalizeHeader(fileInfo.fileName(), headerMissing);
+
         emit gui->messageSig(LOG_TRACE, QString("LDR " + fileType + " '" + fileInfo.fileName() + "' with " +
                                                  QString::number(size(fileInfo.fileName())) + " lines loaded."));
     }
