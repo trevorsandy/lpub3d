@@ -291,6 +291,11 @@ void Gui::create3DMenus()
      ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_EDIT_SELECTED_SUBMODEL]);
      ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_EDIT_END_SUBMODEL]);
      ViewerMenu->addSeparator();
+     // Show/Hide Piece menus
+     ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_HIDE_SELECTED]);
+     ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_HIDE_UNSELECTED]);
+     ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_UNHIDE_ALL]);
+     ViewerMenu->addSeparator();
      // Camera menu
      ViewerMenu->addMenu(gMainWindow->GetCameraMenu());
      // Tools menu

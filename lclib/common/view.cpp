@@ -492,7 +492,7 @@ lcCursor View::GetCursor() const
 		lcCursor::Brick,       // LC_TRACKTOOL_INSERT
 		lcCursor::Light,       // LC_TRACKTOOL_POINTLIGHT
 		lcCursor::Sunlight,    // LC_TRACKTOOL_SUNLIGHT   /*** LPub3D Mod - enable lights ***/
-		lcCursor::Arealight,   // LC_TRACKTOOL_AREALIGHT  /*** LPub3D Mod - enable lights ***/		
+		lcCursor::Arealight,   // LC_TRACKTOOL_AREALIGHT  /*** LPub3D Mod - enable lights ***/
 		lcCursor::Spotlight,   // LC_TRACKTOOL_SPOTLIGHT
 		lcCursor::Camera,      // LC_TRACKTOOL_CAMERA
 		lcCursor::Select,      // LC_TRACKTOOL_SELECT
@@ -519,7 +519,7 @@ lcCursor View::GetCursor() const
 		lcCursor::RotateY,     // LC_TRACKTOOL_ORBIT_Y
 		lcCursor::RotateView,  // LC_TRACKTOOL_ORBIT_XY
 		lcCursor::Roll,        // LC_TRACKTOOL_ROLL
-        lcCursor::ZoomRegion,  // LC_TRACKTOOL_ZOOM_REGION
+		lcCursor::ZoomRegion,  // LC_TRACKTOOL_ZOOM_REGION
 		lcCursor::RotateStep   // LC_TRACKTOOL_ROTATESTEP  /*** LPub3D Mod - Rotate Step ***/
 	};
 
@@ -541,6 +541,12 @@ void View::ShowContextMenu() const
 /*** LPub3D Mod - add context menu edit submodel ***/
 	Popup->addAction(Actions[LC_PIECE_EDIT_SELECTED_SUBMODEL]);
 	Popup->addAction(Actions[LC_PIECE_EDIT_END_SUBMODEL]);
+
+	Popup->addSeparator();
+
+	Popup->addAction(Actions[LC_PIECE_HIDE_SELECTED]);
+	Popup->addAction(Actions[LC_PIECE_HIDE_UNSELECTED]);
+	Popup->addAction(Actions[LC_PIECE_UNHIDE_ALL]);
 
 	Popup->addSeparator();
 /*** LPub3D Mod end ***/
@@ -997,7 +1003,7 @@ void View::OnDraw()
 			  gMainWindow->GetRotStepMetaAngles();
 		}
 /*** LPub3D Mod end ***/
-        else if ((mTrackTool == LC_TRACKTOOL_SELECT || mTrackTool == LC_TRACKTOOL_ZOOM_REGION) && mTrackButton == lcTrackButton::Left)
+		else if ((mTrackTool == LC_TRACKTOOL_SELECT || mTrackTool == LC_TRACKTOOL_ZOOM_REGION) && mTrackButton == lcTrackButton::Left)
 			DrawSelectZoomRegionOverlay();
 		else if (Tool == LC_TOOL_ROTATE_VIEW && mTrackButton == lcTrackButton::None)
 			DrawRotateViewOverlay();
@@ -1630,7 +1636,7 @@ void View::DrawRotateViewOverlay()
 	mContext->SetVertexBufferPointer(Verts);
 	mContext->SetVertexFormatPosition(2);
 
-	GLushort Indices[64 + 32] = 
+	GLushort Indices[64 + 32] =
 	{
 		0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16,
 		17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23, 23, 24, 24, 25, 25, 26, 26, 27, 27, 28, 28, 29, 29, 30, 30, 31, 31, 0,
@@ -1970,7 +1976,7 @@ lcTool View::GetCurrentTool() const
 		LC_TOOL_MOVE,         // LC_TRACKTOOL_SCALE_MINUS
 		LC_TOOL_ERASER,       // LC_TRACKTOOL_ERASER
 		LC_TOOL_PAINT,        // LC_TRACKTOOL_PAINT
-		LC_TOOL_COLOR_PICKER, // LC_TRACKTOOL_COLOR_PICKER		
+		LC_TOOL_COLOR_PICKER, // LC_TRACKTOOL_COLOR_PICKER
 		LC_TOOL_ZOOM,         // LC_TRACKTOOL_ZOOM
 		LC_TOOL_PAN,          // LC_TRACKTOOL_PAN
 		LC_TOOL_ROTATE_VIEW,  // LC_TRACKTOOL_ORBIT_X
@@ -2913,7 +2919,7 @@ void View::OnButtonDown(lcTrackButton TrackButton)
 	case LC_TRACKTOOL_CAMERA:
 		StartTracking(TrackButton);
 		break;
-		
+
 	case LC_TRACKTOOL_SELECT:
 		{
 			lcObjectSection ObjectSection = FindObjectUnderPointer(false, false);
