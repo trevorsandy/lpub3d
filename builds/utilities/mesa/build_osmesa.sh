@@ -120,13 +120,15 @@ fi
 if [ ! -f "${llvm_config}" ]; then
   if [[ "$OBS" = "true" && !"${PLATFORM}" = "arch" ]]; then
     if [ ! "$nogallium" = 1 ]; then
-        Info "ERROR - llmv-config not found. $ME will terminate"
+        Info "ERROR - llmv-config not found at ${llvm_config}. $ME will terminate"
         exit 1
     fi
   else
     if [ !"${PLATFORM}" = "arch" ]; then
-        Info "llmv-config not found, (re)installing Mesa build dependencies..."
+        Info "llmv-config not found at ${llvm_config}, (re)installing Mesa build dependencies..."
         sudo dnf builddep -y mesa
+    else
+        Info "ERROR - llmv-config not found at ${llvm_config}. $ME will terminate"
     fi
   fi
 else

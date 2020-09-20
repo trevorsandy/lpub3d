@@ -1,9 +1,9 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update June 25, 2019
+# Last Update July 19, 2020
 # Copyright (c) 2017 - 2020 by Trevor SANDY
 # To run:
-# $ chmod 755 CreateDeb.sh
+# $ chmod 755 CreatePkg.sh
 # $ [options] && ./builds/linux/CreatePkg.sh
 # [options]:
 #  - export DOCKER=true (if using Docker image)
@@ -127,16 +127,6 @@ then
     curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/vexiqparts.zip
 fi
 
-if [ ! -f mesa-18.3.5.tar.gz ]
-then
-  curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/mesa-18.3.5.tar.gz
-fi
-
-if [ ! -f glu-9.0.0.tar.bz2 ]
-then
-  curl -O $curlopts https://github.com/trevorsandy/lpub3d_libs/releases/download/v1.0.1/glu-9.0.0.tar.bz2
-fi
-
 # download 3rd party packages defined as source in PKGBUILD
 echo "7. copy 3rd party source to pkgbuild/"
 for buildDir in ldglite ldview povray; do
@@ -161,7 +151,7 @@ echo "8. build application package"
 makepkg --syncdeps --noconfirm --needed
 
 DISTRO_FILE=`ls ${LPUB3D}-${LP3D_APP_VERSION}*.pkg.tar.xz`
-if [ -f ${DISTRO_FILE} ]
+if [ -f "${DISTRO_FILE}" ]
 then
     echo "9-1. Build-check ${DISTRO_FILE}"
     if [ ! -f "/usr/bin/update-desktop-database" ]; then

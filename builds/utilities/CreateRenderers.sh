@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update Oct 09, 2019
+#  Last Update July 19, 2020
 #  Copyright (c) 2017 - 2020 by Trevor SANDY
 #
 
@@ -101,14 +101,10 @@ BuildMesaLibs() {
     OSMESA_PREFIX=$WD/${DIST_DIR}/mesa/${platform_id} \
     ${mesaUtilsDir}/build_osmesa.sh &
   else
-    #if [[ ("${platform_id}" = "fedora" && ${platform_ver} = 26) || "${platform_id}" = "arch" ]]; then
-    if [ "${platform_id}" = "arch" ]; then
-      osmesa_version=18.3.5
-    else
-      osmesa_version=17.2.6
-    fi
+    osmesa_version=17.2.6
     Info "Building OSMesa.....[${osmesa_version}]"
     Info "OSMesa Build Log....[${mesaBuildLog}]"
+    Info
     env \
     OSMESA_VERSION=${osmesa_version} \
     OSMESA_PREFIX=$WD/${DIST_DIR}/mesa/${platform_id} \
