@@ -2447,6 +2447,56 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool Export/*false*/){
 
     lcGetPiecesLibrary()->SetStudLogo(O->StudLogo,true);
 
+    if (Preferences::debugLogging){
+        QStringList arguments;
+        if (Export) {
+            arguments << (O->InputFileName.isEmpty() ? QString() : QString("InputFileName: %1").arg(O->InputFileName));
+            arguments << (O->OutputFileName.isEmpty() ? QString() : QString("OutputFileName: %1").arg(O->OutputFileName));
+            arguments << (O->ExportFileName.isEmpty() ? QString() : QString("ExportFileName: %1").arg(O->ExportFileName));
+            arguments << (O->IniFlag == -1 ? QString() : QString("IniFlag: %1").arg(iniFlagNames[O->IniFlag]));
+            arguments << QString("ExportMode: %1").arg(nativeExportNames[O->ExportMode]);
+            arguments << QString("ExportArgs: %1").arg(O->ExportArgs.size() ? O->ExportArgs.join(" ") : QString());
+            arguments << QString("LineWidth: %1").arg(double(O->LineWidth));
+            arguments << QString("TransBackground: %1").arg(O->TransBackground ? "True" : "False");
+            arguments << QString("HighlightNewParts: %1").arg(O->HighlightNewParts ? "True" : "False");
+        } else {
+            arguments << QString("ViewerStepKey: %1").arg(O->ViewerStepKey);
+            arguments << (O->ImageFileName.isEmpty() ? QString() : QString("ImageFileName: %1").arg(O->ImageFileName));
+            arguments << QString("PageWidth: %1").arg(O->PageWidth);
+            arguments << QString("PageHeight: %1").arg(O->PageHeight);
+            arguments << QString("RotStep: X(%1) Y(%2) Z(%3) %4").arg(double(O->RotStep.x)).arg(double(O->RotStep.y)).arg(double(O->RotStep.z)).arg(O->RotStepType);
+        }
+        arguments << QString("StudLogo: %1").arg(O->StudLogo);
+        arguments << QString("Resolution: %1").arg(double(O->Resolution));
+        arguments << QString("ImageWidth: %1").arg(O->ImageWidth);
+        arguments << QString("ImageHeight: %1").arg(O->ImageHeight);
+        arguments << QString("UsingViewpoint: %1").arg(O->UsingViewpoint ? "True" : "False");
+        arguments << QString("ModelScale: %1").arg(double(O->ModelScale));
+        arguments << QString("CameraFoV: %1").arg(double(O->FoV));
+        arguments << QString("CameraZNear: %1").arg(double(O->ZNear));
+        arguments << QString("CameraZNear: %1").arg(double(O->ZFar));
+        arguments << QString("CameraDistance: %1").arg(double(O->CameraDistance),0,'f',0);
+        arguments << QString("CameraNativeCDF: %1").arg(O->NativeCDF);
+        arguments << QString("CameraProjection: %1").arg(O->IsOrtho ? "Orthographic" : "Perspective");
+        arguments << QString("CameraName: %1").arg(O->CameraName.isEmpty() ? "Default" : O->CameraName);
+        arguments << QString("CameraLatitude: %1").arg(double(O->Latitude));
+        arguments << QString("CameraLongitude: %1").arg(double(O->Longitude));
+        arguments << QString("CameraTarget: X(%1) Y(%2) Z(%3)").arg(double(O->Target.x)).arg(double(O->Target.y)).arg(double(O->Target.z));
+
+        removeEmptyStrings(arguments);
+
+        QString message = QString("%1 %2 Arguments: %3")
+                                .arg(Export ? "Native Renderer" : "3DViewer")
+                                .arg(O->ImageType == Options::CSI ? "CSI" : O->ImageType == Options::PLI ? "PLI" : "SMP")
+                                .arg(arguments.join(" "));
+#ifdef QT_DEBUG_MODE
+      qDebug() << qPrintable(message) << "\n";
+#else
+      emit gui->messageSig(LOG_INFO, message);
+      emit gui->messageSig(LOG_INFO, QString());
+#endif
+    }
+
     if (!Export)
         gMainWindow->GetPartSelectionWidget()->SetDefaultPart();
 
