@@ -289,6 +289,9 @@ int Step::createCsi(
       keyPart2.append(QString("_%1")
                      .arg(renderer->getRotstepMeta(meta.rotStep,true)));
 
+  // set RotStep meta
+  rotStepMeta = meta.rotStep;
+
   QString key = QString("%1_%2").arg(keyPart1).arg(keyPart2);
 
   // populate png name

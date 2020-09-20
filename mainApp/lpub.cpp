@@ -1118,24 +1118,47 @@ void Gui::SetRotStepMeta()
 
     if (getCurFile() != "") {
         ShowStepRotationStatus();
-        QString rotationValue = QString("%1 %2 %3 %4 %5")
-                                        .arg(getViewerCsiKey())
-                                        .arg(QString::number(mStepRotation[0], 'f', 2))
-                                        .arg(QString::number(mStepRotation[1], 'f', 2))
-                                        .arg(QString::number(mStepRotation[2], 'f', 2))
-                                        .arg(mRotStepTransform);
-        MetaItem mi;
-        mi.writeRotateStep(rotationValue);
+        Step *currentStep = gui->getCurrentStep();
+
+        if (currentStep){
+            bool newCommand = currentStep->rotStepMeta.here() == Where();
+            int it = lcGetActiveProject()->GetImageType();
+            Where top = currentStep->topOfStep();
+
+            RotStepData rotStepData = currentStep->rotStepMeta.value();
+            rotStepData.type    = mRotStepTransform;
+            rotStepData.rots[0] = double(mStepRotation[0]);
+            rotStepData.rots[1] = double(mStepRotation[1]);
+            rotStepData.rots[2] = double(mStepRotation[2]);
+            currentStep->rotStepMeta.setValue(rotStepData);
+            QString metaString = currentStep->rotStepMeta.format(false/*no LOCAL tag*/,false);
+
+            if (newCommand){
+                if (top.modelName == gui->topLevelFile())
+                    currentStep->mi(it)->scanPastLPubMeta(top);
+
+                QString line = gui->readLine(top);
+                Rc rc = page.meta.parse(line,top);
+                if (rc == RotStepRc || rc == StepRc){
+                   currentStep->mi(it)->replaceMeta(top, metaString);
+                } else {
+                   currentStep->mi(it)->insertMeta(top, metaString);
+                }
+            } else {
+                currentStep->mi(it)->replaceMeta(top, metaString);
+            }
+        }
     }
 }
 
 void Gui::ShowStepRotationStatus()
 {
-    QString rotLabel = QString("Adjusted ROTSTEP Rotation %1 %2 %3 %4")
-                               .arg(QString::number(mRotStepAngleX, 'f', 2))
-                               .arg(QString::number(mRotStepAngleY, 'f', 2))
-                               .arg(QString::number(mRotStepAngleZ, 'f', 2))
-                               .arg(mRotStepTransform);
+    QString rotLabel = QString("ROTSTEP X: %1 Y: %2 Z: %3 Transform: %4")
+                               .arg(QString::number(double(mRotStepAngleX), 'f', 2))
+                               .arg(QString::number(double(mRotStepAngleY), 'f', 2))
+                               .arg(QString::number(double(mRotStepAngleZ), 'f', 2))
+                               .arg(mRotStepTransform == "REL" ? "RELATIVE" :
+                                    mRotStepTransform == "ABS" ? "ABSOLUTE" : "ADD");
     statusBarMsg(rotLabel);
 }
 
