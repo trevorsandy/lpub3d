@@ -1663,7 +1663,11 @@ int Gui::drawPage(
                   int instances = countInstanceOverride ? countInstanceOverride :
                                                           ldrawFile.instances(opts.current.modelName, opts.isMirrored);
                   // count the instances - use steps->meta (vs. steps->groupStepMeta) to access current submodelStack
-                  displayCount= countInstances && instances > 1;
+                  //
+                  // ldrawFile.instances() configuration is CountAtTop - the historic LPub count scheme. However, the updated
+                  // the updated countInstances routine's configuration is CountAtModel - this is the default options set
+                  // and configurable in Project globals
+                  displayCount = countInstances && instances > 1;
                   if (displayCount && countInstances != CountAtTop && !countInstanceOverride) {
                       MetaItem mi;
                       if (countInstances == CountAtStep)
@@ -2112,6 +2116,9 @@ int Gui::drawPage(
                               int instances = countInstanceOverride ? countInstanceOverride :
                                                                       ldrawFile.instances(opts.current.modelName, opts.isMirrored);
                               displayCount = steps->meta.LPub.subModel.showInstanceCount.value() && instances > 1;
+                              // ldrawFile.instances() configuration is CountAtTop - the historic LPub count scheme. However, the updated
+                              // the updated countInstances routine's configuration is CountAtModel - this is the default options set
+                              // and configurable in Project globals
                               if (displayCount && countInstances != CountAtTop && !countInstanceOverride) {
                                   MetaItem mi;
                                   if (countInstances == CountAtStep)
@@ -2255,6 +2262,9 @@ int Gui::drawPage(
                       int instances = countInstanceOverride ? countInstanceOverride :
                                                               ldrawFile.instances(opts.current.modelName, opts.isMirrored);
                       displayCount = countInstances && instances > 1;
+                      // ldrawFile.instances() configuration is CountAtTop - the historic LPub count scheme. However, the updated
+                      // the updated countInstances routine's configuration is CountAtModel - this is the default options set
+                      // and configurable in Project globals
                       if (displayCount && countInstances != CountAtTop && !countInstanceOverride) {
                           MetaItem mi;
                           if (countInstances == CountAtStep)

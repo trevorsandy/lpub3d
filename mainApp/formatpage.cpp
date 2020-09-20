@@ -377,7 +377,7 @@ int Gui::addGraphicsPageItems(
 
   addCoverPageAttributes(page,pageBg,pageHeader,pageFooter,plPage);
 
-  // Display the page number and instance count
+  // Display the page number, instance count and page attributes
 
   bool displayPageNumber = page->meta.LPub.page.dpn.value();
   if (displayPageNumber && ! coverPage) {
@@ -526,12 +526,13 @@ int Gui::addGraphicsPageItems(
                   plPage.placeRelative(instanceCount);
                 }
               instanceCount->setPos(instanceCount->loc[XX],instanceCount->loc[YY]);
-            }
-        }
+            } // instanceCount
+
+        } // endOfSubmodel && page->displayInstanceCount
 
       // Process Content Page Attributes - with page number
 
-      addContentPageAttributes(page,pageBg,pageHeader,pageFooter,pageNumber,plPage,false);
+      addContentPageAttributes(page,pageBg,pageHeader,pageFooter,pageNumber,plPage,false/*do not display instance count*/);
 
     } else {
 
@@ -2297,11 +2298,12 @@ int Gui::addContentPageAttributes(
               }
               else
               {
+                  instanceCount->placement.setValue(BottomRightInsideCorner,PageType);
                   plPage.appendRelativeTo(instanceCount);
                   plPage.placeRelative(instanceCount);
               }
+              instanceCount->setPos(instanceCount->loc[XX],instanceCount->loc[YY]);
           }
-          instanceCount->setPos(instanceCount->loc[XX],instanceCount->loc[YY]);
         }
     }
   return 0;
