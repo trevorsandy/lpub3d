@@ -20,7 +20,7 @@
 
 /*** LPub3D Mod - LPUB meta command ***/
 lcCamera::lcCamera(bool Simple, bool lpubmeta)
-	: lcObject(LC_OBJECT_CAMERA)
+	: lcObject(lcObjectType::Camera)
 {
 	mLPubMeta = lpubmeta;
 /*** LPub3D Mod end ***/
@@ -44,7 +44,7 @@ lcCamera::lcCamera(bool Simple, bool lpubmeta)
 }
 
 lcCamera::lcCamera(float ex, float ey, float ez, float tx, float ty, float tz)
-	: lcObject(LC_OBJECT_CAMERA)
+	: lcObject(lcObjectType::Camera)
 {
 /*** LPub3D Mod - LPUB meta command ***/
 	mLPubMeta = true;

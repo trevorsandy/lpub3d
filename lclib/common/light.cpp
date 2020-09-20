@@ -17,7 +17,7 @@
 
 // New omni light.
 lcLight::lcLight(float px, float py, float pz, bool lpubmeta)
-	: lcObject(LC_OBJECT_LIGHT)
+	: lcObject(lcObjectType::Light)
 {
 	mAngleSet      = false;
 	mSpotBlendSet  = false;
@@ -33,7 +33,7 @@ lcLight::lcLight(float px, float py, float pz, bool lpubmeta)
 // New directional or spot light.
 /*** LPub3D Mod - enable lights ***/
 lcLight::lcLight(float px, float py, float pz, float tx, float ty, float tz, int LightType)
-	: lcObject(LC_OBJECT_LIGHT)
+	: lcObject(lcObjectType::Light)
 {
 	mLPubMeta = true;
 	Initialize(lcVector3(px, py, pz), lcVector3(tx, ty, tz), LightType);

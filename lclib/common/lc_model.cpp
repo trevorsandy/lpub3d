@@ -1047,16 +1047,16 @@ bool lcModel::LoadBinary(lcFile* file)
 
 bool lcModel::LoadLDD(const QString& FileData)
 {
-	lcArray<lcPiece*> Pieces;
-	lcArray<lcArray<lcPiece*>> Groups;
-
+	std::vector<lcPiece*> Pieces;
+	std::vector<std::vector<lcPiece*>> Groups;
+	
 	if (!lcImportLXFMLFile(FileData, Pieces, Groups))
 		return false;
 
 	for (lcPiece* Piece : Pieces)
 		AddPiece(Piece);
 
-	for (const lcArray<lcPiece*>& Group : Groups)
+	for (const std::vector<lcPiece*>& Group : Groups)
 	{
 		lcGroup* NewGroup = AddGroup(tr("Group #"), nullptr);
 		for (lcPiece* Piece : Group)
@@ -4393,12 +4393,12 @@ void lcModel::EraserToolClicked(lcObject* Object)
 
 	switch (Object->GetType())
 	{
-	case LC_OBJECT_PIECE:
+	case lcObjectType::Piece:
 		mPieces.Remove((lcPiece*)Object);
 		RemoveEmptyGroups();
 		break;
 
-	case LC_OBJECT_CAMERA:
+	case lcObjectType::Camera:
 		{
 			const lcArray<View*>* Views = gMainWindow->GetViewsForModel(this);
 			for (int ViewIdx = 0; ViewIdx < Views->GetSize(); ViewIdx++)
@@ -4416,7 +4416,7 @@ void lcModel::EraserToolClicked(lcObject* Object)
 		}
 		break;
 
-	case LC_OBJECT_LIGHT:
+	case lcObjectType::Light:
 		mLights.Remove((lcLight*)Object);
 		break;
 	}
@@ -4430,7 +4430,7 @@ void lcModel::EraserToolClicked(lcObject* Object)
 
 void lcModel::PaintToolClicked(lcObject* Object)
 {
-	if (!Object || Object->GetType() != LC_OBJECT_PIECE)
+	if (!Object || !Object->IsPiece())
 		return;
 
 	lcPiece* Piece = (lcPiece*)Object;
@@ -4448,7 +4448,7 @@ void lcModel::PaintToolClicked(lcObject* Object)
 
 void lcModel::ColorPickerToolClicked(lcObject* Object)
 {
-	if (!Object || Object->GetType() != LC_OBJECT_PIECE)
+	if (!Object || !Object->IsPiece())
 		return;
 
 	lcPiece* Piece = (lcPiece*)Object;

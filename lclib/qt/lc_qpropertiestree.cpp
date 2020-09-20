@@ -168,7 +168,7 @@ void lcQPropertiesTreeDelegate::paint(QPainter *painter, const QStyleOptionViewI
 	QColor color = static_cast<QRgb>(QApplication::style()->styleHint(QStyle::SH_Table_GridLineColor, &opt));
 	painter->save();
 	painter->setPen(QPen(color));
-
+ 
 	if (!m_treeWidget || (!m_treeWidget->lastColumn(index.column()) && hasValue))
 	{
 		int right = (option.direction == Qt::LeftToRight) ? option.rect.right() : option.rect.left();
@@ -313,7 +313,7 @@ void lcQPropertiesTree::mousePressEvent(QMouseEvent *event)
 	if (item)
 	{
 		if ((item != m_delegate->editedItem()) && (event->button() == Qt::LeftButton) && (header()->logicalIndexAt(event->pos().x()) == 1) &&
-			((item->flags() & (Qt::ItemIsEditable | Qt::ItemIsEnabled)) == (Qt::ItemIsEditable | Qt::ItemIsEnabled)))
+		    ((item->flags() & (Qt::ItemIsEditable | Qt::ItemIsEnabled)) == (Qt::ItemIsEditable | Qt::ItemIsEnabled)))
 			editItem(item, 1);
 	}
 }
@@ -326,15 +326,15 @@ void lcQPropertiesTree::Update(const lcArray<lcObject*>& Selection, lcObject* Fo
 	{
 		switch (Focus->GetType())
 		{
-		case LC_OBJECT_PIECE:
+		case lcObjectType::Piece:
 			Mode = LC_PROPERTY_WIDGET_PIECE;
 			break;
 
-		case LC_OBJECT_CAMERA:
+		case lcObjectType::Camera:
 			Mode = LC_PROPERTY_WIDGET_CAMERA;
 			break;
 
-		case LC_OBJECT_LIGHT:
+		case lcObjectType::Light:
 			Mode = LC_PROPERTY_WIDGET_LIGHT;
 			break;
 		}
@@ -345,7 +345,7 @@ void lcQPropertiesTree::Update(const lcArray<lcObject*>& Selection, lcObject* Fo
 		{
 			switch (Selection[ObjectIdx]->GetType())
 			{
-			case LC_OBJECT_PIECE:
+			case lcObjectType::Piece:
 				if (Mode == LC_PROPERTY_WIDGET_EMPTY)
 				{
 					Mode = LC_PROPERTY_WIDGET_PIECE;
@@ -360,7 +360,7 @@ void lcQPropertiesTree::Update(const lcArray<lcObject*>& Selection, lcObject* Fo
 				}
 				break;
 
-			case LC_OBJECT_CAMERA:
+			case lcObjectType::Camera:
 				if (Mode != LC_PROPERTY_WIDGET_EMPTY)
 				{
 					Mode = LC_PROPERTY_WIDGET_MULTIPLE;
@@ -373,7 +373,7 @@ void lcQPropertiesTree::Update(const lcArray<lcObject*>& Selection, lcObject* Fo
 				}
 				break;
 
-			case LC_OBJECT_LIGHT:
+			case lcObjectType::Light:
 				if (Mode != LC_PROPERTY_WIDGET_EMPTY)
 				{
 					Mode = LC_PROPERTY_WIDGET_MULTIPLE;
@@ -1458,7 +1458,7 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 		{
 			lcObject* Object = Selection[ObjectIdx];
 
-			if (Object->GetType() != LC_OBJECT_PIECE)
+			if (!Object->IsPiece())
 				continue;
 
 			lcPiece* SelectedPiece = (lcPiece*)Object;
