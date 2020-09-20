@@ -233,21 +233,21 @@ bool Application::modeGUI()
 void Application::setTheme(){
 
   lcColorTheme viewerColorTheme = static_cast<lcColorTheme>(lcGetProfileInt(LC_PROFILE_COLOR_THEME));
-  lcColorTheme viewerTheme = viewerColorTheme;
+  bool viewerDarkTheme = viewerColorTheme == lcColorTheme::Dark;
   bool darkTheme = Preferences::displayTheme == THEME_DARK;
 
-  auto setViewerColorTheme = [&viewerTheme, &darkTheme] (LC_PROFILE_KEY key, QString darkHex, QString defaultHex) {
-      // specify RGB or RGBA format
-      bool useRGB = key == LC_PROFILE_DEFAULT_BACKGROUND_COLOR || key == LC_PROFILE_OVERLAY_COLOR;
+  auto setViewerThemeColor = [&viewerDarkTheme, &darkTheme] (LC_PROFILE_KEY key, QString darkHex, QString defaultHex) {
+      // set modify alpha flag to true if key is grid stud color
+      bool modAlpha = key == LC_PROFILE_GRID_STUD_COLOR;
       // get profile color
       quint32 pc = quint32(lcGetProfileInt(key));
-      // get theme color
-      QColor c = QColor(viewerTheme == lcColorTheme::Dark ? darkHex : defaultHex);
-      quint32 tc = useRGB ? LC_RGB(c.red(), c.green(), c.blue()) : LC_RGBA(c.red(), c.green(), c.blue(), c.alpha());
-      // set theme color if viewer color was not user specified
+      // get new theme color
+      QColor c = QColor(viewerDarkTheme ? darkHex : defaultHex);
+      quint32 tc = LC_RGBA(c.red(), c.green(), c.blue(), modAlpha ? 192 : c.alpha());
+      // set profile color to new theme color if not user specified - i.e. it is a theme color
       if (pc == tc) {
           c = QColor(darkTheme ? darkHex : defaultHex);
-          tc = useRGB ? LC_RGB(c.red(), c.green(), c.blue()) : LC_RGBA(c.red(), c.green(), c.blue(), c.alpha());
+          tc = LC_RGBA(c.red(), c.green(), c.blue(), modAlpha ? 192 : c.alpha());
           lcSetProfileInt(key, int(tc));
       }
   };
@@ -338,15 +338,15 @@ void Application::setTheme(){
     }
 
   // Set 3DViewer colours
-  setViewerColorTheme(LC_PROFILE_DEFAULT_BACKGROUND_COLOR,   THEME_DARK_VIEWER_BACKGROUND_COLOR, THEME_DEFAULT_VIEWER_BACKGROUND_COLOR);
-  setViewerColorTheme(LC_PROFILE_AXES_COLOR,                 THEME_DARK_AXES_COLOR,              THEME_DEFAULT_AXES_COLOR);
-  setViewerColorTheme(LC_PROFILE_OVERLAY_COLOR,              THEME_DARK_OVERLAY_COLOR,           THEME_DEFAULT_OVERLAY_COLOR);
-  setViewerColorTheme(LC_PROFILE_ACTIVE_VIEW_COLOR,          THEME_DARK_ACTIVE_VIEW_COLOR,       THEME_DEFAULT_ACTIVE_VIEW_COLOR);
-  setViewerColorTheme(LC_PROFILE_GRID_STUD_COLOR,            THEME_DARK_GRID_STUD_COLOR,         THEME_DEFAULT_GRID_STUD_COLOR);
-  setViewerColorTheme(LC_PROFILE_GRID_LINE_COLOR,            THEME_DARK_GRID_LINE_COLOR,         THEME_DEFAULT_GRID_LINE_COLOR);
-  setViewerColorTheme(LC_PROFILE_VIEW_SPHERE_COLOR,          THEME_DARK_VIEW_SPHERE_COLOR,       THEME_DEFAULT_VIEW_SPHERE_COLOR);
-  setViewerColorTheme(LC_PROFILE_VIEW_SPHERE_TEXT_COLOR,     THEME_DARK_VIEW_SPHERE_TEXT_COLOR,  THEME_DEFAULT_VIEW_SPHERE_TEXT_COLOR);
-  setViewerColorTheme(LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR,THEME_DARK_VIEW_SPHERE_HLIGHT_COLOR,THEME_DEFAULT_VIEW_SPHERE_HLIGHT_COLOR);
+  setViewerThemeColor(LC_PROFILE_DEFAULT_BACKGROUND_COLOR,   THEME_DARK_VIEWER_BACKGROUND_COLOR, THEME_DEFAULT_VIEWER_BACKGROUND_COLOR);
+  setViewerThemeColor(LC_PROFILE_AXES_COLOR,                 THEME_DARK_AXES_COLOR,              THEME_DEFAULT_AXES_COLOR);
+  setViewerThemeColor(LC_PROFILE_OVERLAY_COLOR,              THEME_DARK_OVERLAY_COLOR,           THEME_DEFAULT_OVERLAY_COLOR);
+  setViewerThemeColor(LC_PROFILE_ACTIVE_VIEW_COLOR,          THEME_DARK_ACTIVE_VIEW_COLOR,       THEME_DEFAULT_ACTIVE_VIEW_COLOR);
+  setViewerThemeColor(LC_PROFILE_GRID_STUD_COLOR,            THEME_DARK_GRID_STUD_COLOR,         THEME_DEFAULT_GRID_STUD_COLOR);
+  setViewerThemeColor(LC_PROFILE_GRID_LINE_COLOR,            THEME_DARK_GRID_LINE_COLOR,         THEME_DEFAULT_GRID_LINE_COLOR);
+  setViewerThemeColor(LC_PROFILE_VIEW_SPHERE_COLOR,          THEME_DARK_VIEW_SPHERE_COLOR,       THEME_DEFAULT_VIEW_SPHERE_COLOR);
+  setViewerThemeColor(LC_PROFILE_VIEW_SPHERE_TEXT_COLOR,     THEME_DARK_VIEW_SPHERE_TEXT_COLOR,  THEME_DEFAULT_VIEW_SPHERE_TEXT_COLOR);
+  setViewerThemeColor(LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR,THEME_DARK_VIEW_SPHERE_HLIGHT_COLOR,THEME_DEFAULT_VIEW_SPHERE_HLIGHT_COLOR);
 
   // Set 3DViewer colour theme flag
   lcSetProfileInt(LC_PROFILE_COLOR_THEME, static_cast<int>(viewerColorTheme));
