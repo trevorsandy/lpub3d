@@ -551,49 +551,40 @@ void Gui::exportAsHtml()
     pagePos.lineNumber = gui->subFileSize(pagePos.modelName);
     pagePos--;     //adjust to start at absolute bottom of file
     int numLines = gui->subFileSize(pagePos.modelName);
+    QRegExp type15LineRx("^[1-5]\\s.*$");
 
     // traverse backwards until we find an inserted model or part line
     for (; pagePos < numLines && pagePos > 0 && ! modelFound; --pagePos) {
         QString line = readLine(pagePos);
-        Rc rc = meta.parse(line,pagePos);
-
-        // if STEP_GROUP_END, scan backward to line before STEP_GROUP_BEGIN and adjust page number
-        if (rc == StepGroupEndRc) {
-            rc = mi.scanBackward(pagePos,StepGroupMask);
-            pageNum--;
-        }
-        else
-        // if STEP, scan backward to bottom of previous STEP and adjust page number
-        if (rc == StepRc || rc == RotStepRc) {
-            rc = mi.scanBackward(pagePos,StepMask);
-            pageNum--;
-        }
-        else
-        // if final model
-        if (rc == InsertFinalModelRc) {
-            modelFound = true;
-            break;
-        }
-        else
-        // if other inert
-        if (rc == InsertRc ||
-            rc == InsertPageRc ||
-            rc == InsertCoverPageRc) {
-            continue;
-        }
-        else
-        // if part or meta line
-        {
-            QStringList tokens;
-            split(line,tokens);
-            bool token_1_5 = tokens.size() &&
-                    tokens[0] >= "1" && tokens[0] <= "5";
-            if (token_1_5) {
+        if(line.startsWith("0 "))
+         {
+            Rc rc = meta.parse(line,pagePos);
+            switch (rc) {
+              // if STEP_GROUP_END, scan backward to line before STEP_GROUP_BEGIN and adjust page number
+              case StepGroupEndRc:
+                mi.scanBackward(pagePos,StepGroupMask);
+                pageNum--;
+                break;
+              // if STEP, scan backward to bottom of previous STEP and adjust page number
+              case StepRc:
+              case RotStepRc:
+                mi.scanBackward(pagePos,StepMask);
+                pageNum--;
+                break;
+              // if final MODEL or DISPLAY_MODEL
+              case InsertDisplayModelRc:
+              case InsertFinalModelRc:
                 modelFound = true;
                 break;
-            } else {
-                continue;
+              default:
+                break;
             }
+        }
+        else
+        // if type 1 to 5 line
+        if(line.contains(type15LineRx)) {
+            modelFound = true;
+            break;
         }
     }
 
