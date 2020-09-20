@@ -441,7 +441,7 @@ class ProgressDialog;
 class Render;
 class Steps;
 class Where;
-enum traverseRc { HitEndOfPage = 1 };
+enum traverseRc { HitEndOfPage = 1, HitBuildModAction };
 enum Dimensions {Pixels = 0, Inches };
 enum PAction { SET_DEFAULT_ACTION, SET_STOP_ACTION };
 enum Direction { PAGE_PREVIOUS, PAGE_NEXT, DIRECTION_NOT_SET };
@@ -498,13 +498,13 @@ public:
   Gui();
   ~Gui();
 
-  int             displayPageNum;  // what page are we displaying
-  int             stepPageNum;     // the number displayed on the page
-  int             saveStepPageNum;
-  int             saveContStepNum; // saved continuous step number for steps before displayed page, exited submodels and step group end
-  int             firstStepPageNum;
-  int             lastStepPageNum;
-  int             savePrevStepPosition; // indicate the previous step position amongst current and previous steps.
+  int             displayPageNum;   // what page are we displaying
+  int             stepPageNum;      // the number displayed on the page
+  int             saveStepPageNum;  // saved instance of the number displayed on the page
+  int             saveContStepNum;  // saved continuous step number for steps before displayPage, subModel exit and stepGroup end
+  int             firstStepPageNum; // the first Step page number - used to specify frontCover page
+  int             lastStepPageNum;  // the last Step page number - used to specify backCover page
+  int             savePrevStepPosition; // indicate the previous step position amongst current and previous steps
   QList<Where>    topOfPages;           // topOfStep list of modelName and lineNumber for each page
   QList<Where>    parsedMessages;       // previously parsed messages
 
@@ -554,7 +554,8 @@ public:
   void drawPage(                   // this is the workhorse for preparing a
     LGraphicsView *view,           // page for viewing.  It depends heavily
     LGraphicsScene *scene,         // on the next two functions
-    bool            printing);
+    bool            printing,
+    bool            buildMod = false);
 
   /*--------------------------------------------------------------------*
    * These are the work horses for back annotating user changes into    *

@@ -603,8 +603,7 @@ void CsiItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 
 void CsiItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-  if (gui->saveBuildModification())
-      return;
+  gui->saveBuildModification();
   mouseIsDown = true;
   QGraphicsItem::mousePressEvent(event);
   positionChanged = false;

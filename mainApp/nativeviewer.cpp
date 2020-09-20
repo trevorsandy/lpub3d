@@ -2256,10 +2256,10 @@ bool Gui::saveBuildModification()
 {
     Project* Project = lcGetActiveProject();
     if (Project->GetImageType() == Options::Mt::PLI)
-        return true;
+        return false;
 
     if (!Project->IsModified())
-        return true;
+        return false;
 
     QPixmap _icon = QPixmap(":/icons/lpub96.png");
     if (_icon.isNull())
@@ -2291,7 +2291,7 @@ bool Gui::saveBuildModification()
         break;
 
     case QMessageBox::No:
-        break;
+        return false;
     }
 
     return true;
