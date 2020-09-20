@@ -2693,6 +2693,7 @@ Gui::Gui()
     nextPageContinuousIsRunning     = false;
     previousPageContinuousIsRunning = false;
 
+    buildModRange     = { 0, -1, 0 };
     mStepRotation     = lcVector3(0.0f, 0.0f, 0.0f);
     mRotStepAngleX    = 0.0f;
     mRotStepAngleY    = 0.0f;

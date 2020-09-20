@@ -18,7 +18,9 @@
         <file alias="appendlastpage.png">resources/appendlastpage.png</file>
         <file alias="appendpage.png">resources/appendpage.png</file>
         <file alias="applycamerasettings.png">resources/applycamerasettings.png</file>
+        <file alias="applycamerasettings_16.png">resources/applycamerasettings_16.png</file>
         <file alias="applycamerasettingsposition.png">resources/applycamerasettingsposition.png</file>
+        <file alias="applycamerasettingsposition_16.png">resources/applycamerasettingsposition_16.png</file>
         <file alias="assemblysetup.png">resources/assemblysetup.png</file>
         <file alias="autocomplete.lst">resources/autocomplete.lst</file>
         <file alias="back.png">resources/back.png</file>
@@ -32,6 +34,12 @@
         <file alias="bottomofdocument.png">resources/bottomofdocument.png</file>
         <file alias="bricklink32.png">resources/bricklink32.png</file>
         <file alias="bringtofront.png">resources/bringtofront.png</file>
+        <file alias="buildmodremove.png">resources/buildmodremove.png</file>
+        <file alias="buildmodremove16.png">resources/buildmodremove16.png</file>
+        <file alias="buildmodapply.png">resources/buildmodapply.png</file>
+        <file alias="buildmodapply16.png">resources/buildmodapply16.png</file>
+        <file alias="buildmodcreate.png">resources/buildmodcreate.png</file>
+        <file alias="buildmodcreate16.png">resources/buildmodcreate16.png</file>        
         <file alias="builtwithqt.png">resources/builtwithqt.png</file>
         <file alias="calloutsetup.png">resources/calloutsetup.png</file>
         <file alias="cameradistfactor.png">resources/cameradistfactor.png</file>
@@ -117,6 +125,7 @@
         <file alias="left.png">resources/left.png</file>
         <file alias="lineattributes.png">resources/lineattributes.png</file>
         <file alias="lookat.png">resources/lookat.png</file>
+        <file alias="lookat16.png">resources/lookat16.png</file>
         <file alias="LPub32.png">resources/LPub32.png</file>
         <file alias="lpub3d.icns">lpub3d.icns</file>
         <file alias="lpub3d.ico">lpub3d.ico</file>
@@ -180,9 +189,13 @@
         <file alias="richtext.png">resources/richtext.png</file>
         <file alias="right.png">resources/right.png</file>
         <file alias="rotate.png">resources/rotate.png</file>
+        <file alias="rotatebuildmod.png">resources/rotatebuildmod.png</file>
+        <file alias="rotatebuildmod16.png">resources/rotatebuildmod16.png</file>
         <file alias="rotateicon.png">resources/rotateicon.png</file>
         <file alias="rotate-icon.png">resources/rotate-icon.png</file>
         <file alias="rotateiconsize.png">resources/rotateiconsize.png</file>
+        <file alias="rotaterotstep.png">resources/rotaterotstep.png</file>
+        <file alias="rotaterotstep16.png">resources/rotaterotstep16.png</file>
         <file alias="save.png">resources/save.png</file>
         <file alias="saveas.png">resources/saveas.png</file>
         <file alias="savecopy.png">resources/savecopy.png</file>
@@ -215,6 +228,8 @@
         <file alias="unrotate.png">resources/unrotate.png</file>
         <file alias="update.png">resources/update.png</file>
         <file alias="viewlog.png">resources/viewlog.png</file>
+        <file alias="viewzoomextents.png">resources/viewzoomextents.png</file>
+        <file alias="viewzoomextents16.png">resources/viewzoomextents16.png</file>
         <file alias="zoomin.png">resources/zoomin.png</file>
         <file alias="zoomout.png">resources/zoomout.png</file>
     </qresource>

@@ -4005,7 +4005,9 @@ void lcModel::UpdateMoveTool(const lcVector3& Distance, bool AlternateButtonDrag
 	MoveSelectedObjects(PieceDistance, ObjectDistance, true, AlternateButtonDrag, true, false);
 	mMouseToolDistance = Distance;
 
-	gMainWindow->UpdateSelectedObjects(false);
+/*** LPub3D Mod - Build Modification ***/
+	gMainWindow->UpdateSelectedObjects(false, VIEWER_MOD);
+/*** LPub3D Mod end ***/
 	gMainWindow->UpdateAllViews();
 }
 
@@ -4015,7 +4017,9 @@ void lcModel::UpdateRotateTool(const lcVector3& Angles, bool AlternateButtonDrag
 	RotateSelectedPieces(Delta, true, AlternateButtonDrag, false, false);
 	mMouseToolDistance = Angles;
 
-	gMainWindow->UpdateSelectedObjects(false);
+/*** LPub3D Mod - Build Modification ***/
+	gMainWindow->UpdateSelectedObjects(false, VIEWER_MOD);
+/*** LPub3D Mod end ***/
 	gMainWindow->UpdateAllViews();
 }
 

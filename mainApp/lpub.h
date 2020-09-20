@@ -497,7 +497,7 @@ public:
   int             savePrevStepPosition; // indicate the previous step position amongst current and previous steps.
   QList<Where>    topOfPages;
   QList<Where>    parsedMessages;       // previously parsed messages
-  QList<Where>    modifiedParts;        // modified parts from 3DViewer
+  QVector<int>    buildModRange;    // begin and end range of modified parts from 3DViewer
 
   int             boms;            // the number of pli BOMs in the document
   int             bomOccurrence;   // the actual occurrence of each pli BOM
@@ -941,7 +941,7 @@ public slots:
   {
       viewerStepKey = stepKey;
       currentStep   = nullptr;
-      modifiedParts.clear();
+      buildModRange = { 0, -1, 0 };
       if (notPliPart)
           setCurrentStep();
   }
@@ -1120,10 +1120,14 @@ public slots:
   void gridSize(int index);
   void gridSizeTriggered();
   void setTargetPosition();
+  void enableBuildModification();
   void useImageSize();
 
   void showDefaultCameraProperties();
   void applyCameraSettings();
+  void applyBuildModification();
+  void removeBuildModification();
+  void createBuildModification();
 
   void clearPLICache();
   void clearCSICache();
@@ -1628,6 +1632,8 @@ private:
   QMenu    *sceneGuidesMenu;
 
   QMenu    *cameraMenu;
+  QMenu    *buildModMenu;
+  QMenu    *rotateActionMenu;
 
   // 3D Viewer Menus
   QMenu* ViewerMenu;
@@ -1799,9 +1805,21 @@ private:
   QAction *snapGridActions[NUM_GRID_SIZES];
   QAction *snapToGridComboAct;
 
+  QMenu* SnapXYMenu;
+  QMenu* SnapZMenu;
+  QMenu* SnapMenu;
+  QMenu* SnapAngleMenu;
+  QAction* MoveAction;
+  QAction* AngleAction;
+
   QAction *applyCameraAct;
+  QAction *applyBuildModAct;
+  QAction *removeBuildModAct;
+  QAction *createBuildModAct;
   QAction *setTargetPositionAct;
   QAction *useImageSizeAct;
+  QAction *enableBuildModAct;
+  QAction *enableRotstepRotateAct;
 
   // help
 

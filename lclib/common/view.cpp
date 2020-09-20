@@ -525,12 +525,6 @@ void View::ShowContextMenu() const
 
 	QMenu* Popup = new QMenu(Widget);
 
-/*** LPub3D Mod - add context menu undo/redo ***/
-	Popup->addAction(Actions[LC_EDIT_UNDO]);
-	Popup->addAction(Actions[LC_EDIT_REDO]);
-
-	Popup->addSeparator();
-/*** LPub3D Mod end ***/
 /*** LPub3D Mod - add context menu edit submodel ***/
 	Popup->addAction(Actions[LC_PIECE_EDIT_SELECTED_SUBMODEL]);
 	Popup->addAction(Actions[LC_PIECE_EDIT_END_SUBMODEL]);

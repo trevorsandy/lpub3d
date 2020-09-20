@@ -135,6 +135,9 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("POVRay", "Width", 1280),                                                // LC_PROFILE_POVRAY_WIDTH
 	lcProfileEntry("POVRay", "Height", 720),                                                // LC_PROFILE_POVRAY_HEIGHT
 
+/*** LPub3D Mod - Build Modification ***/
+    lcProfileEntry("Settings", "BuildModification", 0),                                     // LC_PROFILE_BUILD_MODIFICATION                        /*** LPub3D Mod - Build Modification ***/
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Camera Globe Target Position ***/
 	lcProfileEntry("Settings", "SetTargetPosition", 0),                                     // LC_PROFILE_SET_TARGET_POSITION                        /*** LPub3D Mod - Camera Globe Target Position ***/
 	lcProfileEntry("Settings", "UseImageSize", 0),                                          // LC_PROFILE_USE_IMAGE_SIZE                             /*** LPub3D Mod - Camera Globe Target Position ***/

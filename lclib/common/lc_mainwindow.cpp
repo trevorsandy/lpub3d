@@ -508,10 +508,8 @@ void lcMainWindow::CreateActions()
 void lcMainWindow::CreateMenus()
 {
 	QMenu* TransformMenu = new QMenu(tr("Transform"), this);
-/*** LPub3D Mod - limit transfom to rotation ***/
-//	TransformMenu->addAction(mActions[LC_EDIT_TRANSFORM_RELATIVE_TRANSLATION]);
-//	TransformMenu->addAction(mActions[LC_EDIT_TRANSFORM_ABSOLUTE_TRANSLATION]);
-/*** LPub3D Mod end ***/
+	TransformMenu->addAction(mActions[LC_EDIT_TRANSFORM_RELATIVE_TRANSLATION]);
+	TransformMenu->addAction(mActions[LC_EDIT_TRANSFORM_ABSOLUTE_TRANSLATION]);
 	TransformMenu->addAction(mActions[LC_EDIT_TRANSFORM_RELATIVE_ROTATION]);
 	TransformMenu->addAction(mActions[LC_EDIT_TRANSFORM_ABSOLUTE_ROTATION]);
 	mActions[LC_EDIT_TRANSFORM]->setMenu(TransformMenu);
@@ -551,50 +549,25 @@ void lcMainWindow::CreateMenus()
 	mShadingMenu->addAction(mActions[LC_VIEW_SHADING_DEFAULT_LIGHTS]);
 
 	mToolsMenu = new QMenu(tr("Tools"), this);
-/*** LPub3D Mod - toolstoolbar suppress conflicting tools ***/
+/*** LPub3D Mod - suppress mToolsMenu conflicting items ***/
 /***
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_INSERT]);
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_LIGHT]);
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_SPOTLIGHT]);
-***/
-/*** LPub3D Mod end ***/
-
-/*** LPub3D Mod - toolstoolbar viewpoint home ***/
-	mToolsMenu->addAction(mActions[LC_VIEW_VIEWPOINT_HOME]);
-/*** LPub3D Mod end ***/
-
-/*** LPub3D Mod - toolstoolbar add rotate step ***/
-	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_ROTATESTEP]);
-/*** LPub3D Mod end ***/
-
+	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_CAMERA]);
+	mToolsMenu->addSeparator();
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_SELECT]);
-/*** LPub3D Mod - toolstoolbar suppress conflicting tools ***/
-/***
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_MOVE]);
-***/
-/*** LPub3D Mod end ***/
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_ROTATE]);
-
-/*** LPub3D Mod - toolstoolbar suppress conflicting tools ***/
-/***
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_DELETE]);
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_PAINT]);
-***/
-/*** LPub3D Mod end ***/
 	mToolsMenu->addSeparator();
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_ZOOM]);
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_PAN]);
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_ROTATE_VIEW]);
-/*** LPub3D Mod - toolstoolbar suppress conflicting tools ***/
-/***
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_ROLL]);
-***/
-/*** LPub3D Mod end ***/
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_ZOOM_REGION]);
-
-/*** LPub3D Mod - add toolstoolbar camera ***/
-	mToolsMenu->addSeparator();
-	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_CAMERA]);
+***/
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - suppress menuBar ***/
@@ -807,53 +780,25 @@ void lcMainWindow::CreateToolBars()
 	mToolsToolBar->setObjectName("ToolsToolbar");
 	insertToolBarBreak(mToolsToolBar);
 /*** LPub3D Mod - toolstoolbar undo/redo ***/
-	mToolsToolBar->addAction(mActions[LC_EDIT_UNDO]);
-	mToolsToolBar->addAction(mActions[LC_EDIT_REDO]);
-/*** LPub3D Mod end ***/
+/***
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_INSERT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_LIGHT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_SPOTLIGHT]);
-/*** LPub3D Mod - moved lower down on menu ***/
-//	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_CAMERA]);
-/*** LPub3D Mod end ***/
-/*** LPub3D Mod - toolstoolbar snap angle ***/
+	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_CAMERA]);
 	mToolsToolBar->addSeparator();
-	mToolsToolBar->addAction(AngleAction);                       // Snap Rotations to Fixed Intervals menu item
-/*** LPub3D Mod end ***/
-
-/*** LPub3D Mod - toolstoolbar viewpoint home ***/
-	mToolsToolBar->addAction(mActions[LC_VIEW_VIEWPOINT_HOME]);
-/*** LPub3D Mod end ***/
-
-/*** LPub3D Mod - toolstoolbar rotate step ***/
-	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROTATESTEP]);
-/*** LPub3D Mod end ***/
-
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_SELECT]);
-/*** LPub3D Mod - place ROTATE menu item before MOVE ***/
-	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROTATE]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_MOVE]);
-/*** LPub3D Mod end ***/
+	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROTATE]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_DELETE]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_PAINT]);
 	mToolsToolBar->addSeparator();
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ZOOM]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_PAN]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROTATE_VIEW]);
-/*** LPub3D Mod - toolstoolbar suppress conflicting tools ***/
-/***
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROLL]);
-***/
-/*** LPub3D Mod end ***/
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ZOOM_REGION]);
-/*** LPub3D Mod - moved from highter up ***/
-	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_CAMERA]);
-/*** LPub3D Mod end ***/
-/*** LPub3D Mod - Disable ToolBar hide ***/
-	//mToolsToolBar->hide();
-/*** LPub3D Mod end ***/
-/*** LPub3D Mod - toolstoolbar snap angle widget ***/
-	((QToolButton*)mToolsToolBar->widgetForAction(AngleAction))->setPopupMode(QToolButton::InstantPopup);
+	mToolsToolBar->hide();
+***/
 /*** LPub3D Mod end ***/
 
 	mPartsToolBar = new QDockWidget(tr("Parts"), this);
@@ -894,10 +839,12 @@ void lcMainWindow::CreateToolBars()
 	TransformWidget->setLayout(TransformLayout);
 
 /*** LPub3D Mod - coord format ***/
+/***
 	QToolButton* CoordFormatButton = new QToolButton(TransformWidget);
 	CoordFormatButton->setDefaultAction(mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT]);
 	CoordFormatButton->setPopupMode(QToolButton::InstantPopup);
 	TransformLayout->addWidget(CoordFormatButton);
+***/
 /*** LPub3D Mod end ***/
 
 	QToolButton* TransformButton = new QToolButton(TransformWidget);
@@ -946,7 +893,7 @@ void lcMainWindow::CreateToolBars()
 	tabifyDockWidget(mPartsToolBar, mPropertiesToolBar);
 	tabifyDockWidget(mPropertiesToolBar, mTimelineToolBar);
 
-/*** LPub3D Mod - suppress partsbar, enable timeline raise ***/
+/*** LPub3D Mod - raise timeline tool bar ***/
 	mTimelineToolBar->raise();
 /*** LPub3D Mod end ***/
 
@@ -955,21 +902,12 @@ void lcMainWindow::CreateToolBars()
 	mTimeToolBar->setVisible(false);
 	mPartsToolBar->setVisible(false);
 	mColorsToolBar->setVisible(false);
-
-	// remove Tools actions
-	mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_ROLL]);
-	mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_INSERT]);
-	mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_LIGHT]);
-	mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_SPOTLIGHT]);
-	mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_MOVE]);
-	mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_DELETE]);
-	mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_PAINT]);
-
+	// remove first mToolsToolBar separator
 	foreach(QAction* tbAction, mToolsToolBar->actions())
 	{
 		if (tbAction->isSeparator()) {
 			mToolsToolBar->removeAction(tbAction);
-			break;      //remove first separator only
+			break;
 		}
 	}
 /*** LPub3D Mod end ***/
@@ -2420,8 +2358,8 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int EmitSelectio
 	if (Action && Action->isChecked()) {
 
 		if (ActiveModel) {
-			/*** LPub3D Mod - Select whole model if Rotate Tool selected  ***/
-			if (Tool == LC_TOOL_ROTATE) {
+			/*** LPub3D Mod - Select whole model if Rotate Tool selected and not build modification ***/
+			if (Tool == LC_TOOL_ROTATE && !lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION)) {
 
 				for (lcPiece* Piece : ActiveModel->GetPieces())
 					if (Piece->IsVisible(ActiveModel->GetCurrentStep()))
@@ -2562,18 +2500,17 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int EmitSelectio
 		}
 	}
 
-/*** LPub3D Mod - replace mStatusBarLabel    ***/
-	statusBar()->showMessage(Message);
-/*** LPub3D Mod end ***/
-
 	lcVector3 Position;
 	lcGetActiveModel()->GetFocusPosition(Position);
 
-	QString Label("X: %1 Y: %2 Z: %3");
-	Label = Label.arg(QLocale::system().toString(Position[0], 'f', 2), QLocale::system().toString(Position[1], 'f', 2), QLocale::system().toString(Position[2], 'f', 2));
+/*** LPub3D Mod - add Position label and switch Y and Z axes ***/
+	QString Label("Position X: %1 Y: %2 Z: %3");
+	Label = Label.arg(QLocale::system().toString(Position[0], 'f', 2), QLocale::system().toString(Position[2], 'f', 2), QLocale::system().toString(Position[1], 'f', 2));
+/*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - suppress position status    ***/
-/***	mStatusPositionLabel->setText(Label); ***/
+/*** LPub3D Mod - replace mStatusBarLabel ***/
+	statusBar()->showMessage(EmitSelection == VIEWER_MOD ? Label : Message);
+/*	mStatusPositionLabel->setText(Label);   */
 /*** LPub3D Mod end ***/
 }
 
@@ -3800,7 +3737,7 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 	case LC_EDIT_ACTION_ROTATE:
 		SetTool(LC_TOOL_ROTATE);
 /*** LPub3D Mod - rotate step ***/
-		if (ActiveModel)
+		if (ActiveModel && !lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION))
 			ActiveModel->SelectAllPieces();
 /*** LPub3D Mod end ***/
 		break;

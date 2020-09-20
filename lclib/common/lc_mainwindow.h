@@ -403,8 +403,9 @@ public slots:
 	void SetSelectedPieces(QVector<int> &LineTypeIndexes);
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - rotate step signals ***/
+/*** LPub3D Mod - signals ***/
 signals:
+/*** LPub3D Mod - rotate step signals ***/
 	lcVector3 GetRotStepMeta();   // used to capture step meta angles
 	void SetRotStepMeta();
 	void SetRotStepAngleX(float, bool=false);
