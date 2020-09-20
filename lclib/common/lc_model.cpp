@@ -2408,7 +2408,7 @@ void lcModel::DeleteSelectedObjects()
 	{
 		gMainWindow->UpdateTimeline(false, false);
 /*** LPub3D Mod - Build Modification ***/
-        gMainWindow->UpdateSelectedObjects(true, VIEWER_MOD);
+		gMainWindow->UpdateSelectedObjects(true, VIEWER_MOD);
 /*** LPub3D Mod end ***/
 		gMainWindow->UpdateAllViews();
 		SaveCheckpoint(tr("Deleting"));
@@ -3806,10 +3806,10 @@ void lcModel::ClearSelectionAndSetFocus(lcObject* Object, quint32 Section, bool 
 				AddToSelection(Pieces, false, false);
 			}
 		}
-	}
 /*** LPub3D Mod - Build Modification ***/
-    gMainWindow->UpdateSelectedObjects(true, Object->IsPiece() ? VIEWER_MOD : VIEWER_LINE);
+			gMainWindow->UpdateSelectedObjects(true, Object->IsPiece() ? VIEWER_MOD : VIEWER_LINE);
 /*** LPub3D Mod end ***/
+	}
 	gMainWindow->UpdateAllViews();
 }
 
