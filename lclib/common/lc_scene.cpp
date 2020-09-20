@@ -55,7 +55,7 @@ void lcScene::End()
 
 	std::sort(mOpaqueMeshes.begin(), mOpaqueMeshes.end(), OpaqueMeshCompare);
 
-	auto TranslucentMeshCompare = [this](const lcTranslucentMeshInstance& Mesh1, const lcTranslucentMeshInstance& Mesh2)
+	auto TranslucentMeshCompare = [](const lcTranslucentMeshInstance& Mesh1, const lcTranslucentMeshInstance& Mesh2)
 	{
 		return Mesh1.Distance > Mesh2.Distance;
 	};

@@ -6,12 +6,12 @@
 #include "lc_viewsphere.h"
 #include "lc_commands.h"
 
-enum lcTrackButton
+enum class lcTrackButton
 {
-	LC_TRACKBUTTON_NONE,
-	LC_TRACKBUTTON_LEFT,
-	LC_TRACKBUTTON_MIDDLE,
-	LC_TRACKBUTTON_RIGHT
+	None,
+	Left,
+	Middle,
+	Right
 };
 
 enum lcTrackTool
@@ -40,6 +40,7 @@ enum lcTrackTool
 	LC_TRACKTOOL_SCALE_MINUS,
 	LC_TRACKTOOL_ERASER,
 	LC_TRACKTOOL_PAINT,
+	LC_TRACKTOOL_COLOR_PICKER,
 	LC_TRACKTOOL_ZOOM,
 	LC_TRACKTOOL_PAN,
 	LC_TRACKTOOL_ORBIT_X,
@@ -47,14 +48,15 @@ enum lcTrackTool
 	LC_TRACKTOOL_ORBIT_XY,
 	LC_TRACKTOOL_ROLL,
 	LC_TRACKTOOL_ZOOM_REGION,
-	LC_TRACKTOOL_ROTATESTEP                /*** LPub3D Mod - Rotate Step ***/
+	LC_TRACKTOOL_ROTATESTEP,                /*** LPub3D Mod - Rotate Step ***/
+	LC_TRACKTOOL_COUNT	
 };
 
 enum class lcDragState
 {
-	NONE,
-	PIECE,
-	COLOR
+	None,
+	Piece,
+	Color
 };
 
 class View : public lcGLWidget
@@ -103,7 +105,7 @@ public:
 
 	bool IsTracking() const
 	{
-		return mTrackButton != LC_TRACKBUTTON_NONE;
+		return mTrackButton != lcTrackButton::None;
 	}
 
 	void StartOrbitTracking();
@@ -129,7 +131,7 @@ public:
 /*** LPub3D Mod end ***/
 	void SetDefaultCamera();
 	lcMatrix44 GetProjectionMatrix() const;
-	LC_CURSOR_TYPE GetCursor() const;
+	lcCursor GetCursor() const;
 	void ShowContextMenu() const;
 
 	lcVector3 GetMoveDirection(const lcVector3& Direction) const;

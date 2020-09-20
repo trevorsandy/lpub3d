@@ -596,7 +596,7 @@ QWidget *lcQPropertiesTree::createEditor(QWidget *parent, QTreeWidgetItem *item)
 
 			QStringList shapes = { "Square", "Disk", "Rectangle",  "Ellipse"};
 			for (int i = 0; i < shapes.size(); i++)
-				editor->addItem(shapes.at(i), qVariantFromValue(i));
+				editor->addItem(shapes.at(i), QVariant::fromValue(i));
 
 			int value = item->data(0, PropertyValueRole).toInt();
 			editor->setCurrentIndex(value);
@@ -651,10 +651,10 @@ QWidget *lcQPropertiesTree::createEditor(QWidget *parent, QTreeWidgetItem *item)
 			std::sort(SortedPieces.begin(), SortedPieces.end(), PieceCompare);
 
 			for (PieceInfo* Info : SortedPieces)
-				editor->addItem(Info->m_strDescription, qVariantFromValue((void*)Info));
+				editor->addItem(Info->m_strDescription, QVariant::fromValue((void*)Info));
 
 			PieceInfo *info = (PieceInfo*)item->data(0, PropertyValueRole).value<void*>();
-			editor->setCurrentIndex(editor->findData(qVariantFromValue((void*)info)));
+			editor->setCurrentIndex(editor->findData(QVariant::fromValue((void*)info)));
 
 			connect(editor, SIGNAL(currentIndexChanged(int)), this, SLOT(slotSetValue(int)));
 
@@ -1249,7 +1249,7 @@ QTreeWidgetItem *lcQPropertiesTree::addProperty(QTreeWidgetItem *parent, const Q
 
 	newItem->setData(0, PropertyTypeRole, QVariant(propertyType));
 	newItem->setFlags(newItem->flags() | Qt::ItemIsEditable);
-	setItemExpanded(newItem, true);
+	newItem->setExpanded(true);
 
 	if (propertyType == PropertyGroup)
 	{
@@ -1473,7 +1473,7 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 	QString text = Info ? Info->m_strDescription : QString();
 	partID->setText(1, text);
 	partID->setToolTip(1, text);
-	partID->setData(0, PropertyValueRole, qVariantFromValue((void*)Info));
+	partID->setData(0, PropertyValueRole, QVariant::fromValue((void*)Info));
 
 	QImage img(16, 16, QImage::Format_ARGB32);
 	img.fill(0);
@@ -1491,16 +1491,16 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 	partColor->setData(0, PropertyValueRole, ColorIndex);
 
 	partFileName->setText(1, Info ? Info->mFileName : QString());
-	partFileName->setData(0, PropertyValueRole, qVariantFromValue((void*)Info));
+	partFileName->setData(0, PropertyValueRole, QVariant::fromValue((void*)Info));
 
 	partModel->setText(1, ModelInfo.mName);
-	partModel->setData(0, PropertyValueRole, qVariantFromValue((void*)Info));
+	partModel->setData(0, PropertyValueRole, QVariant::fromValue((void*)Info));
 
 	partType->setText(1, Info ? Info->mZipFileType == LC_ZIPFILE_OFFICIAL ? QString("Official Part") : QString("Unofficial Part") : QString());
-	partType->setData(0, PropertyValueRole, qVariantFromValue((void*)Info));
+	partType->setData(0, PropertyValueRole, QVariant::fromValue((void*)Info));
 
 	partIsSubmodel->setText(1, Info ? Info->IsModel() ? QString("Yes") : QString("No") : QString());
-	partIsSubmodel->setData(0, PropertyValueRole, qVariantFromValue((void*)Info));
+	partIsSubmodel->setData(0, PropertyValueRole, QVariant::fromValue((void*)Info));
 
 	partShow->setText(1, QString::number(Show));
 	partShow->setData(0, PropertyValueRole, Show);
@@ -1672,7 +1672,7 @@ void lcQPropertiesTree::SetCamera(lcObject* Focus)
 	cameraFar->setData(0, PropertyValueRole, ZFar);
 
 	cameraName->setText(1, Name);
-	cameraName->setData(0, PropertyValueRole, qVariantFromValue((void*)Name));
+	cameraName->setData(0, PropertyValueRole, QVariant::fromValue((void*)Name));
 
 /*** LPub3D Mod - Camera Globe ***/
 	pictureModelScale->setText(1, lcFormatValueLocalized(ModelScale));
@@ -1919,7 +1919,7 @@ void lcQPropertiesTree::SetLight(lcObject* Focus)
 	lightSpecular->setToolTip(1, tr("Specular reflection multiplier factor."));
 
 	lightName->setText(1, Name);
-	lightName->setData(0, PropertyValueRole, qVariantFromValue((void*)Name));
+	lightName->setData(0, PropertyValueRole, QVariant::fromValue((void*)Name));
 /*** LPub3D Mod end ***/
 }
 

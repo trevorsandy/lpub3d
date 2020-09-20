@@ -362,6 +362,11 @@ void lcMainWindow::CreateActions()
 	EditActionPaintIcon.addFile(":/resources/action_paint_16.png");
 	mActions[LC_EDIT_ACTION_PAINT]->setIcon(EditActionPaintIcon);
 
+	QIcon EditActionColorPickerIcon;
+	EditActionColorPickerIcon.addFile(":/resources/action_color_picker.png");
+	EditActionColorPickerIcon.addFile(":/resources/action_color_picker_16.png");
+	mActions[LC_EDIT_ACTION_COLOR_PICKER]->setIcon(EditActionColorPickerIcon);
+
 	QIcon EditActionZoomIcon;
 	EditActionZoomIcon.addFile(":/resources/action_zoom.png");
 	EditActionZoomIcon.addFile(":/resources/action_zoom_16.png");
@@ -559,6 +564,7 @@ void lcMainWindow::CreateMenus()
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_ROTATE]);
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_DELETE]);
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_PAINT]);
+	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_COLOR_PICKER]);
 	mToolsMenu->addSeparator();
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_ZOOM]);
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_PAN]);
@@ -792,6 +798,7 @@ void lcMainWindow::CreateToolBars()
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROTATE]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_DELETE]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_PAINT]);
+	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_COLOR_PICKER]);
 	mToolsToolBar->addSeparator();
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ZOOM]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_PAN]);
@@ -1272,7 +1279,7 @@ void lcMainWindow::GetRotStepMetaAngles()
 
   lcVector3 MouseToolDistance = mModel->SnapRotation(mModel->GetMouseToolDistance());
 
-  if (mView->mTrackButton != LC_TRACKBUTTON_NONE)
+  if (mView->mTrackButton != lcTrackButton::None)
 	{
 	  bool display = true;
 	  lcVector3 mExistingRotStep = GetRotStepMeta();
@@ -1941,8 +1948,9 @@ void lcMainWindow::SetCurrentModelTab(lcModel* Model)
 		ViewWidget = (lcQGLWidget*)TabWidget->layout()->itemAt(0)->widget();
 		ViewWidget->widget = NewView;
 		NewView->mWidget = ViewWidget;
-		NewView->mWidth = ViewWidget->width();
-		NewView->mHeight = ViewWidget->height();
+		float Scale = ViewWidget->deviceScale();
+		NewView->mWidth = ViewWidget->width() * Scale;
+		NewView->mHeight = ViewWidget->height() * Scale;
 		AddView(NewView);
 
 		mModelTabWidget->setCurrentWidget(TabWidget);
@@ -3800,6 +3808,10 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 
 	case LC_EDIT_ACTION_PAINT:
 		SetTool(LC_TOOL_PAINT);
+		break;
+
+	case LC_EDIT_ACTION_COLOR_PICKER:
+		SetTool(LC_TOOL_COLOR_PICKER);
 		break;
 
 	case LC_EDIT_ACTION_ZOOM:
