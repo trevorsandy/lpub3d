@@ -12,7 +12,7 @@ win32 {
 contains(LOAD_LDV_HEADERS,True) {
     isEmpty(LDVINCLUDE):LDVINCLUDE = $$system_path( $$absolute_path( $$PWD/include ) )
 
-    VER_LDVIEW                = ldview-4.3
+    VER_LDVIEW                = ldview-4.4
     unix:!macx: DIST_DIR      = lpub3d_linux_3rdparty
     else:macx:  DIST_DIR      = lpub3d_macos_3rdparty
     else:win32: DIST_DIR      = lpub3d_windows_3rdparty

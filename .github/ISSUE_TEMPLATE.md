@@ -26,8 +26,8 @@ Describe your issue here.
 * Renderer configuration files
   - `[Application data path]/ldv/ldvExport.ini`
   - `[Application data path]/3rdParty/ldglite-1.3/config/ldglite.ini`
-  - `[Application data path]/3rdParty/ldview-4.3/config/ldview.ini`
-  - `[Application data path]/3rdParty/ldview-4.3/config/ldviewPOV.ini`
+  - `[Application data path]/3rdParty/ldview-4.4/config/ldview.ini`
+  - `[Application data path]/3rdParty/ldview-4.4/config/ldviewPOV.ini`
   - `[Application data path]/3rdParty/lpub3d_trace_cui-3.8/config/povray.conf`
   - `[Application data path]/3rdParty/lpub3d_trace_cui-3.8/config/povray.ini`
 

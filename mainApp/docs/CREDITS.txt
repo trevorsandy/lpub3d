@@ -6,7 +6,7 @@ Trevor Sandy <trevor.sandy@gmail.com>
 LDGLite (LDGLite 1.3.4 - specifically adapted for LPub3D)
 Trevor Sandy <trevor.sandy@gmail.com>
 
-LDView-OSMesa-CUI (LDView 4.3 "qmake-build" specifically adapted for LPub3D)
+LDView-OSMesa-CUI (LDView 4.4 "qmake-build" specifically adapted for LPub3D)
 Trevor Sandy <trevor.sandy@gmail.com>
 
 LPub3D RayTrace-CUI (POV-Ray 3.8 "raytracer-cui" specifically adapted for LPub3D)
@@ -26,7 +26,7 @@ Leonardo Zide <leozide@gmail.com>
 LDGlite 1.3.4 commit 492071
 Don Heyse <dheyse@hotmail.com>
 
-LDView 4.3 commit 773fb3c
+LDView 4.4 commit 861d678
 Travis Cobb <ldview@gmail.com>
 Peter Bartfai <pbartfai@stardust.hu>
 

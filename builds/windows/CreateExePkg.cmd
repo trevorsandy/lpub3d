@@ -105,7 +105,7 @@ SET utilitiesPath=..\utilities
 SET devRootPath=..\..\mainApp
 
 SET VER_LDGLITE=ldglite-1.3
-SET VER_LDVIEW=ldview-4.3
+SET VER_LDVIEW=ldview-4.4
 SET VER_LPUB3D_TRACE=lpub3d_trace_cui-3.8
 
 SET LDGLITE_EXE=ldglite

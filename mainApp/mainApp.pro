@@ -169,7 +169,7 @@ CONFIG(debug, debug|release) {
         LDRAWINI_LIB = LDrawInid161
         QUAZIP_LIB = QuaZIPd07
         LC_LIB = LCd18
-        LDVQT_LIB = LDVQtd43
+        LDVQT_LIB = LDVQtd44
         WPNGIMAGE_LIB = WPngImaged14
     }
 
@@ -210,7 +210,7 @@ CONFIG(debug, debug|release) {
         LDRAWINI_LIB = LDrawIni161
         QUAZIP_LIB = QuaZIP07
         LC_LIB = LC18
-        LDVQT_LIB = LDVQt43
+        LDVQT_LIB = LDVQt44
         WPNGIMAGE_LIB = WPngImage14
     }
 
@@ -300,7 +300,7 @@ if(deb|rpm|pkg|dmg|exe|contains(build_package, yes)) {
     }
 }
 
-VER_LDVIEW     = ldview-4.3
+VER_LDVIEW     = ldview-4.4
 VER_LDGLITE    = ldglite-1.3
 VER_POVRAY     = lpub3d_trace_cui-3.8
 DEFINES       += VER_LDVIEW=\\\"$$VER_LDVIEW\\\"

@@ -706,7 +706,7 @@ fi
 
 # define build architecture and cached renderer paths
 VER_LDGLITE=ldglite-1.3
-VER_LDVIEW=ldview-4.3
+VER_LDVIEW=ldview-4.4
 VER_POVRAY=lpub3d_trace_cui-3.8
 # distArch=$(uname -m)
 #if [[ "$distArch" = "x86_64" || "$distArch" = "aarch64" ]]; then
