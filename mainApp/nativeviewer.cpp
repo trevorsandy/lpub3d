@@ -1099,15 +1099,14 @@ void Gui::createBuildModification()
             QStringList  mLoadFileLines, mSaveFileLines,
                          DefaultContents, BuildModContents;
 
-            int CurrentStep    = 1;
+            int CurrentStep      = 1;
             int ModActionLineNum = 0;
-            bool BuildModPart  = false;
-            lcPiece *Piece     = nullptr;
-            lcCamera *Camera   = nullptr;
-            lcLight  *Light    = nullptr;
-            mSaveProperties    = ActiveModel->GetProperties();
-            mSaveFileLines     = ActiveModel->mFileLines;
-            mSavePieces        = ActiveModel->GetPieces();
+            lcPiece *Piece       = nullptr;
+            lcCamera *Camera     = nullptr;
+            lcLight  *Light      = nullptr;
+            mSaveProperties      = ActiveModel->GetProperties();
+            mSaveFileLines       = ActiveModel->mFileLines;
+            mSavePieces          = ActiveModel->GetPieces();
             lcPiecesLibrary *Library = lcGetPiecesLibrary();
 
             int ModelIndex      = buildModRange.at(BM_MODEL_INDEX);
@@ -1137,22 +1136,29 @@ void Gui::createBuildModification()
                 return nullGroup;
             };
 
-            auto ReconfigurePart = [&ModelIndex, &FadeStep, &HighlightStep, &DefaultContents] (int LineTypeIndex, QString &PartLine)
+            auto ConfigurePartLine = [&ModelIndex, &FadeStep, &HighlightStep, &DefaultContents] (int LineTypeIndex, QTextStream &Stream)
             {
-                QString NameMod, ColourPrefix;
-                if (FadeStep || HighlightStep){
+                if (!FadeStep && !HighlightStep)
+                    return;
 
-                    if (FadeStep) {
-                        NameMod = FADE_SFX;
-                        ColourPrefix = LPUB3D_COLOUR_FADE_PREFIX;
-                    } else if (HighlightStep) {
-                        NameMod = HIGHLIGHT_SFX;
-                        ColourPrefix = LPUB3D_COLOUR_HIGHLIGHT_PREFIX;
-                    }
+                if (!Stream.string()->isEmpty()) {
+
+                    QStringList ModLines = Stream.string()->split(QRegExp("(\\r\\n)|\\r|\\n"), QString::SkipEmptyParts);
+                    QString PartLine = ModLines.last();
 
                     QStringList argv;
                     split(PartLine, argv);
+
                     if (argv.size() == 15 && argv[0] == "1") {
+
+                        QString NameMod, ColourPrefix;
+                        if (FadeStep) {
+                            NameMod = FADE_SFX;
+                            ColourPrefix = LPUB3D_COLOUR_FADE_PREFIX;
+                        } else if (HighlightStep) {
+                            NameMod = HIGHLIGHT_SFX;
+                            ColourPrefix = LPUB3D_COLOUR_HIGHLIGHT_PREFIX;
+                        }
 
                         // Colour code
                         if (argv[1].startsWith(ColourPrefix)) {
@@ -1190,24 +1196,19 @@ void Gui::createBuildModification()
                         }
 
                         PartLine = argv.join(" ");
+
+                        ModLines.removeLast();
+                        ModLines.append(PartLine);
+
+                        Stream.string()->clear();
+
+                        for (int i = 0; i < ModLines.size(); i++)
+                            Stream << ModLines.at(i);
                     }
                 }
             };
 
-            auto AddPart = [&BuildModPart, &ReconfigurePart] (int LineTypeIndex, QTextStream &Stream)
-            {
-                QString PartLine;
-
-                Stream >> PartLine;
-
-                if (BuildModPart) {
-                    ReconfigurePart(LineTypeIndex, PartLine);
-
-                    Stream << PartLine;
-                }
-            };
-
-            auto InsertPiece = [&mLoadPieces] (lcPiece* Piece, int Index)
+            auto InsertPiece = [] (lcArray<lcPiece*> &mLoadPieces, lcPiece* Piece, int PieceIdx)
             {
                 PieceInfo* Info = Piece->mPieceInfo;
 
@@ -1219,25 +1220,25 @@ void Gui::createBuildModification()
                         lcGetPiecesLibrary()->mBuffersDirty = true;
                 }
 
-                mLoadPieces.InsertAt(Index, Piece);
+                mLoadPieces.InsertAt(PieceIdx, Piece);
             };
 
-            auto AddPiece = [&mLoadPieces, &InsertPiece](lcPiece* Piece)
+            auto AddPiece = [&InsertPiece](lcArray<lcPiece*> &mLoadPieces, lcPiece* Piece)
             {
                 for (int PieceIdx = 0; PieceIdx < mLoadPieces.GetSize(); PieceIdx++)
                 {
                     if (mLoadPieces[PieceIdx]->GetStepShow() > Piece->GetStepShow())
                     {
-                        InsertPiece(Piece, PieceIdx);
+                        InsertPiece(mLoadPieces, Piece, PieceIdx);
                         return;
                     }
                 }
 
-                InsertPiece(Piece, mLoadPieces.GetSize());
+                InsertPiece(mLoadPieces, Piece, mLoadPieces.GetSize());
             };
 
             // capture default content for ldrawFile.buildMod and QBA
-            QByteArray QBA;
+            QByteArray ByteArray;
             for (int i = 0; i < ldrawFile.contents(ModelName).size(); i++){
                 if (i > ModEndLineNum)
                     break;
@@ -1245,14 +1246,14 @@ void Gui::createBuildModification()
                 if (i >= ModBeginLineNum) {
                     DefaultContents.append(ModLine);
                 }
-                QBA.append(ModLine);
-                QBA.append(QString("\n"));
+                ByteArray.append(ModLine);
+                ByteArray.append(QString("\n"));
             }
-            QBuffer Buffer(&QBA);
+            QBuffer Buffer(&ByteArray);
             Buffer.open(QIODevice::ReadOnly);
             Buffer.seek(0);
 
-            // load mLoadFileLines, mLoadGroups and mLoadPieces with LDraw content using QBA buffer
+            // load mLoadFileLines, mLoadGroups and mLoadPieces, Camera, Lights and LSynth Control Points with LDraw content using QBA buffer
             while (!Buffer.atEnd())
             {
                 qint64 Pos = Buffer.pos();
@@ -1384,11 +1385,8 @@ void Gui::createBuildModification()
                 {
                     int ColorCode;
                     LineStream >> ColorCode;
-                    BuildModPart = false;
-                    QString EmptyLine = QString();
-                    QTextStream EmptyStream(&EmptyLine, QIODevice::ReadOnly);
-
                     float IncludeMatrix[12];
+
                     for (int TokenIdx = 0; TokenIdx < 12; TokenIdx++)
                         LineStream >> IncludeMatrix[TokenIdx];
 
@@ -1421,8 +1419,7 @@ void Gui::createBuildModification()
                         Piece->Initialize(Transform, quint32(CurrentStep));
                         Piece->SetColorCode(quint32(ColorCode));
                         Piece->SetControlPoints(ControlPoints);
-                        AddPiece(Piece);
-                        AddPart(Piece->GetLineTypeIndex(), EmptyStream);
+                        AddPiece(mLoadPieces, Piece);
 
                         Piece = nullptr;
                     }
@@ -1438,12 +1435,14 @@ void Gui::createBuildModification()
                 delete Camera;
             }
 
+            Buffer.close();
+
             // Save 3DViewer content to buildModContent
             bool SelectedOnly = false;
             QLatin1String LineEnding("\r\n");
 
-            QBA.clear();
-            QTextStream Stream(&QBA);
+            QString ModString;
+            QTextStream Stream(&ModString, QIODevice::ReadWrite);
 
             lcStep Step        = 1;
             int CurrentLine    = ModBeginLineNum/*0*/;
@@ -1456,7 +1455,6 @@ void Gui::createBuildModification()
 
             for (lcPiece* Piece : mSavePieces)
             {
-                BuildModPart   = true;
                 SaveLineNumber = LineNumber;
                 LineIndex      = Piece->GetLineTypeIndex();
                 NewLine        = !getSelectedLine(ModelIndex, LineIndex, VIEWER_MOD, LineNumber);
@@ -1496,7 +1494,6 @@ void Gui::createBuildModification()
                                 AddedSteps--;
                         }
                         CurrentLine++;
-                        QString foo = QString();
                     }
 
                     while (Piece->GetStepShow() > Step)
@@ -1574,7 +1571,9 @@ void Gui::createBuildModification()
                         }
                     }
 
-                    AddPart(Piece->GetLineTypeIndex(), Stream);
+                    Piece->SaveLDraw(Stream);
+
+                    ConfigurePartLine(Piece->GetLineTypeIndex(), Stream);
 
                     if (Piece->mPieceInfo->GetSynthInfo())
                         Stream << QLatin1String("0 !LPUB SYNTH END\r\n");
@@ -1617,9 +1616,7 @@ void Gui::createBuildModification()
                 if (!SelectedOnly || Light->IsSelected())
                     Light->SaveLDraw(Stream);
 
-            Stream.flush();
-
-            BuildModContents = QString(QBA).split(QRegExp("(\\r\\n)|\\r|\\n"), QString::SkipEmptyParts);
+            BuildModContents = QString(ModString).split(QRegExp("(\\r\\n)|\\r|\\n"), QString::SkipEmptyParts);
 
             QString BuildModKey = QString("%1 Mod %2").arg(ModelName).arg(getBuildModNextIndex(ModelName));
 
@@ -1633,15 +1630,15 @@ void Gui::createBuildModification()
                 {
                     QString metaString;
                     BuildModData buildModData;
-                    modHere = Where(ModelName, ModEndLineNum);
 
                     beginMacro("CreateBuildModContent");
 
                     // write end meta command below default content last line (append line)
+                    modHere = Where(ModelName, ModEndLineNum);
                     buildModData.action      = QString("END");
                     buildModData.buildModKey = QString();
                     currentStep->buildMod.setValue(buildModData);
-                    metaString = currentStep->buildMod.format(true,false);
+                    metaString = currentStep->buildMod.format(false/*local*/,false/*global*/);
                     gui->appendLine(modHere, metaString, nullptr);
 
                     // write action meta command above default content first line - last to first
@@ -1649,22 +1646,20 @@ void Gui::createBuildModification()
                     buildModData.action      = QString("END_MOD");
                     buildModData.buildModKey = QString();
                     currentStep->buildMod.setValue(buildModData);
-                    metaString = currentStep->buildMod.format(true,false);
+                    metaString = currentStep->buildMod.format(false,false);
                     gui->insertLine(modHere, metaString, nullptr);
 
                     // write buildMod content last to first
-                    modHere.lineNumber = BuildModContents.size();
-                    while (modHere.lineNumber > 0) {
-                       gui->insertLine(modHere, metaString, nullptr);
-                       modHere--;
+                    for (int i = BuildModContents.size() - 1; i >= 0; --i) {
+                        metaString = BuildModContents.at(i);
+                        gui->insertLine(modHere, metaString, nullptr);
                     }
 
                     // write begin meta command above buildMod content first line
-                    ModBeginLineNum          = modHere.lineNumber;
                     buildModData.action      = QString("BEGIN");
                     buildModData.buildModKey = BuildModKey;
                     currentStep->buildMod.setValue(buildModData);
-                    metaString = currentStep->buildMod.format(true,false);
+                    metaString = currentStep->buildMod.format(false,false);
                     gui->insertLine(modHere, metaString, nullptr);
 
                     endMacro();
@@ -1678,7 +1673,7 @@ void Gui::createBuildModification()
             QVector<int> ModAttributes = { ModBeginLineNum,
                                            ModActionLineNum,
                                            ModEndLineNum,
-                                           ModelIndex};
+                                           ModelIndex };
 
             insertBuildMod(BuildModKey,
                            ModAttributes,
@@ -1713,7 +1708,6 @@ void Gui::applyBuildModification()
             buildModData.buildModKey = buildModKeys.first();
             currentStep->buildMod.setValue(buildModData);
             metaString = currentStep->buildMod.format(true,false);
-            gui->insertLine(top, metaString, nullptr);
 
             if (currentStep->buildMod.here() == Where())
                 gui->insertLine(top, metaString, nullptr);
@@ -1747,7 +1741,6 @@ void Gui::removeBuildModification()
             buildModData.buildModKey = buildModKeys.first();
             currentStep->buildMod.setValue(buildModData);
             metaString = currentStep->buildMod.format(true,false);
-            gui->insertLine(top, metaString, nullptr);
 
             if (currentStep->buildMod.here() == Where())
                 gui->insertLine(top, metaString, nullptr);
