@@ -787,10 +787,11 @@ int Gui::addGraphicsPageItems(
                   // place the RotateIcon
 
                   if (rotateIcon) {
-                      rotateIcon->setPos(step->rotateIcon.loc[XX],
-                                         step->rotateIcon.loc[YY]);
-
                       PlacementData pld = step->rotateIcon.placement.value();
+
+                      rotateIcon->setPos(qreal(pld.offsets[XX]) + step->rotateIcon.loc[XX],
+                                         qreal(pld.offsets[YY]) + step->rotateIcon.loc[YY]);
+
                       if (pld.offsets[XX] != 0.0f || pld.offsets[YY] != 0.0f) {
                           rotateIcon->relativeToSize[0] = step->rotateIcon.relativeToSize[0];
                           rotateIcon->relativeToSize[1] = step->rotateIcon.relativeToSize[1];
