@@ -303,11 +303,9 @@ void Gui::insertFinalModel(){
         mi.deleteFinalModel();
       }
   }
-  if (buildModsSize()){
-      removeBuildMod(/*last*/);
-      buildModNextStep = Where();
-  }
+  resetLastBuildMod(true/*clearNextStep*/);
 }
+
 
 //void Gui::insertCoverPage()
 //{
@@ -1533,6 +1531,15 @@ void Gui::loadUpdatedImages()
    m_updateViewer = false;
    reloadCurrentPage();
    m_updateViewer = true;
+}
+
+void Gui::resetLastBuildMod(bool clearNextStep)
+{
+    if (buildModsSize()){
+        removeBuildMod(/*last*/);
+        if (clearNextStep)
+            setBuildModNextStepIndex(Where());
+    }
 }
 
 void Gui::reloadCurrentPage(){
@@ -2780,7 +2787,7 @@ Gui::Gui()
     nextPageContinuousIsRunning     = false;
     previousPageContinuousIsRunning = false;
 
-    buildModRange     = { 0, -1, 0 };
+    buildModRange     = { 0, 0, -1 };
     mStepRotation     = lcVector3(0.0f, 0.0f, 0.0f);
     mRotStepAngleX    = 0.0f;
     mRotStepAngleY    = 0.0f;

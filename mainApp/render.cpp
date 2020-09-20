@@ -3115,6 +3115,16 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerStepKey)
     return true;
 }
 
+int Render::getViewerPieces()
+{
+    View* ActiveView = gMainWindow->GetActiveView();
+    lcModel* ActiveModel = ActiveView->GetActiveModel();
+
+    if (ActiveModel)
+        return ActiveModel->GetPieces().GetSize();
+    return 0;
+}
+
 bool Render::NativeExport(const NativeOptions *Options) {
 
     QString exportModeName = nativeExportNames[Options->ExportMode];

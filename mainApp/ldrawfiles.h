@@ -167,6 +167,7 @@ class LDrawFile {
     QMultiHash<QString, int>    _ldcadGroups;
     QStringList                 _emptyList;
     QString                     _emptyString;
+    int                         _buildModNextStepIndex;
     bool                        _mpd;
     static int                  _emptyInt;
 
@@ -307,15 +308,19 @@ class LDrawFile {
                             int           stepIndex,
                             int           modAction);
     int getBuildModStepIndex(int modelIndex, int lineNumber);
-    int getBuildModStepIndexKey(int stepIndex, bool modelIndex);
+    int getBuildModStepLineNumber(int stepIndex, bool bottom);
     int getBuildModBeginLineNumber(const QString &buildModKey);
     int getBuildModEndLineNumber(const QString &buildModKey);
     int getBuildModActionLineNumber(const QString &buildModKey);
     int getBuildModAction(const QString &buildModKey, int stepIndex);
     int getBuildModDisplayPageNumber(const QString &buildModKey);
     int setBuildModDisplayPageNumber(const QString &buildModKey, int displayPageNum);
+    int getBuildModStepPieces(const QString &buildModKey);
+    int setBuildModStepPieces(const QString &buildModKey, int pieces);
     void setBuildModStepKey(const QString &buildModKey, const QString &modStepKey);
     bool getBuildModStepIndexKeys(int stepIndex, QString &modelName, int &lineNumber);
+    bool setBuildModNextStepIndex(const QString &modelName, const int &lineNumber);
+    int getBuildModNextStepIndex();
     bool buildModContains(const QString &buildModKey);
     bool removeBuildMod(const QString &buildModKey);
     QString getBuildModStepKey(const QString &buildModKey);

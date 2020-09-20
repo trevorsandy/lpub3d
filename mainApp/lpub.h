@@ -521,7 +521,6 @@ public:
   bool            resetCache;       // reset model, fade and highlight parts
   QString         saveFileName;      // user specified output file Name [commandline only]
   QString         saveDirectoryName; // user specified output directory name [commandline only]
-  Where           buildModNextStep;  // top of last encountered Step containing a BuildMod action
 
   bool             m_previewDialog;
   ProgressDialog  *m_progressDialog; // general use progress dialogue
@@ -783,6 +782,16 @@ public:
       return ldrawFile.setBuildModDisplayPageNumber(buildModKey, displayPageNum);
   }
 
+  int setBuildModStepPieces(const QString &buildModKey, int pieces)
+  {
+      return ldrawFile.setBuildModStepPieces(buildModKey, pieces);
+  }
+
+  int getBuildModStepPieces(const QString &buildModKey)
+  {
+      return ldrawFile.getBuildModStepPieces(buildModKey);
+  }
+
   int getBuildModStepIndex(const Where &here)
   {
       return ldrawFile.getBuildModStepIndex(getSubmodelIndex(here.modelName), here.lineNumber);
@@ -793,6 +802,17 @@ public:
       ldrawFile.setBuildModStepKey(buildModKey, modStepKey);
   }
 
+  bool setBuildModNextStepIndex(const Where &here)
+  {
+      return ldrawFile.setBuildModNextStepIndex(here.modelName, here.lineNumber);
+  }
+
+  int getBuildModNextStepIndex()
+  {
+      return ldrawFile.getBuildModNextStepIndex();
+  }
+
+  // This function returns the equivalent of the ViewerStepKey
   QString getBuildModStepKey(const QString &buildModKey)
   {
       return ldrawFile.getBuildModStepKey(buildModKey);
@@ -813,9 +833,9 @@ public:
       return ldrawFile.buildModContains(buildModKey);
   }
 
-  int getBuildModStepIndexKey(int stepIndex, bool modelIndex = false/*lineNumber*/)
+  int getBuildModStepLineNumber(int stepIndex, bool bottom = true)
   {
-      return ldrawFile.getBuildModStepIndexKey(stepIndex, modelIndex);
+      return ldrawFile.getBuildModStepLineNumber(stepIndex, bottom);
   }
 
   QStringList getBuildModsList()
@@ -834,6 +854,8 @@ public:
   }
 
   void setNextStepBuildModAction(const QStringList &contents, Where step = Where());
+
+  void resetLastBuildMod(bool clearNextStep = false);
 
   /* End Build Modifications */
 
@@ -1001,15 +1023,7 @@ public slots:
   void SetActiveModel(const QString &fileName,bool newSubmodel);
   void SelectedPartLines(QVector<TypeLine> &indexes, PartSource source);
   QStringList getViewerStepKeys(bool modelName = true, bool pliPart = false, const QString &key = "");
-
-  void setViewerStepKey(const QString &stepKey, int notPliPart)
-  {
-      viewerStepKey = stepKey;
-      currentStep   = nullptr;
-      buildModRange = { 0, -1, 0 };
-      if (notPliPart)
-          setCurrentStep();
-  }
+  void setViewerStepKey(const QString &stepKey, int notPliPart);
 
   QString getViewerStepKey()
   {
@@ -1201,7 +1215,8 @@ public slots:
   void applyBuildModification();
   void removeBuildModification();
   void createBuildModification();
-  void changeBuildModification();
+  void loadBuildModification();
+  void updateBuildModification();
   void deleteBuildModification();
 
   void clearPLICache();
@@ -1893,7 +1908,8 @@ private:
   QAction *createBuildModAct;
   QAction *applyBuildModAct;
   QAction *removeBuildModAct;
-  QAction *changeBuildModAct;
+  QAction *loadBuildModAct;
+  QAction *updateBuildModAct;
   QAction *deleteBuildModAct;
   QAction *setTargetPositionAct;
   QAction *useImageSizeAct;

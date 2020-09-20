@@ -266,6 +266,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bANNOTATE\\b"
     << "\\bANNOTATION\\b"
     << "\\bANNOTATION_SHOW\\b"
+    << "\\bAPPLY\\b"
     << "\\bAPP_PLUG\\b"
     << "\\bAPP_PLUG_IMAGE\\b"
     << "\\bAREA\\b"

@@ -758,7 +758,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 			}
 		}
 		else
-			mFileLines.append(OriginalLine); 
+			mFileLines.append(OriginalLine);
 	}
 
 	mCurrentStep = CurrentStep;
@@ -1049,7 +1049,7 @@ bool lcModel::LoadLDD(const QString& FileData)
 {
 	std::vector<lcPiece*> Pieces;
 	std::vector<std::vector<lcPiece*>> Groups;
-	
+
 	if (!lcImportLXFMLFile(FileData, Pieces, Groups))
 		return false;
 
@@ -2713,7 +2713,7 @@ void lcModel::SetSelectedPieces(QVector<int> &LineTypeIndexes){
 						Modified = true;
 
 						if (Preferences::debugLogging) {
-							Message = tr("Selected Piece - %1 (ID: %2) LineTypeIndex: %3")
+							Message = tr("Selected Piece: %1 (ID: %2), LineTypeIndex: %3")
 										 .arg(Piece->GetName(), Piece->GetID(), QString::number(LineTypeIndex));
 							gui->statusMessage(LOG_DEBUG, Message);
 						}
@@ -2729,7 +2729,7 @@ void lcModel::SetSelectedPieces(QVector<int> &LineTypeIndexes){
 					Modified         = true;
 
 					if (Preferences::debugLogging) {
-						Message = tr("Unselected Piece - %1 (ID: %2)")
+						Message = tr("Unselected Piece: %1 (ID: %2)")
 									 .arg(Piece->GetName(), Piece->GetID());
 						gui->statusMessage(LOG_DEBUG, Message);
 					}

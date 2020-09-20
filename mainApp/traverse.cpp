@@ -1995,17 +1995,18 @@ int Gui::drawPage(
                           return rc;
                       }
 
-                      // Populate BuildMods viewerStepKey and displayPageNum
+                      // Populate BuildMods viewerPieces, viewerStepKey and displayPageNum
                       if (buildModKeys.size()) {
+                          int viewerPieces = renderer->getViewerPieces();
                           for (int i = 0; i < buildModKeys.size(); i++) {
-                              gui->setBuildModStepKey(buildModKeys.at(i), step->viewerStepKey);
-                              gui->setBuildModDisplayPageNumber(buildModKeys.at(i), displayPageNum);
+                              setBuildModStepKey(buildModKeys.at(i), step->viewerStepKey);
+                              setBuildModDisplayPageNumber(buildModKeys.at(i), displayPageNum);
+                              setBuildModStepPieces(buildModKeys.at(i), viewerPieces);
                           }
                       }
 
                       // Set BuildMod next step to be accessed by WriteToTmp() and finePage()
-                      buildModNextStep = opts.current;
-                      buildModKeys.clear();
+                      setBuildModNextStepIndex(opts.current);
 
                       // Set CSI annotations - single step only
                       if (! gui->exportingObjects() &&  ! multiStep && ! opts.calledOut)
@@ -2163,6 +2164,7 @@ int Gui::drawPage(
                   curMeta.LPub.buildMod.clear();
                   opts.stepNum += partsAdded;
                   topOfStep = opts.current;
+                  buildModKeys.clear();
 
                   partsAdded    = false;
                   coverPage     = false;
@@ -2269,12 +2271,10 @@ int Gui::findPage(
   Where        stepGroupCurrent;
   int          saveStepNumber = 1;
 
-  Where topOfNextStep(buildModNextStep);
-
   Rc   buildModAction        = BuildModApplyRc;
-  int  buildModNextStepIndex = getBuildModStepIndex(topOfNextStep);                 // Get BuildMod action for Next step
-  int  buildModNextStepEnd   = getBuildModStepIndexKey(buildModNextStepIndex + 1);  // Set BuildMod processing limit to bottom of Next step
-  int  modBeginLineNum       = 0;
+  int  buildModNextStepIndex = getBuildModNextStepIndex();                       // Get BuildMod action for Next step
+  int  buildModNextStepEnd   = getBuildModStepLineNumber(buildModNextStepIndex); // Set BuildMod processing limit to bottom of Next step
+  int  buildModBeginLineNum  = 0;
   bool buildModItems         = false;
   bool buildModIgnore        = false;
   QString buildModKey;
@@ -2594,11 +2594,11 @@ int Gui::findPage(
               // Get BuildMod attributes and set ignore based on 'next' step buildModAction
               case BuildModBeginRc:
                 if (opts.current.lineNumber < buildModNextStepEnd) {
-                    buildModKey        = meta.LPub.buildMod.key();
-                    opts.buildModLevel = getLevel(buildModKey, BM_BEGIN);
-                    modBeginLineNum    = opts.current.lineNumber;
-                    buildModAction     = Rc(getBuildModAction(buildModKey, buildModNextStepIndex));
-                    if (buildModAction == BuildModApplyRc){
+                    buildModKey          = meta.LPub.buildMod.key();
+                    opts.buildModLevel   = getLevel(buildModKey, BM_BEGIN);
+                    buildModBeginLineNum = opts.current.lineNumber;
+                    buildModAction       = Rc(getBuildModAction(buildModKey, buildModNextStepIndex));
+                    if (buildModAction   == BuildModApplyRc){
                         buildModIgnore = false;
                     } else if (buildModAction == BuildModRemoveRc) {
                         buildModIgnore = true;
@@ -3497,6 +3497,9 @@ void Gui::drawPage(
   ldrawFile.unrendered();
   ldrawFile.countInstances();
   Where current(ldrawFile.topLevelFile(),0);
+  Where buildModStep = current;
+  skipHeader(buildModStep);
+  setBuildModNextStepIndex(buildModStep);
   writeToTmp();
   maxPages    = 1;
   stepPageNum = 1;
@@ -3644,20 +3647,21 @@ Where &Gui::bottomOfPage()
 
 void Gui::setNextStepBuildModAction(const QStringList &contents, Where step)
 {
-    emit messageSig(LOG_INFO, QString("Check for next step BuildMod action..."));
-    Meta meta;
-    Rc   rc;
-    Rc   action = BuildModApplyRc;
+    emit messageSig(LOG_INFO, QString("Check for next step BuildMod Action..."));
+    Rc rc;
+    Rc action = BuildModApplyRc;
     QString buildModKey, metaString;
 
-    Where topOfStep;
+    int  buildModNextStepIndex = getBuildModNextStepIndex(); // Get BuildMod action for Next step
+
+    Where topOfNextStep;
     if (step == Where()) {
-        topOfStep = step = buildModNextStep;
-        step++;   // Advance past STEP meta
+        getBuildModStepIndexKeys(buildModNextStepIndex, topOfNextStep);
+        step = topOfNextStep;
+        step++;                                              // Advance past STEP meta
     } else {
-        topOfStep = step;
+        topOfNextStep = step;
     }
-    int  nextStepIndex = getBuildModStepIndex(topOfStep);
 
     // Parse the step lines
     for ( ;
@@ -3668,7 +3672,7 @@ void Gui::setNextStepBuildModAction(const QStringList &contents, Where step)
         // Check if there is a BuildMod action meta
         if (line.toLatin1()[0] == '0') {
             Where here(step.modelName,step.lineNumber);
-            rc =  meta.parse(line,here,false);
+            rc =  page.meta.parse(line,here,false);
             switch (rc) {
             case BuildModApplyRc:
             case BuildModRemoveRc:
@@ -3676,19 +3680,10 @@ void Gui::setNextStepBuildModAction(const QStringList &contents, Where step)
                 metaString  = QString("0 !LPUB BUILD_MOD %1").arg(rc == BuildModApplyRc ? "APPLY" : "REMOVE");
                 buildModKey = line.replace(metaString, "").replace("\"","").trimmed();
                 // Get the BuildMod existing ‘next step’ action
-                action = Rc(getBuildModAction(buildModKey, nextStepIndex));
+                action = Rc(getBuildModAction(buildModKey, buildModNextStepIndex));
                 // Compare existing and parsed actions and update the BuildMod action if not equal.
                 if (action != rc) {
-                    setBuildModAction(buildModKey, nextStepIndex, rc);
-#ifdef QT_DEBUG_MODE
-                    emit messageSig(LOG_DEBUG, QString("Set NextStep Action New: %1, Old: %2, NextStepIndex: %3, ModelIndex: %4, LineNumber: %5, ModelName: %6")
-                                                       .arg(rc == BuildModApplyRc ? "Apply" : "Remove")
-                                                       .arg(action == BuildModApplyRc ? "Apply" : "Remove")
-                                                       .arg(nextStepIndex)
-                                                       .arg(getSubmodelIndex(topOfStep.modelName))
-                                                       .arg(topOfStep.lineNumber)
-                                                       .arg(topOfStep.modelName));
-#endif
+                    setBuildModAction(buildModKey, buildModNextStepIndex, rc);
                     return;
                 }
                 break;
@@ -3700,7 +3695,7 @@ void Gui::setNextStepBuildModAction(const QStringList &contents, Where step)
             default:
                 break;
             }
-        } else if (line.toLatin1()[0] == '1') {
+        } /*else if (line.toLatin1()[0] == '1') {
             QStringList token;
             split(line,token);
             if (token.size() == 15) {
@@ -3713,7 +3708,7 @@ void Gui::setNextStepBuildModAction(const QStringList &contents, Where step)
                     setNextStepBuildModAction(contents, top);
                 }
             }
-        }
+        }*/
     }
 }
 
@@ -3788,7 +3783,6 @@ void Gui::writeToTmp(const QString &fileName,
       // Build Mod Vars
 
       Where topOfStep(fileName,0);
-      Where topOfNextStep(buildModNextStep);
 
       skipHeader(topOfStep);
 
@@ -3796,8 +3790,8 @@ void Gui::writeToTmp(const QString &fileName,
       int  buildModLevel         = 0;
       int  lineNumber            = topOfStep.lineNumber;
       int  fileNameIndex         = getSubmodelIndex(fileName);
-      int  buildModNextStepIndex = getBuildModStepIndex(topOfNextStep);                 // Get BuildMod action for Next step
-      int  buildModNextStepEnd   = getBuildModStepIndexKey(buildModNextStepIndex + 1);  // Set BuildMod processing limit to bottom of Next step
+      int  buildModNextStepIndex = getBuildModNextStepIndex();                        // Get BuildMod action for Next step
+      int  buildModNextStepEnd   = getBuildModStepLineNumber(buildModNextStepIndex);  // Set BuildMod processing limit to bottom of Next step
       bool noStep                = false;
       bool insertPage            = false;
       bool buildModIgnore        = false;
@@ -3825,7 +3819,7 @@ void Gui::writeToTmp(const QString &fileName,
       {
           QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildModLevel);
           if (i == buildModAttributes.end()) {
-              QVector<int> modAttributes = { 0, 0, 0, 1/*displayPageNumber placeholder*/, fileNameIndex };
+              QVector<int> modAttributes = { 0, 0, 0, 1/*placeholder*/, fileNameIndex, 0/*placeholder*/ };
               modAttributes[index] = here.lineNumber;
               buildModAttributes.insert(buildModLevel, modAttributes);
           } else {
@@ -3850,9 +3844,9 @@ void Gui::writeToTmp(const QString &fileName,
           QString modStepKey = QString("%1;%2;%3")
                                       .arg(fileNameIndex)
                                       .arg(lineNumber)
-                                      .arg(1/*stepNumber placeholder*/);
+                                      .arg(1/*placeholder*/);
 
-          QVector<int> modAttributes = { 0, 0, 0, 1/*displayPageNumber placeholder*/, fileNameIndex };
+          QVector<int> modAttributes = { 0, 0, 0, 1, -1, 0 };
           QMap<int, QVector<int>>::iterator i = buildModAttributes.find(buildModLevel);
           if (i != buildModAttributes.end())
               modAttributes = i.value();
@@ -3864,17 +3858,16 @@ void Gui::writeToTmp(const QString &fileName,
                          buildModStepIndex); 
 #ifdef QT_DEBUG_MODE
           emit messageSig(LOG_DEBUG, QString("WriteToTmp StepIndx: %1, "
-                                             "Attributes: %2 %3 %4 1* %5, "
-                                             "StepKey: %6 [ModelIndx: %5; LineNum: %7; StepNum: 1*], "
-                                             "ModKey: %8, "
-                                             "Level %9, *=placeholder")
+                                             "Attributes: %2 %3 %4 1* %5 0*, "
+                                             "StepKey: %6, "
+                                             "ModKey: %7, "
+                                             "Level: %8, *=placeholder")
                                              .arg(buildModStepIndex)
                                              .arg(modAttributes.at(BM_BEGIN_LINE_NUM))
                                              .arg(modAttributes.at(BM_ACTION_LINE_NUM))
                                              .arg(modAttributes.at(BM_END_LINE_NUM))
                                              .arg(fileNameIndex)
                                              .arg(modStepKey)
-                                             .arg(lineNumber)
                                              .arg(buildModKey)
                                              .arg(buildModLevel));
 #endif
@@ -3979,7 +3972,7 @@ void Gui::writeToTmp(const QString &fileName,
                   case RotStepRc:
                   case StepRc:
                       if (partsAdded && ! noStep && ! buildModIgnore) {
-                          if (i < buildModNextStepEnd) {
+                          if (i == buildModNextStepEnd) {
                               foreach (int buildModLevel, buildModKeys.keys())
                                   insertBuildModification(buildModLevel);
                               buildModKeys.clear();
@@ -4088,8 +4081,8 @@ void Gui::writeToTmp()
 
       content = ldrawFile.contents(fileName);
 
-      // Check if there is a BuildMod action in the next step
-      if (buildModsSize())
+      // Check for buildMod in next step if file will not be parsed otherwise
+      if (buildModsSize() && !ldrawFile.changedSinceLastWrite(fileName))
           setNextStepBuildModAction(content);
 
       if (ldrawFile.changedSinceLastWrite(fileName)) {

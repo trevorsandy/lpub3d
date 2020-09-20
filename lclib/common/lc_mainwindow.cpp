@@ -2400,7 +2400,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int EmitSelectio
 							TypeLine typeLine(gui->getSubmodelIndex(ActiveModel->GetName()),((lcPiece*)SelectedItem)->GetLineTypeIndex());
 							LineTypeIndexes.append(typeLine);
 
-							Message = tr("Selected Piece - %1 (ID: %2) LineTypeIndex: %3")
+							Message = tr("Selected Piece: %1 (ID: %2), LineTypeIndex: %3")
 										 .arg(((lcPiece*)SelectedItem)->GetName())
 										 .arg(((lcPiece*)SelectedItem)->GetID())
 										 .arg(LineTypeIndexes.last().lineIndex);
@@ -2417,7 +2417,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int EmitSelectio
 								LineTypeIndexes.append(typeLine);
 
 								if (Preferences::debugLogging) {
-									Message = tr("Selected Piece - %1 (ID: %2) LineTypeIndex: %3")
+									Message = tr("Selected Piece: %1 (ID: %2), LineTypeIndex: %3")
 												 .arg(((lcPiece*)SelectedItem)->GetName())
 												 .arg(((lcPiece*)SelectedItem)->GetID())
 												 .arg(LineTypeIndexes.last().lineIndex);

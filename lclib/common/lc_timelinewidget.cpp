@@ -44,7 +44,7 @@ void lcTimelineWidget::CustomMenuRequested(QPoint Pos)
 		if (Piece->mPieceInfo->IsModel())
 		{
 			Menu->addAction(gMainWindow->mActions[LC_PIECE_EDIT_SELECTED_SUBMODEL]);
-/*** LPub3D Mod - suppress context menu items ***/
+/*** LPub3D Mod - suppress multi-step context menu items ***/
 /***
 			Menu->addAction(gMainWindow->mActions[LC_PIECE_VIEW_SELECTED_MODEL]);
 			Menu->addAction(gMainWindow->mActions[LC_PIECE_INLINE_SELECTED_MODELS]);
@@ -53,7 +53,7 @@ void lcTimelineWidget::CustomMenuRequested(QPoint Pos)
 			Menu->addSeparator();
 		}
 	}
-/*** LPub3D Mod - suppress context menu items ***/
+/*** LPub3D Mod - suppress multi-step context menu items ***/
 /***
 	Menu->addAction(gMainWindow->mActions[LC_TIMELINE_SET_CURRENT]);
 	Menu->addAction(gMainWindow->mActions[LC_TIMELINE_INSERT_BEFORE]);
@@ -287,7 +287,7 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 		StepItem = topLevelItem(Step - 1);
 		PieceItemIndex = 0;
 	}
-	
+
 	UpdateCurrentStepItem();
 
 	blockSignals(Blocked);

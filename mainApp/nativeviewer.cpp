@@ -27,6 +27,7 @@
 #include "lpub_preferences.h"
 #include "step.h"
 #include "metagui.h"
+#include "paths.h"
 
 #include "light.h"
 #include "group.h"
@@ -64,13 +65,21 @@ void Gui::create3DActions()
     removeBuildModAct->setStatusTip(tr("Remove build modification from this step"));
     connect(removeBuildModAct, SIGNAL(triggered()), this, SLOT(removeBuildModification()));
 
-    QIcon ChangeBuildModIcon;
-    ChangeBuildModIcon.addFile(":/resources/buildmodchange.png");
-    ChangeBuildModIcon.addFile(":/resources/buildmodchange16.png");
-    changeBuildModAct = new QAction(ChangeBuildModIcon,tr("Edit Build Modification..."),this);
-    changeBuildModAct->setEnabled(false);
-    changeBuildModAct->setStatusTip(tr("Load the step containing the selected build modification"));
-    connect(changeBuildModAct, SIGNAL(triggered()), this, SLOT(changeBuildModification()));
+    QIcon LoadBuildModIcon;
+    LoadBuildModIcon.addFile(":/resources/buildmodload.png");
+    LoadBuildModIcon.addFile(":/resources/buildmodload16.png");
+    loadBuildModAct = new QAction(LoadBuildModIcon,tr("Load Build Modification..."),this);
+    loadBuildModAct->setEnabled(false);
+    loadBuildModAct->setStatusTip(tr("Load the step containing the selected build modification"));
+    connect(loadBuildModAct, SIGNAL(triggered()), this, SLOT(loadBuildModification()));
+
+    QIcon UpdateBuildModIcon;
+    UpdateBuildModIcon.addFile(":/resources/buildmodupdate.png");
+    UpdateBuildModIcon.addFile(":/resources/buildmodupdate16.png");
+    updateBuildModAct = new QAction(UpdateBuildModIcon,tr("Update Build Modification..."),this);
+    updateBuildModAct->setEnabled(false);
+    updateBuildModAct->setStatusTip(tr("Commit changes to the current build modification"));
+    connect(updateBuildModAct, SIGNAL(triggered()), this, SLOT(updateBuildModification()));
 
     QIcon DeleteBuildModIcon;
     DeleteBuildModIcon.addFile(":/resources/buildmoddelete.png");
@@ -283,7 +292,8 @@ void Gui::create3DMenus()
      buildModMenu->addAction(applyBuildModAct);
      buildModMenu->addAction(removeBuildModAct);
      buildModMenu->addSeparator();
-     buildModMenu->addAction(changeBuildModAct);
+     buildModMenu->addAction(loadBuildModAct);
+     buildModMenu->addAction(updateBuildModAct);
      buildModMenu->addAction(deleteBuildModAct);
      createBuildModAct->setMenu(buildModMenu);
 
@@ -442,7 +452,8 @@ void Gui::Enable3DActions()
     createBuildModAct->setEnabled(buildModRange.first() || enabled);
     applyBuildModAct->setEnabled(enabled);
     removeBuildModAct->setEnabled(enabled);
-    changeBuildModAct->setEnabled(enabled);
+    loadBuildModAct->setEnabled(enabled);
+    updateBuildModAct->setEnabled(enabled);
     deleteBuildModAct->setEnabled(enabled);
 
     lightGroupAct->setEnabled(true);
@@ -1109,51 +1120,93 @@ void Gui::saveCurrent3DViewerModel(const QString &modelFile)
 
 void Gui::createBuildModification()
 {
+    if (!currentStep)
+        return;
+
+    if (lcGetActiveProject()->GetImageType() == Options::Mt::PLI)
+        return;
+
     View* ActiveView = gMainWindow->GetActiveView();
     lcModel* ActiveModel = ActiveView->GetActiveModel();
 
     if (ActiveModel) {
-        if (buildModRange.first()){
-            // 'load...' default lines from modelfile and 'save...' buildMod lines from 3DViewer
+        QString BuildModKey = buildModChangeKey;
+        bool edit = ! BuildModKey.isEmpty();
+        if (buildModRange.first() || edit){
+
+            emit messageSig(LOG_INFO, QString("%1 BuildMod for Step %2...")
+                            .arg(edit ? "Updating" : "Creating")
+                            .arg(currentStep->stepNumber.number));
+
+            // 'load...' default lines from modelFile and 'save...' buildMod lines from 3DViewer
             lcArray<lcGroup*>  mGroups;
             lcArray<lcCamera*> mCameras;
             lcArray<lcLight*>  mLights;
-            lcArray<lcPiece*>  mLoadPieces;
-            lcArray<lcGroup*>  mLoadGroups;
-            lcArray<lcPiece*>  mSavePieces;
-            lcArray<lcGroup*>  mSaveGroups;
-            lcModelProperties  mSaveProperties;
+            lcArray<lcPiece*>  mLPubPieces;                     // Pieces in the buildMod - may include removed viewer pieces
+            lcArray<lcGroup*>  mLPubGroups;
+            lcArray<lcPiece*>  mViewerPieces;                   // All viewer pieces in the step
+            lcArray<lcGroup*>  mViewerGroups;
+            lcModelProperties  mViewerProperties;
             lcArray<lcPieceControlPoint> ControlPoints;
-            QStringList  mLoadFileLines, mSaveFileLines,
-                         DefaultContents, BuildModContents;
+            QStringList  mLPubFileLines, mViewerFileLines,
+                         LPubModContents, ViewerModContents;
 
-            int CurrentStep      = 1;
-            int ModActionLineNum = 0;
-            lcPiece *Piece       = nullptr;
-            lcCamera *Camera     = nullptr;
-            lcLight  *Light      = nullptr;
-            mSaveProperties      = ActiveModel->GetProperties();
-            mSaveFileLines       = ActiveModel->mFileLines;
-            mSavePieces          = ActiveModel->GetPieces();
-            lcPiecesLibrary *Library = lcGetPiecesLibrary();
-
-            bool edit             = !buildModChangeKey.isEmpty();
             bool FadeStep         = page.meta.LPub.fadeStep.fadeStep.value();
             bool HighlightStep    = page.meta.LPub.highlightStep.highlightStep.value() && !suppressColourMeta();
 
-            int ModEditBeginLine  = edit ? getBuildModBeginLineNumber(buildModChangeKey) : 0;
-            int ModEditActionLine = edit ? getBuildModActionLineNumber(buildModChangeKey) : 0;
+            int AddedPieces       = 0;
+            int CurrentStep       = 1;
+            lcPiece *Piece        = nullptr;
+            lcCamera *Camera      = nullptr;
+            lcLight  *Light       = nullptr;
+            mViewerProperties     = ActiveModel->GetProperties();
+            mViewerFileLines      = ActiveModel->mFileLines;
+            mViewerPieces         = ActiveModel->GetPieces();
+            lcPiecesLibrary *Library = lcGetPiecesLibrary();
 
-            // When edit is true, the BuildMod Range should be the lowest Begin and highest ModEnd values between the original and changed mod lines
-            int ModelIndex        = edit ? getSubmodelIndex(getBuildModModelName(buildModChangeKey)) : buildModRange.at(BM_MODEL_INDEX);
-            int ModBeginLineNum   = edit ? qMin(ModEditBeginLine, buildModRange.at(BM_BEGIN_LINE_NUM)) : buildModRange.at(BM_BEGIN_LINE_NUM);
-            int ModEndLineNum     = edit ? qMax(ModEditActionLine, buildModRange.at(BM_END_LINE_NUM)) : buildModRange.at(BM_END_LINE_NUM);
-            int ModStepIndex      = getBuildModStepIndex(currentStep ? currentStep->top : 0);
+            // When edit, initialize BuildMod StepPieces, and Begin and End range with the existing values
+            int BuildModBegin     = edit ? getBuildModBeginLineNumber(BuildModKey)  : 0;
+            int BuildModAction    = edit ? getBuildModActionLineNumber(BuildModKey) : 0;
+            int BuildModEnd       = edit ? getBuildModEndLineNumber(BuildModKey)    : 0;
+
+            int ModBeginLineNum   = edit ? BuildModBegin  : buildModRange.at(BM_BEGIN_LINE_NUM);
+            int ModActionLineNum  = edit ? BuildModAction : buildModRange.at(BM_ACTION_LINE_NUM);
+            int ModEndLineNum     = edit ? BuildModEnd    : buildModRange.at(BM_BEGIN_LINE_NUM);
+            int ModStepPieces     = edit ? getBuildModStepPieces(BuildModKey) : 0;    // All pieces in the previous step
+            int ModelIndex        = edit ? getSubmodelIndex(getBuildModModelName(BuildModKey)) : buildModRange.at(BM_MODEL_INDEX);
+            int ModStepIndex      = getBuildModStepIndex(currentStep->top);
             int ModDisplayPageNum = displayPageNum;
             buildModChangeKey     = QString();
 
             QString ModelName     = getSubmodelName(ModelIndex);
-            QString ModStepKey    = currentStep ? viewerStepKey : QString();
+            QString ModStepKey    = viewerStepKey;
+
+            // Check if there is an existing build mod in this Step
+            QRegExp lineRx("^0 !LPUB BUILD_MOD BEGIN ");
+            if (stepContains(currentStep->top, lineRx) && !edit) {
+
+                // Get the application icon as a pixmap
+                QPixmap _icon = QPixmap(":/icons/lpub96.png");
+                if (_icon.isNull())
+                    _icon = QPixmap (":/icons/update.png");
+
+                QMessageBox box;
+                box.setWindowIcon(QIcon());
+                box.setIconPixmap (_icon);
+                box.setTextFormat (Qt::RichText);
+                box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+                QString title = "<b>" + QMessageBox::tr ("You specified create action for an existing Build Modification") + "</b>";
+                QString text = QMessageBox::tr("<br>This action will replace the existing Build Modification."
+                                               "<br>You can cancel and select 'Update Build Modification...' from the build modification submenu."
+                                               "<br>Do you want to continue with this create action ?");
+                box.setText (title);
+                box.setInformativeText (text);
+                box.setStandardButtons (QMessageBox::Cancel | QMessageBox::Ok);
+                box.setDefaultButton   (QMessageBox::Cancel);
+
+                if (box.exec() == QMessageBox::Cancel)
+                    return;
+            }
 
             auto GetGroup = [&mGroups](const QString& Name, bool CreateIfMissing)
             {
@@ -1174,7 +1227,7 @@ void Gui::createBuildModification()
                 return nullGroup;
             };
 
-            auto ConfigurePartLine = [&ModelIndex, &FadeStep, &HighlightStep, &DefaultContents] (int LineTypeIndex, QTextStream &Stream)
+            auto ConfigurePartLine = [&ModelIndex, &FadeStep, &HighlightStep, &LPubModContents] (int LineTypeIndex, QTextStream &Stream)
             {
                 if (!FadeStep && !HighlightStep)
                     return;
@@ -1201,16 +1254,16 @@ void Gui::createBuildModification()
                         // Colour code
                         if (argv[1].startsWith(ColourPrefix)) {
                             int LineNumber;
-                            QString DefaultPartLine, NewColorCode;
+                            QString LPubPartLine, NewColorCode;
                             bool NewLine = !gui->getSelectedLine(ModelIndex, LineTypeIndex, VIEWER_MOD, LineNumber);
 
                             if (NewLine) {
                                 NewColorCode = argv[1];
 
                             } else {
-                                DefaultPartLine = DefaultContents.at(LineTypeIndex);
+                                LPubPartLine = LPubModContents.at(LineTypeIndex);
                                 QStringList dargv;
-                                split(DefaultPartLine, dargv);
+                                split(LPubPartLine, dargv);
 
                                 if (dargv.size() == 15 && dargv[0] == "1") {
                                     NewColorCode = dargv[1];
@@ -1246,7 +1299,7 @@ void Gui::createBuildModification()
                 }
             };
 
-            auto InsertPiece = [] (lcArray<lcPiece*> &mLoadPieces, lcPiece* Piece, int PieceIdx)
+            auto InsertPiece = [] (lcArray<lcPiece*> &mLPubPieces, lcPiece* Piece, int PieceIdx)
             {
                 PieceInfo* Info = Piece->mPieceInfo;
 
@@ -1258,32 +1311,31 @@ void Gui::createBuildModification()
                         lcGetPiecesLibrary()->mBuffersDirty = true;
                 }
 
-                mLoadPieces.InsertAt(PieceIdx, Piece);
+                mLPubPieces.InsertAt(PieceIdx, Piece);
             };
 
-            auto AddPiece = [&InsertPiece](lcArray<lcPiece*> &mLoadPieces, lcPiece* Piece)
+            auto AddPiece = [&InsertPiece](lcArray<lcPiece*> &mLPubPieces, lcPiece* Piece)
             {
-                for (int PieceIdx = 0; PieceIdx < mLoadPieces.GetSize(); PieceIdx++)
+                for (int PieceIdx = 0; PieceIdx < mLPubPieces.GetSize(); PieceIdx++)
                 {
-                    if (mLoadPieces[PieceIdx]->GetStepShow() > Piece->GetStepShow())
+                    if (mLPubPieces[PieceIdx]->GetStepShow() > Piece->GetStepShow())
                     {
-                        InsertPiece(mLoadPieces, Piece, PieceIdx);
+                        InsertPiece(mLPubPieces, Piece, PieceIdx);
                         return;
                     }
                 }
 
-                InsertPiece(mLoadPieces, Piece, mLoadPieces.GetSize());
+                InsertPiece(mLPubPieces, Piece, mLPubPieces.GetSize());
             };
 
-            // capture default content for ldrawFile.buildMod and ByteArray
+            // load LPub content
             QByteArray ByteArray;
             for (int i = 0; i < ldrawFile.contents(ModelName).size(); i++){
-                if (i > ModEndLineNum)
+                if (i > ModActionLineNum)
                     break;
                 QString ModLine = ldrawFile.contents(ModelName).at(i);
-                if (i >= ModBeginLineNum) {
-                    DefaultContents.append(ModLine);
-                }
+                if (i >= ModBeginLineNum)
+                    LPubModContents.append(ModLine);
                 ByteArray.append(ModLine);
                 ByteArray.append(QString("\n"));
             }
@@ -1291,7 +1343,7 @@ void Gui::createBuildModification()
             Buffer.open(QIODevice::ReadOnly);
             Buffer.seek(0);
 
-            // load mLoadFileLines, mLoadGroups and mLoadPieces, Camera, Lights and LSynth Control Points with LDraw content using QBA buffer
+            // load mLPubFileLines, mLPubGroups and mLPubPieces, Camera, Lights and LSynth Control Points with LDraw content using QBA buffer
             while (!Buffer.atEnd())
             {
                 qint64 Pos = Buffer.pos();
@@ -1309,7 +1361,7 @@ void Gui::createBuildModification()
                     {
                         QString Name = LineStream.readAll().trimmed();
 
-                        if (mSaveProperties.mName != Name)
+                        if (mViewerProperties.mName != Name)
                         {
                             Buffer.seek(Pos);
                             break;
@@ -1324,13 +1376,13 @@ void Gui::createBuildModification()
                     else if (Token == QLatin1String("STEP"))
                     {
                         CurrentStep++;
-                        mLoadFileLines.append(OriginalLine);
+                        mLPubFileLines.append(OriginalLine);
                         continue;
                     }
 
                     if (Token != QLatin1String("!LPUB"))
                     {
-                        mLoadFileLines.append(OriginalLine);
+                        mLPubFileLines.append(OriginalLine);
                         continue;
                     }
 
@@ -1338,7 +1390,7 @@ void Gui::createBuildModification()
 
                     if (Token == QLatin1String("MODEL"))
                     {
-                        mSaveProperties.ParseLDrawLine(LineStream);
+                        mViewerProperties.ParseLDrawLine(LineStream);
                     }
                     else if (Token == QLatin1String("PIECE"))
                     {
@@ -1379,16 +1431,16 @@ void Gui::createBuildModification()
                         {
                             QString Name = LineStream.readAll().trimmed();
                             lcGroup* Group = GetGroup(Name, true);
-                            if (!mLoadGroups.IsEmpty())
-                                Group->mGroup = mLoadGroups[mLoadGroups.GetSize() - 1];
+                            if (!mLPubGroups.IsEmpty())
+                                Group->mGroup = mLPubGroups[mLPubGroups.GetSize() - 1];
                             else
                                 Group->mGroup = nullptr;
-                            mLoadGroups.Add(Group);
+                            mLPubGroups.Add(Group);
                         }
                         else if (Token == QLatin1String("END"))
                         {
-                            if (!mLoadGroups.IsEmpty())
-                                mLoadGroups.RemoveIndex(mLoadGroups.GetSize() - 1);
+                            if (!mLPubGroups.IsEmpty())
+                                mLPubGroups.RemoveIndex(mLPubGroups.GetSize() - 1);
                         }
                     }
                     else if (Token == QLatin1String("SYNTH"))
@@ -1436,15 +1488,15 @@ void Gui::createBuildModification()
 
                     if (Library->IsPrimitive(CleanId.constData()))
                     {
-                        mLoadFileLines.append(OriginalLine);
+                        mLPubFileLines.append(OriginalLine);
                     }
                     else
                     {
                         if (!Piece)
                             Piece = new lcPiece(nullptr);
 
-                        if (!mLoadGroups.IsEmpty())
-                            Piece->SetGroup(mLoadGroups[mLoadGroups.GetSize() - 1]);
+                        if (!mLPubGroups.IsEmpty())
+                            Piece->SetGroup(mLPubGroups[mLPubGroups.GetSize() - 1]);
 
                         PieceInfo* Info = Library->FindPiece(PartId.toLatin1().constData(), lcGetActiveProject(), true, true);
 
@@ -1452,18 +1504,18 @@ void Gui::createBuildModification()
                         lcMatrix44 Transform(lcVector4(Matrix[0], Matrix[2], -Matrix[1], 0.0f), lcVector4(Matrix[8], Matrix[10], -Matrix[9], 0.0f),
                                 lcVector4(-Matrix[4], -Matrix[6], Matrix[5], 0.0f), lcVector4(Matrix[12], Matrix[14], -Matrix[13], 1.0f));
 
-                        Piece->SetFileLine(mLoadFileLines.size());
+                        Piece->SetFileLine(mLPubFileLines.size());
                         Piece->SetPieceInfo(Info, PartId, false);
                         Piece->Initialize(Transform, quint32(CurrentStep));
                         Piece->SetColorCode(quint32(ColorCode));
                         Piece->SetControlPoints(ControlPoints);
-                        AddPiece(mLoadPieces, Piece);
+                        AddPiece(mLPubPieces, Piece);
 
                         Piece = nullptr;
                     }
                 }
                 else
-                    mLoadFileLines.append(OriginalLine);
+                    mLPubFileLines.append(OriginalLine);
 
                 Library->WaitForLoadQueue();
                 Library->mBuffersDirty = true;
@@ -1475,37 +1527,89 @@ void Gui::createBuildModification()
 
             Buffer.close();
 
-            // Save 3DViewer content to buildModContent
-            bool SelectedOnly = false;
+            // load Viewer content from mViewerFileLines, mViewerGroups and mViewerPieces, Camera, Lights and LSynth Control Points
+            bool NewPiece      = false;
+            bool SelectedOnly  = false;
+            bool PieceInserted = false;
+            bool PieceModified = true;
             QLatin1String LineEnding("\r\n");
 
-            QString ModString;
-            QTextStream Stream(&ModString, QIODevice::ReadWrite);
+            QString ViewerModContentsString;
+            QTextStream Stream(&ViewerModContentsString, QIODevice::ReadWrite);
 
-            lcStep Step        = 1;
-            int CurrentLine    = ModBeginLineNum/*0*/;
-            int AddedSteps     = 0;
+            lcStep Step       = 1;
+            int CurrentLine   = ModBeginLineNum/*0*/;
+            int AddedSteps    = 0;
 
-            int LineIndex      = -1;
-            int LineNumber     = 0;
-            int SaveLineNumber = 0;
-            bool NewLine       = false;
+            int LineIndex     = NEW_PART;
+            int LineNumber    = 0;
+            int EndModLineNum = ModActionLineNum;
 
-            for (lcPiece* Piece : mSavePieces)
+            // Do we have a difference between the number of LPub pieces and Viewer pieces ?
+            // If pieces have been added or removed, we capture the delta in PieceAdjustment
+            // and AddedPieces.
+            int PieceAdjustment = AddedPieces = edit ? mViewerPieces.GetSize() - ModStepPieces : 0;
+
+            // Adjust EndModLineNum to accomodate removed pieces
+            if (PieceAdjustment < 0)
+                EndModLineNum -= PieceAdjustment;
+
+#ifdef QT_DEBUG_MODE
+            emit messageSig(LOG_DEBUG, QString("%1Pieces [%2], Viewer Pieces Count [%3], LPub Pieces Count [%4]")
+                                                .arg(PieceAdjustment == 0 ? "" : PieceAdjustment > 0 ? "Added " : "Removed ")
+                                                .arg(PieceAdjustment  < 0 ? -PieceAdjustment : PieceAdjustment)
+                                                .arg(mViewerPieces.GetSize()).arg(ModStepPieces));
+#endif
+
+            for (lcPiece* Piece : mViewerPieces)
             {
-                SaveLineNumber = LineNumber;
-                LineIndex      = Piece->GetLineTypeIndex();
-                NewLine        = !getSelectedLine(ModelIndex, LineIndex, VIEWER_MOD, LineNumber);
-                Q_UNUSED(NewLine);
+                LineIndex  = Piece->GetLineTypeIndex();
 
-                if (LineNumber > ModEndLineNum)
+                // We have a new piece (NewPiece set to true) when the piece LineIndex is -1
+                NewPiece   = !getSelectedLine(ModelIndex, LineIndex, VIEWER_MOD, LineNumber);
+
+                // If PieceInserted, we must increment the 'original' line number for the next piece
+                // and set PieceInserted to false.
+                if (PieceInserted) {
+                    LineNumber   += PieceInserted;
+                    PieceInserted = false;
+                }
+
+                // Added pieces have a line number of 0 so we must reset the LineNumber to EndModLineNum
+                // and set PieceInserted to true so we can increment the line number for the next piece.
+                // For each NewPiece, we'll decrement PieceAdjustment.
+                if ((PieceInserted = NewPiece)) {
+                    PieceAdjustment--;
+                    LineNumber = EndModLineNum;
+                }
+
+                // Set PieceModified. Only modified pieces are added to ViewerModContents
+                PieceModified = LineNumber <= ModActionLineNum || NewPiece;
+
+#ifdef QT_DEBUG_MODE
+                emit messageSig(LOG_DEBUG, QString("Viewer Piece LineIndex [%1], ID [%2], Name [%3], LineNumber [%4], Modified: [%5]")
+                                                   .arg(LineIndex < 0 ? "Added Piece #"+QString::number(AddedPieces) : QString::number(LineIndex))
+                                                   .arg(Piece->GetID())
+                                                   .arg(Piece->GetName())
+                                                   .arg(LineNumber)
+                                                   .arg(PieceModified ? "Yes" : "No"));
+#endif
+
+                // If PieceAdjustment is not 0, we increment EndModLineNum as we process each piece
+                if (PieceAdjustment > 0)
+                     EndModLineNum = LineNumber + 1;
+
+                // No more modified pieces so we exit the loop
+                if (LineNumber > EndModLineNum)
                     break;
 
-                if (LineNumber >= ModBeginLineNum) {
+                // Process the current piece
+                if (LineNumber >= ModBeginLineNum && PieceModified) {
 
-                    while (LineNumber/*Piece->GetFileLine()*/ > CurrentLine && CurrentLine < mLoadFileLines.size()/*mSaveFileLines.size()*/)
+                    // Use LPubFileLines
+                    while (LineNumber/*Piece->GetFileLine()*/ > CurrentLine && CurrentLine < mLPubFileLines.size()/*mViewerFileLines.size()*/)
                     {
-                        QString Line = mLoadFileLines[CurrentLine]/*mSaveFileLines[CurrentLine]*/;
+                        QString Line = mLPubFileLines[CurrentLine]/*mViewerFileLines[CurrentLine]*/;
                         QTextStream LineStream(&Line, QIODevice::ReadOnly);
 
                         QString Token;
@@ -1527,13 +1631,14 @@ void Gui::createBuildModification()
 
                         if (!Skip)
                         {
-                            Stream << mLoadFileLines[CurrentLine]/*mSaveFileLines[CurrentLine]*/;
+                            Stream << mLPubFileLines[CurrentLine]/*mViewerFileLines[CurrentLine]*/;
                             if (AddedSteps > 0)
                                 AddedSteps--;
                         }
                         CurrentLine++;
                     }
 
+                    // Use Viewer Pieces
                     while (Piece->GetStepShow() > Step)
                     {
                         Stream << QLatin1String("0 STEP\r\n");
@@ -1545,7 +1650,7 @@ void Gui::createBuildModification()
 
                     if (PieceGroup)
                     {
-                        if (mSaveGroups.IsEmpty() || (!mSaveGroups.IsEmpty() && PieceGroup != mSaveGroups[mSaveGroups.GetSize() - 1]))
+                        if (mViewerGroups.IsEmpty() || (!mViewerGroups.IsEmpty() && PieceGroup != mViewerGroups[mViewerGroups.GetSize() - 1]))
                         {
                             lcArray<lcGroup*> PieceParents;
 
@@ -1554,14 +1659,14 @@ void Gui::createBuildModification()
 
                             int FoundParent = -1;
 
-                            while (!mSaveGroups.IsEmpty())
+                            while (!mViewerGroups.IsEmpty())
                             {
-                                lcGroup* Group = mSaveGroups[mSaveGroups.GetSize() - 1];
+                                lcGroup* Group = mViewerGroups[mViewerGroups.GetSize() - 1];
                                 int Index = PieceParents.FindIndex(Group);
 
                                 if (Index == -1)
                                 {
-                                    mSaveGroups.RemoveIndex(mSaveGroups.GetSize() - 1);
+                                    mViewerGroups.RemoveIndex(mViewerGroups.GetSize() - 1);
                                     Stream << QLatin1String("0 !LPUB GROUP END\r\n");
                                 }
                                 else
@@ -1574,16 +1679,16 @@ void Gui::createBuildModification()
                             for (int ParentIdx = FoundParent + 1; ParentIdx < PieceParents.GetSize(); ParentIdx++)
                             {
                                 lcGroup* Group = PieceParents[ParentIdx];
-                                mSaveGroups.Add(Group);
+                                mViewerGroups.Add(Group);
                                 Stream << QLatin1String("0 !LPUB GROUP BEGIN ") << Group->mName << LineEnding;
                             }
                         }
                     }
                     else
                     {
-                        while (mSaveGroups.GetSize())
+                        while (mViewerGroups.GetSize())
                         {
-                            mSaveGroups.RemoveIndex(mSaveGroups.GetSize() - 1);
+                            mViewerGroups.RemoveIndex(mViewerGroups.GetSize() - 1);
                             Stream << QLatin1String("0 !LPUB GROUP END\r\n");
                         }
                     }
@@ -1618,9 +1723,9 @@ void Gui::createBuildModification()
                 }
             }
 
-            while (CurrentLine < mLoadFileLines.size()/*mSaveFileLines.size()*/)
+            while (CurrentLine < mLPubFileLines.size()/*mViewerFileLines.size()*/)
             {
-                QString Line = mLoadFileLines[CurrentLine]/*mSaveFileLines[CurrentLine]*/;
+                QString Line = mLPubFileLines[CurrentLine]/*mViewerFileLines[CurrentLine]*/;
                 QTextStream LineStream(&Line, QIODevice::ReadOnly);
 
                 QString Token;
@@ -1636,13 +1741,13 @@ void Gui::createBuildModification()
                 }
 
                 if (!Skip)
-                    Stream << mLoadFileLines[CurrentLine]/*mSaveFileLines[CurrentLine]*/;
+                    Stream << mLPubFileLines[CurrentLine]/*mViewerFileLines[CurrentLine]*/;
                 CurrentLine++;
             }
 
-            while (mSaveGroups.GetSize())
+            while (mViewerGroups.GetSize())
             {
-                mSaveGroups.RemoveIndex(mSaveGroups.GetSize() - 1);
+                mViewerGroups.RemoveIndex(mViewerGroups.GetSize() - 1);
                 Stream << QLatin1String("0 !LPUB GROUP END\r\n");
             }
 
@@ -1654,84 +1759,124 @@ void Gui::createBuildModification()
                 if (!SelectedOnly || Light->IsSelected())
                     Light->SaveLDraw(Stream);
 
-            BuildModContents = QString(ModString).split(QRegExp("(\\r\\n)|\\r|\\n"), QString::SkipEmptyParts);
+            ViewerModContents = QString(ViewerModContentsString).split(QRegExp("(\\r\\n)|\\r|\\n"), QString::SkipEmptyParts);
 
-            QString BuildModKey = QString("%1 Mod %2").arg(ModelName).arg(buildModsSize() + 1);
+            int BuildModPieces = ViewerModContents.size();
 
-            ModActionLineNum  = ModBeginLineNum + BuildModContents.size() + 1;
+            if (!edit)
+                BuildModKey = QString("%1 Mod %2").arg(ModelName).arg(buildModsSize() + 1);
+
+            // Delete meta commands uses the 'original' BuildMod values
+            int SaveModBeginLineNum  = edit ? BuildModBegin  : ModBeginLineNum;
+            int SaveModActionLineNum = edit ? BuildModAction : ModActionLineNum;
+            int SaveModEndLineNum    = edit ? BuildModEnd    : ModEndLineNum;
+
+#ifdef QT_DEBUG_MODE
+            emit messageSig(LOG_DEBUG, QString("%1 BuildMod Save LineNumbers "
+                                               "Begin: %2, Action: %3, End: %4")
+                                               .arg(edit ? "Update" : "Create")
+                                               .arg(SaveModBeginLineNum)
+                                               .arg(SaveModActionLineNum)
+                                               .arg(SaveModEndLineNum));
+#endif
+
+            // BuildMod meta command lines are written in a bottom up manner
+
+            // Set ModBeginLineNum to the top of the step plus the number of BuildMod lines
+            // This is the position for BUILD_MOD END
+            ModBeginLineNum += (BuildModPieces - (AddedPieces > 0 ? AddedPieces : 0));
+
+            // Set ModActionLineNum to SaveModBeginLineNum - initial BuildMod insertion line
+            // This is the position of BUILD_MOD MOD_END
+            ModActionLineNum = SaveModBeginLineNum;
 
             BuildModData buildModData;
 
-            Where modHere,endMod;
+            Where modHere;
 
-            if (currentStep && BuildModContents.size()) {
+            if (BuildModPieces) {
 
                 buildModData = currentStep->buildMod.value();
-                int it = lcGetActiveProject()->GetImageType();
 
-                switch(it) {
-                case Options::Mt::CSI:
-                case Options::Mt::SMP:
-                {
-                    QString metaString;
-                    buildModData.buildModKey = QString();
+                QString metaString;
+                buildModData.buildModKey = QString();
 
-                    beginMacro("CreateBuildModContent");
+                QString assemDirName = QDir::currentPath() +  QDir::separator() + Paths::assemDir;
+                QFileInfo imageInfo(currentStep->pngName);
+                QFile imageFile(assemDirName + QDir::separator() + imageInfo.fileName());
 
-                    // delete existing BUILD_MOD commands from bottom up, starting at END_MOD
-                    int beginLineNum  = edit ? ModEditBeginLine : ModBeginLineNum;
-                    int actionLineNum = edit ? ModEditActionLine : ModActionLineNum;
-                    endMod = Where(ModelName, actionLineNum);
-                    QString modLine = readLine(endMod);
-                    Rc rc = page.meta.parse(modLine, endMod);
-                    if (rc == BuildModEndModRc)
-                        for (Where walk = endMod - 1; walk >= beginLineNum; --walk)
-                            deleteLine(walk);
+                beginMacro("CreateBuildModContent");
 
-                    // write end meta command below default content last line (append line)
-                    modHere = Where(ModelName, ModEndLineNum);
-                    buildModData.action      = QString("END");
-                    currentStep->buildMod.setValue(buildModData);
-                    metaString = currentStep->buildMod.format(false/*local*/,false/*global*/);
-                    appendLine(modHere, metaString, nullptr);
+                // Delete old BUILD_MOD END meta command
+                Where endMod = Where(ModelName, SaveModEndLineNum);
+                QString modLine = readLine(endMod);
+                Rc rc = page.meta.parse(modLine, endMod);
+                if (rc == BuildModEndRc)
+                    deleteLine(endMod);
 
-                    // write action meta command above default content first line - last to first
-                    modHere = Where(ModelName, ModBeginLineNum);
-                    buildModData.action      = QString("END_MOD");
-                    currentStep->buildMod.setValue(buildModData);
-                    metaString = currentStep->buildMod.format(false,false);
+                // Delete old BUILD_MOD content from bottom up including END_MOD meta command
+                endMod = Where(ModelName, SaveModActionLineNum);
+                modLine = readLine(endMod);
+                rc = page.meta.parse(modLine, endMod);
+                if (rc == BuildModEndModRc)
+                    for (modHere = endMod; modHere >= SaveModBeginLineNum; --modHere)
+                        deleteLine(modHere);
+
+                // Write BUILD_MOD END meta command at the BuildMod insert position
+                modHere = Where(ModelName, ModBeginLineNum);
+                buildModData.action      = QString("END");
+                currentStep->buildMod.setValue(buildModData);
+                metaString = currentStep->buildMod.format(false/*local*/,false/*global*/);
+                insertLine(modHere, metaString, nullptr);
+
+                // Write BUILD_MOD END_MOD meta command above LPub content first line - last to first
+                modHere = Where(ModelName, ModActionLineNum);
+                buildModData.action      = QString("END_MOD");
+                currentStep->buildMod.setValue(buildModData);
+                metaString = currentStep->buildMod.format(false,false);
+                insertLine(modHere, metaString, nullptr);
+
+                // Write buildMod content last to first
+                for (int i = BuildModPieces - 1; i >= 0; --i) {
+                    metaString = ViewerModContents.at(i);
                     insertLine(modHere, metaString, nullptr);
-
-                    // write buildMod content last to first
-                    for (int i = BuildModContents.size() - 1; i >= 0; --i) {
-                        metaString = BuildModContents.at(i);
-                        insertLine(modHere, metaString, nullptr);
-                    }
-
-                    // write begin meta command above buildMod content first line
-                    buildModData.action      = QString("BEGIN");
-                    buildModData.buildModKey = BuildModKey;
-                    currentStep->buildMod.setValue(buildModData);
-                    metaString = currentStep->buildMod.format(false,false);
-                    insertLine(modHere, metaString, nullptr);
-
-                    endMacro();
                 }
-                    break;
-                default: /*Options::Mt::PLI:*/
-                    break;
-                }
+
+                // Write BUILD_MOD BEGIN meta command above buildMod content first line
+                buildModData.action      = QString("BEGIN");
+                buildModData.buildModKey = BuildModKey;
+                currentStep->buildMod.setValue(buildModData);
+                metaString = currentStep->buildMod.format(false,false);
+                insertLine(modHere, metaString, nullptr);
+
+                if (!imageFile.remove())
+                    emit messageSig(LOG_INFO_STATUS, QString("Unable to remove %1")
+                                    .arg(assemDirName +  QDir::separator() + imageFile.fileName()));
+
+                endMacro();
             }
 
-            // Switch ModEndLineNum to line number for BUILD_MOD END command
-            ModEndLineNum = ModActionLineNum + DefaultContents.size() + 1;
+            // BuildMod attribute values are calculated in a top down manner
+
+            // Reset to BUILD_MOD BEGIN
+            ModBeginLineNum = SaveModBeginLineNum;
+
+            // Reset to BUILD_MOD END_MOD command line number - add 1 for meta command
+            ModActionLineNum = ModBeginLineNum + BuildModPieces + 1;
+
+            // Set to BUILD_MOD END command line number - add 1 for meta command
+            ModEndLineNum = ModActionLineNum + (BuildModPieces - (AddedPieces > 0 ? AddedPieces : 0)) + 1;
+
+            // Set to updated number of pieces in the current Step
+            ModStepPieces = mViewerPieces.GetSize();
 
             QVector<int> ModAttributes = { ModBeginLineNum,   // BM_BEGIN_LINE_NUM
                                            ModActionLineNum,  // BM_ACTION_LINE_NUM
                                            ModEndLineNum,     // BM_END_LINE_NUM
                                            ModDisplayPageNum, // BM_DISPLAY_PAGE_NUM
-                                           ModelIndex };      // BM_MODEL_NAME_INDEX
-
+                                           ModelIndex,        // BM_MODEL_NAME_INDEX
+                                           ModStepPieces      // BM_STEP_PIECES
+                                         };
 
             insertBuildMod(BuildModKey,
                            ModStepKey,
@@ -1739,9 +1884,26 @@ void Gui::createBuildModification()
                            BuildModApplyRc,
                            ModStepIndex);                     // Unique ID
 
+#ifdef QT_DEBUG_MODE
+          emit messageSig(LOG_DEBUG, QString("%1 BuildMod StepIndx: %2, "
+                                             "Attributes: %3 %4 %5 %6 %7 %8, "
+                                             "StepKey: %9, "
+                                             "ModKey: %10")
+                                             .arg(edit ? "Update" : "Create")     // 01
+                                             .arg(ModStepIndex)                   // 02
+                                             .arg(ModBeginLineNum)                // 03
+                                             .arg(ModActionLineNum)               // 04
+                                             .arg(ModEndLineNum)                  // 05
+                                             .arg(ModDisplayPageNum)              // 06
+                                             .arg(ModelIndex)                     // 07
+                                             .arg(ModStepPieces)                  // 08
+                                             .arg(ModStepKey)                     // 09
+                                             .arg(BuildModKey));                  // 10
+#endif
+
             // Reset the build mod range
-            buildModRange = { 0, -1, 0 };
-        }
+            buildModRange = { 0/*BM_BEGIN_LINE_NUM*/, 0/*BM_ACTION_LINE_NUM*/, -1/*BM_MODEL_INDEX*/ };
+        } // buildModRange || edit
     }
 }
 
@@ -1755,6 +1917,9 @@ void Gui::applyBuildModification()
     if (!buildModKeys.size())
         return;
 
+    if (getBuildModStepKey(buildModKeys.first()) == viewerStepKey)
+        return;
+
     int it = lcGetActiveProject()->GetImageType();
     switch(it) {
     case Options::Mt::CSI:
@@ -1764,9 +1929,9 @@ void Gui::applyBuildModification()
         bool newCommand = false;
         Where top = currentStep->topOfStep();
         BuildModData buildModData = currentStep->buildMod.value();
-        int stepNumber = currentStep->stepNumber.number;
 
-        setBuildModAction(buildModKeys.first(), stepNumber, BuildModApplyRc);
+        int stepIndex = getBuildModStepIndex(currentStep->top);
+        setBuildModAction(buildModKeys.first(), stepIndex, BuildModApplyRc);
 
         beginMacro("ApplyBuildModContent");
 
@@ -1795,6 +1960,9 @@ void Gui::removeBuildModification()
     if (!buildModKeys.size())
         return;
 
+    if (getBuildModStepKey(buildModKeys.first()) == viewerStepKey)
+        return;
+
     int it = lcGetActiveProject()->GetImageType();
     switch(it) {
     case Options::Mt::CSI:
@@ -1804,9 +1972,9 @@ void Gui::removeBuildModification()
         bool newCommand = false;
         Where top = currentStep->topOfStep();
         BuildModData buildModData = currentStep->buildMod.value();
-        int stepNumber = currentStep->stepNumber.number;
 
-        setBuildModAction(buildModKeys.first(), stepNumber, BuildModRemoveRc);
+        int stepIndex = getBuildModStepIndex(currentStep->top);
+        setBuildModAction(buildModKeys.first(), stepIndex, BuildModRemoveRc);
 
         beginMacro("RemoveBuildModContent");
 
@@ -1827,11 +1995,12 @@ void Gui::removeBuildModification()
     bool enabled = buildModsSize();
     applyBuildModAct->setEnabled(enabled);
     removeBuildModAct->setEnabled(enabled);
-    changeBuildModAct->setEnabled(enabled);
+    loadBuildModAct->setEnabled(enabled);
+    updateBuildModAct->setEnabled(enabled);
     deleteBuildModAct->setEnabled(enabled);
 }
 
-void Gui::changeBuildModification()
+void Gui::loadBuildModification()
 {
     QStringList buildModKeys;
     BuildModDialogGui *buildModDialogGui =
@@ -1875,6 +2044,51 @@ void Gui::changeBuildModification()
         break;
     default: /*Options::Mt::PLI:*/
         break;
+    }
+}
+
+void Gui::updateBuildModification()
+{
+    if (buildModChangeKey.isEmpty()) {
+        int it = lcGetActiveProject()->GetImageType();
+        switch(it) {
+        case Options::Mt::CSI:
+        case Options::Mt::SMP:
+        {
+            Rc   rc;
+            Meta meta;
+            Where step = currentStep->top;
+            step++;   // Advance past STEP meta
+
+            // Parse the step lines
+            for ( ;
+                  step.lineNumber < subFileSize(step.modelName);
+                  step.lineNumber++) {
+                QString line = readLine(step);
+                Where here(step.modelName,step.lineNumber);
+                rc =  meta.parse(line,here,false);
+
+                switch (rc) {
+                case BuildModBeginRc:
+                    buildModChangeKey = meta.LPub.buildMod.key();
+                    createBuildModification();
+                    return;
+
+                // Search until next step/rotstep meta
+                case RotStepRc:
+                case StepRc:
+                    return;
+                default:
+                    break;
+                }
+            }
+        }
+            break;
+        default: /*Options::Mt::PLI:*/
+            break;
+        }
+    } else {
+        createBuildModification();
     }
 }
 
@@ -1962,8 +2176,24 @@ void Gui::deleteBuildModification()
     bool enabled = buildModsSize();
     applyBuildModAct->setEnabled(enabled);
     removeBuildModAct->setEnabled(enabled);
-    changeBuildModAct->setEnabled(enabled);
+    loadBuildModAct->setEnabled(enabled);
+    updateBuildModAct->setEnabled(enabled);
     deleteBuildModAct->setEnabled(enabled);
+}
+
+/*********************************************
+ *
+ * set viewer step key
+ *
+ ********************************************/
+
+void Gui::setViewerStepKey(const QString &stepKey, int notPliPart)
+{
+    viewerStepKey = stepKey;
+    currentStep   = nullptr;
+    buildModRange = { 0, 0, -1 };
+    if (notPliPart)
+        setCurrentStep();
 }
 
 /*********************************************
@@ -2169,19 +2399,25 @@ bool Gui::setCurrentStep(const QString &key)
 bool Gui::getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNumber) {
 
     lineNumber        = 0;
-    bool currentModel = modelIndex == -1;
+    bool currentModel = modelIndex == QString(viewerStepKey[0]).toInt();
+    bool newLine      = lineIndex == NEW_PART;
     bool fromViewer   = source > EDITOR_LINE;
 
-    if (currentModel) {
+    if (newLine) {
+        emit messageSig(LOG_TRACE, QString("New viewer part modelName [%1]")
+                                           .arg(getSubmodelName(modelIndex)));
+        return false;
+
+    } else if (currentModel) {
 
         if (!currentStep)
             return false;
 
         if (Preferences::debugLogging) {
-            emit messageSig(LOG_TRACE, QString("Step lineIndex size: %1 item(s)")
+            emit messageSig(LOG_TRACE, QString("LPub Step lineIndex size: %1 item(s)")
                                                 .arg(currentStep->lineTypeIndexes.size()));
             for (int i = 0; i < currentStep->lineTypeIndexes.size(); ++i)
-                emit messageSig(LOG_TRACE, QString("-Part lineNumber: [%1] at step line lineIndex [%2] - specified lineIndex [%3]")
+                emit messageSig(LOG_TRACE, QString(" -LPub Part lineNumber [%1] at step line lineIndex [%2] - specified lineIndex [%3]")
                                                    .arg(currentStep->lineTypeIndexes.at(i)).arg(i).arg(lineIndex));
         }
 
@@ -2190,15 +2426,16 @@ bool Gui::getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNu
         else                 // input lineTypeIndex
             lineNumber = currentStep->getLineTypeIndex(lineIndex);
 
-    } else {
+    } else if (modelIndex != NEW_MODEL) {
 
         if (fromViewer)      // input relativeIndes
             lineNumber = getLineTypeRelativeIndex(modelIndex,lineIndex); // return lineTypeIndex - part lineNumber
         else                 // input lineTypeIndex
             lineNumber = getLineTypeIndex(modelIndex,lineIndex);         // return relativeIndex - step line lineIndex
-    }
+    } else
+        return false;
 
-    return lineNumber != -1;
+    return lineNumber;
 }
 
 /*********************************************
@@ -2215,34 +2452,43 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
         QVector<int> lines;
         bool fromViewer   = source > EDITOR_LINE;
         bool validLine    = false;
-        int lineIndex     = -1;
         int lineNumber    = 0;
-        QString stepModel = viewerStepKey.isEmpty() ? "undefined" : gui->getSubmodelName(QString(viewerStepKey[0]).toInt());
-        QString modelName = indexes.size() ? getSubmodelName(indexes.at(0).modelIndex) : "undefined";
-        int modelIndex    = modelName == "undefined" ? -1 : indexes.at(0).modelIndex;
+        int lineIndex     = NEW_PART;
+        int modelIndex    = NEW_MODEL;
+        QString modelName = "undefined";
+        if (indexes.size()) {
+            modelName  = getSubmodelName(indexes.at(0).modelIndex);
+            modelIndex = indexes.at(0).modelIndex;
+        } else if (!viewerStepKey.isEmpty()) {
+            modelName  = getSubmodelName(QString(viewerStepKey[0]).toInt());
+            modelIndex = getSubmodelIndex(modelName);
+        }
 
-        if (Preferences::debugLogging && modelIndex != -1) {
-            emit messageSig(LOG_TRACE, QString("Submodel lineIndex size: %1 item(s)")
-                                               .arg(ldrawFile.getLineTypeRelativeIndexes(modelIndex)->size()));
+        if (Preferences::debugLogging) {
+            if (modelIndex != NEW_MODEL && source == VIEWER_MOD)
+                emit messageSig(LOG_TRACE, QString("Submodel lineIndex size: %1 item(s)")
+                                .arg(ldrawFile.getLineTypeRelativeIndexes(modelIndex)->size()));
         }
 
         for (int i = 0; i < indexes.size(); ++i) {
 
-            lineIndex  = indexes.at(i).lineIndex;
-            validLine  = getSelectedLine(modelIndex, lineIndex, source, lineNumber);
+            lineIndex = indexes.at(i).lineIndex;
+            // New part lines are added in createBuildModification() routine
+            if (lineIndex != NEW_PART) {
+                validLine = getSelectedLine(modelIndex, lineIndex, source, lineNumber);
+                lines.append(lineNumber);
+            }
 
             if (validLine) {
-                lines.append(lineNumber);
                 if (fromViewer && source == VIEWER_MOD) {
-                    QVector<int> modAttributes = { lineNumber, modelIndex, lineNumber};
                     if (buildModRange.first()) {
-                        buildModRange[BM_MODEL_INDEX] = modelIndex;
                         if (lineNumber < buildModRange.first())
                             buildModRange[BM_BEGIN_LINE_NUM] = lineNumber;
                         else if (lineNumber > buildModRange.last())
-                            buildModRange[BM_END_LINE_NUM] = lineNumber;
+                            buildModRange[BM_ACTION_LINE_NUM] = lineNumber;
+                        buildModRange[BM_MODEL_INDEX] = modelIndex;
                     } else {
-                        buildModRange = { lineNumber, modelIndex, lineNumber};
+                        buildModRange = { lineNumber, lineNumber, modelIndex };
                     }
                     createBuildModAct->setEnabled(true);
                 }
@@ -2250,16 +2496,24 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
 
             if (Preferences::debugLogging) {
                 QString Message;
-                if (!validLine) {
-                    Message = tr("Invalid part lineNumber [%1] for step line index [%2]")
-                                 .arg(fromViewer ? lineNumber : lineIndex)
-                                 .arg(fromViewer ? lineIndex : lineNumber);
-                } else if (fromViewer) {
-                    Message = tr("Selected part modelName [%1] lineNumber: [%2] at step line index [%3]")
-                                 .arg(modelName).arg(lineNumber).arg(lineIndex);
-                } else {
+                if (fromViewer) {
+                    if (lineIndex == NEW_PART) {
+                        Message = tr("New viewer part specified at step %1, modelName: [%2]")
+                                     .arg(currentStep->stepNumber.number)
+                                     .arg(modelName);
+                    } else if (validLine) {
+                        Message = tr("Selected part modelName [%1] lineNumber: [%2] at step line index [%3]")
+                                     .arg(modelName).arg(lineNumber).arg(lineIndex);
+                    } else {
+                        Message = tr("Invalid part lineNumber [%1] for step line index [%2]")
+                                     .arg(lineNumber).arg(lineIndex);
+                    }
+                } else if (validLine) { // valid and not from viewer
                     Message = tr("Selected part modelName [%1] lineNumber: [%2] at step line index [%3]")
                                  .arg(modelName).arg(lineIndex).arg(lineNumber);
+                } else {                // invalid and not from viewer
+                    Message = tr("Invalid part lineNumber [%1] for step line index [%2]") // index and number flipped
+                                 .arg(lineIndex).arg(lineNumber);
                 }
                 emit messageSig(LOG_TRACE, Message);
             }

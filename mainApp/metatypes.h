@@ -394,7 +394,6 @@ class BuildModData
 public:
   QString buildModKey;
   QString action;
-  QStringList buildModKeys;
 };
 
 class PgSizeData

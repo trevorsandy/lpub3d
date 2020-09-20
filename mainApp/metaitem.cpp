@@ -296,7 +296,7 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
 //            argv[2] == "BUILD_MOD") {
 //          if (argv[3] == "BEGIN") {
 //            buildModLevel = getLevel(argv[4],BM_BEGIN);
-//          } else if ((argv[3] == "APPLY" || argv[3] == "REMOVE")) {
+//          } else if (tokens[3] == "END_MOD") {
 //            buildModLevel = getLevel(QString(), BM_END);
 //          }
 //          ignorePartLine = buildModLevel;
@@ -366,7 +366,7 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
 //              argv[2] == "BUILD_MOD") {
 //            if (argv[3] == "BEGIN") {
 //              buildModLevel = getLevel(argv[4],BM_BEGIN);
-//            } else if ((argv[3] == "APPLY" || argv[3] == "REMOVE")) {
+//            } else if (tokens[3] == "END_MOD") {
 //              buildModLevel = getLevel(QString(), BM_END);
 //            }
 //            ignorePartLine = buildModLevel;

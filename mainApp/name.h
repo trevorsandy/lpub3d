@@ -36,10 +36,10 @@ struct TypeLine {
   int modelIndex;
   int lineIndex;
   TypeLine(){}
-  TypeLine(int _modelIndex,int _lineIndex) :
-      modelIndex(_modelIndex),
-      lineIndex(_lineIndex)
-  {}
+  TypeLine(int _modelIndex,
+           int _lineIndex)
+      : modelIndex(_modelIndex),
+        lineIndex(_lineIndex) {}
 };
 
 enum PartType { FADE_PART, HIGHLIGHT_PART, NORMAL_PART, NUM_PART_TYPES };
@@ -54,26 +54,27 @@ enum RulerTrackingType { TRACKING_TICK, TRACKING_LINE, TRACKING_NONE};
 enum SceneGuidesPosType { GUIDES_TOP_LEFT, GUIDES_TOP_RIGHT, GUIDES_CENTRE, GUIDES_BOT_LEFT, GUIDES_BOT_RIGHT};
 enum LibType { LibLEGO, LibTENTE, LibVEXIQ, NumLibs };
 enum Theme { ThemeDark, ThemeDefault };
-enum PartSource { EDITOR_LINE, VIEWER_NONE = EDITOR_LINE, VIEWER_LINE, VIEWER_MOD };
+enum PartSource { NEW_PART = -1, NEW_MODEL = NEW_PART, EDITOR_LINE, VIEWER_NONE = EDITOR_LINE, VIEWER_LINE, VIEWER_MOD };
 enum SaveOnSender { SaveOnNone, SaveOnRedraw, SaveOnUpdate };
 enum NativeType { NTypeDefault, NTypeCalledOut, NTypeMultiStep };
 enum SceneObjectInfo { ObjectId };
 enum BuildModFlags {
-    BM_BEGIN,                                // MOD LEVEL BEGIN
-    BM_MODEL_NAME      = BM_BEGIN,
-    BM_BEGIN_LINE_NUM  = BM_BEGIN,
-    BM_ACTION_LINE_NUM,
-    BM_LINE_NUMBER     = BM_ACTION_LINE_NUM,
-    BM_MODEL_INDEX     = BM_ACTION_LINE_NUM, // MODEL_INDEX for BuildModRange
-    BM_END,
-    BM_END_LINE_NUM    = BM_END,             // MOD LEVEL END
-    BM_DISPLAY_PAGE_NUM,
-    BM_MODEL_NAME_INDEX,
-    BM_SINGLE_STEP,
-    BM_MULTI_STEP,
-    BM_CALLOUT_STEP,
-    BM_CHANGE,
-    BM_DELETE
+    BM_BEGIN,                                  //  0 MOD LEVEL BEGIN
+    BM_MODEL_NAME      = BM_BEGIN,             //  0
+    BM_BEGIN_LINE_NUM  = BM_BEGIN,             //  0 BUILD_MOD BEGIN   BuildModRange[0]
+    BM_ACTION_LINE_NUM,                        //  1 BUILD_MOD END_MOD BuildModRange[1]
+    BM_LINE_NUMBER     = BM_ACTION_LINE_NUM,   //  1
+    BM_END,                                    //  2 MOD LEVEL END
+    BM_END_LINE_NUM    = BM_END,               //  2 BUILD_MOD END
+    BM_MODEL_INDEX     = BM_END,               //  2 MODEL_INDEX       BuildModRange[2]
+    BM_DISPLAY_PAGE_NUM,                       //  3
+    BM_MODEL_NAME_INDEX,                       //  4
+    BM_SINGLE_STEP,                            //  5
+    BM_STEP_PIECES     = BM_SINGLE_STEP,       //  5
+    BM_MULTI_STEP,                             //  6
+    BM_CALLOUT_STEP,                           //  7
+    BM_CHANGE,                                 //  8
+    BM_DELETE                                  //  9
 };
 
 enum GridStepSize {
