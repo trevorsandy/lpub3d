@@ -1082,7 +1082,7 @@ int Gui::addGraphicsPageItems(
       if (page->pli.tsize()) {
 
           // Add pli per page items
-          if (page->meta.LPub.multiStep.pli.perStep.value() == false){
+          if (! page->meta.LPub.multiStep.pli.perStep.value()) {
               addPliPerPageItems(page,pageHeader,pageFooter,pageNumber,plPage);
           }
 
