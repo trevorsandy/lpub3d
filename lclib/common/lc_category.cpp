@@ -39,6 +39,9 @@ void lcResetCategories(std::vector<lcLibraryCategory>& Categories, bool BuiltInL
 {
 	const char DefaultCategories[] =
 	{
+/*** LPub3D Mod - move Helper category to top ***/
+		"LPub3D Helper=^%Helper\n"
+/*** LPub3D Mod end ***/
 		"Animal=^%Animal | ^%Bone\n"
 		"Antenna=^%Antenna\n"
 		"Arch=^%Arch\n"
@@ -73,39 +76,39 @@ void lcResetCategories(std::vector<lcLibraryCategory>& Categories, bool BuiltInL
 	};
 
 /*** LPub3D Mod - support TENTE and VEX Categories ***/
-    const char TENTEDefaultCategories[] =
-    {
-        "TENTE-Aire=@A\n"
-        "TENTE-Alpha=@F\n"
-        "TENTE-Baldosas placas=baldosa | placa\n"
-        "TENTE-Basico=@B\n"
-        "TENTE-Castillos=:X\n"
-        "TENTE-Dark=@D\n"
-        "TENTE-Escorpion=@E\n"
-        "TENTE-Etiquetas=Etiqueta\n"
-        "TENTE-Jacenas=jacena\n"
-        "TENTE-Mar=@M\n"
-        "TENTE-Micro=@C\n"
-        "TENTE-Ruedas=rueda | ( eje & !bisagra ) | ( agujero & !enganche & !baldosa )\n"
-        "TENTE-Ruta=@R\n"
-        "TENTE-Titanium=@T\n"
-        "TENTE-Vehiculos=@V \n"
-        "TENTE-Ventanas=ventanas | marco | cristal\n"
-    };
+	const char TENTEDefaultCategories[] =
+	{
+		"TENTE-Aire=@A\n"
+		"TENTE-Alpha=@F\n"
+		"TENTE-Baldosas placas=baldosa | placa\n"
+		"TENTE-Basico=@B\n"
+		"TENTE-Castillos=:X\n"
+		"TENTE-Dark=@D\n"
+		"TENTE-Escorpion=@E\n"
+		"TENTE-Etiquetas=Etiqueta\n"
+		"TENTE-Jacenas=jacena\n"
+		"TENTE-Mar=@M\n"
+		"TENTE-Micro=@C\n"
+		"TENTE-Ruedas=rueda | ( eje & !bisagra ) | ( agujero & !enganche & !baldosa )\n"
+		"TENTE-Ruta=@R\n"
+		"TENTE-Titanium=@T\n"
+		"TENTE-Vehiculos=@V \n"
+		"TENTE-Ventanas=ventanas | marco | cristal\n"
+	};
 
-    const char VEXIQDefaultCategories[] =
-    {
-        "VEXIQ-Axles and Spacers=-Vgr1-\n"
-        "VEXIQ-Beams and Plates=-Vgr2-\n"
-        "VEXIQ-Connectors=-Vgr4-\n"
-        "VEXIQ-Control System=-Vgr7-\n"
-        "VEXIQ-Gears and Motion=-Vgr6-\n"
-        "VEXIQ-Panels and Special Beams=-Vgr9-\n"
-        "VEXIQ-Pins and Standoffs=-Vgr3-\n"
-        "VEXIQ-Wheels and Tires=-Vgr5-\n"
-        "VEXIQ-Miscellaneous Parts=-Vgr8-\n"
-        "VEXIQ-Legacy Parts=-Vgr10-\n"
-    };
+	const char VEXIQDefaultCategories[] =
+	{
+		"VEXIQ-Axles and Spacers=-Vgr1-\n"
+		"VEXIQ-Beams and Plates=-Vgr2-\n"
+		"VEXIQ-Connectors=-Vgr4-\n"
+		"VEXIQ-Control System=-Vgr7-\n"
+		"VEXIQ-Gears and Motion=-Vgr6-\n"
+		"VEXIQ-Panels and Special Beams=-Vgr9-\n"
+		"VEXIQ-Pins and Standoffs=-Vgr3-\n"
+		"VEXIQ-Wheels and Tires=-Vgr5-\n"
+		"VEXIQ-Miscellaneous Parts=-Vgr8-\n"
+		"VEXIQ-Legacy Parts=-Vgr10-\n"
+	};
 /*** LPub3D Mod end ***/
 
 	const char BuiltInCategories[] =
@@ -119,14 +122,14 @@ void lcResetCategories(std::vector<lcLibraryCategory>& Categories, bool BuiltInL
 
 	QByteArray Buffer;
 /*** LPub3D Mod - support TENTE and VEX Categories ***/
-    if (BuiltInLibrary)
-        Buffer.append(BuiltInCategories, sizeof(BuiltInCategories));
-    else if (Preferences::validLDrawLibrary == TENTE_LIBRARY)
-        Buffer.append(TENTEDefaultCategories, sizeof(TENTEDefaultCategories));
-    else if (Preferences::validLDrawLibrary == VEXIQ_LIBRARY)
-        Buffer.append(VEXIQDefaultCategories, sizeof(VEXIQDefaultCategories));
-    else
-        Buffer.append(DefaultCategories, sizeof(DefaultCategories));
+	if (BuiltInLibrary)
+		Buffer.append(BuiltInCategories, sizeof(BuiltInCategories));
+	else if (Preferences::validLDrawLibrary == TENTE_LIBRARY)
+		Buffer.append(TENTEDefaultCategories, sizeof(TENTEDefaultCategories));
+	else if (Preferences::validLDrawLibrary == VEXIQ_LIBRARY)
+		Buffer.append(VEXIQDefaultCategories, sizeof(VEXIQDefaultCategories));
+	else
+		Buffer.append(DefaultCategories, sizeof(DefaultCategories));
 /*** LPub3D Mod end ***/
 
 	lcLoadCategories(Buffer, Categories);
@@ -208,7 +211,7 @@ bool lcMatchCategory(const char* PieceName, const char* Expression)
 		}
 		else if (*p == '(')
 		{
-//			const char* Start = p;
+//          const char* Start = p;
 			int c = 0;
 
 			// Skip what's inside the parenthesis.
