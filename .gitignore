@@ -73,6 +73,7 @@ ldvlib/LDVQt/include/*
 
 # Qt Creator generated files
 *.user*
+*.autosave*
 
 # Sourceforge.net source
 builds/source/*
@@ -87,6 +88,7 @@ builds/utilities/ldrawlibraries/*
 builds/utilities/models/*
 
 # Releases/builds
+mainApp/info.plist
 mainApp/release/*
 mainApp/debug/*
 ldrawini/release/*
@@ -117,6 +119,9 @@ mainApp/uic_wrapper.bat
 
 # Windows setup archives
 builds/windows/archives/*
+
+# LDraw libraries
+mainApp/extras/*.zip
 
 # Tools
 tools/*

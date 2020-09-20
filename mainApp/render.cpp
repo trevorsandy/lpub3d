@@ -625,7 +625,16 @@ int POVRay::renderCsi(
   // parameter arguments;
   QStringList parmsArgs;
 
-  auto getRendererSettings = [&pp, &cd, &target, &modelScale, &cameraFoV, &cameraAngleX, &cameraAngleY, &ldviewParmslist, &useImageSize] (
+  auto getRendererSettings = [
+          &pp,
+          &cd,
+          &target,
+          &modelScale,
+          &cameraFoV,
+          &cameraAngleX,
+          &cameraAngleY,
+          &ldviewParmslist,
+          &useImageSize] (
       QString     &CA,
       QString     &cg,
       QStringList &parmsArgs)
@@ -944,7 +953,18 @@ int POVRay::renderPli(
   // parameter arguments;
   QStringList parmsArgs;
 
-  auto getRendererSettings = [&keySub, &pp, &cd, &pngName, &target, &modelScale, &cameraFoV, &cameraAngleX, &cameraAngleY, &ldviewParmslist, &useImageSize] (
+  auto getRendererSettings = [
+          &keySub,
+          &pp,
+          &cd,
+          &pngName,
+          &target,
+          &modelScale,
+          &cameraFoV,
+          &cameraAngleX,
+          &cameraAngleY,
+          &ldviewParmslist,
+          &useImageSize] (
       QString     &CA,
       QString     &cg,
       bool        &noCA,
@@ -1203,7 +1223,8 @@ int POVRay::renderPli(
 
   message = QString("POVRay PLI Arguments: %1 %2").arg(Preferences::povrayExe).arg(povArguments.join(" "));
 #ifdef QT_DEBUG_MODE
-  qDebug() << qPrintable(message);
+  //qDebug() << qPrintable(message);
+  emit gui->messageSig(LOG_DEBUG, message);
 #else
   emit gui->messageSig(LOG_INFO, message);
 #endif
@@ -1665,7 +1686,16 @@ int LDView::renderCsi(
     // parameter arguments;
     QStringList ldviewParmsArgs;
 
-    auto getRendererSettings = [&pp, &cd, &target, &modelScale, &cameraFoV, &cameraAngleX, &cameraAngleY, &ldviewParmslist, &useImageSize] (
+    auto getRendererSettings = [
+            &pp,
+            &cd,
+            &target,
+            &modelScale,
+            &cameraFoV,
+            &cameraAngleX,
+            &cameraAngleY,
+            &ldviewParmslist,
+            &useImageSize] (
         QString     &CA,
         QString     &cg,
         QStringList &ldviewParmsArgs)
@@ -2167,7 +2197,19 @@ int LDView::renderPli(
   if (pp && pl && !pz)
       dz = QString("-DefaultZoom=%1").arg(double(modelScale));
 
-  auto getRendererSettings = [&pp, &dl, &df, &dz, &pl, &cd, &cdf, &target, &modelScale, &cameraAngleX, &cameraAngleY, &useImageSize] (
+  auto getRendererSettings = [
+          &pp,
+          &dl,
+          &df,
+          &dz,
+          &pl,
+          &cd,
+          &cdf,
+          &target,
+          &modelScale,
+          &cameraAngleX,
+          &cameraAngleY,
+          &useImageSize] (
           QString &CA,
           QString &cg)
   {
@@ -2202,7 +2244,12 @@ int LDView::renderPli(
       }
   };
 
-  auto processAttributes = [this, &meta, &keySub, &usingSnapshotArgs, &getRendererSettings] (
+  auto processAttributes = [
+          this,
+          &meta,
+          &keySub,
+          &usingSnapshotArgs,
+          &getRendererSettings] (
       QStringList &attributes,
       xyzVector   &target,
       bool        &noCA,
@@ -3308,6 +3355,7 @@ bool Render::doLDVCommand(const QStringList &args, int exportMode, int iniFlag){
 
 const QString Render::getPovrayRenderQuality(int quality)
 {
+    // POV-Ray 3.2 Command-Line and INI-File Options
     if (quality == -1)
         quality = Preferences::povrayRenderQuality;
 

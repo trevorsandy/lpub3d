@@ -236,7 +236,7 @@ void ParmsWindow::showContextMenu(const QPoint &pt)
 
 void ParmsWindow::systemeditor()
 {
-    QDesktopServices::openUrl(QUrl::fromLocalFile(fileName));
+    QDesktopServices::openUrl(QUrl("file:///"+fileName, QUrl::TolerantMode));
 }
 
 void ParmsWindow::displayParmsFile(

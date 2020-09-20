@@ -3035,6 +3035,7 @@ Gui::Gui()
     Preferences::exportPreferences();
 
     displayPageNum = 1;
+    numPrograms    = 0;
 
     processOption                   = EXPORT_ALL_PAGES;
     exportMode                      = EXPORT_PDF;
@@ -5215,7 +5216,7 @@ void Gui::createMenus()
     snapToGridMenu = new QMenu(tr("Snap to Grid"), this);
     snapToGridMenu->addAction(hideGridPageBackgroundAct);
     snapToGridMenu->addSeparator();
-    for (int actionIdx = GRID_SIZE_FIRST; actionIdx <= GRID_SIZE_LAST; actionIdx++)
+    for (int actionIdx = GRID_SIZE_FIRST; actionIdx < GRID_SIZE_LAST; actionIdx++)
         snapToGridMenu->addAction(snapGridActions[actionIdx]);
 }
 

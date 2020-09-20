@@ -471,8 +471,16 @@ bool Preferences::validLib(const QString &libName, const QString &libVersion) {
 
     QString p_stderr = pr.readAllStandardError();
     if (!p_stderr.isEmpty()) {
-        logError() << "Library check returned error: " << p_stderr;
-        return false;
+        /*
+         * This 'whitelist' log spam is some sort of XCode 9 bug (r.33758979)
+         * that seems unique to High Sierra.
+         * Until I figure out a better way to override it, I'll just put
+         * in place this hack
+         */
+        if (libName == "xquartz" && !p_stderr.contains("MessageTracer: Falling back to default whitelist")) {
+            logError() << "Library check returned error: " << p_stderr;
+            return false;
+        }
     }
 
     QString val1 = libVersion;
