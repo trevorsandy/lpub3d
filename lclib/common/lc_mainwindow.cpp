@@ -1287,7 +1287,7 @@ void lcMainWindow::GetRotStepMetaAngles()
   if (mView->mTrackButton != lcTrackButton::None)
 	{
 	  bool display = true;
-	  lcVector3 mExistingRotStep = GetRotStepMeta();
+	  QVector<float> mExistingRotStep = GetRotStepMeta();
 	  lcVector3 RotStepAngles = lcVector3(0.0f,0.0f,0.0f);
 	  switch (GetActiveView()->mTrackTool)
 		{
@@ -1356,6 +1356,18 @@ void lcMainWindow::ParseAndSetRotStep(QTextStream& LineStream)
 		  break;
 	  }
    }
+}
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - part selection widget state ***/
+void lcMainWindow::PartSelectionWidgetLoadState(QSettings &Settings)
+{
+	mPartSelectionWidget->LoadState(Settings);
+}
+
+void lcMainWindow::PartSelectionWidgetSaveState(QSettings &Settings)
+{
+	mPartSelectionWidget->SaveState(Settings);
 }
 /*** LPub3D Mod end ***/
 
@@ -2420,7 +2432,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int EmitSelectio
 
 					QString Message;
 					if (Preferences::debugLogging) {
-                        Message = tr("%1 viewer object(s) selected in model [%2]").arg(Selection.GetSize()).arg(ActiveModel->GetModelName());
+						Message = tr("%1 viewer object(s) selected in model [%2]").arg(Selection.GetSize()).arg(ActiveModel->GetModelName());
 						gui->statusMessage(LOG_DEBUG, Message);
 					}
 
@@ -2430,7 +2442,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int EmitSelectio
 
 						if (SelectedItem && SelectedItem->IsPiece()) {
 
-                            TypeLine typeLine(gui->getSubmodelIndex(ActiveModel->GetModelName().toLower()),((lcPiece*)SelectedItem)->GetLineTypeIndex());
+							TypeLine typeLine(gui->getSubmodelIndex(ActiveModel->GetModelName().toLower()),((lcPiece*)SelectedItem)->GetLineTypeIndex());
 							LineTypeIndexes.append(typeLine);
 
 							Message = tr("Selected Piece: %1 (ID: %2), LineTypeIndex: %3")
@@ -2446,7 +2458,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int EmitSelectio
 
 							if (SelectedItem->IsPiece()) {
 
-                                TypeLine typeLine(gui->getSubmodelIndex(ActiveModel->GetModelName().toLower()),((lcPiece*)SelectedItem)->GetLineTypeIndex());
+								TypeLine typeLine(gui->getSubmodelIndex(ActiveModel->GetModelName().toLower()),((lcPiece*)SelectedItem)->GetLineTypeIndex());
 								LineTypeIndexes.append(typeLine);
 
 								if (Preferences::debugLogging) {

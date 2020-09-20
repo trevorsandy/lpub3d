@@ -62,6 +62,8 @@
 #include "lpub_preferences.h"
 #include "resolution.h"
 #include "render.h"
+
+#include "lc_colors.h"
 #include "lc_qcolorpicker.h"
 
 #include "gradients.h"

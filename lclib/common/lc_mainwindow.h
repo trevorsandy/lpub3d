@@ -279,8 +279,45 @@ public:
 		return mShadingMenu;
 	}
 
+/*** LPub3D Mod - Expose dockwidgets toolbars and menus ***/
+	QMenu* GetSelectionModeMenu()
+	{
+		return mSelectionModeMenu;
+	}
+
+	QToolBar* GetToolsToolBar()
+	{
+		return mToolsToolBar;
+	}
+
+	QDockWidget* GetPartsToolBar()
+	{
+		return mPartsToolBar;
+	}
+
+	QDockWidget* GetPropertiesToolBar()
+	{
+		return mPropertiesToolBar;
+	}
+
+	QDockWidget* GetTimelineToolBar()
+	{
+		return mTimelineToolBar;
+	}
+
+	QDockWidget* GetColorsToolBar()
+	{
+		return mColorsToolBar;
+	}
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - View point zoom extent ***/
 	bool viewportZoomExtent();
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - part selection widget state ***/
+	void PartSelectionWidgetLoadState(QSettings &Settings);
+	void PartSelectionWidgetSaveState(QSettings &Settings);
 /*** LPub3D Mod end ***/
 
 	QByteArray GetTabLayout();
@@ -378,9 +415,6 @@ public:
 	int mColorIndex;
 	lcSearchOptions mSearchOptions;
 	QAction* mActions[LC_NUM_COMMANDS];
-/*** LPub3D Mod - relocate toolbar ***/
-	QToolBar* mToolsToolBar;       //moved from protected:
-/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Timeline part icons ***/
 	bool mSubmodelIconsLoaded;
 /*** LPub3D Mod end ***/
@@ -414,7 +448,7 @@ public slots:
 /*** LPub3D Mod - signals ***/
 signals:
 /*** LPub3D Mod - rotate step signals ***/
-	lcVector3 GetRotStepMeta();   // used to capture step meta angles
+	QVector<float> GetRotStepMeta();   // used to capture step meta angles
 	void SetRotStepMeta();
 	void SetRotStepAngleX(float, bool=false);
 	void SetRotStepAngleY(float, bool=false);
@@ -499,7 +533,7 @@ protected:
 
 	lcTabWidget* mModelTabWidget;
 	QToolBar* mStandardToolBar;
-/*** QToolBar* mToolsToolBar;     LPub3D Mod -  move to public ***/
+	QToolBar* mToolsToolBar;
 /*** LPub3D Mod - rotate step ***/
 	lcVector3 mExistingRotStep;
 	QString mRotStepTransform;
@@ -532,10 +566,6 @@ protected:
 	QMenu* mProjectionMenu;
 	QMenu* mShadingMenu;
 	QMenu* mSelectionModeMenu;
-
-/*** LPub3D Mod - designate friend class ***/
-	friend class Gui;
-/**** LPub3D Mod end ***/
 };
 
 extern class lcMainWindow* gMainWindow;

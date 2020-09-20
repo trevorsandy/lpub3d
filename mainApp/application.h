@@ -22,7 +22,6 @@
 #include <vector>
 
 #include "QsLog.h"
-#include "lc_global.h"
 #include "name.h"
 
 #ifdef Q_OS_WIN

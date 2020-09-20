@@ -345,6 +345,9 @@
 #include <QElapsedTimer>
 #include <QPdfWriter>
 
+#include "lc_global.h"
+#include "lc_math.h"      // placed here to avoid having to always place this in .cpp files calling lpub.h
+
 #include "lgraphicsview.h"
 #include "lgraphicsscene.h"
 
@@ -358,13 +361,7 @@
 #include "lpub_preferences.h"
 #include "ldrawcolourparts.h"
 #include "plisubstituteparts.h"
-#include "QsLog.h"
-
-//3D Viewer
-#include "lc_global.h"
-#include "lc_math.h"
-#include "lc_library.h"
-#include "lc_mainwindow.h"
+#include "QsLog.h"    
 
 // Set to enable file watcher
 #ifndef WATCHER
@@ -418,6 +415,11 @@ class PagePointer;
 
 class lcHttpReply;
 class lcHttpManager;
+class lcPreferences;
+class lcPiecesLibrary;
+class lcModel;
+class lcPartSelectionWidget;
+class View;
 
 class ColourPartListWorker;
 class DialogExportPages;
@@ -927,6 +929,7 @@ public:
 
   void getRequireds();
   void initialize();
+  void initiaizeNativeViewer();
 
   void displayFile(LDrawFile *ldrawFile, const QString &modelName, bool editModelFile = false, bool displayStartPage = false);
   void displayParmsFile(const QString &fileName);
@@ -995,41 +998,11 @@ public:
       }
   }
 
-  float getDefaultCameraFoV(){
-      return (Preferences::usingNativeRenderer ?
-                  gApplication->mPreferences.mCFoV :
-                  Preferences::preferredRenderer == RENDERER_LDVIEW && Preferences::perspectiveProjection ?
-                  CAMERA_FOV_LDVIEW_P_DEFAULT :
-                  CAMERA_FOV_DEFAULT);
-  }
-
-  float getDefaultFOVMinRange()
-  {
-      return (Preferences::usingNativeRenderer ?
-                  CAMERA_FOV_NATIVE_MIN_DEFAULT :
-                  CAMERA_FOV_MIN_DEFAULT);
-  }
-
-  float getDefaultFOVMaxRange()
-  {
-      return (Preferences::usingNativeRenderer ?
-                  CAMERA_FOV_NATIVE_MAX_DEFAULT :
-                  Preferences::preferredRenderer == RENDERER_LDVIEW && Preferences::perspectiveProjection ?
-                  CAMERA_FOV_LDVIEW_P_MAX_DEFAULT :
-                  CAMERA_FOV_MAX_DEFAULT);
-  }
-
-  float getDefaultCameraZNear(){
-      return (Preferences::usingNativeRenderer ?
-                  gApplication->mPreferences.mCNear :
-                  CAMERA_ZNEAR_DEFAULT);
-  }
-
-  float getDefaultCameraZFar(){
-      return (Preferences::usingNativeRenderer ?
-                  gApplication->mPreferences.mCFar :
-                  CAMERA_ZFAR_DEFAULT);
-  }
+  float getDefaultCameraFoV() const;
+  float getDefaultFOVMinRange() const;
+  float getDefaultFOVMaxRange() const;
+  float getDefaultCameraZNear() const;
+  float getDefaultCameraZFar() const;
 
   bool compareVersionStr(const QString &first, const QString &second);
 
@@ -1055,7 +1028,7 @@ public slots:
   void updateDownloadProgress(qint64, qint64);
   // End Download components
 
-  //**3D Viewer Manage Step Rotation
+  // Native viewer functions
   void Disable3DActions();
   void Enable3DActions();
   void UpdateViewerUndoRedo(const QString& UndoText, const QString& RedoText);
@@ -1092,7 +1065,7 @@ public slots:
 //                                         .arg(key).arg(value));
   }
 
-  lcVector3 GetRotStepMeta() const
+  QVector<float> GetRotStepMeta() const
   {
       return mStepRotation;
   }
@@ -1128,7 +1101,31 @@ public slots:
   int GetImageWidth();
   int GetImageHeight();
 
-  //**
+  // Native viewer convenience calls
+  View*                  GetActiveView();
+  lcModel*               GetActiveModel();
+  lcPartSelectionWidget* GetPartSelectionWidget();
+  lcPiecesLibrary*       GetPiecesLibrary();
+  lcPreferences&         GetPreferences();
+  QToolBar*              GetToolsToolBar();
+  QDockWidget*           GetTimelineToolBar();
+  QDockWidget*           GetPropertiesToolBar();
+  QDockWidget*           GetPartsToolBar();
+  QDockWidget*           GetColorsToolBar();
+  bool                   GetViewPieceIcons();
+
+  void                   SetStudLogo(int, bool);
+  void                   SetSubmodelIconsLoaded(bool);
+
+  int                    Process3DViewerCommandLine();
+  bool                   OpenProject(const QString& FileName);
+  bool                   ReloadUnofficialPiecesLibrary();
+  void                   LoadDefaults();
+  void                   UpdateAllViews();
+  void                   UnloadOfficialPiecesLibrary();
+  void                   UnloadUnofficialPiecesLibrary();
+
+  // End native viewer calls
 
   void loadBLCodes();
 
@@ -1363,7 +1360,7 @@ public:
 
 protected:
   // capture camera rotation from 3DViewer module
-  lcVector3              mStepRotation;
+  QVector<float>         mStepRotation;
   float                  mRotStepAngleX;
   float                  mRotStepAngleY;
   float                  mRotStepAngleZ;
@@ -1452,43 +1449,14 @@ private:
     LGraphicsScene  *scene,         // page, and then finish by counting the rest
     Meta             meta,
     QString const   &addLine,
-    FindPageOptions &opts
-    /*
-    int            &pageNum,        //maxPages
-    QString const  &addLine,
-    Where          &current,
-    PgSizeData     &pageSize,
-    bool            isMirrored,
-    Meta            meta,
-    bool            printing,
-    int             contStepNumber,
-    int             renderStepNumber = 0,
-    QString         renderParentModel = ""
-    */);
+    FindPageOptions &opts);
 
   int drawPage(// process the page of interest and any callouts
     LGraphicsView  *view,
     LGraphicsScene *scene,
     Steps          *steps,
     QString const   &addLine,
-    DrawPageOptions &opts
-    /*
-    int            stepNum,
-    QString const &addLine,
-    Where         &current,
-    QStringList   &csiParts,
-    QStringList   &pliParts,
-    bool           isMirrored,
-    QHash<QString, QStringList> &bfx,
-    QList<PliPartGroupMeta> &pliPartGroups,
-    bool           printing,
-    bool           bfxStore2,
-    QStringList   &bfxParts,
-    QStringList   &ldrStepFiles,
-    QStringList   &csiKeys,
-    bool           assembledCallout = false,
-    bool           calledOut = false
-    */);
+    DrawPageOptions &opts);
 
   void attitudeAdjustment(); // reformat the LDraw file to fix LPub backward compatibility issues
 
@@ -1631,7 +1599,6 @@ private slots:
     void generateCustomColourPartsList(bool prompt = true);
     void viewLog();
 
-
     void toggleLCStatusBar(bool);
     void showLCStatusMessage();
 
@@ -1751,6 +1718,8 @@ private:
   void create3DDockWindows();
   void readSettings();
   void writeSettings();
+  void readNativeSettings();
+  void writeNativeSettings();
 
   QDockWidget       *fileEditDockWindow;
 //** 3D
@@ -2052,8 +2021,9 @@ public:
     }
 };
 
-extern class Gui *gui;
+
 extern QHash<SceneObject, QString> soMap;
+extern class Gui *gui;
 
 inline Preferences& lpub3DGetPreferences()
 {

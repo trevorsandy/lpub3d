@@ -78,7 +78,6 @@ public:
   {
     ImageType      = Options::CSI;
     CameraName     = QString();
-    UsingViewpoint = false;
     IsOrtho        = false;
     StudLogo       = 0;
     ImageWidth     = 800 ;
@@ -111,7 +110,6 @@ public:
   float FoV;
   float Latitude;
   float Longitude;
-  bool UsingViewpoint;
   bool IsOrtho;
   xyzVector RotStep;
   xyzVector Target;

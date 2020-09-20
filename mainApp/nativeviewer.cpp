@@ -29,15 +29,18 @@
 #include "metagui.h"
 #include "paths.h"
 
-#include "light.h"
-#include "group.h"
-#include "camera.h"
-#include "project.h"
-#include "view.h"
-#include "piece.h"
-#include "pieceinf.h"
+#include "lc_library.h"
+#include "lc_mainwindow.h"
+
 #include "lc_qutils.h"
 #include "lc_profile.h"
+#include "light.h"
+#include "camera.h"
+#include "piece.h"
+#include "pieceinf.h"
+#include "project.h"
+#include "group.h"
+#include "view.h"
 #include "application.h"
 #include "lc_partselectionwidget.h"
 
@@ -274,7 +277,7 @@ void Gui::create3DMenus()
      for (int actionIdx = LC_EDIT_SNAP_MOVE_Z0; actionIdx <= LC_EDIT_SNAP_MOVE_Z9; actionIdx++)
          SnapZMenu->addAction(gMainWindow->mActions[actionIdx]);
 
-     gMainWindow->mActions[LC_EDIT_ACTION_SELECT]->setMenu(gMainWindow->mSelectionModeMenu);
+     gMainWindow->mActions[LC_EDIT_ACTION_SELECT]->setMenu(gMainWindow->GetSelectionModeMenu());
 
      SnapMenu = new QMenu(tr("Snap Menu"), this);
      SnapMenu->addAction(gMainWindow->mActions[LC_EDIT_SNAP_MOVE_TOGGLE]);
@@ -422,33 +425,56 @@ void Gui::create3DToolBars()
     exportToolBar->addAction(gMainWindow->mActions[LC_FILE_EXPORT_COLLADA]);
     exportToolBar->addAction(gMainWindow->mActions[LC_FILE_EXPORT_WAVEFRONT]);
 
-    gMainWindow->mToolsToolBar->addSeparator();
-    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_SELECT]);
-    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]);
-    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_MOVE]);
-    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_DELETE]);
-    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAINT]);
-    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_COLOR_PICKER]);
-    gMainWindow->mToolsToolBar->addSeparator();
-    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]);
-    gMainWindow->mToolsToolBar->addAction(createBuildModAct);
-    gMainWindow->mToolsToolBar->addSeparator();
-    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_INSERT]);
-    gMainWindow->mToolsToolBar->addAction(lightGroupAct);
-    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]);
-    gMainWindow->mToolsToolBar->addSeparator();
-    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
-    gMainWindow->mToolsToolBar->addAction(viewpointGroupAct);
-//    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]);
-    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM]);
-    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAN]);
-    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE_VIEW]);
-    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM_REGION]);
-    gMainWindow->mToolsToolBar->addSeparator();
-    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_TRANSFORM_RELATIVE]);
-    gMainWindow->mToolsToolBar->addAction(MoveAction);
-    gMainWindow->mToolsToolBar->addAction(AngleAction); // Snap Rotations to Fixed Intervals menu item
-    gMainWindow->mPartsToolBar->setWindowTitle("Tools Toolbar");
+    gMainWindow->GetToolsToolBar()->addSeparator();
+    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_SELECT]);
+    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]);
+    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_MOVE]);
+    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_DELETE]);
+    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAINT]);
+    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_COLOR_PICKER]);
+    gMainWindow->GetToolsToolBar()->addSeparator();
+    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]);
+    gMainWindow->GetToolsToolBar()->addAction(createBuildModAct);
+    gMainWindow->GetToolsToolBar()->addSeparator();
+    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_INSERT]);
+    gMainWindow->GetToolsToolBar()->addAction(lightGroupAct);
+    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]);
+    gMainWindow->GetToolsToolBar()->addSeparator();
+    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
+    gMainWindow->GetToolsToolBar()->addAction(viewpointGroupAct);
+//    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]);
+    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM]);
+    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAN]);
+    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE_VIEW]);
+    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM_REGION]);
+    gMainWindow->GetToolsToolBar()->addSeparator();
+    gMainWindow->GetToolsToolBar()->addAction(gMainWindow->mActions[LC_EDIT_TRANSFORM_RELATIVE]);
+    gMainWindow->GetToolsToolBar()->addAction(MoveAction);
+    gMainWindow->GetToolsToolBar()->addAction(AngleAction); // Snap Rotations to Fixed Intervals menu item
+    gMainWindow->GetPartsToolBar()->setWindowTitle("Tools Toolbar");
+}
+
+void Gui::initiaizeNativeViewer()
+{
+    connect(this,        SIGNAL(setExportingSig(bool)),                    gMainWindow, SLOT(Halt3DViewer(bool)));
+    connect(this,        SIGNAL(enable3DActionsSig()),                     gMainWindow, SLOT(Enable3DActions()));
+    connect(this,        SIGNAL(disable3DActionsSig()),                    gMainWindow, SLOT(Disable3DActions()));
+    connect(this,        SIGNAL(updateAllViewsSig()),                      gMainWindow, SLOT(UpdateAllViews()));
+    connect(this,        SIGNAL(clearViewerWindowSig()),                   gMainWindow, SLOT(NewProject()));
+    connect(this,        SIGNAL(setSelectedPiecesSig(QVector<int>&)),      gMainWindow, SLOT(SetSelectedPieces(QVector<int>&)));
+
+    connect(gMainWindow, SIGNAL(SetRotStepMeta()),                         this,        SLOT(SetRotStepMeta()));
+    connect(gMainWindow, SIGNAL(SetRotStepAngleX(float,bool)),             this,        SLOT(SetRotStepAngleX(float,bool)));
+    connect(gMainWindow, SIGNAL(SetRotStepAngleY(float,bool)),             this,        SLOT(SetRotStepAngleY(float,bool)));
+    connect(gMainWindow, SIGNAL(SetRotStepAngleZ(float,bool)),             this,        SLOT(SetRotStepAngleZ(float,bool)));
+    connect(gMainWindow, SIGNAL(SetRotStepTransform(QString&,bool)),       this,        SLOT(SetRotStepTransform(QString&,bool)));
+    connect(gMainWindow, SIGNAL(GetRotStepMeta()),                         this,        SLOT(GetRotStepMeta()));
+    connect(gMainWindow, SIGNAL(updateSig()),                              this,        SLOT(loadUpdatedImages()));
+    connect(gMainWindow, SIGNAL(SetActiveModelSig(const QString&,bool)),   this,        SLOT(SetActiveModel(const QString&,bool)));
+    connect(gMainWindow, SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),this,SLOT(SelectedPartLines(QVector<TypeLine>&,PartSource)));
+    connect(gMainWindow, SIGNAL(UpdateUndoRedoSig(const QString&,const QString&)),   this,SLOT(UpdateViewerUndoRedo(const QString&,const QString&)));
+
+    emit disable3DActionsSig();
 }
 
 void Gui::Disable3DActions()
@@ -487,40 +513,40 @@ void Gui::create3DDockWindows()
     tabifyDockWidget(viewerDockWindow, fileEditDockWindow);
 
     //Properties
-    gMainWindow->mPropertiesToolBar->setWindowTitle(trUtf8("Properties"));
-    gMainWindow->mPropertiesToolBar->setObjectName("PropertiesToolbar");
-    gMainWindow->mPropertiesToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->mPropertiesToolBar);
-    viewMenu->addAction(gMainWindow->mPropertiesToolBar->toggleViewAction());
+    gMainWindow->GetPropertiesToolBar()->setWindowTitle(trUtf8("Properties"));
+    gMainWindow->GetPropertiesToolBar()->setObjectName("PropertiesToolbar");
+    gMainWindow->GetPropertiesToolBar()->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->GetPropertiesToolBar());
+    viewMenu->addAction(gMainWindow->GetPropertiesToolBar()->toggleViewAction());
 
-    tabifyDockWidget(viewerDockWindow/*gMainWindow->mTimelineToolBar*/, gMainWindow->mPropertiesToolBar);
+    tabifyDockWidget(viewerDockWindow/*gMainWindow->GetTimelineToolBar()*/, gMainWindow->GetPropertiesToolBar());
 
     //Timeline
-    gMainWindow->mTimelineToolBar->setWindowTitle(trUtf8("Timeline"));
-    gMainWindow->mTimelineToolBar->setObjectName("TimelineToolbar");
-    gMainWindow->mTimelineToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->mTimelineToolBar);
-    viewMenu->addAction(gMainWindow->mTimelineToolBar->toggleViewAction());
+    gMainWindow->GetTimelineToolBar()->setWindowTitle(trUtf8("Timeline"));
+    gMainWindow->GetTimelineToolBar()->setObjectName("TimelineToolbar");
+    gMainWindow->GetTimelineToolBar()->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->GetTimelineToolBar());
+    viewMenu->addAction(gMainWindow->GetTimelineToolBar()->toggleViewAction());
 
-    tabifyDockWidget(viewerDockWindow, gMainWindow->mTimelineToolBar);
+    tabifyDockWidget(viewerDockWindow, gMainWindow->GetTimelineToolBar());
 
     //Part Selection
-    gMainWindow->mPartsToolBar->setWindowTitle(trUtf8("Parts"));
-    gMainWindow->mPartsToolBar->setObjectName("PartsToolbar");
-    gMainWindow->mPartsToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->mPartsToolBar);
-    viewMenu->addAction(gMainWindow->mPartsToolBar->toggleViewAction());
+    gMainWindow->GetPartsToolBar()->setWindowTitle(trUtf8("Parts"));
+    gMainWindow->GetPartsToolBar()->setObjectName("PartsToolbar");
+    gMainWindow->GetPartsToolBar()->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->GetPartsToolBar());
+    viewMenu->addAction(gMainWindow->GetPartsToolBar()->toggleViewAction());
 
-    tabifyDockWidget(viewerDockWindow/*gMainWindow->mPropertiesToolBar*/, gMainWindow->mPartsToolBar);
+    tabifyDockWidget(viewerDockWindow/*gMainWindow->GetPropertiesToolBar()*/, gMainWindow->GetPartsToolBar());
 
     //Colors Selection
-    gMainWindow->mColorsToolBar->setWindowTitle(trUtf8("Colors"));
-    gMainWindow->mColorsToolBar->setObjectName("ColorsToolbar");
-    gMainWindow->mColorsToolBar->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->mColorsToolBar);
-    viewMenu->addAction(gMainWindow->mColorsToolBar->toggleViewAction());
+    gMainWindow->GetColorsToolBar()->setWindowTitle(trUtf8("Colors"));
+    gMainWindow->GetColorsToolBar()->setObjectName("ColorsToolbar");
+    gMainWindow->GetColorsToolBar()->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    addDockWidget(Qt::RightDockWidgetArea, gMainWindow->GetColorsToolBar());
+    viewMenu->addAction(gMainWindow->GetColorsToolBar()->toggleViewAction());
 
-    tabifyDockWidget(viewerDockWindow/*gMainWindow->mPartsToolBar*/, gMainWindow->mColorsToolBar);
+    tabifyDockWidget(viewerDockWindow/*gMainWindow->GetPartsToolBar()*/, gMainWindow->GetColorsToolBar());
 
     connect(viewerDockWindow, SIGNAL (topLevelChanged(bool)), this, SLOT (toggleLCStatusBar(bool)));
 }
@@ -960,6 +986,120 @@ void Gui::applyCameraSettings()
     }
 }
 
+bool Gui::installExportBanner(const int &type, const QString &printFile, const QString &imageFile){
+
+    QList<QString> bannerData;
+    bannerData << "0 Print Banner";
+    bannerData << "0 Name: printbanner.ldr";
+    bannerData << "0 Author: Trevor SANDY";
+    bannerData << "0 Unofficial Model";
+    bannerData << "0 !LPUB MODEL NAME Printbanner";
+    bannerData << "0 !LPUB MODEL AUTHOR LPub3D";
+    bannerData << "0 !LPUB MODEL DESCRIPTION Graphic displayed during pdf printing";
+    bannerData << "0 !LPUB MODEL BACKGROUND IMAGE NAME " + imageFile;
+    bannerData << "1 71 0 0 0 1 0 0 0 1 0 0 0 1 3020.dat";
+    bannerData << "1 71 30 -8 10 1 0 0 0 1 0 0 0 1 3024.dat";
+    bannerData << "1 71 30 -16 10 1 0 0 0 1 0 0 0 1 3024.dat";
+    bannerData << "1 71 -30 -8 10 1 0 0 0 1 0 0 0 1 3024.dat";
+    bannerData << "1 71 -30 -16 10 1 0 0 0 1 0 0 0 1 3024.dat";
+    bannerData << "1 71 -30 -32 10 1 0 0 0 1 0 0 0 1 6091.dat";
+    bannerData << "1 71 30 -32 10 1 0 0 0 1 0 0 0 1 6091.dat";
+    bannerData << "1 71 30 -32 10 1 0 0 0 1 0 0 0 1 30039.dat";
+    bannerData << "1 2 -30 -32 10 1 0 0 0 1 0 0 0 1 30039.dat";
+    bannerData << "1 71 0 -24 10 1 0 0 0 1 0 0 0 1 3937.dat";
+    bannerData << "1 72 0 -8 -10 1 0 0 0 1 0 0 0 1 3023.dat";
+    bannerData << "1 72 0 -8 -10 -1 0 0 0 1 0 0 0 -1 85984.dat";
+    bannerData << "1 71 0 -23.272 6.254 -1 0 0 0 0.927 0.375 0 0.375 -0.927 3938.dat";
+    bannerData << "1 72 0 -45.524 -2.737 -1 0 0 0 0.927 0.375 0 0.375 -0.927 4865a.dat";
+    switch (type) {
+    case EXPORT_PNG:
+        bannerData << "1 25 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
+        bannerData << "1 25 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptn.dat";
+        bannerData << "1 25 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptg.dat";
+        break;
+    case EXPORT_JPG:
+        bannerData << "1 92 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptj.dat";
+        bannerData << "1 92 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
+        bannerData << "1 92 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptg.dat";
+        break;
+    case EXPORT_BMP:
+        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptb.dat";
+        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptm.dat";
+        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
+        break;
+    case EXPORT_WAVEFRONT:
+        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpto.dat";
+        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptb.dat";
+        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptj.dat";
+        break;
+    case EXPORT_COLLADA:
+        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptd.dat";
+        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpta.dat";
+        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpte.dat";
+        break;
+    case EXPORT_3DS_MAX:
+        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptx.dat";
+        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptd.dat";
+        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpts.dat";
+        break;
+    case EXPORT_STL:
+        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpts.dat";
+        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptt.dat";
+        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptl.dat";
+        break;
+    case EXPORT_POVRAY:
+        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
+        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpto.dat";
+        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptv.dat";
+        break;
+    case EXPORT_HTML_PARTS:
+        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpth.dat";
+        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptt.dat";
+        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptm.dat";
+        break;
+    case EXPORT_CSV:
+        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptc.dat";
+        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpts.dat";
+        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptv.dat";
+        break;
+    case EXPORT_BRICKLINK:
+        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptb.dat";
+        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptl.dat";
+        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptk.dat";
+        break;
+    default:
+        bannerData << "1 216 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
+        bannerData << "1 216 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptd.dat";
+        bannerData << "1 216 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptf.dat";
+    }
+    bannerData << "0";
+    bannerData << "0 NOFILE";
+
+    QFile bannerFile(printFile);
+    if ( ! bannerFile.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)) {
+        emit gui->messageSig(LOG_ERROR,tr("Cannot open Export Banner file %1 for writing:\n%2")
+                             .arg(printFile)
+                             .arg(bannerFile.errorString()));
+        return false;
+    }
+    QTextStream out(&bannerFile);
+    for (int i = 0; i < bannerData.size(); i++) {
+        QString fileLine = bannerData[i];
+        out << fileLine << endl;
+    }
+    bannerFile.close();
+
+    Project* BannerProject = new Project();
+    if (!gMainWindow->OpenProject(bannerFile.fileName()))
+    {
+      emit gui->messageSig(LOG_ERROR, tr("Could not load banner'%1'.").arg(bannerFile.fileName()));
+      delete BannerProject;
+      return false;
+    }
+
+    return true;
+}
+
 void Gui::groupActionTriggered()
 {
     QAction* Action = static_cast<QAction*>(sender());
@@ -1078,6 +1218,24 @@ void Gui::createStatusBar()
   connect(gMainWindow->mLCStatusBar, SIGNAL(messageChanged(QString)), this, SLOT(showLCStatusMessage()));
 }
 
+void Gui::readNativeSettings()
+{
+    QSettings Settings;
+    Settings.beginGroup(MAINWINDOW);
+    gMainWindow->PartSelectionWidgetLoadState(Settings);
+    Settings.endGroup();
+}
+
+void Gui::writeNativeSettings()
+{
+    QSettings Settings;
+    Settings.beginGroup(MAINWINDOW);
+    gMainWindow->PartSelectionWidgetSaveState(Settings);
+    Settings.endGroup();
+
+    gApplication->SaveTabLayout();
+}
+
 void Gui::SetActiveModel(const QString &fileName,bool newSubmodel)
 {
     if (fileName == VIEWER_MODEL_DEFAULT)
@@ -1160,6 +1318,222 @@ void Gui::saveCurrent3DViewerModel(const QString &modelFile)
 
 /*********************************************
  *
+ * Default camera settings
+ *
+ *********************************************/
+
+float Gui::getDefaultCameraFoV() const
+{
+    return (Preferences::usingNativeRenderer ?
+                gApplication->mPreferences.mCFoV :
+                Preferences::preferredRenderer == RENDERER_LDVIEW && Preferences::perspectiveProjection ?
+                CAMERA_FOV_LDVIEW_P_DEFAULT :
+                CAMERA_FOV_DEFAULT);
+}
+
+float Gui::getDefaultFOVMinRange() const
+{
+    return (Preferences::usingNativeRenderer ?
+                CAMERA_FOV_NATIVE_MIN_DEFAULT :
+                CAMERA_FOV_MIN_DEFAULT);
+}
+
+float Gui::getDefaultFOVMaxRange() const
+{
+    return (Preferences::usingNativeRenderer ?
+                CAMERA_FOV_NATIVE_MAX_DEFAULT :
+                Preferences::preferredRenderer == RENDERER_LDVIEW && Preferences::perspectiveProjection ?
+                CAMERA_FOV_LDVIEW_P_MAX_DEFAULT :
+                CAMERA_FOV_MAX_DEFAULT);
+}
+
+float Gui::getDefaultCameraZNear() const
+{
+    return (Preferences::usingNativeRenderer ?
+                gApplication->mPreferences.mCNear :
+                CAMERA_ZNEAR_DEFAULT);
+}
+
+float Gui::getDefaultCameraZFar() const
+{
+    return (Preferences::usingNativeRenderer ?
+                gApplication->mPreferences.mCFar :
+                CAMERA_ZFAR_DEFAULT);
+}
+
+/*********************************************
+ *
+ * RotStep Meta
+ *
+ ********************************************/
+
+void Gui::SetRotStepMeta()
+{
+    mStepRotation[0] = mRotStepAngleX;
+    mStepRotation[1] = mRotStepAngleY;
+    mStepRotation[2] = mRotStepAngleZ;
+
+    if (getCurFile() != "") {
+        ShowStepRotationStatus();
+        Step *currentStep = gui->getCurrentStep();
+
+        if (currentStep){
+            bool newCommand = currentStep->rotStepMeta.here() == Where();
+            int it = lcGetActiveProject()->GetImageType();
+            Where top = currentStep->topOfStep();
+
+            RotStepData rotStepData = currentStep->rotStepMeta.value();
+            rotStepData.type    = mRotStepTransform;
+            rotStepData.rots[0] = double(mStepRotation[0]);
+            rotStepData.rots[1] = double(mStepRotation[1]);
+            rotStepData.rots[2] = double(mStepRotation[2]);
+            currentStep->rotStepMeta.setValue(rotStepData);
+            QString metaString = currentStep->rotStepMeta.format(false/*no LOCAL tag*/,false);
+
+            if (newCommand){
+                if (top.modelName == gui->topLevelFile())
+                    currentStep->mi(it)->scanPastLPubMeta(top);
+
+                QString line = gui->readLine(top);
+                Rc rc = page.meta.parse(line,top);
+                if (rc == RotStepRc || rc == StepRc){
+                   currentStep->mi(it)->replaceMeta(top, metaString);
+                } else {
+                   currentStep->mi(it)->insertMeta(top, metaString);
+                }
+            } else {
+                currentStep->mi(it)->replaceMeta(top, metaString);
+            }
+        }
+    }
+}
+
+void Gui::ShowStepRotationStatus()
+{
+    QString rotLabel = QString("ROTSTEP X: %1 Y: %2 Z: %3 Transform: %4")
+                               .arg(QString::number(double(mRotStepAngleX), 'f', 2))
+                               .arg(QString::number(double(mRotStepAngleY), 'f', 2))
+                               .arg(QString::number(double(mRotStepAngleZ), 'f', 2))
+                               .arg(mRotStepTransform == "REL" ? "RELATIVE" :
+                                    mRotStepTransform == "ABS" ? "ABSOLUTE" : "ADD");
+    statusBarMsg(rotLabel);
+}
+
+void Gui::reloadViewer(){
+  if (!getCurFile().isEmpty()) {
+      Project* NewProject = new Project();
+      gApplication->SetProject(NewProject);
+  }
+}
+
+/*********************************************
+ *
+ * Native viewer convenience calls
+ *
+ ********************************************/
+
+ lcPiecesLibrary* Gui::GetPiecesLibrary()
+ {
+     return lcGetPiecesLibrary();
+ }
+
+ View* Gui::GetActiveView()
+ {
+     return gMainWindow->GetActiveView();
+ }
+
+ lcModel* Gui::GetActiveModel()
+ {
+     return GetActiveView()->GetActiveModel();
+ }
+
+ lcPartSelectionWidget* Gui::GetPartSelectionWidget()
+ {
+     return gMainWindow->GetPartSelectionWidget();
+ }
+
+ lcPreferences& Gui::GetPreferences()
+ {
+     return lcGetPreferences();
+ }
+
+ bool Gui::GetViewPieceIcons()
+ {
+     return lcGetPreferences().mViewPieceIcons;
+ }
+
+ void Gui::SetSubmodelIconsLoaded(bool value)
+ {
+     gMainWindow->mSubmodelIconsLoaded = value;
+ }
+
+ void Gui::SetStudLogo(int Logo, bool value)
+ {
+     lcGetPiecesLibrary()->SetStudLogo(Logo, value);
+ }
+
+ void Gui::UnloadOfficialPiecesLibrary()
+ {
+     lcGetPiecesLibrary()->UnloadOfficialLib();
+ }
+
+ void Gui::UnloadUnofficialPiecesLibrary()
+ {
+     lcGetPiecesLibrary()->UnloadUnofficialLib();
+ }
+
+ bool Gui::ReloadUnofficialPiecesLibrary()
+ {
+     return lcGetPiecesLibrary()->ReloadUnoffLib();
+ }
+
+ int Gui::Process3DViewerCommandLine()
+ {
+     return gApplication->Process3DViewerCommandLine();
+ }
+
+ void Gui::LoadDefaults()
+ {
+     gApplication->mPreferences.LoadDefaults();
+ }
+
+ void Gui::UpdateAllViews()
+ {
+     gMainWindow->UpdateAllViews();
+ }
+
+ bool Gui::OpenProject(const QString& FileName)
+ {
+     return gMainWindow->OpenProject(FileName);
+ }
+
+ QToolBar* Gui::GetToolsToolBar()
+ {
+     return gMainWindow->GetToolsToolBar();
+ }
+
+ QDockWidget* Gui::GetTimelineToolBar()
+ {
+     return gMainWindow->GetTimelineToolBar();
+ }
+
+ QDockWidget* Gui::GetPropertiesToolBar()
+ {
+     return gMainWindow->GetPropertiesToolBar();
+ }
+
+ QDockWidget* Gui::GetPartsToolBar()
+ {
+     return gMainWindow->GetPartsToolBar();
+ }
+
+ QDockWidget* Gui::GetColorsToolBar()
+ {
+     return gMainWindow->GetColorsToolBar();
+ }
+
+/*********************************************
+ *
  * build modificaitons
  *
  ********************************************/
@@ -1172,7 +1546,7 @@ void Gui::createBuildModification()
     if (lcGetActiveProject()->GetImageType() == Options::Mt::PLI)
         return;
 
-    View* ActiveView = gMainWindow->GetActiveView();
+    View* ActiveView = GetActiveView();
     lcModel* ActiveModel = ActiveView->GetActiveModel();
 
     if (ActiveModel) {

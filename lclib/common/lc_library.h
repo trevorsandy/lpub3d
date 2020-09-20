@@ -85,7 +85,7 @@ public:
 	bool Load(const QString& LibraryPath, bool ShowProgress);
 	void Unload();
 /*** LPub3D Mod - library reload ***/
-	bool ReloadUnoffLib();
+    bool ReloadUnoffLib();
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - unload Unofficial library ***/

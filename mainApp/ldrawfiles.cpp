@@ -45,9 +45,7 @@
 
 #include "lpub.h"
 #include "ldrawfilesload.h"
-#include "lc_application.h"
 #include "lc_library.h"
-#include "project.h"
 #include "pieceinf.h"
 
 /********************************************
@@ -498,12 +496,12 @@ QStringList LDrawFile::getSubFilePaths()
         QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(_includeFileList[i]);
         if (f != _subFiles.end()) {
             if (!f.value()._subFilePath.isEmpty()) {
-                subFiles << f.value()._subFilePath;
+                subFilesPaths << f.value()._subFilePath;
             }
         }
       }
   }
-  return subFiles;
+  return subFilesPaths;
 }
 
 void LDrawFile::setModelStartPageNumber(const QString     &mcFileName,
@@ -1123,7 +1121,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
                 subFileFound = !stageSubfileName.isEmpty();
             }
             if (subFileFound) {
-                PieceInfo* standardPart = lcGetPiecesLibrary()->FindPiece(stageSubfileName.toLatin1().constData(), nullptr, false, false);
+                PieceInfo* standardPart = gui->GetPiecesLibrary()->FindPiece(stageSubfileName.toLatin1().constData(), nullptr, false, false);
                 if (! standardPart && ! LDrawFile::contains(stageSubfileName.toLower()) && ! stageSubfiles.contains(stageSubfileName)) {
                     stageSubfiles.append(stageSubfileName);
                 }
@@ -1499,7 +1497,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
             // resolve outstanding subfiles
             if (subFileFound) {
                 QFileInfo subFileInfo = QFileInfo(subfileName);
-                PieceInfo* standardPart = lcGetPiecesLibrary()->FindPiece(subFileInfo.fileName().toLatin1().constData(), nullptr, false, false);
+                PieceInfo* standardPart = gui->GetPiecesLibrary()->FindPiece(subFileInfo.fileName().toLatin1().constData(), nullptr, false, false);
                 if (! standardPart && ! LDrawFile::contains(subFileInfo.fileName())) {
                     subFileFound = false;
                     // current path
@@ -2038,7 +2036,7 @@ void LDrawFile::countParts(const QString &fileName) {
                         }
                         PieceInfo* pieceInfo;
                         if (!_loadedParts.contains(QString(VALID_LOAD_MSG) + partString)) {
-                            pieceInfo = lcGetPiecesLibrary()->FindPiece(partFile.toLatin1().constData(), nullptr, false, false);
+                            pieceInfo = gui->GetPiecesLibrary()->FindPiece(partFile.toLatin1().constData(), nullptr, false, false);
                             if (pieceInfo) {
                                 partString += pieceInfo->m_strDescription;
                                 if (pieceInfo->IsSubPiece()) {
@@ -2057,7 +2055,7 @@ void LDrawFile::countParts(const QString &fileName) {
                                         emit gui->messageSig(LOG_NOTICE,QString("Part %1 [%2] validated.").arg(_partCount).arg(type));
                                     }
                                 } else
-                                if (lcGetPiecesLibrary()->IsPrimitive(partFile.toLatin1().constData())){
+                                if (gui->GetPiecesLibrary()->IsPrimitive(partFile.toLatin1().constData())){
                                     if (pieceInfo->IsSubPiece()) {
                                         //emit gui->messageSig(LOG_DEBUG,QString("PIECE_SUBPART_PRIMITIVE %1 LINE %2 MODEL %3").arg(type).arg(i).arg(modelName));
                                         if (!_loadedParts.contains(QString(SUBPART_LOAD_MSG) + partString)) {

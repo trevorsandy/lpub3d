@@ -18,6 +18,7 @@
 #include "commands.h"
 
 #include "view.h"
+#include "lc_model.h"
 
 QString Gui::topLevelFile()
 {
@@ -100,7 +101,7 @@ void Gui::contentsChange(
 void Gui::undo()
 {
   if (viewerUndo){
-    View* ActiveView = gMainWindow->GetActiveView();
+    View* ActiveView = GetActiveView();
     lcModel* ActiveModel = ActiveView ? ActiveView->GetActiveModel() : nullptr;
     if (ActiveModel)
       ActiveModel->UndoAction();
@@ -115,7 +116,7 @@ void Gui::undo()
 void Gui::redo()
 {
   if (viewerRedo){
-    View* ActiveView = gMainWindow->GetActiveView();
+    View* ActiveView = GetActiveView();
     lcModel* ActiveModel = ActiveView ? ActiveView->GetActiveModel() : nullptr;
     if (ActiveModel)
       ActiveModel->RedoAction();

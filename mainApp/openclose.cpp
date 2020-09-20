@@ -628,7 +628,8 @@ void Gui::closeFile()
   undoStack->clear();
   if (Preferences::enableFadeSteps || Preferences::enableHighlightStep)
       ldrawColourParts.clearGeneratedColorParts();
-  submodelIconsLoaded = gMainWindow->mSubmodelIconsLoaded = false;
+  submodelIconsLoaded = false;
+  SetSubmodelIconsLoaded(submodelIconsLoaded);
   if (!curFile.isEmpty()) {
       emit messageSig(LOG_DEBUG, QString("File closed - %1.").arg(curFile));
       curFile.clear();
@@ -684,7 +685,7 @@ bool Gui::openFile(QString &fileName)
   parsedMessages.clear();
   clearPage(KpageView,KpageScene,true);
   closeFile();
-  if (lcGetPreferences().mViewPieceIcons)
+  if (GetViewPieceIcons())
       mPliIconsPath.clear();
   emit messageSig(LOG_INFO_STATUS, QString("Loading LDraw model file [%1]...").arg(fileName));
   if (ldrawFile.loadFile(fileName) != 0) {

@@ -25,14 +25,14 @@
  * make up the LPub program.
  *
  ***************************************************************************/
+#include <QtWidgets>
+#include <QGraphicsView>
 
 #include "lpub.h"
-#include <QtWidgets>
 #include "callout.h"
 #include "calloutbackgrounditem.h"
 #include "pointer.h"
 #include "calloutpointeritem.h"
-#include <QGraphicsView>
 #include "commonmenus.h"
 
 CalloutBackgroundItem::CalloutBackgroundItem(

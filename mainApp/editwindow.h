@@ -28,8 +28,6 @@
  *
  ***************************************************************************/
 
-#pragma once
-
 #ifndef EDITWINDOW_H
 #define EDITWINDOW_H
 
@@ -38,6 +36,9 @@
 #include <QTextEdit>
 #include <QTextCursor>
 #include <QFileSystemWatcher>
+
+#include "lc_global.h"
+#include "lc_math.h"
 
 #include "name.h"
 #include "historylineedit.h"

@@ -23,16 +23,14 @@
  *
  ***************************************************************************/
 
-#pragma once
-
 #ifndef PIECEPREVIEW_H
 #define PIECEPREVIEW_H
 
 #include <QString>
-#include "lc_global.h"
 #include "lc_glwidget.h"
+#include "lc_math.h"
 
-//class PieceInfo;
+class PieceInfo;
 
 class PiecePreview : public lcGLWidget
 {

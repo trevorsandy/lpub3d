@@ -35,6 +35,9 @@
 
 #include <ui_progress_dialog.h>
 
+//#include "lc_global.h"
+//#include "lc_math.h"
+
 #include "lpub.h"
 
 #include "name.h"
@@ -60,7 +63,6 @@
 
 //3D Viewer
 #include "camera.h"
-#include "project.h"
 #include "view.h"
 #include "piece.h"
 #include "lc_profile.h"
@@ -1179,58 +1181,6 @@ void Gui::sendToBack()
     setSceneItemZValue(SendToBack);
 }
 
-void Gui::SetRotStepMeta()
-{
-    mStepRotation[0] = mRotStepAngleX;
-    mStepRotation[1] = mRotStepAngleY;
-    mStepRotation[2] = mRotStepAngleZ;
-
-    if (getCurFile() != "") {
-        ShowStepRotationStatus();
-        Step *currentStep = gui->getCurrentStep();
-
-        if (currentStep){
-            bool newCommand = currentStep->rotStepMeta.here() == Where();
-            int it = lcGetActiveProject()->GetImageType();
-            Where top = currentStep->topOfStep();
-
-            RotStepData rotStepData = currentStep->rotStepMeta.value();
-            rotStepData.type    = mRotStepTransform;
-            rotStepData.rots[0] = double(mStepRotation[0]);
-            rotStepData.rots[1] = double(mStepRotation[1]);
-            rotStepData.rots[2] = double(mStepRotation[2]);
-            currentStep->rotStepMeta.setValue(rotStepData);
-            QString metaString = currentStep->rotStepMeta.format(false/*no LOCAL tag*/,false);
-
-            if (newCommand){
-                if (top.modelName == gui->topLevelFile())
-                    currentStep->mi(it)->scanPastLPubMeta(top);
-
-                QString line = gui->readLine(top);
-                Rc rc = page.meta.parse(line,top);
-                if (rc == RotStepRc || rc == StepRc){
-                   currentStep->mi(it)->replaceMeta(top, metaString);
-                } else {
-                   currentStep->mi(it)->insertMeta(top, metaString);
-                }
-            } else {
-                currentStep->mi(it)->replaceMeta(top, metaString);
-            }
-        }
-    }
-}
-
-void Gui::ShowStepRotationStatus()
-{
-    QString rotLabel = QString("ROTSTEP X: %1 Y: %2 Z: %3 Transform: %4")
-                               .arg(QString::number(double(mRotStepAngleX), 'f', 2))
-                               .arg(QString::number(double(mRotStepAngleY), 'f', 2))
-                               .arg(QString::number(double(mRotStepAngleZ), 'f', 2))
-                               .arg(mRotStepTransform == "REL" ? "RELATIVE" :
-                                    mRotStepTransform == "ABS" ? "ABSOLUTE" : "ADD");
-    statusBarMsg(rotLabel);
-}
-
 /*
  Compares the two version strings (first and second).
  If first is greater than second, this function returns true.
@@ -1369,120 +1319,6 @@ void Gui::deployExportBanner(bool b)
 
 /*-----------------------------------------------------------------------------*/
 
-bool Gui::installExportBanner(const int &type, const QString &printFile, const QString &imageFile){
-
-    QList<QString> bannerData;
-    bannerData << "0 Print Banner";
-    bannerData << "0 Name: printbanner.ldr";
-    bannerData << "0 Author: Trevor SANDY";
-    bannerData << "0 Unofficial Model";
-    bannerData << "0 !LPUB MODEL NAME Printbanner";
-    bannerData << "0 !LPUB MODEL AUTHOR LPub3D";
-    bannerData << "0 !LPUB MODEL DESCRIPTION Graphic displayed during pdf printing";
-    bannerData << "0 !LPUB MODEL BACKGROUND IMAGE NAME " + imageFile;
-    bannerData << "1 71 0 0 0 1 0 0 0 1 0 0 0 1 3020.dat";
-    bannerData << "1 71 30 -8 10 1 0 0 0 1 0 0 0 1 3024.dat";
-    bannerData << "1 71 30 -16 10 1 0 0 0 1 0 0 0 1 3024.dat";
-    bannerData << "1 71 -30 -8 10 1 0 0 0 1 0 0 0 1 3024.dat";
-    bannerData << "1 71 -30 -16 10 1 0 0 0 1 0 0 0 1 3024.dat";
-    bannerData << "1 71 -30 -32 10 1 0 0 0 1 0 0 0 1 6091.dat";
-    bannerData << "1 71 30 -32 10 1 0 0 0 1 0 0 0 1 6091.dat";
-    bannerData << "1 71 30 -32 10 1 0 0 0 1 0 0 0 1 30039.dat";
-    bannerData << "1 2 -30 -32 10 1 0 0 0 1 0 0 0 1 30039.dat";
-    bannerData << "1 71 0 -24 10 1 0 0 0 1 0 0 0 1 3937.dat";
-    bannerData << "1 72 0 -8 -10 1 0 0 0 1 0 0 0 1 3023.dat";
-    bannerData << "1 72 0 -8 -10 -1 0 0 0 1 0 0 0 -1 85984.dat";
-    bannerData << "1 71 0 -23.272 6.254 -1 0 0 0 0.927 0.375 0 0.375 -0.927 3938.dat";
-    bannerData << "1 72 0 -45.524 -2.737 -1 0 0 0 0.927 0.375 0 0.375 -0.927 4865a.dat";
-    switch (type) {
-    case EXPORT_PNG:
-        bannerData << "1 25 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
-        bannerData << "1 25 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptn.dat";
-        bannerData << "1 25 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptg.dat";
-        break;
-    case EXPORT_JPG:
-        bannerData << "1 92 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptj.dat";
-        bannerData << "1 92 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
-        bannerData << "1 92 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptg.dat";
-        break;
-    case EXPORT_BMP:
-        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptb.dat";
-        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptm.dat";
-        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
-        break;
-    case EXPORT_WAVEFRONT:
-        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpto.dat";
-        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptb.dat";
-        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptj.dat";
-        break;
-    case EXPORT_COLLADA:
-        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptd.dat";
-        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpta.dat";
-        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpte.dat";
-        break;
-    case EXPORT_3DS_MAX:
-        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptx.dat";
-        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptd.dat";
-        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpts.dat";
-        break;
-    case EXPORT_STL:
-        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpts.dat";
-        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptt.dat";
-        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptl.dat";
-        break;
-    case EXPORT_POVRAY:
-        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
-        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpto.dat";
-        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptv.dat";
-        break;
-    case EXPORT_HTML_PARTS:
-        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpth.dat";
-        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptt.dat";
-        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptm.dat";
-        break;
-    case EXPORT_CSV:
-        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptc.dat";
-        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpts.dat";
-        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptv.dat";
-        break;
-    case EXPORT_BRICKLINK:
-        bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptb.dat";
-        bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptl.dat";
-        bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptk.dat";
-        break;
-    default:
-        bannerData << "1 216 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptp.dat";
-        bannerData << "1 216 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptd.dat";
-        bannerData << "1 216 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptf.dat";
-    }
-    bannerData << "0";
-    bannerData << "0 NOFILE";
-
-    QFile bannerFile(printFile);
-    if ( ! bannerFile.open(QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text)) {
-        emit gui->messageSig(LOG_ERROR,tr("Cannot open Export Banner file %1 for writing:\n%2")
-                             .arg(printFile)
-                             .arg(bannerFile.errorString()));
-        return false;
-    }
-    QTextStream out(&bannerFile);
-    for (int i = 0; i < bannerData.size(); i++) {
-        QString fileLine = bannerData[i];
-        out << fileLine << endl;
-    }
-    bannerFile.close();
-
-    Project* BannerProject = new Project();
-    if (!gMainWindow->OpenProject(bannerFile.fileName()))
-    {
-      emit gui->messageSig(LOG_ERROR, tr("Could not load banner'%1'.").arg(bannerFile.fileName()));
-      delete BannerProject;
-      return false;
-    }
-
-    return true;
-}
-
 void Gui::mpdComboChanged(int index)
 {
   QString newSubFile = mpdCombo->currentText();
@@ -1518,13 +1354,6 @@ void Gui::mpdComboChanged(int index)
       mpdCombo->setToolTip(isIncludeFile ? tr("Include file: %1").arg(newSubFile) :
                                            tr("Current Submodel: %1").arg(mpdCombo->currentText()));
     }
-}
-
-void Gui::reloadViewer(){
-  if (!getCurFile().isEmpty()) {
-      Project* NewProject = new Project();
-      gApplication->SetProject(NewProject);
-  }
 }
 
 void Gui::loadTheme(bool restart){
@@ -2898,7 +2727,7 @@ void Gui::preferences()
 
         if (perspectiveProjectionChanged) {
            lcSetProfileInt(LC_PROFILE_NATIVE_PROJECTION, Preferences::perspectiveProjection ? 0 : 1);
-           gApplication->mPreferences.LoadDefaults();
+           LoadDefaults();
            emit messageSig(LOG_INFO,QString("Projection set to %1").arg(Preferences::perspectiveProjection ? "Perspective" : "Orthographic"));
         }
 
@@ -3120,7 +2949,7 @@ Gui::Gui()
     previousPageContinuousIsRunning = false;
 
     mBuildModRange    = { 0, 0, -1 };
-    mStepRotation     = lcVector3(0.0f, 0.0f, 0.0f);
+    mStepRotation     = {0.0f, 0.0f, 0.0f};
     mRotStepAngleX    = 0.0f;
     mRotStepAngleY    = 0.0f;
     mRotStepAngleZ    = 0.0f;
@@ -3348,23 +3177,6 @@ void Gui::initialize()
   connect(this,        SIGNAL(enable3DActionsSig()),                     this,        SLOT(Enable3DActions()));
   connect(this,        SIGNAL(disable3DActionsSig()),                    this,        SLOT(Disable3DActions()));
 
-  connect(this,        SIGNAL(setExportingSig(bool)),                    gMainWindow, SLOT(Halt3DViewer(bool)));
-  connect(this,        SIGNAL(enable3DActionsSig()),                     gMainWindow, SLOT(Enable3DActions()));
-  connect(this,        SIGNAL(disable3DActionsSig()),                    gMainWindow, SLOT(Disable3DActions()));
-  connect(this,        SIGNAL(updateAllViewsSig()),                      gMainWindow, SLOT(UpdateAllViews()));
-  connect(this,        SIGNAL(clearViewerWindowSig()),                   gMainWindow, SLOT(NewProject()));
-  connect(this,        SIGNAL(setSelectedPiecesSig(QVector<int>&)),      gMainWindow, SLOT(SetSelectedPieces(QVector<int>&)));
-
-  connect(gMainWindow, SIGNAL(SetRotStepMeta()),                         this,        SLOT(SetRotStepMeta()));
-  connect(gMainWindow, SIGNAL(SetRotStepAngleX(float,bool)),             this,        SLOT(SetRotStepAngleX(float,bool)));
-  connect(gMainWindow, SIGNAL(SetRotStepAngleY(float,bool)),             this,        SLOT(SetRotStepAngleY(float,bool)));
-  connect(gMainWindow, SIGNAL(SetRotStepAngleZ(float,bool)),             this,        SLOT(SetRotStepAngleZ(float,bool)));
-  connect(gMainWindow, SIGNAL(SetRotStepTransform(QString&,bool)),       this,        SLOT(SetRotStepTransform(QString&,bool)));
-  connect(gMainWindow, SIGNAL(GetRotStepMeta()),                         this,        SLOT(GetRotStepMeta()));
-  connect(gMainWindow, SIGNAL(updateSig()),                              this,        SLOT(loadUpdatedImages()));
-  connect(gMainWindow, SIGNAL(SetActiveModelSig(const QString&,bool)),   this,        SLOT(SetActiveModel(const QString&,bool)));
-  connect(gMainWindow, SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),this,SLOT(SelectedPartLines(QVector<TypeLine>&,PartSource)));
-  connect(gMainWindow, SIGNAL(UpdateUndoRedoSig(const QString&,const QString&)),   this,SLOT(UpdateViewerUndoRedo(const QString&,const QString&)));
 
 /* Moved to PartWorker::ldsearchDirPreferences()  */
 //  if (Preferences::preferredRenderer == RENDERER_LDGLITE)
@@ -3377,13 +3189,13 @@ void Gui::initialize()
   createToolBars();
   createStatusBar();
   createDockWindows();
+  initiaizeNativeViewer();
   toggleLCStatusBar(true);
 
   emit Application::instance()->splashMsgSig(QString("95% - LDraw colors loading..."));
 
   LDrawColor::LDrawColorInit();
 
-  emit disable3DActionsSig();
   setCurrentFile("");
   updateOpenWithActions();
   readSettings();
@@ -3855,7 +3667,7 @@ void Gui::refreshLDrawUnoffParts() {
              this, SLOT (cancelExporting()));
 
     // Unload LDraw Unofficial archive library
-    gApplication->mLibrary->UnloadUnofficialLib();
+    UnloadUnofficialPiecesLibrary();
 
     // Copy new archive library to user data
     QString archivePath = QDir::toNativeSeparators(tr("%1/libraries").arg(Preferences::lpubDataPath));
@@ -3961,7 +3773,7 @@ void Gui::refreshLDrawOfficialParts() {
     }
 
     // Unload LDraw Official archive libraries
-    gApplication->mLibrary->UnloadOfficialLib();
+    UnloadOfficialPiecesLibrary();
 
     // Copy archive library to user data
     QString archivePath = QDir::toNativeSeparators(tr("%1/libraries").arg(Preferences::lpubDataPath));
@@ -5572,8 +5384,9 @@ void Gui::readSettings()
         restoreGeometry(geometry);
     }
     resize(size);
-    gMainWindow->mPartSelectionWidget->LoadState(Settings);
     Settings.endGroup();
+
+    readNativeSettings();
 }
 
 void Gui::writeSettings()
@@ -5583,10 +5396,9 @@ void Gui::writeSettings()
     Settings.setValue("Geometry", saveGeometry());
     Settings.setValue("State", saveState());
     Settings.setValue("Size", size());
-    gMainWindow->mPartSelectionWidget->SaveState(Settings);
     Settings.endGroup();
 
-    gApplication->SaveTabLayout();
+    writeNativeSettings();
 }
 
 void Gui::showLine(const Where &topOfStep, int type)

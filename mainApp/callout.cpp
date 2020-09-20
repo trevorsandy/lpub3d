@@ -29,8 +29,8 @@
 
 #include <QtWidgets>
 
-#include "lpub.h"
 #include "callout.h"
+#include "lpub.h"
 #include "calloutbackgrounditem.h"
 #include "pointer.h"
 #include "calloutpointeritem.h"

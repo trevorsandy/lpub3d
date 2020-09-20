@@ -24,7 +24,6 @@
 #include "preferencesdialog.h"
 #include "lpub_preferences.h"
 #include "application.h"
-#include "lc_application.h"
 #include "updatecheck.h"
 
 #include <LDVQt/LDVWidget.h>

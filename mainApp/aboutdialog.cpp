@@ -23,9 +23,9 @@
 #endif
 #include "aboutdialog.h"
 #include "ui_aboutdialog.h"
+#include "lc_global.h"
 #include "name.h"
 #include "version.h"
-#include "lc_global.h"
 #include "lpub_preferences.h"
 #include "qsimpleupdater.h"
 

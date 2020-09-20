@@ -504,7 +504,6 @@ int Step::createCsi(
       viewerOptions->Resolution     = resolution();
       viewerOptions->PageWidth      = gui->pageSize(meta.LPub.page, 0);
       viewerOptions->PageHeight     = gui->pageSize(meta.LPub.page, 1);
-      viewerOptions->UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
       viewerOptions->CameraDistance = camDistance > 0 ? camDistance : renderer->ViewerCameraDistance(meta,csiStepMeta.modelScale.value());
       viewerOptions->IsOrtho        = csiStepMeta.isOrtho.value();
       viewerOptions->CameraName     = csiStepMeta.cameraName.value();
@@ -2421,7 +2420,7 @@ void Step::sizeitFreeform(
     int &left,
     int &right)
 {
-  relativeJustification = relativeJustification;
+  Q_UNUSED(relativeJustification);
   // size up each callout
 
   for (int i = 0; i < list.size(); i++) {

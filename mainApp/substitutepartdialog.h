@@ -26,7 +26,6 @@
 #ifndef SUBSTITUTEPARTDIALOG_H
 #define SUBSTITUTEPARTDIALOG_H
 
-#pragma once
 #include <QDialog>
 
 namespace Ui {

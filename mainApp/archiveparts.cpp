@@ -17,9 +17,6 @@
 #include "lpub.h"
 #include "paths.h"
 
-#include "lc_application.h"
-
-
 ArchiveParts::ArchiveParts(QObject *parent) : QObject(parent)
 {
 }

@@ -21,7 +21,7 @@
 int Gui::processCommandLine()
 {
   // 3DViewer
-  int viewerJob = gApplication->Process3DViewerCommandLine();
+  int viewerJob = Process3DViewerCommandLine();
   if (viewerJob < 0)
      return 1;
   else
@@ -146,7 +146,7 @@ int Gui::processCommandLine()
         ParseInteger(StudLogo);
         if (StudLogo != lcGetProfileInt(LC_PROFILE_STUD_LOGO))
         {
-            lcGetPiecesLibrary()->SetStudLogo(StudLogo, false);
+            SetStudLogo(StudLogo, false);
         }
       } else
 //      if (Param == QLatin1String("-im") || Param == QLatin1String("--image-matte"))

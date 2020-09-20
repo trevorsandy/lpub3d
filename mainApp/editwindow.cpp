@@ -44,6 +44,7 @@
 #include <QAbstractItemModel>
 #include <QScrollBar>
 
+#include "lc_global.h"
 #include "editwindow.h"
 #include "lpubalert.h"
 #include "highlighter.h"

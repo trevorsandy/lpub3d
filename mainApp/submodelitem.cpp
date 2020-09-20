@@ -342,7 +342,6 @@ int SubModel::createSubModelImage(
       viewerOptions->Resolution     = resolution();
       viewerOptions->PageWidth      = pageSizeP(meta, 0);
       viewerOptions->PageHeight     = pageSizeP(meta, 1);
-      viewerOptions->UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
       viewerOptions->CameraDistance = camDistance > 0 ? camDistance : renderer->ViewerCameraDistance(*meta,subModelMeta.modelScale.value());
       viewerOptions->CameraName     = subModelMeta.cameraName.value();
       viewerOptions->RotStep        = xyzVector(float(subModelMeta.rotStep.value().rots[0]),float(subModelMeta.rotStep.value().rots[1]),float(subModelMeta.rotStep.value().rots[2]));
@@ -582,8 +581,8 @@ int SubModel::resizeSubModel(
   //   Constrain Area
   //   Constrain Square
 
-  int cols, height;
-  int subModelWidth,subModelHeight;
+  int cols = 0, height = 0;
+  int subModelWidth = 0,subModelHeight = 0;
 
   if (constrainData.type == ConstrainData::PliConstrainHeight) {
     int cols;
@@ -600,7 +599,7 @@ int SubModel::resizeSubModel(
   } else if (constrainData.type == ConstrainData::PliConstrainColumns) {
       if (parts.size() <= constrainData.constraint) {
         placeCols(sortedKeys);
-        subModelWidth = Placement::size[0];
+        subModelWidth  = Placement::size[0];
         subModelHeight = Placement::size[1];
         cols = parts.size();
       } else {

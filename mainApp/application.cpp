@@ -12,19 +12,19 @@
 **
 ****************************************************************************/
 
-#include "application.h"
-
 #include <QDir>
 #include <iostream>
 #include <QMessageBox>
 #include <TCFoundation/TCUserDefaults.h>
 
+#include "application.h"
 #include "lpub_preferences.h"
 #include "lpub.h"
 #include "resolution.h"
 
-#include "lc_math.h"
 #include "lc_profile.h"
+#include "lc_application.h"
+#include "lc_mainwindow.h"
 
 #include "updatecheck.h"
 

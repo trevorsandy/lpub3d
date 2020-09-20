@@ -28,6 +28,8 @@
 #include "ui_substitutepartdialog.h"
 #include <QFileInfo>
 #include <functional>
+
+#include "lc_global.h"
 #include "ldrawpartdialog.h"
 #include "ldrawcolordialog.h"
 #include "lpubalert.h"
@@ -36,9 +38,8 @@
 
 #include "lc_qglwidget.h"
 #include "piecepreview.h"
-#include "lc_global.h"
 #include "pieceinf.h"
-#include "project.h"
+#include "lc_application.h"
 #include "lc_model.h"
 #include "lc_library.h"
 #include "lc_scene.h"

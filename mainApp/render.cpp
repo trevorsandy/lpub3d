@@ -52,9 +52,12 @@
 #include "lc_file.h"
 #include "project.h"
 #include "pieceinf.h"
-#include "lc_qhtmldialog.h"
+#include "lc_model.h"
 #include "view.h"
+#include "lc_qhtmldialog.h"
 #include "lc_partselectionwidget.h"
+
+#include "lc_library.h"
 
 #ifdef Q_OS_WIN
 #include <Windows.h>
@@ -2619,7 +2622,6 @@ int Native::renderCsi(
   Options->ModelScale        = modelScale;
   Options->CameraDistance    = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
   Options->LineWidth         = lineThickness;
-  Options->UsingViewpoint    = gApplication->mPreferences.mNativeViewpoint <= 6;
   Options->HighlightNewParts = gui->suppressColourMeta(); //Preferences::enableHighlightStep;
 
   // Set CSI project
@@ -2804,7 +2806,6 @@ int Native::renderPli(
   Options->ModelScale     = modelScale;
   Options->CameraDistance = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
   Options->LineWidth      = HIGHLIGHT_LINE_WIDTH_DEFAULT;
-  Options->UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
 
   // Set PLI project
   Project* PliImageProject = new Project();
@@ -2845,14 +2846,14 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
                 O->ImageFileName,
                 O->Resolution);
 
-    lcGetPiecesLibrary()->SetStudLogo(O->StudLogo,true);
+    gui->SetStudLogo(O->StudLogo,true);
 
     if (!RenderImage) {
         gui->enableApplyLightAction();
-        gMainWindow->GetPartSelectionWidget()->SetDefaultPart();
+        gui->GetPartSelectionWidget()->SetDefaultPart();
     }
 
-    View* ActiveView = gMainWindow->GetActiveView();
+    View* ActiveView = gui->GetActiveView();
 
     lcModel* ActiveModel = ActiveView->GetActiveModel();
 
@@ -2861,13 +2862,14 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
     // Switch Y and Z axis with -Y(LC -Z) in the up direction (Reset)
     lcVector3 Target = lcVector3(O->Target.x,O->Target.z,O->Target.y);
 
-    bool DefaultCamera = O->CameraName.isEmpty();
-    bool IsOrtho       = DefaultCamera ? gApplication->mPreferences.mNativeProjection : O->IsOrtho;
-    bool ZoomExtents   = !RenderImage && IsOrtho;
+    bool DefaultCamera  = O->CameraName.isEmpty();
+    bool IsOrtho        = DefaultCamera ? gui->GetPreferences().mNativeProjection : O->IsOrtho;
+    bool ZoomExtents    = !RenderImage && IsOrtho;
+    bool UsingViewpoint = gui->GetPreferences().mNativeViewpoint <= 6;
 
-    if (O->UsingViewpoint) {   // ViewPoints (Front, Back, Top, Bottom, Left, Right, Home)
+    if (UsingViewpoint) {      // ViewPoints (Front, Back, Top, Bottom, Left, Right, Home)
 
-        ActiveView->SetViewpoint(lcViewpoint(gApplication->mPreferences.mNativeViewpoint));
+        ActiveView->SetViewpoint(lcViewpoint(gui->GetPreferences().mNativeViewpoint));
 
     } else {                   // Default View (Angles + Distance + Perspective|Orthographic)
 
@@ -2906,7 +2908,7 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
         arguments << QString("CameraDistance (Scale %1): %2").arg(double(O->ModelScale)).arg(double(O->CameraDistance),0,'f',0);
         arguments << QString("CameraName: %1").arg(DefaultCamera ? "Default" : O->CameraName);
         arguments << QString("CameraProjection: %1").arg(IsOrtho ? "Orthographic" : "Perspective");
-        arguments << QString("UsingViewpoint: %1").arg(O->UsingViewpoint ? "True" : "False");
+        arguments << QString("UsingViewpoint: %1").arg(UsingViewpoint ? "True" : "False");
         arguments << QString("ZoomExtents: %1").arg(ZoomExtents ? "True" : "False");
         arguments << QString("CameraLatitude: %1").arg(double(O->Latitude));
         arguments << QString("CameraLongitude: %1").arg(double(O->Longitude));
@@ -3056,7 +3058,7 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
 
 bool Render::RenderNativeImage(const NativeOptions *Options)
 {
-    if (! gMainWindow->OpenProject(Options->InputFileName))
+    if (! gui->OpenProject(Options->InputFileName))
         return false;
 
     return ExecuteViewer(Options,true/*exportImage*/);
@@ -3069,7 +3071,7 @@ bool Render::LoadViewer(const ViewerOptions *Options){
     Project* StepProject = new Project();
     if (LoadStepProject(StepProject, Options->ViewerStepKey)){
         gApplication->SetProject(StepProject);
-        gMainWindow->UpdateAllViews();
+        gui->UpdateAllViews();
     }
     else
     {
@@ -3204,11 +3206,8 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerStepKey)
 
 int Render::getViewerPieces()
 {
-    View* ActiveView = gMainWindow->GetActiveView();
-    lcModel* ActiveModel = ActiveView->GetActiveModel();
-
-    if (ActiveModel)
-        return ActiveModel->GetPieces().GetSize();
+    if (gui->GetActiveModel())
+        return gui->GetActiveModel()->GetPieces().GetSize();
     return 0;
 }
 
@@ -3228,7 +3227,7 @@ bool Render::NativeExport(const NativeOptions *Options) {
         emit gui->messageSig(LOG_STATUS, QString("Native CSI %1 Export...").arg(exportModeName));
         gApplication->SetProject(NativeExportProject);
         if (Options->ExportMode != EXPORT_HTML_STEPS) {
-            if (! gMainWindow->OpenProject(Options->InputFileName)) {
+            if (! gui->OpenProject(Options->InputFileName)) {
                 emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to open CSI %1 Export project")
                                                                .arg(exportModeName));
                 delete NativeExportProject;
@@ -3270,7 +3269,7 @@ bool Render::NativeExport(const NativeOptions *Options) {
 
         HTMLOptions.PathName = Options->ExportFileName;
 
-        lcQHTMLDialog Dialog(gMainWindow, &HTMLOptions);
+        lcQHTMLDialog Dialog(gui, &HTMLOptions);
         if ((exportCancelled = Dialog.exec() != QDialog::Accepted))
             rc = true;
 
@@ -3278,7 +3277,7 @@ bool Render::NativeExport(const NativeOptions *Options) {
 
         if (! exportCancelled) {
 
-            if (! gMainWindow->OpenProject(Options->InputFileName)) {
+            if (! gui->OpenProject(Options->InputFileName)) {
                 emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to open CSI %1 Export project")
                                                                .arg(exportModeName));
                 delete NativeExportProject;

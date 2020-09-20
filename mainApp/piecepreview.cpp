@@ -23,7 +23,7 @@
  *
  ***************************************************************************/
 
-//#include "lc_global.h" // add on header, triggering circular reference build break here
+#include "lc_global.h"
 #include "piecepreview.h"
 #include "pieceinf.h"
 #include "project.h"

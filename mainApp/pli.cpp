@@ -35,6 +35,7 @@
 #include <QFile>
 #include <QTextStream>
 
+#include "lpub.h"
 #include "pli.h"
 #include "step.h"
 #include "ranges.h"
@@ -46,16 +47,15 @@
 #include "placementdialog.h"
 #include "metaitem.h"
 #include "color.h"
-#include "lpub.h"
 #include "commonmenus.h"
 #include "lpub_preferences.h"
 #include "ranges_element.h"
 #include "range_element.h"
 #include "dependencies.h"
 
-#include "lc_category.h"
 #include "lc_library.h"
 #include "pieceinf.h"
+#include "lc_category.h"
 
 QCache<QString,QString> Pli::orientation;
 
@@ -922,7 +922,7 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
 
     int rc = 0;
     fadeSteps = Preferences::enableFadeSteps ;
-    displayIcons = gApplication->mPreferences.mViewPieceIcons;
+    displayIcons = gui->GetViewPieceIcons();
     fadeColour = LDrawColor::ldColorCode(Preferences::validFadeStepsColour);
     highlightStep = Preferences::enableHighlightStep && !gui->suppressColourMeta();
     bool fadePartOK = fadeSteps && !highlightStep && displayIcons;
@@ -1103,7 +1103,6 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
             viewerOptions->Resolution     = nameKeys.at(3).toFloat();
             viewerOptions->PageWidth      = pageSizeP(meta, 0);
             viewerOptions->PageHeight     = pageSizeP(meta, 1);
-            viewerOptions->UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
             viewerOptions->CameraDistance = renderer->ViewerCameraDistance(*meta,pliMeta.modelScale.value());
             viewerOptions->CameraName     = pliMeta.cameraName.value();
             viewerOptions->RotStep        = xyzVector(rotate.at(0).toFloat(),rotate.at(1).toFloat(),rotate.at(2).toFloat());
@@ -2075,7 +2074,7 @@ int Pli::partSize()
           // get part info
           part = parts[key];
           QFileInfo info(part->type);
-          PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.fileName().toUpper().toLatin1().constData(), nullptr, false, false);
+          PieceInfo* pieceInfo = gui->GetPiecesLibrary()->FindPiece(info.fileName().toUpper().toLatin1().constData(), nullptr, false, false);
 
           if (pieceInfo ||
               gui->isUnofficialPart(part->type) ||
@@ -2289,7 +2288,7 @@ int Pli::partSizeLDViewSCall() {
     tallestPart = 0;
 
     fadeSteps = Preferences::enableFadeSteps ;
-    displayIcons = gApplication->mPreferences.mViewPieceIcons;
+    displayIcons = gui->GetViewPieceIcons();
     fadeColour = LDrawColor::ldColorCode(Preferences::validFadeStepsColour);
     highlightStep = Preferences::enableHighlightStep && !gui->suppressColourMeta();
     bool fadePartOK = fadeSteps && !highlightStep && displayIcons;
@@ -2303,7 +2302,7 @@ int Pli::partSizeLDViewSCall() {
         // get part info
         pliPart = parts[key];
         QFileInfo info(pliPart->type);
-        PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.fileName().toUpper().toLatin1().constData(), nullptr, false, false);
+        PieceInfo* pieceInfo = gui->GetPiecesLibrary()->FindPiece(info.fileName().toUpper().toLatin1().constData(), nullptr, false, false);
 
         if (pieceInfo ||
             gui->isSubmodel(pliPart->type) ||
@@ -2507,7 +2506,6 @@ int Pli::partSizeLDViewSCall() {
                     viewerOptions->Resolution     = nameKeys.at(3).toFloat();
                     viewerOptions->PageWidth      = pageSizeP(meta, 0);
                     viewerOptions->PageHeight     = pageSizeP(meta, 1);
-                    viewerOptions->UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
                     viewerOptions->CameraDistance = renderer->ViewerCameraDistance(*meta,pliMeta.modelScale.value());
                     viewerOptions->CameraName     = pliMeta.cameraName.value();
                     viewerOptions->RotStep        = xyzVector(rotate.at(0).toFloat(),rotate.at(1).toFloat(),rotate.at(2).toFloat());;
@@ -2998,7 +2996,7 @@ const QString Pli::titleDescription(const QString &part)
 {
   QString    titleDescription;
   QFileInfo  info(part);
-  PieceInfo* pieceInfo = lcGetPiecesLibrary()->FindPiece(info.fileName().toUpper().toLatin1().constData(), nullptr, false, false);
+  PieceInfo* pieceInfo = gui->GetPiecesLibrary()->FindPiece(info.fileName().toUpper().toLatin1().constData(), nullptr, false, false);
 
   if (pieceInfo) {
       titleDescription = pieceInfo->m_strDescription;

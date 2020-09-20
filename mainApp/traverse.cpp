@@ -4591,7 +4591,7 @@ void Gui::writeToTmp()
   LDrawFile::_currentLevels.clear();
 
   bool generateSubModelImages = Preferences::modeGUI &&
-                                gApplication->mPreferences.mViewPieceIcons &&
+                                GetViewPieceIcons() &&
                                 ! submodelIconsLoaded;
   if (generateSubModelImages) {
       if (Preferences::modeGUI && ! exporting())
@@ -4602,7 +4602,7 @@ void Gui::writeToTmp()
       Pli pli;
       int rc = pli.createSubModelIcons();
       if (rc == 0)
-          gMainWindow->mSubmodelIconsLoaded = submodelIconsLoaded = true;
+          SetSubmodelIconsLoaded(submodelIconsLoaded = true);
       else
           emit messageSig(LOG_ERROR, "Could not create submodel icons...");
       if (Preferences::modeGUI && ! exporting())

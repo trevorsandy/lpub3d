@@ -1280,7 +1280,7 @@ bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QStri
   if (totalPartCount > 0) {
       // Reload unofficial library parts into memory - only if initial library load already done !
       if (Preferences::lpub3dLoaded && reloadLibrary) {
-          if (!gApplication->mLibrary->ReloadUnoffLib()){
+          if (!gui->ReloadUnofficialPiecesLibrary()){
               returnMessage = tr("Failed to reload custom %1 parts library into memory.")
                                  .arg(Preferences::validLDrawLibrary);
               emit gui->messageSig(LOG_ERROR,returnMessage);

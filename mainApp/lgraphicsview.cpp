@@ -25,8 +25,8 @@
 #include <QList>
 #include <QPoint>
 
-#include "lgraphicsscene.h"
 #include "lpub.h"
+#include "lgraphicsscene.h"
 
 typedef QList<QObject*> LDVQObjectList;
 
