@@ -368,8 +368,8 @@ int Step::createCsi(
       QStringList rotatedParts = csiParts;
 
       // rotate parts for 3DViewer without camera angles - this rotateParts routine returns a part list
-      if ((rc = renderer->rotateParts(addLine,meta.rotStep,rotatedParts,absRotstep ? noCA : cameraAngles,false)) != 0)
-          emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer CSI parts"));
+//      if ((rc = renderer->rotateParts(addLine,meta.rotStep,rotatedParts,absRotstep ? noCA : cameraAngles,false)) != 0)
+//          emit gui->messageSig(LOG_ERROR,QString("Failed to rotate viewer CSI parts"));
 
       // add ROTSTEP command
       rotatedParts.prepend(renderer->getRotstepMeta(meta.rotStep));
