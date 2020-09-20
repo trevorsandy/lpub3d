@@ -2767,10 +2767,12 @@ void MetaItem::insertPicture()
   QString title = QFileDialog::tr("Select Image");
   QString cwd = QDir::currentPath();
   QString filter = QFileDialog::tr("Image Files (*.png *.jpg *.jpeg *.bmp)");
-  QString fileName = QFileDialog::getOpenFileName(nullptr,title, cwd, filter);
+  QString filePath = QFileDialog::getOpenFileName(nullptr,title, cwd, filter);
 
-  if (fileName != "") {
-    QString meta = QString("0 !LPUB INSERT PICTURE \"%1\" OFFSET 0.5 0.5") .arg(fileName);
+  if (!filePath.isEmpty()) {
+    if (filePath.startsWith(cwd))
+        filePath = filePath.replace(cwd,".");
+    QString meta = QString("0 !LPUB INSERT PICTURE \"%1\" OFFSET 0.5 0.5") .arg(filePath);
     Where topOfStep = gui->topOfPages[gui->displayPageNum-1];
     scanPastGlobal(topOfStep);
     appendMeta(topOfStep,meta);
