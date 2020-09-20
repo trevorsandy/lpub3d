@@ -68,7 +68,9 @@ enum BuildModFlags {
     BM_MODEL_NAME_INDEX,
     BM_SINGLE_STEP,
     BM_MULTI_STEP,
-    BM_CALLOUT_STEP
+    BM_CALLOUT_STEP,
+    BM_CHANGE,
+    BM_DELETE
 };
 
 enum GridStepSize {

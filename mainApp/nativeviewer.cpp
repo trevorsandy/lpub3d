@@ -64,6 +64,22 @@ void Gui::create3DActions()
     removeBuildModAct->setStatusTip(tr("Remove build modification from this step"));
     connect(removeBuildModAct, SIGNAL(triggered()), this, SLOT(removeBuildModification()));
 
+    QIcon ChangeBuildModIcon;
+    ChangeBuildModIcon.addFile(":/resources/buildmodchange.png");
+    ChangeBuildModIcon.addFile(":/resources/buildmodchange16.png");
+    changeBuildModAct = new QAction(ChangeBuildModIcon,tr("Change Build Modification..."),this);
+    changeBuildModAct->setEnabled(false);
+    changeBuildModAct->setStatusTip(tr("Load the step containing the selected build modification"));
+    connect(changeBuildModAct, SIGNAL(triggered()), this, SLOT(changeBuildModification()));
+
+    QIcon DeleteBuildModIcon;
+    DeleteBuildModIcon.addFile(":/resources/buildmoddelete.png");
+    DeleteBuildModIcon.addFile(":/resources/buildmoddelete16.png");
+    deleteBuildModAct = new QAction(DeleteBuildModIcon,tr("Delete Build Modification..."),this);
+    deleteBuildModAct->setEnabled(false);
+    deleteBuildModAct->setStatusTip(tr("Delete selected build modification meta commands"));
+    connect(deleteBuildModAct, SIGNAL(triggered()), this, SLOT(deleteBuildModification()));
+
     enableBuildModAct = new QAction(tr("Build Modifications Enabled"),this);
     enableBuildModAct->setStatusTip(tr("Enable build modification configuration on rotate action"));
     enableBuildModAct->setCheckable(true);
@@ -266,6 +282,9 @@ void Gui::create3DMenus()
      buildModMenu = new QMenu(tr("Build Modification"),this);
      buildModMenu->addAction(applyBuildModAct);
      buildModMenu->addAction(removeBuildModAct);
+     buildModMenu->addSeparator();
+     buildModMenu->addAction(changeBuildModAct);
+     buildModMenu->addAction(deleteBuildModAct);
      createBuildModAct->setMenu(buildModMenu);
 
      lightMenu = new QMenu(tr("Lights"), this);
@@ -413,9 +432,13 @@ void Gui::Disable3DActions()
 
 void Gui::Enable3DActions()
 {
-    createBuildModAct->setEnabled(buildModRange.first() || hasBuildMods());
-    applyBuildModAct->setEnabled(hasBuildMods());
-    removeBuildModAct->setEnabled(hasBuildMods());
+    bool enabled = hasBuildMods();
+    createBuildModAct->setEnabled(buildModRange.first() || enabled);
+    applyBuildModAct->setEnabled(enabled);
+    removeBuildModAct->setEnabled(enabled);
+    changeBuildModAct->setEnabled(enabled);
+    deleteBuildModAct->setEnabled(enabled);
+
     lightGroupAct->setEnabled(true);
     viewpointGroupAct->setEnabled(true);
 }
@@ -1112,7 +1135,7 @@ void Gui::createBuildModification()
             int ModelIndex      = buildModRange.at(BM_MODEL_INDEX);
             int ModBeginLineNum = buildModRange.at(BM_BEGIN_LINE);
             int ModEndLineNum   = buildModRange.at(BM_END_LINE);
-            int ModStepNumber   = currentStep ? currentStep->stepNumber.number : 0;
+            int ModStepIndex    = getBuildModStepIndex(currentStep ? currentStep->top : 0);
             QString ModelName   = getSubmodelName(ModelIndex);
             QString ModStepKey  = currentStep ? viewerStepKey : QString();
 
@@ -1697,7 +1720,7 @@ void Gui::createBuildModification()
                            ModStepKey,
                            ModAttributes,
                            BuildModApplyRc,
-                           ModStepNumber);
+                           ModStepIndex);
 
             // Reset the build mod range
             buildModRange = { 0, -1, 0 };
@@ -1710,7 +1733,7 @@ void Gui::applyBuildModification()
     QStringList buildModKeys;
     BuildModDialogGui *buildModDialogGui =
             new BuildModDialogGui();
-    buildModDialogGui->getBuildMod(buildModKeys);
+    buildModDialogGui->getBuildMod(buildModKeys, BuildModApplyRc);
 
     if (!buildModKeys.size())
         return;
@@ -1750,7 +1773,7 @@ void Gui::removeBuildModification()
     QStringList buildModKeys;
     BuildModDialogGui *buildModDialogGui =
             new BuildModDialogGui();
-    buildModDialogGui->getBuildMod(buildModKeys,false);
+    buildModDialogGui->getBuildMod(buildModKeys, BuildModRemoveRc);
 
     if (!buildModKeys.size())
         return;
@@ -1783,6 +1806,12 @@ void Gui::removeBuildModification()
     default: /*Options::Mt::PLI:*/
         break;
     }
+
+    bool enabled = hasBuildMods();
+    applyBuildModAct->setEnabled(enabled);
+    removeBuildModAct->setEnabled(enabled);
+    changeBuildModAct->setEnabled(enabled);
+    deleteBuildModAct->setEnabled(enabled);
 }
 
 void Gui::changeBuildModification()
@@ -1790,7 +1819,7 @@ void Gui::changeBuildModification()
     QStringList buildModKeys;
     BuildModDialogGui *buildModDialogGui =
             new BuildModDialogGui();
-    buildModDialogGui->getBuildMod(buildModKeys);
+    buildModDialogGui->getBuildMod(buildModKeys, BM_CHANGE);
 
     if (!buildModKeys.size())
         return;
@@ -1801,10 +1830,22 @@ void Gui::changeBuildModification()
     case Options::Mt::SMP:
     {
 
-        beginMacro("ApplyBuildModContent");
+        QString buildModStepKey = getBuildModStepKey(buildModKeys.first());
+
+        if (! buildModStepKey.isEmpty()) {
+
+            if (currentStep && currentStep->viewerStepKey.startsWith( buildModStepKey))
+                return;
+
+            beginMacro("ApplyBuildModContent");
+
+            if (setCurrentStep(buildModStepKey))
+                currentStep->loadTheViewer();
+
+            endMacro();
+        }
 
 
-        endMacro();
     }
         break;
     default: /*Options::Mt::PLI:*/
@@ -1817,7 +1858,7 @@ void Gui::deleteBuildModification()
     QStringList buildModKeys;
     BuildModDialogGui *buildModDialogGui =
             new BuildModDialogGui();
-    buildModDialogGui->getBuildMod(buildModKeys);
+    buildModDialogGui->getBuildMod(buildModKeys, BM_DELETE);
 
     if (!buildModKeys.size())
         return;
@@ -1851,7 +1892,7 @@ void Gui::deleteBuildModification()
         modLine = readLine(here);
         rc = page.meta.parse(modLine, here);
         if (rc == BuildModEndModRc)
-            for (Where walk = here - 1; walk >= modBeginLineNum; --walk)
+            for (Where walk = here; walk >= modBeginLineNum; --walk)
                 deleteLine(walk);
 
         endMacro();
@@ -1860,6 +1901,12 @@ void Gui::deleteBuildModification()
     default: /*Options::Mt::PLI:*/
         break;
     }
+
+    bool enabled = hasBuildMods();
+    applyBuildModAct->setEnabled(enabled);
+    removeBuildModAct->setEnabled(enabled);
+    changeBuildModAct->setEnabled(enabled);
+    deleteBuildModAct->setEnabled(enabled);
 }
 
 /*********************************************
@@ -2025,7 +2072,7 @@ void Gui::setCurrentStep(Step *step, Where here, int stepNumber, int stepType)
                                            .arg(here.modelName).arg(here.lineNumber));
 }
 
-void Gui::setCurrentStep(const QString &key)
+bool Gui::setCurrentStep(const QString &key)
 {
     Step *step     = nullptr;
     currentStep    = step;
@@ -2036,7 +2083,7 @@ void Gui::setCurrentStep(const QString &key)
     extractStepKey(here, stepNumber, key);
 
     if (!stepNumber)
-        return;
+        return currentStep;
 
     QString stepKey = key.isEmpty() ? viewerStepKey : key;
 
@@ -2052,6 +2099,8 @@ void Gui::setCurrentStep(const QString &key)
     else if (Preferences::debugLogging)
         emit messageSig(LOG_DEBUG, QString("Could not determine step for %1 at step number %2.")
                                            .arg(here.modelName).arg(stepNumber));
+
+    return currentStep;
 }
 
 /*********************************************

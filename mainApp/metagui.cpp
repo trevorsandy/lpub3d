@@ -5966,7 +5966,24 @@ void BuildModDialogGui::getBuildMod(QStringList & buildModKeys, int action){
 
     QDialog *dialog = new QDialog();
 
-    QString actionLabel = action == BuildModApplyRc ? "Apply" : action == BuildModRemoveRc ? "Remove" : "Edit";
+    QString actionLabel;
+    switch(action) {
+    case BuildModApplyRc:
+        actionLabel = "Apply";
+        break;
+    case BuildModRemoveRc:
+        actionLabel = "Remove";
+        break;
+    case BM_CHANGE:
+        actionLabel = "Change";
+        break;
+    case BM_DELETE:
+        actionLabel = "Delete";
+        break;
+    default:
+        actionLabel = "Apply";
+        break;
+    }
     QFormLayout *form = new QFormLayout(dialog);
     form->addRow(new QLabel(QString("%1 Build Modifications").arg(actionLabel)));
     QGroupBox *buildModBox = new QGroupBox(QString("Select build modification to %1").arg(actionLabel.toLower()));

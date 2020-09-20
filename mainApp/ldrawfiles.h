@@ -305,7 +305,6 @@ class LDrawFile {
     int setBuildModAction(const QString &buildModKey,
                             int           stepIndex,
                             int           modAction);
-    void setBuildModStepKey(const QString &buildModKey, const QString &modStepKey);
     int getBuildModStepIndex(int modelIndex, int lineNumber);
     int getBuildModStepIndexKey(int stepIndex, bool modelIndex);
     int getBuildModBeginLineNumber(const QString &buildModKey);
@@ -313,6 +312,7 @@ class LDrawFile {
     int getBuildModActionLineNumber(const QString &buildModKey);
     int getBuildModAction(const QString &buildModKey, int stepIndex);
     int getBuildModNextIndex(const QString &buildModKeyPrefix);
+    void setBuildModStepKey(const QString &buildModKey, const QString &modStepKey);
     QString getBuildModStepKey(const QString &buildModKey);
     QString getBuildModModelName(const QString &buildModKey);
     QStringList getBuildModsList();

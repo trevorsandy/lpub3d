@@ -1629,17 +1629,18 @@ void LDrawFile::countInstances()
 
   countInstances(topLevelFile(),false);
 
-  // DEBUG
+  /*
   emit gui->messageSig(LOG_DEBUG, QString("Count Instances: BuildModStepIndex:"));
   for (int i = 0; i < _buildModStepIndexes.size(); i++)
   {
       QVector<int> key = _buildModStepIndexes.at(i);
       emit gui->messageSig(LOG_DEBUG, QString("Index: %1, ModelNameIndex: %2: LineNumber: %3, ModelName: %4")
-                                              .arg(i)                            /* index      */
-                                              .arg(key.at(0))                    /* modelIndex */
-                                              .arg(key.at(1))                    /* lineNumber */
-                                              .arg(getSubmodelName(key.at(0)))); /* modelName  */
+                                              .arg(i)                            // index
+                                              .arg(key.at(0))                    // modelIndex
+                                              .arg(key.at(1))                    // lineNumber
+                                              .arg(getSubmodelName(key.at(0)))); // modelName
   }
+  */
 }
 
 bool LDrawFile::saveMPDFile(const QString &fileName)

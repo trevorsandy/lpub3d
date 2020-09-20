@@ -861,7 +861,7 @@ public:
 
   void skipHeader(Where &current);
 
-  void setCurrentStep(const QString &key = "");
+  bool setCurrentStep(const QString &key = "");
   void setCurrentStep(Step *step, Where here, int stepNumber, int stepType = BM_SINGLE_STEP);
 
   Step *getCurrentStep()
@@ -1871,9 +1871,9 @@ private:
   QAction* AngleAction;
 
   QAction *applyCameraAct;
+  QAction *createBuildModAct;
   QAction *applyBuildModAct;
   QAction *removeBuildModAct;
-  QAction *createBuildModAct;
   QAction *changeBuildModAct;
   QAction *deleteBuildModAct;
   QAction *setTargetPositionAct;
