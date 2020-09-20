@@ -1031,7 +1031,7 @@ void Gui::enableBuildModification()
     enableBuildModAct->setChecked(false);
     enableRotstepRotateAct->setChecked(true);
     if (Preferences::buildModEnabled) {
-        if (lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION)) {
+        if (lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION) && !curFile.isEmpty()) {
             enableBuildModAct->setChecked(true);
             enableRotstepRotateAct->setChecked(false);
             RotateIcon.addFile(":/resources/rotatebuildmod.png");
@@ -1046,10 +1046,12 @@ void Gui::enableBuildModification()
 
 void Gui::reset3DViewerMenusAndToolbars()
 {
-    bool visible = Preferences::buildModEnabled;
-    buildModMenu->setVisible(visible);
-    enableBuildModAct->setVisible(visible);
-    createBuildModAct->setVisible(visible);
+    if (!curFile.isEmpty()) {
+        bool visible = Preferences::buildModEnabled;
+        buildModMenu->setVisible(visible);
+        enableBuildModAct->setVisible(visible);
+        createBuildModAct->setVisible(visible);
+    }
 
     enableBuildModification();
 }
@@ -2535,10 +2537,23 @@ bool Gui::setCurrentStep(const QString &key)
 
 bool Gui::getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNumber) {
 
-    lineNumber        = 0;
+    lineNumber        = EDITOR_LINE   ;             // 0
     bool currentModel = modelIndex == QString(viewerStepKey[0]).toInt();
-    bool newLine      = lineIndex == NEW_PART;
-    bool fromViewer   = source > EDITOR_LINE;
+    bool newLine      = lineIndex  == NEW_PART;     //-1
+    bool fromViewer   = source      > EDITOR_LINE;  // 0
+
+//#ifdef QT_DEBUG_MODE
+//    emit messageSig(LOG_DEBUG, QString("currentModel: %1 [modelIndex: %2 == ViewerStepKey(index,line,step)[0]: %3]")
+//                    .arg(currentModel ? "True" : "False")
+//                    .arg(modelIndex)
+//                    .arg(viewerStepKey));
+//    emit messageSig(LOG_DEBUG, QString("newLine: %1 [lineIndex: %2 == NEW_PART: -1]")
+//                    .arg(newLine ? "True" : "False")
+//                    .arg(lineIndex));
+//    emit messageSig(LOG_DEBUG, QString("fromViewer: %1 [source: %2 > EDITOR_LINE: 0]")
+//                    .arg(fromViewer ? "True" : "False")
+//                    .arg(source));
+//#endif
 
     if (newLine) {
         emit messageSig(LOG_TRACE, QString("New viewer part modelName [%1]")
@@ -2570,9 +2585,14 @@ bool Gui::getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNu
         else                 // input lineTypeIndex
             lineNumber = getLineTypeIndex(modelIndex,lineIndex);         // return relativeIndex - step line lineIndex
     } else
-        return false;
+        return false;        // lineNumber = EDITOR_LINE;
 
-    return lineNumber;
+//#ifdef QT_DEBUG_MODE
+//    emit messageSig(LOG_DEBUG, QString("selected lineNumber: [%1] > NOT_FOUND: [-1]")
+//                    .arg(lineNumber));
+//#endif
+
+    return lineNumber > NOT_FOUND; // -1
 }
 
 /*********************************************

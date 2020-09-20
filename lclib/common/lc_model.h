@@ -171,6 +171,13 @@ public:
 		return mProperties.mFileName;
 	}
 
+/*** LPub3D Mod - Selected Parts ***/
+	const QString& GetModelName() const
+	{
+		return mProperties.mModelName;
+	}
+/*** LPub3D Mod end ***/
+
 	void SetDescription(const QString& Description)
 	{
 		mProperties.mDescription = Description;

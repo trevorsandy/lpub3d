@@ -62,8 +62,9 @@ enum NativeType { NTypeDefault, NTypeCalledOut, NTypeMultiStep };
 enum ShowLineType { LINE_HIGHLIGHT, LINE_ERROR };
 enum SceneObjectInfo { ObjectId };
 enum PartSource {
-    NEW_PART           = -1,                   // -1
-    NEW_MODEL          = NEW_PART,             // -1
+    NOT_FOUND          = -1,                   // -1
+    NEW_PART           = NOT_FOUND,            // -1
+    NEW_MODEL          = NOT_FOUND,            // -1
     EDITOR_LINE,                               //  0
     VIEWER_NONE        = EDITOR_LINE,          //  0
     VIEWER_LINE,                               //  1

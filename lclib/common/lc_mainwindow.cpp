@@ -2420,7 +2420,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int EmitSelectio
 
 					QString Message;
 					if (Preferences::debugLogging) {
-						Message = tr("%1 viewer object(s) selected in model [%2]").arg(Selection.GetSize()).arg(ActiveModel->GetFileName());
+                        Message = tr("%1 viewer object(s) selected in model [%2]").arg(Selection.GetSize()).arg(ActiveModel->GetModelName());
 						gui->statusMessage(LOG_DEBUG, Message);
 					}
 
@@ -2430,7 +2430,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int EmitSelectio
 
 						if (SelectedItem && SelectedItem->IsPiece()) {
 
-							TypeLine typeLine(gui->getSubmodelIndex(ActiveModel->GetFileName()),((lcPiece*)SelectedItem)->GetLineTypeIndex());
+                            TypeLine typeLine(gui->getSubmodelIndex(ActiveModel->GetModelName().toLower()),((lcPiece*)SelectedItem)->GetLineTypeIndex());
 							LineTypeIndexes.append(typeLine);
 
 							Message = tr("Selected Piece: %1 (ID: %2), LineTypeIndex: %3")
@@ -2446,7 +2446,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int EmitSelectio
 
 							if (SelectedItem->IsPiece()) {
 
-								TypeLine typeLine(gui->getSubmodelIndex(ActiveModel->GetFileName()),((lcPiece*)SelectedItem)->GetLineTypeIndex());
+                                TypeLine typeLine(gui->getSubmodelIndex(ActiveModel->GetModelName().toLower()),((lcPiece*)SelectedItem)->GetLineTypeIndex());
 								LineTypeIndexes.append(typeLine);
 
 								if (Preferences::debugLogging) {

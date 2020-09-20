@@ -521,21 +521,21 @@ void Gui::closeFile()
   topOfPages.clear();
   pageSizes.clear();
   undoStack->clear();
-  if (!Preferences::buildModEnabled) {
-      Preferences::buildModEnabled = true;
-      reset3DViewerMenusAndToolbars();
-  }
   if (Preferences::enableFadeSteps || Preferences::enableHighlightStep)
       ldrawColourParts.clearGeneratedColorParts();
   submodelIconsLoaded = gMainWindow->mSubmodelIconsLoaded = false;
-  if (!curFile.isEmpty())
+  if (!curFile.isEmpty()) {
       emit messageSig(LOG_DEBUG, QString("File closed - %1.").arg(curFile));
+      curFile.clear();
+  }
 }
 
 void Gui::closeModelFile(){
   disableWatcher();
   QString topModel = ldrawFile.topLevelFile();
+  curFile.clear();
   //3D Viewer
+  reset3DViewerMenusAndToolbars();
   emit clearViewerWindowSig();
   emit updateAllViewsSig();
   emit disable3DActionsSig();
@@ -549,8 +549,7 @@ void Gui::closeModelFile(){
   editModeWindow->close();
   editModelFileAct->setText(tr("Edit current model file"));
   editModelFileAct->setStatusTip(tr("Edit loaded LDraw model file with detached LDraw Editor"));
-  emit messageSig(LOG_INFO, QString("Model %1 unloaded.").arg(topModel));
-  curFile.clear();
+  emit messageSig(LOG_INFO, QString("Model %1 unloaded. File closed.").arg(topModel));
 
   QString windowName = VER_FILEDESCRIPTION_STR;
   QString windowVersion;
