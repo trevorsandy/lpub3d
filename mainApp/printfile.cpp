@@ -1587,23 +1587,7 @@ void Gui::exportAs(const QString &_suffix)
   box.setInformativeText (text);
 
   if (Preferences::modeGUI && (box.exec() == QMessageBox::Yes)){
-      QString CommandPath = directoryName;
-      QProcess *Process = new QProcess(this);
-      Process->setWorkingDirectory(QDir::currentPath() + QDir::separator());
-#ifdef Q_OS_WIN
-      Process->setNativeArguments(CommandPath);
-      QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
-#else
-      Process->execute(CommandPath);
-      Process->waitForFinished();
-
-      QProcess::ExitStatus Status = Process->exitStatus();
-
-      if (Status != 0) {  // look for error
-          QErrorMessage *m = new QErrorMessage(this);
-          m->showMessage(QString("%1\n%2").arg("Failed to open image folder!").arg(CommandPath));
-        }
-#endif
+      openFolder(directoryName);
     } else {
       emit messageSig(LOG_STATUS, QString("Export %1 %2 completed!").arg(suffix).arg(type));
       emit messageSig(LOG_STATUS, QString("Exported %1 %2 path: %3")

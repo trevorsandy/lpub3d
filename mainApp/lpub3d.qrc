@@ -138,6 +138,7 @@
         <file alias="obj32.png">resources/obj32.png</file>
         <file alias="onlinemanual.png">resources/onlinemanual.png</file>
         <file alias="open.png">resources/open.png</file>
+		<file alias="openworkingfolder.png">resources/openworkingfolder.png</file>
         <file alias="pageguides.png">resources/pageguides.png</file>
         <file alias="pageruler.png">resources/pageruler.png</file>
         <file alias="pagesetup.png">resources/pagesetup.png</file>

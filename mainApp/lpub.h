@@ -1281,6 +1281,7 @@ private:
     const QString &printFile,
     const QString &imageFile);
 
+  void openFolder(const QString &folder);
   bool processPageRange(const QString &range);
 
   void setSceneItemZValue(Page *page, LGraphicsScene *scene);
@@ -1297,6 +1298,7 @@ private slots:
     void bringToFront();
     void sendToBack();
 
+    void openWorkingFolder();
     void openRecentFile();
     void clearRecentFiles();
     void updateCheck();
@@ -1664,6 +1666,7 @@ private:
 
   QAction *updateAppAct;
   QAction *viewLogAct;
+  QAction *openWorkingFolderAct;
 
   friend class PartWorker;
   friend class DialogExportPages;

@@ -106,6 +106,32 @@ void Gui::openDropFile(QString &fileName){
     }
 }
 
+void Gui::openFolder(const QString &folder)
+{
+    QString CommandPath = folder;
+    QProcess *Process = new QProcess(this);
+    Process->setWorkingDirectory(QDir::currentPath() + QDir::separator());
+#ifdef Q_OS_WIN
+    Process->setNativeArguments(CommandPath);
+    QDesktopServices::openUrl((QUrl("file:///"+CommandPath, QUrl::TolerantMode)));
+#else
+    Process->execute(CommandPath);
+    Process->waitForFinished();
+
+    QProcess::ExitStatus Status = Process->exitStatus();
+
+    if (Status != 0) {  // look for error
+        QErrorMessage *m = new QErrorMessage(this);
+        m->showMessage(QString("%1\n%2").arg("Failed to open image folder!").arg(CommandPath));
+      }
+#endif
+}
+
+void Gui::openWorkingFolder() {
+    if (!getCurFile().isEmpty())
+        openFolder(QFileInfo(getCurFile()).absolutePath());
+}
+
 void Gui::openRecentFile()
 {
   QAction *action = qobject_cast<QAction *>(sender());
@@ -129,6 +155,8 @@ void Gui::openRecentFile()
                                 .arg(elapsedTime(timer.elapsed())));
   }
 }
+
+
 
 void Gui::clearRecentFiles()
 {

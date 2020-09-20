@@ -4208,6 +4208,11 @@ void Gui::createActions()
     viewLogAct->setStatusTip(tr("View %1 log - Alt+L").arg(VER_PRODUCTNAME_STR));
     connect(viewLogAct, SIGNAL(triggered()), this, SLOT(viewLog()));
 
+    openWorkingFolderAct = new QAction(QIcon(":/resources/openworkingfolder.png"),tr("Open working folder"), this);
+    openWorkingFolderAct->setShortcut(tr("Alt+Shift+D"));
+    openWorkingFolderAct->setStatusTip(tr("Open current model file working folder - Alt+Shift+D"));
+    connect(openWorkingFolderAct, SIGNAL(triggered()), this, SLOT(openWorkingFolder()));
+
     create3DActions();
 }
 
@@ -4283,6 +4288,7 @@ void Gui::enableActions()
   editBLCodesAct->setEnabled(true);
   editModelFileAct->setEnabled(true);
 
+  openWorkingFolderAct->setEnabled(true);
   setPageLineEdit->setEnabled(true);
 
   firstPageAct->setEnabled(true);
@@ -4352,26 +4358,9 @@ void Gui::disableActions()
   addPictureAct->setEnabled(false);
   removeLPubFormattingAct->setEnabled(false);
 
-  editTitleAnnotationsAct->setEnabled(false);
-  editFreeFormAnnitationsAct->setEnabled(false);
-  editLDrawColourPartsAct->setEnabled(false);
-  editPliBomSubstitutePartsAct->setEnabled(false);
-  editExcludedPartsAct->setEnabled(false);
-  editLdgliteIniAct->setEnabled(false);
-  editNativePOVIniAct->setEnabled(false);
-  editLdviewIniAct->setEnabled(false);
-  editLdviewPovIniAct->setEnabled(false);
-  editPovrayIniAct->setEnabled(false);
-  editPovrayConfAct->setEnabled(false);
-  editAnnotationStyleAct->setEnabled(false);
-  editLD2BLCodesXRefAct->setEnabled(false);
-  editLD2BLColorsXRefAct->setEnabled(false);
-  editLD2RBCodesXRefAct->setEnabled(false);
-  editLD2RBColorsXRefAct->setEnabled(false);
-  editBLColorsAct->setEnabled(false);
-  editBLCodesAct->setEnabled(false);
   editModelFileAct->setEnabled(false);
 
+  openWorkingFolderAct->setEnabled(false);
   setPageLineEdit->setEnabled(false);
 
   firstPageAct->setEnabled(false);
@@ -4387,12 +4376,10 @@ void Gui::disableActions()
   fitVisibleAct->setEnabled(false);
   fitSceneAct->setEnabled(false);
   bringToFrontAct->setEnabled(false);
-  fitSceneAct->setEnabled(false);
   sendToBackAct->setEnabled(false);
+  actualSizeAct->setEnabled(false);
   zoomInComboAct->setEnabled(false);
   zoomOutComboAct->setEnabled(false);
-  sceneGuidesComboAct->setEnabled(false);
-  snapToGridComboAct->setEnabled(false);
 
   setupMenu->setEnabled(false);
   cacheMenu->setEnabled(false);
@@ -4610,6 +4597,7 @@ void Gui::createMenus()
     // Help Menus
 
     helpMenu = menuBar()->addMenu(tr("&Help"));
+    helpMenu->addAction(openWorkingFolderAct);
     helpMenu->addAction(viewLogAct);
 #ifndef DISABLE_UPDATE_CHECK
     helpMenu->addAction(updateAppAct);
