@@ -1109,7 +1109,7 @@ void Gui::createBuildModification()
 
     if (ActiveModel) {
         if (buildModRange.first()){
-
+            // 'load...' default lines from modelfile and 'save...' buildMod lines from 3DViewer
             lcArray<lcGroup*>  mGroups;
             lcArray<lcCamera*> mCameras;
             lcArray<lcLight*>  mLights;
@@ -1132,16 +1132,23 @@ void Gui::createBuildModification()
             mSavePieces          = ActiveModel->GetPieces();
             lcPiecesLibrary *Library = lcGetPiecesLibrary();
 
-            int ModelIndex        = buildModRange.at(BM_MODEL_INDEX);
-            int ModBeginLineNum   = buildModRange.at(BM_BEGIN_LINE_NUM);
-            int ModEndLineNum     = buildModRange.at(BM_END_LINE_NUM);
-            int ModDisplayPageNum = displayPageNum;
+            bool edit             = !buildModChangeKey.isEmpty();
+            bool FadeStep         = page.meta.LPub.fadeStep.fadeStep.value();
+            bool HighlightStep    = page.meta.LPub.highlightStep.highlightStep.value() && !suppressColourMeta();
+
+            int ModEditBeginLine  = edit ? getBuildModBeginLineNumber(buildModChangeKey) : 0;
+            int ModEditActionLine = edit ? getBuildModActionLineNumber(buildModChangeKey) : 0;
+
+            // When edit is true, the BuildMod Range should be the lowest Begin and highest ModEnd values between the original and changed mod lines
+            int ModelIndex        = edit ? getSubmodelIndex(getBuildModModelName(buildModChangeKey)) : buildModRange.at(BM_MODEL_INDEX);
+            int ModBeginLineNum   = edit ? qMin(ModEditBeginLine, buildModRange.at(BM_BEGIN_LINE_NUM)) : buildModRange.at(BM_BEGIN_LINE_NUM);
+            int ModEndLineNum     = edit ? qMax(ModEditActionLine, buildModRange.at(BM_END_LINE_NUM)) : buildModRange.at(BM_END_LINE_NUM);
             int ModStepIndex      = getBuildModStepIndex(currentStep ? currentStep->top : 0);
+            int ModDisplayPageNum = displayPageNum;
+            buildModChangeKey     = QString();
+
             QString ModelName     = getSubmodelName(ModelIndex);
             QString ModStepKey    = currentStep ? viewerStepKey : QString();
-
-            bool FadeStep = page.meta.LPub.fadeStep.fadeStep.value();
-            bool HighlightStep = page.meta.LPub.highlightStep.highlightStep.value() && !suppressColourMeta();
 
             auto GetGroup = [&mGroups](const QString& Name, bool CreateIfMissing)
             {
@@ -1667,11 +1674,13 @@ void Gui::createBuildModification()
                     beginMacro("CreateBuildModContent");
 
                     // delete existing BUILD_MOD commands from bottom up, starting at END_MOD
-                    endMod = Where(ModelName, ModActionLineNum);
+                    int beginLineNum  = edit ? ModEditBeginLine : ModBeginLineNum;
+                    int actionLineNum = edit ? ModEditActionLine : ModActionLineNum;
+                    endMod = Where(ModelName, actionLineNum);
                     QString modLine = readLine(endMod);
                     Rc rc = page.meta.parse(modLine, endMod);
                     if (rc == BuildModEndModRc)
-                        for (Where walk = endMod - 1; walk >= ModBeginLineNum; --walk)
+                        for (Where walk = endMod - 1; walk >= beginLineNum; --walk)
                             deleteLine(walk);
 
                     // write end meta command below default content last line (append line)
@@ -1833,6 +1842,8 @@ void Gui::changeBuildModification()
     case Options::Mt::SMP:
     {
 
+        buildModChangeKey = "";
+
         int buildModDisplayPageNum = getBuildModDisplayPageNumber(buildModKeys.first());
 
         QString buildModStepKey = getBuildModStepKey(buildModKeys.first());
@@ -1852,6 +1863,8 @@ void Gui::changeBuildModification()
                     currentStep->loadTheViewer();
                 }
             }
+
+            buildModChangeKey = buildModKeys.first();
         }
     }
         break;

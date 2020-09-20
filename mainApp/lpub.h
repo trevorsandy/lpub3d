@@ -1337,6 +1337,7 @@ private:
   bool                   m_exportingObjects; // indicate exporting non-image object file content
   bool                   m_contPageProcessing;// indicate continuous page processing underway
 
+  QString                buildModChangeKey;   // populated at buildMod change and cleared at buildMod create
   QString                saveRenderer;
   bool                   saveProjection;
   bool                   saveSingleCall;
