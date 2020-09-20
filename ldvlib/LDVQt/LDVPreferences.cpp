@@ -1206,7 +1206,7 @@ void LDVPreferences::reflectUpdatesSettings(void)
 	}
 	setButtonState(updatesMissingpartsButton,
 		ldPrefs->getCheckPartTracker());
-	proxyEdit->setText(ldPrefs->getProxyServer());
+    proxyEdit->setText(""/*ldPrefs->getProxyServer()*/);
 	portEdit->setText(QString::number(ldPrefs->getProxyPort()));
 	daymissingpartcheckText->setValue(ldPrefs->getMissingPartWait());
 	dayupdatedpartcheckText->setValue(ldPrefs->getUpdatedPartWait());
@@ -2151,7 +2151,7 @@ void LDVPreferences::enableProxyServer(void)
 	proxyEdit->setEnabled(true);
 	portLabel->setEnabled(true);
 	portEdit->setEnabled(true);
-	proxyEdit->setText(ldPrefs->getProxyServer());
+    proxyEdit->setText(""/*ldPrefs->getProxyServer()*/);
 }
 
 void LDVPreferences::disableWireframeCutaway(void)
