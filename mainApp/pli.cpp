@@ -929,14 +929,14 @@ int Pli::createPartImage(
         // Populate viewerPliPartiKey variable
         viewerPliPartKey = QDir::toNativeSeparators(QString("\"%1\"%2;%3;%4")
                                                         .arg(ia.baseName[pT])
-                                                        .arg(bottom.lineNumber)
+                                                        .arg(top.lineNumber)
                                                         .arg(gStep->stepNumber.number)
                                                         .arg(ia.partColor[pT]));
 
-        // Viewer submodel does not yet exist in repository
+        // Check if viewer PLI part does exist in repository
         bool addViewerPliPartContent = !gui->viewerStepContentExist(viewerPliPartKey);
 
-        // We are processing again the current part Key so part must have been updated in the viewer
+        // If this is true, we are processing again the current part Key so part must have been updated in the viewer
         bool viewerUpdate = viewerPliPartKey == QDir::toNativeSeparators(gui->getViewerCsiKey());
 
         if ( ! part.exists() || addViewerPliPartContent || viewerUpdate) {
@@ -977,43 +977,13 @@ int Pli::createPartImage(
             if ((renderer->createNativeModelFile(pliFile,fadeSteps,highlightStep) != 0))
                 emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native CSI parts"));
 
-            // Generate 3DViewer Submodel entry - TODO move to after Generate and renderer Submodel file
-            if (! gui->exportingObjects() && pT == NORMAL_PART) {
-                if ((addViewerPliPartContent || viewerUpdate)) {
+            // unrotated part
+            QStringList pliFileU = QStringList()
+                    << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(typeName.toLower());
 
-                    // unrotated part
-                    QStringList pliFileU = QStringList()
-                            << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(typeName.toLower());
-
-                    // store rotated and unrotated Part. Unrotated part used to generate LDView pov file
-                    QString pliPartKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
-                    gui->insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ldrNames.first(),pliPartKey,multistep,callout);
-                }
-
-                // set viewer display options
-                QStringList rots = subRotation.split("_");
-                viewerOptions.ViewerCsiKey   = viewerPliPartKey;
-                viewerOptions.StudLogo       = pliMeta.studLogo.value();
-                viewerOptions.ImageFileName  = imageName;
-                viewerOptions.Resolution     = nameKeys.at(3).toFloat();
-                viewerOptions.PageWidth      = pageSizeP(meta, 0);
-                viewerOptions.PageHeight     = pageSizeP(meta, 1);
-                viewerOptions.UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
-                viewerOptions.ZFar           = CAMERA_ZFAR_NATIVE_DEFAULT;
-                viewerOptions.ZNear          = CAMERA_ZNEAR_NATIVE_DEFAULT;
-                viewerOptions.FoV            = CAMERA_FOV_NATIVE_DEFAULT;
-                viewerOptions.CameraDistance = renderer->ViewerCameraDistance(*meta,pliMeta.modelScale.value());
-                viewerOptions.NativeCDF      = meta->LPub.nativeCD.factor.value();
-                viewerOptions.CameraName     = pliMeta.cameraName.value();
-                viewerOptions.RotStep        = xyzVector(rots.at(0).toFloat(),rots.at(1).toFloat(),rots.at(2).toFloat());
-                viewerOptions.RotStepType    = rots.at(3);
-                viewerOptions.Latitude       = nameKeys.at(7).toFloat();
-                viewerOptions.Longitude      = nameKeys.at(8).toFloat();
-                viewerOptions.ModelScale     = nameKeys.at(5).toFloat();
-                viewerOptions.Target         = xyzVector(pliMeta.target.x(),pliMeta.target.y(),pliMeta.target.z());
-                if (!viewerOptsList.contains(keyPart1))
-                    viewerOptsList.insert(keyPart1,viewerOptions);
-            }
+            // store rotated and unrotated Part. Unrotated part used to generate LDView pov file
+            QString pliPartKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
+            gui->insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ldrNames.first(),pliPartKey,multistep,callout);
 
             if ( ! part.exists()) {
 
@@ -1043,6 +1013,33 @@ int Pli::createPartImage(
                     ptRc = -1;
                 }
             }
+        }
+
+        // Generate 3DViewer PLI part entry
+        if (! gui->exportingObjects() && pT == NORMAL_PART) {
+            // set viewer display options
+            QStringList rots = subRotation.split("_");
+            viewerOptions.ViewerCsiKey   = viewerPliPartKey;
+            viewerOptions.StudLogo       = pliMeta.studLogo.value();
+            viewerOptions.ImageFileName  = imageName;
+            viewerOptions.Resolution     = nameKeys.at(3).toFloat();
+            viewerOptions.PageWidth      = pageSizeP(meta, 0);
+            viewerOptions.PageHeight     = pageSizeP(meta, 1);
+            viewerOptions.UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
+            viewerOptions.ZFar           = CAMERA_ZFAR_NATIVE_DEFAULT;
+            viewerOptions.ZNear          = CAMERA_ZNEAR_NATIVE_DEFAULT;
+            viewerOptions.FoV            = CAMERA_FOV_NATIVE_DEFAULT;
+            viewerOptions.CameraDistance = renderer->ViewerCameraDistance(*meta,pliMeta.modelScale.value());
+            viewerOptions.NativeCDF      = meta->LPub.nativeCD.factor.value();
+            viewerOptions.CameraName     = pliMeta.cameraName.value();
+            viewerOptions.RotStep        = xyzVector(rots.at(0).toFloat(),rots.at(1).toFloat(),rots.at(2).toFloat());
+            viewerOptions.RotStepType    = rots.at(3);
+            viewerOptions.Latitude       = nameKeys.at(7).toFloat();
+            viewerOptions.Longitude      = nameKeys.at(8).toFloat();
+            viewerOptions.ModelScale     = nameKeys.at(5).toFloat();
+            viewerOptions.Target         = xyzVector(pliMeta.target.x(),pliMeta.target.y(),pliMeta.target.z());
+            if (!viewerOptsList.contains(keyPart1))
+                viewerOptsList.insert(keyPart1,viewerOptions);
         }
 
         // create icon path key - using actual color code
@@ -2336,14 +2333,14 @@ int Pli::partSizeLDViewSCall() {
                 // Populate viewerPliPartiKey variable
                 viewerPliPartKey = QDir::toNativeSeparators(QString("\"%1\"%2;%3")
                                                                 .arg(ia.baseName[pT])
-                                                                .arg(bottom.lineNumber)
+                                                                .arg(top.lineNumber)
                                                                 .arg(gStep->stepNumber.number)
                                                                 .arg(ia.partColor[pT]));
 
-                // Viewer submodel does not yet exist in repository
+                // Check if viewer PLI part does exist in repository
                 bool addViewerPliPartContent = !gui->viewerStepContentExist(viewerPliPartKey);
 
-                // We are processing again the current part Key so part must have been updated in the viewer
+                // If this is true, we are processing again the current part Key so part must have been updated in the viewer
                 bool viewerUpdate = viewerPliPartKey == QDir::toNativeSeparators(gui->getViewerCsiKey());
 
                 if ( ! part.exists() || addViewerPliPartContent || viewerUpdate) {
@@ -2386,43 +2383,13 @@ int Pli::partSizeLDViewSCall() {
                     if ((renderer->createNativeModelFile(pliFile,fadeSteps,highlightStep) != 0))
                         emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native CSI parts"));
 
-                    // Generate 3DViewer Submodel entry - TODO move to after Generate and renderer Submodel file
-                    if (! gui->exportingObjects() && pT == NORMAL_PART) {
-                        if ((addViewerPliPartContent || viewerUpdate)) {
+                    // unrotated part
+                    QStringList pliFileU = QStringList()
+                            << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(colourCode).arg(typeName.toLower());
 
-                            // unrotated part
-                            QStringList pliFileU = QStringList()
-                                    << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(colourCode).arg(typeName.toLower());
-
-                            // store rotated and unrotated Part. Unrotated part used to generate LDView pov file
-                            QString pliPartKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
-                            gui->insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ldrNames.first(),pliPartKey,multistep,callout);
-                        }
-
-                        // set viewer display options
-                        QStringList rots = subRotation.split("_");
-                        viewerOptions.ViewerCsiKey   = viewerPliPartKey;
-                        viewerOptions.StudLogo       = pliMeta.studLogo.value();
-                        viewerOptions.ImageFileName  = imageName;
-                        viewerOptions.Resolution     = nameKeys.at(3).toFloat();
-                        viewerOptions.PageWidth      = pageSizeP(meta, 0);
-                        viewerOptions.PageHeight     = pageSizeP(meta, 1);
-                        viewerOptions.UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
-                        viewerOptions.ZFar           = CAMERA_ZFAR_NATIVE_DEFAULT;
-                        viewerOptions.ZNear          = CAMERA_ZNEAR_NATIVE_DEFAULT;
-                        viewerOptions.FoV            = CAMERA_FOV_NATIVE_DEFAULT;
-                        viewerOptions.CameraDistance = renderer->ViewerCameraDistance(*meta,pliMeta.modelScale.value());
-                        viewerOptions.NativeCDF      = meta->LPub.nativeCD.factor.value();
-                        viewerOptions.CameraName     = pliMeta.cameraName.value();
-                        viewerOptions.RotStep        = xyzVector(rots.at(0).toFloat(),rots.at(1).toFloat(),rots.at(2).toFloat());
-                        viewerOptions.RotStepType    = rots.at(3);
-                        viewerOptions.Latitude       = nameKeys.at(7).toFloat();
-                        viewerOptions.Longitude      = nameKeys.at(8).toFloat();
-                        viewerOptions.ModelScale     = nameKeys.at(5).toFloat();
-                        viewerOptions.Target         = xyzVector(pliMeta.target.x(),pliMeta.target.y(),pliMeta.target.z());
-                        if (!viewerOptsList.contains(keyPart1))
-                            viewerOptsList.insert(keyPart1,viewerOptions);
-                    }
+                    // store rotated and unrotated Part. Unrotated part used to generate LDView pov file
+                    QString pliPartKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
+                    gui->insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ldrNames.first(),pliPartKey,multistep,callout);
 
                     if ( ! part.exists()) {
 
@@ -2443,6 +2410,33 @@ int Pli::partSizeLDViewSCall() {
                     }
 
                 } else { ia.ldrNames[pT] << QStringList(); } // part already exist
+
+                // Generate 3DViewer Submodel entry
+                if (! gui->exportingObjects() && pT == NORMAL_PART) {
+                    // set viewer display options
+                    QStringList rots = subRotation.split("_");
+                    viewerOptions.ViewerCsiKey   = viewerPliPartKey;
+                    viewerOptions.StudLogo       = pliMeta.studLogo.value();
+                    viewerOptions.ImageFileName  = imageName;
+                    viewerOptions.Resolution     = nameKeys.at(3).toFloat();
+                    viewerOptions.PageWidth      = pageSizeP(meta, 0);
+                    viewerOptions.PageHeight     = pageSizeP(meta, 1);
+                    viewerOptions.UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
+                    viewerOptions.ZFar           = CAMERA_ZFAR_NATIVE_DEFAULT;
+                    viewerOptions.ZNear          = CAMERA_ZNEAR_NATIVE_DEFAULT;
+                    viewerOptions.FoV            = CAMERA_FOV_NATIVE_DEFAULT;
+                    viewerOptions.CameraDistance = renderer->ViewerCameraDistance(*meta,pliMeta.modelScale.value());
+                    viewerOptions.NativeCDF      = meta->LPub.nativeCD.factor.value();
+                    viewerOptions.CameraName     = pliMeta.cameraName.value();
+                    viewerOptions.RotStep        = xyzVector(rots.at(0).toFloat(),rots.at(1).toFloat(),rots.at(2).toFloat());
+                    viewerOptions.RotStepType    = rots.at(3);
+                    viewerOptions.Latitude       = nameKeys.at(7).toFloat();
+                    viewerOptions.Longitude      = nameKeys.at(8).toFloat();
+                    viewerOptions.ModelScale     = nameKeys.at(5).toFloat();
+                    viewerOptions.Target         = xyzVector(pliMeta.target.x(),pliMeta.target.y(),pliMeta.target.z());
+                    if (!viewerOptsList.contains(keyPart1))
+                        viewerOptsList.insert(keyPart1,viewerOptions);
+                }
 
             }     // for every part type
 
