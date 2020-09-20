@@ -147,8 +147,8 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - Update Default Camera ***/
-	lcProfileEntry("Settings", "DefaultCameraProperties", 0),                                  //LC_PROFILE_DEFAULT_CAMERA_PROPERTIES                   /*** LPub3D Mod - Update Default Camera ***/
-	lcProfileEntry("Settings", "DefaultDistanceFactor", 5.0f),                                 //LC_PROFILE_DEFAULT_DISTANCE_FACTOR                     /*** LPub3D Mod - Update Default Camera ***/
+	lcProfileEntry("Settings", "DefaultCameraProperties", 1),                                  //LC_PROFILE_DEFAULT_CAMERA_PROPERTIES                   /*** LPub3D Mod - Update Default Camera ***/
+	lcProfileEntry("Settings", "DefaultDistanceFactor", 7.0f),                                 //LC_PROFILE_DEFAULT_DISTANCE_FACTOR                     /*** LPub3D Mod - Update Default Camera ***/
 	lcProfileEntry("Settings", "DefaultCameraPosition", 1250.0f),                              //LC_PROFILE_CAMERA_DEFAULT_POSITION                     /*** LPub3D Mod - Update Default Camera ***/
 	lcProfileEntry("Settings", "DefaultCameraFieldOfView", 30.0f),                             //LC_PROFILE_CAMERA_FOV                                  /*** LPub3D Mod - Update Default Camera ***/
 	lcProfileEntry("Settings", "DefaultCameraNearPlane", 25.0f),                               //LC_PROFILE_CAMERA_NEAR_PLANE                           /*** LPub3D Mod - Update Default Camera ***/
@@ -175,8 +175,8 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 
 /*** LPub3D Mod - preview widget ***/
 	lcProfileEntry("Settings", "ActivePreviewColor", LC_RGBA(69, 69, 69, 255)),                // LC_PROFILE_ACTIVE_PREVIEW_COLOR                      /*** LPub3D Mod - preview widget ***/
-	lcProfileEntry("Settings", "ViewSpherePreviewSize", 100),                                  // LC_PROFILE_VIEW_SPHERE_PREVIEW_SIZE                  /*** LPub3D Mod - preview widget ***/
-	lcProfileEntry("Settings", "ViewSpherePreviewLocation", (int)lcViewSphereLocation::BottomLeft), // LC_PROFILE_VIEW_SPHERE_PREVIEW_LOCATION         /*** LPub3D Mod - preview widget ***/
+    lcProfileEntry("Settings", "ViewSpherePreviewSize", 75),                                  // LC_PROFILE_VIEW_SPHERE_PREVIEW_SIZE                  /*** LPub3D Mod - preview widget ***/
+	lcProfileEntry("Settings", "ViewSpherePreviewLocation", (int)lcViewSphereLocation::TopRight), // LC_PROFILE_VIEW_SPHERE_PREVIEW_LOCATION         /*** LPub3D Mod - preview widget ***/
 /*** LPub3D Mod end ***/
 };
 

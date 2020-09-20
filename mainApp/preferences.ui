@@ -49,7 +49,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tabGeneral">
       <attribute name="title">
@@ -2830,80 +2830,110 @@ p, li { white-space: pre-wrap; }
  </widget>
  <tabstops>
   <tabstop>preferencesTabWidget</tabstop>
-  <tabstop>fadeStepBox</tabstop>
-  <tabstop>fadeStepsUseColourBox</tabstop>
-  <tabstop>fadeStepsColoursCombo</tabstop>
   <tabstop>ldrawLibPathEdit</tabstop>
   <tabstop>browseLDraw</tabstop>
   <tabstop>altLDConfigBox</tabstop>
   <tabstop>altLDConfigPath</tabstop>
-  <tabstop>imageMattingChk</tabstop>
+  <tabstop>browseAltLDConfig</tabstop>
+  <tabstop>loadLastOpenedFileCheck</tabstop>
+  <tabstop>ldrawFilesLoadMsgsCombo</tabstop>
+  <tabstop>extendedSubfileSearchCheck</tabstop>
+  <tabstop>saveOnUpdateChkBox</tabstop>
+  <tabstop>saveOnRedrawChkBox</tabstop>
+  <tabstop>fadeStepBox</tabstop>
+  <tabstop>fadeStepsUseColourBox</tabstop>
+  <tabstop>fadeStepsColoursCombo</tabstop>
   <tabstop>fadeStepsOpacitySlider</tabstop>
   <tabstop>highlightStepBox</tabstop>
-  <tabstop>highlightStepLineWidthSpin</tabstop>
+  <tabstop>highlightFirstStepBox</tabstop>
   <tabstop>highlightStepBtn</tabstop>
-  <tabstop>browseAltLDConfig</tabstop>
+  <tabstop>highlightStepLineWidthSpin</tabstop>
+  <tabstop>imageMattingChk</tabstop>
   <tabstop>pliControlBox</tabstop>
   <tabstop>pliControlEdit</tabstop>
   <tabstop>browsePli</tabstop>
   <tabstop>Centimeters</tabstop>
   <tabstop>Inches</tabstop>
+  <tabstop>applyCALocallyRadio</tabstop>
+  <tabstop>applyCARendererRadio</tabstop>
+  <tabstop>optionsButton</tabstop>
+  <tabstop>preferredRenderer</tabstop>
+  <tabstop>projectionCombo</tabstop>
+  <tabstop>rendererTimeout</tabstop>
+  <tabstop>ldviewBox</tabstop>
+  <tabstop>ldviewSingleCall_Chk</tabstop>
+  <tabstop>ldviewSnaphsotsList_Chk</tabstop>
+  <tabstop>ldvPreferencesBtn</tabstop>
+  <tabstop>ldviewPath</tabstop>
+  <tabstop>browseLDView</tabstop>
+  <tabstop>ldgliteBox</tabstop>
+  <tabstop>ldglitePath</tabstop>
+  <tabstop>browseLDGLite</tabstop>
   <tabstop>POVRayBox</tabstop>
-  <tabstop>lgeoPath</tabstop>
+  <tabstop>povrayRenderQualityCombo</tabstop>
+  <tabstop>povrayAutoCropBox</tabstop>
+  <tabstop>povrayDisplay_Chk</tabstop>
+  <tabstop>povrayPath</tabstop>
+  <tabstop>browsePOVRAY</tabstop>
   <tabstop>povGenNativeRadio</tabstop>
   <tabstop>povGenLDViewRadio</tabstop>
   <tabstop>ldvPoVFileGenOptBtn</tabstop>
   <tabstop>ldvPoVFileGenPrefBtn</tabstop>
-  <tabstop>ldgliteBox</tabstop>
-  <tabstop>browseLDGLite</tabstop>
-  <tabstop>ldglitePath</tabstop>
-  <tabstop>ldviewBox</tabstop>
-  <tabstop>ldvPreferencesBtn</tabstop>
-  <tabstop>ldviewSingleCall_Chk</tabstop>
-  <tabstop>preferredRenderer</tabstop>
-  <tabstop>rendererTimeout</tabstop>
+  <tabstop>lgeoBox</tabstop>
+  <tabstop>lgeoPath</tabstop>
+  <tabstop>browseLGEO</tabstop>
+  <tabstop>archiveLSynthPartsBox</tabstop>
+  <tabstop>addLSynthSearchDirBox</tabstop>
+  <tabstop>pageDisplayPauseSpin</tabstop>
+  <tabstop>doNotShowPageProcessDlgChk</tabstop>
+  <tabstop>publishTOC_Chk</tabstop>
+  <tabstop>displayAllAttributes_Chk</tabstop>
+  <tabstop>generateCoverPages_Chk</tabstop>
+  <tabstop>authorName_Edit</tabstop>
+  <tabstop>publishURL_Edit</tabstop>
+  <tabstop>publishEmail_Edit</tabstop>
   <tabstop>publishLogoBox</tabstop>
   <tabstop>publishLogoPath</tabstop>
   <tabstop>browsePublishLogo</tabstop>
   <tabstop>publishDescriptionEdit</tabstop>
-  <tabstop>pageDisplayPauseSpin</tabstop>
-  <tabstop>doNotShowPageProcessDlgChk</tabstop>
-  <tabstop>authorName_Edit</tabstop>
-  <tabstop>publishURL_Edit</tabstop>
-  <tabstop>publishEmail_Edit</tabstop>
-  <tabstop>displayAllAttributes_Chk</tabstop>
-  <tabstop>generateCoverPages_Chk</tabstop>
+  <tabstop>themeCombo</tabstop>
+  <tabstop>themeAutoRestartBox</tabstop>
+  <tabstop>sceneBackgroundColorButton</tabstop>
+  <tabstop>sceneRulerTickColorButton</tabstop>
+  <tabstop>sceneGuideColorButton</tabstop>
+  <tabstop>sceneGridColorButton</tabstop>
+  <tabstop>sceneRulerTrackingColorButton</tabstop>
+  <tabstop>resetSceneColorsButton</tabstop>
   <tabstop>loggingGrpBox</tabstop>
   <tabstop>logPathEdit</tabstop>
   <tabstop>includeLogLevelBox</tabstop>
-  <tabstop>includeTimestampBox</tabstop>
   <tabstop>includeLineNumberBox</tabstop>
-  <tabstop>includeFileNameBox</tabstop>
   <tabstop>includeFunctionBox</tabstop>
+  <tabstop>includeTimestampBox</tabstop>
+  <tabstop>includeFileNameBox</tabstop>
   <tabstop>includeAllLogAttribBox</tabstop>
   <tabstop>logLevelGrpBox</tabstop>
   <tabstop>logLevelCombo</tabstop>
   <tabstop>logLevelsGrpBox</tabstop>
   <tabstop>fatalLevelBox</tabstop>
-  <tabstop>noticeLevelBox</tabstop>
   <tabstop>errorLevelBox</tabstop>
-  <tabstop>traceLevelBox</tabstop>
   <tabstop>statusLevelBox</tabstop>
-  <tabstop>debugLevelBox</tabstop>
   <tabstop>infoLevelBox</tabstop>
+  <tabstop>noticeLevelBox</tabstop>
+  <tabstop>traceLevelBox</tabstop>
+  <tabstop>debugLevelBox</tabstop>
   <tabstop>allLogLevelsBox</tabstop>
-  <tabstop>themeCombo</tabstop>
-  <tabstop>themeAutoRestartBox</tabstop>
-  <tabstop>changeLog_txbr</tabstop>
-  <tabstop>showUpdateNotifications_Chk</tabstop>
-  <tabstop>checkForUpdates_btn</tabstop>
-  <tabstop>showAllNotificstions_Chk</tabstop>
-  <tabstop>enableDownloader_Chk</tabstop>
   <tabstop>checkUpdateFrequency_Combo</tabstop>
   <tabstop>moduleVersion_Combo</tabstop>
+  <tabstop>showAllNotificstions_Chk</tabstop>
+  <tabstop>enableDownloader_Chk</tabstop>
+  <tabstop>showDownloadRedirects_Chk</tabstop>
+  <tabstop>showUpdateNotifications_Chk</tabstop>
+  <tabstop>checkForUpdates_btn</tabstop>
+  <tabstop>changeLog_txbr</tabstop>
+  <tabstop>lineEditIniFile</tabstop>
   <tabstop>textEditSearchDirs</tabstop>
   <tabstop>pushButtonReset</tabstop>
-  <tabstop>lineEditIniFile</tabstop>
  </tabstops>
  <resources>
   <include location="lpub3d.qrc"/>

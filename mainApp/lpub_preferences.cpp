@@ -165,7 +165,7 @@ QString Preferences::sceneGuideColor            = THEME_GUIDE_PEN_DEFAULT;
 
 bool    Preferences::usingDefaultLibrary        = true;
 bool    Preferences::portableDistribution       = false;
-bool    Preferences::perspectiveProjection      = false;
+bool    Preferences::perspectiveProjection      = true;
 bool    Preferences::saveOnRedraw               = true;
 bool    Preferences::saveOnUpdate               = true;
 
@@ -244,7 +244,7 @@ bool    Preferences::showAnnotationMessages     = true;
 bool    Preferences::showSaveOnRedraw           = true;
 bool    Preferences::showSaveOnUpdate           = true;
 bool    Preferences::suppressStdOutToLog        = false;
-bool    Preferences::archivePartsOnLaunch       = true;
+bool    Preferences::archivePartsOnLaunch       = false;
 bool    Preferences::highlightFirstStep         = false;
 
 bool    Preferences::customSceneBackgroundColor = false;
@@ -1071,8 +1071,7 @@ void Preferences::lpub3dLibPreferences(bool force)
     // check if archive parts on launch enabled 
     QString const archivePartsOnLaunchKey("ArchivePartsOnLaunch"); 
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,archivePartsOnLaunchKey))) { 
-        QVariant uValue(true); 
-        archivePartsOnLaunch = true; 
+        QVariant uValue(archivePartsOnLaunch);
         Settings.setValue(QString("%1/%2").arg(SETTINGS,archivePartsOnLaunchKey),uValue); 
     } else {
         archivePartsOnLaunch = Settings.value(QString("%1/%2").arg(SETTINGS,archivePartsOnLaunchKey)).toBool();
