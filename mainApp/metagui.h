@@ -1648,7 +1648,7 @@ class BuildModDialogGui : public QObject
     Q_OBJECT
 public:
     BuildModDialogGui(){}
-    void getBuildMod(QStringList & buildModKeys, bool apply = true);
+    void getBuildMod(QStringList & buildModKeys, int action = BuildModApplyRc);
 
 public slots:
     void setBuildModActive(QListWidgetItem *item);

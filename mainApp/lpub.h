@@ -728,15 +728,18 @@ public:
   }
 
   /* Build Modifications */
+
   void insertBuildMod(const QString      &buildModKey,
+                      const QString      &modStepKey,
                       const QVector<int> &modAttributes,
                       int                 modAction,
-                      int                 stepNumber)
+                      int                 stepIndex)
   {
       ldrawFile.insertBuildMod(buildModKey,
+                               modStepKey,
                                modAttributes,
                                modAction,
-                               stepNumber);
+                               stepIndex);
   }
 
   int getBuildModBeginLineNumber(const QString &buildModKey)
@@ -754,42 +757,34 @@ public:
       return ldrawFile.getBuildModEndLineNumber(buildModKey);
   }
 
-  int getBuildModStepNumber(const QString &buildModKey)
+  int getBuildModAction(const QString &buildModKey, int stepIndex = -1)
   {
-      return ldrawFile.getBuildModStepNumber(buildModKey);
+      return ldrawFile.getBuildModAction(buildModKey, stepIndex);
   }
 
-  int getBuildModAction(const QString &buildModKey, int stepNumber)
+  int setBuildModAction(const QString &buildModKey, int stepIndex, int modAction)
   {
-      int rc = ldrawFile.getBuildModAction(buildModKey, stepNumber);
-
-      if (rc == OkRc) {
-          rc = BuildModApplyRc;
-          ldrawFile.setBuildModAction(buildModKey, stepNumber, rc);
-      }
-
-      return rc;
+      return ldrawFile.setBuildModAction(buildModKey, stepIndex, modAction);
   }
 
-  void setBuildModAction(const QString      &buildModKey,
-                         int                 stepNumber,
-                         int                 modAction)
+  int setBuildModStepIndex(const Where &here)
   {
-      ldrawFile.setBuildModAction(buildModKey, stepNumber, modAction);
+      return ldrawFile.setBuildModStepIndex(getSubmodelIndex(here.modelName), here.lineNumber);
   }
 
-  bool hasBuildMods(){
-      return ldrawFile.hasBuildMods();
-  }
-
-  QStringList getBuildModsList()
+  void setBuildModStepKey(const QString &buildModKey, const QString &modStepKey)
   {
-      return ldrawFile.getBuildModsList();
+      ldrawFile.setBuildModStepKey(buildModKey, modStepKey);
   }
 
   int getBuildModNextIndex(const QString &buildModKeyPrefix)
   {
       return ldrawFile.getBuildModNextIndex(buildModKeyPrefix);
+  }
+
+  QString getBuildModStepKey(const QString &buildModKey)
+  {
+      return ldrawFile.getBuildModStepKey(buildModKey);
   }
 
   QString getBuildModModelName(const QString &buildModKey)
@@ -801,6 +796,23 @@ public:
   {
       return ldrawFile.buildModContains(buildModKey);
   }
+
+  int getBuildModNextStepIndex()
+  {
+      return ldrawFile.getBuildModNextStepIndex();
+  }
+
+  QStringList getBuildModsList()
+  {
+      return ldrawFile.getBuildModsList();
+  }
+
+  bool hasBuildMods()
+  {
+      return ldrawFile.hasBuildMods();
+  }
+
+  /* End Build Modifications */
 
   void setExportedFile(const QString &fileName)
   {
@@ -844,6 +856,8 @@ public:
   {
       return KpageScene;
   }
+
+  void skipHeader(Where &current);
 
   void setCurrentStep(const QString &key = "");
   void setCurrentStep(Step *step, Where here, int stepNumber, int stepType = BM_SINGLE_STEP);
@@ -1163,6 +1177,8 @@ public slots:
   void applyBuildModification();
   void removeBuildModification();
   void createBuildModification();
+  void changeBuildModification();
+  void deleteBuildModification();
 
   void clearPLICache();
   void clearCSICache();
@@ -1336,8 +1352,6 @@ private:
   bool isUserSceneObject(const int so);
 
   void countPages();
-
-  void skipHeader(Where &current);
 
   int findPage(                     // traverse the hierarchy until we get to the
     LGraphicsView   *view,          // page of interest, let traverse process the
@@ -1858,6 +1872,8 @@ private:
   QAction *applyBuildModAct;
   QAction *removeBuildModAct;
   QAction *createBuildModAct;
+  QAction *changeBuildModAct;
+  QAction *deleteBuildModAct;
   QAction *setTargetPositionAct;
   QAction *useImageSizeAct;
   QAction *autoCenterSelectionAct;

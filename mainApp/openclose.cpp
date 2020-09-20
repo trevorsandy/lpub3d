@@ -706,6 +706,7 @@ void Gui::fileChanged(const QString &path)
 }
 
 void Gui::writeGeneratedColorPartsToTemp(){
+  LDrawFile::_currentLevels.clear();
   for (int i = 0; i < ldrawFile._subFileOrder.size(); i++) {
     QString fileName = ldrawFile._subFileOrder[i].toLower();
     if (ldrawColourParts.isLDrawColourPart(fileName)) {
@@ -717,6 +718,7 @@ void Gui::writeGeneratedColorPartsToTemp(){
       writeToTmp(fileName,content);
     }
   }
+  LDrawFile::_currentLevels.clear();
 }
 
 void Gui::setFadeStepsFromCommandMeta()

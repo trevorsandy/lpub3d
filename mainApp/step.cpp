@@ -352,6 +352,15 @@ int Step::createCsi(
                           .arg(stepNumber.number)
                           .arg(modelDisplayOnlyStep ? "_dm" : "");
 
+  // populate build mods with view keys
+  if (buildMod.value().buildModStepKeys.size()) {
+      BuildModData bmd = buildMod.value();
+      for (int i = 0; i < bmd.buildModStepKeys.size(); i++)
+          gui->setBuildModStepKey(bmd.buildModStepKeys.at(i), viewerStepKey);
+      bmd.buildModStepKeys.clear();
+      buildMod.setValue(bmd);
+  }
+
   if (Preferences::debugLogging)
       emit gui->messageSig(LOG_DEBUG,
                            QString("DEBUG - CSI ViewerStepKey Attributes "

@@ -1112,7 +1112,9 @@ void Gui::createBuildModification()
             int ModelIndex      = buildModRange.at(BM_MODEL_INDEX);
             int ModBeginLineNum = buildModRange.at(BM_BEGIN_LINE);
             int ModEndLineNum   = buildModRange.at(BM_END_LINE);
+            int ModStepNumber   = currentStep ? currentStep->stepNumber.number : 0;
             QString ModelName   = getSubmodelName(ModelIndex);
+            QString ModStepKey  = currentStep ? viewerStepKey : QString();
 
             bool FadeStep = page.meta.LPub.fadeStep.fadeStep.value();
             bool HighlightStep = page.meta.LPub.highlightStep.highlightStep.value() && !suppressColourMeta();
@@ -1237,7 +1239,7 @@ void Gui::createBuildModification()
                 InsertPiece(mLoadPieces, Piece, mLoadPieces.GetSize());
             };
 
-            // capture default content for ldrawFile.buildMod and QBA
+            // capture default content for ldrawFile.buildMod and ByteArray
             QByteArray ByteArray;
             for (int i = 0; i < ldrawFile.contents(ModelName).size(); i++){
                 if (i > ModEndLineNum)
@@ -1620,39 +1622,52 @@ void Gui::createBuildModification()
 
             QString BuildModKey = QString("%1 Mod %2").arg(ModelName).arg(getBuildModNextIndex(ModelName));
 
-            Where modHere;
+            ModActionLineNum  = ModBeginLineNum + BuildModContents.size() + 1;
+
+            BuildModData buildModData;
+
+            Where modHere,endMod;
 
             if (currentStep && BuildModContents.size()) {
+
+                buildModData = currentStep->buildMod.value();
                 int it = lcGetActiveProject()->GetImageType();
-                switch(it){
+
+                switch(it) {
                 case Options::Mt::CSI:
                 case Options::Mt::SMP:
                 {
                     QString metaString;
-                    BuildModData buildModData;
+                    buildModData.buildModKey = QString();
 
                     beginMacro("CreateBuildModContent");
+
+                    // delete existing BUILD_MOD commands from bottom up, starting at END_MOD
+                    endMod = Where(ModelName, ModActionLineNum);
+                    QString modLine = readLine(endMod);
+                    Rc rc = page.meta.parse(modLine, endMod);
+                    if (rc == BuildModEndModRc)
+                        for (Where walk = endMod - 1; walk >= ModBeginLineNum; --walk)
+                            deleteLine(walk);
 
                     // write end meta command below default content last line (append line)
                     modHere = Where(ModelName, ModEndLineNum);
                     buildModData.action      = QString("END");
-                    buildModData.buildModKey = QString();
                     currentStep->buildMod.setValue(buildModData);
                     metaString = currentStep->buildMod.format(false/*local*/,false/*global*/);
-                    gui->appendLine(modHere, metaString, nullptr);
+                    appendLine(modHere, metaString, nullptr);
 
                     // write action meta command above default content first line - last to first
                     modHere = Where(ModelName, ModBeginLineNum);
                     buildModData.action      = QString("END_MOD");
-                    buildModData.buildModKey = QString();
                     currentStep->buildMod.setValue(buildModData);
                     metaString = currentStep->buildMod.format(false,false);
-                    gui->insertLine(modHere, metaString, nullptr);
+                    insertLine(modHere, metaString, nullptr);
 
                     // write buildMod content last to first
                     for (int i = BuildModContents.size() - 1; i >= 0; --i) {
                         metaString = BuildModContents.at(i);
-                        gui->insertLine(modHere, metaString, nullptr);
+                        insertLine(modHere, metaString, nullptr);
                     }
 
                     // write begin meta command above buildMod content first line
@@ -1660,7 +1675,7 @@ void Gui::createBuildModification()
                     buildModData.buildModKey = BuildModKey;
                     currentStep->buildMod.setValue(buildModData);
                     metaString = currentStep->buildMod.format(false,false);
-                    gui->insertLine(modHere, metaString, nullptr);
+                    insertLine(modHere, metaString, nullptr);
 
                     endMacro();
                 }
@@ -1670,17 +1685,21 @@ void Gui::createBuildModification()
                 }
             }
 
-            QVector<int> ModAttributes = { ModBeginLineNum,
-                                           ModActionLineNum,
-                                           ModEndLineNum,
-                                           ModelIndex };
+            // Switch ModEndLineNum to line number for BUILD_MOD END command
+            ModEndLineNum = ModActionLineNum + DefaultContents.size() + 1;
+
+            QVector<int> ModAttributes = { ModBeginLineNum,   // BM_BEGIN_LINE
+                                           ModActionLineNum,  // BM_ACTION_LINE
+                                           ModEndLineNum,     // BM_END_LINE
+                                           ModelIndex };      // BM_MODEL_NAME_INDEX
 
             insertBuildMod(BuildModKey,
+                           ModStepKey,
                            ModAttributes,
                            BuildModApplyRc,
-                           currentStep ? currentStep->stepNumber.number : 0);
+                           ModStepNumber);
 
-            // reset the modified parts list
+            // Reset the build mod range
             buildModRange = { 0, -1, 0 };
         }
     }
@@ -1693,29 +1712,36 @@ void Gui::applyBuildModification()
             new BuildModDialogGui();
     buildModDialogGui->getBuildMod(buildModKeys);
 
-    if (buildModKeys.size() && currentStep){
-        if (lcGetActiveProject()->GetImageType() != Options::Mt::PLI) {
-            QString metaString;
-            BuildModData buildModData;
-            Where top = currentStep->topOfStep();
-            int stepNumber = currentStep->stepNumber.number;
+    if (!buildModKeys.size())
+        return;
 
-            gui->setBuildModAction(buildModKeys.first(), stepNumber, BuildModApplyRc);
+    int it = lcGetActiveProject()->GetImageType();
+    switch(it) {
+    case Options::Mt::CSI:
+    case Options::Mt::SMP:
+    {
+        QString metaString;
+        bool newCommand = false;
+        Where top = currentStep->topOfStep();
+        BuildModData buildModData = currentStep->buildMod.value();
+        int stepNumber = currentStep->stepNumber.number;
 
-            beginMacro("ApplyBuildModContent");
+        setBuildModAction(buildModKeys.first(), stepNumber, BuildModApplyRc);
 
-            buildModData.action      = QString("APPLY");
-            buildModData.buildModKey = buildModKeys.first();
-            currentStep->buildMod.setValue(buildModData);
-            metaString = currentStep->buildMod.format(true,false);
+        beginMacro("ApplyBuildModContent");
 
-            if (currentStep->buildMod.here() == Where())
-                gui->insertLine(top, metaString, nullptr);
-            else
-                gui->replaceLine(top, metaString, nullptr);
+        buildModData.action      = QString("APPLY");
+        buildModData.buildModKey = buildModKeys.first();
+        currentStep->buildMod.setValue(buildModData);
+        metaString = currentStep->buildMod.format(false/*local*/,false/*global*/);
+        newCommand = currentStep->buildMod.here() ==  Where();
+        currentStep->mi(it)->setMetaAlt(newCommand ? top : currentStep->buildMod.here(), metaString, newCommand);
 
-            endMacro();
-        }
+        endMacro();
+    }
+        break;
+    default: /*Options::Mt::PLI:*/
+        break;
     }
 }
 
@@ -1726,29 +1752,113 @@ void Gui::removeBuildModification()
             new BuildModDialogGui();
     buildModDialogGui->getBuildMod(buildModKeys,false);
 
-    if (buildModKeys.size() && currentStep){
-        if (lcGetActiveProject()->GetImageType() != Options::Mt::PLI) {
-            QString metaString;
-            BuildModData buildModData;
-            Where top = currentStep->topOfStep();
-            int stepNumber = currentStep->stepNumber.number;
+    if (!buildModKeys.size())
+        return;
 
-            gui->setBuildModAction(buildModKeys.first(), stepNumber, BuildModRemoveRc);
+    int it = lcGetActiveProject()->GetImageType();
+    switch(it) {
+    case Options::Mt::CSI:
+    case Options::Mt::SMP:
+    {
+        QString metaString;
+        bool newCommand = false;
+        Where top = currentStep->topOfStep();
+        BuildModData buildModData = currentStep->buildMod.value();
+        int stepNumber = currentStep->stepNumber.number;
 
-            beginMacro("RemoveBuildModContent");
+        setBuildModAction(buildModKeys.first(), stepNumber, BuildModRemoveRc);
 
-            buildModData.action      = QString("REMOVE");
-            buildModData.buildModKey = buildModKeys.first();
-            currentStep->buildMod.setValue(buildModData);
-            metaString = currentStep->buildMod.format(true,false);
+        beginMacro("RemoveBuildModContent");
 
-            if (currentStep->buildMod.here() == Where())
-                gui->insertLine(top, metaString, nullptr);
-            else
-                gui->replaceLine(top, metaString, nullptr);
+        buildModData.action      = QString("REMOVE");
+        buildModData.buildModKey = buildModKeys.first();
+        currentStep->buildMod.setValue(buildModData);
+        metaString = currentStep->buildMod.format(false/*local*/,false/*global*/);
+        newCommand = currentStep->buildMod.here() == Where();
+        currentStep->mi(it)->setMetaAlt(newCommand ? top : currentStep->buildMod.here(), metaString, newCommand);
 
-            endMacro();
+        endMacro();
+    }
+        break;
+    default: /*Options::Mt::PLI:*/
+        break;
+    }
+}
+
+void Gui::changeBuildModification()
+{
+    QStringList buildModKeys;
+    BuildModDialogGui *buildModDialogGui =
+            new BuildModDialogGui();
+    buildModDialogGui->getBuildMod(buildModKeys);
+
+    if (!buildModKeys.size())
+        return;
+
+    int it = lcGetActiveProject()->GetImageType();
+    switch(it) {
+    case Options::Mt::CSI:
+    case Options::Mt::SMP:
+    {
+
+        beginMacro("ApplyBuildModContent");
+
+
+        endMacro();
+    }
+        break;
+    default: /*Options::Mt::PLI:*/
+        break;
+    }
+}
+
+void Gui::deleteBuildModification()
+{
+    QStringList buildModKeys;
+    BuildModDialogGui *buildModDialogGui =
+            new BuildModDialogGui();
+    buildModDialogGui->getBuildMod(buildModKeys);
+
+    if (!buildModKeys.size())
+        return;
+
+    int it = lcGetActiveProject()->GetImageType();
+    switch(it) {
+    case Options::Mt::CSI:
+    case Options::Mt::SMP:
+    {
+        int modBeginLineNum  = getBuildModBeginLineNumber(buildModKeys.first());
+        int modActionLineNum = getBuildModActionLineNumber(buildModKeys.first());
+        int modEndLineNum    = getBuildModEndLineNumber(buildModKeys.first());
+        QString modelName    = getBuildModModelName(buildModKeys.first());
+
+        if (modelName.isEmpty() || !modBeginLineNum || !modActionLineNum || !modEndLineNum) {
+            emit messageSig(LOG_ERROR, QString("There was a problem receiving buld mod attributes for key [%1]").arg(buildModKeys.first()));
+            return;
         }
+
+        beginMacro("DeleteBuildModContent");
+
+        // delete existing BUILD_MOD commands from bottom up, starting at END
+        Where here = Where(modelName, modEndLineNum);
+        QString modLine = readLine(here);
+        Rc rc = page.meta.parse(modLine, here);
+        if (rc == BuildModEndRc)
+            deleteLine(here);
+
+        // delete existing BUILD_MOD commands from bottom up, starting at END_MOD
+        here = Where(modelName, modActionLineNum);
+        modLine = readLine(here);
+        rc = page.meta.parse(modLine, here);
+        if (rc == BuildModEndModRc)
+            for (Where walk = here - 1; walk >= modBeginLineNum; --walk)
+                deleteLine(walk);
+
+        endMacro();
+    }
+        break;
+    default: /*Options::Mt::PLI:*/
+        break;
     }
 }
 
@@ -2024,7 +2134,7 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
                         if (lineNumber < buildModRange.first())
                             buildModRange[BM_BEGIN_LINE] = lineNumber;
                         else if (lineNumber > buildModRange.last())
-                            buildModRange[BM_END_LINE] = lineNumber;     // NOT USED - Can remove
+                            buildModRange[BM_END_LINE] = lineNumber;
                     } else {
                         buildModRange = { lineNumber, modelIndex, lineNumber};
                     }

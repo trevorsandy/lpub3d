@@ -80,10 +80,11 @@ int getLevel(const QString& key, int rc)
     if (rc == HiarchLevel::BEGIN) {
         HiarchLevel* level = addLevel(key, true);
 
-        if (!LDrawFile::_currentLevels.isEmpty())
-            level->level = LDrawFile::_currentLevels[LDrawFile::_currentLevels.size() - 1];
-        else
+        if (LDrawFile::_currentLevels.isEmpty())
             level->level = nullptr;
+        else
+            level->level = LDrawFile::_currentLevels[LDrawFile::_currentLevels.size() - 1];
+
         LDrawFile::_currentLevels.append(level);
 
     } else if (rc == HiarchLevel::END) {
@@ -135,12 +136,13 @@ LDrawSubFile::LDrawSubFile(
 }
 
 /* initialize new Build Mod */
-BuildMod::BuildMod(const QVector<int> &modAttributes,
+BuildMod::BuildMod(const QString      &modStepKey,
+                   const QVector<int> &modAttributes,
                    int                modAction,
                    int                stepNumber){
+    _modStepKey = modStepKey;
     _modAttributes << modAttributes;
     _modActions.insert(stepNumber, modAction);
-    _stepNumber = stepNumber;
 }
 
 /* initialize viewer step*/
@@ -1467,6 +1469,11 @@ void LDrawFile::countInstances(const QString &mcFileName, bool isMirrored, bool 
   bool partsAdded  = false;
   bool noStep      = false;
   bool stepIgnore  = false;
+
+  Where topOfStep(fileName, 0);
+  gui->skipHeader(topOfStep);
+
+  QString modelIndex = QString::number(getSubmodelIndex(fileName));
   
   QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(fileName);
   if (f != _subFiles.end()) {
@@ -1547,8 +1554,10 @@ void LDrawFile::countInstances(const QString &mcFileName, bool isMirrored, bool 
           int incr = (isMirrored && f->_mirrorInstances == 0) ||
                      (!isMirrored && f->_instances == 0);
           f->_numSteps += incr;
+          _buildModStepIndexes.append(QString("%1 %2").arg(modelIndex).arg(topOfStep.lineNumber));
+          topOfStep.lineNumber = i;
         }
-        // reset partsAdded
+        // reset partsAdded and noStep
         partsAdded = false;
         noStep = false;
         // buffer exchange - do nothing
@@ -1563,11 +1572,16 @@ void LDrawFile::countInstances(const QString &mcFileName, bool isMirrored, bool 
         partsAdded = true;
       }
     }
-    //add step if parts added
-    f->_numSteps += partsAdded && ! noStep &&
-                       ( (isMirrored && f->_mirrorInstances == 0) ||
-                       (!isMirrored && f->_instances == 0) );
-    //
+
+    //add step if parts added (this is the last model step)
+    int incr = partsAdded && ! noStep &&
+               ( (isMirrored && f->_mirrorInstances == 0) ||
+               (!isMirrored && f->_instances == 0) );
+    if (incr)
+        _buildModStepIndexes.append(QString("%1 %2").arg(modelIndex).arg(topOfStep.lineNumber));
+
+    f->_numSteps += incr;
+
     if ( ! callout) {
       if (isMirrored) {
         ++f->_mirrorInstances;
@@ -1590,8 +1604,18 @@ void LDrawFile::countInstances()
     it->_beenCounted = false;
   }
   buildMod = 0;
+  _buildModStepIndexes.clear();
   _currentLevels.clear();
   countInstances(topLevelFile(),false);
+
+  // DEBUG
+  for (int i = 0; i < _buildModStepIndexes.size(); i++){
+      QStringList elements = _buildModStepIndexes.at(i).split(" ");
+      emit gui->messageSig(LOG_DEBUG, QString("BuildModStepIndex: '%1', ModelName(%2): '%3', LineNumber: '%4'")
+                                              .arg(i).arg(elements.first())                   /* modelIndex */
+                                              .arg(getSubmodelName(elements.first().toInt())) /* modelName  */
+                                              .arg(elements.last()));                         /* lineNumber */
+  }
 }
 
 bool LDrawFile::saveMPDFile(const QString &fileName)
@@ -1864,19 +1888,47 @@ bool LDrawFile::ldcadGroupMatch(const QString &name, const QStringList &lids)
 /* Build Modifications */
 
 void LDrawFile::insertBuildMod(const QString      &buildModKey,
+                               const QString      &modStepKey,
                                const QVector<int> &modAttributes,
                                int                 modAction,
-                               int                 stepNumber)
+                               int                 stepIndex)
 {
-  QString modKey = buildModKey.toLower();
+  QString modKey  = buildModKey.toLower();
+  QString stepKey = modStepKey;
+  QMap<int,int> modActions;
   QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
   if (i != _buildMods.end()) {
+    // Preservations
+    modActions = i.value()._modActions;
+    QMap<int,int>::iterator a = modActions.find(stepIndex);
+    if (a != modActions.end())
+        modActions.erase(a);
+    if (stepKey.isEmpty())
+        stepKey = i.value()._modStepKey;
+    // Remove build mod if exist
     _buildMods.erase(i);
   }
-  BuildMod buildMod(modAttributes, modAction, stepNumber);
+  // Initialize new build mod
+  BuildMod buildMod(stepKey, modAttributes, modAction, stepIndex);
+  // Restore preserved actions
+  QMap<int,int>::const_iterator a = modActions.constBegin();
+  while (a != modActions.constEnd()) {
+      buildMod._modActions.insert(a.key(), a.value());
+      ++a;
+  }
+  // Insert new build mod
   _buildMods.insert(modKey, buildMod);
+  // Update mod list
   if (!_buildModList.contains(modKey))
       _buildModList.append(modKey);
+}
+
+void LDrawFile::setBuildModStepKey(const QString &modKey, const QString &modStepKey)
+{
+    QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
+    if (i != _buildMods.end()) {
+        i.value()._modStepKey = modStepKey;
+    }
 }
 
 int LDrawFile::getBuildModBeginLineNumber(const QString &buildModKey)
@@ -1909,58 +1961,69 @@ int LDrawFile::getBuildModEndLineNumber(const QString &buildModKey)
   return 0;
 }
 
-int LDrawFile::getBuildModStepNumber(const QString &buildModKey)
+int LDrawFile::getBuildModAction(const QString &buildModKey, int stepIndex)
 {
   QString modKey = buildModKey.toLower();
+  int rc = 0; /*OkRc*/
+  if (stepIndex < 0)
+     stepIndex = getBuildModNextStepIndex();
   QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
   if (i != _buildMods.end()) {
-    return i.value()._stepNumber;
-  }
-  return 0;
-}
-
-int LDrawFile::getBuildModAction(const QString &buildModKey, int stepNumber)
-{
-  QString modKey = buildModKey.toLower();
-  QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
-  if (i != _buildMods.end()) {
-    QMap<int, int>::iterator a = i.value()._modActions.find(stepNumber);
+    QMap<int, int>::iterator a = i.value()._modActions.find(stepIndex);
     if (a != i.value()._modActions.end())
-        return i.value()._modActions.value(stepNumber);
+        rc = i.value()._modActions.value(stepIndex);
   }
-  return 0 /*OkRc*/;
+  if (rc == OkRc)
+     setBuildModAction(buildModKey, stepIndex, BuildModApplyRc);
+
+  return rc;
 }
 
-void LDrawFile::setBuildModAction(
-        const QString &buildModKey,
-        int stepNumber,
+int LDrawFile::setBuildModAction(const QString &buildModKey,
+        int stepIndex,
         int modAction)
 {
     QString  modKey = buildModKey.toLower();
     QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
 
     if (i != _buildMods.end()) {
-        QMap<int, int>::iterator a = i.value()._modActions.find(stepNumber);
+        QMap<int, int>::iterator a = i.value()._modActions.find(stepIndex);
         if (a != i.value()._modActions.end())
-            i.value()._modActions.remove(stepNumber);
-        i.value()._modActions.insert(stepNumber, modAction);
+            i.value()._modActions.remove(stepIndex);
+        i.value()._modActions.insert(stepIndex, modAction);
 
         QString modFileName = getBuildModModelName(modKey);
-        QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(modFileName);
-        if (i != _subFiles.end()) {
-          i.value()._modified = true;
-          i.value()._changedSinceLastWrite = true;
+        QMap<QString, LDrawSubFile>::iterator s = _subFiles.find(modFileName);
+        if (s != _subFiles.end()) {
+          s.value()._modified = true;
+          s.value()._changedSinceLastWrite = true;
         }
+        return i.value()._modActions.value(stepIndex);
     }
+    return 0 /*OkRc*/;
 }
 
-bool LDrawFile::hasBuildMods()
+int LDrawFile::setBuildModStepIndex(int modelIndex, int lineNumber)
 {
-  return _buildMods.size();
+   _buildModStepIndexKey = QString("%1 %2").arg(modelIndex).arg(lineNumber);
+   int index = _buildModStepIndexes.indexOf(_buildModStepIndexKey);
+   emit gui->messageSig(LOG_DEBUG, QString("Set BuildModStepIndex: '%1', Model(%2): '%3', LineNumber: '%4'")
+                        .arg(index)
+                        .arg(modelIndex)
+                        .arg(getSubmodelName(modelIndex))
+                        .arg(lineNumber));
+   return index;
 }
 
-QStringList LDrawFile::getBuildModsList() {
-  return _buildModList;
+int LDrawFile::getBuildModNextStepIndex()
+{
+  int index = _buildModStepIndexes.size();
+  if (_buildModStepIndexes.contains(_buildModStepIndexKey))
+    index = _buildModStepIndexes.indexOf(_buildModStepIndexKey);
+  if (index < _buildModStepIndexes.size() - 1)
+    index = index + 1;
+
+  return index;
 }
 
 int LDrawFile::getBuildModNextIndex(const QString &buildModKeyPrefix)
@@ -1968,9 +2031,21 @@ int LDrawFile::getBuildModNextIndex(const QString &buildModKeyPrefix)
   QString modKey = buildModKeyPrefix.toLower();
   int index = _buildModList.size();
   if (_buildModList.contains(modKey))
-      index = _buildModList.indexOf(modKey) + 1;
+    index = _buildModList.indexOf(modKey);
+  if (index < _buildModList.size() - 1)
+    index = index + 1;
 
   return index;
+}
+
+QString LDrawFile::getBuildModStepKey(const QString &buildModKey)
+{
+  QString modKey = buildModKey.toLower();
+  QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
+  if (i != _buildMods.end()) {
+    return i.value()._modStepKey;
+  }
+  return QString();
 }
 
 QString LDrawFile::getBuildModModelName(const QString &buildModKey)
@@ -1988,6 +2063,15 @@ bool LDrawFile::buildModContains(const QString &buildModKey)
 {
   QString modKey = buildModKey.toLower();
   return _buildModList.contains(modKey);
+}
+
+QStringList LDrawFile::getBuildModsList() {
+  return _buildModList;
+}
+
+bool LDrawFile::hasBuildMods()
+{
+  return _buildMods.size();
 }
 
 /* Add a new Viewer Step */

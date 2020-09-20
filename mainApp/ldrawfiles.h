@@ -141,17 +141,35 @@ extern int getLevel(const QString& key, int rc);
  * build modification
  ********************************************/
 
+class StepIndex {
+public:
+    int _modelIndex;
+    int _lineNumber;
+    StepIndex()
+    {
+      _modelIndex = -1;
+      _lineNumber = 0;
+    }
+    StepIndex(int modelIndex, int lineNumber)
+    {
+        _modelIndex = modelIndex;
+        _lineNumber = lineNumber;
+    }
+    ~StepIndex(){}
+};
+
 class BuildMod {
   public:
+    QString       _modStepKey;
     QVector<int>  _modAttributes;
     QMap<int,int> _modActions;
-    int           _stepNumber;
 
     BuildMod()
     {
       _modAttributes = { 0, 0, 0, -1 };
     }
     BuildMod(
+      const QString            &modStepKey,
       const QVector<int>       &modAttributes,
       int                       modAction,
       int                       stepNumber);
@@ -167,6 +185,8 @@ class LDrawFile {
     QMap<QString, LDrawSubFile> _subFiles;
     QMap<QString, ViewerStep>   _viewerSteps;
     QMap<QString, BuildMod>     _buildMods;
+    QVector<QString>            _buildModStepIndexes;
+    QString                     _buildModStepIndexKey;   // last step index - increment + 1 for next index
     QMultiHash<QString, int>    _ldcadGroups;
     QStringList                 _emptyList;
     QString                     _emptyString;
@@ -194,6 +214,7 @@ class LDrawFile {
       _viewerSteps.empty();
       _ldcadGroups.empty();
       _buildMods.empty();
+      _buildModStepIndexes.empty();
     }
 
     QStringList                 _subFileOrder;
@@ -300,22 +321,26 @@ class LDrawFile {
 
     /* Build Modifications */
     void insertBuildMod(const QString      &buildModKey,
+                        const QString      &modStepKey,
                         const QVector<int> &modAttributes,
                         int                 action,
-                        int                 stepNumber);
-    void setBuildModAction(const QString &buildModKey,
-                            int           stepNumber,
+                        int                 stepIndex);
+    int setBuildModAction(const QString &buildModKey,
+                            int           stepIndex,
                             int           modAction);
+    void setBuildModStepKey(const QString &buildModKey, const QString &modStepKey);
+    int setBuildModStepIndex(int modelIndex, int lineNumber);
     int getBuildModBeginLineNumber(const QString &buildModKey);
     int getBuildModEndLineNumber(const QString &buildModKey);
     int getBuildModActionLineNumber(const QString &buildModKey);
-    int getBuildModStepNumber(const QString &buildModKey);
-    int getBuildModAction(const QString &buildModKey, int stepNumber);
+    int getBuildModAction(const QString &buildModKey, int stepIndex = -1);
     int getBuildModNextIndex(const QString &buildModKeyPrefix);
+    QString getBuildModStepKey(const QString &buildModKey);
     QString getBuildModModelName(const QString &buildModKey);
     QStringList getBuildModsList();
     bool buildModContains(const QString &buildModKey);
     bool hasBuildMods();
+    int getBuildModNextStepIndex();
 
     /* ViewerStep functions */
     void insertViewerStep(const QString     &stepKey,

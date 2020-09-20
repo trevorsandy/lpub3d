@@ -2767,9 +2767,13 @@ class BuildModMeta : public LeafMeta
 private:
   BuildModData _value;
 public:
-  QString value()
+  QString key()
   {
     return _value.buildModKey;
+  }
+  BuildModData value()
+  {
+    return _value;
   }
   void setValue(BuildModData &value)
   {
