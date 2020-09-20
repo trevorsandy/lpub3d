@@ -849,11 +849,15 @@ void View::OnDraw()
 		return;
 
 	const lcPreferences& Preferences = lcGetPreferences();
+	const bool DrawInterface = mWidget != nullptr;
 
-	bool DrawInterface = mWidget != nullptr;
 	mScene.SetAllowLOD(Preferences.mAllowLOD && mWidget != nullptr);
+	mScene.SetActiveSubmodelInstance(mActiveSubmodelInstance, mActiveSubmodelTransform);
+	mScene.SetDrawInterface(DrawInterface);
 
-	mModel->GetScene(mScene, mCamera, DrawInterface, mHighlight, mActiveSubmodelInstance, mActiveSubmodelTransform);
+	mScene.Begin(mCamera->mWorldView);
+
+	mModel->GetScene(mScene, mCamera, mHighlight);
 
 	if (DrawInterface && mTrackTool == LC_TRACKTOOL_INSERT)
 	{
@@ -869,6 +873,11 @@ void View::OnDraw()
 			Info->AddRenderMeshes(mScene, WorldMatrix, gMainWindow->mColorIndex, lcRenderMeshState::FOCUSED, true);
 		}
 	}
+
+	if (DrawInterface)
+		mScene.SetPreTranslucentCallback([this]() { DrawGrid(); });
+
+	mScene.End();
 
 	int TotalTileRows = 1;
 	int TotalTileColumns = 1;
@@ -917,12 +926,6 @@ void View::OnDraw()
 				CurrentTileHeight = mHeight;
 
 				mContext->SetProjectionMatrix(GetProjectionMatrix());
-			}
-
-			if (DrawInterface)
-			{
-				mContext->SetViewMatrix(mScene.GetViewMatrix());
-				DrawGrid();
 			}
 
 			mContext->SetLineWidth(Preferences.mLineWidth);
@@ -1630,8 +1633,6 @@ void View::DrawGrid()
 	if (!Preferences.mDrawGridStuds && !Preferences.mDrawGridLines)
 		return;
 
-	mContext->SetWorldMatrix(lcMatrix44Identity());
-
 	const int Spacing = lcMax(Preferences.mGridLineSpacing, 1);
 	int MinX, MaxX, MinY, MaxY;
 	lcVector3 Min(FLT_MAX, FLT_MAX, FLT_MAX), Max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
@@ -1772,13 +1773,13 @@ void View::DrawGrid()
 
 	int BufferOffset = 0;
 	mContext->SetVertexBuffer(mGridBuffer);
+	mContext->SetWorldMatrix(lcMatrix44Identity());
 
 	if (Preferences.mDrawGridStuds)
 	{
 		mContext->BindTexture2D(gGridTexture->mTexture);
+		mContext->SetDepthWrite(false);
 		glEnable(GL_BLEND);
-		glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GREATER, 0.25f);
 
 		mContext->SetMaterial(LC_MATERIAL_UNLIT_TEXTURE_MODULATE);
 		mContext->SetColor(lcVector4FromColor(Preferences.mGridStudColor));
@@ -1786,8 +1787,8 @@ void View::DrawGrid()
 		mContext->SetVertexFormat(0, 3, 0, 2, 0, false);
 		mContext->DrawPrimitives(GL_TRIANGLE_STRIP, 0, 4);
 
-		glDisable(GL_ALPHA_TEST);
 		glDisable(GL_BLEND);
+		mContext->SetDepthWrite(true);
 
 		BufferOffset = 4 * 5 * sizeof(float);
 	}

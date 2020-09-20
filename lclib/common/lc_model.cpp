@@ -1267,19 +1267,15 @@ void lcModel::DuplicateSelectedPieces()
 	SaveCheckpoint(tr("Duplicating Pieces"));
 }
 
-void lcModel::GetScene(lcScene& Scene, lcCamera* ViewCamera, bool DrawInterface, bool Highlight, lcPiece* ActiveSubmodelInstance, const lcMatrix44& ActiveSubmodelTransform) const
+void lcModel::GetScene(lcScene& Scene, lcCamera* ViewCamera, bool Highlight) const
 {
-	Scene.Begin(ViewCamera->mWorldView);
-	Scene.SetActiveSubmodelInstance(ActiveSubmodelInstance, ActiveSubmodelTransform);
-	Scene.SetDrawInterface(DrawInterface);
-
 	mPieceInfo->AddRenderMesh(Scene);
 
 	for (lcPiece* Piece : mPieces)
 		if (Piece->IsVisible(mCurrentStep))
 			Piece->AddMainModelRenderMeshes(Scene, Highlight && Piece->GetStepShow() == mCurrentStep);
 
-	if (DrawInterface && !ActiveSubmodelInstance)
+	if (Scene.GetDrawInterface() && !Scene.GetActiveSubmodelInstance())
 	{
 		for (lcCamera* Camera : mCameras)
 			if (Camera != ViewCamera && Camera->IsVisible())
@@ -1289,8 +1285,6 @@ void lcModel::GetScene(lcScene& Scene, lcCamera* ViewCamera, bool DrawInterface,
 			if (Light->IsVisible())
 				Scene.AddInterfaceObject(Light);
 	}
-
-	Scene.End();
 }
 
 void lcModel::AddSubModelRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive) const
@@ -2905,13 +2899,13 @@ bool lcModel::AnyPiecesSelected() const
 bool lcModel::AnyObjectsSelected() const
 {
 /*** LPub3D Mod - Suppress select move overlay for piece and light ***/
-    for (lcCamera* Camera : mCameras)
-        if (Camera->IsSelected())
-            return true;
+	for (lcCamera* Camera : mCameras)
+		if (Camera->IsSelected())
+			return true;
 /***
-    for (lcPiece* Piece : mPieces)
-        if (Piece->IsSelected())
-            return true;
+	for (lcPiece* Piece : mPieces)
+		if (Piece->IsSelected())
+			return true;
 
 	for (lcLight* Light : mLights)
 		if (Light->IsSelected())

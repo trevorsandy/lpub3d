@@ -19,7 +19,6 @@
 #define LC_SEL_CAN_REMOVE_CONTROL_POINT 0x1000 // Can remove control points from focused piece
 
 class lcGLWidget;
-enum class lcRenderMeshState : int;
 
 /*** LPub3D Mod - native renderer options ***/
 class NativeOptions;
@@ -43,8 +42,8 @@ enum lcTransformType
 /*** LPub3D Mod - coord format ***/
 enum lcRotateStepCoordType
 {
-    LC_ROTATESTEP_COORD_FORMAT_LDRAW,
-    LC_ROTATESTEP_COORD_FORMAT_LEOCAD
+	LC_ROTATESTEP_COORD_FORMAT_LDRAW,
+	LC_ROTATESTEP_COORD_FORMAT_LEOCAD
 };
 /*** LPub3D Mod end ***/
 
@@ -237,7 +236,7 @@ public:
 	void Paste();
 	void DuplicateSelectedPieces();
 
-	void GetScene(lcScene& Scene, lcCamera* ViewCamera, bool DrawInterface, bool Highlight, lcPiece* ActiveSubmodelInstance, const lcMatrix44& ActiveSubmodelTransform) const;
+	void GetScene(lcScene& Scene, lcCamera* ViewCamera, bool Highlight) const;
 	void AddSubModelRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive) const;
 	void DrawBackground(lcGLWidget* Widget);
 	void SaveStepImages(const QString& BaseName, bool AddStepSuffix, bool Zoom, bool Highlight, int Width, int Height, lcStep Start, lcStep End);
@@ -388,8 +387,8 @@ protected:
 	Q_DECLARE_TR_FUNCTIONS(lcModel);
 /*** LPub3D Mod - Expose Model to LPub3D ***/
 	friend class Render;
-    friend class Gui;
-    friend class Step;
+	friend class Gui;
+	friend class Step;
 /*** LPub3D Mod end ***/
 };
 

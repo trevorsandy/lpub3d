@@ -22,6 +22,7 @@ lcScene::lcScene()
 	mActiveSubmodelInstance = nullptr;
 	mAllowWireframe = true;
 	mAllowLOD = true;
+	mPreTranslucentCallback = nullptr;
 }
 
 void lcScene::Begin(const lcMatrix44& ViewMatrix)
@@ -29,6 +30,7 @@ void lcScene::Begin(const lcMatrix44& ViewMatrix)
 	mViewMatrix = ViewMatrix;
 	mActiveSubmodelInstance = nullptr;
 	mDrawInterface = false;
+	mPreTranslucentCallback = nullptr;
 	mRenderMeshes.RemoveAll();
 	mOpaqueMeshes.RemoveAll();
 	mTranslucentMeshes.RemoveAll();
@@ -434,6 +436,9 @@ void lcScene::Draw(lcContext* Context) const
 			PrimitiveTypes |= LC_MESH_CONDITIONAL_LINES;
 
 		DrawOpaqueMeshes(Context, false, PrimitiveTypes);
+
+		if (mPreTranslucentCallback)
+			mPreTranslucentCallback();
 	}
 	else if (ShadingMode == LC_SHADING_FLAT)
 	{
@@ -450,9 +455,12 @@ void lcScene::Draw(lcContext* Context) const
 			// 2. Disable color writes to only update the Z buffer
 			DrawTranslucentMeshes(Context, true, LC_DISABLE_COLOR_WRITES);
 
+		    if (mPreTranslucentCallback)
+			     mPreTranslucentCallback();
+			     
 			// 3. Enable color writes to draw translucent mesh triangles normally
 			DrawTranslucentMeshes(Context, true, LC_ENABLE_COLOR_WRITES);
-
+			     
 			// 4. Draw mesh lines
 			if (DrawLines)
 			{
@@ -475,6 +483,10 @@ void lcScene::Draw(lcContext* Context) const
 			}
 
 			DrawOpaqueMeshes(Context, false, PrimitiveTypes);
+			
+		    if (mPreTranslucentCallback)
+			     mPreTranslucentCallback();
+			
 			DrawTranslucentMeshes(Context, false);
 		}
 /*** LPub3D Mod end ***/
@@ -489,13 +501,16 @@ void lcScene::Draw(lcContext* Context) const
 
 			// 1. Draw opaque mesh triangles
 			DrawOpaqueMeshes(Context, true, LC_MESH_TRIANGLES | LC_MESH_TEXTURED_TRIANGLES);
-
+			
 			// 2. Disable color writes to only update the Z buffer
 			DrawTranslucentMeshes(Context, true, LC_DISABLE_COLOR_WRITES);
 
+		    if (mPreTranslucentCallback)
+			    mPreTranslucentCallback();
+			    
 			// 3. Enable color writes to draw translucent mesh triangles normally
 			DrawTranslucentMeshes(Context, true, LC_ENABLE_COLOR_WRITES);
-
+			    
 			// 4. Draw mesh lines
 			if (DrawLines)
 			{
@@ -523,6 +538,10 @@ void lcScene::Draw(lcContext* Context) const
 			}
 
 			DrawOpaqueMeshes(Context, true, LC_MESH_TRIANGLES | LC_MESH_TEXTURED_TRIANGLES);
+			
+		    if (mPreTranslucentCallback)
+			    mPreTranslucentCallback();
+			    
 			DrawTranslucentMeshes(Context, true);
 		}
 /*** LPub3D Mod end ***/
