@@ -1,6 +1,6 @@
 # Build and check LPub3D on Linux and macOS
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: Sep 10, 2019
+# Last Update: Sep 12, 2020
 # Copyright (c) 2017 - 2020 by Trevor SANDY
 #
 language: cpp
@@ -27,6 +27,7 @@ cache:
 # LP3D_BUILD_LDVIEW_VAR    ; rebuild LDView
 # LP3D_BUILD_POVRAY_VAR    ; rebuild LPub3D-Trace (POV-Ray)
 # LP3D_BUILD_MESALIB_VAR   ; rebuild Mesa library
+# LP3D_UPLOADTOOL_REV_VAR  ; set upload.sh revision - default is master (latest)
 #
 # Remove LP3D_BUILD_PKG_VAR to enable LP3D_COMPILE_SOURCE (compile source only)
 #
@@ -56,6 +57,7 @@ env:
     - LP3D_VER_POVRAY=lpub3d_trace_cui-3.8
     - LP3D_VER_MESALIB=mesa
     - LP3D_RELEASE_DESCRIPTION="LPub3D - An LDraw™ editor for LEGO® style digital building instructions."
+    - LP3D_UPLOADTOOL_REV=master
 
 addons:
   ssh_known_hosts: trevorsandy@frs.sourceforge.net
