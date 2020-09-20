@@ -357,16 +357,16 @@ static const SceneObject PliPartGroupSceneObjects[] =
 #define LOGGING_LEVEL_DEFAULT                   "STATUS"
 
 #define LIBXQUARTZ_MACOS_VERSION                "11.0"   // base 11.0
-#define LIBPNG_MACOS_VERSION                    "1.6.35" // base 1.6.34
+#define LIBPNG_MACOS_VERSION                    "1.6.37" // base 1.6.34
 #define LIBGL2PS_MACOS_VERSION                  "1.4.0"  // base 1.3.5
 #define LIBJPEG_MACOS_VERSION                   "9c"     // base 8b
 #define LIBXML_MACOS_VERSION                    "2.6.2"  // base 2.5.2
 #define LIBMINIZIP_MACOS_VERSION                "1.2.11" // base 1.1.0
 
 #define LIBTIFF_MACOS_VERSION                   "4.0.10" // base 3.6.1
-#define LIBSDL_MACOS_VERSION                    "2.0.9"  // base 2.0.2
-#define LIBOPENEXR_MACOS_VERSION                "2.2.0"  // base 2.2.0
-#define LIBILMBASE_MACOS_VERSION                "2.2.1"  // base 2.2.1
+#define LIBSDL_MACOS_VERSION                    "2.0.10" // base 2.0.2
+#define LIBOPENEXR_MACOS_VERSION                "2.3.0"  // base 2.2.0
+#define LIBILMBASE_MACOS_VERSION                "2.3.0"  // base 2.2.1
 
 #define CAMERA_FOV_LDVIEW_P_DEFAULT              0.007f  // LPub3D (LDViez) default [Mimic Perspective]
 #define CAMERA_FOV_LDVIEW_P_MAX_DEFAULT         90.0f    // LPub3D (LDViez) default
