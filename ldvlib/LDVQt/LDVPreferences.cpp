@@ -157,6 +157,7 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
 	connect( backgroundColorButton, SIGNAL( clicked() ), this, SLOT( doBackgroundColor() ) );
 	connect( defaultColorButton, SIGNAL( clicked() ), this, SLOT( doDefaultColor() ) );
 	connect( updatesNoproxyButton, SIGNAL( toggled(bool) ), this, SLOT( disableProxy() ) );
+	connect( updatesWindowsproxyButton, SIGNAL( toggled(bool) ), this, SLOT( enableProxy() ) );
 	connect( updatesProxyButton, SIGNAL( toggled(bool) ), this, SLOT( enableProxy() ) );
 	connect( updatesMissingpartsButton, SIGNAL( toggled(bool) ), this, SLOT( doUpdateMissingparts(bool) ) );
 	connect( updatesMissingpartsButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
@@ -176,6 +177,7 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
 	fsaaModeBox->hide();
 	fsaaModeLabel->hide();
 	havePixelBufferButton->hide();
+	updatesWindowsproxyButton->hide();
 #endif // WIN32
 
 	ldPrefs->applySettings();
@@ -230,6 +232,7 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
 
 	IniFlag iniFlag = modelWidget->getIniFlag();
 	if (iniFlag == LDViewIni) {
+		usingLDView = true;
 		defaultPartlistDirLabel->hide();
 		partsListsSaveDirBox->hide();
 		partsListsSaveDirEdit->hide();
@@ -237,6 +240,7 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
 	}
 	else
 	{
+		usingLDView = iniFlag == POVRayRender ? true : false;
 		if (iniFlag == POVRayRender ||
 			iniFlag == NativePOVIni ||
 			iniFlag == NativeSTLIni ||
@@ -264,8 +268,10 @@ LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
 			exportsSaveDirEdit->hide();
 			exportsSaveDirButton->hide();
 		}
-		// Remove Updates Tab
-		tabs->removeTab(tabs->indexOf(updateTab));
+
+		// Remove Updates Tab if not using LDView renderder
+		if (!usingLDView)
+			tabs->removeTab(tabs->indexOf(updateTab));
 	}
 
 	applyButton->setEnabled(false);
@@ -675,6 +681,12 @@ void LDVPreferences::doUpdatesApply()
 	bool ok;
 
 	ldPrefs->setCheckPartTracker(updatesMissingpartsButton->isChecked());
+#ifdef WIN32
+	if (updatesWindowsproxyButton->isChecked())
+	{
+		ldPrefs->setProxyType(1);
+	} else
+#endif // WIN32
 	if (updatesProxyButton->isChecked())
 	{
 		ldPrefs->setProxyType(2);
@@ -698,9 +710,9 @@ void LDVPreferences::doUpdatesApply()
 	{
 		ldPrefs->setUpdatedPartWait(iTemp);
 	}
-//	ldPrefs->setProxyServer(proxyEdit->text().toUtf8().constData());
-//	ldPrefs->applyUpdatesSettings();
-//	ldPrefs->commitUpdatesSettings();
+	ldPrefs->setProxyServer(proxyEdit->text().toUtf8().constData());
+	ldPrefs->applyUpdatesSettings();
+	ldPrefs->commitUpdatesSettings();
 }
 
 void LDVPreferences::doBackgroundColor()
@@ -760,7 +772,8 @@ void LDVPreferences::doApply(void)
 	doGeometryApply();
 	doEffectsApply();
 	doPrimitivesApply();
-	doUpdatesApply();
+	if (usingLDView)
+		doUpdatesApply();
 	doPrefSetsApply();
 	applyButton->setEnabled(false);
 	if (modelViewer)
@@ -858,6 +871,7 @@ void LDVPreferences::loadSettings(void)
 	//loadOtherSettings();
 }
 
+// not used
 void LDVPreferences::loadOtherSettings(void)
 {
 	loadDefaultOtherSettings();
@@ -867,6 +881,7 @@ void LDVPreferences::loadOtherSettings(void)
 	windowHeight = TCUserDefaults::longForKey(WINDOW_HEIGHT_KEY, 480, false);
 }
 
+// not used
 void LDVPreferences::loadDefaultOtherSettings(void)
 {
 	statusBar = true;
@@ -1032,7 +1047,8 @@ void LDVPreferences::reflectSettings(void)
 	reflectGeometrySettings();
 	reflectEffectsSettings();
 	reflectPrimitivesSettings();
-	reflectUpdatesSettings();
+	if (usingLDView)
+		reflectUpdatesSettings();
 	setupPrefSetsList();
 }
 
@@ -1196,19 +1212,25 @@ void LDVPreferences::reflectPrimitivesSettings(void)
 
 void LDVPreferences::reflectUpdatesSettings(void)
 {
-	if (ldPrefs->getProxyType())
+	enum { PROXY_NONE, PROXY_WINDOWS, PROXY_MANUAL };
+	int proxyType = ldPrefs->getProxyType();
+	if (proxyType)
 	{
 		enableProxyServer();
-		updatesProxyButton->setChecked(true);
+		if (proxyType == PROXY_WINDOWS) {
+			updatesWindowsproxyButton->setChecked(true);
+		} else /*PROXY_MANUAL*/{
+			updatesProxyButton->setChecked(true);
+		}
 	}
-	else
+	else  /*PROXY_NONE*/
 	{
 		disableProxyServer();
 		updatesNoproxyButton->setChecked(true);
 	}
 	setButtonState(updatesMissingpartsButton,
 		ldPrefs->getCheckPartTracker());
-	proxyEdit->setText(""/*ldPrefs->getProxyServer()*/);
+	proxyEdit->setText(ldPrefs->getProxyServer());
 	portEdit->setText(QString::number(ldPrefs->getProxyPort()));
 	daymissingpartcheckText->setValue(ldPrefs->getMissingPartWait());
 	dayupdatedpartcheckText->setValue(ldPrefs->getUpdatedPartWait());
@@ -2152,7 +2174,7 @@ void LDVPreferences::enableProxyServer(void)
 	proxyEdit->setEnabled(true);
 	portLabel->setEnabled(true);
 	portEdit->setEnabled(true);
-	proxyEdit->setText(""/*ldPrefs->getProxyServer()*/);
+	proxyEdit->setText(ldPrefs->getProxyServer());
 }
 
 void LDVPreferences::disableWireframeCutaway(void)

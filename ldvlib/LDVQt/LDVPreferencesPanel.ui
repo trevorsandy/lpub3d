@@ -58,7 +58,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="generalTab">
       <attribute name="title">
@@ -3487,6 +3487,13 @@
            <widget class="QRadioButton" name="updatesNoproxyButton">
             <property name="text">
              <string>Direct connection to the Internet</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="updatesWindowsproxyButton">
+            <property name="text">
+             <string>Use simple Windows proxy configuration</string>
             </property>
            </widget>
           </item>

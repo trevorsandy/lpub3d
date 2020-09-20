@@ -36,7 +36,7 @@ class LDVPreferences : public QDialog, Ui::LDVPreferencesPanel
 {
 	Q_OBJECT
 public:
-    LDVPreferences(LDVWidget *modelWidget);
+	LDVPreferences(LDVWidget *modelWidget);
 	~LDVPreferences(void);
 
 	void setModelViewer(LDrawModelViewer *_modelViewer) {modelViewer = _modelViewer;}
@@ -93,8 +93,8 @@ public:
 	void setUseSeams(bool);
 	bool getUseSeams(void);
 
-    static char *getLastOpenPath(char *pathKey = nullptr);
-    static void setLastOpenPath(const char *path, char *pathKey = nullptr);
+	static char *getLastOpenPath(char *pathKey = nullptr);
+	static void setLastOpenPath(const char *path, char *pathKey = nullptr);
 	static char *getLDrawDir(void);
 	static void setLDrawDir(const char *path);
 	static long getMaxRecentFiles(void);
@@ -104,8 +104,8 @@ public:
 	static void setPollMode(LDVPollMode value);
 	static LDInputHandler::ViewMode getViewMode(void);
 	static void setViewMode(LDInputHandler::ViewMode value);
-    static void setCheckPartTracker(bool value);
-    static bool getCheckPartTracker(void);
+	static void setCheckPartTracker(bool value);
+	static bool getCheckPartTracker(void);
 	static bool getLatLongMode(void);
 	static void setLatLongMode(bool);
 	static bool getKeepRightSideUp(void);
@@ -119,9 +119,9 @@ public:
 	QString getSaveDir(LDPreferences::SaveOp saveOp,const std::string &filename) { return QString(ldPrefs->getDefaultSaveDir(saveOp, filename).c_str()); }
 
 #ifdef WIN32
-    int getFSAAFactor(void);
-    bool getUseNvMultisampleFilter(void);
-    void setupAntialiasing(void);
+	int getFSAAFactor(void);
+	bool getUseNvMultisampleFilter(void);
+	void setupAntialiasing(void);
 #endif
 
 public slots:
@@ -165,7 +165,7 @@ public slots:
 	void doDrawLightDats();
 	void doSaveDefaultViewAngle();
 #ifdef WIN32	
-    void fsaaModeBoxChanged(const QString&);
+	void fsaaModeBoxChanged(const QString&);
 #endif // WIN32	
 	void snapshotSaveDirBoxChanged();
 	void partsListsSaveDirBoxChanged();
@@ -173,7 +173,7 @@ public slots:
 	void snapshotSaveDirBrowse();
 	void partsListsSaveDirBrowse();
 	void exportsSaveDirBrowse();
-    void enableStudLogoCombo();
+	void enableStudLogoCombo();
 
 protected:
 	void doGeneralApply(void);
@@ -196,8 +196,8 @@ protected:
 	void reflectPrimitivesSettings(void);
 	void reflectUpdatesSettings(void);
 
-    void setDoubleRangeValue(QDoubleSpinBox *rangeConrol, float value);
-    void setRangeValue(QSpinBox *rangeConrol, int value);
+	void setDoubleRangeValue(QDoubleSpinBox *rangeConrol, float value);
+	void setRangeValue(QSpinBox *rangeConrol, int value);
 	void setRangeValue(QSlider *rangeConrol, int value);
 
 	void enableWireframeCutaway(void);
@@ -229,15 +229,15 @@ protected:
 	LDPreferences::LightDirection getSelectedLightDirection(void);
 	void selectLightDirection(LDPreferences::LightDirection);
 	void updateSaveDir(QLineEdit *textField, QPushButton *button,
-                       LDPreferences::DefaultDirMode dirMode,
-                       QString &filename);
+					   LDPreferences::DefaultDirMode dirMode,
+					   QString &filename);
 	void setupSaveDir(QComboBox *comboBox, QLineEdit *textField,
-                      QPushButton *button, LDPreferences::DefaultDirMode dirMode,
-                      QString &filename);
+					  QPushButton *button, LDPreferences::DefaultDirMode dirMode,
+					  QString &filename);
 	void setupSaveDirs(void);
 	const char *getPrefSet(int);
 	const char *getSelectedPrefSet(void);
-    void selectPrefSet(const char *prefSet = nullptr, bool force = false);
+	void selectPrefSet(const char *prefSet = nullptr, bool force = false);
 	char *getHotKey(int);
 	int getHotKey(const char*);
 	int getCurrentHotKey(void);
@@ -247,11 +247,12 @@ protected:
 	static const QString &getRecentFileKey(int index);
 
 	LDrawModelViewer *modelViewer;
-    LDPreferences    *ldPrefs;
+	LDPreferences    *ldPrefs;
 
 	QColor backgroundColor;
 	QColor defaultColor;
 
+	bool usingLDView;
 	bool checkAbandon;
 	int hotKeyIndex;
 
@@ -261,7 +262,7 @@ protected:
 	int windowWidth;
 	int windowHeight;
 	QString snapshotDir, partsListDir, exportDir;
-    //QIntValidator *proxyPortValidator;
+	//QIntValidator *proxyPortValidator;
 };
 
 #endif // __PREFERENCES_H__
