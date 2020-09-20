@@ -104,7 +104,9 @@ private:
     QTextCharFormat LDrawLineType4Format;  // bXX - LDraw Quadrilateral Line  [not used]
     QTextCharFormat LDrawLineType5Format;  // bXX - LDraw Optional Line Line  [not used]
 
-    QTextCharFormat LeoCADMetaFormat;      // b17 - LeoCAD
+    QTextCharFormat LeoCADMetaFormat;      // b20 - LeoCAD
+    QTextCharFormat LeoCADBodyMetaFormat;  // b17 - LeoCAD
+
     QTextCharFormat LSynthMetaFormat;      // b18 - LSynth
 
     QTextCharFormat LDCadMetaKeyFormat;    // b11 - LDCad Key
