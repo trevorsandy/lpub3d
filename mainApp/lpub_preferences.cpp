@@ -1619,7 +1619,7 @@ void Preferences::ldrawPreferences(bool force)
 
                 if (box.clickedButton()==selectButton) {
 #ifdef Q_OS_WIN
-                    QString filter(QMessageBox::tr("LDraw (*.ldr);;All Files (*.*)"));
+                    QString filter(QMessageBox::tr("LDraw Files (*.ldr);;All Files (*.*)"));
 #else
                     QString filter(QMessageBox::tr("All Files (*.*)"));
 #endif

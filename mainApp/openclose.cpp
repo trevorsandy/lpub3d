@@ -47,7 +47,7 @@ void Gui::open()
       this,
       tr("Open LDraw File"),
       modelDir,
-      tr("LDraw Files (*.dat *.ldr *.mpd)"));
+      tr("LDraw Files (*.dat *.ldr *.mpd);;All Files (*.*)"));
 
     timer.start();
 
@@ -350,7 +350,7 @@ void Gui::saveAs()
 {
   disableWatcher();
 
-  QString fileName = QFileDialog::getSaveFileName(this,tr("Save As"),curFile,tr("LDraw (*.mpd *.ldr *.dat)"));
+  QString fileName = QFileDialog::getSaveFileName(this,tr("Save As"),curFile,tr("LDraw Files (*.mpd *.ldr *.dat);;All Files (*.*)"));
   if (fileName.isEmpty()) {
     return;
   }
@@ -359,14 +359,15 @@ void Gui::saveAs()
 
   if (extension == "mpd" ||
       extension == "ldr" ||
-      extension == "dat") {
+      extension == "dat" ||
+      extension.isEmpty()) {
     saveFile(fileName);
     closeFile();
     openFile(fileName);
     displayPage();
   } else {
     QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                              QMessageBox::tr("Invalid LDraw extension %1 specified.  File not saved.")
+                              QMessageBox::tr("Unsupported LDraw file extension %1 specified.  File not saved.")
                                 .arg(extension));
 
   }
@@ -375,7 +376,7 @@ void Gui::saveAs()
 
 void Gui::saveCopy()
 {
-  QString fileName = QFileDialog::getSaveFileName(this,tr("Save As"),curFile,tr("LDraw (*.mpd *.ldr *.dat)"));
+  QString fileName = QFileDialog::getSaveFileName(this,tr("Save As"),curFile,tr("LDraw Files (*.mpd *.ldr *.dat);;All Files (*.*)"));
   if (fileName.isEmpty()) {
     return;
   }
@@ -385,11 +386,12 @@ void Gui::saveCopy()
 
   if (extension == "mpd" ||
       extension == "ldr" ||
-      extension == "dat") {
+      extension == "dat" ||
+      extension.isEmpty()) {
     saveFile(fileName);
   } else {
     QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                              QMessageBox::tr("Invalid LDraw extension %1 specified.  File not saved.")
+                              QMessageBox::tr("Unsupported LDraw file extension %1 specified.  File not saved.")
                                 .arg(extension));
   }
 }

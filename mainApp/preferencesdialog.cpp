@@ -512,7 +512,7 @@ void PreferencesDialog::on_browseLDraw_clicked()
 void PreferencesDialog::on_browseAltLDConfig_clicked()
 {
 #ifdef Q_OS_WIN
-    QString filter(tr("LDraw (*.ldr);;All Files (*.*)"));
+    QString filter(tr("LDraw Files (*.ldr);;All Files (*.*)"));
 #else
     QString filter(tr("All Files (*.*)"));
 #endif
@@ -544,7 +544,7 @@ void PreferencesDialog::on_browseLGEO_clicked()
 void PreferencesDialog::on_browsePli_clicked()
 {
 #ifdef Q_OS_WIN
-    QString filter(tr("LDraw (*.mpd;*.dat;*.ldr);;All Files (*.*)"));
+    QString filter(tr("LDraw Files (*.mpd;*.dat;*.ldr);;All Files (*.*)"));
 #else
     QString filter(tr("All Files (*.*)"));
 #endif
@@ -564,7 +564,7 @@ void PreferencesDialog::on_browsePli_clicked()
 void PreferencesDialog::on_browsePublishLogo_clicked()
 {
 #ifdef Q_OS_WIN
-    QString filter(tr("Logo (*.png);;All Files (*.*)"));
+    QString filter(tr("Image Files (*.png);;All Files (*.*)"));
 #else
     QString filter(tr("All Files (*.*)"));
 #endif
