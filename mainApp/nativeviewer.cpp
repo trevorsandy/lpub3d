@@ -1758,13 +1758,13 @@ void Gui::removeBuildModification()
  *
  ********************************************/
 
-QStringList Gui::getViewerStepKeys(bool modelName, bool pliPart)
+QStringList Gui::getViewerStepKeys(bool modelName, bool pliPart, const QString &key)
 {
     // viewerStepKey - 3 elements:
     // CSI: 0=modelNameIndex, 1=lineNumber,   2=stepNumber [_dm (displayModel)]
     // SMP: 0=modelNameIndex, 1=lineNumber,   2=stepNumber [_Preview (Submodel Preview)]
     // PLI: 0=partNameString, 1=colourNumber, 2=stepNumber
-    QStringList keys = viewerStepKey.split(";");
+    QStringList keys = key.isEmpty() ? viewerStepKey.split(";") : key.split(";");
     // confirm keys has at least 3 elements
     if (keys.size() < 3) {
         if (Preferences::debugLogging)
@@ -1794,10 +1794,10 @@ QStringList Gui::getViewerStepKeys(bool modelName, bool pliPart)
  *
  ********************************************/
 
-  bool Gui::extractStepKey(Where &here, int &stepNumber)
+  bool Gui::extractStepKey(Where &here, int &stepNumber, const QString &key)
   {
       // viewerStepKey elements CSI: 0=modelName, 1=lineNumber, 2=stepNumber [,3=_dm (displayModel)]
-      QStringList keyArgs = getViewerStepKeys();
+      QStringList keyArgs = getViewerStepKeys(true/*modelName*/, false/*pliPart*/, key);
 
       if (!keyArgs.size())
           return false;
@@ -1845,14 +1845,10 @@ QStringList Gui::getViewerStepKeys(bool modelName, bool pliPart)
  *
  ********************************************/
 
-void Gui::setCurrentStep(Step *step, Where here, int stepNumber)
+void Gui::setCurrentStep(Step *step, Where here, int stepNumber, int stepType)
 {
     bool stepMatch  = false;
-    bool singleStep = false;
-    bool multiStep  = isViewerStepMultiStep(viewerStepKey);
-    bool calledOut  = isViewerStepCalledOut(viewerStepKey);
-
-    auto calledOutStep = [this, &here, &stepNumber] (Step* step, bool &stepMatch)
+    auto calledOutStep = [this, &here, &stepNumber, &stepType] (Step* step, bool &stepMatch)
     {
         if (! (stepMatch = step->stepNumber.number == stepNumber)) {
             for (int k = 0; k < step->list.size(); k++) {
@@ -1864,7 +1860,7 @@ void Gui::setCurrentStep(Step *step, Where here, int stepNumber)
                             if (range->relativeType == RangeType) {
                                 Step *step = dynamic_cast<Step *>(range->list[m]);
                                 if (step && step->relativeType == StepType){
-                                    setCurrentStep(step, here, stepNumber);
+                                    setCurrentStep(step, here, stepNumber, stepType);
                                 }
                             }
                         }
@@ -1874,39 +1870,37 @@ void Gui::setCurrentStep(Step *step, Where here, int stepNumber)
         }
     };
 
-    if (calledOut && step){
+    if (stepType == BM_CALLEDOUT && step){
         calledOutStep(step, stepMatch);
-    } else {
-        if ((multiStep = isViewerStepMultiStep(viewerStepKey))) {
-            for (int i = 0; i < page.list.size() && !stepMatch; i++){
-                Range *range = dynamic_cast<Range *>(page.list[i]);
-                for (int j = 0; j < range->list.size(); j++){
-                    if (range->relativeType == RangeType) {
-                        step = dynamic_cast<Step *>(range->list[j]);
-                        if (calledOut)
-                            calledOutStep(step, stepMatch);
-                        else if (step && step->relativeType == StepType)
-                            stepMatch = step->stepNumber.number == stepNumber;
-                        if (stepMatch)
-                            break;
-                    }
+    } else if (stepType == BM_MULTI_STEP) {
+        for (int i = 0; i < page.list.size() && !stepMatch; i++){
+            Range *range = dynamic_cast<Range *>(page.list[i]);
+            for (int j = 0; j < range->list.size(); j++){
+                if (range->relativeType == RangeType) {
+                    step = dynamic_cast<Step *>(range->list[j]);
+                    if (stepType == BM_CALLEDOUT)
+                        calledOutStep(step, stepMatch);
+                    else if (step && step->relativeType == StepType)
+                        stepMatch = step->stepNumber.number == stepNumber;
+                    if (stepMatch)
+                        break;
                 }
             }
-        } else if ((singleStep = page.relativeType == SingleStepType && page.list.size())) {
-            Range *range = dynamic_cast<Range *>(page.list[0]);
-            if (range->relativeType == RangeType) {
-                step = dynamic_cast<Step *>(range->list[0]);
-                if (calledOut)
-                    calledOutStep(step, stepMatch);
-                else if (step && step->relativeType == StepType)
-                    stepMatch = step->stepNumber.number == stepNumber;
-            }
-        } else if ((step = gStep)) {
-            if (calledOut)
-                calledOutStep(step, stepMatch);
-            else if (!(stepMatch = step->stepNumber.number == stepNumber))
-                step = nullptr;
         }
+    } else if (stepType == BM_SINGLE_STEP) {
+        Range *range = dynamic_cast<Range *>(page.list[0]);
+        if (range->relativeType == RangeType) {
+            step = dynamic_cast<Step *>(range->list[0]);
+            if (stepType == BM_CALLEDOUT)
+                calledOutStep(step, stepMatch);
+            else if (step && step->relativeType == StepType)
+                stepMatch = step->stepNumber.number == stepNumber;
+        }
+    } else if ((step = gStep)) {
+        if (stepType == BM_CALLEDOUT)
+            calledOutStep(step, stepMatch);
+        else if (!(stepMatch = step->stepNumber.number == stepNumber))
+            step = nullptr;
     }
 
     currentStep = step;
@@ -1915,24 +1909,39 @@ void Gui::setCurrentStep(Step *step, Where here, int stepNumber)
         emit messageSig(LOG_DEBUG, QString("%1 Step number %2 for %3 - modelName [%4] topOfStep [%5]")
                                            .arg(stepMatch ? "Match!" : "Oh oh!")
                                            .arg(QString("%1 %2").arg(stepNumber).arg(stepMatch ? "found" : "not found"))
-                                           .arg(multiStep ? "multi step" : calledOut ? "called out" : singleStep ? "single step" : "gStep")
+                                           .arg(stepType == BM_MULTI_STEP  ? "multi step"  :
+                                                stepType == BM_CALLEDOUT   ? "called out"  :
+                                                stepType == BM_SINGLE_STEP ? "single step" : "gStep")
                                            .arg(here.modelName).arg(here.lineNumber));
 }
 
-void Gui::setCurrentStep()
+void Gui::setCurrentStep(const QString &key)
 {
-    Step *step = nullptr;
-    Where here;
-    int stepNumber;
+    Step *step     = nullptr;
+    currentStep    = step;
+    Where here     = Where();
+    int stepNumber = 0;
+    int stepType   = BM_NO_STEP;
 
-    extractStepKey(here,stepNumber);
+    extractStepKey(here, stepNumber, key);
 
-    if (!stepNumber) {
-        currentStep = step;
+    if (!stepNumber)
         return;
-    }
 
-    setCurrentStep(step, here, stepNumber);
+    QString stepKey = key.isEmpty() ? viewerStepKey : key;
+
+    if (isViewerStepCalledOut(stepKey))
+        stepType = BM_CALLEDOUT;
+    else if (isViewerStepMultiStep(stepKey))
+        stepType = BM_MULTI_STEP;
+    else if (page.relativeType == SingleStepType && page.list.size())
+        stepType = BM_SINGLE_STEP;
+
+    if (stepType || gStep)
+        setCurrentStep(step, here, stepNumber, stepType);
+    else if (Preferences::debugLogging)
+        emit messageSig(LOG_DEBUG, QString("Could not determine step for %1 at step number %2.")
+                                           .arg(here.modelName).arg(stepNumber));
 }
 
 /*********************************************

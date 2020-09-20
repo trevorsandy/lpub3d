@@ -845,8 +845,8 @@ public:
       return KpageScene;
   }
 
-  void setCurrentStep();
-  void setCurrentStep(Step *step, Where here, int stepNumber);
+  void setCurrentStep(const QString &key = "");
+  void setCurrentStep(Step *step, Where here, int stepNumber, int stepType = BM_SINGLE_STEP);
 
   Step *getCurrentStep()
   {
@@ -860,7 +860,7 @@ public:
       return curFile;
   }
 
-  bool extractStepKey(Where &here, int &stepNumber);
+  bool extractStepKey(Where &here, int &stepNumber, const QString &key = "");
 
   /***********************************************************************
    * set Native renderer for fast processing
@@ -962,7 +962,7 @@ public slots:
   void SetRotStepMeta();
   void SetActiveModel(const QString &fileName,bool newSubmodel);
   void SelectedPartLines(QVector<TypeLine> &indexes, PartSource source);
-  QStringList getViewerStepKeys(bool modelName = true, bool pliPart = false);
+  QStringList getViewerStepKeys(bool modelName = true, bool pliPart = false, const QString &key = "");
 
   void setViewerStepKey(const QString &stepKey, int notPliPart)
   {
