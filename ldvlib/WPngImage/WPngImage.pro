@@ -27,9 +27,9 @@ if (contains(QT_ARCH, x86_64)|contains(QT_ARCH, arm64)|contains(BUILD_ARCH, aarc
     STG_ARCH = x86
 }
 
-QMAKE_CXXFLAGS  += $(Q_CXXFLAGS)
-QMAKE_LFLAGS    += $(Q_LDFLAGS)
-QMAKE_CFLAGS    += $(Q_CFLAGS)
+#QMAKE_CXXFLAGS  += $(Q_CXXFLAGS)
+#QMAKE_LFLAGS    += $(Q_LDFLAGS)
+#QMAKE_CFLAGS    += $(Q_CFLAGS)
 
 # USE CPP 11
 unix:!freebsd:!macx {
