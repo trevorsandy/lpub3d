@@ -51,6 +51,7 @@
 #include "lpub_preferences.h"
 #include "ranges_element.h"
 #include "range_element.h"
+#include "dependencies.h"
 
 #include "lc_category.h"
 #include "lc_library.h"
@@ -249,6 +250,24 @@ void Pli::setParts(
   bool displayElement    = pliMeta.partElements.display.value();
   bool extendedStyle     = pliMeta.annotation.extendedStyle.value();
   bool fixedAnnotations  = pliMeta.annotation.fixedAnnotations.value();
+
+  // setup 3DViewer entry
+  switch (parentRelativeType) {
+  case StepGroupType:
+      top    = topOfSteps();
+      bottom = bottomOfSteps();
+      multistep = true;
+      break;
+  case CalloutType:
+      top    = topOfCallout();
+      bottom = bottomOfCallout();
+      callout = true;
+      break;
+  default:
+      top    = topOfStep();
+      bottom = bottomOfStep();
+      break;
+  }
 
   // get bom part group last line
   Where where;
@@ -878,6 +897,26 @@ int Pli::createPartImage(
         ia.baseName[pT] = QFileInfo(type).completeBaseName();
         ia.partColor[pT] = (pT == FADE_PART && fadeSteps && Preferences::fadeStepsUseColour) ? fadeColour : color;
 
+        // assemble 3DViewer name key - create unique file when a value that impacts the image changes
+        QString keyPart1 =  QString("%1_%2").arg(ia.baseName[pT]).arg(ia.partColor[pT]); /*baseName + colour*/
+        if (!keySub)
+            nameKeys = nameKey.split("_");
+        if (!rotSub)
+            subRotation = renderer->getRotstepMeta(pliMeta.rotStep,true);
+        QString keyPart2 = QString("%1_%2_%3_%4_%5_%6_%7_%8")
+                                   .arg(gStep->stepNumber.number)
+                                   .arg(nameKeys.at(2)) // pageSizeP
+                                   .arg(nameKeys.at(3)) // resolution
+                                   .arg(nameKeys.at(4)) // resolutionType - "DPI" : "DPCM"
+                                   .arg(nameKeys.at(5)) // modelScale
+                                   .arg(nameKeys.at(6)) // cameraFoV
+                                   .arg(nameKeys.at(7)) // cameraAngles.value(X)
+                                   .arg(nameKeys.at(8));// cameraAngles.value(Y)
+        keyPart2 += QString("_%1_%2")
+                            .arg(subRotation)
+                            // temp hack - passed so we can always have scale for pov render
+                            .arg(double(pliMeta.modelScale.value()));
+
         emit gui->messageSig(LOG_INFO, QString("Render PLI image for [%1] parts...").arg(PartTypeNames[pT]));
 
         // assemble image name using nameKey - create unique file when a value that impacts the image changes
@@ -887,20 +926,22 @@ int Pli::createPartImage(
 
         QFile part(imageName);
 
-        if ( ! part.exists()) {
+        // Populate viewerPliPartiKey variable
+        viewerPliPartKey = QDir::toNativeSeparators(QString("\"%1\"%2;%3;%4")
+                                                        .arg(ia.baseName[pT])
+                                                        .arg(bottom.lineNumber)
+                                                        .arg(gStep->stepNumber.number)
+                                                        .arg(ia.partColor[pT]));
+
+        // Viewer submodel does not yet exist in repository
+        bool addViewerPliPartContent = !gui->viewerStepContentExist(viewerPliPartKey);
+
+        // We are processing again the current part Key so part must have been updated in the viewer
+        bool viewerUpdate = viewerPliPartKey == QDir::toNativeSeparators(gui->getViewerCsiKey());
+
+        if ( ! part.exists() || addViewerPliPartContent || viewerUpdate) {
 
             showElapsedTime = true;
-
-            // create a temporary DAT to feed the renderer
-            part.setFileName(ldrNames.first());
-
-            if ( ! part.open(QIODevice::WriteOnly)) {
-                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open file for writing %1:\n%2.")
-                                     .arg(ldrNames.first())
-                                     .arg(part.errorString()));
-                ptRc = -1;
-                continue;
-            }
 
             // define ldr file name
             QFileInfo typeInfo = QFileInfo(type);
@@ -916,43 +957,91 @@ int Pli::createPartImage(
                         nameKeys,
                         keySub);
 
-            if (Preferences::usingNativeRenderer) {
-                // add ROTSTEP command
-                if (rotSub)
-                    pliFile.prepend(QString("0 // ROTSTEP %1").arg(subRotation.replace("_"," ")));
-                else
-                    pliFile.prepend(renderer->getRotstepMeta(pliMeta.rotStep));
+            // add ROTSTEP command
+            if (rotSub)
+                pliFile.prepend(QString("0 // ROTSTEP %1").arg(subRotation.replace("_"," ")));
+            else
+                pliFile.prepend(renderer->getRotstepMeta(pliMeta.rotStep));
 
-                // header and closing meta
-                QString modelName = QFileInfo(type).completeBaseName();
-                modelName = modelName.replace(
-                            modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper());
-                pliFile.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(modelName));
-                pliFile.prepend(QString("0 Name: %1").arg(type));
-                pliFile.prepend(QString("0 %1").arg(modelName));
-                pliFile.prepend(QString("0 FILE %1").arg(modelName));
-                pliFile.append("0 NOFILE");
-            }
+            // header and closing meta
+            QString modelName = QFileInfo(type).completeBaseName();
+            modelName = modelName.replace(
+                        modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper());
+            pliFile.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(modelName));
+            pliFile.prepend(QString("0 Name: %1").arg(type));
+            pliFile.prepend(QString("0 %1").arg(modelName));
+            pliFile.prepend(QString("0 FILE %1").arg(modelName));
+            pliFile.append("0 NOFILE");
 
             // consolidate subfiles and parts into single file
-            if (Preferences::usingNativeRenderer){
-                if ((renderer->createNativeModelFile(pliFile,fadeSteps,highlightStep) != 0))
-                    emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native CSI parts"));
+            if ((renderer->createNativeModelFile(pliFile,fadeSteps,highlightStep) != 0))
+                emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native CSI parts"));
+
+            // Generate 3DViewer Submodel entry - TODO move to after Generate and renderer Submodel file
+            if (! gui->exportingObjects() && pT == NORMAL_PART) {
+                if ((addViewerPliPartContent || viewerUpdate)) {
+
+                    // unrotated part
+                    QStringList pliFileU = QStringList()
+                            << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(typeName.toLower());
+
+                    // store rotated and unrotated Part. Unrotated part used to generate LDView pov file
+                    QString pliPartKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
+                    gui->insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ldrNames.first(),pliPartKey,multistep,callout);
+                }
+
+                // set viewer display options
+                QStringList rots = subRotation.split("_");
+                viewerOptions.ViewerCsiKey   = viewerPliPartKey;
+                viewerOptions.StudLogo       = pliMeta.studLogo.value();
+                viewerOptions.ImageFileName  = imageName;
+                viewerOptions.Resolution     = nameKeys.at(3).toFloat();
+                viewerOptions.PageWidth      = pageSizeP(meta, 0);
+                viewerOptions.PageHeight     = pageSizeP(meta, 1);
+                viewerOptions.UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
+                viewerOptions.ZFar           = CAMERA_ZFAR_NATIVE_DEFAULT;
+                viewerOptions.ZNear          = CAMERA_ZNEAR_NATIVE_DEFAULT;
+                viewerOptions.FoV            = CAMERA_FOV_NATIVE_DEFAULT;
+                viewerOptions.CameraDistance = renderer->ViewerCameraDistance(*meta,pliMeta.modelScale.value());
+                viewerOptions.NativeCDF      = meta->LPub.nativeCD.factor.value();
+                viewerOptions.CameraName     = pliMeta.cameraName.value();
+                viewerOptions.RotStep        = xyzVector(rots.at(0).toFloat(),rots.at(1).toFloat(),rots.at(2).toFloat());
+                viewerOptions.RotStepType    = rots.at(3);
+                viewerOptions.Latitude       = nameKeys.at(7).toFloat();
+                viewerOptions.Longitude      = nameKeys.at(8).toFloat();
+                viewerOptions.ModelScale     = nameKeys.at(5).toFloat();
+                viewerOptions.Target         = xyzVector(pliMeta.target.x(),pliMeta.target.y(),pliMeta.target.z());
+                if (!viewerOptsList.contains(keyPart1))
+                    viewerOptsList.insert(keyPart1,viewerOptions);
             }
 
-            QTextStream out(&part);
-            foreach (QString line, pliFile)
-                out << line << endl;
-            part.close();
+            if ( ! part.exists()) {
 
-            // feed DAT to renderer
-            if ((renderer->renderPli(ldrNames,imageName,*meta,pliType,keySub) != 0)) {
-                emit gui->messageSig(LOG_ERROR,QString("%1 PLI [%2] render failed for<br>[%3]")
-                                                       .arg(Render::getRenderer())
-                                                       .arg(PartTypeNames[pT])
-                                                       .arg(imageName));
-                imageName = QString(":/resources/missingimage.png");
-                ptRc = -1;
+                // create a temporary DAT to feed the renderer
+                part.setFileName(ldrNames.first());
+
+                if ( ! part.open(QIODevice::WriteOnly)) {
+                    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Cannot open file for writing %1:\n%2.")
+                                         .arg(ldrNames.first())
+                                         .arg(part.errorString()));
+                    ptRc = -1;
+                    continue;
+                }
+
+                QTextStream out(&part);
+                foreach (QString line, pliFile)
+                    out << line << endl;
+                part.close();
+
+                // feed DAT to renderer
+                if ((renderer->renderPli(ldrNames,imageName,*meta,pliType,keySub) != 0)) {
+                    emit gui->messageSig(LOG_ERROR,QString("%1 PLI [%2] render failed for<br>[%3]")
+                                         .arg(Render::getRenderer())
+                                         .arg(PartTypeNames[pT])
+                                         .arg(imageName));
+                    imageName = QString(":/resources/missingimage.png");
+                    ptRc = -1;
+                }
             }
         }
 
@@ -1741,6 +1830,17 @@ void Pli::getRightEdge(
     }
 }
 
+bool Pli::loadTheViewer(){
+    if (! gui->exporting()) {
+        if (! renderer->LoadViewer(viewerOptions)) {
+            emit gui->messageSig(LOG_ERROR,QString("Could not load 3D Viewer with Pli part key: %1")
+                                 .arg(viewerPliPartKey));
+            return false;
+        }
+    }
+    return true;
+}
+
 void Pli::sortParts(QHash<QString, PliPart *> &parts, bool setSplit)
 {
     // initialize
@@ -2182,6 +2282,26 @@ int Pli::partSizeLDViewSCall() {
                 ia.baseName[pT] = QFileInfo(pliPart->type).completeBaseName();
                 ia.partColor[pT] = (pT == FADE_PART && fadeSteps && Preferences::fadeStepsUseColour) ? fadeColour : pliPart->color;
 
+                // assemble 3DViewer name key - create unique file when a value that impacts the image changes
+                QString keyPart1 =  QString("%1_%2").arg(ia.baseName[pT]).arg(ia.partColor[pT]); /*baseName + colour*/
+                if (!keySub)
+                    nameKeys = nameKey.split("_");
+                if (!rotSub)
+                    subRotation = renderer->getRotstepMeta(pliMeta.rotStep,true);
+                QString keyPart2 = QString("%1_%2_%3_%4_%5_%6_%7_%8")
+                                           .arg(gStep->stepNumber.number)
+                                           .arg(nameKeys.at(2)) // pageSizeP
+                                           .arg(nameKeys.at(3)) // resolution
+                                           .arg(nameKeys.at(4)) // resolutionType - "DPI" : "DPCM"
+                                           .arg(nameKeys.at(5)) // modelScale
+                                           .arg(nameKeys.at(6)) // cameraFoV
+                                           .arg(nameKeys.at(7)) // cameraAngles.value(X)
+                                           .arg(nameKeys.at(8));// cameraAngles.value(Y)
+                keyPart2 += QString("_%1_%2")
+                                    .arg(subRotation)
+                                    // temp hack - passed so we can always have scale for pov render
+                                    .arg(double(pliMeta.modelScale.value()));
+
                 // assemble ldr name
                 QString key = !ptn[pT].typeName.isEmpty() ? nameKey + ptn[pT].typeName : nameKey;
                 QString ldrName = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + Paths::tmpDir + QDir::separator() + key + ".ldr");
@@ -2213,17 +2333,20 @@ int Pli::partSizeLDViewSCall() {
 
                 QFile part(imageName);
 
-                if ( ! part.exists()) {
+                // Populate viewerPliPartiKey variable
+                viewerPliPartKey = QDir::toNativeSeparators(QString("\"%1\"%2;%3")
+                                                                .arg(ia.baseName[pT])
+                                                                .arg(bottom.lineNumber)
+                                                                .arg(gStep->stepNumber.number)
+                                                                .arg(ia.partColor[pT]));
 
-                    // create a DAT files to feed the renderer
-                    part.setFileName(ldrName);
-                    if ( ! part.open(QIODevice::WriteOnly)) {
-                        QMessageBox::critical(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                              QMessageBox::tr("Cannot open ldr DAT file for writing part:\n%1:\n%2.")
-                                              .arg(ldrName)
-                                              .arg(part.errorString()));
-                        return -1;
-                    }
+                // Viewer submodel does not yet exist in repository
+                bool addViewerPliPartContent = !gui->viewerStepContentExist(viewerPliPartKey);
+
+                // We are processing again the current part Key so part must have been updated in the viewer
+                bool viewerUpdate = viewerPliPartKey == QDir::toNativeSeparators(gui->getViewerCsiKey());
+
+                if ( ! part.exists() || addViewerPliPartContent || viewerUpdate) {
 
                     // store ldrName - long name includes nameKey
                     ia.ldrNames[pT] << ldrName;
@@ -2243,34 +2366,81 @@ int Pli::partSizeLDViewSCall() {
                               nameKeys,
                               keySub);
 
-                    if (Preferences::usingNativeRenderer) {
-                        // add ROTSTEP command
-                        if (rotSub)
-                            pliFile.prepend(QString("0 // ROTSTEP %1").arg(subRotation.replace("_"," ")));
-                        else
-                            pliFile.prepend(renderer->getRotstepMeta(pliMeta.rotStep));
+                    // add ROTSTEP command
+                    if (rotSub)
+                        pliFile.prepend(QString("0 // ROTSTEP %1").arg(subRotation.replace("_"," ")));
+                    else
+                        pliFile.prepend(renderer->getRotstepMeta(pliMeta.rotStep));
 
-                        // header and closing meta
-                        QString modelName = typeInfo.completeBaseName();
-                        modelName = modelName.replace(
-                                    modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper());
-                        pliFile.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(modelName));
-                        pliFile.prepend(QString("0 Name: %1").arg(pliPart->type));
-                        pliFile.prepend(QString("0 %1").arg(modelName));
-                        pliFile.prepend(QString("0 FILE %1").arg(modelName));
-                        pliFile.append("0 NOFILE");
-                    }
+                    // header and closing meta
+                    QString modelName = typeInfo.completeBaseName();
+                    modelName = modelName.replace(
+                                modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper());
+                    pliFile.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(modelName));
+                    pliFile.prepend(QString("0 Name: %1").arg(pliPart->type));
+                    pliFile.prepend(QString("0 %1").arg(modelName));
+                    pliFile.prepend(QString("0 FILE %1").arg(modelName));
+                    pliFile.append("0 NOFILE");
 
                     // consolidate subfiles and parts into single file
-                    if (Preferences::usingNativeRenderer){
-                        if ((renderer->createNativeModelFile(pliFile,fadeSteps,highlightStep) != 0))
-                            emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native CSI parts"));
+                    if ((renderer->createNativeModelFile(pliFile,fadeSteps,highlightStep) != 0))
+                        emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Native CSI parts"));
+
+                    // Generate 3DViewer Submodel entry - TODO move to after Generate and renderer Submodel file
+                    if (! gui->exportingObjects() && pT == NORMAL_PART) {
+                        if ((addViewerPliPartContent || viewerUpdate)) {
+
+                            // unrotated part
+                            QStringList pliFileU = QStringList()
+                                    << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(colourCode).arg(typeName.toLower());
+
+                            // store rotated and unrotated Part. Unrotated part used to generate LDView pov file
+                            QString pliPartKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
+                            gui->insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ldrNames.first(),pliPartKey,multistep,callout);
+                        }
+
+                        // set viewer display options
+                        QStringList rots = subRotation.split("_");
+                        viewerOptions.ViewerCsiKey   = viewerPliPartKey;
+                        viewerOptions.StudLogo       = pliMeta.studLogo.value();
+                        viewerOptions.ImageFileName  = imageName;
+                        viewerOptions.Resolution     = nameKeys.at(3).toFloat();
+                        viewerOptions.PageWidth      = pageSizeP(meta, 0);
+                        viewerOptions.PageHeight     = pageSizeP(meta, 1);
+                        viewerOptions.UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
+                        viewerOptions.ZFar           = CAMERA_ZFAR_NATIVE_DEFAULT;
+                        viewerOptions.ZNear          = CAMERA_ZNEAR_NATIVE_DEFAULT;
+                        viewerOptions.FoV            = CAMERA_FOV_NATIVE_DEFAULT;
+                        viewerOptions.CameraDistance = renderer->ViewerCameraDistance(*meta,pliMeta.modelScale.value());
+                        viewerOptions.NativeCDF      = meta->LPub.nativeCD.factor.value();
+                        viewerOptions.CameraName     = pliMeta.cameraName.value();
+                        viewerOptions.RotStep        = xyzVector(rots.at(0).toFloat(),rots.at(1).toFloat(),rots.at(2).toFloat());
+                        viewerOptions.RotStepType    = rots.at(3);
+                        viewerOptions.Latitude       = nameKeys.at(7).toFloat();
+                        viewerOptions.Longitude      = nameKeys.at(8).toFloat();
+                        viewerOptions.ModelScale     = nameKeys.at(5).toFloat();
+                        viewerOptions.Target         = xyzVector(pliMeta.target.x(),pliMeta.target.y(),pliMeta.target.z());
+                        if (!viewerOptsList.contains(keyPart1))
+                            viewerOptsList.insert(keyPart1,viewerOptions);
                     }
 
-                    QTextStream out(&part);
-                    foreach (QString line, pliFile)
-                        out << line << endl;
-                    part.close();
+                    if ( ! part.exists()) {
+
+                        // create a DAT files to feed the renderer
+                        part.setFileName(ldrName);
+                        if ( ! part.open(QIODevice::WriteOnly)) {
+                            QMessageBox::critical(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),
+                                                  QMessageBox::tr("Cannot open ldr DAT file for writing part:\n%1:\n%2.")
+                                                  .arg(ldrName)
+                                                  .arg(part.errorString()));
+                            return -1;
+                        }
+
+                        QTextStream out(&part);
+                        foreach (QString line, pliFile)
+                            out << line << endl;
+                        part.close();
+                    }
 
                 } else { ia.ldrNames[pT] << QStringList(); } // part already exist
 
@@ -3328,6 +3498,10 @@ void PGraphicsPixmapItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 
 void PGraphicsPixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+    QString viewerOptKey = QString("%1_%2").arg(QFileInfo(part->type).completeBaseName()).arg(part->color);
+    pli->viewerOptions = pli->viewerOptsList[viewerOptKey];
+    pli->loadTheViewer();
+
     mouseIsDown = true;
     QGraphicsItem::mousePressEvent(event);
     update();

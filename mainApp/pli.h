@@ -49,6 +49,7 @@
 #include "name.h"
 #include "resize.h"
 #include "annotations.h"
+#include "render.h"
 
 #include "QsLog.h"
 
@@ -180,6 +181,10 @@ class Pli : public Placement {
     int                widestPart;
     int                tallestPart;
 
+    QString            viewerPliPartKey;
+    QHash<QString,     ViewerOptions> viewerOptsList;
+    ViewerOptions      viewerOptions;
+
     Pli(bool _bom = false);
 
     struct PartTypesNeeded
@@ -205,6 +210,10 @@ class Pli : public Placement {
     bool highlightStep;
     bool displayIcons;
     bool isSubModel;
+    bool multistep;
+    bool callout;
+
+    Where top,bottom;
 
     QString imageName;
     QStringList ldrNames;
@@ -213,6 +222,8 @@ class Pli : public Placement {
     {
       clear();
     }
+
+    bool loadTheViewer();
 
     const Where &topOfStep();
     const Where &bottomOfStep();
