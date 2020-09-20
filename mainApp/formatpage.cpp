@@ -306,6 +306,14 @@ int Gui::addGraphicsPageItems(
   SubmodelInstanceCount   *instanceCount = nullptr;
   TextItem                *textItem = nullptr;
 
+  // disable viewer menu on conver page
+  gMainWindow->mToolsToolBar->setEnabled(!page->coverPage);
+  gMainWindow->mTimelineToolBar->setEnabled(!page->coverPage);
+  gMainWindow->mPropertiesToolBar->setEnabled(!page->coverPage);
+  gMainWindow->mPartsToolBar->setEnabled(!page->coverPage);
+  gMainWindow->mColorsToolBar->setEnabled(!page->coverPage);
+  ViewerMenu->setEnabled(!page->coverPage);
+
   int pW, pH;
 
   if (printing) {
