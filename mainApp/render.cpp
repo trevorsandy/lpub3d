@@ -157,6 +157,16 @@ QString const Render::getRenderer()
   }
 }
 
+int Render::getRendererIndex()
+{
+    int renderer = 0; // RENDERER_NATIVE, RENDERER_LDGLITE
+    if (getRenderer() == RENDERER_POVRAY)      // 1
+        renderer = 1;
+    else if (getRenderer() == RENDERER_LDVIEW) // 2
+        renderer = 2;
+    return renderer;
+}
+
 void Render::setRenderer(QString const &name)
 {
   if (name == RENDERER_LDGLITE)
@@ -598,11 +608,8 @@ int POVRay::renderCsi(
 
   /* determine camera distance */
   int cd = int(meta.LPub.assem.cameraDistance.value());
-  if (cd){
-      cd = int((cd*0.455)*1700/1000);
-  } else {
+  if (!cd)
       cd = int(cameraDistance(meta,modelScale)*1700/1000);
-  }
 
   // set page size
   bool useImageSize = meta.LPub.assem.imageSize.value(0) > 0;
@@ -660,7 +667,7 @@ int POVRay::renderCsi(
           // Set model center
           QString _dl = QString("-DefaultLatLong=%1,%2")
                                 .arg(double(cameraAngleX))
-                                .arg(double(cameraAngleX));
+                                .arg(double(cameraAngleY));
           QString _dz = QString("-DefaultZoom=%1").arg(double(modelScale));
           // Set zoom to fit when use image size specified
           QString _sz;
@@ -918,11 +925,8 @@ int POVRay::renderPli(
 
   /* determine camera distance */
   int cd = int(metaType.cameraDistance.value());
-  if (cd){
-      cd = int((cd*0.455)*1700/1000);
-  } else {
+  if (!cd)
       cd = int(cameraDistance(meta,modelScale)*1700/1000);
-  }
 
   //qDebug() << "LDView (Default) Camera Distance: " << cd;
 
@@ -999,7 +1003,7 @@ int POVRay::renderPli(
           // Set model center
           QString _dl = QString("-DefaultLatLong=%1,%2")
                                 .arg(double(cameraAngleX))
-                                .arg(double(cameraAngleX));
+                                .arg(double(cameraAngleY));
           QString _dz = QString("-DefaultZoom=%1").arg(double(modelScale));
           // Set zoom to fit when use image size specified
           QString _sz;
@@ -1039,8 +1043,8 @@ int POVRay::renderPli(
   QString v  = QString("-vv");
 
   QStringList arguments;
-  arguments << CA;
-  arguments << cg;
+  arguments << CA;             // Camera Angle (i.e. Field of Veiw)
+  arguments << cg.split(" ");  // Camera Globe, Target and Additional Parameters when specified
   arguments << s;
   arguments << w;
   arguments << h;
@@ -1640,11 +1644,8 @@ int LDView::renderCsi(
 
     /* determine camera distance */
     int cd = int(meta.LPub.assem.cameraDistance.value());
-    if (cd){
-        cd = int(cd*0.775*1700/1000);
-    } else {
+    if (!cd)
         cd = int(cameraDistance(meta,modelScale)*1700/1000);
-    }
 
     // set page size
     bool useImageSize = meta.LPub.assem.imageSize.value(0) > 0;
@@ -1706,7 +1707,7 @@ int LDView::renderCsi(
             // Set model center
             QString _dl = QString("-DefaultLatLong=%1,%2")
                                   .arg(double(cameraAngleX))
-                                  .arg(double(cameraAngleX));
+                                  .arg(double(cameraAngleY));
             QString _dz = QString("-DefaultZoom=%1").arg(double(modelScale));
             // Set zoom to fit when use image size specified
             QString _sz;
@@ -1937,8 +1938,8 @@ int LDView::renderCsi(
 
     QStringList arguments;
     if (usingDefaultArgs){
-      arguments << CA;     // Camera Angle
-      arguments << cg;     // Camera Globe, Target and Additional Parameters when specified
+        arguments << CA;             // Camera Angle (i.e. Field of Veiw)
+        arguments << cg.split(" ");  // Camera Globe, Target and Additional Parameters when specified
     }
 
     arguments << f; // -CommandLinesList | -SaveSnapshotsList | -SaveSnapShots | -SaveSnapShot
@@ -1988,7 +1989,7 @@ int LDView::renderCsi(
     if (enableIM && haveLdrNamesIM) {
         QString a  = QString("-AutoCrop=0");
         im_arguments << CA;                         // 00. Camera FOV in degrees
-        im_arguments << cg;                         // 01. Camera globe
+        im_arguments << cg.split(" ");              // 01. Camera globe
         im_arguments << a;                          // 02. AutoCrop off - to create same size IM pair files
         im_arguments << w;                          // 03. SaveWidth
         im_arguments << h;                          // 04. SaveHeight
@@ -2114,11 +2115,8 @@ int LDView::renderPli(
 
   /* determine camera distance */
   int cd = int(metaType.cameraDistance.value());
-  if (cd){
-      cd = int(cd*0.775*1700/1000);
-  } else {
+  if (!cd)
       cd = int(cameraDistance(meta,modelScale)*1700/1000);
-  }
 
   //qDebug() << "LDView (Default) Camera Distance: " << cd;
 
@@ -2179,7 +2177,7 @@ int LDView::renderPli(
           // Set model center
           QString _dl = QString("-DefaultLatLong=%1,%2")
                                 .arg(double(cameraAngleX))
-                                .arg(double(cameraAngleX));
+                                .arg(double(cameraAngleY));
           QString _dz = QString("-DefaultZoom=%1").arg(double(modelScale));
           // Set zoom to fit when use image size specified
           QString _sz;
@@ -2375,8 +2373,8 @@ int LDView::renderPli(
 
   QStringList arguments;
   if (usingDefaultArgs){
-    arguments << CA; // Camera Angle
-    arguments << cg; // Camera Globe and Target when specified
+      arguments << CA;             // Camera Angle (i.e. Field of Veiw)
+      arguments << cg.split(" ");  // Camera Globe, Target and Additional Parameters when specified
   }
 
   // append additional LDView parameters
@@ -2478,8 +2476,8 @@ int Native::renderCsi(
   float cameraAngleY   = meta.LPub.assem.cameraAngles.value(1);
   float modelScale     = meta.LPub.assem.modelScale.value();
   float cameraFoV      = meta.LPub.assem.cameraFoV.value();
-  float zNear          = meta.LPub.assem.znear.value();
-  float zFar           = meta.LPub.assem.zfar.value();
+  float zNear          = gApplication->mPreferences.mCNear; //meta.LPub.assem.znear.value();
+  float zFar           = gApplication->mPreferences.mCFar; //meta.LPub.assem.zfar.value();
   bool  isOrtho        = meta.LPub.assem.isOrtho.value();
   QString cameraName   = meta.LPub.assem.cameraName.value();
   xyzVector target     = xyzVector(meta.LPub.assem.target.x(),meta.LPub.assem.target.y(),meta.LPub.assem.target.z());
@@ -2490,8 +2488,8 @@ int Native::renderCsi(
     cameraAngleY       = meta.LPub.callout.csi.cameraAngles.value(1);
     modelScale         = meta.LPub.callout.csi.modelScale.value();
     cameraFoV          = meta.LPub.callout.csi.cameraFoV.value();
-    zNear              = meta.LPub.callout.csi.znear.value();
-    zFar               = meta.LPub.callout.csi.zfar.value();
+//    zNear              = meta.LPub.callout.csi.znear.value();
+//    zFar               = meta.LPub.callout.csi.zfar.value();
     isOrtho            = meta.LPub.callout.csi.isOrtho.value();
     cameraName         = meta.LPub.callout.csi.cameraName.value();
     target             = xyzVector(meta.LPub.callout.csi.target.x(),meta.LPub.callout.csi.target.y(),meta.LPub.callout.csi.target.z());
@@ -2502,8 +2500,8 @@ int Native::renderCsi(
     cameraAngleY       = meta.LPub.multiStep.csi.cameraAngles.value(1);
     modelScale         = meta.LPub.multiStep.csi.modelScale.value();
     cameraFoV          = meta.LPub.multiStep.csi.cameraFoV.value();
-    zNear              = meta.LPub.multiStep.csi.znear.value();
-    zFar               = meta.LPub.multiStep.csi.zfar.value();
+//    zNear              = meta.LPub.multiStep.csi.znear.value();
+//    zFar               = meta.LPub.multiStep.csi.zfar.value();
     isOrtho            = meta.LPub.multiStep.csi.isOrtho.value();
     cameraName         = meta.LPub.multiStep.csi.cameraName.value();
     target             = xyzVector(meta.LPub.multiStep.csi.target.x(),meta.LPub.multiStep.csi.target.y(),meta.LPub.multiStep.csi.target.z());
@@ -2524,6 +2522,8 @@ int Native::renderCsi(
   Options->Resolution        = resolution();
   Options->ImageWidth        = useImageSize ? int(meta.LPub.assem.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
   Options->ImageHeight       = useImageSize ? int(meta.LPub.assem.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
+  Options->PageWidth         = gui->pageSize(meta.LPub.page, 0);
+  Options->PageHeight        = gui->pageSize(meta.LPub.page, 1);
   Options->IsOrtho           = isOrtho;
   Options->CameraName        = cameraName;
   Options->FoV               = cameraFoV;
@@ -2603,11 +2603,8 @@ int Native::renderCsi(
 
               /* determine camera distance */
               int cd = int(meta.LPub.assem.cameraDistance.value());
-              if (cd){
-                  cd = int(cd*0.775*1700/1000);
-              } else {
+              if (!cd)
                   cd = int(cameraDistance(meta,modelScale)*1700/1000);
-              }
 
               /* apply camera angles */
               noCA  = Preferences::applyCALocally || noCA;
@@ -2675,11 +2672,11 @@ int Native::renderPli(
   int studLogo         = metaType.studLogo.value();
   float camDistance    = metaType.cameraDistance.value();
   float modelScale     = metaType.modelScale.value();
-  float cameraFoV      = metaType.cameraFoV.value();
   float cameraAngleX   = metaType.cameraAngles.value(0);
   float cameraAngleY   = metaType.cameraAngles.value(1);
-  float zNear          = metaType.znear.value();
-  float zFar           = metaType.zfar.value();
+  float cameraFoV      = metaType.cameraFoV.value();
+  float zNear          = gApplication->mPreferences.mCNear; //metaType.znear.value();
+  float zFar           = gApplication->mPreferences.mCFar;  //metaType.zfar.value();
   bool  isOrtho        = metaType.isOrtho.value();
   QString cameraName   = metaType.cameraName.value();
   xyzVector target     = xyzVector(metaType.target.x(),metaType.target.y(),metaType.target.z());
@@ -2714,6 +2711,8 @@ int Native::renderPli(
   Options->Resolution     = resolution();
   Options->ImageWidth     = useImageSize ? int(metaType.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
   Options->ImageHeight    = useImageSize ? int(metaType.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
+  Options->PageWidth      = gui->pageSize(meta.LPub.page, 0);
+  Options->PageHeight     = gui->pageSize(meta.LPub.page, 1);
   Options->IsOrtho        = isOrtho;
   Options->CameraName     = cameraName;
   Options->FoV            = cameraFoV;
@@ -2746,73 +2745,29 @@ float Render::ViewerCameraDistance(
   Meta &meta,
   float scale)
 {
-    return stdCameraDistance(meta,scale);
+    float distance = stdCameraDistance(meta,scale);
+    if (Preferences::preferredRenderer == RENDERER_POVRAY)      // 1
+        distance = (distance*0.455f)*1700.0f/1000.0f;
+    else if (Preferences::preferredRenderer == RENDERER_LDVIEW) // 2
+        distance = (distance*0.775f)*1700.0f/1000.0f;
+    return distance;
 }
 
-bool Render::ExecuteViewer(const NativeOptions *O, bool Export/*false*/){
+bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
 
     lcGetActiveProject()->SetRenderAttributes(
                 O->ImageType,
                 O->ImageWidth,
                 O->ImageHeight,
-                Export ? O->ImageWidth : O->PageWidth,
-                Export ? O->ImageHeight : O->PageHeight,
+                O->PageWidth,
+                O->PageHeight,
+                getRendererIndex(),
                 O->ImageFileName,
-                O->Resolution,
-                O->ModelScale);
+                O->Resolution);
 
     lcGetPiecesLibrary()->SetStudLogo(O->StudLogo,true);
 
-    if (Preferences::debugLogging){
-        QStringList arguments;
-        if (Export) {
-            arguments << (O->InputFileName.isEmpty() ? QString() : QString("InputFileName: %1").arg(O->InputFileName));
-            arguments << (O->OutputFileName.isEmpty() ? QString() : QString("OutputFileName: %1").arg(O->OutputFileName));
-            arguments << (O->ExportFileName.isEmpty() ? QString() : QString("ExportFileName: %1").arg(O->ExportFileName));
-            arguments << (O->IniFlag == -1 ? QString() : QString("IniFlag: %1").arg(iniFlagNames[O->IniFlag]));
-            arguments << QString("ExportMode: %1").arg(nativeExportNames[O->ExportMode]);
-            arguments << QString("ExportArgs: %1").arg(O->ExportArgs.size() ? O->ExportArgs.join(" ") : QString());
-            arguments << QString("LineWidth: %1").arg(double(O->LineWidth));
-            arguments << QString("TransBackground: %1").arg(O->TransBackground ? "True" : "False");
-            arguments << QString("HighlightNewParts: %1").arg(O->HighlightNewParts ? "True" : "False");
-        } else {
-            arguments << QString("ViewerStepKey: %1").arg(O->ViewerStepKey);
-            arguments << (O->ImageFileName.isEmpty() ? QString() : QString("ImageFileName: %1").arg(O->ImageFileName));
-            arguments << QString("PageWidth: %1").arg(O->PageWidth);
-            arguments << QString("PageHeight: %1").arg(O->PageHeight);
-            arguments << QString("RotStep: X(%1) Y(%2) Z(%3) %4").arg(double(O->RotStep.x)).arg(double(O->RotStep.y)).arg(double(O->RotStep.z)).arg(O->RotStepType);
-        }
-        arguments << QString("StudLogo: %1").arg(O->StudLogo);
-        arguments << QString("Resolution: %1").arg(double(O->Resolution));
-        arguments << QString("ImageWidth: %1").arg(O->ImageWidth);
-        arguments << QString("ImageHeight: %1").arg(O->ImageHeight);
-        arguments << QString("UsingViewpoint: %1").arg(O->UsingViewpoint ? "True" : "False");
-        arguments << QString("ModelScale: %1").arg(double(O->ModelScale));
-        arguments << QString("CameraFoV: %1").arg(double(O->FoV));
-        arguments << QString("CameraZNear: %1").arg(double(O->ZNear));
-        arguments << QString("CameraZNear: %1").arg(double(O->ZFar));
-        arguments << QString("CameraDistance: %1").arg(double(O->CameraDistance),0,'f',0);
-        arguments << QString("CameraProjection: %1").arg(O->IsOrtho ? "Orthographic" : "Perspective");
-        arguments << QString("CameraName: %1").arg(O->CameraName.isEmpty() ? "Default" : O->CameraName);
-        arguments << QString("CameraLatitude: %1").arg(double(O->Latitude));
-        arguments << QString("CameraLongitude: %1").arg(double(O->Longitude));
-        arguments << QString("CameraTarget: X(%1) Y(%2) Z(%3)").arg(double(O->Target.x)).arg(double(O->Target.y)).arg(double(O->Target.z));
-
-        removeEmptyStrings(arguments);
-
-        QString message = QString("%1 %2 Arguments: %3")
-                                .arg(Export ? "Native Renderer" : "3DViewer")
-                                .arg(O->ImageType == Options::CSI ? "CSI" : O->ImageType == Options::PLI ? "PLI" : "SMP")
-                                .arg(arguments.join(" "));
-#ifdef QT_DEBUG_MODE
-      qDebug() << qPrintable(message) << "\n";
-#else
-      emit gui->messageSig(LOG_INFO, message);
-      emit gui->messageSig(LOG_INFO, QString());
-#endif
-    }
-
-    if (!Export)
+    if (!RenderImage)
         gMainWindow->GetPartSelectionWidget()->SetDefaultPart();
 
     View* ActiveView = gMainWindow->GetActiveView();
@@ -2826,160 +2781,180 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool Export/*false*/){
     // LeoCAD flips Y an Z axis so that Z is up and Y represents depth
     lcVector3 Target = lcVector3(O->Target.x,O->Target.z,O->Target.y);
 
+    bool DefaultCamera = O->CameraName.isEmpty();
+    bool IsOrtho       = DefaultCamera ? gApplication->mPreferences.mNativeProjection : O->IsOrtho;
+    bool ZoomExtents   = !RenderImage && IsOrtho;
+
     if (O->UsingViewpoint) {   // ViewPoints (Front, Back, Top, Bottom, Left, Right, Home)
+
         ActiveView->SetViewpoint(lcViewpoint(gApplication->mPreferences.mNativeViewpoint));
-    } else {                  // Default View (Angles + Distance + Perspective|Orthographic)
-        auto validCameraValue = [&O, &Camera] (const CamFlag flag)
-        {
-            if (Preferences::usingNativeRenderer)
-                return flag == DefFoV ?
-                            Camera->m_fovy :
-                       flag == DefZNear ?
-                            Camera->m_zNear : Camera->m_zFar;
 
-            float result;
-            switch (flag)
-            {
-            case DefFoV:
-                // e.g.  0.01  + 30.0           - 0.01
-                result = O->FoV + Camera->m_fovy - CAMERA_FOV_DEFAULT;
-                break;
-            case DefZNear:
-                // e.g.     10.0 +            25.0 - 10.0
-                result = O->ZNear + Camera->m_zNear - CAMERA_ZNEAR_DEFAULT;
-                break;
-            case DefZFar:
-                // e.g.  4000.0 + 50000.0         - 4000.0
-                result = O->ZFar + Camera->m_zFar  - CAMERA_ZFAR_DEFAULT;
-                break;
-            }
+    } else {                   // Default View (Angles + Distance + Perspective|Orthographic)
 
-            return result;
-        };
-
-        if (Export) {
-            Camera->m_fovy  = validCameraValue(DefFoV);
-            Camera->m_zNear = validCameraValue(DefZNear);
-            Camera->m_zFar  = validCameraValue(DefZFar);
-        }
-
-        bool NoCamera    = O->CameraName.isEmpty();
-        bool IsOrtho     = NoCamera ? gApplication->mPreferences.mNativeProjection : O->IsOrtho;
-        bool ZoomExtents = !Export && IsOrtho;
+        Camera->m_fovy  = O->FoV + Camera->m_fovy - CAMERA_FOV_DEFAULT;
 
         ActiveView->SetProjection(IsOrtho);
         ActiveView->SetCameraGlobe(O->Latitude, O->Longitude, O->CameraDistance, Target, ZoomExtents);
     }
 
-    ActiveView->MakeCurrent();
-    lcContext* Context = ActiveView->mContext;
-    View View(ActiveModel);
-    View.SetCamera(Camera, false);
-    View.SetHighlight(false);
-    View.SetContext(Context);
+    if (Preferences::debugLogging){
+        QStringList arguments;
+        if (RenderImage) {
+            arguments << (O->InputFileName.isEmpty()   ? QString() : QString("InputFileName: %1").arg(O->InputFileName));
+            arguments << (O->OutputFileName.isEmpty()  ? QString() : QString("OutputFileName: %1").arg(O->OutputFileName));
+            arguments << (O->ExportFileName.isEmpty()  ? QString() : QString("ExportFileName: %1").arg(O->ExportFileName));
+            arguments << (O->IniFlag == -1             ? QString() : QString("IniFlag: %1").arg(iniFlagNames[O->IniFlag]));
+            arguments << (O->ExportMode == EXPORT_NONE ? QString() : QString("ExportMode: %1").arg(nativeExportNames[O->ExportMode]));
+            arguments << (O->ExportArgs.size() == 0    ? QString() : QString("ExportArgs: %1").arg(O->ExportArgs.join(" ")));
+            arguments << QString("LineWidth: %1").arg(double(O->LineWidth));
+            arguments << QString("TransBackground: %1").arg(O->TransBackground ? "True" : "False");
+            arguments << QString("HighlightNewParts: %1").arg(O->HighlightNewParts ? "True" : "False");
+        } else {
+            arguments << QString("ViewerStepKey: %1").arg(O->ViewerStepKey);
+            arguments << (O->ImageFileName.isEmpty() ? QString() : QString("ImageFileName: %1").arg(O->ImageFileName));
+            arguments << QString("RotStep: X(%1) Y(%2) Z(%3) %4").arg(double(O->RotStep.x)).arg(double(O->RotStep.y)).arg(double(O->RotStep.z)).arg(O->RotStepType);
+        }
+        arguments << QString("StudLogo: %1").arg(O->StudLogo);
+        arguments << QString("Resolution: %1").arg(double(O->Resolution));
+        arguments << QString("ImageWidth: %1").arg(O->ImageWidth);
+        arguments << QString("ImageHeight: %1").arg(O->ImageHeight);
+        arguments << QString("PageWidth: %1").arg(O->PageWidth);
+        arguments << QString("PageHeight: %1").arg(O->PageHeight);
+        arguments << QString("CameraFoV: %1").arg(double(Camera->m_fovy));
+        arguments << QString("CameraZNear: %1").arg(double(Camera->m_zNear));
+        arguments << QString("CameraZFar: %1").arg(double(Camera->m_zFar));
+        arguments << QString("CameraDistance (Scale %1): %2").arg(double(O->ModelScale)).arg(double(O->CameraDistance),0,'f',0);
+        arguments << QString("CameraName: %1").arg(DefaultCamera ? "Default" : O->CameraName);
+        arguments << QString("CameraProjection: %1").arg(IsOrtho ? "Orthographic" : "Perspective");
+        arguments << QString("UsingViewpoint: %1").arg(O->UsingViewpoint ? "True" : "False");
+        arguments << QString("ZoomExtents: %1").arg(ZoomExtents ? "True" : "False");
+        arguments << QString("CameraLatitude: %1").arg(double(O->Latitude));
+        arguments << QString("CameraLongitude: %1").arg(double(O->Longitude));
+        arguments << QString("CameraTarget: X(%1) Y(%2) Z(%3)").arg(double(Target[0])).arg(double(Target[1])).arg(double(Target[2]));
 
-    if (!Export) {
-        if (lcGetPreferences().mDefaultCameraProperties)
-            gMainWindow->UpdateDefaultCamera(Camera);
-        gui->restoreLightAndViewpointDefaults();
-        return true;
+        removeEmptyStrings(arguments);
+
+        QString message = QString("%1 %2 Arguments: %3")
+                                .arg(RenderImage ? "Native Renderer" : "3DViewer")
+                                .arg(O->ImageType == Options::CSI ? "CSI" : O->ImageType == Options::PLI ? "PLI" : "SMP")
+                                .arg(arguments.join(" "));
+#ifdef QT_DEBUG_MODE
+      qDebug() << qPrintable(message) << "\n";
+#else
+      emit gui->messageSig(LOG_INFO, message);
+      emit gui->messageSig(LOG_INFO, QString());
+#endif
     }
-
-    // generate image
-    const int ImageWidth  = int(O->ImageWidth);
-    const int ImageHeight = int(O->ImageHeight);
-    QString ImageType     = O->ImageType == Options::CSI ? "CSI" : O->ImageType == Options::CSI ? "PLI" : "SMP";
 
     bool rc = true;
-    if (!(rc = View.BeginRenderToImage(ImageWidth, ImageHeight)))
-    {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not begin RenderToImage for Native %1 image.<br>"
-                                                       "Render framebuffer is not valid").arg(ImageType));
-    }
 
-    if (rc) {
+    // generate image
+    if (RenderImage) {
+
+        ActiveView->MakeCurrent();
+        lcContext* Context = ActiveView->mContext;
+        View View(ActiveModel);
+        View.SetCamera(Camera, false);
+        View.SetHighlight(false);
+        View.SetContext(Context);
+
+        const int ImageWidth  = int(O->PageWidth);
+        const int ImageHeight = int(O->PageHeight);
+        QString ImageType     = O->ImageType == Options::CSI ? "CSI" : O->ImageType == Options::CSI ? "PLI" : "SMP";
+
+
+        if (!(rc = View.BeginRenderToImage(ImageWidth, ImageHeight)))
+        {
+            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not begin RenderToImage for Native %1 image.<br>"
+                                                           "Render framebuffer is not valid").arg(ImageType));
+        }
+
+        if (rc) {
+
+            ActiveModel->SetTemporaryStep(CurrentStep);
+
+            View.OnDraw();
+
+            struct NativeImage
+            {
+                QImage RenderedImage;
+                QRect Bounds;
+            };
+
+            NativeImage Image;
+            Image.RenderedImage = View.GetRenderImage();
+
+            auto CalculateImageBounds = [](NativeImage& Image)
+            {
+                QImage& RenderedImage = Image.RenderedImage;
+                int Width = RenderedImage.width();
+                int Height = RenderedImage.height();
+
+                int MinX = Width;
+                int MinY = Height;
+                int MaxX = 0;
+                int MaxY = 0;
+
+                for (int x = 0; x < Width; x++)
+                {
+                    for (int y = 0; y < Height; y++)
+                    {
+                        if (qAlpha(RenderedImage.pixel(x, y)))
+                        {
+                            MinX = qMin(x, MinX);
+                            MinY = qMin(y, MinY);
+                            MaxX = qMax(x, MaxX);
+                            MaxY = qMax(y, MaxY);
+                        }
+                    }
+                }
+
+                Image.Bounds = QRect(QPoint(MinX, MinY), QPoint(MaxX, MaxY));
+            };
+
+            CalculateImageBounds(Image);
+
+            lcGetActiveProject()->SetImageSize(Image.Bounds.width(), Image.Bounds.height());
+
+            QImageWriter Writer(O->OutputFileName);
+
+            if (Writer.format().isEmpty())
+                Writer.setFormat("PNG");
+
+            if (!Writer.write(QImage(Image.RenderedImage.copy(Image.Bounds))))
+            {
+                emit gui->messageSig(LOG_ERROR,QString("Could not write to Native %1 %2 file:<br>[%3].<br>Reason: %4.<br>"
+                                                       "Ensure Field of View (default is 30) and Camera Distance Factor <br>"
+                                                       "are configured for the Native Renderer")
+                                     .arg(ImageType)
+                                     .arg(O->ExportMode == EXPORT_NONE ?
+                                              QString("image") :
+                                              QString("%1 object")
+                                              .arg(nativeExportNames[gui->exportMode]))
+                        .arg(O->OutputFileName)
+                        .arg(Writer.errorString()));
+                rc = false;
+            }
+
+            View.EndRenderToImage();
+        }
+
+        Context->ClearResources();
 
         ActiveModel->SetTemporaryStep(CurrentStep);
 
-        View.OnDraw();
+        if (!ActiveModel->mActive)
+            ActiveModel->CalculateStep(LC_STEP_MAX);
 
-        struct NativeImage
-        {
-            QImage RenderedImage;
-            QRect Bounds;
-        };
+        if (rc)
+            emit gui->messageSig(LOG_INFO,QMessageBox::tr("Native %1 image file rendered '%2'")
+                                 .arg(ImageType).arg(O->OutputFileName));
 
-        NativeImage Image;
-        Image.RenderedImage = View.GetRenderImage();
-
-        auto CalculateImageBounds = [](NativeImage& Image)
-        {
-            QImage& RenderedImage = Image.RenderedImage;
-            int Width = RenderedImage.width();
-            int Height = RenderedImage.height();
-
-            int MinX = Width;
-            int MinY = Height;
-            int MaxX = 0;
-            int MaxY = 0;
-
-            for (int x = 0; x < Width; x++)
-            {
-                for (int y = 0; y < Height; y++)
-                {
-                    if (qAlpha(RenderedImage.pixel(x, y)))
-                    {
-                        MinX = qMin(x, MinX);
-                        MinY = qMin(y, MinY);
-                        MaxX = qMax(x, MaxX);
-                        MaxY = qMax(y, MaxY);
-                    }
-                }
+        if (O->ExportMode != EXPORT_NONE) {
+            if (!NativeExport(O)) {
+                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("%1 Objects render failed.").arg(ImageType));
+                rc = false;
             }
-
-            Image.Bounds = QRect(QPoint(MinX, MinY), QPoint(MaxX, MaxY));
-        };
-
-        CalculateImageBounds(Image);
-
-        QImageWriter Writer(O->OutputFileName);
-
-        if (Writer.format().isEmpty())
-            Writer.setFormat("PNG");
-
-        if (!Writer.write(QImage(Image.RenderedImage.copy(Image.Bounds))))
-        {
-            emit gui->messageSig(LOG_ERROR,QString("Could not write to Native %1 %2 file:<br>[%3].<br>Reason: %4.<br>"
-                                                   "Ensure Field of View (default is 30) and Camera Distance Factor <br>"
-                                                   "are configured for the Native Renderer")
-                                                   .arg(ImageType)
-                                                   .arg(O->ExportMode == EXPORT_NONE ?
-                                                        QString("image") :
-                                                        QString("%1 object")
-                                                                .arg(nativeExportNames[gui->exportMode]))
-                                                   .arg(O->OutputFileName)
-                                                   .arg(Writer.errorString()));
-            rc = false;
-        }
-
-        View.EndRenderToImage();
-    }
-
-    Context->ClearResources();
-
-    ActiveModel->SetTemporaryStep(CurrentStep);
-
-    if (!ActiveModel->mActive)
-        ActiveModel->CalculateStep(LC_STEP_MAX);
-
-    if (rc)
-        emit gui->messageSig(LOG_INFO,QMessageBox::tr("Native %1 image file rendered '%2'")
-                          .arg(ImageType).arg(O->OutputFileName));
-
-    if (O->ExportMode != EXPORT_NONE) {
-        if (!NativeExport(O)) {
-            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("%1 Objects render failed.").arg(ImageType));
-            rc = false;
         }
     }
 

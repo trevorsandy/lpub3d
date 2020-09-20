@@ -482,6 +482,17 @@ QWidget *lcQPropertiesTree::createEditor(QWidget *parent, QTreeWidgetItem *item)
 	}
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Camera Globe, Custom properties ***/
+	case PropertyBoolReadOnly:
+		{
+			QCheckBox *editor = new QCheckBox(parent);
+			bool value = item->data(0, PropertyValueRole).toBool();
+
+			editor->setChecked(value);
+			editor->setEnabled(false);
+			editor->setToolTip("Property is read only");
+
+			return editor;
+		}
 	case PropertyFloatCameraAngle:
 		{
 			QLineEdit *editor = new QLineEdit(parent);
@@ -1611,9 +1622,9 @@ void lcQPropertiesTree::SetCamera(lcObject* Focus)
 		PageSizeHeight  = lcGetActiveProject()->GetPageHeight();
 		ImageSizeWidth  = lcGetActiveProject()->GetImageWidth();
 		ImageSizeHeight = lcGetActiveProject()->GetImageHeight();
-        LPub3D_FoV      = FoV   + CAMERA_FOV_DEFAULT   - gApplication->mPreferences.mCFoV;
-        LPub3D_ZNear    = ZNear + CAMERA_ZNEAR_DEFAULT - gApplication->mPreferences.mCNear;
-        LPub3D_ZFar     = ZFar  + CAMERA_ZFAR_DEFAULT  - gApplication->mPreferences.mCFar;
+		LPub3D_FoV      = FoV   + CAMERA_FOV_DEFAULT   - gApplication->mPreferences.mCFoV;
+		LPub3D_ZNear    = ZNear + CAMERA_ZNEAR_DEFAULT - gApplication->mPreferences.mCNear;
+		LPub3D_ZFar     = ZFar  + CAMERA_ZFAR_DEFAULT  - gApplication->mPreferences.mCFar;
 /*** LPub3D Mod end ***/
 	}
 

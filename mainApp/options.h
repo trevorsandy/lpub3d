@@ -127,7 +127,7 @@ public:
   NativeOptions(const ViewerOptions &rhs)
       : ViewerOptions(rhs),
         IniFlag(-1),
-        ExportMode(-1),
+        ExportMode(-1 /*EXPORT_NONE*/),
         LineWidth(1.0),
         TransBackground(true),
         HighlightNewParts(false)

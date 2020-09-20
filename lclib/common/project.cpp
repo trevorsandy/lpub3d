@@ -84,7 +84,6 @@ Project::Project()
 	mPageHeight = 0;
 	mImageType = 0;
 	mResolution = 150.0f;
-	mModelScale = 1.0f;
 	mViewerLoaded = false;
 /*** LPub3D Mod end ***/
 	mActiveModel->CreatePieceInfo(this);
@@ -100,21 +99,22 @@ Project::~Project()
 }
 
 /*** LPub3D Mod - Camera Globe and Image Export ***/
-void Project::SetRenderAttributes(const int Type,
-    const int ImageWidth,
-    const int ImageHeight,
-    const int PageWidth,
-    const int PageHeight,
-    const QString FileName,
-    const float Resolution,
-    const float ModelScale)
+void Project::SetRenderAttributes(
+	const int     Type,
+	const int     ImageWidth,
+	const int     ImageHeight,
+	const int     PageWidth,
+	const int     PageHeight,
+	const int     Renderer,
+	const QString FileName,
+	const float   Resolution)
 {
 	mImageType     = Type;
 	mPageWidth     = PageWidth;
 	mPageHeight    = PageHeight;
+	mRenderer      = Renderer;
 	mImageFileName = FileName;
 	mResolution    = Resolution;
-	mModelScale    = ModelScale;
 	lcSetProfileInt(LC_PROFILE_IMAGE_WIDTH,ImageWidth);
 	lcSetProfileInt(LC_PROFILE_IMAGE_HEIGHT,ImageHeight);
 	mViewerLoaded  = true;

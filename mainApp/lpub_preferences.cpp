@@ -3871,7 +3871,6 @@ void Preferences::viewerPreferences()
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,"ProjectsPath")))
         lcSetProfileString(LC_PROFILE_PROJECTS_PATH, Settings.value(QString("%1/%2").arg(SETTINGS,"ProjectsPath")).toString());
 
-    lcSetProfileInt(LC_PROFILE_SET_TARGET_POSITION, false);
     lcSetProfileInt(LC_PROFILE_BUILD_MODIFICATION, false);
 }
 

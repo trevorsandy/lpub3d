@@ -448,7 +448,7 @@ enum Direction { PAGE_PREVIOUS, PAGE_NEXT, DIRECTION_NOT_SET };
 enum ExportOption { EXPORT_ALL_PAGES, EXPORT_PAGE_RANGE, EXPORT_CURRENT_PAGE };
 enum ExportMode { PRINT_FILE   = -2,//-2
                   EXPORT_NONE  = -1,//-1
-                  PAGE_PROCESS = 0, // 0
+                  PAGE_PROCESS =  0,// 0
                   EXPORT_PDF,       // 1
                   EXPORT_PNG,       // 2
                   EXPORT_JPG,       // 3
@@ -1150,7 +1150,6 @@ public slots:
   void gridSize(int index);
   void gridSizeTriggered();
   void groupActionTriggered();
-  void setTargetPosition();
   void enableBuildModification();
   void useImageSize();
 

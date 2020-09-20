@@ -53,6 +53,7 @@ public:
   static bool            useLDViewSCall();
   static bool            useLDViewSList();
   static int             rendererTimeout();
+  static int             getRendererIndex();
   static void            setRenderer(QString const &);
   static bool            clipImage(QString const &);
   static QString const   getRotstepMeta(RotStepMeta &, bool isKey = false);
@@ -67,7 +68,7 @@ public:
   static bool            RenderNativeImage(const NativeOptions *);
   static bool            NativeExport(const NativeOptions *);
   static float           ViewerCameraDistance(Meta &meta, float);
-  static bool            ExecuteViewer(const NativeOptions *, bool Export = false);
+  static bool            ExecuteViewer(const NativeOptions *, bool RenderImage = false);
   static bool            LoadViewer(const ViewerOptions *);
   static QStringList const getImageAttributes(const QString &);
   static bool            compareImageAttributes(const QStringList &,

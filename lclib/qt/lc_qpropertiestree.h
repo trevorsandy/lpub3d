@@ -48,6 +48,7 @@ public:
 		PropertyFloatLightSpotSize,
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Camera Globe, Custom properties ***/
+		PropertyBoolReadOnly,
 		PropertyFloatCameraAngle,
 		PropertyFloatTarget,
 /*** LPub3D Mod end ***/
@@ -98,7 +99,7 @@ protected:
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - enable lights ***/
 	int mLightType;
-    int mLightShape;
+	int mLightShape;
 /*** LPub3D Mod end ***/
 	lcPropertyWidgetMode mWidgetMode;
 	lcObject* mFocus;

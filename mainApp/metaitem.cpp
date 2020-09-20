@@ -4881,11 +4881,11 @@ void MetaItem::setMetaAlt(const Where &itemTop, const QString metaString, bool n
         // place below item command unless end of file
         int eof = gui->subFileSize(itemTopOf.modelName);
         if (itemTopOf.lineNumber == eof)
-            insertMeta(itemTopOf,metaString);
+            insertMeta(itemTopOf, metaString);
         else
-            appendMeta(itemTopOf,metaString);
+            appendMeta(itemTopOf, metaString);
     } else {
-        replaceMeta(itemTopOf,metaString);
+        replaceMeta(itemTopOf, metaString);
     }
 }
 

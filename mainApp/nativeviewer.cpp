@@ -76,21 +76,9 @@ void Gui::create3DActions()
     enableRotstepRotateAct->setChecked(!lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION));
     connect(enableRotstepRotateAct, SIGNAL(triggered()), this, SLOT(enableBuildModification()));
 
-    setTargetPositionAct = new QAction(tr("Set Camera Target"),this);
-    setTargetPositionAct->setStatusTip(tr("Set the camera target (Look At) position for this step"));
-    setTargetPositionAct->setCheckable(true);
-    setTargetPositionAct->setChecked(lcGetProfileInt(LC_PROFILE_SET_TARGET_POSITION));
-    connect(setTargetPositionAct, SIGNAL(triggered()), this, SLOT(setTargetPosition()));
-
-
     QIcon ApplyCameraIcon;
-    if (setTargetPositionAct->isChecked()){
-        ApplyCameraIcon.addFile(":/resources/applycamerasettingsposition.png");
-        ApplyCameraIcon.addFile(":/resources/applycamerasettingsposition_16.png");
-    } else {
-        ApplyCameraIcon.addFile(":/resources/applycamerasettings.png");
-        ApplyCameraIcon.addFile(":/resources/applycamerasettings_16.png");
-    }
+    ApplyCameraIcon.addFile(":/resources/applycamerasettings.png");
+    ApplyCameraIcon.addFile(":/resources/applycamerasettings_16.png");
     applyCameraAct = new QAction(ApplyCameraIcon,tr("Save Settings"),this);
     applyCameraAct->setStatusTip(tr("Save current camera settings to current step - Shift+A"));
     applyCameraAct->setShortcut(tr("Shift+A"));
@@ -105,8 +93,8 @@ void Gui::create3DActions()
     applyLightAct->setEnabled(false);  // TODO - Enable when completely implemented
     connect(applyLightAct, SIGNAL(triggered()), this, SLOT(applyLightSettings()));
 
-    useImageSizeAct = new QAction(tr("Custom Image Size"),this);
-    useImageSizeAct->setStatusTip(tr("Maintain initial image width and height or enter custom image size"));
+    useImageSizeAct = new QAction(tr("Use Image Size"),this);
+    useImageSizeAct->setStatusTip(tr("Use image width and height - set custom size in camera Properties tab"));
     useImageSizeAct->setCheckable(true);
     useImageSizeAct->setChecked(lcGetProfileInt(LC_PROFILE_USE_IMAGE_SIZE));
     connect(useImageSizeAct, SIGNAL(triggered()), this, SLOT(useImageSize()));
@@ -314,12 +302,12 @@ void Gui::create3DMenus()
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]);
      gMainWindow->GetToolsMenu()->addAction(createBuildModAct);
 //     gMainWindow->GetToolsMenu()->addAction(applyCameraAct);
-     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]);
      gMainWindow->GetToolsMenu()->addAction(lightGroupAct);
+     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]);
      gMainWindow->GetToolsMenu()->addSeparator();
+     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
      gMainWindow->GetToolsMenu()->addAction(viewpointGroupAct);
 //     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]);
-     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAN]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE_VIEW]);
@@ -364,10 +352,8 @@ void Gui::create3DMenus()
      cameraMenu = new QMenu(tr("Camera Settings"),this);
      cameraMenu->addAction(applyCameraAct);
      cameraMenu->addSeparator();
-     cameraMenu->addAction(defaultCameraPropertiesAct);
-     cameraMenu->addSeparator();
-     cameraMenu->addAction(setTargetPositionAct);
      cameraMenu->addAction(useImageSizeAct);
+     cameraMenu->addAction(defaultCameraPropertiesAct);
      gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]->setMenu(cameraMenu);
 //     applyCameraAct->setMenu(cameraMenu);
 }
@@ -392,12 +378,12 @@ void Gui::create3DToolBars()
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]);
     gMainWindow->mToolsToolBar->addAction(createBuildModAct);
 //    gMainWindow->mToolsToolBar->addAction(applyCameraAct);
-    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]);
     gMainWindow->mToolsToolBar->addAction(lightGroupAct);
+    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]);
     gMainWindow->mToolsToolBar->addSeparator();
+    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
     gMainWindow->mToolsToolBar->addAction(viewpointGroupAct);
 //    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]);
-    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM]);
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAN]);
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE_VIEW]);
@@ -560,30 +546,13 @@ void Gui::applyCameraSettings()
 
     lcCamera* Camera = ActiveView->mCamera;
 
-    auto validCameraValue = [&cameraMeta, &Camera] (const CamFlag flag)
+    auto validCameraFoV = [&cameraMeta, &Camera] ()
     {
         if (Preferences::usingNativeRenderer)
-            return qRound(flag == DefFoV ?
-                               Camera->m_fovy :
-                          flag == DefZNear ?
-                               Camera->m_zNear : Camera->m_zFar);
+            return qRound(Camera->m_fovy);
 
-        float result;
-        switch (flag)
-        {
-        case DefFoV:
-            // e.g.            30.0  +                 0.01         - 30.0
-            result = Camera->m_fovy  + cameraMeta.cameraFoV.value() - gApplication->mPreferences.mCFoV;
-            break;
-        case DefZNear:
-            // e.g.            25.0  +             10.0         - 25.0
-            result = Camera->m_zNear + cameraMeta.znear.value() - gApplication->mPreferences.mCNear;
-            break;
-        case DefZFar:
-            // e.g.         50000.0  +         4000.0          - 50000.0
-            result = Camera->m_zFar  + cameraMeta.zfar.value() - gApplication->mPreferences.mCFar;
-            break;
-        }
+              // e.g.            30.0  +                 0.01         - 30.0
+        float result = Camera->m_fovy  + cameraMeta.cameraFoV.value() - gApplication->mPreferences.mCFoV;
 
         return qRound(result);
     };
@@ -593,7 +562,7 @@ void Gui::applyCameraSettings()
         return qAbs(v1 - v2) > 0.1f;
     };
 
-    emit messageSig(LOG_STATUS,QString("Setting Camera %1").arg(Camera->m_strName));
+    emit messageSig(LOG_INFO, QString("Setting %1 Camera").arg(Camera->m_strName[0] == '\0' ? "Default" : Camera->m_strName));
 
     QString imageFileName;
 
@@ -630,6 +599,7 @@ void Gui::applyCameraSettings()
 
         QString metaString;
         bool newCommand = false;
+        bool clearStepCache = false;
         Where undefined = Where();
         Where top = currentStep->topOfStep();
         Where bottom = currentStep->bottomOfStep();
@@ -637,110 +607,92 @@ void Gui::applyCameraSettings()
         float Latitude, Longitude, Distance;
         Camera->GetAngles(Latitude, Longitude, Distance);
 
-        // get target position
-
         bool applyTarget = !(Camera->mTargetPosition[0] == 0.0f  &&
                              Camera->mTargetPosition[1] == 0.0f  &&
-                             Camera->mTargetPosition[2] == 0.0f) &&
-                             setTargetPositionAct->isChecked();
-        if (applyTarget) {
-            lcModel* ActiveModel = ActiveView->GetActiveModel();
-            if (ActiveModel && ActiveModel->AnyPiecesSelected()) {
-                lcVector3 Min(FLT_MAX, FLT_MAX, FLT_MAX), Max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-                if (ActiveModel->GetPiecesBoundingBox(Min, Max))
-                {
-                   lcVector3 Target = (Min + Max) / 2.0f;
-                   Camera->SetAngles(Latitude,Longitude,Distance,Target, ActiveModel->GetCurrentStep(), false);
-                }
-            }
-        }
+                             Camera->mTargetPosition[2] == 0.0f);
 
         beginMacro("CameraSettings");
 
         // execute first in last out
+        if (applyTarget /*&&
+           (notEqual(Camera->mTargetPosition[0], cameraMeta.target.x())  ||
+            notEqual(Camera->mTargetPosition[2], cameraMeta.target.y())  ||
+            notEqual(Camera->mTargetPosition[1], cameraMeta.target.z()))*/) {
 
-        // LeoCAD flips Y an Z axis so that Z is up and Y represents depth
-        if (applyTarget) {
-            if (!imageFileName.isEmpty())
+            clearStepCache = true;
+            if (QFileInfo(imageFileName).exists())
                 gui->clearStepCSICache(imageFileName);
+
+            // LeoCAD flips Y an Z axis so that Z is up and Y represents depth
             cameraMeta.target.setValues(Camera->mTargetPosition[0],
                                         Camera->mTargetPosition[2],
                                         Camera->mTargetPosition[1]);
             metaString = cameraMeta.target.format(true/*local*/,false/*global*/);
             newCommand = cameraMeta.target.here() == undefined;
-            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+            currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.target.here(), metaString, newCommand);
 //            currentStep->mi(it)->setMeta(top,bottom,&cameraMeta.target,true/*useTop*/,1/*append*/,true/*local*/,false/*askLocal,global=false*/);
         }
 
-        if (useImageSizeAct->isChecked()) {
+        if (notEqual(lcGetActiveProject()->GetImageWidth(),  cameraMeta.imageSize.value(0)) ||
+            notEqual(lcGetActiveProject()->GetImageHeight(), cameraMeta.imageSize.value(1))) {
             cameraMeta.imageSize.setValues(lcGetActiveProject()->GetImageWidth(),
                                            lcGetActiveProject()->GetImageHeight());
             metaString = cameraMeta.imageSize.format(true,false);
             newCommand = cameraMeta.imageSize.here() == undefined;
-            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+            currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.imageSize.here(), metaString, newCommand);
         }
 
         if (notEqual(Camera->GetScale(), cameraMeta.modelScale.value())) {
+            clearStepCache = true;
             cameraMeta.modelScale.setValue(Camera->GetScale());
             metaString = cameraMeta.modelScale.format(true,false);
             newCommand = cameraMeta.modelScale.here() == undefined;
-            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+            currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.modelScale.here(), metaString, newCommand);
         }
 
         if (notEqual(qRound(Distance), cameraMeta.cameraDistance.value()) &&
-            !useImageSizeAct->isChecked()) {
+                    !useImageSizeAct->isChecked()) {
+            clearStepCache = true;
             cameraMeta.cameraDistance.setValue(qRound(Distance));
             metaString = cameraMeta.cameraDistance.format(true,false);
             newCommand = cameraMeta.cameraDistance.here() == undefined;
-            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+            currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.cameraDistance.here(), metaString, newCommand);
         }
 
         if (notEqual(qRound(Latitude), cameraMeta.cameraAngles.value(0)) ||
             notEqual(qRound(Longitude),cameraMeta.cameraAngles.value(1))) {
+            clearStepCache = true;
             cameraMeta.cameraAngles.setValues(qRound(Latitude), qRound(Longitude));
             metaString = cameraMeta.cameraAngles.format(true,false);
             newCommand = cameraMeta.cameraAngles.here() == undefined;
-            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+            currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.cameraAngles.here(), metaString, newCommand);
         }
 
-        float zFar = validCameraValue(DefZFar);
-        if (notEqual(cameraMeta.zfar.value(),zFar)) {
-            cameraMeta.zfar.setValue(zFar);
-            metaString = cameraMeta.zfar.format(true,false);
-            newCommand = cameraMeta.zfar.here() == undefined;
-            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
-        }
-
-        float zNear = validCameraValue(DefZNear);
-        if (notEqual(cameraMeta.znear.value(), zNear)) {
-            cameraMeta.znear.setValue(zNear);
-            metaString = cameraMeta.znear.format(true,false);
-            newCommand = cameraMeta.znear.here() == undefined;
-            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
-        }
-
-        float fovy = validCameraValue(DefFoV);
+        float fovy = validCameraFoV();
         if (notEqual(cameraMeta.cameraFoV.value(), fovy)) {
+            clearStepCache = true;
             cameraMeta.cameraFoV.setValue(fovy);
             metaString = cameraMeta.cameraFoV.format(true,false);
             newCommand = cameraMeta.cameraFoV.here() == undefined;
-            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+            currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.cameraFoV.here(), metaString, newCommand);
         }
 
-        bool isOrtho = Camera->IsOrtho();
-        cameraMeta.isOrtho.setValue(isOrtho);
-        if (cameraMeta.isOrtho.value()) {
+        if (Camera->IsOrtho() != cameraMeta.isOrtho.value()) {
+            cameraMeta.isOrtho.setValue(Camera->IsOrtho());
             metaString = cameraMeta.isOrtho.format(true,false);
             newCommand = cameraMeta.isOrtho.here() == undefined;
-            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+            currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.isOrtho.here(), metaString, newCommand);
         }
 
-        if (!QString(Camera->m_strName).isEmpty()) {
+        if (Camera->m_strName[0]) {
             cameraMeta.cameraName.setValue(Camera->m_strName);
             metaString = cameraMeta.cameraName.format(true,false);
             newCommand = cameraMeta.cameraName.here() == undefined;
-            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+            currentStep->mi(it)->setMetaAlt(newCommand ? top : cameraMeta.cameraName.here(), metaString, newCommand);
         }
+
+        if (clearStepCache && QFileInfo(imageFileName).exists())
+            gui->clearStepCSICache(imageFileName);
 
         endMacro();
     }
@@ -827,30 +779,15 @@ void Gui::enableBuildModification()
     gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(enableRotstepRotateAct->isChecked());
 }
 
-void Gui::setTargetPosition()
+void Gui::showDefaultCameraProperties()
 {
-  lcSetProfileInt(LC_PROFILE_SET_TARGET_POSITION, setTargetPositionAct->isChecked());
-  QIcon ApplyCameraIcon;
-  if (setTargetPositionAct->isChecked()) {
-      ApplyCameraIcon.addFile(":/resources/applycamerasettingsposition.png");
-      ApplyCameraIcon.addFile(":/resources/applycamerasettingsposition_16.png");
-      applyCameraAct->setIcon(ApplyCameraIcon);
-  } else {
-      ApplyCameraIcon.addFile(":/resources/applycamerasettings.png");
-      ApplyCameraIcon.addFile(":/resources/applycamerasettings_16.png");
-      applyCameraAct->setIcon(ApplyCameraIcon);
-  }
+  lcGetPreferences().mDefaultCameraProperties = defaultCameraPropertiesAct->isChecked();
+  lcSetProfileInt(LC_PROFILE_DEFAULT_CAMERA_PROPERTIES, defaultCameraPropertiesAct->isChecked());
 }
 
 void Gui::useImageSize()
 {
    lcSetProfileInt(LC_PROFILE_USE_IMAGE_SIZE, useImageSizeAct->isChecked());
-}
-
-void Gui::showDefaultCameraProperties()
-{
-  lcGetPreferences().mDefaultCameraProperties = defaultCameraPropertiesAct->isChecked();
-  lcSetProfileInt(LC_PROFILE_DEFAULT_CAMERA_PROPERTIES, defaultCameraPropertiesAct->isChecked());
 }
 
 void Gui::createStatusBar()

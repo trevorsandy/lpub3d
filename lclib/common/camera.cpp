@@ -1109,11 +1109,11 @@ void lcCamera::SetAngles(float Latitude, float Longitude, float Distance, lcVect
 	lcMatrix33 LatitudeMatrix = lcMatrix33FromAxisAngle(SideVector, LC_DTOR * Latitude);
 
 /*** LPub3D Mod - Camera Globe ***/
-	float CameraDistance = NativeCameraDistance(Distance /*Standard Format*/,
-												GetCDF(),
-												lcGetActiveProject()->GetModelWidth(),
-												lcGetActiveProject()->GetResolution(),
-												lcGetActiveProject()->GetModelScale());
+	int   Width      = lcGetActiveProject()->GetModelWidth();
+	int   Renderer   = lcGetActiveProject()->GetRenderer();
+	float Resolution = lcGetActiveProject()->GetResolution();
+	// Distance in Standard (LDU) Format - e.g. 3031329
+	float CameraDistance = NativeCameraDistance(Distance, GetCDF(), Width, Resolution, Renderer);
 	mPosition = lcMul(mPosition, LatitudeMatrix) * CameraDistance;
 /*** LPub3D Mod end ***/
 	mUpVector = lcMul(mUpVector, LatitudeMatrix);
@@ -1142,11 +1142,11 @@ void lcCamera::GetAngles(float& Latitude, float& Longitude, float& Distance) con
 		Longitude = -Longitude;
 
 /*** LPub3D Mod - Camera Globe ***/
-	Distance = StandardCameraDistance(lcLength(mPosition) /*Native Format*/,
-									  GetCDF(),
-									  lcGetActiveProject()->GetModelWidth(),
-									  lcGetActiveProject()->GetResolution(),
-									  lcGetActiveProject()->GetModelScale());
+	int   Width      = lcGetActiveProject()->GetModelWidth();
+	int   Renderer   = lcGetActiveProject()->GetRenderer();
+	float Resolution = lcGetActiveProject()->GetResolution();
+	// Distance in 3DViewer (Native) Format - e.g. 1250
+	Distance = StandardCameraDistance(lcLength(mPosition), GetCDF(), Width, Resolution, Renderer);
 /*** LPub3D Mod end ***/
 }
 

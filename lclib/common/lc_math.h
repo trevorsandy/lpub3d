@@ -9,7 +9,7 @@
 #define LC_2PI (static_cast<float>(2 * M_PI))
 
 #define LC_RGB(r,g,b) LC_RGBA(r,g,b,255)
-#define LC_RGBA(r,g,b,a) ((quint32)(((quint8) (r) | ((quint16) (g) << 8)) | (((quint32) (quint8) (b)) << 16) | (((quint32) (quint8) (a)) << 24))) 
+#define LC_RGBA(r,g,b,a) ((quint32)(((quint8) (r) | ((quint16) (g) << 8)) | (((quint32) (quint8) (b)) << 16) | (((quint32) (quint8) (a)) << 24)))
 #define LC_RGBA_RED(rgba)   ((quint8)(((rgba) >>  0) & 0xff))
 #define LC_RGBA_GREEN(rgba) ((quint8)(((rgba) >>  8) & 0xff))
 #define LC_RGBA_BLUE(rgba)  ((quint8)(((rgba) >> 16) & 0xff))
@@ -55,12 +55,12 @@ public:
 	{
 		return (const float*)this;
 	}
-	
+
 	operator float*()
 	{
 		return (float*)this;
 	}
-	
+
 	const float& operator[](int i) const
 	{
 		return ((float*)this)[i];
@@ -97,12 +97,12 @@ public:
 	{
 		return (const float*)this;
 	}
-	
+
 	operator float*()
 	{
 		return (float*)this;
 	}
-	
+
 	const float& operator[](int i) const
 	{
 		return ((float*)this)[i];
@@ -146,12 +146,12 @@ public:
 	{
 		return (const float*)this;
 	}
-	
+
 	operator float*()
 	{
 		return (float*)this;
 	}
-	
+
 	const float& operator[](int i) const
 	{
 		return ((float*)this)[i];
@@ -190,12 +190,12 @@ public:
 	{
 		return (const float*)this;
 	}
-	
+
 	operator float*()
 	{
 		return (float*)this;
 	}
-	
+
 	const lcVector3& operator[](int i) const
 	{
 		return r[i];
@@ -248,12 +248,12 @@ public:
 	{
 		return (const float*)this;
 	}
-	
+
 	operator float*()
 	{
 		return (float*)this;
 	}
-	
+
 	const lcVector4& operator[](int i) const
 	{
 		return r[i];
@@ -476,31 +476,37 @@ inline float lcLengthSquared(const lcVector3& a)
 }
 
 /*** LPub3D Mod - Camera Globe ***/
-inline float GetStandardDistance(const float Resolution, const float Scale, const float PageWidth)
+inline float GetStandardDistance(const float Resolution, const float PageWidth)
 {
-	float OneToOne;
-	float SizeFactor;
-	float StandardDistance;
-	float LduResSize  = 1.0f / 64.0f;             // size of 1x1 in units
-	float LduDistance = 10.0f / (float)tan(0.005f * LC_DTOR);
-	OneToOne          = 20 * LduResSize;          // size of 1x1 in units
-	OneToOne         *= Resolution;               // size of 1x1 in pixels
-	OneToOne         *= Scale;
-	SizeFactor        = PageWidth / OneToOne;     // in pixels;
-	StandardDistance  = SizeFactor * LduDistance;
+	float Scale            =  1.0f;
+	float LduResSize       =  1.0f / 64.0f;                       // size of 1x1 in units
+	float LduDistance      = 10.0f / float(tan(0.005f * LC_DTOR));
+	float OneToOne         = 20.0f * LduResSize;                  // size of 1x1 in units
+	OneToOne              *= Resolution;                          // size of 1x1 in pixels
+	OneToOne              *= Scale;
+	float SizeFactor       = PageWidth  / OneToOne;               // in pixels;
+	float StandardDistance = SizeFactor * LduDistance;
 	return StandardDistance;
 }
 
-inline float NativeCameraDistance(const float Distance, const float CDF, const float PageWidth, float Resolution = 150.0f, float Scale = 1.0f)
+inline float NativeCameraDistance(const float Distance, const float CDF, const float PageWidth, float Resolution = 150.0f, int Renderer = 0)
 {
-	float StandardDistance = GetStandardDistance(Resolution, Scale, PageWidth);
-    return (Distance / StandardDistance) * CDF;
+	float StandardDistance = GetStandardDistance(Resolution, PageWidth);
+	if (Renderer == 1)      // 1 = RENDERER_POVRAY
+		StandardDistance = (StandardDistance*0.455f)*1700.0f/1000.0f;
+	else if (Renderer == 2) // 2 = RENDERER_LDVIEW
+		StandardDistance = (StandardDistance*0.775f)*1700.0f/1000.0f;
+	return (Distance / StandardDistance) * CDF;
 }
 
-inline float StandardCameraDistance(const float NativeDistance, const float CDF, const float PageWidth, float Resolution = 150.0f, float Scale = 1.0f)
+inline float StandardCameraDistance(const float NativeDistance, const float CDF, const float PageWidth, float Resolution = 150.0f, int Renderer = 0)
 {
-	float StandardDistance = GetStandardDistance(Resolution, Scale, PageWidth);
-    return StandardDistance * (NativeDistance / CDF);
+	float StandardDistance = GetStandardDistance(Resolution, PageWidth);
+	if (Renderer == 1)      // 1 = RENDERER_POVRAY
+		StandardDistance = (StandardDistance*0.455f)*1700.0f/1000.0f;
+	else if (Renderer == 2) // 2 = RENDERER_LDVIEW
+		StandardDistance = (StandardDistance*0.775f)*1700.0f/1000.0f;
+	return StandardDistance * (NativeDistance / CDF);
 }
 /*** LPub3D Mod end ***/
 
@@ -508,18 +514,18 @@ inline float StandardCameraDistance(const float NativeDistance, const float CDF,
 //Normalizes number to an arbitrary range by assuming the range wraps around when going below min or above max
 inline float normaliseRotation( const float value, const float start, const float end )
 {
-    const float width = end - start   ;
-    const float offsetValue = value - start ;   // value relative to 0
-    return offsetValue - float( floor( double( offsetValue / width ) ) * double(width) ) + start; // + start to reset back to start of original range
+	const float width = end - start   ;
+	const float offsetValue = value - start ;   // value relative to 0
+	return offsetValue - float( floor( double( offsetValue / width ) ) * double(width) ) + start; // + start to reset back to start of original range
 }
 
 inline lcVector3 normalizeDegrees(const lcVector3& a)
 {
-    float max = 360.0f;
-    float min = -360.0f;
-    return lcVector3(normaliseRotation(a[0],min,max),
-                     normaliseRotation(a[1],min,max),
-                     normaliseRotation(a[2],min,max));
+	float max = 360.0f;
+	float min = -360.0f;
+	return lcVector3(normaliseRotation(a[0],min,max),
+					 normaliseRotation(a[1],min,max),
+					 normaliseRotation(a[2],min,max));
 }
 /*** LPub3D Mod end ***/
 
@@ -1270,7 +1276,7 @@ inline lcVector3 lcMatrix44ToEulerAngles(const lcMatrix44& RotMat)
 		CosRoll = RotMat.r[2][2] / CosPitch;
 		SinYaw = RotMat.r[0][1] / CosPitch;
 		CosYaw = RotMat.r[0][0] / CosPitch;
-	} 
+	}
 	else
 	{
 		SinRoll = -RotMat.r[2][1];
@@ -1420,9 +1426,9 @@ inline lcMatrix44 lcMatrix44Inverse(const lcMatrix44& m)
 	lcVector4 Row1(r0[5], r1[5], r2[5], r3[5]);
 	lcVector4 Row2(r0[6], r1[6], r2[6], r3[6]);
 	lcVector4 Row3(r0[7], r1[7], r2[7], r3[7]);
-	
+
 	lcMatrix44 out(Row0, Row1, Row2, Row3);
-	
+
 	return out;
 
 #undef MAT
@@ -2045,7 +2051,7 @@ inline bool lcBoundingBoxIntersectsVolume(const lcVector3& Min, const lcVector3&
 	if (OutcodesOR == 0)
 		return true;
 
-	int Indices[36] = 
+	int Indices[36] =
 	{
 		0, 1, 2,
 		0, 2, 3,

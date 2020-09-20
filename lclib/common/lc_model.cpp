@@ -3242,13 +3242,13 @@ void lcModel::SetCameraGlobe(lcCamera* Camera, float Latitude, float Longitude, 
 		return v1 > v2 || v1 < v2;
 	};
 
-	float _Latitude, _Longitude, _Distance;
-	Camera->GetAngles(_Latitude,_Longitude,_Distance);
+	float _Latitude, _Longitude, _DistanceNotUsed;
+	Camera->GetAngles(_Latitude, _Longitude, _DistanceNotUsed);
 
-	if (notEqual(_Latitude,Latitude) ||
-		notEqual(_Longitude,Longitude))
+	if (notEqual(_Latitude, Latitude) ||
+		notEqual(_Longitude, Longitude))
 	{
-		Camera->SetAngles(Latitude, Longitude, Distance,Camera->mTargetPosition, mCurrentStep, false);
+		Camera->SetAngles(Latitude, Longitude, Distance, Camera->mTargetPosition, mCurrentStep, false);
 		SaveCheckpoint(tr("Update Camera Globe"));
 		gMainWindow->UpdateAllViews();
 	}
@@ -3558,18 +3558,11 @@ bool lcModel::GetSelectionCenter(lcVector3& Center) const
 bool lcModel::GetPiecesBoundingBox(lcVector3& Min, lcVector3& Max) const
 {
 	bool Valid = false;
-/*** LPub3D Mod - Camera Globe Target Position ***/
-	bool setTargetPositon = lcGetProfileInt(LC_PROFILE_SET_TARGET_POSITION);
-/*** LPub3D Mod end ***/
 	Min = lcVector3(FLT_MAX, FLT_MAX, FLT_MAX);
 	Max = lcVector3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
 	for (lcPiece* Piece : mPieces)
 	{
-/*** LPub3D Mod - Camera Globe Target Position ***/
-		if (setTargetPositon && !Piece->IsSelected())
-			continue;
-/*** LPub3D Mod end ***/
 		if (Piece->IsVisible(mCurrentStep))
 		{
 			Piece->CompareBoundingBox(Min, Max);

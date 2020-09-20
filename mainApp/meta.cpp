@@ -2939,7 +2939,7 @@ SettingsMeta::SettingsMeta() : BranchMeta()
   zfar.setValue(gui->getDefaultCameraZFar());
   isOrtho.setValue(false);
   imageSize.setFormats(7,4,"###9");
-  imageSize.setRange(0.0f,1000.0f);
+  imageSize.setRange(0.0f,FLT_MAX);
   imageSize.setValues(0.0f,0.0f);
 }
 
@@ -4426,7 +4426,7 @@ AssemMeta::AssemMeta() : BranchMeta()
   zfar.setValue(gui->getDefaultCameraZFar());
   isOrtho.setValue(false);
   imageSize.setFormats(7,4,"###9");
-  imageSize.setRange(0.0f,1000.0f);
+  imageSize.setRange(0.0f,FLT_MAX);
   imageSize.setValues(0.0f,0.0f);
 }
 
@@ -4531,7 +4531,7 @@ PliMeta::PliMeta() : BranchMeta()
   zfar.setRange(1.0f,FLT_MAX);
   isOrtho.setValue(false);
   imageSize.setFormats(7,4,"###9");
-  imageSize.setRange(0.0f,1000.0f);
+  imageSize.setRange(0.0f,FLT_MAX);
   imageSize.setValues(0.0f,0.0f);
 
   // movable pli part groups
@@ -4662,7 +4662,7 @@ BomMeta::BomMeta() : PliMeta()
   zfar.setValue(gui->getDefaultCameraZFar());
   isOrtho.setValue(false);
   imageSize.setFormats(7,4,"###9");
-  imageSize.setRange(0.0f,1000.0f);
+  imageSize.setRange(0.0f,FLT_MAX);
   imageSize.setValues(0.0f,0.0f);
 
   // movable pli part groups
