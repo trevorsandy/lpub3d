@@ -3642,7 +3642,7 @@ Rc BuildModMeta::parse(QStringList &argv, int index, Where &here)
         missingMeta = argv[index];
     }
   } else if (index + 2 == argv.size()) {
-    QRegExp keyRx("^[A-Z0-9_#\\-\\s]*$",Qt::CaseInsensitive);
+    QRegExp keyRx("^.*$",Qt::CaseInsensitive);
     if (argv[index].contains(actionRx) && argv[index + 1].contains(keyRx)) {
       _value.action      = argv[index];
       _value.buildModKey = argv[index + 1];
@@ -3676,7 +3676,7 @@ QString BuildModMeta::format(bool local, bool global)
 {
   QString foo = _value.action;
   if (!_value.buildModKey.isEmpty())
-    foo += QString(" %1").arg(_value.buildModKey);
+    foo += QString(" \"%1\"").arg(_value.buildModKey);
 
   return LeafMeta::format(local,global,foo);
 }
