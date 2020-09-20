@@ -149,6 +149,7 @@ void EditWindow::createActions()
 
     delAct = new QAction(QIcon(":/resources/delete.png"), tr("&Delete"), this);
     delAct->setShortcut(tr("DEL"));
+    delAct->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     delAct->setStatusTip(tr("Delete the selection - DEL"));
     connect(delAct, SIGNAL(triggered()), _textEdit, SLOT(cut()));
 
