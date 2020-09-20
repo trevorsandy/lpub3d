@@ -900,7 +900,7 @@ void Step::maxMargin(
  *
  *     locate the proper row/col for those relative to CSI (absolute)
  *
- *     locate the proper row/col for those relative to (pli, stepNumber)
+ *     locate the proper row/col for those relative to (pli, stepNumber, subModel, RotateIcon)
  *
  *   determine the largest dimensions for each row/col in the table
  *
@@ -1687,10 +1687,10 @@ void Step::placeit(
           if(placeSubModel){
             subModel.justifyX(origins[subModel.tbl[y]],rows[subModel.tbl[y]]);
           }
-          if(placeRotateIcon) {
-              rotateIcon.justifyX(origins[rotateIcon.tbl[y]],rows[rotateIcon.tbl[y]]);
-          }
         }
+      if(placeRotateIcon) {
+          rotateIcon.justifyX(origins[rotateIcon.tbl[y]],rows[rotateIcon.tbl[y]]);
+      }
       stepNumber.justifyX(origins[stepNumber.tbl[y]],rows[stepNumber.tbl[y]]);
       break;
     case YY:
@@ -1699,10 +1699,10 @@ void Step::placeit(
           if(placeSubModel) {
             subModel.justifyY(origins[subModel.tbl[y]],rows[subModel.tbl[y]]);
           }
-          if(placeRotateIcon){
-              rotateIcon.justifyY(origins[rotateIcon.tbl[y]],rows[rotateIcon.tbl[y]]);
-          }
         }
+      if(placeRotateIcon){
+          rotateIcon.justifyY(origins[rotateIcon.tbl[y]],rows[rotateIcon.tbl[y]]);
+      }
       stepNumber.justifyY(origins[stepNumber.tbl[y]],rows[stepNumber.tbl[y]]);
       break;
     default:

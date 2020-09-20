@@ -541,10 +541,10 @@ void Gui::fileChanged(const QString &path)
   QString text = tr("\"%1\" contents were changed by an external source. Reload?").arg(path);
   box.setText (title);
   box.setInformativeText (text);
-  box.setStandardButtons (QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
-  box.setDefaultButton   (QMessageBox::Save);
+  box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
+  box.setDefaultButton   (QMessageBox::Yes);
 
-  if (box.exec() == QMessageBox::Save) {
+  if (box.exec() == QMessageBox::Yes) {
     changeAccepted = true;
     int goToPage = displayPageNum;
     QString fileName = path;
