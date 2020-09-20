@@ -130,7 +130,7 @@ void Gui::create3DActions()
     autoCenterSelectionAct->setChecked(lcGetProfileInt(LC_PROFILE_AUTO_CENTER_SELECTION));
     connect(autoCenterSelectionAct, SIGNAL(triggered()), this, SLOT(autoCenterSelection()));
 
-    defaultCameraPropertiesAct = new QAction(tr("Default Properties"),this);
+    defaultCameraPropertiesAct = new QAction(tr("Display Properties"),this);
     defaultCameraPropertiesAct->setStatusTip(tr("Display default camera properties in Properties tab"));
     defaultCameraPropertiesAct->setCheckable(true);
     defaultCameraPropertiesAct->setChecked(lcGetPreferences().mDefaultCameraProperties);
