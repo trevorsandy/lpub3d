@@ -432,6 +432,9 @@ bool EditWindow::saveFile()
 
 void EditWindow::highlightSelectedLines(QVector<int> &lines)
 {
+    disconnect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
+               this,                  SLOT(  contentsChange(int,int,int)));
+
     QTextCursor highlightCursor(_textEdit->document());
 
     QTextCursor textCursor(_textEdit->document());
@@ -474,6 +477,10 @@ void EditWindow::highlightSelectedLines(QVector<int> &lines)
     }
 
     textCursor.endEditBlock();
+
+    connect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
+            this,                  SLOT(  contentsChange(int,int,int)));
+
 }
 
 void EditWindow::highlightCurrentLine()

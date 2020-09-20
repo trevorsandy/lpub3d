@@ -2833,6 +2833,8 @@ Gui::Gui()
 
     undoStack = new QUndoStack();
     macroNesting = 0;
+    viewerUndo = false;
+    viewerRedo = false;
 
     lpubAlert = new LPubAlert();
 

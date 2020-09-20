@@ -1385,6 +1385,9 @@ private:
 
   QUndoStack     *undoStack;                 // the undo/redo stack
   int             macroNesting;
+  bool            viewerUndo;                 // suppress displayPage()
+  bool            viewerRedo;                 // suppress displayPage()
+
   bool            previousPageContinuousIsRunning;// stop the continuous previous page action
   bool            nextPageContinuousIsRunning;    // stop the continuous next page action
 

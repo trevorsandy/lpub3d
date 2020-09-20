@@ -99,28 +99,32 @@ void Gui::contentsChange(
 
 void Gui::undo()
 {
-  View* ActiveView = gMainWindow->GetActiveView();
-  lcModel* ActiveModel = ActiveView ? ActiveView->GetActiveModel() : nullptr;
-  if (ActiveModel)
-    ActiveModel->UndoAction();
-
-  macroNesting++;
-  undoStack->undo();
-  macroNesting--;
-  displayPage();
+  if (viewerUndo){
+    View* ActiveView = gMainWindow->GetActiveView();
+    lcModel* ActiveModel = ActiveView ? ActiveView->GetActiveModel() : nullptr;
+    if (ActiveModel)
+      ActiveModel->UndoAction();
+  } else {
+    macroNesting++;
+    undoStack->undo();
+    macroNesting--;
+    displayPage();
+  }
 }
 
 void Gui::redo()
 {
-  View* ActiveView = gMainWindow->GetActiveView();
-  lcModel* ActiveModel = ActiveView ? ActiveView->GetActiveModel() : nullptr;
-  if (ActiveModel)
-    ActiveModel->RedoAction();
-
-  macroNesting++;
-  undoStack->redo();
-  macroNesting--;
-  displayPage();
+  if (viewerRedo){
+    View* ActiveView = gMainWindow->GetActiveView();
+    lcModel* ActiveModel = ActiveView ? ActiveView->GetActiveModel() : nullptr;
+    if (ActiveModel)
+      ActiveModel->RedoAction();
+  } else {
+    macroNesting++;
+    undoStack->redo();
+    macroNesting--;
+    displayPage();
+  }
 }
 
 void Gui::canRedoChanged(bool enabled)

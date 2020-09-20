@@ -516,22 +516,26 @@ void Gui::UpdateViewerUndoRedo(const QString& UndoText, const QString& RedoText)
 {
     if (!UndoText.isEmpty())
     {
+        viewerUndo = true;
         undoAct->setEnabled(true);
         undoAct->setText(QString(tr("&Undo %1")).arg(UndoText));
     }
     else
     {
+        viewerUndo = false;
         undoAct->setEnabled(false);
         undoAct->setText(tr("&Undo"));
     }
 
     if (!RedoText.isEmpty())
     {
+        viewerRedo = true;
         redoAct->setEnabled(true);
         redoAct->setText(QString(tr("&Redo %1")).arg(RedoText));
     }
     else
     {
+        viewerRedo = false;
         redoAct->setEnabled(false);
         redoAct->setText(tr("&Redo"));
     }
