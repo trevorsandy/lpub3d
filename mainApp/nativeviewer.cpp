@@ -610,23 +610,33 @@ QStringList Gui::getViewerStepKeys(bool modelName, bool pliPart)
  *
  ********************************************/
 
-void Gui::setCurrentStep()
+void Gui::setCurrentStep(Step *step, Where here, int stepNumber)
 {
-    Where here;
-    int stepNumber;
-    Step *step = nullptr;
-
-    extractStepKey(here,stepNumber);
-
-    if (!stepNumber) {
-        currentStep = step;
-        return;
-    }
-
     bool stepMatch = false;
     bool multiStep = false;
     bool calledOut = false;
-    if ((multiStep = isViewerStepMultiStep(viewerStepKey))) {
+
+    if (step && (calledOut = isViewerStepCalledOut(viewerStepKey))) {
+        stepMatch = step->stepNumber.number == stepNumber;
+        if (! stepMatch) {
+            for (int k = 0; k < step->list.size() && !stepMatch; k++) {
+                if (step->list[k]->relativeType == CalloutType) {
+                    Callout *callout = dynamic_cast<Callout *>(step->list[k]);
+                    for (int l = 0; l < callout->list.size() && !stepMatch; l++){
+                        Range *range = dynamic_cast<Range *>(callout->list[l]);
+                        for (int m = 0; m < range->list.size() && !stepMatch; m++){
+                            if (range->relativeType == RangeType) {
+                                Step *step = dynamic_cast<Step *>(range->list[m]);
+                                if (step && step->relativeType == StepType){
+                                    setCurrentStep(step, here, stepNumber);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    } else if ((multiStep = isViewerStepMultiStep(viewerStepKey))) {
         for (int i = 0; i < page.list.size() && !stepMatch; i++){
             Range *range = dynamic_cast<Range *>(page.list[i]);
             for (int j = 0; j < range->list.size(); j++){
@@ -640,28 +650,8 @@ void Gui::setCurrentStep()
                 }
             }
         }
-    } else if ((calledOut = isViewerStepCalledOut(viewerStepKey))) {
-        for (int k = 0; k < step->list.size() && !stepMatch; k++) {
-            if (step->list[k]->relativeType == CalloutType) {
-                Callout *callout = dynamic_cast<Callout *>(step->list[k]);
-                for (int l = 0; l < callout->list.size() && !stepMatch; l++){
-                    Range *range = dynamic_cast<Range *>(callout->list[l]);
-                    for (int m = 0; m < range->list.size() && !stepMatch; m++){
-                        if (range->relativeType == RangeType) {
-                            Step *step = dynamic_cast<Step *>(range->list[m]);
-                            if (step && step->relativeType == StepType){
-                                stepMatch = step->stepNumber.number == stepNumber;
-                                if (stepMatch)
-                                    break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    } else {
-        if (gStep)
-            step = (stepMatch = gStep->stepNumber.number == stepNumber) ? gStep : nullptr;
+    } else if (gStep) {
+        step = (stepMatch = gStep->stepNumber.number == stepNumber) ? gStep : nullptr;
     }
 
     if (Preferences::debugLogging && !stepMatch)
@@ -671,6 +661,22 @@ void Gui::setCurrentStep()
                                            .arg(multiStep ? "multi step" : calledOut ? "called out" : "single step")
                                            .arg(here.modelName).arg(here.lineNumber));
     currentStep = step;
+}
+
+void Gui::setCurrentStep()
+{
+    Step *step = nullptr;
+    Where here;
+    int stepNumber;
+
+    extractStepKey(here,stepNumber);
+
+    if (!stepNumber) {
+        currentStep = step;
+        return;
+    }
+
+    setCurrentStep(step, here, stepNumber);
 }
 
 /*********************************************

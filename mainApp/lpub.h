@@ -756,6 +756,7 @@ public:
   }
 
   void setCurrentStep();
+  void setCurrentStep(Step *step, Where here, int stepNumber);
 
   Step *getCurrentStep()
   {
