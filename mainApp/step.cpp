@@ -286,6 +286,27 @@ int Step::createCsi(
                      .arg(double(csiStepMeta.target.y()))
                      .arg(double(csiStepMeta.target.z())));
 
+  // set imageMatteKey
+  QString imageMatteKey = QString("%1_%2").arg(csi_Name).arg(stepNumber.number);
+
+  // populate csiKey - Add CompareKey and ImageMatteKey if LDView Single Call
+  if (renderer->useLDViewSCall()) {
+      QString compareKey = keyPart2;
+      // append rotate type if specified
+      if (meta.rotStep.isPopulated())
+          compareKey.append(QString("_%1")
+                                  .arg(meta.rotStep.value().type.isEmpty() ? "REL" :
+                                       meta.rotStep.value().type));
+      csiKey = QString("CSI_%1|%2").arg(compareKey).arg(imageMatteKey);
+      // add LDView parms to csiKey if not empty
+      if (!ldviewParms.value().isEmpty())
+          csiKey.append(QString("|%1").arg(ldviewParms.value()));
+  }
+  // add add ImageMatteKey
+  else {
+      csiKey = imageMatteKey;
+  }
+
   // append rotstep if specified
   if (meta.rotStep.isPopulated())
       keyPart2.append(QString("_%1")
@@ -299,13 +320,11 @@ int Step::createCsi(
   // populate png name
   pngName = QDir::toNativeSeparators(QString("%1/%2.png").arg(csiPngFilePath).arg(key));
 
-  // create ImageMatte csiKey
-  csiKey = QString("%1_%2").arg(csi_Name).arg(stepNumber.number);
-
   // add csiKey and pngName to ImageMatte repository - exclude first step
+
   if (Preferences::enableFadeSteps && Preferences::enableImageMatting && !invalidIMStep) {
-      if (!LDVImageMatte::validMatteCSIImage(csiKey))
-          LDVImageMatte::insertMatteCSIImage(csiKey, pngName);
+      if (!LDVImageMatte::validMatteCSIImage(imageMatteKey))
+          LDVImageMatte::insertMatteCSIImage(imageMatteKey, pngName);
     }
 
   // Check if png file date modified is older than model file (on the stack) date modified

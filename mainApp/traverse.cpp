@@ -1547,7 +1547,7 @@ int Gui::drawPage(
                       page->selectedSceneItems   = selectedSceneItems;
                     }
 
-                  emit messageSig(LOG_STATUS, "Add CSI images for multi-step page " + opts.current.modelName);
+                  emit messageSig(LOG_STATUS, "Generate CSI images for multi-step page " + opts.current.modelName);
 
                   if (renderer->useLDViewSCall() && opts.ldrStepFiles.size() > 0){
 
@@ -1555,24 +1555,15 @@ int Gui::drawPage(
                       timer.start();
                       QString empty("");
 
-                      // set camera
-                      steps->meta.LPub.assem.cameraAngles   = gStep->csiStepMeta.cameraAngles;
-                      steps->meta.LPub.assem.cameraDistance = gStep->csiStepMeta.cameraDistance;
-                      steps->meta.LPub.assem.modelScale     = gStep->csiStepMeta.modelScale;
-                      steps->meta.LPub.assem.cameraFoV      = gStep->csiStepMeta.cameraFoV;
-                      steps->meta.LPub.assem.isOrtho        = gStep->csiStepMeta.isOrtho;
-                      steps->meta.LPub.assem.imageSize      = gStep->csiStepMeta.imageSize;
-                      steps->meta.LPub.assem.zfar           = gStep->csiStepMeta.zfar;
-                      steps->meta.LPub.assem.znear          = gStep->csiStepMeta.znear;
-                      steps->meta.LPub.assem.target         = gStep->csiStepMeta.target;
-
                       // set the extra renderer parms
-                      steps->meta.LPub.assem.ldviewParms =
-                           Render::getRenderer() == RENDERER_LDVIEW ?  gStep->ldviewParms :
-                           Render::getRenderer() == RENDERER_LDGLITE ? gStep->ldgliteParms :
-                                         /*POV scene file generator*/  gStep->ldviewParms ;
-                      if (Preferences::preferredRenderer == RENDERER_POVRAY)
-                          steps->meta.LPub.assem.povrayParms = gStep->povrayParms;
+                      if (step) {
+                          steps->meta.LPub.assem.ldviewParms =
+                                  Render::getRenderer() == RENDERER_LDVIEW ?  step->ldviewParms :
+                                  Render::getRenderer() == RENDERER_LDGLITE ? step->ldgliteParms :
+                                                /*POV scene file generator*/  step->ldviewParms ;
+                          if (Preferences::preferredRenderer == RENDERER_POVRAY)
+                              steps->meta.LPub.assem.povrayParms = step->povrayParms;
+                      }
 
                       int rc = renderer->renderCsi(empty,opts.ldrStepFiles,opts.csiKeys,empty,steps->meta);
                       if (rc != 0) {
@@ -1949,7 +1940,7 @@ int Gui::drawPage(
                           }
                       }
 
-                      emit messageSig(LOG_INFO, "Add CSI image for single-step page...");
+                      emit messageSig(LOG_INFO, "Generate CSI image for single-step page...");
 
                       if (renderer->useLDViewSCall() && opts.ldrStepFiles.size() > 0){
 
@@ -1957,23 +1948,13 @@ int Gui::drawPage(
                           timer.start();
                           QString empty("");
 
-                          // set camera
-                          steps->meta.LPub.assem.cameraAngles   = gStep->csiStepMeta.cameraAngles;
-                          steps->meta.LPub.assem.cameraDistance = gStep->csiStepMeta.cameraDistance;
-                          steps->meta.LPub.assem.modelScale     = gStep->csiStepMeta.modelScale;
-                          steps->meta.LPub.assem.cameraFoV      = gStep->csiStepMeta.cameraFoV;
-                          steps->meta.LPub.assem.isOrtho        = gStep->csiStepMeta.isOrtho;
-                          steps->meta.LPub.assem.zfar           = gStep->csiStepMeta.zfar;
-                          steps->meta.LPub.assem.znear          = gStep->csiStepMeta.znear;
-                          steps->meta.LPub.assem.target         = gStep->csiStepMeta.target;
-
                           // set the extra renderer parms
                           steps->meta.LPub.assem.ldviewParms =
-                               Render::getRenderer() == RENDERER_LDVIEW ?  gStep->ldviewParms :
-                               Render::getRenderer() == RENDERER_LDGLITE ? gStep->ldgliteParms :
-                                             /*POV scene file generator*/  gStep->ldviewParms ;
+                               Render::getRenderer() == RENDERER_LDVIEW ?  step->ldviewParms :
+                               Render::getRenderer() == RENDERER_LDGLITE ? step->ldgliteParms :
+                                             /*POV scene file generator*/  step->ldviewParms ;
                           if (Preferences::preferredRenderer == RENDERER_POVRAY)
-                              steps->meta.LPub.assem.povrayParms = gStep->povrayParms;
+                              steps->meta.LPub.assem.povrayParms = step->povrayParms;
 
                           // render the partially assembled model
                           int rc = renderer->renderCsi(empty,opts.ldrStepFiles,opts.csiKeys,empty,steps->meta);

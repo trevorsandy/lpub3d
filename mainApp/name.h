@@ -100,8 +100,8 @@ enum SubAttributes {
     sRemove           // 16
 };
 enum NameKeyAttributes {
-    nType = 0,        // 0
-    nColorCode,       // 1
+    nType = 0,        // 0 Set to CSI for CSI type
+    nColorCode,       // 1 This is Step Number for CSI type
     nPageWidth,       // 2
     nResolution,      // 3
     nResType,         // 4
@@ -109,40 +109,39 @@ enum NameKeyAttributes {
     nCameraFoV,       // 6
     nCameraAngleXX,   // 7
     nCameraAngleYY,   // 8
-    nBaseAttributes = nCameraAngleYY,  // 9 elements
+    nBaseAttributes      = nCameraAngleYY,  // 8th element
     nTargetX,         // 9
-    nRotX = nTargetX,
+    nRotX                = nTargetX,
     nTargetY,         // 10
-    nRotY = nTargetY,
+    nRotY                = nTargetY,
     nTargetZ,         // 11
-    nRotZ = nTargetZ,
-    nHasTarget = nTargetZ,             // 12 elements
+    nRotZ                = nTargetZ,
+    nHasTarget           = nTargetZ,       // 11th element
     nRot_X,           // 12
-    nRotTrans = nRot_X,
-    nHasRotstep = nRotTrans,           // 13 elements
+    nRotTrans            = nRot_X,
+    nHasRotstep          = nRotTrans,      // 12th element
     nRot_Y,           // 13
     nRot_Z,           // 14
     nRot_Trans,       // 15
-    nHasTargetAndRotstep = nRot_Trans, // 16 elements
+    nHasTargetAndRotstep = nRot_Trans,     // 15th element
     nSub              // 16 Used by LDView single call
 };
-
 enum NameKeyAttributes2{
-    K_STEPNUMBER = 0,  // 0  not used
-    K_IMAGEWIDTH,      // 1  not used
-    K_RESOLUTION,      // 2
-    K_RESOLUTIONTYPE,  // 3
-    K_MODELSCALE,      // 4
-    K_FOV,             // 5  not used
-    K_LATITUDE,        // 6
-    K_LONGITUDE,       // 7
-    K_TARGETX,         // 8
-    K_TARGETY,         // 9
-    K_TARGETZ,         // 10
-    K_ROTSX,           // 11
-    K_ROTSY,           // 12
-    K_ROTSZ,           // 13
-    K_ROTSTYPE         // 14
+    K_STEPNUMBER = 0, // 0  not used
+    K_IMAGEWIDTH,     // 1  not used
+    K_RESOLUTION,     // 2
+    K_RESOLUTIONTYPE, // 3
+    K_MODELSCALE,     // 4
+    K_FOV,            // 5  not used
+    K_LATITUDE,       // 6
+    K_LONGITUDE,      // 7
+    K_TARGETX,        // 8
+    K_TARGETY,        // 9
+    K_TARGETZ,        // 10
+    K_ROTSX,          // 11
+    K_ROTSY,          // 12
+    K_ROTSZ,          // 13
+    K_ROTSTYPE        // 14
 };
 
 const int GridSizeTable[] = { 10, 20, 30, 40, 50, 60, 70, 80, 90 };

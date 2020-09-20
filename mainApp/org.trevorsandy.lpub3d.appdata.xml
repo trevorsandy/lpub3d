@@ -68,7 +68,7 @@
         <binary>lpub3d24</binary>
     ​</provides>
     <releases>
-        <release version="2.4.0.1730" date="2020-09-20">
+        <release version="2.4.0.1731" date="2020-09-20">
             <description>
                 <p>LPub3D Linux AppImage package</p>
             </description>
