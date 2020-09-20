@@ -29,7 +29,6 @@ struct lcPreferencesDialogOptions
 	int CheckForUpdates;
 
 	int AASamples;
-	int StudLogo;
 
 	lcArray<lcLibraryCategory> Categories;
 	bool CategoriesModified;

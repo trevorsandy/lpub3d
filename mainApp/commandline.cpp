@@ -15,7 +15,6 @@
 ****************************************************************************/
 
 #include "application.h"
-#include "lc_profile.h"
 #include "lpub.h"
 
 int Gui::processCommandLine()
@@ -31,7 +30,6 @@ int Gui::processCommandLine()
   // Declarations
    int fadeStepsOpacity    = FADE_OPACITY_DEFAULT;
    int highlightLineWidth  = HIGHLIGHT_LINE_WIDTH_DEFAULT;
-   int StudLogo            = lcGetProfileInt(LC_PROFILE_STUD_LOGO);
   bool processExport       = false;
   bool processFile         = false;
   bool fadeSteps           = false;
@@ -140,11 +138,6 @@ int Gui::processCommandLine()
       if (Param == QLatin1String("-hc") || Param == QLatin1String("--highlight-step-color"))
         ParseString(highlightStepColour, false);
       else
-      if (Param == QLatin1String("-sl") || Param == QLatin1String("--stud-logo"))
-      {
-        ParseInteger(StudLogo);
-        lcSetProfileInt(LC_PROFILE_STUD_LOGO, StudLogo);
-      } else
 //      if (Param == QLatin1String("-im") || Param == QLatin1String("--image-matte"))
 //        imageMatting = true;
 //      else

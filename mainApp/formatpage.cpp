@@ -722,6 +722,19 @@ int Gui::addGraphicsPageItems(
                       step->subModel.addSubModel(step->submodelLevel, pageBg);
                   }
 
+                  // add the RotateIcon graphically to the scene
+
+                  RotateIconItem *rotateIcon = nullptr;
+                  if (step->placeRotateIcon && page->meta.LPub.rotateIcon.display.value()) {
+                      step->rotateIcon.sizeit();
+                      rotateIcon =
+                              new RotateIconItem(
+                                  step,
+                                  page->relativeType,
+                                  step->rotateIconMeta,
+                                  pageBg);
+                  }
+
                   // add the PLI graphically to the scene
 
                   step->pli.addPli(step->submodelLevel, pageBg);
@@ -771,24 +784,25 @@ int Gui::addGraphicsPageItems(
                   step->pli.setPos(step->pli.loc[XX],
                                    step->pli.loc[YY]);
 
-                  // allocate QGraphicsPixmapItem for rotate icon
+                  // place the RotateIcon
 
-                  if (step->placeRotateIcon && page->meta.LPub.rotateIcon.display.value()) {
-
-                      step->rotateIcon.sizeit();
-                      RotateIconItem *rotateIcon =
-                          new RotateIconItem(
-                            step,
-                            page->relativeType,
-                            page->meta.LPub.rotateIcon,
-                            pageBg);
+                  if (rotateIcon) {
                       rotateIcon->setPos(step->rotateIcon.loc[XX],
                                          step->rotateIcon.loc[YY]);
-                      rotateIcon->relativeToSize[0] = step->rotateIcon.relativeToSize[0];
-                      rotateIcon->relativeToSize[1] = step->rotateIcon.relativeToSize[1];
+
+                      PlacementData pld = step->rotateIcon.placement.value();
+                      if (pld.offsets[XX] != 0.0f || pld.offsets[YY] != 0.0f) {
+                          rotateIcon->relativeToSize[0] = step->rotateIcon.relativeToSize[0];
+                          rotateIcon->relativeToSize[1] = step->rotateIcon.relativeToSize[1];
+                      } else {
+                          rotateIcon->assign(&step->rotateIcon);
+                          rotateIcon->boundingSize[XX] = step->rotateIcon.size[XX];
+                          rotateIcon->boundingSize[YY] = step->rotateIcon.size[YY];
+                      }
+
                       rotateIcon->setFlag(QGraphicsItem::ItemIsMovable,true);
                       rotateIcon->setZValue(page->meta.LPub.page.scene.rotateIconBackground.zValue());
-                    }
+                  }
 
                   // allocate QGraphicsTextItem for step number
 

@@ -10,7 +10,7 @@ class lcQPreferencesDialog;
 class lcQPreferencesDialog : public QDialog
 {
 	Q_OBJECT
-	
+    
 public:
 	lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogOptions* Options);
 	~lcQPreferencesDialog();
@@ -55,7 +55,6 @@ public slots:
 	void on_mouseAssign_clicked();
 	void on_mouseRemove_clicked();
 	void on_mouseReset_clicked();
-	void on_studLogo_toggled();
 	void MouseTreeItemChanged(QTreeWidgetItem* Current);
 
 /*** LPub3D Mod - Native Renderer settings ***/

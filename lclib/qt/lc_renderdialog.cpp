@@ -11,32 +11,6 @@
 #define LC_POVRAY_MEMORY_MAPPED_FILE 1
 #endif
 
-void lcRenderPreviewWidget::resizeEvent(QResizeEvent* Event)
-{
-	mScaledImage = QImage();
-
-	QWidget::resizeEvent(Event);
-}
-
-void lcRenderPreviewWidget::paintEvent(QPaintEvent* PaintEvent)
-{
-	Q_UNUSED(PaintEvent);
-
-	QPainter Painter(this);
-
-	if (!mImage.isNull())
-	{
-		QSize Size = size();
-
-		if (mScaledImage.isNull())
-			mScaledImage = mImage.scaled(Size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-
-		Painter.drawImage((Size.width() - mScaledImage.width()) / 2, (Size.height() - mScaledImage.height()) / 2, mScaledImage);
-	}
-	else
-		Painter.fillRect(rect(), Qt::white);
-}
-
 lcRenderDialog::lcRenderDialog(QWidget* Parent)
 	: QDialog(Parent),
 	ui(new Ui::lcRenderDialog)
@@ -56,7 +30,7 @@ lcRenderDialog::lcRenderDialog(QWidget* Parent)
 
 	QImage Image(LC_POVRAY_PREVIEW_WIDTH, LC_POVRAY_PREVIEW_HEIGHT, QImage::Format_RGB32);
 	Image.fill(QColor(255, 255, 255));
-	ui->preview->SetImage(Image);
+	ui->preview->setPixmap(QPixmap::fromImage(Image));
 
 	connect(&mUpdateTimer, SIGNAL(timeout()), this, SLOT(Update()));
 	mUpdateTimer.start(500);
@@ -140,13 +114,13 @@ void lcRenderDialog::on_RenderButton_clicked()
 
 	QStringList Arguments;
 
-	Arguments.append(QString::fromLatin1("+I\"%1\"").arg(FileName));
+	Arguments.append(QString::fromLatin1("+I%1").arg(FileName));
 	Arguments.append(QString::fromLatin1("+W%1").arg(ui->WidthEdit->text()));
 	Arguments.append(QString::fromLatin1("+H%1").arg(ui->HeightEdit->text()));
 	Arguments.append("-O-");
 
 #if LC_POVRAY_MEMORY_MAPPED_FILE
-	Arguments.append(QString::fromLatin1("+SM\"%1\"").arg(GetOutputFileName()));
+	Arguments.append(QString::fromLatin1("+SM%1").arg(GetOutputFileName()));
 #endif
 
 	int Quality = ui->QualityComboBox->currentIndex();
@@ -199,10 +173,6 @@ void lcRenderDialog::on_RenderButton_clicked()
 #endif
 	mProcess->start(POVRayPath, Arguments);
 
-	mImage = QImage(ui->WidthEdit->text().toInt(), ui->HeightEdit->text().toInt(), QImage::Format_ARGB32);
-	mImage.fill(QColor(255, 255, 255));
-	ui->preview->SetImage(mImage);
-
 	if (mProcess->waitForStarted())
 	{
 		ui->RenderButton->setText(tr("Cancel"));
@@ -243,9 +213,9 @@ void lcRenderDialog::Update()
 #ifdef Q_OS_LINUX
 		QByteArray Output = mProcess->readAllStandardOutput();
 		mImage = QImage::fromData(Output);
+		ShowResult();
 #endif
 
-		ShowResult();
 		CloseProcess();
 	}
 #endif
@@ -285,6 +255,9 @@ void lcRenderDialog::Update()
 	int Height = Header->Height;
 	int PixelsWritten = Header->PixelsWritten;
 
+	if (!Header->PixelsRead)
+		mImage = QImage(Width, Height, QImage::Format_ARGB32);
+
 	quint8* Pixels = (quint8*)(Header + 1);
 
 	for (int y = 0; y < Height; y++)
@@ -301,7 +274,10 @@ void lcRenderDialog::Update()
 	ui->RenderProgress->setMaximum(mImage.width() * mImage.height());
 	ui->RenderProgress->setValue(int(Header->PixelsRead));
 
-	ui->preview->SetImage(mImage);
+	ui->preview->setPixmap(QPixmap::fromImage(mImage.scaled(LC_POVRAY_PREVIEW_WIDTH, LC_POVRAY_PREVIEW_HEIGHT, Qt::KeepAspectRatio, Qt::SmoothTransformation)));
+
+	if (PixelsWritten == Width * Height)
+		ShowResult();
 #endif
 }
 
@@ -314,16 +290,16 @@ void lcRenderDialog::ShowResult()
 	if (Error)
 	{
 		WriteStdLog(Error);
-		QMessageBox MessageBox;
-		MessageBox.setWindowTitle(tr("Error"));
-		MessageBox.setIcon(QMessageBox::Information);
-		MessageBox.setText(tr("An error occurred while rendering. Check details or try again."));
-		MessageBox.setDetailedText(mStdErrList.join(QString()));
-		MessageBox.exec();
+		QMessageBox error;
+		error.setWindowTitle(tr("Error"));
+		error.setIcon(QMessageBox::Critical);
+		error.setText(tr("An error occurred while rendering. Check details or try again."));
+		error.setDetailedText(mStdErrList.join(""));
+		error.exec();
 		return;
 	}
 
-	ui->preview->SetImage(mImage);
+	ui->preview->setPixmap(QPixmap::fromImage(mImage.scaled(LC_POVRAY_PREVIEW_WIDTH, LC_POVRAY_PREVIEW_HEIGHT, Qt::KeepAspectRatio, Qt::SmoothTransformation)));
 
 	QString FileName = ui->OutputEdit->text();
 

@@ -44,9 +44,7 @@ lcPiece::lcPiece(const lcPiece& Other)
 	mStepHide = Other.mStepHide;
 	mGroup = Other.mGroup;
 	mFileLine = -1;
-
 	mPivotMatrix = Other.mPivotMatrix;
-	mState |= ( Other.mState & LC_PIECE_PIVOT_POINT_VALID );
 
 	mPositionKeys = Other.mPositionKeys;
 	mRotationKeys = Other.mRotationKeys;

@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tabRendering">
       <attribute name="title">
@@ -366,67 +366,18 @@
        <item row="0" column="0" colspan="2">
         <widget class="QWidget" name="widget" native="true">
          <layout class="QGridLayout" name="gridLayout">
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="antiAliasing">
-            <property name="text">
-             <string>Anti-aliasing</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLineEdit" name="lineWidth">
-            <property name="maximumSize">
-             <size>
-              <width>75</width>
-              <height>16777215</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
+          <item row="2" column="0">
            <widget class="QCheckBox" name="edgeLines">
             <property name="text">
              <string>Edge lines</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="3">
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="1" column="4">
-           <widget class="QLabel" name="label_3">
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="antiAliasing">
             <property name="text">
-             <string>Shading Mode:</string>
+             <string>Anti-aliasing</string>
             </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QComboBox" name="antiAliasingSamples">
-            <item>
-             <property name="text">
-              <string>2x</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>4x</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>8x</string>
-             </property>
-            </item>
            </widget>
           </item>
           <item row="1" column="5">
@@ -448,47 +399,34 @@
             </item>
            </widget>
           </item>
-          <item row="3" column="2">
-           <widget class="QLabel" name="label_2">
+          <item row="1" column="4">
+           <widget class="QLabel" name="label_3">
             <property name="text">
-             <string>width</string>
+             <string>Shading Mode:</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
-           <widget class="QCheckBox" name="studLogo">
-            <property name="text">
-             <string>Stud Logo</string>
+          <item row="1" column="3">
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
             </property>
-           </widget>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
           </item>
           <item row="2" column="1">
-           <widget class="QComboBox" name="studLogoCombo">
-            <item>
-             <property name="text">
-              <string>Logo1</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Logo2</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Logo3</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Logo4</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Logo5</string>
-             </property>
-            </item>
+           <widget class="QLineEdit" name="lineWidth">
+            <property name="maximumSize">
+             <size>
+              <width>75</width>
+              <height>16777215</height>
+             </size>
+            </property>
            </widget>
           </item>
           <item row="2" column="4">
@@ -496,6 +434,32 @@
             <property name="text">
              <string>Axis icon</string>
             </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>width</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="antiAliasingSamples">
+            <item>
+             <property name="text">
+              <string>2x</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>4x</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>8x</string>
+             </property>
+            </item>
            </widget>
           </item>
          </layout>
@@ -580,7 +544,7 @@
                <string>...</string>
               </property>
               <property name="icon">
-               <iconset>
+               <iconset resource="../../../leocad/leocad.qrc">
                 <normaloff>:/resources/file_open.png</normaloff>:/resources/file_open.png</iconset>
               </property>
              </widget>
@@ -591,7 +555,7 @@
                <string>...</string>
               </property>
               <property name="icon">
-               <iconset>
+               <iconset resource="../../../leocad/leocad.qrc">
                 <normaloff>:/resources/archive.png</normaloff>:/resources/archive.png</iconset>
               </property>
              </widget>
@@ -630,7 +594,7 @@
              <widget class="QLineEdit" name="ColorConfigEdit"/>
             </item>
             <item>
-             <widget class="QToolButton" name="ColorConfigBrowseButton">
+             <widget class="QToolButton" name="ColorConfigBrowse">
               <property name="text">
                <string>...</string>
               </property>
@@ -670,7 +634,7 @@
              <widget class="QLineEdit" name="MinifigSettingsEdit"/>
             </item>
             <item>
-             <widget class="QToolButton" name="MinifigSettingsBrowseButton">
+             <widget class="QToolButton" name="MinifigSettingsBrowse">
               <property name="text">
                <string>...</string>
               </property>
@@ -1428,7 +1392,7 @@
   <tabstop>mouseRemove</tabstop>
  </tabstops>
  <resources>
-  <include location="../../../hold/leocad/leocad.qrc"/>
+  <include location="../../../leocad/leocad.qrc"/>
  </resources>
  <connections>
   <connection>

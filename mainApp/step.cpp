@@ -100,8 +100,6 @@ Step::Step(
       csiPlacement.placement  = _meta.LPub.callout.csi.placement;
       pli.margin              = _meta.LPub.callout.pli.margin;
       pli.placement           = _meta.LPub.callout.pli.placement;
-      rotateIcon.placement    = _meta.LPub.callout.rotateIcon.placement;
-      rotateIcon.margin       = _meta.LPub.callout.rotateIcon.margin;
       rotateIconMeta          = _meta.LPub.callout.rotateIcon;
       numberPlacemetMeta      = _meta.LPub.callout.stepNum;
       stepNumber.placement    = _meta.LPub.callout.stepNum.placement;
@@ -116,8 +114,6 @@ Step::Step(
       csiPlacement.placement  = _meta.LPub.multiStep.csi.placement;
       pli.margin              = _meta.LPub.multiStep.pli.margin;
       pli.placement           = _meta.LPub.multiStep.pli.placement;
-      rotateIcon.placement    = _meta.LPub.multiStep.rotateIcon.placement;
-      rotateIcon.margin       = _meta.LPub.multiStep.rotateIcon.margin;
       rotateIconMeta          = _meta.LPub.multiStep.rotateIcon;
       numberPlacemetMeta      = _meta.LPub.multiStep.stepNum;
       stepNumber.placement    = _meta.LPub.multiStep.stepNum.placement;
@@ -135,8 +131,7 @@ Step::Step(
       placement               = _meta.LPub.assem.placement;
       pli.margin              = _meta.LPub.pli.margin;
       pli.placement           = _meta.LPub.pli.placement;
-      rotateIcon.placement    = _meta.LPub.rotateIcon.placement;
-      rotateIcon.margin       = _meta.LPub.rotateIcon.margin;
+      rotateIconMeta          = _meta.LPub.rotateIcon;
       stepNumber.placement    = _meta.LPub.stepNumber.placement;
       stepNumber.font         = _meta.LPub.stepNumber.font.valueFoo();
       stepNumber.color        = _meta.LPub.stepNumber.color.value();
@@ -165,8 +160,12 @@ Step::Step(
   povrayParms               = _meta.LPub.assem.povrayParms;
 
   showStepNumber            = _meta.LPub.assem.showStepNumber.value();
-  rotateIcon.setSize(         _meta.LPub.rotateIcon.size,
-                              _meta.LPub.rotateIcon.border.valuePixels().thickness);
+
+  rotateIcon.placement      = rotateIconMeta.placement;
+  rotateIcon.margin         = rotateIconMeta.margin;
+  rotateIcon.setSize(         rotateIconMeta.size,
+                              rotateIconMeta.border.valuePixels().thickness);
+
   placeSubModel             = false;
   placeRotateIcon           = false;
   placeCsiAnnotation        = false;

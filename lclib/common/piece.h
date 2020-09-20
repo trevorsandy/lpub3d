@@ -535,7 +535,6 @@ public:
 	void ResetPivotPoint()
 	{
 		mState &= ~LC_PIECE_PIVOT_POINT_VALID;
-		mPivotMatrix = lcMatrix44Identity();
 	}
 
 public:
