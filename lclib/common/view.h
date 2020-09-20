@@ -80,11 +80,6 @@ public:
 	void SetTopSubmodelActive();
 	void SetSelectedSubmodelActive();
 
-	void SetHighlight(bool Highlight)
-	{
-		mHighlight = Highlight;
-	}
-
 	static void CreateResources(lcContext* Context);
 	static void DestroyResources(lcContext* Context);
 
@@ -209,7 +204,6 @@ protected:
 	int mMouseDownY;
 	lcVector3 mMouseDownPosition;
 	PieceInfo* mMouseDownPiece;
-	bool mHighlight;
 	QImage mRenderImage;
 	std::pair<lcFramebuffer, lcFramebuffer> mRenderFramebuffer;
 	lcViewSphere mViewSphere;

@@ -112,6 +112,7 @@ lcMainWindow::lcMainWindow(QMainWindow *parent) :
 	mMoveZSnapIndex = 3;
 	mAngleSnapIndex = 5;
 	mRelativeTransform = true;
+	mLocalTransform = false;
 	mCurrentPieceInfo = nullptr;
 	mSelectionMode = lcSelectionMode::SINGLE;
 	mModelTabWidget = nullptr;
@@ -1550,7 +1551,7 @@ void lcMainWindow::Print(QPrinter* Printer)
 
 				lcModel* Model = PageLayouts[Page - 1].first;
 				lcStep Step = PageLayouts[Page - 1].second;
-				QImage Image = Model->GetStepImage(false, false, StepWidth, StepHeight, Step);
+				QImage Image = Model->GetStepImage(false, StepWidth, StepHeight, Step);
 
 				Painter.drawImage(MarginRect.left(), MarginRect.top(), Image);
 
@@ -2099,6 +2100,11 @@ void lcMainWindow::SetRelativeTransform(bool RelativeTransform)
 	mRelativeTransform = RelativeTransform;
 	UpdateLockSnap();
 	UpdateAllViews();
+}
+
+void lcMainWindow::SetLocalTransform(bool SelectionTransform)
+{
+	mLocalTransform = SelectionTransform;
 }
 
 void lcMainWindow::SetTransformType(lcTransformType TransformType)
@@ -3671,6 +3677,10 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 
 	case LC_EDIT_TRANSFORM_RELATIVE:
 		SetRelativeTransform(!GetRelativeTransform());
+		break;
+
+	case LC_EDIT_TRANSFORM_LOCAL:
+		SetLocalTransform(!GetLocalTransform());
 		break;
 
 	case LC_EDIT_SNAP_MOVE_TOGGLE:

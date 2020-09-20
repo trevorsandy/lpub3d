@@ -4,16 +4,10 @@
 #include "lc_array.h"
 #include "lc_application.h"
 
-#define LC_SCENE_BG				0x010	// Draw bg image
-#define LC_SCENE_BG_TILE		0x040	// Tile bg image
-#define LC_SCENE_GRADIENT		0x100	// Draw gradient
-
 #define LC_HTML_SINGLEPAGE    0x01
 #define LC_HTML_INDEX         0x02
-#define LC_HTML_IMAGES        0x04
 #define LC_HTML_LISTEND       0x08
 #define LC_HTML_LISTSTEP      0x10
-#define LC_HTML_HIGHLIGHT     0x20
 #define LC_HTML_SUBMODELS     0x40
 #define LC_HTML_CURRENT_ONLY  0x80
 
@@ -31,13 +25,11 @@ public:
 	bool IndexPage;
 	int StepImagesWidth;
 	int StepImagesHeight;
-	bool HighlightNewParts;
+/*** LPub3D Mod - Highlight New Parts ***/
+    bool HighlightNewParts;
+/*** LPub3D Mod end ***/
 	bool PartsListStep;
 	bool PartsListEnd;
-	bool PartsListImages;
-	int PartImagesColor;
-	int PartImagesWidth;
-	int PartImagesHeight;
 /*** LPub3D Mod - Fade Previous Steps ***/
 	bool FadeSteps;
 /*** LPub3D Mod end ***/

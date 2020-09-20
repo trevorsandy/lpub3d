@@ -2858,7 +2858,6 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
         lcContext* Context = ActiveView->mContext;
         View View(ActiveModel);
         View.SetCamera(Camera, false);
-        View.SetHighlight(false);
         View.SetContext(Context);
 
         if ((rc = View.BeginRenderToImage(ImageWidth, ImageHeight))) {

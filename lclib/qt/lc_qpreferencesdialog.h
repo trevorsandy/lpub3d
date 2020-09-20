@@ -35,6 +35,8 @@ public slots:
 	void ColorButtonClicked();
 	void on_antiAliasing_toggled();
 	void on_edgeLines_toggled();
+	void on_FadeSteps_toggled();
+	void on_HighlightNewParts_toggled();
 	void on_gridStuds_toggled();
 	void on_gridLines_toggled();
 	void on_ViewSphereSizeCombo_currentIndexChanged(int Index);

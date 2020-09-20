@@ -200,6 +200,11 @@ public:
 		return mRelativeTransform;
 	}
 
+	bool GetLocalTransform() const
+	{
+		return mLocalTransform;
+	}
+
 	lcSelectionMode GetSelectionMode() const
 	{
 		return mSelectionMode;
@@ -298,6 +303,7 @@ public:
 	void SetMoveZSnapIndex(int Index);
 	void SetAngleSnapIndex(int Index);
 	void SetRelativeTransform(bool RelativeTransform);
+	void SetLocalTransform(bool SelectionTransform);
 	void SetCurrentPieceInfo(PieceInfo* Info);
 	void SetShadingMode(lcShadingMode ShadingMode);
 	void SetSelectionMode(lcSelectionMode SelectionMode);
@@ -481,6 +487,7 @@ protected:
 	int mMoveZSnapIndex;
 	int mAngleSnapIndex;
 	bool mRelativeTransform;
+	bool mLocalTransform;
 	PieceInfo* mCurrentPieceInfo;
 	lcSelectionMode mSelectionMode;
 	int mModelTabWidgetContextMenuIndex;

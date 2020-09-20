@@ -37,7 +37,6 @@ lcHTMLExportOptions::lcHTMLExportOptions(const Project* Project)
 	IndexPage = (HTMLOptions & LC_HTML_INDEX) != 0;
 	StepImagesWidth = lcGetProfileInt(LC_PROFILE_HTML_IMAGE_WIDTH);
 	StepImagesHeight = lcGetProfileInt(LC_PROFILE_HTML_IMAGE_HEIGHT);
-	HighlightNewParts = (HTMLOptions & LC_HTML_HIGHLIGHT) != 0;
 	PartsListStep = (HTMLOptions & LC_HTML_LISTSTEP) != 0;
 	PartsListEnd = (HTMLOptions & LC_HTML_LISTEND) != 0;
 /*** LPub3D Mod - Fade Previous Steps ***/
@@ -57,8 +56,6 @@ void lcHTMLExportOptions::SaveDefaults()
 		HTMLOptions |= LC_HTML_SINGLEPAGE;
 	if (IndexPage)
 		HTMLOptions |= LC_HTML_INDEX;
-	if (HighlightNewParts)
-		HTMLOptions |= LC_HTML_HIGHLIGHT;
 	if (PartsListStep)
 		HTMLOptions |= LC_HTML_LISTSTEP;
 	if (PartsListEnd)
@@ -1744,7 +1741,7 @@ void Project::ExportHTML(const lcHTMLExportOptions& Options)
 		}
 
 		QString StepImageBaseName = QFileInfo(Dir, BaseName + QLatin1String("-%1.png")).absoluteFilePath();
-		Model->SaveStepImages(StepImageBaseName, true, false, Options.HighlightNewParts, Options.StepImagesWidth, Options.StepImagesHeight, 1, LastStep);
+		Model->SaveStepImages(StepImageBaseName, true, false, Options.StepImagesWidth, Options.StepImagesHeight, 1, LastStep);
 	}
 
 	if (Models.GetSize() > 1)
@@ -2260,7 +2257,7 @@ void Project::SaveImage()
 		lcSetProfileInt(LC_PROFILE_FADE_STEPS, false);
 /*** LPub3D Mod end ***/
 
-	mActiveModel->SaveStepImages(Dialog.mFileName, Dialog.mStart != Dialog.mEnd, false, false, Dialog.mWidth, Dialog.mHeight, Dialog.mStart, Dialog.mEnd);
+mActiveModel->SaveStepImages(Dialog.mFileName, Dialog.mStart != Dialog.mEnd, false, Dialog.mWidth, Dialog.mHeight, Dialog.mStart, Dialog.mEnd);
 
 /*** LPub3D Mod - Save FadeStep Setting ***/
 	if (saveFadeStep)
