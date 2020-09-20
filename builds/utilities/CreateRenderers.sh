@@ -737,7 +737,7 @@ if [ "$OS_NAME" = "Darwin" ]; then
   done
   depsLog=${LOG_PATH}/${ME}_${host}_deps_$OS_NAME.log
   if [ -n "$brewDeps" ]; then
-    Info "Dependencies List...[X11 ${brewDeps}]"
+    Info "Dependencies List........[X11 boost ${brewDeps}]"
     Info "Checking for X11 (xquartz) at /usr/X11..."
     if [[ -d /usr/X11/lib && /usr/X11/include ]]; then
       Info "Good to go - X11 found."
@@ -754,16 +754,20 @@ if [ "$OS_NAME" = "Darwin" ]; then
       exit 1
     fi
     brew update > $depsLog 2>&1
-    if [ "${TRAVIS}" != "true" ]; then
-      Info "Force removal of latest Boost and revert to 1.60"
-      brew uninstall --ignore-dependencies boost >> $depsLog 2>&1
-      brew install $brewDeps >> $depsLog 2>&1
-      brew install boost@1.60 >> $depsLog 2>&1
-      brew link --force --overwrite boost@1.60 >> $depsLog 2>&1
+    Info  "--- Uninstall all versions of Boost ignoring dependencies and revert o 1.60..."
+    brew uninstall --force --ignore-dependencies boost >> $depsLog 2>&1
+    Info  "--- Install depenencies..."
+    brew install $brewDeps >> $depsLog 2>&1
+    Info  "--- Install Boost@1.60 from local resource bundle..."
+    brew install ./${LPUB3D}/builds/utilities/boost/boost@1.60.rb >> $depsLog 2>&1
+    Info  "--- Force Boost 1.60 link and overwrite conflicting files..."
+    brew link --force --overwrite boost@1.60 >> $depsLog 2>&1
+    Info "Upgrade automake and pkg-config"
+    brew upgrade automake pkg-config >> $depsLog 2>&1
+    if [[ -d /usr/local/opt/boost@1.60/lib ]]; then
+      Info "Boost 1.60 installed."
     else
-      brew install $brewDeps >> $depsLog 2>&1
-      Info "Upgrade automake and pkg-config"
-      brew upgrade automake pkg-config >> $depsLog 2>&1
+      Info "ERROR - Boost not found."
     fi
     Info "$OS_NAME dependencies installed." && DisplayLogTail $depsLog 10
   else

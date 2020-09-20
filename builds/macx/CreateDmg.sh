@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: August 24, 2020
+# Last Update: September 14, 2020
 # To run:
 # $ chmod 755 CreateDmg.sh
 # $ ./CreateDmg.sh
@@ -86,6 +86,18 @@ if [ "${TRAVIS}" != "true"  ]; then
     else
       echo "PATH not udpated with Qt location, could not find ${HOME}/Qt/IDE/5.15.0/clang_64"
     fi
+  fi
+  echo
+  echo "LPub3D will uninstall all versions of Boost ignoring dependencies and install 1.60."
+  echo "You can stop here if you do not want to uninstall your current version of Boost"
+  echo "or if you prefer to personally configure the availability of Boost 1.60."
+  read -n 1 -p "Enter c to continue Boost uninstall: " getoption
+  if [ "$getoption" = "c" ] || [ "$getoption" = "c" ]; then
+     echo  "  You selected to uninstall any current versions of Boost."
+  else
+     echo  "  You selected to stop the installation."
+     ElapsedTime
+     exit 0
   fi
   echo
   echo "Enter d to download LPub3D source or any key to"

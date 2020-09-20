@@ -3,7 +3,7 @@
 # Travis-ci build [install] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: August 24, 2020
+#  Last Update: September 13, 2020
 #  Copyright (c) 2017 - 2020 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -42,15 +42,11 @@ fi
 # Install qt5 on MacOS, download LDraw library archive files, and setup macos 3rd party distribution directory
 if [ "$TRAVIS_OS_NAME" = "osx" ]; then
   if [[ ("$LP3D_COMPILE_SOURCE" = "true" && -z "$LP3D_BUILD_PKG") || ("$LP3D_BUILD_PKG" = "yes" && "$LP3D_BUILD_MACOS" = "true") ]]; then
-    brew install qt5 grep;
+    brew install grep;
+    echo "On Travis macOS, upgrade to latest version of Qt..."
+    brew upgrade qt;
+    echo "Force linking to 'keg-only' instance of Qt..."
     brew link --force qt5;
-    echo "Force removal of latest Boost and revert to 1.60..."
-    echo "  - Uninstall latest boost ignoring depenencies..."
-    brew uninstall --ignore-dependencies boost
-    echo "  - Install boost 1.60..."
-    brew install boost@1.60
-    echo "  - Force Boost 1.60 link and overwrite conflicting files..."
-    brew link --force --overwrite boost@1.60
     echo "Downloading archive libraries...";
     wget http://www.ldraw.org/library/updates/complete.zip -O ../complete.zip && cp -f ../complete.zip mainApp/extras;
     wget http://www.ldraw.org/library/unofficial/ldrawunf.zip -O mainApp/extras/lpub3dldrawunf.zip;
