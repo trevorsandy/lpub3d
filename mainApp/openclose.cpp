@@ -336,7 +336,7 @@ void Gui::closeModelFile(){
 
   QString windowName = VER_FILEDESCRIPTION_STR;
   QString windowVersion;
-#if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD
+#if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
   windowVersion = QString("v%1 r%2 (%3)")
           .arg(VER_PRODUCTVERSION_STR)
           .arg(VER_REVISION_STR)
@@ -450,7 +450,7 @@ void Gui::setCurrentFile(const QString &fileName)
     windowName = fileInfo.fileName();
   }
   QString windowVersion;
-#if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD
+#if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
   windowVersion = QString("%1 v%2 r%3 (%4)")
                           .arg(VER_PRODUCTNAME_STR)
                           .arg(VER_PRODUCTVERSION_STR)

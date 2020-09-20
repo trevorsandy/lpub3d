@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update Sep 13, 2019
+# Last Update Sep 16, 2019
 #
 # Purpose:
 # This script is used to 'cut-over' the development repository [lpub3d-ci] commits to production [lpub3d].
@@ -65,6 +65,8 @@
 # Move to lpub3d-obs repository
 # $ env GIT_NAME=lpub3d-obs MSG="Open Build Service Integration and Test" TAG=v2.3.14 ./ci_cutover.sh
 
+cd "/mnt/c/Users/Trevor/Projects" # ~/Projects
+
 SCRIPT_NAME=$0
 SCRIPT_ARGS=$*
 LOCAL_TAG=${TAG:-v2.3.14}
@@ -79,33 +81,33 @@ COMMIT_MSG="${MSG:-LPub3D ${TAG}}"
 
 function options_status
 {
-	echo
-	echo "--Command Options:"
-	echo "--SCRIPT_NAME....$SCRIPT_NAME"
-	echo "--FROM_NAME.......$FROM_NAME"	
-	echo "--TO_NAME.........$TO_NAME"
-	echo "--RELEASE_COMMIT..$RELEASE_COMMIT"
-	[ -n "$SCRIPT_ARGS" ] && echo "--SCRIPT_ARGS.....$SCRIPT_ARGS" || true
-	echo "--FRESH_BUILD.....$FRESH_BUILD"
-	echo "--LOCAL_TAG.......$LOCAL_TAG"
-	echo "--COMMIT_MSG......$COMMIT_MSG"
-	[ -n "$INC_REVISION" ] && echo "--INCREMENT_REV...$INC_REVISION" || true
-	[ -n "$FORCE_CONFIG" ] && echo "--OBS_CONFIG......$FORCE_CONFIG" || true
-	echo 
+    echo
+    echo "--Command Options:"
+    echo "--SCRIPT_NAME....$SCRIPT_NAME"
+    echo "--FROM_REPO_NAME..$FROM_REPO_NAME"    
+    echo "--TO_REPO_NAME....$TO_REPO_NAME"
+    echo "--RELEASE_COMMIT..$RELEASE_COMMIT"
+    [ -n "$SCRIPT_ARGS" ] && echo "--SCRIPT_ARGS.....$SCRIPT_ARGS" || true
+    echo "--FRESH_BUILD.....$FRESH_BUILD"
+    echo "--LOCAL_TAG.......$LOCAL_TAG"
+    echo "--COMMIT_MSG......$COMMIT_MSG"
+    [ -n "$INC_REVISION" ] && echo "--INCREMENT_REV...$INC_REVISION" || true
+    [ -n "$FORCE_CONFIG" ] && echo "--OBS_CONFIG......$FORCE_CONFIG" || true
+    echo 
 }
 
 function show_options_status
 {
     COMMIT_MSG="No commit specified"
-	SCRIPT_ARGS="No arguments specified - show Options and exit"
-	options_status
-	exit 1
+    SCRIPT_ARGS="No arguments specified - show Options and exit"
+    options_status
+    exit 1
 }
 
 # if [ -z "$SCRIPT_ARGS" ] ; then 
    # show_options_status 
 # fi
-	
+    
 ME="$(basename "$(test -L "$0" && readlink "$0" || echo "$0")")"
 CWD=`pwd`
 f="${CWD}/$ME"
@@ -129,20 +131,26 @@ exec 2> >(tee -a ${LOG} >&2)
 options_status
 
 # Remove current lpub3d folder and clone fresh instance if requested
-[ "$FRESH_BUILD" != "no" ] && [ -d "$TO_NAME" ] && \
-echo "--Remove old $TO_NAME instance..." && rm -rf "$TO_NAME" || true
+[ "$FRESH_BUILD" != "no" ] && [ -d "$TO_REPO_NAME" ] && \
+echo && echo "--Remove old $TO_REPO_NAME instance..." && rm -rf "$TO_REPO_NAME" || true
 
 # Clone new instance of lpub3d if old instance does not exist or was removed
-if [ ! -d "$TO_NAME" ]; then
-    echo "1-Creating new $TO_NAME instance..."
-    git clone https://github.com/trevorsandy/${TO_NAME}.git
+if [ ! -d "$TO_REPO_NAME" ]; then
+    echo && echo "1-Creating new $TO_REPO_NAME instance..."
+    git clone https://github.com/trevorsandy/${TO_REPO_NAME}.git
 else
-    echo "1-Updating existing $TO_NAME instance..."
+    echo && echo "1-Updating existing $TO_REPO_NAME instance..."
 fi
 
-cd $TO_NAME
+cd $HOME_DIR/$FROM_REPO_NAME
+if [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3d" ]]; then git checkout CUTOVER;
+elif [[ "$FROM_REPO_NAME" = "lpub3d-ci" && "$TO_REPO_NAME" = "lpub3dnext" ]]; then git checkout NEXT_OUT; 
+fi
 
-echo "2-Remove current $TO_NAME content except .git folder..."
+cd $HOME_DIR/$TO_REPO_NAME
+if [ "$TO_REPO_NAME" = "lpub3dnext" ];then git checkout CUTOVER_IN; fi
+
+echo "2-Remove current $TO_REPO_NAME content except .git folder..."
 find . -not -path "./.git/*" -type f -exec rm -rf {} +
 
 echo "3-Copy $FROM_NAME content to $TO_NAME except .git folder..." && cd ../$FROM_NAME
@@ -178,12 +186,25 @@ for file in $(find . -type f -name "*${FROM_NAME}*" \
               -not -path "./qsimpleupdater*" \
               )
 do
-    if [ "$TO_NAME" = "lpub3d" ]; then newFile=$(echo $file | sed s/-ci//g);
-    elif [ "$TO_NAME" = "lpub3d-obs" ]; then newFile=$(echo $file | sed s/-ci/-obs/g);
+    if [ "$TO_REPO_NAME" = "lpub3d" ]; then newFile=$(echo $file | sed s/-ci//g);
+    elif [ "$TO_REPO_NAME" = "lpub3d-obs" ]; then newFile=$(echo $file | sed s/-ci/-obs/g);
+    elif [ "$TO_REPO_NAME" = "lpub3dnext" ]; then newFile=$(echo $file | sed s/-ci/next/g);
+    elif [ "$TO_REPO_NAME" = "lpub3d-ci" ]; then newFile=$(echo $file | sed s/lpub3dnext/lpub3d-ci/g);
     fi
     mv -f $file $newFile
     [ -f $newFile ] && echo " -file changed: $newFile."
 done
+if [ "$TO_REPO_NAME" = "lpub3dnext" ]; then 
+  projFile="LPub3D.pro"
+  newProjFile="LPub3DNext.pro"
+  mv -f $projFile $newProjFile
+  [ -f $newProjFile ] && echo " -file changed: $newProjFile."  
+elif [ "$FROM_REPO_NAME" = "lpub3dnext" ]; then
+  projFile="LPub3DNext.pro"
+  newProjFile="LPub3D.pro"
+  mv -f $projFile $newProjFile
+  [ -f $newProjFile ] && echo " -file changed: $newProjFile."  
+fi
 
 echo "5-Change occurrences of '$FROM_NAME' to '$TO_NAME' in files..."
 for file in $(find . -type f \
@@ -196,6 +217,7 @@ for file in $(find . -type f \
               -not -path "./qslog*" \
               -not -path "./quazip*" \
               -not -path "./qsimpleupdater*" \
+              -not -path "./builds/utilities/ci/ci_cutover.sh*" \
               )
 do
     cat $file | grep -qE "$FROM_NAME" \
