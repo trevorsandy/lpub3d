@@ -434,6 +434,7 @@ static const SceneObject PliPartGroupSceneObjects[] =
 #define RENDERER_TIMEOUT_DEFAULT                6    // measured in seconds
 
 #define PAGE_DISPLAY_PAUSE_DEFAULT              3    // measured in seconds
+#define MAX_OPEN_WITH_PROGRAMS_DEFAULT          3    // maximum open with programs entries
 
 // Internal common material colours
 #define LDRAW_EDGE_MATERIAL_COLOUR              "24"

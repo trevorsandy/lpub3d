@@ -256,6 +256,8 @@ int     Preferences::rendererTimeout            = RENDERER_TIMEOUT_DEFAULT;     
 int     Preferences::pageDisplayPause           = PAGE_DISPLAY_PAUSE_DEFAULT;        // measured in seconds
 int     Preferences::cameraDistFactorNative     = CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT;
 
+int     Preferences::maxOpenWithPrograms        = MAX_OPEN_WITH_PROGRAMS_DEFAULT;
+
 // Native POV file generation settings
 QString Preferences::xmlMapPath                 = EMPTY_STRING_DEFAULT;
 
@@ -3089,6 +3091,15 @@ void Preferences::userInterfacePreferences()
       Settings.setValue(QString("%1/%2").arg(SETTINGS,saveOnUpdateKey),uValue);
   } else {
       saveOnUpdate = Settings.value(QString("%1/%2").arg(SETTINGS,saveOnUpdateKey)).toBool();
+  }
+
+  QString const maxOpenWithProgramsKey("MaxOpenWithPrograms");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,maxOpenWithProgramsKey))) {
+      QVariant uValue(MAX_OPEN_WITH_PROGRAMS_DEFAULT);
+      maxOpenWithPrograms = MAX_OPEN_WITH_PROGRAMS_DEFAULT;
+      Settings.setValue(QString("%1/%2").arg(SETTINGS,maxOpenWithProgramsKey),uValue);
+  } else {
+      maxOpenWithPrograms = Settings.value(QString("%1/%2").arg(SETTINGS,maxOpenWithProgramsKey)).toInt();
   }
 }
 

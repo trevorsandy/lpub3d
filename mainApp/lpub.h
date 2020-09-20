@@ -438,7 +438,6 @@ class ProgressDialog;
 class Render;
 class Steps;
 class Where;
-
 enum traverseRc { HitEndOfPage = 1 };
 enum Dimensions {Pixels = 0, Inches };
 enum PAction { SET_DEFAULT_ACTION, SET_STOP_ACTION };
@@ -849,6 +848,8 @@ public:
       return mByteArray;
   }
 
+  void createOpenWithActions(int maxPrograms = 0);
+
 public slots:
   //**3D Viewer Manage Step Rotation
   void Disable3DActions();
@@ -1192,6 +1193,8 @@ private:
 
   int                    m_workerJobResult;
 
+  int                    numPrograms;
+
   bool                   okToInvokeProgressBar()
   {
     return               (Preferences::lpub3dLoaded && Preferences::modeGUI);
@@ -1355,6 +1358,7 @@ private:
 
 private slots:
     void open();
+    void openWith();
     void save();
     void saveAs();
     void saveCopy();
@@ -1362,6 +1366,7 @@ private slots:
     void bringToFront();
     void sendToBack();
 
+    void openWithSetup();
     void openWorkingFolder();
     void openRecentFile();
     void clearRecentFiles();
@@ -1493,6 +1498,7 @@ private slots:
     bool maybeSave(bool prompt = true, int sender = SaveOnNone);
     bool saveFile(const QString &fileName);
     void closeFile();
+    void updateOpenWithActions();
     void updateRecentFileActions();
     void closeModelFile();
     void enableWatcher();
@@ -1520,6 +1526,7 @@ private:
 
   // Menus
   QMenu    *fileMenu;
+  QMenu    *openWithMenu;
   QMenu    *recentFileMenu;
   QMenu    *editMenu;
   QMenu    *viewMenu;
@@ -1728,6 +1735,9 @@ private:
 
   QAction  *metaAct;
   QAction  *separatorAct;
+
+  QList<QAction *> openWithActList;
+  QAction  *openWithSetupAct;
 
   enum { MaxRecentFiles = 8 };
   QAction *recentFilesActs[MaxRecentFiles];

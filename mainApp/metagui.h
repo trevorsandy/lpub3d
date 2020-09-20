@@ -1644,7 +1644,36 @@ class TargetRotateDialogGui : public QObject
 public:
     TargetRotateDialogGui(){}
     void getTargetAndRotateValues(QStringList & keyList);
-
 };
 
+/***********************************************************************
+ *
+ * Open With Program
+ *
+ **********************************************************************/
+
+class OpenWithProgramDialogGui : public QObject
+{
+    Q_OBJECT
+public:
+    OpenWithProgramDialogGui();
+    ~OpenWithProgramDialogGui() {}
+
+    void setOpenWithProgram();
+    void setProgramEntries();
+    void validateProgramEntries();
+
+public slots:
+    void browseOpenWithProgram(bool);
+    void maxProgramsValueChanged(int);
+
+private:
+    int                  maxPrograms;
+    QStringList          programEntries;
+    QGridLayout         *gridLayout;
+    QDialog             *dialog;
+    QList<QLineEdit *>   programNameEditList;
+    QList<QLineEdit *>   programPathEditList;
+    QList<QPushButton *> programBrowseButtonList;
+};
 #endif

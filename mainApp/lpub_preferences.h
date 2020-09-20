@@ -296,6 +296,7 @@ class Preferences
     static int     sceneGuidesPosition;
     static int     povrayRenderQuality;
     static int     ldrawFilesLoadMsgs;
+    static int     maxOpenWithPrograms;
 
     virtual ~Preferences() {}
 };

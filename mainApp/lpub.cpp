@@ -79,13 +79,13 @@
 // strings then need to be convert back to UTF-8.
 #define wCharToUtf8(str) ConvertWideCharToUTF8(L##str)
 const char * ConvertWideCharToUTF8(const wchar_t * wstr) {
-	int requiredSize = WideCharToMultiByte(CP_UTF8, 0, wstr, -1, 0, 0, 0, 0);
-	if (requiredSize > 0) {
-		static char * buffer = new char[requiredSize + 1];
-		buffer[requiredSize] = 0;
-		WideCharToMultiByte(CP_UTF8, 0, wstr, -1, buffer, requiredSize, 0, 0);
-		return buffer;
-	}
+    int requiredSize = WideCharToMultiByte(CP_UTF8, 0, wstr, -1, 0, 0, 0, 0);
+    if (requiredSize > 0) {
+        static char * buffer = new char[requiredSize + 1];
+        buffer[requiredSize] = 0;
+        WideCharToMultiByte(CP_UTF8, 0, wstr, -1, buffer, requiredSize, 0, 0);
+        return buffer;
+    }
     return nullptr;
 }
 #else
@@ -166,7 +166,7 @@ void Gui::DownloadFinished(lcHttpReply* Reply){
 }
 
 /****************************************************************************
- * 
+ *
  * The Gui constructor and destructor are at the bottom of the file with
  * the code that creates the basic GUI framework
  *
@@ -2948,6 +2948,7 @@ void Gui::initialize()
   emit disable3DActionsSig();
   setCurrentFile("");
   readSettings();
+  updateOpenWithActions();
 
   // scene item z direction
   if (soMap.size() == 0) {
@@ -3590,12 +3591,34 @@ void Gui::meta()
   file.close();
 }
 
+void Gui::createOpenWithActions(int maxPrograms)
+{
+    int maxOpenWithPrograms = maxPrograms ? maxPrograms : Preferences::maxOpenWithPrograms;
+
+    for (int i = 0; i < maxOpenWithPrograms; i++) {
+        QAction *openWithAct = new QAction(this);
+        openWithAct->setVisible(false);
+        connect(openWithAct, SIGNAL(triggered()), this, SLOT(openWith()));
+        if (i < openWithActList.size()) {
+            openWithActList.replace(i,openWithAct);
+        } else {
+            openWithActList.append(openWithAct);
+        }
+    }
+}
+
 void Gui::createActions()
 {
     openAct = new QAction(QIcon(":/resources/open.png"), tr("&Open..."), this);
     openAct->setShortcut(tr("Ctrl+O"));
     openAct->setStatusTip(tr("Open an existing file - Ctrl+O"));
     connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
+
+    createOpenWithActions();
+
+    openWithSetupAct = new QAction(QIcon(":/resources/openwithsetup.png"), tr("Open With S&etup..."), this);
+    openWithSetupAct->setStatusTip(tr("Setup 'Open With' applications."));
+    connect(openWithSetupAct, SIGNAL(triggered()), this, SLOT(openWithSetup()));
 
     saveAct = new QAction(QIcon(":/resources/save.png"), tr("&Save"), this);
     saveAct->setShortcut(tr("Ctrl+S"));
@@ -3719,8 +3742,7 @@ void Gui::createActions()
     for (int i = 0; i < MaxRecentFiles; i++) {
       recentFilesActs[i] = new QAction(this);
       recentFilesActs[i]->setVisible(false);
-      connect(recentFilesActs[i], SIGNAL(triggered()), this,
-                                 SLOT(openRecentFile()));
+      connect(recentFilesActs[i], SIGNAL(triggered()), this, SLOT(openRecentFile()));
     }
 
     clearRecentAct = new QAction(tr("Clear Files"),this);
@@ -4389,6 +4411,7 @@ void Gui::enableActions()
   setupMenu->setEnabled(true);
   cacheMenu->setEnabled(true);
   exportMenu->setEnabled(true);
+  openWithMenu->setEnabled(numPrograms > 0);
 
   exportBricklinkAct->setEnabled(true);
   exportCsvAct->setEnabled(true);
@@ -4460,6 +4483,7 @@ void Gui::disableActions()
   setupMenu->setEnabled(false);
   cacheMenu->setEnabled(false);
   exportMenu->setEnabled(false);
+  openWithMenu->setEnabled(false);
 
   exportBricklinkAct->setEnabled(false);
   exportCsvAct->setEnabled(false);
@@ -4512,6 +4536,12 @@ void Gui::createMenus()
 
     fileMenu = menuBar()->addMenu(tr("&File"));
     fileMenu->addAction(openAct);
+    openWithMenu = fileMenu->addMenu(tr("Open With..."));
+    openWithMenu->setIcon(QIcon(":/resources/openwith.png"));
+    openWithMenu->setStatusTip(tr("Open model file with selected application"));
+    for (int i = 0; i < Preferences::maxOpenWithPrograms; i++) {
+      openWithMenu->addAction(openWithActList.at(i));
+    }
     fileMenu->addAction(saveAct);
     fileMenu->addAction(saveAsAct);
     fileMenu->addAction(saveCopyAct);
@@ -4519,6 +4549,7 @@ void Gui::createMenus()
 
     exportMenu = fileMenu->addMenu("Export As...");
     exportMenu->setIcon(QIcon(":/resources/exportas.png"));
+    exportMenu->setStatusTip(tr("Export model file images, objects or part lists"));
     exportMenu->addAction(exportPngAct);
     exportMenu->addAction(exportJpgAct);
 #ifdef Q_OS_WIN
@@ -4544,6 +4575,7 @@ void Gui::createMenus()
 
     recentFileMenu = fileMenu->addMenu(tr("Recent Files..."));
     recentFileMenu->setIcon(QIcon(":/resources/recentfiles.png"));
+    recentFileMenu->setStatusTip(tr("Open recent model file"));
     for (int i = 0; i < MaxRecentFiles; i++) {
       recentFileMenu->addAction(recentFilesActs[i]);
     }
@@ -4597,6 +4629,7 @@ void Gui::createMenus()
 
     cacheMenu = toolsMenu->addMenu("Reset Cache");
     cacheMenu->setIcon(QIcon(":/resources/resetcache.png"));
+    cacheMenu->setStatusTip(tr("Reset working caches"));
     cacheMenu->addAction(clearAllCachesAct);
     cacheMenu->addAction(clearPLICacheAct);
     cacheMenu->addAction(clearSubmodelCacheAct);
@@ -4613,6 +4646,7 @@ void Gui::createMenus()
     configMenu = menuBar()->addMenu(tr("&Configuration"));
     setupMenu = configMenu->addMenu("Build &Instructions Setup...");
     setupMenu->setIcon(QIcon(":/resources/instructionsetup.png"));
+    setupMenu->setStatusTip(tr("Instruction document global settings"));
     setupMenu->addAction(pageSetupAct);
     setupMenu->addAction(assemSetupAct);
     setupMenu->addAction(pliSetupAct);
@@ -4629,6 +4663,7 @@ void Gui::createMenus()
     configMenu->addSeparator();
     editorMenu = configMenu->addMenu("Edit Parameter Files...");
     editorMenu->setIcon(QIcon(":/resources/editparameterfiles.png"));
+    editorMenu->setStatusTip(tr("Edit %1 parameter files").arg(VER_PRODUCTNAME_STR));
     editorMenu->addAction(editLDrawColourPartsAct);
     editorMenu->addAction(editTitleAnnotationsAct);
     editorMenu->addAction(editFreeFormAnnitationsAct);
@@ -4665,6 +4700,7 @@ void Gui::createMenus()
     configMenu->addAction(editModelFileAct);
     configMenu->addAction(generateCustomColourPartsAct);
     configMenu->addSeparator();
+    configMenu->addAction(openWithSetupAct);
     configMenu->addAction(preferencesAct);
 
     // 3DViewer

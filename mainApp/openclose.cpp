@@ -28,6 +28,7 @@
 #include "paths.h"
 #include "threadworkers.h"
 #include "messageboxresizable.h"
+#include "metagui.h"
 
 #include <LDVQt/LDVImageMatte.h>
 
@@ -130,6 +131,97 @@ void Gui::openFolder(const QString &folder)
 void Gui::openWorkingFolder() {
     if (!getCurFile().isEmpty())
         openFolder(QFileInfo(getCurFile()).absolutePath());
+}
+
+void Gui::updateOpenWithActions()
+{
+    QSettings Settings;
+    QString const openWithProgramListKey("OpenWithProgramList");
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,openWithProgramListKey))) {
+
+      QStringList programEntries = Settings.value(QString("%1/%2").arg(SETTINGS,openWithProgramListKey)).toStringList();
+
+      numPrograms = qMin(programEntries.size(), Preferences::maxOpenWithPrograms);
+
+      // filter programPaths that don't exist
+      QString programName, programPath;
+      for (int i = 0; i < numPrograms; ) {
+        programPath = QDir::toNativeSeparators(programEntries.at(i).split("|").last());
+        QFileInfo fileInfo(programPath);
+        if (fileInfo.exists()) {
+          i++;
+        } else {
+          programEntries.removeOne(programEntries.at(i));
+          --numPrograms;
+        }
+      }
+
+      auto getProgramIcon = [&programPath] ()
+      {
+          QStringList pathList   = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+          QString iconPath       = pathList.first();
+          const QString iconFile = QString("%1/%2icon.png").arg(iconPath).arg(QFileInfo(programPath).baseName());
+          if (!QFileInfo(iconFile).exists()) {
+              QFileInfo programInfo(programPath);
+              QFileSystemModel *fsModel = new QFileSystemModel;
+              fsModel->setRootPath(programInfo.path());
+              QIcon fileIcon = fsModel->fileIcon(fsModel->index(programInfo.filePath()));
+              QPixmap iconPixmap = fileIcon.pixmap(16,16);
+              if (!iconPixmap.save(iconFile))
+                  emit gui->messageSig(LOG_INFO,QString("Could not save program file icon: %1").arg(iconFile));
+              return fileIcon;
+          }
+          return QIcon(iconFile);
+      };
+
+      for (int i = 0; i < numPrograms; i++) {
+        programName = programEntries.at(i).split("|").first();
+        programPath = programEntries.at(i).split("|").last();
+        QString text = programName;
+        QFileInfo fileInfo(programPath);
+        if (text.isEmpty())
+            text = tr("&%1 %2").arg(i + 1).arg(fileInfo.fileName());
+        openWithActList[i]->setText(text);
+        openWithActList[i]->setData(programPath);
+        openWithActList[i]->setIcon(getProgramIcon());
+        openWithActList[i]->setStatusTip(QString("Open %1 with program: %2")
+                                      .arg(curFile.isEmpty() ? "current file" : QFileInfo(curFile).fileName())
+                                      .arg(fileInfo.absoluteFilePath()));
+        openWithActList[i]->setVisible(true);
+      }
+
+      for (int j = numPrograms; j < Preferences::maxOpenWithPrograms; j++) {
+        openWithActList[j]->setVisible(false);
+      }
+      openWithMenu->setEnabled(numPrograms > 0);
+    }
+}
+
+void Gui::openWithSetup()
+{
+    OpenWithProgramDialogGui *openWithProgramDialogGui =
+                              new OpenWithProgramDialogGui();
+    openWithProgramDialogGui->setOpenWithProgram();
+    updateOpenWithActions();
+}
+
+void Gui::openWith()
+{
+    QAction *action = qobject_cast<QAction *>(sender());
+    if (action) {
+        QString program = action->data().toString();
+        QStringList arguments = QStringList() << curFile;
+
+//        QProcess *Process = new QProcess(this);
+//        Process->setWorkingDirectory(QDir::currentPath() + QDir::separator());
+//        Process->start(program, arguments);
+
+        qint64 pid;
+        QString workingDirectory = QDir::currentPath() + QDir::separator();
+        QProcess::startDetached(program, {arguments}, workingDirectory, &pid);
+        emit messageSig(LOG_INFO, QString("Launched external applicatin %1...")
+                        .arg(QFileInfo(program).fileName()));
+    }
 }
 
 void Gui::openRecentFile()
@@ -742,13 +834,13 @@ void Gui::setHighlightStepFromCommandMeta()
 QString Gui::elapsedTime(const qint64 &duration){
 
     qint64 elapsed = duration;
-    int milliseconds = (int) (elapsed % 1000);
+    int milliseconds = int(elapsed % 1000);
     elapsed /= 1000;
-    int seconds = (int) (elapsed % 60);
+    int seconds = int(elapsed % 60);
     elapsed /= 60;
-    int minutes = (int) (elapsed % 60);
+    int minutes = int(elapsed % 60);
     elapsed /= 60;
-    int hours = (int) (elapsed % 24);
+    int hours = int(elapsed % 24);
 
     return QString("Elapsed time: %1%2%3")
                    .arg(hours >   0 ?

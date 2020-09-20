@@ -5887,3 +5887,188 @@ void TargetRotateDialogGui::getTargetAndRotateValues(QStringList &keyList){
         return;
     }
 }
+
+/***********************************************************************
+ *
+ * Open With Program
+ *
+ **********************************************************************/
+OpenWithProgramDialogGui::OpenWithProgramDialogGui(){
+    maxPrograms = Preferences::maxOpenWithPrograms;
+}
+
+void OpenWithProgramDialogGui::validateProgramEntries(){
+    int lastEntry = programEntries.size();;
+    if (lastEntry < maxPrograms){
+        for (int i = lastEntry; i < maxPrograms; i++)
+            programEntries.append(QString("Program %1|").arg(++lastEntry));
+    } else {
+        for (int i = lastEntry; i > maxPrograms; i--) {
+            programEntries.removeLast();
+            gridLayout->removeWidget(programNameEditList.last());
+            gridLayout->removeWidget(programPathEditList.last());
+            gridLayout->removeWidget(programBrowseButtonList.last());
+            delete programNameEditList.last();
+            delete programPathEditList.last();
+            delete programBrowseButtonList.last();
+            programNameEditList.removeLast();
+            programPathEditList.removeLast();
+            programBrowseButtonList.removeLast();
+        }
+    }
+}
+
+void OpenWithProgramDialogGui::setProgramEntries() {
+    validateProgramEntries();
+
+    QString programName, programPath;
+    for(int i = 0; i < maxPrograms; ++i) {
+        int rowNum = i + 2;
+        programName = programEntries.at(i).split("|").first();
+        programPath = QDir::toNativeSeparators(programEntries.at(i).split("|").last());
+        QLineEdit *programNameEdit = new QLineEdit(QString(programName), dialog);
+        if (i < programNameEditList.size()) {
+            gridLayout->removeWidget(programNameEditList.at(i));
+            programNameEditList.replace(i,programNameEdit);
+        } else {
+            programNameEditList.append(programNameEdit);
+        }
+        gridLayout->addWidget(programNameEdit,rowNum,0);
+
+        QLineEdit *programPathEdit = new QLineEdit(QString(programPath), dialog);
+        if (i < programPathEditList.size()) {
+            gridLayout->removeWidget(programPathEditList.at(i));
+            programPathEditList.replace(i,programPathEdit);
+        } else {
+            programPathEditList.append(programPathEdit);
+        }
+        gridLayout->addWidget(programPathEdit,rowNum,1);
+
+        QPushButton *programBrowseButton = new QPushButton(QString("Browse..."), dialog);
+        programBrowseButton->setProperty("programIndex",i);
+        if (i < programBrowseButtonList.size()) {
+            gridLayout->removeWidget(programBrowseButtonList.at(i));
+            programBrowseButtonList.replace(i,programBrowseButton);
+        } else {
+            programBrowseButtonList.append(programBrowseButton);
+        }
+        gridLayout->addWidget(programBrowseButton,rowNum,2);
+        QObject::connect(programBrowseButton, SIGNAL(clicked(bool)), this, SLOT(browseOpenWithProgram(bool)));
+    }
+}
+
+void OpenWithProgramDialogGui::setOpenWithProgram()
+{
+    dialog = new QDialog();
+
+    QFormLayout *form = new QFormLayout(dialog);
+    QGroupBox *programBbox = new QGroupBox("Select Open With Program",dialog);
+    form->addWidget(programBbox);
+    gridLayout = new QGridLayout(programBbox);
+    programBbox->setLayout(gridLayout);
+
+    QSettings Settings;
+    QString const openWithProgramListKey("OpenWithProgramList");
+    QString const maxOpenWithProgramsKey("MaxOpenWithPrograms");
+
+    // load entries
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,openWithProgramListKey))) {
+        for (int i = 0; i < maxPrograms; i++)
+            programEntries.append(QString("Program %1|").arg(i + 1));
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,openWithProgramListKey), programEntries);
+    } else {
+        programEntries = Settings.value(QString("%1/%2").arg(SETTINGS,openWithProgramListKey)).toStringList();
+    }
+
+    // populate UI
+    QLabel *maxProgramsLabel = new QLabel(tr("Max Programs:"), dialog);
+    QSpinBox * maxProgramsSpinBox = new QSpinBox(dialog);
+    maxProgramsSpinBox->setRange(1,100);
+    maxProgramsSpinBox->setSingleStep(1);
+    maxProgramsSpinBox->setValue(maxPrograms);
+    connect(maxProgramsSpinBox,SIGNAL(valueChanged(int)), this,SLOT (maxProgramsValueChanged(int)));
+    QSpacerItem *horizontalSpacer= new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed);
+    gridLayout->addWidget(maxProgramsLabel,  0,0);
+    gridLayout->addWidget(maxProgramsSpinBox,0,1);
+    gridLayout->addItem(  horizontalSpacer,  0,2);
+
+    QFrame* horizontalLine = new QFrame();
+    horizontalLine->setGeometry(QRect(/* ... */));
+    horizontalLine->setFrameShape(QFrame::HLine);
+    gridLayout->addWidget(horizontalLine,1,0,1,3);
+
+    setProgramEntries();
+
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                               Qt::Horizontal, dialog);
+    form->addRow(&buttonBox);
+    QObject::connect(&buttonBox, SIGNAL(accepted()), dialog, SLOT(accept()));
+    QObject::connect(&buttonBox, SIGNAL(rejected()), dialog, SLOT(reject()));
+    dialog->setMinimumWidth(250);
+
+    if (dialog->exec() == QDialog::Accepted) {
+        bool updateProgramEntries = false;
+        bool updateMaxPrograms    = maxPrograms != Preferences::maxOpenWithPrograms;
+        QString programName, programPath;
+        for(int i = 0; i < maxPrograms; ++i) {
+            programName = programNameEditList.at(i)->text();
+            programPath = QDir::toNativeSeparators(programPathEditList.at(i)->text());
+            QString updateEntry = QString("%1|%2").arg(programName).arg(programPath);
+            if (updateEntry != programEntries.at(i)) {
+                programEntries.replace(i,updateEntry);
+                updateProgramEntries = true;
+            }
+        }
+        if (updateProgramEntries || updateMaxPrograms) {
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,openWithProgramListKey), programEntries);
+            if (updateMaxPrograms) {
+                Preferences::maxOpenWithPrograms = maxPrograms;
+                Settings.setValue(QString("%1/%2").arg(SETTINGS,maxOpenWithProgramsKey), maxPrograms);
+            }
+            gui->statusBar()->showMessage(QString("Open with programs updated."));
+        }
+    } else {
+        return;
+    }
+}
+
+void OpenWithProgramDialogGui::maxProgramsValueChanged(int value)
+{
+    maxPrograms = value;
+    setProgramEntries();
+    gui->createOpenWithActions(maxPrograms);
+}
+
+void OpenWithProgramDialogGui::browseOpenWithProgram(bool)
+{
+    int programIndex = -1;
+    for(int i = 0; i < maxPrograms; ++i) {
+        if (sender() == programBrowseButtonList.at(i)) {
+            programIndex = programBrowseButtonList.at(i)->property("programIndex").toInt();
+            break;
+        }
+    }
+    if (programIndex == -1) {
+        gui->messageSig(LOG_ERROR,QString("Could not locate open with program index"));
+        return;
+    }
+    QString programName = programEntries.at(programIndex).split("|").first();
+    QString programPath = QDir::toNativeSeparators(programEntries.at(programIndex).split("|").last());
+
+    QFileDialog dialog(nullptr);
+    dialog.setWindowTitle(tr("Locate %1").arg(programName));
+    dialog.setFileMode(QFileDialog::ExistingFile);
+    if (!programPath.isEmpty())
+        dialog.setDirectory(QFileInfo(programPath).absolutePath());
+    else
+        dialog.setDirectory(QFileInfo(gui->getCurFile()).absolutePath());
+    if (dialog.exec()) {
+        QStringList selectedFiles = dialog.selectedFiles();
+        if (selectedFiles.size() == 1) {
+            QFileInfo  fileInfo(selectedFiles.at(0));
+            if (fileInfo.exists()) {
+                programPathEditList.at(programIndex)->setText(selectedFiles.at(0));
+            }
+        }
+    }
+}
