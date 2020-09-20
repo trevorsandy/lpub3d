@@ -370,7 +370,7 @@ void lcPartSelectionListModel::PartLoaded(PieceInfo* Info)
 	{
 		if (mParts[PartIdx].first == Info)
 		{
-			auto PreviewIt = std::find(mRequestedPreviews.begin(), mRequestedPreviews.end(), PartIdx);
+			auto PreviewIt = std::find(mRequestedPreviews.begin(), mRequestedPreviews.end(), static_cast<int>(PartIdx));
 			if (PreviewIt != mRequestedPreviews.end())
 			{
 				mRequestedPreviews.erase(PreviewIt);
@@ -412,7 +412,7 @@ void lcPartSelectionListModel::DrawPreview(int InfoIndex)
 
 	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+		
 	lcMatrix44 ProjectionMatrix, ViewMatrix;
 
 	Info->ZoomExtents(20.0f, Aspect, ProjectionMatrix, ViewMatrix);
@@ -572,9 +572,9 @@ void lcPartSelectionListView::SetCategory(lcPartCategoryType Type, int Index)
 	case lcPartCategoryType::Category:
 		mListModel->SetCategory(Index);
 		break;
-	case lcPartCategoryType::Count:
-		break;
-	}
+    case lcPartCategoryType::Count:
+        break;
+    }
 
 	setCurrentIndex(mListModel->index(0, 0));
 }
@@ -947,7 +947,7 @@ void lcPartSelectionWidget::SetDefaultPart()
 	{
 		QTreeWidgetItem* CategoryItem = mCategoriesWidget->topLevelItem(CategoryIdx);
 /*** LPub3D Mod - Set part lookup default ***/
-		if (CategoryItem->text(0) == "Parts In Use") // previous: "Brick"
+        if (CategoryItem->text(0) == "In Use") // previous: "Brick"
 /*** LPub3D Mod end ***/
 		{
 			mCategoriesWidget->setCurrentItem(CategoryItem);
