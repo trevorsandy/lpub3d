@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the
 ** GNU General Public Liceense (GPL) version 3.0
@@ -58,8 +58,8 @@ void RotateIconItem::setAttributes(
                                iconSize.valuePixels(YY));
 
   //gradient settings
-  if (background.value().gsize[0] == 0.0f &&
-      background.value().gsize[1] == 0.0f) {
+  if (background.value().gsize[0] == 0 &&
+      background.value().gsize[1] == 0) {
       background.value().gsize[0] = pixmap->width();
       background.value().gsize[1] = pixmap->width();
       QSize gSize(background.value().gsize[0],
@@ -81,10 +81,8 @@ void RotateIconItem::setAttributes(
   setParentItem(parent);
   setPixmap(*pixmap);
   setTransformationMode(Qt::SmoothTransformation);
-  setFlag(QGraphicsItem::ItemIsMovable,true);
   setFlag(QGraphicsItem::ItemIsSelectable,true);
-  setFlag(QGraphicsItem::ItemIsFocusable, true);
-  setAcceptHoverEvents(true);
+  setFlag(QGraphicsItem::ItemIsMovable,true);
 
   delete pixmap;
 }
@@ -100,10 +98,7 @@ RotateIconItem::RotateIconItem(
     Step           *_step,
     PlacementType   _parentRelativeType,
     RotateIconMeta &_rotateIconMeta,
-    QGraphicsItem  *_parent):
-    isHovered(false),
-    mouseIsDown(false)
-{
+    QGraphicsItem  *_parent){
 
   setAttributes(
         _step,
@@ -446,6 +441,8 @@ void RotateIconItem::setFlag(GraphicsItemFlag flag, bool value)
   QGraphicsItem::setFlag(flag,value);
 }
 
+
+
 void RotateIconItem::contextMenuEvent(
     QGraphicsSceneContextMenuEvent *event)
 {
@@ -455,11 +452,11 @@ void RotateIconItem::contextMenuEvent(
 
   QString pl = "Rotate Icon";
   QAction *placementAction = nullptr;
-//  bool singleStep = parentRelativeType == SingleStepType;
-//  if (! singleStep) {
+  bool singleStep = parentRelativeType == SingleStepType;
+  if (! singleStep) {
       placementAction  = commonMenus.placementMenu(menu,pl,
-                         commonMenus.naturalLanguagePlacementWhatsThis(relativeType,placementData,pl));
-//    }
+                                                   commonMenus.naturalLanguagePlacementWhatsThis(relativeType,placementData,pl));
+    }
 
   QAction *backgroundAction    = commonMenus.backgroundMenu(menu,pl);
   QAction *marginAction        = commonMenus.marginMenu(menu,pl);
@@ -588,7 +585,6 @@ void RotateIconItem::contextMenuEvent(
 void RotateIconItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
   position = pos();
-  mouseIsDown = true;
   positionChanged = false;
   QGraphicsItem::mousePressEvent(event);
   //placeGrabbers();
@@ -598,14 +594,13 @@ void RotateIconItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
   positionChanged = true;
   QGraphicsItem::mouseMoveEvent(event);
-//  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
-//      placeGrabbers();
-//    }
+  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
+      //placeGrabbers();
+    }
 }
 
 void RotateIconItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-    mouseIsDown = false;
     QGraphicsItem::mouseReleaseEvent(event);
 
     if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
@@ -628,7 +623,7 @@ void RotateIconItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
             QPointF newPosition;
             newPosition = pos() - position;
 
-            if (newPosition.x() != 0.0 || newPosition.y() != 0.0) {
+            if (newPosition.x() || newPosition.y()) {
                 positionChanged = true;
 
                 PlacementData placementData = placement.value();
@@ -669,30 +664,6 @@ void RotateIconItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
             endMacro();
         }
     }
-}
-
-void RotateIconItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
-{
-    isHovered = !this->isSelected() && !mouseIsDown;
-    QGraphicsItem::hoverEnterEvent(event);
-}
-
-void RotateIconItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
-{
-    isHovered = false;
-    QGraphicsItem::hoverLeaveEvent(event);
-}
-
-void RotateIconItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
-{
-    QPen pen;
-    pen.setColor(isHovered ? QColor(Preferences::sceneGuideColor) : Qt::black);
-    pen.setWidth(0/*cosmetic*/);
-    pen.setStyle(isHovered ? Qt::PenStyle(Preferences::sceneGuidesLine) : Qt::NoPen);
-    painter->setPen(pen);
-    painter->setBrush(Qt::transparent);
-    painter->drawRect(this->boundingRect());
-    QGraphicsPixmapItem::paint(painter,option,widget);
 }
 
 void RotateIconItem::change()

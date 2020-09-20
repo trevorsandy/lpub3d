@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -104,11 +104,6 @@ GlobalMultiStepDialog::GlobalMultiStepDialog(
   box = new QGroupBox("Submodel");
   vlayout->addWidget(box);
   child = new CheckBoxGui("Show Submodel image at first step",&multiStepMeta->subModel.show,box);
-  data->children.append(child);
-
-  box = new QGroupBox("Callout and Rotate Icon");
-  vlayout->addWidget(box);
-  child = new CheckBoxGui("Adjust Step row or column when Callout or Rotate Icon dragged.",&multiStepMeta->adjustOnItemOffset,box);
   data->children.append(child);
 
   box = new QGroupBox("Step Number");

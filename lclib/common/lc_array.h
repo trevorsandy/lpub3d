@@ -4,6 +4,8 @@ template <class T>
 class lcArray
 {
 public:
+	typedef int (*lcArrayCompareFunc)(const T& a, const T& b);
+
 	lcArray(int Size = 0, int Grow = 16)
 	{
 		mData = nullptr;
@@ -203,6 +205,34 @@ public:
 				return i;
 
 		return -1;
+	}
+
+	void Sort(lcArrayCompareFunc CompareFunc)
+	{
+		if (mLength <= 1)
+			return;
+
+		int i = 1;
+		bool Flipped;
+
+		do
+		{
+			Flipped = false;
+
+			for (int j = mLength - 1; j >= i; --j)
+			{
+				T& a = mData[j];
+				T& b = mData[j - 1];
+
+				if (CompareFunc(b, a) > 0)
+				{
+					T Tmp = b;
+					mData[j - 1] = a;
+					mData[j] = Tmp;
+					Flipped = true;
+				}
+			}
+		} while ((++i < mLength) && Flipped);
 	}
 
 protected:

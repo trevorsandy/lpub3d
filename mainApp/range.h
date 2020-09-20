@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -93,31 +93,6 @@ class Range : public AbstractStepsElement {
                    int                stepNum,
                    bool               sd);
 
-};
-
-/******************************************************************************
- * Step background item
- *****************************************************************************/
-
-class MultiStepStepBackgroundItem : public QGraphicsRectItem, public MetaItem
-{
-  Step *step;
-
-public:
-  MultiStepStepBackgroundItem(
-    Step *step,
-    QGraphicsItem *parent);
-  int stepNumber;
-  Where top, bottom;
-protected:
-  virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
-  virtual void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
-  virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
-  virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-  virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
-  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-  bool isHovered;
-  bool mouseIsDown;
 };
 
 #endif

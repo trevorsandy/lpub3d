@@ -1,7 +1,7 @@
  /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -39,16 +39,14 @@ public:
   UnitsDialog(
     float    values[],
     QString  name,
-    QString  labels,
     QWidget *parent);
 
   virtual ~UnitsDialog();
 
   static bool getUnits(
-   float         values[],
+    float        values[],
     QString      name,
-    QString      labels,
-    QWidget     *parent = nullptr);
+    QWidget     *parent = 0);
 
   UnitsMeta meta;
 

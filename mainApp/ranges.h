@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -36,7 +36,6 @@
 #include "submodelitem.h"
 #include "pageattributepixmapitem.h"
 #include "dividerpointeritem.h"
-#include "textitem.h"
 
 class Meta;
 class Render;
@@ -63,16 +62,14 @@ class QGraphicsView;
 class Steps : public Placement {
   public:
     Meta                           meta;
-    Meta                           groupStepMeta;
-    QList<AbstractStepsElement *>  list;                       // of range
-    QMap<Positions,PagePointer *>  pagePointers;               // of pagePointers
-    QList<DividerPointerItem *>    graphicsDividerPointerList; // of dividerPointers
-    QList<TextItem*>               textItemList;               // of page Texts
+    Meta                           stepGroupMeta;
+    QList<AbstractStepsElement *>  list;                // of range
+    QMap<Positions,PagePointer *>  pagePointers;        // of pagePointers
+    QList<DividerPointerItem *>    graphicsPointerList; // of dividerPointers
     QGraphicsView                 *view;
     Pli                            pli;
     SubModel                       subModel;
-    PlacementNum                   groupStepNumber;            // stepNumber for pli per page
-    Where                          top;                        // needed for non-step pages
+    Where                          top;                 // needed for non-step pages
     Where                          bottom;
     bool                           isMirrored;
 
@@ -119,14 +116,13 @@ class Page : public Steps {
     QList<InsertMeta> inserts;
     QList<InsertPixmapItem *> insertPixmaps;
     QList<PageAttributePixmapItem *> pageAttributePixmaps;
-    QMap<Where, SceneObjectData> selectedSceneItems;     // page items whose depth is explicitly defined
+    bool setItemDirection;
     bool coverPage;
     bool frontCover;
     bool backCover;
     bool modelDisplayOnlyStep;
     bool displayInstanceCount;
     int  instances;
-    int  stepNumber;
     Page()
     {
       coverPage            = false;
@@ -134,8 +130,8 @@ class Page : public Steps {
       backCover            = false;
       modelDisplayOnlyStep = false;
       displayInstanceCount = false;
+      setItemDirection     = false;
       instances            = 1;
-      stepNumber           = 0;
     }
     
     void addInsertPixmap(InsertPixmapItem *pixMap)
@@ -155,8 +151,8 @@ class Page : public Steps {
       backCover            = false;
       modelDisplayOnlyStep = false;
       displayInstanceCount = false;
+      setItemDirection     = false;
       instances            = 1;
-      stepNumber           = 0;
       for (int i = 0; i < insertPixmaps.size(); i++) {
         InsertPixmapItem *pixmap = insertPixmaps[i];
         delete pixmap;
@@ -168,7 +164,6 @@ class Page : public Steps {
       insertPixmaps.clear();
       pageAttributePixmaps.clear();
       inserts.clear();
-      selectedSceneItems.clear();
       freeSteps();
     }
 };

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the
 ** GNU General Public Liceense (GPL) version 3.0
@@ -103,75 +103,6 @@
     std::cerr.clear();
     std::wcin.clear();
     std::cin.clear();
-  }
-
-  #pragma warning(push)
-  #pragma warning(disable : 4091)
-  #include <DbgHelp.h>
-  #include <direct.h>
-  #include <ShlObj.h>
-  #pragma warning(pop)
-
-  #ifdef UNICODE
-  #ifndef _UNICODE
-  #define _UNICODE
-  #endif
-  #endif
-
-  #include <tchar.h>
-
-  static TCHAR gMinidumpPath[_MAX_PATH];
-
-  LONG WINAPI Application::lcSehHandler(PEXCEPTION_POINTERS exceptionPointers)
-  {
-      if (IsDebuggerPresent())
-          return EXCEPTION_CONTINUE_SEARCH;
-
-      HMODULE dbgHelp = LoadLibrary(TEXT("dbghelp.dll"));
-
-      if (dbgHelp == nullptr)
-          return EXCEPTION_EXECUTE_HANDLER;
-
-      HANDLE file = CreateFile(gMinidumpPath, GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
-
-      if (file == INVALID_HANDLE_VALUE)
-          return EXCEPTION_EXECUTE_HANDLER;
-
-      typedef BOOL (WINAPI *LPMINIDUMPWRITEDUMP)(HANDLE hProcess, DWORD ProcessId, HANDLE hFile, MINIDUMP_TYPE DumpType, CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, CONST PMINIDUMP_USER_STREAM_INFORMATION UserEncoderParam, CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
-      LPMINIDUMPWRITEDUMP miniDumpWriteDump = (LPMINIDUMPWRITEDUMP)GetProcAddress(dbgHelp, "MiniDumpWriteDump");
-      if (!miniDumpWriteDump)
-          return EXCEPTION_EXECUTE_HANDLER;
-
-      MINIDUMP_EXCEPTION_INFORMATION mei;
-
-      mei.ThreadId = GetCurrentThreadId();
-      mei.ExceptionPointers = exceptionPointers;
-      mei.ClientPointers = TRUE;
-
-      BOOL writeDump = miniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), file, MiniDumpNormal, exceptionPointers ? &mei : nullptr, nullptr, nullptr);
-
-      CloseHandle(file);
-      FreeLibrary(dbgHelp);
-
-      if (writeDump)
-      {
-          TCHAR message[_MAX_PATH + 256];
-          lstrcpy(message, TEXT(VER_PRODUCTNAME_STR " crashed. Crash information was saved to the file '"));
-          lstrcat(message, gMinidumpPath);
-          lstrcat(message, TEXT("', please send it to the developer for debugging."));
-
-          MessageBox(nullptr, message, TEXT(VER_PRODUCTNAME_STR), MB_OK);
-      }
-
-      return EXCEPTION_EXECUTE_HANDLER;
-  }
-
-  void Application::lcSehInit()
-  {
-      if (GetTempPath(sizeof(gMinidumpPath) / sizeof(gMinidumpPath[0]), gMinidumpPath))
-          lstrcat(gMinidumpPath, TEXT(VER_PRODUCTNAME_STR ".dmp"));
-
-      SetUnhandledExceptionFilter(lcSehHandler);
   }
 #endif
 
@@ -294,7 +225,7 @@ void Application::initialize()
     const int NumArguments = Arguments.size();
     for (int ArgIdx = 1; ArgIdx < NumArguments; ArgIdx++)
     ListArgs << Arguments[ArgIdx];
-#if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
+#if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD
     hdr = QString("%1 v%2 r%3 (%4) for %5")
                             .arg(VER_PRODUCTNAME_STR)
                             .arg(VER_PRODUCTVERSION_STR)
@@ -446,7 +377,6 @@ void Application::initialize()
                 fprintf(stdout, "  +ll, ++liblego: Load the LDraw LEGO archive parts library in GUI mode.\n");
                 fprintf(stdout, "  +lt, ++libtente: Load the LDraw TENTE archive parts library in GUI mode.\n");
                 fprintf(stdout, "  +lv, ++libvexiq: Load the LDraw VEXIQ archive parts library in GUI mode.\n");
-                fprintf(stdout, "  -sl --stud-logo <type>: Set the stud logo type 0 - 5, default is 0 no logo.\n");
                 fprintf(stdout, "  -d, --image-output-directory <directory>: Designate the png, jpg or bmp save folder using absolute path.\n");
                 fprintf(stdout, "  -fc, --fade-steps-color <LDraw color code>: Set the global fade color. Overridden by fade opacity - if opacity not 100 percent. Default is %s\n",LEGO_FADE_COLOUR_DEFAULT);
                 fprintf(stdout, "  -fo, --fade-step-opacity <percent>: Set the fade steps opacity percent. Overrides fade color - if opacity not 100 percent. Default is %s percent\n",QString(FADE_OPACITY_DEFAULT).toLatin1().constData());
@@ -462,7 +392,6 @@ void Application::initialize()
                 fprintf(stdout, "  -p, --preferred-renderer <renderer>: Set renderer native, ldglite, ldview, ldview-sc, ldview-scsl, povray, or povray-ldv. Default is native.\n ");
                 fprintf(stdout, "  -pe, --process-export: Export instruction document or images. Used with export-option. Default is pdf document.\n");
                 fprintf(stdout, "  -pf, --process-file: Process ldraw file and generate images in png format.\n");
-                fprintf(stdout, "  -pr, --projection <p,projection|o,orthographic>: Set camera projection.\n");
                 fprintf(stdout, "  -r, --range <page range>: Set page range - e.g. 1,2,9,10-42. Default is all pages.\n");
                 fprintf(stdout, "  -rs, --reset-search-dirs: Reset the LDraw parts directories to those searched by default. Default is off.\n");
                 fprintf(stdout, "  -v, --version: Output LPub3D version information and exit.\n");
@@ -526,28 +455,18 @@ void Application::initialize()
         }
     }
 
-    // Enum registrations from name.h
+    // Enum registrations
     Q_ENUMS(PartType)
     Q_ENUMS(PliType)
     Q_ENUMS(LogType)
     Q_ENUMS(IniFlag)
     Q_ENUMS(DividerType)
-    Q_ENUMS(ShowLoadMsgType)
-    Q_ENUMS(LoadMsgType)
-    Q_ENUMS(RulerTrackingType)
-    Q_ENUMS(SceneGuidesPosType)
     Q_ENUMS(LibType)
     Q_ENUMS(Theme)
-    Q_ENUMS(SaveOnSender)
-    Q_ENUMS(NativeType)
     Q_ENUMS(SceneObjectInfo)
     Q_ENUMS(GridStepSize)
-    Q_ENUMS(LDrawUnofficialFileType)
-    Q_ENUMS(SubAttributes)
-    Q_ENUMS(NameKeyAttributes)
     Q_ENUMS(SceneObject)
 
-    // other enum registrations
     Q_ENUMS(Dimensions)
     Q_ENUMS(PAction)
     Q_ENUMS(Direction)
@@ -567,12 +486,9 @@ void Application::initialize()
 
     Logger& logger = Logger::instance();
 
-    int logLevelIndex = -1;
-
     // set default log options
     if (Preferences::logging)
     {
-        bool debugLogging = false;
         if (Preferences::logLevels)
         {
             logger.setLoggingLevels();
@@ -583,8 +499,6 @@ void Application::initialize()
             logger.setStatusLevel(Preferences::statusLevel);
             logger.setErrorLevel( Preferences::errorLevel);
             logger.setFatalLevel( Preferences::fatalLevel);
-
-            debugLogging = Preferences::debugLevel;
         }
         else if (Preferences::logLevel)
         {
@@ -600,12 +514,9 @@ void Application::initialize()
                 else
                     fprintf(stderr, "%s", Message.toLatin1().constData());
             }
-            logLevelIndex = QStringList(QString(VER_LOGGING_LEVELS_STR).split(",")).indexOf(Preferences::loggingLevel,0);
-            debugLogging = logLevelIndex > -1 && logLevelIndex <= 3;
             logger.setLoggingLevel(logLevel);
         }
 
-        Preferences::setDebugLogging(debugLogging);
         logger.setIncludeLogLevel(    Preferences::includeLogLevel);
         logger.setIncludeTimestamp(   Preferences::includeTimestamp);
         logger.setIncludeLineNumber(  Preferences::includeLineNumber);
@@ -652,76 +563,9 @@ void Application::initialize()
         logger.setLoggingLevel(OffLevel);
     }
 
-    logInfo() << QString("Initializing application...");
+    qRegisterMetaType<LogType>("LogType");
 
-    // application version information
-    logInfo() << "-----------------------------";
-    logInfo() << hdr;
-    logInfo() << "=============================";
-    logInfo() << QString("Arguments....................(%1)").arg(ListArgs.join(" "));
-    QDir cwd(QCoreApplication::applicationDirPath());
-#ifdef Q_OS_MAC           // for macOS
-  logInfo() << QString(QString("macOS Binary Directory.......(%1)").arg(cwd.dirName()));
-  if (cwd.dirName() == "MacOS") {   // MacOS/         (app bundle executable folder)
-      cwd.cdUp();                   // Contents/      (app bundle contents folder)
-      cwd.cdUp();                   // LPub3D.app/    (app bundle folder)
-      cwd.cdUp();                   // Applications/  (app bundle installation folder)
-  }
-  logInfo() << QString(QString("macOS Base Directory.........(%1)").arg(cwd.dirName()));
-  if (QCoreApplication::applicationName() != QString(VER_PRODUCTNAME_STR))
-  {
-      logInfo() << QString(QString("macOS Info.plist update......(%1)").arg(Preferences::lpub3dAppName));
-      QFileInfo plbInfo("/usr/libexec/PlistBuddy");
-      if (!plbInfo.exists())
-          logInfo() << QString(QString("ERROR - %1 not found, cannot update Info.Plist").arg(plbInfo.absoluteFilePath()));
-  }
-#elif defined Q_OS_LINUX   // for Linux
-  QDir progDir(QString("%1/../share").arg(cwd.absolutePath()));
-  QDir contentsDir(progDir.absolutePath() + "/");
-  QStringList fileFilters = QStringList() << "lpub3d*";
-  QStringList shareContents = contentsDir.entryList(fileFilters);
-  if (shareContents.size() > 0)
-      logInfo() << QString(QString("LPub3D Application Folder....(%1)").arg(Preferences::lpub3dAppName));
-  else
-      logInfo() << QString(QString("ERROR - Application Folder Not Found."));
-#endif
-  // applications paths:
-  logInfo() << QString(QString("LPub3D App Data Path.........(%1)").arg(Preferences::lpubDataPath));
-#ifdef Q_OS_MAC   // macOS
-  logInfo() << QString(QString("LPub3D Bundle App Path.......(%1)").arg(Preferences::lpub3dPath));
-#else            // Linux and Windows
-  QString logPath = QString("%1/logs/%2Log.txt").arg(Preferences::lpubDataPath).arg(VER_PRODUCTNAME_STR);
-  logInfo() << QString(QString("LPub3D Executable Path.......(%1)").arg(Preferences::lpub3dPath));
-  logInfo() << QString(QString("LPub3D Log Path..............(%1)").arg(logPath));
-#endif
-#ifdef Q_OS_WIN
-  QSettings Settings;
-  QString dataDir = "data";
-  QString dataPath = Preferences::lpub3dPath;
-  if (Preferences::portableDistribution) {
-      dataDir = "extras";
-      logInfo() << QString("LPub3D Portable Distribution.(Yes)");
-      // On Windows installer 'dataLocation' folder defaults to LPub3D install path but can be set with 'DataLocation' reg key
-  } else if (Settings.contains(QString("%1/%2").arg(SETTINGS,"DataLocation"))) {
-      QString validDataPath = Settings.value(QString("%1/%2").arg(SETTINGS,"DataLocation")).toString();
-      QDir validDataDir(QString("%1/%2/").arg(validDataPath,dataDir));
-      if(QDir(validDataDir).exists()) {
-          dataPath = validDataPath;
-          logInfo() << QString(QString("LPub3D Data Location.........(%1)").arg(validDataDir.absolutePath()));
-      }
-  }
-#else
-  logInfo() << QString(QString("LPub3D Extras Resource Path..(%1)").arg(Preferences::lpub3dExtrasResourcePath));
-#if defined Q_OS_LINUX
-  QDir rendererDir(QString("%1/../../opt/%2").arg(Preferences::lpub3dPath).arg(Preferences::lpub3dAppName));
-  logInfo() << QString(QString("LPub3D Renderers Exe Path....(%1/3rdParty)").arg(rendererDir.absolutePath()));
-#endif
-#endif
-    logInfo() << QString("LPub3D Loaded LDraw Library..(%1)").arg(Preferences::validLDrawPartsLibrary);
-    logInfo() << QString("Logging Level................(%1 (%2), Levels: [%3])").arg(Preferences::loggingLevel)
-                         .arg(QString::number(logLevelIndex)).arg(QString(VER_LOGGING_LEVELS_STR).toLower());
-    logInfo() << QString("Debug Logging................(%1)").arg(Preferences::debugLogging ? "Enabled" : "Disabled");
-    logInfo() << "-----------------------------";
+    logInfo() << QString("Initializing application...");
 
     // splash
     if (modeGUI())
@@ -758,39 +602,27 @@ void Application::initialize()
     defaultResolutionType(Preferences::preferCentimeters);
 
     // Translator - not implemented
-    QString Language = lcGetProfileString(LC_PROFILE_LANGUAGE);
-    QLocale Locale;
-
-    if (!Language.isEmpty())
-        Locale = QLocale(Language);
-
     QTranslator QtTranslator;
-    if (QtTranslator.load(Locale, "qt", "_", QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
-        m_application.installTranslator(&QtTranslator);
-#ifdef Q_OS_WIN
-    else if (QtTranslator.load(Locale, "qt", "_", qApp->applicationDirPath() + "/translations"))
-        m_application.installTranslator(&QtTranslator);
-#endif
+    if (QtTranslator.load(QLocale::system(), "qt", "_", QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
+    {
+         m_application.installTranslator(&QtTranslator);
+    }
 
     QTranslator QtBaseTranslator;
-    if (QtBaseTranslator.load("qtbase_" + Locale.name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
+    if (QtBaseTranslator.load("qtbase_" + QLocale::system().name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
+    {
         m_application.installTranslator(&QtBaseTranslator);
-#ifdef Q_OS_WIN
-    else if (QtBaseTranslator.load("qtbase_" + Locale.name(), qApp->applicationDirPath() + "/translations"))
-        m_application.installTranslator(&QtBaseTranslator);
-#endif
+    }
 
     QTranslator Translator;
-    if (Translator.load("lpub_" + Locale.name(), ":../lclib/resources"))
+    if (Translator.load(QString("lpub_") + QLocale::system().name().section('_', 0, 0) + ".qm", ":../lclib/resources"))
+    {
         m_application.installTranslator(&Translator);
+    }
 
     qRegisterMetaTypeStreamOperators<QList<int> >("QList<int>");
 
     QList<QPair<QString, bool>> LibraryPaths;
-
-#ifdef Q_OS_WIN
-    lcSehInit();
-#endif
 
     setlocale(LC_NUMERIC, "C");
 
@@ -851,8 +683,7 @@ void Application::mainApp()
 
     availableVersions = new AvailableVersions(this);
 
-    if ((Preferences::enableFadeSteps || Preferences::enableHighlightStep))
-        gui->ldrawColorPartsLoad();
+    gui->ldrawColorPartsLoad();
 
     if (modeGUI()) {
         splash->finish(gui);

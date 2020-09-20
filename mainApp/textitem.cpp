@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -26,35 +26,20 @@
 #include "commonmenus.h"
 #include "pagebackgrounditem.h"
 #include "lpub.h"
-#include "placementdialog.h"
-#include "pairdialog.h"
 
-TextItem::TextItem(InsertMeta meta,
-  int onPageType,
-  bool placement,
+TextItem::TextItem(
+  InsertMeta meta,
   QGraphicsItem *parent)
     : meta(meta),
-      onPageType( onPageType),
-      pagePlaced( false),
-      textPlacement(placement),
-      textChanged(false),
-      isHovered(  false),
+      isHovered(false),
       mouseIsDown(false)
 {
-  if (meta.value().placementCommand) {
-      QString line = gui->readLine(meta.here());
-      emit gui->messageSig(LOG_ERROR, QString("Text placement command must come after an 'Add Text' command.<br>Line: %1")
-                           .arg(QString("%1 %2%3").arg(meta.here().lineNumber).arg(meta.here().modelName).arg(line.isEmpty() ? "" : line)));
-      return;
-  }
-
-  InsertData data    = meta.value();
-  richText           = data.type == InsertData::InsertRichText;
+  InsertData data = meta.value();
   setParentItem(parent);
 
   QString fontString = data.textFont;
   if (fontString.length() == 0) {
-    fontString = "Arial,24,-1,255,75,0,0,0,0,0";
+    fontString = "Arial,48,-1,255,75,0,0,0,0,0";
   }
 
   QFont font;
@@ -64,7 +49,6 @@ TextItem::TextItem(InsertMeta meta,
   QColor color(data.textColor);
   setDefaultTextColor(color);
 
-  // unformat text - remove quote escapte
   QStringList list = data.text.split("\\n");
 
   QStringList list2;
@@ -88,9 +72,10 @@ TextItem::TextItem(InsertMeta meta,
       string.append(QChar(' '));
     list2 << string;
 
-    if (richText)
+    if (data.type == InsertData::InsertHtmlText)
       setHtml(list2.join("\n"));
     else
+    if (data.type == InsertData::InsertText)
       setPlainText(list2.join("\n"));
   }
 
@@ -106,11 +91,9 @@ TextItem::TextItem(InsertMeta meta,
 
 void TextItem::formatText(const QString &input, QString &output)
 {
-    // format text - escapte quotes
     QStringList list = input.split("\n");
 
     QStringList list2;
-
     foreach (QString string, list){
       string = string.trimmed();
       QRegExp rx2("\"");
@@ -142,26 +125,17 @@ void TextItem::contextMenuEvent(
   QString pl = "Text";
 
   InsertData data = meta.value();
+  bool richText = data.type == InsertData::InsertHtmlText;
 
-  PlacementData placementData = placement.value();
-
-  QAction *editTextAction   = commonMenus.textMenu(menu,pl);
-  QAction *placementAction = nullptr;
-
-  if (textPlacement) {
-      placementAction = commonMenus.placementMenu(menu,pl,
-                        commonMenus.naturalLanguagePlacementWhatsThis(TextType,placementData,pl));
-
-      // remove offset from insertData if textPlacement enabled
-      data.offsets[XX] = 0.0f;
-      data.offsets[YY] = 0.0f;
-  }
-
+  QAction *editTextAction  = nullptr;
   QAction *editFontAction  = nullptr;
   QAction *editColorAction = nullptr;
-  if (!richText){
-    editFontAction  = commonMenus.fontMenu(menu,pl);
-    editColorAction = commonMenus.colorMenu(menu,pl);
+
+  if (richText) {
+      editTextAction = commonMenus.textMenu(menu,pl);
+  } else {
+      editFontAction  = commonMenus.fontMenu(menu,pl);
+      editColorAction = commonMenus.colorMenu(menu,pl);
   }
 
   QAction *deleteTextAction = menu.addAction("Delete This Text");
@@ -170,23 +144,15 @@ void TextItem::contextMenuEvent(
 
   QAction *selectedAction  = menu.exec(event->screenPos());
 
+  Where here = meta.here();
+
   if (selectedAction == nullptr) {
     return;
   }
 
   if (selectedAction == editTextAction) {
 
-    bool multiStep = parentRelativeType == StepGroupType;
-
-    updateText(meta.here(),
-               data.text,
-               data.textFont,
-               data.textColor,
-               data.offsets[XX],
-               data.offsets[YY],
-               parentRelativeType,
-               richText,
-               false/*append*/);
+    updateText(here, data.text, richText);
 
   } else if (selectedAction == editFontAction) {
 
@@ -215,54 +181,22 @@ void TextItem::contextMenuEvent(
     }
 
   } else if (selectedAction == editColorAction) {
+    InsertData data = meta.value();
 
     QColor color(data.textColor);
 
     color = QColorDialog::getColor(color);
 
-    if (color.isValid())
-        data.textColor = color.name();
-
+    data.textColor = color.name();
     meta.setValue(data);
     beginMacro("UpdateColor");
     replaceMeta(meta.here(),meta.format(false,false));
     endMacro();
 
-  } else if (selectedAction == placementAction) {
-      placement.preamble = QString("0 !LPUB INSERT %1 PLACEMENT ")
-                                   .arg(richText ? "RICH_TEXT" : "TEXT");
-      PlacementData placementData = placement.value();
-      bool ok;
-      ok = PlacementDialog
-           ::getPlacement(parentRelativeType,relativeType,placementData,"Placement",onPageType);
-      if (ok) {
-        placement.setValue(placementData);
-        QString line = gui->readLine(meta.here());
-        if (line.contains(placement.preamble)) {
-           line = placement.format(true,meta.global);
-           replaceMeta(meta.here(),line);
-        } else {
-           Where walkFwd = meta.here() + 1;
-           line = gui->readLine(walkFwd);
-           if (line.contains(placement.preamble)) {
-              line = placement.format(true,meta.global);
-              replaceMeta(walkFwd,line);
-           } else {
-              bool local = LocalDialog::getLocal(VER_PRODUCTNAME_STR, "Change only this step?",nullptr);
-              line = placement.format(local,false);
-              insertMeta(walkFwd,line);
-           }
-        }
-      }
   } else if (selectedAction == deleteTextAction) {
-    Where walkFwd = meta.here() + 1;
-    QString placement = QString("0 !LPUB INSERT %1 PLACEMENT ")
-                                .arg(richText ? "RICH_TEXT" : "TEXT");
-    QString line = gui->readLine(walkFwd);
+
     beginMacro("DeleteText");
-    if (line.contains(placement))
-        deleteMeta(walkFwd);
-    deleteMeta(meta.here());
+    deleteMeta(here);
     endMacro();
   }
 }
@@ -278,14 +212,9 @@ void TextItem::focusOutEvent(QFocusEvent *event)
   QGraphicsTextItem::focusOutEvent(event);
   if (textChanged) {
     InsertData insertData = meta.value();
-    // remove offset from insertData if textPlacement enabled
-    if (textPlacement){
-        insertData.offsets[XX] = 0.0f;
-        insertData.offsets[YY] = 0.0f;
-    }
 
     QString input,output;
-    if (richText)
+    if (insertData.type == InsertData::InsertHtmlText)
        input = toHtml();
     else
        input = toPlainText();
@@ -337,7 +266,7 @@ void TextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
   positionChanged = false;
   mouseIsDown = true;
   QGraphicsItem::mousePressEvent(event);
-//  update();
+  update();
 }
 
 void TextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
@@ -352,58 +281,31 @@ void TextItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     qreal topLeft[2] = { sceneBoundingRect().left(),  sceneBoundingRect().top() };
     qreal size[2]    = { sceneBoundingRect().width(), sceneBoundingRect().height() };
 
-    if (textPlacement)
-        placement.preamble = QString("0 !LPUB INSERT %1 PLACEMENT ")
-                                     .arg(richText ? "RICH_TEXT" : "TEXT");
+    PlacementData pld;
 
-    PlacementData pld = placement.value();
+    pld.placement    = TopLeft;
+    pld.justification    = Center;
+    pld.relativeTo      = PageType;
+    pld.preposition   = Inside;
 
     calcOffsets(pld,insertData.offsets,topLeft,size);
 
-    if (textPlacement) {
-        // apply offset to placementData
-        pld.offsets[XX] = insertData.offsets[XX];
-        pld.offsets[YY] = insertData.offsets[YY];
+    QString input,output;
+    if (insertData.type == InsertData::InsertHtmlText)
+       input = toHtml();
+    else
+       input = toPlainText();
 
-        placement.setValue(pld);
+    formatText(input, output);
 
-        bool canReplace = false;
-        Where walk = meta.here();
-        QString line = gui->readLine(walk);
-        if ((canReplace = line.contains(placement.preamble))) {
-           line = placement.format(true,meta.global);
-        } else {
-           walk++;
-           line = gui->readLine(walk);
-           if ((canReplace = line.contains(placement.preamble))) {
-              line = placement.format(true,meta.global);
-           }
-        }
-        if (canReplace) {
-          beginMacro(QString("MoveTextPlacement"));
+    insertData.text = output;
+    meta.setValue(insertData);
 
-          replaceMeta(walk,line);
+    beginMacro(QString("MoveText"));
 
-          endMacro();
-        }
-    } else {
-        QString input,output;
-        if (richText)
-           input = toHtml();
-        else
-           input = toPlainText();
+    changeInsertOffset(&meta);
 
-        formatText(input, output);
-
-        insertData.text = output;
-        meta.setValue(insertData);
-
-        beginMacro(QString("MoveText"));
-
-        changeInsertOffset(&meta);
-
-        endMacro();
-    }
+    endMacro();
   }
 }
 

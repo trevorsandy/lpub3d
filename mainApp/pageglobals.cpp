@@ -1,7 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -433,7 +433,7 @@ GlobalPageDialog::GlobalPageDialog(
   childlayout->addWidget(copyrightBoxBack);
   copyrightChildBack = new PageAttributeTextGui(&pageMeta->copyrightBack,copyrightBoxBack);
   childTextGui = static_cast<PageAttributeTextGui*>(copyrightChildBack);
-  childTextGui->contentEdit->setToolTip("Enter copyright - Copyright © 2020");
+  childTextGui->contentEdit->setToolTip("Enter copyright - Copyright © 2019");
   data->children.append(copyrightChildBack);
   connect(copyrightChildBack, SIGNAL(indexChanged(int)),
          SLOT(indexChanged(int)));
@@ -445,7 +445,7 @@ GlobalPageDialog::GlobalPageDialog(
   copyrightBox->hide();
   copyrightChild = new PageAttributeTextGui(&pageMeta->copyright,copyrightBox);
   childTextGui = static_cast<PageAttributeTextGui*>(copyrightChild);
-  childTextGui->contentEdit->setToolTip("Enter copyright - Copyright © 2020");
+  childTextGui->contentEdit->setToolTip("Enter copyright - Copyright © 2019");
   data->children.append(copyrightChild);
   connect(copyrightChild, SIGNAL(indexChanged(int)),
          SLOT(indexChanged(int)));
@@ -626,7 +626,7 @@ GlobalPageDialog::GlobalPageDialog(
   child = new NumberGui(&pageMeta->number,box);
   data->children.append(child);
 
-  box = new QGroupBox(tr("Page Number Placement"));
+  box = new QGroupBox(tr("Placement"));
   //grid->addWidget(box,2,0);
   vLayout->addWidget(box);
   child = new BoolRadioGui(
@@ -635,25 +635,10 @@ GlobalPageDialog::GlobalPageDialog(
     &pageMeta->togglePnPlacement,box);
   data->children.append(child);
 
-  // text placement
-  QHBoxLayout *childHLayout = new QHBoxLayout(nullptr);
-  box = new QGroupBox(tr("Text Placement"));
-  vLayout->addWidget(box);
-  box->setLayout(childHLayout);
-  CheckBoxGui *childTextPlacement = new CheckBoxGui("Enable Text Placement",&pageMeta->textPlacement);
-  childHLayout->addWidget(childTextPlacement);
-  childTextPlacementMeta = new PlacementGui(&pageMeta->textPlacementMeta,"Default Placement");
-  childTextPlacementMeta->setEnabled(pageMeta->textPlacement.value());
-  childHLayout->addWidget(childTextPlacementMeta);
-  // these are placed in reverse order so the meta commands are properly written
-  data->children.append(childTextPlacementMeta);
-  data->children.append(childTextPlacement);
-  connect (childTextPlacement->getCheckbox(), SIGNAL(clicked(bool)), this, SLOT(enableTextPlacement(bool)));
-
   //spacer
   vLayout->addSpacerItem(vSpacer);
 
-  tab->addTab(widget,tr("Number / Text"));
+  tab->addTab(widget,tr("Page Number"));
 
   QDialogButtonBox *buttonBox;
 
@@ -683,10 +668,6 @@ void GlobalPageDialog::displayGroup(bool b) {
         documentLogoBorderBoxBack->setEnabled(b);
     if (sender() == documentLogoBoxFront)
         documentLogoBorderBoxFront->setEnabled(b);
-}
-
-void GlobalPageDialog::enableTextPlacement(bool b) {
-    childTextPlacementMeta->setEnabled(b);
 }
 
 void GlobalPageDialog::indexChanged(int selection){

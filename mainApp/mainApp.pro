@@ -124,7 +124,7 @@ win32 {
 
     QMAKE_TARGET_COMPANY = "LPub3D Software"
     QMAKE_TARGET_DESCRIPTION = "LPub3D - An LDraw Building Instruction Editor."
-    QMAKE_TARGET_COPYRIGHT = "Copyright (c) 2015-2020 Trevor SANDY"
+    QMAKE_TARGET_COPYRIGHT = "Copyright (c) 2015-2019 Trevor SANDY"
     QMAKE_TARGET_PRODUCT = "LPub3D ($$join(ARCH,,,bit))"
     RC_LANG = "English (United Kingdom)"
     RC_ICONS = "lpub3d.ico"
@@ -195,7 +195,6 @@ CONFIG(debug, debug|release) {
     win32:TARGET = $$join(TARGET,,,d)
     unix:!macx: TARGET = $$join(TARGET,,,d$$VER_MAJOR$$VER_MINOR)
 
-    # enable this to copy LDView libraries to DESTDIR - a one-time action
     DO_COPY_LDVLIBS = #True
 
     # enable copy ldvMessages to OUT_PWD/mainApp/extras
@@ -234,7 +233,6 @@ CONFIG(debug, debug|release) {
     # executable target
     !macx:!win32: TARGET = $$join(TARGET,,,$$VER_MAJOR$$VER_MINOR)
 
-   # copy LDView libraries to DESTDIR
     DO_COPY_LDVLIBS = True
 }
 BUILD += $$BUILD_CONF
@@ -319,11 +317,6 @@ include(../LPub3DPlatformSpecific.pri)
 
 #~~~libraries~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-contains(DO_COPY_LDVLIBS,True) {
-    LDVIEW_LIBRARY_PATH = $$system_path( $$absolute_path($$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR))
-    message("~~~ ENABLE COPY LDVIEW LIBRARIES TO $$LDVIEW_LIBRARY_PATH ~~~ ")
-}
-
 # needed to access ui header from LDVQt
 INCLUDEPATH += $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR/.ui
 
@@ -344,7 +337,6 @@ LIBS += -L$$OUT_PWD/../quazip/$$DESTDIR -l$$QUAZIP_LIB
 LIBS += -L$$OUT_PWD/../ldrawini/$$DESTDIR -l$$LDRAWINI_LIB
 
 win32 {
-    DEFINES += _WIN_UTF8_PATHS
     LIBS += -ladvapi32 -lshell32 -lopengl32 -lglu32 -lwininet -luser32 -lws2_32 -lgdi32
 } else:!macx {
     LIBS += -lGL -lGLU
@@ -352,15 +344,6 @@ win32 {
 !win32-msvc* {
     LIBS += -lz
 }
-
-#~~ miscellaneous ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-contains(DEVL_LDV_MESSAGES_INI,True) {
-    message("~~~ ENABLE COPY LDVMESSAGES.INI TO $$OUT_PWD/extras ~~~ ")
-}
-
-# set config to enable/disable initial update check
-# CONFIG+=update_check
-update_check: DEFINES += DISABLE_UPDATE_CHECK
 
 #~~ inputs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -389,7 +372,7 @@ HEADERS += \
     globals.h \
     gradients.h \
     highlighter.h \
-    historylineedit.h \
+	historylineedit.h \
     hoverpoints.h \
     ldrawcolourparts.h \
     ldrawfiles.h \
@@ -461,8 +444,7 @@ HEADERS += \
     substitutepartdialog.h \
     ldrawcolordialog.h \
     ldrawcolordialog.cpp \
-    texteditdialog.h \
-    options.h
+    texteditdialog.h
 
 SOURCES += \
     aboutdialog.cpp \
@@ -494,7 +476,7 @@ SOURCES += \
     gradients.cpp \
     highlighter.cpp \
     highlightstepglobals.cpp \
-    historylineedit.cpp \
+	historylineedit.cpp \
     hoverpoints.cpp \
     ldrawcolourparts.cpp \
     ldrawfiles.cpp \
@@ -570,7 +552,7 @@ SOURCES += \
     substitutepartdialog.cpp \
     ldrawcolordialog.cpp \
     ldrawpartdialog.cpp \
-#    nativeviewer.cpp \
+    nativeviewer.cpp \
     texteditdialog.cpp
 
 FORMS += \
@@ -609,8 +591,11 @@ RESOURCES += \
 DISTFILES += \
     ldraw_document.icns
 
-#~~ suppress warnings ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# set config to enable initial update check
+# CONFIG+=update_check
+update_check: DEFINES += DISABLE_UPDATE_CHECK
 
+# Suppress warnings
 !win32-msvc* {
 QMAKE_CFLAGS_WARN_ON += \
     -Wno-deprecated-declarations \

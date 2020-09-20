@@ -1,7 +1,7 @@
 
 /****************************************************************************
 **
-** Copyright (C) 2018 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2018 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -31,7 +31,6 @@
 #include <QPen>
 #include <QPainter>
 #include "metatypes.h"
-#include "where.h"
 
 #include <cmath>
 
@@ -40,8 +39,6 @@ using namespace std;
 class BorderedLineItem : public QGraphicsLineItem
 {
 public:
-    int stepNumber;
-    Where top,bottom;
     BorderedLineItem(const QLineF &line,
                      PointerAttribData* paData,
                      QGraphicsItem* parent = nullptr);

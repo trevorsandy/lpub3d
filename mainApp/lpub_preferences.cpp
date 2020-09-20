@@ -1,7 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -193,7 +193,7 @@ bool    Preferences::showInstanceCount          = false;
 bool    Preferences::includeAllLogAttributes    = false;
 bool    Preferences::allLogLevels               = false;
 
-bool    Preferences::logLevel                   = false;   // logging level (combo box)
+bool    Preferences::logLevel                   = false;
 bool    Preferences::logging                    = false;   // logging on/off offLevel (grp box)
 bool    Preferences::logLevels                  = false;   // individual logging levels (grp box)
 
@@ -221,9 +221,6 @@ bool    Preferences::hidePageBackground         = false;
 bool    Preferences::showGuidesCoordinates      = false;
 bool    Preferences::showTrackingCoordinates    = false;
 bool    Preferences::showParseErrors            = true;
-bool    Preferences::showAnnotationMessages     = true;
-bool    Preferences::showSaveOnRedraw           = true;
-bool    Preferences::showSaveOnUpdate           = true;
 bool    Preferences::suppressStdOutToLog        = false;
 bool    Preferences::highlightFirstStep         = false;
 
@@ -232,7 +229,6 @@ bool    Preferences::customSceneGridColor       = false;
 bool    Preferences::customSceneRulerTickColor  = false;
 bool    Preferences::customSceneRulerTrackingColor = false;
 bool    Preferences::customSceneGuideColor      = false;
-bool    Preferences::debugLogging               = false;
 
 #ifdef Q_OS_MAC
 bool    Preferences::missingRendererLibs        = false;
@@ -448,75 +444,22 @@ bool Preferences::validLib(const QString &libName, const QString &libVersion) {
         return false;
     }
 
-    QString val1 = libVersion;
-    QString val2 = pr.readAllStandardOutput().trimmed();
+    QString v1 = libVersion;
+    QString v2 = pr.readAllStandardOutput().trimmed();
 
     // Compare v1 with v2 and return an integer:
     // Return -1 when v1 < v2
     // Return  0 when v1 = v2
     // Return  1 when v1 > v2
 
-    auto compareLibVersion = [&val1, &val2] ()
-    {
-        int result = 0;
-        int v1 = 0,v2 = 0;
-        QString _val1 = val1;
-        QString _val2 = val2;
-        bool good = false, ok = false;
-        if (_val1 == LIBJPEG_MACOS_VERSION) {
-            _val1.chop(val1.size() - 1);
-            _val2.chop(val2.size() - 1);
-            v1 = _val1.toInt(&good);
-            v2 = _val2.toInt(&ok);
-            good &= ok;
-            if (good) {
-                if (v1 < v2)
-                    return -1;
-                else if (v1 == v2)
-                    return 0;
-                else
-                    return 1;
-            } else {
-                return QString::compare(_val1, _val2, Qt::CaseInsensitive);
-            }
-        } else {
-            QStringList _vals1 = _val1.split(".");
-            QStringList _vals2 = _val2.split(".");
-            if (_vals1.size() == _vals2.size()) {
-                bool good = false, ok = false;
-                for(int i = 0; i < _vals1.size(); i++){
-                    v1 = _vals1.at(i).toInt(&good);
-                    v2 = _vals2.at(i).toInt(&ok);
-                    good &= ok;
-                    if (good) {
-                        if (v1 < v2)
-                            result = -1;
-                        else if (v1 == v2)
-                            result = 0;
-                        else
-                            result = 1;
-                        // if value is not 0 (equal), return result (-1, or 1)
-                        if (result)
-                            return result;
-                    } else {
-                       return QString::compare(_val1, _val2, Qt::CaseInsensitive);
-                    }
-                }
-            } else {
-                return QString::compare(_val1, _val2, Qt::CaseInsensitive);
-            }
-        }
-        return result;
-    };
-
-    int vc =  compareLibVersion(); // QString::compare(val1, val2, Qt::CaseInsensitive);
+    int vc = QString::compare(v1, v2, Qt::CaseInsensitive);
 
     logInfo() << QString("Library version check - [%1] minimum :[%2] installed:[%3] vc(%4): %5]")
-                         .arg(libName).arg(val1).arg(val2).arg(vc).arg(vc < 0 ? "v1 < v2" : vc == 0 ? "v1 = v2" : "v1 > v2");
+                         .arg(libName).arg(v1).arg(v2).arg(vc).arg(vc < 0 ? "v1 < v2" : vc == 0 ? "v1 = v2" : "v1 > v2");
 
     if (vc > 0) {
         logTrace() << QString("Library %1 version [%2] is less than required version [%3]")
-                              .arg(libName).arg(val2).arg(libVersion);
+                              .arg(libName).arg(v2).arg(libVersion);
         return false;
     }
 
@@ -2038,7 +1981,8 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
     QString const perspectiveProjectionKey("PerspectiveProjection");
 
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,perspectiveProjectionKey))) {
-        QVariant uValue(perspectiveProjection);
+        QVariant uValue(true);
+        perspectiveProjection = true;
         Settings.setValue(QString("%1/%2").arg(SETTINGS,perspectiveProjectionKey),uValue);
     } else {
         perspectiveProjection = Settings.value(QString("%1/%2").arg(SETTINGS,perspectiveProjectionKey)).toBool();
@@ -2074,10 +2018,9 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
         rendererTimeout = Settings.value(QString("%1/%2").arg(SETTINGS,"RendererTimeout")).toInt();
     }
 
-    // Native renderer camera distance factor
+    // Native renderer camera distance factor - Do not add Settings if not exist
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"CameraDistFactorNative"))) {
         cameraDistFactorNative = CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT;
-        Settings.setValue(QString("%1/%2").arg(SETTINGS,"CameraDistFactorNative"),cameraDistFactorNative);
     } else {
         cameraDistFactorNative = Settings.value(QString("%1/%2").arg(SETTINGS,"CameraDistFactorNative")).toInt();
     }
@@ -2122,8 +2065,8 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
 
     // Apply latitude and longitude camera angles locally
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"ApplyCALocally"))) {
-        applyCALocally = !(perspectiveProjection && preferredRenderer == RENDERER_LDVIEW);
-        QVariant uValue(applyCALocally);
+        QVariant uValue(true);
+        applyCALocally = true;
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"ApplyCALocally"),uValue);
     } else {
         applyCALocally = Settings.value(QString("%1/%2").arg(SETTINGS,"ApplyCALocally")).toBool();
@@ -2334,7 +2277,7 @@ void Preferences::updateLDViewIniFile(UpdateFlag updateFlag)
     if (resourceFile.exists())
     {
        if (updateFlag == SkipExisting) {
-           ldviewIni = QDir::toNativeSeparators(resourceFile.absoluteFilePath()); // populate ldview ini file
+           ldviewIni = resourceFile.absoluteFilePath(); // populate ldview ini file
            logInfo() << QString("LDView ini file    : %1").arg(ldviewIni);
            return;
        }
@@ -2387,7 +2330,7 @@ void Preferences::updateLDViewIniFile(UpdateFlag updateFlag)
         logError() << QString("Could not open LDView.ini input or output file: %1").arg(confFileError);
     }
     if (resourceFile.exists())
-        ldviewIni = QDir::toNativeSeparators(resourceFile.absoluteFilePath()); // populate ldview ini file
+        ldviewIni = resourceFile.absoluteFilePath(); // populate ldview ini file
     if (oldFile.exists())
         oldFile.remove();                            // delete old file
     logInfo() << QString("LDView ini file    : %1").arg(ldviewIni.isEmpty() ? "Not found" : ldviewIni);
@@ -3005,33 +2948,6 @@ void Preferences::userInterfacePreferences()
           showParseErrors = Settings.value(QString("%1/%2").arg(SETTINGS,showParseErrorsKey)).toBool();
   }
 
-  QString const showAnnotationMessagesKey("ShowAnnotationMessages");
-  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,showAnnotationMessagesKey))) {
-          QVariant uValue(true);
-          showAnnotationMessages = true;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,showAnnotationMessagesKey),uValue);
-  } else {
-          showAnnotationMessages = Settings.value(QString("%1/%2").arg(SETTINGS,showAnnotationMessagesKey)).toBool();
-  }
-
-  QString const showSaveOnRedrawKey("ShowSaveOnRedraw");
-  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,showSaveOnRedrawKey))) {
-          QVariant uValue(true);
-          showSaveOnRedraw = true;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,showSaveOnRedrawKey),uValue);
-  } else {
-          showSaveOnRedraw = Settings.value(QString("%1/%2").arg(SETTINGS,showSaveOnRedrawKey)).toBool();
-  }
-
-  QString const showSaveOnUpdateKey("ShowSaveOnUpdate");
-  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,showSaveOnUpdateKey))) {
-          QVariant uValue(true);
-          showSaveOnUpdate = true;
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,showSaveOnUpdateKey),uValue);
-  } else {
-          showSaveOnUpdate = Settings.value(QString("%1/%2").arg(SETTINGS,showSaveOnUpdateKey)).toBool();
-  }
-
   QString const showSubmodelsKey("ShowSubmodels");
   if (Settings.contains(QString("%1/%2").arg(SETTINGS,showSubmodelsKey))) {
       showSubmodels = Settings.value(QString("%1/%2").arg(SETTINGS,showSubmodelsKey)).toBool();
@@ -3099,33 +3015,6 @@ void Preferences::setShowParseErrorsPreference(bool b)
   QVariant uValue(b);
   QString const showParseErrorsKey("ShowParseErrors");
   Settings.setValue(QString("%1/%2").arg(SETTINGS,showParseErrorsKey),uValue);
-}
-
-void Preferences::setShowAnnotationMessagesPreference(bool b)
-{
-QSettings Settings;
-showAnnotationMessages = b;
-QVariant uValue(b);
-QString const showAnnotationMessagesKey("ShowAnnotationMessages");
-Settings.setValue(QString("%1/%2").arg(SETTINGS,showAnnotationMessagesKey),uValue);
-}
-
-void Preferences::setShowSaveOnRedrawPreference(bool b)
-{
-  QSettings Settings;
-  showSaveOnRedraw = b;
-  QVariant uValue(b);
-  QString const showSaveOnRedrawKey("ShowSaveOnRedraw");
-  Settings.setValue(QString("%1/%2").arg(SETTINGS,showSaveOnRedrawKey),uValue);
-}
-
-void Preferences::setShowSaveOnUpdatePreference(bool b)
-{
-  QSettings Settings;
-  showSaveOnUpdate = b;
-  QVariant uValue(b);
-  QString const showSaveOnUpdateKey("ShowSaveOnUpdate");
-  Settings.setValue(QString("%1/%2").arg(SETTINGS,showSaveOnUpdateKey),uValue);
 }
 
 void Preferences::setSnapToGridPreference(bool b)
@@ -3305,10 +3194,6 @@ void Preferences::setSceneGuideColorPreference(QString s)
   QVariant uValue(s);
   QString const sceneGuideColorKey("SceneGuideColor");
   Settings.setValue(QString("%1/%2").arg(SETTINGS,sceneGuideColorKey),uValue);
-}
-
-void Preferences::setDebugLogging(bool b){
-    debugLogging = b;
 }
 
 void Preferences::annotationPreferences()
@@ -3733,6 +3618,8 @@ void Preferences::viewerPreferences()
     QSettings Settings;
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,"ProjectsPath")))
         lcSetProfileString(LC_PROFILE_PROJECTS_PATH, Settings.value(QString("%1/%2").arg(SETTINGS,"ProjectsPath")).toString());
+
+    lcSetProfileInt(LC_PROFILE_SET_TARGET_POSITION, false);
 }
 
 bool Preferences::getPreferences()
@@ -3960,24 +3847,6 @@ bool Preferences::getPreferences()
         {
             showParseErrors = dialog->showParseErrors();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowParseErrors"),showParseErrors);
-        }
-
-        if (showAnnotationMessages != dialog->showAnnotationMessages())
-        {
-            showAnnotationMessages = dialog->showAnnotationMessages();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowAnnotationMessages"),showAnnotationMessages);
-        }
-
-        if (showSaveOnRedraw != dialog->showSaveOnRedraw())
-        {
-            showSaveOnRedraw = dialog->showSaveOnRedraw();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowSaveOnRedraw"),showSaveOnRedraw);
-        }
-
-        if (showSaveOnUpdate != dialog->showSaveOnUpdate())
-        {
-            showSaveOnUpdate = dialog->showSaveOnUpdate();
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowSaveOnUpdate"),showSaveOnUpdate);
         }
 
         if (fadeStepsOpacity != dialog->fadeStepsOpacity())

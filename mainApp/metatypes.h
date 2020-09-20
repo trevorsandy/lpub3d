@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -186,26 +186,24 @@ enum PlacementType {          // placement dialogue codes:
   SubModelType,               //25 Sm
   RotateIconType,             //26 Ri
   CsiPartType,                //27 Cp
-  StepType,                   //28 Stp
-  RangeType,                  //29 Rng
-  TextType,                   //30
-  BomType,                    //31
+  BomType,                    //28
 
-  PagePointerType,            //32
-  SingleStepType,             //33
-  ReserveType,                //34
-  CoverPageType,              //35
-  CsiAnnotationType,          //36
-  DividerPointerType,         //37
+  PagePointerType,            //29
+  SingleStepType,             //30
+  StepType,                   //31
+  RangeType,                  //32
+  ReserveType,                //33
+  CoverPageType,              //34
+  CsiAnnotationType,          //35
+  DividerPointerType,         //36
 
-  NumRelatives                //38
+  NumRelatives                //37
 };
 
 enum pageType{
     ContentPage = 0,
     FrontCoverPage,
-    BackCoverPage,
-    DefaultPage
+    BackCoverPage
 };
 
 enum AnnotationStyle{
@@ -405,19 +403,17 @@ public:
 class SceneObjectData
 {
 public:
-  qreal z;
-  int   itemObj;
-  bool  armed;  // not used
+  float z;
   float scenePos[2];
   SceneObjectDirection direction;
+  bool  armed;
   SceneObjectData()
   {
-    z           = 0.0;
     direction   = SendToBack;
     scenePos[0] = 0.0f;
     scenePos[1] = 0.0f;
+    z           = 0.0f;
     armed       = false;
-    itemObj     = 0;
   }
 };
 
@@ -441,50 +437,35 @@ public:
   {
     InsertPicture,
     InsertText,
-    InsertRichText,
+    InsertHtmlText,
     InsertArrow,
     InsertBom,
     InsertRotateIcon,
   } type;
 
   struct InsertWhere {
-    QString      modelName  = "undefined";
-    int          lineNumber = 0;
+    QString   modelName  = "undefined";
+    int       lineNumber = 0;
   };
-  InsertWhere    where;
-  QString        picName;
-  qreal          picScale;
-  QString        text;
-  QString        textFont;
-  QString        textColor;
-  QPointF        arrowHead;
-  QPointF        arrowTail;
-  qreal          haftingDepth;
-  QPointF        haftingTip;
-  float          offsets[2];
-  RectPlacement  rectPlacement;
-  PlacementType  relativeTo;
-  PlacementEnc   placement;
-  PlacementEnc   justification;
-  PrepositionEnc preposition;
-  PlacementType  relativeType;
-  PlacementType  parentRelativeType;
-  bool           defaultPlacement;
-  bool           placementCommand;
+  InsertWhere where;
+  QString     picName;
+  qreal       picScale;
+  QString     text;
+  QString     textFont;
+  QString     textColor;
+  QPointF     arrowHead;
+  QPointF     arrowTail;
+  qreal       haftingDepth;
+  QPointF     haftingTip;
+  float       offsets[2];
   InsertData()
   {
-    picScale           = 1.0;
-    offsets[0]         = 0.5;
-    offsets[1]         = 0.5;
-    haftingDepth       = 0;
-    textFont           = "Arial,48,-1,255,75,0,0,0,0,0";
-    textColor          = "Black";
-    defaultPlacement   = true;
-    placementCommand   = false;
-    rectPlacement      = TopLeftInsideCorner;
-    relativeType       = TextType;
-    relativeTo         = PageType;
-    parentRelativeType = PageType;
+    picScale = 1.0;
+    offsets[0] = 0.5;
+    offsets[1] = 0.5;
+    haftingDepth = 0;
+    textFont  = "Arial,48,-1,255,75,0,0,0,0,0";
+    textColor = "Black";
   }
 };
 

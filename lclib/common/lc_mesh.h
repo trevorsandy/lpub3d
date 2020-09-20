@@ -2,10 +2,14 @@
 
 #include "lc_math.h"
 
+#define LC_MESH_FILE_ID      LC_FOURCC('M', 'E', 'S', 'H')
+#define LC_MESH_FILE_VERSION 0x0115
+
 enum lcMeshPrimitiveType
 {
 	LC_MESH_LINES = 0x01,
 	LC_MESH_TRIANGLES = 0x02,
+	LC_MESH_TEXTURED_LINES = 0x04,
 	LC_MESH_TEXTURED_TRIANGLES = 0x08,
 	LC_MESH_CONDITIONAL_LINES = 0x10,
 	LC_MESH_NUM_PRIMITIVE_TYPES
@@ -31,8 +35,6 @@ struct lcMeshSection
 	int NumIndices;
 	lcMeshPrimitiveType PrimitiveType;
 	lcTexture* Texture;
-	lcBoundingBox BoundingBox;
-	float Radius;
 };
 
 struct lcMeshLod
@@ -58,8 +60,7 @@ enum lcMeshFlag
 	HasSolid       = 0x02, // Mesh has triangles using a solid color
 	HasTranslucent = 0x04, // Mesh has triangles using a translucent color
 	HasLines       = 0x08, // Mesh has lines
-	HasTexture     = 0x10, // Mesh has sections using textures
-	HasLogoStud    = 0x20  // Mesh has a stud that can have a logo applied
+	HasTexture     = 0x10  // Mesh has sections using textures
 };
 
 Q_DECLARE_FLAGS(lcMeshFlags, lcMeshFlag)
@@ -110,6 +111,25 @@ public:
 	int mNumVertices;
 	int mNumTexturedVertices;
 	int mIndexType;
+};
+
+enum class lcRenderMeshState : int
+{
+	NORMAL,
+	SELECTED,
+	FOCUSED,
+	DISABLED,
+	HIGHLIGHT
+};
+
+struct lcRenderMesh
+{
+	lcMatrix44 WorldMatrix;
+	lcMesh* Mesh;
+	float Distance;
+	int ColorIndex;
+	int LodIndex;
+	lcRenderMeshState State;
 };
 
 extern lcMesh* gPlaceholderMesh;

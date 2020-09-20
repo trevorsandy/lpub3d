@@ -30,7 +30,7 @@
 #  define DEF_MEM_LEVEL  MAX_MEM_LEVEL
 #endif
 
-#define LC_LIBRARY_CACHE_VERSION   0x0108
+#define LC_LIBRARY_CACHE_VERSION   0x0107
 #define LC_LIBRARY_CACHE_ARCHIVE   0x0001
 #define LC_LIBRARY_CACHE_DIRECTORY 0x0002
 /*** LPub3D Mod - part types ***/
@@ -63,7 +63,6 @@ lcPiecesLibrary::lcPiecesLibrary()
 	mBuffersDirty = false;
 	mHasUnofficial = false;
 	mCancelLoading = false;
-	mStudLogo = lcGetProfileInt(LC_PROFILE_STUD_LOGO);
 }
 
 lcPiecesLibrary::~lcPiecesLibrary()
@@ -389,7 +388,7 @@ bool lcPiecesLibrary::OpenArchive(lcFile* File, const QString& FileName, lcZipFi
 			if (!memcmp(Dst, ".PNG", 4))
 			{
 				if ((ZipFileType == LC_ZIPFILE_OFFICIAL && !memcmp(Name, "LDRAW/PARTS/TEXTURES/", 21)) ||
-					(ZipFileType == LC_ZIPFILE_UNOFFICIAL && !memcmp(Name, "PARTS/TEXTURES/", 15)))
+				    (ZipFileType == LC_ZIPFILE_UNOFFICIAL && !memcmp(Name, "PARTS/TEXTURES/", 15)))
 				{
 					lcTexture* Texture = new lcTexture();
 					mTextures.push_back(Texture);
@@ -526,7 +525,7 @@ void lcPiecesLibrary::ReadArchiveDescriptions(const QString& OfficialFileName, c
 bool lcPiecesLibrary::OpenDirectory(const QDir& LibraryDir, bool ShowProgress)
 {
 	const QLatin1String BaseFolders[LC_NUM_FOLDERTYPES] = { QLatin1String("unofficial/"), QLatin1String("") };
-	const int NumBaseFolders = LC_ARRAY_COUNT(BaseFolders);
+	const int NumBaseFolders = sizeof(BaseFolders) / sizeof(BaseFolders[0]);
 
 	QFileInfoList FileLists[NumBaseFolders];
 
@@ -543,13 +542,13 @@ bool lcPiecesLibrary::OpenDirectory(const QDir& LibraryDir, bool ShowProgress)
 	mHasUnofficial = !FileLists[LC_FOLDER_UNOFFICIAL].isEmpty();
 	ReadDirectoryDescriptions(FileLists, ShowProgress);
 
-	for (unsigned int BaseFolderIdx = 0; BaseFolderIdx < LC_ARRAY_COUNT(BaseFolders); BaseFolderIdx++)
+	for (unsigned int BaseFolderIdx = 0; BaseFolderIdx < sizeof(BaseFolders) / sizeof(BaseFolders[0]); BaseFolderIdx++)
 	{
 		const char* PrimitiveDirectories[] = { "p/", "parts/s/" };
 		bool SubFileDirectories[] = { false, false, true };
 		QDir BaseDir(LibraryDir.absoluteFilePath(QLatin1String(BaseFolders[BaseFolderIdx])));
 
-		for (int DirectoryIdx = 0; DirectoryIdx < (int)(LC_ARRAY_COUNT(PrimitiveDirectories)); DirectoryIdx++)
+		for (int DirectoryIdx = 0; DirectoryIdx < (int)(sizeof(PrimitiveDirectories) / sizeof(PrimitiveDirectories[0])); DirectoryIdx++)
 		{
 			QString ChildPath = BaseDir.absoluteFilePath(QLatin1String(PrimitiveDirectories[DirectoryIdx]));
 			QDirIterator DirIterator(ChildPath, QStringList() << QLatin1String("*.dat"), QDir::Files | QDir::Hidden | QDir::Readable, QDirIterator::Subdirectories);
@@ -595,49 +594,44 @@ bool lcPiecesLibrary::OpenDirectory(const QDir& LibraryDir, bool ShowProgress)
 		}
 	}
 
-	for (unsigned int BaseFolderIdx = 0; BaseFolderIdx < LC_ARRAY_COUNT(BaseFolders); BaseFolderIdx++)
+	QDir Dir(LibraryDir.absoluteFilePath(QLatin1String("parts/textures/")), QLatin1String("*.png"), QDir::SortFlags(QDir::Name | QDir::IgnoreCase), QDir::Files | QDir::Hidden | QDir::Readable);
+	QStringList FileList = Dir.entryList();
+
+	mTextures.reserve(FileList.size());
+
+	for (int FileIdx = 0; FileIdx < FileList.size(); FileIdx++)
 	{
-		QDir BaseDir(LibraryDir.absoluteFilePath(QLatin1String(BaseFolders[BaseFolderIdx])));
-		QDir Dir(BaseDir.absoluteFilePath(QLatin1String("parts/textures/")), QLatin1String("*.png"), QDir::SortFlags(QDir::Name | QDir::IgnoreCase), QDir::Files | QDir::Hidden | QDir::Readable);
-		QStringList FileList = Dir.entryList();
+		char Name[LC_MAXPATH];
+		QByteArray FileString = FileList[FileIdx].toLatin1();
+		const char* Src = FileString;
+		char* Dst = Name;
 
-		mTextures.reserve(mTextures.size() + FileList.size());
-
-		for (int FileIdx = 0; FileIdx < FileList.size(); FileIdx++)
+		while (*Src && Dst - Name < (int)sizeof(Name))
 		{
-			char Name[LC_MAXPATH];
-			QByteArray FileString = FileList[FileIdx].toLatin1();
-			const char* Src = FileString;
-			char* Dst = Name;
+			if (*Src >= 'a' && *Src <= 'z')
+				*Dst = *Src + 'A' - 'a';
+			else if (*Src == '\\')
+				*Dst = '/';
+			else
+				*Dst = *Src;
 
-			while (*Src && Dst - Name < (int)sizeof(Name))
-			{
-				if (*Src >= 'a' && *Src <= 'z')
-					*Dst = *Src + 'A' - 'a';
-				else if (*Src == '\\')
-					*Dst = '/';
-				else
-					*Dst = *Src;
-
-				Src++;
-				Dst++;
-			}
-
-			if (Dst - Name <= 4)
-				continue;
-
-			Dst -= 4;
-			if (memcmp(Dst, ".PNG", 4))
-				continue;
-			*Dst = 0;
-
-			lcTexture* Texture = new lcTexture();
-			mTextures.push_back(Texture);
-
-			strncpy(Texture->mName, Name, sizeof(Texture->mName));
-			Texture->mName[sizeof(Texture->mName) - 1] = 0;
-			Texture->mFileName = Dir.absoluteFilePath(FileList[FileIdx]);
+			Src++;
+			Dst++;
 		}
+
+		if (Dst - Name <= 4)
+			continue;
+
+		Dst -= 4;
+		if (memcmp(Dst, ".PNG", 4))
+			continue;
+		*Dst = 0;
+
+		lcTexture* Texture = new lcTexture();
+		mTextures.push_back(Texture);
+
+		strncpy(Texture->mName, Name, sizeof(Texture->mName));
+		Texture->mName[sizeof(Texture->mName) - 1] = 0;
 	}
 
 	return true;
@@ -663,7 +657,7 @@ void lcPiecesLibrary::ReadDirectoryDescriptions(const QFileInfoList (&FileLists)
 				const char* FileName = (const char*)IndexFile.mBuffer + IndexFile.GetPosition();
 				CachedDescriptions.push_back(FileName);
 				IndexFile.Seek(strlen(FileName) + 1, SEEK_CUR);
-				const char* Description = (const char*)IndexFile.mBuffer + IndexFile.GetPosition();
+				const char* Description = (const char*)IndexFile.mBuffer + IndexFile.GetPosition(); 
 				IndexFile.Seek(strlen(Description) + 1, SEEK_CUR);
 				IndexFile.Seek(4 + 1 + 8, SEEK_CUR);
 			}
@@ -857,7 +851,7 @@ bool lcPiecesLibrary::ReadArchiveCacheFile(const QString& FileName, lcMemFile& C
 		return false;
 
 	quint32 CacheVersion, CacheFlags;
-
+	
 	if (File.read((char*)&CacheVersion, sizeof(CacheVersion)) == -1 || CacheVersion != LC_LIBRARY_CACHE_VERSION)
 		return false;
 
@@ -933,7 +927,7 @@ bool lcPiecesLibrary::ReadArchiveCacheFile(const QString& FileName, lcMemFile& C
 	} while (ret != Z_STREAM_END);
 
 	(void)inflateEnd(&strm);
-
+	
 	CacheFile.Seek(0, SEEK_SET);
 
 	return ret == Z_STREAM_END;
@@ -948,7 +942,7 @@ bool lcPiecesLibrary::WriteArchiveCacheFile(const QString& FileName, lcMemFile& 
 
 	quint32 CacheVersion = LC_LIBRARY_CACHE_VERSION;
 	quint32 CacheFlags = LC_LIBRARY_CACHE_ARCHIVE;
-
+	
 	if (File.write((char*)&CacheVersion, sizeof(CacheVersion)) == -1)
 		return false;
 
@@ -999,7 +993,7 @@ bool lcPiecesLibrary::WriteArchiveCacheFile(const QString& FileName, lcMemFile& 
 		} while (Stream.avail_out == 0);
 	} while (FlushMode != Z_FINISH);
 
-	deflateEnd(&Stream);
+    deflateEnd(&Stream);
 
 	return true;
 }
@@ -1121,11 +1115,8 @@ bool lcPiecesLibrary::LoadCachePiece(PieceInfo* Info)
 	if (!ReadArchiveCacheFile(FileName, MeshData))
 		return false;
 
-	qint32 Flags;
+	quint32 Flags;
 	if (MeshData.ReadBuffer((char*)&Flags, sizeof(Flags)) == 0)
-		return false;
-
-	if (Flags != mStudLogo)
 		return false;
 
 	lcMesh* Mesh = new lcMesh;
@@ -1144,10 +1135,6 @@ bool lcPiecesLibrary::LoadCachePiece(PieceInfo* Info)
 bool lcPiecesLibrary::SaveCachePiece(PieceInfo* Info)
 {
 	lcMemFile MeshData;
-
-	qint32 Flags = mStudLogo;
-	if (MeshData.WriteBuffer((char*)&Flags, sizeof(Flags)) == 0)
-		return false;
 
 	if (!Info->GetMesh()->FileSave(MeshData))
 		return false;
@@ -1287,11 +1274,11 @@ bool lcPiecesLibrary::LoadPieceData(PieceInfo* Info)
 				Loaded = MeshLoader.LoadMesh(PieceFile, LC_MESHDATA_SHARED);
 		}
 	}
-
+	
 	if (!Loaded || mCancelLoading)
 		return false;
 
-	if (Info) 
+	if (Info)
 		Info->SetMesh(MeshData.CreateMesh());
 
 	if (SaveCache)
@@ -1540,7 +1527,25 @@ bool lcPiecesLibrary::LoadTexture(lcTexture* Texture)
 		return Texture->Load(TextureFile);
 	}
 	else
-		return Texture->Load(Texture->mFileName);
+	{
+		sprintf(FileName, "parts/textures/%s.png", Texture->mName);
+
+		if (Texture->Load(mLibraryDir.absoluteFilePath(QLatin1String(FileName))))
+			return true;
+
+#if defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
+		char Name[LC_MAXPATH];
+
+		strcpy(Name, Texture->mName);
+		strlwr(Name);
+
+		sprintf(FileName, "parts/textures/%s.png", Name);
+
+		return Texture->Load(mLibraryDir.absoluteFilePath(QLatin1String(FileName)));
+#else
+		return false;
+#endif
+	}
 }
 
 void lcPiecesLibrary::ReleaseTexture(lcTexture* Texture)
@@ -1572,70 +1577,6 @@ void lcPiecesLibrary::UploadTextures(lcContext* Context)
 	mTextureUploads.clear();
 }
 
-void lcPiecesLibrary::SetStudLogo(int StudLogo, bool Reload)
-{
-	mStudLogo = StudLogo;
-
-	mLoadMutex.lock();
-
-	for (const auto& PrimitiveIt : mPrimitives)
-	{
-		lcLibraryPrimitive* Primitive = PrimitiveIt.second;
-		if (Primitive->mMeshData.mHasLogoStud)
-			Primitive->Unload();
-	}
-
-	mLoadMutex.unlock();
-
-	if (Reload)
-	{
-		mLoadMutex.lock();
-
-		for (const auto& PieceIt : mPieces)
-		{
-			PieceInfo* Info = PieceIt.second;
-
-			if (Info->mState == LC_PIECEINFO_LOADED && Info->GetMesh() && Info->GetMesh()->mFlags & lcMeshFlag::HasLogoStud)
-			{
-				Info->Unload();
-				mLoadQueue.append(Info);
-				mLoadFutures.append(QtConcurrent::run([this]() { LoadQueuedPiece(); }));
-			}
-		}
-
-		mLoadMutex.unlock();
-
-		WaitForLoadQueue();
-	}
-}
-
-bool lcPiecesLibrary::GetStudLogoFile(lcMemFile& PrimFile, int StudLogo, bool OpenStud)
-{
-	// validate logo choice and unofficial lib available
-	if (!StudLogo || (!mZipFiles[LC_ZIPFILE_UNOFFICIAL] && !mHasUnofficial))
-		return false;
-
-	// construct logo reference line
-	QString Logo        = QString("%1").arg(StudLogo);
-	QString LogoRefLine = QString("1 16 0 0 0 1 0 0 0 1 0 0 0 1 ");
-	LogoRefLine        += (OpenStud ? QString("stud2-logo%1.dat").arg(StudLogo > 1 ? Logo : ""):
-									  QString("stud-logo%1.dat").arg(StudLogo > 1 ? Logo : ""));
-
-	// construct primitive file
-	QByteArray FileData;
-	QTextStream out(&FileData);
-	out << (OpenStud ? "0 Stud Open" : "0 Stud") << endl;
-	out << (OpenStud ? "0 Name: stud2.dat" : "0 Name: stud.dat") << endl;
-	out << "0 Author: James Jessiman" << endl;
-	out << "0 !LDRAW_ORG Primitive" << endl;
-	out << "0 BFC CERTIFY CCW" << endl;
-	out << LogoRefLine << endl;
-
-	PrimFile.WriteBuffer(FileData.constData(), size_t(FileData.size()));
-	PrimFile.Seek(0, SEEK_SET);
-	return true;
-}
-
 bool lcPiecesLibrary::LoadPrimitive(lcLibraryPrimitive* Primitive)
 {
 	mLoadMutex.lock();
@@ -1656,37 +1597,22 @@ bool lcPiecesLibrary::LoadPrimitive(lcLibraryPrimitive* Primitive)
 
 	lcMeshLoader MeshLoader(Primitive->mMeshData, true, nullptr, false);
 
-	bool SetStudLogo = false;
-
 	if (mZipFiles[LC_ZIPFILE_OFFICIAL])
 	{
 		lcLibraryPrimitive* LowPrimitive = nullptr;
 
-		lcMemFile PrimFile;
-
-		if (Primitive->mStud)
+		if (Primitive->mStud && strncmp(Primitive->mName, "8/", 2)) // todo: this is currently the only place that uses mName so use mFileName instead. this should also be done for the loose file libraries.
 		{
-			bool OpenStud = !strcmp(Primitive->mName,"stud2.dat");
-			if (OpenStud || !strcmp(Primitive->mName,"stud.dat"))
-			{
-				Primitive->mMeshData.mHasLogoStud = true;
+			char Name[LC_PIECE_NAME_LEN];
+			strcpy(Name, "8/");
+			strcat(Name, Primitive->mName);
 
-				if (mStudLogo)
-					SetStudLogo = GetStudLogoFile(PrimFile, mStudLogo, OpenStud);
-			}
-
-			if (!SetStudLogo && strncmp(Primitive->mName, "8/", 2)) // todo: this is currently the only place that uses mName so use mFileName instead. this should also be done for the loose file libraries.
-			{
-				char Name[LC_PIECE_NAME_LEN];
-				strcpy(Name, "8/");
-				strcat(Name, Primitive->mName);
-				strupr(Name);
-
-				LowPrimitive = FindPrimitive(Name);
-			}
+			LowPrimitive = FindPrimitive(Name);
 		}
 
-		if (!SetStudLogo && !mZipFiles[Primitive->mZipFileType]->ExtractFile(Primitive->mZipFileIndex, PrimFile))
+		lcMemFile PrimFile;
+
+		if (!mZipFiles[Primitive->mZipFileType]->ExtractFile(Primitive->mZipFileIndex, PrimFile))
 			return false;
 
 		if (!LowPrimitive)
@@ -1708,30 +1634,10 @@ bool lcPiecesLibrary::LoadPrimitive(lcLibraryPrimitive* Primitive)
 	}
 	else
 	{
-		if (Primitive->mStud)
-		{
-			bool OpenStud = !strcmp(Primitive->mName,"stud2.dat");
-			if (OpenStud || !strcmp(Primitive->mName,"stud.dat"))
-			{
-				Primitive->mMeshData.mHasLogoStud = true;
+		lcDiskFile PrimFile(Primitive->mFileName);
 
-				if (mStudLogo)
-				{
-					lcMemFile PrimFile;
-
-					if (GetStudLogoFile(PrimFile, mStudLogo, OpenStud))
-						SetStudLogo = MeshLoader.LoadMesh(PrimFile, LC_MESHDATA_SHARED);
-				}
-			}
-		}
-
-		if (!SetStudLogo)
-		{
-			lcDiskFile PrimFile(Primitive->mFileName);
-
-			if (!PrimFile.Open(QIODevice::ReadOnly) || !MeshLoader.LoadMesh(PrimFile, LC_MESHDATA_SHARED)) // todo: LOD like the zip files
-				return false;
-		}
+		if (!PrimFile.Open(QIODevice::ReadOnly) || !MeshLoader.LoadMesh(PrimFile, LC_MESHDATA_SHARED)) // todo: LOD like the zip files
+			return false;
 	}
 
 	mLoadMutex.lock();
@@ -1855,42 +1761,13 @@ void lcPiecesLibrary::GetPatternedPieces(PieceInfo* Parent, lcArray<PieceInfo*>&
 	}
 }
 
-void lcPiecesLibrary::GetParts(lcArray<PieceInfo*>& Parts) const
+void lcPiecesLibrary::GetParts(lcArray<PieceInfo*>& Parts)
 {
 	Parts.SetSize(0);
 	Parts.AllocGrow(mPieces.size());
 
 	for (const auto& PartIt : mPieces)
 		Parts.Add(PartIt.second);
-}
-
-std::vector<PieceInfo*> lcPiecesLibrary::GetPartsFromSet(const std::vector<std::string>& PartIds) const
-{
-	std::vector<PieceInfo*> Parts;
-	Parts.reserve(PartIds.size());
-
-	for (const std::string& PartId : PartIds)
-	{
-		std::map<std::string, PieceInfo*>::const_iterator PartIt = mPieces.find(PartId);
-
-		if (PartIt != mPieces.end())
-			Parts.push_back(PartIt->second);
-	}
-
-	return Parts;
-}
-
-std::string lcPiecesLibrary::GetPartId(const PieceInfo* Info) const
-{
-	std::map<std::string, PieceInfo*>::const_iterator PartIt = std::find_if(mPieces.begin(), mPieces.end(), [Info](const std::pair<std::string, PieceInfo*>& PartIt)
-	{
-		return PartIt.second == Info;
-	});
-
-	if (PartIt != mPieces.end())
-		return PartIt->first;
-	else
-		return std::string();
 }
 
 bool lcPiecesLibrary::LoadBuiltinPieces()

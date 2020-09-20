@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -71,10 +71,9 @@ class Step : public AbstractRangeElement
     QPixmap               csiPixmap;
     RotateIconMeta        rotateIconMeta;
     RotateIconItem        rotateIcon;
-    UnitsMeta             stepSize;
     PlacementNum          stepNumber;
     NumberPlacementMeta   numberPlacemetMeta;
-    CalloutCsiMeta        csiCameraMeta;
+    SettingsMeta          csiCameraMeta;
     StringMeta            ldviewParms;
     StringMeta            ldgliteParms;
     StringMeta            povrayParms;
@@ -86,7 +85,6 @@ class Step : public AbstractRangeElement
     bool                  modelDisplayOnlyStep;
     bool                  fadeSteps;
     bool                  highlightStep;
-    bool                  adjustOnItemOffset;
     QString               ldrName;
     QString               pngName;
     QString               csiKey;
@@ -99,8 +97,6 @@ class Step : public AbstractRangeElement
 
     SceneObjectMeta       sceneRotateIconZ;
     SceneObjectMeta       sceneStepNumberZ;
-
-    MultiStepStepBackgroundItem *stepBackground;
 
     Step(
       Where                 &topOfStep,
@@ -132,11 +128,11 @@ class Step : public AbstractRangeElement
     MetaItem *mi(int which = -1)
     {
         switch(which){
-        case Options::Mt::PLI:
+        case Render::Mt::PLI:
             return static_cast<MetaItem *>(pli.background);
-        case Options::Mt::CSI:
+        case Render::Mt::CSI:
             return static_cast<MetaItem *>(csiItem);
-        case Options::Mt::SMP:
+        case Render::Mt::SMP:
             return static_cast<MetaItem *>(subModel.background);
         default:
            return static_cast<MetaItem *>(csiItem);
@@ -164,11 +160,6 @@ class Step : public AbstractRangeElement
                 int  colsMargin[][2],
                 int  x,
                 int  y);
-
-    bool adjustSize(
-      Placement &pl1, // placement with offset
-      int  rows[],    // accumulate sub-row heights here
-      int  cols[]);   // accumulate sub-col widths here
 
     bool collide(int square[][NumPlaces],
                  int tbl[],

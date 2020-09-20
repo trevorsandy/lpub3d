@@ -1,7 +1,7 @@
 /**************************************************************************** 
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -250,70 +250,29 @@ void Gui::saveAs()
   enableWatcher();
 } 
 
-bool Gui::maybeSave(bool prompt, int sender /*SaveOnNone=0*/)
+bool Gui::maybeSave(bool prompt)
 {
-  QString senderLabel;
-  bool proceed = true;
-  SaveOnSender saveSender = SaveOnSender(sender);
-  if (saveSender ==  SaveOnRedraw) {
-      senderLabel = "redraw";
-      proceed = Preferences::showSaveOnRedraw;
-  } else
-  if (saveSender ==  SaveOnUpdate) {
-     senderLabel = "update";
-     proceed = Preferences::showSaveOnUpdate;
-  }
-
-  if ( ! undoStack->isClean() && proceed) {
-    if (Preferences::modeGUI && prompt) {
-      // Get the application icon as a pixmap
-      QPixmap _icon = QPixmap(":/icons/lpub96.png");
-      if (_icon.isNull())
-          _icon = QPixmap (":/icons/update.png");
-
-      QMessageBoxResizable box;
-      box.setWindowIcon(QIcon());
-      box.setIconPixmap (_icon);
-      box.setTextFormat (Qt::RichText);
-      box.setWindowTitle(tr ("%1 Document").arg(VER_PRODUCTNAME_STR));
-      box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-      QString title = "<b>" + tr ("Document changes detected&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;") + "</b>";
-      QString text = tr("The document has been modified.<br>"
-                        "Do you want to save your changes?");
-      box.setText (title);
-      box.setInformativeText (text);
-      box.setStandardButtons (QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
-      box.setDefaultButton   (QMessageBox::Save);
-
-      if (saveSender){
-          QCheckBox *cb = new QCheckBox(tr("Do not show save changes on %1 message again.").arg(senderLabel));
-          box.setCheckBox(cb);
-          QObject::connect(cb, &QCheckBox::stateChanged, [&saveSender](int state) {
-              bool checked = true;
-              if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked) {
-                  checked = false;
-              }
-              if (saveSender == SaveOnRedraw) {
-                  Preferences::setShowSaveOnRedrawPreference(checked);
-              } else {
-                  Preferences::setShowSaveOnUpdatePreference(checked);
-              }
-          });
-      }
-
-      int ExecReturn = box.exec();
-      if (ExecReturn == QMessageBox::Save) {
-        save();
-      } else
-      if (ExecReturn == QMessageBox::Cancel) {
-        return false;
-      }
-    } else {
-      save();
-      emit messageSig(LOG_INFO,tr("Open document has been saved!"));
+    if ( ! undoStack->isClean() ) {
+        QString message;
+        QMessageBox::StandardButton ret = QMessageBox::Ok;
+        if (Preferences::modeGUI && prompt) {
+            message = tr("The document has been modified."
+                          "Do you want to save your changes?");
+            ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR), message,
+                                       QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+            if (ret == QMessageBox::Save) {
+                save();
+            }
+        } else {
+            save();
+            message = tr("Open document has been saved!");
+            emit messageSig(LOG_INFO,message);
+        }
+        if (ret == QMessageBox::Cancel) {
+            return false;
+        }
     }
-  }
-  return true;
+    return true;
 }
 
 bool Gui::saveFile(const QString &fileName)
@@ -340,8 +299,6 @@ void Gui::closeFile()
   setPageLineEdit->clear();
   pageSizes.clear();
   undoStack->clear();
-  if (Preferences::enableFadeSteps || Preferences::enableHighlightStep)
-      ldrawColourParts.clearGeneratedColorParts();
   submodelIconsLoaded = gMainWindow->mSubmodelIconsLoaded = false;
   if (!curFile.isEmpty())
       emit messageSig(LOG_DEBUG, QString("File closed - %1.").arg(curFile));
@@ -369,7 +326,7 @@ void Gui::closeModelFile(){
 
   QString windowName = VER_FILEDESCRIPTION_STR;
   QString windowVersion;
-#if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
+#if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD
   windowVersion = QString("v%1 r%2 (%3)")
           .arg(VER_PRODUCTVERSION_STR)
           .arg(VER_REVISION_STR)
@@ -390,30 +347,27 @@ setWindowTitle(tr("%1[*] - %2").arg(windowName).arg(windowVersion));
 
 bool Gui::openFile(QString &fileName)
 {
+
   disableWatcher();
 
   parsedMessages.clear();
-  clearPage(KpageView,KpageScene,true);
+  clearPage(KpageView,KpageScene);
   closeFile();
   if (lcGetPreferences().mViewPieceIcons)
       mPliIconsPath.clear();
+  if (Preferences::enableFadeSteps && Preferences::enableImageMatting)
+    LDVImageMatte::clearMatteCSIImages();
   emit messageSig(LOG_INFO_STATUS, QString("Loading LDraw model file [%1]...").arg(fileName));
   if (ldrawFile.loadFile(fileName) != 0) {
       closeModelFile();
       return false;
   }
-  setFadeStepsFromCommandMeta();
-  setHighlightStepFromCommandMeta();
-  if (Preferences::enableFadeSteps && Preferences::enableImageMatting)
-    LDVImageMatte::clearMatteCSIImages();
   displayPageNum = 1;
   QFileInfo info(fileName);
   QDir::setCurrent(info.absolutePath());
   Paths::mkDirs();
   editModelFileAct->setText(tr("Edit %1").arg(info.fileName()));
   editModelFileAct->setStatusTip(tr("Edit loaded LDraw model file %1").arg(info.fileName()));
-  if (Preferences::enableFadeSteps || Preferences::enableHighlightStep)
-      writeGeneratedColorPartsToTemp();
   bool overwriteCustomParts = false;
   emit messageSig(LOG_INFO, "Loading fade color parts...");
   processFadeColourParts(overwriteCustomParts);
@@ -486,7 +440,7 @@ void Gui::setCurrentFile(const QString &fileName)
     windowName = fileInfo.fileName();
   }
   QString windowVersion;
-#if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD || defined LP3D_NEXT_BUILD
+#if defined LP3D_CONTINUOUS_BUILD || defined LP3D_DEVOPS_BUILD
   windowVersion = QString("%1 v%2 r%3 (%4)")
                           .arg(VER_PRODUCTNAME_STR)
                           .arg(VER_PRODUCTVERSION_STR)
@@ -520,7 +474,7 @@ void Gui::setCurrentFile(const QString &fileName)
 void Gui::loadLastOpenedFile(){
     updateRecentFileActions();
     if (recentFilesActs[0]) {
-        loadFile(recentFilesActs[0]->data().toString());
+        emit loadFile(recentFilesActs[0]->data().toString());
     }
 }
 
@@ -546,7 +500,7 @@ void Gui::fileChanged(const QString &path)
   QString text = tr("\"%1\" contents were changed by an external source. Reload?").arg(path);
   box.setText (title);
   box.setInformativeText (text);
-  box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
+  box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
   box.setDefaultButton   (QMessageBox::Yes);
 
   if (box.exec() == QMessageBox::Yes) {
@@ -560,91 +514,6 @@ void Gui::fileChanged(const QString &path)
     displayPageNum = goToPage;
     displayPage();
   }
-}
-
-void Gui::writeGeneratedColorPartsToTemp(){
-  for (int i = 0; i < ldrawFile._subFileOrder.size(); i++) {
-    QString fileName = ldrawFile._subFileOrder[i].toLower();
-    if (ldrawColourParts.isLDrawColourPart(fileName)) {
-      Where here(ldrawFile._subFileOrder[i],0);
-      normalizeHeader(here);
-      QString fileName = ldrawFile._subFileOrder[i].toLower();
-      QStringList content = ldrawFile.contents(fileName);
-      emit messageSig(LOG_INFO, "Writing generated part to temp directory: " + fileName + "...");
-      writeToTmp(fileName,content);
-    }
-  }
-}
-
-void Gui::setFadeStepsFromCommandMeta()
-{
-    if (!Preferences::enableFadeSteps){
-        Where fileHeader(gui->topLevelFile(),0);
-        QRegExp lineRx = QRegExp("\\bFADE TRUE\\b");
-        Preferences::enableFadeSteps = stepContains(fileHeader,lineRx);
-        if (Preferences::enableFadeSteps){
-            messageSig(LOG_INFO,QString("Fade Previous Steps is %1.").arg(Preferences::enableFadeSteps ? "ON" : "OFF"));
-            ldrawColorPartsLoad();
-            QString result;
-            if (!Preferences::fadeStepsUseColour) {
-                lineRx.setPattern("\\bUSE_FADE_COLOR TRUE\\b");
-                Preferences::fadeStepsUseColour = stepContains(fileHeader,lineRx);
-                messageSig(LOG_INFO,QString("Use Global Fade Color is %1").arg(Preferences::fadeStepsUseColour ? "ON" : "OFF"));
-            }
-
-            int fadeStepsOpacityCompare  = Preferences::fadeStepsOpacity;
-            result.clear();
-            lineRx.setPattern("FADE_OPACITY\\s(\\d+)");
-            stepContains(fileHeader,lineRx,result,1);
-            bool ok = result.toInt(&ok);
-            Preferences::fadeStepsOpacity = ok ? result.toInt() : FADE_OPACITY_DEFAULT;
-            bool fadeStepsOpacityChanged  = Preferences::fadeStepsOpacity != fadeStepsOpacityCompare;
-            if (fadeStepsOpacityChanged)
-                messageSig(LOG_INFO,QString("Fade Step Transparency changed from %1 to %2 percent")
-                           .arg(fadeStepsOpacityCompare)
-                           .arg(Preferences::fadeStepsOpacity));
-
-            QString fadeStepsColourCompare  = Preferences::validFadeStepsColour;
-            result.clear();
-            lineRx.setPattern("\\bFADE_COLOR\\b\\s\"(\\w+)\"");
-            stepContains(fileHeader,lineRx,result,1);
-            Preferences::validFadeStepsColour = !result.isEmpty() ? result : Preferences::validFadeStepsColour;
-            bool fadeStepsColourChanged       = QString(Preferences::validFadeStepsColour).toLower() != fadeStepsColourCompare.toLower();
-            if (fadeStepsColourChanged)
-                messageSig(LOG_INFO,QString("Fade Step Color preference changed from %1 to %2")
-                                            .arg(fadeStepsColourCompare.replace("_"," "))
-                                            .arg(QString(Preferences::validFadeStepsColour).replace("_"," ")));
-
-            gui->partWorkerLDSearchDirs.setDoFadeStep(true);
-            gui->partWorkerLDSearchDirs.addCustomDirs();
-        }
-    }
-}
-
-void Gui::setHighlightStepFromCommandMeta()
-{
-    if (!Preferences::enableHighlightStep) {
-        Where fileHeader(gui->topLevelFile(),0);
-        QRegExp lineRx = QRegExp("\\bHIGHLIGHT TRUE\\b");
-        Preferences::enableHighlightStep = stepContains(fileHeader,lineRx);
-        if (Preferences::enableHighlightStep) {
-            messageSig(LOG_INFO,QString("Highlight Current Step is %1.").arg(Preferences::enableHighlightStep ? "ON" : "OFF"));
-            ldrawColorPartsLoad();
-            QString highlightStepColourCompare  = Preferences::highlightStepColour;
-            QString result;
-            lineRx.setPattern("\\HIGHLIGHT_COLOR\\b\\s\"(#[A-Fa-f0-9]{6}|\\w+)\"");
-            stepContains(fileHeader,lineRx,result,1);
-            Preferences::highlightStepColour = !result.isEmpty() ? result : Preferences::validFadeStepsColour;
-            bool highlightStepColorChanged   = QString(Preferences::highlightStepColour).toLower() != highlightStepColourCompare.toLower();
-            if (highlightStepColorChanged)
-                messageSig(LOG_INFO,QString("Highlight Step Color preference changed from %1 to %2")
-                                            .arg(highlightStepColourCompare)
-                                            .arg(Preferences::highlightStepColour));
-
-            gui->partWorkerLDSearchDirs.setDoHighlightStep(true);
-            gui->partWorkerLDSearchDirs.addCustomDirs();
-        }
-    }
 }
 
 //void Gui::dropEvent(QDropEvent* event)

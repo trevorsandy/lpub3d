@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the
 ** GNU General Public Liceense (GPL) version 3.0
@@ -75,25 +75,5 @@ QString LDrawColourParts::getLDrawColourPartInfo(QString part){
         return ldrawColourParts[part.toLower()];
     } else {
         return QString();
-    }
-}
-
-void LDrawColourParts::addLDrawColorPart(QString part)
-{
-    if (ldrawColourParts.contains(part.toLower()))
-        return;
-    QString partFile = part.toLower().trimmed();
-    QString partEntry = QString("g:::%1").arg(partFile);  // partLibType is 'g' Generated
-    ldrawColourParts.insert(partFile, partEntry);
-    logTrace() << "Add generated colour part: " << partEntry.replace(":::", " ");
-}
-
-void LDrawColourParts::clearGeneratedColorParts()
-{
-    QHashIterator<QString, QString> i(ldrawColourParts);
-    while (i.hasNext()) {
-        i.next();
-        if (i.value().at(0) == QChar('g'))
-            ldrawColourParts.remove(i.key());
     }
 }

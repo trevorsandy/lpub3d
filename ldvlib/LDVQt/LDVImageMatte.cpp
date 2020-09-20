@@ -1,7 +1,7 @@
 
 /****************************************************************************
 **
-** Copyright (C) 2018 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2018 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -199,7 +199,7 @@ bool LDVImageMatte::matteCSIImage(QStringList &arguments, QString &csiKey) {
     }
 
   // Generate IM png file pair
-  if (Render::executeLDViewProcess(arguments, Options::CSI) != 0) {
+  if (Render::executeLDViewProcess(arguments, Render::CSI) != 0) {
       emit lpubAlert->messageSig(LOG_ERROR,QString("LDView CSI IM render failed for arguments %1")
                                  .arg(arguments.join(" ")));
       return false;

@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -46,10 +46,9 @@
 
 Steps::Steps()
 {
-  relativeType   = SingleStepType;
-  pli.steps      = this;
-  subModel.steps = this;
-  isMirrored     = false;
+  relativeType  = SingleStepType;
+  pli.steps = this;
+  isMirrored = false;
 }
 
 Steps::Steps(Meta &_meta,QGraphicsView *_view)
@@ -196,7 +195,6 @@ void Steps::freeSteps()
     delete re;
   }
   list.clear();
-  textItemList.clear();
   relativeType = SingleStepType;
   relativeToList.clear();
 }
@@ -491,7 +489,7 @@ void Steps::sizeitFreeform(
 void Steps::addGraphicsItems(
   int ox,
   int oy,
-  QGraphicsItem *parent /*pageBg*/)
+  QGraphicsItem *parent)
 {
   QGraphicsItem *backDrop;
   QRectF rect = QRectF(ox + loc[XX], oy + loc[YY],size[XX],size[YY]);
@@ -504,7 +502,6 @@ void Steps::addGraphicsItems(
   } else {
     allocEnc = meta.LPub.multiStep.alloc.value();
   }
-
   addGraphicsItems(allocEnc,ox,oy,backDrop);
 }
 
@@ -520,29 +517,18 @@ void Steps::addGraphicsItems(
   AllocEnc allocEnc,
   int offsetX,
   int offsetY,
-  QGraphicsItem *parent/*backdrop*/)
+  QGraphicsItem *parent)
 {
-  // SN
-  if (! meta.LPub.multiStep.pli.perStep.value() && groupStepNumber.number) {
-    groupStepNumber.addStepNumber(dynamic_cast<Page *>(this), parent);
-  }
-
-  // PLI
   if (pli.tsize() && ! pli.bom) {
     pli.addPli(meta.submodelStack.size(), parent);
   }
 
-  // SM
-  if (subModel.tsize()) {
-    subModel.addSubModel(meta.submodelStack.size(), parent);
-  }
-
-//#ifdef QT_DEBUG_MODE
-//  logDebug() << "\nSTEPS AddGraphicsItems OFFSET"
-//             << " \nOffxetX [" << offsetX << "]"
-//             << " \nOffxetY [" << offsetY << "]"
-//                 ;
-//#endif
+#ifdef QT_DEBUG_MODE
+  logDebug() << "\nSTEPS AddGraphicsItems OFFSET"
+             << " \nOffxetX [" << offsetX << "]"
+             << " \nOffxetY [" << offsetY << "]"
+                 ;
+#endif
 
   for (int i = 0; i < list.size(); i++) {
     if (list[i]->relativeType == RangeType) {

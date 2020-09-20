@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the
 ** GNU General Public Liceense (GPL) version 3.0
@@ -121,8 +121,6 @@ public:
 
     void updateLDSearchDirs(bool archive = false);
 
-    void addCustomDirs();
-
     QString getLSynthDir();
 
     QStringList                _partList;
@@ -187,8 +185,7 @@ private:
         const QStringList    &customPartContent);
 
    bool createCustomPartFiles(
-        const PartType       partType,
-        bool                 overwriteCustomParts = false); // convert static color files // replace color code with fade color or highlight edge color
+        const PartType       partType); // convert static color files // replace color code with fade color or highlight edge color
 
    bool processColourParts(
        const QStringList      &colourPartList,

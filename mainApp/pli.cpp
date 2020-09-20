@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -154,16 +154,10 @@ float PliPart::maxMargin()
 }
 
 void PliPart::addPartGroupToScene(
-        LGraphicsScene *scene,
-        Where &top,
-        Where &bottom,
-        int stepNumber)
+        LGraphicsScene *scene)
 {
     // create the part group item
     pliPartGroup = new PartGroupItem(groupMeta);
-    pliPartGroup->top = top; 
-    pliPartGroup->bottom = bottom; 
-    pliPartGroup->stepNumber = stepNumber;
 
     // add the part group to the scene
     scene->addItem(pliPartGroup);
@@ -228,12 +222,12 @@ QString Pli::partLine(QString &line, Where &here, Meta &meta)
   if (meta.LPub.pli.begin.sub.value().type) {
       SubData subData = meta.LPub.pli.begin.sub.value();
       QStringList attrArgs = subData.attrs.split(";");
-      // check if substitute type is not 0 and substitute lineNumber matches here.lineNumber (this line)
+      // check if substitute type and type applicable to this line
       if (subData.type && attrArgs.last().toInt() == here.lineNumber) {
-          // remove substitues line number from substitute attributes
-          attrArgs.removeLast();
-          // append substitute type and attributes, if any, to attributes - used by Pli::setParts()
-          attributes.append(QString("|%1%2").arg(subData.type).arg(attrArgs.size() ? QString("|%1").arg(attrArgs.join(";")) : ""));
+          // remove line number and ';' delimiter from string
+          subData.attrs.chop(attrArgs.last().size()+1);
+          // append substitute type to string - used by Pli::setParts()
+          attributes.append(QString("|%1|%2").arg(subData.attrs).arg(subData.type));
       }
   }
   return line + attributes;
@@ -255,30 +249,6 @@ void Pli::setParts(
   bool displayElement    = pliMeta.partElements.display.value();
   bool extendedStyle     = pliMeta.annotation.extendedStyle.value();
   bool fixedAnnotations  = pliMeta.annotation.fixedAnnotations.value();
-
-  // setup 3DViewer entry
-  switch (parentRelativeType) {
-  case CalloutType:
-      top     = topOfCallout();
-      bottom  = bottomOfCallout();
-      callout = true;
-      break;
-  default:
-      if (step) {
-          if (bom) {
-              top    = topOfSteps();
-              bottom = bottomOfSteps();
-          } else {
-              top    = topOfStep();
-              bottom = bottomOfStep();
-          }
-      } else {
-          top    = topOfSteps();
-          bottom = bottomOfSteps();
-      }
-      multistep = parentRelativeType == StepGroupType;
-      break;
-  }
 
   // get bom part group last line
   Where where;
@@ -365,7 +335,7 @@ void Pli::setParts(
                   // if fixed Annotations is enabled
                   if (fixedAnnotations) {
 
-                      // get part annotation style flag for fixed annotations - cirle(1), square(2), or rectangle(3)
+                      // get part annotation style flag for fixed annotations - either cirle(1) or square(2)
                       AnnotationStyle fixedStyle = AnnotationStyle(Annotations::getAnnotationStyle(type));
 
                       // set style meta settings
@@ -403,9 +373,6 @@ void Pli::setParts(
                               else
                               if (fixedStyle == AnnotationStyle::square)
                                   styleMeta       = pliMeta.squareStyle;
-                              else
-                              if (fixedStyle == AnnotationStyle::rectangle)
-                                  styleMeta       = pliMeta.rectangleStyle;
                           }
                       // if extended style annotation is enabled
                       } else if (extendedStyle) {
@@ -462,23 +429,19 @@ void Pli::setParts(
               return groupMeta;
           };
 
-          qreal modelScale = 1.0;
-          if (Preferences::usingNativeRenderer) {
-              modelScale = double(pliMeta.cameraDistNative.factor.value());
-          } else {
-              modelScale = double(pliMeta.modelScale.value());
-          }
+          float modelScale = pliMeta.modelScale.value();
 
           bool noCA = pliMeta.rotStep.value().type == "ABS";
 
           // extract substitute part arguments
+          int subType = 0;
           QString subRotation = QString();
-          int subType         = segments.size() > 1 ? segments.at(1).toInt() : 0;
           qreal cameraFoV     = double(pliMeta.cameraFoV.value());
           qreal cameraAngleXX = noCA ? 0.0 : double(pliMeta.cameraAngles.value(0));
           qreal cameraAngleYY = noCA ? 0.0 : double(pliMeta.cameraAngles.value(1));
           if (segments.size() == 3) {
               QStringList attributes = segments.at(1).split(";");
+              subType = segments.at(2).toInt();
               if (subType > PliBeginSub2Rc){
                   modelScale = attributes.at(0).toDouble();
               }
@@ -792,12 +755,7 @@ int Pli::createSubModelIcons()
 
         QString key = QString("%1_%2").arg(baseName).arg(color);
 
-        float modelScale = 1.0;
-        if (Preferences::usingNativeRenderer) {
-            modelScale = pliMeta.cameraDistNative.factor.value();
-        } else {
-            modelScale = pliMeta.modelScale.value();
-        }
+        float modelScale  = pliMeta.modelScale.value();
 
         bool noCA = pliMeta.rotStep.value().type == "ABS";
 
@@ -2549,7 +2507,7 @@ int Pli::resizePli(
 
       // step by 1/10 of inch or centimeter
 
-      int step = int(toPixels(0.1f,DPI));
+      int step = int(toPixels(0.1,DPI));
 
       for ( ; height > 0; height -= step) {
 
@@ -2601,7 +2559,7 @@ int Pli::resizePli(
       int cols;
       int min_delta = height;
       int good_height = height;
-      int step = int(toPixels(0.1f,DPI));
+      int step = int(toPixels(0.1,DPI));
 
       for ( ; height > 0; height -= step) {
 
@@ -2879,10 +2837,7 @@ void PliBackgroundItem::placeGrabbers()
   if (grabber == nullptr) {
       grabber = new Grabber(BottomInside,this,myParentItem());
       grabber->setData(ObjectId, PliGrabberObj);
-      grabber->setZValue(pli->meta->LPub.page.scene.pliGrabber.zValue());
-      grabber->top        = pli->top;
-      grabber->bottom     = pli->bottom;
-      grabber->stepNumber = pli->step ? pli->step->stepNumber.number : 0;
+      grabber->setZValue(zValue()+pli->meta->LPub.page.scene.pliGrabber.zValue());
       grabbersVisible = true;
     }
   grabber->setPos(point.x()-grabSize()/2,point.y()-grabSize()/2);
@@ -2922,8 +2877,8 @@ void PliBackgroundItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
       if (newPosition.x() || newPosition.y()) {
           positionChanged = true;
           PlacementData placementData = placement.value();
-          placementData.offsets[0]   += newPosition.x()/pli->relativeToSize[0];
-          placementData.offsets[1]   += newPosition.y()/pli->relativeToSize[1];
+          placementData.offsets[0] += newPosition.x()/pli->relativeToSize[0];
+          placementData.offsets[1] += newPosition.y()/pli->relativeToSize[1];
           placement.setValue(placementData);
 
           Where here, top, bottom;
@@ -2943,38 +2898,31 @@ void PliBackgroundItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 void PliBackgroundItem::contextMenuEvent(
         QGraphicsSceneContextMenuEvent *event)
 {
-    if (pli) {
-        QMenu menu;
-        bool showCameraDistFactorItem = (Preferences::usingNativeRenderer);
+  if (pli) {
+      QMenu menu;
 
         PlacementData placementData = pli->placement.value();
 
-        QString pl = pli->bom ? "Bill Of Materials" : "Parts List";
-        QAction *placementAction  = commonMenus.placementMenu(menu,pl,
-                                                              commonMenus.naturalLanguagePlacementWhatsThis(PartsListType,placementData,pl));
-        QAction *scaleAction = nullptr;
-        if (!showCameraDistFactorItem){
-            scaleAction              = commonMenus.scaleMenu(menu, pl);
-        }
-        QAction *constrainAction     = commonMenus.constrainMenu(menu,pl);
-        QAction *backgroundAction    = commonMenus.backgroundMenu(menu,pl);
-        QAction *subModelColorAction = commonMenus.subModelColorMenu(menu,pl);
-        QAction *borderAction        = commonMenus.borderMenu(menu,pl);
-        QAction *marginAction        = commonMenus.marginMenu(menu,pl);
-        QAction *pliPartGroupAction  = nullptr;
-        if (pli->pliMeta.enablePliPartGroup.value()) {
-            pliPartGroupAction = commonMenus.partGroupsOffMenu(menu,"Part");
-        } else {
-            pliPartGroupAction = commonMenus.partGroupsOnMenu(menu,"Part");
-        }
-        QAction *sortAction          = commonMenus.sortMenu(menu,pl);
-        QAction *annotationAction    = commonMenus.annotationMenu(menu,pl);
-        QAction *cameraDistFactorAction = nullptr;
-        if (showCameraDistFactorItem){
-            cameraDistFactorAction   = commonMenus.cameraDistFactorrMenu(menu, pl);
-        }
-        QAction *cameraFoVAction     = commonMenus.cameraFoVMenu(menu,pl);
-        QAction *cameraAnglesAction  = commonMenus.cameraAnglesMenu(menu,pl);
+      QString pl = pli->bom ? "Bill Of Materials" : "Parts List";
+      QAction *placementAction  = commonMenus.placementMenu(menu,pl,
+                                                            commonMenus.naturalLanguagePlacementWhatsThis(PartsListType,placementData,pl));
+      QAction *constrainAction     = commonMenus.constrainMenu(menu,pl);
+      QAction *backgroundAction    = commonMenus.backgroundMenu(menu,pl);
+      QAction *subModelColorAction = commonMenus.subModelColorMenu(menu,pl);
+      QAction *borderAction        = commonMenus.borderMenu(menu,pl);
+      QAction *marginAction        = commonMenus.marginMenu(menu,pl);
+      QAction *pliPartGroupAction  = nullptr;
+      if (pli->pliMeta.enablePliPartGroup.value()) {
+          pliPartGroupAction = commonMenus.partGroupsOffMenu(menu,"Part");
+      } else {
+          pliPartGroupAction = commonMenus.partGroupsOnMenu(menu,"Part");
+      }
+      QAction *sortAction          = commonMenus.sortMenu(menu,pl);
+      QAction *annotationAction    = commonMenus.annotationMenu(menu,pl);
+
+      QAction *cameraAnglesAction  = commonMenus.cameraAnglesMenu(menu,pl);
+      QAction *scaleAction         = commonMenus.scaleMenu(menu, pl);
+      QAction *cameraFoVAction     = commonMenus.cameraFoVMenu(menu,pl);
 
         QAction *splitBomAction  = nullptr;
         QAction *deleteBomAction = nullptr;
@@ -3013,8 +2961,29 @@ void PliBackgroundItem::contextMenuEvent(
             return;
         }
 
-        Where top = pli->top;
-        Where bottom = pli->bottom;
+        Where top;
+        Where bottom;
+
+        switch (parentRelativeType) {
+        case CalloutType:
+            top    = pli->topOfCallout();
+            bottom = pli->bottomOfCallout();
+            break;
+        default:
+            if (pli->step) {
+                if (pli->bom) {
+                    top = pli->topOfSteps();
+                    bottom = pli->bottomOfSteps();
+                } else {
+                    top = pli->topOfStep();
+                    bottom = pli->bottomOfStep();
+                }
+            } else {
+                top = pli->topOfSteps();
+                bottom = pli->bottomOfSteps();
+            }
+            break;
+        }
 
         QString me = pli->bom ? "BOM" : "PLI";
         if (selectedAction == sortAction) {
@@ -3081,16 +3050,10 @@ void PliBackgroundItem::contextMenuEvent(
                                 &pli->pliMeta.subModelColor);
 
         } else if (selectedAction == borderAction) {
-            changeBorder(me+" Border",
-                         top,
-                         bottom,
-                         &pli->pliMeta.border);
-        } else if (selectedAction == cameraDistFactorAction) {
-            changeCameraDistFactor(pl+" Camera Distance",
-                                   "Native Camera Distance",
-                                   top,
-                                   bottom,
-                                   &pli->pliMeta.cameraDistNative.factor);
+          changeBorder(me+" Border",
+                       top,
+                       bottom,
+                       &pli->pliMeta.border);
         } else if (selectedAction == scaleAction){
             changeFloatSpin(pl+" Scale",
                             "Model Size",
@@ -3237,8 +3200,18 @@ void AnnotateTextItem::contextMenuEvent(
       return;
     }
   
-  Where top = pli->top;
-  Where bottom = pli->bottom;
+  Where top;
+  Where bottom;
+  switch (parentRelativeType) {
+    case CalloutType:
+      top    = pli->topOfCallout();
+      bottom = pli->bottomOfCallout();
+      break;
+    default:
+      top    = pli->topOfStep();
+      bottom = pli->bottomOfStep();
+      break;
+    }
 
   if (selectedAction == fontAction) {
       changeFont(top,
@@ -3293,8 +3266,19 @@ void InstanceTextItem::contextMenuEvent(
       return;
     }
   
-  Where top = pli->top;
-  Where bottom = pli->bottom;
+  Where top;
+  Where bottom;
+  
+  switch (parentRelativeType) {
+    case CalloutType:
+      top    = pli->topOfCallout();
+      bottom = pli->bottomOfCallout();
+      break;
+    default:
+      top    = pli->topOfStep();
+      bottom = pli->bottomOfStep();
+      break;
+    }
 
   if (selectedAction == fontAction) {
       changeFont(top,bottom,&pli->pliMeta.instance.font,1,false);
@@ -3390,17 +3374,23 @@ void PGraphicsPixmapItem::contextMenuEvent(
   if (pli->pliMeta.enablePliPartGroup.value())
       resetPartGroupAction = commonMenus.resetPartGroupMenu(menu,pl);
 
-  /*
-  QAction *scaleAction;
-  if (Preferences::usingNativeRenderer)
-      scaleAction = commonMenus.cameraAnglesMenu(menu,pl);
-  else
-      scaleAction = commonMenus.scaleMenu(menu,pl);
-  QAction *cameraFoVAction    = commonMenus.cameraFoVMenu(menu,pl);
-  */
+// Manipulate individual PLI images
+//  QAction *cameraAnglesAction  = commonMenus.cameraAnglesMenu(menu,pl);
+//  QAction *scaleAction         = commonMenus.scaleMenu(menu, pl);
+//  QAction *cameraFoVAction     = commonMenus.cameraFoVMenu(menu,pl);
 
-  Where top = pli->top;
-  Where bottom = pli->bottom;
+  Where top;
+  Where bottom;
+  switch (parentRelativeType) {
+    case CalloutType:
+      top    = pli->topOfCallout();
+      bottom = pli->bottomOfCallout();
+      break;
+    default:
+      top    = pli->topOfStep();
+      bottom = pli->bottomOfStep();
+      break;
+    }
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
@@ -3426,14 +3416,9 @@ void PGraphicsPixmapItem::contextMenuEvent(
     } else if (selectedAction == substitutePartAction) {
       QStringList defaultList;
       if (this->part->subType/*sUpdate*/) {
-          qreal modelScale = 1.0;
-          if (Preferences::usingNativeRenderer) {
-              modelScale = double(this->pli->pliMeta.cameraDistNative.factor.value());
-          } else {
-              modelScale = double(this->pli->pliMeta.modelScale.value());
-          }
+          float modelScale = this->pli->pliMeta.modelScale.value();
           bool noCA = this->pli->pliMeta.rotStep.value().type == "ABS";
-          defaultList.append(QString::number(modelScale));
+          defaultList.append(QString::number(double(modelScale)));
           defaultList.append(QString::number(double(this->pli->pliMeta.cameraFoV.value())));
           defaultList.append(QString::number(noCA ? 0.0 : double(this->pli->pliMeta.cameraAngles.value(0))));
           defaultList.append(QString::number(noCA ? 0.0 : double(this->pli->pliMeta.cameraAngles.value(1))));
@@ -3447,14 +3432,17 @@ void PGraphicsPixmapItem::contextMenuEvent(
       if (attributes.size() == 6 /*nameKey - removals*/)
           attributes.append(QString(renderer->getRotstepMeta(this->pli->pliMeta.rotStep,true)).split("_"));
       substitutePLIPart(attributes,this->part->instances,this->part->subType ? sUpdate : sSubstitute,defaultList);
-    } /* else if (selectedAction == scaleAction) {
-        changeFloatSpin(pl,
-                        "Model Size",
-                        top,
-                        bottom,
-                        Preferences::usingNativeRenderer ?
-                        &pli->pliMeta.cameraAngles :
-                        &pli->pliMeta.modelScale);
+  } /*else if (selectedAction == cameraAnglesAction) {
+      changeCameraAngles(pl+" Camera Angles",
+                      top,
+                      bottom,
+                      &pli->pliMeta.cameraAngles);
+  } else if (selectedAction == scaleAction) {
+     changeFloatSpin(pl,
+                     "Model Size",
+                     top,
+                     bottom,
+                     &pli->pliMeta.modelScale);
   } else if (selectedAction == cameraFoVAction) {
     changeFloatSpin(pl,
                     "Camera FOV",
@@ -3652,28 +3640,25 @@ AnnotateTextItem::AnnotateTextItem(
 }
 
 void AnnotateTextItem::scaleDownFont() {
-  qreal widthRatio  = styleRect.width()  / textRect.width();
-  qreal heightRatio = styleRect.height() / textRect.height();
-  if (widthRatio < 1 || heightRatio < 1)
-  {
-    QFont font = this->QGraphicsTextItem::font();
-    qreal saveFontSizeF = font.pointSizeF();
-    font.setPointSizeF(font.pointSizeF()*qMin(widthRatio,heightRatio));
-    setFont(font);
-    textRect = QRectF(0,0,document()->size().width(),document()->size().height());
-    if (textRect.width()  > styleRect.width()  ||
-        textRect.height() > styleRect.height())
-    {
-      scaleDownFont();
+    QRectF saveTextRect = textRect;
+
+    if (textRect.width() > styleRect.width()) {
+        QFont font = this->QGraphicsTextItem::font();
+        qreal widthRatio = styleRect.width() / textRect.width();
+        if (widthRatio < 1)
+        {
+            font.setPointSizeF(font.pointSizeF()*widthRatio);
+            setFont(font);
+            textRect = QRectF(0,0,document()->size().width(),document()->size().height());
+        }
     }
-    else
-    {
-      // adjust text vertical alignment
-      textOffset.setY((styleRect.height()-textRect.height())/2);
+
+    // adjust text vertical alignment
+    if (textRect == saveTextRect) {
+        textOffset.setY((styleRect.height()-textRect.height())/2);
+    } else {
+        textOffset.setY(saveTextRect.height()-textRect.height());
     }
-    emit gui->messageSig(LOG_INFO,QMessageBox::tr("PLI annotation font size was adjusted from %1 to %2.")
-                                                  .arg(saveFontSizeF).arg(font.pointSizeF()));
-  }
 }
 
 void AnnotateTextItem::size(int &x, int &y)

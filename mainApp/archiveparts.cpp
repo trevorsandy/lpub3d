@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the
 ** GNU General Public Liceense (GPL) version 3.0
@@ -55,8 +55,8 @@ bool ArchiveParts::Archive(const QString &zipArchive,
   }
 
   // Create an array of part file QFileInfo objects
-  QFileInfoList filesToArchive;
-  foreach (QString fileName, dirFileList) filesToArchive << QFileInfo(fileName);
+  QFileInfoList files;
+  foreach (QString fileName, dirFileList) files << QFileInfo(fileName);
 
   // Confirm archive exist or create new instance
   QFileInfo zipFileInfo(zipArchive);
@@ -85,7 +85,7 @@ bool ArchiveParts::Archive(const QString &zipArchive,
           return false;
         }
 
-      // Check if filesToArchive are not in excluded location
+      // Check if files are not in excluded location
       QStringList validDirFiles;
       QStringList excludedPaths = QStringList() << "unofficial/parts" << "unofficial/p" << "parts" << "p";
       foreach(QString dirFile, dirFileList) {
@@ -133,8 +133,14 @@ bool ArchiveParts::Archive(const QString &zipArchive,
   QuaZipFile outFile(&zip);
   int archivedPartCount   = 0;
 
+  QString parts           = "parts";
+  QString primitives      = "p";
+
+  bool setPartsDir        = false;
+  bool setPrimDir         = false;
+
   char c;
-  foreach(QFileInfo fileInfo, filesToArchive) {
+  foreach(QFileInfo fileInfo, files) {
 
       //qDebug() << "Processing Disk File Name: " << fileInfo.absoluteFilePath();
       if (!fileInfo.isFile())
@@ -149,10 +155,10 @@ bool ArchiveParts::Archive(const QString &zipArchive,
                                     zipFileInfo.fileName().contains(QString("%1.dat").arg(HIGHLIGHT_SFX)));
               if (overwriteCustomPart && okToOverwrite) {
                   partStatus = "Overwriting archive";
-                  //qDebug() << "FileMatch - Overwriting Fade File !! " << fileInfo.absoluteFilePath();
+//                    qDebug() << "FileMatch - Overwriting Fade File !! " << fileInfo.absoluteFilePath();
               } else {
                   alreadyArchived = true;
-                  //qDebug() << "FileMatch - Skipping !! " << fileInfo.absoluteFilePath();
+//                    qDebug() << "FileMatch - Skipping !! " << fileInfo.absoluteFilePath();
               }
               break;
           }
@@ -163,47 +169,37 @@ bool ArchiveParts::Archive(const QString &zipArchive,
       else
          archivedPartCount++;
 
-      // place archive file in appropriate archive subfolder
+      emit gui->messageSig(LOG_INFO, QString("%1 part #%2: %3...").arg(partStatus).arg(archivedPartCount).arg(fileInfo.fileName()));
+
       QString fileNameWithRelativePath;
 
-      int texDirIndex   = fileInfo.absoluteFilePath().indexOf("/parts/textures/",0,Qt::CaseInsensitive);
-      int partsDirIndex = fileInfo.absoluteFilePath().indexOf("/parts/",0,Qt::CaseInsensitive);
-      int primDirIndex  = fileInfo.absoluteFilePath().indexOf("/p/",0,Qt::CaseInsensitive);
+      int partsDirIndex    = fileInfo.absoluteFilePath().indexOf("/parts/",0,Qt::CaseInsensitive);
+      int primDirIndex     = fileInfo.absoluteFilePath().indexOf("/p/",0,Qt::CaseInsensitive);
 
-      bool setTexDir    = texDirIndex   != -1;
-      bool setPartsDir  = partsDirIndex != -1;
-      bool setPrimDir   = primDirIndex  != -1;
+      setPartsDir    = partsDirIndex != -1;
+      setPrimDir     = primDirIndex != -1;
 
-      if (setTexDir){
-        fileNameWithRelativePath = fileInfo.absoluteFilePath().remove(0, partsDirIndex + 1);
-        qDebug() << "Adjusted Texture fileNameWithRelativePath: " << fileNameWithRelativePath;
-      } else if (setPartsDir){
-        fileNameWithRelativePath = fileInfo.absoluteFilePath().remove(0, partsDirIndex + 1);
-        //qDebug() << "Adjusted Parts fileNameWithRelativePath: " << fileNameWithRelativePath;
-      } else if (setPrimDir){
-        fileNameWithRelativePath = fileInfo.absoluteFilePath().remove(0, primDirIndex + 1);
-        //qDebug() << "Adjusted Primitive fileNameWithRelativePath: " << fileNameWithRelativePath;
-      } else {
-        fileNameWithRelativePath = fileInfo.fileName();
-        //qDebug() << "Adjusted Root fileNameWithRelativePath: " << fileNameWithRelativePath;
-      }
+      if (setPartsDir){
+          fileNameWithRelativePath = fileInfo.absoluteFilePath().remove(0, partsDirIndex + 1);
+          //qDebug() << "Adjusted Parts fileNameWithRelativePath: " << fileNameWithRelativePath;
+        } else if (setPrimDir){
+          fileNameWithRelativePath = fileInfo.absoluteFilePath().remove(0, primDirIndex + 1);
+          //qDebug() << "Adjusted Primitive fileNameWithRelativePath: " << fileNameWithRelativePath;
+        } else {
+          fileNameWithRelativePath = fileInfo.fileName();
+          //qDebug() << "Adjusted Root fileNameWithRelativePath: " << fileNameWithRelativePath;
+        }
 
       QString fileNameWithCompletePath;
 
-      if (setTexDir || setPartsDir || setPrimDir){
+      if (setPartsDir || setPrimDir){
           fileNameWithCompletePath = fileNameWithRelativePath;
-          //qDebug() << "fileNameWithCompletePath (ROOT TEXTURE/PART/PRIMITIVE) " << fileNameWithCompletePath;
+//          qDebug() << "fileNameWithCompletePath (ROOT PART/PRIMITIVE) " << fileNameWithCompletePath;
         } else {
-          QString subfolder = fileInfo.suffix().toLower() == "png" ? "parts/textures" : "parts";
-          fileNameWithCompletePath = QString("%1/%2").arg(subfolder).arg(fileNameWithRelativePath);
-          //qDebug() << "fileNameWithCompletePath (PART - DEFAULT)" << fileNameWithCompletePath;
+          fileNameWithCompletePath = QString("%1/%2").arg(parts).arg(fileNameWithRelativePath);
+//          qDebug() << "fileNameWithCompletePath (PART - DEFAULT)" << fileNameWithCompletePath;
         }
 
-      emit gui->messageSig(LOG_INFO, QString("%1 part #%2 %3 to %4...")
-                                             .arg(partStatus).arg(archivedPartCount)
-                                             .arg(fileInfo.fileName()).arg(fileNameWithCompletePath));
-
-      // insert file into archive
       inFile.setFileName(fileInfo.filePath());
 
       if (!inFile.open(QIODevice::ReadOnly)) {
@@ -268,7 +264,7 @@ bool ArchiveParts::GetExistingArchiveFileList(
   };
   QString EntryPointPaths[num_entryPoints] =
   {
-      "/parts", "/p", "/parts/s", "/parts/textures", "/p/8", "/p/48", "/parts/b", "/parts/s/b"
+      "/parts", "/p", "/parts/s", "/parts/textures", "/p/8", "/p/48", "/parts/b", "/parts/s/b",
   };
   QStringList entryList[num_entryPoints];
 
@@ -276,8 +272,7 @@ bool ArchiveParts::GetExistingArchiveFileList(
 
      QFileInfo zipFile(dirFile);
      QString fileName = zipFile.fileName();
-     QString dirName  = zipFile.dir().dirName();
-     bool texture     = zipFile.suffix().toLower() == "png";
+     QString dirName = zipFile.dir().dirName();
 
      EntryPoint ep = parts;
      if (dirName == "parts") {
@@ -307,7 +302,7 @@ bool ArchiveParts::GetExistingArchiveFileList(
            if (dirName == "s")
                ep = sb;
      } else {
-          ep = texture ? t : parts;
+          ep = parts;
      }
 
      QuaZipDir zipDir(&zip,EntryPointPaths[ep]);
@@ -364,9 +359,7 @@ void ArchiveParts::RecurseAddDir(const QDir &dir, QStringList &list) {
           //emit gui->messageSig(LOG_INFO, "FILE INFO DIR PATH: " << finfo.fileName());
           QDir subDir(finfo.filePath());
           RecurseAddDir(subDir, list);
-       } else if (finfo.suffix().toLower() == "dat" ||
-                  finfo.suffix().toLower() == "ldr" ||
-                  finfo.suffix().toLower() == "png") {
+       } else if (finfo.suffix().toLower() == "dat" || finfo.suffix().toLower() == "ldr") {
           list << finfo.filePath();
        }
     }

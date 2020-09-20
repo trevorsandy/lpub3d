@@ -138,11 +138,7 @@ contains(BUILD_TYPE,continuous) {
 }
 
 !equals(GIT_BASE_NAME, $$lower("lpub3d")) {
-    equals(GIT_BASE_NAME, $$lower("lpub3dnext")) {
-        DEFINES += LP3D_NEXT_BUILD
-    } else {
-        DEFINES += LP3D_DEVOPS_BUILD
-    }
+    DEFINES += LP3D_DEVOPS_BUILD
 }
 
 # C preprocessor #DEFINE to use in C++ code

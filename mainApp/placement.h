@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -109,11 +109,11 @@ enum Boundary {
 
 enum {        // -1
   TblCo0 = 0, //  0  C0 - Callout relative to StepNumber
-  TblSn0,     //  1  S0 - StepNumber relative to CSI
+  TblSn0,     //  5  S0 - StepNumber relative to CSI
   TblCo1,     //  2  C1 - Callout relative to RotateIcon
   TblRi0,     //  3  R0 - RotateIcon relative to CSI
   TblCo2,     //  4  C2 - Callout relative to Submodel
-  TblSm0,     //  5  M0 - Submodel relative to CSI
+  TblSm0,     //  1  M0 - Submodel relative to CSI
   TblCo3,     //  6  C3 - Callout relative to PLI
   TblPli0,    //  7  P0 - Pli relative to CSI
   TblCo4,     //  8  C4 - Callout relative to CSI
@@ -281,11 +281,8 @@ class PlacementPixmap : public Placement {
     }
 };
 
-class Page;
-class GroupStepNumberItem;
 class PlacementNum : public Placement {
   public:
-    GroupStepNumberItem *stepNumber;
     QString str;
     QString font;
     QString color;
@@ -301,7 +298,6 @@ class PlacementNum : public Placement {
     }
     void sizeit();
     void sizeit(QString fmt);
-    int addStepNumber(Page *page, QGraphicsItem *parent);
 };
 
 class PlacementHeader : public Placement,

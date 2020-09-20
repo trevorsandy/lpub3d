@@ -1,7 +1,7 @@
 /****************************************************************************  
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -581,11 +581,6 @@ public:
   {
     return ldrawFile.isMpd();
   }
-  bool isOlder(const QString &fileName,const QDateTime &lastModified)
-  {
-    bool older = ldrawFile.older(fileName,lastModified);
-    return older;
-  }
   bool isOlder(const QStringList &parsedStack,const QDateTime &lastModified)
   {
     bool older = ldrawFile.older(parsedStack,lastModified);
@@ -707,9 +702,6 @@ public:
   void replaceLine(const Where &here, const QString &line, QUndoCommand *parent = nullptr);
   void deleteLine (const Where &here, QUndoCommand *parent = nullptr);
   void normalizeHeader(const Where &here);
-  void scanPast(Where &here, const QRegExp &lineRx);
-  bool stepContains(Where &here, QRegExp &lineRx, QString &result, int capGrp = 0);
-  bool stepContains(Where &here, QRegExp &lineRx);
 
   QString topLevelFile();
 
@@ -777,9 +769,13 @@ public:
   float getDefaultCameraFoV(){
       return (Preferences::usingNativeRenderer ?
                   CAMERA_FOV_NATIVE_DEFAULT :
-                  Preferences::preferredRenderer == RENDERER_LDVIEW && Preferences::perspectiveProjection ?
-                  CAMERA_FOV_LDVIEW_P_DEFAULT :
                   CAMERA_FOV_DEFAULT);
+  }
+
+  float getDefaultCameraZNear(){
+      return (Preferences::usingNativeRenderer ?
+                  CAMERA_ZNEAR_NATIVE_DEFAULT :
+                  CAMERA_ZNEAR_DEFAULT);
   }
 
   float getDefaultFOVMinRange()
@@ -793,15 +789,7 @@ public:
   {
       return (Preferences::usingNativeRenderer ?
                   CAMERA_FOV_NATIVE_MAX_DEFAULT :
-                  Preferences::preferredRenderer == RENDERER_LDVIEW && Preferences::perspectiveProjection ?
-                  CAMERA_FOV_LDVIEW_P_MAX_DEFAULT :
                   CAMERA_FOV_MAX_DEFAULT);
-  }
-
-  float getDefaultCameraZNear(){
-      return (Preferences::usingNativeRenderer ?
-                  CAMERA_ZNEAR_NATIVE_DEFAULT :
-                  CAMERA_ZNEAR_DEFAULT);
   }
 
   float getDefaultCameraZFar(){
@@ -821,6 +809,8 @@ public:
 
 public slots:
   //**3D Viewer Manage Step Rotation
+  void Disable3DActions();
+  void Enable3DActions();
 
   void ShowStepRotationStatus();
   void SetRotStepMeta();
@@ -998,6 +988,10 @@ public slots:
   void showCoordinates();
   void gridSize(int index);
   void gridSizeTriggered();
+  void setTargetPosition();
+
+  void showDefaultCameraProperties();
+  void applyCameraSettings();
 
   void clearPLICache();
   void clearCSICache();
@@ -1113,7 +1107,6 @@ protected:
   lcHttpReply*           mHttpReply;
   QByteArray             mByteArray;
   QString                mTitle;
-  SceneObject            selectedItemObj;
 
 private:
   LGraphicsScene        *KpageScene;         // top of displayed page's graphics items
@@ -1169,32 +1162,24 @@ private:
 
   void skipHeader(Where &current);
 
-  int findPage(                     // traverse the hierarchy until we get to the
-    LGraphicsView   *view,          // page of interest, let traverse process the
-    LGraphicsScene  *scene,         // page, and then finish by counting the rest
-    Meta             meta,
-    QString const   &addLine,
-    FindPageOptions &opts
-    /*
-    int            &pageNum,        //maxPages
-    QString const  &addLine,
-    Where          &current,
-    PgSizeData     &pageSize,
-    bool            isMirrored,
-    Meta            meta,
-    bool            printing,
-    int             contStepNumber,
-    int             renderStepNumber,
-    QString         renderParentModel
-    */);
+  int findPage(                    // traverse the hierarchy until we get to the
+    LGraphicsView  *view,          // page of interest, let traverse process the
+    LGraphicsScene *scene,         // page, and then finish by counting the rest
+    int           &pageNum,
+    QString const &addLine,
+    Where         &current,
+    PgSizeData    &pageSize,
+    bool           mirrored,
+    Meta           meta,
+    bool           printing,
+    int            contStepNumber,
+    int            renderStepNumber = 0,
+    QString        renderParentModel = "");
 
   int drawPage(// process the page of interest and any callouts
     LGraphicsView  *view,
     LGraphicsScene *scene,
     Steps          *steps,
-    QString const   &addLine,
-    DrawPageOptions &opts
-    /*
     int            stepNum,
     QString const &addLine,
     Where         &current,
@@ -1209,8 +1194,7 @@ private:
     QStringList   &ldrStepFiles,
     QStringList   &csiKeys,
     bool           assembledCallout = false,
-    bool           calledOut = false
-    */);
+    bool           calledOut = false);
 
   void attitudeAdjustment(); // reformat the LDraw file to fix LPub backward compatibility issues 
     
@@ -1243,14 +1227,8 @@ private:
     PlacementFooter     *pageFooter,
     PageNumberItem      *pageNumber,
     Placement           &plPage,
-    bool                 endOfSubmodel = false);
-
-    int addPliPerPageItems(
-      Page                *page,
-      PlacementHeader     *pageHeader,
-      PlacementFooter     *pageFooter,
-      PageNumberItem      *pageNumber,
-      Placement           &plPage);
+    bool                 endOfSubmodel = false
+      );
 
   QString getFilePath(const QString &fileName) const;
 
@@ -1296,11 +1274,8 @@ private:
 
   bool processPageRange(const QString &range);
 
-  void setSceneItemZValue(Page *page, LGraphicsScene *scene);
-  void setSceneItemZValue(SceneObjectDirection direction);
-  bool getSceneObjectWhere(QGraphicsItem *selectedItem, Where &itemTop);
-  bool getSceneObjectStep(QGraphicsItem *selectedItem, int &stepNumber);
-  bool getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepNumber);
+  void setSelectedItemZValue(Page *page, LGraphicsScene *scene);
+  void setSelectedItemZValue(SceneObjectDirection direction);
 
 private slots:
     void open();
@@ -1408,7 +1383,6 @@ private slots:
     void mpdComboChanged(int index);
     void refreshLDrawUnoffParts();
     void refreshLDrawOfficialParts();
-    void writeGeneratedColorPartsToTemp();
 
     void clearPage(
       LGraphicsView  *view,
@@ -1421,23 +1395,20 @@ private slots:
     void disableActions2();
 
     void partsWidgetVisibilityChanged(bool);
+    void coloursWidgetVisibilityChanged(bool);
 
     void exportToolBarVisibilityChanged(bool);
     void cacheToolBarVisibilityChanged(bool);
     void setupToolBarVisibilityChanged(bool);
     void editToolBarVisibilityChanged(bool);
     void editParamsToolBarVisibilityChanged(bool);
-    void setFadeStepsFromCommandMeta();
-    void setHighlightStepFromCommandMeta();
-
-
     /******************************************************************
      * File management functions
      *****************************************************************/
 
     void setCurrentFile(const QString &fileName);
     bool openFile(QString &fileName);
-    bool maybeSave(bool prompt = true, int sender = SaveOnNone);
+    bool maybeSave(bool prompt = true);
     bool saveFile(const QString &fileName);
     void closeFile();
     void updateRecentFileActions();
@@ -1449,10 +1420,14 @@ private:
   /* Initialization stuff */
 
   void createActions();
+  void create3DActions();
   void createMenus();
+  void create3DMenus();
   void createToolBars();
+  void create3DToolBars();
   void createStatusBar();
   void createDockWindows();
+  void create3DDockWindows();
   void readSettings();
   void writeSettings();
 
@@ -1482,6 +1457,8 @@ private:
   QMenu    *sceneRulerTrackingMenu;
   QMenu    *zoomSliderMenu;
   QMenu    *sceneGuidesMenu;
+
+  QMenu    *cameraMenu;
 
   // 3D Viewer Menus
   QMenu* ViewerMenu;
@@ -1578,6 +1555,8 @@ private:
   QAction  *showTrackingCoordinatesAct;
   QAction  *showGuidesCoordinatesAct;
 
+  QAction  *defaultCameraPropertiesAct;
+
   QActionGroup* SceneGuidesPosGroup;
   QActionGroup* SceneGuidesLineGroup;
   QActionGroup* SceneRulerGroup;
@@ -1649,6 +1628,9 @@ private:
 
   QAction *snapGridActions[NUM_GRID_SIZES];
   QAction *snapToGridComboAct;
+
+  QAction *applyCameraAct;
+  QAction *setTargetPositionAct;
 
   // help
 

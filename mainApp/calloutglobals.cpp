@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -164,21 +164,15 @@ GlobalCalloutDialog::GlobalCalloutDialog(
   vlayout->addWidget(box);
   box->setLayout(boxGrid);
 
-  // Scale/Native Camera Distance Factor
-  if (Preferences::usingNativeRenderer) {
-    child = new CameraDistFactorGui("Camera Distance Factor",
-                                    &calloutMeta->csi.cameraDistNative);
-    data->children.append(child);
-    boxGrid->addWidget(child,0,0);
-  } else {
-    child = new DoubleSpinGui("Scale",
-      &calloutMeta->csi.modelScale,
-      calloutMeta->csi.modelScale._min,
-      calloutMeta->csi.modelScale._max,
+  // Scale
+  child = new DoubleSpinGui("Scale",
+                            &calloutMeta->csi.modelScale,
+                            calloutMeta->csi.modelScale._min,
+                            calloutMeta->csi.modelScale._max,
                             0.01f);
-    data->children.append(child);
-    boxGrid->addWidget(child,0,0);
-  }
+  data->children.append(child);
+  boxGrid->addWidget(child,0,0);
+
   data->clearCache = (data->clearCache ? data->clearCache : child->modified);
 
   child = new UnitsGui("Margins L/R|T/B",&calloutMeta->csi.margin);

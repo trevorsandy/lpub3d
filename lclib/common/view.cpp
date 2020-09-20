@@ -370,11 +370,33 @@ void View::SetCameraAngles(float Latitude, float Longitude)
 		if (OldCamera)
 			mCamera->CopySettings(OldCamera);
 	}
-
-	mCamera->SetAngles(Latitude, Longitude, 1.0f);
+/*** LPub3D Mod - Camera Globe ***/
+	mCamera->SetAngles(Latitude, Longitude, 1.0f, mCamera->mTargetPosition);
+/*** LPub3D Mod end ***/
 	ZoomExtents();
 	Redraw();
 }
+
+/*** LPub3D Mod - Camera Globe ***/
+void View::SetCameraGlobe(float Latitude, float Longitude, float Distance, lcVector3 &Target, bool ZoomExt)
+{
+	if (!mCamera || !mCamera->IsSimple())
+	{
+		lcCamera* OldCamera = mCamera;
+
+		mCamera = new lcCamera(true);
+
+		if (OldCamera)
+			mCamera->CopySettings(OldCamera);
+	}
+
+	mCamera->SetAngles(Latitude, Longitude, Distance, Target);
+
+	if (ZoomExt)
+		ZoomExtents();
+	Redraw();
+}
+/*** LPub3D Mod end ***/
 
 void View::SetDefaultCamera()
 {
@@ -826,16 +848,9 @@ void View::OnDraw()
 	if (!mModel)
 		return;
 
-	const lcPreferences& Preferences = lcGetPreferences();
-	const bool DrawInterface = mWidget != nullptr;
+	bool DrawInterface = mWidget != nullptr;
 
-	mScene.SetAllowLOD(Preferences.mAllowLOD && mWidget != nullptr);
-	mScene.SetActiveSubmodelInstance(mActiveSubmodelInstance, mActiveSubmodelTransform);
-	mScene.SetDrawInterface(DrawInterface);
-
-	mScene.Begin(mCamera->mWorldView);
-
-	mModel->GetScene(mScene, mCamera, mHighlight);
+	mModel->GetScene(mScene, mCamera, DrawInterface, mHighlight, mActiveSubmodelInstance, mActiveSubmodelTransform);
 
 	if (DrawInterface && mTrackTool == LC_TRACKTOOL_INSERT)
 	{
@@ -852,11 +867,6 @@ void View::OnDraw()
 		}
 	}
 
-	if (DrawInterface)
-		mScene.SetPreTranslucentCallback([this]() { DrawGrid(); });
-
-	mScene.End();
-
 	int TotalTileRows = 1;
 	int TotalTileColumns = 1;
 
@@ -871,6 +881,8 @@ void View::OnDraw()
 			TotalTileRows = (mHeight + ImageHeight - 1) / mHeight;
 		}
 	}
+
+	const lcPreferences& Preferences = lcGetPreferences();
 
 	for (int CurrentTileRow = 0; CurrentTileRow < TotalTileRows; CurrentTileRow++)
 	{
@@ -944,6 +956,8 @@ void View::OnDraw()
 
 		mContext->SetLineWidth(1.0f);
 
+		DrawGrid();
+
 		if (Preferences.mDrawAxes)
 			DrawAxes();
 
@@ -956,7 +970,7 @@ void View::OnDraw()
 			DrawSelectMoveOverlay();
 		else
 		if ((Tool == LC_TOOL_ROTATE || (Tool == LC_TOOL_SELECT && mTrackButton != LC_TRACKBUTTON_NONE && mTrackTool >= LC_TRACKTOOL_ROTATE_X && mTrackTool <= LC_TRACKTOOL_ROTATE_XYZ)) && ActiveModel->AnyPiecesSelected())
-/*** LPub3D Mod - Get rotate step angles ***/
+/*** LPub3D Mod - Rotate Step onDraw ***/
 		{
 			  DrawRotateOverlay();
 			  gMainWindow->GetRotStepMetaAngles();
@@ -1591,7 +1605,7 @@ void View::DrawRotateViewOverlay()
 	mContext->SetVertexBufferPointer(Verts);
 	mContext->SetVertexFormatPosition(2);
 
-	GLushort Indices[64 + 32] = 
+	GLushort Indices[64 + 32] =
 	{
 		0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16,
 		17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23, 23, 24, 24, 25, 25, 26, 26, 27, 27, 28, 28, 29, 29, 30, 30, 31, 31, 0,
@@ -1610,6 +1624,8 @@ void View::DrawGrid()
 	const lcPreferences& Preferences = lcGetPreferences();
 	if (!Preferences.mDrawGridStuds && !Preferences.mDrawGridLines)
 		return;
+
+	mContext->SetWorldMatrix(lcMatrix44Identity());
 
 	const int Spacing = lcMax(Preferences.mGridLineSpacing, 1);
 	int MinX, MaxX, MinY, MaxY;
@@ -1661,7 +1677,7 @@ void View::DrawGrid()
 	}
 
 	if (!mGridBuffer.IsValid() || MinX != mGridSettings[0] || MinY != mGridSettings[1] || MaxX != mGridSettings[2] || MaxY != mGridSettings[3] ||
-	    Spacing != mGridSettings[4] || (Preferences.mDrawGridStuds ? 1 : 0) != mGridSettings[5] || (Preferences.mDrawGridLines ? 1 : 0) != mGridSettings[6])
+		Spacing != mGridSettings[4] || (Preferences.mDrawGridStuds ? 1 : 0) != mGridSettings[5] || (Preferences.mDrawGridLines ? 1 : 0) != mGridSettings[6])
 	{
 		int VertexBufferSize = 0;
 
@@ -1751,12 +1767,10 @@ void View::DrawGrid()
 
 	int BufferOffset = 0;
 	mContext->SetVertexBuffer(mGridBuffer);
-	mContext->SetWorldMatrix(lcMatrix44Identity());
 
 	if (Preferences.mDrawGridStuds)
 	{
 		mContext->BindTexture2D(gGridTexture->mTexture);
-		mContext->SetDepthWrite(false);
 		glEnable(GL_BLEND);
 
 		mContext->SetMaterial(LC_MATERIAL_UNLIT_TEXTURE_MODULATE);
@@ -1766,7 +1780,6 @@ void View::DrawGrid()
 		mContext->DrawPrimitives(GL_TRIANGLE_STRIP, 0, 4);
 
 		glDisable(GL_BLEND);
-		mContext->SetDepthWrite(true);
 
 		BufferOffset = 4 * 5 * sizeof(float);
 	}
@@ -1858,7 +1871,7 @@ void View::DrawViewport()
 	mContext->SetViewMatrix(lcMatrix44Translation(lcVector3(0.375, 0.375, 0.0)));
 	mContext->SetProjectionMatrix(lcMatrix44Ortho(0.0f, mWidth, 0.0f, mHeight, -1.0f, 1.0f));
 
-	mContext->SetDepthWrite(false);
+	glDepthMask(GL_FALSE);
 	glDisable(GL_DEPTH_TEST);
 
 	if (gMainWindow->GetActiveView() == this)
@@ -1887,7 +1900,7 @@ void View::DrawViewport()
 		glDisable(GL_BLEND);
 	}
 
-	mContext->SetDepthWrite(true);
+	glDepthMask(GL_TRUE);
 	glEnable(GL_DEPTH_TEST);
 }
 
@@ -2644,7 +2657,7 @@ void View::StartTracking(lcTrackButton TrackButton)
 				lcArray<lcObject*> Selection;
 				lcObject* Focus = nullptr;
 
-			ActiveModel->GetSelectionInformation(&Flags, Selection, &Focus);
+				ActiveModel->GetSelectionInformation(&Flags, Selection, &Focus);
 				if (!Selection.GetSize() && !Focus)
 					gMainWindow->UpdateDefaultCamera(mCamera);
 			}
@@ -2826,7 +2839,7 @@ void View::OnButtonDown(lcTrackButton TrackButton)
 	case LC_TRACKTOOL_CAMERA:
 		StartTracking(TrackButton);
 		break;
-		
+
 	case LC_TRACKTOOL_SELECT:
 		{
 			lcObjectSection ObjectSection = FindObjectUnderPointer(false, false);

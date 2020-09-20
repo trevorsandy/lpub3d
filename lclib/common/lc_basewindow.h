@@ -26,11 +26,9 @@ struct lcPreferencesDialogOptions
 	QString POVRayPath;
 	QString LGEOPath;
 	QString DefaultAuthor;
-	QString Language;
 	int CheckForUpdates;
 
 	int AASamples;
-	int StudLogo;
 
 	lcArray<lcLibraryCategory> Categories;
 	bool CategoriesModified;

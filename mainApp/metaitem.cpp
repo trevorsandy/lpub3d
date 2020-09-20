@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -65,8 +65,6 @@
 #include "substitutepartdialog.h"
 #include "paths.h"
 #include "render.h"
-#include "messageboxresizable.h"
-#include "step.h"
 
 #include "csiitem.h"
 
@@ -2032,47 +2030,11 @@ void MetaItem::changeMargins(
   values[0] = margin->value(0);
   values[1] = margin->value(1);
 
-  bool ok   = UnitsDialog::getUnits(values,title,QString(),gui);
+  bool ok   = UnitsDialog::getUnits(values,title,gui);
 
   if (ok) {
     margin->setValues(values[0],values[1]);
     setMeta(topOfStep,bottomOfStep,margin,useTop,append,local);
-  }
-}
-
-void MetaItem::changeStepSize(
-  QString        title,
-  const Where   &topOfStep,
-  const Where   &bottomOfStep,
-  const QString &labels,
-  UnitsMeta     *units,
-  int            sizeX,
-  int            sizeY,
-  int            append,
-  bool           local,
-  bool           askLocal)
-{
-  UnitsMeta size;
-  size.setValuePixels(XX,sizeX);
-  size.setValuePixels(YY,sizeY);
-
-  float values[2];
-  if (units->value(XX) == 0.0f)
-     values[XX] = size.value(XX);
-  else
-     values[XX] = units->value(0);
-  if (units->value(YY) == 0.0f)
-     values[YY] = size.value(YY);
-  else
-     values[YY] = units->value(1);
-
-  bool ok   = UnitsDialog::getUnits(values,title,labels,gui);
-  bool changeX = values[XX] > size.value(XX) || values[XX] < size.value(XX);
-  bool changeY = values[YY] > size.value(YY) || values[YY] < size.value(YY);
-
-  if (ok && (changeX || changeY)) {
-    units->setValues(values[XX],values[YY]);
-    setMetaTopOf(topOfStep,bottomOfStep,units,append,local,askLocal);
   }
 }
 
@@ -2089,7 +2051,7 @@ void MetaItem::changeUnits(
   values[0] = units->value(0);
   values[1] = units->value(1);
 
-  bool ok   = UnitsDialog::getUnits(values,title,QString(),gui);
+  bool ok   = UnitsDialog::getUnits(values,title,gui);
 
   if (ok) {
     units->setValues(values[0],values[1]);
@@ -2182,26 +2144,6 @@ void MetaItem::changeFloatSpin(
   if (ok) {
     floatMeta->setValue(data);
     setMetaTopOf(topOfStep,bottomOfStep,floatMeta,append,local);
-  }
-}
-
-void MetaItem::changeCameraDistFactor(
-  QString       title,
-  QString       heading,
-  const Where  &topOfStep,
-  const Where  &bottomOfStep,
-  IntMeta      *factor,
-  int           append,
-  bool          local)
-{
-  int value;
-  value = factor->value();
-
-  bool ok = CameraDistFactorDialog::getCameraDistFactor(title,heading,value,gui);
-
-  if (ok) {
-    factor->setValue(value);
-    setMetaTopOf(topOfStep,bottomOfStep,factor,append,local);
   }
 }
 
@@ -2330,19 +2272,19 @@ void MetaItem::addDivider(
     QDialog *dialog = new QDialog();
 
     QFormLayout *form = new QFormLayout(dialog);
-  form->addRow(new QLabel("Divider Allocation"));
+    form->addRow(new QLabel("Divider Allocation"));
 
-  QGroupBox *box = new QGroupBox("Select Allocation");
-  form->addWidget(box);
+    QGroupBox *box = new QGroupBox("Select Allocation");
+    form->addWidget(box);
 
-  QList<QRadioButton *> options;
-  QStringList allocLabels = QStringList()
-  << QString("Vertical") << QString("Horizontal");
+    QList<QRadioButton *> options;
+    QStringList allocLabels = QStringList()
+    << QString("Vertical") << QString("Horizontal");
 
-  // Set default allocation
-  for(int i = 0; i < allocLabels.size(); ++i) {
-      QRadioButton *option = new QRadioButton(allocLabels[i],dialog);
-      if (allocLabels[i] == "Vertical")
+    // Set default allocation
+    for(int i = 0; i < allocLabels.size(); ++i) {
+        QRadioButton *option = new QRadioButton(allocLabels[i],dialog);
+        if (allocLabels[i] == "Vertical")
             option->setChecked(defAlloc == Vertical);
         if (allocLabels[i] == "Horizontal")
             option->setChecked(defAlloc == Horizontal);
@@ -2353,28 +2295,28 @@ void MetaItem::addDivider(
         options << option;
     }
 
-  QFormLayout *subform = new QFormLayout(box);
-  subform->addRow(options[0],options[1]);
+    QFormLayout *subform = new QFormLayout(box);
+    subform->addRow(options[0],options[1]);
 
-  QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
-                             Qt::Horizontal, dialog);
-  form->addRow(&buttonBox);
-  QObject::connect(&buttonBox, SIGNAL(accepted()), dialog, SLOT(accept()));
-  QObject::connect(&buttonBox, SIGNAL(rejected()), dialog, SLOT(reject()));
-  dialog->setMinimumWidth(250);
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                               Qt::Horizontal, dialog);
+    form->addRow(&buttonBox);
+    QObject::connect(&buttonBox, SIGNAL(accepted()), dialog, SLOT(accept()));
+    QObject::connect(&buttonBox, SIGNAL(rejected()), dialog, SLOT(reject()));
+    dialog->setMinimumWidth(250);
 
-  AllocEnc  alloc = Vertical;
-  if (dialog->exec() == QDialog::Accepted) {
-      for(int i = 0; i < allocLabels.size(); ++i) {
-         QRadioButton * option = options[i];
-         if (option->isChecked())
-            alloc = (allocLabels[i] == "Vertical" ? Vertical : Horizontal);
-      }
-  } else {
-    return;
-  }
+    AllocEnc  alloc = Vertical;
+    if (dialog->exec() == QDialog::Accepted) {
+        for(int i = 0; i < allocLabels.size(); ++i) {
+           QRadioButton * option = options[i];
+           if (option->isChecked())
+              alloc = (allocLabels[i] == "Vertical" ? Vertical : Horizontal);
+        }
+    } else {
+      return;
+    }
 
-  bool stepDivider = alloc != defAlloc;
+    bool stepDivider = alloc != defAlloc;
     if (stepDivider) {
          divString += QString(" STEPS");
     }
@@ -2763,155 +2705,52 @@ void MetaItem::insertPicture()
   }
 }
 
-void MetaItem::updateText(
-   const Where   &here,
-   const QString &_text,
-   QString       &_editFont,
-   QString       &_editFontColor,
-   float          _offsetX,
-   float          _offsetY,
-   int            _parentRelaiveType,
-   bool           _isRichText,
-   bool           append)
+void MetaItem::updateText(const Where &here, const QString &_text, bool _isHtml, bool insert)
 {
-    bool ok         = true;
-    bool initialAdd = true;
-    bool stepFound  = true;
-    QString text    = _text;
+    QString text = _text;
+    bool isHtml = _isHtml;
+
     if (!text.isEmpty()){
-      initialAdd      = false;
       QStringList pre = text.split("\\n");
       text = pre.join(" ");
     }
 
-    int thisStep          = 1;
-    Where insertPosition  = here;
-    bool isRichText       = _isRichText;
-    QString windowTitle   = QString("Edit %1 Text").arg(isRichText ? "Rich" : "Plain");
-    QString editFont      = _editFont;
-    QString editFontColor = _editFontColor;
-    bool hasOffset        = _offsetX != 0.0f || _offsetY != 0.0f;
-    QString offset        = hasOffset ? QString(" OFFSET %1 %2")
-                                                .arg(qreal(_offsetX))
-                                                .arg(qreal(_offsetY)) : QString();
-    bool textPlacement    = gui->page.meta.LPub.page.textPlacement.value();
-    QString placementStr;
-    if (textPlacement && initialAdd) {
-      PlacementMeta placementMeta = gui->page.meta.LPub.page.textPlacementMeta;
-      placementMeta.preamble = QString("0 !LPUB INSERT %1 PLACEMENT ")
-                                       .arg(isRichText ? "RICH_TEXT" : "TEXT");
-      PlacementData placementData = placementMeta.value();
-      textPlacement = PlacementDialog
-           ::getPlacement(PlacementType(_parentRelaiveType),TextType,placementData,"Placement",DefaultPage);
-      if (textPlacement) {
-        if (hasOffset){
-          placementData.offsets[XX] = _offsetX;
-          placementData.offsets[YY] = _offsetY;
-        }
-        placementMeta.setValue(placementData);;
-        placementStr = placementMeta.format(true/*local*/,false);
-        bool getStep = (_parentRelaiveType == StepGroupType &&
-                        placementData.relativeTo != PageType &&
-                        placementData.relativeTo != PageHeaderType &&
-                        placementData.relativeTo != PageFooterType && false /*KO - disabled until fixed*/);
-        if (getStep) {
-            // set step to insert
-            thisStep = QInputDialog::getInt(gui,"Steps","Which Step",1,1,100,1,&ok);
-            Steps *steps = dynamic_cast<Steps *>(&gui->page);
-            if (ok && steps){
-                /* foreach range */
-                stepFound = false;
-                for (int i = 0; i < steps->list.size() && !stepFound; i++) {
-                    if (steps->list[i]->relativeType == RangeType){
-                       Range *range = dynamic_cast<Range *>(steps->list[i]);
-                       if (range) {
-                           /* foreach step*/
-                           for (int j = 0; j < range->list.size(); j++) {
-                              Step *step = dynamic_cast<Step *>(range->list[j]);
-                              if (step && step->stepNumber.number == thisStep) {
-                                  insertPosition = step->topOfStep();
-                                  stepFound      = true;
-                                  break;
-                              }
-                           }
-                       }
-                    }
-                }
-            }
-         }
-      }
-
-      bool showMessage = !textPlacement || !ok ||!stepFound;
-
-      if (showMessage) {
-        QPixmap _icon = QPixmap(":/icons/lpub96.png");
-        QMessageBoxResizable box;
-        box.setWindowIcon(QIcon());
-        box.setIconPixmap (_icon);
-        box.setTextFormat (Qt::RichText);
-
-        box.setWindowTitle(QMessageBox::tr ("Text Placement Select"));
-        box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-        box.setMinimumSize(40,20);
-
-        QString message = !textPlacement ? QString("Placement selection was cancelled or not valid.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;") :
-                          !ok ?            QString("Specified step number %1 is not valid. Bottom of multi steps will be used.").arg(thisStep) :
-                                           QString("Step number %1 was not found. Bottom of multi steps will be used.").arg(thisStep);
-        QString body = QMessageBox::tr ("Woulld you like to cancel the %1 text action ?").arg(initialAdd ? "add" : "update");
-        box.setText (message);
-        box.setInformativeText (body);
-        box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
-        box.setDefaultButton   (QMessageBox::No);
-        if (box.exec() == QMessageBox::Yes) {
-            return;
-        }
-      }
-    }
-
-    ok = TextEditDialog::getText(text,editFont,editFontColor,isRichText,windowTitle,true);
+    bool ok = TextEditDialog::getText(text,isHtml,QString("Edit %1 Text").arg(isHtml ? "HTML" : "Plain"),true);
     if (ok && !text.isEmpty()) {
 
     QStringList list = text.split("\n");
     QStringList list2;
     foreach (QString string, list){
       string = string.trimmed();
-        QRegExp rx2("\"");
-        int pos = 0;
-        QChar esc('\\');
-        while ((pos = rx2.indexIn(string, pos)) != -1) {
-          pos += rx2.matchedLength();
-          if (pos < string.size()) {
-            QChar ch = string.at(pos-1);
-            if (ch != esc) {
-              string.insert(pos-1,&esc,1);
-              pos++;
-            }
+      QRegExp rx2("\"");
+      int pos = 0;
+      QChar esc('\\');
+      while ((pos = rx2.indexIn(string, pos)) != -1) {
+        pos += rx2.matchedLength();
+        if (pos < string.size()) {
+          QChar ch = string.at(pos-1);
+          if (ch != esc) {
+            string.insert(pos-1,&esc,1);
+            pos++;
           }
         }
-        // if last character is \, append space ' ' so not to escape closing string double quote
-        if (string.at(string.size()-1) == QChar('\\'))
-          string.append(QChar(' '));
+      }
+      // if last character is \, append space ' ' so not to escape closing string double quote
+      if (string.at(string.size()-1) == QChar('\\'))
+        string.append(QChar(' '));
       list2 << string;
     }
 
-    QString strMeta;
-    if (isRichText)
-      strMeta = QString("0 !LPUB INSERT RICH_TEXT \"%1\"%2")
-                        .arg(list2.join("\\n")) .arg(textPlacement ? "" : offset);
+    QString meta;
+    if (isHtml)
+      meta = QString("0 !LPUB INSERT HTML_TEXT \"%1\"") .arg(list2.join("\\n"));
     else
-      strMeta = QString("0 !LPUB INSERT TEXT \"%1\" \"%2\" \"%3\"%4")
-                        .arg(list2.join("\\n")) .arg(editFont) .arg(editFontColor) .arg(textPlacement ? "" : offset);
+      meta = QString("0 !LPUB INSERT TEXT \"%1\" \"%2\" \"%3\"") .arg(list2.join("\\n")) .arg("Arial,36,-1,255,75,0,0,0,0,0") .arg("Black");
 
-    beginMacro("UpdateText");
-    if (append)
-      appendMeta(insertPosition,strMeta);
+    if (insert)
+      appendMeta(here,meta);
     else
-      replaceMeta(insertPosition,strMeta);
-    if (textPlacement && initialAdd) {
-      Where walkFwd = insertPosition+1;
-      appendMeta(walkFwd,placementStr);
-    }
-    endMacro();
+      replaceMeta(here,meta);
   }
 }
 
@@ -2919,11 +2758,7 @@ void MetaItem::insertText()
 {
     Where insertPosition, walkBack, topOfStep, bottomOfStep;
 
-    bool append        = true;
-    bool multiStep     = false;
-    bool isRichText    = false;
-    bool textPlacement = gui->page.meta.LPub.page.textPlacement.value();
-    PlacementType parentRelativeType = PageType;
+    bool multiStep = false;
 
     Steps *steps = dynamic_cast<Steps *>(&gui->page);
     if (steps && steps->list.size() > 0) {
@@ -2938,75 +2773,32 @@ void MetaItem::insertText()
     }
 
     if (multiStep) {
-        insertPosition = steps->bottomOfSteps();
+      insertPosition = steps->bottomOfSteps();
+    } else {
+      topOfStep = gui->topOfPages[gui->displayPageNum-1];
+      // capture model when different from model at top of page
+      bottomOfStep = gui->topOfPages[gui->displayPageNum];
+      if (topOfStep.modelName == bottomOfStep.modelName) {
+        // well the model has not changed
+        insertPosition = topOfStep;
       } else {
-        insertPosition = gStep->topOfStep();
-//        topOfStep = gui->topOfPages[gui->displayPageNum-1];
-//        // capture model when different from model at top of page
-//        bottomOfStep = gui->topOfPages[gui->displayPageNum];
-//        if (topOfStep.modelName == bottomOfStep.modelName) {
-//          // well the model has not changed
-//          insertPosition = topOfStep;
-//        } else {
-//          // we are entering or leaving a submodel
-//        Rc rc;
-//        // walk back to top of step, - 1 to avoid advacing 1 STEP if we land on a STEP command
-//        walkBack = bottomOfStep - 1;
-//        for (; walkBack.lineNumber >= 0; walkBack--) {
-//          QString line = gui->readLine(walkBack);
-//          Meta mi;
-//          rc = mi.parse(line,walkBack);
-//          if (isHeader(line) || rc == StepRc || rc == RotStepRc) {
-//            break;
-//          }
-//        }
-//        insertPosition = walkBack;
-//      }
+        // we are entering or leaving a submodel
+        Meta mi;
+        Rc rc;
+        // walk back to top of step, - 1 to avoid advacing 1 STEP if we land on a STEP
+        walkBack = bottomOfStep - 1;
+        for (; walkBack.lineNumber >= 0; walkBack--) {
+          QString line = gui->readLine(walkBack);
+          rc = mi.parse(line,walkBack);
+          if (isHeader(line) || rc == StepRc || rc == RotStepRc) {
+            break;
+          }
+        }
+        insertPosition = walkBack;
+      }
       scanPastGlobal(insertPosition);
     }
-
-    if (textPlacement) {
-      QStringList textFormatOptions;
-      textFormatOptions << "Plain Text" << "Rich Text";
-      QInputDialog textTypeDlg;
-      bool ok;
-      QString textFormat =
-              QInputDialog::getItem(gui,
-                                    QString("Add Text"),
-                                    QString("Text Format:"),
-                                    textFormatOptions, 0,false,&ok);
-      if (ok && !textFormat.isEmpty())
-        isRichText = textFormat.contains(textFormatOptions.last());
-
-      if (!ok) {
-          QPixmap _icon = QPixmap(":/icons/lpub96.png");
-          QMessageBoxResizable box;
-          box.setWindowIcon(QIcon());
-          box.setIconPixmap (_icon);
-          box.setTextFormat (Qt::RichText);
-
-          box.setWindowTitle(QMessageBox::tr ("Text Format Select"));
-          box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-          box.setMinimumSize(40,20);
-
-          QString message = QString("Text format selection was cancelled or not valid.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
-          QString body = QMessageBox::tr ("Woulld you like to cancel the add text action ?");
-          box.setText (message);
-          box.setInformativeText (body);
-          box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
-          box.setDefaultButton   (QMessageBox::No);
-          if (box.exec() == QMessageBox::Yes) {
-              return;
-          }
-      }
-    }
-
-    if (multiStep)
-        parentRelativeType = StepGroupType;
-
-    QString empty;
-    QString fontString = QString("Arial,24,-1,255,%1,0,0,0,0,0").arg(isRichText ? "75" /*Bold*/ : "50" /*Normal*/);
-    updateText(insertPosition, empty, fontString, empty, 0.0f, 0.0f, parentRelativeType, isRichText, append);
+    updateText(insertPosition, QString(), false, true /*insert*/);
 }
 
 void MetaItem::insertBOM()
@@ -3288,6 +3080,28 @@ void MetaItem::deleteImageItem(Where &topOfStep, QString &metaCommand){
 
 /***************************************************************************/
 
+void MetaItem::scanPastGlobal(
+  Where &topOfStep)
+{
+  Where walk = topOfStep + 1;
+
+  int  numLines  = gui->subFileSize(walk.modelName);
+  if (walk < numLines) {
+    QString line = gui->readLine(walk);
+    QRegExp globalLine("^\\s*0\\s+!LPUB\\s+.*GLOBAL");
+    if (line.contains(globalLine) || isHeader(line)) {
+      for ( ++walk; walk < numLines; ++walk) {
+        line = gui->readLine(walk);
+        //logTrace() << "Scan Past GLOBAL LineNum (final -1): " << walk.lineNumber << ", Line: " << line;
+        if ( ! line.contains(globalLine) && ! isHeader(line)) {
+          topOfStep = walk - 1;
+          break;
+        }
+      }
+    }
+  }
+}
+
 void MetaItem::scanPastLPubMeta(
   Where &topOfStep)
 {
@@ -3498,13 +3312,6 @@ void MetaItem::beginMacro(QString name)
 void MetaItem::endMacro()
 {
   gui->endMacro();
-}
-
-void MetaItem::scanPastGlobal(
-  Where &topOfStep)
-{
-  QRegExp globalLine("^\\s*0\\s+!LPUB\\s+.*GLOBAL");
-  gui->scanPast(topOfStep,globalLine);
 }
 
 Where MetaItem::firstLine(

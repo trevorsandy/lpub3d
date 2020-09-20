@@ -4,7 +4,7 @@
 
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
 
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 
 **
 
@@ -106,20 +106,19 @@ public:
       /* 24 Category          */ Cat,
       /* 25 Submodel          */ Sm,
       /* 26 Rotate Icon       */ Ri,
-      /* 27 Csi Part          */ Cp,
-      /* 28 Step              */ Stp,
-      /* 29 Range             */ Rng
-      /* 30 Text              */ // plus 8 more...
-      /* 31 Bom               */
+      /* 27 Csi Part          */ Cp
+      /* 28 Bom               */ // plus 8 more...
 
-      /* 32 PagePointer       */
-      /* 33 SingleStep        */
-      /* 34 Reserve           */
-      /* 35 CoverPage         */
-      /* 36 CsiAnnotationType */
-      /* 37 DividerPointer    */
+      /* 29 PagePointer       */
+      /* 30 SingleStep        */
+      /* 31 Step              */
+      /* 32 Range             */
+      /* 33 Reserve           */
+      /* 34 CoverPage         */
+      /* 35 CsiAnnotationType */
+      /* 36 DividerPointer    */
 
-      /* 38 NumRelatives      */
+      /* 37 NumRelatives      */
     };
 
   PlacementDialog(

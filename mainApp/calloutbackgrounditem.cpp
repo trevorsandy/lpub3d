@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -89,7 +89,7 @@ CalloutBackgroundItem::CalloutBackgroundItem(
   setFlag(QGraphicsItem::ItemIsSelectable,true);
   setFlag(QGraphicsItem::ItemIsMovable,true);
   setData(ObjectId, CalloutBackgroundObj);
-  setZValue(meta->LPub.page.scene.calloutBackground.zValue());
+  setZValue(/*meta->LPub.page.scene.calloutBackground.zValue()*/98);
 }
 
 void CalloutBackgroundItem::contextMenuEvent(
@@ -267,8 +267,8 @@ void CalloutBackgroundItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     if (delta.x() || delta.y()) {
 
       QPoint deltaI(int(delta.x()+0.5),int(delta.y()+0.5));
-      for (int i = 0; i < callout->graphicsCalloutPointerList.size(); i++) {
-        CalloutPointerItem *pointer = callout->graphicsCalloutPointerList[i];
+      for (int i = 0; i < callout->graphicsPointerList.size(); i++) {
+        CalloutPointerItem *pointer = callout->graphicsPointerList[i];
         pointer->updatePointer(deltaI);
       }
       PlacementData placementData = placement.value();

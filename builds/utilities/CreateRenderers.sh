@@ -3,8 +3,8 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update Oct 09, 2020
-#  Copyright (c) 2017 - 2020 by Trevor SANDY
+#  Last Update July 23, 2019
+#  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 
 # sample commands [call from root build directory - e.g. lpub3d]:
@@ -316,11 +316,6 @@ InstallDependencies() {
         controlFile="$PWD/QT/debian/control"
         sed -e '/#Qt4.x/d' -e '/^Build-Depends/d' \
             -e 's/#Build-Depends/Build-Depends/g' -i $controlFile
-        if [ "$LP3D_BUILD_APPIMAGE" = "true" ]; then
-          sed -e 's/ libkf5kio-dev//g' \
-              -e 's/ extra-cmake-modules//g' \
-              -e 's/ libkf5kdelibs4support5-bin//g' -i $controlFile
-        fi
         ;;
       povray)
         controlFile="$PWD/unix/obs/debian/control"

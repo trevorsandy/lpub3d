@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2016 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2016 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -144,13 +144,13 @@ void PagePointer::addGraphicsPointerItem(
           pointer,
           background,
           view);
-  graphicsPagePointerList.append(t);
+  graphicsPointerList.append(t);
 }
 
 void PagePointer::updatePointers(QPoint &delta, QGraphicsItem *target)
 {
-  for (int i = 0; i < graphicsPagePointerList.size(); i++) {
-    PagePointerItem *pointerItem = graphicsPagePointerList[i];
+  for (int i = 0; i < graphicsPointerList.size(); i++) {
+    PagePointerItem *pointerItem = graphicsPointerList[i];
     foreach (QGraphicsItem *item, pointerItem->collidingItems(Qt::IntersectsItemBoundingRect)) {
         if (item == target)
             pointerItem->updatePointer(delta);
@@ -160,8 +160,8 @@ void PagePointer::updatePointers(QPoint &delta, QGraphicsItem *target)
 
 void PagePointer::drawTips(QPoint &delta, QGraphicsItem *target, int type)
 {
-  for (int i = 0; i < graphicsPagePointerList.size(); i++) {
-    PagePointerItem *pointerItem = graphicsPagePointerList[i];
+  for (int i = 0; i < graphicsPointerList.size(); i++) {
+    PagePointerItem *pointerItem = graphicsPointerList[i];
     int initiator = type ? type : PageType;
     foreach (QGraphicsItem *item, pointerItem->collidingItems(Qt::IntersectsItemBoundingRect)) {
         if (item == target)

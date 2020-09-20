@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2016 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2016 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -51,7 +51,6 @@ PagePointerItem::PagePointerItem(
   view              = _view;
   pointer           = *_pointer;
   pagePointer       = pp;
-  stepNumber        = pp->parentStep->stepNumber.number;
   pointerTop        = pp->topOfPagePointer();
   pointerBottom     = pp->bottomOfPagePointer();
   pointerParentType = PagePointerType;
@@ -174,7 +173,7 @@ PagePointerItem::PagePointerItem(
       tipPen.setStyle(Qt::DashDotDotLine);
   }
 
-  head = new PointerHeadItem(poly, this);
+  head = new QGraphicsPolygonItem(poly, this);
   head->setPen(tipPen);
   head->setBrush(brushColor);
   head->setFlag(QGraphicsItem::ItemIsSelectable,false);
@@ -182,8 +181,7 @@ PagePointerItem::PagePointerItem(
   addToGroup(head);
 
   for (int i = 0; i < NumPointerGrabbers; i++) {
-    if (grabbers[i])
-        grabbers[i] = nullptr;
+    grabbers[i] = nullptr;
   }
 
   setFlag(QGraphicsItem::ItemIsFocusable,true);

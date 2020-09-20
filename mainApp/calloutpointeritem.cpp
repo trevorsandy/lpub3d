@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2016 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2016 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -51,9 +51,8 @@ CalloutPointerItem::CalloutPointerItem(
   view              = _view;
   pointer           = *_pointer;
   callout           = co;
-  stepNumber        = co->parentStep->stepNumber.number;
-  pointerTop        = co->parentStep->topOfStep()/*co->topOfCallout()*/;
-  pointerBottom     = co->parentStep->bottomOfStep()/*co->bottomOfCallout()*/;
+  pointerTop        = co->topOfCallout();
+  pointerBottom     = co->bottomOfCallout();
   pointerParentType = CalloutType;
   resizeRequested   = false;
 
@@ -181,7 +180,7 @@ CalloutPointerItem::CalloutPointerItem(
       tipPen.setStyle(Qt::DashDotDotLine);
   }
 
-  head = new PointerHeadItem(poly, this);
+  head = new QGraphicsPolygonItem(poly, this);
   head->setPen(tipPen);
   head->setBrush(brushColor);
   head->setFlag(QGraphicsItem::ItemIsSelectable,false);
@@ -189,13 +188,12 @@ CalloutPointerItem::CalloutPointerItem(
   addToGroup(head);  
   
   for (int i = 0; i < NumPointerGrabbers; i++) {
-      if (grabbers[i])
-          grabbers[i] = nullptr;
+    grabbers[i] = nullptr;
   }
 
   setFlag(QGraphicsItem::ItemIsFocusable,true);
   setData(ObjectId, CalloutPointerObj);
-  setZValue(meta->LPub.page.scene.calloutPointer.zValue());
+  setZValue(/*meta->LPub.page.scene.calloutPointer.zValue()*/-1);
 
   drawPointerPoly();
 }

@@ -3,31 +3,6 @@
 #include "lc_mesh.h"
 #include "lc_array.h"
 
-enum class lcRenderMeshState : int
-{
-	NORMAL,
-	SELECTED,
-	FOCUSED,
-	DISABLED,
-	HIGHLIGHT
-};
-
-struct lcRenderMesh
-{
-	lcMatrix44 WorldMatrix;
-	lcMesh* Mesh;
-	int ColorIndex;
-	int LodIndex;
-	lcRenderMeshState State;
-};
-
-struct lcTranslucentMeshInstance
-{
-	const lcMeshSection* Section;
-	int RenderMeshIndex;
-	float Distance;
-};
-
 class lcScene
 {
 public:
@@ -44,11 +19,6 @@ public:
 		return mActiveSubmodelInstance;
 	}
 
-	const lcMatrix44& GetViewMatrix() const
-	{
-		return mViewMatrix;
-	}
-
 	void SetDrawInterface(bool DrawInterface)
 	{
 		mDrawInterface = DrawInterface;
@@ -62,16 +32,6 @@ public:
 	void SetAllowWireframe(bool AllowWireframe)
 	{
 		mAllowWireframe = AllowWireframe;
-	}
-
-	void SetAllowLOD(bool AllowLOD)
-	{
-		mAllowLOD = AllowLOD;
-	}
-
-	void SetPreTranslucentCallback(std::function<void()> Callback)
-	{
-		mPreTranslucentCallback = Callback;
 	}
 
 	lcMatrix44 ApplyActiveSubmodelTransform(const lcMatrix44& WorldMatrix) const
@@ -92,22 +52,17 @@ public:
 	void DrawInterfaceObjects(lcContext* Context) const;
 
 protected:
-	void DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTypes) const;
-/*** LPub3D Mod - true fade ***/
-	void DrawTranslucentMeshes(lcContext* Context, bool DrawLit, int FadeArgs = 0/*NoFade*/) const;
-/*** LPub3D Mod end ***/
-	void DrawDebugNormals(lcContext* Context, lcMesh* Mesh) const;
+	void DrawRenderMeshes(lcContext* Context, int PrimitiveTypes, bool EnableNormals, bool DrawTranslucent, bool DrawTextured) const;
 
 	lcMatrix44 mViewMatrix;
 	lcMatrix44 mActiveSubmodelTransform;
 	lcPiece* mActiveSubmodelInstance;
 	bool mDrawInterface;
 	bool mAllowWireframe;
-	bool mAllowLOD;
 
-	std::function<void()> mPreTranslucentCallback;
 	lcArray<lcRenderMesh> mRenderMeshes;
 	lcArray<int> mOpaqueMeshes;
-	lcArray<lcTranslucentMeshInstance> mTranslucentMeshes;
+	lcArray<int> mTranslucentMeshes;
 	lcArray<const lcObject*> mInterfaceObjects;
+	bool mHasTexture;
 };

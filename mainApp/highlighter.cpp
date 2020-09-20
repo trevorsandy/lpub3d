@@ -1,7 +1,7 @@
 /**************************************************************************** 
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -257,8 +257,6 @@ Highlighter::Highlighter(QTextDocument *parent)
 
     QStringList LPubBodyMetaPatterns;
     LPubBodyMetaPatterns
-    << "\\bADJUST_ON_ITEM_OFFSET\\b"
-    << "\\bASSEM_PART\\b"
     << "\\bAFTER\\b"
     << "\\bALLOC\\b"
     << "\\bANNOTATE\\b"
@@ -269,6 +267,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bAREA\\b"
     << "\\bASPECT\\b"
     << "\\bASSEM\\b"
+    << "\\bASSEM_PART\\b"
     << "\\bAT_MODEL\\b"
     << "\\bAT_STEP\\b"
     << "\\bAT_TOP\\b"
@@ -344,7 +343,6 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bDPI\\b"
     << "\\bELEMENT_STYLE\\b"
     << "\\bENABLE_STYLE\\b"
-    << "\\bENABLE_TEXT_PLACEMENT\\b"
     << "\\bEND\\b"
     << "\\bEND_SUB\\b"
     << "\\bEXTENDED\\b"
@@ -372,7 +370,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bHIGHLIGHT_STEP\\b"
     << "\\bHORIZONTAL\\b"
     << "\\bHOSE\\b"
-    << "\\bRICH_TEXT\\b"
+    << "\\bHTML_TEXT\\b"
     << "\\bICON\\b"
     << "\\bIGN\\b"
     << "\\bINCLUDE\\b"
@@ -406,6 +404,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bNUMBER\\b"
     << "\\bOFFSET\\b"
     << "\\bORIENTATION\\b"
+    << "\\bOUTIDE\\b"
     << "\\bOUTSIDE\\b"
     << "\\bPAGE\\b"
     << "\\bPAGE_FOOTER\\b"
@@ -427,16 +426,10 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bPLI\\b"
     << "\\bPLI_ANNOTATION\\b"
     << "\\bPLI_INSTANCE\\b"
-    << "\\bPLI_GRABBER\\b"
     << "\\bPLI_PART\\b"
     << "\\bPLI_PART_GROUP\\b"
     << "\\bPOINTER\\b"
     << "\\bPOINTER_ATTRIBUTE\\b"
-    << "\\bPOINTER_HEAD\\b"
-    << "\\bPOINTER_GRABBER\\b"
-    << "\\bPOINTER_SEG_FIRST\\b"
-    << "\\bPOINTER_SEG_SECOND\\b"
-    << "\\bPOINTER_SEG_THIRD\\b"
     << "\\bPORTRAIT\\b"
     << "\\bPOVRAY_PARMS\\b"
     << "\\bPRIMARY\\b"
@@ -477,8 +470,6 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bSQUARE_STYLE\\b"
     << "\\bSTEP_NUMBER\\b"
     << "\\bSTEP_PLI\\b"
-    << "\\bSTEP_RECTANGLE\\b"
-    << "\\bSTEP_SIZE\\b"
     << "\\bSTEPS\\b"
     << "\\bSTRETCH\\b"
     << "\\bSTYLE\\b"
@@ -487,7 +478,6 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bSUBMODEL_DISPLAY\\b"
     << "\\bSUBMODEL_FONT\\b"
     << "\\bSUBMODEL_FONT_COLOR\\b"
-    << "\\bSUBMODEL_GRABBER\\b"
     << "\\bSUBMODEL_INSTANCE\\b"
     << "\\bSUBMODEL_INSTANCE_COUNT\\b"
     << "\\bSUBMODEL_INSTANCE_COUNT_OVERRIDE\\b"
@@ -496,7 +486,6 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bTERTIARY\\b"
     << "\\bTERTIARY_DIRECTION\\b"
     << "\\bTEXT\\b"
-    << "\\bTEXT_PLACEMENT\\b"
     << "\\bTHICKNESS\\b"
     << "\\bTILE\\b"
     << "\\bTOGGLE_PAGE_NUMBER_PLACEMENT\\b"
@@ -627,7 +616,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bSKIP_BEGIN\\b"
     << "\\bSKIP_END\\b"
     << "\\bSTORE\\b"
-    << "\\bABS|ADD|REL\\b"
+    << "\\d\\.?\\d*\\s\\d\\.?\\d*\\s\\d\\.?\\d*\\s[ABS|ADD|REL]+"
        ;
 
     foreach (QString pattern, MLCadBodyMetaPatterns) {

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -79,9 +79,6 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.imageMatteBox->setEnabled(false);
   ui.imageMattingChk->setEnabled(false);
 
-  showSaveOnRedrawFlag =                         Preferences::showSaveOnRedraw;
-  showSaveOnUpdateFlag =                         Preferences::showSaveOnUpdate;
-
   ui.ldrawLibPathEdit->setText(                  mLDrawLibPath);
   ui.ldrawLibPathBox->setTitle(                  ldrawLibPathTitle);
   ui.fadeStepsUseColourBox->setTitle(            fadeStepsColorTitle);
@@ -152,6 +149,8 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.fadeStepsOpacityBox->setEnabled(            Preferences::enableFadeSteps);
   ui.fadeStepsOpacitySlider->setEnabled(         Preferences::enableFadeSteps);
   ui.fadeStepsOpacitySlider->setValue(           Preferences::fadeStepsOpacity);
+
+  ui.showParseErrorsChkBox->setChecked(          Preferences::showParseErrors);
 
   ui.fadeStepsColoursCombo->addItems(LDrawColor::names());
   ui.fadeStepsColoursCombo->setCurrentIndex(int(ui.fadeStepsColoursCombo->findText(Preferences::validFadeStepsColour)));
@@ -371,12 +370,6 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   //populate readme from the web
   m_updater->setChangelogOnly(DEFS_URL, true);
   m_updater->checkForUpdates (DEFS_URL);
-
-  // options
-  showParseErrorsChkBox = new QCheckBox(_parent);
-  showParseErrorsChkBox->setChecked(          Preferences::showParseErrors);
-  showAnnotationMessagesChkBox = new QCheckBox(_parent);
-  showAnnotationMessagesChkBox->setChecked(   Preferences::showAnnotationMessages);
 
   setMinimumSize(100, 100);
   setSizeGripEnabled(true);
@@ -778,44 +771,8 @@ void PreferencesDialog::on_preferredRenderer_currentIndexChanged(const QString &
       if (ui.povGenLDViewRadio->isChecked())
           ui.ldvPOVSettingsBox->setTitle("LDView POV file generation settings");
 
-      bool applyCARenderer = ldviewEnabled && ui.projectionCombo->currentText() == "Perspective";
-      ui.applyCALocallyRadio->setChecked(! applyCARenderer);
-      ui.applyCARendererRadio->setChecked(applyCARenderer);
-
       /* [Experimental] LDView Image Matting */
       ui.imageMattingChk->setEnabled(ldviewEnabled && Preferences::enableFadeSteps);
-}
-
-void PreferencesDialog::on_projectionCombo_currentIndexChanged(const QString &currentText)
-{
-    bool applyCARenderer = ui.preferredRenderer->currentText() == RENDERER_LDVIEW &&
-                           currentText == "Perspective";
-    ui.applyCALocallyRadio->setChecked(! applyCARenderer);
-    ui.applyCARendererRadio->setChecked(applyCARenderer);
-}
-
-void PreferencesDialog::on_applyCALocallyRadio_clicked(bool checked)
-{
-    bool applyCARenderer = ui.preferredRenderer->currentText() == RENDERER_LDVIEW &&
-                           ui.projectionCombo->currentText() == "Perspective";
-    if (checked && applyCARenderer) {
-      QMessageBox box;
-      box.setIcon (QMessageBox::Warning);
-      box.setStandardButtons (QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
-      box.setWindowTitle(tr ("Perspective Projection"));
-      box.setText (tr("The preferred renderer is set to %1 and projection is Perspective.<br>"
-                      "This configureaiton requires camera angles to be set by %1.<br>"
-                      "Are you sure you want to change the camera angles settings ?")
-                      .arg(RENDERER_LDVIEW));
-      box.setDefaultButton(QMessageBox::No);
-      if (box.exec() == QMessageBox::No) {
-          ui.applyCALocallyRadio->setChecked(!checked);
-          ui.applyCARendererRadio->setChecked(checked);
-      } else {
-          ui.applyCALocallyRadio->setChecked(checked);
-          ui.applyCARendererRadio->setChecked(!checked);
-      }
-    }
 }
 
 void PreferencesDialog::on_ldvPreferencesBtn_clicked()
@@ -840,18 +797,6 @@ void PreferencesDialog::on_povGenLDViewRadio_clicked(bool checked)
         ui.ldvPoVFileGenOptBtn->setToolTip("Open LDView POV generation dialogue");
         ui.ldvPoVFileGenPrefBtn->setToolTip("Open LDView preferences dialogue");
     }
-}
-
-void PreferencesDialog::on_saveOnRedrawChkBox_clicked(bool checked)
-{
-  Q_UNUSED(checked)
-  showSaveOnUpdateFlag = true;
-}
-
-void PreferencesDialog::on_saveOnUpdateChkBox_clicked(bool checked)
-{
-  Q_UNUSED(checked)
-  showSaveOnUpdateFlag = true;
 }
 
 void PreferencesDialog::on_resetSceneColorsButton_clicked(bool checked)
@@ -913,46 +858,6 @@ void PreferencesDialog::ldvPoVFileGenPrefBtn_clicked()
 void PreferencesDialog::on_loggingGrpBox_clicked(bool checked)
 {
       ui.logPathEdit->setEnabled(checked);
-}
-
-void PreferencesDialog::on_optionsButton_clicked(bool checked)
-{
-    Q_UNUSED(checked)
-    // options dialogue
-    QDialog *dialog = new QDialog();
-    QFormLayout *form = new QFormLayout(dialog);
-    form->addRow(new QLabel("Message Options"));
-
-    // options - parse errors
-    QGroupBox *parseErrorGrpBox = new QGroupBox("Model Meta Parse Errors");
-    form->addWidget(parseErrorGrpBox);
-    QFormLayout *parseErrorSubform = new QFormLayout(parseErrorGrpBox);
-
-    QCheckBox * parseErrorChkBox = new QCheckBox("Show all", dialog);
-    parseErrorChkBox->setChecked(                 Preferences::showParseErrors);
-    parseErrorSubform->addRow(parseErrorChkBox);
-
-    // options - annotation message
-    QGroupBox *annotationMessageGrpBox = new QGroupBox("Annotation Messages");
-    form->addWidget(annotationMessageGrpBox);
-    QFormLayout *annotationMessageSubform = new QFormLayout(annotationMessageGrpBox);
-
-    QCheckBox * annotationMessageChkBox = new QCheckBox("Show all", dialog);
-    annotationMessageChkBox->setChecked(         Preferences::showAnnotationMessages);
-    annotationMessageSubform->addRow(annotationMessageChkBox);
-
-    // options - button box
-    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
-                               Qt::Horizontal, dialog);
-    form->addRow(&buttonBox);
-    QObject::connect(&buttonBox, SIGNAL(accepted()), dialog, SLOT(accept()));
-    QObject::connect(&buttonBox, SIGNAL(rejected()), dialog, SLOT(reject()));
-    dialog->setMinimumWidth(250);
-
-    if (dialog->exec() == QDialog::Accepted) {
-        showParseErrorsChkBox->setChecked(parseErrorChkBox->isChecked());
-        showAnnotationMessagesChkBox->setChecked(annotationMessageChkBox->isChecked());
-    }
 }
 
 void PreferencesDialog::pushButtonReset_SetState()
@@ -1077,16 +982,6 @@ int PreferencesDialog::ldrawFilesLoadMsgs()
 QString const PreferencesDialog::fadeStepsColour()
 {
     return ui.fadeStepsColoursCombo->currentText();
-}
-
-bool PreferencesDialog::showSaveOnRedraw()
-{
- return showSaveOnRedrawFlag;
-}
-
-bool PreferencesDialog::showSaveOnUpdate()
-{
- return showSaveOnUpdateFlag;
 }
 
 QString const PreferencesDialog::highlightStepColour()
@@ -1289,12 +1184,7 @@ int PreferencesDialog::pageDisplayPause()
 
 bool PreferencesDialog::showParseErrors()
 {
- return showParseErrorsChkBox->isChecked();
-}
-
-bool PreferencesDialog::showAnnotationMessages()
-{
- return showAnnotationMessagesChkBox->isChecked();
+ return ui.showParseErrorsChkBox->isChecked();
 }
 
 bool PreferencesDialog::includeLogLevel()

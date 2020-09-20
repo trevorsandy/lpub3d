@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -141,10 +141,7 @@ class PliPart {
       pliPartGroup    = nullptr;
     }
 
-    void addPartGroupToScene(LGraphicsScene *scene,
-                             Where &top,
-                             Where &bottom,
-                             int stepNumber);
+    void addPartGroupToScene(LGraphicsScene *scene);
 
     float maxMargin();
 
@@ -208,10 +205,7 @@ class Pli : public Placement {
     bool highlightStep;
     bool displayIcons;
     bool isSubModel;
-    bool multistep;
-    bool callout;
 
-    Where top,bottom;
     QString imageName;
     QStringList ldrNames;
 
@@ -507,8 +501,6 @@ public:
     PliPartGroupMeta meta;
     QPointF      position;
     bool         positionChanged;
-    int          stepNumber;
-    Where        top, bottom;
 
 protected:
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event)

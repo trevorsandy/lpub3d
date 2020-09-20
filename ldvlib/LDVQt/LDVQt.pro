@@ -25,7 +25,6 @@ INCLUDEPATH += /usr/local/include
 DEFINES += _QT
 DEFINES += _NO_BOOST
 DEFINES += _TC_STATIC
-DEFINES += _WIN_UTF8_PATHS
 DEFINES += QT_THREAD_SUPPORT
 !freebsd: \
 DEFINES += EXPORT_3DS
@@ -73,7 +72,7 @@ CONFIG(debug, debug|release) {
     # The next 5 lines adds the LDView source files...
     LOAD_LDV_HEADERS      = True
     # This line requires a git extract of ldview at the same location as the lpub3d git extract
-    LOAD_LDV_SOURCE_FILES = #True
+    LOAD_LDV_SOURCE_FILES = False
     # This line points to ldview git extract folder name, you can set as you like
     VER_LDVSRC            = ldview
     # This line defines the path of the ldview git extract relative to this project file
@@ -119,18 +118,6 @@ unix:!macx {
     CONFIG += c++11
     DEFINES += USE_CPP11
 }
-
-#~~ miscellaneous ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-contains(LOAD_LDV_SOURCE_FILES,True) {
-    exists($$LDVSRCPATH) {
-      message("~~~ lib$${TARGET} Enable copy LDView sources to $$LDVINCLUDE ~~~ ")
-    } else {
-      message("~~~ lib$${TARGET} Could not copy LDView sources. $$LDVINCLUDE not found ~~~ ")
-    }
-}
-
-#~~ suppress warnings ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 win32 {
     CONFIG       += windows

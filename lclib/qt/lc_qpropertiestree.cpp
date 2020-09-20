@@ -11,6 +11,9 @@
 #include "pieceinf.h"
 #include "lc_library.h"
 #include "lc_qutils.h"
+/*** LPub3D Mod - Camera Globe ***/
+#include "project.h"
+/*** LPub3D Mod end ***/
 
 // Draw an icon indicating opened/closing branches
 static QIcon drawIndicatorIcon(const QPalette &palette, QStyle *style)
@@ -158,7 +161,7 @@ void lcQPropertiesTreeDelegate::paint(QPainter *painter, const QStyleOptionViewI
 	QColor color = static_cast<QRgb>(QApplication::style()->styleHint(QStyle::SH_Table_GridLineColor, &opt));
 	painter->save();
 	painter->setPen(QPen(color));
- 
+
 	if (!m_treeWidget || (!m_treeWidget->lastColumn(index.column()) && hasValue))
 	{
 		int right = (option.direction == Qt::LeftToRight) ? option.rect.right() : option.rect.left();
@@ -303,7 +306,7 @@ void lcQPropertiesTree::mousePressEvent(QMouseEvent *event)
 	if (item)
 	{
 		if ((item != m_delegate->editedItem()) && (event->button() == Qt::LeftButton) && (header()->logicalIndexAt(event->pos().x()) == 1) &&
-		    ((item->flags() & (Qt::ItemIsEditable | Qt::ItemIsEnabled)) == (Qt::ItemIsEditable | Qt::ItemIsEnabled)))
+			((item->flags() & (Qt::ItemIsEditable | Qt::ItemIsEnabled)) == (Qt::ItemIsEditable | Qt::ItemIsEnabled)))
 			editItem(item, 1);
 	}
 }
@@ -436,6 +439,19 @@ QWidget *lcQPropertiesTree::createEditor(QWidget *parent, QTreeWidgetItem *item)
 
 			return editor;
 		}
+/*** LPub3D Mod - LPub3D properties ***/
+	case PropertyFloatReadOnly:
+		{
+			QLineEdit *editor = new QLineEdit(parent);
+			float value = item->data(0, PropertyValueRole).toFloat();
+
+			editor->setText(lcFormatValueLocalized(value));
+			editor->setReadOnly(true);
+			editor->setToolTip("Property is read only");
+
+			return editor;
+		}
+/*** LPub3D Mod end ***/
 
 	case PropertyInt:
 		{
@@ -449,6 +465,19 @@ QWidget *lcQPropertiesTree::createEditor(QWidget *parent, QTreeWidgetItem *item)
 
 			return editor;
 		}
+/*** LPub3D Mod - LPub3D properties ***/
+	case PropertyIntReadOnly:
+		{
+			QLineEdit *editor = new QLineEdit(parent);
+			quint32 value = item->data(0, PropertyValueRole).toUInt();
+
+			editor->setText(QString::number(value));
+			editor->setReadOnly(true);
+			editor->setToolTip("Property is read only");
+
+			return editor;
+		}
+/*** LPub3D Mod end ***/
 
 	case PropertyString:
 		{
@@ -668,6 +697,24 @@ void lcQPropertiesTree::slotReturnPressed()
 
 				Model->MoveSelectedObjects(Distance, Distance, false, false, true, true);
 			}
+/*** LPub3D Mod - Camera Globe ***/
+			else if (Item == cameraGlobeLatitude || Item == cameraGlobeLongitude /*|| Item == cameraGlobeDistance*/)
+			{
+				float Value = lcParseValueLocalized(Editor->text());
+
+				float Latitude, Longitude, Distance;
+				Camera->GetAngles(Latitude,Longitude,Distance);
+				if (Item == cameraGlobeLatitude) {
+					Latitude = Value;
+				} else if (Item == cameraGlobeLongitude) {
+					Longitude = Value;
+				} /*else if (Item == cameraGlobeDistance) {
+					Distance = Value;
+				}*/
+
+				Model->SetCameraGlobe(Camera, Latitude, Longitude, Distance);
+			}
+/*** LPub3D Mod end ***/
 			else if (Item == cameraFOV)
 			{
 				float Value = lcParseValueLocalized(Editor->text());
@@ -795,6 +842,12 @@ void lcQPropertiesTree::SetEmpty()
 	partShow = nullptr;
 	partHide = nullptr;
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - Camera Globe ***/
+	cameraGlobe = nullptr;
+	cameraGlobeLatitude = nullptr;
+	cameraGlobeLongitude = nullptr;
+	cameraGlobeDistance = nullptr;
+/*** LPub3D Mod end ***/
 	cameraPosition = nullptr;
 	cameraPositionX = nullptr;
 	cameraPositionY = nullptr;
@@ -813,6 +866,15 @@ void lcQPropertiesTree::SetEmpty()
 	cameraNear = nullptr;
 	cameraFar = nullptr;
 	cameraName = nullptr;
+/*** LPub3D Mod - Camera Globe ***/
+	picture = nullptr;
+	pictureModelScale = nullptr;
+	pictureResolution = nullptr;
+	picturePageSizeWidth = nullptr;
+	picturePageSizeHeight = nullptr;
+	pictureImageSizeWidth = nullptr;
+	pictureImageSizeHeight = nullptr;
+/*** LPub3D Mod end ***/
 
 	mWidgetMode = LC_PROPERTY_WIDGET_EMPTY;
 	mFocus = nullptr;
@@ -833,7 +895,7 @@ void lcQPropertiesTree::SetPiece(const lcArray<lcObject*>& Selection, lcObject* 
 		partPosition = addProperty(nullptr, tr("Position"), PropertyGroup);
 		partPositionX = addProperty(partPosition, tr("X"), PropertyFloat);
 		partPositionY = addProperty(partPosition, tr("Y"), PropertyFloat);
-		partPositionZ = addProperty(partPosition, tr("Z"), PropertyFloat);    
+		partPositionZ = addProperty(partPosition, tr("Z"), PropertyFloat);
 /*** LPub3D Mod end ***/
 
 
@@ -985,6 +1047,13 @@ void lcQPropertiesTree::SetCamera(lcObject* Focus)
 	{
 		SetEmpty();
 
+/*** LPub3D Mod - Camera Globe ***/
+		cameraGlobe = addProperty(nullptr, tr("Camera Globe"), PropertyGroup);
+		cameraGlobeLatitude = addProperty(cameraGlobe, tr("Latitude"), PropertyFloat);
+		cameraGlobeLongitude = addProperty(cameraGlobe, tr("Longitude"), PropertyFloat);
+		cameraGlobeDistance = addProperty(cameraGlobe, tr("Distance"), PropertyIntReadOnly);
+/*** LPub3D Mod end ***/
+
 		cameraPosition = addProperty(nullptr, tr("Position"), PropertyGroup);
 		cameraPositionX = addProperty(cameraPosition, tr("X"), PropertyFloat);
 		cameraPositionY = addProperty(cameraPosition, tr("Y"), PropertyFloat);
@@ -999,14 +1068,25 @@ void lcQPropertiesTree::SetCamera(lcObject* Focus)
 		cameraUpX = addProperty(cameraUp, tr("X"), PropertyFloat);
 		cameraUpY = addProperty(cameraUp, tr("Y"), PropertyFloat);
 		cameraUpZ = addProperty(cameraUp, tr("Z"), PropertyFloat);
-/*** LPub3D Mod - Rename Properties ***/
-		cameraSettings = addProperty(nullptr, tr("Settings"), PropertyGroup);
+
+/*** LPub3D Mod - Rename Camera Settings ***/
+		cameraSettings = addProperty(nullptr, tr("Viewer Settings"), PropertyGroup);
 /*** LPub3D Mod end ***/
 		cameraOrtho = addProperty(cameraSettings, tr("Orthographic"), PropertyBool);
 		cameraFOV = addProperty(cameraSettings, tr("FOV"), PropertyFloat);
 		cameraNear = addProperty(cameraSettings, tr("Near"), PropertyFloat);
 		cameraFar = addProperty(cameraSettings, tr("Far"), PropertyFloat);
 		cameraName = addProperty(cameraSettings, tr("Name"), PropertyString);
+
+/*** LPub3D Mod - Camera Globe ***/
+		picture = addProperty(nullptr, tr("Picture"), PropertyGroup);
+		pictureModelScale = addProperty(picture, tr("Scale"), PropertyFloatReadOnly);
+		pictureResolution = addProperty(picture, tr("Resolution"), PropertyFloatReadOnly);
+		picturePageSizeWidth = addProperty(picture, tr("Page Width"), PropertyFloatReadOnly);
+		picturePageSizeHeight = addProperty(picture, tr("Page Height"), PropertyFloatReadOnly);
+		pictureImageSizeWidth = addProperty(picture, tr("Image Width"), PropertyFloatReadOnly);
+		pictureImageSizeHeight = addProperty(picture, tr("Image Height"), PropertyFloatReadOnly);
+/*** LPub3D Mod end ***/
 
 		mWidgetMode = LC_PROPERTY_WIDGET_CAMERA;
 	}
@@ -1017,14 +1097,32 @@ void lcQPropertiesTree::SetCamera(lcObject* Focus)
 	lcVector3 Position(0.0f, 0.0f, 0.0f);
 	lcVector3 Target(0.0f, 0.0f, 0.0f);
 	lcVector3 UpVector(0.0f, 0.0f, 0.0f);
+/*** LPub3D Mod - Camera Globe ***/
+	float Latitude = 0.0f;
+	float Longitude = 0.0f;
+	float Distance = 0.0f;
+	float ModelScale = 0.0f;
+	float Resolution = 0.0f;
+	float PageSizeWidth = 0.0f;
+	float PageSizeHeight = 0.0f;
+	float ImageSizeWidth = 0.0f;
+	float ImageSizeHeight = 0.0f;
+/*** LPub3D Mod end ***/
 	bool Ortho = false;
 	float FoV = 60.0f;
+
 	float ZNear = 1.0f;
 	float ZFar = 100.0f;
 	const char* Name = "";
+	float LPub3D_FoV = FoV;
+	float LPub3D_ZNear = ZNear;
+	float LPub3D_ZFar = ZFar;
 
 	if (Camera)
 	{
+/*** LPub3D Mod - Camera Globe ***/
+		Camera->GetAngles(Latitude,Longitude,Distance);
+/*** LPub3D Mod end ***/
 		Position = Camera->mPosition;
 		Target = Camera->mTargetPosition;
 		UpVector = Camera->mUpVector;
@@ -1034,7 +1132,29 @@ void lcQPropertiesTree::SetCamera(lcObject* Focus)
 		ZNear = Camera->m_zNear;
 		ZFar = Camera->m_zFar;
 		Name = Camera->GetName();
+/*** LPub3D Mod - Camera Globe ***/
+		if (Name && !Name[0])
+			Name = "Default";
+		ModelScale = Camera->GetScale();
+		Resolution = lcGetActiveProject()->GetResolution();
+		PageSizeWidth = lcGetActiveProject()->GetPageWidth();
+		PageSizeHeight = lcGetActiveProject()->GetPageHeight();
+		ImageSizeWidth = lcGetActiveProject()->GetImageWidth();
+		ImageSizeHeight = lcGetActiveProject()->GetImageHeight();
+		LPub3D_FoV = FoV + CAMERA_FOV_DEFAULT - CAMERA_FOV_NATIVE_DEFAULT;
+		LPub3D_ZNear = ZNear + CAMERA_ZNEAR_DEFAULT - CAMERA_ZNEAR_NATIVE_DEFAULT;
+		LPub3D_ZFar = ZFar + CAMERA_ZFAR_DEFAULT - CAMERA_ZFAR_NATIVE_DEFAULT;
+/*** LPub3D Mod end ***/
 	}
+
+/*** LPub3D Mod - Camera Globe ***/
+	cameraGlobeLatitude->setText(1, lcFormatValueLocalized(Latitude));
+	cameraGlobeLatitude->setData(0, PropertyValueRole, Latitude);
+	cameraGlobeLongitude->setText(1, lcFormatValueLocalized(Longitude));
+	cameraGlobeLongitude->setData(0, PropertyValueRole, Longitude);
+	cameraGlobeDistance->setText(1, lcFormatValueLocalized(Distance));
+	cameraGlobeDistance->setData(0, PropertyValueRole, Distance);
+/*** LPub3D Mod end ***/
 
 	cameraPositionX->setText(1, lcFormatValueLocalized(Position[0]));
 	cameraPositionX->setData(0, PropertyValueRole, Position[0]);
@@ -1060,14 +1180,39 @@ void lcQPropertiesTree::SetCamera(lcObject* Focus)
 	cameraOrtho->setText(1, Ortho ? "True" : "False");
 	cameraOrtho->setData(0, PropertyValueRole, Ortho);
 	cameraFOV->setText(1, lcFormatValueLocalized(FoV));
+/*** LPub3D Mod - Camera Globe ***/
+	cameraFOV->setToolTip(1,QString("LPub3D Setting: %1").arg(double(LPub3D_FoV)));
+/*** LPub3D Mod end ***/
 	cameraFOV->setData(0, PropertyValueRole, FoV);
 	cameraNear->setText(1, lcFormatValueLocalized(ZNear));
+/*** LPub3D Mod - Camera Globe ***/
+	cameraNear->setToolTip(1,QString("LPub3D Setting: %1").arg(int(LPub3D_ZNear)));
+/*** LPub3D Mod end ***/
 	cameraNear->setData(0, PropertyValueRole, ZNear);
 	cameraFar->setText(1, lcFormatValueLocalized(ZFar));
+/*** LPub3D Mod - Camera Globe ***/
+	cameraFar->setToolTip(1,QString("LPub3D Setting: %1").arg(int(LPub3D_ZFar)));
+/*** LPub3D Mod end ***/
 	cameraFar->setData(0, PropertyValueRole, ZFar);
 
 	cameraName->setText(1, Name);
 	cameraName->setData(0, PropertyValueRole, qVariantFromValue((void*)Name));
+
+/*** LPub3D Mod - Camera Globe ***/
+	pictureModelScale->setText(1, lcFormatValueLocalized(ModelScale));
+	pictureModelScale->setData(0, PropertyValueRole, ModelScale);
+	pictureResolution->setText(1, lcFormatValueLocalized(Resolution));
+	pictureResolution->setData(0, PropertyValueRole, Resolution);
+	picturePageSizeWidth->setText(1, lcFormatValueLocalized(PageSizeWidth));
+	picturePageSizeWidth->setData(0, PropertyValueRole, PageSizeWidth);
+	picturePageSizeHeight->setText(1, lcFormatValueLocalized(PageSizeHeight));
+	picturePageSizeHeight->setData(0, PropertyValueRole, PageSizeHeight);
+	pictureImageSizeWidth->setText(1, lcFormatValueLocalized(ImageSizeWidth));
+	pictureImageSizeWidth->setData(0, PropertyValueRole, ImageSizeWidth);
+	pictureImageSizeHeight->setText(1, lcFormatValueLocalized(ImageSizeHeight));
+	pictureImageSizeHeight->setData(0, PropertyValueRole, ImageSizeHeight);
+/*** LPub3D Mod end ***/
+
 }
 
 void lcQPropertiesTree::SetLight(lcObject* Focus)

@@ -3,8 +3,8 @@
 Title Perform a stand-alone build check
 
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: June 29, 2020
-rem  Copyright (c) 2017 - 2020 by Trevor SANDY
+rem  Last Update: June 29, 2019
+rem  Copyright (c) 2017 - 2019 by Trevor SANDY
 
 rem  To Run:
 rem  1. SET LP3D_APP_VERSION_LONG accordingly

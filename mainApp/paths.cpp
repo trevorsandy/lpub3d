@@ -5,7 +5,7 @@
 
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
 
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 
 **
 
@@ -38,11 +38,11 @@
 Paths paths;
 
 QString Paths::lpubDir         = "LPub3D";
-QString Paths::tmpDir          = QDir::toNativeSeparators("LPub3D/tmp");
-QString Paths::assemDir        = QDir::toNativeSeparators("LPub3D/assem");
-QString Paths::partsDir        = QDir::toNativeSeparators("LPub3D/parts");
-QString Paths::submodelDir     = QDir::toNativeSeparators("LPub3D/submodels");
-QString Paths::povrayRenderDir = QDir::toNativeSeparators("LPub3D/povray");
+QString Paths::tmpDir          = "LPub3D/tmp";
+QString Paths::assemDir        = "LPub3D/assem";
+QString Paths::partsDir        = "LPub3D/parts";
+QString Paths::submodelDir     = "LPub3D/submodels";
+QString Paths::povrayRenderDir = "LPub3D/povray";
 QString Paths::logsDir         = "logs";
 QString Paths::extrasDir       = "extras";
 QString Paths::libraryDir      = "libraries";
@@ -77,36 +77,36 @@ void Paths::mkDirs(){
 void Paths::mkCustomDirs(){
 
   customDir       = Preferences::validLDrawLibrary+"custom";
-  customPartDir   = QDir::toNativeSeparators(Preferences::validLDrawLibrary+"custom/parts");
-  customSubDir    = QDir::toNativeSeparators(Preferences::validLDrawLibrary+"custom/parts/s");
-  customPrimDir   = QDir::toNativeSeparators(Preferences::validLDrawLibrary+"custom/p");
-  customPrim8Dir  = QDir::toNativeSeparators(Preferences::validLDrawLibrary+"custom/p/8");
-  customPrim48Dir = QDir::toNativeSeparators(Preferences::validLDrawLibrary+"custom/p/48");
+  customPartDir   = Preferences::validLDrawLibrary+"custom/parts";
+  customSubDir    = Preferences::validLDrawLibrary+"custom/parts/s";
+  customPrimDir   = Preferences::validLDrawLibrary+"custom/p";
+  customPrim8Dir  = Preferences::validLDrawLibrary+"custom/p/8";
+  customPrim48Dir = Preferences::validLDrawLibrary+"custom/p/48";
 
   QDir dir;
 
   QString dp = Preferences::lpubDataPath;
-  if(! dir.exists(dp + QDir::separator() + customDir))
-    dir.mkdir(dp + QDir::separator() + customDir);
+  if(! dir.exists(dp + "/" + customDir))
+    dir.mkdir(dp + "/" + customDir);
 
-  if (! dir.exists(dp + QDir::separator() + customPartDir))
-    dir.mkdir(dp + QDir::separator() + customPartDir);
+  if (! dir.exists(dp + "/" + customPartDir))
+    dir.mkdir(dp + "/" + customPartDir);
 
-  if (! dir.exists(dp + QDir::separator() + customSubDir))
-    dir.mkdir(dp + QDir::separator() + customSubDir);
+  if (! dir.exists(dp + "/" + customSubDir))
+    dir.mkdir(dp + "/" + customSubDir);
 
-  if (! dir.exists(dp + QDir::separator() + customPrimDir))
-    dir.mkdir(dp + QDir::separator() + customPrimDir);
+  if (! dir.exists(dp + "/" + customPrimDir))
+    dir.mkdir(dp + "/" + customPrimDir);
 
-  if (! dir.exists(dp + QDir::separator() + customPrim8Dir))
-    dir.mkdir(dp + QDir::separator() + customPrim8Dir);
+  if (! dir.exists(dp + "/" + customPrim8Dir))
+    dir.mkdir(dp + "/" + customPrim8Dir);
 
-  if (! dir.exists(dp + QDir::separator() + customPrim48Dir))
-    dir.mkdir(dp + QDir::separator() + customPrim48Dir);
+  if (! dir.exists(dp + "/" + customPrim48Dir))
+    dir.mkdir(dp + "/" + customPrim48Dir);
 
-  customDirs << QDir::toNativeSeparators(dp + "/" + customPartDir)
-             << QDir::toNativeSeparators(dp + "/" + customSubDir)
-             << QDir::toNativeSeparators(dp + "/" + customPrimDir)
-             << QDir::toNativeSeparators(dp + "/" + customPrim8Dir)
-             << QDir::toNativeSeparators(dp + "/" + customPrim48Dir);
+  customDirs << dp + "/" + customPartDir
+             << dp + "/" + customSubDir
+             << dp + "/" + customPrimDir
+             << dp + "/" + customPrim8Dir
+             << dp + "/" + customPrim48Dir;
 }

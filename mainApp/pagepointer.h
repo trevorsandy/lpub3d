@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2016 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2016 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -58,8 +58,8 @@ class PagePointer : public Steps {
     Step                      *parentStep;
     PlacementType              parentRelativeType;
 
-    QList<Pointer *>           pointerList;             /* Pointers and pointer tips data */
-    QList<PagePointerItem *>   graphicsPagePointerList; /* Pointer and pointer tips graphics */
+    QList<Pointer *>           pointerList;         /* Pointers and pointer tips data */
+    QList<PagePointerItem *>   graphicsPointerList; /* Pointer and pointer tips graphics */
 
     PagePointerBackgroundItem *background;
     Where  		               topPage,bottomPage;

@@ -53,12 +53,6 @@ public:
 		mZipFileIndex = ZipFileIndex;
 	}
 
-	void Unload()
-	{
-		mState = lcPrimitiveState::NOT_LOADED;
-		mMeshData.RemoveAll();
-	}
-
 	QString mFileName;
 	char mName[LC_MAXNAME];
 	lcZipFileType mZipFileType;
@@ -113,10 +107,7 @@ public:
 	void GetCategoryEntries(int CategoryIndex, bool GroupPieces, lcArray<PieceInfo*>& SinglePieces, lcArray<PieceInfo*>& GroupedPieces);
 	void GetCategoryEntries(const char* CategoryKeywords, bool GroupPieces, lcArray<PieceInfo*>& SinglePieces, lcArray<PieceInfo*>& GroupedPieces);
 	void GetPatternedPieces(PieceInfo* Parent, lcArray<PieceInfo*>& Pieces) const;
-	void GetParts(lcArray<PieceInfo*>& Parts) const;
-
-	std::vector<PieceInfo*> GetPartsFromSet(const std::vector<std::string>& PartIds) const;
-	std::string GetPartId(const PieceInfo* Info) const;
+	void GetParts(lcArray<PieceInfo*>& Parts);
 
 	void GetPrimitiveFile(lcLibraryPrimitive* Primitive, std::function<void(lcFile& File)> Callback);
 	void GetPieceFile(const char* FileName, std::function<void(lcFile& File)> Callback);
@@ -133,13 +124,6 @@ public:
 	}
 
 	bool LoadPrimitive(lcLibraryPrimitive* Primitive);
-
-	void SetStudLogo(int StudLogo, bool Reload);
-
-	int GetStudLogo() const
-	{
-		return mStudLogo;
-	}
 
 	void SetOfficialPieces()
 	{
@@ -187,16 +171,12 @@ protected:
 	bool ReadDirectoryCacheFile(const QString& FileName, lcMemFile& CacheFile);
 	bool WriteDirectoryCacheFile(const QString& FileName, lcMemFile& CacheFile);
 
-	bool GetStudLogoFile(lcMemFile& PrimFile, int StudLogo, bool OpenStud);
-
 	QMutex mLoadMutex;
 	QList<QFuture<void>> mLoadFutures;
 	QList<PieceInfo*> mLoadQueue;
 
 	QMutex mTextureMutex;
 	std::vector<lcTexture*> mTextureUploads;
-
-	int mStudLogo;
 
 	QString mCachePath;
 	qint64 mArchiveCheckSum[4];

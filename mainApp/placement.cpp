@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -78,28 +78,6 @@ void PlacementNum::sizeit(QString format)
     size[XX] = int(gti.document()->size().width());
     size[YY] = int(gti.document()->size().height());
   }
-}
-
-int PlacementNum::addStepNumber(
-    Page          *page,
-    QGraphicsItem *parent)
-{
-    stepNumber =
-        new GroupStepNumberItem(
-          page,
-          page->groupStepMeta.LPub.multiStep.stepNum,
-          "%d",
-          page->groupStepNumber.number,
-          parent);
-
-    if (!stepNumber)
-        return -1;
-
-    stepNumber->relativeType = StepNumberType;
-    stepNumber->size[XX]     = int(stepNumber->document()->size().width());
-    stepNumber->size[YY]     = int(stepNumber->document()->size().height());
-
-    return 0;
 }
 
 /* add a placement element (ranges, range, setep, callout, pli ...) to the list */
@@ -210,19 +188,6 @@ int Placement::relativeTo(
               }
           }
       } // pagePointers
-    /* textItem KO*/
-    for (int i = 0; i < step->parent->parent->textItemList.size(); i++) {
-        TextItem *textItem = step->parent->parent->textItemList[i];
-        if (textItem->pagePlaced)
-            continue;
-        stepRelativeTo = textItem->placement.value().relativeTo;
-        if (stepRelativeTo == relativeType) {
-            int size[2]   = {textItem->size[0],textItem->size[1]};
-            int margin[2] = {textItem->margin.valuePixels(0),textItem->margin.valuePixels(1)};
-            placeRelative(textItem, size, margin);
-            appendRelativeTo(textItem);
-        }
-    } // textItem
     // Everything placed
   } // if step
 
@@ -258,7 +223,7 @@ int Placement::relativeToSg(
       appendRelativeTo(&steps->subModel);
     }
 
-    // Callout
+    // Step-Group, Step, Callout
     for (int j = 0; j < steps->list.size(); j++) {
       /* range (Steps) */
       if (steps->list[j]->relativeType == RangeType) {
@@ -285,29 +250,15 @@ int Placement::relativeToSg(
 
     // Page Pointer
     for (auto i : steps->pagePointers.keys()) {
-      PagePointer *pagePointer = dynamic_cast<PagePointer *>(steps->pagePointers[i]);
-      PlacementData placementData = pagePointer->placement.value();
-      if (placementData.relativeTo == relativeType) {
-        int size[2]   = { pagePointer->size[0], pagePointer->size[1] };
-        int margin[2] = { pagePointer->margin.valuePixels(0), pagePointer->margin.valuePixels(1) };
-        placeRelative(pagePointer, size, margin);
-        steps->appendRelativeTo(pagePointer);
-      }
-    } // pagePointerss
-
-    // textItem KO
-    for (int i = 0; i < steps->textItemList.size(); i++) {
-      TextItem *textItem = dynamic_cast<TextItem *>(steps->textItemList[i]);
-      if (textItem->pagePlaced)
-          continue;
-      PlacementData placementData = textItem->placement.value();
-      if (placementData.relativeTo == relativeType) {
-        int size[2]   = {textItem->size[0],textItem->size[1]};
-        int margin[2] = {textItem->margin.valuePixels(0),textItem->margin.valuePixels(1)};
-        placeRelative(textItem, size, margin);
-        steps->appendRelativeTo(textItem);
-      }
-    } // textItem
+        PagePointer *pagePointer = dynamic_cast<PagePointer *>(steps->pagePointers[i]);
+        PlacementData placementData = pagePointer->placement.value();
+        if (placementData.relativeTo == relativeType) {
+            int size[2]   = { pagePointer->size[0], pagePointer->size[1] };
+            int margin[2] = { pagePointer->margin.valuePixels(0), pagePointer->margin.valuePixels(1) };
+            placeRelative(pagePointer, size, margin);
+            steps->appendRelativeTo(pagePointer);
+          }
+      } // pagePointerss
 
     /* try to find relation for things relative to us */
 

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -39,8 +39,6 @@ PlacementCsiPart::PlacementCsiPart(
   size[YY]     = _csiPartMeta.size.valuePixels(YY);
   loc[XX]     += _csiPartMeta.loc.valuePixels(XX);
   loc[YY]     += _csiPartMeta.loc.valuePixels(YY);
-  top          = _csiPartMeta.placement.here();
-  bottom       = _csiPartMeta.placement.here();
   outline      = false;
 
   setData(ObjectId, AssemAnnotationPartObj);
@@ -216,7 +214,6 @@ void CsiAnnotationItem::addGraphicsItems(
     submodelLevel       = _csiItem->submodelLevel;
     parentRelativeType  = _csiItem->parentRelativeType;
     subModelColor       = _step->pli.pliMeta.subModelColor;
-    stepNumber          = _step->stepNumber.number;
     positionChanged     = false;
     switch (parentRelativeType) {
       case CalloutType:
@@ -299,9 +296,6 @@ void CsiAnnotationItem::addGraphicsItems(
     // place PlacementCsiPart relative to CSI
 
     placementCsiPart = new PlacementCsiPart(_ca->csiPartMeta,_csiItem);
-    placementCsiPart->top = topOf;
-    placementCsiPart->top = bottomOf;
-    placementCsiPart->stepNumber = stepNumber;
     placementCsiPart->setZValue(_csiItem->meta->LPub.page.scene.assemAnnotationPart.zValue());
     if (! placementCsiPart->hasOffset())
         _csiItem->placeRelative(placementCsiPart);
@@ -328,28 +322,26 @@ void CsiAnnotationItem::addGraphicsItems(
 }
 
 void CsiAnnotationItem::scaleDownFont() {
-  qreal widthRatio  = styleRect.width()  / textRect.width();
-  qreal heightRatio = styleRect.height() / textRect.height();
-  if (widthRatio < 1 || heightRatio < 1)
-  {
-    QFont font = this->QGraphicsTextItem::font();
-    qreal saveFontSizeF = font.pointSizeF();
-    font.setPointSizeF(font.pointSizeF()*qMin(widthRatio,heightRatio));
-    setFont(font);
-    textRect = QRectF(0,0,document()->size().width(),document()->size().height());
-    if (textRect.width()  > styleRect.width()  ||
-        textRect.height() > styleRect.height())
-    {
-      scaleDownFont();
+    QRectF saveTextRect = textRect;
+
+    if ((textRect.width() > styleRect.width() ||
+         textRect.height() > styleRect.height())) {
+        QFont font = this->QGraphicsTextItem::font();
+        qreal widthRatio = styleRect.width() / textRect.width();
+        if (widthRatio < 1.0)
+        {
+            font.setPointSizeF(font.pointSizeF()*widthRatio);
+            setFont(font);
+            textRect = QRectF(0,0,document()->size().width(),document()->size().height());
+        }
     }
-    else
-    {
-      // adjust text vertical alignment
-      textOffset.setY((styleRect.height()-textRect.height())/2);
+
+    // adjust text vertical alignment
+    if (textRect == saveTextRect) {
+        textOffset.setY((styleRect.height()-textRect.height())/2);
+    } else {
+        textOffset.setY(saveTextRect.height()-textRect.height());
     }
-    emit gui->messageSig(LOG_INFO,QMessageBox::tr("CSI annotation font size was adjusted from %1 to %2.")
-                                                  .arg(saveFontSizeF).arg(font.pointSizeF()));
-  }
 }
 
 void CsiAnnotationItem::sizeIt()

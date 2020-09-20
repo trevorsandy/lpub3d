@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the
 ** GNU General Public Liceense (GPL) version 3.0
@@ -34,7 +34,6 @@
 class QGraphicsPolygonItem;
 class QGraphicsItemGroup;
 class QGraphicsView;
-class PointerHeadItem;
 
 class PointerItem : public QGraphicsItemGroup, public MetaItem, public AbstractResize 
 {
@@ -51,7 +50,6 @@ public:
 
   PlacementType              pointerParentType;
 
-  int                        stepNumber;
   Where                      pointerTop, pointerBottom;
 
   Pointer                    pointer;
@@ -62,7 +60,7 @@ public:
   int                        baseX;
   int                        baseY;
   BorderedLineItem          *shaft;
-  PointerHeadItem           *head;
+  QGraphicsPolygonItem      *head;
   QList<BorderedLineItem *>  shaftSegments;
 
   Grabber                   *grabbers[NumPointerGrabbers];
@@ -170,16 +168,6 @@ public:
 protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
   void mousePressEvent(QGraphicsSceneMouseEvent *event);
-};
-
-class PointerHeadItem : public QGraphicsPolygonItem
-{
-public:
-  int stepNumber;
-  Where top,bottom;
-  PointerHeadItem(const QPolygonF &poly,
-                  QGraphicsItem *parent = nullptr)
-      :QGraphicsPolygonItem(poly, parent){}
 };
 
 #endif

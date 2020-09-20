@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -387,8 +387,21 @@ int Gui::drawPage(
     LGraphicsView  *view,
     LGraphicsScene *scene,
     Steps          *steps,
-    QString const   &addLine,
-    DrawPageOptions &opts)
+    int             stepNum,
+    QString const  &addLine,
+    Where          &current,
+    QStringList    &csiParts,
+    QStringList    &pliParts,
+    bool            isMirrored,
+    QHash<QString, QStringList> &bfx,
+    QList<PliPartGroupMeta> &pliPartGroups,
+    bool            printing,
+    bool            bfxStore2,
+    QStringList    &bfxParts,
+    QStringList    &ldrStepFiles,
+    QStringList    &csiKeys,
+    bool            assembledCallout,
+    bool            calledOut)
 {
   QStringList saveCsiParts;
   bool     global = true;
@@ -396,7 +409,7 @@ int Gui::drawPage(
   Callout *callout         = nullptr;
   Range   *range           = nullptr;
   Step    *step            = nullptr;
-  int      numLines        = ldrawFile.size(opts.current.modelName);
+  int      numLines        = ldrawFile.size(current.modelName);
   bool     pliIgnore       = false;
   bool     partIgnore      = false;
   bool     synthBegin      = false;
@@ -410,21 +423,20 @@ int Gui::drawPage(
   bool     rotateIcon      = false;
   bool     assemAnnotation = false;
   bool     displayCount    = false;
+  bool     itemDirection   = false;
   int      countInstances  = steps->meta.LPub.countInstance.value();
-  bool     previewNotPerStep = false;
 
   DividerType dividerType  = NoDivider;
 
   PagePointer *pagePointer = nullptr;
-  QMap<Positions, PagePointer *> pagePointers;
-  QMap<Where, SceneObjectData> selectedSceneItems;
+  QMap<Positions, PagePointer*> pagePointers;
 
-  steps->isMirrored = opts.isMirrored;
-  steps->setTopOfSteps(opts.current);
+  steps->isMirrored = isMirrored;
+  steps->setTopOfSteps(current);
 
   QList<InsertMeta> inserts;
 
-  Where topOfStep = opts.current;
+  Where topOfStep = current;
   Rc gprc = OkRc;
   Rc rc;
   int retVal = 0;
@@ -472,12 +484,12 @@ int Gui::drawPage(
       steps->meta.LPub.page.pageFooter.size.setValue(0,pW);
     }
 
-  emit messageSig(LOG_INFO_STATUS, "Processing draw page for " + opts.current.modelName + "...");
+  emit messageSig(LOG_INFO, "Processing draw page for " + current.modelName + "...");
 
   /*
    * do until end of page
    */
-  for ( ; opts.current <= numLines; opts.current++) {
+  for ( ; current <= numLines; current++) {
 
       // load initial meta values
 
@@ -487,7 +499,7 @@ int Gui::drawPage(
 
       // If we hit end of file we've got to note end of step
 
-      if (opts.current >= numLines) {
+      if (current >= numLines) {
           line.clear();
           gprc = EndOfFileRc;
           tokens << "0";
@@ -498,7 +510,7 @@ int Gui::drawPage(
 
           // read the line from the ldrawFile db
 
-          line = ldrawFile.readLine(opts.current.modelName,opts.current.lineNumber);
+          line = ldrawFile.readLine(current.modelName,current.lineNumber);
           split(line,tokens);
         }
 
@@ -518,7 +530,7 @@ int Gui::drawPage(
               color = tokens[1];
             }
 
-          opts.csiParts << line;
+          csiParts << line;
           partsAdded = true;
 
           // STEP - Allocate STEP
@@ -527,15 +539,15 @@ int Gui::drawPage(
 
           if (step == nullptr  && ! noStep) {
               if (range == nullptr) {
-                  range = newRange(steps,opts.calledOut);
+                  range = newRange(steps,calledOut);
                   steps->append(range);
                 }
 
               step = new Step(topOfStep,
                               range,
-                              opts.stepNum,
+                              stepNum,
                               curMeta,
-                              opts.calledOut,
+                              calledOut,
                               multiStep);
 
               range->append(step);
@@ -572,10 +584,10 @@ int Gui::drawPage(
                       line = substituteToken.join(" ");
                     }
 
-                  if (opts.bfxStore2 && bfxLoad) {
-                      for (int i = 0; i < opts.bfxParts.size(); i++) {
-                          if (opts.bfxParts[i] == colorType) {
-                              opts.bfxParts.removeAt(i);
+                  if (bfxStore2 && bfxLoad) {
+                      for (int i = 0; i < bfxParts.size(); i++) {
+                          if (bfxParts[i] == colorType) {
+                              bfxParts.removeAt(i);
                               break;
                             }
                         }
@@ -585,11 +597,11 @@ int Gui::drawPage(
                       // Better to make the user use the !LPUB PLI BEGIN IGN / END
 
                       //if ( ! removed )  {
-                      opts.pliParts << Pli::partLine(line,opts.current,steps->meta);
+                      pliParts << Pli::partLine(line,current,steps->meta);
                       //}
                     } else {
 
-                      opts.pliParts << Pli::partLine(line,opts.current,steps->meta);
+                      pliParts << Pli::partLine(line,current,steps->meta);
                     }
                 }
 
@@ -597,8 +609,8 @@ int Gui::drawPage(
               // in a sequence of steps.  This used to be commented out which
               // means it didn't work in some cases, but we need it in step
               // group cases, so.... bfxStore1 && multiStep (was just bfxStore1)
-              if (bfxStore1 && (multiStep || opts.calledOut)) {
-                  opts.bfxParts << colorType;
+              if (bfxStore1 && (multiStep || calledOut)) {
+                  bfxParts << colorType;
                 }
             } // STEP - Process shown PLI parts
 
@@ -617,7 +629,7 @@ int Gui::drawPage(
               QString thisType = type;
 
              /* t.s. Rotated or assembled callout here (treated like a submodel) */
-              if ((opts.assembledCallout = calloutMode != CalloutBeginMeta::Unassembled)) {
+              if ((assembledCallout = calloutMode != CalloutBeginMeta::Unassembled)) {
 
                   /* So, we process these callouts in-line, not when we finally hit the STEP or
                      ROTSTEP that ends this processing, but for ASSEMBLED or ROTATED
@@ -628,7 +640,7 @@ int Gui::drawPage(
                      parent's scale and "render" the submodels at the parent's scale */
 
                   Meta tmpMeta = curMeta;
-                  Where walk = opts.current;
+                  Where walk = current;
                   for (++walk; walk < numLines; ++walk) {
                       QStringList tokens;
                       QString scanLine = ldrawFile.readLine(walk.modelName,walk.lineNumber);
@@ -660,7 +672,7 @@ int Gui::drawPage(
                       // In this case, no additional rotation should be applied to the submodel
                       callout->meta.rotStep.clear();
                   }
-                  SubmodelStack tos(opts.current.modelName,opts.current.lineNumber,opts.stepNum);
+                  SubmodelStack tos(current.modelName,current.lineNumber,stepNum);
                   callout->meta.submodelStack << tos;
                   Meta saveMeta = callout->meta;
                   callout->meta.LPub.pli.constrain.resetToDefault();
@@ -668,28 +680,30 @@ int Gui::drawPage(
                   step->append(callout);
 
                   calloutParts.clear();
-
                   QStringList csiParts2;
 
                   QHash<QString, QStringList> calloutBfx;
 
-                  DrawPageOptions calloutOpts(
-                              current2,
-                              csiParts2,
-                              calloutParts,
-                              opts.bfxParts,
-                              opts.ldrStepFiles,
-                              opts.csiKeys,
-                              calloutBfx,
-                              opts.pliPartGroups,
-                              1,
-                              opts.groupStepNumber,
-                              ldrawFile.mirrored(tokens),
-                              opts.printing,
-                              opts.bfxStore2,
-                              opts.assembledCallout,
-                              true);
-                  int rc = drawPage(view, scene, callout, line, calloutOpts);
+                  int rc;
+                  rc = drawPage(
+                        view,
+                        scene,
+                        callout,
+                        1,
+                        line,
+                        current2,
+                        csiParts2,
+                        calloutParts,
+                        ldrawFile.mirrored(tokens),
+                        calloutBfx,
+                        pliPartGroups,
+                        printing,
+                        bfxStore2,
+                        bfxParts,
+                        ldrStepFiles,
+                        csiKeys,
+                        assembledCallout,
+                        true);
 
                   callout->meta = saveMeta;
 
@@ -698,7 +712,7 @@ int Gui::drawPage(
                       ! pliIgnore && ! partIgnore && ! synthBegin &&
                       calloutMode == CalloutBeginMeta::Unassembled) {
 
-                      opts.pliParts += calloutParts;
+                      pliParts += calloutParts;
                     }
 
                   if (rc != 0) {
@@ -708,12 +722,12 @@ int Gui::drawPage(
                 } else {
                   callout->instances++;
                   if (calloutMode == CalloutBeginMeta::Unassembled) {
-                      opts.pliParts += calloutParts;
+                      pliParts += calloutParts;
                     }
                 }
 
               /* remind user what file we're working on */
-              emit messageSig(LOG_STATUS, "Processing " + opts.current.modelName + "...");
+              emit messageSig(LOG_STATUS, "Processing " + current.modelName + "...");
 
             } // STEP - Process called out submodel
 
@@ -721,16 +735,11 @@ int Gui::drawPage(
           if (step && steps->meta.LPub.subModel.show.value()) {
               bool topModel       = (topLevelFile() == topOfStep.modelName);
               bool showTopModel   = (steps->meta.LPub.subModel.showTopModel.value());
-              bool showStepOk     = (steps->meta.LPub.subModel.showStepNum.value() == opts.stepNum || opts.stepNum == 1);
-              if (showStepOk && !opts.calledOut && (!topModel || showTopModel)){
-                  if (multiStep && steps->meta.LPub.multiStep.pli.perStep.value() == false) {
-                      previewNotPerStep = !previewNotPerStep ? true : previewNotPerStep;
-                  } else {
-                      step->placeSubModel = true;
-                  }
-              }
+              bool showStepOk     = (steps->meta.LPub.subModel.showStepNum.value() == stepNum || stepNum == 1);
+              step->placeSubModel = (showStepOk && !calledOut && (!topModel || showTopModel));
           }
-      }
+
+        }
       // STEP - Process line, triangle, or polygon type
       else if ((tokens.size() == 8  && tokens[0] == "2") ||
                (tokens.size() == 11 && tokens[0] == "3") ||
@@ -740,20 +749,20 @@ int Gui::drawPage(
           /* we've got a line, triangle or polygon, so add it to the list */
           /* and make sure we know we have a step */
 
-          opts.csiParts << line;
+          csiParts << line;
           partsAdded = true;
 
           if (step == nullptr && ! noStep) {
               if (range == nullptr) {
-                  range = newRange(steps,opts.calledOut);
+                  range = newRange(steps,calledOut);
                   steps->append(range);
                 }
 
               step = new Step(topOfStep,
                               range,
-                              opts.stepNum,
+                              stepNum,
                               steps->meta,
-                              opts.calledOut,
+                              calledOut,
                               multiStep);
 
               range->append(step);
@@ -765,7 +774,7 @@ int Gui::drawPage(
           /* must be meta-command (or comment) */
 
           if (global && tokens.contains("!LPUB") && tokens.contains("GLOBAL")) {
-              topOfStep = opts.current;
+              topOfStep = current;
             } else {
               global = false;
             }
@@ -773,7 +782,7 @@ int Gui::drawPage(
           if (gprc == EndOfFileRc) {
               rc = gprc;
             } else {
-              rc = curMeta.parse(line,opts.current,true);
+              rc = curMeta.parse(line,current,true);
             }
 
           /* handle specific meta-commands */
@@ -781,23 +790,23 @@ int Gui::drawPage(
           switch (rc) {
             /* toss it all out the window, per James' original plan */
             case ClearRc:
-              opts.pliParts.clear();
-              opts.csiParts.clear();
+              pliParts.clear();
+              csiParts.clear();
               //steps->freeSteps();  // had to remove this because it blows steps following clear
               // in step group.
               break;
 
               /* Buffer exchange */
             case BufferStoreRc:
-              opts.bfx[curMeta.bfx.value()] = opts.csiParts;
+              bfx[curMeta.bfx.value()] = csiParts;
               bfxStore1 = true;
-              opts.bfxParts.clear();
+              bfxParts.clear();
               break;
 
             case BufferLoadRc:
-              opts.csiParts = opts.bfx[curMeta.bfx.value()];
+              csiParts = bfx[curMeta.bfx.value()];
               if (!partsAdded) {
-                  ldrawFile.setPrevStepPosition(opts.current.modelName,opts.csiParts.size());
+                  ldrawFile.setPrevStepPosition(current.modelName,csiParts.size());
                   //qDebug() << "Model:" << current.modelName << ", Step:"  << stepNum << ", bfx Set Fade Position:" << csiParts.size();
               }
               bfxLoad = true;
@@ -807,7 +816,7 @@ int Gui::drawPage(
             case LDCadGroupRc:
             case LeoCadGroupBeginRc:
             case LeoCadGroupEndRc:
-              opts.csiParts << line;
+              csiParts << line;
               break;
 
             case IncludeRc:
@@ -818,7 +827,7 @@ int Gui::drawPage(
 
             case PliBeginSub1Rc:
               if (pliIgnore) {
-                  parseError("Nested PLI BEGIN/ENDS not allowed",opts.current);
+                  parseError("Nested PLI BEGIN/ENDS not allowed",current);
                 }
               if (steps->meta.LPub.pli.show.value() &&
                   ! pliIgnore &&
@@ -827,19 +836,19 @@ int Gui::drawPage(
 
                   SubData subData = curMeta.LPub.pli.begin.sub.value();
                   QString addPart = QString("1 0  0 0 0  0 0 0 0 0 0 0 0 0 %1") .arg(subData.part);
-                  opts.pliParts << Pli::partLine(addPart,opts.current,curMeta);
+                  pliParts << Pli::partLine(addPart,current,curMeta);
                 }
 
               if (step == nullptr && ! noStep) {
                   if (range == nullptr) {
-                      range = newRange(steps,opts.calledOut);
+                      range = newRange(steps,calledOut);
                       steps->append(range);
                     }
                   step = new Step(topOfStep,
                                   range,
-                                  opts.stepNum,
+                                  stepNum,
                                   curMeta,
-                                  opts.calledOut,
+                                  calledOut,
                                   multiStep);
 
                   range->append(step);
@@ -854,7 +863,7 @@ int Gui::drawPage(
             case PliBeginSub5Rc:
             case PliBeginSub6Rc:
               if (pliIgnore) {
-                  parseError("Nested PLI BEGIN/ENDS not allowed",opts.current);
+                  parseError("Nested PLI BEGIN/ENDS not allowed",current);
                 }
               if (steps->meta.LPub.pli.show.value() &&
                   ! pliIgnore &&
@@ -863,19 +872,19 @@ int Gui::drawPage(
 
                   SubData subData = curMeta.LPub.pli.begin.sub.value();
                   QString addPart = QString("1 %1  0 0 0  0 0 0 0 0 0 0 0 0 %2") .arg(subData.color) .arg(subData.part);
-                  opts.pliParts << Pli::partLine(addPart,opts.current,curMeta);
+                  pliParts << Pli::partLine(addPart,current,curMeta);
                 }
 
               if (step == nullptr && ! noStep) {
                   if (range == nullptr) {
-                      range = newRange(steps,opts.calledOut);
+                      range = newRange(steps,calledOut);
                       steps->append(range);
                     }
                   step = new Step(topOfStep,
                                   range,
-                                  opts.stepNum,
+                                  stepNum,
                                   curMeta,
-                                  opts.calledOut,
+                                  calledOut,
                                   multiStep);
 
                   range->append(step);
@@ -886,13 +895,13 @@ int Gui::drawPage(
               /* do not put subsequent parts into PLI */
             case PliBeginIgnRc:
               if (pliIgnore) {
-                  parseError("Nested PLI BEGIN/ENDS not allowed",opts.current);
+                  parseError("Nested PLI BEGIN/ENDS not allowed",current);
                 }
               pliIgnore = true;
               break;
             case PliEndRc:
               if ( ! pliIgnore) {
-                  parseError("PLI END with no PLI BEGIN",opts.current);
+                  parseError("PLI END with no PLI BEGIN",current);
                 }
               pliIgnore = false;
               curMeta.LPub.pli.begin.sub.clearAttributes();
@@ -900,10 +909,10 @@ int Gui::drawPage(
 
             case AssemAnnotationIconRc:
               if (assemAnnotation) {
-                  parseError("Nested ASSEM ANNOTATION ICON not allowed",opts.current);
+                  parseError("Nested ASSEM ANNOTATION ICON not allowed",current);
               } else {
                   if (step && ! gui->exportingObjects())
-                      step->appendCsiAnnotation(opts.current,curMeta.LPub.assem.annotation/*,view*/);
+                      step->appendCsiAnnotation(current,curMeta.LPub.assem.annotation/*,view*/);
                   assemAnnotation = false;
               }
               break;
@@ -912,7 +921,7 @@ int Gui::drawPage(
             case PartBeginIgnRc:
             case MLCadSkipBeginRc:
               if (partIgnore) {
-                  parseError("Nested BEGIN/ENDS not allowed",opts.current);
+                  parseError("Nested BEGIN/ENDS not allowed",current);
                 }
               partIgnore = true;
               break;
@@ -920,21 +929,21 @@ int Gui::drawPage(
             case PartEndRc:
             case MLCadSkipEndRc:
               if (! partIgnore) {
-                  parseError("Ignore ending with no ignore begin",opts.current);
+                  parseError("Ignore ending with no ignore begin",current);
                 }
               partIgnore = false;
               break;
 
             case SynthBeginRc:
               if (synthBegin) {
-                  parseError("Nested LSynth BEGIN/ENDS not allowed",opts.current);
+                  parseError("Nested LSynth BEGIN/ENDS not allowed",current);
                 }
               synthBegin = true;
               break;
 
             case SynthEndRc:
               if ( ! synthBegin) {
-                  parseError("LSynth ignore ending with no ignore begin",opts.current);
+                  parseError("LSynth ignore ending with no ignore begin",current);
                 }
               synthBegin = false;
               break;
@@ -948,24 +957,24 @@ int Gui::drawPage(
                 QStringList newCSIParts;
 
                 if (rc == RemoveGroupRc) {
-                    remove_group(opts.csiParts,steps->meta.LPub.remove.group.value(),newCSIParts);
+                    remove_group(csiParts,steps->meta.LPub.remove.group.value(),newCSIParts);
                   } else if (rc == RemovePartRc) {
-                    remove_parttype(opts.csiParts, steps->meta.LPub.remove.parttype.value(),newCSIParts);
+                    remove_parttype(csiParts, steps->meta.LPub.remove.parttype.value(),newCSIParts);
                   } else {
-                    remove_partname(opts.csiParts, steps->meta.LPub.remove.partname.value(),newCSIParts);
+                    remove_partname(csiParts, steps->meta.LPub.remove.partname.value(),newCSIParts);
                   }
-                opts.csiParts = newCSIParts;
+                csiParts = newCSIParts;
 
                 if (step == nullptr && ! noStep) {
                     if (range == nullptr) {
-                        range = newRange(steps,opts.calledOut);
+                        range = newRange(steps,calledOut);
                         steps->append(range);
                       }
                     step = new Step(topOfStep,
                                     range,
-                                    opts.stepNum,
+                                    stepNum,
                                     curMeta,
-                                    opts.calledOut,
+                                    calledOut,
                                     multiStep);
 
                     range->append(step);
@@ -975,11 +984,11 @@ int Gui::drawPage(
 
             case ReserveSpaceRc:
               /* since we have a part usage, we have a valid step */
-              if (opts.calledOut || multiStep) {
+              if (calledOut || multiStep) {
                   step = nullptr;
-                  Reserve *reserve = new Reserve(opts.current,steps->meta.LPub);
+                  Reserve *reserve = new Reserve(current,steps->meta.LPub);
                   if (range == nullptr) {
-                      range = newRange(steps,opts.calledOut);
+                      range = newRange(steps,calledOut);
                       steps->append(range);
                     }
                   range->append(reserve);
@@ -993,17 +1002,17 @@ int Gui::drawPage(
                     // increment the step number down - so basically use previous number for step
                     // do this before creating the step so we can use in the file name during
                     // csi generation to indicate this step file is not an actual step - just a model display
-                    opts.stepNum--;
+                    stepNum--;
                     if (step == nullptr) {
                         if (range == nullptr) {
-                            range = newRange(steps,opts.calledOut);
+                            range = newRange(steps,calledOut);
                             steps->append(range);
                           }
                         step = new Step(topOfStep,
                                         range,
-                                        opts.stepNum,
+                                        stepNum,
                                         curMeta,
-                                        opts.calledOut,
+                                        calledOut,
                                         multiStep);
 
                         step->modelDisplayOnlyStep = true;
@@ -1044,159 +1053,30 @@ int Gui::drawPage(
               {
                  InsertData insertData = curMeta.LPub.insert.value();
                  if (insertData.type == InsertData::InsertRotateIcon) { // indicate that we have a rotate icon for this step
-                     rotateIcon = (opts.calledOut && opts.assembledCallout ? false : true);
+                     rotateIcon = (calledOut && assembledCallout ? false : true);
                  }
                  if (insertData.type == InsertData::InsertBom) {
                      // nothing to display in 3D Window
                      if (! exporting())
                          emit clearViewerWindowSig();
                  }
-                 if (insertData.type == InsertData::InsertText ||
-                     insertData.type == InsertData::InsertRichText) {
-                     if (insertData.defaultPlacement &&
-                         !curMeta.LPub.page.textPlacement.value())
-                         curMeta.LPub.insert.initPlacement();
-                 }
                  inserts.append(curMeta.LPub.insert);                  // these are always placed before any parts in step
               }
               break;
 
            case SceneItemDirectionRc:
-              {
-                   auto insertItem = [&selectedSceneItems](Where here, SceneObjectData soData){
-                      if (selectedSceneItems.contains(here))
-                          selectedSceneItems.remove(here);
-                      selectedSceneItems.insert(here,soData);
-                      if (Preferences::debugLogging){
-                          emit gui->messageSig(LOG_DEBUG, QString("Selected item %1 (%2) added to the current page item list.")
-                                              .arg(soMap[SceneObject(soData.itemObj)])
-                                              .arg(soData.itemObj));
-                      }
-                  };
-
-                  if (line.contains(curMeta.LPub.page.scene.assemAnnotation.preamble))
-                      insertItem(curMeta.LPub.page.scene.assemAnnotation.here(),
-                                 curMeta.LPub.page.scene.assemAnnotation.value());
-                  else if (line.contains(curMeta.LPub.page.scene.assemAnnotationPart.preamble))
-                      insertItem(curMeta.LPub.page.scene.assemAnnotationPart.here(),
-                                 curMeta.LPub.page.scene.assemAnnotationPart.value());
-                  else if (line.contains(curMeta.LPub.page.scene.assem.preamble))
-                      insertItem(curMeta.LPub.page.scene.assem.here(),
-                                 curMeta.LPub.page.scene.assem.value());
-                  else if (line.contains(curMeta.LPub.page.scene.calloutUnderpinning.preamble))
-                      insertItem(curMeta.LPub.page.scene.calloutUnderpinning.here(),
-                                 curMeta.LPub.page.scene.calloutUnderpinning.value());
-                  else if (line.contains(curMeta.LPub.page.scene.calloutBackground.preamble))
-                      insertItem(curMeta.LPub.page.scene.calloutBackground.here(),
-                                 curMeta.LPub.page.scene.calloutBackground.value());
-                  else if (line.contains(curMeta.LPub.page.scene.calloutPointer.preamble))
-                      insertItem(curMeta.LPub.page.scene.calloutPointer.here(),
-                                 curMeta.LPub.page.scene.calloutPointer.value());
-                  else if (line.contains(curMeta.LPub.page.scene.calloutInstance.preamble))
-                      insertItem(curMeta.LPub.page.scene.calloutInstance.here(),
-                                 curMeta.LPub.page.scene.calloutInstance.value());
-                  else if (line.contains(curMeta.LPub.page.scene.dividerBackground.preamble))
-                      insertItem(curMeta.LPub.page.scene.dividerBackground.here(),
-                                 curMeta.LPub.page.scene.dividerBackground.value());
-                  else if (line.contains(curMeta.LPub.page.scene.divider.preamble))
-                      insertItem(curMeta.LPub.page.scene.divider.here(),
-                                 curMeta.LPub.page.scene.divider.value());
-                  else if (line.contains(curMeta.LPub.page.scene.dividerLine.preamble))
-                      insertItem(curMeta.LPub.page.scene.dividerLine.here(),
-                                 curMeta.LPub.page.scene.dividerLine.value());
-                  else if (line.contains(curMeta.LPub.page.scene.dividerPointer.preamble))
-                      insertItem(curMeta.LPub.page.scene.dividerPointer.here(),
-                                 curMeta.LPub.page.scene.dividerPointer.value());
-                  else if (line.contains(curMeta.LPub.page.scene.pointerGrabber.preamble))
-                      insertItem(curMeta.LPub.page.scene.pointerGrabber.here(),
-                                 curMeta.LPub.page.scene.pointerGrabber.value());
-                  else if (line.contains(curMeta.LPub.page.scene.pliGrabber.preamble))
-                      insertItem(curMeta.LPub.page.scene.pliGrabber.here(),
-                                 curMeta.LPub.page.scene.pliGrabber.value());
-                  else if (line.contains(curMeta.LPub.page.scene.submodelGrabber.preamble))
-                      insertItem(curMeta.LPub.page.scene.submodelGrabber.here(),
-                                 curMeta.LPub.page.scene.submodelGrabber.value());
-                  else if (line.contains(curMeta.LPub.page.scene.insertPicture.preamble))
-                      insertItem(curMeta.LPub.page.scene.insertPicture.here(),
-                                 curMeta.LPub.page.scene.insertPicture.value());
-                  else if (line.contains(curMeta.LPub.page.scene.insertText.preamble))
-                      insertItem(curMeta.LPub.page.scene.insertText.here(),
-                                 curMeta.LPub.page.scene.insertText.value());
-                  else if (line.contains(curMeta.LPub.page.scene.pageAttributePixmap.preamble))
-                      insertItem(curMeta.LPub.page.scene.pageAttributePixmap.here(),
-                                 curMeta.LPub.page.scene.pageAttributePixmap.value());
-                  else if (line.contains(curMeta.LPub.page.scene.pageAttributeText.preamble))
-                      insertItem(curMeta.LPub.page.scene.pageAttributeText.here(),
-                                 curMeta.LPub.page.scene.pageAttributeText.value());
-                  else if (line.contains(curMeta.LPub.page.scene.pageNumber.preamble))
-                      insertItem(curMeta.LPub.page.scene.pageNumber.here(),
-                                 curMeta.LPub.page.scene.pageNumber.value());
-                  else if (line.contains(curMeta.LPub.page.scene.pagePointer.preamble))
-                      insertItem(curMeta.LPub.page.scene.pagePointer.here(),
-                                 curMeta.LPub.page.scene.pagePointer.value());
-                  else if (line.contains(curMeta.LPub.page.scene.partsListAnnotation.preamble))
-                      insertItem(curMeta.LPub.page.scene.pagePointer.here(),
-                                 curMeta.LPub.page.scene.partsListAnnotation.value());
-                  else if (line.contains(curMeta.LPub.page.scene.partsListBackground.preamble))
-                      insertItem(curMeta.LPub.page.scene.partsListBackground.here(),
-                                 curMeta.LPub.page.scene.partsListBackground.value());
-                  else if (line.contains(curMeta.LPub.page.scene.partsListInstance.preamble))
-                      insertItem(curMeta.LPub.page.scene.pageNumber.here(),
-                                 curMeta.LPub.page.scene.partsListInstance.value());
-                  else if (line.contains(curMeta.LPub.page.scene.pointerHead.preamble))
-                      insertItem(curMeta.LPub.page.scene.pageNumber.here(),
-                                 curMeta.LPub.page.scene.pointerHead.value());
-                  else if (line.contains(curMeta.LPub.page.scene.pointerFirstSeg.preamble))
-                      insertItem(curMeta.LPub.page.scene.pageNumber.here(),
-                                 curMeta.LPub.page.scene.pointerFirstSeg.value());
-                  else if (line.contains(curMeta.LPub.page.scene.pointerSecondSeg.preamble))
-                      insertItem(curMeta.LPub.page.scene.pageNumber.here(),
-                                 curMeta.LPub.page.scene.pointerSecondSeg.value());
-                  else if (line.contains(curMeta.LPub.page.scene.pointerThirdSeg.preamble))
-                      insertItem(curMeta.LPub.page.scene.pageNumber.here(),
-                                 curMeta.LPub.page.scene.pointerThirdSeg.value());
-                  else if (line.contains(curMeta.LPub.page.scene.rotateIconBackground.preamble))
-                      insertItem(curMeta.LPub.page.scene.rotateIconBackground.here(),
-                                 curMeta.LPub.page.scene.rotateIconBackground.value());
-                  else if (line.contains(curMeta.LPub.page.scene.stepNumber.preamble))
-                      insertItem(curMeta.LPub.page.scene.stepNumber.here(),
-                                 curMeta.LPub.page.scene.stepNumber.value());
-                  else if (line.contains(curMeta.LPub.page.scene.subModelBackground.preamble))
-                      insertItem(curMeta.LPub.page.scene.subModelBackground.here(),
-                                 curMeta.LPub.page.scene.subModelBackground.value());
-                  else if (line.contains(curMeta.LPub.page.scene.subModelInstance.preamble))
-                      insertItem(curMeta.LPub.page.scene.subModelInstance.here(),
-                                 curMeta.LPub.page.scene.subModelInstance.value());
-                  else if (line.contains(curMeta.LPub.page.scene.submodelInstanceCount.preamble))
-                      insertItem(curMeta.LPub.page.scene.submodelInstanceCount.here(),
-                                 curMeta.LPub.page.scene.submodelInstanceCount.value());
-                  else if (line.contains(curMeta.LPub.page.scene.partsListPixmap.preamble))
-                      insertItem(curMeta.LPub.page.scene.partsListPixmap.here(),
-                                 curMeta.LPub.page.scene.partsListPixmap.value());
-                  else if (line.contains(curMeta.LPub.page.scene.partsListGroup.preamble))
-                      insertItem(curMeta.LPub.page.scene.partsListGroup.here(),
-                                 curMeta.LPub.page.scene.partsListGroup.value());
-                  else if (line.contains(curMeta.LPub.page.scene.stepBackground.preamble))
-                      insertItem(curMeta.LPub.page.scene.stepBackground.here(),
-                                 curMeta.LPub.page.scene.stepBackground.value());
-                  else if (line.contains(curMeta.LPub.page.scene.multiStepBackground.preamble))
-                      insertItem(curMeta.LPub.page.scene.stepBackground.here(),
-                                 curMeta.LPub.page.scene.multiStepBackground.value());
-                  else /*if (line.contains(curMeta.LPub.page.scene.multiStepsBackground.preamble))*/
-                      insertItem(curMeta.LPub.page.scene.stepBackground.here(),
-                                 curMeta.LPub.page.scene.multiStepsBackground.value());
-              }
+              itemDirection = true;
               break;
 
            case PliPartGroupRc:
-                curMeta.LPub.pli.pliPartGroup.setWhere(opts.current);
-                opts.pliPartGroups.append(curMeta.LPub.pli.pliPartGroup);
+                curMeta.LPub.pli.pliPartGroup.setWhere(current);
+                pliPartGroups.append(curMeta.LPub.pli.pliPartGroup);
               break;
 
             case PagePointerRc:
               {
                   if (pagePointer) {
-                      parseError("Nested page pointers not allowed within the same page",opts.current);
+                      parseError("Nested page pointers not allowed within the same page",current);
                   } else {
                       Positions position    = PP_LEFT;
                       PointerMeta ppm       = curMeta.LPub.page.pointer;
@@ -1224,18 +1104,18 @@ int Gui::drawPage(
                           pad.id     = pagePointer->pointerList.size() + 1;
                           pad.parent = PositionNames[position];
                           pam.setValueInches(pad);
-                          pagePointer->appendPointer(opts.current,ppm,pam);
+                          pagePointer->appendPointer(current,ppm,pam);
                           pagePointers.remove(position);
                           pagePointers.insert(position,pagePointer);
                       } else {
                           pagePointer = new PagePointer(&curMeta,view);
                           pagePointer->parentStep = step;
-                          pagePointer->setTopOfPagePointer(opts.current);
-                          pagePointer->setBottomOfPagePointer(opts.current);
+                          pagePointer->setTopOfPagePointer(current);
+                          pagePointer->setBottomOfPagePointer(current);
                           if (multiStep){
                               pagePointer->parentRelativeType = StepGroupType;
                           } else
-                            if (opts.calledOut){
+                            if (calledOut){
                               pagePointer->parentRelativeType = CalloutType;
                           } else {
                               pagePointer->parentRelativeType = step->relativeType;
@@ -1247,7 +1127,7 @@ int Gui::drawPage(
                           pad.id     = 1;
                           pad.parent = PositionNames[position];
                           pam.setValueInches(pad);
-                          pagePointer->appendPointer(opts.current,ppm,pam);
+                          pagePointer->appendPointer(current,ppm,pam);
                           pagePointers.insert(position,pagePointer);
                       }
                       pagePointer = nullptr;
@@ -1258,7 +1138,7 @@ int Gui::drawPage(
             case PagePointerAttribRc:
               {
                   PointerAttribMeta pam = curMeta.LPub.page.pointerAttrib;
-                  pam.setValueInches(pam.parseAttributes(tokens,opts.current));
+                  pam.setValueInches(pam.parseAttributes(tokens,current));
 
                   Positions position = PP_LEFT;
                   if (pam.value().parent == "BASE_TOP")
@@ -1283,7 +1163,7 @@ int Gui::drawPage(
                       } else {
                           parseError(QString("Invalid Page pointer attribute index.<br>"
                                              "Expected value &#60;= %1, received %2")
-                                             .arg(validIndex).arg(i),opts.current);
+                                             .arg(validIndex).arg(i),current);
                           break;
                       }
                       if (p && pam.value().id == p->id) {
@@ -1301,16 +1181,16 @@ int Gui::drawPage(
 
             case CalloutBeginRc:
               if (callout) {
-                  parseError("Nested CALLOUT not allowed within the same file",opts.current);
+                  parseError("Nested CALLOUT not allowed within the same file",current);
                 } else {
                   callout = new Callout(curMeta,view);
-                  callout->setTopOfCallout(opts.current);
+                  callout->setTopOfCallout(current);
                 }
               break;
 
             case CalloutPointerRc:
               if (callout) {
-                  callout->appendPointer(opts.current,
+                  callout->appendPointer(current,
                                          curMeta.LPub.callout.pointer,
                                          curMeta.LPub.callout.pointerAttrib);
                 }
@@ -1319,7 +1199,7 @@ int Gui::drawPage(
           case CalloutPointerAttribRc:
               if (callout) {
                   PointerAttribMeta pam = curMeta.LPub.callout.pointerAttrib;
-                  pam.setValueInches(pam.parseAttributes(tokens,opts.current));
+                  pam.setValueInches(pam.parseAttributes(tokens,current));
                   Pointer          *p = nullptr;
                   int i               = pam.value().id - 1;
                   int validIndex      = callout->pointerList.size() - 1; /*0-index*/
@@ -1328,7 +1208,7 @@ int Gui::drawPage(
                   } else {
                       parseError(QString("Invalid Callout pointer attribute index.<br>"
                                          "Expected value &#60;= %1, received %2")
-                                         .arg(validIndex).arg(i),opts.current);
+                                         .arg(validIndex).arg(i),current);
                       break;
                   }
                   if (p && pam.value().id == p->id) {
@@ -1343,7 +1223,7 @@ int Gui::drawPage(
               if (range) {
                   range->sepMeta = curMeta.LPub.callout.sep;
                   dividerType = (line.contains("STEPS") ? StepDivider : RangeDivider);
-                  set_divider_pointers(curMeta,opts.current,range,view,dividerType,opts.stepNum,CalloutDividerRc);
+                  set_divider_pointers(curMeta,current,range,view,dividerType,stepNum,CalloutDividerRc);
                   if (dividerType != StepDivider) {
                       range = nullptr;
                       step = nullptr;
@@ -1353,18 +1233,18 @@ int Gui::drawPage(
 
             case CalloutEndRc:
               if ( ! callout) {
-                  parseError("CALLOUT END without a CALLOUT BEGIN",opts.current);
+                  parseError("CALLOUT END without a CALLOUT BEGIN",current);
                 }
               else
               if (! step) {
-                  parseError("CALLOUT does not contain a valid STEP",opts.current);
+                  parseError("CALLOUT does not contain a valid STEP",current);
                }
               else
                 {
                   callout->parentStep = step;
                   if (multiStep) {
                       callout->parentRelativeType = StepGroupType;
-                    } else if (opts.calledOut) {
+                    } else if (calledOut) {
                       callout->parentRelativeType = CalloutType;
                     } else {
                       callout->parentRelativeType = step->relativeType;
@@ -1375,17 +1255,17 @@ int Gui::drawPage(
                   callout->pli.clear();
                   callout->placement = curMeta.LPub.callout.placement;
                   callout->margin = curMeta.LPub.callout.margin;
-                  callout->setBottomOfCallout(opts.current);
+                  callout->setBottomOfCallout(current);
                   callout = nullptr;
                 }
               break;
 
             case StepGroupBeginRc:
-              if (opts.calledOut) {
-                  parseError("MULTI_STEP not allowed inside callout models",opts.current);
+              if (calledOut) {
+                  parseError("MULTI_STEP not allowed inside callout models",current);
               } else {
                   if (multiStep) {
-                      parseError("Nested MULTI_STEP not allowed",opts.current);
+                      parseError("Nested MULTI_STEP not allowed",current);
                   }
                   multiStep = true;
               }
@@ -1396,7 +1276,7 @@ int Gui::drawPage(
               if (range) {
                   range->sepMeta = steps->meta.LPub.multiStep.sep;
                   dividerType = (line.contains("STEPS") ? StepDivider : RangeDivider);
-                  set_divider_pointers(curMeta,opts.current,range,view,dividerType,opts.stepNum,StepGroupDividerRc);
+                  set_divider_pointers(curMeta,current,range,view,dividerType,stepNum,StepGroupDividerRc);
                   if (dividerType != StepDivider) {
                       range = nullptr;
                       step = nullptr;
@@ -1410,109 +1290,31 @@ int Gui::drawPage(
                   // save the current meta as the meta for step group
                   // PLI for non-pli-per-step
                   if (partsAdded) {
-                      parseError("Expected STEP before MULTI_STEP END", opts.current);
+                      parseError("Expected STEP before MULTI_STEP END", current);
                     }
                   multiStep = false;
 
-                  // get the number of submodel instances in the model file
-                  int countInstanceOverride = steps->meta.LPub.page.countInstanceOverride.value();
-                  int instances = countInstanceOverride ? countInstanceOverride :
-                                                          ldrawFile.instances(opts.current.modelName, opts.isMirrored);
-                  // count the instances accordingly
-                  displayCount= countInstances && instances > 1;
-                  if (displayCount && countInstances != CountAtTop && !countInstanceOverride) {
-                      MetaItem mi;
-                      if (countInstances == CountAtStep)
-                          instances = mi.countInstancesInStep(&steps->meta, opts.current.modelName);
-                      else
-                      if (countInstances > CountFalse && countInstances < CountAtStep)
-                          instances = mi.countInstancesInModel(&steps->meta, opts.current.modelName);
-                  }
+                  if (pliParts.size() && steps->meta.LPub.multiStep.pli.perStep.value() == false) {
+                      PlacementData placementData = steps->stepGroupMeta.LPub.multiStep.pli.placement.value();
+                      // Override default, which is for PliPerStep true
+                      if (placementData.relativeTo != PageType &&
+                          placementData.relativeTo != StepGroupType) {
+                          placementData.relativeTo  = PageType;
+                          placementData.placement   = TopLeft;
+                          placementData.preposition = Inside;
+                          placementData.offsets[0]  = 0;
+                          placementData.offsets[1]  = 0;
+                          steps->stepGroupMeta.LPub.multiStep.pli.placement.setValue(placementData);
+                        }
+                      steps->pli.bom = false;
+                      steps->pli.setParts(pliParts,pliPartGroups,steps->stepGroupMeta);
 
-                  if (opts.pliParts.size() && steps->meta.LPub.multiStep.pli.perStep.value() == false) {
-                      //steps->groupStepMeta = curMeta;
-                      PlacementData placementData;
-                      // Step Number
-                      if (steps->meta.LPub.assem.showStepNumber.value()) {
-                          placementData = steps->groupStepMeta.LPub.multiStep.stepNum.placement.value();
-                          if ((placementData.relativeTo    == CsiType ||
-                              (placementData.relativeTo    == PartsListType &&
-                               placementData.justification == Top &&
-                               placementData.placement     == Left &&
-                               placementData.preposition   == Outside))) {
-                              steps->groupStepMeta.LPub.multiStep.stepNum.placement.setValue(BottomLeftOutside,PageHeaderType);
-                            }
+                      emit messageSig(LOG_STATUS, "Add PLI images for multi-step page " + current.modelName);
 
-                          // add the step number
-                          steps->groupStepNumber.placement = steps->groupStepMeta.LPub.multiStep.stepNum.placement;
-                          steps->groupStepNumber.margin    = steps->groupStepMeta.LPub.multiStep.stepNum.margin;
-                          steps->groupStepNumber.number    = opts.groupStepNumber;
-                          steps->groupStepNumber.sizeit();
-
-                          emit messageSig(LOG_INFO_STATUS, "Add Step group step number for multi-step page " + opts.current.modelName);
-
-                          // if PLI and Submodel Preview are relative to StepNumber or PLI relative to CSI (default)
-                          placementData = steps->groupStepMeta.LPub.multiStep.pli.placement.value();
-                          if (previewNotPerStep &&
-                             ((steps->groupStepMeta.LPub.multiStep.subModel.placement.value().relativeTo == StepNumberType &&
-                              placementData.relativeTo == StepNumberType) || placementData.relativeTo == CsiType))
-                          {
-                              // Redirect Pli relative to SubModel Preview
-                              steps->groupStepMeta.LPub.multiStep.pli.placement.setValue(BottomLeftOutside,SubModelType);
-                          }
-                          // Redirect Pli relative to Step Number if relative to CSI (default)
-                          else if(placementData.relativeTo == CsiType) {
-                              steps->groupStepMeta.LPub.multiStep.pli.placement.setValue(RightTopOutside,StepNumberType);
-                          }
-                      }
-                      //if no step number
-                      else {
-                          // if Submodel Preview relative to StepNumber
-                          if (previewNotPerStep &&
-                                  steps->groupStepMeta.LPub.multiStep.subModel.placement.value().relativeTo == StepNumberType) {
-                              // Redirect Submodel Preview relative to Page
-                              steps->groupStepMeta.LPub.multiStep.subModel.placement.setValue(BottomLeftOutside,PageHeaderType);
-                          }
-                          // if Pli relative to StepNumber or CSI
-                          if (steps->groupStepMeta.LPub.multiStep.pli.placement.value().relativeTo == StepNumberType ||
-                              steps->groupStepMeta.LPub.multiStep.pli.placement.value().relativeTo == CsiType) {
-                              if (previewNotPerStep)
-                              {
-                                  // Redirect Pli relative to SubModel Preview
-                                  steps->groupStepMeta.LPub.multiStep.pli.placement.setValue(BottomLeftOutside,SubModelType);
-                              }
-                              // Redirect Pli relative to Page if relative to CSI (default)
-                              else if(placementData.relativeTo == CsiType) {
-                                  steps->groupStepMeta.LPub.multiStep.pli.placement.setValue(BottomLeftOutside,PageHeaderType);
-                              }
-                          }
-                      }
-
-                      // PLI
-                      steps->pli.bom    = false;
-                      steps->pli.margin = steps->groupStepMeta.LPub.multiStep.pli.margin;
-                      steps->pli.setParts(opts.pliParts,opts.pliPartGroups,steps->groupStepMeta);
-
-                      emit messageSig(LOG_STATUS, "Add PLI images for multi-step page " + opts.current.modelName);
-
-                      if (steps->pli.sizePli(&steps->groupStepMeta, StepGroupType, false) != 0)
-                          emit messageSig(LOG_ERROR, "Failed to set PLI (per Page) for " + topOfStep.modelName + "...");
-
-                      // SubModel Preview
-                      if (previewNotPerStep) {
-                          steps->groupStepMeta.LPub.subModel.instance.setValue(instances);
-                          steps->subModel.margin = steps->groupStepMeta.LPub.subModel.margin;
-                          steps->subModel.setSubModel(opts.current.modelName,steps->groupStepMeta);
-
-                          emit messageSig(LOG_INFO_STATUS, "Add Submodel Preview for multi-step page " + opts.current.modelName);
-
-                          steps->subModel.displayInstanceCount = displayCount;
-                          if (steps->subModel.sizeSubModel(&steps->groupStepMeta,StepGroupType,false) != 0)
-                              emit messageSig(LOG_ERROR, "Failed to set Submodel Preview for " + topOfStep.modelName + "...");
-                      }
-                  }
-                  opts.pliParts.clear();
-                  opts.pliPartGroups.clear();
+                      steps->pli.sizePli(&steps->stepGroupMeta, StepGroupType, false);
+                    }
+                  pliParts.clear();
+                  pliPartGroups.clear();
 
                   /* this is a page we're supposed to process */
 
@@ -1522,12 +1324,27 @@ int Gui::drawPage(
 
                   bool endOfSubmodel =
                           steps->meta.LPub.contStepNumbers.value() ?
-                              steps->meta.LPub.contModelStepNum.value() >= ldrawFile.numSteps(opts.current.modelName) :
-                              opts.stepNum - 1 >= ldrawFile.numSteps(opts.current.modelName);
+                              steps->meta.LPub.contModelStepNum.value() >= ldrawFile.numSteps(current.modelName) :
+                              stepNum - 1 >= ldrawFile.numSteps(current.modelName);
 
                   // set csi annotations - multistep
 //                  if (! gui->exportingObjects())
 //                      steps->setCsiAnnotationMetas();
+
+                  // get the number of submodel instances in the model file
+                  int countInstanceOverride = steps->meta.LPub.page.countInstanceOverride.value();
+                  int instances = countInstanceOverride ? countInstanceOverride :
+                                                          ldrawFile.instances(current.modelName, isMirrored);
+                  // count the instances accordingly
+                  displayCount= countInstances && instances > 1;
+                  if (displayCount && countInstances != CountAtTop && !countInstanceOverride) {
+                      MetaItem mi;
+                      if (countInstances == CountAtStep)
+                          instances = mi.countInstancesInStep(&steps->meta, current.modelName);
+                      else
+                      if (countInstances > CountFalse && countInstances < CountAtStep)
+                          instances = mi.countInstancesInModel(&steps->meta, current.modelName);
+                  }
 
                   Page *page = dynamic_cast<Page *>(steps);
                   if (page) {
@@ -1535,32 +1352,40 @@ int Gui::drawPage(
                       page->instances            = instances;
                       page->displayInstanceCount = displayCount;
                       page->pagePointers         = pagePointers;
-                      page->selectedSceneItems   = selectedSceneItems;
+                      page->setItemDirection     = itemDirection;
                     }
 
-                  emit messageSig(LOG_STATUS, "Generate CSI images for multi-step page " + opts.current.modelName);
+                  emit messageSig(LOG_STATUS, "Add CSI images for multi-step page " + current.modelName);
 
-                  if (renderer->useLDViewSCall() && opts.ldrStepFiles.size() > 0){
+                  if (renderer->useLDViewSCall() && ldrStepFiles.size() > 0){
 
                       QElapsedTimer timer;
                       timer.start();
                       QString empty("");
 
-                      // set the extra renderer parms
-                      if(step){
-                          steps->meta.LPub.assem.ldviewParms =
-                               Render::getRenderer() == RENDERER_LDVIEW ?  step->ldviewParms :
-                               Render::getRenderer() == RENDERER_LDGLITE ? step->ldgliteParms :
-                                             /*POV scene file generator*/  step->ldviewParms ;
-                          if (Preferences::preferredRenderer == RENDERER_POVRAY)
-                              steps->meta.LPub.assem.povrayParms = step->povrayParms;
-                      }
+                      // set camera
+                      steps->meta.LPub.assem.cameraAngles   = step->csiCameraMeta.cameraAngles;
+                      steps->meta.LPub.assem.cameraDistance = step->csiCameraMeta.cameraDistance;
+                      steps->meta.LPub.assem.modelScale     = step->csiCameraMeta.modelScale;
+                      steps->meta.LPub.assem.cameraFoV      = step->csiCameraMeta.cameraFoV;
+                      steps->meta.LPub.assem.isOrtho        = step->csiCameraMeta.isOrtho;
+                      steps->meta.LPub.assem.zfar           = step->csiCameraMeta.zfar;
+                      steps->meta.LPub.assem.znear          = step->csiCameraMeta.znear;
+                      steps->meta.LPub.assem.target         = step->csiCameraMeta.target;
 
-                      int rc = renderer->renderCsi(empty,opts.ldrStepFiles,opts.csiKeys,empty,steps->meta);
+                      // set the extra renderer parms
+                      steps->meta.LPub.assem.ldviewParms =
+                           Render::getRenderer() == RENDERER_LDVIEW ? step->ldviewParms :
+                           Render::getRenderer() == RENDERER_LDGLITE ? step->ldgliteParms :
+                                         /*POV scene file generator*/  step->ldviewParms ;
+                      if (Preferences::preferredRenderer == RENDERER_POVRAY)
+                          steps->meta.LPub.assem.povrayParms = step->povrayParms;
+
+                      int rc = renderer->renderCsi(empty,ldrStepFiles,csiKeys,empty,steps->meta);
                       if (rc != 0) {
                           emit messageSig(LOG_ERROR,QMessageBox::tr("Render CSI images failed."));
                           return rc;
-                      }
+                        }
 
                       emit gui->messageSig(LOG_INFO,
                                           QString("%1 CSI (Single Call) render took "
@@ -1568,22 +1393,20 @@ int Gui::drawPage(
                                                   "for %6 step group on page %7.")
                                              .arg(Render::getRenderer())
                                              .arg(timer.elapsed())
-                                             .arg(opts.ldrStepFiles.size())
-                                             .arg(opts.stepNum)
-                                             .arg(opts.ldrStepFiles.size() == 1 ? "image" : "images")
-                                             .arg(opts.calledOut ? "called out," : "simple,")
+                                             .arg(ldrStepFiles.size())
+                                             .arg(stepNum)
+                                             .arg(ldrStepFiles.size() == 1 ? "image" : "images")
+                                             .arg(calledOut ? "called out," : "simple,")
                                              .arg(stepPageNum));
                     }
 
-                  addGraphicsPageItems(steps, coverPage, endOfSubmodel, view, scene, opts.printing);
+                  addGraphicsPageItems(steps, coverPage, endOfSubmodel, view, scene, printing);
 
-                  previewNotPerStep = false;
                   drawPageElapsedTime();
                   return HitEndOfPage;
                 }
               inserts.clear();
               pagePointers.clear();
-              selectedSceneItems.clear();
               break;
 
             case NoStepRc:
@@ -1595,84 +1418,18 @@ int Gui::drawPage(
             case RotStepRc:
             case StepRc:
 
-              // Special case where we have a step group with a NOSTEP command
-              // in the last STEP which is also a rotated or assembled called out submodel
-              if (noStep && opts.calledOut) {
-                if (opts.current.modelName.contains("whole_rotated_") ||
-                    opts.current.modelName.contains("whole_assembled_")) {
-                  bool nsHasParts    = false;
-                  bool nsHasNoStep   = false;
-                  bool nsIsStepGroup = false;
-                  Meta nsMeta        = curMeta;
-                  QStringList nsTokens;
-                  split(addLine,nsTokens);
-                  // start with the original subfile content
-                  QStringList nsContent = ldrawFile.contents(nsTokens[14]);
-                  int nsNumLines = nsContent.size();
-                  Where nsWalkBack(nsTokens[14],nsNumLines);
-                  for (; nsWalkBack.lineNumber >= 0; nsWalkBack--) {
-                    QString nsLine = gui->readLine(nsWalkBack);
-                    if (isHeader(nsLine)) {
-                      // if we reached the top of the submodel so break
-                      break;
-                    } else {
-                      nsTokens.clear();
-                      split(nsLine,nsTokens);
-                      bool nsLine_1_5 = nsTokens.size() && nsTokens[0].size() == 1 &&
-                           nsTokens[0] >= "1" && nsTokens[0] <= "5";
-                      bool nsLine_0 = nsTokens.size() > 0 && nsTokens[0] == "0";
-                      if (nsLine_1_5) {
-                        // we have a valid part so record part added
-                        nsHasParts = true;
-                      } else if (nsLine_0) {
-                        Rc rc = nsMeta.parse(nsLine,nsWalkBack,false);
-                        if (rc == StepRc || rc == RotStepRc) {
-                          // are we in a new step which is in a step group ?
-                          if (nsIsStepGroup) {
-                            // confirm previous step does not have a NOSTEP command
-                            // and parts have been added
-                            if (nsHasParts && !nsHasNoStep) {
-                              // we have a STEP where parts were added and no NOSTEP command encountered
-                              // so this step group can be rendered as a rotated or assembled callout
-                              noStep = false;
-                              break;
-                            } else {
-                              // clear the registers for new parts added and NOSTEP check
-                              nsHasParts  = false;
-                              nsHasNoStep = false;
-                            }
-                          } else {
-                            // the last step did not have MULTI_STEP_END so break
-                            break;
-                          }
-                        } else if (rc == NoStepRc) {
-                          // NOSTEP encountered so record it and continue to the top of the step group
-                          nsHasNoStep = true;
-                        } else if (rc == StepGroupEndRc) {
-                          // we are in a step group so proceed
-                          nsIsStepGroup = true;
-                        } else if (rc == StepGroupBeginRc) {
-                          // we have reached the top of the step group so break
-                          break;
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-
               // STEP - special case of no parts added, but BFX load and not NOSTEP
               if (! partsAdded && bfxLoad && ! noStep) {
                   if (step == nullptr) {
                       if (range == nullptr) {
-                          range = newRange(steps,opts.calledOut);
+                          range = newRange(steps,calledOut);
                           steps->append(range);
                         }
                       step = new Step(topOfStep,
                                       range,
-                                      opts.stepNum,
+                                      stepNum,
                                       curMeta,
-                                      opts.calledOut,
+                                      calledOut,
                                       multiStep);
 
                       range->append(step);
@@ -1681,15 +1438,15 @@ int Gui::drawPage(
                   emit messageSig(LOG_INFO, "Processing CSI bfx load special case for " + topOfStep.modelName + "...");
                   csiName = step->csiName();
                   (void) step->createCsi(
-                        opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
-                        saveCsiParts = configureModelStep(opts.csiParts, opts.stepNum, topOfStep),
+                        isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
+                        saveCsiParts = configureModelStep(csiParts, stepNum, topOfStep),
                         &step->csiPixmap,
                         steps->meta,
                         bfxLoad);
 
                   if (renderer->useLDViewSCall() && ! step->ldrName.isNull()) {
-                      opts.ldrStepFiles << step->ldrName;
-                      opts.csiKeys << step->csiKey; // No parts to process
+                      ldrStepFiles << step->ldrName;
+                      csiKeys << step->csiKey; // No parts to process
                     }
 
                   partsAdded = true; // OK, so this is a lie, but it works
@@ -1699,20 +1456,20 @@ int Gui::drawPage(
               if (partsAdded && ! noStep) {
 
                   if (firstStep) {
-                      steps->groupStepMeta = curMeta;
+                      steps->stepGroupMeta = curMeta;
                       firstStep = false;
                   }
 
                   if (pliIgnore) {
-                      parseError("PLI BEGIN then STEP. Expected PLI END",opts.current);
+                      parseError("PLI BEGIN then STEP. Expected PLI END",current);
                       pliIgnore = false;
                   }
                   if (partIgnore) {
-                      parseError("PART BEGIN then STEP. Expected PART END",opts.current);
+                      parseError("PART BEGIN then STEP. Expected PART END",current);
                       partIgnore = false;
                   }
                   if (synthBegin) {
-                      parseError("SYNTH BEGIN then STEP. Expected SYNTH_END",opts.current);
+                      parseError("SYNTH BEGIN then STEP. Expected SYNTH_END",current);
                       synthBegin = false;
                   }
 
@@ -1720,9 +1477,9 @@ int Gui::drawPage(
 
                   if (multiStep && steps->meta.LPub.multiStep.pli.perStep.value()) {
                       pliPerStep = true;
-                  } else if (opts.calledOut && steps->meta.LPub.callout.pli.perStep.value()) {
+                  } else if (calledOut && steps->meta.LPub.callout.pli.perStep.value()) {
                       pliPerStep = true;
-                  } else if ( ! multiStep && ! opts.calledOut && steps->meta.LPub.stepPli.perStep.value()) {
+                  } else if ( ! multiStep && ! calledOut && steps->meta.LPub.stepPli.perStep.value()) {
                       pliPerStep = true;
                   } else {
                       pliPerStep = false;
@@ -1735,54 +1492,58 @@ int Gui::drawPage(
                           page->inserts              = inserts;
                           page->pagePointers         = pagePointers;
                           page->modelDisplayOnlyStep = step->modelDisplayOnlyStep;
-                          page->selectedSceneItems   = selectedSceneItems;
+                          page->setItemDirection     = itemDirection;
                       }
 
                       PlacementType relativeType = SingleStepType;
                       if (pliPerStep) {
                           if (multiStep) {
                               relativeType = StepGroupType;
-                          } else if (opts.calledOut) {
+                          } else if (calledOut) {
                               relativeType = CalloutType;
                           } else {
                               relativeType = SingleStepType;
                           }
 
-                          step->pli.setParts(opts.pliParts,opts.pliPartGroups,steps->meta);
-                          opts.pliParts.clear();
-                          opts.pliPartGroups.clear();
+                          step->pli.setParts(pliParts,pliPartGroups,steps->meta);
+                          pliParts.clear();
+                          pliPartGroups.clear();
 
                           emit messageSig(LOG_INFO, "Add step PLI for " + topOfStep.modelName + "...");
 
                           step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
+                      }
 
-                          if (step->placeSubModel){
-                              emit messageSig(LOG_INFO, "Set first step submodel display for " + topOfStep.modelName + "...");
+                      if (step->placeSubModel){
+                          emit messageSig(LOG_INFO, "Set first step submodel display for " + topOfStep.modelName + "...");
 
-                              // get the number of submodel instances in the model file
-                              int countInstanceOverride = steps->meta.LPub.page.countInstanceOverride.value();
-                              int instances = countInstanceOverride ? countInstanceOverride :
-                                                                      ldrawFile.instances(opts.current.modelName, opts.isMirrored);
-                              displayCount = steps->meta.LPub.subModel.showInstanceCount.value() && instances > 1;
-                              if (displayCount && countInstances != CountAtTop && !countInstanceOverride) {
-                                  MetaItem mi;
-                                  if (countInstances == CountAtStep)
-                                      instances = mi.countInstancesInStep(&steps->meta, opts.current.modelName);
-                                  else
-                                  if (countInstances > CountFalse && countInstances < CountAtStep)
-                                      instances = mi.countInstancesInModel(&steps->meta, opts.current.modelName);
-                              }
-
-                              steps->meta.LPub.subModel.instance.setValue(instances);
-                              step->subModel.setSubModel(opts.current.modelName,steps->meta);
-
-                              step->subModel.displayInstanceCount = displayCount;
-
-                              if (step->subModel.sizeSubModel(&steps->meta,relativeType,pliPerStep) != 0)
-                                  emit messageSig(LOG_ERROR, "Failed to set first step submodel display for " + topOfStep.modelName + "...");
-                          } else {
-                              step->subModel.clear();
+                          // get the number of submodel instances in the model file
+                          int countInstanceOverride = steps->meta.LPub.page.countInstanceOverride.value();
+                          int instances = countInstanceOverride ? countInstanceOverride :
+                                                                  ldrawFile.instances(current.modelName, isMirrored);
+                          displayCount = steps->meta.LPub.subModel.showInstanceCount.value() && instances > 1;
+                          if (displayCount && countInstances != CountAtTop && !countInstanceOverride) {
+                              MetaItem mi;
+                              if (countInstances == CountAtStep)
+                                  instances = mi.countInstancesInStep(&steps->meta, current.modelName);
+                              else
+                              if (countInstances > CountFalse && countInstances < CountAtStep)
+                                  instances = mi.countInstancesInModel(&steps->meta, current.modelName);
                           }
+                          if (multiStep) {
+                              relativeType = StepGroupType;
+                          } else if (calledOut) {
+                              relativeType = CalloutType;
+                          } else {
+                              relativeType = SingleStepType;
+                          }
+                          steps->meta.LPub.subModel.instance.setValue(instances);
+                          step->subModel.setSubModel(current.modelName,steps->meta);
+                          step->subModel.displayInstanceCount = displayCount;
+                          if (step->subModel.sizeSubModel(&steps->meta,relativeType) != 0)
+                              emit messageSig(LOG_ERROR, "Failed to set first step submodel display for " + topOfStep.modelName + "...");
+                      } else {
+                          step->subModel.clear();
                       }
 
                       switch (dividerType){
@@ -1819,8 +1580,8 @@ int Gui::drawPage(
                       emit messageSig(LOG_STATUS, "Processing CSI for " + topOfStep.modelName + "...");
                       csiName = step->csiName();
                       int rc = step->createCsi(
-                                  opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
-                                  saveCsiParts = configureModelStep(opts.csiParts, step->modelDisplayOnlyStep ? -1 : opts.stepNum, topOfStep),
+                                  isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
+                                  saveCsiParts = configureModelStep(csiParts, step->modelDisplayOnlyStep ? -1 : stepNum, topOfStep),
                                   &step->csiPixmap,
                                   steps->meta);
 
@@ -1830,124 +1591,119 @@ int Gui::drawPage(
                       }
 
                       // set csi annotations - single step only
-                      if (! gui->exportingObjects() &&  ! multiStep && ! opts.calledOut)
+                      if (! gui->exportingObjects() &&  ! multiStep && ! calledOut)
                           step->setCsiAnnotationMetas(steps->meta);
 
                       if (renderer->useLDViewSCall() && ! step->ldrName.isNull()) {
-                          opts.ldrStepFiles << step->ldrName;
-                          opts.csiKeys << step->csiKey;
+                          ldrStepFiles << step->ldrName;
+                          csiKeys << step->csiKey;
                       }
 
                   } else {
 
                       if (pliPerStep) {
-                          opts.pliParts.clear();
-                          opts.pliPartGroups.clear();
+                          pliParts.clear();
+                          pliPartGroups.clear();
                       }
 
                       // Only pages or step can have inserts and pointers... not callouts
-                      if ( ! multiStep && ! opts.calledOut) {
+                      if ( ! multiStep && ! calledOut) {
 
                           Page *page = dynamic_cast<Page *>(steps);
                           if (page) {
-                              page->inserts            = inserts;
-                              page->pagePointers       = pagePointers;
-                              page->selectedSceneItems = selectedSceneItems;
+                              page->inserts      = inserts;
+                              page->pagePointers = pagePointers;
                           }
                       }
                   }
 
                   // STEP - Simple STEP
-                  if ( ! multiStep && ! opts.calledOut) {
+                  if ( ! multiStep && ! calledOut) {
 
                       steps->placement = steps->meta.LPub.assem.placement;
 
                       showLine(topOfStep);
 
-                      int  numSteps = ldrawFile.numSteps(opts.current.modelName);
+                      int  numSteps = ldrawFile.numSteps(current.modelName);
 
                       bool endOfSubmodel =
                               numSteps == 0 ||
                               steps->meta.LPub.contStepNumbers.value() ?
                                   steps->meta.LPub.contModelStepNum.value() >= numSteps :
-                                  opts.stepNum >= numSteps;
+                                  stepNum >= numSteps;
 
                       int countInstanceOverride = steps->meta.LPub.page.countInstanceOverride.value();
                       int instances = countInstanceOverride ? countInstanceOverride :
-                                                              ldrawFile.instances(opts.current.modelName, opts.isMirrored);
+                                                              ldrawFile.instances(current.modelName, isMirrored);
                       displayCount = countInstances && instances > 1;
                       if (displayCount && countInstances != CountAtTop && !countInstanceOverride) {
                           MetaItem mi;
                           if (countInstances == CountAtStep)
-                              instances = mi.countInstancesInStep(&steps->meta, opts.current.modelName);
+                              instances = mi.countInstancesInStep(&steps->meta, current.modelName);
                           else
                           if (countInstances > CountFalse && countInstances < CountAtStep)
-                              instances = mi.countInstancesInModel(&steps->meta, opts.current.modelName);
+                              instances = mi.countInstancesInModel(&steps->meta, current.modelName);
                       }
 
                       Page *page = dynamic_cast<Page *>(steps);
                       if (page && instances > 1) {
                           page->instances            = instances;
                           page->displayInstanceCount = displayCount;
-                          page->selectedSceneItems   = selectedSceneItems;
+                          page->setItemDirection     = itemDirection;
 
                           if (! steps->meta.LPub.stepPli.perStep.value()) {
 
                               PlacementType relativeType = SingleStepType;
 
                               QStringList instancesPliParts;
-                              if (opts.pliParts.size() > 0) {
-                                  for (int index = 0; index < opts.pliParts.size(); index++) {
-                                      QString pliLine = opts.pliParts[index];
+                              if (pliParts.size() > 0) {
+                                  for (int index = 0; index < pliParts.size(); index++) {
+                                      QString pliLine = pliParts[index];
                                       for (int i = 0; i < instances; i++) {
                                           instancesPliParts << pliLine;
                                       }
                                   }
                               }
 
-                              // PLI
-                              step->pli.setParts(instancesPliParts,opts.pliPartGroups,steps->meta);
+                              step->pli.setParts(instancesPliParts,pliPartGroups,steps->meta);
                               instancesPliParts.clear();
-                              opts.pliParts.clear();
-                              opts.pliPartGroups.clear();
+                              pliParts.clear();
+                              pliPartGroups.clear();
 
                               emit messageSig(LOG_INFO, "Add PLI images for single-step page...");
 
                               step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
-
-                              // SM
-                              if (step->placeSubModel){
-                                  emit messageSig(LOG_INFO, "Set first step submodel display for " + topOfStep.modelName + "...");
-
-                                  steps->meta.LPub.subModel.instance.setValue(instances);
-                                  step->subModel.setSubModel(opts.current.modelName,steps->meta);
-
-                                  step->subModel.displayInstanceCount = displayCount;
-
-                                  if (step->subModel.sizeSubModel(&steps->meta,relativeType,pliPerStep) != 0)
-                                      emit messageSig(LOG_ERROR, "Failed to set first step submodel display for " + topOfStep.modelName + "...");
-                              }
                           }
                       }
 
-                      emit messageSig(LOG_INFO, "Generate CSI image for single-step page...");
+                      emit messageSig(LOG_INFO, "Add CSI image for single-step page...");
 
-                      if (renderer->useLDViewSCall() && opts.ldrStepFiles.size() > 0){
+                      if (renderer->useLDViewSCall() && ldrStepFiles.size() > 0){
 
                           QElapsedTimer timer;
                           timer.start();
                           QString empty("");
 
+                          // set camera
+                          steps->meta.LPub.assem.cameraAngles   = step->csiCameraMeta.cameraAngles;
+                          steps->meta.LPub.assem.cameraDistance = step->csiCameraMeta.cameraDistance;
+                          steps->meta.LPub.assem.modelScale     = step->csiCameraMeta.modelScale;
+                          steps->meta.LPub.assem.cameraFoV      = step->csiCameraMeta.cameraFoV;
+                          steps->meta.LPub.assem.isOrtho        = step->csiCameraMeta.isOrtho;
+                          steps->meta.LPub.assem.zfar           = step->csiCameraMeta.zfar;
+                          steps->meta.LPub.assem.znear          = step->csiCameraMeta.znear;
+                          steps->meta.LPub.assem.target         = step->csiCameraMeta.target;
+
                           // set the extra renderer parms
                           steps->meta.LPub.assem.ldviewParms =
-                               Render::getRenderer() == RENDERER_LDVIEW ?  step->ldviewParms :
+                               Render::getRenderer() == RENDERER_LDVIEW ? step->ldviewParms :
                                Render::getRenderer() == RENDERER_LDGLITE ? step->ldgliteParms :
                                              /*POV scene file generator*/  step->ldviewParms ;
                           if (Preferences::preferredRenderer == RENDERER_POVRAY)
                               steps->meta.LPub.assem.povrayParms = step->povrayParms;
 
                           // render the partially assembled model
-                          int rc = renderer->renderCsi(empty,opts.ldrStepFiles,opts.csiKeys,empty,steps->meta);
+                          int rc = renderer->renderCsi(empty,ldrStepFiles,csiKeys,empty,steps->meta);
                           if (rc != 0) {
                               emit messageSig(LOG_ERROR,QMessageBox::tr("Render CSI images failed."));
                               return rc;
@@ -1959,31 +1715,33 @@ int Gui::drawPage(
                                                        "single step on page %7.")
                                                .arg(Render::getRenderer())
                                                .arg(timer.elapsed())
-                                               .arg(opts.ldrStepFiles.size())
-                                               .arg(opts.stepNum)
-                                               .arg(opts.ldrStepFiles.size() == 1 ? "image" : "images")
-                                               .arg(opts.calledOut ? "called out," : "simple,")
+                                               .arg(ldrStepFiles.size())
+                                               .arg(stepNum)
+                                               .arg(ldrStepFiles.size() == 1 ? "image" : "images")
+                                               .arg(calledOut ? "called out," : "simple,")
                                                .arg(stepPageNum));
                       }
 
-                      addGraphicsPageItems(steps,coverPage,endOfSubmodel,view,scene,opts.printing);
+                      addGraphicsPageItems(steps,coverPage,endOfSubmodel,view,scene,printing);
                       stepPageNum += ! coverPage;
-                      steps->setBottomOfSteps(opts.current);
+                      steps->setBottomOfSteps(current);
                       drawPageElapsedTime();
+
                       return HitEndOfPage;
                   }
 
                   dividerType = NoDivider;
 
                   steps->meta.pop();
-                  opts.stepNum += partsAdded;
-                  topOfStep = opts.current;
+                  stepNum += partsAdded;
+                  topOfStep = current;
 
                   partsAdded    = false;
                   coverPage     = false;
                   rotateIcon    = false;
+                  itemDirection = false;
                   step          = nullptr;
-                  opts.bfxStore2     = bfxStore1;
+                  bfxStore2     = bfxStore1;
                   bfxStore1     = false;
                   bfxLoad       = false;
               }
@@ -1991,27 +1749,26 @@ int Gui::drawPage(
               if ( ! multiStep) {
                   inserts.clear();
                   pagePointers.clear();
-                  selectedSceneItems.clear();
                 }
-              steps->setBottomOfSteps(opts.current);
+              steps->setBottomOfSteps(current);
               noStep = false;
               break;
             case RangeErrorRc:
             {
-              showLine(opts.current);
+              showLine(current);
               QString message;
               if (Preferences::usingNativeRenderer &&
                   line.indexOf("CAMERA_FOV") != -1)
                   message = QString("Native renderer CAMERA_FOV value is out of range [%1:%2]"
                                     "<br>Meta command: %3"
                                     "<br>Valid values: minimum 1.0, maximum 359.0")
-                                        .arg(opts.current.modelName)
-                                        .arg(opts.current.lineNumber)
+                                        .arg(current.modelName)
+                                        .arg(current.lineNumber)
                                         .arg(line);
               else
                   message = QString("Parameter(s) out of range: %1:%2<br>Meta command: %3")
-                          .arg(opts.current.modelName)
-                          .arg(opts.current.lineNumber)
+                          .arg(current.modelName)
+                          .arg(current.lineNumber)
                           .arg(line);
 
               emit gui->messageSig(LOG_ERROR,message);
@@ -2023,10 +1780,10 @@ int Gui::drawPage(
         }
       // STEP - Process invalid line
       else if (line != "") {
-          showLine(opts.current);
+          showLine(current);
           const QChar type = line.at(0);
           parseError(QString("Invalid LDraw type %1 line. Expected %2 elements, got \"%3\".")
-                     .arg(type).arg(type == '1' ? 15 : type == '2' ? 8 : type == '3' ? 11 : 14).arg(line),opts.current);
+                     .arg(type).arg(type == '1' ? 15 : type == '2' ? 8 : type == '3' ? 11 : 14).arg(line),current);
           retVal = InvalidLDrawLineRc;
       }
       /* if part is on excludedPart.lst, unset pliIgnore if still set */
@@ -2041,11 +1798,18 @@ int Gui::drawPage(
 }
 
 int Gui::findPage(
-    LGraphicsView   *view,
-    LGraphicsScene  *scene,
-    Meta             meta,
-    QString const   &addLine,
-    FindPageOptions &opts)
+    LGraphicsView  *view,
+    LGraphicsScene *scene,
+    int            &pageNum,      //maxPages
+    QString const  &addLine,
+    Where          &current,
+    PgSizeData     &pageSize,
+    bool            isMirrored,
+    Meta            meta,
+    bool            printing,
+    int             contStepNumber,
+    int             renderStepNumber,
+    QString         renderParentModel)
 {
   bool stepGroup  = false;
   bool partIgnore = false;
@@ -2067,16 +1831,16 @@ int Gui::findPage(
   int  partsAdded = 0;
   int  stepNumber = 1;
 
-  skipHeader(opts.current);
+  skipHeader(current);
 
-  if (opts.pageNum == 1) {
+  if (pageNum == 1) {
       topOfPages.clear();
-      topOfPages.append(opts.current);
+      topOfPages.append(current);
   }
 
   QStringList csiParts;
   QStringList saveCsiParts;
-  Where       saveCurrent = opts.current;
+  Where       saveCurrent = current;
   Where       stepGroupCurrent;
   int         saveStepNumber = 1;
 
@@ -2088,26 +1852,26 @@ int Gui::findPage(
   QHash<QString, QStringList> saveBfx;
   QList<PliPartGroupMeta> emptyPartGroups;
 
-  int numLines = ldrawFile.size(opts.current.modelName);
+  int numLines = ldrawFile.size(current.modelName);
 
   int  countInstances = meta.LPub.countInstance.value();
 
-  Where topOfStep = opts.current;
+  Where topOfStep = current;
 
   RotStepMeta saveRotStep = meta.rotStep;
 
-  emit messageSig(LOG_INFO_STATUS, "Processing find page for " + opts.current.modelName + "...");
+  emit messageSig(LOG_STATUS, "Processing find page for " + current.modelName + "...");
 
-  ldrawFile.setRendered(opts.current.modelName, opts.isMirrored, opts.renderParentModel, opts.renderStepNumber, countInstances);
+  ldrawFile.setRendered(current.modelName, isMirrored, renderParentModel, renderStepNumber, countInstances);
 
   for ( ;
-        opts.current.lineNumber < numLines;
-        opts.current.lineNumber++) {
+        current.lineNumber < numLines;
+        current.lineNumber++) {
 
       // scan through the rest of the model counting pages
       // if we've already hit the display page, then do as little as possible
 
-      QString line = ldrawFile.readLine(opts.current.modelName,opts.current.lineNumber).trimmed();
+      QString line = ldrawFile.readLine(current.modelName,current.lineNumber).trimmed();
 
       if (line.startsWith("0 GHOST ")) {
           line = line.mid(8).trimmed();
@@ -2132,9 +1896,9 @@ int Gui::findPage(
               // csiParts << line;
 
               if (firstStepPageNum == -1) {
-                  firstStepPageNum = opts.pageNum;
+                  firstStepPageNum = pageNum;
               }
-              lastStepPageNum = opts.pageNum;
+              lastStepPageNum = pageNum;
 
               QStringList token;
 
@@ -2151,19 +1915,19 @@ int Gui::findPage(
                   if (contains && (!callout || (callout && calloutMode != CalloutBeginMeta::Unassembled))) {
 
                       // check if submodel was rendered
-                      bool rendered = ldrawFile.rendered(type,ldrawFile.mirrored(token),opts.current.modelName,stepNumber,countInstances);
+                      bool rendered = ldrawFile.rendered(type,ldrawFile.mirrored(token),current.modelName,stepNumber,countInstances);
 
                       // if the submodel was not rendered, and (is not in the buffer exchange call setRendered for the submodel.
                       if (! rendered && (! bfxStore2 || ! bfxParts.contains(token[1]+type))) {
 
-                          opts.isMirrored = ldrawFile.mirrored(token);
+                          isMirrored = ldrawFile.mirrored(token);
 
                           // add submodel to the model stack - it can't be a callout
-                          SubmodelStack tos(opts.current.modelName,opts.current.lineNumber,stepNumber);
+                          SubmodelStack tos(current.modelName,current.lineNumber,stepNumber);
                           meta.submodelStack << tos;
                           Where current2(type,0);
 
-                          ldrawFile.setModelStartPageNumber(current2.modelName,opts.pageNum);
+                          ldrawFile.setModelStartPageNumber(current2.modelName,pageNum);
 
                           // save rotStep, clear it, and restore it afterwards
                           // since rotsteps don't affect submodels
@@ -2176,42 +1940,47 @@ int Gui::findPage(
                               pageSize2       = pageSizes[DEF_SIZE];
                               pageSizeUpdate  = false;
 #ifdef SIZE_DEBUG
-                              logDebug() << "SM: Saving    Default Page size info at PageNumber:" << opts.pageNum
+                              logDebug() << "SM: Saving    Default Page size info at PageNumber:" << pageNum
                                          << "W:"    << pageSize2.sizeW << "H:"    << pageSize2.sizeH
                                          << "O:"    <<(pageSize2.orientation == Portrait ? "Portrait" : "Landscape")
                                          << "ID:"   << pageSize2.sizeID
-                                         << "Model:" << opts.current.modelName;
+                                         << "Model:" << current.modelName;
 #endif
                           }
 
                           // set the step number and parent model where the submodel will be rendered
-                          FindPageOptions calloutOpts(
-                                      opts.pageNum,
-                                      current2,
-                                      opts.pageSize,
-                                      opts.isMirrored,
-                                      opts.printing,
-                                      opts.contStepNumber,
-                                      stepNumber            /*renderStepNumber*/,
-                                     opts.current.modelName /*renderParentModel*/);
-                          findPage(view, scene, meta, line, calloutOpts);
+                          renderStepNumber = stepNumber;
+                          renderParentModel = current.modelName;
+
+                          findPage(view,
+                                   scene,
+                                   pageNum,
+                                   line,
+                                   current2,
+                                   pageSize,
+                                   isMirrored,
+                                   meta,
+                                   printing,
+                                   contStepNumber,
+                                   renderStepNumber,
+                                   renderParentModel);
 
                           saveStepPageNum = stepPageNum;
                           meta.submodelStack.pop_back();
                           meta.rotStep = saveRotStep2;       // restore old rotstep
-                          if (opts.contStepNumber) {              // capture continuous step number from exited submodel
-                              opts.contStepNumber = saveContStepNum;
+                          if (contStepNumber) {              // capture continuous step number from exited submodel
+                              contStepNumber = saveContStepNum;
                           }
 
                           if (exporting()) {
                               pageSizes.remove(DEF_SIZE);
                               pageSizes.insert(DEF_SIZE,pageSize2);  // restore old Default pageSize information
 #ifdef SIZE_DEBUG
-                              logDebug() << "SM: Restoring Default Page size info at PageNumber:" << opts.pageNum
+                              logDebug() << "SM: Restoring Default Page size info at PageNumber:" << pageNum
                                          << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
                                          << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
                                          << "ID:"   << pageSizes[DEF_SIZE].sizeID
-                                         << "Model:" << opts.current.modelName;
+                                         << "Model:" << current.modelName;
 #endif
                           }
                       }
@@ -2243,14 +2012,14 @@ int Gui::findPage(
             break;
 
         case '0':
-          rc = meta.parse(line,opts.current);
+          rc = meta.parse(line,current);
           switch (rc) {
             case StepGroupBeginRc:
               stepGroup = true;
               stepGroupCurrent = topOfStep;
-              if (opts.contStepNumber){    // save starting step group continuous step number to pass to drawPage for submodel preview
-                  int showStepNum = opts.contStepNumber == 1 ? stepNumber : opts.contStepNumber;
-                  if (opts.pageNum == 1) {
+              if (contStepNumber){    // save starting step group continuous step number to pass to drawPage for submodel preview
+                  int showStepNum = contStepNumber == 1 ? stepNumber : contStepNumber;
+                  if (pageNum == 1) {
                       meta.LPub.subModel.showStepNum.setValue(showStepNum);
                   } else {
                       saveMeta.LPub.subModel.showStepNum.setValue(showStepNum);
@@ -2265,7 +2034,7 @@ int Gui::findPage(
             case StepGroupEndRc:
               if (stepGroup && ! noStep2) {
                   stepGroup = false;
-                  if (opts.pageNum < displayPageNum) {
+                  if (pageNum < displayPageNum) {
                       saveCsiParts   = csiParts;
                       saveStepNumber = stepNumber;
                       saveMeta       = meta;
@@ -2273,16 +2042,16 @@ int Gui::findPage(
                       saveBfxParts   = bfxParts;
                       bfxParts.clear();
                       saveRotStep = meta.rotStep;
-                    } else if (opts.pageNum == displayPageNum) {
+                    } else if (pageNum == displayPageNum) {
                       csiParts.clear();
                       savePrevStepPosition = saveCsiParts.size();
                       stepPageNum = saveStepPageNum;
-                      if (opts.pageNum == 1) {
+                      if (pageNum == 1) {
                         page.meta = meta;
                       } else {
                         page.meta = saveMeta;
                       }
-                      if (opts.contStepNumber) {  // pass continuous step number to drawPage
+                      if (contStepNumber) {  // pass continuous step number to drawPage
                         page.meta.LPub.contModelStepNum.setValue(saveStepNumber);
                         saveStepNumber = saveContStepNum;
                       }
@@ -2290,50 +2059,52 @@ int Gui::findPage(
                       page.meta.rotStep = saveRotStep;
 
                       QStringList pliParts;
-                      DrawPageOptions pageOptions(
-                                  stepGroupCurrent,
-                                  saveCsiParts,
-                                  pliParts,
-                                  saveBfxParts,
-                                  ldrStepFiles,
-                                  csiKeys,
-                                  saveBfx,
-                                  emptyPartGroups,
-                                  saveStepNumber,
-                                  opts.renderStepNumber,
-                                  opts.isMirrored,
-                                  opts.printing,
-                                  stepGroupBfxStore2);
-                      (void) drawPage(view, scene, &page, addLine, pageOptions);
+
+                      (void) drawPage(view,
+                                      scene,
+                                      &page,
+                                      saveStepNumber,
+                                      addLine,
+                                      stepGroupCurrent,
+                                      saveCsiParts,
+                                      pliParts,
+                                      isMirrored,
+                                      saveBfx,
+                                      emptyPartGroups,
+                                      printing,
+                                      stepGroupBfxStore2,
+                                      saveBfxParts,
+                                      ldrStepFiles,
+                                      csiKeys);
 
                       saveCurrent.modelName.clear();
                       saveCsiParts.clear();
                     }
                   if (exporting()) {
-                      pageSizes.remove(opts.pageNum);
+                      pageSizes.remove(pageNum);
                       if (pageSizeUpdate) {
                           pageSizeUpdate = false;
-                          pageSizes.insert(opts.pageNum,opts.pageSize);
+                          pageSizes.insert(pageNum,pageSize);
 #ifdef SIZE_DEBUG
-                          logTrace() << "SG: Inserting New Page size info     at PageNumber:" << opts.pageNum
-                                     << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
-                                     << "O:"    <<(opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
-                                     << "ID:"   << opts.pageSize.sizeID
-                                     << "Model:" << opts.current.modelName;
+                          logTrace() << "SG: Inserting New Page size info     at PageNumber:" << pageNum
+                                     << "W:"    << pageSize.sizeW << "H:"    << pageSize.sizeH
+                                     << "O:"    <<(pageSize.orientation == Portrait ? "Portrait" : "Landscape")
+                                     << "ID:"   << pageSize.sizeID
+                                     << "Model:" << current.modelName;
 #endif
                         } else {
-                          pageSizes.insert(opts.pageNum,pageSizes[DEF_SIZE]);
+                          pageSizes.insert(pageNum,pageSizes[DEF_SIZE]);
 #ifdef SIZE_DEBUG
-                          logTrace() << "SG: Inserting Default Page size info at PageNumber:" << opts.pageNum
+                          logTrace() << "SG: Inserting Default Page size info at PageNumber:" << pageNum
                                      << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
                                      << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
                                      << "ID:"   << pageSizes[DEF_SIZE].sizeID
-                                     << "Model:" << opts.current.modelName;
+                                     << "Model:" << current.modelName;
 #endif
                         }
                     } // exporting
-                  ++opts.pageNum;
-                  topOfPages.append(opts.current);
+                  ++pageNum;
+                  topOfPages.append(current);
                   saveStepPageNum = ++stepPageNum;
                 }
               noStep2 = false;
@@ -2342,22 +2113,22 @@ int Gui::findPage(
             case RotStepRc:
             case StepRc:
               if (partsAdded && ! noStep) {
-                  if (opts.contStepNumber) {   // increment continuous step number until we hit the display page
-                      if (opts.pageNum < displayPageNum &&
+                  if (contStepNumber) {   // increment continuous step number until we hit the display page
+                      if (pageNum < displayPageNum &&
                          (stepNumber > FIRST_STEP || displayPageNum > FIRST_PAGE)) { // skip the first step
-                          opts.contStepNumber += ! coverPage && ! stepPage;
+                          contStepNumber += ! coverPage && ! stepPage;
                       }
                       if (! stepGroup && stepNumber == 1) {
-                          if (opts.pageNum == 1 && topOfStep.modelName == topLevelFile()) { // when pageNum is 1 and not multistep, persist contStepNumber to 'meta' only if we are in the main model
-                              meta.LPub.subModel.showStepNum.setValue(opts.contStepNumber);
+                          if (pageNum == 1 && topOfStep.modelName == topLevelFile()) { // when pageNum is 1 and not multistep, persist contStepNumber to 'meta' only if we are in the main model
+                              meta.LPub.subModel.showStepNum.setValue(contStepNumber);
                           } else {
-                              saveMeta.LPub.subModel.showStepNum.setValue(opts.contStepNumber);
+                              saveMeta.LPub.subModel.showStepNum.setValue(contStepNumber);
                           }
                       }
                   }
                   stepNumber  += ! coverPage && ! stepPage;
                   stepPageNum += ! coverPage && ! stepGroup;
-                  if (opts.pageNum < displayPageNum) {
+                  if (pageNum < displayPageNum) {
                       if ( ! stepGroup) {
                           saveStepNumber  = stepNumber;
                           saveCsiParts    = csiParts;
@@ -2367,77 +2138,79 @@ int Gui::findPage(
                           saveStepPageNum = stepPageNum;
                           // bfxParts.clear();
                         }
-                      if (opts.contStepNumber) { // save continuous step number from current model
-                          saveContStepNum = opts.contStepNumber;
+                      if (contStepNumber) { // save continuous step number from current model
+                          saveContStepNum = contStepNumber;
                       }
-                      saveCurrent = opts.current;
+                      saveCurrent = current;
                       saveRotStep = meta.rotStep;
                     }
                   if ( ! stepGroup) {
-                      if (opts.pageNum == displayPageNum) {
+                      if (pageNum == displayPageNum) {
                           csiParts.clear();
                           savePrevStepPosition = saveCsiParts.size();
                           stepPageNum = saveStepPageNum;
-                          if (opts.pageNum == 1) {
+                          if (pageNum == 1) {
                               page.meta = meta;
                           } else {
                               page.meta = saveMeta;
                           }
-                          if (opts.contStepNumber) { // pass continuous step number to drawPage
+                          if (contStepNumber) { // pass continuous step number to drawPage
                               page.meta.LPub.contModelStepNum.setValue(saveStepNumber);
-                              saveStepNumber = opts.contStepNumber;
+                              saveStepNumber = contStepNumber;
                           }
                           page.meta.pop();
                           page.meta.rotStep = saveRotStep;
                           page.meta.rotStep = meta.rotStep;
 
                           QStringList pliParts;
-                          DrawPageOptions pageOptions(
-                                      saveCurrent,
-                                      saveCsiParts,
-                                      pliParts,
-                                      saveBfxParts,
-                                      ldrStepFiles,
-                                      csiKeys,
-                                      saveBfx,
-                                      emptyPartGroups,
-                                      saveStepNumber,
-                                      opts.renderStepNumber,
-                                      opts.isMirrored,
-                                      opts.printing,
-                                      bfxStore2);
-                          (void) drawPage(view, scene, &page, addLine, pageOptions);
+
+                          (void) drawPage(view,
+                                          scene,
+                                          &page,
+                                          saveStepNumber,
+                                          addLine,
+                                          saveCurrent,
+                                          saveCsiParts,
+                                          pliParts,
+                                          isMirrored,
+                                          saveBfx,
+                                          emptyPartGroups,
+                                          printing,
+                                          bfxStore2,
+                                          saveBfxParts,
+                                          ldrStepFiles,
+                                          csiKeys);
 
                           saveCurrent.modelName.clear();
                           saveCsiParts.clear();
                         }
                       if (exporting()) {
-                          pageSizes.remove(opts.pageNum);
+                          pageSizes.remove(pageNum);
                           if (pageSizeUpdate) {
                               pageSizeUpdate = false;
-                              pageSizes.insert(opts.pageNum,opts.pageSize);
+                              pageSizes.insert(pageNum,pageSize);
 #ifdef SIZE_DEBUG
-                              logTrace() << "ST: Inserting New Page size info     at PageNumber:" << opts.pageNum
-                                         << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
-                                         << "O:"    <<(opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
-                                         << "ID:"   << opts.pageSize.sizeID
-                                         << "Model:" << opts.current.modelName;
+                              logTrace() << "ST: Inserting New Page size info     at PageNumber:" << pageNum
+                                         << "W:"    << pageSize.sizeW << "H:"    << pageSize.sizeH
+                                         << "O:"    <<(pageSize.orientation == Portrait ? "Portrait" : "Landscape")
+                                         << "ID:"   << pageSize.sizeID
+                                         << "Model:" << current.modelName;
 #endif
                             } else {
-                              pageSizes.insert(opts.pageNum,pageSizes[DEF_SIZE]);
+                              pageSizes.insert(pageNum,pageSizes[DEF_SIZE]);
 #ifdef SIZE_DEBUG
-                              logTrace() << "ST: Inserting Default Page size info at PageNumber:" << opts.pageNum
+                              logTrace() << "ST: Inserting Default Page size info at PageNumber:" << pageNum
                                          << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
                                          << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
                                          << "ID:"   << pageSizes[DEF_SIZE].sizeID
-                                         << "Model:" << opts.current.modelName;
+                                         << "Model:" << current.modelName;
 #endif
                             }
                         } // exporting
-                      ++opts.pageNum;
-                      topOfPages.append(opts.current);
+                      ++pageNum;
+                      topOfPages.append(current);
                     }
-                  topOfStep = opts.current;
+                  topOfStep = current;
                   partsAdded = 0;
                   meta.pop();
                   coverPage = false;
@@ -2448,7 +2221,7 @@ int Gui::findPage(
                       bfxParts.clear();
                     }
                 } else if ( ! stepGroup) {
-                  saveCurrent = opts.current;  // so that draw page doesn't have to
+                  saveCurrent = current;  // so that draw page doesn't have to
                   // deal with steps that are not steps
                 }
               noStep2 = noStep;
@@ -2485,7 +2258,7 @@ int Gui::findPage(
               // to be processed here
 
             case ClearRc:
-              if (opts.pageNum < displayPageNum) {
+              if (pageNum < displayPageNum) {
                   csiParts.clear();
                   saveCsiParts.clear();
                 }
@@ -2493,7 +2266,7 @@ int Gui::findPage(
 
               /* Buffer exchange */
             case BufferStoreRc:
-              if (opts.pageNum < displayPageNum) {
+              if (pageNum < displayPageNum) {
                   bfx[meta.bfx.value()] = csiParts;
                 }
               bfxStore1 = true;
@@ -2501,7 +2274,7 @@ int Gui::findPage(
               break;
 
             case BufferLoadRc:
-              if (opts.pageNum < displayPageNum) {
+              if (pageNum < displayPageNum) {
                   csiParts = bfx[meta.bfx.value()];
                 }
               partsAdded = true;
@@ -2511,7 +2284,7 @@ int Gui::findPage(
             case LDCadGroupRc:
             case LeoCadGroupBeginRc:
             case LeoCadGroupEndRc:
-              if (opts.pageNum < displayPageNum) {
+              if (pageNum < displayPageNum) {
                   csiParts << line;
                   partsAdded = true;
                 }
@@ -2522,7 +2295,7 @@ int Gui::findPage(
             case RemoveGroupRc:
             case RemovePartRc:
             case RemoveNameRc:
-              if (opts.pageNum < displayPageNum) {
+              if (pageNum < displayPageNum) {
                   QStringList newCSIParts;
                   if (rc == RemoveGroupRc) {
                       remove_group(csiParts,    meta.LPub.remove.group.value(),newCSIParts);
@@ -2545,18 +2318,18 @@ int Gui::findPage(
                 if (exporting()) {
                     pageSizeUpdate  = true;
 
-                    opts.pageSize.sizeW  = meta.LPub.page.size.valueInches(0);
-                    opts.pageSize.sizeH  = meta.LPub.page.size.valueInches(1);
-                    opts.pageSize.sizeID = meta.LPub.page.size.valueSizeID();
+                    pageSize.sizeW  = meta.LPub.page.size.valueInches(0);
+                    pageSize.sizeH  = meta.LPub.page.size.valueInches(1);
+                    pageSize.sizeID = meta.LPub.page.size.valueSizeID();
 
                     pageSizes.remove(DEF_SIZE);
-                    pageSizes.insert(DEF_SIZE,opts.pageSize);
-#ifdef SIZE_DEBUG
-                    logTrace() << "1. New Page Size entry for Default  at PageNumber:" << opts.pageNum
-                               << "W:"  << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
-                               << "O:"  << (opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
-                               << "ID:" << opts.pageSize.sizeID
-                               << "Model:" << opts.current.modelName;
+                    pageSizes.insert(DEF_SIZE,pageSize);
+#ifdef SIZE_DEBUG                
+                    logTrace() << "1. New Page Size entry for Default  at PageNumber:" << pageNum
+                               << "W:"  << pageSize.sizeW << "H:"    << pageSize.sizeH
+                               << "O:"  << (pageSize.orientation == Portrait ? "Portrait" : "Landscape")
+                               << "ID:" << pageSize.sizeID
+                               << "Model:" << current.modelName;
 #endif
                   }
               }
@@ -2569,10 +2342,10 @@ int Gui::findPage(
             case ContStepNumRc:
               {
                   if (meta.LPub.contStepNumbers.value()) {
-                      if (! opts.contStepNumber)
-                          opts.contStepNumber++;
+                      if (! contStepNumber)
+                          contStepNumber++;
                   } else {
-                      opts.contStepNumber = 0;
+                      contStepNumber = 0;
                   }
               }
               break;
@@ -2582,22 +2355,22 @@ int Gui::findPage(
                 if (exporting()){
                     pageSizeUpdate      = true;
 
-                    if (opts.pageSize.sizeW == 0.0f)
-                      opts.pageSize.sizeW    = pageSizes[DEF_SIZE].sizeW;
-                    if (opts.pageSize.sizeH == 0.0f)
-                      opts.pageSize.sizeH    = pageSizes[DEF_SIZE].sizeH;
-                    if (opts.pageSize.sizeID.isEmpty())
-                      opts.pageSize.sizeID   = pageSizes[DEF_SIZE].sizeID;
-                    opts.pageSize.orientation= meta.LPub.page.orientation.value();
+                    if (pageSize.sizeW == 0.0f)
+                      pageSize.sizeW    = pageSizes[DEF_SIZE].sizeW;
+                    if (pageSize.sizeH == 0.0f)
+                      pageSize.sizeH    = pageSizes[DEF_SIZE].sizeH;
+                    if (pageSize.sizeID.isEmpty())
+                      pageSize.sizeID   = pageSizes[DEF_SIZE].sizeID;
+                    pageSize.orientation= meta.LPub.page.orientation.value();
 
                     pageSizes.remove(DEF_SIZE);
-                    pageSizes.insert(DEF_SIZE,opts.pageSize);
+                    pageSizes.insert(DEF_SIZE,pageSize);
 #ifdef SIZE_DEBUG
-                    logTrace() << "1. New Orientation entry for Default at PageNumber:" << opts.pageNum
-                               << "W:"  << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
-                               << "O:"  << (opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
-                               << "ID:" << opts.pageSize.sizeID
-                               << "Model:" << opts.current.modelName;
+                    logTrace() << "1. New Orientation entry for Default at PageNumber:" << pageNum
+                               << "W:"  << pageSize.sizeW << "H:"    << pageSize.sizeH
+                               << "O:"  << (pageSize.orientation == Portrait ? "Portrait" : "Landscape")
+                               << "ID:" << pageSize.sizeID
+                               << "Model:" << current.modelName;
 #endif
                   }
               }
@@ -2620,63 +2393,65 @@ int Gui::findPage(
       // increment continuous step number
       // save continuous step number from current model
       // pass continuous step number to drawPage
-      if (opts.contStepNumber) {
-          if (! countInstances && opts.pageNum < displayPageNum &&
+      if (contStepNumber) {
+          if (! countInstances && pageNum < displayPageNum &&
              (stepNumber > FIRST_STEP || displayPageNum > FIRST_PAGE)) {
-              opts.contStepNumber += ! coverPage && ! stepPage;
+              contStepNumber += ! coverPage && ! stepPage;
           }
-          if (opts.pageNum == displayPageNum) {
+          if (pageNum == displayPageNum) {
               saveMeta.LPub.contModelStepNum.setValue(saveStepNumber);
-              saveStepNumber = opts.contStepNumber;
+              saveStepNumber = contStepNumber;
           }
-          saveContStepNum = opts.contStepNumber;
+          saveContStepNum = contStepNumber;
       }
 
-      if (opts.pageNum == displayPageNum) {
+      if (pageNum == displayPageNum) {
           savePrevStepPosition = saveCsiParts.size();
           page.meta = saveMeta;
           QStringList pliParts;
-          DrawPageOptions pageOptions(
-                      saveCurrent,
-                      saveCsiParts,
-                      pliParts,
-                      saveBfxParts,
-                      ldrStepFiles,
-                      csiKeys,
-                      saveBfx,
-                      emptyPartGroups,
-                      saveStepNumber,
-                      opts.renderStepNumber,
-                      opts.isMirrored,
-                      opts.printing,
-                      bfxStore2);
-          (void) drawPage(view, scene, &page, addLine, pageOptions);
+
+          (void) drawPage(view,
+                          scene,
+                          &page,
+                          saveStepNumber,
+                          addLine,
+                          saveCurrent,
+                          saveCsiParts,
+                          pliParts,
+                          isMirrored,
+                          saveBfx,
+                          emptyPartGroups,
+                          printing,
+                          bfxStore2,
+                          saveBfxParts,
+                          ldrStepFiles,
+                          csiKeys);
         }
       if (exporting()) {
-          pageSizes.remove(opts.pageNum);
+          pageSizes.remove(pageNum);
           if (pageSizeUpdate) {
               pageSizeUpdate = false;
-              pageSizes.insert(opts.pageNum,opts.pageSize);
+              pageSizes.insert(pageNum,pageSize);
 #ifdef SIZE_DEBUG
-              logTrace() << "PG: Inserting New Page size info     at PageNumber:" << opts.pageNum
-                         << "W:"    << opts.pageSize.sizeW << "H:"    << opts.pageSize.sizeH
-                         << "O:"    <<(opts.pageSize.orientation == Portrait ? "Portrait" : "Landscape")
-                         << "ID:"   << opts.pageSize.sizeID
-                         << "Model:" << opts.current.modelName;
+              logTrace() << "PG: Inserting New Page size info     at PageNumber:" << pageNum
+                         << "W:"    << pageSize.sizeW << "H:"    << pageSize.sizeH
+                         << "O:"    <<(pageSize.orientation == Portrait ? "Portrait" : "Landscape")
+                         << "ID:"   << pageSize.sizeID
+                         << "Model:" << current.modelName;
 #endif
             } else {
-              pageSizes.insert(opts.pageNum,pageSizes[DEF_SIZE]);
+              pageSizes.insert(pageNum,pageSizes[DEF_SIZE]);
 #ifdef SIZE_DEBUG
-              logTrace() << "PG: Inserting Default Page size info at PageNumber:" << opts.pageNum
+              logTrace() << "PG: Inserting Default Page size info at PageNumber:" << pageNum
                          << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
                          << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
                          << "ID:"   << pageSizes[DEF_SIZE].sizeID
-                         << "Model:" << opts.current.modelName;
+                         << "Model:" << current.modelName;
 #endif
             }
         } // exporting
-      ++opts.pageNum;
-      topOfPages.append(opts.current);
+      ++pageNum;
+      topOfPages.append(current);
       ++stepPageNum;
     }  
   return 0;
@@ -3099,23 +2874,15 @@ void Gui::countPages()
       Where current(ldrawFile.topLevelFile(),0);
       int savedDpn     = displayPageNum;
       displayPageNum   = 1 << 31;
-      stepPageNum      = 1;
       firstStepPageNum = -1;
       lastStepPageNum  = -1;
       maxPages         = 1;
       Meta meta;
       QString empty;
-      PgSizeData emptyPageSize;
-      FindPageOptions findOptions(
-                  maxPages,
-                  current,
-                  emptyPageSize,
-                  false /*mirrored*/,
-                  false /*printing*/,
-                  0     /*contStepNumber*/,
-                  0     /*renderStepNumber*/,
-                  empty /*renderParentModel*/);
-      findPage(KpageView,KpageScene,meta,empty/*addLine*/,findOptions);
+      PgSizeData empty1;
+      stepPageNum = 1;
+      findPage(KpageView,KpageScene,maxPages,/*addLine*/empty,current,/*pageSize*/empty1,
+               /*isMirrored*/false,meta,/*printing*/false,/*contStepNumber*/0,0,empty);
       topOfPages.append(current);
       maxPages--;
 
@@ -3167,16 +2934,8 @@ void Gui::drawPage(
                  << "Model:" << current.modelName;
 #endif
     }
-  FindPageOptions findOptions(
-              maxPages,
-              current,
-              pageSize,
-              false /*mirrored*/,
-              printing,
-              0     /*contStepNumber*/,
-              0     /*renderStepNumber*/,
-              empty /*renderParentModel*/);
-  findPage(view,scene,meta,empty/*addLine*/,findOptions);
+
+  findPage(view,scene,maxPages,empty,current,pageSize,false,meta,printing,0,0,empty);
   topOfPages.append(current);
   maxPages--;
 
@@ -3477,10 +3236,10 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
 {
   QString nameMod, colourPrefix;
   if (partType == FADE_PART){
-    nameMod = FADE_SFX;
+    nameMod = LPUB3D_COLOUR_FADE_SUFFIX;
     colourPrefix = LPUB3D_COLOUR_FADE_PREFIX;
   } else if (partType == HIGHLIGHT_PART) {
-    nameMod = HIGHLIGHT_SFX;
+    nameMod = LPUB3D_COLOUR_HIGHLIGHT_SUFFIX;
     colourPrefix = LPUB3D_COLOUR_HIGHLIGHT_PREFIX;
   }
 
@@ -3524,24 +3283,24 @@ QStringList Gui::configureModelSubFile(const QStringList &contents, const QStrin
                   // set color code - fade, highlight or both
                   argv[1] = QString("%1%2").arg(colourPrefix).arg(colourCode);
               }
-              // process file naming
+              // process static colored parts
               QString fileNameStr = QString(argv[argv.size()-1]).toLower();
-              QString extension = QFileInfo(fileNameStr).suffix().toLower();
-              // static color parts
               if (ldrawColourParts.isLDrawColourPart(fileNameStr)){
-                  if (extension.isEmpty()) {
-                    fileNameStr = fileNameStr.append(QString("%1.ldr").arg(nameMod));
-                  } else {
-                    fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(nameMod).arg(extension));
-                  }
+                  fileNameStr = QDir::toNativeSeparators(fileNameStr.replace(".dat", "-" + nameMod + ".dat"));
                 }
-              // subfiles
+              // process subfile naming
               if (ldrawFile.isSubmodel(fileNameStr)) {
-                  if (extension.isEmpty()) {
-                    fileNameStr = fileNameStr.append(QString("%1.ldr").arg(nameMod));
-                  } else {
-                    fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(nameMod).arg(extension));
-                  }
+                  QString extension = QFileInfo(fileNameStr).suffix().toLower();
+                  bool ldr = extension == "ldr";
+                  bool mpd = extension == "mpd";
+                  bool dat = extension == "dat";
+                  if (ldr) {
+                      fileNameStr = fileNameStr.replace(".ldr", "-" + nameMod + ".ldr");
+                    } else if (mpd) {
+                      fileNameStr = fileNameStr.replace(".mpd", "-" + nameMod + ".mpd");
+                    } else if (dat) {
+                      fileNameStr = fileNameStr.replace(".dat", "-" + nameMod + ".dat");
+                    }
                 }
               argv[argv.size()-1] = fileNameStr;
             }
@@ -3608,12 +3367,14 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
 
       for (int index = 0; index < csiParts.size(); index++) {
 
+          bool ldr = false, mpd = false, dat= false;
           bool type_1_line = false;
           bool type_1_5_line = false;
           bool is_colour_part = false;
           bool is_submodel_file = false;
 
           int updatePosition = index+1;
+          QString fileNameStr;
           QString csiLine = csiParts[index];
           split(csiLine, argv);
 
@@ -3625,20 +3386,22 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
                   type_1_line = true;
           }
 
-          // process parts naming
-          QString fileNameStr, extension;
           if (type_1_line){
+              // process color parts naming
               fileNameStr = argv[argv.size()-1].toLower();
-              extension = QFileInfo(fileNameStr).suffix().toLower();
 
               // check if is color part
               is_colour_part = ldrawColourParts.isLDrawColourPart(fileNameStr);
 
-              // check if is submodel
-              is_submodel_file = ldrawFile.isSubmodel(fileNameStr);
-
               //if (is_colour_part)
               //    emit messageSig(LOG_NOTICE, "Static color part - " + fileNameStr);
+          }
+
+          // check if is submodel
+          QString extension;
+          if (ldrawFile.isSubmodel(fileNameStr)) {
+                 is_submodel_file = true;
+                 extension = QFileInfo(fileNameStr).suffix().toLower();
           }
 
           // write fade step entries
@@ -3659,24 +3422,18 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
                       argv[1] = QString("%1%2").arg(LPUB3D_COLOUR_FADE_PREFIX).arg(colourCode);
                   }
                   if (type_1_line) {
-                      // process static color part naming
-                      if (is_colour_part) {
-                          if (extension.isEmpty()) {
-                            fileNameStr = fileNameStr.append(QString("%1.dat").arg(FADE_SFX));
-                          } else {
-                            fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(FADE_SFX).arg(extension));
-                          }
-                      }
-                      // process subfiles naming
-                      if (is_submodel_file) {
-                          if (extension.isEmpty()) {
-                            fileNameStr = fileNameStr.append(QString("%1.ldr").arg(FADE_SFX));
-                          } else {
-                            fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(FADE_SFX).arg(extension));
-                          }
-                      }
-                      // assign fade part name
-                      argv[argv.size()-1] = fileNameStr;
+                        if (is_colour_part)
+                               fileNameStr = QDir::toNativeSeparators(fileNameStr.replace(".dat", QString("%1.dat").arg(FADE_SFX)));
+                        // process subfiles naming
+                        if (is_submodel_file) {
+                            if (extension.isEmpty()) {
+                              fileNameStr = fileNameStr.append(QString("%1.ldr").arg(FADE_SFX));
+                            } else {
+                              fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(FADE_SFX).arg(extension));
+                            }
+                        }
+                        // assign fade part name
+                        argv[argv.size()-1] = fileNameStr;
                   }
               }
           }
@@ -3700,24 +3457,18 @@ QStringList Gui::configureModelStep(const QStringList &csiParts, const int &step
                       argv[1] = QString("%1%2").arg(LPUB3D_COLOUR_HIGHLIGHT_PREFIX).arg(colourCode);
                   }
                   if (type_1_line) {
-                      // process static color part naming
-                      if (is_colour_part) {
-                          if (extension.isEmpty()) {
-                            fileNameStr = fileNameStr.append(QString("%1.dat").arg(HIGHLIGHT_SFX));
-                          } else {
-                            fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(HIGHLIGHT_SFX).arg(extension));
-                          }
-                      }
-                      // process subfiles naming
-                      if (is_submodel_file) {
-                          if (extension.isEmpty()) {
-                            fileNameStr = fileNameStr.append(QString("%1.ldr").arg(HIGHLIGHT_SFX));
-                          } else {
-                            fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(HIGHLIGHT_SFX).arg(extension));
-                          }
-                      }
-                      // assign fade part name
-                      argv[argv.size()-1] = fileNameStr;
+                        if (is_colour_part)
+                               fileNameStr = QDir::toNativeSeparators(fileNameStr.replace(".dat", QString("%1.dat").arg(HIGHLIGHT_SFX)));
+                        // process subfiles naming
+                        if (is_submodel_file) {
+                            if (extension.isEmpty()) {
+                              fileNameStr = fileNameStr.append(QString("%1.ldr").arg(HIGHLIGHT_SFX));
+                            } else {
+                              fileNameStr = fileNameStr.replace("."+extension, QString("%1.%2").arg(HIGHLIGHT_SFX).arg(extension));
+                            }
+                        }
+                        // assign fade part name
+                        argv[argv.size()-1] = fileNameStr;
                   }
               }
           }

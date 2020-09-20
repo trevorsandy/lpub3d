@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -94,8 +94,6 @@ public:
 
   MetaGui        *child;
 
-  MetaGui        *childTextPlacementMeta;
-
   MetaGui        *authorChildFront;
   MetaGui        *authorChildBack;
   MetaGui        *authorChild;
@@ -130,7 +128,6 @@ public slots:
   void accept();
   void cancel();
   void displayGroup(bool b);
-  void enableTextPlacement(bool b);
 };
 
 /*****************************************************************

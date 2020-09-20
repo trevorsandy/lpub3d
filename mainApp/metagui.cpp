@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -271,11 +271,9 @@ FloatsGui::FloatsGui(
   QString const &heading1,
   FloatPairMeta *_meta,
   QGroupBox     *parent,
-  int            decPlaces,
-  bool           _showPair)
+  int            decPlaces)
 {
   meta = _meta;
-  showPair = _showPair;
 
   QHBoxLayout *layout = new QHBoxLayout(parent);
 
@@ -297,12 +295,12 @@ FloatsGui::FloatsGui(
   float        val;
 
   val = meta->value(0);
-  a = val - int(val);
+  a = val - (int)val;
   dec = (a <= 0 ? 0 : QString::number(a).size() - 2);                          // shameless hack for the number of input decimals
   numStr = dec > 0 ? QString::number(val): QString::number(val,'f',decPlaces); // add 1 decimal place for whole numbers
   for (int i = 0; i < numStr.size(); i++) dynMask.append("x");                 // dynamically create the input mask
 
-  string = QString("%1") .arg(double(val),
+  string = QString("%1") .arg(val,
                               meta->_fieldWidth,
                               'f',
                               meta->_precision);
@@ -312,41 +310,33 @@ FloatsGui::FloatsGui(
           this,  SLOT(  value0Change(QString const &)));
   layout->addWidget(value0);
 
-  if (showPair) {
-    if (heading1 == "") {
-      label1 = nullptr;
-    } else {
-      label1 = new QLabel(heading1,parent);
-      layout->addWidget(label1);
-    }
-
-    val = meta->value(1);
-    dynMask.clear();
-    a = val - (int)val;
-    dec = (a <= 0 ? 0 : QString::number(a).size() - 2);                           // shameless hack for the number of input decimals
-    numStr = dec > 0 ? QString::number(val): QString::number(val,'f',decPlaces);
-    for (int i = 0; i < numStr.size(); i++) dynMask.append("x");                  // dynamically create the input mask
-    string = QString("%1") .arg(val,
-                                meta->_fieldWidth,
-                                'f',
-                                meta->_precision);
-    value1 = new QLineEdit(string,parent);
-    value1->setInputMask(dynMask);
-    connect(value1,SIGNAL(textEdited(  QString const &)),
-            this,  SLOT(  value1Change(QString const &)));
-    layout->addWidget(value1);
+  if (heading1 == "") {
+    label1 = nullptr;
   } else {
-      QSpacerItem *hSpacer;
-      hSpacer = new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed);
-      layout->addSpacerItem(hSpacer);
+    label1 = new QLabel(heading1,parent);
+    layout->addWidget(label1);
   }
+
+  val = meta->value(1);
+  dynMask.clear();
+  a = val - (int)val;
+  dec = (a <= 0 ? 0 : QString::number(a).size() - 2);                           // shameless hack for the number of input decimals
+  numStr = dec > 0 ? QString::number(val): QString::number(val,'f',decPlaces);
+  for (int i = 0; i < numStr.size(); i++) dynMask.append("x");                  // dynamically create the input mask
+  string = QString("%1") .arg(val,
+                              meta->_fieldWidth,
+                              'f',
+                              meta->_precision);
+  value1 = new QLineEdit(string,parent);
+  value1->setInputMask(dynMask);
+  connect(value1,SIGNAL(textEdited(  QString const &)),
+          this,  SLOT(  value1Change(QString const &)));
+  layout->addWidget(value1);
 }
 
 void FloatsGui::value0Change(QString const &string)
 {
   meta->setValue(0,string.toFloat());
-  if (!showPair)
-     meta->setValue(1,string.toFloat());
   modified = true;
 }
 
@@ -365,9 +355,7 @@ void FloatsGui::setEnabled(bool enable)
     label1->setEnabled(enable);
   }
   value0->setEnabled(enable);
-  if (value1) {
-    value1->setEnabled(enable);
-  }
+  value1->setEnabled(enable);
 }
 
 void FloatsGui::apply(QString &modelName)
@@ -1688,7 +1676,7 @@ void HighlightStepGui::apply(
 
 CameraDistFactorGui::CameraDistFactorGui(
         QString const &heading,
-        CameraDistFactorMeta *_meta,
+        NativeCDMeta *_meta,
         QGroupBox  *parent)
 {
 
@@ -1702,7 +1690,7 @@ CameraDistFactorGui::CameraDistFactorGui(
       setLayout(hLayout);
   }
 
-  QString tipMessage = QString("Native renderer camera distance factor, adjust by 10, to scale renderings.");
+  QString tipMessage = QString("Adjust to change the default Native camera distance.");
 
   if (heading != "") {
     cameraDistFactorLabel = new QLabel(heading, parent);
@@ -3251,7 +3239,7 @@ void ResolutionGui::apply(QString &modelName)
  **********************************************************************/
 
 RendererGui::RendererGui(
-  CameraDistFactorMeta *_meta,
+  NativeCDMeta *_meta,
   QGroupBox     *parent)
 {
   meta = _meta;
@@ -3319,14 +3307,10 @@ RendererGui::RendererGui(
   hLayout->addWidget(ldvButton);
 
   QGridLayout *grpGrid = new QGridLayout();
-  cameraDistFactorGrpBox = new QGroupBox("Native Renderer Camera Distance",parent);
+  cameraDistFactorGrpBox = new QGroupBox("3DViewer/Native Renderer Camera Distance",parent);
 
-  bool nativeRenderer = (Render::getRenderer() == RENDERER_NATIVE);
-  QString tipMessage = QString("Native renderer camera distance factor - enabled when Renderer is set to Native.");
-  if (nativeRenderer)
-      tipMessage = QString("Native renderer camera distance factor, adjust by 10, to scale renderings.");
+  QString tipMessage = QString("Adjust to change the default Native camera distance.");
   cameraDistFactorGrpBox->setToolTip(tipMessage);
-  cameraDistFactorGrpBox->setEnabled(nativeRenderer);
   cameraDistFactorGrpBox->setLayout(grpGrid);
   grid->addWidget(cameraDistFactorGrpBox,3,0,1,2);
 
@@ -3343,17 +3327,15 @@ RendererGui::RendererGui(
   grpGrid->addWidget(cameraDistFactorSpin,0,1);
 
   QSettings Settings;
-  cameraDistFactorDefaulSettings = Settings.contains(QString("%1/%2").arg(SETTINGS,"cameraDistFactorNative"));
+  cameraDistFactorDefaulSetting = Settings.contains(QString("%1/%2").arg(SETTINGS,"CameraDistFactorNative"));
   cameraDistFactorDefaultBox = new QCheckBox("Set as default",cameraDistFactorGrpBox);
-  cameraDistFactorDefaultBox->setEnabled(nativeRenderer);
   cameraDistFactorDefaultBox->setToolTip("Save to application settings.");
-  cameraDistFactorDefaultBox->setChecked(cameraDistFactorDefaulSettings);
+  cameraDistFactorDefaultBox->setChecked(cameraDistFactorDefaulSetting);
   grpGrid->addWidget(cameraDistFactorDefaultBox,1,0);
 
   cameraDistFactorMetaBox = new QCheckBox("Add meta command",cameraDistFactorGrpBox);
-  cameraDistFactorMetaBox->setEnabled(nativeRenderer);
   cameraDistFactorMetaBox->setToolTip("Add a global meta command to the LDraw file.");
-  cameraDistFactorMetaBox->setChecked(!cameraDistFactorDefaulSettings);
+  cameraDistFactorMetaBox->setChecked(!cameraDistFactorDefaulSetting);
   grpGrid->addWidget(cameraDistFactorMetaBox,1,1);
 
   clearCaches              = false;
@@ -3400,26 +3382,17 @@ void RendererGui::typeChange(QString const &type)
   pick = type;
   ldvSingleCallBox->setEnabled(pick == RENDERER_LDVIEW);
   povFileGeneratorGrpBox->setEnabled(pick == RENDERER_POVRAY);
-  cameraDistFactorGrpBox->setEnabled(pick == RENDERER_NATIVE);
-  if (pick != RENDERER_LDVIEW) {
-      ldvSingleCallBox->setChecked(false);
-    }
-  QString tipMessage = QString("Native renderer camera distance factor - enabled when Renderer is set to Native.");
-  if (pick == RENDERER_NATIVE) {
-      cameraDistFactorDefaultBox->setEnabled(true);
-      cameraDistFactorMetaBox->setEnabled(true);
-      tipMessage = QString("Native renderer camera distance factor, adjust by 10, to scale renderings.");
-    }
-  cameraDistFactorGrpBox->setToolTip(tipMessage);
   if (pick != Preferences::preferredRenderer) {
       modified = rendererModified = true;
-    }
+   }
 }
 
 void RendererGui::cameraDistFactorChange(int factor)
 {
   meta->factor.setValue(factor);
-  clearCaches = cameraDistFactorModified = true;
+  cameraDistFactorModified = true;
+  if (Preferences::usingNativeRenderer)
+      clearCaches = true;
 }
 
 void RendererGui::apply(QString &topLevelFile)
@@ -3461,24 +3434,26 @@ void RendererGui::apply(QString &topLevelFile)
       Settings.setValue(QString("%1/%2").arg(SETTINGS,"POVFileGenerator"),povFileGenChoice);
     }
   if (cameraDistFactorModified) {
-      changeMessage = QString("Native camera distance factor changed from %1 to %2")
-                      .arg(cameraDistFactorNative)
-                      .arg(meta->factor.value());
-      emit gui->messageSig(LOG_INFO, changeMessage);
-      Preferences::cameraDistFactorNative = meta->factor.value();
-      if (cameraDistFactorDefaultBox->isChecked()){
-          changeMessage = QString("Factor added as application default.");
-          emit gui->messageSig(LOG_INFO, changeMessage);
-          Settings.setValue(QString("%1/%2").arg(SETTINGS,"CameraDistFactorNative"),meta->factor.value());
-        } else
-        if (cameraDistFactorDefaulSettings) {
-            Settings.remove(QString("%1/%2").arg(SETTINGS,"CameraDistFactorNative"));
-         }
+      if (!cameraDistFactorDefaultBox->isChecked() &&
+          !cameraDistFactorMetaBox->isChecked())
+          cameraDistFactorDefaultBox->setChecked(true);
       if (cameraDistFactorMetaBox->isChecked()){
+          if (cameraDistFactorDefaulSetting) {
+              Settings.remove(QString("%1/%2").arg(SETTINGS,"CameraDistFactorNative"));
+          }
           MetaItem mi;
           mi.setGlobalMeta(topLevelFile,&meta->factor);
-        }
-    }
+      }
+      else
+      if (cameraDistFactorDefaultBox->isChecked()){
+          Preferences::cameraDistFactorNative = meta->factor.value();
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,"CameraDistFactorNative"),meta->factor.value());
+          changeMessage = QString("Native camera distance factor changed from %1 to %2")
+                                  .arg(cameraDistFactorNative)
+                                  .arg(meta->factor.value());
+          emit gui->messageSig(LOG_INFO, changeMessage);
+      }
+  }
   if (!modified && clearCaches){
       clearPliCache();
       clearCsiCache();

@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -315,17 +315,6 @@ public:
                         int   append = 1,
                         bool checkLocal = true);
 
-  void changeStepSize(  QString,
-                        const Where &,
-                        const Where &,
-                        const QString &,
-                        UnitsMeta *,
-                        int  sizeX,
-                        int  sizeY,
-                        int  append = 1,
-                        bool local = false,
-                        bool askLocal = true);
-
   void changeDivider(   QString,
                         const Where &,
                         const Where &,
@@ -339,15 +328,6 @@ public:
                         MarginsMeta *,
                         bool  useTop = true,
                         int   append = 1,
-                        bool checkLocal = true);
-
-  void changeCameraDistFactor(
-                        QString,
-                        QString,
-                        const Where &,
-                        const Where &,
-                        IntMeta *,
-                        int  append = 1,
                         bool checkLocal = true);
 
   void changeFloat(     QString,
@@ -369,7 +349,7 @@ public:
                         const Where &,
                         const Where &,
                         FloatMeta *,
-                        float step = 0.01f,
+                        float step = 0.01,
                         int  append = 1,
                         bool checkLocal = true);
 
@@ -509,15 +489,7 @@ public:
   void deleteBOM();
   void deleteBOMPartGroups();
   void deletePage();
-  void updateText(const Where &,
-                  const QString &,
-                  QString &,
-                  QString &,
-                  float,
-                  float,
-                  int,
-                  bool,
-                  bool = false);
+  void updateText(const Where &, const QString &, bool, bool = false);
   void deleteImageItem(Where &, QString &);
   void deletePLIPartGroups(const Where &,const Where &);
 

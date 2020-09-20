@@ -1,6 +1,6 @@
 ;LPub3D Setup Script
 ;Last Update: Aug 03, 2019
-;Copyright (C) 2016 - 2020 by Trevor SANDY
+;Copyright (C) 2016 - 2019 by Trevor SANDY
 
 ; Install LPub3D and pre-packaged renderers.
 
@@ -62,7 +62,7 @@ Var /global LPub3DViewerLibPath
 !define LICENSE_FILE "COPYING.txt" ; license file, optional
 !define README_FILE "README.txt" ; readme file, optional
 !define RELEASE_NOTES_FILE "RELEASE_NOTES.html" ; local release notes file, optional
-!define RELEASE_NOTES_URL "https://lpub3d.sourceforge.io/${ReleaseNotes}" ; hosted release notes file, optional
+!define RELEASE_NOTES_URL "http://lpub3d.sourceforge.net/${ReleaseNotes}" ; hosted release notes file, optional
 !define PUBLISHER_NAME "${Publisher}"
 !define COMPANY_URL "${CompanyURL}"
 !define SUPPORT "${SupportURL}"
@@ -91,7 +91,7 @@ Name "${PRODUCT_NAME} ${VERSION} Rev ${BuildRevision} Build ${BuildNumber} ${PLA
 Caption $CaptionMessage
 Icon "..\icons\setup.ico"
 UninstallIcon "..\icons\setup.ico"
-BrandingText "©2020 ${COMPANY_NAME}"
+BrandingText "©2019 ${COMPANY_NAME}"
 !ifdef UpdateMaster
   OutFile "${OutFileDir}\${PRODUCT_NAME}-UpdateMaster_${VERSION}.exe"
 !else

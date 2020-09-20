@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -51,7 +51,7 @@ MultiStepRangesBackgroundItem::MultiStepRangesBackgroundItem(
   setFlag(QGraphicsItem::ItemIsSelectable,true);
   setFlag(QGraphicsItem::ItemIsMovable,true);
   setData(ObjectId, MultiStepsBackgroundObj);
-  setZValue(meta->LPub.page.scene.multiStepsBackground.zValue());
+  setZValue(/*meta->LPub.page.scene.multiStepsBackground.zValue()*/-1);
 }
 
 void MultiStepRangesBackgroundItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -115,7 +115,7 @@ MultiStepRangeBackgroundItem::MultiStepRangeBackgroundItem(
   setToolTip("Step Group - right-click to modify");
   setParentItem(parent);
   setData(ObjectId, MultiStepBackgroundObj);
-  setZValue(meta->LPub.page.scene.multiStepBackground.zValue());
+  setZValue(/*meta->LPub.page.scene.multiStepBackground.zValue()*/-1);
 }
 
 void MultiStepRangeBackgroundItem::contextMenuEvent(
@@ -306,11 +306,7 @@ DividerItem::DividerItem(
   setPen(QPen(Qt::NoPen));
   setBrush(QBrush(Qt::NoBrush));
   setToolTip("Divider - right-click to modify");
-
   lineItem = new DividerLine(this);
-  lineItem->stepNumber = parentStep->stepNumber.number;
-  lineItem->top = parentStep->topOfStep();
-  lineItem->bottom = parentStep->bottomOfStep();
 
   BorderData borderData;
 
@@ -410,9 +406,9 @@ DividerItem::DividerItem(
     pen.setCapStyle(Qt::RoundCap);
 
     lineItem->setPen(pen);
-    lineItem->setZValue(_meta->LPub.page.scene.dividerLine.zValue());
+    lineItem->setZValue(/*_meta->LPub.page.scene.dividerLine.zValue()*/100);
     setData(ObjectId, DividerObj); // CORE
-    setZValue(meta.LPub.page.scene.divider.zValue());
+    setZValue(/*meta.LPub.page.scene.divider.zValue()*/99);
   }
   setFlag(QGraphicsItem::ItemIsSelectable,true);
   setFlag(QGraphicsItem::ItemIsFocusable, true);
@@ -421,7 +417,7 @@ DividerItem::DividerItem(
 
 DividerItem::~DividerItem()
 {
-  graphicsDividerPointerList.clear();
+  graphicsPointerList.clear();
 };
 
 void DividerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
@@ -525,13 +521,10 @@ void DividerItem::addGraphicsPointerItem(Pointer *pointer, QGraphicsView *view)
 {
     // This is the background for the dividerPointer line.
     QRect dividerRect(loc[XX],loc[YY],size[XX],size[YY]);
-    background = new DividerBackgroundItem(
+    background = new DividerBackgroundItem (
                 &meta,
                 dividerRect,
                 parentItem());
-    background->stepNumber = parentStep->stepNumber.number;
-    background->top        = parentStep->topOfStep();
-    background->bottom     = parentStep->bottomOfStep();
     background->setPos(loc[XX],loc[YY]);
     background->setFlag(QGraphicsItem::ItemIsMovable, false);
     background->setFlag(QGraphicsItem::ItemIsSelectable, false);
@@ -542,21 +535,21 @@ void DividerItem::addGraphicsPointerItem(Pointer *pointer, QGraphicsView *view)
                 pointer,
                 background,
                 view);
-    graphicsDividerPointerList.append(pi);
+    graphicsPointerList.append(pi);
 }
 
 void DividerItem::updatePointers(QPoint &delta)
 {
-  for (int i = 0; i < graphicsDividerPointerList.size(); i++) {
-    DividerPointerItem *pointerItem = graphicsDividerPointerList[i];
+  for (int i = 0; i < graphicsPointerList.size(); i++) {
+    DividerPointerItem *pointerItem = graphicsPointerList[i];
     pointerItem->updatePointer(delta);
   }
 }
 
 void DividerItem::drawTips(QPoint &delta, int type)
 {
-  for (int i = 0; i < graphicsDividerPointerList.size(); i++) {
-    DividerPointerItem *pointerItem = graphicsDividerPointerList[i];
+  for (int i = 0; i < graphicsPointerList.size(); i++) {
+    DividerPointerItem *pointerItem = graphicsPointerList[i];
     int initiator = type ? type : 102 /*DividerType*/;
     pointerItem->drawTip(delta,initiator);
   }

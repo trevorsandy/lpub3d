@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the
 ** GNU General Public Liceense (GPL) version 3.0
@@ -27,7 +27,7 @@
 #define VER_PRODUCTNAME_STR                 "LPub3D"
 #define VER_COMPANYNAME_BLD_STR             "LPub3D Software"
 #define VER_FILEDESCRIPTION_STR             "LPub3D - An LDraw Building Instruction Editor"
-#define VER_LEGALCOPYRIGHT_STR              "Copyright &copy; 2015 - 2020 by Trevor SANDY"
+#define VER_LEGALCOPYRIGHT_STR              "Copyright &copy; 2015 - 2019 by Trevor SANDY"
 #define VER_LEGALTRADEMARKS1_STR            "All Rights Reserved"
 #define VER_LEGALTRADEMARKS2_STR            VER_LEGALTRADEMARKS1_STR
 #define VER_PUBLISHER_STR                   "Trevor SANDY"
@@ -45,15 +45,11 @@
 #ifdef LP3D_CONTINUOUS_BUILD
   #ifdef LP3D_DEVOPS_BUILD
      #define    VER_BUILD_TYPE_STR          "Dev-release"
-  #elif defined LP3D_NEXT_BUILD
-     #define    VER_BUILD_TYPE_STR          "Next-release"
   #else
      #define    VER_BUILD_TYPE_STR          "Release"
   #endif
 #elif defined LP3D_DEVOPS_BUILD
   #define    VER_BUILD_TYPE_STR             "Dev-release"
-#elif defined LP3D_NEXT_BUILD
-  #define    VER_BUILD_TYPE_STR             "Next-release"
 #else
   #define    VER_BUILD_TYPE_STR             "Version"
 #endif
@@ -155,14 +151,14 @@
 
 // ~~~~~~ Build Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
 
-#define VER_SOURCEFORGE_STR                 "https://lpub3d.sourceforge.io/"
+#define VER_SOURCEFORGE_STR                 "http://lpub3d.sourceforge.net/"
 #define VER_OFFICIAL_LIBRARY_JSON_URL       VER_SOURCEFORGE_STR "complete.json"
 #define VER_UNOFFICIAL_LIBRARY_JSON_URL     VER_SOURCEFORGE_STR "lpub3dldrawunf.json"
 #define VER_CHANGE_LOG_URL                  VER_SOURCEFORGE_STR "change_log.txt"
 #ifdef QT_DEBUG_MODE
-  #define VER_UPDATE_CHECK_JSON_URL         "https://lpub3d.sourceforge.io/lpub3dupdates-test.json"
+  #define VER_UPDATE_CHECK_JSON_URL         "http://lpub3d.sourceforge.net/lpub3dupdates-test.json"
 #else
-  #define VER_UPDATE_CHECK_JSON_URL         "https://lpub3d.sourceforge.io/lpub3dupdates.json"
+  #define VER_UPDATE_CHECK_JSON_URL         "http://lpub3d.sourceforge.net/lpub3dupdates.json"
 #endif
 
 #define VER_COMPANYDOMAIN_STR               "https://trevorsandy.github.io/lpub3d/"

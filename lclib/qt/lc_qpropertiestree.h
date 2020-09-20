@@ -47,7 +47,11 @@ public:
 		PropertyInt,
 		PropertyString,
 		PropertyColor,
-		PropertyPart
+		PropertyPart,
+/*** LPub3D Mod - LPub3D properties ***/
+		PropertyFloatReadOnly,
+		PropertyIntReadOnly
+/*** LPub3D Mod end ***/
 	};
 
 protected slots:
@@ -72,7 +76,7 @@ protected:
 
 	void getPartProperties(lcPartProperties *properties);
 /*** LPub3D Mod - LPub3D properties ***/
-    bool FirstHit;
+	bool FirstHit;
 /*** LPub3D Mod end ***/
 	lcPropertyWidgetMode mWidgetMode;
 	lcObject* mFocus;
@@ -97,12 +101,25 @@ protected:
 	QTreeWidgetItem *partColor;
 	QTreeWidgetItem *partID;
 /*** LPub3D Mod - LPub3D Properties ***/
-    QTreeWidgetItem *partFileName;
-    QTreeWidgetItem *partModel;
-    QTreeWidgetItem *partType;
-    QTreeWidgetItem *partIsSubmodel;
+	QTreeWidgetItem *partFileName;
+	QTreeWidgetItem *partModel;
+	QTreeWidgetItem *partType;
+	QTreeWidgetItem *partIsSubmodel;
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - Camera Globe ***/
+	QTreeWidgetItem *cameraGlobe;
+	QTreeWidgetItem *cameraGlobeLatitude;
+	QTreeWidgetItem *cameraGlobeLongitude;
+	QTreeWidgetItem *cameraGlobeDistance;
+	QTreeWidgetItem *picture;
+	QTreeWidgetItem *pictureModelScale;
+	QTreeWidgetItem *pictureResolution;
+	QTreeWidgetItem *picturePageSizeWidth;
+	QTreeWidgetItem *picturePageSizeHeight;
+	QTreeWidgetItem *pictureImageSizeWidth;
+	QTreeWidgetItem *pictureImageSizeHeight;
+/*** LPub3D Mod end ***/
 	QTreeWidgetItem *cameraPosition;
 	QTreeWidgetItem *cameraPositionX;
 	QTreeWidgetItem *cameraPositionY;

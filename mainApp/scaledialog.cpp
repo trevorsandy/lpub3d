@@ -1,7 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -33,7 +33,6 @@
 UnitsDialog::UnitsDialog(
   float   values[2],
   QString _name,
-  QString _labels,
   QWidget *parent)
   : QDialog(parent)
 {
@@ -42,11 +41,10 @@ UnitsDialog::UnitsDialog(
   QVBoxLayout *layout = new QVBoxLayout(this);
   setLayout(layout);
 
-
   QGroupBox *box = new QGroupBox(_name,this);
   layout->addWidget(box);
   meta.setValues(values[0],values[1]);
-  units = new UnitsGui(!_labels.isEmpty() ? _labels :"L/R|T/B",&meta,box);
+  units = new UnitsGui("L/R|T/B",&meta,box);
 
   QDialogButtonBox *buttonBox;
   buttonBox = new QDialogButtonBox(this);
@@ -67,10 +65,9 @@ UnitsDialog::~UnitsDialog()
 bool UnitsDialog::getUnits(
   float    values[2],
   QString  name,
-  QString  labels,
   QWidget *parent)
 {
-  UnitsDialog *dialog = new UnitsDialog(values,name,labels,parent);
+  UnitsDialog *dialog = new UnitsDialog(values,name,parent);
 
   bool ok = dialog->exec() == QDialog::Accepted;
 

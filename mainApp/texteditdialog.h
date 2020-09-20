@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2019 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the
 ** GNU General Public Liceense (GPL) version 3.0
@@ -30,7 +30,6 @@ QT_BEGIN_NAMESPACE
 namespace Ui {
 class TextEditDialog;
 }
-class QTextCharFormat;
 QT_END_NAMESPACE
 
 class TextEditDialog : public QDialog
@@ -38,8 +37,6 @@ class TextEditDialog : public QDialog
     Q_OBJECT
 public:
     explicit TextEditDialog(QString  &goods,
-                            QString  &editFont,
-                            QString  &editFontColor,
                             QString   windowTitle,
                             bool      richText = false,
                             bool      fontActions = false,
@@ -52,22 +49,15 @@ public:
 
     static bool getText(
       QString  &goods,
-      QString  &editFont,
-      QString  &editFontColor,
       bool     &richText,
       QString   windowTitle,
       bool      fontActions = false);
 
     bool richText;
-    bool rendererArgs;
 
     QString   text;
-    QFont     font;
-    QColor    fontColor;
 
 private slots:
-    void currentCharFormatChanged(const QTextCharFormat &format);
-
     void on_actionNew_triggered();
 
     void on_actionAccept_triggered();
@@ -98,7 +88,6 @@ private slots:
 
 private:
     Ui::TextEditDialog *ui;
-    void fontChanged(const QFont &f);
 };
 
 #endif // TEXTEDITDIALOG_H

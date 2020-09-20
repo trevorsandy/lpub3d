@@ -84,34 +84,47 @@ public:
 		return mFileName;
 	}
 
-/*** LPub3D Mod - image export ***/
-	void SetImageArgs(
-		const QString fileName,
-		const int width,
-		const int height,
-		const int type)
-	{
-		mImageFileName = fileName;
-		mImageWidth    = width;
-		mImageHeight   = height;
-		mImageType     = type;
-		mViewerLoaded  = true;
-	}
+/*** LPub3D Mod - Camera Globe and Image Export ***/
+	void SetRenderAttributes(
+		const int Type,
+		const int ImageWidth,
+		const int ImageHeight,
+		const int PageWidth,
+		const int PageHeight,
+		const QString FileName,
+		const float Resolution,
+		const float ModelScale,
+		const float NativeCDF);
+	int GetImageWidth() const;
+	int GetImageHeight() const;
+	int GetModelWidth() const;
 	QString GetImageName() const
 	{
 		return mImageFileName;
 	}
-	int GetImageWidth() const
-	{
-		return mImageWidth;
-	}
-	int GetImageHeight() const
-	{
-		return mImageHeight;
-	}
 	int GetImageType() const
 	{
 		return mImageType;
+	}
+	int GetPageWidth() const
+	{
+		return mPageWidth;
+	}
+	int GetPageHeight() const
+	{
+		return mPageHeight;
+	}
+	float GetResolution() const
+	{
+		return mResolution;
+	}
+	float GetModelScale() const
+	{
+		return mModelScale;
+	}
+	float GetCDF() const
+	{
+		return mCDF;
 	}
 	bool GetViewerLoaded() const
 	{
@@ -162,14 +175,16 @@ protected:
 	lcModel* mActiveModel;
 
 	Q_DECLARE_TR_FUNCTIONS(Project);
-/*** LPub3D Mod - image export ***/
+/*** LPub3D Mod - Camera Globe and Image Export ***/
 	QString mImageFileName;
-	int mImageWidth;
-	int mImageHeight;
+	int mPageWidth;
+	int mPageHeight;
 	int mImageType;
+	float mCDF;
+	float mResolution;
+	float mModelScale;
 	bool mViewerLoaded;
 /*** LPub3D Mod end ***/
-
 /*** LPub3D Mod - create Native PLI image ***/
 	friend class Render;
 /*** LPub3D Mod end ***/

@@ -85,9 +85,14 @@ Project::Project()
 /*** LPub3D Mod - default model name ***/
 	mActiveModel = new lcModel(tr("LPub3D Model.ldr"));
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - image export ***/
-	mImageWidth = 0;
-	mImageHeight = 0;
+/*** LPub3D Mod - Camera Globe and Image Export ***/
+	mPageWidth = 0;
+	mPageHeight = 0;
+	mImageType = 0;
+	mCDF = LC_CDF;
+	mResolution = 150.0f;
+	mModelScale = 1.0f;
+	mViewerLoaded = false;
 /*** LPub3D Mod end ***/
 	mActiveModel->CreatePieceInfo(this);
 	mActiveModel->SetSaved();
@@ -100,6 +105,45 @@ Project::~Project()
 {
 	mModels.DeleteAll();
 }
+
+/*** LPub3D Mod - Camera Globe and Image Export ***/
+void Project::SetRenderAttributes(
+	const int Type,
+	const int ImageWidth,
+	const int ImageHeight,
+	const int PageWidth,
+	const int PageHeight,
+	const QString FileName,
+	const float Resolution,
+	const float ModelScale,
+	const float NativeCDF)
+{
+	mImageType     = Type;
+	mPageWidth     = PageWidth;
+	mPageHeight    = PageHeight;
+	mImageFileName = FileName;
+	mResolution    = Resolution;
+	mModelScale    = ModelScale;
+	// This allows us to tweak the default camera distance
+	float CDF      = LC_CAM_POS / NativeCDF;
+	mCDF           = CDF < LC_CDF || CDF > LC_CDF ? CDF : LC_CDF;
+	lcSetProfileInt(LC_PROFILE_IMAGE_WIDTH,ImageWidth);
+	lcSetProfileInt(LC_PROFILE_IMAGE_HEIGHT,ImageHeight);
+	mViewerLoaded  = true;
+}
+int Project::GetModelWidth() const
+{
+	return GetPageWidth();
+}
+int Project::GetImageWidth() const
+{
+	return lcGetProfileInt(LC_PROFILE_IMAGE_WIDTH);
+}
+int Project::GetImageHeight() const
+{
+	return lcGetProfileInt(LC_PROFILE_IMAGE_HEIGHT);
+}
+/*** LPub3D Mod end ***/
 
 lcModel* Project::GetModel(const QString& Name) const
 {
@@ -396,27 +440,26 @@ bool Project::Load(const QString& FileName)
 	{
 		QBuffer Buffer(&FileData);
 		Buffer.open(QIODevice::ReadOnly);
-		std::vector<std::pair<int, lcModel*>> Models;
 
 		while (!Buffer.atEnd())
 		{
 			lcModel* Model = new lcModel(QString());
-			int Pos = Model->SplitMPD(Buffer);
+			Model->SplitMPD(Buffer);
 
-			if (Models.empty() || !Model->GetProperties().mName.isEmpty())
+			if (mModels.IsEmpty() || !Model->GetProperties().mName.isEmpty())
 			{
 				mModels.Add(Model);
-				Models.emplace_back(std::make_pair(Pos, Model));
 				Model->CreatePieceInfo(this);
 			}
 			else
 				delete Model;
 		}
 
-		for (size_t ModelIdx = 0; ModelIdx < Models.size(); ModelIdx++)
+		Buffer.seek(0);
+
+		for (int ModelIdx = 0; ModelIdx < mModels.GetSize(); ModelIdx++)
 		{
-			Buffer.seek(Models[ModelIdx].first);
-			lcModel* Model = Models[ModelIdx].second;
+			lcModel* Model = mModels[ModelIdx];
 			Model->LoadLDraw(Buffer, this);
 			Model->SetSaved();
 		}
@@ -1605,8 +1648,6 @@ QImage Project::CreatePartsListImage(lcModel* Model, lcStep Step)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		lcScene Scene;
-		Scene.SetAllowWireframe(false);
-		Scene.SetAllowLOD(false);
 		Scene.Begin(ViewMatrix);
 
 		Image.Info->AddRenderMeshes(Scene, lcMatrix44Identity(), Image.ColorIndex, lcRenderMeshState::NORMAL, true);
@@ -1997,8 +2038,6 @@ void Project::ExportHTML(const lcHTMLExportOptions& Options)
 				Context->SetProjectionMatrix(ProjectionMatrix);
 
 				lcScene Scene;
-				Scene.SetAllowWireframe(false);
-				Scene.SetAllowLOD(false);
 				Scene.Begin(ViewMatrix);
 
 				Info->AddRenderMeshes(Scene, lcMatrix44Identity(), Options.PartImagesColor, lcRenderMeshState::NORMAL, true);
@@ -2332,7 +2371,7 @@ bool Project::ExportPOVRay(const QString& FileName)
 	for (const lcModelPartsEntry& ModelPart : ModelParts)
 	{
 		lcVector3 Points[8];
-		
+
 		lcGetBoxCorners(ModelPart.Info->GetBoundingBox(), Points);
 
 		for (int PointIdx = 0; PointIdx < 8; PointIdx++)
@@ -2520,7 +2559,7 @@ void Project::SaveImage()
 
 	if (Dialog.exec() != QDialog::Accepted)
 		return;
-	
+
 	QString Extension = QFileInfo(Dialog.mFileName).suffix();
 
 	if (!Extension.isEmpty())
@@ -2530,9 +2569,6 @@ void Project::SaveImage()
 		Dialog.mFileName = Dialog.mFileName.insert(Dialog.mFileName.length() - Extension.length() - 1, QLatin1String("%1"));
 
 	mActiveModel->SaveStepImages(Dialog.mFileName, Dialog.mStart != Dialog.mEnd, false, false, Dialog.mWidth, Dialog.mHeight, Dialog.mStart, Dialog.mEnd);
-/*** LPub3D Mod - export image completion ***/
-	emit  gMainWindow->updateSig();
-/*** LPub3D Mod end ***/
 }
 
 void Project::UpdatePieceInfo(PieceInfo* Info) const

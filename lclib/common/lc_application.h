@@ -36,7 +36,6 @@ public:
 	bool mDrawAxes;
 	bool mDrawEdgeLines;
 	float mLineWidth;
-	bool mAllowLOD;
 	bool mDrawGridStuds;
 	quint32 mGridStudColor;
 	bool mDrawGridLines;

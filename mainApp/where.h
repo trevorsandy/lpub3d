@@ -6,7 +6,7 @@
 
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
 
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 
 **
 
@@ -176,12 +176,6 @@ class Where
     bool operator!=(const int other) const
     {
       return lineNumber != other;
-    }
-
-    bool operator<(const Where &other) const
-    {
-      return modelName  == other.modelName &&
-             lineNumber < other.lineNumber;
     }
 
     bool operator==(const Where &other) const

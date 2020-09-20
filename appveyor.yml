@@ -1,7 +1,7 @@
 # Build and check LPub3D x86 and x86_64 architectures unsing Qt/MinGW/VS2017 platforms
 # Trevor SANDY <trevor.sandy@gmail.com>
-# Last Update: Oct 13, 2019
-# Copyright (c) 2017 - 2020 by Trevor SANDY
+# Last Update: Sep 10, 2019
+# Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 version: 'LPub3D-AV-Build-{build}'
 
@@ -69,9 +69,7 @@ environment:
   SECURE_AV_SECRET:
     secure: nQtdZL7czHUCbI5HicAKEwLHmW88oGm9Y55LPalj8L4=
   SECURE_SF_SECRET:
-    secure: p0FZK2sONLxKjc/ZuilFN5V2JP1Rd+WtFDOLReo0LvU=
-  SECURE_SF_SALT:
-    secure: ctyrE7TNgQql4AA0u7agp0DDW698jIFMLiN1KJjKLIS/BOm5cZqkHKSxUhBPjRb9GgsFm5oFFq32WzicWbEfUQ==
+    secure: VDiCarfAWcBEzuWImZp2TQ==
 
 # Build package if commit message contains [build pkg]
 # Parse the commit message for 3rd party build override
@@ -277,22 +275,19 @@ after_build:
         If (($env:LP3D_DEPLOY_PKG -eq "true") -or ($env:LP3D_CONTINUOUS_BUILD_PKG -eq "true" -and  $env:APPVEYOR_PROJECT_NAME -eq "lpub3d") -or ($env:LP3D_TEST_SF_DEPLOY_VAR -eq "true")) {
           write-host "`n"
           If (((git tag -l -n $env:APPVEYOR_REPO_TAG_NAME) -NotLike "*skip sfr*") -and ($env:LP3D_SKIP_SF_DEPLOY_VAR -ne "true")) {
-            iex ((New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/appveyor/secure-file/master/install.ps1'))
-            cmd.exe /c appveyor-tools\secure-file -decrypt %LP3D_SECURE_DIR%\.sfdeploy_appveyor_rsa.enc -secret %SECURE_SF_SECRET% -salt %SECURE_SF_SALT%
+            cmd.exe /c nuget install secure-file -ExcludeVersion
+            cmd.exe /c secure-file\tools\secure-file -decrypt %LP3D_SECURE_DIR%\.sfdeploy_appveyor_rsa.enc -secret %SECURE_SF_SECRET%
             C:\msys64\usr\bin\bash -lc 'cd $APPVEYOR_BUILD_FOLDER && chmod +x builds/utilities/ci/sfdeploy.sh && ./builds/utilities/ci/sfdeploy.sh 2>&1'
           } Else {
             write-host "Skip Sourceforge deploy detected - ["(git tag -l -n $env:APPVEYOR_REPO_TAG_NAME).Replace($env:APPVEYOR_REPO_TAG_NAME,"").Trim()"]."
           }
         }
         If ($env:LP3D_CONTINUOUS_BUILD_PKG -eq "true") {
-          If ($env:APPVEYOR_PROJECT_NAME -eq "lpub3d") {
-            $env:LP3D_RELEASE_LABEL = "Continuous Build $env:LP3D_VER_BUILD (r$env:LP3D_VER_REVISION)"
-          } ElseIf ($env:APPVEYOR_PROJECT_NAME -eq "lpub3dnext") {
-            $env:LP3D_RELEASE_LABEL = "Continuous Next Build $env:LP3D_VER_BUILD (r$env:LP3D_VER_REVISION)"
-            $env:LP3D_RELEASE_DESCRIPTION = "$env:LP3D_PACKAGE - Next Release"
-          } Else {
+          If ($env:APPVEYOR_PROJECT_NAME -ne "lpub3d") {
             $env:LP3D_RELEASE_LABEL = "Continuous DevOps Build $env:LP3D_VER_BUILD (r$env:LP3D_VER_REVISION)"
-            $env:LP3D_RELEASE_DESCRIPTION = "$env:LP3D_PACKAGE - Development Release"
+            $env:LP3D_RELEASE_DESCRIPTION = "$env:LP3D_PACKAGE - DevOps Release"
+          } Else {
+            $env:LP3D_RELEASE_LABEL = "Continuous Build $env:LP3D_VER_BUILD (r$env:LP3D_VER_REVISION)"
           }
         }
       }

@@ -1,7 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -51,12 +51,6 @@
 #include "pagepointer.h"
 #include "lgraphicsscene.h"
 #include "name.h"
-
-#include "ranges_item.h"
-#include "csiannotation.h"
-#include "dividerpointeritem.h"
-#include "calloutpointeritem.h"
-#include "pagepointeritem.h"
 
 /*
  * We need to draw page every time there is change to the LDraw file.
@@ -144,7 +138,7 @@ void SubmodelInstanceCount::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
   QAction *restoreCountAction  = nullptr;
   if (page->meta.LPub.page.countInstanceOverride.value()) {
     restoreCountAction         = commonMenus.restoreCountMenu(menu,name);
-  }
+  } 
 
   QAction *selectedAction   = menu.exec(event->screenPos());
 
@@ -296,15 +290,14 @@ int Gui::addGraphicsPageItems(
     bool            printing)
 {
 
-  Page                    *page  = dynamic_cast<Page *>(steps);
+  Page                    *page     = dynamic_cast<Page *>(steps);
 
   Placement                plPage;
   PlacementHeader         *pageHeader;
   PlacementFooter         *pageFooter;
   PageBackgroundItem      *pageBg;
   PageNumberItem          *pageNumber = nullptr;
-  SubmodelInstanceCount   *instanceCount = nullptr;
-  TextItem                *textItem = nullptr;
+  SubmodelInstanceCount   *instanceCount;
 
   int pW, pH;
 
@@ -317,10 +310,6 @@ int Gui::addGraphicsPageItems(
       pH = pageSize(page->meta.LPub.page, 1);
     }
 
-  // set page type (SingleStep, MultiStep)
-
-  bool SingleStepPage = page->relativeType == SingleStepType && page->list.size();
-
 //  logDebug() << QString("  DRAW PAGE %3 SIZE PIXELS - WidthPx: %1 x HeightPx: %2 CurPage: %3")
 //                .arg(QString::number(pW), QString::number(pH)).arg(stepPageNum);
 
@@ -329,8 +318,6 @@ int Gui::addGraphicsPageItems(
 //  Moved to end of GraphicsPageItems()
 //  view->pageBackgroundItem = pageBg;
 //  pageBg->setPos(0,0);
-
-  bool textPlacement     = false;
 
   // Set up the placement aspects of the page in the Qt space
 
@@ -352,6 +339,7 @@ int Gui::addGraphicsPageItems(
   if (pageHeader->placement.value().relativeTo == plPage.relativeType) {
       plPage.appendRelativeTo(pageHeader);
       plPage.placeRelative(pageHeader);
+
     }
   pageHeader->setPos(pageHeader->loc[XX],pageHeader->loc[YY]);
 
@@ -580,91 +568,28 @@ int Gui::addGraphicsPageItems(
               }
               break;
             case InsertData::InsertText:
-            case InsertData::InsertRichText:
+            case InsertData::InsertHtmlText:
               {
-                textPlacement = page->meta.LPub.page.textPlacement.value();
-                QString insertPreamble = QString("0 !LPUB INSERT ");
-                if (insert.placementCommand && page->textItemList.size()) {
-                    // upate placement in last inserted text
-                    textItem        = textPlacement && page->textItemList.size() ?
-                                      page->textItemList.last() : nullptr;
-                    insertPreamble += QString("%1 PLACEMENT ")
-                                              .arg(insert.type == InsertData::InsertRichText ?
-                                                   "RICH_TEXT" : "TEXT");
-                } else {
-                    // create a new text instance and insert into list
-                    textItem = new TextItem(page->inserts[i],DefaultPage,textPlacement,pageBg);
-                    textItem->setZValue(page->meta.LPub.page.scene.insertText.zValue());
-                    textItem->setSize(int(textItem->document()->size().width()),
-                                      int(textItem->document()->size().height()));
-                    if (textPlacement)
-                        page->textItemList.append(textItem);
-                }
+                TextItem *text = new TextItem(page->inserts[i],pageBg);
+                text->setZValue(page->meta.LPub.page.scene.insertText.zValue());
 
-                if (textItem) {
+                PlacementData pld;
 
-                    textItem->relativeType       = insert.relativeType;
-                    if (SingleStepPage) {
-                        textItem->parentRelativeType = PageType;
-                    } else {
-                        textItem->parentRelativeType = StepGroupType;
-                    }
+                pld.placement     = TopLeft;
+                pld.justification = Center;
+                pld.relativeTo    = PageType;
+                pld.preposition   = Inside;
+                pld.offsets[0]    = insert.offsets[0];
+                pld.offsets[1]    = insert.offsets[1];
 
+                text->placement.setValue(pld);
 
-                    if (textPlacement && insert.defaultPlacement)  {
-                        textItem->placement = page->meta.LPub.page.textPlacementMeta;
-                    } else {
-                        PlacementData pld;
+                int margin[2] = {0, 0};
 
-                        Where insertHere  = page->inserts[i].here();
-                        int insertPushed  = page->inserts[i].pushed;
-                        int insertGlobal  = page->inserts[i].global;
-                        bool insertErrors = page->inserts[i].reportErrors;
-
-                        textItem->placement.pushed   = insertPushed;
-                        textItem->placement.global   = insertGlobal;
-                        textItem->placement.preamble = insertPreamble;
-                        textItem->placement.reportErrors = insertErrors;
-                        textItem->placement._here[insertPushed] = insertHere;
-
-                        pld.placement      = insert.placement;
-                        pld.justification  = insert.justification;
-                        pld.relativeTo     = insert.relativeTo;
-                        pld.preposition    = insert.preposition;
-                        pld.rectPlacement  = insert.rectPlacement;
-                        pld.offsets[0]     = insert.offsets[0];
-                        pld.offsets[1]     = insert.offsets[1];
-
-                        textItem->placement.setValue(pld);
-                    }
-
-                    int margin[2] = {0, 0};
-
-                    if (textPlacement) {
-
-                        if ((textItem->pagePlaced = textItem->placement.value().relativeTo == PageType)) {
-                            plPage.appendRelativeTo(textItem);
-                            plPage.placeRelative(textItem, margin);
-                        } else
-                        if ((textItem->pagePlaced = textItem->placement.value().relativeTo == PageHeaderType)) {
-                            pageHeader->appendRelativeTo(textItem);
-                            pageHeader->placeRelative(textItem);
-                        } else
-                        if ((textItem->pagePlaced = textItem->placement.value().relativeTo == PageFooterType)) {
-                            pageFooter->appendRelativeTo(textItem);
-                            pageFooter->placeRelative(textItem);
-                        }
-                        if (textItem->pagePlaced) {
-                            textItem->setPos(textItem->loc[XX],textItem->loc[YY]);
-                        }
-
-                    } else {
-                        plPage.placeRelative(textItem, margin);
-                        textItem->setPos(textItem->loc[XX],textItem->loc[YY]);
-                        textItem->relativeToSize[0] = plPage.size[XX];
-                        textItem->relativeToSize[1] = plPage.size[YY];
-                    }
-                }
+                plPage.placeRelative(text, margin);
+                text->setPos(text->loc[XX],text->loc[YY]);
+                text->relativeToSize[0] = plPage.size[XX];
+                text->relativeToSize[1] = plPage.size[YY];
               }
               break;
             case InsertData::InsertArrow:
@@ -693,15 +618,12 @@ int Gui::addGraphicsPageItems(
     }
 
   // If the page contains a single step then process it here
-  if (SingleStepPage) {
+  if (page->relativeType == SingleStepType && page->list.size()) {
       if (page->list.size()) {
           Range *range = dynamic_cast<Range *>(page->list[0]);
           if (range->relativeType == RangeType) {
               Step *step = dynamic_cast<Step *>(range->list[0]);
               if (step && step->relativeType == StepType) {
-
-                  if (!step->onlyChild())
-                      page->stepNumber = step->stepNumber.number;
 
                   // populate page pixmaps - when using LDView Single Call
 
@@ -714,6 +636,7 @@ int Gui::addGraphicsPageItems(
                   if (!page->pli.bom)
                       step->pli.relativeType = PartsListType;
 
+                  bool redirectPliToPageHeader = false;
                   // if show step number
 
                   if (! step->onlyChild() && step->showStepNumber) {
@@ -730,7 +653,7 @@ int Gui::addGraphicsPageItems(
                           // Redirect Pli relative to SubModel
 
                           if (step->pli.pliMeta.show.value() &&
-                                  step->pli.placement.value().relativeTo == StepNumberType) {
+                              step->pli.placement.value().relativeTo == StepNumberType) {
 
                               step->pli.placement.setValue(BottomLeftOutside,SubModelType);
                               step->subModel.appendRelativeTo(&step->pli);
@@ -767,8 +690,31 @@ int Gui::addGraphicsPageItems(
                               step->pli.placement.setValue(BottomLeftOutside,SubModelType);
                               step->subModel.appendRelativeTo(&step->pli);
                               step->subModel.placeRelative(&step->pli);
+                          } else {
+
+                              // Redirect Pli relative to PageHeader
+
+                              redirectPliToPageHeader = true;
                           }
                       }
+                  }
+
+                  if (step->pli.pliMeta.show.value() &&
+                      step->pli.pliMeta.placement.value().relativeTo == SubModelType) {
+
+                      if (!step->placeSubModel)
+                      {
+                          // Redirect Pli relative to PageHeader
+
+                          redirectPliToPageHeader = true;
+                      }
+                  }
+
+                  if (redirectPliToPageHeader)
+                  {
+                      step->pli.placement.setValue(BottomLeftOutside,PageHeaderType);
+                      pageHeader->appendRelativeTo(&step->pli);
+                      pageHeader->placeRelative(&step->pli);
                   }
 
                   // size the callouts
@@ -798,19 +744,6 @@ int Gui::addGraphicsPageItems(
 
                   if (step->placeSubModel) {
                       step->subModel.addSubModel(step->submodelLevel, pageBg);
-                  }
-
-                  // add the RotateIcon graphically to the scene
-
-                  RotateIconItem *rotateIcon = nullptr;
-                  if (step->placeRotateIcon && page->meta.LPub.rotateIcon.display.value()) {
-                      step->rotateIcon.sizeit();
-                      rotateIcon =
-                              new RotateIconItem(
-                                  step,
-                                  page->relativeType,
-                                  step->rotateIconMeta,
-                                  pageBg);
                   }
 
                   // add the PLI graphically to the scene
@@ -844,22 +777,6 @@ int Gui::addGraphicsPageItems(
                   step->csiItem->setPos(step->csiItem->loc[XX],
                                         step->csiItem->loc[YY]);
 
-                  // place texts not relative to page
-
-                  for (int i = 0; i < page->textItemList.size(); i++) {
-                      textItem  = textPlacement ?
-                                  page->textItemList[i] : nullptr;
-                      if (textItem) {
-                          if (!textItem->pagePlaced) {
-                              if ((textItem->pagePlaced = textItem->placement.value().relativeTo == CsiType)) {
-                                  step->csiItem->appendRelativeTo(textItem);
-                                  step->csiItem->placeRelative(textItem);
-                                  textItem->setPos(textItem->loc[XX],textItem->loc[YY]);
-                              }
-                          } // if text item not placed relative to page
-                      } // if text item
-                  } // text items
-
                   // place CSI annotations //
 
                   if (step->csiItem->assem->annotation.display.value() &&
@@ -878,26 +795,24 @@ int Gui::addGraphicsPageItems(
                   step->pli.setPos(step->pli.loc[XX],
                                    step->pli.loc[YY]);
 
-                  // place the RotateIcon
+                  // allocate QGraphicsPixmapItem for rotate icon
 
-                  if (rotateIcon) {
-                      PlacementData pld = step->rotateIcon.placement.value();
+                  if (step->placeRotateIcon && page->meta.LPub.rotateIcon.display.value()) {
 
-                      rotateIcon->setPos(qreal(pld.offsets[XX]) + step->rotateIcon.loc[XX],
-                                         qreal(pld.offsets[YY]) + step->rotateIcon.loc[YY]);
-
-                      if (pld.offsets[XX] != 0.0f || pld.offsets[YY] != 0.0f) {
-                          rotateIcon->relativeToSize[0] = step->rotateIcon.relativeToSize[0];
-                          rotateIcon->relativeToSize[1] = step->rotateIcon.relativeToSize[1];
-                      } else {
-                          rotateIcon->assign(&step->rotateIcon);
-                          rotateIcon->boundingSize[XX] = step->rotateIcon.size[XX];
-                          rotateIcon->boundingSize[YY] = step->rotateIcon.size[YY];
-                      }
-
+                      step->rotateIcon.sizeit();
+                      RotateIconItem *rotateIcon =
+                          new RotateIconItem(
+                            step,
+                            page->relativeType,
+                            page->meta.LPub.rotateIcon,
+                            pageBg);
+                      rotateIcon->setPos(step->rotateIcon.loc[XX],
+                                         step->rotateIcon.loc[YY]);
+                      rotateIcon->relativeToSize[0] = step->rotateIcon.relativeToSize[0];
+                      rotateIcon->relativeToSize[1] = step->rotateIcon.relativeToSize[1];
                       rotateIcon->setFlag(QGraphicsItem::ItemIsMovable,true);
                       rotateIcon->setZValue(page->meta.LPub.page.scene.rotateIconBackground.zValue());
-                  }
+                    }
 
                   // allocate QGraphicsTextItem for step number
 
@@ -1001,18 +916,18 @@ int Gui::addGraphicsPageItems(
 
       // qDebug() << "List relative type: " << RelNames[range->relativeType];
       // We've got a page that contains step groups, so add it
-      if (page->list.size()) {
+
+      // LDView generate multistep pixamps
+      if (renderer->useLDViewSCall() &&
+          page->list.size()) {
           for (int i = 0; i < page->list.size(); i++){
               Range *range = dynamic_cast<Range *>(page->list[i]);
               for (int j = 0; j < range->list.size(); j++){
                   if (range->relativeType == RangeType) {
                       Step *step = dynamic_cast<Step *>(range->list[j]);
                       if (step && step->relativeType == StepType){
-                          // // LDView single call load images and set size
-                          if (renderer->useLDViewSCall())
-                              addStepImageGraphics(step);
-                          // set last step number
-                          page->stepNumber = step->stepNumber.number;
+                          // Load images and set size
+                          addStepImageGraphics(step);
                       } // 1.4 validate if relativeType is StepType - to add image, check for Callout
                   } // 1.3 validate if relativeType is RangeType - to cast as Step
               } // 1.2 for each list-item (Step) within a Range...=>list[AbstractRangeElement]->StepType
@@ -1039,7 +954,8 @@ int Gui::addGraphicsPageItems(
 
       plPage.placeRelative(page); // place multi-step relative to the page
 
-      page->relativeToSg(page);   // compute bounding box of step group and callouts placed relative to it.
+      page->relativeToSg(page);   // compute bounding box of step group and callouts
+                                  // placed relative to it.
 
       plPage.placeRelativeBounding(page); // center multi-step in page's bounding box
 
@@ -1074,26 +990,9 @@ int Gui::addGraphicsPageItems(
             }
         }
 
-      //  Place BOM and pli per page items
+      // Place the Bill of materials on the page along with step group?????
 
       if (page->pli.tsize()) {
-
-          // Add pli per page items
-          if (! page->meta.LPub.multiStep.pli.perStep.value()){
-              addPliPerPageItems(page,pageHeader,pageFooter,pageNumber,plPage);
-          }
-
-          // Place the group step number on the page if pliPerStep = false
-
-          if (page->groupStepNumber.number) {
-              page->groupStepNumber.stepNumber->setPos(
-                          page->groupStepNumber.stepNumber->loc[XX],
-                          page->groupStepNumber.stepNumber->loc[YY]);
-          }
-
-          // Place the Bill of materials on the page if specified
-
-
           if (page->pli.bom) {
               page->pli.relativeType = BomType;
               page->pli.addPli(0,pageBg);
@@ -1111,29 +1010,17 @@ int Gui::addGraphicsPageItems(
               page->pli.loc[XX] = page->pli.background->loc[XX];
               page->pli.loc[YY] = page->pli.background->loc[YY];
             }
-
-          // Place the PLI on the page if pliPerStep = false
-
           page->pli.setPos(page->pli.loc[XX],page->pli.loc[YY]);
         }
-
-      // Place the SubModel on the page when pli per Step is false
-
-      if (page->subModel.tsize()){
-          page->subModel.setPos(page->subModel.loc[XX],page->subModel.loc[YY]);
-      }
     }
 
   // Moved from clearPage() to reduce page update lag.
-
   if (view->pageBackgroundItem) {
       delete view->pageBackgroundItem;
       view->pageBackgroundItem = nullptr;
   }
   scene->clear();
-
   // Moved from beginning of GraphicsPageItems() to reduce page update lag
-
   view->pageBackgroundItem = pageBg;
   pageBg->setPos(0,0);
 
@@ -1158,6 +1045,11 @@ int Gui::addGraphicsPageItems(
 
   addPliPartGroupsToScene(page, scene);
 
+  if (page->setItemDirection) {
+      setSelectedItemZValue(page, scene);
+      page->setItemDirection = false;
+  }
+
   view->setSceneRect(pageBg->sceneBoundingRect());
 
   QRectF pageRect = QRectF(0,0,pW,pH);
@@ -1172,10 +1064,6 @@ int Gui::addGraphicsPageItems(
   if (view->fitMode == FitVisible) {
       view->fitVisible(pageRect);
     }
-
-  if (page->selectedSceneItems.size()) {
-      setSceneItemZValue(page, scene);
-  }
 
   page->relativeType = SingleStepType;
   statusBarMsg("");
@@ -1225,12 +1113,9 @@ int Gui::addStepPliPartGroupsToScene(Step *step,LGraphicsScene *scene){
         step->pli.tsize()) {
         step->pli.getParts(pliParts);
         if (pliParts.size()) {
-            Where top = step->topOfStep();
-            Where bottom = step->bottomOfStep();
-            int stepNumber = step->stepNumber.number;
             foreach(key,pliParts.keys()) {
                 part = pliParts[key];
-                part->addPartGroupToScene(scene,top,bottom,stepNumber);
+                part->addPartGroupToScene(scene);
             }
         }
     }
@@ -1297,12 +1182,9 @@ int Gui::addPliPartGroupsToScene(
             QString key;
             page->pli.getParts(pliParts);
             if (pliParts.size()) {
-                Where top = page->pli.step ? page->pli.step->topOfStep() : page->topOfSteps();
-                Where bottom = page->pli.step ? page->pli.step->bottomOfStep() : page->bottomOfSteps();
-                int stepNumber = page->pli.step ? page->pli.step->stepNumber.number : 0;
                 foreach(key,pliParts.keys()) {
                     part = pliParts[key];
-                    part->addPartGroupToScene(scene,top,bottom,stepNumber);
+                    part->addPartGroupToScene(scene);
                 }
             }
         }
@@ -1310,715 +1192,39 @@ int Gui::addPliPartGroupsToScene(
     return 0;
 }
 
-bool Gui::getSceneObjectWhere(QGraphicsItem *selectedItem, Where &itemTop)
+void Gui::setSelectedItemZValue(Page *page, LGraphicsScene *scene)
 {
-    int dummy;
-    return getSceneObject(selectedItem, itemTop, dummy);
-}
-bool Gui::getSceneObjectStep(QGraphicsItem *selectedItem, int &stepNumber)
-{
-    Where dummy;
-    return getSceneObject(selectedItem, dummy, stepNumber);
-}
+    QHash<QString, AbstractMeta *>::iterator i;
+    for (i = page->meta.LPub.page.scene.list.begin();
+         i != page->meta.LPub.page.scene.list.end(); i++) {
+        SceneObjectMeta *som = dynamic_cast<SceneObjectMeta*>(i.value());
+        if (som && som->value().armed) {
+           SceneObjectData sod = som->value();
+           SceneObjectDirection direction = sod.direction;
+           QPointF scenePos = QPointF(double(sod.scenePos[XX]),double(sod.scenePos[YY]));
 
-bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepNumber)
-{
-    itemTop    = page.top;
-    stepNumber = page.stepNumber;
-    SceneObject itemObj = UndefinedObj;
+           QGraphicsItem *selectedItem = scene->itemAt(scenePos, QTransform());
 
-    if (selectedItem)
-        itemObj = SceneObject(selectedItem->data(ObjectId).toInt());
-    else
-        return false;
+           if (!selectedItem)
+               continue;
 
-    switch (itemObj){
-    case AssemAnnotationObj:
-    {
-        CsiAnnotationItem *csiAnnotationItem = dynamic_cast<CsiAnnotationItem *>(selectedItem);
-        if (csiAnnotationItem){
-            itemTop = csiAnnotationItem->topOf;
-            stepNumber = csiAnnotationItem->stepNumber;
-        }
+           qreal zValue = 0;
+           QList<QGraphicsItem *> overlapItems = selectedItem->collidingItems();
+           foreach (QGraphicsItem *item, overlapItems) {
+               if (direction == SendToBack) {
+                   if (item->zValue() <= zValue &&
+                       isUserSceneObject(item->data(ObjectId).toInt()))
+                       zValue = item->zValue() - 0.1;
+               } else {
+                   if (item->zValue() >= zValue &&
+                       isUserSceneObject(item->data(ObjectId).toInt()))
+                       zValue = item->zValue() + 0.1;
+               }
+           }
+           selectedItem->setZValue(zValue);
+           break;
+        } else { continue; }
     }
-        break;
-    case AssemAnnotationPartObj:
-    {
-        PlacementCsiPart *placementCsiPart = dynamic_cast<PlacementCsiPart *>(selectedItem);
-        if (placementCsiPart){
-            itemTop = placementCsiPart->top;
-            stepNumber = placementCsiPart->stepNumber;
-        }
-    }
-        break;
-    case AssemObj:
-    {
-        CsiItem *csiItem = dynamic_cast<CsiItem *>(selectedItem);
-        if (csiItem){
-            itemTop = csiItem->step->topOfStep();
-            stepNumber = csiItem->step->stepNumber.number;
-        }
-    }
-        break;
-    case CalloutUnderpinningObj:
-    {
-        UnderpinningsItem *UnderpinningsItem = dynamic_cast<class UnderpinningsItem *>(selectedItem);
-        if (UnderpinningsItem){
-            itemTop = UnderpinningsItem->top;
-            stepNumber = UnderpinningsItem->stepNumber;
-        }
-    }
-        break;
-    case CalloutBackgroundObj:
-    {
-        CalloutBackgroundItem *calloutBackgroundItem = dynamic_cast<CalloutBackgroundItem *>(selectedItem);
-        if (calloutBackgroundItem){
-            itemTop = calloutBackgroundItem->callout->parentStep->topOfStep();
-            stepNumber = calloutBackgroundItem->callout->parentStep->stepNumber.number;
-        }
-    }
-        break;
-    case CalloutPointerObj:
-    {
-        CalloutPointerItem *calloutPointerItem = dynamic_cast<CalloutPointerItem *>(selectedItem);
-        if (calloutPointerItem){
-            itemTop = calloutPointerItem->pointerTop;
-            stepNumber = calloutPointerItem->stepNumber;
-        }
-    }
-        break;
-    case CalloutInstanceObj:
-    {
-        CalloutInstanceItem *calloutInstanceItem = dynamic_cast<CalloutInstanceItem *>(selectedItem);
-        if (calloutInstanceItem){
-            itemTop = calloutInstanceItem->instanceTop;
-            stepNumber = calloutInstanceItem->stepNumber;
-        }
-    }
-        break;
-    case DividerBackgroundObj:
-    {
-        DividerBackgroundItem *dividerBackgroundItem = dynamic_cast<DividerBackgroundItem *>(selectedItem);
-        if (dividerBackgroundItem){
-            itemTop = dividerBackgroundItem->top;
-            stepNumber = dividerBackgroundItem->stepNumber;
-        }
-    }
-        break;
-    case DividerObj:
-    {
-        DividerItem *dividerItem = dynamic_cast<DividerItem *>(selectedItem);
-        if (dividerItem){
-            itemTop = dividerItem->parentStep->topOfStep();
-            stepNumber = dividerItem->parentStep->stepNumber.number;
-        }
-    }
-        break;
-    case DividerLineObj:
-    {
-        DividerLine *dividerLine = dynamic_cast<DividerLine *>(selectedItem);
-        if (dividerLine){
-            itemTop = dividerLine->top;
-            stepNumber = dividerLine->stepNumber;;
-        }
-    }
-        break;
-    case DividerPointerObj:
-    {
-        DividerPointerItem *dividerPointerItem = dynamic_cast<DividerPointerItem *>(selectedItem);
-        if (dividerPointerItem){
-            itemTop = dividerPointerItem->pointerTop;
-            stepNumber = dividerPointerItem->stepNumber;
-        }
-    }
-        break;
-    // for the moment, these all have the samve zValues
-    case PointerGrabberObj:
-    case PliGrabberObj:
-    case SubmodelGrabberObj:
-    {
-        Grabber *grabberItem = dynamic_cast<Grabber *>(selectedItem);
-        if (grabberItem){
-            itemTop = grabberItem->top;
-            stepNumber = grabberItem->stepNumber;
-        }
-    }
-        break;
-    case InsertPixmapObj:
-    {
-        InsertPixmapItem *insertPixmapItem = dynamic_cast<InsertPixmapItem *>(selectedItem);
-        if (insertPixmapItem){
-            itemTop = insertPixmapItem->meta.here();
-            stepNumber = page.stepNumber;
-        }
-    }
-        break;
-    case InsertTextObj:
-    {
-        TextItem *textItem = dynamic_cast<TextItem *>(selectedItem);
-        if (textItem){
-            itemTop = textItem->meta.here();
-            stepNumber = page.stepNumber;
-        }
-    }
-        break;
-    case PagePointerObj:
-    {
-        PagePointerItem *pagePointerItem = dynamic_cast<PagePointerItem *>(selectedItem);
-        if (pagePointerItem){
-            itemTop = pagePointerItem->pointerTop;
-            stepNumber = pagePointerItem->stepNumber;
-        }
-    }
-        break;
-    case PartsListAnnotationObj:
-    {
-        AnnotateTextItem *annotateTextItem = dynamic_cast<AnnotateTextItem *>(selectedItem);
-        if (annotateTextItem){
-            itemTop = annotateTextItem->pli->top;
-            stepNumber = annotateTextItem->pli->step ? annotateTextItem->pli->step->stepNumber.number : 0;
-        }
-    }
-        break;
-    case PartsListBackgroundObj:
-    {
-        PliBackgroundItem *pliBackgroundItem = dynamic_cast<PliBackgroundItem *>(selectedItem);
-        if (pliBackgroundItem){
-            itemTop = pliBackgroundItem->pli->top;
-            stepNumber = pliBackgroundItem->pli->step ? pliBackgroundItem->pli->step->stepNumber.number : 0;
-        }
-    }
-        break;
-    case PartsListInstanceObj:
-    {
-        InstanceTextItem *instanceTextItem = dynamic_cast<InstanceTextItem *>(selectedItem);
-        if (instanceTextItem){
-            itemTop = instanceTextItem->pli->top;
-            stepNumber = instanceTextItem->pli->step ? instanceTextItem->pli->step->stepNumber.number : 0;
-        }
-    }
-        break;
-    case PointerHeadObj:
-    {
-        PointerHeadItem *pointerHeadItem = dynamic_cast<PointerHeadItem *>(selectedItem);
-        if (pointerHeadItem){
-            itemTop = pointerHeadItem->top;
-            stepNumber = pointerHeadItem->stepNumber;
-        }
-    }
-        break;
-    // these all use the same base object which captures the appropriate zValue
-    case PointerFirstSegObj:
-    case PointerSecondSegObj:
-    case PointerThirdSegObj:
-    {
-        BorderedLineItem *borderedLineItem = dynamic_cast<BorderedLineItem *>(selectedItem);
-        if (borderedLineItem){
-            itemTop = borderedLineItem->top;
-            stepNumber = borderedLineItem->stepNumber;
-        }
-    }
-        break;
-    case RotateIconBackgroundObj:
-    {
-        RotateIconItem *rotateIconItem = dynamic_cast<RotateIconItem *>(selectedItem);
-        if (rotateIconItem){
-            itemTop = rotateIconItem->step->topOfStep();
-            stepNumber = rotateIconItem->step ? rotateIconItem->step->stepNumber.number : 0;
-        }
-    }
-        break;
-    case StepNumberObj:
-    {
-        StepNumberItem *stepNumberItem = dynamic_cast<StepNumberItem *>(selectedItem);
-        if (stepNumberItem){
-            itemTop = stepNumberItem->top;
-            stepNumber = stepNumberItem->value;
-        }
-    }
-        break;
-    case SubModelBackgroundObj:
-    {
-        SubModelBackgroundItem *subModelBackgroundItem = dynamic_cast<SubModelBackgroundItem *>(selectedItem);
-        if (subModelBackgroundItem){
-            itemTop = subModelBackgroundItem->subModel->topOfStep();
-            stepNumber = subModelBackgroundItem->subModel->step ? subModelBackgroundItem->subModel->step->stepNumber.number : 0;
-        }
-    }
-        break;
-    case SubModelInstanceObj:
-    {
-        SMInstanceTextItem *sMInstanceTextItem = dynamic_cast<SMInstanceTextItem *>(selectedItem);
-        if (sMInstanceTextItem){
-            itemTop = sMInstanceTextItem->subModel->topOfStep();
-            stepNumber = sMInstanceTextItem->subModel->step ? sMInstanceTextItem->subModel->step->stepNumber.number : 0;
-        }
-    }
-        break;
-    case PartsListPixmapObj:
-    {
-        PGraphicsPixmapItem *pGraphicsPixmapItem = dynamic_cast<PGraphicsPixmapItem *>(selectedItem);
-        if (pGraphicsPixmapItem){
-            itemTop = pGraphicsPixmapItem->pli->topOfStep();
-            stepNumber = pGraphicsPixmapItem->pli->step ? pGraphicsPixmapItem->pli->step->stepNumber.number : 0;
-        }
-    }
-        break;
-    case PartsListGroupObj:
-    {
-        PartGroupItem *partGroupItem = dynamic_cast<PartGroupItem *>(selectedItem);
-        if (partGroupItem){
-            itemTop = partGroupItem->top;
-            stepNumber = partGroupItem->stepNumber;
-        }
-    }
-        break;
-    case StepBackgroundObj:
-    {
-        MultiStepStepBackgroundItem *multiStepStepBackgroundItem = dynamic_cast<MultiStepStepBackgroundItem *>(selectedItem);
-        if (multiStepStepBackgroundItem){
-            itemTop = multiStepStepBackgroundItem->top;
-            stepNumber = multiStepStepBackgroundItem->stepNumber;
-        }
-    }
-        break;
-    case PageAttributePixmapObj:
-    case PageAttributeTextObj:
-    case PageNumberObj:
-    case SubmodelInstanceCountObj:
-    case MultiStepBackgroundObj:
-    case MultiStepsBackgroundObj:
-    default:
-        break;
-    }
-
-    return itemTop != Where();
-}
-
-void Gui::setSceneItemZValue(SceneObjectDirection direction)
-{
-    bool debugLogging = false /*Preferences::debugLogging*/;
-    QPointF scenePosition(KpageScene->mPos(XX),KpageScene->mPos(YY));
-    QGraphicsItem *selectedItem = KpageScene->itemAt(scenePosition, QTransform());
-
-    if (!selectedItem)
-        return;
-
-    selectedItemObj        = SceneObject(selectedItem->data(ObjectId).toInt());
-    if (debugLogging)
-        emit messageSig(LOG_DEBUG, QString("Start %2 (%3) %1 opration...")
-                        .arg(direction == BringToFront ? "bring-to-front" : "send-to-back")
-                        .arg(soMap[selectedItemObj]).arg(selectedItemObj));
-
-    SceneObjectMeta *soMeta = dynamic_cast<SceneObjectMeta*>(
-                              page.meta.LPub.page.scene.list.value(soMap[selectedItemObj]));
-
-    if (!soMeta)
-        return;
-
-    Where itemTop;
-    QMap<Where, SceneObjectData>::iterator i;
-    for (i = page.selectedSceneItems.begin(); i != page.selectedSceneItems.end(); ++i) {
-        if (i.value().itemObj == selectedItemObj) {
-            itemTop = i.key();
-            soMeta->setValue(i.value());
-            break;
-        }
-    }
-
-    bool newCommand = itemTop == Where();
-    int  stepNumber = page.stepNumber;
-    Where tempWhere;
-
-    getSceneObject(selectedItem, tempWhere, stepNumber);
-
-    if (newCommand)
-        itemTop = tempWhere;
-
-    SceneObjectData soData = soMeta->value();
-    soData.direction       = direction;
-    soData.scenePos[XX]    = float(scenePosition.x());
-    soData.scenePos[YY]    = float(scenePosition.y());
-    soMeta->setValue(soData);
-    QString metaString = soMeta->format(true/*local*/,false/*global*/);
-
-    beginMacro("processCommand");
-    if (newCommand){
-        if (itemTop.modelName == gui->topLevelFile()) {
-            QRegExp rx(GLOBAL_META_RX);
-            gui->scanPast(itemTop,rx);
-            // place meta command last amongnst other commands if exist
-            rx.setPattern("^\\s*0\\s+!LPUB\\s+.*SEND_TO_BACK|BRING_TO_FRONT");
-            gui->scanPast(itemTop,rx);
-        }
-        // place below item command unless end of file
-        int eof = gui->subFileSize(itemTop.modelName);
-        if (itemTop.lineNumber == eof){
-            gui->insertLine(itemTop,metaString);
-        } else {
-            gui->appendLine(itemTop,metaString);
-            itemTop++; // adjust for debug output;
-        }
-    } else {
-        gui->replaceLine(itemTop,metaString);
-    }
-    if (debugLogging)
-        emit messageSig(LOG_DEBUG, QString("%1 %2 (%3) ITEM LINE NUMBER: %4 MODEL NAME: %5 STEP %6")
-                        .arg(direction == BringToFront ? "BRING TO FRONT" : "SEND TO BACK")
-                        .arg(soMap[selectedItemObj]).arg(selectedItemObj)
-                        .arg(itemTop.lineNumber).arg(itemTop.modelName)
-                        .arg(stepNumber));
-    endMacro();
-}
-
-void Gui::setSceneItemZValue(Page *page, LGraphicsScene *scene)
-{
-    bool debugLogging = false /*Preferences::debugLogging*/;
-    QMap<Where, SceneObjectData>::iterator i;
-    for (i = page->selectedSceneItems.begin(); i != page->selectedSceneItems.end(); ++i) {
-//        if (debugLogging)
-//            emit messageSig(LOG_DEBUG, QString("00 Data scene item %1 (%2), Selected scene item %3 (%4)...")
-//                            .arg(soMap[SceneObject(i.value().itemObj)])
-//                            .arg(i.value().itemObj)
-//                            .arg(soMap[selectedItemObj])
-//                            .arg(selectedItemObj));
-        if (i.value().itemObj == selectedItemObj) {
-            SceneObjectData soData = i.value();
-            QPointF scenePosition  = QPointF(double(soData.scenePos[XX]),double(soData.scenePos[YY]));
-            QGraphicsItem *selectedItem = scene->itemAt(scenePosition, QTransform());
-            SceneObject itemObjS   = SceneObject(selectedItem->data(ObjectId).toInt());
-            SceneObject itemObjD   = SceneObject(soData.itemObj);
-            int itemStepNumber;
-            if (!getSceneObjectStep(selectedItem, itemStepNumber))
-                if (debugLogging)
-                    emit messageSig(LOG_ERROR, QString("00 Failed to retrieve scene item %1 (%2) step number")
-                                    .arg(soMap[itemObjS]).arg(itemObjS));
-
-            if (debugLogging)
-                emit messageSig(LOG_DEBUG, QString("01 Initial %1 scene item %2 (%3) initial ZValue %4 data item %5 (%6) step %7")
-                                .arg(soData.direction == BringToFront ? "bring-to-front" : "send-to-back")
-                                .arg(soMap[itemObjS]).arg(itemObjS)
-                                .arg(selectedItem->zValue())
-                                .arg(soMap[itemObjD]).arg(itemObjD)
-                                .arg(itemStepNumber));
-
-            if (!selectedItem)
-                continue;
-
-            QList<QGraphicsItem *> overlapItems = selectedItem->collidingItems();
-
-            // in the case where the selected item's zvalue does not place it at topmost
-            if (itemObjS != itemObjD) {
-                selectedItem = nullptr;
-                if (!overlapItems.size()) {
-                    overlapItems = scene->items();
-                    if (debugLogging)
-                        emit messageSig(LOG_DEBUG, QString("01 Checking all scene items..."));
-                } else {
-                    if (debugLogging)
-                        emit messageSig(LOG_DEBUG, QString("01 Checking colliding scene items..."));
-                }
-                foreach (QGraphicsItem *item, overlapItems) {
-                    itemObjS = SceneObject(item->data(ObjectId).toInt());
-                    if (itemObjS == itemObjD){
-                        if (page->relativeType == StepGroupType){
-                            int selectedItemStepNumber = 0;
-                            if (getSceneObjectStep(item, selectedItemStepNumber)) {
-                                if (debugLogging)
-                                    emit messageSig(LOG_TRACE, QString("-- Selected scene item step number %1, data step number %2")
-                                                    .arg(itemStepNumber).arg(itemStepNumber));
-                                if (selectedItemStepNumber == itemStepNumber) {
-                                    selectedItem = item;
-                                    overlapItems = selectedItem->collidingItems();
-                                    break;
-                                }
-                            } else {
-                                if (debugLogging)
-                                    emit messageSig(LOG_NOTICE, QString("-- Failed to retrieve selected scene item %1 (%2) step number")
-                                                    .arg(soMap[itemObjS]).arg(itemObjS));
-                            }
-                        } else if (page->relativeType == SingleStepType){
-                            selectedItem = item;
-                            overlapItems = selectedItem->collidingItems();
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (!selectedItem)
-                continue;
-
-            // this lambda function captures related items. For example, a
-            // callout pointer is related to the callout so the whole callout/pointer
-            // assembly must be moved when a pointer move is triggered
-            auto addRelatedItems = [this, &itemStepNumber, &debugLogging]
-                    (QGraphicsItem *item){
-                QList<QGraphicsItem *>relatedItems;
-                int relatedItemStepNumber = 0;
-                SceneObject itemObjR = SceneObject(item->data(ObjectId).toInt());
-                if (getSceneObjectStep(item, relatedItemStepNumber)) {
-                    if (debugLogging)
-                        emit messageSig(LOG_TRACE, QString("-- Related scene item step number %1, data step number %2")
-                                        .arg(itemStepNumber).arg(itemStepNumber));
-                    if (relatedItemStepNumber == itemStepNumber) {
-                        if (!relatedItems.contains(item)){
-                            if (debugLogging)
-                                emit messageSig(LOG_TRACE, QString("-- Add related scene item %1 (%2) for step (%3)...")
-                                                .arg(soMap[itemObjR]).arg(itemObjR).arg(relatedItemStepNumber));
-                            relatedItems.append(item);
-                            foreach (QGraphicsItem *childItem, item->childItems()) {
-                                if (!relatedItems.contains(childItem)){
-                                    SceneObject itemObjC = SceneObject(childItem->data(ObjectId).toInt());
-                                    if (debugLogging)
-                                        emit messageSig(LOG_TRACE, QString("-- Add child scene item %1 (%2) added for step (%3)...")
-                                                        .arg(soMap[itemObjC]).arg(itemObjC).arg(relatedItemStepNumber));
-                                    relatedItems.append(childItem);
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    if (debugLogging)
-                        emit messageSig(LOG_NOTICE, QString("-- Failed to retrieve related scene item %1 (%2) step number")
-                                        .arg(soMap[itemObjR]).arg(itemObjR));
-                }
-                return relatedItems;
-            };
-
-            // Check for and add related items
-            // Callout Pointer
-            QList<QGraphicsItem *>relatedItems;
-            if (itemObjS == CalloutPointerObj){
-                foreach (QGraphicsItem *item, scene->items()) {
-                    SceneObject itemObjR = SceneObject(item->data(ObjectId).toInt());
-                    if (debugLogging)
-                        emit messageSig(LOG_DEBUG, QString("-- Checking related scene item %1 (%2)...")
-                                        .arg(soMap[itemObjR]).arg(itemObjR));
-                    if (itemObjR == CalloutUnderpinningObj)
-                        relatedItems.append(addRelatedItems(item));
-                    if (itemObjR == CalloutBackgroundObj)
-                        relatedItems.append(addRelatedItems(item));
-                }
-            }
-            // Callout
-            if (itemObjS == CalloutBackgroundObj){
-                foreach (QGraphicsItem *item, scene->items()) {
-                    SceneObject itemObjR = SceneObject(item->data(ObjectId).toInt());
-                    if (debugLogging)
-                        emit messageSig(LOG_DEBUG, QString("-- Checking related scene item %1 (%2)...")
-                                        .arg(soMap[itemObjR]).arg(itemObjR));
-                    if (itemObjR == CalloutUnderpinningObj)
-                        relatedItems.append(addRelatedItems(item));
-                    if (itemObjR == CalloutPointerObj)
-                        relatedItems.append(addRelatedItems(item));
-                }
-            }
-
-            // Divider pointer
-            if (itemObjS == DividerPointerObj){
-                foreach (QGraphicsItem *item, scene->items()) {
-                    SceneObject itemObjR = SceneObject(item->data(ObjectId).toInt());
-                    if (debugLogging)
-                        emit messageSig(LOG_DEBUG, QString("-- Checking related scene item %1 (%2)...")
-                                        .arg(soMap[itemObjR]).arg(itemObjR));
-                    if (itemObjR == DividerObj)
-                        relatedItems.append(addRelatedItems(item));
-                    if (itemObjR == DividerBackgroundObj)
-                        relatedItems.append(addRelatedItems(item));
-                }
-            }
-            // Divider
-            if (itemObjS == DividerObj){
-                foreach (QGraphicsItem *item, scene->items()) {
-                    SceneObject itemObjR = SceneObject(item->data(ObjectId).toInt());
-                    if (debugLogging)
-                        emit messageSig(LOG_DEBUG, QString("-- Checking related scene item %1 (%2)...")
-                                        .arg(soMap[itemObjR]).arg(itemObjR));
-                    if (itemObjR == DividerBackgroundObj)
-                        relatedItems.append(addRelatedItems(item));
-                    if (itemObjR == DividerPointerObj)
-                        relatedItems.append(addRelatedItems(item));
-                }
-            }
-
-            if (debugLogging)
-                emit messageSig(LOG_DEBUG, QString("02 Selected scene item %1 (%2) initial ZValue %3 data item %4 (%5) POS X (%6) POS Y (%7)")
-                                .arg(soMap[itemObjS]).arg(itemObjS)
-                                .arg(selectedItem->zValue())
-                                .arg(soMap[itemObjD]).arg(itemObjD)
-                                .arg(double(selectedItem->scenePos().x()))
-                                .arg(double(selectedItem->scenePos().y())));
-
-            qreal zValue = 0;
-            SceneObjectDirection direction = soData.direction;
-            foreach (QGraphicsItem *item, overlapItems) {
-                qreal itemZValue = item->zValue() ;
-                SceneObject itemObjO = SceneObject(item->data(ObjectId).toInt());
-                bool itemIsUserSceneObject = isUserSceneObject(itemObjO);
-                if (itemIsUserSceneObject) {
-                    if (direction == SendToBack) {
-                        if (itemZValue <= zValue)
-                            zValue = item->zValue() - 1.0;
-                    } else {
-                        if (itemZValue >= zValue)
-                            zValue = item->zValue() + 1.0;
-                    }
-                    if (debugLogging)
-                        emit messageSig(LOG_DEBUG, QString("03 Overlap scene item %1 (%2) ZValue %3")
-                                        .arg(soMap[itemObjO]).arg(itemObjO)
-                                        .arg(item->zValue()));
-                } else {
-                    emit messageSig(LOG_TRACE, QString("Overlap scene item %1 (%2) ZValue %3 is not in the "
-                                                       "LPub3D User Scene Object list")
-                                    .arg(soMap[itemObjO]).arg(itemObjO)
-                                    .arg(item->zValue()));
-                }
-            }
-
-            if (relatedItems.size()){
-                qreal zValueR = zValue;
-                foreach (QGraphicsItem *item, relatedItems) {
-                    qreal itemZValueR = item->zValue() ;
-                    SceneObject itemObjR = SceneObject(item->data(ObjectId).toInt());
-                    if (debugLogging)
-                        emit messageSig(LOG_DEBUG, QString("03 Related scene item %1 (%2) ZValue %3")
-                                        .arg(soMap[itemObjR]).arg(itemObjR)
-                                        .arg(item->zValue()));
-                    if (direction == SendToBack) {
-                        if (itemZValueR >= zValue) {
-                            zValueR = itemZValueR > 0 ?           /*positive*/
-                                        -itemZValueR < zValue ?  /*less than zValue*/
-                                            -itemZValueR : zValue :
-                                                                 itemZValueR < zValue ?
-                                                                    itemZValueR : zValue;
-                            zValue = zValueR - 1;
-                        }
-                    } else {         /*BingToFront*/
-                        if (itemZValueR <= zValue) {
-                            zValueR = itemZValueR < 0 ?  /*negative*/
-                                        -itemZValueR > zValue ?  /*greater than zValue*/
-                                            -itemZValueR : zValue :
-                                                                 itemZValueR > zValue ?
-                                                                    itemZValueR : zValue;
-                            zValue = zValueR + 1;
-                        }
-                    }
-                    item->setZValue(zValueR);
-                    if (debugLogging)
-                        emit messageSig(LOG_TRACE, QString("03 Related scene item %1 (%2) adjusted ZValue %3")
-                                        .arg(soMap[itemObjR]).arg(itemObjR)
-                                        .arg(item->zValue()));
-                }
-            }
-
-            selectedItem->setZValue(zValue);
-            KpageScene->update();                  // TODO - Check when this is disabled
-
-            if (debugLogging)
-                emit messageSig(LOG_DEBUG, QString("04 Final %1 scene item %2 (%3) applied ZValue %4 POS X (%5) POS Y (%6)")
-                                .arg(direction == BringToFront ? "bring-to-front" : "send-to-back")
-                                .arg(soMap[itemObjS]).arg(itemObjS).arg(zValue)
-                                .arg(double(selectedItem->scenePos().x()))
-                                .arg(double(selectedItem->scenePos().y())));
-            break;
-        }
-    }
-//    selectedItemObj = UndefinedObj;
-    if (debugLogging)
-        emit messageSig(LOG_DEBUG, QString("----------------------------------"));
-}
-
-int Gui::addPliPerPageItems(
-  Page            *page,
-  PlacementHeader *pageHeader,
-  PlacementFooter *pageFooter,
-  PageNumberItem  *pageNumber,
-  Placement       &plPage){
-
-  Pli                 *pli               = &page->pli;
-  SubModel            *subModel          = &page->subModel;
-  GroupStepNumberItem *groupStepNumber   = page->groupStepNumber.stepNumber;
-  bool                 displayPageNumber = page->meta.LPub.page.dpn.value();
-
-  if (groupStepNumber && page->groupStepNumber.number){
-      PlacementData pld = groupStepNumber->placement.value();
-      if (pld.relativeTo == PageType) {
-          plPage.appendRelativeTo(groupStepNumber);
-          plPage.placeRelative(groupStepNumber);
-      } else if (pageHeader && pld.relativeTo == PageHeaderType) {
-          pageHeader->appendRelativeTo(groupStepNumber);
-          pageHeader->placeRelative(groupStepNumber);
-      } else if (pageFooter && pld.relativeTo == PageFooterType) {
-          pageFooter->appendRelativeTo(groupStepNumber);
-          pageFooter->placeRelative(groupStepNumber);
-      } else if (pli && pld.relativeTo == PartsListType) {
-          pli->appendRelativeTo(groupStepNumber);
-          pli->placeRelative(groupStepNumber);
-      } else if (subModel && pld.relativeTo == SubModelType) {
-          subModel->appendRelativeTo(groupStepNumber);
-          subModel->placeRelative(groupStepNumber);
-      } else if (displayPageNumber && pageNumber && pld.relativeTo == PageNumberType) {
-          pageNumber->appendRelativeTo(groupStepNumber);
-          pageNumber->placeRelative(groupStepNumber);
-      } else {
-          plPage.appendRelativeTo(groupStepNumber);
-          plPage.placeRelative(groupStepNumber);
-      }
-  }
-
-  if (subModel){
-      PlacementData pld = subModel->placement.value();
-      if (pld.relativeTo == PageType) {
-          plPage.appendRelativeTo(subModel);
-          plPage.placeRelative(subModel);
-      } else if (pageHeader && pld.relativeTo == PageHeaderType) {
-          pageHeader->appendRelativeTo(subModel);
-          pageHeader->placeRelative(subModel);
-      } else if (pageFooter && pld.relativeTo == PageFooterType) {
-          pageFooter->appendRelativeTo(subModel);
-          pageFooter->placeRelative(subModel);
-      } else if (pli && pld.relativeTo == PartsListType) {
-          pli->appendRelativeTo(subModel);
-          pli->placeRelative(subModel);
-      } else if (groupStepNumber && pld.relativeTo == StepNumberType) {
-          groupStepNumber->appendRelativeTo(subModel);
-          groupStepNumber->placeRelative(subModel);
-      } else if (displayPageNumber && pageNumber && pld.relativeTo == PageNumberType) {
-          pageNumber->appendRelativeTo(subModel);
-          pageNumber->placeRelative(subModel);
-      } else {
-          plPage.appendRelativeTo(subModel);
-          plPage.placeRelative(subModel);
-      }
-  }
-
-  if (pli){
-      PlacementData pld = pli->placement.value();
-      if (pld.relativeTo == PageType) {
-          plPage.appendRelativeTo(pli);
-          plPage.placeRelative(pli);
-      } else if (pageHeader && pld.relativeTo == PageHeaderType) {
-          pageHeader->appendRelativeTo(pli);
-          pageHeader->placeRelative(pli);
-      } else if (pageFooter && pld.relativeTo == PageFooterType) {
-          pageFooter->appendRelativeTo(pli);
-          pageFooter->placeRelative(pli);
-      } else if (groupStepNumber && pld.relativeTo == StepNumberType) {
-          groupStepNumber->appendRelativeTo(pli);
-          groupStepNumber->placeRelative(pli);
-      } else if (subModel && pld.relativeTo == SubModelType) {
-          subModel->appendRelativeTo(pli);
-          subModel->placeRelative(pli);
-      } else if (displayPageNumber && pageNumber && pld.relativeTo == PageNumberType) {
-          pageNumber->appendRelativeTo(pli);
-          pageNumber->placeRelative(pli);
-      } else {
-          plPage.appendRelativeTo(pli);
-          plPage.placeRelative(pli);
-      }
-  }
-  return 0;
 }
 
 int Gui::addContentPageAttributes(

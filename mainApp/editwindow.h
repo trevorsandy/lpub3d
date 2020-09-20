@@ -1,7 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -117,14 +117,13 @@ signals:
     void updateSig();
     void enableWatcherSig();
     void disableWatcherSig();
-    void updateDisabledSig(bool);
 
 private slots:
     void contentsChange(int position, int charsRemoved, int charsAdded);
     bool saveFile();
     bool maybeSave();
     void redraw();
-    void update(bool state);
+    void update();
     void enableSave();
     void highlightCurrentLine();
     void topOfDocument();

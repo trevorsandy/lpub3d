@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -29,7 +29,6 @@
 #include <QDateTime>
 
 bool isMpd();
-bool isOlder(const QString &, const QDateTime &);
-bool isOlder(const QStringList &, const QDateTime &);
+bool isOlder(const QStringList &parsedStack, const QDateTime &);
 
 #endif

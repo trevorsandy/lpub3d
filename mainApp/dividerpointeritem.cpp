@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2016 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the
 ** GNU General Public Liceense (GPL) version 3.0
@@ -46,7 +46,6 @@ DividerPointerItem::DividerPointerItem(
 
   pointerTop         = divider->parentStep->nextStep()->topOfStep();
   pointerBottom      = divider->parentStep->nextStep()->bottomOfStep();
-  stepNumber         = divider->parentStep->stepNumber.number;
   pointerParentType  = DividerPointerType;
   resizeRequested    = false;
 
@@ -163,7 +162,7 @@ DividerPointerItem::DividerPointerItem(
       tipPen.setStyle(Qt::DashDotDotLine);
   }
 
-  head = new PointerHeadItem(poly, this);
+  head = new QGraphicsPolygonItem(poly, this);
   head->setPen(tipPen);
   head->setBrush(brushColor);
   head->setFlag(QGraphicsItem::ItemIsSelectable,false);
@@ -171,7 +170,6 @@ DividerPointerItem::DividerPointerItem(
   addToGroup(head);
 
   for (int i = 0; i < NumPointerGrabbers; i++) {
-    if (grabbers[i])
     grabbers[i] = nullptr;
   }
 

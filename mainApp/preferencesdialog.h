@@ -1,7 +1,7 @@
 /**************************************************************************** 
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -94,9 +94,6 @@ class PreferencesDialog : public QDialog
     bool          includeFunction();
     bool          includeAllLogAttrib();
     bool          showParseErrors();
-    bool          showAnnotationMessages();
-    bool          showSaveOnRedraw();
-    bool          showSaveOnUpdate();
     bool          addLSynthSearchDir();
     bool          archiveLSynthParts();
     bool          perspectiveProjection();
@@ -158,20 +155,14 @@ class PreferencesDialog : public QDialog
     void on_fadeStepsColoursCombo_currentIndexChanged(const QString &colorName);
 
     void on_preferredRenderer_currentIndexChanged(const QString &arg1);
-    void on_projectionCombo_currentIndexChanged(const QString &arg1);
     void on_loggingGrpBox_clicked(bool checked);
 
     void on_ldvPreferencesBtn_clicked();
     void on_povGenNativeRadio_clicked(bool checked);
     void on_povGenLDViewRadio_clicked(bool checked);
     void on_ldviewSingleCall_Chk_clicked(bool checked);
-    void on_applyCALocallyRadio_clicked(bool checked);
 
     void on_resetSceneColorsButton_clicked(bool checked);
-    void on_saveOnRedrawChkBox_clicked(bool checked);
-    void on_saveOnUpdateChkBox_clicked(bool checked);
-
-    void on_optionsButton_clicked(bool checked);
 
     void ldvPoVFileGenOptBtn_clicked();
     void ldvPoVFileGenPrefBtn_clicked();
@@ -186,9 +177,6 @@ private:
 
     QWidget       *parent;
 
-    QCheckBox     *showParseErrorsChkBox;
-    QCheckBox     *showAnnotationMessagesChkBox;
-
     QSimpleUpdater  *m_updater;
     static QString   DEFS_URL;
     QString ldrawLibPathTitle;
@@ -199,8 +187,6 @@ private:
     QString sceneRulerTrackingColorStr;
     QString sceneGuideColorStr;
     bool resetSceneColorsFlag;
-    bool showSaveOnRedrawFlag;
-    bool showSaveOnUpdateFlag;
 };
 
 #endif

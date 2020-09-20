@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the
 ** GNU General Public Liceense (GPL) version 3.0
@@ -25,11 +25,9 @@ class LDrawColourParts
   public:
     LDrawColourParts(){}
     static bool ldrawColorPartsIsLoaded();
-    static void clearGeneratedColorParts();
     static bool LDrawColorPartsLoad(QString &result);
     static bool isLDrawColourPart(QString part);
     static QString getLDrawColourPartInfo(QString part);
-    static void addLDrawColorPart(QString part);
 };
 
 #endif // LDRAWCOLOURPARTS_H

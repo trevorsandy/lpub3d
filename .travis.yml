@@ -1,7 +1,7 @@
 # Build and check LPub3D on Linux and macOS
 # Trevor SANDY <trevor.sandy@gmail.com>
 # Last Update: Sep 10, 2019
-# Copyright (c) 2017 - 2020 by Trevor SANDY
+# Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 language: cpp
 sudo: required
@@ -135,7 +135,7 @@ jobs:
       name: $LP3D_RELEASE_LABEL
       body: $LP3D_RELEASE_DESCRIPTION
       api_key:
-        secure: BVAK5ojmnBxuV8UIn9HZkfKLPaOZx0W5Ga3wQa3KveYiyTC0h7U9KRZr6kLQYFTZiTf/SGJTn06hiEkJfhaT3HvfuKIYzFl7kF3HnkoolG991aNtAcoCSHHxXMRT7+SYoHGOwBAlDyYgcmwGozCMD3c8cWB0o7qZuzFHr5lp+PyEZOb/OkeZvcUlb6DkK+7lYQ5RESrhSBNWBgzhS+3CuSpIAi/Zqg0CMRoIknfzw2uef1NfTTEdOGfcW499//oS9Y3Up/TruG/3EEcEXt7OXfxBPZGvtzia4NP2jGVNV4TbWuhJAx747cLAYWX0lMUnEFUpMbMNT45G+YUeO2/fNc4XeY9CfjAQkUAM0SBcbEqTfk6BBMyn6YYD574ShZOrVaLGkG/4HX36WljD9nc1rBvuKXfcU1mnKXuWPA5wYfhmJLXznd0zVpBC+3hprbC9+HOKKyjufYXCyOlTRc9Q7Iw68ot/uxqaE331mtY4vG5UetlvPWRyxoj6gwmhreaUz3MjXBs5dEozZBWNCIsFb25u/5Rpl9FoCbnuf3HFSwuq/Fw7yqq9tVyMMMHQxqQlwZHsEODBGvZ8BcGkU0Uc4b2vlDtvslmjhKZiIpVTYh63SpcyZJ9AoL8B/5BD1g8tBjaZ5uycLjYFRkeSBK/NJx9+ltFRlFWjaYl7e85gcN0=
+        secure: 0VbgS6HkGhbxR509yW8hb/TQd/RAKdSmbEqVx0fc0+Qkb4UJvziKMEprvcv3+5MFwR/zYbi5A0zRmUhPjalE5v22S3DuJQj7ILPt79kW5jsm/BfO78RHYOglKwxKDWfWdiMyUMqU+CqP5+W/fHpz5KiO1yjzIuzsDssfcQdu5ofyBH8wp9piutM5o6kS6Kn+RGS1OmcNT1gV/ttvpeg8HrAAj/TAY5X/vANz1pxTFYFBZNhY/KSIVVAM2ntYFbdFTD5mWa8/mxRw0eNed/xpvSVPG0uChF+FnyultnQ5fip4L2roQB27qdth29OHzhWQk3eoI+qB/gMh9fHPgLLlXBC2I9/BDvywruPfcTkBhYwQYogmn4NG/4YESA/qxRUq72zAx0QkvZeCRxH91+gmVBAGUCwq/FuiA5MEy2We427ai/sp1Csinm+OXMZPpQm7rhJxdDa0HQcI1bJwiwKcHO+Ktnd7euXDMJYOAJfeOpYS6dNEvPx0myz3V4kWt6gp4T0dk7NQfc6FSU6RTZ06vX4eUH4WGpekH3Ecztj2Q0CTJHUmnYMbB4vYtbrpMmFqfEB75yL8j0cgXxNGWmMmTf4dNJi1BIZDS/1XflvlmuCkccZyemoTG0dBacYS/dwZcLCZphJq451rZRbiYt0y1FQQNP1DFWQRL7aKJE8QYxI=
       file_glob: true
       file: $LP3D_DOWNLOAD_ASSETS/*
       overwrite: true

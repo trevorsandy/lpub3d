@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -90,23 +90,15 @@ GlobalAssemDialog::GlobalAssemDialog(
   grid->addWidget(box);
   box->setLayout(boxGrid);
 
-  // Scale/Native Camera Distance Factor
-  if (Preferences::usingNativeRenderer) {
-      child = new CameraDistFactorGui("Camera Distance Factor",
-                                      &assem->cameraDistNative);
-      data->children.append(child);
-      data->clearCache = child->modified;
-      boxGrid->addWidget(child,0,0);
-  } else {
-      child = new DoubleSpinGui("Scale",
-        &assem->modelScale,
-        assem->modelScale._min,
-        assem->modelScale._max,
+  // Scale
+  child = new DoubleSpinGui("Scale",
+                            &assem->modelScale,
+                            assem->modelScale._min,
+                            assem->modelScale._max,
                             0.01f);
-      data->children.append(child);
-      data->clearCache = child->modified;
-      boxGrid->addWidget(child,0,0);
-  }
+  data->children.append(child);
+  data->clearCache = child->modified;
+  boxGrid->addWidget(child,0,0);
 
   child = new UnitsGui("Margins L/R|T/B",&assem->margin);
   data->children.append(child);

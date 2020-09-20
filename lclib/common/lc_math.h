@@ -7,6 +7,10 @@
 #define LC_RTOD (static_cast<float>(180 / M_PI))
 #define LC_PI (static_cast<float>(M_PI))
 #define LC_2PI (static_cast<float>(2 * M_PI))
+/*** LPub3D Mod - Camera Globe ***/
+#define LC_CDF (static_cast<float>(-5.0f))        // default camera distance factor
+#define LC_CAM_POS (static_cast<float>(1300.0f))  // default camera position
+/*** LPub3D Mod end ***/
 
 #define LC_RGB(r,g,b) LC_RGBA(r,g,b,255)
 #define LC_RGBA(r,g,b,a) ((quint32)(((quint8) (r) | ((quint16) (g) << 8)) | (((quint32) (quint8) (b)) << 16) | (((quint32) (quint8) (a)) << 24))) 
@@ -475,13 +479,42 @@ inline float lcLengthSquared(const lcVector3& a)
 	return a.LengthSquared();
 }
 
+/*** LPub3D Mod - Camera Globe ***/
+inline float GetStandardDistance(const float Resolution, const float Scale, const float PageWidth)
+{
+	float OneToOne;
+	float SizeFactor;
+	float StandardDistance;
+	float LduResSize  = 1.0f / 64.0f;             // size of 1x1 in units
+	float LduDistance = 10.0f / (float)tan(0.005f * LC_DTOR);
+	OneToOne          = 20 * LduResSize;          // size of 1x1 in units
+	OneToOne         *= Resolution;               // size of 1x1 in pixels
+	OneToOne         *= Scale;
+	SizeFactor        = PageWidth / OneToOne;     // in pixels;
+	StandardDistance  = SizeFactor * LduDistance;
+	return StandardDistance;
+}
+
+inline float NativeCameraDistance(const float Distance, const float CDF, const float PageWidth, float Resolution = 150.0f, float Scale = 1.0f)
+{
+	float StandardDistance = GetStandardDistance(Resolution, Scale, PageWidth);
+	return (Distance / StandardDistance) * ((LC_CAM_POS / LC_CDF) * CDF);
+}
+
+inline float StandardCameraDistance(const float NativeDistance, const float CDF, const float PageWidth, float Resolution = 150.0f, float Scale = 1.0f)
+{
+	float StandardDistance = GetStandardDistance(Resolution, Scale, PageWidth);
+	return StandardDistance * (NativeDistance / ((LC_CAM_POS / LC_CDF) * CDF));
+}
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - Normalize rotation angles ***/
 //Normalizes number to an arbitrary range by assuming the range wraps around when going below min or above max
 inline float normaliseRotation( const float value, const float start, const float end )
 {
-  const float width       = end - start   ;
-  const float offsetValue = value - start ;   // value relative to 0
-  return ( offsetValue - ( floor( offsetValue / width ) * width ) ) + start ; // + start to reset back to start of original range
+	const float width       = end - start   ;
+	const float offsetValue = value - start ;   // value relative to 0
+	return ( offsetValue - ( floor( offsetValue / width ) * width ) ) + start ; // + start to reset back to start of original range
 }
 /*** LPub3D Mod end ***/
 
@@ -490,6 +523,14 @@ inline lcVector3 lcNormalize(const lcVector3& a)
 	lcVector3 Ret(a);
 	Ret.Normalize();
 	return Ret;
+}
+
+inline void lcAlign(lcVector3& t, const lcVector3& a, const lcVector3& b)
+{
+	lcVector3 Vector(b - a);
+	Vector.Normalize();
+	Vector *=  (t - a).Length();
+	t = a + Vector;
 }
 
 inline float lcDot(const lcVector3& a, const lcVector3& b)
@@ -634,10 +675,10 @@ inline lcVector3 lcVector3LDrawToLeoCAD(const lcVector3& Vector)
 /*** LPub3D Mod - LeoCAD to LDraw conversion ***/
 inline lcVector3 lcVector3LeoCADToLDraw(const lcVector3& Vector)
 {
-    // Switch Y and Z coordinates to match LDraw
-    // LDraw Y (LeoCAD Z) axis is vertical, with negative value in the up direction
-    //              ld_X[lc_X] ld_Y[-lc_Z] ld_Z[lc_Y]
-    return lcVector3(Vector[0], -Vector[2], Vector[1]);
+	// Switch Y and Z coordinates to match LDraw
+	// LDraw Y (LeoCAD Z) axis is vertical, with negative value in the up direction
+	//              ld_X[lc_X] ld_Y[-lc_Z] ld_Z[lc_Y]
+	return lcVector3(Vector[0], -Vector[2], Vector[1]);
 }
 /*** LPub3D Mod end ***/
 

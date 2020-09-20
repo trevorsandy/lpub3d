@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the
 ** GNU General Public Liceense (GPL) version 3.0
@@ -28,8 +28,6 @@ class PliSubstituteParts
     static QMap<QString, QString>               substituteParts;
   public:
     PliSubstituteParts();
-    static bool exportSubstitutePartsHeader();
-    static bool overwriteFile(const QString &file);
     static const bool &hasSubstitutePart(QString part);
     static const bool &getSubstitutePart(QString &part);
 };

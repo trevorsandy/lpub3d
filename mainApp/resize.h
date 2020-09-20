@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -86,8 +86,6 @@ class Grabber : public QGraphicsRectItem
 {
   public:
     int which;
-    int stepNumber;
-    Where top,bottom;
     AbstractResize *resized;
     Grabber() {}
     
@@ -100,7 +98,7 @@ class Grabber : public QGraphicsRectItem
       setParentItem(parentGraphicsItem);
       setFlag(QGraphicsItem::ItemIsSelectable,true);
       setFlag(QGraphicsItem::ItemIsMovable,true);
-      setZValue(GRABBER_ZVALUE_DEFAULT);
+      setZValue(100);
 
       QPen pen(Qt::black);
       setPen(pen);

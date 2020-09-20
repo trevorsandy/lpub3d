@@ -559,21 +559,12 @@ void lcMainWindow::CreateMenus()
 ***/
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - toolstoolbar camera ***/
-	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_CAMERA]);
-	mToolsMenu->addSeparator();
-/*** LPub3D Mod end ***/
-
 /*** LPub3D Mod - toolstoolbar viewpoint home ***/
 	mToolsMenu->addAction(mActions[LC_VIEW_VIEWPOINT_HOME]);
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - toolstoolbar add rotate step ***/
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_ROTATESTEP]);
-/*** LPub3D Mod end ***/
-
-/*** LPub3D Mod - toolstoolbar add emport image ***/
-	mToolsMenu->addAction(mActions[LC_FILE_SAVE_IMAGE]);
 /*** LPub3D Mod end ***/
 
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_SELECT]);
@@ -600,6 +591,11 @@ void lcMainWindow::CreateMenus()
 ***/
 /*** LPub3D Mod end ***/
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_ZOOM_REGION]);
+
+/*** LPub3D Mod - add toolstoolbar camera ***/
+	mToolsMenu->addSeparator();
+	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_CAMERA]);
+/*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - suppress menuBar ***/
 /***
@@ -844,10 +840,13 @@ void lcMainWindow::CreateToolBars()
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ZOOM]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_PAN]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROTATE_VIEW]);
+/*** LPub3D Mod - toolstoolbar suppress conflicting tools ***/
+/***
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ROLL]);
+***/
+/*** LPub3D Mod end ***/
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_ZOOM_REGION]);
 /*** LPub3D Mod - moved from highter up ***/
-	mToolsToolBar->addAction(mActions[LC_FILE_SAVE_IMAGE]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_CAMERA]);
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Disable ToolBar hide ***/
@@ -958,11 +957,11 @@ void lcMainWindow::CreateToolBars()
 	mColorsToolBar->setVisible(false);
 
 	// remove Tools actions
+	mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_ROLL]);
 	mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_INSERT]);
 	mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_LIGHT]);
 	mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_SPOTLIGHT]);
 	mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_MOVE]);
-	mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_ROLL]);
 	mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_DELETE]);
 	mToolsToolBar->removeAction(mActions[LC_EDIT_ACTION_PAINT]);
 
@@ -1124,6 +1123,7 @@ void lcMainWindow::Enable3DActions()
 	mActions[LC_EDIT_ACTION_ROTATE]->setEnabled(true);
 	mActions[LC_EDIT_ACTION_PAN]->setEnabled(true);
 	mActions[LC_EDIT_ACTION_ROTATE_VIEW]->setEnabled(true);
+	mActions[LC_EDIT_ACTION_ROLL]->setEnabled(true);
 	mActions[LC_EDIT_ACTION_ZOOM_REGION]->setEnabled(true);
 	//Shading
 	mActions[LC_VIEW_SHADING_WIREFRAME]->setEnabled(true);
@@ -1174,6 +1174,7 @@ void lcMainWindow::Disable3DActions()
 	mActions[LC_EDIT_ACTION_ROTATE]->setEnabled(false);
 	mActions[LC_EDIT_ACTION_PAN]->setEnabled(false);
 	mActions[LC_EDIT_ACTION_ROTATE_VIEW]->setEnabled(false);
+	mActions[LC_EDIT_ACTION_ROLL]->setEnabled(false);
 	mActions[LC_EDIT_ACTION_ZOOM_REGION]->setEnabled(false);
 	//Shading
 	mActions[LC_VIEW_SHADING_WIREFRAME]->setEnabled(false);
@@ -1825,7 +1826,7 @@ void lcMainWindow::RestoreTabLayout(const QByteArray& TabLayout)
 				DataStream >> CameraType;
 
 				View* CurrentView = nullptr;
-				
+
 				if (ParentWidget)
 					CurrentView = (View*)((lcQGLWidget*)ParentWidget)->widget;
 
@@ -2234,7 +2235,7 @@ void lcMainWindow::SplitView(Qt::Orientation Orientation)
 	}
 	else
 	{
-		QSplitter* ParentSplitter = (QSplitter*)Parent;	
+		QSplitter* ParentSplitter = (QSplitter*)Parent;
 		Sizes = ParentSplitter->sizes();
 		int FocusIndex = ParentSplitter->indexOf(Focus);
 

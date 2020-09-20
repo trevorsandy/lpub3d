@@ -3,7 +3,7 @@
 **
 
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 
 **
 
@@ -103,7 +103,7 @@ QAction* CommonMenus::constrainMenu(
     const QString  name)
 {
   QAction *action;
-  QString formatted = QString("Change %1 Shape") .arg(name);
+  QString formatted = QString("Change %1 shape") .arg(name);
   action = menu.addAction(formatted);
   action->setIcon(QIcon(":/resources/changeshape.png"));
 
@@ -331,23 +331,6 @@ QAction* CommonMenus::placementMenu(
   action = menu.addAction(formatted);
   action->setWhatsThis(whatsThis);
   action->setIcon(QIcon(":/resources/placement.png"));
-
-  return action;
-}
-
-QAction* CommonMenus::sizeMenu(
-        QMenu   &menu,
-  const QString  name,
-  const QString  whatsThis)
-{
-  QString formatted = QString("Change %1 Size") .arg(name);
-
-  QAction *action;
-  action = menu.addAction(formatted);
-  action->setIcon(QIcon(":/resources/scale.png"));
-
-  formatted = whatsThis.isEmpty() ? QString("You can change the size of this %1 using the size dialog.").arg(name) : whatsThis;
-  action->setWhatsThis(formatted);
 
   return action;
 }

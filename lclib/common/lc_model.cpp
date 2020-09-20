@@ -474,10 +474,8 @@ void lcModel::SaveLDraw(QTextStream& Stream, bool SelectedOnly) const
 	Stream.flush();
 }
 
-int lcModel::SplitMPD(QIODevice& Device)
+void lcModel::SplitMPD(QIODevice& Device)
 {
-	qint64 ModelPos = Device.pos();
-
 	while (!Device.atEnd())
 	{
 		qint64 Pos = Device.pos();
@@ -501,7 +499,6 @@ int lcModel::SplitMPD(QIODevice& Device)
 				}
 
 				mProperties.mName = LineStream.readAll().trimmed();
-				ModelPos = Pos;
 			}
 			else if (Token == QLatin1String("NOFILE"))
 			{
@@ -509,8 +506,6 @@ int lcModel::SplitMPD(QIODevice& Device)
 			}
 		}
 	}
-
-	return ModelPos;
 }
 
 void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
@@ -580,7 +575,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 
 			if (Token != QLatin1String("!LEOCAD"))
 			{
-				mFileLines.append(OriginalLine); 
+				mFileLines.append(OriginalLine);
 				continue;
 			}
 
@@ -652,7 +647,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 
 					lcPieceControlPoint& PieceControlPoint = ControlPoints.Add();
 					PieceControlPoint.Transform = lcMatrix44(lcVector4(Numbers[3], Numbers[9], -Numbers[6], 0.0f), lcVector4(Numbers[5], Numbers[11], -Numbers[8], 0.0f),
-					                                         lcVector4(-Numbers[4], -Numbers[10], Numbers[7], 0.0f), lcVector4(Numbers[0], Numbers[2], -Numbers[1], 1.0f));
+															 lcVector4(-Numbers[4], -Numbers[10], Numbers[7], 0.0f), lcVector4(Numbers[0], Numbers[2], -Numbers[1], 1.0f));
 					PieceControlPoint.Scale = Numbers[12];
 				}
 			}
@@ -676,7 +671,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 
 			if (Library->IsPrimitive(CleanId.constData()))
 			{
-				mFileLines.append(OriginalLine); 
+				mFileLines.append(OriginalLine);
 			}
 			else
 			{
@@ -702,7 +697,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 			}
 		}
 		else
-			mFileLines.append(OriginalLine); 
+			mFileLines.append(OriginalLine);
 	}
 
 	mCurrentStep = CurrentStep;
@@ -993,7 +988,7 @@ bool lcModel::LoadLDD(const QString& FileData)
 {
 	lcArray<lcPiece*> Pieces;
 	lcArray<lcArray<lcPiece*>> Groups;
-	
+
 	if (!lcImportLXFMLFile(FileData, Pieces, Groups))
 		return false;
 
@@ -1267,15 +1262,19 @@ void lcModel::DuplicateSelectedPieces()
 	SaveCheckpoint(tr("Duplicating Pieces"));
 }
 
-void lcModel::GetScene(lcScene& Scene, lcCamera* ViewCamera, bool Highlight) const
+void lcModel::GetScene(lcScene& Scene, lcCamera* ViewCamera, bool DrawInterface, bool Highlight, lcPiece* ActiveSubmodelInstance, const lcMatrix44& ActiveSubmodelTransform) const
 {
+	Scene.Begin(ViewCamera->mWorldView);
+	Scene.SetActiveSubmodelInstance(ActiveSubmodelInstance, ActiveSubmodelTransform);
+	Scene.SetDrawInterface(DrawInterface);
+
 	mPieceInfo->AddRenderMesh(Scene);
 
 	for (lcPiece* Piece : mPieces)
 		if (Piece->IsVisible(mCurrentStep))
 			Piece->AddMainModelRenderMeshes(Scene, Highlight && Piece->GetStepShow() == mCurrentStep);
 
-	if (Scene.GetDrawInterface() && !Scene.GetActiveSubmodelInstance())
+	if (DrawInterface && !ActiveSubmodelInstance)
 	{
 		for (lcCamera* Camera : mCameras)
 			if (Camera != ViewCamera && Camera->IsVisible())
@@ -1285,6 +1284,8 @@ void lcModel::GetScene(lcScene& Scene, lcCamera* ViewCamera, bool Highlight) con
 			if (Light->IsVisible())
 				Scene.AddInterfaceObject(Light);
 	}
+
+	Scene.End();
 }
 
 void lcModel::AddSubModelRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive) const
@@ -1303,16 +1304,15 @@ void lcModel::DrawBackground(lcGLWidget* Widget)
 		return;
 	}
 
-	lcContext* Context = Widget->mContext;
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	Context->SetDepthWrite(false);
+	glDepthMask(GL_FALSE);
 	glDisable(GL_DEPTH_TEST);
 
 	float ViewWidth = (float)Widget->mWidth;
 	float ViewHeight = (float)Widget->mHeight;
 
+	lcContext* Context = Widget->mContext;
 	Context->SetWorldMatrix(lcMatrix44Identity());
 	Context->SetViewMatrix(lcMatrix44Translation(lcVector3(0.375, 0.375, 0.0)));
 	Context->SetProjectionMatrix(lcMatrix44Ortho(0.0f, ViewWidth, 0.0f, ViewHeight, -1.0f, 1.0f));
@@ -1369,7 +1369,7 @@ void lcModel::DrawBackground(lcGLWidget* Widget)
 	}
 
 	glEnable(GL_DEPTH_TEST);
-	Context->SetDepthWrite(true);
+	glDepthMask(GL_TRUE);
 }
 
 void lcModel::SaveStepImages(const QString& BaseName, bool AddStepSuffix, bool Zoom, bool Highlight, int Width, int Height, lcStep Start, lcStep End)
@@ -2822,6 +2822,27 @@ void lcModel::SetCameraZNear(lcCamera* Camera, float ZNear)
 	gMainWindow->UpdateAllViews();
 }
 
+/*** LPub3D Mod - Camera Globe ***/
+void lcModel::SetCameraGlobe(lcCamera* Camera, float Latitude, float Longitude, float Distance)
+{
+	auto notEqual = [] (const float v1, const float v2)
+	{
+		return qAbs(v1 - v2) > 0.1f;
+	};
+
+	float _Latitude, _Longitude, _Distance;
+	Camera->GetAngles(_Latitude,_Longitude,_Distance);
+
+	if (notEqual(_Latitude,Latitude) ||
+		notEqual(_Longitude,Longitude))
+	{
+		Camera->SetAngles(Latitude, Longitude, Distance,Camera->mTargetPosition);
+		SaveCheckpoint(tr("Update Camera Globe"));
+		gMainWindow->UpdateAllViews();
+	}
+}
+/*** LPub3D Mod end ***/
+
 void lcModel::SetCameraZFar(lcCamera* Camera, float ZFar)
 {
 	if (Camera->m_zFar == ZFar)
@@ -2859,7 +2880,7 @@ bool lcModel::AnyPiecesSelected() const
 
 bool lcModel::AnyObjectsSelected() const
 {
-/*** LPub3D Mod - Suppress select move overlay for piece and light ***/
+/*** LPub3D Mod - Suppress select move overlay ***/
 	for (lcCamera* Camera : mCameras)
 		if (Camera->IsSelected())
 			return true;
@@ -3106,11 +3127,18 @@ bool lcModel::GetSelectionCenter(lcVector3& Center) const
 bool lcModel::GetPiecesBoundingBox(lcVector3& Min, lcVector3& Max) const
 {
 	bool Valid = false;
+/*** LPub3D Mod - Camera Globe Target Position ***/
+	bool setTargetPositon = lcGetProfileInt(LC_PROFILE_SET_TARGET_POSITION);
+/*** LPub3D Mod end ***/
 	Min = lcVector3(FLT_MAX, FLT_MAX, FLT_MAX);
 	Max = lcVector3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
 	for (lcPiece* Piece : mPieces)
 	{
+/*** LPub3D Mod - Camera Globe Target Position ***/
+		if (setTargetPositon && !Piece->IsSelected())
+			continue;
+/*** LPub3D Mod end ***/
 		if (Piece->IsVisible(mCurrentStep))
 		{
 			Piece->CompareBoundingBox(Min, Max);
@@ -4151,7 +4179,7 @@ void lcModel::ShowArrayDialog()
 		return;
 /*** LPub3D Mod end ***/
 	}
-	
+
 	lcQArrayDialog Dialog(gMainWindow);
 
 	if (Dialog.exec() != QDialog::Accepted)

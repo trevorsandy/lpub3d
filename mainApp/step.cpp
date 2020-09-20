@@ -1,7 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -68,7 +68,6 @@ Step::Step(
   submodelLevel             = _meta.submodelStack.size();
   stepNumber.number         =  num;             // record step number
   csiItem                   = nullptr;
-  adjustOnItemOffset        = false;
 
   modelDisplayOnlyStep      = false;
   dividerType               = NoDivider;
@@ -101,6 +100,8 @@ Step::Step(
       csiPlacement.placement  = _meta.LPub.callout.csi.placement;
       pli.margin              = _meta.LPub.callout.pli.margin;
       pli.placement           = _meta.LPub.callout.pli.placement;
+      rotateIcon.placement    = _meta.LPub.callout.rotateIcon.placement;
+      rotateIcon.margin       = _meta.LPub.callout.rotateIcon.margin;
       rotateIconMeta          = _meta.LPub.callout.rotateIcon;
       numberPlacemetMeta      = _meta.LPub.callout.stepNum;
       stepNumber.placement    = _meta.LPub.callout.stepNum.placement;
@@ -115,6 +116,8 @@ Step::Step(
       csiPlacement.placement  = _meta.LPub.multiStep.csi.placement;
       pli.margin              = _meta.LPub.multiStep.pli.margin;
       pli.placement           = _meta.LPub.multiStep.pli.placement;
+      rotateIcon.placement    = _meta.LPub.multiStep.rotateIcon.placement;
+      rotateIcon.margin       = _meta.LPub.multiStep.rotateIcon.margin;
       rotateIconMeta          = _meta.LPub.multiStep.rotateIcon;
       numberPlacemetMeta      = _meta.LPub.multiStep.stepNum;
       stepNumber.placement    = _meta.LPub.multiStep.stepNum.placement;
@@ -126,15 +129,14 @@ Step::Step(
       pliPerStep              = _meta.LPub.multiStep.pli.perStep.value();
       csiCameraMeta           = _meta.LPub.multiStep.csi;
       justifyStep             = _meta.LPub.multiStep.justifyStep;
-      adjustOnItemOffset      = _meta.LPub.multiStep.adjustOnItemOffset.value();
-      stepSize                = _meta.LPub.multiStep.stepSize;
     } else {
       csiPlacement.margin     = _meta.LPub.assem.margin;
       csiPlacement.placement  = _meta.LPub.assem.placement;
       placement               = _meta.LPub.assem.placement;
       pli.margin              = _meta.LPub.pli.margin;
       pli.placement           = _meta.LPub.pli.placement;
-      rotateIconMeta          = _meta.LPub.rotateIcon;
+      rotateIcon.placement    = _meta.LPub.rotateIcon.placement;
+      rotateIcon.margin       = _meta.LPub.rotateIcon.margin;
       stepNumber.placement    = _meta.LPub.stepNumber.placement;
       stepNumber.font         = _meta.LPub.stepNumber.font.valueFoo();
       stepNumber.color        = _meta.LPub.stepNumber.color.value();
@@ -146,9 +148,12 @@ Step::Step(
       csiCameraMeta.cameraAngles     = _meta.LPub.assem.cameraAngles;
       csiCameraMeta.modelScale       = _meta.LPub.assem.modelScale;
       csiCameraMeta.cameraDistNative = _meta.LPub.assem.cameraDistNative;
+      csiCameraMeta.cameraName       = _meta.LPub.assem.cameraName;
       csiCameraMeta.cameraFoV        = _meta.LPub.assem.cameraFoV;
+      csiCameraMeta.isOrtho          = _meta.LPub.assem.isOrtho;
       csiCameraMeta.zfar             = _meta.LPub.assem.zfar;
       csiCameraMeta.znear            = _meta.LPub.assem.znear;
+      csiCameraMeta.target           = _meta.LPub.assem.target;
     }
   pli.steps                 = grandparent();
   pli.step                  = this;
@@ -160,12 +165,8 @@ Step::Step(
   povrayParms               = _meta.LPub.assem.povrayParms;
 
   showStepNumber            = _meta.LPub.assem.showStepNumber.value();
-
-  rotateIcon.placement      = rotateIconMeta.placement;
-  rotateIcon.margin         = rotateIconMeta.margin;
-  rotateIcon.setSize(         rotateIconMeta.size,
-                              rotateIconMeta.border.valuePixels().thickness);
-
+  rotateIcon.setSize(         _meta.LPub.rotateIcon.size,
+                              _meta.LPub.rotateIcon.border.valuePixels().thickness);
   placeSubModel             = false;
   placeRotateIcon           = false;
   placeCsiAnnotation        = false;
@@ -232,8 +233,8 @@ int Step::createCsi(
                           csiCameraMeta.cameraAngles.value(1));
   float cameraFoV       = csiCameraMeta.cameraFoV.value();
   float modelScale      = csiCameraMeta.modelScale.value();
+  float camDistance     = csiCameraMeta.cameraDistance.value();
   if (nativeRenderer) {
-    modelScale          = csiCameraMeta.cameraDistNative.factor.value();
     nType = calledOut ? NTypeCalledOut : multiStep ? NTypeMultiStep : NTypeDefault;
   }
   QString csi_Name      = modelDisplayOnlyStep ? csiName()+"_fm" : bfxLoad ? csiName()+"_bfx" : csiName();
@@ -261,47 +262,33 @@ int Step::createCsi(
                                QFileInfo(gui->getCurFile()).completeBaseName()+"_snapshot.ldr" : "csi.ldr");
   QString keyPart1 = QString("%1").arg(csi_Name+orient);
   QString keyPart2 = QString("%1_%2_%3_%4_%5_%6_%7_%8")
-                               .arg(stepNumber.number)
-                               .arg(gui->pageSize(meta.LPub.page, 0))
-                               .arg(double(resolution()))
-                               .arg(resolutionType() == DPI ? "DPI" : "DPCM")
-                               .arg(double(modelScale))
-                               .arg(double(cameraFoV))
-                               .arg(absRotstep ? double(noCA.value(0)) : double(cameraAngles.value(0)))
-                               .arg(absRotstep ? double(noCA.value(1)) : double(cameraAngles.value(1)));
-  QString key      = QString("%1_%2").arg(keyPart1).arg(keyPart2);
+                             .arg(stepNumber.number)
+                             .arg(gui->pageSize(meta.LPub.page, 0))
+                             .arg(double(resolution()))
+                             .arg(resolutionType() == DPI ? "DPI" : "DPCM")
+                             .arg(double(modelScale))
+                             .arg(double(cameraFoV))
+                             .arg(absRotstep ? double(noCA.value(0)) : double(cameraAngles.value(0)))
+                             .arg(absRotstep ? double(noCA.value(1)) : double(cameraAngles.value(1)));
+  QString key = QString("%1_%2").arg(keyPart1).arg(keyPart2);
 
-  // set imageMatteKey
-  QString imageMatteKey = QString("%1_%2").arg(csi_Name).arg(stepNumber.number);
-
-  // populate csiKey - Add CompareKey and ImageMatteKey if LDView Single Call
-  if (renderer->useLDViewSCall()) {
-      QString compareKey = QString("%1_%2")
-              .arg(keyPart2).arg(meta.rotStep.value().type.isEmpty() ? "REL" :
-                                 meta.rotStep.value().type);
-      csiKey = QString("CSI_%1|%2").arg(compareKey).arg(imageMatteKey);
-      // add LDView parms to csiKey if not empty
-      if (!ldviewParms.value().isEmpty())
-          csiKey.append(QString("|%1").arg(ldviewParms.value()));
-  }
-  // add add ImageMatteKey
-  else {
-      csiKey = imageMatteKey;
-  }
-
-  // temp hack - passed so we can always have scale for POV render
+  // append rotstep to be passed on to 3DViewer
   keyPart2 += QString("_%1_%2")
                       .arg(renderer->getRotstepMeta(meta.rotStep,true))
+                      // temp hack - passed so we can always have scale for pov render
                       .arg(double(csiCameraMeta.modelScale.value()));
 
   // populate png name
   pngName = QDir::toNativeSeparators(QString("%1/%2.png").arg(csiPngFilePath).arg(key));
 
-  // add imageMatteKey and pngName to ImageMatte repository - exclude first step
+  // create ImageMatte csiKey
+  csiKey = QString("%1_%2").arg(csi_Name).arg(stepNumber.number);
+
+  // add csiKey and pngName to ImageMatte repository - exclude first step
   if (Preferences::enableFadeSteps && Preferences::enableImageMatting && !invalidIMStep) {
-      if (!LDVImageMatte::validMatteCSIImage(imageMatteKey))
-          LDVImageMatte::insertMatteCSIImage(imageMatteKey, pngName);
-  }
+      if (!LDVImageMatte::validMatteCSIImage(csiKey))
+          LDVImageMatte::insertMatteCSIImage(csiKey, pngName);
+    }
 
   // Check if png file date modified is older than model file (on the stack) date modified
   csiOutOfDate = false;
@@ -400,13 +387,17 @@ int Step::createCsi(
 
      if (!renderer->useLDViewSCall() && ! gui->m_partListCSIFile) {
          showStatus = true;
+
          // set camera
-         meta.LPub.assem.cameraAngles            = csiCameraMeta.cameraAngles;
-         meta.LPub.assem.cameraDistNative.factor = csiCameraMeta.cameraDistNative.factor;
-         meta.LPub.assem.modelScale              = csiCameraMeta.modelScale;
-         meta.LPub.assem.cameraFoV               = csiCameraMeta.cameraFoV;
-         meta.LPub.assem.zfar                    = csiCameraMeta.zfar;
-         meta.LPub.assem.znear                   = csiCameraMeta.znear;
+         meta.LPub.assem.cameraAngles   = csiCameraMeta.cameraAngles;
+         meta.LPub.assem.cameraDistance = csiCameraMeta.cameraDistance;
+         meta.LPub.assem.modelScale     = csiCameraMeta.modelScale;
+         meta.LPub.assem.cameraFoV      = csiCameraMeta.cameraFoV;
+         meta.LPub.assem.isOrtho        = csiCameraMeta.isOrtho;
+         meta.LPub.assem.zfar           = csiCameraMeta.zfar;
+         meta.LPub.assem.znear          = csiCameraMeta.znear;
+         meta.LPub.assem.target         = csiCameraMeta.target;
+
          // set the extra renderer parms
          meta.LPub.assem.ldviewParms =
               Render::getRenderer() == RENDERER_LDVIEW ? ldviewParms :
@@ -462,13 +453,23 @@ int Step::createCsi(
       // set viewer display options
       viewerOptions.ViewerCsiKey   = viewerCsiKey;
       viewerOptions.ImageFileName  = pngName;
+      viewerOptions.Resolution     = resolution();
+      viewerOptions.PageWidth      = gui->pageSize(meta.LPub.page, 0);
+      viewerOptions.PageHeight     = gui->pageSize(meta.LPub.page, 1);
       viewerOptions.UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
-      viewerOptions.FoV            = CAMERA_FOV_NATIVE_DEFAULT;
-      viewerOptions.ZNear          = CAMERA_ZNEAR_NATIVE_DEFAULT;
-      viewerOptions.ZFar           = CAMERA_ZFAR_NATIVE_DEFAULT;
-      viewerOptions.CameraDistance = csiCameraMeta.cameraDistNative.factor.value();
+      viewerOptions.RotStepType    = meta.rotStep.value().type;
+      viewerOptions.RotStep        = xyzVector(float(meta.rotStep.value().rots[0]),float(meta.rotStep.value().rots[1]),float(meta.rotStep.value().rots[2]));
+      viewerOptions.CameraName     = csiCameraMeta.cameraName.value();
+      viewerOptions.FoV            = csiCameraMeta.cameraFoV.value();
+      viewerOptions.IsOrtho        = csiCameraMeta.isOrtho.value();
+      viewerOptions.ZNear          = csiCameraMeta.znear.value();
+      viewerOptions.ZFar           = csiCameraMeta.zfar.value();
+      viewerOptions.NativeCDF      = meta.LPub.nativeCD.factor.value();
+      viewerOptions.CameraDistance = camDistance > 0 ? camDistance : renderer->ViewerCameraDistance(meta,csiCameraMeta.modelScale.value());
       viewerOptions.Latitude       = absRotstep ? noCA.value(0) : csiCameraMeta.cameraAngles.value(0);
       viewerOptions.Longitude      = absRotstep ? noCA.value(1) : csiCameraMeta.cameraAngles.value(1);
+      viewerOptions.Target         = xyzVector(csiCameraMeta.target.x(),csiCameraMeta.target.y(),csiCameraMeta.target.z());
+      viewerOptions.ModelScale     = csiCameraMeta.modelScale.value();
 
       // Load the 3DViewer
       loadTheViewer();
@@ -742,25 +743,25 @@ void Step::appendCsiAnnotation(
  *  going through the CSI (represented by A for assembly),
  *  or the Vertical slice going through the CSI.
  *
- * C0 - 0  - Callout relative to StepNumber
- * S0 - 1  - StepNumber relative to CSI
- * C1 - 2  - Callout relative to RotateIcon
- * R0 - 3  - RotateIcon relative to CSI
- * C2 - 4  - Callout relative to Submodel
- * M0 - 5  - Submodel relative to CSI
- * C3 - 6  - Callout relative to PLI
- * P0 - 7  - Pli relative to CSI
- * C4 - 8  - Callout relative to CSI
- * A  - 9  - CSI
- * C5 - 10 - Callout relative to CSI
- * P1 - 11 - Pli relative to CSI
- * C6 - 12 - Callout relative to PLI
- * M1 - 13 - Submodel relative to CSI
- * C7 - 14 - Callout relative to Submodel
- * R1 - 15 - RotateIcon relative to CSI
- * C8 - 16 - Callout relative to RotateIcon
- * S1 - 17 - StepNumber relative to CSI
- * C9 - 18 - Callout relative to StepNumber
+ * C0 - Callout relative to StepNumber
+ * S0 - StepNumber relative to CSI
+ * C1 - Callout relative to RotateIcon
+ * R0 - RotateIcon relative to CSI
+ * C2 - Callout relative to Submodel
+ * M0 - Submodel relative to CSI
+ * C3 - Callout relative to PLI
+ * P0 - Pli relative to CSI
+ * C4 - Callout relative to CSI
+ * A  - CSI
+ * C5 - Callout relative to CSI
+ * P1 - Pli relative to CSI
+ * C6 - Callout relative to PLI
+ * M1 - Submodel relative to CSI
+ * C7 - Callout relative to Submodel
+ * R1 - RotateIcon relative to CSI
+ * C8 - Callout relative to RotateIcon
+ * S1 - StepNumber relative to CSI
+ * C9 - Callout relative to StepNumber
  *
  */
 
@@ -875,8 +876,8 @@ const int relativePlace[NumPlacements][2] =
 void Step::maxMargin(
     MarginsMeta &margin,
     int tbl[2],
-int marginRows[][2],
-int marginCols[][2])
+    int marginRows[][2],
+    int marginCols[][2])
 {
   if (margin.valuePixels(XX) > marginCols[tbl[XX]][0]) {
       marginCols[tbl[XX]][0] = margin.valuePixels(XX);
@@ -900,7 +901,7 @@ int marginCols[][2])
  *
  *     locate the proper row/col for those relative to CSI (absolute)
  *
- *     locate the proper row/col for those relative to (pli, stepNumber, subModel, RotateIcon)
+ *     locate the proper row/col for those relative to (pli, stepNumber)
  *
  *   determine the largest dimensions for each row/col in the table
  *
@@ -967,7 +968,15 @@ int Step::sizeit(
 
   PlacementData subModelPlacement = subModel.placement.value();
 
-  // if SubModel relative to Step Number, but no Step Number, SubModel is relative to CSI
+  // if SubModel relative to PLI, but no PLI,
+  //    SubModel is relative to Step Number
+
+  if (subModelPlacement.relativeTo == PartsListType && ! pliPerStep) {
+      subModelPlacement.relativeTo = StepNumberType;
+    }
+
+  // if SubModel relative to Step Number, but no Step Number,
+  //    SubModel is relative to CSI
 
   if (subModelPlacement.relativeTo == StepNumberType && onlyChild()) {
       subModelPlacement.relativeTo = CsiType;
@@ -990,6 +999,7 @@ int Step::sizeit(
   PlacementData rotateIconPlacement = rotateIcon.placement.value();
 
   if (placeRotateIcon){
+
       if (rotateIconPlacement.relativeTo == CsiType){
           if (rotateIconPlacement.preposition == Outside) {
               rotateIcon.tbl[XX] = rotateIconPlace[rotateIconPlacement.placement][XX];
@@ -1055,7 +1065,7 @@ int Step::sizeit(
     }
 
   if (subModelPlacement.relativeTo == PartsListType) {
-      if (pliPerStep && placeSubModel) {
+      if (placeSubModel) {
           subModel.tbl[XX] = pli.tbl[XX]+relativePlace[subModelPlacement.placement][XX];
           subModel.tbl[YY] = pli.tbl[YY]+relativePlace[subModelPlacement.placement][YY];
         } else {
@@ -1065,7 +1075,7 @@ int Step::sizeit(
     }
 
   if (subModelPlacement.relativeTo == RotateIconType) {
-      if (pliPerStep && placeSubModel) {
+      if (placeSubModel) {
           subModel.tbl[XX] = rotateIcon.tbl[XX]+relativePlace[subModelPlacement.placement][XX];
           subModel.tbl[YY] = rotateIcon.tbl[YY]+relativePlace[subModelPlacement.placement][YY];
         } else {
@@ -1075,7 +1085,7 @@ int Step::sizeit(
     }
 
   if (subModelPlacement.relativeTo == StepNumberType) {
-      if (pliPerStep && placeSubModel) {
+      if (placeSubModel) {
           subModel.tbl[XX] = stepNumber.tbl[XX]+relativePlace[subModelPlacement.placement][XX];
           subModel.tbl[YY] = stepNumber.tbl[YY]+relativePlace[subModelPlacement.placement][YY];
         } else {
@@ -1206,7 +1216,7 @@ int Step::sizeit(
 
       if ( ! pliPerStep ) {
           sharable = false;
-        } 
+        }
 
       square[callout->tbl[XX]][callout->tbl[YY]] = i + 1;
       int size = callout->submodelStack().size();
@@ -1222,7 +1232,7 @@ int Step::sizeit(
         }
     }
 
-  /*now place the SubModel relative to the known items (CSI, PLI, SN, RI) */
+  /* now place the SubModel relative to the known items (CSI, PLI, SN, RI) */
 
   int subModelSize[2] = { 0, 0 };
   bool smShared = false;
@@ -1269,10 +1279,6 @@ int Step::sizeit(
          smSharable = false;
          break;
      }
-
-     if ( ! pliPerStep ) {
-         smSharable = false;
-       }
 
      square[_subModel->tbl[XX]][_subModel->tbl[YY]] = 1;
      /*int size = _subModel->submodelStack().size(); */
@@ -1426,11 +1432,6 @@ int Step::sizeit(
       }
   }
 
-  /******************************************************************/
-  /* Determine col/row for each step component (e.g. Step Number,   */
-  /* CSI and RotateIcon                                             */
-  /******************************************************************/
-
   if (cols[stepNumber.tbl[XX]] < stepNumber.size[XX]) {
       cols[stepNumber.tbl[XX]] = stepNumber.size[XX];
     }
@@ -1455,11 +1456,6 @@ int Step::sizeit(
       rows[rotateIcon.tbl[YY]] = rotateIcon.size[YY];
     }
 
-  // adjust rows and columns for rotate icon offset
-  if (adjustOnItemOffset)
-      adjustSize(*dynamic_cast<Placement*>(&rotateIcon),
-             rows,cols);
-
   /******************************************************************/
   /* Determine col/row and margin for each callout that is relative */
   /* to step components (e.g. not page or multiStep)                */
@@ -1467,6 +1463,7 @@ int Step::sizeit(
 
   for (int i = 0; i < numCallouts; i++) {
       Callout *callout = list[i];
+
       switch (callout->placement.value().relativeTo) {
         case CsiType:
         case PartsListType:
@@ -1488,12 +1485,6 @@ int Step::sizeit(
                         marginRows,
                         marginCols);
             }
-
-          // adjust rows and columns for callout offset
-          if (adjustOnItemOffset)
-              adjustSize(*dynamic_cast<Placement*>(callout),
-                     rows,cols);
-
           break;
         default:
           break;
@@ -1504,7 +1495,6 @@ int Step::sizeit(
   /* Determine col/row and margin for subModel that is relative     */
   /* to step components (e.g. not page or multiStep)                */
   /******************************************************************/
-
 
   if (placeSubModel) {
     SubModel *_subModel = &subModel;
@@ -1537,172 +1527,6 @@ int Step::sizeit(
   }
 
   return 0;
-}
-
-bool Step::adjustSize(
-  Placement &pl1, // relative type item placement
-  int  rows[],    // adjust sub-row heights here
-  int  cols[])    // adjust sub-col widths here
-{
-    auto hasOffset = [](Placement &_pl, bool suppressOffset = false)
-    {
-        if(_pl.placement.value().offsets[XX] != 0.0f ||
-           _pl.placement.value().offsets[YY] != 0.0f) {
-            if (suppressOffset) {
-                PlacementData pld = _pl.placement.value();
-                pld.offsets[XX] = 0.0f;
-                pld.offsets[YY] = 0.0f;
-                _pl.placement.setValue(pld);
-            }
-            return true;
-        }
-        return false;
-    };
-
-    // confirm offset item
-    if (!hasOffset(pl1))
-        return false;
-
-    // set relative type item default placement (without offset)
-    Placement pl2 = pl1;
-    Placement pl_1, pl_2;
-
-    hasOffset(pl2,true/*suppressOffset*/);
-
-    int rtX = 0;           // relative to cols
-    int rtY = 0;           // relative to rows
-    int plX = pl1.tbl[XX]; // relative type cols
-    int plY = pl1.tbl[YY]; // relative type rows
-
-    // populate offset 'pl_1' and default 'pl_2' relativeTo placement
-    switch (pl1.placement.value().relativeTo) {
-    case CsiType:
-      rtX = TblCsi;
-      rtY = TblCsi;
-      pl_1 = pl_2 = csiPlacement;
-    break;
-    case PartsListType:
-      rtX = pli.tbl[XX];
-      rtY = pli.tbl[YY];
-      pl_1 = pl_2 = pli;
-    break;
-    case SubModelType:
-      rtX = subModel.tbl[XX];
-      rtY = subModel.tbl[YY];
-      pl_1 = pl_2 = subModel;
-    break;
-    case StepNumberType:
-      rtX = stepNumber.tbl[XX];
-      rtY = stepNumber.tbl[YY];
-      pl_1 = pl_2 = stepNumber;
-    break;
-    case RotateIconType:
-      rtX = rotateIcon.tbl[XX];
-      rtY = rotateIcon.tbl[YY];
-      pl_1 = pl_2 = rotateIcon;
-    break;
-    default:
-    break;
-    }
-    pl_1.placeRelative(&pl1);
-    pl_2.placeRelative(&pl2);
-
-    // define relative type offset rect
-    QRectF rectPl1(pl1.boundingLoc[XX],
-                   pl1.boundingLoc[YY],
-                   pl1.size[XX],
-                   pl1.size[YY]);
-    // define relative type item default rect
-    QRectF rectPl2(pl2.boundingLoc[XX],
-                   pl2.boundingLoc[YY],
-                   pl2.size[XX],
-                   pl2.size[YY]);
-
-    // calculate the length and/or width delta
-    // between the original 'pl2' rect position and
-    // the offset 'pl1' rect position and adjust the
-    // respective row 'height' and/or column 'width' value
-    qreal deltaX = 0.0;
-    qreal deltaY = 0.0;
-    QRectF rectInt;
-
-    // if relative type offset rect position intersects default rect position
-    bool intersected = rectPl1.intersects(rectPl2);
-    if (intersected) {
-        // get intersect rectangle
-        rectInt = rectPl2.intersected(rectPl1);
-        // determine x-axis delta, adjust relative type column [Width]
-        deltaX = rectPl2.width() - rectInt.width();
-        // determine y-axis delta, adjust relative type row [Height]
-        deltaY = rectPl2.height() - rectInt.height();
-    }
-    // no  rect intersect
-    else {
-        // determine x-axis delta, adjust relative type column [Width]
-        deltaX     = qAbs(rectPl1.x() - rectPl2.x());
-        // determine y-axis delta, adjust relative type row [Height]
-        deltaY     = qAbs(rectPl1.y() - rectPl2.y());
-        // create rectangle
-        rectInt = QRectF(0,0,deltaX,deltaY);
-    }
-
-    // set rows and columns
-    bool canAdjust = false;
-    int indexAdjust  = -1;
-    PlacementEnc placementEnc = pl2.placement.value().placement;
-    switch (placementEnc) {
-    case Left:
-    case Right:
-        //set column  (width X) offset adjustment (plX)
-        if (rectPl1.x() > rectPl2.x())
-            cols[plX] = int(rectPl2.width() + deltaX);
-        if (rectPl1.x() < rectPl2.x())
-            cols[plX] = int(rectPl2.width() - deltaX);
-
-        // set row (height Y) offset adjustment (plY)
-        if (rectPl1.y() > rectPl2.y())
-            if ((canAdjust = rows[plY+1] < int(deltaY)))
-                indexAdjust = plY+1;
-        if (rectPl1.y() < rectPl2.y())
-            if ((canAdjust = rows[plY-1] < int(deltaY)))
-                indexAdjust = plY-1;
-        if (canAdjust)
-            rows[indexAdjust] = int(deltaY);
-        break;
-    case Top:
-    case Bottom:
-        //set column (width X) offset adjustment (plX)
-        if (rectPl1.x() > rectPl2.x())
-            if ((canAdjust  = cols[plX+1] < int(deltaX)))
-                indexAdjust = plX+1;
-        if (rectPl1.x() < rectPl2.x())
-            if ((canAdjust  = cols[plX-1] < int(deltaX)))
-                indexAdjust = plX-1;
-        if (canAdjust) {
-            if (indexAdjust)
-                cols[indexAdjust] = int(deltaX);
-            cols[plX] = (int(pl1.relativeToSize[XX]));
-        }
-
-        // set row (height Y) offset adjustment (plY)
-        if (rectPl1.y() > rectPl2.y()) {
-            if (rows[plY+1] < int(deltaY))
-                rows[intersected ? plY+1 : plY+2] = int(intersected ? deltaY : deltaY - rows[plY+1]);
-            if (placementEnc == Top)
-                rows[plY] = int(intersected ? rectInt.height() : 0);
-        }
-        if (rectPl1.y() < rectPl2.y()) {
-            if (rows[plY-1] < int(deltaY))
-                rows[intersected ? plY-1 : plY-2] = int(intersected ? deltaY : deltaY - rows[plY-1]);;
-            if (placementEnc == Bottom)
-                rows[plY] = int(intersected ? rectInt.height() : 0);
-        }
-        break;
-    default:
-        break;
-    }
-
-    return true;
 }
 
 bool Step::collide(
@@ -1817,9 +1641,9 @@ void Step::placeit(
   int origin         = 0;
   int space          = 0;
   int marginAccum    = 0;
+  int spacing        = justifyStep.spacingValuePixels() / 2;
   bool centerJustify = justifyStep.value().type == JustifyCenter ||
                        justifyStep.value().type == JustifyCenterVertical;
-  int spacing        = centerJustify ? justifyStep.spacingValuePixels() / 2 : 0.0f;
 
   int originsIni[NumPlaces];
   int origins[NumPlaces];
@@ -1833,39 +1657,13 @@ void Step::placeit(
         marginAccum += margins[i];
         space       += spacing;
         origin      += centerJustify ? rows[i] : rows[i] + margins[i];
-    }
+     }
   }
 
-  int calculatedSize = centerJustify ? origin + marginAccum : origin;
-  bool adjustSize    = stepSize.valuePixels(y) && stepSize.valuePixels(y) != calculatedSize;
-  int sizeAdjustment = 0; // contents justify top/left
-  if (adjustSize) {
-    // justify center, horizontal and vertical when manual step size specified
-    bool justify = false;
-    if (justifyStep.value().type == JustifyCenter)
-      justify = true;
-    else if (justifyStep.value().type == JustifyCenterVertical && y == XX)
-      justify = true;
-    else if (justifyStep.value().type == JustifyCenterHorizontal && y == YY)
-      justify = true;
-    sizeAdjustment = justify ? (stepSize.valuePixels(y) - calculatedSize) / 2 : 0;
-
-    if (stepSize.valuePixels(y) < calculatedSize) {
-      Where here       = stepSize.here();
-      float sizeValue  = float(calculatedSize/resolution());
-      QString message  = QString("The specified Step %1 %2 is less than its calculated %1 %3.")
-                                 .arg(y == XX ? "width" : "height")
-                                 .arg(QString::number(double(stepSize.value(y)),'f',4))
-                                 .arg(resolutionType() == DPCM ? QString::number(double(centimeters2inches(sizeValue)),'f',4)
-                                                               : QString::number(double(sizeValue),'f',4));
-      logInfo() << qPrintable(message);
-    }
-  }
-
-  size[y] = adjustSize ? stepSize.valuePixels(y) : calculatedSize;
+  size[y] = centerJustify ? origin + marginAccum : origin;
 
   for (int i = 0; i < NumPlaces; i++) {
-     origins[i] = originsIni[i] + sizeAdjustment;
+     origins[i] = originsIni[i];
      if (rows[i]) {
         if (centerJustify) {
            origins[i] += spaceOffset[i] + (marginAccum / 2);
@@ -1890,10 +1688,10 @@ void Step::placeit(
           if(placeSubModel){
             subModel.justifyX(origins[subModel.tbl[y]],rows[subModel.tbl[y]]);
           }
+          if(placeRotateIcon) {
+              rotateIcon.justifyX(origins[rotateIcon.tbl[y]],rows[rotateIcon.tbl[y]]);
+          }
         }
-      if(placeRotateIcon) {
-          rotateIcon.justifyX(origins[rotateIcon.tbl[y]],rows[rotateIcon.tbl[y]]);
-      }
       stepNumber.justifyX(origins[stepNumber.tbl[y]],rows[stepNumber.tbl[y]]);
       break;
     case YY:
@@ -1902,10 +1700,10 @@ void Step::placeit(
           if(placeSubModel) {
             subModel.justifyY(origins[subModel.tbl[y]],rows[subModel.tbl[y]]);
           }
+          if(placeRotateIcon){
+              rotateIcon.justifyY(origins[rotateIcon.tbl[y]],rows[rotateIcon.tbl[y]]);
+          }
         }
-      if(placeRotateIcon){
-          rotateIcon.justifyY(origins[rotateIcon.tbl[y]],rows[rotateIcon.tbl[y]]);
-      }
       stepNumber.justifyY(origins[stepNumber.tbl[y]],rows[stepNumber.tbl[y]]);
       break;
     default:
@@ -2008,16 +1806,6 @@ void Step::addGraphicsItems(
   offsetX += loc[XX];
   offsetY += loc[YY];
 
-  // Background Rectangle Item
-  if (multiStep) {
-      stepBackground =
-              new MultiStepStepBackgroundItem(
-                  this,
-                  parent);
-      stepBackground->setPos(offsetX,
-                             offsetY);
-  }
-
   // CSI
   csiItem = new CsiItem(
                         this,
@@ -2044,10 +1832,12 @@ void Step::addGraphicsItems(
     }
 
   // SM
-  if (subModel.tsize()) {
-      subModel.addSubModel(submodelLevel, parent);
-      subModel.setPos(offsetX + subModel.loc[XX],
-                      offsetY + subModel.loc[YY]);
+  if (placeSubModel){
+    if (subModel.tsize()) {
+        subModel.addSubModel(submodelLevel, parent);
+        subModel.setPos(offsetX + subModel.loc[XX],
+                   offsetY + subModel.loc[YY]);
+      }
   }
 
   // Step Number
@@ -2092,27 +1882,11 @@ void Step::addGraphicsItems(
                                   parent);
       }
       // here we are using the placement values for this specific step in the step group
-      rotateIcon.sizeit();
-      switch (rotateIcon.placement.value().relativeTo) {
-      case CsiType:
-          csiPlacement.placeRelative(&rotateIcon);
-          break;
-      case PartsListType:
-          pli.placeRelative(&rotateIcon);
-          break;
-      case SubModelType:
-          subModel.placeRelative(&rotateIcon);
-          break;
-      case StepNumberType:
-          stepNumber.placeRelative(&rotateIcon);
-          break;
-      case RotateIconType:
-      default:
-          break;
-      }
-      ri->assign(&rotateIcon);
-      ri->setPos(offsetX + ri->loc[XX],
-                 offsetY + ri->loc[YY]);
+      ri->placement    = rotateIcon.placement;
+      qreal adjOffsetX = double(offsetX + ri->placement.value().offsets[XX]);
+      qreal adjOffsetY = double(offsetY + ri->placement.value().offsets[YY]);
+      ri->setPos(adjOffsetX + rotateIcon.loc[XX],
+                 adjOffsetY + rotateIcon.loc[YY]);
 
       ri->setFlag(QGraphicsItem::ItemIsMovable,/*movable*/true);
       ri->setZValue(sceneRotateIconZ.zValue());

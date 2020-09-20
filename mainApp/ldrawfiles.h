@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -212,8 +212,6 @@ class LDrawFile {
     bool modified(const QString &fileName);
     bool older(const QStringList &parsedStack,
                const QDateTime &lastModified);
-    bool older(const QString &fileName,
-               const QDateTime &lastModified);
     static bool mirrored(const QStringList &tokens);
     void unrendered();
     void setRendered(
@@ -228,7 +226,6 @@ class LDrawFile {
             const QString &renderParentModel,
             int            renderStepNumber,
             int            howCounted);
-    void addCustomColorParts(const QString &mcFileName, bool autoAdd = false);
     int instances(const QString &fileName, bool mirrored);
     void countParts(const QString &fileName);
     void countInstances();

@@ -95,7 +95,7 @@ void MinifigWizard::OnInitialUpdate()
 	MakeCurrent();
 	mContext->SetDefaultState();
 
-	static_assert(LC_ARRAY_COUNT(MinifigWizard::mSectionNames) == LC_MFW_NUMITEMS, "Array size mismatch.");
+	static_assert(sizeof(MinifigWizard::mSectionNames) / sizeof(MinifigWizard::mSectionNames[0]) == LC_MFW_NUMITEMS, "Array size mismatch.");
 
 	const int ColorCodes[LC_MFW_NUMITEMS] = { 4, 7, 14, 7, 1, 0, 7, 4, 4, 14, 14, 7, 7, 0, 0, 7, 7 };
 	const char* Pieces[LC_MFW_NUMITEMS] = { "3624.dat", "", "3626bp01.dat", "", "973.dat", "3815.dat", "", "3819.dat", "3818.dat", "3820.dat", "3820.dat", "", "", "3817.dat", "3816.dat", "", "" };
@@ -227,31 +227,20 @@ void MinifigWizard::DeleteTemplate(const QString& TemplateName)
 	mTemplates.erase(TemplateName);
 }
 
-void MinifigWizard::AddTemplatesJson(const QByteArray& TemplateData)
+void MinifigWizard::LoadTemplates()
 {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+	QSettings Settings;
+	Settings.beginGroup("Minifig");
+	QByteArray TemplateData = Settings.value("Templates").toByteArray();
+
+	mTemplates.clear();
+
 	QJsonDocument Document = QJsonDocument::fromJson(TemplateData);
 	QJsonObject RootObject = Document.object();
 
-/*** LPub3D Mod - fix OBS legacy builds break ***/
-	//int Version = RootObject["Version"].toInt(0);
-	QString VersionStr = RootObject["Version"].toString();
-	bool ok = false;
-	VersionStr.toInt(&ok);
-	int Version = ok ? VersionStr.toInt() : 0;
-/*** LPub3D Mod end ***/
-	QJsonObject TemplatesObject;
-
-	if (Version > 0)
-		TemplatesObject = RootObject["Templates"].toObject();
-	else
-		TemplatesObject = RootObject;
-
-	for (QJsonObject::const_iterator ElementIt = TemplatesObject.constBegin(); ElementIt != TemplatesObject.constEnd(); ElementIt++)
+	for (QJsonObject::const_iterator ElementIt = RootObject.constBegin(); ElementIt != RootObject.constEnd(); ElementIt++)
 	{
-		if (!ElementIt.value().isObject())
-			continue;
-
 		QJsonObject TemplateObject = ElementIt.value().toObject();
 		lcMinifigTemplate Template;
 
@@ -269,15 +258,10 @@ void MinifigWizard::AddTemplatesJson(const QByteArray& TemplateData)
 #endif
 }
 
-QByteArray MinifigWizard::GetTemplatesJson() const
+void MinifigWizard::SaveTemplates()
 {
-	QByteArray TemplateData;
-
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 	QJsonObject RootObject;
-
-	RootObject["Version"] = 1;
-	QJsonObject TemplatesObject;
 
 	for (const auto& TemplateEntry : mTemplates)
 	{
@@ -295,33 +279,14 @@ QByteArray MinifigWizard::GetTemplatesJson() const
 			TemplateObject[QLatin1String(mSectionNames[PartIdx])] = PartObject;
 		}
 
-		TemplatesObject[TemplateEntry.first] = TemplateObject;
+		RootObject[TemplateEntry.first] = TemplateObject;
 	}
 
-	RootObject["Templates"] = TemplatesObject;
-	TemplateData = QJsonDocument(RootObject).toJson();
-#endif
-
-	return TemplateData;
-}
-
-void MinifigWizard::LoadTemplates()
-{
-	mTemplates.clear();
+	QByteArray TemplateData = QJsonDocument(RootObject).toJson(QJsonDocument::Compact);
 
 	QSettings Settings;
 	Settings.beginGroup("Minifig");
-	QByteArray TemplateData = Settings.value("Templates").toByteArray();
-
-	AddTemplatesJson(TemplateData);
-}
-
-void MinifigWizard::SaveTemplates()
-{
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-	QSettings Settings;
-	Settings.beginGroup("Minifig");
-	Settings.setValue("Templates", GetTemplatesJson());
+	Settings.setValue("Templates", TemplateData);
 #endif
 }
 
@@ -391,7 +356,6 @@ void MinifigWizard::OnDraw()
 
 	lcScene Scene;
 	Scene.Begin(ViewMatrix);
-	Scene.SetAllowLOD(false);
 
 	for (int PieceIdx = 0; PieceIdx < LC_MFW_NUMITEMS; PieceIdx++)
 		if (mMinifig.Parts[PieceIdx])
@@ -530,7 +494,7 @@ void MinifigWizard::Calculate()
 			Mat2 = lcMatrix44Identity();
 		else
 			Mat2 = lcMatrix44RotationY(-LC_DTOR * 9.791f);
-		Mat2.SetTranslation(lcVector3(15.552f, 0, -8.88f));
+		Mat2.SetTranslation(lcVector3(15.5f, 0, -8.0f));
 
 		Mat = lcMul(mSettings[LC_MFW_RARM][GetSelectionIndex(LC_MFW_RARM)].Offset, Mat);
 		Mat = lcMul(Mat, Mat2);
@@ -564,7 +528,7 @@ void MinifigWizard::Calculate()
 			Mat2 = lcMatrix44Identity();
 		else
 			Mat2 = lcMatrix44RotationY(LC_DTOR * 9.791f);
-		Mat2.SetTranslation(lcVector3(-15.552f, 0.0f, -8.88f));
+		Mat2.SetTranslation(lcVector3(-15.5f, 0.0f, -8.0f));
 
 		Mat = lcMul(mSettings[LC_MFW_LARM][GetSelectionIndex(LC_MFW_LARM)].Offset, Mat);
 		Mat = lcMul(Mat, Mat2);

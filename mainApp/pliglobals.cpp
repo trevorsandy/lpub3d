@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -152,23 +152,15 @@ GlobalPliDialog::GlobalPliDialog(
   vlayout->addWidget(box);
   box->setLayout(childlayout);
 
-  // Scale/Native Camera Distance Factor
-  if (Preferences::usingNativeRenderer) {
-      child = new CameraDistFactorGui("Camera Distance Factor",
-                                      &pliMeta->cameraDistNative);
-      data->children.append(child);
-      data->clearCache = child->modified;
-      childlayout->addWidget(child);
-  } else {
-      child = new DoubleSpinGui("Scale",
-                                &pliMeta->modelScale,
-                                pliMeta->modelScale._min,
-                                pliMeta->modelScale._max,
-                                float(0.01));
-      data->children.append(child);
-      data->clearCache = child->modified;
-      childlayout->addWidget(child);
-  }
+  // Scale
+  child = new DoubleSpinGui("Scale",
+                            &pliMeta->modelScale,
+                            pliMeta->modelScale._min,
+                            pliMeta->modelScale._max,
+                            float(0.01));
+  data->children.append(child);
+  data->clearCache = child->modified;
+  childlayout->addWidget(child);
 
   child = new UnitsGui("Margins L/R|T/B",&pliMeta->part.margin);
   data->children.append(child);
@@ -388,7 +380,7 @@ GlobalPliDialog::GlobalPliDialog(
   circleSizeStyleBox = new QGroupBox("Circle Size");
   svlayout->addWidget(circleSizeStyleBox);
   circleSizeStyleBox->hide();
-  child = new FloatsGui("Diameter","",&pliMeta->circleStyle.size,circleSizeStyleBox,3,false/*show pair*/);
+  child = new FloatsGui("Width","Height",&pliMeta->circleStyle.size,circleSizeStyleBox,3);
   data->children.append(child);
 
   // rectangle style settings
@@ -416,6 +408,7 @@ GlobalPliDialog::GlobalPliDialog(
 
   rectangleSizeStyleBox = new QGroupBox("Rectangle Size");
   svlayout->addWidget(rectangleSizeStyleBox);
+  rectangleSizeStyleBox->hide();
   child = new FloatsGui("Width","Height",&pliMeta->rectangleStyle.size,rectangleSizeStyleBox,3);
   data->children.append(child);
 
@@ -445,9 +438,8 @@ GlobalPliDialog::GlobalPliDialog(
 
       elementSizeStyleBox = new QGroupBox("Element Size");
       svlayout->addWidget(elementSizeStyleBox);
+      elementSizeStyleBox->hide();
       child = new FloatsGui("Width","Height",&pliMeta->elementStyle.size,elementSizeStyleBox,3);
-      elementSizeStyleBox->setDisabled(true);
-      elementSizeStyleBox->setToolTip("Size automatically adjusts to the size of the annotation text");
       data->children.append(child);
   }
   //Edit PLI Annotation Style Selection END

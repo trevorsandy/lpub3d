@@ -1,7 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -78,9 +78,6 @@ class Preferences
     static void setSceneRulerPreference(bool);
     static void setSceneRulerTrackingPreference(int);
     static void setShowParseErrorsPreference(bool);
-    static void setShowAnnotationMessagesPreference(bool);
-    static void setShowSaveOnRedrawPreference(bool);
-    static void setShowSaveOnUpdatePreference(bool);
     static void setStdOutToLogPreference(bool);
 
     static void setCustomSceneBackgroundColorPreference(bool = true);
@@ -93,7 +90,6 @@ class Preferences
     static void setSceneRulerTickColorPreference(QString);
     static void setSceneRulerTrackingColorPreference(QString);
     static void setSceneGuideColorPreference(QString);
-    static void setDebugLogging(bool);
 
     static QString lpub3dAppName;
     static QString ldrawLibPath;
@@ -266,9 +262,6 @@ class Preferences
     static bool    showGuidesCoordinates;
     static bool    showTrackingCoordinates;
     static bool    showParseErrors;
-    static bool    showAnnotationMessages;
-    static bool    showSaveOnRedraw;
-    static bool    showSaveOnUpdate;
     static bool    suppressStdOutToLog;
 
     static bool    customSceneBackgroundColor;
@@ -276,7 +269,6 @@ class Preferences
     static bool    customSceneRulerTickColor;
     static bool    customSceneRulerTrackingColor;
     static bool    customSceneGuideColor;
-    static bool    debugLogging;
 
 
 #ifdef Q_OS_MAC

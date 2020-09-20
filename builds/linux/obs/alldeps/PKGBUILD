@@ -1,8 +1,8 @@
 # Maintainer: Trevor SANDY <trevor[dot]sandy[at]gmail[dot]com>
 #  Last Update: July 23, 2019
-#  Copyright (c) 2017 - 2020 by Trevor SANDY
+#  Copyright (c) 2017 - 2019 by Trevor SANDY
 pkgname=lpub3d
-pkgver=2.3.13.1624
+pkgver=2.4.0.1625
 pkgrel=1
 pkgdesc="An LDraw Building Instruction Editor"
 url="https://github.com/trevorsandy/lpub3d.git"
@@ -25,7 +25,7 @@ prepare() {
 	export WD=$PWD; export LDRAWDIR=${HOME}/ldraw;
 	export PLATFORM_PRETTY="Arch Linux Extra"
 	export PLATFORM_CODE="arex"
-	export PLATFORM_VER="2020"
+	export PLATFORM_VER="2019"
 	export TARGET_CPU="$(uname -m)"
 	# Build OSMesa from source
 	echo "  -> Build OSMesa from source.......yes"

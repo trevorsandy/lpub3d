@@ -1,7 +1,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -145,7 +145,7 @@ void EditWindow::createActions()
     updateAct = new QAction(QIcon(":/resources/update.png"), tr("&Update"), this);
     updateAct->setShortcut(tr("Ctrl+U"));
     updateAct->setStatusTip(tr("Update page - Ctrl+U"));
-    connect(updateAct, SIGNAL(triggered(bool)), this, SLOT(update(bool)));
+    connect(updateAct, SIGNAL(triggered()), this, SLOT(update()));
 
     delAct = new QAction(QIcon(":/resources/delete.png"), tr("&Delete"), this);
     delAct->setShortcut(tr("DEL"));
@@ -323,10 +323,6 @@ void EditWindow::contentsChange(
   }
 
   contentsChange(fileName, position, charsRemoved, addedChars);
-
-  if (!Preferences::saveOnUpdate) {
-     updateDisabled(false);
-  }
 }
 
 void EditWindow::modelFileChanged(const QString &_fileName)
@@ -341,31 +337,13 @@ bool EditWindow::maybeSave()
   bool rc = true;
 
   if (_textEdit->document()->isModified()) {
-    // Get the application icon as a pixmap
-    QPixmap _icon = QPixmap(":/icons/lpub96.png");
-    if (_icon.isNull())
-        _icon = QPixmap (":/icons/update.png");
-
-    QMessageBoxResizable box;
-    box.setWindowIcon(QIcon());
-    box.setIconPixmap (_icon);
-    box.setTextFormat (Qt::RichText);
-    box.setWindowTitle(tr ("%1 Document").arg(VER_PRODUCTNAME_STR));
-    box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-    QString title = "<b>" + tr ("Document changes detected&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;") + "</b>";
-    QString text = tr("The document has been modified.<br>"
-                      "Do you want to save your changes?");
-    box.setText (title);
-    box.setInformativeText (text);
-    box.setStandardButtons (QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
-    box.setDefaultButton   (QMessageBox::Save);
-
-    int ExecReturn = box.exec();
-    if (ExecReturn == QMessageBox::Save) {
+    QMessageBox::StandardButton ret;
+    ret = QMessageBox::warning(this, tr("Model File Editor"),
+            tr("The model file has been modified.\n"
+                "Do you want to save your changes?"),
+            QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+    if (ret == QMessageBox::Save) {
       rc = saveFile();
-    } else
-    if (ExecReturn == QMessageBox::Cancel) {
-      rc = false;
     }
   }
   return rc;
@@ -511,16 +489,10 @@ void EditWindow::showLine(int lineNumber)
 }
 
 void EditWindow::updateDisabled(bool state){
-    if (sender() == saveAct)
+    QAction *action = qobject_cast<QAction *>(sender());
+    if ((action && action == saveAct))
     {
         updateAct->setDisabled(true);
-    } else
-    if (sender() == updateAct &&
-       !Preferences::saveOnUpdate)
-    {
-        updateAct->setDisabled(state);
-        if (!modelFileEdit())
-            emit updateDisabledSig(state);
     } else {
         updateAct->setDisabled(state);
     }
@@ -614,11 +586,10 @@ void EditWindow::redraw()
   redrawSig();
 }
 
-void EditWindow::update(bool state)
+void EditWindow::update()
 {
   if (modelFileEdit() && Preferences::saveOnUpdate)
       saveFile();
-  updateDisabled(state);
   updateSig();
 }
 
@@ -656,13 +627,11 @@ void EditWindow::closeEvent(QCloseEvent *event)
     if (!modelFileEdit())
         return;
 
-    if (!fileName.isEmpty())
-        fileWatcher.removePath(fileName);
-
     writeSettings();
 
     mpdCombo->setMaxCount(0);
     mpdCombo->setMaxCount(1000);
+    _modelFileEdit = false;
 
     if (maybeSave()){
         event->accept();

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2018 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the
 ** GNU General Public Liceense (GPL) version 3.0
@@ -119,13 +119,12 @@ class SubModel : public Placement {
     int pageSizeP(Meta *, int which);
 
   public:
-    PlacementType           parentRelativeType;
-    bool                    perStep;
+    PlacementType          parentRelativeType;
     SubModelBackgroundItem *background;
-    SubModelMeta            subModelMeta;
-    QString                 imageName;
-    QString                 viewerCsiKey;
-    ViewerOptions           viewerOptions;
+    SubModelMeta           subModelMeta;
+    QString                imageName;
+    QString                viewerCsiKey;
+    ViewerOptions          viewerOptions;
 
     Meta                   *meta;
     Steps                  *steps;      // topOfSteps()
@@ -138,11 +137,17 @@ class SubModel : public Placement {
     // validity
     bool                    imageOutOfDate;
     bool                    displayInstanceCount;
-
-    Where                   top,bottom;
-    bool                    multistep,callout;
-
-    SubModel();
+    SubModel()
+    {
+      relativeType = SubModelType;
+      steps = nullptr;
+      step = nullptr;
+      meta = nullptr;
+      background = nullptr;
+      imageOutOfDate = false;
+      shared         = false;
+      displayInstanceCount = false;
+    }
 
     ~SubModel()
     {
@@ -164,7 +169,9 @@ class SubModel : public Placement {
     void setFlag(QGraphicsItem::GraphicsItemFlag flag,bool value);
     bool rotateModel(QString ldrName, QString subModel, const QString color, bool noCA);
 
-    void setSubModel(QString &modelName, Meta &meta);
+    void setSubModel(
+      QString &modelName,
+      Meta    &meta);
 
     int tsize() // always 1
     {
@@ -173,7 +180,7 @@ class SubModel : public Placement {
 
     void clear();
 
-    int  sizeSubModel(Meta *, PlacementType, bool _perStep);
+    int  sizeSubModel(Meta *, PlacementType);
     int  sizeSubModel(ConstrainData::PliConstrain, unsigned height);
     int  resizeSubModel(Meta *, ConstrainData &constrainData);
     int  generateSubModelItem();

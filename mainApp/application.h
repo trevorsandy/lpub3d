@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the
 ** GNU General Public Liceense (GPL) version 3.0
@@ -68,12 +68,9 @@ public:
     /// Sets the theme
     void setTheme();
 
-#ifdef Q_OS_WIN
     /// Console redirection for Windows
+#ifdef Q_OS_WIN
     void RedirectIOToConsole();
-    /// Windows dmp file generation
-    static void lcSehInit();
-    static LONG WINAPI lcSehHandler(PEXCEPTION_POINTERS exceptionPointers);
 #endif
 
     /// Initialize the splash screen

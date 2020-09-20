@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -48,7 +48,6 @@ class Pointer;
 class CalloutPointerItem;
 class CalloutBackgroundItem;
 class QGraphicsView;
-class UnderpinningsItem;
 /*
  * There can be more than one callout per step, so we add
  * the ability to be in a list here
@@ -62,11 +61,11 @@ class Callout : public Steps {
     PlacementNum           instanceCount;
     bool                   shared;
 
-    QList<Pointer *>            pointerList;                /* Pointers and pointer tips */
-    QList<CalloutPointerItem *> graphicsCalloutPointerList; /* Pointer and pointer tips graphics */
+    QList<Pointer *>            pointerList;         /* Pointers and pointer tips */
+    QList<CalloutPointerItem *> graphicsPointerList; /* Pointer and pointer tips graphics */
 
     CalloutBackgroundItem *background;
-    UnderpinningsItem     *underpinnings;
+    QGraphicsRectItem     *underpinnings;
     Where                  topCallout,bottomCallout;
     
     Where &topOfCallout()
@@ -122,8 +121,6 @@ class CalloutInstanceItem : public NumberPlacementItem
 {
   Callout *callout;
 public:
-  int stepNumber;
-  Where instanceTop, instanceBottom;
   CalloutInstanceItem(
     Callout             *callout,
     Meta                *meta,
@@ -133,16 +130,6 @@ public:
 protected:
   void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
-};
-
-class UnderpinningsItem : public QGraphicsRectItem
-{
-public:
-  int stepNumber;
-  Where top, bottom;
-  UnderpinningsItem(qreal x, qreal y, qreal w, qreal h, QGraphicsItem *parent = nullptr)
-      : QGraphicsRectItem(x,y,w,h,parent){ }
-protected:
 };
 
 #endif

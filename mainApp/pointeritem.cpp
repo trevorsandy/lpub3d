@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -73,7 +73,7 @@ void PointerItem::drawPointerPoly()
   poly << QPointF(grabSize()/2,0);
   poly << QPointF(-2*grabSize(),-grabSize()/2);
   poly << QPointF(-2*grabSize(),0);
-  float headWidth = float(poly.boundingRect().width());
+  float headWidth = poly.boundingRect().width();
 
   enum Seg { first, second, third };
 
@@ -86,9 +86,6 @@ void PointerItem::drawPointerPoly()
           linef = QLineF(points[Base],points[Tip]);
           removeFromGroup(shaftSegments[i]);
           BorderedLineItem *shaft = shaftSegments[i];
-          shaft->top        = pointerTop;
-          shaft->bottom     = pointerBottom;
-          shaft->stepNumber = stepNumber;
           shaft->setSegment(OneSegment);
           shaft->setSegments(segments());
           shaft->setHeadWidth(headWidth);
@@ -104,9 +101,6 @@ void PointerItem::drawPointerPoly()
               linef = QLineF(points[Base],points[MidBase]);
               removeFromGroup(shaftSegments[i]);
               BorderedLineItem *shaft = shaftSegments[i];
-              shaft->top        = pointerTop;
-              shaft->bottom     = pointerBottom;
-              shaft->stepNumber = stepNumber;
               shaft->setSegment(OneSegment);
               shaft->setSegments(segments());
               shaft->setHeadWidth(headWidth);
@@ -118,9 +112,6 @@ void PointerItem::drawPointerPoly()
               linef = QLineF(points[MidBase],points[Tip]);
               removeFromGroup(shaftSegments[i]);
               BorderedLineItem *shaft = shaftSegments[i];
-              shaft->top        = pointerTop;
-              shaft->bottom     = pointerBottom;
-              shaft->stepNumber = stepNumber;
               shaft->setSegment(TwoSegments);
               shaft->setSegments(segments());
               shaft->setHeadWidth(headWidth);
@@ -137,9 +128,6 @@ void PointerItem::drawPointerPoly()
               linef = QLineF(points[Base],points[MidBase]);
               removeFromGroup(shaftSegments[i]);
               BorderedLineItem *shaft = shaftSegments[i];
-              shaft->top        = pointerTop;
-              shaft->bottom     = pointerBottom;
-              shaft->stepNumber = stepNumber;
               shaft->setSegment(OneSegment);
               shaft->setSegments(segments());
               shaft->setHeadWidth(headWidth);
@@ -151,9 +139,6 @@ void PointerItem::drawPointerPoly()
               linef = QLineF(points[MidBase],points[MidTip]);
               removeFromGroup(shaftSegments[i]);
               BorderedLineItem *shaft = shaftSegments[i];
-              shaft->top        = pointerTop;
-              shaft->bottom     = pointerBottom;
-              shaft->stepNumber = stepNumber;
               shaft->setSegment(TwoSegments);
               shaft->setSegments(segments());
               shaft->setHeadWidth(headWidth);
@@ -165,9 +150,6 @@ void PointerItem::drawPointerPoly()
               linef = QLineF(points[MidTip],points[Tip]);
               removeFromGroup(shaftSegments[i]);
               BorderedLineItem *shaft = shaftSegments[i];
-              shaft->top        = pointerTop;
-              shaft->bottom     = pointerBottom;
-              shaft->stepNumber = stepNumber;
               shaft->setSegment(ThreeSegments);
               shaft->setSegments(segments());
               shaft->setHeadWidth(headWidth);
@@ -188,9 +170,6 @@ void PointerItem::drawPointerPoly()
           removeFromGroup(head);
 
           head->setPolygon(poly);
-          head->top        = pointerTop;
-          head->bottom     = pointerBottom;
-          head->stepNumber = stepNumber;
 
           qreal x = 0.0;
           qreal y = 0.0;
@@ -216,13 +195,13 @@ void PointerItem::drawPointerPoly()
 
           qreal pi = 22.0/7;
 
-          if (x == 0.0) {
+          if (x == 0.0f) {
             if (y < 0) {
               angle = 270.0;
             } else {
               angle = 90.0;
             }
-          } else if (y == 0.0) {
+          } else if (y == 0.0f) {
             if (x < 0) {
               angle = 180.0;
             } else {
@@ -327,9 +306,6 @@ void PointerItem::addShaftSegment(){
     }
 
     shaft = new BorderedLineItem(linefNew,pad,this);
-    shaft->top    = pointerTop;
-    shaft->bottom = pointerBottom;
-    shaft->stepNumber = stepNumber;
     shaft->setPen(pen);
     shaft->setFlag(QGraphicsItem::ItemIsSelectable,false);
     shaft->setToolTip(QString("Pointer segment %1 - drag grabber to move; right click to modify").arg(segments()+1));
@@ -337,10 +313,8 @@ void PointerItem::addShaftSegment(){
     addToGroup(shaft);
 
     for (int i = 0; i < NumPointerGrabbers; i++) {
-        if (grabbers[i]) {
-            view->scene()->removeItem(grabbers[i]);
-            grabbers[i] = nullptr;
-        }
+      view->scene()->removeItem(grabbers[i]);
+      grabbers[i] = nullptr;
     }
     grabbersVisible = false;
 
@@ -446,9 +420,6 @@ void PointerItem::placeGrabbers()
       grabbers[i] = new Grabber(i,this,myParentItem());
       grabbers[i]->setData(ObjectId, PointerGrabberObj);
       grabbers[i]->setZValue(zValue()+meta->LPub.page.scene.pointerGrabber.zValue());
-      grabbers[i]->top        = pointerTop;
-      grabbers[i]->bottom     = pointerBottom;
-      grabbers[i]->stepNumber = stepNumber;
     }
     grabbersVisible = true;
   }

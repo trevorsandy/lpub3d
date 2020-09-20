@@ -1,6 +1,7 @@
 #pragma once
 
 class PieceInfo;
+enum class lcRenderMeshState : int;
 
 #include "object.h"
 #include "lc_colors.h"
@@ -534,7 +535,6 @@ public:
 	void ResetPivotPoint()
 	{
 		mState &= ~LC_PIECE_PIVOT_POINT_VALID;
-		mPivotMatrix = lcMatrix44Identity();
 	}
 
 public:

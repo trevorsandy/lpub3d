@@ -1,7 +1,7 @@
 
 /****************************************************************************
 **
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -160,20 +160,14 @@ GlobalSubModelDialog::GlobalSubModelDialog(
   vlayout->addWidget(box);
   box->setLayout(childlayout);
 
-  if (Preferences::usingNativeRenderer) {
-      child = new CameraDistFactorGui("Camera Distance Factor",
-                                      &subModelMeta->cameraDistNative);
-      data->children.append(child);
-      childlayout->addWidget(child);
-  } else {
-      child = new DoubleSpinGui("Scale",
-        &subModelMeta->modelScale,
-        subModelMeta->modelScale._min,
-        subModelMeta->modelScale._max,
-        0.01f);
-      data->children.append(child);
-      childlayout->addWidget(child);
-  }
+  child = new DoubleSpinGui("Scale",
+                            &subModelMeta->modelScale,
+                            subModelMeta->modelScale._min,
+                            subModelMeta->modelScale._max,
+                            0.01f);
+  data->children.append(child);
+  childlayout->addWidget(child);
+
   data->clearCache = (data->clearCache ? data->clearCache : child->modified);
 
   child = new UnitsGui("Margins L/R|T/B",&subModelMeta->part.margin);

@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -93,8 +93,7 @@ class DividerBackgroundItem : public QGraphicsRectItem, public MetaItem
 {
 public:
   BorderMeta     *border;
-  int             stepNumber;
-  Where           top,bottom;
+
   DividerBackgroundItem(
     Meta         *_meta,
     QRect        &_dividerRect,
@@ -153,8 +152,6 @@ protected:
 class DividerLine : public QGraphicsLineItem, public MetaItem
 {
 public:
-  int stepNumber;
-  Where top,bottom;
   DividerLine(DividerItem *parent);
 
 protected:

@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -74,7 +74,7 @@ CsiItem::CsiItem(
 
   setTransformationMode(Qt::SmoothTransformation);
 
-  setToolTip(step->path() + " assembly - right-click to modify");
+  setToolTip(step->path() + "- right-click to modify");
 
   setFlag(QGraphicsItem::ItemIsSelectable,true);
   setFlag(QGraphicsItem::ItemIsFocusable, true);
@@ -291,15 +291,9 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
       showCsiAnnoAction->setIcon(QIcon(":/resources/hidepartannotation.png"));
   }
 
-  QAction *cameraDistFactorAction = nullptr;
-  QAction *scaleAction = nullptr;
-  if (Preferences::usingNativeRenderer){
-      cameraDistFactorAction  = commonMenus.cameraDistFactorrMenu(menu, pl);
-  } else {
-      scaleAction             = commonMenus.scaleMenu(menu, pl);
-  }
-  QAction *cameraFoVAction    = commonMenus.cameraFoVMenu(menu, pl);
   QAction *cameraAnglesAction = commonMenus.cameraAnglesMenu(menu, pl);
+  QAction *scaleAction        = commonMenus.scaleMenu(menu, pl);
+  QAction *cameraFoVAction    = commonMenus.cameraFoVMenu(menu, pl);
 
   QAction *marginsAction = nullptr;
   switch (parentRelativeType) {
@@ -472,12 +466,6 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                         topOfStep,
                         bottomOfStep,
                         &step->csiPlacement.placement);
-    } else if (selectedAction == cameraDistFactorAction) {
-        changeCameraDistFactor(pl+" Camera Distance",
-                               "Native Camera Distance",
-                               topOfStep,
-                               bottomOfStep,
-                               &step->csiCameraMeta.cameraDistNative.factor);
     } else if (selectedAction == scaleAction){
         changeFloatSpin(pl+" Scale",
                         "Model Size",
@@ -570,8 +558,8 @@ void CsiItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
               pagePointer->drawTips(delta,this,CsiType);
       }
       // dividers
-      for (int i = 0; i < step->page()->graphicsDividerPointerList.size(); i++) {
-        DividerPointerItem *pointerItem = step->page()->graphicsDividerPointerList[i];
+      for (int i = 0; i < step->page()->graphicsPointerList.size(); i++) {
+        DividerPointerItem *pointerItem = step->page()->graphicsPointerList[i];
         int initiator = CsiType;
         foreach (QGraphicsItem *item, pointerItem->collidingItems(Qt::IntersectsItemBoundingRect)) {
             if (item == this)
@@ -618,8 +606,8 @@ void CsiItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
                 pagePointer->updatePointers(deltaI,this);
         }
         // dividers
-        for (int i = 0; i < step->page()->graphicsDividerPointerList.size(); i++) {
-          DividerPointerItem *pointerItem = step->page()->graphicsDividerPointerList[i];
+        for (int i = 0; i < step->page()->graphicsPointerList.size(); i++) {
+          DividerPointerItem *pointerItem = step->page()->graphicsPointerList[i];
           foreach (QGraphicsItem *item, pointerItem->collidingItems(Qt::IntersectsItemBoundingRect)) {
               if (item == this)
                   pointerItem->updatePointer(deltaI);
@@ -660,8 +648,8 @@ void CsiItem::change()
               pagePointer->updatePointers(deltaI,this);
       }
       // dividers
-      for (int i = 0; i < step->page()->graphicsDividerPointerList.size(); i++) {
-        DividerPointerItem *pointerItem = step->page()->graphicsDividerPointerList[i];
+      for (int i = 0; i < step->page()->graphicsPointerList.size(); i++) {
+        DividerPointerItem *pointerItem = step->page()->graphicsPointerList[i];
         foreach (QGraphicsItem *item, pointerItem->collidingItems(Qt::IntersectsItemBoundingRect)) {
             if (item == this)
                 pointerItem->updatePointer(deltaI);

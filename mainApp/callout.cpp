@@ -2,7 +2,7 @@
 /****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the GNU General Public
 ** License version 2.0 as published by the Free Software Foundation
@@ -321,18 +321,15 @@ void Callout::addGraphicsItems(
   // background.  So by using underpinnings, the callout end of the pointer is under the
   // background.  This allows us to have the pointers look correct for round cornered callouts.
 
-  underpinnings = new UnderpinningsItem(
+  underpinnings = new QGraphicsRectItem(
       qreal(newLoc[XX]),qreal(newLoc[YY]),qreal(size[XX]),qreal(size[YY]),parent);
   QPen pen;
   QColor none(0,0,0,0);
   pen.setColor(none);
-  underpinnings->top = parentStep->topOfStep(); //topOfCallout();
-  underpinnings->bottom = parentStep->bottomOfStep(); //bottomOfCallout();
-  underpinnings->stepNumber = parentStep->stepNumber.number;
   underpinnings->setPen(pen);
   underpinnings->setPos(newLoc[XX],newLoc[YY]);
   underpinnings->setData(ObjectId, CalloutUnderpinningObj);
-  underpinnings->setZValue(meta.LPub.page.scene.calloutUnderpinning.zValue());
+  underpinnings->setZValue(/*meta.LPub.page.scene.calloutUnderpinning.zValue()*/97);
 
   QRect calloutRect(newLoc[XX],newLoc[YY],size[XX],size[YY]);
 
@@ -444,7 +441,7 @@ void Callout::addGraphicsItems(
       this,&meta,"x%d",instanceCount.number,parent);
     item->setPos(offsetX + instanceCount.loc[0], offsetY + instanceCount.loc[1]);
     item->setData(ObjectId, CalloutInstanceObj);
-    item->setZValue(meta.LPub.page.scene.calloutInstance.zValue());
+    item->setZValue(/*meta.LPub.page.scene.calloutInstance.zValue()*/1000);
   }
 
   Steps::addGraphicsItems(allocEnc,
@@ -515,9 +512,6 @@ CalloutInstanceItem::CalloutInstanceItem(
   QGraphicsItem       *_parent)
 {
   callout = _callout;
-  stepNumber = callout->parentStep->stepNumber.number;
-  instanceTop = callout->topOfCallout();
-  instanceBottom = callout->bottomOfCallout();
   QString toolTip("Times used - right-click to modify");
   setAttributes(PageNumberType,
                 CalloutType,
@@ -538,21 +532,21 @@ void Callout::addGraphicsPointerItem(
           pointer,
            parent,
           view);
-  graphicsCalloutPointerList.append(t);
+  graphicsPointerList.append(t);
 }
 
 void Callout::updatePointers(QPoint &delta)
 {
-  for (int i = 0; i < graphicsCalloutPointerList.size(); i++) {
-    CalloutPointerItem *pointer = graphicsCalloutPointerList[i];
+  for (int i = 0; i < graphicsPointerList.size(); i++) {
+    CalloutPointerItem *pointer = graphicsPointerList[i];
     pointer->updatePointer(delta);
   }
 }
 
 void Callout::drawTips(QPoint &delta, int type)
 {
-  for (int i = 0; i < graphicsCalloutPointerList.size(); i++) {
-    CalloutPointerItem *pointer = graphicsCalloutPointerList[i];
+  for (int i = 0; i < graphicsPointerList.size(); i++) {
+    CalloutPointerItem *pointer = graphicsPointerList[i];
     int initiator = type ? type : relativeType;
     pointer->drawTip(delta,initiator);
   }

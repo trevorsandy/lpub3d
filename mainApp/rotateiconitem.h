@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the
 ** GNU General Public Liceense (GPL) version 3.0
@@ -79,11 +79,6 @@ protected:
   void mousePressEvent(QGraphicsSceneMouseEvent *event);
   void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
   void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-  virtual void hoverEnterEvent(QGraphicsSceneHoverEvent* event);
-  virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent* event);
-  virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-  bool isHovered;
-  bool mouseIsDown;
 };
 
 #endif // ROTATEICONITEM_H

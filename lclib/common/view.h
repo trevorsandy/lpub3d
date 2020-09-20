@@ -122,6 +122,9 @@ public:
 	void SetViewpoint(lcViewpoint Viewpoint);
 	void SetViewpoint(const lcVector3& Position);
 	void SetCameraAngles(float Latitude, float Longitude);
+/*** LPub3D Mod - Camera Globe ***/
+	void SetCameraGlobe(float Latitude, float Longitude, float Distance, lcVector3 &Target, bool ZoomExt = false);
+/*** LPub3D Mod end ***/
 	void SetDefaultCamera();
 	lcMatrix44 GetProjectionMatrix() const;
 	LC_CURSOR_TYPE GetCursor() const;
