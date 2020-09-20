@@ -283,12 +283,11 @@ int SubModel::createSubModelImage(
   }
 
   // Populate viewerStepKey variable
-  viewerStepKey = QString("%1;%2;%3")
-                           .arg(QString("%1_%2")
-                                        .arg(gui->getSubFileIndex(QFileInfo(type).fileName()))
-                                        .arg(PREVIEW_SUBMODEL_SUFFIX))
-                           .arg(bottom.lineNumber)
-                           .arg(stepNumber);
+  viewerStepKey = QString("%1;%2;%3_%4")
+                          .arg(gui->getSubmodelIndex(bottom.modelName/*QFileInfo(type).fileName()*/))
+                          .arg(bottom.lineNumber)
+                          .arg(stepNumber)
+                          .arg(PREVIEW_SUBMODEL_SUFFIX);
 
   emit gui->messageSig(LOG_DEBUG,QString("DEBUG - SubModel Preview viewerStepKey [%1] - modelName [%2]")
                                          .arg(viewerStepKey).arg(QFileInfo(type).fileName()));
