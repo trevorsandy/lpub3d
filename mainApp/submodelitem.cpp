@@ -318,7 +318,7 @@ int SubModel::createSubModelImage(
           rotatedSubmodel.prepend(renderer->getRotstepMeta(subModelMeta.rotStep));
 
           // header and closing meta for 3DViewer
-          renderer->setNativeHeaderAndNoFileMeta(rotatedSubmodel,top.modelName,Options::Mt::SMP,false/*displayModel*/);
+          renderer->setLDrawHeaderAndFooterMeta(rotatedSubmodel,top.modelName,Options::Mt::SMP,false/*displayModel*/);
 
           // consolidate submodel subfiles into single file
           if ((rc = renderer->createNativeModelFile(rotatedSubmodel,false,false) != 0))

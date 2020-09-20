@@ -212,7 +212,7 @@ const QString Render::getRotstepMeta(RotStepMeta &rotStep, bool isKey /*false*/)
   return rotstepString;
 }
 
-void Render::setNativeHeaderAndNoFileMeta(QStringList &parts, const QString &modelName, int imageType, bool displayOnly) {
+void Render::setLDrawHeaderAndFooterMeta(QStringList &parts, const QString &modelName, int imageType, bool displayOnly) {
 
     QStringList tokens;
     QString baseName = QFileInfo(modelName).completeBaseName().toLower();

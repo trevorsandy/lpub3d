@@ -94,7 +94,7 @@ public:
                                      QStringList &subModelParts,
                                      bool doFadeStep,
                                      bool doHighlightStep);
-  static void            setNativeHeaderAndNoFileMeta(QStringList &parts,
+  static void            setLDrawHeaderAndFooterMeta(QStringList &parts,
                                      const QString &modelName,
                                      int imageType,
                                      bool displayOnly = false);

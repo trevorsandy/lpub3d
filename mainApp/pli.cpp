@@ -1041,7 +1041,7 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
             pliFile.prepend(QString("0 // ROTSTEP %1").arg(rotStep.isEmpty() ? "0 0 0" : rotStep.replace("_"," ")));
 
             // header and closing meta
-            renderer->setNativeHeaderAndNoFileMeta(pliFile,type,Options::Mt::PLI);
+            renderer->setLDrawHeaderAndFooterMeta(pliFile,type,Options::Mt::PLI);
 
             // consolidate subfiles and parts into single file
             if ((renderer->createNativeModelFile(pliFile,fadeSteps,highlightStep) != 0))
@@ -2456,7 +2456,7 @@ int Pli::partSizeLDViewSCall() {
 
 
                     // header and closing meta
-                    renderer->setNativeHeaderAndNoFileMeta(pliFile,pliPart->type,Options::Mt::PLI);
+                    renderer->setLDrawHeaderAndFooterMeta(pliFile,pliPart->type,Options::Mt::PLI);
 
                     // consolidate subfiles and parts into single file
                     if ((renderer->createNativeModelFile(pliFile,fadeSteps,highlightStep) != 0))

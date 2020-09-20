@@ -389,7 +389,7 @@ int Step::createCsi(
 
       // header and closing meta
 
-      renderer->setNativeHeaderAndNoFileMeta(rotatedParts,top.modelName,Options::Mt::CSI,modelDisplayOnlyStep);
+      renderer->setLDrawHeaderAndFooterMeta(rotatedParts,top.modelName,Options::Mt::CSI,modelDisplayOnlyStep);
 
       // consolidate subfiles and parts into single file
       if ((rc = renderer->createNativeModelFile(rotatedParts,fadeSteps,highlightStep) != 0))

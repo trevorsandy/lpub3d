@@ -231,7 +231,7 @@ int Render::rotateParts(const QString     &addLine,
 
   if (nativeRenderer && ! ldvFunction) {
       // header and closing meta
-      setNativeHeaderAndNoFileMeta(rotatedParts,modelName,imageType);
+      setLDrawHeaderAndFooterMeta(rotatedParts,modelName,imageType);
 
       // consolidate subfiles and parts into single file
       if ((createNativeModelFile(rotatedParts,doFadeStep,doHighlightStep) != 0))
