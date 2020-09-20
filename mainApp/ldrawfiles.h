@@ -238,7 +238,7 @@ class LDrawFile {
     bool ldcadGroupMatch(const QString &name, const QStringList &lids);
 
     /* ViewerStep functions */
-    void insertViewerStep(const QString     &fileName,
+    void insertViewerStep(const QString     &stepKey,
                           const QStringList &rotatedContents,
                           const QStringList &unrotatedContents,
                           const QString     &filePath,

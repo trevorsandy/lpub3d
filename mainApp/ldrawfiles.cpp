@@ -1698,7 +1698,7 @@ bool LDrawFile::ldcadGroupMatch(const QString &name, const QStringList &lids)
 
 /* Add a new Viewer Step */
 
-void LDrawFile::insertViewerStep(const QString     &fileName,
+void LDrawFile::insertViewerStep(const QString     &stepKey,
                                  const QStringList &rotatedContents,
                                  const QStringList &unrotatedContents,
                                  const QString     &filePath,
@@ -1706,22 +1706,22 @@ void LDrawFile::insertViewerStep(const QString     &fileName,
                                  bool               multiStep,
                                  bool               calledOut)
 {
-  QString    mfileName = fileName.toLower();
-  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
+  QString    mStepKey = stepKey.toLower();
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
 
   if (i != _viewerSteps.end()) {
     _viewerSteps.erase(i);
   }
   ViewerStep viewerStep(rotatedContents,unrotatedContents,filePath,csiKey,multiStep,calledOut);
-  _viewerSteps.insert(mfileName,viewerStep);
+  _viewerSteps.insert(mStepKey,viewerStep);
 }
 
 /* Viewer Step Exist */
 
-void LDrawFile::updateViewerStep(const QString &fileName, const QStringList &contents, bool rotated)
+void LDrawFile::updateViewerStep(const QString &stepKey, const QStringList &contents, bool rotated)
 {
-  QString    mfileName = fileName.toLower();
-  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
+  QString    mStepKey = stepKey.toLower();
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
 
   if (i != _viewerSteps.end()) {
     if (rotated)
@@ -1734,10 +1734,10 @@ void LDrawFile::updateViewerStep(const QString &fileName, const QStringList &con
 
 /* return viewer step rotatedContents */
 
-QStringList LDrawFile::getViewerStepRotatedContents(const QString &fileName)
+QStringList LDrawFile::getViewerStepRotatedContents(const QString &stepKey)
 {
-  QString mfileName = fileName.toLower();
-  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
+  QString mStepKey = stepKey.toLower();
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
   if (i != _viewerSteps.end()) {
     return i.value()._rotatedContents;
   }
@@ -1746,10 +1746,10 @@ QStringList LDrawFile::getViewerStepRotatedContents(const QString &fileName)
 
 /* return viewer step unrotatedContents */
 
-QStringList LDrawFile::getViewerStepUnrotatedContents(const QString &fileName)
+QStringList LDrawFile::getViewerStepUnrotatedContents(const QString &stepKey)
 {
-  QString mfileName = fileName.toLower();
-  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
+  QString mStepKey = stepKey.toLower();
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
   if (i != _viewerSteps.end()) {
     return i.value()._unrotatedContents;
   }
@@ -1758,10 +1758,10 @@ QStringList LDrawFile::getViewerStepUnrotatedContents(const QString &fileName)
 
 /* return viewer step file path */
 
-QString LDrawFile::getViewerStepFilePath(const QString &fileName)
+QString LDrawFile::getViewerStepFilePath(const QString &stepKey)
 {
-  QString mfileName = fileName.toLower();
-  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
+  QString mStepKey = stepKey.toLower();
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
   if (i != _viewerSteps.end()) {
     return i.value()._filePath;
   }
@@ -1770,10 +1770,10 @@ QString LDrawFile::getViewerStepFilePath(const QString &fileName)
 
 /* return viewer step CSI key */
 
-QString LDrawFile::getViewerConfigKey(const QString &fileName)
+QString LDrawFile::getViewerConfigKey(const QString &stepKey)
 {
-  QString mfileName = fileName.toLower();
-  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
+  QString mStepKey = stepKey.toLower();
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
   if (i != _viewerSteps.end()) {
     return i.value()._csiKey;
   }
@@ -1782,10 +1782,10 @@ QString LDrawFile::getViewerConfigKey(const QString &fileName)
 
 /* Viewer Step Exist */
 
-bool LDrawFile::viewerStepContentExist(const QString &fileName)
+bool LDrawFile::viewerStepContentExist(const QString &stepKey)
 {
-  QString    mfileName = fileName.toLower();
-  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
+  QString    mStepKey = stepKey.toLower();
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
 
   if (i != _viewerSteps.end()) {
     return true;
@@ -1795,10 +1795,10 @@ bool LDrawFile::viewerStepContentExist(const QString &fileName)
 
 /* return viewer step is multiStep */
 
-bool LDrawFile::isViewerStepMultiStep(const QString &fileName)
+bool LDrawFile::isViewerStepMultiStep(const QString &stepKey)
 {
-  QString mfileName = fileName.toLower();
-  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
+  QString mStepKey = stepKey.toLower();
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
   if (i != _viewerSteps.end()) {
     return i.value()._multiStep;
   } else {
@@ -1808,10 +1808,10 @@ bool LDrawFile::isViewerStepMultiStep(const QString &fileName)
 
 /* return viewer step is calledOut */
 
-bool LDrawFile::isViewerStepCalledOut(const QString &fileName)
+bool LDrawFile::isViewerStepCalledOut(const QString &stepKey)
 {
-  QString mfileName = fileName.toLower();
-  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mfileName);
+  QString mStepKey = stepKey.toLower();
+  QMap<QString, ViewerStep>::iterator i = _viewerSteps.find(mStepKey);
   if (i != _viewerSteps.end()) {
     return i.value()._calledOut;
   } else {
