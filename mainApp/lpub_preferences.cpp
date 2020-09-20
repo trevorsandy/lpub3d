@@ -257,6 +257,7 @@ bool    Preferences::blenderIs28OrLater         = true;
 bool    Preferences::defaultBlendFile           = false;
 bool    Preferences::useSystemEditor            = false;
 bool    Preferences::buildModEnabled            = true;
+bool    Preferences::editorBufferedPaging       = true;
 
 #ifdef Q_OS_MAC
 bool    Preferences::missingRendererLibs        = false;
@@ -280,6 +281,9 @@ int     Preferences::pageDisplayPause           = PAGE_DISPLAY_PAUSE_DEFAULT;   
 int     Preferences::cameraDistFactorNative     = CAMERA_DISTANCE_FACTOR_NATIVE_DEFAULT;
 
 int     Preferences::maxOpenWithPrograms        = MAX_OPEN_WITH_PROGRAMS_DEFAULT;
+
+int     Preferences::editorLinesPerPage         = EDITOR_MIN_LINES_DEFAULT;
+int     Preferences::editorDecoration           = EDITOR_DECORATION_DEFAULT;
 
 // Native POV file generation settings
 QString Preferences::xmlMapPath                 = EMPTY_STRING_DEFAULT;
@@ -2109,7 +2113,7 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
 
     //  LDView single call snapshot list
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"EnableLDViewSnapshotsList"))) {
-        QVariant uValue(false);
+        QVariant uValue(enableLDViewSnaphsotList);
         enableLDViewSnaphsotList = false;
         Settings.setValue(QString("%1/%2").arg(SETTINGS,"EnableLDViewSnapshotsList"),uValue);
     } else {
@@ -2848,6 +2852,20 @@ void Preferences::editorPreferences()
 {
     QSettings Settings;
 
+    //  LDraw editor buffered page read
+     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"EditorBufferedPaging"))) {
+         QVariant uValue(editorBufferedPaging);
+         Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorBufferedPaging"),uValue);
+     } else {
+         editorBufferedPaging = Settings.value(QString("%1/%2").arg(SETTINGS,"EditorBufferedPaging")).toBool();
+     }
+
+    // Number of LDraw editor lines per paged buffer read
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"EditorLinesPerPage"))) {
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorLinesPerPage"),editorLinesPerPage);
+    } else {
+        editorLinesPerPage = Settings.value(QString("%1/%2").arg(SETTINGS,"EditorLinesPerPage")).toInt();
+    }
 
     // LDraw editor text decoration
     if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"EditorDecoration"))) {

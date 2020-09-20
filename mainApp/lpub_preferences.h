@@ -304,6 +304,7 @@ class Preferences
     static bool    customSceneGuideColor;
     static bool    debugLogging;
     static bool    useSystemEditor;
+    static bool    editorBufferedPaging;
 
 #ifdef Q_OS_MAC
     static bool    missingRendererLibs;
@@ -322,6 +323,7 @@ class Preferences
     static int     povrayRenderQuality;
     static int     ldrawFilesLoadMsgs;
     static int     maxOpenWithPrograms;
+    static int     editorLinesPerPage;
     static int     editorDecoration;
 
 

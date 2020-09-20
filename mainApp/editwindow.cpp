@@ -95,12 +95,18 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
 
     createActions();
     createToolBars();
+    highlightCurrentLine();
+
+    if (Preferences::editorBufferedPaging) {
+        _textEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
+        connect(verticalScrollBar, SIGNAL(valueChanged(int)),
+                     this, SLOT(verticalScrollValueChanged(int)));
+    }
 
     connect(_textEdit, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(showContextMenu(const QPoint &)));
     connect(_textEdit, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
     connect(_textEdit, SIGNAL(updateSelectedParts()),   this, SLOT(updateSelectedParts()));
-
-    highlightCurrentLine();
 
     setCentralWidget(_textEdit);
 
@@ -1060,11 +1066,11 @@ void EditWindow::displayFile(
   LDrawFile     *ldrawFile,
   const QString &_fileName)
 {
-  bool reloaded = _fileName == fileName;
-
-  fileName = _fileName;
+  bool reloaded  = _fileName == fileName;
+  fileName       = _fileName;
   fileOrderIndex = ldrawFile->getSubmodelIndex(_fileName);
-  isIncludeFile = ldrawFile->isIncludeFile(_fileName);
+  isIncludeFile  = ldrawFile->isIncludeFile(_fileName);
+  _contentLoaded = false;
 
   if (modelFileEdit() && !fileName.isEmpty())
       fileWatcher.removePath(fileName);
@@ -1128,7 +1134,18 @@ void EditWindow::displayFile(
           disconnect(_textEdit, SIGNAL(textChanged()),
                      this,      SLOT(enableSave()));
 
-          _textEdit->setPlainText(in.readAll());
+          int lineCount = 0;
+          if (Preferences::editorBufferedPaging) {
+              _pageIndx = 0;
+              while(!in.atEnd()) {
+                  _pageContent.append(in.readLine());
+                  lineCount++;
+              }
+          }
+          if (lineCount >= Preferences::editorLinesPerPage)
+              loadPagedContent();
+          else
+              _textEdit->setPlainText(in.readAll());
 
           if (setProgressDialog)
               progressDialog->reset();
@@ -1141,7 +1158,13 @@ void EditWindow::displayFile(
           statusBar()->showMessage(tr("%1 file %2 %3")
                                    .arg(isIncludeFile ? "Include" : "Model").arg(fileName).arg(reloaded ? "updated" : "loaded"), 2000);
       } else {
-          _textEdit->setPlainText(ldrawFile->contents(fileName).join("\n"));
+          if (Preferences::editorBufferedPaging && ldrawFile->size(fileName) > Preferences::editorLinesPerPage) {
+              _pageIndx    = 0;
+              _pageContent = ldrawFile->contents(fileName);
+              loadPagedContent();
+          } else {
+             _textEdit->setPlainText(ldrawFile->contents(fileName).join("\n"));
+          }
       }
   }
 
@@ -1266,6 +1289,21 @@ void EditWindow::preferences()
     editorDecorationCombo->setStatusTip("Use dropdown to select LDraw editor text decoration");
     editorDecorationSubform->addRow(editorDecorationLabel, editorDecorationCombo);
 
+    // options - buffered paging
+    QGroupBox *editorBufferedPagingGrpBox = new QGroupBox(tr("Buffered paging"));
+    editorBufferedPagingGrpBox->setCheckable(true);
+    editorBufferedPagingGrpBox->setChecked(editorBufferedPaging);
+    editorBufferedPagingGrpBox->setToolTip("Set buffered paging. Improve the loading times for very large models");
+    form->addWidget(editorBufferedPagingGrpBox);
+    QFormLayout *editorBufferedPagingSubform = new QFormLayout(editorBufferedPagingGrpBox);
+
+    QLabel   *editorLinesPerPageLabel = new QLabel("Lines Per Page:", dialog);
+    QSpinBox *editorLinesPerPageSpin  = new QSpinBox(dialog);
+    editorLinesPerPageSpin->setRange(EDITOR_MIN_LINES_DEFAULT,EDITOR_MAX_LINES_DEFAULT);
+    editorLinesPerPageSpin->setValue(editorLinesPerPage);
+    editorLinesPerPageSpin->setToolTip("Set lines per page to optimize scrolling.");
+    editorLinesPerPageSpin->setStatusTip(QString("Set the desired buffered lines per page between %1 and %2.").arg(EDITOR_MIN_LINES_DEFAULT).arg(EDITOR_MAX_LINES_DEFAULT));
+    editorBufferedPagingSubform->addRow(editorLinesPerPageLabel, editorLinesPerPageSpin);
 
     // options - button box
     QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
@@ -1282,6 +1320,16 @@ void EditWindow::preferences()
             showMessage("LDraw editor text decoration change");
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorDecoration"),Preferences::editorDecoration);
             emit lpubAlert->messageSig(LOG_INFO,QString("LDraw editor text decoration changed to %1").arg(Preferences::editorDecoration == SIMPLE ? "Simple" : "Standard"));
+        }
+        Preferences::editorBufferedPaging = editorBufferedPagingGrpBox->isChecked();
+        if (editorBufferedPaging != Preferences::editorBufferedPaging) {
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorBufferedPaging"),Preferences::editorBufferedPaging);
+            emit lpubAlert->messageSig(LOG_INFO,QString("Editor buffered paging is %1").arg(Preferences::editorBufferedPaging ? "On" : "Off"));
+        }
+        Preferences::editorLinesPerPage   = editorLinesPerPageSpin->text().toInt();
+        if (editorLinesPerPage != Preferences::editorLinesPerPage) {
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorLinesPerPage"),Preferences::editorLinesPerPage);
+            emit lpubAlert->messageSig(LOG_INFO,QString("Buffered lines par page changed from %1 to %2").arg(editorLinesPerPage).arg(Preferences::editorLinesPerPage));
         }
     }
 }
@@ -1302,7 +1350,39 @@ void  EditWindow::verticalScrollValueChanged(int value)
     // we load a new page at 90 percent of the page scroll
     if (value > (scrollMaximum * 0.90))
         loadPagedContent();
-    }
+}
+
+void EditWindow::loadPagedContent()
+{
+   int maxPageLines = _pageIndx + Preferences::editorLinesPerPage;
+   int contentSize  = qMin(maxPageLines, _pageContent.size());
+
+   QString part;
+   for (; _pageIndx < contentSize; _pageIndx++)
+       part.append(_pageContent.at(_pageIndx)+'\n');
+
+   if (modelFileEdit() && !fileName.isEmpty())
+       fileWatcher.removePath(fileName);
+
+   disconnect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
+              this,                  SLOT(  contentsChange(int,int,int)));
+   disconnect(_textEdit, SIGNAL(textChanged()),
+              this,      SLOT(enableSave()));
+
+   _textEdit->insertPlainText(part);
+
+   connect(_textEdit,  SIGNAL(textChanged()),
+           this,       SLOT(enableSave()));
+   connect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
+           this,                  SLOT(  contentsChange(int,int,int)));
+
+   if (modelFileEdit() && !fileName.isEmpty())
+       fileWatcher.addPath(fileName);
+
+   _contentLoaded = maxPageLines > _pageContent.size();
+
+   emit lpubAlert->messageSig(LOG_TRACE,QString("Paged content at index: [%1], total lines: [%2], max lines: [%3], load completed: [%4]")
+                                                .arg(_pageIndx).arg(_pageContent.size()).arg(maxPageLines).arg(_contentLoaded ? "Yes" : "No"));
 }
 
 /*

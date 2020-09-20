@@ -45,6 +45,7 @@
 
 class LDrawFile;
 class Highlighter;
+class HighlighterSimple;
 class QFindReplace;
 class QFindReplaceCtrls;
 class QLineNumberArea;
@@ -145,7 +146,8 @@ protected:
     void disableActions();
     void enableActions();
     bool validPreviewLine();
-    QCompleter *completer;
+    void loadPagedContent();
+    void closeEvent(QCloseEvent*_event);
 
     enum Decor { SIMPLE, STANDARD };
 
@@ -162,11 +164,14 @@ protected:
     bool               isIncludeFile;
     bool               _modelFileEdit;
     bool               _subFileListPending;
+    bool               _contentLoaded;
     QString            _curSubFile;         // currently displayed submodel
     QStringList        _subFileList;
+    QStringList        _pageContent;
+    int                _pageIndx;
     int                _saveSubfileIndex;
-    QFileSystemWatcher fileWatcher;
 
+    QScrollBar *verticalScrollBar;
     QList<QAction *> openWithActList;
     QAction  *editModelFileAct;
     QAction  *previewLineAct;

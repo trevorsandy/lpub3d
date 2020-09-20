@@ -499,6 +499,12 @@ static const SceneObject PliPartGroupSceneObjects[] =
 
 #define PUBLISH_DESCRIPTION_DEFAULT            "LDraw model"
 
+#define EDITOR_MIN_LINES_DEFAULT                300           // minimum number of lines to capture at each data read
+#define EDITOR_MAX_LINES_DEFAULT                10000         // maximum number of lines to capture at each data read
+#define EDITOR_DECORATION_DEFAULT               1             // 0 = simple, 1 = fancy
+
+// Color picker: https://www.w3schools.com/colors/colors_picker.asp
+
 // Team color supplements
 #define THEME_DEFAULT                   "Default" // Default Theme
 #define THEME_SCENE_BGCOLOR_DEFAULT     "#aeadac" // Qt Light Gray
