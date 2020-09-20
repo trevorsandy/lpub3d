@@ -74,8 +74,9 @@ enum BuildModFlags {
     BM_BEGIN,                                  //  0 MOD LEVEL BEGIN
     BM_MODEL_NAME      = BM_BEGIN,             //  0
     BM_BEGIN_LINE_NUM  = BM_BEGIN,             //  0 BUILD_MOD BEGIN   BuildModRange[0]
-    BM_ACTION_LINE_NUM,                        //  1 BUILD_MOD END_MOD BuildModRange[1]
-    BM_LINE_NUMBER     = BM_ACTION_LINE_NUM,   //  1
+    BM_END_MOD,                                //  1
+    BM_ACTION_LINE_NUM = BM_END_MOD,           //  1 BUILD_MOD END_MOD BuildModRange[1]
+    BM_LINE_NUMBER     = BM_END_MOD,           //  1
     BM_END,                                    //  2 MOD LEVEL END
     BM_END_LINE_NUM    = BM_END,               //  2 BUILD_MOD END
     BM_MODEL_INDEX     = BM_END,               //  2 MODEL_INDEX       BuildModRange[2]

@@ -3666,6 +3666,7 @@ void Gui::setBuildModNextStepAction(Where topOfNextStep, bool isSubmodelFile)
     int  startLine             = topOfNextStep.lineNumber;
     QString startModel         = topOfNextStep.modelName;
     bool jumpBackToStart       = false;
+    bool buildMod[3]           = { false, false, false };
 
     if (displayPageNum > 1)                                              // we are beyond page 1
         setBuildModNextStepIndex(topOfPages[diaplayPageIndex]);          // set next display step - after step/page 1
@@ -3806,6 +3807,7 @@ void Gui::setBuildModNextStepAction(Where topOfNextStep, bool isSubmodelFile)
                 buildModKeys.insert(buildModLevel, buildModKey);
                 insertAttribute(buildModAttributes, BM_BEGIN_LINE_NUM, here);
                 buildModActions.insert(buildModLevel, BuildModApplyRc);
+                buildMod[BM_BEGIN] = true;
                 break;
 
             // Set modActionLineNum and buildModIgnore based on 'next' step buildModAction
@@ -3813,24 +3815,33 @@ void Gui::setBuildModNextStepAction(Where topOfNextStep, bool isSubmodelFile)
                 if (buildModLevel > 1 && page.meta.LPub.buildMod.key().isEmpty())
                     parseError("Key required for nested build mod meta command",
                                here,Preferences::ParseErrors);
+                if (!buildMod[BM_BEGIN])
+                    parseError(QString("Required meta BUILD_MOD BEGIN not found"), here, Preferences::ParseErrors);
                 insertAttribute(buildModAttributes, BM_ACTION_LINE_NUM, here);
+                buildMod[BM_END_MOD] = true;
                 break;
 
             // Insert buildModAttributes and reset buildModLevel and buildModIgnore to default
             case BuildModEndRc:
+                if (!buildMod[BM_END_MOD])
+                    parseError(QString("Required meta BUILD_MOD END_MOD not found"), here, Preferences::ParseErrors);
                 insertAttribute(buildModAttributes, BM_END_LINE_NUM, here);
                 buildModLevel  = getLevel(QString(), BM_END);
+                buildMod[BM_END] = true;
                 break;
 
             // Search until next step/rotstep meta
             case RotStepRc:
             case StepRc:
+                if (!buildMod[BM_END])
+                    parseError(QString("Required meta BUILD_MOD END not found"), here, Preferences::ParseErrors);
                 foreach (int buildModLevel, buildModKeys.keys())
                     insertBuildModification(buildModLevel);
                 topOfNextStep = here;
                 buildModKeys.clear();
                 buildModActions.clear();
                 buildModAttributes.clear();
+                buildMod[2] = buildMod[1] = buildMod[0] = false;
                 if (here.lineNumber == buildModNextStepEnd)
                     return;
                 break;
