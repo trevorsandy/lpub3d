@@ -195,7 +195,7 @@ CONFIG(debug, debug|release) {
     win32:TARGET = $$join(TARGET,,,d)
     unix:!macx: TARGET = $$join(TARGET,,,d$$VER_MAJOR$$VER_MINOR)
 
-    # enable this to copy LDView libraries to DESTDIR - this copy should be a one-time action
+    # enable this to copy LDView libraries to DESTDIR - a one-time action
     DO_COPY_LDVLIBS = #True
 
     # enable copy ldvMessages to OUT_PWD/mainApp/extras
@@ -319,6 +319,11 @@ include(../LPub3DPlatformSpecific.pri)
 
 #~~~libraries~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+contains(DO_COPY_LDVLIBS,True) {
+    LDVIEW_LIBRARY_PATH = $$system_path( $$absolute_path($$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR))
+    message("~~~ ENABLE COPY LDVIEW LIBRARIES TO $$LDVIEW_LIBRARY_PATH ~~~ ")
+}
+
 # needed to access ui header from LDVQt
 INCLUDEPATH += $$OUT_PWD/../ldvlib/LDVQt/$$DESTDIR/.ui
 
@@ -347,6 +352,15 @@ win32 {
 !win32-msvc* {
     LIBS += -lz
 }
+
+#~~ miscellaneous ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+contains(DEVL_LDV_MESSAGES_INI,True) {
+    message("~~~ ENABLE COPY LDVMESSAGES.INI TO $$OUT_PWD/extras ~~~ ")
+}
+
+# set config to enable/disable initial update check
+# CONFIG+=update_check
+update_check: DEFINES += DISABLE_UPDATE_CHECK
 
 #~~ inputs ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -595,11 +609,8 @@ RESOURCES += \
 DISTFILES += \
     ldraw_document.icns
 
-# set config to enable initial update check
-# CONFIG+=update_check
-update_check: DEFINES += DISABLE_UPDATE_CHECK
+#~~ suppress warnings ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Suppress warnings
 !win32-msvc* {
 QMAKE_CFLAGS_WARN_ON += \
     -Wno-deprecated-declarations \
