@@ -146,7 +146,7 @@ extern SnapGridCommands sgCommands[NUM_GRID_SIZES];
  * Meta.cpp       - SceneItemMeta::SceneItemMeta(), SceneItemMeta::init()
  * lpub.cpp       - void Gui::initialize() soMap
  * name.h         - SceneObject enum, ZValue defines, IncludedSceneObjects[]
- * traverse.cpp   - case SceneItemDirectionRc
+ * traverse.cpp   - case SceneItemZValueDirectionRc
  * formatpage.cpp - bool Gui::getSceneObject(()
  */
 

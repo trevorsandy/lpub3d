@@ -1161,7 +1161,7 @@ int Gui::drawPage(
               }
               break;
 
-           case SceneItemDirectionRc:
+           case SceneItemZValueDirectionRc:
               {
                    auto insertItem = [&selectedSceneItems](Where here, SceneObjectData soData){
                       if (selectedSceneItems.contains(here))

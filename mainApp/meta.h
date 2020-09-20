@@ -146,7 +146,7 @@ enum Rc {
          ContStepNumRc,
          CountInstanceRc,
 
-         SceneItemDirectionRc,
+         SceneItemZValueDirectionRc,
 
          IncludeRc,
 

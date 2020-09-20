@@ -2544,7 +2544,7 @@ Rc SceneObjectMeta::parse(QStringList &argv, int index, Where &here)
       _value[pushed].scenePos[1] = y;
       _value[pushed].armed = true;            // not used
       _here[pushed] = here;
-      return SceneItemDirectionRc;
+      return SceneItemZValueDirectionRc;
     }
   }
   if (reportErrors) {
