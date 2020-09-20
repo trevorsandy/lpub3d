@@ -297,7 +297,7 @@ class PlacementNum : public Placement {
     }
     void format(char *format)
     {
-      str.sprintf(format,number);
+      str.asprintf(format,number);
     }
     void sizeit();
     void sizeit(QString fmt);

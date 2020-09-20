@@ -93,6 +93,8 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
         editWindow->statusBar()->show();
         readSettings();
     }
+
+    setMinimumSize(200, 200);
 }
 
 QAbstractItemModel *EditWindow::modelFromFile(const QString& fileName)

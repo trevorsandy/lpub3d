@@ -1078,10 +1078,16 @@ void Gui::createStatusBar()
 
 void Gui::SetActiveModel(const QString &fileName,bool newSubmodel)
 {
-    if (fileName != VIEWER_MODEL_DEFAULT) {
-        displayFile(&ldrawFile,
-                    newSubmodel ? fileName :
-                                  getSubmodelName(QString(viewerStepKey[0]).toInt()));
+    // Load LDraw Editor only when image type is CSI and associated with the viewer vs. image generation
+    if (lcGetActiveProject()->GetImageType() == Options::Mt::CSI
+            && getCurrentStep()
+            && !viewerStepKey.isEmpty()) {
+        // TODO solve intended step when in multi-step mode
+        if (fileName != VIEWER_MODEL_DEFAULT) {
+            displayFile(&ldrawFile,
+                        newSubmodel ? fileName :
+                                      getSubmodelName(QString(viewerStepKey[0]).toInt()));
+        }
     }
 }
 

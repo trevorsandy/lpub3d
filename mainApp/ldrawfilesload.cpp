@@ -132,6 +132,8 @@ LdrawFilesLoad::LdrawFilesLoad(QStringList &stringList,QWidget *parent) :
     ui->messagesView->addAction(copyAct);
     connect(copyAct, SIGNAL(triggered()), this, SLOT(copy()));
 
+    setMinimumSize(100, 100);
+
     setModal(true);
 }
 

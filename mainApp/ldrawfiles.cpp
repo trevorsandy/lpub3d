@@ -1022,7 +1022,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
     std::function<QString()> fileType;
     fileType = [this] ()
     {
-        return topLevelModel ? "modelfile" : "subfile";
+        return topLevelModel ? "model" : "submodel";
     };
 
     std::function<int()> missingHeaders;
@@ -1337,7 +1337,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
 
         unofficialPart = false;
 
-        QString fileType = topLevelModel ? "modelfile" : "subfile";
+        QString fileType = topLevelModel ? "model" : "submodel";
 
         /* Read it in the first time to put into fileList in order of appearance */
 
@@ -1948,7 +1948,7 @@ void LDrawFile::countParts(const QString &fileName) {
 
                 QString type;
                 bool countThisLine = true;
-                if ((countThisLine = tokens[0] == "1" && tokens.size() == 15))
+                if ((countThisLine = tokens.size() == 15 && tokens[0] == "1"))
                     type = tokens[14];
                 else if (isSubstitute(line, type))
                     countThisLine = !type.isEmpty();
