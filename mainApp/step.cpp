@@ -108,7 +108,7 @@ Step::Step(
       stepNumber.color        = _meta.LPub.callout.stepNum.color.value();
       stepNumber.margin       = _meta.LPub.callout.stepNum.margin;
       pliPerStep              = _meta.LPub.callout.pli.perStep.value();
-      csiStepMeta           = _meta.LPub.callout.csi;
+      csiStepMeta             = _meta.LPub.callout.csi;
       justifyStep             = _meta.LPub.callout.justifyStep;
     } else if (multiStep) {
       csiPlacement.margin     = _meta.LPub.multiStep.csi.margin;
@@ -124,7 +124,7 @@ Step::Step(
       subModel.margin         = _meta.LPub.multiStep.subModel.margin;
       subModel.placement      = _meta.LPub.multiStep.subModel.placement;
       pliPerStep              = _meta.LPub.multiStep.pli.perStep.value();
-      csiStepMeta           = _meta.LPub.multiStep.csi;
+      csiStepMeta             = _meta.LPub.multiStep.csi;
       justifyStep             = _meta.LPub.multiStep.justifyStep;
       adjustOnItemOffset      = _meta.LPub.multiStep.adjustOnItemOffset.value();
       stepSize                = _meta.LPub.multiStep.stepSize;
@@ -289,6 +289,7 @@ int Step::createCsi(
   QString imageMatteKey = QString("%1_%2").arg(csi_Name).arg(stepNumber.number);
 
   // populate csiKey - Add CompareKey and ImageMatteKey if LDView Single Call
+  // key components: compareKey|imageMatteKey|rendererParms
   if (renderer->useLDViewSCall()) {
       QString compareKey = keyPart2;
       // append rotate type if specified

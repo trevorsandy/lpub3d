@@ -3325,31 +3325,31 @@ public:
   // top    == start of callout
   // bottom == end of callout
   // Placement needs to be outside callout begin/end
-
-  PlacementMeta  placement;     // outside
-
-  MarginsMeta         margin;
-  SettingsMeta        csi;
-  CalloutPliMeta      pli;
-  RotateIconMeta      rotateIcon;
-  NumberPlacementMeta stepNum;
-  SepMeta             sep;
-  FreeFormMeta        freeform;
-  CalloutBeginMeta    begin;
-  RcMeta              divider;
-  RcMeta              end;
   AllocMeta           alloc;
-  JustifyStepMeta     justifyStep;
-  NumberPlacementMeta instance;
-  BorderMeta          border;
-  BackgroundMeta      background;
-  PointerMeta         pointer;
-  PointerAttribMeta   pointerAttrib;
+  CalloutBeginMeta    begin;
+  SettingsMeta        csi;
+  RcMeta              divider;
   PointerMeta         divPointer;
   PointerAttribMeta   divPointerAttrib;
-  StringListMeta      subModelColor;
+  RcMeta              end;
+  FreeFormMeta        freeform;
+  JustifyStepMeta     justifyStep;
+  MarginsMeta         margin;
+  PlacementMeta       placement;      //  outside
+  SepMeta             sep;
+  NumberPlacementMeta stepNum;
   FontListMeta        subModelFont;
   StringListMeta      subModelFontColor;
+
+  BackgroundMeta      background;
+  BorderMeta          border;
+  NumberPlacementMeta instance;
+  CalloutPliMeta      pli;
+  PointerMeta         pointer;
+  PointerAttribMeta   pointerAttrib;
+  RotateIconMeta      rotateIcon;
+  StringListMeta      subModelColor;
+
   CalloutMeta();
   CalloutMeta(const CalloutMeta &rhs) : BranchMeta(rhs)
   {
@@ -3366,26 +3366,28 @@ class MultiStepMeta : public BranchMeta
 public:
   // top    == start of multistep
   // bot    == bottom of multistep
-  PlacementMeta       placement;
-  MarginsMeta         margin;
-  SettingsMeta        csi;
-  CalloutPliMeta      pli;
+  AllocMeta             alloc;
+  RcMeta                begin;
+  SettingsMeta          csi;
+  RcMeta                divider;
+  PointerMeta           divPointer;
+  PointerAttribMeta     divPointerAttrib;
+  RcMeta                end;
+  FreeFormMeta          freeform;
+  JustifyStepMeta       justifyStep;
+  MarginsMeta           margin;
+  PlacementMeta         placement;
+  CalloutPliMeta        pli;
+  SepMeta               sep;
+  NumberPlacementMeta   stepNum;
+  FontListMeta          subModelFont;
+  StringListMeta        subModelFontColor;
+
+  BoolMeta              adjustOnItemOffset;
+  RotateIconMeta        rotateIcon;
+  UnitsMeta             stepSize;
   MultiStepSubModelMeta subModel;
-  RotateIconMeta      rotateIcon;
-  NumberPlacementMeta stepNum;
-  SepMeta             sep;
-  JustifyStepMeta     justifyStep;
-  FreeFormMeta        freeform;
-  RcMeta              begin;
-  RcMeta              divider;
-  RcMeta              end;
-  PointerMeta         divPointer;
-  PointerAttribMeta   divPointerAttrib;
-  AllocMeta           alloc;
-  FontListMeta        subModelFont;
-  StringListMeta      subModelFontColor;
-  BoolMeta            adjustOnItemOffset;
-  UnitsMeta           stepSize;
+
   MultiStepMeta();
   MultiStepMeta(const MultiStepMeta &rhs) : BranchMeta(rhs)
   {

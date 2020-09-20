@@ -1799,15 +1799,7 @@ int Gui::drawPage(
                       timer.start();
                       QString empty("");
 
-                      // set the extra renderer parms
-                      if (step) {
-                      /*steps->meta*/steps->groupStepMeta.LPub.assem.ldviewParms =
-                                  Render::getRenderer() == RENDERER_LDVIEW ?  step->ldviewParms :
-                                  Render::getRenderer() == RENDERER_LDGLITE ? step->ldgliteParms :
-                                                /*POV scene file generator*/  step->ldviewParms ;
-                          if (Preferences::preferredRenderer == RENDERER_POVRAY)
-                              /*steps->meta*/steps->groupStepMeta.LPub.assem.povrayParms = step->povrayParms;
-                      }
+                      // renderer parms are added to csiKeys in createCsi()
 
                       int rc = renderer->renderCsi(empty,opts.ldrStepFiles,opts.csiKeys,empty,/*steps->meta*/steps->groupStepMeta);
                       if (rc != 0) {
@@ -2330,15 +2322,7 @@ int Gui::drawPage(
                           timer.start();
                           QString empty("");
 
-                          // set the extra renderer parms
-                          if (step) {
-                              steps->meta.LPub.assem.ldviewParms =
-                                      Render::getRenderer() == RENDERER_LDVIEW ?  step->ldviewParms :
-                                      Render::getRenderer() == RENDERER_LDGLITE ? step->ldgliteParms :
-                                                    /*POV scene file generator*/  step->ldviewParms ;
-                              if (Preferences::preferredRenderer == RENDERER_POVRAY)
-                                  steps->meta.LPub.assem.povrayParms = step->povrayParms;
-                          }
+                          // LDView renderer parms are added to csiKeys in createCsi()
 
                           // render the partially assembled model
                           int rc = renderer->renderCsi(empty,opts.ldrStepFiles,opts.csiKeys,empty,steps->meta);

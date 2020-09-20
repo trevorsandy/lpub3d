@@ -2363,7 +2363,7 @@ int Pli::partSizeLDViewSCall() {
                 if (((pT == FADE_PART) && !fadePartOK) || ((pT == HIGHLIGHT_PART) && !highlightPartOK))
                      continue;
 
-                // pass substitute key to single call list - createPartImagesLDViewSCall()
+                // pass substitute key to single call list
                 if (keySub && !ia.sub[pT])
                     ia.sub[pT] = keySub;
                 ia.baseName[pT] = QFileInfo(pliPart->type).completeBaseName();
@@ -3314,8 +3314,8 @@ void PliBackgroundItem::contextMenuEvent(
         }  else if (selectedAction == rendererArgumentsAction) {
             StringMeta rendererArguments =
                     Render::getRenderer() == RENDERER_LDVIEW ? pli->pliMeta.ldviewParms :
-                                                               Render::getRenderer() == RENDERER_LDGLITE ? pli->pliMeta.ldgliteParms :
-                                                                                                           /*POV scene file generator*/  pli->pliMeta.ldviewParms ;
+                    Render::getRenderer() == RENDERER_LDGLITE ? pli->pliMeta.ldgliteParms :
+                                  /*POV scene file generator*/  pli->pliMeta.ldviewParms ;
             setRendererArguments(top,
                                  bottom,
                                  rendererName,

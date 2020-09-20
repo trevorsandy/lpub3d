@@ -469,12 +469,12 @@ bool Render::compareImageAttributes(
             attributesList.removeAt(nColorCode);
             attributesList.removeAt(nType);
         }
-        const QString attributesCompare = attributesList.join("_");
-        result = compareKey != attributesCompare;
+        const QString attributesKey = attributesList.join("_");
+        result = compareKey != attributesKey;
         if (Preferences::debugLogging) {
-            message = QString("File attributes compare [%1], attributesCompare [%2], compareKey [%3]")
-                              .arg(result ? "No Match - usingSnapshotArgs" : "Match" )
-                              .arg(attributesCompare).arg(compareKey);
+            message = QString("Attributes compare: [%1], attributesKey [%2], compareKey [%3]")
+                              .arg(result ? "No Match - usingSnapshotArgs (attributes)" : "Match" )
+                              .arg(attributesKey).arg(compareKey);
             gui->messageSig(LOG_DEBUG, message);
         }
     } else {
@@ -1647,7 +1647,11 @@ int LDView::renderCsi(
     QString assemPath = QDir::toNativeSeparators(QDir::currentPath() + "/" + Paths::assemDir);
 
     // Populate render attributes
-    QStringList ldviewParmslist = meta.LPub.assem.ldviewParms.value().split(' ');
+    QStringList ldviewParmslist;
+    if (useLDViewSCall())
+        ;
+    else
+        ldviewParmslist = meta.LPub.assem.ldviewParms.value().split(' ');
     QString transform  = meta.rotStep.value().type;
     bool noCA          = Preferences::applyCALocally || transform == "ABS";
     bool pp            = Preferences::perspectiveProjection;
@@ -1685,9 +1689,6 @@ int LDView::renderCsi(
         if (meta.rotStep.isPopulated())
             compareKey.append(QString("_%1")                             // 8
                               .arg(transform.isEmpty() ? "REL" : transform));
-        // append LDView parameters if specified
-        if (ldviewParmslist.size() && (ldviewParmslist[0] != "" && ldviewParmslist[0] != " "))
-            compareKey.append(QString("_%1").arg(meta.LPub.assem.ldviewParms.value()));
     }
 
     /* determine camera distance */
@@ -1829,6 +1830,7 @@ int LDView::renderCsi(
     QString f, snapshotArgsKey, imageMatteArgsKey;
     bool usingListCmdArg     = false;
     bool usingDefaultArgs    = true;
+    bool usingSingleSetArgs  =false;
     bool snapshotArgsChanged = false;
     bool enableIM            = false;
     QStringList ldrNames, ldrNamesIM, snapshotLdrs;
@@ -1863,10 +1865,8 @@ int LDView::renderCsi(
             keys              = csiKeys.at(i).split("|");
             snapshotArgsKey   = keys.at(0);
             imageMatteArgsKey = keys.at(1);
-            if (keys.size() == 3) {
-                snapshotArgsKey.append(QString("_%1").arg(keys.at(2)));
+            if (keys.size() == 3)
                 ldviewParmslist = keys.at(2).split(" ");
-            }
             attributes = snapshotArgsKey.split("_");
             if (attributes.size() > 2)
                 attributes.replace(1,"0");
@@ -1903,7 +1903,7 @@ int LDView::renderCsi(
 
         if (snapshotLdrs.size() ) {
             // using default args or same snapshot args for all parts
-            if (usingDefaultArgs || usingSnapshotArgs) {
+            if ((usingSingleSetArgs = usingDefaultArgs || usingSnapshotArgs)) {
 
                 // using same snapshot args for all parts
                 if (usingSnapshotArgs) {
@@ -1959,6 +1959,8 @@ int LDView::renderCsi(
 
     } else { // End Use SingleCall
 
+        usingSingleSetArgs = usingDefaultArgs;
+
         int rc;
         QString csiKey = QString();
         if (Preferences::enableFadeSteps && Preferences::enableImageMatting &&
@@ -1995,7 +1997,7 @@ int LDView::renderCsi(
     QString v  = QString("-vv");
 
     QStringList arguments;
-    if (usingDefaultArgs){
+    if (usingSingleSetArgs){
         arguments << CA;             // Camera Angle (i.e. Field of Veiw)
         arguments << cg.split(" ");  // Camera Globe, Target and Additional Parameters when specified
     }
@@ -2310,6 +2312,7 @@ int LDView::renderPli(
   QString f;
   bool hasSubstitutePart   = false;
   bool usingDefaultArgs    = true;
+  bool usingSingleSetArgs  = false;
   bool snapshotArgsChanged = false;
   if (useLDViewSCall() && pliType != SUBMODEL) {  // Use LDView SingleCall
 
@@ -2372,7 +2375,7 @@ int LDView::renderPli(
 
       if (snapshotLdrs.size()) {
           // using default args or same snapshot args for all parts
-          if (usingDefaultArgs || usingSnapshotArgs) {
+          if ((usingSingleSetArgs = usingDefaultArgs || usingSnapshotArgs)) {
 
               // using same snapshot args for all parts
               if (usingSnapshotArgs) {
@@ -2433,6 +2436,8 @@ int LDView::renderPli(
 
   } else { // End Use SingleCall
 
+      usingSingleSetArgs = usingDefaultArgs;
+
       if (keySub) {
           // process substitute attributes
           attributes = getImageAttributes(pngName);
@@ -2453,7 +2458,7 @@ int LDView::renderPli(
   QString v  = QString("-vv");
 
   QStringList arguments;
-  if (usingDefaultArgs){
+  if (usingSingleSetArgs){
       arguments << CA;             // Camera Angle (i.e. Field of Veiw)
       arguments << cg.split(" ");  // Camera Globe, Target and Additional Parameters when specified
   }
