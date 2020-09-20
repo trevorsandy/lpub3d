@@ -445,7 +445,7 @@ QWidget *lcQPropertiesTree::createEditor(QWidget *parent, QTreeWidgetItem *item)
 			QLineEdit *editor = new QLineEdit(parent);
 			float value = item->data(0, PropertyValueRole).toFloat();
 
-			QRegExp vrx("^(?:[+\\-]{0,1}[\\d]+[.]{0,1}[\\d]*){1}\\s{0,1}(?:[+\\-]{0,1}[\\d]+[.]{0,1}[\\d]*){0,1}$");
+            QRegExp vrx("^(?:[+\\-]{0,1}[\\d]+[,|.]{0,1}[\\d]*){1}\\s{0,1}(?:[+\\-]{0,1}[\\d]+[,|.]{0,1}[\\d]*){0,1}$");
 			editor->setValidator(new QRegExpValidator(vrx,parent));
 			editor->setText(lcFormatValueLocalized(value));
 			editor->setToolTip("Eneter respective angle or both angles. Use single space delimeter");
@@ -459,7 +459,7 @@ QWidget *lcQPropertiesTree::createEditor(QWidget *parent, QTreeWidgetItem *item)
 			QLineEdit *editor = new QLineEdit(parent);
 			float value = item->data(0, PropertyValueRole).toFloat();
 
-			QRegExp vrx("^(?:[+\\-]{0,1}[\\d]+[.]{0,1}[\\d]*){1}\\s{0,1}(?:[+\\-]{0,1}[\\d]+[.]{0,1}[\\d]*){0,1}\\s{0,1}(?:[+\\-]{0,1}[\\d]+[.]{0,1}[\\d]*){0,1}$");
+            QRegExp vrx("^(?:[+\\-]{0,1}[\\d]+[,|.]{0,1}[\\d]*){1}\\s{0,1}(?:[+\\-]{0,1}[\\d]+[,|.]{0,1}[\\d]*){0,1}\\s{0,1}(?:[+\\-]{0,1}[\\d]+[,|.]{0,1}[\\d]*){0,1}$");
 			editor->setValidator(new QRegExpValidator(vrx,parent));
 			editor->setText(lcFormatValueLocalized(value));
 			editor->setToolTip("Enter respective axis or all axes. Use single space delimeter");
