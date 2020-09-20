@@ -1231,7 +1231,8 @@ int Pli::createPartImagesLDViewSCall(QStringList &ldrNames, bool isNormalPart, i
             /* Add annotation area */
 
             if (part->styleMeta.style.value() == AnnotationStyle::circle ||
-                part->styleMeta.style.value() == AnnotationStyle::square)
+                part->styleMeta.style.value() == AnnotationStyle::square ||
+                part->styleMeta.style.value() == AnnotationStyle::rectangle)
                 descr = Annotations::getStyleAnnotation(part->type);
             else
                 getAnnotation(part->type,descr);
@@ -2130,7 +2131,8 @@ int Pli::partSize()
               /* Add annotation area */
 
               if (part->styleMeta.style.value() == AnnotationStyle::circle ||
-                  part->styleMeta.style.value() == AnnotationStyle::square)
+                  part->styleMeta.style.value() == AnnotationStyle::square ||
+                  part->styleMeta.style.value() == AnnotationStyle::rectangle)
                   descr = Annotations::getStyleAnnotation(part->type);
               else
                   getAnnotation(part->type,descr);

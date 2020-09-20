@@ -777,7 +777,7 @@ void Annotations::loadDefaultAnnotationStyles(QByteArray& Buffer){
 #
 # Space-delmited LDraw Design ID, Annotation Style and Part Category cross reference
 #
-# The Regular Expression used is: ^(\b[^=]+\b)=([1|2])\s+([1-6])?\s*([^\s]+).*$
+# The Regular Expression used is: ^(\b[^=]+\b)=([1|2|3])\s+([1-6])?\s*([^\s]+).*$
 #
 # 1. Design ID:           LDraw Part Name                 (Required)
 # 2. Annotation Style:    1 Square, 2 Circle, 3 Rectangle (Required)
@@ -1325,7 +1325,7 @@ Annotations::Annotations()
 
     if (annotationStyles.size() == 0) {
         QString styleFile = Preferences::annotationStyleFile;
-        QRegExp rx("^(\\b[^=]+\\b)=([1|2])\\s+([1-6])?\\s*([^\\s]+).*$");
+        QRegExp rx("^(\\b[^=]+\\b)=([1|2|3])\\s+([1-6])?\\s*([^\\s]+).*$");
         if (!styleFile.isEmpty()) {
             QFile file(styleFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
@@ -1362,8 +1362,10 @@ Annotations::Annotations()
                         QString parttype = rx.cap(1);
                         QString style = rx.cap(2).isEmpty() ? QString() : rx.cap(2);
                         QString category = rx.cap(3).isEmpty() ? QString() : rx.cap(3);
-                        QString annotation = rx.cap(4).isEmpty() ? QString() : rx.cap(4);
+                        QString annotation = rx.cap(4).isEmpty() ? QString() : rx.cap(4).replace("\"", "");
                         annotationStyles[parttype.toLower()] << style << category << annotation;
+//                        logDebug() << QString("AnnotationStyle: Type [%1], Style [%2], Annotation [%3], Category [%4]")
+//                                              .arg(parttype).arg(style).arg(annotation).arg(category);
                     }
                 }
             } else {
@@ -1389,8 +1391,10 @@ Annotations::Annotations()
                     QString parttype = rx.cap(1);
                     QString style = rx.cap(2).isEmpty() ? QString() : rx.cap(2);
                     QString category = rx.cap(3).isEmpty() ? QString() : rx.cap(3);
-                    QString annotation = rx.cap(4).isEmpty() ? QString() : rx.cap(4);
+                    QString annotation = rx.cap(4).isEmpty() ? QString() : rx.cap(4).replace("\"", "");
                     annotationStyles[parttype.toLower()] << style << category << annotation;
+//                    logDebug() << QString("AnnotationStyle: Type [%1], Style [%2], Annotation [%3], Category [%4]")
+//                                          .arg(parttype).arg(style).arg(annotation).arg(category);
                 }
             }
         }
