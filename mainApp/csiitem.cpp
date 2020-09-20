@@ -74,7 +74,7 @@ CsiItem::CsiItem(
 
   setTransformationMode(Qt::SmoothTransformation);
 
-  setToolTip(step->path() + "- right-click to modify");
+  setToolTip(step->path() + " assembly - right-click to modify");
 
   setFlag(QGraphicsItem::ItemIsSelectable,true);
   setFlag(QGraphicsItem::ItemIsFocusable, true);

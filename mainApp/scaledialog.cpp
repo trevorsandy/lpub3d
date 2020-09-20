@@ -33,6 +33,7 @@
 UnitsDialog::UnitsDialog(
   float   values[2],
   QString _name,
+  QString _labels,
   QWidget *parent)
   : QDialog(parent)
 {
@@ -41,10 +42,11 @@ UnitsDialog::UnitsDialog(
   QVBoxLayout *layout = new QVBoxLayout(this);
   setLayout(layout);
 
+
   QGroupBox *box = new QGroupBox(_name,this);
   layout->addWidget(box);
   meta.setValues(values[0],values[1]);
-  units = new UnitsGui("L/R|T/B",&meta,box);
+  units = new UnitsGui(!_labels.isEmpty() ? _labels :"L/R|T/B",&meta,box);
 
   QDialogButtonBox *buttonBox;
   buttonBox = new QDialogButtonBox(this);
@@ -65,9 +67,10 @@ UnitsDialog::~UnitsDialog()
 bool UnitsDialog::getUnits(
   float    values[2],
   QString  name,
+  QString  labels,
   QWidget *parent)
 {
-  UnitsDialog *dialog = new UnitsDialog(values,name,parent);
+  UnitsDialog *dialog = new UnitsDialog(values,name,labels,parent);
 
   bool ok = dialog->exec() == QDialog::Accepted;
 

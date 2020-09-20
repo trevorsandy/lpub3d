@@ -340,6 +340,8 @@ void Gui::closeFile()
   setPageLineEdit->clear();
   pageSizes.clear();
   undoStack->clear();
+  if (Preferences::enableFadeSteps || Preferences::enableHighlightStep)
+      ldrawColourParts.clearGeneratedColorParts();
   submodelIconsLoaded = gMainWindow->mSubmodelIconsLoaded = false;
   if (!curFile.isEmpty())
       emit messageSig(LOG_DEBUG, QString("File closed - %1.").arg(curFile));
@@ -388,11 +390,10 @@ setWindowTitle(tr("%1[*] - %2").arg(windowName).arg(windowVersion));
 
 bool Gui::openFile(QString &fileName)
 {
-
   disableWatcher();
 
   parsedMessages.clear();
-  clearPage(KpageView,KpageScene);
+  clearPage(KpageView,KpageScene,true);
   closeFile();
   if (lcGetPreferences().mViewPieceIcons)
       mPliIconsPath.clear();
@@ -409,6 +410,8 @@ bool Gui::openFile(QString &fileName)
   Paths::mkDirs();
   editModelFileAct->setText(tr("Edit %1").arg(info.fileName()));
   editModelFileAct->setStatusTip(tr("Edit loaded LDraw model file %1").arg(info.fileName()));
+  if (Preferences::enableFadeSteps || Preferences::enableHighlightStep)
+      writeGeneratedColorPartsToTemp();
   bool overwriteCustomParts = false;
   emit messageSig(LOG_INFO, "Loading fade color parts...");
   processFadeColourParts(overwriteCustomParts);
@@ -554,6 +557,20 @@ void Gui::fileChanged(const QString &path)
     }
     displayPageNum = goToPage;
     displayPage();
+  }
+}
+
+void Gui::writeGeneratedColorPartsToTemp(){
+  for (int i = 0; i < ldrawFile._subFileOrder.size(); i++) {
+    QString fileName = ldrawFile._subFileOrder[i].toLower();
+    if (ldrawColourParts.isLDrawColourPart(fileName)) {
+      Where here(ldrawFile._subFileOrder[i],0);
+      normalizeHeader(here);
+      QString fileName = ldrawFile._subFileOrder[i].toLower();
+      QStringList content = ldrawFile.contents(fileName);
+      emit messageSig(LOG_INFO, "Writing generated part to temp directory: " + fileName + "...");
+      writeToTmp(fileName,content);
+    }
   }
 }
 

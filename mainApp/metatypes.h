@@ -186,24 +186,26 @@ enum PlacementType {          // placement dialogue codes:
   SubModelType,               //25 Sm
   RotateIconType,             //26 Ri
   CsiPartType,                //27 Cp
-  BomType,                    //28
+  StepType,                   //28 Stp
+  RangeType,                  //29 Rng
+  TextType,                   //30
+  BomType,                    //31
 
-  PagePointerType,            //29
-  SingleStepType,             //30
-  StepType,                   //31
-  RangeType,                  //32
-  ReserveType,                //33
-  CoverPageType,              //34
-  CsiAnnotationType,          //35
-  DividerPointerType,         //36
+  PagePointerType,            //32
+  SingleStepType,             //33
+  ReserveType,                //34
+  CoverPageType,              //35
+  CsiAnnotationType,          //36
+  DividerPointerType,         //37
 
-  NumRelatives                //37
+  NumRelatives                //38
 };
 
 enum pageType{
     ContentPage = 0,
     FrontCoverPage,
-    BackCoverPage
+    BackCoverPage,
+    DefaultPage
 };
 
 enum AnnotationStyle{
@@ -437,35 +439,50 @@ public:
   {
     InsertPicture,
     InsertText,
-    InsertHtmlText,
+    InsertRichText,
     InsertArrow,
     InsertBom,
     InsertRotateIcon,
   } type;
 
   struct InsertWhere {
-    QString   modelName  = "undefined";
-    int       lineNumber = 0;
+    QString      modelName  = "undefined";
+    int          lineNumber = 0;
   };
-  InsertWhere where;
-  QString     picName;
-  qreal       picScale;
-  QString     text;
-  QString     textFont;
-  QString     textColor;
-  QPointF     arrowHead;
-  QPointF     arrowTail;
-  qreal       haftingDepth;
-  QPointF     haftingTip;
-  float       offsets[2];
+  InsertWhere    where;
+  QString        picName;
+  qreal          picScale;
+  QString        text;
+  QString        textFont;
+  QString        textColor;
+  QPointF        arrowHead;
+  QPointF        arrowTail;
+  qreal          haftingDepth;
+  QPointF        haftingTip;
+  float          offsets[2];
+  RectPlacement  rectPlacement;
+  PlacementType  relativeTo;
+  PlacementEnc   placement;
+  PlacementEnc   justification;
+  PrepositionEnc preposition;
+  PlacementType  relativeType;
+  PlacementType  parentRelativeType;
+  bool           defaultPlacement;
+  bool           placementCommand;
   InsertData()
   {
-    picScale = 1.0;
-    offsets[0] = 0.5;
-    offsets[1] = 0.5;
-    haftingDepth = 0;
-    textFont  = "Arial,48,-1,255,75,0,0,0,0,0";
-    textColor = "Black";
+    picScale           = 1.0;
+    offsets[0]         = 0.5;
+    offsets[1]         = 0.5;
+    haftingDepth       = 0;
+    textFont           = "Arial,48,-1,255,75,0,0,0,0,0";
+    textColor          = "Black";
+    defaultPlacement   = true;
+    placementCommand   = false;
+    rectPlacement      = TopLeftInsideCorner;
+    relativeType       = TextType;
+    relativeTo         = PageType;
+    parentRelativeType = PageType;
   }
 };
 

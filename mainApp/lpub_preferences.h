@@ -92,6 +92,7 @@ class Preferences
     static void setSceneRulerTickColorPreference(QString);
     static void setSceneRulerTrackingColorPreference(QString);
     static void setSceneGuideColorPreference(QString);
+    static void setDebugLogging(bool);
 
     static QString lpub3dAppName;
     static QString ldrawLibPath;
@@ -273,6 +274,7 @@ class Preferences
     static bool    customSceneRulerTickColor;
     static bool    customSceneRulerTrackingColor;
     static bool    customSceneGuideColor;
+    static bool    debugLogging;
 
 
 #ifdef Q_OS_MAC

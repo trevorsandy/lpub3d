@@ -257,6 +257,8 @@ Highlighter::Highlighter(QTextDocument *parent)
 
     QStringList LPubBodyMetaPatterns;
     LPubBodyMetaPatterns
+    << "\\bADJUST_ON_ITEM_OFFSET\\b"
+    << "\\bASSEM_PART\\b"
     << "\\bAFTER\\b"
     << "\\bALLOC\\b"
     << "\\bANNOTATE\\b"
@@ -343,6 +345,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bDPI\\b"
     << "\\bELEMENT_STYLE\\b"
     << "\\bENABLE_STYLE\\b"
+    << "\\bENABLE_TEXT_PLACEMENT\\b"
     << "\\bEND\\b"
     << "\\bEND_SUB\\b"
     << "\\bEXTENDED\\b"
@@ -370,7 +373,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bHIGHLIGHT_STEP\\b"
     << "\\bHORIZONTAL\\b"
     << "\\bHOSE\\b"
-    << "\\bHTML_TEXT\\b"
+    << "\\bRICH_TEXT\\b"
     << "\\bICON\\b"
     << "\\bIGN\\b"
     << "\\bINCLUDE\\b"
@@ -470,6 +473,8 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bSQUARE_STYLE\\b"
     << "\\bSTEP_NUMBER\\b"
     << "\\bSTEP_PLI\\b"
+    << "\\bSTEP_BACKGROUND\\b"
+    << "\\bSTEP_SIZE\\b"
     << "\\bSTEPS\\b"
     << "\\bSTRETCH\\b"
     << "\\bSTYLE\\b"
@@ -486,6 +491,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bTERTIARY\\b"
     << "\\bTERTIARY_DIRECTION\\b"
     << "\\bTEXT\\b"
+    << "\\bTEXT_PLACEMENT\\b"
     << "\\bTHICKNESS\\b"
     << "\\bTILE\\b"
     << "\\bTOGGLE_PAGE_NUMBER_PLACEMENT\\b"

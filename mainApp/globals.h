@@ -94,6 +94,8 @@ public:
 
   MetaGui        *child;
 
+  MetaGui        *childTextPlacementMeta;
+
   MetaGui        *authorChildFront;
   MetaGui        *authorChildBack;
   MetaGui        *authorChild;
@@ -128,6 +130,7 @@ public slots:
   void accept();
   void cancel();
   void displayGroup(bool b);
+  void enableTextPlacement(bool b);
 };
 
 /*****************************************************************

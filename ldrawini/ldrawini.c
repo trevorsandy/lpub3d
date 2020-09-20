@@ -46,6 +46,7 @@ If not, I don't know who wrote it.
 080910 lch Try typical locations for LDrawDir and see if they have P and PARTS
 080915 lch Added LDrawDirOrigin and SearchDirsOrigin
 160801 tds Added "ldraw\unofficial\" to GetDefaultLDrawSearch (for LPub3D)
+191009 tds Fix LDrawIni to work with UTF-8 paths.
 ******************************************************************************/
 
 /*
@@ -75,6 +76,7 @@ sprintf stat strcat strchr strcmp strcpy strdup strlen strncmp strncpy ungetc
 
 /* Preprocessor flags:
  _WIN32      VC++
+ WIN_UTF8_PATHS Paths are UTF-8, and build is Windows
  __TURBOC__  Borland TurboC
  __linux__   RedHat7.3 gcc -E -dM reveals: __ELF__ __i386 __i386__ i386
                  __i586 __i586__ i586 __linux __linux__ linux
@@ -85,6 +87,13 @@ sprintf stat strcat strchr strcmp strcpy strdup strlen strncmp strncpy ungetc
                  __GNUC__=3 __MACH__=1 __STDC__=1
 */
 /* Naming refers to Windows platform */
+#if defined(_WIN32)
+#define WIN_UTF8_PATHS
+#endif
+#ifdef WIN_UTF8_PATHS
+#include <Windows.h>
+#include <Shlwapi.h>
+#endif
 #if defined(_WIN32) || defined(__TURBOC__)
 // Disable warning message C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead.
 #pragma warning( disable : 4996 )
@@ -197,15 +206,15 @@ struct LDrawIniS *LDrawIniGet(const char *LDrawDir,
             /* Not found, see if default/typical locations has P and PARTS */
             if (TryTypicalLDrawDirs(Str, sizeof(Str)))
             {
-              LDrawIni->LDrawDir = strdup(Str);
-              LDrawIni->LDrawDirOrigin = strdup("Typical location on disk");
+               LDrawIni->LDrawDir = strdup(Str);
+               LDrawIni->LDrawDirOrigin = strdup("Typical location on disk");
             }
             else
             {
-              if (ErrorCode)
-                *ErrorCode = LDRAWINI_ERROR_LDRAWDIR_NOT_SET;
-              free(LDrawIni);
-              return NULL;
+               if (ErrorCode)
+                  *ErrorCode = LDRAWINI_ERROR_LDRAWDIR_NOT_SET;
+               free(LDrawIni);
+               return NULL;
             }
          }
       }
@@ -425,6 +434,7 @@ static void FreeSymbolicDirs(struct LDrawIniS * LDrawIni)
 
 static const char *GetDefaultLDrawSearch(void)
 {
+   // LPub3D Mod - add Unofficial folder
    return "<MODELDIR>"
    "|<HIDE><DEFPRIM><LDRAWDIR>\\p"
    "|<DEFPART><LDRAWDIR>\\parts"
@@ -432,6 +442,7 @@ static const char *GetDefaultLDrawSearch(void)
    "|<UNOFFIC><HIDE><DEFPRIM><LDRAWDIR>\\unofficial\\p"
    "|<UNOFFIC><DEFPART><LDRAWDIR>\\unofficial\\parts"
    "|<UNOFFIC><HIDE><DEFPRIM><LDRAWDIR>\\unofficial";
+   // LPub3D Mod End
 }
 
 /* Returns 1 if OK, 0 on error */
@@ -519,7 +530,7 @@ int LDrawIniReadPreferences(const char *ApplicationID,
    CFTypeID       PropType;
 
    AppID = CFStringCreateWithCString(kCFAllocatorDefault, ApplicationID,
-                                     kCFStringEncodingASCII);
+                                     kCFStringEncodingUTF8);
    if (!AppID)
       return 0;
    /* CFPreferencesCopyAppValue looks in ~/Library/Preferences/org.ldraw.plist
@@ -532,7 +543,7 @@ int LDrawIniReadPreferences(const char *ApplicationID,
       if (strcmp(PrefKey, "BaseDirectory") == 0)
          PrefKey = "LDRAWDIR";  /* For backward compatibility                */
       AppleKey = CFStringCreateWithCString(kCFAllocatorDefault, PrefKey,
-                                           kCFStringEncodingASCII);
+                                           kCFStringEncodingUTF8);
       AppleStr = (CFStringRef) CFPreferencesCopyAppValue(AppleKey, AppID);
       CFRelease(AppleKey);
       if (AppleStr)
@@ -546,7 +557,7 @@ int LDrawIniReadPreferences(const char *ApplicationID,
    {
       /* Section (other than "LDraw") specified, look for dictionary */
       AppleSection = CFStringCreateWithCString(kCFAllocatorDefault, Section,
-                                               kCFStringEncodingASCII);
+                                               kCFStringEncodingUTF8);
       PropList = CFPreferencesCopyAppValue(AppleSection, AppID);
       CFRelease(AppleSection);
       if (PropList)
@@ -555,7 +566,7 @@ int LDrawIniReadPreferences(const char *ApplicationID,
          if (PropType == CFDictionaryGetTypeID())
          {
             AppleKey = CFStringCreateWithCString(kCFAllocatorDefault, Key,
-                                                 kCFStringEncodingASCII);
+                                                 kCFStringEncodingUTF8);
             AppleStr = (CFStringRef) CFDictionaryGetValue((CFDictionaryRef) PropList,
                                                           AppleKey);
             CFRelease(AppleKey);
@@ -1064,14 +1075,33 @@ static void L3FixSlashes(register char *Path)
          *Path = BACKSLASH_CHAR;
 }
 
+static int L3IsDirHelper(char *Path)
+{
+#ifdef WIN_UTF8_PATHS
+   int pathBufSize = MultiByteToWideChar(CP_UTF8, 0, Path, -1, NULL, 0);
+   if (pathBufSize > 0)
+   {
+      LPWSTR WPath = malloc(pathBufSize * sizeof(WCHAR));
+      MultiByteToWideChar(CP_UTF8, 0, Path, -1, WPath, pathBufSize);
+      if (PathIsDirectoryW(WPath))
+      {
+         free(WPath);
+         return 1;
+      }
+      free(WPath);
+   }
+#endif
+   struct stat    Stat;
+   if (stat(Path, &Stat) == 0)
+      return (Stat.st_mode & S_IFDIR);
+   return 0;
+}
+
 static int L3IsDir(char *Path)
 {
-   struct stat    Stat;
 #ifdef _WIN32
    char           NewPath[4];
-#endif
 
-#ifdef _WIN32
    if (strlen(Path) == 2 && Path[1] == ':')
    {
       NewPath[0] = Path[0];
@@ -1081,12 +1111,12 @@ static int L3IsDir(char *Path)
       Path = NewPath;
    }
 #endif
-   if (stat(Path, &Stat) == 0)
-      return (Stat.st_mode & S_IFDIR);
+   if (L3IsDirHelper(Path))
+      return 1;
    if (gFileCaseCallback && gFileCaseCallback(Path))
    {
-      if (stat(Path, &Stat) == 0)
-         return (Stat.st_mode & S_IFDIR);
+      if (L3IsDirHelper(Path))
+         return 1;
    }
    return 0;
 }

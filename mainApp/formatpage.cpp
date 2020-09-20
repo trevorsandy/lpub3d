@@ -290,14 +290,15 @@ int Gui::addGraphicsPageItems(
     bool            printing)
 {
 
-  Page                    *page     = dynamic_cast<Page *>(steps);
+  Page                    *page  = dynamic_cast<Page *>(steps);
 
   Placement                plPage;
   PlacementHeader         *pageHeader;
   PlacementFooter         *pageFooter;
   PageBackgroundItem      *pageBg;
   PageNumberItem          *pageNumber = nullptr;
-  SubmodelInstanceCount   *instanceCount;
+  SubmodelInstanceCount   *instanceCount = nullptr;
+  TextItem                *textItem = nullptr;
 
   int pW, pH;
 
@@ -310,6 +311,10 @@ int Gui::addGraphicsPageItems(
       pH = pageSize(page->meta.LPub.page, 1);
     }
 
+  // set page type (SingleStep, MultiStep)
+
+  bool SingleStepPage = page->relativeType == SingleStepType && page->list.size();
+
 //  logDebug() << QString("  DRAW PAGE %3 SIZE PIXELS - WidthPx: %1 x HeightPx: %2 CurPage: %3")
 //                .arg(QString::number(pW), QString::number(pH)).arg(stepPageNum);
 
@@ -318,6 +323,8 @@ int Gui::addGraphicsPageItems(
 //  Moved to end of GraphicsPageItems()
 //  view->pageBackgroundItem = pageBg;
 //  pageBg->setPos(0,0);
+
+  bool textPlacement     = false;
 
   // Set up the placement aspects of the page in the Qt space
 
@@ -339,7 +346,6 @@ int Gui::addGraphicsPageItems(
   if (pageHeader->placement.value().relativeTo == plPage.relativeType) {
       plPage.appendRelativeTo(pageHeader);
       plPage.placeRelative(pageHeader);
-
     }
   pageHeader->setPos(pageHeader->loc[XX],pageHeader->loc[YY]);
 
@@ -568,28 +574,86 @@ int Gui::addGraphicsPageItems(
               }
               break;
             case InsertData::InsertText:
-            case InsertData::InsertHtmlText:
+            case InsertData::InsertRichText:
               {
-                TextItem *text = new TextItem(page->inserts[i],pageBg);
-                text->setZValue(page->meta.LPub.page.scene.insertText.zValue());
+                textPlacement = page->meta.LPub.page.textPlacement.value();
+                QString insertPreamble = QString("0 !LPUB INSERT ");
+                if (insert.placementCommand && page->textItemList.size()) {
+                    // upate placement in last inserted text
+                    textItem        = textPlacement && page->textItemList.size() ?
+                                      page->textItemList.last() : nullptr;
+                    insertPreamble += QString("%1 PLACEMENT ")
+                                              .arg(insert.type == InsertData::InsertRichText ?
+                                                   "RICH_TEXT" : "TEXT");
+                } else {
+                    // create a new text instance and insert into list
+                    textItem = new TextItem(page->inserts[i],DefaultPage,textPlacement,pageBg);
+                    textItem->setZValue(page->meta.LPub.page.scene.insertText.zValue());
+                    textItem->setSize(int(textItem->document()->size().width()),
+                                      int(textItem->document()->size().height()));
+                    if (textPlacement)
+                        page->textItemList.append(textItem);
+                }
 
-                PlacementData pld;
+                if (textItem) {
 
-                pld.placement     = TopLeft;
-                pld.justification = Center;
-                pld.relativeTo    = PageType;
-                pld.preposition   = Inside;
-                pld.offsets[0]    = insert.offsets[0];
-                pld.offsets[1]    = insert.offsets[1];
+                    textItem->relativeType       = insert.relativeType;
+                    textItem->parentRelativeType = SingleStepPage ? PageType : StepGroupType;
 
-                text->placement.setValue(pld);
+                    if (textPlacement && insert.defaultPlacement)  {
+                        textItem->placement = page->meta.LPub.page.textPlacementMeta;
+                    } else {
+                        PlacementData pld;
 
-                int margin[2] = {0, 0};
+                        Where insertHere  = page->inserts[i].here();
+                        int insertPushed  = page->inserts[i].pushed;
+                        int insertGlobal  = page->inserts[i].global;
+                        bool insertErrors = page->inserts[i].reportErrors;
 
-                plPage.placeRelative(text, margin);
-                text->setPos(text->loc[XX],text->loc[YY]);
-                text->relativeToSize[0] = plPage.size[XX];
-                text->relativeToSize[1] = plPage.size[YY];
+                        textItem->placement.pushed   = insertPushed;
+                        textItem->placement.global   = insertGlobal;
+                        textItem->placement.preamble = insertPreamble;
+                        textItem->placement.reportErrors = insertErrors;
+                        textItem->placement._here[insertPushed] = insertHere;
+
+                        pld.placement      = insert.placement;
+                        pld.justification  = insert.justification;
+                        pld.relativeTo     = insert.relativeTo;
+                        pld.preposition    = insert.preposition;
+                        pld.rectPlacement  = insert.rectPlacement;
+                        pld.offsets[0]     = insert.offsets[0];
+                        pld.offsets[1]     = insert.offsets[1];
+
+                        textItem->placement.setValue(pld);
+                    }
+
+                    int margin[2] = {0, 0};
+
+                    if (textPlacement) {
+
+                        if ((textItem->pagePlaced = textItem->placement.value().relativeTo == PageType)) {
+                            plPage.appendRelativeTo(textItem);
+                            plPage.placeRelative(textItem, margin);
+                        } else
+                        if ((textItem->pagePlaced = textItem->placement.value().relativeTo == PageHeaderType)) {
+                            pageHeader->appendRelativeTo(textItem);
+                            pageHeader->placeRelative(textItem);
+                        } else
+                        if ((textItem->pagePlaced = textItem->placement.value().relativeTo == PageFooterType)) {
+                            pageFooter->appendRelativeTo(textItem);
+                            pageFooter->placeRelative(textItem);
+                        }
+                        if (textItem->pagePlaced) {
+                            textItem->setPos(textItem->loc[XX],textItem->loc[YY]);
+                        }
+
+                    } else {
+                        plPage.placeRelative(textItem, margin);
+                        textItem->setPos(textItem->loc[XX],textItem->loc[YY]);
+                        textItem->relativeToSize[0] = plPage.size[XX];
+                        textItem->relativeToSize[1] = plPage.size[YY];
+                    }
+                }
               }
               break;
             case InsertData::InsertArrow:
@@ -618,7 +682,7 @@ int Gui::addGraphicsPageItems(
     }
 
   // If the page contains a single step then process it here
-  if (page->relativeType == SingleStepType && page->list.size()) {
+  if (SingleStepPage) {
       if (page->list.size()) {
           Range *range = dynamic_cast<Range *>(page->list[0]);
           if (range->relativeType == RangeType) {
@@ -765,6 +829,22 @@ int Gui::addGraphicsPageItems(
 
                   step->csiItem->setPos(step->csiItem->loc[XX],
                                         step->csiItem->loc[YY]);
+
+                  // place texts not relative to page
+
+                  for (int i = 0; i < page->textItemList.size(); i++) {
+                      textItem  = textPlacement ?
+                                  page->textItemList[i] : nullptr;
+                      if (textItem) {
+                          if (!textItem->pagePlaced) {
+                              if ((textItem->pagePlaced = textItem->placement.value().relativeTo == CsiType)) {
+                                  step->csiItem->appendRelativeTo(textItem);
+                                  step->csiItem->placeRelative(textItem);
+                                  textItem->setPos(textItem->loc[XX],textItem->loc[YY]);
+                              }
+                          } // if text item not placed relative to page
+                      } // if text item
+                  } // text items
 
                   // place CSI annotations //
 

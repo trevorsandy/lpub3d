@@ -35,16 +35,23 @@
 class TextItem : public QGraphicsTextItem, public Placement, public MetaItem
 {
 public:
-  InsertMeta meta;
-  bool positionChanged;
-  QPointF position;
-  bool textChanged;
+  InsertMeta    meta;
+  bool          positionChanged;
+  PlacementType parentRelativeType;
+  QPointF       position;
+  int           onPageType;
+  bool          pagePlaced;
+  bool          textPlacement;
+  bool          textChanged;
+  bool          richText;
 
   TextItem()
   {
   }
   TextItem(
     InsertMeta meta,
+    int onPageType,
+    bool placement,
     QGraphicsItem *parent);
 
  void formatText(const QString &input, QString &output);

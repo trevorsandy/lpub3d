@@ -25,9 +25,11 @@ class LDrawColourParts
   public:
     LDrawColourParts(){}
     static bool ldrawColorPartsIsLoaded();
+    static void clearGeneratedColorParts();
     static bool LDrawColorPartsLoad(QString &result);
     static bool isLDrawColourPart(QString part);
     static QString getLDrawColourPartInfo(QString part);
+    static void addLDrawColorPart(QString part);
 };
 
 #endif // LDRAWCOLOURPARTS_H

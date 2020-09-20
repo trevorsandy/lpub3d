@@ -71,6 +71,7 @@ class Step : public AbstractRangeElement
     QPixmap               csiPixmap;
     RotateIconMeta        rotateIconMeta;
     RotateIconItem        rotateIcon;
+    UnitsMeta             stepSize;
     PlacementNum          stepNumber;
     NumberPlacementMeta   numberPlacemetMeta;
     SettingsMeta          csiCameraMeta;
@@ -85,6 +86,7 @@ class Step : public AbstractRangeElement
     bool                  modelDisplayOnlyStep;
     bool                  fadeSteps;
     bool                  highlightStep;
+    bool                  adjustOnItemOffset;
     QString               ldrName;
     QString               pngName;
     QString               csiKey;
@@ -97,6 +99,8 @@ class Step : public AbstractRangeElement
 
     SceneObjectMeta       sceneRotateIconZ;
     SceneObjectMeta       sceneStepNumberZ;
+
+    MultiStepStepBackgroundItem *stepBackground;
 
     Step(
       Where                 &topOfStep,

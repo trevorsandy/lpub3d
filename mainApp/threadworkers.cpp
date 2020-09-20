@@ -499,6 +499,8 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
   // process top-level submodels
   //emit progressRangeSig(1, ldrawFile._subFileOrder.size());
 
+  // in this block, we find colour parts and their children, append the nameMod
+  // and confirm that the part exist if the part is not found, we submit it to be created
   for (int i = 0; i < ldrawFile._subFileOrder.size() && endThreadNotRequested(); i++) {
       QString subFileString = ldrawFile._subFileOrder[i].toLower();
       contents = ldrawFile.contents(subFileString);
@@ -514,6 +516,7 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
               // validate part is static color part;
               if (!fileString.isEmpty()){
                   QString fileDir  = QString();
+                  QString libType  = fileString.section(":::",0,0);
                   QString fileName = fileString.section(":::",1,1);
                   if ((fileString.indexOf("\\") != -1)) {
                      fileDir  = fileString.section(":::",1,1).split("\\").first();
@@ -523,7 +526,9 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
                   //logDebug() << "FileDir:" << fileDir << "FileName:" << fileName;
 #endif
                   QDir customFileDirPath;
-                  if (fileDir.isEmpty()){
+                  if (libType == "g"){ // generated part
+                      customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(QDir::currentPath()).arg(Paths::tmpDir));
+                  } else if (fileDir.isEmpty()){
                       customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPartDir));
                   } else if (fileDir == "s"){
                       customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customSubDir));
@@ -537,16 +542,24 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
                       customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPartDir));
                   }
                   bool entryExists = false;
-                  QFileInfo customFileInfo(customFileDirPath,fileName.replace(".dat", "-" + nameMod + ".dat"));
-                  if(customFileInfo.exists()){
-                      entryExists = true;
-                      logNotice() << "01 COLOUR PART EXIST - IGNORING:" << fileString.replace(":::", " ");
-                      if (!customPartsDirs.contains(customFileInfo.absolutePath()))
+                  QString customFileName = fileName.replace(".dat", "-" + nameMod + ".dat");
+                  QFileInfo customFileInfo(customFileDirPath,customFileName);
+                  entryExists = customFileInfo.exists();
+                  if (!entryExists) {
+                      // we stop here for generated part if not found
+                      if (libType == "g") {
+                          QString fileStatus = QString("Generated part file %1 not found in %2.<br>"
+                                                       "Be sure your model file correctly reflects this part.")
+                                  .arg(fileString.replace(":::", " "))
+                                  .arg(customFileDirPath.absolutePath());
+                          emit gui->messageSig(LOG_ERROR, fileStatus);
+                          continue;
+                      }
+                      // add part directory to list if not already added
+                      if (! customPartsDirs.contains(customFileInfo.absolutePath()))
                         customPartsDirs << customFileInfo.absolutePath();
                       existingCustomParts++;
-                  }
-                  // check if part entry already in list
-                  if (!entryExists) {
+                      // check if part entry already in list
                       foreach(QString colourPart, colourPartList){
                           if (colourPart == fileString){
                               entryExists = true;
@@ -558,6 +571,8 @@ void PartWorker::processCustomColourParts(PartType partType, bool overwriteCusto
                   if (!entryExists) {
                       colourPartList << fileString;
                       logNotice() << "01 SUBMIT COLOUR PART INFO:" << fileString.replace(":::", " ") << " Line: " << i ;
+                  } else {
+                      logNotice() << "01 COLOUR PART EXIST - IGNORING:" << fileString.replace(":::", " ");
                   }
               }
           }
@@ -773,11 +788,10 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
                                 customFileDirPath = QDir::toNativeSeparators(QString("%1/%2").arg(Preferences::lpubDataPath).arg(Paths::customPartDir));
                             }
                             bool entryExists = false;
-                            QFileInfo customFileInfo(customFileDirPath,fileName.replace(".dat", "-" + nameMod + ".dat"));
-                            if(customFileInfo.exists()){
-                                entryExists = true;
-                                logNotice() << "03 CHILD COLOUR PART EXIST - IGNORING:" << childFileString.replace(":::", " ");
-                            }
+                            QString customFileName = fileName.replace(".dat", "-" + nameMod + ".dat");
+                            QFileInfo customFileInfo(customFileDirPath,customFileName);
+                            entryExists = customFileInfo.exists();
+                            // check if child part entry already in list
                             if (!entryExists) {
                                 foreach(QString childColourPart, childrenColourParts){
                                     if (childColourPart == childFileString){
@@ -786,10 +800,12 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
                                     }
                                 }
                             }
-                            // check if child part entry already in list
+                            // add chile part entry to list
                             if (!entryExists) {
                                 childrenColourParts << childFileString;
                                 logNotice() << "03 SUBMIT CHILD COLOUR PART INFO:" << childFileString.replace(":::", " ");
+                            } else {
+                                logNotice() << "03 CHILD COLOUR PART EXIST - IGNORING:" << childFileString.replace(":::", " ");
                             }
                         }
                     }
@@ -821,12 +837,13 @@ bool PartWorker::processColourParts(const QStringList &colourPartList, const Par
                 break;
             }
         }
+
         if (!partFound) {
             QString lib = Preferences::usingDefaultLibrary ? "Unofficial" : "Custom Parts";
             fileStatus = QString("Part file %1 not found in %2. Be sure the %3 fadeStepColorParts.lst file is up to date.")
-                                 .arg(partEntry.replace(":::", " "))
-                                 .arg(unOffLib ? lib+" Library" : "Official Library")
-                                 .arg(Preferences::validLDrawLibrary);
+                    .arg(partEntry.replace(":::", " "))
+                    .arg(unOffLib ? lib+" Library" : "Official Library")
+                    .arg(Preferences::validLDrawLibrary);
             emit gui->messageSig(LOG_ERROR, fileStatus);
         }
 
@@ -1340,6 +1357,9 @@ void ColourPartListWorker::generateCustomColourPartsList()
     foreach (QString partTypeDir, partTypeDirs){
       _ldrawStaticColourParts  << QString("# %1. %2").arg(dirCount++).arg(partTypeDir);
     }
+    _ldrawStaticColourParts  << "# ----------------------Do not delete above this line----------------------------------";
+    _ldrawStaticColourParts  << "";
+
     fileSectionHeader(FADESTEP_FILE_HEADER);
 
     emit progressBarInitSig();
@@ -1689,8 +1709,8 @@ void ColourPartListWorker::fileSectionHeader(const int &option, const QString &h
                                     .arg(Preferences::validLDrawColorParts)
                                     .arg(QDateTime::currentDateTime().toString(fmtDateTime));
         _ldrawStaticColourParts  << "";
-        _ldrawStaticColourParts  << "# This list captures the LDraw static color parts (and their subfiles) to support step fade";
-        _ldrawStaticColourParts  << "# and step highlight. Parts on this list are identified in the LDraw library and copied to";
+        _ldrawStaticColourParts  << "# This space-delimited list captures the LDraw static color parts (and their subfiles) to support";
+        _ldrawStaticColourParts  << "# step fade and step highlight. Parts on this list are identified in the LDraw library and copied to";
         _ldrawStaticColourParts  << "# their respective custom directory. Copied files are modified as described in the following";
         _ldrawStaticColourParts  << "# lines. If fade step is enabled, color codes are replaced with a custom code using the standard";
         _ldrawStaticColourParts  << "# color code prefixed with [" LPUB3D_COLOUR_FADE_PREFIX "].";
@@ -1710,7 +1730,7 @@ void ColourPartListWorker::fileSectionHeader(const int &option, const QString &h
         _ldrawStaticColourParts  << "# Part identifiers with spaces will not be properly recognized.";
         _ldrawStaticColourParts  << "";
         _ldrawStaticColourParts  << "# This file is automatically generated from:";
-        _ldrawStaticColourParts  << "     Configuration=>Generate Static Color Parts List";
+        _ldrawStaticColourParts  << "#    Configuration=>Generate Static Color Parts List";
         _ldrawStaticColourParts  << "# However, it can also be edited manually from:";
         _ldrawStaticColourParts  << "#    Configuration=>Edit Parameter Files=>Edit LDraw Static Color Parts List";
         _ldrawStaticColourParts  << "";

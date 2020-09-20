@@ -1707,8 +1707,7 @@ private:
 public:
   InsertData _value;
   InsertMeta() : LeafMeta()
-  {
-  }
+  {}
   InsertMeta(const InsertMeta &rhs) : LeafMeta(rhs)
   {
     _value = rhs._value;
@@ -1721,6 +1720,7 @@ public:
   {
     _value = value;
   }
+  void initPlacement();
 //  virtual ~InsertMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);
   QString format(bool,bool);
@@ -2391,6 +2391,7 @@ public:
  SceneObjectMeta     submodelInstanceCount; // 35 SubmodelInstanceCountType
  SceneObjectMeta     partsListPixmap;       // 36
  SceneObjectMeta     partsListGroup;        // 37
+ SceneObjectMeta     stepBackground;        // 38
 
  SceneItemMeta();
  SceneItemMeta(const SceneItemMeta &rhs) : BranchMeta(rhs)
@@ -3091,8 +3092,10 @@ public:
   StringListMeta            subModelColor;
   PointerMeta               pointer;
   PointerAttribMeta         pointerAttrib;
-  SceneItemMeta           scene;
+  SceneItemMeta             scene;
   IntMeta                   countInstanceOverride;
+  BoolMeta                  textPlacement;
+  PlacementMeta             textPlacementMeta;
 
   PageHeaderMeta            pageHeader;
   PageFooterMeta            pageFooter;
@@ -3326,6 +3329,8 @@ public:
   AllocMeta           alloc;
   FontListMeta        subModelFont;
   StringListMeta      subModelFontColor;
+  BoolMeta            adjustOnItemOffset;
+  UnitsMeta           stepSize;
   MultiStepMeta();
   MultiStepMeta(const MultiStepMeta &rhs) : BranchMeta(rhs)
   {

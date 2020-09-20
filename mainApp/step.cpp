@@ -68,6 +68,7 @@ Step::Step(
   submodelLevel             = _meta.submodelStack.size();
   stepNumber.number         =  num;             // record step number
   csiItem                   = nullptr;
+  adjustOnItemOffset        = false;
 
   modelDisplayOnlyStep      = false;
   dividerType               = NoDivider;
@@ -125,6 +126,8 @@ Step::Step(
       pliPerStep              = _meta.LPub.multiStep.pli.perStep.value();
       csiCameraMeta           = _meta.LPub.multiStep.csi;
       justifyStep             = _meta.LPub.multiStep.justifyStep;
+      adjustOnItemOffset      = _meta.LPub.multiStep.adjustOnItemOffset.value();
+      stepSize                = _meta.LPub.multiStep.stepSize;
     } else {
       csiPlacement.margin     = _meta.LPub.assem.margin;
       csiPlacement.placement  = _meta.LPub.assem.placement;
@@ -742,25 +745,25 @@ void Step::appendCsiAnnotation(
  *  going through the CSI (represented by A for assembly),
  *  or the Vertical slice going through the CSI.
  *
- * C0 - Callout relative to StepNumber
- * S0 - StepNumber relative to CSI
- * C1 - Callout relative to RotateIcon
- * R0 - RotateIcon relative to CSI
- * C2 - Callout relative to Submodel
- * M0 - Submodel relative to CSI
- * C3 - Callout relative to PLI
- * P0 - Pli relative to CSI
- * C4 - Callout relative to CSI
- * A  - CSI
- * C5 - Callout relative to CSI
- * P1 - Pli relative to CSI
- * C6 - Callout relative to PLI
- * M1 - Submodel relative to CSI
- * C7 - Callout relative to Submodel
- * R1 - RotateIcon relative to CSI
- * C8 - Callout relative to RotateIcon
- * S1 - StepNumber relative to CSI
- * C9 - Callout relative to StepNumber
+ * C0 - 0  - Callout relative to StepNumber
+ * S0 - 1  - StepNumber relative to CSI
+ * C1 - 2  - Callout relative to RotateIcon
+ * R0 - 3  - RotateIcon relative to CSI
+ * C2 - 4  - Callout relative to Submodel
+ * M0 - 5  - Submodel relative to CSI
+ * C3 - 6  - Callout relative to PLI
+ * P0 - 7  - Pli relative to CSI
+ * C4 - 8  - Callout relative to CSI
+ * A  - 9  - CSI
+ * C5 - 10 - Callout relative to CSI
+ * P1 - 11 - Pli relative to CSI
+ * C6 - 12 - Callout relative to PLI
+ * M1 - 13 - Submodel relative to CSI
+ * C7 - 14 - Callout relative to Submodel
+ * R1 - 15 - RotateIcon relative to CSI
+ * C8 - 16 - Callout relative to RotateIcon
+ * S1 - 17 - StepNumber relative to CSI
+ * C9 - 18 - Callout relative to StepNumber
  *
  */
 
@@ -1460,7 +1463,9 @@ int Step::sizeit(
       rows[rotateIcon.tbl[YY]] = rotateIcon.size[YY];
     }
 
-  adjustSize(*dynamic_cast<Placement*>(&rotateIcon),
+  // adjust rows and columns for rotate icon offset
+  if (adjustOnItemOffset)
+      adjustSize(*dynamic_cast<Placement*>(&rotateIcon),
              rows,cols);
 
   /******************************************************************/
@@ -1492,8 +1497,9 @@ int Step::sizeit(
                         marginCols);
             }
 
-          // adjust rows and columns for offset items
-          adjustSize(*dynamic_cast<Placement*>(callout),
+          // adjust rows and columns for callout offset
+          if (adjustOnItemOffset)
+              adjustSize(*dynamic_cast<Placement*>(callout),
                      rows,cols);
 
           break;
@@ -1541,7 +1547,7 @@ int Step::sizeit(
 }
 
 bool Step::adjustSize(
-  Placement &pl1, // item placement
+  Placement &pl1, // relative type item placement
   int  rows[],    // adjust sub-row heights here
   int  cols[])    // adjust sub-col widths here
 {
@@ -1564,41 +1570,42 @@ bool Step::adjustSize(
     if (!hasOffset(pl1))
         return false;
 
-    // set item default placement (without offset)
+    // set relative type item default placement (without offset)
     Placement pl2 = pl1;
+    Placement pl_1, pl_2;
+
     hasOffset(pl2,true/*suppressOffset*/);
 
-    int i = 0;           // relative to cols
-    int j = 0;           // relative to rows
-    int k = pl1.tbl[XX]; // relative type cols
-    int l = pl1.tbl[YY]; // relative type rows
-    Placement pl_1, pl_2;
+    int rtX = 0;           // relative to cols
+    int rtY = 0;           // relative to rows
+    int plX = pl1.tbl[XX]; // relative type cols
+    int plY = pl1.tbl[YY]; // relative type rows
 
     // populate offset 'pl_1' and default 'pl_2' relativeTo placement
     switch (pl1.placement.value().relativeTo) {
     case CsiType:
-      i = TblCsi;
-      j = TblCsi;
+      rtX = TblCsi;
+      rtY = TblCsi;
       pl_1 = pl_2 = csiPlacement;
     break;
     case PartsListType:
-      i = pli.tbl[XX];
-      j = pli.tbl[YY];
+      rtX = pli.tbl[XX];
+      rtY = pli.tbl[YY];
       pl_1 = pl_2 = pli;
     break;
     case SubModelType:
-      i = subModel.tbl[XX];
-      j = subModel.tbl[YY];
+      rtX = subModel.tbl[XX];
+      rtY = subModel.tbl[YY];
       pl_1 = pl_2 = subModel;
     break;
     case StepNumberType:
-      i = stepNumber.tbl[XX];
-      j = stepNumber.tbl[YY];
+      rtX = stepNumber.tbl[XX];
+      rtY = stepNumber.tbl[YY];
       pl_1 = pl_2 = stepNumber;
     break;
     case RotateIconType:
-      i = rotateIcon.tbl[XX];
-      j = rotateIcon.tbl[YY];
+      rtX = rotateIcon.tbl[XX];
+      rtY = rotateIcon.tbl[YY];
       pl_1 = pl_2 = rotateIcon;
     break;
     default:
@@ -1607,24 +1614,16 @@ bool Step::adjustSize(
     pl_1.placeRelative(&pl1);
     pl_2.placeRelative(&pl2);
 
-    // define offset relative type rect
+    // define relative type offset rect
     QRectF rectPl1(pl1.boundingLoc[XX],
                    pl1.boundingLoc[YY],
                    pl1.size[XX],
                    pl1.size[YY]);
-    // define default relative type item rect
+    // define relative type item default rect
     QRectF rectPl2(pl2.boundingLoc[XX],
                    pl2.boundingLoc[YY],
                    pl2.size[XX],
                    pl2.size[YY]);
-
-    // reative to item elements
-    int relToCol = cols[i];  // Cols - Width (X)
-    int relToRow = rows[j];  // Rows - Height (Y)
-
-    // relative type item elements
-    int relTypCol = cols[k]; // Cols - Width (X)
-    int relTypRow = rows[l]; // Rows - Height (Y)
 
     // calculate the length and/or width delta
     // between the original 'pl2' rect position and
@@ -1632,141 +1631,83 @@ bool Step::adjustSize(
     // respective row 'height' and/or column 'width' value
     qreal deltaX = 0.0;
     qreal deltaY = 0.0;
+    QRectF rectInt;
 
-    // if offset rect position intersects old rect position
-    if (rectPl1.intersects(rectPl2)) {
+    // if relative type offset rect position intersects default rect position
+    bool intersected = rectPl1.intersects(rectPl2);
+    if (intersected) {
         // get intersect rectangle
-        QRectF rectInt = rectPl2.intersected(rectPl1);
+        rectInt = rectPl2.intersected(rectPl1);
         // determine x-axis delta, adjust relative type column [Width]
         deltaX = rectPl2.width() - rectInt.width();
         // determine y-axis delta, adjust relative type row [Height]
         deltaY = rectPl2.height() - rectInt.height();
-
-        switch (pl2.placement.value().placement) {
-        case Left:
-            //set column offset adjustment
-            if (rectPl1.x() > rectPl2.x())
-                relTypCol = int(rectPl2.width() - deltaX);
-            if (rectPl1.x() < rectPl2.x())
-                relTypCol = int(rectPl2.width() + deltaX);
-
-            // set row offset adjustment
-            if (rectPl1.y() > rectPl2.y())
-                relTypRow = int(rectPl2.height() + deltaY);
-            if (rectPl1.y() < rectPl2.y())
-                relTypRow = int(rectPl2.height() - deltaY);
-            break;
-        case Right:
-            //set column offset adjustment
-            if (rectPl1.x() > rectPl2.x())
-                relTypCol = int(rectPl2.width() + deltaX);
-            if (rectPl1.x() < rectPl2.x())
-                relTypCol = int(rectPl2.width() - deltaX);
-
-            // set row offset adjustment
-            if (rectPl1.y() > rectPl2.y())
-                relTypRow = int(rectPl2.height() + deltaY);
-            if (rectPl1.y() < rectPl2.y())
-                relTypRow = int(rectPl2.height() - deltaY);
-            break;
-        case Top:
-            //set column offset adjustment
-            if (rectPl1.x() > rectPl2.x())
-                relTypCol = int(rectPl2.width() + deltaX);
-            if (rectPl1.x() < rectPl2.x())
-                relTypCol = int(rectPl2.width() - deltaX);
-
-            // set row offset adjustment
-            if (rectPl1.y() > rectPl2.y())
-                relTypRow = int(rectPl2.height() - deltaY);
-            if (rectPl1.y() < rectPl2.y())
-                relTypRow = int(rectPl2.height() + deltaY);
-            break;
-        case Bottom:
-            //set column offset adjustment
-            if (rectPl1.x() > rectPl2.x())
-                relTypCol = int(rectPl2.width() + deltaX);
-            if (rectPl1.x() < rectPl2.x())
-                relTypCol = int(rectPl2.width() - deltaX);
-
-            // set row offset adjustment
-            if (rectPl1.y() > rectPl2.y())
-                relTypRow = int(rectPl2.height() - deltaY);
-            if (rectPl1.y() < rectPl2.y())
-                relTypRow = int(rectPl2.height() + deltaY);
-            break;
-        default:
-            break;
-        }
     }
     // no  rect intersect
     else {
-        // determine x-axis, y-axis deltas and initialize working vars
-        deltaX     = rectPl1.x() - rectPl2.x();
-        deltaY     = rectPl1.y() - rectPl2.y();
-        bool dXgt0 = deltaX  > 0.0;
-        bool dYgt0 = deltaY  > 0.0;
-        bool dX    = deltaX != 0.0;
-        bool dY    = deltaY != 0.0;
-        qreal newX = 0.0;
-        qreal newY = 0.0;
-
-        // if no relative type x-axis intersect, set relative type col to 0
-        if ((rectPl1.x() + rectPl1.width()) < rectPl2.x() || rectPl1.x() > (rectPl2.x() + rectPl2.width()))
-            relTypCol = 0;
-
-        // if no relative type y-axis intersect, set relative type row to 0
-        if ((rectPl1.y() + rectPl1.height()) < rectPl2.y() || rectPl1.y() > (rectPl2.y() + rectPl2.height()))
-            relTypRow = 0;
-
-        // calculate offset x-axis and y-axis position adjustment
-        switch (pl2.placement.value().placement) {
-        case Left:
-            if (dX)
-                newX = dXgt0 ? deltaX : (deltaX - rectPl1.width());
-            if (dY)
-                newY = dYgt0 ? deltaY : -(deltaY - rectPl1.height()) - rectPl2.height();
-            break;
-        case Right:
-            if (dX)
-                newX = !dXgt0 ? deltaX : (deltaX + rectPl1.width());
-            if (dY)
-                newY = dYgt0 ? deltaY : -(deltaY - rectPl1.height()) - rectPl2.height();
-            break;
-        case Top:
-            if (dY)
-                newY = dYgt0 ? deltaY : -(deltaY - rectPl1.height()) - rectPl2.height();
-            if (dX)
-                newX = dXgt0 ? deltaX : (deltaX - rectPl1.width());
-            break;
-        case Bottom:
-            if (dY)
-                newY = !dYgt0 ? deltaY : (deltaY + rectPl1.height());
-            if (dX)
-                newX = dXgt0 ? deltaX : (deltaX - rectPl1.width());
-            break;
-        default:
-            break;
-        }
-
-        // set row and/or column offset adjustment
-        if (relTypCol) {
-            relTypCol += int(newX);
-        }
-        if (relTypRow) {
-            relTypRow += int(newY);
-        }
+        // determine x-axis delta, adjust relative type column [Width]
+        deltaX     = qAbs(rectPl1.x() - rectPl2.x());
+        // determine y-axis delta, adjust relative type row [Height]
+        deltaY     = qAbs(rectPl1.y() - rectPl2.y());
+        // create rectangle
+        rectInt = QRectF(0,0,deltaX,deltaY);
     }
 
-    // set element adjustment for reative to item
-    cols[i] = relToCol;  // Cols - Width (X)
-    rows[j] = relToRow;  // Rows - Height (Y)
+    // set rows and columns
+    bool canAdjust = false;
+    int indexAdjust  = -1;
+    PlacementEnc placementEnc = pl2.placement.value().placement;
+    switch (placementEnc) {
+    case Left:
+    case Right:
+        //set column  (width X) offset adjustment (plX)
+        if (rectPl1.x() > rectPl2.x())
+            cols[plX] = int(rectPl2.width() + deltaX);
+        if (rectPl1.x() < rectPl2.x())
+            cols[plX] = int(rectPl2.width() - deltaX);
 
-    // set element adjustment for relative type item
-    bool sharedCol = i == k; // Col
-    cols[k] = sharedCol ? cols[i] : relTypCol; // Cols - Width (X)
-    bool sharedRow = j == l; // Row
-    rows[l] = sharedRow ? rows[i] : relTypRow; // Rows - Height (Y)
+        // set row (height Y) offset adjustment (plY)
+        if (rectPl1.y() > rectPl2.y())
+            if ((canAdjust = rows[plY+1] < int(deltaY)))
+                indexAdjust = plY+1;
+        if (rectPl1.y() < rectPl2.y())
+            if ((canAdjust = rows[plY-1] < int(deltaY)))
+                indexAdjust = plY-1;
+        if (canAdjust)
+            rows[indexAdjust] = int(deltaY);
+        break;
+    case Top:
+    case Bottom:
+        //set column (width X) offset adjustment (plX)
+        if (rectPl1.x() > rectPl2.x())
+            if ((canAdjust  = cols[plX+1] < int(deltaX)))
+                indexAdjust = plX+1;
+        if (rectPl1.x() < rectPl2.x())
+            if ((canAdjust  = cols[plX-1] < int(deltaX)))
+                indexAdjust = plX-1;
+        if (canAdjust) {
+            if (indexAdjust)
+                cols[indexAdjust] = int(deltaX);
+            cols[plX] = (int(pl1.relativeToSize[XX]));
+        }
+
+        // set row (height Y) offset adjustment (plY)
+        if (rectPl1.y() > rectPl2.y()) {
+            if (rows[plY+1] < int(deltaY))
+                rows[intersected ? plY+1 : plY+2] = int(intersected ? deltaY : deltaY - rows[plY+1]);
+            if (placementEnc == Top)
+                rows[plY] = int(intersected ? rectInt.height() : 0);
+        }
+        if (rectPl1.y() < rectPl2.y()) {
+            if (rows[plY-1] < int(deltaY))
+                rows[intersected ? plY-1 : plY-2] = int(intersected ? deltaY : deltaY - rows[plY-1]);;
+            if (placementEnc == Bottom)
+                rows[plY] = int(intersected ? rectInt.height() : 0);
+        }
+        break;
+    default:
+        break;
+    }
 
     return true;
 }
@@ -1883,9 +1824,9 @@ void Step::placeit(
   int origin         = 0;
   int space          = 0;
   int marginAccum    = 0;
-  int spacing        = justifyStep.spacingValuePixels() / 2;
   bool centerJustify = justifyStep.value().type == JustifyCenter ||
                        justifyStep.value().type == JustifyCenterVertical;
+  int spacing        = centerJustify ? justifyStep.spacingValuePixels() / 2 : 0.0f;
 
   int originsIni[NumPlaces];
   int origins[NumPlaces];
@@ -1899,13 +1840,39 @@ void Step::placeit(
         marginAccum += margins[i];
         space       += spacing;
         origin      += centerJustify ? rows[i] : rows[i] + margins[i];
-     }
+    }
   }
 
-  size[y] = centerJustify ? origin + marginAccum : origin;
+  int calculatedSize = centerJustify ? origin + marginAccum : origin;
+  bool adjustSize    = stepSize.valuePixels(y) && stepSize.valuePixels(y) != calculatedSize;
+  int sizeAdjustment = 0; // contents justify top/left
+  if (adjustSize) {
+    // justify center, horizontal and vertical when manual step size specified
+    bool justify = false;
+    if (justifyStep.value().type == JustifyCenter)
+      justify = true;
+    else if (justifyStep.value().type == JustifyCenterVertical && y == XX)
+      justify = true;
+    else if (justifyStep.value().type == JustifyCenterHorizontal && y == YY)
+      justify = true;
+    sizeAdjustment = justify ? (stepSize.valuePixels(y) - calculatedSize) / 2 : 0;
+
+    if (stepSize.valuePixels(y) < calculatedSize) {
+      Where here       = stepSize.here();
+      float sizeValue  = float(calculatedSize/resolution());
+      QString message  = QString("The specified Step %1 %2 is less than its calculated %1 %3.")
+                                 .arg(y == XX ? "width" : "height")
+                                 .arg(QString::number(double(stepSize.value(y)),'f',4))
+                                 .arg(resolutionType() == DPCM ? QString::number(double(centimeters2inches(sizeValue)),'f',4)
+                                                               : QString::number(double(sizeValue),'f',4));
+      logInfo() << qPrintable(message);
+    }
+  }
+
+  size[y] = adjustSize ? stepSize.valuePixels(y) : calculatedSize;
 
   for (int i = 0; i < NumPlaces; i++) {
-     origins[i] = originsIni[i];
+     origins[i] = originsIni[i] + sizeAdjustment;
      if (rows[i]) {
         if (centerJustify) {
            origins[i] += spaceOffset[i] + (marginAccum / 2);
@@ -2048,6 +2015,16 @@ void Step::addGraphicsItems(
   offsetX += loc[XX];
   offsetY += loc[YY];
 
+  // Background Rectangle Item
+  if (multiStep) {
+      stepBackground =
+              new MultiStepStepBackgroundItem(
+                  this,
+                  parent);
+      stepBackground->setPos(offsetX,
+                             offsetY);
+  }
+
   // CSI
   csiItem = new CsiItem(
                         this,
@@ -2078,7 +2055,7 @@ void Step::addGraphicsItems(
     if (subModel.tsize()) {
         subModel.addSubModel(submodelLevel, parent);
         subModel.setPos(offsetX + subModel.loc[XX],
-                   offsetY + subModel.loc[YY]);
+                        offsetY + subModel.loc[YY]);
       }
   }
 

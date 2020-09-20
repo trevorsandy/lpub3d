@@ -377,6 +377,7 @@ void Application::initialize()
                 fprintf(stdout, "  +ll, ++liblego: Load the LDraw LEGO archive parts library in GUI mode.\n");
                 fprintf(stdout, "  +lt, ++libtente: Load the LDraw TENTE archive parts library in GUI mode.\n");
                 fprintf(stdout, "  +lv, ++libvexiq: Load the LDraw VEXIQ archive parts library in GUI mode.\n");
+                fprintf(stdout, "  -sl --stud-logo <type>: Set the stud logo type 0 - 5, default is 0 no logo.\n");
                 fprintf(stdout, "  -d, --image-output-directory <directory>: Designate the png, jpg or bmp save folder using absolute path.\n");
                 fprintf(stdout, "  -fc, --fade-steps-color <LDraw color code>: Set the global fade color. Overridden by fade opacity - if opacity not 100 percent. Default is %s\n",LEGO_FADE_COLOUR_DEFAULT);
                 fprintf(stdout, "  -fo, --fade-step-opacity <percent>: Set the fade steps opacity percent. Overrides fade color - if opacity not 100 percent. Default is %s percent\n",QString(FADE_OPACITY_DEFAULT).toLatin1().constData());
@@ -455,18 +456,28 @@ void Application::initialize()
         }
     }
 
-    // Enum registrations
+    // Enum registrations from name.h
     Q_ENUMS(PartType)
     Q_ENUMS(PliType)
     Q_ENUMS(LogType)
     Q_ENUMS(IniFlag)
     Q_ENUMS(DividerType)
+    Q_ENUMS(ShowLoadMsgType)
+    Q_ENUMS(LoadMsgType)
+    Q_ENUMS(RulerTrackingType)
+    Q_ENUMS(SceneGuidesPosType)
     Q_ENUMS(LibType)
     Q_ENUMS(Theme)
+    Q_ENUMS(SaveOnSender)
+    Q_ENUMS(NativeType)
     Q_ENUMS(SceneObjectInfo)
     Q_ENUMS(GridStepSize)
+    Q_ENUMS(LDrawUnofficialFileType)
+    Q_ENUMS(SubAttributes)
+    Q_ENUMS(NameKeyAttributes)
     Q_ENUMS(SceneObject)
 
+    // other enum registrations
     Q_ENUMS(Dimensions)
     Q_ENUMS(PAction)
     Q_ENUMS(Direction)
@@ -489,6 +500,8 @@ void Application::initialize()
     // set default log options
     if (Preferences::logging)
     {
+        bool debugLogging = false;
+        int logLevelIndex = -1;
         if (Preferences::logLevels)
         {
             logger.setLoggingLevels();
@@ -499,6 +512,9 @@ void Application::initialize()
             logger.setStatusLevel(Preferences::statusLevel);
             logger.setErrorLevel( Preferences::errorLevel);
             logger.setFatalLevel( Preferences::fatalLevel);
+
+            debugLogging = Preferences::debugLevel;
+            qDebug() << "\nDEBUG LOG LEVEL:" << (debugLogging ? "ENABLED" : "DISABLED");
         }
         else if (Preferences::logLevel)
         {
@@ -514,8 +530,16 @@ void Application::initialize()
                 else
                     fprintf(stderr, "%s", Message.toLatin1().constData());
             }
+            logLevelIndex = QStringList(QString(VER_LOGGING_LEVELS_STR).split(",")).indexOf(Preferences::loggingLevel,0);
+            debugLogging = logLevelIndex > -1 && logLevelIndex <= 3;
             logger.setLoggingLevel(logLevel);
+
+            qDebug() << "\nLOGGING LEVEL:  " <<  Preferences::loggingLevel << ", LEVELS [" << VER_LOGGING_LEVELS_STR << "]"
+                     << "\nLOGGING INDEX:  " << logLevelIndex;
         }
+
+        Preferences::setDebugLogging(debugLogging);
+        qDebug() << "DEBUG LOGGING:  " << (debugLogging ? "ENABLED\n" : "DISABLED\n");
 
         logger.setIncludeLogLevel(    Preferences::includeLogLevel);
         logger.setIncludeTimestamp(   Preferences::includeTimestamp);

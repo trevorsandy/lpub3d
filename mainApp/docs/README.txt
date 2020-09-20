@@ -1,9 +1,9 @@
-LPub3D 2.4.0.1.1638 (20 09 2020 08:47:47)
+LPub3D 2.4.0.1.1639 (20 09 2020 08:48:29)
 
 Features, enhancements, fixes and changes
 ------------
 
-Navigate to an item's GitHub ticket by appending it's #NNN to this URL: https://github.com/trevorsandy/lpub3d/issues/
+Navigate to an item's GitHub ticket by appending its #NNN to this URL: https://github.com/trevorsandy/lpub3d/issues/
 
 Example, Add option to centre justify step group steps #333 => https://github.com/trevorsandy/lpub3d/issues/333
 
@@ -11,13 +11,25 @@ Revisions:
 
 - Enhancement - 3DViewer Display Default Camera Properties #344
 - Enhancement - Add Rectangle to fixed annotations styles #350
+- Enhancement - Add stud logo command line option #347
+- Enhancement - Add text placement #375
 - Enhancement - Adjust Step column/row on Callout/Rotate Icon move #352
+- Enhancement - Define width/height for a step in a step group #358
+- Enhancement - Edit plain and rich text with new text edit dialogue #357
+- Enhancement - Enable texture mapping with Native renderer #374
+- Enhancement - Justify step contents for defined step width/height #358
+- Enhancement - Second pass to adjust Step column/row on Callout/Rotate Icon move #352
+- Change - Adjust style size dialogue for circle and rectangle #229
 - Change - DPI and scale info is added to filename in PNG export #346
 - Change - Enable rotate icon placement on single step page #348
+- Change - LDCad flexible parts new parts per step highlighting #354
 - Change - No response to MODEL_SCALE meta command #342
 - Change - Page items bring to front and send to back - third pass, set z values #244
+- Change - Pointer segment line is interrupted by border colour at each joint #356
+- Change - Set default text edit text size to 24 point #357
 - Fix - 3DViewer not displayed when renderer set to other than Native #345
 - Fix - Export to pdf using page range generates single page #341
+- Fix - LPub3D crash when using LDView "multiple file single call" #363
 - Fix - Single step MODEL_SCALE meta command not working #343
 
  Base:

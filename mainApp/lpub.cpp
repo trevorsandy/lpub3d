@@ -1981,6 +1981,13 @@ void Gui::highlightStepSetup()
 
 void Gui::editTitleAnnotations()
 {
+    QFileInfo fileInfo(Preferences::titleAnnotationsFile);
+    if (!fileInfo.exists()) {
+        if (!Annotations::exportTitleAnnotationsFile()) {
+            emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
+            return;
+        }
+    }
     displayParmsFile(Preferences::titleAnnotationsFile);
     parmsWindow->setWindowTitle(tr("Part Title Annotation","Edit/add part title part annotations"));
     parmsWindow->show();
@@ -1988,6 +1995,13 @@ void Gui::editTitleAnnotations()
 
 void Gui::editFreeFormAnnitations()
 {
+    QFileInfo fileInfo(Preferences::freeformAnnotationsFile);
+    if (!fileInfo.exists()) {
+        if (!Annotations::exportfreeformAnnotationsHeader()) {
+            emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
+            return;
+        }
+    }
     displayParmsFile(Preferences::freeformAnnotationsFile);
     parmsWindow->setWindowTitle(tr("Freeform Annotation","Edit/add freeform part annotations"));
     parmsWindow->show();
@@ -2002,6 +2016,13 @@ void Gui::editLDrawColourParts()
 
 void Gui::editPliBomSubstituteParts()
 {
+    QFileInfo fileInfo(Preferences::pliSubstitutePartsFile);
+    if (!fileInfo.exists()) {
+        if (!PliSubstituteParts::exportSubstitutePartsHeader()) {
+            emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
+            return;
+        }
+    }
     displayParmsFile(Preferences::pliSubstitutePartsFile);
     parmsWindow->setWindowTitle(tr("PLI/BOM Substitute Parts","Edit/add PLI/BOM substitute parts"));
     parmsWindow->show();
@@ -2911,7 +2932,7 @@ void Gui::initialize()
       soMap[PliGrabberObj]            = QString("PLI_GRABBER");          // 13
       soMap[SubmodelGrabberObj]       = QString("SUBMODEL_GRABBER");     // 14
       soMap[InsertPixmapObj]          = QString("PICTURE");              // 15
-      soMap[InsertTextObj]            = QString("TEXT");                 // 16
+      soMap[InsertTextObj]            = QString("TEXT");                 // 16 TextType
       soMap[MultiStepBackgroundObj]   = QString("MULTI_STEP");           // 17 StepGroupType
       soMap[MultiStepsBackgroundObj]  = QString("MULTI_STEPS");          // 18
       soMap[PageAttributePixmapObj]   = QString("ATTRIBUTE_PIXMAP");     // 19
@@ -2933,6 +2954,7 @@ void Gui::initialize()
       soMap[SubmodelInstanceCountObj] = QString("SUBMODEL_INST_COUNT");  // 35 SubmodelInstanceCountType
       soMap[PartsListPixmapObj]       = QString("PLI_PART");             // 36
       soMap[PartsListGroupObj]        = QString("PLI_PART_GROUP");       // 37
+      soMap[StepBackgroundObj]        = QString("STEP_BACKGROUND");      // 38 [StepType]
   }
 }
 
@@ -2948,7 +2970,7 @@ void Gui::loadBLCodes()
 
 void Gui::ldrawColorPartsLoad()
 {
-    if (Preferences::enableFadeSteps && !ldrawColourParts.ldrawColorPartsIsLoaded()) {
+    if ((Preferences::enableFadeSteps || Preferences::enableHighlightStep) && !ldrawColourParts.ldrawColorPartsIsLoaded()) {
         QString result;
         if (!LDrawColourParts::LDrawColorPartsLoad(result)){
             QString message = QString("Could not open the %1 LDraw color parts file [%2], Error: %3")
@@ -5010,7 +5032,7 @@ void Gui::statusMessage(LogType logType, QString message) {
             QString Message = QString("Failed to set log level %1.\n"
                                               "Logging is off - level set to OffLevel")
                     .arg(Preferences::loggingLevel);
-            fprintf(stderr, "%s", Message.toLatin1().constData());
+            fprintf(stderr, "%s", Message.append("\n").toLatin1().constData());
         }
         logger.setLoggingLevel(logLevel);
 
@@ -5025,7 +5047,7 @@ void Gui::statusMessage(LogType logType, QString message) {
         bool guiEnabled = (Preferences::modeGUI && Preferences::lpub3dLoaded);
         if (logType == LOG_STATUS ){
 
-            logStatus() << message;
+            logStatus() << message.replace("<br>"," ");
 
             if (guiEnabled) {
                 statusBarMsg(message);
@@ -5036,7 +5058,7 @@ void Gui::statusMessage(LogType logType, QString message) {
         } else
             if (logType == LOG_INFO) {
 
-                logInfo() << message;
+                logInfo() << message.replace("<br>"," ");
 
                 if (!guiEnabled && !Preferences::suppressStdOutToLog) {
                     fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
@@ -5046,7 +5068,7 @@ void Gui::statusMessage(LogType logType, QString message) {
             } else
               if (logType == LOG_NOTICE) {
 
-                  logNotice() << message;
+                  logNotice() << message.replace("<br>"," ");
 
                   if (!guiEnabled && !Preferences::suppressStdOutToLog) {
                       fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
@@ -5056,7 +5078,7 @@ void Gui::statusMessage(LogType logType, QString message) {
             } else
               if (logType == LOG_TRACE) {
 
-                  logTrace() << message;
+                  logTrace() << message.replace("<br>"," ");
 
                   if (!guiEnabled && !Preferences::suppressStdOutToLog) {
                       fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
@@ -5066,18 +5088,17 @@ void Gui::statusMessage(LogType logType, QString message) {
             } else
               if (logType == LOG_DEBUG) {
 #ifdef QT_DEBUG_MODE
-                  logDebug() << message;
-
+                  logDebug() << message.replace("<br>"," ");
 
                   if (!guiEnabled && !Preferences::suppressStdOutToLog) {
-                      fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
+                      fprintf(stdout,"%s",QString(message).replace("<br>"," ").append("\n").toLatin1().constData());
                       fflush(stdout);
                   }
 #endif
                 } else
               if (logType == LOG_INFO_STATUS) {
 
-                  statusBarMsg(message);
+                  statusBarMsg(message.replace("<br>"," "));
 
                   logInfo() << message;
 
@@ -5088,16 +5109,16 @@ void Gui::statusMessage(LogType logType, QString message) {
             } else
               if (logType == LOG_ERROR) {
 
-                  logError() << message;
+                  logError() << QString(message).replace("<br>"," ");
 
                   if (guiEnabled) {
                       if (ContinuousPage()) {
-                          statusBarMsg(message.prepend("ERROR: "));
+                          statusBarMsg(QString(message).replace("<br>"," ").prepend("ERROR: "));
                       } else {
                           QMessageBox::warning(this,tr(VER_PRODUCTNAME_STR),tr(message.toLatin1()));
                       }
                   } else if (!Preferences::suppressStdOutToLog) {
-                      fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
+                      fprintf(stdout,"%s",QString(message).replace("<br>"," ").append("\n").toLatin1().constData());
                       fflush(stdout);
                   }
             }

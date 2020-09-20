@@ -195,6 +195,7 @@ void Steps::freeSteps()
     delete re;
   }
   list.clear();
+  textItemList.clear();
   relativeType = SingleStepType;
   relativeToList.clear();
 }
@@ -523,12 +524,12 @@ void Steps::addGraphicsItems(
     pli.addPli(meta.submodelStack.size(), parent);
   }
 
-#ifdef QT_DEBUG_MODE
-  logDebug() << "\nSTEPS AddGraphicsItems OFFSET"
-             << " \nOffxetX [" << offsetX << "]"
-             << " \nOffxetY [" << offsetY << "]"
-                 ;
-#endif
+//#ifdef QT_DEBUG_MODE
+//  logDebug() << "\nSTEPS AddGraphicsItems OFFSET"
+//             << " \nOffxetX [" << offsetX << "]"
+//             << " \nOffxetY [" << offsetY << "]"
+//                 ;
+//#endif
 
   for (int i = 0; i < list.size(); i++) {
     if (list[i]->relativeType == RangeType) {

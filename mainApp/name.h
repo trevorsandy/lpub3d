@@ -108,7 +108,7 @@ extern SnapGridCommands sgCommands[NUM_GRID_SIZES];
 
 // All Scene items
 enum SceneObject {
-    AssemAnnotationObj       = 35, //  0 CsiAnnotationType
+    AssemAnnotationObj       = 36, //  0 CsiAnnotationType
     AssemAnnotationPartObj   = 27, //  1 CsiPartType
     AssemObj                 =  1, //  2 CsiType
     CalloutAssemObj          =  7, //  3
@@ -119,12 +119,12 @@ enum SceneObject {
     DividerBackgroundObj     = 11, //  8
     DividerObj               = 12, //  9
     DividerLineObj           = 13, // 10
-    DividerPointerObj        = 36, // 11 DividerPointerType
+    DividerPointerObj        = 37, // 11 DividerPointerType
     PointerGrabberObj        = 14, // 12
     PliGrabberObj            = 41, // 13
     SubmodelGrabberObj       = 42, // 14
     InsertPixmapObj          = 15, // 15
-    InsertTextObj            = 16, // 16
+    InsertTextObj            = 30, // 16 TextType
     MultiStepBackgroundObj   =  2, // 17 StepGroupType
     MultiStepsBackgroundObj  = 43, // 18
     PageAttributePixmapObj   = 17, // 19
@@ -142,10 +142,11 @@ enum SceneObject {
     RotateIconBackgroundObj  = 26, // 31 RotateIconType
     StepNumberObj            =  3, // 32 StepNumberType
     SubModelBackgroundObj    = 25, // 33 SubModelType
-    SubModelInstanceObj      = 30, // 34
+    SubModelInstanceObj      = 16, // 34
     SubmodelInstanceCountObj = 18, // 35 SubmodelInstanceCountType
     PartsListPixmapObj       = 44, // 36
-    PartsListGroupObj        = 45  // 37
+    PartsListGroupObj        = 45, // 37
+    StepBackgroundObj        = 46  // 38
 };
 
 // Exempted from detection - triggers invalid object
@@ -196,7 +197,8 @@ static const SceneObject IncludedSceneObjects[] =
     RotateIconBackgroundObj, // 26
     StepNumberObj,           //  3
     SubModelBackgroundObj,   // 25
-    PartsListGroupObj        // 45
+    PartsListGroupObj,       // 45
+    StepBackgroundObj        // 46
 };
 
 // TODO - Temporary abort processing list
@@ -240,17 +242,18 @@ static const SceneObject NoContextSceneObjects[] =
 #define PARTSLISTPARTGROUP_ZVALUE_DEFAULT          0.0
 #define PARTSLISTPARTPIXMAP_ZVALUE_DEFAULT         0.0
 #define PLIGRABBER_ZVALUE_DEFAULT                100.0
-#define POINTERFIRSTSEG_ZVALUE_DEFAULT            -5.0
 #define POINTERGRABBER_ZVALUE_DEFAULT            100.0
-#define POINTERHEAD_ZVALUE_DEFAULT                 0.0
-#define POINTERSECONDSEG_ZVALUE_DEFAULT           -5.0
-#define POINTERTHIRDSEG_ZVALUE_DEFAULT            -5.0
+#define POINTERFIRSTSEG_ZVALUE_DEFAULT            -1.0
+#define POINTERSECONDSEG_ZVALUE_DEFAULT           -2.0
+#define POINTERTHIRDSEG_ZVALUE_DEFAULT            -3.0
+#define POINTERHEAD_ZVALUE_DEFAULT                -4.0
 #define ROTATEICONBACKGROUND_ZVALUE_DEFAULT      101.0
 #define STEPNUMBER_ZVALUE_DEFAULT                  0.0
 #define SUBMODELBACKGROUND_ZVALUE_DEFAULT          0.0
 #define SUBMODELGRABBER_ZVALUE_DEFAULT           100.0
 #define SUBMODELINSTANCE_ZVALUE_DEFAULT            0.0
 #define SUBMODELINSTANCECOUNT_ZVALUE_DEFAULT       0.0
+#define STEP_BACKGROUND_ZVALUE_DEFAULT             0.0
 #define Z_VALUE_DEFAULT                            0.0
 
 // registry sections

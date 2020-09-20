@@ -41,9 +41,8 @@ class Annotations {
     static const int &getAnnotationStyle(QString part);
     static const int &getAnnotationCategory(QString part);
     static const QString &getStyleAnnotation(QString part);
-    static bool exportAnnotationStyleFile();
     static void loadDefaultAnnotationStyles(QByteArray &Buffer);
-    static bool overwriteFile(const QString &file);
+    static void loadTitleAnnotations(QByteArray& Buffer);
 
     static void loadBLColors(QByteArray &Buffer);
     static void loadLD2BLColorsXRef(QByteArray &Buffer);
@@ -71,6 +70,11 @@ class Annotations {
     static bool exportLD2BLCodesXRefFile();
     static bool exportLD2RBColorsXRefFile();
     static bool exportLD2RBCodesXRefFile();
+
+    static bool exportAnnotationStyleFile();
+    static bool exportTitleAnnotationsFile();
+    static bool exportfreeformAnnotationsHeader();
+    static bool overwriteFile(const QString &file);
 
     static const QList<QString> getTitleAnnotations()
     {

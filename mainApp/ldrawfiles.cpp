@@ -603,6 +603,8 @@ int LDrawFile::loadFile(const QString &fileName)
     
     QApplication::restoreOverrideCursor();
 
+    addCustomColorParts(topLevelFile());
+
     countParts(topLevelFile());
 
     auto getCount = [] (const LoadMsgType lmt)
@@ -666,13 +668,14 @@ int LDrawFile::loadFile(const QString &fileName)
                 .arg(spc > 0 ? QString("<br>Subparts:               <b>%1</b>").arg(spc) : "")
                 .arg(QString("<br>%1").arg(gui->elapsedTime(t.elapsed())))
                 .arg(mpc > 0 ? QString("<br><br>Missing %1 %2 not found in the %3 or %4 archive.<br>"
-                                       "If %5 %1, be sure %6 location is captured in the LDraw search directory list.")
-                                       .arg(mpc > 1 ? "parts" : "part")
-                                       .arg(mpc > 1 ? "were" : "was")
-                                       .arg(VER_LPUB3D_UNOFFICIAL_ARCHIVE)
-                                       .arg(VER_LDRAW_OFFICIAL_ARCHIVE)
-                                       .arg(mpc > 1 ? "these are custom" : "this is a custom")
-                                       .arg(mpc > 1 ? "their" : "its") : "");
+                                       "If %5 custom %1, be sure %7 location is captured in the LDraw search directory list.<br>"
+                                       "If %5 new unofficial %1, be sure the unofficial archive library is up to date.")
+                                       .arg(mpc > 1 ? "parts" : "part")                        //1
+                                       .arg(mpc > 1 ? "were" : "was")                          //2
+                                       .arg(VER_LPUB3D_UNOFFICIAL_ARCHIVE)                     //3
+                                       .arg(VER_LDRAW_OFFICIAL_ARCHIVE)                        //4
+                                       .arg(mpc > 1 ? "these are" : "this is a")               //5
+                                       .arg(mpc > 1 ? "their" : "its") : "");                  //7
         _loadedParts << message;
         if (mpc > 0) {
             if (_showLoadMessages) {
@@ -1236,6 +1239,76 @@ bool LDrawFile::mirrored(
   
   return det < 0;
   //return a*(e*i - f*h) - b*(d*i - f*g) + c*(d*h - e*g) < 0;
+}
+
+void LDrawFile::addCustomColorParts(const QString &mcFileName,bool autoAdd)
+{
+  if (!Preferences::enableFadeSteps && !Preferences::enableHighlightStep)
+      return;
+  QString fileName = mcFileName.toLower();
+  QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(fileName);
+  if (f != _subFiles.end()) {
+    // get content size
+    int j = f->_contents.size();
+    // process submodel content...
+    for (int i = 0; i < j; i++) {
+      QStringList tokens;
+      QString line = f->_contents[i];
+      split(line,tokens);
+      // we interrogate substitue files
+      if (tokens.size() >= 6 &&
+          tokens[0] == "0" &&
+         (tokens[1] == "LPUB" || tokens[1] == "!LPUB") &&
+          tokens[2] == "PLI" &&
+          tokens[3] == "BEGIN" &&
+          tokens[4] == "SUB") {
+        // do we have a color file ?
+        if (gui->ldrawColourParts.isLDrawColourPart(tokens[5])) {
+          // parse the part lines for custom sub parts
+          for (++i; i < j; i++) {
+            split(f->_contents[i],tokens);
+            if (tokens.size() == 15 && tokens[0] == "1") {
+              if (contains(tokens[14])) {
+                // we have custom part so let's add it to the custom part list
+                gui->ldrawColourParts.addLDrawColorPart(tokens[14]);
+                // now lets check if the custom part has any sub parts
+                addCustomColorParts(tokens[14],true/*autoadd*/);
+              }
+            } else if (tokens.size() == 4 &&
+                       tokens[0] == "0" &&
+                      (tokens[1] == "LPUB" || tokens[1] == "!LPUB") &&
+                      (tokens[2] == "PLI" || tokens[2] == "PART") &&
+                       tokens[3] == "END") {
+              break;
+            }
+          }
+        }
+      } else if (autoAdd) {
+        // parse the the add part lines for custom sub parts
+        for (; i < j; i++) {
+          split(f->_contents[i],tokens);
+          if (tokens.size() == 15 && tokens[0] == "1") {
+            if (contains(tokens[14])) {
+              // do we have a color part ?
+              if (tokens[1] != LDRAW_MAIN_MATERIAL_COLOUR &&
+                  tokens[1] != LDRAW_EDGE_MATERIAL_COLOUR)
+                gui->ldrawColourParts.addLDrawColorPart(tokens[14]);
+              // now lets check if the part has any sub parts
+              addCustomColorParts(tokens[14],true/*autoadd*/);
+            }
+          } else if (f->_contents[i] == "0 //Segments"){
+            // we have reached the custpm part segments so break
+            break;
+          }
+        }
+      } else if (tokens.size() == 15 && tokens[0] == "1") {
+        bool containsSubFile = contains(tokens[14]);
+        if (containsSubFile) {
+          addCustomColorParts(tokens[14],false/*autoadd*/);
+        }
+      }
+    }
+  }
 }
 
 void LDrawFile::countInstances(const QString &mcFileName, bool isMirrored, bool callout)

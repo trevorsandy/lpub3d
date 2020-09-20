@@ -86,18 +86,19 @@ const QList<int> PlacementDialog::relativeToOks[NumRelatives] =
   /* 25 Submodel         Sm      */{Page , Csi , Pli , Pn , Sn                , Ph , Pf},
   /* 26 RotateIcon       Ri      */{Page , Csi , Pli      , Sn},
   /* 27 Csi Part         Cp      */{       Csi},
-  /* 28 Bom                      */{Page                                      , Ph , Pf},
+  /* 28 Step             Stp     */{Page , Rng},
+  /* 29 Range                    */{Page},
+  /* 30 Text                     */{Page                                      , Ph , Pf},
+  /* 31 Bom                      */{Page                                      , Ph , Pf},
 
-  /* 29 PagePointer              */{Page , Csi                                , Ph , Pf},
-  /* 30 SingleStep               */{Page , Csi},
-  /* 31 Step                     */{Page},
-  /* 32 Range                    */{Page},
-  /* 33 Reserve                  */{Page},
-  /* 34 CoverPage                */{Page},
-  /* 35 CsiAnnotationType        */{                             Callout ,               Ms},
-  /* 36 DividerPinter            */{       Cp}
+  /* 32 PagePointer              */{Page , Csi                                , Ph , Pf},
+  /* 33 SingleStep               */{Page , Csi},
+  /* 34 Reserve                  */{Page},
+  /* 35 CoverPage                */{Page},
+  /* 36 CsiAnnotationType        */{                             Callout ,               Ms},
+  /* 37 DividerPinter            */{       Cp}
 
-  /* 37 NumRelatives             */
+  /* 38 NumRelatives             */
 };
 
 //front cover options   Page     | Ph | Pf | Tt | At                  | mnt | pt | mdt | pdt | dlt,
@@ -134,18 +135,19 @@ const int PlacementDialog::prepositionOks[NumRelatives] = // indexed by them
   /* 25 Submodel                 */ OutsideOk,
   /* 26 RotateIcon               */ OutsideOk,
   /* 27 Csi Part                 */ InsideOk|OutsideOk,
-  /* 28 Bom                      */ OutsideOk,
+  /* 28 Step                     */ InsideOk,
+  /* 29 Range                    */ InsideOk,
+  /* 30 Text                     */ OutsideOk,
+  /* 31 Bom                      */ OutsideOk,
 
-  /* 29 PagePointer              */ OutsideOk,
-  /* 30 SingleStep               */ OutsideOk,
-  /* 31 Step                     */ OutsideOk,
-  /* 32 Range                    */ OutsideOk,
-  /* 33 Reserve                  */ OutsideOk,
-  /* 34 CoverPage                */ InsideOk,
-  /* 35 CsiAnnotationType        */ OutsideOk,
-  /* 36 DividerPointer           */ InsideOk
+  /* 32 PagePointer              */ OutsideOk,
+  /* 33 SingleStep               */ OutsideOk,
+  /* 34 Reserve                  */ OutsideOk,
+  /* 35 CoverPage                */ InsideOk,
+  /* 36 CsiAnnotationType        */ OutsideOk,
+  /* 37 DividerPointer           */ InsideOk
 
-  /* 37 NumRelatives             */
+  /* 38 NumRelatives             */
 };
 
 const QString PlacementDialog::relativeNames[NumRelatives] =
@@ -179,18 +181,19 @@ const QString PlacementDialog::relativeNames[NumRelatives] =
   "Submodel",                   //25 Cat
   "Rotate Icon",                //26 Ri
   "CSI Part",                   //27 Cp
-  "BOM",                        //28
+  "Step Rectangle",             //28 Stp
+  "Range",                      //29 Rng
+  "Text",                       //30
+  "BOM",                        //31
 
-  "Page Pointer",               //29
-  "Single Step",                //30
-  "Step",                       //31
-  "Range",                      //32
-  "Reserve",                    //33
-  "Cover Page",                 //34
-  "CSI Annotation"              //35
-  "Divider Pointer"             //36
+  "Page Pointer",               //32
+  "Single Step",                //33
+  "Reserve",                    //34
+  "Cover Page",                 //35
+  "CSI Annotation",             //36
+  "Divider Pointer",            //37
 
- /*NumRelatives               *///37 NumRelatives
+ /*NumRelatives               *///38 NumRelatives
 };
 
 bool PlacementDialog::getPlacement(
@@ -257,6 +260,9 @@ PlacementDialog::PlacementDialog(
   switch (parentType) {
     case StepGroupType:                             //parent type
       switch (placedType) {
+        case StepType:                 //placed type
+            oks << Page << Rng;
+        break;
         case PageURLType:               //placed type
             oks << Page << Pn << Ph << Pf;
         break;
@@ -271,16 +277,16 @@ PlacementDialog::PlacementDialog(
         break;
         case PartsListType:             //placed type
           if (pliPerStep) {
-            oks << Page << Csi  << Sm << Sn;
+            oks << Page << Csi  << Sm << Sn /*<< Stp*/;
           } else {
             oks << Page << Sm << Ms;
           }
         break;
         case StepNumberType:            //placed type
-          oks << Csi << Pli << Sm;
+          oks << Csi << Pli << Sm /*<< Stp*/;
         break;
         case CalloutType:               //placed type
-          oks << Page << Csi << Pli << Sn;
+          oks << Page << Csi << Pli << Sn /*<< Stp*/;
         break;
         case SubmodelInstanceCountType: //placed type
           oks << Page << Pn;
@@ -289,13 +295,16 @@ PlacementDialog::PlacementDialog(
           oks << Page << Csi << Ph << Pf;
         break;
         case SubModelType:              //placed type
-          oks << Page << Csi << Pli << Sn << Ph << Pf;
+          oks << Page << Csi << Pli << Sn << Ph << Pf /*<< Stp*/;
         break;
         case RotateIconType:            //placed type
-          oks << Csi << Pli << Sn ;
+          oks << Csi << Pli << Sn /*<< Stp*/;
+        break;
+        case TextType:                  //placed type
+          oks << Page << Ph << Pf/* << Stp  << Csi*/;
         break;
         default:                        //placed type
-          oks << Page << Pn;
+          oks << Page << Pn /*<< Stp*/;
         break;
       }
     break;
@@ -318,7 +327,7 @@ PlacementDialog::PlacementDialog(
         break;
         case SubModelType:             //placed type
         case RotateIconType:           //placed type
-          oks << Csi << Pli << Sn ;
+          oks << Csi << Pli << Sn;
         break;
         default:
           oks << Csi << Pli << Sn;
@@ -345,7 +354,10 @@ PlacementDialog::PlacementDialog(
         case SubModelType:              //placed type
           oks << Page << Csi << Pli << Sn << Ph << Pf;
         break;
-        default:                         //placed type
+        case RotateIconType:           //placed type
+          oks << Csi << Pli << Sn;
+        break;
+        default:                        //placed type
           oks << Page << Csi << Pli << Sn;
         break;
       }

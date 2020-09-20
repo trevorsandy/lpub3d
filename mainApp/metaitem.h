@@ -315,6 +315,17 @@ public:
                         int   append = 1,
                         bool checkLocal = true);
 
+  void changeStepSize(  QString,
+                        const Where &,
+                        const Where &,
+                        const QString &,
+                        UnitsMeta *,
+                        int  sizeX,
+                        int  sizeY,
+                        int  append = 1,
+                        bool local = false,
+                        bool askLocal = true);
+
   void changeDivider(   QString,
                         const Where &,
                         const Where &,
@@ -349,7 +360,7 @@ public:
                         const Where &,
                         const Where &,
                         FloatMeta *,
-                        float step = 0.01,
+                        float step = 0.01f,
                         int  append = 1,
                         bool checkLocal = true);
 
@@ -489,7 +500,15 @@ public:
   void deleteBOM();
   void deleteBOMPartGroups();
   void deletePage();
-  void updateText(const Where &, const QString &, bool, bool = false);
+  void updateText(const Where &,
+                  const QString &,
+                  QString &,
+                  QString &,
+                  float,
+                  float,
+                  int,
+                  bool,
+                  bool = false);
   void deleteImageItem(Where &, QString &);
   void deletePLIPartGroups(const Where &,const Where &);
 

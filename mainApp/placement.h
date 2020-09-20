@@ -109,11 +109,11 @@ enum Boundary {
 
 enum {        // -1
   TblCo0 = 0, //  0  C0 - Callout relative to StepNumber
-  TblSn0,     //  5  S0 - StepNumber relative to CSI
+  TblSn0,     //  1  S0 - StepNumber relative to CSI
   TblCo1,     //  2  C1 - Callout relative to RotateIcon
   TblRi0,     //  3  R0 - RotateIcon relative to CSI
   TblCo2,     //  4  C2 - Callout relative to Submodel
-  TblSm0,     //  1  M0 - Submodel relative to CSI
+  TblSm0,     //  5  M0 - Submodel relative to CSI
   TblCo3,     //  6  C3 - Callout relative to PLI
   TblPli0,    //  7  P0 - Pli relative to CSI
   TblCo4,     //  8  C4 - Callout relative to CSI
