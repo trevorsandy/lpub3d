@@ -8,7 +8,7 @@ rem LPub3D distributions and package the build contents (exe, doc and
 rem resources ) for distribution release.
 rem --
 rem  Trevor SANDY <trevor.sandy@gmail.com>
-rem  Last Update: June 29, 2019
+rem  Last Update: August 21, 2019
 rem  Copyright (c) 2017 - 2020 by Trevor SANDY
 rem --
 rem This script is distributed in the hope that it will be useful,
@@ -136,11 +136,13 @@ rem Verify 3rd input flag options
 IF NOT [%3]==[] (
   IF NOT "%3"=="-ins" (
     IF NOT "%3"=="-chk" (
-      IF NOT "%3"=="-uld" (
-        IF NOT "%3"=="-official" (
-          IF NOT "%3"=="-unofficial" (
-            IF NOT "%3"=="-tente" (
-              IF NOT "%3"=="-vexiq" GOTO :CONFIGURATION_ERROR
+      IF NOT "%3"=="-asl" (
+        IF NOT "%3"=="-ldraw" (
+          IF NOT "%3"=="-official" (
+            IF NOT "%3"=="-unofficial" (
+              IF NOT "%3"=="-tente" (
+                IF NOT "%3"=="-vexiq" GOTO :CONFIGURATION_ERROR
+              )
             )
           )
         )
@@ -152,11 +154,13 @@ IF NOT [%3]==[] (
 rem Verify 4th input flag options
 IF NOT [%4]==[] (
   IF NOT "%4"=="-chk" (
-    IF NOT "%4"=="-uld" (
-      IF NOT "%4"=="-official" (
-        IF NOT "%4"=="-unofficial" (
-          IF NOT "%4"=="-tente" (
-            IF NOT "%4"=="-vexiq" GOTO :CONFIGURATION_ERROR
+    IF NOT "%4"=="-asl" (
+      IF NOT "%3"=="-ldraw" (
+        IF NOT "%4"=="-official" (
+          IF NOT "%4"=="-unofficial" (
+            IF NOT "%4"=="-tente" (
+              IF NOT "%4"=="-vexiq" GOTO :CONFIGURATION_ERROR
+            )
           )
         )
       )
@@ -236,11 +240,11 @@ IF /I "%3"=="-chk" (
   SET CHECK=1
 )
 
-rem Force update LDraw libraries
+rem update all supported libraries when -asl defined
 IF NOT [%3]==[] (
   IF NOT "%3"=="-ins" (
     IF NOT "%3"=="-chk" (
-      IF NOT "%3"=="-uld" (
+      IF NOT "%3"=="-asl" (
         SET UPDATE_LDRAW_LIBS=%3
       ) ELSE (
         SET UPDATE_LDRAW_LIBS=-true
@@ -253,10 +257,10 @@ IF /I "%4"=="-chk" (
   SET CHECK=1
 )
 
-rem Force update LDraw libraries
+rem update all supported libraries when -asl defined
 IF NOT [%4]==[] (
   IF NOT "%4"=="-chk" (
-    IF NOT "%4"=="-uld" (
+    IF NOT "%4"=="-asl" (
       SET UPDATE_LDRAW_LIBS=%4
     ) ELSE (
       SET UPDATE_LDRAW_LIBS=-true
@@ -594,8 +598,18 @@ ECHO - VBS file "%vbs%" is done compiling
 ECHO.
 ECHO - LDraw archive library download path: %OutputPATH%
 
+IF "%APPVEYOR%" EQU "True" (
+  IF NOT DEFINED UPDATE_LDRAW_LIBS (
+    SET UPDATE_LDRAW_LIBS=-unofficial
+  )
+)
+
 IF "%UPDATE_LDRAW_LIBS%" EQU "-true" (
   GOTO :UPDATE_ALL_LIBRARIES
+)
+
+IF "%UPDATE_LDRAW_LIBS%" EQU "-ldraw" (
+  GOTO :UPDATE_LDRAW_LIBRARIES
 )
 
 IF NOT EXIST "%OutputPATH%\%OfficialCONTENT%" (
@@ -663,6 +677,20 @@ IF EXIST "%OutputPATH%\%TenteCONTENT%" (
 IF EXIST "%OutputPATH%\%VexiqCONTENT%" (
   DEL /Q "%OutputPATH%\%VexiqCONTENT%
   CALL :GET_VEXIQ_LIBRARY
+)
+EXIT /b
+
+:UPDATE_LDRAW_LIBRARIES
+ECHO.
+ECHO - Update official and unofficial LDraw libraries...
+
+IF EXIST "%OutputPATH%\%OfficialCONTENT%" (
+  DEL /Q "%OutputPATH%\%OfficialCONTENT%"
+  CALL :GET_OFFICIAL_LIBRARY
+)
+IF EXIST "%OutputPATH%\%LPub3DCONTENT%" (
+  DEL /Q "%OutputPATH%\%LPub3DCONTENT%"
+  CALL :GET_UNOFFICIAL_LIBRARY
 )
 EXIT /b
 
@@ -813,7 +841,7 @@ ECHO.
 ECHO ----------------------------------------------------------------
 ECHO Usage:
 ECHO  build [ -help]
-ECHO  build [ x86 ^| x86_64 ^| -all ] [ -chk ^| -ins ^| -3rd ^| -ren ] [ -chk ^| -ins ^| -uld  ^| -official ^| -unofficial ^| -tente ^| -vexiq ] [ -chk ^| -uld ^| -official ^| -unofficial ^| -tente ^| -vexiq ]
+ECHO  build [ x86 ^| x86_64 ^| -all ] [ -chk ^| -ins ^| -3rd ^| -ren ] [ -chk ^| -ins ^| -asl  ^| -ldraw  ^| -official ^| -unofficial ^| -tente ^| -vexiq ] [ -chk ^| -asl ^| -ldraw  ^| -official ^| -unofficial ^| -tente ^| -vexiq ]
 ECHO.
 ECHO ----------------------------------------------------------------
 ECHO Build 64bit, Release and perform build check
@@ -844,21 +872,22 @@ ECHO [cmd.exe]   : builds\windows\AutoBuild.cmd [Flags]
 ECHO.
 ECHO Flags:
 ECHO ----------------------------------------------------------------
-ECHO ^| Flag    ^| Pos ^| Type             ^| Description
+ECHO ^| Flag     ^| Pos  ^| Type              ^| Description
 ECHO ----------------------------------------------------------------
-ECHO  -help........1......Useage flag         [Default=Off] Display useage.
-ECHO  x86..........1......Platform flag       [Default=Off] Build 32bit architecture.
-ECHO  x86_64.......1......Platform flag       [Default=Off] Build 64bit architecture.
-ECHO  -all.........1......Configuraiton flag  [Default=On ] Build both 32bit and 64bit architectures - Requries Qt libraries for both architectures.
-ECHO  -3rd.........2......Project flag        [Default=Off] Build 3rdparty renderers - LDGLite, LDView, and LPub3D-Trace (POV-Ray) from source
-ECHO  -ren.........2......Project flag        [Default=Off] Build 3rdparty renderers only - LPub3D not built
-ECHO  -ins.........2,3....Project flag        [Default=On ] Install distribution as LPub3D 3rd party installation
-ECHO  -chk.........2,3,4..Project flag        [Default=Off] Perform a build check
-ECHO  -uld.........3,4....Project flag        [Default=Off] Force update LDraw libraries
-ECHO  -unofficial..3,4....Project flag        [Default=Off] Force update Unofficial LDraw library
-ECHO  -official....3,4....Project flag        [Default=Off] Force update Official LDraw library
-ECHO  -tente.......3,4....Project flag        [Default=Off] Force update Tente LDraw library
-ECHO  -vexiq.......3,4....Project flag        [Default=Off] Force update VEXiQ LDraw library
+ECHO  -help.......1........Useage flag         [Default=Off] Display useage.
+ECHO  x86.........1........Platform flag       [Default=Off] Build 32bit architecture.
+ECHO  x86_64......1........Platform flag       [Default=Off] Build 64bit architecture.
+ECHO  -all........1........Configuraiton flag  [Default=On ] Build both 32bit and 64bit architectures - Requries Qt libraries for both architectures.
+ECHO  -3rd..........2......Project flag        [Default=Off] Build 3rdparty renderers - LDGLite, LDView, and LPub3D-Trace (POV-Ray) from source
+ECHO  -ren..........2......Project flag        [Default=Off] Build 3rdparty renderers only - LPub3D not built
+ECHO  -ins..........2,3....Project flag        [Default=On ] Install distribution as LPub3D 3rd party installation
+ECHO  -chk..........2,3,4..Project flag        [Default=Off] Perform a build check
+ECHO  -asl............3,4..Project flag        [Default=Off] Force update all supported libraries
+ECHO  -ldraw..........3,4..Project flag        [Default=Off] Force update LDraw Official and Unofficial libraries
+ECHO  -unofficial.....3,4..Project flag        [Default=Off] Force update Unofficial LDraw library
+ECHO  -official.......3,4..Project flag        [Default=Off] Force update Official LDraw library
+ECHO  -tente..........3,4..Project flag        [Default=Off] Force update Tente LDraw library
+ECHO  -vexiq..........3,4..Project flag        [Default=Off] Force update VEXiQ LDraw library
 ECHO.
 ECHO Be sure the set your LDraw directory in the variables section above if you expect to use the '-chk' option.
 ECHO.
