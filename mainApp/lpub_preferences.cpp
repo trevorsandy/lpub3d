@@ -3849,44 +3849,38 @@ void Preferences::publishingPreferences()
         printDocumentTOC = Settings.value(QString("%1/%2").arg(DEFAULTS,"PrintDocumentTOC")).toBool();
     }
 
-    if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"Email"))) {
-        QVariant eValue("");
-        defaultEmail = "";
-        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"Email"),eValue);
-    } else {
+    if (Settings.contains(QString("%1/%2").arg(DEFAULTS,"Email"))) {
         defaultEmail = Settings.value(QString("%1/%2").arg(DEFAULTS,"Email")).toString();
     }
 
-    if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"URL"))) {
-        QVariant uValue("");
-        defaultURL = "";
-        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"URL"),uValue);
-    } else {
+    if (Settings.contains(QString("%1/%2").arg(DEFAULTS,"URL"))) {
         defaultURL = Settings.value(QString("%1/%2").arg(DEFAULTS,"URL")).toString();
     }
 
     if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"Author"))) {
-        QVariant eValue("");
-        defaultAuthor = "";
+        QVariant eValue(VER_PRODUCTNAME_STR);
+        defaultAuthor = VER_PRODUCTNAME_STR;
         Settings.setValue(QString("%1/%2").arg(DEFAULTS,"Author"),eValue);
     } else {
         defaultAuthor = Settings.value(QString("%1/%2").arg(DEFAULTS,"Author")).toString();
+        if (defaultAuthor.isEmpty())
+            defaultAuthor = VER_PRODUCTNAME_STR;
     }
 
-    if ( ! Settings.contains(QString("%1/%2").arg(DEFAULTS,"PublishDescription"))) {
-        QVariant eValue("");
-        publishDescription = "";
-        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"PublishDescription"),eValue);
+    if (! Settings.contains(QString("%1/%2").arg(DEFAULTS,"PublishDescription"))) {
+        QVariant eValue(PUBLISH_DESCRIPTION_DEFAULT);
+        publishDescription = PUBLISH_DESCRIPTION_DEFAULT;
+        Settings.setValue(QString("%1/%2").arg(DEFAULTS,"Author"),eValue);
     } else {
         publishDescription = Settings.value(QString("%1/%2").arg(DEFAULTS,"PublishDescription")).toString();
+        if (publishDescription.isEmpty())
+            publishDescription = PUBLISH_DESCRIPTION_DEFAULT;
     }
 
     if (Settings.contains(QString("%1/%2").arg(DEFAULTS,"DocumentLogoFile"))) {
         documentLogoFile = Settings.value(QString("%1/%2").arg(DEFAULTS,"DocumentLogoFile")).toString();
         QFileInfo fileInfo(documentLogoFile);
-        if (fileInfo.exists()) {
-            return;
-        } else {
+        if (!fileInfo.exists()) {
             Settings.remove(QString("%1/%2").arg(DEFAULTS,"DocumentLogoFile"));
         }
     }

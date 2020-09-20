@@ -141,38 +141,6 @@ void Gui::cleanChanged(bool cleanState)
   saveAct->setDisabled( cleanState);
 }
 
-void Gui::normalizeHeader(Where &current)
-{
-  int numLines = ldrawFile.size(current.modelName);
-  for ( ; current.lineNumber < numLines; current.lineNumber++) {
-      QString line = gui->readLine(current);
-      int p;
-      for (p = 0; p < line.size(); ++p) {
-          if (line[p] != ' ') {
-              break;
-            }
-        }
-      if (line[p] >= '1' && line[p] <= '5') {
-          if (current.lineNumber == 0) {
-              QString attribute = QString("0 Name: %1").arg(current.modelName);
-              gui->insertLine(current,attribute,nullptr);
-              attribute = QString("0 Author: %1").arg(Preferences::defaultAuthor.isEmpty() ? "Undefined" :
-                                                      Preferences::defaultAuthor);
-              current.lineNumber++;
-              gui->insertLine(current,attribute,nullptr);
-            } else if (current > 0) {
-              --current;
-            }
-          break;
-        } else if ( ! isHeader(line)) {
-          if (current.lineNumber != 0) {
-              --current;
-              break;
-            }
-        }
-    }
-}
-
 void Gui::scanPast(Where &topOfStep, const QRegExp &lineRx)
 {
   Where walk     = topOfStep + 1;
@@ -186,7 +154,7 @@ void Gui::scanPast(Where &topOfStep, const QRegExp &lineRx)
         lastPos = line.contains(lineRx) ? walk : lastPos;
         if ( ! line.contains(lineRx) && ! isHeader(line)) {
           topOfStep = lastPos;
-          if (line.contains("0 STEP") || line.contains("0 ROTSTEP")){
+          if (line.startsWith("0 STEP") || line.startsWith("0 ROTSTEP")){
             break;
           }
         }
@@ -215,7 +183,7 @@ bool Gui::stepContains(Where &topOfStep, QRegExp &lineRx)
     QString line = gui->readLine(walk);
     if ((found = line.contains(lineRx)))
       topOfStep = walk;
-    if (found || line.contains("0 STEP") || line.contains("0 ROTSTEP"))
+    if (found || line.startsWith("0 STEP") || line.startsWith("0 ROTSTEP"))
       break;
   }
   return found;

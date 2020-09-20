@@ -716,11 +716,9 @@ void Gui::fileChanged(const QString &path)
 void Gui::writeGeneratedColorPartsToTemp(){
   LDrawFile::_currentLevels.clear();
   for (int i = 0; i < ldrawFile._subFileOrder.size(); i++) {
-    QString fileName = ldrawFile._subFileOrder[i].toLower();
+    QString fileName = ldrawFile._subFileOrder[i];
     if (ldrawColourParts.isLDrawColourPart(fileName)) {
-      Where here(ldrawFile._subFileOrder[i],0);
-      normalizeHeader(here);
-      QString fileName = ldrawFile._subFileOrder[i].toLower();
+      ldrawFile.normalizeHeader(fileName);
       QStringList content = ldrawFile.contents(fileName);
       emit messageSig(LOG_INFO, "Writing generated part to temp directory: " + fileName + "...");
       writeToTmp(fileName,content);

@@ -186,14 +186,15 @@ class LDrawFile {
     int                         _buildModPrevStepIndex;
     bool                        _mpd;
     static int                  _emptyInt;
+    static QList<QRegExp>       _fileRegExp;
 
     ExcludedParts               excludedParts; // internal list of part count excluded parts
 
-    bool topLevelFileNotCaptured;
-    bool topLevelNameNotCaptured;
-    bool topLevelAuthorNotCaptured;
-    bool topLevelDescriptionNotCaptured;
-    bool topLevelCategoryNotCaptured;
+    bool hdrTopFileNotFound;
+    bool hdrNameNotFound;
+    bool hdrAuthorNotFound;
+    bool hdrDescNotFound;
+    bool hdrCategNotFound;
     bool unofficialPart;
     bool topLevelModel;
     bool ldcadGroupsLoaded;
@@ -249,6 +250,8 @@ class LDrawFile {
 
     QStringList getSubFilePaths();
     QStringList contents(const QString &fileName);
+    void normalizeHeader(const QString &fileName,
+                         int missing = 0);
     void setSubFilePath(const QString &mcFileName,
                      const QString &subFilePath);
     void setContents(const QString     &fileName, 

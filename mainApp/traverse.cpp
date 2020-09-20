@@ -3741,27 +3741,24 @@ void Gui::drawPage(
 
 void Gui::skipHeader(Where &current)
 {
-  int numLines = ldrawFile.size(current.modelName);
-  for ( ; current.lineNumber < numLines; current.lineNumber++) {
-      QString line = readLine(current);
-      int p;
-      for (p = 0; p < line.size(); ++p) {
-          if (line[p] != ' ') {
-              break;
+    int numLines = ldrawFile.size(current.modelName);
+    for ( ; current.lineNumber < numLines; current.lineNumber++) {
+        QString line = readLine(current);
+        int p;
+        for (p = 0; p < line.size(); ++p) {
+            if (line[p] != ' ') {
+                break;
             }
         }
-      if (line[p] >= '1' && line[p] <= '5') {
-          if (current.lineNumber == 0) {
-              QString empty = "0 ";
-              insertLine(current,empty,nullptr);
-            } else if (current > 0) {
-              --current;
+        if (line[p] >= '1' && line[p] <= '5') {
+            if (current.lineNumber > 0) {
+                --current;
             }
-          break;
+            break;
         } else if ( ! isHeader(line)) {
-          if (current.lineNumber != 0) {
-              --current;
-              break;
+            if (current.lineNumber != 0) {
+                --current;
+                break;
             }
         }
     }
@@ -4331,7 +4328,7 @@ void Gui::writeToTmp()
 
       Where start(ldrawFile._subFileOrder[i],0);
 
-      normalizeHeader(start);
+      skipHeader(start);
 
       QString fileName = ldrawFile._subFileOrder[i].toLower();
 

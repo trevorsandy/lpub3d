@@ -50,6 +50,8 @@ enum IniFlag { NativePOVIni, NativeSTLIni, Native3DSIni, NativePartList, POVRayR
 enum DividerType { StepDivider, RangeDivider, NoDivider };
 enum ShowLoadMsgType { NEVER_SHOW, SHOW_ERROR, SHOW_WARNING, SHOW_MESSAGE, ALWAYS_SHOW };
 enum LoadMsgType { MISSING_LOAD_MSG, PRIMITIVE_LOAD_MSG, SUBPART_LOAD_MSG, VALID_LOAD_MSG, ALL_LOAD_MSG };
+enum MissingHeader { NoneMissing, NameMissing, AuthorMissing, BothMissing };
+enum LDrawFileRegExp { SOF_RX, EOF_RX, LDR_RX, AUT_RX, NAM_RX, CAT_RX, DES_RX, LDG_RX };
 enum RulerTrackingType { TRACKING_TICK, TRACKING_LINE, TRACKING_NONE};
 enum SceneGuidesPosType { GUIDES_TOP_LEFT, GUIDES_TOP_RIGHT, GUIDES_CENTRE, GUIDES_BOT_LEFT, GUIDES_BOT_RIGHT};
 enum RemoveObjectsRC { RemovedPieceRC, RemovedCameraRC, RemovedLightRC };
@@ -491,6 +493,8 @@ static const SceneObject PliPartGroupSceneObjects[] =
 #define HIGHLIGHT_LINE_WIDTH_DEFAULT            1             // line width 1 - 5
 
 #define SCENE_GUIDES_LINE_DEFAULT               2             // PenStyle - DashLine
+
+#define PUBLISH_DESCRIPTION_DEFAULT            "LDraw model"
 
 // Team color supplements
 #define THEME_DEFAULT                   "Default" // Default Theme

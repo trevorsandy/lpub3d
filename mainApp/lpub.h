@@ -915,7 +915,6 @@ public:
   void scanPast(Where &here, const QRegExp &lineRx);
   bool stepContains(Where &here, QRegExp &lineRx, QString &result, int capGrp = 0);
   bool stepContains(Where &here, QRegExp &lineRx);
-  void normalizeHeader(Where &here);
 
   QString topLevelFile();
 
