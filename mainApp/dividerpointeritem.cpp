@@ -420,69 +420,64 @@ void DividerPointerItem::calculatePointerMeta()
 {
   calculatePointerMetaLoc();
 
+  auto calculateOffset = [this] (SelectedPoint selected, PointerData &pData) {
+       float pointerData[2];
+       if (segments() == OneSegment && selected == Tip) {
+           if (divider->parentStep->onlyChild()) {
+               points[selected] += QPoint(divider->loc[XX],divider->loc[YY]);
+           } else {
+               switch (divider->parentRelativeType) {
+               case StepType:
+                   points[selected] += QPoint(divider->loc[XX],divider->loc[YY]);
+                    break;
+               case PageType:
+               case StepGroupType:
+                   points[selected] -= QPoint(divider->parentStep->grandparent()->loc[XX],
+                                         divider->parentStep->grandparent()->loc[YY]);
+                   points[selected] -= QPoint(divider->parentStep->loc[XX],
+                                         divider->parentStep->loc[YY]);
+                   points[selected] += QPoint(divider->loc[XX],divider->loc[YY]);
+                   break;
+               default:
+                   break;
+               }
+           }
+           if (divider->placement.value().relativeTo == StepGroupType ||
+               divider->placement.value().relativeTo == CalloutType) {
+               points[selected] -= QPoint(divider->parentStep->loc[XX],
+                                          divider->parentStep->loc[YY]);
+           }
+           pointerData[XX] = float(points[selected].x() - divider->parentStep->csiItem->loc[XX])/divider->parentStep->csiItem->size[XX];
+           pointerData[YY] = float(points[selected].y() - divider->parentStep->csiItem->loc[YY])/divider->parentStep->csiItem->size[YY];
+       } else {
+           pointerData[XX] = float(points[selected].x());
+           pointerData[YY] = float(points[selected].y());
+       }
+      switch (selected) {
+       case Tip:
+          pData.x1 = pointerData[XX];
+          pData.y1 = pointerData[YY];
+          break;
+      case Base:
+          pData.x2 = pointerData[XX];
+          pData.y2 = pointerData[YY];
+         break;
+      case MidBase:
+          pData.x3 = pointerData[XX];
+          pData.y3 = pointerData[YY];
+         break;
+      case MidTip:
+          pData.x4 = pointerData[XX];
+          pData.y4 = pointerData[YY];
+         break;
+      default:
+         break;
+      }
+  };
+
   PointerData pointerData = pointer.pointerMeta.value();
-  if (segments() == OneSegment) {
-      if (divider->parentStep->onlyChild()) {
-          points[Tip] += QPoint(divider->loc[XX],divider->loc[YY]);
-      } else {
-          switch (divider->parentRelativeType) {
-          case StepType:
-              points[Tip] += QPoint(divider->loc[XX],divider->loc[YY]);
-               break;
-          case PageType:
-          case StepGroupType:
-              points[Tip] -= QPoint(divider->parentStep->grandparent()->loc[XX],
-                                    divider->parentStep->grandparent()->loc[YY]);
-              points[Tip] -= QPoint(divider->parentStep->loc[XX],
-                                    divider->parentStep->loc[YY]);
-              points[Tip] += QPoint(divider->loc[XX],divider->loc[YY]);
-              break;
-          default:
-              break;
-          }
-      }
-
-      /*
-      if (divider->parentStep->onlyChild()) {
-          points[Tip] += QPoint(divider->loc[XX],divider->loc[YY]);
-      } else {
-          switch (divider->parentRelativeType) {
-          case CsiType:
-          case PartsListType:
-          case StepNumberType:
-              points[Tip] += QPoint(divider->loc[XX],divider->loc[YY]);
-              break;
-          case PageType:
-          case StepGroupType:
-              points[Tip] -= QPoint(divider->parentStep->grandparent()->loc[XX],
-                                    divider->parentStep->grandparent()->loc[YY]);
-              points[Tip] -= QPoint(divider->parentStep->loc[XX],
-                                    divider->parentStep->loc[YY]);
-              points[Tip] += QPoint(divider->loc[XX],divider->loc[YY]);
-              break;
-          default:
-              break;
-          }
-      }
-      */
-
-      if (divider->placement.value().relativeTo == StepGroupType ||
-          divider->placement.value().relativeTo == CalloutType) {
-          points[Tip] -= QPoint(divider->parentStep->loc[XX],
-                                divider->parentStep->loc[YY]);
-      }
-
-      pointerData.x1 = float(points[Tip].x() - divider->parentStep->csiItem->loc[XX])/divider->parentStep->csiItem->size[XX];
-      pointerData.y1 = float(points[Tip].y() - divider->parentStep->csiItem->loc[YY])/divider->parentStep->csiItem->size[YY];
-  } else {
-      pointerData.x1 = float(points[Tip].x());
-      pointerData.y1 = float(points[Tip].y());
-      pointerData.x2 = float(points[Base].x());
-      pointerData.y2 = float(points[Base].y());
-      pointerData.x3 = float(points[MidBase].x());
-      pointerData.y3 = float(points[MidBase].y());
-      pointerData.x4 = float(points[MidTip].x());
-      pointerData.y4 = float(points[MidTip].y());
+  for (int i = 0; i < NumPointerGrabbers; i++) {
+      calculateOffset(SelectedPoint(i),pointerData);
   }
 
   pointer.pointerMeta.setValue(
