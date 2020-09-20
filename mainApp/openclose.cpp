@@ -577,7 +577,8 @@ bool Gui::openFile(QString &fileName)
   mpdCombo->addItems(ldrawFile.subFileOrder());
   mpdCombo->setToolTip(tr("Current Submodel: %1").arg(mpdCombo->currentText()));
   setCurrentFile(fileName);
-  emit messageSig(LOG_STATUS, "Loading LDraw Editor display...");
+  emit messageSig(LOG_INFO_STATUS, "Load LDraw Editor display...");
+  QApplication::processEvents();
   displayFile(&ldrawFile,ldrawFile.topLevelFile());
   undoStack->setClean();
   curFile = fileName;
@@ -587,7 +588,7 @@ bool Gui::openFile(QString &fileName)
   enableWatcher();
 
   defaultResolutionType(Preferences::preferCentimeters);
-  emit messageSig(LOG_DEBUG, QString("File opened - %1.").arg(fileName));
+  emit messageSig(LOG_DEBUG, QString("File loaded - %1.").arg(fileName));
   return true;
 }
 

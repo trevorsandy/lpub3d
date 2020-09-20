@@ -289,6 +289,7 @@ class Preferences
     static bool    showSaveOnRedraw;
     static bool    showSaveOnUpdate;
     static bool    suppressStdOutToLog;
+    static bool    archivePartsOnLaunch;
 
     static bool    customSceneBackgroundColor;
     static bool    customSceneGridColor;

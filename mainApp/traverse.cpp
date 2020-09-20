@@ -429,6 +429,7 @@ int Gui::drawPage(
     DrawPageOptions &opts)
 {
   emit messageSig(LOG_INFO_STATUS, "Processing draw page for " + opts.current.modelName + "...");
+  QApplication::processEvents();
 
   QElapsedTimer pageRenderTimer;
   pageRenderTimer.start();

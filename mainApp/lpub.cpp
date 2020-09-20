@@ -1263,13 +1263,19 @@ void Gui::displayFile(
     bool editModelFile   /*false*/,
     bool displayStartPage/*false*/) // doesn't seem like this is used
 {
-    emit messageSig(LOG_INFO, "Display page in LDraw Editor...");
     if (! exporting()) {
+#ifdef QT_DEBUG_MODE        
+        QTime t;
+        t.start();
+#endif        
         if (editModelFile) {
             displayModelFileSig(ldrawFile, modelName);
         } else {
             displayFileSig(ldrawFile, modelName);
-
+#ifdef QT_DEBUG_MODE            
+            emit messageSig(LOG_DEBUG,tr("Display loaded - %1")
+                                             .arg(gui->elapsedTime(t.elapsed())));
+#endif
             if (curSubFile == modelName)
                 return;
             else
@@ -3481,6 +3487,19 @@ void Gui::aboutDialog()
     dialog.exec();
 }
 
+void Gui::archivePartsOnLaunch() {
+    bool archivePartsOnLaunchCompare  = Preferences::archivePartsOnLaunch;
+    Preferences::archivePartsOnLaunch = archivePartsOnLaunchAct->isChecked();
+    bool archivePartsOnLaunchChanged  = Preferences::archivePartsOnLaunch  != archivePartsOnLaunchCompare;
+
+    if (archivePartsOnLaunchChanged) {
+        QSettings Settings;
+        QString const archivePartsOnLaunchKey("ArchivePartsOnLaunch");
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,archivePartsOnLaunchKey), Preferences::archivePartsOnLaunch);
+        emit messageSig(LOG_INFO,QString("Archive search files on launch is %1").arg(Preferences::archivePartsOnLaunch? "ON" : "OFF"));
+    }
+}
+
 void Gui::refreshLDrawUnoffParts() {
 
     // Download unofficial archive
@@ -4379,6 +4398,12 @@ void Gui::createActions()
     clearCustomPartCacheAct->setStatusTip(tr("Reset fade and highlight part files cache - Alt+C"));
     connect(clearCustomPartCacheAct, SIGNAL(triggered()), this, SLOT(clearCustomPartCache()));
 
+    archivePartsOnLaunchAct = new QAction(QIcon(":/resources/archivefilesonlaunch.png"),tr("Archive Parts On Launch"), this);
+    archivePartsOnLaunchAct->setStatusTip(tr("Automatically trigger parts archive for LDraw search directories on application launch "));
+    archivePartsOnLaunchAct->setCheckable(true);
+    archivePartsOnLaunchAct->setChecked(Preferences::archivePartsOnLaunch);
+    connect(archivePartsOnLaunchAct, SIGNAL(triggered()), this, SLOT(archivePartsOnLaunch()));
+
     refreshLDrawUnoffPartsAct = new QAction(QIcon(":/resources/refreshunoffarchive.png"),tr("Refresh LDraw Unofficial Parts"), this);
     refreshLDrawUnoffPartsAct->setStatusTip(tr("Download and replace LDraw Unofficial parts archive file in User data"));
     refreshLDrawUnoffPartsAct->setEnabled(Preferences::usingDefaultLibrary);
@@ -4918,6 +4943,8 @@ void Gui::createMenus()
 
     toolsMenu->addAction(refreshLDrawUnoffPartsAct);
     toolsMenu->addAction(refreshLDrawOfficialPartsAct);
+    toolsMenu->addSeparator();
+    toolsMenu->addAction(archivePartsOnLaunchAct);
     toolsMenu->addSeparator();
 
     configMenu = menuBar()->addMenu(tr("&Configuration"));

@@ -462,6 +462,7 @@ void PartWorker::processLDSearchDirParts(){
 
   QStringList dirs;
 
+  // Automatically load default LSynth when add to search directory is disabled
   if (!Preferences::addLSynthSearchDir) {
      QString dir;
      if (!(dir = getLSynthDir()).isEmpty())
@@ -1195,6 +1196,7 @@ void PartWorker::requestEndThreadNow(){
 
 bool PartWorker::processPartsArchive(const QStringList &ldPartsDirs, const QString &comment, bool overwriteCustomParts){
 
+  // Used by refresh LDraw parts routine
   if (Preferences::skipPartsArchive) {
       Preferences::skipPartsArchive = false;
       return true;

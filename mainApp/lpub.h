@@ -1689,6 +1689,7 @@ private slots:
     void mpdComboChanged(int index);
     void refreshLDrawUnoffParts();
     void refreshLDrawOfficialParts();
+    void archivePartsOnLaunch();
     void writeGeneratedColorPartsToTemp();
 
     void clearPage(
@@ -1903,6 +1904,9 @@ private:
 
   QAction *refreshLDrawUnoffPartsAct;
   QAction *refreshLDrawOfficialPartsAct;
+
+  // archive
+  QAction *archivePartsOnLaunchAct;
 
   // config menu
 

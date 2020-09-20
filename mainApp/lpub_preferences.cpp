@@ -237,6 +237,7 @@ bool    Preferences::showAnnotationMessages     = true;
 bool    Preferences::showSaveOnRedraw           = true;
 bool    Preferences::showSaveOnUpdate           = true;
 bool    Preferences::suppressStdOutToLog        = false;
+bool    Preferences::archivePartsOnLaunch       = true;
 bool    Preferences::highlightFirstStep         = false;
 
 bool    Preferences::customSceneBackgroundColor = false;
@@ -1044,16 +1045,25 @@ void Preferences::lpub3dLibPreferences(bool force)
 #endif
 
     QFileInfo fileInfo;
-    QString const PartsLibraryKey("PartsLibrary");
-
     QSettings Settings;
 
-    // check if skip parts archive selected
-    if (Settings.contains(QString("%1/%2").arg(DEFAULTS,SAVE_SKIP_PARTS_ARCHIVE_KEY))) {
-        skipPartsArchive = Settings.value(QString("%1/%2").arg(DEFAULTS,SAVE_SKIP_PARTS_ARCHIVE_KEY)).toBool();
-        Settings.remove(QString("%1/%2").arg(DEFAULTS,SAVE_SKIP_PARTS_ARCHIVE_KEY));
+    // check if archive parts on launch enabled 
+    QString const archivePartsOnLaunchKey("ArchivePartsOnLaunch"); 
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,archivePartsOnLaunchKey))) { 
+        QVariant uValue(true); 
+        archivePartsOnLaunch = true; 
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,archivePartsOnLaunchKey),uValue); 
+    } else {
+        archivePartsOnLaunch = Settings.value(QString("%1/%2").arg(SETTINGS,archivePartsOnLaunchKey)).toBool();
     }
 
+    // check if skip parts archive selected - used by refresh LDraw parts routine
+    if (Settings.contains(QString("%1/%2").arg(DEFAULTS,SAVE_SKIP_PARTS_ARCHIVE_KEY))) { 
+        skipPartsArchive = Settings.value(QString("%1/%2").arg(DEFAULTS,SAVE_SKIP_PARTS_ARCHIVE_KEY)).toBool(); 
+        Settings.remove(QString("%1/%2").arg(DEFAULTS,SAVE_SKIP_PARTS_ARCHIVE_KEY)); 
+    }
+
+    QString const PartsLibraryKey("PartsLibrary");
     lpub3dLibFile = Settings.value(QString("%1/%2").arg(SETTINGS,PartsLibraryKey)).toString();
 
     // Set archive library path, also check alternate location (e.g. AIOI uses C:\Users\Public\Documents\LDraw)

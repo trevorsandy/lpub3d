@@ -364,7 +364,17 @@ bool lcApplication::LoadPartsLibrary(const QList<QPair<QString, bool>>& LibraryP
 	partWorker.ldsearchDirPreferences();
 
 	// process search directories to update library archive
-	partWorker.processLDSearchDirParts();
+    if (Preferences::archivePartsOnLaunch) {
+		partWorker.processLDSearchDirParts();
+	} else {
+		emit Application::instance()->splashMsgSig("70% - Skip parts archive per user preference...");
+
+		// time delay to display archive message
+		QTime dt = QTime::currentTime().addSecs(3);
+		while (QTime::currentTime() < dt)
+			QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
+
+	}
 
 	emit Application::instance()->splashMsgSig("80% - Archive libraries loading...");
 /*** LPub3D Mod end ***/

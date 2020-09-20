@@ -23,6 +23,7 @@
         <file alias="applycamerasettingsposition_16.png">resources/applycamerasettingsposition_16.png</file>
         <file alias="applylightsettings.png">resources/applylightsettings.png</file>
         <file alias="applylightsettings_16.png">resources/applylightsettings_16.png</file>
+        <file alias="archivefilesonlaunch.png">resources/archivefilesonlaunch.png</file>
         <file alias="assemblysetup.png">resources/assemblysetup.png</file>
         <file alias="autocomplete.lst">resources/autocomplete.lst</file>
         <file alias="back.png">resources/back.png</file>
