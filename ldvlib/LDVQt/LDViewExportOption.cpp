@@ -350,7 +350,8 @@ void LDViewExportOption::populateExportSettings(void)
 				   connect( m_liNumEdit, SIGNAL( editingFinished() ), this, SLOT( applyLights() ) );
 
 				   // insert QCheckBox here...
-				   m_liShadowsChk =  new QCheckBox(QString("Enabled"),this);
+				   m_liShadowsChk =  new QCheckBox(QString("Shadowless"),this);
+				   m_liShadowsChk->setToolTip(QString("Specify if light will cast shadow."));
 				   grid->addWidget(m_liShadowsChk,2,1,1,1);
 				   connect( m_liShadowsChk, SIGNAL( clicked(bool) ), this, SLOT( applyLights() ) );
 
@@ -358,6 +359,7 @@ void LDViewExportOption::populateExportSettings(void)
 				   m_liLatSpin->setRange(-360.0, 360.0);
 				   m_liLatSpin->setDecimals(1);
 				   m_liLatSpin->setSingleStep(1);
+				   m_liLatSpin->setToolTip(QString("Specify light latitude position in degrees"));
 				   grid->addWidget(m_liLatSpin,2,2,1,1);
 				   connect( m_liLatSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
 
@@ -365,6 +367,7 @@ void LDViewExportOption::populateExportSettings(void)
 				   m_liLonSpin->setRange(-360.0, 360.0);
 				   m_liLonSpin->setDecimals(1);
 				   m_liLonSpin->setSingleStep(1);
+				   m_liLonSpin->setToolTip(QString("Specify light longitude position in degrees"));
 				   grid->addWidget(m_liLonSpin,2,3,1,1);
 				   connect( m_liLonSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
 
@@ -391,18 +394,21 @@ void LDViewExportOption::populateExportSettings(void)
 				   m_liIntSpin->setRange(0.0,100);
 				   m_liIntSpin->setDecimals(2);
 				   m_liIntSpin->setSingleStep(0.1);
+				   m_liIntSpin->setToolTip(QString("Specify light intensity where 0 is none and 1 is 100 percent."));
 				   grid->addWidget(m_liIntSpin,4,1,1,1);
 				   connect( m_liIntSpin, SIGNAL( valueChanged(double) ), this, SLOT( setLights(double) ) );
 
 				   m_liASizeSpin =  new QSpinBox(this);
 				   m_liASizeSpin->setRange(0,10000);
 				   m_liASizeSpin->setSingleStep(1);
+				   m_liASizeSpin->setToolTip(QString("Specify the side length of the area light square, use 0 for point light."));
 				   grid->addWidget(m_liASizeSpin,4,2,1,1);
 				   connect( m_liASizeSpin, SIGNAL( valueChanged(int) ), this, SLOT( setLights(int) ) );
 
 				   m_liALightsSpin =  new QSpinBox(this);
 				   m_liALightsSpin->setRange(0,100);
 				   m_liALightsSpin->setSingleStep(1);
+				   m_liIntSpin->setToolTip(QString("Specify the number of light rows/columns - area light only"));
 				   grid->addWidget(m_liALightsSpin,4,3,1,1);
 				   connect( m_liALightsSpin, SIGNAL( valueChanged(int) ), this, SLOT( setLights(int)));
 
