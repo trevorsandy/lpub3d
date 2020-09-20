@@ -688,6 +688,21 @@ void EditWindow::displayFile(
               return;
           }
 
+          bool setProgressDialog = file.size() > 256000;  /*in Bytes = 250KB*/
+
+          QProgressDialog *progressDialog = nullptr;
+
+          if (setProgressDialog) {
+              QString message = QString("Loading %1, please wait...").arg(QFileInfo(fileName).fileName());
+              progressDialog = new QProgressDialog(message, "Cancel",0,0,this);
+              progressDialog->setWindowModality(Qt::WindowModal);
+              // hide cancel button
+              QList<QPushButton *> buttonList=progressDialog->findChildren<QPushButton *>();
+              if (buttonList.size())
+                  buttonList.at(0)->hide();
+              progressDialog->exec();
+          }
+
           mpdCombo->setMaxCount(0);
           mpdCombo->setMaxCount(1000);
           mpdCombo->addItems(ldrawFile->subFileOrder());
@@ -709,6 +724,9 @@ void EditWindow::displayFile(
                      this,      SLOT(enableSave()));
 
           _textEdit->setPlainText(in.readAll());
+
+          if (setProgressDialog)
+              progressDialog->reset();
 
           connect(_textEdit,  SIGNAL(textChanged()),
                    this,      SLOT(enableSave()));
