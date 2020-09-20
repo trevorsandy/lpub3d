@@ -61,35 +61,49 @@ QList<HiarchLevel*> LDrawFile::_allLevels;
 
 HiarchLevel* addLevel(const QString& key, bool create)
 {
+    // if level object with specified key exists...
     for (HiarchLevel* level : LDrawFile::_allLevels)
+        // return existing level object
         if (level->key == key)
             return level;
 
-    if (create)
-    {
+    // else if create object spedified...
+    if (create) {
+        // create a new level object
         HiarchLevel* level = new HiarchLevel(key);
+        // add to 'all' level objects list
         LDrawFile::_allLevels.append(level);
+        // return level object
         return level;
     }
 
     return nullptr;
 }
 
-int getLevel(const QString& key, int pos)
+int getLevel(const QString& key, int position)
 {
-    if (pos == BM_BEGIN) {
+    if (position == BM_BEGIN) {
+        // add level object to 'all' levels
         HiarchLevel* level = addLevel(key, true);
 
-        if (LDrawFile::_currentLevels.isEmpty())
-            level->level = nullptr;
-        else
+        // if there are 'current' level objects...
+        if (LDrawFile::_currentLevels.size())
+            // set last 'current' level object as parent of this level object
             level->level = LDrawFile::_currentLevels[LDrawFile::_currentLevels.size() - 1];
+        else
+            // set this level object parent to nullptr
+            level->level = nullptr;
 
+        // append this level object to 'current' level objects list
         LDrawFile::_currentLevels.append(level);
 
-    } else if (pos == BM_END) {
-        if (!LDrawFile::_currentLevels.isEmpty())
+    } else if (position == BM_END) {
+
+        // if there are 'current' level objects...
+        if (LDrawFile::_currentLevels.size()) {
+            // remove last level object from the 'current' list - reset to parent level if exists
             LDrawFile::_currentLevels.removeAt(LDrawFile::_currentLevels.size() - 1);
+        }
     }
 
     return LDrawFile::_currentLevels.size();
@@ -753,7 +767,7 @@ int LDrawFile::loadFile(const QString &fileName)
 
     addCustomColorParts(topLevelFile());
 
-    buildMod = false;
+    buildModLevel = 0 /*false*/;
 
     countParts(topLevelFile());
 
@@ -1476,7 +1490,7 @@ void LDrawFile::countInstances(const QString &mcFileName, bool isMirrored, bool 
    * Step indices are appended to the _buildModStepIndexes register.
    * Each step index contains the step's parent model and the line number
    * of the STEP meta command indicating the top of the 'next' step.
-   * The buildMod flag uses getLevel() function to determine the current
+   * The buildModLevel flag uses getLevel() function to determine the current
    * BuildMod when mods are nested.
    */
   Where topOfStep(fileName, 0);
@@ -1532,17 +1546,17 @@ void LDrawFile::countInstances(const QString &mcFileName, bool isMirrored, bool 
                 (tokens[1] == "LPUB" || tokens[1] == "!LPUB") &&
                  tokens[2] == "BUILD_MOD") {
         if (tokens[3] == "BEGIN") {
-          buildMod = getLevel(tokens[4],BM_BEGIN);
+          buildModLevel = getLevel(tokens[4], BM_BEGIN);
         } else if (tokens[3] == "APPLY" || tokens[3] == "REMOVE") {
-          buildMod = getLevel(QString(),BM_END);
+          buildModLevel = getLevel(QString(), BM_END);
         }
-        stepIgnore = buildMod;
+        stepIgnore = buildModLevel;
         //lpub3d ignore part - so set ignore step
       } else if (tokens.size() == 5 && tokens[0] == "0" &&
                  (tokens[1] == "LPUB" || tokens[1] == "!LPUB") &&
                  (tokens[2] == "PART" || tokens[2] == "PLI") &&
-                 tokens[3] == "BEGIN"  &&
-                 tokens[4] == "IGN") {
+                  tokens[3] == "BEGIN"  &&
+                  tokens[4] == "IGN") {
         stepIgnore = true;
         // lpub3d part - so set include step
       } else if (tokens.size() == 4 && tokens[0] == "0" &&
@@ -1623,12 +1637,13 @@ void LDrawFile::countInstances()
    * determine the current BuildMod when mods are nested.
    * Here we reset the BuildMod registers for levels and step indexes.
    */
-  buildMod = 0;
+  buildModLevel = 0;
   _buildModStepIndexes.clear();
   _currentLevels.clear();
 
   countInstances(topLevelFile(),false);
 
+#ifdef QT_DEBUG_MODE
   /*
   emit gui->messageSig(LOG_DEBUG, QString("Count Instances: BuildModStepIndex:"));
   for (int i = 0; i < _buildModStepIndexes.size(); i++)
@@ -1641,6 +1656,7 @@ void LDrawFile::countInstances()
                                               .arg(getSubmodelName(key.at(0)))); // modelName
   }
   */
+#endif
 }
 
 bool LDrawFile::saveMPDFile(const QString &fileName)
@@ -1717,11 +1733,11 @@ void LDrawFile::countParts(const QString &fileName){
                (tokens[1] == "LPUB" || tokens[1] == "!LPUB") &&
                 tokens[2] == "BUILD_MOD") {
                 if (tokens[3] == "BEGIN") {
-                    buildMod = getLevel(tokens[4],BM_BEGIN);
+                    buildModLevel = getLevel(tokens[4], BM_BEGIN);
                 } else if (tokens[3] == "APPLY" || tokens[3] == "REMOVE") {
-                    buildMod = getLevel(QString(),BM_END);
+                    buildModLevel = getLevel(QString(), BM_END);
                 }
-                doCountPart = ! buildMod;
+                doCountPart = ! buildModLevel;
             } else
             if (tokens.size() == 5 && tokens[0] == "0" &&
                (tokens[1] == "LPUB" || tokens[1] == "!LPUB") &&
@@ -1936,10 +1952,12 @@ void LDrawFile::insertBuildMod(const QString      &buildModKey,
   // Initialize new build mod
   BuildMod buildMod(stepKey, modAttributes, modAction, stepIndex);
   // Restore preserved actions
-  QMap<int,int>::const_iterator a = modActions.constBegin();
-  while (a != modActions.constEnd()) {
+  if (modActions.size()){
+    QMap<int,int>::const_iterator a = modActions.constBegin();
+    while (a != modActions.constEnd()) {
       buildMod._modActions.insert(a.key(), a.value());
       ++a;
+    }
   }
   // Insert new build mod
   _buildMods.insert(modKey, buildMod);
@@ -1954,9 +1972,12 @@ void LDrawFile::setBuildModStepKey(const QString &buildModKey, const QString &mo
     QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
     if (i != _buildMods.end()) {
         i.value()._modStepKey = modStepKey;
+
+#ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_DEBUG, QString("Set BuildModStepKey: %1, BuildModKey: %2")
                                                 .arg(i.value()._modStepKey)
                                                 .arg(modKey));
+#endif
     }
 }
 
@@ -1967,6 +1988,7 @@ int LDrawFile::getBuildModBeginLineNumber(const QString &buildModKey)
   if (i != _buildMods.end() && i.value()._modAttributes.size() > BM_BEGIN_LINE_NUM) {
     return i.value()._modAttributes.at(BM_BEGIN_LINE_NUM);
   }
+
   return 0;
 }
 
@@ -1977,6 +1999,7 @@ int LDrawFile::getBuildModActionLineNumber(const QString &buildModKey)
   if (i != _buildMods.end() && i.value()._modAttributes.size() > BM_ACTION_LINE_NUM) {
     return i.value()._modAttributes.at(BM_ACTION_LINE_NUM);
   }
+
   return 0;
 }
 
@@ -1987,6 +2010,7 @@ int LDrawFile::getBuildModEndLineNumber(const QString &buildModKey)
   if (i != _buildMods.end() && i.value()._modAttributes.size() > BM_END_LINE_NUM) {
     return i.value()._modAttributes.at(BM_END_LINE_NUM);
   }
+
   return 0;
 }
 
@@ -1997,6 +2021,7 @@ int LDrawFile::getBuildModDisplayPageNumber(const QString &buildModKey)
   if (i != _buildMods.end() && i.value()._modAttributes.size() > BM_DISPLAY_PAGE_NUM) {
     return i.value()._modAttributes.at(BM_DISPLAY_PAGE_NUM);
   }
+
   return 0;
 }
 
@@ -2006,11 +2031,16 @@ int LDrawFile::setBuildModDisplayPageNumber(const QString &buildModKey, int disp
     QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
     if (i != _buildMods.end()) {
         i.value()._modAttributes[BM_DISPLAY_PAGE_NUM] = displayPageNum;
+
+#ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_DEBUG, QString("Set BuildMod DisplayPageNumber: %1, BuildModKey: %2")
                                                 .arg(i.value()._modAttributes.at(BM_DISPLAY_PAGE_NUM))
                                                 .arg(modKey));
+#endif
+
         return i.value()._modAttributes.at(BM_DISPLAY_PAGE_NUM);
     }
+
     return 0;
 }
 
@@ -2026,10 +2056,13 @@ int LDrawFile::getBuildModAction(const QString &buildModKey, int stepIndex)
   }
   if (!action)
      action = setBuildModAction(buildModKey, stepIndex, BuildModApplyRc);
+
+#ifdef QT_DEBUG_MODE
   emit gui->messageSig(LOG_DEBUG, QString("Get BuildMod Action: %1, StepIndex: %2, BuildModKey: %3")
                                           .arg(i.value()._modActions.value(stepIndex) == BuildModApplyRc ? "Apply" : "Remove")
                                           .arg(stepIndex)
                                           .arg(modKey));
+#endif
 
   return action;
 }
@@ -2042,6 +2075,7 @@ QMap<int, int>LDrawFile::getBuildModActions(const QString &buildModKey)
     if (i != _buildMods.end()) {
         return i.value()._modActions;
     }
+
     return empty;
 }
 
@@ -2064,14 +2098,18 @@ int LDrawFile::setBuildModAction(const QString &buildModKey,
           s.value()._modified = true;
           s.value()._changedSinceLastWrite = true;
         }
+
+#ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_DEBUG, QString("Set BuildMod Action: %1, StepIndex: %2, Changed: %3, ModelFile: %4")
                                                 .arg(i.value()._modActions.value(stepIndex) == BuildModApplyRc ? "Apply" : "Remove")
                                                 .arg(stepIndex)
                                                 .arg(s.value()._changedSinceLastWrite ? "True" : "False")
                                                 .arg(modFileName));
+#endif
 
         return i.value()._modActions.value(stepIndex);
     }
+
     return 0;
 }
 
@@ -2079,18 +2117,25 @@ int LDrawFile::getBuildModStepIndex(int modelIndex, int lineNumber)
 {
     // If lineNumber is 0, we are processing the first step (index 0) so return the Next step (index 1)
     int index = 1;
-    QString message("Get StepIndex 0 (First Step), NextStepIndex 1");
+    QString message;
     if (modelIndex > -1) {
         QVector<int> indexKey = { modelIndex, lineNumber };
         index = _buildModStepIndexes.indexOf(indexKey);
+
+#ifdef QT_DEBUG_MODE
         message = QString("Get StepIndex: %1, ModelIndex: %2, LineNumber %3, ModelName: %4")
                              .arg(index)
                              .arg(modelIndex)
                              .arg(lineNumber)
                              .arg(getSubmodelName(modelIndex));
+    } else {
+        message = QString("Get StepIndex 0 (First Step), NextStepIndex 1");
+#endif
     }
 
+#ifdef QT_DEBUG_MODE
     emit gui->messageSig(LOG_DEBUG, message);
+#endif
 
     return index;
 }
@@ -2102,9 +2147,12 @@ int LDrawFile::getBuildModStepIndexKey(int stepIndex, bool modelIndex)
         key = modelIndex ? _buildModStepIndexes.at(stepIndex).at(BM_MODEL_NAME)
                          : _buildModStepIndexes.at(stepIndex).at(BM_LINE_NUMBER);
 
+#ifdef QT_DEBUG_MODE
     emit gui->messageSig(LOG_DEBUG, QString("Get StepIndexKey %1")
                                             .arg(modelIndex ? QString("ModelNameIndex: %1, ModelName: %2").arg(key).arg(getSubmodelName(key))
                                                             : QString("LineNumber: %1").arg(key)));
+#endif
+
     return key;
 }
 
@@ -2116,10 +2164,11 @@ bool LDrawFile::getBuildModStepIndexKeys(int stepIndex, QString &modelName, int 
       lineNumber = _buildModStepIndexes.at(stepIndex).at(BM_LINE_NUMBER);
       validIndex = ! modelName.isEmpty() && lineNumber > 0;
   }
+
   return validIndex;
 }
 
-// This function returns the equivalent of the ViewewerStepKey
+// This function returns the equivalent of the ViewerStepKey
 QString LDrawFile::getBuildModStepKey(const QString &buildModKey)
 {
   QString modKey = buildModKey.toLower();
@@ -2127,6 +2176,7 @@ QString LDrawFile::getBuildModStepKey(const QString &buildModKey)
   if (i != _buildMods.end()) {
     return i.value()._modStepKey;
   }
+
   return QString();
 }
 
@@ -2138,6 +2188,7 @@ QString LDrawFile::getBuildModModelName(const QString &buildModKey)
     int index = i.value()._modAttributes.at(BM_MODEL_NAME_INDEX);
     return getSubmodelName(index);
   }
+
   return QString();
 }
 
@@ -2151,7 +2202,7 @@ QStringList LDrawFile::getBuildModsList() {
   return _buildModList;
 }
 
-bool LDrawFile::buildModsSize()
+int LDrawFile::buildModsSize()
 {
   return _buildMods.size();
 }

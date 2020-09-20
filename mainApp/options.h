@@ -167,7 +167,7 @@ public:
 
             bool             _isMirrored,
             bool             _printing,
-            int              _buildMod,
+            int              _buildModLevel,
             int              _contStepNumber,
             int              _renderStepNumber  = 0,
             QString          _renderParentModel = "")
@@ -178,7 +178,7 @@ public:
 
           isMirrored        (_isMirrored),
           printing          (_printing),
-          buildMod          (_buildMod),
+          buildModLevel     (_buildModLevel),
           contStepNumber    (_contStepNumber),
           renderStepNumber  (_renderStepNumber),
           renderParentModel (_renderParentModel)
@@ -189,7 +189,7 @@ public:
 
     bool           isMirrored;
     bool           printing;
-    int            buildMod;
+    int            buildModLevel;
     int            contStepNumber;
     int            renderStepNumber;
     QString        renderParentModel;
@@ -215,7 +215,7 @@ public:
             int                          _groupStepNumber,
             bool                         _isMirrored,
             bool                         _printing,
-            int                          _buildMod,
+            int                          _buildModLevel,
             bool                         _bfxStore2,
             bool                         _assembledCallout = false,
             bool                         _calledOut        = false)
@@ -235,7 +235,7 @@ public:
           groupStepNumber               (_groupStepNumber),
           isMirrored                    (_isMirrored),
           printing                      (_printing),
-          buildMod                      (_buildMod),
+          buildModLevel                 (_buildModLevel),
           bfxStore2                     (_bfxStore2),
           assembledCallout              (_assembledCallout),
           calledOut                     (_calledOut)
@@ -255,7 +255,7 @@ public:
     int                          groupStepNumber;
     bool                         isMirrored;
     bool                         printing;
-    int                          buildMod;
+    int                          buildModLevel;
     bool                         bfxStore2;
     bool                         assembledCallout;
     bool                         calledOut;
@@ -269,23 +269,23 @@ public:
             QVector<int>          &_lineTypeIndexes,
             QStringList           &_buildModCsiParts,
             QVector<int>          &_buildModLineTypeIndexes,
-            int                    _buildMod,
+            int                    _buildModLevel,
             bool                   _buildModIgnore,
             bool                   _buildModItems)
         :
-          csiParts               (_csiParts),
-          lineTypeIndexes        (_lineTypeIndexes),
-          buildModCsiParts       (_buildModCsiParts),
+          csiParts                (_csiParts),
+          lineTypeIndexes         (_lineTypeIndexes),
+          buildModCsiParts        (_buildModCsiParts),
           buildModLineTypeIndexes (_buildModLineTypeIndexes),
-          buildMod               (_buildMod),
-          buildModIgnore         (_buildModIgnore),
-          buildModItems          (_buildModItems)
+          buildModLevel           (_buildModLevel),
+          buildModIgnore          (_buildModIgnore),
+          buildModItems           (_buildModItems)
     {  }
     QStringList           &csiParts;
     QVector<int>          &lineTypeIndexes;
     QStringList           &buildModCsiParts;
     QVector<int>          &buildModLineTypeIndexes;
-    int                    buildMod;
+    int                    buildModLevel;
     bool                   buildModIgnore;
     bool                   buildModItems;
 };

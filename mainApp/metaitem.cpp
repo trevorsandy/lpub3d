@@ -250,7 +250,7 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
   Where lastInstance, firstInstance;
 
   Rc rc;
-//  int buildMod = 0;
+//  int buildModLevel = 0;
   bool ignorePartLine = false;
   Where walkBack = step;
   for (; walkBack.lineNumber >= 0; walkBack--) {
@@ -295,11 +295,11 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
 //           (argv[1] == "LPUB" || argv[1] == "!LPUB") &&
 //            argv[2] == "BUILD_MOD") {
 //          if (argv[3] == "BEGIN") {
-//            buildMod = getLevel(argv[4],BM_BEGIN);
+//            buildModLevel = getLevel(argv[4],BM_BEGIN);
 //          } else if ((argv[3] == "APPLY" || argv[3] == "REMOVE")) {
-//            buildMod = getLevel(QString(),BM_END);
+//            buildModLevel = getLevel(QString(), BM_END);
 //          }
-//          ignorePartLine = buildMod;
+//          ignorePartLine = buildModLevel;
 //        } // build modification end
       } else if (argv.size() == 15 && argv[0] == "1") {
         if (ignorePartLine)
@@ -365,11 +365,11 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
 //             (argv[1] == "LPUB" || argv[1] == "!LPUB") &&
 //              argv[2] == "BUILD_MOD") {
 //            if (argv[3] == "BEGIN") {
-//              buildMod = getLevel(argv[4],BM_BEGIN);
+//              buildModLevel = getLevel(argv[4],BM_BEGIN);
 //            } else if ((argv[3] == "APPLY" || argv[3] == "REMOVE")) {
-//              buildMod = getLevel(QString(),BM_END);
+//              buildModLevel = getLevel(QString(), BM_END);
 //            }
-//            ignorePartLine = buildMod;
+//            ignorePartLine = buildModLevel;
 //          } // build modification end
         }
       }
@@ -462,11 +462,11 @@ int MetaItem::countInstancesInModel(Meta *meta, const QString &modelName){
 //             (argv[1] == "LPUB" || argv[1] == "!LPUB") &&
 //              argv[2] == "BUILD_MOD") {
 //            if (argv[3] == "BEGIN") {
-//              buildMod = getLevel(argv[4],BM_BEGIN);
+//              buildModLevel = getLevel(argv[4],BM_BEGIN);
 //            } else if ((argv[3] == "APPLY" || argv[3] == "REMOVE")) {
-//              buildMod = getLevel(QString(),BM_END);
+//              buildModLevel = getLevel(QString(), BM_END);
 //            }
-//            ignorePartLine = buildMod;
+//            ignorePartLine = buildModLevel;
 //          } // build modification end
         }
       }

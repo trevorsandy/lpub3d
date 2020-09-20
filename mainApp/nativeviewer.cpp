@@ -67,7 +67,7 @@ void Gui::create3DActions()
     QIcon ChangeBuildModIcon;
     ChangeBuildModIcon.addFile(":/resources/buildmodchange.png");
     ChangeBuildModIcon.addFile(":/resources/buildmodchange16.png");
-    changeBuildModAct = new QAction(ChangeBuildModIcon,tr("Change Build Modification..."),this);
+    changeBuildModAct = new QAction(ChangeBuildModIcon,tr("Edit Build Modification..."),this);
     changeBuildModAct->setEnabled(false);
     changeBuildModAct->setStatusTip(tr("Load the step containing the selected build modification"));
     connect(changeBuildModAct, SIGNAL(triggered()), this, SLOT(changeBuildModification()));

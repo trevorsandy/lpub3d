@@ -130,7 +130,7 @@ public:
     QString key;
 };
 
-extern int getLevel(const QString& key, int pos);
+extern int getLevel(const QString& key, int position);
 
 /********************************************
  * build modification
@@ -181,7 +181,7 @@ class LDrawFile {
     bool topLevelModel;
     bool ldcadGroupsLoaded;
     int  descriptionLine;
-    int  buildMod;
+    int  buildModLevel;
 
   public:
     LDrawFile();
@@ -297,6 +297,7 @@ class LDrawFile {
     bool ldcadGroupMatch(const QString &name, const QStringList &lids);
 
     /* Build Modifications */
+    int buildModsSize();
     void insertBuildMod(const QString      &buildModKey,
                         const QString      &modStepKey,
                         const QVector<int> &modAttributes,
@@ -314,13 +315,12 @@ class LDrawFile {
     int getBuildModDisplayPageNumber(const QString &buildModKey);
     int setBuildModDisplayPageNumber(const QString &buildModKey, int displayPageNum);
     void setBuildModStepKey(const QString &buildModKey, const QString &modStepKey);
+    bool getBuildModStepIndexKeys(int stepIndex, QString &modelName, int &lineNumber);
+    bool buildModContains(const QString &buildModKey);
     QString getBuildModStepKey(const QString &buildModKey);
     QString getBuildModModelName(const QString &buildModKey);
     QMap<int, int> getBuildModActions(const QString &buildModKey);
     QStringList getBuildModsList();
-    bool getBuildModStepIndexKeys(int stepIndex, QString &modelName, int &lineNumber);
-    bool buildModContains(const QString &buildModKey);
-    bool buildModsSize();
 
     /* ViewerStep functions */
     void insertViewerStep(const QString     &stepKey,

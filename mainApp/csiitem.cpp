@@ -127,11 +127,11 @@ void CsiItem::partLine(
 }
 
  /*
- * For partLine(), the BuildMod behaviour, when we are processing a buildMod, populates
+ * For partLine(), the BuildMod behaviour, when we are processing a buildModLevel, populates
  * the buildModCsiParts list, its corresponding buildModLineTypeIndexes and sets
  * buildModItems (bool) to then number of mod lines.
  * Otherwise, the csiParts list is updatd. If there are buildModItems, buildModCsiParts
- * are added to csiParts and the buildMod registers (parts, indexes and items flag) are
+ * are added to csiParts and the BuildMod registers (parts, indexes and items flag) are
  * reset. Lastly, csiParts and there repspective lineTypeIndexes are updated.
  */
 
@@ -141,7 +141,7 @@ void CsiItem::partLine(
      int                 index,
      Rc                  rc)
 {
-    if (pla.buildMod) {
+    if (pla.buildModLevel) {
         if (! pla.buildModIgnore) {
             CsiItem::partLine(partLine,pla.buildModCsiParts,pla.buildModLineTypeIndexes,index/*relativeTypeIndx*/,rc);
             pla.buildModItems = pla.buildModCsiParts.size();
