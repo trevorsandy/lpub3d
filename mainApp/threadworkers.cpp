@@ -1654,7 +1654,7 @@ void ColourPartListWorker::writeLDrawColourPartFile(bool append){
         QFileInfo colourFileList(Preferences::ldrawColourPartsFile);
         QFile file(colourFileList.absoluteFilePath());
         if ( ! file.open(append ? QFile::Append | QFile::Text : QFile::WriteOnly | QFile::Text)) {
-            emit messageSig(LOG_ERROR,QString("Failed to OPEN colourFileList %1 for writing:\n%2").arg(file.fileName()).arg(file.errorString()));
+            emit messageSig(LOG_ERROR,QString("Failed to OPEN colour parts file %1 for writing:\n%2").arg(file.fileName()).arg(file.errorString()));
             return;
         }
         QTextStream out(&file);

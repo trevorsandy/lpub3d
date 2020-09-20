@@ -1602,10 +1602,12 @@ private slots:
     void editTitleAnnotations();
     void editFreeFormAnnitations();
     void editLDrawColourParts();
+    void editPliControlFile();
     void editPliBomSubstituteParts();
     void editLdrawIniFile();
     void editLPub3DIniFile();
     void editExcludedParts();
+    void editStickerParts();
     void editLdgliteIni();
     void editNativePovIni();
     void editLdviewIni();
@@ -1931,6 +1933,7 @@ private:
   QAction *editLDrawColourPartsAct;
   QAction *editPliBomSubstitutePartsAct;
   QAction *editExcludedPartsAct;
+  QAction *editStickerPartsAct;
   QAction *editLdrawIniFileAct;
   QAction *editLPub3DIniFileAct;
   QAction *editLdgliteIniAct;
@@ -1949,6 +1952,7 @@ private:
   QAction *editBLCodesAct;
   QAction *generateCustomColourPartsAct;
   QAction *editModelFileAct;
+  QAction *editPliControlFileAct;
   QAction *useSystemEditorAct;
 
   QAction *snapGridActions[NUM_GRID_SIZES];

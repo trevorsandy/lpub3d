@@ -372,12 +372,14 @@ HEADERS += \
     backgrounddialog.h \
     backgrounditem.h \
     borderdialog.h \
+    borderedlineitem.h \
     callout.h \
     calloutbackgrounditem.h \
     calloutpointeritem.h \
     color.h \
     commands.h \
     commonmenus.h \
+    csiannotation.h \
     csiitem.h \
     dependencies.h \
     dialogexportpages.h \
@@ -390,14 +392,17 @@ HEADERS += \
     highlighter.h \
     historylineedit.h \
     hoverpoints.h \
+    ldrawcolordialog.cpp \
+    ldrawcolordialog.h \
     ldrawcolourparts.h \
     ldrawfiles.h \
+    ldrawfilesload.h \
     ldsearchdirs.h \
     lgraphicsscene.h \
     lgraphicsview.h \
     lpub.h \
-    lpubalert.h \
     lpub_preferences.h \
+    lpubalert.h \
     messageboxresizable.h \
     meta.h \
     metagui.h \
@@ -405,13 +410,14 @@ HEADERS += \
     metatypes.h \
     name.h \
     numberitem.h \
+    options.h \
     pageattributepixmapitem.h \
     pageattributetextitem.h \
     pagebackgrounditem.h \
     pageorientationdialog.h \
     pagepointer.h \
-    pagepointeritem.h \
     pagepointerbackgrounditem.h \
+    pagepointeritem.h \
     pagesizedialog.h \
     pagesizes.h \
     pairdialog.h \
@@ -426,9 +432,9 @@ HEADERS += \
     plisortdialog.h \
     plisubstituteparts.h \
     pointer.h \
+    pointerattribdialog.h \
     pointeritem.h \
     pointerplacementdialog.h \
-    renderdialog.h \
     preferencesdialog.h \
     range.h \
     range_element.h \
@@ -436,32 +442,27 @@ HEADERS += \
     ranges_element.h \
     ranges_item.h \
     render.h \
+    renderdialog.h \
     reserve.h \
     resize.h \
     resolution.h \
     rotateiconitem.h \
     rotateiconsizedialog.h \
+    rotstepdialog.h \
     rx.h \
     scaledialog.h \
     sizeandorientationdialog.h \
     step.h \
+    stickerparts.h \
     submodelcolordialog.h \
+    submodelitem.h \
+    substitutepartdialog.h \
+    texteditdialog.h \
     textitem.h \
     threadworkers.h \
     updatecheck.h \
     version.h \
-    where.h \
-    submodelitem.h \
-    rotstepdialog.h \
-    borderedlineitem.h \
-    pointerattribdialog.h \
-    csiannotation.h \
-    ldrawfilesload.h \
-    substitutepartdialog.h \
-    ldrawcolordialog.h \
-    ldrawcolordialog.cpp \
-    texteditdialog.h \
-    options.h
+    where.h
 
 SOURCES += \
     aboutdialog.cpp \
@@ -472,6 +473,7 @@ SOURCES += \
     backgrounddialog.cpp \
     backgrounditem.cpp \
     borderdialog.cpp \
+    borderedlineitem.cpp \
     callout.cpp \
     calloutbackgrounditem.cpp \
     calloutglobals.cpp \
@@ -480,6 +482,7 @@ SOURCES += \
     commandline.cpp \
     commands.cpp \
     commonmenus.cpp \
+    csiannotation.cpp \
     csiitem.cpp \
     dependencies.cpp \
     dialogexportpages.cpp \
@@ -494,19 +497,23 @@ SOURCES += \
     highlightstepglobals.cpp \
     historylineedit.cpp \
     hoverpoints.cpp \
+    ldrawcolordialog.cpp \
     ldrawcolourparts.cpp \
     ldrawfiles.cpp \
+    ldrawfilesload.cpp \
+    ldrawpartdialog.cpp \
     ldsearchdirs.cpp \
     lgraphicsscene.cpp \
     lgraphicsview.cpp \
     lpub.cpp \
-    lpubalert.cpp \
     lpub_preferences.cpp \
+    lpubalert.cpp \
     messageboxresizable.cpp \
     meta.cpp \
     metagui.cpp \
     metaitem.cpp \
     multistepglobals.cpp \
+    nativeviewer.cpp \
     numberitem.cpp \
     openclose.cpp \
     pageattributepixmapitem.cpp \
@@ -515,8 +522,8 @@ SOURCES += \
     pageglobals.cpp \
     pageorientationdialog.cpp \
     pagepointer.cpp \
-    pagepointeritem.cpp \
     pagepointerbackgrounditem.cpp \
+    pagepointeritem.cpp \
     pagesizedialog.cpp \
     pagesizes.cpp \
     pairdialog.cpp \
@@ -531,55 +538,50 @@ SOURCES += \
     pliglobals.cpp \
     plisortdialog.cpp \
     plisubstituteparts.cpp \
+    pointerattribdialog.cpp \
     pointeritem.cpp \
     pointerplacementdialog.cpp \
-    renderdialog.cpp \
     preferencesdialog.cpp \
     printfile.cpp \
-    projectglobals.cpp \    
+    projectglobals.cpp \
     range.cpp \
     range_element.cpp \
     ranges.cpp \
     ranges_element.cpp \
     ranges_item.cpp \
     render.cpp \
+    renderdialog.cpp \
     resize.cpp \
     resolution.cpp \
     rotate.cpp \
     rotateiconitem.cpp \
     rotateiconsizedialog.cpp \
+    rotstepdialog.cpp \
     rx.cpp \
     scaledialog.cpp \
     sizeandorientationdialog.cpp \
     step.cpp \
+    stickerparts.cpp \
     submodelcolordialog.cpp \
+    submodelglobals.cpp \
+    submodelitem.cpp \
+    substitutepartdialog.cpp \
+    texteditdialog.cpp \
     textitem.cpp \
     threadworkers.cpp \
     traverse.cpp \
     undoredo.cpp \
-    updatecheck.cpp \
-    submodelitem.cpp \
-    submodelglobals.cpp \
-    rotstepdialog.cpp \
-    borderedlineitem.cpp \
-    pointerattribdialog.cpp \
-    csiannotation.cpp \
-    ldrawfilesload.cpp \
-    substitutepartdialog.cpp \
-    ldrawcolordialog.cpp \
-    ldrawpartdialog.cpp \
-    nativeviewer.cpp \
-    texteditdialog.cpp
+    updatecheck.cpp
 
 FORMS += \
     aboutdialog.ui \
     dialogexportpages.ui \
-    renderdialog.ui \
-    ldrawfilesloaddialog.ui \
     ldrawcolordialog.ui \
+    ldrawfilesloaddialog.ui \
     ldrawpartdialog.ui \
-    substitutepartdialog.ui \
     preferences.ui \
+    renderdialog.ui \
+    substitutepartdialog.ui \
     texteditdialog.ui
 
 OTHER_FILES += \

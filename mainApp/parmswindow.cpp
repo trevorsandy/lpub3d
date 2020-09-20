@@ -255,7 +255,7 @@ void ParmsWindow::displayParmsFile(
     // Use QFileInfo to get the base-name and extension
     QFileInfo fileInfo(file.fileName());
 
-    if (fileInfo.fileName() == "pliSubstituteParts.lst")
+    if (fileInfo.fileName() == Preferences::validPliSubstituteParts)
       title = "PLI/BOM Substitute Parts";
     else if (fileInfo.fileName() == Preferences::validLDrawColorParts)
       {
@@ -266,6 +266,8 @@ void ParmsWindow::displayParmsFile(
       title = "Title Annotation";
     else if (fileInfo.fileName() == VER_EXCLUDED_PARTS_FILE)
       title = "Excluded Parts";
+    else if (fileInfo.fileName() == VER_STICKER_PARTS_FILE)
+      title = "Sticker Parts";
     else if (fileInfo.fileName() == VER_FREEFOM_ANNOTATIONS_FILE)
       title = "Freeform";
     else if (fileInfo.fileName() == VER_LDVIEW_INI_FILE) {
@@ -302,7 +304,7 @@ void ParmsWindow::displayParmsFile(
         showAllCharsAction = true;
         _restartRequired = true;
     }
-    else if (fileInfo.fileName() == Preferences::validAnnotationStyleFile) {
+    else if (fileInfo.fileName() == Preferences::validAnnotationStyles) {
         title = "Part Annotation Style reference";
         showAllCharsAction = true;
         _restartRequired = true;

@@ -81,12 +81,7 @@
 #define VER_EXTRAS_LDCONFIG_FILE            "LDConfig.ldr"
 #define VER_PDFPRINT_IMAGE_FILE             "PDFPrint.jpg"
 #define VER_LDVMESSAGESINI_FILE             "ldvMessages.ini"
-
 #define VER_ROTATE_ICON_FILE                "rotate-icon.png"
-#define VER_PLI_CONTROL_FILE                "pli.mpd"
-#define VER_LEGO_PLI_CONTROL_FILE           "LEGOPliControl.ldr"
-#define VER_TENTE_PLI_CONTROL_FILE          "TENTEPliControl.ldr"
-#define VER_VEXIQ_PLI_CONTROL_FILE          "VEXIQPliControl.ldr"
 
 #define VER_TITLE_ANNOTATIONS_FILE          "titleAnnotations.lst"
 #define VER_LEGO_TITLE_ANNOTATIONS_FILE     "LEGOTitleAnnotations.lst"
@@ -113,9 +108,20 @@
 #define VER_TENTE_PLI_EXCLUDED_FILE         "TENTEExcludedParts.lst"
 #define VER_VEXIQ_PLI_EXCLUDED_FILE         "VEXIQExcludedParts.lst"
 
-#define VER_LPUB3D_LEGO_COLOR_PARTS         "fadeStepColorParts.lst"
-#define VER_LPUB3D_TENTE_COLOR_PARTS        "tenteFadeStepColorParts.lst"
-#define VER_LPUB3D_VEXIQ_COLOR_PARTS        "vexiqFadeStepColorParts.lst"
+#define VER_STICKER_PARTS_FILE             "stickerParts.lst"
+#define VER_LEGO_PLI_STICKER_FILE          "LEGOStickerParts.lst"
+#define VER_TENTE_PLI_STICKER_FILE         "TENTEStickerParts.lst"
+#define VER_VEXIQ_PLI_STICKER_FILE         "VEXIQStickerParts.lst"
+
+#define VER_PLI_CONTROL_FILE                "pli.mpd"
+#define VER_LEGO_PLI_CONTROL_FILE           "LEGOPliControl.ldr"
+#define VER_TENTE_PLI_CONTROL_FILE          "TENTEPliControl.ldr"
+#define VER_VEXIQ_PLI_CONTROL_FILE          "VEXIQPliControl.ldr"
+
+#define VER_LPUB3D_COLOR_PARTS              "fadeStepColorParts.lst"
+#define VER_LPUB3D_LEGO_COLOR_PARTS         "LEGOFadeStepColorParts.lst"
+#define VER_LPUB3D_TENTE_COLOR_PARTS        "TENTEFadeStepColorParts.lst"
+#define VER_LPUB3D_VEXIQ_COLOR_PARTS        "VEXIQFadeStepColorParts.lst"
 
 #define VER_LDRAW_OFFICIAL_ARCHIVE          "complete.zip"
 #define VER_LPUB3D_TENTE_ARCHIVE            "tenteparts.zip"

@@ -19,7 +19,8 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
-
+#include "name.h"
+#include "version.h"
 #include "lpub_preferences.h"
 #include "QsLog.h"
 
@@ -34,7 +35,7 @@ PliSubstituteParts::PliSubstituteParts()
         QString substitutePartsFile = Preferences::pliSubstitutePartsFile;
         QFile file(substitutePartsFile);
         if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-           logError() << QMessageBox::tr("Failed to open pliSubstituteParts.lst file: %1:\n%2")
+           logError() << QMessageBox::tr("Failed to open PLI substitute parts file: %1:\n%2")
                                        .arg(substitutePartsFile)
                                        .arg(file.errorString());
             return;
@@ -72,7 +73,7 @@ PliSubstituteParts::PliSubstituteParts()
                               "# The Regular Expression used is: ^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$")
                               .arg(QFileInfo(substitutePartsFile).fileName());
             if (Preferences::modeGUI){
-                QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+                QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Substitute Parts"),message);
             } else {
                 logError() << message.replace("<br>"," ");
             }
@@ -107,7 +108,7 @@ const bool &PliSubstituteParts::getSubstitutePart(QString &part){
 }
 
 bool PliSubstituteParts::exportSubstitutePartsHeader(){
-    QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,Preferences::pliSubstitutePartsFile));
+    QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,Preferences::validPliSubstituteParts));
 
     if (!overwriteFile(file.fileName()))
         return true;
@@ -116,7 +117,7 @@ bool PliSubstituteParts::exportSubstitutePartsHeader(){
     {
         int counter = 1;
         QTextStream outstream(&file);
-        outstream << "# File:" << Preferences::pliSubstitutePartsFile << endl;
+        outstream << "# File: " << VER_PLI_SUBSTITUTE_PARTS_FILE << endl;
         outstream << "#" << endl;
         outstream << "# This space-delimited list captures substitute part ID and its substitute part absolute path." << endl;
         outstream << "# This file is an alternative to the embedded file substitution used when defining a PLI/BOM." << endl;
@@ -137,9 +138,14 @@ bool PliSubstituteParts::exportSubstitutePartsHeader(){
         outstream << "#" << endl;
         outstream << "# The Regular Expression used is: ^(\\b.+\\b)\\s+\"(.*)\"\\s+(.*)$" << endl;
         outstream << "#" << endl;
-        outstream << "# ----------------------Do not delete above this line----------------------------------" << endl;
         outstream << "#" << endl;
-        outstream << "# Part ID (LDraw Name:)     Substitute Part Absolute File Path      Part Description - for reference only" << endl;
+        outstream << "# 1. Part ID:          LDraw Part Name                               (Required)" << endl;
+        outstream << "# 2. Part Path:        Substitute Part Absolute File Path            (Required)" << endl;
+        outstream << "# 3. Part Description: LDraw Part Description - for reference only   (Optional)" << endl;
+        outstream << "#" << endl;
+        outstream << "# When adding a Part Description, be sure to replace double quotes \" with '." << endl;
+        outstream << "#" << endl;
+        outstream << "# ----------------------Do not delete above this line----------------------------------" << endl;
         outstream << "#" << endl;
         outstream << "# Official Parts" << endl;
         outstream << "" << endl;
@@ -162,18 +168,18 @@ bool PliSubstituteParts::exportSubstitutePartsHeader(){
                                    .arg(counter)
                                    .arg(file.fileName());
         if (Preferences::modeGUI){
-            QMessageBox::information(nullptr,QMessageBox::tr("LPub3D"),message);
+            QMessageBox::information(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Substitute Parts"),message);
         } else {
             logNotice() << message;
         }
     }
     else
     {
-        QString message = QString("Failed to open Substitute Parts file: %1:\n%2")
+        QString message = QString("Failed to open PLI substitute parts file: %1:\n%2")
                                   .arg(file.fileName())
                                   .arg(file.errorString());
         if (Preferences::modeGUI){
-            QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+            QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Substitute Parts"),message);
         } else {
             logError() << message;
         }

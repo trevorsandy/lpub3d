@@ -139,8 +139,10 @@ void ParmsHighlighter::highlightBlock(const QString &text)
         option = 3;
     else if (text.contains(QString::fromLatin1(VER_EXCLUDED_PARTS_FILE),Qt::CaseInsensitive))
         option = 4;
-    else if (text.contains(QString::fromLatin1(VER_LPUB3D_LEGO_COLOR_PARTS),Qt::CaseInsensitive))
+    else if (text.contains(QString::fromLatin1(VER_STICKER_PARTS_FILE),Qt::CaseInsensitive))
         option = 5;
+    else if (text.contains(QString::fromLatin1(VER_LPUB3D_COLOR_PARTS),Qt::CaseInsensitive))
+        option = 6;
     else if (!option)
         return;
 
@@ -202,7 +204,19 @@ void ParmsHighlighter::highlightBlock(const QString &text)
         break;
     case 5:
     {
-        // VER_LPUB3D_LEGO_COLOR_PARTS
+        // VER_STICKER_PARTS_FILE
+        QRegExp rx4("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$");
+        if (text.contains(rx4)) {
+            tokens
+            << rx4.cap(1).trimmed()
+            << rx4.cap(2).trimmed();
+            lineFormats.append(LPubVal3Format);
+        }
+    }
+        break;
+    case 6:
+    {
+        // VER_LPUB3D_COLOR_PARTS
         QRegExp rx5("^(\\b.*[^\\s]\\b)(?:\\s)\\s+(u|o)\\s+(.*)$");
         if (text.contains(rx5)) {
             tokens

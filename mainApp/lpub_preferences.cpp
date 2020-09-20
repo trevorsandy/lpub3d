@@ -88,14 +88,6 @@ QString Preferences::logPath;
 QString Preferences::dataLocation;
 QString Preferences::povFileGenerator           = RENDERER_LDVIEW;
 
-QString Preferences::pliControlFile;
-QString Preferences::titleAnnotationsFile;
-QString Preferences::freeformAnnotationsFile;
-QString Preferences::annotationStyleFile;
-QString Preferences::pliSubstitutePartsFile;
-QString Preferences::excludedPartsFile;
-QString Preferences::ldrawColourPartsFile;
-
 QString Preferences::systemEditor;
 
 QString Preferences::blenderVersion;
@@ -124,6 +116,24 @@ QString Preferences::plug                       = QString(QObject::trUtf8("Instr
                                                                QString::fromLatin1(VER_COMPANYDOMAIN_STR)));
 QString Preferences::displayTheme               = THEME_DEFAULT;
 
+QString Preferences::titleAnnotationsFile;
+QString Preferences::freeformAnnotationsFile;
+QString Preferences::annotationStyleFile;
+QString Preferences::pliSubstitutePartsFile;
+QString Preferences::excludedPartsFile;
+QString Preferences::stickerPartsFile;
+QString Preferences::pliControlFile;
+QString Preferences::ldrawColourPartsFile;
+
+// Dynamic file name keyed on LDraw library
+QString Preferences::validTitleAnnotations      = VER_LEGO_TITLE_ANNOTATIONS_FILE;
+QString Preferences::validFreeFormAnnotations   = VER_LEGO_FREEFROM_ANNOTATIONS_FILE;
+QString Preferences::validAnnotationStyles      = VER_LEGO_ANNOTATION_STYLE_FILE;
+QString Preferences::validPliSubstituteParts    = VER_LEGO_PLI_SUBSTITUTE_FILE;
+QString Preferences::validExcludedPliParts      = VER_LEGO_PLI_EXCLUDED_FILE;
+QString Preferences::validStickerPliParts       = VER_LEGO_PLI_STICKER_FILE;
+QString Preferences::validPliControl            = VER_LEGO_PLI_CONTROL_FILE;
+
 QString Preferences::validLDrawLibrary          = LEGO_LIBRARY;            // the currently loaded library
 QString Preferences::validLDrawLibraryChange    = LEGO_LIBRARY;            // the result of a library test - initialized to the currently loaded library
 QString Preferences::validFadeStepsColour       = LEGO_FADE_COLOUR_DEFAULT;
@@ -133,13 +143,6 @@ QString Preferences::validLDrawPartsArchive     = VER_LDRAW_OFFICIAL_ARCHIVE;
 QString Preferences::validLDrawCustomArchive    = VER_LPUB3D_UNOFFICIAL_ARCHIVE;
 QString Preferences::validLDrawColorParts       = VER_LPUB3D_LEGO_COLOR_PARTS;
 QString Preferences::validLDrawPartsLibrary     = LEGO_LIBRARY "® Parts";
-
-QString Preferences::validPliControl            = VER_LEGO_PLI_CONTROL_FILE;
-QString Preferences::validTitleAnnotations      = VER_LEGO_TITLE_ANNOTATIONS_FILE;
-QString Preferences::validFreeFormAnnotations   = VER_LEGO_FREEFROM_ANNOTATIONS_FILE;
-QString Preferences::validAnnotationStyleFile   = VER_LEGO_ANNOTATION_STYLE_FILE;
-QString Preferences::validPliSubstituteParts    = VER_LEGO_PLI_SUBSTITUTE_FILE;
-QString Preferences::validExcludedPliParts      = VER_LEGO_PLI_EXCLUDED_FILE;
 
 QString Preferences::fadeStepsColourKey         = LEGO_FADE_COLOUR_KEY;
 QString Preferences::ldrawSearchDirsKey         = LEGO_SEARCH_DIR_KEY;
@@ -340,9 +343,10 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
         validPliControl          = VER_LEGO_PLI_CONTROL_FILE;
         validTitleAnnotations    = VER_LEGO_TITLE_ANNOTATIONS_FILE;
         validFreeFormAnnotations = VER_LEGO_FREEFROM_ANNOTATIONS_FILE;
-        validAnnotationStyleFile = VER_LEGO_ANNOTATION_STYLE_FILE;
+        validAnnotationStyles    = VER_LEGO_ANNOTATION_STYLE_FILE;
         validPliSubstituteParts  = VER_LEGO_PLI_SUBSTITUTE_FILE;
         validExcludedPliParts    = VER_LEGO_PLI_EXCLUDED_FILE;
+        validStickerPliParts     = VER_LEGO_PLI_STICKER_FILE;
 
         fadeStepsColourKey       = LEGO_FADE_COLOUR_KEY;
         ldrawSearchDirsKey       = LEGO_SEARCH_DIR_KEY;
@@ -361,9 +365,10 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
         validPliControl          = VER_TENTE_PLI_CONTROL_FILE;
         validTitleAnnotations    = VER_TENTE_TITLE_ANNOTATIONS_FILE;
         validFreeFormAnnotations = VER_TENTE_FREEFROM_ANNOTATIONS_FILE;
-        validAnnotationStyleFile = VER_TENTE_ANNOTATION_STYLE_FILE;
+        validAnnotationStyles    = VER_TENTE_ANNOTATION_STYLE_FILE;
         validPliSubstituteParts  = VER_TENTE_PLI_SUBSTITUTE_FILE;
         validExcludedPliParts    = VER_TENTE_PLI_EXCLUDED_FILE;
+        validStickerPliParts     = VER_TENTE_PLI_STICKER_FILE;
 
         fadeStepsColourKey       = TENTE_FADE_COLOUR_KEY;
         ldrawSearchDirsKey       = TENTE_SEARCH_DIR_KEY;
@@ -382,9 +387,10 @@ void Preferences::setLPub3DAltLibPreferences(const QString &library)
         validPliControl          = VER_VEXIQ_PLI_CONTROL_FILE;
         validTitleAnnotations    = VER_VEXIQ_TITLE_ANNOTATIONS_FILE;
         validFreeFormAnnotations = VER_VEXIQ_FREEFROM_ANNOTATIONS_FILE;
-        validAnnotationStyleFile = VER_VEXIQ_ANNOTATION_STYLE_FILE;
+        validAnnotationStyles    = VER_VEXIQ_ANNOTATION_STYLE_FILE;
         validPliSubstituteParts  = VER_VEXIQ_PLI_SUBSTITUTE_FILE;
         validExcludedPliParts    = VER_VEXIQ_PLI_EXCLUDED_FILE;
+        validStickerPliParts     = VER_VEXIQ_PLI_STICKER_FILE;
 
         fadeStepsColourKey       = VEXIQ_FADE_COLOUR_KEY;
         ldrawSearchDirsKey       = VEXIQ_SEARCH_DIR_KEY;
@@ -866,6 +872,9 @@ void Preferences::lpubPreferences()
     if (!paramFile.exists())
         QFile::copy(dataLocation + paramFile.fileName(), paramFile.absoluteFilePath());
     paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_EXCLUDED_PARTS_FILE));
+    if (!paramFile.exists())
+        QFile::copy(dataLocation + paramFile.fileName(), paramFile.absoluteFilePath());
+    paramFile.setFile(QString("%1/%2").arg(extrasDir.absolutePath(), VER_STICKER_PARTS_FILE));
     if (!paramFile.exists())
         QFile::copy(dataLocation + paramFile.fileName(), paramFile.absoluteFilePath());
 #ifdef QT_DEBUG_MODE
@@ -2813,70 +2822,6 @@ void Preferences::updatePOVRayIniFile(UpdateFlag updateFlag)
     logInfo() << QString("POVRay ini file    : %1").arg(povrayIni.isEmpty() ? "Not found" : povrayIni);
 }
 
-void Preferences::pliPreferences()
-{
-    bool pliOk[3] = { true, true, true };
-    QFileInfo pliInfo;
-    QSettings Settings;
-    pliControlFile = Settings.value(QString("%1/%2").arg(SETTINGS,"PliControlFile")).toString();
-    pliSubstitutePartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"PliSubstitutePartsFile")).toString();
-    excludedPartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"ExcludedPartsFile")).toString();
-
-    pliInfo.setFile(pliControlFile);
-    if (! pliInfo.exists()) {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,"PliControlFile"));
-        pliOk[0] = false;
-    }
-
-    pliInfo.setFile(pliSubstitutePartsFile);
-    if (! pliInfo.exists()) {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,"PliSubstitutePartsFile"));
-        pliOk[1] = false;
-    }
-
-    pliInfo.setFile(excludedPartsFile);
-    if (! pliInfo.exists()) {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,"ExcludedPliPartsFile"));
-        pliOk[2] = false;
-    }
-
-    if (pliOk[0] && pliOk[1] && pliOk[2])
-        return;
-
-    if (! pliOk[0]) {
-        pliControlFile = QString("%1/extras/%2").arg(lpubDataPath,validPliControl);
-        pliInfo.setFile(pliControlFile);
-        if (pliInfo.exists()) {
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"PliControlFile"),pliControlFile);
-        } else {
-            pliControlFile = pliInfo.absolutePath()+"/"+VER_PLI_CONTROL_FILE;
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"PliControlFile"),pliControlFile);
-        }
-    }
-
-    if (! pliOk[1]) {
-        pliSubstitutePartsFile = QString("%1/extras/%2").arg(lpubDataPath,validPliSubstituteParts);
-        pliInfo.setFile(pliSubstitutePartsFile);
-        if (pliInfo.exists()) {
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"PliSubstitutePartsFile"),pliSubstitutePartsFile);
-        } else {
-            pliSubstitutePartsFile = pliInfo.absolutePath()+"/"+VER_PLI_SUBSTITUTE_PARTS_FILE;
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"PliSubstitutePartsFile"),pliSubstitutePartsFile);
-        }
-    }
-
-    if (! pliOk[2]) {
-        excludedPartsFile = QString("%1/extras/%2").arg(lpubDataPath,validExcludedPliParts);
-        pliInfo.setFile(excludedPartsFile);
-        if (pliInfo.exists()) {
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ExcludedPartsFile"),excludedPartsFile);
-        } else {
-            excludedPartsFile = pliInfo.absolutePath()+"/"+VER_EXCLUDED_PARTS_FILE;
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ExcludedPartsFile"),excludedPartsFile);
-        }
-    }
-}
-
 void Preferences::unitsPreferences()
 {
     QSettings Settings;
@@ -3516,201 +3461,298 @@ void Preferences::setDebugLogging(bool b){
 
 void Preferences::annotationPreferences()
 {
-    bool annoOk[10] = { true, true, true, true, true, true, true, true, true, true };
-    QFileInfo annoInfo;
+    QFileInfo annInfo;
     QSettings Settings;
-    titleAnnotationsFile    = Settings.value(QString("%1/%2").arg(SETTINGS,"TitleAnnotationFile")).toString();
-    freeformAnnotationsFile = Settings.value(QString("%1/%2").arg(SETTINGS,"FreeFormAnnotationsFile")).toString();
-    annotationStyleFile     = Settings.value(QString("%1/%2").arg(SETTINGS,"AnnotationStyleFile")).toString();
+    enum A_OK {A_01, A_02, A_03, A_04, A_05, A_06, A_07, A_08, A_09, A_10, NUM_OK};
+    bool annOk[NUM_OK] = { true, true, true, true, true, true, true, true, true, true };
 
-    blCodesFile             = Settings.value(QString("%1/%2").arg(SETTINGS,"BLCodesFile")).toString();
-    legoElementsFile        = Settings.value(QString("%1/%2").arg(SETTINGS,"LEGOElementsFile")).toString();
-    blColorsFile            = Settings.value(QString("%1/%2").arg(SETTINGS,"BLColorsFile")).toString();
-    ld2blColorsXRefFile     = Settings.value(QString("%1/%2").arg(SETTINGS,"LD2BLColorsXRefFile")).toString();
-    ld2blCodesXRefFile      = Settings.value(QString("%1/%2").arg(SETTINGS,"LD2BLCodesXRefFile")).toString();
-    ld2rbColorsXRefFile     = Settings.value(QString("%1/%2").arg(SETTINGS,"LD2RBColorsXRefFile")).toString();
-    ld2rbCodesXRefFile      = Settings.value(QString("%1/%2").arg(SETTINGS,"LD2RBCodesXRefFile")).toString();
+    QString const titleAnnotationKey(    "TitleAnnotationFile");
+    QString const freeFormAnnotationsKey("FreeFormAnnotationsFile");
+    QString const annotationStyleKey(    "AnnotationStyleFile");
+    QString const blCodesKey(            "BLCodesFile");
+    QString const legoElementsKey(       "LEGOElementsFile");
+    QString const blColorsKey(           "BLColorsFile");
+    QString const ld2blColorsXRefKey(    "LD2BLColorsXRefFile");
+    QString const ld2blCodesXRefKey(     "LD2BLCodesXRefFile");
+    QString const ld2rbColorsXRefKey(    "LD2RBColorsXRefFile");
+    QString const ld2rbCodesXRefKey(     "LD2RBCodesXRefFile");
 
-    annoInfo.setFile(titleAnnotationsFile);
-    if (! annoInfo.exists()) {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,"TitleAnnotationFile"));
-        annoOk[0] = false;
+     titleAnnotationsFile = QString("%1/extras/%2").arg(lpubDataPath,VER_TITLE_ANNOTATIONS_FILE);
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,titleAnnotationKey)))
+        titleAnnotationsFile = Settings.value(QString("%1/%2").arg(SETTINGS,titleAnnotationKey)).toString();
+    annInfo.setFile(titleAnnotationsFile);
+    if (! annInfo.exists()) {
+        Settings.remove(QString("%1/%2").arg(SETTINGS,titleAnnotationKey));
+        annOk[A_01] = false;
     }
 
-    annoInfo.setFile(freeformAnnotationsFile);
-    if (! annoInfo.exists()) {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,"FreeFormAnnotationsFile"));
-        annoOk[1] = false;
+    freeformAnnotationsFile = QString("%1/extras/%2").arg(lpubDataPath,VER_FREEFOM_ANNOTATIONS_FILE);
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,freeFormAnnotationsKey)))
+        freeformAnnotationsFile = Settings.value(QString("%1/%2").arg(SETTINGS,freeFormAnnotationsKey)).toString();
+    annInfo.setFile(freeformAnnotationsFile);
+    if (! annInfo.exists()) {
+        Settings.remove(QString("%1/%2").arg(SETTINGS,freeFormAnnotationsKey));
+        annOk[A_02] = false;
     }
 
-    annoInfo.setFile(annotationStyleFile);
-    if (! annoInfo.exists()) {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,"AnnotationStyleFile"));
-        annoOk[2] = false;
+    annotationStyleFile = QString("%1/extras/%2").arg(lpubDataPath,VER_ANNOTATION_STYLE_FILE);
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,annotationStyleKey)))
+        annotationStyleFile = Settings.value(QString("%1/%2").arg(SETTINGS,annotationStyleKey)).toString();
+    annInfo.setFile(annotationStyleFile);
+    if (! annInfo.exists()) {
+        Settings.remove(QString("%1/%2").arg(SETTINGS,annotationStyleKey));
+        annOk[A_03] = false;
     }
 
-    annoInfo.setFile(blCodesFile);
-    if (! annoInfo.exists()) {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,"BLCodesFile"));
-        annoOk[3] = false;
+    if ((annOk[A_04] = Settings.contains(QString("%1/%2").arg(SETTINGS,blCodesKey)))) {
+        blCodesFile = Settings.value(QString("%1/%2").arg(SETTINGS,blCodesKey)).toString();
+        annInfo.setFile(blCodesFile);
+        if (! annInfo.exists()) {
+            Settings.remove(QString("%1/%2").arg(SETTINGS,blCodesKey));
+            annOk[A_04] = false;
+        }
     }
 
-    annoInfo.setFile(legoElementsFile);
-    if (! annoInfo.exists()) {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,"LEGOElementsFile"));
-        annoOk[4] = false;
+    if ((annOk[A_05] = Settings.contains(QString("%1/%2").arg(SETTINGS,legoElementsKey)))) {
+        legoElementsFile = Settings.value(QString("%1/%2").arg(SETTINGS,legoElementsKey)).toString();
+        annInfo.setFile(legoElementsFile);
+        if (! annInfo.exists()) {
+            Settings.remove(QString("%1/%2").arg(SETTINGS,legoElementsKey));
+            annOk[A_05] = false;
+        }
     }
 
-    annoInfo.setFile(blColorsFile);
-    if (! annoInfo.exists()) {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,"BLColorsFile"));
-        annoOk[5] = false;
+    if ((annOk[A_06] = Settings.contains(QString("%1/%2").arg(SETTINGS,blColorsKey)))) {
+        blColorsFile = Settings.value(QString("%1/%2").arg(SETTINGS,blColorsKey)).toString();
+        annInfo.setFile(blColorsFile);
+        if (! annInfo.exists()) {
+            Settings.remove(QString("%1/%2").arg(SETTINGS,blColorsKey));
+            annOk[A_06] = false;
+        }
     }
 
-    annoInfo.setFile(ld2blColorsXRefFile);
-    if (! annoInfo.exists()) {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,"LD2BLColorsXRefFile"));
-        annoOk[6] = false;
+    if ((annOk[A_07] = Settings.contains(QString("%1/%2").arg(SETTINGS,ld2blColorsXRefKey)))) {
+        ld2blColorsXRefFile = Settings.value(QString("%1/%2").arg(SETTINGS,ld2blColorsXRefKey)).toString();
+        annInfo.setFile(ld2blColorsXRefFile);
+        if (! annInfo.exists()) {
+            Settings.remove(QString("%1/%2").arg(SETTINGS,ld2blColorsXRefKey));
+            annOk[A_07] = false;
+        }
     }
 
-    annoInfo.setFile(ld2blCodesXRefFile);
-    if (! annoInfo.exists()) {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,"LD2BLCodesXRefFile"));
-        annoOk[7] = false;
+    if ((annOk[A_08] = Settings.contains(QString("%1/%2").arg(SETTINGS,ld2blCodesXRefKey)))) {
+        ld2blCodesXRefFile = Settings.value(QString("%1/%2").arg(SETTINGS,ld2blCodesXRefKey)).toString();
+        annInfo.setFile(ld2blCodesXRefFile);
+        if (! annInfo.exists()) {
+            Settings.remove(QString("%1/%2").arg(SETTINGS,ld2blCodesXRefKey));
+            annOk[A_08] = false;
+        }
     }
 
-    annoInfo.setFile(ld2rbColorsXRefFile);
-    if (! annoInfo.exists()) {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,"LD2RBColorsXRefFile"));
-        annoOk[8] = false;
+    if ((annOk[A_09] = Settings.contains(QString("%1/%2").arg(SETTINGS,ld2rbColorsXRefKey)))) {
+        ld2rbColorsXRefFile = Settings.value(QString("%1/%2").arg(SETTINGS,ld2rbColorsXRefKey)).toString();
+        annInfo.setFile(ld2rbColorsXRefFile);
+        if (! annInfo.exists()) {
+            Settings.remove(QString("%1/%2").arg(SETTINGS,ld2rbColorsXRefKey));
+            annOk[A_09] = false;
+        }
     }
 
-    annoInfo.setFile(ld2rbCodesXRefFile);
-    if (! annoInfo.exists()) {
-        Settings.remove(QString("%1/%2").arg(SETTINGS,"LD2RBCodesXRefFile"));
-        annoOk[9] = false;
+    if ((annOk[A_10] = Settings.contains(QString("%1/%2").arg(SETTINGS,ld2rbCodesXRefKey)))) {
+        ld2rbCodesXRefFile = Settings.value(QString("%1/%2").arg(SETTINGS,ld2rbCodesXRefKey)).toString();
+        annInfo.setFile(ld2rbCodesXRefFile);
+        if (! annInfo.exists()) {
+            Settings.remove(QString("%1/%2").arg(SETTINGS,ld2rbCodesXRefKey));
+            annOk[A_10] = false;
+        }
     }
 
-    if (annoOk[0] && annoOk[1] && annoOk[2] && annoOk[3] &&
-        annoOk[4] && annoOk[5] && annoOk[6] && annoOk[7] &&
-        annoOk[8] && annoOk[9])
+    if (annOk[A_01] && annOk[A_02] && annOk[A_03] && annOk[A_04] &&
+        annOk[A_05] && annOk[A_06] && annOk[A_07] && annOk[A_08] &&
+        annOk[A_09] && annOk[A_10])
         return;
 
-    if (! annoOk[3]) {
+    // Set Preference empty if file not found to trigger internal load or skip
+    if (! annOk[A_04]) {
         blCodesFile = QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_BLCODES_FILE);
-        annoInfo.setFile(blCodesFile);
-        if (annoInfo.exists()) {
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"BLCodesFile"),blCodesFile);
-        } else {
-            blCodesFile = QString();
-        }
-        annoOk[3] = true;
+        annInfo.setFile(blCodesFile);
+        if (annInfo.exists())
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,blCodesKey),blCodesFile);
+        else
+            blCodesFile.clear();
     }
 
-    if (! annoOk[4]) {
+    if (! annOk[A_05]) {
         legoElementsFile = QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_LEGOELEMENTS_FILE);
-        annoInfo.setFile(legoElementsFile);
-        if (annoInfo.exists()) {
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"LEGOElementsFile"),legoElementsFile);
-        } else {
-            legoElementsFile = QString();
-        }
-        annoOk[4] = true;
+        annInfo.setFile(legoElementsFile);
+        if (annInfo.exists())
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,legoElementsKey),legoElementsFile);
+        else
+            legoElementsFile.clear();
     }
 
-    if (! annoOk[5]) {
+    if (! annOk[A_06]) {
         blColorsFile = QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_BLCOLORS_FILE);
-        annoInfo.setFile(blColorsFile);
-        if (annoInfo.exists()) {
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"BLColorsFile"),blColorsFile);
-        } else {
-            blColorsFile = QString();
-        }
-        annoOk[5] = true;
+        annInfo.setFile(blColorsFile);
+        if (annInfo.exists())
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,blColorsKey),blColorsFile);
+        else
+            blColorsFile.clear();
     }
 
-    if (! annoOk[6]) {
+    if (! annOk[A_07]) {
         ld2blColorsXRefFile = QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_LD2BLCOLORSXREF_FILE);
-        annoInfo.setFile(ld2blColorsXRefFile);
-        if (annoInfo.exists()) {
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"LD2BLColorsXRefFile"),ld2blColorsXRefFile);
-        } else {
-            ld2blColorsXRefFile = QString();
-        }
-        annoOk[6] = true;
+        annInfo.setFile(ld2blColorsXRefFile);
+        if (annInfo.exists())
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,ld2blColorsXRefKey),ld2blColorsXRefFile);
+        else
+            ld2blColorsXRefFile.clear();
     }
 
-    if (! annoOk[7]) {
+    if (! annOk[A_08]) {
         ld2blCodesXRefFile = QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_LD2BLCODESXREF_FILE);
-        annoInfo.setFile(ld2blCodesXRefFile);
-        if (annoInfo.exists()) {
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"LD2BLCodesXRefFile"),ld2blCodesXRefFile);
-        } else {
-            ld2blCodesXRefFile = QString();
-        }
-        annoOk[7] = true;
+        annInfo.setFile(ld2blCodesXRefFile);
+        if (annInfo.exists())
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,ld2blCodesXRefKey),ld2blCodesXRefFile);
+        else
+            ld2blCodesXRefFile.clear();
     }
 
-    if (! annoOk[8]) {
+    if (! annOk[A_09]) {
         ld2rbColorsXRefFile = QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_LD2RBCOLORSXREF_FILE);
-        annoInfo.setFile(ld2rbColorsXRefFile);
-        if (annoInfo.exists()) {
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"LD2RBColorsXRefFile"),ld2rbColorsXRefFile);
-        } else {
-            ld2rbColorsXRefFile = QString();
-        }
-        annoOk[8] = true;
+        annInfo.setFile(ld2rbColorsXRefFile);
+        if (annInfo.exists())
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,ld2rbColorsXRefKey),ld2rbColorsXRefFile);
+        else
+            ld2rbColorsXRefFile.clear();
     }
 
-    if (! annoOk[9]) {
+    if (! annOk[A_10]) {
         ld2rbCodesXRefFile = QString("%1/extras/%2").arg(lpubDataPath,VER_LPUB3D_LD2RBCODESXREF_FILE);
-        annoInfo.setFile(ld2rbCodesXRefFile);
-        if (annoInfo.exists()) {
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"LD2RBCodesXRefFile"),ld2rbCodesXRefFile);
-        } else {
-            ld2rbCodesXRefFile = QString();
-        }
-        annoOk[9] = true;
+        annInfo.setFile(ld2rbCodesXRefFile);
+        if (annInfo.exists())
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,ld2rbCodesXRefKey),ld2rbCodesXRefFile);
+        else
+            ld2rbCodesXRefFile.clear();
     }
 
-    if (annoOk[0] && annoOk[1] && annoOk[2])
+    if (annOk[A_01] && annOk[A_02] && annOk[A_03])
         return;
 
-    if (! annoOk[0]) {
+    if (! annOk[A_01]) {
         titleAnnotationsFile = QString("%1/extras/%2").arg(lpubDataPath,validTitleAnnotations);
-        annoInfo.setFile(titleAnnotationsFile);
-        if (annoInfo.exists()) {
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"TitleAnnotationFile"),titleAnnotationsFile);
-        } else {
-            titleAnnotationsFile = annoInfo.absolutePath()+"/"+VER_TITLE_ANNOTATIONS_FILE;
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"TitleAnnotationFile"),titleAnnotationsFile);
-        }
+        annInfo.setFile(titleAnnotationsFile);
+        if (annInfo.exists())
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,titleAnnotationKey),titleAnnotationsFile);
+        else
+            titleAnnotationsFile.clear();
     }
 
-    if (! annoOk[1]) {
+    if (! annOk[A_02]) {
         freeformAnnotationsFile = QString("%1/extras/%2").arg(lpubDataPath,validFreeFormAnnotations);
-        annoInfo.setFile(freeformAnnotationsFile);
-        if (annoInfo.exists()) {
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"FreeFormAnnotationsFile"),freeformAnnotationsFile);
-        } else {
-            freeformAnnotationsFile = annoInfo.absolutePath()+"/"+VER_FREEFOM_ANNOTATIONS_FILE;
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"FreeFormAnnotationsFile"),freeformAnnotationsFile);
-        }
+        annInfo.setFile(freeformAnnotationsFile);
+        if (annInfo.exists())
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,freeFormAnnotationsKey),freeformAnnotationsFile);
+        else
+            freeformAnnotationsFile.clear();
     }
 
-    if (! annoOk[2]) {
-        annotationStyleFile = QString("%1/extras/%2").arg(lpubDataPath,validAnnotationStyleFile);
-        annoInfo.setFile(annotationStyleFile);
-        if (annoInfo.exists()) {
-            Settings.setValue(QString("%1/%2").arg(SETTINGS,"AnnotationStyleFile"),annotationStyleFile);
-        } else {
-            annotationStyleFile = annoInfo.absolutePath()+"/"+VER_ANNOTATION_STYLE_FILE;
-            if (annoInfo.exists()) {
-                Settings.setValue(QString("%1/%2").arg(SETTINGS,"AnnotationStyleFile"),annotationStyleFile);
-            } else {
-                annotationStyleFile = QString();
-            }
-        }
+    if (! annOk[A_03]) {
+        annotationStyleFile = QString("%1/extras/%2").arg(lpubDataPath,validAnnotationStyles);
+        annInfo.setFile(annotationStyleFile);
+        if (annInfo.exists())
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,annotationStyleKey),annotationStyleFile);
+        else
+            annotationStyleFile.clear();
+    }
+}
+
+void Preferences::pliPreferences()
+{
+    QFileInfo pliInfo;
+    QSettings Settings;
+    enum P_OK { P_SUB, P_EXC, P_STK, P_CTL, NUM_OK };
+    bool pliOk[NUM_OK] = { true, true, true, true };
+
+    QString const pliSubstitutePartsKey("PliSubstitutePartsFile");
+    QString const excludedPartsKey(     "ExcludedPartsFile");
+    QString const stickerPartsKey(      "StickerPartsFile");
+    QString const pliControlKey(        "PliControlFile");
+
+    pliSubstitutePartsFile = QString("%1/extras/%2").arg(lpubDataPath,VER_PLI_SUBSTITUTE_PARTS_FILE);
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,pliSubstitutePartsKey)))
+        pliSubstitutePartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,pliSubstitutePartsKey)).toString();
+    pliInfo.setFile(pliSubstitutePartsFile);
+    if (! pliInfo.exists()) {
+        Settings.remove(QString("%1/%2").arg(SETTINGS,pliSubstitutePartsKey));
+        pliOk[P_SUB] = false;
+    }
+
+    excludedPartsFile = QString("%1/extras/%2").arg(lpubDataPath,VER_EXCLUDED_PARTS_FILE);
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,excludedPartsKey)))
+        excludedPartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,excludedPartsKey)).toString();
+    pliInfo.setFile(excludedPartsFile);
+    if (! pliInfo.exists()) {
+        Settings.remove(QString("%1/%2").arg(SETTINGS,excludedPartsKey));
+        pliOk[P_EXC] = false;
+    }
+
+    stickerPartsFile = QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_STICKER_PARTS_FILE);
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,stickerPartsKey)))
+        stickerPartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,stickerPartsKey)).toString();
+    pliInfo.setFile(stickerPartsFile);
+    if (! pliInfo.exists()) {
+        Settings.remove(QString("%1/%2").arg(SETTINGS,stickerPartsKey));
+        pliOk[P_STK] = false;
+    }
+
+    pliControlFile = QString("%1/extras/%2").arg(lpubDataPath,VER_PLI_CONTROL_FILE);
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,pliControlKey)))
+        pliControlFile = Settings.value(QString("%1/%2").arg(SETTINGS,pliControlKey)).toString();
+    pliInfo.setFile(pliControlFile);
+    if (! pliInfo.exists()) {
+        Settings.remove(QString("%1/%2").arg(SETTINGS,pliControlKey));
+        pliOk[P_CTL] = false;
+    }
+
+    if (pliOk[P_SUB] && pliOk[P_EXC] && pliOk[P_STK] && pliOk[P_CTL])
+        return;
+
+    // Set Preference empty if file not found to trigger internal load or skip
+    if (! pliOk[P_SUB]) {
+        pliSubstitutePartsFile = QString("%1/extras/%2").arg(lpubDataPath,validPliSubstituteParts);
+        pliInfo.setFile(pliSubstitutePartsFile);
+        if (pliInfo.exists())
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,pliSubstitutePartsKey),pliSubstitutePartsFile);
+        else
+            pliSubstitutePartsFile.clear();
+    }
+
+    if (! pliOk[P_EXC]) {
+        excludedPartsFile = QString("%1/extras/%2").arg(lpubDataPath,validExcludedPliParts);
+        pliInfo.setFile(excludedPartsFile);
+        if (pliInfo.exists())
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,excludedPartsKey),excludedPartsFile);
+        else
+            excludedPartsFile.clear();
+    }
+
+    if (! pliOk[P_STK]) {
+        stickerPartsFile = QString("%1/extras/%2").arg(lpubDataPath,validStickerPliParts);
+        pliInfo.setFile(stickerPartsFile);
+        if (pliInfo.exists())
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,stickerPartsKey),stickerPartsFile);
+        else
+            stickerPartsFile.clear();
+    }
+
+    if (! pliOk[P_CTL]) {
+        pliControlFile = QString("%1/extras/%2").arg(lpubDataPath,validPliControl);
+        pliInfo.setFile(pliControlFile);
+        if (pliInfo.exists())
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,pliControlKey),pliControlFile);
+        else
+            pliControlFile.clear();
     }
 }
 
@@ -3748,19 +3790,19 @@ void Preferences::fadestepPreferences()
     }
 
     QString const LDrawColourPartsKey("LDrawColourPartsFile");
-    ldrawColourPartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,LDrawColourPartsKey)).toString();
+    ldrawColourPartsFile = QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_COLOR_PARTS);
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,LDrawColourPartsKey)))
+        ldrawColourPartsFile = Settings.value(QString("%1/%2").arg(SETTINGS,LDrawColourPartsKey)).toString();
     QFileInfo ldrawColorFileInfo(ldrawColourPartsFile);
     if (!ldrawColorFileInfo.exists()) {
         Settings.remove(QString("%1/%2").arg(SETTINGS,LDrawColourPartsKey));
+        ldrawColourPartsFile = QString("%1/extras/%2").arg(Preferences::lpubDataPath,validLDrawColorParts);
     }
-
-    ldrawColourPartsFile    = QDir::toNativeSeparators(QString("%1/extras/%2")
-                                                         .arg(lpubDataPath)
-                                                         .arg(validLDrawColorParts));
     ldrawColorFileInfo.setFile(ldrawColourPartsFile);
-    if (ldrawColorFileInfo.exists()) {
+    if (ldrawColorFileInfo.exists())
         Settings.setValue(QString("%1/%2").arg(SETTINGS,LDrawColourPartsKey),ldrawColourPartsFile);
-    }
+    else
+        ldrawColourPartsFile.clear();
 }
 
 void Preferences::highlightstepPreferences()

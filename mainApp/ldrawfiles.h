@@ -37,6 +37,7 @@
 #include <QList>
 
 #include "excludedparts.h"
+#include "stickerparts.h"
 #include "QsLog.h"
 
 extern QList<QRegExp> LDrawHeaderRegExp;

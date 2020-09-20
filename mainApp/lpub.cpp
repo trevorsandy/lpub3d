@@ -2088,8 +2088,80 @@ void Gui::useSystemEditor()
    Preferences::useSystemEditorPreference(useSystemEditorAct->isChecked());
 }
 
+/*********************************************
+ *
+ * Parameter edit section
+ *
+ *********************************************/
+void Gui::editLDrawColourParts()
+{
+    QFileInfo fileInfo(Preferences::ldrawColourPartsFile);
+    if (!fileInfo.exists()) {
+        emit messageSig(LOG_ERROR, QString("Static colour part list does not exist. Generate from the Configuration menu."));
+    } else {
+        if (Preferences::useSystemEditor) {
+            if (Preferences::systemEditor.isEmpty())
+                QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::ldrawColourPartsFile));
+            else
+                openWith(Preferences::ldrawColourPartsFile);
+        } else {
+            displayParmsFile(Preferences::ldrawColourPartsFile);
+            parmsWindow->setWindowTitle(tr("LDraw Color Parts","Edit/add LDraw static color parts"));
+            parmsWindow->show();
+        }
+    }
+}
+
+void Gui::editPliControlFile()
+{
+    QFileInfo fileInfo(Preferences::pliControlFile);
+    if (!fileInfo.exists()) {
+        emit messageSig(LOG_ERROR, QString("PLI control file does not exist."));
+    } else {
+        if (Preferences::useSystemEditor) {
+            if (Preferences::systemEditor.isEmpty())
+                QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::pliControlFile));
+            else
+                openWith(Preferences::pliControlFile);
+        } else {
+            displayParmsFile(Preferences::pliControlFile);
+            parmsWindow->setWindowTitle(tr("PLI Control","Edit/add PLI control part entries"));
+            parmsWindow->show();
+        }
+    }
+}
+
+void Gui::editAnnotationStyle()
+{
+    if (Preferences::annotationStyleFile.isEmpty())
+        Preferences::annotationStyleFile = QString("%1/extras/%2")
+            .arg( Preferences::lpubDataPath, Preferences::validAnnotationStyles);
+    QFileInfo fileInfo(Preferences::stickerPartsFile);
+    if (!fileInfo.exists()) {
+        if (!Annotations::exportAnnotationStyleFile()) {
+            emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(Preferences::annotationStyleFile));
+            return;
+        }
+    }
+
+    if (Preferences::useSystemEditor) {
+        if (Preferences::systemEditor.isEmpty())
+            QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+        else
+            openWith(fileInfo.absoluteFilePath());
+    } else {
+        displayParmsFile(fileInfo.absoluteFilePath());
+        parmsWindow->setWindowTitle(tr("Part Annotation Style reference",
+                                       "Edit/add Part Annotation Style reference"));
+        parmsWindow->show();
+    }
+}
+
 void Gui::editTitleAnnotations()
 {
+    if (Preferences::titleAnnotationsFile.isEmpty())
+        Preferences::titleAnnotationsFile = QString("%1/extras/%2")
+            .arg( Preferences::lpubDataPath, Preferences::validTitleAnnotations);
     QFileInfo fileInfo(Preferences::titleAnnotationsFile);
     if (!fileInfo.exists()) {
         if (!Annotations::exportTitleAnnotationsFile()) {
@@ -2112,6 +2184,9 @@ void Gui::editTitleAnnotations()
 
 void Gui::editFreeFormAnnitations()
 {
+    if (Preferences::freeformAnnotationsFile.isEmpty())
+        Preferences::freeformAnnotationsFile = QString("%1/extras/%2")
+            .arg( Preferences::lpubDataPath, Preferences::validFreeFormAnnotations);
     QFileInfo fileInfo(Preferences::freeformAnnotationsFile);
     if (!fileInfo.exists()) {
         if (!Annotations::exportfreeformAnnotationsHeader()) {
@@ -2132,22 +2207,11 @@ void Gui::editFreeFormAnnitations()
     }
 }
 
-void Gui::editLDrawColourParts()
-{
-    if (Preferences::useSystemEditor) {
-        if (Preferences::systemEditor.isEmpty())
-            QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::ldrawColourPartsFile));
-        else
-            openWith(Preferences::ldrawColourPartsFile);
-    } else {
-        displayParmsFile(Preferences::ldrawColourPartsFile);
-        parmsWindow->setWindowTitle(tr("LDraw Color Parts","Edit/add LDraw static color parts"));
-        parmsWindow->show();
-    }
-}
-
 void Gui::editPliBomSubstituteParts()
 {
+    if (Preferences::pliSubstitutePartsFile.isEmpty())
+        Preferences::pliSubstitutePartsFile = QString("%1/extras/%2")
+            .arg( Preferences::lpubDataPath, Preferences::validPliSubstituteParts);
     QFileInfo fileInfo(Preferences::pliSubstitutePartsFile);
     if (!fileInfo.exists()) {
         if (!PliSubstituteParts::exportSubstitutePartsHeader()) {
@@ -2170,6 +2234,9 @@ void Gui::editPliBomSubstituteParts()
 
 void Gui::editExcludedParts()
 {
+    if (Preferences::excludedPartsFile.isEmpty())
+        Preferences::excludedPartsFile = QString("%1/extras/%2")
+            .arg( Preferences::lpubDataPath, Preferences::validExcludedPliParts);
     QFileInfo fileInfo(Preferences::excludedPartsFile);
     if (!fileInfo.exists()) {
         if (!ExcludedParts::exportExcludedParts()) {
@@ -2188,6 +2255,31 @@ void Gui::editExcludedParts()
         parmsWindow->setWindowTitle(tr("Parts List Excluded Parts","Edit/add excluded parts"));
         parmsWindow->show();
     }
+}
+
+void Gui::editStickerParts()
+{
+   if (Preferences::stickerPartsFile.isEmpty())
+       Preferences::stickerPartsFile = QString("%1/extras/%2")
+           .arg( Preferences::lpubDataPath, Preferences::validStickerPliParts);
+   QFileInfo fileInfo(Preferences::stickerPartsFile);
+   if (!fileInfo.exists()) {
+       if (!StickerParts::exportStickerParts()) {
+           emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
+           return;
+       }
+   }
+
+   if (Preferences::useSystemEditor) {
+       if (Preferences::systemEditor.isEmpty())
+           QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+       else
+           openWith(fileInfo.absoluteFilePath());
+   } else {
+       displayParmsFile(fileInfo.absoluteFilePath());
+       parmsWindow->setWindowTitle(tr("Parts List Sticker Parts","Edit/add sticker parts"));
+       parmsWindow->show();
+   }
 }
 
 void Gui::editLdrawIniFile()
@@ -2347,29 +2439,6 @@ void Gui::editPovrayConf()
     } else {
         displayParmsFile(Preferences::povrayConf);
         parmsWindow->setWindowTitle(tr("Edit Raytracer file access conf","Edit Raytracer file access conf"));
-        parmsWindow->show();
-    }
-}
-
-void Gui::editAnnotationStyle()
-{
-    QFileInfo fileInfo(QString("%1/extras/%2").arg(Preferences::lpubDataPath,Preferences::validAnnotationStyleFile));
-    if (!fileInfo.exists()) {
-        if (!Annotations::exportAnnotationStyleFile()) {
-            emit messageSig(LOG_ERROR, QString("Failed to export %1.").arg(fileInfo.absoluteFilePath()));
-            return;
-        }
-    }
-
-    if (Preferences::useSystemEditor) {
-        if (Preferences::systemEditor.isEmpty())
-            QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
-        else
-            openWith(fileInfo.absoluteFilePath());
-    } else {
-        displayParmsFile(fileInfo.absoluteFilePath());
-        parmsWindow->setWindowTitle(tr("Part Annotation Style reference",
-                                       "Edit/add Part Annotation Style reference"));
         parmsWindow->show();
     }
 }
@@ -4565,6 +4634,10 @@ void Gui::createActions()
     editExcludedPartsAct->setStatusTip(tr("Add/Edit the list of part count excluded parts"));
     connect(editExcludedPartsAct, SIGNAL(triggered()), this, SLOT(editExcludedParts()));
 
+    editStickerPartsAct = new QAction(QIcon(":/resources/editstickerparts.png"),tr("Edit Part Count Sticker Parts list"), this);
+    editStickerPartsAct->setStatusTip(tr("Add/Edit the list of part count sticker parts"));
+    connect(editStickerPartsAct, SIGNAL(triggered()), this, SLOT(editStickerParts()));
+
     editLdrawIniFileAct = new QAction(QIcon(":/resources/editinifile.png"),tr("Edit LDraw INI search directories"), this);
     editLdrawIniFileAct->setStatusTip(tr("Add/Edit LDraw.ini search directory entries"));
     connect(editLdrawIniFileAct, SIGNAL(triggered()), this, SLOT(editLdrawIniFile()));
@@ -4632,6 +4705,10 @@ void Gui::createActions()
     editModelFileAct = new QAction(QIcon(":/resources/editldraw.png"),tr("Edit current model file"), this);
     editModelFileAct->setStatusTip(tr("Edit loaded LDraw model file with detached LDraw Editor"));
     connect(editModelFileAct, SIGNAL(triggered()), this, SLOT(editModelFile()));
+
+    editPliControlFileAct = new QAction(QIcon(":/resources/editldraw.png"),tr("Edit PLI parts control file"), this);
+    editPliControlFileAct->setStatusTip(tr("Edit PLI parts control file"));
+    connect(editPliControlFileAct, SIGNAL(triggered()), this, SLOT(editPliControlFile()));
 
     generateCustomColourPartsAct = new QAction(QIcon(":/resources/generatecolourparts.png"),tr("Generate Static Color Parts list"), this);
     generateCustomColourPartsAct->setStatusTip(tr("Generate list of all static coloured parts"));
@@ -4728,9 +4805,11 @@ void Gui::enableActions()
 
   editTitleAnnotationsAct->setEnabled(true);
   editFreeFormAnnitationsAct->setEnabled(true);
-  editLDrawColourPartsAct->setEnabled(true);
   editPliBomSubstitutePartsAct->setEnabled(true);
   editExcludedPartsAct->setEnabled(true);
+  editStickerPartsAct->setEnabled(true);
+  if (!Preferences::ldrawColourPartsFile.isEmpty())
+      editLDrawColourPartsAct->setEnabled(true);
   editLdgliteIniAct->setEnabled(true);
   editNativePOVIniAct->setEnabled(true);
   editLdviewIniAct->setEnabled(true);
@@ -4746,7 +4825,8 @@ void Gui::enableActions()
   editBLColorsAct->setEnabled(true);
   editBLCodesAct->setEnabled(true);
   editModelFileAct->setEnabled(true);
-
+  if (!Preferences::pliControlFile.isEmpty())
+      editPliControlFileAct->setEnabled(true);
   openWorkingFolderAct->setEnabled(true);
   setPageLineEdit->setEnabled(true);
 
@@ -4824,6 +4904,7 @@ void Gui::disableActions()
   removeLPubFormattingAct->setEnabled(false);
 
   editModelFileAct->setEnabled(false);
+  editPliControlFileAct->setEnabled(false);
 
   openWorkingFolderAct->setEnabled(false);
   setPageLineEdit->setEnabled(false);
@@ -5050,10 +5131,12 @@ void Gui::createMenus()
     editorMenu->addSeparator();
 #endif
     editorMenu->addAction(editLDrawColourPartsAct);
+    editorMenu->addAction(editPliControlFileAct);
     editorMenu->addAction(editTitleAnnotationsAct);
     editorMenu->addAction(editFreeFormAnnitationsAct);
     editorMenu->addAction(editPliBomSubstitutePartsAct);
     editorMenu->addAction(editExcludedPartsAct);
+    editorMenu->addAction(editStickerPartsAct);
     editorMenu->addAction(editAnnotationStyleAct);
     editorMenu->addAction(editLD2BLCodesXRefAct);
     editorMenu->addAction(editLD2BLColorsXRefAct);
@@ -5245,10 +5328,12 @@ void Gui::createToolBars()
     editParamsToolBar->addAction(editModelFileAct);
     editParamsToolBar->addSeparator();
     editParamsToolBar->addAction(editLDrawColourPartsAct);
+    editParamsToolBar->addAction(editPliControlFileAct);
     editParamsToolBar->addAction(editTitleAnnotationsAct);
     editParamsToolBar->addAction(editFreeFormAnnitationsAct);
     editParamsToolBar->addAction(editPliBomSubstitutePartsAct);
     editParamsToolBar->addAction(editExcludedPartsAct);
+    editParamsToolBar->addAction(editStickerPartsAct);
     editParamsToolBar->addAction(editAnnotationStyleAct);
     editParamsToolBar->addAction(editLD2BLCodesXRefAct);
     editParamsToolBar->addAction(editLD2BLColorsXRefAct);

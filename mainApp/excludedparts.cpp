@@ -21,6 +21,7 @@
 #include <QTextStream>
 #include "lpub_preferences.h"
 #include "name.h"
+#include "version.h"
 #include "QsLog.h"
 
 
@@ -37,8 +38,8 @@ ExcludedParts::ExcludedParts()
         if (!excludedPartsFile.isEmpty()) {
             QFile file(excludedPartsFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-                QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),
-                                     QMessageBox::tr("Failed to open excludedParts.lst file: %1:\n%2")
+                QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Excluded Parts"),
+                                     QMessageBox::tr("Failed to open excluded parts file: %1:\n%2")
                                      .arg(excludedPartsFile)
                                      .arg(file.errorString()));
                 return;
@@ -75,7 +76,7 @@ ExcludedParts::ExcludedParts()
                                   "# The Regular Expression used is: ^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$")
                                   .arg(QFileInfo(excludedPartsFile).fileName());
                 if (Preferences::modeGUI){
-                    QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Excluded Parts"),message);
                 } else {
                     logError() << message.replace("<br>"," ");
                 }
@@ -214,7 +215,7 @@ void ExcludedParts::loadExcludedParts(QByteArray &Buffer)
 
 
 bool ExcludedParts::exportExcludedParts(){
-    QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,Preferences::excludedPartsFile));
+    QFile file(QString("%1/extras/%2").arg(Preferences::lpubDataPath,Preferences::validExcludedPliParts));
 
     if (!overwriteFile(file.fileName()))
         return true;
@@ -223,7 +224,7 @@ bool ExcludedParts::exportExcludedParts(){
     {
         int counter = 1;
         QTextStream outstream(&file);
-        outstream << "# File:" << Preferences::validAnnotationStyleFile << endl;
+        outstream << "# File: " << VER_EXCLUDED_PARTS_FILE << endl;
         outstream << "# " << endl;
         outstream << "# This list captures excluded parts to support accurate part count." << endl;
         outstream << "# Excluded parts must be defined using the file name." << endl;
@@ -239,10 +240,12 @@ bool ExcludedParts::exportExcludedParts(){
         outstream << "# and paste to a new line with starting phrase other than 'The Regular Expression...'" << endl;
         outstream << "# " << endl;
         outstream << "# The Regular Expression used is: ^(\\b.*[^\\s]\b)(?:\\s)\\s+(.*)$" << endl;
-        outstream << "# " << endl;
+        outstream << "#" << endl;
+        outstream << "#" << endl;
         outstream << "# 1. Part ID:          LDraw Part Name                               (Required)" << endl;
         outstream << "# 2. Part Description: LDraw Part Description - for reference only   (Optional)" << endl;
         outstream << "#" << endl;
+        outstream << "# When adding a Part Description, be sure to replace double quotes \" with '." << endl;
         outstream << "#" << endl;
         outstream << "# ----------------------Do not delete above this line----------------------------------" << endl;
         outstream << "#" << endl;
@@ -261,18 +264,18 @@ bool ExcludedParts::exportExcludedParts(){
                                    .arg(counter)
                                    .arg(file.fileName());
         if (Preferences::modeGUI){
-            QMessageBox::information(nullptr,QMessageBox::tr("LPub3D"),message);
+            QMessageBox::information(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Excluded Parts"),message);
         } else {
             logNotice() << message;
         }
     }
     else
     {
-        QString message = QString("Failed to open Excluded Parts file: %1:\n%2")
+        QString message = QString("Failed to open excluded parts file: %1:\n%2")
                                   .arg(file.fileName())
                                   .arg(file.errorString());
         if (Preferences::modeGUI){
-            QMessageBox::warning(nullptr,QMessageBox::tr("LPub3D"),message);
+            QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Excluded Parts"),message);
         } else {
             logError() << message;
         }

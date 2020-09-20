@@ -166,9 +166,10 @@ class Preferences
     static QString validPliControl;
     static QString validTitleAnnotations;
     static QString validFreeFormAnnotations;
-    static QString validAnnotationStyleFile;
+    static QString validAnnotationStyles;
     static QString validPliSubstituteParts;
     static QString validExcludedPliParts;
+    static QString validStickerPliParts;
 
     static QString pliSubstitutePartsFile;
     static QString pliControlFile;
@@ -176,6 +177,7 @@ class Preferences
     static QString freeformAnnotationsFile;
     static QString annotationStyleFile;
     static QString excludedPartsFile;
+    static QString stickerPartsFile;
     static QString ldrawColourPartsFile;
 
     static QString blenderVersion;
