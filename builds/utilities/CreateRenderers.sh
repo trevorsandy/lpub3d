@@ -3,7 +3,7 @@
 # Build all LPub3D 3rd-party renderers
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update July 19, 2020
+#  Last Update August 24, 2020
 #  Copyright (c) 2017 - 2020 by Trevor SANDY
 #
 
@@ -733,7 +733,11 @@ if [ "$OS_NAME" = "Darwin" ]; then
         brewDeps="tinyxml gl2ps libjpeg minizip"
         ;;
       povray)
-        brewDeps="$brewDeps openexr sdl2 libtiff boost autoconf automake pkg-config"
+        # Boost beyond 1.69 is broken on macOS so restrict install to 1.6
+        brewDeps="$brewDeps openexr sdl2 libtiff autoconf"
+        if [ "${TRAVIS}" != "true" ]; then
+          brewDeps="$brewDeps automake pkg-config"
+        fi
         ;;
       esac
     fi
@@ -757,7 +761,17 @@ if [ "$OS_NAME" = "Darwin" ]; then
       exit 1
     fi
     brew update > $depsLog 2>&1
-    brew install $brewDeps >> $depsLog 2>&1
+    if [ "${TRAVIS}" != "true" ]; then
+      Info "Force removal of latest Boost and revert to 1.60"
+      brew uninstall --ignore-dependencies boost >> $depsLog 2>&1
+      brew install $brewDeps >> $depsLog 2>&1
+      brew install boost@1.60 >> $depsLog 2>&1
+      brew link --force --overwrite boost@1.60 >> $depsLog 2>&1
+    else
+      brew install $brewDeps >> $depsLog 2>&1
+      Info "Upgrade automake and pkg-config"
+      brew upgrade automake pkg-config >> $depsLog 2>&1
+    fi
     Info "$OS_NAME dependencies installed." && DisplayLogTail $depsLog 10
   else
     Info "Renderer artefacts exist, nothing to build. Install dependencies skipped" > $depsLog 2>&1
