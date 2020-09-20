@@ -146,6 +146,7 @@ void EditWindow::createActions()
     updateAct->setShortcut(tr("Ctrl+U"));
     updateAct->setStatusTip(tr("Update page - Ctrl+U"));
     connect(updateAct, SIGNAL(triggered()), this, SLOT(update()));
+    connect(updateAct, SIGNAL(triggered(bool)), this, SLOT(updateDisabled(bool)));
 
     delAct = new QAction(QIcon(":/resources/delete.png"), tr("&Delete"), this);
     delAct->setShortcut(tr("DEL"));
@@ -323,6 +324,10 @@ void EditWindow::contentsChange(
   }
 
   contentsChange(fileName, position, charsRemoved, addedChars);
+
+  if (!Preferences::saveOnUpdate) {
+     updateDisabled(false);
+  }
 }
 
 void EditWindow::modelFileChanged(const QString &_fileName)
@@ -337,12 +342,26 @@ bool EditWindow::maybeSave()
   bool rc = true;
 
   if (_textEdit->document()->isModified()) {
-    QMessageBox::StandardButton ret;
-    ret = QMessageBox::warning(this, tr("Model File Editor"),
-            tr("The model file has been modified.\n"
-                "Do you want to save your changes?"),
-            QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
-    if (ret == QMessageBox::Save) {
+    // Get the application icon as a pixmap
+    QPixmap _icon = QPixmap(":/icons/lpub96.png");
+    if (_icon.isNull())
+        _icon = QPixmap (":/icons/update.png");
+
+    QMessageBoxResizable box;
+    box.setWindowIcon(QIcon());
+    box.setIconPixmap (_icon);
+    box.setTextFormat (Qt::RichText);
+    box.setWindowTitle(tr ("%1 Document").arg(VER_PRODUCTNAME_STR));
+    box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    QString title = "<b>" + tr ("Document changes detected&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;") + "</b>";
+    QString text = tr("The document has been modified.<br>"
+                      "Do you want to save your changes?");
+    box.setText (title);
+    box.setInformativeText (text);
+    box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
+    box.setDefaultButton   (QMessageBox::Yes);
+
+    if (box.exec() == QMessageBox::Yes) {
       rc = saveFile();
     }
   }
@@ -489,10 +508,16 @@ void EditWindow::showLine(int lineNumber)
 }
 
 void EditWindow::updateDisabled(bool state){
-    QAction *action = qobject_cast<QAction *>(sender());
-    if ((action && action == saveAct))
+    if (sender() == saveAct)
     {
         updateAct->setDisabled(true);
+    } else
+    if (sender() == updateAct &&
+       !Preferences::saveOnUpdate)
+    {
+        updateAct->setDisabled(true);
+        if (!modelFileEdit())
+            emit updateDisabledSig(true);
     } else {
         updateAct->setDisabled(state);
     }

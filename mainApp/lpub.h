@@ -1408,7 +1408,7 @@ private slots:
 
     void setCurrentFile(const QString &fileName);
     bool openFile(QString &fileName);
-    bool maybeSave(bool prompt = true);
+    bool maybeSave(bool prompt = true, int sender = SaveOnNone);
     bool saveFile(const QString &fileName);
     void closeFile();
     void updateRecentFileActions();

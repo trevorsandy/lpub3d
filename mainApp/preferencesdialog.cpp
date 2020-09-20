@@ -79,6 +79,9 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.imageMatteBox->setEnabled(false);
   ui.imageMattingChk->setEnabled(false);
 
+  showSaveOnRedrawFlag =                         Preferences::showSaveOnRedraw;
+  showSaveOnUpdateFlag =                         Preferences::showSaveOnUpdate;
+
   ui.ldrawLibPathEdit->setText(                  mLDrawLibPath);
   ui.ldrawLibPathBox->setTitle(                  ldrawLibPathTitle);
   ui.fadeStepsUseColourBox->setTitle(            fadeStepsColorTitle);
@@ -799,6 +802,18 @@ void PreferencesDialog::on_povGenLDViewRadio_clicked(bool checked)
     }
 }
 
+void PreferencesDialog::on_saveOnRedrawChkBox_clicked(bool checked)
+{
+  Q_UNUSED(checked)
+  showSaveOnUpdateFlag = true;
+}
+
+void PreferencesDialog::on_saveOnUpdateChkBox_clicked(bool checked)
+{
+  Q_UNUSED(checked)
+  showSaveOnUpdateFlag = true;
+}
+
 void PreferencesDialog::on_resetSceneColorsButton_clicked(bool checked)
 {
     resetSceneColorsFlag = checked;
@@ -982,6 +997,16 @@ int PreferencesDialog::ldrawFilesLoadMsgs()
 QString const PreferencesDialog::fadeStepsColour()
 {
     return ui.fadeStepsColoursCombo->currentText();
+}
+
+bool PreferencesDialog::showSaveOnRedraw()
+{
+ return showSaveOnRedrawFlag;
+}
+
+bool PreferencesDialog::showSaveOnUpdate()
+{
+ return showSaveOnUpdateFlag;
 }
 
 QString const PreferencesDialog::highlightStepColour()

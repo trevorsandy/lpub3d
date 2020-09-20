@@ -29,6 +29,7 @@
 
 #include "parmshighlighter.h"
 #include "parmswindow.h"
+#include "messageboxresizable.h"
 
 #include "lpub.h"
 #include "name.h"
@@ -395,12 +396,26 @@ bool ParmsWindow::maybeSave()
   bool rc = true;
 
   if (_textEdit->document()->isModified()) {
-    QMessageBox::StandardButton ret;
-    ret = QMessageBox::warning(this, tr("Parameter Editor"),
-            tr("The document has been modified.\n"
-                "Do you want to save your changes?"),
-            QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
-    if (ret == QMessageBox::Save) {
+    // Get the application icon as a pixmap
+    QPixmap _icon = QPixmap(":/icons/lpub96.png");
+    if (_icon.isNull())
+        _icon = QPixmap (":/icons/update.png");
+
+    QMessageBoxResizable box;
+    box.setWindowIcon(QIcon());
+    box.setIconPixmap (_icon);
+    box.setTextFormat (Qt::RichText);
+    box.setWindowTitle(tr ("%1 Document").arg(VER_PRODUCTNAME_STR));
+    box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    QString title = "<b>" + tr ("Document changes detected&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;") + "</b>";
+    QString text = tr("The document has been modified.<br>"
+                      "Do you want to save your changes?");
+    box.setText (title);
+    box.setInformativeText (text);
+    box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
+    box.setDefaultButton   (QMessageBox::Yes);
+
+    if (box.exec() == QMessageBox::Yes) {
       rc = saveFile();
     }
   }

@@ -221,6 +221,8 @@ bool    Preferences::hidePageBackground         = false;
 bool    Preferences::showGuidesCoordinates      = false;
 bool    Preferences::showTrackingCoordinates    = false;
 bool    Preferences::showParseErrors            = true;
+bool    Preferences::showSaveOnRedraw           = true;
+bool    Preferences::showSaveOnUpdate           = true;
 bool    Preferences::suppressStdOutToLog        = false;
 bool    Preferences::highlightFirstStep         = false;
 
@@ -2948,6 +2950,24 @@ void Preferences::userInterfacePreferences()
           showParseErrors = Settings.value(QString("%1/%2").arg(SETTINGS,showParseErrorsKey)).toBool();
   }
 
+  QString const showSaveOnRedrawKey("ShowSaveOnRedraw");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,showSaveOnRedrawKey))) {
+          QVariant uValue(true);
+          showSaveOnRedraw = true;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,showSaveOnRedrawKey),uValue);
+  } else {
+          showSaveOnRedraw = Settings.value(QString("%1/%2").arg(SETTINGS,showSaveOnRedrawKey)).toBool();
+  }
+
+  QString const showSaveOnUpdateKey("ShowSaveOnUpdate");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,showSaveOnUpdateKey))) {
+          QVariant uValue(true);
+          showSaveOnUpdate = true;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,showSaveOnUpdateKey),uValue);
+  } else {
+          showSaveOnUpdate = Settings.value(QString("%1/%2").arg(SETTINGS,showSaveOnUpdateKey)).toBool();
+  }
+
   QString const showSubmodelsKey("ShowSubmodels");
   if (Settings.contains(QString("%1/%2").arg(SETTINGS,showSubmodelsKey))) {
       showSubmodels = Settings.value(QString("%1/%2").arg(SETTINGS,showSubmodelsKey)).toBool();
@@ -3015,6 +3035,24 @@ void Preferences::setShowParseErrorsPreference(bool b)
   QVariant uValue(b);
   QString const showParseErrorsKey("ShowParseErrors");
   Settings.setValue(QString("%1/%2").arg(SETTINGS,showParseErrorsKey),uValue);
+}
+
+void Preferences::setShowSaveOnRedrawPreference(bool b)
+{
+  QSettings Settings;
+  showSaveOnRedraw = b;
+  QVariant uValue(b);
+  QString const showSaveOnRedrawKey("ShowSaveOnRedraw");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,showSaveOnRedrawKey),uValue);
+}
+
+void Preferences::setShowSaveOnUpdatePreference(bool b)
+{
+  QSettings Settings;
+  showSaveOnUpdate = b;
+  QVariant uValue(b);
+  QString const showSaveOnUpdateKey("ShowSaveOnUpdate");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,showSaveOnUpdateKey),uValue);
 }
 
 void Preferences::setSnapToGridPreference(bool b)
@@ -3847,6 +3885,18 @@ bool Preferences::getPreferences()
         {
             showParseErrors = dialog->showParseErrors();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowParseErrors"),showParseErrors);
+        }
+
+        if (showSaveOnRedraw != dialog->showSaveOnRedraw())
+        {
+            showSaveOnRedraw = dialog->showSaveOnRedraw();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowSaveOnRedraw"),showSaveOnRedraw);
+        }
+
+        if (showSaveOnUpdate != dialog->showSaveOnUpdate())
+        {
+            showSaveOnUpdate = dialog->showSaveOnUpdate();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowSaveOnUpdate"),showSaveOnUpdate);
         }
 
         if (fadeStepsOpacity != dialog->fadeStepsOpacity())
