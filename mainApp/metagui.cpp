@@ -5845,9 +5845,9 @@ void OpenWithProgramDialogGui::validateProgramEntries(){
     } else {
         for (int i = lastEntry; i > maxPrograms; i--) {
             programEntries.removeLast();
-            gridLayout->removeWidget(programNameEditList.last());
-            gridLayout->removeWidget(programPathEditList.last());
-            gridLayout->removeWidget(programBrowseButtonList.last());
+            programsLayout->removeWidget(programNameEditList.last());
+            programsLayout->removeWidget(programPathEditList.last());
+            programsLayout->removeWidget(programBrowseButtonList.last());
             delete programNameEditList.last();
             delete programPathEditList.last();
             delete programBrowseButtonList.last();
@@ -5862,37 +5862,73 @@ void OpenWithProgramDialogGui::setProgramEntries() {
     validateProgramEntries();
 
     QString programName, programPath;
+
+    auto getProgramIcon = [&programPath] ()
+    {
+        QStringList pathList   = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+        QString iconPath       = pathList.first();
+        const QString iconFile = QString("%1/%2icon.png").arg(iconPath).arg(QFileInfo(programPath).baseName());
+        if (!QFileInfo(iconFile).exists()) {
+            QPixmap iconPixmap(16,16);
+            if (programPath.isEmpty()) {
+                iconPixmap.fill(Qt::transparent);
+            } else {
+                QFileInfo programInfo(programPath);
+                QFileSystemModel *fsModel = new QFileSystemModel;
+                fsModel->setRootPath(programInfo.path());
+                QIcon fileIcon = fsModel->fileIcon(fsModel->index(programInfo.filePath()));
+                iconPixmap = fileIcon.pixmap(16,16);
+                if (!iconPixmap.save(iconFile))
+                    emit gui->messageSig(LOG_INFO,QString("Could not save program file icon: %1").arg(iconFile));
+                return fileIcon;
+            }
+        }
+        return QIcon(iconFile);
+    };
+
     for(int i = 0; i < maxPrograms; ++i) {
-        int rowNum = i + 2;
         programName = programEntries.at(i).split("|").first();
         programPath = QDir::toNativeSeparators(programEntries.at(i).split("|").last());
-        QLineEdit *programNameEdit = new QLineEdit(QString(programName), dialog);
+
+        QLabel *programLabel = new QLabel("",dialog);
+        programLabel->setPixmap(getProgramIcon().pixmap(16,16));
+        if (i < programIconList.size()) {
+            programsLayout->removeWidget(programIconList.at(i));
+            programIconList.replace(i,programLabel);
+        } else {
+            programIconList.append(programLabel);
+        }
+        programsLayout->addWidget(programLabel,i,0);
+
+        QLineEdit *programNameEdit = new QLineEdit(programName, dialog);
+        programNameEdit->setToolTip("Edit program name");
         if (i < programNameEditList.size()) {
-            gridLayout->removeWidget(programNameEditList.at(i));
+            programsLayout->removeWidget(programNameEditList.at(i));
             programNameEditList.replace(i,programNameEdit);
         } else {
             programNameEditList.append(programNameEdit);
         }
-        gridLayout->addWidget(programNameEdit,rowNum,0);
+        programsLayout->addWidget(programNameEdit,i,1);
 
-        QLineEdit *programPathEdit = new QLineEdit(QString(programPath), dialog);
+        QLineEdit *programPathEdit = new QLineEdit(programPath, dialog);
+        programPathEdit->setToolTip("Edit program path");
         if (i < programPathEditList.size()) {
-            gridLayout->removeWidget(programPathEditList.at(i));
+            programsLayout->removeWidget(programPathEditList.at(i));
             programPathEditList.replace(i,programPathEdit);
         } else {
             programPathEditList.append(programPathEdit);
         }
-        gridLayout->addWidget(programPathEdit,rowNum,1);
+        programsLayout->addWidget(programPathEdit,i,2);
 
         QPushButton *programBrowseButton = new QPushButton(QString("Browse..."), dialog);
         programBrowseButton->setProperty("programIndex",i);
         if (i < programBrowseButtonList.size()) {
-            gridLayout->removeWidget(programBrowseButtonList.at(i));
+            programsLayout->removeWidget(programBrowseButtonList.at(i));
             programBrowseButtonList.replace(i,programBrowseButton);
         } else {
             programBrowseButtonList.append(programBrowseButton);
         }
-        gridLayout->addWidget(programBrowseButton,rowNum,2);
+        programsLayout->addWidget(programBrowseButton,i,3);
         QObject::connect(programBrowseButton, SIGNAL(clicked(bool)), this, SLOT(browseOpenWithProgram(bool)));
     }
 }
@@ -5901,11 +5937,37 @@ void OpenWithProgramDialogGui::setOpenWithProgram()
 {
     dialog = new QDialog();
 
-    QFormLayout *form = new QFormLayout(dialog);
-    QGroupBox *programBbox = new QGroupBox("Select Open With Program",dialog);
-    form->addWidget(programBbox);
-    gridLayout = new QGridLayout(programBbox);
-    programBbox->setLayout(gridLayout);
+    dialog->setWindowTitle(tr("Open With Programs Setup"));
+
+    QVBoxLayout *mainLayout = new  QVBoxLayout(dialog);
+
+    // max programs box
+    QGroupBox *maxProgramsBox = new QGroupBox("", dialog);
+    mainLayout->addWidget(maxProgramsBox);
+    QHBoxLayout *maxProgramsLayout = new QHBoxLayout(maxProgramsBox);
+    maxProgramsBox->setLayout(maxProgramsLayout);
+
+    QLabel *maxProgramsLabel = new QLabel(tr("Max Programs:"), dialog);
+
+    QSpinBox * maxProgramsSpinBox = new QSpinBox(dialog);
+    maxProgramsSpinBox->setToolTip("Adjust the number of program slots availabe in the dialogue");
+    maxProgramsSpinBox->setRange(1,100);
+    maxProgramsSpinBox->setSingleStep(1);
+    maxProgramsSpinBox->setValue(maxPrograms);
+    connect(maxProgramsSpinBox,SIGNAL(valueChanged(int)), this,SLOT (maxProgramsValueChanged(int)));
+
+    QSpacerItem *horizontalSpacer= new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed);
+    maxProgramsLayout->addWidget(maxProgramsLabel);
+    maxProgramsLayout->addWidget(maxProgramsSpinBox);
+    maxProgramsLayout->addItem(  horizontalSpacer);
+
+    // program box
+    QGroupBox *programBbox = new QGroupBox("Open With Programs",dialog);
+    mainLayout->addWidget(programBbox);
+    programsLayout = new QGridLayout(programBbox);
+    programsLayout->setColumnStretch(1,10);
+    programsLayout->setColumnStretch(2,30);
+    programBbox->setLayout(programsLayout);
 
     QSettings Settings;
     QString const openWithProgramListKey("OpenWithProgramList");
@@ -5920,45 +5982,46 @@ void OpenWithProgramDialogGui::setOpenWithProgram()
         programEntries = Settings.value(QString("%1/%2").arg(SETTINGS,openWithProgramListKey)).toStringList();
     }
 
-    // populate UI
-    QLabel *maxProgramsLabel = new QLabel(tr("Max Programs:"), dialog);
-    QSpinBox * maxProgramsSpinBox = new QSpinBox(dialog);
-    maxProgramsSpinBox->setRange(1,100);
-    maxProgramsSpinBox->setSingleStep(1);
-    maxProgramsSpinBox->setValue(maxPrograms);
-    connect(maxProgramsSpinBox,SIGNAL(valueChanged(int)), this,SLOT (maxProgramsValueChanged(int)));
-    QSpacerItem *horizontalSpacer= new QSpacerItem(1,1,QSizePolicy::Expanding,QSizePolicy::Fixed);
-    gridLayout->addWidget(maxProgramsLabel,  0,0);
-    gridLayout->addWidget(maxProgramsSpinBox,0,1);
-    gridLayout->addItem(  horizontalSpacer,  0,2);
-
-    QFrame* horizontalLine = new QFrame();
-    horizontalLine->setGeometry(QRect(/* ... */));
-    horizontalLine->setFrameShape(QFrame::HLine);
-    gridLayout->addWidget(horizontalLine,1,0,1,3);
-
     setProgramEntries();
 
-    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
-                               Qt::Horizontal, dialog);
-    form->addRow(&buttonBox);
-    QObject::connect(&buttonBox, SIGNAL(accepted()), dialog, SLOT(accept()));
-    QObject::connect(&buttonBox, SIGNAL(rejected()), dialog, SLOT(reject()));
-    dialog->setMinimumWidth(250);
+    // max programs box
+    QGroupBox *systemEditorBox = new QGroupBox("System Editor", dialog);
+    mainLayout->addWidget(systemEditorBox);
+    QHBoxLayout *systemEditorLayout = new QHBoxLayout(systemEditorBox);
+    systemEditorBox->setLayout(systemEditorLayout);
+
+    systemEditorEdit = new QLineEdit(Preferences::systemEditor, dialog);
+    systemEditorEdit->setToolTip("Select text editor or leave blank to use the operating system designated editor");
+    systemEditorLayout->addWidget(systemEditorEdit);
+    systemEditorButton = new QPushButton(QString("Browse..."), dialog);
+    systemEditorLayout->addWidget(systemEditorButton);
+    QObject::connect(systemEditorButton, SIGNAL(clicked(bool)), this, SLOT(browseSystemEditor(bool)));
+
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                                     Qt::Horizontal, dialog);
+    mainLayout->addWidget(buttonBox);
+    QObject::connect(buttonBox, SIGNAL(accepted()), dialog, SLOT(accept()));
+    QObject::connect(buttonBox, SIGNAL(rejected()), dialog, SLOT(reject()));
+
+    dialog->setMinimumWidth(400);
 
     if (dialog->exec() == QDialog::Accepted) {
         bool updateProgramEntries = false;
         bool updateMaxPrograms    = maxPrograms != Preferences::maxOpenWithPrograms;
         QString programName, programPath;
+
         for(int i = 0; i < maxPrograms; ++i) {
-            programName = programNameEditList.at(i)->text();
             programPath = QDir::toNativeSeparators(programPathEditList.at(i)->text());
+            programName = programNameEditList.at(i)->text();
+            if (programName.isEmpty())
+                programName = QFileInfo(programPath).fileName();
             QString updateEntry = QString("%1|%2").arg(programName).arg(programPath);
             if (updateEntry != programEntries.at(i)) {
                 programEntries.replace(i,updateEntry);
                 updateProgramEntries = true;
             }
         }
+
         if (updateProgramEntries || updateMaxPrograms) {
             Settings.setValue(QString("%1/%2").arg(SETTINGS,openWithProgramListKey), programEntries);
             if (updateMaxPrograms) {
@@ -5966,6 +6029,19 @@ void OpenWithProgramDialogGui::setOpenWithProgram()
                 Settings.setValue(QString("%1/%2").arg(SETTINGS,maxOpenWithProgramsKey), maxPrograms);
             }
             gui->statusBar()->showMessage(QString("Open with programs updated."));
+        }
+
+        if (systemEditorEdit->text().toLower() != Preferences::systemEditor.toLower()) {
+            QString const systemEditorKey("SystemEditor");
+            QFileInfo systemEditorInfo(systemEditorEdit->text());
+            if (systemEditorInfo.exists()) {
+               Preferences::systemEditor = systemEditorEdit->text();
+               Settings.setValue(QString("%1/%2").arg(SETTINGS,systemEditorKey), Preferences::systemEditor);
+               emit gui->messageSig(LOG_INFO,QString("System editor set to %1").arg(Preferences::systemEditor));
+            } else if (systemEditorEdit->text().isEmpty()){
+               Preferences::systemEditor.clear();
+               Settings.remove(QString("%1/%2").arg(SETTINGS,systemEditorKey));
+            }
         }
     } else {
         return;
@@ -5977,6 +6053,21 @@ void OpenWithProgramDialogGui::maxProgramsValueChanged(int value)
     maxPrograms = value;
     setProgramEntries();
     gui->createOpenWithActions(maxPrograms);
+}
+
+void OpenWithProgramDialogGui::browseSystemEditor(bool){
+    QFileDialog dialog(nullptr);
+    dialog.setWindowTitle(tr("Locate System Editor"));
+    dialog.setFileMode(QFileDialog::ExistingFile);
+    if (dialog.exec()) {
+        QStringList selectedFiles = dialog.selectedFiles();
+        if (selectedFiles.size()) {
+            QFileInfo fileInfo(selectedFiles.at(0));
+            if (fileInfo.exists()) {
+                systemEditorEdit->setText(selectedFiles.at(0));
+            }
+        }
+    }
 }
 
 void OpenWithProgramDialogGui::browseOpenWithProgram(bool)
@@ -6004,7 +6095,7 @@ void OpenWithProgramDialogGui::browseOpenWithProgram(bool)
         dialog.setDirectory(QFileInfo(gui->getCurFile()).absolutePath());
     if (dialog.exec()) {
         QStringList selectedFiles = dialog.selectedFiles();
-        if (selectedFiles.size() == 1) {
+        if (selectedFiles.size()) {
             QFileInfo  fileInfo(selectedFiles.at(0));
             if (fileInfo.exists()) {
                 programPathEditList.at(programIndex)->setText(selectedFiles.at(0));

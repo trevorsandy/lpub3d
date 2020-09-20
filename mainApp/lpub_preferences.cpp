@@ -96,6 +96,8 @@ QString Preferences::pliSubstitutePartsFile;
 QString Preferences::excludedPartsFile;
 QString Preferences::ldrawColourPartsFile;
 
+QString Preferences::systemEditor;
+
 QString Preferences::blenderVersion;
 QString Preferences::blenderRenderConfigFile;
 QString Preferences::blenderDocumentConfigFile;
@@ -3208,6 +3210,14 @@ void Preferences::userInterfacePreferences()
           Settings.setValue(QString("%1/%2").arg(SETTINGS,useSystemEditorKey),useSystemEditor);
   } else {
           useSystemEditor = Settings.value(QString("%1/%2").arg(SETTINGS,useSystemEditorKey)).toBool();
+  }
+
+  QString const systemEditorKey("SystemEditor");
+  systemEditor = Settings.value(QString("%1/%2").arg(SETTINGS,systemEditorKey)).toString();
+  QFileInfo systemEditorInfo(systemEditor);
+  if (!systemEditorInfo.exists()) {
+      systemEditor.clear();
+      Settings.remove(QString("%1/%2").arg(SETTINGS,systemEditorKey));
   }
 }
 

@@ -190,6 +190,7 @@ class Preferences
     static QString ld2blCodesXRefFile;
     static QString ld2rbColorsXRefFile;
     static QString ld2rbCodesXRefFile;
+    static QString systemEditor;
 
     static QString fadeStepsColourKey;
     static QString ldrawSearchDirsKey;

@@ -1403,6 +1403,8 @@ private:
   QStringList            buildModSubmodels;   // submodels implicated when checking for next step build modifications
   QString                saveRenderer;
 
+  QStringList            programEntries;      // list of 'open with' programs populated on startup
+
   bool                   saveProjection;
 
   bool                   saveSingleCall;
@@ -1568,6 +1570,7 @@ private:
     const QString &printFile,
     const QString &imageFile);
 
+  void openWith(const QString &filePath);
   void openFolder(const QString &folder);
   bool processPageRange(const QString &range);
 

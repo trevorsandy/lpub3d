@@ -2098,7 +2098,10 @@ void Gui::editTitleAnnotations()
     }
 
     if (Preferences::useSystemEditor) {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::titleAnnotationsFile));
+        if (Preferences::systemEditor.isEmpty())
+            QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::titleAnnotationsFile));
+        else
+            openWith(Preferences::titleAnnotationsFile);
     } else {
         displayParmsFile(Preferences::titleAnnotationsFile);
         parmsWindow->setWindowTitle(tr("Part Title Annotation","Edit/add part title part annotations"));
@@ -2117,7 +2120,10 @@ void Gui::editFreeFormAnnitations()
     }
 
     if (Preferences::useSystemEditor) {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::freeformAnnotationsFile));
+        if (Preferences::systemEditor.isEmpty())
+            QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::freeformAnnotationsFile));
+        else
+            openWith(Preferences::freeformAnnotationsFile);
     } else {
         displayParmsFile(Preferences::freeformAnnotationsFile);
         parmsWindow->setWindowTitle(tr("Freeform Annotation","Edit/add freeform part annotations"));
@@ -2128,7 +2134,10 @@ void Gui::editFreeFormAnnitations()
 void Gui::editLDrawColourParts()
 {
     if (Preferences::useSystemEditor) {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::ldrawColourPartsFile));
+        if (Preferences::systemEditor.isEmpty())
+            QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::ldrawColourPartsFile));
+        else
+            openWith(Preferences::ldrawColourPartsFile);
     } else {
         displayParmsFile(Preferences::ldrawColourPartsFile);
         parmsWindow->setWindowTitle(tr("LDraw Color Parts","Edit/add LDraw static color parts"));
@@ -2147,7 +2156,10 @@ void Gui::editPliBomSubstituteParts()
     }
 
     if (Preferences::useSystemEditor) {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::pliSubstitutePartsFile));
+        if (Preferences::systemEditor.isEmpty())
+            QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::pliSubstitutePartsFile));
+        else
+            openWith(Preferences::pliSubstitutePartsFile);
     } else {
         displayParmsFile(Preferences::pliSubstitutePartsFile);
         parmsWindow->setWindowTitle(tr("PLI/BOM Substitute Parts","Edit/add PLI/BOM substitute parts"));
@@ -2166,7 +2178,10 @@ void Gui::editExcludedParts()
     }
 
     if (Preferences::useSystemEditor) {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+        if (Preferences::systemEditor.isEmpty())
+            QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+        else
+            openWith(fileInfo.absoluteFilePath());
     } else {
         displayParmsFile(fileInfo.absoluteFilePath());
         parmsWindow->setWindowTitle(tr("Parts List Excluded Parts","Edit/add excluded parts"));
@@ -2178,7 +2193,10 @@ void Gui::editLdrawIniFile()
 {
   if (!Preferences::ldSearchDirs.isEmpty()) {
       if (Preferences::useSystemEditor) {
-          QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::ldrawiniFile));
+          if (Preferences::systemEditor.isEmpty())
+              QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::ldrawiniFile));
+          else
+              openWith(Preferences::ldrawiniFile);
       } else {
           displayParmsFile(Preferences::ldrawiniFile);
           parmsWindow->setWindowTitle(tr("LDraw.ini Edit","Edit LDraw.ini search directory entries."));
@@ -2212,7 +2230,10 @@ void Gui::editLPub3DIniFile()
 #endif
 
     if (Preferences::useSystemEditor) {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(lpubConfigFile));
+        if (Preferences::systemEditor.isEmpty())
+            QDesktopServices::openUrl(QUrl::fromLocalFile(lpubConfigFile));
+        else
+            openWith(lpubConfigFile);
     } else {
         displayParmsFile(lpubConfigFile);
         parmsWindow->setWindowTitle(tr("%1.%2 Edit","Edit %1 application configuration settings.")
@@ -2224,7 +2245,10 @@ void Gui::editLPub3DIniFile()
 void Gui::editLdgliteIni()
 {
     if (Preferences::useSystemEditor) {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::ldgliteIni));
+        if (Preferences::systemEditor.isEmpty())
+            QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::ldgliteIni));
+        else
+            openWith(Preferences::ldgliteIni);
     } else {
         displayParmsFile(Preferences::ldgliteIni);
         parmsWindow->setWindowTitle(tr("Edit LDGLite INI","Edit LDGLite INI "));
@@ -2235,7 +2259,10 @@ void Gui::editLdgliteIni()
 void Gui::editNativePovIni()
 {
     if (Preferences::useSystemEditor) {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::nativeExportIni));
+        if (Preferences::systemEditor.isEmpty())
+            QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::nativeExportIni));
+        else
+            openWith(Preferences::nativeExportIni);
     } else {
         displayParmsFile(Preferences::nativeExportIni);
         parmsWindow->setWindowTitle(tr("Edit Native Export INI","Edit Native Export INI"));
@@ -2246,7 +2273,10 @@ void Gui::editNativePovIni()
 void Gui::editLdviewIni()
 {
     if (Preferences::useSystemEditor) {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::ldviewIni));
+        if (Preferences::systemEditor.isEmpty())
+            QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::ldviewIni));
+        else
+            openWith(Preferences::ldviewIni);
     } else {
         displayParmsFile(Preferences::ldviewIni);
         parmsWindow->setWindowTitle(tr("Edit LDView INI","Edit LDView INI"));
@@ -2266,7 +2296,10 @@ void Gui::editBlenderParameters()
     }
 
     if (Preferences::useSystemEditor) {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+        if (Preferences::systemEditor.isEmpty())
+            QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+        else
+            openWith(fileInfo.absoluteFilePath());
     } else {
         displayParmsFile(fileInfo.absoluteFilePath());
         parmsWindow->setWindowTitle(tr("Part Blender LDraw Parameters reference",
@@ -2278,7 +2311,10 @@ void Gui::editBlenderParameters()
 void Gui::editLdviewPovIni()
 {
     if (Preferences::useSystemEditor) {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::ldviewPOVIni));
+        if (Preferences::systemEditor.isEmpty())
+            QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::ldviewPOVIni));
+        else
+            openWith(Preferences::ldviewPOVIni);
     } else {
         displayParmsFile(Preferences::ldviewPOVIni);
         parmsWindow->setWindowTitle(tr("Edit LDView POV file generation INI","Edit LDView POV file generation INI"));
@@ -2289,7 +2325,10 @@ void Gui::editLdviewPovIni()
 void Gui::editPovrayIni()
 {
     if (Preferences::useSystemEditor) {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::povrayIni));
+        if (Preferences::systemEditor.isEmpty())
+            QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::povrayIni));
+        else
+            openWith(Preferences::povrayIni);
     } else {
         displayParmsFile(Preferences::povrayIni);
         parmsWindow->setWindowTitle(tr("Edit Raytracer INI","Edit Raytracer INI"));
@@ -2300,7 +2339,10 @@ void Gui::editPovrayIni()
 void Gui::editPovrayConf()
 {
     if (Preferences::useSystemEditor) {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::povrayConf));
+        if (Preferences::systemEditor.isEmpty())
+            QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::povrayConf));
+        else
+            openWith(Preferences::povrayConf);
     } else {
         displayParmsFile(Preferences::povrayConf);
         parmsWindow->setWindowTitle(tr("Edit Raytracer file access conf","Edit Raytracer file access conf"));
@@ -2319,7 +2361,10 @@ void Gui::editAnnotationStyle()
     }
 
     if (Preferences::useSystemEditor) {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+        if (Preferences::systemEditor.isEmpty())
+            QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+        else
+            openWith(fileInfo.absoluteFilePath());
     } else {
         displayParmsFile(fileInfo.absoluteFilePath());
         parmsWindow->setWindowTitle(tr("Part Annotation Style reference",
@@ -2339,7 +2384,10 @@ void Gui::editLD2BLCodesXRef()
     }
 
     if (Preferences::useSystemEditor) {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+        if (Preferences::systemEditor.isEmpty())
+            QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+        else
+            openWith(fileInfo.absoluteFilePath());
     } else {
         displayParmsFile(fileInfo.absoluteFilePath());
         parmsWindow->setWindowTitle(tr("LDraw to Bricklink Design ID Cross-reference",
@@ -2359,7 +2407,10 @@ void Gui::editLD2BLColorsXRef()
     }
 
     if (Preferences::useSystemEditor) {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+        if (Preferences::systemEditor.isEmpty())
+            QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+        else
+            openWith(fileInfo.absoluteFilePath());
     } else {
         displayParmsFile(fileInfo.absoluteFilePath());
         parmsWindow->setWindowTitle(tr("LDraw to Bricklink Color Code cross-reference",
@@ -2379,7 +2430,10 @@ void Gui::editBLColors()
     }
 
     if (Preferences::useSystemEditor) {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+        if (Preferences::systemEditor.isEmpty())
+            QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+        else
+            openWith(fileInfo.absoluteFilePath());
     } else {
         displayParmsFile(fileInfo.absoluteFilePath());
         parmsWindow->setWindowTitle(tr("Bricklink Color ID reference",
@@ -2399,7 +2453,10 @@ void Gui::editLD2RBCodesXRef()
     }
 
     if (Preferences::useSystemEditor) {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+        if (Preferences::systemEditor.isEmpty())
+            QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+        else
+            openWith(fileInfo.absoluteFilePath());
     } else {
         displayParmsFile(fileInfo.absoluteFilePath());
         parmsWindow->setWindowTitle(tr("LDraw to Rebrickable Design ID Cross-reference",
@@ -2419,7 +2476,10 @@ void Gui::editLD2RBColorsXRef()
     }
 
     if (Preferences::useSystemEditor) {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+        if (Preferences::systemEditor.isEmpty())
+            QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+        else
+            openWith(fileInfo.absoluteFilePath());
     } else {
         displayParmsFile(fileInfo.absoluteFilePath());
         parmsWindow->setWindowTitle(tr("LDraw to Rebrickable Color Code cross-reference",
@@ -2433,7 +2493,10 @@ void Gui::editBLCodes()
     QFileInfo fileInfo(QString("%1/extras/%2").arg(Preferences::lpubDataPath,VER_LPUB3D_BLCODES_FILE));
 
     if (Preferences::useSystemEditor) {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+        if (Preferences::systemEditor.isEmpty())
+            QDesktopServices::openUrl(QUrl::fromLocalFile(fileInfo.absoluteFilePath()));
+        else
+            openWith(fileInfo.absoluteFilePath());
     } else {
         displayParmsFile(fileInfo.absoluteFilePath());
         parmsWindow->setWindowTitle(tr("Bricklink Codes reference",
@@ -2445,7 +2508,10 @@ void Gui::editBLCodes()
 void Gui::viewLog()
 {
     if (Preferences::useSystemEditor) {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::logPath));
+        if (Preferences::systemEditor.isEmpty())
+            QDesktopServices::openUrl(QUrl::fromLocalFile(Preferences::logPath));
+        else
+            openWith(Preferences::logPath);
     } else {
         displayParmsFile(Preferences::logPath);
         parmsWindow->setWindowTitle(tr(VER_PRODUCTNAME_STR " log",VER_PRODUCTNAME_STR " logs"));
@@ -4471,7 +4537,9 @@ void Gui::createActions()
     connect(preferencesAct, SIGNAL(triggered()), this, SLOT(preferences()));
 
     useSystemEditorAct = new QAction(tr("Use System Editor"),this);
-    useSystemEditorAct->setStatusTip(tr("Open parameter file with the system editor"));
+    useSystemEditorAct->setStatusTip(tr("Open parameter file with %1")
+                                        .arg(Preferences::systemEditor.isEmpty() ? "the system editor" :
+                                             Preferences::systemEditor));
     useSystemEditorAct->setCheckable(true);
     useSystemEditorAct->setChecked(Preferences::useSystemEditor);
     connect(useSystemEditorAct, SIGNAL(triggered()), this, SLOT(useSystemEditor()));
@@ -4521,7 +4589,7 @@ void Gui::createActions()
     connect(editLdviewPovIniAct, SIGNAL(triggered()), this, SLOT(editLdviewPovIni()));
 
     editBlenderParametersAct = new QAction(QIcon(":/resources/blendericon.png"),tr("Edit Blender LDraw Parameters"), this);
-    editBlenderParametersAct->setStatusTip(tr("Add/edit LDraw Blender LDraw LGEO colours, sloped bricks and lighted bricks, reference"));
+    editBlenderParametersAct->setStatusTip(tr("Add/Edit LDraw Blender LDraw LGEO colours, sloped bricks and lighted bricks, reference"));
     connect(editBlenderParametersAct, SIGNAL(triggered()), this, SLOT(editBlenderParameters()));
 
     editPovrayIniAct = new QAction(QIcon(":/resources/editpovrayconf.png"),tr("Edit Raytracer (POV-Ray) INI configuration file"), this);
@@ -4533,7 +4601,7 @@ void Gui::createActions()
     connect(editPovrayConfAct, SIGNAL(triggered()), this, SLOT(editPovrayConf()));
 
     editAnnotationStyleAct = new QAction(QIcon(":/resources/editstyleref.png"),tr("Edit Part Annotation Style reference"), this);
-    editAnnotationStyleAct->setStatusTip(tr("Add/edit LDraw Design ID, Part Annotation Style, Part Category reference"));
+    editAnnotationStyleAct->setStatusTip(tr("Add/Edit LDraw Design ID, Part Annotation Style, Part Category reference"));
     connect(editAnnotationStyleAct, SIGNAL(triggered()), this, SLOT(editAnnotationStyle()));
 
     editLD2BLCodesXRefAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Edit LDraw to Bricklink Design ID reference"), this);
@@ -4541,7 +4609,7 @@ void Gui::createActions()
     connect(editLD2BLCodesXRefAct, SIGNAL(triggered()), this, SLOT(editLD2BLCodesXRef()));
 
     editLD2BLColorsXRefAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Edit LDraw to Bricklink Color reference"), this);
-    editLD2BLColorsXRefAct->setStatusTip(tr("Add/edit LDraw LDConfig to Bricklink Color ID reference"));
+    editLD2BLColorsXRefAct->setStatusTip(tr("Add/Edit LDraw LDConfig to Bricklink Color ID reference"));
     connect(editLD2BLColorsXRefAct, SIGNAL(triggered()), this, SLOT(editLD2BLColorsXRef()));
 
     editLD2RBCodesXRefAct = new QAction(QIcon(":/resources/editld2rbxref.png"),tr("Edit LDraw to Rebrickable Design ID reference"), this);
@@ -4549,19 +4617,19 @@ void Gui::createActions()
     connect(editLD2RBCodesXRefAct, SIGNAL(triggered()), this, SLOT(editLD2RBCodesXRef()));
 
     editLD2RBColorsXRefAct = new QAction(QIcon(":/resources/editld2rbxref.png"),tr("Edit LDraw to Rebrickable Color reference"), this);
-    editLD2RBColorsXRefAct->setStatusTip(tr("Add/edit LDraw LDConfig to Rebrickable Color ID reference"));
+    editLD2RBColorsXRefAct->setStatusTip(tr("Add/Edit LDraw LDConfig to Rebrickable Color ID reference"));
     connect(editLD2RBColorsXRefAct, SIGNAL(triggered()), this, SLOT(editLD2RBColorsXRef()));
 
     editBLColorsAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Edit Bricklink Color reference"), this);
-    editBLColorsAct->setStatusTip(tr("Add/edit Bricklink Color ID reference"));
+    editBLColorsAct->setStatusTip(tr("Add/Edit Bricklink Color ID reference"));
     connect(editBLColorsAct, SIGNAL(triggered()), this, SLOT(editBLColors()));
 
     editBLCodesAct = new QAction(QIcon(":/resources/editld2blxref.png"),tr("Edit Bricklink Codes reference"), this);
-    editBLCodesAct->setStatusTip(tr("Add/edit Bricklink Item No, Color Name, LEGO Element reference"));
+    editBLCodesAct->setStatusTip(tr("Add/Edit Bricklink Item No, Color Name, LEGO Element reference"));
     connect(editBLCodesAct, SIGNAL(triggered()), this, SLOT(editBLCodes()));
 
     editModelFileAct = new QAction(QIcon(":/resources/editldraw.png"),tr("Edit current model file"), this);
-    editModelFileAct->setStatusTip(tr("Edit loaded LDraw model file"));
+    editModelFileAct->setStatusTip(tr("Edit loaded LDraw model file with detached LDraw Editor"));
     connect(editModelFileAct, SIGNAL(triggered()), this, SLOT(editModelFile()));
 
     generateCustomColourPartsAct = new QAction(QIcon(":/resources/generatecolourparts.png"),tr("Generate Static Color Parts list"), this);

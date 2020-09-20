@@ -139,7 +139,7 @@ void Gui::updateOpenWithActions()
     QString const openWithProgramListKey("OpenWithProgramList");
     if (Settings.contains(QString("%1/%2").arg(SETTINGS,openWithProgramListKey))) {
 
-      QStringList programEntries = Settings.value(QString("%1/%2").arg(SETTINGS,openWithProgramListKey)).toStringList();
+      programEntries = Settings.value(QString("%1/%2").arg(SETTINGS,openWithProgramListKey)).toStringList();
 
       numPrograms = qMin(programEntries.size(), Preferences::maxOpenWithPrograms);
 
@@ -184,9 +184,8 @@ void Gui::updateOpenWithActions()
         openWithActList[i]->setText(text);
         openWithActList[i]->setData(programPath);
         openWithActList[i]->setIcon(getProgramIcon());
-        openWithActList[i]->setStatusTip(QString("Open %1 with program: %2")
-                                      .arg(curFile.isEmpty() ? "current file" : QFileInfo(curFile).fileName())
-                                      .arg(fileInfo.absoluteFilePath()));
+        openWithActList[i]->setStatusTip(QString("Open current file with %2")
+                                                 .arg(fileInfo.fileName()));
         openWithActList[i]->setVisible(true);
       }
 
@@ -205,23 +204,26 @@ void Gui::openWithSetup()
     updateOpenWithActions();
 }
 
-void Gui::openWith()
+void Gui::openWith(const QString &filePath)
 {
     QAction *action = qobject_cast<QAction *>(sender());
+    QStringList arguments = QStringList() << filePath;
+    QString program;
     if (action) {
-        QString program = action->data().toString();
-        QStringList arguments = QStringList() << curFile;
-
-//        QProcess *Process = new QProcess(this);
-//        Process->setWorkingDirectory(QDir::currentPath() + QDir::separator());
-//        Process->start(program, arguments);
-
+        program = action->data().toString();
+        if (program.isEmpty())
+            program = Preferences::systemEditor;
         qint64 pid;
         QString workingDirectory = QDir::currentPath() + QDir::separator();
         QProcess::startDetached(program, {arguments}, workingDirectory, &pid);
         emit messageSig(LOG_INFO, QString("Launched external applicatin %1...")
                         .arg(QFileInfo(program).fileName()));
     }
+}
+
+void Gui::openWith()
+{
+    openWith(curFile);
 }
 
 void Gui::openRecentFile()
@@ -514,7 +516,7 @@ void Gui::closeModelFile(){
   closeFile();
   editModeWindow->close();
   editModelFileAct->setText(tr("Edit current model file"));
-  editModelFileAct->setStatusTip(tr("Edit loaded LDraw model file"));
+  editModelFileAct->setStatusTip(tr("Edit loaded LDraw model file with detached LDraw Editor"));
   emit messageSig(LOG_INFO, QString("Model %1 unloaded.").arg(topModel));
   curFile.clear();
 
@@ -562,7 +564,7 @@ bool Gui::openFile(QString &fileName)
   QDir::setCurrent(info.absolutePath());
   Paths::mkDirs();
   editModelFileAct->setText(tr("Edit %1").arg(info.fileName()));
-  editModelFileAct->setStatusTip(tr("Edit loaded LDraw model file %1").arg(info.fileName()));
+  editModelFileAct->setStatusTip(tr("Edit loaded LDraw model file %1 with detached LDraw Editor").arg(info.fileName()));
   if (Preferences::enableFadeSteps || Preferences::enableHighlightStep)
       writeGeneratedColorPartsToTemp();
   bool overwriteCustomParts = false;
@@ -582,6 +584,12 @@ bool Gui::openFile(QString &fileName)
   displayFile(&ldrawFile,ldrawFile.topLevelFile());
   undoStack->setClean();
   curFile = fileName;
+  for (int i = 0; i < numPrograms; i++) {
+      QFileInfo fileInfo(programEntries.at(i).split("|").last());
+      openWithActList[i]->setStatusTip(QString("Open %1 with %2")
+                                    .arg(QFileInfo(curFile).fileName())
+                                    .arg(fileInfo.fileName()));
+  }
   insertFinalModel();    //insert final fully coloured model if fadeStep turned on
   generateCoverPages();  //auto-generate cover page
 

@@ -1658,13 +1658,17 @@ public:
 
 public slots:
     void browseOpenWithProgram(bool);
+    void browseSystemEditor(bool);
     void maxProgramsValueChanged(int);
 
 private:
     int                  maxPrograms;
     QStringList          programEntries;
-    QGridLayout         *gridLayout;
+    QGridLayout         *programsLayout;
     QDialog             *dialog;
+    QLineEdit           *systemEditorEdit;
+    QPushButton         *systemEditorButton;
+    QList<QLabel *>      programIconList;
     QList<QLineEdit *>   programNameEditList;
     QList<QLineEdit *>   programPathEditList;
     QList<QPushButton *> programBrowseButtonList;
