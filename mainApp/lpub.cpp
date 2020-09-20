@@ -1267,14 +1267,15 @@ void Gui::displayFile(
 #ifdef QT_DEBUG_MODE        
         QTime t;
         t.start();
+        emit messageSig(LOG_DEBUG,tr("Editor loading..."));
 #endif        
         if (editModelFile) {
             displayModelFileSig(ldrawFile, modelName);
         } else {
             displayFileSig(ldrawFile, modelName);
 #ifdef QT_DEBUG_MODE            
-            emit messageSig(LOG_DEBUG,tr("Display loaded - %1")
-                                             .arg(gui->elapsedTime(t.elapsed())));
+            emit messageSig(LOG_DEBUG,tr("Editor loaded - %1")
+                                             .arg(elapsedTime(t.elapsed())));
 #endif
             if (curSubFile == modelName)
                 return;

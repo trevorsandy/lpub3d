@@ -286,8 +286,21 @@ bool Gui::loadFile(const QString &file)
         Paths::mkDirs();
         displayPage();
         enableActions();
+#ifdef QT_DEBUG_MODE
+        QTime t;
+        if(ldrawFile._showLoadMessages) {
+            t.start();
+             emit messageSig(LOG_DEBUG,tr("Running parts load summary..."));
+        }
+
+#endif
         ldrawFile.showLoadMessages();
-        emit messageSig(LOG_STATUS, gui->loadAborted() ?
+#ifdef QT_DEBUG_MODE
+        if(ldrawFile._showLoadMessages)
+            emit messageSig(LOG_DEBUG,tr("Parts load summary - %1")
+                                             .arg(elapsedTime(t.elapsed())));
+#endif
+        emit messageSig(LOG_INFO_STATUS, gui->loadAborted() ?
                             QString("Load LDraw model file %1 aborted.").arg(fileName) :
                             QString("File loaded (%1 parts). %2")
                                     .arg(ldrawFile.getPartCount())
@@ -579,9 +592,6 @@ bool Gui::openFile(QString &fileName)
   mpdCombo->addItems(ldrawFile.subFileOrder());
   mpdCombo->setToolTip(tr("Current Submodel: %1").arg(mpdCombo->currentText()));
   setCurrentFile(fileName);
-  emit messageSig(LOG_INFO_STATUS, "Load LDraw Editor display...");
-  QApplication::processEvents();
-  displayFile(&ldrawFile,ldrawFile.topLevelFile());
   undoStack->setClean();
   curFile = fileName;
   for (int i = 0; i < numPrograms; i++) {
