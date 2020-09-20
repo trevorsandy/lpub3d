@@ -318,20 +318,7 @@ bool Gui::loadFile(const QString &file)
         Paths::mkDirs();
         displayPage();
         enableActions();
-#ifdef QT_DEBUG_MODE
-        QTime t;
-        if(ldrawFile._showLoadMessages) {
-            t.start();
-             emit messageSig(LOG_DEBUG,tr("Running parts load summary..."));
-        }
-
-#endif
         ldrawFile.showLoadMessages();
-#ifdef QT_DEBUG_MODE
-        if(ldrawFile._showLoadMessages)
-            emit messageSig(LOG_DEBUG,tr("Parts load summary - %1")
-                                             .arg(elapsedTime(t.elapsed())));
-#endif
         emit messageSig(LOG_INFO_STATUS, gui->loadAborted() ?
                             QString("Load LDraw model file %1 aborted.").arg(fileName) :
                             QString("File loaded (%1 parts). %2")
