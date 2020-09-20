@@ -58,7 +58,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="generalTab">
       <attribute name="title">
@@ -3308,29 +3308,32 @@
             </item>
             <item>
              <widget class="QComboBox" name="studLogoCombo">
+              <property name="currentIndex">
+               <number>2</number>
+              </property>
               <item>
                <property name="text">
-                <string>Logo1</string>
+                <string>Single Wire</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>Logo2</string>
+                <string>Double Wire</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>Logo3</string>
+                <string>Raised Flat</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>Logo4</string>
+                <string>Raised Rounded</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>Logo5</string>
+                <string>Subtle Rounded</string>
                </property>
               </item>
              </widget>
