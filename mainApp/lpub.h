@@ -635,13 +635,13 @@ public:
       return ldrawFile.ldcadGroupMatch(name,lids);
   }
 
-  void updateViewerStep(const QString     &fileName,
-                  const QStringList &contents)
+  void updateViewerStep(const QString     &stepKey,
+                        const QStringList &contents)
   {
-      ldrawFile.updateViewerStep(fileName, contents);
+      ldrawFile.updateViewerStep(stepKey, contents);
   }
 
-  void insertViewerStep(const QString     &fileName,
+  void insertViewerStep(const QString     &stepKey,
                         const QStringList &rotatedContents,
                         const QStringList &unrotatedContents,
                         const QString     &filePath,
@@ -649,7 +649,7 @@ public:
                         bool               multiStep,
                         bool               calledOut)
   {
-      ldrawFile.insertViewerStep(fileName,
+      ldrawFile.insertViewerStep(stepKey,
                                  rotatedContents,
                                  unrotatedContents,
                                  filePath,
@@ -658,39 +658,39 @@ public:
                                  calledOut);
   }
 
-  QStringList getViewerStepRotatedContents(const QString &fileName)
+  QStringList getViewerStepRotatedContents(const QString &stepKey)
   {
-      return ldrawFile.getViewerStepRotatedContents(fileName);
+      return ldrawFile.getViewerStepRotatedContents(stepKey);
   }
 
-  QStringList getViewerStepUnrotatedContents(const QString &fileName)
+  QStringList getViewerStepUnrotatedContents(const QString &stepKey)
   {
-      return ldrawFile.getViewerStepUnrotatedContents(fileName);
+      return ldrawFile.getViewerStepUnrotatedContents(stepKey);
   }
 
-  QString getViewerStepFilePath(const QString &fileName)
+  QString getViewerStepFilePath(const QString &stepKey)
   {
-      return ldrawFile.getViewerStepFilePath(fileName);
+      return ldrawFile.getViewerStepFilePath(stepKey);
   }
 
-  QString getViewerConfigKey(const QString &fileName)
+  QString getViewerConfigKey(const QString &stepKey)
   {
-      return ldrawFile.getViewerConfigKey(fileName);
+      return ldrawFile.getViewerConfigKey(stepKey);
   }
 
-  bool isViewerStepMultiStep(const QString &fileName)
+  bool isViewerStepMultiStep(const QString &stepKey)
   {
-      return ldrawFile.isViewerStepMultiStep(fileName);
+      return ldrawFile.isViewerStepMultiStep(stepKey);
   }
 
-  bool isViewerStepCalledOut(const QString &fileName)
+  bool isViewerStepCalledOut(const QString &stepKey)
   {
-      return ldrawFile.isViewerStepCalledOut(fileName);
+      return ldrawFile.isViewerStepCalledOut(stepKey);
   }
 
-  bool viewerStepContentExist(const QString &fileName)
+  bool viewerStepContentExist(const QString &stepKey)
   {
-      return ldrawFile.viewerStepContentExist(fileName);
+      return ldrawFile.viewerStepContentExist(stepKey);
   }
 
   void clearViewerSteps(){
