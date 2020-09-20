@@ -498,6 +498,7 @@ public:
   int             savePrevStepPosition; // indicate the previous step position amongst current and previous steps.
   QList<Where>    topOfPages;
   QList<Where>    parsedMessages;       // previously parsed messages
+  QList<Where>    modifiedParts;        // modified parts from 3DViewer
 
   int             boms;            // the number of pli BOMs in the document
   int             bomOccurrence;   // the actual occurrence of each pli BOM
@@ -625,6 +626,26 @@ public:
       return ldrawFile;
   }
 
+  QString getSubmodelName(int index)
+  {
+      return ldrawFile.getSubmodelName(index);
+  }
+
+  int getLineTypeRelativeIndex(int submodelIndx, int lineTypeIndx)
+  {
+      return ldrawFile.getLineTypeRelativeIndex(submodelIndx,lineTypeIndx);
+  }
+
+  int getLineTypeIndex(int submodelIndx, int lineTypeIndx)
+  {
+      return ldrawFile.getLineTypeIndex(submodelIndx,lineTypeIndx);
+  }
+
+  int getSubmodelIndex(const QString &fileName)
+  {
+      return ldrawFile.getSubmodelIndex(fileName);
+  }
+
   int getSubmodelInstances(const QString &fileName, bool isMirrored)
   {
       return ldrawFile.instances(fileName, isMirrored);
@@ -719,7 +740,7 @@ public:
   void getRequireds();
   void initialize();
 
-  void displayFile(LDrawFile *ldrawFile, const QString &modelName, bool editModelFile = false);
+  void displayFile(LDrawFile *ldrawFile, const QString &modelName, bool editModelFile = false, bool displayStartPage = false);
   void displayParmsFile(const QString &fileName);
   QString elapsedTime(const qint64 &duration);
 
@@ -736,6 +757,8 @@ public:
   }
 
   Step *getCurrentStep();
+
+  bool getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNumber);
 
   QString getCurFile()
   {
@@ -828,9 +851,17 @@ public slots:
 
   void ShowStepRotationStatus();
   void SetRotStepMeta();
-  void setViewerStepKey(QString &stepKey)
+  void SetActiveModel(const QString &fileName,bool newSubmodel);
+  void SelectedPartLines(QVector<TypeLine> &indexes, PartSource source);
+  QStringList getViewerStepKeys(bool modelName = true);
+
+  void setViewerStepKey(const QString &stepKey)
   {
       viewerStepKey = stepKey;
+      currentStep   = nullptr;
+      modifiedParts.clear();
+      if (notPliPart)
+          setCurrentStep();
   }
 
   QString getViewerStepKey()
@@ -1053,6 +1084,8 @@ signals:
   void displayFileSig(LDrawFile *ldrawFile, const QString &subFile);
   void displayModelFileSig(LDrawFile *ldrawFile, const QString &subFile);
   void displayParmsFileSig(const QString &fileName);
+  void highlightSelectedLinesSig(QVector<int> &indexes);
+  void setSelectedPiecesSig(QVector<int> &indexes);
   void showLineSig(int lineNumber);
   void disableEditorActionsSig();
 

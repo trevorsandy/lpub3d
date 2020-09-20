@@ -289,7 +289,7 @@ public:
 	void AddView(View* View);
 	void RemoveView(View* View);
 	void SetActiveView(View* ActiveView);
-/***	void UpdateAllViews();                 // LPub3D Mod - moved to public slots ***/
+/***    void UpdateAllViews();                 // LPub3D Mod - moved to public slots ***/
 	void SetTool(lcTool Tool);
 	void SetTransformType(lcTransformType TransformType);
 	void SetRotateStepCoordType(lcRotateStepCoordType RotateStepCoordType);
@@ -305,7 +305,7 @@ public:
 	void SetShadingMode(lcShadingMode ShadingMode);
 	void SetSelectionMode(lcSelectionMode SelectionMode);
 
-/***	void NewProject();                     // LPub3D Mod - moved to public slots ***/
+/***    void NewProject();                     // LPub3D Mod - moved to public slots ***/
 	bool OpenProject(const QString& FileName);
 	void MergeProject();
 	void ImportLDD();
@@ -327,7 +327,7 @@ public:
 	void TogglePrintPreview();
 	void ToggleFullScreen();
 
-	void UpdateSelectedObjects(bool SelectionChanged);
+	void UpdateSelectedObjects(bool SelectionChanged, int EmitSelection = VIEWER_LINE);
 	void UpdateTimeline(bool Clear, bool UpdateItems);
 	void UpdatePaste(bool Enabled);
 	void UpdateCurrentStep();
@@ -398,6 +398,11 @@ public slots:
 	void SetStepRotStepMeta(lcCommandId CommandId);
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - Selected Parts ***/
+	int GetImageType();
+	void SetSelectedPieces(QVector<int> &LineTypeIndexes);
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - rotate step signals ***/
 signals:
 	lcVector3 GetRotStepMeta();   // used to capture step meta angles
@@ -410,7 +415,10 @@ signals:
 /*** LPub3D Mod - export image completion ***/
 	void updateSig();
 /*** LPub3D Mod end ***/
-
+/*** LPub3D Mod - Selected Parts ***/
+	void SetActiveModelSig(const QString &, bool);
+	void SelectedPartLinesSig(QVector<TypeLine> &, PartSource);
+/*** LPub3D Mod end ***/
 protected slots:
 	void UpdateGamepads();
 	void ModelTabContextMenuRequested(const QPoint& Point);

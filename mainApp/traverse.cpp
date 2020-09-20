@@ -317,131 +317,6 @@ static void set_divider_pointers(
     }
 }
 
-/*********************************************
- *
- * extract stepKey
- *
- ********************************************/
-
-  bool Gui::extractStepKey(Where &here, int &stepNumber)
-  {
-      // format= "modelName"lineNumber;stepNumber[_fm]
-      //         stepKey first element  = "modelName"
-      //         stepKey second element = lineNumber;stepNumber[_fm]
-      QString valueAt0 = getViewerStepKey().at(0);
-      bool inside = (valueAt0 == "\"");                                        // Get the open quote " of the first parameter - modelName
-      QStringList tmpList = getViewerStepKey().split(QRegExp("\""),             // Split by quote " to extract model name
-                                                    QString::SkipEmptyParts);
-      QStringList keyArg01;
-      foreach (QString s, tmpList) {
-          if (inside) {                                                        // If 's' is inside quotes ...
-              keyArg01.append(s);                                              // ... put everyting inside quotes in the first element
-          } else {                                                             // If 's' is outside quotes ...
-              keyArg01.append(s.split(" ", QString::SkipEmptyParts));          // ... split the rest of the string by space " " and place in the second element
-          }
-          inside = !inside;
-      }
-
-      // confirm keyArg01 has 2 stepKey elements
-      if (keyArg01.size() != 2) {
-          if (Preferences::debugLogging) {
-              emit messageSig(LOG_DEBUG, QString("Parse stepKey [%1] failed").arg(getViewerStepKey()));
-              return false;
-          }
-      }
-
-      // populate modelName;
-      QString modelName  = keyArg01[0];                                            //0=modelName
-
-      // extract sub elements from stepKey second element
-      QStringList keyArg02 = keyArg01[1].split(";");                                //0=lineNumber; 1=stepNumber[_fm]
-
-      bool ok[2];
-      // first sub element is line Number
-      int lineNumber = keyArg02[0].toInt(&ok[0]);
-      if (!ok[0]) {
-          emit gui->messageSig(LOG_ERROR,QString("Line number is not an integer [%1]").arg(keyArg02[0]));
-          return false;
-      } else {
-          here = Where(modelName,lineNumber);
-      }
-
-      // split second sub element in case it is a final Model
-      int tempStepNum;
-      if (page.modelDisplayOnlyStep) {
-          tempStepNum = QStringList(keyArg02[1].split("_")).first().toInt(&ok[1]);
-      } else {
-          tempStepNum = keyArg02[1].toInt(&ok[1]);
-      }
-      if (!ok[1]) {
-          emit gui->messageSig(LOG_NOTICE,QString("Step number is not an integer [%1]").arg(keyArg02[1]));
-          return false;
-      } else {
-          stepNumber = tempStepNum;
-      }
-
-      if (Preferences::debugLogging) {
-          QString messsage = QString("Step Key parse OK, modelName: %1, lineNumber: %2, stepNumber: %3")
-                                     .arg(modelName).arg(lineNumber).arg(stepNumber);
-          if (!stepNumber && page.pli.tsize() && page.pli.bom)
-              messsage = QString("Step Key parse OK but this is a BOM page, step pageNumber: %1")
-                                 .arg(stepPageNum);
-          emit messageSig(LOG_DEBUG, messsage);
-      }
-
-      return true;
-  }
-
-/*********************************************
- *
- * current step
- *
- ********************************************/
-
-Step *Gui::getCurrentStep()
-{
-    Where here;
-    int stepNumber;
-
-    extractStepKey(here,stepNumber);
-
-    if (!stepNumber)
-        return nullptr;
-
-    Step *step = nullptr;
-    bool multiStep = false;
-    bool stepMatch = false;
-    if ((multiStep = page.list.size())) {
-        for (int i = 0; i < page.list.size(); i++){
-            Range *range = dynamic_cast<Range *>(page.list[i]);
-            for (int j = 0; j < range->list.size(); j++){
-                if (range->relativeType == RangeType) {
-                    step = dynamic_cast<Step *>(range->list[j]);
-                    if (step && step->relativeType == StepType){
-                        stepMatch = step->stepNumber.number == stepNumber;
-                        if (stepMatch)
-                            break;
-                    }
-                }
-            }
-        }
-    }
-    else
-    {
-        if (gStep)     // get current step
-            stepMatch = gStep->stepNumber.number == stepNumber;
-        if (stepMatch)
-            step = gStep;
-    }
-    if (Preferences::debugLogging)
-        emit messageSig(LOG_DEBUG, QString("%1 Step number %2 for %3")
-                        .arg(stepMatch ? "Match!" : "Oh oh!")
-                        .arg(QString("%1 %2").arg(stepNumber)
-                             .arg(stepMatch ? "found" : "was not found"))
-                        .arg(multiStep ? "multistep" : "single step"));
-    return step;
-}
-
 /*
  * This function, drawPage, is handed the parse state going into the page
  * that is to be displayed.  It gathers up a step group, or a single step,
@@ -802,6 +677,7 @@ int Gui::drawPage(
                               opts.csiKeys,
                               calloutBfx,
                               opts.pliPartGroups,
+                              opts.lineTypeIndexes,
                               1                   /*stepNum*/,
                               opts.groupStepNumber,
                               ldrawFile.mirrored(tokens),
@@ -904,6 +780,7 @@ int Gui::drawPage(
             case ClearRc:
               opts.pliParts.clear();
               opts.csiParts.clear();
+              opts.lineTypeIndexes.clear();
               //steps->freeSteps();  // had to remove this because it blows steps following clear
               // in step group.
               break;
@@ -1698,7 +1575,6 @@ int Gui::drawPage(
             case EndOfFileRc:
             case RotStepRc:
             case StepRc:
-
               // Special case where we have a step group with a NOSTEP command
               // in the last STEP which is also a rotated or assembled called out submodel
               if (noStep && opts.calledOut) {
@@ -1787,6 +1663,7 @@ int Gui::drawPage(
                   (void) step->createCsi(
                         opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
                         saveCsiParts = configureModelStep(opts.csiParts, opts.stepNum, topOfStep),
+                        opts.lineTypeIndexes,
                         &step->csiPixmap,
                         steps->meta,
                         bfxLoad);
@@ -1925,6 +1802,7 @@ int Gui::drawPage(
                       int rc = step->createCsi(
                                   opts.isMirrored ? addLine : "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr",
                                   saveCsiParts = configureModelStep(opts.csiParts, step->modelDisplayOnlyStep ? -1 : opts.stepNum, topOfStep),
+                                  opts.lineTypeIndexes,
                                   &step->csiPixmap,
                                   steps->meta);
 
@@ -2201,6 +2079,7 @@ int Gui::findPage(
   QHash<QString, QStringList> bfx;
   QHash<QString, QStringList> saveBfx;
   QList<PliPartGroupMeta> emptyPartGroups;
+  QVector<int>            lineTypeIndexes;
 
   int numLines = ldrawFile.size(opts.current.modelName);
 
@@ -2213,6 +2092,8 @@ int Gui::findPage(
   emit messageSig(LOG_INFO_STATUS, "Processing find page for " + opts.current.modelName + "...");
 
   ldrawFile.setRendered(opts.current.modelName, opts.isMirrored, opts.renderParentModel, opts.renderStepNumber, countInstances);
+
+  bool skipLDCadGenerated = false;
 
   for ( ;
         opts.current.lineNumber < numLines;
@@ -2348,6 +2229,8 @@ int Gui::findPage(
                   }
               }
           }
+          if (!skipLDCadGenerated)
+              lineTypeIndexes.append(opts.current.lineNumber);
         case '2':
         case '3':
         case '4':
@@ -2359,6 +2242,9 @@ int Gui::findPage(
         case '0':
           rc = meta.parse(line,opts.current);
           switch (rc) {
+            case LDCadGeneratedRc:
+              skipLDCadGenerated = true;
+              break;
             case StepGroupBeginRc:
               stepGroup = true;
               stepGroupCurrent = topOfStep;
@@ -2413,6 +2299,7 @@ int Gui::findPage(
                                   csiKeys,
                                   saveBfx,
                                   emptyPartGroups,
+                                  lineTypeIndexes,
                                   saveStepNumber,
                                   opts.renderStepNumber,
                                   opts.isMirrored,
@@ -2422,6 +2309,7 @@ int Gui::findPage(
 
                       saveCurrent.modelName.clear();
                       saveCsiParts.clear();
+                      lineTypeIndexes.clear();
                     }
                   if (exporting()) {
                       pageSizes.remove(opts.pageNum);
@@ -2515,6 +2403,7 @@ int Gui::findPage(
                                       csiKeys,
                                       saveBfx,
                                       emptyPartGroups,
+                                      lineTypeIndexes,
                                       saveStepNumber,
                                       opts.renderStepNumber,
                                       opts.isMirrored,
@@ -2524,6 +2413,7 @@ int Gui::findPage(
 
                           saveCurrent.modelName.clear();
                           saveCsiParts.clear();
+                          lineTypeIndexes.clear();
                         }
                       if (exporting()) {
                           pageSizes.remove(opts.pageNum);
@@ -2565,6 +2455,7 @@ int Gui::findPage(
                   saveCurrent = opts.current;  // so that draw page doesn't have to
                   // deal with steps that are not steps
                 }
+              skipLDCadGenerated = false;
               noStep2 = noStep;
               noStep = false;
               break;
@@ -2602,6 +2493,7 @@ int Gui::findPage(
               if (opts.pageNum < displayPageNum) {
                   csiParts.clear();
                   saveCsiParts.clear();
+                  lineTypeIndexes.clear();
                 }
               break;
 
@@ -2720,7 +2612,9 @@ int Gui::findPage(
             case NoStepRc:
               noStep = true;
               break;
-
+            case EndOfFileRc:
+              skipLDCadGenerated = false;
+              break;
             default:
               break;
             } // switch
@@ -2759,6 +2653,7 @@ int Gui::findPage(
                       csiKeys,
                       saveBfx,
                       emptyPartGroups,
+                      lineTypeIndexes,
                       saveStepNumber,
                       opts.renderStepNumber,
                       opts.isMirrored,
@@ -3404,6 +3299,8 @@ void Gui::writeToTmp(const QString &fileName,
                            QMessageBox::tr("Failed to open %1 for writing: %2")
                            .arg(fname) .arg(file.errorString()));
     } else {
+      int fileNameIndex = ldrawFile.getSubmodelIndex(fileName);
+      bool skipLDCadGenerated = false;
       QStringList csiParts;
       QHash<QString, QStringList> bfx;
 
@@ -3414,19 +3311,10 @@ void Gui::writeToTmp(const QString &fileName,
           split(line,tokens);
           if (tokens.size()) {
               if (tokens[0] != "0") {
-                 csiParts << line;
-              } else if (tokens.size() == 11 &&
-                          tokens[0] == "0"    &&
-                          tokens[1] == "!COLOUR") {
-                 csiParts << line;
-              } else if ((tokens.size() == 2 || tokens.size() == 3) &&
-                         tokens[0] == "0"    &&
-                        (tokens[1] == "!FADE")) {
-                csiParts << line;
-             } else if ((tokens.size() == 2 || tokens.size() == 4) &&
-                          tokens[0] == "0"    &&
-                         (tokens[1] == "!SILHOUETTE")) {
-                 csiParts << line;
+                  csiParts << line;
+                  if (!skipLDCadGenerated){
+                      ldrawFile.setLineTypeRelativeIndex(fileNameIndex,i/*relativeTypeIndx*/);
+                  }
               } else {
                   Meta meta;
                   Rc   rc;
@@ -3525,6 +3413,7 @@ void Gui::writeToTmp()
       if (ldrawFile.changedSinceLastWrite(fileName)) {
           // write normal submodels...
           upToDate = false;
+          ldrawFile.resetLineTypeRelativeIndex(fileName);
           emit messageSig(LOG_INFO, "Writing submodel to temp directory: " + fileName + "...");
           writeToTmp(fileName,content);
 

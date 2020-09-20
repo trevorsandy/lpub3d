@@ -283,18 +283,21 @@ int SubModel::createSubModelImage(
   }
 
   // Populate viewerStepKey variable
-  viewerStepKey = QDir::toNativeSeparators(QString("\"%1\"%2;%3")
-                                                  .arg(QString("%1_%2")
-                                                               .arg(QFileInfo(type).completeBaseName())
-                                                               .arg(PREVIEW_SUBMODEL_SUFFIX))
-                                                  .arg(bottom.lineNumber)
-                                                  .arg(stepNumber));
+  viewerStepKey = QString("%1;%2;%3")
+                           .arg(QString("%1_%2")
+                                        .arg(gui->getSubFileIndex(QFileInfo(type).fileName()))
+                                        .arg(PREVIEW_SUBMODEL_SUFFIX))
+                           .arg(bottom.lineNumber)
+                           .arg(stepNumber);
+
+  emit gui->messageSig(LOG_DEBUG,QString("DEBUG - SubModel Preview viewerStepKey [%1] - modelName [%2]")
+                                         .arg(viewerStepKey).arg(QFileInfo(type).fileName()));
 
   // Viewer submodel does not yet exist in repository
   bool addViewerStepContent = !gui->viewerStepContentExist(viewerStepKey);
 
   // We are processing again the current submodel Key so Submodel must have been updated in the viewer
-  bool viewerUpdate = viewerStepKey == QDir::toNativeSeparators(gui->getViewerStepKey());
+  bool viewerUpdate = viewerStepKey == gui->getViewerStepKey();
 
   // Generate 3DViewer Submodel entry - TODO move to after Generate and renderer Submodel file
   if (! gui->exportingObjects()) {
@@ -318,14 +321,7 @@ int SubModel::createSubModelImage(
           rotatedSubmodel.prepend(renderer->getRotstepMeta(subModelMeta.rotStep));
 
           // header and closing meta
-          QString modelName = QFileInfo(top.modelName).completeBaseName().toLower();
-          modelName = QString("%1").arg(modelName.replace(
-                                            modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper()));
-          rotatedSubmodel.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(modelName));
-          rotatedSubmodel.prepend(QString("0 Name: %1").arg(top.modelName));
-          rotatedSubmodel.prepend(QString("0 %1").arg(modelName));
-          rotatedSubmodel.prepend(QString("0 FILE %1").arg(modelName));
-          rotatedSubmodel.append("0 NOFILE");
+          renderer->setNativeHeaderAndNoFileMeta(rotatedSubmodel,top.modelName,false/*pliPart*/,false/*finalModel*/);
 
           // consolidate submodel subfiles into single file
           if ((rc = renderer->createNativeModelFile(rotatedSubmodel,false,false) != 0))
@@ -342,6 +338,7 @@ int SubModel::createSubModelImage(
 
       // set viewer display options
       viewerOptions                 = new ViewerOptions();
+      viewerOptions->ImageType      = Options::SMP;
       viewerOptions->ViewerStepKey  = viewerStepKey;
       viewerOptions->StudLogo       = subModelMeta.studLogo.value();
       viewerOptions->ImageFileName  = imageName;

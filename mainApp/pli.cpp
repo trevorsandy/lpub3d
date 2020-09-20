@@ -1004,16 +1004,16 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
         QFile part(imageName);
 
         // Populate viewerPliPartiKey variable
-        viewerPliPartKey = QDir::toNativeSeparators(QString("\"%1\"%2;%3")
-                                                        .arg(ia.baseName[pT])
-                                                        .arg(ia.partColor[pT])
-                                                        .arg(stepNumber));
+        viewerPliPartKey = QString("%1;%2;%3")
+                                  .arg(ia.baseName[pT])
+                                  .arg(ia.partColor[pT])
+                                  .arg(stepNumber);
 
         // Check if viewer PLI part does exist in repository
         bool addViewerPliPartContent = !gui->viewerStepContentExist(viewerPliPartKey);
 
         // If this is true, we are processing again the current part Key so part must have been updated in the viewer
-        bool viewerUpdate = viewerPliPartKey == QDir::toNativeSeparators(gui->getViewerStepKey());
+        bool viewerUpdate = viewerPliPartKey == gui->getViewerStepKey();
 
         if ( ! part.exists() || addViewerPliPartContent || viewerUpdate) {
 
@@ -1037,14 +1037,7 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
             pliFile.prepend(QString("0 // ROTSTEP %1").arg(rotStep.isEmpty() ? "0 0 0" : rotStep.replace("_"," ")));
 
             // header and closing meta
-            QString modelName = QFileInfo(type).completeBaseName();
-            modelName = modelName.replace(
-                        modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper());
-            pliFile.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(modelName));
-            pliFile.prepend(QString("0 Name: %1").arg(type));
-            pliFile.prepend(QString("0 %1").arg(modelName));
-            pliFile.prepend(QString("0 FILE %1").arg(modelName));
-            pliFile.append("0 NOFILE");
+            renderer->setNativeHeaderAndNoFileMeta(pliFile,type,true/*pliPart*/,false/*finalModel*/);
 
             // consolidate subfiles and parts into single file
             if ((renderer->createNativeModelFile(pliFile,fadeSteps,highlightStep) != 0))
@@ -1099,6 +1092,7 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
             QStringList rotate            = rotStep.isEmpty()        ? QString("0 0 0 REL").split(" ") : rotStep.split("_");
             QStringList target            = targetPosition.isEmpty() ? QString("0 0 0 REL").split(" ") : targetPosition.split("_");
             viewerOptions                 = new ViewerOptions();
+            viewerOptions->ImageType      = Options::PLI;
             viewerOptions->ViewerStepKey  = viewerPliPartKey;
             viewerOptions->StudLogo       = pliMeta.studLogo.value();
             viewerOptions->ImageFileName  = imageName;
@@ -2424,16 +2418,16 @@ int Pli::partSizeLDViewSCall() {
                 QFile part(imageName);
 
                 // Populate viewerPliPartiKey variable
-                viewerPliPartKey = QDir::toNativeSeparators(QString("\"%1\"%2;%3")
-                                                                .arg(ia.baseName[pT])
-                                                                .arg(ia.partColor[pT])
-                                                                .arg(stepNumber));
+                viewerPliPartKey = QString("%1;%2;%3")
+                                           .arg(ia.baseName[pT])
+                                           .arg(ia.partColor[pT])
+                                           .arg(stepNumber);
 
                 // Check if viewer PLI part does exist in repository
                 bool addViewerPliPartContent = !gui->viewerStepContentExist(viewerPliPartKey);
 
                 // If this is true, we are processing again the current part Key so part must have been updated in the viewer
-                bool viewerUpdate = viewerPliPartKey == QDir::toNativeSeparators(gui->getViewerStepKey());
+                bool viewerUpdate = viewerPliPartKey == gui->getViewerStepKey();
 
                 if ( ! part.exists() || addViewerPliPartContent || viewerUpdate) {
 
@@ -2460,14 +2454,7 @@ int Pli::partSizeLDViewSCall() {
 
 
                     // header and closing meta
-                    QString modelName = typeInfo.completeBaseName();
-                    modelName = modelName.replace(
-                                modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper());
-                    pliFile.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(modelName));
-                    pliFile.prepend(QString("0 Name: %1").arg(pliPart->type));
-                    pliFile.prepend(QString("0 %1").arg(modelName));
-                    pliFile.prepend(QString("0 FILE %1").arg(modelName));
-                    pliFile.append("0 NOFILE");
+                    renderer->setNativeHeaderAndNoFileMeta(pliFile,pliPart->type,true/*pliPart*/,false/*finalModel*/);
 
                     // consolidate subfiles and parts into single file
                     if ((renderer->createNativeModelFile(pliFile,fadeSteps,highlightStep) != 0))
@@ -2511,6 +2498,7 @@ int Pli::partSizeLDViewSCall() {
                     QStringList rotate            = rotStep.isEmpty()        ? QString("0 0 0 REL").split(" ") : rotStep.split("_");
                     QStringList target            = targetPosition.isEmpty() ? QString("0 0 0 REL").split(" ") : targetPosition.split("_");
                     viewerOptions                 = new ViewerOptions();
+                    viewerOptions->ImageType      = Options::PLI;
                     viewerOptions->ViewerStepKey  = viewerPliPartKey;
                     viewerOptions->StudLogo       = pliMeta.studLogo.value();
                     viewerOptions->ImageFileName  = imageName;

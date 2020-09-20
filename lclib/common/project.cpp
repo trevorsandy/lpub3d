@@ -83,7 +83,7 @@ Project::Project()
 {
 	mModified = false;
 /*** LPub3D Mod - default model name ***/
-	mActiveModel = new lcModel(tr("LPub3D Model.ldr"));
+	mActiveModel = new lcModel(tr(VIEWER_MODEL_DEFAULT));
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Camera Globe and Image Export ***/
 	mPageWidth = 0;
@@ -178,7 +178,7 @@ QString Project::GetTitle() const
 	if (!mFileName.isEmpty())
 		return QFileInfo(mFileName).fileName();
 /*** LPub3D Mod - default model name ***/
-	return mModels.GetSize() == 1 ? tr("LPub3D Model.ldr") : tr("LPub3D Model.mpd");
+	return tr(VIEWER_MODEL_DEFAULT);
 /*** LPub3D Mod end ***/
 }
 

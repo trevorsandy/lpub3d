@@ -29,6 +29,9 @@ lcPiece::lcPiece(PieceInfo* Info)
 	mStepHide = LC_STEP_MAX;
 	mGroup = nullptr;
 	mFileLine = -1;
+/*** LPub3D Mod - Selected Parts ***/
+	mLineTypeIndex = -1;
+/*** LPub3D Mod end ***/
 	mPivotMatrix = lcMatrix44Identity();
 }
 
@@ -44,6 +47,9 @@ lcPiece::lcPiece(const lcPiece& Other)
 	mStepHide = Other.mStepHide;
 	mGroup = Other.mGroup;
 	mFileLine = -1;
+/*** LPub3D Mod - Selected Parts ***/
+	mLineTypeIndex = -1;
+/*** LPub3D Mod end ***/
 
 	mPivotMatrix = Other.mPivotMatrix;
 	mState |= ( Other.mState & LC_PIECE_PIVOT_POINT_VALID );
@@ -214,43 +220,43 @@ bool lcPiece::FileLoad(lcFile& file)
 
   if (version < 9)
   {
-    quint16 time;
-    quint8 type;
+	quint16 time;
+	quint8 type;
 
-    if (version > 5)
-    {
-      quint32 keys;
-      float param[4];
+	if (version > 5)
+	{
+	  quint32 keys;
+	  float param[4];
 
-      file.ReadU32(&keys, 1);
-      while (keys--)
-      {
-        file.ReadFloats(param, 4);
-        file.ReadU16(&time, 1);
-        file.ReadU8(&type, 1);
+	  file.ReadU32(&keys, 1);
+	  while (keys--)
+	  {
+		file.ReadFloats(param, 4);
+		file.ReadU16(&time, 1);
+		file.ReadU8(&type, 1);
 
 		if (type == 0)
 			ChangeKey(mPositionKeys, lcVector3(param[0], param[1], param[2]), time, true);
 		else if (type == 1)
 			ChangeKey(mRotationKeys, lcMatrix33FromAxisAngle(lcVector3(param[0], param[1], param[2]), param[3] * LC_DTOR), time, true);
-      }
+	  }
 
-      file.ReadU32(&keys, 1);
-      while (keys--)
-      {
-        file.ReadFloats(param, 4);
-        file.ReadU16(&time, 1);
-        file.ReadU8(&type, 1);
-      }
-    }
-    else
-    {
-      if (version > 2)
-      {
-        file.ReadU8(&ch, 1);
+	  file.ReadU32(&keys, 1);
+	  while (keys--)
+	  {
+		file.ReadFloats(param, 4);
+		file.ReadU16(&time, 1);
+		file.ReadU8(&type, 1);
+	  }
+	}
+	else
+	{
+	  if (version > 2)
+	  {
+		file.ReadU8(&ch, 1);
 
-        while (ch--)
-        {
+		while (ch--)
+		{
 			lcMatrix44 ModelWorld;
 
 			if (version > 3)
@@ -276,10 +282,10 @@ bool lcPiece::FileLoad(lcFile& file)
 
 			qint32 bl;
 			file.ReadS32(&bl, 1);
-        }
-      }
-      else
-      {
+		}
+	  }
+	  else
+	  {
 			lcVector3 Translation;
 			float Rotation[3];
 			file.ReadFloats(Translation, 3);
@@ -290,7 +296,7 @@ bool lcPiece::FileLoad(lcFile& file)
 			ChangeKey(mPositionKeys, lcVector3(ModelWorld.r[3][0], ModelWorld.r[3][1], ModelWorld.r[3][2]), 1, true);
 			ChangeKey(mRotationKeys, lcMatrix33(ModelWorld), 1, true);
 	  }
-    }
+	}
   }
 
   // Common to all versions.
@@ -328,52 +334,52 @@ bool lcPiece::FileLoad(lcFile& file)
   mStepShow = Step;
   if (version > 1)
   {
-    file.ReadU8(&Step, 1);
+	file.ReadU8(&Step, 1);
 	mStepHide = Step == 255 ? LC_STEP_MAX : Step;
   }
   else
-    mStepHide = LC_STEP_MAX;
+	mStepHide = LC_STEP_MAX;
 
   if (version > 5)
   {
 	file.ReadU16(); // m_nFrameShow
 	file.ReadU16(); // m_nFrameHide
 
-    if (version > 7)
-    {
-      quint8 Hidden;
-      file.ReadU8(&Hidden, 1);
+	if (version > 7)
+	{
+	  quint8 Hidden;
+	  file.ReadU8(&Hidden, 1);
 	  if (Hidden & 1)
 		  mState |= LC_PIECE_HIDDEN;
-      file.ReadU8(&ch, 1);
+	  file.ReadU8(&ch, 1);
 	  file.Seek(ch, SEEK_CUR);
-    }
-    else
-    {
-      qint32 hide;
-      file.ReadS32(&hide, 1);
-      if (hide != 0)
-        mState |= LC_PIECE_HIDDEN;
+	}
+	else
+	{
+	  qint32 hide;
+	  file.ReadS32(&hide, 1);
+	  if (hide != 0)
+		mState |= LC_PIECE_HIDDEN;
 	  file.Seek(81, SEEK_CUR);
-    }
+	}
 
-    // 7 (0.64)
-    qint32 i = -1;
-    if (version > 6)
-      file.ReadS32(&i, 1);
-    mGroup = (lcGroup*)(quintptr)i;
+	// 7 (0.64)
+	qint32 i = -1;
+	if (version > 6)
+	  file.ReadS32(&i, 1);
+	mGroup = (lcGroup*)(quintptr)i;
   }
   else
   {
-    file.ReadU8(&ch, 1);
-    if (ch == 0)
-      mGroup = (lcGroup*)-1;
-    else
-      mGroup = (lcGroup*)(quintptr)ch;
+	file.ReadU8(&ch, 1);
+	if (ch == 0)
+	  mGroup = (lcGroup*)-1;
+	else
+	  mGroup = (lcGroup*)(quintptr)ch;
 
-    file.ReadU8(&ch, 1);
-    if (ch & 0x01)
-      mState |= LC_PIECE_HIDDEN;
+	file.ReadU8(&ch, 1);
+	if (ch & 0x01)
+	  mState |= LC_PIECE_HIDDEN;
   }
 
 	if (version < 12)

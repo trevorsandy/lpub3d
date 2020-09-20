@@ -49,7 +49,6 @@
 #include "ldrawfiles.h"
 #include "messageboxresizable.h"
 
-#include "name.h"
 #include "version.h"
 #include "lpub_preferences.h"
 
@@ -80,6 +79,8 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
 
     connect(_textEdit, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(showContextMenu(const QPoint &)));
     connect(_textEdit, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
+    connect(_textEdit, SIGNAL(updateSelectedParts()),   this, SLOT(updateSelectedParts()));
+
     highlightCurrentLine();
 
     setCentralWidget(_textEdit);
@@ -429,6 +430,52 @@ bool EditWindow::saveFile()
   return rc;
 }
 
+void EditWindow::highlightSelectedLines(QVector<int> &lines)
+{
+    QTextCursor highlightCursor(_textEdit->document());
+
+    QTextCursor textCursor(_textEdit->document());
+
+    textCursor.beginEditBlock();
+
+    if (!_textEdit->isReadOnly()) {
+
+        QColor lineColor = QColor(Qt::transparent);
+        bool applyFormat = lines.size();
+        if (applyFormat){
+            if (Preferences::displayTheme == THEME_DEFAULT) {
+                lineColor = QColor(Qt::yellow).lighter(180);
+            } else if (Preferences::displayTheme == THEME_DARK) {
+                lineColor = QColor(Qt::yellow).lighter(180);
+            }
+        }
+
+        QTextCharFormat plainFormat(highlightCursor.charFormat());
+        QTextCharFormat colorFormat = plainFormat;
+        colorFormat.setBackground(lineColor);
+
+        if (!highlightCursor.isNull() && !highlightCursor.atEnd()) {
+            if (applyFormat) {
+                for (int i = 0; i < lines.size(); ++i) {
+                    QTextBlock block = _textEdit->document()->findBlockByLineNumber(lines.at(i));
+                    int blockPos     = block.position();
+                    highlightCursor.setPosition(blockPos);
+
+                    if (!highlightCursor.isNull()) {
+                        highlightCursor.select(QTextCursor::LineUnderCursor);
+                        highlightCursor.mergeCharFormat(colorFormat);
+                    }
+                }
+            } else {
+                highlightCursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+                highlightCursor.mergeCharFormat(colorFormat);
+            }
+        }
+    }
+
+    textCursor.endEditBlock();
+}
+
 void EditWindow::highlightCurrentLine()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
@@ -499,13 +546,82 @@ void EditWindow::pageUpDown(
   }
 }
 
+void EditWindow::updateSelectedParts() {
+
+    int currentLine = 0;
+    int selectedLines = 0;
+    bool hasSelection = false;
+    QVector<TypeLine> lineTypeIndexes;
+
+    QTextCursor cursor = _textEdit->textCursor();
+
+    if(!(hasSelection = cursor.hasSelection()))
+        cursor.select(QTextCursor::LineUnderCursor);
+
+    QTextCursor saveCursor = cursor;
+
+    QString content = cursor.selection().toPlainText();
+    selectedLines   = content.count("\n")+1;
+
+    auto getSelectedLineNumber = [&cursor] () {
+        int lines = 0;
+
+        while(cursor.positionInBlock()>0) {
+            cursor.movePosition(QTextCursor::Up);
+            lines++;
+        }
+
+        QTextBlock block = cursor.block().previous();
+
+        while(block.isValid()) {
+            lines += block.lineCount();
+            block = block.previous();
+        }
+        return lines;
+    };
+
+    cursor.beginEditBlock();
+
+    while (currentLine != selectedLines)
+    {
+        cursor.select(QTextCursor::LineUnderCursor);
+        QString selection = cursor.selectedText();
+        _textEdit->moveCursor(QTextCursor::StartOfLine);
+
+        if (!selection.isEmpty())
+        {
+            if (selection.startsWith("1")) {
+                TypeLine typeLine(fileOrderIndex,getSelectedLineNumber());
+                lineTypeIndexes.append(typeLine);
+            }
+
+            // go to next selected line
+            if (++currentLine < selectedLines) {
+                cursor.movePosition(QTextCursor::Down);
+                _textEdit->setTextCursor(cursor);
+            }
+        } else {
+            break;
+        }
+    }
+
+    // restore selection
+   _textEdit->setTextCursor(saveCursor);
+   if (!hasSelection)
+       _textEdit->moveCursor(QTextCursor::StartOfLine);
+
+    cursor.endEditBlock();
+
+    emit SelectedPartLinesSig(lineTypeIndexes);
+}
+
 void EditWindow::showLine(int lineNumber)
 {
   _textEdit->moveCursor(QTextCursor::Start,QTextCursor::MoveAnchor);
   for (int i = 0; i < lineNumber; i++) {
     _textEdit->moveCursor(QTextCursor::Down,QTextCursor::MoveAnchor);
   }
-  _textEdit->moveCursor(QTextCursor::EndOfLine,QTextCursor::KeepAnchor);
+//  _textEdit->moveCursor(QTextCursor::EndOfLine,QTextCursor::KeepAnchor);
   _textEdit->ensureCursorVisible();
 
   pageUpDown(QTextCursor::Up, QTextCursor::KeepAnchor);
@@ -534,6 +650,7 @@ void EditWindow::displayFile(
   bool reloaded = _fileName == fileName;
 
   fileName = _fileName;
+  fileOrderIndex = ldrawFile->getSubmodelIndex(_fileName);
 
   if (modelFileEdit() && !fileName.isEmpty())
       fileWatcher.removePath(fileName);
@@ -826,6 +943,14 @@ void QTextEditor::keyPressEvent(QKeyEvent *e)
     }
 }
 
+void QTextEditor::mouseReleaseEvent(QMouseEvent *event)
+{
+  if (event->button() == Qt::LeftButton) {
+     emit updateSelectedParts();
+  }
+  QWidget::mouseReleaseEvent(event);
+}
+
 void QTextEditor::toggleComment(){
 
     int current = 0;
@@ -878,7 +1003,7 @@ void QTextEditor::toggleComment(){
             if (selection.startsWith("0 ")) {
                 findText = "0 ";
                 replaceText = "0 //";
-            };
+            }
             result = find(findText, flags);
         } else {
             break;

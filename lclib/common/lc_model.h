@@ -319,6 +319,9 @@ public:
 /*** LPub3D Mod - Camera Globe ***/
 	void MoveDefaultCamera(lcCamera *Camera, const lcVector3& ObjectDistance);
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - Selected Parts ***/
+	void SetSelectedPieces(QVector<int> &LineTypeIndexes);
+/*** LPub3D Mod end ***/
 	void MoveSelectedObjects(const lcVector3& Distance, bool Relative, bool AlternateButtonDrag, bool Update, bool Checkpoint)
 	{
 		MoveSelectedObjects(Distance, Distance, Relative, AlternateButtonDrag, Update, Checkpoint);

@@ -4998,7 +4998,8 @@ Rc MLCadMeta::parse(QStringList &argv, int index,Where &here)
 void LDCadMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  LDCadGrp.init(this,"GROUP_NXT",        LDCadGroupRc);
+  LDCadGrp.       init(this,"GROUP_NXT",  LDCadGroupRc);
+  LDCadGenerated .init(this,"GENERATED ", LDCadGeneratedRc);
 }
 
 /* ------------------ */

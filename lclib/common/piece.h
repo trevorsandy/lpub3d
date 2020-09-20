@@ -341,6 +341,18 @@ public:
 		return mFileLine;
 	}
 
+/*** LPub3D Mod - Selected Parts ***/
+	void SetLineTypeIndex(int Index)
+	{
+		mLineTypeIndex = Index;
+	}
+
+	int GetLineTypeIndex() const
+	{
+		return mLineTypeIndex;
+	}
+/*** LPub3D Mod end ***/
+
 	virtual void RayTest(lcObjectRayTest& ObjectRayTest) const override;
 	virtual void BoxTest(lcObjectBoxTest& ObjectBoxTest) const override;
 	virtual void DrawInterface(lcContext* Context, const lcScene& Scene) const override;
@@ -563,6 +575,9 @@ protected:
 	lcArray<lcObjectKey<lcMatrix33>> mRotationKeys;
 
 	int mFileLine;
+/*** LPub3D Mod - Selected Parts ***/
+	int mLineTypeIndex;
+/*** LPub3D Mod end ***/
 	QString mID;
 
 	lcGroup* mGroup;

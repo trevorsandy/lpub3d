@@ -42,8 +42,12 @@ void lcTimelineWidget::CustomMenuRequested(QPoint Pos)
 		if (Piece->mPieceInfo->IsModel())
 		{
 			Menu->addAction(gMainWindow->mActions[LC_PIECE_EDIT_SELECTED_SUBMODEL]);
+/*** LPub3D Mod - suppress context menu items ***/
+/***
 			Menu->addAction(gMainWindow->mActions[LC_PIECE_VIEW_SELECTED_MODEL]);
 			Menu->addAction(gMainWindow->mActions[LC_PIECE_INLINE_SELECTED_MODELS]);
+***/
+/*** LPub3D Mod end ***/
 			Menu->addSeparator();
 		}
 	}

@@ -224,14 +224,7 @@ int Render::rotateParts(
 
   if (nativeRenderer && ! ldvFunction) {
       // header and closing meta
-      QString _modelName = QFileInfo(modelName).completeBaseName().toLower();
-      _modelName = _modelName.replace(
-                   _modelName.indexOf(_modelName.at(0)),1,_modelName.at(0).toUpper());
-      rotatedParts.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(_modelName));
-      rotatedParts.prepend(QString("0 Name: %1").arg(modelName));
-      rotatedParts.prepend(QString("0 %1").arg(_modelName));
-      rotatedParts.prepend(QString("0 FILE %1").arg(modelName));
-      rotatedParts.append("0 NOFILE");
+      setNativeHeaderAndNoFileMeta(rotatedParts,modelName,false/*pliPart*/,false/*finalModel*/);
 
       // consolidate subfiles and parts into single file
       if ((createNativeModelFile(rotatedParts,doFadeStep,doHighlightStep) != 0))

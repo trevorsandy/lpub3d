@@ -88,6 +88,10 @@ public:
                                      QStringList &subModelParts,
                                      bool doFadeStep,
                                      bool doHighlightStep);
+  static void            setNativeHeaderAndNoFileMeta(QStringList &parts,
+                                     const QString &modelName,
+                                     bool pliPart,
+                                     bool displayOnly);
   static int             rotateParts(const QString &addLine,
                                      RotStepMeta &rotStep,
                                      const QStringList &parts,

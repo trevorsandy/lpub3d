@@ -521,8 +521,10 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 	lcArray<lcGroup*> CurrentGroups;
 	lcArray<lcPieceControlPoint> ControlPoints;
 	int CurrentStep = 1;
+/*** LPub3D Mod - Selected Parts ***/	
+	int LineTypeIndex = -1;
+/*** LPub3D Mod end ***/
 	lcPiecesLibrary* Library = lcGetPiecesLibrary();
-
 	mProperties.mAuthor.clear();
 	mProperties.mDescription.clear();
 	mProperties.mComments.clear();
@@ -692,6 +694,10 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 				lcMatrix44 Transform(lcVector4(Matrix[0], Matrix[2], -Matrix[1], 0.0f), lcVector4(Matrix[8], Matrix[10], -Matrix[9], 0.0f),
 									 lcVector4(-Matrix[4], -Matrix[6], Matrix[5], 0.0f), lcVector4(Matrix[12], Matrix[14], -Matrix[13], 1.0f));
 
+/*** LPub3D Mod - Selected Parts ***/
+				LineTypeIndex++;
+				Piece->SetLineTypeIndex(LineTypeIndex);
+/*** LPub3D Mod end ***/
 				Piece->SetFileLine(mFileLines.size());
 				Piece->SetPieceInfo(Info, PartId, false);
 				Piece->Initialize(Transform, CurrentStep);
@@ -1556,6 +1562,9 @@ void lcModel::SetActive(bool Active)
 {
 	CalculateStep(Active ? mCurrentStep : LC_STEP_MAX);
 	mActive = Active;
+/*** LPub3D Mod - Selected Parts ***/
+	emit gMainWindow->SetActiveModelSig(mProperties.mName,Active);
+/*** LPub3D Mod end ***/
 }
 
 void lcModel::CalculateStep(lcStep Step)
@@ -2316,18 +2325,96 @@ void lcModel::RenamePiece(PieceInfo* Info)
 /*** LPub3D Mod - Camera Globe ***/
 void lcModel::MoveDefaultCamera(lcCamera *Camera, const lcVector3& ObjectDistance)
 {
-    if (ObjectDistance.LengthSquared() >= 0.001f)
-    {
-        lcMatrix33 RelativeRotation = lcMatrix33Identity();
-        lcVector3 TransformedObjectDistance = lcMul(ObjectDistance, RelativeRotation);
+	if (ObjectDistance.LengthSquared() >= 0.001f)
+	{
+		lcMatrix33 RelativeRotation = lcMatrix33Identity();
+		lcVector3 TransformedObjectDistance = lcMul(ObjectDistance, RelativeRotation);
 
-        Camera->MoveSelected(mCurrentStep, gMainWindow->GetAddKeys(), TransformedObjectDistance);
-        Camera->UpdatePosition(mCurrentStep);
+		Camera->MoveSelected(mCurrentStep, gMainWindow->GetAddKeys(), TransformedObjectDistance);
+		Camera->UpdatePosition(mCurrentStep);
 
-        gMainWindow->UpdateAllViews();
-        SaveCheckpoint(tr("MovingDefaultCamera"));
-        gMainWindow->UpdateDefaultCamera(Camera);
-    }
+		gMainWindow->UpdateAllViews();
+		SaveCheckpoint(tr("MovingDefaultCamera"));
+		gMainWindow->UpdateDefaultCamera(Camera);
+	}
+}
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - Selected Parts ***/
+void lcModel::SetSelectedPieces(QVector<int> &LineTypeIndexes){
+
+	QString Message;
+	if (Preferences::debugLogging) {
+		Message = tr("%n Editor object(s) selected","", LineTypeIndexes.size());
+		gui->statusMessage(LOG_DEBUG, Message);
+	}
+
+	bool Modified           = false;
+	bool SelectionChanged   = false;
+	int EmitSelection       = VIEWER_NONE;
+	int SelectedPiecesFound = 0;
+
+	for (lcPiece* Piece : mPieces) {
+
+		if (Piece->IsVisible(mCurrentStep)) {
+
+			if (LineTypeIndexes.size()){
+
+				if (SelectedPiecesFound == LineTypeIndexes.size())
+					break;
+
+				for (int i = 0; i < LineTypeIndexes.size(); ++i) {
+
+					int LineTypeIndex = Piece->GetLineTypeIndex();
+
+					if (LineTypeIndexes.at(i) == LineTypeIndex) {
+						SelectedPiecesFound++;
+
+						if (!Piece->IsSelected()){
+							Piece->SetSelected(true);
+							SelectionChanged = true;
+						} else {
+							Piece->SetSelected(false);
+							SelectionChanged = true;
+							EmitSelection    = VIEWER_LINE;
+						}
+
+						Modified = true;
+
+						if (Preferences::debugLogging) {
+							Message = tr("Selected Piece - %1 (ID: %2) LineTypeIndex: %3")
+										 .arg(Piece->GetName(), Piece->GetID(), QString::number(LineTypeIndex));
+							gui->statusMessage(LOG_DEBUG, Message);
+						}
+					}
+				}
+
+			} else {
+
+				if (Piece->IsSelected()){
+					Piece->SetSelected(false);
+					SelectionChanged = true;
+					EmitSelection    = VIEWER_LINE;
+					Modified         = true;
+
+					if (Preferences::debugLogging) {
+						Message = tr("Unselected Piece - %1 (ID: %2)")
+									 .arg(Piece->GetName(), Piece->GetID());
+						gui->statusMessage(LOG_DEBUG, Message);
+					}
+
+				}
+			}
+		}
+	}
+
+	if (Modified)
+	{
+		SaveCheckpoint(tr("Selected Parts"));
+		gMainWindow->UpdateAllViews();
+		gMainWindow->UpdateTimeline(false, false);
+		gMainWindow->UpdateSelectedObjects(SelectionChanged, EmitSelection);
+	}
 }
 /*** LPub3D Mod end ***/
 
@@ -2898,15 +2985,20 @@ bool lcModel::AnyPiecesSelected() const
 
 bool lcModel::AnyObjectsSelected() const
 {
-/*** LPub3D Mod - Suppress select move overlay for piece and light ***/
 	for (lcCamera* Camera : mCameras)
 		if (Camera->IsSelected())
 			return true;
+/*** LPub3D Mod - New BuildMod  ***/
+/***/
+	if (gMainWindow->GetImageType() == Options::CSI) {
+		for (lcPiece* Piece : mPieces)
+			if (Piece->IsSelected())
+				return true;
+	}
+/***/
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - Suppress select move overlay for light ***/
 /***
-	for (lcPiece* Piece : mPieces)
-		if (Piece->IsSelected())
-			return true;
-
 	for (lcLight* Light : mLights)
 		if (Light->IsSelected())
 			return true;

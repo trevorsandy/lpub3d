@@ -1192,14 +1192,35 @@ bool  Gui::compareVersionStr (const QString& first, const QString& second)
 void Gui::displayFile(
     LDrawFile     *ldrawFile,
     const QString &modelName,
-    bool editModelFile)
+    bool editModelFile,
+    bool displayStartPage)
 {
     if (! exporting()) {
         if (editModelFile) {
             displayModelFileSig(ldrawFile, modelName);
         } else {
             displayFileSig(ldrawFile, modelName);
-            curSubFile = modelName;
+
+            if (curSubFile == modelName)
+                return;
+            else
+                curSubFile = modelName;
+
+            if (displayStartPage)
+                countPages();
+
+            int modelPageNum = ldrawFile->getModelStartPageNumber(modelName);
+
+            if (displayStartPage) {
+               if (displayPageNum != modelPageNum && modelPageNum != 0) {
+                   displayPageNum  = modelPageNum;
+                   displayPage();
+               }
+            } else if (displayPageNum < modelPageNum) {
+                Where topOfSteps(modelName,0);
+                showLineSig(topOfSteps.lineNumber);
+            }
+
             int currentIndex = 0;
             for (int i = 0; i < mpdCombo->count(); i++) {
                 if (mpdCombo->itemText(i) == modelName) {
@@ -1208,6 +1229,7 @@ void Gui::displayFile(
                 }
             }
             mpdCombo->setCurrentIndex(currentIndex);
+            mpdCombo->setToolTip(tr("Current Submodel: %1").arg(mpdCombo->currentText()));
         }
     }
 }
@@ -1234,7 +1256,7 @@ void Gui::editModelFile(bool saveBefore)
         return;
     if (saveBefore)
         save();
-    displayFile(&ldrawFile, getCurFile(), /*modelFile*/true);
+    displayFile(&ldrawFile, getCurFile(), true/*modelFile*/);
     editModeWindow->setWindowTitle(tr("Edit %1").arg(QFileInfo(getCurFile()).fileName()));
     editModeWindow->show();
 }
@@ -2748,6 +2770,12 @@ Gui::Gui()
     connect(this,           SIGNAL(showLineSig(int)),
             editWindow,     SLOT(  showLine(   int)));
 
+    connect(this,           SIGNAL(highlightSelectedLinesSig(QVector<int> &)),
+            editWindow,     SLOT(  highlightSelectedLines(   QVector<int> &)));
+
+    connect(editWindow,     SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),
+            this,           SLOT(SelectedPartLines(QVector<TypeLine>&,PartSource)));
+
     connect(editWindow,     SIGNAL(redrawSig()),
             this,           SLOT(  clearAndReloadModelFile()));
 
@@ -2803,21 +2831,21 @@ Gui::Gui()
     m_progressDlgProgressBar = m_progressDialog->findChild<QProgressBar*>("progressDlgProgressBar");
     m_progressDlgMessageLbl  = m_progressDialog->findChild<QLabel*>("progressDlgMessageLbl");
 
-    connect (m_progressDialog, SIGNAL (cancelClicked()), this, SLOT (cancelExporting()));
+    connect (m_progressDialog, SIGNAL (cancelClicked()),   this, SLOT (cancelExporting()));
 
-    connect(this, SIGNAL(progressBarInitSig()),               this, SLOT(progressBarInit()));
-    connect(this, SIGNAL(progressMessageSig(QString)),        this, SLOT(progressBarSetText(QString)));
-    connect(this, SIGNAL(progressRangeSig(int,int)),          this, SLOT(progressBarSetRange(int,int)));
-    connect(this, SIGNAL(progressSetValueSig(int)),           this, SLOT(progressBarSetValue(int)));
-    connect(this, SIGNAL(progressResetSig()),                 this, SLOT(progressBarReset()));
-    connect(this, SIGNAL(progressStatusRemoveSig()),          this, SLOT(progressStatusRemove()));
+    connect(this, SIGNAL(progressBarInitSig()),            this, SLOT(progressBarInit()));
+    connect(this, SIGNAL(progressMessageSig(QString)),     this, SLOT(progressBarSetText(QString)));
+    connect(this, SIGNAL(progressRangeSig(int,int)),       this, SLOT(progressBarSetRange(int,int)));
+    connect(this, SIGNAL(progressSetValueSig(int)),        this, SLOT(progressBarSetValue(int)));
+    connect(this, SIGNAL(progressResetSig()),              this, SLOT(progressBarReset()));
+    connect(this, SIGNAL(progressStatusRemoveSig()),       this, SLOT(progressStatusRemove()));
 
-    connect(this, SIGNAL(progressBarPermInitSig()),           this, SLOT(progressBarPermInit()));
-    connect(this, SIGNAL(progressPermMessageSig(QString)),    this, SLOT(progressBarPermSetText(QString)));
-    connect(this, SIGNAL(progressPermRangeSig(int,int)),      this, SLOT(progressBarPermSetRange(int,int)));
-    connect(this, SIGNAL(progressPermSetValueSig(int)),       this, SLOT(progressBarPermSetValue(int)));
-    connect(this, SIGNAL(progressPermResetSig()),             this, SLOT(progressBarPermReset()));
-    connect(this, SIGNAL(progressPermStatusRemoveSig()),      this, SLOT(progressPermStatusRemove()));
+    connect(this, SIGNAL(progressBarPermInitSig()),        this, SLOT(progressBarPermInit()));
+    connect(this, SIGNAL(progressPermMessageSig(QString)), this, SLOT(progressBarPermSetText(QString)));
+    connect(this, SIGNAL(progressPermRangeSig(int,int)),   this, SLOT(progressBarPermSetRange(int,int)));
+    connect(this, SIGNAL(progressPermSetValueSig(int)),    this, SLOT(progressBarPermSetValue(int)));
+    connect(this, SIGNAL(progressPermResetSig()),          this, SLOT(progressBarPermReset()));
+    connect(this, SIGNAL(progressPermStatusRemoveSig()),   this, SLOT(progressPermStatusRemove()));
 
 #ifdef WATCHER
     connect(&watcher,       SIGNAL(fileChanged(const QString &)),
@@ -2876,26 +2904,29 @@ void Gui::initialize()
 
   emit Application::instance()->splashMsgSig(QString("85% - %1 initialization...").arg(VER_PRODUCTNAME_STR));
 
-  connect(this,        SIGNAL(loadFileSig(QString)),               this,        SLOT(loadFile(QString)));
-  connect(this,        SIGNAL(processCommandLineSig()),            this,        SLOT(processCommandLine()));
-  connect(this,        SIGNAL(setExportingSig(bool)),              this,        SLOT(deployExportBanner(bool)));
-  connect(this,        SIGNAL(setPliIconPathSig(QString&,QString&)), this,      SLOT(setPliIconPath(QString&,QString&)));
+  connect(this,        SIGNAL(loadFileSig(QString)),                     this,        SLOT(loadFile(QString)));
+  connect(this,        SIGNAL(processCommandLineSig()),                  this,        SLOT(processCommandLine()));
+  connect(this,        SIGNAL(setExportingSig(bool)),                    this,        SLOT(deployExportBanner(bool)));
+  connect(this,        SIGNAL(setPliIconPathSig(QString&,QString&)),     this,        SLOT(setPliIconPath(QString&,QString&)));
+  connect(this,        SIGNAL(enable3DActionsSig()),                     this,        SLOT(Enable3DActions()));
+  connect(this,        SIGNAL(disable3DActionsSig()),                    this,        SLOT(Disable3DActions()));
 
-  connect(this,        SIGNAL(setExportingSig(bool)),              gMainWindow, SLOT(Halt3DViewer(bool)));
-  connect(this,        SIGNAL(enable3DActionsSig()),               gMainWindow, SLOT(Enable3DActions()));
-  connect(this,        SIGNAL(disable3DActionsSig()),              gMainWindow, SLOT(Disable3DActions()));
-  connect(this,        SIGNAL(enable3DActionsSig()),               this,        SLOT(Enable3DActions()));
-  connect(this,        SIGNAL(disable3DActionsSig()),              this,        SLOT(Disable3DActions()));
-  connect(this,        SIGNAL(updateAllViewsSig()),                gMainWindow, SLOT(UpdateAllViews()));
-  connect(this,        SIGNAL(clearViewerWindowSig()),             gMainWindow, SLOT(NewProject()));
+  connect(this,        SIGNAL(setExportingSig(bool)),                    gMainWindow, SLOT(Halt3DViewer(bool)));
+  connect(this,        SIGNAL(enable3DActionsSig()),                     gMainWindow, SLOT(Enable3DActions()));
+  connect(this,        SIGNAL(disable3DActionsSig()),                    gMainWindow, SLOT(Disable3DActions()));
+  connect(this,        SIGNAL(updateAllViewsSig()),                      gMainWindow, SLOT(UpdateAllViews()));
+  connect(this,        SIGNAL(clearViewerWindowSig()),                   gMainWindow, SLOT(NewProject()));
+  connect(this,        SIGNAL(setSelectedPiecesSig(QVector<int>&)),      gMainWindow, SLOT(SetSelectedPieces(QVector<int>&)));
 
-  connect(gMainWindow, SIGNAL(SetRotStepMeta()),                   this,        SLOT(SetRotStepMeta()));
-  connect(gMainWindow, SIGNAL(SetRotStepAngleX(float,bool)),       this,        SLOT(SetRotStepAngleX(float,bool)));
-  connect(gMainWindow, SIGNAL(SetRotStepAngleY(float,bool)),       this,        SLOT(SetRotStepAngleY(float,bool)));
-  connect(gMainWindow, SIGNAL(SetRotStepAngleZ(float,bool)),       this,        SLOT(SetRotStepAngleZ(float,bool)));
-  connect(gMainWindow, SIGNAL(SetRotStepTransform(QString&,bool)), this,        SLOT(SetRotStepTransform(QString&,bool)));
-  connect(gMainWindow, SIGNAL(GetRotStepMeta()),                   this,        SLOT(GetRotStepMeta()));
-  connect(gMainWindow, SIGNAL(updateSig()),                        this,        SLOT(loadUpdatedImages()));
+  connect(gMainWindow, SIGNAL(SetRotStepMeta()),                         this,        SLOT(SetRotStepMeta()));
+  connect(gMainWindow, SIGNAL(SetRotStepAngleX(float,bool)),             this,        SLOT(SetRotStepAngleX(float,bool)));
+  connect(gMainWindow, SIGNAL(SetRotStepAngleY(float,bool)),             this,        SLOT(SetRotStepAngleY(float,bool)));
+  connect(gMainWindow, SIGNAL(SetRotStepAngleZ(float,bool)),             this,        SLOT(SetRotStepAngleZ(float,bool)));
+  connect(gMainWindow, SIGNAL(SetRotStepTransform(QString&,bool)),       this,        SLOT(SetRotStepTransform(QString&,bool)));
+  connect(gMainWindow, SIGNAL(GetRotStepMeta()),                         this,        SLOT(GetRotStepMeta()));
+  connect(gMainWindow, SIGNAL(updateSig()),                              this,        SLOT(loadUpdatedImages()));
+  connect(gMainWindow, SIGNAL(SetActiveModelSig(const QString&,bool)),   this,        SLOT(SetActiveModel(const QString&,bool)));
+  connect(gMainWindow, SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),this,SLOT(SelectedPartLines(QVector<TypeLine>&,PartSource)));
 
 /* Moved to PartWorker::ldsearchDirPreferences()  */
 //  if (Preferences::preferredRenderer == RENDERER_LDGLITE)

@@ -47,23 +47,24 @@ extern QList<QRegExp> LDrawUnofficialOtherRegExp;
 
 class LDrawSubFile {
   public:
-    QStringList _contents;
-    QString     _subFilePath;
-    bool        _modified;
-    QDateTime   _datetime;
-    QStringList _renderedKeys;
-    QStringList _mirrorRenderedKeys;
-    int         _numSteps;
-    bool        _beenCounted;
-    int         _instances;
-    int         _mirrorInstances;
-    bool        _rendered;
-    bool        _mirrorRendered;
-    bool        _changedSinceLastWrite;
-    bool        _generated;
-    int         _prevStepPosition;
-    int         _startPageNumber;
-    int         _unofficialPart;
+    QStringList  _contents;
+    QString      _subFilePath;
+    bool         _modified;
+    QDateTime    _datetime;
+    QStringList  _renderedKeys;
+    QStringList  _mirrorRenderedKeys;
+    QVector<int> _lineTypeIndexes;
+    int          _numSteps;
+    bool         _beenCounted;
+    int          _instances;
+    int          _mirrorInstances;
+    bool         _rendered;
+    bool         _mirrorRendered;
+    bool         _changedSinceLastWrite;
+    bool         _generated;
+    int          _prevStepPosition;
+    int          _startPageNumber;
+    int          _unofficialPart;
 
     LDrawSubFile()
     {
@@ -256,8 +257,16 @@ class LDrawFile {
     QString     getViewerConfigKey(const QString &fileName);
     bool        isViewerStepMultiStep(const QString &fileName);
     bool        isViewerStepCalledOut(const QString &fileName);
-    bool        viewerStepContentExist(      const QString &fileName);
+    bool        viewerStepContentExist(const QString &fileName);
     void        clearViewerSteps();
+
+    QString     getSubmodelName(int index);
+    int         getSubmodelIndex(const QString &fileName);
+    int         getLineTypeIndex(int submodelIndx, int relativeTypeIndx);
+    int         getLineTypeRelativeIndex(int submodelIndx, int lineTypeIndx);
+    void        setLineTypeRelativeIndex(int submodelIndx, int relativeTypeIndx);
+    void        resetLineTypeRelativeIndex(const QString &fileName);
+    QVector<int>*getLineTypeRelativeIndexes(int submodelIndx);
 };
 
 int split(const QString &line, QStringList &argv);

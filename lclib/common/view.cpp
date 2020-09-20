@@ -525,6 +525,19 @@ void View::ShowContextMenu() const
 
 	QMenu* Popup = new QMenu(Widget);
 
+/*** LPub3D Mod - add context menu undo/redo ***/
+	Popup->addAction(Actions[LC_EDIT_UNDO]);
+	Popup->addAction(Actions[LC_EDIT_REDO]);
+
+	Popup->addSeparator();
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - add context menu edit submodel ***/
+	Popup->addAction(Actions[LC_PIECE_EDIT_SELECTED_SUBMODEL]);
+	Popup->addAction(Actions[LC_PIECE_EDIT_END_SUBMODEL]);
+
+	Popup->addSeparator();
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - context menu management ***/
 /***
 	Popup->addAction(Actions[LC_EDIT_CUT]);
@@ -547,13 +560,6 @@ void View::ShowContextMenu() const
 
 	Popup->addSeparator();
 ***/
-/*** LPub3D Mod end ***/
-
-/*** LPub3D Mod - context menu undo/redo ***/
-	Popup->addAction(Actions[LC_EDIT_UNDO]);
-	Popup->addAction(Actions[LC_EDIT_REDO]);
-
-	Popup->addSeparator();
 /*** LPub3D Mod end ***/
 
 	Popup->addMenu(gMainWindow->GetToolsMenu());
@@ -852,10 +858,11 @@ void View::OnDraw()
 	const bool DrawInterface = mWidget != nullptr;
 
 	mScene.SetAllowLOD(Preferences.mAllowLOD && mWidget != nullptr);
-	mScene.SetActiveSubmodelInstance(mActiveSubmodelInstance, mActiveSubmodelTransform);
-	mScene.SetDrawInterface(DrawInterface);
 
 	mScene.Begin(mCamera->mWorldView);
+
+	mScene.SetActiveSubmodelInstance(mActiveSubmodelInstance, mActiveSubmodelTransform);
+	mScene.SetDrawInterface(DrawInterface);
 
 	mModel->GetScene(mScene, mCamera, mHighlight);
 
@@ -1072,6 +1079,8 @@ void View::DrawSelectMoveOverlay()
 		}
 	}
 
+/*** LPub3D Mod - Selected Parts ***/
+/***
 	if (gMainWindow->GetTool() == LC_TOOL_SELECT && mTrackButton == LC_TRACKBUTTON_NONE && AnyPiecesSelected)
 	{
 		if (AllowedTransforms & LC_OBJECT_TRANSFORM_ROTATE_X)
@@ -1104,6 +1113,8 @@ void View::DrawSelectMoveOverlay()
 			mContext->DrawIndexedPrimitives(GL_TRIANGLES, 120, GL_UNSIGNED_SHORT, (108 + 240) * 2);
 		}
 	}
+***/
+/*** LPub3D Mod end ***/
 
 	if ((mTrackTool == LC_TRACKTOOL_MOVE_XY) || (mTrackTool == LC_TRACKTOOL_MOVE_XZ) || (mTrackTool == LC_TRACKTOOL_MOVE_YZ))
 	{

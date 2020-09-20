@@ -37,6 +37,7 @@
 #include <QTextCursor>
 #include <QFileSystemWatcher>
 
+#include "name.h"
 #include "historylineedit.h"
 
 class LDrawFile;
@@ -86,6 +87,7 @@ private:
     Highlighter  *highlighter;
     QComboBox    *mpdCombo;
     QString       fileName;            // of model file currently being displayed
+    int           fileOrderIndex;
     bool          _modelFileEdit;
     QString       _curSubFile;         // currently displayed submodel
     int           _saveSubfileIndex;
@@ -118,6 +120,7 @@ signals:
     void enableWatcherSig();
     void disableWatcherSig();
     void updateDisabledSig(bool);
+     void SelectedPartLinesSig(QVector<TypeLine>&, PartSource = EDITOR_LINE);
 
 private slots:
     void contentsChange(int position, int charsRemoved, int charsAdded);
@@ -132,12 +135,14 @@ private slots:
     void showAllCharacters();
     void mpdComboChanged(int index);
     void showContextMenu(const QPoint &pt);
+    void updateSelectedParts();
     void closeEvent(QCloseEvent *event);
 
 public slots:
     void displayFile(LDrawFile *, const QString &fileName);
     void modelFileChanged(const QString &fileName);
     void showLine(int);
+    void highlightSelectedLines(QVector<int> &lines);
     void updateDisabled(bool);
     void disableActions();
     void pageUpDown(
@@ -178,6 +183,9 @@ public:
     void setCompleterMaxSuggestions(int max);
     void setCompleterPrefix(const QString& prefix);
 
+signals:
+    void updateSelectedParts();
+
 public slots:
     void resizeEvent(QResizeEvent *e) override;
 
@@ -195,6 +203,7 @@ private slots:
 
 protected:
     void keyPressEvent(QKeyEvent *e) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
     void focusInEvent(QFocusEvent *e) override;
     QString currentWord() const;
 

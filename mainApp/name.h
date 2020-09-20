@@ -32,6 +32,16 @@ struct SnapGridCommands
     const char* StatusText;
 };
 
+struct TypeLine {
+  int modelIndex;
+  int lineIndex;
+  TypeLine(){}
+  TypeLine(int _modelIndex,int _lineIndex) :
+      modelIndex(_modelIndex),
+      lineIndex(_lineIndex)
+  {}
+};
+
 enum PartType { FADE_PART, HIGHLIGHT_PART, NORMAL_PART, NUM_PART_TYPES };
 enum PliType { PART, SUBMODEL, BOM, NUM_PLI_TYPES };
 enum LogType { LOG_STATUS, LOG_INFO, LOG_TRACE, LOG_DEBUG, LOG_NOTICE, LOG_ERROR, LOG_INFO_STATUS, LOG_FATAL, LOG_QWARNING, LOG_QDEBUG };
@@ -44,6 +54,7 @@ enum RulerTrackingType { TRACKING_TICK, TRACKING_LINE, TRACKING_NONE};
 enum SceneGuidesPosType { GUIDES_TOP_LEFT, GUIDES_TOP_RIGHT, GUIDES_CENTRE, GUIDES_BOT_LEFT, GUIDES_BOT_RIGHT};
 enum LibType { LibLEGO, LibTENTE, LibVEXIQ, NumLibs };
 enum Theme { ThemeDark, ThemeDefault };
+enum PartSource { EDITOR_LINE, VIEWER_NONE = EDITOR_LINE, VIEWER_LINE, VIEWER_MOD };
 enum SaveOnSender { SaveOnNone, SaveOnRedraw, SaveOnUpdate };
 enum NativeType { NTypeDefault, NTypeCalledOut, NTypeMultiStep };
 enum SceneObjectInfo { ObjectId };
@@ -388,7 +399,9 @@ static const SceneObject PliPartGroupSceneObjects[] =
 
 #define SPLASH_FONT_COLOUR                      "#aa0000" // LPub3D Maroon
 
-#define PREVIEW_SUBMODEL_SUFFIX                 "@Preview"
+#define PREVIEW_SUBMODEL_SUFFIX                 "Preview"
+
+#define VIEWER_MODEL_DEFAULT                    "LPub3D_PlcHldr.ldr"
 
 // Renderers
 #define RENDERER_POVRAY                         "POVRay"

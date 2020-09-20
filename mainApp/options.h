@@ -209,6 +209,7 @@ public:
             QStringList                 &_csiKeys,
             QHash<QString, QStringList> &_bfx,
             QList<PliPartGroupMeta>     &_pliPartGroups,
+            QVector<int>                &_lineTypeIndexes,
 
             int                          _stepNum,
             int                          _groupStepNumber,
@@ -225,8 +226,9 @@ public:
           ldrStepFiles                  (_ldrStepFiles),
           csiKeys                       (_csiKeys),
           bfx                           (_bfx),
-
           pliPartGroups                 (_pliPartGroups),
+          lineTypeIndexes               (_lineTypeIndexes),
+
           stepNum                       (_stepNum),
           groupStepNumber               (_groupStepNumber),
           isMirrored                    (_isMirrored),
@@ -243,6 +245,7 @@ public:
     QStringList                 &csiKeys;
     QHash<QString, QStringList> &bfx;
     QList<PliPartGroupMeta>     &pliPartGroups;
+    QVector<int>                &lineTypeIndexes;
 
     int                          stepNum;
     int                          groupStepNumber;

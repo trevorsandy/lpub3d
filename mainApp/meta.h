@@ -104,6 +104,7 @@ enum Rc {
          MLCadSkipEndRc,
          MLCadGroupRc,
          LDCadGroupRc,
+         LDCadGeneratedRc,
          LeoCadGroupBeginRc,
          LeoCadGroupEndRc,
 
@@ -3473,6 +3474,7 @@ class LDCadMeta : public BranchMeta
 {
 public:
   StringMeta LDCadGrp;
+  RcMeta     LDCadGenerated;
   LDCadMeta() {}
   virtual ~LDCadMeta() {}
   virtual void init(BranchMeta *parent, QString name);

@@ -83,6 +83,7 @@ LDrawSubFile::LDrawSubFile(
   _generated = generated;
   _prevStepPosition = 0;
   _startPageNumber = 0;
+  _lineTypeIndexes.clear();
 }
 
 /* initialize viewer step*/
@@ -393,6 +394,72 @@ bool LDrawFile::older(const QStringList &parsedStack,
 
 QStringList LDrawFile::subFileOrder() {
   return _subFileOrder;
+}
+
+QString LDrawFile::getSubmodelName(int index)
+{
+    if (index > -1 && index < _subFileOrder.size()){
+        QString subFileName = _subFileOrder[index];
+        if (!subFileName.isEmpty())
+            return subFileName;
+    }
+    return QString();
+}
+
+int LDrawFile::getSubmodelIndex(const QString &mcFileName)
+{
+    QString fileName = mcFileName.toLower();
+    return _subFileOrder.indexOf(fileName);
+}
+
+// The Line Type Index is the position of the type 1 line in the parsed subfile written to temp
+// This function returns the position (Relative Type Index) of the type 1 line in the subfile content
+int LDrawFile::getLineTypeRelativeIndex(int submodelIndx, int lineTypeIndx) {
+    QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(getSubmodelName(submodelIndx).toLower());
+    if (f != _subFiles.end() && f.value()._lineTypeIndexes.size() > lineTypeIndx) {
+        return f.value()._lineTypeIndexes.at(lineTypeIndx);
+    }
+    return -1;
+}
+
+// The Relative Type Index is the position of the type 1 line in the subfile content
+// This function inserts the Relative Type Index at the position (Line Type Index)
+// of the type 1 line in the parsed subfile written to temp
+void LDrawFile::setLineTypeRelativeIndex(int submodelIndx, int relativeTypeIndx) {
+    QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(getSubmodelName(submodelIndx).toLower());
+    if (f != _subFiles.end()) {
+        f.value()._lineTypeIndexes.append(relativeTypeIndx);
+    }
+}
+
+// This function returns the submodel Line Type Index
+int LDrawFile::getLineTypeIndex(int submodelIndx, int relativeTypeIndx) {
+    QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(getSubmodelName(submodelIndx).toLower());
+    if (f != _subFiles.end() && f.value()._lineTypeIndexes.size()) {
+        for (int i = 0; i < f.value()._lineTypeIndexes.size(); ++i)
+            if (f.value()._lineTypeIndexes.at(i) == relativeTypeIndx)
+                return i;
+    }
+    return -1;
+}
+
+// This function returns a pointer to the submodel Line Type Index vector
+QVector<int> *LDrawFile::getLineTypeRelativeIndexes(int submodelIndx){
+    QVector<int> *lineTypeIndexes = new QVector<int>;
+    QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(getSubmodelName(submodelIndx).toLower());
+    if (f != _subFiles.end() && f.value()._lineTypeIndexes.size()) {
+        lineTypeIndexes = &f.value()._lineTypeIndexes;
+    }
+    return lineTypeIndexes;
+}
+
+// This function resets the Line Type Indexes vector
+void LDrawFile::resetLineTypeRelativeIndex(const QString &mcFileName) {
+    QString fileName = mcFileName.toLower();
+    QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(fileName);
+    if (f != _subFiles.end()) {
+        f.value()._lineTypeIndexes.clear();
+    }
 }
 
 QString LDrawFile::readLine(const QString &mcFileName, int lineNumber)

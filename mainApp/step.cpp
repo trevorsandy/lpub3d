@@ -221,8 +221,9 @@ Page *Step::page()
  */
 
 int Step::createCsi(
-    QString     const &addLine,
-    QStringList const &csiParts,  // the partially assembles model
+    QString      const &addLine,
+    QStringList  const &csiParts,  // the partially assembles model
+    QVector<int> const &_lineTypeIndexes,
     QPixmap           *pixmap,
     Meta              &meta,
     bool               bfxLoad)   // Bfx load special case (no parts added)
@@ -244,6 +245,7 @@ int Step::createCsi(
   bool    absRotstep    = meta.rotStep.value().type == "ABS";
   bool    useImageSize  = csiStepMeta.imageSize.value(0) > 0;
   FloatPairMeta noCA;
+  lineTypeIndexes       =_lineTypeIndexes;
 
   ldrName.clear();
 
@@ -326,16 +328,19 @@ int Step::createCsi(
   int rc = 0;
 
   // Populate viewerStepKey variable
-  viewerStepKey = QDir::toNativeSeparators(QString("\"%1\"%2;%3%4")
-                                                  .arg(top.modelName)
-                                                  .arg(top.lineNumber)
-                                                  .arg(stepNumber.number)
-                                                  .arg(modelDisplayOnlyStep ? "_fm" : ""));
+  viewerStepKey = QString("%1;%2;%3%4")
+                          .arg(gui->getSubmodelIndex(top.modelName))
+                          .arg(top.lineNumber)
+                          .arg(stepNumber.number)
+                          .arg(modelDisplayOnlyStep ? "_fm" : "");
+
+  emit gui->messageSig(LOG_DEBUG,QString("DEBUG - CSI viewerStepKey [%1] - modelName [%2]")
+                                         .arg(viewerStepKey).arg(top.modelName));
 
   // Viewer Csi does not yet exist in repository
   bool addViewerStepContent = !gui->viewerStepContentExist(viewerStepKey);
   // We are processing again the current step so Csi must have been updated in the viewer
-  bool viewerUpdate = viewerStepKey == QDir::toNativeSeparators(gui->getViewerStepKey());
+  bool viewerUpdate = viewerStepKey == gui->getViewerStepKey();
 
   // Generate 3DViewer CSI entry - TODO move to after generate renderer CSI file
   if ((addViewerStepContent || csiOutOfDate || viewerUpdate) && ! gui->exportingObjects()) {
@@ -352,15 +357,7 @@ int Step::createCsi(
 
       // header and closing meta
 
-      QString modelName = QFileInfo(top.modelName).completeBaseName().toLower();
-      modelName = QString("%1%2").arg(modelName.replace(
-                                      modelName.indexOf(modelName.at(0)),1,modelName.at(0).toUpper()))
-                                 .arg(modelDisplayOnlyStep ? " - Final Model" : "");
-      rotatedParts.prepend(QString("0 !LEOCAD MODEL NAME %1").arg(modelName));
-      rotatedParts.prepend(QString("0 Name: %1").arg(top.modelName));
-      rotatedParts.prepend(QString("0 %1").arg(modelName));
-      rotatedParts.prepend(QString("0 FILE %1").arg(modelName));
-      rotatedParts.append("0 NOFILE");
+      renderer->setNativeHeaderAndNoFileMeta(rotatedParts,top.modelName,false/*pliPart*/,modelDisplayOnlyStep);
 
       // consolidate subfiles and parts into single file
       if ((rc = renderer->createNativeModelFile(rotatedParts,fadeSteps,highlightStep) != 0))
@@ -495,6 +492,7 @@ int Step::createCsi(
          viewerOptions->ImageWidth  = pixmap->width();
          viewerOptions->ImageHeight = pixmap->height();
       }
+
       // Load the 3DViewer
       loadTheViewer();
   }
@@ -511,6 +509,19 @@ bool Step::loadTheViewer(){
         }
     }
     return true;
+}
+
+int Step::getLineTypeRelativeIndex(int lineTypeIndx){
+    if (lineTypeIndexes.size() > lineTypeIndx)
+        return lineTypeIndexes.at(lineTypeIndx);
+    return -1;
+}
+
+int Step::getLineTypeIndex(int relativeTypeIndx){
+    for (int i = 0; i < lineTypeIndexes.size(); ++i)
+        if (lineTypeIndexes.at(i) == relativeTypeIndx)
+            return i;
+    return -1;
 }
 
 void Step::getStepLocation(Where &top, Where &bottom) {

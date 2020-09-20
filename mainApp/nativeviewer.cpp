@@ -99,6 +99,9 @@ void Gui::create3DMenus()
      ViewerMenu->addAction(gMainWindow->mActions[LC_FILE_SAVE_IMAGE]);
      ViewerMenu->addMenu(ViewerExportMenu);
      ViewerMenu->addSeparator();
+     ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_EDIT_SELECTED_SUBMODEL]);
+     ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_EDIT_END_SUBMODEL]);
+     ViewerMenu->addSeparator();
      ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_ZOOM_EXTENTS]);
      ViewerMenu->addAction(gMainWindow->mActions[LC_VIEW_LOOK_AT]);
      gMainWindow->mActions[LC_VIEW_LOOK_AT]->setIcon(QIcon(":/resources/lookat.png"));
@@ -507,3 +510,262 @@ void Gui::createStatusBar()
   connect(gMainWindow->mLCStatusBar, SIGNAL(messageChanged(QString)), this, SLOT(showLCStatusMessage()));
 }
 
+void Gui::SetActiveModel(const QString &fileName,bool newSubmodel)
+{
+    if (fileName != VIEWER_MODEL_DEFAULT) {
+        displayFile(&ldrawFile,
+                    newSubmodel ? fileName :
+                                  getSubmodelName(QString(viewerStepKey[0]).toInt()));
+    }
+}
+
+/*********************************************
+ *
+ * split viewer step keys
+ *
+ ********************************************/
+
+QStringList Gui::getViewerStepKeys(bool modelName)
+{
+    // viewerStepKey elements CSI: 0=modelNameIndex, 1=lineNumber, 2=stepNumber [,3=_fm (finalModel)]
+    QStringList keys = viewerStepKey.split(";");
+    // confirm keys has at least 3 elements
+    if (keys.size() < 3) {
+        if (Preferences::debugLogging)
+            emit messageSig(LOG_DEBUG, QString("Parse stepKey [%1] failed").arg(viewerStepKey));
+        return QStringList();
+    }
+
+    bool ok;
+    int modelNameIndex = keys[0].toInt(&ok);
+    if (!ok) {
+        if (Preferences::debugLogging)
+            emit messageSig(LOG_DEBUG, QString("Parse stepKey failed. Expected model name index integer got [%1]").arg(keys[0]));
+        return QStringList();
+    }
+
+    if (modelName)
+        keys.replace(0,getSubmodelName(modelNameIndex));
+
+    return keys;
+}
+
+/*********************************************
+ *
+ * extract stepKey
+ *
+ ********************************************/
+
+  bool Gui::extractStepKey(Where &here, int &stepNumber)
+  {
+      // viewerStepKey elements CSI: 0=modelName, 1=lineNumber, 2=stepNumber [,3=_fm (finalModel)]
+      QStringList keyArgs = getViewerStepKeys();
+
+      if (!keyArgs.size())
+          return false;
+
+      QString modelName  = keyArgs[0]; // Converted to modelName in getViewerStepKeys()
+
+      bool ok[2];
+      int lineNumber = keyArgs[1].toInt(&ok[0]);
+      if (modelName.isEmpty()) {
+          emit messageSig(LOG_ERROR,QString("Model name was not found for index [%1]").arg(keyArgs[1]));
+          return false;
+      } else if (!ok[0]) {
+          emit messageSig(LOG_ERROR,QString("Line number is not an integer [%1]").arg(keyArgs[1]));
+          return false;
+      } else {
+          here = Where(modelName,lineNumber);
+      }
+
+      stepNumber = 0;
+      if (page.modelDisplayOnlyStep) {
+          stepNumber = QStringList(keyArgs[2].split("_")).first().toInt(&ok[1]);
+      } else {
+          stepNumber = keyArgs[2].toInt(&ok[1]);
+      }
+      if (!ok[1]) {
+          emit messageSig(LOG_NOTICE,QString("Step number is not an integer [%1]").arg(keyArgs[2]));
+          return false;
+      }
+
+//      if (Preferences::debugLogging) {
+//          QString messsage = QString("Step Key parse OK, modelName: %1, lineNumber: %2, stepNumber: %3")
+//                                     .arg(modelName).arg(lineNumber).arg(stepNumber);
+//          if (!stepNumber && page.pli.tsize() && page.pli.bom)
+//              messsage = QString("Step Key parse OK but this is a BOM page, step pageNumber: %1")
+//                                 .arg(stepPageNum);
+//          emit messageSig(LOG_DEBUG, messsage);
+//      }
+
+      return true;
+  }
+
+/*********************************************
+ *
+ * current step
+ *
+ ********************************************/
+
+Step *Gui::getCurrentStep()
+{
+    Where here;
+    int stepNumber;
+
+    extractStepKey(here,stepNumber);
+
+    if (!stepNumber)
+        return nullptr;
+
+    Step *step     = nullptr;
+    bool stepMatch = false;
+    bool multiStep = false;
+    bool calledOut = false;
+    if ((multiStep = isViewerStepMultiStep(viewerStepKey))) {
+        for (int i = 0; i < page.list.size() && !stepMatch; i++){
+            Range *range = dynamic_cast<Range *>(page.list[i]);
+            for (int j = 0; j < range->list.size(); j++){
+                if (range->relativeType == RangeType) {
+                    step = dynamic_cast<Step *>(range->list[j]);
+                    if (step && step->relativeType == StepType){
+                        stepMatch = step->stepNumber.number == stepNumber;
+                        if (stepMatch)
+                            break;
+                    }
+                }
+            }
+        }
+    } else if ((calledOut = isViewerStepCalledOut(viewerStepKey))) {
+        for (int k = 0; k < step->list.size() && !stepMatch; k++) {
+            if (step->list[k]->relativeType == CalloutType) {
+                Callout *callout = dynamic_cast<Callout *>(step->list[k]);
+                for (int l = 0; l < callout->list.size() && !stepMatch; l++){
+                    Range *range = dynamic_cast<Range *>(callout->list[l]);
+                    for (int m = 0; m < range->list.size() && !stepMatch; m++){
+                        if (range->relativeType == RangeType) {
+                            Step *step = dynamic_cast<Step *>(range->list[m]);
+                            if (step && step->relativeType == StepType){
+                                stepMatch = step->stepNumber.number == stepNumber;
+                                if (stepMatch)
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    } else {
+        if (gStep)
+            step = (stepMatch = gStep->stepNumber.number == stepNumber) ? gStep : nullptr;
+    }
+
+    if (Preferences::debugLogging && !stepMatch)
+        emit messageSig(LOG_DEBUG, QString("%1 Step number %2 for %3 - modelName [%4] topOfStep [%5]")
+                                           .arg(stepMatch ? "Match!" : "Oh oh!")
+                                           .arg(QString("%1 %2").arg(stepNumber).arg(stepMatch ? "found" : "not found"))
+                                           .arg(multiStep ? "multi step" : calledOut ? "called out" : "single step")
+                                           .arg(here.modelName).arg(here.lineNumber));
+    return step;
+}
+
+/*********************************************
+ *
+ * slelcted Line
+ *
+ ********************************************/
+
+bool Gui::getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNumber) {
+
+    lineNumber        = 0;
+    bool currentModel = modelIndex == -1;
+    bool fromViewer   = source > EDITOR_LINE;
+
+    if (currentModel) {
+
+        if (!getCurrentStep())
+            return false;
+
+        if (Preferences::debugLogging) {
+            emit messageSig(LOG_TRACE, QString("Step lineIndex size: %1 item(s)")
+                                                .arg(getCurrentStep()->lineTypeIndexes.size()));
+            for (int i = 0; i < getCurrentStep()->lineTypeIndexes.size(); ++i)
+                emit messageSig(LOG_TRACE, QString("-Part lineNumber: [%1] at step line lineIndex [%2] - specified lineIndex [%3]")
+                                                   .arg(getCurrentStep()->lineTypeIndexes.at(i)).arg(i).arg(lineIndex));
+        }
+
+        if (fromViewer)      // input relativeIndes
+            lineNumber = getCurrentStep()->getLineTypeRelativeIndex(lineIndex);
+        else                 // input lineTypeIndex
+            lineNumber = getCurrentStep()->getLineTypeIndex(lineIndex);
+
+    } else {
+
+        if (fromViewer)      // input relativeIndes
+            lineNumber = getLineTypeRelativeIndex(modelIndex,lineIndex); // return lineTypeIndex - part lineNumber
+        else                 // input lineTypeIndex
+            lineNumber = getLineTypeIndex(modelIndex,lineIndex);         // return relativeIndex - step line lineIndex
+    }
+
+    return lineNumber != -1;
+}
+
+/*********************************************
+ *
+ * Selected part index(es)
+ *
+ ********************************************/
+
+void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
+    if (! exporting()) {
+
+        QVector<int> lines;
+        bool fromViewer   = source > EDITOR_LINE;
+        bool validLine    = false;
+        int lineIndex     = -1;
+        int lineNumber    = -1;;
+        QString stepModel = viewerStepKey.isEmpty() ? "undefined" : gui->getSubmodelName(QString(viewerStepKey[0]).toInt());
+        QString modelName = indexes.size() ? getSubmodelName(indexes.at(0).modelIndex) : "undefined";
+        int modelIndex    = stepModel == modelName || modelName == "undefined" ? -1 : indexes.at(0).modelIndex;
+
+        if (Preferences::debugLogging && modelIndex != -1) {
+            emit messageSig(LOG_TRACE, QString("Submodel lineIndex size: %1 item(s)")
+                                               .arg(ldrawFile.getLineTypeRelativeIndexes(modelIndex)->size()));
+        }
+
+        for (int i = 0; i < indexes.size(); ++i) {
+
+            lineIndex  = indexes.at(i).lineIndex;
+            validLine  = getSelectedLine(modelIndex, lineIndex, source, lineNumber);
+
+            if (validLine) {
+                lines.append(lineNumber);
+                if (fromViewer) {
+                    Where here = Where(modelName, lineNumber);
+                    if (!modifiedParts.contains(here))
+                        modifiedParts.append(here);
+                }
+            }
+
+            if (Preferences::debugLogging) {
+                QString Message;
+                if (!validLine) {
+                    Message = tr("Invalid part lineNumber [%1] for step line index [%2]")
+                                 .arg(fromViewer ? lineNumber : lineIndex)
+                                 .arg(fromViewer ? lineIndex : lineNumber);
+                } else if (fromViewer) {
+                    Message = tr("Selected part modelName [%1] lineNumber: [%2] at step line index [%3]")
+                                 .arg(modelName).arg(lineNumber).arg(lineIndex);
+                } else {
+                    Message = tr("Selected part modelName [%1] lineNumber: [%2] at step line index [%3]")
+                                 .arg(modelName).arg(lineIndex).arg(lineNumber);
+                }
+                emit messageSig(LOG_TRACE, Message);
+            }
+        }
+
+        if (fromViewer)
+            emit highlightSelectedLinesSig(lines);
+        else
+            emit setSelectedPiecesSig(lines);
+    }
+}

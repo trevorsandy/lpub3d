@@ -202,6 +202,21 @@ const QString Render::getRotstepMeta(RotStepMeta &rotStep, bool isKey /*false*/)
   return rotstepString;
 }
 
+void Render::setNativeHeaderAndNoFileMeta(QStringList &parts,
+                                  const QString &modelName,
+                                  bool pliPart,
+                                  bool displayOnly){
+    QString baseName = QFileInfo(modelName).completeBaseName().toLower();
+    baseName = QString("%1%2").arg(baseName.replace(baseName.indexOf(baseName.at(0)),1,baseName.at(0).toUpper()))
+                              .arg(displayOnly ? " - Final Model" : "");
+    parts.prepend(QString("0 Name: %1").arg(modelName));
+    parts.prepend(QString("0 %1").arg(baseName));
+    if (!pliPart){
+        parts.prepend(QString("0 FILE %1").arg(modelName));
+        parts.append("0 NOFILE");
+    }
+}
+
 bool Render::useLDViewSCall(){
     return (Preferences::preferredRenderer == RENDERER_LDVIEW &&
             Preferences::enableLDViewSingleCall);
@@ -2680,22 +2695,21 @@ bool Render::RenderNativeImage(const NativeOptions *Options)
 
 bool Render::LoadViewer(const ViewerOptions *Options){
 
-    QString viewerStepKey = Options->ViewerStepKey;
+    gui->setViewerStepKey(Options->ViewerStepKey);
 
     Project* StepProject = new Project();
-    if (LoadStepProject(StepProject, viewerStepKey)){
+    if (LoadStepProject(StepProject, Options->ViewerStepKey)){
         gApplication->SetProject(StepProject);
         gMainWindow->UpdateAllViews();
     }
     else
     {
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load 3DViewer model file %1.")
-                             .arg(viewerStepKey));
+                             .arg(Options->ViewerStepKey));
+        gui->setViewerStepKey(QString());
         delete StepProject;
         return false;
     }
-
-    gui->setViewerStepKey(viewerStepKey);
 
     NativeOptions *derived = new NativeOptions(*Options);
     if (derived)
@@ -2722,28 +2736,23 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerStepKey)
     }
 
 #ifdef QT_DEBUG_MODE
-    QString valueAt0 = viewerStepKey.at(0);
-    bool inside = (valueAt0 == "\"");                                                 // true if the first character is "
-    QStringList tmpList = viewerStepKey.split(QRegExp("\""), QString::SkipEmptyParts); // Split by "
-    QStringList argv01;
-    foreach (QString s, tmpList) {
-        if (inside) {                                                                 // If 's' is inside quotes ...
-            argv01.append(s);                                                         // ... get the whole string
-        } else {                                                                      // If 's' is outside quotes ...
-            argv01.append(s.split(" ", QString::SkipEmptyParts));                     // ... get the split string
-        }
-        inside = !inside;
-    }
-    QString modelName  = argv01[0];                                                   //0=modelName
+    // viewerStepKey elements:
+    // CSI: 0=modelName, 1=lineNumber, 2=stepNumber [,3=_fm (finalModel)]
+    // PLI: 0=modelName, 1=colour, 2=stepNumber
+    // SMP: 0=modelName_suffix, 1=lineNumber, 2=stepNumber
 
     QFileInfo outFileInfo(FileName);
+    QStringList keys    = gui->getViewerStepKeys();
     QString imageType   = outFileInfo.completeBaseName().replace(".ldr","");
-    QString baseName    = QFileInfo(modelName).completeBaseName();
-    QStringList argv02  = imageType == "pli" ? argv01[1].split(";") : QStringList();
+    QString baseName    = keys[0];
     QString outfileName = QString("%1/viewer_%2_%3.ldr")
-            .arg(outFileInfo.absolutePath())
-            .arg(imageType)
-            .arg(argv02.size() ? QString("%1_%2_%3").arg(baseName).arg(argv02.first()).arg(argv02.last()) : baseName);
+                                  .arg(outFileInfo.absolutePath())
+                                  .arg(imageType)
+                                  .arg(imageType == "pli" ?
+                                           QString("%1_%2_%3")
+                                                   .arg(baseName)
+                                                   .arg(keys[1])
+                                                   .arg(keys[2]) : baseName);
 
     QFile file(outfileName);
     if ( ! file.open(QFile::WriteOnly | QFile::Text)) {

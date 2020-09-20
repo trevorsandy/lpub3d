@@ -64,6 +64,7 @@ class Step : public AbstractRangeElement
     DividerType           dividerType;
     QList<Callout *>      list;
     QList<CsiAnnotation*> csiAnnotations;
+    QVector<int>          lineTypeIndexes;
     Pli                   pli;
     SubModel              subModel;
     CsiItem              *csiItem;
@@ -126,6 +127,8 @@ class Step : public AbstractRangeElement
     Page  *page();
 
     bool loadTheViewer();
+    int  getLineTypeRelativeIndex(int lineTypeIndx);
+    int  getLineTypeIndex(int relativeTypeIndx);
 
     MetaItem *mi(int which = -1)
     {
@@ -152,9 +155,10 @@ class Step : public AbstractRangeElement
     int  createCsi(
            QString      const &addLine,
            QStringList  const &csiParts,
+           QVector<int> const &lineTypeIndexes,
            QPixmap            *pixmap,
            Meta               &meta,
-           bool               bfxLoad = false);
+           bool                bfxLoad = false);
 
     int  sizeit(int  rows[],
                 int  cols[],

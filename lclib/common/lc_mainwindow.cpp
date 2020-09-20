@@ -1217,6 +1217,12 @@ void lcMainWindow::Halt3DViewer(bool b)
 }
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - Selected Parts ***/
+int lcMainWindow::GetImageType(){
+	return lcGetActiveProject()->GetImageType();
+}
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - rotate step objects ***/
 void lcMainWindow::SetStepRotStepMeta(lcCommandId CommandId)
 {
@@ -2384,34 +2390,111 @@ void lcMainWindow::RemoveRecentFile(int FileIndex)
 	UpdateRecentFiles();
 }
 
-void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged)
+/*** LPub3D Mod - Selected Parts ***/
+void lcMainWindow::SetSelectedPieces(QVector<int> &LineTypeIndexes){
+	if (GetImageType() == Options::CSI) {
+
+		lcModel* ActiveModel = GetActiveModel();
+
+		if (ActiveModel) {
+			ActiveModel->SetSelectedPieces(LineTypeIndexes);
+		}
+	}
+}
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - Whole model and selected Parts  ***/
+void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int EmitSelection)
 {
 	int Flags = 0;
 	lcArray<lcObject*> Selection;
 	lcObject* Focus = nullptr;
 
-	lcGetActiveModel()->GetSelectionInformation(&Flags, Selection, &Focus);
+	lcModel* ActiveModel = GetActiveModel();
+	if (ActiveModel)
+		ActiveModel->GetSelectionInformation(&Flags, Selection, &Focus);
 
-/*** LPub3D Mod - Select whole model if Rotate Tool selected  ***/
 	lcTool Tool = GetTool();
 	QAction* Action = mActions[LC_EDIT_ACTION_FIRST + Tool];
-	if (Tool == LC_TOOL_ROTATE && Action && Action->isChecked()) {
-		View* ActiveView = GetActiveView();
-		lcModel* ActiveModel = ActiveView ? ActiveView->GetActiveModel() : nullptr;
+
+	if (Action && Action->isChecked()) {
+
 		if (ActiveModel) {
-			for (lcPiece* Piece : ActiveModel->GetPieces())
-				if (Piece->IsVisible(ActiveModel->GetCurrentStep()))
-					Piece->SetSelected(true);
-			if (!SelectionChanged)
-				SelectionChanged = true;
-			lcObject* ThrowAway;
-			lcGetActiveModel()->GetSelectionInformation(&Flags, Selection, &ThrowAway);
+			/*** LPub3D Mod - Select whole model if Rotate Tool selected  ***/
+			if (Tool == LC_TOOL_ROTATE) {
+
+				for (lcPiece* Piece : ActiveModel->GetPieces())
+					if (Piece->IsVisible(ActiveModel->GetCurrentStep()))
+						Piece->SetSelected(true);
+
+				if (!SelectionChanged)
+					SelectionChanged = true;
+
+				lcObject* ThrowAway;
+				ActiveModel->GetSelectionInformation(&Flags, Selection, &ThrowAway);
+			/*** LPub3D Mod end ***/
+
+			} else 
+
+			/*** LPub3D Mod - Selected Parts ***/
+			if (EmitSelection && Tool == LC_TOOL_SELECT && GetImageType() == Options::CSI) {
+
+				QVector<TypeLine> LineTypeIndexes;
+
+				if (Selection.GetSize() > 0) {
+
+					QString Message;
+					if (Preferences::debugLogging) {
+						Message = tr("%1 viewer object(s) selected in model [%2]").arg(Selection.GetSize()).arg(ActiveModel->GetName());
+						gui->statusMessage(LOG_DEBUG, Message);
+					}
+
+					if ((Selection.GetSize() == 1))
+					{
+						lcObject *SelectedItem = Selection[0];
+
+						if (SelectedItem && SelectedItem->IsPiece()) {
+
+							TypeLine typeLine(gui->getSubmodelIndex(ActiveModel->GetName()),((lcPiece*)SelectedItem)->GetLineTypeIndex());
+							LineTypeIndexes.append(typeLine);
+
+							Message = tr("Selected Piece - %1 (ID: %2) LineTypeIndex: %3")
+										 .arg(((lcPiece*)SelectedItem)->GetName())
+										 .arg(((lcPiece*)SelectedItem)->GetID())
+										 .arg(LineTypeIndexes.last().lineIndex);
+							gui->statusMessage(LOG_DEBUG, Message);
+						}
+					}
+					else if (Selection.GetSize() > 0)
+					{
+						for (lcObject *SelectedItem : Selection) {
+
+							if (SelectedItem->IsPiece()) {
+
+								TypeLine typeLine(gui->getSubmodelIndex(ActiveModel->GetName()),((lcPiece*)SelectedItem)->GetLineTypeIndex());
+								LineTypeIndexes.append(typeLine);
+
+								if (Preferences::debugLogging) {
+									Message = tr("Selected Piece - %1 (ID: %2) LineTypeIndex: %3")
+												 .arg(((lcPiece*)SelectedItem)->GetName())
+												 .arg(((lcPiece*)SelectedItem)->GetID())
+												 .arg(LineTypeIndexes.last().lineIndex);
+									gui->statusMessage(LOG_DEBUG, Message);
+								}
+							}
+						}
+					}
+				}
+				emit SelectedPartLinesSig(LineTypeIndexes, PartSource(EmitSelection));
+			}
+			/*** LPub3D Mod end ***/
 		}
 	}
 /*** LPub3D Mod end ***/
 
 	if (SelectionChanged)
 	{
+
 		mTimelineWidget->UpdateSelection();
 
 		mActions[LC_EDIT_CUT]->setEnabled(Flags & LC_SEL_SELECTED);
@@ -2448,6 +2531,8 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged)
 		mActions[LC_PIECE_SHOW_EARLIER]->setEnabled(Flags & LC_SEL_PIECE); // FIXME: disable if current step is 1
 		mActions[LC_PIECE_SHOW_LATER]->setEnabled(Flags & LC_SEL_PIECE);
 		mActions[LC_TIMELINE_MOVE_SELECTION]->setEnabled(Flags & LC_SEL_PIECE);
+
+		mActions[LC_PIECE_EDIT_END_SUBMODEL]->setEnabled(GetCurrentTabModel() != ActiveModel);
 	}
 
 	mPropertiesWidget->Update(Selection, Focus);
