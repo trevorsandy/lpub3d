@@ -1875,7 +1875,8 @@ void LDrawFile::insertBuildMod(const QString      &buildModKey,
   }
   BuildMod buildMod(modAttributes, modAction, stepNumber);
   _buildMods.insert(modKey, buildMod);
-  _buildModList.append(modKey);
+  if (!_buildModList.contains(modKey))
+      _buildModList.append(modKey);
 }
 
 int LDrawFile::getBuildModBeginLineNumber(const QString &buildModKey)
@@ -1964,14 +1965,12 @@ QStringList LDrawFile::getBuildModsList() {
 
 int LDrawFile::getBuildModNextIndex(const QString &buildModKeyPrefix)
 {
-  int index = 0;
-  QString  modKey = buildModKeyPrefix.toLower();
-  for (int i = 0; i < _buildModList.size(); i++) {
-    if (_buildModList[i].toLower().startsWith(modKey)) {
-      index++;
-    }
-  }
-  return index + 1;
+  QString modKey = buildModKeyPrefix.toLower();
+  int index = _buildModList.size();
+  if (_buildModList.contains(modKey))
+      index = _buildModList.indexOf(modKey) + 1;
+
+  return index;
 }
 
 QString LDrawFile::getBuildModModelName(const QString &buildModKey)
@@ -1987,12 +1986,8 @@ QString LDrawFile::getBuildModModelName(const QString &buildModKey)
 
 bool LDrawFile::buildModContains(const QString &buildModKey)
 {
-  for (int i = 0; i < _buildModList.size(); i++) {
-    if (_buildModList[i].toLower() == buildModKey.toLower()) {
-      return true;
-    }
-  }
-  return false;
+  QString modKey = buildModKey.toLower();
+  return _buildModList.contains(modKey);
 }
 
 /* Add a new Viewer Step */
