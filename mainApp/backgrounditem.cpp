@@ -111,21 +111,12 @@ void BackgroundItem::setBackground(
   switch(backgroundData.type) {
     case BackgroundData::BgImage:
       {
-        QFileInfo fileInfo, imageInfo;
-        imageInfo.setFile(backgroundData.string);
-        QString filename(imageInfo.fileName());
-
-        fileInfo.setFile(QDir::currentPath() + "/" + filename); // relative path
-
-        if (!fileInfo.exists()) {
-            fileInfo.setFile(imageInfo.absoluteFilePath());     // insert path
+        QFileInfo fileInfo(backgroundData.string);
+        if (fileInfo.exists()) {
+            backgroundData.string = fileInfo.absoluteFilePath();
         } else {
-          backgroundData.string = fileInfo.absoluteFilePath();  // update insert path
-        }
-
-        if (!fileInfo.exists()) {
             emit lpubAlert->messageSig(LOG_ERROR, QString("Unable to locate background image %1. Be sure image file "
-                                                      "is relative to model file or use absolute path.").arg(filename));
+                                                          "is relative to model file or use absolute path.").arg( fileInfo.fileName()));
             return;
         }
 
@@ -228,7 +219,7 @@ void BackgroundItem::setBackground(
   painter.setBrush(brushColor);
 
   if (borderData.type == BorderData::BdrRound) {
-      painter.drawRoundRect(prect,int(rx),int(ry));
+      painter.drawRoundedRect(prect,int(rx),int(ry));
     } else {
       painter.drawRect(prect);
     }

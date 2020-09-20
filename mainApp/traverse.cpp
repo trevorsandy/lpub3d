@@ -1646,10 +1646,10 @@ int Gui::drawPage(
                   multiStep = false;
 
                   // get the number of submodel instances in the model file
-                  int countInstanceOverride = steps->meta.LPub.page.countInstanceOverride.value();
+                  int countInstanceOverride = /*steps->meta*/steps->groupStepMeta.LPub.page.countInstanceOverride.value();
                   int instances = countInstanceOverride ? countInstanceOverride :
                                                           ldrawFile.instances(opts.current.modelName, opts.isMirrored);
-                  // count the instances accordingly
+                  // count the instances - use steps->meta (vs. steps->groupStepMeta) to access current submodelStack
                   displayCount= countInstances && instances > 1;
                   if (displayCount && countInstances != CountAtTop && !countInstanceOverride) {
                       MetaItem mi;
@@ -1659,12 +1659,17 @@ int Gui::drawPage(
                       if (countInstances > CountFalse && countInstances < CountAtStep)
                           instances = mi.countInstancesInModel(&steps->meta, opts.current.modelName);
                   }
-
-                  if (opts.pliParts.size() && steps->meta.LPub.multiStep.pli.perStep.value() == false) {
+#ifdef QT_DEBUG_MODE
+                  if (steps->meta.LPub.multiStep.pli.perStep.value() !=
+                      steps->groupStepMeta.LPub.multiStep.pli.perStep.value())
+                      emit messageSig(LOG_TRACE, QString("COMPARE - StepGroup PLI per step: stepsMeta %1")
+                                      .arg(steps->meta.LPub.multiStep.pli.perStep.value() ? "[On], groupStepMeta [Off]" : "[Off], groupStepMeta [On]"));
+#endif
+                  if (opts.pliParts.size() && /*steps->meta*/steps->groupStepMeta.LPub.multiStep.pli.perStep.value() == false) {
                       //steps->groupStepMeta = curMeta;
                       PlacementData placementData;
                       // Step Number
-                      if (steps->meta.LPub.assem.showStepNumber.value()) {
+                      if (/*steps->meta*/steps->groupStepMeta.LPub.assem.showStepNumber.value()) {
                           placementData = steps->groupStepMeta.LPub.multiStep.stepNum.placement.value();
                           if ((placementData.relativeTo    == CsiType ||
                               (placementData.relativeTo    == PartsListType &&
@@ -1696,7 +1701,7 @@ int Gui::drawPage(
                               steps->groupStepMeta.LPub.multiStep.pli.placement.setValue(RightTopOutside,StepNumberType);
                           }
                       }
-                      //if no step number
+                      // if no step number
                       else {
                           // if Submodel Preview relative to StepNumber
                           if (previewNotPerStep &&
@@ -1750,13 +1755,17 @@ int Gui::drawPage(
 
                   /* this is a page we're supposed to process */
 
-                  steps->placement = steps->meta.LPub.multiStep.placement;
+                  // Update steps->meta args with stepGroup args - perhaps update entire steps->meta ?
+                  // because steps->meta is popped at the top of the STEP containing MULTI_STEP END
+                  steps->placement = steps->groupStepMeta.LPub.multiStep.placement;                  // was steps->meta.LPub.multiStep.placement
+                  steps->meta.LPub.page.background = steps->groupStepMeta.LPub.page.background;
+                  steps->meta.LPub.multiStep.placement = steps->groupStepMeta.LPub.multiStep.placement;
 
                   showLine(steps->topOfSteps());
 
                   bool endOfSubmodel =
-                          steps->meta.LPub.contStepNumbers.value() ?
-                              steps->meta.LPub.contModelStepNum.value() >= ldrawFile.numSteps(opts.current.modelName) :
+                          /*steps->meta*/steps->groupStepMeta.LPub.contStepNumbers.value() ?
+                              /*steps->meta*/steps->groupStepMeta.LPub.contModelStepNum.value() >= ldrawFile.numSteps(opts.current.modelName) :
                               opts.stepNum - 1 >= ldrawFile.numSteps(opts.current.modelName);
 
                   // set csi annotations - multistep
@@ -1782,15 +1791,15 @@ int Gui::drawPage(
 
                       // set the extra renderer parms
                       if (step) {
-                          steps->meta.LPub.assem.ldviewParms =
+                          /*steps->meta*/steps->groupStepMeta.LPub.assem.ldviewParms =
                                   Render::getRenderer() == RENDERER_LDVIEW ?  step->ldviewParms :
                                   Render::getRenderer() == RENDERER_LDGLITE ? step->ldgliteParms :
                                                 /*POV scene file generator*/  step->ldviewParms ;
                           if (Preferences::preferredRenderer == RENDERER_POVRAY)
-                              steps->meta.LPub.assem.povrayParms = step->povrayParms;
+                              /*steps->meta*/steps->groupStepMeta.LPub.assem.povrayParms = step->povrayParms;
                       }
 
-                      int rc = renderer->renderCsi(empty,opts.ldrStepFiles,opts.csiKeys,empty,steps->meta);
+                      int rc = renderer->renderCsi(empty,opts.ldrStepFiles,opts.csiKeys,empty,/*steps->meta*/steps->groupStepMeta);
                       if (rc != 0) {
                           emit messageSig(LOG_ERROR,QMessageBox::tr("Render CSI images failed."));
                           return rc;
@@ -1908,8 +1917,9 @@ int Gui::drawPage(
             case EndOfFileRc:
             case RotStepRc:
             case StepRc:
-              // Special case where we have a step group with a NOSTEP command
-              // in the last STEP which is also a rotated or assembled called out submodel
+             /*
+              * STEP - special case of step group with NOSTEP as last step and rotated or assembled called out submodel
+              */
               if (! buildModIgnore && noStep && opts.calledOut) {
                 if (opts.current.modelName.contains("whole_rotated_") ||
                     opts.current.modelName.contains("whole_assembled_")) {
@@ -1972,9 +1982,11 @@ int Gui::drawPage(
                     }
                   }
                 }
-              }
+              } // STEP - special case of step group with NOSTEP as last step and rotated or assembled called out submodel
 
-              // STEP - special case of no parts added, but BFX load and not NOSTEP and not BUILD_MOD ignore
+             /*
+              * STEP - special case of no parts added, but BFX load and not NOSTEP and not BUILD_MOD ignore
+              */
               if (! partsAdded && bfxLoad && ! noStep && ! buildModIgnore) {
                   if (step == nullptr) {
                       if (range == nullptr) {
@@ -2006,11 +2018,14 @@ int Gui::drawPage(
                     }
 
                   partsAdded = true; // OK, so this is a lie, but it works
-                } // STEP - special case
+                } // STEP - special case of no parts added, but BFX load
 
-              // STEP - normal case of parts added, and not NOSTEP
+             /*
+              *  STEP - normal case of parts added, and not NOSTEP
+              */
               if (partsAdded && ! noStep && ! buildModIgnore) {
-                      
+
+                  // set step group page meta attributes first step
                   if (firstStep) {
                       steps->groupStepMeta = curMeta;
                       firstStep = false;
@@ -2041,7 +2056,10 @@ int Gui::drawPage(
                       pliPerStep = false;
                   }
 
-                  if (step) { // STEP - Parts added
+                 /*
+                  * STEP - Actual parts added, simple, mulitStep or calledOut (no draw graphics)
+                  */
+                  if (step) {
 
                       Page *page = dynamic_cast<Page *>(steps);
                       if (page) {
@@ -2176,9 +2194,13 @@ int Gui::drawPage(
                           opts.csiKeys << step->csiKey;
                       }
 
-                  } // STEP - Parts added
+                  } // STEP - Actual parts added, simple, mulitStep or calledOut (no draw graphics)
+
                   else
-                  { // NOT STEP - Parts added flag but no step object (e.g. INSERT), a PAGE
+                 /*
+                  * STEP - No step object, e.g. inserted page (no draw graphics)
+                  */
+                  {
 
                       if (pliPerStep) {
                           opts.pliParts.clear();
@@ -2195,9 +2217,11 @@ int Gui::drawPage(
                               page->selectedSceneItems = selectedSceneItems;
                           }
                       }
-                  } // NOT STEP - Parts added flag but no step object
+                  } // STEP - No step object, e.g. inserted page (no draw graphics)
 
-                  // STEP - Simple STEP
+                 /*
+                  *  STEP - Simple, not mulitStep, not calledOut (draw graphics)
+                  */
                   if ( ! multiStep && ! opts.calledOut) {
 
                       steps->placement = steps->meta.LPub.assem.placement;
@@ -2231,8 +2255,10 @@ int Gui::drawPage(
                           page->displayInstanceCount = displayCount;
                           page->selectedSceneItems   = selectedSceneItems;
 
-                          if (step)
+                          if (step) {
+                              page->modelDisplayOnlyStep = step->modelDisplayOnlyStep;
                               step->lightList = lightList;
+                          }
 
                           if (! steps->meta.LPub.stepPli.perStep.value()) {
 
@@ -2248,27 +2274,29 @@ int Gui::drawPage(
                                   }
                               }
 
-                              // PLI
-                              step->pli.setParts(instancesPliParts,opts.pliPartGroups,steps->meta);
-                              instancesPliParts.clear();
-                              opts.pliParts.clear();
-                              opts.pliPartGroups.clear();
+                              if (step) {
+                                  // PLI
+                                  step->pli.setParts(instancesPliParts,opts.pliPartGroups,steps->meta);
+                                  instancesPliParts.clear();
+                                  opts.pliParts.clear();
+                                  opts.pliPartGroups.clear();
 
-                              emit messageSig(LOG_INFO, "Add PLI images for single-step page...");
+                                  emit messageSig(LOG_INFO, "Add PLI images for single-step page...");
 
-                              step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
+                                  step->pli.sizePli(&steps->meta,relativeType,pliPerStep);
 
-                              // SM
-                              if (step->placeSubModel){
-                                  emit messageSig(LOG_INFO, "Set first step submodel display for " + topOfStep.modelName + "...");
+                                  // SM
+                                  if (step->placeSubModel){
+                                      emit messageSig(LOG_INFO, "Set first step submodel display for " + topOfStep.modelName + "...");
 
-                                  steps->meta.LPub.subModel.instance.setValue(instances);
-                                  step->subModel.setSubModel(opts.current.modelName,steps->meta);
+                                      steps->meta.LPub.subModel.instance.setValue(instances);
+                                      step->subModel.setSubModel(opts.current.modelName,steps->meta);
 
-                                  step->subModel.displayInstanceCount = displayCount;
+                                      step->subModel.displayInstanceCount = displayCount;
 
-                                  if (step->subModel.sizeSubModel(&steps->meta,relativeType,pliPerStep) != 0)
-                                      emit messageSig(LOG_ERROR, "Failed to set first step submodel display for " + topOfStep.modelName + "...");
+                                      if (step->subModel.sizeSubModel(&steps->meta,relativeType,pliPerStep) != 0)
+                                          emit messageSig(LOG_ERROR, "Failed to set first step submodel display for " + topOfStep.modelName + "...");
+                                  }
                               }
                           }
                       }
@@ -2282,12 +2310,14 @@ int Gui::drawPage(
                           QString empty("");
 
                           // set the extra renderer parms
-                          steps->meta.LPub.assem.ldviewParms =
-                                  Render::getRenderer() == RENDERER_LDVIEW ?  step->ldviewParms :
-                                                                              Render::getRenderer() == RENDERER_LDGLITE ? step->ldgliteParms :
-                                                                                                                          /*POV scene file generator*/  step->ldviewParms ;
-                          if (Preferences::preferredRenderer == RENDERER_POVRAY)
-                              steps->meta.LPub.assem.povrayParms = step->povrayParms;
+                          if (step) {
+                              steps->meta.LPub.assem.ldviewParms =
+                                      Render::getRenderer() == RENDERER_LDVIEW ?  step->ldviewParms :
+                                      Render::getRenderer() == RENDERER_LDGLITE ? step->ldgliteParms :
+                                                    /*POV scene file generator*/  step->ldviewParms ;
+                              if (Preferences::preferredRenderer == RENDERER_POVRAY)
+                                  steps->meta.LPub.assem.povrayParms = step->povrayParms;
+                          }
 
                           // render the partially assembled model
                           int rc = renderer->renderCsi(empty,opts.ldrStepFiles,opts.csiKeys,empty,steps->meta);
@@ -2314,7 +2344,7 @@ int Gui::drawPage(
                       steps->setBottomOfSteps(opts.current);
                       drawPageElapsedTime();
                       return HitEndOfPage;
-                  } // STEP - Simple STEP (! multiStep && ! calledOut)
+                  } // STEP - Simple, not mulitStep, not calledOut (draw graphics)
 
                   lightList.clear();
 
@@ -2333,7 +2363,7 @@ int Gui::drawPage(
                   bfxStore1     = false;
                   bfxLoad       = false;
 
-              } // STEP - normal case
+              } // STEP - normal case of parts added, and not NOSTEP
 
               if ( ! multiStep) {
                   inserts.clear();
