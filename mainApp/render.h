@@ -169,13 +169,22 @@ public:
 
 class xyzVector
 {
+private:
+bool _populated;
+
 public:
   xyzVector()
   {
+    _populated  = false;
   }
   xyzVector(const float _x, const float _y, const float _z)
       : x(_x), y(_y), z(_z)
   {
+    _populated  = x != 0.0f || y != 0.0f || z != 0.0f;
+  }
+  bool isPopulated()
+  {
+    return _populated;
   }
 
   friend bool operator==(const xyzVector& a, const xyzVector& b);

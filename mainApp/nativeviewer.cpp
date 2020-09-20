@@ -462,7 +462,6 @@ void Gui::setTargetPosition()
       applyCameraAct->setIcon(QIcon(":/resources/applycamerasettingsposition.png"));
   else
       applyCameraAct->setIcon(QIcon(":/resources/applycamerasettings.png"));
-  }
 }
 
 void Gui::useImageSize()

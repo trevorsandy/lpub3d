@@ -120,7 +120,7 @@ void SubModel::setSubModel(
 
   QFileInfo fileInfo(_file);
   QString type = fileInfo.fileName().toLower();
-  QString key = QString("%1_%2_%3")
+  QString key = QString("%1_%2_%3")            // partial key
                         .arg(fileInfo.completeBaseName())
                         .arg(PREVIEW_SUBMODEL_SUFFIX)
                         .arg(color);
@@ -181,31 +181,41 @@ int SubModel::createSubModelImage(
   QPixmap  *pixmap)
 {
   int rc = 0;
-  float modelScale = subModelMeta.modelScale.value();
-  int stepNumber = subModelMeta.showStepNum.value() ?
-                   subModelMeta.showStepNum.value() : 1;
-  QString unitsName = resolutionType() ? "DPI" : "DPCM";
-  bool noCA = subModelMeta.rotStep.value().type == "ABS";
-  float camDistance = subModelMeta.cameraDistance.value();
+
+  float modelScale   = subModelMeta.modelScale.value();
+  int stepNumber     = subModelMeta.showStepNum.value() ?
+                       subModelMeta.showStepNum.value() : 1;
+  QString unitsName  = resolutionType() ? "DPI" : "DPCM";
+  bool noCA          = subModelMeta.rotStep.value().type == "ABS";
+  float camDistance  = subModelMeta.cameraDistance.value();
+  bool  useImageSize = subModelMeta.imageSize.value(0) > 0;
 
   // assemble name key - create unique file when a value that impacts the image changes
   QString keyPart1 = QString("%1").arg(partialKey); /*baseName + @submodel + colour (0) */
   QString keyPart2 = QString("%1_%2_%3_%4_%5_%6_%7_%8")
                              .arg(stepNumber)
-                             .arg(pageSizeP(meta, 0))
+                             .arg(useImageSize ? double(subModelMeta.imageSize.value(0)) :
+                                                 pageSizeP(meta, 0))
                              .arg(double(resolution()))
                              .arg(resolutionType() == DPI ? "DPI" : "DPCM")
                              .arg(double(modelScale))
                              .arg(double(subModelMeta.cameraFoV.value()))
                              .arg(noCA ? 0.0 : double(subModelMeta.cameraAngles.value(0)))
                              .arg(noCA ? 0.0 : double(subModelMeta.cameraAngles.value(1)));
-  QString key = QString("%1_%2").arg(keyPart1).arg(keyPart2);
 
-  // append rotstep to be passed on to 3DViewer
-  keyPart2 += QString("_%1_%2")
-                      .arg(renderer->getRotstepMeta(subModelMeta.rotStep,true))
-                      // temp hack - passed so we can always have scale for pov render
-                      .arg(double(subModelMeta.modelScale.value()));
+  // append target vector if specified
+  if (subModelMeta.target.isPopulated())
+      keyPart2.append(QString("_%1_%2_%3")
+                     .arg(double(subModelMeta.target.x()))
+                     .arg(double(subModelMeta.target.y()))
+                     .arg(double(subModelMeta.target.z())));
+
+  // append rotstep if specified
+  if (subModelMeta.rotStep.isPopulated())
+      keyPart2.append(QString("_%1")
+                     .arg(renderer->getRotstepMeta(subModelMeta.rotStep,true)));
+
+  QString key = QString("%1_%2").arg(keyPart1).arg(keyPart2);
 
   imageName = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() +
                                        Paths::submodelDir + QDir::separator() + key.toLower() + ".png");
@@ -301,6 +311,10 @@ int SubModel::createSubModelImage(
               emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Viewer Submodel subfiles"));
 
           // store rotated and unrotated (csiParts). Unrotated parts are used to generate LDView pov file
+          if (!subModelMeta.target.isPopulated())
+              keyPart2.append(QString("_0_0_0"));
+          if (!subModelMeta.rotStep.isPopulated())
+              keyPart2.append(QString("_0_0_0_REL"));
           QString stepKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
           gui->insertViewerStep(viewerCsiKey,rotatedSubmodel,subModel,ldrNames.first(),stepKey,multistep,callout);
       }
@@ -370,7 +384,7 @@ int SubModel::createSubModelImage(
   pixmap->load(imageName);
 
   if (! gui->exportingObjects()) {
-      viewerOptions.ImageWidth = pixmap->width();
+      viewerOptions.ImageWidth  = pixmap->width();
       viewerOptions.ImageHeight = pixmap->height();
   }
 

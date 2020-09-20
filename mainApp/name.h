@@ -69,20 +69,24 @@ enum LDrawUnofficialFileType {
     UNOFFICIAL_OTHER
 };
 enum SubAttributes {
-    sType = 0,        // level 1 substitution
-    sColorCode,       // level 2 substitution
-    sModelScale,      // level 3 substitution
-    sCameraFoV,       // level 4 substitution
-    sCameraAngleXX,   // level 5 substitution
-    sCameraAngleYY,   // level 5 substitution
-    sRotX,            // level 6 substitution
-    sRotY,            // level 6 substitution
-    sRotZ,            // level 6 substitution
-    sTransform,       // level 6 substitution
-    sSubType,         // levels
-    sSubstitute,
-    sUpdate,
-    sRemove
+    sAdj = -2,
+    sType = 0,        // 0  level 1   substitution
+    sColorCode,       // 1  level 2   substitution
+    sModelScale,      // 2  level 3   substitution
+    sCameraFoV,       // 3  level 4   substitution
+    sCameraAngleXX,   // 4  level 5   substitution
+    sCameraAngleYY,   // 5  level 5   substitution
+    sTargetX,         // 6  level 6/8 substitution
+    sTargetY,         // 7  level 6/8 substitution
+    sTargetZ,         // 8  level 6/8 substitution
+    sRotX,            // 9  level 7/8 substitution
+    sRotY,            // 10 level 7/8 substitution
+    sRotZ,            // 11 level 7/8 substitution
+    sTransform,       // 12 level 7/8 substitution
+    sSubType,         // 13 levels
+    sSubstitute,      // 14
+    sUpdate,          // 15
+    sRemove           // 16
 };
 enum NameKeyAttributes {
     nType = 0,        // 0
@@ -91,15 +95,25 @@ enum NameKeyAttributes {
     nResolution,      // 3
     nResType,         // 4
     nModelScale,      // 5
-    nCameraDistance = nModelScale,
     nCameraFoV,       // 6
     nCameraAngleXX,   // 7
     nCameraAngleYY,   // 8
-    nRotX,            // 9
-    nRotY,            // 10
-    nRotZ,            // 11
-    nTransform,       // 12
-    nSub              // 13 only added for LDView single call
+    nBaseAttributes = nCameraAngleYY,  // 9 elements
+    nTargetX,         // 9
+    nRotX = nTargetX,
+    nTargetY,         // 10
+    nRotY = nTargetY,
+    nTargetZ,         // 11
+    nRotZ = nTargetZ,
+    nHasTarget = nTargetZ,             // 12 elements
+    nRot_X,           // 12
+    nRotTrans = nRot_X,
+    nHasRotstep = nRotTrans,           // 13 elements
+    nRot_Y,           // 13
+    nRot_Z,           // 14
+    nRot_Trans,       // 15
+    nHasTargetAndRotstep = nRot_Trans, // 16 elements
+    nSub              // 16 Used by LDView single call
 };
 
 const int GridSizeTable[] = { 10, 20, 30, 40, 50, 60, 70, 80, 90 };

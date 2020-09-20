@@ -537,8 +537,9 @@ int POVRay::renderCsi(
   bool pp    = Preferences::perspectiveProjection;
   bool noCA  = Preferences::applyCALocally;
 
-  int width  = gui->pageSize(meta.LPub.page, 0);
-  int height = gui->pageSize(meta.LPub.page, 1);
+  bool useImageSize = meta.LPub.assem.imageSize.value(0) > 0;
+  int width  = useImageSize ? int(meta.LPub.assem.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
+  int height = useImageSize ? int(meta.LPub.assem.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
 
   QString CA = QString("-ca%1").arg(LP3D_CA);
   QString cg = QString("-cg%1,%2,%3")
@@ -828,15 +829,20 @@ int POVRay::renderPli(
   float cameraFov    = metaType.cameraFoV.value();
   float cameraAngleX = metaType.cameraAngles.value(0);
   float cameraAngleY = metaType.cameraAngles.value(1);
+  xyzVector target   = xyzVector(metaType.target.x(),metaType.target.y(),metaType.target.z());
 
   // process substitute attributes
+  // Process substitute part attributes
   if (keySub) {
     QStringList attributes = getSubAttributes(pngName);
-    if (keySub == PliBeginSub6Rc)
-      noCA = attributes.at(nTransform) == "ABS";
+    bool hr;
+    if ((hr = attributes.size() == nHasRotstep) || attributes.size() == nHasTargetAndRotstep)
+      noCA = attributes.at(hr ? nRotTrans : nRot_Trans) == "ABS";
+    if (attributes.size() >= nHasTarget)
+      target = xyzVector(attributes.at(nTargetX).toFloat(),attributes.at(nTargetY).toFloat(),attributes.at(nTargetZ).toFloat());
     if (keySub > PliBeginSub2Rc) {
-      modelScale = attributes.at(nModelScale).toFloat();
-      cameraFov  = attributes.at(nCameraFoV).toFloat();
+      modelScale   = attributes.at(nModelScale).toFloat();
+      cameraFov    = attributes.at(nCameraFoV).toFloat();
       cameraAngleX = attributes.at(nCameraAngleXX).toFloat();
       cameraAngleY = attributes.at(nCameraAngleYY).toFloat();
     }
@@ -851,8 +857,9 @@ int POVRay::renderPli(
   }
 
 
-  int width  = gui->pageSize(meta.LPub.page, 0);
-  int height = gui->pageSize(meta.LPub.page, 1);
+  bool useImageSize = metaType.imageSize.value(0) > 0;
+  int width  = useImageSize ? int(metaType.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
+  int height = useImageSize ? int(metaType.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
 
   bool pp    = Preferences::perspectiveProjection;
   if (pliType == SUBMODEL)
@@ -863,11 +870,12 @@ int POVRay::renderPli(
                                       .arg(noCA ? 0.0 : double(cameraAngleY))
                                       .arg(QString::number(pp ? cd * LP3D_CDF : cd,'f',0));
 
-  QString m  = metaType.target.isPopulated() ?
-                         QString("-ModelCenter=%1,%2,%3")
-                                 .arg(double(metaType.target.x()))
-                                 .arg(double(metaType.target.y()))
-                                 .arg(double(metaType.target.z())) : QString();
+  QString m  = target.isPopulated() ?
+               QString("-co%1,%2,%3")
+                       .arg(double(target.x))
+                       .arg(double(target.y))
+                       .arg(double(target.z)) : QString();
+
   QString sl = metaType.studLogo.value() ?
                          QString("-StudLogo=%1")
                                  .arg(metaType.studLogo.value()) : QString();
@@ -1169,7 +1177,7 @@ int LDGLite::renderCsi(
   bool noCA  = Preferences::applyCALocally;
   bool pp    = Preferences::perspectiveProjection;
 
-  bool useImageSize = !(meta.LPub.assem.imageSize.value(0) == 0.0f && meta.LPub.assem.imageSize.value(1) == 0.0f);
+  bool useImageSize = meta.LPub.assem.imageSize.value(0) > 0;
   int width  = useImageSize ? int(meta.LPub.assem.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
   int height = useImageSize ? int(meta.LPub.assem.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
 
@@ -1304,12 +1312,16 @@ int LDGLite::renderPli(
   float cameraFov    = metaType.cameraFoV.value();
   float cameraAngleX = metaType.cameraAngles.value(0);
   float cameraAngleY = metaType.cameraAngles.value(1);
+  xyzVector target   = xyzVector(metaType.target.x(),metaType.target.y(),metaType.target.z());
 
   // Process substitute part attributes
   if (keySub) {
     QStringList attributes = getSubAttributes(pngName);
-    if (keySub == PliBeginSub6Rc)
-      noCA = attributes.at(nTransform) == "ABS";
+    bool hr;
+    if ((hr = attributes.size() == nHasRotstep) || attributes.size() == nHasTargetAndRotstep)
+      noCA = attributes.at(hr ? nRotTrans : nRot_Trans) == "ABS";
+    if (attributes.size() >= nHasTarget)
+      target = xyzVector(attributes.at(nTargetX).toFloat(),attributes.at(nTargetY).toFloat(),attributes.at(nTargetZ).toFloat());
     if (keySub > PliBeginSub2Rc) {
       modelScale   = attributes.at(nModelScale).toFloat();
       cameraFov    = attributes.at(nCameraFoV).toFloat();
@@ -1326,7 +1338,7 @@ int LDGLite::renderPli(
       cd = int(cameraDistance(meta,modelScale));
   }
 
-  bool useImageSize = !(metaType.imageSize.value(0) == 0.0f && metaType.imageSize.value(1) == 0.0f);
+  bool useImageSize = metaType.imageSize.value(0) > 0;
   int width  = useImageSize ? int(metaType.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
   int height = useImageSize ? int(metaType.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
 
@@ -1347,11 +1359,12 @@ int LDGLite::renderPli(
   QString mf = QString("-mF%1")     .arg(pngName);
   QString w  = QString("-W%1")      .arg(lineThickness);  // ldglite always deals in 72 DPI
 
-  QString m  = metaType.target.isPopulated() ?
-                         QString("-co%1,%2,%3")
-                                 .arg(double(metaType.target.x()))
-                                 .arg(double(metaType.target.y()))
-                                 .arg(double(metaType.target.z())) : QString();
+  QString m  = target.isPopulated() ?
+               QString("-co%1,%2,%3")
+                       .arg(double(target.x))
+                       .arg(double(target.y))
+                       .arg(double(target.z)) : QString();
+
   QString sl = metaType.studLogo.value() ?
                          QString("-sl%1")
                                  .arg(metaType.studLogo.value()) : QString();
@@ -1499,7 +1512,7 @@ int LDView::renderCsi(
     bool noCA  = Preferences::applyCALocally;
 
     /* page size */
-    bool useImageSize = !(meta.LPub.assem.imageSize.value(0) == 0.0f && meta.LPub.assem.imageSize.value(1) == 0.0f);
+    bool useImageSize = meta.LPub.assem.imageSize.value(0) > 0;
     int width  = useImageSize ? int(meta.LPub.assem.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
     int height = useImageSize ? int(meta.LPub.assem.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
 
@@ -1817,6 +1830,7 @@ int LDView::renderPli(
   float cameraFov    = metaType.cameraFoV.value();
   float cameraAngleX = metaType.cameraAngles.value(0);
   float cameraAngleY = metaType.cameraAngles.value(1);
+  xyzVector target   = xyzVector(metaType.target.x(),metaType.target.y(),metaType.target.z());
 
   /* determine camera distance */
   int cd = int(metaType.cameraDistance.value());
@@ -1879,7 +1893,48 @@ int LDView::renderPli(
                             .arg(noCA ? 0.0 : double(cameraAngleY))
                             .arg(cd);
 
-  /* Create the CSI DAT file(s) */
+  /* Create the PLI DAT file(s) */
+
+  QStringList attributes;
+  auto processAttributes = [this, &meta, &keySub, &pp, &pl, &dz, &cdf] (
+          QStringList &attributes,
+          xyzVector   &target,
+          bool        &noCA,
+          int         &cd,
+          QString     &CA,
+          QString     &cg,
+          float       &modelScale,
+          float       &cameraFov,
+          float       &cameraAngleX,
+          float       &cameraAngleY) {
+      bool hr;
+      if ((hr = attributes.size() == nHasRotstep) || attributes.size() == nHasTargetAndRotstep)
+        noCA = attributes.at(hr ? nRotTrans : nRot_Trans) == "ABS";
+      if (attributes.size() >= nHasTarget)
+        target       = xyzVector(attributes.at(nTargetX).toFloat(),attributes.at(nTargetY).toFloat(),attributes.at(nTargetZ).toFloat());
+      if (keySub > PliBeginSub2Rc) {
+        modelScale   = attributes.at(nModelScale).toFloat();
+        cameraFov    = attributes.at(nCameraFoV).toFloat();
+        cameraAngleX = attributes.at(nCameraAngleXX).toFloat();
+        cameraAngleY = attributes.at(nCameraAngleYY).toFloat();
+      }
+      cd = int(cameraDistance(meta,modelScale)*1700/1000);
+
+      CA = pp ? QString("-FOV=%1").arg(double(cameraFov)) : CA;
+      cg = pp ? pl ? QString("-DefaultLatLong=%1,%2%3")
+                                       .arg(noCA ? 0.0 : double(cameraAngleX))
+                                       .arg(noCA ? 0.0 : double(cameraAngleY))
+                                       .arg(dz)                             // replace Camera Globe with DefaultLatLon and add DefaultZoom
+                             : QString("-cg%1,%2,%3")
+                                       .arg(noCA ? 0.0 : double(cameraAngleX))
+                                       .arg(noCA ? 0.0 : double(cameraAngleY))
+                                       .arg(QString::number(cd * cdf,'f',0) )
+                        : QString("-cg%1,%2,%3")
+                                  .arg(noCA ? 0.0 : double(cameraAngleX))
+                                  .arg(noCA ? 0.0 : double(cameraAngleY))
+                                  .arg(cd);
+  };
+
   QString f;
   bool useSnapshotArgs = false;
   if (useLDViewSCall() && pliType != SUBMODEL) {  // SingleCall
@@ -1892,29 +1947,9 @@ int LDView::renderPli(
                   continue;
               }
 
-              QStringList attributes = getSubAttributes(ldrName);
+              attributes = getSubAttributes(ldrName);
               if (attributes.endsWith("SUB")) { // based on keySub
-                  if (attributes.size() > 10)
-                      noCA = attributes.at(nTransform) == "ABS";
-                  modelScale   = attributes.at(nModelScale).toFloat();
-                  cameraFov    = attributes.at(nCameraFoV).toFloat();
-                  cameraAngleX = attributes.at(nCameraAngleXX).toFloat();
-                  cameraAngleY = attributes.at(nCameraAngleYY).toFloat();
-                  cd = int(cameraDistance(meta,modelScale)*1700/1000);
-
-                  CA = pp ? QString("-FOV=%1").arg(double(cameraFov)) : CA;
-                  cg = pp ? pl ? QString("-DefaultLatLong=%1,%2%3")
-                                                   .arg(noCA ? 0.0 : double(cameraAngleX))
-                                                   .arg(noCA ? 0.0 : double(cameraAngleY))
-                                                   .arg(dz)
-                                         : QString("-cg%1,%2,%3")
-                                                   .arg(noCA ? 0.0 : double(cameraAngleX))
-                                                   .arg(noCA ? 0.0 : double(cameraAngleY))
-                                                   .arg(QString::number(cd * cdf,'f',0) )
-                                    : QString("-cg%1,%2,%3")
-                                              .arg(noCA ? 0.0 : double(cameraAngleX))
-                                              .arg(noCA ? 0.0 : double(cameraAngleY))
-                                              .arg(cd);
+                  processAttributes(attributes, target, noCA, cd, CA, cg, modelScale, cameraFov, cameraAngleX, cameraAngleY);
                   QString pngName = QString(ldrName).replace("_SUB.ldr",".png");
                   snapShotArgs.append(QString("%1 %2 -SaveSnapShot=%3 %4").arg(CA).arg(cg).arg(pngName).arg(ldrName));
               } else {
@@ -1976,50 +2011,29 @@ int LDView::renderPli(
       }
 
   } else {
-      // process substitute attributes
       if (keySub) {
-        QStringList attributes = getSubAttributes(pngName);
-        if (keySub == PliBeginSub6Rc)
-          noCA = attributes.at(nTransform) == "ABS";
-        if (keySub > PliBeginSub2Rc) {
-          modelScale   = attributes.at(nModelScale).toFloat();
-          cameraFov    = attributes.at(nCameraFoV).toFloat();
-          cameraAngleX = attributes.at(nCameraAngleXX).toFloat();
-          cameraAngleY = attributes.at(nCameraAngleYY).toFloat();
-        }
-        cd = int(cameraDistance(meta,modelScale)*1700/1000);
-
-        CA = pp ? QString("-FOV=%1").arg(double(cameraFov)) : CA;
-        cg = pp ? pl ? QString("-DefaultLatLong=%1,%2%3")
-                                         .arg(noCA ? 0.0 : double(cameraAngleX))
-                                         .arg(noCA ? 0.0 : double(cameraAngleY))
-                                         .arg(dz)                             // replace Camera Globe with DefaultLatLon and add DefaultZoom
-                               : QString("-cg%1,%2,%3")
-                                         .arg(noCA ? 0.0 : double(cameraAngleX))
-                                         .arg(noCA ? 0.0 : double(cameraAngleY))
-                                         .arg(QString::number(cd * cdf,'f',0) )
-                          : QString("-cg%1,%2,%3")
-                                    .arg(noCA ? 0.0 : double(cameraAngleX))
-                                    .arg(noCA ? 0.0 : double(cameraAngleY))
-                                    .arg(cd);
+          // process substitute attributes
+          attributes = getSubAttributes(pngName);
+          processAttributes(attributes, target, noCA, cd, CA, cg, modelScale, cameraFov, cameraAngleX, cameraAngleY);
       }
 
       f  = QString("-SaveSnapShot=%1") .arg(pngName);
   }
 
   /* page size */
-  bool useImageSize = !(metaType.imageSize.value(0) == 0.0f && metaType.imageSize.value(1) == 0.0f);
+  bool useImageSize = metaType.imageSize.value(0) > 0;
   int width  = useImageSize ? int(metaType.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
   int height = useImageSize ? int(metaType.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
+
+  QString m  = target.isPopulated() ?
+               QString("-co%1,%2,%3")
+                       .arg(double(target.x))
+                       .arg(double(target.y))
+                       .arg(double(target.z)) : QString();
 
   QString sl = metaType.studLogo.value() ?
                          QString("-StudLogo=%1")
                                  .arg(metaType.studLogo.value()) : QString();
-  QString m  = metaType.target.isPopulated() ?
-                         QString("-ModelCenter=%1,%2,%3")
-                                 .arg(double(metaType.target.x()))
-                                 .arg(double(metaType.target.y()))
-                                 .arg(double(metaType.target.z())) : QString();
 
   QString w  = QString("-SaveWidth=%1")  .arg(width);
   QString h  = QString("-SaveHeight=%1") .arg(height);
@@ -2186,7 +2200,7 @@ int Native::renderCsi(
   // Camera Angles always passed to Native renderer except if ABS rotstep
   QString rotstepType      = meta.rotStep.value().type;
   bool noCA = rotstepType == "ABS";
-  bool useImageSize = !(meta.LPub.assem.imageSize.value(0) == 0.0f && meta.LPub.assem.imageSize.value(1) == 0.0f);
+  bool useImageSize = meta.LPub.assem.imageSize.value(0) > 0;
 
   // Renderer options
   NativeOptions Options;
@@ -2353,20 +2367,24 @@ int Native::renderPli(
   bool  isOrtho        = metaType.isOrtho.value();
   QString cameraName   = metaType.cameraName.value();
   xyzVector target     = xyzVector(metaType.target.x(),metaType.target.y(),metaType.target.z());
+  bool useImageSize    = metaType.imageSize.value(0) > 0;
 
   // Camera Angles always passed to Native renderer except if ABS rotstep
   bool  noCA          = metaType.rotStep.value().type  == "ABS";
 
-  // process substitute attributes
+  // Process substitute part attributes
   if (keySub) {
     QStringList attributes = getSubAttributes(pngName);
-    if (keySub == PliBeginSub6Rc)
-      noCA = attributes.at(nTransform) == "ABS";
+    bool hr;
+    if ((hr = attributes.size() == nHasRotstep) || attributes.size() == nHasTargetAndRotstep)
+      noCA = attributes.at(hr ? nRotTrans : nRot_Trans) == "ABS";
+    if (attributes.size() >= nHasTarget)
+      target = xyzVector(attributes.at(nTargetX).toFloat(),attributes.at(nTargetY).toFloat(),attributes.at(nTargetZ).toFloat());
     if (keySub > PliBeginSub2Rc) {
-      modelScale     = attributes.at(nModelScale).toFloat();
-      cameraFov      = attributes.at(nCameraFoV).toFloat();
-      cameraAngleX   = attributes.at(nCameraAngleXX).toFloat();
-      cameraAngleY   = attributes.at(nCameraAngleYY).toFloat();
+      modelScale   = attributes.at(nModelScale).toFloat();
+      cameraFov    = attributes.at(nCameraFoV).toFloat();
+      cameraAngleX = attributes.at(nCameraAngleXX).toFloat();
+      cameraAngleY = attributes.at(nCameraAngleYY).toFloat();
     }
   }
 

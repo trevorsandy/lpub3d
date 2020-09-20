@@ -223,11 +223,11 @@ QString Pli::partLine(QString &line, Where &here, Meta &meta)
   if (meta.LPub.pli.begin.sub.value().type) {
       SubData subData = meta.LPub.pli.begin.sub.value();
       QStringList attrArgs = subData.attrs.split(";");
-      // check if substitute type and type applicable to this line
+      // check if substitute type is not 0 and substitute lineNumber matches here.lineNumber (this line)
       if (subData.type && attrArgs.last().toInt() == here.lineNumber) {
-          // remove line number and ';' delimiter from string
+          // remove substitues line number and ';' delimiter from substitute attributes
           subData.attrs.chop(attrArgs.last().size()+1);
-          // append substitute type to string - used by Pli::setParts()
+          // append substitute attributes and type to string - used by Pli::setParts()
           attributes.append(QString("|%1|%2").arg(subData.attrs).arg(subData.type));
       }
   }
@@ -451,53 +451,82 @@ void Pli::setParts(
               return groupMeta;
           };
 
-          float modelScale = pliMeta.modelScale.value();
-
-          bool noCA = pliMeta.rotStep.value().type == "ABS";
-
-          // extract substitute part arguments
-          int subType = 0;
-          QString subRotation = QString();
+          bool  useImageSize  = pliMeta.imageSize.value(0) > 0;
+          float modelScale    = pliMeta.modelScale.value();
           qreal cameraFoV     = double(pliMeta.cameraFoV.value());
+          bool noCA           = pliMeta.rotStep.value().type == "ABS";
           qreal cameraAngleXX = noCA ? 0.0 : double(pliMeta.cameraAngles.value(0));
           qreal cameraAngleYY = noCA ? 0.0 : double(pliMeta.cameraAngles.value(1));
+
+          // extract substitute part arguments
+
+          QString subAddAttributes;
+          int subType = 0;
           if (segments.size() == 3) {
               QStringList attributes = segments.at(1).split(";");
               subType = segments.at(2).toInt();
               if (subType > PliBeginSub2Rc){
-                  modelScale = attributes.at(0).toFloat();
+                  modelScale = attributes.at(sModelScale+sAdj).toFloat();
               }
               if (subType > PliBeginSub3Rc){
-                  cameraFoV = attributes.at(1).toDouble();
+                  cameraFoV = attributes.at(sCameraFoV+sAdj).toDouble();
               }
               if (subType > PliBeginSub4Rc) {
-                  cameraAngleXX = attributes.at(2).toDouble();
-                  cameraAngleYY = attributes.at(3).toDouble();
+                  cameraAngleXX = attributes.at(sCameraAngleXX+sAdj).toDouble();
+                  cameraAngleYY = attributes.at(sCameraAngleYY+sAdj).toDouble();
               }
               if (subType > PliBeginSub5Rc) {
-                  subRotation = QString("%1_%2_%3_%4")
-                          .arg(attributes.at(4))  // RotX
-                          .arg(attributes.at(5))  // RotY
-                          .arg(attributes.at(6))  // RotZ
-                          .arg(attributes.at(7)); // Transform
+                  subAddAttributes = QString("_%1_%2_%3")
+                                     .arg(attributes.at(sTargetX+sAdj))
+                                     .arg(attributes.at(sTargetY+sAdj))
+                                     .arg(attributes.at(sTargetZ+sAdj));
+              }
+              if (subType > PliBeginSub6Rc) {
+                  subAddAttributes = QString("_%1_%2_%3_%4")
+                                     .arg(attributes.at(sRotX+sAdj))
+                                     .arg(attributes.at(sRotY+sAdj))
+                                     .arg(attributes.at(sRotZ+sAdj))
+                                     .arg(attributes.at(sTransform+sAdj));
+              }
+              if (subType > PliBeginSub7Rc) {
+                  subAddAttributes = QString("_%1_%2_%3_%4_%5_%6_%7")
+                                     .arg(attributes.at(sTargetX+sAdj))
+                                     .arg(attributes.at(sTargetY+sAdj))
+                                     .arg(attributes.at(sTargetZ+sAdj))
+                                     .arg(attributes.at(sRotX+sAdj))
+                                     .arg(attributes.at(sRotY+sAdj))
+                                     .arg(attributes.at(sRotZ+sAdj))
+                                     .arg(attributes.at(sTransform+sAdj));
               }
           }
 
           // assemble image name key
           QString nameKey = QString("%1_%2_%3_%4_%5_%6_%7_%8_%9")
-              .arg(baseName)                                   // 0
-              .arg(color)                                      // 1
-              .arg(gui->pageSize(meta.LPub.page, 0))           // 2
-              .arg(double(resolution()))                       // 3
-              .arg(resolutionType() == DPI ? "DPI" : "DPCM")   // 4
-              .arg(double(modelScale))                         // 5
-              .arg(cameraFoV)                                  // 6
-              .arg(cameraAngleXX)                              // 7
-              .arg(cameraAngleYY);                             // 8
+              .arg(baseName)                                           // 0
+              .arg(color)                                              // 1
+              .arg(useImageSize ? double(pliMeta.imageSize.value(0)) :
+                                  gui->pageSize(meta.LPub.page, 0))    // 2
+              .arg(double(resolution()))                               // 3
+              .arg(resolutionType() == DPI ? "DPI" : "DPCM")           // 4
+              .arg(double(modelScale))                                 // 5
+              .arg(cameraFoV)                                          // 6
+              .arg(cameraAngleXX)                                      // 7
+              .arg(cameraAngleYY);                                     // 8
 
-          // when subRotation exist append to nameKey (sums to 13 nodes)
-          if (!subRotation.isEmpty())
-              nameKey.append("_" + subRotation);               // 9,10,11,12
+          // when subRotation and/or subTarget exist append to nameKey (sums to 12/[13]/[16] nodes)
+
+          if (subType && !subAddAttributes.isEmpty()) {
+              nameKey.append(subAddAttributes);                       // 9,10,11,[12],[13,14,15]
+          } else {
+              if (pliMeta.target.isPopulated())                       // 9,10,11
+                  nameKey.append(QString("_%1_%2_%3")
+                                 .arg(double(pliMeta.target.x()))
+                                 .arg(double(pliMeta.target.y()))
+                                 .arg(double(pliMeta.target.z())));
+              if (pliMeta.rotStep.isPopulated())                      // 9,10,11,12/[12],[13,14,15]
+                  nameKey.append(QString("_%1")
+                                 .arg(renderer->getRotstepMeta(pliMeta.rotStep,true)));
+          }
 
           // assemble image name
           QString imageName = QDir::toNativeSeparators(QDir::currentPath()) + QDir::separator() +
@@ -782,7 +811,7 @@ int Pli::createSubModelIcons()
         bool noCA = pliMeta.rotStep.value().type == "ABS";
 
         // assemble icon name key
-        QString nameKey = QString("%1_%2_%3_%4_%5_%6_%7_%8_%9_%10")
+        QString nameKey = QString("%1_%2_%3_%4_%5_%6_%7_%8_%9")
                 .arg(baseName)
                 .arg(color)
                 .arg(gui->pageSize(meta->LPub.page, 0))
@@ -791,8 +820,16 @@ int Pli::createSubModelIcons()
                 .arg(double(modelScale))
                 .arg(double(pliMeta.cameraFoV.value()))
                 .arg(noCA ? 0.0 : double(pliMeta.cameraAngles.value(0)))
-                .arg(noCA ? 0.0 : double(pliMeta.cameraAngles.value(1)))
-                .arg(renderer->getRotstepMeta(pliMeta.rotStep,true));
+                .arg(noCA ? 0.0 : double(pliMeta.cameraAngles.value(1)));
+        if (pliMeta.target.isPopulated())
+            nameKey.append(QString("_%1_%2_%3")
+                           .arg(double(pliMeta.target.x()))
+                           .arg(double(pliMeta.target.y()))
+                           .arg(double(pliMeta.target.z())));
+        if (pliMeta.rotStep.isPopulated())
+            nameKey.append(QString("_%1")
+                           .arg(renderer->getRotstepMeta(pliMeta.rotStep,true)));
+
         if ( ! parts.contains(key)) {
             AnnotationStyleMeta styleMeta;
             styleMeta.margin = pliMeta.annotate.margin;
@@ -842,12 +879,11 @@ int Pli::createSubModelIcons()
     return rc;
 }
 
-int Pli::createPartImage(
-    QString  &nameKey /*old Value: partialKey*/,
+int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
     QString  &type,
     QString  &color,
     QPixmap  *pixmap,
-    int       subType)
+    int subType)
 {
 
     int rc = 0;
@@ -859,24 +895,35 @@ int Pli::createPartImage(
     bool highlightPartOK = highlightStep && !fadeSteps && displayIcons;
     bool isColorPart = gui->ldrawColourParts.isLDrawColourPart(type);
 
-    // set key substitute flag when there is a namekey change
+    // set key substitute flag when there is a name change
     int keySub = 0;
     if (subType > PliBeginSub2Rc)
         keySub = subType;
 
     // create name key list
-    QStringList nameKeys;
-    if (keySub)
-        nameKeys = nameKey.split("_");
+    QStringList nameKeys = nameKey.split("_");
 
-    // get subRotation string - if exist
-    QString subRotation;
-    bool rotSub = keySub == PliBeginSub6Rc;
-    if (rotSub) {
-        for (int i = 9; i < nameKeys.size(); i++)
-            subRotation.append(nameKeys.at(i)+"_");
-        subRotation.chop(1);
-        emit gui->messageSig(LOG_DEBUG, QString("Substitute type ROTSTEP meta: %1").arg(subRotation));
+    // populate rotStep string from nameKeys - if exist
+    bool hr;
+    QString rotStep;
+    if ((hr = nameKeys.size() == nHasRotstep) || nameKeys.size() == nHasTargetAndRotstep) {
+        rotStep = QString("_%1_%2_%3_%4")
+                          .arg(nameKeys.at(hr ? nRotX : nRot_X))          // rotX
+                          .arg(nameKeys.at(hr ? nRotY : nRot_Y))          // rotY
+                          .arg(nameKeys.at(hr ? nRotZ : nRot_Z))          // rotZ
+                          .arg(nameKeys.at(hr ? nRotTrans : nRot_Trans)); // Transform
+        emit gui->messageSig(LOG_DEBUG, QString("Substitute type ROTSTEP meta: %1").arg(rotStep));
+    }
+
+    // populate targetPosition string from nameKeys - if exist
+    QString targetPosition;
+    if (nameKeys.size() >= nHasTarget) {
+        targetPosition = QString("_%1_%2_%3")
+                        .arg(nameKeys.at(nTargetX))                       // targetX
+                        .arg(nameKeys.at(nTargetY))                       // targetY
+                        .arg(nameKeys.at(nTargetZ));                      // targetZ
+
+        emit gui->messageSig(LOG_DEBUG, QString("Substitute type TARGET meta: %1").arg(targetPosition));
     }
 
     PliType pliType = isSubModel ? SUBMODEL: bom ? BOM : PART;
@@ -899,23 +946,22 @@ int Pli::createPartImage(
 
         // assemble 3DViewer name key - create unique file when a value that impacts the image changes
         QString keyPart1 =  QString("%1_%2").arg(ia.baseName[pT]).arg(ia.partColor[pT]); /*baseName + colour*/
-        if (!keySub)
-            nameKeys = nameKey.split("_");
-        if (!rotSub)
-            subRotation = renderer->getRotstepMeta(pliMeta.rotStep,true);
+
         QString keyPart2 = QString("%1_%2_%3_%4_%5_%6_%7_%8")
                                    .arg(gStep->stepNumber.number)
-                                   .arg(nameKeys.at(2)) // pageSizeP
-                                   .arg(nameKeys.at(3)) // resolution
-                                   .arg(nameKeys.at(4)) // resolutionType - "DPI" : "DPCM"
-                                   .arg(nameKeys.at(5)) // modelScale
-                                   .arg(nameKeys.at(6)) // cameraFoV
-                                   .arg(nameKeys.at(7)) // cameraAngles.value(X)
-                                   .arg(nameKeys.at(8));// cameraAngles.value(Y)
-        keyPart2 += QString("_%1_%2")
-                            .arg(subRotation)
-                            // temp hack - passed so we can always have scale for pov render
-                            .arg(double(pliMeta.modelScale.value()));
+                                   .arg(nameKeys.at(nPageWidth))     // pageSizeP
+                                   .arg(nameKeys.at(nResolution))    // resolution
+                                   .arg(nameKeys.at(nResType))       // resolutionType - "DPI" : "DPCM"
+                                   .arg(nameKeys.at(nModelScale))    // modelScale
+                                   .arg(nameKeys.at(nCameraFoV))     // cameraFoV
+                                   .arg(nameKeys.at(nCameraAngleXX)) // cameraAngles.value(X)
+                                   .arg(nameKeys.at(nCameraAngleYY));// cameraAngles.value(Y)
+
+        if (!targetPosition.isEmpty())
+            keyPart2.append(QString("_%1").arg(targetPosition));
+
+        if (!rotStep.isEmpty())
+            keyPart2.append(QString("_%1").arg(rotStep));
 
         emit gui->messageSig(LOG_INFO, QString("Render PLI image for [%1] parts...").arg(PartTypeNames[pT]));
 
@@ -958,10 +1004,7 @@ int Pli::createPartImage(
                         keySub);
 
             // add ROTSTEP command
-            if (rotSub)
-                pliFile.prepend(QString("0 // ROTSTEP %1").arg(subRotation.replace("_"," ")));
-            else
-                pliFile.prepend(renderer->getRotstepMeta(pliMeta.rotStep));
+            pliFile.prepend(QString("0 // ROTSTEP %1").arg(rotStep.isEmpty() ? "0 0 0" : rotStep.replace("_"," ")));
 
             // header and closing meta
             QString modelName = QFileInfo(type).completeBaseName();
@@ -982,6 +1025,10 @@ int Pli::createPartImage(
                     << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(color).arg(typeName.toLower());
 
             // store rotated and unrotated Part. Unrotated part used to generate LDView pov file
+            if (targetPosition.isEmpty())
+                keyPart2.append(QString("_0_0_0"));
+            if (rotStep.isEmpty())
+                keyPart2.append(QString("_0_0_0_REL"));
             QString pliPartKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
             gui->insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ldrNames.first(),pliPartKey,multistep,callout);
 
@@ -1018,7 +1065,9 @@ int Pli::createPartImage(
         // Generate 3DViewer PLI part entry
         if (! gui->exportingObjects() && pT == NORMAL_PART) {
             // set viewer display options
-            QStringList rots = subRotation.split("_");
+
+            QStringList rotate           = rotStep.isEmpty()        ? QString("0 0 0 REL").split(" ") : rotStep.split("_");
+            QStringList target           = targetPosition.isEmpty() ? QString("0 0 0 REL").split(" ") : targetPosition.split("_");
             viewerOptions.ViewerCsiKey   = viewerPliPartKey;
             viewerOptions.StudLogo       = pliMeta.studLogo.value();
             viewerOptions.ImageFileName  = imageName;
@@ -1032,12 +1081,12 @@ int Pli::createPartImage(
             viewerOptions.CameraDistance = renderer->ViewerCameraDistance(*meta,pliMeta.modelScale.value());
             viewerOptions.NativeCDF      = meta->LPub.nativeCD.factor.value();
             viewerOptions.CameraName     = pliMeta.cameraName.value();
-            viewerOptions.RotStep        = xyzVector(rots.at(0).toFloat(),rots.at(1).toFloat(),rots.at(2).toFloat());
-            viewerOptions.RotStepType    = rots.at(3);
+            viewerOptions.RotStep        = xyzVector(rotate.at(0).toFloat(),rotate.at(1).toFloat(),rotate.at(2).toFloat());
+            viewerOptions.RotStepType    = rotate.at(3);
             viewerOptions.Latitude       = nameKeys.at(7).toFloat();
             viewerOptions.Longitude      = nameKeys.at(8).toFloat();
             viewerOptions.ModelScale     = nameKeys.at(5).toFloat();
-            viewerOptions.Target         = xyzVector(pliMeta.target.x(),pliMeta.target.y(),pliMeta.target.z());
+            viewerOptions.Target         = xyzVector(target.at(0).toFloat(),target.at(1).toFloat(),target.at(2).toFloat());
             if (!viewerOptsList.contains(keyPart1))
                 viewerOptsList.insert(keyPart1,viewerOptions);
         }
@@ -1320,25 +1369,27 @@ QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKe
     if (keySub) {
         bool good = false, ok = false;
         // get subRotation string - if exist
+        bool hr;
         RotStepMeta rotStepMeta;
-        if (keySub == PliBeginSub6Rc) {
+        if ((hr = nameKeys.size() == nHasRotstep) ||
+                  nameKeys.size() == nHasTargetAndRotstep) {
             RotStepData rotStepData;
-            rotStepData.rots[0] = nameKeys.at(nRotX).toDouble(&good);
-            rotStepData.rots[1] = nameKeys.at(nRotY).toDouble(&ok);
+            rotStepData.rots[0] = nameKeys.at(hr ? nRotX : nRot_X).toDouble(&good);
+            rotStepData.rots[1] = nameKeys.at(hr ? nRotY : nRot_Y).toDouble(&ok);
             good &= ok;
-            rotStepData.rots[2] = nameKeys.at(nRotZ).toDouble(&ok);
+            rotStepData.rots[2] = nameKeys.at(hr ? nRotZ : nRot_Z).toDouble(&ok);
             good &= ok;
             if (!good){
                 emit gui->messageSig(LOG_NOTICE,QString("Malformed ROTSTEP values from nameKey [%1], using '0 0 0'.")
                                      .arg(QString("%1_%2_%3")
-                                     .arg(nameKeys.at(nRotX))
-                                     .arg(nameKeys.at(nRotY))
-                                     .arg(nameKeys.at(nRotZ))));
+                                     .arg(nameKeys.at(hr ? nRotX : nRot_X))
+                                     .arg(nameKeys.at(hr ? nRotY : nRot_Y))
+                                     .arg(nameKeys.at(hr ? nRotZ : nRot_Z))));
                 rotStepData.rots[0] = 0.0;
                 rotStepData.rots[1] = 0.0;
                 rotStepData.rots[2] = 0.0;
             }
-            rotStepData.type    = nameKeys.at(nTransform);
+            rotStepData.type    = nameKeys.at(hr ? nRotTrans : nRot_Trans);
             rotStepMeta.setValue(rotStepData);
         }
 
@@ -1346,7 +1397,7 @@ QStringList Pli::configurePLIPart(int pT, QString &typeName, QStringList &nameKe
         QStringList rotatedType = QStringList() << orient(updatedColour, typeName);
         QString addLine = "1 color 0 0 0 1 0 0 0 1 0 0 0 1 foo.ldr";
 
-        float latitude = nameKeys.at(nCameraAngleXX).toFloat(&good);
+        float latitude  = nameKeys.at(nCameraAngleXX).toFloat(&good);
         float longitude = nameKeys.at(nCameraAngleYY).toFloat(&ok);
         good &= ok;
         if (!good){
@@ -2244,23 +2295,34 @@ int Pli::partSizeLDViewSCall() {
             if (pliPart->subType > PliBeginSub2Rc)
                 keySub = pliPart->subType;
 
-            // append nameKey with 'SUB'  - only for LDView Single Call
+            // append nameKey with 'SUB' for LDView Single Call
             if (keySub)
                 nameKey.append("_SUB"); // 14th node
 
             // create name key list
-            QStringList nameKeys;
-            if (keySub)
-                nameKeys = nameKey.split("_");
+            QStringList nameKeys = nameKey.split("_");
 
-            // get subRotation string - if exist
-            QString subRotation;
-            bool rotSub = keySub == PliBeginSub6Rc;
-            if (rotSub) {
-                for (int i = 9; i < nameKeys.size(); i++)
-                    subRotation.append(nameKeys.at(i)+"_");
-                subRotation.chop(1);
-                emit gui->messageSig(LOG_TRACE, QString("Substitute type ROTSTEP meta: %1").arg(subRotation));
+            // populate rotStep string from nameKeys - if exist
+            bool hr;
+            QString rotStep;
+            if ((hr = nameKeys.size() == nHasRotstep) || nameKeys.size() == nHasTargetAndRotstep) {
+                rotStep = QString("_%1_%2_%3_%4")
+                                  .arg(nameKeys.at(hr ? nRotX : nRot_X))          // rotX
+                                  .arg(nameKeys.at(hr ? nRotY : nRot_Y))          // rotY
+                                  .arg(nameKeys.at(hr ? nRotZ : nRot_Z))          // rotZ
+                                  .arg(nameKeys.at(hr ? nRotTrans : nRot_Trans)); // Transform
+                emit gui->messageSig(LOG_DEBUG, QString("Substitute type ROTSTEP meta: %1").arg(rotStep));
+            }
+
+            // populate targetPosition string from nameKeys - if exist
+            QString targetPosition;
+            if (nameKeys.size() >= nHasTarget) {
+                targetPosition = QString("_%1_%2_%3")
+                                .arg(nameKeys.at(nTargetX))                       // targetX
+                                .arg(nameKeys.at(nTargetY))                       // targetY
+                                .arg(nameKeys.at(nTargetZ));                      // targetZ
+
+                emit gui->messageSig(LOG_DEBUG, QString("Substitute type TARGET meta: %1").arg(targetPosition));
             }
 
             emit gui->messageSig(LOG_INFO, QString("Processing PLI part for nameKey [%1]").arg(nameKey));
@@ -2281,23 +2343,22 @@ int Pli::partSizeLDViewSCall() {
 
                 // assemble 3DViewer name key - create unique file when a value that impacts the image changes
                 QString keyPart1 =  QString("%1_%2").arg(ia.baseName[pT]).arg(ia.partColor[pT]); /*baseName + colour*/
-                if (!keySub)
-                    nameKeys = nameKey.split("_");
-                if (!rotSub)
-                    subRotation = renderer->getRotstepMeta(pliMeta.rotStep,true);
+
                 QString keyPart2 = QString("%1_%2_%3_%4_%5_%6_%7_%8")
                                            .arg(gStep->stepNumber.number)
-                                           .arg(nameKeys.at(2)) // pageSizeP
-                                           .arg(nameKeys.at(3)) // resolution
-                                           .arg(nameKeys.at(4)) // resolutionType - "DPI" : "DPCM"
-                                           .arg(nameKeys.at(5)) // modelScale
-                                           .arg(nameKeys.at(6)) // cameraFoV
-                                           .arg(nameKeys.at(7)) // cameraAngles.value(X)
-                                           .arg(nameKeys.at(8));// cameraAngles.value(Y)
-                keyPart2 += QString("_%1_%2")
-                                    .arg(subRotation)
-                                    // temp hack - passed so we can always have scale for pov render
-                                    .arg(double(pliMeta.modelScale.value()));
+                                           .arg(nameKeys.at(nPageWidth))     // pageSizeP
+                                           .arg(nameKeys.at(nResolution))    // resolution
+                                           .arg(nameKeys.at(nResType))       // resolutionType - "DPI" : "DPCM"
+                                           .arg(nameKeys.at(nModelScale))    // modelScale
+                                           .arg(nameKeys.at(nCameraFoV))     // cameraFoV
+                                           .arg(nameKeys.at(nCameraAngleXX)) // cameraAngles.value(X)
+                                           .arg(nameKeys.at(nCameraAngleYY));// cameraAngles.value(Y)
+
+                if (!targetPosition.isEmpty())
+                    keyPart2.append(QString("_%1").arg(targetPosition));
+
+                if (!rotStep.isEmpty())
+                    keyPart2.append(QString("_%1").arg(rotStep));
 
                 // assemble ldr name
                 QString key = !ptn[pT].typeName.isEmpty() ? nameKey + ptn[pT].typeName : nameKey;
@@ -2364,10 +2425,8 @@ int Pli::partSizeLDViewSCall() {
                               keySub);
 
                     // add ROTSTEP command
-                    if (rotSub)
-                        pliFile.prepend(QString("0 // ROTSTEP %1").arg(subRotation.replace("_"," ")));
-                    else
-                        pliFile.prepend(renderer->getRotstepMeta(pliMeta.rotStep));
+                    pliFile.prepend(QString("0 // ROTSTEP %1").arg(rotStep.isEmpty() ? "0 0 0" : rotStep.replace("_"," ")));
+
 
                     // header and closing meta
                     QString modelName = typeInfo.completeBaseName();
@@ -2388,6 +2447,10 @@ int Pli::partSizeLDViewSCall() {
                             << QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2").arg(colourCode).arg(typeName.toLower());
 
                     // store rotated and unrotated Part. Unrotated part used to generate LDView pov file
+                    if (targetPosition.isEmpty())
+                        keyPart2.append(QString("_0_0_0"));
+                    if (rotStep.isEmpty())
+                        keyPart2.append(QString("_0_0_0_REL"));
                     QString pliPartKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
                     gui->insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ldrNames.first(),pliPartKey,multistep,callout);
 
@@ -2414,7 +2477,8 @@ int Pli::partSizeLDViewSCall() {
                 // Generate 3DViewer Submodel entry
                 if (! gui->exportingObjects() && pT == NORMAL_PART) {
                     // set viewer display options
-                    QStringList rots = subRotation.split("_");
+                    QStringList rotate           = rotStep.isEmpty()        ? QString("0 0 0 REL").split(" ") : rotStep.split("_");
+                    QStringList target           = targetPosition.isEmpty() ? QString("0 0 0 REL").split(" ") : targetPosition.split("_");
                     viewerOptions.ViewerCsiKey   = viewerPliPartKey;
                     viewerOptions.StudLogo       = pliMeta.studLogo.value();
                     viewerOptions.ImageFileName  = imageName;
@@ -2428,12 +2492,12 @@ int Pli::partSizeLDViewSCall() {
                     viewerOptions.CameraDistance = renderer->ViewerCameraDistance(*meta,pliMeta.modelScale.value());
                     viewerOptions.NativeCDF      = meta->LPub.nativeCD.factor.value();
                     viewerOptions.CameraName     = pliMeta.cameraName.value();
-                    viewerOptions.RotStep        = xyzVector(rots.at(0).toFloat(),rots.at(1).toFloat(),rots.at(2).toFloat());
-                    viewerOptions.RotStepType    = rots.at(3);
+                    viewerOptions.RotStep        = xyzVector(rotate.at(0).toFloat(),rotate.at(1).toFloat(),rotate.at(2).toFloat());;
+                    viewerOptions.RotStepType    = rotate.at(3);
                     viewerOptions.Latitude       = nameKeys.at(7).toFloat();
                     viewerOptions.Longitude      = nameKeys.at(8).toFloat();
                     viewerOptions.ModelScale     = nameKeys.at(5).toFloat();
-                    viewerOptions.Target         = xyzVector(pliMeta.target.x(),pliMeta.target.y(),pliMeta.target.z());
+                    viewerOptions.Target         = xyzVector(target.at(0).toFloat(),target.at(1).toFloat(),target.at(2).toFloat());
                     if (!viewerOptsList.contains(keyPart1))
                         viewerOptsList.insert(keyPart1,viewerOptions);
                 }
@@ -3595,6 +3659,10 @@ void PGraphicsPixmapItem::contextMenuEvent(
           defaultList.append(QString::number(double(this->pli->pliMeta.cameraFoV.value())));
           defaultList.append(QString::number(noCA ? 0.0 : double(this->pli->pliMeta.cameraAngles.value(0))));
           defaultList.append(QString::number(noCA ? 0.0 : double(this->pli->pliMeta.cameraAngles.value(1))));
+          defaultList.append(QString(QString("%1 %2 %3")
+                                     .arg(double(this->pli->pliMeta.target.x()))
+                                     .arg(double(this->pli->pliMeta.target.y()))
+                                     .arg(double(this->pli->pliMeta.target.z()))).split(" "));
           defaultList.append(QString(renderer->getRotstepMeta(this->pli->pliMeta.rotStep,true)).split("_"));
       }
       QStringList attributes = this->part->nameKey.split("_");
@@ -3602,8 +3670,10 @@ void PGraphicsPixmapItem::contextMenuEvent(
       attributes.removeAt(nResolution);
       attributes.removeAt(nPageWidth);
       attributes.replace(nType,this->part->type);
-      if (attributes.size() == 6 /*nameKey - removals*/)
-          attributes.append(QString(renderer->getRotstepMeta(this->pli->pliMeta.rotStep,true)).split("_"));
+      if (attributes.size() == 6      /*BaseAttributes - removals*/)
+          attributes.append(QString("0 0 0 0 0 0 REL").split(" "));
+      else if (attributes.size() == 9 /*Target - removals*/)
+          attributes.append(QString("0 0 0 REL").split(" "));
       substitutePLIPart(attributes,this->part->instances,this->part->subType ? sUpdate : sSubstitute,defaultList);
   } /*else if (selectedAction == cameraAnglesAction) {
       changeCameraAngles(pl+" Camera Angles",

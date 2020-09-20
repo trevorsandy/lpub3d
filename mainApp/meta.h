@@ -111,6 +111,8 @@ enum Rc {
          PliBeginSub4Rc,
          PliBeginSub5Rc,
          PliBeginSub6Rc,
+         PliBeginSub7Rc,
+         PliBeginSub8Rc,
 
          PliEndRc,
 
@@ -562,6 +564,7 @@ public:
     _fieldWidth = rhs._fieldWidth;
     _precision  = rhs._precision;
     _inputMask  = rhs._inputMask;
+    _populated  = rhs._populated;
   }
 
   virtual float x()
@@ -581,7 +584,7 @@ public:
     _x[pushed] = x;
     _y[pushed] = y;
     _z[pushed] = z;
-    _populated = true;
+    _populated = x != 0.0f || y != 0.0f || z != 0.0f;
   }
   void setRange(
     float min,
@@ -2697,31 +2700,38 @@ public:
   {
     return _value;
   }
+  bool isPopulated()
+  {
+    return _value.populated;
+  }
   void clear()
   {
+    _value.populated = false;
     _value.type.clear();
     _value.rots[0] = 0;
     _value.rots[1] = 0;
     _value.rots[2] = 0;
   }
   RotStepMeta() { 
-    _value.type.clear(); 
+    _value.type.clear();
+    _value.populated = false;
   }
   RotStepMeta(const RotStepMeta &rhs) : LeafMeta(rhs)
   {
-    _value = rhs.value();
+    _value      = rhs.value();
   }
   void setValue(RotStepData &rhs)
   {
-    _value.type = rhs.type;
-    _value.rots[0] = rhs.rots[0];
-    _value.rots[1] = rhs.rots[1];
-    _value.rots[2] = rhs.rots[2];
+    _value.populated = rhs.rots[0] != 0.0 || rhs.rots[1] != 0.0 || rhs.rots[2] != 0.0;
+    _value.type      = rhs.type;
+    _value.rots[0]   = rhs.rots[0];
+    _value.rots[1]   = rhs.rots[1];
+    _value.rots[2]   = rhs.rots[2];
   }
   RotStepMeta& operator=(const RotStepMeta &rhs)
   {
     LeafMeta::operator=(rhs);
-    _value = rhs.value();
+    _value      = rhs.value();
     return *this;
   }
 
@@ -3610,105 +3620,6 @@ public:
   }
 
 private:
-};
-
-const QString RcNames[72] =
-{
-    "InvalidLDrawLineRc = -3",
-    "RangeErrorRc = -2",
-    "FailureRc = -1",
-    "OkRc = 0",
-
-    "StepRc",
-    "RotStepRc",
-
-    "CalloutBeginRc",
-    "CalloutDividerRc",
-    "CalloutEndRc",
-
-    "StepGroupBeginRc",
-    "StepGroupDividerRc",
-    "StepGroupEndRc",
-
-    "InsertRc",
-    "InsertPageRc",
-    "InsertCoverPageRc",
-
-    "CalloutPointerRc",
-    "CalloutDividerPointerRc",
-    "CalloutPointerAttribRc",
-    "CalloutDividerPointerAttribRc",
-
-    "StepGroupDividerPointerRc",
-    "StepGroupPointerAttribRc",
-    "StepGroupDividerPointerAttribRc",
-
-    "PagePointerAttribRc",
-
-    "PagePointerRc",
-    "IllustrationPointerRc",
-
-    "AssemAnnotationIconRc",
-    "InsertFinalModelRc",
-
-    "SepRc",
-
-    "ClearRc",
-    "BufferStoreRc",
-    "BufferLoadRc",
-    "MLCadSkipBeginRc",
-    "MLCadSkipEndRc",
-    "MLCadGroupRc",
-    "LDCadGroupRc",
-    "LeoCadGroupBeginRc",
-    "LeoCadGroupEndRc",
-
-    "PliBeginIgnRc",
-    "PliBeginSub1Rc",
-    "PliBeginSub2Rc",
-    "PliBeginSub3Rc",
-    "PliBeginSub4Rc",
-    "PliBeginSub5Rc",
-    "PliBeginSub6Rc",
-    "PliEndRc",
-
-    "PartBeginIgnRc",
-    "PartEndRc",
-
-    "BomBeginIgnRc",
-    "BomEndRc",
-
-    "PageOrientationRc",
-    "PageSizeRc",
-
-    "ReserveSpaceRc",
-    "PictureAsStep",
-
-    "GroupRemoveRc",
-    "RemoveGroupRc",
-    "RemovePartRc",
-    "RemoveNameRc",
-
-    "SynthBeginRc",
-    "SynthEndRc",
-
-    "StepPliPerStepRc",
-
-    "ResolutionRc",
-
-    "PliPartGroupRc",
-    "BomPartGroupRc",
-
-    "ContStepNumRc",
-    "CountInstanceRc",
-
-    "SceneItemDirectionRc",
-
-    "IncludeRc",
-
-    "NoStepRc",
-
-    "EndOfFileRc"
 };
 
 extern const QString relativeNames[];

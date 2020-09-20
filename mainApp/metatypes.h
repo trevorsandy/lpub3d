@@ -352,19 +352,22 @@ class RotStepData
 public:
   double  rots[3];
   QString type;
+  bool    populated;
   RotStepData()
   {
-    type = QString();
-    rots[0] = 0;
-    rots[1] = 0;
-    rots[2] = 0;
+    populated  = false;
+    type       = QString();
+    rots[0]    = 0;
+    rots[1]    = 0;
+    rots[2]    = 0;
   }
   RotStepData & operator=(const RotStepData &rhs)
   {
-    type = rhs.type;
-    rots[0] = rhs.rots[0];
-    rots[1] = rhs.rots[1];
-    rots[2] = rhs.rots[2];
+    populated = rhs.populated;
+    type      = rhs.type;
+    rots[0]   = rhs.rots[0];
+    rots[1]   = rhs.rots[1];
+    rots[2]   = rhs.rots[2];
     return *this;
   }
 };

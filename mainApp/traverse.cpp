@@ -862,6 +862,8 @@ int Gui::drawPage(
             case PliBeginSub4Rc:
             case PliBeginSub5Rc:
             case PliBeginSub6Rc:
+            case PliBeginSub7Rc:
+            case PliBeginSub8Rc:
               if (pliIgnore) {
                   parseError("Nested PLI BEGIN/ENDS not allowed",current);
                 }
@@ -2664,6 +2666,8 @@ int Gui::getBOMParts(
             case PliBeginSub4Rc:
             case PliBeginSub5Rc:
             case PliBeginSub6Rc:
+            case PliBeginSub7Rc:
+            case PliBeginSub8Rc:
               if (! pliIgnore &&
                   ! partIgnore &&
                   ! synthBegin) {

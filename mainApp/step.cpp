@@ -245,6 +245,7 @@ int Step::createCsi(
   QString csi_Name      = modelDisplayOnlyStep ? csiName()+"_fm" : bfxLoad ? csiName()+"_bfx" : csiName();
   bool    invalidIMStep = ((modelDisplayOnlyStep) || (stepNumber.number == 1));
   bool    absRotstep    = meta.rotStep.value().type == "ABS";
+  bool    useImageSize  = csiCameraMeta.imageSize.value(0) > 0;
   FloatPairMeta noCA;
 
   ldrName.clear();
@@ -271,20 +272,27 @@ int Step::createCsi(
   QString keyPart1 = QString("%1").arg(csi_Name+orient);
   QString keyPart2 = QString("%1_%2_%3_%4_%5_%6_%7_%8")
                              .arg(stepNumber.number)
-                             .arg(gui->pageSize(meta.LPub.page, 0))
+                             .arg(useImageSize ? int(csiCameraMeta.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0))
                              .arg(double(resolution()))
                              .arg(resolutionType() == DPI ? "DPI" : "DPCM")
                              .arg(double(modelScale))
                              .arg(double(cameraFoV))
                              .arg(absRotstep ? double(noCA.value(0)) : double(cameraAngles.value(0)))
                              .arg(absRotstep ? double(noCA.value(1)) : double(cameraAngles.value(1)));
-  QString key = QString("%1_%2").arg(keyPart1).arg(keyPart2);
 
-  // append rotstep to be passed on to 3DViewer
-  keyPart2 += QString("_%1_%2")
-                      .arg(renderer->getRotstepMeta(meta.rotStep,true))
-                      // temp hack - passed so we can always have scale for pov render
-                      .arg(double(csiCameraMeta.modelScale.value()));
+  // append target vector if specified
+  if (csiCameraMeta.target.isPopulated())
+      keyPart2.append(QString("_%1_%2_%3")
+                     .arg(double(csiCameraMeta.target.x()))
+                     .arg(double(csiCameraMeta.target.y()))
+                     .arg(double(csiCameraMeta.target.z())));
+
+  // append rotstep if specified
+  if (meta.rotStep.isPopulated())
+      keyPart2.append(QString("_%1")
+                     .arg(renderer->getRotstepMeta(meta.rotStep,true)));
+
+  QString key = QString("%1_%2").arg(keyPart1).arg(keyPart2);
 
   // populate png name
   pngName = QDir::toNativeSeparators(QString("%1/%2.png").arg(csiPngFilePath).arg(key));
@@ -359,6 +367,10 @@ int Step::createCsi(
           emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Viewer CSI parts"));
 
       // store rotated and unrotated (csiParts). Unrotated parts are used to generate LDView pov file
+      if (!csiCameraMeta.target.isPopulated())
+          keyPart2.append(QString("_0_0_0"));
+      if (!meta.rotStep.isPopulated())
+          keyPart2.append(QString("_0_0_0_REL"));
       QString stepKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
       gui->insertViewerStep(viewerCsiKey,rotatedParts,csiParts,csiLdrFile,stepKey/*keyPart2*/,multiStep,calledOut);
   }
