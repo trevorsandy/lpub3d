@@ -103,7 +103,7 @@ void LDVPartList::doOk()
 		 m_htmlInventory->setSnapshotHeightFlag(
 					 snapshotHeightEdit->text().toInt());
 		 if (overwriteExistingButton->isChecked() && !(snapshotEdit->text().isEmpty()))
-			 m_htmlInventory->setUserDefinedSnapshot(snapshotEdit->text().toLatin1().constData());
+			 m_htmlInventory->setUserDefinedSnapshot(snapshotEdit->text().toUtf8().constData());
 	}
 	m_htmlInventory->setShowFileFlag(openDocument = showWebPageButton->isChecked());
 	if (openDocument){
@@ -123,7 +123,7 @@ void LDVPartList::doOk()
 		{
 			LDVPartListColumn column = LDVPartListColumn(i);
 			const char *name = LDVHtmlInventory::getColumnName(column);
-			if (strcmp(name,item->text().toLatin1().constData())==0)
+			if (strcmp(name,item->text().toUtf8().constData())==0)
 			{
 				if (item2->checkState() == Qt::Checked)
 				{

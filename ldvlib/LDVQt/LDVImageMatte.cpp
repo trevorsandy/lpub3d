@@ -239,7 +239,7 @@ bool LDVImageMatte::matteCSIImages(QString csiKey, QString &baseImagePath, QStri
     }
 
   WPngImage overlayImage;
-  const auto overlayImageStatus = overlayImage.loadImage(overlayImageInfo.absoluteFilePath().toLatin1().constData(),WPngImage::kPixelFormat_RGBA16);
+  const auto overlayImageStatus = overlayImage.loadImage(overlayImageInfo.absoluteFilePath().toUtf8().constData(),WPngImage::kPixelFormat_RGBA16);
   if (overlayImageStatus.printErrorMsg()) return false;
 
   QFileInfo baseImageInfo(baseImagePath);
@@ -249,7 +249,7 @@ bool LDVImageMatte::matteCSIImages(QString csiKey, QString &baseImagePath, QStri
     }
 
   WPngImage baseImage;
-  const auto prevStatus = baseImage.loadImage(baseImageInfo.absoluteFilePath().toLatin1().constData(),WPngImage::kPixelFormat_RGBA16);
+  const auto prevStatus = baseImage.loadImage(baseImageInfo.absoluteFilePath().toUtf8().constData(),WPngImage::kPixelFormat_RGBA16);
   if (prevStatus.printErrorMsg())
     return false;
 
@@ -324,7 +324,7 @@ bool LDVImageMatte::matteCSIImages(QString csiKey, QString &baseImagePath, QStri
   clippedImage.Path     = getMatteCSIImage(csiKey);
   CalculateImageBounds(clippedImage);
 
-  const auto clippedImageStatus = clippedImage.Image.saveImage(clippedImage.Path.toLatin1().constData());
+  const auto clippedImageStatus = clippedImage.Image.saveImage(clippedImage.Path.toUtf8().constData());
   if (clippedImageStatus.printErrorMsg()) {
       return false;
     } else {

@@ -1124,8 +1124,8 @@ void LDVHtmlInventory::writePartCell(
 			fprintf(file, "			<td%s>"
 						  "<a href=\"https://www.bricklink.com/v2/catalog/catalogitem.page?P=%s&idColor=%s\">",
 					className.c_str(),
-					element ? elementParts.at(0).toLatin1().constData() : "0000",
-					element ? elementParts.at(1).toLatin1().constData() : "00");
+					element ? elementParts.at(0).toUtf8().constData() : "0000",
+					element ? elementParts.at(1).toUtf8().constData() : "00");
 
 			viewOnString = lsUtf8(element ? "PLViewOnBricklink" : "PLVInvalidElement");
 		}
@@ -1147,7 +1147,7 @@ void LDVHtmlInventory::writePartCell(
 			fprintf(file, "			<td%s>"
 						  "<a href=\"https://brickset.com/parts/%s/\">",
 					className.c_str(),
-					element ? elementId.toLatin1().constData() : partName.c_str());
+					element ? elementId.toUtf8().constData() : partName.c_str());
 
 			viewOnString = lsUtf8(element ? "PLViewOnBrickset" : "PLVInvalidElement");
 		}
@@ -1206,7 +1206,7 @@ void LDVHtmlInventory::writePartCell(
 
 		fprintf(file, "<img alt=\"%s\" title=\"%s\" src=\"%s\">",
 			viewOnString.c_str(), titleString.c_str(),
-			localPartPath.toLatin1().constData());
+			localPartPath.toUtf8().constData());
 
 		fprintf(file, "</a></td>\n");
 
@@ -1300,7 +1300,7 @@ void LDVHtmlInventory::writeElementCell(
 	}
 
 	fprintf(file, "			<td class=\"elementid\"%s>%s</td>\n",
-		style.c_str(), elementId.toLatin1().constData());
+		style.c_str(), elementId.toUtf8().constData());
 }
 
 void LDVHtmlInventory::writeQuantityCell(
