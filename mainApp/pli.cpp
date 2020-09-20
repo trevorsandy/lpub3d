@@ -484,14 +484,15 @@ void Pli::setParts(
 
           // extract substitute part arguments
 
-          // segments[3] = 0=substituteType,colour, 1=type of sub, 2=subOriginalType
-          // segments[4] = 0=substituteType,colour, 1=type of sub, 2=sub attributes, 3=subOriginalType
+          // segments[3] = 0=substituteTypeLine,colour, 1=typeOfSub, 2=subOriginalType
+          // segments[4] = 0=substituteTypeLine,colour, 1=typeOfSub, 2=subAttributes, 3=subOriginalType
           QString subAddAttributes;
-          int subType = 0;
+          Rc subType = OkRc;
           if (isSubstitute) {
-              subType = segments.at(1).toInt();
-              if (segments.size() > 3 /*hasAttributes*/) {
-                  QStringList attributes = segments.at(2).split(";");
+              enum { sgSubType = 1, sgAttributes = 2, sgHasAttributes = 4 };
+              subType = Rc(segments.at(sgSubType).toInt());
+              if (segments.size() >= sgHasAttributes) {
+                  QStringList attributes = segments.at(sgAttributes).split(";");
                   if (subType > PliBeginSub2Rc){
                       modelScale = attributes.at(sModelScale+sAdj).toFloat();
                   }
