@@ -1309,7 +1309,7 @@ signals:
   void highlightSelectedLinesSig(QVector<int> &indexes);
   void setSelectedPiecesSig(QVector<int> &indexes);
   void showLineSig(int lineNumber, int type);
-  void disableEditorActionsSig();
+  void clearEditorWindowSig();
 
   void enable3DActionsSig();
   void disable3DActionsSig();

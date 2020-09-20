@@ -550,7 +550,7 @@ void Gui::closeModelFile(){
   emit updateAllViewsSig();
   emit disable3DActionsSig();
   // Editor
-  emit disableEditorActionsSig();
+  emit clearEditorWindowSig();
   // Gui
   clearPage(KpageView,KpageScene,true);
   disableActions();

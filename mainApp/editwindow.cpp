@@ -45,6 +45,7 @@
 #include <QScrollBar>
 
 #include "editwindow.h"
+#include "lpubalert.h"
 #include "highlighter.h"
 #include "ldrawfiles.h"
 #include "messageboxresizable.h"
@@ -87,6 +88,8 @@ EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
 
     setCentralWidget(_textEdit);
 
+    updateOpenWithActions();
+
     if (modelFileEdit()) {
         _saveSubfileIndex = 0;
         QObject::connect(&fileWatcher, SIGNAL(fileChanged(const QString&)), this, SLOT(modelFileChanged(const QString&)));
@@ -120,8 +123,148 @@ QAbstractItemModel *EditWindow::modelFromFile(const QString& fileName)
     return new QStringListModel(words, completer);
 }
 
+void EditWindow::updateOpenWithActions()
+{
+    QSettings Settings;
+    QString const openWithProgramListKey("OpenWithProgramList");
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,openWithProgramListKey))) {
+
+      QStringList programEntries = Settings.value(QString("%1/%2").arg(SETTINGS,openWithProgramListKey)).toStringList();
+
+      int numPrograms = qMin(programEntries.size(), Preferences::maxOpenWithPrograms);
+
+      emit lpubAlert->messageSig(LOG_DEBUG, QString("1. Number of Programs: %1").arg(numPrograms));
+
+      QString programData, programName, programPath;
+
+      auto getProgramIcon = [&programPath] ()
+      {
+          QStringList pathList   = QStandardPaths::standardLocations(QStandardPaths::TempLocation);
+          QString iconPath       = pathList.first();
+          const QString iconFile = QString("%1/%2icon.png").arg(iconPath).arg(QFileInfo(programPath).baseName());
+          if (!QFileInfo(iconFile).exists()) {
+              QFileInfo programInfo(programPath);
+              QFileSystemModel *fsModel = new QFileSystemModel;
+              fsModel->setRootPath(programInfo.path());
+              QIcon fileIcon = fsModel->fileIcon(fsModel->index(programInfo.filePath()));
+              QPixmap iconPixmap = fileIcon.pixmap(16,16);
+              if (!iconPixmap.save(iconFile))
+                  emit lpubAlert->messageSig(LOG_INFO,QString("Could not save program file icon: %1").arg(iconFile));
+              return fileIcon;
+          }
+          return QIcon(iconFile);
+      };
+
+      // filter programPaths that don't exist
+      for (int i = 0; i < numPrograms; ) {
+        programData = programEntries.at(i).split("|").last();
+        programPath = programData;
+        QStringList arguments;
+        if (!programData.isEmpty())
+            openWithProgramAndArgs(programPath,arguments);
+        QFileInfo fileInfo(programPath);
+        if (fileInfo.exists()) {
+          programName = programEntries.at(i).split("|").first();
+          QString text = programName;
+          if (text.isEmpty())
+              text = tr("&%1 %2").arg(i + 1).arg(fileInfo.fileName());
+          openWithActList[i]->setText(text);
+          openWithActList[i]->setData(programData); // includes arguments
+          openWithActList[i]->setIcon(getProgramIcon());
+          openWithActList[i]->setStatusTip(QString("Open current file with %2")
+                                                   .arg(fileInfo.fileName()));
+          openWithActList[i]->setVisible(true);
+          i++;
+        } else {
+          programEntries.removeOne(programEntries.at(i));
+          --numPrograms;
+        }
+      }
+      emit lpubAlert->messageSig(LOG_DEBUG, QString("2. Number of Programs: %1").arg(numPrograms));
+
+      // hide empty program actions
+      for (int j = numPrograms; j < Preferences::maxOpenWithPrograms; j++) {
+        openWithActList[j]->setVisible(false);
+      }
+    }
+}
+
+void EditWindow::openWithProgramAndArgs(QString &program, QStringList &arguments)
+{
+    QRegExp quoteRx("\"|'");
+    QString valueAt0 = program.at(0);
+    bool inside = valueAt0.contains(quoteRx);                             // true if the first character is " or '
+    QStringList list = program.split(quoteRx, QString::SkipEmptyParts);   // Split by " or '
+    if (list.size() == 1) {
+        program = list.first();
+    } else {
+        QStringList values;
+        foreach (QString item, list) {
+            if (inside) {                                                 // If 's' is inside quotes ...
+                values.append(item);                                      // ... get the whole string
+            } else {                                                      // If 's' is outside quotes ...
+                values.append(item.split(" ", QString::SkipEmptyParts));  // ... get the split string
+            }
+            inside = !inside;
+        }
+        program = values.first();                                         //first value is application path
+        values.removeFirst();                                             // remove application path from values
+        arguments = values + arguments;                                   // prepend values to arguments
+    }
+}
+
+void EditWindow::openWith()
+{
+    QAction *action = qobject_cast<QAction *>(sender());
+    QStringList arguments = QStringList() << fileName;
+    QString program;
+
+    if (action) {
+        program = action->data().toString();
+        if (program.isEmpty()) {
+#ifdef Q_OS_MACOS
+            if (Preferences::systemEditor.isEmpty()) {
+                program = QString("open");
+                arguments.prepend("-e");
+            } else {
+                openWithProgramAndArgs(Preferences::systemEditor,arguments);
+            }
+#else
+            openWithProgramAndArgs(Preferences::systemEditor,arguments);
+#endif
+        } else {
+            openWithProgramAndArgs(program,arguments);
+        }
+        qint64 pid;
+        QString workingDirectory = QDir::currentPath() + QDir::separator();
+        QProcess::startDetached(program, {arguments}, workingDirectory, &pid);
+        emit lpubAlert->messageSig(LOG_INFO, QString("Launched %1 with %2...")
+                                  .arg(QFileInfo(fileName).fileName()).arg(QFileInfo(program).fileName()));
+    }
+}
+
+void EditWindow::createOpenWithActions()
+{
+    for (int i = 0; i < Preferences::maxOpenWithPrograms; i++) {
+        QAction *openWithAct = new QAction(this);
+        openWithAct->setVisible(false);
+        connect(openWithAct, SIGNAL(triggered()), this, SLOT(openWith()));
+        if (i < openWithActList.size()) {
+            openWithActList.replace(i,openWithAct);
+        } else {
+            openWithActList.append(openWithAct);
+        }
+    }
+}
+
 void EditWindow::createActions()
 {
+    createOpenWithActions();
+
+    editModelFileAct = new QAction(QIcon(":/resources/editldraw.png"),tr("Edit current model file"), this);
+    editModelFileAct->setStatusTip(tr("Edit loaded LDraw file in detached LDraw Editor"));
+    connect(editModelFileAct, SIGNAL(triggered()), this, SIGNAL(editModelFileSig()));
+
     cutAct = new QAction(QIcon(":/resources/cut.png"), tr("Cu&t"), this);
     cutAct->setShortcut(tr("Ctrl+X"));
     cutAct->setStatusTip(tr("Cut the current selection's contents to the clipboard - Ctrl+X"));
@@ -230,10 +373,13 @@ void EditWindow::createActions()
 
 void EditWindow::disableActions()
 {
+    editModelFileAct->setEnabled(false);
+
     cutAct->setEnabled(false);
     copyAct->setEnabled(false);
     delAct->setEnabled(false);
     updateAct->setEnabled(false);
+
     redrawAct->setEnabled(false);
     selAllAct->setEnabled(false);
     findAct->setEnabled(false);
@@ -245,7 +391,25 @@ void EditWindow::disableActions()
     undoAct->setEnabled(false);
     redoAct->setEnabled(false);
     saveAct->setEnabled(false);
+}
 
+void EditWindow::enableActions()
+{
+    editModelFileAct->setEnabled(true);
+
+    redrawAct->setEnabled(true);
+    selAllAct->setEnabled(true);
+    findAct->setEnabled(true);
+    topAct->setEnabled(true);
+    toggleCmmentAct->setEnabled(true);
+    bottomAct->setEnabled(true);
+    showAllCharsAct->setEnabled(true);
+}
+
+void EditWindow::clearEditorWindow()
+{
+    fileName.clear();
+    disableActions();
 }
 
 void EditWindow::createToolBars()
@@ -289,6 +453,22 @@ void EditWindow::showContextMenu(const QPoint &pt)
 {
     QMenu *menu = _textEdit->createStandardContextMenu();
     menu->addSeparator();
+    if (!fileName.isEmpty()) {
+        if (!modelFileEdit()) {
+            editModelFileAct->setText(tr("Edit %1").arg(QFileInfo(fileName).fileName()));
+            editModelFileAct->setStatusTip(tr("Edit %1 in detached LDraw Editor").arg(QFileInfo(fileName).fileName()));
+            menu->addAction(editModelFileAct);
+        }
+        if (openWithActList.size()) {
+            QMenu *openWithMenu;
+            openWithMenu = menu->addMenu(tr("Open With..."));
+            openWithMenu->setIcon(QIcon(":/resources/openwith.png"));
+            openWithMenu->setStatusTip(tr("Open model file with selected application"));
+            for (int i = 0; i < openWithActList.size(); i++)
+                openWithMenu->addAction(openWithActList.at(i));
+            menu->addSeparator();
+        }
+    }
     menu->addAction(topAct);
     menu->addAction(bottomAct);
     menu->addAction(toggleCmmentAct);
@@ -747,13 +927,7 @@ void EditWindow::displayFile(
   connect(_textEdit->document(), SIGNAL(contentsChange(int,int,int)),
           this,                  SLOT(  contentsChange(int,int,int)));
 
-  selAllAct->setEnabled(true);
-  showAllCharsAct->setEnabled(true);
-  redrawAct->setEnabled(true);
-  findAct->setEnabled(true);
-  toggleCmmentAct->setEnabled(true);
-  topAct->setEnabled(true);
-  bottomAct->setEnabled(true);
+  enableActions();
 
   if (modelFileEdit() && !fileName.isEmpty())
       fileWatcher.addPath(fileName);

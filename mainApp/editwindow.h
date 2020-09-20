@@ -80,6 +80,7 @@ private:
     void createActions();
     void createMenus();
     void createToolBars();
+    void createOpenWithActions();
     void readSettings();
     void writeSettings();
 
@@ -94,7 +95,8 @@ private:
     int           _saveSubfileIndex;
     QFileSystemWatcher fileWatcher;
 
-    QMenu    *editMenu;
+    QList<QAction *> openWithActList;
+    QAction  *editModelFileAct;
     QAction  *topAct;
     QAction  *bottomAct;
     QAction  *cutAct;
@@ -121,9 +123,11 @@ signals:
     void enableWatcherSig();
     void disableWatcherSig();
     void updateDisabledSig(bool);
-     void SelectedPartLinesSig(QVector<TypeLine>&, PartSource = EDITOR_LINE);
+    void editModelFileSig();
+    void SelectedPartLinesSig(QVector<TypeLine>&, PartSource = EDITOR_LINE);
 
 private slots:
+    void openWith();
     void contentsChange(int position, int charsRemoved, int charsAdded);
     bool saveFile();
     bool maybeSave();
@@ -145,7 +149,7 @@ public slots:
     void showLine(int, int);
     void highlightSelectedLines(QVector<int> &lines);
     void updateDisabled(bool);
-    void disableActions();
+    void clearEditorWindow();
     void pageUpDown(
       QTextCursor::MoveOperation op,
       QTextCursor::MoveMode      moveMode);
@@ -156,6 +160,10 @@ public:
 
 private:
     QAbstractItemModel *modelFromFile(const QString& fileName);
+    void openWithProgramAndArgs(QString &program, QStringList &arguments);
+    void updateOpenWithActions();
+    void disableActions();
+    void enableActions();
     QCompleter *completer;
 };
 

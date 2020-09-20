@@ -3111,6 +3111,8 @@ Gui::Gui()
     selectedItemObj   = UndefinedObj;
     mViewerZoomLevel  = 50;
 
+    lpubAlert     = new LPubAlert();
+
     editWindow    = new EditWindow(this);         // remove inheritance 'this' to independently manage window
     editModeWindow= new EditWindow(nullptr,true); // true = this is a model file edit window
     parmsWindow   = new ParmsWindow();
@@ -3154,11 +3156,10 @@ Gui::Gui()
         Preferences::systemEditor = QString("");
 #endif
 
-    lpubAlert = new LPubAlert();
-
     connect(lpubAlert,      SIGNAL(messageSig(LogType,QString)),
             this,           SLOT(statusMessage(LogType,QString)));
 
+    // Gui
     connect(this,           SIGNAL(messageSig(LogType,QString)),
             this,           SLOT(statusMessage(LogType,QString)));
 
@@ -3171,11 +3172,13 @@ Gui::Gui()
     connect(this,           SIGNAL(setContinuousPageSig(bool)),
             this,           SLOT(  setContinuousPage(   bool)));
 
-    connect(this,           SIGNAL(displayFileSig(LDrawFile *, const QString &)),
-            editWindow,     SLOT(  displayFile   (LDrawFile *, const QString &)));
-
+    // Gui - ParmsWindow
     connect(this,           SIGNAL(displayParmsFileSig(const QString &)),
             parmsWindow,    SLOT( displayParmsFile   (const QString &)));
+
+    // Gui - EditWindow
+    connect(this,           SIGNAL(displayFileSig(LDrawFile *, const QString &)),
+            editWindow,     SLOT(  displayFile   (LDrawFile *, const QString &)));
 
     connect(this,           SIGNAL(showLineSig(int, int)),
             editWindow,     SLOT(  showLine(   int, int)));
@@ -3183,6 +3186,10 @@ Gui::Gui()
     connect(this,           SIGNAL(highlightSelectedLinesSig(QVector<int> &)),
             editWindow,     SLOT(  highlightSelectedLines(   QVector<int> &)));
 
+    connect(this,           SIGNAL(clearEditorWindowSig()),
+            editWindow,     SLOT(  clearEditorWindow()));
+
+    // Edit Window - Gui
     connect(editWindow,     SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),
             this,           SLOT(SelectedPartLines(QVector<TypeLine>&,PartSource)));
 
@@ -3192,25 +3199,16 @@ Gui::Gui()
     connect(editWindow,     SIGNAL(updateSig()),
             this,           SLOT(  reloadCurrentPage()));
 
-    connect(this,           SIGNAL(disableEditorActionsSig()),
-            editWindow,     SLOT(  disableActions()));
-
     connect(editWindow,     SIGNAL(contentsChange(const QString &,int,int,const QString &)),
             this,           SLOT(  contentsChange(const QString &,int,int,const QString &)));
 
-    connect(undoStack,      SIGNAL(canRedoChanged(bool)),
-            this,           SLOT(  canRedoChanged(bool)));
-    connect(undoStack,      SIGNAL(canUndoChanged(bool)),
-            this,           SLOT(  canUndoChanged(bool)));
-    connect(undoStack,      SIGNAL(cleanChanged(bool)),
-            this,           SLOT(  cleanChanged(bool)));
-    connect(undoStack,      SIGNAL(cleanChanged(bool)),
-            editWindow,     SLOT(  updateDisabled(bool)));
+    connect(editWindow,     SIGNAL(editModelFileSig()),
+            this,           SLOT(  editModelFile()));
 
     connect(editWindow,     SIGNAL(updateDisabledSig(bool)),
             editModeWindow, SLOT(  updateDisabled(bool)));
 
-    // edit model file
+    // Edit Model Window
     connect(this,           SIGNAL(displayModelFileSig(LDrawFile *, const QString &)),
             editModeWindow, SLOT(  displayFile   (LDrawFile *, const QString &)));
     connect(editModeWindow, SIGNAL(refreshModelFileSig()),
@@ -3219,13 +3217,23 @@ Gui::Gui()
             this,           SLOT(  clearAndRedrawModelFile()));
     connect(editModeWindow, SIGNAL(updateSig()),
             this,           SLOT(  reloadCurrentModelFile()));
-    connect(this,           SIGNAL(disableEditorActionsSig()),
-            editModeWindow, SLOT(  disableActions()));
+    connect(this,           SIGNAL(clearEditorWindowSig()),
+            editModeWindow, SLOT(  clearEditorWindow()));
 
     connect(editModeWindow, SIGNAL(contentsChange(const QString &,int,int,const QString &)),
             this,           SLOT(  contentsChange(const QString &,int,int,const QString &)));
+
+    // Undo Stack
     connect(undoStack,      SIGNAL(cleanChanged(bool)),
             editModeWindow, SLOT(  updateDisabled(bool)));
+    connect(undoStack,      SIGNAL(cleanChanged(bool)),
+            editWindow,     SLOT(  updateDisabled(bool)));
+    connect(undoStack,      SIGNAL(canRedoChanged(bool)),
+            this,           SLOT(  canRedoChanged(bool)));
+    connect(undoStack,      SIGNAL(canUndoChanged(bool)),
+            this,           SLOT(  canUndoChanged(bool)));
+    connect(undoStack,      SIGNAL(cleanChanged(bool)),
+            this,           SLOT(  cleanChanged(bool)));
 
     progressLabel = new QLabel(this);
     progressLabel->setMinimumWidth(200);
@@ -3358,8 +3366,8 @@ void Gui::initialize()
 
   emit disable3DActionsSig();
   setCurrentFile("");
-  readSettings();
   updateOpenWithActions();
+  readSettings();
 
   // scene item z direction
   if (soMap.size() == 0) {
