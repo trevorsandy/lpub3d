@@ -60,8 +60,10 @@ enum NativeType { NTypeDefault, NTypeCalledOut, NTypeMultiStep };
 enum SceneObjectInfo { ObjectId };
 enum BuildModFlags {
     BM_BEGIN,                                // MOD LEVEL BEGIN
+    BM_MODEL_NAME      = BM_BEGIN,
     BM_BEGIN_LINE_NUM  = BM_BEGIN,
     BM_ACTION_LINE_NUM,
+    BM_LINE_NUMBER     = BM_ACTION_LINE_NUM,
     BM_MODEL_INDEX     = BM_ACTION_LINE_NUM, // MODEL_INDEX for BuildModRange
     BM_END,
     BM_END_LINE_NUM    = BM_END,             // MOD LEVEL END

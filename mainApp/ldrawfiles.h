@@ -316,7 +316,9 @@ class LDrawFile {
     void setBuildModStepKey(const QString &buildModKey, const QString &modStepKey);
     QString getBuildModStepKey(const QString &buildModKey);
     QString getBuildModModelName(const QString &buildModKey);
+    QMap<int, int> getBuildModActions(const QString &buildModKey);
     QStringList getBuildModsList();
+    bool getBuildModStepIndexKeys(int stepIndex, QString &modelName, int &lineNumber);
     bool buildModContains(const QString &buildModKey);
     bool buildModsSize();
 

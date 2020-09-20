@@ -1833,22 +1833,26 @@ void Gui::changeBuildModification()
     case Options::Mt::SMP:
     {
 
+        int buildModDisplayPageNum = getBuildModDisplayPageNumber(buildModKeys.first());
+
         QString buildModStepKey = getBuildModStepKey(buildModKeys.first());
 
-        if (! buildModStepKey.isEmpty()) {
+        if (buildModDisplayPageNum && ! buildModStepKey.isEmpty()) {
 
-            if (currentStep && currentStep->viewerStepKey.startsWith( buildModStepKey))
-                return;
+            if (buildModDisplayPageNum != displayPageNum) {
+                displayPageNum = buildModDisplayPageNum;
+                displayPage();
+            }
 
-            beginMacro("ApplyBuildModContent");
+            bool setBuildModStep = currentStep && currentStep->viewerStepKey != buildModStepKey;
 
-            if (setCurrentStep(buildModStepKey))
-                currentStep->loadTheViewer();
-
-            endMacro();
+            if (isViewerStepMultiStep(buildModStepKey) && setBuildModStep) {
+                if (setCurrentStep(buildModStepKey)) {
+                    showLine(currentStep->topOfStep());
+                    currentStep->loadTheViewer();
+                }
+            }
         }
-
-
     }
         break;
     default: /*Options::Mt::PLI:*/
@@ -1883,10 +1887,42 @@ void Gui::deleteBuildModification()
 
         beginMacro("DeleteBuildModContent");
 
+        // delete existing APPLY/REMOVE (action) commands, starting from the bottom of the step
+        Rc rc;
+        QString buildModKey, modLine;
+        Where here, topOfStep, bottomOfStep;
+        QMap<int, int> actionsMap = getBuildModActions(buildModKeys.first());
+        QList<int> stepIndexes = actionsMap.keys();
+        std::sort(stepIndexes.begin(), stepIndexes.end(), std::greater<int>()); // sort stepIndexes descending
+        foreach (int stepIndex, stepIndexes) {
+            QMap<int, int>::iterator i = actionsMap.find(stepIndex);
+            if (i.key()) {                                                      // skip first step at index 0 - deleted later
+                if (getBuildModStepIndexKeys(i.key(), topOfStep)){
+                    if (! getBuildModStepIndexKeys(i.key() + 1, bottomOfStep))  // bottom of step is top of next step                                                    // handle last step
+                        bottomOfStep = Where(topOfStep.modelName, subFileSize(topOfStep.modelName));
+                    for (Where walk = bottomOfStep; walk > topOfStep.lineNumber; --walk) {
+                        here = walk;
+                        modLine = readLine(here);
+                        rc = page.meta.parse(modLine, here);
+                        switch (rc) {
+                        case BuildModApplyRc:
+                        case BuildModRemoveRc:
+                            buildModKey = page.meta.LPub.buildMod.key();
+                            if (buildModKey == buildModKeys.first())
+                                deleteLine(here);
+                            break;
+                        default:
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
         // delete existing BUILD_MOD commands from bottom up, starting at END
-        Where here = Where(modelName, modEndLineNum);
-        QString modLine = readLine(here);
-        Rc rc = page.meta.parse(modLine, here);
+        here = Where(modelName, modEndLineNum);
+        modLine = readLine(here);
+        rc = page.meta.parse(modLine, here);
         if (rc == BuildModEndRc)
             deleteLine(here);
 

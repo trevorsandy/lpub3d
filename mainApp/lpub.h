@@ -767,6 +767,11 @@ public:
       return ldrawFile.setBuildModAction(buildModKey, stepIndex, modAction);
   }
 
+  QMap<int, int> getBuildModActions(const QString &buildModKey)
+  {
+      return ldrawFile.getBuildModActions(buildModKey);
+  }
+
   int getBuildModDisplayPageNumber(const QString &buildModKey)
   {
       return ldrawFile.getBuildModDisplayPageNumber(buildModKey);
@@ -795,6 +800,11 @@ public:
   QString getBuildModModelName(const QString &buildModKey)
   {
       return ldrawFile.getBuildModModelName(buildModKey);
+  }
+
+  bool getBuildModStepIndexKeys(int stepIndex, Where &here)
+  {
+      return ldrawFile.getBuildModStepIndexKeys(stepIndex, here.modelName, here.lineNumber);
   }
 
   bool buildModContains(const QString &buildModKey)

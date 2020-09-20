@@ -2034,6 +2034,17 @@ int LDrawFile::getBuildModAction(const QString &buildModKey, int stepIndex)
   return action;
 }
 
+QMap<int, int>LDrawFile::getBuildModActions(const QString &buildModKey)
+{
+    QMap<int, int> empty;
+    QString  modKey = buildModKey.toLower();
+    QMap<QString, BuildMod>::iterator i = _buildMods.find(modKey);
+    if (i != _buildMods.end()) {
+        return i.value()._modActions;
+    }
+    return empty;
+}
+
 int LDrawFile::setBuildModAction(const QString &buildModKey,
         int stepIndex,
         int modAction)
@@ -2087,16 +2098,25 @@ int LDrawFile::getBuildModStepIndex(int modelIndex, int lineNumber)
 int LDrawFile::getBuildModStepIndexKey(int stepIndex, bool modelIndex)
 {
     int key = -1;
-
-    enum { MODEL_NAME, LINE_NUMBER };
     if (stepIndex > -1 && stepIndex < _buildModStepIndexes.size() - 1)
-        key = modelIndex ? _buildModStepIndexes.at(stepIndex).at(MODEL_NAME)
-                         : _buildModStepIndexes.at(stepIndex).at(LINE_NUMBER);
+        key = modelIndex ? _buildModStepIndexes.at(stepIndex).at(BM_MODEL_NAME)
+                         : _buildModStepIndexes.at(stepIndex).at(BM_LINE_NUMBER);
 
     emit gui->messageSig(LOG_DEBUG, QString("Get StepIndexKey %1")
                                             .arg(modelIndex ? QString("ModelNameIndex: %1, ModelName: %2").arg(key).arg(getSubmodelName(key))
                                                             : QString("LineNumber: %1").arg(key)));
     return key;
+}
+
+bool LDrawFile::getBuildModStepIndexKeys(int stepIndex, QString &modelName, int &lineNumber)
+{
+  bool validIndex = false;
+  if (stepIndex > -1 && stepIndex < _buildModStepIndexes.size() - 1) {
+      modelName  = getSubmodelName(_buildModStepIndexes.at(stepIndex).at(BM_MODEL_NAME));
+      lineNumber = _buildModStepIndexes.at(stepIndex).at(BM_LINE_NUMBER);
+      validIndex = ! modelName.isEmpty() && lineNumber > 0;
+  }
+  return validIndex;
 }
 
 // This function returns the equivalent of the ViewewerStepKey

@@ -5981,8 +5981,7 @@ void BuildModDialogGui::getBuildMod(QStringList & buildModKeys, int action){
         actionLabel = "Delete";
         break;
     default:
-        actionLabel = "Apply";
-        break;
+        return;
     }
     QFormLayout *form = new QFormLayout(dialog);
     form->addRow(new QLabel(QString("%1 Build Modifications").arg(actionLabel)));
@@ -5993,6 +5992,9 @@ void BuildModDialogGui::getBuildMod(QStringList & buildModKeys, int action){
     buildModBox->setLayout(hLayout);
 
     QListWidget *buildModList  = new QListWidget(dialog);
+    buildModList->setSelectionMode(QListWidget::SingleSelection);
+//    if (actionLabel == "Apply" || actionLabel == "Delete")
+//        buildModList->setSelectionMode(QListWidget::ExtendedSelection);
 
     activeBuildModItem = nullptr;
 
@@ -6027,8 +6029,6 @@ void BuildModDialogGui::getBuildMod(QStringList & buildModKeys, int action){
     if (dialog->exec() == QDialog::Accepted) {
         if (activeBuildModItem)
             buildModKeys.append(activeBuildModItem->text());
-    } else {
-        return;
     }
 }
 
