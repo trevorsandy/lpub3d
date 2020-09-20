@@ -1656,6 +1656,8 @@ QImage Project::CreatePartsListImage(lcModel* Model, lcStep Step)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		lcScene Scene;
+		Scene.SetAllowWireframe(false);
+		Scene.SetAllowLOD(false);
 		Scene.Begin(ViewMatrix);
 
 		Image.Info->AddRenderMeshes(Scene, lcMatrix44Identity(), Image.ColorIndex, lcRenderMeshState::NORMAL, true);
@@ -2046,6 +2048,8 @@ void Project::ExportHTML(const lcHTMLExportOptions& Options)
 				Context->SetProjectionMatrix(ProjectionMatrix);
 
 				lcScene Scene;
+				Scene.SetAllowWireframe(false);
+				Scene.SetAllowLOD(false);
 				Scene.Begin(ViewMatrix);
 
 				Info->AddRenderMeshes(Scene, lcMatrix44Identity(), Options.PartImagesColor, lcRenderMeshState::NORMAL, true);

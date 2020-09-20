@@ -60,6 +60,7 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 {
 	lcProfileEntry("Settings", "FixedAxes", false),                                         // LC_PROFILE_FIXED_AXES
 	lcProfileEntry("Settings", "LineWidth", 1.0f),                                          // LC_PROFILE_LINE_WIDTH
+	lcProfileEntry("Settings", "AllowLOD", true),                                           // 	LC_PROFILE_ALLOW_LOD
 	lcProfileEntry("Settings", "ShadingMode", LC_SHADING_DEFAULT_LIGHTS),                   // LC_PROFILE_SHADING_MODE
 	lcProfileEntry("Settings", "DrawAxes", 0),                                              // LC_PROFILE_DRAW_AXES
 	lcProfileEntry("Settings", "DrawEdgeLines", 1),                                         // LC_PROFILE_DRAW_EDGE_LINES
@@ -77,6 +78,8 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 /*** LPub3D Mod - piece icons ***/
 	lcProfileEntry("Settings", "ViewPieceIcons", 0),                                        // LC_PROFILE_VIEW_PIECE_ICONS                          /*** LPub3D Mod - View piece icons ***/
 /*** LPub3D Mod end ***/
+
+	lcProfileEntry("Settings", "Language", ""),                                             // LC_PROFILE_LANGUAGE
 	lcProfileEntry("Settings", "CheckUpdates", 1),                                          // LC_PROFILE_CHECK_UPDATES
 	lcProfileEntry("Settings", "ProjectsPath", ""),                                         // LC_PROFILE_PROJECTS_PATH
 	lcProfileEntry("Settings", "PartsLibrary", ""),                                         // LC_PROFILE_PARTS_LIBRARY

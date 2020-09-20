@@ -68,9 +68,12 @@ public:
     /// Sets the theme
     void setTheme();
 
-    /// Console redirection for Windows
 #ifdef Q_OS_WIN
+    /// Console redirection for Windows
     void RedirectIOToConsole();
+    /// Windows dmp file generation
+    static void lcSehInit();
+    static LONG WINAPI lcSehHandler(PEXCEPTION_POINTERS exceptionPointers);
 #endif
 
     /// Initialize the splash screen

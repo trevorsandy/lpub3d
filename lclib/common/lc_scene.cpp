@@ -21,6 +21,7 @@ lcScene::lcScene()
 {
 	mActiveSubmodelInstance = nullptr;
 	mAllowWireframe = true;
+	mAllowLOD = true;
 }
 
 void lcScene::Begin(const lcMatrix44& ViewMatrix)
@@ -69,7 +70,7 @@ void lcScene::AddMesh(lcMesh* Mesh, const lcMatrix44& WorldMatrix, int ColorInde
 	RenderMesh.ColorIndex = ColorIndex;
 	RenderMesh.State = State;
 	float Distance = fabsf(lcMul31(WorldMatrix[3], mViewMatrix).z);
-	RenderMesh.LodIndex = RenderMesh.Mesh->GetLodIndex(Distance);
+	RenderMesh.LodIndex = mAllowLOD ? RenderMesh.Mesh->GetLodIndex(Distance) : LC_MESH_LOD_HIGH;
 
 	bool Translucent = lcIsColorTranslucent(size_t(ColorIndex)); /*** LPub3D Mod - Suppress int -> size_t warning ***/
 	lcMeshFlags Flags = Mesh->mFlags;
