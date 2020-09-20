@@ -39,6 +39,8 @@ class PlacementCsiPart : public Placement,
 {
 public:
     bool outline;
+    int stepNumber;
+    Where top, bottom;
     PlacementCsiPart(){}
     PlacementCsiPart(
         CsiPartMeta   &_csiPartMeta,
@@ -81,6 +83,7 @@ public:
   CsiAnnotationIconMeta icon;
   QRectF            textRect;
   QRectF            styleRect;
+  int               stepNumber;
 
   // DEBUG TRACE STUFF
   PageMeta          pageMeta;

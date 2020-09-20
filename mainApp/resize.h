@@ -86,6 +86,8 @@ class Grabber : public QGraphicsRectItem
 {
   public:
     int which;
+    int stepNumber;
+    Where top,bottom;
     AbstractResize *resized;
     Grabber() {}
     

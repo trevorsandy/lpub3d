@@ -160,6 +160,7 @@ public:
     int            _value,
     QGraphicsItem *parent,
     QString        name = "Step Number ");
+  Where top, bottom;
 protected:
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
   virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);

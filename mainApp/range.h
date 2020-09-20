@@ -107,6 +107,8 @@ public:
   MultiStepStepBackgroundItem(
     Step *step,
     QGraphicsItem *parent);
+  int stepNumber;
+  Where top, bottom;
 protected:
   virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
   virtual void hoverEnterEvent(QGraphicsSceneHoverEvent* event);

@@ -341,7 +341,9 @@ StepNumberItem::StepNumberItem(
   isHovered(false),
   mouseIsDown(false)
 {
-  step = _step;
+  step   = _step;
+  top    = _step->topOfStep();
+  bottom = _step->bottomOfStep();
   QString _toolTip("Step Number - right-click to modify");
   setAttributes(StepNumberType,
                 _parentRelativeType,

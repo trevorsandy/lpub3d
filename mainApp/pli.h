@@ -142,7 +142,10 @@ class PliPart {
       pliPartGroup    = nullptr;
     }
 
-    void addPartGroupToScene(LGraphicsScene *scene);
+    void addPartGroupToScene(LGraphicsScene *scene,
+                             Where &top,
+                             Where &bottom,
+                             int stepNumber);
 
     float maxMargin();
 
@@ -512,6 +515,8 @@ public:
     PliPartGroupMeta meta;
     QPointF      position;
     bool         positionChanged;
+    int          stepNumber;
+    Where        top, bottom;
 
 protected:
     virtual void mousePressEvent(QGraphicsSceneMouseEvent *event)

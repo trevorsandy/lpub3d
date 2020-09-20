@@ -51,8 +51,9 @@ CalloutPointerItem::CalloutPointerItem(
   view              = _view;
   pointer           = *_pointer;
   callout           = co;
-  pointerTop        = co->topOfCallout();
-  pointerBottom     = co->bottomOfCallout();
+  stepNumber        = co->parentStep->stepNumber.number;
+  pointerTop        = co->parentStep->topOfStep()/*co->topOfCallout()*/;
+  pointerBottom     = co->parentStep->bottomOfStep()/*co->bottomOfCallout()*/;
   pointerParentType = CalloutType;
   resizeRequested   = false;
 
@@ -180,7 +181,7 @@ CalloutPointerItem::CalloutPointerItem(
       tipPen.setStyle(Qt::DashDotDotLine);
   }
 
-  head = new QGraphicsPolygonItem(poly, this);
+  head = new PointerHeadItem(poly, this);
   head->setPen(tipPen);
   head->setBrush(brushColor);
   head->setFlag(QGraphicsItem::ItemIsSelectable,false);

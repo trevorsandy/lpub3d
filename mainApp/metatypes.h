@@ -409,16 +409,18 @@ class SceneObjectData
 {
 public:
   qreal z;
+  int   itemObj;
+  bool  armed;  // not used
   float scenePos[2];
   SceneObjectDirection direction;
-  bool  armed;
   SceneObjectData()
   {
+    z           = 0.0;
     direction   = SendToBack;
     scenePos[0] = 0.0f;
     scenePos[1] = 0.0f;
-    z           = 0.0f;
     armed       = false;
+    itemObj     = 0;
   }
 };
 

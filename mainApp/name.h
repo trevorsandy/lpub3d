@@ -138,47 +138,101 @@ const int GridSizeTable[] = { 10, 20, 30, 40, 50, 60, 70, 80, 90 };
 
 extern SnapGridCommands sgCommands[NUM_GRID_SIZES];
 
-// All Scene items
+/*
+ * Scene Objects
+ *
+ * Synchronization:
+ * Meta.h         - class SceneItemMeta
+ * Meta.cpp       - SceneItemMeta::SceneItemMeta(), SceneItemMeta::init()
+ * lpub.cpp       - void Gui::initialize() soMap
+ * name.h         - SceneObject enum, ZValue defines, IncludedSceneObjects[]
+ * traverse.cpp   - case SceneItemDirectionRc
+ * formatpage.cpp - bool Gui::getSceneObject(()
+ */
+
 enum SceneObject {
-    AssemAnnotationObj       = 36, //  0 CsiAnnotationType
-    AssemAnnotationPartObj   = 27, //  1 CsiPartType
-    AssemObj                 =  1, //  2 CsiType
+    UndefinedObj             = -1,
+    AssemAnnotationObj       = 36, //  0 CsiAnnotationItem             / CsiAnnotationType
+    AssemAnnotationPartObj   = 27, //  1 PlacementCsiPart              / CsiPartType
     CalloutAssemObj          =  7, //  3
-    CalloutBackgroundObj     =  5, //  4 CalloutType
-    CalloutInstanceObj       =  8, //  5
-    CalloutPointerObj        =  9, //  6
-    CalloutUnderpinningObj   = 10, //  7
-    DividerBackgroundObj     = 11, //  8
-    DividerObj               = 12, //  9
-    DividerLineObj           = 13, // 10
-    DividerPointerObj        = 37, // 11 DividerPointerType
-    PointerGrabberObj        = 14, // 12
-    PliGrabberObj            = 41, // 13
-    SubmodelGrabberObj       = 42, // 14
-    InsertPixmapObj          = 15, // 15
-    InsertTextObj            = 30, // 16 TextType
-    MultiStepBackgroundObj   =  2, // 17 StepGroupType
-    MultiStepsBackgroundObj  = 43, // 18
-    PageAttributePixmapObj   = 17, // 19
-    PageAttributeTextObj     = 19, // 20
-    PageBackgroundObj        =  0, // 21 PageType
-    PageNumberObj            =  6, // 22 PageNumberType
-    PagePointerObj           = 29, // 23 PagePointerType
-    PartsListAnnotationObj   = 20, // 24
-    PartsListBackgroundObj   =  4, // 25 PartsListType
-    PartsListInstanceObj     = 21, // 26
-    PointerFirstSegObj       = 22, // 27
-    PointerHeadObj           = 23, // 28
-    PointerSecondSegObj      = 24, // 29
-    PointerThirdSegObj       = 28, // 30
-    RotateIconBackgroundObj  = 26, // 31 RotateIconType
-    StepNumberObj            =  3, // 32 StepNumberType
-    SubModelBackgroundObj    = 25, // 33 SubModelType
-    SubModelInstanceObj      = 16, // 34
-    SubmodelInstanceCountObj = 18, // 35 SubmodelInstanceCountType
-    PartsListPixmapObj       = 44, // 36
-    PartsListGroupObj        = 45, // 37
-    StepBackgroundObj        = 46  // 38
+    AssemObj                 =  1, //  2 CsiItem                       / CsiType
+    CalloutBackgroundObj     =  5, //  4 CalloutBackgroundItem         / CalloutType
+    CalloutInstanceObj       =  8, //  5 CalloutInstanceItem           /
+    CalloutPointerObj        =  9, //  6 CalloutPointerItem            /
+    CalloutUnderpinningObj   = 10, //  7 UnderpinningsItem             /
+    DividerBackgroundObj     = 11, //  8 DividerBackgroundItem         /
+    DividerObj               = 12, //  9 DividerItem                   /
+    DividerLineObj           = 13, // 10 DividerLine                   /
+    DividerPointerObj        = 37, // 11 DividerPointerItem            / DividerPointerType
+    PointerGrabberObj        = 14, // 12 Grabber                       /
+    PliGrabberObj            = 41, // 13 Grabber                       /
+    SubmodelGrabberObj       = 42, // 14 Grabber                       /
+    InsertPixmapObj          = 15, // 15 InsertPixmapItem              /
+    InsertTextObj            = 30, // 16 TextItem                      / TextType
+    MultiStepBackgroundObj   =  2, // 17 MultiStepRangeBackgroundItem  / StepGroupType
+    MultiStepsBackgroundObj  = 43, // 18 MultiStepRangesBackgroundItem /
+    PageAttributePixmapObj   = 17, // 19 PageAttributePixmapItem       / PageDocumentLogoType, PageCoverImageType
+    PageAttributeTextObj     = 19, // 20 PageAttributeTextItem         / PageTitleType ... PagePlugType
+    PageBackgroundObj        =  0, // 21 PageBackgroundItem            / PageType
+    PageNumberObj            =  6, // 22 PageNumberItem                / PageNumberType
+    PagePointerObj           = 29, // 23 PagePointerItem               / PagePointerType
+    PartsListAnnotationObj   = 20, // 24 AnnotateTextItem              /
+    PartsListBackgroundObj   =  4, // 25 PliBackgroundItem             / PartsListType
+    PartsListInstanceObj     = 21, // 26 InstanceTextItem              /
+    PointerHeadObj           = 22, // 27 PointerHeadItem               /
+    PointerFirstSegObj       = 23, // 28 BorderedLineItem              /
+    PointerSecondSegObj      = 24, // 29 BorderedLineItem              /
+    PointerThirdSegObj       = 28, // 30 BorderedLineItem              /
+    RotateIconBackgroundObj  = 26, // 31 RotateIconItem                / RotateIconType
+    StepNumberObj            =  3, // 32 StepNumberItem                / StepNumberType
+    SubModelBackgroundObj    = 25, // 33 SubModelType                  /
+    SubModelInstanceObj      = 16, // 34 SMInstanceTextItem            /
+    SubmodelInstanceCountObj = 18, // 35 SubmodelInstanceCount         / SubmodelInstanceCountType
+    PartsListPixmapObj       = 44, // 36 PGraphicsPixmapItem           /
+    PartsListGroupObj        = 45, // 37 PartGroupItem                 /
+    StepBackgroundObj        = 46  // 38 MultiStepStepBackgroundItem   / StepType
+};
+
+static const SceneObject IncludedSceneObjects[] =
+{
+    AssemAnnotationObj,
+    AssemAnnotationPartObj,
+    AssemObj,
+    CalloutBackgroundObj,
+    CalloutInstanceObj,
+    CalloutPointerObj,
+    CalloutUnderpinningObj,
+    DividerBackgroundObj,
+    DividerLineObj,
+    DividerObj,
+    DividerPointerObj,
+    InsertPixmapObj,
+    InsertTextObj,
+    MultiStepBackgroundObj,
+    MultiStepsBackgroundObj,
+    PageAttributePixmapObj,
+    PageAttributeTextObj,
+    PageBackgroundObj,
+    PageNumberObj,
+    PagePointerObj,
+    PartsListAnnotationObj,
+    PartsListBackgroundObj,
+    PartsListGroupObj,
+    PartsListInstanceObj,
+    PartsListPixmapObj,
+    PliGrabberObj,
+    PointerFirstSegObj,
+    PointerGrabberObj,
+    PointerHeadObj,
+    PointerSecondSegObj,
+    PointerThirdSegObj,
+    RotateIconBackgroundObj,
+    StepBackgroundObj,
+    StepNumberObj,
+    SubModelBackgroundObj,
+    SubmodelGrabberObj,
+    SubmodelInstanceCountObj,
+    SubModelInstanceObj
 };
 
 // Exempted from detection - triggers invalid object
@@ -202,91 +256,53 @@ static const SceneObject PliPartGroupSceneObjects[] =
     PartsListInstanceObj    // 21
 };
 
-// Excluded from triggering context action
-static const SceneObject ExcludedSceneObjects[] =
-{
-    PointerGrabberObj,      // 14
-    PliGrabberObj,          // 41
-    SubmodelGrabberObj,     // 42
-    PointerHeadObj          // 23
-};
-
-// Included in depth calculation
-static const SceneObject IncludedSceneObjects[] =
-{
-    MultiStepBackgroundObj,  //  2
-    AssemAnnotationObj,      // 35
-    AssemObj,                //  1
-    CalloutBackgroundObj,    //  5
-    CalloutPointerObj,       //  9
-    DividerObj,              // 12
-    DividerPointerObj,       // 36
-    InsertPixmapObj,         // 15
-    InsertTextObj,           // 16
-    PageNumberObj,           //  6
-    PagePointerObj,          // 29
-    PartsListBackgroundObj,  //  4
-    RotateIconBackgroundObj, // 26
-    StepNumberObj,           //  3
-    SubModelBackgroundObj,   // 25
-    PartsListGroupObj,       // 45
-    StepBackgroundObj        // 46
-};
-
-// TODO - Temporary abort processing list
-static const SceneObject NoContextSceneObjects[] =
-{
-    MultiStepBackgroundObj,
-    MultiStepsBackgroundObj,
-    CalloutAssemObj,
-    CalloutBackgroundObj,
-    CalloutPointerObj,
-    CalloutInstanceObj,
-    CalloutUnderpinningObj
-};
-
-#define ASSEM_ZVALUE_DEFAULT                       0.0
-#define ASSEMANNOTATION_ZVALUE_DEFAULT             0.0
-#define ASSEMANNOTATIONPART_ZVALUE_DEFAULT         0.0
+#define Z_VALUE_DEFAULT                            0.0
+#define GRABBER_ZVALUE_DEFAULT                     100.0
+#define ASSEM_ZVALUE_DEFAULT                       Z_VALUE_DEFAULT
+#define ASSEMANNOTATION_ZVALUE_DEFAULT             Z_VALUE_DEFAULT
+#define ASSEMANNOTATIONPART_ZVALUE_DEFAULT         Z_VALUE_DEFAULT
+#define CALLOUTASSEM_ZVALUE_DEFAULT                Z_VALUE_DEFAULT
 #define CALLOUTASSEM_ZVALUE_DEFAULT                0.0
 #define CALLOUTBACKGROUND_ZVALUE_DEFAULT          98.0
 #define CALLOUTINSTANCE_ZVALUE_DEFAULT          1000.0
-#define CALLOUTPOINTER_ZVALUE_DEFAULT             -1.0
+#define CALLOUTPOINTER_ZVALUE_DEFAULT             POINTER_ZVALUE_DEFAULT
 #define CALLOUTUNDERPINNING_ZVALUE_DEFAULT        97.0
-#define DIVIDER_ZVALUE_DEFAULT                    99.0
-#define DIVIDERBACKGROUND_ZVALUE_DEFAULT           0.0
-#define DIVIDERLINE_ZVALUE_DEFAULT               100.0
-#define DIVIDERPOINTER_ZVALUE_DEFAULT              0.0
-#define GRABBER_ZVALUE_DEFAULT                   100.0
+#define DIVIDER_ZVALUE_DEFAULT                   100.0
+#define DIVIDERLINE_ZVALUE_DEFAULT                99.0
+#define DIVIDERBACKGROUND_ZVALUE_DEFAULT          98
+#define DIVIDERPOINTER_ZVALUE_DEFAULT              POINTER_ZVALUE_DEFAULT
 #define INSERTPIXMAP_ZVALUE_DEFAULT              500.0
 #define INSERTTEXT_ZVALUE_DEFAULT               1000.0
 #define MULTISTEPBACKGROUND_ZVALUE_DEFAULT        -2.0
 #define MULTISTEPSBACKGROUND_ZVALUE_DEFAULT       -2.0
-#define PAGEATTRIBUTEPIXMAP_ZVALUE_DEFAULT         0.0
-#define PAGEATTRIBUTETEXT_ZVALUE_DEFAULT           0.0
-#define PAGEBACKGROUND_ZVALUE_DEFAULT              0.0
-#define PAGENUMBER_ZVALUE_DEFAULT                  0.0
-#define PAGEPOINTER_ZVALUE_DEFAULT                 0.0
-#define PAGEPOINTERBACKGROUND_ZVALUE_DEFAULT       0.0
-#define PARTSLISTANNOTATION_ZVALUE_DEFAULT         0.0
-#define PARTSLISTBACKGROUND_ZVALUE_DEFAULT         0.0
-#define PARTSLISTINSTANCE_ZVALUE_DEFAULT           0.0
-#define PARTSLISTPARTGROUP_ZVALUE_DEFAULT          0.0
-#define PARTSLISTPARTPIXMAP_ZVALUE_DEFAULT         0.0
-#define PLIGRABBER_ZVALUE_DEFAULT                100.0
-#define POINTERGRABBER_ZVALUE_DEFAULT            100.0
-#define POINTERFIRSTSEG_ZVALUE_DEFAULT            -1.0
-#define POINTERSECONDSEG_ZVALUE_DEFAULT           -2.0
-#define POINTERTHIRDSEG_ZVALUE_DEFAULT            -3.0
-#define POINTERHEAD_ZVALUE_DEFAULT                -4.0
+#define PAGEATTRIBUTETEXT_ZVALUE_DEFAULT           1.0
+#define PAGEATTRIBUTEPIXMAP_ZVALUE_DEFAULT         Z_VALUE_DEFAULT
+#define PAGEBACKGROUND_ZVALUE_DEFAULT             -3.0
+#define PAGENUMBER_ZVALUE_DEFAULT                  Z_VALUE_DEFAULT
+#define PAGEPOINTER_ZVALUE_DEFAULT                 POINTER_ZVALUE_DEFAULT
+#define PAGEPOINTERBACKGROUND_ZVALUE_DEFAULT       Z_VALUE_DEFAULT
+#define PARTSLISTANNOTATION_ZVALUE_DEFAULT         Z_VALUE_DEFAULT
+#define PARTSLISTBACKGROUND_ZVALUE_DEFAULT         Z_VALUE_DEFAULT
+#define PARTSLISTINSTANCE_ZVALUE_DEFAULT           Z_VALUE_DEFAULT
+#define PARTSLISTPARTGROUP_ZVALUE_DEFAULT          Z_VALUE_DEFAULT
+#define PARTSLISTPARTPIXMAP_ZVALUE_DEFAULT         Z_VALUE_DEFAULT
+#define PLIGRABBER_ZVALUE_DEFAULT                  GRABBER_ZVALUE_DEFAULT
+#define POINTERGRABBER_ZVALUE_DEFAULT              GRABBER_ZVALUE_DEFAULT
+#define POINTERFIRSTSEG_ZVALUE_DEFAULT            -2.0
+#define POINTERSECONDSEG_ZVALUE_DEFAULT           -3.0
+#define POINTERTHIRDSEG_ZVALUE_DEFAULT            -4.0
+#define POINTERHEAD_ZVALUE_DEFAULT                -5.0
 #define ROTATEICONBACKGROUND_ZVALUE_DEFAULT      101.0
-#define STEPNUMBER_ZVALUE_DEFAULT                  0.0
-#define SUBMODELBACKGROUND_ZVALUE_DEFAULT          0.0
-#define SUBMODELGRABBER_ZVALUE_DEFAULT           100.0
-#define SUBMODELINSTANCE_ZVALUE_DEFAULT            0.0
-#define SUBMODELINSTANCECOUNT_ZVALUE_DEFAULT       0.0
-#define STEP_BACKGROUND_ZVALUE_DEFAULT             0.0
-#define Z_VALUE_DEFAULT                            0.0
+#define STEP_BACKGROUND_ZVALUE_DEFAULT             Z_VALUE_DEFAULT
+#define STEPNUMBER_ZVALUE_DEFAULT                  Z_VALUE_DEFAULT
+#define SUBMODELBACKGROUND_ZVALUE_DEFAULT          Z_VALUE_DEFAULT
+#define SUBMODELGRABBER_ZVALUE_DEFAULT             GRABBER_ZVALUE_DEFAULT
+#define SUBMODELINSTANCE_ZVALUE_DEFAULT            Z_VALUE_DEFAULT
+#define SUBMODELINSTANCECOUNT_ZVALUE_DEFAULT       Z_VALUE_DEFAULT
+#define STEP_BACKGROUND_ZVALUE_DEFAULT             Z_VALUE_DEFAULT
+#define POINTER_ZVALUE_DEFAULT                    -1.0
+
+#define GLOBAL_META_RX             "^\\s*0\\s+!LPUB\\s+.*GLOBAL"
 
 // registry sections
 #define DEFAULTS                   "Defaults"

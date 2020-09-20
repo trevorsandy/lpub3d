@@ -1338,6 +1338,9 @@ void SubModelBackgroundItem::placeGrabbers()
     grabber = new Grabber(BottomInside,this,myParentItem());
     grabber->setData(ObjectId, SubmodelGrabberObj);
     grabber->setZValue(subModel->meta->LPub.page.scene.submodelGrabber.zValue());
+    grabber->top        = subModel->step->topOfStep();
+    grabber->bottom     = subModel->step->bottomOfStep();
+    grabber->stepNumber = subModel->step->stepNumber.number;
     grabbersVisible = true;
   }
   grabber->setPos(point.x()-grabSize()/2,point.y()-grabSize()/2);

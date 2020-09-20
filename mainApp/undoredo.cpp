@@ -158,3 +158,25 @@ void Gui::normalizeHeader(const Where &here)
         }
     }
 }
+
+void Gui::scanPast(Where &topOfStep, const QRegExp &lineRx)
+{
+  Where walk     = topOfStep + 1;
+  Where lastPos  = topOfStep;
+  int  numLines  = gui->subFileSize(walk.modelName);
+  if (walk < numLines) {
+    QString line = gui->readLine(walk);
+    if (line.contains(lineRx) || isHeader(line)) {
+      for ( ++walk; walk < numLines; ++walk) {
+        line = gui->readLine(walk);
+        lastPos = line.contains(lineRx) ? walk : lastPos;
+        if ( ! line.contains(lineRx) && ! isHeader(line)) {
+          topOfStep = lastPos;
+          if (line.contains("0 STEP") || line.contains("0 ROTSTEP")){
+            break;
+          }
+        }
+      }
+    }
+  }
+}

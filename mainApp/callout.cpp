@@ -321,11 +321,14 @@ void Callout::addGraphicsItems(
   // background.  So by using underpinnings, the callout end of the pointer is under the
   // background.  This allows us to have the pointers look correct for round cornered callouts.
 
-  underpinnings = new QGraphicsRectItem(
+  underpinnings = new UnderpinningsItem(
       qreal(newLoc[XX]),qreal(newLoc[YY]),qreal(size[XX]),qreal(size[YY]),parent);
   QPen pen;
   QColor none(0,0,0,0);
   pen.setColor(none);
+  underpinnings->top = parentStep->topOfStep(); //topOfCallout();
+  underpinnings->bottom = parentStep->bottomOfStep(); //bottomOfCallout();
+  underpinnings->stepNumber = parentStep->stepNumber.number;
   underpinnings->setPen(pen);
   underpinnings->setPos(newLoc[XX],newLoc[YY]);
   underpinnings->setData(ObjectId, CalloutUnderpinningObj);
@@ -512,6 +515,9 @@ CalloutInstanceItem::CalloutInstanceItem(
   QGraphicsItem       *_parent)
 {
   callout = _callout;
+  stepNumber = callout->parentStep->stepNumber.number;
+  instanceTop = callout->topOfCallout();
+  instanceBottom = callout->bottomOfCallout();
   QString toolTip("Times used - right-click to modify");
   setAttributes(PageNumberType,
                 CalloutType,

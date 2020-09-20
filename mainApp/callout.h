@@ -48,6 +48,7 @@ class Pointer;
 class CalloutPointerItem;
 class CalloutBackgroundItem;
 class QGraphicsView;
+class UnderpinningsItem;
 /*
  * There can be more than one callout per step, so we add
  * the ability to be in a list here
@@ -65,7 +66,7 @@ class Callout : public Steps {
     QList<CalloutPointerItem *> graphicsCalloutPointerList; /* Pointer and pointer tips graphics */
 
     CalloutBackgroundItem *background;
-    QGraphicsRectItem     *underpinnings;
+    UnderpinningsItem     *underpinnings;
     Where                  topCallout,bottomCallout;
     
     Where &topOfCallout()
@@ -121,6 +122,8 @@ class CalloutInstanceItem : public NumberPlacementItem
 {
   Callout *callout;
 public:
+  int stepNumber;
+  Where instanceTop, instanceBottom;
   CalloutInstanceItem(
     Callout             *callout,
     Meta                *meta,
@@ -130,6 +133,16 @@ public:
 protected:
   void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
   void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);
+};
+
+class UnderpinningsItem : public QGraphicsRectItem
+{
+public:
+  int stepNumber;
+  Where top, bottom;
+  UnderpinningsItem(qreal x, qreal y, qreal w, qreal h, QGraphicsItem *parent = nullptr)
+      : QGraphicsRectItem(x,y,w,h,parent){ }
+protected:
 };
 
 #endif

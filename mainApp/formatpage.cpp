@@ -52,6 +52,12 @@
 #include "lgraphicsscene.h"
 #include "name.h"
 
+#include "ranges_item.h"
+#include "csiannotation.h"
+#include "dividerpointeritem.h"
+#include "calloutpointeritem.h"
+#include "pagepointeritem.h"
+
 /*
  * We need to draw page every time there is change to the LDraw file.
  *   Changes can come from Menu->dialogs, people editing the file.
@@ -598,7 +604,12 @@ int Gui::addGraphicsPageItems(
                 if (textItem) {
 
                     textItem->relativeType       = insert.relativeType;
-                    textItem->parentRelativeType = SingleStepPage ? PageType : StepGroupType;
+                    if (SingleStepPage) {
+                        textItem->parentRelativeType = PageType;
+                    } else {
+                        textItem->parentRelativeType = StepGroupType;
+                    }
+
 
                     if (textPlacement && insert.defaultPlacement)  {
                         textItem->placement = page->meta.LPub.page.textPlacementMeta;
@@ -688,6 +699,9 @@ int Gui::addGraphicsPageItems(
           if (range->relativeType == RangeType) {
               Step *step = dynamic_cast<Step *>(range->list[0]);
               if (step && step->relativeType == StepType) {
+
+                  if (!step->onlyChild())
+                      page->stepNumber = step->stepNumber.number;
 
                   // populate page pixmaps - when using LDView Single Call
 
@@ -987,18 +1001,18 @@ int Gui::addGraphicsPageItems(
 
       // qDebug() << "List relative type: " << RelNames[range->relativeType];
       // We've got a page that contains step groups, so add it
-
-      // LDView generate multistep pixamps
-      if (renderer->useLDViewSCall() &&
-          page->list.size()) {
+      if (page->list.size()) {
           for (int i = 0; i < page->list.size(); i++){
               Range *range = dynamic_cast<Range *>(page->list[i]);
               for (int j = 0; j < range->list.size(); j++){
                   if (range->relativeType == RangeType) {
                       Step *step = dynamic_cast<Step *>(range->list[j]);
                       if (step && step->relativeType == StepType){
-                          // Load images and set size
-                          addStepImageGraphics(step);
+                          // // LDView single call load images and set size
+                          if (renderer->useLDViewSCall())
+                              addStepImageGraphics(step);
+                          // set last step number
+                          page->stepNumber = step->stepNumber.number;
                       } // 1.4 validate if relativeType is StepType - to add image, check for Callout
                   } // 1.3 validate if relativeType is RangeType - to cast as Step
               } // 1.2 for each list-item (Step) within a Range...=>list[AbstractRangeElement]->StepType
@@ -1116,11 +1130,6 @@ int Gui::addGraphicsPageItems(
 
   addPliPartGroupsToScene(page, scene);
 
-  if (page->setItemDirection) {
-      setSelectedItemZValue(page, scene);
-      page->setItemDirection = false;
-  }
-
   view->setSceneRect(pageBg->sceneBoundingRect());
 
   QRectF pageRect = QRectF(0,0,pW,pH);
@@ -1135,6 +1144,10 @@ int Gui::addGraphicsPageItems(
   if (view->fitMode == FitVisible) {
       view->fitVisible(pageRect);
     }
+
+  if (page->selectedSceneItems.size()) {
+      setSceneItemZValue(page, scene);
+  }
 
   page->relativeType = SingleStepType;
   statusBarMsg("");
@@ -1184,9 +1197,12 @@ int Gui::addStepPliPartGroupsToScene(Step *step,LGraphicsScene *scene){
         step->pli.tsize()) {
         step->pli.getParts(pliParts);
         if (pliParts.size()) {
+            Where top = step->topOfStep();
+            Where bottom = step->bottomOfStep();
+            int lineNumber = step->stepNumber.number;
             foreach(key,pliParts.keys()) {
                 part = pliParts[key];
-                part->addPartGroupToScene(scene);
+                part->addPartGroupToScene(scene,top,bottom,lineNumber);
             }
         }
     }
@@ -1253,9 +1269,12 @@ int Gui::addPliPartGroupsToScene(
             QString key;
             page->pli.getParts(pliParts);
             if (pliParts.size()) {
+                Where top = page->pli.step ? page->pli.step->topOfStep() : page->topOfSteps();
+                Where bottom = page->pli.step ? page->pli.step->bottomOfStep() : page->bottomOfSteps();
+                int lineNumber = page->pli.step ? page->pli.step->stepNumber.number : 0;
                 foreach(key,pliParts.keys()) {
                     part = pliParts[key];
-                    part->addPartGroupToScene(scene);
+                    part->addPartGroupToScene(scene,top,bottom,lineNumber);
                 }
             }
         }
@@ -1263,39 +1282,623 @@ int Gui::addPliPartGroupsToScene(
     return 0;
 }
 
-void Gui::setSelectedItemZValue(Page *page, LGraphicsScene *scene)
+bool Gui::getSceneObjectWhere(QGraphicsItem *selectedItem, Where &itemTop)
 {
-    QHash<QString, AbstractMeta *>::iterator i;
-    for (i = page->meta.LPub.page.scene.list.begin();
-         i != page->meta.LPub.page.scene.list.end(); i++) {
-        SceneObjectMeta *som = dynamic_cast<SceneObjectMeta*>(i.value());
-        if (som && som->value().armed) {
-           SceneObjectData sod = som->value();
-           SceneObjectDirection direction = sod.direction;
-           QPointF scenePos = QPointF(double(sod.scenePos[XX]),double(sod.scenePos[YY]));
+    int dummy;
+    return getSceneObject(selectedItem, itemTop, dummy);
+}
+bool Gui::getSceneObjectStep(QGraphicsItem *selectedItem, int &stepNumber)
+{
+    Where dummy;
+    return getSceneObject(selectedItem, dummy, stepNumber);
+}
 
-           QGraphicsItem *selectedItem = scene->itemAt(scenePos, QTransform());
+bool Gui::getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepNumber)
+{
+    itemTop    = page.top;
+    stepNumber = page.stepNumber;
+    SceneObject itemObj = UndefinedObj;
 
-           if (!selectedItem)
-               continue;
+    if (selectedItem)
+        itemObj = SceneObject(selectedItem->data(ObjectId).toInt());
+    else
+        return false;
 
-           qreal zValue = 0;
-           QList<QGraphicsItem *> overlapItems = selectedItem->collidingItems();
-           foreach (QGraphicsItem *item, overlapItems) {
-               if (direction == SendToBack) {
-                   if (item->zValue() <= zValue &&
-                       isUserSceneObject(item->data(ObjectId).toInt()))
-                       zValue = item->zValue() - 0.1;
-               } else {
-                   if (item->zValue() >= zValue &&
-                       isUserSceneObject(item->data(ObjectId).toInt()))
-                       zValue = item->zValue() + 0.1;
-               }
-           }
-           selectedItem->setZValue(zValue);
-           break;
-        } else { continue; }
+    switch (itemObj){
+    case AssemAnnotationObj:
+    {
+        CsiAnnotationItem *csiAnnotationItem = dynamic_cast<CsiAnnotationItem *>(selectedItem);
+        if (csiAnnotationItem){
+            itemTop = csiAnnotationItem->topOf;
+            stepNumber = csiAnnotationItem->stepNumber;
+        }
     }
+        break;
+    case AssemAnnotationPartObj:
+    {
+        PlacementCsiPart *placementCsiPart = dynamic_cast<PlacementCsiPart *>(selectedItem);
+        if (placementCsiPart){
+            itemTop = placementCsiPart->top;
+            stepNumber = placementCsiPart->stepNumber;
+        }
+    }
+        break;
+    case AssemObj:
+    {
+        CsiItem *csiItem = dynamic_cast<CsiItem *>(selectedItem);
+        if (csiItem){
+            itemTop = csiItem->step->topOfStep();
+            stepNumber = csiItem->step->stepNumber.number;
+        }
+    }
+        break;
+    case CalloutUnderpinningObj:
+    {
+        UnderpinningsItem *UnderpinningsItem = dynamic_cast<class UnderpinningsItem *>(selectedItem);
+        if (UnderpinningsItem){
+            itemTop = UnderpinningsItem->top;
+            stepNumber = UnderpinningsItem->stepNumber;
+        }
+    }
+        break;
+    case CalloutBackgroundObj:
+    {
+        CalloutBackgroundItem *calloutBackgroundItem = dynamic_cast<CalloutBackgroundItem *>(selectedItem);
+        if (calloutBackgroundItem){
+            itemTop = calloutBackgroundItem->callout->parentStep->topOfStep();
+            stepNumber = calloutBackgroundItem->callout->parentStep->stepNumber.number;
+        }
+    }
+        break;
+    case CalloutPointerObj:
+    {
+        CalloutPointerItem *calloutPointerItem = dynamic_cast<CalloutPointerItem *>(selectedItem);
+        if (calloutPointerItem){
+            itemTop = calloutPointerItem->pointerTop;
+            stepNumber = calloutPointerItem->stepNumber;
+        }
+    }
+        break;
+    case CalloutInstanceObj:
+    {
+        CalloutInstanceItem *calloutInstanceItem = dynamic_cast<CalloutInstanceItem *>(selectedItem);
+        if (calloutInstanceItem){
+            itemTop = calloutInstanceItem->instanceTop;
+            stepNumber = calloutInstanceItem->stepNumber;
+        }
+    }
+        break;
+    case DividerBackgroundObj:
+    {
+        DividerBackgroundItem *dividerBackgroundItem = dynamic_cast<DividerBackgroundItem *>(selectedItem);
+        if (dividerBackgroundItem){
+            itemTop = dividerBackgroundItem->top;
+            stepNumber = dividerBackgroundItem->stepNumber;
+        }
+    }
+        break;
+    case DividerObj:
+    {
+        DividerItem *dividerItem = dynamic_cast<DividerItem *>(selectedItem);
+        if (dividerItem){
+            itemTop = dividerItem->parentStep->topOfStep();
+            stepNumber = dividerItem->parentStep->stepNumber.number;
+        }
+    }
+        break;
+    case DividerLineObj:
+    {
+        DividerLine *dividerLine = dynamic_cast<DividerLine *>(selectedItem);
+        if (dividerLine){
+            itemTop = dividerLine->top;
+            stepNumber = dividerLine->stepNumber;;
+        }
+    }
+        break;
+    case DividerPointerObj:
+    {
+        DividerPointerItem *dividerPointerItem = dynamic_cast<DividerPointerItem *>(selectedItem);
+        if (dividerPointerItem){
+            itemTop = dividerPointerItem->pointerTop;
+            stepNumber = dividerPointerItem->stepNumber;
+        }
+    }
+        break;
+    // for the moment, these all have the samve zValues
+    case PointerGrabberObj:
+    case PliGrabberObj:
+    case SubmodelGrabberObj:
+    {
+        Grabber *grabberItem = dynamic_cast<Grabber *>(selectedItem);
+        if (grabberItem){
+            itemTop = grabberItem->top;
+            stepNumber = grabberItem->stepNumber;
+        }
+    }
+        break;
+    case InsertPixmapObj:
+    {
+        InsertPixmapItem *insertPixmapItem = dynamic_cast<InsertPixmapItem *>(selectedItem);
+        if (insertPixmapItem){
+            itemTop = insertPixmapItem->meta.here();
+            stepNumber = page.stepNumber;
+        }
+    }
+        break;
+    case InsertTextObj:
+    {
+        TextItem *textItem = dynamic_cast<TextItem *>(selectedItem);
+        if (textItem){
+            itemTop = textItem->meta.here();
+            stepNumber = page.stepNumber;
+        }
+    }
+        break;
+    case PagePointerObj:
+    {
+        PagePointerItem *pagePointerItem = dynamic_cast<PagePointerItem *>(selectedItem);
+        if (pagePointerItem){
+            itemTop = pagePointerItem->pointerTop;
+            stepNumber = pagePointerItem->stepNumber;
+        }
+    }
+        break;
+    case PartsListAnnotationObj:
+    {
+        AnnotateTextItem *annotateTextItem = dynamic_cast<AnnotateTextItem *>(selectedItem);
+        if (annotateTextItem){
+            itemTop = annotateTextItem->pli->top;
+            stepNumber = annotateTextItem->pli->step->stepNumber.number;
+        }
+    }
+        break;
+    case PartsListBackgroundObj:
+    {
+        PliBackgroundItem *pliBackgroundItem = dynamic_cast<PliBackgroundItem *>(selectedItem);
+        if (pliBackgroundItem){
+            itemTop = pliBackgroundItem->pli->top;
+            stepNumber = pliBackgroundItem->pli->step->stepNumber.number;
+        }
+    }
+        break;
+    case PartsListInstanceObj:
+    {
+        InstanceTextItem *instanceTextItem = dynamic_cast<InstanceTextItem *>(selectedItem);
+        if (instanceTextItem){
+            itemTop = instanceTextItem->pli->top;
+            stepNumber = instanceTextItem->pli->step->stepNumber.number;
+        }
+    }
+        break;
+    case PointerHeadObj:
+    {
+        PointerHeadItem *pointerHeadItem = dynamic_cast<PointerHeadItem *>(selectedItem);
+        if (pointerHeadItem){
+            itemTop = pointerHeadItem->top;
+            stepNumber = pointerHeadItem->stepNumber;
+        }
+    }
+        break;
+    // these all use the same base object which captures the appropriate zValue
+    case PointerFirstSegObj:
+    case PointerSecondSegObj:
+    case PointerThirdSegObj:
+    {
+        BorderedLineItem *borderedLineItem = dynamic_cast<BorderedLineItem *>(selectedItem);
+        if (borderedLineItem){
+            itemTop = borderedLineItem->top;
+            stepNumber = borderedLineItem->stepNumber;
+        }
+    }
+        break;
+    case RotateIconBackgroundObj:
+    {
+        RotateIconItem *rotateIconItem = dynamic_cast<RotateIconItem *>(selectedItem);
+        if (rotateIconItem){
+            itemTop = rotateIconItem->step->topOfStep();
+            stepNumber = rotateIconItem->step->stepNumber.number;
+        }
+    }
+        break;
+    case StepNumberObj:
+    {
+        StepNumberItem *stepNumberItem = dynamic_cast<StepNumberItem *>(selectedItem);
+        if (stepNumberItem){
+            itemTop = stepNumberItem->top;
+            stepNumber = stepNumberItem->value;
+        }
+    }
+        break;
+    case SubModelBackgroundObj:
+    {
+        SubModelBackgroundItem *subModelBackgroundItem = dynamic_cast<SubModelBackgroundItem *>(selectedItem);
+        if (subModelBackgroundItem){
+            itemTop = subModelBackgroundItem->subModel->step->topOfStep();
+            stepNumber = subModelBackgroundItem->subModel->step->stepNumber.number;
+        }
+    }
+        break;
+    case SubModelInstanceObj:
+    {
+        SMInstanceTextItem *sMInstanceTextItem = dynamic_cast<SMInstanceTextItem *>(selectedItem);
+        if (sMInstanceTextItem){
+            itemTop = sMInstanceTextItem->subModel->step->topOfStep();
+            stepNumber = sMInstanceTextItem->subModel->step->stepNumber.number;
+        }
+    }
+        break;
+    case PartsListPixmapObj:
+    {
+        PGraphicsPixmapItem *pGraphicsPixmapItem = dynamic_cast<PGraphicsPixmapItem *>(selectedItem);
+        if (pGraphicsPixmapItem){
+            itemTop = pGraphicsPixmapItem->pli->topOfStep();
+            stepNumber = pGraphicsPixmapItem->pli->step->stepNumber.number;
+        }
+    }
+        break;
+    case PartsListGroupObj:
+    {
+        PartGroupItem *partGroupItem = dynamic_cast<PartGroupItem *>(selectedItem);
+        if (partGroupItem){
+            itemTop = partGroupItem->top;
+            stepNumber = partGroupItem->stepNumber;
+        }
+    }
+        break;
+    case StepBackgroundObj:
+    {
+        MultiStepStepBackgroundItem *multiStepStepBackgroundItem = dynamic_cast<MultiStepStepBackgroundItem *>(selectedItem);
+        if (multiStepStepBackgroundItem){
+            itemTop = multiStepStepBackgroundItem->top;
+            stepNumber = multiStepStepBackgroundItem->stepNumber;
+        }
+    }
+        break;
+    case PageAttributePixmapObj:
+    case PageAttributeTextObj:
+    case PageNumberObj:
+    case SubmodelInstanceCountObj:
+    case MultiStepBackgroundObj:
+    case MultiStepsBackgroundObj:
+    default:
+        break;
+    }
+
+    return itemTop != Where();
+}
+
+void Gui::setSceneItemZValue(SceneObjectDirection direction)
+{
+    bool debugLogging = Preferences::debugLogging;
+    QPointF scenePosition(KpageScene->mPos(XX),KpageScene->mPos(YY));
+    QGraphicsItem *selectedItem = KpageScene->itemAt(scenePosition, QTransform());
+
+    if (!selectedItem)
+        return;
+
+    selectedItemObj        = SceneObject(selectedItem->data(ObjectId).toInt());
+    if (debugLogging)
+        emit messageSig(LOG_DEBUG, QString("Start %2 (%3) %1 opration...")
+                        .arg(direction == BringToFront ? "bring-to-front" : "send-to-back")
+                        .arg(soMap[selectedItemObj]).arg(selectedItemObj));
+
+    SceneObjectMeta *soMeta = dynamic_cast<SceneObjectMeta*>(
+                              page.meta.LPub.page.scene.list.value(soMap[selectedItemObj]));
+
+    if (!soMeta)
+        return;
+
+    Where itemTop;
+    QMap<Where, SceneObjectData>::iterator i;
+    for (i = page.selectedSceneItems.begin(); i != page.selectedSceneItems.end(); ++i) {
+        if (i.value().itemObj == selectedItemObj) {
+            itemTop = i.key();
+            soMeta->setValue(i.value());
+            break;
+        }
+    }
+
+    bool newCommand = itemTop == Where();
+    int  stepNumber = page.stepNumber;
+    Where tempWhere;
+
+    getSceneObject(selectedItem, tempWhere, stepNumber);
+
+    if (newCommand)
+        itemTop = tempWhere;
+
+    SceneObjectData soData = soMeta->value();
+    soData.direction       = direction;
+    soData.scenePos[XX]    = float(scenePosition.x());
+    soData.scenePos[YY]    = float(scenePosition.y());
+    soMeta->setValue(soData);
+    QString metaString = soMeta->format(true/*local*/,false/*global*/);
+
+    beginMacro("processCommand");
+    if (newCommand){
+        if (itemTop.modelName == gui->topLevelFile()) {
+            QRegExp rx(GLOBAL_META_RX);
+            gui->scanPast(itemTop,rx);
+            // place meta command last amongnst other commands if exist
+            rx.setPattern("^\\s*0\\s+!LPUB\\s+.*SEND_TO_BACK|BRING_TO_FRONT");
+            gui->scanPast(itemTop,rx);
+        }
+        // place below item command unless end of file
+        int eof = gui->subFileSize(itemTop.modelName);
+        if (itemTop.lineNumber == eof){
+            gui->insertLine(itemTop,metaString);
+        } else {
+            gui->appendLine(itemTop,metaString);
+            itemTop++; // adjust for debug output;
+        }
+    } else {
+        gui->replaceLine(itemTop,metaString);
+    }
+    if (debugLogging)
+        emit messageSig(LOG_DEBUG, QString("%1 %2 (%3) ITEM LINE NUMBER: %4 MODEL NAME: %5 STEP %6")
+                        .arg(direction == BringToFront ? "BRING TO FRONT" : "SEND TO BACK")
+                        .arg(soMap[selectedItemObj]).arg(selectedItemObj)
+                        .arg(itemTop.lineNumber).arg(itemTop.modelName)
+                        .arg(stepNumber));
+    endMacro();
+}
+
+void Gui::setSceneItemZValue(Page *page, LGraphicsScene *scene)
+{
+    bool debugLogging = Preferences::debugLogging;
+    QMap<Where, SceneObjectData>::iterator i;
+    for (i = page->selectedSceneItems.begin(); i != page->selectedSceneItems.end(); ++i) {
+//        if (debugLogging)
+//            emit messageSig(LOG_DEBUG, QString("00 Data scene item %1 (%2), Selected scene item %3 (%4)...")
+//                            .arg(soMap[SceneObject(i.value().itemObj)])
+//                            .arg(i.value().itemObj)
+//                            .arg(soMap[selectedItemObj])
+//                            .arg(selectedItemObj));
+        if (i.value().itemObj == selectedItemObj) {
+            SceneObjectData soData = i.value();
+            QPointF scenePosition  = QPointF(double(soData.scenePos[XX]),double(soData.scenePos[YY]));
+            QGraphicsItem *selectedItem = scene->itemAt(scenePosition, QTransform());
+            SceneObject itemObjS   = SceneObject(selectedItem->data(ObjectId).toInt());
+            SceneObject itemObjD   = SceneObject(soData.itemObj);
+            int itemStepNumber;
+            if (!getSceneObjectStep(selectedItem, itemStepNumber))
+                if (debugLogging)
+                    emit messageSig(LOG_ERROR, QString("00 Failed to retrieve scene item %1 (%2) step number")
+                                    .arg(soMap[itemObjS]).arg(itemObjS));
+
+            if (debugLogging)
+                emit messageSig(LOG_DEBUG, QString("01 Initial %1 scene item %2 (%3) initial ZValue %4 data item %5 (%6) step %7")
+                                .arg(soData.direction == BringToFront ? "bring-to-front" : "send-to-back")
+                                .arg(soMap[itemObjS]).arg(itemObjS)
+                                .arg(selectedItem->zValue())
+                                .arg(soMap[itemObjD]).arg(itemObjD)
+                                .arg(itemStepNumber));
+
+            if (!selectedItem)
+                continue;
+
+            QList<QGraphicsItem *> overlapItems = selectedItem->collidingItems();
+
+            // in the case where the selected item's zvalue does not place it at topmost
+            if (itemObjS != itemObjD) {
+                selectedItem = nullptr;
+                if (!overlapItems.size()) {
+                    overlapItems = scene->items();
+                    if (debugLogging)
+                        emit messageSig(LOG_DEBUG, QString("01 Checking all scene items..."));
+                } else {
+                    if (debugLogging)
+                        emit messageSig(LOG_DEBUG, QString("01 Checking colliding scene items..."));
+                }
+                foreach (QGraphicsItem *item, overlapItems) {
+                    itemObjS = SceneObject(item->data(ObjectId).toInt());
+                    if (itemObjS == itemObjD){
+                        if (page->relativeType == StepGroupType){
+                            int selectedItemStepNumber = 0;
+                            if (getSceneObjectStep(item, selectedItemStepNumber)) {
+                                if (debugLogging)
+                                    emit messageSig(LOG_TRACE, QString("-- Selected scene item step number %1, data step number %2")
+                                                    .arg(itemStepNumber).arg(itemStepNumber));
+                                if (selectedItemStepNumber == itemStepNumber) {
+                                    selectedItem = item;
+                                    overlapItems = selectedItem->collidingItems();
+                                    break;
+                                }
+                            } else {
+                                if (debugLogging)
+                                    emit messageSig(LOG_NOTICE, QString("-- Failed to retrieve selected scene item %1 (%2) step number")
+                                                    .arg(soMap[itemObjS]).arg(itemObjS));
+                            }
+                        } else if (page->relativeType == SingleStepType){
+                            selectedItem = item;
+                            overlapItems = selectedItem->collidingItems();
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!selectedItem)
+                continue;
+
+            // this lambda function captures related items. For example, a
+            // callout pointer is related to the callout so the whole callout/pointer
+            // assembly must be moved when a pointer move is triggered
+            auto addRelatedItems = [this, &itemStepNumber, &debugLogging]
+                    (QGraphicsItem *item){
+                QList<QGraphicsItem *>relatedItems;
+                int relatedItemStepNumber = 0;
+                SceneObject itemObjR = SceneObject(item->data(ObjectId).toInt());
+                if (getSceneObjectStep(item, relatedItemStepNumber)) {
+                    if (debugLogging)
+                        emit messageSig(LOG_TRACE, QString("-- Related scene item step number %1, data step number %2")
+                                        .arg(itemStepNumber).arg(itemStepNumber));
+                    if (relatedItemStepNumber == itemStepNumber) {
+                        if (!relatedItems.contains(item)){
+                            if (debugLogging)
+                                emit messageSig(LOG_TRACE, QString("-- Add related scene item %1 (%2) for step (%3)...")
+                                                .arg(soMap[itemObjR]).arg(itemObjR).arg(relatedItemStepNumber));
+                            relatedItems.append(item);
+                            foreach (QGraphicsItem *childItem, item->childItems()) {
+                                if (!relatedItems.contains(childItem)){
+                                    SceneObject itemObjC = SceneObject(childItem->data(ObjectId).toInt());
+                                    if (debugLogging)
+                                        emit messageSig(LOG_TRACE, QString("-- Add child scene item %1 (%2) added for step (%3)...")
+                                                        .arg(soMap[itemObjC]).arg(itemObjC).arg(relatedItemStepNumber));
+                                    relatedItems.append(childItem);
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    if (debugLogging)
+                        emit messageSig(LOG_NOTICE, QString("-- Failed to retrieve related scene item %1 (%2) step number")
+                                        .arg(soMap[itemObjR]).arg(itemObjR));
+                }
+                return relatedItems;
+            };
+
+            // Check for and add related items
+            // Callout Pointer
+            QList<QGraphicsItem *>relatedItems;
+            if (itemObjS == CalloutPointerObj){
+                foreach (QGraphicsItem *item, scene->items()) {
+                    SceneObject itemObjR = SceneObject(item->data(ObjectId).toInt());
+                    if (debugLogging)
+                        emit messageSig(LOG_DEBUG, QString("-- Checking related scene item %1 (%2)...")
+                                        .arg(soMap[itemObjR]).arg(itemObjR));
+                    if (itemObjR == CalloutUnderpinningObj)
+                        relatedItems.append(addRelatedItems(item));
+                    if (itemObjR == CalloutBackgroundObj)
+                        relatedItems.append(addRelatedItems(item));
+                }
+            }
+            // Callout
+            if (itemObjS == CalloutBackgroundObj){
+                foreach (QGraphicsItem *item, scene->items()) {
+                    SceneObject itemObjR = SceneObject(item->data(ObjectId).toInt());
+                    if (debugLogging)
+                        emit messageSig(LOG_DEBUG, QString("-- Checking related scene item %1 (%2)...")
+                                        .arg(soMap[itemObjR]).arg(itemObjR));
+                    if (itemObjR == CalloutUnderpinningObj)
+                        relatedItems.append(addRelatedItems(item));
+                    if (itemObjR == CalloutPointerObj)
+                        relatedItems.append(addRelatedItems(item));
+                }
+            }
+
+            // Divider pointer
+            if (itemObjS == DividerPointerObj){
+                foreach (QGraphicsItem *item, scene->items()) {
+                    SceneObject itemObjR = SceneObject(item->data(ObjectId).toInt());
+                    if (debugLogging)
+                        emit messageSig(LOG_DEBUG, QString("-- Checking related scene item %1 (%2)...")
+                                        .arg(soMap[itemObjR]).arg(itemObjR));
+                    if (itemObjR == DividerObj)
+                        relatedItems.append(addRelatedItems(item));
+                    if (itemObjR == DividerBackgroundObj)
+                        relatedItems.append(addRelatedItems(item));
+                }
+            }
+            // Divider
+            if (itemObjS == DividerObj){
+                foreach (QGraphicsItem *item, scene->items()) {
+                    SceneObject itemObjR = SceneObject(item->data(ObjectId).toInt());
+                    if (debugLogging)
+                        emit messageSig(LOG_DEBUG, QString("-- Checking related scene item %1 (%2)...")
+                                        .arg(soMap[itemObjR]).arg(itemObjR));
+                    if (itemObjR == DividerBackgroundObj)
+                        relatedItems.append(addRelatedItems(item));
+                    if (itemObjR == DividerPointerObj)
+                        relatedItems.append(addRelatedItems(item));
+                }
+            }
+
+            if (debugLogging)
+                emit messageSig(LOG_DEBUG, QString("02 Selected scene item %1 (%2) initial ZValue %3 data item %4 (%5) POS X (%6) POS Y (%7)")
+                                .arg(soMap[itemObjS]).arg(itemObjS)
+                                .arg(selectedItem->zValue())
+                                .arg(soMap[itemObjD]).arg(itemObjD)
+                                .arg(double(selectedItem->scenePos().x()))
+                                .arg(double(selectedItem->scenePos().y())));
+
+            qreal zValue = 0;
+            SceneObjectDirection direction = soData.direction;
+            foreach (QGraphicsItem *item, overlapItems) {
+                qreal itemZValue = item->zValue() ;
+                SceneObject itemObjO = SceneObject(item->data(ObjectId).toInt());
+                bool itemIsUserSceneObject = isUserSceneObject(itemObjO);
+                if (itemIsUserSceneObject) {
+                    if (direction == SendToBack) {
+                        if (itemZValue <= zValue)
+                            zValue = item->zValue() - 1.0;
+                    } else {
+                        if (itemZValue >= zValue)
+                            zValue = item->zValue() + 1.0;
+                    }
+                    if (debugLogging)
+                        emit messageSig(LOG_DEBUG, QString("03 Overlap scene item %1 (%2) ZValue %3")
+                                        .arg(soMap[itemObjO]).arg(itemObjO)
+                                        .arg(item->zValue()));
+                } else {
+                    emit messageSig(LOG_TRACE, QString("Overlap scene item %1 (%2) ZValue %3 is not in the "
+                                                       "LPub3D User Scene Object list")
+                                    .arg(soMap[itemObjO]).arg(itemObjO)
+                                    .arg(item->zValue()));
+                }
+            }
+
+            if (relatedItems.size()){
+                qreal zValueR = zValue;
+                foreach (QGraphicsItem *item, relatedItems) {
+                    qreal itemZValueR = item->zValue() ;
+                    SceneObject itemObjR = SceneObject(item->data(ObjectId).toInt());
+                    if (debugLogging)
+                        emit messageSig(LOG_DEBUG, QString("03 Related scene item %1 (%2) ZValue %3")
+                                        .arg(soMap[itemObjR]).arg(itemObjR)
+                                        .arg(item->zValue()));
+                    if (direction == SendToBack) {
+                        if (itemZValueR >= zValue) {
+                            zValueR = itemZValueR > 0 ?           /*positive*/
+                                        -itemZValueR < zValue ?  /*less than zValue*/
+                                            -itemZValueR : zValue :
+                                                                 itemZValueR < zValue ?
+                                                                    itemZValueR : zValue;
+                            zValue = zValueR - 1;
+                        }
+                    } else {         /*BingToFront*/
+                        if (itemZValueR <= zValue) {
+                            zValueR = itemZValueR < 0 ?  /*negative*/
+                                        -itemZValueR > zValue ?  /*greater than zValue*/
+                                            -itemZValueR : zValue :
+                                                                 itemZValueR > zValue ?
+                                                                    itemZValueR : zValue;
+                            zValue = zValueR + 1;
+                        }
+                    }
+                    item->setZValue(zValueR);
+                    if (debugLogging)
+                        emit messageSig(LOG_TRACE, QString("03 Related scene item %1 (%2) adjusted ZValue %3")
+                                        .arg(soMap[itemObjR]).arg(itemObjR)
+                                        .arg(item->zValue()));
+                }
+            }
+
+            selectedItem->setZValue(zValue);
+            KpageScene->update();                  // TODO - Check when this is disabled
+
+            if (debugLogging)
+                emit messageSig(LOG_DEBUG, QString("04 Final %1 scene item %2 (%3) applied ZValue %4 POS X (%5) POS Y (%6)")
+                                .arg(direction == BringToFront ? "bring-to-front" : "send-to-back")
+                                .arg(soMap[itemObjS]).arg(itemObjS).arg(zValue)
+                                .arg(double(selectedItem->scenePos().x()))
+                                .arg(double(selectedItem->scenePos().y())));
+            break;
+        }
+    }
+//    selectedItemObj = UndefinedObj;
+    if (debugLogging)
+        emit messageSig(LOG_DEBUG, QString("----------------------------------"));
 }
 
 int Gui::addContentPageAttributes(

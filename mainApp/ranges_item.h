@@ -93,7 +93,8 @@ class DividerBackgroundItem : public QGraphicsRectItem, public MetaItem
 {
 public:
   BorderMeta     *border;
-
+  int             stepNumber;
+  Where           top,bottom;
   DividerBackgroundItem(
     Meta         *_meta,
     QRect        &_dividerRect,
@@ -152,6 +153,8 @@ protected:
 class DividerLine : public QGraphicsLineItem, public MetaItem
 {
 public:
+  int stepNumber;
+  Where top,bottom;
   DividerLine(DividerItem *parent);
 
 protected:

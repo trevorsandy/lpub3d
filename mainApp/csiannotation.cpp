@@ -39,6 +39,8 @@ PlacementCsiPart::PlacementCsiPart(
   size[YY]     = _csiPartMeta.size.valuePixels(YY);
   loc[XX]     += _csiPartMeta.loc.valuePixels(XX);
   loc[YY]     += _csiPartMeta.loc.valuePixels(YY);
+  top          = _csiPartMeta.placement.here();
+  bottom       = _csiPartMeta.placement.here();
   outline      = false;
 
   setData(ObjectId, AssemAnnotationPartObj);
@@ -214,6 +216,7 @@ void CsiAnnotationItem::addGraphicsItems(
     submodelLevel       = _csiItem->submodelLevel;
     parentRelativeType  = _csiItem->parentRelativeType;
     subModelColor       = _step->pli.pliMeta.subModelColor;
+    stepNumber          = _step->stepNumber.number;
     positionChanged     = false;
     switch (parentRelativeType) {
       case CalloutType:
@@ -296,6 +299,9 @@ void CsiAnnotationItem::addGraphicsItems(
     // place PlacementCsiPart relative to CSI
 
     placementCsiPart = new PlacementCsiPart(_ca->csiPartMeta,_csiItem);
+    placementCsiPart->top = topOf;
+    placementCsiPart->top = bottomOf;
+    placementCsiPart->stepNumber = stepNumber;
     placementCsiPart->setZValue(_csiItem->meta->LPub.page.scene.assemAnnotationPart.zValue());
     if (! placementCsiPart->hasOffset())
         _csiItem->placeRelative(placementCsiPart);

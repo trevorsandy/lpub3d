@@ -702,6 +702,7 @@ public:
   void replaceLine(const Where &here, const QString &line, QUndoCommand *parent = nullptr);
   void deleteLine (const Where &here, QUndoCommand *parent = nullptr);
   void normalizeHeader(const Where &here);
+  void scanPast(Where &here, const QRegExp &lineRx);
 
   QString topLevelFile();
 
@@ -1112,6 +1113,7 @@ protected:
   lcHttpReply*           mHttpReply;
   QByteArray             mByteArray;
   QString                mTitle;
+  SceneObject            selectedItemObj;
 
 private:
   LGraphicsScene        *KpageScene;         // top of displayed page's graphics items
@@ -1279,8 +1281,11 @@ private:
 
   bool processPageRange(const QString &range);
 
-  void setSelectedItemZValue(Page *page, LGraphicsScene *scene);
-  void setSelectedItemZValue(SceneObjectDirection direction);
+  void setSceneItemZValue(Page *page, LGraphicsScene *scene);
+  void setSceneItemZValue(SceneObjectDirection direction);
+  bool getSceneObjectWhere(QGraphicsItem *selectedItem, Where &itemTop);
+  bool getSceneObjectStep(QGraphicsItem *selectedItem, int &stepNumber);
+  bool getSceneObject(QGraphicsItem *selectedItem, Where &itemTop, int &stepNumber);
 
 private slots:
     void open();

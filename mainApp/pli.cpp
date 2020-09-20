@@ -155,10 +155,16 @@ float PliPart::maxMargin()
 }
 
 void PliPart::addPartGroupToScene(
-        LGraphicsScene *scene)
+        LGraphicsScene *scene,
+        Where &top,
+        Where &bottom,
+        int stepNumber)
 {
     // create the part group item
     pliPartGroup = new PartGroupItem(groupMeta);
+    pliPartGroup->top = top;
+    pliPartGroup->bottom = bottom;
+    pliPartGroup->stepNumber = stepNumber;
 
     // add the part group to the scene
     scene->addItem(pliPartGroup);
@@ -3069,7 +3075,10 @@ void PliBackgroundItem::placeGrabbers()
       grabber = new Grabber(BottomInside,this,myParentItem());
       grabber->setData(ObjectId, PliGrabberObj);
       grabber->setZValue(pli->meta->LPub.page.scene.pliGrabber.zValue());
-      grabbersVisible = true;
+      grabber->top        = pli->top;
+      grabber->bottom     = pli->bottom;
+      grabber->stepNumber = pli->step ? pli->step->stepNumber.number : 0;
+      grabbersVisible     = true;
     }
   grabber->setPos(point.x()-grabSize()/2,point.y()-grabSize()/2);
 }

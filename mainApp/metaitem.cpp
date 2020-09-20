@@ -3268,28 +3268,6 @@ void MetaItem::deleteImageItem(Where &topOfStep, QString &metaCommand){
 
 /***************************************************************************/
 
-void MetaItem::scanPastGlobal(
-  Where &topOfStep)
-{
-  Where walk = topOfStep + 1;
-
-  int  numLines  = gui->subFileSize(walk.modelName);
-  if (walk < numLines) {
-    QString line = gui->readLine(walk);
-    QRegExp globalLine("^\\s*0\\s+!LPUB\\s+.*GLOBAL");
-    if (line.contains(globalLine) || isHeader(line)) {
-      for ( ++walk; walk < numLines; ++walk) {
-        line = gui->readLine(walk);
-        //logTrace() << "Scan Past GLOBAL LineNum (final -1): " << walk.lineNumber << ", Line: " << line;
-        if ( ! line.contains(globalLine) && ! isHeader(line)) {
-          topOfStep = walk - 1;
-          break;
-        }
-      }
-    }
-  }
-}
-
 void MetaItem::scanPastLPubMeta(
   Where &topOfStep)
 {
@@ -3500,6 +3478,13 @@ void MetaItem::beginMacro(QString name)
 void MetaItem::endMacro()
 {
   gui->endMacro();
+}
+
+void MetaItem::scanPastGlobal(
+  Where &topOfStep)
+{
+  QRegExp globalLine("^\\s*0\\s+!LPUB\\s+.*GLOBAL");
+  gui->scanPast(topOfStep,globalLine);
 }
 
 Where MetaItem::firstLine(

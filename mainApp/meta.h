@@ -2309,6 +2309,28 @@ public:
   {
     _value[pushed] = value;
   }
+  void setZValue(qreal z)
+  {
+    _value[0].z = z;
+    _value[1].z = z;
+  }
+  qreal zValue()
+  {
+    return _value[pushed].z;
+  }
+  void setItemObj(int value)
+  {
+    _value[0].itemObj = value;
+    _value[1].itemObj = value;
+  }
+  int itemObj()
+  {
+    return _value[pushed].itemObj;
+  }
+  bool isArmed()
+  {
+    return _value[pushed].armed;
+  }
   float posX()
   {
     return _value[pushed].scenePos[0];
@@ -2321,26 +2343,7 @@ public:
   {
     return _value[pushed].direction;
   }
-  bool isArmed()
-  {
-    return _value[pushed].armed;
-  }
-  qreal zValue()
-  {
-    return _value[pushed].z;
-  }
-  void setZValue(qreal z)
-  {
-      _value[pushed].z = z;
-  }
-  void setValues(int direction, float v1, float v2, qreal z)
-  {
-    _value[pushed].direction   = SceneObjectDirection(direction);
-    _value[pushed].scenePos[0] = v1;
-    _value[pushed].scenePos[1] = v2;
-    _value[pushed].z           = z;
-  }
-  SceneObjectMeta();
+  SceneObjectMeta() : LeafMeta() {}
   SceneObjectMeta(const SceneObjectMeta &rhs) : LeafMeta(rhs)
   {
     _value[0] = rhs._value[0];
@@ -2360,46 +2363,45 @@ public:
 class SceneItemMeta : public BranchMeta
 {
 public:
- SceneObjectMeta     assemAnnotation;       //  0 CsiAnnotationType
- SceneObjectMeta     assemAnnotationPart;   //  1 CsiPartType
- SceneObjectMeta     assem;                 //  2 CsiType
+ SceneObjectMeta     assemAnnotation;       // CsiAnnotationType
+ SceneObjectMeta     assemAnnotationPart;   // CsiPartType
+ SceneObjectMeta     assem;                 // CsiType
  SceneObjectMeta     calloutAssem;          //  3
- SceneObjectMeta     calloutBackground;     //  4 CalloutType
- SceneObjectMeta     calloutInstance;       //  5
- SceneObjectMeta     calloutPointer;        //  6
- SceneObjectMeta     calloutUnderpinning;   //  7
- SceneObjectMeta     dividerBackground;     //  8
- SceneObjectMeta     divider;               //  9
- SceneObjectMeta     dividerLine;           // 10
- SceneObjectMeta     dividerPointer;        // 11
- SceneObjectMeta     pointerGrabber;        // 12
- SceneObjectMeta     pliGrabber;            // 13
- SceneObjectMeta     submodelGrabber;       // 14
- SceneObjectMeta     insertPicture;         // 15
- SceneObjectMeta     insertText;            // 16
- SceneObjectMeta     multiStepBackground;   // 17 StepGroupType
- SceneObjectMeta     multiStepsBackground;  // 18
- SceneObjectMeta     pageAttributePixmap;   // 19
- SceneObjectMeta     pageAttributeText;     // 20
- SceneObjectMeta     pageBackground;        // 21 PageType
- SceneObjectMeta     pageNumber;            // 22 PageNumberType
- SceneObjectMeta     pagePointer;           // 23 PagePointerType
- SceneObjectMeta     partsListAnnotation;   // 24
- SceneObjectMeta     partsListBackground;   // 25 PartsListType
- SceneObjectMeta     partsListInstance;     // 26
- SceneObjectMeta     pointerFirstSeg;       // 27
- SceneObjectMeta     pointerHead;           // 28
- SceneObjectMeta     pointerSecondSeg;      // 29
- SceneObjectMeta     pointerThirdSeg;       // 30
- SceneObjectMeta     rotateIconBackground;  // 31 RotateIconType
- SceneObjectMeta     stepNumber;            // 32 StepNumberType
- SceneObjectMeta     subModelBackground;    // 33 SubModelType
- SceneObjectMeta     subModelInstance;      // 34
- SceneObjectMeta     submodelInstanceCount; // 35 SubmodelInstanceCountType
- SceneObjectMeta     partsListPixmap;       // 36
- SceneObjectMeta     partsListGroup;        // 37
- SceneObjectMeta     stepBackground;        // 38
-
+ SceneObjectMeta     calloutBackground;     // CalloutType
+ SceneObjectMeta     calloutInstance;       //
+ SceneObjectMeta     calloutPointer;        //
+ SceneObjectMeta     calloutUnderpinning;   //
+ SceneObjectMeta     dividerBackground;     //
+ SceneObjectMeta     divider;               //
+ SceneObjectMeta     dividerLine;           //
+ SceneObjectMeta     dividerPointer;        //
+ SceneObjectMeta     pointerGrabber;        //
+ SceneObjectMeta     pliGrabber;            //
+ SceneObjectMeta     submodelGrabber;       //
+ SceneObjectMeta     insertPicture;         //
+ SceneObjectMeta     insertText;            //
+ SceneObjectMeta     multiStepBackground;   // StepGroupType
+ SceneObjectMeta     multiStepsBackground;  //
+ SceneObjectMeta     pageAttributePixmap;   //
+ SceneObjectMeta     pageAttributeText;     //
+ SceneObjectMeta     pageBackground;        // PageType
+ SceneObjectMeta     pageNumber;            // PageNumberType
+ SceneObjectMeta     pagePointer;           // PagePointerType
+ SceneObjectMeta     partsListAnnotation;   //
+ SceneObjectMeta     partsListBackground;   // PartsListType
+ SceneObjectMeta     partsListInstance;     //
+ SceneObjectMeta     pointerFirstSeg;       //
+ SceneObjectMeta     pointerHead;           //
+ SceneObjectMeta     pointerSecondSeg;      //
+ SceneObjectMeta     pointerThirdSeg;       //
+ SceneObjectMeta     rotateIconBackground;  // RotateIconType
+ SceneObjectMeta     stepNumber;            // StepNumberType
+ SceneObjectMeta     subModelBackground;    // SubModelType
+ SceneObjectMeta     subModelInstance;      //
+ SceneObjectMeta     submodelInstanceCount; // SubmodelInstanceCountType
+ SceneObjectMeta     partsListPixmap;       //
+ SceneObjectMeta     partsListGroup;        //
+ SceneObjectMeta     stepBackground;        //
  SceneItemMeta();
  SceneItemMeta(const SceneItemMeta &rhs) : BranchMeta(rhs)
  {

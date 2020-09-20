@@ -1100,47 +1100,14 @@ bool Gui::isUserSceneObject(const int so)
     return false;
 }
 
-void Gui::setSelectedItemZValue(SceneObjectDirection direction)
-{
-    QPointF scenePosition(KpageScene->mPos(XX),KpageScene->mPos(YY));
-    QGraphicsItem *selectedItem = KpageScene->itemAt(scenePosition, QTransform());
-
-    if (!selectedItem)
-        return;
-
-    Where top = gStep->topOfStep();
-    Where bottom = gStep->bottomOfStep();
-
-    SceneObject itemObj = SceneObject(selectedItem->data(ObjectId).toInt());
-    SceneObjectMeta *soMeta = dynamic_cast<SceneObjectMeta*>(
-                gStep->page()->meta.LPub.page.scene.list.value(soMap[itemObj]));
-    if (soMeta->here() == Where())
-        gStep->mi()->scanForward(top,StepMask);
-    if (soMeta) {
-        SceneObjectData soData = soMeta->value();
-        soData.direction    = direction;
-        soData.scenePos[XX] = float(scenePosition.x());
-        soData.scenePos[YY] = float(scenePosition.y());
-        soMeta->setValue(soData);
-        gStep->mi()->setMeta(
-                    top,
-                    bottom,
-                    soMeta,
-                    true,/*use top*/
-                    0,   /*do not append*/
-                    true,/*set local*/
-                    false/*do not ask local*/);
-    }
-}
-
 void Gui::bringToFront()
 {
-    setSelectedItemZValue(BringToFront);
+    setSceneItemZValue(BringToFront);
 }
 
 void Gui::sendToBack()
 {
-    setSelectedItemZValue(SendToBack);
+    setSceneItemZValue(SendToBack);
 }
 
 void Gui::SetRotStepMeta()
@@ -2676,6 +2643,7 @@ Gui::Gui()
     mRotStepTransform = QString();
     mPliIconsPath.clear();
 
+    selectedItemObj   = UndefinedObj;
     mViewerZoomLevel  = 50;
 
     mHttpManager = new lcHttpManager(this);
@@ -2915,6 +2883,7 @@ void Gui::initialize()
   setCurrentFile("");
   readSettings();
 
+  // scene item z direction
   if (soMap.size() == 0) {
       soMap[AssemAnnotationObj]       = QString("CSI_ANNOTATION");       //  0 CsiAnnotationType
       soMap[AssemAnnotationPartObj]   = QString("CSI_ANNOTATION_PART");  //  1 CsiPartType
@@ -2924,8 +2893,8 @@ void Gui::initialize()
       soMap[CalloutInstanceObj]       = QString("CALLOUT_INSTANCE");     //  5
       soMap[CalloutPointerObj]        = QString("CALLOUT_POINTER");      //  6
       soMap[CalloutUnderpinningObj]   = QString("CALLOUT_UNDERPINNING"); //  7
-      soMap[DividerBackgroundObj]     = QString("DIVIDER_ITEM");         //  8
-      soMap[DividerObj]               = QString("DIVIDER");              //  9
+      soMap[DividerBackgroundObj]     = QString("DIVIDER");              //  8
+      soMap[DividerObj]               = QString("DIVIDER_ITEM");         //  9
       soMap[DividerLineObj]           = QString("DIVIDER_LINE");         // 10
       soMap[DividerPointerObj]        = QString("DIVIDER_POINTER");      // 11 DividerPointerType
       soMap[PointerGrabberObj]        = QString("POINTER_GRABBER");      // 12
@@ -2937,7 +2906,7 @@ void Gui::initialize()
       soMap[MultiStepsBackgroundObj]  = QString("MULTI_STEPS");          // 18
       soMap[PageAttributePixmapObj]   = QString("ATTRIBUTE_PIXMAP");     // 19
       soMap[PageAttributeTextObj]     = QString("ATTRIBUTE_TEXT");       // 20
-      soMap[PageBackgroundObj]        = QString("PAGE [ROOT]");          // 21 PageType [Root Item]
+      soMap[PageBackgroundObj]        = QString("PAGE");                 // 21 PageType
       soMap[PageNumberObj]            = QString("PAGE_NUMBER");          // 22 PageNumberType
       soMap[PagePointerObj]           = QString("PAGE_POINTER");         // 23 PagePointerType
       soMap[PartsListAnnotationObj]   = QString("PLI_ANNOTATION");       // 24
@@ -2954,7 +2923,7 @@ void Gui::initialize()
       soMap[SubmodelInstanceCountObj] = QString("SUBMODEL_INST_COUNT");  // 35 SubmodelInstanceCountType
       soMap[PartsListPixmapObj]       = QString("PLI_PART");             // 36
       soMap[PartsListGroupObj]        = QString("PLI_PART_GROUP");       // 37
-      soMap[StepBackgroundObj]        = QString("STEP_BACKGROUND");      // 38 [StepType]
+      soMap[StepBackgroundObj]        = QString("STEP_RECTANGLE");       // 38 [StepType]
   }
 }
 

@@ -2529,10 +2529,6 @@ void SepMeta::doc(QStringList &out, QString preamble)
 /*
  * Scene Depth Meta
  */
-SceneObjectMeta::SceneObjectMeta() : LeafMeta()
-{
-
-}
 
 Rc SceneObjectMeta::parse(QStringList &argv, int index, Where &here)
 {
@@ -2543,10 +2539,10 @@ Rc SceneObjectMeta::parse(QStringList &argv, int index, Where &here)
     float y = argv[index+2].toFloat(&ok);
     good &= ok;
     if (good) {
-      _value[pushed].direction  = SceneObjectDirection(tokenMap[argv[index]]);
+      _value[pushed].direction   = SceneObjectDirection(tokenMap[argv[index]]);
       _value[pushed].scenePos[0] = x;
       _value[pushed].scenePos[1] = y;
-      _value[pushed].armed = true;
+      _value[pushed].armed = true;            // not used
       _here[pushed] = here;
       return SceneItemDirectionRc;
     }
@@ -3125,7 +3121,7 @@ PageHeaderMeta::PageHeaderMeta() : BranchMeta()
 {
   placement.setValue(TopInside,PageType);
   size.setValuesInches(8.2677f,0.3000f);
-  size.setRange(.1,1000);
+  size.setRange(0.1f,1000.0f);
   size.setFormats(6,4,"9.9999");
 }
 
@@ -3142,7 +3138,7 @@ PageFooterMeta::PageFooterMeta() : BranchMeta()
 {
   placement.setValue(BottomInside,PageType);
   size.setValuesInches(8.2677f,0.3000f);
-  size.setRange(.1,1000);
+  size.setRange(0.1f,1000);
   size.setFormats(6,4,"9.9999");
 }
 
@@ -3199,6 +3195,46 @@ SceneItemMeta::SceneItemMeta() : BranchMeta()
     partsListPixmap      .setZValue(PARTSLISTPARTPIXMAP_ZVALUE_DEFAULT);  // 36
     partsListGroup       .setZValue(PARTSLISTPARTGROUP_ZVALUE_DEFAULT);   // 37
     stepBackground       .setZValue(STEP_BACKGROUND_ZVALUE_DEFAULT);      // 38
+
+    assemAnnotation      .setItemObj(AssemAnnotationObj);      //  0
+    assemAnnotationPart  .setItemObj(AssemAnnotationPartObj);  //  1
+    assem                .setItemObj(AssemObj);                //  2
+    calloutAssem         .setItemObj(CalloutAssemObj);         //  3
+    calloutBackground    .setItemObj(CalloutBackgroundObj);    //  4
+    calloutInstance      .setItemObj(CalloutInstanceObj);      //  5
+    calloutPointer       .setItemObj(CalloutPointerObj);       //  6
+    calloutUnderpinning  .setItemObj(CalloutUnderpinningObj);  //  7
+    dividerBackground    .setItemObj(DividerBackgroundObj);    //  8
+    divider              .setItemObj(DividerObj);              //  9
+    dividerLine          .setItemObj(DividerLineObj);          // 10
+    dividerPointer       .setItemObj(DividerPointerObj);       // 11
+    pointerGrabber       .setItemObj(PointerGrabberObj);       // 12
+    pliGrabber           .setItemObj(PliGrabberObj);           // 13
+    submodelGrabber      .setItemObj(SubmodelGrabberObj);      // 14
+    insertPicture        .setItemObj(InsertPixmapObj);         // 15
+    insertText           .setItemObj(InsertTextObj);           // 16
+    multiStepBackground  .setItemObj(MultiStepBackgroundObj);  // 17
+    multiStepsBackground .setItemObj(MultiStepsBackgroundObj); // 18
+    pageAttributePixmap  .setItemObj(PageAttributePixmapObj);  // 19
+    pageAttributeText    .setItemObj(PageAttributeTextObj);    // 20
+    pageBackground       .setItemObj(PageBackgroundObj);       // 21
+    pageNumber           .setItemObj(PageNumberObj);           // 22
+    pagePointer          .setItemObj(PagePointerObj);          // 23
+    partsListAnnotation  .setItemObj(PartsListAnnotationObj);  // 24
+    partsListBackground  .setItemObj(PartsListBackgroundObj);  // 25
+    partsListInstance    .setItemObj(PartsListInstanceObj);    // 26
+    pointerFirstSeg      .setItemObj(PointerFirstSegObj);      // 27
+    pointerHead          .setItemObj(PointerHeadObj);          // 28
+    pointerSecondSeg     .setItemObj(PointerSecondSegObj);     // 29
+    pointerThirdSeg      .setItemObj(PointerThirdSegObj);      // 30
+    rotateIconBackground .setItemObj(RotateIconBackgroundObj); // 31
+    stepNumber           .setItemObj(StepNumberObj);           // 32
+    subModelBackground   .setItemObj(SubModelBackgroundObj);   // 33
+    subModelInstance     .setItemObj(SubModelInstanceObj);     // 34
+    submodelInstanceCount.setItemObj(SubmodelInstanceCountObj);// 35
+    partsListPixmap      .setItemObj(PartsListPixmapObj);      // 36
+    partsListGroup       .setItemObj(PartsListGroupObj);       // 37
+    stepBackground       .setItemObj(StepBackgroundObj);       // 38
 }
 
 void SceneItemMeta::init(
@@ -3210,7 +3246,7 @@ void SceneItemMeta::init(
    assemAnnotationPart  .init(this, "CSI_ANNOTATION_PART");  //  1 CsiPartType
    assem                .init(this, "ASSEM");                //  2 CsiType
    calloutAssem         .init(this, "CALLOUT_ASSEM");        //  3
-   calloutBackground    .init(this, "CALLOUT_BACKGROUND");   //  4 CalloutType
+   calloutBackground    .init(this, "CALLOUT");              //  4 CalloutType
    calloutInstance      .init(this, "CALLOUT_INSTANCE");     //  5
    calloutPointer       .init(this, "CALLOUT_POINTER");      //  6
    calloutUnderpinning  .init(this, "CALLOUT_UNDERPINNING"); //  7
@@ -3244,7 +3280,7 @@ void SceneItemMeta::init(
    submodelInstanceCount.init(this, "SUBMODEL_INST_COUNT");  // 35 SubmodelInstanceCountType
    partsListPixmap      .init(this, "PLI_PART");             // 36
    partsListGroup       .init(this, "PLI_PART_GROUP");       // 37
-   stepBackground       .init(this, "STEP_BACKGROUND");      // 38 [StepType]
+   stepBackground       .init(this, "STEP_RECTANGLE");       // 38 [StepType]
 }
 
 /* ------------------ */
@@ -5136,7 +5172,7 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
       tokenMap["SUBMODEL_INSTANCE"]    = SubModelInstanceObj;
       tokenMap["PLI_PART"]             = PartsListPixmapObj;
       tokenMap["PLI_PART_GROUP"]       = PartsListGroupObj;
-      tokenMap["STEP_BACKGROUND"]      = StepBackgroundObj;
+      tokenMap["STEP_RECTANGLE"]      = StepBackgroundObj;
 
       tokenMap["DOCUMENT_TITLE"]       = PageTitleType;
       tokenMap["MODEL_ID"]             = PageModelNameType;
