@@ -337,8 +337,10 @@ void PointerItem::addShaftSegment(){
     addToGroup(shaft);
 
     for (int i = 0; i < NumPointerGrabbers; i++) {
-      view->scene()->removeItem(grabbers[i]);
-      grabbers[i] = nullptr;
+        if (grabbers[i]) {
+            view->scene()->removeItem(grabbers[i]);
+            grabbers[i] = nullptr;
+        }
     }
     grabbersVisible = false;
 

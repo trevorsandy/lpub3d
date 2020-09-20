@@ -189,7 +189,8 @@ CalloutPointerItem::CalloutPointerItem(
   addToGroup(head);  
   
   for (int i = 0; i < NumPointerGrabbers; i++) {
-    grabbers[i] = nullptr;
+      if (grabbers[i])
+          grabbers[i] = nullptr;
   }
 
   setFlag(QGraphicsItem::ItemIsFocusable,true);

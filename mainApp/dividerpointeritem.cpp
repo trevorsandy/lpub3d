@@ -171,6 +171,7 @@ DividerPointerItem::DividerPointerItem(
   addToGroup(head);
 
   for (int i = 0; i < NumPointerGrabbers; i++) {
+    if (grabbers[i])
     grabbers[i] = nullptr;
   }
 
