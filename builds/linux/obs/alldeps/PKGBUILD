@@ -2,7 +2,7 @@
 #  Last Update: July 23, 2019
 #  Copyright (c) 2017 - 2020 by Trevor SANDY
 pkgname=lpub3d
-pkgver=2.4.0.1816
+pkgver=2.4.0.1817
 pkgrel=1
 pkgdesc="An LDraw Building Instruction Editor"
 url="https://github.com/trevorsandy/lpub3d.git"

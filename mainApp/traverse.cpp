@@ -1168,9 +1168,6 @@ int Gui::drawPage(
                     page.frontCover = true;
                     page.backCover  = false;
                   }
-                // nothing to display in 3D Window
-                if (! exporting())
-                  emit clearViewerWindowSig();
               }
             case InsertPageRc:
               {
@@ -3433,13 +3430,13 @@ void Gui::countPages()
 {
   if (maxPages < 1) {
       writeToTmp();
-      statusBarMsg("Counting");
+      statusBarMsg("Counting...");
       Where current(ldrawFile.topLevelFile(),0);
-      int savedDpn     = displayPageNum;
-      displayPageNum   = 1 << 31;  // really large number: 2147483648
+      int savedDpn     =  displayPageNum;
+      displayPageNum   =  1 << 31;  // really large number: 2147483648
       firstStepPageNum = -1;
       lastStepPageNum  = -1;
-      maxPages         = 1;
+      maxPages         =  1;
       Meta meta;
       QString empty;
       PgSizeData emptyPageSize;
