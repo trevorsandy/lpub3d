@@ -827,6 +827,7 @@ int Pli::createSubModelIcons()
     splitBom   = false;
     isSubModel = true;
     pliMeta    = meta->LPub.pli;
+    int iconCount = gui->fileList().size();
 
     auto setSubmodel = [this,&type,&color] (const int i)
     {
@@ -885,19 +886,21 @@ int Pli::createSubModelIcons()
 
     if (renderer->useLDViewSCall()) {
 
-        for (int i = 0; i < gui->fileList().size(); i++) {
+        for (int i = 0; i < iconCount; i++) {
             setSubmodel(i);
         }
         rc = partSizeLDViewSCall();
 
     } else {
 
-        if (Preferences::modeGUI && ! gui->exporting()) {
-            emit gui->progressPermResetSig();
-            emit gui->progressPermMessageSig("Rendering submodel icons...");
-            emit gui->progressPermRangeSig(1, gui->fileList().size());
-        }
-        for (int i = 0; i < gui->fileList().size(); i++) {
+        emit gui->progressPermResetSig();
+        emit gui->progressPermRangeSig(1, iconCount);
+
+        for (int i = 0; i < iconCount; i++) {
+
+            emit gui->progressPermSetValueSig(i + 1);
+            emit gui->progressPermMessageSig(QString("Rendering submodel icon %1 of %2...").arg(i + 1).arg(iconCount));
+
             key = setSubmodel(i);
             if ((createPartImage(parts[key]->nameKey,type,color,nullptr) != 0)) {
                 emit gui->messageSig(LOG_ERROR, QString("Failed to create submodel icon for key %1").arg(parts[key]->nameKey));
@@ -905,9 +908,7 @@ int Pli::createSubModelIcons()
                 continue;
             }
         }
-        if (Preferences::modeGUI && ! gui->exporting()) {
-          emit gui->progressPermSetValueSig(gui->fileList().size());
-        }
+        emit gui->progressPermSetValueSig(iconCount);
     }
 
     return rc;
@@ -2528,17 +2529,18 @@ int Pli::partSizeLDViewSCall() {
         }
     }            // for every part
 
-    if (isSubModel && Preferences::modeGUI && ! gui->exporting()) {
+    if (isSubModel) {
         emit gui->progressPermResetSig();
-        emit gui->progressPermMessageSig("Rendering submodel images...");
         emit gui->progressPermRangeSig(1, ptn.size());
     }
 
     for (int pT = 0; pT < ptn.size(); pT++ ) {   // for every part type
 
         int ptRc = 0;
-        if (isSubModel && Preferences::modeGUI && ! gui->exporting())
+        if (isSubModel) {
+            emit gui->progressPermMessageSig(QString("Rendering submodel icon %1 of %2...").arg(pT + 1).arg(ptn.size()));
             emit gui->progressPermSetValueSig(pT);
+        }
 
 #ifdef QT_DEBUG_MODE
         QString CurrentPartType = PartTypeNames[pT];
@@ -2578,7 +2580,7 @@ int Pli::partSizeLDViewSCall() {
         }
     }
 
-    if (isSubModel && Preferences::modeGUI && ! gui->exporting()) {
+    if (isSubModel) {
       emit gui->progressPermSetValueSig(ptn.size());
     }
 

@@ -677,6 +677,7 @@ void Gui::closeModelFile(){
 
 setWindowTitle(tr("%1[*] - %2").arg(windowName).arg(windowVersion));
 }
+
 /***************************************************************************
  * File opening closing stuff
  **************************************************************************/
@@ -733,7 +734,7 @@ bool Gui::openFile(QString &fileName)
   enableWatcher();
 
   defaultResolutionType(Preferences::preferCentimeters);
-  emit messageSig(LOG_DEBUG, QString("File loaded - %1.").arg(fileName));
+  emit messageSig(LOG_INFO, QString("Open file '%1' completed.").arg(fileName));
   return true;
 }
 

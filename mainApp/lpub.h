@@ -1425,7 +1425,7 @@ private:
 
   bool                   okToInvokeProgressBar()
   {
-    return               (Preferences::lpub3dLoaded && Preferences::modeGUI);
+    return               (Preferences::lpub3dLoaded && Preferences::modeGUI && !exporting());
   }
 
 #ifdef WATCHER

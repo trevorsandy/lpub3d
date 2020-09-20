@@ -527,7 +527,7 @@ int Gui::drawPage(
       return top;
   };
 
-  auto drawPageElapsedTime = [this, &partsAdded, &pageRenderTimer](){
+  auto drawPageElapsedTime = [this, &partsAdded, &pageRenderTimer, &coverPage](){
     QString pageRenderMessage = QString("%1 ").arg(VER_PRODUCTNAME_STR);
     if (!page.coverPage && partsAdded) {
       pageRenderMessage += QString("using %1 ").arg(Render::getRenderer());
@@ -543,7 +543,7 @@ int Gui::drawPage(
       pageRenderMessage += QString("render ");
     }
     pageRenderMessage += QString("rendered page %1. %2")
-                                 .arg(displayPageNum)
+                                 .arg(QString("%1%2").arg(displayPageNum).arg(coverPage ? " (Cover Page)" : ""))
                                  .arg(elapsedTime(pageRenderTimer.elapsed()));
     emit messageSig(LOG_TRACE, pageRenderMessage);
   };
@@ -2460,6 +2460,7 @@ int Gui::drawPage(
       }
     } // for every line
 
+  // if we get here it's likely and empty page or cover page...
   drawPageElapsedTime();
   return retVal;
 }
@@ -3749,8 +3750,8 @@ void Gui::attitudeAdjustment()
 void Gui::countPages()
 {
   if (maxPages < 1) {
+      emit messageSig(LOG_TRACE, "Counting pages...");
       writeToTmp();
-      statusBarMsg("Counting...");
       Where current(ldrawFile.topLevelFile(),0);
       int savedDpn     =  displayPageNum;
       displayPageNum   =  1 << 31;  // really large number: 2147483648
@@ -4142,7 +4143,6 @@ bool Gui::setBuildModForNextStep(
         }
 
         emit progressBarPermInitSig();
-        emit progressPermMessageSig("Build modification check...");
         emit progressPermRangeSig(progressMin, progressMax);
     }
 
@@ -4236,6 +4236,7 @@ bool Gui::setBuildModForNextStep(
 
         if (progressMax && modelIndx == buildModNextStepIndex) {
             stepLines++;
+            emit progressPermMessageSig(QString("Build modification check %1 of %2...").arg(stepLines).arg(progressMax));
             emit progressPermSetValueSig(stepLines);
         }
 
@@ -4388,6 +4389,8 @@ void Gui::writeToTmp(const QString &fileName,
           QString line = contents[i];
           QStringList tokens;
 
+          QApplication::processEvents();
+
           split(line,tokens);
           if (tokens.size()) {
               if (tokens[0] != "0") {
@@ -4512,16 +4515,11 @@ void Gui::writeToTmp(const QString &fileName,
 void Gui::writeToTmp()
 {
   writingToTmp = true;
-  if (Preferences::modeGUI && ! exporting()) {
-      emit progressBarPermInitSig();
-      emit progressPermRangeSig(1, ldrawFile._subFileOrder.size());
-      emit progressPermMessageSig("Writing submodels...");
-    }
-  emit messageSig(LOG_INFO_STATUS, "Writing submodels to temp directory...");
+  QElapsedTimer writeToTmpTimer;
+  writeToTmpTimer.start();
 
-  QApplication::processEvents();
-
-  bool upToDate = true;
+  int writtenFiles = 0;;
+  int subFileCount = ldrawFile._subFileOrder.size();
   bool doFadeStep  = page.meta.LPub.fadeStep.fadeStep.value();
   bool doHighlightStep = page.meta.LPub.highlightStep.highlightStep.value() && !suppressColourMeta();
 
@@ -4531,20 +4529,27 @@ void Gui::writeToTmp()
 
   LDrawFile::_currentLevels.clear();
 
-  for (int i = 0; i < ldrawFile._subFileOrder.size(); i++) {
+  emit progressBarPermInitSig();
+  emit progressPermRangeSig(1, subFileCount);
 
-      Where start(ldrawFile._subFileOrder[i],0);
-
-      skipHeader(start);
+  for (int i = 0; i < subFileCount; i++) {
 
       QString fileName = ldrawFile._subFileOrder[i].toLower();
 
+      emit messageSig(LOG_INFO_STATUS, QString("Processing submodel for temp directory: '%1'...").arg(fileName));
+
       content = ldrawFile.contents(fileName);
 
+      // write normal submodels...
       if (ldrawFile.changedSinceLastWrite(fileName)) {
-          // write normal submodels...
-          upToDate = false;
-          emit messageSig(LOG_INFO_STATUS, QString("Writing submodel to temp directory: [%1]...").arg(fileName));
+
+          writtenFiles++;
+
+          emit progressPermMessageSig(QString("Writing submodel %1 of %2 (%3 lines)...")
+                                      .arg(QStringLiteral("%1").arg(i + 1, 3, 10, QLatin1Char('0')))
+                                      .arg(QStringLiteral("%1").arg(subFileCount, 3, 10, QLatin1Char('0')))
+                                      .arg(QStringLiteral("%1").arg(content.size(), 5, 10, QLatin1Char('0'))));
+          emit progressPermSetValueSig(i + 1);
 
           writeToTmp(fileName,content);
 
@@ -4562,7 +4567,7 @@ void Gui::writeToTmp()
              }
 
             /* Faded version of submodels */
-            emit messageSig(LOG_INFO, "Writing fade submodels to temp directory: " + fileNameStr);
+            emit messageSig(LOG_INFO, "Writing fade submodel to temp directory: " + fileNameStr);
             configuredContent = configureModelSubFile(content, fadeColor, FADE_PART);
             insertConfiguredSubFile(fileNameStr,configuredContent);
             writeToTmp(fileNameStr,configuredContent);
@@ -4582,36 +4587,33 @@ void Gui::writeToTmp()
             writeToTmp(fileNameStr,configuredContent);
           }
       }
-
-      if (Preferences::modeGUI && ! exporting())
-        emit progressPermSetValueSig(i);
-  }
+  } // Parse _subFileOrder
 
   LDrawFile::_currentLevels.clear();
 
-  bool generateSubModelImages = Preferences::modeGUI &&
-                                GetViewPieceIcons() &&
-                                ! submodelIconsLoaded;
-  if (generateSubModelImages) {
-      if (Preferences::modeGUI && ! exporting())
-          emit progressPermSetValueSig(ldrawFile._subFileOrder.size());
+  if (Preferences::modeGUI && !exporting()) {
+      if (GetViewPieceIcons() && !submodelIconsLoaded) {
+          // complete previous progress
+          emit progressPermSetValueSig(subFileCount);
 
-      // generate submodel icons...
-      emit messageSig(LOG_INFO_STATUS, "Creating submodel icons...");
-      Pli pli;
-      int rc = pli.createSubModelIcons();
-      if (rc == 0)
-          SetSubmodelIconsLoaded(submodelIconsLoaded = true);
-      else
-          emit messageSig(LOG_ERROR, "Could not create submodel icons...");
-      if (Preferences::modeGUI && ! exporting())
+          // generate submodel icons...
+          emit messageSig(LOG_INFO_STATUS, "Creating submodel icons...");
+          Pli pli;
+          if (pli.createSubModelIcons() == 0)
+              SetSubmodelIconsLoaded(submodelIconsLoaded = true);
+          else
+              emit messageSig(LOG_ERROR, "Could not create submodel icons...");
           emit progressPermStatusRemoveSig();
-  } else
-  if (Preferences::modeGUI && ! exporting()) {
-      emit progressPermSetValueSig(ldrawFile._subFileOrder.size());
-      emit progressPermStatusRemoveSig();
+      } else {
+          // complete and close progress
+          emit progressPermSetValueSig(subFileCount);
+          emit progressPermStatusRemoveSig();
+      }
   }
-  emit messageSig(LOG_STATUS, upToDate ? "No submodels written; temp directory up to date." : "Submodels written to temp directory.");
+  QString writeToTmpElapsedTime = elapsedTime(writeToTmpTimer.elapsed());
+  emit messageSig(LOG_INFO_STATUS,
+                    QString("%1 submodels written to temp directory. %2")
+                            .arg(writtenFiles).arg(writeToTmpElapsedTime));
   writingToTmp = false;
 }
 

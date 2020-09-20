@@ -1093,23 +1093,23 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
             &stageSubfiles,
             &fileInfo,
             &searchPaths,
-            &datetime] (int i) {
+            &datetime] (int fileIndx) {
         bool alreadyLoaded;
         QStringList contents;
         QString     subfileName;
         MissingHeader  headerMissing = NoneMissing;
 
         emit gui->progressPermRangeSig(1, stageContents.size());
-        emit gui->progressPermMessageSig("Loading " + fileType() + " " +  fileInfo.fileName() + "...");
+        emit gui->progressPermMessageSig(QString("Loading %1 %2").arg(fileType()).arg( fileInfo.fileName()));
 #ifdef QT_DEBUG_MODE
         emit gui->messageSig(LOG_DEBUG, QString("Stage Contents Size: %1, Start Index %2")
-                             .arg(stageContents.size()).arg(i));
+                             .arg(stageContents.size()).arg(fileIndx));
 #endif
-        for (; i < stageContents.size(); i++) {
+        for (; fileIndx < stageContents.size(); fileIndx++) {
 
-            QString smLine = stageContents.at(i);
+            QString smLine = stageContents.at(fileIndx);
 
-            emit gui->progressPermSetValueSig(i);
+            emit gui->progressPermSetValueSig(fileIndx + 1);
 
             bool sof = smLine.contains(_fileRegExp[SOF_RX]);  //start of file
             bool eof = smLine.contains(_fileRegExp[EOF_RX]);  //end of file
@@ -1144,13 +1144,13 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
             if (hdrTopFileNotFound) {
                 if (sof){
                     _file = _fileRegExp[SOF_RX].cap(1).replace(QFileInfo(_fileRegExp[SOF_RX].cap(1)).suffix(),"");
-                    descriptionLine = i+1;      //next line should be description
+                    descriptionLine = fileIndx + 1;      //next line should be description
                     hdrTopFileNotFound = false;
                 }
             }
 
             // One time populate model descriptkon
-            if (hdrDescNotFound && i == descriptionLine && ! isHeader(smLine)) {
+            if (hdrDescNotFound && fileIndx == descriptionLine && ! isHeader(smLine)) {
                 if (smLine.contains(_fileRegExp[DES_RX]))
                     _description = smLine;
                 else
@@ -1276,7 +1276,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
             QString projectPath = QDir::toNativeSeparators(fileInfo.absolutePath());
 
             // set index to bottom of stageContents
-            int i = stageContents.size();
+            int stageFileIndx = stageContents.size();
             bool subFileFound =false;
             for (QString subfile : stageSubfiles) {
 #ifdef QT_DEBUG_MODE
@@ -1328,7 +1328,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
                 }
             }
             if (subFileFound) {
-                loadMPDContents(i);
+                loadMPDContents(stageFileIndx);
             }
         }
 #ifdef QT_DEBUG_MODE
@@ -1338,7 +1338,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 #endif
     };
 
-    loadMPDContents(0);
+    loadMPDContents(0/*fileIndx*/);
 
 #ifdef QT_DEBUG_MODE
     QHashIterator<QString, int> i(_ldcadGroups);
@@ -1426,9 +1426,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
 
         emit gui->progressBarPermInitSig();
         emit gui->progressPermRangeSig(1, contents.size());
-        emit gui->progressPermMessageSig("Processing model file...");
-
-        emit gui->messageSig(LOG_INFO, "Loading LDR " + fileType + " '" + fileInfo.fileName() + "'...");
+        emit gui->progressPermMessageSig(QString("Loading LDR %1 %2...").arg(fileType).arg(fileInfo.fileName()));
 
         QDateTime datetime = fileInfo.lastModified();
 
@@ -1440,7 +1438,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
 
             QString smLine = contents.at(i);
 
-            emit gui->progressPermSetValueSig(i);
+            emit gui->progressPermSetValueSig(i + 1);
 
             // load LDCad groups
             if (!ldcadGroupsLoaded && smLine.contains(_fileRegExp[LDG_RX])){
@@ -1930,8 +1928,7 @@ void LDrawFile::countParts(const QString &fileName) {
 
     emit gui->progressBarPermInitSig();
     emit gui->progressPermRangeSig(1, size(fileName));
-    emit gui->progressPermMessageSig("Counting parts...");
-    emit gui->messageSig(LOG_INFO, "Counting parts for " + fileName + "...");
+    emit gui->progressPermMessageSig("Counting parts for " + fileName + "...");
 
     int topModelIndx = getSubmodelIndex(fileName);
 

@@ -3417,12 +3417,13 @@ void Gui::loadLDSearchDirParts() {
   partWorkerLDSearchDirs.processLDSearchDirParts();
 }
 
-// left side progress bar
+// left side progress bar - no longer used
 void Gui::progressBarInit(){
   if (okToInvokeProgressBar()) {
       progressBar->setMaximumHeight(15);
       statusBar()->addWidget(progressLabel);
       statusBar()->addWidget(progressBar);
+      progressLabel->setAlignment(Qt::AlignRight);
       progressLabel->show();
       progressBar->show();
   }
@@ -3432,14 +3433,13 @@ void Gui::progressBarSetText(const QString &progressText)
 {
   if (okToInvokeProgressBar()) {
       progressLabel->setText(progressText);
-      QApplication::processEvents();
+      emit gui->messageSig(LOG_INFO, progressText);
     }
 }
 void Gui::progressBarSetRange(int minimum, int maximum)
 {
   if (okToInvokeProgressBar()) {
       progressBar->setRange(minimum,maximum);
-      QApplication::processEvents();
     }
 }
 void Gui::progressBarSetValue(int value)
@@ -3453,7 +3453,6 @@ void Gui::progressBarReset()
 {
   if (okToInvokeProgressBar()) {
       progressBar->reset();
-      QApplication::processEvents();
     }
 }
 
@@ -3470,9 +3469,9 @@ void Gui::progressBarPermInit(){
       progressBarPerm->setMaximumHeight(15);
       statusBar()->addPermanentWidget(progressLabelPerm);
       statusBar()->addPermanentWidget(progressBarPerm);
+      progressLabelPerm->setAlignment(Qt::AlignRight);
       progressLabelPerm->show();
       progressBarPerm->show();
-      QApplication::processEvents();
     }
 }
 
@@ -3487,7 +3486,6 @@ void Gui::progressBarPermSetRange(int minimum, int maximum)
 {
   if (okToInvokeProgressBar()) {
       progressBarPerm->setRange(minimum,maximum);
-      QApplication::processEvents();
     }
 }
 void Gui::progressBarPermSetValue(int value)
@@ -3501,7 +3499,6 @@ void Gui::progressBarPermReset()
 {
   if (okToInvokeProgressBar()) {
       progressBarPerm->reset();
-      QApplication::processEvents();
     }
 }
 
@@ -5472,8 +5469,8 @@ void Gui::showLineMessage(const QString errorMsg, const Where &here, Preferences
         }
     }
     if (writingToTmp)
-        emit progressPermMessageSig(QString("Writing submodels [Parse error%1]...")
-                                    .arg(showMessagePreference ? "" : " - see log" ));
+        emit progressPermMessageSig(QString("Writing submodel [Parse Error%1")
+                                    .arg(showMessagePreference ? "]...          " : " - see log]... " ));
 
     logError() << parseMessage.replace("<br>"," ");
 
