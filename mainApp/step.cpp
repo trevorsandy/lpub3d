@@ -518,8 +518,9 @@ int Step::createCsi(
          viewerOptions->ImageHeight = pixmap->height();
       }
 
-      // Load the 3DViewer
-      loadTheViewer();
+      // Load the 3DViewer - only at page view so callouts and multistep Steps are not loaded here
+      if (!calledOut && !multiStep)
+          loadTheViewer();
   }
 
   return rc;

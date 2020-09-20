@@ -1645,6 +1645,17 @@ int Gui::drawPage(
                     }
                   multiStep = false;
 
+                 /*
+                  * TODO
+                  * Consider setting steps->meta to current meta here. This way we pass the latest settings
+                  * to formatPage processing - this is particularly helpful if we want to capture step group
+                  * metas that are set in steps beyond the first group step by the editor.
+                  * be updated after the first step in the step group (when the groupStepMeta is set).
+                  * Populating the groupStepMeta at the first group step is necessary to capture any
+                  * step group specific settings as there is no reasonable way to know when the step group
+                  * ends and capturing the curMeta afte is too late as it is popped at the end of every step
+                  * steps->meta = curMeta
+                  */
                   // get the number of submodel instances in the model file
                   int countInstanceOverride = /*steps->meta*/steps->groupStepMeta.LPub.page.countInstanceOverride.value();
                   int instances = countInstanceOverride ? countInstanceOverride :
@@ -1666,8 +1677,8 @@ int Gui::drawPage(
                                       .arg(steps->meta.LPub.multiStep.pli.perStep.value() ? "[On], groupStepMeta [Off]" : "[Off], groupStepMeta [On]"));
 #endif
                   if (opts.pliParts.size() && /*steps->meta*/steps->groupStepMeta.LPub.multiStep.pli.perStep.value() == false) {
-                      //steps->groupStepMeta = curMeta;
                       PlacementData placementData;
+                      // Override default assignments, which is for PliPerStep true
                       // Step Number
                       if (/*steps->meta*/steps->groupStepMeta.LPub.assem.showStepNumber.value()) {
                           placementData = steps->groupStepMeta.LPub.multiStep.stepNum.placement.value();
@@ -1783,15 +1794,14 @@ int Gui::drawPage(
 
                   emit messageSig(LOG_STATUS, "Generate CSI images for multi-step page " + opts.current.modelName);
 
-                  if (renderer->useLDViewSCall() && opts.ldrStepFiles.size() > 0){
-
+                  if (renderer->useLDViewSCall() && opts.ldrStepFiles.size() > 0) {
                       QElapsedTimer timer;
                       timer.start();
                       QString empty("");
 
                       // set the extra renderer parms
                       if (step) {
-                          /*steps->meta*/steps->groupStepMeta.LPub.assem.ldviewParms =
+                      /*steps->meta*/steps->groupStepMeta.LPub.assem.ldviewParms =
                                   Render::getRenderer() == RENDERER_LDVIEW ?  step->ldviewParms :
                                   Render::getRenderer() == RENDERER_LDGLITE ? step->ldgliteParms :
                                                 /*POV scene file generator*/  step->ldviewParms ;
@@ -1816,7 +1826,18 @@ int Gui::drawPage(
                                              .arg(opts.ldrStepFiles.size() == 1 ? "image" : "images")
                                              .arg(opts.calledOut ? "called out," : "simple,")
                                              .arg(stepPageNum));
-                    }
+                  }
+
+                  // load the 3DViewer with the last step of the step group
+                  Step *lastStep = step;
+                  if (!lastStep) {
+                      Range *lastRange = range;
+                      if (!lastRange)
+                          lastRange = dynamic_cast<Range *>(steps->list[steps->list.size() - 1]);
+                      lastStep = dynamic_cast<Step *>(lastRange->list[lastRange->list.size() - 1]);
+                      emit messageSig(LOG_DEBUG,QString("Step group last step number %2").arg(lastStep->stepNumber.number));
+                  }
+                  lastStep->loadTheViewer();
 
                   addGraphicsPageItems(steps, coverPage, endOfSubmodel, view, scene, opts.printing);
 
