@@ -87,10 +87,10 @@ void Gui::create3DActions()
     QIcon ApplyLightIcon;
     ApplyLightIcon.addFile(":/resources/applylightsettings.png");
     ApplyLightIcon.addFile(":/resources/applylightsettings_16.png");
-    applyLightAct = new QAction(ApplyLightIcon,tr("Save Settings"),this);
-    applyLightAct->setStatusTip(tr("[FUTURE USE] Save light settings to current step - Shift+I"));
+    applyLightAct = new QAction(ApplyLightIcon,tr("Save Light Settings"),this);
+    applyLightAct->setEnabled(false);
+    applyLightAct->setStatusTip(tr("Save light settings to current step - Shift+I"));
     applyLightAct->setShortcut(tr("Shift+I"));
-    applyLightAct->setEnabled(false);  // TODO - Enable when completely implemented
     connect(applyLightAct, SIGNAL(triggered()), this, SLOT(applyLightSettings()));
 
     useImageSizeAct = new QAction(tr("Use Image Size"),this);
@@ -306,7 +306,6 @@ void Gui::create3DMenus()
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]);
      gMainWindow->GetToolsMenu()->addAction(createBuildModAct);
-//     gMainWindow->GetToolsMenu()->addAction(applyCameraAct);
      gMainWindow->GetToolsMenu()->addAction(lightGroupAct);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]);
      gMainWindow->GetToolsMenu()->addSeparator();
@@ -360,7 +359,6 @@ void Gui::create3DMenus()
      cameraMenu->addAction(useImageSizeAct);
      cameraMenu->addAction(defaultCameraPropertiesAct);
      gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]->setMenu(cameraMenu);
-//     applyCameraAct->setMenu(cameraMenu);
 }
 
 void Gui::create3DToolBars()
@@ -382,7 +380,6 @@ void Gui::create3DToolBars()
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]);
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]);
     gMainWindow->mToolsToolBar->addAction(createBuildModAct);
-//    gMainWindow->mToolsToolBar->addAction(applyCameraAct);
     gMainWindow->mToolsToolBar->addAction(lightGroupAct);
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]);
     gMainWindow->mToolsToolBar->addSeparator();
@@ -402,8 +399,6 @@ void Gui::create3DToolBars()
 
 void Gui::Disable3DActions()
 {
-    applyCameraAct->setEnabled(false);
-//    applyLightAct->setEnabled(false);  // TODO - Future use
     createBuildModAct->setEnabled(false);
     lightGroupAct->setEnabled(false);
     viewpointGroupAct->setEnabled(false);
@@ -411,8 +406,6 @@ void Gui::Disable3DActions()
 
 void Gui::Enable3DActions()
 {
-    applyCameraAct->setEnabled(true);
-//    applyLightAct->setEnabled(true);  // TODO - Future use
     createBuildModAct->setEnabled(buildModRange.first() || hasBuildMods());
     applyBuildModAct->setEnabled(hasBuildMods());
     removeBuildModAct->setEnabled(hasBuildMods());
@@ -532,46 +525,250 @@ void Gui::ResetViewerZoomSlider()
    viewerZoomSliderWidget->setValue(50);
 }
 
+void Gui::enableApplyLightAction()
+{
+    applyLightAct->setEnabled(lcGetActiveProject()->GetImageType() == Options::Mt::CSI);
+}
+
 void Gui::applyLightSettings()
 {
-    View* ActiveView = gMainWindow->GetActiveView();
+    int it = lcGetActiveProject()->GetImageType();
+    if (it != Options::Mt::CSI)
+        return;
 
-    lcModel* ActiveModel = ActiveView->GetActiveModel();
+    if (currentStep){
 
-    for (lcLight* Light : ActiveModel->mLights)
-        if (Light->IsSelected())
-            messageSig(LOG_DEBUG, QString("TODO - SAVE LIGHT [%1]").arg(Light->m_strName));
+        Meta meta;
+        LightData lightData = meta.LeoCad.light.value();
+        LightMeta lightMeta = meta.LeoCad.light;
+        lightMeta.setValue(lightData);
+
+        View* ActiveView = gMainWindow->GetActiveView();
+
+        lcModel* ActiveModel = ActiveView->GetActiveModel();
+
+        QString metaString;
+        bool newCommand = true;
+        Where top = currentStep->topOfStep();
+        Where bottom = currentStep->bottomOfStep();
+
+        auto notEqual = [] (const float v1, const float v2)
+        {
+            return qAbs(v1 - v2) > 0.1f;
+        };
+
+        beginMacro("LightSettings");
+
+        // Delete existing LIGHT commands starting at the bottom of the current step
+        for (Where walk = bottom - 1; walk >= top.lineNumber; --walk)
+            if(readLine(walk).startsWith(lightMeta.preamble))
+                deleteLine(walk);
+
+        for (lcLight* Light : ActiveModel->mLights) {
+
+            emit messageSig(LOG_INFO, QString("Setting Light [%1]").arg(Light->m_strName));
+
+            QString Type = "Undefined";
+            switch(Light->mLightType)
+            {
+                case LC_POINTLIGHT:
+                    Type = "Point";
+                    break;
+                case LC_SUNLIGHT:
+                    Type = "Sun";
+                    break;
+                case LC_SPOTLIGHT:
+                    Type = "Spot";
+                    break;
+                case LC_AREALIGHT:
+                    Type = "Area";
+                    break;
+            }
+
+            // Populate existing settings
+            QString lightKey = QString("%1 %2").arg(Type).arg(Light->m_strName);
+            if (currentStep->lightList.contains(lightKey))
+                lightMeta.setValue(currentStep->lightList[lightKey]);
+
+            // Type and Name
+            lightMeta.lightType.setValue(Type);
+            metaString = lightMeta.lightType.format(false,false);
+            metaString.append(QString(" NAME \"%1\"").arg(Light->m_strName));
+            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+
+            // Position
+            if (notEqual(Light->mPosition[0], lightData.position.x()) ||
+                notEqual(Light->mPosition[1], lightData.position.y()) ||
+                notEqual(Light->mPosition[2], lightData.position.z())) {
+                lightMeta.position.setValues(Light->mPosition[0],
+                                             Light->mPosition[1],
+                                             Light->mPosition[2]);
+                metaString = lightMeta.position.format(false/*local*/,false/*global*/);
+                currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+            }
+
+            // Target Position
+            if (notEqual(Light->mTargetPosition[0], lightData.target.x()) ||
+                notEqual(Light->mTargetPosition[1], lightData.target.y()) ||
+                notEqual(Light->mTargetPosition[2], lightData.target.z())) {
+                lightMeta.target.setValues(Light->mTargetPosition[0],
+                                           Light->mTargetPosition[1],
+                                           Light->mTargetPosition[2]);
+                metaString = lightMeta.target.format(false,false);
+                currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+            }
+
+            // Colour
+            if (notEqual(Light->mLightColor[0], lightData.lightColour.x()) ||
+                notEqual(Light->mLightColor[1], lightData.lightColour.y()) ||
+                notEqual(Light->mLightColor[2], lightData.lightColour.z())) {
+                lightMeta.lightColour.setValues(Light->mLightColor[0],
+                                                Light->mLightColor[1],
+                                                Light->mLightColor[2]);
+                metaString = lightMeta.lightColour.format(false,false);
+                currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+            }
+
+            // Specular
+            if (notEqual(Light->mLightSpecular, lightData.lightSpecular.value())) {
+                lightMeta.lightSpecular.setValue(Light->mLightSpecular);
+                metaString = lightMeta.lightSpecular.format(false,false);
+                currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+            }
+
+            if (Light->mLightType == LC_SUNLIGHT) {
+                // Strength
+                if (notEqual(Light->mSpotExponent, lightData.strength.value())) {
+                    lightMeta.strength.setValue(Light->mSpotExponent);
+                    metaString = lightMeta.strength.format(false,false);
+                    currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                }
+                // Angle
+                if (notEqual(Light->mLightFactor[0], lightData.angle.value())) {
+                    lightMeta.angle.setValue(Light->mLightFactor[0]);
+                    metaString = lightMeta.angle.format(false,false);
+                    currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                }
+            } else {
+                // Power
+                if (notEqual(Light->mSpotExponent, lightData.power.value())) {
+                    lightMeta.power.setValue(Light->mSpotExponent);
+                    metaString = lightMeta.power.format(false,false);
+                    currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                }
+
+                // Cutoff Distance
+                if (Light->mEnableCutoff &&
+                   (notEqual(Light->mSpotCutoff, lightData.spotCutoff.value()))) {
+                    lightMeta.power.setValue(Light->mSpotCutoff);
+                    metaString = lightMeta.spotCutoff.format(false,false);
+                    currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                }
+
+                switch (Light->mLightType)
+                {
+                case LC_POINTLIGHT:
+                case LC_SPOTLIGHT:
+                    // Radius
+                    if (notEqual(Light->mLightFactor[0], lightData.radius.value())) {
+                        lightMeta.radius.setValue(Light->mLightFactor[0]);
+                        metaString = lightMeta.radius.format(false,false);
+                        currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                    }
+                    if (Light->mLightType == LC_SPOTLIGHT) {
+                        // Spot Blend
+                        if (notEqual(Light->mLightFactor[1], lightData.spotBlend.value())) {
+                            lightMeta.spotBlend.setValue(Light->mLightFactor[1]);
+                            metaString = lightMeta.spotBlend.format(false,false);
+                            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                        }
+                        // Spot Size
+                        if (notEqual(Light->mSpotSize, lightData.spotSize.value())) {
+                            lightMeta.spotSize.setValue(Light->mSpotSize);
+                            metaString = lightMeta.spotSize.format(false,false);
+                            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                        }
+                    }
+                    break;
+                case LC_AREALIGHT:
+                    if (Light->mLightShape == LC_LIGHT_SHAPE_RECTANGLE || Light->mLightShape == LC_LIGHT_SHAPE_ELLIPSE) {
+                        // Width and Height
+                        if (notEqual(Light->mLightFactor[0], lightData.width.value()) ||
+                            notEqual(Light->mLightFactor[1], lightData.height.value())) {
+                            lightMeta.width.setValue(Light->mLightFactor[0]);
+                            metaString = lightMeta.width.format(false,false);
+                            metaString.append(QString(" HEIGHT %1").arg(double(Light->mLightFactor[1])));
+                            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                        }
+                    } else {
+                        // Size
+                        if (notEqual(Light->mLightFactor[0], lightData.size.value())) {
+                            lightMeta.size.setValue(Light->mLightFactor[0]);
+                            metaString = lightMeta.size.format(false,false);
+                            currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                        }
+                    }
+
+                    // Shape
+                    QString Shape = "Undefined";
+                    switch(Light->mLightShape) {
+                    case LC_LIGHT_SHAPE_SQUARE:
+                        Shape = "Square";
+                        break;
+                    case LC_LIGHT_SHAPE_DISK:
+                        Shape = "Disk";
+                        break;
+                    case LC_LIGHT_SHAPE_RECTANGLE:
+                        Shape = "Rectangle";
+                        break;
+                    case LC_LIGHT_SHAPE_ELLIPSE:
+                        Shape = "Ellipse";
+                        break;
+                    }
+                    if (notEqual(Light->mLightShape, lightData.radius.value())) {
+                        lightMeta.lightShape.setValue(Shape);
+                        metaString = lightMeta.lightShape.format(false,false);
+                        currentStep->mi(it)->setMetaAlt(top, metaString, newCommand);
+                    }
+                    break;
+                }
+            }
+        }
+
+        endMacro();
+    }
 }
 
 void Gui::applyCameraSettings()
 {
-    SettingsMeta cameraMeta;
-
-    View* ActiveView = gMainWindow->GetActiveView();
-
-    lcCamera* Camera = ActiveView->mCamera;
-
-    auto validCameraFoV = [&cameraMeta, &Camera] ()
-    {
-        if (Preferences::usingNativeRenderer)
-            return qRound(Camera->m_fovy);
-
-              // e.g.            30.0  +                 0.01         - 30.0
-        float result = Camera->m_fovy  + cameraMeta.cameraFoV.value() - gApplication->mPreferences.mCFoV;
-
-        return qRound(result);
-    };
-
-    auto notEqual = [] (const float v1, const float v2)
-    {
-        return qAbs(v1 - v2) > 0.1f;
-    };
-
-    emit messageSig(LOG_INFO, QString("Setting %1 Camera").arg(Camera->m_strName[0] == '\0' ? "Default" : Camera->m_strName));
-
-    QString imageFileName;
-
     if (currentStep){
+
+        SettingsMeta cameraMeta;
+
+        View* ActiveView = gMainWindow->GetActiveView();
+
+        lcCamera* Camera = ActiveView->mCamera;
+
+        auto validCameraFoV = [&cameraMeta, &Camera] ()
+        {
+            if (Preferences::usingNativeRenderer)
+                return qRound(Camera->m_fovy);
+
+                  // e.g.            30.0  +                 0.01         - 30.0
+            float result = Camera->m_fovy  + cameraMeta.cameraFoV.value() - gApplication->mPreferences.mCFoV;
+
+            return qRound(result);
+        };
+
+        auto notEqual = [] (const float v1, const float v2)
+        {
+            return qAbs(v1 - v2) > 0.1f;
+        };
+
+        emit messageSig(LOG_INFO, QString("Setting %1 Camera").arg(Camera->m_strName[0] == '\0' ? "Default" : Camera->m_strName));
+
+        QString imageFileName;
+
         int it = lcGetActiveProject()->GetImageType();
         switch(it){
         case Options::Mt::PLI:
@@ -615,10 +812,7 @@ void Gui::applyCameraSettings()
         beginMacro("CameraSettings");
 
         // execute first in last out
-        if (applyTarget /*&&
-           (notEqual(Camera->mTargetPosition[0], cameraMeta.target.x())  ||
-            notEqual(Camera->mTargetPosition[2], cameraMeta.target.y())  ||
-            notEqual(Camera->mTargetPosition[1], cameraMeta.target.z()))*/) {
+        if (applyTarget) {
 
             clearStepCache = true;
             if (QFileInfo(imageFileName).exists())
@@ -862,6 +1056,7 @@ void Gui::saveCurrent3DViewerModel(const QString &modelFile)
         Camera = nullptr;
     }
 }
+
 /*********************************************
  *
  * build modificaitons

@@ -1068,6 +1068,8 @@ public slots:
       }
   }
 
+  void enableApplyLightAction();
+
   /* Fade color processing */
   QString createColourEntry(
     const QString &colourCode,
@@ -1267,9 +1269,9 @@ protected:
   float                  mRotStepAngleZ;
   QString                mRotStepTransform;
   QString                viewerStepKey;        // currently loaded CSI in 3DViewer
-  QMap<QString, QString> mPliIconsPath;       // used to set an icon image in the 3DViewer timeline view
+  QMap<QString, QString> mPliIconsPath;        // used to set an icon image in the 3DViewer timeline view
 
-  QMap<int, PgSizeData>  pageSizes;           // page size and orientation object
+  QMap<int, PgSizeData>  pageSizes;            // page size and orientation object
 
   int                    mViewerZoomLevel;
   // download components

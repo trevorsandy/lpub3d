@@ -110,6 +110,8 @@ enum Rc {
          LeoCadPieceRc,
          LeoCadCameraRc,
          LeoCadLightRc,
+         LeoCadLightWidthRc, // Light HEIGHT written on WIDTH line
+         LeoCadLightTypeRc,  // Light NAME written on TYPE line
          LeoCadSynthRc,
          LeoCadGroupBeginRc,
          LeoCadGroupEndRc,
@@ -3439,9 +3441,7 @@ public:
 class CameraMeta : public BranchMeta
 {
 public:
-  BoolMeta     hidden;       // bool      IsHidden()
-  BoolMeta     orthographic; // bool      IsOrtho()
-  StringMeta   cameraName;   // char      m_strName
+  StringMeta   cameraName;   // char      m_strName (Camera HIDDEN and ORTHOGRAPHIC written on NAME line)
   FloatMeta    fov;          // float     m_fovy
   FloatXYZMeta target;       // lcVector3 mPosition
   FloatXYZMeta position;     // lcVector3 mTargetPosition
@@ -3458,31 +3458,131 @@ public:
 
 
 /*------------------------*/
-
-class LightMeta : public BranchMeta
+struct LightData
 {
-public:
-  StringMeta    lightName;     // char      m_strName
-  IntMeta       lightType;     // int       mLightType;
-  IntMeta       lightShape;    // int       mLightShape;
+  StringMeta    lightName;     // char      m_strName;
+  StringMeta    lightType;     // QString   mLightType; (Light NAME (m_strName) written on TYPE line)
+  StringMeta    lightShape;    // QString   mLightShape;
+
   FloatMeta     lightSpecular; // float     mLightSpecular;
   FloatMeta     spotSize;      // float     mSpotSize;
   FloatMeta     spotCutoff;    // float     mSpotCutoff;
   FloatMeta     power;         // float     mSpotExponent;
-  FloatMeta     strength;      // float     mSpotExponent
+  FloatMeta     strength;      // float     mSpotExponent;
 
   FloatMeta     angle;         // float     mLightFactor[0]
   FloatMeta     radius;        // float     mLightFactor[0]
-  FloatMeta     width;         // float     mLightFactor[0]
-  FloatMeta     size;          // float     mLightFactor[0]
-
+  FloatMeta     width;         // float     mLightFactor[0] (Light HEIGHT (mLightFactor[1]) written on WIDTH line)
   FloatMeta     height;        // float     mLightFactor[1]
+  FloatMeta     size;          // float     mLightFactor[0]
   FloatMeta     spotBlend;     // float     mLightFactor[1]
 
-  FloatMeta     fov;           // float     m_fovy
   FloatXYZMeta  lightColour;   // lcVector3 mLightColor
   FloatXYZMeta  target;        // lcVector3 mPosition
   FloatXYZMeta  position;      // lcVector3 mTargetPosition
+};
+
+class LightMeta : public BranchMeta
+{
+public:
+  StringMeta    lightName;     // char      m_strName;
+  StringMeta    lightType;     // QString   mLightType; (Light NAME (m_strName) written on TYPE line)
+  StringMeta    lightShape;    // QString   mLightShape;
+
+  FloatMeta     lightSpecular; // float     mLightSpecular;
+  FloatMeta     spotSize;      // float     mSpotSize;
+  FloatMeta     spotCutoff;    // float     mSpotCutoff;
+  FloatMeta     power;         // float     mSpotExponent;
+  FloatMeta     strength;      // float     mSpotExponent;
+
+  FloatMeta     angle;         // float     mLightFactor[0]
+  FloatMeta     radius;        // float     mLightFactor[0]
+  FloatMeta     width;         // float     mLightFactor[0] (Light HEIGHT (mLightFactor[1]) written on WIDTH line)
+  FloatMeta     height;        // float     mLightFactor[1]
+  FloatMeta     size;          // float     mLightFactor[0]
+  FloatMeta     spotBlend;     // float     mLightFactor[1]
+
+  FloatXYZMeta  lightColour;   // lcVector3 mLightColor
+  FloatXYZMeta  target;        // lcVector3 mPosition
+  FloatXYZMeta  position;      // lcVector3 mTargetPosition
+
+  LightData value()
+  {
+      LightData             value;
+      value.lightName     = lightName;
+      value.lightType     = lightType;
+      value.lightShape    = lightShape;
+
+      value.lightSpecular = lightSpecular;
+      value.spotSize      = spotSize;
+      value.spotCutoff    = spotCutoff;
+      value.power         = power;
+      value.strength      = strength;
+
+      value.angle         = angle;
+      value.radius        = radius;
+      value.width         = width;
+      value.height        = height;
+      value.size          = size;
+      value.spotBlend     = spotBlend;
+
+      value.lightColour   = lightColour;
+      value.target        = target;
+      value.position      = position;
+
+      return value;
+  }
+
+  void setValue(LightData &value)
+  {
+      lightName     = value.lightName;
+      lightType     = value.lightType;
+      lightShape    = value.lightShape;
+
+      lightSpecular = value.lightSpecular;
+      spotSize      = value.spotSize;
+      spotCutoff    = value.spotCutoff;
+      power         = value.power;
+      strength      = value.strength;
+
+      angle         = value.angle;
+      radius        = value.radius;
+      width         = value.width;
+      height        = value.height;
+      size          = value.size;
+      spotBlend     = value.spotBlend;
+
+      lightColour   = value.lightColour;
+      target        = value.target;
+      position      = value.position;
+  }
+
+  void reset()
+  {
+      LightData             value;
+      value.lightName     .setValue(QString());
+      value.lightType     .setValue("Point");
+      value.lightShape    .setValue("Square");
+
+      value.lightSpecular .setValue(1.0f);
+      value.spotSize      .setValue(75.0f);
+      value.spotCutoff    .setValue(40.0f);
+      value.power         .setValue(10.0f);
+      value.strength      .setValue(10.0f);
+
+      value.angle         .setValue(11.4f);
+      value.radius        .setValue(0.25f);
+      value.width         .setValue(0.25f);
+      value.height        .setValue(0.25f);
+      value.size          .setValue(0.25f);
+      value.spotBlend     .setValue(0.15f);
+
+      value.lightColour   .setValues(1.0f,1.0f,1.0f);
+      value.target        .setValues(0.0f,0.0f,0.0f);
+      value.position      .setValues(0.0f,0.0f,0.0f);
+
+      setValue(value);
+  }
 
   LightMeta();
   LightMeta(const LightMeta &rhs) : BranchMeta(rhs)
@@ -3587,12 +3687,10 @@ class LeoCadMeta : public BranchMeta
 {
 public:
   LeoCadGroupMeta group;
+  LightMeta       light;
   RcMeta          model;
   RcMeta          piece;
-  CameraMeta      cameras;
   RcMeta          camera;
-  LightMeta       lights;
-  RcMeta          light;
   RcMeta          synth;
   LeoCadMeta() {}
   virtual ~LeoCadMeta() {}

@@ -271,6 +271,10 @@ public:
 /*** LPub3D Mod - enable lights ***/
 	lcVector3 mLightColor;
 	lcVector2 mLightFactor;
+	bool  mAngleSet;
+	bool  mSpotBlendSet;
+	bool  mSpotCutoffSet;
+	bool  mHeightSet;
 	bool  mEnableCutoff;
 	int   mLightType;
 	int   mLightShape;
@@ -302,6 +306,7 @@ protected:
 	lcArray<lcObjectKey<float>> mSpotExponentKeys;
 
 /*** LPub3D Mod - enable lights ***/
+	void SetLightState(int LightType);
 	void Initialize(const lcVector3& Position, const lcVector3& TargetPosition, int LightType);
 	void DrawDirectionalLight(lcContext* Context) const;
 /*** LPub3D Mod end ***/

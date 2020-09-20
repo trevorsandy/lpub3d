@@ -477,6 +477,8 @@ int Gui::drawPage(
 
   QList<InsertMeta> inserts;
 
+  QMap<QString, LightData> lightList;
+
   Where topOfStep = opts.current;
   Rc gprc = OkRc;
   Rc rc;
@@ -944,10 +946,28 @@ int Gui::drawPage(
             case LeoCadPieceRc:
             case LeoCadCameraRc:
             case LeoCadLightRc:
+            case LeoCadLightWidthRc:
+            case LeoCadLightTypeRc:
             case LeoCadSynthRc:
             case LeoCadGroupBeginRc:
             case LeoCadGroupEndRc:
               CsiItem::partLine(line,pla,opts.current.lineNumber,rc);
+              if (rc == LeoCadLightWidthRc)
+              {
+                 // Light WIDTH and HEIGHT written on same line
+                 QString height = line.trimmed().split(" ").last();
+                 curMeta.LeoCad.light.height.setValue(height.toFloat());
+              }
+              if (rc == LeoCadLightTypeRc) {
+                  // Light TYPE and NAME written on same line
+                  int index = line.size() - line.lastIndexOf("NAME") - 5;
+                  QString lightName = line.right(index).replace("\"", "");
+                  curMeta.LeoCad.light.lightName.setValue(lightName);
+
+                  LightData lightData = curMeta.LeoCad.light.value();
+                  QString lightKey = QString("%1 %2").arg(lightData.lightType.value()).arg(lightName);
+                  lightList.insert(lightKey, lightData);
+              }
               break;
 
             case IncludeRc:
@@ -1867,6 +1887,8 @@ int Gui::drawPage(
                           page->selectedSceneItems   = selectedSceneItems;
                       }
 
+                      step->lightList = lightList;
+
                       PlacementType relativeType = SingleStepType;
                       if (pliPerStep) {
                           if (multiStep) {
@@ -2021,6 +2043,9 @@ int Gui::drawPage(
                           page->displayInstanceCount = displayCount;
                           page->selectedSceneItems   = selectedSceneItems;
 
+                          if (step)
+                              step->lightList = lightList;
+
                           if (! steps->meta.LPub.stepPli.perStep.value()) {
 
                               PlacementType relativeType = SingleStepType;
@@ -2102,6 +2127,8 @@ int Gui::drawPage(
                       drawPageElapsedTime();
                       return HitEndOfPage;
                   }
+
+                  lightList.clear();
 
                   dividerType = NoDivider;
 
@@ -2762,6 +2789,8 @@ int Gui::findPage(
             case LeoCadPieceRc:
             case LeoCadCameraRc:
             case LeoCadLightRc:
+            case LeoCadLightWidthRc:
+            case LeoCadLightTypeRc:
             case LeoCadSynthRc:
             case LeoCadGroupBeginRc:
             case LeoCadGroupEndRc:
@@ -3747,6 +3776,8 @@ void Gui::writeToTmp(const QString &fileName,
                   case LeoCadPieceRc:
                   case LeoCadCameraRc:
                   case LeoCadLightRc:
+                  case LeoCadLightWidthRc:
+                  case LeoCadLightTypeRc:
                   case LeoCadSynthRc:
                   case LeoCadGroupBeginRc:
                   case LeoCadGroupEndRc:

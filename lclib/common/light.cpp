@@ -19,6 +19,10 @@
 lcLight::lcLight(float px, float py, float pz)
 	: lcObject(LC_OBJECT_LIGHT)
 {
+	mAngleSet      = false;
+	mSpotBlendSet  = false;
+	mSpotCutoffSet = false;
+	mHeightSet     = false;
 	Initialize(lcVector3(px, py, pz), lcVector3(0.0f, 0.0f, 0.0f), LC_POINTLIGHT);
 	UpdatePosition(1);
 }
@@ -38,9 +42,26 @@ lcLight::lcLight(float px, float py, float pz, float tx, float ty, float tz, int
 }
 
 /*** LPub3D Mod - enable lights ***/
-void lcLight::Initialize(const lcVector3& Position, const lcVector3& TargetPosition, int LightType)
+void lcLight::SetLightState(int LightType)
 {
 	mState = 0;
+	switch (LightType)
+	{
+	case LC_SPOTLIGHT:
+		mState |= LC_LIGHT_SPOT;
+		break;
+	case LC_SUNLIGHT:
+	case LC_AREALIGHT:
+		mState |= LC_LIGHT_DIRECTIONAL;
+		break;
+	default:
+		break;
+	}
+}
+
+void lcLight::Initialize(const lcVector3& Position, const lcVector3& TargetPosition, int LightType)
+{
+	SetLightState(LightType);
 	memset(m_strName, 0, sizeof(m_strName));
 	mEnableCutoff   = false;
 	mPosition       = Position;
@@ -138,6 +159,11 @@ void lcLight::SaveLDraw(QTextStream& Stream) const
 	else
 		Stream << QLatin1String("0 !LEOCAD LIGHT COLOR_RGB ") << mLightColor[0] << ' ' << mLightColor[1] << ' ' << mLightColor[2] << LineEnding;
 
+	if (mLightSpecularKeys.GetSize() > 1)
+		SaveKeysLDraw(Stream, mLightSpecularKeys, "LIGHT SPECULAR_KEY ");
+	else
+		Stream << QLatin1String("0 !LEOCAD LIGHT SPECULAR ") << mLightSpecular << LineEnding;
+
 	if (mLightType == LC_SUNLIGHT)
 	{
 		if (mSpotExponentKeys.GetSize() > 1)
@@ -156,6 +182,14 @@ void lcLight::SaveLDraw(QTextStream& Stream) const
 			SaveKeysLDraw(Stream, mSpotExponentKeys, "LIGHT POWER_KEY ");
 		else
 			Stream << QLatin1String("0 !LEOCAD LIGHT POWER ") << mSpotExponent << LineEnding;
+
+		if (mEnableCutoff)
+		{
+			if (mSpotCutoffKeys.GetSize() > 1)
+				SaveKeysLDraw(Stream, mSpotCutoffKeys, "LIGHT CUTOFF_DISTANCE_KEY ");
+			else
+				Stream << QLatin1String("0 !LEOCAD LIGHT CUTOFF_DISTANCE ") << mSpotCutoff << LineEnding;
+		}
 
 		switch (mLightType)
 		{
@@ -213,19 +247,6 @@ void lcLight::SaveLDraw(QTextStream& Stream) const
 		}
 	}
 
-	if (mLightSpecularKeys.GetSize() > 1)
-		SaveKeysLDraw(Stream, mLightSpecularKeys, "LIGHT SPECULAR_KEY ");
-	else
-		Stream << QLatin1String("0 !LEOCAD LIGHT SPECULAR ") << mLightSpecular << LineEnding;
-
-	if (mLightType != LC_SUNLIGHT && mEnableCutoff)
-	{
-		if (mSpotCutoffKeys.GetSize() > 1)
-			SaveKeysLDraw(Stream, mSpotCutoffKeys, "LIGHT CUTOFF_DISTANCE_KEY ");
-		else
-			Stream << QLatin1String("0 !LEOCAD LIGHT CUTOFF_DISTANCE ") << mSpotCutoff << LineEnding;
-	}
-
 	if (mLightTypeKeys.GetSize() > 1)
 	{
 		SaveKeysLDraw(Stream, mLightTypeKeys, "LIGHT TYPE_KEY ");
@@ -272,12 +293,12 @@ bool lcLight::ParseLDrawLine(QTextStream& Stream)
 			Stream >> mSpotExponent;
 			ChangeKey(mSpotExponentKeys, mSpotExponent, 1, true);
 		}
-		else if (Token == QLatin1String("ANGLE") ||
-				 Token == QLatin1String("RADIUS") ||
+		else if (Token == QLatin1String("RADIUS") ||
 				 Token == QLatin1String("SIZE") ||
 				 Token == QLatin1String("WIDTH") ||
-				 Token == QLatin1String("HEIGHT") ||
-				 Token == QLatin1String("SPOT_BLEND"))
+				 (mHeightSet    = Token == QLatin1String("HEIGHT")) ||
+				 (mSpotBlendSet = Token == QLatin1String("SPOT_BLEND")) ||
+				 (mAngleSet     = Token == QLatin1String("ANGLE")))
 		{
 			if(Token == QLatin1String("HEIGHT") ||
 			   Token == QLatin1String("SPOT_BLEND"))
@@ -293,7 +314,17 @@ bool lcLight::ParseLDrawLine(QTextStream& Stream)
 		}
 		else if (Token == QLatin1String("SHAPE"))
 		{
-			Stream >> mLightShape;
+			QString Shape;
+			Stream >> Shape;
+			Shape.replace("\"", "");
+			if (Shape == "Square")
+				mLightShape = LC_LIGHT_SHAPE_SQUARE;
+			else if (Shape == "Disk")
+				mLightShape = LC_LIGHT_SHAPE_DISK;
+			else if (Shape == "Rectangle")
+				mLightShape = LC_LIGHT_SHAPE_RECTANGLE;
+			else if (Shape == "Ellipse")
+				mLightShape = LC_LIGHT_SHAPE_ELLIPSE;
 			ChangeKey(mLightShapeKeys, mLightShape, 1, true);
 		}
 		else if (Token == QLatin1String("SPECULAR"))
@@ -301,7 +332,7 @@ bool lcLight::ParseLDrawLine(QTextStream& Stream)
 			Stream >>mLightSpecular;
 			ChangeKey(mLightSpecularKeys, mLightSpecular, 1, true);
 		}
-		else if (Token == QLatin1String("CUTOFF_DISTANCE"))
+		else if ((mSpotCutoffSet = Token == QLatin1String("CUTOFF_DISTANCE")))
 		{
 			mEnableCutoff = true;
 			Stream >> mSpotCutoff;
@@ -309,7 +340,18 @@ bool lcLight::ParseLDrawLine(QTextStream& Stream)
 		}
 		else if (Token == QLatin1String("TYPE"))
 		{
-			Stream >> mLightType;
+			QString Type;
+			Stream >> Type;
+			Type.replace("\"", "");
+			if (Type == "Point")
+				mLightType = LC_POINTLIGHT;
+			else if (Type == "Sun")
+				mLightType = LC_SUNLIGHT;
+			else if (Type == "Spot")
+				mLightType = LC_SPOTLIGHT;
+			else if (Type == "Area")
+				mLightType = LC_AREALIGHT;
+			SetLightState(mLightType);
 			ChangeKey(mLightTypeKeys, mLightType, 1, true);
 		}
 		else if (Token == QLatin1String("POSITION"))
@@ -349,9 +391,34 @@ bool lcLight::ParseLDrawLine(QTextStream& Stream)
 		else if (Token == QLatin1String("NAME"))
 		{
 			QString Name = Stream.readAll().trimmed();
+			Name.replace("\"", "");
 			QByteArray NameUtf = Name.toUtf8(); // todo: replace with qstring
 			strncpy(m_strName, NameUtf.constData(), sizeof(m_strName));
 			m_strName[sizeof(m_strName) - 1] = 0;
+
+			// Set default settings per light type
+			if (mLightType == LC_SPOTLIGHT) {
+				if (!mSpotBlendSet) {
+					mLightFactor[1] = 0.15f;
+					ChangeKey(mLightFactorKeys, mLightFactor, 1, true);
+				}
+			}
+			if (mLightType == LC_AREALIGHT && (mLightShape == LC_LIGHT_SHAPE_RECTANGLE || mLightShape == LC_LIGHT_SHAPE_ELLIPSE)) {
+				if (!mHeightSet) {
+					mLightFactor[1] = 0.25f;
+					ChangeKey(mLightFactorKeys, mLightFactor, 1, true);
+				}
+			}
+			if (mLightType == LC_SUNLIGHT) {
+				if (!mAngleSet) {
+					mLightFactor[0] = 11.4f;
+					ChangeKey(mLightFactorKeys, mLightFactor, 1, true);
+				}
+				if (!mSpotCutoffSet) {
+					mSpotCutoff     = 0.0f;
+					ChangeKey(mSpotCutoffKeys, mSpotCutoff, 1, true);
+				}
+			}
 			return true;
 		}
 	}

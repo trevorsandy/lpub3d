@@ -2759,8 +2759,10 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
 
     lcGetPiecesLibrary()->SetStudLogo(O->StudLogo,true);
 
-    if (!RenderImage)
+    if (!RenderImage) {
+        gui->enableApplyLightAction();
         gMainWindow->GetPartSelectionWidget()->SetDefaultPart();
+    }
 
     View* ActiveView = gMainWindow->GetActiveView();
 

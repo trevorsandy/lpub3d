@@ -295,7 +295,7 @@ void FloatMeta::init(
 Rc FloatMeta::parse(QStringList &argv, int index,Where &here)
 {
   int size = argv.size();
-  if (index == size - 1) {
+  if (index >= size - 1) { // changed operator from == to >= for LightMeta
       bool ok;
       float v = argv[index].toFloat(&ok);
       if (ok) {
@@ -482,7 +482,7 @@ void StringMeta::init(
 }
 Rc StringMeta::parse(QStringList &argv, int index,Where &here)
 {
-  if (argv.size() - index == 1) {
+  if (argv.size() - index >= 1) {  // changed operator from == to >= for LightMeta
       //_value[pushed] = argv[index].replace("\\""","""");
       QString foo = argv[index];
       _value[pushed] = argv[index];
@@ -4924,8 +4924,6 @@ void ResolutionMeta::doc(QStringList &out, QString preamble)
 
 CameraMeta::CameraMeta() : BranchMeta()
 {
-  hidden.setValue(false);
-  orthographic.setValue(false);
   fov.setFormats(5,4,"9.999");
   fov.setRange(gui->getDefaultFOVMinRange(),
                gui->getDefaultFOVMaxRange());
@@ -4935,9 +4933,8 @@ CameraMeta::CameraMeta() : BranchMeta()
 void CameraMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  hidden.init       (this,"HIDDEN");      // Add to LeoCAD highlight
-  orthographic.init (this,"ORTHOGRAPHIC");
-  cameraName.init   (this,"NAME");
+  // TODO - Add to LeoCAD highlight
+  cameraName.init   (this,"NAME"); // Light HIDDEN and ORTHOGRAPHIC written on NAME line
   fov.init          (this,"FOV");
   target.init       (this,"TARGET_POSITION");
   position.init     (this,"POSITION");
@@ -4948,54 +4945,80 @@ void CameraMeta::init(BranchMeta *parent, QString name)
 
 LightMeta::LightMeta() : BranchMeta()
 {
-  lightType.setValue(M_UNDEFINED_LIGHT);
-  lightShape.setValue(0.0f);
-  lightSpecular.setValue(0.0f);
-  spotSize.setValue(0.0f);
-  spotCutoff.setValue(0.0f);
+  lightColour.setValues(1.0f,1.0f,1.0f);
 
-  power.setValue(0.0f);
-  strength.setValue(0.0f);
+  lightSpecular.setFormats(9,1,"######9.9");
+  lightSpecular.setRange(0.0f,9999.0f);
+  lightSpecular.setValue(1.0f);
 
-  angle.setValue(0.0f);
-  radius.setValue(0.0f);
-  width.setValue(0.0f);
-  size.setValue(0.0f);
+  spotSize.setFormats(9,1,"######9.9");
+  spotSize.setRange(0.0f,FLT_MAX);
+  spotSize.setValue(75.0f);
 
-  height.setValue(0.0f);
-  spotBlend.setValue(0.0f);
+  spotCutoff.setFormats(9,1,"######9.9");
+  spotCutoff.setRange(0.0f,FLT_MAX);
+  spotCutoff.setValue(40.0f);
 
-  fov.setFormats(5,4,"9.999");
-  fov.setRange(gui->getDefaultFOVMinRange(),
-               gui->getDefaultFOVMaxRange());
-  fov.setValue(gui->getDefaultCameraFoV());
+  power.setFormats(9,1,"######9.9");
+  power.setRange(-FLT_MAX,FLT_MAX);
+  power.setValue(10.0f);
+
+  strength.setFormats(9,1,"######9.9");
+  strength.setRange(-FLT_MAX,FLT_MAX);
+  strength.setValue(10.0f);
+
+  angle.setFormats(5,1,"##9.9");
+  angle.setRange(0.0f,180.0f);
+  angle.setValue(11.4f);
+
+  radius.setFormats(9,1,"######9.9");
+  radius.setRange(0.0f,FLT_MAX);
+  radius.setValue(0.25f);
+
+  width.setFormats(9,1,"######9.9");
+  width.setRange(0.0f,FLT_MAX);
+  width.setValue(0.25f);
+
+  height.setFormats(9,1,"######9.9");
+  height.setRange(0.0f,FLT_MAX);
+  height.setValue(0.25f);
+
+  size.setFormats(9,1,"######9.9");
+  size.setRange(0.0f,FLT_MAX);
+  size.setValue(0.25f);
+
+  spotBlend.setFormats(4,2,"9.99");
+  spotBlend.setRange(0.0f,FLT_MAX);
+  spotBlend.setValue(0.15f);
+
+  lightType.setValue("Point");
+  lightShape.setValue("Square");
 }
 
 void LightMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  lightName.init     (this,"NAME");        // Add to LeoCAD highlight
-  lightType.init     (this,"TYPE");
-  lightShape.init    (this,"SHAPE");
-  lightSpecular.init (this,"SPECULAR");
-  spotSize.init      (this,"SPOT_SIZE");
-  spotCutoff.init    (this,"LIGHT_FOV");
+  // TODO - Add missing to LeoCAD highlight
+  lightType.init     (this,"TYPE",            LeoCadLightTypeRc);   // Light NAME written on TYPE line
+  lightName.init     (this,"NAME",            LeoCadLightRc);
+  lightShape.init    (this,"SHAPE",           LeoCadLightRc);
+  lightSpecular.init (this,"SPECULAR",        LeoCadLightRc);
+  spotSize.init      (this,"SPOT_SIZE",       LeoCadLightRc);
+  spotCutoff.init    (this,"CUTOFF_DISTANCE", LeoCadLightRc);
 
-  power.init         (this,"POWER");
-  strength.init      (this,"STRENGTH");
+  power.init         (this,"POWER",           LeoCadLightRc);
+  strength.init      (this,"STRENGTH",        LeoCadLightRc);
 
-  angle.init         (this,"ANGLE");
-  radius.init        (this,"RADIUS");
-  width.init         (this,"WIDTH");
-  size.init          (this,"SIZE");
+  angle.init         (this,"ANGLE",           LeoCadLightRc);
+  radius.init        (this,"RADIUS",          LeoCadLightRc);
+  width.init         (this,"WIDTH",           LeoCadLightWidthRc);  // Light HEIGHT written on WIDTH line
+  height.init        (this,"HEIGHT",          LeoCadLightRc);
+  size.init          (this,"SIZE",            LeoCadLightRc);
+  spotBlend.init     (this,"SPOT_BLEND",      LeoCadLightRc);
 
-  height.init        (this,"HEIGHT");
-  spotBlend.init     (this,"SPOT_BLEND");
-
-  lightColour.init   (this,"COLOR_RGB");
-  fov.init           (this,"FOV");
-  target.init        (this,"TARGET_POSITION");
-  position.init      (this,"POSITION");
+  lightColour.init   (this,"COLOR_RGB",       LeoCadLightRc);
+  target.init        (this,"TARGET_POSITION", LeoCadLightRc);
+  position.init      (this,"POSITION",        LeoCadLightRc);
 }
 
 /* ------------------ */
@@ -5172,12 +5195,12 @@ Rc LDCadMeta::parse(QStringList &argv, int index,Where &here)
 void LeoCadMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
-  group .init(this,"GROUP");
-  model .init(this,"MODEL",   LeoCadModelRc);
-  piece .init(this,"PIECE",   LeoCadPieceRc);
-  camera .init(this,"CAMERA", LeoCadCameraRc);
-  light .init(this,"LIGHT",   LeoCadLightRc);
-  synth .init(this,"SYNTH",   LeoCadSynthRc);
+  group   .init(this,"GROUP");
+  light   .init(this,"LIGHT");
+  camera  .init(this,"CAMERA", LeoCadCameraRc);
+  model   .init(this,"MODEL",  LeoCadModelRc);
+  piece   .init(this,"PIECE",  LeoCadPieceRc);
+  synth   .init(this,"SYNTH",  LeoCadSynthRc);
 }
 
 /* ------------------ */

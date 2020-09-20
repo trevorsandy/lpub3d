@@ -98,6 +98,8 @@ class Step : public AbstractRangeElement
     PlacementHeader       plPageHeader;
     PlacementFooter       plPageFooter;
 
+    QMap<QString, LightData> lightList;
+
     QString               foo;
 
     MultiStepStepBackgroundItem *stepBackground;
