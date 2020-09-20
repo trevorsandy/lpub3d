@@ -8,11 +8,11 @@
     <x>0</x>
     <y>0</y>
     <width>508</width>
-    <height>635</height>
+    <height>705</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+   <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -23,11 +23,21 @@
   <property name="sizeGripEnabled">
    <bool>false</bool>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_16">
-   <item>
+  <layout class="QGridLayout" name="gridLayout_14">
+   <item row="1" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
     <widget class="QTabWidget" name="preferencesTabWidget">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -39,7 +49,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tabGeneral">
       <attribute name="title">
@@ -76,6 +86,12 @@
           </item>
           <item>
            <widget class="QLineEdit" name="ldrawLibPathEdit">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="minimumSize">
              <size>
               <width>200</width>
@@ -86,6 +102,12 @@
           </item>
           <item>
            <widget class="QPushButton" name="browseLDraw">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="toolTip">
              <string>Use directory dialog to find LDraw directory</string>
             </property>
@@ -129,7 +151,14 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="altLDConfigPath"/>
+           <widget class="QLineEdit" name="altLDConfigPath">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
           </item>
           <item>
            <widget class="QPushButton" name="browseAltLDConfig">
@@ -295,7 +324,7 @@
                <bool>false</bool>
               </property>
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -413,7 +442,7 @@
                <bool>false</bool>
               </property>
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -468,7 +497,7 @@
             <bool>true</bool>
            </property>
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -642,7 +671,7 @@
          <item row="1" column="1">
           <widget class="QGroupBox" name="imageMatteBox">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
@@ -712,12 +741,18 @@
           <item>
            <widget class="QLabel" name="label_5">
             <property name="text">
-             <string>Name</string>
+             <string>Path</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QLineEdit" name="pliControlEdit">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="minimumSize">
              <size>
               <width>200</width>
@@ -728,6 +763,12 @@
           </item>
           <item>
            <widget class="QPushButton" name="browsePli">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="toolTip">
              <string>Use directory dialog to find the PLI file</string>
             </property>
@@ -828,6 +869,12 @@
            <layout class="QHBoxLayout" name="horizontalLayout_18">
             <item>
              <widget class="QPushButton" name="optionsButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="text">
                <string>Options...</string>
               </property>
@@ -857,127 +904,138 @@
       <attribute name="title">
        <string>Rendering</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_3">
+      <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_7">
-         <item>
-          <widget class="QLabel" name="label_4">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>Preferred renderer:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="preferredRenderer">
-           <item>
-            <property name="text">
-             <string>LDView</string>
+        <widget class="QGroupBox" name="groupBox_3">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string/>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <item>
+           <widget class="QLabel" name="label_4">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
-           </item>
-           <item>
             <property name="text">
-             <string>POVRay</string>
+             <string>Preferred renderer:</string>
             </property>
-           </item>
-           <item>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="preferredRenderer">
+            <item>
+             <property name="text">
+              <string>LDView</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>POVRay</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>LDGLite</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>5</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="label">
             <property name="text">
-             <string>LDGLite</string>
+             <string>Projection:</string>
             </property>
-           </item>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Projection:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="projectionCombo">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <item>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="projectionCombo">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <item>
+             <property name="text">
+              <string>Perspective</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Orthographic</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_7">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>5</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_9">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::PreventContextMenu</enum>
+            </property>
+            <property name="toolTip">
+             <string>Set the renderer 'wait for finish' process time in minutes. -1 will not timeout.</string>
+            </property>
             <property name="text">
-             <string>Perspective</string>
+             <string>Timeout:</string>
             </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Orthographic</string>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="rendererTimeout">
+            <property name="toolTip">
+             <string>Set the renderer 'wait for finish' process time in minutes. -1 will not timeout.</string>
             </property>
-           </item>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_7">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_9">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="contextMenuPolicy">
-            <enum>Qt::PreventContextMenu</enum>
-           </property>
-           <property name="toolTip">
-            <string>Set the renderer 'wait for finish' process time in minutes. -1 will not timeout.</string>
-           </property>
-           <property name="text">
-            <string>Timeout:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="rendererTimeout">
-           <property name="toolTip">
-            <string>Set the renderer 'wait for finish' process time in minutes. -1 will not timeout.</string>
-           </property>
-           <property name="minimum">
-            <number>-1</number>
-           </property>
-           <property name="value">
-            <number>6</number>
-           </property>
-          </widget>
-         </item>
-        </layout>
+            <property name="minimum">
+             <number>-1</number>
+            </property>
+            <property name="value">
+             <number>6</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </item>
        <item>
         <widget class="QGroupBox" name="ldviewBox">
@@ -1003,7 +1061,7 @@
           <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_10">
-          <item row="0" column="0">
+          <item row="1" column="1">
            <widget class="QCheckBox" name="ldviewSingleCall_Chk">
             <property name="minimumSize">
              <size>
@@ -1022,7 +1080,20 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1" rowspan="2">
+          <item row="2" column="1">
+           <widget class="QCheckBox" name="ldviewSnaphsotsList_Chk">
+            <property name="toolTip">
+             <string>Consolidate render files as a single list appended to the LDView command</string>
+            </property>
+            <property name="statusTip">
+             <string>Consolidate render files as a single list appended to the LDView command.</string>
+            </property>
+            <property name="text">
+             <string>Use Snapshots List file</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2" rowspan="2" colspan="2">
            <widget class="QGroupBox" name="ldvSettingsBox">
             <property name="title">
              <string>LDView Renderer settings</string>
@@ -1035,7 +1106,7 @@
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>82</width>
+                 <width>40</width>
                  <height>20</height>
                 </size>
                </property>
@@ -1043,6 +1114,12 @@
              </item>
              <item>
               <widget class="QPushButton" name="ldvPreferencesBtn">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="toolTip">
                 <string>Open Native POV options dialogue</string>
                </property>
@@ -1058,7 +1135,7 @@
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>82</width>
+                 <width>40</width>
                  <height>20</height>
                 </size>
                </property>
@@ -1067,45 +1144,50 @@
             </layout>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="ldviewSnaphsotsList_Chk">
-            <property name="toolTip">
-             <string>Consolidate render files as a single list appended to the LDView command</string>
+          <item row="4" column="1" rowspan="3" colspan="3">
+           <widget class="QGroupBox" name="groupBox_5">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
-            <property name="statusTip">
-             <string>Consolidate render files as a single list appended to the LDView command.</string>
+            <property name="title">
+             <string/>
             </property>
-            <property name="text">
-             <string>Use Snapshots List file</string>
-            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_20">
+             <item>
+              <widget class="QLabel" name="label_21">
+               <property name="text">
+                <string>Path</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="ldviewPath">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="browseLDView">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>hidden</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
-          </item>
-          <item row="2" column="0" colspan="2">
-           <layout class="QHBoxLayout" name="horizontalLayout_26">
-            <item>
-             <widget class="QLineEdit" name="ldviewPath">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="browseLDView">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>hidden</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
           </item>
          </layout>
         </widget>
@@ -1113,7 +1195,7 @@
        <item>
         <widget class="QGroupBox" name="ldgliteBox">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -1129,9 +1211,32 @@
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_25">
           <item>
+           <spacer name="horizontalSpacer_11">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_22">
+            <property name="text">
+             <string>Path</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QLineEdit" name="ldglitePath">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -1140,10 +1245,32 @@
           </item>
           <item>
            <widget class="QPushButton" name="browseLDGLite">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
              <string>hidden</string>
             </property>
            </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_21">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </widget>
@@ -1151,7 +1278,7 @@
        <item>
         <widget class="QGroupBox" name="POVRayBox">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -1171,209 +1298,238 @@
          <property name="checked">
           <bool>false</bool>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_17">
-            <item>
-             <widget class="QLabel" name="label_2">
-              <property name="text">
-               <string>Quality:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QComboBox" name="povrayRenderQualityCombo">
-              <property name="toolTip">
-               <string>Select render quality settings</string>
-              </property>
-              <item>
-               <property name="text">
-                <string>High</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Medium</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Low</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_18">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="povrayAutoCropBox">
-              <property name="toolTip">
-               <string>Automatically crop rendered images</string>
-              </property>
-              <property name="text">
-               <string>Auto-Crop image</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_10">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QCheckBox" name="povrayDisplay_Chk">
-              <property name="toolTip">
-               <string>Display image during rendering (Experimental)</string>
-              </property>
-              <property name="statusTip">
-               <string>Check to enable display window during image Raytracer rendering</string>
-              </property>
-              <property name="text">
-               <string>Display image progress</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
+         <layout class="QGridLayout" name="gridLayout_11">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Quality:</string>
+            </property>
+           </widget>
           </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_24">
+          <item row="0" column="1">
+           <widget class="QComboBox" name="povrayRenderQualityCombo">
+            <property name="toolTip">
+             <string>Select render quality settings</string>
+            </property>
             <item>
-             <widget class="QLineEdit" name="povrayPath">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-             </widget>
+             <property name="text">
+              <string>High</string>
+             </property>
             </item>
             <item>
-             <widget class="QPushButton" name="browsePOVRAY">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>20</width>
-                <height>23</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>hidden</string>
-              </property>
-             </widget>
+             <property name="text">
+              <string>Medium</string>
+             </property>
             </item>
-           </layout>
+            <item>
+             <property name="text">
+              <string>Low</string>
+             </property>
+            </item>
+           </widget>
           </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_27">
-            <item>
-             <widget class="QGroupBox" name="povNativeGenBox">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>170</width>
-                <height>56</height>
-               </size>
-              </property>
-              <property name="toolTip">
-               <string>Select the renderer to generate pov files</string>
-              </property>
-              <property name="title">
-               <string>POV file generation renderer</string>
-              </property>
-              <layout class="QHBoxLayout" name="horizontalLayout_21">
-               <item>
-                <widget class="QRadioButton" name="povGenNativeRadio">
-                 <property name="text">
-                  <string>Native</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QRadioButton" name="povGenLDViewRadio">
-                 <property name="text">
-                  <string>LDView</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <widget class="QGroupBox" name="ldvPOVSettingsBox">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>56</height>
-               </size>
-              </property>
-              <property name="title">
-               <string>POV file generation settings</string>
-              </property>
-              <layout class="QHBoxLayout" name="horizontalLayout_19">
-               <item>
-                <widget class="QPushButton" name="ldvPoVFileGenOptBtn">
-                 <property name="toolTip">
-                  <string>Open Native POV options dialogue</string>
-                 </property>
-                 <property name="text">
-                  <string>Gen Options...</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="ldvPoVFileGenPrefBtn">
-                 <property name="toolTip">
-                  <string>Open Native POV options dialogue</string>
-                 </property>
-                 <property name="text">
-                  <string>All Preferences...</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-            </item>
-           </layout>
+          <item row="0" column="2">
+           <spacer name="horizontalSpacer_18">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>102</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
           </item>
-          <item>
+          <item row="0" column="3">
+           <widget class="QCheckBox" name="povrayAutoCropBox">
+            <property name="toolTip">
+             <string>Automatically crop rendered images</string>
+            </property>
+            <property name="text">
+             <string>Auto-Crop image</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="4">
+           <spacer name="horizontalSpacer_10">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>85</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="0" column="5">
+           <widget class="QCheckBox" name="povrayDisplay_Chk">
+            <property name="toolTip">
+             <string>Display image during rendering (Experimental)</string>
+            </property>
+            <property name="statusTip">
+             <string>Check to enable display window during image Raytracer rendering</string>
+            </property>
+            <property name="text">
+             <string>Display image progress</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="6">
+           <spacer name="horizontalSpacer_22">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="2" column="0" colspan="3">
+           <widget class="QGroupBox" name="povNativeGenBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>170</width>
+              <height>56</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Select the renderer to generate pov files</string>
+            </property>
+            <property name="title">
+             <string>POV file generation renderer</string>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_19">
+             <item>
+              <widget class="QRadioButton" name="povGenNativeRadio">
+               <property name="text">
+                <string>Native</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="povGenLDViewRadio">
+               <property name="text">
+                <string>LDView</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="7">
+           <widget class="QGroupBox" name="groupBox_4">
+            <property name="title">
+             <string/>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_17">
+             <item>
+              <widget class="QLabel" name="label_23">
+               <property name="text">
+                <string>Path</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="povrayPath">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="browsePOVRAY">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>20</width>
+                 <height>23</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>hidden</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="2" column="3" colspan="4">
+           <widget class="QGroupBox" name="ldvPOVSettingsBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>56</height>
+             </size>
+            </property>
+            <property name="title">
+             <string>POV file generation settings</string>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <item>
+              <widget class="QPushButton" name="ldvPoVFileGenOptBtn">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="toolTip">
+                <string>Open Native POV options dialogue</string>
+               </property>
+               <property name="text">
+                <string>Gen Options...</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="ldvPoVFileGenPrefBtn">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="toolTip">
+                <string>Open Native POV options dialogue</string>
+               </property>
+               <property name="text">
+                <string>All Preferences...</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="7">
            <widget class="QGroupBox" name="lgeoBox">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -1396,57 +1552,61 @@
             <property name="checked">
              <bool>false</bool>
             </property>
-            <layout class="QVBoxLayout" name="verticalLayout">
-             <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_20">
-               <item>
-                <widget class="QLabel" name="lgeoStlLibLbl">
-                 <property name="text">
-                  <string>Durat's Stl library availability notice</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <spacer name="horizontalSpacer_11">
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>40</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-              </layout>
+            <layout class="QGridLayout" name="gridLayout_12">
+             <item row="1" column="1" colspan="2">
+              <widget class="QLineEdit" name="lgeoPath">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+                 <horstretch>30</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+              </widget>
              </item>
-             <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_4">
-               <item>
-                <widget class="QLineEdit" name="lgeoPath">
-                 <property name="minimumSize">
-                  <size>
-                   <width>200</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="browseLGEO">
-                 <property name="toolTip">
-                  <string>Use directory dialog to find LGEO directory</string>
-                 </property>
-                 <property name="whatsThis">
-                  <string>This lets you find the LGEO directory</string>
-                 </property>
-                 <property name="text">
-                  <string>Browse...</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
+             <item row="1" column="3">
+              <widget class="QPushButton" name="browseLGEO">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="toolTip">
+                <string>Use directory dialog to find LGEO directory</string>
+               </property>
+               <property name="whatsThis">
+                <string>This lets you find the LGEO directory</string>
+               </property>
+               <property name="text">
+                <string>Browse...</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="label_24">
+               <property name="text">
+                <string>Path</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0" colspan="4">
+              <widget class="QLabel" name="lgeoStlLibLbl">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Durat's Stl library availability</string>
+               </property>
+              </widget>
              </item>
             </layout>
            </widget>
@@ -1456,6 +1616,12 @@
        </item>
        <item>
         <widget class="QGroupBox" name="lsynthPartsBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="toolTip">
           <string>Add LSynth parts to the parts archive and define search path entry as needed.</string>
          </property>
@@ -1489,6 +1655,12 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
        </item>
        <item>
         <widget class="QLabel" name="RenderMessage">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
          </property>
@@ -1496,19 +1668,6 @@ Check if LSynth parts exist in LDraw folder but not included in search paths -e.
           <string/>
          </property>
         </widget>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_17">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>22</height>
-          </size>
-         </property>
-        </spacer>
        </item>
       </layout>
      </widget>
@@ -2667,16 +2826,6 @@ p, li { white-space: pre-wrap; }
      </widget>
     </widget>
    </item>
-   <item>
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
  <tabstops>
@@ -2700,10 +2849,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>Centimeters</tabstop>
   <tabstop>Inches</tabstop>
   <tabstop>POVRayBox</tabstop>
-  <tabstop>lgeoBox</tabstop>
   <tabstop>lgeoPath</tabstop>
-  <tabstop>browseLGEO</tabstop>
-  <tabstop>povrayPath</tabstop>
   <tabstop>povGenNativeRadio</tabstop>
   <tabstop>povGenLDViewRadio</tabstop>
   <tabstop>ldvPoVFileGenOptBtn</tabstop>
@@ -2712,10 +2858,8 @@ p, li { white-space: pre-wrap; }
   <tabstop>browseLDGLite</tabstop>
   <tabstop>ldglitePath</tabstop>
   <tabstop>ldviewBox</tabstop>
-  <tabstop>ldviewPath</tabstop>
   <tabstop>ldvPreferencesBtn</tabstop>
   <tabstop>ldviewSingleCall_Chk</tabstop>
-  <tabstop>ldviewSnaphsotsList_Chk</tabstop>
   <tabstop>preferredRenderer</tabstop>
   <tabstop>rendererTimeout</tabstop>
   <tabstop>publishLogoBox</tabstop>

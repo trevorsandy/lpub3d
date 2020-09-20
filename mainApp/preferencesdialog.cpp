@@ -384,6 +384,11 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   showAnnotationMessagesChkBox = new QCheckBox(_parent);
   showAnnotationMessagesChkBox->setChecked(   Preferences::showAnnotationMessages);
 
+#ifdef Q_OS_MACOS
+  resize(640, 835);
+#else
+  resize(510, 675);
+#endif
   setMinimumSize(100, 100);
   setSizeGripEnabled(true);
 }
