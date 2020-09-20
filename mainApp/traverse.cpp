@@ -4128,7 +4128,7 @@ void Gui::writeToTmp()
       content = ldrawFile.contents(fileName);
 
       // Check if there is a BuildMod action in the next step
-      if (hasBuildMods())
+      if (buildModsSize())
           setNextStepBuildModAction(content);
 
       if (ldrawFile.changedSinceLastWrite(fileName)) {

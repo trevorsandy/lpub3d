@@ -777,11 +777,6 @@ public:
       ldrawFile.setBuildModStepKey(buildModKey, modStepKey);
   }
 
-  int getBuildModNextIndex(const QString &buildModKeyPrefix)
-  {
-      return ldrawFile.getBuildModNextIndex(buildModKeyPrefix);
-  }
-
   QString getBuildModStepKey(const QString &buildModKey)
   {
       return ldrawFile.getBuildModStepKey(buildModKey);
@@ -807,9 +802,9 @@ public:
       return ldrawFile.getBuildModsList();
   }
 
-  bool hasBuildMods()
+  bool buildModsSize()
   {
-      return ldrawFile.hasBuildMods();
+      return ldrawFile.buildModsSize();
   }
 
   void setNextStepBuildModAction(const QStringList &contents, Where step = Where());

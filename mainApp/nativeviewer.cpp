@@ -432,7 +432,7 @@ void Gui::Disable3DActions()
 
 void Gui::Enable3DActions()
 {
-    bool enabled = hasBuildMods();
+    bool enabled = buildModsSize();
     createBuildModAct->setEnabled(buildModRange.first() || enabled);
     applyBuildModAct->setEnabled(enabled);
     removeBuildModAct->setEnabled(enabled);
@@ -1118,7 +1118,7 @@ void Gui::createBuildModification()
             lcArray<lcPiece*>  mSavePieces;
             lcArray<lcGroup*>  mSaveGroups;
             lcModelProperties  mSaveProperties;
-            lcArray<lcPieceControlPoint> ControlPoints; // empty placeholder
+            lcArray<lcPieceControlPoint> ControlPoints;
             QStringList  mLoadFileLines, mSaveFileLines,
                          DefaultContents, BuildModContents;
 
@@ -1643,7 +1643,7 @@ void Gui::createBuildModification()
 
             BuildModContents = QString(ModString).split(QRegExp("(\\r\\n)|\\r|\\n"), QString::SkipEmptyParts);
 
-            QString BuildModKey = QString("%1 Mod %2").arg(ModelName).arg(getBuildModNextIndex(ModelName));
+            QString BuildModKey = QString("%1 Mod %2").arg(ModelName).arg(buildModsSize() + 1);
 
             ModActionLineNum  = ModBeginLineNum + BuildModContents.size() + 1;
 
@@ -1807,7 +1807,7 @@ void Gui::removeBuildModification()
         break;
     }
 
-    bool enabled = hasBuildMods();
+    bool enabled = buildModsSize();
     applyBuildModAct->setEnabled(enabled);
     removeBuildModAct->setEnabled(enabled);
     changeBuildModAct->setEnabled(enabled);
@@ -1902,7 +1902,7 @@ void Gui::deleteBuildModification()
         break;
     }
 
-    bool enabled = hasBuildMods();
+    bool enabled = buildModsSize();
     applyBuildModAct->setEnabled(enabled);
     removeBuildModAct->setEnabled(enabled);
     changeBuildModAct->setEnabled(enabled);

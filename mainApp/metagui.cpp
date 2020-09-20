@@ -5996,11 +5996,7 @@ void BuildModDialogGui::getBuildMod(QStringList & buildModKeys, int action){
 
     activeBuildModItem = nullptr;
 
-    if (!gui->hasBuildMods()) {
-        QString message = tr("No build modifications were detected!");
-        QLabel *label = new QLabel(message, dialog);
-        hLayout->addWidget(label);
-    } else {
+    if (gui->buildModsSize()) {
         foreach (QString buildMod, gui->getBuildModsList()){
            QListWidgetItem* buildModItem = new QListWidgetItem(buildMod);
            buildModList->addItem(buildModItem);
@@ -6015,6 +6011,10 @@ void BuildModDialogGui::getBuildMod(QStringList & buildModKeys, int action){
                          this,         SLOT(setBuildModActive(QListWidgetItem *)));
         QObject::connect(buildModList, SIGNAL(itemDoubleClicked(QListWidgetItem *)),
                          this,         SLOT(setBuildModActive(QListWidgetItem *)));
+    } else {
+        QString message = tr("No build modifications were detected!");
+        QLabel *label = new QLabel(message, dialog);
+        hLayout->addWidget(label);
     }
 
     QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,

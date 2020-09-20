@@ -311,13 +311,12 @@ class LDrawFile {
     int getBuildModEndLineNumber(const QString &buildModKey);
     int getBuildModActionLineNumber(const QString &buildModKey);
     int getBuildModAction(const QString &buildModKey, int stepIndex);
-    int getBuildModNextIndex(const QString &buildModKeyPrefix);
     void setBuildModStepKey(const QString &buildModKey, const QString &modStepKey);
     QString getBuildModStepKey(const QString &buildModKey);
     QString getBuildModModelName(const QString &buildModKey);
     QStringList getBuildModsList();
     bool buildModContains(const QString &buildModKey);
-    bool hasBuildMods();
+    bool buildModsSize();
 
     /* ViewerStep functions */
     void insertViewerStep(const QString     &stepKey,

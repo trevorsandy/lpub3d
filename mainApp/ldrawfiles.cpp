@@ -2059,18 +2059,6 @@ int LDrawFile::getBuildModStepIndexKey(int stepIndex, bool modelIndex)
     return key;
 }
 
-int LDrawFile::getBuildModNextIndex(const QString &buildModKeyPrefix)
-{
-  QString modKey = buildModKeyPrefix.toLower();
-  int index = _buildModList.size();
-  if (_buildModList.contains(modKey))
-    index = _buildModList.indexOf(modKey);
-  if (index < _buildModList.size() - 1)
-    index = index + 1;
-
-  return index;
-}
-
 // This function returns the equivalent of the ViewewerStepKey
 QString LDrawFile::getBuildModStepKey(const QString &buildModKey)
 {
@@ -2103,7 +2091,7 @@ QStringList LDrawFile::getBuildModsList() {
   return _buildModList;
 }
 
-bool LDrawFile::hasBuildMods()
+bool LDrawFile::buildModsSize()
 {
   return _buildMods.size();
 }
