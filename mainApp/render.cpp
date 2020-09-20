@@ -428,11 +428,11 @@ bool Render::createSnapshotsList(
     return true;
 }
 
-int Render::executeLDViewProcess(QStringList &arguments, Mt module) {
+int Render::executeLDViewProcess(QStringList &arguments, Options::Mt module) {
 
   QString message = QString("LDView %1 %2 Arguments: %3 %4")
                             .arg(useLDViewSCall() ? "(SingleCall)" : "(Default)")
-                            .arg(module == CSI ? "CSI" : "PLI")
+                            .arg(module == Options::CSI ? "CSI" : "PLI")
                             .arg(Preferences::ldviewExe)
                             .arg(arguments.join(" "));
 #ifdef QT_DEBUG_MODE
@@ -455,7 +455,7 @@ int Render::executeLDViewProcess(QStringList &arguments, Mt module) {
           str.append(status);
           emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView %1 %2 render failed with code %2 %3")
                                .arg(useLDViewSCall() ? "(SingleCall)" : "(Default)")
-                               .arg(module == CSI ? "CSI" : "PLI")
+                               .arg(module == Options::CSI ? "CSI" : "PLI")
                                .arg(ldview.exitCode())
                                .arg(str));
           return -1;
@@ -465,7 +465,7 @@ int Render::executeLDViewProcess(QStringList &arguments, Mt module) {
   QFile outputImageFile(arguments.last());
   if (! outputImageFile.exists()) {
       emit gui->messageSig(LOG_ERROR,QMessageBox::tr("LDView %1 image generation failed for %2 with message %3")
-                           .arg(module == CSI ? "CSI" : "PLI")
+                           .arg(module == Options::CSI ? "CSI" : "PLI")
                            .arg(outputImageFile.fileName())
                            .arg(outputImageFile.errorString()));
       return -1;
@@ -1725,7 +1725,7 @@ int LDView::renderCsi(
       emit gui->messageSig(LOG_STATUS, "Executing LDView render CSI - please wait...");
 
       // execute LDView process
-      if (executeLDViewProcess(arguments, CSI) != 0) // ldrName entries that ARE NOT IM exist - e.g. first step
+      if (executeLDViewProcess(arguments, Options::CSI) != 0) // ldrName entries that ARE NOT IM exist - e.g. first step
           return -1;
   }
 
@@ -2110,7 +2110,7 @@ int LDView::renderPli(
   emit gui->messageSig(LOG_STATUS, "Executing LDView render PLI - please wait...");
 
   // execute LDView process
-  if (executeLDViewProcess(arguments, PLI) != 0)
+  if (executeLDViewProcess(arguments, Options::PLI) != 0)
       return -1;
 
   // move generated PLI images to parts subfolder
@@ -2204,7 +2204,7 @@ int Native::renderCsi(
 
   // Renderer options
   NativeOptions *Options    = new NativeOptions();
-  Options->ImageType         = CSI;
+  Options->ImageType         = Options::CSI;
   Options->InputFileName     = ldrName;
   Options->OutputFileName    = pngName;
   Options->StudLogo          = studLogo;
@@ -2390,7 +2390,7 @@ int Native::renderPli(
 
   // Renderer options
   NativeOptions *Options = new NativeOptions();
-  Options->ImageType      = PLI;
+  Options->ImageType      = Options::PLI;
   Options->InputFileName  = ldrNames.first();
   Options->OutputFileName = pngName;
   Options->StudLogo       = studLogo;
@@ -2522,7 +2522,7 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool Export/*false*/){
     // generate image
     const int ImageWidth  = int(O->ImageWidth);
     const int ImageHeight = int(O->ImageHeight);
-    QString ImageType     = O->ImageType == CSI ? "CSI" : O->ImageType == CSI ? "PLI" : "SMP";
+    QString ImageType     = O->ImageType == Options::CSI ? "CSI" : O->ImageType == Options::CSI ? "PLI" : "SMP";
 
     bool rc = true;
     if (!(rc = View.BeginRenderToImage(ImageWidth, ImageHeight)))

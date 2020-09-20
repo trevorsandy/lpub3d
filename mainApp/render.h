@@ -30,6 +30,7 @@
 
 #include <QString>
 #include <QStringList>
+#include "options.h"
 
 class QString;
 class QStringList;
@@ -47,7 +48,6 @@ class Render
 {
 public:
   Render() {}
-  enum Mt { PLI, CSI ,SMP};
   virtual ~Render() {}
   static QString const   getRenderer();
   static bool            useLDViewSCall();
@@ -57,7 +57,7 @@ public:
   static bool            clipImage(QString const &);
   static QString const   getRotstepMeta(RotStepMeta &, bool isKey = false);
   static QString const   getPovrayRenderQuality(int quality = -1);
-  static int             executeLDViewProcess(QStringList &, Mt);
+  static int             executeLDViewProcess(QStringList &, Options::Mt);
   static QString const   fixupDirname(const QString &);
   static QString const   getPovrayRenderFileName(const QString &);
   static QStringList const getSubAttributes(const QString &);
@@ -165,126 +165,6 @@ public:
   virtual int renderCsi(const QString &,  const QStringList &, const QStringList &, const QString &, Meta &, int = 0);
   virtual int renderPli(                  const QStringList &, const QString &, Meta &, int, int);
   virtual float cameraDistance(Meta &meta, float);
-};
-
-class xyzVector
-{
-private:
-bool _populated;
-
-public:
-  xyzVector()
-  {
-    _populated  = false;
-  }
-  xyzVector(const float _x, const float _y, const float _z)
-      : x(_x), y(_y), z(_z)
-  {
-    _populated  = x != 0.0f || y != 0.0f || z != 0.0f;
-  }
-  bool isPopulated()
-  {
-    return _populated;
-  }
-
-  friend bool operator==(const xyzVector& a, const xyzVector& b);
-  friend bool operator!=(const xyzVector& a, const xyzVector& b);
-
-  float x, y, z;
-};
-
-inline bool operator==(const xyzVector &a, const xyzVector &b)
-{
-    return a.x == b.x && a.y == b.y && a.z == b.z;
-}
-
-inline bool operator!=(const xyzVector &a, const xyzVector &b)
-{
-    return a.x != b.x || a.y != b.y || a.z != b.z;
-}
-
-class ViewerOptions
-{
-public:
-  ViewerOptions()
-  {
-    ImageType      = Render::CSI;
-    CameraName     = QString();
-    UsingViewpoint = false;
-    IsOrtho        = false;
-    StudLogo       = 0;
-    ImageWidth     = 800 ;
-    ImageHeight    = 600;
-    PageWidth      = 800;
-    PageHeight     = 600;
-    NativeCDF      = -260;
-    Resolution     = 150.0f;
-    ModelScale     = 1.0f;
-    CameraDistance = 0.0f;
-    FoV            = 0.0f;
-    ZNear          = 0.0f;
-    ZFar           = 0.0f;
-    Latitude       = 0.0f;
-    Longitude      = 0.0f;
-    RotStep        = xyzVector(0, 0, 0);
-    Target         = xyzVector(0, 0, 0);
-  }
-//  virtual ~ViewerOptions(){}
-  QString ViewerStepKey;
-  Render::Mt ImageType;
-  QString ImageFileName;
-  QString RotStepType;
-  QString CameraName;
-  int ImageWidth;
-  int ImageHeight;
-  int PageWidth;
-  int PageHeight;
-  int NativeCDF;
-  int StudLogo;
-  float Resolution;
-  float ModelScale;
-  float CameraDistance;
-  float FoV;
-  float ZNear;
-  float ZFar;
-  float Latitude;
-  float Longitude;
-  bool UsingViewpoint;
-  bool IsOrtho;
-  xyzVector RotStep;
-  xyzVector Target;
-};
-
-class NativeOptions : public ViewerOptions
-{
-public:
-  NativeOptions(const ViewerOptions &rhs)
-      : ViewerOptions(rhs),
-        IniFlag(-1),
-        ExportMode(-1),
-        LineWidth(1.0),
-        TransBackground(true),
-        HighlightNewParts(false)
-  { }
-  NativeOptions()
-      : ViewerOptions()
-  {
-    TransBackground   = true;
-    HighlightNewParts = false;
-    LineWidth         = 1.0;
-    ExportMode        = -1; //NONE
-    IniFlag           = -1; //NONE
-  }
-//  virtual ~NativeOptions(){}
-  QStringList ExportArgs;
-  QString InputFileName;
-  QString OutputFileName;
-  QString ExportFileName;
-  int IniFlag;
-  int ExportMode;
-  float LineWidth;
-  bool TransBackground;
-  bool HighlightNewParts;
 };
 
 inline void removeEmptyStrings(QStringList &l)

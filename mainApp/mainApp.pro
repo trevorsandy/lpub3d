@@ -444,7 +444,8 @@ HEADERS += \
     substitutepartdialog.h \
     ldrawcolordialog.h \
     ldrawcolordialog.cpp \
-    texteditdialog.h
+    texteditdialog.h \
+    options.h
 
 SOURCES += \
     aboutdialog.cpp \

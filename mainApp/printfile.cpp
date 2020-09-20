@@ -525,7 +525,7 @@ void Gui::exportAsHtml()
     NativeOptions *Options     = new NativeOptions();
     Options->ExportMode        = EXPORT_HTML;
     // 3DViewer only
-    Options->ImageType         = Render::CSI;
+    Options->ImageType         = Options::CSI;
     Options->ExportFileName    = QFileInfo(curFile).absolutePath();
     // LDV only
     Options->IniFlag           = NativePartList;
@@ -671,7 +671,7 @@ void Gui::exportAsHtml()
 void Gui::exportAsCsv()
 {
     NativeOptions *Options     = new NativeOptions();
-    Options->ImageType         = Render::CSI;
+    Options->ImageType         = Options::CSI;
     Options->ExportMode        = EXPORT_CSV;
     Options->OutputFileName    = QDir::toNativeSeparators(QString(curFile).replace(QFileInfo(curFile).suffix(),"txt"));
     Options->InputFileName     = QDir::toNativeSeparators(QDir::currentPath()+QDir::separator()+
@@ -686,7 +686,7 @@ void Gui::exportAsCsv()
 void Gui::exportAsBricklinkXML()
 {
     NativeOptions *Options     = new NativeOptions();
-    Options->ImageType         = Render::CSI;
+    Options->ImageType         = Options::CSI;
     Options->ExportMode        = EXPORT_BRICKLINK;
     Options->OutputFileName    = QDir::toNativeSeparators(QString(curFile).replace(QFileInfo(curFile).suffix(),"xml"));
     Options->InputFileName     = QDir::toNativeSeparators(QDir::currentPath()+QDir::separator()+

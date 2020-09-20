@@ -199,7 +199,7 @@ bool LDVImageMatte::matteCSIImage(QStringList &arguments, QString &csiKey) {
     }
 
   // Generate IM png file pair
-  if (Render::executeLDViewProcess(arguments, Render::CSI) != 0) {
+  if (Render::executeLDViewProcess(arguments, Options::CSI) != 0) {
       emit lpubAlert->messageSig(LOG_ERROR,QString("LDView CSI IM render failed for arguments %1")
                                  .arg(arguments.join(" ")));
       return false;

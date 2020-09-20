@@ -335,7 +335,7 @@ void Gui::applyCameraSettings()
     if (currentStep){
         int it = lcGetActiveProject()->GetImageType();
         switch(it){
-        case Render::Mt::PLI:
+        case Options::Mt::PLI:
             cameraMeta.cameraAngles   = currentStep->pli.pliMeta.cameraAngles;
             cameraMeta.cameraDistance = currentStep->pli.pliMeta.cameraDistance;
             cameraMeta.modelScale     = currentStep->pli.pliMeta.modelScale;
@@ -346,7 +346,7 @@ void Gui::applyCameraSettings()
             cameraMeta.imageSize      = currentStep->pli.pliMeta.imageSize;
             cameraMeta.target         = currentStep->pli.pliMeta.target;
             break;
-        case Render::Mt::SMP:
+        case Options::Mt::SMP:
             cameraMeta.cameraAngles   = currentStep->subModel.subModelMeta.cameraAngles;
             cameraMeta.cameraDistance = currentStep->subModel.subModelMeta.cameraDistance;
             cameraMeta.modelScale     = currentStep->subModel.subModelMeta.modelScale;
@@ -357,7 +357,7 @@ void Gui::applyCameraSettings()
             cameraMeta.imageSize      = currentStep->subModel.subModelMeta.imageSize;
             cameraMeta.target         = currentStep->subModel.subModelMeta.target;
             break;
-        default: /*Render::Mt::CSI:*/
+        default: /*Options::Mt::CSI:*/
             cameraMeta                = currentStep->csiStepMeta;
             imageFileName             = currentStep->pngName;
             break;
