@@ -28,19 +28,21 @@
 
 #pragma once
 #include <QDialog>
-//#include "lc_context.h"
 
 namespace Ui {
 class SubstitutePartDialog;
 }
 
 class PieceInfo;
+
 class SubstitutePartDialog : public QDialog
 {
   Q_OBJECT
-  enum WhichType {
+  enum Which {
+      InitialType,
       SubstituteType,
-      LdrawType
+      LdrawType,
+      PartColor
   };
 public:
     explicit SubstitutePartDialog(
@@ -78,9 +80,8 @@ private slots:
 
 protected:
   void initialize();
-  void typeChanged(WhichType);
-//  void drawPreview();
-//  std::pair<lcFramebuffer, lcFramebuffer> mRenderFramebuffer;
+  void typeChanged(Which);
+  void showPartPreview(Which);
 
 private:
   Ui::SubstitutePartDialog *ui;

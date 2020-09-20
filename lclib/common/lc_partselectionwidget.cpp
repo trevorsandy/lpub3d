@@ -572,9 +572,9 @@ void lcPartSelectionListView::SetCategory(lcPartCategoryType Type, int Index)
 	case lcPartCategoryType::Category:
 		mListModel->SetCategory(Index);
 		break;
-    case lcPartCategoryType::Count:
-        break;
-    }
+	case lcPartCategoryType::Count:
+		break;
+	}
 
 	setCurrentIndex(mListModel->index(0, 0));
 }
@@ -738,7 +738,10 @@ lcPartSelectionWidget::lcPartSelectionWidget(QWidget* Parent)
 	mSplitter->setStretchFactor(0, 0);
 	mSplitter->setStretchFactor(1, 1);
 
-	connect(Parent, SIGNAL(dockLocationChanged(Qt::DockWidgetArea)), this, SLOT(DockLocationChanged(Qt::DockWidgetArea)));
+/*** LPub3D Mod - do not connect dockLocationChanged for substitute part dialog ***/
+	if (parent() && parent()->objectName() != "LDrawPartDialog")
+		connect(Parent, SIGNAL(dockLocationChanged(Qt::DockWidgetArea)), this, SLOT(DockLocationChanged(Qt::DockWidgetArea)));
+/*** LPub3D Mod end ***/
 }
 
 bool lcPartSelectionWidget::event(QEvent* Event)
@@ -947,7 +950,7 @@ void lcPartSelectionWidget::SetDefaultPart()
 	{
 		QTreeWidgetItem* CategoryItem = mCategoriesWidget->topLevelItem(CategoryIdx);
 /*** LPub3D Mod - Set part lookup default ***/
-        if (CategoryItem->text(0) == "In Use") // previous: "Brick"
+		if (CategoryItem->text(0) == "In Use") // previous: "Brick"
 /*** LPub3D Mod end ***/
 		{
 			mCategoriesWidget->setCurrentItem(CategoryItem);

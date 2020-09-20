@@ -23,6 +23,7 @@
  *
  ***************************************************************************/
 
+#include <QtWidgets>
 #include "substitutepartdialog.h"
 #include "ui_substitutepartdialog.h"
 #include <QFileInfo>
@@ -33,16 +34,14 @@
 #include "pli.h"
 #include "color.h"
 
-// For drawPreview()
+#include "lc_qglwidget.h"
+#include "piecepreview.h"
 #include "lc_global.h"
-#include "lc_mesh.h"
 #include "pieceinf.h"
-//#include "lc_application.h"
-//#include "lc_mainwindow.h"
-//#include "lc_library.h"
-//#include "lc_model.h"
-//#include "view.h"
-//#include "lc_glextensions.h"
+#include "project.h"
+#include "lc_model.h"
+#include "lc_library.h"
+#include "lc_scene.h"
 
 SubstitutePartDialog::SubstitutePartDialog(
     const QStringList &attributes,
@@ -237,6 +236,8 @@ void SubstitutePartDialog::initialize()
 
     // Extended settings
 
+    showPartPreview(InitialType);
+
     if (show)
         val = mAttributes.at(sModelScale).toDouble();
     ui->scaleSpin->setRange(min,max);
@@ -413,11 +414,11 @@ void SubstitutePartDialog::typeChanged()
     }
 }
 
-void SubstitutePartDialog::typeChanged(WhichType whichType)
+void SubstitutePartDialog::typeChanged(Which attribute)
 {
     QString type,newType,currentType;
 
-    if (whichType == SubstituteType) {
+    if (attribute == SubstituteType) {
         type        = ui->substituteEdit->text();
         currentType = ui->nameEdit->text();
         newType     = QString(QFileInfo(type).suffix().isEmpty() ? type + ".dat" : type);
@@ -441,8 +442,7 @@ void SubstitutePartDialog::typeChanged(WhichType whichType)
             }
         }
 
-    } else
-    if (whichType == LdrawType) {
+    } else if (attribute == LdrawType) {
         type        = ui->ldrawEdit->text();
         currentType = ui->substituteEdit->text();
         newType     = QString(QFileInfo(type).suffix().isEmpty() ? type + ".dat" : type);
@@ -465,6 +465,82 @@ void SubstitutePartDialog::typeChanged(WhichType whichType)
                 ui->messageLbl->setStyleSheet("QLabel { color : red; }");
             }
         }
+    }
+
+    showPartPreview(attribute);
+}
+
+void SubstitutePartDialog::colorChanged(const QString &colorName)
+{
+  QColor newColor = LDrawColor::color(colorName);
+  if(newColor.isValid() ) {
+      mAttributes[sColorCode] = QString::number(LDrawColor::code(colorName));
+      ui->colorLbl->setAutoFillBackground(true);
+      QString styleSheet =
+          QString("QLabel { background-color: rgb(%1, %2, %3); }")
+          .arg(newColor.red())
+          .arg(newColor.green())
+          .arg(newColor.blue());
+      ui->colorLbl->setStyleSheet(styleSheet);
+      ui->colorLbl->setToolTip(QString("%1 (%2) %3")
+                               .arg(LDrawColor::name(mAttributes.at(sColorCode)).replace("_"," "))
+                               .arg(mAttributes.at(sColorCode))
+                               .arg(LDrawColor::value(mAttributes.at(sColorCode)).toUpper()));
+
+      showPartPreview(PartColor);
+
+      mModified = true;
+    }
+}
+
+void SubstitutePartDialog::showPartPreview(Which attribute)
+{
+    bool ok = false;
+    int validCode, colorCode = LDRAW_MATERIAL_COLOUR;
+    QString partType;
+    switch (attribute)
+    {
+    case SubstituteType:
+        partType = ui->substituteEdit->text().trimmed();
+        break;
+    case LdrawType:
+        partType = ui->ldrawEdit->text().trimmed();
+        break;
+    case PartColor:
+        validCode = mAttributes.at(sColorCode).toUInt(&ok);
+        if (ok)
+            colorCode = validCode;
+        break;
+    default: /*InitialType*/
+        validCode = mAttributes.at(sColorCode).toUInt(&ok);
+        if (ok)
+            colorCode = validCode;
+        partType = ui->nameEdit->text().trimmed();
+        break;
+    }
+
+    ui->previewFrame->setFrameStyle(QFrame::StyledPanel);
+    ui->previewFrame->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+
+    ui->previewFrame->setFocusPolicy(Qt::StrongFocus);
+    ui->previewFrame->setMouseTracking(true);
+
+    QGridLayout *previewLayout = new QGridLayout(ui->previewFrame);
+    previewLayout->setContentsMargins(0, 0, 0, 0);
+    ui->previewFrame->setLayout(previewLayout);
+
+    PiecePreview *Preview    = new PiecePreview();
+    lcQGLWidget  *ViewWidget = new lcQGLWidget(nullptr, Preview, false);
+
+    previewLayout->addWidget(ViewWidget);
+
+    if (Preview && ViewWidget && !partType.isEmpty()) {
+        ViewWidget->preferredSize = QSize(ui->previewFrame->width(),
+                                          ui->previewFrame->height());
+        float Scale        = ViewWidget->deviceScale();
+        Preview->mWidth    = ViewWidget->width()  * Scale;
+        Preview->mHeight   = ViewWidget->height() * Scale;
+        Preview->SetCurrentPiece(partType, colorCode);
     }
 }
 
@@ -492,26 +568,6 @@ void SubstitutePartDialog::browseType(bool clicked)
 
 }
 
-void SubstitutePartDialog::colorChanged(const QString &colorName)
-{
-  QColor newColor = LDrawColor::color(colorName);
-  if(newColor.isValid() ) {
-      mAttributes[sColorCode] = QString::number(LDrawColor::code(colorName));
-      ui->colorLbl->setAutoFillBackground(true);
-      QString styleSheet =
-          QString("QLabel { background-color: rgb(%1, %2, %3); }")
-          .arg(newColor.red())
-          .arg(newColor.green())
-          .arg(newColor.blue());
-      ui->colorLbl->setStyleSheet(styleSheet);
-      ui->colorLbl->setToolTip(QString("%1 (%2) %3")
-                               .arg(LDrawColor::name(mAttributes.at(sColorCode)).replace("_"," "))
-                               .arg(mAttributes.at(sColorCode))
-                               .arg(LDrawColor::value(mAttributes.at(sColorCode)).toUpper()));
-      mModified = true;
-    }
-}
-
 void SubstitutePartDialog::browseColor(bool clicked)
 {
   Q_UNUSED(clicked);
@@ -527,63 +583,6 @@ void SubstitutePartDialog::transformChanged(QString const &value)
        mModified = true;
        mAttributes[sTransform] = value;
 }
-
-/*
-void SubstitutePartDialog::drawPreview()
-{
-    View* ActiveView = gMainWindow->GetActiveView();
-    if (!ActiveView)
-        return;
-
-    ActiveView->MakeCurrent();
-    lcContext* Context = ActiveView->mContext;
-    int Width = ui->previewFrame->width();
-    int Height = ui->previewFrame->height();
-
-    if (mRenderFramebuffer.first.mWidth != Width || mRenderFramebuffer.first.mHeight != Height)
-    {
-        Context->DestroyRenderFramebuffer(mRenderFramebuffer);
-        mRenderFramebuffer = Context->CreateRenderFramebuffer(Width, Height);
-    }
-
-    if (!mRenderFramebuffer.first.IsValid())
-        return;
-
-    float Aspect = (float)Width / (float)Height;
-    Context->SetViewport(0, 0, Width, Height);
-
-    Context->SetDefaultState();
-    Context->BindFramebuffer(mRenderFramebuffer.first);
-
-    lcPiecesLibrary* Library = lcGetPiecesLibrary();
-
-    glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    lcMatrix44 ProjectionMatrix, ViewMatrix;
-
-    mTypeInfo->ZoomExtents(20.0f, Aspect, ProjectionMatrix, ViewMatrix);
-
-    Context->SetProjectionMatrix(ProjectionMatrix);
-
-    lcScene Scene;
-    Scene.SetAllowWireframe(false);
-    Scene.Begin(ViewMatrix);
-
-    mTypeInfo->AddRenderMeshes(Scene, lcMatrix44Identity(), mColorIndex, lcRenderMeshState::NORMAL, false);
-
-    Scene.End();
-
-    Scene.Draw(Context);
-
-    QPixmap Pixmap = QPixmap::fromImage(Context->GetRenderFramebufferImage(mRenderFramebuffer)).scaled(mIconSize, mIconSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-
-    Library->ReleasePieceInfo(mTypeInfo);
-
-    Context->ClearFramebuffer();
-    Context->ClearResources();
-}
-*/
 
 void SubstitutePartDialog::accept()
 {
@@ -775,5 +774,5 @@ void SubstitutePartDialog::accept()
 
 void SubstitutePartDialog::cancel()
 {
-  QDialog::reject();
+    QDialog::reject();
 }

@@ -50,14 +50,15 @@ LDrawPartDialog::LDrawPartDialog(
      QGridLayout* PartSelectorLayout = new QGridLayout(ui->colorFrame);
      PartSelectorLayout->setContentsMargins(0, 0, 0, 0);
 
-     mPartSelectionWidget = gMainWindow->GetPartSelectionWidget();
+     mPartSelectionWidget = new lcPartSelectionWidget(this);
      mPartSelectionWidget->SetColorIndex(color);
      PartSelectorLayout->addWidget(mPartSelectionWidget);
 
      PieceInfo* Info = lcGetPiecesLibrary()->FindPiece(partType.toLatin1().constData(), nullptr, false, false);
      if (Info){
          lcPiecesLibrary* Library = lcGetPiecesLibrary();
-         for (int categoryIndex = 0; categoryIndex < gCategories.size(); categoryIndex++)
+         int numCategories = gCategories.size();
+         for (int categoryIndex = 0; categoryIndex < numCategories; categoryIndex++)
          {
              if (Library->PieceInCategory(Info, gCategories[categoryIndex].Keywords.constData())) {
                  mPartSelectionWidget->SetCategory(categoryIndex);
@@ -95,11 +96,11 @@ void LDrawPartDialog::accept()
   if (mLDrawPart) {
     QDialog::accept();
   } else {
-    QDialog::reject();
-  }
+      QDialog::reject();
+    }
 }
 
 void LDrawPartDialog::cancel()
 {
-  QDialog::reject();
+    QDialog::reject();
 }
