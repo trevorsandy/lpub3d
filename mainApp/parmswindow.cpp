@@ -367,7 +367,7 @@ void ParmsWindow::displayParmsFile(
     if (! file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QMessageBox::warning(nullptr,
                  QMessageBox::tr("Parameter Editor"),
-                 QMessageBox::tr("Cannot read file %1:\n%2.")
+                 QMessageBox::tr("Cannot read parameter file %1:\n%2.")
                  .arg(fileName)
                  .arg(file.errorString()));
 

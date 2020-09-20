@@ -95,6 +95,7 @@ class PreferencesDialog : public QDialog
     bool          includeAllLogAttrib();
     bool          lineParseErrors();
     bool          showBuildModErrors();
+    bool          showIncludeFileErrors();
     bool          showAnnotationMessages();
     bool          showSaveOnRedraw();
     bool          showSaveOnUpdate();
@@ -189,6 +190,7 @@ private:
 
     QCheckBox     *lineParseErrorsChkBox;
     QCheckBox     *showBuildModErrorsChkBox;
+    QCheckBox     *showIncludeFileErrorsChkBox;
     QCheckBox     *showAnnotationMessagesChkBox;
 
     QSimpleUpdater  *m_updater;

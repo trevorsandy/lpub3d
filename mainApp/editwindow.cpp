@@ -56,7 +56,7 @@
 EditWindow *editWindow;
 
 EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
-  QMainWindow(parent),_modelFileEdit(_modelFileEdit_)
+  QMainWindow(parent),isIncludeFile(false),_modelFileEdit(_modelFileEdit_)
 {
     editWindow  = this;
 
@@ -671,6 +671,16 @@ void EditWindow::highlightCurrentLine()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
 
+    if (isIncludeFile) {
+        QTextCursor cursor = _textEdit->textCursor();
+        cursor.select(QTextCursor::LineUnderCursor);
+        QString selection = cursor.selection().toPlainText();
+        if (selection.startsWith("1"))
+            showLineType = LINE_ERROR;
+        else
+            showLineType = LINE_HIGHLIGHT;
+    }
+
     if (!_textEdit->isReadOnly()) {
         QTextEdit::ExtraSelection selection;
 
@@ -744,6 +754,9 @@ void EditWindow::pageUpDown(
 }
 
 void EditWindow::updateSelectedParts() {
+
+    if (isIncludeFile)
+        return;
 
     int currentLine = 0;
     int selectedLines = 0;
@@ -847,6 +860,7 @@ void EditWindow::displayFile(
 
   fileName = _fileName;
   fileOrderIndex = ldrawFile->getSubmodelIndex(_fileName);
+  isIncludeFile = ldrawFile->isIncludeFile(_fileName);
 
   if (modelFileEdit() && !fileName.isEmpty())
       fileWatcher.removePath(fileName);
@@ -861,8 +875,8 @@ void EditWindow::displayFile(
           QFile file(fileName);
           if (!file.open(QFile::ReadOnly | QFile::Text)) {
               QMessageBox::warning(nullptr,
-                       QMessageBox::tr("Model File Editor"),
-                       QMessageBox::tr("Cannot read file %1:\n%2.")
+                       QMessageBox::tr("Detached LDraw Editor"),
+                       QMessageBox::tr("Cannot read editor display file %1:\n%2.")
                        .arg(fileName)
                        .arg(file.errorString()));
 
@@ -887,11 +901,16 @@ void EditWindow::displayFile(
 
           mpdCombo->setMaxCount(0);
           mpdCombo->setMaxCount(1000);
-          mpdCombo->addItems(ldrawFile->subFileOrder());
+          if (isIncludeFile) {
+              mpdCombo->addItem(QFileInfo(fileName).fileName());
+          } else {
+              mpdCombo->addItems(ldrawFile->subFileOrder());
+          }
           if(_saveSubfileIndex) {
               mpdCombo->setCurrentIndex(_saveSubfileIndex);
               _saveSubfileIndex = 0;
           }
+          mpdCombo->setEnabled(!isIncludeFile);
 
           // check file encoding
           QTextCodec *codec = QTextCodec::codecForName("UTF-8");
@@ -915,8 +934,8 @@ void EditWindow::displayFile(
           file.close();
 
           exitAct->setEnabled(true);
-          statusBar()->showMessage(tr("Model File %1 %2")
-                                   .arg(fileName).arg(reloaded ? "updated" : "loaded"), 2000);
+          statusBar()->showMessage(tr("%1 file %2 %3")
+                                   .arg(isIncludeFile ? "Include" : "Model").arg(fileName).arg(reloaded ? "updated" : "loaded"), 2000);
       } else {
           _textEdit->setPlainText(ldrawFile->contents(fileName).join("\n"));
       }

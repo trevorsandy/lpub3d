@@ -1,4 +1,4 @@
-/****************************************************************************  
+/****************************************************************************
 **
 ** Copyright (C) 2007-2009 Kevin Clague. All rights reserved.
 ** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
@@ -27,15 +27,15 @@
  *  Fundamental concept files:
  *    lpub.(h,cpp) - the application (outermost) layer of code.  When
  *      LPub first starts up, this outer layer of code is in charge.
- *      main.cpp is the actual start of program, but that simply 
+ *      main.cpp is the actual start of program, but that simply
  *      creates and destroys an implementation of LPub's application
  *      defined in lpub.(h,cpp)
- *  
- *    ldrawfiles(h,cpp) - knows how to read and write MPD files and 
- *      retain the contents in a list of files.  For non-MPD files, 
- *      this layer reads in top level file, and any submodel files 
- *      that can be found in the same directory as the top level file. 
- *      After being loaded, the rest of LPub does not care if the 
+ *
+ *    ldrawfiles(h,cpp) - knows how to read and write MPD files and
+ *      retain the contents in a list of files.  For non-MPD files,
+ *      this layer reads in top level file, and any submodel files
+ *      that can be found in the same directory as the top level file.
+ *      After being loaded, the rest of LPub does not care if the
  *      model came from MPD or not.  The rest of LPub only interacts
  *      with the model through this layer of code.
  *
@@ -68,7 +68,7 @@
  *           For LPub, conceptually step means something that needs to
  *           be displayed in your building instructions:
  *              - a step number
- *              - the model after all previous type1 through 5 lines 
+ *              - the model after all previous type1 through 5 lines
  *                are added together
  *              - any of the type1 lines since the previous step (e.g. "in
  *                this step"), that are submodels.  These are either
@@ -99,7 +99,7 @@
  *   assembly step images, possibly a parts list image, zero or more
  *   callouts, with zero or more pointers.
  *
- *   Once LPub recognizes a page boundary (end of multistep, STEP or 
+ *   Once LPub recognizes a page boundary (end of multistep, STEP or
  *   end of file (implied step), it converts the tree for that
  *   page into graphical representations and displays them so the user
  *   can interact with them.
@@ -123,20 +123,20 @@
  *   for a few things, there is redundnant code.  This is small, though, and
  *   having findPage as a separate function, makes optimizations there easier.
  *
- *   findPage and drawPage know about all LDraw line types and deals with 
- *   types 1 through 5 directly.  They depends on a whole set of classes to 
- *   parse and possibly retain information from meta-commands (type 0 lines).  
- *   findPage and drawPage both deal with "0 GHOST" meta-commands themselves, 
- *   but all other metacommand parsing is done by the Meta class and its 
+ *   findPage and drawPage know about all LDraw line types and deals with
+ *   types 1 through 5 directly.  They depends on a whole set of classes to
+ *   parse and possibly retain information from meta-commands (type 0 lines).
+ *   findPage and drawPage both deal with "0 GHOST" meta-commands themselves,
+ *   but all other metacommand parsing is done by the Meta class and its
  *   associated meta subclasses.
  *
- *   findPage and drawPage's interface to the Meta class is through the 
+ *   findPage and drawPage's interface to the Meta class is through the
  *   parse function.  meta.parse() is handed an ldraw type 0 line, and the
  *   file and lineNumber that the line came from.  For configuration meta-commands
  *   the meta classes retain the filename/linenumber information for use
  *   in implementing backannotation of user changes into the LDraw files.
- *   meta.parse() provides a return code indicating what it saw.  Some 
- *   meta-commands (like LDraw's STEP, MLCad's ROTSTEP, and LPub's CALLOUT BEGIN) 
+ *   meta.parse() provides a return code indicating what it saw.  Some
+ *   meta-commands (like LDraw's STEP, MLCad's ROTSTEP, and LPub's CALLOUT BEGIN)
  *   are action meta-commands.  Each action meta-command has its own specific
  *   return code.  Configuration meta-commands provide a return code that
  *   says the line parsed ok, or failed parsing.
@@ -152,13 +152,13 @@
  *   abstractions like the concept of a number which has font, color
  *   and margins, or LPub concepts like placement, background, border, and
  *   divider (the visual thing that sits between rows or columns of steps).
- * 
+ *
  *   Then there are the bottom layer classes like, an integer
  *   number, a floating point number, a pair of floating point numbers, units,
  *   booleans, etc.  Units are like floating points, except their internal
  *   values can be converted to pixels (which is the cornerstone concept of
- *   supporting dots per inch or dots per centimeter.  
- * 
+ *   supporting dots per inch or dots per centimeter.
+ *
  *   These are all derived from an abstract class called LeafMeta. Leaf
  *   metas provide the handling of the "rest of the meta-command", typically
  *   parsing the actual values of a specific configuration meta-command, or
@@ -186,9 +186,9 @@
  *
  *   There are only a few callers of findPage, the most important being
  *   drawPage (not the detailed one findPage calls, but a highlevel one
- *   that takes no parameters.  Draw page converts the LDraw file structure 
- *   tree (ranges, range, step) and the configuration tree (Meta) into 
- *   graphical entities. drawPage is a member of LPub (therefore lpub.h, 
+ *   that takes no parameters.  Draw page converts the LDraw file structure
+ *   tree (ranges, range, step) and the configuration tree (Meta) into
+ *   graphical entities. drawPage is a member of LPub (therefore lpub.h,
  *   and implemented in traverse.cpp.
  *
  *   The LDraw structure tree is composed of classes including:
@@ -226,7 +226,7 @@
  *     calloutbackgrounditem.(h,cpp)
  *     pointeritem.(h,cpp)
  *     backgrounditem.(h,cpp)
- *     
+ *
  *   In the case of PLIs, the "item" implementation is in pli.(h,cpp)
  *
  *   Once the page components are sized, placed and put into the scene,
@@ -281,7 +281,7 @@
  *   placement.  The implementations of these movements and their backannotation
  *   into the ldraw files are implemented in *item.cpp
  *
- *   This only leaves a few source files undescribed.  Part of the 
+ *   This only leaves a few source files undescribed.  Part of the
  *   LPub gui presented to the user is a texual display of the LDraw
  *   file.  It is displayed using editwindow.(h,cpp) using a Qt QTextEdit
  *   object.  The syntax highlighing that goes with that is implemented
@@ -389,6 +389,8 @@ class SeparatorComboBox;
 
 class QNetworkReply;
 class QNetworkAccessManager;
+
+class MpdComboDelegate;
 
 class EditWindow;
 class ParmsWindow;
@@ -931,7 +933,7 @@ public:
   QString elapsedTime(const qint64 &duration);
 
   int             maxPages;
-  
+
   LGraphicsView *pageview()
   {
       return KpageView;
@@ -1299,7 +1301,7 @@ public slots:
 
   void editModelFile(bool saveBefore);
 
-signals:       
+signals:
 
   /* tell the editor to display this file */
 
@@ -1488,9 +1490,9 @@ private:
     bool           calledOut = false
     */);
 
-  void attitudeAdjustment(); // reformat the LDraw file to fix LPub backward compatibility issues 
-    
-  void include(Meta &meta);
+  void attitudeAdjustment(); // reformat the LDraw file to fix LPub backward compatibility issues
+
+  int include(Meta &meta, Where &includeHere, bool &inserted);
 
   int  createLDVieiwCsiImage(
             QPixmap            *pixmap,
@@ -1572,6 +1574,7 @@ private:
     const QString &printFile,
     const QString &imageFile);
 
+  int whichFile(int option = 0);
   void openWithProgramAndArgs(QString &program, QStringList &arguments);
   void openWith(const QString &filePath);
   void openFolder(const QString &folder);
@@ -1627,6 +1630,7 @@ private slots:
     void editBLCodes();
     void generateCustomColourPartsList(bool prompt = true);
     void viewLog();
+
 
     void toggleLCStatusBar(bool);
     void showLCStatusMessage();
@@ -1704,7 +1708,7 @@ private slots:
       LGraphicsView  *view,
       LGraphicsScene *scene,
       bool clearViewPageBg = false);
-    
+
     void enableActions();
     void enableActions2();
     void disableActions();
@@ -1748,7 +1752,7 @@ private:
   void readSettings();
   void writeSettings();
 
-  QDockWidget       *fileEditDockWindow; 
+  QDockWidget       *fileEditDockWindow;
 //** 3D
   QDockWidget       *viewerDockWindow;
 //**
@@ -1798,7 +1802,7 @@ private:
   QToolBar *zoomToolBar;
   QToolBar *navigationToolBar;
   QToolBar *mpdToolBar;
-  QComboBox *mpdCombo;
+  SeparatorComboBox *mpdCombo;
 
   // file
   QAction  *openAct;
@@ -1848,7 +1852,7 @@ private:
 
   // view
   // zoom toolbar
-    
+
   QAction  *fitWidthAct;
   QAction  *fitVisibleAct;
   QAction  *fitSceneAct;

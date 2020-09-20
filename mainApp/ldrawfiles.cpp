@@ -130,6 +130,7 @@ LDrawSubFile::LDrawSubFile(
   QDateTime         &datetime,
   int                unofficialPart,
   bool               generated,
+  bool               includeFile,
   const QString     &subFilePath)
 {
   _contents << contents;
@@ -144,6 +145,7 @@ LDrawSubFile::LDrawSubFile(
   _changedSinceLastWrite = true;
   _unofficialPart = unofficialPart;
   _generated = generated;
+  _includeFile = includeFile;
   _prevStepPosition = 0;
   _startPageNumber = 0;
   _lineTypeIndexes.clear();
@@ -192,6 +194,7 @@ void LDrawFile::empty()
   _subFileOrder.clear();
   _viewerSteps.clear();
   _buildMods.clear();
+  _includeFileList.clear();
   _buildModList.clear();
   _loadedParts.clear();
   _mpd                   = false;
@@ -251,6 +254,7 @@ void LDrawFile::insert(const QString &mcFileName,
                       QDateTime      &datetime,
                       bool            unofficialPart,
                       bool            generated,
+                      bool            includeFile,
                       const QString  &subFilePath)
 {
   QString    fileName = mcFileName.toLower();
@@ -259,9 +263,12 @@ void LDrawFile::insert(const QString &mcFileName,
   if (i != _subFiles.end()) {
     _subFiles.erase(i);
   }
-  LDrawSubFile subFile(contents,datetime,unofficialPart,generated,subFilePath);
+  LDrawSubFile subFile(contents,datetime,unofficialPart,generated,includeFile,subFilePath);
   _subFiles.insert(fileName,subFile);
-  _subFileOrder << fileName;
+  if (includeFile)
+      _includeFileList << fileName;
+  else
+      _subFileOrder << fileName;
 }
 
 /* Add a new modSubFile - Only used to insert fade or highlight content */
@@ -326,6 +333,17 @@ int LDrawFile::isUnofficialPart(const QString &name)
   if (i != _subFiles.end()) {
     int _unofficialPart = i.value()._unofficialPart;
     return _unofficialPart;
+  }
+  return 0;
+}
+
+int LDrawFile::isIncludeFile(const QString &name)
+{
+  QString fileName = name.toLower();
+  QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
+  if (i != _subFiles.end()) {
+    int _includeFile = i.value()._includeFile;
+    return _includeFile;
   }
   return 0;
 }
@@ -475,6 +493,16 @@ QStringList LDrawFile::getSubFilePaths()
         }
     }
   }
+  if (_includeFileList.size()){
+      for (int i = 0; i < _includeFileList.size(); i++) {
+        QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(_includeFileList[i]);
+        if (f != _subFiles.end()) {
+            if (!f.value()._subFilePath.isEmpty()) {
+                subFiles << f.value()._subFilePath;
+            }
+        }
+      }
+  }
   return subFiles;
 }
 
@@ -559,6 +587,10 @@ bool LDrawFile::older(const QStringList &parsedStack,
 
 QStringList LDrawFile::subFileOrder() {
   return _subFileOrder;
+}
+
+QStringList LDrawFile::includeFileList() {
+  return _includeFileList;
 }
 
 QString LDrawFile::getSubmodelName(int submodelIndx)
@@ -809,7 +841,7 @@ int LDrawFile::loadFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        emit gui->messageSig(LOG_ERROR, QString("Cannot read file %1:\n%2.")
+        emit gui->messageSig(LOG_ERROR, QString("Cannot read ldraw file %1:<br>%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
         return 1;
@@ -975,7 +1007,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
 {    
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        emit gui->messageSig(LOG_ERROR, QString("Cannot read file %1<br>%2")
+        emit gui->messageSig(LOG_ERROR, QString("Cannot read mpd file %1<br>%2")
                              .arg(fileName)
                              .arg(file.errorString()));
         return;
@@ -1270,7 +1302,7 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
                     stageSubfiles.removeAt(stageSubfiles.indexOf(subfile));
                     file.setFileName(fileInfo.absoluteFilePath());
                     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-                        emit gui->messageSig(LOG_NOTICE, QString("Cannot read file %1<br>%2")
+                        emit gui->messageSig(LOG_NOTICE, QString("Cannot read mpd subfile %1<br>%2")
                                              .arg(fileInfo.absoluteFilePath())
                                              .arg(file.errorString()));
                         return;
@@ -1322,7 +1354,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
 
         QFile file(fullName);
         if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-            emit gui->messageSig(LOG_ERROR,QString("Cannot read file %1<br>%2")
+            emit gui->messageSig(LOG_ERROR,QString("Cannot read ldr file %1<br>%2")
                                  .arg(fullName)
                                  .arg(file.errorString()));
             return;
@@ -1389,7 +1421,7 @@ void LDrawFile::loadLDRFile(const QString &path, const QString &fileName)
 
         QDateTime datetime = fileInfo.lastModified();
 
-        insert(fileInfo.fileName(),contents,datetime,unofficialPart,false,fileInfo.absoluteFilePath());
+        insert(fileInfo.fileName(),contents,datetime,unofficialPart,false/*generated*/,false/*includeFile*/,fileInfo.absoluteFilePath());
 
         /* read it a second time to find submodels and check for completeness*/
 
@@ -1526,7 +1558,9 @@ bool LDrawFile::saveFile(const QString &fileName)
 {
     QApplication::setOverrideCursor(Qt::WaitCursor);
     bool rc;
-    if (_mpd) {
+    if (isIncludeFile(fileName)) {
+      rc = saveIncludeFile(fileName);
+    } else if (_mpd) {
       rc = saveMPDFile(fileName);
     } else {
       rc = saveLDRFile(fileName);
@@ -1843,7 +1877,7 @@ bool LDrawFile::saveMPDFile(const QString &fileName)
     QString writeFileName = fileName;
     QFile file(writeFileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
-        emit gui->messageSig(LOG_ERROR,QString("Cannot write file %1:\n%2.")
+        emit gui->messageSig(LOG_ERROR,QString("Cannot write file %1:<br>%2.")
                              .arg(writeFileName)
                              .arg(file.errorString()));
         return false;
@@ -1860,7 +1894,7 @@ bool LDrawFile::saveMPDFile(const QString &fileName)
             writeFileName = f.value()._subFilePath;
             file.setFileName(writeFileName);
             if (!file.open(QFile::WriteOnly | QFile::Text)) {
-                emit gui->messageSig(LOG_ERROR,QString("Cannot write file %1:\n%2.")
+                emit gui->messageSig(LOG_ERROR,QString("Cannot write file %1:<br>%2.")
                                     .arg(writeFileName)
                                     .arg(file.errorString()));
                 return false;
@@ -1869,11 +1903,13 @@ bool LDrawFile::saveMPDFile(const QString &fileName)
             QTextStream out(&file);
             out.setCodec(_currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
         }
-        out << "0 FILE " << subFileName << endl;
+        if (!f.value()._includeFile)
+          out << "0 FILE " << subFileName << endl;
         for (int j = 0; j < f.value()._contents.size(); j++) {
           out << f.value()._contents[j] << endl;
         }
-        out << "0 NOFILE " << endl;
+        if (!f.value()._includeFile)
+          out << "0 NOFILE " << endl;
       }
     }
     return true;
@@ -2080,7 +2116,7 @@ bool LDrawFile::saveLDRFile(const QString &fileName)
               file.setFileName(writeFileName);
           }
           if (!file.open(QFile::WriteOnly | QFile::Text)) {
-            emit gui->messageSig(LOG_ERROR,QString("Cannot write file %1:\n%2.")
+            emit gui->messageSig(LOG_ERROR,QString("Cannot write file %1:<br>%2.")
                                  .arg(writeFileName)
                                  .arg(file.errorString()));
             return false;
@@ -2097,6 +2133,33 @@ bool LDrawFile::saveLDRFile(const QString &fileName)
     return true;
 }
 
+bool LDrawFile::saveIncludeFile(const QString &fileName){
+    QString includeFileName = fileName.toLower();
+    QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(includeFileName);
+    if (f != _subFiles.end() && f.value()._includeFile) {
+      if (f.value()._modified) {
+        QFile file;
+        QString writeFileName;
+        if (!f.value()._subFilePath.isEmpty()) {
+            writeFileName = f.value()._subFilePath;
+            file.setFileName(writeFileName);
+        }
+        if (!file.open(QFile::WriteOnly | QFile::Text)) {
+          emit gui->messageSig(LOG_ERROR,QString("Cannot write file %1:<br>%2.")
+                               .arg(writeFileName)
+                               .arg(file.errorString()));
+          return false;
+        }
+        QTextStream out(&file);
+        out.setCodec(_currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
+        for (int j = 0; j < f.value()._contents.size(); j++) {
+          out << f.value()._contents[j] << endl;
+        }
+        file.close();
+      }
+    }
+    return true;
+}
 
 bool LDrawFile::changedSinceLastWrite(const QString &fileName)
 {

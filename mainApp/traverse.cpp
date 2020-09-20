@@ -48,6 +48,7 @@
 #include "pointer.h"
 #include "pagepointer.h"
 #include "ranges_item.h"
+#include "separatorcombobox.h"
 
 #include "QsLog.h"
 
@@ -497,6 +498,12 @@ int Gui::drawPage(
   Rc rc;
   int retVal = 0;
 
+  // include file vars
+  Where includeHere;
+  Rc includeFileRc        = EndOfFileRc;
+  bool inserted           = false;
+  bool resetIncludeRc     = false;
+
   // set page header/footer width
   float pW;
   int which;
@@ -513,8 +520,8 @@ int Gui::drawPage(
     }
 
   auto getTopOfPreviousStep = [this,&topOfStep] () {
-      int displayPageIndx = exporting() ? displayPageNum : displayPageNum - 1;
-      displayPageIndx = displayPageIndx ? displayPageIndx-- : displayPageIndx; // top of 1 step back
+      int adjustedIndx = exporting() ? displayPageNum : displayPageNum - 1;
+      int displayPageIndx = adjustedIndx ? adjustedIndx-- : adjustedIndx; // top of 1 step back
       bool displayPageIndxOk = topOfPages.size() && topOfPages.size() >= displayPageIndx;
       Where top = displayPageIndxOk ? topOfPages[displayPageIndx] : topOfStep;
       return top;
@@ -623,6 +630,12 @@ int Gui::drawPage(
   int numLines = ldrawFile.size(opts.current.modelName);
 
   for ( ; opts.current <= numLines; opts.current++) {
+
+      // if reading include file, return to current line, do not advance
+
+      if (includeFileRc != EndOfFileRc) {
+         opts.current.lineNumber--;
+      }
 
       // load initial meta values
 
@@ -961,9 +974,21 @@ int Gui::drawPage(
 
           if (gprc == EndOfFileRc) {
               rc = gprc;
-            } else {
-              rc = curMeta.parse(line,opts.current,true);
-            }
+          } else {
+
+              // intercept include file flag
+
+              if (includeFileRc != EndOfFileRc) {
+                  if (resetIncludeRc) {
+                      rc = IncludeRc;                         // return to IncludeRc to parse another line
+                  } else {
+                      rc = includeFileRc;                     // execute the Rc returned by include(...)
+                      resetIncludeRc = true;                  // reset to run include(...) to parse another line
+                  }
+              } else {
+                  rc = curMeta.parse(line,opts.current,true); // continue
+              }
+          }
 
           /* handle specific meta-commands */
 
@@ -1028,7 +1053,11 @@ int Gui::drawPage(
               break;
 
             case IncludeRc:
-              include(curMeta);
+              includeFileRc = Rc(include(curMeta,includeHere,inserted)); // includeHere and inserted are include(...) vars
+              if (includeFileRc != EndOfFileRc) {                        // still reading so continue
+                  resetIncludeRc = false;                                // do not reset, allow includeFileRc to execute
+                  continue;
+              }
               break;
 
               /* substitute part/parts with this */
@@ -2517,6 +2546,12 @@ int Gui::findPage(
   buildModIgnore,
   buildModItems);
 
+  // include file vars
+  Where includeHere;
+  Rc includeFileRc        = EndOfFileRc;
+  bool inserted           = false;
+  bool resetIncludeRc     = false;
+
   ldrawFile.setRendered(opts.current.modelName, opts.isMirrored, opts.renderParentModel, opts.renderStepNumber, countInstances);
 
   /*
@@ -2550,6 +2585,12 @@ int Gui::findPage(
   for ( ;
         opts.current.lineNumber < numLines;
         opts.current.lineNumber++) {
+
+      // if reading include file, return to current line, do not advance
+
+      if (includeFileRc != EndOfFileRc) {
+         opts.current.lineNumber--;
+      }
 
       // scan through the rest of the model counting pages
       // if we've already hit the display page, then do as little as possible
@@ -2688,7 +2729,18 @@ int Gui::findPage(
 
         case '0':
 
-          rc = meta.parse(line,opts.current);
+          // intercept include file flag
+
+          if (includeFileRc != EndOfFileRc) {
+              if (resetIncludeRc) {
+                  rc = IncludeRc;                 // return to IncludeRc to parse another line
+              } else {
+                  rc = includeFileRc;             // execute the Rc returned by include(...)
+                  resetIncludeRc = true;          // reset to run include(...) to parse another line
+              }
+          } else {
+              rc = meta.parse(line,opts.current); // continue
+          }
 
           switch (rc) {
             case StepGroupBeginRc:
@@ -3077,7 +3129,11 @@ int Gui::findPage(
               break;
 
             case IncludeRc:
-              include(meta);
+              includeFileRc = Rc(include(meta,includeHere,inserted)); // includeHere and inserted are include(...) vars
+              if (includeFileRc != EndOfFileRc) {                     // still reading so continue
+                  resetIncludeRc = false;                             // do not reset, allow includeFileRc to execute
+                  continue;
+              }
               break;
 
             case PageSizeRc:
@@ -3123,8 +3179,8 @@ int Gui::findPage(
                 if (Preferences::buildModEnabled != value) {
                     Preferences::buildModEnabled  = value;
                     reset3DViewerMenusAndToolbars();
-                    emit gui->messageSig(LOG_INFO, QString("Build Modifications are %1")
-                                                           .arg(value ? "Enabled" : "Disabled"));
+                    emit messageSig(LOG_INFO, QString("Build Modifications are %1")
+                                                      .arg(value ? "Enabled" : "Disabled"));
                 }
               }
               break;
@@ -3318,8 +3374,8 @@ int Gui::getBOMParts(
                   int i;
                   for (i = 0; i < bfxParts.size(); i++) {
                       if (bfxParts[i] == colorPart) {
-                          emit gui->messageSig(LOG_NOTICE, QString("Duplicate PliPart at line [%1] removed [%2].")
-                                               .arg(current.lineNumber).arg(line));
+                          emit messageSig(LOG_NOTICE, QString("Duplicate PliPart at line [%1] removed [%2].")
+                                          .arg(current.lineNumber).arg(line));
                           bfxParts.removeAt(i);
                           removed = true;
                           break;
@@ -3760,8 +3816,8 @@ void Gui::drawPage(
 
           setBuildModForNextStep(displayPageIndxOk ? topOfPages[displayPageIndx] : current);
 
-          emit gui->messageSig(LOG_DEBUG,QString("Build modifications check - %1")
-                                                 .arg(gui->elapsedTime(t.elapsed())));
+          emit messageSig(LOG_DEBUG,QString("Build modifications check - %1")
+                                            .arg(elapsedTime(t.elapsed())));
       }
   }
 
@@ -3856,45 +3912,106 @@ void Gui::skipHeader(Where &current)
     }
 }
 
-void Gui::include(Meta &meta)
+int Gui::include(Meta &meta, Where &includeHere, bool &inserted)
 {
-  QString fileName = meta.LPub.include.value();
-  if (ldrawFile.isSubmodel(fileName)) {
-      int numLines = ldrawFile.size(fileName);
+    Rc rc;
+    QString filePath = meta.LPub.include.value();
+    QFileInfo fileInfo(filePath);
+    QString fileName = fileInfo.fileName();
+    if (includeHere == Where())
+        includeHere = Where(fileName,0);
 
-      Where current(fileName,0);
-      for (; current < numLines; current++) {
-          QString line = ldrawFile.readLine(fileName,current.lineNumber);
-          meta.parse(line,current);
-        }
-    } else {
-      QFileInfo fileInfo(fileName);
-      if (fileInfo.exists()) {
-          QFile file(fileName);
-          if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-              QMessageBox::warning(nullptr,
-                                   QMessageBox::tr(VER_PRODUCTNAME_STR),
-                                   QMessageBox::tr("Cannot read file %1:\n%2.")
-                                   .arg(fileName)
-                                   .arg(file.errorString()));
-              return;
+    auto processLine =
+            [this,
+             &meta,
+             &fileName,
+             &includeHere] () {
+        Rc prc = InvalidLineRc;
+        QString line = ldrawFile.readLine(fileName,includeHere.lineNumber);
+        switch (line.toLatin1()[0]) {
+        case '1':
+            parseError(QString("Invalid include line [%1].<br>"
+                               "Part lines (type 1 to 5) are ignored in include file.").arg(line),includeHere,Preferences::MsgKey::IncludeFileErrors);
+            return prc;
+        case '0':
+            prc = meta.parse(line,includeHere);
+            switch (prc) {
+            // Add unsupported include file meta commands here - i.e. commands that involve type 1-5 lines
+            case PliBeginSub1Rc:
+            case PliBeginSub2Rc:
+            case PliBeginSub3Rc:
+            case PliBeginSub4Rc:
+            case PliBeginSub5Rc:
+            case PliBeginSub6Rc:
+            case PliBeginSub7Rc:
+            case PliBeginSub8Rc:
+                parseError(QString("Substitute part meta commands are not supported in include file: [%1].<br>"
+                                   "Add this command to the model file or to a submodel.").arg(line),includeHere,Preferences::MsgKey::IncludeFileErrors);
+                return InvalidLineRc;
+            default:
+                break;
             }
-
-          /* Read it in the first time to put into fileList in order of
-         appearance */
-
-          QTextStream in(&file);
-          QStringList contents;
-          Where       current(fileName,0);
-
-          while ( ! in.atEnd()) {
-              QString line = in.readLine(0);
-              meta.parse(line,current);
-              ++current;
-            }
-          file.close();
+            break;
         }
+        return prc;
+    };
+
+    if (!inserted) {
+        inserted = ldrawFile.isIncludeFile(fileName);
     }
+    if (inserted) {
+        int numLines = ldrawFile.size(fileName);
+        for (; includeHere < numLines; includeHere++) {
+            rc = processLine();
+            if (rc != InvalidLineRc)
+                break;
+        }
+        if (includeHere.lineNumber < numLines)
+            includeHere++;
+        else
+            rc = EndOfFileRc;
+        return rc;
+    } else {
+        QFile file(filePath);
+        if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
+            emit messageSig(LOG_ERROR, QString("Cannot read include file %1<br>%2")
+                            .arg(filePath)
+                            .arg(file.errorString()));
+            return EndOfFileRc;
+        }
+
+        emit messageSig(LOG_TRACE, QString("Loading include file '%1'...").arg(filePath));
+
+        QTextStream in(&file);
+        in.setCodec(ldrawFile._currFileIsUTF8 ? QTextCodec::codecForName("UTF-8") : QTextCodec::codecForName("System"));
+
+        /* Read it in to put into subFiles in order of appearance */
+        QStringList contents;
+        while ( ! in.atEnd()) {
+            QString line = in.readLine(0);
+            contents << line.trimmed();
+        }
+        file.close();
+
+        disableWatcher();
+        QDateTime datetime = fileInfo.lastModified();
+        ldrawFile.insert(fileName,contents,datetime,true/*unofficialPart*/,true/*generated*/,true/*includeFile*/,fileInfo.absoluteFilePath());
+
+        int comboIndex = mpdCombo->count() - 1;
+        if (ldrawFile.includeFileList().size() == 1) {
+            mpdCombo->addSeparator();
+            comboIndex++;
+        }
+        mpdCombo->addItem(QString("%1 - Include File").arg(fileName),fileName);
+        comboIndex++;
+        mpdCombo->setItemData(comboIndex, QBrush(Qt::blue), Qt::TextColorRole);
+        enableWatcher();
+
+        emit messageSig(LOG_TRACE, QString("Include file '%1' with %2 lines loaded.").arg(fileName).arg(contents.size()));
+
+        rc = Rc(include(meta,includeHere,inserted));
+    }
+    return rc;
 }
 
 static Where dummy;
@@ -4025,9 +4142,9 @@ bool Gui::setBuildModForNextStep(
 #endif
         }
 
-        emit gui->progressBarPermInitSig();
-        emit gui->progressPermMessageSig("Build modification check...");
-        emit gui->progressPermRangeSig(progressMin, progressMax);
+        emit progressBarPermInitSig();
+        emit progressPermMessageSig("Build modification check...");
+        emit progressPermRangeSig(progressMin, progressMax);
     }
 
     Rc rc;
@@ -4120,7 +4237,7 @@ bool Gui::setBuildModForNextStep(
 
         if (progressMax && modelIndx == buildModNextStepIndex) {
             stepLines++;
-            emit gui->progressPermSetValueSig(stepLines);
+            emit progressPermSetValueSig(stepLines);
         }
 
         line = readLine(walk);
@@ -4209,8 +4326,8 @@ bool Gui::setBuildModForNextStep(
     }
 
     if (progressMax) {
-        emit gui->progressPermSetValueSig(progressMax);
-        emit gui->progressPermStatusRemoveSig();
+        emit progressPermSetValueSig(progressMax);
+        emit progressPermStatusRemoveSig();
     }
 
     return change;
@@ -4448,7 +4565,7 @@ void Gui::writeToTmp()
             /* Faded version of submodels */
             emit messageSig(LOG_INFO, "Writing fade submodels to temp directory: " + fileNameStr);
             configuredContent = configureModelSubFile(content, fadeColor, FADE_PART);
-            gui->insertConfiguredSubFile(fileNameStr,configuredContent);
+            insertConfiguredSubFile(fileNameStr,configuredContent);
             writeToTmp(fileNameStr,configuredContent);
           }
           // write configured (Highlight) submodels
@@ -4462,7 +4579,7 @@ void Gui::writeToTmp()
             /* Highlighted version of submodels */
             emit messageSig(LOG_INFO, "Writing highlight submodel to temp directory: " + fileNameStr);
             configuredContent = configureModelSubFile(content, fadeColor, HIGHLIGHT_PART);
-            gui->insertConfiguredSubFile(fileNameStr,configuredContent);
+            insertConfiguredSubFile(fileNameStr,configuredContent);
             writeToTmp(fileNameStr,configuredContent);
           }
       }

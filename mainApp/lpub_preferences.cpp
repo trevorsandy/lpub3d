@@ -48,6 +48,7 @@ const QString MsgKeys[Preferences::MsgKey::NumKeys] =
 {
     "ShowLineParseErrors",
     "ShowBuildModErrors",
+    "ShowIncludeLineErrors",
     "ShowAnnotationMessages"
 };
 
@@ -238,6 +239,7 @@ bool    Preferences::showGuidesCoordinates      = false;
 bool    Preferences::showTrackingCoordinates    = false;
 bool    Preferences::lineParseErrors            = true;
 bool    Preferences::showBuildModErrors         = true;
+bool    Preferences::showIncludeFileErrors      = true;
 bool    Preferences::showAnnotationMessages     = true;
 bool    Preferences::showSaveOnRedraw           = true;
 bool    Preferences::showSaveOnUpdate           = true;
@@ -3054,6 +3056,15 @@ void Preferences::userInterfacePreferences()
           lineParseErrors = Settings.value(QString("%1/%2").arg(MESSAGES,lineParseErrorsKey)).toBool();
   }
 
+  QString const showIncludeFileErrorsKey("ShowIncludeFileErrors");
+  if ( ! Settings.contains(QString("%1/%2").arg(MESSAGES,showIncludeFileErrorsKey))) {
+          QVariant uValue(true);
+          showIncludeFileErrors = true;
+          Settings.setValue(QString("%1/%2").arg(MESSAGES,showIncludeFileErrorsKey),uValue);
+  } else {
+          showIncludeFileErrors = Settings.value(QString("%1/%2").arg(MESSAGES,showIncludeFileErrorsKey)).toBool();
+  }
+
   QString const showBuildModErrorsKey("ShowBuildModErrors");
   if ( ! Settings.contains(QString("%1/%2").arg(MESSAGES,showBuildModErrorsKey))) {
           QVariant uValue(true);
@@ -3188,6 +3199,9 @@ void Preferences::setShowMessagePreference(bool b,MsgKey key)
     case BuildModErrors:
         showBuildModErrors = b;
         break;
+    case IncludeFileErrors:
+        showIncludeFileErrors = b;
+        break;
     case AnnotationMessages:
         showAnnotationMessages = b;
         break;
@@ -3213,6 +3227,9 @@ bool Preferences::getShowMessagePreference(MsgKey key)
         break;
     case BuildModErrors:
         showBuildModErrors = result;
+        break;
+    case IncludeFileErrors:
+        showIncludeFileErrors = result;
         break;
     case AnnotationMessages:
         showAnnotationMessages = result;
@@ -4216,6 +4233,12 @@ bool Preferences::getPreferences()
         {
             showBuildModErrors = dialog->showBuildModErrors();
             Settings.setValue(QString("%1/%2").arg(MESSAGES,"ShowBuildModErrors"),showBuildModErrors);
+        }
+
+        if (showIncludeFileErrors != dialog->showIncludeFileErrors())
+        {
+            showIncludeFileErrors = dialog->showIncludeFileErrors();
+            Settings.setValue(QString("%1/%2").arg(MESSAGES,"ShowIncludeFileErrors"),showIncludeFileErrors);
         }
 
         if (showAnnotationMessages != dialog->showAnnotationMessages())

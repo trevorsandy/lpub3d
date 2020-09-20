@@ -170,6 +170,8 @@ enum Rc {
 
          IncludeRc,
 
+         InvalidLineRc,
+
          NoStepRc,
 
          EndOfFileRc,

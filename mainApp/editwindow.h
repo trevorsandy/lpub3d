@@ -90,6 +90,7 @@ private:
     QString       fileName;            // of model file currently being displayed
     int           showLineType;
     int           fileOrderIndex;
+    bool          isIncludeFile;
     bool          _modelFileEdit;
     QString       _curSubFile;         // currently displayed submodel
     int           _saveSubfileIndex;

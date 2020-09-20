@@ -63,6 +63,7 @@ class LDrawSubFile {
     bool         _mirrorRendered;
     bool         _changedSinceLastWrite;
     bool         _generated;
+    bool         _includeFile;
     int          _prevStepPosition;
     int          _startPageNumber;
     int          _unofficialPart;
@@ -76,6 +77,7 @@ class LDrawSubFile {
             QDateTime         &datetime,
             int                unofficialPart,
             bool               generated = false,
+            bool               includeFile = false,
             const QString     &subFilePath = QString());
     ~LDrawSubFile()
     {
@@ -215,6 +217,7 @@ class LDrawFile {
     }
 
     QStringList                 _subFileOrder;
+    QStringList                 _includeFileList;
     QStringList                 _buildModList;
     static QList<HiarchLevel*>  _currentLevels;
     static QList<HiarchLevel*>  _allLevels;
@@ -238,12 +241,14 @@ class LDrawFile {
     bool saveFile(const QString &fileName);
     bool saveMPDFile(const QString &filename);
     bool saveLDRFile(const QString &filename);
+    bool saveIncludeFile(const QString &filename);
 
     void insert(const QString       &fileName,
                       QStringList   &contents,
                       QDateTime     &datetime,
                       bool           unofficialPart,
                       bool           generated = false,
+                      bool           includeFile = false,
                       const QString &subFilePath = QString());
 
     int  size(const QString &fileName);
@@ -269,6 +274,7 @@ class LDrawFile {
     void loadMPDFile(const QString &fileName, QDateTime &datetime);
     void loadLDRFile(const QString &path, const QString &fileName);
     QStringList subFileOrder();
+    QStringList includeFileList();
     
     QString readLine(const QString &fileName, int lineNumber);
     void insertLine( const QString &fileName, int lineNumber, const QString &line);
@@ -291,6 +297,7 @@ class LDrawFile {
     bool isMpd();
     QString topLevelFile();
     int isUnofficialPart(const QString &name);
+    int isIncludeFile(const QString &fileName);
     int numSteps(const QString &fileName);
     QDateTime lastModified(const QString &fileName);
     int fileOrderIndex(const QString &file);

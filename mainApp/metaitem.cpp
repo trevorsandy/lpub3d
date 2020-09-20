@@ -4535,7 +4535,7 @@ QPointF MetaItem::defaultPointerTip(
 
   QFile inFile(monoOutName);
   if ( ! inFile.open(QFile::ReadOnly | QFile::Text)) {
-    emit gui->messageSig(LOG_ERROR,QString("defaultPointerTip cannot read file %1: %2.")
+    emit gui->messageSig(LOG_ERROR,QString("Cannot read defaultPointerTip file %1: %2.")
                          .arg(monoOutName)
                          .arg(inFile.errorString()));
     return centerOffset;

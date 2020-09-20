@@ -381,6 +381,8 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   lineParseErrorsChkBox->setChecked(          Preferences::lineParseErrors);
   showBuildModErrorsChkBox = new QCheckBox(_parent);
   showBuildModErrorsChkBox->setChecked(   Preferences::showBuildModErrors);
+  showIncludeFileErrorsChkBox = new QCheckBox(_parent);
+  showIncludeFileErrorsChkBox->setChecked(   Preferences::showIncludeFileErrors);
   showAnnotationMessagesChkBox = new QCheckBox(_parent);
   showAnnotationMessagesChkBox->setChecked(   Preferences::showAnnotationMessages);
 
@@ -956,6 +958,15 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
     buildModErrorChkBox->setChecked(Preferences::showBuildModErrors);
     buildModErrorSubform->addRow(buildModErrorChkBox);
 
+    // options - include file errors
+    QGroupBox *includeFileErrorGrpBox = new QGroupBox("Include File Errors");
+    form->addWidget(includeFileErrorGrpBox);
+    QFormLayout *includeFileErrorSubform = new QFormLayout(includeFileErrorGrpBox);
+
+    QCheckBox * includeFileErrorChkBox = new QCheckBox("Show errors", dialog);
+    includeFileErrorChkBox->setChecked(Preferences::showIncludeFileErrors);
+    includeFileErrorSubform->addRow(includeFileErrorChkBox);
+
     // options - annotation message
     QGroupBox *annotationMessageGrpBox = new QGroupBox("Annotation Messages");
     form->addWidget(annotationMessageGrpBox);
@@ -976,6 +987,7 @@ void PreferencesDialog::on_optionsButton_clicked(bool checked)
     if (dialog->exec() == QDialog::Accepted) {
         lineParseErrorsChkBox->setChecked(parseErrorChkBox->isChecked());
         showBuildModErrorsChkBox->setChecked(buildModErrorChkBox->isChecked());
+        showIncludeFileErrorsChkBox->setChecked(includeFileErrorChkBox->isChecked());
         showAnnotationMessagesChkBox->setChecked(annotationMessageChkBox->isChecked());
     }
 }
@@ -1320,6 +1332,11 @@ bool PreferencesDialog::lineParseErrors()
 bool PreferencesDialog::showBuildModErrors()
 {
  return showBuildModErrorsChkBox->isChecked();
+}
+
+bool PreferencesDialog::showIncludeFileErrors()
+{
+ return showIncludeFileErrorsChkBox->isChecked();
 }
 
 bool PreferencesDialog::showAnnotationMessages()

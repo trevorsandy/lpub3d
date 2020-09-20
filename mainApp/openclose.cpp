@@ -33,6 +33,16 @@
 
 #include <LDVQt/LDVImageMatte.h>
 
+enum FileOpts {
+    OPT_NONE,
+    OPT_OPEN_WITH,
+    OPT_SAVE,
+    OPT_SAVE_AS,
+    OPT_SAVE_COPY,
+    OPT_USE_CURRENT,
+    OPT_USE_INCLUDE
+};
+
 void Gui::open()
 {  
   if (maybeSave()) {
@@ -265,7 +275,10 @@ void Gui::openWith(const QString &filePath)
 
 void Gui::openWith()
 {
-    openWith(curFile);
+    QString file = curFile;
+    if (whichFile(OPT_OPEN_WITH) == OPT_USE_INCLUDE)
+        file = curSubFile;
+    openWith(file);
 }
 
 void Gui::openRecentFile()
@@ -377,14 +390,88 @@ void Gui::disableWatcher()
 #endif
 }
 
+int Gui::whichFile(int option) {
+    bool includeFile    = ldrawFile.isIncludeFile(curSubFile);
+    bool dirtyUndoStack = ! undoStack->isClean();
+    bool currentFile    = ! curFile.isEmpty();
+    bool showDialog     = false;
+
+    bool includeChecked = option == OPT_SAVE;
+    bool currentChecked = !includeChecked;
+
+    switch (option){
+    case OPT_SAVE:
+        showDialog = currentFile && includeFile && dirtyUndoStack;
+        break;
+    case OPT_SAVE_AS:
+    case OPT_SAVE_COPY:
+    case OPT_OPEN_WITH:
+        showDialog = currentFile && includeFile;
+        break;
+    default:
+        break;
+    }
+
+    if (showDialog && Preferences::modeGUI) {
+
+        QDialog *dialog = new QDialog();
+        dialog->setWindowTitle("File to Save");
+        QFormLayout *form = new QFormLayout(dialog);
+
+        QGroupBox *saveWhichGrpBox = new QGroupBox("Select which file to save");
+        form->addWidget(saveWhichGrpBox);
+        QFormLayout *saveWhichFrmLayout = new QFormLayout(saveWhichGrpBox);
+
+        // current file
+        QRadioButton * currentButton = new QRadioButton("", dialog);
+        currentButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        QFontMetrics currentMetrics(currentButton->font());
+        QString elidedText = currentMetrics.elidedText(QFileInfo(curFile).fileName(),
+                                                       Qt::ElideRight, currentButton->width());
+        currentButton->setText(QString("Current file: %1").arg(elidedText));
+        currentButton->setChecked(currentChecked);
+        saveWhichFrmLayout->addRow(currentButton);
+
+        // include file
+        QRadioButton * includeButton = new QRadioButton("", dialog);
+        includeButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        QFontMetrics includeMetrics(includeButton->font());
+        elidedText = includeMetrics.elidedText(QFileInfo(curSubFile).fileName(),
+                                               Qt::ElideRight, includeButton->width());
+        includeButton->setText(QString("Include file: %1").arg(elidedText));
+        includeButton->setChecked(includeChecked);
+        saveWhichFrmLayout->addRow(includeButton);
+
+        // button box
+        QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                                   Qt::Horizontal, dialog);
+        form->addRow(&buttonBox);
+        QObject::connect(&buttonBox, SIGNAL(accepted()), dialog, SLOT(accept()));
+        QObject::connect(&buttonBox, SIGNAL(rejected()), dialog, SLOT(reject()));
+        dialog->setMinimumWidth(250);
+
+        if (dialog->exec() == QDialog::Accepted) {
+            if (currentButton->isChecked())
+                return OPT_USE_CURRENT;
+            else
+                return OPT_USE_INCLUDE;
+        }
+    }
+    return OPT_NONE;
+}
+
 void Gui::save()
 {
   disableWatcher();
 
-  if (curFile.isEmpty()) {
+  QString file = curFile;
+  if (whichFile(OPT_SAVE) == OPT_USE_INCLUDE)
+      file = curSubFile;
+
+  if (file.isEmpty()) {
     saveAs();
   } else {
-    saveFile(curFile);
+    saveFile(file);
   }
 
  enableWatcher();
@@ -394,7 +481,11 @@ void Gui::saveAs()
 {
   disableWatcher();
 
-  QString fileName = QFileDialog::getSaveFileName(this,tr("Save As"),curFile,tr("LDraw Files (*.mpd *.ldr *.dat);;All Files (*.*)"));
+  QString file = curFile;
+  if (whichFile(OPT_SAVE_AS) == OPT_USE_INCLUDE)
+      file = curSubFile;
+
+  QString fileName = QFileDialog::getSaveFileName(this,tr("Save As"),file,tr("LDraw Files (*.mpd *.ldr *.dat);;All Files (*.*)"));
   if (fileName.isEmpty()) {
     return;
   }
@@ -420,7 +511,11 @@ void Gui::saveAs()
 
 void Gui::saveCopy()
 {
-  QString fileName = QFileDialog::getSaveFileName(this,tr("Save As"),curFile,tr("LDraw Files (*.mpd *.ldr *.dat);;All Files (*.*)"));
+    QString file = curFile;
+    if (whichFile(OPT_SAVE_COPY) == OPT_USE_INCLUDE)
+        file = curSubFile;
+
+  QString fileName = QFileDialog::getSaveFileName(this,tr("Save As"),file,tr("LDraw Files (*.mpd *.ldr *.dat);;All Files (*.*)"));
   if (fileName.isEmpty()) {
     return;
   }
@@ -513,7 +608,7 @@ bool Gui::saveFile(const QString &fileName)
   setCurrentFile(fileName);
   undoStack->setClean();
   if (rc) {
-    statusBar()->showMessage(tr("File saved"), 2000);
+    statusBar()->showMessage(tr("File %1 saved").arg(QFileInfo(fileName).fileName()), 2000);
   }
   return rc;
 }
@@ -751,6 +846,8 @@ void Gui::fileChanged(const QString &path)
     changeAccepted = true;
     int goToPage = displayPageNum;
     QString fileName = path;
+    if (ldrawFile.isIncludeFile(QFileInfo(path).fileName()))
+        fileName = curFile;
     if (!openFile(fileName)) {
         emit messageSig(LOG_STATUS, QString("Load LDraw model file %1 aborted.").arg(fileName));
         return;

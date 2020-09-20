@@ -1262,7 +1262,7 @@ void Gui::displayFile(
     LDrawFile     *ldrawFile,
     const QString &modelName,
     bool editModelFile   /*false*/,
-    bool displayStartPage/*false*/) // doesn't seem like this is used
+    bool displayStartPage/*false*/) // doesn't seem like this is used here; only on direct call to displayPage
 {
     if (! exporting()) {
 #ifdef QT_DEBUG_MODE        
@@ -1289,7 +1289,7 @@ void Gui::displayFile(
             int modelPageNum = ldrawFile->getModelStartPageNumber(modelName);
 
             if (displayStartPage) {
-               if (displayPageNum != modelPageNum && modelPageNum != 0) {
+               if (modelPageNum && displayPageNum != modelPageNum) {
                    displayPageNum  = modelPageNum;
                    displayPage();
                }
@@ -1336,8 +1336,11 @@ void Gui::editModelFile(bool saveBefore)
         return;
     if (saveBefore)
         save();
-    displayFile(&ldrawFile, getCurFile(), true/*modelFile*/);
-    editModeWindow->setWindowTitle(tr("Edit %1").arg(QFileInfo(getCurFile()).fileName()));
+    QString file = getCurFile();
+    if (ldrawFile.isIncludeFile(curSubFile))
+        file = curSubFile;
+    displayFile(&ldrawFile, file, true/*modelFile*/);
+    editModeWindow->setWindowTitle(tr("Detached LDraw Editor - Edit %1").arg(QFileInfo(file).fileName()));
     editModeWindow->show();
 }
 
@@ -1483,21 +1486,37 @@ bool Gui::installExportBanner(const int &type, const QString &printFile, const Q
 void Gui::mpdComboChanged(int index)
 {
   QString newSubFile = mpdCombo->currentText();
+  bool isIncludeFile = false;
+  if (newSubFile.endsWith("Include File")) {
+      newSubFile = mpdCombo->currentData().toString();
+      isIncludeFile = ldrawFile.isIncludeFile(newSubFile);
+  }
   if (curSubFile != newSubFile) {
-      int modelPageNum = ldrawFile.getModelStartPageNumber(newSubFile);
-      messageSig(LOG_INFO, QString( "SELECT Model: %1 @ Page: %2").arg(newSubFile).arg(modelPageNum));
-      countPages();
-      if (displayPageNum != modelPageNum && modelPageNum != 0) {
-          displayPageNum  = modelPageNum;
-          displayPage();
-        } else {
+
+      bool displayFile = isIncludeFile;
+
+      if (!isIncludeFile) {
+          int modelPageNum = ldrawFile.getModelStartPageNumber(newSubFile);
+          messageSig(LOG_INFO, QString( "SELECT Model: %1 @ Page: %2").arg(newSubFile).arg(modelPageNum));
+          countPages();
+          if (modelPageNum && displayPageNum != modelPageNum) {
+              displayPageNum  = modelPageNum;
+              displayPage();
+          } else {
+              displayFile = true;
+          }
+      }
+
+      if (displayFile) {
           Where topOfSteps(newSubFile,0);
           curSubFile = newSubFile;
           displayFileSig(&ldrawFile, curSubFile);
           showLineSig(topOfSteps.lineNumber, LINE_HIGHLIGHT);
-        }
+      }
+
       mpdCombo->setCurrentIndex(index);
-      mpdCombo->setToolTip(tr("Current Submodel: %1").arg(mpdCombo->currentText()));
+      mpdCombo->setToolTip(isIncludeFile ? tr("Include file: %1").arg(newSubFile) :
+                                           tr("Current Submodel: %1").arg(mpdCombo->currentText()));
     }
 }
 
@@ -3128,7 +3147,7 @@ Gui::Gui()
 
     setCentralWidget(KpageView);
 
-    mpdCombo = new QComboBox(this);
+    mpdCombo = new SeparatorComboBox(this);
     mpdCombo->setMinimumContentsLength(25);
     mpdCombo->setInsertPolicy(QComboBox::InsertAtBottom);
     mpdCombo->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
@@ -5589,26 +5608,33 @@ void Gui::showLineMessage(const QString errorMsg, const Where &here, Preferences
         if (subFileSize(here.modelName) < 500)
             showLine(here, LINE_ERROR);
         if (showMessagePreference || override) {
+            QString type,title;
+            switch (msgKey) {
+            case Preferences::MsgKey::IncludeFileErrors:
+                title = "Include File Meta";
+                type = "include file parse errors";
+                break;
+            case Preferences::MsgKey::BuildModErrors:
+                title = "Build Modification Meta";
+                type = "build modification parse errors";
+                break;
+            case Preferences::MsgKey::AnnotationMessages:
+                title = "Annotation Meta";
+                type = "annotation parse messages";
+                break;
+            default: /*Preferences::MsgKey::ParseErrors*/
+                title = "Command Meta";
+                type = "meta parse errors";
+                break;
+            }
             QMessageBoxResizable box;
-            box.setWindowTitle(tr(VER_PRODUCTNAME_STR " Parse Message"));
+            box.setWindowTitle(tr("%1 %2 Parse").arg(VER_PRODUCTNAME_STR).arg(title));
             box.setText(parseMessage);
             box.setIcon(QMessageBox::Icon::Warning);
             box.addButton(QMessageBox::Ok);
             box.setDefaultButton(QMessageBox::Ok);
-
+            // override 'Do not show ... again' message
             if (!override) {
-                QString type;
-                switch (msgKey) {
-                case Preferences::MsgKey::BuildModErrors:
-                    type = "build modification parse errors";
-                    break;
-                case Preferences::MsgKey::AnnotationMessages:
-                    type = "annotation parse messages";
-                    break;
-                default: /*Preferences::MsgKey::ParseErrors*/
-                    type = "meta parse errors";
-                    break;
-                }
                 QCheckBox *cb = new QCheckBox(QString("Do not show %1 again.").arg(type));
                 box.setCheckBox(cb);
                 QObject::connect(cb, &QCheckBox::stateChanged, [&msgKey](int state){
