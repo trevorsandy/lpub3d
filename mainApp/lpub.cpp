@@ -1265,7 +1265,7 @@ void Gui::displayFile(
 {
     if (! exporting()) {
 #ifdef QT_DEBUG_MODE        
-        QTime t;
+        QElapsedTimer t;
         t.start();
         emit messageSig(LOG_DEBUG,tr("Editor loading..."));
 #endif        

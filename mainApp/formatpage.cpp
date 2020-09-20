@@ -296,6 +296,9 @@ int Gui::addGraphicsPageItems(
     bool            printing)
 {
 
+  QElapsedTimer  t; t.start();
+  emit messageSig(LOG_DEBUG, QString("Draw page graphics..."));
+
   Page                    *page  = dynamic_cast<Page *>(steps);
 
   Placement                plPage;
@@ -1022,6 +1025,7 @@ int Gui::addGraphicsPageItems(
           } // 1.1 for each list-item (Range) within a Page...=>list[AbstractStepsElement]->RangeType
       } // 1.0 Page
 
+      // this is no longer necessary; page->placement is set in draw_page::StepGroupEndRc
       PlacementData data = page->meta.LPub.multiStep.placement.value();
       page->placement.setValue(data);
 
@@ -1181,6 +1185,9 @@ int Gui::addGraphicsPageItems(
 
   page->relativeType = SingleStepType;
   statusBarMsg("");
+
+  emit messageSig(LOG_DEBUG,QString("Draw page graphics - %1")
+                                    .arg(elapsedTime(t.elapsed())));
   return 0;
 }
 

@@ -817,7 +817,7 @@ int LDrawFile::loadFile(const QString &fileName)
     QByteArray qba(file.readAll());
     file.close();
 
-    QTime t; t.start();
+    QElapsedTimer t; t.start();
 
     // check file encoding
     QTextCodec::ConverterState state;

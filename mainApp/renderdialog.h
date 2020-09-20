@@ -18,7 +18,7 @@
 #include <QDialog>
 #include <QFile>
 #include <QTimer>
-#include <QTime>
+#include <QElapsedTimer>
 
 #include <QProcess>
 
@@ -82,7 +82,7 @@ protected:
 #endif
     void* mOutputBuffer;
     QTimer mUpdateTimer;
-    QTime mRenderTime;
+    QElapsedTimer mRenderTime;
     QFile mOutputFile;
     QImage mImage;
     QString mViewerStepKey;

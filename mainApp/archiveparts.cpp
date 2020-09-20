@@ -110,7 +110,7 @@ bool ArchiveParts::Archive(const QString &zipArchive,
           return false;
       }
 
-      QTime t; t.start();
+      QElapsedTimer t; t.start();
 
       // Populate the list of existing zip files
       QStringList zipFileList;
