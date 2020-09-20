@@ -33,49 +33,52 @@ PliSubstituteParts::PliSubstituteParts()
     if (substituteParts.size() == 0) {
         bool rxFound = false;
         QString substitutePartsFile = Preferences::pliSubstitutePartsFile;
-        QFile file(substitutePartsFile);
-        if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
-           logError() << QMessageBox::tr("Failed to open PLI substitute parts file: %1:\n%2")
-                                       .arg(substitutePartsFile)
-                                       .arg(file.errorString());
-            return;
-        }
-        QTextStream in(&file);
-
-        // Load RegExp from file;
-        QRegExp rx("^(\\b.+\\b)\\s+\"(.*)\"\\s+(.*)$");
-        QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
-        while ( ! in.atEnd()) {
-            QString sLine = in.readLine(0);
-            if ((rxFound = sLine.contains(rxin))) {
-                rx.setPattern(rxin.cap(1));
-                //logDebug() << "SubstituteParts RegExp Pattern: " << rxin.cap(1);
-                break;
+        if (!substitutePartsFile.isEmpty()) {
+            QFile file(substitutePartsFile);
+            if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
+                logError() << QMessageBox::tr("Failed to open PLI substitute parts file: %1: %2")
+                              .arg(substitutePartsFile)
+                              .arg(file.errorString());
+                return;
             }
-        }
+            QTextStream in(&file);
 
-        if (rxFound) {
-            in.seek(0);
-            // Load input values
+            // Load RegExp from file;
+            QRegExp rx("^(\\b.+\\b)\\s+\"(.*)\"\\s+(.*)$");
+            QRegExp rxin("^#\\sThe\\sRegular\\sExpression\\sused\\sis\\:[\\s](\\^.*)$");
             while ( ! in.atEnd()) {
                 QString sLine = in.readLine(0);
-                if (sLine.contains(rx)) {
-                    QString modeledPartID = rx.cap(1);
-                    QString substitutePartID = rx.cap(2);
-                    substituteParts.insert(modeledPartID.toLower().trimmed(),substitutePartID.toLower().trimmed());
-                    //logDebug() << "** ModeledPartID Loaded: " << modeledPartID.toLower() << " SubstitutePartID: " << substitutePartID.toLower(); //TEST
+                if ((rxFound = sLine.contains(rxin))) {
+                    rx.setPattern(rxin.cap(1));
+                    //logDebug() << "SubstituteParts RegExp Pattern: " << rxin.cap(1);
+                    break;
                 }
             }
-        } else {
-            QString message = QString("Regular expression pattern was not found in %1.<br>"
-                              "Be sure the following lines exist in the file header:<br>"
-                              "# File: %1<br>"
-                              "# The Regular Expression used is: ^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$")
-                              .arg(QFileInfo(substitutePartsFile).fileName());
-            if (Preferences::modeGUI){
-                QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Substitute Parts"),message);
+
+            if (rxFound) {
+                in.seek(0);
+
+                // Load input values
+                while ( ! in.atEnd()) {
+                    QString sLine = in.readLine(0);
+                    if (sLine.contains(rx)) {
+                        QString modeledPartID = rx.cap(1);
+                        QString substitutePartID = rx.cap(2);
+                        substituteParts.insert(modeledPartID.toLower().trimmed(),substitutePartID.toLower().trimmed());
+                        //logDebug() << "** ModeledPartID Loaded: " << modeledPartID.toLower() << " SubstitutePartID: " << substitutePartID.toLower(); //TEST
+                    }
+                }
             } else {
-                logError() << message.replace("<br>"," ");
+                QString message = QString("Regular expression pattern was not found in %1.<br>"
+                                          "Be sure the following lines exist in the file header:<br>"
+                                          "# File: %1<br>"
+                                          "# The Regular Expression used is: ^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$")
+                        .arg(QFileInfo(substitutePartsFile).fileName());
+                if (Preferences::modeGUI){
+                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Substitute Parts"),message);
+                } else {
+                    logError() << message.replace("<br>"," ");
+                }
             }
         }
     }
@@ -175,13 +178,13 @@ bool PliSubstituteParts::exportSubstitutePartsHeader(){
     }
     else
     {
-        QString message = QString("Failed to open PLI substitute parts file: %1:\n%2")
+        QString message = QString("Failed to open PLI substitute parts file: %1:<br>%2")
                                   .arg(file.fileName())
                                   .arg(file.errorString());
         if (Preferences::modeGUI){
             QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR " - Substitute Parts"),message);
         } else {
-            logError() << message;
+            logError() << message.replace("<br>"," ");
         }
        return false;
     }
