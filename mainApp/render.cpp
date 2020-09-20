@@ -437,6 +437,9 @@ bool Render::compareImageAttributes(
     QString message;
     QStringList attributesList = attributes;
     if (attributesList.size() >= nBaseAttributes) {
+        if (!compareKey.endsWith("SUB") &&
+             attributes.endsWith("SUB"))
+           attributesList.removeLast();
         if (pare) {
             attributesList.removeAt(nResType);
             attributesList.removeAt(nResolution);
@@ -447,14 +450,14 @@ bool Render::compareImageAttributes(
         const QString attributesCompare = attributesList.join("_");
         result = compareKey != attributesCompare;
         if (Preferences::debugLogging) {
-            message             = QString("File attributes compare [%1], attributesCompare [%2], compareKey [%3]")
-                                          .arg(result ? "No Match - usingSnapshotArgs" : "Match" )
-                                          .arg(attributesCompare).arg(compareKey);
+            message = QString("File attributes compare [%1], attributesCompare [%2], compareKey [%3]")
+                              .arg(result ? "No Match - usingSnapshotArgs" : "Match" )
+                              .arg(attributesCompare).arg(compareKey);
             gui->messageSig(LOG_DEBUG, message);
         }
     } else {
         result = false;
-        message           = QString("Malforded image file attributes list [%1]")
+        message           = QString("Malformed image file attributes list [%1]")
                                     .arg(attributesList.join("_"));
         gui->messageSig(LOG_NOTICE, message);
     }
@@ -2233,6 +2236,7 @@ int LDView::renderPli(
   /* Create the PLI DAT file(s) */
 
   QString f;
+  bool hasSubstitutePart   = false;
   bool usingDefaultArgs    = true;
   bool snapshotArgsChanged = false;
   if (useLDViewSCall() && pliType != SUBMODEL) {  // Use LDView SingleCall
@@ -2249,6 +2253,9 @@ int LDView::renderPli(
 
           // get attribues from ldrName key
           attributes = getImageAttributes(ldrName);
+
+          // determine if is substitute part
+          hasSubstitutePart = keySub && attributes.endsWith("SUB");
 
           // attributes are different from default
           usingSnapshotArgs = compareImageAttributes(attributes, compareKey, usingDefaultArgs);
@@ -2267,15 +2274,15 @@ int LDView::renderPli(
           }
 
           // if substitute, trigger command list
-          if (keySub && attributes.endsWith("SUB")) {
+          if (hasSubstitutePart) {
 
              usingDefaultArgs = false;
              QString pngName = QString(ldrName).replace("_SUB.ldr",".png");
+
+             // use command list as pngName and ldrName must be specified
              subSnapShotsListArgs.append(QString("%1 %2 -SaveSnapShot=%3 %4").arg(CA).arg(cg).arg(pngName).arg(ldrName));
 
           } else {
-
-             snapshotLdrs.append(ldrName);
 
              // if using different snapshot args, trigger command list
              if (!usingDefaultArgs) {
@@ -2284,10 +2291,12 @@ int LDView::renderPli(
                  snapShotsListArgs.append(QString("%1 %2 %3").arg(CA).arg(cg).arg(saveArgs));
              }
           }
+
+          snapshotLdrs.append(ldrName);
       }
 
       // using same snapshot args for all parts
-      usingSnapshotArgs = !usingDefaultArgs && !snapshotArgsChanged;
+      usingSnapshotArgs = !usingDefaultArgs && !snapshotArgsChanged && !hasSubstitutePart;
 
       if (snapshotLdrs.size()) {
           // using default args or same snapshot args for all parts
@@ -2330,21 +2339,20 @@ int LDView::renderPli(
               }
 
               QTextStream out(&CommandLinesListFile);
-              // add normal snapshot lines
               if (snapshotLdrs.size()) {
+                  // add normal snapshot lines
                   foreach (QString argsLine,snapShotsListArgs) {
                       out << argsLine << endl;
                       if (Preferences::debugLogging)
                           emit gui->messageSig(LOG_DEBUG, QString("Wrote %1 to PLI Command line list").arg(argsLine));
                   }
+                  // add substitute snapshot lines
+                  foreach (QString argsLine,subSnapShotsListArgs) {
+                      out << argsLine << endl;
+                      if (Preferences::debugLogging)
+                          emit gui->messageSig(LOG_DEBUG, QString("Wrote %1 to PLI Substitute Command line list").arg(argsLine));
+                  }
               }
-              // add substitute snapshot lines
-              foreach (QString argsLine,subSnapShotsListArgs) {
-                  out << argsLine << endl;
-                  if (Preferences::debugLogging)
-                      emit gui->messageSig(LOG_DEBUG, QString("Wrote %1 to PLI Substitute Command line list").arg(argsLine));
-              }
-
               CommandLinesListFile.close();
 
               f  = QString("-CommandLinesList=%1").arg(CommandLinesList);    // run in renderCsi
@@ -2356,6 +2364,7 @@ int LDView::renderPli(
       if (keySub) {
           // process substitute attributes
           attributes = getImageAttributes(pngName);
+          hasSubstitutePart = attributes.endsWith("SUB");
           processAttributes(attributes, target, noCA, cd, CA, cg, modelScale, cameraFoV, cameraAngleX, cameraAngleY);
       } else {
           getRendererSettings(CA,cg);
@@ -2408,7 +2417,9 @@ int LDView::renderPli(
 
   if (useLDViewSCall() && pliType != SUBMODEL) {
       //-SaveSnapShots=1
-      if (!keySub && ((!useLDViewSList() && !usingListCmdArg) || (useLDViewSList() && snapshotLdrs.size() < SNAPSHOTS_LIST_THRESHOLD)))
+      if (!hasSubstitutePart &&
+           ((!useLDViewSList() && !usingListCmdArg) ||
+            (useLDViewSList() && snapshotLdrs.size() < SNAPSHOTS_LIST_THRESHOLD)))
           arguments = arguments + snapshotLdrs;  // 13. LDR input file(s)
   } else {
       //-SaveSnapShot=%1
