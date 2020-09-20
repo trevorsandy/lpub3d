@@ -1203,14 +1203,10 @@ void lcModel::Paste()
 	lcArray<lcObject*> SelectedObjects;
 	SelectedObjects.AllocGrow(PastedPieces.GetSize());
 
-	for (int PieceIdx = 0; PieceIdx < PastedPieces.GetSize(); PieceIdx++)
+	for (lcPiece* Piece : PastedPieces)
 	{
-		lcPiece* Piece = PastedPieces[PieceIdx];
-		lcStep Step = Piece->GetStepShow();
-
 		Piece->SetFileLine(-1);
-		if (Step > mCurrentStep)
-			Piece->SetStepShow(mCurrentStep);
+		Piece->SetStepShow(mCurrentStep);
 
 		SelectedObjects.Add(Piece);
 	}
@@ -1802,6 +1798,13 @@ bool lcModel::SubModelBoxTest(const lcVector4 Planes[6]) const
 			return true;
 
 	return false;
+}
+
+void lcModel::SubModelCompareBoundingBox(const lcMatrix44& WorldMatrix, lcVector3& Min, lcVector3& Max) const
+{
+	for (lcPiece* Piece : mPieces)
+		if (Piece->IsVisibleInSubModel())
+			Piece->SubmodelCompareBoundingBox(WorldMatrix, Min, Max);
 }
 
 void lcModel::SaveCheckpoint(const QString& Description)

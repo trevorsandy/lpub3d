@@ -310,6 +310,7 @@ public:
 	void SetShadingMode(lcShadingMode ShadingMode);
 	void SetSelectionMode(lcSelectionMode SelectionMode);
 	void ToggleViewSphere();
+	void ToggleFadePreviousSteps();
 
 /***    void NewProject();                     // LPub3D Mod - moved to public slots ***/
 	bool OpenProject(const QString& FileName);
