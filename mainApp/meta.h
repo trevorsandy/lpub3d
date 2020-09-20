@@ -3614,6 +3614,7 @@ extern const QString bPlacementEncNames[];
 extern const QString placementNames[];
 extern const QString prepositionNames[];
 extern const QString placementOptions[][3];
+extern int placementDecode[][3];
 extern QHash<QString, int> tokenMap;
 
 #endif

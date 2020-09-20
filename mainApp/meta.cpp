@@ -315,7 +315,7 @@ Rc FloatMeta::parse(QStringList &argv, int index,Where &here)
 QString FloatMeta::format(bool local, bool global)
 {
   QString foo;
-  foo = QString("%1") .arg(value(),_fieldWidth,'f',_precision);
+  foo = QString("%1") .arg(double(value()),_fieldWidth,'f',_precision);
   return LeafMeta::format(local,global,foo);
 }
 void FloatMeta::doc(QStringList &out, QString preamble)
@@ -328,7 +328,7 @@ void FloatMeta::doc(QStringList &out, QString preamble)
 QString UnitMeta::format(bool local, bool global)
 {
   QString foo;
-  foo = QString("%1") .arg(valueInches(),_fieldWidth,'f',_precision);
+  foo = QString("%1") .arg(double(valueInches()),_fieldWidth,'f',_precision);
   return LeafMeta::format(local,global,foo);
 }
 
@@ -365,8 +365,8 @@ QString UnitsMeta::format(bool local, bool global)
 {
   QString foo;
   foo = QString("%1 %2")
-      .arg(valueInches(0),_fieldWidth,'f',_precision)
-      .arg(valueInches(1),_fieldWidth,'f',_precision);
+      .arg(double(valueInches(0)),_fieldWidth,'f',_precision)
+      .arg(double(valueInches(1)),_fieldWidth,'f',_precision);
   return LeafMeta::format(local,global,foo);
 }
 
@@ -407,8 +407,8 @@ Rc FloatPairMeta::parse(QStringList &argv, int index,Where &here)
 QString FloatPairMeta::format(bool local, bool global)
 {
   QString foo = QString("%1 %2")
-      .arg(_value[pushed][0],_fieldWidth,'f',_precision)
-      .arg(_value[pushed][1],_fieldWidth,'f',_precision);
+      .arg(double(_value[pushed][0]),_fieldWidth,'f',_precision)
+      .arg(double(_value[pushed][1]),_fieldWidth,'f',_precision);
   return LeafMeta::format(local,global,foo);
 }
 void FloatPairMeta::doc(QStringList &out, QString preamble)
@@ -655,8 +655,8 @@ PlacementMeta::PlacementMeta() : LeafMeta()
   _value[0].relativeTo    = PageType;
   _value[0].preposition   = PrepositionEnc(placementDecode[TopLeftInsideCorner][2]);
   _value[0].rectPlacement = TopLeftInsideCorner;
-  _value[0].offsets[0] = 0;
-  _value[0].offsets[1] = 0;
+  _value[0].offsets[0]    = 0.0f;
+  _value[0].offsets[1]    = 0.0f;
 }
 
 void PlacementMeta::setValue(
@@ -904,10 +904,10 @@ QString PlacementMeta::format(bool local, bool global)
               + prepositionNames[_value[pushed].preposition];
         }
     }
-  if (_value[pushed].offsets[0] || _value[pushed].offsets[1]) {
+  if (_value[pushed].offsets[0] != 0.0f || _value[pushed].offsets[1] != 0.0f) {
       QString bar = QString(" OFFSET %1 %2")
-          .arg(_value[pushed].offsets[0])
-          .arg(_value[pushed].offsets[1]);
+          .arg(double(_value[pushed].offsets[0]),0,'f',4)
+          .arg(double(_value[pushed].offsets[1]),0,'f',4);
       foo += bar;
     }
   return LeafMeta::format(local,global,foo);
@@ -973,8 +973,8 @@ Rc BackgroundMeta::parse(QStringList &argv, int index,Where &here)
           QVector<QPointF> gpoints;
           Q_FOREACH(const QString &gpoint, _gpoints){
               bool ok[2];
-              int x = gpoint.section(',',0,0).toFloat(&ok[0]);
-              int y = gpoint.section(',',1,1).toFloat(&ok[1]);
+              int x = gpoint.section(',',0,0).toInt(&ok[0]);
+              int y = gpoint.section(',',1,1).toInt(&ok[1]);
               if (ok[0] && ok[1])
                   gpoints << QPointF(x, y);
               else if (pass)
@@ -985,7 +985,7 @@ Rc BackgroundMeta::parse(QStringList &argv, int index,Where &here)
           QVector<QPair<qreal,QColor> > gstops;
           Q_FOREACH(const QString &_gstop, _gstops){
               bool ok[2];
-              qreal point  = _gstop.section(',',0,0).toFloat(&ok[0]);
+              qreal point  = _gstop.section(',',0,0).toDouble(&ok[0]);
               unsigned int rgba = _gstop.section(',',1,1).toUInt(&ok[1],16);
               if (ok[0] && ok[1])
                   gstops.append(qMakePair(point, QColor::fromRgba(rgba)));
@@ -1276,19 +1276,19 @@ QString BorderMeta::format(bool local, bool global)
           .arg(border)
           .arg(_value[pushed].line)
           .arg(_value[pushed].color)
-          .arg(_value[pushed].thickness);
+          .arg(double(_value[pushed].thickness),0,'f',3);
       break;
     case BorderData::BdrRound:
       foo = QString("ROUND %1 %2 %3 %4")
           .arg(_value[pushed].line)
           .arg(_value[pushed].color)
-          .arg(_value[pushed].thickness)
-          .arg(_value[pushed].radius);
+          .arg(double(_value[pushed].thickness),0,'f',3)
+          .arg(double(_value[pushed].radius),0,'f',3);
       break;
     }
     QString bar = QString(" MARGINS %1 %2")
-                .arg(_value[pushed].margin[0])
-                .arg(_value[pushed].margin[1]);
+                .arg(double(_value[pushed].margin[0]),0,'f',3)
+                .arg(double(_value[pushed].margin[1]),0,'f',3);
     foo += bar;
   return LeafMeta::format(local,global,foo);
 }
@@ -1307,11 +1307,11 @@ QString BorderMeta::text()
       result = "No Border";
       break;
     case BorderData::BdrSquare:
-      thickness = QString("%1") .arg(border.thickness,4,'f',3);
+      thickness = QString("%1") .arg(double(border.thickness),4,'f',3);
       result = "Square Corners, thickness " + thickness + " " + units2abbrev();
       break;
     default:
-      thickness = QString("%1") .arg(border.thickness,4,'f',3);
+      thickness = QString("%1") .arg(double(border.thickness),4,'f',3);
       result = "Round Corners, thickness " + thickness + " " + units2abbrev();
       break;
     }
@@ -1347,8 +1347,7 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
     int id = 0;
     bool isLine  = argv[index] == "LINE";
     Rc rc = FailureRc;
-    if (!isLine &&
-            !(argv[index] == "BORDER"))
+    if (!isLine && !(argv[index] == "BORDER"))
         isValid = false;
 
     if (isValid && argv.size() - index >= (isLine ? 6 : 5)) {
@@ -1379,10 +1378,12 @@ Rc PointerAttribMeta::parse(QStringList &argv, int index,Where &here)
                 if (argv[index-1] == "POINTER_ATTRIBUTE")
                     rc = PagePointerAttribRc;
             }
+            _here[pushed] = here;
         }
         if (id == 0)
         {
           emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected ID greater than 0, got \"%1\" in \"%2\"") .arg(id) .arg(argv.join(" ")));
+          rc = FailureRc;
         }
     }
     return rc;
@@ -1397,16 +1398,14 @@ QString PointerAttribMeta::format(bool local, bool global)
         foo = QString("LINE %1 %2 %3 %4")
             .arg(_value[pushed].lineData.line)
             .arg(_value[pushed].lineData.color)
-            .arg(_value[pushed].lineData.thickness)
+            .arg(double(_value[pushed].lineData.thickness),0,'f',3)
             .arg(_value[pushed].lineData.hideArrows);
         break;
     case PointerAttribData::Border:
         foo = QString("BORDER %1 %2 %3")
             .arg(_value[pushed].borderData.line)
             .arg(_value[pushed].borderData.color)
-            .arg(_value[pushed].borderData.thickness);
-        break;
-    default:
+            .arg(double(_value[pushed].borderData.thickness),0,'f',3);
         break;
     }
     bar = QString(" %1 %2")
@@ -1616,7 +1615,7 @@ Rc PointerMeta::parse(QStringList &argv, int index, Where &here)
       _value[pushed].y4         = _y4;  //MidTip.y
       if (_base > 0) {
           _value[pushed].base = _base;
-        } else if (_value[pushed].base == 0.0) {
+        } else if (_value[pushed].base == 0.0f) {
           _value[pushed].base = 1.0/8;
         }
       _value[pushed].segments   = _segments;
@@ -1698,15 +1697,15 @@ QString PointerMeta::format(bool local, bool global)
     case BottomLeft:
       foo = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10 %11")
           .arg(placementNames[_value[pushed].placement])
-          .arg(_value[pushed].x1,0,'f',3)
-          .arg(_value[pushed].y1,0,'f',3)
-          .arg(_value[pushed].x2,0,'f',3)
-          .arg(_value[pushed].y2,0,'f',3)
-          .arg(_value[pushed].x3,0,'f',3)
-          .arg(_value[pushed].y3,0,'f',3)
-          .arg(_value[pushed].x4,0,'f',3)
-          .arg(_value[pushed].y4,0,'f',3)
-          .arg(_value[pushed].base,0,'f',3)
+          .arg(double(_value[pushed].x1),0,'f',3)
+          .arg(double(_value[pushed].y1),0,'f',3)
+          .arg(double(_value[pushed].x2),0,'f',3)
+          .arg(double(_value[pushed].y2),0,'f',3)
+          .arg(double(_value[pushed].x3),0,'f',3)
+          .arg(double(_value[pushed].y3),0,'f',3)
+          .arg(double(_value[pushed].x4),0,'f',3)
+          .arg(double(_value[pushed].y4),0,'f',3)
+          .arg(double(_value[pushed].base),0,'f',3)
           .arg(QString("%1%2")
                        .arg(                                     _value[pushed].segments)
                        .arg(pagePointer ?
@@ -1716,16 +1715,16 @@ QString PointerMeta::format(bool local, bool global)
     default:
       foo = QString("%1 %2 %3 %4 %5 %6 %7 %8 %9 %10 %11 %12")
           .arg(placementNames[_value[pushed].placement])
-          .arg(_value[pushed].loc,0,'f',3)
-          .arg(_value[pushed].x1,0,'f',3)
-          .arg(_value[pushed].y1,0,'f',3)
-          .arg(_value[pushed].x2,0,'f',3)
-          .arg(_value[pushed].y2,0,'f',3)
-          .arg(_value[pushed].x3,0,'f',3)
-          .arg(_value[pushed].y3,0,'f',3)
-          .arg(_value[pushed].x4,0,'f',3)
-          .arg(_value[pushed].y4,0,'f',3)
-          .arg(_value[pushed].base,0,'f',3)
+          .arg(double(_value[pushed].loc),0,'f',3)
+          .arg(double(_value[pushed].x1),0,'f',3)
+          .arg(double(_value[pushed].y1),0,'f',3)
+          .arg(double(_value[pushed].x2),0,'f',3)
+          .arg(double(_value[pushed].y2),0,'f',3)
+          .arg(double(_value[pushed].x3),0,'f',3)
+          .arg(double(_value[pushed].y3),0,'f',3)
+          .arg(double(_value[pushed].x4),0,'f',3)
+          .arg(double(_value[pushed].y4),0,'f',3)
+          .arg(double(_value[pushed].base),0,'f',3)
           .arg(QString("%1%2")
                        .arg(                                     _value[pushed].segments)
                        .arg(pagePointer ?
@@ -1879,10 +1878,10 @@ QString CsiAnnotationIconMeta::format(bool local, bool global)
                  .arg(prepositionNames[PrepositionEnc(_value[pushed].placements.at(2).toInt())]);
       }
       bar = QString("%1 %2 %3 %4 %5 %6 %7 %8")
-                     .arg(_value[pushed].iconOffset[0],0,'f',0)
-                     .arg(_value[pushed].iconOffset[1],0,'f',0)
-                     .arg(_value[pushed].partOffset[0],0,'f',5)
-                     .arg(_value[pushed].partOffset[1],0,'f',5)
+                     .arg(double(_value[pushed].iconOffset[0]),0,'f',0)
+                     .arg(double(_value[pushed].iconOffset[1]),0,'f',0)
+                     .arg(double(_value[pushed].partOffset[0]),0,'f',4)
+                     .arg(double(_value[pushed].partOffset[1]),0,'f',4)
                      .arg(_value[pushed].partSize[0])
                      .arg(_value[pushed].partSize[1])
                      .arg(_value[pushed].typeColor)
@@ -1998,13 +1997,13 @@ QString ConstrainMeta::format(bool local, bool global)
       foo = "SQUARE";
       break;
     case ConstrainData::PliConstrainWidth:
-      foo = QString("WIDTH %1") .arg(_value[pushed].constraint);
+      foo = QString("WIDTH %1") .arg(double(_value[pushed].constraint),0,'f',4);
       break;
     case ConstrainData::PliConstrainHeight:
-      foo = QString("HEIGHT %1") .arg(_value[pushed].constraint);
+      foo = QString("HEIGHT %1") .arg(double(_value[pushed].constraint),0,'f',4);
       break;
     default:
-      foo = QString("COLS %1") .arg(_value[pushed].constraint);
+      foo = QString("COLS %1") .arg(double(_value[pushed].constraint),0,'f',4);
       break;
     }
   return LeafMeta::format(local,global,foo);
@@ -2130,7 +2129,7 @@ QString JustifyStepMeta::format(bool local, bool global)
     }
   if (_value[pushed].spacing > STEP_SPACING_DEFAULT ||
       _value[pushed].spacing < STEP_SPACING_DEFAULT){
-    foo += QString(" SPACING %1").arg(QString::number(double(_value[pushed].spacing),'f',2));
+    foo += QString(" SPACING %1").arg(double(_value[pushed].spacing),4,'f',2);
   }
   return LeafMeta::format(local,global,foo);
 }
@@ -2316,7 +2315,7 @@ Rc PageSizeMeta::parse(QStringList &argv, int index,Where &here)
             }
         }
 
-      if (v0 == 0.0 || v1 == 0.0 ) {
+      if (v0 == 0.0f || v1 == 0.0f ) {
           return FailureRc;
         }
 
@@ -2341,8 +2340,8 @@ Rc PageSizeMeta::parse(QStringList &argv, int index,Where &here)
 QString PageSizeMeta::format(bool local, bool global)
 {
   QString foo = QString("%1 %2 %3")
-      .arg(_value[pushed].pagesize[pushed][0],_fieldWidth,'f',_precision)
-      .arg(_value[pushed].pagesize[pushed][1],_fieldWidth,'f',_precision)
+      .arg(double(_value[pushed].pagesize[pushed][0]),_fieldWidth,'f',_precision)
+      .arg(double(_value[pushed].pagesize[pushed][1]),_fieldWidth,'f',_precision)
       .arg(_value[pushed].sizeid);
   return LeafMeta::format(local,global,foo);
 }
@@ -2671,18 +2670,18 @@ Rc InsertMeta::parse(QStringList &argv, int index, Where &here)
     } else if (argv.size() - index >= 8 && argv[index] == "ARROW") {
       insertData.type = InsertData::InsertArrow;
       bool good, ok;
-      insertData.arrowHead.setX(argv[++index].toFloat(&good));
-      insertData.arrowHead.setY(argv[++index].toFloat(&ok));
+      insertData.arrowHead.setX(argv[++index] .toDouble(&good));
+      insertData.arrowHead.setY(argv[++index] .toDouble(&ok));
       good &= ok;
-      insertData.arrowTail.setX(argv[++index].toFloat(&ok));
+      insertData.arrowTail.setX(argv[++index] .toDouble(&ok));
       good &= ok;
-      insertData.arrowTail.setY(argv[++index].toFloat(&ok));
+      insertData.arrowTail.setY(argv[++index] .toDouble(&ok));
       good &= ok;
-      insertData.haftingDepth = argv[++index].toFloat(&ok);
+      insertData.haftingDepth = argv[++index] .toDouble(&ok);
       good &= ok;
-      insertData.haftingTip.setX(argv[++index].toFloat(&ok));
+      insertData.haftingTip.setX(argv[++index].toDouble(&ok));
       good &= ok;
-      insertData.haftingTip.setY(argv[++index].toFloat(&ok));
+      insertData.haftingTip.setY(argv[++index].toDouble(&ok));
       good &= ok;
       if ( ! good) {
           rc = FailureRc;
@@ -2761,10 +2760,10 @@ QString InsertMeta::format(bool local, bool global)
       break;
     }
 
-  if (_value.offsets[0] || _value.offsets[1]) {
+  if (_value.offsets[0] != 0.0f || _value.offsets[1] != 0.0f) {
       foo += QString(" OFFSET %1 %2")
-          .arg(_value.offsets[0])
-          .arg(_value.offsets[1]);
+          .arg(double(_value.offsets[0]),0,'f',4)
+          .arg(double(_value.offsets[1]),0,'f',4);
     }
 
   return LeafMeta::format(local,global,foo);
@@ -2835,12 +2834,12 @@ Rc ArrowHeadMeta::parse(QStringList &argv, int index, Where &here)
       qreal head[4];
       bool  good, ok;
 
-      head[0] = argv[index  ].toFloat(&good);
-      head[1] = argv[index+1].toFloat(&ok);
+      head[0] = argv[index  ].toDouble(&good);
+      head[1] = argv[index+1].toDouble(&ok);
       good &= ok;
-      head[2] = argv[index+2].toFloat(&ok);
+      head[2] = argv[index+2].toDouble(&ok);
       good &= ok;
-      head[3] = argv[index+3].toFloat(&ok);
+      head[3] = argv[index+3].toDouble(&ok);
       good &= ok;
 
       if ( ! good) {
@@ -3062,8 +3061,8 @@ PageAttributeTextMeta::PageAttributeTextMeta() : BranchMeta()
   placement.value().justification = Center;
   placement.value().preposition   = Inside;
   placement.value().relativeTo    = PageType;
-  placement.value().offsets[0]    = 0.0;
-  placement.value().offsets[1]    = 0.0;
+  placement.value().offsets[0]    = 0.0f;
+  placement.value().offsets[1]    = 0.0f;
 }
 
 void PageAttributeTextMeta::init(
@@ -3566,9 +3565,9 @@ Rc RotStepMeta::parse(QStringList &argv, int index,Where &here)
       ok[0] &= ok[1] & ok[2];
       QRegExp rx("^(ABS|REL|ADD)$");
       if (ok[0] && argv[index+3].contains(rx)) {
-          _value.rots[0] = argv[index+0].toFloat(&ok[0]);
-          _value.rots[1] = argv[index+1].toFloat(&ok[1]);
-          _value.rots[2] = argv[index+2].toFloat(&ok[2]);
+          _value.rots[0] = argv[index+0].toDouble();
+          _value.rots[1] = argv[index+1].toDouble();
+          _value.rots[2] = argv[index+2].toDouble();
           _value.type = argv[index+3];
           _here[0] = here;
           _here[1] = here;
@@ -3740,10 +3739,10 @@ QString PliPartGroupMeta::format(bool local, bool global)
   QString foo;
   foo += " ITEM \"" + _value.type + "\" \"" + _value.color + "\"";
 
-  if (_value.offset[0] || _value.offset[1]) {
+  if (_value.offset[0] != 0.0 || _value.offset[1] != 0.0) {
     foo += QString(" OFFSET %1 %2")
-                   .arg(_value.offset[0])
-                   .arg(_value.offset[1]);
+                   .arg(double(_value.offset[0]),0,'f',4)
+                   .arg(double(_value.offset[1]),0,'f',4);
   }
 
   return LeafMeta::format(local,global,foo);
@@ -3932,9 +3931,9 @@ SubModelMeta::SubModelMeta() : PliMeta()
   studLogo.setRange(0,5);
   studLogo.setValue(0);
   RotStepData rotStepData;
-  rotStepData.rots[0] = 0.0f;
-  rotStepData.rots[1] = 0.0f;
-  rotStepData.rots[2] = 0.0f;
+  rotStepData.rots[0] = 0.0;
+  rotStepData.rots[1] = 0.0;
+  rotStepData.rots[2] = 0.0;
   rotStepData.type = "REL";
   rotStep.setValue(rotStepData);
   margin.setValuesInches(DEFAULT_MARGIN,DEFAULT_MARGIN);
