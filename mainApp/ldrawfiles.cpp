@@ -1423,7 +1423,7 @@ void LDrawFile::addCustomColorParts(const QString &mcFileName,bool autoAdd)
       // we interrogate substitue files
       if (tokens.size() >= 6 &&
           tokens[0] == "0" &&
-         (tokens[1] == "LPUB" || tokens[1] == "!LPUB") &&
+         (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
           tokens[2] == "PLI" &&
           tokens[3] == "BEGIN" &&
           tokens[4] == "SUB") {
@@ -1441,7 +1441,7 @@ void LDrawFile::addCustomColorParts(const QString &mcFileName,bool autoAdd)
               }
             } else if (tokens.size() == 4 &&
                        tokens[0] == "0" &&
-                      (tokens[1] == "LPUB" || tokens[1] == "!LPUB") &&
+                      (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
                       (tokens[2] == "PLI" || tokens[2] == "PART") &&
                        tokens[3] == "END") {
               break;
@@ -1523,7 +1523,7 @@ void LDrawFile::countInstances(const QString &mcFileName, bool isMirrored, bool 
       /* Sorry, but models that are callouts are not counted as instances */
           // called out
       if (tokens.size() == 4 && tokens[0] == "0" &&
-          (tokens[1] == "LPUB" || tokens[1] == "!LPUB") && 
+          (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
           tokens[2] == "CALLOUT" && 
           tokens[3] == "BEGIN") {
         partsAdded = true;
@@ -1535,7 +1535,7 @@ void LDrawFile::countInstances(const QString &mcFileName, bool isMirrored, bool 
               countInstances(tokens[14],mirrored(tokens),true);
             }
           } else if (tokens.size() == 4 && tokens[0] == "0" &&
-              (tokens[1] == "LPUB" || tokens[1] == "!LPUB") && 
+              (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
               tokens[2] == "CALLOUT" && 
               tokens[3] == "END") {
             
@@ -1544,7 +1544,7 @@ void LDrawFile::countInstances(const QString &mcFileName, bool isMirrored, bool 
         }
         // build modification - begins at BEGIN command and ends at END_MOD action
       } else if (tokens.size() >= 4 && tokens[0] == "0"  &&
-                (tokens[1] == "LPUB" || tokens[1] == "!LPUB") &&
+                (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
                  tokens[2] == "BUILD_MOD") {
         if (tokens[3] == "BEGIN") {
           buildModLevel = getLevel(tokens[4], BM_BEGIN);
@@ -1554,20 +1554,20 @@ void LDrawFile::countInstances(const QString &mcFileName, bool isMirrored, bool 
         stepIgnore = buildModLevel;
         //lpub3d ignore part - so set ignore step
       } else if (tokens.size() == 5 && tokens[0] == "0" &&
-                 (tokens[1] == "LPUB" || tokens[1] == "!LPUB") &&
+                 (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
                  (tokens[2] == "PART" || tokens[2] == "PLI") &&
                   tokens[3] == "BEGIN"  &&
                   tokens[4] == "IGN") {
         stepIgnore = true;
         // lpub3d part - so set include step
       } else if (tokens.size() == 4 && tokens[0] == "0" &&
-                 (tokens[1] == "LPUB" || tokens[1] == "!LPUB") &&
+                 (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
                  (tokens[2] == "PART" || tokens[2] == "PLI") &&
-                 tokens[3] == "END") {
+                  tokens[3] == "END") {
         stepIgnore = false;
         // no step
       } else if (tokens.size() == 3 && tokens[0] == "0" &&
-                (tokens[1] == "LPUB" || tokens[1] == "!LPUB") &&
+                (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
                  tokens[2] == "NOSTEP") {
         noStep = true;
         // LDraw step or rotstep - so check if parts added
@@ -1578,12 +1578,12 @@ void LDrawFile::countInstances(const QString &mcFileName, bool isMirrored, bool 
         _buildModStepIndexes.append(stepIndex);
         // set the next step line number after capturing this step
         topOfStep.lineNumber = i;
-        // parts added - increment step
+          // parts added - increment step
         if (partsAdded && ! noStep) {
-          int incr = (isMirrored && f->_mirrorInstances == 0) ||
-                     (!isMirrored && f->_instances == 0);
-          f->_numSteps += incr;
-        }
+            int incr = (isMirrored && f->_mirrorInstances == 0) ||
+                       (!isMirrored && f->_instances == 0);
+            f->_numSteps += incr;
+          }
         // reset partsAdded and noStep
         partsAdded = false;
         noStep = false;
@@ -1591,7 +1591,7 @@ void LDrawFile::countInstances(const QString &mcFileName, bool isMirrored, bool 
       } else if (tokens.size() == 4 && tokens[0] == "0"
                                      && tokens[1] == "BUFEXCHG") {
         // check if subfile and process
-      } else if (tokens.size() == 15 && tokens[0] == "1") {
+      } else if (tokens.size() == 15 && tokens[0] >= "1" && tokens[0] <= "5") {
         bool containsSubFile = contains(tokens[14]);
         if (containsSubFile && ! stepIgnore) {
           countInstances(tokens[14],mirrored(tokens),false);
@@ -1733,7 +1733,7 @@ void LDrawFile::countParts(const QString &fileName){
 
             // build modification - begins at BEGIN command and ends at END_MOD action
             if (tokens.size() >= 4 && tokens[0] == "0"  &&
-               (tokens[1] == "LPUB" || tokens[1] == "!LPUB") &&
+               (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
                 tokens[2] == "BUILD_MOD") {
                 if (tokens[3] == "BEGIN") {
                     buildModLevel = getLevel(tokens[4], BM_BEGIN);
@@ -1743,14 +1743,14 @@ void LDrawFile::countParts(const QString &fileName){
                 doCountPart = ! buildModLevel;
             } else
             if (tokens.size() == 5 && tokens[0] == "0" &&
-               (tokens[1] == "LPUB" || tokens[1] == "!LPUB") &&
+               (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
                (tokens[2] == "PART" || tokens[2] == "PLI") &&
                 tokens[3] == "BEGIN"  &&
                 tokens[4] == "IGN") {
                 doCountPart = false;
             } else
             if (tokens.size() == 4 && tokens[0] == "0" &&
-               (tokens[1] == "LPUB" || tokens[1] == "!LPUB") &&
+               (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
                (tokens[2] == "PART" || tokens[2] == "PLI") &&
                 tokens[3] == "END") {
                doCountPart = true;

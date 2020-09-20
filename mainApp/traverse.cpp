@@ -258,7 +258,7 @@ static void remove_partname(
       split(line,tokens);
 
       if (tokens.size() == 4 && tokens[0] == "0" &&
-          (tokens[1] == "LPUB" || tokens[1] == "!LPUB") &&
+          (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
           tokens[2] == "NAME") {
           QString type = tokens[3].toLower();
           if (type == name) {
@@ -2642,7 +2642,7 @@ int Gui::findPage(
                       }
                       saveCurrent = opts.current;
                       saveRotStep = meta.rotStep;
-                    }
+                    } // opts.pageNum < displayPageNum
 
                   if ( ! stepGroup) {
                       if (opts.pageNum == displayPageNum) {
@@ -2687,7 +2687,8 @@ int Gui::findPage(
                           saveCurrent.modelName.clear();
                           saveCsiParts.clear();
                           saveLineTypeIndexes.clear();
-                        }
+                        } // opts.pageNum == displayPageNum
+
                       if (exporting()) {
                           pageSizes.remove(opts.pageNum);
                           if (pageSizeUpdate) {
@@ -3394,7 +3395,7 @@ void Gui::attitudeAdjustment()
 
           if (argv.size() >= 4 &&
               argv[0] == "0" &&
-              (argv[1] == "LPUB" || argv[1] == "!LPUB") &&
+              (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
               argv[2] == "CALLOUT") {
               if (argv.size() == 4 && argv[3] == "BEGIN") {
                   callout = true;

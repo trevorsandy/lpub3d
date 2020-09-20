@@ -272,7 +272,7 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
             ignorePartLine = false;
         // Sorry, models that are callouts are not counted as instances
         if (argv.size() == 4 && argv[0] == "0" &&
-           (argv[1] == "LPUB" || argv[1] == "!LPUB") &&
+           (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
             argv[2] == "CALLOUT" && argv[3] == "END") {
           //process callout content
           for (--walkBack; walkBack.lineNumber >= 0; walkBack--) {
@@ -283,7 +283,7 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
               ignorePartLine = true;
             } else
             if (tokens.size() == 4 && tokens[0] == "0" &&
-               (tokens[1] == "LPUB" || tokens[1] == "!LPUB") &&
+               (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
                 tokens[2] == "CALLOUT" && tokens[3] == "BEGIN") {
               ignorePartLine = false;
               break;
@@ -292,7 +292,7 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
         }
 //        else // build modification
 //        if (argv.size() >= 4 && argv[0] == "0" &&
-//           (argv[1] == "LPUB" || argv[1] == "!LPUB") &&
+//           (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
 //            argv[2] == "BUILD_MOD") {
 //          if (argv[3] == "BEGIN") {
 //            buildModLevel = getLevel(argv[4],BM_BEGIN);
@@ -344,7 +344,7 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
           ignorePartLine = false;
       // models that are callouts are not counted as instances
       if (argv.size() == 4 && argv[0] == "0" &&
-         (argv[1] == "LPUB" || argv[1] == "!LPUB") &&
+         (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
           argv[2] == "CALLOUT" && argv[3] == "BEGIN") {
         //process callout content
         for (++walk; walk.lineNumber < numLines; walk++) {
@@ -355,14 +355,14 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
             ignorePartLine = true;
           } else
           if (tokens.size() == 4 && tokens[0] == "0" &&
-             (tokens[1] == "LPUB" || tokens[1] == "!LPUB") &&
+             (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
               tokens[2] == "CALLOUT" && tokens[3] == "END") {
             ignorePartLine = false;
             break;
           }
 //          else // build modification
 //          if (argv.size() >= 4 && argv[0] == "0" &&
-//             (argv[1] == "LPUB" || argv[1] == "!LPUB") &&
+//             (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
 //              argv[2] == "BUILD_MOD") {
 //            if (argv[3] == "BEGIN") {
 //              buildModLevel = getLevel(argv[4],BM_BEGIN);
@@ -441,7 +441,7 @@ int MetaItem::countInstancesInModel(Meta *meta, const QString &modelName){
           ignorePartLine = false;
       // models that are callouts are not counted as instances
       if (argv.size() == 4 && argv[0] == "0" &&
-         (argv[1] == "LPUB" || argv[1] == "!LPUB") &&
+         (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
           argv[2] == "CALLOUT" && argv[3] == "BEGIN") {
         //process callout content
         for (++walk; walk.lineNumber < numLines; walk++) {
@@ -452,14 +452,14 @@ int MetaItem::countInstancesInModel(Meta *meta, const QString &modelName){
             ignorePartLine = true;
           } else
           if (tokens.size() == 4 && tokens[0] == "0" &&
-             (tokens[1] == "LPUB" || tokens[1] == "!LPUB") &&
+             (tokens[1] == "!LPUB" || tokens[1] == "LPUB") &&
               tokens[2] == "CALLOUT" && tokens[3] == "END") {
             ignorePartLine = false;
             break;
           }
 //          else // build modification
 //          if (argv.size() >= 4 && argv[0] == "0" &&
-//             (argv[1] == "LPUB" || argv[1] == "!LPUB") &&
+//             (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
 //              argv[2] == "BUILD_MOD") {
 //            if (argv[3] == "BEGIN") {
 //              buildModLevel = getLevel(argv[4],BM_BEGIN);
@@ -2998,9 +2998,9 @@ void MetaItem::insertText()
 void MetaItem::insertBOM()
 {
   QString meta = QString("0 !LPUB INSERT BOM");
-  Where topOfStep = gui->topOfPages[gui->displayPageNum];
-  scanPastGlobal(topOfStep);
-  insertMeta(topOfStep,meta);
+  Where bottomOfPage = gui->topOfPages[gui->displayPageNum];   //start at the bottom of the page's last step
+  scanPastGlobal(bottomOfPage);
+  insertMeta(bottomOfPage,meta);
 }
 
 int MetaItem::okToInsertFinalModel()
@@ -3602,7 +3602,7 @@ int MetaItem::nestCallouts(
       // submodels get called out
 
       if (argv.size() >= 2 && argv[0] == "0") {
-        if (argv[1] == "LPUB" || argv[1] == "!LPUB") {
+        if (argv[1] == "!LPUB" || argv[1] == "LPUB") {
           if (argv.size() == 5 && argv[2] == "PART"
                                && argv[3] == "BEGIN"
                                && argv[4] == "IGN") {
@@ -3657,13 +3657,13 @@ bool MetaItem::canConvertToCallout(
       QStringList argv;
       split(line,argv);
       if (argv.size() == 5 && argv[0] == "0" &&
-         (argv[1] == "LPUB" || argv[1] == "!LPUB") &&
+         (argv[1] == "!LPUB" || argv[1] == "LPUB") &&
           argv[2] == "CALLOUT" && argv[3] == "BEGIN") {
         return false;
       }
       if (argv.size() >= 2 && argv[0] == "0") {
         if (argv[1] == "STEP" || argv[1] == "ROTSTEP" ||
-            argv[1] == "LPUB" || argv[1] == "!LPUB") {
+            argv[1] == "!LPUB" || argv[1] == "LPUB") {
           return true;
         }
       }
@@ -3747,7 +3747,7 @@ void MetaItem::addCalloutMetas(
       split(line,argv);
       if (argv.size() >= 2 && argv[0] == "0") {
         if (argv[1] == "STEP" || argv[1] == "ROTSTEP" ||
-            argv[1] == "LPUB" || argv[1] == "!LPUB") {
+            argv[1] == "!LPUB" || argv[1] == "LPUB") {
           break;
         }
       } else if (argv.size() == 15 && argv[0] == "1") {
@@ -3782,7 +3782,7 @@ void MetaItem::addCalloutMetas(
     split(line,argv);
     if (argv.size() >= 2 && argv[0] == "0") {
       if (argv[1] == "STEP" || argv[1] == "ROTSTEP" ||
-          argv[1] == "LPUB" || argv[1] == "!LPUB") {
+          argv[1] == "!LPUB" || argv[1] == "LPUB") {
         break;
       }
     } else if (argv.size() == 15 && argv[0] == "1") {
@@ -4323,7 +4323,7 @@ void MetaItem::unnestCallouts(
     split(line,argv);
 
     if (argv.size() >= 2 && argv[0] == "0") {
-      if (argv[1] == "LPUB" || argv[1] == "!LPUB") {
+      if (argv[1] == "!LPUB" || argv[1] == "LPUB") {
         if (argv.size() == 4 && argv[2] == "CALLOUT"
                              && argv[3] == "BEGIN") {
           callout = true;
@@ -4861,7 +4861,7 @@ void MetaItem::removeLPubFormatting()
       QString line = gui->readLine(walk);
       QStringList argv;
       split(line,argv);
-      if (argv.size() > 2 && argv[0] == "0" && (argv[1] == "LPUB" || argv[1] == "!LPUB")) {
+      if (argv.size() > 2 && argv[0] == "0" && (argv[1] == "!LPUB" || argv[1] == "LPUB")) {
         gui->deleteLine(walk);
         --numLines;
       } else {

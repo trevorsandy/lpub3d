@@ -648,7 +648,7 @@ QString Callout::wholeSubmodel(
       if (num_tokens > 1 && tokens[1] == "ROTSTEP") {
         continue;
       }
-      if (num_tokens > 2 && (tokens[1] == "LPUB" || tokens[1] == "!LPUB") && tokens[2] == "MULTI_STEP") {
+      if (num_tokens > 2 && (tokens[1] == "!LPUB" || tokens[1] == "LPUB") && tokens[2] == "MULTI_STEP") {
         continue;
       }
     } else if (num_tokens == 15 && tokens[0] == "1") {
