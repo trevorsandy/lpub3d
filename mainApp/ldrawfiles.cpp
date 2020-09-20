@@ -365,17 +365,18 @@ void LDrawFile::clearPrevStepPositions()
 /* Check the pngFile lastModified date against its submodel file */
 bool LDrawFile::older(const QString &fileName,
                       const QDateTime &lastModified){
-    QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
-    if (i != _subFiles.end()) {
-      QDateTime fileDatetime = i.value()._datetime;
-      if (fileDatetime > lastModified) {
-        return false;
-      }
+  QMap<QString, LDrawSubFile>::iterator i = _subFiles.find(fileName);
+  if (i != _subFiles.end()) {
+    QDateTime fileDatetime = i.value()._datetime;
+    if (fileDatetime > lastModified) {
+      return false;
     }
+  }
+  return true;
 }
 
 bool LDrawFile::older(const QStringList &parsedStack,
-           const QDateTime &lastModified)
+                      const QDateTime &lastModified)
 {
   QString fileName;
   foreach (fileName, parsedStack) {
