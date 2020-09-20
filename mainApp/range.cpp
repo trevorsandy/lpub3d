@@ -625,7 +625,9 @@ MultiStepStepBackgroundItem::MultiStepStepBackgroundItem(
     setPen(Qt::NoPen);
     setBrush(Qt::NoBrush);
     setParentItem(parent);
-    setToolTip(QString("Step Rectangle - right-click to modify"));
+    setToolTip(QString("Step Rectangle [%1 x %2 px] - right-click to modify")
+               .arg(boundingRect().width())
+               .arg(boundingRect().height()));
 
     setFlag(QGraphicsItem::ItemIsMovable,false);
     setFlag(QGraphicsItem::ItemIsSelectable,true);

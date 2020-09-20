@@ -214,6 +214,7 @@ void PageAttributeTextItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
     return;
   } else if (selectedAction == placementAction) {
 
+#ifdef QT_DEBUG_MODE
       logInfo() << "\nMOVE TEXT - "
                 << "\nPAGE- "
                 << (useTop ? " \nSingle-Step Page" : " \nMulti-Step Page")
@@ -237,6 +238,7 @@ void PageAttributeTextItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *eve
                                                           onPageType == 1 ? " \nFront Cover Page" :
                                                                             " \nBack Cover Page")  << " (" << onPageType << ")"
                                                    ;
+#endif
       changePlacement(parentRelativeType,
                       relativeType,
                      "Move " + name,

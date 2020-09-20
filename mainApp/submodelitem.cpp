@@ -1311,7 +1311,9 @@ SubModelBackgroundItem::SubModelBackgroundItem(
 
   QString toolTip;
 
-  toolTip = "Submodel  - right-click to modify";
+  toolTip = QString("Submodel [%1 x %2 px] - right-click to modify")
+                    .arg(width)
+                    .arg(height);
 
   if (parentRelativeType == StepGroupType /* && subModel->perStep == false */) {
     placement = subModel->meta->LPub.multiStep.subModel.placement;

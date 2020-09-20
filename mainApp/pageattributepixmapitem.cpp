@@ -42,14 +42,15 @@ PageAttributePixmapItem::PageAttributePixmapItem(
 
   if (relativeType == PageDocumentLogoType ) {
     name    = "Logo";
-    setToolTip("Logo - right-click to modify");
   } else if (relativeType == PageCoverImageType) {
     name    = "Cover Image";
-    setToolTip("Cover Image - right-click to modify");
   } else if (relativeType == PagePlugImageType) {
     name    = "Plug Image";
-    setToolTip("Plug Image - right-click to modify");
   }
+  setToolTip(QString("%1 [%2 x %3 px] - right-click to modify")
+             .arg(name)
+             .arg(pixmap.width())
+             .arg(pixmap.height()));
 
   bool movable = true;
   if (fillMode == Aspect) {

@@ -3043,10 +3043,13 @@ PliBackgroundItem::PliBackgroundItem(
   QString toolTip;
 
   if (_pli->bom) {
-      toolTip = "Bill Of Materials - right-click to modify";
+      toolTip = "Bill Of Materials";
     } else {
-      toolTip = "Part List - right-click to modify";
+      toolTip = "Part List";
     }
+  toolTip += QString("[%1 x %2 px] - right-click to modify")
+                     .arg(width)
+                     .arg(height);
 
   if (parentRelativeType == StepGroupType /* && pli->perStep == false */) {
       if (pli->bom) {

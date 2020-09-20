@@ -49,7 +49,9 @@ MultiStepRangesBackgroundItem::MultiStepRangesBackgroundItem(
   setPen(Qt::NoPen);
   setBrush(Qt::NoBrush);
   setParentItem(parent);
-  setToolTip("Steps Group - right-click to modify");
+  setToolTip(QString("Steps Group [%1 x %2 px] - right-click to modify")
+             .arg(boundingRect().width())
+             .arg(boundingRect().height()));
   setFlag(QGraphicsItem::ItemIsSelectable,true);
   setFlag(QGraphicsItem::ItemIsFocusable, true);
   setAcceptHoverEvents(true);
@@ -142,7 +144,9 @@ MultiStepRangeBackgroundItem::MultiStepRangeBackgroundItem(
 
   setPen(QPen(Qt::NoPen));
   setBrush(QBrush(Qt::NoBrush));
-  setToolTip("Step Group - right-click to modify");
+  setToolTip(QString("Step Group [%1 x %2 px] - right-click to modify")
+             .arg(boundingRect().width())
+             .arg(boundingRect().height()));
   setParentItem(parent);
   setData(ObjectId, MultiStepBackgroundObj);
   setZValue(MULTISTEPBACKGROUND_ZVALUE_DEFAULT);
@@ -335,7 +339,9 @@ DividerItem::DividerItem(
 
   setPen(QPen(Qt::NoPen));
   setBrush(QBrush(Qt::NoBrush));
-  setToolTip("Divider - right-click to modify");
+  setToolTip(QString("Divider [%1 x %2 px] - right-click to modify")
+             .arg(boundingRect().width())
+             .arg(boundingRect().height()));
 
   lineItem = new DividerLine(this);
   lineItem->stepNumber = parentStep->stepNumber.number;

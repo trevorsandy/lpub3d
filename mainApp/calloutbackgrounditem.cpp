@@ -52,7 +52,9 @@ CalloutBackgroundItem::CalloutBackgroundItem(
   csiRect     = _csiRect;
 
   QPixmap *pixmap = new QPixmap(_calloutRect.width(),_calloutRect.height());
-  QString toolTip("Callout " + _path + "popup menu");
+  QString toolTip = QString("Callout " + _path + " [%1 x %2 px] - right-click to modify")
+                            .arg(_calloutRect.width())
+                            .arg(_calloutRect.height());;
 
   //gradient settings
   if (meta->LPub.callout.background.value().gsize[0] == 0 &&
