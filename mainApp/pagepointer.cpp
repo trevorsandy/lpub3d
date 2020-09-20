@@ -144,13 +144,13 @@ void PagePointer::addGraphicsPointerItem(
           pointer,
           background,
           view);
-  graphicsPointerList.append(t);
+  graphicsPagePointerList.append(t);
 }
 
 void PagePointer::updatePointers(QPoint &delta, QGraphicsItem *target)
 {
-  for (int i = 0; i < graphicsPointerList.size(); i++) {
-    PagePointerItem *pointerItem = graphicsPointerList[i];
+  for (int i = 0; i < graphicsPagePointerList.size(); i++) {
+    PagePointerItem *pointerItem = graphicsPagePointerList[i];
     foreach (QGraphicsItem *item, pointerItem->collidingItems(Qt::IntersectsItemBoundingRect)) {
         if (item == target)
             pointerItem->updatePointer(delta);
@@ -160,8 +160,8 @@ void PagePointer::updatePointers(QPoint &delta, QGraphicsItem *target)
 
 void PagePointer::drawTips(QPoint &delta, QGraphicsItem *target, int type)
 {
-  for (int i = 0; i < graphicsPointerList.size(); i++) {
-    PagePointerItem *pointerItem = graphicsPointerList[i];
+  for (int i = 0; i < graphicsPagePointerList.size(); i++) {
+    PagePointerItem *pointerItem = graphicsPagePointerList[i];
     int initiator = type ? type : PageType;
     foreach (QGraphicsItem *item, pointerItem->collidingItems(Qt::IntersectsItemBoundingRect)) {
         if (item == target)

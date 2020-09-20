@@ -665,7 +665,7 @@ int SubModel::resizeSubModel(
 
     // step by 1/10 of inch or centimeter
 
-    int step = int(toPixels(0.1,DPI));
+    int step = int(toPixels(0.1f,DPI));
 
     for ( ; height > 0; height -= step) {
 
@@ -713,7 +713,7 @@ int SubModel::resizeSubModel(
     int cols;
     int min_delta = height;
     int good_height = height;
-    int step = int(toPixels(0.1,DPI));
+    int step = int(toPixels(0.1f,DPI));
 
     for ( ; height > 0; height -= step) {
 

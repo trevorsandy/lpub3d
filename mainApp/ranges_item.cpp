@@ -417,7 +417,7 @@ DividerItem::DividerItem(
 
 DividerItem::~DividerItem()
 {
-  graphicsPointerList.clear();
+  graphicsDividerPointerList.clear();
 };
 
 void DividerItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
@@ -535,21 +535,21 @@ void DividerItem::addGraphicsPointerItem(Pointer *pointer, QGraphicsView *view)
                 pointer,
                 background,
                 view);
-    graphicsPointerList.append(pi);
+    graphicsDividerPointerList.append(pi);
 }
 
 void DividerItem::updatePointers(QPoint &delta)
 {
-  for (int i = 0; i < graphicsPointerList.size(); i++) {
-    DividerPointerItem *pointerItem = graphicsPointerList[i];
+  for (int i = 0; i < graphicsDividerPointerList.size(); i++) {
+    DividerPointerItem *pointerItem = graphicsDividerPointerList[i];
     pointerItem->updatePointer(delta);
   }
 }
 
 void DividerItem::drawTips(QPoint &delta, int type)
 {
-  for (int i = 0; i < graphicsPointerList.size(); i++) {
-    DividerPointerItem *pointerItem = graphicsPointerList[i];
+  for (int i = 0; i < graphicsDividerPointerList.size(); i++) {
+    DividerPointerItem *pointerItem = graphicsDividerPointerList[i];
     int initiator = type ? type : 102 /*DividerType*/;
     pointerItem->drawTip(delta,initiator);
   }

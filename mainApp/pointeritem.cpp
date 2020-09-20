@@ -73,7 +73,7 @@ void PointerItem::drawPointerPoly()
   poly << QPointF(grabSize()/2,0);
   poly << QPointF(-2*grabSize(),-grabSize()/2);
   poly << QPointF(-2*grabSize(),0);
-  float headWidth = poly.boundingRect().width();
+  float headWidth = float(poly.boundingRect().width());
 
   enum Seg { first, second, third };
 
@@ -195,13 +195,13 @@ void PointerItem::drawPointerPoly()
 
           qreal pi = 22.0/7;
 
-          if (x == 0.0f) {
+          if (x == 0.0) {
             if (y < 0) {
               angle = 270.0;
             } else {
               angle = 90.0;
             }
-          } else if (y == 0.0f) {
+          } else if (y == 0.0) {
             if (x < 0) {
               angle = 180.0;
             } else {

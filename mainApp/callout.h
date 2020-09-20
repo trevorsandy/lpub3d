@@ -61,8 +61,8 @@ class Callout : public Steps {
     PlacementNum           instanceCount;
     bool                   shared;
 
-    QList<Pointer *>            pointerList;         /* Pointers and pointer tips */
-    QList<CalloutPointerItem *> graphicsPointerList; /* Pointer and pointer tips graphics */
+    QList<Pointer *>            pointerList;                /* Pointers and pointer tips */
+    QList<CalloutPointerItem *> graphicsCalloutPointerList; /* Pointer and pointer tips graphics */
 
     CalloutBackgroundItem *background;
     QGraphicsRectItem     *underpinnings;
