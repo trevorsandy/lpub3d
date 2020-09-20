@@ -186,7 +186,150 @@ void NumberPlacementItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
   QGraphicsItem::mouseReleaseEvent(event);
 } 
 
-// Step Number
+// Group Step Number - used exclusively when placing the step number for pli per page
+
+GroupStepNumberItem::GroupStepNumberItem(
+  Page                *_page,
+  NumberPlacementMeta &_number,
+  const char          *_format,
+  int                  _value,
+  QGraphicsItem       *_parent) :
+  isHovered(false),
+  mouseIsDown(false)
+{
+  page = _page;
+  QString toolTip("Group Step Number - use popu menu");
+  setAttributes(StepNumberType,
+                page->relativeType,
+                _number,
+                _format,
+                _value,
+                toolTip,
+                _parent);
+  setData(ObjectId, StepNumberObj);
+  setZValue(STEPNUMBER_ZVALUE_DEFAULT);
+  setFlag(QGraphicsItem::ItemIsSelectable,true);
+  setFlag(QGraphicsItem::ItemIsFocusable, true);
+  setAcceptHoverEvents(true);
+}
+
+void GroupStepNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+{
+  QMenu menu;
+  QString pl = "Group Step Number";
+
+  QAction *fontAction   = commonMenus.fontMenu(menu,pl);
+  QAction *colorAction  = commonMenus.colorMenu(menu,pl);
+  QAction *marginAction = commonMenus.marginMenu(menu,pl);
+  QAction *placementAction  = commonMenus.placementMenu(menu,pl,"You can move this Group Step Number item around.");
+
+  QAction *selectedAction   = menu.exec(event->screenPos());
+
+  Where topOfSteps          = page->topOfSteps();
+  Where bottomOfSteps       = page->bottomOfSteps();
+  bool  useTop              = parentRelativeType != StepGroupType;
+
+  if (selectedAction == nullptr) {
+    return;
+  } else if (selectedAction == placementAction) {
+
+    changePlacement(parentRelativeType,
+                    page->meta.LPub.multiStep.pli.perStep.value(),
+                    StepNumberType,
+                    "Move " + pl,
+                    topOfSteps,
+                    bottomOfSteps,
+                   &placement,
+                    useTop);
+
+  } else if (selectedAction == fontAction) {
+
+    changeFont(topOfSteps,
+               bottomOfSteps,
+              &font,1,true,
+               useTop);
+
+  } else if (selectedAction == colorAction) {
+
+    changeColor(topOfSteps,
+                bottomOfSteps,
+               &color,1,true,
+                useTop);
+
+  } else if (selectedAction == marginAction) {
+
+    changeMargins(pl + " Margins",
+                  topOfSteps,
+                  bottomOfSteps,
+                 &margin,
+                  useTop);
+  }
+}
+
+void GroupStepNumberItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = !this->isSelected() && !mouseIsDown;
+    QGraphicsItem::hoverEnterEvent(event);
+}
+
+void GroupStepNumberItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+{
+    isHovered = false;
+    QGraphicsItem::hoverLeaveEvent(event);
+}
+
+void GroupStepNumberItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    mouseIsDown = true;
+    QGraphicsItem::mousePressEvent(event);
+    update();
+}
+
+void GroupStepNumberItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+  mouseIsDown = false;
+
+  QGraphicsItem::mouseReleaseEvent(event);
+
+  if (isSelected() && (flags() & QGraphicsItem::ItemIsMovable)) {
+
+    QPointF newPosition;
+
+    Where topOfSteps    = page->topOfSteps();
+    Where bottomOfSteps = page->bottomOfSteps();
+    bool  useTop        = parentRelativeType != StepGroupType;
+
+    newPosition = pos() - position;
+
+    if (newPosition.x() || newPosition.y()) {
+      positionChanged = true;
+
+      PlacementData placementData = placement.value();
+      placementData.offsets[0] += newPosition.x()/relativeToSize[0];
+      placementData.offsets[1] += newPosition.y()/relativeToSize[1];
+      placement.setValue(placementData);
+
+      changePlacementOffset(useTop ? topOfSteps : bottomOfSteps,
+                           &placement,
+                            StepNumberType);
+    }
+  }
+//  update();
+}
+
+void GroupStepNumberItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    QPen pen;
+    pen.setColor(isHovered ? QColor(Preferences::sceneGuideColor) : Qt::black);
+    pen.setWidth(0/*cosmetic*/);
+    pen.setStyle(isHovered ? Qt::PenStyle(Preferences::sceneGuidesLine) : Qt::NoPen);
+    painter->setPen(pen);
+    painter->setBrush(Qt::transparent);
+    painter->drawRect(this->boundingRect());
+    QGraphicsTextItem::paint(painter,option,widget);
+}
+
+// Page Number
 
 PageNumberItem::PageNumberItem(
   Page                *_page,
