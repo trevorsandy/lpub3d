@@ -47,9 +47,17 @@ void Gui::create3DActions()
     CreateBuildModIcon.addFile(":/resources/buildmodcreate.png");
     CreateBuildModIcon.addFile(":/resources/buildmodcreate16.png");
     createBuildModAct = new QAction(CreateBuildModIcon,tr("Create Build Modification"),this);
-    createBuildModAct->setStatusTip(tr("Create a new build modification for this step - Shift+M"));
-    createBuildModAct->setShortcut(tr("Shift+M"));
+    createBuildModAct->setStatusTip(tr("Create a new build modification for this step - Shift+J"));
+    createBuildModAct->setShortcut(tr("Shift+J"));
     connect(createBuildModAct, SIGNAL(triggered()), this, SLOT(createBuildModification()));
+
+    QIcon UpdateBuildModIcon;
+    UpdateBuildModIcon.addFile(":/resources/buildmodupdate.png");
+    UpdateBuildModIcon.addFile(":/resources/buildmodupdate16.png");
+    updateBuildModAct = new QAction(UpdateBuildModIcon,tr("Update Build Modification"),this);
+    updateBuildModAct->setStatusTip(tr("Commit changes to the current build modification - Shift+K"));
+    updateBuildModAct->setShortcut(tr("Shift+K"));
+    connect(updateBuildModAct, SIGNAL(triggered()), this, SLOT(updateBuildModification()));
 
     QIcon ApplyBuildModIcon;
     ApplyBuildModIcon.addFile(":/resources/buildmodapply.png");
@@ -72,14 +80,6 @@ void Gui::create3DActions()
     loadBuildModAct->setEnabled(false);
     loadBuildModAct->setStatusTip(tr("Load the step containing the selected build modification"));
     connect(loadBuildModAct, SIGNAL(triggered()), this, SLOT(loadBuildModification()));
-
-    QIcon UpdateBuildModIcon;
-    UpdateBuildModIcon.addFile(":/resources/buildmodupdate.png");
-    UpdateBuildModIcon.addFile(":/resources/buildmodupdate16.png");
-    updateBuildModAct = new QAction(UpdateBuildModIcon,tr("Update Build Modification..."),this);
-    updateBuildModAct->setEnabled(false);
-    updateBuildModAct->setStatusTip(tr("Commit changes to the current build modification"));
-    connect(updateBuildModAct, SIGNAL(triggered()), this, SLOT(updateBuildModification()));
 
     QIcon DeleteBuildModIcon;
     DeleteBuildModIcon.addFile(":/resources/buildmoddelete.png");
@@ -289,11 +289,12 @@ void Gui::create3DMenus()
      AngleAction->setMenu(SnapAngleMenu);
 
      buildModMenu = new QMenu(tr("Build Modification"),this);
+     buildModMenu->addAction(updateBuildModAct);
+     buildModMenu->addSeparator();
      buildModMenu->addAction(applyBuildModAct);
      buildModMenu->addAction(removeBuildModAct);
      buildModMenu->addSeparator();
      buildModMenu->addAction(loadBuildModAct);
-     buildModMenu->addAction(updateBuildModAct);
      buildModMenu->addAction(deleteBuildModAct);
      createBuildModAct->setMenu(buildModMenu);
 
