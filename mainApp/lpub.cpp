@@ -2961,7 +2961,7 @@ void Gui::loadBLCodes()
 
 void Gui::ldrawColorPartsLoad()
 {
-    if ((Preferences::enableFadeSteps || Preferences::enableHighlightStep) && !ldrawColourParts.ldrawColorPartsIsLoaded()) {
+    if (!ldrawColourParts.ldrawColorPartsIsLoaded()) {
         QString result;
         if (!LDrawColourParts::LDrawColorPartsLoad(result)){
             QString message = QString("Could not open the %1 LDraw color parts file [%2], Error: %3")
@@ -2990,6 +2990,8 @@ void Gui::ldrawColorPartsLoad()
             } else {
                 generateCustomColourPartsList(prompt); /* false */
             }
+        } else {
+            messageSig(LOG_INFO, QString("Loaded LDraw color parts file [%2]").arg(Preferences::ldrawColourPartsFile));
         }
     }
 }
@@ -3066,7 +3068,7 @@ void Gui::generateCustomColourPartsList(bool prompt)
 
 void Gui::processFadeColourParts(bool overwriteCustomParts)
 {
-  if (gui->page.meta.LPub.fadeStep.fadeStep.value()) {
+  if (gui->page.meta.LPub.fadeStep.fadeStep.value() || Preferences::enableFadeSteps) {
 
       partWorkerCustomColour = new PartWorker();
 
@@ -3086,7 +3088,7 @@ void Gui::processFadeColourParts(bool overwriteCustomParts)
 
 void Gui::processHighlightColourParts(bool overwriteCustomParts)
 {
-  if (gui->page.meta.LPub.highlightStep.highlightStep.value()) {
+  if (gui->page.meta.LPub.highlightStep.highlightStep.value() || Preferences::enableHighlightStep) {
 
       partWorkerCustomColour = new PartWorker();
 

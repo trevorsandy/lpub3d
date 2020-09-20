@@ -77,8 +77,8 @@ class PartWorker: public QObject
    Q_OBJECT
 
 public:
-    explicit PartWorker(QObject *parent = 0);
-    PartWorker(QString archiveFile, QObject *parent = 0);
+    explicit PartWorker(QObject *parent = nullptr);
+    PartWorker(QString archiveFile, QObject *parent = nullptr);
     ~PartWorker()
     {
         _colourParts.empty();
@@ -120,6 +120,8 @@ public:
     bool loadLDrawSearchDirs();
 
     void updateLDSearchDirs(bool archive = false);
+
+    void addCustomDirs();
 
     QString getLSynthDir();
 
@@ -236,7 +238,7 @@ class ColourPartListWorker: public QObject
    Q_OBJECT
 
 public:
-    explicit ColourPartListWorker(QObject *parent = 0);
+    explicit ColourPartListWorker(QObject *parent = nullptr);
     ~ColourPartListWorker()
     {
         _colourParts.empty();

@@ -425,13 +425,15 @@ bool Gui::openFile(QString &fileName)
   closeFile();
   if (lcGetPreferences().mViewPieceIcons)
       mPliIconsPath.clear();
-  if (Preferences::enableFadeSteps && Preferences::enableImageMatting)
-    LDVImageMatte::clearMatteCSIImages();
   emit messageSig(LOG_INFO_STATUS, QString("Loading LDraw model file [%1]...").arg(fileName));
   if (ldrawFile.loadFile(fileName) != 0) {
       closeModelFile();
       return false;
   }
+  setFadeStepsFromCommandMeta();
+  setHighlightStepFromCommandMeta();
+  if (Preferences::enableFadeSteps && Preferences::enableImageMatting)
+    LDVImageMatte::clearMatteCSIImages();
   displayPageNum = 1;
   QFileInfo info(fileName);
   QDir::setCurrent(info.absolutePath());
@@ -546,7 +548,7 @@ void Gui::setCurrentFile(const QString &fileName)
 void Gui::loadLastOpenedFile(){
     updateRecentFileActions();
     if (recentFilesActs[0]) {
-        emit loadFile(recentFilesActs[0]->data().toString());
+        loadFile(recentFilesActs[0]->data().toString());
     }
 }
 
@@ -600,6 +602,77 @@ void Gui::writeGeneratedColorPartsToTemp(){
       writeToTmp(fileName,content);
     }
   }
+}
+
+void Gui::setFadeStepsFromCommandMeta()
+{
+    if (!Preferences::enableFadeSteps){
+        Where fileHeader(gui->topLevelFile(),0);
+        QRegExp lineRx = QRegExp("\\bFADE TRUE\\b");
+        Preferences::enableFadeSteps = stepContains(fileHeader,lineRx);
+        if (Preferences::enableFadeSteps){
+            messageSig(LOG_INFO,QString("Fade Previous Steps is %1.").arg(Preferences::enableFadeSteps ? "ON" : "OFF"));
+            ldrawColorPartsLoad();
+            QString result;
+            if (!Preferences::fadeStepsUseColour) {
+                lineRx.setPattern("\\bUSE_FADE_COLOR TRUE\\b");
+                Preferences::fadeStepsUseColour = stepContains(fileHeader,lineRx);
+                messageSig(LOG_INFO,QString("Use Global Fade Color is %1").arg(Preferences::fadeStepsUseColour ? "ON" : "OFF"));
+            }
+
+            int fadeStepsOpacityCompare  = Preferences::fadeStepsOpacity;
+            result.clear();
+            lineRx.setPattern("FADE_OPACITY\\s(\\d+)");
+            stepContains(fileHeader,lineRx,result,1);
+            bool ok = result.toInt(&ok);
+            Preferences::fadeStepsOpacity = ok ? result.toInt() : FADE_OPACITY_DEFAULT;
+            bool fadeStepsOpacityChanged  = Preferences::fadeStepsOpacity != fadeStepsOpacityCompare;
+            if (fadeStepsOpacityChanged)
+                messageSig(LOG_INFO,QString("Fade Step Transparency changed from %1 to %2 percent")
+                           .arg(fadeStepsOpacityCompare)
+                           .arg(Preferences::fadeStepsOpacity));
+
+            QString fadeStepsColourCompare  = Preferences::validFadeStepsColour;
+            result.clear();
+            lineRx.setPattern("\\bFADE_COLOR\\b\\s\"(\\w+)\"");
+            stepContains(fileHeader,lineRx,result,1);
+            Preferences::validFadeStepsColour = !result.isEmpty() ? result : Preferences::validFadeStepsColour;
+            bool fadeStepsColourChanged       = QString(Preferences::validFadeStepsColour).toLower() != fadeStepsColourCompare.toLower();
+            if (fadeStepsColourChanged)
+                messageSig(LOG_INFO,QString("Fade Step Color preference changed from %1 to %2")
+                                            .arg(fadeStepsColourCompare.replace("_"," "))
+                                            .arg(QString(Preferences::validFadeStepsColour).replace("_"," ")));
+
+            gui->partWorkerLDSearchDirs.setDoFadeStep(true);
+            gui->partWorkerLDSearchDirs.addCustomDirs();
+        }
+    }
+}
+
+void Gui::setHighlightStepFromCommandMeta()
+{
+    if (!Preferences::enableHighlightStep) {
+        Where fileHeader(gui->topLevelFile(),0);
+        QRegExp lineRx = QRegExp("\\bHIGHLIGHT TRUE\\b");
+        Preferences::enableHighlightStep = stepContains(fileHeader,lineRx);
+        if (Preferences::enableHighlightStep) {
+            messageSig(LOG_INFO,QString("Highlight Current Step is %1.").arg(Preferences::enableHighlightStep ? "ON" : "OFF"));
+            ldrawColorPartsLoad();
+            QString highlightStepColourCompare  = Preferences::highlightStepColour;
+            QString result;
+            lineRx.setPattern("\\HIGHLIGHT_COLOR\\b\\s\"(#[A-Fa-f0-9]{6}|\\w+)\"");
+            stepContains(fileHeader,lineRx,result,1);
+            Preferences::highlightStepColour = !result.isEmpty() ? result : Preferences::validFadeStepsColour;
+            bool highlightStepColorChanged   = QString(Preferences::highlightStepColour).toLower() != highlightStepColourCompare.toLower();
+            if (highlightStepColorChanged)
+                messageSig(LOG_INFO,QString("Highlight Step Color preference changed from %1 to %2")
+                                            .arg(highlightStepColourCompare)
+                                            .arg(Preferences::highlightStepColour));
+
+            gui->partWorkerLDSearchDirs.setDoHighlightStep(true);
+            gui->partWorkerLDSearchDirs.addCustomDirs();
+        }
+    }
 }
 
 //void Gui::dropEvent(QDropEvent* event)

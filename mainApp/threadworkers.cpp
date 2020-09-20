@@ -348,10 +348,15 @@ void PartWorker::populateLdgLiteSearchDirs() {
         foreach (QString ldgliteSearchDir, Preferences::ldSearchDirs){
             // Exclude invalid directories
             bool excludeSearchDir = false;
-            foreach (QString excludedDir, ldgliteExcludedDirs){
-                if ((excludeSearchDir =
-                     ldgliteSearchDir.toLower() == excludedDir.toLower())) {
-                    break;
+            // Skip over customDirs if fade or highlight step
+            if (!(doFadeStep() || doHighlightStep()) &&
+                !(ldgliteSearchDir.toLower() == QString(_customPartDir).toLower() ||
+                  ldgliteSearchDir.toLower() == QString(_customPrimDir).toLower())) {
+                foreach (QString excludedDir, ldgliteExcludedDirs){
+                    if ((excludeSearchDir =
+                         ldgliteSearchDir.toLower() == excludedDir.toLower())) {
+                        break;
+                    }
                 }
             }
             if (!excludeSearchDir){
@@ -367,6 +372,23 @@ void PartWorker::populateLdgLiteSearchDirs() {
             }
         }
     }
+}
+
+/*
+ * Add customPartDir and customPrim dir to ldSearchDirs
+ * when fade or highlight step is enabled
+ */
+
+void PartWorker::addCustomDirs() {
+    if (!Preferences::ldSearchDirs.contains(_customPartDir)) {
+        Preferences::ldSearchDirs << _customPartDir;
+        emit gui->messageSig(LOG_INFO, QString("Add custom part directory: %1").arg(_customPartDir));
+    }
+    if (!Preferences::ldSearchDirs.contains(_customPrimDir)) {
+        Preferences::ldSearchDirs << _customPrimDir;
+        emit gui->messageSig(LOG_INFO, QString("Add custom primitive directory: %1").arg(_customPrimDir));
+    }
+    updateLDSearchDirs(true);
 }
 
 /*
