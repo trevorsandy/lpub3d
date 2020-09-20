@@ -711,17 +711,17 @@ void Gui::exportAsPdf()
   // store current display page number
   int savePageNumber = displayPageNum;
 
-  // determine location for output file
-  QFileInfo fileInfo(curFile);
-  QString baseName = fileInfo.completeBaseName();
-  QString fileName = QDir::currentPath() + QDir::separator() + baseName;
-
   // add pixel ratio info to file name
   QString dpiInfo = QString("_%1_DPI").arg(int(resolution()));
   if (exportPixelRatio > 1.0 || exportPixelRatio < 1.0){
       dpiInfo += QString("_%1x").arg(exportPixelRatio);
   }
+
+  // determine location for output file
+  QFileInfo fileInfo(curFile);
+  QString baseName = fileInfo.completeBaseName();
   baseName += dpiInfo;
+  QString fileName = QDir::currentPath() + QDir::separator() + baseName;
 
   if (Preferences::modeGUI) {
       fileName = QFileDialog::getSaveFileName(
@@ -736,7 +736,7 @@ void Gui::exportAsPdf()
           return;
         }
     } else
-    if (!saveFileName.isEmpty()) {
+    if (!saveFileName.isEmpty()) { // command line user specified file name
         fileName = saveFileName;
     }
 
@@ -1293,14 +1293,14 @@ void Gui::exportAs(const QString &_suffix)
   // determine location to output images
   QFileInfo fileInfo(curFile);
 
-  // set the file name
-  QString baseName = fileInfo.completeBaseName();
-
   // add pixel ratio info to file name
   QString dpiInfo = QString("_%1_DPI").arg(int(resolution()));
   if (exportPixelRatio > 1.0 || exportPixelRatio < 1.0){
       dpiInfo += QString("_%1x").arg(exportPixelRatio);
   }
+
+  // set the file name
+  QString baseName = fileInfo.completeBaseName();
   baseName += dpiInfo;
 
   if (Preferences::modeGUI && saveDirectoryName.isEmpty()) {
