@@ -5911,7 +5911,7 @@ void OpenWithProgramDialogGui::setProgramEntries() {
         programsLayout->addWidget(programNameEdit,i,1);
 
         QLineEdit *programPathEdit = new QLineEdit(programPath, dialog);
-        programPathEdit->setToolTip("Edit program path");
+        programPathEdit->setToolTip("Edit program path - program arguments are supported, use quotes with spaced names");
         if (i < programPathEditList.size()) {
             programsLayout->removeWidget(programPathEditList.at(i));
             programPathEditList.replace(i,programPathEdit);

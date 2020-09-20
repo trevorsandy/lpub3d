@@ -1571,6 +1571,7 @@ private:
     const QString &printFile,
     const QString &imageFile);
 
+  void openWithProgramAndArgs(QString &program, QStringList &arguments);
   void openWith(const QString &filePath);
   void openFolder(const QString &folder);
   bool processPageRange(const QString &range);

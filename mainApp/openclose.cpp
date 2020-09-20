@@ -142,19 +142,9 @@ void Gui::updateOpenWithActions()
       programEntries = Settings.value(QString("%1/%2").arg(SETTINGS,openWithProgramListKey)).toStringList();
 
       numPrograms = qMin(programEntries.size(), Preferences::maxOpenWithPrograms);
+      messageSig(LOG_DEBUG, QString("1. Number of Programs: %1").arg(numPrograms));
 
-      // filter programPaths that don't exist
-      QString programName, programPath;
-      for (int i = 0; i < numPrograms; ) {
-        programPath = QDir::toNativeSeparators(programEntries.at(i).split("|").last());
-        QFileInfo fileInfo(programPath);
-        if (fileInfo.exists()) {
-          i++;
-        } else {
-          programEntries.removeOne(programEntries.at(i));
-          --numPrograms;
-        }
-      }
+      QString programData, programName, programPath;
 
       auto getProgramIcon = [&programPath] ()
       {
@@ -174,21 +164,34 @@ void Gui::updateOpenWithActions()
           return QIcon(iconFile);
       };
 
-      for (int i = 0; i < numPrograms; i++) {
-        programName = programEntries.at(i).split("|").first();
-        programPath = programEntries.at(i).split("|").last();
-        QString text = programName;
+      // filter programPaths that don't exist
+      for (int i = 0; i < numPrograms; ) {
+        programData = programEntries.at(i).split("|").last();
+        programPath = programData;
+        QStringList arguments;
+        if (!programData.isEmpty())
+            openWithProgramAndArgs(programPath,arguments);
         QFileInfo fileInfo(programPath);
-        if (text.isEmpty())
-            text = tr("&%1 %2").arg(i + 1).arg(fileInfo.fileName());
-        openWithActList[i]->setText(text);
-        openWithActList[i]->setData(programPath);
-        openWithActList[i]->setIcon(getProgramIcon());
-        openWithActList[i]->setStatusTip(QString("Open current file with %2")
-                                                 .arg(fileInfo.fileName()));
-        openWithActList[i]->setVisible(true);
+        if (fileInfo.exists()) {
+          programName = programEntries.at(i).split("|").first();
+          QString text = programName;
+          if (text.isEmpty())
+              text = tr("&%1 %2").arg(i + 1).arg(fileInfo.fileName());
+          openWithActList[i]->setText(text);
+          openWithActList[i]->setData(programData); // includes arguments
+          openWithActList[i]->setIcon(getProgramIcon());
+          openWithActList[i]->setStatusTip(QString("Open current file with %2")
+                                                   .arg(fileInfo.fileName()));
+          openWithActList[i]->setVisible(true);
+          i++;
+        } else {
+          programEntries.removeOne(programEntries.at(i));
+          --numPrograms;
+        }
       }
+      messageSig(LOG_DEBUG, QString("2. Number of Programs: %1").arg(numPrograms));
 
+      // hide empty program actions
       for (int j = numPrograms; j < Preferences::maxOpenWithPrograms; j++) {
         openWithActList[j]->setVisible(false);
       }
@@ -204,30 +207,36 @@ void Gui::openWithSetup()
     updateOpenWithActions();
 }
 
+void Gui::openWithProgramAndArgs(QString &program, QStringList &arguments)
+{
+    QRegExp quoteRx("\"|'");
+    QString valueAt0 = program.at(0);
+    bool inside = valueAt0.contains(quoteRx);                             // true if the first character is " or '
+    QStringList list = program.split(quoteRx, QString::SkipEmptyParts);   // Split by " or '
+    if (list.size() == 1) {
+        program = list.first();
+    } else {
+        QStringList values;
+        foreach (QString item, list) {
+            if (inside) {                                                 // If 's' is inside quotes ...
+                values.append(item);                                      // ... get the whole string
+            } else {                                                      // If 's' is outside quotes ...
+                values.append(item.split(" ", QString::SkipEmptyParts));  // ... get the split string
+            }
+            inside = !inside;
+        }
+        program = values.first();                                         //first value is application path
+        values.removeFirst();                                             // remove application path from values
+        arguments = values + arguments;                                   // prepend values to arguments
+    }
+}
+
 void Gui::openWith(const QString &filePath)
 {
 
     QAction *action = qobject_cast<QAction *>(sender());
     QStringList arguments = QStringList() << filePath;
     QString program;
-
-    auto parseProgramAndArguments = [] (QString &program, QStringList &arguments) {
-        QString valueAt0 = program.at(0);
-        bool inside = (valueAt0 == "\"");                                            // true if the first character is "
-        QStringList list = program.split(QRegExp("\""), QString::SkipEmptyParts);    // Split by "
-        QStringList values;
-        foreach (QString item, list) {
-            if (inside) {                                                            // If 's' is inside quotes ...
-                values.append(item);                                                 // ... get the whole string
-            } else {                                                                 // If 's' is outside quotes ...
-                values.append(item.split(" ", QString::SkipEmptyParts));             // ... get the split string
-            }
-            inside = !inside;
-        }
-        program = values.first();                                                     //first value is application path
-        values.removeFirst();                                                         // remove application path from values
-        arguments = values + arguments;                                               // prepend values to arguments
-    };
 
     if (action) {
         program = action->data().toString();
@@ -237,19 +246,19 @@ void Gui::openWith(const QString &filePath)
                 program = QString("open");
                 arguments.prepend("-e");
             } else {
-                parseProgramAndArguments(Preferences::systemEditor,arguments);
+                openWithProgramAndArgs(Preferences::systemEditor,arguments);
             }
 #else
-            parseProgramAndArguments(Preferences::systemEditor,arguments);
+            openWithProgramAndArgs(Preferences::systemEditor,arguments);
 #endif
         } else {
-            parseProgramAndArguments(program,arguments);
+            openWithProgramAndArgs(program,arguments);
         }
         qint64 pid;
         QString workingDirectory = QDir::currentPath() + QDir::separator();
         QProcess::startDetached(program, {arguments}, workingDirectory, &pid);
-        emit messageSig(LOG_INFO, QString("Launched external application %1...")
-                        .arg(QFileInfo(program).fileName()));
+        emit messageSig(LOG_INFO, QString("Launched %1 with %2...")
+                        .arg(QFileInfo(filePath).fileName()).arg(QFileInfo(program).fileName()));
     }
 }
 
