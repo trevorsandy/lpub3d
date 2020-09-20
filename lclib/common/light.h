@@ -76,6 +76,11 @@ public:
 /*** LPub3D Mod end ***/
 	~lcLight();
 
+	lcLight(const lcLight&) = delete;
+	lcLight(lcLight&&) = delete;
+	lcLight& operator=(const lcLight&) = delete;
+	lcLight& operator=(lcLight&&) = delete;
+
 	bool IsPointLight() const
 	{
 		return (mState & (LC_LIGHT_SPOT | LC_LIGHT_DIRECTIONAL)) == 0;
