@@ -538,8 +538,8 @@ bool Preferences::validLib(const QString &libName, const QString &libVersion) {
 
     int vc =  compareLibVersion(); // QString::compare(val1, val2, Qt::CaseInsensitive);
 
-    logInfo() << QString("Library version check - [%1] minimum :[%2] installed:[%3] vc(%4): %5]")
-                         .arg(libName).arg(val1).arg(val2).arg(vc).arg(vc < 0 ? "v1 < v2" : vc == 0 ? "v1 = v2" : "v1 > v2");
+    logInfo() << QString("Library version check - [%1] minimum :[%2] installed:[%3]"/* vc(%4): %5]" */)
+                         .arg(libName).arg(val1).arg(val2)/* .arg(vc).arg(vc < 0 ? "v1 < v2" : vc == 0 ? "v1 = v2" : "v1 > v2") */;
 
     if (vc > 0) {
         logTrace() << QString("Library %1 version [%2] is less than required version [%3]")
@@ -1992,7 +1992,7 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
             else
             {
               QString header = QMessageBox::tr ("<b>Required libraries were not found!</b>");
-              QString body = QMessageBox::tr ("The following required POVRay libraries were not found:%2%2-%1%2%2"
+              QString body = QMessageBox::tr ("The following required POVRay libraries were not found:%2%2-%1%2%2 "
                                               "See /Applications/LPub3D.app/Contents/Resources/README_macOS.txt for details.")
                                               .arg(missingLibs.join("\n -").arg(modeGUI ? "<br>" : "\n"));
               box.setText (header);
@@ -2006,7 +2006,8 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
                       Application::instance()->splash->show();
                 }
               } else {
-                fprintf(stdout,"%s\n",body.toLatin1().constData());
+                QString message = body.replace("\n", " ");
+                fprintf(stdout,"%s\n",message.toLatin1().constData());
                 fflush(stdout);
 
                 logDebug() << QString("POVRay Missing Libraries: %1").arg(missingLibs.join("\n -"));

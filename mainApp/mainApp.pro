@@ -611,7 +611,7 @@ DISTFILES += \
 
 #~~ suppress warnings ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-!win32-msvc* {
+!win32-msvc*:!macx {
 QMAKE_CFLAGS_WARN_ON += \
     -Wno-deprecated-declarations \
     -Wno-deprecated-copy \

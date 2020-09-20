@@ -88,16 +88,10 @@ if [ "$TRAVIS_OS_NAME" = "linux" ]; then
   export LP3D_DIST_DIR=lpub3d_linux_3rdparty;
 elif [ "$TRAVIS_OS_NAME" = "osx" ]; then
   if [[ "$LP3D_COMPILE_SOURCE" = "true" && "$LP3D_BUILD_PKG" = "" ]]; then
-    brew install ccache gl2ps jpeg minizip;
-    LP3D_EXP_CCACHE_PATH=true;
+    brew install gl2ps jpeg minizip;
   fi;
-  if [[ "$LP3D_BUILD_MACOS" = "true" && "$LP3D_BUILD_PKG" = "yes" ]]; then
-    brew install ccache
-    LP3D_EXP_CCACHE_PATH=true;
-  fi;
-  if [ "$LP3D_EXP_CCACHE_PATH" = "true" ]; then
-    export PATH="/usr/local/opt/ccache/libexec:$PATH";
-  fi
+  brew install ccache
+  export PATH="/usr/local/opt/ccache/libexec:$PATH";
   export LP3D_DIST_DIR=lpub3d_macos_3rdparty;
 fi
 # Decrypt and extract encrypted files

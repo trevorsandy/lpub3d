@@ -72,7 +72,7 @@ builds/utilities/update-config-files.log
 ldvlib/LDVQt/include/*
 
 # Qt Creator generated files
-*.user
+*.user*
 
 # Sourceforge.net source
 builds/source/*

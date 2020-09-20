@@ -1,6 +1,6 @@
 #!/bin/bash
 # Trevor SANDY
-# Last Update: June 23, 2019
+# Last Update: August 24, 2020
 # To run:
 # $ chmod 755 CreateDmg.sh
 # $ ./CreateDmg.sh
@@ -81,10 +81,10 @@ echo "   LOG FILE...............[${LOG}]" && echo
 if [ "${TRAVIS}" != "true"  ]; then
   # use this instance of Qt if exist - this entry is my dev machine, change for your environment accordingly
   if [ "${TRAVIS}" != "true" ]; then
-    if [ -d ~/Qt/IDE/5.11.1/clang_64 ]; then
-      export PATH=~/Qt/IDE/5.11.1/clang_64:~/Qt/IDE/5.11.1/clang_64/bin:$PATH
+    if [ -d ~/Qt/IDE/5.15.0/clang_64 ]; then
+      export PATH=~/Qt/IDE/5.15.0/clang_64:~/Qt/IDE/5.15.0/clang_64/bin:$PATH
     else
-      echo "PATH not udpated with Qt location, could not find ${HOME}/Qt/IDE/5.9/clang_64"
+      echo "PATH not udpated with Qt location, could not find ${HOME}/Qt/IDE/5.15.0/clang_64"
     fi
   fi
   echo
@@ -141,11 +141,24 @@ SOURCE_DIR=${LPUB3D}-${LP3D_VERSION}
 # set pwd before entering lpub3d root directory
 export OBS=false; export WD=$PWD; export LPUB3D=${LPUB3D}; export LDRAWDIR=${HOME}/ldraw
 
+DistArch=$(uname -m)
+if [ "${DistArch}" = "x86_64" ]; then release="64bit_release"; else release="32bit_release"; fi
+
 echo "-  execute CreateRenderers from $(realpath ${LPUB3D}/)..."
 cd ${LPUB3D}
 
 chmod +x builds/utilities/CreateRenderers.sh
 ./builds/utilities/CreateRenderers.sh
+
+# Check if renderers exist or were successfully built
+if [ ! -f "../lpub3d_macos_3rdparty/lpub3d_trace_cui-3.8/bin/$DistArch/lpub3d_trace_cui" ] || \
+   [ ! -f "../lpub3d_macos_3rdparty/LDView-4.4/bin/$DistArch/LDView" ] || \
+   [ ! -f "../lpub3d_macos_3rdparty/LDGLite-1.3/bin/$DistArch/LDGLite" ]
+then
+  echo "ERROR - all renderers were not accounted for, the build cannot continue."
+  ElapsedTime
+  exit 1
+fi
 
 # Stop here if we are only building renderers
 if [ "$BUILD_OPT" = "renderers" ]; then
@@ -215,9 +228,8 @@ qmake CONFIG+=x86_64 CONFIG+=release CONFIG+=build_check CONFIG-=debug_and_relea
 /usr/bin/make
 
 # Check if build is OK or stop and return error.
-if test $(uname -m) = x86_64; then release="64bit_release"; else release="32bit_release"; fi
-if [ ! -d "mainApp/$release/LPub3D.app" ]; then
-  echo "ERROR - build output at $(realpath mainApp/$release/LPub3D.app/) not found."
+if [ ! -f "mainApp/$release/LPub3D.app/Contents/MacOS/LPub3D" ]; then
+  echo "ERROR - build executable at $(realpath mainApp/$release/LPub3D.app/Contents/MacOS/LPub3D) not found."
   ElapsedTime
   exit 1
 else

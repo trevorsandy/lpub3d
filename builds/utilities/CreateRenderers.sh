@@ -41,10 +41,10 @@ ExtractArchive() {
   mkdir -p $1 && tar -mxzf $1.tar.gz -C $1 --strip-components=1
   if [ -d $1/$2 ]; then
     Info "Archive $1.tar.gz successfully extracted."
-    rm -rf $1.tar.gz && Info "Cleanup archive $1.tar.gz."
+    rm -rf $1.tar.gz && Info "Cleanup archive $1.tar.gz." && Info
     cd $1
   else
-    Info "ERROR - $1.tar.gz did not extract properly."
+    Info "ERROR - $1.tar.gz did not extract properly." && Info
   fi
 }
 
@@ -457,10 +457,10 @@ BuildPOVRay() {
   [ ! "$OS_NAME" = "Darwin" ] && export POV_IGNORE_SYSCONF_MSG="yes" || true
   chmod a+x unix/prebuild3rdparty.sh && ./unix/prebuild3rdparty.sh
   [ -n "$BUILD_FLAGS" ] && \
-  Info "BUILD_FLAGS: $BUILD_FLAGS" && \
+  Info && Info "BUILD_FLAGS: $BUILD_FLAGS" && \
   Info "BUILD_CONFIG: $BUILD_CONFIG" && \
   env $BUILD_FLAGS ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." $BUILD_CONFIG || \
-  Info "BUILD_CONFIG: $BUILD_CONFIG" && \
+  Info && Info "BUILD_CONFIG: $BUILD_CONFIG" && \
   ./configure COMPILED_BY="Trevor SANDY <trevor.sandy@gmail.com> for LPub3D." $BUILD_CONFIG
   #Info "DEBUG_DEBUG CONFIG.LOG: " && cat config.log
   if [ "${OBS}" = "true" ]; then
@@ -501,6 +501,7 @@ CallDir=$PWD
 curlopts="-sL -C -"
 
 Info && Info "Building.................[LPub3D 3rd Party Renderers]"
+OS_NAME=$(uname)
 
 # Check for required 'WD' variable
 if [ "${WD}" = "" ]; then
@@ -526,7 +527,6 @@ if [[ "${OBS}" = "" && "${DOCKER}" = "" &&  "${TRAVIS}" = "" ]]; then
 fi
 
 # Get pretty platform name, short platform name and platform version
-OS_NAME=$(uname)
 if [ "$OS_NAME" = "Darwin" ]; then
   platform_pretty=$(echo `sw_vers -productName` `sw_vers -productVersion`)
   platform_id=macos
@@ -701,23 +701,19 @@ if [ "$get_local_libs" = 1 ]; then
 fi
 
 # define build architecture and cached renderer paths
-VER_LDGLITE=ldglite-1.3
-VER_LDVIEW=ldview-4.4
-VER_POVRAY=lpub3d_trace_cui-3.8
-# distArch=$(uname -m)
-#if [[ "$distArch" = "x86_64" || "$distArch" = "aarch64" ]]; then
 if [[ "$TARGET_CPU" = "x86_64" || "$TARGET_CPU" = "aarch64" ]]; then
   buildArch="64bit_release";
 else
   buildArch="32bit_release";
 fi
-LP3D_LDGLITE=${DIST_PKG_DIR}/${VER_LDGLITE}/bin/${distArch}/ldglite
-LP3D_LDVIEW=${DIST_PKG_DIR}/${VER_LDVIEW}/bin/${distArch}/ldview
-LP3D_POVRAY=${DIST_PKG_DIR}/${VER_POVRAY}/bin/${distArch}/lpub3d_trace_cui
-
-#echo && echo "================================================"
-#echo "DEBUG - DISTRIBUTION FILES:" && find $DIST_PKG_DIR -type f;
-#echo "================================================" && echo
+# renderer versions
+VER_LDGLITE=ldglite-1.3
+VER_LDVIEW=ldview-4.4
+VER_POVRAY=lpub3d_trace_cui-3.8
+# renderer paths
+LP3D_LDGLITE=${DIST_PKG_DIR}/${VER_LDGLITE}/bin/${TARGET_CPU}/ldglite
+LP3D_LDVIEW=${DIST_PKG_DIR}/${VER_LDVIEW}/bin/${TARGET_CPU}/ldview
+LP3D_POVRAY=${DIST_PKG_DIR}/${VER_POVRAY}/bin/${TARGET_CPU}/lpub3d_trace_cui
 
 # install build dependencies for MacOS
 if [ "$OS_NAME" = "Darwin" ]; then
@@ -726,21 +722,18 @@ if [ "$OS_NAME" = "Darwin" ]; then
   Info "Platform.................[macos]"
   Info "Using sudo...............[No]"
   for buildDir in ldview povray; do
-    artefactBinary="LP3D_$(echo ${buildDir} | awk '{print toupper($0)}')"
-    if [ ! -f "${!artefactBinary}" ]; then
-      case ${buildDir} in
-      ldview)
-        brewDeps="tinyxml gl2ps libjpeg minizip"
-        ;;
-      povray)
-        # Boost beyond 1.69 is broken on macOS so restrict install to 1.6
-        brewDeps="$brewDeps openexr sdl2 libtiff autoconf"
-        if [ "${TRAVIS}" != "true" ]; then
-          brewDeps="$brewDeps automake pkg-config"
-        fi
-        ;;
-      esac
-    fi
+     case ${buildDir} in
+     ldview)
+       brewDeps="tinyxml gl2ps libjpeg minizip"
+       ;;
+     povray)
+       # Boost beyond 1.69 is broken on macOS so restrict install to 1.6
+       brewDeps="$brewDeps openexr sdl2 libtiff autoconf"
+       if [ "${TRAVIS}" != "true" ]; then
+         brewDeps="$brewDeps automake pkg-config"
+       fi
+       ;;
+     esac
   done
   depsLog=${LOG_PATH}/${ME}_${host}_deps_$OS_NAME.log
   if [ -n "$brewDeps" ]; then
@@ -784,7 +777,9 @@ if [ "$OS_NAME" = "Darwin" ]; then
   BUILD_CPUs=$(sysctl -n hw.ncpu)
 fi
 
+# =======================================
 # Main loop
+# =======================================
 for buildDir in ldglite ldview povray; do
   buildDirUpper="$(echo ${buildDir} | awk '{print toupper($0)}')"
   artefactVer="VER_${buildDirUpper}"
@@ -843,28 +838,25 @@ for buildDir in ldglite ldview povray; do
       OBS_RPM1315_BUILD_OPTS=1
     fi
   else
-    # CI/Local build setup - we must install dependencies even if binary exists...
-    if [[ ! -f "${!artefactBinary}" || ! "$OS_NAME" = "Darwin" ]]; then
-      # Check if build folder exist - donwload tarball and extract if not
-      Info && Info "Setup ${!artefactVer} source files..."
+    # Check if build folder exist - donwload tarball and extract even if binary exists (to generate dependency lists)
+    Info && Info "Setup ${!artefactVer} source files..."
+    Info "----------------------------------------------------"
+    if [ ! -d "${buildDir}/${validSubDir}" ]; then
+      Info && Info "$(echo ${buildDir} | awk '{print toupper($0)}') build folder does not exist. Checking for tarball archive..."
+      if [ ! -f ${buildDir}.tar.gz ]; then
+        Info "$(echo ${buildDir} | awk '{print toupper($0)}') tarball ${buildDir}.tar.gz does not exist. Downloading..."
+        curl $curlopts ${curlCommand} -o ${buildDir}.tar.gz
+      fi
+      ExtractArchive ${buildDir} ${validSubDir}
+    else
+      cd ${buildDir}
+    fi
+    # Install build dependencies - even if binary exists...
+    if [[ ! "$OS_NAME" = "Darwin" && ! "$OBS" = "true" ]]; then
+      Info && Info "Install ${!artefactVer} build dependencies..."
       Info "----------------------------------------------------"
-      if [ ! -d "${buildDir}/${validSubDir}" ]; then
-        Info && Info "$(echo ${buildDir} | awk '{print toupper($0)}') build folder does not exist. Checking for tarball archive..."
-        if [ ! -f ${buildDir}.tar.gz ]; then
-          Info "$(echo ${buildDir} | awk '{print toupper($0)}') tarball ${buildDir}.tar.gz does not exist. Downloading..."
-          curl $curlopts ${curlCommand} -o ${buildDir}.tar.gz
-        fi
-        ExtractArchive ${buildDir} ${validSubDir}
-      else
-        cd ${buildDir}
-      fi
-      # Install build dependencies
-      if [[ ! "$OS_NAME" = "Darwin" && ! "$OBS" = "true" ]]; then
-        Info && Info "Install ${!artefactVer} build dependencies..."
-        Info "----------------------------------------------------"
-        InstallDependencies ${buildDir}
-        sleep .5
-      fi
+      InstallDependencies ${buildDir}
+      sleep .5
     fi
   fi
 
@@ -889,7 +881,7 @@ for buildDir in ldglite ldview povray; do
     fi
     Info && Info "Build ${buildDir} finished." && Info
   else
-    Info "Renderer artefact binary for ${!artefactVer} exists - build skipped."
+    Info && Info "Renderer artefact binary for ${!artefactVer} exists - build skipped." && Info
   fi
   cd ${WD}
 done
