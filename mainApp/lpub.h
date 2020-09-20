@@ -571,6 +571,10 @@ public:
   {
     return ldrawFile.subFileOrder();
   }
+  QStringList modelList()
+  {
+      return ldrawFile.getSubModels();
+  }
   bool changedSinceLastWrite(QString &modelName)
   {
       return ldrawFile.changedSinceLastWrite(modelName);
@@ -1040,6 +1044,11 @@ public slots:
   QStringList getViewerStepKeys(bool modelName = true, bool pliPart = false, const QString &key = "");
   void setViewerStepKey(const QString &stepKey, int notPliPart);
 
+  QStringList getSubModels()
+  {
+      return modelList();
+  }
+
   QString getViewerStepKey()
   {
       return viewerStepKey;
@@ -1308,6 +1317,7 @@ signals:
   void highlightSelectedLinesSig(QVector<int> &indexes);
   void setSelectedPiecesSig(QVector<int> &indexes);
   void showLineSig(int lineNumber, int type);
+  void setSubModelsSig(const QStringList &subModels);
   void clearEditorWindowSig();
 
   void enable3DActionsSig();
@@ -1688,6 +1698,8 @@ private slots:
     void editParamsToolBarVisibilityChanged(bool);
     void setFadeStepsFromCommandMeta();
     void setHighlightStepFromCommandMeta();
+
+    void getSubModelList();
 
     /******************************************************************
      * File management functions

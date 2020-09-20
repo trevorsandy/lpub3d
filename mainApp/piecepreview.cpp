@@ -35,7 +35,6 @@
 
 PiecePreview::PiecePreview()
 {
-    m_PieceInfo = NULL;
     m_RotateX   = 60.0f;
     m_RotateZ   = 225.0f;
     m_Distance  = 10.0f;
@@ -45,19 +44,18 @@ PiecePreview::PiecePreview()
 
 PiecePreview::~PiecePreview()
 {
-    if (m_PieceInfo) {
-        m_PieceInfo->Release();
-    }
+    lcPiecesLibrary* Library = lcGetPiecesLibrary();
+    Library->ReleasePieceInfo(m_Piece.Info);
 }
 
-PieceInfo* PiecePreview::GetCurrentPiece() const
+PieceInfo* PiecePreview::GetCurrentPieceInfo() const
 {
-    return m_PieceInfo;
+    return m_Piece.Info;
 }
 
 void PiecePreview::OnDraw()
 {
-    if (m_PieceInfo == NULL)
+    if (m_Piece.Info == NULL)
         return;
 
     mContext->SetDefaultState();
@@ -68,9 +66,25 @@ void PiecePreview::OnDraw()
 
     lcGetActiveModel()->DrawBackground(this);
 
-    const lcBoundingBox& BoundingBox = m_PieceInfo->GetBoundingBox();
+    lcVector3 Min(FLT_MAX, FLT_MAX, FLT_MAX), Max(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
-    lcVector3 Center = (BoundingBox.Min + BoundingBox.Max) / 2.0f;
+    const PieceInfo* const Info = m_Piece.Info;
+
+    if (!Info)
+        return;
+
+    lcVector3 Points[8];
+    lcGetBoxCorners(Info->GetBoundingBox(), Points);
+
+    for (int PointIdx = 0; PointIdx < 8; PointIdx++)
+    {
+        const lcVector3 Point = lcMul31(Points[PointIdx], m_Piece.Matrices);
+
+        Min = lcMin(Point, Min);
+        Max = lcMax(Point, Max);
+    }
+
+    const lcVector3 Center = (Min + Max) / 2.0f;
 
     lcVector3 Eye(0.0f, 0.0f, 1.0f);
 
@@ -86,7 +100,7 @@ void PiecePreview::OnDraw()
     if (m_AutoZoom)
     {
         lcVector3 Points[8];
-        lcGetBoxCorners(BoundingBox.Min, BoundingBox.Max, Points);
+        lcGetBoxCorners(Min, Max, Points);
 
         Eye += Center;
 
@@ -95,7 +109,6 @@ void PiecePreview::OnDraw()
 
         ViewMatrix = lcMatrix44LookAt(Eye, Center, lcVector3(0, 0, 1));
 
-        // Update the new camera distance.
         const lcVector3 d = Eye - Center;
 
         m_Distance = d.Length();
@@ -109,7 +122,7 @@ void PiecePreview::OnDraw()
     Scene.Begin(ViewMatrix);
     Scene.SetAllowLOD(false);
 
-    m_PieceInfo->AddRenderMeshes(Scene, lcMatrix44Identity(), m_ColorIndex, lcRenderMeshState::Focused, false);
+    m_Piece.Info->AddRenderMeshes(Scene, m_Piece.Matrices, m_Piece.ColorIndex, lcRenderMeshState::Default, true);
 
     Scene.End();
 
@@ -118,43 +131,27 @@ void PiecePreview::OnDraw()
     mContext->ClearResources();
 }
 
-void PiecePreview::SetPiece(PieceInfo *pInfo, quint32 pColorCode)
+void PiecePreview::SetCurrentPiece(const QString &PieceID, int ColorCode)
 {
     MakeCurrent();
 
-    PieceInfo* Info = m_PieceInfo;
-
-    if (pColorCode == NULL)
-        m_ColorIndex = gDefaultColor;
-    else
-        m_ColorIndex = lcGetColorIndex(pColorCode);
-
-    if (Info != NULL)
-        Info->Release();
-
-    Info = pInfo;
-
-    if (Info != NULL)
-    {
-        Info->AddRef();
-        m_PieceInfo = Info;
-        emit lpubAlert->messageSig(LOG_DEBUG,
-                                   QString("Preview PartType: %1, ColorCode: %2, ColorIndex: %3")
-                                   .arg(Info->mFileName).arg(pColorCode).arg(m_ColorIndex));
-        Redraw();
-    }
-}
-
-void PiecePreview::SetCurrentPiece(const QString &PieceID, int ColorCode)
-{
     lcPiecesLibrary* Library = lcGetPiecesLibrary();
     PieceInfo* Info = Library->FindPiece(PieceID.toLatin1().constData(), NULL, false, false);
 
-    if (!Info)
-        Info = Library->mPieces[0];
+    m_Piece.ColorIndex = lcGetColorIndex(ColorCode);
+    m_Piece.Matrices   = lcMatrix44Identity();
+    m_Piece.Info       = Info;
 
-    if (Info)
-        SetPiece(Info, ColorCode);
+    if (Info) {
+        Library->LoadPieceInfo(Info, false, true);
+
+        Library->WaitForLoadQueue();
+    }
+
+    emit lpubAlert->messageSig(LOG_DEBUG,
+                               QString("Preview PartType: %1, ColorCode: %2, ColorIndex: %3")
+                               .arg(Info->mFileName).arg(ColorCode).arg( m_Piece.ColorIndex));
+    //Redraw();
 }
 
 void PiecePreview::OnLeftButtonDown()

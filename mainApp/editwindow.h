@@ -94,7 +94,9 @@ private:
     int           fileOrderIndex;
     bool          isIncludeFile;
     bool          _modelFileEdit;
+    bool          _submodelListPending;
     QString       _curSubFile;         // currently displayed submodel
+    QStringList   _subModelList;
     int           _saveSubfileIndex;
     QFileSystemWatcher fileWatcher;
 
@@ -122,6 +124,7 @@ private:
 signals:
     void contentsChange(const QString &, int position, int charsRemoved, const QString &charsAdded);
     void refreshModelFileSig();
+    void getSubModelListSig();
     void redrawSig();
     void updateSig();
     void enableWatcherSig();
@@ -150,6 +153,7 @@ private slots:
 
 public slots:
     void displayFile(LDrawFile *, const QString &fileName);
+    void setSubModels(const QStringList& subModels);
     void modelFileChanged(const QString &fileName);
     void showLine(int, int);
     void highlightSelectedLines(QVector<int> &lines);
@@ -169,6 +173,7 @@ private:
     void updateOpenWithActions();
     void disableActions();
     void enableActions();
+    bool validPreviewLine();
     QCompleter *completer;
 };
 

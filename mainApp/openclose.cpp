@@ -626,6 +626,8 @@ void Gui::closeFile()
   topOfPages.clear();
   pageSizes.clear();
   undoStack->clear();
+  emit clearViewerWindowSig();
+  emit updateAllViewsSig();
   if (Preferences::enableFadeSteps || Preferences::enableHighlightStep)
       ldrawColourParts.clearGeneratedColorParts();
   submodelIconsLoaded = false;

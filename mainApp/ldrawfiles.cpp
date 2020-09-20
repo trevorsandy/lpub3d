@@ -480,14 +480,27 @@ void LDrawFile::setSubFilePath(const QString     &mcFileName,
   }
 }
 
+QStringList LDrawFile::getSubModels()
+{
+    QStringList subModel;
+    for (int i = 0; i < _subFileOrder.size(); i++) {
+      QString modelName = _subFileOrder[i].toLower();
+      QMap<QString, LDrawSubFile>::iterator it = _subFiles.find(modelName);
+      if (!it->_unofficialPart && !it->_generated) {
+          subModel << modelName;
+      }
+    }
+    return subModel;
+}
+
 QStringList LDrawFile::getSubFilePaths()
 {
-  QStringList subFiles;
+  QStringList subFilesPaths;
   for (int i = 0; i < _subFileOrder.size(); i++) {
     QMap<QString, LDrawSubFile>::iterator f = _subFiles.find(_subFileOrder[i]);
     if (f != _subFiles.end()) {
         if (!f.value()._subFilePath.isEmpty()) {
-            subFiles << f.value()._subFilePath;
+            subFilesPaths << f.value()._subFilePath;
         }
     }
   }

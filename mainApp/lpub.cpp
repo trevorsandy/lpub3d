@@ -3037,6 +3037,9 @@ Gui::Gui()
     connect(this,           SIGNAL(clearEditorWindowSig()),
             editWindow,     SLOT(  clearEditorWindow()));
 
+    connect(this,           SIGNAL(setSubModelsSig(const QStringList &)),
+            editWindow,     SLOT(  setSubModels(   const QStringList &)));
+
     // Edit Window - Gui
     connect(editWindow,     SIGNAL(SelectedPartLinesSig(QVector<TypeLine>&,PartSource)),
             this,           SLOT(SelectedPartLines(QVector<TypeLine>&,PartSource)));
@@ -3052,6 +3055,9 @@ Gui::Gui()
 
     connect(editWindow,     SIGNAL(editModelFileSig()),
             this,           SLOT(  editModelFile()));
+
+    connect(editWindow,     SIGNAL(getSubModelListSig()),
+            this,           SLOT(  getSubModelList()));
 
     connect(editWindow,     SIGNAL(updateDisabledSig(bool)),
             editModeWindow, SLOT(  updateDisabled(bool)));
@@ -3241,6 +3247,11 @@ void Gui::initialize()
       soMap[PartsListGroupObj]        = QString("PLI_PART_GROUP");       // 37
       soMap[StepBackgroundObj]        = QString("STEP_RECTANGLE");       // 38 [StepType]
   }
+}
+
+void Gui::getSubModelList()
+{
+   setSubModelsSig(getSubModels());
 }
 
 void Gui::loadBLCodes()

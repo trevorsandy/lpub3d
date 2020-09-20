@@ -52,9 +52,14 @@
 #include "messageboxresizable.h"
 
 #include "version.h"
+#include "paths.h"
 #include "lpub_preferences.h"
 
 #include "lc_qglwidget.h"
+#include "lc_model.h"
+#include "lc_library.h"
+#include "project.h"
+#include "view.h"
 #include "piecepreview.h"
 
 EditWindow *editWindow;
@@ -129,50 +134,103 @@ QAbstractItemModel *EditWindow::modelFromFile(const QString& fileName)
 
 void EditWindow::previewPart()
 {
-    if (isIncludeFile)
+    if (isIncludeFile || !sender() || sender() != previewPartAct)
         return;
 
-    QTextCursor cursor = _textEdit->textCursor();
-    cursor.select(QTextCursor::LineUnderCursor);
-    QString selection = cursor.selection().toPlainText();
-    QStringList list;
-    QString partType;
-    int validCode, colorCode = int(LDRAW_MATERIAL_COLOUR);
-    bool ok = false;
-    if (selection.startsWith("1 ")) {
-        list = selection.split(" ", QString::SkipEmptyParts);
-        validCode = list[1].toInt(&ok);
-        // 0 1           2 3 4 5 6 7 8 9 10 11 12 13 14
-        // 1 <colorCode> 0 0 0 0 0 1 1 0 0  0  1  0  <part type>
-        for (int i = 14; i < list.size(); i++)
-            partType += (list[i]+" ");
-    } else if (selection.contains("LPUB PLI BEGIN SUB ")) {
-        // 0 1     2   3     4   5           6
-        // 0 !LPUB PLI BEGIN SUB <part type> <colorCode>
-        list = selection.split(" ", QString::SkipEmptyParts);
-        partType = list[5];
-        validCode = list[6].toInt(&ok);
+    QStringList partKeys = previewPartAct->data().toString().split("|");
+    int colorCode = partKeys.at(0).toInt();
+    QString partType = partKeys.at(1);
+    bool isSubmodel = partKeys.at(2).toInt();
+    bool position = false;
+
+// /*
+    if (isSubmodel) {
+
+        // Get the application icon as a pixmap
+        QPixmap _icon = QPixmap(":/icons/lpub96.png");
+        if (_icon.isNull())
+            _icon = QPixmap (":/icons/update.png");
+
+        QMessageBoxResizable box;
+        box.setWindowIcon(QIcon());
+        box.setIconPixmap (_icon);
+        box.setTextFormat (Qt::RichText);
+        box.setWindowTitle(tr ("%1 Submodel Preview").arg(VER_PRODUCTNAME_STR));
+        box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+        QString title = "<b>" + tr ("Submodel preview is not yet supported.&nbsp;&nbsp;&nbsp;"
+                                    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;") + "</b>";
+        QString text = tr("The selected line specifies submodel '%1' which is not yet supported in the preview window.<br>")
+                          .arg(partType);
+        box.setText (title);
+        box.setInformativeText (text);
+        box.setStandardButtons (QMessageBox::Ok);
+
+        box.exec();
+
+        return;
     }
-    if (ok)
-        colorCode = validCode;
-    partType = partType.trimmed();
+// */
 
-//    emit lpubAlert->messageSig(LOG_DEBUG,
-//                               QString("Editor PartType: %1, ColorCode: %2, Line: %3")
-//                               .arg(partType).arg(colorCode).arg(selection));
+    QString       modelPath;
+    PiecePreview *PartPreview   = nullptr;
+    View         *SubModView    = nullptr;
+    Project      *SubModProject = nullptr;
+    lcModel      *ActiveModel   = nullptr;
+    lcQGLWidget  *ViewWidget    = nullptr;
 
-    PiecePreview *Preview    = new PiecePreview();
-    lcQGLWidget  *ViewWidget = new lcQGLWidget(nullptr, Preview, false);
+    if (isSubmodel) {
+        modelPath = QString("%1/%2/%3").arg(QDir::currentPath()).arg(Paths::tmpDir).arg(partType);
 
-    if (Preview && ViewWidget) {
+        SubModProject = new Project();
 
-        ViewWidget->setWindowTitle("Part Preview");
-        ViewWidget->preferredSize = QSize(300, 200);
+        if (SubModProject->Load(modelPath))
+        {
+            SubModProject->SetActiveModel(0);
 
-        float Scale        = ViewWidget->deviceScale();
-        Preview->mWidth    = ViewWidget->width()  * Scale;
-        Preview->mHeight   = ViewWidget->height() * Scale;
-        Preview->SetCurrentPiece(partType, colorCode);
+            lcGetPiecesLibrary()->RemoveTemporaryPieces();
+
+            ActiveModel = SubModProject->GetActiveModel();
+
+            SubModView  = new View(ActiveModel);
+
+            ViewWidget  = new lcQGLWidget(nullptr, SubModView, false);
+
+            if (SubModView && ViewWidget) {
+
+                ViewWidget->setWindowTitle("Submodel Preview");
+
+                ViewWidget->preferredSize = QSize(500, 300);
+
+                float Scale         = ViewWidget->deviceScale();
+                SubModView->mWidth  = ViewWidget->width()  * Scale;
+                SubModView->mHeight = ViewWidget->height() * Scale;
+
+                position    = true;
+            }
+        }
+
+    } else {
+        PartPreview = new PiecePreview();
+
+        ViewWidget = new lcQGLWidget(nullptr, PartPreview, false);
+
+        if (PartPreview && ViewWidget) {
+
+            ViewWidget->setWindowTitle("Part Preview");
+
+            PartPreview->SetCurrentPiece(partType, colorCode);
+
+            ViewWidget->preferredSize = QSize(300, 200);
+
+            float Scale          = ViewWidget->deviceScale();
+            PartPreview->mWidth  = ViewWidget->width()  * Scale;
+            PartPreview->mHeight = ViewWidget->height() * Scale;
+
+            position = true;
+        }
+    }
+
+    if (position) {
 
         const QRect desktop = QApplication::desktop()->geometry();
 
@@ -526,13 +584,75 @@ void EditWindow::createToolBars()
     editToolBar->addAction(redrawAct);
 }
 
+bool EditWindow::validPreviewLine ()
+{
+    QString partType;
+    int validCode, isSubmodel = 0, colorCode = int(LDRAW_MATERIAL_COLOUR);
+    QTextCursor cursor = _textEdit->textCursor();
+    cursor.select(QTextCursor::LineUnderCursor);
+    QString selection = cursor.selection().toPlainText();
+    QStringList list;
+    bool ok = false;
+
+    if (selection.startsWith("1 ")) {
+        list = selection.split(" ", QString::SkipEmptyParts);
+
+        validCode = list[1].toInt(&ok);
+        // 0 1           2 3 4 5 6 7 8 9 10 11 12 13 14
+        // 1 <colorCode> 0 0 0 0 0 1 1 0 0  0  1  0  <part type>
+        for (int i = 14; i < list.size(); i++)
+            partType += (list[i]+" ");
+
+        partType = partType.trimmed();
+
+        if ((isSubmodel = _subModelList.contains(partType))) {
+            // TODO - temporary instruction until submodels are supported
+            return false;
+
+            previewPartAct->setText(tr("Preview highlighted submodel..."));
+            previewPartAct->setStatusTip(tr("Display the highlighted submodel in a popup 3D viewer"));
+        }
+
+    } else if (selection.contains("LPUB PLI BEGIN SUB ")) {
+        // 0 1     2   3     4   5           6
+        // 0 !LPUB PLI BEGIN SUB <part type> <colorCode>
+        list = selection.split(" ", QString::SkipEmptyParts);
+
+        partType = list[5];
+
+        validCode = list[6].toInt(&ok);
+
+    } else {
+        return false;
+    }
+
+    if (ok)
+        colorCode = validCode;
+    partType = partType.trimmed();
+
+    emit lpubAlert->messageSig(LOG_DEBUG,
+                               QString("Editor PartType: %1, ColorCode: %2, Line: %3")
+                               .arg(partType).arg(colorCode).arg(selection));
+
+    QString partKey = QString("%1|%2|%3").arg(colorCode).arg(partType).arg(isSubmodel);
+
+    previewPartAct->setData(partKey);
+
+    return true;
+}
 void EditWindow::showContextMenu(const QPoint &pt)
 {
     QMenu *menu = _textEdit->createStandardContextMenu();
     menu->addSeparator();
     if (!fileName.isEmpty()) {
         if (!isIncludeFile) {
-            menu->addAction(previewPartAct);
+            _submodelListPending = true;
+            emit getSubModelListSig();
+            while (_submodelListPending)
+                QApplication::processEvents();
+            if (validPreviewLine()) {
+                menu->addAction(previewPartAct);
+            }
         }
         if (!modelFileEdit()) {
             editModelFileAct->setText(tr("Edit %1").arg(QFileInfo(fileName).fileName()));
@@ -930,6 +1050,11 @@ void EditWindow::updateDisabled(bool state){
     } else {
         updateAct->setDisabled(state);
     }
+}
+
+void EditWindow::setSubModels(const QStringList& subModels){
+    _subModelList = subModels;
+    _submodelListPending = false;
 }
 
 void EditWindow::displayFile(

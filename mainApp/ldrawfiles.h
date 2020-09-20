@@ -254,6 +254,7 @@ class LDrawFile {
     int  size(const QString &fileName);
     void empty();
 
+    QStringList getSubModels();
     QStringList getSubFilePaths();
     QStringList contents(const QString &fileName);
     void normalizeHeader(const QString &fileName,

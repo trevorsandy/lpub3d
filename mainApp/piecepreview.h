@@ -32,6 +32,13 @@
 
 class PieceInfo;
 
+struct mPiece
+{
+    PieceInfo* Info;
+    int        ColorIndex;
+    lcMatrix44 Matrices;
+};
+
 class PiecePreview : public lcGLWidget
 {
 public:
@@ -46,13 +53,11 @@ public:
     void OnRightButtonUp() override;
     void OnMouseMove() override;
 
-    PieceInfo* GetCurrentPiece() const;
-    void SetPiece(PieceInfo* pInfo, quint32 pColorCode = 0);
+    PieceInfo* GetCurrentPieceInfo() const;
     void SetCurrentPiece(const QString& PieceID, int ColorCode);
 
 protected:
-    PieceInfo *m_PieceInfo;
-    quint32    m_ColorIndex;
+    mPiece m_Piece;
 
     // Mouse tracking.
     int m_Tracking;

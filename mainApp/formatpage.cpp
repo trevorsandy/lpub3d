@@ -316,6 +316,10 @@ int Gui::addGraphicsPageItems(
   GetPartsToolBar()->setEnabled(!page->coverPage);
   GetColorsToolBar()->setEnabled(!page->coverPage);
   ViewerMenu->setEnabled(!page->coverPage);
+  if (page->coverPage) {
+      emit clearViewerWindowSig();
+      emit updateAllViewsSig();
+  }
 
   int pW, pH;
 
