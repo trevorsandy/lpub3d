@@ -2900,50 +2900,17 @@ void MetaItem::insertText()
     Where insertPosition, walkBack, topOfStep, bottomOfStep;
 
     bool append        = true;
-    bool multiStep     = false;
     bool isRichText    = false;
+    bool multiStep     = gui->getCurrentStep()->multiStep;
     bool textPlacement = gui->page.meta.LPub.page.textPlacement.value();
     PlacementType parentRelativeType = PageType;
 
-    Steps *steps = dynamic_cast<Steps *>(&gui->page);
-    if (steps && steps->list.size() > 0) {
-      if (steps->list.size() > 1) {
-        multiStep = true;
-      } else {
-        Range *range = dynamic_cast<Range *>(steps->list[0]);
-        if (range && range->list.size() > 1) {
-          multiStep = true;
-        }
-      }
-    }
-
-    if (multiStep) {
-        insertPosition = steps->bottomOfSteps();
-      } else {
-        insertPosition = gStep->topOfStep();
-//        topOfStep = gui->topOfPages[gui->displayPageNum-1];
-//        // capture model when different from model at top of page
-//        bottomOfStep = gui->topOfPages[gui->displayPageNum];
-//        if (topOfStep.modelName == bottomOfStep.modelName) {
-//          // well the model has not changed
-//          insertPosition = topOfStep;
-//        } else {
-//          // we are entering or leaving a submodel
-//        Rc rc;
-//        // walk back to top of step, - 1 to avoid advacing 1 STEP if we land on a STEP command
-//        walkBack = bottomOfStep - 1;
-//        for (; walkBack.lineNumber >= 0; walkBack--) {
-//          QString line = gui->readLine(walkBack);
-//          Meta mi;
-//          rc = mi.parse(line,walkBack);
-//          if (isHeader(line) || rc == StepRc || rc == RotStepRc) {
-//            break;
-//          }
-//        }
-//        insertPosition = walkBack;
-//      }
-      scanPastGlobal(insertPosition);
-    }
+    if (multiStep)
+        insertPosition = gui->getCurrentStep()->bottomOfSteps();
+    else
+        insertPosition = gui->getCurrentStep()->topOfStep();
+    if (insertPosition.modelName == gui->topLevelFile() && insertPosition.lineNumber < 2)
+        scanPastGlobal(insertPosition);
 
     if (textPlacement) {
       QStringList textFormatOptions;
