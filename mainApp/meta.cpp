@@ -3568,7 +3568,8 @@ Rc RotStepMeta::parse(QStringList &argv, int index,Where &here)
           _value.rots[0] = argv[index+0].toDouble();
           _value.rots[1] = argv[index+1].toDouble();
           _value.rots[2] = argv[index+2].toDouble();
-          _value.type = argv[index+3];
+          _value.type    = argv[index+3];
+          _value.populated = !(_value.rots[0] == 0.0 && _value.rots[1] == 0.0 && _value.rots[2] == 0.0);
           _here[0] = here;
           _here[1] = here;
           return RotStepRc;
@@ -3578,6 +3579,7 @@ Rc RotStepMeta::parse(QStringList &argv, int index,Where &here)
       _value.rots[0] = 0;
       _value.rots[1] = 0;
       _value.rots[2] = 0;
+      _value.populated = false;
       _here[0] = here;
       _here[1] = here;
       return RotStepRc;

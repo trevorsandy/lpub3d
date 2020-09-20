@@ -2716,7 +2716,7 @@ public:
     _value.populated = rhs.rots[0] != 0.0 ||
                        rhs.rots[1] != 0.0 ||
                        rhs.rots[2] != 0.0 ||
-                       rhs.type != _value.type;
+                       rhs.type    != _value.type;
     _value.type      = rhs.type;
     _value.rots[0]   = rhs.rots[0];
     _value.rots[1]   = rhs.rots[1];
