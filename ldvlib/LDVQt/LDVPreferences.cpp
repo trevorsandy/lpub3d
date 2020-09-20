@@ -46,233 +46,232 @@
 #define DEFAULT_PREF_SET TCLocalStrings::get("DefaultPrefSet")
 
 LDVPreferences::LDVPreferences(LDVWidget* modelWidget)
-    :QDialog(qobject_cast<QWidget*>(modelWidget)),
-      LDVPreferencesPanel(),
-      modelViewer(modelWidget->getModelViewer() ? ((LDrawModelViewer*)modelWidget->getModelViewer()->retain()) : nullptr),
-      ldPrefs(new LDPreferences(modelViewer)),
-      checkAbandon(true)
+	:QDialog(qobject_cast<QWidget*>(modelWidget)),
+	  LDVPreferencesPanel(),
+	  modelViewer(modelWidget->getModelViewer() ? ((LDrawModelViewer*)modelWidget->getModelViewer()->retain()) : nullptr),
+	  ldPrefs(new LDPreferences(modelViewer)),
+	  checkAbandon(true)
 {
-    setupUi(this);
-    connect( aaLinesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-    connect( applyButton, SIGNAL( pressed() ), this, SLOT( doApply() ) );
-    connect( okButton, SIGNAL( clicked() ), this, SLOT( doOk() ) );
-    connect( cancelButton, SIGNAL( clicked() ), this, SLOT( doCancel() ) );
-    connect( primitvesResetButton, SIGNAL( clicked() ), this, SLOT( doResetPrimitives() ) );
-    connect( seamWidthButton, SIGNAL( clicked() ), this, SLOT( enableApply() ) );
-    connect( seamWidthDoubleSpin, SIGNAL( valueChanged(double) ), this, SLOT( enableApply() ) );
-    connect( fieldOfViewDoubleSpin, SIGNAL( valueChanged(double) ), this, SLOT( enableApply() ) );
-    connect( memoryUsageBox, SIGNAL( activated(int) ), this, SLOT( enableApply() ) );
-    connect( snapshotSaveDirBox, SIGNAL( activated(int) ), this, SLOT( snapshotSaveDirBoxChanged() ) );
-    connect( partsListsSaveDirBox, SIGNAL( activated(int) ), this, SLOT( partsListsSaveDirBoxChanged() ) );
-    connect( exportsListsSaveDirBox, SIGNAL( activated(int) ), this, SLOT( exportsListsSaveDirBoxChanged() ) );
-    connect( snapshotSaveDirButton, SIGNAL( clicked() ), this, SLOT( snapshotSaveDirBrowse() ) );
-    connect( partsListsSaveDirButton, SIGNAL( clicked() ), this, SLOT( partsListsSaveDirBrowse() ) );
-    connect( exportsSaveDirButton, SIGNAL( clicked() ), this, SLOT( exportsSaveDirBrowse() ) );
-    connect( transparentButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-    connect( wireframeThicknessSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
-    connect( edgesOnlyButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-    connect( conditionalLinesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-    connect( conditionalLinesButton, SIGNAL( toggled(bool) ), this, SLOT( doConditionalShow(bool) ) );
-    connect( conditionalShowAllButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-    connect( conditionalShowControlPtsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-    connect( wireframeFogButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-    connect( wireframeRemoveHiddenLineButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-    connect( highQualityLinesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-    connect( alwaysBlackLinesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-    connect( edgeThicknessSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
-    connect( showErrorsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-    connect( processLdconfigLdrButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-    connect( randomColorsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-    connect( frameRateButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-    connect( showAxesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-    connect( partBoundingBoxOnlyBox, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-    connect( qualityLightingButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-    connect( subduedLightingButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-    connect( specularLightingButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-    connect( alternateLightingButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-    connect( crossEyedStereoButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( parallelStereoButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( stereoAmountSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
-    connect( colorCutawayButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( monochromeCutawayButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( sortTransparencyButton, SIGNAL( toggled(bool) ), this, SLOT( doSortTransparency(bool) ) );
-    connect( cutawayOpacitySlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
-    connect( cutawayThicknessSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
-    connect( stippleTransparencyButton, SIGNAL( toggled(bool) ), this, SLOT( doStippleTransparency(bool) ) );
-    connect( flatShadingButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-    connect( smoothCurvesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-    connect( nearestFilteringButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( bilinearFilteringButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( trilinearFilteringButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( anisotropicFilteringButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( anisotropicFilteringButton, SIGNAL( toggled(bool) ), this, SLOT( doAnisotropic() ) );
-    connect( anisotropicFilteringSlider, SIGNAL( valueChanged(int) ), this, SLOT( doAnisotropicSlider(int) ) );
-    connect( anisotropicFilteringSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
-    connect( curveQualitySlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
-    connect( lowQualityStudsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-    connect( hiresPrimitivesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-    connect( generalResetButton, SIGNAL( clicked() ), this, SLOT( doResetGeneral() ) );
-    connect( geometryResetButton, SIGNAL( clicked() ), this, SLOT( doResetGeometry() ) );
-    connect( effectsResetButton, SIGNAL( clicked() ), this, SLOT( doResetEffects() ) );
-    connect( updatesResetButton, SIGNAL( clicked() ), this, SLOT( doResetUpdates() ) );
-    connect( updatesResetTimesButton, SIGNAL( clicked () ), this, SLOT (doResetTimesUpdates() ) );
-    connect( wireframeButton, SIGNAL( toggled(bool) ), this, SLOT( doWireframe(bool) ) );
-    connect( enableBFCButton, SIGNAL( toggled(bool) ), this, SLOT( doBFC(bool) ) );
-    connect( enableBFCButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( bfcRedBackFaceButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( bfcGreenFrontFaceButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( bfcBlueNeutralFaceButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( wireframeButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( edgeLinesButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( edgeLinesButton, SIGNAL( toggled(bool) ), this, SLOT( doEdgeLines(bool) ) );
-    connect( lightingButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( lightingButton, SIGNAL( toggled(bool) ), this, SLOT( doLighting(bool) ) );
-    connect( lightingDir11, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( lightingDir12, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( lightingDir13, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( lightingDir21, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( lightingDir22, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( lightingDir23, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( lightingDir31, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( lightingDir32, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( lightingDir33, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( effectsUseLIGHTDATButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( effectsUseLIGHTDATButton, SIGNAL( toggled(bool) ), this, SLOT( doDrawLightDats() ) );
-    connect( effectsReplaceStandarLightButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( effectsHideLIGHTButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( stereoButton, SIGNAL( toggled(bool) ), this, SLOT( doStereo(bool) ) );
-    connect( stereoButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( wireframeCutawayButton, SIGNAL( toggled(bool) ), this, SLOT( doWireframeCutaway(bool) ) );
-    connect( wireframeCutawayButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( primitiveSubstitutionButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( primitiveSubstitutionButton, SIGNAL( toggled(bool) ), this, SLOT( doPrimitiveSubstitution(bool) ) );
-    connect( textureStudsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-    connect( textureStudsButton, SIGNAL( toggled(bool) ), this, SLOT( doTextureStuds(bool) ) );
-    connect( useTextureMapsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-    connect( useTextureMapsButton, SIGNAL( toggled(bool) ), this, SLOT( doTextureStuds(bool) ) );
-    connect( newPreferenceSetButton, SIGNAL( clicked() ), this, SLOT( doNewPreferenceSet() ) );
-    connect( delPreferenceSetButton, SIGNAL( clicked() ), this, SLOT( doDelPreferenceSet() ) );
-    connect( hotkeyPreferenceSetButton, SIGNAL( clicked() ), this, SLOT( doHotkeyPreferenceSet() ) );
-    connect( preferenceSetList, SIGNAL( currentItemChanged(QListWidgetItem *,QListWidgetItem *) ), this, SLOT( doPrefSetSelected(QListWidgetItem *,QListWidgetItem *) ) );
-    connect( backgroundColorButton, SIGNAL( clicked() ), this, SLOT( doBackgroundColor() ) );
-    connect( defaultColorButton, SIGNAL( clicked() ), this, SLOT( doDefaultColor() ) );
-    connect( updatesNoproxyButton, SIGNAL( toggled(bool) ), this, SLOT( disableProxy() ) );
-    connect( updatesProxyButton, SIGNAL( toggled(bool) ), this, SLOT( enableProxy() ) );
-    connect( updatesMissingpartsButton, SIGNAL( toggled(bool) ), this, SLOT( doUpdateMissingparts(bool) ) );
-    connect( updatesMissingpartsButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( drawTransparentTexturesLastButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
-    connect( transparentOffsetSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
-    connect( studLogoBox, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
-    connect( studLogoBox, SIGNAL( toggled(bool) ), this, SLOT( enableStudLogoCombo() ) );
-    connect( studLogoCombo, SIGNAL( currentIndexChanged(int) ), this, SLOT( enableApply() ) );
+	setupUi(this);
+	connect( aaLinesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( applyButton, SIGNAL( pressed() ), this, SLOT( doApply() ) );
+	connect( okButton, SIGNAL( clicked() ), this, SLOT( doOk() ) );
+	connect( cancelButton, SIGNAL( clicked() ), this, SLOT( doCancel() ) );
+	connect( primitvesResetButton, SIGNAL( clicked() ), this, SLOT( doResetPrimitives() ) );
+	connect( seamWidthButton, SIGNAL( clicked() ), this, SLOT( enableApply() ) );
+	connect( seamWidthDoubleSpin, SIGNAL( valueChanged(double) ), this, SLOT( enableApply() ) );
+	connect( fieldOfViewDoubleSpin, SIGNAL( valueChanged(double) ), this, SLOT( enableApply() ) );
+	connect( memoryUsageBox, SIGNAL( activated(int) ), this, SLOT( enableApply() ) );
+	connect( snapshotSaveDirBox, SIGNAL( activated(int) ), this, SLOT( snapshotSaveDirBoxChanged() ) );
+	connect( partsListsSaveDirBox, SIGNAL( activated(int) ), this, SLOT( partsListsSaveDirBoxChanged() ) );
+	connect( exportsListsSaveDirBox, SIGNAL( activated(int) ), this, SLOT( exportsListsSaveDirBoxChanged() ) );
+	connect( snapshotSaveDirButton, SIGNAL( clicked() ), this, SLOT( snapshotSaveDirBrowse() ) );
+	connect( partsListsSaveDirButton, SIGNAL( clicked() ), this, SLOT( partsListsSaveDirBrowse() ) );
+	connect( exportsSaveDirButton, SIGNAL( clicked() ), this, SLOT( exportsSaveDirBrowse() ) );
+	connect( transparentButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( wireframeThicknessSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
+	connect( edgesOnlyButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( conditionalLinesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( conditionalLinesButton, SIGNAL( toggled(bool) ), this, SLOT( doConditionalShow(bool) ) );
+	connect( conditionalShowAllButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( conditionalShowControlPtsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( wireframeFogButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( wireframeRemoveHiddenLineButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( highQualityLinesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( alwaysBlackLinesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( edgeThicknessSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
+	connect( showErrorsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( processLdconfigLdrButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( randomColorsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( frameRateButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( showAxesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( partBoundingBoxOnlyBox, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( qualityLightingButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( subduedLightingButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( specularLightingButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( alternateLightingButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( crossEyedStereoButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( parallelStereoButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( stereoAmountSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
+	connect( colorCutawayButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( monochromeCutawayButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( sortTransparencyButton, SIGNAL( toggled(bool) ), this, SLOT( doSortTransparency(bool) ) );
+	connect( cutawayOpacitySlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
+	connect( cutawayThicknessSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
+	connect( stippleTransparencyButton, SIGNAL( toggled(bool) ), this, SLOT( doStippleTransparency(bool) ) );
+	connect( flatShadingButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( smoothCurvesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( nearestFilteringButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( bilinearFilteringButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( trilinearFilteringButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( anisotropicFilteringButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( anisotropicFilteringButton, SIGNAL( toggled(bool) ), this, SLOT( doAnisotropic() ) );
+	connect( anisotropicFilteringSlider, SIGNAL( valueChanged(int) ), this, SLOT( doAnisotropicSlider(int) ) );
+	connect( anisotropicFilteringSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
+	connect( curveQualitySlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
+	connect( lowQualityStudsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( hiresPrimitivesButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( generalResetButton, SIGNAL( clicked() ), this, SLOT( doResetGeneral() ) );
+	connect( geometryResetButton, SIGNAL( clicked() ), this, SLOT( doResetGeometry() ) );
+	connect( effectsResetButton, SIGNAL( clicked() ), this, SLOT( doResetEffects() ) );
+	connect( updatesResetButton, SIGNAL( clicked() ), this, SLOT( doResetUpdates() ) );
+	connect( updatesResetTimesButton, SIGNAL( clicked () ), this, SLOT (doResetTimesUpdates() ) );
+	connect( wireframeButton, SIGNAL( toggled(bool) ), this, SLOT( doWireframe(bool) ) );
+	connect( enableBFCButton, SIGNAL( toggled(bool) ), this, SLOT( doBFC(bool) ) );
+	connect( enableBFCButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( bfcRedBackFaceButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( bfcGreenFrontFaceButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( bfcBlueNeutralFaceButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( wireframeButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( edgeLinesButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( edgeLinesButton, SIGNAL( toggled(bool) ), this, SLOT( doEdgeLines(bool) ) );
+	connect( lightingButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( lightingButton, SIGNAL( toggled(bool) ), this, SLOT( doLighting(bool) ) );
+	connect( lightingDir11, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( lightingDir12, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( lightingDir13, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( lightingDir21, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( lightingDir22, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( lightingDir23, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( lightingDir31, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( lightingDir32, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( lightingDir33, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( effectsUseLIGHTDATButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( effectsUseLIGHTDATButton, SIGNAL( toggled(bool) ), this, SLOT( doDrawLightDats() ) );
+	connect( effectsReplaceStandarLightButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( effectsHideLIGHTButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( stereoButton, SIGNAL( toggled(bool) ), this, SLOT( doStereo(bool) ) );
+	connect( stereoButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( wireframeCutawayButton, SIGNAL( toggled(bool) ), this, SLOT( doWireframeCutaway(bool) ) );
+	connect( wireframeCutawayButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( primitiveSubstitutionButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( primitiveSubstitutionButton, SIGNAL( toggled(bool) ), this, SLOT( doPrimitiveSubstitution(bool) ) );
+	connect( textureStudsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( textureStudsButton, SIGNAL( toggled(bool) ), this, SLOT( doTextureStuds(bool) ) );
+	connect( useTextureMapsButton, SIGNAL( stateChanged(int) ), this, SLOT( enableApply() ) );
+	connect( useTextureMapsButton, SIGNAL( toggled(bool) ), this, SLOT( doTextureStuds(bool) ) );
+	connect( newPreferenceSetButton, SIGNAL( clicked() ), this, SLOT( doNewPreferenceSet() ) );
+	connect( delPreferenceSetButton, SIGNAL( clicked() ), this, SLOT( doDelPreferenceSet() ) );
+	connect( hotkeyPreferenceSetButton, SIGNAL( clicked() ), this, SLOT( doHotkeyPreferenceSet() ) );
+	connect( preferenceSetList, SIGNAL( currentItemChanged(QListWidgetItem *,QListWidgetItem *) ), this, SLOT( doPrefSetSelected(QListWidgetItem *,QListWidgetItem *) ) );
+	connect( backgroundColorButton, SIGNAL( clicked() ), this, SLOT( doBackgroundColor() ) );
+	connect( defaultColorButton, SIGNAL( clicked() ), this, SLOT( doDefaultColor() ) );
+	connect( updatesNoproxyButton, SIGNAL( toggled(bool) ), this, SLOT( disableProxy() ) );
+	connect( updatesProxyButton, SIGNAL( toggled(bool) ), this, SLOT( enableProxy() ) );
+	connect( updatesMissingpartsButton, SIGNAL( toggled(bool) ), this, SLOT( doUpdateMissingparts(bool) ) );
+	connect( updatesMissingpartsButton, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( transparentOffsetSlider, SIGNAL( valueChanged(int) ), this, SLOT( enableApply() ) );
+	connect( studLogoBox, SIGNAL( toggled(bool) ), this, SLOT( enableApply() ) );
+	connect( studLogoBox, SIGNAL( toggled(bool) ), this, SLOT( enableStudLogoCombo() ) );
+	connect( studLogoCombo, SIGNAL( currentIndexChanged(int) ), this, SLOT( enableApply() ) );
 
-    loadSettings();
+	loadSettings();
 #ifdef WIN32
-    setupAntialiasing();
-    connect( fsaaModeBox, SIGNAL( currentIndexChanged(int) ), this, SLOT( enableApply() ) );
-    connect( fsaaModeBox, SIGNAL( currentIndexChanged(const QString &) ), this, SLOT( fsaaModeBoxChanged(const QString &) ) );
-    connect( havePixelBufferButton, SIGNAL( clicked() ), this, SLOT( enableApply() ) );
+	setupAntialiasing();
+	connect( fsaaModeBox, SIGNAL( currentIndexChanged(int) ), this, SLOT( enableApply() ) );
+	connect( fsaaModeBox, SIGNAL( currentIndexChanged(const QString &) ), this, SLOT( fsaaModeBoxChanged(const QString &) ) );
+	connect( havePixelBufferButton, SIGNAL( clicked() ), this, SLOT( enableApply() ) );
 #else
-    fsaaModeBox->setDisabled(true);
-    fsaaModeBox->hide();
-    fsaaModeLabel->hide();
-    havePixelBufferButton->hide();
+	fsaaModeBox->setDisabled(true);
+	fsaaModeBox->hide();
+	fsaaModeLabel->hide();
+	havePixelBufferButton->hide();
 #endif // WIN32
 
-    ldPrefs->applySettings();
+	ldPrefs->applySettings();
 
-    reflectSettings();
+	reflectSettings();
 
-    QStyle *style = defaultColorButton->style();
-    if (style != nullptr)
-    {
-        QString styleName = style->metaObject()->className();
-        if (styleName == "QGtkStyle")
-        {
-            // QGtkStyle uses an image for the background, and doesn't show
-            // the background color at all, so update the color buttons to use
-            // the QWindowsStyle instead.
-            // In Qt5 no need for changing the style, background color can be
-            // set
-            defaultColorButton->setStyle(QStyleFactory::create("Windows"));
-            backgroundColorButton->setStyle(QStyleFactory::create("Windows"));
-        }
-    }
+	QStyle *style = defaultColorButton->style();
+	if (style != nullptr)
+	{
+		QString styleName = style->metaObject()->className();
+		if (styleName == "QGtkStyle")
+		{
+			// QGtkStyle uses an image for the background, and doesn't show
+			// the background color at all, so update the color buttons to use
+			// the QWindowsStyle instead.
+			// In Qt5 no need for changing the style, background color can be
+			// set
+			defaultColorButton->setStyle(QStyleFactory::create("Windows"));
+			backgroundColorButton->setStyle(QStyleFactory::create("Windows"));
+		}
+	}
 
-    this->setWindowTitle(modelWidget->getIniTitle().append(" Preferences"));
+	this->setWindowTitle(modelWidget->getIniTitle().append(" Preferences"));
 
-    QPalette readOnlyPalette;
-    readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
-    QString iniFileMessage;
-    if (TCUserDefaults::isIniFileSet())
-    {
-        QString prefSet = TCUserDefaults::getSessionName();
-        iniFileMessage = QString("%1").arg(modelWidget->getIniFile());
-        iniBox->setTitle(QString("INI using '%1' preference set")
-                         .arg(prefSet.isEmpty() ? "Default" : prefSet));
-    } else {
-        iniFileMessage = QString("INI file not specified. Using built-in default settings.");
-        iniFileEdit->setStyleSheet("QLineEdit { background-color : red; color : white; }");
-    }
+	QPalette readOnlyPalette;
+	readOnlyPalette.setColor(QPalette::Base,Qt::lightGray);
+	QString iniFileMessage;
+	if (TCUserDefaults::isIniFileSet())
+	{
+		QString prefSet = TCUserDefaults::getSessionName();
+		iniFileMessage = QString("%1").arg(modelWidget->getIniFile());
+		iniBox->setTitle(QString("INI using '%1' preference set")
+						 .arg(prefSet.isEmpty() ? "Default" : prefSet));
+	} else {
+		iniFileMessage = QString("INI file not specified. Using built-in default settings.");
+		iniFileEdit->setStyleSheet("QLineEdit { background-color : red; color : white; }");
+	}
 
-    iniFileEdit->setReadOnly(true);
-    iniFileEdit->setPalette(readOnlyPalette);
-    iniFileEdit->setText(iniFileMessage);
+	iniFileEdit->setReadOnly(true);
+	iniFileEdit->setPalette(readOnlyPalette);
+	iniFileEdit->setText(iniFileMessage);
 
-    // Hide these
-    frameRateButton->hide();
-    showAxesButton->hide();
-    showErrorsButton->hide();
+	// Hide these
+	frameRateButton->hide();
+	showAxesButton->hide();
+	showErrorsButton->hide();
 
-    IniFlag iniFlag = modelWidget->getIniFlag();
-    if (iniFlag == LDViewIni) {
-        defaultPartlistDirLabel->hide();
-        partsListsSaveDirBox->hide();
-        partsListsSaveDirEdit->hide();
-        partsListsSaveDirButton->hide();
-    }
-    else
-    {
-        if (iniFlag == POVRayRender ||
-            iniFlag == NativePOVIni ||
-            iniFlag == NativeSTLIni ||
-            iniFlag == Native3DSIni) {
-            // Snapshots Save Directory
-            defaultSnapshotDirLabel->hide();
-            snapshotSaveDirBox->hide();
-            snapshotSaveDirEdit->hide();
-            snapshotSaveDirButton->hide();
-            // Part List Save Directory
-            defaultPartlistDirLabel->hide();
-            partsListsSaveDirBox->hide();
-            partsListsSaveDirEdit->hide();
-            partsListsSaveDirButton->hide();
-        } else {
-            // iniFlag = NativePartList (HTML)
-            // Snapshots Save Directory
-            defaultSnapshotDirLabel->hide();
-            snapshotSaveDirBox->hide();
-            snapshotSaveDirEdit->hide();
-            snapshotSaveDirButton->hide();
-            // Exports Save Directory
-            exportsDirLabel->hide();
-            exportsListsSaveDirBox->hide();
-            exportsSaveDirEdit->hide();
-            exportsSaveDirButton->hide();
-        }
-        // Remove Updates Tab
-        tabs->removeTab(tabs->indexOf(updateTab));
-    }
+	IniFlag iniFlag = modelWidget->getIniFlag();
+	if (iniFlag == LDViewIni) {
+		defaultPartlistDirLabel->hide();
+		partsListsSaveDirBox->hide();
+		partsListsSaveDirEdit->hide();
+		partsListsSaveDirButton->hide();
+	}
+	else
+	{
+		if (iniFlag == POVRayRender ||
+			iniFlag == NativePOVIni ||
+			iniFlag == NativeSTLIni ||
+			iniFlag == Native3DSIni) {
+			// Snapshots Save Directory
+			defaultSnapshotDirLabel->hide();
+			snapshotSaveDirBox->hide();
+			snapshotSaveDirEdit->hide();
+			snapshotSaveDirButton->hide();
+			// Part List Save Directory
+			defaultPartlistDirLabel->hide();
+			partsListsSaveDirBox->hide();
+			partsListsSaveDirEdit->hide();
+			partsListsSaveDirButton->hide();
+		} else {
+			// iniFlag = NativePartList (HTML)
+			// Snapshots Save Directory
+			defaultSnapshotDirLabel->hide();
+			snapshotSaveDirBox->hide();
+			snapshotSaveDirEdit->hide();
+			snapshotSaveDirButton->hide();
+			// Exports Save Directory
+			exportsDirLabel->hide();
+			exportsListsSaveDirBox->hide();
+			exportsSaveDirEdit->hide();
+			exportsSaveDirButton->hide();
+		}
+		// Remove Updates Tab
+		tabs->removeTab(tabs->indexOf(updateTab));
+	}
 
-    applyButton->setEnabled(false);
+	applyButton->setEnabled(false);
 
 #ifdef DEBUG
-    setDebugLevel((int)TCUserDefaults::longForKey(DEBUG_LEVEL_KEY, 1, false));
+	setDebugLevel((int)TCUserDefaults::longForKey(DEBUG_LEVEL_KEY, 1, false));
 #else // DEBUG
-    setDebugLevel((int)TCUserDefaults::longForKey(DEBUG_LEVEL_KEY, 0, false));
+	setDebugLevel((int)TCUserDefaults::longForKey(DEBUG_LEVEL_KEY, 0, false));
 #endif // DEBUG
 
-    setMinimumSize(50,50);
+	setMinimumSize(50,50);
 }
 
 LDVPreferences::~LDVPreferences(void)
@@ -304,7 +303,7 @@ void LDVPreferences::doPrefSetsApply(void)
 		for(b = 0; b < preferenceSetList->count(); b++)
 		{
 			if (strcmp(oldPrefSetNames->stringAtIndex(i),
-						preferenceSetList->item(b)->text().toLatin1().constData()) == 0)
+						preferenceSetList->item(b)->text().toUtf8().constData()) == 0)
 			{
 				index = b;
 			}
@@ -327,8 +326,8 @@ void LDVPreferences::doPrefSetsApply(void)
 		(strcmp(getSelectedPrefSet(), DEFAULT_PREF_SET) == 0))
 	{
 		if (sessionName && sessionName[0])
-        {
-            TCUserDefaults::setSessionName(nullptr, PREFERENCE_SET_KEY);
+		{
+			TCUserDefaults::setSessionName(nullptr, PREFERENCE_SET_KEY);
 			changed = true;
 		}
 	}
@@ -348,21 +347,21 @@ void LDVPreferences::doPrefSetsApply(void)
 		reflectSettings();
 
 		doGeneralApply();
-    	doGeometryApply();
-    	doEffectsApply();
-    	doPrimitivesApply();
-    	applyButton->setEnabled(false);
+		doGeometryApply();
+		doEffectsApply();
+		doPrimitivesApply();
+		applyButton->setEnabled(false);
 //        if (modelWidget)
 //        {
 //        	modelWidget->reflectSettings();
 //        	modelWidget->doApply();
 //                setupDefaultRotationMatrix();
 //        }
-        if (modelViewer)
-        {
-            setupDefaultRotationMatrix();
-        }
-    	checkAbandon = true;
+		if (modelViewer)
+		{
+			setupDefaultRotationMatrix();
+		}
+		checkAbandon = true;
 
 	}
 }
@@ -371,7 +370,7 @@ void LDVPreferences::doGeneralApply(void)
 {
 	int r, g, b;
 
-    ldPrefs->setLineSmoothing(aaLinesButton->checkState());
+	ldPrefs->setLineSmoothing(aaLinesButton->checkState());
 
 	ldPrefs->setShowFps(frameRateButton->checkState());
 	ldPrefs->setShowAxes(showAxesButton->checkState());
@@ -393,7 +392,7 @@ void LDVPreferences::doGeneralApply(void)
 	   ldPrefs->setDefaultColor(r, g, b);
 	}
 
-    ldPrefs->setFov(fieldOfViewDoubleSpin->value());
+	ldPrefs->setFov(fieldOfViewDoubleSpin->value());
 	ldPrefs->setMemoryUsage(memoryUsageBox->currentIndex());
 	ldPrefs->setTransDefaultColor(transparentButton->checkState());
 	LDPreferences::DefaultDirMode snapshotDirMode, partsListDirMode, exportDirMode;
@@ -404,7 +403,7 @@ void LDVPreferences::doGeneralApply(void)
 		snapshotDir = snapshotSaveDirEdit->text();
 		if(snapshotDir.length()>0)
 		{
-			ldPrefs->setSnapshotsDir(snapshotDir.toLatin1().constData());
+			ldPrefs->setSnapshotsDir(snapshotDir.toUtf8().constData());
 		}
 		else
 		{
@@ -418,7 +417,7 @@ void LDVPreferences::doGeneralApply(void)
 		partsListDir = partsListsSaveDirEdit->text();
 		if (partsListDir.length() > 0)
 		{
-			ldPrefs->setPartsListsDir(partsListDir.toLatin1().constData());
+			ldPrefs->setPartsListsDir(partsListDir.toUtf8().constData());
 		}
 		else
 		{
@@ -432,22 +431,22 @@ void LDVPreferences::doGeneralApply(void)
 		exportDir = exportsSaveDirEdit->text();
 		if (exportDir.length() > 0)
 		{
-			ldPrefs->setSaveDir(LDPreferences::SOExport, exportDir.toLatin1().constData());
+			ldPrefs->setSaveDir(LDPreferences::SOExport, exportDir.toUtf8().constData());
 		}
 		else
 		{
 			ldPrefs->setSaveDirMode(LDPreferences::SOExport,
-                    LDPreferences::DDMLastDir);
+					LDPreferences::DDMLastDir);
 		}
 	}
-    // Other General Settings
-    TCUserDefaults::setBoolForKey(autoCropButton->isChecked(),
-                                  AUTO_CROP_KEY, false);
-    TCUserDefaults::setBoolForKey(transparentBackgroundButton->isChecked(),
-                                  SAVE_ALPHA_KEY, false);
+	// Other General Settings
+	TCUserDefaults::setBoolForKey(autoCropButton->isChecked(),
+								  AUTO_CROP_KEY, false);
+	TCUserDefaults::setBoolForKey(transparentBackgroundButton->isChecked(),
+								  SAVE_ALPHA_KEY, false);
 #ifdef WIN32
-    TCUserDefaults::setLongForKey(havePixelBufferButton->isChecked() ? 1 : 0,
-                                  IGNORE_PBUFFER_KEY, false);
+	TCUserDefaults::setLongForKey(havePixelBufferButton->isChecked() ? 1 : 0,
+								  IGNORE_PBUFFER_KEY, false);
 
 #endif
 
@@ -459,7 +458,7 @@ void LDVPreferences::doGeometryApply(void)
 {
 	ldPrefs->setUseSeams(seamWidthButton->isChecked());
 	ldPrefs->setBoundingBoxesOnly(partBoundingBoxOnlyBox->isChecked());
-    ldPrefs->setSeamWidth(int(seamWidthDoubleSpin->value() * 100.0f));
+	ldPrefs->setSeamWidth(int(seamWidthDoubleSpin->value() * 100.0f));
 	ldPrefs->setDrawWireframe(wireframeButton->isChecked());
 	if (ldPrefs->getDrawWireframe())
 	{
@@ -500,42 +499,42 @@ LDPreferences::LightDirection LDVPreferences::getSelectedLightDirection(void)
 {
 	LDPreferences::LightDirection lightDirection =
 		LDPreferences::CustomDirection;
-    if(lightingDir11->isChecked())
-    {
-        lightDirection = LDPreferences::UpperLeft;
-    }
-    else if (lightingDir12->isChecked())
-    {
-    lightDirection = LDPreferences::UpperMiddle;
-    }
-    else if (lightingDir13->isChecked())
-    {
-        lightDirection = LDPreferences::UpperRight;
-    }
-    else if (lightingDir21->isChecked())
-    {
-        lightDirection = LDPreferences::MiddleLeft;
-    }
-    else if (lightingDir22->isChecked())
-    {
-        lightDirection = LDPreferences::MiddleMiddle;
-    }
-    else if (lightingDir23->isChecked())
-    {
-        lightDirection = LDPreferences::MiddleRight;
-    }
-    else if (lightingDir31->isChecked())
-    {
-        lightDirection = LDPreferences::LowerLeft;
-    }
-    else if (lightingDir32->isChecked())
-    {
-        lightDirection = LDPreferences::LowerMiddle;
-    }
-    else if (lightingDir33->isChecked())
-    {
-        lightDirection = LDPreferences::LowerRight;
-    }
+	if(lightingDir11->isChecked())
+	{
+		lightDirection = LDPreferences::UpperLeft;
+	}
+	else if (lightingDir12->isChecked())
+	{
+	lightDirection = LDPreferences::UpperMiddle;
+	}
+	else if (lightingDir13->isChecked())
+	{
+		lightDirection = LDPreferences::UpperRight;
+	}
+	else if (lightingDir21->isChecked())
+	{
+		lightDirection = LDPreferences::MiddleLeft;
+	}
+	else if (lightingDir22->isChecked())
+	{
+		lightDirection = LDPreferences::MiddleMiddle;
+	}
+	else if (lightingDir23->isChecked())
+	{
+		lightDirection = LDPreferences::MiddleRight;
+	}
+	else if (lightingDir31->isChecked())
+	{
+		lightDirection = LDPreferences::LowerLeft;
+	}
+	else if (lightingDir32->isChecked())
+	{
+		lightDirection = LDPreferences::LowerMiddle;
+	}
+	else if (lightingDir33->isChecked())
+	{
+		lightDirection = LDPreferences::LowerRight;
+	}
 	return lightDirection;
 }
 
@@ -608,12 +607,12 @@ void LDVPreferences::doEffectsApply(void)
 
 void LDVPreferences::setAniso(int value)
 {
-    QString s;
+	QString s;
 	int intLevel = 1 << value;
-    s = s.setNum(intLevel);
-    s+="x";
+	s = s.setNum(intLevel);
+	s+="x";
 	if (value < 1 ) s = "";
-    anisotropicLabel->setText(s);
+	anisotropicLabel->setText(s);
 	anisotropicFilteringSlider->setValue(value);
 	ldPrefs->setAnisoLevel(intLevel);
 }
@@ -632,7 +631,6 @@ void LDVPreferences::doPrimitivesApply(void)
 	}
 	if (texmaps)
 	{
-		ldPrefs->setTexturesAfterTransparent(drawTransparentTexturesLastButton->isChecked());
 		ldPrefs->setTextureOffsetFactor(transparentOffsetSlider->value()/10.0f);
 	}
 	if ((aps && ldPrefs->getTextureStuds()) || texmaps)
@@ -661,7 +659,7 @@ void LDVPreferences::doPrimitivesApply(void)
 	}
 	ldPrefs->setQualityStuds(!lowQualityStudsButton->isChecked());
 	ldPrefs->setHiResPrimitives(hiresPrimitivesButton->isChecked());
-    ldPrefs->setStudLogo(studLogoBox->isChecked() ? studLogoCombo->currentIndex() + 1 : 0 );
+	ldPrefs->setStudLogo(studLogoBox->isChecked() ? studLogoCombo->currentIndex() + 1 : 0 );
 	ldPrefs->applyPrimitivesSettings();
 	ldPrefs->commitPrimitivesSettings();
 }
@@ -687,7 +685,7 @@ void LDVPreferences::doUpdatesApply()
 	}
 	iTemp = daymissingpartcheckText->text().toInt(&ok);
 	if (ok)
-    {
+	{
 		ldPrefs->setMissingPartWait(iTemp);
 	}
 	iTemp = dayupdatedpartcheckText->text().toInt(&ok);
@@ -695,7 +693,7 @@ void LDVPreferences::doUpdatesApply()
 	{
 		ldPrefs->setUpdatedPartWait(iTemp);
 	}
-//	ldPrefs->setProxyServer(proxyEdit->text().toLatin1().constData());
+//	ldPrefs->setProxyServer(proxyEdit->text().toUtf8().constData());
 //	ldPrefs->applyUpdatesSettings();
 //	ldPrefs->commitUpdatesSettings();
 }
@@ -703,21 +701,21 @@ void LDVPreferences::doUpdatesApply()
 void LDVPreferences::doBackgroundColor()
 {
 /*** LPub3D Mod - use button icon image ***/
-    int r,g,b;
-    QPixmap pix(12, 12);
-    QString title("Select Background Color");
-    QColorDialog::ColorDialogOptions dialogOptions = QColorDialog::ShowAlphaChannel;
+	int r,g,b;
+	QPixmap pix(12, 12);
+	QString title("Select Background Color");
+	QColorDialog::ColorDialogOptions dialogOptions = QColorDialog::ShowAlphaChannel;
 
-    ldPrefs->getBackgroundColor(r, g, b);
-    QColor oldColor = QColor(r,g,b);
-    QColor newColor = QColorDialog::getColor(oldColor, this, title, dialogOptions);
-    if(newColor.isValid() && newColor != oldColor )
-    {
-         backgroundColor = newColor;
-         pix.fill(newColor);
-         backgroundColorButton->setIcon(pix);
-         applyButton->setEnabled(true);
-    }
+	ldPrefs->getBackgroundColor(r, g, b);
+	QColor oldColor = QColor(r,g,b);
+	QColor newColor = QColorDialog::getColor(oldColor, this, title, dialogOptions);
+	if(newColor.isValid() && newColor != oldColor )
+	{
+		 backgroundColor = newColor;
+		 pix.fill(newColor);
+		 backgroundColorButton->setIcon(pix);
+		 applyButton->setEnabled(true);
+	}
 /*** LPub3D Mod end ***/
 }
 
@@ -730,25 +728,25 @@ void LDVPreferences::doDefaultColor()
 	QString title("Select Default Color");
 	QColorDialog::ColorDialogOptions dialogOptions = QColorDialog::ShowAlphaChannel;
 
-    for (i = 0 ; i < 16; i++)
-    {
-        old[i] = QColorDialog::customColor(i).rgb();
-        LDLPalette::getDefaultRGBA(i, r, g, b, a);
-        QColorDialog::setCustomColor(i, qRgb(r, g, b));
-    }
-    ldPrefs->getDefaultColor(r, g, b);
-    QColor oldColor = QColor(r,g,b);
-    QColor newColor = QColorDialog::getColor(oldColor, this, title, dialogOptions);
-    if(newColor.isValid() && newColor != oldColor )
-    {
-        defaultColor = newColor;
-        pix.fill(newColor);
-        defaultColorButton->setIcon(pix);
-        applyButton->setEnabled(true);
-    }
+	for (i = 0 ; i < 16; i++)
+	{
+		old[i] = QColorDialog::customColor(i).rgb();
+		LDLPalette::getDefaultRGBA(i, r, g, b, a);
+		QColorDialog::setCustomColor(i, qRgb(r, g, b));
+	}
+	ldPrefs->getDefaultColor(r, g, b);
+	QColor oldColor = QColor(r,g,b);
+	QColor newColor = QColorDialog::getColor(oldColor, this, title, dialogOptions);
+	if(newColor.isValid() && newColor != oldColor )
+	{
+		defaultColor = newColor;
+		pix.fill(newColor);
+		defaultColorButton->setIcon(pix);
+		applyButton->setEnabled(true);
+	}
 /*** LPub3D Mod end ***/
-    for (i = 0 ; i <16 ; i++)
-        QColorDialog::setCustomColor(i, old[i]);
+	for (i = 0 ; i <16 ; i++)
+		QColorDialog::setCustomColor(i, old[i]);
 }
 
 void LDVPreferences::doApply(void)
@@ -760,21 +758,21 @@ void LDVPreferences::doApply(void)
 	doUpdatesApply();
 	doPrefSetsApply();
 	applyButton->setEnabled(false);
-    if (modelViewer)
-       setupDefaultRotationMatrix();
+	if (modelViewer)
+	   setupDefaultRotationMatrix();
 	checkAbandon = true;
 }
 
 void LDVPreferences::doOk(void)
 {
 	doApply();
-    QDialog::accept();
+	QDialog::accept();
 	QDialog::close();
 }
 
 void LDVPreferences::doCancel(void)
 {
-    QDialog::reject();
+	QDialog::reject();
 	QDialog::close();
 }
 
@@ -821,7 +819,7 @@ void LDVPreferences::setButtonState(QRadioButton *button, bool state)
 
 void LDVPreferences::setDoubleRangeValue(QDoubleSpinBox *rangeControl, float value)
 {
-    float rangeValue = rangeControl->value();
+	float rangeValue = rangeControl->value();
 
 	if (value != rangeValue)
 	{
@@ -831,12 +829,12 @@ void LDVPreferences::setDoubleRangeValue(QDoubleSpinBox *rangeControl, float val
 
 void LDVPreferences::setRangeValue(QSpinBox *rangeControl, int value)
 {
-    int rangeValue = rangeControl->value();
+	int rangeValue = rangeControl->value();
 
-    if (value != rangeValue)
-    {
-        rangeControl->setValue(value);
-    }
+	if (value != rangeValue)
+	{
+		rangeControl->setValue(value);
+	}
 }
 
 void LDVPreferences::setRangeValue(QSlider *rangeControl, int value)
@@ -852,7 +850,7 @@ void LDVPreferences::setRangeValue(QSlider *rangeControl, int value)
 void LDVPreferences::loadSettings(void)
 {
 	ldPrefs->loadSettings();
-    //loadOtherSettings();
+	//loadOtherSettings();
 }
 
 void LDVPreferences::loadOtherSettings(void)
@@ -872,8 +870,8 @@ void LDVPreferences::loadDefaultOtherSettings(void)
 
 void LDVPreferences::setDrawWireframe(bool value)
 {
-    if (value != ldPrefs->getDrawWireframe())
-    {
+	if (value != ldPrefs->getDrawWireframe())
+	{
 		ldPrefs->setDrawWireframe(value, true, true);
 		reflectWireframeSettings();
 	}
@@ -881,7 +879,7 @@ void LDVPreferences::setDrawWireframe(bool value)
 
 void LDVPreferences::setUseWireframeFog(bool value)
 {
-    if (value != ldPrefs->getUseWireframeFog())
+	if (value != ldPrefs->getUseWireframeFog())
 	{
 		ldPrefs->setUseWireframeFog(value, true, true);
 		reflectWireframeSettings();
@@ -899,10 +897,10 @@ void LDVPreferences::setRemoveHiddenLines(bool value)
 
 void LDVPreferences::setTextureStud(bool value)
 {
-    if (value != ldPrefs->getTextureStuds())
+	if (value != ldPrefs->getTextureStuds())
 	{
 		ldPrefs->setTextureStuds(value, true, true);
-        reflectPrimitivesSettings();
+		reflectPrimitivesSettings();
 	}
 }
 
@@ -989,7 +987,7 @@ void LDVPreferences::setAllowPrimitiveSubstitution(bool value)
 
 void LDVPreferences::setUseLighting(bool value)
 {
-    if (value != ldPrefs->getUseLighting())
+	if (value != ldPrefs->getUseLighting())
 	{
 		ldPrefs->setUseLighting(value, true, true);
 		reflectEffectsSettings();
@@ -1007,16 +1005,16 @@ void LDVPreferences::setUseBFC(bool value)
 
 void LDVPreferences::setShowAxes(bool value)
 {
-    if (value != ldPrefs->getShowAxes())
-    {
-        ldPrefs->setShowAxes(value, true, true);
-        reflectGeneralSettings();
+	if (value != ldPrefs->getShowAxes())
+	{
+		ldPrefs->setShowAxes(value, true, true);
+		reflectGeneralSettings();
 	}
 }
 
 void LDVPreferences::setUseSeams(bool value)
 {
-    if (value != ldPrefs->getUseSeams())
+	if (value != ldPrefs->getUseSeams())
 	{
 		ldPrefs->setUseSeams(value, true, true);
 		reflectGeometrySettings();
@@ -1038,13 +1036,13 @@ void LDVPreferences::reflectGeneralSettings(void)
 	int r, g, b;
 	QPixmap pix(12, 12);
 
-    setButtonState(aaLinesButton, ldPrefs->getLineSmoothing());
+	setButtonState(aaLinesButton, ldPrefs->getLineSmoothing());
 
 	setButtonState(frameRateButton, ldPrefs->getShowFps());
 	setButtonState(showAxesButton, ldPrefs->getShowAxes());
 	setButtonState(showErrorsButton, ldPrefs->getShowErrors());
 	setButtonState(processLdconfigLdrButton,
-        ldPrefs->getProcessLdConfig());
+		ldPrefs->getProcessLdConfig());
 	setButtonState(randomColorsButton,ldPrefs->getRandomColors());
 
 	ldPrefs->getBackgroundColor(r, g, b);
@@ -1055,18 +1053,18 @@ void LDVPreferences::reflectGeneralSettings(void)
 	pix.fill(QColor(r, g, b));
 	defaultColorButton->setIcon(pix);
 
-    setDoubleRangeValue(fieldOfViewDoubleSpin, (float)ldPrefs->getFov());
+	setDoubleRangeValue(fieldOfViewDoubleSpin, (float)ldPrefs->getFov());
 	setButtonState(transparentButton, ldPrefs->getTransDefaultColor());
 	memoryUsageBox->setCurrentIndex(ldPrefs->getMemoryUsage());
 
-    // Other General Settings
-    autoCropButton->setChecked(
-            TCUserDefaults::boolForKey(AUTO_CROP_KEY, false, false));
-    transparentBackgroundButton->setChecked(
-            TCUserDefaults::longForKey(SAVE_ALPHA_KEY, 0, false) != 0);
+	// Other General Settings
+	autoCropButton->setChecked(
+			TCUserDefaults::boolForKey(AUTO_CROP_KEY, false, false));
+	transparentBackgroundButton->setChecked(
+			TCUserDefaults::longForKey(SAVE_ALPHA_KEY, 0, false) != 0);
 #ifdef WIN32
-    havePixelBufferButton->setChecked(
-            TCUserDefaults::longForKey(IGNORE_PBUFFER_KEY, 0, false) != 0);
+	havePixelBufferButton->setChecked(
+			TCUserDefaults::longForKey(IGNORE_PBUFFER_KEY, 0, false) != 0);
 #endif
 
 	setupSaveDirs();
@@ -1075,7 +1073,7 @@ void LDVPreferences::reflectGeneralSettings(void)
 void LDVPreferences::reflectGeometrySettings(void)
 {
 	setButtonState(seamWidthButton, ldPrefs->getUseSeams());
-    setDoubleRangeValue(seamWidthDoubleSpin, ldPrefs->getSeamWidth() / 100.0f);
+	setDoubleRangeValue(seamWidthDoubleSpin, ldPrefs->getSeamWidth() / 100.0f);
 	partBoundingBoxOnlyBox->setChecked(ldPrefs->getBoundingBoxesOnly());
 	reflectWireframeSettings();
 	reflectBFCSettings();
@@ -1180,15 +1178,14 @@ void LDVPreferences::reflectPrimitivesSettings(void)
 	useTextureMapsButton->setChecked(ldPrefs->getTexmaps());
 	if (ldPrefs->getTexmaps())
 	{
-		drawTransparentTexturesLastButton->setChecked(ldPrefs->getTexturesAfterTransparent());
-		transparentOffsetSlider->setValue(ldPrefs->getTextureOffsetFactor()*10);
+		transparentOffsetSlider->setValue(int(ldPrefs->getTextureOffsetFactor()*10));
 	}
-    studLogoBox->setChecked(ldPrefs->getStudLogo());
-    if (studLogoBox->isChecked())
-        studLogoCombo->setCurrentIndex(ldPrefs->getStudLogo() - 1);
-    else
-        studLogoCombo->setCurrentIndex(ldPrefs->getStudLogo());
-    enableStudLogoCombo();
+	studLogoBox->setChecked(ldPrefs->getStudLogo());
+	if (studLogoBox->isChecked())
+		studLogoCombo->setCurrentIndex(ldPrefs->getStudLogo() - 1);
+	else
+		studLogoCombo->setCurrentIndex(ldPrefs->getStudLogo());
+	enableStudLogoCombo();
 
 }
 
@@ -1206,7 +1203,7 @@ void LDVPreferences::reflectUpdatesSettings(void)
 	}
 	setButtonState(updatesMissingpartsButton,
 		ldPrefs->getCheckPartTracker());
-    proxyEdit->setText(""/*ldPrefs->getProxyServer()*/);
+	proxyEdit->setText(""/*ldPrefs->getProxyServer()*/);
 	portEdit->setText(QString::number(ldPrefs->getProxyPort()));
 	daymissingpartcheckText->setValue(ldPrefs->getMissingPartWait());
 	dayupdatedpartcheckText->setValue(ldPrefs->getUpdatedPartWait());
@@ -1266,7 +1263,7 @@ void LDVPreferences::setStatusBar(bool value)
 
 void LDVPreferences::setToolBar(bool value)
 {
-    if (value != toolBar)
+	if (value != toolBar)
 	{
 		toolBar = value;
 		 TCUserDefaults::setLongForKey(toolBar ? 1 : 0, TOOLBAR_KEY, false);
@@ -1286,7 +1283,7 @@ char *LDVPreferences::getLastOpenPath(char *pathKey)
 	{
 		constPathKey = LAST_OPEN_PATH_KEY;
 	}
-    path = TCUserDefaults::stringForKey(constPathKey, nullptr, false);
+	path = TCUserDefaults::stringForKey(constPathKey, nullptr, false);
 	if (!path)
 	{
 		path = copyString("/dos/c/ldraw");
@@ -1311,7 +1308,7 @@ void LDVPreferences::setLastOpenPath(const char *path, char *pathKey)
 
 char *LDVPreferences::getLDrawDir(void)
 {
-    return TCUserDefaults::stringForKey(LDRAWDIR_KEY, nullptr, false);
+	return TCUserDefaults::stringForKey(LDRAWDIR_KEY, nullptr, false);
 }
 
 void LDVPreferences::setLDrawDir(const char *path)
@@ -1334,18 +1331,18 @@ const QString &LDVPreferences::getRecentFileKey(int index)
 
 char *LDVPreferences::getRecentFile(int index)
 {
-    return TCUserDefaults::stringForKey(getRecentFileKey(index).toLatin1().constData(), nullptr, false);
+	return TCUserDefaults::stringForKey(getRecentFileKey(index).toUtf8().constData(), nullptr, false);
 }
 
 void LDVPreferences::setRecentFile(int index, char *filename)
 {
 	if (filename)
 	{
-		TCUserDefaults::setStringForKey(filename, getRecentFileKey(index).toLatin1().constData(), false);
+		TCUserDefaults::setStringForKey(filename, getRecentFileKey(index).toUtf8().constData(), false);
 	}
 	else
 	{
-		TCUserDefaults::removeValue(getRecentFileKey(index).toLatin1().constData(), false);
+		TCUserDefaults::removeValue(getRecentFileKey(index).toUtf8().constData(), false);
 	}
 }
 
@@ -1371,12 +1368,12 @@ void LDVPreferences::setViewMode(LDInputHandler::ViewMode value)
 
 void LDVPreferences::setCheckPartTracker(bool value)
 {
-    TCUserDefaults::setLongForKey(value, CHECK_PART_TRACKER_KEY, false);
+	TCUserDefaults::setLongForKey(value, CHECK_PART_TRACKER_KEY, false);
 }
 
 bool LDVPreferences::getCheckPartTracker(void)
 {
-    return TCUserDefaults::longForKey(CHECK_PART_TRACKER_KEY, long(true), false);
+	return TCUserDefaults::longForKey(CHECK_PART_TRACKER_KEY, long(true), false);
 }
 
 bool LDVPreferences::getLatLongMode(void)
@@ -1450,7 +1447,7 @@ void LDVPreferences::doProxyServer(bool value)
 
 void LDVPreferences::doUpdateMissingparts(bool value)
 {
-    daymissingpartcheckText->setEnabled(value);
+	daymissingpartcheckText->setEnabled(value);
 	daymissingpartcheckLabel->setEnabled(value);
 	dayupdatedpartcheckLabel->setEnabled(value);
 	dayupdatedpartcheckText->setEnabled(value);
@@ -1550,9 +1547,9 @@ void LDVPreferences::doEdgeLines(bool value)
 
 void LDVPreferences::doConditionalShow(bool value)
 {
-    if (value)
-    {
-        enableConditionalShow();
+	if (value)
+	{
+		enableConditionalShow();
 	}
 	else
 	{
@@ -1587,15 +1584,15 @@ void LDVPreferences::doTextureStuds(bool value)
 
 void LDVPreferences::doNewPreferenceSet()
 {
-    bool ok;
-    QString name = QInputDialog::getText(this,QString("Native POV New Preference Set"),
-                   QString("Enter name of the new PreferenceSet"), QLineEdit::Normal,QString(),
-                    &ok);
-    if (ok && !name.isEmpty())
+	bool ok;
+	QString name = QInputDialog::getText(this,QString("Native POV New Preference Set"),
+				   QString("Enter name of the new PreferenceSet"), QLineEdit::Normal,QString(),
+					&ok);
+	if (ok && !name.isEmpty())
 	{
 		for(int i = 0; i < preferenceSetList->count(); i++)
 		{
-			if (getPrefSet(i) && strcmp(getPrefSet(i), name.toLatin1().constData())==0)
+			if (getPrefSet(i) && strcmp(getPrefSet(i), name.toUtf8().constData())==0)
 			{
 				QMessageBox::warning(this,
 					QString::fromWCharArray(TCLocalStrings::get(L"PrefSetAlreadyExists")),
@@ -1613,7 +1610,7 @@ void LDVPreferences::doNewPreferenceSet()
 				return;
 		}
 		new QListWidgetItem(name,preferenceSetList);
-		selectPrefSet(name.toLatin1().constData());
+		selectPrefSet(name.toUtf8().constData());
 		return;
 	}
 	if (name.isEmpty() && ok)
@@ -1686,86 +1683,86 @@ void LDVPreferences::doHotkeyPreferenceSet()
 
 char *LDVPreferences::getHotKey(int index)
 {
-    char key[128];
+	char key[128];
 
-    sprintf(key, "%s/Key%d", HOT_KEYS_KEY, index);
-    return TCUserDefaults::stringForKey(key, nullptr, false);
+	sprintf(key, "%s/Key%d", HOT_KEYS_KEY, index);
+	return TCUserDefaults::stringForKey(key, nullptr, false);
 }
 
 int LDVPreferences::getHotKey(const char *currentPrefSetName)
 {
-    int i;
-    int retValue = -1;
+	int i;
+	int retValue = -1;
 
-    for (i = 0; i < 10 && retValue == -1; i++)
-    {
-        char *prefSetName = getHotKey(i);
+	for (i = 0; i < 10 && retValue == -1; i++)
+	{
+		char *prefSetName = getHotKey(i);
 
-        if (prefSetName)
-        {
-            if (strcmp(prefSetName, currentPrefSetName) == 0)
-            {
-                retValue = i;
-            }
-            delete prefSetName;
-        }
-    }
-    return retValue;
+		if (prefSetName)
+		{
+			if (strcmp(prefSetName, currentPrefSetName) == 0)
+			{
+				retValue = i;
+			}
+			delete prefSetName;
+		}
+	}
+	return retValue;
 }
 
 void LDVPreferences::performHotKey(int hotKeyIndex)
 {
-    char *hotKeyPrefSetName = getHotKey(hotKeyIndex);
-    bool retValue = false;
-    if (hotKeyPrefSetName)
-    {
-        const char *currentSessionName = TCUserDefaults::getSessionName();
-        bool hotKeyIsDefault = strcmp(hotKeyPrefSetName, DEFAULT_PREF_SET) == 0;
+	char *hotKeyPrefSetName = getHotKey(hotKeyIndex);
+	bool retValue = false;
+	if (hotKeyPrefSetName)
+	{
+		const char *currentSessionName = TCUserDefaults::getSessionName();
+		bool hotKeyIsDefault = strcmp(hotKeyPrefSetName, DEFAULT_PREF_SET) == 0;
 
-        if (currentSessionName)
-        {
-            if (strcmp(currentSessionName, hotKeyPrefSetName) == 0)
-            {
-                retValue = true;
-            }
-        }
-        else if (hotKeyIsDefault)
-        {
-            retValue = true;
-        }
-        if (!retValue)
-        {
-            bool changed = false;
+		if (currentSessionName)
+		{
+			if (strcmp(currentSessionName, hotKeyPrefSetName) == 0)
+			{
+				retValue = true;
+			}
+		}
+		else if (hotKeyIsDefault)
+		{
+			retValue = true;
+		}
+		if (!retValue)
+		{
+			bool changed = false;
 
-            if (hotKeyIsDefault)
-            {
-                TCUserDefaults::setSessionName(nullptr, PREFERENCE_SET_KEY);
-                changed = true;
-            }
-            else
-            {
-                TCStringArray *sessionNames =
-                    TCUserDefaults::getAllSessionNames();
+			if (hotKeyIsDefault)
+			{
+				TCUserDefaults::setSessionName(nullptr, PREFERENCE_SET_KEY);
+				changed = true;
+			}
+			else
+			{
+				TCStringArray *sessionNames =
+					TCUserDefaults::getAllSessionNames();
 
-                if (sessionNames->indexOfString(hotKeyPrefSetName) != -1)
-                {
-                    TCUserDefaults::setSessionName(hotKeyPrefSetName,
-                        PREFERENCE_SET_KEY);
-                    {
-                        changed = true;
-                    }
-                }
-                sessionNames->release();
-            }
-            if (changed)
-            {
-                loadSettings();
+				if (sessionNames->indexOfString(hotKeyPrefSetName) != -1)
+				{
+					TCUserDefaults::setSessionName(hotKeyPrefSetName,
+						PREFERENCE_SET_KEY);
+					{
+						changed = true;
+					}
+				}
+				sessionNames->release();
+			}
+			if (changed)
+			{
+				loadSettings();
 				reflectSettings();
-                doApply();
-                retValue = true;
-            }
-        }
-    }
+				doApply();
+				retValue = true;
+			}
+		}
+	}
 	delete hotKeyPrefSetName;
 }
 
@@ -1783,22 +1780,22 @@ int LDVPreferences::getCurrentHotKey(void)
 
 void LDVPreferences::saveCurrentHotKey(void)
 {
-    int currentHotKey = getCurrentHotKey();
+	int currentHotKey = getCurrentHotKey();
 
-    if (currentHotKey >= 0)
-    {
-        char key[128];
+	if (currentHotKey >= 0)
+	{
+		char key[128];
 
-        sprintf(key, "%s/Key%d", HOT_KEYS_KEY, currentHotKey);
-        TCUserDefaults::removeValue(key, false);
-    }
-    if (hotKeyIndex > 0)
-    {
-        char key[128];
+		sprintf(key, "%s/Key%d", HOT_KEYS_KEY, currentHotKey);
+		TCUserDefaults::removeValue(key, false);
+	}
+	if (hotKeyIndex > 0)
+	{
+		char key[128];
 
-        sprintf(key, "%s/Key%d", HOT_KEYS_KEY, hotKeyIndex % 10);
-        TCUserDefaults::setStringForKey(getSelectedPrefSet(), key, false);
-    }
+		sprintf(key, "%s/Key%d", HOT_KEYS_KEY, hotKeyIndex % 10);
+		TCUserDefaults::setStringForKey(getSelectedPrefSet(), key, false);
+	}
 }
 
 void LDVPreferences::abandonChanges(void)
@@ -1810,104 +1807,104 @@ void LDVPreferences::abandonChanges(void)
 
 const char *LDVPreferences::getPrefSet(int index)
 {
-	return copyString(preferenceSetList->item(index)->text().toLatin1().constData());
+	return copyString(preferenceSetList->item(index)->text().toUtf8().constData());
 }
 
 const char *LDVPreferences::getSelectedPrefSet(void)
 {
-    int selectedIndex = preferenceSetList->currentRow();
+	int selectedIndex = preferenceSetList->currentRow();
 	if (selectedIndex!=-1)
 	{
-		return copyString(preferenceSetList->currentItem()->text().toLatin1().constData());
+		return copyString(preferenceSetList->currentItem()->text().toUtf8().constData());
 	}
-    return nullptr;
+	return nullptr;
 }
 bool LDVPreferences::doPrefSetSelected(bool force)
 {
-    const char *selectedPrefSet = getSelectedPrefSet();
-    bool needToReselect = false;
+	const char *selectedPrefSet = getSelectedPrefSet();
+	bool needToReselect = false;
 
 	if (checkAbandon && applyButton->isEnabled() && !force)
-    {
-        char *savedSession =
-            TCUserDefaults::getSavedSessionNameFromKey(PREFERENCE_SET_KEY);
+	{
+		char *savedSession =
+			TCUserDefaults::getSavedSessionNameFromKey(PREFERENCE_SET_KEY);
 
-        if (!savedSession || !savedSession[0])
-        {
-            delete savedSession;
-            savedSession = copyString(DEFAULT_PREF_SET);
-        }
-        if (selectedPrefSet && (strcmp(savedSession, selectedPrefSet) != 0))
-        {
-            needToReselect = true;
-            selectPrefSet(nullptr, true);
+		if (!savedSession || !savedSession[0])
+		{
+			delete savedSession;
+			savedSession = copyString(DEFAULT_PREF_SET);
+		}
+		if (selectedPrefSet && (strcmp(savedSession, selectedPrefSet) != 0))
+		{
+			needToReselect = true;
+			selectPrefSet(nullptr, true);
 			QMessageBox::warning(this,QString::fromWCharArray(TCLocalStrings::get(L"Error")),
 				"You have made changes to the current preference set.  You must either apply those changes or abandon them before you can select a new preference set.");
 		}
 		delete savedSession;
 	}
 	if (selectedPrefSet)
-    {
-        bool enabled = true;
+	{
+		bool enabled = true;
 
-        if (needToReselect)
-        {
-            selectPrefSet(selectedPrefSet);
-        }
+		if (needToReselect)
+		{
+			selectPrefSet(selectedPrefSet);
+		}
 		if (strcmp(selectedPrefSet, DEFAULT_PREF_SET) == 0)
-        {
-            enabled = false;
-        }
+		{
+			enabled = false;
+		}
 		delPreferenceSetButton->setEnabled(enabled);
 		delete selectedPrefSet;
-    }
+	}
 	applyButton->setEnabled(true);
 	checkAbandon = false;
-    return false;
+	return false;
 }
 
 void LDVPreferences::selectPrefSet(const char *prefSet, bool force)
 {
-    if (prefSet)
-    {
+	if (prefSet)
+	{
 		for (int i=0;i<preferenceSetList->count();i++)
 		{
-			if (strcmp(prefSet,preferenceSetList->item(i)->text().toLatin1().constData())==0)
+			if (strcmp(prefSet,preferenceSetList->item(i)->text().toUtf8().constData())==0)
 			{
 				preferenceSetList->setCurrentRow(i);
 			}
 		}
 		doPrefSetSelected(force);
 	}
-    else
-    {
-        char *savedSession =
-            TCUserDefaults::getSavedSessionNameFromKey(PREFERENCE_SET_KEY);
+	else
+	{
+		char *savedSession =
+			TCUserDefaults::getSavedSessionNameFromKey(PREFERENCE_SET_KEY);
 
-        if (savedSession && savedSession[0])
-        {
-            selectPrefSet(savedSession, force);
-        }
-        else
-        {
-            selectPrefSet(DEFAULT_PREF_SET, force);
-        }
-        delete savedSession;
-    }
+		if (savedSession && savedSession[0])
+		{
+			selectPrefSet(savedSession, force);
+		}
+		else
+		{
+			selectPrefSet(DEFAULT_PREF_SET, force);
+		}
+		delete savedSession;
+	}
 }
 
 void LDVPreferences::setupPrefSetsList(void)
 {
-    TCStringArray *sessionNames = TCUserDefaults::getAllSessionNames();
-    int i;
-    int count = sessionNames->getCount();
+	TCStringArray *sessionNames = TCUserDefaults::getAllSessionNames();
+	int i;
+	int count = sessionNames->getCount();
 	preferenceSetList->clear();
-    new QListWidgetItem(QString(DEFAULT_PREF_SET),preferenceSetList);
-    for (i = 0; i < count; i++)
-    {
-        new QListWidgetItem(sessionNames->stringAtIndex(i),preferenceSetList);
-    }
-    selectPrefSet();
+	new QListWidgetItem(QString(DEFAULT_PREF_SET),preferenceSetList);
+	for (i = 0; i < count; i++)
+	{
+		new QListWidgetItem(sessionNames->stringAtIndex(i),preferenceSetList);
+	}
+	selectPrefSet();
 	sessionNames->release();
 }
 
@@ -1935,38 +1932,38 @@ void LDVPreferences::enableWireframeCutaway(void)
 
 void LDVPreferences::selectLightDirection(LDPreferences::LightDirection ld)
 {
-    switch (ld)
-    {
-    case LDPreferences::UpperLeft:
-        lightingDir11->setChecked(true);
-        break;
-    case LDPreferences::UpperMiddle:
-        lightingDir12->setChecked(true);
-        break;
-    case LDPreferences::UpperRight:
-        lightingDir13->setChecked(true);
-        break;
-    case LDPreferences::MiddleLeft:
-        lightingDir21->setChecked(true);
-        break;
-    case LDPreferences::MiddleMiddle:
-        lightingDir22->setChecked(true);
-        break;
-    case LDPreferences::MiddleRight:
-        lightingDir23->setChecked(true);
-        break;
-    case LDPreferences::LowerLeft:
-        lightingDir31->setChecked(true);
-        break;
-    case LDPreferences::LowerMiddle:
-        lightingDir32->setChecked(true);
-        break;
-    case LDPreferences::LowerRight:
-        lightingDir33->setChecked(true);
-        break;
-    case LDPreferences::CustomDirection:
-        break;
-    }
+	switch (ld)
+	{
+	case LDPreferences::UpperLeft:
+		lightingDir11->setChecked(true);
+		break;
+	case LDPreferences::UpperMiddle:
+		lightingDir12->setChecked(true);
+		break;
+	case LDPreferences::UpperRight:
+		lightingDir13->setChecked(true);
+		break;
+	case LDPreferences::MiddleLeft:
+		lightingDir21->setChecked(true);
+		break;
+	case LDPreferences::MiddleMiddle:
+		lightingDir22->setChecked(true);
+		break;
+	case LDPreferences::MiddleRight:
+		lightingDir23->setChecked(true);
+		break;
+	case LDPreferences::LowerLeft:
+		lightingDir31->setChecked(true);
+		break;
+	case LDPreferences::LowerMiddle:
+		lightingDir32->setChecked(true);
+		break;
+	case LDPreferences::LowerRight:
+		lightingDir33->setChecked(true);
+		break;
+	case LDPreferences::CustomDirection:
+		break;
+	}
 }
 
 void LDVPreferences::enableLighting(void)
@@ -2023,15 +2020,15 @@ void LDVPreferences::enableWireframe(void)
 	wireframeThicknessSlider->setEnabled(true);
 	wireframeThicknessLabel->setEnabled(true);
 	setButtonState(wireframeFogButton, ldPrefs->getUseWireframeFog());
-    setButtonState(wireframeRemoveHiddenLineButton,
+	setButtonState(wireframeRemoveHiddenLineButton,
 		ldPrefs->getRemoveHiddenLines());
 }
 
 void LDVPreferences::enableBFC(void)
 {
 	bfcRedBackFaceButton->setEnabled(true);
-        bfcGreenFrontFaceButton->setEnabled(true);
-        bfcBlueNeutralFaceButton->setEnabled(true);
+		bfcGreenFrontFaceButton->setEnabled(true);
+		bfcBlueNeutralFaceButton->setEnabled(true);
 	setButtonState(bfcRedBackFaceButton, ldPrefs->getRedBackFaces());
 	setButtonState(bfcGreenFrontFaceButton,
 		ldPrefs->getGreenFrontFaces());
@@ -2138,7 +2135,6 @@ void LDVPreferences::enableTextureStuds(void)
 void LDVPreferences::enableTexmaps(void)
 {
 	transparentTextureOffsetLabel->setEnabled(true);
-	drawTransparentTexturesLastButton->setEnabled(true);
 	transparentOffsetSlider->setEnabled(true);
 	transparentOffsetSlider->setValue(ldPrefs->getTexturesAfterTransparent()*10.0);
 
@@ -2151,7 +2147,7 @@ void LDVPreferences::enableProxyServer(void)
 	proxyEdit->setEnabled(true);
 	portLabel->setEnabled(true);
 	portEdit->setEnabled(true);
-    proxyEdit->setText(""/*ldPrefs->getProxyServer()*/);
+	proxyEdit->setText(""/*ldPrefs->getProxyServer()*/);
 }
 
 void LDVPreferences::disableWireframeCutaway(void)
@@ -2168,15 +2164,15 @@ void LDVPreferences::disableWireframeCutaway(void)
 
 void LDVPreferences::uncheckLightDirections(void)
 {
-    lightingDir11->setChecked(false);
-    lightingDir12->setChecked(false);
-    lightingDir13->setChecked(false);
-    lightingDir21->setChecked(false);
-    lightingDir22->setChecked(false);
-    lightingDir23->setChecked(false);
-    lightingDir31->setChecked(false);
-    lightingDir32->setChecked(false);
-    lightingDir33->setChecked(false);
+	lightingDir11->setChecked(false);
+	lightingDir12->setChecked(false);
+	lightingDir13->setChecked(false);
+	lightingDir21->setChecked(false);
+	lightingDir22->setChecked(false);
+	lightingDir23->setChecked(false);
+	lightingDir31->setChecked(false);
+	lightingDir32->setChecked(false);
+	lightingDir33->setChecked(false);
 }
 
 void LDVPreferences::disableLighting(void)
@@ -2200,7 +2196,7 @@ void LDVPreferences::disableLighting(void)
 	setButtonState(subduedLightingButton, false);
 	setButtonState(specularLightingButton, false);
 	setButtonState(alternateLightingButton, false);
-    setButtonState(effectsUseLIGHTDATButton, false);
+	setButtonState(effectsUseLIGHTDATButton, false);
 
 	uncheckLightDirections();
 }
@@ -2228,11 +2224,11 @@ void LDVPreferences::disableWireframe(void)
 void LDVPreferences::disableBFC(void)
 {
 	bfcRedBackFaceButton->setEnabled(false);
-        bfcGreenFrontFaceButton->setEnabled(false);
+		bfcGreenFrontFaceButton->setEnabled(false);
 	bfcBlueNeutralFaceButton->setEnabled(false);
 	setButtonState(bfcRedBackFaceButton, false);
-        setButtonState(bfcGreenFrontFaceButton, false);
-        setButtonState(bfcBlueNeutralFaceButton, false);
+		setButtonState(bfcGreenFrontFaceButton, false);
+		setButtonState(bfcBlueNeutralFaceButton, false);
 }
 
 void LDVPreferences::disableEdgeLines(void)
@@ -2256,9 +2252,9 @@ void LDVPreferences::disableEdgeLines(void)
 void LDVPreferences::disableConditionalShow(void)
 {
 	conditionalShowAllButton->setEnabled(false);
-    conditionalShowControlPtsButton->setEnabled(false);
-    setButtonState(conditionalShowAllButton, false);
-    setButtonState(conditionalShowControlPtsButton, false);
+	conditionalShowControlPtsButton->setEnabled(false);
+	setButtonState(conditionalShowAllButton, false);
+	setButtonState(conditionalShowControlPtsButton, false);
 }
 
 void LDVPreferences::disablePrimitiveSubstitution(void)
@@ -2287,7 +2283,6 @@ void LDVPreferences::disableTextureStuds(void)
 void LDVPreferences::disableTexmaps(void)
 {
 	transparentTextureOffsetLabel->setEnabled(false);
-	drawTransparentTexturesLastButton->setEnabled(false);
 	transparentOffsetSlider->setEnabled(false);
 }
 
@@ -2333,197 +2328,197 @@ bool LDVPreferences::getShowError(int errorNumber)
 
 int LDVPreferences::getFSAAFactor(void)
 {
-    int fsaaMode = ldPrefs->getFsaaMode();
+	int fsaaMode = ldPrefs->getFsaaMode();
 
-    if (fsaaMode && LDVExtensionsSetup::haveMultisampleExtension())
-    {
-        if (fsaaMode <= 5)
-        {
-            return fsaaMode & 0x6; // Mask off bottom bit
-        }
-        else
-        {
-            return fsaaMode >> 3;
-        }
-    }
-    else
-    {
-        return 0;
-    }
+	if (fsaaMode && LDVExtensionsSetup::haveMultisampleExtension())
+	{
+		if (fsaaMode <= 5)
+		{
+			return fsaaMode & 0x6; // Mask off bottom bit
+		}
+		else
+		{
+			return fsaaMode >> 3;
+		}
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 bool LDVPreferences::getUseNvMultisampleFilter(void)
 {
-    int fsaaMode = ldPrefs->getFsaaMode();
+	int fsaaMode = ldPrefs->getFsaaMode();
 
-    if ((fsaaMode & 0x1) &&
-        TREGLExtensions::haveNvMultisampleFilterHintExtension())
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+	if ((fsaaMode & 0x1) &&
+		TREGLExtensions::haveNvMultisampleFilterHintExtension())
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 void LDVPreferences::setupAntialiasing(void)
 {
-    HWND hWnd = (HWND)this->winId();
-    HINSTANCE hInstance = (HINSTANCE)this->winId();
-    LDVExtensionsSetup::setup(hWnd, hInstance);
-    TCIntArray *fsaaModes = LDVExtensionsSetup::getFSAAModes();
+	HWND hWnd = (HWND)this->winId();
+	HINSTANCE hInstance = (HINSTANCE)this->winId();
+	LDVExtensionsSetup::setup(hWnd, hInstance);
+	TCIntArray *fsaaModes = LDVExtensionsSetup::getFSAAModes();
 
-    UCCHAR modeString[1024];
+	UCCHAR modeString[1024];
 
-    // Remove all items from FSAA combo box list.
-    fsaaModeBox->clear();
-    // Add "None" to FSAA combo box list as only item.
-    fsaaModeBox->addItem(QString::fromWCharArray(TCObject::ls(_UC("FsaaNone"))));
-    // Select "None", just in case something else doesn't get selected later.
-    fsaaModeBox->setCurrentIndex(0);
-    // The following array should always exist, even if it is empty, but check
-    // just to be sure.
-    if (fsaaModes)
-    {
-        int i;
-        int count = fsaaModes->getCount();
+	// Remove all items from FSAA combo box list.
+	fsaaModeBox->clear();
+	// Add "None" to FSAA combo box list as only item.
+	fsaaModeBox->addItem(QString::fromWCharArray(TCObject::ls(_UC("FsaaNone"))));
+	// Select "None", just in case something else doesn't get selected later.
+	fsaaModeBox->setCurrentIndex(0);
+	// The following array should always exist, even if it is empty, but check
+	// just to be sure.
+	if (fsaaModes)
+	{
+		int i;
+		int count = fsaaModes->getCount();
 
-        // Note that fsaaModes contains a sorted array of unique FSAA factors.
-        for (i = 0; i < count; i++)
-        {
-            int value = (*fsaaModes)[i];
+		// Note that fsaaModes contains a sorted array of unique FSAA factors.
+		for (i = 0; i < count; i++)
+		{
+			int value = (*fsaaModes)[i];
 
-            sucprintf(modeString, COUNT_OF(modeString),
-                      TCObject::ls(_UC("FsaaNx")), value);
-            fsaaModeBox->addItem(QString::fromWCharArray(modeString));
-            // nVidia hardware supports Quincunx and 9-box pattern, so add an
-            // "Enhanced" item to the list if the extension is supported and
-            // the current factor is 2 or 4.
-            if ((value == 2 || value == 4) &&
-                    TREGLExtensions::haveNvMultisampleFilterHintExtension())
-            {
-                sucprintf(modeString, COUNT_OF(modeString),
-                          TCObject::ls(_UC("FsaaNx")), value);
-                ucstrcat(modeString, _UC(" "));
-                ucstrcat(modeString, TCObject::ls(_UC("FsaaEnhanced")));
-                fsaaModeBox->addItem(QString::fromWCharArray(modeString));
-            }
-        }
-    }
-    if (ldPrefs->getFsaaMode())
-    {
-        sucprintf(modeString, COUNT_OF(modeString),
-                  TCObject::ls(_UC("FsaaNx")), getFSAAFactor());
-        if (getUseNvMultisampleFilter())
-        {
-            ucstrcat(modeString, _UC(" "));
-            ucstrcat(modeString, TCObject::ls(_UC("FsaaEnhanced")));
-        }
+			sucprintf(modeString, COUNT_OF(modeString),
+					  TCObject::ls(_UC("FsaaNx")), value);
+			fsaaModeBox->addItem(QString::fromWCharArray(modeString));
+			// nVidia hardware supports Quincunx and 9-box pattern, so add an
+			// "Enhanced" item to the list if the extension is supported and
+			// the current factor is 2 or 4.
+			if ((value == 2 || value == 4) &&
+					TREGLExtensions::haveNvMultisampleFilterHintExtension())
+			{
+				sucprintf(modeString, COUNT_OF(modeString),
+						  TCObject::ls(_UC("FsaaNx")), value);
+				ucstrcat(modeString, _UC(" "));
+				ucstrcat(modeString, TCObject::ls(_UC("FsaaEnhanced")));
+				fsaaModeBox->addItem(QString::fromWCharArray(modeString));
+			}
+		}
+	}
+	if (ldPrefs->getFsaaMode())
+	{
+		sucprintf(modeString, COUNT_OF(modeString),
+				  TCObject::ls(_UC("FsaaNx")), getFSAAFactor());
+		if (getUseNvMultisampleFilter())
+		{
+			ucstrcat(modeString, _UC(" "));
+			ucstrcat(modeString, TCObject::ls(_UC("FsaaEnhanced")));
+		}
 
-        int vv;
-        if ((vv = fsaaModeBox->findText(QString::fromWCharArray(modeString))) == -1) {
-            vv = 0;
-            ldPrefs->setFsaaMode(vv);
-        }
-        fsaaModeBox->setCurrentIndex(vv);
-    }
+		int vv;
+		if ((vv = fsaaModeBox->findText(QString::fromWCharArray(modeString))) == -1) {
+			vv = 0;
+			ldPrefs->setFsaaMode(vv);
+		}
+		fsaaModeBox->setCurrentIndex(vv);
+	}
 }
 
 void LDVPreferences::fsaaModeBoxChanged(const QString &controlString)
 {
-    ucstring selectedString = controlString.toStdWString().c_str();
-    int fsaaMode;
+	ucstring selectedString = controlString.toStdWString().c_str();
+	int fsaaMode;
 
-    if (selectedString == TCObject::ls(_UC("FsaaNone")))
-    {
-        fsaaMode = 0;
-    }
-    else
-    {
-        sucscanf(selectedString.c_str(), _UC("%d"), &fsaaMode);
-        if (fsaaMode > 4)
-        {
-            fsaaMode = fsaaMode << 3;
-        }
-        else if (selectedString.find(TCObject::ls(_UC("FsaaEnhanced"))) <
-            selectedString.size())
-        {
-            fsaaMode |= 1;
-        }
-    }
-    ldPrefs->setFsaaMode(fsaaMode);
-    enableApply();
+	if (selectedString == TCObject::ls(_UC("FsaaNone")))
+	{
+		fsaaMode = 0;
+	}
+	else
+	{
+		sucscanf(selectedString.c_str(), _UC("%d"), &fsaaMode);
+		if (fsaaMode > 4)
+		{
+			fsaaMode = fsaaMode << 3;
+		}
+		else if (selectedString.find(TCObject::ls(_UC("FsaaEnhanced"))) <
+			selectedString.size())
+		{
+			fsaaMode |= 1;
+		}
+	}
+	ldPrefs->setFsaaMode(fsaaMode);
+	enableApply();
 }
 
 #endif // WIN32
 
 void LDVPreferences::setupDefaultRotationMatrix(void)
 {
-    char *value = TCUserDefaults::stringForKey(DEFAULT_LAT_LONG_KEY);
+	char *value = TCUserDefaults::stringForKey(DEFAULT_LAT_LONG_KEY);
 
-    if (value)
-    {
-        TCFloat latitude;
-        TCFloat longitude;
+	if (value)
+	{
+		TCFloat latitude;
+		TCFloat longitude;
 
-        if (sscanf(value, "%f,%f", &latitude, &longitude) == 2)
-        {
-            TCFloat leftMatrix[16];
-            TCFloat rightMatrix[16];
-            TCFloat resultMatrix[16];
-            TCFloat cosTheta;
-            TCFloat sinTheta;
+		if (sscanf(value, "%f,%f", &latitude, &longitude) == 2)
+		{
+			TCFloat leftMatrix[16];
+			TCFloat rightMatrix[16];
+			TCFloat resultMatrix[16];
+			TCFloat cosTheta;
+			TCFloat sinTheta;
 
-            TCVector::initIdentityMatrix(leftMatrix);
-            TCVector::initIdentityMatrix(rightMatrix);
-            latitude = (TCFloat)deg2rad(latitude);
-            longitude = (TCFloat)deg2rad(longitude);
+			TCVector::initIdentityMatrix(leftMatrix);
+			TCVector::initIdentityMatrix(rightMatrix);
+			latitude = (TCFloat)deg2rad(latitude);
+			longitude = (TCFloat)deg2rad(longitude);
 
-            // First, apply latitude by rotating around X.
-            cosTheta = (TCFloat)cos(latitude);
-            sinTheta = (TCFloat)sin(latitude);
-            rightMatrix[5] = cosTheta;
-            rightMatrix[6] = sinTheta;
-            rightMatrix[9] = -sinTheta;
-            rightMatrix[10] = cosTheta;
-            TCVector::multMatrix(leftMatrix, rightMatrix, resultMatrix);
+			// First, apply latitude by rotating around X.
+			cosTheta = (TCFloat)cos(latitude);
+			sinTheta = (TCFloat)sin(latitude);
+			rightMatrix[5] = cosTheta;
+			rightMatrix[6] = sinTheta;
+			rightMatrix[9] = -sinTheta;
+			rightMatrix[10] = cosTheta;
+			TCVector::multMatrix(leftMatrix, rightMatrix, resultMatrix);
 
-            memcpy(leftMatrix, resultMatrix, sizeof(leftMatrix));
-            TCVector::initIdentityMatrix(rightMatrix);
+			memcpy(leftMatrix, resultMatrix, sizeof(leftMatrix));
+			TCVector::initIdentityMatrix(rightMatrix);
 
-            // Next, apply longitude by rotating around Y.
-            cosTheta = (TCFloat)cos(longitude);
-            sinTheta = (TCFloat)sin(longitude);
-            rightMatrix[0] = cosTheta;
-            rightMatrix[2] = -sinTheta;
-            rightMatrix[8] = sinTheta;
-            rightMatrix[10] = cosTheta;
-            TCVector::multMatrix(leftMatrix, rightMatrix, resultMatrix);
+			// Next, apply longitude by rotating around Y.
+			cosTheta = (TCFloat)cos(longitude);
+			sinTheta = (TCFloat)sin(longitude);
+			rightMatrix[0] = cosTheta;
+			rightMatrix[2] = -sinTheta;
+			rightMatrix[8] = sinTheta;
+			rightMatrix[10] = cosTheta;
+			TCVector::multMatrix(leftMatrix, rightMatrix, resultMatrix);
 
-            modelViewer->setDefaultRotationMatrix(resultMatrix);
-        }
-        delete value;
-    }
-    else
-    {
-        value = TCUserDefaults::stringForKey(DEFAULT_MATRIX_KEY);
-        if (value)
-        {
-            TCFloat matrix[16];
+			modelViewer->setDefaultRotationMatrix(resultMatrix);
+		}
+		delete value;
+	}
+	else
+	{
+		value = TCUserDefaults::stringForKey(DEFAULT_MATRIX_KEY);
+		if (value)
+		{
+			TCFloat matrix[16];
 
-            memset(matrix, 0, sizeof(matrix));
-            matrix[15] = 1.0f;
-            if (sscanf(value, "%f,%f,%f,%f,%f,%f,%f,%f,%f",
-                &matrix[0], &matrix[4], &matrix[8],
-                &matrix[1], &matrix[5], &matrix[9],
-                &matrix[2], &matrix[6], &matrix[10]) == 9)
-            {
-                modelViewer->setDefaultRotationMatrix(matrix);
-            }
-            delete value;
-        }
-    }
+			memset(matrix, 0, sizeof(matrix));
+			matrix[15] = 1.0f;
+			if (sscanf(value, "%f,%f,%f,%f,%f,%f,%f,%f,%f",
+				&matrix[0], &matrix[4], &matrix[8],
+				&matrix[1], &matrix[5], &matrix[9],
+				&matrix[2], &matrix[6], &matrix[10]) == 9)
+			{
+				modelViewer->setDefaultRotationMatrix(matrix);
+			}
+			delete value;
+		}
+	}
 }
 
 void LDVPreferences::getBackgroundColor(int &r, int &g, int &b)
@@ -2701,12 +2696,12 @@ void LDVPreferences::exportsSaveDirBrowse()
 
 void LDVPreferences::browseForDir(QString prompt, QLineEdit *textField, QString &dir)
 {
-    QString selectedfile=QFileDialog::getExistingDirectory(this,prompt,dir);
-    if (!selectedfile.isEmpty())
-    {
+	QString selectedfile=QFileDialog::getExistingDirectory(this,prompt,dir);
+	if (!selectedfile.isEmpty())
+	{
 		textField->setText(dir = selectedfile);
 		applyButton->setEnabled(true);
-    }
+	}
 }
 
 void LDVPreferences::enableStudLogoCombo()

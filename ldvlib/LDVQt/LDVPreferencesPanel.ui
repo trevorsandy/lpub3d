@@ -58,7 +58,7 @@
       </sizepolicy>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="generalTab">
       <attribute name="title">
@@ -3032,13 +3032,6 @@
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="QCheckBox" name="drawTransparentTexturesLastButton">
-                    <property name="text">
-                     <string>Draw transparent textures last</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
                    <layout class="QHBoxLayout">
                     <property name="spacing">
                      <number>4</number>
@@ -4016,8 +4009,8 @@ into effect until the next time a model is loaded.</string>
  </tabstops>
  <resources>
   <include location="../../mainApp/lpub3d.qrc"/>
-  <include location="resources.qrc"/>
   <include location="../../mainApp/lpub3d.qrc"/>
+  <include location="resources.qrc"/>
  </resources>
  <connections/>
 </ui>
