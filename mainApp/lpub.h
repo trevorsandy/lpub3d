@@ -1141,10 +1141,16 @@ public slots:
 
   void contentsChange(const QString &fileName,int position, int charsRemoved, const QString &charsAdded);
 
-  void showLineMessage(QString message, Where &here, Preferences::MsgKey = Preferences::ParseErrors);
-  void parseError(QString errorMsg, Where &here, Preferences::MsgKey key = Preferences::ParseErrors)
+  void showLineMessage(const QString message,
+                       const Where &here,
+                       Preferences::MsgKey = Preferences::ParseErrors,
+                       bool override = false);
+  void parseError(const QString errorMsg,
+                  const Where &here,
+                  Preferences::MsgKey key = Preferences::ParseErrors,
+                  bool override = false)
   {
-      showLineMessage(errorMsg,here,key);
+      showLineMessage(errorMsg,here,key,override);
   }
 
   void statusMessage(LogType logType, QString message);

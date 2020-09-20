@@ -5561,37 +5561,52 @@ void Gui::writeSettings()
     gApplication->SaveTabLayout();
 }
 
-void Gui::showLineMessage(QString errorMsg, Where &here, Preferences::MsgKey msgKey)
+void Gui::showLineMessage(const QString errorMsg, const Where &here, Preferences::MsgKey msgKey, bool override)
 {
     if (parsedMessages.contains(here))
         return;
 
+    bool showMessagePreference = Preferences::getShowMessagePreference(msgKey);
     QString parseMessage = QString("%1 (file: %2, line: %3)") .arg(errorMsg) .arg(here.modelName) .arg(here.lineNumber + 1);
     if (Preferences::modeGUI) {
         showLine(here, LINE_ERROR);
-        bool showMessagePreference = Preferences::getShowMessagePreference(msgKey);
-        if (showMessagePreference) {
-            QCheckBox *cb = new QCheckBox("Do not show this line message again.");
+        if (showMessagePreference || override) {
             QMessageBoxResizable box;
-            box.setWindowTitle(tr(VER_PRODUCTNAME_STR " Line Message"));
+            box.setWindowTitle(tr(VER_PRODUCTNAME_STR " Parse Message"));
             box.setText(parseMessage);
             box.setIcon(QMessageBox::Icon::Warning);
             box.addButton(QMessageBox::Ok);
             box.setDefaultButton(QMessageBox::Ok);
-            box.setCheckBox(cb);
 
-            QObject::connect(cb, &QCheckBox::stateChanged, [&msgKey](int state){
-                if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
-                    Preferences::setShowMessagePreference(false,msgKey);
-                else
-                    Preferences::setShowMessagePreference(true,msgKey);
-            });
+            if (!override) {
+                QString type;
+                switch (msgKey) {
+                case Preferences::MsgKey::BuildModErrors:
+                    type = "build modification parse errors";
+                    break;
+                case Preferences::MsgKey::AnnotationMessages:
+                    type = "annotation parse messages";
+                    break;
+                default: /*Preferences::MsgKey::ParseErrors*/
+                    type = "meta parse errors";
+                    break;
+                }
+                QCheckBox *cb = new QCheckBox(QString("Do not show %1 again.").arg(type));
+                box.setCheckBox(cb);
+                QObject::connect(cb, &QCheckBox::stateChanged, [&msgKey](int state){
+                    if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked)
+                        Preferences::setShowMessagePreference(false,msgKey);
+                    else
+                        Preferences::setShowMessagePreference(true,msgKey);
+                });
+            }
             box.adjustSize();
             box.exec();
         }
     }
     if (writingToTmp)
-        emit progressPermMessageSig("Writing submodels [Parse error - see log]...");
+        emit progressPermMessageSig(QString("Writing submodels [Parse error%1]...")
+                                    .arg(showMessagePreference ? "" : " - see log" ));
 
     logError() << parseMessage.replace("<br>"," ");
 
