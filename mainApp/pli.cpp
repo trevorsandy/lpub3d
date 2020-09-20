@@ -1004,11 +1004,10 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
         QFile part(imageName);
 
         // Populate viewerPliPartiKey variable
-        viewerPliPartKey = QDir::toNativeSeparators(QString("\"%1\"%2;%3;%4")
+        viewerPliPartKey = QDir::toNativeSeparators(QString("\"%1\"%2;%3")
                                                         .arg(ia.baseName[pT])
-                                                        .arg(top.lineNumber)
-                                                        .arg(stepNumber)
-                                                        .arg(ia.partColor[pT]));
+                                                        .arg(ia.partColor[pT])
+                                                        .arg(stepNumber));
 
         // Check if viewer PLI part does exist in repository
         bool addViewerPliPartContent = !gui->viewerStepContentExist(viewerPliPartKey);
@@ -2427,9 +2426,8 @@ int Pli::partSizeLDViewSCall() {
                 // Populate viewerPliPartiKey variable
                 viewerPliPartKey = QDir::toNativeSeparators(QString("\"%1\"%2;%3")
                                                                 .arg(ia.baseName[pT])
-                                                                .arg(top.lineNumber)
-                                                                .arg(stepNumber)
-                                                                .arg(ia.partColor[pT]));
+                                                                .arg(ia.partColor[pT])
+                                                                .arg(stepNumber));
 
                 // Check if viewer PLI part does exist in repository
                 bool addViewerPliPartContent = !gui->viewerStepContentExist(viewerPliPartKey);
@@ -2485,7 +2483,7 @@ int Pli::partSizeLDViewSCall() {
                     if (rotStep.isEmpty())
                         keyPart2.append(QString("_0_0_0_REL"));
                     QString pliPartKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
-                    gui->insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ldrNames.first(),pliPartKey,multistep,callout);
+                    gui->insertViewerStep(viewerPliPartKey,pliFile,pliFileU,ia.ldrNames[pT].first(),pliPartKey,multistep,callout);
 
                     if ( ! part.exists()) {
 
@@ -2513,7 +2511,7 @@ int Pli::partSizeLDViewSCall() {
                     QStringList rotate            = rotStep.isEmpty()        ? QString("0 0 0 REL").split(" ") : rotStep.split("_");
                     QStringList target            = targetPosition.isEmpty() ? QString("0 0 0 REL").split(" ") : targetPosition.split("_");
                     viewerOptions                 = new ViewerOptions();
-                    viewerOptions->ViewerStepKey   = viewerPliPartKey;
+                    viewerOptions->ViewerStepKey  = viewerPliPartKey;
                     viewerOptions->StudLogo       = pliMeta.studLogo.value();
                     viewerOptions->ImageFileName  = imageName;
                     viewerOptions->Resolution     = nameKeys.at(3).toFloat();

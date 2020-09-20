@@ -2737,10 +2737,13 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerStepKey)
     QString modelName  = argv01[0];                                                   //0=modelName
 
     QFileInfo outFileInfo(FileName);
+    QString imageType   = outFileInfo.completeBaseName().replace(".ldr","");
+    QString baseName    = QFileInfo(modelName).completeBaseName();
+    QStringList argv02  = imageType == "pli" ? argv01[1].split(";") : QStringList();
     QString outfileName = QString("%1/viewer_%2_%3.ldr")
             .arg(outFileInfo.absolutePath())
-            .arg(outFileInfo.completeBaseName().replace(".ldr",""))
-            .arg(QFileInfo(modelName).completeBaseName());
+            .arg(imageType)
+            .arg(argv02.size() ? QString("%1_%2_%3").arg(baseName).arg(argv02.first()).arg(argv02.last()) : baseName);
 
     QFile file(outfileName);
     if ( ! file.open(QFile::WriteOnly | QFile::Text)) {
