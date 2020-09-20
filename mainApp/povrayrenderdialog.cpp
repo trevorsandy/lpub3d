@@ -35,8 +35,8 @@ PovrayRenderDialog::PovrayRenderDialog(QWidget* Parent)
 #endif
     mOutputBuffer = nullptr;
 
-    mViewerCsiKey = gui->getViewerCsiKey();
-    mCsiKeyList   = gui->getViewerConfigKey(mViewerCsiKey).split(";").last().split("_");
+    mViewerStepKey = gui->getViewerStepKey();
+    mCsiKeyList   = gui->getViewerConfigKey(mViewerStepKey).split(";").last().split("_");
     
     ui->setupUi(this);
 
@@ -61,7 +61,7 @@ PovrayRenderDialog::PovrayRenderDialog(QWidget* Parent)
     ui->ResolutionEdit->setText(QString::number(mResolution));
     ui->ResolutionEdit->setValidator(new QIntValidator(50, INT_MAX));
     ui->QualityComboBox->setCurrentIndex(mQuality);
-    ui->OutputEdit->setText(Render::getPovrayRenderFileName(mViewerCsiKey));
+    ui->OutputEdit->setText(Render::getPovrayRenderFileName(mViewerStepKey));
     ui->OutputEdit->setValidator(new QRegExpValidator(QRegExp("^.*\\.png$",Qt::CaseInsensitive)));
 
     connect(&mUpdateTimer, SIGNAL(timeout()), this, SLOT(Update()));
@@ -179,10 +179,10 @@ void PovrayRenderDialog::on_RenderButton_clicked()
     
     mModelFile = QDir::toNativeSeparators(QDir::currentPath() + QDir::separator() + Paths::tmpDir + QDir::separator() + "csipovray.ldr");
 
-    QStringList csiParts = gui->getViewerStepUnrotatedContents(mViewerCsiKey);
+    QStringList csiParts = gui->getViewerStepUnrotatedContents(mViewerStepKey);
     if (csiParts.isEmpty())
     {
-        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Did not receive CSI parts for %1.").arg(mViewerCsiKey));
+        emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Did not receive CSI parts for %1.").arg(mViewerStepKey));
         return;
     }
 
@@ -541,7 +541,7 @@ void PovrayRenderDialog::on_ResetButton_clicked()
     ui->ScaleEdit->setText(QString::number(mScale));
     ui->ResolutionEdit->setText(QString::number(mResolution));
     ui->QualityComboBox->setCurrentIndex(mQuality);
-    ui->OutputEdit->setText(Render::getPovrayRenderFileName(mViewerCsiKey));
+    ui->OutputEdit->setText(Render::getPovrayRenderFileName(mViewerStepKey));
 }
 
 void PovrayRenderDialog::textChanged(const QString &value)

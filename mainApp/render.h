@@ -230,7 +230,7 @@ public:
     Target         = xyzVector(0, 0, 0);
   }
 //  virtual ~ViewerOptions(){}
-  QString ViewerCsiKey;
+  QString ViewerStepKey;
   Render::Mt ImageType;
   QString ImageFileName;
   QString RotStepType;

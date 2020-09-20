@@ -2630,22 +2630,22 @@ bool Render::RenderNativeImage(const NativeOptions *Options)
 
 bool Render::LoadViewer(const ViewerOptions *Options){
 
-    QString viewerCsiKey = Options->ViewerCsiKey;
+    QString viewerStepKey = Options->ViewerStepKey;
 
     Project* StepProject = new Project();
-    if (LoadStepProject(StepProject, viewerCsiKey)){
+    if (LoadStepProject(StepProject, viewerStepKey)){
         gApplication->SetProject(StepProject);
         gMainWindow->UpdateAllViews();
     }
     else
     {
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not load 3DViewer model file %1.")
-                             .arg(viewerCsiKey));
+                             .arg(viewerStepKey));
         delete StepProject;
         return false;
     }
 
-    gui->setViewerCsiKey(viewerCsiKey);
+    gui->setViewerStepKey(viewerStepKey);
 
     NativeOptions *derived = new NativeOptions(*Options);
     if (derived)
@@ -2654,9 +2654,9 @@ bool Render::LoadViewer(const ViewerOptions *Options){
         return false;
 }
 
-bool Render::LoadStepProject(Project* StepProject, const QString& viewerCsiKey)
+bool Render::LoadStepProject(Project* StepProject, const QString& viewerStepKey)
 {
-    QString FileName = gui->getViewerStepFilePath(viewerCsiKey);
+    QString FileName = gui->getViewerStepFilePath(viewerStepKey);
 
     if (FileName.isEmpty())
     {
@@ -2664,7 +2664,7 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerCsiKey)
         return false;
     }
 
-    QStringList CsiContent = gui->getViewerStepRotatedContents(viewerCsiKey);
+    QStringList CsiContent = gui->getViewerStepRotatedContents(viewerStepKey);
     if (CsiContent.isEmpty())
     {
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Did not receive 3DViewer CSI content for %1.").arg(FileName));
@@ -2672,9 +2672,9 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerCsiKey)
     }
 
 #ifdef QT_DEBUG_MODE
-    QString valueAt0 = viewerCsiKey.at(0);
+    QString valueAt0 = viewerStepKey.at(0);
     bool inside = (valueAt0 == "\"");                                                 // true if the first character is "
-    QStringList tmpList = viewerCsiKey.split(QRegExp("\""), QString::SkipEmptyParts); // Split by "
+    QStringList tmpList = viewerStepKey.split(QRegExp("\""), QString::SkipEmptyParts); // Split by "
     QStringList argv01;
     foreach (QString s, tmpList) {
         if (inside) {                                                                 // If 's' is inside quotes ...
@@ -2946,16 +2946,16 @@ const QString Render::getPovrayRenderQuality(int quality)
     return Arguments.join(" ");
 }
 
-const QString Render::getPovrayRenderFileName(const QString &viewerCsiKey)
+const QString Render::getPovrayRenderFileName(const QString &viewerStepKey)
 {
     QDir povrayDir(QString("%1/%2").arg(QDir::currentPath()).arg(Paths::povrayRenderDir));
     if (!povrayDir.exists())
         Paths::mkPovrayDir();
 
-    QString fileName = gui->getViewerConfigKey(viewerCsiKey).replace(";","_");
+    QString fileName = gui->getViewerConfigKey(viewerStepKey).replace(";","_");
 
     if (fileName.isEmpty()){
-        emit gui->messageSig(LOG_ERROR, QString("Failed to receive ldrFileName for viewerCsiKey : %1").arg(viewerCsiKey));
+        emit gui->messageSig(LOG_ERROR, QString("Failed to receive ldrFileName for viewerStepKey : %1").arg(viewerStepKey));
        fileName = "imagerender";
     }
 

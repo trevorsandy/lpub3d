@@ -1008,7 +1008,7 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
         bool addViewerPliPartContent = !gui->viewerStepContentExist(viewerPliPartKey);
 
         // If this is true, we are processing again the current part Key so part must have been updated in the viewer
-        bool viewerUpdate = viewerPliPartKey == QDir::toNativeSeparators(gui->getViewerCsiKey());
+        bool viewerUpdate = viewerPliPartKey == QDir::toNativeSeparators(gui->getViewerStepKey());
 
         if ( ! part.exists() || addViewerPliPartContent || viewerUpdate) {
 
@@ -1094,7 +1094,7 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
             QStringList rotate            = rotStep.isEmpty()        ? QString("0 0 0 REL").split(" ") : rotStep.split("_");
             QStringList target            = targetPosition.isEmpty() ? QString("0 0 0 REL").split(" ") : targetPosition.split("_");
             viewerOptions                 = new ViewerOptions();
-            viewerOptions->ViewerCsiKey   = viewerPliPartKey;
+            viewerOptions->ViewerStepKey  = viewerPliPartKey;
             viewerOptions->StudLogo       = pliMeta.studLogo.value();
             viewerOptions->ImageFileName  = imageName;
             viewerOptions->Resolution     = nameKeys.at(3).toFloat();
@@ -2429,7 +2429,7 @@ int Pli::partSizeLDViewSCall() {
                 bool addViewerPliPartContent = !gui->viewerStepContentExist(viewerPliPartKey);
 
                 // If this is true, we are processing again the current part Key so part must have been updated in the viewer
-                bool viewerUpdate = viewerPliPartKey == QDir::toNativeSeparators(gui->getViewerCsiKey());
+                bool viewerUpdate = viewerPliPartKey == QDir::toNativeSeparators(gui->getViewerStepKey());
 
                 if ( ! part.exists() || addViewerPliPartContent || viewerUpdate) {
 
@@ -2507,7 +2507,7 @@ int Pli::partSizeLDViewSCall() {
                     QStringList rotate            = rotStep.isEmpty()        ? QString("0 0 0 REL").split(" ") : rotStep.split("_");
                     QStringList target            = targetPosition.isEmpty() ? QString("0 0 0 REL").split(" ") : targetPosition.split("_");
                     viewerOptions                 = new ViewerOptions();
-                    viewerOptions->ViewerCsiKey   = viewerPliPartKey;
+                    viewerOptions->ViewerStepKey   = viewerPliPartKey;
                     viewerOptions->StudLogo       = pliMeta.studLogo.value();
                     viewerOptions->ImageFileName  = imageName;
                     viewerOptions->Resolution     = nameKeys.at(3).toFloat();

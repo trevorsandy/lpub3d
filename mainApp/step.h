@@ -91,7 +91,7 @@ class Step : public AbstractRangeElement
     QString               ldrName;
     QString               pngName;
     QString               csiKey;
-    QString               viewerCsiKey;
+    QString               viewerStepKey;
     ViewerOptions        *viewerOptions;
     PlacementHeader       plPageHeader;
     PlacementFooter       plPageFooter;

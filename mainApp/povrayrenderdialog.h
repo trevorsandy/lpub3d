@@ -66,7 +66,7 @@ protected:
     QFile mOutputFile;
     QImage mImage;
     QStringList mCsiKeyList;
-    QString mViewerCsiKey;
+    QString mViewerStepKey;
     QString mModelFile;
 
     int mWidth;

@@ -123,7 +123,7 @@ class SubModel : public Placement {
     SubModelBackgroundItem *background;
     SubModelMeta            subModelMeta;
     QString                 imageName;
-    QString                 viewerCsiKey;
+    QString                 viewerStepKey;
     ViewerOptions          *viewerOptions;
 
     Meta                   *meta;

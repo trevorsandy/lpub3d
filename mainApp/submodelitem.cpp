@@ -261,8 +261,8 @@ int SubModel::createSubModelImage(
       break;
   }
 
-  // Populate viewerCsiKey variable
-  viewerCsiKey = QDir::toNativeSeparators(QString("\"%1\"%2;%3")
+  // Populate viewerStepKey variable
+  viewerStepKey = QDir::toNativeSeparators(QString("\"%1\"%2;%3")
                                                   .arg(QString("%1_%2")
                                                                .arg(QFileInfo(type).completeBaseName())
                                                                .arg(PREVIEW_SUBMODEL_SUFFIX))
@@ -270,10 +270,10 @@ int SubModel::createSubModelImage(
                                                   .arg(stepNumber));
 
   // Viewer submodel does not yet exist in repository
-  bool addViewerStepContent = !gui->viewerStepContentExist(viewerCsiKey);
+  bool addViewerStepContent = !gui->viewerStepContentExist(viewerStepKey);
 
   // We are processing again the current submodel Key so Submodel must have been updated in the viewer
-  bool viewerUpdate = viewerCsiKey == QDir::toNativeSeparators(gui->getViewerCsiKey());
+  bool viewerUpdate = viewerStepKey == QDir::toNativeSeparators(gui->getViewerStepKey());
 
   // Generate 3DViewer Submodel entry - TODO move to after Generate and renderer Submodel file
   if (! gui->exportingObjects()) {
@@ -316,12 +316,12 @@ int SubModel::createSubModelImage(
           if (!subModelMeta.rotStep.isPopulated())
               keyPart2.append(QString("_0_0_0_REL"));
           QString stepKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
-          gui->insertViewerStep(viewerCsiKey,rotatedSubmodel,subModel,ldrNames.first(),stepKey,multistep,callout);
+          gui->insertViewerStep(viewerStepKey,rotatedSubmodel,subModel,ldrNames.first(),stepKey,multistep,callout);
       }
 
       // set viewer display options
       viewerOptions                 = new ViewerOptions();
-      viewerOptions->ViewerCsiKey   = viewerCsiKey;
+      viewerOptions->ViewerStepKey  = viewerStepKey;
       viewerOptions->StudLogo       = subModelMeta.studLogo.value();
       viewerOptions->ImageFileName  = imageName;
       viewerOptions->Resolution     = resolution();
@@ -1060,7 +1060,7 @@ bool SubModel::loadTheViewer(){
     if (! gui->exporting()) {
         if (! renderer->LoadViewer(viewerOptions)) {
             emit gui->messageSig(LOG_ERROR,QString("Could not load 3D Viewer with Submodel key: %1")
-                                 .arg(viewerCsiKey));
+                                 .arg(viewerStepKey));
             return false;
         }
     }

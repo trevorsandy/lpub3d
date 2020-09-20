@@ -325,17 +325,17 @@ int Step::createCsi(
 
   int rc = 0;
 
-  // Populate viewerCsiKey variable
-  viewerCsiKey = QDir::toNativeSeparators(QString("\"%1\"%2;%3%4")
+  // Populate viewerStepKey variable
+  viewerStepKey = QDir::toNativeSeparators(QString("\"%1\"%2;%3%4")
                                                   .arg(top.modelName)
                                                   .arg(top.lineNumber)
                                                   .arg(stepNumber.number)
                                                   .arg(modelDisplayOnlyStep ? "_fm" : ""));
 
   // Viewer Csi does not yet exist in repository
-  bool addViewerStepContent = !gui->viewerStepContentExist(viewerCsiKey);
+  bool addViewerStepContent = !gui->viewerStepContentExist(viewerStepKey);
   // We are processing again the current step so Csi must have been updated in the viewer
-  bool viewerUpdate = viewerCsiKey == QDir::toNativeSeparators(gui->getViewerCsiKey());
+  bool viewerUpdate = viewerStepKey == QDir::toNativeSeparators(gui->getViewerStepKey());
 
   // Generate 3DViewer CSI entry - TODO move to after generate renderer CSI file
   if ((addViewerStepContent || csiOutOfDate || viewerUpdate) && ! gui->exportingObjects()) {
@@ -372,7 +372,7 @@ int Step::createCsi(
       if (!meta.rotStep.isPopulated())
           keyPart2.append(QString("_0_0_0_REL"));
       QString stepKey = QString("%1;%3").arg(keyPart1).arg(keyPart2);
-      gui->insertViewerStep(viewerCsiKey,rotatedParts,csiParts,csiLdrFile,stepKey/*keyPart2*/,multiStep,calledOut);
+      gui->insertViewerStep(viewerStepKey,rotatedParts,csiParts,csiLdrFile,stepKey/*keyPart2*/,multiStep,calledOut);
   }
 
   // generate renderer CSI file
@@ -471,7 +471,7 @@ int Step::createCsi(
   if (! gui->exportingObjects()) {
       // set viewer display options
       viewerOptions                 = new ViewerOptions();
-      viewerOptions->ViewerCsiKey   = viewerCsiKey;
+      viewerOptions->ViewerStepKey  = viewerStepKey;
       viewerOptions->ImageFileName  = pngName;
       viewerOptions->StudLogo       = csiStepMeta.studLogo.value();
       viewerOptions->Resolution     = resolution();
@@ -506,7 +506,7 @@ bool Step::loadTheViewer(){
     if (! gui->exporting() && gui->updateViewer()) {
         if (! renderer->LoadViewer(viewerOptions)) {
             emit gui->messageSig(LOG_ERROR,QString("Could not load 3D Viewer with CSI key: %1")
-                                 .arg(viewerCsiKey));
+                                 .arg(viewerStepKey));
             return false;
         }
     }

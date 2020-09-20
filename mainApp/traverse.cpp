@@ -328,9 +328,9 @@ static void set_divider_pointers(
       // format= "modelName"lineNumber;stepNumber[_fm]
       //         stepKey first element  = "modelName"
       //         stepKey second element = lineNumber;stepNumber[_fm]
-      QString valueAt0 = getViewerCsiKey().at(0);
+      QString valueAt0 = getViewerStepKey().at(0);
       bool inside = (valueAt0 == "\"");                                        // Get the open quote " of the first parameter - modelName
-      QStringList tmpList = getViewerCsiKey().split(QRegExp("\""),             // Split by quote " to extract model name
+      QStringList tmpList = getViewerStepKey().split(QRegExp("\""),             // Split by quote " to extract model name
                                                     QString::SkipEmptyParts);
       QStringList keyArg01;
       foreach (QString s, tmpList) {
@@ -345,7 +345,7 @@ static void set_divider_pointers(
       // confirm keyArg01 has 2 stepKey elements
       if (keyArg01.size() != 2) {
           if (Preferences::debugLogging) {
-              emit messageSig(LOG_DEBUG, QString("Parse stepKey [%1] failed").arg(getViewerCsiKey()));
+              emit messageSig(LOG_DEBUG, QString("Parse stepKey [%1] failed").arg(getViewerStepKey()));
               return false;
           }
       }
