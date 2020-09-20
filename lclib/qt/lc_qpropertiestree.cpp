@@ -439,6 +439,36 @@ QWidget *lcQPropertiesTree::createEditor(QWidget *parent, QTreeWidgetItem *item)
 
 			return editor;
 		}
+/*** LPub3D Mod - Camera Globe, Custom properties ***/
+	case PropertyFloatCameraAngle:
+		{
+			QLineEdit *editor = new QLineEdit(parent);
+			float value = item->data(0, PropertyValueRole).toFloat();
+
+			QRegExp vrx("^(?:[+\\-]{0,1}[\\d]+[.]{0,1}[\\d]*){1}\\s{0,1}(?:[+\\-]{0,1}[\\d]+[.]{0,1}[\\d]*){0,1}$");
+			editor->setValidator(new QRegExpValidator(vrx,parent));
+			editor->setText(lcFormatValueLocalized(value));
+			editor->setToolTip("Eneter respective angle or both angles. Use single space delimeter");
+
+			connect(editor, SIGNAL(returnPressed()), this, SLOT(slotReturnPressed()));
+
+			return editor;
+		}
+	case PropertyFloatTarget:
+		{
+			QLineEdit *editor = new QLineEdit(parent);
+			float value = item->data(0, PropertyValueRole).toFloat();
+
+			QRegExp vrx("^(?:[+\\-]{0,1}[\\d]+[.]{0,1}[\\d]*){1}\\s{0,1}(?:[+\\-]{0,1}[\\d]+[.]{0,1}[\\d]*){0,1}\\s{0,1}(?:[+\\-]{0,1}[\\d]+[.]{0,1}[\\d]*){0,1}$");
+			editor->setValidator(new QRegExpValidator(vrx,parent));
+			editor->setText(lcFormatValueLocalized(value));
+			editor->setToolTip("Enter respective axis or all axes. Use single space delimeter");
+
+			connect(editor, SIGNAL(returnPressed()), this, SLOT(slotReturnPressed()));
+
+			return editor;
+		}
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - LPub3D properties ***/
 	case PropertyFloatReadOnly:
 		{
@@ -683,15 +713,70 @@ void lcQPropertiesTree::slotReturnPressed()
 			{
 				lcVector3 Center = Camera->mTargetPosition;
 				lcVector3 Position = Center;
-				float Value = lcParseValueLocalized(Editor->text());
 
 /*** LPub3D Mod - Camera Globe, Switch Y and Z axis ***/
-				if (Item == cameraTargetX)
+				QStringList ValueList = QString(Editor->text()).trimmed().split(" ");
+
+				float Value       = 0.0f;
+				float SecondValue = 0.0f;
+				float ThirdValue  = 0.0f;
+
+				switch (ValueList.size()){
+				case 1:
+					Value       = lcParseValueLocalized(ValueList.first());
+					break;
+				case 2:
+					Value       = lcParseValueLocalized(ValueList.first());
+					SecondValue = lcParseValueLocalized(ValueList.last());
+					break;
+				case 3:
+					Value       = lcParseValueLocalized(ValueList.at(0));
+					SecondValue = lcParseValueLocalized(ValueList.at(1));
+					ThirdValue  = lcParseValueLocalized(ValueList.at(2));
+					break;
+				}
+
+				bool hasSingleVal = ValueList.size() == 2;
+				bool hasOneOther  = ValueList.size() == 2;
+				bool hasTwoOther  = ValueList.size() == 3;
+
+				// Switch Y and Z axis
+				if (Item == cameraTargetX) {
 					Position[0] = Value;
-				else if (Item == cameraTargetY)
-					Position[2] = Value;
-				else if (Item == cameraTargetZ)
-					Position[1] = Value;
+					if (hasOneOther) {
+						Position[2] = SecondValue;
+					}
+					if (hasTwoOther) {
+						Position[2] = SecondValue;
+						Position[1] = ThirdValue;
+					}
+				} else if (Item == cameraTargetY) {
+					if (hasSingleVal) {
+						Position[2] = Value;
+					}
+					if (hasOneOther) {
+						Position[0] = SecondValue;
+						Position[2] = Value;
+					}
+					if (hasTwoOther) {
+						Position[0] = Value ;
+						Position[2] = SecondValue;
+						Position[1] = ThirdValue;
+					}
+				} else if (Item == cameraTargetZ) {
+					if (hasSingleVal) {
+						Position[1] = Value;
+					}
+					if (hasOneOther) {
+						Position[2] = Value;
+						Position[1] = SecondValue;
+					}
+					if (hasTwoOther) {
+						Position[0] = Value ;
+						Position[2] = SecondValue;
+						Position[1] = ThirdValue;
+					}
+				}
 /*** LPub3D Mod end ***/
 
 				lcVector3 Distance = Position - Center;
@@ -732,13 +817,21 @@ void lcQPropertiesTree::slotReturnPressed()
 /*** LPub3D Mod - Camera Globe ***/
 			else if (Item == cameraGlobeLatitude || Item == cameraGlobeLongitude /*|| Item == cameraGlobeDistance*/)
 			{
-				float Value = lcParseValueLocalized(Editor->text());
+				QStringList ValueList = QString(Editor->text()).trimmed().split(" ",QString::SkipEmptyParts);
+				bool hasOther = ValueList.size() == 2;
+
+				float Value = lcParseValueLocalized(ValueList.first());
+				float OtherValue = hasOther ? lcParseValueLocalized(ValueList.last()) : 0.0f;
 
 				float Latitude, Longitude, Distance;
 				Camera->GetAngles(Latitude,Longitude,Distance);
 				if (Item == cameraGlobeLatitude) {
 					Latitude = Value;
+					if (hasOther)
+					   Longitude = OtherValue;
 				} else if (Item == cameraGlobeLongitude) {
+					if (hasOther)
+						Latitude = OtherValue;
 					Longitude = Value;
 				}
 
@@ -1097,8 +1190,8 @@ void lcQPropertiesTree::SetCamera(lcObject* Focus)
 
 /*** LPub3D Mod - Camera Globe ***/
 		cameraGlobe = addProperty(nullptr, tr("Camera Globe"), PropertyGroup);
-		cameraGlobeLatitude = addProperty(cameraGlobe, tr("Latitude"), PropertyFloat);
-		cameraGlobeLongitude = addProperty(cameraGlobe, tr("Longitude"), PropertyFloat);
+		cameraGlobeLatitude = addProperty(cameraGlobe, tr("Latitude"), PropertyFloatCameraAngle);
+		cameraGlobeLongitude = addProperty(cameraGlobe, tr("Longitude"), PropertyFloatCameraAngle);
 		cameraGlobeDistance = addProperty(cameraGlobe, tr("Distance"), PropertyIntReadOnly);
 /*** LPub3D Mod end ***/
 
@@ -1108,9 +1201,9 @@ void lcQPropertiesTree::SetCamera(lcObject* Focus)
 		cameraPositionZ = addProperty(cameraPosition, tr("Z"), PropertyFloat);
 
 		cameraTarget = addProperty(nullptr, tr("Target"), PropertyGroup);
-		cameraTargetX = addProperty(cameraTarget, tr("X"), PropertyFloat);
-		cameraTargetY = addProperty(cameraTarget, tr("Y"), PropertyFloat);
-		cameraTargetZ = addProperty(cameraTarget, tr("Z"), PropertyFloat);
+		cameraTargetX = addProperty(cameraTarget, tr("X"), PropertyFloatTarget);
+		cameraTargetY = addProperty(cameraTarget, tr("Y"), PropertyFloatTarget);
+		cameraTargetZ = addProperty(cameraTarget, tr("Z"), PropertyFloatTarget);
 
 		cameraUp = addProperty(nullptr, tr("Up"), PropertyGroup);
 		cameraUpX = addProperty(cameraUp, tr("X"), PropertyFloat);

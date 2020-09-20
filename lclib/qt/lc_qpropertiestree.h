@@ -44,6 +44,10 @@ public:
 		PropertyGroup,
 		PropertyBool,
 		PropertyFloat,
+/*** LPub3D Mod - Camera Globe, Custom properties ***/
+		PropertyFloatCameraAngle,
+		PropertyFloatTarget,
+/*** LPub3D Mod end ***/
 		PropertyInt,
 		PropertyString,
 		PropertyColor,
