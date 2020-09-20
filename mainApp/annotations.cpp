@@ -1367,7 +1367,7 @@ Annotations::Annotations()
             } else {
                 message = QString("Regular expression pattern was not found in %1.<br>"
                                   "Regenerate %1 by renaming the existing file and<br>"
-                                  "select edit %1 from the configuraiton menu.")
+                                  "select edit %1 from the configuration menu.")
                                   .arg(QFileInfo(styleFile).fileName());
                 if (Preferences::modeGUI){
                     QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
@@ -1440,7 +1440,7 @@ Annotations::Annotations()
            } else {
                message = QString("Regular expression pattern was not found in %1.<br>"
                                  "Regenerate %1 by renaming the existing file and<br>"
-                                 "select edit %1 from the configuraiton menu.")
+                                 "select edit %1 from the configuration menu.")
                                  .arg(QFileInfo(blColorsFile).fileName());
                if (Preferences::modeGUI){
                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
@@ -1511,7 +1511,7 @@ Annotations::Annotations()
             } else {
                 message = QString("Regular expression pattern was not found in %1.<br>"
                                   "Regenerate %1 by renaming the existing file and<br>"
-                                  "select edit %1 from the configuraiton menu.")
+                                  "select edit %1 from the configuration menu.")
                                   .arg(QFileInfo(ld2blColorsXRefFile).fileName());
                 if (Preferences::modeGUI){
                     QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
@@ -1582,7 +1582,7 @@ Annotations::Annotations()
             } else {
                 message = QString("Regular expression pattern was not found in %1.<br>"
                                   "Regenerate %1 by renaming the existing file and<br>"
-                                  "select edit %1 from the configuraiton menu.")
+                                  "select edit %1 from the configuration menu.")
                                   .arg(QFileInfo(ld2blCodesXRefFile).fileName());
                 if (Preferences::modeGUI){
                     QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
@@ -1655,7 +1655,7 @@ Annotations::Annotations()
             } else {
                 message = QString("Regular expression pattern was not found in %1.<br>"
                                   "Regenerate %1 by renaming the existing file and<br>"
-                                  "select edit %1 from the configuraiton menu.")
+                                  "select edit %1 from the configuration menu.")
                                   .arg(QFileInfo(ld2rbColorsXRefFile).fileName());
                 if (Preferences::modeGUI){
                     QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
@@ -1726,7 +1726,7 @@ Annotations::Annotations()
             } else {
                 message = QString("Regular expression pattern was not found in %1.<br>"
                                   "Regenerate %1 by renaming the existing file and<br>"
-                                  "select edit %1 from the configuraiton menu.")
+                                  "select edit %1 from the configuration menu.")
                                   .arg(QFileInfo(ld2rbCodesXRefFile).fileName());
                 if (Preferences::modeGUI){
                     QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
@@ -1928,7 +1928,7 @@ bool Annotations::loadLEGOElements(){
             } else {
                 message = QString("Regular expression pattern was not found in %1.<br>"
                                   "Regenerate %1 by renaming the existing file and<br>"
-                                  "select edit %1 from the configuraiton menu.")
+                                  "select edit %1 from the configuration menu.")
                                   .arg(QFileInfo(legoElementsFile).fileName());
                 if (Preferences::modeGUI){
                     QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
