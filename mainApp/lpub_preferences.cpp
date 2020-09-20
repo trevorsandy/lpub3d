@@ -221,6 +221,7 @@ bool    Preferences::hidePageBackground         = false;
 bool    Preferences::showGuidesCoordinates      = false;
 bool    Preferences::showTrackingCoordinates    = false;
 bool    Preferences::showParseErrors            = true;
+bool    Preferences::showAnnotationMessages     = true;
 bool    Preferences::showSaveOnRedraw           = true;
 bool    Preferences::showSaveOnUpdate           = true;
 bool    Preferences::suppressStdOutToLog        = false;
@@ -2950,6 +2951,15 @@ void Preferences::userInterfacePreferences()
           showParseErrors = Settings.value(QString("%1/%2").arg(SETTINGS,showParseErrorsKey)).toBool();
   }
 
+  QString const showAnnotationMessagesKey("ShowAnnotationMessages");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,showAnnotationMessagesKey))) {
+          QVariant uValue(true);
+          showAnnotationMessages = true;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,showAnnotationMessagesKey),uValue);
+  } else {
+          showAnnotationMessages = Settings.value(QString("%1/%2").arg(SETTINGS,showAnnotationMessagesKey)).toBool();
+  }
+
   QString const showSaveOnRedrawKey("ShowSaveOnRedraw");
   if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,showSaveOnRedrawKey))) {
           QVariant uValue(true);
@@ -3035,6 +3045,15 @@ void Preferences::setShowParseErrorsPreference(bool b)
   QVariant uValue(b);
   QString const showParseErrorsKey("ShowParseErrors");
   Settings.setValue(QString("%1/%2").arg(SETTINGS,showParseErrorsKey),uValue);
+}
+
+void Preferences::setShowAnnotationMessagesPreference(bool b)
+{
+QSettings Settings;
+showAnnotationMessages = b;
+QVariant uValue(b);
+QString const showAnnotationMessagesKey("ShowAnnotationMessages");
+Settings.setValue(QString("%1/%2").arg(SETTINGS,showAnnotationMessagesKey),uValue);
 }
 
 void Preferences::setShowSaveOnRedrawPreference(bool b)
@@ -3889,6 +3908,12 @@ bool Preferences::getPreferences()
         {
             showParseErrors = dialog->showParseErrors();
             Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowParseErrors"),showParseErrors);
+        }
+
+        if (showAnnotationMessages != dialog->showAnnotationMessages())
+        {
+            showAnnotationMessages = dialog->showAnnotationMessages();
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"ShowAnnotationMessages"),showAnnotationMessages);
         }
 
         if (showSaveOnRedraw != dialog->showSaveOnRedraw())

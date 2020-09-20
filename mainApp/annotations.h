@@ -18,6 +18,7 @@
 #include <QHash>
 #include <QString>
 #include <QStringList>
+#include "where.h"
 
 class Annotations {
   private:
@@ -35,6 +36,7 @@ class Annotations {
 
     static QHash<QString, QString>     ld2rbColorsXRef;
     static QHash<QString, QString>     ld2rbCodesXRef;
+    static QList<Where>                annotationMessages;
   public:
     Annotations();
     static const QString &freeformAnnotation(QString part);
@@ -80,6 +82,8 @@ class Annotations {
     {
         return titleAnnotations;
     }
+
+    static void annotationMessage(QString &message, Where &here);
 };
 
 #endif

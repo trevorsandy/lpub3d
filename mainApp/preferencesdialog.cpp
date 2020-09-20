@@ -153,8 +153,6 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   ui.fadeStepsOpacitySlider->setEnabled(         Preferences::enableFadeSteps);
   ui.fadeStepsOpacitySlider->setValue(           Preferences::fadeStepsOpacity);
 
-  ui.showParseErrorsChkBox->setChecked(          Preferences::showParseErrors);
-
   ui.fadeStepsColoursCombo->addItems(LDrawColor::names());
   ui.fadeStepsColoursCombo->setCurrentIndex(int(ui.fadeStepsColoursCombo->findText(Preferences::validFadeStepsColour)));
   QColor fadeColor = LDrawColor::color(Preferences::validFadeStepsColour);
@@ -373,6 +371,12 @@ PreferencesDialog::PreferencesDialog(QWidget *_parent) :
   //populate readme from the web
   m_updater->setChangelogOnly(DEFS_URL, true);
   m_updater->checkForUpdates (DEFS_URL);
+
+  // options
+  showParseErrorsChkBox = new QCheckBox(_parent);
+  showParseErrorsChkBox->setChecked(          Preferences::showParseErrors);
+  showAnnotationMessagesChkBox = new QCheckBox(_parent);
+  showAnnotationMessagesChkBox->setChecked(   Preferences::showAnnotationMessages);
 
   setMinimumSize(100, 100);
   setSizeGripEnabled(true);
@@ -911,6 +915,46 @@ void PreferencesDialog::on_loggingGrpBox_clicked(bool checked)
       ui.logPathEdit->setEnabled(checked);
 }
 
+void PreferencesDialog::on_optionsButton_clicked(bool checked)
+{
+    Q_UNUSED(checked)
+    // options dialogue
+    QDialog *dialog = new QDialog();
+    QFormLayout *form = new QFormLayout(dialog);
+    form->addRow(new QLabel("Message Options"));
+
+    // options - parse errors
+    QGroupBox *parseErrorGrpBox = new QGroupBox("Model Meta Parse Errors");
+    form->addWidget(parseErrorGrpBox);
+    QFormLayout *parseErrorSubform = new QFormLayout(parseErrorGrpBox);
+
+    QCheckBox * parseErrorChkBox = new QCheckBox("Show all", dialog);
+    parseErrorChkBox->setChecked(                 Preferences::showParseErrors);
+    parseErrorSubform->addRow(parseErrorChkBox);
+
+    // options - annotation message
+    QGroupBox *annotationMessageGrpBox = new QGroupBox("Annotation Messages");
+    form->addWidget(annotationMessageGrpBox);
+    QFormLayout *annotationMessageSubform = new QFormLayout(annotationMessageGrpBox);
+
+    QCheckBox * annotationMessageChkBox = new QCheckBox("Show all", dialog);
+    annotationMessageChkBox->setChecked(         Preferences::showAnnotationMessages);
+    annotationMessageSubform->addRow(annotationMessageChkBox);
+
+    // options - button box
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                               Qt::Horizontal, dialog);
+    form->addRow(&buttonBox);
+    QObject::connect(&buttonBox, SIGNAL(accepted()), dialog, SLOT(accept()));
+    QObject::connect(&buttonBox, SIGNAL(rejected()), dialog, SLOT(reject()));
+    dialog->setMinimumWidth(250);
+
+    if (dialog->exec() == QDialog::Accepted) {
+        showParseErrorsChkBox->setChecked(parseErrorChkBox->isChecked());
+        showAnnotationMessagesChkBox->setChecked(annotationMessageChkBox->isChecked());
+    }
+}
+
 void PreferencesDialog::pushButtonReset_SetState()
 {
   ui.pushButtonReset->setEnabled(true);
@@ -1245,7 +1289,12 @@ int PreferencesDialog::pageDisplayPause()
 
 bool PreferencesDialog::showParseErrors()
 {
- return ui.showParseErrorsChkBox->isChecked();
+ return showParseErrorsChkBox->isChecked();
+}
+
+bool PreferencesDialog::showAnnotationMessages()
+{
+ return showAnnotationMessagesChkBox->isChecked();
 }
 
 bool PreferencesDialog::includeLogLevel()

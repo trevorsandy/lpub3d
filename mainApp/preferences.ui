@@ -809,7 +809,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QGroupBox" name="showParseErrorGrpBox">
+          <widget class="QGroupBox" name="optionsGrpBox">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -823,16 +823,13 @@
             </size>
            </property>
            <property name="title">
-            <string>Model Meta Parse Errors</string>
+            <string>Messages</string>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_18">
             <item>
-             <widget class="QCheckBox" name="showParseErrorsChkBox">
-              <property name="toolTip">
-               <string>Display all meta command parse errors including MLCAD and LSynth errors</string>
-              </property>
+             <widget class="QPushButton" name="optionsButton">
               <property name="text">
-               <string>Show all</string>
+               <string>Options...</string>
               </property>
              </widget>
             </item>

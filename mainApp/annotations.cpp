@@ -18,7 +18,9 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
+#include <QCheckBox>
 #include "lpub_preferences.h"
+#include "messageboxresizable.h"
 #include "name.h"
 #include "version.h"
 #include "QsLog.h"
@@ -37,6 +39,8 @@ QHash<QString, QString>     Annotations::ld2blCodesXRef;
 
 QHash<QString, QString>     Annotations::ld2rbColorsXRef;
 QHash<QString, QString>     Annotations::ld2rbCodesXRef;
+
+QList<Where>                Annotations::annotationMessages;
 
 void Annotations::loadLD2BLColorsXRef(QByteArray& Buffer){
 /*
@@ -1196,7 +1200,9 @@ Annotations::Annotations()
 {
     returnString = QString();
     bool rxFound = false;
-    QString message;
+    annotationMessages.clear();
+
+    QString message,fileName;
     if (titleAnnotations.size() == 0) {
         QString annotations = Preferences::titleAnnotationsFile;
         QRegExp rx("^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$");
@@ -1238,16 +1244,14 @@ Annotations::Annotations()
                     }
                 }
             } else {
+                fileName = QFileInfo(annotations).fileName();
                 message = QString("Regular expression pattern was not found in %1.<br>"
                                   "Be sure the following lines exist in the file header:<br>"
                                   "# File: %1<br>"
                                   "# The Regular Expression used is: ^(\\b.*[^\\s]\\b:)\\s+([\\(|\\^].*)$")
-                                  .arg(QFileInfo(annotations).fileName());
-                if (Preferences::modeGUI){
-                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
-                } else {
-                    logError() << message.replace("<br>"," ");
-                }
+                                  .arg(fileName);
+                Where here(fileName,1001);
+                annotationMessage(message,here);
             }
         } else {
             titleAnnotations.clear();
@@ -1308,16 +1312,14 @@ Annotations::Annotations()
                 }
             }
         } else {
+            fileName = QFileInfo(annotations).fileName();
             message = QString("Regular expression pattern was not found in %1.<br>"
                               "Be sure the following lines exist in the file header:<br>"
                               "# File: %1<br>"
                               "# The Regular Expression used is: ^(\\b.*[^\\s]\\b)(?:\\s)\\s+(.*)$")
-                              .arg(QFileInfo(annotations).fileName());
-            if (Preferences::modeGUI){
-                QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
-            } else {
-                logError() << message.replace("<br>"," ");
-            }
+                              .arg(fileName);
+            Where here(fileName,1001);
+            annotationMessage(message,here);
         }
     }
 
@@ -1365,15 +1367,13 @@ Annotations::Annotations()
                     }
                 }
             } else {
+                fileName = QFileInfo(styleFile).fileName();
                 message = QString("Regular expression pattern was not found in %1.<br>"
                                   "Regenerate %1 by renaming the existing file and<br>"
                                   "select edit %1 from the configuration menu.")
-                                  .arg(QFileInfo(styleFile).fileName());
-                if (Preferences::modeGUI){
-                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
-                } else {
-                    logError() << message.replace("<br>"," ");
-                }
+                                  .arg(fileName);
+                Where here(fileName,1001);
+                annotationMessage(message,here);
             }
         } else {
             annotationStyles.clear();
@@ -1438,15 +1438,13 @@ Annotations::Annotations()
                     }
                 }
            } else {
+               fileName = QFileInfo(blColorsFile).fileName();
                message = QString("Regular expression pattern was not found in %1.<br>"
                                  "Regenerate %1 by renaming the existing file and<br>"
                                  "select edit %1 from the configuration menu.")
-                                 .arg(QFileInfo(blColorsFile).fileName());
-               if (Preferences::modeGUI){
-                   QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
-               } else {
-                   logError() << message.replace("<br>"," ");
-               }
+                                 .arg(fileName);
+               Where here(fileName,1001);
+               annotationMessage(message,here);
            }
         } else {
             blColors.clear();
@@ -1509,15 +1507,13 @@ Annotations::Annotations()
                     }
                 }
             } else {
+                fileName = QFileInfo(ld2blColorsXRefFile).fileName();
                 message = QString("Regular expression pattern was not found in %1.<br>"
                                   "Regenerate %1 by renaming the existing file and<br>"
                                   "select edit %1 from the configuration menu.")
-                                  .arg(QFileInfo(ld2blColorsXRefFile).fileName());
-                if (Preferences::modeGUI){
-                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
-                } else {
-                    logError() << message.replace("<br>"," ");
-                }
+                                  .arg(fileName);
+                Where here(fileName,1001);
+                annotationMessage(message,here);
             }
         } else {
             ld2blColorsXRef.clear();
@@ -1580,15 +1576,13 @@ Annotations::Annotations()
                     }
                 }
             } else {
+                fileName = QFileInfo(ld2blCodesXRefFile).fileName();
                 message = QString("Regular expression pattern was not found in %1.<br>"
                                   "Regenerate %1 by renaming the existing file and<br>"
                                   "select edit %1 from the configuration menu.")
                                   .arg(QFileInfo(ld2blCodesXRefFile).fileName());
-                if (Preferences::modeGUI){
-                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
-                } else {
-                    logError() << message.replace("<br>"," ");
-                }
+                Where here(fileName,1001);
+                annotationMessage(message,here);
             }
         } else {
             ld2blCodesXRef.clear();
@@ -1653,15 +1647,13 @@ Annotations::Annotations()
                     }
                 }
             } else {
+                fileName = QFileInfo(ld2rbColorsXRefFile).fileName();
                 message = QString("Regular expression pattern was not found in %1.<br>"
                                   "Regenerate %1 by renaming the existing file and<br>"
                                   "select edit %1 from the configuration menu.")
                                   .arg(QFileInfo(ld2rbColorsXRefFile).fileName());
-                if (Preferences::modeGUI){
-                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
-                } else {
-                    logError() << message.replace("<br>"," ");
-                }
+                Where here(fileName,1001);
+                annotationMessage(message,here);
             }
         } else {
             ld2rbColorsXRef.clear();
@@ -1724,15 +1716,13 @@ Annotations::Annotations()
                     }
                 }
             } else {
+               fileName = QFileInfo(ld2rbCodesXRefFile).fileName();
                 message = QString("Regular expression pattern was not found in %1.<br>"
                                   "Regenerate %1 by renaming the existing file and<br>"
                                   "select edit %1 from the configuration menu.")
                                   .arg(QFileInfo(ld2rbCodesXRefFile).fileName());
-                if (Preferences::modeGUI){
-                    QMessageBox::warning(nullptr,QMessageBox::tr(VER_PRODUCTNAME_STR),message);
-                } else {
-                    logError() << message.replace("<br>"," ");
-                }
+                Where here(fileName,1001);
+                annotationMessage(message,here);
             }
         } else {
             ld2rbCodesXRef.clear();
@@ -2678,4 +2668,37 @@ bool Annotations::exportfreeformAnnotationsHeader(){
        return false;
     }
     return true;
+}
+
+void Annotations::annotationMessage(QString &message, Where &here)
+{
+    if (annotationMessages.contains(here))
+        return;
+
+    QString parseMessage = QString("%1<br>(file: %2)") .arg(message) .arg(here.modelName);
+    if (Preferences::modeGUI) {
+        if (Preferences::showAnnotationMessages) {
+            QCheckBox *cb = new QCheckBox("Do not show annotation message again.");
+            QMessageBoxResizable box;
+            box.setWindowTitle(QMessageBox::tr(VER_PRODUCTNAME_STR " Annotation Message"));
+            box.setText(parseMessage);
+            box.setIcon(QMessageBox::Icon::Warning);
+            box.addButton(QMessageBox::Ok);
+            box.setDefaultButton(QMessageBox::Ok);
+            box.setCheckBox(cb);
+
+            QObject::connect(cb, &QCheckBox::stateChanged, [](int state){
+                if (static_cast<Qt::CheckState>(state) == Qt::CheckState::Checked) {
+                    Preferences::setShowAnnotationMessagesPreference(false);
+                } else {
+                    Preferences::setShowAnnotationMessagesPreference(true);
+                }
+            });
+            box.adjustSize();
+            box.exec();
+        }
+    }
+    logError() << qPrintable(parseMessage.replace("<br>"," "));
+
+    annotationMessages.append(here);
 }
