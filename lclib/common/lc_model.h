@@ -324,6 +324,23 @@ public:
 		return mMouseToolDistance;
 	}
 
+/*** LPub3D Mod - viewer interface ***/
+	bool IsActive()
+	{
+		return mActive;
+	}
+
+	void AddCamera(lcCamera* camera)
+	{
+		mCameras.Add(camera);
+	}
+
+	void RemoveCameraIndex(int CameraIdx)
+	{
+		mCameras.RemoveIndex(CameraIdx);
+	}
+/*** LPub3D Mod end ***/
+
 	void BeginMouseTool();
 	void EndMouseTool(lcTool Tool, bool Accept);
 	void InsertPieceToolClicked(const lcMatrix44& WorldMatrix);
@@ -431,10 +448,5 @@ protected:
 	std::vector<lcModelHistoryEntry*> mRedoHistory;
 
 	Q_DECLARE_TR_FUNCTIONS(lcModel);
-/*** LPub3D Mod - Expose Model to LPub3D ***/
-	friend class Render;
-	friend class Gui;
-	friend class Step;
-/*** LPub3D Mod end ***/
 };
 

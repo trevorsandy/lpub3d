@@ -2971,7 +2971,7 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
 
             ActiveModel->SetTemporaryStep(CurrentStep);
 
-            if (!ActiveModel->mActive)
+            if (!ActiveModel->IsActive())
                 ActiveModel->CalculateStep(LC_STEP_MAX);
 
             auto CalculateImageBounds = [&O, &UseImageSize](NativeImage& Image)
@@ -3135,7 +3135,7 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerStepKey)
     file.close();
 #endif
 
-    StepProject->mModels.DeleteAll();
+    StepProject->DeleteAllModels();
     StepProject->SetFileName(FileName);
 
     QByteArray QBA;
@@ -3144,12 +3144,12 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerStepKey)
         QBA.append(QString("\n"));
     }
 
-    if (StepProject->mFileName.isEmpty())
+    if (StepProject->GetFileName().isEmpty())
     {
         emit gui->messageSig(LOG_ERROR,QMessageBox::tr("3DViewer file name not set!"));
         return false;
     }
-    QFileInfo FileInfo(StepProject->mFileName);
+    QFileInfo FileInfo(StepProject->GetFileName());
 
     QBuffer Buffer(&QBA);
     Buffer.open(QIODevice::ReadOnly);
@@ -3159,9 +3159,9 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerStepKey)
         lcModel* Model = new lcModel(QString());
         Model->SplitMPD(Buffer);
 
-        if (StepProject->mModels.IsEmpty() || !Model->GetProperties().mFileName.isEmpty())
+        if (StepProject->GetModels().IsEmpty() || !Model->GetProperties().mFileName.isEmpty())
         {
-            StepProject->mModels.Add(Model);
+            StepProject->AddModel(Model);
             Model->CreatePieceInfo(StepProject);
         }
         else
@@ -3170,19 +3170,19 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerStepKey)
 
     Buffer.seek(0);
 
-    for (int ModelIdx = 0; ModelIdx < StepProject->mModels.GetSize(); ModelIdx++)
+    for (int ModelIdx = 0; ModelIdx < StepProject->GetModels().GetSize(); ModelIdx++)
     {
-        lcModel* Model = StepProject->mModels[ModelIdx];
+        lcModel* Model = StepProject->GetModels()[ModelIdx];
         Model->LoadLDraw(Buffer, StepProject);
         Model->SetSaved();
     }
 
-    if (StepProject->mModels.IsEmpty())
+    if (StepProject->GetModels().IsEmpty())
         return false;
 
-    if (StepProject->mModels.GetSize() == 1)
+    if (StepProject->GetModels().GetSize() == 1)
     {
-        lcModel* Model = StepProject->mModels[0];
+        lcModel* Model = StepProject->GetModels()[0];
 
         if (Model->GetProperties().mFileName.isEmpty())
         {
@@ -3193,13 +3193,13 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerStepKey)
 
     std::vector<lcModel*> UpdatedModels;
 
-    for (lcModel* Model : StepProject->mModels)
+    for (lcModel* Model : StepProject->GetModels())
     {
         Model->UpdateMesh();
         Model->UpdatePieceInfo(UpdatedModels);
     }
 
-    StepProject->mModified = false;
+    StepProject->SetModified(false);
 
     return true;
 }

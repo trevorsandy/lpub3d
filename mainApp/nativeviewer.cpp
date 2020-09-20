@@ -653,7 +653,7 @@ void Gui::applyLightSettings()
             if(readLine(walk).startsWith(lightMeta.preamble))
                 deleteLine(walk);
 
-        for (lcLight* Light : ActiveModel->mLights) {
+        for (lcLight* Light : ActiveModel->GetLights()) {
 
             emit messageSig(LOG_INFO, QString("Setting Light [%1]").arg(Light->m_strName));
 
@@ -1277,9 +1277,9 @@ void Gui::saveCurrent3DViewerModel(const QString &modelFile)
     if (ActiveModel){
         // Create a copy of the current camera and add it cameras
         lcCamera* Camera = ActiveView->mCamera;
-        Camera->CreateName(ActiveModel->mCameras);
+        Camera->CreateName(ActiveModel->GetCameras());
         Camera->SetSelected(true);
-        ActiveModel->mCameras.Add(ActiveView->mCamera);
+        ActiveModel->AddCamera(ActiveView->mCamera);
 
         // Get the created camera name
         char cameraName[81];
@@ -1297,10 +1297,10 @@ void Gui::saveCurrent3DViewerModel(const QString &modelFile)
         bool RemovedCamera = false;
         for (int CameraIdx = 0; CameraIdx < ActiveModel->GetCameras().GetSize(); )
         {
-            if (!strcmp(ActiveModel->mCameras[CameraIdx]->m_strName, cameraName))
+            if (!strcmp(ActiveModel->GetCameras()[CameraIdx]->m_strName, cameraName))
             {
                 RemovedCamera = true;
-                ActiveModel->mCameras.RemoveIndex(CameraIdx);
+                ActiveModel->RemoveCameraIndex(CameraIdx);
             }
             else
                 CameraIdx++;
@@ -1586,7 +1586,7 @@ void Gui::createBuildModification()
             lcCamera *Camera      = nullptr;
             lcLight  *Light       = nullptr;
             mViewerProperties     = ActiveModel->GetProperties();
-            mViewerFileLines      = ActiveModel->mFileLines;
+            mViewerFileLines      = ActiveModel->GetFileLines();
             mViewerPieces         = ActiveModel->GetPieces();
             lcPiecesLibrary *Library = lcGetPiecesLibrary();
 

@@ -131,6 +131,24 @@ public:
 		return mRenderer;
 	}
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - viewer interface ***/
+	void AddModel(lcModel *Model)
+	{
+		mModels.Add(Model);
+	}
+
+	void DeleteAllModels()
+	{
+		mModels.DeleteAll();
+	}
+
+	void SetModified(bool value)
+	{
+		mModified = value;
+	}
+
+	void SetFileName(const QString& FileName); // moved from protected
+/*** LPub3D Mod end ***/
 
 	QString GetImageFileName(bool AllowCurrentFolder) const;
 
@@ -165,7 +183,7 @@ public:
 protected:
 	QString GetExportFileName(const QString& FileName, const QString& DefaultExtension, const QString& DialogTitle, const QString& DialogFilter) const;
 	std::vector<lcModelPartsEntry> GetModelParts();
-	void SetFileName(const QString& FileName);
+//	void SetFileName(const QString& FileName);   /*** LPub3D Mod - viewer interface (moved to public) ***/
 
 	bool mModified;
 	QString mFileName;
@@ -184,8 +202,8 @@ protected:
 	float mResolution;
 	bool mViewerLoaded;
 /*** LPub3D Mod end ***/
-/*** LPub3D Mod - create Native PLI image ***/
-	friend class Render;
+/*** LPub3D Mod - model preview ***/
+	bool mIsPreview;
 /*** LPub3D Mod end ***/
 };
 
