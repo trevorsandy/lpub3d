@@ -102,6 +102,7 @@ TextItem::TextItem(InsertMeta meta,
   setFlag(QGraphicsItem::ItemIsSelectable);
   setFlag(QGraphicsItem::ItemIsFocusable, true);
   setData(ObjectId, InsertTextObj);
+  setZValue(INSERTTEXT_ZVALUE_DEFAULT);
 }
 
 void TextItem::formatText(const QString &input, QString &output)

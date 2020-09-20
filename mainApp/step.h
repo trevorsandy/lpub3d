@@ -97,9 +97,6 @@ class Step : public AbstractRangeElement
 
     QString               foo;
 
-    SceneObjectMeta       sceneRotateIconZ;
-    SceneObjectMeta       sceneStepNumberZ;
-
     MultiStepStepBackgroundItem *stepBackground;
 
     Step(

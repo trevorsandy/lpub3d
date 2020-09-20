@@ -74,7 +74,7 @@ void PageAttributeTextItem::setAttributes(
     setFlag(QGraphicsItem::ItemIsSelectable);
     setToolTip(_toolTip);
     setData(ObjectId, PageAttributeTextObj);
-    setZValue(page->meta.LPub.page.scene.pageAttributeText.zValue());
+    setZValue(PAGEATTRIBUTETEXT_ZVALUE_DEFAULT);
 }
 
 PageAttributeTextItem::PageAttributeTextItem(

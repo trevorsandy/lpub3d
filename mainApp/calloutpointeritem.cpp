@@ -194,7 +194,7 @@ CalloutPointerItem::CalloutPointerItem(
 
   setFlag(QGraphicsItem::ItemIsFocusable,true);
   setData(ObjectId, CalloutPointerObj);
-  setZValue(meta->LPub.page.scene.calloutPointer.zValue());
+  setZValue(CALLOUTPOINTER_ZVALUE_DEFAULT);
 
   drawPointerPoly();
 }

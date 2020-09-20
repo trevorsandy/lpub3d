@@ -160,11 +160,12 @@ PageAttributePixmapItem::PageAttributePixmapItem(
   }
   painter.end();
 
-  setData(ObjectId, PageAttributePixmapObj);
   setParentItem(parent);
   setPixmap(pixmap);
   setFlag(QGraphicsItem::ItemIsSelectable,movable);
   setFlag(QGraphicsItem::ItemIsMovable,movable);
+  setData(ObjectId, PageAttributePixmapObj);
+  setZValue(PAGEATTRIBUTEPIXMAP_ZVALUE_DEFAULT);
 }
 
 void PageAttributePixmapItem::change()

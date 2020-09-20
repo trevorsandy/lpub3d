@@ -187,7 +187,7 @@ PagePointerItem::PagePointerItem(
 
   setFlag(QGraphicsItem::ItemIsFocusable,true);
   setData(ObjectId, PagePointerObj);
-  setZValue(meta->LPub.page.scene.pagePointer.zValue());
+  setZValue(PAGEPOINTER_ZVALUE_DEFAULT);
 
   drawPointerPoly();
 }

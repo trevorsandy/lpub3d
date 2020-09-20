@@ -322,6 +322,7 @@ InsertPixmapItem::InsertPixmapItem(
   setFlag(QGraphicsItem::ItemIsSelectable,true);
   setFlag(QGraphicsItem::ItemIsMovable,true);
   setData(ObjectId, InsertPixmapObj);
+  setZValue(INSERTPIXMAP_ZVALUE_DEFAULT);
 
   margin.setValues(0.0,0.0);
 }

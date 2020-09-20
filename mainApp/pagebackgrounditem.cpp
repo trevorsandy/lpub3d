@@ -68,7 +68,7 @@ PageBackgroundItem::PageBackgroundItem(
   setFlag(QGraphicsItem::ItemIsSelectable,false);
   setFlag(QGraphicsItem::ItemIsMovable,false);
   setData(ObjectId, PageBackgroundObj);
-  setZValue(page->meta.LPub.page.scene.pageBackground.zValue());
+  setZValue(PAGEBACKGROUND_ZVALUE_DEFAULT);
 
   delete pixmap;
 }

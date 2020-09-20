@@ -44,7 +44,7 @@ PlacementCsiPart::PlacementCsiPart(
   outline      = false;
 
   setData(ObjectId, AssemAnnotationPartObj);
-
+  setZValue(ASSEMANNOTATIONPART_ZVALUE_DEFAULT);
   setParentItem(_parent);
 }
 
@@ -302,7 +302,6 @@ void CsiAnnotationItem::addGraphicsItems(
     placementCsiPart->top = topOf;
     placementCsiPart->top = bottomOf;
     placementCsiPart->stepNumber = stepNumber;
-    placementCsiPart->setZValue(_csiItem->meta->LPub.page.scene.assemAnnotationPart.zValue());
     if (! placementCsiPart->hasOffset())
         _csiItem->placeRelative(placementCsiPart);
 
@@ -322,7 +321,8 @@ void CsiAnnotationItem::addGraphicsItems(
     setPos(loc[XX],loc[YY]);
 
     setData(ObjectId, AssemAnnotationObj);
-//    setZValue(_step->scene.assemAnnotation.zValue()); // set from csiitem
+    setZValue(ASSEMANNOTATION_ZVALUE_DEFAULT);
+
     setFlag(QGraphicsItem::ItemIsMovable, _movable);
     setFlag(QGraphicsItem::ItemIsSelectable, _movable);
 }

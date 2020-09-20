@@ -81,7 +81,7 @@ CsiItem::CsiItem(
   setFlag(QGraphicsItem::ItemIsMovable,true);
   setAcceptHoverEvents(true);
   setData(ObjectId, AssemObj);
-  setZValue(meta->LPub.page.scene.assem.zValue());
+  setZValue(ASSEM_ZVALUE_DEFAULT);
 }
 
 void CsiItem::placeCsiPartAnnotations()
@@ -112,7 +112,6 @@ void CsiItem::placeCsiPartAnnotations()
             for (int i = 0; i < part->instances.size(); ++i) {
                 if (ca->partLine == part->instances[i] && part->text.size()){
                     CsiAnnotationItem *caItem = new CsiAnnotationItem();
-                    caItem->setZValue(meta->LPub.page.scene.assemAnnotation.zValue());
                     caItem->addGraphicsItems(ca,step,part,this,true);
                 }
             }

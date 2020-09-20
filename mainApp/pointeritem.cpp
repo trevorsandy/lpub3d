@@ -94,7 +94,7 @@ void PointerItem::drawPointerPoly()
           shaft->setHeadWidth(headWidth);
           shaft->setBorderedLine(linef);
           shaft->setData(ObjectId, PointerFirstSegObj);
-          shaft->setZValue(zValue()+meta->LPub.page.scene.pointerFirstSeg.zValue());
+          shaft->setZValue(zValue()+POINTERFIRSTSEG_ZVALUE_DEFAULT);
           addToGroup(shaft);
       }
           break;
@@ -112,7 +112,7 @@ void PointerItem::drawPointerPoly()
               shaft->setHeadWidth(headWidth);
               shaft->setBorderedLine(linef);
               shaft->setData(ObjectId, PointerFirstSegObj);
-              shaft->setZValue(zValue()+meta->LPub.page.scene.pointerFirstSeg.zValue());
+              shaft->setZValue(zValue()+POINTERFIRSTSEG_ZVALUE_DEFAULT);
               addToGroup(shaft);
           } else if (i == Seg::second) {
               linef = QLineF(points[MidBase],points[Tip]);
@@ -126,7 +126,7 @@ void PointerItem::drawPointerPoly()
               shaft->setHeadWidth(headWidth);
               shaft->setBorderedLine(linef);
               shaft->setData(ObjectId, PointerSecondSegObj);
-              shaft->setZValue(zValue()+meta->LPub.page.scene.pointerSecondSeg.zValue());
+              shaft->setZValue(zValue()+POINTERSECONDSEG_ZVALUE_DEFAULT);
               addToGroup(shaft);
           }
       }
@@ -145,7 +145,7 @@ void PointerItem::drawPointerPoly()
               shaft->setHeadWidth(headWidth);
               shaft->setBorderedLine(linef);
               shaft->setData(ObjectId, PointerFirstSegObj);
-              shaft->setZValue(zValue()+meta->LPub.page.scene.pointerFirstSeg.zValue());
+              shaft->setZValue(zValue()+POINTERFIRSTSEG_ZVALUE_DEFAULT);
               addToGroup(shaft);
           } else if (i == Seg::second) {
               linef = QLineF(points[MidBase],points[MidTip]);
@@ -159,7 +159,7 @@ void PointerItem::drawPointerPoly()
               shaft->setHeadWidth(headWidth);
               shaft->setBorderedLine(linef);
               shaft->setData(ObjectId, PointerSecondSegObj);
-              shaft->setZValue(zValue()+meta->LPub.page.scene.pointerSecondSeg.zValue());
+              shaft->setZValue(zValue()+POINTERSECONDSEG_ZVALUE_DEFAULT);
               addToGroup(shaft);
           } else if (i == Seg::third) {
               linef = QLineF(points[MidTip],points[Tip]);
@@ -173,7 +173,7 @@ void PointerItem::drawPointerPoly()
               shaft->setHeadWidth(headWidth);
               shaft->setBorderedLine(linef);
               shaft->setData(ObjectId, PointerThirdSegObj);
-              shaft->setZValue(zValue()+meta->LPub.page.scene.pointerThirdSeg.zValue());
+              shaft->setZValue(zValue()+POINTERTHIRDSEG_ZVALUE_DEFAULT);
               addToGroup(shaft);
           }
       }
@@ -246,7 +246,7 @@ void PointerItem::drawPointerPoly()
           }
 
           head->setData(ObjectId, PointerHeadObj);
-          head->setZValue(zValue()+meta->LPub.page.scene.pointerHead.zValue());
+          head->setZValue(POINTERHEAD_ZVALUE_DEFAULT);
           head->resetTransform();
           head->setRotation(rotation() + angle);
           head->setPos(points[Tip]);
@@ -443,9 +443,9 @@ void PointerItem::placeGrabbers()
     for (int i = 0; i < numGrabbers; i++) {
       grabbers[i] = new Grabber(i,this,myParentItem());
       grabbers[i]->setData(ObjectId, PointerGrabberObj);
-      grabbers[i]->setZValue(zValue()+meta->LPub.page.scene.pointerGrabber.zValue());
-      grabbers[i]->top        = pointerTop;
-      grabbers[i]->bottom     = pointerBottom;
+      grabbers[i]->setZValue(POINTERGRABBER_ZVALUE_DEFAULT);
+      grabbers[i]->top    = pointerTop;
+      grabbers[i]->bottom = pointerBottom;
       grabbers[i]->stepNumber = stepNumber;
     }
     grabbersVisible = true;

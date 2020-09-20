@@ -49,7 +49,6 @@ PagePointerBackgroundItem::PagePointerBackgroundItem(
   setPen(QPen(Qt::NoPen));
   setBrush(QBrush(Qt::NoBrush));
   setParentItem(parent);
-  setData(ObjectId, PagePointerObj);
-  setZValue(_meta->LPub.page.scene.pagePointer.zValue());
+  // no setData or setZValue because this item anchors the page pointer on the page perimeter
 }
 

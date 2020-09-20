@@ -408,14 +408,12 @@ public:
 class SceneObjectData
 {
 public:
-  qreal z;
-  int   itemObj;
-  bool  armed;  // not used
+  int itemObj;
+  bool  armed;
   float scenePos[2];
   SceneObjectDirection direction;
   SceneObjectData()
   {
-    z           = 0.0;
     direction   = SendToBack;
     scenePos[0] = 0.0f;
     scenePos[1] = 0.0f;
@@ -688,13 +686,11 @@ public:
   QString     color;
   bool        bom;
   bool        bPart;
-  double      zValue;
   double      offset[2];
   PliPartGroupData()
   {
     bom       = false;
     bPart     = false; // to indicate if Bom part group exists
-    zValue    = 0;
     offset[0] = 0.0;
     offset[1] = 0.0;
   }

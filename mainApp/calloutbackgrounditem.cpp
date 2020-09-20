@@ -89,7 +89,7 @@ CalloutBackgroundItem::CalloutBackgroundItem(
   setFlag(QGraphicsItem::ItemIsSelectable,true);
   setFlag(QGraphicsItem::ItemIsMovable,true);
   setData(ObjectId, CalloutBackgroundObj);
-  setZValue(meta->LPub.page.scene.calloutBackground.zValue());
+  setZValue(CALLOUTBACKGROUND_ZVALUE_DEFAULT);
 }
 
 void CalloutBackgroundItem::contextMenuEvent(

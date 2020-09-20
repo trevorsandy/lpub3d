@@ -1093,7 +1093,7 @@ SMInstanceTextItem::SMInstanceTextItem(
   setAcceptHoverEvents(true);
 
   setData(ObjectId, SubModelInstanceObj);
-  setZValue(_subModel->meta->LPub.page.scene.subModelInstance.zValue());
+  setZValue(SUBMODELINSTANCE_ZVALUE_DEFAULT);
 }
 
 void SMInstanceTextItem::contextMenuEvent(
@@ -1313,7 +1313,7 @@ SubModelBackgroundItem::SubModelBackgroundItem(
                  toolTip);
 
   setData(ObjectId, SubModelBackgroundObj);
-  setZValue(_subModel->meta->LPub.page.scene.subModelBackground.zValue());
+  setZValue(SUBMODELBACKGROUND_ZVALUE_DEFAULT);
   setPixmap(*pixmap);
   setParentItem(parent);
   if (parentRelativeType != SingleStepType) {
@@ -1337,7 +1337,6 @@ void SubModelBackgroundItem::placeGrabbers()
   if (grabber == nullptr) {
     grabber = new Grabber(BottomInside,this,myParentItem());
     grabber->setData(ObjectId, SubmodelGrabberObj);
-    grabber->setZValue(subModel->meta->LPub.page.scene.submodelGrabber.zValue());
     grabber->top        = subModel->step->topOfStep();
     grabber->bottom     = subModel->step->bottomOfStep();
     grabber->stepNumber = subModel->step->stepNumber.number;

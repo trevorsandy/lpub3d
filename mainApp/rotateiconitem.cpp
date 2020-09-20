@@ -78,6 +78,7 @@ void RotateIconItem::setAttributes(
   QString toolTip("Rotate Icon - right-click to modify");
   setToolTip(toolTip);
   setData(ObjectId, RotateIconBackgroundObj);
+  setZValue(ROTATEICONBACKGROUND_ZVALUE_DEFAULT);
   setParentItem(parent);
   setPixmap(*pixmap);
   setTransformationMode(Qt::SmoothTransformation);

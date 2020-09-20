@@ -2888,7 +2888,6 @@ void Gui::initialize()
       soMap[AssemAnnotationObj]       = QString("CSI_ANNOTATION");       //  0 CsiAnnotationType
       soMap[AssemAnnotationPartObj]   = QString("CSI_ANNOTATION_PART");  //  1 CsiPartType
       soMap[AssemObj]                 = QString("ASSEM");                //  2 CsiType
-      soMap[CalloutAssemObj]          = QString("CALLOUT_ASSEM");        //  3
       soMap[CalloutBackgroundObj]     = QString("CALLOUT");              //  4 CalloutType
       soMap[CalloutInstanceObj]       = QString("CALLOUT_INSTANCE");     //  5
       soMap[CalloutPointerObj]        = QString("CALLOUT_POINTER");      //  6

@@ -286,7 +286,6 @@ public:
 
 class BranchMeta : public AbstractMeta {
 public:
-
   /* 
    * This is a list of the possible keywords for this token in
    * the syntax
@@ -2309,15 +2308,6 @@ public:
   {
     _value[pushed] = value;
   }
-  void setZValue(qreal z)
-  {
-    _value[0].z = z;
-    _value[1].z = z;
-  }
-  qreal zValue()
-  {
-    return _value[pushed].z;
-  }
   void setItemObj(int value)
   {
     _value[0].itemObj = value;
@@ -2366,7 +2356,6 @@ public:
  SceneObjectMeta     assemAnnotation;       // CsiAnnotationType
  SceneObjectMeta     assemAnnotationPart;   // CsiPartType
  SceneObjectMeta     assem;                 // CsiType
- SceneObjectMeta     calloutAssem;          //  3
  SceneObjectMeta     calloutBackground;     // CalloutType
  SceneObjectMeta     calloutInstance;       //
  SceneObjectMeta     calloutPointer;        //
@@ -2816,10 +2805,6 @@ public:
   {
     return _value.bPart;
   }
-  double zValue()
-  {
-    return _value.zValue;
-  }
   QString key()
   {
     return _value.type + "_" + _value.color;
@@ -2853,10 +2838,6 @@ public:
   {
     _value.offset[0] += offset.x();
     _value.offset[1] += offset.y();
-  }
-  void setZValue(double d)
-  {
-    _value.zValue = d;
   }
 //  virtual ~PliPartGroupMeta() {}
   Rc parse(QStringList &argv, int index, Where &here);

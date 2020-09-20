@@ -100,6 +100,8 @@ class Grabber : public QGraphicsRectItem
       setParentItem(parentGraphicsItem);
       setFlag(QGraphicsItem::ItemIsSelectable,true);
       setFlag(QGraphicsItem::ItemIsMovable,true);
+
+      // setData and zValue set by parent item according to parent item.
       setZValue(GRABBER_ZVALUE_DEFAULT);
 
       QPen pen(Qt::black);

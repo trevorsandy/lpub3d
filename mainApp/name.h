@@ -154,7 +154,6 @@ enum SceneObject {
     UndefinedObj             = -1,
     AssemAnnotationObj       = 36, //  0 CsiAnnotationItem             / CsiAnnotationType
     AssemAnnotationPartObj   = 27, //  1 PlacementCsiPart              / CsiPartType
-    CalloutAssemObj          =  7, //  3
     AssemObj                 =  1, //  2 CsiItem                       / CsiType
     CalloutBackgroundObj     =  5, //  4 CalloutBackgroundItem         / CalloutType
     CalloutInstanceObj       =  8, //  5 CalloutInstanceItem           /
@@ -258,11 +257,10 @@ static const SceneObject PliPartGroupSceneObjects[] =
 
 #define Z_VALUE_DEFAULT                            0.0
 #define GRABBER_ZVALUE_DEFAULT                     100.0
+#define POINTER_ZVALUE_DEFAULT                    -1.0
 #define ASSEM_ZVALUE_DEFAULT                       Z_VALUE_DEFAULT
 #define ASSEMANNOTATION_ZVALUE_DEFAULT             Z_VALUE_DEFAULT
 #define ASSEMANNOTATIONPART_ZVALUE_DEFAULT         Z_VALUE_DEFAULT
-#define CALLOUTASSEM_ZVALUE_DEFAULT                Z_VALUE_DEFAULT
-#define CALLOUTASSEM_ZVALUE_DEFAULT                0.0
 #define CALLOUTBACKGROUND_ZVALUE_DEFAULT          98.0
 #define CALLOUTINSTANCE_ZVALUE_DEFAULT          1000.0
 #define CALLOUTPOINTER_ZVALUE_DEFAULT             POINTER_ZVALUE_DEFAULT
@@ -300,7 +298,6 @@ static const SceneObject PliPartGroupSceneObjects[] =
 #define SUBMODELINSTANCE_ZVALUE_DEFAULT            Z_VALUE_DEFAULT
 #define SUBMODELINSTANCECOUNT_ZVALUE_DEFAULT       Z_VALUE_DEFAULT
 #define STEP_BACKGROUND_ZVALUE_DEFAULT             Z_VALUE_DEFAULT
-#define POINTER_ZVALUE_DEFAULT                    -1.0
 
 #define GLOBAL_META_RX             "^\\s*0\\s+!LPUB\\s+.*GLOBAL"
 

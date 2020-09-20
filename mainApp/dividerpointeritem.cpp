@@ -176,7 +176,7 @@ DividerPointerItem::DividerPointerItem(
 
   setFlag(QGraphicsItem::ItemIsFocusable,true);
   setData(ObjectId, DividerPointerObj);
-  setZValue(meta->LPub.page.scene.dividerPointer.zValue());
+  setZValue(DIVIDERPOINTER_ZVALUE_DEFAULT);
 
   drawPointerPoly();
 }

@@ -3151,55 +3151,14 @@ void PageFooterMeta::init(BranchMeta *parent, QString name)
 
 /* ------------------ */
 /*
-* Scene Object Meta - Manage ZValues
+* Scene Object Meta - Z depth management
 */
 
 SceneItemMeta::SceneItemMeta() : BranchMeta()
 {
-    assemAnnotation      .setZValue(ASSEMANNOTATION_ZVALUE_DEFAULT);      //  0
-    assemAnnotationPart  .setZValue(ASSEMANNOTATIONPART_ZVALUE_DEFAULT);  //  1
-    assem                .setZValue(ASSEM_ZVALUE_DEFAULT);                //  2
-    calloutAssem         .setZValue(CALLOUTASSEM_ZVALUE_DEFAULT);         //  3
-    calloutBackground    .setZValue(CALLOUTBACKGROUND_ZVALUE_DEFAULT);    //  4
-    calloutInstance      .setZValue(CALLOUTINSTANCE_ZVALUE_DEFAULT);      //  5
-    calloutPointer       .setZValue(CALLOUTPOINTER_ZVALUE_DEFAULT);       //  6
-    calloutUnderpinning  .setZValue(CALLOUTUNDERPINNING_ZVALUE_DEFAULT);  //  7
-    dividerBackground    .setZValue(DIVIDERBACKGROUND_ZVALUE_DEFAULT);    //  8
-    divider              .setZValue(DIVIDER_ZVALUE_DEFAULT);              //  9
-    dividerLine          .setZValue(DIVIDERLINE_ZVALUE_DEFAULT);          // 10
-    dividerPointer       .setZValue(DIVIDERPOINTER_ZVALUE_DEFAULT);       // 11
-    pointerGrabber       .setZValue(POINTERGRABBER_ZVALUE_DEFAULT);       // 12
-    pliGrabber           .setZValue(PLIGRABBER_ZVALUE_DEFAULT);           // 13
-    submodelGrabber      .setZValue(SUBMODELGRABBER_ZVALUE_DEFAULT);      // 14
-    insertPicture        .setZValue(INSERTPIXMAP_ZVALUE_DEFAULT);         // 15
-    insertText           .setZValue(INSERTTEXT_ZVALUE_DEFAULT);           // 16
-    multiStepBackground  .setZValue(MULTISTEPBACKGROUND_ZVALUE_DEFAULT);  // 17
-    multiStepsBackground .setZValue(MULTISTEPSBACKGROUND_ZVALUE_DEFAULT); // 18
-    pageAttributePixmap  .setZValue(PAGEATTRIBUTEPIXMAP_ZVALUE_DEFAULT);  // 19
-    pageAttributeText    .setZValue(PAGEATTRIBUTETEXT_ZVALUE_DEFAULT);    // 20
-    pageBackground       .setZValue(PAGEBACKGROUND_ZVALUE_DEFAULT);       // 21
-    pageNumber           .setZValue(PAGENUMBER_ZVALUE_DEFAULT);           // 22
-    pagePointer          .setZValue(PAGEPOINTER_ZVALUE_DEFAULT);          // 23
-    partsListAnnotation  .setZValue(PARTSLISTANNOTATION_ZVALUE_DEFAULT);  // 24
-    partsListBackground  .setZValue(PARTSLISTBACKGROUND_ZVALUE_DEFAULT);  // 25
-    partsListInstance    .setZValue(PARTSLISTINSTANCE_ZVALUE_DEFAULT);    // 26
-    pointerFirstSeg      .setZValue(POINTERFIRSTSEG_ZVALUE_DEFAULT);      // 27
-    pointerHead          .setZValue(POINTERHEAD_ZVALUE_DEFAULT);          // 28
-    pointerSecondSeg     .setZValue(POINTERSECONDSEG_ZVALUE_DEFAULT);     // 29
-    pointerThirdSeg      .setZValue(POINTERTHIRDSEG_ZVALUE_DEFAULT);      // 30
-    rotateIconBackground .setZValue(ROTATEICONBACKGROUND_ZVALUE_DEFAULT); // 31
-    stepNumber           .setZValue(STEPNUMBER_ZVALUE_DEFAULT);           // 32
-    subModelBackground   .setZValue(SUBMODELBACKGROUND_ZVALUE_DEFAULT);   // 33
-    subModelInstance     .setZValue(SUBMODELINSTANCE_ZVALUE_DEFAULT);     // 34
-    submodelInstanceCount.setZValue(SUBMODELINSTANCECOUNT_ZVALUE_DEFAULT);// 35
-    partsListPixmap      .setZValue(PARTSLISTPARTPIXMAP_ZVALUE_DEFAULT);  // 36
-    partsListGroup       .setZValue(PARTSLISTPARTGROUP_ZVALUE_DEFAULT);   // 37
-    stepBackground       .setZValue(STEP_BACKGROUND_ZVALUE_DEFAULT);      // 38
-
     assemAnnotation      .setItemObj(AssemAnnotationObj);      //  0
     assemAnnotationPart  .setItemObj(AssemAnnotationPartObj);  //  1
     assem                .setItemObj(AssemObj);                //  2
-    calloutAssem         .setItemObj(CalloutAssemObj);         //  3
     calloutBackground    .setItemObj(CalloutBackgroundObj);    //  4
     calloutInstance      .setItemObj(CalloutInstanceObj);      //  5
     calloutPointer       .setItemObj(CalloutPointerObj);       //  6
@@ -3245,7 +3204,6 @@ void SceneItemMeta::init(
    assemAnnotation      .init(this, "CSI_ANNOTATION");       //  0 CsiAnnotationType
    assemAnnotationPart  .init(this, "CSI_ANNOTATION_PART");  //  1 CsiPartType
    assem                .init(this, "ASSEM");                //  2 CsiType
-   calloutAssem         .init(this, "CALLOUT_ASSEM");        //  3
    calloutBackground    .init(this, "CALLOUT");              //  4 CalloutType
    calloutInstance      .init(this, "CALLOUT_INSTANCE");     //  5
    calloutPointer       .init(this, "CALLOUT_POINTER");      //  6
@@ -5146,10 +5104,8 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
       tokenMap["ROTATE_ICON"]          = RotateIconType;
       tokenMap["PAGE_POINTER"]         = PagePointerType;
       tokenMap["DIVIDER_POINTER"]      = DividerPointerType;
-
       tokenMap["CSI_ANNOTATION"]       = AssemAnnotationObj;
       tokenMap["CSI_ANNOTATION_PART"]  = AssemAnnotationPartObj;
-      tokenMap["CALLOUT_ASSEM"]        = CalloutAssemObj;
       tokenMap["CALLOUT_INSTANCE"]     = CalloutInstanceObj;
       tokenMap["CALLOUT_POINTER"]      = CalloutPointerObj;
       tokenMap["CALLOUT_UNDERPINNING"] = CalloutUnderpinningObj;

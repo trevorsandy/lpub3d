@@ -452,8 +452,6 @@ void Pli::setParts(
                   groupMeta.setValue(_gd);
               }
 
-              groupMeta.setZValue(meta.LPub.page.scene.partsListGroup.zValue());
-
               return groupMeta;
           };
 
@@ -3050,7 +3048,7 @@ PliBackgroundItem::PliBackgroundItem(
                  toolTip);
 
   setData(ObjectId, PartsListBackgroundObj);
-  setZValue(pli->meta->LPub.page.scene.partsListBackground.zValue());
+  setZValue(PARTSLISTBACKGROUND_ZVALUE_DEFAULT);
   setPixmap(*pixmap);
   setParentItem(parent);
   if (parentRelativeType != SingleStepType && pli->perStep) {
@@ -3074,7 +3072,6 @@ void PliBackgroundItem::placeGrabbers()
   if (grabber == nullptr) {
       grabber = new Grabber(BottomInside,this,myParentItem());
       grabber->setData(ObjectId, PliGrabberObj);
-      grabber->setZValue(pli->meta->LPub.page.scene.pliGrabber.zValue());
       grabber->top        = pli->top;
       grabber->bottom     = pli->bottom;
       grabber->stepNumber = pli->step ? pli->step->stepNumber.number : 0;
@@ -3548,7 +3545,7 @@ PGraphicsPixmapItem::PGraphicsPixmapItem(
   setAcceptHoverEvents(true);
   setToolTip(pliToolTip(type,color));
   setData(ObjectId, PartsListPixmapObj);
-  setZValue(_pli->meta->LPub.page.scene.partsListPixmap.zValue());
+  setZValue(PARTSLISTPARTPIXMAP_ZVALUE_DEFAULT);
 }
 
 void PGraphicsPixmapItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
@@ -3734,7 +3731,7 @@ InstanceTextItem::InstanceTextItem(
   setAcceptHoverEvents(true);
 
   setData(ObjectId, PartsListInstanceObj);
-  setZValue(_pli->meta->LPub.page.scene.partsListInstance.zValue());
+  setZValue(PARTSLISTINSTANCE_ZVALUE_DEFAULT);
 }
 
 void InstanceTextItem::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
@@ -3888,7 +3885,7 @@ AnnotateTextItem::AnnotateTextItem(
   setAcceptHoverEvents(true);
 
   setData(ObjectId, PartsListAnnotationObj);
-  setZValue(_pli->meta->LPub.page.scene.partsListAnnotation.zValue());
+  setZValue(PARTSLISTANNOTATION_ZVALUE_DEFAULT);
 }
 
 void AnnotateTextItem::scaleDownFont() {
@@ -4064,7 +4061,7 @@ PartGroupItem::PartGroupItem(PliPartGroupMeta meta)
     setFlag(QGraphicsItem::ItemIsMovable,true);
 
     setData(ObjectId, PartsListGroupObj);
-    setZValue(meta.zValue());
+    setZValue(PARTSLISTPARTGROUP_ZVALUE_DEFAULT);
 }
 
 

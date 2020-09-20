@@ -299,7 +299,6 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bBRING_TO_FRONT\\b"
     << "\\bCABLE\\b"
     << "\\bCALLOUT\\b"
-    << "\\bCALLOUT_ASSEM\\b"
     << "\\bCALLOUT_INSTANCE\\b"
     << "\\bCALLOUT_POINTER\\b"
     << "\\bCALLOUT_UNDERPINNING\\b"

@@ -332,7 +332,7 @@ void Callout::addGraphicsItems(
   underpinnings->setPen(pen);
   underpinnings->setPos(newLoc[XX],newLoc[YY]);
   underpinnings->setData(ObjectId, CalloutUnderpinningObj);
-  underpinnings->setZValue(meta.LPub.page.scene.calloutUnderpinning.zValue());
+  underpinnings->setZValue(CALLOUTUNDERPINNING_ZVALUE_DEFAULT);
 
   QRect calloutRect(newLoc[XX],newLoc[YY],size[XX],size[YY]);
 
@@ -444,7 +444,7 @@ void Callout::addGraphicsItems(
       this,&meta,"x%d",instanceCount.number,parent);
     item->setPos(offsetX + instanceCount.loc[0], offsetY + instanceCount.loc[1]);
     item->setData(ObjectId, CalloutInstanceObj);
-    item->setZValue(meta.LPub.page.scene.calloutInstance.zValue());
+    item->setZValue(CALLOUTINSTANCE_ZVALUE_DEFAULT);
   }
 
   Steps::addGraphicsItems(allocEnc,

@@ -653,8 +653,6 @@ void Steps::addGraphicsItems(
 //#endif
               DividerItem *divider = new DividerItem(step,&meta,oX,oY);
               divider->setParentItem(parent);
-              divider->setZValue(meta.LPub.page.scene.divider.zValue());
-              divider->lineItem->setZValue(meta.LPub.page.scene.dividerLine.zValue());
 //#ifdef QT_DEBUG_MODE
 //              logDebug() << "\nStep Divider - Dimensions for Step [" << step->stepNumber.number << "]:"
 //                         << "\nDivider::loc XX    [" << divider->loc[XX] << "]"

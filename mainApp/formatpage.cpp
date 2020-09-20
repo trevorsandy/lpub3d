@@ -115,7 +115,7 @@ public:
                   toolTip,
                   parentIn);
     setData(ObjectId, SubmodelInstanceCountObj);
-    setZValue(page->meta.LPub.page.scene.submodelInstanceCount.zValue());
+    setZValue(SUBMODELINSTANCECOUNT_ZVALUE_DEFAULT);
     setFlag(QGraphicsItem::ItemIsSelectable,true);
     setFlag(QGraphicsItem::ItemIsFocusable, true);
     setAcceptHoverEvents(true);
@@ -381,7 +381,6 @@ int Gui::addGraphicsPageItems(
             stepPageNum,
             pageBg);
 
-      pageNumber->setZValue(page->meta.LPub.page.scene.pageNumber.zValue());
       pageNumber->relativeType = PageNumberType;
       pageNumber->size[XX]     = (int) pageNumber->document()->size().width();
       pageNumber->size[YY]     = (int) pageNumber->document()->size().height();
@@ -549,7 +548,6 @@ int Gui::addGraphicsPageItems(
                     QPixmap qpixmap;
                     qpixmap.load(insert.picName);
                     InsertPixmapItem *pixmap = new InsertPixmapItem(qpixmap,page->inserts[i],pageBg);
-                    pixmap->setZValue(page->meta.LPub.page.scene.insertPicture.zValue());
 
                     page->addInsertPixmap(pixmap);
                     pixmap->setTransformationMode(Qt::SmoothTransformation);
@@ -594,7 +592,6 @@ int Gui::addGraphicsPageItems(
                 } else {
                     // create a new text instance and insert into list
                     textItem = new TextItem(page->inserts[i],DefaultPage,textPlacement,pageBg);
-                    textItem->setZValue(page->meta.LPub.page.scene.insertText.zValue());
                     textItem->setSize(int(textItem->document()->size().width()),
                                       int(textItem->document()->size().height()));
                     if (textPlacement)
@@ -896,7 +893,6 @@ int Gui::addGraphicsPageItems(
                       }
 
                       rotateIcon->setFlag(QGraphicsItem::ItemIsMovable,true);
-                      rotateIcon->setZValue(page->meta.LPub.page.scene.rotateIconBackground.zValue());
                   }
 
                   // allocate QGraphicsTextItem for step number
@@ -908,8 +904,7 @@ int Gui::addGraphicsPageItems(
                                              page->meta.LPub.stepNumber,
                                              "%d",
                                              step->stepNumber.number,
-                                             pageBg);
-                      stepNumber->setZValue(page->meta.LPub.page.scene.stepNumber.zValue());
+                                             pageBg);;
                       stepNumber->setPos(step->stepNumber.loc[XX],
                                          step->stepNumber.loc[YY]);
                       stepNumber->relativeToSize[0] = step->stepNumber.relativeToSize[0];
@@ -2454,7 +2449,6 @@ int Gui::addCoverPageAttributes(
               page->addPageAttributePixmap(pixmapLogoFront);
               pixmapLogoFront->setTransformationMode(Qt::SmoothTransformation);
               pixmapLogoFront->setScale(picScale,picScale);
-              pixmapLogoFront->setZValue(page->meta.LPub.page.scene.pageAttributePixmap.zValue());
               int margin[2] = {0, 0};
               PlacementData pld = pixmapLogoFront->placement.value();
               if (pld.relativeTo == PageHeaderType) {
@@ -2493,7 +2487,6 @@ int Gui::addCoverPageAttributes(
               page->addPageAttributePixmap(pixmapCoverImageFront);
               pixmapCoverImageFront->setTransformationMode(Qt::SmoothTransformation);
               pixmapCoverImageFront->setScale(picScale,picScale);
-              pixmapCoverImageFront->setZValue(page->meta.LPub.page.scene.pageAttributePixmap.zValue());
               int margin[2] = {0, 0};
               plPage.placeRelative(pixmapCoverImageFront, margin);
               pixmapCoverImageFront->setPos(pixmapCoverImageFront->loc[XX],pixmapCoverImageFront->loc[YY]);
@@ -2758,7 +2751,6 @@ int Gui::addCoverPageAttributes(
               page->addPageAttributePixmap(pixmapLogoBack);
               pixmapLogoBack->setTransformationMode(Qt::SmoothTransformation);
               pixmapLogoBack->setScale(picScale,picScale);
-              pixmapLogoBack->setZValue(page->meta.LPub.page.scene.pageAttributePixmap.zValue());
               int margin[2] = {0, 0};
               PlacementData pld = pixmapLogoBack->placement.value();
               if (pld.relativeTo == PageHeaderType) {                              // Default placement
@@ -2797,7 +2789,6 @@ int Gui::addCoverPageAttributes(
               page->addPageAttributePixmap(pixmapPlugImageBack);;
               pixmapPlugImageBack->setTransformationMode(Qt::SmoothTransformation);
               pixmapPlugImageBack->setScale(picScale,picScale);
-              pixmapPlugImageBack->setZValue(page->meta.LPub.page.scene.pageAttributePixmap.zValue());
               int margin[2] = {0, 0};
               PlacementData pld = pixmapPlugImageBack->placement.value();
               if (displayPlugBack && pld.relativeTo == PagePlugType) {
