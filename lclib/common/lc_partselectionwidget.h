@@ -12,7 +12,8 @@ enum class lcPartCategoryType
 	PartsInUse,
 	Submodels,
 	Palette,
-	Category
+	Category,
+	Count
 };
 
 enum class lcPartCategoryRole
@@ -236,7 +237,7 @@ protected slots:
 	void CategoryChanged(QTreeWidgetItem* Current, QTreeWidgetItem* Previous);
 	void PartChanged(const QModelIndex& Current, const QModelIndex& Previous);
 	void OptionsMenuAboutToShow();
-	void ConfigurePartPalettes();
+	void EditPartPalettes();
 
 protected:
 	void LoadPartPalettes();
