@@ -228,6 +228,8 @@
         <file alias="submodelcolor.png">resources/submodelcolor.png</file>
         <file alias="submodelsetup.png">resources/submodelsetup.png</file>
         <file alias="substitutepart.png">resources/substitutepart.png</file>
+        <file alias="systemeditor.png">resources/systemeditor.png</file>
+        <file alias="systemeditor16.png">resources/systemeditor16.png</file>
         <file alias="textDelete.png">resources/textDelete.png</file>
         <file alias="textedit.png">resources/textedit.png</file>
         <file alias="tileimage.png">resources/tileimage.png</file>

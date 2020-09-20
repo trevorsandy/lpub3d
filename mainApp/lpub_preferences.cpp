@@ -246,6 +246,7 @@ bool    Preferences::debugLogging               = false;
 bool    Preferences::enableLineTypeIndexes      = true;
 bool    Preferences::blenderIs28OrLater         = true;
 bool    Preferences::defaultBlendFile           = false;
+bool    Preferences::useSystemEditor            = false;
 
 #ifdef Q_OS_MAC
 bool    Preferences::missingRendererLibs        = false;
@@ -3179,6 +3180,14 @@ void Preferences::userInterfacePreferences()
   } else {
       maxOpenWithPrograms = Settings.value(QString("%1/%2").arg(SETTINGS,maxOpenWithProgramsKey)).toInt();
   }
+
+  QString const useSystemEditorKey("UseSystemEditor");
+  if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,useSystemEditorKey))) {
+          useSystemEditor = false;
+          Settings.setValue(QString("%1/%2").arg(SETTINGS,useSystemEditorKey),useSystemEditor);
+  } else {
+          useSystemEditor = Settings.value(QString("%1/%2").arg(SETTINGS,useSystemEditorKey)).toBool();
+  }
 }
 
 void Preferences::setShowMessagePreference(bool b,MsgKey key)
@@ -3431,6 +3440,15 @@ void Preferences::setBlenderVersionPreference(QString s)
         Settings.remove(QString("%1/%2").arg(SETTINGS,blenderVersionKey));
     else
         Settings.setValue(QString("%1/%2").arg(SETTINGS,blenderVersionKey),uValue);
+}
+
+void Preferences::useSystemEditorPreference(bool i)
+{
+  QSettings Settings;
+  useSystemEditor = i;
+  QVariant uValue(i);
+  QString const useSystemEditorKey("UseSystemEditor");
+  Settings.setValue(QString("%1/%2").arg(SETTINGS,useSystemEditorKey),uValue);
 }
 
 bool Preferences::isBlender28OrLater()

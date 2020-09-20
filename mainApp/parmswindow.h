@@ -97,6 +97,7 @@ private:
     QAction  *undoAct;
     QAction  *redoAct;
     QAction  *delAct;
+    QAction  *systemeditorAct;
     QAction  *selAllAct;
     QAction  *findAct;
     QAction  *topAct;
@@ -114,6 +115,7 @@ private slots:
     bool saveCopyAsFile();
     void topOfDocument();
     void bottomOfDocument();
+    void systemeditor();
     void showAllCharacters();
     void showContextMenu(const QPoint &pt);
     void closeEvent(QCloseEvent *event);

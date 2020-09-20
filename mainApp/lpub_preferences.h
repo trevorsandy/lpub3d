@@ -65,6 +65,7 @@ class Preferences
     static void updatePOVRayConfigFiles();
     static bool isBlender28OrLater();
 
+    static void useSystemEditorPreference(bool);
     static void setLPub3DAltLibPreferences(const QString &);
     static bool checkLDrawLibrary(const QString &);
     static bool setLDViewExtraSearchDirs(const QString &);
@@ -294,6 +295,7 @@ class Preferences
     static bool    customSceneGuideColor;
     static bool    debugLogging;
     static bool    enableLineTypeIndexes;
+    static bool    useSystemEditor;
 
 #ifdef Q_OS_MAC
     static bool    missingRendererLibs;

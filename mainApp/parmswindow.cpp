@@ -131,6 +131,13 @@ void ParmsWindow::createActions()
     delAct->setStatusTip(tr("Delete the selection - DEL"));
     connect(delAct, SIGNAL(triggered()), _textEdit, SLOT(cut()));
 
+    QIcon systemeditorIcon;
+    systemeditorIcon.addFile(":/resources/systemeditor.png");
+    systemeditorIcon.addFile(":/resources/systemeditor16.png");
+    systemeditorAct = new QAction(systemeditorIcon, tr("Open with System Editor"), this);
+    systemeditorAct->setStatusTip(tr("Open this file with the system editor"));
+    connect(systemeditorAct, SIGNAL(triggered()), this, SLOT(systemeditor()));
+
     selAllAct = new QAction(QIcon(":/resources/selectall.png"), tr("&Select All"), this);
     selAllAct->setShortcut(tr("Ctrl+A"));
     selAllAct->setStatusTip(tr("Select all page content - Ctrl+A"));
@@ -165,6 +172,7 @@ void ParmsWindow::createActions()
     cutAct->setEnabled(false);
     copyAct->setEnabled(false);
     delAct->setEnabled(false);
+    systemeditorAct->setEnabled(false);
     selAllAct->setEnabled(false);
     findAct->setEnabled(false);
     topAct->setEnabled(false);
@@ -197,6 +205,7 @@ void ParmsWindow::createToolBars()
     editToolBar->addAction(openAct);
     editToolBar->addAction(saveAct);
     editToolBar->addAction(saveCopyAsAct);
+    editToolBar->addAction(systemeditorAct);
     editToolBar->addAction(selAllAct);
     editToolBar->addAction(showAllCharsAct);
     editToolBar->addAction(cutAct);
@@ -219,10 +228,16 @@ void ParmsWindow::showContextMenu(const QPoint &pt)
     menu->addAction(topAct);
     menu->addAction(bottomAct);
     menu->addAction(findAct);
+    menu->addSeparator();
+    menu->addAction(systemeditorAct);
     menu->exec(_textEdit->mapToGlobal(pt));
     delete menu;
 }
 
+void ParmsWindow::systemeditor()
+{
+    QDesktopServices::openUrl(QUrl::fromLocalFile(fileName));
+}
 
 void ParmsWindow::displayParmsFile(
   const QString &_fileName)
@@ -383,6 +398,7 @@ void ParmsWindow::displayParmsFile(
     findAct->setEnabled(true);
     topAct->setEnabled(true);
     bottomAct->setEnabled(true);
+    systemeditorAct->setEnabled(true);
     showAllCharsAct->setEnabled(true);
     if (showAllCharsAction)
         showAllCharsAct->setVisible(true);

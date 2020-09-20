@@ -1206,6 +1206,7 @@ public slots:
   void groupActionTriggered();
   void enableBuildModification();
   void useImageSize();
+  void useSystemEditor();
   void autoCenterSelection();
 
   void showDefaultCameraProperties();
@@ -1896,6 +1897,7 @@ private:
   QAction *editBLCodesAct;
   QAction *generateCustomColourPartsAct;
   QAction *editModelFileAct;
+  QAction *useSystemEditorAct;
 
   QAction *snapGridActions[NUM_GRID_SIZES];
   QAction *snapToGridComboAct;
