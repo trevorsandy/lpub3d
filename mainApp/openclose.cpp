@@ -236,6 +236,7 @@ void Gui::openRecentFile()
         emit messageSig(LOG_STATUS, QString("Load LDraw model file %1 aborted.").arg(fileName));
         return;
     }
+    currentStep = nullptr;
     Paths::mkDirs();
     displayPage();
     enableActions();

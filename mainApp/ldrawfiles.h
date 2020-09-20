@@ -168,6 +168,7 @@ class LDrawFile {
     QStringList                 _emptyList;
     QString                     _emptyString;
     int                         _buildModNextStepIndex;
+    int                         _buildModPrevStepIndex;
     bool                        _mpd;
     static int                  _emptyInt;
 
@@ -316,10 +317,11 @@ class LDrawFile {
     int setBuildModDisplayPageNumber(const QString &buildModKey, int displayPageNum);
     int getBuildModStepPieces(const QString &buildModKey);
     int setBuildModStepPieces(const QString &buildModKey, int pieces);
+    int getBuildModPrevStepIndex();
     int getBuildModNextStepIndex();
     int buildModsSize();
     void setBuildModStepKey(const QString &buildModKey, const QString &modStepKey);
-    bool getBuildModStepIndexKeys(int stepIndex, QString &modelName, int &lineNumber);
+    bool getBuildModStepIndexHere(int stepIndex, QString &modelName, int &lineNumber);
     bool setBuildModNextStepIndex(const QString &modelName, const int &lineNumber);
     bool buildModContains(const QString &buildModKey);
     bool removeBuildMod(const QString &buildModKey);

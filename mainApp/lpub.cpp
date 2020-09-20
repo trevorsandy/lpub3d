@@ -369,14 +369,12 @@ void Gui::removeLPubFormatting()
   displayPage();
 }
 
-void Gui::displayPage(bool reload)
+void Gui::displayPage()
 {
   emit messageSig(LOG_STATUS, "Processing page display...");
 
   timer.start();
   if (macroNesting == 0) {
-      if (reload)
-          setBuildModNextStepIndex(currentStep ? currentStep->top : page.top);
       clearPage(KpageView,KpageScene);
       page.coverPage = false;
       drawPage(KpageView,KpageScene,false);
@@ -1562,7 +1560,7 @@ void Gui::reloadCurrentPage(){
     }
 
     timer.start();
-    displayPage(true/*reload*/);
+    displayPage();
     emit messageSig(LOG_STATUS, QString("Page %1 reloaded. %2")
                     .arg(displayPageNum)
                     .arg(elapsedTime(timer.elapsed())));

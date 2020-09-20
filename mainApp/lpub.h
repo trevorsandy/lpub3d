@@ -505,7 +505,7 @@ public:
   int             firstStepPageNum;
   int             lastStepPageNum;
   int             savePrevStepPosition; // indicate the previous step position amongst current and previous steps.
-  QList<Where>    topOfPages;
+  QList<Where>    topOfPages;           // topOfStep list of modelName and lineNumber for each page
   QList<Where>    parsedMessages;       // previously parsed messages
   QVector<int>    buildModRange;    // begin and end range of modified parts from 3DViewer
 
@@ -546,7 +546,7 @@ public:
   {
     displayPageNum += offset;
   }
-  void  displayPage(bool reload = false);
+  void  displayPage();
 
   bool continuousPageDialog(Direction d);
 
@@ -812,6 +812,11 @@ public:
       return ldrawFile.getBuildModNextStepIndex();
   }
 
+  int getBuildModPrevStepIndex()
+  {
+      return ldrawFile.getBuildModPrevStepIndex();
+  }
+
   // This function returns the equivalent of the ViewerStepKey
   QString getBuildModStepKey(const QString &buildModKey)
   {
@@ -823,9 +828,9 @@ public:
       return ldrawFile.getBuildModModelName(buildModKey);
   }
 
-  bool getBuildModStepIndexKeys(int stepIndex, Where &here)
+  bool getBuildModStepIndexHere(int stepIndex, Where &here)
   {
-      return ldrawFile.getBuildModStepIndexKeys(stepIndex, here.modelName, here.lineNumber);
+      return ldrawFile.getBuildModStepIndexHere(stepIndex, here.modelName, here.lineNumber);
   }
 
   bool buildModContains(const QString &buildModKey)
@@ -855,7 +860,7 @@ public:
 
   void resetLastBuildMod(bool clearNextStep = false);
 
-  void setBuildModNextStepAction();
+  void setBuildModNextStepAction(Where topOfNextStep = Where(), bool isSubmodelFile = false);
 
   bool setBuildModChangeKey();
   QString getBuildModChangeKey()

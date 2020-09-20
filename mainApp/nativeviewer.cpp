@@ -2144,8 +2144,8 @@ void Gui::deleteBuildModification()
         foreach (int stepIndex, stepIndexes) {
             QMap<int, int>::iterator i = actionsMap.find(stepIndex);
             if (i.key()) {                                                      // skip first step at index 0 - deleted later
-                if (getBuildModStepIndexKeys(i.key(), topOfStep)){
-                    if (! getBuildModStepIndexKeys(i.key() + 1, bottomOfStep))  // bottom of step is top of next step                                                    // handle last step
+                if (getBuildModStepIndexHere(i.key(), topOfStep)){
+                    if (! getBuildModStepIndexHere(i.key() + 1, bottomOfStep))  // bottom of step is top of next step                                                    // handle last step
                         bottomOfStep = Where(topOfStep.modelName, subFileSize(topOfStep.modelName));
                     for (Where walk = bottomOfStep; walk > topOfStep.lineNumber; --walk) {
                         here = walk;
