@@ -313,9 +313,13 @@ static const SceneObject NoContextSceneObjects[] =
 #define LIBOPENEXR_MACOS_VERSION                "2.2.0"  // base 2.2.0
 #define LIBILMBASE_MACOS_VERSION                "2.2.1"  // base 2.2.1
 
+#define CAMERA_FOV_LDVIEW_P_DEFAULT              0.007f  // LPub3D (LDViez) default [Mimic Perspective]
+#define CAMERA_FOV_LDVIEW_P_MAX_DEFAULT         90.0f    // LPub3D (LDViez) default
+
 #define CAMERA_FOV_DEFAULT                       0.01f   // LPub3D (L3P) default [Orthographic]
 #define CAMERA_FOV_MIN_DEFAULT                   0.0f    // LPub3D (L3P) default
 #define CAMERA_FOV_MAX_DEFAULT                 360.0f    // LPub3D (L3P) default
+
 #define CAMERA_ZNEAR_DEFAULT                    10.0f    // LPub3D (L3P) default
 #define CAMERA_ZFAR_DEFAULT                   4000.0f    // LPub3D (L3P) default
 

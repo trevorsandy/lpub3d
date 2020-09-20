@@ -1991,6 +1991,9 @@ void Preferences::rendererPreferences(UpdateFlag updateFlag)
         perspectiveProjection = Settings.value(QString("%1/%2").arg(SETTINGS,perspectiveProjectionKey)).toBool();
     }
 
+    // Set Apply CA Locally if Preferred Rendeer is LDView and perspectiveProjection is true
+    applyCALocally = (perspectiveProjection && preferredRenderer == RENDERER_LDVIEW);
+
     // LDView multiple files single call rendering
     if (! Settings.contains(QString("%1/%2").arg(SETTINGS,"EnableLDViewSingleCall"))) {
         QVariant eValue(false);
@@ -2280,7 +2283,7 @@ void Preferences::updateLDViewIniFile(UpdateFlag updateFlag)
     if (resourceFile.exists())
     {
        if (updateFlag == SkipExisting) {
-           ldviewIni = resourceFile.absoluteFilePath(); // populate ldview ini file
+           ldviewIni = QDir::toNativeSeparators(resourceFile.absoluteFilePath()); // populate ldview ini file
            logInfo() << QString("LDView ini file    : %1").arg(ldviewIni);
            return;
        }
@@ -2333,7 +2336,7 @@ void Preferences::updateLDViewIniFile(UpdateFlag updateFlag)
         logError() << QString("Could not open LDView.ini input or output file: %1").arg(confFileError);
     }
     if (resourceFile.exists())
-        ldviewIni = resourceFile.absoluteFilePath(); // populate ldview ini file
+        ldviewIni = QDir::toNativeSeparators(resourceFile.absoluteFilePath()); // populate ldview ini file
     if (oldFile.exists())
         oldFile.remove();                            // delete old file
     logInfo() << QString("LDView ini file    : %1").arg(ldviewIni.isEmpty() ? "Not found" : ldviewIni);
