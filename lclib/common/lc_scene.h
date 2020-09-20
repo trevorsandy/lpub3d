@@ -92,9 +92,9 @@ public:
 	void DrawInterfaceObjects(lcContext* Context) const;
 
 protected:
-	void DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTypes) const;
+	void DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTypes, bool DrawFaded, bool DrawNonFaded) const;
 /*** LPub3D Mod - true fade ***/
-	void DrawTranslucentMeshes(lcContext* Context, bool DrawLit, int FadeArgs = 0/*NoFade*/) const;
+	void DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawFadePrepass, bool DrawFaded, bool DrawNonFaded, int LPubFadeArgs = 0/*NoFade*/) const;
 /*** LPub3D Mod end ***/
 	void DrawDebugNormals(lcContext* Context, const lcMesh* Mesh) const;
 

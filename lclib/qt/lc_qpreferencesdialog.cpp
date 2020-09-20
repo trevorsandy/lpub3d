@@ -200,7 +200,7 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	ui->lgeoPathBrowse->hide();
 	ui->Language->hide();
 	ui->checkForUpdates->hide();
-	ui->FadeSteps->hide();
+//	ui->FadeSteps->hide();
 	ui->RestoreTabLayout->hide();
 	ui->label_6->hide();					//label Language
 	ui->label_10->hide();					//label check for updates
