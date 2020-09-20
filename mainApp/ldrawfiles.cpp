@@ -967,18 +967,8 @@ int LDrawFile::loadFile(const QString &fileName)
 
 void LDrawFile::showLoadMessages()
 {
-    if (_showLoadMessages && Preferences::modeGUI) {
-#ifdef QT_DEBUG_MODE
-        QTime t;
-        t.start();
-        emit gui->messageSig(LOG_DEBUG,QString("Running parts load summary..."));
-#endif
+    if (_showLoadMessages && Preferences::modeGUI)
         LdrawFilesLoad::showLoadMessages(_loadedParts);
-#ifdef QT_DEBUG_MODE
-        emit gui->messageSig(LOG_DEBUG,QString("Parts load summary - %1")
-                             .arg(gui->elapsedTime(t.elapsed())));
-#endif
-    }
 }
 
 void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
