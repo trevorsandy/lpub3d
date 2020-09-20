@@ -147,7 +147,7 @@ Step::Step(
 
       csiCameraMeta.cameraAngles     = _meta.LPub.assem.cameraAngles;
       csiCameraMeta.modelScale       = _meta.LPub.assem.modelScale;
-      csiCameraMeta.cameraDistNative = _meta.LPub.assem.cameraDistNative;
+      csiCameraMeta.cameraDistance   = _meta.LPub.assem.cameraDistance;
       csiCameraMeta.cameraName       = _meta.LPub.assem.cameraName;
       csiCameraMeta.cameraFoV        = _meta.LPub.assem.cameraFoV;
       csiCameraMeta.isOrtho          = _meta.LPub.assem.isOrtho;
