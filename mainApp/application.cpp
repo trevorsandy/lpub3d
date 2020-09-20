@@ -181,17 +181,6 @@ Application* Application::m_instance = nullptr;
 Application::Application(int &argc, char **argv)
   : m_application(argc, argv)
 {
-
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
-#endif
-
-#if QT_VERSION >= QT_VERSION_CHECK(5,6,0)
-#ifndef Q_OS_MAC
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-#endif
-#endif
-
     //QCoreApplication::setAttribute(Qt::AA_Use96Dpi);
 
     QCoreApplication::setOrganizationName(VER_COMPANYNAME_STR);
