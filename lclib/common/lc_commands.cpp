@@ -115,6 +115,13 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Status", "Render the current model using POV-Ray"),
 		""
 	},
+	// LC_FILE_INSTRUCTIONS
+	{
+		QT_TRANSLATE_NOOP("Action", "File.Instructions"),
+		QT_TRANSLATE_NOOP("Menu", "&Instructions..."),
+		QT_TRANSLATE_NOOP("Status", "Configure instructions layout"),
+		""
+	},
 	// LC_FILE_PRINT
 	{
 		QT_TRANSLATE_NOOP("Action", "File.Print"),
@@ -1041,6 +1048,55 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 		QT_TRANSLATE_NOOP("Action", "View.ResetViews"),
 		QT_TRANSLATE_NOOP("Menu", "Rese&t Views"),
 		QT_TRANSLATE_NOOP("Status", "Reset all views"),
+		""
+	},
+	// LC_VIEW_TOOLBAR_STANDARD
+	{
+		QT_TRANSLATE_NOOP("Action", "View.Toolbars.Standard"),
+		QT_TRANSLATE_NOOP("Menu", "Standard"),
+		QT_TRANSLATE_NOOP("Status", "Toggle the Standard Toolbar"),
+		""
+	},
+	// LC_VIEW_TOOLBAR_TOOLS
+	{
+		QT_TRANSLATE_NOOP("Action", "View.Toolbars.Tools"),
+		QT_TRANSLATE_NOOP("Menu", "Tools"),
+		QT_TRANSLATE_NOOP("Status", "Toggle the Tools Toolbar"),
+		""
+	},
+	// LC_VIEW_TOOLBAR_TIME
+	{
+		QT_TRANSLATE_NOOP("Action", "View.Toolbars.Time"),
+		QT_TRANSLATE_NOOP("Menu", "Time"),
+		QT_TRANSLATE_NOOP("Status", "Toggle the Time Toolbar"),
+		""
+	},
+	// LC_VIEW_TOOLBAR_PARTS
+	{
+		QT_TRANSLATE_NOOP("Action", "View.Toolbars.Parts"),
+		QT_TRANSLATE_NOOP("Menu", "Parts"),
+		QT_TRANSLATE_NOOP("Status", "Toggle the Parts Toolbar"),
+		""
+	},
+	// LC_VIEW_TOOLBAR_COLORS
+	{
+		QT_TRANSLATE_NOOP("Action", "View.Toolbars.Colors"),
+		QT_TRANSLATE_NOOP("Menu", "Colors"),
+		QT_TRANSLATE_NOOP("Status", "Toggle the Colors Toolbar"),
+		""
+	},
+	// LC_VIEW_TOOLBAR_PROPERTIES
+	{
+		QT_TRANSLATE_NOOP("Action", "View.Toolbars.Properties"),
+		QT_TRANSLATE_NOOP("Menu", "Properties"),
+		QT_TRANSLATE_NOOP("Status", "Toggle the Properties Toolbar"),
+		""
+	},
+	// LC_VIEW_TOOLBAR_TIMELINE
+	{
+		QT_TRANSLATE_NOOP("Action", "View.Toolbars.Timeline"),
+		QT_TRANSLATE_NOOP("Menu", "Timeline"),
+		QT_TRANSLATE_NOOP("Status", "Toggle the Timeline Toolbar"),
 		""
 	},
 	// LC_VIEW_FULLSCREEN

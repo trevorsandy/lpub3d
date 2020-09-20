@@ -14,6 +14,7 @@
 #include "lc_setsdatabasedialog.h"
 #include "lc_qhtmldialog.h"
 #include "lc_renderdialog.h"
+#include "lc_instructionsdialog.h"
 #include "lc_profile.h"
 #include "view.h"
 #include "project.h"
@@ -410,6 +411,9 @@ void lcMainWindow::CreateActions()
 	mActions[LC_VIEW_CAMERA_NONE]->setCheckable(true);
 	mActions[LC_VIEW_TIME_ADD_KEYS]->setCheckable(true);
 
+	for (int ActionIndex = LC_VIEW_TOOLBAR_FIRST; ActionIndex <= LC_VIEW_TOOLBAR_LAST; ActionIndex++)
+		mActions[ActionIndex]->setCheckable(true);
+
 	QActionGroup* ActionSnapXYGroup = new QActionGroup(this);
 	for (int ActionIdx = LC_EDIT_SNAP_MOVE_XY0; ActionIdx <= LC_EDIT_SNAP_MOVE_XY9; ActionIdx++)
 	{
@@ -582,9 +586,10 @@ void lcMainWindow::CreateMenus()
 	ExportMenu->addAction(mActions[LC_FILE_EXPORT_WAVEFRONT]);
 	FileMenu->addSeparator();
 	FileMenu->addAction(mActions[LC_FILE_RENDER]);
+	FileMenu->addAction(mActions[LC_FILE_INSTRUCTIONS]);
 	FileMenu->addAction(mActions[LC_FILE_PRINT]);
 	FileMenu->addAction(mActions[LC_FILE_PRINT_PREVIEW]);
-//  FileMenu->addAction(mActions[LC_FILE_PRINT_BOM]);
+//	FileMenu->addAction(mActions[LC_FILE_PRINT_BOM]);
 	FileMenu->addSeparator();
 	FileMenu->addAction(mActions[LC_FILE_RECENT1]);
 	FileMenu->addAction(mActions[LC_FILE_RECENT2]);
@@ -640,14 +645,15 @@ void lcMainWindow::CreateMenus()
 	ViewMenu->addAction(mActions[LC_VIEW_RESET_VIEWS]);
 	ViewMenu->addSeparator();
 	QMenu* ToolBarsMenu = ViewMenu->addMenu(tr("T&oolbars"));
-	ToolBarsMenu->addAction(mPartsToolBar->toggleViewAction());
-	ToolBarsMenu->addAction(mColorsToolBar->toggleViewAction());
-	ToolBarsMenu->addAction(mPropertiesToolBar->toggleViewAction());
-	ToolBarsMenu->addAction(mTimelineToolBar->toggleViewAction());
+	connect(ToolBarsMenu, SIGNAL(aboutToShow()), this, SLOT(UpdateDockWidgetActions()));
+	ToolBarsMenu->addAction(mActions[LC_VIEW_TOOLBAR_PARTS]);
+	ToolBarsMenu->addAction(mActions[LC_VIEW_TOOLBAR_COLORS]);
+	ToolBarsMenu->addAction(mActions[LC_VIEW_TOOLBAR_PROPERTIES]);
+	ToolBarsMenu->addAction(mActions[LC_VIEW_TOOLBAR_TIMELINE]);
 	ToolBarsMenu->addSeparator();
-	ToolBarsMenu->addAction(mStandardToolBar->toggleViewAction());
-	ToolBarsMenu->addAction(mToolsToolBar->toggleViewAction());
-	ToolBarsMenu->addAction(mTimeToolBar->toggleViewAction());
+	ToolBarsMenu->addAction(mActions[LC_VIEW_TOOLBAR_STANDARD]);
+	ToolBarsMenu->addAction(mActions[LC_VIEW_TOOLBAR_TOOLS]);
+	ToolBarsMenu->addAction(mActions[LC_VIEW_TOOLBAR_TIME]);
 	ViewMenu->addAction(mActions[LC_VIEW_FULLSCREEN]);
 
 	QMenu* PieceMenu = menuBar()->addMenu(tr("&Piece"));
@@ -1039,25 +1045,37 @@ QMenu* lcMainWindow::createPopupMenu()
 {
 	QMenu* Menu = new QMenu(this);
 
-	Menu->addAction(mPartsToolBar->toggleViewAction());
-	Menu->addAction(mColorsToolBar->toggleViewAction());
-	Menu->addAction(mPropertiesToolBar->toggleViewAction());
-	Menu->addAction(mTimelineToolBar->toggleViewAction());
+	UpdateDockWidgetActions();
+
+	Menu->addAction(mActions[LC_VIEW_TOOLBAR_PARTS]);
+	Menu->addAction(mActions[LC_VIEW_TOOLBAR_COLORS]);
+	Menu->addAction(mActions[LC_VIEW_TOOLBAR_PROPERTIES]);
+	Menu->addAction(mActions[LC_VIEW_TOOLBAR_TIMELINE]);
 	Menu->addSeparator();
-	Menu->addAction(mStandardToolBar->toggleViewAction());
-	Menu->addAction(mToolsToolBar->toggleViewAction());
-	Menu->addAction(mTimeToolBar->toggleViewAction());
+	Menu->addAction(mActions[LC_VIEW_TOOLBAR_STANDARD]);
+	Menu->addAction(mActions[LC_VIEW_TOOLBAR_TOOLS]);
+	Menu->addAction(mActions[LC_VIEW_TOOLBAR_TIME]);
 
 /*** LPub3D Mod - popup menu remove actions ***/
-	Menu->removeAction(mPartsToolBar->toggleViewAction());
-	Menu->removeAction(mColorsToolBar->toggleViewAction());
-	Menu->removeAction(mStandardToolBar->toggleViewAction());
-	Menu->removeAction(mTimeToolBar->toggleViewAction());
-	Menu->removeAction(mStandardToolBar->toggleViewAction());
-	Menu->removeAction(mToolsToolBar->toggleViewAction());
-	Menu->removeAction(mTimeToolBar->toggleViewAction());
+	Menu->removeAction(mActions[LC_VIEW_TOOLBAR_PARTS]);
+	Menu->removeAction(mActions[LC_VIEW_TOOLBAR_COLORS]);
+
+	Menu->removeAction(mActions[LC_VIEW_TOOLBAR_STANDARD]);
+	Menu->removeAction(mActions[LC_VIEW_TOOLBAR_TOOLS]);
+	Menu->removeAction(mActions[LC_VIEW_TOOLBAR_TIME]);
 /*** LPub3D Mod end ***/
 	return Menu;
+}
+
+void lcMainWindow::UpdateDockWidgetActions()
+{
+	mActions[LC_VIEW_TOOLBAR_PARTS]->setChecked(mPartsToolBar->isVisible());
+	mActions[LC_VIEW_TOOLBAR_COLORS]->setChecked(mColorsToolBar->isVisible());
+	mActions[LC_VIEW_TOOLBAR_PROPERTIES]->setChecked(mPropertiesToolBar->isVisible());
+	mActions[LC_VIEW_TOOLBAR_TIMELINE]->setChecked(mTimelineToolBar->isVisible());
+	mActions[LC_VIEW_TOOLBAR_STANDARD]->setChecked(mStandardToolBar->isVisible());
+	mActions[LC_VIEW_TOOLBAR_TOOLS]->setChecked(mToolsToolBar->isVisible());
+	mActions[LC_VIEW_TOOLBAR_TIME]->setChecked(mTimeToolBar->isVisible());
 }
 
 void lcMainWindow::UpdateGamepads()
@@ -1479,7 +1497,7 @@ void lcMainWindow::Print(QPrinter* Printer)
 	int DocCopies;
 	int PageCopies;
 
-	std::vector<std::pair<lcModel*, lcStep>> PageLayouts = lcGetActiveProject()->GetPageLayouts();
+	std::vector<lcInstructionsPageLayout> PageLayouts = lcGetActiveProject()->GetPageLayouts();
 	const int PageCount = static_cast<int>(PageLayouts.size());
 
 	if (Printer->collateCopies())
@@ -1549,16 +1567,16 @@ void lcMainWindow::Print(QPrinter* Printer)
 				int StepWidth = MarginRect.width();
 				int StepHeight = MarginRect.height();
 
-				lcModel* Model = PageLayouts[Page - 1].first;
-				lcStep Step = PageLayouts[Page - 1].second;
+				lcModel* Model = PageLayouts[Page - 1].Model;
+				lcStep Step = PageLayouts[Page - 1].Step;
 				QImage Image = Model->GetStepImage(false, StepWidth, StepHeight, Step);
 
 				Painter.drawImage(MarginRect.left(), MarginRect.top(), Image);
 
 				// TODO: add print options somewhere but Qt doesn't allow changes to the page setup dialog
-//              DWORD dwPrint = theApp.GetProfileInt("Settings","Print", PRINT_NUMBERS|PRINT_BORDER);
+//				DWORD dwPrint = theApp.GetProfileInt("Settings","Print", PRINT_NUMBERS|PRINT_BORDER);
 
-//              if (print text)
+//				if (print text)
 				{
 					QFont Font("Helvetica", 96);
 					Painter.setFont(Font);
@@ -1641,6 +1659,14 @@ void lcMainWindow::ShowRenderDialog()
 {
 	lcRenderDialog Dialog(this);
 	Dialog.exec();
+}
+
+void lcMainWindow::ShowInstructionsDialog()
+{
+	lcInstructionsDialog* Dialog = new lcInstructionsDialog(this, lcGetActiveProject());
+	Dialog->setWindowModality(Qt::ApplicationModal);
+	Dialog->setAttribute(Qt::WA_DeleteOnClose);
+	Dialog->show();
 }
 
 void lcMainWindow::ShowPrintDialog()
@@ -2282,6 +2308,14 @@ void lcMainWindow::ResetViews()
 
 	TabWidget->ResetLayout();
 	TabWidget->GetActiveView()->SetViewpoint(LC_VIEWPOINT_HOME);
+}
+
+void lcMainWindow::ToggleDockWidget(QWidget* DockWidget)
+{
+	if (DockWidget->isHidden())
+		DockWidget->show();
+	else
+		DockWidget->hide();
 }
 
 void lcMainWindow::TogglePrintPreview()
@@ -3116,6 +3150,10 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		ShowRenderDialog();
 		break;
 
+	case LC_FILE_INSTRUCTIONS:
+		ShowInstructionsDialog();
+		break;
+
 	case LC_FILE_PRINT_PREVIEW:
 		TogglePrintPreview();
 		break;
@@ -3233,6 +3271,34 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 
 	case LC_VIEW_RESET_VIEWS:
 		ResetViews();
+		break;
+
+	case LC_VIEW_TOOLBAR_STANDARD:
+		ToggleDockWidget(mStandardToolBar);
+		break;
+
+	case LC_VIEW_TOOLBAR_TOOLS:
+		ToggleDockWidget(mToolsToolBar);
+		break;
+
+	case LC_VIEW_TOOLBAR_TIME:
+		ToggleDockWidget(mTimeToolBar);
+		break;
+
+	case LC_VIEW_TOOLBAR_PARTS:
+		ToggleDockWidget(mPartsToolBar);
+		break;
+
+	case LC_VIEW_TOOLBAR_COLORS:
+		ToggleDockWidget(mColorsToolBar);
+		break;
+
+	case LC_VIEW_TOOLBAR_PROPERTIES:
+		ToggleDockWidget(mPropertiesToolBar);
+		break;
+
+	case LC_VIEW_TOOLBAR_TIMELINE:
+		ToggleDockWidget(mTimelineToolBar);
 		break;
 
 	case LC_VIEW_FULLSCREEN:

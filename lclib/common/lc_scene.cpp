@@ -384,6 +384,11 @@ void lcScene::DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawF
 		if (ColorIndex == gDefaultColor)
 			ColorIndex = RenderMesh.ColorIndex;
 
+/*** LPub3D Mod - true fade ***/
+		if (!LPubFadeArgs && DrawFadePrepass && lcIsColorTranslucent(ColorIndex))
+			continue;	    	
+/*** LPub3D Mod end ***/
+		
 		switch (RenderMesh.State)
 		{
 		case lcRenderMeshState::Default:
@@ -460,10 +465,12 @@ void lcScene::Draw(lcContext* Context) const
 
 	Context->SetViewMatrix(mViewMatrix);
 
-/*** LPub3D Mod - true fade ***/
 	const lcPreferences& Preferences = lcGetPreferences();
-
+/*** LPub3D Mod - draw conditional lines from preferences***/
 	const bool DrawConditional = Preferences.mConditionalLines;
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - true fade ***/
 	const bool LPubFadeSteps   = gApplication->FadePreviousSteps() && !mTranslucentMeshes.IsEmpty();
 /*** LPub3D Mod end ***/
 
@@ -534,7 +541,7 @@ void lcScene::Draw(lcContext* Context) const
 			if (DrawLines)
 				DrawOpaqueMeshes(Context, false, LinePrimitiveTypes, true, false);
 
-			DrawTranslucentMeshes(Context, true, false, true, true);
+			DrawTranslucentMeshes(Context, false, false, true, true);
 		}
 		else
 		{
@@ -543,7 +550,7 @@ void lcScene::Draw(lcContext* Context) const
 			if (mPreTranslucentCallback)
 				mPreTranslucentCallback();
 
-			DrawTranslucentMeshes(Context, true, false, true, true);
+			DrawTranslucentMeshes(Context, false, false, true, true);
 		}
 	}
 	else

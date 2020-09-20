@@ -33,6 +33,8 @@ public:
 	int mMouseSensitivity;
 	lcShadingMode mShadingMode;
 	bool mDrawAxes;
+	quint32 mAxesColor;
+	quint32 mOverlayColor;
 	bool mDrawEdgeLines;
 	float mLineWidth;
 	bool mAllowLOD;

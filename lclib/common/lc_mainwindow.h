@@ -432,6 +432,7 @@ signals:
 	void UpdateUndoRedoSig(const QString&, const QString&);
 /*** LPub3D Mod end ***/
 protected slots:
+	void UpdateDockWidgetActions();
 	void UpdateGamepads();
 	void ModelTabContextMenuRequested(const QPoint& Point);
 	void ModelTabCloseOtherTabs();
@@ -452,12 +453,14 @@ protected:
 	void CreateMenus();
 	void CreateToolBars();
 	void CreateStatusBar();
+	void ToggleDockWidget(QWidget* DockWidget);
 	void SplitView(Qt::Orientation Orientation);
 	void ShowSearchDialog();
 	void ShowUpdatesDialog();
 	void ShowAboutDialog();
 	void ShowHTMLDialog();
 	void ShowRenderDialog();
+	void ShowInstructionsDialog();
 	void ShowPrintDialog();
 
 	bool OpenProjectFile(const QString& FileName);

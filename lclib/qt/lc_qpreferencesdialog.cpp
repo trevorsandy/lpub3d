@@ -12,7 +12,7 @@
 
 static const char* gLanguageLocales[] =
 {
-	"", "cs_CZ", "de_DE", "en_US", "fr_FR", "pt_PT"
+	"", "cs_CZ", "de_DE", "en_US", "fr_FR", "pt_PT", "es_ES"
 };
 
 lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogOptions* Options)
@@ -32,7 +32,8 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 ***/
 /*** LPub3D Mod end ***/
 
-	ui->lineWidth->setValidator(new QDoubleValidator(ui->lineWidth));
+	connect(ui->AxesColorButton, SIGNAL(clicked()), this, SLOT(ColorButtonClicked()));
+	connect(ui->OverlayColorButton, SIGNAL(clicked()), this, SLOT(ColorButtonClicked()));
 	connect(ui->FadeStepsColor, SIGNAL(clicked()), this, SLOT(ColorButtonClicked()));
 	connect(ui->HighlightNewPartsColor, SIGNAL(clicked()), this, SLOT(ColorButtonClicked()));
 	connect(ui->gridStudColor, SIGNAL(clicked()), this, SLOT(ColorButtonClicked()));
@@ -73,14 +74,28 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	else
 		ui->antiAliasingSamples->setCurrentIndex(0);
 	ui->edgeLines->setChecked(mOptions->Preferences.mDrawEdgeLines);
-	ui->lineWidth->setText(lcFormatValueLocalized(mOptions->Preferences.mLineWidth));
+
+	if (QGLFormat::defaultFormat().sampleBuffers() && QGLFormat::defaultFormat().samples() > 1)
+	{
+		glGetFloatv(GL_SMOOTH_LINE_WIDTH_RANGE, mLineWidthRange);
+		glGetFloatv(GL_SMOOTH_LINE_WIDTH_GRANULARITY, &mLineWidthGranularity);
+	}
+	else
+	{
+		glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, mLineWidthRange);
+		mLineWidthGranularity = 1.0f;
+	}
+
+	ui->LineWidthSlider->setRange(0, (mLineWidthRange[1] - mLineWidthRange[0]) / mLineWidthGranularity);
+	ui->LineWidthSlider->setValue((mOptions->Preferences.mLineWidth - mLineWidthRange[0]) / mLineWidthGranularity);
+
 	ui->MeshLOD->setChecked(mOptions->Preferences.mAllowLOD);
 	ui->FadeSteps->setChecked(mOptions->Preferences.mFadeSteps);
 	ui->HighlightNewParts->setChecked(mOptions->Preferences.mHighlightNewParts);
 	ui->gridStuds->setChecked(mOptions->Preferences.mDrawGridStuds);
 	ui->gridLines->setChecked(mOptions->Preferences.mDrawGridLines);
 	ui->gridLineSpacing->setText(QString::number(mOptions->Preferences.mGridLineSpacing));
-	ui->axisIcon->setChecked(mOptions->Preferences.mDrawAxes);
+	ui->AxisIconCheckBox->setChecked(mOptions->Preferences.mDrawAxes);
 
 	ui->ViewSphereLocationCombo->setCurrentIndex((int)mOptions->Preferences.mViewSphereLocation);
 
@@ -117,6 +132,12 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 
 	QPixmap pix(12, 12);
 
+	pix.fill(QColor(LC_RGBA_RED(mOptions->Preferences.mAxesColor), LC_RGBA_GREEN(mOptions->Preferences.mAxesColor), LC_RGBA_BLUE(mOptions->Preferences.mAxesColor)));
+	ui->AxesColorButton->setIcon(pix);
+
+	pix.fill(QColor(LC_RGBA_RED(mOptions->Preferences.mOverlayColor), LC_RGBA_GREEN(mOptions->Preferences.mOverlayColor), LC_RGBA_BLUE(mOptions->Preferences.mOverlayColor)));
+	ui->OverlayColorButton->setIcon(pix);
+
 	pix.fill(QColor(LC_RGBA_RED(mOptions->Preferences.mFadeStepsColor), LC_RGBA_GREEN(mOptions->Preferences.mFadeStepsColor), LC_RGBA_BLUE(mOptions->Preferences.mFadeStepsColor)));
 	ui->FadeStepsColor->setIcon(pix);
 
@@ -141,6 +162,7 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	on_studLogo_toggled();
 	on_antiAliasing_toggled();
 	on_edgeLines_toggled();
+	on_LineWidthSlider_valueChanged();
 	on_FadeSteps_toggled();
 	on_HighlightNewParts_toggled();
 	on_gridStuds_toggled();
@@ -219,8 +241,8 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	ui->label_6->hide();					//label Language
 	ui->label_10->hide();					//label check for updates
 	ui->fixedDirectionKeys->hide();
-	ui->tabWidget->removeTab(3);			//hide tabKeyboard
-	ui->tabWidget->removeTab(3);			//hide mouse
+	ui->tabWidget->removeTab(4);			//hide tabKeyboard
+	ui->tabWidget->removeTab(4);			//hide mouse
 /*** LPub3D Mod end ***/
 
 }
@@ -269,7 +291,7 @@ void lcQPreferencesDialog::accept()
 		mOptions->AASamples = 2;
 
 	mOptions->Preferences.mDrawEdgeLines = ui->edgeLines->isChecked();
-	mOptions->Preferences.mLineWidth = lcParseValueLocalized(ui->lineWidth->text());
+	mOptions->Preferences.mLineWidth = mLineWidthRange[0] + static_cast<float>(ui->LineWidthSlider->value()) * mLineWidthGranularity;
 	mOptions->Preferences.mAllowLOD = ui->MeshLOD->isChecked();
 	mOptions->Preferences.mFadeSteps = ui->FadeSteps->isChecked();
 	mOptions->Preferences.mHighlightNewParts = ui->HighlightNewParts->isChecked();
@@ -278,7 +300,7 @@ void lcQPreferencesDialog::accept()
 	mOptions->Preferences.mDrawGridLines = ui->gridLines->isChecked();
 	mOptions->Preferences.mGridLineSpacing = gridLineSpacing;
 
-	mOptions->Preferences.mDrawAxes = ui->axisIcon->isChecked();
+	mOptions->Preferences.mDrawAxes = ui->AxisIconCheckBox->isChecked();
 	mOptions->Preferences.mViewSphereLocation = (lcViewSphereLocation)ui->ViewSphereLocationCombo->currentIndex();
 
 	switch (ui->ViewSphereSizeCombo->currentIndex())
@@ -390,7 +412,19 @@ void lcQPreferencesDialog::ColorButtonClicked()
 	quint32* Color = nullptr;
 	QColorDialog::ColorDialogOptions DialogOptions;
 
-	if (Button == ui->FadeStepsColor)
+	if (Button == ui->AxesColorButton)
+	{
+		Color = &mOptions->Preferences.mAxesColor;
+		Title = tr("Select Axes Color");
+		DialogOptions = 0;
+	}
+	else if (Button == ui->OverlayColorButton)
+	{
+		Color = &mOptions->Preferences.mOverlayColor;
+		Title = tr("Select Overlay Color");
+		DialogOptions = 0;
+	}
+	else if (Button == ui->FadeStepsColor)
 	{
 		Color = &mOptions->Preferences.mFadeStepsColor;
 		Title = tr("Select Fade Color");
@@ -461,7 +495,14 @@ void lcQPreferencesDialog::on_antiAliasing_toggled()
 
 void lcQPreferencesDialog::on_edgeLines_toggled()
 {
-	ui->lineWidth->setEnabled(ui->edgeLines->isChecked());
+	ui->LineWidthSlider->setEnabled(ui->edgeLines->isChecked());
+	ui->LineWidthLabel->setEnabled(ui->edgeLines->isChecked());
+}
+
+void lcQPreferencesDialog::on_LineWidthSlider_valueChanged()
+{
+	float Value = mLineWidthRange[0] + static_cast<float>(ui->LineWidthSlider->value()) * mLineWidthGranularity;
+	ui->LineWidthLabel->setText(QString::number(Value));
 }
 
 void lcQPreferencesDialog::on_FadeSteps_toggled()

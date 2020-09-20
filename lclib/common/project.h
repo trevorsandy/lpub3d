@@ -42,6 +42,8 @@ enum LC_MOUSE_TRACK
 	LC_TRACK_RIGHT
 };
 
+struct lcInstructionsPageLayout;
+
 class Project
 {
 public:
@@ -132,7 +134,7 @@ public:
 
 	QString GetImageFileName(bool AllowCurrentFolder) const;
 
-	std::vector<std::pair<lcModel*, lcStep>> GetPageLayouts() const;
+	std::vector<lcInstructionsPageLayout> GetPageLayouts() const;
 
 	void SetActiveModel(int ModelIndex);
 	void SetActiveModel(const QString& FileName);

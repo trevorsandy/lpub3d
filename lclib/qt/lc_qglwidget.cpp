@@ -99,11 +99,12 @@ lcQGLWidget::lcQGLWidget(QWidget *parent, lcGLWidget *owner, bool view)
 
 	widget->MakeCurrent();
 
-	// TODO: Find a better place for the grid texture and font
-	gStringCache.AddRef(widget->mContext);
-	gTexFont.Load(widget->mContext);
 	if (gWidgetList.isEmpty())
 	{
+		// TODO: Find a better place for the grid texture and font
+		gStringCache.Initialize(widget->mContext);
+		gTexFont.Initialize(widget->mContext);
+
 		lcInitializeGLExtensions(context());
 		lcContext::CreateResources();
 		View::CreateResources(widget->mContext);
@@ -118,6 +119,7 @@ lcQGLWidget::lcQGLWidget(QWidget *parent, lcGLWidget *owner, bool view)
 		gPlaceholderMesh = new lcMesh;
 		gPlaceholderMesh->CreateBox();
 	}
+
 	gWidgetList.append(this);
 
 	widget->OnInitialUpdate();
@@ -136,11 +138,12 @@ lcQGLWidget::lcQGLWidget(QWidget *parent, lcGLWidget *owner, bool view)
 lcQGLWidget::~lcQGLWidget()
 {
 	gWidgetList.removeOne(this);
-	gStringCache.Release(widget->mContext);
-	gTexFont.Release();
-	makeCurrent();
+
 	if (gWidgetList.isEmpty())
 	{
+		gStringCache.Reset();
+		gTexFont.Reset();
+
 		lcGetPiecesLibrary()->ReleaseBuffers(widget->mContext);
 		View::DestroyResources(widget->mContext);
 		lcContext::DestroyResources();

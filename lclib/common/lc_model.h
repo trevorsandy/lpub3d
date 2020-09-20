@@ -26,6 +26,13 @@ class NativeOptions;
 /*** LPub3D Mod - enable lights ***/
 class lcLightProps;
 /*** LPub3D Mod end ***/
+
+struct lcInstructionsPageLayout
+{
+	lcModel* Model;
+	lcStep Step;
+};
+
 enum class lcSelectionMode
 {
 	Single,
@@ -248,7 +255,7 @@ public:
 	QImage GetStepImage(bool Zoom, int Width, int Height, lcStep Step);
 	QImage GetPartsListImage(int MaxWidth, lcStep Step) const;
 	void SaveStepImages(const QString& BaseName, bool AddStepSuffix, bool Zoom, int Width, int Height, lcStep Start, lcStep End);
-	std::vector<std::pair<lcModel*, lcStep>> GetPageLayouts(std::vector<const lcModel*>& AddedModels);
+	std::vector<lcInstructionsPageLayout> GetPageLayouts(std::vector<const lcModel*>& AddedModels);
 
 	void RayTest(lcObjectRayTest& ObjectRayTest) const;
 	void BoxTest(lcObjectBoxTest& ObjectBoxTest) const;

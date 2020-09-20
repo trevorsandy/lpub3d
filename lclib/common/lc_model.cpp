@@ -1775,9 +1775,9 @@ void lcModel::SaveStepImages(const QString& BaseName, bool AddStepSuffix, bool Z
 	}
 }
 
-std::vector<std::pair<lcModel*, lcStep>> lcModel::GetPageLayouts(std::vector<const lcModel*>& AddedModels)
+std::vector<lcInstructionsPageLayout> lcModel::GetPageLayouts(std::vector<const lcModel*>& AddedModels)
 {
-	std::vector<std::pair<lcModel*, lcStep>> PageLayouts;
+	std::vector<lcInstructionsPageLayout> PageLayouts;
 
 	if (std::find(AddedModels.begin(), AddedModels.end(), this) != AddedModels.end())
 		return PageLayouts;
@@ -1796,7 +1796,7 @@ std::vector<std::pair<lcModel*, lcStep>> lcModel::GetPageLayouts(std::vector<con
 	{
 		while (StepIt.first > CurrentStep)
 		{
-			PageLayouts.emplace_back(std::make_pair(this, CurrentStep));
+			PageLayouts.emplace_back(lcInstructionsPageLayout{ this, CurrentStep });
 			CurrentStep++;
 		}
 
@@ -1805,12 +1805,12 @@ std::vector<std::pair<lcModel*, lcStep>> lcModel::GetPageLayouts(std::vector<con
 			if (Piece->mPieceInfo->IsModel())
 			{
 				lcModel* SubModel = Piece->mPieceInfo->GetModel();
-				std::vector<std::pair<lcModel*, lcStep>> SubModelLayouts = SubModel->GetPageLayouts(AddedModels);
+				std::vector<lcInstructionsPageLayout> SubModelLayouts = SubModel->GetPageLayouts(AddedModels);
 				PageLayouts.insert(PageLayouts.end(), std::make_move_iterator(SubModelLayouts.begin()), std::make_move_iterator(SubModelLayouts.end()));
 			}
 		}
 
-		PageLayouts.emplace_back(std::make_pair(this, CurrentStep));
+		PageLayouts.emplace_back(lcInstructionsPageLayout{ this, CurrentStep });
 		CurrentStep++;
 	}
 
@@ -3041,6 +3041,9 @@ void lcModel::MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector
 			{
 				if (Piece->IsSelected())
 				{
+					if (gMainWindow->GetLocalTransform())
+						TransformedPieceDistance = lcMul(PieceDistance, Piece->GetRelativeRotation());
+
 					Piece->MoveSelected(mCurrentStep, gMainWindow->GetAddKeys(), TransformedPieceDistance);
 					Piece->UpdatePosition(mCurrentStep);
 					Moved = true;
@@ -3235,6 +3238,9 @@ void lcModel::TransformSelectedObjects(lcTransformType TransformType, const lcVe
 
 	case lcTransformType::RelativeRotation:
 		RotateSelectedPieces(Transform, true, false, true, true);
+		break;
+
+	case lcTransformType::Count:
 		break;
 	}
 }

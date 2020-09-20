@@ -17,12 +17,13 @@ HEADERS += \
     $$PWD/common/lc_global.h \
     $$PWD/common/lc_glwidget.h \
     $$PWD/common/lc_http.h \
+    $$PWD/common/lc_instructionsdialog.h \
     $$PWD/common/lc_library.h \
     $$PWD/common/lc_lxf.h \
     $$PWD/common/lc_mainwindow.h \
     $$PWD/common/lc_math.h \
     $$PWD/common/lc_mesh.h \
-	$$PWD/common/lc_meshloader.h \
+    $$PWD/common/lc_meshloader.h \
     $$PWD/common/lc_model.h \
     $$PWD/common/lc_partpalettedialog.h \
     $$PWD/common/lc_partselectionwidget.h \
@@ -78,17 +79,18 @@ SOURCES +=  \
     $$PWD/common/lc_file.cpp \
     $$PWD/common/lc_glextensions.cpp \
     $$PWD/common/lc_http.cpp \
+    $$PWD/common/lc_instructionsdialog.cpp \
     $$PWD/common/lc_library.cpp \
     $$PWD/common/lc_lxf.cpp \
     $$PWD/common/lc_mainwindow.cpp \
     $$PWD/common/lc_mesh.cpp \
-	$$PWD/common/lc_meshloader.cpp \
+    $$PWD/common/lc_meshloader.cpp \
     $$PWD/common/lc_model.cpp \
     $$PWD/common/lc_partselectionwidget.cpp \
     $$PWD/common/lc_profile.cpp \
     $$PWD/common/lc_scene.cpp \
     $$PWD/common/lc_selectbycolordialog.cpp \
-	$$PWD/common/lc_partpalettedialog.cpp \
+    $$PWD/common/lc_partpalettedialog.cpp \
     $$PWD/common/lc_shortcuts.cpp \
     $$PWD/common/lc_stringcache.cpp \
     $$PWD/common/lc_synth.cpp \
@@ -144,7 +146,7 @@ FORMS += \
     $$PWD/qt/lc_qupdatedialog.ui \
     $$PWD/qt/lc_renderdialog.ui \
     $$PWD/qt/lc_setsdatabasedialog.ui \
-	$$PWD/common/lc_partpalettedialog.ui
+    $$PWD/common/lc_partpalettedialog.ui
 
 RESOURCES += \
     $$PWD/lclib.qrc
