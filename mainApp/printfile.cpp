@@ -522,13 +522,13 @@ bool Gui::exportAsDialog(ExportMode m)
 
 void Gui::exportAsHtml()
 {
-    NativeOptions Options;
-    Options.ExportMode        = EXPORT_HTML;
+    NativeOptions *Options     = new NativeOptions();
+    Options->ExportMode        = EXPORT_HTML;
     // 3DViewer only
-    Options.ImageType         = Render::CSI;
-    Options.ExportFileName    = QFileInfo(curFile).absolutePath();
+    Options->ImageType         = Render::CSI;
+    Options->ExportFileName    = QFileInfo(curFile).absolutePath();
     // LDV only
-    Options.IniFlag           = NativePartList;
+    Options->IniFlag           = NativePartList;
 
     // Capture the model's last CSI
     emit setExportingObjectsSig(true);
@@ -660,8 +660,8 @@ void Gui::exportAsHtml()
     arguments << QString("-PartlistKey=%1").arg(partListKey);
     arguments << QString("\"%1\"").arg(partListFile);
 
-    Options.ExportArgs = arguments;
-    Options.InputFileName = partListFile;
+    Options->ExportArgs    = arguments;
+    Options->InputFileName = partListFile;
 
     if (! renderer->NativeExport(Options)) {
         emit messageSig(LOG_ERROR,QMessageBox::tr("HTML parts list export failed."));
@@ -670,13 +670,13 @@ void Gui::exportAsHtml()
 
 void Gui::exportAsCsv()
 {
-    NativeOptions Options;
-    Options.ImageType         = Render::CSI;
-    Options.ExportMode        = EXPORT_CSV;
-    Options.OutputFileName    = QDir::toNativeSeparators(QString(curFile).replace(QFileInfo(curFile).suffix(),"txt"));
-    Options.InputFileName     = QDir::toNativeSeparators(QDir::currentPath()+QDir::separator()+
+    NativeOptions *Options     = new NativeOptions();
+    Options->ImageType         = Render::CSI;
+    Options->ExportMode        = EXPORT_CSV;
+    Options->OutputFileName    = QDir::toNativeSeparators(QString(curFile).replace(QFileInfo(curFile).suffix(),"txt"));
+    Options->InputFileName     = QDir::toNativeSeparators(QDir::currentPath()+QDir::separator()+
                                       Paths::tmpDir+QDir::separator()+QFileInfo(curFile).completeBaseName()+"_parts.ldr");
-    if (! generateBOMPartsFile(Options.InputFileName))
+    if (! generateBOMPartsFile(Options->InputFileName))
         return;
     if (! renderer->NativeExport(Options)) {
         emit messageSig(LOG_ERROR,QMessageBox::tr("CSV parts list export failed."));
@@ -685,13 +685,13 @@ void Gui::exportAsCsv()
 
 void Gui::exportAsBricklinkXML()
 {
-    NativeOptions Options;
-    Options.ImageType         = Render::CSI;
-    Options.ExportMode        = EXPORT_BRICKLINK;
-    Options.OutputFileName    = QDir::toNativeSeparators(QString(curFile).replace(QFileInfo(curFile).suffix(),"xml"));
-    Options.InputFileName     = QDir::toNativeSeparators(QDir::currentPath()+QDir::separator()+
+    NativeOptions *Options     = new NativeOptions();
+    Options->ImageType         = Render::CSI;
+    Options->ExportMode        = EXPORT_BRICKLINK;
+    Options->OutputFileName    = QDir::toNativeSeparators(QString(curFile).replace(QFileInfo(curFile).suffix(),"xml"));
+    Options->InputFileName     = QDir::toNativeSeparators(QDir::currentPath()+QDir::separator()+
                                       Paths::tmpDir+QDir::separator()+QFileInfo(curFile).completeBaseName()+"_parts.ldr");
-    if (! generateBOMPartsFile(Options.InputFileName))
+    if (! generateBOMPartsFile(Options->InputFileName))
         return;
     if (! renderer->NativeExport(Options)) {
         emit messageSig(LOG_ERROR,QMessageBox::tr("Bricklink XML parts list export failed."));

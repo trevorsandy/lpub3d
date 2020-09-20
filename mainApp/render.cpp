@@ -2203,28 +2203,28 @@ int Native::renderCsi(
   bool useImageSize = meta.LPub.assem.imageSize.value(0) > 0;
 
   // Renderer options
-  NativeOptions Options;
-  Options.ImageType         = CSI;
-  Options.InputFileName     = ldrName;
-  Options.OutputFileName    = pngName;
-  Options.StudLogo          = studLogo;
-  Options.Resolution        = resolution();
-  Options.ImageWidth        = useImageSize ? int(meta.LPub.assem.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
-  Options.ImageHeight       = useImageSize ? int(meta.LPub.assem.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
-  Options.IsOrtho           = isOrtho;
-  Options.CameraName        = cameraName;
-  Options.FoV               = cameraFoV;
-  Options.ZNear             = zNear;
-  Options.ZFar              = zFar;
-  Options.Latitude          = noCA ? 0.0 : cameraAngleX;
-  Options.Longitude         = noCA ? 0.0 : cameraAngleY;
-  Options.Target            = target;
-  Options.ModelScale        = modelScale;
-  Options.NativeCDF         = distanceFactor;
-  Options.CameraDistance    = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
-  Options.LineWidth         = lineThickness;
-  Options.UsingViewpoint    = gApplication->mPreferences.mNativeViewpoint <= 6;
-  Options.HighlightNewParts = gui->suppressColourMeta(); //Preferences::enableHighlightStep;
+  NativeOptions *Options    = new NativeOptions();
+  Options->ImageType         = CSI;
+  Options->InputFileName     = ldrName;
+  Options->OutputFileName    = pngName;
+  Options->StudLogo          = studLogo;
+  Options->Resolution        = resolution();
+  Options->ImageWidth        = useImageSize ? int(meta.LPub.assem.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
+  Options->ImageHeight       = useImageSize ? int(meta.LPub.assem.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
+  Options->IsOrtho           = isOrtho;
+  Options->CameraName        = cameraName;
+  Options->FoV               = cameraFoV;
+  Options->ZNear             = zNear;
+  Options->ZFar              = zFar;
+  Options->Latitude          = noCA ? 0.0 : cameraAngleX;
+  Options->Longitude         = noCA ? 0.0 : cameraAngleY;
+  Options->Target            = target;
+  Options->ModelScale        = modelScale;
+  Options->NativeCDF         = distanceFactor;
+  Options->CameraDistance    = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
+  Options->LineWidth         = lineThickness;
+  Options->UsingViewpoint    = gApplication->mPreferences.mNativeViewpoint <= 6;
+  Options->HighlightNewParts = gui->suppressColourMeta(); //Preferences::enableHighlightStep;
 
   // Set CSI project
   Project* CsiImageProject = new Project();
@@ -2242,25 +2242,25 @@ int Native::renderCsi(
 
           switch (gui->exportMode){
           case EXPORT_3DS_MAX:
-              Options.ExportMode = int(EXPORT_3DS_MAX);
-              Options.ExportFileName = QDir::toNativeSeparators(outPath+"/"+baseName+".3ds");
+              Options->ExportMode = int(EXPORT_3DS_MAX);
+              Options->ExportFileName = QDir::toNativeSeparators(outPath+"/"+baseName+".3ds");
               break;
           case EXPORT_STL:
-              Options.ExportMode = int(EXPORT_STL);
-              Options.ExportFileName = QDir::toNativeSeparators(outPath+"/"+baseName+".stl");
+              Options->ExportMode = int(EXPORT_STL);
+              Options->ExportFileName = QDir::toNativeSeparators(outPath+"/"+baseName+".stl");
               break;
           case EXPORT_POVRAY:
-              Options.ExportMode = int(EXPORT_POVRAY);
-              Options.ExportFileName = QDir::toNativeSeparators(outPath+"/"+baseName+".pov");
+              Options->ExportMode = int(EXPORT_POVRAY);
+              Options->ExportFileName = QDir::toNativeSeparators(outPath+"/"+baseName+".pov");
               break;
           case EXPORT_COLLADA:
-              Options.ExportMode = int(EXPORT_COLLADA);
-              Options.ExportFileName = QDir::toNativeSeparators(outPath+"/"+baseName+".dae");
+              Options->ExportMode = int(EXPORT_COLLADA);
+              Options->ExportFileName = QDir::toNativeSeparators(outPath+"/"+baseName+".dae");
               ldvExport = false;
               break;
           case EXPORT_WAVEFRONT:
-              Options.ExportMode = int(EXPORT_WAVEFRONT);
-              Options.ExportFileName = QDir::toNativeSeparators(outPath+"/"+baseName+".obj");
+              Options->ExportMode = int(EXPORT_WAVEFRONT);
+              Options->ExportFileName = QDir::toNativeSeparators(outPath+"/"+baseName+".obj");
               ldvExport = false;
               break;
           default:
@@ -2274,9 +2274,9 @@ int Native::renderCsi(
                       gui->exportMode == EXPORT_STL ||
                       gui->exportMode == EXPORT_HTML ||
                       gui->exportMode == EXPORT_3DS_MAX) {
-                  Options.IniFlag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni :
+                  Options->IniFlag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni :
                                     gui->exportMode == EXPORT_STL ? NativeSTLIni : Native3DSIni;
-                  /*  Options.IniFlag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni :
+                  /*  Options->IniFlag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni :
                                     gui->exportMode == EXPORT_STL ? NativeSTLIni : EXPORT_HTML; */
               }
 
@@ -2300,15 +2300,15 @@ int Native::renderCsi(
               noCA  = Preferences::applyCALocally || noCA;
               //bool pp      = Preferences::perspectiveProjection;
 
-              QString CA = QString("-ca%1") .arg(/*pp ? Options.FoV : */ 0.01);  // Effectively defaults to orthographic projection.
+              QString CA = QString("-ca%1") .arg(/*pp ? Options->FoV : */ 0.01);  // Effectively defaults to orthographic projection.
               QString cg = QString("-cg%1,%2,%3")
                       .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(0)))
                       .arg(noCA ? 0.0 : double(meta.LPub.assem.cameraAngles.value(1)))
                       .arg(cd);
 
-              QString w  = QString("-SaveWidth=%1") .arg(double(Options.ImageWidth));
-              QString h  = QString("-SaveHeight=%1") .arg(double(Options.ImageHeight));
-              QString f  = QString("-ExportFile=%1") .arg(Options.ExportFileName);
+              QString w  = QString("-SaveWidth=%1") .arg(double(Options->ImageWidth));
+              QString h  = QString("-SaveHeight=%1") .arg(double(Options->ImageHeight));
+              QString f  = QString("-ExportFile=%1") .arg(Options->ExportFileName);
               QString l  = QString("-LDrawDir=%1") .arg(QDir::toNativeSeparators(Preferences::ldrawLibPath));
               QString o  = QString("-HaveStdOut=1");
               QString v  = QString("-vv");
@@ -2329,10 +2329,10 @@ int Native::renderCsi(
 
               removeEmptyStrings(arguments);
 
-              Options.ExportArgs = arguments;
+              Options->ExportArgs = arguments;
           }
       } else {
-          Options.ExportMode = EXPORT_NONE;
+          Options->ExportMode = EXPORT_NONE;
       }
   }
 
@@ -2389,27 +2389,27 @@ int Native::renderPli(
   }
 
   // Renderer options
-  NativeOptions Options;
-  Options.ImageType      = PLI;
-  Options.InputFileName  = ldrNames.first();
-  Options.OutputFileName = pngName;
-  Options.StudLogo       = studLogo;
-  Options.Resolution     = resolution();
-  Options.ImageWidth     = useImageSize ? int(metaType.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
-  Options.ImageHeight    = useImageSize ? int(metaType.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
-  Options.IsOrtho        = isOrtho;
-  Options.CameraName     = cameraName;
-  Options.FoV            = cameraFov;
-  Options.ZNear          = zNear;
-  Options.ZFar           = zFar;
-  Options.Latitude       = noCA ? 0.0 : cameraAngleX;
-  Options.Longitude      = noCA ? 0.0 : cameraAngleY;
-  Options.Target         = target;
-  Options.ModelScale     = modelScale;
-  Options.NativeCDF      = distanceFactor;
-  Options.CameraDistance = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
-  Options.LineWidth      = HIGHLIGHT_LINE_WIDTH_DEFAULT;
-  Options.UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
+  NativeOptions *Options = new NativeOptions();
+  Options->ImageType      = PLI;
+  Options->InputFileName  = ldrNames.first();
+  Options->OutputFileName = pngName;
+  Options->StudLogo       = studLogo;
+  Options->Resolution     = resolution();
+  Options->ImageWidth     = useImageSize ? int(metaType.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0);
+  Options->ImageHeight    = useImageSize ? int(metaType.imageSize.value(1)) : gui->pageSize(meta.LPub.page, 1);
+  Options->IsOrtho        = isOrtho;
+  Options->CameraName     = cameraName;
+  Options->FoV            = cameraFov;
+  Options->ZNear          = zNear;
+  Options->ZFar           = zFar;
+  Options->Latitude       = noCA ? 0.0 : cameraAngleX;
+  Options->Longitude      = noCA ? 0.0 : cameraAngleY;
+  Options->Target         = target;
+  Options->ModelScale     = modelScale;
+  Options->NativeCDF      = distanceFactor;
+  Options->CameraDistance = camDistance > 0 ? camDistance : cameraDistance(meta,modelScale);
+  Options->LineWidth      = HIGHLIGHT_LINE_WIDTH_DEFAULT;
+  Options->UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
 
   // Set PLI project
   Project* PliImageProject = new Project();
@@ -2432,20 +2432,20 @@ float Render::ViewerCameraDistance(
     return stdCameraDistance(meta,scale);
 }
 
-bool Render::ExecuteViewer(const NativeOptions &O, bool Export/*false*/){
+bool Render::ExecuteViewer(const NativeOptions *O, bool Export/*false*/){
 
     lcGetActiveProject()->SetRenderAttributes(
-                O.ImageType,
-                O.ImageWidth,
-                O.ImageHeight,
-                Export ? O.ImageWidth : O.PageWidth,
-                Export ? O.ImageHeight : O.PageHeight,
-                O.ImageFileName,
-                O.Resolution,
-                O.ModelScale,
-                O.NativeCDF);
+                O->ImageType,
+                O->ImageWidth,
+                O->ImageHeight,
+                Export ? O->ImageWidth : O->PageWidth,
+                Export ? O->ImageHeight : O->PageHeight,
+                O->ImageFileName,
+                O->Resolution,
+                O->ModelScale,
+                O->NativeCDF);
 
-    lcGetPiecesLibrary()->SetStudLogo(O.StudLogo,true);
+    lcGetPiecesLibrary()->SetStudLogo(O->StudLogo,true);
 
     if (!Export)
         gMainWindow->GetPartSelectionWidget()->SetDefaultPart();
@@ -2459,9 +2459,9 @@ bool Render::ExecuteViewer(const NativeOptions &O, bool Export/*false*/){
     lcStep CurrentStep = ActiveModel->GetCurrentStep();
 
     // LeoCAD flips Y an Z axis so that Z is up and Y represents depth
-    lcVector3 Target = lcVector3(O.Target.x,O.Target.z,O.Target.y);
+    lcVector3 Target = lcVector3(O->Target.x,O->Target.z,O->Target.y);
 
-    if (O.UsingViewpoint) {   // ViewPoints (Front, Back, Top, Bottom, Left, Right, Home)
+    if (O->UsingViewpoint) {   // ViewPoints (Front, Back, Top, Bottom, Left, Right, Home)
         ActiveView->SetViewpoint(lcViewpoint(gApplication->mPreferences.mNativeViewpoint));
     } else {                  // Default View (Angles + Distance + Perspective|Orthographic)
         auto validCameraValue = [&O, &Camera] (const CamFlag flag)
@@ -2477,15 +2477,15 @@ bool Render::ExecuteViewer(const NativeOptions &O, bool Export/*false*/){
             {
             case DefFoV:
                 // e.g.  0.01  + 30.0           - 0.01
-                result = O.FoV + Camera->m_fovy - CAMERA_FOV_DEFAULT;
+                result = O->FoV + Camera->m_fovy - CAMERA_FOV_DEFAULT;
                 break;
             case DefZNear:
                 // e.g.     10.0 +            25.0 - 10.0
-                result = O.ZNear + Camera->m_zNear - CAMERA_ZNEAR_DEFAULT;
+                result = O->ZNear + Camera->m_zNear - CAMERA_ZNEAR_DEFAULT;
                 break;
             case DefZFar:
                 // e.g.  4000.0 + 50000.0         - 4000.0
-                result = O.ZFar + Camera->m_zFar  - CAMERA_ZFAR_DEFAULT;
+                result = O->ZFar + Camera->m_zFar  - CAMERA_ZFAR_DEFAULT;
                 break;
             }
 
@@ -2498,12 +2498,12 @@ bool Render::ExecuteViewer(const NativeOptions &O, bool Export/*false*/){
             Camera->m_zFar  = validCameraValue(DefZFar);
         }
 
-        bool NoCamera    = O.CameraName.isEmpty();
-        bool IsOrtho     = NoCamera ? gApplication->mPreferences.mNativeProjection : O.IsOrtho;
+        bool NoCamera    = O->CameraName.isEmpty();
+        bool IsOrtho     = NoCamera ? gApplication->mPreferences.mNativeProjection : O->IsOrtho;
         bool ZoomExtents = !Export && IsOrtho;
 
         ActiveView->SetProjection(IsOrtho);
-        ActiveView->SetCameraGlobe(O.Latitude, O.Longitude, O.CameraDistance, Target, ZoomExtents);
+        ActiveView->SetCameraGlobe(O->Latitude, O->Longitude, O->CameraDistance, Target, ZoomExtents);
     }
 
     ActiveView->MakeCurrent();
@@ -2520,9 +2520,9 @@ bool Render::ExecuteViewer(const NativeOptions &O, bool Export/*false*/){
     }
 
     // generate image
-    const int ImageWidth  = int(O.ImageWidth);
-    const int ImageHeight = int(O.ImageHeight);
-    QString ImageType     = O.ImageType == CSI ? "CSI" : O.ImageType == CSI ? "PLI" : "SMP";
+    const int ImageWidth  = int(O->ImageWidth);
+    const int ImageHeight = int(O->ImageHeight);
+    QString ImageType     = O->ImageType == CSI ? "CSI" : O->ImageType == CSI ? "PLI" : "SMP";
 
     bool rc = true;
     if (!(rc = View.BeginRenderToImage(ImageWidth, ImageHeight)))
@@ -2576,7 +2576,7 @@ bool Render::ExecuteViewer(const NativeOptions &O, bool Export/*false*/){
 
         CalculateImageBounds(Image);
 
-        QImageWriter Writer(O.OutputFileName);
+        QImageWriter Writer(O->OutputFileName);
 
         if (Writer.format().isEmpty())
             Writer.setFormat("PNG");
@@ -2587,11 +2587,11 @@ bool Render::ExecuteViewer(const NativeOptions &O, bool Export/*false*/){
                                                    "Ensure Field of View (default is 30) and Camera Distance Factor <br>"
                                                    "are configured for the Native Renderer")
                                                    .arg(ImageType)
-                                                   .arg(O.ExportMode == EXPORT_NONE ?
+                                                   .arg(O->ExportMode == EXPORT_NONE ?
                                                         QString("image") :
                                                         QString("%1 object")
                                                                 .arg(nativeExportNames[gui->exportMode]))
-                                                   .arg(O.OutputFileName)
+                                                   .arg(O->OutputFileName)
                                                    .arg(Writer.errorString()));
             rc = false;
         }
@@ -2608,9 +2608,9 @@ bool Render::ExecuteViewer(const NativeOptions &O, bool Export/*false*/){
 
     if (rc)
         emit gui->messageSig(LOG_INFO,QMessageBox::tr("Native %1 image file rendered '%2'")
-                          .arg(ImageType).arg(O.OutputFileName));
+                          .arg(ImageType).arg(O->OutputFileName));
 
-    if (O.ExportMode != EXPORT_NONE) {
+    if (O->ExportMode != EXPORT_NONE) {
         if (!NativeExport(O)) {
             emit gui->messageSig(LOG_ERROR,QMessageBox::tr("%1 Objects render failed.").arg(ImageType));
             rc = false;
@@ -2620,17 +2620,17 @@ bool Render::ExecuteViewer(const NativeOptions &O, bool Export/*false*/){
     return rc;
 }
 
-bool Render::RenderNativeImage(const NativeOptions &Options)
+bool Render::RenderNativeImage(const NativeOptions *Options)
 {
-    if (! gMainWindow->OpenProject(Options.InputFileName))
+    if (! gMainWindow->OpenProject(Options->InputFileName))
         return false;
 
     return ExecuteViewer(Options,true/*exportImage*/);
 }
 
-bool Render::LoadViewer(const ViewerOptions &Options){
+bool Render::LoadViewer(const ViewerOptions *Options){
 
-    QString viewerCsiKey = Options.ViewerCsiKey;
+    QString viewerCsiKey = Options->ViewerCsiKey;
 
     Project* StepProject = new Project();
     if (LoadStepProject(StepProject, viewerCsiKey)){
@@ -2647,9 +2647,9 @@ bool Render::LoadViewer(const ViewerOptions &Options){
 
     gui->setViewerCsiKey(viewerCsiKey);
 
-    NativeOptions *derived = new NativeOptions(Options);
+    NativeOptions *derived = new NativeOptions(*Options);
     if (derived)
-        return ExecuteViewer(*derived);
+        return ExecuteViewer(derived);
     else
         return false;
 }
@@ -2774,20 +2774,20 @@ bool Render::LoadStepProject(Project* StepProject, const QString& viewerCsiKey)
     return true;
 }
 
-bool Render::NativeExport(const NativeOptions &Options) {
+bool Render::NativeExport(const NativeOptions *Options) {
 
-    QString exportModeName = nativeExportNames[Options.ExportMode];
+    QString exportModeName = nativeExportNames[Options->ExportMode];
 
-    if (Options.ExportMode == EXPORT_WAVEFRONT ||
-        Options.ExportMode == EXPORT_COLLADA   ||
-        Options.ExportMode == EXPORT_CSV       ||
-        Options.ExportMode == EXPORT_BRICKLINK /*||
-        Options.ExportMode == EXPORT_3DS_MAX*/) {
+    if (Options->ExportMode == EXPORT_WAVEFRONT ||
+        Options->ExportMode == EXPORT_COLLADA   ||
+        Options->ExportMode == EXPORT_CSV       ||
+        Options->ExportMode == EXPORT_BRICKLINK /*||
+        Options->ExportMode == EXPORT_3DS_MAX*/) {
         emit gui->messageSig(LOG_STATUS, QString("Native CSI %1 Export...").arg(exportModeName));
         Project* NativeExportProject = new Project();
         gApplication->SetProject(NativeExportProject);
 
-        if (! gMainWindow->OpenProject(Options.InputFileName)) {
+        if (! gMainWindow->OpenProject(Options->InputFileName)) {
             emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to open CSI %1 Export project")
                                                            .arg(exportModeName));
             delete NativeExportProject;
@@ -2796,33 +2796,33 @@ bool Render::NativeExport(const NativeOptions &Options) {
     }
     else
     {
-        return doLDVCommand(Options.ExportArgs, Options.ExportMode);
+        return doLDVCommand(Options->ExportArgs, Options->ExportMode);
     }
 
-    if (Options.ExportMode == EXPORT_CSV)
+    if (Options->ExportMode == EXPORT_CSV)
     {
         lcGetActiveProject()->ExportCSV();
     }
     else
-    if (Options.ExportMode == EXPORT_BRICKLINK)
+    if (Options->ExportMode == EXPORT_BRICKLINK)
     {
         lcGetActiveProject()->ExportBrickLink();
     }
     else
-    if (Options.ExportMode == EXPORT_WAVEFRONT)
+    if (Options->ExportMode == EXPORT_WAVEFRONT)
     {
-        lcGetActiveProject()->ExportWavefront(Options.ExportFileName);
+        lcGetActiveProject()->ExportWavefront(Options->ExportFileName);
     }
     else
-    if (Options.ExportMode == EXPORT_COLLADA)
+    if (Options->ExportMode == EXPORT_COLLADA)
     {
-        lcGetActiveProject()->ExportCOLLADA(Options.ExportFileName);
+        lcGetActiveProject()->ExportCOLLADA(Options->ExportFileName);
     }
 
 /*
     // These are executed through the LDV Native renderer
 
-    if (Options.ExportMode == EXPORT_HTML)
+    if (Options->ExportMode == EXPORT_HTML)
     {
         lcHTMLExportOptions HTMLOptions(lcGetActiveProject());
 
@@ -2832,19 +2832,19 @@ bool Render::NativeExport(const NativeOptions &Options) {
 
         HTMLOptions.SaveDefaults();
 
-        //HTMLOptions.PathName = Options.ExportFileName;
+        //HTMLOptions.PathName = Options->ExportFileName;
 
         lcGetActiveProject()->ExportHTML(HTMLOptions);
     }
     else
-    if (Options.ExportMode == EXPORT_POVRAY)
+    if (Options->ExportMode == EXPORT_POVRAY)
     {
-        lcGetActiveProject()->ExportPOVRay(Options.ExportFileName);
+        lcGetActiveProject()->ExportPOVRay(Options->ExportFileName);
     }
     else
-    if (Options.ExportMode == EXPORT_3DS_MAX)
+    if (Options->ExportMode == EXPORT_3DS_MAX)
     {
-        lcGetActiveProject()->Export3DStudio(Options.ExportFileName);
+        lcGetActiveProject()->Export3DStudio(Options->ExportFileName);
     }
 */
 

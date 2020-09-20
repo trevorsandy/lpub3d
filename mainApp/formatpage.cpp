@@ -1167,8 +1167,8 @@ int Gui::addStepImageGraphics(Step *step) {
   step->csiPixmap.load(step->pngName);
   step->csiPlacement.size[0] = step->csiPixmap.width();
   step->csiPlacement.size[1] = step->csiPixmap.height();
-  step->viewerOptions.ImageWidth = step->csiPixmap.width();
-  step->viewerOptions.ImageHeight = step->csiPixmap.height();
+  step->viewerOptions->ImageWidth = step->csiPixmap.width();
+  step->viewerOptions->ImageHeight = step->csiPixmap.height();
   // process callout step's image(s)
   for (int k = 0; k < step->list.size(); k++) {
       if (step->list[k]->relativeType == CalloutType) {

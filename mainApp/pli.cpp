@@ -1091,27 +1091,28 @@ int Pli::createPartImage(QString  &nameKey /*old Value: partialKey*/,
         if (! gui->exportingObjects() && pT == NORMAL_PART) {
             // set viewer display options
 
-            QStringList rotate           = rotStep.isEmpty()        ? QString("0 0 0 REL").split(" ") : rotStep.split("_");
-            QStringList target           = targetPosition.isEmpty() ? QString("0 0 0 REL").split(" ") : targetPosition.split("_");
-            viewerOptions.ViewerCsiKey   = viewerPliPartKey;
-            viewerOptions.StudLogo       = pliMeta.studLogo.value();
-            viewerOptions.ImageFileName  = imageName;
-            viewerOptions.Resolution     = nameKeys.at(3).toFloat();
-            viewerOptions.PageWidth      = pageSizeP(meta, 0);
-            viewerOptions.PageHeight     = pageSizeP(meta, 1);
-            viewerOptions.UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
-            viewerOptions.ZFar           = CAMERA_ZFAR_NATIVE_DEFAULT;
-            viewerOptions.ZNear          = CAMERA_ZNEAR_NATIVE_DEFAULT;
-            viewerOptions.FoV            = CAMERA_FOV_NATIVE_DEFAULT;
-            viewerOptions.CameraDistance = renderer->ViewerCameraDistance(*meta,pliMeta.modelScale.value());
-            viewerOptions.NativeCDF      = meta->LPub.nativeCD.factor.value();
-            viewerOptions.CameraName     = pliMeta.cameraName.value();
-            viewerOptions.RotStep        = xyzVector(rotate.at(0).toFloat(),rotate.at(1).toFloat(),rotate.at(2).toFloat());
-            viewerOptions.RotStepType    = rotate.at(3);
-            viewerOptions.Latitude       = nameKeys.at(7).toFloat();
-            viewerOptions.Longitude      = nameKeys.at(8).toFloat();
-            viewerOptions.ModelScale     = nameKeys.at(5).toFloat();
-            viewerOptions.Target         = xyzVector(target.at(0).toFloat(),target.at(1).toFloat(),target.at(2).toFloat());
+            QStringList rotate            = rotStep.isEmpty()        ? QString("0 0 0 REL").split(" ") : rotStep.split("_");
+            QStringList target            = targetPosition.isEmpty() ? QString("0 0 0 REL").split(" ") : targetPosition.split("_");
+            viewerOptions                 = new ViewerOptions();
+            viewerOptions->ViewerCsiKey   = viewerPliPartKey;
+            viewerOptions->StudLogo       = pliMeta.studLogo.value();
+            viewerOptions->ImageFileName  = imageName;
+            viewerOptions->Resolution     = nameKeys.at(3).toFloat();
+            viewerOptions->PageWidth      = pageSizeP(meta, 0);
+            viewerOptions->PageHeight     = pageSizeP(meta, 1);
+            viewerOptions->UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
+            viewerOptions->ZFar           = CAMERA_ZFAR_NATIVE_DEFAULT;
+            viewerOptions->ZNear          = CAMERA_ZNEAR_NATIVE_DEFAULT;
+            viewerOptions->FoV            = CAMERA_FOV_NATIVE_DEFAULT;
+            viewerOptions->CameraDistance = renderer->ViewerCameraDistance(*meta,pliMeta.modelScale.value());
+            viewerOptions->NativeCDF      = meta->LPub.nativeCD.factor.value();
+            viewerOptions->CameraName     = pliMeta.cameraName.value();
+            viewerOptions->RotStep        = xyzVector(rotate.at(0).toFloat(),rotate.at(1).toFloat(),rotate.at(2).toFloat());
+            viewerOptions->RotStepType    = rotate.at(3);
+            viewerOptions->Latitude       = nameKeys.at(7).toFloat();
+            viewerOptions->Longitude      = nameKeys.at(8).toFloat();
+            viewerOptions->ModelScale     = nameKeys.at(5).toFloat();
+            viewerOptions->Target         = xyzVector(target.at(0).toFloat(),target.at(1).toFloat(),target.at(2).toFloat());
             if (!viewerOptsList.contains(keyPart1))
                 viewerOptsList.insert(keyPart1,viewerOptions);
         }
@@ -2503,27 +2504,28 @@ int Pli::partSizeLDViewSCall() {
                 // Generate 3DViewer Submodel entry
                 if (! gui->exportingObjects() && pT == NORMAL_PART) {
                     // set viewer display options
-                    QStringList rotate           = rotStep.isEmpty()        ? QString("0 0 0 REL").split(" ") : rotStep.split("_");
-                    QStringList target           = targetPosition.isEmpty() ? QString("0 0 0 REL").split(" ") : targetPosition.split("_");
-                    viewerOptions.ViewerCsiKey   = viewerPliPartKey;
-                    viewerOptions.StudLogo       = pliMeta.studLogo.value();
-                    viewerOptions.ImageFileName  = imageName;
-                    viewerOptions.Resolution     = nameKeys.at(3).toFloat();
-                    viewerOptions.PageWidth      = pageSizeP(meta, 0);
-                    viewerOptions.PageHeight     = pageSizeP(meta, 1);
-                    viewerOptions.UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
-                    viewerOptions.ZFar           = CAMERA_ZFAR_NATIVE_DEFAULT;
-                    viewerOptions.ZNear          = CAMERA_ZNEAR_NATIVE_DEFAULT;
-                    viewerOptions.FoV            = CAMERA_FOV_NATIVE_DEFAULT;
-                    viewerOptions.CameraDistance = renderer->ViewerCameraDistance(*meta,pliMeta.modelScale.value());
-                    viewerOptions.NativeCDF      = meta->LPub.nativeCD.factor.value();
-                    viewerOptions.CameraName     = pliMeta.cameraName.value();
-                    viewerOptions.RotStep        = xyzVector(rotate.at(0).toFloat(),rotate.at(1).toFloat(),rotate.at(2).toFloat());;
-                    viewerOptions.RotStepType    = rotate.at(3);
-                    viewerOptions.Latitude       = nameKeys.at(7).toFloat();
-                    viewerOptions.Longitude      = nameKeys.at(8).toFloat();
-                    viewerOptions.ModelScale     = nameKeys.at(5).toFloat();
-                    viewerOptions.Target         = xyzVector(target.at(0).toFloat(),target.at(1).toFloat(),target.at(2).toFloat());
+                    QStringList rotate            = rotStep.isEmpty()        ? QString("0 0 0 REL").split(" ") : rotStep.split("_");
+                    QStringList target            = targetPosition.isEmpty() ? QString("0 0 0 REL").split(" ") : targetPosition.split("_");
+                    viewerOptions                 = new ViewerOptions();
+                    viewerOptions->ViewerCsiKey   = viewerPliPartKey;
+                    viewerOptions->StudLogo       = pliMeta.studLogo.value();
+                    viewerOptions->ImageFileName  = imageName;
+                    viewerOptions->Resolution     = nameKeys.at(3).toFloat();
+                    viewerOptions->PageWidth      = pageSizeP(meta, 0);
+                    viewerOptions->PageHeight     = pageSizeP(meta, 1);
+                    viewerOptions->UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
+                    viewerOptions->ZFar           = CAMERA_ZFAR_NATIVE_DEFAULT;
+                    viewerOptions->ZNear          = CAMERA_ZNEAR_NATIVE_DEFAULT;
+                    viewerOptions->FoV            = CAMERA_FOV_NATIVE_DEFAULT;
+                    viewerOptions->CameraDistance = renderer->ViewerCameraDistance(*meta,pliMeta.modelScale.value());
+                    viewerOptions->NativeCDF      = meta->LPub.nativeCD.factor.value();
+                    viewerOptions->CameraName     = pliMeta.cameraName.value();
+                    viewerOptions->RotStep        = xyzVector(rotate.at(0).toFloat(),rotate.at(1).toFloat(),rotate.at(2).toFloat());;
+                    viewerOptions->RotStepType    = rotate.at(3);
+                    viewerOptions->Latitude       = nameKeys.at(7).toFloat();
+                    viewerOptions->Longitude      = nameKeys.at(8).toFloat();
+                    viewerOptions->ModelScale     = nameKeys.at(5).toFloat();
+                    viewerOptions->Target         = xyzVector(target.at(0).toFloat(),target.at(1).toFloat(),target.at(2).toFloat());
                     if (!viewerOptsList.contains(keyPart1))
                         viewerOptsList.insert(keyPart1,viewerOptions);
                 }
@@ -3590,8 +3592,8 @@ void PGraphicsPixmapItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     QString viewerOptKey = QString("%1_%2").arg(QFileInfo(part->type).completeBaseName()).arg(part->color);
     pli->viewerOptions = pli->viewerOptsList[viewerOptKey];
-    pli->viewerOptions.ImageWidth  = part->pixmapWidth;
-    pli->viewerOptions.ImageHeight = part->pixmapHeight;
+    pli->viewerOptions->ImageWidth  = part->pixmapWidth;
+    pli->viewerOptions->ImageHeight = part->pixmapHeight;
     pli->loadTheViewer();
 
     mouseIsDown = true;

@@ -119,12 +119,12 @@ class SubModel : public Placement {
     int pageSizeP(Meta *, int which);
 
   public:
-    PlacementType          parentRelativeType;
+    PlacementType           parentRelativeType;
     SubModelBackgroundItem *background;
-    SubModelMeta           subModelMeta;
-    QString                imageName;
-    QString                viewerCsiKey;
-    ViewerOptions          viewerOptions;
+    SubModelMeta            subModelMeta;
+    QString                 imageName;
+    QString                 viewerCsiKey;
+    ViewerOptions          *viewerOptions;
 
     Meta                   *meta;
     Steps                  *steps;      // topOfSteps()

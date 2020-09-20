@@ -463,35 +463,35 @@ int Step::createCsi(
       pixmap->load(pngName);
       csiPlacement.size[0] = pixmap->width();
       csiPlacement.size[1] = pixmap->height();
-      if (! gui->exportingObjects()) {
-         viewerOptions.ImageWidth  = pixmap->width();
-         viewerOptions.ImageHeight = pixmap->height();
-      }
   }
 
   if (! gui->exportingObjects()) {
       // set viewer display options
-      viewerOptions.ViewerCsiKey   = viewerCsiKey;
-      viewerOptions.ImageFileName  = pngName;
-      viewerOptions.StudLogo       = csiCameraMeta.studLogo.value();
-      viewerOptions.Resolution     = resolution();
-      viewerOptions.PageWidth      = gui->pageSize(meta.LPub.page, 0);
-      viewerOptions.PageHeight     = gui->pageSize(meta.LPub.page, 1);
-      viewerOptions.UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
-      viewerOptions.FoV            = CAMERA_FOV_NATIVE_DEFAULT;
-      viewerOptions.ZNear          = CAMERA_ZNEAR_NATIVE_DEFAULT;
-      viewerOptions.ZFar           = CAMERA_ZFAR_NATIVE_DEFAULT;
-      viewerOptions.CameraDistance = camDistance > 0 ? camDistance : renderer->ViewerCameraDistance(meta,csiCameraMeta.modelScale.value());
-      viewerOptions.NativeCDF      = meta.LPub.nativeCD.factor.value();
-      viewerOptions.IsOrtho        = csiCameraMeta.isOrtho.value();
-      viewerOptions.CameraName     = csiCameraMeta.cameraName.value();
-      viewerOptions.RotStep        = xyzVector(float(meta.rotStep.value().rots[0]),float(meta.rotStep.value().rots[1]),float(meta.rotStep.value().rots[2]));
-      viewerOptions.RotStepType    = meta.rotStep.value().type;
-      viewerOptions.Latitude       = absRotstep ? noCA.value(0) : csiCameraMeta.cameraAngles.value(0);
-      viewerOptions.Longitude      = absRotstep ? noCA.value(1) : csiCameraMeta.cameraAngles.value(1);
-      viewerOptions.Target         = xyzVector(csiCameraMeta.target.x(),csiCameraMeta.target.y(),csiCameraMeta.target.z());
-      viewerOptions.ModelScale     = csiCameraMeta.modelScale.value();
-
+      viewerOptions                 = new ViewerOptions();
+      viewerOptions->ViewerCsiKey   = viewerCsiKey;
+      viewerOptions->ImageFileName  = pngName;
+      viewerOptions->StudLogo       = csiCameraMeta.studLogo.value();
+      viewerOptions->Resolution     = resolution();
+      viewerOptions->PageWidth      = gui->pageSize(meta.LPub.page, 0);
+      viewerOptions->PageHeight     = gui->pageSize(meta.LPub.page, 1);
+      viewerOptions->UsingViewpoint = gApplication->mPreferences.mNativeViewpoint <= 6;
+      viewerOptions->FoV            = CAMERA_FOV_NATIVE_DEFAULT;
+      viewerOptions->ZNear          = CAMERA_ZNEAR_NATIVE_DEFAULT;
+      viewerOptions->ZFar           = CAMERA_ZFAR_NATIVE_DEFAULT;
+      viewerOptions->CameraDistance = camDistance > 0 ? camDistance : renderer->ViewerCameraDistance(meta,csiCameraMeta.modelScale.value());
+      viewerOptions->NativeCDF      = meta.LPub.nativeCD.factor.value();
+      viewerOptions->IsOrtho        = csiCameraMeta.isOrtho.value();
+      viewerOptions->CameraName     = csiCameraMeta.cameraName.value();
+      viewerOptions->RotStep        = xyzVector(float(meta.rotStep.value().rots[0]),float(meta.rotStep.value().rots[1]),float(meta.rotStep.value().rots[2]));
+      viewerOptions->RotStepType    = meta.rotStep.value().type;
+      viewerOptions->Latitude       = absRotstep ? noCA.value(0) : csiCameraMeta.cameraAngles.value(0);
+      viewerOptions->Longitude      = absRotstep ? noCA.value(1) : csiCameraMeta.cameraAngles.value(1);
+      viewerOptions->Target         = xyzVector(csiCameraMeta.target.x(),csiCameraMeta.target.y(),csiCameraMeta.target.z());
+      viewerOptions->ModelScale     = csiCameraMeta.modelScale.value();
+      if (! renderer->useLDViewSCall()) {
+         viewerOptions->ImageWidth  = pixmap->width();
+         viewerOptions->ImageHeight = pixmap->height();
+      }
       // Load the 3DViewer
       loadTheViewer();
   }

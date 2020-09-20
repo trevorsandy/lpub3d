@@ -64,11 +64,11 @@ public:
   static float           getPovrayRenderCameraDistance(const QString &cdKeys);
   static void            showLdvExportSettings(int mode);
   static void            showLdvLDrawPreferences(int mode);
-  static bool            RenderNativeImage(const NativeOptions &);
-  static bool            NativeExport(const NativeOptions &);
+  static bool            RenderNativeImage(const NativeOptions *);
+  static bool            NativeExport(const NativeOptions *);
   static float           ViewerCameraDistance(Meta &meta, float);
-  static bool            ExecuteViewer(const NativeOptions &, bool Export = false);
-  static bool            LoadViewer(const ViewerOptions &);
+  static bool            ExecuteViewer(const NativeOptions *, bool Export = false);
+  static bool            LoadViewer(const ViewerOptions *);
   static bool            createSnapshotsList(const QStringList &,
                                             const QString &);
   static void            addArgument(QStringList &arguments,
