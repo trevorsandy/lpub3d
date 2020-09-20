@@ -110,10 +110,63 @@ class ViewerStep {
     }
 };
 
+/********************************************
+ * this is a utility class that enables nested
+ * levels
+ ********************************************/
+
+class HiarchLevel
+{
+public:
+    enum { BEGIN, END };
+    HiarchLevel(const QString &key)
+        : level(nullptr),
+          key(key)
+    {
+    }
+    ~HiarchLevel()
+    {
+    }
+    HiarchLevel* GetTopLevel()
+    {
+        return level ? level->GetTopLevel() : this;
+    }
+    HiarchLevel* level;
+    QString key;
+};
+
+extern int getLevel(const QString& key, int rc);
+
+/********************************************
+ * build modification
+ ********************************************/
+
+class BuildMod {
+  public:
+    QVector<int>  _modAttributes;
+    QMap<int,int> _modActions;
+    int           _stepNumber;
+
+    BuildMod()
+    {
+      _modAttributes = { 0, 0, 0, -1 };
+    }
+    BuildMod(
+      const QVector<int>       &modAttributes,
+      int                       modAction,
+      int                       stepNumber);
+    ~BuildMod()
+    {
+      _modAttributes.clear();
+      _modActions.clear();
+    }
+};
+
 class LDrawFile {
   private:
     QMap<QString, LDrawSubFile> _subFiles;
     QMap<QString, ViewerStep>   _viewerSteps;
+    QMap<QString, BuildMod>     _buildMods;
     QMultiHash<QString, int>    _ldcadGroups;
     QStringList                 _emptyList;
     QString                     _emptyString;
@@ -131,6 +184,7 @@ class LDrawFile {
     bool topLevelModel;
     bool ldcadGroupsLoaded;
     int  descriptionLine;
+    int  buildMod;
 
   public:
     LDrawFile();
@@ -139,9 +193,13 @@ class LDrawFile {
       _subFiles.empty();
       _viewerSteps.empty();
       _ldcadGroups.empty();
+      _buildMods.empty();
     }
 
     QStringList                 _subFileOrder;
+    QStringList                 _buildModList;
+    static QList<HiarchLevel*>  _currentLevels;
+    static QList<HiarchLevel*>  _allLevels;
     static QStringList          _loadedParts;
     static QString              _file;
     static QString              _name;
@@ -239,6 +297,25 @@ class LDrawFile {
 
     void insertLDCadGroup(const QString &name, int lid);
     bool ldcadGroupMatch(const QString &name, const QStringList &lids);
+
+    /* Build Modifications */
+    void insertBuildMod(const QString      &buildModKey,
+                        const QVector<int> &modAttributes,
+                        int                 action,
+                        int                 stepNumber);
+    void setBuildModAction(const QString &buildModKey,
+                            int           stepNumber,
+                            int           modAction);
+    int getBuildModBeginLineNumber(const QString &buildModKey);
+    int getBuildModEndLineNumber(const QString &buildModKey);
+    int getBuildModActionLineNumber(const QString &buildModKey);
+    int getBuildModStepNumber(const QString &buildModKey);
+    int getBuildModAction(const QString &buildModKey, int stepNumber);
+    int getBuildModNextIndex(const QString &buildModKeyPrefix);
+    QString getBuildModModelName(const QString &buildModKey);
+    QStringList getBuildModsList();
+    bool buildModContains(const QString &buildModKey);
+    bool hasBuildMods();
 
     /* ViewerStep functions */
     void insertViewerStep(const QString     &stepKey,

@@ -5770,7 +5770,7 @@ void SubModelColorGui::apply(
 
 /***********************************************************************
  *
- * Universal Roate Step and Target
+ * Universal Rotate Step and Target
  *
  **********************************************************************/
 
@@ -6070,5 +6070,69 @@ void OpenWithProgramDialogGui::browseOpenWithProgram(bool)
                 programPathEditList.at(programIndex)->setText(selectedFiles.at(0));
             }
         }
+    }
+}
+
+
+/***********************************************************************
+ *
+ * Build Modifications
+ *
+ **********************************************************************/
+void BuildModDialogGui::setBuildModActive(QListWidgetItem *item)
+{
+    activeBuildModItem = item;
+}
+
+void BuildModDialogGui::getBuildMod(QStringList & buildModKeys, bool apply){
+
+    QDialog *dialog = new QDialog();
+
+    QString action = apply ? "Apply" : "Remove";
+    QFormLayout *form = new QFormLayout(dialog);
+    form->addRow(new QLabel(QString("%1 Build Modifications").arg(action)));
+    QGroupBox *buildModBox = new QGroupBox(QString("Select build modification to %1").arg(action.toLower()));
+    form->addWidget(buildModBox);
+
+    QHBoxLayout *hLayout = new QHBoxLayout(buildModBox);
+    buildModBox->setLayout(hLayout);
+
+    QListWidget *buildModList  = new QListWidget(dialog);
+
+    activeBuildModItem = nullptr;
+
+    if (!gui->hasBuildMods()) {
+        QString message = tr("No build modifications were detected!");
+        QLabel *label = new QLabel(message, dialog);
+        hLayout->addWidget(label);
+    } else {
+        foreach (QString buildMod, gui->getBuildModsList()){
+           QListWidgetItem* buildModItem = new QListWidgetItem(buildMod);
+           buildModList->addItem(buildModItem);
+        }
+        buildModList->setCurrentRow(0);
+
+        activeBuildModItem = buildModList->currentItem();
+
+        hLayout->addWidget(buildModList);
+
+        QObject::connect(buildModList, SIGNAL(itemClicked(QListWidgetItem *)),
+                         this,         SLOT(setBuildModActive(QListWidgetItem *)));
+        QObject::connect(buildModList, SIGNAL(itemDoubleClicked(QListWidgetItem *)),
+                         this,         SLOT(setBuildModActive(QListWidgetItem *)));
+    }
+
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                               Qt::Horizontal, dialog);
+    form->addRow(&buttonBox);
+    QObject::connect(&buttonBox, SIGNAL(accepted()), dialog, SLOT(accept()));
+    QObject::connect(&buttonBox, SIGNAL(rejected()), dialog, SLOT(reject()));
+    dialog->setMinimumWidth(250);
+
+    if (dialog->exec() == QDialog::Accepted) {
+        if (activeBuildModItem)
+            buildModKeys.append(activeBuildModItem->text());
+    } else {
+        return;
     }
 }

@@ -2703,6 +2703,8 @@ Gui::Gui()
     selectedItemObj   = UndefinedObj;
     mViewerZoomLevel  = 50;
 
+    currentStep       = nullptr;
+
     mHttpManager = new lcHttpManager(this);
 
     editWindow    = new EditWindow(this);         // remove inheritance 'this' to independently manage window

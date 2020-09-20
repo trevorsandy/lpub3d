@@ -1637,6 +1637,11 @@ public slots:
   void browseSubModelColor3(bool);
 };
 
+/***********************************************************************
+ *
+ * Universal Rotate Step and Target
+ *
+ **********************************************************************/
 
 class TargetRotateDialogGui : public QObject
 {
@@ -1676,4 +1681,25 @@ private:
     QList<QLineEdit *>   programPathEditList;
     QList<QPushButton *> programBrowseButtonList;
 };
+
+/***********************************************************************
+ *
+ * Build Modifications
+ *
+ **********************************************************************/
+
+class BuildModDialogGui : public QObject
+{
+    Q_OBJECT
+public:
+    BuildModDialogGui(){}
+    void getBuildMod(QStringList & buildModKeys, bool apply = true);
+
+public slots:
+    void setBuildModActive(QListWidgetItem *item);
+
+private:
+    QListWidgetItem *activeBuildModItem;
+};
+
 #endif

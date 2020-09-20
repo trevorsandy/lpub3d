@@ -58,6 +58,13 @@ enum PartSource { EDITOR_LINE, VIEWER_NONE = EDITOR_LINE, VIEWER_LINE, VIEWER_MO
 enum SaveOnSender { SaveOnNone, SaveOnRedraw, SaveOnUpdate };
 enum NativeType { NTypeDefault, NTypeCalledOut, NTypeMultiStep };
 enum SceneObjectInfo { ObjectId };
+enum PartsAttrib {
+    BM_BEGIN_LINE,
+    BM_ACTION_LINE,
+    BM_MODEL_INDEX = BM_ACTION_LINE,
+    BM_END_LINE,
+    BM_MODEL_NAME_INDEX
+};
 enum GridStepSize {
     GRID_SIZE_FIRST,
     SCENE_GRID_SIZE_S1 = GRID_SIZE_FIRST,

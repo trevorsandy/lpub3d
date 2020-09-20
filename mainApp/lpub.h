@@ -717,6 +717,81 @@ public:
       ldrawFile.clearViewerSteps();
   }
 
+  /* Build Modifications */
+  void insertBuildMod(const QString      &buildModKey,
+                      const QVector<int> &modAttributes,
+                      int                 modAction,
+                      int                 stepNumber)
+  {
+      ldrawFile.insertBuildMod(buildModKey,
+                               modAttributes,
+                               modAction,
+                               stepNumber);
+  }
+
+  int getBuildModBeginLineNumber(const QString &buildModKey)
+  {
+      return ldrawFile.getBuildModBeginLineNumber(buildModKey);
+  }
+
+  int getBuildModActionLineNumber(const QString &buildModKey)
+  {
+      return ldrawFile.getBuildModActionLineNumber(buildModKey);
+  }
+
+  int getBuildModEndLineNumber(const QString &buildModKey)
+  {
+      return ldrawFile.getBuildModEndLineNumber(buildModKey);
+  }
+
+  int getBuildModStepNumber(const QString &buildModKey)
+  {
+      return ldrawFile.getBuildModStepNumber(buildModKey);
+  }
+
+  int getBuildModAction(const QString &buildModKey, int stepNumber)
+  {
+      int rc = ldrawFile.getBuildModAction(buildModKey, stepNumber);
+
+      if (rc == OkRc) {
+          rc = BuildModApplyRc;
+          ldrawFile.setBuildModAction(buildModKey, stepNumber, rc);
+      }
+
+      return rc;
+  }
+
+  void setBuildModAction(const QString      &buildModKey,
+                         int                 stepNumber,
+                         int                 modAction)
+  {
+      ldrawFile.setBuildModAction(buildModKey, stepNumber, modAction);
+  }
+
+  bool hasBuildMods(){
+      return ldrawFile.hasBuildMods();
+  }
+
+  QStringList getBuildModsList()
+  {
+      return ldrawFile.getBuildModsList();
+  }
+
+  int getBuildModNextIndex(const QString &buildModKeyPrefix)
+  {
+      return ldrawFile.getBuildModNextIndex(buildModKeyPrefix);
+  }
+
+  QString getBuildModModelName(const QString &buildModKey)
+  {
+      return ldrawFile.getBuildModModelName(buildModKey);
+  }
+
+  bool buildModContains(const QString &buildModKey)
+  {
+      return ldrawFile.buildModContains(buildModKey);
+  }
+
   bool suppressColourMeta()
   {
     return false; //Preferences::usingNativeRenderer;
