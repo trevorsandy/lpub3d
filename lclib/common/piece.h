@@ -426,14 +426,27 @@ public:
 		return mPieceModified;
 	}
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - true fade ***/
+	void SetLPubFade(bool Faded)
+	{
+		mLPubFade = Faded;
+	}
+
+	int GetLPubFade() const
+	{
+		return mLPubFade;
+	}
+/*** LPub3D Mod end ***/
 
 	void RayTest(lcObjectRayTest& ObjectRayTest) const override;
 	void BoxTest(lcObjectBoxTest& ObjectBoxTest) const override;
 	void DrawInterface(lcContext* Context, const lcScene& Scene) const override;
 	void RemoveKeyFrames() override;
 
-	void AddMainModelRenderMeshes(lcScene& Scene, bool Highlight, bool Fade) const;
-	void AddSubModelRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive) const;
+/*** LPub3D Mod - true fade ***/
+	void AddMainModelRenderMeshes(lcScene& Scene, bool Highlight, bool Fade, bool LPubFade = false) const;
+	void AddSubModelRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive, bool LPubFade = false) const;
+/*** LPub3D Mod end ***/
 	void SubmodelCompareBoundingBox(const lcMatrix44& WorldMatrix, lcVector3& Min, lcVector3& Max) const;
 
 	void InsertTime(lcStep Start, lcStep Time);
@@ -656,6 +669,9 @@ protected:
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Piece modified ***/
 	int mPieceModified;
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - true fade ***/
+	int mLPubFade;
 /*** LPub3D Mod end ***/
 	QString mID;
 

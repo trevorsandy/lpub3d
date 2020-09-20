@@ -81,7 +81,9 @@ public:
 
 	void Begin(const lcMatrix44& ViewMatrix);
 	void End();
-	void AddMesh(lcMesh* Mesh, const lcMatrix44& WorldMatrix, int ColorIndex, lcRenderMeshState State);
+/*** LPub3D Mod - true fade ***/	
+	void AddMesh(lcMesh* Mesh, const lcMatrix44& WorldMatrix, int ColorIndex, lcRenderMeshState State, bool LPubFade = false);
+/*** LPub3D Mod end ***/
 
 	void AddInterfaceObject(const lcObject* Object)
 	{
@@ -94,7 +96,7 @@ public:
 protected:
 	void DrawOpaqueMeshes(lcContext* Context, bool DrawLit, int PrimitiveTypes, bool DrawFaded, bool DrawNonFaded) const;
 /*** LPub3D Mod - true fade ***/
-	void DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawFadePrepass, bool DrawFaded, bool DrawNonFaded, int LPubFadeArgs = 0/*NoFade*/) const;
+	void DrawTranslucentMeshes(lcContext* Context, bool DrawLit, bool DrawFadePrepass, bool DrawFaded, bool DrawNonFaded, int LPubFade = 0/*NoFade*/) const;
 /*** LPub3D Mod end ***/
 	void DrawDebugNormals(lcContext* Context, const lcMesh* Mesh) const;
 
@@ -106,8 +108,11 @@ protected:
 	bool mAllowLOD;
 
 	lcVector4 mFadeColor;
-	lcVector4 mHighlightColor;
+	lcVector4 mHighlightColor;	
 	bool mHasFadedParts;
+/*** LPub3D Mod - true fade ***/		
+	bool mHasLPubFadedParts;
+/*** LPub3D Mod end ***/	
 	bool mTranslucentFade;
 
 	std::function<void()> mPreTranslucentCallback;

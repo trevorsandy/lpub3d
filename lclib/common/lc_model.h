@@ -250,7 +250,9 @@ public:
 	void DuplicateSelectedPieces();
 
 	void GetScene(lcScene& Scene, lcCamera* ViewCamera, bool AllowHighlight, bool AllowFade) const;
-	void AddSubModelRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive) const;
+/*** LPub3D Mod - true fade ***/	
+	void AddSubModelRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive, bool LPubFade) const;
+/*** LPub3D Mod end ***/	
 	void DrawBackground(lcGLWidget* Widget);
 	QImage GetStepImage(bool Zoom, int Width, int Height, lcStep Step);
 	QImage GetPartsListImage(int MaxWidth, lcStep Step) const;
@@ -391,6 +393,9 @@ protected:
 	void RemoveEmptyGroups();
 /*** LPub3D Mod - Build Modification ***/
 	quint32 RemoveSelectedObjects();
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - true fade ***/
+	bool mLPubFade;
 /*** LPub3D Mod end ***/
 
 	void UpdateBackgroundTexture();

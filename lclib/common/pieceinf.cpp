@@ -305,18 +305,26 @@ void PieceInfo::AddRenderMesh(lcScene& Scene)
 		Scene.AddMesh(mMesh, lcMatrix44Identity(), gDefaultColor, lcRenderMeshState::Default);
 }
 
-void PieceInfo::AddRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int ColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive) const
+/*** LPub3D Mod - true fade ***/
+void PieceInfo::AddRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int ColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive, bool LPubFade) const
+/*** LPub3D Mod end ***/
 {
 	if (mMesh || IsPlaceholder())
-		Scene.AddMesh(IsPlaceholder() ? gPlaceholderMesh : mMesh, WorldMatrix, ColorIndex, RenderMeshState);
+/*** LPub3D Mod - true fade ***/	
+		Scene.AddMesh(IsPlaceholder() ? gPlaceholderMesh : mMesh, WorldMatrix, ColorIndex, RenderMeshState, LPubFade);
+/*** LPub3D Mod end ***/
 
 	if (IsModel())
-		mModel->AddSubModelRenderMeshes(Scene, WorldMatrix, ColorIndex, RenderMeshState, ParentActive);
+/*** LPub3D Mod - true fade ***/	
+		mModel->AddSubModelRenderMeshes(Scene, WorldMatrix, ColorIndex, RenderMeshState, ParentActive, LPubFade);
+/*** LPub3D Mod end ***/		
 	else if (IsProject())
 	{
 		const lcModel* const Model = mProject->GetMainModel();
 		if (Model)
-			Model->AddSubModelRenderMeshes(Scene, WorldMatrix, ColorIndex, RenderMeshState, ParentActive);
+/*** LPub3D Mod - true fade ***/		
+			Model->AddSubModelRenderMeshes(Scene, WorldMatrix, ColorIndex, RenderMeshState, ParentActive, LPubFade);
+/*** LPub3D Mod end ***/			
 	}
 }
 

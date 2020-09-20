@@ -560,6 +560,9 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 /*** LPub3D Mod - Selected Parts ***/
 	int LineTypeIndex = -1;
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - true fade ***/
+	mLPubFade = false;
+/*** LPub3D Mod end ***/
 	lcPiecesLibrary* Library = lcGetPiecesLibrary();
 
 	mProperties.mAuthor.clear();
@@ -626,6 +629,13 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 				if (!lcLoadColorEntry(OriginalLine.toLatin1().constData()))
 					emit gui->messageSig(LOG_ERROR,QString("Could not colour meta %1.")
 										 .arg(OriginalLine));
+			}
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - true fade ***/
+			else if (Token == QLatin1String("!FADE"))
+			{
+				QString FadeColor = LineStream.readAll().trimmed();
+				mLPubFade = FadeColor.isEmpty() ? false : true;
 			}
 /*** LPub3D Mod end ***/
 			else if (Token == QLatin1String("FILE"))
@@ -794,6 +804,9 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 /*** LPub3D Mod - Selected Parts ***/
 				LineTypeIndex++;
 				Piece->SetLineTypeIndex(LineTypeIndex);
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - true fade ***/
+				Piece->SetLPubFade(mLPubFade);
 /*** LPub3D Mod end ***/
 				Piece->SetFileLine(mFileLines.size());
 				Piece->SetPieceInfo(Info, PartId, false);
@@ -1388,7 +1401,9 @@ void lcModel::GetScene(lcScene& Scene, lcCamera* ViewCamera, bool AllowHighlight
 		if (Piece->IsVisible(mCurrentStep))
 		{
 			lcStep StepShow = Piece->GetStepShow();
-			Piece->AddMainModelRenderMeshes(Scene, AllowHighlight && StepShow == mCurrentStep, AllowFade && StepShow < mCurrentStep);
+/*** LPub3D Mod - true fade ***/
+			Piece->AddMainModelRenderMeshes(Scene, AllowHighlight && StepShow == mCurrentStep, AllowFade && StepShow < mCurrentStep, Piece->GetLPubFade());
+/*** LPub3D Mod end ***/
 		}
 	}
 
@@ -1404,11 +1419,15 @@ void lcModel::GetScene(lcScene& Scene, lcCamera* ViewCamera, bool AllowHighlight
 	}
 }
 
-void lcModel::AddSubModelRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive) const
+/*** LPub3D Mod - true fade ***/
+void lcModel::AddSubModelRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive, bool LPubFade) const
+/*** LPub3D Mod end ***/
 {
 	for (lcPiece* Piece : mPieces)
 		if (Piece->IsVisibleInSubModel())
-			Piece->AddSubModelRenderMeshes(Scene, WorldMatrix, DefaultColorIndex, RenderMeshState, ParentActive);
+/*** LPub3D Mod - true fade ***/		
+			Piece->AddSubModelRenderMeshes(Scene, WorldMatrix, DefaultColorIndex, RenderMeshState, ParentActive, LPubFade);
+/*** LPub3D Mod end ***/			
 }
 
 void lcModel::DrawBackground(lcGLWidget* Widget)

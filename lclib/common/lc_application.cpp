@@ -205,17 +205,14 @@ lcApplication::lcApplication()
 	UpdateStyle();
 }
 
-/*** LPub3D Mod - initialize fade vars ***/
-bool lcApplication::HighlightStep(){
-	return Preferences::enableHighlightStep;
-}
-bool lcApplication::FadePreviousSteps(){
+/*** LPub3D Mod - true fade ***/
+bool lcApplication::LPubFadeSteps(){
 	return Preferences::enableFadeSteps;
 }
-bool lcApplication::UseFadeColour(){
+bool lcApplication::UseLPubFadeColour(){
 	return Preferences::fadeStepsUseColour;
 }
-QString lcApplication::FadeColour(){
+QString lcApplication::LPubFadeColour(){
 	return gMainWindow->GetFadeStepsColor();
 }
 /*** LPub3D Mod end ***/
