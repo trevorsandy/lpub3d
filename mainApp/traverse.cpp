@@ -2365,7 +2365,7 @@ int Gui::findPage(
   bool isPreDisplayPage   = true;
   bool isDisplayPage      = false;
 
-  emit messageSig(LOG_INFO_STATUS, "Processing find page for " + opts.current.modelName + "...");
+  emit messageSig(LOG_STATUS, "Processing find page for " + opts.current.modelName + "...");
 
   skipHeader(opts.current);
 
@@ -2584,15 +2584,7 @@ int Gui::findPage(
                          bfxParts << colorType;
                      }
                   }
-              } else if (tokens.size() == 15) { // ! partIgnore
-                  QString type = tokens[tokens.size()-1];
-
-                  if (ldrawFile.isSubmodel(type)){
-                      emit gui->messageSig(LOG_NOTICE, QString("Submodel %1 flagged as partIgnore (IGN).").arg(type));
-//                    ldrawFile.setModelStartPageNumber(type,pageNum);
-//                    logTrace() << message << type << " @ Page: " << pageNum;
-                  }
-              } // partIngore
+              } // ! partIgnore
         case '2':
         case '3':
         case '4':
@@ -4312,7 +4304,7 @@ void Gui::writeToTmp()
       emit progressPermRangeSig(1, ldrawFile._subFileOrder.size());
       emit progressPermMessageSig("Writing submodels...");
     }
-  emit messageSig(LOG_STATUS, "Writing submodels to temp directory...");
+  emit messageSig(LOG_INFO_STATUS, "Writing submodels to temp directory...");
 
   bool upToDate = true;
   bool doFadeStep  = page.meta.LPub.fadeStep.fadeStep.value();
@@ -4337,7 +4329,7 @@ void Gui::writeToTmp()
       if (ldrawFile.changedSinceLastWrite(fileName)) {
           // write normal submodels...
           upToDate = false;
-          emit messageSig(LOG_INFO_STATUS, "Writing submodel to temp directory: " + fileName + "...");
+          emit messageSig(LOG_INFO_STATUS, QString("Writing submodel to temp directory: [%1]...").arg(fileName));
 
           writeToTmp(fileName,content);
 

@@ -1260,9 +1260,10 @@ bool  Gui::compareVersionStr (const QString& first, const QString& second)
 void Gui::displayFile(
     LDrawFile     *ldrawFile,
     const QString &modelName,
-    bool editModelFile,
-    bool displayStartPage)
+    bool editModelFile   /*false*/,
+    bool displayStartPage/*false*/) // doesn't seem like this is used
 {
+    emit messageSig(LOG_INFO, "Display page in LDraw Editor...");
     if (! exporting()) {
         if (editModelFile) {
             displayModelFileSig(ldrawFile, modelName);
@@ -1289,6 +1290,7 @@ void Gui::displayFile(
                 showLineSig(topOfSteps.lineNumber);
             }
 
+            int saveIndex = mpdCombo->currentIndex();
             int currentIndex = 0;
             for (int i = 0; i < mpdCombo->count(); i++) {
                 if (mpdCombo->itemText(i) == modelName) {
@@ -1296,8 +1298,10 @@ void Gui::displayFile(
                     break;
                 }
             }
-            mpdCombo->setCurrentIndex(currentIndex);
-            mpdCombo->setToolTip(tr("Current Submodel: %1").arg(mpdCombo->currentText()));
+            if (saveIndex != currentIndex) {
+                mpdCombo->setCurrentIndex(currentIndex);
+                mpdCombo->setToolTip(tr("Current Submodel: %1").arg(mpdCombo->currentText()));
+            }
         }
     }
 }
@@ -1470,25 +1474,23 @@ bool Gui::installExportBanner(const int &type, const QString &printFile, const Q
 
 void Gui::mpdComboChanged(int index)
 {
-  Q_UNUSED(index);
   QString newSubFile = mpdCombo->currentText();
   if (curSubFile != newSubFile) {
       int modelPageNum = ldrawFile.getModelStartPageNumber(newSubFile);
-      logInfo() << "SELECT Model: " << newSubFile << " @ Page: " << modelPageNum;
+      messageSig(LOG_INFO, QString( "SELECT Model: %1 @ Page: %2").arg(newSubFile).arg(modelPageNum));
       countPages();
       if (displayPageNum != modelPageNum && modelPageNum != 0) {
           displayPageNum  = modelPageNum;
           displayPage();
         } else {
-          // TODO add status bar message
           Where topOfSteps(newSubFile,0);
           curSubFile = newSubFile;
           displayFileSig(&ldrawFile, curSubFile);
           showLineSig(topOfSteps.lineNumber);
         }
+      mpdCombo->setCurrentIndex(index);
+      mpdCombo->setToolTip(tr("Current Submodel: %1").arg(mpdCombo->currentText()));
     }
-  mpdCombo->setCurrentIndex(index);
-  mpdCombo->setToolTip(tr("Current Submodel: %1").arg(mpdCombo->currentText()));
 }
 
 void Gui::reloadViewer(){
@@ -5406,7 +5408,7 @@ void Gui::statusMessage(LogType logType, QString message) {
 
             if (guiEnabled) {
                 statusBarMsg(message);
-            } else {
+            } else if (!Preferences::suppressStdOutToLog) {
                 fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
                 fflush(stdout);
             }
@@ -5442,18 +5444,17 @@ void Gui::statusMessage(LogType logType, QString message) {
 
             } else
               if (logType == LOG_DEBUG) {
-#ifdef QT_DEBUG_MODE
                   logDebug() << message.replace("<br>"," ");
 
                   if (!guiEnabled && !Preferences::suppressStdOutToLog) {
                       fprintf(stdout,"%s",QString(message).replace("<br>"," ").append("\n").toLatin1().constData());
                       fflush(stdout);
                   }
-#endif
-                } else
+
+            } else
               if (logType == LOG_INFO_STATUS) {
 
-                  message.replace("<br>"," ");
+                  logInfo() << message.replace("<br>"," ");
 
                   if (guiEnabled) {
                       statusBarMsg(message);
@@ -5461,6 +5462,7 @@ void Gui::statusMessage(LogType logType, QString message) {
                       fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
                       fflush(stdout);
                   }
+
             } else
               if (logType == LOG_ERROR) {
 

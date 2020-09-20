@@ -2962,8 +2962,8 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool RenderImage/*false*/){
             lcGetActiveProject()->SetImageSize(Image.Bounds.width(), Image.Bounds.height());
 
         } else {
-            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Could not begin RenderToImage for Native %1 image.<br>"
-                                                           "Render framebuffer is not valid").arg(ImageType));
+            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("BeginRenderToImage for Native %1 image returned code %2.<br>"
+                                                           "Render framebuffer is not valid").arg(ImageType).arg(rc));
         }
 
         if (O->ExportMode != EXPORT_NONE) {
