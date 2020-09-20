@@ -263,6 +263,8 @@ void Gui::clearRecentFiles()
 
 bool Gui::loadFile(const QString &file)
 {
+    currentStep = nullptr;
+
     QString fileName = file;
     QFileInfo info(fileName);
     if (info.exists()) {

@@ -354,8 +354,21 @@ int Step::createCsi(
                           .arg(stepNumber.number)
                           .arg(modelDisplayOnlyStep ? "_fm" : "");
 
-  emit gui->messageSig(LOG_DEBUG,QString("DEBUG - CSI viewerStepKey [%1] - modelName [%2]")
-                                         .arg(viewerStepKey).arg(top.modelName));
+  if (Preferences::debugLogging)
+      emit gui->messageSig(LOG_DEBUG,
+                           QString("DEBUG - CSI ViewerStepKey Attributes "
+                                   "Key(modelNameIndex;lineNumber;stepNumber[_fm]) [%1], "
+                                   "modelName [%2], "
+                                   "top lineNumber [%3], "
+                                   "step type [%4], "
+                                   "type lineNumber [%5], "
+                                   "stepNumber [%6]")
+                                   .arg(viewerStepKey)
+                                   .arg(top.modelName)
+                                   .arg(top.lineNumber)
+                                   .arg(calledOut ? "called out" : multiStep ? "step group" : "single step")
+                                   .arg(calledOut ? topOfCallout().lineNumber : multiStep ? topOfSteps().lineNumber: topOfStep().lineNumber)
+                                   .arg(stepNumber.number));
 
   // Viewer Csi does not yet exist in repository
   bool addViewerStepContent = !gui->viewerStepContentExist(viewerStepKey);
