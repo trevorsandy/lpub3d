@@ -1,11 +1,13 @@
-LPub3D 2.4.0.1.1625 (20 09 2020 08:39:05)
+LPub3D 2.4.0.1.1626 (20 09 2020 08:39:45)
 
 Features, enhancements, fixes and changes
 ------------
   
   Revisions:
   
+  https://github.com/trevorsandy/lpub3d/issues/344 - Enhancement - 3DViewer Display Default Camera Properties #344
   https://github.com/trevorsandy/lpub3d/issues/342 - Change - No response to MODEL_SCALE meta command #342
+  https://github.com/trevorsandy/lpub3d/issues/345 - Fix - 3DViewer not displayed when renderer set to other than Native #345
   https://github.com/trevorsandy/lpub3d/issues/341 - Fix - Export to pdf using page range generates single page #341
   https://github.com/trevorsandy/lpub3d/issues/343 - Fix - Single step MODEL_SCALE meta command not working #343
   

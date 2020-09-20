@@ -636,7 +636,6 @@ int Gui::addGraphicsPageItems(
                   if (!page->pli.bom)
                       step->pli.relativeType = PartsListType;
 
-                  bool redirectPliToPageHeader = false;
                   // if show step number
 
                   if (! step->onlyChild() && step->showStepNumber) {
@@ -653,7 +652,7 @@ int Gui::addGraphicsPageItems(
                           // Redirect Pli relative to SubModel
 
                           if (step->pli.pliMeta.show.value() &&
-                              step->pli.placement.value().relativeTo == StepNumberType) {
+                                  step->pli.placement.value().relativeTo == StepNumberType) {
 
                               step->pli.placement.setValue(BottomLeftOutside,SubModelType);
                               step->subModel.appendRelativeTo(&step->pli);
@@ -690,31 +689,8 @@ int Gui::addGraphicsPageItems(
                               step->pli.placement.setValue(BottomLeftOutside,SubModelType);
                               step->subModel.appendRelativeTo(&step->pli);
                               step->subModel.placeRelative(&step->pli);
-                          } else {
-
-                              // Redirect Pli relative to PageHeader
-
-                              redirectPliToPageHeader = true;
                           }
                       }
-                  }
-
-                  if (step->pli.pliMeta.show.value() &&
-                      step->pli.pliMeta.placement.value().relativeTo == SubModelType) {
-
-                      if (!step->placeSubModel)
-                      {
-                          // Redirect Pli relative to PageHeader
-
-                          redirectPliToPageHeader = true;
-                      }
-                  }
-
-                  if (redirectPliToPageHeader)
-                  {
-                      step->pli.placement.setValue(BottomLeftOutside,PageHeaderType);
-                      pageHeader->appendRelativeTo(&step->pli);
-                      pageHeader->placeRelative(&step->pli);
                   }
 
                   // size the callouts

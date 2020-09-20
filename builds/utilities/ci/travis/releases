@@ -3,7 +3,7 @@
 # Travis build [release] procedures
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: Sep 14, 2019
+#  Last Update: Sep 15, 2019
 #  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 cd $LP3D_BUILD_FOLDER
@@ -61,9 +61,10 @@ if [[ -z "$LP3D_SKIP_SF_DEPLOY" && -z "$LP3D_SF_DEPLOY_ABORT" ]]; then
   # Upload Sourceforge deploy log to Dropbox for temp storage
   if [ -f "/tmp/.dropbox_oauth" ]; then
     chmod +x "${LP3D_CI_DIR}/dropbox_uploader.sh";
-    if [ -f "./builds/utilities/ci/sfdeploy.log" ]; then
-      cp -f "./builds/utilities/ci/sfdeploy.log" $LP3D_LOGS_DIR;
-      ./"${LP3D_CI_DIR}/dropbox_uploader.sh" upload "$LP3D_LOGS_DIR/sfdeploy.log" "$LP3D_DROPBOX_DIR"/;
+    sfdeployLog="CreateSfdeploy.sh$(echo "$LP3D_ASSET_EXT" | sed -r 's/\*//g').log"
+    if [ -f "$sfdeployLog" ]; then
+      cp -f "$sfdeployLog" $LP3D_LOGS_DIR;
+      ./"${LP3D_CI_DIR}/dropbox_uploader.sh" upload "$LP3D_LOGS_DIR/$sfdeployLog" "$LP3D_DROPBOX_DIR/logs"/;
     else
       echo "ERROR - Sourceforge deploy log not found, nothing copied";
     fi

@@ -627,11 +627,13 @@ void EditWindow::closeEvent(QCloseEvent *event)
     if (!modelFileEdit())
         return;
 
+    if (!fileName.isEmpty())
+        fileWatcher.removePath(fileName);
+
     writeSettings();
 
     mpdCombo->setMaxCount(0);
     mpdCombo->setMaxCount(1000);
-    _modelFileEdit = false;
 
     if (maybeSave()){
         event->accept();

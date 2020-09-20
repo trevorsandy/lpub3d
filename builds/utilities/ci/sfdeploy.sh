@@ -3,7 +3,7 @@
 # Deploy LPub3D assets to Sourceforge.net using OpenSSH and rsync
 #
 #  Trevor SANDY <trevor.sandy@gmail.com>
-#  Last Update: Sep 14, 2019
+#  Last Update: Sep 15, 2019
 #  Copyright (c) 2017 - 2019 by Trevor SANDY
 #
 #  Note: this script requires SSH host public/private keys
@@ -14,7 +14,7 @@ SfElapsedTime() {
   # Elapsed execution time
   ELAPSED="Elapsed build time: $(($SECONDS / 3600))hrs $((($SECONDS / 60) % 60))min $(($SECONDS % 60))sec"
   echo "----------------------------------------------------"
-  echo "$ME Finished!"
+  echo "S${ME:1} Finished!"
   echo "$ELAPSED"
   echo "----------------------------------------------------"
 }
@@ -24,8 +24,8 @@ CWD=`pwd`
 
 if [[ "$TRAVIS_OS_NAME" == "linux" || "$TRAVIS_OS_NAME" == "osx" ]]; then
   # logging stuff - increment log file name
-  f="${CWD}/$ME"
-  ext=".log"
+  f="${CWD}/CreateS${ME:1}"
+  ext="$(echo "$LP3D_ASSET_EXT" | sed -r 's/\*//g').log"
   if [[ -e "$f$ext" ]] ; then
     i=1
     f="${f%.*}";
@@ -42,7 +42,7 @@ if [[ "$TRAVIS_OS_NAME" == "linux" || "$TRAVIS_OS_NAME" == "osx" ]]; then
   exec 2> >(tee -a ${LOG} >&2)
 fi
 
-echo "Start $ME execution"
+echo && echo "Start S${ME:1} execution"
 
 # set working directory
 sfParent_dir=${PWD##*/}

@@ -19,7 +19,7 @@
 # $ chmod +x ci_cutover.sh && ./ci_cutover.sh
 #
 # Preq 2 of 3 Set 'Next' version number [execute once]
-# $ sed 's/2.3.13/<next version>/g' -i ci_cutover.sh
+# $ sed 's/2.3.14/<next version>/g' -i ci_cutover.sh
 #
 # Preq 3 of 3 create and checkout a CUTOVER branch in the lpub3d-ci repository at the 
 #   last production commit. [execute once]
@@ -28,15 +28,11 @@
 #   'reset to this commit' or 'cherrypick commit' [execute for each commit]
 #
 # Step 2 of 3 Production commits [execute for each commit except the final one for version change]
-# $ env MSG="<commit> #No" OBS_CFG=yes TAG=v2.3.13 ./ci_cutover.sh
+# $ env MSG="<commit> #No" OBS_CFG=yes TAG=v2.3.14 ./ci_cutover.sh
 #
 # Step 3 of 3 Final commit and production version change [execute once for version 
 #   change [BE CAREFUL - THIS ADDS A TAG]
-# $ env MSG="LPub3D v2.3.13" TAG=v2.3.13 RELEASE=yes REV=no CNT=yes OBS_CFG=yes ./ci_cutover.sh
-#
-# Step 4 of 5 Copy README.txt and RELEASE_NOTES.html from 'lpub3d' back to 'lpub3d-ci'
-# $ cp -f lpub3d/mainApp/docs/README.txt lpub3d-ci/mainApp/docs/
-# $ cp -f lpub3d/mainApp/docs/RELEASE_NOTES.html lpub3d-ci/mainApp/docs/
+# $ env MSG="LPub3D v2.3.14" TAG=v2.3.14 RELEASE=yes REV=no CNT=yes OBS_CFG=yes ./ci_cutover.sh
 #
 # Execution sequence:
 #   - copy lpub3d-ci content to lpub3d folder
@@ -50,7 +46,7 @@
 #   - if standard commit, delete build tab
 #
 # Environment variables:
-#   - TAG: git tag [Default=v2.3.13] - change as needed
+#   - TAG: git tag [Default=v2.3.14] - change as needed
 #   - MSG: git commit message [Default='Continuous integration cutover [build pkg]'] - change as needed
 #   - FRESH: delete current lpub3d directory otherwise, only overwrite existing files [default=no]
 #   - REV: increment revision [Default=yes]
@@ -60,19 +56,18 @@
 #
 # Command Examples:
 # $ chmod +x ci_cutover.sh && ./ci_cutover.sh
-# $ env MSG="LPub3D pre-release [build pkg]" TAG=v2.3.13 ./ci_cutover.sh
-# $ env MSG="LPub3D version 2.3.13" RELEASE=yes REV=no OBS_CFG=yes ./ci_cutover.sh
-# $ env FRESH=yes MSG="LPub3D version 2.3.13" TAG=v2.3.13 REV=no OBS_CFG=yes ./ci_cutover.sh
-# $ env FRESH=yes MSG="LPub3D pre-release [build pkg]" TAG=v2.3.13 REV=no CNT=yes OBS_CFG=yes ./ci_cutover.sh
+# $ env MSG="LPub3D pre-release [build pkg]" TAG=v2.3.14 ./ci_cutover.sh
+# $ env MSG="LPub3D version 2.3.14" RELEASE=yes REV=no OBS_CFG=yes ./ci_cutover.sh
+# $ env FRESH=yes MSG="LPub3D version 2.3.14" TAG=v2.3.14 REV=no OBS_CFG=yes ./ci_cutover.sh
+# $ env FRESH=yes MSG="LPub3D pre-release [build pkg]" TAG=v2.3.14 REV=no CNT=yes OBS_CFG=yes ./ci_cutover.sh
 # $ env FRESH=yes MSG="Issue template and renderer logging updates" OBS_CFG=yes ./ci_cutover.sh
 #
 # Move to lpub3d-obs repository
-# $ env GIT_NAME=lpub3d-obs MSG="Open Build Service Integration and Test" TAG=v2.3.13 ./ci_cutover.sh
+# $ env GIT_NAME=lpub3d-obs MSG="Open Build Service Integration and Test" TAG=v2.3.14 ./ci_cutover.sh
 
 SCRIPT_NAME=$0
 SCRIPT_ARGS=$*
-HOME_DIR=$PWD
-LOCAL_TAG=${TAG:-v2.3.13}
+LOCAL_TAG=${TAG:-v2.3.14}
 FRESH_BUILD=${FRESH:-no}
 INC_REVISION=${REV:-yes}
 INC_COUNT=${CNT:-yes}
@@ -209,7 +204,7 @@ do
 done
 
 echo "6-Update sfdeploy.sh"
-file=builds/utilities/ci/sfdeploy.sh
+file=builds\utilities\ci\sfdeploy.sh
 if [ "$TO_NAME" = "lpub3d" ]; then sed s/'--dry-run '//g -i $file; echo " -file $file updated.";
 else echo " -ERROR - file $file NOT updated.";
 fi
@@ -306,7 +301,6 @@ if [ "$RELEASE_COMMIT" = "no" ]; then
    echo "18-Delete local tag"
    git tag --delete $LOCAL_TAG
    rm -f update-config-files.sh.log
-   cd $HOME_DIR
 else
    echo "18-Create local tag in $FROM_NAME repository" 
    cd ../$FROM_NAME
@@ -314,7 +308,8 @@ else
    git tag -a $LOCAL_TAG -m "LPub3D $(date +%d.%m.%Y)" && \
    git_tag="$(git tag -l -n $LOCAL_TAG)" && \
    [ -n "$git_tag" ] && echo " -git tag $git_tag created."
-   cd $HOME_DIR
+   cd ../
 fi
 
 echo "Finished - COMMIT_MSG...$COMMIT_MSG" && echo
+

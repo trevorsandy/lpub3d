@@ -269,15 +269,15 @@ static const SceneObject NoContextSceneObjects[] =
 #define LIBOPENEXR_MACOS_VERSION                "2.2.0"  // base 2.2.0
 #define LIBILMBASE_MACOS_VERSION                "2.2.1"  // base 2.2.1
 
-#define CAMERA_FOV_DEFAULT                       0.01f    // LPub3D (L3P) default [Orthographic]
-#define CAMERA_FOV_MIN_DEFAULT                   0.0f     // LPub3D (L3P) default
-#define CAMERA_FOV_MAX_DEFAULT                 360.0f     // LPub3D (L3P) default
+#define CAMERA_FOV_DEFAULT                       0.01f   // LPub3D (L3P) default [Orthographic]
+#define CAMERA_FOV_MIN_DEFAULT                   0.0f    // LPub3D (L3P) default
+#define CAMERA_FOV_MAX_DEFAULT                 360.0f    // LPub3D (L3P) default
 #define CAMERA_ZNEAR_DEFAULT                    10.0f    // LPub3D (L3P) default
-#define CAMERA_ZFAR_DEFAULT                   4000.0f  // LPub3D (L3P) default
+#define CAMERA_ZFAR_DEFAULT                   4000.0f    // LPub3D (L3P) default
 
 #define CAMERA_FOV_NATIVE_DEFAULT               30.0f    // Native (LeoCAD) defaults
-#define CAMERA_FOV_NATIVE_MIN_DEFAULT            1.0f    // LPub3D (L3P) default
-#define CAMERA_FOV_NATIVE_MAX_DEFAULT          359.0f    // LPub3D (L3P) default
+#define CAMERA_FOV_NATIVE_MIN_DEFAULT            1.0f    // Native (LeoCAD) default
+#define CAMERA_FOV_NATIVE_MAX_DEFAULT          359.0f    // Native (LeoCAD) default
 #define CAMERA_ZNEAR_NATIVE_DEFAULT             25.0f    // Native (LeoCAD) defaults
 #define CAMERA_ZFAR_NATIVE_DEFAULT           50000.0f    // Native (LeoCAD) defaults
 

@@ -252,27 +252,37 @@ void Gui::saveAs()
 
 bool Gui::maybeSave(bool prompt)
 {
-    if ( ! undoStack->isClean() ) {
-        QString message;
-        QMessageBox::StandardButton ret = QMessageBox::Ok;
-        if (Preferences::modeGUI && prompt) {
-            message = tr("The document has been modified."
-                          "Do you want to save your changes?");
-            ret = QMessageBox::warning(this, tr(VER_PRODUCTNAME_STR), message,
-                                       QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
-            if (ret == QMessageBox::Save) {
-                save();
-            }
-        } else {
-            save();
-            message = tr("Open document has been saved!");
-            emit messageSig(LOG_INFO,message);
-        }
-        if (ret == QMessageBox::Cancel) {
-            return false;
-        }
+  if ( ! undoStack->isClean() ) {
+    if (Preferences::modeGUI && prompt) {
+      // Get the application icon as a pixmap
+      QPixmap _icon = QPixmap(":/icons/lpub96.png");
+      if (_icon.isNull())
+          _icon = QPixmap (":/icons/update.png");
+
+      QMessageBoxResizable box;
+      box.setWindowIcon(QIcon());
+      box.setIconPixmap (_icon);
+      box.setTextFormat (Qt::RichText);
+      box.setWindowTitle(tr ("%1 Document").arg(VER_PRODUCTNAME_STR));
+      box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+      QString title = "<b>" + tr ("Document changes detected&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;") + "</b>";
+      QString text = tr("The document has been modified.<br>"
+                        "Do you want to save your changes?");
+      box.setText (title);
+      box.setInformativeText (text);
+      box.setStandardButtons (QMessageBox::No | QMessageBox::Yes);
+      box.setDefaultButton   (QMessageBox::Yes);
+      if (box.exec() == QMessageBox::Yes) {
+        save();
+      } else {
+        return false;
+      }
+    } else {
+      save();
+      emit messageSig(LOG_INFO,tr("Open document has been saved!"));
     }
-    return true;
+  }
+  return true;
 }
 
 bool Gui::saveFile(const QString &fileName)
