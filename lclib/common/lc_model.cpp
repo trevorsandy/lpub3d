@@ -2757,6 +2757,9 @@ void lcModel::MoveDefaultCamera(lcCamera *Camera, const lcVector3& ObjectDistanc
 /*** LPub3D Mod - Selected Parts ***/
 void lcModel::SetSelectedPieces(QVector<int> &LineTypeIndexes){
 
+	if (!LineTypeIndexes.size())
+		return;
+
 	QString Message;
 	if (Preferences::debugLogging) {
 		Message = tr("%n Editor object(s) selected","", LineTypeIndexes.size());

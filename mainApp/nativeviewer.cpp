@@ -2583,7 +2583,7 @@ bool Gui::getSelectedLine(int modelIndex, int lineIndex, int source, int &lineNu
 
 void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
     if (! exporting()) {
-        if (!currentStep)
+        if (!currentStep || (source == EDITOR_LINE && !indexes.size()))
             return;
 
         QVector<int> lines;
@@ -2666,7 +2666,7 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
                                               .arg(currentStep->stepNumber.number)
                                               .arg(modelName));
             }
-        } else {
+        } else { /*fromEditor*/
             emit setSelectedPiecesSig(lines);
         }
     }
