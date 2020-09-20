@@ -2363,6 +2363,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int EmitSelectio
 		ActiveModel->GetSelectionInformation(&Flags, Selection, &Focus);
 
 	lcTool Tool = GetTool();
+	bool BuildModTool = Tool == LC_TOOL_SELECT || Tool == LC_TOOL_ERASER;
 	QAction* Action = mActions[LC_EDIT_ACTION_FIRST + Tool];
 
 	if (Action && Action->isChecked()) {
@@ -2385,7 +2386,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int EmitSelectio
 			} else
 
 			/*** LPub3D Mod - Selected Parts ***/
-			if (EmitSelection && Tool == LC_TOOL_SELECT && GetImageType() != Options::PLI) {
+			if (EmitSelection && BuildModTool && GetImageType() != Options::PLI) {
 
 				QVector<TypeLine> LineTypeIndexes;
 

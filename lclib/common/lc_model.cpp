@@ -1200,10 +1200,17 @@ void lcModel::Cut()
 {
 	Copy();
 
-	if (RemoveSelectedObjects())
+/*** LPub3D Mod - Build Modification ***/
+	quint32 RemoveMask = 0;
+	if ((RemoveMask = RemoveSelectedObjects()))
 	{
+/*** LPub3D Mod end ***/
 		gMainWindow->UpdateTimeline(false, false);
-		gMainWindow->UpdateSelectedObjects(true);
+/*** LPub3D Mod - Build Modification ***/
+		int Rc = RemovedPieceRC;
+		bool IsPiece = ((RemoveMask >> Rc) & 1);
+		gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_DEL : VIEWER_NONE);
+/*** LPub3D Mod end ***/
 		gMainWindow->UpdateAllViews();
 		SaveCheckpoint(tr("Cutting"));
 	}
@@ -2447,11 +2454,16 @@ void lcModel::DeleteAllCameras()
 
 void lcModel::DeleteSelectedObjects()
 {
-	if (RemoveSelectedObjects())
+/*** LPub3D Mod - Build Modification ***/
+	quint32 RemoveMask = 0;
+	if ((RemoveMask = RemoveSelectedObjects()))
 	{
+/*** LPub3D Mod end ***/
 		gMainWindow->UpdateTimeline(false, false);
 /*** LPub3D Mod - Build Modification ***/
-		gMainWindow->UpdateSelectedObjects(true, VIEWER_MOD);
+		int Rc = RemovedPieceRC;
+		bool IsPiece = ((RemoveMask >> Rc) & 1);
+		gMainWindow->UpdateSelectedObjects(true, IsPiece ? VIEWER_DEL : VIEWER_NONE);
 /*** LPub3D Mod end ***/
 		gMainWindow->UpdateAllViews();
 		SaveCheckpoint(tr("Deleting"));
@@ -2862,11 +2874,14 @@ void lcModel::InlineSelectedModels()
 	SetSelectionAndFocus(NewPieces, nullptr, 0, false);
 }
 
-bool lcModel::RemoveSelectedObjects()
+/*** LPub3D Mod - Build Modification ***/
+quint32 lcModel::RemoveSelectedObjects()
 {
-	bool RemovedPiece = false;
+	quint32 RemoveMask = 0;
+	bool RemovedPiece  = false;
 	bool RemovedCamera = false;
-	bool RemovedLight = false;
+	bool RemovedLight  = false;
+/*** LPub3D Mod end ***/
 
 	for (int PieceIdx = 0; PieceIdx < mPieces.GetSize(); )
 	{
@@ -2874,7 +2889,10 @@ bool lcModel::RemoveSelectedObjects()
 
 		if (Piece->IsSelected())
 		{
-			RemovedPiece = true;
+/*** LPub3D Mod - Build Modification ***/
+			if(! RemovedPiece)
+			   RemovedPiece = RemoveMask = (1 << RemovedPieceRC) ;
+/*** LPub3D Mod end ***/
 			mPieces.Remove(Piece);
 			delete Piece;
 		}
@@ -2896,8 +2914,10 @@ bool lcModel::RemoveSelectedObjects()
 				if (Camera == View->mCamera)
 					View->SetCamera(Camera, true);
 			}
-
-			RemovedCamera = true;
+/*** LPub3D Mod - Build Modification ***/
+			if(! RemovedCamera)
+				RemovedCamera = RemoveMask |= (1 << RemovedCameraRC) ;
+/*** LPub3D Mod end ***/
 			mCameras.RemoveIndex(CameraIdx);
 			delete Camera;
 		}
@@ -2914,7 +2934,10 @@ bool lcModel::RemoveSelectedObjects()
 
 		if (Light->IsSelected())
 		{
-			RemovedLight = true;
+/*** LPub3D Mod - Build Modification ***/
+			if(! RemovedLight)
+				RemovedLight = RemoveMask |= (1 << RemovedLightRC) ;
+/*** LPub3D Mod end ***/
 			mLights.RemoveIndex(LightIdx);
 			delete Light;
 		}
@@ -2924,7 +2947,10 @@ bool lcModel::RemoveSelectedObjects()
 
 	RemoveEmptyGroups();
 
-	return RemovedPiece || RemovedCamera || RemovedLight;
+/*** LPub3D Mod - Build Modification ***/
+//	return RemovedPiece || RemovedCamera || RemovedLight;
+	return RemoveMask;
+/*** LPub3D Mod end ***/
 }
 
 void lcModel::MoveSelectedObjects(const lcVector3& PieceDistance, const lcVector3& ObjectDistance, bool Relative, bool AlternateButtonDrag, bool Update, bool Checkpoint)
@@ -4439,11 +4465,18 @@ void lcModel::EraserToolClicked(lcObject* Object)
 	if (!Object)
 		return;
 
+/*** LPub3D Mod - Build Modification ***/
+		bool isPiece = false;
+/*** LPub3D Mod end ***/
+
 	switch (Object->GetType())
 	{
 	case lcObjectType::Piece:
 		mPieces.Remove((lcPiece*)Object);
 		RemoveEmptyGroups();
+/*** LPub3D Mod - Build Modification ***/
+		isPiece = true;
+/*** LPub3D Mod end ***/
 		break;
 
 	case lcObjectType::Camera:
@@ -4471,7 +4504,9 @@ void lcModel::EraserToolClicked(lcObject* Object)
 
 	delete Object;
 	gMainWindow->UpdateTimeline(false, false);
-	gMainWindow->UpdateSelectedObjects(true);
+/*** LPub3D Mod - Build Modification ***/
+	gMainWindow->UpdateSelectedObjects(true, isPiece ? VIEWER_DEL : VIEWER_NONE);
+/*** LPub3D Mod end ***/
 	gMainWindow->UpdateAllViews();
 	SaveCheckpoint(tr("Deleting"));
 }

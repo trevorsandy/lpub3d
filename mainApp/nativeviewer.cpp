@@ -227,6 +227,8 @@ void Gui::create3DActions()
     viewerZoomSliderWidget->setValue(50);
     connect(viewerZoomSliderWidget, SIGNAL(valueChanged(int)), this, SLOT(ViewerZoomSlider(int)));
 
+    gMainWindow->mActions[LC_PIECE_DELETE]->setIcon(QIcon(":/resources/delete.png"));
+
     gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setIcon(QIcon(":/resources/saveimage.png"));
     gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setShortcut(tr("Alt+0"));
     gMainWindow->mActions[LC_FILE_SAVE_IMAGE]->setStatusTip(tr("Save an image of the current view - Alt+0"));
@@ -324,6 +326,11 @@ void Gui::create3DMenus()
      ViewerMenu->addMenu(ViewerExportMenu);
      ViewerMenu->addSeparator();
      // Submodel Edit menus
+     ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_CUT]);
+     ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_COPY]);
+     ViewerMenu->addAction(gMainWindow->mActions[LC_EDIT_PASTE]);
+     ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_DELETE]);
+     ViewerMenu->addSeparator();
      ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_EDIT_SELECTED_SUBMODEL]);
      ViewerMenu->addAction(gMainWindow->mActions[LC_PIECE_EDIT_END_SUBMODEL]);
      ViewerMenu->addSeparator();
@@ -339,8 +346,13 @@ void Gui::create3DMenus()
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_SELECT]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_MOVE]);
+     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_DELETE]);
+     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAINT]);
+     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_COLOR_PICKER]);
+     gMainWindow->GetToolsMenu()->addSeparator();
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]);
      gMainWindow->GetToolsMenu()->addAction(createBuildModAct);
+     gMainWindow->GetToolsMenu()->addSeparator();
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_INSERT]);
      gMainWindow->GetToolsMenu()->addAction(lightGroupAct);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]);
@@ -352,9 +364,6 @@ void Gui::create3DMenus()
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAN]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE_VIEW]);
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM_REGION]);
-     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAINT]);
-     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_COLOR_PICKER]);
-     gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_ACTION_DELETE]);
      gMainWindow->GetToolsMenu()->addSeparator();
      gMainWindow->GetToolsMenu()->addAction(gMainWindow->mActions[LC_EDIT_TRANSFORM_RELATIVE]);
      gMainWindow->GetToolsMenu()->addAction(MoveAction);
@@ -417,8 +426,13 @@ void Gui::create3DToolBars()
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_SELECT]);
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]);
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_MOVE]);
+    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_DELETE]);
+    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAINT]);
+    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_COLOR_PICKER]);
+    gMainWindow->mToolsToolBar->addSeparator();
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]);
     gMainWindow->mToolsToolBar->addAction(createBuildModAct);
+    gMainWindow->mToolsToolBar->addSeparator();
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_INSERT]);
     gMainWindow->mToolsToolBar->addAction(lightGroupAct);
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_CAMERA]);
@@ -430,9 +444,6 @@ void Gui::create3DToolBars()
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAN]);
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ROTATE_VIEW]);
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_ZOOM_REGION]);
-    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_PAINT]);
-    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_COLOR_PICKER]);
-    gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_ACTION_DELETE]);
     gMainWindow->mToolsToolBar->addSeparator();
     gMainWindow->mToolsToolBar->addAction(gMainWindow->mActions[LC_EDIT_TRANSFORM_RELATIVE]);
     gMainWindow->mToolsToolBar->addAction(MoveAction);
@@ -1591,9 +1602,9 @@ void Gui::createBuildModification()
 
 #ifdef QT_DEBUG_MODE
             emit messageSig(LOG_DEBUG, QString("%1Pieces [%2], Viewer Pieces Count [%3], LPub Pieces Count [%4]")
-                                                .arg(PieceAdjustment == 0 ? "" : PieceAdjustment > 0 ? "Added " : "Removed ")
-                                                .arg(PieceAdjustment  < 0 ? -PieceAdjustment : PieceAdjustment)
-                                                .arg(mViewerPieces.GetSize()).arg(ModStepPieces));
+                            .arg(PieceAdjustment == 0 ? "" : PieceAdjustment > 0 ? "Added " : "Removed ")
+                            .arg(PieceAdjustment  < 0 ? -PieceAdjustment : PieceAdjustment)
+                            .arg(mViewerPieces.GetSize()).arg(ModStepPieces));
 #endif
 
             for (lcPiece* Piece : mViewerPieces)
@@ -2624,9 +2635,18 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
             }
         }
 
-        if (fromViewer)
-            emit highlightSelectedLinesSig(lines);
-        else
+        if (fromViewer) {
+            if (source == VIEWER_MOD) {
+                emit highlightSelectedLinesSig(lines);
+            } else if (source == VIEWER_DEL) {
+                createBuildModAct->setEnabled(true);
+                updateBuildModAct->setEnabled(buildModsSize());
+                emit messageSig(LOG_TRACE, tr("Delete viewer part(s) specified at step %1, modelName: [%2]")
+                                              .arg(currentStep->stepNumber.number)
+                                              .arg(modelName));
+            }
+        } else {
             emit setSelectedPiecesSig(lines);
+        }
     }
 }

@@ -538,6 +538,13 @@ void View::ShowContextMenu() const
 	QMenu* Popup = new QMenu(Widget);
 
 /*** LPub3D Mod - add context menu edit submodel ***/
+	Popup->addAction(Actions[LC_EDIT_CUT]);
+	Popup->addAction(Actions[LC_EDIT_COPY]);
+	Popup->addAction(Actions[LC_EDIT_PASTE]);
+	Popup->addAction(Actions[LC_PIECE_DELETE]);
+
+	Popup->addSeparator();
+
 	Popup->addAction(Actions[LC_PIECE_EDIT_SELECTED_SUBMODEL]);
 	Popup->addAction(Actions[LC_PIECE_EDIT_END_SUBMODEL]);
 
@@ -552,9 +559,6 @@ void View::ShowContextMenu() const
 
 /*** LPub3D Mod - context menu management ***/
 /***
-	Popup->addAction(Actions[LC_EDIT_CUT]);
-	Popup->addAction(Actions[LC_EDIT_COPY]);
-	Popup->addAction(Actions[LC_EDIT_PASTE]);
 	Popup->addAction(Actions[LC_PIECE_DUPLICATE]);
 
 	Popup->addSeparator();
@@ -1635,7 +1639,7 @@ void View::DrawRotateViewOverlay()
 	mContext->SetVertexBufferPointer(Verts);
 	mContext->SetVertexFormatPosition(2);
 
-	GLushort Indices[64 + 32] = 
+	GLushort Indices[64 + 32] =
 	{
 		0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14, 15, 15, 16, 16,
 		17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23, 23, 24, 24, 25, 25, 26, 26, 27, 27, 28, 28, 29, 29, 30, 30, 31, 31, 0,

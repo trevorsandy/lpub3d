@@ -371,7 +371,9 @@ protected:
 
 	QString GetGroupName(const QString& Prefix);
 	void RemoveEmptyGroups();
-	bool RemoveSelectedObjects();
+/*** LPub3D Mod - Build Modification ***/
+	quint32 RemoveSelectedObjects();
+/*** LPub3D Mod end ***/
 
 	void UpdateBackgroundTexture();
 

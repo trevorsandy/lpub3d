@@ -52,15 +52,25 @@ enum ShowLoadMsgType { NEVER_SHOW, SHOW_ERROR, SHOW_WARNING, SHOW_MESSAGE, ALWAY
 enum LoadMsgType { MISSING_LOAD_MSG, PRIMITIVE_LOAD_MSG, SUBPART_LOAD_MSG, VALID_LOAD_MSG, ALL_LOAD_MSG };
 enum RulerTrackingType { TRACKING_TICK, TRACKING_LINE, TRACKING_NONE};
 enum SceneGuidesPosType { GUIDES_TOP_LEFT, GUIDES_TOP_RIGHT, GUIDES_CENTRE, GUIDES_BOT_LEFT, GUIDES_BOT_RIGHT};
+enum RemoveObjectsRC { RemovedPieceRC, RemovedCameraRC, RemovedLightRC };
 enum LibType { LibLEGO, LibTENTE, LibVEXIQ, NumLibs };
 enum Theme { ThemeDark, ThemeDefault };
-enum PartSource { NEW_PART = -1, NEW_MODEL = NEW_PART, EDITOR_LINE, VIEWER_NONE = EDITOR_LINE, VIEWER_LINE, VIEWER_MOD };
 enum SaveOnSender { SaveOnNone, SaveOnRedraw, SaveOnUpdate };
 enum NativeType { NTypeDefault, NTypeCalledOut, NTypeMultiStep };
 enum SceneObjectInfo { ObjectId };
+enum PartSource {
+    NEW_PART           = -1,                   // -1
+    NEW_MODEL          = NEW_PART,             // -1
+    EDITOR_LINE,                               //  0
+    VIEWER_NONE        = EDITOR_LINE,          //  0
+    VIEWER_LINE,                               //  1
+    VIEWER_MOD,                                //  2
+    VIEWER_DEL                                 //  3
+};
+
 enum BuildModFlags {
-    BM_LAST_ACTION     = -1,
-    BM_INVALID_INDEX   = BM_LAST_ACTION,
+    BM_LAST_ACTION     = -1,                   // -1
+    BM_INVALID_INDEX   = BM_LAST_ACTION,       // -1
     BM_BEGIN,                                  //  0 MOD LEVEL BEGIN
     BM_MODEL_NAME      = BM_BEGIN,             //  0
     BM_BEGIN_LINE_NUM  = BM_BEGIN,             //  0 BUILD_MOD BEGIN   BuildModRange[0]
