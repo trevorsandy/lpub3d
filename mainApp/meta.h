@@ -2318,11 +2318,15 @@ public:
   {
     return _value[pushed].armed;
   }
-  float zValue()
+  qreal zValue()
   {
     return _value[pushed].z;
   }
-  void setValues(int direction, float v1, float v2, float z)
+  void setZValue(qreal z)
+  {
+      _value[pushed].z = z;
+  }
+  void setValues(int direction, float v1, float v2, qreal z)
   {
     _value[pushed].direction   = SceneObjectDirection(direction);
     _value[pushed].scenePos[0] = v1;

@@ -51,7 +51,7 @@ MultiStepRangesBackgroundItem::MultiStepRangesBackgroundItem(
   setFlag(QGraphicsItem::ItemIsSelectable,true);
   setFlag(QGraphicsItem::ItemIsMovable,true);
   setData(ObjectId, MultiStepsBackgroundObj);
-  setZValue(/*meta->LPub.page.scene.multiStepsBackground.zValue()*/-1);
+  setZValue(meta->LPub.page.scene.multiStepsBackground.zValue());
 }
 
 void MultiStepRangesBackgroundItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -115,7 +115,7 @@ MultiStepRangeBackgroundItem::MultiStepRangeBackgroundItem(
   setToolTip("Step Group - right-click to modify");
   setParentItem(parent);
   setData(ObjectId, MultiStepBackgroundObj);
-  setZValue(/*meta->LPub.page.scene.multiStepBackground.zValue()*/-1);
+  setZValue(meta->LPub.page.scene.multiStepBackground.zValue());
 }
 
 void MultiStepRangeBackgroundItem::contextMenuEvent(
@@ -406,9 +406,9 @@ DividerItem::DividerItem(
     pen.setCapStyle(Qt::RoundCap);
 
     lineItem->setPen(pen);
-    lineItem->setZValue(/*_meta->LPub.page.scene.dividerLine.zValue()*/100);
+    lineItem->setZValue(_meta->LPub.page.scene.dividerLine.zValue());
     setData(ObjectId, DividerObj); // CORE
-    setZValue(/*meta.LPub.page.scene.divider.zValue()*/99);
+    setZValue(meta.LPub.page.scene.divider.zValue());
   }
   setFlag(QGraphicsItem::ItemIsSelectable,true);
   setFlag(QGraphicsItem::ItemIsFocusable, true);

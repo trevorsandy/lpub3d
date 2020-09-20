@@ -1322,7 +1322,7 @@ void SubModelBackgroundItem::placeGrabbers()
   if (grabber == nullptr) {
     grabber = new Grabber(BottomInside,this,myParentItem());
     grabber->setData(ObjectId, SubmodelGrabberObj);
-    grabber->setZValue(/*subModel->meta->LPub.page.scene.submodelGrabber.zValue()*/100);
+    grabber->setZValue(subModel->meta->LPub.page.scene.submodelGrabber.zValue());
     grabbersVisible = true;
   }
   grabber->setPos(point.x()-grabSize()/2,point.y()-grabSize()/2);

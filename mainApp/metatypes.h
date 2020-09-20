@@ -403,7 +403,7 @@ public:
 class SceneObjectData
 {
 public:
-  float z;
+  qreal z;
   float scenePos[2];
   SceneObjectDirection direction;
   bool  armed;

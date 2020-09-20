@@ -2837,7 +2837,7 @@ void PliBackgroundItem::placeGrabbers()
   if (grabber == nullptr) {
       grabber = new Grabber(BottomInside,this,myParentItem());
       grabber->setData(ObjectId, PliGrabberObj);
-      grabber->setZValue(zValue()+pli->meta->LPub.page.scene.pliGrabber.zValue());
+      grabber->setZValue(pli->meta->LPub.page.scene.pliGrabber.zValue());
       grabbersVisible = true;
     }
   grabber->setPos(point.x()-grabSize()/2,point.y()-grabSize()/2);

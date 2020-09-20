@@ -207,7 +207,7 @@ PageNumberItem::PageNumberItem(
                 toolTip,
                 _parent);
   setData(ObjectId, PageNumberObj);
-  setZValue(/*PAGENUMBER_ZVALUE_DEFAULT*/0);
+  setZValue(PAGENUMBER_ZVALUE_DEFAULT);
   setFlag(QGraphicsItem::ItemIsSelectable,true);
   setFlag(QGraphicsItem::ItemIsFocusable, true);
   setAcceptHoverEvents(true);
@@ -352,7 +352,7 @@ StepNumberItem::StepNumberItem(
                 _parent,
                 _name);
   setData(ObjectId, StepNumberObj);
-  setZValue(/*STEPNUMBER_ZVALUE_DEFAULT*/0);
+  setZValue(STEPNUMBER_ZVALUE_DEFAULT);
 }
 
 void StepNumberItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
