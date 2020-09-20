@@ -53,6 +53,9 @@
 #include "version.h"
 #include "lpub_preferences.h"
 
+#include "lc_qglwidget.h"
+#include "piecepreview.h"
+
 EditWindow *editWindow;
 
 EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
@@ -121,6 +124,72 @@ QAbstractItemModel *EditWindow::modelFromFile(const QString& fileName)
     QApplication::restoreOverrideCursor();
 #endif
     return new QStringListModel(words, completer);
+}
+
+void EditWindow::previewPart()
+{
+    if (isIncludeFile)
+        return;
+
+    QTextCursor cursor = _textEdit->textCursor();
+    cursor.select(QTextCursor::LineUnderCursor);
+    QString selection = cursor.selection().toPlainText();
+    QStringList list;
+    QString partType;
+    int validCode, colorCode = int(LDRAW_MATERIAL_COLOUR);
+    bool ok = false;
+    if (selection.startsWith("1 ")) {
+        list = selection.split(" ", QString::SkipEmptyParts);
+        validCode = list[1].toInt(&ok);
+        // 0 1           2 3 4 5 6 7 8 9 10 11 12 13 14
+        // 1 <colorCode> 0 0 0 0 0 1 1 0 0  0  1  0  <part type>
+        for (int i = 14; i < list.size(); i++)
+            partType += (list[i]+" ");
+    } else if (selection.contains("LPUB PLI BEGIN SUB ")) {
+        // 0 1     2   3     4   5           6
+        // 0 !LPUB PLI BEGIN SUB <part type> <colorCode>
+        list = selection.split(" ", QString::SkipEmptyParts);
+        partType = list[5];
+        validCode = list[6].toInt(&ok);
+    }
+    if (ok)
+        colorCode = validCode;
+    partType = partType.trimmed();
+
+//    emit lpubAlert->messageSig(LOG_DEBUG,
+//                               QString("Editor PartType: %1, ColorCode: %2, Line: %3")
+//                               .arg(partType).arg(colorCode).arg(selection));
+
+    PiecePreview *Preview    = new PiecePreview();
+    lcQGLWidget  *ViewWidget = new lcQGLWidget(nullptr, Preview, false);
+
+    if (Preview && ViewWidget) {
+
+        ViewWidget->setWindowTitle("Part Preview");
+        ViewWidget->preferredSize = QSize(300, 200);
+
+        float Scale        = ViewWidget->deviceScale();
+        Preview->mWidth    = ViewWidget->width()  * Scale;
+        Preview->mHeight   = ViewWidget->height() * Scale;
+        Preview->SetCurrentPiece(partType, colorCode);
+
+        const QRect desktop = QApplication::desktop()->geometry();
+
+        QPoint pos = mapToGlobal(rect().bottomLeft());
+        if (pos.x() < desktop.left())
+            pos.setX(desktop.left());
+        if (pos.y() < desktop.top())
+            pos.setY(desktop.top());
+
+        if ((pos.x() + ViewWidget->width()) > desktop.width())
+            pos.setX(desktop.width() - ViewWidget->width());
+        if ((pos.y() + ViewWidget->height()) > desktop.bottom())
+            pos.setY(desktop.bottom() - ViewWidget->height());
+        ViewWidget->move(pos);
+
+        ViewWidget->show();
+        ViewWidget->setFocus();
+    }
 }
 
 void EditWindow::updateOpenWithActions()
@@ -265,6 +334,10 @@ void EditWindow::createActions()
     editModelFileAct->setStatusTip(tr("Edit loaded LDraw file in detached LDraw Editor"));
     connect(editModelFileAct, SIGNAL(triggered()), this, SIGNAL(editModelFileSig()));
 
+    previewPartAct = new QAction(QIcon(":/resources/previewpart.png"),tr("Preview highlighted part..."), this);
+    previewPartAct->setStatusTip(tr("Display the highlighted part in a popup 3D viewer"));
+    connect(previewPartAct, SIGNAL(triggered()), this, SLOT(previewPart()));
+
     cutAct = new QAction(QIcon(":/resources/cut.png"), tr("Cu&t"), this);
     cutAct->setShortcut(tr("Ctrl+X"));
     cutAct->setStatusTip(tr("Cut the current selection's contents to the clipboard - Ctrl+X"));
@@ -374,6 +447,7 @@ void EditWindow::createActions()
 void EditWindow::disableActions()
 {
     editModelFileAct->setEnabled(false);
+    previewPartAct->setEnabled(false);
 
     cutAct->setEnabled(false);
     copyAct->setEnabled(false);
@@ -396,6 +470,7 @@ void EditWindow::disableActions()
 void EditWindow::enableActions()
 {
     editModelFileAct->setEnabled(true);
+    previewPartAct->setEnabled(true);
 
     redrawAct->setEnabled(true);
     selAllAct->setEnabled(true);
@@ -435,6 +510,7 @@ void EditWindow::createToolBars()
         editToolBar->addWidget(mpdCombo);
         editToolBar->addSeparator();
     }
+    editToolBar->addAction(previewPartAct);
     editToolBar->addAction(topAct);
     editToolBar->addAction(bottomAct);
     editToolBar->addAction(toggleCmmentAct);
@@ -454,6 +530,9 @@ void EditWindow::showContextMenu(const QPoint &pt)
     QMenu *menu = _textEdit->createStandardContextMenu();
     menu->addSeparator();
     if (!fileName.isEmpty()) {
+        if (!isIncludeFile) {
+            menu->addAction(previewPartAct);
+        }
         if (!modelFileEdit()) {
             editModelFileAct->setText(tr("Edit %1").arg(QFileInfo(fileName).fileName()));
             editModelFileAct->setStatusTip(tr("Edit %1 in detached LDraw Editor").arg(QFileInfo(fileName).fileName()));

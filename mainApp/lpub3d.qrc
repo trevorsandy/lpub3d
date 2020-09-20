@@ -180,6 +180,7 @@
         <file alias="povray32.png">resources/povray32.png</file>
         <file alias="preferences.png">resources/preferences.png</file>
         <file alias="prev.png">resources/prev.png</file>
+        <file alias="previewpart.png">resources/previewpart.png</file>
         <file alias="previousstep.png">resources/previousstep.png</file>
         <file alias="prevpagecontinuous.png">resources/prevpagecontinuous.png</file>
         <file alias="prevpagecontinuousstop.png">resources/prevpagecontinuousstop.png</file>

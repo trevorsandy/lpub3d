@@ -475,6 +475,7 @@ static const SceneObject PliPartGroupSceneObjects[] =
 // Internal common material colours
 #define LDRAW_EDGE_MATERIAL_COLOUR              "24"
 #define LDRAW_MAIN_MATERIAL_COLOUR              "16"
+#define LDRAW_MATERIAL_COLOUR                    16
 
 #define FADE_OPACITY_DEFAULT                    50         // 50 percent transparency
 

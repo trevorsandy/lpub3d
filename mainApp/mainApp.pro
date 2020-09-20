@@ -423,6 +423,7 @@ HEADERS += \
     parmshighlighter.h \
     parmswindow.h \
     paths.h \
+    piecepreview.h \
     placement.h \
     placementdialog.h \
     pli.h \
@@ -530,6 +531,7 @@ SOURCES += \
     parmshighlighter.cpp \
     parmswindow.cpp \
     paths.cpp \
+    piecepreview.cpp \
     placement.cpp \
     placementdialog.cpp \
     pli.cpp \

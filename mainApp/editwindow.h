@@ -28,6 +28,8 @@
  *
  ***************************************************************************/
 
+#pragma once
+
 #ifndef EDITWINDOW_H
 #define EDITWINDOW_H
 
@@ -59,7 +61,6 @@ class QLineEdit;
 class QPushButton;
 class QLabel;
 class QComboBox;
-
 
 class QAbstractItemModel;
 class QCompleter;
@@ -98,6 +99,7 @@ private:
 
     QList<QAction *> openWithActList;
     QAction  *editModelFileAct;
+    QAction  *previewPartAct;
     QAction  *topAct;
     QAction  *bottomAct;
     QAction  *cutAct;
@@ -137,6 +139,7 @@ private slots:
     void enableSave();
     void highlightCurrentLine();
     void topOfDocument();
+    void previewPart();
     void bottomOfDocument();
     void showAllCharacters();
     void mpdComboChanged(int index);
