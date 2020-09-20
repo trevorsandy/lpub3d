@@ -546,7 +546,7 @@ public:
   {
     displayPageNum += offset;
   }
-  void  displayPage();
+  void  displayPage(bool reload = false);
 
   bool continuousPageDialog(Direction d);
 
@@ -853,9 +853,9 @@ public:
       ldrawFile.removeBuildMod(buildModKey.isEmpty() ? getBuildModsList().last() : buildModKey);
   }
 
-  void setNextStepBuildModAction(const QStringList &contents, Where step = Where());
-
   void resetLastBuildMod(bool clearNextStep = false);
+
+  void setBuildModNextStepAction();
 
   /* End Build Modifications */
 

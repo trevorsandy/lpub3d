@@ -59,6 +59,7 @@ enum SaveOnSender { SaveOnNone, SaveOnRedraw, SaveOnUpdate };
 enum NativeType { NTypeDefault, NTypeCalledOut, NTypeMultiStep };
 enum SceneObjectInfo { ObjectId };
 enum BuildModFlags {
+    BM_LAST_ACTION     = -1,
     BM_BEGIN,                                  //  0 MOD LEVEL BEGIN
     BM_MODEL_NAME      = BM_BEGIN,             //  0
     BM_BEGIN_LINE_NUM  = BM_BEGIN,             //  0 BUILD_MOD BEGIN   BuildModRange[0]
