@@ -59,6 +59,7 @@ enum Rc {
          RangeErrorRc = -2,
          FailureRc = -1,
          OkRc = 0,
+         BuildModNoActionRc = OkRc,
 
          StepRc,
          RotStepRc,
@@ -104,6 +105,11 @@ enum Rc {
          MLCadSkipEndRc,
          MLCadGroupRc,
          LDCadGroupRc,
+         LeoCadModelRc,
+         LeoCadPieceRc,
+         LeoCadCameraRc,
+         LeoCadLightRc,
+         LeoCadSynthRc,
          LeoCadGroupBeginRc,
          LeoCadGroupEndRc,
 
@@ -126,6 +132,12 @@ enum Rc {
 
          BomBeginIgnRc,
          BomEndRc,
+
+         BuildModBeginRc,
+         BuildModEndModRc,
+         BuildModEndRc,
+         BuildModApplyRc,
+         BuildModRemoveRc,
 
          PageOrientationRc,
          PageSizeRc,
@@ -2764,6 +2776,35 @@ public:
   virtual void doc(QStringList &out, QString preamble);
 };
 
+/* This class is parses the buildMod action */
+
+class BuildModMeta : public LeafMeta
+{
+private:
+  BuildModData _value;
+public:
+  QString value()
+  {
+    return _value.buildModKey;
+  }
+  void setValue(BuildModData &value)
+  {
+    _value = value;
+  }
+  BuildModMeta()
+  {
+  }
+  BuildModMeta(const BuildModMeta &rhs) : LeafMeta(rhs)
+  {
+  }
+
+//  virtual ~BuildModMeta() { }
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  void    pop() { pushed = 0; }
+  virtual void doc(QStringList &out, QString preamble);
+};
+
 /*------------------------*/
 
 class AnnotationStyleMeta : public BranchMeta
@@ -3415,6 +3456,8 @@ public:
   virtual void    doc(QStringList &out, QString preamble);
 };
 
+/*------------------------*/
+
 class LPubMeta : public BranchMeta
 {
 public:
@@ -3428,6 +3471,7 @@ public:
   PliMeta              pli;
   BomMeta              bom;
   RemoveMeta           remove;
+  BuildModMeta         buildMod;
   FloatMeta            reserve;
   PartIgnMeta          partSub;
   InsertMeta           insert;
@@ -3506,7 +3550,12 @@ public:
 class LeoCadMeta : public BranchMeta
 {
 public:
-  LeoCadGroupMeta     group;
+  LeoCadGroupMeta group;
+  RcMeta          model;
+  RcMeta          piece;
+  RcMeta          camera;
+  RcMeta          light;
+  RcMeta          synth;
   LeoCadMeta() {}
   virtual ~LeoCadMeta() {}
   virtual void init(BranchMeta *parent, QString name);

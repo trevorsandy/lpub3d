@@ -87,6 +87,70 @@ CsiItem::CsiItem(
   setZValue(ASSEM_ZVALUE_DEFAULT);
 }
 
+/********************************************
+ *
+ * partLine
+ *
+ * this adds a csiPart to the csiParts list
+ * and updates the lineType index accordingly
+ * taking into account part groups, types and
+ * part names meta commands
+ *
+ ********************************************/
+
+void CsiItem::partLine(
+   const QString &partLine,
+   QStringList   &csiParts,
+   QVector<int>  &typeIndexes,
+   int            lineNumber,
+   Rc             rc)
+{
+    // All 3DViewer (LeoCad) metas are written to csiParts
+    // for group meta lines, substitute lineNumber with Rc
+    int index;
+    switch (rc){
+    case FadeRc:
+    case SilhouetteRc:
+    case ColourRc:
+    case PartNameRc:
+    case PartTypeRc:
+    case MLCadGroupRc:
+    case LDCadGroupRc:
+        index = rc;
+        break;
+    default:
+        index = lineNumber;
+        break;
+    }
+    csiParts.append(partLine);
+    typeIndexes.append(index);
+}
+
+void CsiItem::partLine(
+     const QString      &partLine,
+     PartLineAttributes &pla,
+     int                 index,
+     Rc                  rc)
+{
+    if (pla.buildMod) {
+        if (! pla.buildModIgnore) {
+            CsiItem::partLine(partLine,pla.buildModCsiParts,pla.buildModLineTypeIndexes,index/*relativeTypeIndx*/,rc);
+            pla.buildModItems = pla.buildModCsiParts.size();
+        }
+    } else {
+        if (pla.buildModItems) {
+            pla.csiParts        << pla.buildModCsiParts;
+            pla.lineTypeIndexes << pla.buildModLineTypeIndexes;
+            pla.buildModCsiParts.clear();
+            pla.buildModLineTypeIndexes.clear();
+            pla.buildModItems = false;
+        }
+        CsiItem::partLine(partLine,pla.csiParts,pla.lineTypeIndexes,index/*relativeTypeIndx*/,rc);
+    }
+}
+
+/**************************************/
+
 void CsiItem::placeCsiPartAnnotations()
 {
     if (!assem->annotation.display.value())

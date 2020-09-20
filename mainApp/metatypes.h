@@ -379,6 +379,13 @@ public:
   QString type;
 };
 
+class BuildModData
+{
+public:
+  QString buildModKey;
+  QString action;
+};
+
 class PgSizeData
 {
 public:

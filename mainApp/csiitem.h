@@ -41,6 +41,7 @@
 class Step;
 class CsiAnnotation;
 class CsiAnnotationItem;
+class PartLineAttributes;
 
 class CsiItem : public ResizePixmapItem, public QObject
 {
@@ -64,9 +65,22 @@ public:
 
   void placeCsiPartAnnotations();
 
-  virtual void change();
-
   void setFlag(GraphicsItemFlag flag, bool value);
+
+  static void partLine(
+     const QString      &partLine,
+     PartLineAttributes &pla,
+     int                 index,
+     Rc                  rc);
+
+  static void partLine(
+     const QString &partLine,
+     QStringList   &csiParts,
+     QVector<int>  &typeIndexes,
+     int            lineNumber,
+     Rc             rc);
+
+  virtual void change();
 
 private:
   virtual void contextMenuEvent(QGraphicsSceneContextMenuEvent *event);

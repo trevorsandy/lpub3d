@@ -173,6 +173,7 @@ public:
 
             bool             _isMirrored,
             bool             _printing,
+            int              _buildMod,
             int              _contStepNumber,
             int              _renderStepNumber  = 0,
             QString          _renderParentModel = "")
@@ -183,6 +184,7 @@ public:
 
           isMirrored        (_isMirrored),
           printing          (_printing),
+          buildMod          (_buildMod),
           contStepNumber    (_contStepNumber),
           renderStepNumber  (_renderStepNumber),
           renderParentModel (_renderParentModel)
@@ -193,6 +195,7 @@ public:
 
     bool           isMirrored;
     bool           printing;
+    int            buildMod;
     int            contStepNumber;
     int            renderStepNumber;
     QString        renderParentModel;
@@ -218,6 +221,7 @@ public:
             int                          _groupStepNumber,
             bool                         _isMirrored,
             bool                         _printing,
+            int                          _buildMod,
             bool                         _bfxStore2,
             bool                         _assembledCallout = false,
             bool                         _calledOut        = false)
@@ -237,6 +241,7 @@ public:
           groupStepNumber               (_groupStepNumber),
           isMirrored                    (_isMirrored),
           printing                      (_printing),
+          buildMod                      (_buildMod),
           bfxStore2                     (_bfxStore2),
           assembledCallout              (_assembledCallout),
           calledOut                     (_calledOut)
@@ -256,9 +261,39 @@ public:
     int                          groupStepNumber;
     bool                         isMirrored;
     bool                         printing;
+    int                          buildMod;
     bool                         bfxStore2;
     bool                         assembledCallout;
     bool                         calledOut;
+};
+
+class PartLineAttributes
+{
+public:
+    PartLineAttributes(
+            QStringList           &_csiParts,
+            QVector<int>          &_lineTypeIndexes,
+            QStringList           &_buildModCsiParts,
+            QVector<int>          &_buildModLineTypeIndexes,
+            int                    _buildMod,
+            bool                   _buildModIgnore,
+            bool                   _buildModItems)
+        :
+          csiParts               (_csiParts),
+          lineTypeIndexes        (_lineTypeIndexes),
+          buildModCsiParts       (_buildModCsiParts),
+          buildModLineTypeIndexes (_buildModLineTypeIndexes),
+          buildMod               (_buildMod),
+          buildModIgnore         (_buildModIgnore),
+          buildModItems          (_buildModItems)
+    {  }
+    QStringList           &csiParts;
+    QVector<int>          &lineTypeIndexes;
+    QStringList           &buildModCsiParts;
+    QVector<int>          &buildModLineTypeIndexes;
+    int                    buildMod;
+    bool                   buildModIgnore;
+    bool                   buildModItems;
 };
 
 #endif // OPTIONS_H

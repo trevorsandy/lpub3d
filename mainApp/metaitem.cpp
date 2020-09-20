@@ -251,6 +251,7 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
   Where lastInstance, firstInstance;
 
   Rc rc;
+//  int buildMod = 0;
   bool ignorePartLine = false;
   Where walkBack = step;
   for (; walkBack.lineNumber >= 0; walkBack--) {
@@ -290,6 +291,17 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
             }
           }
         }
+//        else // build modification
+//        if (argv.size() >= 4 && argv[0] == "0" &&
+//           (argv[1] == "LPUB" || argv[1] == "!LPUB") &&
+//            argv[2] == "BUILD_MOD") {
+//          if (argv[3] == "BEGIN") {
+//            buildMod = getLevel(argv[4],HiarchLevel::BEGIN);
+//          } else if ((argv[3] == "APPLY" || argv[3] == "REMOVE")) {
+//            buildMod = getLevel(QString(),HiarchLevel::END);
+//          }
+//          ignorePartLine = buildMod;
+//        } // build modification end
       } else if (argv.size() == 15 && argv[0] == "1") {
         if (ignorePartLine)
           continue;
@@ -349,6 +361,17 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
             ignorePartLine = false;
             break;
           }
+//          else // build modification
+//          if (argv.size() >= 4 && argv[0] == "0" &&
+//             (argv[1] == "LPUB" || argv[1] == "!LPUB") &&
+//              argv[2] == "BUILD_MOD") {
+//            if (argv[3] == "BEGIN") {
+//              buildMod = getLevel(argv[4],HiarchLevel::BEGIN);
+//            } else if ((argv[3] == "APPLY" || argv[3] == "REMOVE")) {
+//              buildMod = getLevel(QString(),HiarchLevel::END);
+//            }
+//            ignorePartLine = buildMod;
+//          } // build modification end
         }
       }
     } else if (argv.size() == 15 && argv[0] == "1") {
@@ -402,6 +425,7 @@ int MetaItem::countInstancesInModel(Meta *meta, const QString &modelName){
   Where lastInstance, firstInstance;
 
   Rc rc;
+//  int buildMod = 0;
   bool ignorePartLine = false;
   walk = step;
 
@@ -434,6 +458,17 @@ int MetaItem::countInstancesInModel(Meta *meta, const QString &modelName){
             ignorePartLine = false;
             break;
           }
+//          else // build modification
+//          if (argv.size() >= 4 && argv[0] == "0" &&
+//             (argv[1] == "LPUB" || argv[1] == "!LPUB") &&
+//              argv[2] == "BUILD_MOD") {
+//            if (argv[3] == "BEGIN") {
+//              buildMod = getLevel(argv[4],HiarchLevel::BEGIN);
+//            } else if ((argv[3] == "APPLY" || argv[3] == "REMOVE")) {
+//              buildMod = getLevel(QString(),HiarchLevel::END);
+//            }
+//            ignorePartLine = buildMod;
+//          } // build modification end
         }
       }
     } else if (argv.size() == 15 && argv[0] == "1") {

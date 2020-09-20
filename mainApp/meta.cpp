@@ -3638,6 +3638,74 @@ void BuffExchgMeta::doc(QStringList &out, QString preamble)
 
 /* ------------------ */
 
+Rc BuildModMeta::parse(QStringList &argv, int index, Where &here)
+{
+  Rc rc = FailureRc;
+  QString missingMeta;
+  QRegExp actionRx("^(BEGIN|END_MOD|END|APPLY|REMOVE)$");
+  if (index + 1 == argv.size()) {
+    if (argv[index].contains(actionRx)) {
+      _value.action = argv[index];
+      _here[0] = here;
+      _here[1] = here;
+      if (argv[index] == "BEGIN")
+        missingMeta = argv[index];
+      else if (argv[index] == "END_MOD")
+        rc = BuildModEndModRc;
+      else if (argv[index] == "END")
+        rc = BuildModEndRc;
+      else if (argv[index] == "APPLY")
+        missingMeta = argv[index];
+      else if (argv[index] == "REMOVE")
+        missingMeta = argv[index];
+    }
+  } else if (index + 2 == argv.size()) {
+    QRegExp keyRx("^[A-Z0-9_#\\-\\s]*$",Qt::CaseInsensitive);
+    if (argv[index].contains(actionRx) && argv[index + 1].contains(keyRx)) {
+      _value.action      = argv[index];
+      _value.buildModKey = argv[index + 1];
+      _here[0] = here;
+      _here[1] = here;
+      if (argv[index] == "BEGIN")
+        rc = BuildModBeginRc;
+      else if (argv[index] == "END_MOD")
+        rc = BuildModEndModRc;
+      else if (argv[index] == "END")
+        rc = BuildModEndRc;
+      else if (argv[index] == "APPLY")
+        rc = BuildModApplyRc;
+      else if (argv[index] == "REMOVE")
+        rc = BuildModRemoveRc;
+    }
+  }
+
+  if (rc == FailureRc){
+    if (reportErrors)
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Malformed build mod meta command \"%1\"") .arg(argv.join(" ")));
+  } else if (!missingMeta.isEmpty()) {
+    emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Build mod meta %1 requires a key value. Got \"%2\"") .arg(missingMeta).arg(argv.join(" ")));
+    rc = FailureRc;
+  }
+
+  return rc;
+}
+
+QString BuildModMeta::format(bool local, bool global)
+{
+  QString foo = _value.action;
+  if (!_value.buildModKey.isEmpty())
+    foo += QString(" %1").arg(_value.buildModKey);
+
+  return LeafMeta::format(local,global,foo);
+}
+
+void BuildModMeta::doc(QStringList &out, QString preamble)
+{
+  out << preamble + " <BEGIN|APPLY|REMOVE[|END_MOD|END]> <buildModKey>";
+  out << preamble + " <END_MOD|END|APPLY|REMOVE>";
+}
+/* ------------------ */
+
 AnnotationStyleMeta::AnnotationStyleMeta() : BranchMeta()
 {
   margin.setValuesInches(0.03f,0.03f);      //4px @ 150DPI
@@ -4951,6 +5019,7 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   stepNumber               .init(this,"STEP_NUMBER");
   pli                      .init(this,"PLI");
   bom                      .init(this,"BOM");
+  buildMod                 .init(this,"BUILD_MOD");
   pointerBase              .init(this,"POINTER_BASE");
   remove                   .init(this,"REMOVE");
   reserve                  .init(this,"RESERVE",ReserveSpaceRc);
@@ -5069,6 +5138,11 @@ void LeoCadMeta::init(BranchMeta *parent, QString name)
 {
   AbstractMeta::init(parent, name);
   group .init(this,"GROUP");
+  model .init(this,"MODEL",   LeoCadModelRc);
+  piece .init(this,"PIECE",   LeoCadPieceRc);
+  camera .init(this,"CAMERA", LeoCadCameraRc);
+  light .init(this,"LIGHT",   LeoCadLightRc);
+  synth .init(this,"SYNTH",   LeoCadSynthRc);
 }
 
 /* ------------------ */
@@ -5151,7 +5225,7 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
   bfx        .init(this,"BUFEXCHG");
   MLCad      .init(this,"MLCAD");
   LDCad      .init(this,"LDCAD");
-  LeoCad     .init(this,"LEOCAD");
+  LeoCad     .init(this,"!LEOCAD");
   LSynth     .init(this,"SYNTH");
 
   /*
@@ -5292,14 +5366,14 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
       tokenMap["JUSTIFY_LEFT"]              = JustifyLeft;
     }
 
-  {
-    groupRegExp
-      << QRegExp ("^\\s*0\\s+(MLCAD)\\s+(BTG)\\s+(.*)$")
-      << QRegExp ("^\\s*0\\s+!?(LDCAD)\\s+(GROUP_NXT)\\s+\\[ids=([\\d\\s\\,]+)\\].*$")
-      << QRegExp ("^\\s*0\\s+!?(LEOCAD)\\s+(GROUP BEGIN)\\s+Group\\s+(.*)$",Qt::CaseInsensitive)
-      << QRegExp ("^\\s*0\\s+!?(LEOCAD)\\s+(GROUP)\\s+(END)$")
-      ;
-  }
+    {
+      groupRegExp
+        << QRegExp ("^\\s*0\\s+(MLCAD)\\s+(BTG)\\s+(.*)$")
+        << QRegExp ("^\\s*0\\s+!?(LDCAD)\\s+(GROUP_NXT)\\s+\\[ids=([\\d\\s\\,]+)\\].*$")
+        << QRegExp ("^\\s*0\\s+!?(LEOCAD)\\s+(GROUP BEGIN)\\s+Group\\s+(.*)$",Qt::CaseInsensitive)
+        << QRegExp ("^\\s*0\\s+!?(LEOCAD)\\s+(GROUP)\\s+(END)$")
+        ;
+    }
 }
 
 QRegExp Meta::groupRx(QString &line, Rc &rc) {

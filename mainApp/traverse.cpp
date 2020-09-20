@@ -79,46 +79,6 @@ static QString PositionNames[] =
 //    Positions pos;
 //};
 
-/********************************************
- *
- * partLine
- *
- * this adds a csiPart tot the csiParts list
- * and updates the lineType index accordingly
- * taking into account part groups, types and
- * part names meta commands
- *
- ********************************************/
-
-static void partLine(
-   QString      &line,
-   QStringList  &csiParts,
-   QVector<int> &typeIndexes,
-   int           lineNumber,
-   Rc            rc)
-{
-    // for group meta lines, substitute lineNumber with Rc
-    int indexValue;
-    switch (rc){
-    case FadeRc:
-    case SilhouetteRc:
-    case ColourRc:
-    case PartNameRc:
-    case PartTypeRc:
-    case MLCadGroupRc:
-    case LDCadGroupRc:
-//    case LeoCadGroupBeginRc:
-//    case LeoCadGroupEndRc:
-        indexValue = rc;
-        break;
-    default:
-        indexValue = lineNumber;
-        break;
-    }
-    csiParts.append(line);
-    typeIndexes.append(indexValue);
-}
-
 /*********************************************
  *
  * remove_group
@@ -137,9 +97,9 @@ static void remove_group(
     Meta         &meta)
 {
 
-  bool leoRemove = false;
-  int leoNest = 0;
-  Rc grpType;
+  bool    grpMatch = false;
+  int     grpLevel = 0;
+  Rc      grpType;
   QRegExp grpRx;
 
   if (in.size() != tin.size()) {
@@ -179,12 +139,12 @@ static void remove_group(
           else
           if (grpType == LeoCadGroupBeginRc) {
               if ((grpRx.cap(grpRx.captureCount()) == group)){
-                leoRemove = true;
+                grpMatch = true;
                 i++;
               }
               else
-              if (leoRemove) {
-                  leoNest++;
+              if (grpMatch) {
+                  grpLevel++;
                   i++;
               }
               else {
@@ -195,11 +155,11 @@ static void remove_group(
           // LeoCAD	Group End
           else
           if (grpType == LeoCadGroupEndRc) {
-              if (leoRemove) {
-                  if (leoNest == 0) {
-                    leoRemove = false;
+              if (grpMatch) {
+                  if (grpLevel == 0) {
+                    grpMatch = false;
                   } else {
-                    leoNest--;
+                    grpLevel--;
                   }
               }
               else {
@@ -208,7 +168,7 @@ static void remove_group(
               }
           }
           else
-          if (leoRemove) {
+          if (grpMatch) {
                  i++;
           }
           else {
@@ -469,7 +429,7 @@ int Gui::drawPage(
 {
   QStringList configuredCsiParts; // fade and highlight configuration
   bool     global = true;
-  QString  line, csiName;
+  QString  line, csiName, buildModKey;
   Callout *callout         = nullptr;
   Range   *range           = nullptr;
   Step    *step            = nullptr;
@@ -489,6 +449,22 @@ int Gui::drawPage(
   bool     displayCount    = false;
   int      countInstances  = steps->meta.LPub.countInstance.value();
   bool     previewNotPerStep = false;
+
+  int      buildModAction    = BuildModApplyRc;
+  bool     buildModItems     = false;
+  bool     buildModIgnore    = false;
+  bool     buildModPliIgnore = false;
+  QVector<int> buildModLineTypeIndexes;
+  QStringList  buildModCsiParts;
+
+  PartLineAttributes pla(
+     opts.csiParts,
+     opts.lineTypeIndexes,
+     buildModCsiParts,
+     buildModLineTypeIndexes,
+     opts.buildMod,
+     buildModIgnore,
+     buildModItems);
 
   DividerType dividerType  = NoDivider;
 
@@ -558,6 +534,37 @@ int Gui::drawPage(
 
       // load initial meta values
 
+      /*
+       * For drawPage(), the buildMod behaviour performs two functions:
+       * Funct 1. Capture the appropriate 'block' of lines to be written to the csiPart list (partIgnore).
+       * Funct 2. Write the appropriate part lines to the pliPart list. (pliIgnore)
+       *
+       * The buildMod flag is enabled for the lines between BUILD_MOD BEGIN and BUILD_MOD END
+       * Lines between BUILD_MOD BEGIN and BUILD_MOD END_MOD represent the modified content
+       * Lines between BUILD_MOD END_MOD and BUILD_MOD END represent the original content
+       *
+       * When the buildMod flag is true, and:
+       * Funct 1 (csiParts):
+       * Parse is enabled when 'buildModIgnore' is false.
+       * When the build mod action is 'apply', the modification block is parsed. (buildModIgnore is false)
+       * When the build mod action is 'remove', the default block is parsed.     (buildModIgnore is false)
+       * Remove group, partType and partName is only applied when 'buildModIgnore is false.
+       *
+       * Funct 2 (pliParts):
+       * Process pliParts is enabled when 'buildModPliIgnore' is false.
+       * When the build mod action is 'apply', the modification block is parsed but pliParts are
+       * not written to the pliList (buildModPliIgnore is true).
+       * When the build mod action is 'remove', the defaul block is parsed and the pliParts are
+       * written to the pliList (buildModPliIgnore false false)
+       *
+       * When the build mod meta command is BUILD_MOD END 'buildModIgnore' and 'buildModPliIgnore'
+       * are reset to false while buildMod is reset to false if the build mod command is not nested
+       *
+       * BUILD_MOD APPLY or BUILD_MOD REMOVE action meta commands are ignored as they are set in findPage()
+       *
+       * When the buildMod flag is false pli and csi lines are processed normally
+       */
+
       Meta   &curMeta = callout ? callout->meta : steps->meta;
 
       QStringList tokens;
@@ -595,28 +602,30 @@ int Gui::drawPage(
               color = tokens[1];
             }
 
-          partLine(line,opts.csiParts,opts.lineTypeIndexes,opts.current.lineNumber,OkRc);
-          partsAdded = true;
+          if (!buildModIgnore){
+              CsiItem::partLine(line,pla,opts.current.lineNumber,OkRc);
+              partsAdded = true;
 
-          // STEP - Allocate STEP
+              // STEP - Allocate STEP
 
-          /* since we have a part usage, we have a valid STEP */
+              /* since we have a part usage, we have a valid STEP */
 
-          if (step == nullptr  && ! noStep) {
-              if (range == nullptr) {
-                  range = newRange(steps,opts.calledOut);
-                  steps->append(range);
-                }
+              if (step == nullptr  && ! noStep) {
+                  if (range == nullptr) {
+                      range = newRange(steps,opts.calledOut);
+                      steps->append(range);
+                    }
 
-              step = new Step(topOfStep,
-                              range,
-                              opts.stepNum,
-                              curMeta,
-                              opts.calledOut,
-                              multiStep);
+                  step = new Step(topOfStep,
+                                  range,
+                                  opts.stepNum,
+                                  curMeta,
+                                  opts.calledOut,
+                                  multiStep);
 
-              range->append(step);
-            }
+                  range->append(step);
+              }
+          }
 
           // STEP - Allocate PLI
 
@@ -630,6 +639,7 @@ int Gui::drawPage(
           if (curMeta.LPub.pli.show.value()
               && ! pliIgnore
               && ! partIgnore
+              && ! buildModPliIgnore
               && ! synthBegin) {
               QString colorType = color+type;
 
@@ -681,7 +691,7 @@ int Gui::drawPage(
 
           /* if it is a called out sub-model, then process it */
 
-          if (ldrawFile.isSubmodel(type) && callout && ! noStep) {
+          if (ldrawFile.isSubmodel(type) && callout && ! noStep && ! buildModIgnore) {
 
               CalloutBeginMeta::CalloutMode calloutMode = callout->meta.LPub.callout.begin.value();
 
@@ -767,6 +777,7 @@ int Gui::drawPage(
                               opts.groupStepNumber,
                               ldrawFile.mirrored(tokens),
                               opts.printing,
+                              opts.buildMod,
                               opts.bfxStore2,
                               opts.assembledCallout,
                               true               /*calledOut*/
@@ -777,7 +788,7 @@ int Gui::drawPage(
 
                   if (callout->meta.LPub.pli.show.value() &&
                       ! callout->meta.LPub.callout.pli.perStep.value() &&
-                      ! pliIgnore && ! partIgnore && ! synthBegin &&
+                      ! pliIgnore && ! partIgnore && ! buildModPliIgnore && ! synthBegin &&
                       calloutMode == CalloutBeginMeta::Unassembled) {
 
                       opts.pliParts += calloutParts;
@@ -822,10 +833,12 @@ int Gui::drawPage(
           /* we've got a line, triangle or polygon, so add it to the list */
           /* and make sure we know we have a step */
 
-          partLine(line,opts.csiParts,opts.lineTypeIndexes,opts.current.lineNumber,OkRc);
-          partsAdded = true;
+          if (! buildModIgnore) {
 
-          if (step == nullptr && ! noStep) {
+            CsiItem::partLine(line,pla,opts.current.lineNumber,OkRc);
+            partsAdded = true;
+
+            if (step == nullptr && ! noStep) {
               if (range == nullptr) {
                   range = newRange(steps,opts.calledOut);
                   steps->append(range);
@@ -840,6 +853,7 @@ int Gui::drawPage(
 
               range->append(step);
             }
+          } // ! buildModIgnore
         }
       // STEP - Process meta command
       else if ( (tokens.size() && tokens[0] == "0") || gprc == EndOfFileRc) {
@@ -888,13 +902,52 @@ int Gui::drawPage(
               bfxLoad = true;
               break;
 
+            case BuildModBeginRc:
+              buildModKey    = curMeta.LPub.buildMod.value();
+              opts.buildMod  = getLevel(buildModKey,HiarchLevel::BEGIN);
+              buildModAction = getBuildModAction(buildModKey, opts.stepNum);
+              if (buildModAction == BuildModApplyRc){
+                  buildModIgnore    = false;
+                  buildModPliIgnore = true;
+              } else if (buildModAction == BuildModRemoveRc){
+                  buildModIgnore    = buildModPliIgnore = true;
+              }
+              break;
+
+            case BuildModEndRc:
+              opts.buildMod  = getLevel(QString(),HiarchLevel::END);
+              buildModIgnore = buildModPliIgnore = false;
+              break;
+
+            case BuildModEndModRc:
+              if (opts.buildMod > 1) {
+                if (curMeta.LPub.buildMod.value().isEmpty())
+                  parseError("Key required for nested build mod meta command",
+                             opts.current,Preferences::ParseErrors);
+                else
+                  buildModKey = curMeta.LPub.buildMod.value();
+              }
+              buildModAction = getBuildModAction(buildModKey, opts.stepNum);
+              if (buildModAction == BuildModApplyRc){
+                  buildModIgnore    = true;
+                  buildModPliIgnore = false;
+              } else if (buildModAction == BuildModRemoveRc){
+                  buildModIgnore    = buildModPliIgnore = false;
+              }
+              break;
+
             case PartNameRc:
             case PartTypeRc:
             case MLCadGroupRc:
             case LDCadGroupRc:
+            case LeoCadModelRc:
+            case LeoCadPieceRc:
+            case LeoCadCameraRc:
+            case LeoCadLightRc:
+            case LeoCadSynthRc:
             case LeoCadGroupBeginRc:
             case LeoCadGroupEndRc:
-              partLine(line,opts.csiParts,opts.lineTypeIndexes,opts.current.lineNumber,rc);
+              CsiItem::partLine(line,pla,opts.current.lineNumber,rc);
               break;
 
             case IncludeRc:
@@ -917,6 +970,7 @@ int Gui::drawPage(
               if (steps->meta.LPub.pli.show.value() &&
                   ! pliIgnore &&
                   ! partIgnore &&
+                  ! buildModPliIgnore &&
                   ! synthBegin) {
                   QString addPart = QString("1 %1  0 0 0  0 0 0 0 0 0 0 0 0 %2")
                                             .arg(curMeta.LPub.pli.begin.sub.value().color)
@@ -924,7 +978,7 @@ int Gui::drawPage(
                   opts.pliParts << Pli::partLine(addPart,opts.current,curMeta);
                 }
 
-              if (step == nullptr && ! noStep) {
+              if (step == nullptr && ! noStep && ! buildModIgnore) {
                   if (range == nullptr) {
                       range = newRange(steps,opts.calledOut);
                       steps->append(range);
@@ -1001,24 +1055,25 @@ int Gui::drawPage(
             case RemoveGroupRc:
             case RemovePartTypeRc:
             case RemovePartNameRc:
-              {
-              QStringList newCSIParts;
-              QVector<int> newLineTypeIndexes;
-              if (rc == RemoveGroupRc) {
-                  remove_group(opts.csiParts,opts.lineTypeIndexes,curMeta.LPub.remove.group.value(),newCSIParts,newLineTypeIndexes,curMeta);
-              } else if (rc == RemovePartTypeRc) {
-                  remove_parttype(opts.csiParts,opts.lineTypeIndexes,curMeta.LPub.remove.parttype.value(),newCSIParts,newLineTypeIndexes);
-              } else {
-                  remove_partname(opts.csiParts,opts.lineTypeIndexes,curMeta.LPub.remove.partname.value(),newCSIParts,newLineTypeIndexes);
-              }
-              opts.csiParts = newCSIParts;
-              opts.lineTypeIndexes = newLineTypeIndexes;
+            {
+              if (! buildModIgnore) {
+                QStringList newCSIParts;
+                QVector<int> newLineTypeIndexes;
+                if (rc == RemoveGroupRc) {
+                    remove_group(opts.csiParts,opts.lineTypeIndexes,curMeta.LPub.remove.group.value(),newCSIParts,newLineTypeIndexes,curMeta);
+                } else if (rc == RemovePartTypeRc) {
+                    remove_parttype(opts.csiParts,opts.lineTypeIndexes,curMeta.LPub.remove.parttype.value(),newCSIParts,newLineTypeIndexes);
+                } else {
+                    remove_partname(opts.csiParts,opts.lineTypeIndexes,curMeta.LPub.remove.partname.value(),newCSIParts,newLineTypeIndexes);
+                }
+                opts.csiParts = newCSIParts;
+                opts.lineTypeIndexes = newLineTypeIndexes;
 
                 if (step == nullptr && ! noStep) {
                     if (range == nullptr) {
                         range = newRange(steps,opts.calledOut);
                         steps->append(range);
-                      }
+                    }
                     step = new Step(topOfStep,
                                     range,
                                     opts.stepNum,
@@ -1027,8 +1082,9 @@ int Gui::drawPage(
                                     multiStep);
 
                     range->append(step);
-                  }
-              }
+                }
+              } // ! buildModIgnore
+            }
               break;
 
             case ReserveSpaceRc:
@@ -1657,7 +1713,7 @@ int Gui::drawPage(
             case StepRc:
               // Special case where we have a step group with a NOSTEP command
               // in the last STEP which is also a rotated or assembled called out submodel
-              if (noStep && opts.calledOut) {
+              if (! buildModIgnore && noStep && opts.calledOut) {
                 if (opts.current.modelName.contains("whole_rotated_") ||
                     opts.current.modelName.contains("whole_assembled_")) {
                   bool nsHasParts    = false;
@@ -1721,8 +1777,8 @@ int Gui::drawPage(
                 }
               }
 
-              // STEP - special case of no parts added, but BFX load and not NOSTEP
-              if (! partsAdded && bfxLoad && ! noStep) {
+              // STEP - special case of no parts added, but BFX load and not NOSTEP and not BUILD_MOD ignore
+              if (! partsAdded && bfxLoad && ! noStep && ! buildModIgnore) {
                   if (step == nullptr) {
                       if (range == nullptr) {
                           range = newRange(steps,opts.calledOut);
@@ -1757,7 +1813,7 @@ int Gui::drawPage(
                 }
 
               // STEP - normal case of parts added, and not NOSTEP
-              if (partsAdded && ! noStep) {
+              if (partsAdded && ! noStep && ! buildModIgnore) {
 
                   if (firstStep) {
                       steps->groupStepMeta = curMeta;
@@ -2058,6 +2114,7 @@ int Gui::drawPage(
               steps->setBottomOfSteps(opts.current);
               noStep = false;
               break;
+
             case RangeErrorRc:
             {
               showLine(opts.current);
@@ -2109,6 +2166,7 @@ int Gui::findPage(
     QString const   &addLine,
     FindPageOptions &opts)
 {
+  QString buildModKey;
   bool stepGroup  = false;
   bool partIgnore = false;
   bool coverPage  = false;
@@ -2144,6 +2202,21 @@ int Gui::findPage(
   Where        stepGroupCurrent;
   int          saveStepNumber = 1;
 
+  int  buildModAction        = BuildModApplyRc;
+  bool     buildModItems     = false;
+  bool     buildModIgnore    = false;
+  QVector<int> buildModLineTypeIndexes;
+  QStringList  buildModCsiParts;
+
+  PartLineAttributes pla(
+  csiParts,
+  lineTypeIndexes,
+  buildModCsiParts,
+  buildModLineTypeIndexes,
+  opts.buildMod,
+  buildModIgnore,
+  buildModItems);
+
   saveStepPageNum = stepPageNum;
 
   Meta        saveMeta = meta;
@@ -2165,6 +2238,34 @@ int Gui::findPage(
   emit messageSig(LOG_INFO_STATUS, "Processing find page for " + opts.current.modelName + "...");
 
   ldrawFile.setRendered(opts.current.modelName, opts.isMirrored, opts.renderParentModel, opts.renderStepNumber, countInstances);
+
+  /*
+   * For findPage(), the buildMod behaviour captures the appropriate 'block' of lines
+   * to be written to the csiPart list and writes the build mod action setting at each
+   * step where the BUILD_MOD APPLY or BUILD_MOD REMOVE action meta command is encountered.
+   *
+   * The buildMod flag is enabled for the lines between BUILD_MOD BEGIN and BUILD_MOD END
+   * Lines between BUILD_MOD BEGIN and BUILD_MOD END_MOD represent the modified content
+   * Lines between BUILD_MOD END_MOD and BUILD_MOD END represent the original content
+   *
+   * When the buildMod flag is true:
+   * Funct 1 (csiParts):
+   * Parse is enabled when 'buildModIgnore' is false.
+   * When the build mod action is 'apply', the modification block is parsed. (buildModIgnore is false)
+   * When the build mod action is 'remove', the default block is parsed.     (buildModIgnore is false)
+   * Remove group, partType and partName is only applied when 'buildModIgnore is false.
+   *
+   * When the build mod meta command is BUILD_MOD END 'buildModIgnore' and 'buildModPliIgnore'
+   * are reset to false while buildMod is reset to false if the build mod command is not nested
+   *
+   * When BUILD_MOD APPLY or BUILD_MOD REMOVE action meta command is encountered,
+   * the respective build mod action is set or updated in ldrawFiles buildMod. Build
+   * action is persisted as a key,value pair whereby the key is the step number and
+   * the value is the build action. These updates are performed for the entire model
+   * at each execution of findPage().
+   *
+   * When the buildMod flag is false pli and csi lines are processed normally
+   */
 
   for ( ;
         opts.current.lineNumber < numLines;
@@ -2193,120 +2294,124 @@ int Gui::findPage(
               line = tokens.join(" ");
           }
 
-          if (! partIgnore) {
+          if (! buildModIgnore) {
 
-              // csiParts << line;
+              if (! partIgnore) {
 
-              if (firstStepPageNum == -1) {
-                  firstStepPageNum = opts.pageNum;
-              }
-              lastStepPageNum = opts.pageNum;
+                  // csiParts << line;
 
-              QStringList token;
+                  if (firstStepPageNum == -1) {
+                      firstStepPageNum = opts.pageNum;
+                  }
+                  lastStepPageNum = opts.pageNum;
 
-              split(line,token);
+                  QStringList token;
 
-              if (token.size() == 15) {
+                  split(line,token);
 
-                  QString    type = token[token.size()-1];
-                  QString colorType = token[1]+type;
+                  if (token.size() == 15) {
 
-                  bool contains   = ldrawFile.isSubmodel(type);
-                  CalloutBeginMeta::CalloutMode calloutMode = meta.LPub.callout.begin.value();
+                      QString    type = token[token.size()-1];
+                      QString colorType = token[1]+type;
 
-                  // if submodel or assembled/rotated callout
-                  if (contains && (!callout || (callout && calloutMode != CalloutBeginMeta::Unassembled))) {
+                      bool contains   = ldrawFile.isSubmodel(type);
+                      CalloutBeginMeta::CalloutMode calloutMode = meta.LPub.callout.begin.value();
 
-                      // check if submodel was rendered
-                      bool rendered = ldrawFile.rendered(type,ldrawFile.mirrored(token),opts.current.modelName,stepNumber,countInstances);
+                      // if submodel or assembled/rotated callout
+                      if (contains && (!callout || (callout && calloutMode != CalloutBeginMeta::Unassembled))) {
 
-                      // if the submodel was not rendered, and (is not in the buffer exchange call setRendered for the submodel.
-                      if (! rendered && (! bfxStore2 || ! bfxParts.contains(colorType))) {
+                          // check if submodel was rendered
+                          bool rendered = ldrawFile.rendered(type,ldrawFile.mirrored(token),opts.current.modelName,stepNumber,countInstances);
 
-                          opts.isMirrored = ldrawFile.mirrored(token);
+                          // if the submodel was not rendered, and (is not in the buffer exchange call setRendered for the submodel.
+                          if (! rendered && (! bfxStore2 || ! bfxParts.contains(colorType))) {
 
-                          // add submodel to the model stack - it can't be a callout
-                          SubmodelStack tos(opts.current.modelName,opts.current.lineNumber,stepNumber);
-                          meta.submodelStack << tos;
-                          Where current2(type,0);
+                              opts.isMirrored = ldrawFile.mirrored(token);
 
-                          ldrawFile.setModelStartPageNumber(current2.modelName,opts.pageNum);
+                              // add submodel to the model stack - it can't be a callout
+                              SubmodelStack tos(opts.current.modelName,opts.current.lineNumber,stepNumber);
+                              meta.submodelStack << tos;
+                              Where current2(type,0);
 
-                          // save rotStep, clear it, and restore it afterwards
-                          // since rotsteps don't affect submodels
-                          RotStepMeta saveRotStep2 = meta.rotStep;
-                          meta.rotStep.clear();
+                              ldrawFile.setModelStartPageNumber(current2.modelName,opts.pageNum);
 
-                          // save Default pageSize information
-                          PgSizeData pageSize2;
-                          if (exporting()) {
-                              pageSize2       = pageSizes[DEF_SIZE];
-                              pageSizeUpdate  = false;
+                              // save rotStep, clear it, and restore it afterwards
+                              // since rotsteps don't affect submodels
+                              RotStepMeta saveRotStep2 = meta.rotStep;
+                              meta.rotStep.clear();
+
+                              // save Default pageSize information
+                              PgSizeData pageSize2;
+                              if (exporting()) {
+                                  pageSize2       = pageSizes[DEF_SIZE];
+                                  pageSizeUpdate  = false;
 #ifdef SIZE_DEBUG
-                              logDebug() << "SM: Saving    Default Page size info at PageNumber:" << opts.pageNum
-                                         << "W:"    << pageSize2.sizeW << "H:"    << pageSize2.sizeH
-                                         << "O:"    <<(pageSize2.orientation == Portrait ? "Portrait" : "Landscape")
-                                         << "ID:"   << pageSize2.sizeID
-                                         << "Model:" << opts.current.modelName;
+                                  logDebug() << "SM: Saving    Default Page size info at PageNumber:" << opts.pageNum
+                                             << "W:"    << pageSize2.sizeW << "H:"    << pageSize2.sizeH
+                                             << "O:"    <<(pageSize2.orientation == Portrait ? "Portrait" : "Landscape")
+                                             << "ID:"   << pageSize2.sizeID
+                                             << "Model:" << opts.current.modelName;
 #endif
-                          }
+                              }
 
-                          // set the step number and parent model where the submodel will be rendered
-                          FindPageOptions calloutOpts(
-                                      opts.pageNum,
-                                      current2,
-                                      opts.pageSize,
-                                      opts.isMirrored,
-                                      opts.printing,
-                                      opts.contStepNumber,
-                                      stepNumber,            /*renderStepNumber */
-                                      opts.current.modelName /*renderParentModel*/);
-                          findPage(view, scene, meta, line, calloutOpts);
+                              // set the step number and parent model where the submodel will be rendered
+                              FindPageOptions calloutOpts(
+                                          opts.pageNum,
+                                          current2,
+                                          opts.pageSize,
+                                          opts.isMirrored,
+                                          opts.printing,
+                                          opts.buildMod,
+                                          opts.contStepNumber,
+                                          stepNumber,            /*renderStepNumber */
+                                          opts.current.modelName /*renderParentModel*/);
+                              findPage(view, scene, meta, line, calloutOpts);
 
-                          saveStepPageNum = stepPageNum;
-                          meta.submodelStack.pop_back();
-                          meta.rotStep = saveRotStep2;            // restore old rotstep
-                          if (opts.contStepNumber) {              // capture continuous step number from exited submodel
-                              opts.contStepNumber = saveContStepNum;
-                          }
+                              saveStepPageNum = stepPageNum;
+                              meta.submodelStack.pop_back();
+                              meta.rotStep = saveRotStep2;            // restore old rotstep
+                              if (opts.contStepNumber) {              // capture continuous step number from exited submodel
+                                  opts.contStepNumber = saveContStepNum;
+                              }
 
-                          if (exporting()) {
-                              pageSizes.remove(DEF_SIZE);
-                              pageSizes.insert(DEF_SIZE,pageSize2);  // restore old Default pageSize information
+                              if (exporting()) {
+                                  pageSizes.remove(DEF_SIZE);
+                                  pageSizes.insert(DEF_SIZE,pageSize2);  // restore old Default pageSize information
 #ifdef SIZE_DEBUG
-                              logDebug() << "SM: Restoring Default Page size info at PageNumber:" << opts.pageNum
-                                         << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
-                                         << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
-                                         << "ID:"   << pageSizes[DEF_SIZE].sizeID
-                                         << "Model:" << opts.current.modelName;
+                                  logDebug() << "SM: Restoring Default Page size info at PageNumber:" << opts.pageNum
+                                             << "W:"    << pageSizes[DEF_SIZE].sizeW << "H:"    << pageSizes[DEF_SIZE].sizeH
+                                             << "O:"    << (pageSizes[DEF_SIZE].orientation == Portrait ? "Portrait" : "Landscape")
+                                             << "ID:"   << pageSizes[DEF_SIZE].sizeID
+                                             << "Model:" << opts.current.modelName;
 #endif
+                              }
                           }
                       }
+                     if (bfxStore1) {
+                         bfxParts << colorType;
+                     }
                   }
-                 if (bfxStore1) {
-                     bfxParts << colorType;
-                 }
-              }
-          } else if (partIgnore){
+              } else if (partIgnore){
 
-              if (tokens.size() == 15){
-                  QString lineItem = tokens[tokens.size()-1];
+                  if (tokens.size() == 15){
+                      QString lineItem = tokens[tokens.size()-1];
 
-                  if (ldrawFile.isSubmodel(lineItem)){
-                      Where model(lineItem,0);
-                      QString message("Submodel " + lineItem + " is set to ignore (IGN)");
-                      statusBarMsg(message + ".");
-                      //                      ldrawFile.setModelStartPageNumber(model.modelName,pageNum);
-                      //                      logTrace() << message << model.modelName << " @ Page: " << pageNum;
+                      if (ldrawFile.isSubmodel(lineItem)){
+                          Where model(lineItem,0);
+                          QString message("Submodel " + lineItem + " is set to ignore (IGN)");
+                          statusBarMsg(message + ".");
+                          //                      ldrawFile.setModelStartPageNumber(model.modelName,pageNum);
+                          //                      logTrace() << message << model.modelName << " @ Page: " << pageNum;
+                      }
                   }
               }
-          }
         case '2':
         case '3':
         case '4':
         case '5':
             ++partsAdded;
-            partLine(line,csiParts,lineTypeIndexes,opts.current.lineNumber,OkRc);
+            CsiItem::partLine(line,pla,opts.current.lineNumber,OkRc);
+          } // ! buildModIgnore
             break;
 
         case '0':
@@ -2330,7 +2435,7 @@ int Gui::findPage(
               break;
 
             case StepGroupEndRc:
-              if (stepGroup && ! noStep2) {
+              if (stepGroup && ! noStep2 && ! buildModIgnore) {
                   stepGroup = false;
                   if (opts.pageNum < displayPageNum) {
                       saveLineTypeIndexes    = lineTypeIndexes;
@@ -2375,6 +2480,7 @@ int Gui::findPage(
                                   opts.renderStepNumber,
                                   opts.isMirrored,
                                   opts.printing,
+                                  opts.buildMod,
                                   stepGroupBfxStore2);
                       (void) drawPage(view, scene, &page, addLine, pageOptions);
 
@@ -2414,7 +2520,7 @@ int Gui::findPage(
 
             case RotStepRc:
             case StepRc:
-              if (partsAdded && ! noStep) {
+              if (partsAdded && ! noStep && ! buildModIgnore) {
                   if (opts.contStepNumber) {   // increment continuous step number until we hit the display page
                       if (opts.pageNum < displayPageNum &&
                          (stepNumber > FIRST_STEP || displayPageNum > FIRST_PAGE)) { // skip the first step
@@ -2483,6 +2589,7 @@ int Gui::findPage(
                                       opts.renderStepNumber,
                                       opts.isMirrored,
                                       opts.printing,
+                                      opts.buildMod,
                                       bfxStore2);
                           (void) drawPage(view, scene, &page, addLine, pageOptions);
 
@@ -2513,6 +2620,9 @@ int Gui::findPage(
 #endif
                             }
                         } // exporting
+
+                      // TODO - Set buildMod stepState here for each step
+
                       ++opts.pageNum;
                       topOfPages.append(opts.current);
                     }
@@ -2556,6 +2666,7 @@ int Gui::findPage(
             case PartBeginIgnRc:
               partIgnore = true;
               break;
+
             case PartEndRc:
               partIgnore = false;
               break;
@@ -2590,14 +2701,60 @@ int Gui::findPage(
               partsAdded = true;
               break;
 
+            case BuildModBeginRc:
+              buildModKey   = meta.LPub.buildMod.value();
+              opts.buildMod = getLevel(buildModKey,HiarchLevel::BEGIN);
+              buildModAction = getBuildModAction(buildModKey, stepNumber);
+              if (buildModAction == BuildModApplyRc){
+                  buildModIgnore = false;
+              } else if (buildModAction == BuildModRemoveRc) {
+                  buildModIgnore = true;
+              }
+              break;
+
+            case BuildModEndRc:
+              opts.buildMod  = getLevel(QString(),HiarchLevel::END);
+              buildModIgnore = false;
+              break;
+
+            case BuildModEndModRc:
+              if (opts.buildMod > 1) {
+                  if (meta.LPub.buildMod.value().isEmpty())
+                      parseError("Key required for nested build mod meta command",
+                                 opts.current,Preferences::ParseErrors);
+                  else
+                      buildModKey = meta.LPub.buildMod.value();
+              }
+              buildModAction = getBuildModAction(buildModKey, stepNumber);
+              if (buildModAction == BuildModRemoveRc){
+                  buildModIgnore = true;
+              } else if (buildModAction == BuildModApplyRc) {
+                  buildModIgnore = false;
+              }
+              break;
+
+            case BuildModApplyRc:
+            case BuildModRemoveRc:
+              buildModKey    = meta.LPub.buildMod.value();
+              buildModAction = getBuildModAction(buildModKey, stepNumber);
+              if (buildModAction != rc) {
+                  setBuildModAction(buildModKey, stepNumber, rc);
+              }
+              break;
+
             case PartNameRc:
             case PartTypeRc:
             case MLCadGroupRc:
             case LDCadGroupRc:
+            case LeoCadModelRc:
+            case LeoCadPieceRc:
+            case LeoCadCameraRc:
+            case LeoCadLightRc:
+            case LeoCadSynthRc:
             case LeoCadGroupBeginRc:
             case LeoCadGroupEndRc:
               if (opts.pageNum < displayPageNum) {
-                  partLine(line,csiParts,lineTypeIndexes,opts.current.lineNumber,rc);
+                  CsiItem::partLine(line,pla,opts.current.lineNumber,rc);
                   partsAdded = true;
                 }
               break;
@@ -2606,19 +2763,21 @@ int Gui::findPage(
             case RemoveGroupRc:
             case RemovePartTypeRc:
             case RemovePartNameRc:
-              if (opts.pageNum < displayPageNum) {
-                  QStringList newCSIParts;
-                  QVector<int> newLineTypeIndexes;
-                  if (rc == RemoveGroupRc) {
-                      remove_group(csiParts,lineTypeIndexes,meta.LPub.remove.group.value(),newCSIParts,newLineTypeIndexes,meta);
-                  } else if (rc == RemovePartTypeRc) {
-                      remove_parttype(csiParts,lineTypeIndexes,meta.LPub.remove.parttype.value(),newCSIParts,newLineTypeIndexes);
-                  } else {
-                      remove_partname(csiParts,lineTypeIndexes,meta.LPub.remove.partname.value(),newCSIParts,newLineTypeIndexes);
+              if (! buildModIgnore) {
+                if (opts.pageNum < displayPageNum) {
+                    QStringList newCSIParts;
+                    QVector<int> newLineTypeIndexes;
+                    if (rc == RemoveGroupRc) {
+                        remove_group(csiParts,lineTypeIndexes,meta.LPub.remove.group.value(),newCSIParts,newLineTypeIndexes,meta);
+                    } else if (rc == RemovePartTypeRc) {
+                        remove_parttype(csiParts,lineTypeIndexes,meta.LPub.remove.parttype.value(),newCSIParts,newLineTypeIndexes);
+                    } else {
+                        remove_partname(csiParts,lineTypeIndexes,meta.LPub.remove.partname.value(),newCSIParts,newLineTypeIndexes);
+                    }
+                    csiParts = newCSIParts;
+                    lineTypeIndexes = newLineTypeIndexes;
                   }
-                  csiParts = newCSIParts;
-                  lineTypeIndexes = newLineTypeIndexes;
-                }
+              } // ! buildModIgnore
               break;
 
             case IncludeRc:
@@ -2697,11 +2856,12 @@ int Gui::findPage(
           break;
         }
     } // for every line
+
   csiParts.clear();
   lineTypeIndexes.clear();
 
   // last step in submodel
-  if (partsAdded && ! noStep) {
+  if (partsAdded && ! noStep && !buildModIgnore) {
       // increment continuous step number
       // save continuous step number from current model
       // pass continuous step number to drawPage
@@ -2736,6 +2896,7 @@ int Gui::findPage(
                       opts.renderStepNumber,
                       opts.isMirrored,
                       opts.printing,
+                      opts.buildMod,
                       bfxStore2);
           (void) drawPage(view, scene, &page, addLine, pageOptions);
         }
@@ -2775,14 +2936,18 @@ int Gui::getBOMParts(
     QStringList &pliParts,
     QList<PliPartGroupMeta> &bomPartGroups)
 {
-  bool partIgnore = false;
-  bool pliIgnore = false;
-  bool synthBegin = false;
-  bool bfxStore1 = false;
-  bool bfxStore2 = false;
-  bool bfxLoad = false;
-  bool partsAdded = false;
+  QString buildModKey;
+  bool partIgnore   = false;
+  bool pliIgnore    = false;
+  bool synthBegin   = false;
+  bool bfxStore1    = false;
+  bool bfxStore2    = false;
+  bool bfxLoad      = false;
+  bool partsAdded   = false;
   bool excludedPart = false;
+  bool buildModIgnore = false;
+  int  buildMod       = 0;
+
   QStringList bfxParts;
 
   Meta meta;
@@ -2813,7 +2978,7 @@ int Gui::getBOMParts(
           /* check if part is in excludedPart.lst*/
           excludedPart = ExcludedParts::lineHasExcludedPart(line);
 
-          if ( !excludedPart && ! partIgnore && ! pliIgnore && ! synthBegin) {
+          if ( ! excludedPart && ! partIgnore && ! pliIgnore && ! buildModIgnore && ! synthBegin) {
 
               QStringList token,addToken;
 
@@ -2896,6 +3061,7 @@ int Gui::getBOMParts(
             case PliBeginSub8Rc:
               if (! pliIgnore &&
                   ! partIgnore &&
+                  ! buildModIgnore &&
                   ! synthBegin) {
                   QString addPart = QString("1 %1 0 0 0 1 0 0 0 1 0 0 0 1 %2")
                                             .arg(meta.LPub.pli.begin.sub.value().color)
@@ -2951,6 +3117,41 @@ int Gui::getBOMParts(
               pliParts.empty();
               break;
 
+              /*
+               * For getBOMParts(), the buildMod behaviour only processes
+               * top level mods for pliParts, nested mods are ignored.
+               * The aim is to process original pli parts and ignore those
+               * that are in the build modification block.
+               *
+               * The buildMod flag is enabled for the lines between
+               * BUILD_MOD BEGIN and BUILD_MOD END
+               * Lines between BUILD_MOD BEGIN and BUILD_MOD END_MOD represent
+               * the modified content
+               * Lines between BUILD_MOD END_MOD and BUILD_MOD END
+               * represent the original content
+               *
+               * When processing a modification block, we end at the build
+               * mod action meta command 'BuildModEndModRc'
+               * to include the original PLI parts as they are not added
+               * in PLI::partLine as they are for CSI parts.
+               *
+               * BUILD_MOD APPLY or BUILD_MOD REMOVE action meta commands
+               * are ignored
+               *
+               */
+
+            case BuildModBeginRc:
+              buildModKey    = meta.LPub.buildMod.value();
+              buildMod       = getLevel(buildModKey,HiarchLevel::BEGIN);
+              buildModIgnore = true;
+              break;
+
+            case BuildModEndModRc:
+              buildMod = getLevel(QString(),HiarchLevel::END);
+              if (!buildMod)
+                  buildModIgnore = false;
+              break;
+
             case PartNameRc:
             case PartTypeRc:
             case MLCadGroupRc:
@@ -2964,17 +3165,17 @@ int Gui::getBOMParts(
             case RemoveGroupRc:
             case RemovePartTypeRc:
             case RemovePartNameRc:
-              {
-                QStringList newPLIParts;
-                QVector<int> dummy;
-                if (rc == RemoveGroupRc) {
-                    remove_group(pliParts,dummy,meta.LPub.remove.group.value(),newPLIParts,dummy,meta);
+              if (! buildModIgnore) {
+                  QStringList newPLIParts;
+                  QVector<int> dummy;
+                  if (rc == RemoveGroupRc) {
+                      remove_group(pliParts,dummy,meta.LPub.remove.group.value(),newPLIParts,dummy,meta);
                   } else if (rc == RemovePartTypeRc) {
-                    remove_parttype(pliParts,dummy,meta.LPub.remove.parttype.value(),newPLIParts,dummy);
+                      remove_parttype(pliParts,dummy,meta.LPub.remove.parttype.value(),newPLIParts,dummy);
                   } else {
-                    remove_partname(pliParts,dummy,meta.LPub.remove.partname.value(),newPLIParts,dummy);
+                      remove_partname(pliParts,dummy,meta.LPub.remove.partname.value(),newPLIParts,dummy);
                   }
-                pliParts = newPLIParts;
+                  pliParts = newPLIParts;
               }
               break;
 
@@ -3186,12 +3387,14 @@ void Gui::countPages()
       QString empty;
       PgSizeData emptyPageSize;
       stepPageNum = 1;
+      LDrawFile::_currentLevels.clear();
       FindPageOptions findOptions(
                   maxPages,
                   current,
                   emptyPageSize,
                   false /*mirrored*/,
                   false /*printing*/,
+                  0     /*buildMod*/,
                   0     /*contStepNumber*/,
                   0     /*renderStepNumber*/,
                   empty /*renderParentModel*/);
@@ -3233,6 +3436,7 @@ void Gui::drawPage(
   saveContStepNum = 1;
   currentStep = nullptr;
   Preferences::enableLineTypeIndexes = true;
+  LDrawFile::_currentLevels.clear();
 
   PgSizeData pageSize;
   if (exporting()) {
@@ -3255,6 +3459,7 @@ void Gui::drawPage(
               pageSize,
               false /*mirrored*/,
               printing,
+              0     /*buildMod*/,
               0     /*contStepNumber*/,
               0     /*renderStepNumber*/,
               empty /*renderParentModel*/);
@@ -3381,10 +3586,80 @@ void Gui::writeToTmp(const QString &fileName,
                            QMessageBox::tr("Failed to open %1 for writing: %2")
                            .arg(fname) .arg(file.errorString()));
     } else {
-      int fileNameIndex = ldrawFile.getSubmodelIndex(fileName);
-      QVector<int> lineTypeIndexes;
-      QStringList  csiParts;
+
+      /*
+       * For writeToTemp(), the buildMod behaviour captures the appropriate 'block' of lines
+       * to write submodels to the temp working directory.
+       *
+       * The buildMod flag is enabled for the lines between BUILD_MOD BEGIN and BUILD_MOD END
+       * Lines between BUILD_MOD BEGIN and BUILD_MOD END_MOD represent the modified content
+       * Lines between BUILD_MOD END_MOD and BUILD_MOD END represent the original content
+       *
+       * When the buildMod flag is true:
+       * Parse is enabled when 'buildModIgnore' is false.
+       * When the build mod action is 'apply', the modification block is parsed. (buildModIgnore is false)
+       * When the build mod action is 'remove', the default block is parsed. (buildModIgnore is false)
+       * When the build mod is at 'end' 'buildModIgnore' is false and
+       * buildMod is reset to false if the build mod command is not nested
+       * Remove group, partType and partName is applied when 'buildModIgnore' is false.
+       *
+       * When the build mod meta command is BUILD_MOD END 'buildModIgnore' and 'buildModPliIgnore'
+       * are reset to false while buildMod is reset to false if the build mod command is not nested
+       *
+       * BUILD_MOD APPLY or BUILD_MOD REMOVE action meta commands are ignored
+       *
+       * When the buildMod flag is false, lines are processed normally.
+       */
+
+      int buildMod         = 0;
+      int modBeginLineNum  = 0;
+      int modActionLineNum = 0;
+      int modEndLineNum    = 0;
+      int buildModAction   = BuildModApplyRc;
+      int stepNumber       = currentStep ? currentStep->stepNumber.number : 0;
+      bool buildModIgnore  = false;
+      bool buildModItems   = false;
+
+      QString buildModKey;
+
+      QVector<int> lineTypeIndexes, buildModLineTypeIndexes;
+      QStringList  csiParts, buildModCsiParts;
       QHash<QString, QStringList> bfx;
+      int fileNameIndex = ldrawFile.getSubmodelIndex(fileName);
+
+      PartLineAttributes pla(
+         csiParts,
+         lineTypeIndexes,
+         buildModCsiParts,
+         buildModLineTypeIndexes,
+         buildMod,
+         buildModIgnore,
+         buildModItems);
+
+      auto updateBuildModAttributes =
+             [this,
+              &modBeginLineNum,
+              &modActionLineNum,
+              &modEndLineNum,
+              &buildModKey,
+              &stepNumber,
+              &fileNameIndex] (Rc rc)
+      {
+          // Adjust position for meta command line
+          int _modBeginLineNum  = modBeginLineNum  + 1;
+          int _modActionLineNum = modActionLineNum + 1;
+          int _modEndLineNum    = modEndLineNum    + 1;
+
+          QVector<int> modAttributes = { _modBeginLineNum,
+                                         _modActionLineNum,
+                                         _modEndLineNum,
+                                         fileNameIndex };
+
+          insertBuildMod(buildModKey,
+                         modAttributes,
+                         rc /*Action*/,
+                         stepNumber);
+      };
 
       for (int i = 0; i < contents.size(); i++) {
           QString line = contents[i];
@@ -3393,10 +3668,10 @@ void Gui::writeToTmp(const QString &fileName,
           split(line,tokens);
           if (tokens.size()) {
               if (tokens[0] != "0") {
-                  partLine(line,csiParts,lineTypeIndexes,i/*relativeTypeIndx*/,OkRc);
+                  CsiItem::partLine(line,pla,i/*relativeTypeIndx*/,OkRc);
               } else {
-                  Meta meta;
-                  Rc   rc;
+                  Meta  meta;
+                  Rc    rc;
                   Where here(fileName,i);
                   rc = meta.parse(line,here,false);
 
@@ -3404,41 +3679,87 @@ void Gui::writeToTmp(const QString &fileName,
                   case FadeRc:
                   case SilhouetteRc:
                   case ColourRc:
-                      partLine(line,csiParts,lineTypeIndexes,i/*relativeTypeIndx*/,rc);
+                      CsiItem::partLine(line,pla,i/*relativeTypeIndx*/,rc);
                       break;
+
                       /* Buffer exchange */
                   case BufferStoreRc:
                       bfx[meta.bfx.value()] = csiParts;
                       break;
+
                   case BufferLoadRc:
                       csiParts = bfx[meta.bfx.value()];
                       break;
+
+                  case BuildModBeginRc:
+                      buildModKey     = meta.LPub.buildMod.value();
+                      buildMod        = getLevel(buildModKey,HiarchLevel::BEGIN);
+                      modBeginLineNum = here.lineNumber;
+                      buildModAction  = getBuildModAction(buildModKey, stepNumber);
+                      if (buildModAction == BuildModApplyRc){
+                          buildModIgnore = false;
+                      } else if (buildModAction == BuildModRemoveRc){
+                          buildModIgnore = true;
+                      }
+                      break;
+
+                  case BuildModEndModRc:
+                      if (buildMod > 1) {
+                        if (meta.LPub.buildMod.value().isEmpty())
+                          parseError("Key required for nested build mod meta command",
+                                     here,Preferences::ParseErrors);
+                        else
+                          buildModKey = meta.LPub.buildMod.value();
+                      }
+                      modActionLineNum = here.lineNumber;
+                      updateBuildModAttributes(rc);
+                      buildModAction = getBuildModAction(buildModKey, stepNumber);
+                      if (buildModAction == BuildModApplyRc){
+                          buildModIgnore = true;
+                      } else if (buildModAction == BuildModRemoveRc){
+                          buildModIgnore = false;
+                      }
+                    break;
+
+                  case BuildModEndRc:
+                      buildMod       = getLevel(QString(),HiarchLevel::END);
+                      modEndLineNum  = here.lineNumber;
+                      buildModIgnore = false;
+                    break;
+
                   case PartNameRc:
                   case PartTypeRc:
                   case MLCadGroupRc:
                   case LDCadGroupRc:
+                  case LeoCadModelRc:
+                  case LeoCadPieceRc:
+                  case LeoCadCameraRc:
+                  case LeoCadLightRc:
+                  case LeoCadSynthRc:
                   case LeoCadGroupBeginRc:
                   case LeoCadGroupEndRc:
-                      partLine(line,csiParts,lineTypeIndexes,i/*relativeTypeIndx*/,rc);
+                      CsiItem::partLine(line,pla,i/*relativeTypeIndx*/,rc);
                       break;
+
                       /* remove a group or all instances of a part type */
                   case RemoveGroupRc:
                   case RemovePartTypeRc:
                   case RemovePartNameRc:
-                  {
-                      QStringList newCSIParts;
-                      QVector<int> newLineTypeIndexes;
-                      if (rc == RemoveGroupRc) {
-                          remove_group(csiParts,lineTypeIndexes,meta.LPub.remove.group.value(),newCSIParts,newLineTypeIndexes,meta);
-                      } else if (rc == RemovePartTypeRc) {
-                          remove_parttype(csiParts,lineTypeIndexes,meta.LPub.remove.parttype.value(),newCSIParts,newLineTypeIndexes);
-                      } else {
-                          remove_partname(csiParts,lineTypeIndexes,meta.LPub.remove.partname.value(),newCSIParts,newLineTypeIndexes);
+                      if (! buildModIgnore) {
+                          QStringList newCSIParts;
+                          QVector<int> newLineTypeIndexes;
+                          if (rc == RemoveGroupRc) {
+                              remove_group(csiParts,lineTypeIndexes,meta.LPub.remove.group.value(),newCSIParts,newLineTypeIndexes,meta);
+                          } else if (rc == RemovePartTypeRc) {
+                              remove_parttype(csiParts,lineTypeIndexes,meta.LPub.remove.parttype.value(),newCSIParts,newLineTypeIndexes);
+                          } else {
+                              remove_partname(csiParts,lineTypeIndexes,meta.LPub.remove.partname.value(),newCSIParts,newLineTypeIndexes);
+                          }
+                          csiParts = newCSIParts;
+                          lineTypeIndexes = newLineTypeIndexes;
                       }
-                      csiParts = newCSIParts;
-                      lineTypeIndexes = newLineTypeIndexes;
-                  }
                       break;
+
                   default:
                       break;
                   }
