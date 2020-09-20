@@ -507,7 +507,6 @@ public:
   int             savePrevStepPosition; // indicate the previous step position amongst current and previous steps.
   QList<Where>    topOfPages;           // topOfStep list of modelName and lineNumber for each page
   QList<Where>    parsedMessages;       // previously parsed messages
-  QVector<int>    buildModRange;    // begin and end range of modified parts from 3DViewer
 
   int             boms;            // the number of pli BOMs in the document
   int             bomOccurrence;   // the actual occurrence of each pli BOM
@@ -792,7 +791,7 @@ public:
       return ldrawFile.getBuildModStepPieces(buildModKey);
   }
 
-  int getBuildModStepIndex(const Where &here)
+  int getBuildModStepIndex(Where &here)
   {
       return ldrawFile.getBuildModStepIndex(getSubmodelIndex(here.modelName), here.lineNumber);
   }
@@ -828,6 +827,11 @@ public:
       return ldrawFile.getBuildModModelName(buildModKey);
   }
 
+  int getBuildModStepIndexHere(int stepIndex,int which)
+  {
+      return ldrawFile.getBuildModStepIndexHere(stepIndex, which);
+  }
+
   bool getBuildModStepIndexHere(int stepIndex, Where &here)
   {
       return ldrawFile.getBuildModStepIndexHere(stepIndex, here.modelName, here.lineNumber);
@@ -858,15 +862,19 @@ public:
       ldrawFile.removeBuildMod(buildModKey.isEmpty() ? getBuildModsList().last() : buildModKey);
   }
 
-  void resetLastBuildMod(bool clearNextStep = false);
-
-  void setBuildModNextStepAction(Where topOfNextStep = Where(), bool isSubmodelFile = false);
-
-  bool setBuildModChangeKey();
   QString getBuildModChangeKey()
   {
       return buildModChangeKey;
   }
+
+  void resetLastBuildMod(bool clearNextStep = false);
+
+  bool setBuildModChangeKey();
+
+  bool setBuildModForNextStep(Where topOfNextStep,
+                              Where bottomOfNextStep = Where(),
+                              bool change            = false,
+                              bool submodel          = false);
 
   /* End Build Modifications */
 
@@ -1339,6 +1347,7 @@ protected:
   QString                mRotStepTransform;
   QString                viewerStepKey;        // currently loaded CSI in 3DViewer
   QMap<QString, QString> mPliIconsPath;        // used to set an icon image in the 3DViewer timeline view
+  QVector<int>           mBuildModRange;       // begin and end range of modified parts from 3DViewer
 
   QMap<int, PgSizeData>  pageSizes;            // page size and orientation object
 
@@ -1373,7 +1382,9 @@ private:
 
   QString                buildModChangeKey;   // populated at buildMod change and cleared at buildMod create
   QString                saveRenderer;
+
   bool                   saveProjection;
+
   bool                   saveSingleCall;
 
   bool                   m_updateViewer;

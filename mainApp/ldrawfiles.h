@@ -291,7 +291,7 @@ class LDrawFile {
     int instances(const QString &fileName, bool mirrored);
     void countParts(const QString &fileName);
     void countInstances();
-    void countInstances(const QString &fileName, bool mirrored, const bool callout = false);
+    void countInstances(const QString &fileName, bool firstStep, bool isMirrored, const bool callout = false);
     bool changedSinceLastWrite(const QString &fileName);
     void tempCacheCleared();
 
@@ -307,7 +307,8 @@ class LDrawFile {
     int setBuildModAction(const QString &buildModKey,
                           int            stepIndex,
                           int            modAction);
-    int getBuildModStepIndex(int modelIndex, int lineNumber);
+    int getBuildModStepIndex(int modelIndex, int &lineNumber);
+    int getBuildModStepIndexHere(int stepIndex, int which);
     int getBuildModStepLineNumber(int stepIndex, bool bottom);
     int getBuildModBeginLineNumber(const QString &buildModKey);
     int getBuildModEndLineNumber(const QString &buildModKey);

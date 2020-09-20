@@ -461,7 +461,7 @@ void Gui::Disable3DActions()
 void Gui::Enable3DActions()
 {
     bool enabled = buildModsSize();
-    createBuildModAct->setEnabled(buildModRange.first() || enabled);
+    createBuildModAct->setEnabled(mBuildModRange.first() || enabled);
     applyBuildModAct->setEnabled(enabled);
     removeBuildModAct->setEnabled(enabled);
     loadBuildModAct->setEnabled(enabled);
@@ -1154,7 +1154,7 @@ void Gui::createBuildModification()
         emit progressPermRangeSig(0, 0);   // Busy indicator
         emit progressPermMessageSig(QString("%1 Build Modification...").arg(statusLabel));
 
-        if (buildModRange.first() || edit){
+        if (mBuildModRange.first() || edit){
 
             emit messageSig(LOG_INFO, QString("%1 BuildMod for Step %2...")
                             .arg(statusLabel)
@@ -1191,11 +1191,11 @@ void Gui::createBuildModification()
             int BuildModAction    = edit ? getBuildModActionLineNumber(BuildModKey) : 0;
             int BuildModEnd       = edit ? getBuildModEndLineNumber(BuildModKey)    : 0;
 
-            int ModBeginLineNum   = edit ? BuildModBegin  : buildModRange.at(BM_BEGIN_LINE_NUM);
-            int ModActionLineNum  = edit ? BuildModAction : buildModRange.at(BM_ACTION_LINE_NUM);
-            int ModEndLineNum     = edit ? BuildModEnd    : buildModRange.at(BM_BEGIN_LINE_NUM);
+            int ModBeginLineNum   = edit ? BuildModBegin  : mBuildModRange.at(BM_BEGIN_LINE_NUM);
+            int ModActionLineNum  = edit ? BuildModAction : mBuildModRange.at(BM_ACTION_LINE_NUM);
+            int ModEndLineNum     = edit ? BuildModEnd    : mBuildModRange.at(BM_BEGIN_LINE_NUM);
             int ModStepPieces     = edit ? getBuildModStepPieces(BuildModKey) : 0;    // All pieces in the previous step
-            int ModelIndex        = edit ? getSubmodelIndex(getBuildModModelName(BuildModKey)) : buildModRange.at(BM_MODEL_INDEX);
+            int ModelIndex        = edit ? getSubmodelIndex(getBuildModModelName(BuildModKey)) : mBuildModRange.at(BM_MODEL_INDEX);
             int ModStepIndex      = getBuildModStepIndex(currentStep->top);
             int ModDisplayPageNum = displayPageNum;
             buildModChangeKey     = QString();
@@ -1951,8 +1951,8 @@ void Gui::createBuildModification()
 #endif
 
             // Reset the build mod range
-            buildModRange = { 0/*BM_BEGIN_LINE_NUM*/, 0/*BM_ACTION_LINE_NUM*/, -1/*BM_MODEL_INDEX*/ };
-        } // buildModRange || edit
+            mBuildModRange = { 0/*BM_BEGIN_LINE_NUM*/, 0/*BM_ACTION_LINE_NUM*/, -1/*BM_MODEL_INDEX*/ };
+        } // mBuildModRange || edit
 
         emit progressPermStatusRemoveSig();
     }
@@ -2307,7 +2307,7 @@ void Gui::setViewerStepKey(const QString &stepKey, int notPliPart)
 {
     viewerStepKey = stepKey;
     currentStep   = nullptr;
-    buildModRange = { 0, 0, -1 };
+    mBuildModRange = { 0, 0, -1 };
     if (notPliPart)
         setCurrentStep();
 }
@@ -2597,14 +2597,14 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
 
             if (validLine) {
                 if (fromViewer && source == VIEWER_MOD) {
-                    if (buildModRange.first()) {
-                        if (lineNumber < buildModRange.first())
-                            buildModRange[BM_BEGIN_LINE_NUM] = lineNumber;
-                        else if (lineNumber > buildModRange.last())
-                            buildModRange[BM_ACTION_LINE_NUM] = lineNumber;
-                        buildModRange[BM_MODEL_INDEX] = modelIndex;
+                    if (mBuildModRange.first()) {
+                        if (lineNumber < mBuildModRange.first())
+                            mBuildModRange[BM_BEGIN_LINE_NUM] = lineNumber;
+                        else if (lineNumber > mBuildModRange.last())
+                            mBuildModRange[BM_ACTION_LINE_NUM] = lineNumber;
+                        mBuildModRange[BM_MODEL_INDEX] = modelIndex;
                     } else {
-                        buildModRange = { lineNumber, lineNumber, modelIndex };
+                        mBuildModRange = { lineNumber, lineNumber, modelIndex };
                     }
                     createBuildModAct->setEnabled(true);
                 }

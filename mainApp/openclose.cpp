@@ -280,7 +280,7 @@ bool Gui::loadFile(const QString &file)
         if (Settings.contains(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM_KEY))) {
             displayPageNum = Settings.value(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM_KEY)).toInt();
             Settings.remove(QString("%1/%2").arg(DEFAULTS,SAVE_DISPLAY_PAGE_NUM_KEY));
-          }
+        }
         Paths::mkDirs();
         displayPage();
         enableActions();
@@ -482,6 +482,7 @@ void Gui::closeFile()
   setGoToPageCombo->setMaxCount(0);
   setGoToPageCombo->setMaxCount(1000);
   setPageLineEdit->clear();
+  topOfPages.clear();
   pageSizes.clear();
   undoStack->clear();
   if (Preferences::enableFadeSteps || Preferences::enableHighlightStep)

@@ -378,7 +378,6 @@ void Gui::displayPage()
       clearPage(KpageView,KpageScene);
       page.coverPage = false;
       drawPage(KpageView,KpageScene,false);
-
       enableActions2();
       emit enable3DActionsSig();
     }
@@ -2893,7 +2892,7 @@ Gui::Gui()
     nextPageContinuousIsRunning     = false;
     previousPageContinuousIsRunning = false;
 
-    buildModRange     = { 0, 0, -1 };
+    mBuildModRange    = { 0, 0, -1 };
     mStepRotation     = lcVector3(0.0f, 0.0f, 0.0f);
     mRotStepAngleX    = 0.0f;
     mRotStepAngleY    = 0.0f;
