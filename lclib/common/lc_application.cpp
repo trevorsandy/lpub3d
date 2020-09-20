@@ -958,6 +958,19 @@ void lcApplication::ShowPreferencesDialog()
 	bool DrawConditionalChanged = Options.Preferences.mConditionalLines != bool(lcGetProfileInt(LC_PROFILE_CONDITIONAL_LINES));
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - Update Default Camera ***/
+	bool DefaultDistanceFactorChanged = Options.Preferences.mDDF != lcGetProfileFloat(LC_PROFILE_DEFAULT_DISTANCE_FACTOR);
+	bool DefaultPositionChanged = Options.Preferences.mCDP != lcGetProfileFloat(LC_PROFILE_CAMERA_DEFAULT_POSITION);
+	bool FieldOfViewChanged = Options.Preferences.mCFoV != lcGetProfileFloat(LC_PROFILE_CAMERA_FOV);
+	bool NearPlaneChanged = Options.Preferences.mCNear != lcGetProfileFloat(LC_PROFILE_CAMERA_NEAR_PLANE);
+	bool FarPlaneChanged = Options.Preferences.mCFar != lcGetProfileFloat(LC_PROFILE_CAMERA_FAR_PLANE);
+	bool DefaultCameraChanged = (DefaultDistanceFactorChanged ||
+								 DefaultPositionChanged       ||
+								 FieldOfViewChanged           ||
+								 NearPlaneChanged             ||
+								 FarPlaneChanged);
+/*** LPub3D Mod end ***/
+
 	mPreferences = Options.Preferences;
 
 	mPreferences.SaveDefaults();
@@ -1001,7 +1014,8 @@ void lcApplication::ShowPreferencesDialog()
 	}
 
 	if ((ViewPieceIconsChangd ||
-		 LPubTrueFadeChanged ||
+		 LPubTrueFadeChanged  ||
+		 DefaultCameraChanged ||
 		 DrawConditionalChanged) && !restartApp && !redrawPage)
 		reloadPage = true;
 
