@@ -3812,7 +3812,6 @@ void Gui::drawPage(
       if (Preferences::buildModEnabled) {
           bool displayPageIndxOk = topOfPages.size() && topOfPages.size() >= displayPageIndx;
           QElapsedTimer t; t.start();
-          emit messageSig(LOG_INFO_STATUS, QString("Build modifications check begin..."));
 
           setBuildModForNextStep(displayPageIndxOk ? topOfPages[displayPageIndx] : current);
 

@@ -852,7 +852,7 @@ int LDrawFile::loadFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        emit gui->messageSig(LOG_ERROR, QString("Cannot read ldraw file %1:<br>%2.")
+        emit gui->messageSig(LOG_ERROR, QString("Cannot read ldraw file: [%1]<br>%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
         return 1;

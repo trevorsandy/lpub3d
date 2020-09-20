@@ -119,6 +119,7 @@ void PartWorker::ldsearchDirPreferences(){
       emit gui->messageSig(LOG_INFO, QString("LDrawINI not found, loading LDSearch directories from registry key..."));
       QStringList searchDirs = Settings.value(QString("%1/%2").arg(SETTINGS,_ldSearchDirsKey)).toStringList();
       bool customDirsIncluded = false;
+      // Process fade and highlight custom directories...
       foreach (QString searchDir, searchDirs) {
           if (QDir(searchDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
               // Skip custom directory if not doFadeStep or not doHighlightStep
@@ -132,9 +133,9 @@ void PartWorker::ldsearchDirPreferences(){
                                         customDir.toLower() == _customPrimDir.toLower());
                 }
               Preferences::ldSearchDirs << searchDir;
-              emit gui->messageSig(LOG_INFO, QString("Add search directory: %1").arg(searchDir));
+              emit gui->messageSig(LOG_INFO, QString("Added search directory: %1").arg(searchDir));
           } else {
-              emit gui->messageSig(LOG_INFO, QString("Search directory is empty and will be ignored: %1").arg(searchDir));
+              emit gui->messageSig(LOG_NOTICE, QString("Search directory is empty and will be ignored: %1").arg(searchDir));
           }
       }
       // If fade step enabled but custom directories not defined in ldSearchDirs, add custom directories
@@ -240,7 +241,7 @@ bool PartWorker::loadLDrawSearchDirs(){
               // check if empty
               if (QDir(ldrawSearchDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
                   Preferences::ldSearchDirs << ldrawSearchDir;
-                  emit gui->messageSig(LOG_INFO, QString("Add search directory: %1").arg(ldrawSearchDir));
+                  emit gui->messageSig(LOG_INFO, QString("Added search directory: %1").arg(ldrawSearchDir));
                 }
             }
           // Check if custom directories included
@@ -272,9 +273,9 @@ bool PartWorker::loadLDrawSearchDirs(){
 #ifdef QT_DEBUG_MODE
           //logDebug() << "unofficialSubDirs:" << unofficialSubDirs;
 #endif
-          if (unofficialSubDirs.count() > 0){
+          if (unofficialSubDirs.count() > 0) {
               // Recurse unofficial subdirectories for excluded directories
-              foreach (QString unofficialSubDirName, unofficialSubDirs){
+              foreach (QString unofficialSubDirName, unofficialSubDirs) {
                   // Exclude invalid directories
                   bool excludeSearchDir = false;
                   QString unofficialSubDir = QDir::toNativeSeparators(QString("%1/%2").arg(unofficialRootDir).arg(unofficialSubDirName));
@@ -282,36 +283,85 @@ bool PartWorker::loadLDrawSearchDirs(){
                       if ((excludeSearchDir =
                            unofficialSubDir.toLower() == excludedDir.toLower())) {
                           break;
-                        }
-                    }
-                  if (!excludeSearchDir){
-                      // check if empty
+                      }
+                  }
+                  // check if paths are empty
+                  if (!excludeSearchDir) {
+                      // First, check if there are files in the subDir
+                      bool dirIsEmpty = true;
                       if (QDir(unofficialSubDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
                           Preferences::ldSearchDirs << unofficialSubDir;
-                          emit gui->messageSig(LOG_INFO, QString("Add search directory: %1").arg(unofficialSubDir));
-                        } else if (QDir(unofficialSubDir).entryInfoList(QDir::Dirs|QDir::NoSymLinks).count() > 0) {
+                          dirIsEmpty = false;
+                          emit gui->messageSig(LOG_INFO, QString("Added search directory: %1").arg(unofficialSubDir));
+                      }
+                      // Second, check if there are subSubDirs in subDir - e.g. ...unofficial/custom/textures
+                      if (QDir(unofficialSubDir).entryInfoList(QDir::Dirs|QDir::NoSymLinks).count() > 0) {
+                          // 1. get the unofficial subDir path - e.g. .../unofficial/custom/
                           QDir subSubDir(unofficialSubDir);
+                          // 2. get list of subSubDirs in subDir path - e.g. .../custom/parts, .../custom/textures
                           QStringList subSubDirs = subSubDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs, QDir::SortByMask);
-                          foreach (QString subSubDirName, subSubDirs){
+                          // 3. search each subSubDir for files and subSubSubDir
+                          foreach (QString subSubDirName, subSubDirs) {
+                              // 4. get the unofficialSubSubDir path - e.g. .../unofficial/custom/textures
                               QString unofficialSubSubDir = QDir::toNativeSeparators(QString("%1/%2").arg(unofficialSubDir).arg(subSubDirName));
+                              // First, check if there are files in subSubSubDir
                               if (QDir(unofficialSubSubDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
                                   Preferences::ldSearchDirs << unofficialSubSubDir;
-                                  emit gui->messageSig(LOG_INFO, QString("Add search directory: %1").arg(unofficialSubSubDir));
-                                } else {
-                                  emit gui->messageSig(LOG_INFO, QString("Search directory is empty and will be ignored: %1").arg( unofficialSubSubDir));
-                                }
-                            }
-                        } else {
-                          emit gui->messageSig(LOG_INFO, QString("Search directory is empty and will be ignored: %1").arg( unofficialSubDir));
-                        }
-                    }
-                }
-            }
-        }
+                                  dirIsEmpty = false;
+                                  emit gui->messageSig(LOG_INFO, QString("Added search directory: %1").arg(unofficialSubSubDir));
+                              }
+                              // Second, check if there are subSubSubDirs in subDir - e.g. ...unofficial/custom/textures/model
+                              if (QDir(unofficialSubSubDir).entryInfoList(QDir::Dirs|QDir::NoSymLinks).count() > 0) {
+                                  // 5. get the unofficial subDir path - e.g. .../unofficial/custom/
+                                  QDir subSubSubDir(unofficialSubSubDir);
+                                  // 6. get list of subSubSubDirs in subDir path - e.g. .../custom/textures/model1, .../custom/textures/model2
+                                  QStringList subSubSubDirs = subSubSubDir.entryList(QDir::NoDotAndDotDot | QDir::Dirs, QDir::SortByMask);
+                                  // 7. search each subSubSubDir for files and subfolders
+                                  foreach (QString subSubDirName, subSubSubDirs) {
+                                      // 8. get the unofficialSubSubSubDir path - e.g. .../unofficial/custom/textures/model
+                                      QString unofficialSubSubSubDir = QDir::toNativeSeparators(QString("%1/%2").arg(unofficialSubSubDir).arg(subSubDirName));
+                                      // Exclude 'parts/s', 'p/8' and 'p/48' sub-directories
+                                      excludeSearchDir = false;
+                                      QStringList _excludedDirs = QStringList()
+                                              << QDir::toNativeSeparators(QString("parts/s"))
+                                              << QDir::toNativeSeparators(QString("p/8"))
+                                              << QDir::toNativeSeparators(QString("p/48"));
+                                      foreach (QString excludedDir, _excludedDirs){
+                                          if ((excludeSearchDir =
+                                               unofficialSubSubSubDir.toLower().endsWith(excludedDir.toLower()))) {
+                                              break;
+                                          }
+                                      }
+                                      // If subSubSubDir is not excluded - e.g. ...unofficial/custom/textures/parts/s...
+                                      if (!excludeSearchDir) {
+                                          // 9. Check if there are files in subDir
+                                          if (QDir(unofficialSubSubSubDir).entryInfoList(QDir::Files|QDir::NoSymLinks).count() > 0) {
+                                              Preferences::ldSearchDirs << unofficialSubSubSubDir;
+                                              dirIsEmpty = false;
+                                              emit gui->messageSig(LOG_INFO, QString("Added search directory: %1").arg(unofficialSubSubSubDir));
+                                          }
+                                          if (dirIsEmpty) {
+                                              emit gui->messageSig(LOG_NOTICE, QString("Search directory is empty and will be ignored: %1").arg( unofficialSubSubSubDir));
+                                          }
+                                      }
+                                  } // For each subSubSubDir
+                              }
+                              if (dirIsEmpty) {
+                                  emit gui->messageSig(LOG_NOTICE, QString("Search directory is empty and will be ignored: %1").arg( unofficialSubSubDir));
+                              }
+                          } // For each subSubDir
+                      }
+                      if (dirIsEmpty) {
+                          emit gui->messageSig(LOG_NOTICE, QString("Search directory is empty and will be ignored: %1").arg( unofficialSubDir));
+                      }
+                  }
+              } // For each unofficialSubDir
+          }
+      }
 
       if (_resetSearchDirSettings) {
           processLDSearchDirParts();
-        }
+      }
 
     } else {
       emit gui->messageSig(LOG_ERROR, QString("ldPartsDirs.loadLDrawSearchDirs("") failed."));
@@ -367,7 +417,7 @@ void PartWorker::populateLdgLiteSearchDirs() {
                                 Preferences::ldgliteSearchDirs.append(ldgliteSearchDir);
                     emit gui->messageSig(LOG_INFO, QString("Add ldglite search directory: %1").arg(ldgliteSearchDir));
                 }else {
-                    emit gui->messageSig(LOG_INFO, QString("Ldglite search directory is empty and will be ignored: %1").arg(ldgliteSearchDir));
+                    emit gui->messageSig(LOG_NOTICE, QString("Ldglite search directory is empty and will be ignored: %1").arg(ldgliteSearchDir));
                 }
             }
         }
