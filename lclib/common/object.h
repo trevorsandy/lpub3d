@@ -106,7 +106,7 @@ protected:
 		for (int KeyIdx = 0; KeyIdx < Keys.GetSize(); KeyIdx++)
 		{
 			const lcObjectKey<T>& Key = Keys[KeyIdx];
-			Stream << QLatin1String("0 !LEOCAD ") << KeyName << Key.Step << ' ';
+			Stream << QLatin1String("0 !LPUB ") << KeyName << Key.Step << ' '; /*** LPub3D Mod - LPUB meta command ***/
 			for (int ValueIdx = 0; ValueIdx < Count; ValueIdx++)
 				Stream << ((float*)&Key.Value)[ValueIdx] << ' ';
 			Stream << QLatin1String("\r\n");

@@ -1273,7 +1273,7 @@ void Gui::createBuildModification()
                         continue;
                     }
 
-                    if (Token != QLatin1String("!LEOCAD"))
+                    if (Token != QLatin1String("!LPUB"))
                     {
                         mLoadFileLines.append(OriginalLine);
                         continue;
@@ -1511,7 +1511,7 @@ void Gui::createBuildModification()
                                 if (Index == -1)
                                 {
                                     mSaveGroups.RemoveIndex(mSaveGroups.GetSize() - 1);
-                                    Stream << QLatin1String("0 !LEOCAD GROUP END\r\n");
+                                    Stream << QLatin1String("0 !LPUB GROUP END\r\n");
                                 }
                                 else
                                 {
@@ -1524,7 +1524,7 @@ void Gui::createBuildModification()
                             {
                                 lcGroup* Group = PieceParents[ParentIdx];
                                 mSaveGroups.Add(Group);
-                                Stream << QLatin1String("0 !LEOCAD GROUP BEGIN ") << Group->mName << LineEnding;
+                                Stream << QLatin1String("0 !LPUB GROUP BEGIN ") << Group->mName << LineEnding;
                             }
                         }
                     }
@@ -1533,20 +1533,20 @@ void Gui::createBuildModification()
                         while (mSaveGroups.GetSize())
                         {
                             mSaveGroups.RemoveIndex(mSaveGroups.GetSize() - 1);
-                            Stream << QLatin1String("0 !LEOCAD GROUP END\r\n");
+                            Stream << QLatin1String("0 !LPUB GROUP END\r\n");
                         }
                     }
 
                     if (Piece->mPieceInfo->GetSynthInfo())
                     {
-                        Stream << QLatin1String("0 !LEOCAD SYNTH BEGIN\r\n");
+                        Stream << QLatin1String("0 !LPUB SYNTH BEGIN\r\n");
 
                         const lcArray<lcPieceControlPoint>& ControlPoints = Piece->GetControlPoints();
                         for (int ControlPointIdx = 0; ControlPointIdx < ControlPoints.GetSize(); ControlPointIdx++)
                         {
                             const lcPieceControlPoint& ControlPoint = ControlPoints[ControlPointIdx];
 
-                            Stream << QLatin1String("0 !LEOCAD SYNTH CONTROL_POINT");
+                            Stream << QLatin1String("0 !LPUB SYNTH CONTROL_POINT");
 
                             const float* FloatMatrix = ControlPoint.Transform;
                             float Numbers[13] = { FloatMatrix[12], -FloatMatrix[14], FloatMatrix[13], FloatMatrix[0], -FloatMatrix[8], FloatMatrix[4], -FloatMatrix[2], FloatMatrix[10], -FloatMatrix[6], FloatMatrix[1], -FloatMatrix[9], FloatMatrix[5], ControlPoint.Scale };
@@ -1561,7 +1561,7 @@ void Gui::createBuildModification()
                     AddPart(Piece->GetLineTypeIndex(), Stream);
 
                     if (Piece->mPieceInfo->GetSynthInfo())
-                        Stream << QLatin1String("0 !LEOCAD SYNTH END\r\n");
+                        Stream << QLatin1String("0 !LPUB SYNTH END\r\n");
                 }
             }
 
@@ -1590,7 +1590,7 @@ void Gui::createBuildModification()
             while (mSaveGroups.GetSize())
             {
                 mSaveGroups.RemoveIndex(mSaveGroups.GetSize() - 1);
-                Stream << QLatin1String("0 !LEOCAD GROUP END\r\n");
+                Stream << QLatin1String("0 !LPUB GROUP END\r\n");
             }
 
             for (lcCamera* Camera : mCameras)

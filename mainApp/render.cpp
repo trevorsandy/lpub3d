@@ -3460,7 +3460,7 @@ int Render::mergeNativeCSISubModels(QStringList &subModels,
           csiSubModelParts << QString("0 FILE %1").arg(csiSubModels[index]);
           csiSubModelParts << QString("0 %1").arg(modelName);
           csiSubModelParts << QString("0 Name: %1").arg(csiSubModels[index]);
-          csiSubModelParts << QString("0 !LEOCAD MODEL NAME %1").arg(modelName);
+          csiSubModelParts << QString("0 !LPUB MODEL NAME %1").arg(modelName);
 
           /* read the actual submodel file */
           QFile ldrfile(ldrName);

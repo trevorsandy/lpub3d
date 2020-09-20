@@ -63,16 +63,16 @@ void lcModelProperties::SaveLDraw(QTextStream& Stream) const
 	QLatin1String LineEnding("\r\n");
 
 	if (!mAuthor.isEmpty())
-		Stream << QLatin1String("0 !LEOCAD MODEL AUTHOR ") << mAuthor << LineEnding;
+		Stream << QLatin1String("0 !LPUB MODEL AUTHOR ") << mAuthor << LineEnding;
 
 	if (!mDescription.isEmpty())
-		Stream << QLatin1String("0 !LEOCAD MODEL DESCRIPTION ") << mDescription << LineEnding;
+		Stream << QLatin1String("0 !LPUB MODEL DESCRIPTION ") << mDescription << LineEnding;
 
 	if (!mComments.isEmpty())
 	{
 		QStringList Comments = mComments.split('\n');
 		for (const QString& Comment : Comments)
-			Stream << QLatin1String("0 !LEOCAD MODEL COMMENT ") << Comment << LineEnding;
+			Stream << QLatin1String("0 !LPUB MODEL COMMENT ") << Comment << LineEnding;
 	}
 
 	bool TypeChanged = (mBackgroundType != lcGetDefaultProfileInt(LC_PROFILE_DEFAULT_BACKGROUND_TYPE));
@@ -81,19 +81,19 @@ void lcModelProperties::SaveLDraw(QTextStream& Stream) const
 	{
 	case LC_BACKGROUND_SOLID:
 		if (mBackgroundSolidColor != lcVector3FromColor(lcGetDefaultProfileInt(LC_PROFILE_DEFAULT_BACKGROUND_COLOR)) || TypeChanged)
-			Stream << QLatin1String("0 !LEOCAD MODEL BACKGROUND COLOR ") << mBackgroundSolidColor[0] << ' ' << mBackgroundSolidColor[1] << ' ' << mBackgroundSolidColor[2] << LineEnding;
+			Stream << QLatin1String("0 !LPUB MODEL BACKGROUND COLOR ") << mBackgroundSolidColor[0] << ' ' << mBackgroundSolidColor[1] << ' ' << mBackgroundSolidColor[2] << LineEnding;
 		break;
 
 	case LC_BACKGROUND_GRADIENT:
 		if (mBackgroundGradientColor1 != lcVector3FromColor(lcGetProfileInt(LC_PROFILE_DEFAULT_GRADIENT_COLOR1)) ||
 			mBackgroundGradientColor2 != lcVector3FromColor(lcGetProfileInt(LC_PROFILE_DEFAULT_GRADIENT_COLOR2)) || TypeChanged)
-			Stream << QLatin1String("0 !LEOCAD MODEL BACKGROUND GRADIENT ") << mBackgroundGradientColor1[0] << ' ' << mBackgroundGradientColor1[1] << ' ' << mBackgroundGradientColor1[2] << ' ' << mBackgroundGradientColor2[0] << ' ' << mBackgroundGradientColor2[1] << ' ' << mBackgroundGradientColor2[2] << LineEnding;
+			Stream << QLatin1String("0 !LPUB MODEL BACKGROUND GRADIENT ") << mBackgroundGradientColor1[0] << ' ' << mBackgroundGradientColor1[1] << ' ' << mBackgroundGradientColor1[2] << ' ' << mBackgroundGradientColor2[0] << ' ' << mBackgroundGradientColor2[1] << ' ' << mBackgroundGradientColor2[2] << LineEnding;
 		break;
 
 	case LC_BACKGROUND_IMAGE:
 		if (!mBackgroundImage.isEmpty())
 		{
-			Stream << QLatin1String("0 !LEOCAD MODEL BACKGROUND IMAGE ");
+			Stream << QLatin1String("0 !LPUB MODEL BACKGROUND IMAGE ");
 			if (mBackgroundImageTile)
 				Stream << QLatin1String("TILE ");
 			Stream << QLatin1String("NAME ") << mBackgroundImage << LineEnding;
@@ -385,7 +385,7 @@ void lcModel::SaveLDraw(QTextStream& Stream, bool SelectedOnly) const
 					if (Index == -1)
 					{
 						CurrentGroups.RemoveIndex(CurrentGroups.GetSize() - 1);
-						Stream << QLatin1String("0 !LEOCAD GROUP END\r\n");
+						Stream << QLatin1String("0 !LPUB GROUP END\r\n");
 					}
 					else
 					{
@@ -398,7 +398,7 @@ void lcModel::SaveLDraw(QTextStream& Stream, bool SelectedOnly) const
 				{
 					lcGroup* Group = PieceParents[ParentIdx];
 					CurrentGroups.Add(Group);
-					Stream << QLatin1String("0 !LEOCAD GROUP BEGIN ") << Group->mName << LineEnding;
+					Stream << QLatin1String("0 !LPUB GROUP BEGIN ") << Group->mName << LineEnding;
 				}
 			}
 		}
@@ -407,20 +407,20 @@ void lcModel::SaveLDraw(QTextStream& Stream, bool SelectedOnly) const
 			while (CurrentGroups.GetSize())
 			{
 				CurrentGroups.RemoveIndex(CurrentGroups.GetSize() - 1);
-				Stream << QLatin1String("0 !LEOCAD GROUP END\r\n");
+				Stream << QLatin1String("0 !LPUB GROUP END\r\n");
 			}
 		}
 
 		if (Piece->mPieceInfo->GetSynthInfo())
 		{
-			Stream << QLatin1String("0 !LEOCAD SYNTH BEGIN\r\n");
+			Stream << QLatin1String("0 !LPUB SYNTH BEGIN\r\n");
 
 			const lcArray<lcPieceControlPoint>& ControlPoints = Piece->GetControlPoints();
 			for (int ControlPointIdx = 0; ControlPointIdx < ControlPoints.GetSize(); ControlPointIdx++)
 			{
 				const lcPieceControlPoint& ControlPoint = ControlPoints[ControlPointIdx];
 
-				Stream << QLatin1String("0 !LEOCAD SYNTH CONTROL_POINT");
+				Stream << QLatin1String("0 !LPUB SYNTH CONTROL_POINT");
 
 				const float* FloatMatrix = ControlPoint.Transform;
 				float Numbers[13] = { FloatMatrix[12], -FloatMatrix[14], FloatMatrix[13], FloatMatrix[0], -FloatMatrix[8], FloatMatrix[4], -FloatMatrix[2], FloatMatrix[10], -FloatMatrix[6], FloatMatrix[1], -FloatMatrix[9], FloatMatrix[5], ControlPoint.Scale };
@@ -435,7 +435,7 @@ void lcModel::SaveLDraw(QTextStream& Stream, bool SelectedOnly) const
 		Piece->SaveLDraw(Stream);
 
 		if (Piece->mPieceInfo->GetSynthInfo())
-			Stream << QLatin1String("0 !LEOCAD SYNTH END\r\n");
+			Stream << QLatin1String("0 !LPUB SYNTH END\r\n");
 	}
 
 	while (CurrentLine < mFileLines.size())
@@ -463,7 +463,7 @@ void lcModel::SaveLDraw(QTextStream& Stream, bool SelectedOnly) const
 	while (CurrentGroups.GetSize())
 	{
 		CurrentGroups.RemoveIndex(CurrentGroups.GetSize() - 1);
-		Stream << QLatin1String("0 !LEOCAD GROUP END\r\n");
+		Stream << QLatin1String("0 !LPUB GROUP END\r\n");
 	}
 
 	for (lcCamera* Camera : mCameras)
@@ -583,7 +583,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 				continue;
 			}
 
-			if (Token != QLatin1String("!LEOCAD"))
+			if (Token != QLatin1String("!LPUB"))
 			{
 				mFileLines.append(OriginalLine);
 				continue;

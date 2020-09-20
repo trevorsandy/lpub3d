@@ -3437,27 +3437,6 @@ public:
 };
 
 /*------------------------*/
-
-class CameraMeta : public BranchMeta
-{
-public:
-  StringMeta   cameraName;   // char      m_strName (Camera HIDDEN and ORTHOGRAPHIC written on NAME line)
-  FloatMeta    fov;          // float     m_fovy
-  FloatXYZMeta target;       // lcVector3 mPosition
-  FloatXYZMeta position;     // lcVector3 mTargetPosition
-  FloatXYZMeta upvector;     // lcVector3 mUpVector
-
-  CameraMeta();
-  CameraMeta(const CameraMeta &rhs) : BranchMeta(rhs)
-  {
-  }
-
-//  virtual ~CameraMeta() {}
-  virtual void init(BranchMeta *parent, QString name);
-};
-
-
-/*------------------------*/
 struct LightData
 {
   StringMeta    lightName;     // char      m_strName;
@@ -3595,6 +3574,22 @@ public:
 
 /*------------------------*/
 
+class LeoCadGroupMeta : public BranchMeta
+{
+public:
+  RcMeta     begin;
+  RcMeta     end;
+  LeoCadGroupMeta() {}
+  virtual ~LeoCadGroupMeta() {}
+  virtual void init(BranchMeta *parent, QString name);
+  virtual Rc parse(QStringList &argv, int index, Where &here);
+  LeoCadGroupMeta(const LeoCadGroupMeta &rhs) : BranchMeta(rhs)
+  {
+  }
+};
+
+/*------------------------*/
+
 class LPubMeta : public BranchMeta
 {
 public:
@@ -3622,6 +3617,13 @@ public:
   ContStepNumMeta      contStepNumbers;
   IntMeta              contModelStepNum;
   StepPliMeta          stepPli;
+
+  LeoCadGroupMeta      group;
+  LightMeta            light;
+  RcMeta               model;
+  RcMeta               piece;
+  RcMeta               camera;
+  RcMeta               synth;
 
   LPubMeta();
 //  virtual ~LPubMeta() {}
@@ -3663,23 +3665,6 @@ public:
   {
   }
 };
-
-/*------------------------*/
-
-class LeoCadGroupMeta : public BranchMeta
-{
-public:
-  RcMeta     begin;
-  RcMeta     end;
-  LeoCadGroupMeta() {}
-  virtual ~LeoCadGroupMeta() {}
-  virtual void init(BranchMeta *parent, QString name);
-  virtual Rc parse(QStringList &argv, int index, Where &here);
-  LeoCadGroupMeta(const LeoCadGroupMeta &rhs) : BranchMeta(rhs)
-  {
-  }
-};
-
 
 /*------------------------*/
 

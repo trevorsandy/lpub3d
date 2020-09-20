@@ -1356,10 +1356,10 @@ bool Gui::installExportBanner(const int &type, const QString &printFile, const Q
     bannerData << "0 Name: printbanner.ldr";
     bannerData << "0 Author: Trevor SANDY";
     bannerData << "0 Unofficial Model";
-    bannerData << "0 !LEOCAD MODEL NAME Printbanner";
-    bannerData << "0 !LEOCAD MODEL AUTHOR LPub3D";
-    bannerData << "0 !LEOCAD MODEL DESCRIPTION Graphic displayed during pdf printing";
-    bannerData << "0 !LEOCAD MODEL BACKGROUND IMAGE NAME " + imageFile;
+    bannerData << "0 !LPUB MODEL NAME Printbanner";
+    bannerData << "0 !LPUB MODEL AUTHOR LPub3D";
+    bannerData << "0 !LPUB MODEL DESCRIPTION Graphic displayed during pdf printing";
+    bannerData << "0 !LPUB MODEL BACKGROUND IMAGE NAME " + imageFile;
     bannerData << "1 71 0 0 0 1 0 0 0 1 0 0 0 1 3020.dat";
     bannerData << "1 71 30 -8 10 1 0 0 0 1 0 0 0 1 3024.dat";
     bannerData << "1 71 30 -16 10 1 0 0 0 1 0 0 0 1 3024.dat";

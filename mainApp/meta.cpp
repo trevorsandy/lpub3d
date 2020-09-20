@@ -4922,27 +4922,6 @@ void ResolutionMeta::doc(QStringList &out, QString preamble)
 
 /* ------------------ */
 
-CameraMeta::CameraMeta() : BranchMeta()
-{
-  fov.setFormats(5,4,"9.999");
-  fov.setRange(gui->getDefaultFOVMinRange(),
-               gui->getDefaultFOVMaxRange());
-  fov.setValue(gui->getDefaultCameraFoV());
-}
-
-void CameraMeta::init(BranchMeta *parent, QString name)
-{
-  AbstractMeta::init(parent, name);
-  // TODO - Add to LeoCAD highlight
-  cameraName.init   (this,"NAME"); // Light HIDDEN and ORTHOGRAPHIC written on NAME line
-  fov.init          (this,"FOV");
-  target.init       (this,"TARGET_POSITION");
-  position.init     (this,"POSITION");
-  upvector.init     (this,"UP_VECTOR");
-}
-
-/* ------------------ */
-
 LightMeta::LightMeta() : BranchMeta()
 {
   lightColour.setValues(1.0f,1.0f,1.0f);
@@ -5095,6 +5074,14 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   contModelStepNum         .init(this,"MODEL_STEP_NUMBER");
   contStepNumbers          .init(this,"CONTINUOUS_STEP_NUMBERS");
   stepPli                  .init(this,"STEP_PLI");
+
+  group                    .init(this,"GROUP");
+  light                    .init(this,"LIGHT");
+  camera                   .init(this,"CAMERA", LeoCadCameraRc);
+  model                    .init(this,"MODEL",  LeoCadModelRc);
+  piece                    .init(this,"PIECE",  LeoCadPieceRc);
+  synth                    .init(this,"SYNTH",  LeoCadSynthRc);
+
   reserve.setRange(0.0,1000000.0);
 }
 
@@ -5428,8 +5415,8 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
       groupRegExp
         << QRegExp ("^\\s*0\\s+(MLCAD)\\s+(BTG)\\s+(.*)$")
         << QRegExp ("^\\s*0\\s+!?(LDCAD)\\s+(GROUP_NXT)\\s+\\[ids=([\\d\\s\\,]+)\\].*$")
-        << QRegExp ("^\\s*0\\s+!?(LEOCAD)\\s+(GROUP BEGIN)\\s+Group\\s+(.*)$",Qt::CaseInsensitive)
-        << QRegExp ("^\\s*0\\s+!?(LEOCAD)\\s+(GROUP)\\s+(END)$")
+        << QRegExp ("^\\s*0\\s+!?(LPUB|LEOCAD)\\s+(GROUP BEGIN)\\s+Group\\s+(.*)$",Qt::CaseInsensitive)
+        << QRegExp ("^\\s*0\\s+!?(LPUB|LEOCAD)\\s+(GROUP)\\s+(END)$")
         ;
     }
 }
