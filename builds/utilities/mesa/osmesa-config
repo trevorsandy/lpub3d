@@ -1,7 +1,7 @@
 #!/bin/sh
 #  Trevor SANDY <trevor.sandy@gmail.com>
 #  Last Update: March 06, 2019
-#  Copyright (c) 2017 - 2019 by Trevor SANDY
+#  Copyright (c) 2017 - 2020 by Trevor SANDY
 
 prefix="$( cd "$( dirname "$0" )" && pwd )"
 exec_prefix=${prefix}

@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 # Last Update March 06, 2019
-# Copyright 2017-2019 Trevor SANDY
+# Copyright 2017-2020 Trevor SANDY
 
 # output every command that modifies files on the build system.
 export DH_VERBOSE=1

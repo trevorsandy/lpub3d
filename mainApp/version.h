@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2015 - 2019 Trevor SANDY. All rights reserved.
+** Copyright (C) 2015 - 2020 Trevor SANDY. All rights reserved.
 **
 ** This file may be used under the terms of the
 ** GNU General Public Liceense (GPL) version 3.0
@@ -27,7 +27,7 @@
 #define VER_PRODUCTNAME_STR                 "LPub3D"
 #define VER_COMPANYNAME_BLD_STR             "LPub3D Software"
 #define VER_FILEDESCRIPTION_STR             "LPub3D - An LDraw Building Instruction Editor"
-#define VER_LEGALCOPYRIGHT_STR              "Copyright &copy; 2015 - 2019 by Trevor SANDY"
+#define VER_LEGALCOPYRIGHT_STR              "Copyright &copy; 2015 - 2020 by Trevor SANDY"
 #define VER_LEGALTRADEMARKS1_STR            "All Rights Reserved"
 #define VER_LEGALTRADEMARKS2_STR            VER_LEGALTRADEMARKS1_STR
 #define VER_PUBLISHER_STR                   "Trevor SANDY"

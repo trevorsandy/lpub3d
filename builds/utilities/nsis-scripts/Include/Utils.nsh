@@ -127,7 +127,7 @@
 
 ;LPub3D Setup Script - Utility Functions and Macros
 ;Last Update: March 26, 2019
-;Copyright (C) 2016 2019 by Trevor Sandy
+;Copyright (C) 2016 2020 by Trevor Sandy
 
 !ifndef UTILS_NSH
 !define UTILS_NSH
