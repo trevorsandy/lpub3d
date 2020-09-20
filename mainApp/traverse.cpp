@@ -3929,7 +3929,8 @@ bool Gui::setBuildModForNextStep(
         bool  change,
         bool  submodel)
 {
-    int  numLines              = 0;
+    int  progressMin           = 0;
+    int  progressMax           = 0;
     int  buildModLevel         = 0;
     int  buildModNextStepIndex = 0;
     int  buildModPrevStepIndex = 0;
@@ -3982,35 +3983,34 @@ bool Gui::setBuildModForNextStep(
             getBuildModStepIndexHere(buildModPrevStepIndex, topOfFromStep);        // set start Where to previous step index
             startLine  = getBuildModStepLineNumber(buildModPrevStepIndex);         // set start Where lineNumber to bottom of previous step
             startModel = topOfFromStep.modelName;
-        } else if ((buildModNextStepIndex - buildModPrevStepIndex) < 0) {
-            stepDir = D_JUMP_BACKWARD;
-        }
-
-#ifdef QT_DEBUG_MODE
-        if (stepDir != D_NEXT)
-            emit messageSig(LOG_NOTICE, QString("Jump %1 StartModel: %2, StartLineNum: %3, EndModel %4, EndLineNum %5")
-                            .arg(stepDir == D_JUMP_FORWARD ? "Forward" : "Backward")
+            progressMax = 0;
+            emit messageSig(LOG_NOTICE, QString("Jump forward - StartModel: %1, StartLineNum: %2, EndModel %3, EndLineNum %4")
                             .arg(startModel).arg(startLine)
                             .arg(bottomOfNextStep.modelName)
                             .arg(bottomOfNextStep.lineNumber));
-#endif
+        } else if ((buildModNextStepIndex - buildModPrevStepIndex) < 0) {
+            // stepDir = D_JUMP_BACKWARD;
+            emit messageSig(LOG_NOTICE, QString("Jump backward - StartModel: %1, StartLineNum: %2, EndModel %3, EndLineNum %4")
+                            .arg(startModel).arg(startLine)
+                            .arg(bottomOfNextStep.modelName)
+                            .arg(bottomOfNextStep.lineNumber));
+            // Nothing to do at jump backward as all models would have already been checked for modifications up to this point
+            return true;
+        }
 
         if (stepDir == D_NEXT) {
             setBottomOfNextStep(bottomOfNextStep);
-            numLines = bottomOfNextStep.lineNumber - topOfStep.lineNumber;             // progress bar max
+            progressMax = bottomOfNextStep.lineNumber - topOfStep.lineNumber;             // progress bar max
+            progressMin = 1;
 #ifdef QT_DEBUG_MODE
             emit messageSig(LOG_DEBUG, QString("BuildMod bottomOfStep lineNumber [%1], step numberOfLines [%2]...")
-                                              .arg(bottomOfNextStep.lineNumber).arg(numLines));
+                                              .arg(bottomOfNextStep.lineNumber).arg(progressMax));
 #endif
-        } else if (qAbs(buildModNextStepIndex - buildModPrevStepIndex) > 1) {
-            // TODO figure out a scheme to calculate number of lines between indexes when 'jumping'
         }
 
-        if (numLines) {
-            emit gui->progressBarPermInitSig();
-            emit gui->progressPermMessageSig("Build modification check...");
-            emit gui->progressPermRangeSig(1, numLines);
-        }
+        emit gui->progressBarPermInitSig();
+        emit gui->progressPermMessageSig("Build modification check...");
+        emit gui->progressPermRangeSig(progressMin, progressMax);
     }
 
     Rc rc;
@@ -4101,10 +4101,7 @@ bool Gui::setBuildModForNextStep(
           walk.lineNumber < subFileSize(walk.modelName);
           walk.lineNumber++) {
 
-        // this has to be updated when jumping
-        // buildModNextStepIndex will have to change as we traverse
-        // 'top' level submodels towards the bottomOfStep 'jump'
-        if (numLines && modelIndx == buildModNextStepIndex) {
+        if (progressMax && modelIndx == buildModNextStepIndex) {
             stepLines++;
             emit gui->progressPermSetValueSig(stepLines);
         }
@@ -4194,8 +4191,8 @@ bool Gui::setBuildModForNextStep(
         }
     }
 
-    if (numLines) {
-        emit gui->progressPermSetValueSig(numLines);
+    if (progressMax) {
+        emit gui->progressPermSetValueSig(progressMax);
         emit gui->progressPermStatusRemoveSig();
     }
 
