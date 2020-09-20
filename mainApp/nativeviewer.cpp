@@ -867,7 +867,7 @@ void Gui::applyCameraSettings()
 
             clearStepCache = true;
             if (QFileInfo(imageFileName).exists())
-                gui->clearStepCSICache(imageFileName);
+                clearStepCSICache(imageFileName);
 
             // Switch Y and Z axis with -Y(LC -Z) in the up direction
             cameraMeta.target.setValues(Camera->mTargetPosition[0],
@@ -937,7 +937,7 @@ void Gui::applyCameraSettings()
         }
 
         if (clearStepCache && QFileInfo(imageFileName).exists())
-            gui->clearStepCSICache(imageFileName);
+            clearStepCSICache(imageFileName);
 
         endMacro();
     }

@@ -511,8 +511,8 @@ int Gui::drawPage(
     }
     pageRenderMessage += QString("rendered page %1. %2")
                                  .arg(displayPageNum)
-                                 .arg(gui->elapsedTime(pageRenderTimer.elapsed()));
-    emit gui->messageSig(LOG_TRACE, pageRenderMessage);
+                                 .arg(elapsedTime(pageRenderTimer.elapsed()));
+    emit messageSig(LOG_TRACE, pageRenderMessage);
   };
 
   // set page header/footer width
@@ -1049,7 +1049,7 @@ int Gui::drawPage(
               if (assemAnnotation) {
                   parseError("Nested ASSEM ANNOTATION ICON not allowed",opts.current);
               } else {
-                  if (step && ! gui->exportingObjects())
+                  if (step && ! exportingObjects())
                       step->appendCsiAnnotation(opts.current,curMeta.LPub.assem.annotation/*,view*/);
                   assemAnnotation = false;
               }
@@ -1531,7 +1531,7 @@ int Gui::drawPage(
                       callout->parentRelativeType = step->relativeType;
                     }
                   // set csi annotations - callout
-//                  if (! gui->exportingObjects())
+//                  if (! exportingObjects())
 //                      callout->setCsiAnnotationMetas();
                   callout->pli.clear();
                   callout->placement = curMeta.LPub.callout.placement;
@@ -1690,7 +1690,7 @@ int Gui::drawPage(
                               opts.stepNum - 1 >= ldrawFile.numSteps(opts.current.modelName);
 
                   // set csi annotations - multistep
-//                  if (! gui->exportingObjects())
+//                  if (! exportingObjects())
 //                      steps->setCsiAnnotationMetas();
 
                   Page *page = dynamic_cast<Page *>(steps);
@@ -1726,7 +1726,7 @@ int Gui::drawPage(
                           return rc;
                         }
 
-                      emit gui->messageSig(LOG_INFO,
+                      emit messageSig(LOG_INFO,
                                           QString("%1 CSI (Single Call) render took "
                                                   "%2 milliseconds to render %3 [Step %4] %5 "
                                                   "for %6 step group on page %7.")
@@ -1775,7 +1775,7 @@ int Gui::drawPage(
                   int nsNumLines = nsContent.size();
                   Where nsWalkBack(nsTokens[14],nsNumLines);
                   for (; nsWalkBack.lineNumber >= 0; nsWalkBack--) {
-                    QString nsLine = gui->readLine(nsWalkBack);
+                    QString nsLine = readLine(nsWalkBack);
                     if (isHeader(nsLine)) {
                       // if we reached the top of the submodel so break
                       break;
@@ -2009,7 +2009,7 @@ int Gui::drawPage(
                       setBuildModNextStepIndex(opts.current);
 
                       // Set CSI annotations - single step only
-                      if (! gui->exportingObjects() &&  ! multiStep && ! opts.calledOut)
+                      if (! exportingObjects() &&  ! multiStep && ! opts.calledOut)
                           step->setCsiAnnotationMetas(steps->meta);
 
                       if (renderer->useLDViewSCall() && ! step->ldrName.isNull()) {
@@ -2135,7 +2135,7 @@ int Gui::drawPage(
                               return rc;
                           }
 
-                          emit gui->messageSig(LOG_INFO,
+                          emit messageSig(LOG_INFO,
                                                QString("%1 CSI (Single Call) render took "
                                                        "%2 milliseconds to render %3 [Step %4] %5 for %6 "
                                                        "single step on page %7.")
@@ -2203,7 +2203,7 @@ int Gui::drawPage(
                           .arg(opts.current.lineNumber)
                           .arg(line);
 
-              emit gui->messageSig(LOG_ERROR,message);
+              emit messageSig(LOG_ERROR,message);
               return RangeErrorRc;
             }
             default:
@@ -3332,9 +3332,9 @@ int Gui::getBOMOccurrence(Where	current) {		// start at top of ldrawFile
 
   if (occurrenceNum > 1) {
       // now set the bom occurrance based on our current position
-      Where here = gui->topOfPages[gui->displayPageNum-1];
+      Where here = topOfPages[displayPageNum-1];
       for (++here; here.lineNumber < ldrawFile.size(here.modelName); here++) {
-          QString line = gui->readLine(here);
+          QString line = readLine(here);
           Meta meta;
           Rc rc;
 
@@ -3554,7 +3554,7 @@ void Gui::skipHeader(Where &current)
 {
   int numLines = ldrawFile.size(current.modelName);
   for ( ; current.lineNumber < numLines; current.lineNumber++) {
-      QString line = gui->readLine(current);
+      QString line = readLine(current);
       int p;
       for (p = 0; p < line.size(); ++p) {
           if (line[p] != ' ') {
@@ -3564,7 +3564,7 @@ void Gui::skipHeader(Where &current)
       if (line[p] >= '1' && line[p] <= '5') {
           if (current.lineNumber == 0) {
               QString empty = "0 ";
-              gui->insertLine(current,empty,nullptr);
+              insertLine(current,empty,nullptr);
             } else if (current > 0) {
               --current;
             }
