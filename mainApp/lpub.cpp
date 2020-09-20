@@ -5450,11 +5450,11 @@ void Gui::statusMessage(LogType logType, QString message) {
                 } else
               if (logType == LOG_INFO_STATUS) {
 
-                  statusBarMsg(message.replace("<br>"," "));
+                  message.replace("<br>"," ");
 
-                  logInfo() << message;
-
-                  if (!guiEnabled && !Preferences::suppressStdOutToLog) {
+                  if (guiEnabled) {
+                      statusBarMsg(message);
+                  } else if (!Preferences::suppressStdOutToLog) {
                       fprintf(stdout,"%s",QString(message).append("\n").toLatin1().constData());
                       fflush(stdout);
                   }

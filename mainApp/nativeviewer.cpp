@@ -461,7 +461,8 @@ void Gui::Disable3DActions()
 void Gui::Enable3DActions()
 {
     bool enabled = buildModsSize();
-    createBuildModAct->setEnabled(mBuildModRange.first() || enabled);
+    if (Preferences::buildModEnabled)
+        createBuildModAct->setEnabled(mBuildModRange.first() || enabled);
     applyBuildModAct->setEnabled(enabled);
     removeBuildModAct->setEnabled(enabled);
     loadBuildModAct->setEnabled(enabled);
@@ -1019,25 +1020,38 @@ void Gui::restoreLightAndViewpointDefaults(){
 
 void Gui::enableBuildModification()
 {
-    if (sender() == enableBuildModAct)
+    if (sender() == enableBuildModAct && Preferences::buildModEnabled)
       lcSetProfileInt(LC_PROFILE_BUILD_MODIFICATION, enableBuildModAct->isChecked());
     else
       lcSetProfileInt(LC_PROFILE_BUILD_MODIFICATION, !enableRotstepRotateAct->isChecked());
 
     QIcon RotateIcon;
-    if (lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION)) {
-        enableBuildModAct->setChecked(true);
-        enableRotstepRotateAct->setChecked(false);
-        RotateIcon.addFile(":/resources/rotatebuildmod.png");
-        RotateIcon.addFile(":/resources/rotatebuildmod16.png");
+    RotateIcon.addFile(":/resources/rotaterotstep.png");
+    RotateIcon.addFile(":/resources/rotaterotstep16.png");
+    enableBuildModAct->setChecked(false);
+    enableRotstepRotateAct->setChecked(true);
+    if (Preferences::buildModEnabled) {
+        if (lcGetProfileInt(LC_PROFILE_BUILD_MODIFICATION)) {
+            enableBuildModAct->setChecked(true);
+            enableRotstepRotateAct->setChecked(false);
+            RotateIcon.addFile(":/resources/rotatebuildmod.png");
+            RotateIcon.addFile(":/resources/rotatebuildmod16.png");
+        }
     } else {
-        enableBuildModAct->setChecked(false);
-        enableRotstepRotateAct->setChecked(true);
-        RotateIcon.addFile(":/resources/rotaterotstep.png");
-        RotateIcon.addFile(":/resources/rotaterotstep16.png");
+        enableRotstepRotateAct->setEnabled(false);
     }
     gMainWindow->mActions[LC_EDIT_ACTION_ROTATE]->setIcon(RotateIcon);
     gMainWindow->mActions[LC_EDIT_ACTION_ROTATESTEP]->setEnabled(enableRotstepRotateAct->isChecked());
+}
+
+void Gui::reset3DViewerMenusAndToolbars()
+{
+    bool visible = Preferences::buildModEnabled;
+    buildModMenu->setVisible(visible);
+    enableBuildModAct->setVisible(visible);
+    createBuildModAct->setVisible(visible);
+
+    enableBuildModification();
 }
 
 void Gui::showDefaultCameraProperties()
@@ -1136,7 +1150,7 @@ void Gui::saveCurrent3DViewerModel(const QString &modelFile)
 
 void Gui::createBuildModification()
 {
-    if (!currentStep)
+    if (!currentStep || !Preferences::buildModEnabled)
         return;
 
     if (lcGetActiveProject()->GetImageType() == Options::Mt::PLI)
@@ -2258,43 +2272,44 @@ bool Gui::saveBuildModification()
     if (Project->GetImageType() == Options::Mt::PLI)
         return false;
 
-    if (!Project->IsModified())
-        return false;
+    if (Project->IsModified() && Preferences::buildModEnabled) {
+        QPixmap _icon = QPixmap(":/icons/lpub96.png");
+        if (_icon.isNull())
+            _icon = QPixmap (":/icons/update.png");
 
-    QPixmap _icon = QPixmap(":/icons/lpub96.png");
-    if (_icon.isNull())
-        _icon = QPixmap (":/icons/update.png");
+        QMessageBox box;
+        box.setWindowIcon(QIcon());
+        box.setIconPixmap (_icon);
+        box.setTextFormat (Qt::RichText);
+        box.setWindowTitle(tr ("%1 Save Model Change").arg(VER_PRODUCTNAME_STR));
+        box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+        QString title = "<b>" +
+                (setBuildModChangeKey()
+                 ? tr("Save model changes to build modification '%1'?").arg(getBuildModChangeKey())
+                 : tr("Save model changes as build modification?")) + "</b>";
+        QString text = tr("Save changes as a build modification to this step?");
+        box.setText (title);
+        box.setInformativeText (text);
+        box.setStandardButtons (QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+        box.setDefaultButton   (QMessageBox::Cancel);
+        switch (box.exec())
+        {
+        default:
+        case QMessageBox::Cancel:
+            return false;
 
-    QMessageBox box;
-    box.setWindowIcon(QIcon());
-    box.setIconPixmap (_icon);
-    box.setTextFormat (Qt::RichText);
-    box.setWindowTitle(tr ("%1 Save Model Change").arg(VER_PRODUCTNAME_STR));
-    box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-    QString title = "<b>" +
-            (setBuildModChangeKey()
-             ? tr("Save model changes to build modification '%1'?").arg(getBuildModChangeKey())
-             : tr("Save model changes as build modification?")) + "</b>";
-    QString text = tr("Save changes as a build modification to this step?");
-    box.setText (title);
-    box.setInformativeText (text);
-    box.setStandardButtons (QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
-    box.setDefaultButton   (QMessageBox::Cancel);
-    switch (box.exec())
-    {
-    default:
-    case QMessageBox::Cancel:
-        return false;
+        case QMessageBox::Yes:
+            updateBuildModification();
+            break;
 
-    case QMessageBox::Yes:
-        updateBuildModification();
-        break;
+        case QMessageBox::No:
+            return false;
+        }
 
-    case QMessageBox::No:
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 /*********************************************
@@ -2596,7 +2611,7 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
             }
 
             if (validLine) {
-                if (fromViewer && source == VIEWER_MOD) {
+                if (fromViewer && source == VIEWER_MOD && Preferences::buildModEnabled) {
                     if (mBuildModRange.first()) {
                         if (lineNumber < mBuildModRange.first())
                             mBuildModRange[BM_BEGIN_LINE_NUM] = lineNumber;
@@ -2638,7 +2653,7 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
         if (fromViewer) {
             if (source == VIEWER_MOD) {
                 emit highlightSelectedLinesSig(lines);
-            } else if (source == VIEWER_DEL) {
+            } else if (source == VIEWER_DEL && Preferences::buildModEnabled) {
                 createBuildModAct->setEnabled(true);
                 updateBuildModAct->setEnabled(buildModsSize());
                 emit messageSig(LOG_TRACE, tr("Delete viewer part(s) specified at step %1, modelName: [%2]")

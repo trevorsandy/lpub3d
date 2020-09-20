@@ -141,6 +141,7 @@ enum Rc {
          BuildModEndRc,
          BuildModApplyRc,
          BuildModRemoveRc,
+         BuildModEnableRc,
 
          PageOrientationRc,
          PageSizeRc,
@@ -1807,6 +1808,36 @@ public:
   QString format(bool,bool);
   virtual void doc(QStringList &out, QString preamble);
 };
+
+/*
+ * This class parses the BuildModEnabled flag (BuildModEnabledTrue|BuildModEnabledFalse)
+ */
+class BuildModEnabledMeta : public LeafMeta
+{
+private:
+  BuildModEnabledEnc type[2];
+public:
+  QHash<QString, int> buildModEnabledMap;
+  int value()
+  {
+    return BuildModEnabledEnc(type[pushed]);
+  }
+  void setValue(int value)
+  {
+    type[pushed] = BuildModEnabledEnc(value);
+  }
+  BuildModEnabledMeta();
+  BuildModEnabledMeta(const BuildModEnabledMeta &rhs) : LeafMeta(rhs)
+  {
+    type[0] = rhs.type[0];
+    type[1] = rhs.type[1];
+  }
+//  virtual ~BuildModEnabledMeta() {}
+  Rc parse(QStringList &argv, int index, Where &here);
+  QString format(bool,bool);
+  virtual void doc(QStringList &out, QString preamble);
+};
+
 
 class AlignmentMeta : public LeafMeta
 {
@@ -3608,6 +3639,7 @@ public:
   BomMeta              bom;
   RemoveMeta           remove;
   BuildModMeta         buildMod;
+  BuildModEnabledMeta  buildModEnabled;
   FloatMeta            reserve;
   PartIgnMeta          partSub;
   InsertMeta           insert;

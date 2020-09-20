@@ -245,6 +245,7 @@ class Preferences
     static bool    saveOnUpdate;
     static bool    defaultBlendFile;
     static bool    blenderIs28OrLater;
+    static bool    buildModEnabled;
 
     static bool    includeLogLevel;
     static bool    includeTimestamp;

@@ -886,10 +886,13 @@ public:
 
   void resetLastBuildMod(bool clearNextStep = false);
 
+  void reset3DViewerMenusAndToolbars();
+
   bool setBuildModChangeKey();
 
   bool setBuildModForNextStep(Where topOfNextStep,
                               Where bottomOfNextStep = Where(),
+                              Where topOfSubmodel    = Where(),
                               bool change            = false,
                               bool submodel          = false);
 
@@ -1398,6 +1401,7 @@ private:
   bool                   m_contPageProcessing;// indicate continuous page processing underway
 
   QString                buildModChangeKey;   // populated at buildMod change and cleared at buildMod create
+  QStringList            buildModSubmodels;   // submodels implicated when checking for next step build modifications
   QString                saveRenderer;
 
   bool                   saveProjection;

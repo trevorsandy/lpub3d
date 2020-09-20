@@ -485,6 +485,10 @@ void Gui::closeFile()
   topOfPages.clear();
   pageSizes.clear();
   undoStack->clear();
+  if (!Preferences::buildModEnabled) {
+      Preferences::buildModEnabled = true;
+      reset3DViewerMenusAndToolbars();
+  }
   if (Preferences::enableFadeSteps || Preferences::enableHighlightStep)
       ldrawColourParts.clearGeneratedColorParts();
   submodelIconsLoaded = gMainWindow->mSubmodelIconsLoaded = false;

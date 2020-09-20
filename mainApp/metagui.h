@@ -748,6 +748,39 @@ public slots:
 
 /***********************************************************************
  *
+ * BuildModEnabledMeta
+ *
+ **********************************************************************/
+
+class BuildModEnabledGui : public MetaGui
+{
+  Q_OBJECT
+public:
+
+  BuildModEnabledGui(
+    QString const  &heading,
+    BuildModEnabledMeta *meta,
+    QGroupBox       *parent = nullptr);
+  BuildModEnabledGui(){}
+  ~BuildModEnabledGui() {}
+
+  QCheckBox *getCheckbox() {return check;}
+
+  void setEnabled(bool enabled);
+
+  virtual void apply(QString &modelName);
+
+private:
+  BuildModEnabledMeta *meta;
+  QCheckBox           *check;
+  bool                 change;
+
+public slots:
+  void stateChanged(int state);
+};
+
+/***********************************************************************
+ *
  * Background
  *
  **********************************************************************/

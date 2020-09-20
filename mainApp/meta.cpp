@@ -2272,6 +2272,48 @@ void ContStepNumMeta::doc(QStringList &out, QString preamble)
 
 /* ------------------ */
 
+BuildModEnabledMeta::BuildModEnabledMeta() : LeafMeta()
+{
+  buildModEnabledMap["FALSE"] = BuildModEnabledFalse;
+  buildModEnabledMap["TRUE"]  = BuildModEnabledTrue;
+  type[0] = Preferences::buildModEnabled ? BuildModEnabledTrue : BuildModEnabledFalse;
+}
+
+Rc BuildModEnabledMeta::parse(QStringList &argv, int index, Where &here)
+{
+  QRegExp rx("^(TRUE|FALSE)$");
+  if (argv.size() - index == 1 && argv[index].contains(rx)) {
+      type[pushed]  = BuildModEnabledEnc(buildModEnabledMap[argv[index]]);
+      _here[pushed] = here;
+      return BuildModEnableRc;
+    }
+  if (reportErrors) {
+      emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Expected TRUE or FALSE got \"%1\" in \"%2\"") .arg(argv[index]) .arg(argv.join(" ")));
+    }
+  return FailureRc;
+}
+
+QString BuildModEnabledMeta::format(bool local, bool global)
+{
+    QString foo;
+    switch (type[pushed])
+    {
+    case BuildModEnabledFalse:
+        foo = "FALSE";
+        break;
+    default: /*BuildModEnabledTrue*/
+        foo = "TRUE";
+        break;
+    }
+  return LeafMeta::format(local,global,foo);
+}
+void BuildModEnabledMeta::doc(QStringList &out, QString preamble)
+{
+  out << preamble + " (TRUE|FALSE)";
+}
+
+/* ------------------ */
+
 void PageSizeMeta::init(
     BranchMeta *parent,
     const QString name,
@@ -3701,6 +3743,7 @@ void BuildModMeta::doc(QStringList &out, QString preamble)
   out << preamble + " <BEGIN|APPLY|REMOVE[|END_MOD|END]> <buildModKey>";
   out << preamble + " <END_MOD|END|APPLY|REMOVE>";
 }
+
 /* ------------------ */
 
 AnnotationStyleMeta::AnnotationStyleMeta() : BranchMeta()
@@ -5073,6 +5116,7 @@ void LPubMeta::init(BranchMeta *parent, QString name)
   pli                      .init(this,"PLI");
   bom                      .init(this,"BOM");
   buildMod                 .init(this,"BUILD_MOD");
+  buildModEnabled          .init(this,"BUILD_MOD_ENABLED");
   pointerBase              .init(this,"POINTER_BASE");
   remove                   .init(this,"REMOVE");
   reserve                  .init(this,"RESERVE",ReserveSpaceRc);

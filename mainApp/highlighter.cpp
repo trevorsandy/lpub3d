@@ -138,7 +138,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     // LPub3D Font Number Format
     LPubFontNumberFormat.setForeground(br14);
     LPubFontNumberFormat.setFontWeight(QFont::Normal);
-    rule.pattern = QRegExp("[,|-](\\d+)"); // match digit if preceded by , or -
+    rule.pattern = QRegExp("[,|-](\\d+)"); // match digit if preceded by single character , or -
     rule.format = LPubFontNumberFormat;
     highlightingRules.append(rule);
 
@@ -159,7 +159,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     // LPub3D Substitute Part Format
     LPubSubPartFormat.setForeground(br12);
     LPubSubPartFormat.setFontWeight(QFont::Bold);
-    rule.pattern = QRegExp("BEGIN\\sSUB\\s([A-Za-z0-9\\s_-]+.[dat|mpd|ldr]+)",Qt::CaseInsensitive); // match part format if preceded by 'BEGIN SUB '
+    rule.pattern = QRegExp("BEGIN\\sSUB\\s([A-Za-z0-9\\s_-]+.[dat|mpd|ldr]+)",Qt::CaseInsensitive); // match part format if preceded by 'BEGIN SUB'
     rule.format = LPubSubPartFormat;
     highlightingRules.append(rule);
 
@@ -305,6 +305,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bBRICKLINK\\b"
     << "\\bBRING_TO_FRONT\\b"
     << "\\bBUILD_MOD\\b"
+    << "\\bBUILD_MOD_ENABLED\\b"
     << "\\bCABLE\\b"
     << "\\bCALLOUT\\b"
     << "\\bCALLOUT_INSTANCE\\b"
@@ -600,7 +601,7 @@ Highlighter::Highlighter(QTextDocument *parent)
     LDrawHeaderPatterns
     << "\\bAUTHOR\\b:?"
     << "\\bBFC\\b"
-    << "!?\\bCATEGORY\\b"
+    << "!?\\bCATEGORY\\b(?!\")"             // (?!\") match Category not followed by "
     << "\\bCERTIFY\\b"
     << "\\bCCW\\b"
     << "\\bCLEAR\\b"
@@ -688,10 +689,10 @@ Highlighter::Highlighter(QTextDocument *parent)
     << "\\bROTATION\\b"
     << "\\bROTSTEP END\\b"
     << "\\bROTSTEP\\b"
+    << "\\b(ABS|ADD|REL)$"
     << "\\bSKIP_BEGIN\\b"
     << "\\bSKIP_END\\b"
     << "\\bSTORE\\b"
-    << "\\d\\.?\\d*\\s\\d\\.?\\d*\\s\\d\\.?\\d*\\s[ABS|ADD|REL]+"
        ;
 
     foreach (QString pattern, MLCadBodyMetaPatterns) {

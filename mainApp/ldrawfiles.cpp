@@ -1084,6 +1084,18 @@ void LDrawFile::loadMPDFile(const QString &fileName, QDateTime &datetime)
                 topLevelDescriptionNotCaptured = false;
             }
 
+            // Check if BuildMod is disabled
+            if (smLine.startsWith("0 !LPUB BUILD_MOD_ENABLED")) {
+                bool state = tokens.last() == "FALSE" ? false : true ;
+                if (Preferences::buildModEnabled != state) {
+                    Preferences::buildModEnabled  = state;
+                    gui->reset3DViewerMenusAndToolbars();
+                    emit gui->messageSig(LOG_INFO, QString("Build Modifications are %1")
+                                         .arg(state ? "Enabled" : "Disabled"));
+                }
+            }
+
+
             if ((alreadyLoaded = LDrawFile::contains(subfileName.toLower()))) {
                 emit gui->messageSig(LOG_TRACE, QString("MPD " + modelType() + " '" + subfileName + "' already loaded."));
                 stageSubfiles.removeAt(stageSubfiles.indexOf(subfileName));
@@ -1722,7 +1734,7 @@ void LDrawFile::countInstances()
   _buildModStepIndexes.append(stepIndex);
 
 #ifdef QT_DEBUG_MODE
-  //*
+  /*
   emit gui->messageSig(LOG_DEBUG, QString("Count Instances BuildMod StepIndex took %1 milliseconds")
                                           .arg(timer.elapsed()));
   for (int i = 0; i < _buildModStepIndexes.size(); i++)
@@ -1734,7 +1746,7 @@ void LDrawFile::countInstances()
                                               .arg(key.at(1))                    // lineNumber
                                               .arg(getSubmodelName(key.at(0)))); // modelName
   }
-  //*/
+  */
 #endif
 }
 

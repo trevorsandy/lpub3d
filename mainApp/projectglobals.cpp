@@ -74,12 +74,18 @@ GlobalProjectDialog::GlobalProjectDialog(
   child = new ResolutionGui(&lpubMeta->resolution,box);
   data->children.append(child);
   
+  box = new QGroupBox("Build Modifications");
+  layout->addWidget(box);
+  BuildModEnabledGui *childBuildModEnabledbersBox = new BuildModEnabledGui("Enable Build Modification functionality",&lpubMeta->buildModEnabled,box);
+  box->setToolTip("Use Build Modification meta syntax. This functionality replaces or accompanies the legacy BUFEXCHG functionality.");
+  data->children.append(childBuildModEnabledbersBox);
+
   box = new QGroupBox("Consolidate Submodel Instances");
   box->setCheckable(true);
   box->setChecked(lpubMeta->countInstance.value());
   layout->addWidget(box);
   CountInstanceGui *childCountInstance = new CountInstanceGui(&lpubMeta->countInstance,box);
-  box->setToolTip("Consolidate submodel instances on first occurrence.");
+  box->setToolTip("Consolidate submodel instances on first occurrence");
   data->children.append(childCountInstance);
   connect (childCountInstance->getTopRadio(),   SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));
   connect (childCountInstance->getModelRadio(), SIGNAL(clicked(bool)), this, SLOT(clearCache(bool)));

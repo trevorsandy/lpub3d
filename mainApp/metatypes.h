@@ -67,6 +67,11 @@ enum ContStepNumEnc {
     ContStepNumTrue
 };
 
+enum BuildModEnabledEnc {
+    BuildModEnabledFalse,
+    BuildModEnabledTrue
+};
+
 enum OrientationEnc {
   Portrait = 0,
   Landscape,

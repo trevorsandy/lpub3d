@@ -2091,6 +2091,64 @@ void CountInstanceGui::apply(QString &modelName)
 
 /***********************************************************************
  *
+ * BuildModEnabledMeta
+ *
+ **********************************************************************/
+
+BuildModEnabledGui::BuildModEnabledGui(
+  QString const   &heading,
+  BuildModEnabledMeta *_meta,
+  QGroupBox       *parent)
+{
+  meta = _meta;
+  change = false;
+
+  QHBoxLayout *layout = new QHBoxLayout(parent);
+
+  if (parent) {
+    parent->setLayout(layout);
+  } else {
+    setLayout(layout);
+  }
+
+  check = new QCheckBox(heading,parent);
+  check->setChecked(meta->value());
+  layout->addWidget(check);
+  connect(check,SIGNAL(stateChanged(int)),
+          this, SLOT(  stateChanged(int)));
+}
+
+void BuildModEnabledGui::stateChanged(int state)
+{
+  int checked = meta->value();
+
+  if (state == Qt::Unchecked) {
+    checked = 0;
+  } else if (state == Qt::Checked) {
+    checked = 1;
+  }
+  change = checked != meta->value();
+  meta->setValue(checked);
+  modified = true;
+}
+
+void BuildModEnabledGui::apply(QString &modelName)
+{
+  if (modified) {
+    if (change) {
+      Preferences::buildModEnabled = bool(meta->value());
+      gui->reset3DViewerMenusAndToolbars();
+      changeMessage = QString("Build Modifications are %1")
+                               .arg(meta->value() ? "Enabled" : "Disabled");
+      emit gui->messageSig(LOG_INFO, changeMessage);
+    }
+    MetaItem mi;
+    mi.setGlobalMeta(modelName,meta);
+  }
+}
+
+/***********************************************************************
+ *
  * Background
  *
  **********************************************************************/

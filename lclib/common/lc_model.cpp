@@ -3496,12 +3496,14 @@ bool lcModel::AnyObjectsSelected() const
 	for (lcCamera* Camera : mCameras)
 		if (Camera->IsSelected())
 			return true;
-/*** LPub3D Mod - New BuildMod  ***/
+/*** LPub3D Mod - Build Modification, suppress select move overlay for pieces ***/
 /***/
-	if (gMainWindow->GetImageType() != Options::PLI) {
-		for (lcPiece* Piece : mPieces)
-			if (Piece->IsSelected())
-				return true;
+	if (Preferences::buildModEnabled) {
+		if (gMainWindow->GetImageType() != Options::PLI) {
+			for (lcPiece* Piece : mPieces)
+				if (Piece->IsSelected())
+					return true;
+		}
 	}
 /***/
 /*** LPub3D Mod end ***/

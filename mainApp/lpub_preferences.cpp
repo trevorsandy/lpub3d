@@ -248,6 +248,7 @@ bool    Preferences::debugLogging               = false;
 bool    Preferences::blenderIs28OrLater         = true;
 bool    Preferences::defaultBlendFile           = false;
 bool    Preferences::useSystemEditor            = false;
+bool    Preferences::buildModEnabled            = true;
 
 #ifdef Q_OS_MAC
 bool    Preferences::missingRendererLibs        = false;
