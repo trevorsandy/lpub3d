@@ -185,6 +185,33 @@ void lcPartSelectionListModel::SetModelsCategory()
 	SetFilter(mFilter);
 }
 
+void lcPartSelectionListModel::SetFavoritesCategory()
+{
+	ClearRequests();
+
+	beginResetModel();
+
+	mParts.clear();
+
+	std::vector<PieceInfo*> Favorites = lcGetPiecesLibrary()->GetFavorites();
+
+	auto lcPartSortFunc = [](const PieceInfo* a, const PieceInfo* b)
+	{
+		return strcmp(a->m_strDescription, b->m_strDescription) < 0;
+	};
+
+	std::sort(Favorites.begin(), Favorites.end(), lcPartSortFunc);
+
+	mParts.reserve(Favorites.size());
+
+	for (PieceInfo* Favorite : Favorites)
+		mParts.emplace_back(QPair<PieceInfo*, QPixmap>(Favorite, QPixmap()));
+
+	endResetModel();
+
+	SetFilter(mFilter);
+}
+
 void lcPartSelectionListModel::SetCurrentModelCategory()
 {
 	ClearRequests();
@@ -477,6 +504,24 @@ void lcPartSelectionListView::CustomContextMenuRequested(QPoint Pos)
 {
 	QMenu* Menu = new QMenu(this);
 
+	mContextInfo = nullptr;
+	QModelIndex Index = indexAt(Pos);
+
+	if (Index.isValid())
+	{
+		mContextInfo = mListModel->GetPieceInfo(Index.row());
+
+		if (mContextInfo)
+		{
+			if (!lcGetPiecesLibrary()->IsFavorite(mContextInfo))
+				Menu->addAction(tr("Add to Favorites"), this, SLOT(AddToFavorites()));
+			else
+				Menu->addAction(tr("Remove from Favorites"), this, SLOT(RemoveFromFavorites()));
+
+			Menu->addSeparator();
+		}
+	}
+
 	if (gSupportsFramebufferObjectARB || gSupportsFramebufferObjectEXT)
 	{
 		QActionGroup* IconGroup = new QActionGroup(Menu);
@@ -600,6 +645,21 @@ void lcPartSelectionListView::ToggleFixedColor()
 	mListModel->ToggleColorLocked();
 }
 
+void lcPartSelectionListView::AddToFavorites()
+{
+	if (mContextInfo)
+		lcGetPiecesLibrary()->AddToFavorites(mContextInfo);
+}
+
+void lcPartSelectionListView::RemoveFromFavorites()
+{
+	if (mContextInfo)
+	{
+		lcGetPiecesLibrary()->RemoveFromFavorites(mContextInfo);
+		emit FavoriteRemoved();
+	}
+}
+
 void lcPartSelectionListView::UpdateViewMode()
 {
 	setViewMode(mListModel->GetIconSize() && !mListModel->IsListMode() ? QListView::IconMode : QListView::ListMode);
@@ -681,6 +741,7 @@ lcPartSelectionWidget::lcPartSelectionWidget(QWidget* Parent)
 	Layout->addWidget(mSplitter);
 	setLayout(Layout);
 
+	connect(mPartsWidget, SIGNAL(FavoriteRemoved()), this, SLOT(FavoriteRemoved()));
 	connect(mPartsWidget->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(PartChanged(const QModelIndex&, const QModelIndex&)));
 	connect(mFilterWidget, SIGNAL(textChanged(const QString&)), this, SLOT(FilterChanged(const QString&)));
 	connect(mCategoriesWidget, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), this, SLOT(CategoryChanged(QTreeWidgetItem*, QTreeWidgetItem*)));
@@ -796,10 +857,12 @@ void lcPartSelectionWidget::CategoryChanged(QTreeWidgetItem* Current, QTreeWidge
 		ListModel->SetModelsCategory();
 	else if (Current == mCurrentModelCategoryItem)
 		ListModel->SetCurrentModelCategory();
+	else if (Current == mFavoritesCategoryItem)
+		ListModel->SetFavoritesCategory();
 	else if (Current == mAllPartsCategoryItem)
 		ListModel->SetCategory(-1);
 	else
-		ListModel->SetCategory(mCategoriesWidget->indexOfTopLevelItem(Current) - 2);
+		ListModel->SetCategory(mCategoriesWidget->indexOfTopLevelItem(Current) - 3);
 
 	mPartsWidget->setCurrentIndex(ListModel->index(0, 0));
 }
@@ -810,6 +873,12 @@ void lcPartSelectionWidget::PartChanged(const QModelIndex& Current, const QModel
 	Q_UNUSED(Previous);
 
 	gMainWindow->SetCurrentPieceInfo(mPartsWidget->GetCurrentPart());
+}
+
+void lcPartSelectionWidget::FavoriteRemoved()
+{
+	if (mCategoriesWidget->currentItem() == mFavoritesCategoryItem)
+		mPartsWidget->GetListModel()->SetFavoritesCategory();
 }
 
 void lcPartSelectionWidget::Redraw()
@@ -839,6 +908,7 @@ void lcPartSelectionWidget::UpdateCategories()
 	mCategoriesWidget->clear();
 
 	mAllPartsCategoryItem = new QTreeWidgetItem(mCategoriesWidget, QStringList(tr("All Parts")));
+	mFavoritesCategoryItem = new QTreeWidgetItem(mCategoriesWidget, QStringList(tr("Favorites")));
 	mCurrentModelCategoryItem = new QTreeWidgetItem(mCategoriesWidget, QStringList(tr("Parts In Use")));
 
 	for (int CategoryIdx = 0; CategoryIdx < gCategories.GetSize(); CategoryIdx++)
