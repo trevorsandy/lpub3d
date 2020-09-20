@@ -3210,12 +3210,14 @@ int Gui::getBOMParts(
            * Automatically ignore parts added twice due to buffer exchange
            */
               bool removed = false;
-              QString colorPart = token[1] + type;
+              QString colorPart = QString("%1%2%3").arg(current.lineNumber).arg(token[1]).arg(type);
 
               if (bfxStore2 && bfxLoad) {
                   int i;
                   for (i = 0; i < bfxParts.size(); i++) {
                       if (bfxParts[i] == colorPart) {
+                          emit gui->messageSig(LOG_NOTICE, QString("Duplicate PliPart at line [%1] removed [%2].")
+                                               .arg(current.lineNumber).arg(line));
                           bfxParts.removeAt(i);
                           removed = true;
                           break;
