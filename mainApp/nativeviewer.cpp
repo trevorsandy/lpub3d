@@ -538,7 +538,7 @@ void Gui::applyCameraSettings()
                 if (ActiveModel->GetPiecesBoundingBox(Min, Max))
                 {
                    lcVector3 Target = (Min + Max) / 2.0f;
-                   Camera->SetAngles(Latitude,Longitude,Distance,Target);
+                   Camera->SetAngles(Latitude,Longitude,Distance,Target, ActiveModel->GetCurrentStep(), false);
                 }
             }
         }

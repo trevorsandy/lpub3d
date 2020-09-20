@@ -289,8 +289,8 @@ public:
 	void GetAngles(float& Latitude, float& Longitude, float& Distance) const;
 /*** LPub3D Mod - Camera Globe ***/
 	void SetAngles(float Latitude, float Longitude, float Distance);
-	void SetAngles(float Latitude, float Longitude, float Distance, lcVector3 Target);
-	void SetAngles(float Latitude, float Longitude, float Distance, lcVector3 Target, lcStep Step, bool AddKey);
+    void SetAngles(float Latitude, float Longitude, float Distance, lcVector3 Target);
+    void SetAngles(float Latitude, float Longitude, float Distance, lcVector3 Target, lcStep Step, bool AddKey);
 	float GetScale();
 /*** LPub3D Mod end ***/
 

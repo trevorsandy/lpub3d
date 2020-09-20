@@ -3228,7 +3228,7 @@ void lcModel::SetCameraGlobe(lcCamera* Camera, float Latitude, float Longitude, 
 	if (notEqual(_Latitude,Latitude) ||
 		notEqual(_Longitude,Longitude))
 	{
-		Camera->SetAngles(Latitude, Longitude, Distance,Camera->mTargetPosition);
+        Camera->SetAngles(Latitude, Longitude, Distance,Camera->mTargetPosition, mCurrentStep, false);
 		SaveCheckpoint(tr("Update Camera Globe"));
 		gMainWindow->UpdateAllViews();
 	}

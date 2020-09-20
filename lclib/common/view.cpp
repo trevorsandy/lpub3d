@@ -371,7 +371,7 @@ void View::SetCameraAngles(float Latitude, float Longitude)
 			mCamera->CopySettings(OldCamera);
 	}
 /*** LPub3D Mod - Camera Globe ***/
-	mCamera->SetAngles(Latitude, Longitude, 1.0f, mCamera->mTargetPosition);
+    mCamera->SetAngles(Latitude, Longitude, 1.0f, mCamera->mTargetPosition, GetActiveModel()->GetCurrentStep(), false);
 /*** LPub3D Mod end ***/
 	ZoomExtents();
 	Redraw();
@@ -390,7 +390,7 @@ void View::SetCameraGlobe(float Latitude, float Longitude, float Distance, lcVec
 			mCamera->CopySettings(OldCamera);
 	}
 
-	mCamera->SetAngles(Latitude, Longitude, Distance, Target);
+    mCamera->SetAngles(Latitude, Longitude, Distance, Target, GetActiveModel()->GetCurrentStep(), false);
 
 	if (ZoomExt)
 		ZoomExtents();

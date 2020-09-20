@@ -138,15 +138,28 @@ void lcCamera::SaveLDraw(QTextStream& Stream) const
 
 bool lcCamera::ParseLDrawLine(QTextStream& Stream)
 {
+/*** LPub3D Mod - Camera Globe ***/
+	bool latOk = false, lonOk = false, tarOk = false;
+	float Lat = 23.0f, Lon = 45.0f, Dist = 1.0f;
+/*** LPub3D Mod end ***/
+
 	while (!Stream.atEnd())
 	{
 		QString Token;
 		Stream >> Token;
 
 		if (Token == QLatin1String("HIDDEN"))
-				SetHidden(true);
+			SetHidden(true);
 		else if (Token == QLatin1String("ORTHOGRAPHIC"))
 			SetOrtho(true);
+/*** LPub3D Mod - Camera Globe ***/
+		else if ((latOk = Token == QLatin1String("LATITUDE")))
+			Stream >> Lat;
+		else if ((lonOk = Token == QLatin1String("LONGITUDE")))
+			Stream >> Lon;
+		else if (Token == QLatin1String("DISTANCE"))
+			Stream >> Dist;
+/*** LPub3D Mod end ***/
 		else if (Token == QLatin1String("FOV"))
 			Stream >> m_fovy;
 		else if (Token == QLatin1String("ZNEAR"))
@@ -158,7 +171,9 @@ bool lcCamera::ParseLDrawLine(QTextStream& Stream)
 			Stream >> mPosition[0] >> mPosition[1] >> mPosition[2];
 			ChangeKey(mPositionKeys, mPosition, 1, true);
 		}
-		else if (Token == QLatin1String("TARGET_POSITION"))
+/*** LPub3D Mod - Camera Globe ***/
+		else if ((tarOk = Token == QLatin1String("TARGET_POSITION")))
+/*** LPub3D Mod end ***/
 		{
 			Stream >> mTargetPosition[0] >> mTargetPosition[1] >> mTargetPosition[2];
 			ChangeKey(mTargetPositionKeys, mTargetPosition, 1, true);
@@ -183,6 +198,13 @@ bool lcCamera::ParseLDrawLine(QTextStream& Stream)
 			return true;
 		}
 	}
+
+/*** LPub3D Mod - Camera Globe ***/
+	if (latOk && lonOk && tarOk)
+		SetAngles(Lat, Lon, Dist, mTargetPosition);
+	else if (latOk && lonOk)
+		SetAngles(Lat, Lon, Dist);
+/*** LPub3D Mod end ***/
 
 	return false;
 }
@@ -374,7 +396,7 @@ bool lcCamera::FileLoad(lcFile& file)
 		qint32 user;
 
 		file.ReadU32(&show, 1);
-//		if (version > 2)
+//      if (version > 2)
 		file.ReadS32(&user, 1);
 		if (show == 0)
 			mState |= LC_CAMERA_HIDDEN;
@@ -551,7 +573,7 @@ void lcCamera::DrawInterface(lcContext* Context, const lcScene& Scene) const
 	*CurVert++ = 0.0f; *CurVert++ = 0.0f; *CurVert++ = -Length;
 	*CurVert++ = 0.0f; *CurVert++ = 25.0f; *CurVert++ = 0.0f;
 
-	const GLushort Indices[40 + 24 + 24 + 4 + 16] = 
+	const GLushort Indices[40 + 24 + 24 + 4 + 16] =
 	{
 		0, 1, 1, 2, 2, 3, 3, 0,
 		4, 5, 5, 6, 6, 7, 7, 4,
@@ -926,7 +948,7 @@ void lcCamera::Orbit(float DistanceX, float DistanceY, const lcVector3& CenterPo
 		Z[0] = -Z[0];
 		Z[1] = -Z[1];
 	}
- 
+
 	lcMatrix44 YRot(lcVector4(Z[0], Z[1], 0.0f, 0.0f), lcVector4(-Z[1], Z[0], 0.0f, 0.0f), lcVector4(0.0f, 0.0f, 1.0f, 0.0f), lcVector4(0.0f, 0.0f, 0.0f, 1.0f));
 	lcMatrix44 transform = lcMul(lcMul(lcMul(lcMatrix44AffineInverse(YRot), lcMatrix44RotationY(DistanceY)), YRot), lcMatrix44RotationZ(-DistanceX));
 
@@ -1064,18 +1086,18 @@ void lcCamera::SetViewpoint(const lcVector3& Position)
 /*** LPub3D Mod - Camera Globe ***/
 void lcCamera::SetAngles(float Latitude, float Longitude, float Distance)
 {
-	SetAngles(Latitude, Longitude, Distance, mTargetPosition, 1, false);
+    SetAngles(Latitude, Longitude, Distance, mTargetPosition, 1, false);
 }
 
 void lcCamera::SetAngles(float Latitude, float Longitude, float Distance, lcVector3 Target)
 {
-	SetAngles(Latitude, Longitude, Distance, Target, 1, false);
+    SetAngles(Latitude, Longitude, Distance, Target, 1, false);
 }
 
 void lcCamera::SetAngles(float Latitude, float Longitude, float Distance, lcVector3 Target, lcStep Step, bool AddKey)
 {
 	mPosition = lcVector3(0, -1, 0);
-    mTargetPosition = Target; //lcVector3(0, 0, 0);
+	mTargetPosition = Target; //lcVector3(0, 0, 0);
 /*** LPub3D Mod end ***/
 	mUpVector = lcVector3(0, 0, 1);
 
@@ -1095,11 +1117,11 @@ void lcCamera::SetAngles(float Latitude, float Longitude, float Distance, lcVect
 /*** LPub3D Mod end ***/
 	mUpVector = lcMul(mUpVector, LatitudeMatrix);
 
-	ChangeKey(mPositionKeys, mPosition, Step, AddKey);
-	ChangeKey(mTargetPositionKeys, mTargetPosition, Step, AddKey);
-	ChangeKey(mUpVectorKeys, mUpVector, Step, AddKey);
+    ChangeKey(mPositionKeys, mPosition, Step, AddKey);
+    ChangeKey(mTargetPositionKeys, mTargetPosition, Step, AddKey);
+    ChangeKey(mUpVectorKeys, mUpVector, Step, AddKey);
 
-	UpdatePosition(Step);
+    UpdatePosition(Step);
 }
 
 void lcCamera::GetAngles(float& Latitude, float& Longitude, float& Distance) const
