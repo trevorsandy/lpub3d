@@ -3848,6 +3848,10 @@ void Preferences::publishingPreferences()
 
 void Preferences::viewerPreferences()
 {
+    QSettings Settings;
+    if (Settings.contains(QString("%1/%2").arg(SETTINGS,"ProjectsPath")))
+        lcSetProfileString(LC_PROFILE_PROJECTS_PATH, Settings.value(QString("%1/%2").arg(SETTINGS,"ProjectsPath")).toString());
+
     if (!povrayExe.isEmpty())
         lcSetProfileString(LC_PROFILE_POVRAY_PATH, povrayExe);
 
@@ -3866,10 +3870,6 @@ void Preferences::viewerPreferences()
     lcSetProfileInt(LC_PROFILE_NATIVE_PROJECTION, perspectiveProjection ? 0 : 1);
 
     lcSetProfileInt(LC_PROFILE_ANTIALIASING_SAMPLES, 8);
-
-    QSettings Settings;
-    if (Settings.contains(QString("%1/%2").arg(SETTINGS,"ProjectsPath")))
-        lcSetProfileString(LC_PROFILE_PROJECTS_PATH, Settings.value(QString("%1/%2").arg(SETTINGS,"ProjectsPath")).toString());
 
     lcSetProfileInt(LC_PROFILE_BUILD_MODIFICATION, false);
 }
@@ -4727,7 +4727,6 @@ bool Preferences::extractLDrawLib() {
 
     return r;
 }
-
 
 bool Preferences::copyRecursively(const QString &srcFilePath,
                             const QString &tgtFilePath)

@@ -295,7 +295,6 @@ class Preferences
     static bool    debugLogging;
     static bool    enableLineTypeIndexes;
 
-
 #ifdef Q_OS_MAC
     static bool    missingRendererLibs;
 #endif

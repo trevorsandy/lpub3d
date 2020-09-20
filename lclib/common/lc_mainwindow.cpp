@@ -803,8 +803,11 @@ void lcMainWindow::CreateToolBars()
 	mPartsToolBar->setObjectName("PartsToolbar");
 	mPartSelectionWidget = new lcPartSelectionWidget(mPartsToolBar);
 	mPartsToolBar->setWidget(mPartSelectionWidget);
+/*** LPub3D Mod - hide mPartsToolBar ***/
+/***
 	addDockWidget(Qt::RightDockWidgetArea, mPartsToolBar);
-
+***/
+/*** LPub3D Mod end ***/
 	mColorsToolBar = new QDockWidget(tr("Colors"), this);
 	mColorsToolBar->setObjectName("ColorsToolbar");
 	mColorsToolBar->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
@@ -821,8 +824,11 @@ void lcMainWindow::CreateToolBars()
 	connect(mColorList, SIGNAL(colorChanged(int)), this, SLOT(ColorChanged(int)));
 
 	mColorsToolBar->setWidget(ColorFrame);
+/*** LPub3D Mod - hide mColorsToolBar ***/
+/***
 	addDockWidget(Qt::RightDockWidgetArea, mColorsToolBar);
-
+***/
+/*** LPub3D Mod end ***/
 	mPropertiesToolBar = new QDockWidget(tr("Properties"), this);
 	mPropertiesToolBar->setObjectName("PropertiesToolbar");
 
@@ -871,7 +877,11 @@ void lcMainWindow::CreateToolBars()
 	connect(mTransformZEdit, SIGNAL(returnPressed()), mActions[LC_EDIT_TRANSFORM], SIGNAL(triggered()));
 
 	mPropertiesToolBar->setWidget(PropertiesWidget);
+/*** LPub3D Mod - hide mPropertiesToolBar ***/
+/***
 	addDockWidget(Qt::RightDockWidgetArea, mPropertiesToolBar);
+***/
+/*** LPub3D Mod end ***/
 
 	mTimelineToolBar = new QDockWidget(tr("Timeline"), this);
 	mTimelineToolBar->setObjectName("TimelineToolbar");
@@ -880,21 +890,19 @@ void lcMainWindow::CreateToolBars()
 	mTimelineWidget = new lcTimelineWidget(mTimelineToolBar);
 
 	mTimelineToolBar->setWidget(mTimelineWidget);
+/*** LPub3D Mod - hide mTimelineToolBar ***/
+/***
 	addDockWidget(Qt::RightDockWidgetArea, mTimelineToolBar);
 
 	tabifyDockWidget(mPartsToolBar, mPropertiesToolBar);
 	tabifyDockWidget(mPropertiesToolBar, mTimelineToolBar);
-
-/*** LPub3D Mod - raise timeline tool bar ***/
-	//mPartsToolBar->raise();
-	mTimelineToolBar->raise();
+	mPartsToolBar->raise();
+***/
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - toolbar hide ***/
+/*** LPub3D Mod - hide toolbars ***/
 	mStandardToolBar->setVisible(false);
 	mTimeToolBar->setVisible(false);
-	mPartsToolBar->setVisible(false);
-	mColorsToolBar->setVisible(false);
 	// remove first mToolsToolBar separator
 	foreach(QAction* tbAction, mToolsToolBar->actions())
 	{

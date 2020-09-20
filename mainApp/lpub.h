@@ -1637,9 +1637,6 @@ private slots:
     void disableActions();
     void disableActions2();
 
-    void partsWidgetVisibilityChanged(bool);
-    void coloursWidgetVisibilityChanged(bool);
-
     void exportToolBarVisibilityChanged(bool);
     void cacheToolBarVisibilityChanged(bool);
     void setupToolBarVisibilityChanged(bool);

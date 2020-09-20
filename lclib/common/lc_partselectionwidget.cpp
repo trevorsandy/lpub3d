@@ -412,7 +412,7 @@ void lcPartSelectionListModel::DrawPreview(int InfoIndex)
 
 	glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
+
 	lcMatrix44 ProjectionMatrix, ViewMatrix;
 
 	Info->ZoomExtents(20.0f, Aspect, ProjectionMatrix, ViewMatrix);
@@ -506,9 +506,7 @@ lcPartSelectionListView::lcPartSelectionListView(QWidget* Parent, lcPartSelectio
 	setUniformItemSizes(true);
 	setResizeMode(QListView::Adjust);
 	setWordWrap(false);
-/*** LPub3D Mod - disable drag event ***/
-	setDragEnabled(false);
-/*** LPub3D Mod end ***/
+	setDragEnabled(true);
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
 	mListModel = new lcPartSelectionListModel(this);
@@ -574,9 +572,9 @@ void lcPartSelectionListView::SetCategory(lcPartCategoryType Type, int Index)
 	case lcPartCategoryType::Category:
 		mListModel->SetCategory(Index);
 		break;
-    case lcPartCategoryType::Count:
-        break;
-    }
+	case lcPartCategoryType::Count:
+		break;
+	}
 
 	setCurrentIndex(mListModel->index(0, 0));
 }
@@ -641,9 +639,7 @@ void lcPartSelectionListView::UpdateViewMode()
 {
 	setViewMode(mListModel->GetIconSize() && !mListModel->IsListMode() ? QListView::IconMode : QListView::ListMode);
 	setWordWrap(mListModel->IsListMode());
-/*** LPub3D Mod - disable drag event ***/
-	setDragEnabled(false);
-/*** LPub3D Mod end ***/
+	setDragEnabled(true);
 }
 
 void lcPartSelectionListView::SetIconSize(int Size)
@@ -923,13 +919,9 @@ void lcPartSelectionWidget::OptionsMenuAboutToShow()
 		ListMode->setCheckable(true);
 		ListMode->setChecked(ListModel->IsListMode());
 
-/*** LPub3D Mod - Disable preview color lock ***/
-/***
 		QAction* FixedColor = Menu->addAction(tr("Lock Preview Color"), mPartsWidget, SLOT(ToggleFixedColor()));
 		FixedColor->setCheckable(true);
 		FixedColor->setChecked(ListModel->IsColorLocked());
-***/
-/*** LPub3D Mod end ***/		
 	}
 }
 
