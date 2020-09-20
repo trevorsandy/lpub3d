@@ -67,6 +67,9 @@ public slots:
 /*** LPub3D Mod - Native Renderer settings ***/
 	void on_ViewpointsCombo_currentIndexChanged(int index);
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - Reset theme colors ***/
+	void on_ResetColorsButton_clicked();
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Update Default Camera ***/
 	void on_cameraDefaultDistanceFactor_valueChanged(double value);
 	void on_cameraDefaultPosition_valueChanged(double value);

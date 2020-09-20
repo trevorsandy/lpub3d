@@ -1236,6 +1236,17 @@ void lcQPreferencesDialog::on_ViewpointsCombo_currentIndexChanged(int index)
 }
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - Reset theme colors ***/
+void lcQPreferencesDialog::on_ResetColorsButton_clicked()
+{
+	QString question = tr("Are you sure you want to reset interface colors to theme default ?");
+	if (QMessageBox::question(this, "3DViewer", question, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes)
+		return;
+
+	mOptions->Preferences.SetInterfaceColors(mOptions->Preferences.mColorTheme);
+}
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - Update Default Camera ***/
 void lcQPreferencesDialog::on_cameraDefaultDistanceFactor_valueChanged(double value)
 {
@@ -1264,3 +1275,4 @@ void lcQPreferencesDialog::cameraPropertyReset()
 	}
 }
 /*** LPub3D Mod end ***/
+
