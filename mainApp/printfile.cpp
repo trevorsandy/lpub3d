@@ -786,9 +786,6 @@ void Gui::exportAsPdf()
                        .arg(QString::fromLatin1(VER_PRODUCTNAME_STR))
                        .arg(QString::fromLatin1(VER_PRODUCTVERSION_STR)));
 
-  // Use white for pdf
-  QColor::Spec fillClear = QColor(Qt::white).Rgb;
-
   // calculate device pixel ratio
   qreal dpr = exportPixelRatio;
 
@@ -821,7 +818,7 @@ void Gui::exportAsPdf()
 
   // page store
   struct PdfPage {
-      QPixmap pixmap;
+      QImage image;
       float pageWidthIn;
       float pageHeightIn;
       QPageLayout pageLayout;
@@ -891,9 +888,9 @@ void Gui::exportAsPdf()
                         .arg(int(resolution()))
                         .arg(dpr);
 
-          // initiialize the pixmap
-          QPixmap pixmap(adjPageWidthPx,adjPageHeightPx);
-          pixmap.setDevicePixelRatio(dpr);
+          // initiialize the image
+          QImage image(adjPageWidthPx, adjPageHeightPx, QImage::Format_ARGB32);
+          image.setDevicePixelRatio(dpr);
 
           // set up the view - use unscaled page size
           QRectF boundingRect(0.0, 0.0, int(pageWidthPx),int(pageHeightPx));
@@ -910,12 +907,12 @@ void Gui::exportAsPdf()
           view.centerOn(boundingRect.center());
           clearPage(&view,&scene);
 
-          // paint to the pixmap the scene we view
+          // paint to the image the scene we view
           if (!exportPdfElements) {
-              // initialize painter with pixmap
-              painter.begin(&pixmap);
-              // clear the pixels of the pixmap
-              pixmap.fill(size_t(fillClear));
+              // initialize painter with image
+              painter.begin(&image);
+              // clear the pixels of the image
+              image.fill(Qt::white);
           }
 
           // render this page
@@ -932,10 +929,10 @@ void Gui::exportAsPdf()
                   pdfWriter.newPage();
               }
           } else {
-              // store the pixmap and required page attributes
+              // store the image and required page attributes
               getExportPageSize(pageWidthIn, pageHeightIn, Inches);
               PdfPage pdfPage;
-              pdfPage.pixmap       = pixmap;
+              pdfPage.image       = image;
               pdfPage.pageWidthIn  = pageWidthIn;
               pdfPage.pageHeightIn = pageHeightIn;
 
@@ -951,7 +948,7 @@ void Gui::exportAsPdf()
                   pages.erase(i);
               pages.insert(displayPageNum,pdfPage);
 
-              // wrap up paint to pixmap
+              // wrap up paint to image
               painter.end();
           }
       }
@@ -983,11 +980,11 @@ void Gui::exportAsPdf()
                   return;
                 }
 
-              // render this page's pixmap to the pdfWriter
-              painter.drawPixmap(QRect(0,0,
+              // render this page's image to the pdfWriter
+              painter.drawImage(QRect(0,0,
                                        int(pdfWriter.logicalDpiX()*pages[page].pageWidthIn),
                                        int(pdfWriter.logicalDpiY()*pages[page].pageHeightIn)),
-                                       pages[page].pixmap);
+                                       pages[page].image);
 
               // prepare to render next page
               if(page < pages.count()) {
@@ -1080,9 +1077,9 @@ void Gui::exportAsPdf()
                         .arg(ls ? "Landscape" : "Portrait")   //7
                         .arg(int(resolution()));              //8
 
-          // initiialize the pixmap
-          QPixmap pixmap(adjPageWidthPx,adjPageHeightPx);
-          pixmap.setDevicePixelRatio(dpr);
+          // initiialize the image
+          QImage image(adjPageWidthPx, adjPageHeightPx, QImage::Format_ARGB32);
+          image.setDevicePixelRatio(dpr);
 
           // set up the view - use unscaled page size
           QRectF boundingRect(0.0, 0.0, int(pageWidthPx),int(pageHeightPx));
@@ -1099,12 +1096,12 @@ void Gui::exportAsPdf()
           view.centerOn(boundingRect.center());
           clearPage(&view,&scene);
 
-          // paint to the pixmap the scene we view
+          // paint to the image the scene we view
           if (!exportPdfElements) {
-              // initialize painter with pixmap
-              painter.begin(&pixmap);
-              // clear the pixels of the pixmap
-              pixmap.fill(size_t(fillClear));
+              // initialize painter with image
+              painter.begin(&image);
+              // clear the pixels of the image
+              image.fill(Qt::white);
           }
 
           // render this page
@@ -1121,10 +1118,10 @@ void Gui::exportAsPdf()
                   pdfWriter.newPage();
               }
           } else {
-              // store the pixmap and required page attributes
+              // store the image and required page attributes
               getExportPageSize(pageWidthIn, pageHeightIn, Inches);
               PdfPage pdfPage;
-              pdfPage.pixmap       = pixmap;
+              pdfPage.image       = image;
               pdfPage.pageWidthIn  = pageWidthIn;
               pdfPage.pageHeightIn = pageHeightIn;
 
@@ -1172,11 +1169,11 @@ void Gui::exportAsPdf()
                   return;
               }
 
-              // render this page's pixmap to the pdfWriter
-              painter.drawPixmap(QRect(0,0,
+              // render this page's image to the pdfWriter
+              painter.drawImage(QRect(0,0,
                                  int(pdfWriter.logicalDpiX()*pages[page].pageWidthIn),
                                  int(pdfWriter.logicalDpiY()*pages[page].pageHeightIn)),
-                                 pages[page].pixmap);
+                                 pages[page].image);
 
               // prepare to render next page
               if(page < pages.count()) {
@@ -1331,7 +1328,7 @@ void Gui::exportAs(const QString &_suffix)
   displayPageNum = savePageNumber;
 
   // Support transparency for formats that can handle it, but use white for those that can't.
-  QColor::Spec fillClear = QColor((suffix.compare(".png", Qt::CaseInsensitive) == 0) ? Qt::transparent :  Qt::white).Rgb;
+  bool fillPng = suffix.compare(".png", Qt::CaseInsensitive) == 0;
 
   // calculate device pixel ratio
   qreal dpr = exportPixelRatio;
@@ -1398,12 +1395,12 @@ void Gui::exportAs(const QString &_suffix)
                              .arg(dpr)
                              .arg(suffix);
 
-              // paint to the pixmap the scene we view
-              QPixmap pixmap(adjPageWidthPx, adjPageHeightPx);
-              pixmap.setDevicePixelRatio(dpr);
+              // paint to the image the scene we view
+              QImage image(adjPageWidthPx, adjPageHeightPx, QImage::Format_ARGB32);
+              image.setDevicePixelRatio(dpr);
 
               QPainter painter;
-              painter.begin(&pixmap);
+              painter.begin(&image);
 
               // set up the view
               QRectF boundingRect(0.0, 0.0, int(pageWidthPx),int(pageHeightPx));
@@ -1420,24 +1417,23 @@ void Gui::exportAs(const QString &_suffix)
               view.centerOn(boundingRect.center());
               clearPage(&view,&scene);
 
-              // clear the pixels of the pixmap, just in case the background is
-              // transparent or uses a PNG pixmap with transparency. This will
+              // clear the pixels of the image, just in case the background is
+              // transparent or uses a PNG image with transparency. This will
               // prevent rendered pixels from each page layering on top of each
               // other.
-              //pixmap.fill(fillClear.Rgb);
-              pixmap.fill(size_t(fillClear));
+              image.fill(fillPng ? Qt::transparent : Qt::white);
 
               // render this page
               // scene.render instead of view.render resolves "warm up" issue
               drawPage(&view,&scene,true);
-              scene.setSceneRect(0.0,0.0,pixmap.width(),pixmap.height());
+              scene.setSceneRect(0.0,0.0,image.width(),image.height());
               scene.render(&painter);
               clearPage(&view,&scene);
 
-              // save the pixmap to the selected directory
+              // save the image to the selected directory
               // internationalization of "_page_"?
               QString pn = QString("%1") .arg(displayPageNum);
-              pixmap.toImage().save( QDir::toNativeSeparators(directoryName + "/" + baseName + "_page_" + pn + suffix));
+              image.save( QDir::toNativeSeparators(directoryName + "/" + baseName + "_page_" + pn + suffix));
               painter.end();
           }
       }
@@ -1510,12 +1506,12 @@ void Gui::exportAs(const QString &_suffix)
                              .arg(dpr)
                              .arg(suffix);
 
-              // paint to the pixmap the scene we view
-              QPixmap pixmap(adjPageWidthPx, adjPageHeightPx);
-              pixmap.setDevicePixelRatio(dpr);
+              // paint to the image the scene we view
+              QImage image(adjPageWidthPx, adjPageHeightPx, QImage::Format_ARGB32);
+              image.setDevicePixelRatio(dpr);
 
               QPainter painter;
-              painter.begin(&pixmap);
+              painter.begin(&image);
 
               QRectF boundingRect(0.0, 0.0, int(pageWidthPx),int(pageHeightPx));
               QRect bounding(0, 0, int(pageWidthPx),int(pageHeightPx));
@@ -1531,24 +1527,23 @@ void Gui::exportAs(const QString &_suffix)
               view.centerOn(boundingRect.center());
               clearPage(&view,&scene);
 
-              // clear the pixels of the pixmap, just in case the background is
-              // transparent or uses a PNG pixmap with transparency. This will
+              // clear the pixels of the image, just in case the background is
+              // transparent or uses a PNG image with transparency. This will
               // prevent rendered pixels from each page layering on top of each
               // other.
-              //pixmap.fill(fillClear.Rgb);
-              pixmap.fill(size_t(fillClear));
+              image.fill(fillPng ? Qt::transparent : Qt::white);
 
               // render this page
               // scene.render instead of view.render resolves "warm up" issue
               drawPage(&view,&scene,true);
-              scene.setSceneRect(0.0,0.0,pixmap.width(),pixmap.height());
+              scene.setSceneRect(0.0,0.0,image.width(),image.height());
               scene.render(&painter);
               clearPage(&view,&scene);
 
-              // save the pixmap to the selected directory
+              // save the image to the selected directory
               // internationalization of "_page_"?
               QString pn = QString("%1") .arg(displayPageNum);
-              pixmap.toImage().save( QDir::toNativeSeparators(directoryName + QDir::separator() + baseName + "_page_" + pn + suffix));
+              image.save( QDir::toNativeSeparators(directoryName + "/" + baseName + "_page_" + pn + suffix));
               painter.end();
           }
       }
