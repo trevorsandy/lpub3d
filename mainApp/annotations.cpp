@@ -777,7 +777,7 @@ void Annotations::loadDefaultAnnotationStyles(QByteArray& Buffer){
 #
 # Space-delmited LDraw Design ID, Annotation Style and Part Category cross reference
 #
-# The Regular Expression used is: ^(\b[^=]+\b)=([1|2|3])\s+([1-6])?\s*([^\s]+).*$
+# The Regular Expression used is: ^(\b[^=]+\b)=([1|2|3])\s+([1-6])?\s*(".*"|[^\s]+).*$
 #
 # 1. Design ID:           LDraw Part Name                 (Required)
 # 2. Annotation Style:    1 Square, 2 Circle, 3 Rectangle (Required)
@@ -843,13 +843,13 @@ void Annotations::loadDefaultAnnotationStyles(QByteArray& Buffer){
         "41239.dat=2   2  13    Technic Beam 13\n"
         "32278.dat=2   2  15    Technic Beam 15\n"
         "\n"
-        "11145.dat=3   3  25cm  Electric Mindstorms EV3 Cable 25 cm\n"
-        "11146.dat=3   3  35cm  Electric Mindstorms EV3 Cable 35 cm\n"
-        "11147.dat=3   3  50cm  Electric Mindstorms EV3 Cable 50 cm\n"
+        "11145.dat=3   3  \"25 cm\"  Electric Mindstorms EV3 Cable 25 cm\n"
+        "11146.dat=3   3  \"35 cm\"  Electric Mindstorms EV3 Cable 35 cm\n"
+        "11147.dat=3   3  \"50 cm\"  Electric Mindstorms EV3 Cable 50 cm\n"
         "\n"
-        "55804.dat=3   3  20cm  Electric Mindstorms NXT Cable 20 cm\n"
-        "55805.dat=3   3  35cm  Electric Mindstorms NXT Cable 35 cm\n"
-        "55806.dat=3   3  50cm  Electric Mindstorms NXT Cable 50 cm\n"
+        "55804.dat=3   3  \"20 cm\"  Electric Mindstorms NXT Cable 20 cm\n"
+        "55805.dat=3   3  \"35 cm\"  Electric Mindstorms NXT Cable 35 cm\n"
+        "55806.dat=3   3  \"50 cm\"  Electric Mindstorms NXT Cable 50 cm\n"
         "\n"
         "32013.dat=2   4   1    Technic Angle Connector #1\n"
         "32034.dat=2   4   2    Technic Angle Connector #2 (180 degree)\n"
@@ -1325,7 +1325,7 @@ Annotations::Annotations()
 
     if (annotationStyles.size() == 0) {
         QString styleFile = Preferences::annotationStyleFile;
-        QRegExp rx("^(\\b[^=]+\\b)=([1|2|3])\\s+([1-6])?\\s*([^\\s]+).*$");
+        QRegExp rx("^(\\b[^=]+\\b)=([1|2|3])\\s+([1-6])?\\s*(\".*\"|[^\\s]+).*$");
         if (!styleFile.isEmpty()) {
             QFile file(styleFile);
             if ( ! file.open(QFile::ReadOnly | QFile::Text)) {
@@ -2096,7 +2096,7 @@ bool Annotations::exportAnnotationStyleFile(){
         outstream << "#" << endl;
         outstream << "# Space-delmited LDraw Design ID, Annotation Style and Part Category cross reference" << endl;
         outstream << "#" << endl;
-        outstream << "# The Regular Expression used is: ^(\\b[^=]+\\b)=([1|2])\\s+([1-6])?\\s*([^\\s]+).*$" << endl;
+        outstream << "# The Regular Expression used is: ^(\\b[^=]+\\b)=([1|2|3])\\s+([1-6])?\\s*(\".*\"|[^\\s]+).*$" << endl;
         outstream << "#" << endl;
         outstream << "# 1. Design ID:           LDraw Part Name                 (Required)" << endl;
         outstream << "# 2. Annotation Style:    1 Square, 2 Circle, 3 Rectangle (Required)" << endl;
@@ -2116,6 +2116,9 @@ bool Annotations::exportAnnotationStyleFile(){
         outstream << "# ---------------------------------------" << endl;
         outstream << "#" << endl;
         outstream << "# 32034.dat=1  4  2    Technic Angle Connector #2 (180 degree)" << endl;
+        outstream << "#" << endl;
+        outstream << "# Circle(1) and square(2) styles are fixed at 2 characters. Use rectangle(3) style for longer annotation text." << endl;
+        outstream << "# Annotation text that contain spaces must be placed in double quotes - e.g. 11145.dat=3   3  \"25 cm\"..." << endl;        
         outstream << "#" << endl;
         outstream << "# This is one of five parameter files required to enable part element identification and annotation style." << endl;
         outstream << "#" << endl;
