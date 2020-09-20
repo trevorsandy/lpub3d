@@ -358,7 +358,7 @@ void Gui::applyCameraSettings()
             cameraMeta.target         = currentStep->subModel.subModelMeta.target;
             break;
         default: /*Render::Mt::CSI:*/
-            cameraMeta                = currentStep->csiCameraMeta;
+            cameraMeta                = currentStep->csiStepMeta;
             imageFileName             = currentStep->pngName;
             break;
         }

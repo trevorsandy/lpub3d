@@ -1584,15 +1584,15 @@ int Gui::drawPage(
                       QString empty("");
 
                       // set camera
-                      steps->meta.LPub.assem.cameraAngles   = gStep->csiCameraMeta.cameraAngles;
-                      steps->meta.LPub.assem.cameraDistance = gStep->csiCameraMeta.cameraDistance;
-                      steps->meta.LPub.assem.modelScale     = gStep->csiCameraMeta.modelScale;
-                      steps->meta.LPub.assem.cameraFoV      = gStep->csiCameraMeta.cameraFoV;
-                      steps->meta.LPub.assem.isOrtho        = gStep->csiCameraMeta.isOrtho;
-                      steps->meta.LPub.assem.imageSize      = gStep->csiCameraMeta.imageSize;
-                      steps->meta.LPub.assem.zfar           = gStep->csiCameraMeta.zfar;
-                      steps->meta.LPub.assem.znear          = gStep->csiCameraMeta.znear;
-                      steps->meta.LPub.assem.target         = gStep->csiCameraMeta.target;
+                      steps->meta.LPub.assem.cameraAngles   = gStep->csiStepMeta.cameraAngles;
+                      steps->meta.LPub.assem.cameraDistance = gStep->csiStepMeta.cameraDistance;
+                      steps->meta.LPub.assem.modelScale     = gStep->csiStepMeta.modelScale;
+                      steps->meta.LPub.assem.cameraFoV      = gStep->csiStepMeta.cameraFoV;
+                      steps->meta.LPub.assem.isOrtho        = gStep->csiStepMeta.isOrtho;
+                      steps->meta.LPub.assem.imageSize      = gStep->csiStepMeta.imageSize;
+                      steps->meta.LPub.assem.zfar           = gStep->csiStepMeta.zfar;
+                      steps->meta.LPub.assem.znear          = gStep->csiStepMeta.znear;
+                      steps->meta.LPub.assem.target         = gStep->csiStepMeta.target;
 
                       // set the extra renderer parms
                       steps->meta.LPub.assem.ldviewParms =
@@ -1974,14 +1974,14 @@ int Gui::drawPage(
                           QString empty("");
 
                           // set camera
-                          steps->meta.LPub.assem.cameraAngles   = gStep->csiCameraMeta.cameraAngles;
-                          steps->meta.LPub.assem.cameraDistance = gStep->csiCameraMeta.cameraDistance;
-                          steps->meta.LPub.assem.modelScale     = gStep->csiCameraMeta.modelScale;
-                          steps->meta.LPub.assem.cameraFoV      = gStep->csiCameraMeta.cameraFoV;
-                          steps->meta.LPub.assem.isOrtho        = gStep->csiCameraMeta.isOrtho;
-                          steps->meta.LPub.assem.zfar           = gStep->csiCameraMeta.zfar;
-                          steps->meta.LPub.assem.znear          = gStep->csiCameraMeta.znear;
-                          steps->meta.LPub.assem.target         = gStep->csiCameraMeta.target;
+                          steps->meta.LPub.assem.cameraAngles   = gStep->csiStepMeta.cameraAngles;
+                          steps->meta.LPub.assem.cameraDistance = gStep->csiStepMeta.cameraDistance;
+                          steps->meta.LPub.assem.modelScale     = gStep->csiStepMeta.modelScale;
+                          steps->meta.LPub.assem.cameraFoV      = gStep->csiStepMeta.cameraFoV;
+                          steps->meta.LPub.assem.isOrtho        = gStep->csiStepMeta.isOrtho;
+                          steps->meta.LPub.assem.zfar           = gStep->csiStepMeta.zfar;
+                          steps->meta.LPub.assem.znear          = gStep->csiStepMeta.znear;
+                          steps->meta.LPub.assem.target         = gStep->csiStepMeta.target;
 
                           // set the extra renderer parms
                           steps->meta.LPub.assem.ldviewParms =

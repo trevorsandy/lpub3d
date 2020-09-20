@@ -411,14 +411,14 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                       "Camera FOV",
                       topOfStep,
                       bottomOfStep,
-                      &step->csiCameraMeta.cameraFoV,
+                      &step->csiStepMeta.cameraFoV,
                       0.01f,
                       1,allowLocal);
     } else if (selectedAction == cameraAnglesAction) {
         changeCameraAngles(pl+" Camera Angles",
                           topOfStep,
                           bottomOfStep,
-                          &step->csiCameraMeta.cameraAngles,
+                          &step->csiStepMeta.cameraAngles,
                          1,allowLocal);
      } else if (selectedAction == movePrevAction) {
 
@@ -470,7 +470,7 @@ void CsiItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
                         "Model Size",
                         topOfStep,
                         bottomOfStep,
-                        &step->csiCameraMeta.modelScale);
+                        &step->csiStepMeta.modelScale);
     } else if (selectedAction == marginsAction) {
       changeMargins(pl+" Margins",
                     topOfStep,
@@ -657,7 +657,7 @@ void CsiItem::change()
 
       changePlacementOffset(step->topOfStep(),&meta->LPub.assem.placement,CsiType,true,false);  
       
-      modelScale = step->csiCameraMeta.modelScale;
+      modelScale = step->csiStepMeta.modelScale;
       modelScale.setValue(float(modelScale.value())*float(oldScale));
 
       changeFloat(step->topOfStep(),step->bottomOfStep(),&modelScale,1,0);

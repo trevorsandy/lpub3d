@@ -75,7 +75,7 @@ class Step : public AbstractRangeElement
     PlacementNum          stepNumber;
     NumberPlacementMeta   numberPlacemetMeta;
     RotStepMeta           rotStepMeta;
-    SettingsMeta          csiCameraMeta;
+    SettingsMeta          csiStepMeta;
     StringMeta            ldviewParms;
     StringMeta            ldgliteParms;
     StringMeta            povrayParms;

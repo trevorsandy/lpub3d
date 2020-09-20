@@ -108,7 +108,7 @@ Step::Step(
       stepNumber.color        = _meta.LPub.callout.stepNum.color.value();
       stepNumber.margin       = _meta.LPub.callout.stepNum.margin;
       pliPerStep              = _meta.LPub.callout.pli.perStep.value();
-      csiCameraMeta           = _meta.LPub.callout.csi;
+      csiStepMeta           = _meta.LPub.callout.csi;
       justifyStep             = _meta.LPub.callout.justifyStep;
     } else if (multiStep) {
       csiPlacement.margin     = _meta.LPub.multiStep.csi.margin;
@@ -124,7 +124,7 @@ Step::Step(
       subModel.margin         = _meta.LPub.multiStep.subModel.margin;
       subModel.placement      = _meta.LPub.multiStep.subModel.placement;
       pliPerStep              = _meta.LPub.multiStep.pli.perStep.value();
-      csiCameraMeta           = _meta.LPub.multiStep.csi;
+      csiStepMeta           = _meta.LPub.multiStep.csi;
       justifyStep             = _meta.LPub.multiStep.justifyStep;
       adjustOnItemOffset      = _meta.LPub.multiStep.adjustOnItemOffset.value();
       stepSize                = _meta.LPub.multiStep.stepSize;
@@ -143,18 +143,18 @@ Step::Step(
       subModel.placement      = _meta.LPub.subModel.placement;
       pliPerStep              = false;
 
-      csiCameraMeta.studLogo         = _meta.LPub.assem.studLogo;
+      csiStepMeta.studLogo         = _meta.LPub.assem.studLogo;
 
-      csiCameraMeta.cameraAngles     = _meta.LPub.assem.cameraAngles;
-      csiCameraMeta.modelScale       = _meta.LPub.assem.modelScale;
-      csiCameraMeta.cameraDistance   = _meta.LPub.assem.cameraDistance;
-      csiCameraMeta.cameraName       = _meta.LPub.assem.cameraName;
-      csiCameraMeta.cameraFoV        = _meta.LPub.assem.cameraFoV;
-      csiCameraMeta.isOrtho          = _meta.LPub.assem.isOrtho;
-      csiCameraMeta.imageSize    = _meta.LPub.assem.imageSize;
-      csiCameraMeta.zfar             = _meta.LPub.assem.zfar;
-      csiCameraMeta.znear            = _meta.LPub.assem.znear;
-      csiCameraMeta.target           = _meta.LPub.assem.target;
+      csiStepMeta.cameraAngles     = _meta.LPub.assem.cameraAngles;
+      csiStepMeta.modelScale       = _meta.LPub.assem.modelScale;
+      csiStepMeta.cameraDistance   = _meta.LPub.assem.cameraDistance;
+      csiStepMeta.cameraName       = _meta.LPub.assem.cameraName;
+      csiStepMeta.cameraFoV        = _meta.LPub.assem.cameraFoV;
+      csiStepMeta.isOrtho          = _meta.LPub.assem.isOrtho;
+      csiStepMeta.imageSize        = _meta.LPub.assem.imageSize;
+      csiStepMeta.zfar             = _meta.LPub.assem.zfar;
+      csiStepMeta.znear            = _meta.LPub.assem.znear;
+      csiStepMeta.target           = _meta.LPub.assem.target;
     }
   pli.steps                 = grandparent();
   pli.step                  = this;
@@ -231,18 +231,18 @@ int Step::createCsi(
   bool nativeRenderer = Preferences::usingNativeRenderer;
   int  nType          = NTypeDefault;
   FloatPairMeta cameraAngles;
-  cameraAngles.setValues( csiCameraMeta.cameraAngles.value(0),
-                          csiCameraMeta.cameraAngles.value(1));
-  float cameraFoV       = csiCameraMeta.cameraFoV.value();
-  float modelScale      = csiCameraMeta.modelScale.value();
-  float camDistance     = csiCameraMeta.cameraDistance.value();
+  cameraAngles.setValues( csiStepMeta.cameraAngles.value(0),
+                          csiStepMeta.cameraAngles.value(1));
+  float cameraFoV       = csiStepMeta.cameraFoV.value();
+  float modelScale      = csiStepMeta.modelScale.value();
+  float camDistance     = csiStepMeta.cameraDistance.value();
   if (nativeRenderer) {
     nType = calledOut ? NTypeCalledOut : multiStep ? NTypeMultiStep : NTypeDefault;
   }
   QString csi_Name      = modelDisplayOnlyStep ? csiName()+"_fm" : bfxLoad ? csiName()+"_bfx" : csiName();
   bool    invalidIMStep = ((modelDisplayOnlyStep) || (stepNumber.number == 1));
   bool    absRotstep    = meta.rotStep.value().type == "ABS";
-  bool    useImageSize  = csiCameraMeta.imageSize.value(0) > 0;
+  bool    useImageSize  = csiStepMeta.imageSize.value(0) > 0;
   FloatPairMeta noCA;
 
   ldrName.clear();
@@ -269,7 +269,7 @@ int Step::createCsi(
   QString keyPart1 = QString("%1").arg(csi_Name+orient);
   QString keyPart2 = QString("%1_%2_%3_%4_%5_%6_%7_%8")
                              .arg(stepNumber.number)
-                             .arg(useImageSize ? int(csiCameraMeta.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0))
+                             .arg(useImageSize ? int(csiStepMeta.imageSize.value(0)) : gui->pageSize(meta.LPub.page, 0))
                              .arg(double(resolution()))
                              .arg(resolutionType() == DPI ? "DPI" : "DPCM")
                              .arg(double(modelScale))
@@ -278,11 +278,11 @@ int Step::createCsi(
                              .arg(absRotstep ? double(noCA.value(1)) : double(cameraAngles.value(1)));
 
   // append target vector if specified
-  if (csiCameraMeta.target.isPopulated())
+  if (csiStepMeta.target.isPopulated())
       keyPart2.append(QString("_%1_%2_%3")
-                     .arg(double(csiCameraMeta.target.x()))
-                     .arg(double(csiCameraMeta.target.y()))
-                     .arg(double(csiCameraMeta.target.z())));
+                     .arg(double(csiStepMeta.target.x()))
+                     .arg(double(csiStepMeta.target.y()))
+                     .arg(double(csiStepMeta.target.z())));
 
   // append rotstep if specified
   if (meta.rotStep.isPopulated())
@@ -367,7 +367,7 @@ int Step::createCsi(
           emit gui->messageSig(LOG_ERROR,QString("Failed to consolidate Viewer CSI parts"));
 
       // store rotated and unrotated (csiParts). Unrotated parts are used to generate LDView pov file
-      if (!csiCameraMeta.target.isPopulated())
+      if (!csiStepMeta.target.isPopulated())
           keyPart2.append(QString("_0_0_0"));
       if (!meta.rotStep.isPopulated())
           keyPart2.append(QString("_0_0_0_REL"));
@@ -409,17 +409,17 @@ int Step::createCsi(
          showStatus = true;
 
          // set camera
-         meta.LPub.assem.studLogo       = csiCameraMeta.studLogo;
+         meta.LPub.assem.studLogo       = csiStepMeta.studLogo;
 
-         meta.LPub.assem.cameraAngles   = csiCameraMeta.cameraAngles;
-         meta.LPub.assem.cameraDistance = csiCameraMeta.cameraDistance;
-         meta.LPub.assem.modelScale     = csiCameraMeta.modelScale;
-         meta.LPub.assem.cameraFoV      = csiCameraMeta.cameraFoV;
-         meta.LPub.assem.isOrtho        = csiCameraMeta.isOrtho;
-         meta.LPub.assem.imageSize      = csiCameraMeta.imageSize;
-         meta.LPub.assem.zfar           = csiCameraMeta.zfar;
-         meta.LPub.assem.znear          = csiCameraMeta.znear;
-         meta.LPub.assem.target         = csiCameraMeta.target;
+         meta.LPub.assem.cameraAngles   = csiStepMeta.cameraAngles;
+         meta.LPub.assem.cameraDistance = csiStepMeta.cameraDistance;
+         meta.LPub.assem.modelScale     = csiStepMeta.modelScale;
+         meta.LPub.assem.cameraFoV      = csiStepMeta.cameraFoV;
+         meta.LPub.assem.isOrtho        = csiStepMeta.isOrtho;
+         meta.LPub.assem.imageSize      = csiStepMeta.imageSize;
+         meta.LPub.assem.zfar           = csiStepMeta.zfar;
+         meta.LPub.assem.znear          = csiStepMeta.znear;
+         meta.LPub.assem.target         = csiStepMeta.target;
 
          // set the extra renderer parms
          meta.LPub.assem.ldviewParms =
@@ -473,7 +473,7 @@ int Step::createCsi(
       viewerOptions                 = new ViewerOptions();
       viewerOptions->ViewerCsiKey   = viewerCsiKey;
       viewerOptions->ImageFileName  = pngName;
-      viewerOptions->StudLogo       = csiCameraMeta.studLogo.value();
+      viewerOptions->StudLogo       = csiStepMeta.studLogo.value();
       viewerOptions->Resolution     = resolution();
       viewerOptions->PageWidth      = gui->pageSize(meta.LPub.page, 0);
       viewerOptions->PageHeight     = gui->pageSize(meta.LPub.page, 1);
@@ -481,16 +481,16 @@ int Step::createCsi(
       viewerOptions->FoV            = CAMERA_FOV_NATIVE_DEFAULT;
       viewerOptions->ZNear          = CAMERA_ZNEAR_NATIVE_DEFAULT;
       viewerOptions->ZFar           = CAMERA_ZFAR_NATIVE_DEFAULT;
-      viewerOptions->CameraDistance = camDistance > 0 ? camDistance : renderer->ViewerCameraDistance(meta,csiCameraMeta.modelScale.value());
+      viewerOptions->CameraDistance = camDistance > 0 ? camDistance : renderer->ViewerCameraDistance(meta,csiStepMeta.modelScale.value());
       viewerOptions->NativeCDF      = meta.LPub.nativeCD.factor.value();
-      viewerOptions->IsOrtho        = csiCameraMeta.isOrtho.value();
-      viewerOptions->CameraName     = csiCameraMeta.cameraName.value();
+      viewerOptions->IsOrtho        = csiStepMeta.isOrtho.value();
+      viewerOptions->CameraName     = csiStepMeta.cameraName.value();
       viewerOptions->RotStep        = xyzVector(float(meta.rotStep.value().rots[0]),float(meta.rotStep.value().rots[1]),float(meta.rotStep.value().rots[2]));
       viewerOptions->RotStepType    = meta.rotStep.value().type;
-      viewerOptions->Latitude       = absRotstep ? noCA.value(0) : csiCameraMeta.cameraAngles.value(0);
-      viewerOptions->Longitude      = absRotstep ? noCA.value(1) : csiCameraMeta.cameraAngles.value(1);
-      viewerOptions->Target         = xyzVector(csiCameraMeta.target.x(),csiCameraMeta.target.y(),csiCameraMeta.target.z());
-      viewerOptions->ModelScale     = csiCameraMeta.modelScale.value();
+      viewerOptions->Latitude       = absRotstep ? noCA.value(0) : csiStepMeta.cameraAngles.value(0);
+      viewerOptions->Longitude      = absRotstep ? noCA.value(1) : csiStepMeta.cameraAngles.value(1);
+      viewerOptions->Target         = xyzVector(csiStepMeta.target.x(),csiStepMeta.target.y(),csiStepMeta.target.z());
+      viewerOptions->ModelScale     = csiStepMeta.modelScale.value();
       if (! renderer->useLDViewSCall()) {
          viewerOptions->ImageWidth  = pixmap->width();
          viewerOptions->ImageHeight = pixmap->height();
