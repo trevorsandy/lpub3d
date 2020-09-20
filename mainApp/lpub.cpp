@@ -3254,7 +3254,7 @@ void Gui::progressPermStatusRemove(){
 
 void Gui::showRenderDialog()
 {
-    RenderDialog dialog(this);
+    RenderDialog dialog(this,POVRAY_RENDER);
     dialog.exec();
 }
 
@@ -3747,7 +3747,7 @@ void Gui::createActions()
     exportBricklinkAct->setEnabled(false);
     connect(exportBricklinkAct, SIGNAL(triggered()), this, SLOT(exportAsBricklinkXML()));
 
-    povrayRenderAct = new QAction(QIcon(":/resources/povray32.png"),tr("Render..."), this);
+    povrayRenderAct = new QAction(QIcon(":/resources/povray32.png"),tr("POVRay Render..."), this);
     povrayRenderAct->setShortcut(tr("Alt+9"));
     povrayRenderAct->setStatusTip(tr("Render the current model using POV-Ray - Alt+9"));
     povrayRenderAct->setEnabled(false);

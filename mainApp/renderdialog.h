@@ -30,18 +30,15 @@ class RenderDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit RenderDialog(QWidget* Parent);
+    explicit RenderDialog(QWidget* Parent = nullptr, int type = 0);
     ~RenderDialog();
 
 public slots:
     void reject();
-    void on_TargetButton_clicked();
+    void on_RenderSettingsButton_clicked();
     void on_RenderButton_clicked();
     void on_OutputBrowseButton_clicked();
-    void on_LdvLDrawPreferencesButton_clicked();
-    void on_LdvExportSettingsButton_clicked();
-    void on_ResetButton_clicked();
-    void textChanged(const QString &);
+    void on_OutputResetButton_clicked();
     void Update();
 
 protected slots:
@@ -65,19 +62,22 @@ protected:
     QTime mRenderTime;
     QFile mOutputFile;
     QImage mImage;
-    QStringList mCsiKeyList;
     QString mViewerStepKey;
     QString mModelFile;
 
+    QStringList mCsiKeyList;
+
+    bool mTransBackground;
     int mWidth;
     int mHeight;
-    int mValue;
     int mResolution;
     int mQuality;
+    double mScale;
+
+    int mRenderType;
     int mPreviewWidth;
     int mPreviewHeight;
-    double mScale;
-    
+
     Ui::RenderDialog* ui;
 };
 

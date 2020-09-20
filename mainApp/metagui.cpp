@@ -6136,3 +6136,205 @@ void BuildModDialogGui::getBuildMod(QStringList & buildModKeys, bool apply){
         return;
     }
 }
+
+
+/***********************************************************************
+ *
+ * POVRay renderer
+ *
+ **********************************************************************/
+/*
+    K_STEPNUMBER = 0,  // 0  not used
+    K_IMAGEWIDTH,      // 1  not used
+    K_RESOLUTION,      // 2
+    K_RESOLUTIONTYPE,  // 3
+    K_MODELSCALE,      // 4
+    K_FOV,             // 5  not used
+    K_LATITUDE,        // 6
+    K_LONGITUDE,       // 7
+    K_TARGETX,         // 8
+    K_TARGETY,         // 9
+    K_TARGETZ,         // 10
+    K_ROTSX,           // 11
+    K_ROTSY,           // 12
+    K_ROTSZ,           // 13
+    K_ROTSTYPE         // 14
+*/
+
+void POVRayRenderDialogGui::getRenderSettings(
+        QStringList &csiKeyList,
+        int         &width,
+        int         &height,
+        int         &quality,
+        bool        &alpha)
+{
+    QDialog *dialog = new QDialog();
+    dialog->setWindowTitle(tr("POV-Ray Render Settings"));
+
+    QFormLayout *form = new QFormLayout(dialog);
+    QGroupBox *settingsBox = new QGroupBox("Select output image settings",dialog);
+    form->addWidget(settingsBox);
+    QFormLayout *settingsSubform = new QFormLayout(settingsBox);
+
+    mWidth      = width;
+    mHeight     = height;
+    mQuality    = quality;
+    mCsiKeyList = csiKeyList;
+    editedCsiKeyList = csiKeyList;
+
+    settingLabels
+    << QString("Transparent Background:")    //  0   LBL_ALPHA,               QCheckBox
+    << QString("Maintain Aspect Ratio:")     //  1   LBL_ASPECT,              QCheckBox
+    << QString("Width:")                     //  2/0 LBL_WIDTH,               QLineEdit
+    << QString("Height:")                    //  3/1 LBL_HEIGHT,              QLineEdit
+    << QString("Camera Anlge - Latitude:")   //  4/2 LBL_LATITUDE,            QLineEdit
+    << QString("Camera Anlge - Longitude:")  //  5/3 LBL_LONGITUDE            QLineEdit
+    << QString("Resolution:")                //  6/4 LBL_RESOLUTION,          QLineEdit
+    << QString("Scale:")                     //  7/5 LBL_SCALE,               QLineEdit
+    << QString("Quality:")                   //  8   LBL_QUALITY,             QComboBox
+    << QString("LookAt Target and Rotstep:") //  9/0 LBL_TARGET_AND_ROTATE,   QToolButton
+    << QString("LDV Export Settings:")       // 10/1 LBL_LDV_EXPORT_SETTINGS, QToolButton
+    << QString("LDV LDraw Settings:")        // 11/2 LBL_LDV_LDRAW_SETTINGS   QToolButton
+       ;
+
+    for(int i = 0; i < settingLabels.size(); ++i) {
+
+        QLabel *label = new QLabel(settingLabels[i], dialog);
+        settingLabelList << label;
+
+        if (i < LBL_WIDTH){
+            QCheckBox *checkBox = new QCheckBox(dialog);
+            checkBox->setChecked(true);
+            checkBoxList << checkBox;
+            settingsSubform->addRow(label,checkBox);
+        } else if (i < LBL_QUALITY) {
+            QLineEdit *lineEdit = new QLineEdit(dialog);
+            lineEdit->setText(
+                        i == LBL_WIDTH      ? QString::number(mWidth) :
+                        i == LBL_HEIGHT     ? QString::number(mHeight) :
+                        i == LBL_LATITUDE   ? csiKeyList.at(K_LATITUDE) :
+                        i == LBL_LONGITUDE  ? csiKeyList.at(K_LONGITUDE) :
+                        i == LBL_RESOLUTION ? csiKeyList.at(K_RESOLUTION) :
+                                              csiKeyList.at(K_MODELSCALE));
+            if (i < LBL_LATITUDE) {      // width, height
+                connect(lineEdit,SIGNAL(textChanged(const QString &)),
+                            this,SLOT  (textChanged(const QString &)));
+                lineEdit->setValidator(new QIntValidator(16, RENDER_IMAGE_MAX_SIZE));
+            }
+            else if (i < LBL_RESOLUTION) // latitued, longitude
+                lineEdit->setValidator(new QIntValidator(1, 360));
+            else if (i < LBL_SCALE)      // resolution
+                lineEdit->setValidator(new QIntValidator(50, INT_MAX));
+            else                         // scale
+                lineEdit->setValidator(new QDoubleValidator(0.1,1000.0,1));
+            lineEditList << lineEdit;
+            settingsSubform->addRow(label,lineEdit);
+        } else if (i < LBL_TARGET_AND_ROTATE) {
+            QString items = QString("High|Medium|Low");
+            qualityCombo = new QComboBox(dialog);
+            qualityCombo->setCurrentIndex(mQuality);
+            qualityCombo->addItems(items.split("|"));
+            settingsSubform->addRow(label,qualityCombo);
+        } else {
+            QToolButton *toolButton = new QToolButton(dialog);
+            toolButton->setText(tr("..."));
+            if (i == LBL_TARGET_AND_ROTATE)
+                connect(toolButton,SIGNAL(clicked()),
+                              this,SLOT  (setLookAtTargetAndRotate()));
+            else if (i == LBL_LDV_EXPORT_SETTINGS)
+                connect(toolButton,SIGNAL(clicked()),
+                              this,SLOT  (setLdvExportSettings()));
+            else if (i == LBL_LDV_LDRAW_SETTINGS)
+                connect(toolButton,SIGNAL(clicked()),
+                              this,SLOT  (setLdvLDrawPreferences()));
+            toolButtonList << toolButton;
+            settingsSubform->addRow(label,toolButton);
+        }
+    }
+
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                               Qt::Horizontal, dialog);
+    form->addRow(&buttonBox);
+    QObject::connect(&buttonBox, SIGNAL(accepted()), dialog, SLOT(accept()));
+    QObject::connect(&buttonBox, SIGNAL(rejected()), dialog, SLOT(reject()));
+
+    QPushButton *resetButton = new QPushButton(tr("Reset"));
+    buttonBox.addButton(resetButton,QDialogButtonBox::ActionRole);
+    QObject::connect(resetButton,SIGNAL(clicked()), this,SLOT(resetSettings()));
+
+    if (dialog->exec() == QDialog::Accepted) {
+        quality = qualityCombo->currentIndex();
+        alpha   = checkBoxList[ALPHA_BOX]->isChecked();
+        width   = lineEditList.at(WIDTH_EDIT)->text().toInt();
+        height  = lineEditList.at(HEIGHT_EDIT)->text().toInt();
+        editedCsiKeyList[K_LATITUDE]   = lineEditList.at(LATITUDE_EDIT)->text();
+        editedCsiKeyList[K_LONGITUDE]  = lineEditList.at(LONGITUDE_EDIT)->text();
+        editedCsiKeyList[K_RESOLUTION] = lineEditList.at(RESOLUTION_EDIT)->text();
+        editedCsiKeyList[K_MODELSCALE] = lineEditList.at(SCALE_EDIT)->text();
+        csiKeyList = editedCsiKeyList;
+    }
+}
+
+void POVRayRenderDialogGui::setLookAtTargetAndRotate()
+{
+    TargetRotateDialogGui *targetRotateDialogGui =
+            new TargetRotateDialogGui();
+    targetRotateDialogGui->getTargetAndRotateValues(editedCsiKeyList);
+}
+
+void POVRayRenderDialogGui::setLdvLDrawPreferences()
+{
+    Render::showLdvLDrawPreferences(POVRayRender);
+}
+
+void POVRayRenderDialogGui::setLdvExportSettings()
+{
+    Render::showLdvExportSettings(POVRayRender);
+}
+
+void POVRayRenderDialogGui::resetSettings()
+{
+    const QVector<QString> resetValues = { QString::number(mWidth),
+                                           QString::number(mHeight),
+                                           mCsiKeyList.at(K_LATITUDE),
+                                           mCsiKeyList.at(K_LONGITUDE),
+                                           mCsiKeyList.at(K_RESOLUTION),
+                                           mCsiKeyList.at(K_MODELSCALE) };
+    for(int i = 0; i < settingLabels.size(); ++i) {
+        if (i < LBL_WIDTH) {                        // alpha, aspect
+            for(int j = 0; j < checkBoxList.size(); ++j)
+                checkBoxList[j]->setChecked(true);
+            i += checkBoxList.size();
+        } else if (i < LBL_QUALITY) {               //width, height, latitude, longitude, resolution, scale
+            for(int j = 0; j < lineEditList.size(); ++j)
+                lineEditList[j]->setText(resetValues.at(j));
+            i += lineEditList.size();
+        } else if (i == LBL_TARGET_AND_ROTATE) {    // quality
+            qualityCombo->setCurrentIndex(mQuality);
+        } else if (i > LBL_TARGET_AND_ROTATE)
+            break;
+    }
+    editedCsiKeyList = mCsiKeyList;
+}
+
+void POVRayRenderDialogGui::textChanged(const QString &value)
+{
+    /* original height x new width / original width = new height */
+    int mNewValue = value.toInt();
+    if (checkBoxList.at(ASPECT_BOX)->isChecked()){
+       if (sender() == lineEditList.at(WIDTH_EDIT)) {
+         disconnect(lineEditList.at(HEIGHT_EDIT),SIGNAL(textChanged(const QString &)),
+                          this,SLOT  (textChanged(const QString &)));
+         lineEditList.at(HEIGHT_EDIT)->setText(QString::number(qRound(double(mHeight * mNewValue / mWidth))));
+         connect(lineEditList.at(HEIGHT_EDIT),SIGNAL(textChanged(const QString &)),
+                             this,SLOT  (textChanged(const QString &)));
+       } else
+       if (sender() == lineEditList.at(HEIGHT_EDIT)){
+         disconnect(lineEditList.at(WIDTH_EDIT),SIGNAL(textChanged(const QString &)),
+                        this, SLOT  (textChanged(const QString &)));
+         lineEditList.at(WIDTH_EDIT)->setText(QString::number(qRound(double(mNewValue * mWidth / mHeight))));
+         connect(lineEditList.at(WIDTH_EDIT),SIGNAL(textChanged(const QString &)),
+                            this,SLOT (textChanged(const QString &)));
+       }
+    }
+}

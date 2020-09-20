@@ -26,8 +26,9 @@
 #define LP3D_CA 0.01
 #define LP3D_CDF 1.0
 
-RenderDialog::RenderDialog(QWidget* Parent)
+RenderDialog::RenderDialog(QWidget* Parent, int type)
     : QDialog(Parent),
+      mRenderType(type),
     ui(new Ui::RenderDialog)
 {
 #ifndef QT_NO_PROCESS
@@ -36,32 +37,14 @@ RenderDialog::RenderDialog(QWidget* Parent)
     mOutputBuffer = nullptr;
 
     mViewerStepKey = gui->getViewerStepKey();
-    mCsiKeyList   = gui->getViewerConfigKey(mViewerStepKey).split(";").last().split("_");
+    mCsiKeyList    = gui->getViewerConfigKey(mViewerStepKey).split(";").last().split("_");
     
     ui->setupUi(this);
 
-    mWidth         = POVRAY_RENDER_DEFAULT_WIDTH;
-    mHeight        = POVRAY_RENDER_DEFAULT_HEIGHT;
-    mScale         = mCsiKeyList.at(K_MODELSCALE).toDouble();
-    mResolution    = mCsiKeyList.at(K_RESOLUTION).toInt();
-    mQuality       = Preferences::povrayRenderQuality;
-
-    ui->AspectRatioBox->setChecked(true);
-    ui->OutputAlphaBox->setChecked(true);
-
-    ui->WidthEdit->setValidator(new QIntValidator(16, RENDER_IMAGE_MAX_SIZE));
-    ui->WidthEdit->setText(QString::number(mWidth));
-    connect(ui->WidthEdit,SIGNAL(textChanged(const QString &)),
-                     this,SLOT  (textChanged(const QString &)));
-    ui->HeightEdit->setValidator(new QIntValidator(16, RENDER_IMAGE_MAX_SIZE));
-    ui->HeightEdit->setText(QString::number(mHeight));
-    connect(ui->HeightEdit,SIGNAL(textChanged(const QString &)),
-                      this,SLOT  (textChanged(const QString &)));
-    ui->ScaleEdit->setText(QString::number(mScale));
-    ui->ScaleEdit->setValidator(new QDoubleValidator(0.1,1000.0,1));
-    ui->ResolutionEdit->setText(QString::number(mResolution));
-    ui->ResolutionEdit->setValidator(new QIntValidator(50, INT_MAX));
-    ui->QualityComboBox->setCurrentIndex(mQuality);
+    mWidth                 = POVRAY_RENDER_DEFAULT_WIDTH;
+    mHeight                = POVRAY_RENDER_DEFAULT_HEIGHT;
+    mQuality               = Preferences::povrayRenderQuality;
+    mTransBackground = true;
 
     ui->OutputEdit->setText(Render::getPovrayRenderFileName(mViewerStepKey));
     ui->OutputEdit->setValidator(new QRegExpValidator(QRegExp("^.*\\.png$",Qt::CaseInsensitive)));
@@ -140,21 +123,16 @@ void RenderDialog::reject()
         QDialog::reject();
 }
 
-void RenderDialog::on_LdvExportSettingsButton_clicked()
+void RenderDialog::on_RenderSettingsButton_clicked()
 {
-    Render::showLdvExportSettings(POVRayRender);
-}
-
-void RenderDialog::on_LdvLDrawPreferencesButton_clicked()
-{
-    Render::showLdvLDrawPreferences(POVRayRender);
-}
-
-void RenderDialog::on_TargetButton_clicked()
-{
-    TargetRotateDialogGui *targetRotateDialogGui =
-            new TargetRotateDialogGui();
-    targetRotateDialogGui->getTargetAndRotateValues(mCsiKeyList);
+    POVRayRenderDialogGui *povrayRenderDialogGui =
+            new POVRayRenderDialogGui();
+    povrayRenderDialogGui->getRenderSettings(
+                mCsiKeyList,
+                mWidth,
+                mHeight,
+                mQuality,
+                mTransBackground);
 }
 
 void RenderDialog::on_RenderButton_clicked()
@@ -209,9 +187,9 @@ void RenderDialog::on_RenderButton_clicked()
     }
 
     // Camera distance keys
-    QString cdKey = ui->WidthEdit->text()+" "+         // imageWidth
-                    ui->HeightEdit->text()+" "+        // imageHeight
-                    ui->ScaleEdit->text()+" "+         // modelScale
+    QString cdKey = QString::number(mWidth)+" "+       // imageWidth
+                    QString::number(mHeight)+" "+      // imageHeight
+                    mCsiKeyList.at(K_MODELSCALE)+" "+  // modelScale
                     mCsiKeyList.at(K_RESOLUTION)+" "+  // resolution
                     mCsiKeyList.at(K_RESOLUTIONTYPE);  // resolutionType (DPI,DPCM)
 
@@ -232,8 +210,8 @@ void RenderDialog::on_RenderButton_clicked()
             .arg(QString::number(pp ? cd * LP3D_CDF : cd,'f',0));
 
     QString m  = mKey == "0 0 0" ? QString() : mKey;
-    QString w  = QString("-SaveWidth=%1") .arg(ui->WidthEdit->text());
-    QString h  = QString("-SaveHeight=%1") .arg(ui->HeightEdit->text());
+    QString w  = QString("-SaveWidth=%1")  .arg(mWidth);
+    QString h  = QString("-SaveHeight=%1") .arg(mHeight);
     QString f  = QString("-ExportFile=%1") .arg(GetPOVFileName());
     QString l  = QString("-LDrawDir=%1") .arg(QDir::toNativeSeparators(Preferences::ldrawLibPath));
 
@@ -303,15 +281,15 @@ void RenderDialog::on_RenderButton_clicked()
     /* set POV-Ray arguments */
     Arguments.clear();
 
-    if (ui->OutputAlphaBox->isChecked()) {
+    if (mTransBackground) {
         Arguments << QString("+UA");
     }
 
     Arguments << QString("+D");
     Arguments << QString("-O-");
-    Arguments << Render::getPovrayRenderQuality(ui->QualityComboBox->currentIndex());
-    Arguments << QString("+W%1").arg(ui->WidthEdit->text());
-    Arguments << QString("+H%1").arg(ui->HeightEdit->text());
+    Arguments << Render::getPovrayRenderQuality(mQuality);
+    Arguments << QString("+W%1").arg(mWidth);
+    Arguments << QString("+H%1").arg(mHeight);
     Arguments << QString("+I\"%1\"").arg(Render::fixupDirname(GetPOVFileName()));
     Arguments << QString("+SM\"%1\"").arg(Render::fixupDirname(GetOutputFileName()));
 
@@ -534,38 +512,9 @@ void RenderDialog::on_OutputBrowseButton_clicked()
         ui->OutputEdit->setText(QDir::toNativeSeparators(Result));
 }
 
-void RenderDialog::on_ResetButton_clicked()
+void RenderDialog::on_OutputResetButton_clicked()
 {
-    ui->AspectRatioBox->setChecked(true);
-    ui->OutputAlphaBox->setChecked(true);
-    ui->WidthEdit->setText(QString::number(mWidth));
-    ui->HeightEdit->setText(QString::number(mHeight));
-    ui->ScaleEdit->setText(QString::number(mScale));
-    ui->ResolutionEdit->setText(QString::number(mResolution));
-    ui->QualityComboBox->setCurrentIndex(mQuality);
     ui->OutputEdit->setText(Render::getPovrayRenderFileName(mViewerStepKey));
-}
-
-void RenderDialog::textChanged(const QString &value)
-{
-   /* original height x new width / original width = new height */
-    mValue = value.toInt();
-   if (ui->AspectRatioBox->isChecked()){
-      if (sender() == ui->WidthEdit) {
-        disconnect(ui->HeightEdit,SIGNAL(textChanged(const QString &)),
-                         this,SLOT  (textChanged(const QString &)));
-        ui->HeightEdit->setText(QString::number(qRound(double(mHeight * mValue / mWidth))));
-        connect(ui->HeightEdit,SIGNAL(textChanged(const QString &)),
-                            this,SLOT  (textChanged(const QString &)));
-      } else
-      if (sender() == ui->HeightEdit){
-        disconnect(ui->WidthEdit,SIGNAL(textChanged(const QString &)),
-                       this, SLOT  (textChanged(const QString &)));
-        ui->WidthEdit->setText(QString::number(qRound(double(mValue * mWidth / mHeight))));
-        connect(ui->WidthEdit,SIGNAL(textChanged(const QString &)),
-                           this,SLOT (textChanged(const QString &)));
-      }
-   }
 }
 
 void RenderDialog::resizeEvent(QResizeEvent* event)

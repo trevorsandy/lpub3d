@@ -1702,4 +1702,74 @@ private:
     QListWidgetItem *activeBuildModItem;
 };
 
+/***********************************************************************
+ *
+ * POVRay renderer
+ *
+ **********************************************************************/
+
+class POVRayRenderDialogGui : public QObject
+{
+    Q_OBJECT
+public:
+    POVRayRenderDialogGui(){}
+    ~POVRayRenderDialogGui(){}
+
+    void getRenderSettings(QStringList &csiKeyList,
+                           int       &width,
+                           int       &height,
+                           int       &quality,
+                           bool      &alpha);
+
+public slots:
+    void setLookAtTargetAndRotate();
+    void setLdvExportSettings();
+    void setLdvLDrawPreferences();
+    void resetSettings();
+    void textChanged(const QString &value);
+
+private:
+    enum {
+        LBL_ALPHA,               // 0  QCheckBox
+        LBL_ASPECT,              // 1  QCheckBox
+        LBL_WIDTH,               // 2  QLineEdit
+        LBL_HEIGHT,              // 3  QLineEdit
+        LBL_LATITUDE,            // 4  QLineEdit
+        LBL_LONGITUDE,           // 5  QLineEdit
+        LBL_RESOLUTION,          // 6  QLineEdit
+        LBL_SCALE,               // 7  QLineEdit
+        LBL_QUALITY,             // 8  QComboBox
+        LBL_TARGET_AND_ROTATE,   // 9  QToolButton
+        LBL_LDV_EXPORT_SETTINGS, // 10 QToolButton
+        LBL_LDV_LDRAW_SETTINGS   // 11 QToolButton
+    };
+
+    enum {                                       // Index
+        WIDTH_EDIT,                              // 0
+        ALPHA_BOX  = WIDTH_EDIT,                 // 0
+        TARGET_BTN = WIDTH_EDIT,                 // 0
+        HEIGHT_EDIT,                             // 1
+        ASPECT_BOX = HEIGHT_EDIT,                // 1
+        LDV_EXPORT_SETTINGS_BTN = HEIGHT_EDIT,   // 1
+        LATITUDE_EDIT,                           // 2
+        LDV_LDRAW_SETTINGS_BTN  = LATITUDE_EDIT, // 2
+        LONGITUDE_EDIT,                          // 3
+        RESOLUTION_EDIT,                         // 4
+        SCALE_EDIT                               // 5
+    };
+
+    QStringList settingLabels;
+    QComboBox *qualityCombo;
+    QList<QLabel *> settingLabelList;
+    QList<QCheckBox *> checkBoxList;
+    QList<QLineEdit *> lineEditList;
+    QList<QToolButton *> toolButtonList;
+
+    QStringList mCsiKeyList, editedCsiKeyList;
+
+    int mWidth;
+    int mHeight;
+    int mQuality;
+};
+
 #endif

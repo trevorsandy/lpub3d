@@ -16,182 +16,15 @@
   <property name="sizeGripEnabled">
    <bool>false</bool>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
-      <widget class="QGroupBox" name="groupBox">
-       <property name="title">
-        <string>Settings</string>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QCheckBox" name="AspectRatioBox">
-          <property name="toolTip">
-           <string>Maintain image size aspect ratio</string>
-          </property>
-          <property name="layoutDirection">
-           <enum>Qt::RightToLeft</enum>
-          </property>
-          <property name="text">
-           <string>Aspect Ratio:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="widthLabel">
-          <property name="text">
-           <string>Width:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="WidthEdit">
-          <property name="toolTip">
-           <string>Image width in pixels</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="heightLabel">
-          <property name="text">
-           <string>Height:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="HeightEdit">
-          <property name="toolTip">
-           <string>Image height in pixels</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="scaleLabel">
-          <property name="text">
-           <string>Scale: </string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="ScaleEdit">
-          <property name="toolTip">
-           <string>Model scale factor</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="resolutinoLabel">
-          <property name="toolTip">
-           <string/>
-          </property>
-          <property name="text">
-           <string>Res: </string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="ResolutionEdit">
-          <property name="toolTip">
-           <string>Resolution, presumably in inches - can also be in centimetres</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="TargetButton">
-          <property name="text">
-           <string>Target...</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="qualityLabel">
-          <property name="text">
-           <string>Quality:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="QualityComboBox">
-          <property name="toolTip">
-           <string>POV-Ray render quality</string>
-          </property>
-          <item>
-           <property name="text">
-            <string>High</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Medium</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Low</string>
-           </property>
-          </item>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="OutputAlphaBox">
-          <property name="toolTip">
-           <string>Set output alpha (UA) on - i.e. enable transparent background.</string>
-          </property>
-          <property name="layoutDirection">
-           <enum>Qt::RightToLeft</enum>
-          </property>
-          <property name="text">
-           <string>Output Alpha:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="Line" name="line">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QToolButton" name="LdvExportSettingsButton">
-          <property name="toolTip">
-           <string>POV file generation options</string>
-          </property>
-          <property name="text">
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QToolButton" name="LdvLDrawPreferencesButton">
-          <property name="toolTip">
-           <string>Model preferences</string>
-          </property>
-          <property name="text">
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QToolButton" name="ResetButton">
-          <property name="toolTip">
-           <string>Reset original values</string>
-          </property>
-          <property name="text">
-           <string>...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </item>
-     <item>
-      <widget class="QGroupBox" name="groupBox_2">
+      <widget class="QGroupBox" name="SettingsGrpBox">
        <property name="title">
         <string/>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout">
+       <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
          <layout class="QHBoxLayout" name="outputLayout">
           <item>
@@ -207,10 +40,34 @@
           <item>
            <widget class="QToolButton" name="OutputBrowseButton">
             <property name="toolTip">
-             <string>Select output file</string>
+             <string>Browse and select output file</string>
             </property>
             <property name="text">
              <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="OutputResetButton">
+            <property name="toolTip">
+             <string>Reset output file</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="Line" name="line_2">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="RenderSettingsButton">
+            <property name="text">
+             <string>Settings...</string>
             </property>
            </widget>
           </item>
@@ -274,20 +131,11 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>RenderButton</tabstop>
-  <tabstop>AspectRatioBox</tabstop>
-  <tabstop>WidthEdit</tabstop>
-  <tabstop>HeightEdit</tabstop>
-  <tabstop>ScaleEdit</tabstop>
-  <tabstop>ResolutionEdit</tabstop>
-  <tabstop>TargetButton</tabstop>
-  <tabstop>QualityComboBox</tabstop>
-  <tabstop>OutputAlphaBox</tabstop>
-  <tabstop>LdvExportSettingsButton</tabstop>
-  <tabstop>LdvLDrawPreferencesButton</tabstop>
-  <tabstop>ResetButton</tabstop>
   <tabstop>OutputEdit</tabstop>
   <tabstop>OutputBrowseButton</tabstop>
+  <tabstop>OutputResetButton</tabstop>
+  <tabstop>RenderSettingsButton</tabstop>
+  <tabstop>RenderButton</tabstop>
  </tabstops>
  <resources/>
  <connections/>
