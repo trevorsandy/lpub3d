@@ -118,15 +118,10 @@ class ViewerStep {
 class HiarchLevel
 {
 public:
-    enum { BEGIN, END };
     HiarchLevel(const QString &key)
         : level(nullptr),
-          key(key)
-    {
-    }
-    ~HiarchLevel()
-    {
-    }
+          key(key){}
+    ~HiarchLevel(){}
     HiarchLevel* GetTopLevel()
     {
         return level ? level->GetTopLevel() : this;
@@ -135,28 +130,11 @@ public:
     QString key;
 };
 
-extern int getLevel(const QString& key, int rc);
+extern int getLevel(const QString& key, int pos);
 
 /********************************************
  * build modification
  ********************************************/
-
-class StepIndex {
-public:
-    int _modelIndex;
-    int _lineNumber;
-    StepIndex()
-    {
-      _modelIndex = -1;
-      _lineNumber = 0;
-    }
-    StepIndex(int modelIndex, int lineNumber)
-    {
-        _modelIndex = modelIndex;
-        _lineNumber = lineNumber;
-    }
-    ~StepIndex(){}
-};
 
 class BuildMod {
   public:
@@ -185,8 +163,7 @@ class LDrawFile {
     QMap<QString, LDrawSubFile> _subFiles;
     QMap<QString, ViewerStep>   _viewerSteps;
     QMap<QString, BuildMod>     _buildMods;
-    QVector<QString>            _buildModStepIndexes;
-    QString                     _buildModStepIndexKey;   // last step index - increment + 1 for next index
+    QVector<QVector<int>>       _buildModStepIndexes;
     QMultiHash<QString, int>    _ldcadGroups;
     QStringList                 _emptyList;
     QString                     _emptyString;
@@ -329,18 +306,18 @@ class LDrawFile {
                             int           stepIndex,
                             int           modAction);
     void setBuildModStepKey(const QString &buildModKey, const QString &modStepKey);
-    int setBuildModStepIndex(int modelIndex, int lineNumber);
+    int getBuildModStepIndex(int modelIndex, int lineNumber);
+    int getBuildModStepIndexKey(int stepIndex, bool modelIndex);
     int getBuildModBeginLineNumber(const QString &buildModKey);
     int getBuildModEndLineNumber(const QString &buildModKey);
     int getBuildModActionLineNumber(const QString &buildModKey);
-    int getBuildModAction(const QString &buildModKey, int stepIndex = -1);
+    int getBuildModAction(const QString &buildModKey, int stepIndex);
     int getBuildModNextIndex(const QString &buildModKeyPrefix);
     QString getBuildModStepKey(const QString &buildModKey);
     QString getBuildModModelName(const QString &buildModKey);
     QStringList getBuildModsList();
     bool buildModContains(const QString &buildModKey);
     bool hasBuildMods();
-    int getBuildModNextStepIndex();
 
     /* ViewerStep functions */
     void insertViewerStep(const QString     &stepKey,
@@ -362,7 +339,7 @@ class LDrawFile {
     bool        viewerStepContentExist(const QString &fileName);
     void        clearViewerSteps();
 
-    QString     getSubmodelName(int index);
+    QString     getSubmodelName(int submodelIndx);
     int         getSubmodelIndex(const QString &fileName);
     int         getLineTypeIndex(int submodelIndx, int relativeTypeIndx);
     int         getLineTypeRelativeIndex(int submodelIndx, int lineTypeIndx);

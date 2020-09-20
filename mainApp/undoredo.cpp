@@ -125,10 +125,8 @@ void Gui::cleanChanged(bool cleanState)
   saveAct->setDisabled( cleanState);
 }
 
-void Gui::normalizeHeader(const Where &here)
+void Gui::normalizeHeader(Where &current)
 {
-  Where current = here;
-
   int numLines = ldrawFile.size(current.modelName);
   for ( ; current.lineNumber < numLines; current.lineNumber++) {
       QString line = gui->readLine(current);

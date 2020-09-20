@@ -126,6 +126,15 @@ void CsiItem::partLine(
     typeIndexes.append(index);
 }
 
+ /*
+ * For partLine(), the BuildMod behaviour, when we are processing a buildMod, populates
+ * the buildModCsiParts list, its corresponding buildModLineTypeIndexes and sets
+ * buildModItems (bool) to then number of mod lines.
+ * Otherwise, the csiParts list is updatd. If there are buildModItems, buildModCsiParts
+ * are added to csiParts and the buildMod registers (parts, indexes and items flag) are
+ * reset. Lastly, csiParts and there repspective lineTypeIndexes are updated.
+ */
+
 void CsiItem::partLine(
      const QString      &partLine,
      PartLineAttributes &pla,

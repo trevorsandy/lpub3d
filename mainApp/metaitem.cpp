@@ -295,9 +295,9 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
 //           (argv[1] == "LPUB" || argv[1] == "!LPUB") &&
 //            argv[2] == "BUILD_MOD") {
 //          if (argv[3] == "BEGIN") {
-//            buildMod = getLevel(argv[4],HiarchLevel::BEGIN);
+//            buildMod = getLevel(argv[4],BM_BEGIN);
 //          } else if ((argv[3] == "APPLY" || argv[3] == "REMOVE")) {
-//            buildMod = getLevel(QString(),HiarchLevel::END);
+//            buildMod = getLevel(QString(),BM_END);
 //          }
 //          ignorePartLine = buildMod;
 //        } // build modification end
@@ -365,9 +365,9 @@ int MetaItem::countInstancesInStep(Meta *meta, const QString &modelName){
 //             (argv[1] == "LPUB" || argv[1] == "!LPUB") &&
 //              argv[2] == "BUILD_MOD") {
 //            if (argv[3] == "BEGIN") {
-//              buildMod = getLevel(argv[4],HiarchLevel::BEGIN);
+//              buildMod = getLevel(argv[4],BM_BEGIN);
 //            } else if ((argv[3] == "APPLY" || argv[3] == "REMOVE")) {
-//              buildMod = getLevel(QString(),HiarchLevel::END);
+//              buildMod = getLevel(QString(),BM_END);
 //            }
 //            ignorePartLine = buildMod;
 //          } // build modification end
@@ -462,9 +462,9 @@ int MetaItem::countInstancesInModel(Meta *meta, const QString &modelName){
 //             (argv[1] == "LPUB" || argv[1] == "!LPUB") &&
 //              argv[2] == "BUILD_MOD") {
 //            if (argv[3] == "BEGIN") {
-//              buildMod = getLevel(argv[4],HiarchLevel::BEGIN);
+//              buildMod = getLevel(argv[4],BM_BEGIN);
 //            } else if ((argv[3] == "APPLY" || argv[3] == "REMOVE")) {
-//              buildMod = getLevel(QString(),HiarchLevel::END);
+//              buildMod = getLevel(QString(),BM_END);
 //            }
 //            ignorePartLine = buildMod;
 //          } // build modification end

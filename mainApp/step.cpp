@@ -353,11 +353,11 @@ int Step::createCsi(
                           .arg(modelDisplayOnlyStep ? "_dm" : "");
 
   // populate build mods with view keys
-  if (buildMod.value().buildModStepKeys.size()) {
+  if (buildMod.value().buildModKeys.size()) {
       BuildModData bmd = buildMod.value();
-      for (int i = 0; i < bmd.buildModStepKeys.size(); i++)
-          gui->setBuildModStepKey(bmd.buildModStepKeys.at(i), viewerStepKey);
-      bmd.buildModStepKeys.clear();
+      for (int i = 0; i < bmd.buildModKeys.size(); i++)
+          gui->setBuildModStepKey(bmd.buildModKeys.at(i), viewerStepKey);
+      bmd.buildModKeys.clear();
       buildMod.setValue(bmd);
   }
 

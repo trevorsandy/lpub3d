@@ -757,7 +757,7 @@ public:
       return ldrawFile.getBuildModEndLineNumber(buildModKey);
   }
 
-  int getBuildModAction(const QString &buildModKey, int stepIndex = -1)
+  int getBuildModAction(const QString &buildModKey, int stepIndex)
   {
       return ldrawFile.getBuildModAction(buildModKey, stepIndex);
   }
@@ -767,9 +767,9 @@ public:
       return ldrawFile.setBuildModAction(buildModKey, stepIndex, modAction);
   }
 
-  int setBuildModStepIndex(const Where &here)
+  int getBuildModStepIndex(const Where &here)
   {
-      return ldrawFile.setBuildModStepIndex(getSubmodelIndex(here.modelName), here.lineNumber);
+      return ldrawFile.getBuildModStepIndex(getSubmodelIndex(here.modelName), here.lineNumber);
   }
 
   void setBuildModStepKey(const QString &buildModKey, const QString &modStepKey)
@@ -797,9 +797,9 @@ public:
       return ldrawFile.buildModContains(buildModKey);
   }
 
-  int getBuildModNextStepIndex()
+  int getBuildModStepIndexKey(int stepIndex, bool modelIndex = false/*lineNumber*/)
   {
-      return ldrawFile.getBuildModNextStepIndex();
+      return ldrawFile.getBuildModStepIndexKey(stepIndex, modelIndex);
   }
 
   QStringList getBuildModsList()
@@ -811,6 +811,8 @@ public:
   {
       return ldrawFile.hasBuildMods();
   }
+
+  void setNextStepBuildModAction(const QStringList &contents, Where step = Where());
 
   /* End Build Modifications */
 
@@ -828,10 +830,10 @@ public:
   void appendLine (const Where &here, const QString &line, QUndoCommand *parent = nullptr);
   void replaceLine(const Where &here, const QString &line, QUndoCommand *parent = nullptr);
   void deleteLine (const Where &here, QUndoCommand *parent = nullptr);
-  void normalizeHeader(const Where &here);
   void scanPast(Where &here, const QRegExp &lineRx);
   bool stepContains(Where &here, QRegExp &lineRx, QString &result, int capGrp = 0);
   bool stepContains(Where &here, QRegExp &lineRx);
+  void normalizeHeader(Where &here);
 
   QString topLevelFile();
 
@@ -1313,7 +1315,7 @@ private:
   QLabel                *progressLabel;
   QLabel                *progressLabelPerm;  //
   Step                  *currentStep;        // the current step as loaded in the 3DViewer
-
+  Where                  buildModNextStep;  // top of last encountered Step containing a BuildMod action
   PliSubstituteParts     pliSubstituteParts; // internal list of PLI/BOM substitute parts
 
   bool                   m_exportingContent; // indicate export/printing underway
