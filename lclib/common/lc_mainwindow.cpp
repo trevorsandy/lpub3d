@@ -1322,6 +1322,11 @@ void lcMainWindow::GetRotStepMetaAngles()
 /*** LPub3D Mod - parse and set rotstep line on model file load ***/
 void lcMainWindow::ParseAndSetRotStep(QTextStream& LineStream)
 {
+// Note: parts are rotated (i.e. ROTSTEP angles applied to rotation) in
+// LPub3D Step (createCsi) and Submodel (createSubModelImage) routines.
+// Here we are only setting the ROTSTEP angles and transform variables
+// mExistingRotStep and mRotStepTransform for consumption when parts
+// are manually user-rotated from the 3DViewer
   while (!LineStream.atEnd())
   {
 	  mExistingRotStep = lcVector3(0.0f,0.0f,0.0f);
