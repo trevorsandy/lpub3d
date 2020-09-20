@@ -95,6 +95,9 @@ public:
 		const float Resolution,
 		const float ModelScale,
 		const float NativeCDF);
+	void SetImageSize(
+		const int ImageWidth,
+		const int ImageHeight);
 	int GetImageWidth() const;
 	int GetImageHeight() const;
 	int GetModelWidth() const;

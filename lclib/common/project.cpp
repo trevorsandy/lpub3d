@@ -131,6 +131,13 @@ void Project::SetRenderAttributes(
 	lcSetProfileInt(LC_PROFILE_IMAGE_HEIGHT,ImageHeight);
 	mViewerLoaded  = true;
 }
+void Project::SetImageSize(
+	const int ImageWidth,
+	const int ImageHeight)
+{
+	lcSetProfileInt(LC_PROFILE_IMAGE_WIDTH,ImageWidth);
+	lcSetProfileInt(LC_PROFILE_IMAGE_HEIGHT,ImageHeight);
+}
 int Project::GetModelWidth() const
 {
 	return GetPageWidth();
