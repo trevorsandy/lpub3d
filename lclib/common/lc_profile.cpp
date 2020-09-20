@@ -141,11 +141,14 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "UseImageSize", 0),                                          // LC_PROFILE_USE_IMAGE_SIZE                             /*** LPub3D Mod - Camera Globe Target Position ***/
 	/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Update Default Camera ***/
-	lcProfileEntry("Settings", "DefaultCameraProperties", 0),                               //LC_PROFILE_DEFAULT_CAMERA_PROPERTIES,                  /*** LPub3D Mod - Update Default Camera ***/ 
+	lcProfileEntry("Settings", "DefaultCameraProperties", 0),                               //LC_PROFILE_DEFAULT_CAMERA_PROPERTIES,                  /*** LPub3D Mod - Update Default Camera ***/
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Native projection options ***/
 	lcProfileEntry("Settings", "NativeViewpoint",  7),                                      // LC_PROFILE_NATIVE_VIEWPOINT  [0 = LC_VIEWPOINT_FRONT]  /*** LPub3D Mod - Native Renderer settings ***/
-	lcProfileEntry("Settings", "NativeProjection", 0)                                       // LC_PROFILE_NATIVE_PROJECTION [0 = PERSPECTIVE, 1 = ORTHOGRAPHIC]  /*** LPub3D Mod - Native Renderer settings ***/
+	lcProfileEntry("Settings", "NativeProjection", 0),                                      // LC_PROFILE_NATIVE_PROJECTION [0 = PERSPECTIVE, 1 = ORTHOGRAPHIC]  /*** LPub3D Mod - Native Renderer settings ***/
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - View point zoom extent ***/
+	lcProfileEntry("Settings", "ViewpointZoomExtent", 1)                                    // LC_PROFILE_VIEWPOINT_ZOOM_EXTENT                     /*** LPub3D Mod - View point zoom extent ***/
 /*** LPub3D Mod end ***/
 };
 

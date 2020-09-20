@@ -92,6 +92,9 @@ enum LC_PROFILE_KEY
 	LC_PROFILE_NATIVE_VIEWPOINT,
 	LC_PROFILE_NATIVE_PROJECTION,
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - View point zoom extent ***/
+	LC_PROFILE_VIEWPOINT_ZOOM_EXTENT,
+/*** LPub3D Mod end ***/
 	LC_NUM_PROFILE_KEYS
 };
 

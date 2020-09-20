@@ -44,12 +44,20 @@ public:
 		PropertyGroup,
 		PropertyBool,
 		PropertyFloat,
+/*** LPub3D Mod - enable lights ***/
+		PropertyFloatLightSpotSize,
+/*** LPub3D Mod end ***/
 /*** LPub3D Mod - Camera Globe, Custom properties ***/
 		PropertyFloatCameraAngle,
 		PropertyFloatTarget,
 /*** LPub3D Mod end ***/
 		PropertyStep,
 		PropertyString,
+/*** LPub3D Mod - enable lights ***/
+		PropertyStringReadOnly,
+		PropertyLightShape,
+		PropertyLightColor,
+/*** LPub3D Mod end ***/
 		PropertyColor,
 		PropertyPart,
 /*** LPub3D Mod - LPub3D properties ***/
@@ -63,12 +71,18 @@ protected slots:
 	void slotReturnPressed();
 	void slotSetValue(int value);
 	void slotColorButtonClicked();
+/*** LPub3D Mod - enable lights ***/
+	void slotSetColorValue(QColor Value);
+/*** LPub3D Mod end ***/
 
 protected:
 	void keyPressEvent(QKeyEvent *event);
 	void mousePressEvent(QMouseEvent *event);
 	void drawRow(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 	void updateColorEditor(QPushButton *editor, int value) const;
+/*** LPub3D Mod - enable lights ***/
+	void updateLightColorEditor(QPushButton *editor, QColor value) const;
+/*** LPub3D Mod end ***/
 
 	QTreeWidgetItem *addProperty(QTreeWidgetItem *parent, const QString& label, PropertyType propertyType);
 
@@ -81,6 +95,10 @@ protected:
 	void getPartProperties(lcPartProperties *properties);
 /*** LPub3D Mod - LPub3D properties ***/
 	bool FirstHit;
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - enable lights ***/
+	int mLightType;
+    int mLightShape;
 /*** LPub3D Mod end ***/
 	lcPropertyWidgetMode mWidgetMode;
 	lcObject* mFocus;
@@ -142,6 +160,33 @@ protected:
 	QTreeWidgetItem *cameraNear;
 	QTreeWidgetItem *cameraFar;
 	QTreeWidgetItem *cameraName;
+
+/*** LPub3D Mod - enable lights ***/
+	QTreeWidgetItem *lightPosition;
+	QTreeWidgetItem *lightPositionX;
+	QTreeWidgetItem *lightPositionY;
+	QTreeWidgetItem *lightPositionZ;
+	QTreeWidgetItem *lightTarget;
+	QTreeWidgetItem *lightTargetX;
+	QTreeWidgetItem *lightTargetY;
+	QTreeWidgetItem *lightTargetZ;
+	QTreeWidgetItem *lightColor;
+	QTreeWidgetItem *lightColorIcon;
+	QTreeWidgetItem *lightColorR;
+	QTreeWidgetItem *lightColorG;
+	QTreeWidgetItem *lightColorB;
+	QTreeWidgetItem *lightProperties;
+	QTreeWidgetItem *lightSpecular;
+	QTreeWidgetItem *lightCutoff;
+	QTreeWidgetItem *lightEnableCutoff;
+	QTreeWidgetItem *lightExponent;
+	QTreeWidgetItem *lightType;
+	QTreeWidgetItem *lightSpotSize;
+	QTreeWidgetItem *lightShape;
+	QTreeWidgetItem *lightFactorA;
+	QTreeWidgetItem *lightFactorB;
+	QTreeWidgetItem *lightName;
+/*** LPub3D Mod end ***/
 };
 
 class lcQPropertiesTreeDelegate : public QItemDelegate

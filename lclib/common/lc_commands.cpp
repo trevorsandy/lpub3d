@@ -175,43 +175,43 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Undo"),
 		QT_TRANSLATE_NOOP("Menu", "&Undo"),
-        QT_TRANSLATE_NOOP("Status", "Undo the last action - Ctrl+Shift+Y"),
-        "Ctrl+Shift+Y"                     /*** LPub3D Mod - LPub3D Menu conflict ***/
+		QT_TRANSLATE_NOOP("Status", "Undo the last action - Ctrl+Shift+Y"),
+		"Ctrl+Shift+Y"                     /*** LPub3D Mod - LPub3D Menu conflict ***/
 	},
 	// LC_EDIT_REDO
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Redo"),
 		QT_TRANSLATE_NOOP("Menu", "&Redo"),
-        QT_TRANSLATE_NOOP("Status", "Redo the previously undone action - Ctrl+Shift+Z"),
-        "Ctrl+Shift+Z"                     /*** LPub3D Mod - LPub3D Menu conflict ***/
+		QT_TRANSLATE_NOOP("Status", "Redo the previously undone action - Ctrl+Shift+Z"),
+		"Ctrl+Shift+Z"                     /*** LPub3D Mod - LPub3D Menu conflict ***/
 	},
 	// LC_EDIT_CUT
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Cut"),
 		QT_TRANSLATE_NOOP("Menu", "Cu&t"),
 		QT_TRANSLATE_NOOP("Status", "Cut the selection and put it on the Clipboard"),
-        ""                                 /*** LPub3D Mod - LPub3D Menu conflict ***/
+		""                                 /*** LPub3D Mod - LPub3D Menu conflict ***/
 	},
 	// LC_EDIT_COPY
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Copy"),
 		QT_TRANSLATE_NOOP("Menu", "&Copy"),
 		QT_TRANSLATE_NOOP("Status", "Copy the selection and put it on the Clipboard"),
-        ""                                 /*** LPub3D Mod - LPub3D Menu conflict ***/
+		""                                 /*** LPub3D Mod - LPub3D Menu conflict ***/
 	},
 	// LC_EDIT_PASTE
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Paste"),
 		QT_TRANSLATE_NOOP("Menu", "&Paste"),
 		QT_TRANSLATE_NOOP("Status", "Insert Clipboard contents"),
-        ""                                 /*** LPub3D Mod - LPub3D Menu conflict ***/
+		""                                 /*** LPub3D Mod - LPub3D Menu conflict ***/
 	},
 	// LC_EDIT_FIND
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Find"),
 		QT_TRANSLATE_NOOP("Menu", "&Find..."),
-        QT_TRANSLATE_NOOP("Status", "Find object - Ctrl+Shift+F"),         /*** LPub3D Mod - LPub3D Menu update ***/
-        "Ctrl+Shift+F"
+		QT_TRANSLATE_NOOP("Status", "Find object - Ctrl+Shift+F"),         /*** LPub3D Mod - LPub3D Menu update ***/
+		"Ctrl+Shift+F"
 	},
 	// LC_EDIT_FIND_NEXT
 	{
@@ -231,8 +231,8 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.SelectAll"),
 		QT_TRANSLATE_NOOP("Menu", "Select &All"),
-        QT_TRANSLATE_NOOP("Status", "Select all pieces in the model - Ctrl+Shift+A"),  /*** LPub3D Mod - LPub3D Menu conflict ***/
-        "Ctrl+Shift+A"
+		QT_TRANSLATE_NOOP("Status", "Select all pieces in the model - Ctrl+Shift+A"),  /*** LPub3D Mod - LPub3D Menu conflict ***/
+		"Ctrl+Shift+A"
 	},
 	// LC_EDIT_SELECT_NONE
 	{
@@ -524,8 +524,8 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	// LC_EDIT_TRANSFORM
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Transform"),
-        QT_TRANSLATE_NOOP("Menu", "Rotation Transform"),
-        QT_TRANSLATE_NOOP("Status", "Apply ROTSTEP rotation transform to selected objects"),
+		QT_TRANSLATE_NOOP("Menu", "Rotation Transform"),
+		QT_TRANSLATE_NOOP("Status", "Apply ROTSTEP rotation transform to selected objects"),
 		""
 	},
 	// LC_EDIT_TRANSFORM_ABSOLUTE_TRANSLATION
@@ -546,38 +546,38 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.TransformAbsoluteRotation"),
 		QT_TRANSLATE_NOOP("Menu", "Absolute Rotation"),
-        QT_TRANSLATE_NOOP("Status", "Switch to absolute rotation mode when applying transforms - Shift+B"),   /*** LPub3D Mod - LPub3D Menu update ***/
-        "Shift+B"
+		QT_TRANSLATE_NOOP("Status", "Switch to absolute rotation mode when applying transforms - Shift+B"),   /*** LPub3D Mod - LPub3D Menu update ***/
+		"Shift+B"
 	},
 	// LC_EDIT_TRANSFORM_RELATIVE_ROTATION
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.TransformRelativeRotation"),
 		QT_TRANSLATE_NOOP("Menu", "Relative Rotation"),
-        QT_TRANSLATE_NOOP("Status", "Switch to relative rotation mode when applying transforms - Shift+E"),   /*** LPub3D Mod - LPub3D Menu update ***/
-        "Shift+E"
+		QT_TRANSLATE_NOOP("Status", "Switch to relative rotation mode when applying transforms - Shift+E"),   /*** LPub3D Mod - LPub3D Menu update ***/
+		"Shift+E"
 	},
 /*** LPub3D Mod - coord format commands ***/
-    // LC_EDIT_ROTATESTEP_COORD_FORMAT
-    {
-        QT_TRANSLATE_NOOP("Action", "Edit.Coord.Format"),
-        QT_TRANSLATE_NOOP("Menu", "Coordinate Format"),
-        QT_TRANSLATE_NOOP("Status", "3DViewer and LPub3D use different XYZ coordinates - select format"),
-        ""
-    },
-    // LC_EDIT_ROTATESTEP_COORD_FORMAT_LDRAW
-    {
-        QT_TRANSLATE_NOOP("Action","Edit.Ldraw.Coord.Format"),
-        QT_TRANSLATE_NOOP("Menu", "Set LDraw XYZ Format"),
-        QT_TRANSLATE_NOOP("Status", "Enter rotation using LDraw XYZ coordinates - Shift+L"),
-        "Shift+L"
-    },
-    // LC_EDIT_ROTATESTEP_COORD_FORMAT_LEOCAD
-    {
-         QT_TRANSLATE_NOOP("Action","Edit.Leocad.Coord.Format"),
-         QT_TRANSLATE_NOOP("Menu", "Set LeoCAD XYZ Format"),
-         QT_TRANSLATE_NOOP("Status", "Enter rotation using 3DViewer XYZ coordinates (switch Y and Z with -Z in up direction). It will be translated to LDraw format - Shift+D"),
-         "Shift+D"
-    },
+	// LC_EDIT_ROTATESTEP_COORD_FORMAT
+	{
+		QT_TRANSLATE_NOOP("Action", "Edit.Coord.Format"),
+		QT_TRANSLATE_NOOP("Menu", "Coordinate Format"),
+		QT_TRANSLATE_NOOP("Status", "3DViewer and LPub3D use different XYZ coordinates - select format"),
+		""
+	},
+	// LC_EDIT_ROTATESTEP_COORD_FORMAT_LDRAW
+	{
+		QT_TRANSLATE_NOOP("Action","Edit.Ldraw.Coord.Format"),
+		QT_TRANSLATE_NOOP("Menu", "Set LDraw XYZ Format"),
+		QT_TRANSLATE_NOOP("Status", "Enter rotation using LDraw XYZ coordinates - Shift+L"),
+		"Shift+L"
+	},
+	// LC_EDIT_ROTATESTEP_COORD_FORMAT_LEOCAD
+	{
+		 QT_TRANSLATE_NOOP("Action","Edit.Leocad.Coord.Format"),
+		 QT_TRANSLATE_NOOP("Menu", "Set LeoCAD XYZ Format"),
+		 QT_TRANSLATE_NOOP("Status", "Enter rotation using 3DViewer XYZ coordinates (switch Y and Z with -Z in up direction). It will be translated to LDraw format - Shift+D"),
+		 "Shift+D"
+	},
 /*** LPub3D Mod end ***/
 	// LC_EDIT_ACTION_INSERT
 	{
@@ -589,15 +589,31 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	// LC_EDIT_ACTION_LIGHT
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Light"),
-		QT_TRANSLATE_NOOP("Menu", "Light"),
-		QT_TRANSLATE_NOOP("Status", "Add new omni light sources to the model"),
+		QT_TRANSLATE_NOOP("Menu", "Pointlight"),
+		QT_TRANSLATE_NOOP("Status", "Add new omnidirectional pointlight sources to the model - edit in properties tab"), /*** LPub3D Mod - enable lights ***/
 		""
 	},
+/*** LPub3D Mod - enable lights ***/
+	// LC_EDIT_ACTION_SUNLIGHT
+	{
+		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Sunlight"),
+		QT_TRANSLATE_NOOP("Menu", "Sunlight"),
+		QT_TRANSLATE_NOOP("Status", "Add new omnidirectional sunlight sources to the model - edit in properties tab"),
+		""
+	},
+	// LC_EDIT_ACTION_AREALIGHT
+	{
+		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Arealight"),
+		QT_TRANSLATE_NOOP("Menu", "Arealight"),
+		QT_TRANSLATE_NOOP("Status", "Add new arealight sources to the model - edit in properties tab"),
+		""
+	},
+/*** LPub3D Mod end ***/
 	// LC_EDIT_ACTION_SPOTLIGHT
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Spotlight"),
 		QT_TRANSLATE_NOOP("Menu", "Spotlight"),
-		QT_TRANSLATE_NOOP("Status", "Add new spotlights to the model"),
+		QT_TRANSLATE_NOOP("Status", "Add new spotlight sources to the model - edit in properties tab"),  /*** LPub3D Mod - enable lights ***/
 		""
 	},
 	// LC_EDIT_ACTION_CAMERA
@@ -611,8 +627,8 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Select"),
 		QT_TRANSLATE_NOOP("Menu", "Select"),
-        QT_TRANSLATE_NOOP("Status", "Select objects (hold the CTRL key down or drag the mouse to select multiple objects) - Shift+S"),  /*** LPub3D Mod - LPub3D Menu update ***/
-        "Shift+S"
+		QT_TRANSLATE_NOOP("Status", "Select objects (hold the CTRL key down or drag the mouse to select multiple objects) - Shift+S"),  /*** LPub3D Mod - LPub3D Menu update ***/
+		"Shift+S"
 	},
 	// LC_EDIT_ACTION_MOVE
 	{
@@ -625,8 +641,8 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Rotate"),
 		QT_TRANSLATE_NOOP("Menu", "Rotate"),
-        QT_TRANSLATE_NOOP("Status", "Rotate selected pieces - Shift+L"),                  /*** LPub3D Mod - LPub3D Menu update ***/
-        "Shift+L"
+		QT_TRANSLATE_NOOP("Status", "Rotate selected pieces - Shift+L"),                  /*** LPub3D Mod - LPub3D Menu update ***/
+		"Shift+L"
 	},
 	// LC_EDIT_ACTION_DELETE
 	{
@@ -646,22 +662,22 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Zoom"),
 		QT_TRANSLATE_NOOP("Menu", "Zoom"),
-        QT_TRANSLATE_NOOP("Status", "Zoom in or out - Shift+Z"),              /*** LPub3D Mod - LPub3D Menu update ***/
-        "Shift+Z"
+		QT_TRANSLATE_NOOP("Status", "Zoom in or out - Shift+Z"),              /*** LPub3D Mod - LPub3D Menu update ***/
+		"Shift+Z"
 	},
 	// LC_EDIT_ACTION_PAN
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.Pan"),
 		QT_TRANSLATE_NOOP("Menu", "Pan"),
-        QT_TRANSLATE_NOOP("Status", "Pan the current view - Shift+P"),         /*** LPub3D Mod - LPub3D Menu update ***/
-        "Shift+P"
+		QT_TRANSLATE_NOOP("Status", "Pan the current view - Shift+P"),         /*** LPub3D Mod - LPub3D Menu update ***/
+		"Shift+P"
 	},
 	// LC_EDIT_ACTION_ROTATE_VIEW
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.RotateView"),
 		QT_TRANSLATE_NOOP("Menu", "Rotate View"),
-        QT_TRANSLATE_NOOP("Status", "Rotate the current view - Shift+T"),      /*** LPub3D Mod - LPub3D Menu update ***/
-        "Shift+T"
+		QT_TRANSLATE_NOOP("Status", "Rotate the current view - Shift+T"),      /*** LPub3D Mod - LPub3D Menu update ***/
+		"Shift+T"
 	},
 	// LC_EDIT_ACTION_ROLL
 	{
@@ -674,24 +690,24 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	{
 		QT_TRANSLATE_NOOP("Action", "Edit.Tool.ZoomRegion"),
 		QT_TRANSLATE_NOOP("Menu", "Zoom Region"),
-        QT_TRANSLATE_NOOP("Status", "Zoom into a region of the screen - Shift+G"),          /*** LPub3D Mod - LPub3D Menu update ***/
-        "Shift+G"
+		QT_TRANSLATE_NOOP("Status", "Zoom into a region of the screen - Shift+G"),          /*** LPub3D Mod - LPub3D Menu update ***/
+		"Shift+G"
 	},
 /*** LPub3D Mod - rotatestep command ***/
 	 // LC_EDIT_ACTION_ROTATESTEP
 	{
-        QT_TRANSLATE_NOOP("Action","Edit.Tool.RotateStep"),
-        QT_TRANSLATE_NOOP("Menu", "Apply ROTSTEP"),
-        QT_TRANSLATE_NOOP("Status", "Insert or update LPub3D ROTSTEP meta command - Shift+R"),
-        "Shift+R"
-    },
-    // LC_EDIT_ACTION_CLEAR_TRANSFORM
-    {
-        QT_TRANSLATE_NOOP("Action","Edit.Tool.Clear.Transform"),
-        QT_TRANSLATE_NOOP("Menu", "Clear Transform"),
-        QT_TRANSLATE_NOOP("Status", "Clear the transform dialogues - Shift+C"),
-        "Shift+C"
-    },
+		QT_TRANSLATE_NOOP("Action","Edit.Tool.RotateStep"),
+		QT_TRANSLATE_NOOP("Menu", "Apply ROTSTEP"),
+		QT_TRANSLATE_NOOP("Status", "Insert or update LPub3D ROTSTEP meta command - Shift+R"),
+		"Shift+R"
+	},
+	// LC_EDIT_ACTION_CLEAR_TRANSFORM
+	{
+		QT_TRANSLATE_NOOP("Action","Edit.Tool.Clear.Transform"),
+		QT_TRANSLATE_NOOP("Menu", "Clear Transform"),
+		QT_TRANSLATE_NOOP("Status", "Clear the transform dialogues - Shift+C"),
+		"Shift+C"
+	},
 /*** LPub3D Mod end ***/
 	// LC_EDIT_CANCEL
 	{
@@ -822,8 +838,8 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	// LC_VIEW_VIEWPOINT_HOME
 	{
 		QT_TRANSLATE_NOOP("Action", "View.Viewpoint.Home"),
-		QT_TRANSLATE_NOOP("Menu", "&Home"),
-        QT_TRANSLATE_NOOP("Status", "View model from the default position - H"),             /*** LPub3D Mod - LPub3D Menu update ***/
+		QT_TRANSLATE_NOOP("Menu", "&Home"),                                        /*** LPub3D Mod - LPub3D Menu update ***/
+		QT_TRANSLATE_NOOP("Status", "View model from the default position - H"),             /*** LPub3D Mod - LPub3D Menu update ***/
 		"H"
 	},
 	// LC_VIEW_CAMERA_NONE
@@ -1313,29 +1329,29 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	{
 		QT_TRANSLATE_NOOP("Action", "Piece.HideSelected"),
 		QT_TRANSLATE_NOOP("Menu", "&Hide Selected"),
-        QT_TRANSLATE_NOOP("Status", "Hide selected objects - Ctrl+H"),                          /*** LPub3D Mod - LPub3D Menu update ***/
+		QT_TRANSLATE_NOOP("Status", "Hide selected objects - Ctrl+H"),                          /*** LPub3D Mod - LPub3D Menu update ***/
 		"Ctrl+H"
 	},
 	// LC_PIECE_HIDE_UNSELECTED
 	{
 		QT_TRANSLATE_NOOP("Action", "Piece.HideUnselected"),
 		QT_TRANSLATE_NOOP("Menu", "Hide &Unselected"),
-        QT_TRANSLATE_NOOP("Status", "Hide objects that are not selected - Ctrl+Shift+H"),       /*** LPub3D Mod - LPub3D Menu update ***/
-        "Ctrl+Shift+H"
+		QT_TRANSLATE_NOOP("Status", "Hide objects that are not selected - Ctrl+Shift+H"),       /*** LPub3D Mod - LPub3D Menu update ***/
+		"Ctrl+Shift+H"
 	},
 	// LC_PIECE_UNHIDE_SELECTED
 	{
 		QT_TRANSLATE_NOOP("Action", "Piece.UnhideSelected"),
 		QT_TRANSLATE_NOOP("Menu", "&Unhide Selected"),
-        QT_TRANSLATE_NOOP("Status", "Show hidden objects that are selected - Ctrl+Shift+U"),    /*** LPub3D Mod - LPub3D Menu update ***/
-        "Ctrl+Shift+U"
+		QT_TRANSLATE_NOOP("Status", "Show hidden objects that are selected - Ctrl+Shift+U"),    /*** LPub3D Mod - LPub3D Menu update ***/
+		"Ctrl+Shift+U"
 	},
 	// LC_PIECE_UNHIDE_ALL
 	{
 		QT_TRANSLATE_NOOP("Action", "Piece.UnhideAll"),
 		QT_TRANSLATE_NOOP("Menu", "U&nhide All"),
-        QT_TRANSLATE_NOOP("Status", "Show all hidden objects - Ctrl+I"),                        /*** LPub3D Mod - LPub3D Menu update ***/
-        "Ctrl+I"
+		QT_TRANSLATE_NOOP("Status", "Show all hidden objects - Ctrl+I"),                        /*** LPub3D Mod - LPub3D Menu update ***/
+		"Ctrl+I"
 	},
 	// LC_PIECE_SHOW_EARLIER
 	{
@@ -1544,14 +1560,14 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	{
 		QT_TRANSLATE_NOOP("Action", "Help.HomePage"),
 		QT_TRANSLATE_NOOP("Menu", "3DViewer &Home Page"),                                                      /*** LPub3D Mod - LPub3D Menu update ***/
-		QT_TRANSLATE_NOOP("Status", "Open 3DViewer's home page on the internet using your default web browser"),  
+		QT_TRANSLATE_NOOP("Status", "Open 3DViewer's home page on the internet using your default web browser"),
 		""
 	},
 	// LC_HELP_BUG_REPORT
 	{
 		QT_TRANSLATE_NOOP("Action", "Help.BugReport"),
 		QT_TRANSLATE_NOOP("Menu", "Report a Bug"),
-        QT_TRANSLATE_NOOP("Status", "Open 3DViewer's bug report form on your default web browser"),            /*** LPub3D Mod - support ***/
+		QT_TRANSLATE_NOOP("Status", "Open 3DViewer's bug report form on your default web browser"),            /*** LPub3D Mod - support ***/
 		""
 	},
 	// LC_HELP_UPDATES
@@ -1564,7 +1580,7 @@ lcCommand gCommands[LC_NUM_COMMANDS] =
 	// LC_HELP_ABOUT
 	{
 		QT_TRANSLATE_NOOP("Action", "Help.About"),
-        QT_TRANSLATE_NOOP("Menu", "&About 3DViewer - by LeoCAD..."),                                           /*** LPub3D Mod - support ***/
+		QT_TRANSLATE_NOOP("Menu", "&About 3DViewer - by LeoCAD..."),                                           /*** LPub3D Mod - support ***/
 		QT_TRANSLATE_NOOP("Status", "Display program version number and system information"),
 		""
 	},
@@ -1611,6 +1627,8 @@ const char* gToolNames[LC_NUM_TOOLS] =
 {
 	QT_TRANSLATE_NOOP("Mouse", "NewPiece"),      // LC_TOOL_INSERT
 	QT_TRANSLATE_NOOP("Mouse", "NewPointLight"), // LC_TOOL_LIGHT
+	QT_TRANSLATE_NOOP("Mouse", "NewSunLight"),   // LC_TOOL_SUNLIGHT  /*** LPub3D Mod - enable lights ***/
+	QT_TRANSLATE_NOOP("Mouse", "NewAreaLight"),  // LC_TOOL_AREALIGHT /*** LPub3D Mod - enable lights ***/
 	QT_TRANSLATE_NOOP("Mouse", "NewSpotLight"),  // LC_TOOL_SPOTLIGHT
 	QT_TRANSLATE_NOOP("Mouse", "NewCamera"),     // LC_TOOL_CAMERA
 	QT_TRANSLATE_NOOP("Mouse", "Select"),        // LC_TOOL_SELECT

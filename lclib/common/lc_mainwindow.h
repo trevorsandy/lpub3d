@@ -155,7 +155,7 @@ public:
 		return mTransformType;
 	}
 
-/*** LPub3D Mod - coord format ***/
+/*** LPub3D Mod - coord format DEPRECATED ***/
 	lcRotateStepCoordType GetRotateStepCoordType() const
 	{
 		return mRotateStepCoordType;
@@ -280,6 +280,10 @@ public:
 	{
 		return mShadingMenu;
 	}
+
+/*** LPub3D Mod - View point zoom extent ***/
+	bool viewportZoomExtent();
+/*** LPub3D Mod end ***/
 
 	QByteArray GetTabLayout();
 	void RestoreTabLayout(const QByteArray& TabLayout);
@@ -490,7 +494,7 @@ protected:
 	lcTabWidget* mModelTabWidget;
 	QToolBar* mStandardToolBar;
 /*** QToolBar* mToolsToolBar;     LPub3D Mod -  move to public ***/
-/*** LPub3D Mod - coord format ***/
+/*** LPub3D Mod - coord format DEPRECATED ***/
 	lcRotateStepCoordType mRotateStepCoordType;
 	lcVector3 mExistingRotStep;
 	QString mRotStepTransform;

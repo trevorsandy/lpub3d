@@ -934,6 +934,8 @@ public:
 
   void createOpenWithActions(int maxPrograms = 0);
 
+  void saveCurrent3DViewerModel(const QString &modelFile);
+
   // Download components
   void downloadFile(QString URL, QString title, bool promptRedirect = false);
   void startRequest(QUrl url);
@@ -1147,11 +1149,13 @@ public slots:
   void showCoordinates();
   void gridSize(int index);
   void gridSizeTriggered();
+  void groupActionTriggered();
   void setTargetPosition();
   void enableBuildModification();
   void useImageSize();
 
   void showDefaultCameraProperties();
+  void restoreLightAndViewpointDefaults();
   void applyCameraSettings();
   void applyBuildModification();
   void removeBuildModification();
@@ -1855,6 +1859,11 @@ private:
   QAction *enableBuildModAct;
   QAction *enableRotstepRotateAct;
   QAction *exportHtmlStepsAct;
+
+  QMenu* LightMenu;
+  QAction *LightGroupAct;
+  QAction *ViewpointGroupAct;
+  QAction *ViewpointZoomExtAct;
 
   // help
 

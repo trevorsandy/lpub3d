@@ -48,6 +48,8 @@ void lcGLWidget::SetCursor(LC_CURSOR_TYPE CursorType)
 		{  0,  0, "" },                                 // LC_CURSOR_DEFAULT
 		{  8,  3, ":/resources/cursor_insert" },        // LC_CURSOR_BRICK
 		{ 15, 15, ":/resources/cursor_light" },         // LC_CURSOR_LIGHT
+        { 15, 15, ":/resources/cursor_sunlight" },      // LC_CURSOR_SUNLIGHT   /*** LPub3D Mod - enable lights ***/
+        { 15, 15, ":/resources/cursor_arealight" },     // LC_CURSOR_AREALIGHT  /*** LPub3D Mod - enable lights ***/
 		{  7, 10, ":/resources/cursor_spotlight" },     // LC_CURSOR_SPOTLIGHT
 		{ 15,  9, ":/resources/cursor_camera" },        // LC_CURSOR_CAMERA
 		{  0,  2, ":/resources/cursor_select" },        // LC_CURSOR_SELECT
@@ -64,16 +66,13 @@ void lcGLWidget::SetCursor(LC_CURSOR_TYPE CursorType)
 		{ 15, 15, ":/resources/cursor_pan" },           // LC_CURSOR_PAN
 		{ 15, 15, ":/resources/cursor_roll" },          // LC_CURSOR_ROLL
 		{ 15, 15, ":/resources/cursor_rotate_view" },   // LC_CURSOR_ROTATE_VIEW
-		{  0,  0, "" },		                             /*** LPub3D Mod - rotate step ***/
+		{ 15, 15, ":/resources/cursor_select" }         // LC_CURSOR_ROTATESTEP    /*** LPub3D Mod - rotate step ***/
 	};
 
 	static_assert(LC_ARRAY_COUNT(Cursors) == LC_CURSOR_COUNT, "Array size mismatch");
 
 	QGLWidget* widget = (QGLWidget*)mWidget;
-/*** LPub3D Mod - rotate step ***/
-	   //if (CursorType != LC_CURSOR_DEFAULT && CursorType < LC_CURSOR_COUNT)
-		if (CursorType != LC_CURSOR_DEFAULT && CursorType < LC_CURSOR_COUNT - 1)
-/*** LPub3D Mod end ***/
+	if (CursorType != LC_CURSOR_DEFAULT && CursorType < LC_CURSOR_COUNT)
 	{
 		const lcCursorInfo& Cursor = Cursors[CursorType];
 		widget->setCursor(QCursor(QPixmap(Cursor.Name), Cursor.x, Cursor.y));

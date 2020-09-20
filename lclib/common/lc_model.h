@@ -23,6 +23,9 @@ class lcGLWidget;
 /*** LPub3D Mod - native renderer options ***/
 class NativeOptions;
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - enable lights ***/
+class lcLightProps;
+/*** LPub3D Mod end ***/
 enum class lcSelectionMode
 {
 	SINGLE,
@@ -39,7 +42,7 @@ enum lcTransformType
 	LC_TRANSFORM_RELATIVE_ROTATION
 };
 
-/*** LPub3D Mod - coord format ***/
+/*** LPub3D Mod - coord format DEPRECATED ***/
 enum lcRotateStepCoordType
 {
 	LC_ROTATESTEP_COORD_FORMAT_LDRAW,
@@ -305,8 +308,10 @@ public:
 	void EndMouseTool(lcTool Tool, bool Accept);
 	void InsertPieceToolClicked(const lcMatrix44& WorldMatrix);
 	void PointLightToolClicked(const lcVector3& Position);
-	void BeginSpotLightTool(const lcVector3& Position, const lcVector3& Target);
-	void UpdateSpotLightTool(const lcVector3& Position);
+/*** LPub3D Mod - enable lights ***/
+	void BeginDirectionalLightTool(const lcVector3& Position, const lcVector3& Target, int LightType);
+	void UpdateDirectionalLightTool(const lcVector3& Position);
+/*** LPub3D Mod end ***/
 	void BeginCameraTool(const lcVector3& Position, const lcVector3& Target);
 	void UpdateCameraTool(const lcVector3& Position);
 	void UpdateMoveTool(const lcVector3& Distance, bool AlternateButtonDrag);
@@ -351,6 +356,10 @@ public:
 	void SetCameraName(lcCamera* Camera, const char* Name);
 /*** LPub3D Mod - Camera Globe ***/
 	void SetCameraGlobe(lcCamera* Camera, float Latitude, float Longitude, float Distance);
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - enable lights ***/
+	void SetLightName(lcLight* Light, const char* Name);
+	void UpdateLight(lcLight* Light, const lcLightProps Props, int Property);
 /*** LPub3D Mod end ***/
 
 	void ShowPropertiesDialog();

@@ -101,7 +101,7 @@ void lcModelProperties::SaveLDraw(QTextStream& Stream) const
 		break;
 	}
 
-//	lcVector3 mAmbientColor;
+//  lcVector3 mAmbientColor;
 }
 
 void lcModelProperties::ParseLDrawLine(QTextStream& Stream)
@@ -524,7 +524,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 	lcArray<lcGroup*> CurrentGroups;
 	lcArray<lcPieceControlPoint> ControlPoints;
 	int CurrentStep = 1;
-/*** LPub3D Mod - Selected Parts ***/	
+/*** LPub3D Mod - Selected Parts ***/
 	int LineTypeIndex = -1;
 /*** LPub3D Mod end ***/
 	lcPiecesLibrary* Library = lcGetPiecesLibrary();
@@ -585,7 +585,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 
 			if (Token != QLatin1String("!LEOCAD"))
 			{
-				mFileLines.append(OriginalLine); 
+				mFileLines.append(OriginalLine);
 				continue;
 			}
 
@@ -657,7 +657,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 
 					lcPieceControlPoint& PieceControlPoint = ControlPoints.Add();
 					PieceControlPoint.Transform = lcMatrix44(lcVector4(Numbers[3], Numbers[9], -Numbers[6], 0.0f), lcVector4(Numbers[5], Numbers[11], -Numbers[8], 0.0f),
-					                                         lcVector4(-Numbers[4], -Numbers[10], Numbers[7], 0.0f), lcVector4(Numbers[0], Numbers[2], -Numbers[1], 1.0f));
+															 lcVector4(-Numbers[4], -Numbers[10], Numbers[7], 0.0f), lcVector4(Numbers[0], Numbers[2], -Numbers[1], 1.0f));
 					PieceControlPoint.Scale = Numbers[12];
 				}
 			}
@@ -685,7 +685,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 
 			if (Library->IsPrimitive(CleanId.constData()))
 			{
-				mFileLines.append(OriginalLine); 
+				mFileLines.append(OriginalLine);
 			}
 			else
 			{
@@ -715,7 +715,7 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 			}
 		}
 		else
-			mFileLines.append(OriginalLine); 
+			mFileLines.append(OriginalLine);
 	}
 
 	mCurrentStep = CurrentStep;
@@ -813,7 +813,7 @@ bool lcModel::LoadBinary(lcFile* file)
 			pPiece->SetColorCode(lcGetColorCodeFromOriginalColor(color));
 			AddPiece(pPiece);
 
-//			pPiece->SetGroup((lcGroup*)group);
+//          pPiece->SetGroup((lcGroup*)group);
 		}
 	}
 
@@ -1006,7 +1006,7 @@ bool lcModel::LoadLDD(const QString& FileData)
 {
 	lcArray<lcPiece*> Pieces;
 	lcArray<lcArray<lcPiece*>> Groups;
-	
+
 	if (!lcImportLXFMLFile(FileData, Pieces, Groups))
 		return false;
 
@@ -1486,9 +1486,9 @@ QImage lcModel::GetPartsListImage(int MaxWidth, lcStep Step) const
 
 	if (!RenderFramebuffer.first.IsValid())
 	{
-/*** LPub3D Mod - set 3DViewer label ***/		
+/*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Error creating images."));
-/*** LPub3D Mod end ***/		
+/*** LPub3D Mod end ***/
 		return QImage();
 	}
 
@@ -3177,6 +3177,17 @@ void lcModel::SetSelectedPiecesStepHide(lcStep Step)
 	}
 }
 
+/*** LPub3D Mod - enable lights ***/
+void lcModel::UpdateLight(lcLight* Light, const lcLightProps Props, int Property)
+{
+	Light->UpdateLight(mCurrentStep, Props, Property);
+
+	SaveCheckpoint(tr("Update Light"));
+	gMainWindow->UpdateAllViews();
+	gMainWindow->UpdateSelectedObjects(false);
+}
+/*** LPub3D Mod end ***/
+
 void lcModel::SetCameraOrthographic(lcCamera* Camera, bool Ortho)
 {
 	if (Camera->IsOrtho() == Ortho)
@@ -3219,7 +3230,7 @@ void lcModel::SetCameraGlobe(lcCamera* Camera, float Latitude, float Longitude, 
 {
 	auto notEqual = [] (const float v1, const float v2)
 	{
-		return qAbs(v1 - v2) > 0.1f;
+		return v1 > v2 || v1 < v2;
 	};
 
 	float _Latitude, _Longitude, _Distance;
@@ -3228,7 +3239,7 @@ void lcModel::SetCameraGlobe(lcCamera* Camera, float Latitude, float Longitude, 
 	if (notEqual(_Latitude,Latitude) ||
 		notEqual(_Longitude,Longitude))
 	{
-        Camera->SetAngles(Latitude, Longitude, Distance,Camera->mTargetPosition, mCurrentStep, false);
+		Camera->SetAngles(Latitude, Longitude, Distance,Camera->mTargetPosition, mCurrentStep, false);
 		SaveCheckpoint(tr("Update Camera Globe"));
 		gMainWindow->UpdateAllViews();
 	}
@@ -3261,6 +3272,20 @@ void lcModel::SetCameraName(lcCamera* Camera, const char* Name)
 	gMainWindow->UpdateCameraMenu();
 }
 
+void lcModel::SetLightName(lcLight* Light, const char* Name)
+{
+	if (!strcmp(Light->m_strName, Name))
+		return;
+
+	strncpy(Light->m_strName, Name, sizeof(Light->m_strName));
+	Light->m_strName[sizeof(Light->m_strName) - 1] = 0;
+
+	SaveCheckpoint(tr("Renaming Light"));
+	gMainWindow->UpdateSelectedObjects(false);
+	gMainWindow->UpdateAllViews();
+	gMainWindow->UpdateCameraMenu();
+}
+
 bool lcModel::AnyPiecesSelected() const
 {
 	for (lcPiece* Piece : mPieces)
@@ -3285,11 +3310,11 @@ bool lcModel::AnyObjectsSelected() const
 /***/
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Suppress select move overlay for light ***/
-/***
+/***/
 	for (lcLight* Light : mLights)
 		if (Light->IsSelected())
 			return true;
-***/
+/***/
 /*** LPub3D Mod end ***/
 	return false;
 }
@@ -3365,7 +3390,7 @@ bool lcModel::GetMoveRotateTransform(lcVector3& Center, lcMatrix33& RelativeRota
 		if (Camera->IsFocused() && Relative)
 		{
 			Center = Camera->GetSectionPosition(Camera->GetFocusSection());
-//			RelativeRotation = Piece->GetRelativeRotation();
+//          RelativeRotation = Piece->GetRelativeRotation();
 			return true;
 		}
 
@@ -3383,7 +3408,7 @@ bool lcModel::GetMoveRotateTransform(lcVector3& Center, lcMatrix33& RelativeRota
 		if (Light->IsFocused() && Relative)
 		{
 			Center = Light->GetSectionPosition(Light->GetFocusSection());
-//			RelativeRotation = Piece->GetRelativeRotation();
+//          RelativeRotation = Piece->GetRelativeRotation();
 			return true;
 		}
 
@@ -4235,20 +4260,29 @@ void lcModel::PointLightToolClicked(const lcVector3& Position)
 	mLights.Add(Light);
 
 	ClearSelectionAndSetFocus(Light, LC_LIGHT_SECTION_POSITION, false);
-	SaveCheckpoint(tr("New Light"));
+	SaveCheckpoint(tr("New Pointlight"));
 }
 
-void lcModel::BeginSpotLightTool(const lcVector3& Position, const lcVector3& Target)
+/*** LPub3D Mod - enable lights ***/
+void lcModel::BeginDirectionalLightTool(const lcVector3& Position, const lcVector3& Target, int LightType)
 {
-	lcLight* Light = new lcLight(Position[0], Position[1], Position[2], Target[0], Target[1], Target[2]);
+	lcLight* Light = new lcLight(Position[0], Position[1], Position[2], Target[0], Target[1], Target[2], LightType);
+	Light->CreateName(mLights);
 	mLights.Add(Light);
 
 	mMouseToolDistance = Target;
 
 	ClearSelectionAndSetFocus(Light, LC_LIGHT_SECTION_TARGET, false);
+	QString light(LightType == LC_SUNLIGHT  ? "Sunlight "
+				: LightType == LC_SPOTLIGHT ? "Spotlight "
+				: "Arealight ");
+	SaveCheckpoint(tr("%1").arg(light));
 }
+/*** LPub3D Mod end ***/
 
-void lcModel::UpdateSpotLightTool(const lcVector3& Position)
+/*** LPub3D Mod - enable lights ***/
+void lcModel::UpdateDirectionalLightTool(const lcVector3& Position)
+/*** LPub3D Mod end ***/
 {
 	lcLight* Light = mLights[mLights.GetSize() - 1];
 
@@ -4415,7 +4449,7 @@ void lcModel::ZoomRegionToolClicked(lcCamera* Camera, float AspectRatio, const l
 	Camera->ZoomRegion(AspectRatio, Position, TargetPosition, Corners, mCurrentStep, gMainWindow->GetAddKeys());
 
 /*** LPub3D Mod - Update Default Camera ***/
-//	gMainWindow->UpdateSelectedObjects(false);
+//  gMainWindow->UpdateSelectedObjects(false);
 	gMainWindow->UpdateDefaultCamera(Camera);
 /*** LPub3D Mod end ***/
 	gMainWindow->UpdateAllViews();
@@ -4472,7 +4506,7 @@ void lcModel::ZoomExtents(lcCamera* Camera, float Aspect)
 	Camera->ZoomExtents(Aspect, Center, Points, 8, mCurrentStep, gMainWindow->GetAddKeys());
 
 /*** LPub3D Mod - Update Default Camera ***/
-//	gMainWindow->UpdateSelectedObjects(false);
+//  gMainWindow->UpdateSelectedObjects(false);
 	gMainWindow->UpdateDefaultCamera(Camera);
 /*** LPub3D Mod end ***/
 	gMainWindow->UpdateAllViews();
@@ -4485,7 +4519,7 @@ void lcModel::Zoom(lcCamera* Camera, float Amount)
 {
 	Camera->Zoom(Amount, mCurrentStep, gMainWindow->GetAddKeys());
 /*** LPub3D Mod - Update Default Camera ***/
-//	gMainWindow->UpdateSelectedObjects(false);
+//  gMainWindow->UpdateSelectedObjects(false);
 	gMainWindow->UpdateDefaultCamera(Camera);
 /*** LPub3D Mod end ***/
 	gMainWindow->UpdateAllViews();
@@ -4581,7 +4615,7 @@ void lcModel::ShowArrayDialog()
 		return;
 /*** LPub3D Mod end ***/
 	}
-	
+
 	lcQArrayDialog Dialog(gMainWindow);
 
 	if (Dialog.exec() != QDialog::Accepted)

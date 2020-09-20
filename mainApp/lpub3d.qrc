@@ -61,6 +61,7 @@
         <file alias="closemodelfile.png">resources/closemodelfile.png</file>
         <file alias="contentspage.png">resources/contentspage.png</file>
         <file alias="convertcallout.png">resources/convertcallout.png</file>
+        <file alias="convertcallout16.png">resources/convertcallout16.png</file>
         <file alias="copy.png">resources/copy.png</file>
         <file alias="csv32.png">resources/csv32.png</file>
         <file alias="cut.png">resources/cut.png</file>
@@ -232,6 +233,8 @@
         <file alias="unrotate.png">resources/unrotate.png</file>
         <file alias="update.png">resources/update.png</file>
         <file alias="viewlog.png">resources/viewlog.png</file>
+        <file alias="veiw_viewpoint_home.png">resources/veiw_viewpoint_home.png</file>
+        <file alias="veiw_viewpoint_home_16.png">resources/veiw_viewpoint_home_16.png</file>
         <file alias="viewzoomextents.png">resources/viewzoomextents.png</file>
         <file alias="viewzoomextents16.png">resources/viewzoomextents16.png</file>
         <file alias="zoomin.png">resources/zoomin.png</file>

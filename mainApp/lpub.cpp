@@ -159,7 +159,8 @@ void Gui::startRequest(QUrl url)
 {
     QNetworkRequest request(url);
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
-    request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+    if (!mPromptRedirect)
+        request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
 #endif
     mHttpReply = mHttpManager->get(request);
 
@@ -198,8 +199,8 @@ void Gui::httpDownloadFinished()
             logError() << message;
         }
     } else if (!redirectionTarget.isNull()) {
-        // This block should only trigger for redirects
-        // when Qt is less than 5.6.0
+        // This block should only trigger for redirects when Qt
+        // is less than 5.6.0 or if prompt redirect set to True
         QUrl newUrl = mUrl.resolved(redirectionTarget.toUrl());
         bool proceedToRedirect = true;
         if (mPromptRedirect && Preferences::modeGUI) {
@@ -4078,19 +4079,24 @@ void Gui::createActions()
     hideGridPageBackgroundAct->setEnabled(Preferences::snapToGrid);
     connect(hideGridPageBackgroundAct, SIGNAL(triggered()), this, SLOT(hidePageBackground()));
 
-    for (int CommandIdx = 0; CommandIdx < NUM_GRID_SIZES; CommandIdx++)
-    {
-        QAction* Action = new QAction(qApp->translate("Menu", sgCommands[CommandIdx].MenuName), this);
-        Action->setStatusTip(qApp->translate("Status", sgCommands[CommandIdx].StatusText));
-        connect(Action, SIGNAL(triggered()), this, SLOT(gridSizeTriggered()));
-        addAction(Action);
-        snapGridActions[CommandIdx] = Action;
-    }
+//    for (int CommandIdx = 0; CommandIdx < NUM_GRID_SIZES; CommandIdx++)
+//    {
+//        QAction* Action = new QAction(qApp->translate("Menu", sgCommands[CommandIdx].MenuName), this);
+//        Action->setStatusTip(qApp->translate("Status", sgCommands[CommandIdx].StatusText));
+//        connect(Action, SIGNAL(triggered()), this, SLOT(gridSizeTriggered()));
+//        addAction(Action);
+//        snapGridActions[CommandIdx] = Action;
+//    }
 
     GridStepSizeGroup = new QActionGroup(this);
     GridStepSizeGroup->setEnabled(Preferences::snapToGrid);
-    for (int ActionIdx = GRID_SIZE_FIRST; ActionIdx <= GRID_SIZE_LAST; ActionIdx++)
+    for (int ActionIdx = GRID_SIZE_FIRST; ActionIdx < GRID_SIZE_LAST; ActionIdx++)
     {
+        QAction* Action = new QAction(qApp->translate("Menu", sgCommands[ActionIdx].MenuName), this);
+        Action->setStatusTip(qApp->translate("Status", sgCommands[ActionIdx].StatusText));
+        connect(Action, SIGNAL(triggered()), this, SLOT(gridSizeTriggered()));
+        addAction(Action);
+        snapGridActions[ActionIdx] = Action;
         snapGridActions[ActionIdx]->setCheckable(true);
         GridStepSizeGroup->addAction(snapGridActions[ActionIdx]);
     }
@@ -5346,7 +5352,7 @@ void Gui::statusMessage(LogType logType, QString message) {
     }
 }
 
-SnapGridCommands sgCommands[NUM_GRID_SIZES] =
+ActionAttributes sgCommands[NUM_GRID_SIZES] =
 {
     // SCENE_GRID_SIZE_S1
     {

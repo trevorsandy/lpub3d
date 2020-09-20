@@ -320,6 +320,18 @@ void lcMainWindow::CreateActions()
 	EditActionLightIcon.addFile(":/resources/action_light_16.png");
 	mActions[LC_EDIT_ACTION_LIGHT]->setIcon(EditActionLightIcon);
 
+/*** LPub3D Mod - enable lights ***/
+	QIcon EditActionSunlightIcon;
+	EditActionSunlightIcon.addFile(":/resources/action_sunlight.png");
+	EditActionSunlightIcon.addFile(":/resources/action_sunlight_16.png");
+	mActions[LC_EDIT_ACTION_SUNLIGHT]->setIcon(EditActionSunlightIcon);
+
+	QIcon EditActionArealightIcon;
+	EditActionArealightIcon.addFile(":/resources/action_arealight.png");
+	EditActionArealightIcon.addFile(":/resources/action_arealight_16.png");
+	mActions[LC_EDIT_ACTION_AREALIGHT]->setIcon(EditActionArealightIcon);
+/*** LPub3D Mod end ***/
+
 	QIcon EditActionSpotLightIcon;
 	EditActionSpotLightIcon.addFile(":/resources/action_spotlight.png");
 	EditActionSpotLightIcon.addFile(":/resources/action_spotlight_16.png");
@@ -359,22 +371,6 @@ void lcMainWindow::CreateActions()
 	EditActionPanIcon.addFile(":/resources/action_pan.png");
 	EditActionPanIcon.addFile(":/resources/action_pan_16.png");
 	mActions[LC_EDIT_ACTION_PAN]->setIcon(EditActionPanIcon);
-
-/*** LPub3D Mod - add view viewpoint home icon ***/
-	QIcon ViewViewPointHomeIcon;
-	ViewViewPointHomeIcon.addFile(":/resources/veiw_viewpoint_home.png");
-	ViewViewPointHomeIcon.addFile(":/resources/veiw_viewpoint_home_16.png");
-	mActions[LC_VIEW_VIEWPOINT_HOME]->setIcon(ViewViewPointHomeIcon);
-/*** LPub3D Mod end ***/
-
-/*** LPub3D Mod - add edit rotstep icon ***/
-	QIcon EditActionRotstepIcon;
-	EditActionRotstepIcon.addFile(":/resources/edit_rotatestep.png");
-	EditActionRotstepIcon.addFile(":/resources/edit_rotatestep_16.png");
-	mActions[LC_EDIT_ACTION_ROTATESTEP]->setIcon(EditActionRotstepIcon);
-
-	mActions[LC_EDIT_ACTION_CLEAR_TRANSFORM]->setIcon(QIcon(":/resources/clear_transform.png"));
-/*** LPub3D Mod end ***/
 
 	mActions[LC_EDIT_ACTION_CAMERA]->setIcon(QIcon(":/resources/action_camera.png"));
 	mActions[LC_EDIT_ACTION_ROTATE_VIEW]->setIcon(QIcon(":/resources/action_rotate_view.png"));
@@ -438,7 +434,7 @@ void lcMainWindow::CreateActions()
 		ActionTransformTypeGroup->addAction(mActions[ActionIdx]);
 	}
 
-/*** LPub3D Mod - coord format ***/
+/*** LPub3D Mod - coord format DEPRECATED ***/
 	QActionGroup* ActionCoordFormatTypeGroup = new QActionGroup(this);
 	for (int ActionIdx = LC_EDIT_ROTATESTEP_COORD_FORMAT_LDRAW; ActionIdx <= LC_EDIT_ROTATESTEP_COORD_FORMAT_LEOCAD; ActionIdx++)
 	{
@@ -514,7 +510,7 @@ void lcMainWindow::CreateMenus()
 	TransformMenu->addAction(mActions[LC_EDIT_TRANSFORM_ABSOLUTE_ROTATION]);
 	mActions[LC_EDIT_TRANSFORM]->setMenu(TransformMenu);
 
-/*** LPub3D Mod - coord format ***/
+/*** LPub3D Mod - coord format DEPRECATED ***/
 	QMenu* CoordFormatMenu = new QMenu(tr("Coordinate Format"), this);
 	CoordFormatMenu->addAction(mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT_LDRAW]);
 	CoordFormatMenu->addAction(mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT_LEOCAD]);
@@ -553,6 +549,8 @@ void lcMainWindow::CreateMenus()
 /***
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_INSERT]);
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_LIGHT]);
+	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_SUNLIGHT]);
+	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_AREALIGHT]);
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_SPOTLIGHT]);
 	mToolsMenu->addAction(mActions[LC_EDIT_ACTION_CAMERA]);
 	mToolsMenu->addSeparator();
@@ -597,7 +595,7 @@ void lcMainWindow::CreateMenus()
 	FileMenu->addAction(mActions[LC_FILE_RENDER]);
 	FileMenu->addAction(mActions[LC_FILE_PRINT]);
 	FileMenu->addAction(mActions[LC_FILE_PRINT_PREVIEW]);
-//	FileMenu->addAction(mActions[LC_FILE_PRINT_BOM]);
+//  FileMenu->addAction(mActions[LC_FILE_PRINT_BOM]);
 	FileMenu->addSeparator();
 	FileMenu->addAction(mActions[LC_FILE_RECENT1]);
 	FileMenu->addAction(mActions[LC_FILE_RECENT2]);
@@ -784,6 +782,8 @@ void lcMainWindow::CreateToolBars()
 /***
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_INSERT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_LIGHT]);
+	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_SUNLIGHT]);
+	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_AREALIGHT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_SPOTLIGHT]);
 	mToolsToolBar->addAction(mActions[LC_EDIT_ACTION_CAMERA]);
 	mToolsToolBar->addSeparator();
@@ -839,7 +839,7 @@ void lcMainWindow::CreateToolBars()
 	QWidget* TransformWidget = new QWidget();
 	TransformWidget->setLayout(TransformLayout);
 
-/*** LPub3D Mod - coord format ***/
+/*** LPub3D Mod - coord format DEPRECATED ***/
 /***
 	QToolButton* CoordFormatButton = new QToolButton(TransformWidget);
 	CoordFormatButton->setDefaultAction(mActions[LC_EDIT_ROTATESTEP_COORD_FORMAT]);
@@ -1006,14 +1006,14 @@ void lcMainWindow::closeEvent(QCloseEvent* Event)
 	{
 		Event->accept();
 /*** LPub3D Mod - suppress set windows state and save tab layout ***/
-//		QSettings Settings;
-//		Settings.beginGroup("MainWindow");
-//		Settings.setValue("Geometry", saveGeometry());
-//		Settings.setValue("State", saveState());
-//		mPartSelectionWidget->SaveState(Settings);
-//		Settings.endGroup();
+//      QSettings Settings;
+//      Settings.beginGroup("MainWindow");
+//      Settings.setValue("Geometry", saveGeometry());
+//      Settings.setValue("State", saveState());
+//      mPartSelectionWidget->SaveState(Settings);
+//      Settings.endGroup();
 
-//		gApplication->SaveTabLayout();
+//      gApplication->SaveTabLayout();
 /*** LPub3D Mod end ***/
 	}
 	else
@@ -1546,9 +1546,9 @@ void lcMainWindow::Print(QPrinter* Printer)
 				Painter.drawImage(MarginRect.left(), MarginRect.top(), Image);
 
 				// TODO: add print options somewhere but Qt doesn't allow changes to the page setup dialog
-//				DWORD dwPrint = theApp.GetProfileInt("Settings","Print", PRINT_NUMBERS|PRINT_BORDER);
+//              DWORD dwPrint = theApp.GetProfileInt("Settings","Print", PRINT_NUMBERS|PRINT_BORDER);
 
-//				if (print text)
+//              if (print text)
 				{
 					QFont Font("Helvetica", 96);
 					Painter.setFont(Font);
@@ -1561,7 +1561,7 @@ void lcMainWindow::Print(QPrinter* Printer)
 					Painter.drawText(TextRect, Qt::AlignTop | Qt::AlignLeft, QString::number(Step));
 				}
 /*
-//				if (print border)
+//              if (print border)
 				{
 					QPen BlackPen(Qt::black, 2);
 					Painter.setPen(BlackPen);
@@ -1787,7 +1787,7 @@ void lcMainWindow::RestoreTabLayout(const QByteArray& TabLayout)
 				DataStream >> CameraType;
 
 				View* CurrentView = nullptr;
-				
+
 				if (ParentWidget)
 					CurrentView = (View*)((lcQGLWidget*)ParentWidget)->widget;
 
@@ -2132,6 +2132,13 @@ void lcMainWindow::SetRotateStepCoordType(lcRotateStepCoordType RotateStepCoordT
 }
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - View point zoom extent ***/
+bool lcMainWindow::viewportZoomExtent()
+{
+	return lcGetProfileInt(LC_PROFILE_VIEWPOINT_ZOOM_EXTENT);
+}
+/*** LPub3D Mod end ***/
+
 void lcMainWindow::SetCurrentPieceInfo(PieceInfo* Info)
 {
 	lcPiecesLibrary* Library = lcGetPiecesLibrary();
@@ -2387,7 +2394,7 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int EmitSelectio
 				ActiveModel->GetSelectionInformation(&Flags, Selection, &ThrowAway);
 			/*** LPub3D Mod end ***/
 
-			} else 
+			} else
 
 			/*** LPub3D Mod - Selected Parts ***/
 			if (EmitSelection && Tool == LC_TOOL_SELECT && GetImageType() != Options::PLI) {
@@ -2523,8 +2530,8 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int EmitSelectio
 /*** LPub3D Mod end ***/
 
 /*** LPub3D Mod - replace mStatusBarLabel ***/
-	statusBar()->showMessage(EmitSelection == VIEWER_MOD ? Label : Message);
-/*	mStatusPositionLabel->setText(Label);   */
+	 statusBar()->showMessage(EmitSelection == VIEWER_MOD && Focus->IsPiece() ? Label : Selection.GetSize() == 1 ? Message.append(" " + Label) : Message);
+/*  mStatusPositionLabel->setText(Label);   */
 /*** LPub3D Mod end ***/
 }
 
@@ -2552,7 +2559,7 @@ void lcMainWindow::UpdateCurrentStep()
 	mActions[LC_VIEW_TIME_NEXT]->setEnabled(CurrentStep < LC_STEP_MAX);
 	mActions[LC_VIEW_TIME_LAST]->setEnabled(CurrentStep != LastStep);
 /*** LPub3D Mod 2121 - suppress time status                                                  ***/
-/***	mStatusTimeLabel->setText(QString(tr("Step %1")).arg(QString::number(CurrentStep))); ***/
+/***    mStatusTimeLabel->setText(QString(tr("Step %1")).arg(QString::number(CurrentStep))); ***/
 /*** LPub3D Mod end ***/
 }
 
@@ -2844,7 +2851,7 @@ bool lcMainWindow::OpenProjectFile(const QString& FileName)
 	{
 		gApplication->SetProject(NewProject);
 /*** LPub3D Mod - suppress menuBar ***/
-/***	        AddRecentFile(FileName); ***/
+/***            AddRecentFile(FileName); ***/
 /*** LPub3D Mod end ***/
 		UpdateAllViews();
 
@@ -2969,7 +2976,7 @@ bool lcMainWindow::SaveProject(const QString& FileName)
 		return false;
 
 /*** LPub3D Mod - suppress menuBar ***/
-/***	AddRecentFile(SaveFileName); ***/
+/***    AddRecentFile(SaveFileName); ***/
 /*** LPub3D Mod end ***/
 	UpdateTitle();
 
@@ -3730,7 +3737,7 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 		break;
 /*** LPub3D Mod end ***/
 
-/*** LPub3D Mod - coord format ***/
+/*** LPub3D Mod - coord format DEPRECATED ***/
 	case LC_EDIT_ROTATESTEP_COORD_FORMAT:
 	case LC_EDIT_ROTATESTEP_COORD_FORMAT_LDRAW:
 	case LC_EDIT_ROTATESTEP_COORD_FORMAT_LEOCAD:
@@ -3756,6 +3763,16 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 	case LC_EDIT_ACTION_LIGHT:
 		SetTool(LC_TOOL_LIGHT);
 		break;
+
+/*** LPub3D Mod - enable lights ***/
+		case LC_EDIT_ACTION_SUNLIGHT:
+		SetTool(LC_TOOL_SUNLIGHT);
+		break;
+
+	case LC_EDIT_ACTION_AREALIGHT:
+		SetTool(LC_TOOL_AREALIGHT);
+		break;
+/*** LPub3D Mod end ***/
 
 	case LC_EDIT_ACTION_SPOTLIGHT:
 		SetTool(LC_TOOL_SPOTLIGHT);

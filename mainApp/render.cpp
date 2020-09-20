@@ -2887,6 +2887,7 @@ bool Render::ExecuteViewer(const NativeOptions *O, bool Export/*false*/){
     if (!Export) {
         if (lcGetPreferences().mDefaultCameraProperties)
             gMainWindow->UpdateDefaultCamera(Camera);
+        gui->restoreLightAndViewpointDefaults();
         return true;
     }
 

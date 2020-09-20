@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include "lc_mainwindow.h"
 #include "camera.h"
+/*** LPub3D Mod - enable lights ***/
+#include "light.h"
+/*** LPub3D Mod end ***/
 #include "view.h"
 #include "texfont.h"
 #include "lc_texture.h"
@@ -334,7 +337,10 @@ void View::SetViewpoint(lcViewpoint Viewpoint)
 	}
 
 	mCamera->SetViewpoint(Viewpoint);
-	ZoomExtents();
+/*** LPub3D Mod - View point zoom extent ***/
+	if (gMainWindow->viewportZoomExtent())
+		ZoomExtents();
+/*** LPub3D Mod end ***/
 	Redraw();
 
 	gMainWindow->UpdateCurrentCamera(-1);
@@ -353,7 +359,6 @@ void View::SetViewpoint(const lcVector3& Position)
 	}
 
 	mCamera->SetViewpoint(Position);
-	ZoomExtents();
 	Redraw();
 
 	gMainWindow->UpdateCurrentCamera(-1);
@@ -371,7 +376,7 @@ void View::SetCameraAngles(float Latitude, float Longitude)
 			mCamera->CopySettings(OldCamera);
 	}
 /*** LPub3D Mod - Camera Globe ***/
-    mCamera->SetAngles(Latitude, Longitude, 1.0f, mCamera->mTargetPosition, GetActiveModel()->GetCurrentStep(), false);
+	mCamera->SetAngles(Latitude, Longitude, 1.0f, mCamera->mTargetPosition, GetActiveModel()->GetCurrentStep(), false);
 /*** LPub3D Mod end ***/
 	ZoomExtents();
 	Redraw();
@@ -390,7 +395,7 @@ void View::SetCameraGlobe(float Latitude, float Longitude, float Distance, lcVec
 			mCamera->CopySettings(OldCamera);
 	}
 
-    mCamera->SetAngles(Latitude, Longitude, Distance, Target, GetActiveModel()->GetCurrentStep(), false);
+	mCamera->SetAngles(Latitude, Longitude, Distance, Target, GetActiveModel()->GetCurrentStep(), false);
 
 	if (ZoomExt)
 		ZoomExtents();
@@ -486,6 +491,8 @@ LC_CURSOR_TYPE View::GetCursor() const
 		LC_CURSOR_SELECT,      // LC_TRACKTOOL_NONE
 		LC_CURSOR_BRICK,       // LC_TRACKTOOL_INSERT
 		LC_CURSOR_LIGHT,       // LC_TRACKTOOL_POINTLIGHT
+		LC_CURSOR_SUNLIGHT,    // LC_TRACKTOOL_SUNLIGHT   /*** LPub3D Mod - enable lights ***/
+		LC_CURSOR_AREALIGHT,   // LC_TRACKTOOL_AREALIGHT  /*** LPub3D Mod - enable lights ***/
 		LC_CURSOR_SPOTLIGHT,   // LC_TRACKTOOL_SPOTLIGHT
 		LC_CURSOR_CAMERA,      // LC_TRACKTOOL_CAMERA
 		LC_CURSOR_SELECT,      // LC_TRACKTOOL_SELECT
@@ -1937,6 +1944,8 @@ lcTool View::GetCurrentTool() const
 		LC_TOOL_SELECT,      // LC_TRACKTOOL_NONE
 		LC_TOOL_INSERT,      // LC_TRACKTOOL_INSERT
 		LC_TOOL_LIGHT,       // LC_TRACKTOOL_POINTLIGHT
+		LC_TOOL_SUNLIGHT,    // LC_TRACKTOOL_SUNLIGHT      /*** LPub3D Mod - enable lights ***/
+		LC_TOOL_AREALIGHT,   // LC_TRACKTOOL_AREALIGHT     /*** LPub3D Mod - enable lights ***/
 		LC_TOOL_SPOTLIGHT,   // LC_TRACKTOOL_SPOTLIGHT
 		LC_TOOL_CAMERA,      // LC_TRACKTOOL_CAMERA
 		LC_TOOL_SELECT,      // LC_TRACKTOOL_SELECT
@@ -1983,6 +1992,8 @@ lcTrackTool View::GetOverrideTrackTool(Qt::MouseButton Button) const
 	{
 		LC_TRACKTOOL_INSERT,     // LC_TOOL_INSERT
 		LC_TRACKTOOL_POINTLIGHT, // LC_TOOL_LIGHT
+		LC_TRACKTOOL_SUNLIGHT,   // LC_TOOL_SUNLIGHT           /*** LPub3D Mod - enable lights ***/
+		LC_TRACKTOOL_AREALIGHT,  // LC_TOOL_AREALIGHT          /*** LPub3D Mod - enable lights ***/
 		LC_TRACKTOOL_SPOTLIGHT,  // LC_TOOL_SPOTLIGHT
 		LC_TRACKTOOL_CAMERA,     // LC_TOOL_CAMERA
 		LC_TRACKTOOL_SELECT,     // LC_TOOL_SELECT
@@ -2121,7 +2132,15 @@ void View::UpdateTrackTool()
 	case LC_TOOL_LIGHT:
 		NewTrackTool = LC_TRACKTOOL_POINTLIGHT;
 		break;
+/*** LPub3D Mod - enable lights ***/
+	case LC_TOOL_SUNLIGHT:
+		NewTrackTool = LC_TRACKTOOL_SUNLIGHT;
+		break;
 
+	case LC_TOOL_AREALIGHT:
+		NewTrackTool = LC_TRACKTOOL_AREALIGHT;
+		break;
+/*** LPub3D Mod end ***/
 	case LC_TOOL_SPOTLIGHT:
 		NewTrackTool = LC_TRACKTOOL_SPOTLIGHT;
 		break;
@@ -2567,6 +2586,10 @@ bool View::IsTrackToolAllowed(lcTrackTool TrackTool, quint32 AllowedTransforms) 
 	case LC_TRACKTOOL_NONE:
 	case LC_TRACKTOOL_INSERT:
 	case LC_TRACKTOOL_POINTLIGHT:
+/*** LPub3D Mod - enable lights ***/
+	case LC_TRACKTOOL_SUNLIGHT:
+	case LC_TRACKTOOL_AREALIGHT:
+/*** LPub3D Mod end ***/
 	case LC_TRACKTOOL_SPOTLIGHT:
 	case LC_TRACKTOOL_CAMERA:
 	case LC_TRACKTOOL_SELECT:
@@ -2652,11 +2675,21 @@ void View::StartTracking(lcTrackButton TrackButton)
 	case LC_TOOL_LIGHT:
 		break;
 
+/*** LPub3D Mod - enable lights ***/
+	case LC_TOOL_SUNLIGHT:
+	case LC_TOOL_AREALIGHT:
+/*** LPub3D Mod end ***/
 	case LC_TOOL_SPOTLIGHT:
 		{
 			lcVector3 Position = GetCameraLightInsertPosition();
 			lcVector3 Target = Position + lcVector3(0.1f, 0.1f, 0.1f);
-			ActiveModel->BeginSpotLightTool(Position, Target);
+/*** LPub3D Mod - enable lights ***/
+			int LightType =
+					Tool == LC_TOOL_SUNLIGHT ? LC_SUNLIGHT
+											 : Tool == LC_TOOL_SPOTLIGHT ? LC_SPOTLIGHT :
+																		   LC_AREALIGHT;
+			ActiveModel->BeginDirectionalLightTool(Position, Target, LightType);
+/*** LPub3D Mod end ***/
 		}
 		break;
 
@@ -2855,6 +2888,10 @@ void View::OnButtonDown(lcTrackButton TrackButton)
 		}
 		break;
 
+/*** LPub3D Mod - enable lights ***/
+	case LC_TRACKTOOL_SUNLIGHT:
+	case LC_TRACKTOOL_AREALIGHT:
+/*** LPub3D Mod end ***/
 	case LC_TRACKTOOL_SPOTLIGHT:
 	case LC_TRACKTOOL_CAMERA:
 		StartTracking(TrackButton);
@@ -3086,8 +3123,12 @@ void View::OnMouseMove()
 	case LC_TRACKTOOL_POINTLIGHT:
 		break;
 
+/*** LPub3D Mod - enable lights ***/
+	case LC_TRACKTOOL_SUNLIGHT:
+	case LC_TRACKTOOL_AREALIGHT:
 	case LC_TRACKTOOL_SPOTLIGHT:
-		ActiveModel->UpdateSpotLightTool(GetCameraLightInsertPosition());
+		ActiveModel->UpdateDirectionalLightTool(GetCameraLightInsertPosition());
+/*** LPub3D Mod end ***/
 		break;
 
 	case LC_TRACKTOOL_CAMERA:

@@ -23,6 +23,10 @@
         <file alias="action_select_16.png">resources/action_select_16.png</file>
         <file alias="action_spotlight.png">resources/action_spotlight.png</file>
         <file alias="action_spotlight_16.png">resources/action_spotlight_16.png</file>
+        <file alias="action_sunlight.png">resources/action_sunlight.png</file>
+        <file alias="action_sunlight_16.png">resources/action_sunlight_16.png</file>
+        <file alias="action_arealight.png">resources/action_arealight.png</file>
+        <file alias="action_arealight_16.png">resources/action_arealight_16.png</file>
         <file alias="action_zoom.png">resources/action_zoom.png</file>
         <file alias="action_zoom_16.png">resources/action_zoom_16.png</file>
         <file alias="action_zoom_extents.png">resources/action_zoom_extents.png</file>
@@ -45,6 +49,8 @@
         <file alias="cursor_select_add.png">resources/cursor_select_add.png</file>
         <file alias="cursor_select_remove.png">resources/cursor_select_remove.png</file>
         <file alias="cursor_spotlight.png">resources/cursor_spotlight.png</file>
+        <file alias="cursor_sunlight.png">resources/cursor_sunlight.png</file>
+        <file alias="cursor_arealight.png">resources/cursor_arealight.png</file>
         <file alias="cursor_zoom.png">resources/cursor_zoom.png</file>
         <file alias="cursor_zoom_region.png">resources/cursor_zoom_region.png</file>
         <file alias="edit_copy.png">resources/edit_copy.png</file>
@@ -124,8 +130,6 @@
         <file alias="time_previous.png">resources/time_previous.png</file>
         <file alias="time_stop.png">resources/time_stop.png</file>
         <file alias="view_preferences.png">resources/view_preferences.png</file>
-        <file alias="veiw_viewpoint_home.png">resources/veiw_viewpoint_home.png</file>
-        <file alias="veiw_viewpoint_home_16.png">resources/veiw_viewpoint_home_16.png</file>
         <file alias="view_split_horizontal.png">resources/view_split_horizontal.png</file>
         <file alias="view_split_vertical.png">resources/view_split_vertical.png</file>
         <file alias="view_zoomextents.png">resources/view_zoomextents.png</file>

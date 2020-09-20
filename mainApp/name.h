@@ -25,7 +25,7 @@ extern Gui *gui;
 class LDVWidget;
 extern LDVWidget *ldvWidget;
 
-struct SnapGridCommands
+struct ActionAttributes
 {
     const char* ID;
     const char* MenuName;
@@ -65,6 +65,7 @@ enum PartsAttrib {
     BM_END_LINE,
     BM_MODEL_NAME_INDEX
 };
+
 enum GridStepSize {
     GRID_SIZE_FIRST,
     SCENE_GRID_SIZE_S1 = GRID_SIZE_FIRST,
@@ -76,8 +77,8 @@ enum GridStepSize {
     SCENE_GRID_SIZE_S7,
     SCENE_GRID_SIZE_S8,
     SCENE_GRID_SIZE_S9,
-    GRID_SIZE_LAST = SCENE_GRID_SIZE_S9,
-    NUM_GRID_SIZES
+    NUM_GRID_SIZES,
+    GRID_SIZE_LAST = NUM_GRID_SIZES
 };
 enum LDrawUnofficialFileType {
     UNOFFICIAL_SUBMODEL,
@@ -153,7 +154,7 @@ enum NameKeyAttributes2{
 
 const int GridSizeTable[] = { 10, 20, 30, 40, 50, 60, 70, 80, 90 };
 
-extern SnapGridCommands sgCommands[NUM_GRID_SIZES];
+extern ActionAttributes sgCommands[NUM_GRID_SIZES];
 
 /*
  * Scene Objects
