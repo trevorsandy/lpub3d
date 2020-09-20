@@ -820,6 +820,7 @@ void Application::initialize()
     Preferences::annotationPreferences();
     Preferences::pliPreferences();
     Preferences::userInterfacePreferences();
+    Preferences::editorPreferences();
 
     // Resolution
     defaultResolutionType(Preferences::preferCentimeters);

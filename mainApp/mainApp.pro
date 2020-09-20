@@ -389,6 +389,7 @@ HEADERS += \
     globals.h \
     gradients.h \
     highlighter.h \
+    highlightersimple.h \
     historylineedit.h \
     hoverpoints.h \
     ldrawcolordialog.cpp \
@@ -495,6 +496,7 @@ SOURCES += \
     formatpage.cpp \
     gradients.cpp \
     highlighter.cpp \
+    highlightersimple.cpp \
     highlightstepglobals.cpp \
     historylineedit.cpp \
     hoverpoints.cpp \

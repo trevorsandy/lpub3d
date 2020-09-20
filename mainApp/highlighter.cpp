@@ -27,14 +27,8 @@
 
 #include <QtWidgets>
 #include "highlighter.h"
-#include "version.h"
-
+#include "application.h"
 #include "name.h"
-#include "lpub_preferences.h"
-
-#ifdef QT_DEBUG_MODE
-#include "lpubalert.h"
-#endif
 
 Highlighter::Highlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent)
@@ -43,7 +37,7 @@ Highlighter::Highlighter(QTextDocument *parent)
 
     QBrush br01,br02,br03,br04,br05,br06,br07,br08,br09,br10,br11,br12,br13,br14;
     QBrush br15,br16,br17,br18,br19,br20,br21,br22,br23,br24,br25,br26,br27,br28,br29;
-    if (Preferences::displayTheme == THEME_DEFAULT) {
+    if (Application::instance()->getTheme() == THEME_DEFAULT) {
         br01 = QBrush(QColor(THEME_HIGHLIGHT_01_DEFAULT));
         br02 = QBrush(QColor(THEME_HIGHLIGHT_02_DEFAULT));
         br03 = QBrush(QColor(THEME_HIGHLIGHT_03_DEFAULT));
@@ -75,7 +69,7 @@ Highlighter::Highlighter(QTextDocument *parent)
         br29 = QBrush(QColor(THEME_HIGHLIGHT_29_DEFAULT));
       }
     else
-    if (Preferences::displayTheme == THEME_DARK) {
+    if (Application::instance()->getTheme() == THEME_DARK) {
         br01 = QBrush(QColor(THEME_HIGHLIGHT_01_DARK));
         br02 = QBrush(QColor(THEME_HIGHLIGHT_02_DARK));
         br03 = QBrush(QColor(THEME_HIGHLIGHT_03_DARK));

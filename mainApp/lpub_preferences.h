@@ -51,6 +51,7 @@ class Preferences
     static void loggingPreferences();
     static void exportPreferences();
     static void userInterfacePreferences();
+    static void editorPreferences();
 
     static bool extractLDrawLib();
     static void getRequireds();
@@ -321,6 +322,8 @@ class Preferences
     static int     povrayRenderQuality;
     static int     ldrawFilesLoadMsgs;
     static int     maxOpenWithPrograms;
+    static int     editorDecoration;
+
 
     virtual ~Preferences() {}
 };

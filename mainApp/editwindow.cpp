@@ -48,6 +48,7 @@
 #include "editwindow.h"
 #include "lpubalert.h"
 #include "highlighter.h"
+#include "highlightersimple.h"
 #include "ldrawfiles.h"
 #include "messageboxresizable.h"
 
@@ -65,13 +66,19 @@
 EditWindow *editWindow;
 
 EditWindow::EditWindow(QMainWindow *parent, bool _modelFileEdit_) :
-  QMainWindow(parent),isIncludeFile(false),_modelFileEdit(_modelFileEdit_)
+  QMainWindow(parent),isIncludeFile(false),_modelFileEdit(_modelFileEdit_),_pageIndx(0)
 {
     editWindow  = this;
 
     _textEdit   = new QTextEditor(this);
 
-    highlighter = new Highlighter(_textEdit->document());
+    verticalScrollBar = _textEdit->verticalScrollBar();
+
+    if (Preferences::editorDecoration == SIMPLE)
+      highlighterSimple = new HighlighterSimple(_textEdit->document());
+    else
+      highlighter = new Highlighter(_textEdit->document());
+
     _textEdit->setLineWrapMode(QTextEditor::NoWrap);
     _textEdit->setUndoRedoEnabled(true);
     _textEdit->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -472,6 +479,10 @@ void EditWindow::createActions()
 #endif
     connect(redoAct, SIGNAL(triggered()), _textEdit, SLOT(redo()));
 
+    preferencesAct = new QAction(QIcon(":/resources/preferences.png"),tr("Preferences"), this);
+    preferencesAct->setStatusTip(tr("Set your preferences for LDraw Editor"));
+    connect(preferencesAct, SIGNAL(triggered()), this, SLOT(preferences()));
+
     connect(_textEdit, SIGNAL(undoAvailable(bool)),
              undoAct,  SLOT(setEnabled(bool)));
     connect(_textEdit, SIGNAL(redoAvailable(bool)),
@@ -561,6 +572,8 @@ void EditWindow::createToolBars()
     editToolBar->addAction(delAct);
     editToolBar->addAction(updateAct);
     editToolBar->addAction(redrawAct);
+    editToolBar->addSeparator();
+    editToolBar->addAction(preferencesAct);
 }
 
 bool EditWindow::validPreviewLine ()
@@ -931,10 +944,10 @@ void EditWindow::pageUpDown(
   if (moved) {
     if (op == QTextCursor::Up) {
       cursor.movePosition(QTextCursor::Down, moveMode);
-      _textEdit->verticalScrollBar()->triggerAction(QAbstractSlider::SliderPageStepAdd);
+      verticalScrollBar->triggerAction(QAbstractSlider::SliderPageStepAdd);
     } else {
       cursor.movePosition(QTextCursor::Up, moveMode);
-      _textEdit->verticalScrollBar()->triggerAction(QAbstractSlider::SliderPageStepSub);
+      verticalScrollBar->triggerAction(QAbstractSlider::SliderPageStepSub);
     }
   }
 }
@@ -1187,7 +1200,7 @@ void EditWindow::writeSettings()
     Settings.endGroup();
 }
 
-void EditWindow::closeEvent(QCloseEvent *event)
+void EditWindow::closeEvent(QCloseEvent *_event)
 {
     if (!modelFileEdit())
         return;
@@ -1201,9 +1214,94 @@ void EditWindow::closeEvent(QCloseEvent *event)
     mpdCombo->setMaxCount(1000);
 
     if (maybeSave()){
-        event->accept();
+        _event->accept();
     } else {
-        event->ignore();
+        _event->ignore();
+    }
+}
+
+void EditWindow::preferences()
+{
+    QString windowTitle       = QString("Editor Preferences");
+    int editorDecoration      = Preferences::editorDecoration;
+    int editorLinesPerPage    = Preferences::editorLinesPerPage;
+    bool editorBufferedPaging = Preferences::editorBufferedPaging;
+
+    auto showMessage = [&windowTitle] (const QString change) {
+        QPixmap _icon = QPixmap(":/icons/lpub96.png");
+        if (_icon.isNull())
+            _icon = QPixmap (":/icons/update.png");
+
+        QMessageBoxResizable box;
+        box.setWindowIcon(QIcon());
+        box.setIconPixmap (_icon);
+        box.setTextFormat (Qt::RichText);
+        box.setWindowTitle(windowTitle);
+        box.setWindowFlags (Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+        QString title = "<b>" + change + "</b>";
+        QString text  = QString("%1 will take effect the next time LPub3D is started.").arg(change);
+        box.setText (title);
+        box.setInformativeText (text);
+        box.setStandardButtons (QMessageBox::Ok);
+
+        box.exec();
+    };
+
+    // options dialogue
+    QDialog *dialog = new QDialog();
+    dialog->setWindowTitle(windowTitle);
+    QFormLayout *form = new QFormLayout(dialog);
+
+    // options - editor decoration
+    QGroupBox *editorDecorationGrpBox = new QGroupBox(tr("Editor text decoration"));
+    form->addWidget(editorDecorationGrpBox);
+    QFormLayout *editorDecorationSubform = new QFormLayout(editorDecorationGrpBox);
+
+    QLabel    *editorDecorationLabel = new QLabel("Text Decoration:", dialog);
+    QComboBox * editorDecorationCombo = new QComboBox(dialog);
+    editorDecorationCombo->addItem(tr("Simple"));
+    editorDecorationCombo->addItem(tr("Standard"));
+    editorDecorationCombo->setCurrentIndex(editorDecoration);
+    editorDecorationCombo->setToolTip("Set text decoration. Fancy decoration will slow-down loading very large models");
+    editorDecorationCombo->setStatusTip("Use dropdown to select LDraw editor text decoration");
+    editorDecorationSubform->addRow(editorDecorationLabel, editorDecorationCombo);
+
+
+    // options - button box
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                               Qt::Horizontal, dialog);
+    form->addRow(&buttonBox);
+    QObject::connect(&buttonBox, SIGNAL(accepted()), dialog, SLOT(accept()));
+    QObject::connect(&buttonBox, SIGNAL(rejected()), dialog, SLOT(reject()));
+    dialog->setMinimumSize(220,100);
+
+    if (dialog->exec() == QDialog::Accepted) {
+        QSettings Settings;
+        Preferences::editorDecoration     = editorDecorationCombo->currentIndex();
+        if (editorDecoration != Preferences::editorDecoration) {
+            showMessage("LDraw editor text decoration change");
+            Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorDecoration"),Preferences::editorDecoration);
+            emit lpubAlert->messageSig(LOG_INFO,QString("LDraw editor text decoration changed to %1").arg(Preferences::editorDecoration == SIMPLE ? "Simple" : "Standard"));
+        }
+    }
+}
+
+/*
+ *
+ * Buffered Paging section
+ *
+ */
+
+void  EditWindow::verticalScrollValueChanged(int value)
+{
+    if (_contentLoaded)
+        return;
+
+    int scrollMaximum = verticalScrollBar->maximum();
+
+    // we load a new page at 90 percent of the page scroll
+    if (value > (scrollMaximum * 0.90))
+        loadPagedContent();
     }
 }
 

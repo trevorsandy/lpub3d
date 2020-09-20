@@ -128,7 +128,8 @@ private slots:
     void mpdComboChanged(int index);
     void showContextMenu(const QPoint &pt);
     void updateSelectedParts();
-    void closeEvent(QCloseEvent *event);
+    void preferences();
+    void verticalScrollValueChanged(int action);
 
 protected:
     void createActions();
@@ -146,9 +147,14 @@ protected:
     bool validPreviewLine();
     QCompleter *completer;
 
+    enum Decor { SIMPLE, STANDARD };
+
     QTextEditor       *_textEdit;
+    QCompleter        *completer;
     Highlighter       *highlighter;
+    HighlighterSimple *highlighterSimple;
     QComboBox         *mpdCombo;
+    QFileSystemWatcher fileWatcher;
     QString            fileName;            // of model file currently being displayed
     int                numOpenWithPrograms;
     int                showLineType;
@@ -176,6 +182,7 @@ protected:
     QAction  *findAct;
     QAction  *toggleCmmentAct;
     QAction  *showAllCharsAct;
+    QAction  *preferencesAct;
 
     QAction  *exitAct;
     QAction  *saveAct;
@@ -265,6 +272,7 @@ private:
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 class QFindReplace : public QDialog
 {
     Q_OBJECT

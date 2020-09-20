@@ -2844,6 +2844,19 @@ void Preferences::unitsPreferences()
     }
 }
 
+void Preferences::editorPreferences()
+{
+    QSettings Settings;
+
+
+    // LDraw editor text decoration
+    if ( ! Settings.contains(QString("%1/%2").arg(SETTINGS,"EditorDecoration"))) {
+        Settings.setValue(QString("%1/%2").arg(SETTINGS,"EditorDecoration"),editorDecoration);
+    } else {
+        editorDecoration = Settings.value(QString("%1/%2").arg(SETTINGS,"EditorDecoration")).toInt();
+    }
+}
+
 void Preferences::userInterfacePreferences()
 {
   QSettings Settings;
