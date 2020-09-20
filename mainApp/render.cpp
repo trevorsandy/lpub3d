@@ -2585,14 +2585,14 @@ int Native::renderCsi(
           }
           // These exports are performed by the Native LDV module (LDView).
           if (ldvExport) {
-              if (gui->exportMode == EXPORT_POVRAY ||
-                      gui->exportMode == EXPORT_STL ||
-                      gui->exportMode == EXPORT_HTML ||
-                      gui->exportMode == EXPORT_3DS_MAX) {
+              if (gui->exportMode == EXPORT_POVRAY     ||
+                  gui->exportMode == EXPORT_STL        ||
+                  gui->exportMode == EXPORT_HTML_PARTS ||
+                  gui->exportMode == EXPORT_3DS_MAX) {
                   Options->IniFlag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni :
-                                    gui->exportMode == EXPORT_STL ? NativeSTLIni : Native3DSIni;
+                                     gui->exportMode == EXPORT_STL ? NativeSTLIni : Native3DSIni;
                   /*  Options->IniFlag = gui->exportMode == EXPORT_POVRAY ? NativePOVIni :
-                                    gui->exportMode == EXPORT_STL ? NativeSTLIni : EXPORT_HTML; */
+                                         gui->exportMode == EXPORT_STL ? NativeSTLIni : EXPORT_HTML_PARTS; */
               }
 
               ldrName = QDir::currentPath() + "/" + Paths::tmpDir + "/exportcsi.ldr";
@@ -3143,9 +3143,10 @@ bool Render::NativeExport(const NativeOptions *Options) {
 
     QString exportModeName = nativeExportNames[Options->ExportMode];
 
-    if (Options->ExportMode == EXPORT_WAVEFRONT ||
-        Options->ExportMode == EXPORT_COLLADA   ||
-        Options->ExportMode == EXPORT_CSV       ||
+    if (Options->ExportMode == EXPORT_HTML_STEPS ||
+        Options->ExportMode == EXPORT_WAVEFRONT  ||
+        Options->ExportMode == EXPORT_COLLADA    ||
+        Options->ExportMode == EXPORT_CSV        ||
         Options->ExportMode == EXPORT_BRICKLINK /*||
         Options->ExportMode == EXPORT_3DS_MAX*/) {
         emit gui->messageSig(LOG_STATUS, QString("Native CSI %1 Export...").arg(exportModeName));
@@ -3183,13 +3184,12 @@ bool Render::NativeExport(const NativeOptions *Options) {
     {
         lcGetActiveProject()->ExportCOLLADA(Options->ExportFileName);
     }
-
-/*
-    // These are executed through the LDV Native renderer
-
-    if (Options->ExportMode == EXPORT_HTML)
+    else
+    if (Options->ExportMode == EXPORT_HTML_STEPS)
     {
         lcHTMLExportOptions HTMLOptions(lcGetActiveProject());
+
+        HTMLOptions.PathName = Options->ExportFileName;
 
         lcQHTMLDialog Dialog(gMainWindow, &HTMLOptions);
         if (Dialog.exec() != QDialog::Accepted)
@@ -3197,10 +3197,20 @@ bool Render::NativeExport(const NativeOptions *Options) {
 
         HTMLOptions.SaveDefaults();
 
-        //HTMLOptions.PathName = Options->ExportFileName;
-
         lcGetActiveProject()->ExportHTML(HTMLOptions);
+
+        QString htmlIndex = QDir::fromNativeSeparators(
+                            HTMLOptions.PathName + "/" +
+                            QFileInfo(Options->InputFileName).baseName() +
+                            "-index.html");
+
+        gui->setExportedFile(htmlIndex);
+
+        gui->showExportedFile();
     }
+
+    /*
+        // These are executed through the LDV Native renderer
     else
     if (Options->ExportMode == EXPORT_POVRAY)
     {
@@ -3228,7 +3238,7 @@ void Render::showLdvLDrawPreferences(int iniFlag){
 
 bool Render::doLDVCommand(const QStringList &args, int exportMode, int iniFlag){
     QString exportModeName = nativeExportNames[exportMode];
-    bool exportHTML = exportMode == EXPORT_HTML;
+    bool exportHTML = exportMode == EXPORT_HTML_PARTS;
     QStringList arguments = args;
 
     if (exportMode == EXPORT_NONE && iniFlag == NumIniFiles) {
@@ -3237,7 +3247,7 @@ bool Render::doLDVCommand(const QStringList &args, int exportMode, int iniFlag){
     }
 
     switch (exportMode){
-    case EXPORT_HTML:
+    case EXPORT_HTML_PARTS:
         iniFlag = NativePartList;
         break;
     case EXPORT_POVRAY:

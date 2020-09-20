@@ -458,26 +458,29 @@ enum ExportMode { PRINT_FILE   = -2,//-2
                   EXPORT_BRICKLINK, // 10
                   EXPORT_CSV,       // 11
                   EXPORT_ELEMENT,   // 12
-                  EXPORT_HTML,      // 13
-                  POVRAY_RENDER};   // 14
+                  EXPORT_HTML_PARTS,// 13
+                  EXPORT_HTML_STEPS,// 14
+                  POVRAY_RENDER     // 15
+                  };
 
 const QString nativeExportNames[] =
 {
-  "",              // PAGE_PROCESS
-  "PDF",           // EXPORT_PDF
-  "PNG",           // EXPORT_PNG
-  "JPG",           // EXPORT_JPG
-  "BMP",           // EXPORT_BMP
-  "3DS MAX",       // EXPORT_3DS_MAX
-  "COLLADA",       // EXPORT_COLLADA
-  "WAVEFRONT",     // EXPORT_WAVEFRONT
-  "STL",           // EXPORT_STL
-  "POVRAY",        // EXPORT_POVRAY
-  "BRICKLINK",     // EXPORT_BRICKLINK
-  "CSV",           // EXPORT_CSV
-  "ELEMENT",       // EXPORT_ELEMENT
-  "HTML",          // EXPORT_HTML
-  "POV-RAY RENDER" // RENDER_POVRAY
+  "",              // 0  PAGE_PROCESS
+  "PDF",           // 1  EXPORT_PDF
+  "PNG",           // 2  EXPORT_PNG
+  "JPG",           // 3  EXPORT_JPG
+  "BMP",           // 4  EXPORT_BMP
+  "3DS MAX",       // 5  EXPORT_3DS_MAX
+  "COLLADA",       // 6  EXPORT_COLLADA
+  "WAVEFRONT",     // 7  EXPORT_WAVEFRONT
+  "STL",           // 8  EXPORT_STL
+  "POVRAY",        // 9  EXPORT_POVRAY
+  "BRICKLINK",     // 10 EXPORT_BRICKLINK
+  "CSV",           // 11 EXPORT_CSV
+  "ELEMENT",       // 12 EXPORT_ELEMENT
+  "HTML PARTS",    // 13 EXPORT_HTML_PARTS
+  "HTML STEPS"     // 14 EXPORT_HTML_STEPS
+  "POV-RAY RENDER" // 15 RENDER_POVRAY
 };
 
 class Gui : public QMainWindow
@@ -793,6 +796,11 @@ public:
       return ldrawFile.buildModContains(buildModKey);
   }
 
+  void setExportedFile(const QString &fileName)
+  {
+      exportedFile = fileName;
+  }
+
   bool suppressColourMeta()
   {
     return false; //Preferences::usingNativeRenderer;
@@ -1030,7 +1038,7 @@ public slots:
   void statusMessage(LogType logType, QString message);
   void statusBarMsg(QString msg);
 
-  void showPrintedFile();
+  void showExportedFile();
   void showLine(const Where &topOfStep)
   {
     if (! exporting()) {
@@ -1190,7 +1198,7 @@ signals:
   void setExportingObjectsSig(bool);
   void setContinuousPageSig(bool);
   void hidePreviewDialogSig();
-  void showPrintedFileSig(int);
+  void showExportedFileSig(int);
 
   // right side progress bar
   void progressBarInitSig();
@@ -1255,7 +1263,7 @@ private:
   LGraphicsView         *KpageView;          // the visual representation of the scene
   LDrawFile              ldrawFile;          // contains MPD or all files used in model
   QString                curFile;            // the file name for MPD, or top level file
-  QString                pdfPrintedFile;     // the print preview produced pdf file
+  QString                exportedFile;     // the print preview produced pdf file
   QElapsedTimer          timer;              // measure elapsed time for slow functions
   QString                curSubFile;         // whats being displayed in the edit window
   EditWindow            *editWindow;         // the sub file editable by the user
@@ -1530,6 +1538,7 @@ private slots:
 
     void exportAs(const QString &);
     void exportAsHtml();
+    void exportAsHtmlSteps();
     void exportAsCsv();
     void exportAsBricklinkXML();
     void exportAsPdf();
@@ -1684,6 +1693,7 @@ private:
   QAction *sendToBackAct;
 
   QAction  *povrayRenderAct;
+  QAction  *blenderRenderAct;
 
   QAction  *clearRecentAct;
   QAction  *exitAct;
@@ -1824,6 +1834,7 @@ private:
   QAction *useImageSizeAct;
   QAction *enableBuildModAct;
   QAction *enableRotstepRotateAct;
+  QAction *exportHtmlStepsAct;
 
   // help
 

@@ -115,6 +115,7 @@
         <file alias="hidepartannotation.png">resources/hidepartannotation.png</file>
         <file alias="highlightstepsetup.png">resources/highlightstepsetup.png</file>
         <file alias="html32.png">resources/html32.png</file>
+        <file alias="htmlsteps32.png">resources/htmlsteps32.png</file>
         <file alias="ignoresubmodel.png">resources/ignoresubmodel.png</file>
         <file alias="insertcoverpage.png">resources/insertcoverpage.png</file>
         <file alias="insertpage.png">resources/insertpage.png</file>

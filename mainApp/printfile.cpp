@@ -523,10 +523,24 @@ bool Gui::exportAsDialog(ExportMode m)
   return true;
 }
 
+void Gui::exportAsHtmlSteps()
+{
+    NativeOptions *Options     = new NativeOptions();
+    Options->ExportMode        = EXPORT_HTML_STEPS;
+    Options->ImageType         = Options::CSI;
+    Options->InputFileName     = curFile;
+    Options->ExportFileName    = QDir::toNativeSeparators(
+                                 QFileInfo(curFile).absolutePath() + "/" +
+                                 Paths::htmlStepsDir);
+
+    if (! renderer->NativeExport(Options)) {
+        emit messageSig(LOG_ERROR,QMessageBox::tr("HTML Steps export failed."));
+    }
+}
 void Gui::exportAsHtml()
 {
     NativeOptions *Options     = new NativeOptions();
-    Options->ExportMode        = EXPORT_HTML;
+    Options->ExportMode        = EXPORT_HTML_PARTS;
     // 3DViewer only
     Options->ImageType         = Options::CSI;
     Options->ExportFileName    = QFileInfo(curFile).absolutePath();
@@ -1929,9 +1943,9 @@ void Gui::Print(QPrinter* Printer)
     }
 }
 
-void Gui::showPrintedFile(){
+void Gui::showExportedFile(){
 
-  if (! pdfPrintedFile.isEmpty()){
+  if (! exportedFile.isEmpty()){
 
       //display completion message
       QPixmap _icon = QPixmap(":/icons/lpub96.png");
@@ -1946,15 +1960,15 @@ void Gui::showPrintedFile(){
       box.setStandardButtons (QMessageBox::Yes | QMessageBox::No);
       box.setDefaultButton   (QMessageBox::Yes);
 
-      QString title = "<b> Export to pdf completed. </b>";
+      QString title = "<b> Document export completed. </b>";
       QString text = tr ("Your instruction document has finished exporting.\n\n"
-                         "Do you want to open this document ?\n\n%1").arg(pdfPrintedFile);
+                         "Do you want to open this document ?\n\n%1").arg(exportedFile);
 
       box.setText (title);
       box.setInformativeText (text);
 
       if (Preferences::modeGUI && (box.exec() == QMessageBox::Yes)) {
-          QString CommandPath = pdfPrintedFile;
+          QString CommandPath = exportedFile;
           QProcess *Process = new QProcess(this);
           Process->setWorkingDirectory(QDir::currentPath() + "/");
 #ifdef Q_OS_WIN
@@ -1968,12 +1982,12 @@ void Gui::showPrintedFile(){
 
           if (Status != 0) {  // look for error
               QErrorMessage *m = new QErrorMessage(this);
-              m->showMessage(QString("%1\n%2").arg("Failed to launch PDF document!").arg(CommandPath));
+              m->showMessage(QString("%1\n%2").arg("Failed to launch exported document!").arg(CommandPath));
             }
 #endif
           return;
         } else {
-          emit messageSig(LOG_STATUS, "Export to pdf completed!");
+          emit messageSig(LOG_STATUS, "Document export completed!");
           return;
 
         }
@@ -2041,8 +2055,8 @@ void Gui::TogglePrintPreview(ExportMode m)
             fileName = fileInfo.path() + "/" + fileInfo.completeBaseName() + ".pdf";
         }
 
-        pdfPrintedFile = fileName;
-        Printer.setOutputFileName(pdfPrintedFile);
+        exportedFile = fileName;
+        Printer.setOutputFileName(exportedFile);
     }
 
     connect(&Preview, SIGNAL(paintRequested(QPrinter*)),          SLOT(Print(QPrinter*)));
@@ -2051,9 +2065,9 @@ void Gui::TogglePrintPreview(ExportMode m)
     int rc = Preview.exec();
 
     if (exportPdf) {
-        messageSig(LOG_STATUS, QString("Pdf export preview result is %1").arg(rc == 1 ? pdfPrintedFile + " exported" : "preview only"));  // 0=preview only, 1=export output
+        messageSig(LOG_STATUS, QString("Pdf export preview result is %1").arg(rc == 1 ? exportedFile + " exported" : "preview only"));  // 0=preview only, 1=export output
         if (rc == 1) {
-            showPrintedFile();
+            showExportedFile();
         }
     }
 

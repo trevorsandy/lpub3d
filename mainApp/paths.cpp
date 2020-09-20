@@ -43,6 +43,7 @@ QString Paths::assemDir        = "LPub3D/assem";
 QString Paths::partsDir        = "LPub3D/parts";
 QString Paths::submodelDir     = "LPub3D/submodels";
 QString Paths::povrayRenderDir = "LPub3D/povray";
+QString Paths::htmlStepsDir    = "LPub3D/htmlsteps";
 QString Paths::logsDir         = "logs";
 QString Paths::extrasDir       = "extras";
 QString Paths::libraryDir      = "libraries";

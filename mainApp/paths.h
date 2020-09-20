@@ -33,6 +33,7 @@ public:
     static QString partsDir;
     static QString submodelDir;
     static QString logsDir;
+    static QString htmlStepsDir;
     static QString extrasDir;
     static QString libraryDir;
     static QString customDir;

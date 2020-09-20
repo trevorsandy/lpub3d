@@ -1352,7 +1352,7 @@ bool Gui::installExportBanner(const int &type, const QString &printFile, const Q
         bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpto.dat";
         bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptv.dat";
         break;
-    case EXPORT_HTML:
+    case EXPORT_HTML_PARTS:
         bannerData << "1 73 -22 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bpth.dat";
         bannerData << "1 73 -2 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptt.dat";
         bannerData << "1 73 18 -4 -32 1 0 0 0 0.423 -0.906 0 0.906 0.423 3070bptm.dat";
@@ -3669,73 +3669,79 @@ void Gui::createActions()
     exportAsPdfPreviewAct->setEnabled(false);
     connect(exportAsPdfPreviewAct, SIGNAL(triggered()), this, SLOT(TogglePdfExportPreview()));
 
-    exportAsPdfAct = new QAction(QIcon(":/resources/pdf_logo.png"), tr("Export to PDF &File"), this);
+    exportAsPdfAct = new QAction(QIcon(":/resources/pdf_logo.png"), tr("Export to PDF &File..."), this);
     exportAsPdfAct->setShortcut(tr("Alt+F"));
     exportAsPdfAct->setStatusTip(tr("Export your document to a pdf file - Alt+F"));
     exportAsPdfAct->setEnabled(false);
     connect(exportAsPdfAct, SIGNAL(triggered()), this, SLOT(exportAsPdfDialog()));
 
-    exportPngAct = new QAction(QIcon(":/resources/exportpng.png"),tr("Export As P&NG Images"), this);
+    exportPngAct = new QAction(QIcon(":/resources/exportpng.png"),tr("Export As P&NG Images..."), this);
     exportPngAct->setShortcut(tr("Alt+N"));
     exportPngAct->setStatusTip(tr("Export your document as a sequence of PNG images - Alt+N"));
     exportPngAct->setEnabled(false);
     connect(exportPngAct, SIGNAL(triggered()), this, SLOT(exportAsPngDialog()));
 
-    exportJpgAct = new QAction(QIcon(":/resources/exportjpeg.png"),tr("Export As &JPEG Images"), this);
+    exportJpgAct = new QAction(QIcon(":/resources/exportjpeg.png"),tr("Export As &JPEG Images..."), this);
     exportJpgAct->setShortcut(tr("Alt+J"));
     exportJpgAct->setStatusTip(tr("Export your document as a sequence of JPEG images - Alt+J"));
     exportJpgAct->setEnabled(false);
     connect(exportJpgAct, SIGNAL(triggered()), this, SLOT(exportAsJpgDialog()));
 
-    exportBmpAct = new QAction(QIcon(":/resources/exportbmp.png"),tr("Export As &Bitmap Images"), this);
+    exportBmpAct = new QAction(QIcon(":/resources/exportbmp.png"),tr("Export As &Bitmap Images..."), this);
     exportBmpAct->setShortcut(tr("Alt+B"));
     exportBmpAct->setStatusTip(tr("Export your document as a sequence of bitmap images - Alt+B"));
     exportBmpAct->setEnabled(false);
     connect(exportBmpAct, SIGNAL(triggered()), this, SLOT(exportAsBmpDialog()));
 
-    exportHtmlAct = new QAction(QIcon(":/resources/html32.png"),tr("Export As &HTML Part List"), this);
+    exportHtmlAct = new QAction(QIcon(":/resources/html32.png"),tr("Export As &HTML Part List..."), this);
     exportHtmlAct->setShortcut(tr("Alt+6"));
     exportHtmlAct->setStatusTip(tr("Export your document as an HTML part list - Alt+6"));
     exportHtmlAct->setEnabled(false);
     connect(exportHtmlAct, SIGNAL(triggered()), this, SLOT(exportAsHtml()));
 
-    exportColladaAct = new QAction(QIcon(":/resources/dae32.png"),tr("Export As &COLLADA Objects"), this);
+    exportHtmlStepsAct = new QAction(QIcon(":/resources/htmlsteps32.png"),tr("Export As HT&ML Steps..."), this);
+    exportHtmlStepsAct->setShortcut(tr("Alt+Shift+6"));
+    exportHtmlStepsAct->setStatusTip(tr("Export your document as navigatable steps in HTML format - Alt+Shift+6"));
+    exportHtmlStepsAct->setEnabled(false);
+    connect(exportHtmlStepsAct, SIGNAL(triggered()), this, SLOT(exportAsHtmlSteps()));
+
+    exportColladaAct = new QAction(QIcon(":/resources/dae32.png"),tr("Export As &COLLADA Objects..."), this);
     exportColladaAct->setShortcut(tr("Alt+4"));
     exportColladaAct->setStatusTip(tr("Export your document as a sequence of Collada objects - Alt+4"));
     exportColladaAct->setEnabled(false);
     connect(exportColladaAct, SIGNAL(triggered()), this, SLOT(exportAsColladaDialog()));
 
-    exportObjAct = new QAction(QIcon(":/resources/obj32.png"),tr("Export As &Wavefront Objects"), this);
+    exportObjAct = new QAction(QIcon(":/resources/obj32.png"),tr("Export As &Wavefront Objects..."), this);
     exportObjAct->setShortcut(tr("Alt+1"));
     exportObjAct->setStatusTip(tr("Export your document as a sequence of Wavefront objects - Alt+1"));
     exportObjAct->setEnabled(false);
     connect(exportObjAct, SIGNAL(triggered()), this, SLOT(exportAsObjDialog()));
 
-    export3dsAct = new QAction(QIcon(":/resources/3ds32.png"),tr("Export As &3DStudio Objects"), this);
+    export3dsAct = new QAction(QIcon(":/resources/3ds32.png"),tr("Export As &3DStudio Objects..."), this);
     export3dsAct->setShortcut(tr("Alt+5"));
     export3dsAct->setStatusTip(tr("Export your document as a sequence of 3DStudio objects - Alt+5"));
     export3dsAct->setEnabled(false);
     connect(export3dsAct, SIGNAL(triggered()), this, SLOT(exportAs3dsDialog()));
 
-    exportStlAct = new QAction(QIcon(":/resources/stl32.png"),tr("Export As &Stereo Lithography Objects"), this);
+    exportStlAct = new QAction(QIcon(":/resources/stl32.png"),tr("Export As &Stereo Lithography Objects..."), this);
     exportStlAct->setShortcut(tr("Alt+2"));
     exportStlAct->setStatusTip(tr("Export your document as a sequence of Stereo Lithography Objects - Alt+2"));
     exportStlAct->setEnabled(false);
     connect(exportStlAct, SIGNAL(triggered()), this, SLOT(exportAsStlDialog()));
 
-    exportPovAct = new QAction(QIcon(":/resources/povray32.png"),tr("Export As &PovRay Scene Files"), this);
+    exportPovAct = new QAction(QIcon(":/resources/povray32.png"),tr("Export As &PovRay Scene Files..."), this);
     exportPovAct->setShortcut(tr("Alt+3"));
     exportPovAct->setStatusTip(tr("Export your document as a sequence of PovRay Scene Files - Alt+3"));
     exportPovAct->setEnabled(false);
     connect(exportPovAct, SIGNAL(triggered()), this, SLOT(exportAsPovDialog()));
 
-    exportCsvAct = new QAction(QIcon(":/resources/csv32.png"),tr("Export As &CSV Part List"), this);
+    exportCsvAct = new QAction(QIcon(":/resources/csv32.png"),tr("Export As &CSV Part List..."), this);
     exportCsvAct->setShortcut(tr("Alt+8"));
     exportCsvAct->setStatusTip(tr("Export your document as a CSV part list - Alt+8"));
     exportCsvAct->setEnabled(false);
     connect(exportCsvAct, SIGNAL(triggered()), this, SLOT(exportAsCsv()));
 
-    exportBricklinkAct = new QAction(QIcon(":/resources/bricklink32.png"),tr("Export As &Bricklink XML Part List"), this);
+    exportBricklinkAct = new QAction(QIcon(":/resources/bricklink32.png"),tr("Export As &Bricklink XML Part List..."), this);
     exportBricklinkAct->setShortcut(tr("Alt+7"));
     exportBricklinkAct->setStatusTip(tr("Export your document as a Bricklink XML Part List - Alt+7"));
     exportBricklinkAct->setEnabled(false);
@@ -4435,6 +4441,7 @@ void Gui::enableActions()
   exportObjAct->setEnabled(true);
   exportColladaAct->setEnabled(true);
   exportHtmlAct->setEnabled(true);
+  exportHtmlStepsAct->setEnabled(true);
 
   povrayRenderAct->setEnabled(true);
 
@@ -4508,6 +4515,7 @@ void Gui::disableActions()
   exportObjAct->setEnabled(false);
   exportColladaAct->setEnabled(false);
   exportHtmlAct->setEnabled(false);
+  exportHtmlStepsAct->setEnabled(false);
 
   povrayRenderAct->setEnabled(false);
 
@@ -4578,6 +4586,7 @@ void Gui::createMenus()
     exportMenu->addAction(export3dsAct);
     exportMenu->addSeparator();
     exportMenu->addAction(exportHtmlAct);
+    exportMenu->addAction(exportHtmlStepsAct);
     exportMenu->addAction(exportBricklinkAct);
     exportMenu->addAction(exportCsvAct);
     exportMenu->addSeparator();
@@ -4806,6 +4815,7 @@ void Gui::createToolBars()
     exportToolBar->addAction(exportColladaAct);
     exportToolBar->addSeparator();
     exportToolBar->addAction(exportHtmlAct);
+    exportToolBar->addAction(exportHtmlStepsAct);
     exportToolBar->addAction(exportBricklinkAct);
     exportToolBar->addAction(exportCsvAct);
     bool visible = false;
