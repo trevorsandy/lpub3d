@@ -1662,19 +1662,3 @@ void Gui::SelectedPartLines(QVector<TypeLine> &indexes, PartSource source){
             emit setSelectedPiecesSig(lines);
     }
 }
-
-#include "lc_qhtmldialog.h"
-
-void ShowHTMLDialog()
-{
-
-
-    lcHTMLExportOptions Options(lcGetActiveProject());
-
-    lcQHTMLDialog Dialog(gMainWindow, &Options);
-    if (Dialog.exec() != QDialog::Accepted)
-        return;
-
-    Options.SaveDefaults();
-    lcGetActiveProject()->ExportHTML(Options);
-}

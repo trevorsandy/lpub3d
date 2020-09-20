@@ -38,6 +38,9 @@ public:
 	int PartImagesColor;
 	int PartImagesWidth;
 	int PartImagesHeight;
+/*** LPub3D Mod - Fade Previous Steps ***/
+	bool FadeSteps;
+/*** LPub3D Mod end ***/
 };
 
 enum LC_MOUSE_TRACK
@@ -137,6 +140,8 @@ public:
 
 	QString GetImageFileName(bool AllowCurrentFolder) const;
 
+	std::vector<std::pair<lcModel*, lcStep>> GetPageLayouts() const;
+
 	void SetActiveModel(int ModelIndex);
 	void SetActiveModel(const QString& ModelName);
 
@@ -166,8 +171,6 @@ public:
 protected:
 	QString GetExportFileName(const QString& FileName, const QString& DefaultExtension, const QString& DialogTitle, const QString& DialogFilter) const;
 	std::vector<lcModelPartsEntry> GetModelParts();
-	QImage CreatePartsListImage(lcModel* Model, lcStep Step);
-	void CreateHTMLPieceList(QTextStream& Stream, lcModel* Model, lcStep Step, bool Images);
 	void SetFileName(const QString& FileName);
 
 	bool mModified;

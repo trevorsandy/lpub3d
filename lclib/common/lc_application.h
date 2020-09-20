@@ -37,19 +37,21 @@ public:
 	bool mDrawEdgeLines;
 	float mLineWidth;
 	bool mAllowLOD;
+	bool mFadeSteps;
 	bool mDrawGridStuds;
 	quint32 mGridStudColor;
 	bool mDrawGridLines;
 	int mGridLineSpacing;
 	quint32 mGridLineColor;
 	bool mFixedAxes;
+	bool mViewSphereEnabled;
 	lcViewSphereLocation mViewSphereLocation;
 	int mViewSphereSize;
 	quint32 mViewSphereColor;
 	quint32 mViewSphereTextColor;
 	quint32 mViewSphereHighlightColor;
 	bool mAutoLoadMostRecent;
-
+	bool mRestoreTabLayout;
 /*** LPub3D Mod - Update Default Camera ***/
 	bool mDefaultCameraProperties;
 /*** LPub3D Mod end ***/

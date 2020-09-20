@@ -61,6 +61,7 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	ui->checkForUpdates->setCurrentIndex(mOptions->CheckForUpdates);
 	ui->fixedDirectionKeys->setChecked(mOptions->Preferences.mFixedAxes);
 	ui->autoLoadMostRecent->setChecked(mOptions->Preferences.mAutoLoadMostRecent);
+	ui->RestoreTabLayout->setChecked(mOptions->Preferences.mRestoreTabLayout);
 
 	ui->antiAliasing->setChecked(mOptions->AASamples != 1);
 	if (mOptions->AASamples == 8)
@@ -72,6 +73,7 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	ui->edgeLines->setChecked(mOptions->Preferences.mDrawEdgeLines);
 	ui->lineWidth->setText(lcFormatValueLocalized(mOptions->Preferences.mLineWidth));
 	ui->MeshLOD->setChecked(mOptions->Preferences.mAllowLOD);
+	ui->FadeSteps->setChecked(mOptions->Preferences.mFadeSteps);
 	ui->gridStuds->setChecked(mOptions->Preferences.mDrawGridStuds);
 	ui->gridLines->setChecked(mOptions->Preferences.mDrawGridLines);
 	ui->gridLineSpacing->setText(QString::number(mOptions->Preferences.mGridLineSpacing));
@@ -79,21 +81,26 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 
 	ui->ViewSphereLocationCombo->setCurrentIndex((int)mOptions->Preferences.mViewSphereLocation);
 
-	switch (mOptions->Preferences.mViewSphereSize)
+	if (mOptions->Preferences.mViewSphereEnabled)
 	{
-	case 200:
-		ui->ViewSphereSizeCombo->setCurrentIndex(3);
-		break;
-	case 100:
-		ui->ViewSphereSizeCombo->setCurrentIndex(2);
-		break;
-	case 50:
-		ui->ViewSphereSizeCombo->setCurrentIndex(1);
-		break;
-	default:
-		ui->ViewSphereSizeCombo->setCurrentIndex(0);
-		break;
+		switch (mOptions->Preferences.mViewSphereSize)
+		{
+		case 200:
+			ui->ViewSphereSizeCombo->setCurrentIndex(3);
+			break;
+		case 100:
+			ui->ViewSphereSizeCombo->setCurrentIndex(2);
+			break;
+		case 50:
+			ui->ViewSphereSizeCombo->setCurrentIndex(1);
+			break;
+		default:
+			ui->ViewSphereSizeCombo->setCurrentIndex(0);
+			break;
+		}
 	}
+	else
+		ui->ViewSphereSizeCombo->setCurrentIndex(0);
 
 	ui->studLogo->setChecked(mOptions->StudLogo);
 	if (ui->studLogo->isChecked())
@@ -180,6 +187,8 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	ui->lgeoPathBrowse->hide();
 	ui->Language->hide();
 	ui->checkForUpdates->hide();
+	ui->FadeSteps->hide();
+	ui->RestoreTabLayout->hide();
 	ui->label_6->hide();					//label Language
 	ui->label_10->hide();					//label check for updates
 	ui->fixedDirectionKeys->hide();
@@ -214,13 +223,14 @@ void lcQPreferencesDialog::accept()
 	mOptions->Preferences.mMouseSensitivity = ui->mouseSensitivity->value();
 
 	int Language = ui->Language->currentIndex();
-	if (Language < 0 || Language > LC_ARRAY_COUNT(gLanguageLocales))
+    if (Language < 0 || Language > static_cast<int>(LC_ARRAY_COUNT(gLanguageLocales)))
 		Language = 0;
 	mOptions->Language = gLanguageLocales[Language];
 
 	mOptions->CheckForUpdates = ui->checkForUpdates->currentIndex();
 	mOptions->Preferences.mFixedAxes = ui->fixedDirectionKeys->isChecked();
 	mOptions->Preferences.mAutoLoadMostRecent = ui->autoLoadMostRecent->isChecked();
+	mOptions->Preferences.mRestoreTabLayout = ui->RestoreTabLayout->isChecked();
 
 	if (!ui->antiAliasing->isChecked())
 		mOptions->AASamples = 1;
@@ -234,6 +244,7 @@ void lcQPreferencesDialog::accept()
 	mOptions->Preferences.mDrawEdgeLines = ui->edgeLines->isChecked();
 	mOptions->Preferences.mLineWidth = lcParseValueLocalized(ui->lineWidth->text());
 	mOptions->Preferences.mAllowLOD = ui->MeshLOD->isChecked();
+	mOptions->Preferences.mFadeSteps = ui->FadeSteps->isChecked();
 
 	mOptions->Preferences.mDrawGridStuds = ui->gridStuds->isChecked();
 	mOptions->Preferences.mDrawGridLines = ui->gridLines->isChecked();
@@ -254,7 +265,7 @@ void lcQPreferencesDialog::accept()
 		mOptions->Preferences.mViewSphereSize = 50;
 		break;
 	default:
-		mOptions->Preferences.mViewSphereSize = 0;
+		mOptions->Preferences.mViewSphereEnabled = 0;
 		break;
 	}
 
@@ -427,19 +438,19 @@ void lcQPreferencesDialog::on_ViewSphereSizeCombo_currentIndexChanged(int Index)
 
 void lcQPreferencesDialog::updateCategories()
 {
-	QTreeWidgetItem *categoryItem;
-	QTreeWidget *tree = ui->categoriesTree;
+	QTreeWidgetItem* CategoryItem;
+	QTreeWidget* CategoriesTree = ui->categoriesTree;
 
-	tree->clear();
+	CategoriesTree->clear();
 
-	for (int categoryIndex = 0; categoryIndex < mOptions->Categories.GetSize(); categoryIndex++)
+	for (int CategoryIndex = 0; CategoryIndex < static_cast<int>(mOptions->Categories.size()); CategoryIndex++)
 	{
-		categoryItem = new QTreeWidgetItem(tree, QStringList(mOptions->Categories[categoryIndex].Name));
-		categoryItem->setData(0, CategoryRole, QVariant(categoryIndex));
+		CategoryItem = new QTreeWidgetItem(CategoriesTree, QStringList(mOptions->Categories[CategoryIndex].Name));
+		CategoryItem->setData(0, CategoryRole, QVariant(CategoryIndex));
 	}
 
-	categoryItem = new QTreeWidgetItem(tree, QStringList(tr("Unassigned")));
-	categoryItem->setData(0, CategoryRole, QVariant(-1));
+	CategoryItem = new QTreeWidgetItem(CategoriesTree, QStringList(tr("Unassigned")));
+	CategoryItem->setData(0, CategoryRole, QVariant(-1));
 }
 
 void lcQPreferencesDialog::updateParts()
@@ -479,13 +490,13 @@ void lcQPreferencesDialog::updateParts()
 		{
 			PieceInfo* Info = PartIt.second;
 
-			for (categoryIndex = 0; categoryIndex < mOptions->Categories.GetSize(); categoryIndex++)
+			for (categoryIndex = 0; categoryIndex < static_cast<int>(mOptions->Categories.size()); categoryIndex++)
 			{
 				if (Library->PieceInCategory(Info, mOptions->Categories[categoryIndex].Keywords.constData()))
 					break;
 			}
 
-			if (categoryIndex == mOptions->Categories.GetSize())
+			if (categoryIndex == static_cast<int>(mOptions->Categories.size()))
 			{
 				QStringList rowList(Info->m_strDescription);
 				rowList.append(Info->mFileName);
@@ -509,10 +520,10 @@ void lcQPreferencesDialog::on_newCategory_clicked()
 
 	mOptions->CategoriesModified = true;
 	mOptions->CategoriesDefault = false;
-	mOptions->Categories.Add(category);
+	mOptions->Categories.emplace_back(std::move(category));
 
 	updateCategories();
-	ui->categoriesTree->setCurrentItem(ui->categoriesTree->topLevelItem(mOptions->Categories.GetSize() - 1));
+	ui->categoriesTree->setCurrentItem(ui->categoriesTree->topLevelItem(static_cast<int>(mOptions->Categories.size()) - 1));
 }
 
 void lcQPreferencesDialog::on_editCategory_clicked()
@@ -560,7 +571,7 @@ void lcQPreferencesDialog::on_deleteCategory_clicked()
 
 	mOptions->CategoriesModified = true;
 	mOptions->CategoriesDefault = false;
-	mOptions->Categories.RemoveIndex(categoryIndex);
+	mOptions->Categories.erase(mOptions->Categories.begin() + categoryIndex);
 
 	updateCategories();
 }
@@ -572,7 +583,7 @@ void lcQPreferencesDialog::on_importCategories_clicked()
 	if (FileName.isEmpty())
 		return;
 
-	lcArray<lcLibraryCategory> Categories;
+	std::vector<lcLibraryCategory> Categories;
 	if (!lcLoadCategories(FileName, Categories))
 	{
 /*** LPub3D Mod - set 3DViewer label ***/

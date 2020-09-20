@@ -61,6 +61,7 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "FixedAxes", false),                                         // LC_PROFILE_FIXED_AXES
 	lcProfileEntry("Settings", "LineWidth", 1.0f),                                          // LC_PROFILE_LINE_WIDTH
 	lcProfileEntry("Settings", "AllowLOD", true),                                           // LC_PROFILE_ALLOW_LOD
+	lcProfileEntry("Settings", "FadeSteps", false),                                         // LC_PROFILE_FADE_STEPS
 	lcProfileEntry("Settings", "ShadingMode", LC_SHADING_DEFAULT_LIGHTS),                   // LC_PROFILE_SHADING_MODE
 	lcProfileEntry("Settings", "DrawAxes", 0),                                              // LC_PROFILE_DRAW_AXES
 	lcProfileEntry("Settings", "DrawEdgeLines", 1),                                         // LC_PROFILE_DRAW_EDGE_LINES
@@ -70,6 +71,7 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "GridLineSpacing", 5),                                       // LC_PROFILE_GRID_LINE_SPACING
 	lcProfileEntry("Settings", "GridLineColor", LC_RGBA(0, 0, 0, 255)),                     // LC_PROFILE_GRID_LINE_COLOR
 	lcProfileEntry("Settings", "AASamples", 1),                                             // LC_PROFILE_ANTIALIASING_SAMPLES
+	lcProfileEntry("Settings", "ViewSphereEnabled", 1),                                     // LC_PROFILE_VIEW_SPHERE_ENABLED
 	lcProfileEntry("Settings", "ViewSphereLocation", (int)lcViewSphereLocation::TOP_RIGHT), // LC_PROFILE_VIEW_SPHERE_LOCATION
 	lcProfileEntry("Settings", "ViewSphereSize", 100),                                      // LC_PROFILE_VIEW_SPHERE_SIZE
 	lcProfileEntry("Settings", "ViewSphereColor", LC_RGBA(255, 255, 255, 255)),             // LC_PROFILE_VIEW_SPHERE_COLOR
@@ -94,13 +96,12 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "RecentFile3", ""),                                          // LC_PROFILE_RECENT_FILE3
 	lcProfileEntry("Settings", "RecentFile4", ""),                                          // LC_PROFILE_RECENT_FILE4
 	lcProfileEntry("Settings", "AutoLoadMostRecent", false),                                // LC_PROFILE_AUTOLOAD_MOSTRECENT
+	lcProfileEntry("Settings", "RestoreTabLayout", true),                                   // LC_PROFILE_RESTORE_TAB_LAYOUT
 	lcProfileEntry("Settings", "AutosaveInterval", 10),                                     // LC_PROFILE_AUTOSAVE_INTERVAL
 	lcProfileEntry("Settings", "MouseSensitivity", 11),                                     // LC_PROFILE_MOUSE_SENSITIVITY
 	lcProfileEntry("Settings", "ImageWidth", 1280),                                         // LC_PROFILE_IMAGE_WIDTH
 	lcProfileEntry("Settings", "ImageHeight", 720),                                         // LC_PROFILE_IMAGE_HEIGHT
 	lcProfileEntry("Settings", "ImageExtension", ".png"),                                   // LC_PROFILE_IMAGE_EXTENSION
-	lcProfileEntry("Settings", "PrintRows", 1),                                             // LC_PROFILE_PRINT_ROWS
-	lcProfileEntry("Settings", "PrintColumns", 1),                                          // LC_PROFILE_PRINT_COLUMNS
 	lcProfileEntry("Settings", "PartsListIcons", 64),                                       // LC_PROFILE_PARTS_LIST_ICONS
 	lcProfileEntry("Settings", "PartsListNames", 0),                                        // LC_PROFILE_PARTS_LIST_NAMES
 	lcProfileEntry("Settings", "PartsListFixedColor", -1),                                  // LC_PROFILE_PARTS_LIST_FIXED_COLOR
@@ -124,9 +125,6 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("HTML", "ImageOptions", LC_IMAGE_TRANSPARENT),                           // LC_PROFILE_HTML_IMAGE_OPTIONS
 	lcProfileEntry("HTML", "ImageWidth", 640),                                              // LC_PROFILE_HTML_IMAGE_WIDTH
 	lcProfileEntry("HTML", "ImageHeight", 480),                                             // LC_PROFILE_HTML_IMAGE_HEIGHT
-	lcProfileEntry("HTML", "PartsColor", 16),                                               // LC_PROFILE_HTML_PARTS_COLOR
-	lcProfileEntry("HTML", "PartsWidth", 128),                                              // LC_PROFILE_HTML_PARTS_WIDTH
-	lcProfileEntry("HTML", "PartsHeight", 128),                                             // LC_PROFILE_HTML_PARTS_HEIGHT
 
 /*** LPub3D Mod - modified POVRay path ***/
 	lcProfileEntry("POVRay", "POVRayPath", ""),                                             // LC_PROFILE_POVRAY_PATH                                 /*** LPub3D Mod - POV-ray remove default path ***/

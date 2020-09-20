@@ -17,6 +17,7 @@ public:
 	void SetCurrentStep();
 
 public slots:
+	void CurrentItemChanged(QTreeWidgetItem* Current, QTreeWidgetItem* Previous);
 	void ItemSelectionChanged();
 	void CustomMenuRequested(QPoint Pos);
 
@@ -24,6 +25,7 @@ protected:
 	virtual void dropEvent(QDropEvent* Event);
 	virtual void mousePressEvent(QMouseEvent* Event);
 	void UpdateModel();
+	void UpdateCurrentStepItem();
 /*** LPub3D Mod - Timeline part icons ***/
     void GetIcon(int Size, int ColorIndex, bool IsModel);
     bool GetPieceIcon(int Size, QString IconUID);
@@ -32,6 +34,7 @@ protected:
 /*** LPub3D Mod end ***/
 	QMap<int, QIcon> mIcons;
 	QMap<lcPiece*, QTreeWidgetItem*> mItems;
+	QTreeWidgetItem* mCurrentStepItem;
 	bool mIgnoreUpdates;
 };
 

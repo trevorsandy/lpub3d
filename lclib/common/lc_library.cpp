@@ -1359,17 +1359,16 @@ void lcPiecesLibrary::GetPieceFile(const char* PieceName, std::function<void(lcF
 	}
 	else
 	{
-		char FileName[LC_MAXPATH];
 		bool Found = false;
 
 		if (mZipFiles[LC_ZIPFILE_OFFICIAL])
 		{
 			lcMemFile IncludeFile;
 
-			auto LoadIncludeFile = [&IncludeFile, &FileName, this](const char* Folder, int ZipFileIndex)
+			auto LoadIncludeFile = [&IncludeFile, PieceName, this](const char* Folder, int ZipFileIndex)
 			{
 				char IncludeFileName[LC_MAXPATH];
-				sprintf(IncludeFileName, Folder, FileName);
+				sprintf(IncludeFileName, Folder, PieceName);
 				return mZipFiles[ZipFileIndex]->ExtractFile(IncludeFileName, IncludeFile);
 			};
 
@@ -1396,10 +1395,10 @@ void lcPiecesLibrary::GetPieceFile(const char* PieceName, std::function<void(lcF
 		{
 			lcDiskFile IncludeFile;
 
-			auto LoadIncludeFile = [&IncludeFile, &FileName, this](const char* Folder)
+			auto LoadIncludeFile = [&IncludeFile, PieceName, this](const char* Folder)
 			{
 				char IncludeFileName[LC_MAXPATH];
-				sprintf(IncludeFileName, Folder, FileName);
+				sprintf(IncludeFileName, Folder, PieceName);
 				IncludeFile.SetFileName(mLibraryDir.absoluteFilePath(QLatin1String(IncludeFileName)));
 				if (IncludeFile.Open(QIODevice::ReadOnly))
 					return true;
@@ -1757,7 +1756,7 @@ bool lcPiecesLibrary::PieceInCategory(PieceInfo* Info, const char* CategoryKeywo
 
 void lcPiecesLibrary::GetCategoryEntries(int CategoryIndex, bool GroupPieces, lcArray<PieceInfo*>& SinglePieces, lcArray<PieceInfo*>& GroupedPieces)
 {
-	if (CategoryIndex >= 0 && CategoryIndex < gCategories.GetSize())
+	if (CategoryIndex >= 0 && CategoryIndex < static_cast<int>(gCategories.size()))
 		GetCategoryEntries(gCategories[CategoryIndex].Keywords.constData(), GroupPieces, SinglePieces, GroupedPieces);
 }
 

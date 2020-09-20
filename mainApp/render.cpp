@@ -3143,21 +3143,24 @@ bool Render::NativeExport(const NativeOptions *Options) {
 
     QString exportModeName = nativeExportNames[Options->ExportMode];
 
+    Project* NativeExportProject = new Project();
+
     if (Options->ExportMode == EXPORT_HTML_STEPS ||
         Options->ExportMode == EXPORT_WAVEFRONT  ||
         Options->ExportMode == EXPORT_COLLADA    ||
         Options->ExportMode == EXPORT_CSV        ||
         Options->ExportMode == EXPORT_BRICKLINK /*||
         Options->ExportMode == EXPORT_3DS_MAX*/) {
-        emit gui->messageSig(LOG_STATUS, QString("Native CSI %1 Export...").arg(exportModeName));
-        Project* NativeExportProject = new Project();
-        gApplication->SetProject(NativeExportProject);
 
-        if (! gMainWindow->OpenProject(Options->InputFileName)) {
-            emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to open CSI %1 Export project")
-                                                           .arg(exportModeName));
-            delete NativeExportProject;
-            return false;
+        emit gui->messageSig(LOG_STATUS, QString("Native CSI %1 Export...").arg(exportModeName));
+        gApplication->SetProject(NativeExportProject);
+        if (Options->ExportMode != EXPORT_HTML_STEPS) {
+            if (! gMainWindow->OpenProject(Options->InputFileName)) {
+                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to open CSI %1 Export project")
+                                                               .arg(exportModeName));
+                delete NativeExportProject;
+                return false;
+            }
         }
     }
     else
@@ -3187,30 +3190,47 @@ bool Render::NativeExport(const NativeOptions *Options) {
     else
     if (Options->ExportMode == EXPORT_HTML_STEPS)
     {
+        bool rc = true;
+        bool exportCancelled = false;
+
         lcHTMLExportOptions HTMLOptions(lcGetActiveProject());
 
         HTMLOptions.PathName = Options->ExportFileName;
 
         lcQHTMLDialog Dialog(gMainWindow, &HTMLOptions);
-        if (Dialog.exec() != QDialog::Accepted)
-            return false;
+        if ((exportCancelled = Dialog.exec() != QDialog::Accepted))
+            rc = true;
 
         HTMLOptions.SaveDefaults();
 
-        lcGetActiveProject()->ExportHTML(HTMLOptions);
+        if (! exportCancelled) {
 
-        QString htmlIndex = QDir::fromNativeSeparators(
-                            HTMLOptions.PathName + "/" +
-                            QFileInfo(Options->InputFileName).baseName() +
-                            "-index.html");
+            if (! gMainWindow->OpenProject(Options->InputFileName)) {
+                emit gui->messageSig(LOG_ERROR,QMessageBox::tr("Failed to open CSI %1 Export project")
+                                                               .arg(exportModeName));
+                delete NativeExportProject;
+                rc = false;
+            }
 
-        gui->setExportedFile(htmlIndex);
+            lcGetActiveProject()->ExportHTML(HTMLOptions);
 
-        gui->showExportedFile();
+            QString htmlIndex = QDir::fromNativeSeparators(
+                                HTMLOptions.PathName + "/" +
+                                QFileInfo(Options->InputFileName).baseName() +
+                                "-index.html");
+
+            gui->setExportedFile(htmlIndex);
+
+            gui->showExportedFile();
+        }
+
+        // reset fade steps to false
+        gApplication->mPreferences.mFadeSteps = false;
+
+        return rc;
     }
-
-    /*
-        // These are executed through the LDV Native renderer
+/*
+    // These are executed through the LDV Native renderer
     else
     if (Options->ExportMode == EXPORT_POVRAY)
     {

@@ -6,12 +6,10 @@
 lcQHTMLDialog::lcQHTMLDialog(QWidget* Parent, lcHTMLExportOptions* Options)
 	: QDialog(Parent), ui(new Ui::lcQHTMLDialog)
 {
-    ui->setupUi(this);
+	ui->setupUi(this);
 
 	ui->stepWidth->setValidator(new QIntValidator(0, 2048, ui->stepWidth));
 	ui->stepHeight->setValidator(new QIntValidator(0, 2048, ui->stepHeight));
-	ui->partImagesWidth->setValidator(new QIntValidator(0, 2048, ui->partImagesWidth));
-	ui->partImagesHeight->setValidator(new QIntValidator(0, 2048, ui->partImagesHeight));
 
 	mOptions = Options;
 
@@ -33,15 +31,14 @@ lcQHTMLDialog::lcQHTMLDialog(QWidget* Parent, lcHTMLExportOptions* Options)
 	ui->highlightNewParts->setChecked(mOptions->HighlightNewParts);
 	ui->partsAfterEachStep->setChecked(mOptions->PartsListStep);
 	ui->partsAtTheEnd->setChecked(mOptions->PartsListEnd);
-	ui->partImages->setChecked(mOptions->PartsListImages);
-	ui->partColor->setCurrentColor(mOptions->PartImagesColor);
-	ui->partImagesWidth->setText(QString::number(mOptions->PartImagesWidth));
-	ui->partImagesHeight->setText(QString::number(mOptions->PartImagesHeight));
+/*** LPub3D Mod - Fade Previous Steps ***/
+	ui->FadeSteps->setChecked(mOptions->FadeSteps);
+/*** LPub3D Mod end ***/
 }
 
 lcQHTMLDialog::~lcQHTMLDialog()
 {
-    delete ui;
+	delete ui;
 }
 
 void lcQHTMLDialog::accept()
@@ -67,10 +64,9 @@ void lcQHTMLDialog::accept()
 	mOptions->HighlightNewParts = ui->highlightNewParts->isChecked();
 	mOptions->PartsListStep = ui->partsAfterEachStep->isChecked();
 	mOptions->PartsListEnd = ui->partsAtTheEnd->isChecked();
-	mOptions->PartsListImages = ui->partImages->isChecked();
-	mOptions->PartImagesColor = ui->partColor->currentColor();
-	mOptions->PartImagesWidth = ui->partImagesWidth->text().toInt();
-	mOptions->PartImagesHeight = ui->partImagesHeight->text().toInt();
+/*** LPub3D Mod - Fade Previous Steps ***/
+	mOptions->FadeSteps = ui->FadeSteps->isChecked();
+/*** LPub3D Mod end ***/
 
 	QDialog::accept();
 }

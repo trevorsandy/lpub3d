@@ -15,9 +15,6 @@
 #include "lc_zipfile.h"
 #include "lc_qimagedialog.h"
 #include "lc_qmodellistdialog.h"
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
-#include <QtConcurrent>
-#endif
 /*** LPub3D Mod - Include ***/
 #include "lpub.h"
 #include "annotations.h"
@@ -43,10 +40,9 @@ lcHTMLExportOptions::lcHTMLExportOptions(const Project* Project)
 	HighlightNewParts = (HTMLOptions & LC_HTML_HIGHLIGHT) != 0;
 	PartsListStep = (HTMLOptions & LC_HTML_LISTSTEP) != 0;
 	PartsListEnd = (HTMLOptions & LC_HTML_LISTEND) != 0;
-	PartsListImages = (HTMLOptions & LC_HTML_IMAGES) != 0;
-	PartImagesColor = lcGetColorIndex(lcGetProfileInt(LC_PROFILE_HTML_PARTS_COLOR));
-	PartImagesWidth = lcGetProfileInt(LC_PROFILE_HTML_PARTS_WIDTH);
-	PartImagesHeight = lcGetProfileInt(LC_PROFILE_HTML_PARTS_HEIGHT);
+/*** LPub3D Mod - Fade Previous Steps ***/
+	FadeSteps = gApplication->mPreferences.mFadeSteps;
+/*** LPub3D Mod end ***/
 }
 
 void lcHTMLExportOptions::SaveDefaults()
@@ -67,16 +63,14 @@ void lcHTMLExportOptions::SaveDefaults()
 		HTMLOptions |= LC_HTML_LISTSTEP;
 	if (PartsListEnd)
 		HTMLOptions |= LC_HTML_LISTEND;
-	if (PartsListImages)
-		HTMLOptions |= LC_HTML_IMAGES;
 
 	lcSetProfileInt(LC_PROFILE_HTML_IMAGE_OPTIONS, TransparentImages ? LC_IMAGE_TRANSPARENT : 0);
 	lcSetProfileInt(LC_PROFILE_HTML_OPTIONS, HTMLOptions);
 	lcSetProfileInt(LC_PROFILE_HTML_IMAGE_WIDTH, StepImagesWidth);
 	lcSetProfileInt(LC_PROFILE_HTML_IMAGE_HEIGHT, StepImagesHeight);
-	lcSetProfileInt(LC_PROFILE_HTML_PARTS_COLOR, lcGetColorCode(PartImagesColor));
-	lcSetProfileInt(LC_PROFILE_HTML_PARTS_WIDTH, PartImagesWidth);
-	lcSetProfileInt(LC_PROFILE_HTML_PARTS_HEIGHT, PartImagesHeight);
+/*** LPub3D Mod - Fade Previous Steps ***/
+	gApplication->mPreferences.mFadeSteps = FadeSteps;
+/*** LPub3D Mod end ***/
 }
 
 Project::Project()
@@ -1191,7 +1185,7 @@ void Project::ExportBrickLink()
 	lcPartsList PartsList;
 
 	if (!mModels.IsEmpty())
-		mModels[0]->GetPartsList(gDefaultColor, true, PartsList);
+		mModels[0]->GetPartsList(gDefaultColor, true, false, PartsList);
 
 	if (PartsList.empty())
 	{
@@ -1538,7 +1532,7 @@ void Project::ExportCSV()
 	lcPartsList PartsList;
 
 	if (!mModels.IsEmpty())
-		mModels[0]->GetPartsList(gDefaultColor, true, PartsList);
+		mModels[0]->GetPartsList(gDefaultColor, true, false, PartsList);
 
 	if (PartsList.empty())
 	{
@@ -1576,264 +1570,14 @@ void Project::ExportCSV()
 	}
 }
 
-QImage Project::CreatePartsListImage(lcModel* Model, lcStep Step)
+std::vector<std::pair<lcModel*, lcStep>> Project::GetPageLayouts() const
 {
-	lcPartsList PartsList;
-	if (Step == 0)
-		Model->GetPartsList(gDefaultColor, true, PartsList);
-	else
-		Model->GetPartsListForStep(Step, gDefaultColor, PartsList);
+	std::vector<const lcModel*> AddedModels;
 
-	if (PartsList.empty())
-		return QImage();
+	if (mActiveModel)
+		return mActiveModel->GetPageLayouts(AddedModels);
 
-	struct lcPartsListImage
-	{
-		QImage Thumbnail;
-		const PieceInfo* Info;
-		int ColorIndex;
-		int Count;
-		QRect Bounds;
-		QPoint Position;
-	};
-
-	std::vector<lcPartsListImage> Images;
-
-	for (const auto& PartIt : PartsList)
-	{
-		for (const auto& ColorIt : PartIt.second)
-		{
-			Images.push_back(lcPartsListImage());
-			lcPartsListImage& Image = Images.back();
-			Image.Info = PartIt.first;
-			Image.ColorIndex = ColorIt.first;
-			Image.Count = ColorIt.second;
-		}
-	}
-
-	auto ImageCompare = [](const lcPartsListImage& Image1, const lcPartsListImage& Image2)
-	{
-		if (Image1.ColorIndex != Image2.ColorIndex)
-			return Image1.ColorIndex < Image2.ColorIndex;
-
-		return strcmp(Image1.Info->m_strDescription, Image2.Info->m_strDescription) < 0;
-	};
-
-	std::sort(Images.begin(), Images.end(), ImageCompare);
-
-	View* View = gMainWindow->GetActiveView();
-	View->MakeCurrent();
-	lcContext* Context = View->mContext;
-	const int ThumbnailWidth = 512;
-	const int ThumbnailHeight = 512;
-
-	std::pair<lcFramebuffer, lcFramebuffer> RenderFramebuffer = Context->CreateRenderFramebuffer(ThumbnailWidth, ThumbnailHeight);
-
-	if (!RenderFramebuffer.first.IsValid())
-	{
-/*** LPub3D Mod - set 3DViewer label ***/
-		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Error creating images."));
-/*** LPub3D Mod end ***/
-		return QImage();
-	}
-
-	Context->BindFramebuffer(RenderFramebuffer.first);
-
-	float Aspect = (float)ThumbnailWidth / (float)ThumbnailHeight;
-	float OrthoHeight = 200.0f;
-	float OrthoWidth = OrthoHeight * Aspect;
-
-	lcMatrix44 ProjectionMatrix = lcMatrix44Ortho(-OrthoWidth, OrthoWidth, -OrthoHeight, OrthoHeight, 1.0f, 50000.0f);
-	lcMatrix44 ViewMatrix = lcMatrix44LookAt(lcVector3(-100.0f, -100.0f, 75.0f), lcVector3(0.0f, 0.0f, 0.0f), lcVector3(0.0f, 0.0f, 1.0f));
-
-	Context->SetViewport(0, 0, ThumbnailWidth, ThumbnailHeight);
-	Context->SetDefaultState();
-	Context->SetProjectionMatrix(ProjectionMatrix);
-
-	for (lcPartsListImage& Image : Images)
-	{
-		glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		lcScene Scene;
-		Scene.SetAllowWireframe(false);
-		Scene.SetAllowLOD(false);
-		Scene.Begin(ViewMatrix);
-
-		Image.Info->AddRenderMeshes(Scene, lcMatrix44Identity(), Image.ColorIndex, lcRenderMeshState::NORMAL, true);
-
-		Scene.End();
-
-		Scene.Draw(Context);
-
-		Image.Thumbnail = Context->GetRenderFramebufferImage(RenderFramebuffer);
-	}
-
-	Context->ClearFramebuffer();
-	Context->DestroyRenderFramebuffer(RenderFramebuffer);
-	Context->ClearResources();
-
-	auto CalculateImageBounds = [](lcPartsListImage& Image)
-	{
-		QImage& Thumbnail = Image.Thumbnail;
-		int Width = Thumbnail.width();
-		int Height = Thumbnail.height();
-
-		int MinX = Width;
-		int MinY = Height;
-		int MaxX = 0;
-		int MaxY = 0;
-
-		for (int x = 0; x < Width; x++)
-		{
-			for (int y = 0; y < Height; y++)
-			{
-				if (qAlpha(Thumbnail.pixel(x, y)))
-				{
-					MinX = qMin(x, MinX);
-					MinY = qMin(y, MinY);
-					MaxX = qMax(x, MaxX);
-					MaxY = qMax(y, MaxY);
-				}
-			}
-		}
-
-		Image.Bounds = QRect(QPoint(MinX, MinY), QPoint(MaxX, MaxY));
-	};
-
-	QtConcurrent::blockingMap(Images, CalculateImageBounds);
-
-	QImage DummyImage(16, 16, QImage::Format_ARGB32);
-	QPainter DummyPainter(&DummyImage);
-
-	QFont Font("helvetica", 20, QFont::Bold);
-	DummyPainter.setFont(Font);
-	QFontMetrics FontMetrics = DummyPainter.fontMetrics();
-	int Ascent = FontMetrics.ascent();
-
-	int CurrentHeight = 0;
-	int MaxWidth = 1024;
-
-	for (lcPartsListImage& Image : Images)
-	{
-		CurrentHeight = qMax(Image.Bounds.height() + Ascent, CurrentHeight);
-		MaxWidth = qMax(MaxWidth, Image.Bounds.width());
-	}
-
-	for (;;)
-	{
-		int CurrentWidth = 0;
-		int CurrentX = 0;
-		int CurrentY = 0;
-		int ColumnWidth = 0;
-		int Spacing = 20;
-		int NextHeightIncrease = INT_MAX;
-
-		for (lcPartsListImage& Image : Images)
-		{
-			if (CurrentY + Image.Bounds.height() + Ascent > CurrentHeight)
-			{
-				int NeededSpace = Image.Bounds.height() + Ascent - (CurrentHeight - CurrentY);
-				NextHeightIncrease = qMin(NeededSpace, NextHeightIncrease);
-
-				CurrentY = 0;
-				CurrentX += ColumnWidth + Spacing;
-				ColumnWidth = 0;
-			}
-
-			Image.Position = QPoint(CurrentX, CurrentY);
-			CurrentY += Image.Bounds.height() + Ascent + Spacing;
-			CurrentWidth = qMax(CurrentWidth, CurrentX + Image.Bounds.width());
-			ColumnWidth = qMax(ColumnWidth, Image.Bounds.width());
-		}
-
-		if (CurrentWidth < MaxWidth)
-		{
-			MaxWidth = CurrentWidth;
-			break;
-		}
-
-		CurrentHeight += NextHeightIncrease;
-	}
-
-	QImage PainterImage(MaxWidth + 40, CurrentHeight + 40, QImage::Format_ARGB32);
-	PainterImage.fill(QColor(255, 255, 255, 0));
-
-	QPainter Painter(&PainterImage);
-	Painter.setFont(Font);
-
-	for (lcPartsListImage& Image : Images)
-	{
-		QPoint Position = Image.Position + QPoint(20, 20);
-		Painter.drawImage(Position, Image.Thumbnail, Image.Bounds);
-		Painter.drawText(QPoint(Position.x(), Position.y() + Image.Bounds.height() + Ascent), QString::number(Image.Count) + 'x');
-	}
-
-	Painter.end();
-
-	return PainterImage;
-}
-
-void Project::CreateHTMLPieceList(QTextStream& Stream, lcModel* Model, lcStep Step, bool Images)
-{
-	std::vector<int> ColorsUsed(gColorList.size(), 0);
-	int NumColors = 0;
-
-	lcPartsList PartsList;
-
-	if (Step == 0)
-		Model->GetPartsList(gDefaultColor, true, PartsList);
-	else
-		Model->GetPartsListForStep(Step, gDefaultColor, PartsList);
-
-	for (const auto& PartIt : PartsList)
-		for (const auto& ColorIt : PartIt.second)
-			ColorsUsed[ColorIt.first]++;
-
-	Stream << QLatin1String("<br><table border=1><tr><td><center>Piece</center></td>\r\n");
-
-	for (size_t ColorIdx = 0; ColorIdx < gColorList.size(); ColorIdx++)
-	{
-		if (ColorsUsed[ColorIdx])
-		{
-			ColorsUsed[ColorIdx] = NumColors++;
-			Stream << QString("<td><center>%1</center></td>\r\n").arg(gColorList[ColorIdx].Name);
-		}
-	}
-	NumColors++;
-	Stream << QLatin1String("</tr>\r\n");
-
-	for (const auto& PartIt : PartsList)
-	{
-		const PieceInfo* Info = PartIt.first;
-
-		if (Images)
-			Stream << QString("<tr><td><IMG SRC=\"%1.png\" ALT=\"%2\"></td>\r\n").arg(Info->mFileName, Info->m_strDescription);
-		else
-			Stream << QString("<tr><td>%1</td>\r\n").arg(Info->m_strDescription);
-
-		int CurrentColumn = 1;
-		for (const auto& ColorIt : PartIt.second)
-		{
-			while (CurrentColumn != ColorsUsed[ColorIt.first] + 1)
-			{
-				Stream << QLatin1String("<td><center>-</center></td>\r\n");
-				CurrentColumn++;
-			}
-
-			Stream << QString("<td><center>%1</center></td>\r\n").arg(QString::number(ColorIt.second));
-			CurrentColumn++;
-		}
-
-		while (CurrentColumn != NumColors)
-		{
-			Stream << QLatin1String("<td><center>-</center></td>\r\n");
-			CurrentColumn++;
-		}
-
-		Stream << QLatin1String("</tr>\r\n");
-	}
-	Stream << QLatin1String("</table>\r\n<br>");
+	return std::vector<std::pair<lcModel*, lcStep>>();
 }
 
 void Project::ExportHTML(const lcHTMLExportOptions& Options)
@@ -1857,7 +1601,7 @@ void Project::ExportHTML(const lcHTMLExportOptions& Options)
 
 	auto AddPartsListImage = [this, &Dir](QTextStream& Stream, lcModel* Model, lcStep Step, const QString& BaseName)
 	{
-		QImage Image = CreatePartsListImage(Model, Step);
+		QImage Image = Model->GetPartsListImage(1024, Step);
 
 		if (!Image.isNull())
 		{
@@ -1866,13 +1610,12 @@ void Project::ExportHTML(const lcHTMLExportOptions& Options)
 
 			Image.save(FileName);
 
-			Stream << QString::fromLatin1("<IMG SRC=\"%1\" />\r\n").arg(ImageName);
+			Stream << QString::fromLatin1("<p><IMG SRC=\"%1\" /></p><br><br>\r\n").arg(ImageName);
 		}
 	};
 
-	for (int ModelIdx = 0; ModelIdx < Models.GetSize(); ModelIdx++)
+	for (lcModel* Model : Models)
 	{
-		lcModel* Model = mModels[ModelIdx];
 		QString BaseName = ProjectTitle.left(ProjectTitle.length() - QFileInfo(ProjectTitle).suffix().length() - 1);
 		lcStep LastStep = Model->GetLastStep();
 		QString PageTitle;
@@ -1904,10 +1647,10 @@ void Project::ExportHTML(const lcHTMLExportOptions& Options)
 			for (lcStep Step = 1; Step <= LastStep; Step++)
 			{
 				QString StepString = QString::fromLatin1("%1").arg(Step, 2, 10, QLatin1Char('0'));
-				Stream << QString::fromLatin1("<IMG SRC=\"%1-%2.png\" ALT=\"Step %3\" WIDTH=%4 HEIGHT=%5><BR><BR>\r\n").arg(BaseName, StepString, StepString, QString::number(Options.StepImagesWidth), QString::number(Options.StepImagesHeight));
+				Stream << QString::fromLatin1("<p><IMG SRC=\"%1-%2.png\" ALT=\"Step %3\" WIDTH=%4 HEIGHT=%5></p><BR><BR>\r\n").arg(BaseName, StepString, StepString, QString::number(Options.StepImagesWidth), QString::number(Options.StepImagesHeight));
 
 				if (Options.PartsListStep)
-					CreateHTMLPieceList(Stream, Model, Step, Options.PartsListImages);
+					AddPartsListImage(Stream, Model, Step, QString("%1-%2").arg(BaseName, StepString));
 			}
 
 			if (Options.PartsListEnd)
@@ -1962,7 +1705,7 @@ void Project::ExportHTML(const lcHTMLExportOptions& Options)
 				Stream << QString::fromLatin1("<IMG SRC=\"%1-%2.png\" ALT=\"Step %3\" WIDTH=%4 HEIGHT=%5><BR><BR>\r\n").arg(BaseName, StepString, StepString, QString::number(Options.StepImagesWidth), QString::number(Options.StepImagesHeight));
 
 				if (Options.PartsListStep)
-					CreateHTMLPieceList(Stream, Model, Step, Options.PartsListImages);
+					AddPartsListImage(Stream, Model, Step, QString("%1-%2").arg(BaseName, StepString));
 
 				Stream << QLatin1String("</CENTER>\r\n<BR><HR><BR>");
 				if (Step != 1)
@@ -2008,75 +1751,6 @@ void Project::ExportHTML(const lcHTMLExportOptions& Options)
 
 		QString StepImageBaseName = QFileInfo(Dir, BaseName + QLatin1String("-%1.png")).absoluteFilePath();
 		Model->SaveStepImages(StepImageBaseName, true, false, Options.HighlightNewParts, Options.StepImagesWidth, Options.StepImagesHeight, 1, LastStep);
-
-		if (Options.PartsListImages)
-		{
-			View* View = gMainWindow->GetActiveView();
-			View->MakeCurrent();
-			lcContext* Context = View->mContext;
-			int Width = Options.PartImagesWidth;
-			int Height = Options.PartImagesHeight;
-
-			std::pair<lcFramebuffer, lcFramebuffer> RenderFramebuffer = Context->CreateRenderFramebuffer(Width, Height);
-
-			if (!RenderFramebuffer.first.IsValid())
-			{
-/*** LPub3D Mod - set 3DViewer label ***/
-				QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Error creating images."));
-/*** LPub3D Mod end ***/
-				return;
-			}
-
-			Context->BindFramebuffer(RenderFramebuffer.first);
-
-			float AspectRatio = (float)Width / (float)Height;
-			Context->SetViewport(0, 0, Width, Height);
-
-			lcPartsList PartsList;
-			Model->GetPartsList(gDefaultColor, true, PartsList);
-
-			lcMatrix44 ProjectionMatrix, ViewMatrix;
-
-			Context->SetDefaultState();
-
-			for (const auto& PartIt : PartsList)
-			{
-				const PieceInfo* Info = PartIt.first;
-
-				glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-				Info->ZoomExtents(30.0f, AspectRatio, ProjectionMatrix, ViewMatrix);
-
-				Context->SetProjectionMatrix(ProjectionMatrix);
-
-				lcScene Scene;
-				Scene.SetAllowWireframe(false);
-				Scene.SetAllowLOD(false);
-				Scene.Begin(ViewMatrix);
-
-				Info->AddRenderMeshes(Scene, lcMatrix44Identity(), Options.PartImagesColor, lcRenderMeshState::NORMAL, true);
-
-				Scene.End();
-
-				Scene.Draw(Context);
-
-				QString FileName = QFileInfo(Dir, QLatin1String(Info->mFileName) + QLatin1String(".png")).absoluteFilePath();
-				QImage Image = Context->GetRenderFramebufferImage(RenderFramebuffer);
-
-				QImageWriter Writer(FileName);
-
-				if (!Writer.write(Image))
-				{
-					QMessageBox::information(gMainWindow, tr("Error"), tr("Error writing to file '%1':\n%2").arg(FileName, Writer.errorString()));
-					break;
-				}
-			}
-
-			Context->ClearFramebuffer();
-			Context->DestroyRenderFramebuffer(RenderFramebuffer);
-			Context->ClearResources();
-		}
 	}
 
 	if (Models.GetSize() > 1)

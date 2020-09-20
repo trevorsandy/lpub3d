@@ -302,7 +302,7 @@ void PieceInfo::ZoomExtents(float FoV, float AspectRatio, lcMatrix44& Projection
 void PieceInfo::AddRenderMesh(lcScene& Scene)
 {
 	if (mMesh)
-		Scene.AddMesh(mMesh, lcMatrix44Identity(), gDefaultColor, lcRenderMeshState::NORMAL);
+		Scene.AddMesh(mMesh, lcMatrix44Identity(), gDefaultColor, lcRenderMeshState::Default);
 }
 
 void PieceInfo::AddRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int ColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive) const
@@ -320,15 +320,21 @@ void PieceInfo::AddRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, i
 	}
 }
 
-void PieceInfo::GetPartsList(int DefaultColorIndex, bool IncludeSubmodels, lcPartsList& PartsList) const
+void PieceInfo::GetPartsList(int DefaultColorIndex, bool ScanSubModels, bool AddSubModels, lcPartsList& PartsList) const
 {
-	if (IsModel() && IncludeSubmodels)
-		mModel->GetPartsList(DefaultColorIndex, IncludeSubmodels, PartsList);
+	if (IsModel())
+	{
+		if (ScanSubModels)
+			mModel->GetPartsList(DefaultColorIndex, ScanSubModels, AddSubModels, PartsList);
+
+		if (AddSubModels && DefaultColorIndex < gNumUserColors)
+			PartsList[this][DefaultColorIndex]++;
+	}
 	else if (IsProject())
 	{
 		lcModel* Model = mProject->GetMainModel();
 		if (Model)
-			Model->GetPartsList(DefaultColorIndex, IncludeSubmodels, PartsList);
+			Model->GetPartsList(DefaultColorIndex, ScanSubModels, AddSubModels, PartsList);
 	}
 	else if (DefaultColorIndex < gNumUserColors)
 		PartsList[this][DefaultColorIndex]++;

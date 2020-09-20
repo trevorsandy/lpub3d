@@ -19,6 +19,7 @@ class lcQPartsTree;
 class lcQColorList;
 class lcQPropertiesTree;
 class lcTimelineWidget;
+class lcElidedLabel;
 #ifdef QT_NO_PRINTER
 class QPrinter;
 #endif
@@ -292,7 +293,7 @@ public:
 /***    void UpdateAllViews();                 // LPub3D Mod - moved to public slots ***/
 	void SetTool(lcTool Tool);
 	void SetTransformType(lcTransformType TransformType);
-	void SetRotateStepCoordType(lcRotateStepCoordType RotateStepCoordType);
+	void SetRotateStepCoordType(lcRotateStepCoordType RotateStepCoordType); // LPub3D Mod
 
 	void SetColorIndex(int ColorIndex);
 	void SetMoveSnapEnabled(bool Enabled);
@@ -304,9 +305,11 @@ public:
 	void SetCurrentPieceInfo(PieceInfo* Info);
 	void SetShadingMode(lcShadingMode ShadingMode);
 	void SetSelectionMode(lcSelectionMode SelectionMode);
+	void ToggleViewSphere();
 
 /***    void NewProject();                     // LPub3D Mod - moved to public slots ***/
 	bool OpenProject(const QString& FileName);
+	void OpenRecentProject(int RecentFileIndex);
 	void MergeProject();
 	void ImportLDD();
 	void ImportInventory();
@@ -327,7 +330,9 @@ public:
 	void TogglePrintPreview();
 	void ToggleFullScreen();
 
+/*** LPub3D Mod - selected Line ***/
 	void UpdateSelectedObjects(bool SelectionChanged, int EmitSelection = VIEWER_LINE);
+/*** LPub3D Mod end ***/
 	void UpdateTimeline(bool Clear, bool UpdateItems);
 	void UpdatePaste(bool Enabled);
 	void UpdateCurrentStep();
@@ -424,7 +429,6 @@ protected slots:
 	void UpdateGamepads();
 	void ModelTabContextMenuRequested(const QPoint& Point);
 	void ModelTabCloseOtherTabs();
-	void ModelTabResetViews();
 	void ModelTabClosed(int Index);
 	void ModelTabChanged(int Index);
 	void ClipboardChanged();
@@ -449,6 +453,8 @@ protected:
 	void ShowHTMLDialog();
 	void ShowRenderDialog();
 	void ShowPrintDialog();
+
+	bool OpenProjectFile(const QString& FileName);
 
 	lcModelTabWidget* GetTabWidgetForModel(lcModel* Model) const
 	{
@@ -504,7 +510,7 @@ protected:
 	QLineEdit* mTransformYEdit;
 	QLineEdit* mTransformZEdit;
 
-	QLabel* mStatusBarLabel;
+	lcElidedLabel* mStatusBarLabel;
 	QLabel* mStatusSnapLabel;
 /*** LPub3D Mod - disable position/time status ***/
 	//QLabel* mStatusPositionLabel;

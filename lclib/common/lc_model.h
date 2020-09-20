@@ -236,20 +236,28 @@ public:
 	void Paste();
 	void DuplicateSelectedPieces();
 
-	void GetScene(lcScene& Scene, lcCamera* ViewCamera, bool Highlight) const;
+	void GetScene(lcScene& Scene, lcCamera* ViewCamera, bool AllowHighlight, bool AllowFade) const;
 	void AddSubModelRenderMeshes(lcScene& Scene, const lcMatrix44& WorldMatrix, int DefaultColorIndex, lcRenderMeshState RenderMeshState, bool ParentActive) const;
 	void DrawBackground(lcGLWidget* Widget);
+	QImage GetStepImage(bool Zoom, bool Highlight, int Width, int Height, lcStep Step);
+	QImage GetPartsListImage(int MaxWidth, lcStep Step) const;
 	void SaveStepImages(const QString& BaseName, bool AddStepSuffix, bool Zoom, bool Highlight, int Width, int Height, lcStep Start, lcStep End);
+	std::vector<std::pair<lcModel*, lcStep>> GetPageLayouts(std::vector<const lcModel*>& AddedModels);
 
 	void RayTest(lcObjectRayTest& ObjectRayTest) const;
 	void BoxTest(lcObjectBoxTest& ObjectBoxTest) const;
 	bool SubModelMinIntersectDist(const lcVector3& WorldStart, const lcVector3& WorldEnd, float& MinDistance) const;
 	bool SubModelBoxTest(const lcVector4 Planes[6]) const;
 
+	bool HasPieces() const
+	{
+		return !mPieces.IsEmpty();
+	}
+
 	bool AnyPiecesSelected() const;
 	bool AnyObjectsSelected() const;
 	lcModel* GetFirstSelectedSubmodel() const;
-	void GetSubModels(lcArray<lcModel*> SubModels) const;
+	void GetSubModels(lcArray<lcModel*>& SubModels) const;
 	bool GetMoveRotateTransform(lcVector3& Center, lcMatrix33& RelativeRotation) const;
 	bool GetPieceFocusOrSelectionCenter(lcVector3& Center) const;
 	lcVector3 GetSelectionOrModelCenter() const;
@@ -257,7 +265,7 @@ public:
 	lcObject* GetFocusObject() const;
 	bool GetSelectionCenter(lcVector3& Center) const;
 	bool GetPiecesBoundingBox(lcVector3& Min, lcVector3& Max) const;
-	void GetPartsList(int DefaultColorIndex, bool IncludeSubmodels, lcPartsList& PartsList) const;
+	void GetPartsList(int DefaultColorIndex, bool ScanSubModels, bool AddSubModels, lcPartsList& PartsList) const;
 	void GetPartsListForStep(lcStep Step, int DefaultColorIndex, lcPartsList& PartsList) const;
 	void GetModelParts(const lcMatrix44& WorldMatrix, int DefaultColorIndex, std::vector<lcModelPartsEntry>& ModelParts) const;
 	void GetSelectionInformation(int* Flags, lcArray<lcObject*>& Selection, lcObject** Focus) const;

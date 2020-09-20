@@ -31,18 +31,20 @@ void lcPreferences::LoadDefaults()
 	mDrawEdgeLines = lcGetProfileInt(LC_PROFILE_DRAW_EDGE_LINES);
 	mLineWidth = lcGetProfileFloat(LC_PROFILE_LINE_WIDTH);
 	mAllowLOD = lcGetProfileInt(LC_PROFILE_ALLOW_LOD);
+	mFadeSteps = lcGetProfileInt(LC_PROFILE_FADE_STEPS);
 	mDrawGridStuds = lcGetProfileInt(LC_PROFILE_GRID_STUDS);
 	mGridStudColor = lcGetProfileInt(LC_PROFILE_GRID_STUD_COLOR);
 	mDrawGridLines = lcGetProfileInt(LC_PROFILE_GRID_LINES);
 	mGridLineSpacing = lcGetProfileInt(LC_PROFILE_GRID_LINE_SPACING);
 	mGridLineColor = lcGetProfileInt(LC_PROFILE_GRID_LINE_COLOR);
+	mViewSphereEnabled = lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_ENABLED);
 	mViewSphereLocation = (lcViewSphereLocation)lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_LOCATION);
 	mViewSphereSize = lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_SIZE);
 	mViewSphereColor = lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_COLOR);
 	mViewSphereTextColor = lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_TEXT_COLOR);
 	mViewSphereHighlightColor = lcGetProfileInt(LC_PROFILE_VIEW_SPHERE_HIGHLIGHT_COLOR);
 	mAutoLoadMostRecent = lcGetProfileInt(LC_PROFILE_AUTOLOAD_MOSTRECENT);
-
+	mRestoreTabLayout = lcGetProfileInt(LC_PROFILE_RESTORE_TAB_LAYOUT);
 /*** LPub3D Mod - Update Default Camera ***/
 	mDefaultCameraProperties = lcGetProfileInt(LC_PROFILE_DEFAULT_CAMERA_PROPERTIES);
 /*** LPub3D Mod end ***/
@@ -67,11 +69,13 @@ void lcPreferences::SaveDefaults()
 	lcSetProfileInt(LC_PROFILE_DRAW_EDGE_LINES, mDrawEdgeLines);
 	lcSetProfileFloat(LC_PROFILE_LINE_WIDTH, mLineWidth);
 	lcSetProfileInt(LC_PROFILE_ALLOW_LOD, mAllowLOD);
+	lcSetProfileInt(LC_PROFILE_FADE_STEPS, mFadeSteps);
 	lcSetProfileInt(LC_PROFILE_GRID_STUDS, mDrawGridStuds);
 	lcSetProfileInt(LC_PROFILE_GRID_STUD_COLOR, mGridStudColor);
 	lcSetProfileInt(LC_PROFILE_GRID_LINES, mDrawGridLines);
 	lcSetProfileInt(LC_PROFILE_GRID_LINE_SPACING, mGridLineSpacing);
 	lcSetProfileInt(LC_PROFILE_GRID_LINE_COLOR, mGridLineColor);
+	lcSetProfileInt(LC_PROFILE_VIEW_SPHERE_ENABLED, mViewSphereSize ? 1 : 0);
 	lcSetProfileInt(LC_PROFILE_VIEW_SPHERE_LOCATION, (int)mViewSphereLocation);
 	lcSetProfileInt(LC_PROFILE_VIEW_SPHERE_SIZE, mViewSphereSize);
 	lcSetProfileInt(LC_PROFILE_VIEW_SPHERE_COLOR, mViewSphereColor);
@@ -189,7 +193,7 @@ void lcApplication::SetProject(Project* Project)
 	Project->SetActiveModel(0);
 	lcGetPiecesLibrary()->RemoveTemporaryPieces();
 
-	if (mProject && !mProject->GetFileName().isEmpty())
+	if (mProject && !mProject->GetFileName().isEmpty() && mPreferences.mRestoreTabLayout)
 	{
 		QSettings Settings;
 		QByteArray TabLayout = Settings.value(GetTabLayoutKey()).toByteArray();
@@ -282,8 +286,6 @@ int lcApplication::Process3DViewerCommandLine()
 	  int ImageHeight = lcGetProfileInt(LC_PROFILE_IMAGE_HEIGHT);
 	  int ImageStart = 0;
 	  int ImageEnd = 0;
-	  int PartImagesWidth = -1;
-	  int PartImagesHeight = -1;
 	  float CameraLatitude = 0.0f;
 	  float CameraLongitude = 0.0f;
 	  QString ImageName;
@@ -444,10 +446,6 @@ int lcApplication::Process3DViewerCommandLine()
 			  SaveHTML = true;
 			  ParseString(SaveHTMLName, false);
 		  }
-		  else if (Param == QLatin1String("--html-parts-width"))
-			  ParseInteger(PartImagesWidth);
-		  else if (Param == QLatin1String("--html-parts-height"))
-			  ParseInteger(PartImagesHeight);
 	  }
 
 	  Project* NewProject = new Project();
@@ -624,12 +622,6 @@ int lcApplication::Process3DViewerCommandLine()
 
 			  if (!SaveHTMLName.isEmpty())
 				  Options.PathName = SaveHTMLName;
-
-			  if (PartImagesWidth > 0)
-				  Options.PartImagesWidth = PartImagesWidth;
-
-			  if (PartImagesHeight > 0)
-				  Options.PartImagesHeight = PartImagesHeight;
 
 			  mProject->ExportHTML(Options);
 		  }

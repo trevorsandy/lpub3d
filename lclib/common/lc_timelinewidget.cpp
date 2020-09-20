@@ -8,10 +8,11 @@
 lcTimelineWidget::lcTimelineWidget(QWidget* Parent)
 	: QTreeWidget(Parent)
 {
+	mCurrentStepItem = nullptr;
 	mIgnoreUpdates = false;
 
 	setSelectionMode(QAbstractItemView::ExtendedSelection);
-/*** LPub3D Mod - suppress item drag ***/
+/*** LPub3D Mod - suppress item drag as there is only one step loaded at a time***/
 	setDragEnabled(false);
 /*** LPub3D Mod end ***/
 	setDragDropMode(QAbstractItemView::InternalMove);
@@ -21,6 +22,7 @@ lcTimelineWidget::lcTimelineWidget(QWidget* Parent)
 
 	invisibleRootItem()->setFlags(invisibleRootItem()->flags() & ~Qt::ItemIsDropEnabled);
 
+	connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)), SLOT(CurrentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)));
 	connect(this, SIGNAL(itemSelectionChanged()), SLOT(ItemSelectionChanged()));
 	connect(this, SIGNAL(customContextMenuRequested(QPoint)), SLOT(CustomMenuRequested(QPoint)));
 }
@@ -81,6 +83,7 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 
 	if (!Model)
 	{
+		mCurrentStepItem = nullptr;
 		mItems.clear();
 		clear();
 		blockSignals(Blocked);
@@ -89,11 +92,19 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 
 	if (Clear)
 	{
+		mCurrentStepItem = nullptr;
 		mItems.clear();
 		clear();
 	}
 
-	lcStep LastStep = lcMax(Model->GetLastStep(), Model->GetCurrentStep());
+	lcStep LastStep = Model->GetLastStep();
+/*** LPub3D Mod - Disable always showing an extra step ***/
+/***
+	if (Model->HasPieces())
+		LastStep++;
+***/
+/*** LPub3D Mod end ***/
+	LastStep  = lcMax(LastStep, Model->GetCurrentStep());
 
 	for (int TopLevelItemIdx = LastStep; TopLevelItemIdx < topLevelItemCount(); )
 	{
@@ -107,16 +118,18 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 			delete PieceItem;
 		}
 
+		if (mCurrentStepItem == StepItem)
+			mCurrentStepItem = nullptr;
+
 		delete StepItem;
 	}
 
 	for (unsigned int TopLevelItemIdx = topLevelItemCount(); TopLevelItemIdx < LastStep; TopLevelItemIdx++)
 	{
-/*** LPub3D Mod - Set Timeline title to loaded model name ***/
-		QTreeWidgetItem* StepItem = new QTreeWidgetItem(this, QStringList(Model->GetName()));
-/*** LPub3D Mod end ***/
-/*** LPub3D Mod - Set size hint ***/
-		//StepItem->setSizeHint(0,QSize(48,48));
+/*** LPub3D Mod - Set Timeline title to loaded model name when loading single step ***/
+		QString ItemLabel = LastStep == 1 ? Model->GetName() : tr("Step %1").arg(TopLevelItemIdx + 1);
+		QTreeWidgetItem* StepItem = new QTreeWidgetItem(this, QStringList(ItemLabel));
+		StepItem->setData(0, Qt::UserRole, qVariantFromValue<int>(int(TopLevelItemIdx) + 1));
 /*** LPub3D Mod end ***/
 		StepItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsDropEnabled);
 		addTopLevelItem(StepItem);
@@ -273,8 +286,37 @@ void lcTimelineWidget::Update(bool Clear, bool UpdateItems)
 		StepItem = topLevelItem(Step - 1);
 		PieceItemIndex = 0;
 	}
+	
+	UpdateCurrentStepItem();
 
 	blockSignals(Blocked);
+}
+
+void lcTimelineWidget::UpdateCurrentStepItem()
+{
+	lcModel* Model = gMainWindow->GetActiveModel();
+	lcStep CurrentStep = Model->GetCurrentStep();
+	QTreeWidgetItem* CurrentStepItem = topLevelItem(CurrentStep - 1);
+
+	if (CurrentStepItem != mCurrentStepItem)
+	{
+		if (mCurrentStepItem)
+		{
+			QFont Font = mCurrentStepItem->font(0);
+			Font.setBold(false);
+			mCurrentStepItem->setFont(0, Font);
+		}
+
+		if (CurrentStepItem)
+		{
+			QFont Font = CurrentStepItem->font(0);
+			Font.setBold(true);
+			CurrentStepItem->setFont(0, Font);
+		}
+
+		mCurrentStepItem = CurrentStepItem;
+	}
+
 }
 
 /*** LPub3D Mod - Timeline part icons ***/
@@ -404,6 +446,7 @@ void lcTimelineWidget::MoveSelection()
 
 	if (Step == -1)
 		return;
+	Step++;
 
 	QList<QTreeWidgetItem*> SelectedItems = selectedItems();
 
@@ -419,6 +462,11 @@ void lcTimelineWidget::MoveSelection()
 	}
 
 	UpdateModel();
+
+	lcModel* Model = gMainWindow->GetActiveModel();
+
+	if (Step > static_cast<int>(Model->GetCurrentStep()))
+		Model->SetCurrentStep(Step);
 }
 
 void lcTimelineWidget::SetCurrentStep()
@@ -437,6 +485,14 @@ void lcTimelineWidget::SetCurrentStep()
 		return;
 
 	gMainWindow->GetActiveModel()->SetCurrentStep(Step + 1);
+}
+
+void lcTimelineWidget::CurrentItemChanged(QTreeWidgetItem* Current, QTreeWidgetItem* Previous)
+{
+	Q_UNUSED(Previous);
+
+	if (Current && !Current->parent())
+		SetCurrentStep();
 }
 
 void lcTimelineWidget::ItemSelectionChanged()
@@ -464,7 +520,10 @@ void lcTimelineWidget::ItemSelectionChanged()
 	mIgnoreUpdates = true;
 	lcModel* Model = gMainWindow->GetActiveModel();
 	if (LastStep > Model->GetCurrentStep())
+	{
 		Model->SetCurrentStep(LastStep);
+		UpdateCurrentStepItem();
+	}
 	Model->SetSelectionAndFocus(Selection, CurrentPiece, LC_PIECE_SECTION_POSITION, false);
 	mIgnoreUpdates = false;
 	blockSignals(Blocked);
@@ -472,8 +531,41 @@ void lcTimelineWidget::ItemSelectionChanged()
 
 void lcTimelineWidget::dropEvent(QDropEvent* Event)
 {
+	QTreeWidgetItem* DropItem = itemAt(Event->pos());
+	lcModel* Model = gMainWindow->GetActiveModel();
+
+	if (DropItem)
+	{
+		QTreeWidgetItem* ParentItem = DropItem->parent();
+		lcStep Step = indexOfTopLevelItem(ParentItem ? ParentItem : DropItem) + 1;
+
+		if (Step > Model->GetCurrentStep())
+			Model->SetCurrentStep(Step);
+	}
+
+	QList<QTreeWidgetItem*> SelectedItems = selectedItems();
+	clearSelection();
+
+	auto SortItems = [this](QTreeWidgetItem* Item1, QTreeWidgetItem* Item2)
+	{
+		QTreeWidgetItem* StepItem1 = Item1->parent();
+		QTreeWidgetItem* StepItem2 = Item2->parent();
+
+		if (StepItem1 == StepItem2)
+			return StepItem1->indexOfChild(Item1) < StepItem1->indexOfChild(Item2);
+
+		return indexOfTopLevelItem(StepItem1) < indexOfTopLevelItem(StepItem2);
+	};
+
+	std::sort(SelectedItems.begin(), SelectedItems.end(), SortItems);
+
+	for (QTreeWidgetItem* SelectedItem : SelectedItems)
+		SelectedItem->setSelected(true);
+
 	QTreeWidget::dropEvent(Event);
+
 	UpdateModel();
+	Update(false, false);
 }
 
 void lcTimelineWidget::mousePressEvent(QMouseEvent* Event)

@@ -17,14 +17,14 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tabRendering">
       <attribute name="title">
        <string>Rendering</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_4">
-       <item row="5" column="0" colspan="2">
+       <item row="9" column="0" colspan="2">
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -36,6 +36,132 @@
           </size>
          </property>
         </spacer>
+       </item>
+       <item row="3" column="0" colspan="2">
+        <widget class="QGroupBox" name="renderingGroup">
+         <property name="title">
+          <string>ViewPoint and Projection</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QLabel" name="label_15">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Viewpoint</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="ViewpointsCombo">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="statusTip">
+             <string/>
+            </property>
+            <property name="currentIndex">
+             <number>7</number>
+            </property>
+            <item>
+             <property name="text">
+              <string>Front</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Back</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Top</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Bottom</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Left</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Right</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Home</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Default</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>25</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_16">
+            <property name="text">
+             <string>Projection</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="ProjectionCombo">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="statusTip">
+             <string/>
+            </property>
+            <item>
+             <property name="text">
+              <string>Perspective</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Orthographic      </string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Default</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </item>
        <item row="1" column="0">
         <widget class="QGroupBox" name="groupBox_4">
@@ -237,132 +363,6 @@
          </layout>
         </widget>
        </item>
-       <item row="3" column="0" colspan="2">
-        <widget class="QGroupBox" name="renderingGroup">
-         <property name="title">
-          <string>ViewPoint and Projection</string>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <item>
-           <widget class="QLabel" name="label_15">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Viewpoint</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="ViewpointsCombo">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="statusTip">
-             <string/>
-            </property>
-            <property name="currentIndex">
-             <number>7</number>
-            </property>
-            <item>
-             <property name="text">
-              <string>Front</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Back</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Top</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Bottom</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Left</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Right</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Home</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Default</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_5">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>25</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_16">
-            <property name="text">
-             <string>Projection</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="ProjectionCombo">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="statusTip">
-             <string/>
-            </property>
-            <item>
-             <property name="text">
-              <string>Perspective</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Orthographic      </string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Default</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
        <item row="0" column="0" colspan="2">
         <widget class="QWidget" name="widget" native="true">
          <layout class="QGridLayout" name="gridLayout">
@@ -505,13 +505,20 @@
             </property>
            </widget>
           </item>
+          <item row="2" column="3">
+           <widget class="QCheckBox" name="FadeSteps">
+            <property name="text">
+             <string>Fade Previous Steps</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
-       <item row="4" column="0" colspan="2">
+       <item row="8" column="0" colspan="2">
         <widget class="QGroupBox" name="groupBox_7">
          <property name="title">
-          <string>Default camera</string>
+          <string>Camera Defaults</string>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_24">
           <item>
@@ -533,6 +540,36 @@
              </size>
             </property>
            </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_20">
+            <property name="text">
+             <string>Field of View</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="spinBox"/>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_21">
+            <property name="text">
+             <string>Near Plane</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="spinBox_2"/>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_22">
+            <property name="text">
+             <string>Far Plane</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSpinBox" name="spinBox_3"/>
           </item>
          </layout>
         </widget>
@@ -846,6 +883,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="RestoreTabLayout">
+         <property name="text">
+          <string>Restore tab layout</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer_2">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -863,6 +907,7 @@
       <zorder>fixedDirectionKeys</zorder>
       <zorder>autoLoadMostRecent</zorder>
       <zorder></zorder>
+      <zorder>RestoreTabLayout</zorder>
      </widget>
      <widget class="QWidget" name="tabCategories">
       <attribute name="title">

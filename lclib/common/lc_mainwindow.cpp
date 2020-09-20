@@ -23,7 +23,7 @@
 #include "lc_library.h"
 #include "lc_colors.h"
 
-#ifdef LC_ENABLE_GAMEPAD
+#if LC_ENABLE_GAMEPAD
 #include <QtGamepad/QGamepad>
 #endif
 
@@ -894,6 +894,7 @@ void lcMainWindow::CreateToolBars()
 	tabifyDockWidget(mPropertiesToolBar, mTimelineToolBar);
 
 /*** LPub3D Mod - raise timeline tool bar ***/
+	//mPartsToolBar->raise();
 	mTimelineToolBar->raise();
 /*** LPub3D Mod end ***/
 
@@ -913,6 +914,68 @@ void lcMainWindow::CreateToolBars()
 /*** LPub3D Mod end ***/
 }
 
+class lcElidedLabel : public QFrame
+{
+public:
+	explicit lcElidedLabel(QWidget* Parent = nullptr)
+		: QFrame(Parent)
+	{
+		setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+	}
+
+	void setText(const QString& Text)
+	{
+		mText = Text;
+		update();
+	}
+
+protected:
+	void paintEvent(QPaintEvent* event) override;
+
+	QString mText;
+};
+
+void lcElidedLabel::paintEvent(QPaintEvent* event)
+{
+	QFrame::paintEvent(event);
+
+	QPainter Painter(this);
+	QFontMetrics FontMetrics = Painter.fontMetrics();
+
+	int LineSpacing = FontMetrics.lineSpacing();
+	int y = 0;
+
+	QTextLayout TextLayout(mText, Painter.font());
+	TextLayout.beginLayout();
+
+	for (;;)
+	{
+		QTextLine Line = TextLayout.createLine();
+
+		if (!Line.isValid())
+			break;
+
+		Line.setLineWidth(width());
+		int NextLineY = y + LineSpacing;
+
+		if (height() >= NextLineY + LineSpacing)
+		{
+			Line.draw(&Painter, QPoint(0, y));
+			y = NextLineY;
+		}
+		else
+		{
+			QString LastLine = mText.mid(Line.textStart());
+			QString ElidedLastLine = FontMetrics.elidedText(LastLine, Qt::ElideRight, width());
+			Painter.drawText(QPoint(0, y + FontMetrics.ascent()), ElidedLastLine);
+			Line = TextLayout.createLine();
+			break;
+		}
+	}
+
+	TextLayout.endLayout();
+}
+
 void lcMainWindow::CreateStatusBar()
 {
 /*** LPub3D Mod - statusbar management ***/
@@ -920,9 +983,9 @@ void lcMainWindow::CreateStatusBar()
 	//QStatusBar* StatusBar = new QStatusBar(this);
 	//setStatusBar(StatusBar);
 
-	mStatusBarLabel = new QLabel();
-	mLCStatusBar->addWidget(mStatusBarLabel);
-	//StatusBar->addWidget(mStatusBarLabel);
+	mStatusBarLabel = new lcElidedLabel();
+	mLCStatusBar->addWidget(mStatusBarLabel, 1);
+	//StatusBar->addWidget(mStatusBarLabel, 1);
 
 	//mStatusPositionLabel = new QLabel();
 	//StatusBar->addPermanentWidget(mStatusPositionLabel);
@@ -1285,7 +1348,7 @@ void lcMainWindow::ModelTabContextMenuRequested(const QPoint& Point)
 	if (mModelTabWidget->count() > 1)
 		Menu->addAction(tr("Close Other Tabs"), this, SLOT(ModelTabCloseOtherTabs()));
 	if (mModelTabWidgetContextMenuIndex == mModelTabWidget->currentIndex())
-		Menu->addAction(tr("Reset Views"), this, SLOT(ModelTabResetViews()));
+		Menu->addAction(mActions[LC_VIEW_RESET_VIEWS]);
 
 	Menu->exec(QCursor::pos());
 	delete Menu;
@@ -1301,11 +1364,6 @@ void lcMainWindow::ModelTabCloseOtherTabs()
 
 	while (mModelTabWidget->count() > 1)
 		delete mModelTabWidget->widget(0);
-}
-
-void lcMainWindow::ModelTabResetViews()
-{
-	ResetViews();
 }
 
 void lcMainWindow::ModelTabClosed(int Index)
@@ -1405,14 +1463,11 @@ void lcMainWindow::ProjectFileChanged(const QString& Path)
 void lcMainWindow::Print(QPrinter* Printer)
 {
 #ifndef QT_NO_PRINTER
-	lcModel* Model = lcGetActiveModel();
 	int DocCopies;
 	int PageCopies;
 
-	int Rows = lcGetProfileInt(LC_PROFILE_PRINT_ROWS);
-	int Columns = lcGetProfileInt(LC_PROFILE_PRINT_COLUMNS);
-	int StepsPerPage = Rows * Columns;
-	int PageCount = (Model->GetLastStep() + StepsPerPage - 1) / StepsPerPage;
+	std::vector<std::pair<lcModel*, lcStep>> PageLayouts = lcGetActiveProject()->GetPageLayouts();
+	const int PageCount = static_cast<int>(PageLayouts.size());
 
 	if (Printer->collateCopies())
 	{
@@ -1453,22 +1508,13 @@ void lcMainWindow::Print(QPrinter* Printer)
 		Ascending = false;
 	}
 
-	GetActiveView()->MakeCurrent();
-	lcContext* Context = GetActiveView()->mContext;
-
 	QRect PageRect = Printer->pageRect();
-
-	int StepWidth = PageRect.width() / Columns;
-	int StepHeight = PageRect.height() / Rows;
-
-	View View(Model);
-	View.SetCamera(GetActiveView()->mCamera, false);
-	View.SetContext(Context);
-	View.BeginRenderToImage(StepWidth, StepHeight);
-
-	lcStep PreviousTime = Model->GetCurrentStep();
+	const int Resolution = Printer->resolution();
+	const int Margin = Resolution / 2; // todo: user setting
+	QRect MarginRect = QRect(PageRect.left() + Margin, PageRect.top() + Margin, PageRect.width() - Margin * 2, PageRect.height() - Margin * 2);
 
 	QPainter Painter(Printer);
+	bool FirstPage = true;
 	// TODO: option to print background
 
 	for (int DocCopy = 0; DocCopy < DocCopies; DocCopy++)
@@ -1480,75 +1526,50 @@ void lcMainWindow::Print(QPrinter* Printer)
 			for (int PageCopy = 0; PageCopy < PageCopies; PageCopy++)
 			{
 				if (Printer->printerState() == QPrinter::Aborted || Printer->printerState() == QPrinter::Error)
-				{
-					Model->SetTemporaryStep(PreviousTime);
-					View.EndRenderToImage();
-					Context->ClearResources();
 					return;
-				}
 
-				lcStep CurrentStep = 1 + ((Page - 1) * Rows * Columns);
-
-				for (int Row = 0; Row < Rows; Row++)
-				{
-					for (int Column = 0; Column < Columns; Column++)
-					{
-						if (CurrentStep > Model->GetLastStep())
-							break;
-
-						Model->SetTemporaryStep(CurrentStep);
-
-						View.OnDraw();
-
-						QRect rect = Painter.viewport();
-						int left = rect.x() + (StepWidth * Column);
-						int bottom = rect.y() + (StepHeight * Row);
-
-						Painter.drawImage(left, bottom, View.GetRenderImage());
-
-						// TODO: add print options somewhere but Qt doesn't allow changes to the page setup dialog
-//						DWORD dwPrint = theApp.GetProfileInt("Settings","Print", PRINT_NUMBERS|PRINT_BORDER);
-
-						QRect Rect = Painter.viewport();
-						int Left = Rect.x() + (StepWidth * Column);
-						int Right = Rect.x() + (StepWidth * (Column + 1));
-						int Top = Rect.y() + (StepHeight * Row);
-						int Bottom = Rect.y() + (StepHeight * (Row + 1));
-
-//						if (print text)
-						{
-							QFont Font("Helvetica", Printer->resolution());
-							Painter.setFont(Font);
-
-							QFontMetrics FontMetrics(Font);
-
-							int TextTop = Top + Printer->resolution() / 2 + FontMetrics.ascent();
-							int TextLeft = Left + Printer->resolution() / 2;
-
-							Painter.drawText(TextLeft, TextTop, QString::number(CurrentStep));
-						}
-
-//						if (print border)
-						{
-							QPen BlackPen(Qt::black, 2);
-							Painter.setPen(BlackPen);
-
-							if (Row == 0)
-								Painter.drawLine(Left, Top, Right, Top);
-							if (Column == 0)
-								Painter.drawLine(Left, Top, Left, Bottom);
-							Painter.drawLine(Left, Bottom, Right, Bottom);
-							Painter.drawLine(Right, Top, Right, Bottom);
-						}
-
-						CurrentStep++;
-					}
-				}
-
-				// TODO: print header and footer
-
-				if (PageCopy < PageCopies - 1)
+				if (!FirstPage)
 					Printer->newPage();
+				else
+					FirstPage = false;
+
+				int StepWidth = MarginRect.width();
+				int StepHeight = MarginRect.height();
+
+				lcModel* Model = PageLayouts[Page - 1].first;
+				lcStep Step = PageLayouts[Page - 1].second;
+				QImage Image = Model->GetStepImage(false, false, StepWidth, StepHeight, Step);
+
+				Painter.drawImage(MarginRect.left(), MarginRect.top(), Image);
+
+				// TODO: add print options somewhere but Qt doesn't allow changes to the page setup dialog
+//				DWORD dwPrint = theApp.GetProfileInt("Settings","Print", PRINT_NUMBERS|PRINT_BORDER);
+
+//				if (print text)
+				{
+					QFont Font("Helvetica", 96);
+					Painter.setFont(Font);
+
+					QFontMetrics FontMetrics(Font);
+
+					int TextMargin = Resolution / 2;
+					QRect TextRect = QRect(MarginRect.left() + TextMargin, MarginRect.top() + TextMargin, MarginRect.width() - TextMargin * 2, MarginRect.height() - TextMargin * 2);
+
+					Painter.drawText(TextRect, Qt::AlignTop | Qt::AlignLeft, QString::number(Step));
+				}
+/*
+//				if (print border)
+				{
+					QPen BlackPen(Qt::black, 2);
+					Painter.setPen(BlackPen);
+
+					Painter.drawLine(MarginRect.left(), MarginRect.top(), MarginRect.right(), MarginRect.top());
+					Painter.drawLine(MarginRect.left(), MarginRect.bottom(), MarginRect.right(), MarginRect.bottom());
+					Painter.drawLine(MarginRect.left(), MarginRect.top(), MarginRect.left(), MarginRect.bottom());
+					Painter.drawLine(MarginRect.right(), MarginRect.top(), MarginRect.right(), MarginRect.bottom());
+				}
+*/
+				// TODO: print header and footer
 			}
 
 			if (Page == ToPage)
@@ -1558,18 +1579,8 @@ void lcMainWindow::Print(QPrinter* Printer)
 				Page++;
 			else
 				Page--;
-
-			Printer->newPage();
 		}
-
-		if (DocCopy < DocCopies - 1)
-			Printer->newPage();
 	}
-
-	Model->SetTemporaryStep(PreviousTime);
-
-	View.EndRenderToImage();
-	Context->ClearResources();
 #endif
 }
 
@@ -1622,11 +1633,7 @@ void lcMainWindow::ShowRenderDialog()
 void lcMainWindow::ShowPrintDialog()
 {
 #ifndef QT_NO_PRINTER
-	lcModel* Model = lcGetActiveModel();
-	int Rows = lcGetProfileInt(LC_PROFILE_PRINT_ROWS);
-	int Columns = lcGetProfileInt(LC_PROFILE_PRINT_COLUMNS);
-	int StepsPerPage = Rows * Columns;
-	int PageCount = (Model->GetLastStep() + StepsPerPage - 1) / StepsPerPage;
+	int PageCount = static_cast<int>(lcGetActiveProject()->GetPageLayouts().size());
 
 	QPrinter Printer(QPrinter::HighResolution);
 	Printer.setFromTo(1, PageCount + 1);
@@ -1651,6 +1658,13 @@ void lcMainWindow::SetSelectionMode(lcSelectionMode SelectionMode)
 {
 	mSelectionMode = SelectionMode;
 	UpdateSelectionMode();
+}
+
+void lcMainWindow::ToggleViewSphere()
+{
+	lcGetPreferences().mViewSphereEnabled = !lcGetPreferences().mViewSphereEnabled;
+
+	UpdateAllViews();
 }
 
 QByteArray lcMainWindow::GetTabLayout()
@@ -1770,7 +1784,7 @@ void lcMainWindow::RestoreTabLayout(const QByteArray& TabLayout)
 				DataStream >> CameraType;
 
 				View* CurrentView = nullptr;
-
+				
 				if (ParentWidget)
 					CurrentView = (View*)((lcQGLWidget*)ParentWidget)->widget;
 
@@ -2274,11 +2288,7 @@ void lcMainWindow::TogglePrintPreview()
 #ifndef QT_NO_PRINTER
 	// todo: print preview inside main window
 
-	lcModel* Model = lcGetActiveModel();
-	int Rows = lcGetProfileInt(LC_PROFILE_PRINT_ROWS);
-	int Columns = lcGetProfileInt(LC_PROFILE_PRINT_COLUMNS);
-	int StepsPerPage = Rows * Columns;
-	int PageCount = (Model->GetLastStep() + StepsPerPage - 1) / StepsPerPage;
+	int PageCount = static_cast<int>(lcGetActiveProject()->GetPageLayouts().size());
 
 	QPrinter Printer(QPrinter::ScreenResolution);
 	Printer.setFromTo(1, PageCount + 1);
@@ -2432,7 +2442,6 @@ void lcMainWindow::UpdateSelectedObjects(bool SelectionChanged, int EmitSelectio
 
 	if (SelectionChanged)
 	{
-
 		mTimelineWidget->UpdateSelection();
 
 		mActions[LC_EDIT_CUT]->setEnabled(Flags & LC_SEL_SELECTED);
@@ -2809,13 +2818,27 @@ bool lcMainWindow::OpenProject(const QString& FileName)
 		lcSetProfileString(LC_PROFILE_PROJECTS_PATH, QFileInfo(LoadFileName).absolutePath());
 	}
 
+	return OpenProjectFile(LoadFileName);
+}
+
+void lcMainWindow::OpenRecentProject(int RecentFileIndex)
+{
+	if (!SaveProjectIfModified())
+		return;
+
+	if (!OpenProjectFile(mRecentFiles[RecentFileIndex]))
+		RemoveRecentFile(RecentFileIndex);
+}
+
+bool lcMainWindow::OpenProjectFile(const QString& FileName)
+{
 	Project* NewProject = new Project();
 
-	if (NewProject->Load(LoadFileName))
+	if (NewProject->Load(FileName))
 	{
 		gApplication->SetProject(NewProject);
 /*** LPub3D Mod - suppress menuBar ***/
-/***	        AddRecentFile(LoadFileName); ***/
+/***	        AddRecentFile(FileName); ***/
 /*** LPub3D Mod end ***/
 		UpdateAllViews();
 
@@ -2823,7 +2846,6 @@ bool lcMainWindow::OpenProject(const QString& FileName)
 	}
 
 	delete NewProject;
-
 	return false;
 }
 
@@ -3102,8 +3124,7 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 	case LC_FILE_RECENT2:
 	case LC_FILE_RECENT3:
 	case LC_FILE_RECENT4:
-		if (!OpenProject(mRecentFiles[CommandId - LC_FILE_RECENT1]))
-			RemoveRecentFile(CommandId - LC_FILE_RECENT1);
+		OpenRecentProject(CommandId - LC_FILE_RECENT1);
 		break;
 
 	case LC_FILE_EXIT:
@@ -3234,6 +3255,10 @@ void lcMainWindow::HandleCommand(lcCommandId CommandId)
 	case LC_VIEW_PROJECTION_ORTHO:
 		if (ActiveView)
 			ActiveView->SetProjection(true);
+		break;
+
+	case LC_VIEW_TOGGLE_VIEW_SPHERE:
+		ToggleViewSphere();
 		break;
 
 	case LC_PIECE_INSERT:

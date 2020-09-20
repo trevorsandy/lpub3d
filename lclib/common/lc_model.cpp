@@ -23,6 +23,9 @@
 #include "lc_qpropertiesdialog.h"
 #include "lc_qutils.h"
 #include "lc_lxf.h"
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+#include <QtConcurrent>
+#endif
 
 /*** LPub3D Mod - includes ***/
 #include "lpub.h"
@@ -674,6 +677,10 @@ void lcModel::LoadLDraw(QIODevice& Device, Project* Project)
 										lcVector4(IncludeMatrix[5], IncludeMatrix[8], IncludeMatrix[11], 0.0f), lcVector4(IncludeMatrix[0], IncludeMatrix[1], IncludeMatrix[2], 1.0f));
 
 			QString PartId = LineStream.readAll().trimmed();
+
+			if (PartId.isEmpty())
+				continue;
+
 			QByteArray CleanId = PartId.toLatin1().toUpper().replace('\\', '/');
 
 			if (Library->IsPrimitive(CleanId.constData()))
@@ -1273,13 +1280,18 @@ void lcModel::DuplicateSelectedPieces()
 	SaveCheckpoint(tr("Duplicating Pieces"));
 }
 
-void lcModel::GetScene(lcScene& Scene, lcCamera* ViewCamera, bool Highlight) const
+void lcModel::GetScene(lcScene& Scene, lcCamera* ViewCamera, bool AllowHighlight, bool AllowFade) const
 {
 	mPieceInfo->AddRenderMesh(Scene);
 
-	for (lcPiece* Piece : mPieces)
+	for (const lcPiece* Piece : mPieces)
+	{
 		if (Piece->IsVisible(mCurrentStep))
-			Piece->AddMainModelRenderMeshes(Scene, Highlight && Piece->GetStepShow() == mCurrentStep);
+		{
+			lcStep StepShow = Piece->GetStepShow();
+			Piece->AddMainModelRenderMeshes(Scene, AllowHighlight && StepShow == mCurrentStep, AllowFade && StepShow < mCurrentStep);
+		}
+	}
 
 	if (Scene.GetDrawInterface() && !Scene.GetActiveSubmodelInstance())
 	{
@@ -1378,7 +1390,7 @@ void lcModel::DrawBackground(lcGLWidget* Widget)
 	Context->SetDepthWrite(true);
 }
 
-void lcModel::SaveStepImages(const QString& BaseName, bool AddStepSuffix, bool Zoom, bool Highlight, int Width, int Height, lcStep Start, lcStep End)
+QImage lcModel::GetStepImage(bool Zoom, bool Highlight, int Width, int Height, lcStep Step)
 {
 	View* ActiveView = gMainWindow->GetActiveView();
 	ActiveView->MakeCurrent();
@@ -1386,7 +1398,7 @@ void lcModel::SaveStepImages(const QString& BaseName, bool AddStepSuffix, bool Z
 
 	lcStep CurrentStep = mCurrentStep;
 
-	lcCamera* Camera = gMainWindow->GetActiveView()->mCamera;
+	lcCamera* Camera = ActiveView->mCamera;
 	if (Zoom)
 		ZoomExtents(Camera, (float)Width / (float)Height);
 
@@ -1400,14 +1412,252 @@ void lcModel::SaveStepImages(const QString& BaseName, bool AddStepSuffix, bool Z
 /*** LPub3D Mod - set 3DViewer label ***/
 		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Error creating images."));
 /*** LPub3D Mod end ***/
-		return;
+		return QImage();
 	}
 
+	SetTemporaryStep(Step);
+	View.OnDraw();
+
+	QImage Image = View.GetRenderImage();
+
+	View.EndRenderToImage();
+	Context->ClearResources();
+
+	SetTemporaryStep(CurrentStep);
+
+	if (!mActive)
+		CalculateStep(LC_STEP_MAX);
+
+	return Image;
+}
+
+QImage lcModel::GetPartsListImage(int MaxWidth, lcStep Step) const
+{
+	lcPartsList PartsList;
+
+	if (Step == 0)
+		GetPartsList(gDefaultColor, true, false, PartsList);
+	else
+		GetPartsListForStep(Step, gDefaultColor, PartsList);
+
+	if (PartsList.empty())
+		return QImage();
+
+	struct lcPartsListImage
+	{
+		QImage Thumbnail;
+		const PieceInfo* Info;
+		int ColorIndex;
+		int Count;
+		QRect Bounds;
+		QPoint Position;
+	};
+
+	std::vector<lcPartsListImage> Images;
+
+	for (const auto& PartIt : PartsList)
+	{
+		for (const auto& ColorIt : PartIt.second)
+		{
+			Images.push_back(lcPartsListImage());
+			lcPartsListImage& Image = Images.back();
+			Image.Info = PartIt.first;
+			Image.ColorIndex = ColorIt.first;
+			Image.Count = ColorIt.second;
+		}
+	}
+
+	auto ImageCompare = [](const lcPartsListImage& Image1, const lcPartsListImage& Image2)
+	{
+		if (Image1.ColorIndex != Image2.ColorIndex)
+			return Image1.ColorIndex < Image2.ColorIndex;
+
+		return strcmp(Image1.Info->m_strDescription, Image2.Info->m_strDescription) < 0;
+	};
+
+	std::sort(Images.begin(), Images.end(), ImageCompare);
+
+	View* View = gMainWindow->GetActiveView();
+	View->MakeCurrent();
+	lcContext* Context = View->mContext;
+	const int ThumbnailSize = qMin(MaxWidth, 512);
+
+	std::pair<lcFramebuffer, lcFramebuffer> RenderFramebuffer = Context->CreateRenderFramebuffer(ThumbnailSize, ThumbnailSize);
+
+	if (!RenderFramebuffer.first.IsValid())
+	{
+/*** LPub3D Mod - set 3DViewer label ***/		
+		QMessageBox::warning(gMainWindow, tr("3DViewer"), tr("Error creating images."));
+/*** LPub3D Mod end ***/		
+		return QImage();
+	}
+
+	Context->BindFramebuffer(RenderFramebuffer.first);
+
+	float OrthoSize = 200.0f;
+
+	lcMatrix44 ProjectionMatrix = lcMatrix44Ortho(-OrthoSize, OrthoSize, -OrthoSize, OrthoSize, -5000.0f, 5000.0f);
+	lcMatrix44 ViewMatrix = lcMatrix44LookAt(lcVector3(-100.0f, -100.0f, 75.0f), lcVector3(0.0f, 0.0f, 0.0f), lcVector3(0.0f, 0.0f, 1.0f));
+	const int Viewport[4] = { 0, 0, ThumbnailSize, ThumbnailSize };
+
+	float ExtraPixels = 0.0f;
+
+	for (lcPartsListImage& Image : Images)
+	{
+		const PieceInfo* Info = Image.Info;
+		const lcBoundingBox& BoundingBox = Info->GetBoundingBox();
+
+		lcVector3 Center = (BoundingBox.Min + BoundingBox.Max) / 2.0f;
+
+		lcVector3 Points[8];
+		lcGetBoxCorners(BoundingBox.Min, BoundingBox.Max, Points);
+
+		for (lcVector3& Point : Points)
+		{
+			Point = lcProjectPoint(Point, ViewMatrix, ProjectionMatrix, Viewport);
+
+			ExtraPixels = qMax(ExtraPixels, -Point.x);
+			ExtraPixels = qMax(ExtraPixels, Point.x - ThumbnailSize);
+			ExtraPixels = qMax(ExtraPixels, -Point.y);
+			ExtraPixels = qMax(ExtraPixels, Point.y - ThumbnailSize);
+		}
+	}
+
+	if (ExtraPixels)
+	{
+		OrthoSize += ExtraPixels * (2.0f * OrthoSize / ThumbnailSize);
+		ProjectionMatrix = lcMatrix44Ortho(-OrthoSize, OrthoSize, -OrthoSize, OrthoSize, -5000.0f, 5000.0f);
+	}
+
+	Context->SetViewport(0, 0, ThumbnailSize, ThumbnailSize);
+	Context->SetDefaultState();
+	Context->SetProjectionMatrix(ProjectionMatrix);
+
+	for (lcPartsListImage& Image : Images)
+	{
+		glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		lcScene Scene;
+		Scene.SetAllowWireframe(false);
+		Scene.SetAllowLOD(false);
+		Scene.Begin(ViewMatrix);
+
+		Image.Info->AddRenderMeshes(Scene, lcMatrix44Identity(), Image.ColorIndex, lcRenderMeshState::Default, true);
+
+		Scene.End();
+
+		Scene.Draw(Context);
+
+		Image.Thumbnail = Context->GetRenderFramebufferImage(RenderFramebuffer);
+	}
+
+	Context->ClearFramebuffer();
+	Context->DestroyRenderFramebuffer(RenderFramebuffer);
+	Context->ClearResources();
+
+	auto CalculateImageBounds = [](lcPartsListImage& Image)
+	{
+		QImage& Thumbnail = Image.Thumbnail;
+		int Width = Thumbnail.width();
+		int Height = Thumbnail.height();
+
+		int MinX = Width;
+		int MinY = Height;
+		int MaxX = 0;
+		int MaxY = 0;
+
+		for (int x = 0; x < Width; x++)
+		{
+			for (int y = 0; y < Height; y++)
+			{
+				if (qAlpha(Thumbnail.pixel(x, y)))
+				{
+					MinX = qMin(x, MinX);
+					MinY = qMin(y, MinY);
+					MaxX = qMax(x, MaxX);
+					MaxY = qMax(y, MaxY);
+				}
+			}
+		}
+
+		Image.Bounds = QRect(QPoint(MinX, MinY), QPoint(MaxX, MaxY));
+	};
+
+	QtConcurrent::blockingMap(Images, CalculateImageBounds);
+
+	QImage DummyImage(16, 16, QImage::Format_ARGB32);
+	QPainter DummyPainter(&DummyImage);
+
+	QFont Font("helvetica", 20, QFont::Bold);
+	DummyPainter.setFont(Font);
+	QFontMetrics FontMetrics = DummyPainter.fontMetrics();
+	int Ascent = FontMetrics.ascent();
+
+	int CurrentHeight = 0;
+	int ImageWidth = MaxWidth;
+
+	for (lcPartsListImage& Image : Images)
+		CurrentHeight = qMax(Image.Bounds.height() + Ascent, CurrentHeight);
+
+	for (;;)
+	{
+		int CurrentWidth = 0;
+		int CurrentX = 0;
+		int CurrentY = 0;
+		int ColumnWidth = 0;
+		int Spacing = 20;
+		int NextHeightIncrease = INT_MAX;
+
+		for (lcPartsListImage& Image : Images)
+		{
+			if (CurrentY + Image.Bounds.height() + Ascent > CurrentHeight)
+			{
+				int NeededSpace = Image.Bounds.height() + Ascent - (CurrentHeight - CurrentY);
+				NextHeightIncrease = qMin(NeededSpace, NextHeightIncrease);
+
+				CurrentY = 0;
+				CurrentX += ColumnWidth + Spacing;
+				ColumnWidth = 0;
+			}
+
+			Image.Position = QPoint(CurrentX, CurrentY);
+			CurrentY += Image.Bounds.height() + Ascent + Spacing;
+			CurrentWidth = qMax(CurrentWidth, CurrentX + Image.Bounds.width());
+			ColumnWidth = qMax(ColumnWidth, Image.Bounds.width());
+		}
+
+		if (CurrentWidth < MaxWidth)
+		{
+			ImageWidth = CurrentWidth;
+			break;
+		}
+
+		CurrentHeight += NextHeightIncrease;
+	}
+
+	QImage PainterImage(ImageWidth + 40, CurrentHeight + 40, QImage::Format_ARGB32);
+	PainterImage.fill(QColor(255, 255, 255, 0));
+
+	QPainter Painter(&PainterImage);
+	Painter.setFont(Font);
+
+	for (lcPartsListImage& Image : Images)
+	{
+		QPoint Position = Image.Position + QPoint(20, 20);
+		Painter.drawImage(Position, Image.Thumbnail, Image.Bounds);
+		Painter.drawText(QPoint(Position.x(), Position.y() + Image.Bounds.height() + Ascent), QString::number(Image.Count) + 'x');
+	}
+
+	Painter.end();
+
+	return PainterImage;
+}
+
+void lcModel::SaveStepImages(const QString& BaseName, bool AddStepSuffix, bool Zoom, bool Highlight, int Width, int Height, lcStep Start, lcStep End)
+{
 	for (lcStep Step = Start; Step <= End; Step++)
 	{
-		SetTemporaryStep(Step);
-		View.OnDraw();
-
 		QString FileName;
 
 		if (AddStepSuffix)
@@ -1420,20 +1670,55 @@ void lcModel::SaveStepImages(const QString& BaseName, bool AddStepSuffix, bool Z
 		if (Writer.format().isEmpty())
 			Writer.setFormat("png");
 
-		if (!Writer.write(View.GetRenderImage()))
+		QImage Image = GetStepImage(Zoom, Highlight, Width, Height, Step);
+		if (!Writer.write(Image))
 		{
 			QMessageBox::information(gMainWindow, tr("Error"), tr("Error writing to file '%1':\n%2").arg(FileName, Writer.errorString()));
 			break;
 		}
 	}
+}
 
-	View.EndRenderToImage();
-	Context->ClearResources();
+std::vector<std::pair<lcModel*, lcStep>> lcModel::GetPageLayouts(std::vector<const lcModel*>& AddedModels)
+{
+	std::vector<std::pair<lcModel*, lcStep>> PageLayouts;
 
-	SetTemporaryStep(CurrentStep);
+	if (std::find(AddedModels.begin(), AddedModels.end(), this) != AddedModels.end())
+		return PageLayouts;
 
-	if (!mActive)
-		CalculateStep(LC_STEP_MAX);
+	AddedModels.push_back(this);
+
+	std::map<lcStep, std::vector<lcPiece*>> StepPieces;
+
+	for (lcPiece* Piece : mPieces)
+		if (!Piece->IsHidden())
+			StepPieces[Piece->GetStepShow()].push_back(Piece);
+
+	lcStep CurrentStep = 1;
+
+	for (const std::pair<lcStep, std::vector<lcPiece*>>& StepIt : StepPieces)
+	{
+		while (StepIt.first > CurrentStep)
+		{
+			PageLayouts.emplace_back(std::make_pair(this, CurrentStep));
+			CurrentStep++;
+		}
+
+		for (lcPiece* Piece : StepIt.second)
+		{
+			if (Piece->mPieceInfo->IsModel())
+			{
+				lcModel* SubModel = Piece->mPieceInfo->GetModel();
+				std::vector<std::pair<lcModel*, lcStep>> SubModelLayouts = SubModel->GetPageLayouts(AddedModels);
+				PageLayouts.insert(PageLayouts.end(), std::make_move_iterator(SubModelLayouts.begin()), std::make_move_iterator(SubModelLayouts.end()));
+			}
+		}
+
+		PageLayouts.emplace_back(std::make_pair(this, CurrentStep));
+		CurrentStep++;
+	}
+
+	return PageLayouts;
 }
 
 void lcModel::UpdateBackgroundTexture()
@@ -3033,14 +3318,14 @@ lcModel* lcModel::GetFirstSelectedSubmodel() const
 	return nullptr;
 }
 
-void lcModel::GetSubModels(lcArray<lcModel*> SubModels) const
+void lcModel::GetSubModels(lcArray<lcModel*>& SubModels) const
 {
 	for (lcPiece* Piece : mPieces)
 	{
 		if (Piece->mPieceInfo->IsModel())
 		{
 			lcModel* SubModel = Piece->mPieceInfo->GetModel();
-			if (SubModels.FindIndex(SubModel) != -1)
+			if (SubModels.FindIndex(SubModel) == -1)
 				SubModels.Add(SubModel);
 		}
 	}
@@ -3259,7 +3544,7 @@ bool lcModel::GetPiecesBoundingBox(lcVector3& Min, lcVector3& Max) const
 	return Valid;
 }
 
-void lcModel::GetPartsList(int DefaultColorIndex, bool IncludeSubmodels, lcPartsList& PartsList) const
+void lcModel::GetPartsList(int DefaultColorIndex, bool ScanSubModels, bool AddSubModels, lcPartsList& PartsList) const
 {
 	for (lcPiece* Piece : mPieces)
 	{
@@ -3271,7 +3556,7 @@ void lcModel::GetPartsList(int DefaultColorIndex, bool IncludeSubmodels, lcParts
 		if (ColorIndex == gDefaultColor)
 			ColorIndex = DefaultColorIndex;
 
-		Piece->mPieceInfo->GetPartsList(ColorIndex, IncludeSubmodels, PartsList);
+		Piece->mPieceInfo->GetPartsList(ColorIndex, ScanSubModels, AddSubModels, PartsList);
 	}
 }
 
@@ -3287,7 +3572,7 @@ void lcModel::GetPartsListForStep(lcStep Step, int DefaultColorIndex, lcPartsLis
 		if (ColorIndex == gDefaultColor)
 			ColorIndex = DefaultColorIndex;
 
-		Piece->mPieceInfo->GetPartsList(ColorIndex, true, PartsList);
+		Piece->mPieceInfo->GetPartsList(ColorIndex, false, true, PartsList);
 	}
 }
 
@@ -4213,7 +4498,7 @@ void lcModel::ShowPropertiesDialog()
 	Options.Properties = mProperties;
 	Options.SetDefault = false;
 
-	GetPartsList(gDefaultColor, true, Options.PartsList);
+	GetPartsList(gDefaultColor, true, false, Options.PartsList);
 
 	lcQPropertiesDialog Dialog(gMainWindow, &Options);
 	if (Dialog.exec() != QDialog::Accepted)

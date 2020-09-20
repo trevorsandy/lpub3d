@@ -155,7 +155,7 @@ void lcPartSelectionListModel::SetCategory(int CategoryIndex)
 	mParts.resize(SingleParts.GetSize());
 
 	for (int PartIdx = 0; PartIdx < SingleParts.GetSize(); PartIdx++)
-		mParts[PartIdx] = QPair<PieceInfo*, QPixmap>(SingleParts[PartIdx], QPixmap());
+		mParts[PartIdx] = std::pair<PieceInfo*, QPixmap>(SingleParts[PartIdx], QPixmap());
 
 	endResetModel();
 
@@ -178,8 +178,15 @@ void lcPartSelectionListModel::SetModelsCategory()
 		lcModel* Model = Models[ModelIdx];
 
 		if (!Model->IncludesModel(ActiveModel))
-			mParts.emplace_back(QPair<PieceInfo*, QPixmap>(Model->GetPieceInfo(), QPixmap()));
+			mParts.emplace_back(std::pair<PieceInfo*, QPixmap>(Model->GetPieceInfo(), QPixmap()));
 	}
+
+	auto lcPartSortFunc = [](const std::pair<PieceInfo*, QPixmap>& a, const std::pair<PieceInfo*, QPixmap>& b)
+	{
+		return strcmp(a.first->m_strDescription, b.first->m_strDescription) < 0;
+	};
+
+	std::sort(mParts.begin(), mParts.end(), lcPartSortFunc);
 
 	endResetModel();
 
@@ -208,7 +215,7 @@ void lcPartSelectionListModel::SetPaletteCategory(int SetIndex)
 	mParts.reserve(PartsList.size());
 
 	for (PieceInfo* Favorite : PartsList)
-		mParts.emplace_back(QPair<PieceInfo*, QPixmap>(Favorite, QPixmap()));
+		mParts.emplace_back(std::pair<PieceInfo*, QPixmap>(Favorite, QPixmap()));
 
 	endResetModel();
 
@@ -225,10 +232,17 @@ void lcPartSelectionListModel::SetCurrentModelCategory()
 
 	lcModel* ActiveModel = gMainWindow->GetActiveModel();
 	lcPartsList PartsList;
-	ActiveModel->GetPartsList(gDefaultColor, true, PartsList);
+	ActiveModel->GetPartsList(gDefaultColor, false, true, PartsList);
 
 	for (const auto& PartIt : PartsList)
-		mParts.emplace_back(QPair<PieceInfo*, QPixmap>((PieceInfo*)PartIt.first, QPixmap()));
+		mParts.emplace_back(std::pair<PieceInfo*, QPixmap>((PieceInfo*)PartIt.first, QPixmap()));
+
+	auto lcPartSortFunc = [](const std::pair<PieceInfo*, QPixmap>& a, const std::pair<PieceInfo*, QPixmap>& b)
+	{
+		return strcmp(a.first->m_strDescription, b.first->m_strDescription) < 0;
+	};
+
+	std::sort(mParts.begin(), mParts.end(), lcPartSortFunc);
 
 	endResetModel();
 
@@ -410,7 +424,7 @@ void lcPartSelectionListModel::DrawPreview(int InfoIndex)
 	Scene.SetAllowLOD(false);
 	Scene.Begin(ViewMatrix);
 
-	Info->AddRenderMeshes(Scene, lcMatrix44Identity(), mColorIndex, lcRenderMeshState::NORMAL, false);
+	Info->AddRenderMeshes(Scene, lcMatrix44Identity(), mColorIndex, lcRenderMeshState::Default, false);
 
 	Scene.End();
 
@@ -560,7 +574,9 @@ void lcPartSelectionListView::SetCategory(lcPartCategoryType Type, int Index)
 	case lcPartCategoryType::Category:
 		mListModel->SetCategory(Index);
 		break;
-	}
+    case lcPartCategoryType::Count:
+        break;
+    }
 
 	setCurrentIndex(mListModel->index(0, 0));
 }
@@ -1084,13 +1100,13 @@ void lcPartSelectionWidget::UpdateCategories()
 	CurrentModelCategoryItem->setData(0, static_cast<int>(lcPartCategoryRole::Type), static_cast<int>(lcPartCategoryType::PartsInUse));
 
 	if (CurrentType == lcPartCategoryType::PartsInUse && CurrentIndex == 0)
-		CurrentItem = AllPartsCategoryItem;
+		CurrentItem = CurrentModelCategoryItem;
 
 	QTreeWidgetItem* SubmodelsCategoryItem = new QTreeWidgetItem(mCategoriesWidget, QStringList(tr("Submodels")));
 	SubmodelsCategoryItem->setData(0, static_cast<int>(lcPartCategoryRole::Type), static_cast<int>(lcPartCategoryType::Submodels));
 
 	if (CurrentType == lcPartCategoryType::Submodels && CurrentIndex == 0)
-		CurrentItem = AllPartsCategoryItem;
+		CurrentItem = SubmodelsCategoryItem;
 
 	for (int PaletteIdx = 0; PaletteIdx < static_cast<int>(mPartPalettes.size()); PaletteIdx++)
 	{
@@ -1103,7 +1119,7 @@ void lcPartSelectionWidget::UpdateCategories()
 			CurrentItem = PaletteCategoryItem;
 	}
 
-	for (int CategoryIdx = 0; CategoryIdx < gCategories.GetSize(); CategoryIdx++)
+	for (int CategoryIdx = 0; CategoryIdx < static_cast<int>(gCategories.size()); CategoryIdx++)
 	{
 		QTreeWidgetItem* CategoryItem = new QTreeWidgetItem(mCategoriesWidget, QStringList(gCategories[CategoryIdx].Name));
 		CategoryItem->setData(0, static_cast<int>(lcPartCategoryRole::Type), static_cast<int>(lcPartCategoryType::Category));

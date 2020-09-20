@@ -484,8 +484,6 @@ void Application::initialize()
                 fprintf(stdout, "  -obj, --export-wavefront <outfile.obj>: Export the model to Wavefront OBJ format.\n");
                 fprintf(stdout, "  --camera-angles <latitude> <longitude>: Set the camera angles in degrees around the model.\n");
                 fprintf(stdout, "  --highlight: Highlight parts in the steps they appear.\n");
-                fprintf(stdout, "  --html-parts-height <height>: Set the HTML part pictures height.\n");
-                fprintf(stdout, "  --html-parts-width <width>: Set the HTML part pictures width.\n");
                 fprintf(stdout, "  --line-width <width>: Set the with of the edge lines.\n");
                 fprintf(stdout, "  --orthographic: Make the view orthographic.\n");
                 fprintf(stdout, "  --shading <wireframe|flat|default|full>: Select shading mode for rendering.\n");
