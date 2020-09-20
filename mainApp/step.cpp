@@ -2116,23 +2116,27 @@ void Step::addGraphicsItems(
                                   parent);
       }
       // here we are using the placement values for this specific step in the step group
-      ri->placement    = rotateIcon.placement;
-
-      qreal adjOffsetX = qreal(offsetX + ri->placement.value().offsets[XX]);
-      qreal adjOffsetY = qreal(offsetY + ri->placement.value().offsets[YY]);
-
-      ri->setPos(adjOffsetX + rotateIcon.loc[XX],
-                 adjOffsetY + rotateIcon.loc[YY]);
-
-      if (adjOffsetX != 0.0 || adjOffsetY != 0.0) {
-          ri->relativeToSize[0] = rotateIcon.relativeToSize[0];
-          ri->relativeToSize[1] = rotateIcon.relativeToSize[1];
-      } else {
-          ri->assign(&rotateIcon);
-          ri->boundingSize[XX] = rotateIcon.size[XX];
-          ri->boundingSize[YY] = rotateIcon.size[YY];
+      rotateIcon.sizeit();
+      switch (rotateIcon.placement.value().relativeTo) {
+      case CsiType:
+          csiPlacement.placeRelative(&rotateIcon);
+          break;
+      case PartsListType:
+          pli.placeRelative(&rotateIcon);
+          break;
+      case SubModelType:
+          subModel.placeRelative(&rotateIcon);
+          break;
+      case StepNumberType:
+          stepNumber.placeRelative(&rotateIcon);
+          break;
+      case RotateIconType:
+      default:
+          break;
       }
-
+      ri->assign(&rotateIcon);
+      ri->setPos(offsetX + ri->loc[XX],
+                 offsetY + ri->loc[YY]);
       ri->setFlag(QGraphicsItem::ItemIsMovable,/*movable*/true);
     }
 

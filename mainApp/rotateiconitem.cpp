@@ -629,7 +629,7 @@ void RotateIconItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
             QPointF newPosition;
             newPosition = pos() - position;
 
-            if (newPosition.x() || newPosition.y()) {
+            if (newPosition.x() != 0.0 || newPosition.y() != 0.0) {
                 positionChanged = true;
 
                 PlacementData placementData = placement.value();
