@@ -266,19 +266,25 @@ void Pli::setParts(
 
   // setup 3DViewer entry
   switch (parentRelativeType) {
-  case StepGroupType:
-      top    = topOfSteps();
-      bottom = bottomOfSteps();
-      multistep = true;
-      break;
   case CalloutType:
-      top    = topOfCallout();
-      bottom = bottomOfCallout();
+      top     = topOfCallout();
+      bottom  = bottomOfCallout();
       callout = true;
       break;
   default:
-      top    = topOfStep();
-      bottom = bottomOfStep();
+      if (step) {
+          if (bom) {
+              top    = topOfSteps();
+              bottom = bottomOfSteps();
+          } else {
+              top    = topOfStep();
+              bottom = bottomOfStep();
+          }
+      } else {
+          top    = topOfSteps();
+          bottom = bottomOfSteps();
+      }
+      multistep = parentRelativeType == StepGroupType;
       break;
   }
 
@@ -3225,29 +3231,8 @@ void PliBackgroundItem::contextMenuEvent(
             return;
         }
 
-        Where top;
-        Where bottom;
-
-        switch (parentRelativeType) {
-        case CalloutType:
-            top    = pli->topOfCallout();
-            bottom = pli->bottomOfCallout();
-            break;
-        default:
-            if (pli->step) {
-                if (pli->bom) {
-                    top = pli->topOfSteps();
-                    bottom = pli->bottomOfSteps();
-                } else {
-                    top = pli->topOfStep();
-                    bottom = pli->bottomOfStep();
-                }
-            } else {
-                top = pli->topOfSteps();
-                bottom = pli->bottomOfSteps();
-            }
-            break;
-        }
+        Where top = pli->top;
+        Where bottom = pli->bottom;
 
         QString me = pli->bom ? "BOM" : "PLI";
         if (selectedAction == sortAction) {
@@ -3464,18 +3449,8 @@ void AnnotateTextItem::contextMenuEvent(
       return;
     }
   
-  Where top;
-  Where bottom;
-  switch (parentRelativeType) {
-    case CalloutType:
-      top    = pli->topOfCallout();
-      bottom = pli->bottomOfCallout();
-      break;
-    default:
-      top    = pli->topOfStep();
-      bottom = pli->bottomOfStep();
-      break;
-    }
+  Where top = pli->top;
+  Where bottom = pli->bottom;
 
   if (selectedAction == fontAction) {
       changeFont(top,
@@ -3530,19 +3505,8 @@ void InstanceTextItem::contextMenuEvent(
       return;
     }
   
-  Where top;
-  Where bottom;
-  
-  switch (parentRelativeType) {
-    case CalloutType:
-      top    = pli->topOfCallout();
-      bottom = pli->bottomOfCallout();
-      break;
-    default:
-      top    = pli->topOfStep();
-      bottom = pli->bottomOfStep();
-      break;
-    }
+  Where top = pli->top;
+  Where bottom = pli->bottom;
 
   if (selectedAction == fontAction) {
       changeFont(top,bottom,&pli->pliMeta.instance.font,1,false);
@@ -3650,24 +3614,14 @@ void PGraphicsPixmapItem::contextMenuEvent(
 //  QAction *scaleAction         = commonMenus.scaleMenu(menu, pl);
 //  QAction *cameraFoVAction     = commonMenus.cameraFoVMenu(menu,pl);
 
-  Where top;
-  Where bottom;
-  switch (parentRelativeType) {
-    case CalloutType:
-      top    = pli->topOfCallout();
-      bottom = pli->bottomOfCallout();
-      break;
-    default:
-      top    = pli->topOfStep();
-      bottom = pli->bottomOfStep();
-      break;
-    }
-
   QAction *selectedAction   = menu.exec(event->screenPos());
 
   if (selectedAction == nullptr) {
       return;
     }
+
+  Where top = pli->top;
+  Where bottom = pli->bottom;
 
   if (selectedAction == marginAction) {
 
