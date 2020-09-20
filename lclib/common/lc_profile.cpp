@@ -153,7 +153,10 @@ static lcProfileEntry gProfileEntries[LC_NUM_PROFILE_KEYS] =
 	lcProfileEntry("Settings", "ViewPieceIcons", 0),                                           // LC_PROFILE_VIEW_PIECE_ICONS                          /*** LPub3D Mod - View piece icons ***/
 /*** LPub3D Mod end ***/
 /*** LPub3D Mod - Viewpoint zoom extent ***/
-	lcProfileEntry("Settings", "ViewpointZoomExtent", 1)                                       // LC_PROFILE_VIEWPOINT_ZOOM_EXTENT                      /*** LPub3D Mod - View point zoom extent ***/
+	lcProfileEntry("Settings", "ViewpointZoomExtent", 1),                                      // LC_PROFILE_VIEWPOINT_ZOOM_EXTENT                     /*** LPub3D Mod - View point zoom extent ***/
+/*** LPub3D Mod end ***/
+/*** LPub3D Mod - true fade ***/
+	lcProfileEntry("Settings", "ConditionalLines", 0)                                          // LC_PROFILE_CONDITIONAL_LINES                          /*** LPub3D Mod - true fade ***/
 /*** LPub3D Mod end ***/
 };
 

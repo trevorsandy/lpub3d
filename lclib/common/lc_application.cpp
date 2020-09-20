@@ -63,6 +63,9 @@ void lcPreferences::LoadDefaults()
 	mViewPieceIcons = lcGetProfileInt(LC_PROFILE_VIEW_PIECE_ICONS);
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - true fade ***/
+	mConditionalLines = lcGetProfileInt(LC_PROFILE_CONDITIONAL_LINES);
+/*** LPub3D Mod end ***/
 }
 
 void lcPreferences::SaveDefaults()
@@ -104,6 +107,10 @@ void lcPreferences::SaveDefaults()
 
 /*** LPub3D Mod - Timeline part icons ***/
 	lcSetProfileInt(LC_PROFILE_VIEW_PIECE_ICONS, mViewPieceIcons);
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - true fade ***/
+	lcSetProfileInt(LC_PROFILE_CONDITIONAL_LINES, mConditionalLines);
 /*** LPub3D Mod end ***/
 }
 
@@ -765,6 +772,10 @@ void lcApplication::ShowPreferencesDialog()
 	Options.Preferences.mViewPieceIcons = lcGetProfileInt(LC_PROFILE_VIEW_PIECE_ICONS);
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - true fade ***/
+	Options.Preferences.mConditionalLines = lcGetProfileInt(LC_PROFILE_CONDITIONAL_LINES);
+/*** LPub3D Mod end ***/
+
 	lcQPreferencesDialog Dialog(gMainWindow, &Options);
 	if (Dialog.exec() != QDialog::Accepted)
 		return;
@@ -801,6 +812,10 @@ void lcApplication::ShowPreferencesDialog()
 	bool ViewPieceIconsChangd = Options.Preferences.mViewPieceIcons != mViewPieceIcons;
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - true fade ***/
+	bool DrawConditionalChanged = Options.Preferences.mConditionalLines != bool(lcGetProfileInt(LC_PROFILE_CONDITIONAL_LINES));
+/*** LPub3D Mod end ***/
+
 	mPreferences = Options.Preferences;
 
 	mPreferences.SaveDefaults();
@@ -830,7 +845,8 @@ void lcApplication::ShowPreferencesDialog()
 
 	if (LanguageChanged || LibraryChanged || ColorsChanged || AAChanged) {
 		QString thisChange = LibraryChanged ? "Library" :
-											  ColorsChanged ? "Colors" : "Anti Aliasing";
+							 ColorsChanged  ? "Colors" :
+											  "Anti-aliasing";
 		box.setText (QString("You must close and restart %1 to enable %2 change.")
 					 .arg(QString::fromLatin1(VER_PRODUCTNAME_STR))
 					 .arg(thisChange));
@@ -841,16 +857,16 @@ void lcApplication::ShowPreferencesDialog()
 		}
 	}
 
-	if (ViewPieceIconsChangd && !restartApp && !redrawPage)
+	if ((ViewPieceIconsChangd || DrawConditionalChanged) && !restartApp && !redrawPage)
 		reloadPage = true;
 
 	if (Preferences::usingNativeRenderer && !restartApp)
 	{
-		if (shadingModeChanged ||
-				drawEdgeLinesChanged ||
-				lineWidthChanged ||
-				NativeViewpointChanged ||
-				NativeProjectionChanged)
+		if (shadingModeChanged     ||
+			drawEdgeLinesChanged   ||
+			lineWidthChanged       ||
+			NativeViewpointChanged ||
+			NativeProjectionChanged)
 		{
 			redrawPage = true;
 
@@ -897,8 +913,8 @@ void lcApplication::ShowPreferencesDialog()
 							 .arg(newShadingMode);
 			if (lineWidthChanged)
 				logInfo() << QString("Edge line width changed from %1 to %2.")
-							 .arg(lcGetProfileFloat(LC_PROFILE_LINE_WIDTH))
-							 .arg(Options.Preferences.mLineWidth);
+							 .arg(double(lcGetProfileFloat(LC_PROFILE_LINE_WIDTH)))
+							 .arg(double(Options.Preferences.mLineWidth));
 			if (drawEdgeLinesChanged)
 				logInfo() << QString("Draw edge lines is %1.").arg(Options.Preferences.mDrawEdgeLines ? "ON" : "OFF");
 

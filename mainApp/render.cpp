@@ -3200,9 +3200,6 @@ bool Render::NativeExport(const NativeOptions *Options) {
             gui->showExportedFile();
         }
 
-        // reset fade steps to false
-        gApplication->mPreferences.mFadeSteps = false;
-
         return rc;
     }
 /*

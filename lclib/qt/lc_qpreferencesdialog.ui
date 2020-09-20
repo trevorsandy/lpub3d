@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>540</width>
-    <height>472</height>
+    <width>547</width>
+    <height>498</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -431,191 +431,6 @@
          </layout>
         </widget>
        </item>
-       <item row="0" column="0" colspan="2">
-        <widget class="QWidget" name="widget" native="true">
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="antiAliasing">
-            <property name="toolTip">
-             <string>Enable anti-aliasing</string>
-            </property>
-            <property name="text">
-             <string>Anti-aliasing:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLineEdit" name="lineWidth">
-            <property name="maximumSize">
-             <size>
-              <width>75</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>Set edge lines width in pixels</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QCheckBox" name="edgeLines">
-            <property name="toolTip">
-             <string>Enable edge lines</string>
-            </property>
-            <property name="text">
-             <string>Edge Lines:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="3">
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="1" column="4">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>Shading Mode:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QComboBox" name="antiAliasingSamples">
-            <property name="toolTip">
-             <string>Set LEGO stud logo exponent</string>
-            </property>
-            <item>
-             <property name="text">
-              <string>2x</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>4x</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>8x</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="1" column="5">
-           <widget class="QComboBox" name="ShadingMode">
-            <property name="toolTip">
-             <string>Select shading mode</string>
-            </property>
-            <item>
-             <property name="text">
-              <string>Wireframe</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Flat Shading</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Default Lights</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="3" column="2">
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>width</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QCheckBox" name="studLogo">
-            <property name="toolTip">
-             <string>Enable LEGO stud logo</string>
-            </property>
-            <property name="text">
-             <string>Stud Logo:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QComboBox" name="studLogoCombo">
-            <property name="toolTip">
-             <string>Select LEGO stud logo version</string>
-            </property>
-            <item>
-             <property name="text">
-              <string>Logo1</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Logo2</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Logo3</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Logo4</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Logo5</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="2" column="4">
-           <widget class="QCheckBox" name="axisIcon">
-            <property name="toolTip">
-             <string>Enable show axis icon</string>
-            </property>
-            <property name="text">
-             <string>Axis Icon</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="5">
-           <widget class="QCheckBox" name="MeshLOD">
-            <property name="toolTip">
-             <string>Enable switching from high to low level of detail during zoom</string>
-            </property>
-            <property name="statusTip">
-             <string>Enable mesh level of detail</string>
-            </property>
-            <property name="text">
-             <string>Mesh LOD</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="4" colspan="2">
-           <widget class="QCheckBox" name="FadeSteps">
-            <property name="toolTip">
-             <string>Enable fade previous step when in HTML export</string>
-            </property>
-            <property name="text">
-             <string>HTML Export Fade Previous Steps</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
        <item row="8" column="0" colspan="2">
         <widget class="QGroupBox" name="groupBox_7">
          <property name="title">
@@ -736,7 +551,7 @@
           <item row="4" column="4">
            <widget class="QDoubleSpinBox" name="cameraDefaultDistanceFactor">
             <property name="toolTip">
-             <string>Set default camera distance factor (automatically multiplied by -1)</string>
+             <string>Set value higher to increase the default rendered image size (automatically multiplied by -1)</string>
             </property>
            </widget>
           </item>
@@ -798,6 +613,201 @@
              <string>...</string>
             </property>
            </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="0" colspan="2">
+        <widget class="QWidget" name="widget" native="true">
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Shading Mode:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QComboBox" name="ShadingMode">
+            <property name="toolTip">
+             <string>Select shading mode</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>Wireframe</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Flat Shading</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Default Lights</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="5">
+           <widget class="QCheckBox" name="MeshLOD">
+            <property name="toolTip">
+             <string>Enable switching from high to low level of detail during zoom</string>
+            </property>
+            <property name="statusTip">
+             <string>Enable mesh level of detail</string>
+            </property>
+            <property name="text">
+             <string>Mesh LOD</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="4">
+           <widget class="QCheckBox" name="ConditionalLines">
+            <property name="toolTip">
+             <string>Draw conditional lines </string>
+            </property>
+            <property name="text">
+             <string>Draw Conditional Lines</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="4" colspan="2">
+           <widget class="QCheckBox" name="FadeSteps">
+            <property name="toolTip">
+             <string>Enable fade previous step when in HTML export</string>
+            </property>
+            <property name="text">
+             <string>HTML Export Fade Previous Steps</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="4">
+           <widget class="QCheckBox" name="axisIcon">
+            <property name="toolTip">
+             <string>Enable show axis icon</string>
+            </property>
+            <property name="text">
+             <string>Axis Icon</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="edgeLines">
+            <property name="toolTip">
+             <string>Enable edge lines</string>
+            </property>
+            <property name="text">
+             <string>Edge Lines:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="lineWidth">
+            <property name="maximumSize">
+             <size>
+              <width>75</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Set edge lines width in pixels</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="studLogo">
+            <property name="toolTip">
+             <string>Enable LEGO stud logo</string>
+            </property>
+            <property name="text">
+             <string>Stud Logo:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="antiAliasingSamples">
+            <property name="toolTip">
+             <string>Set LEGO stud logo exponent</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>2x</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>4x</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>8x</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="antiAliasing">
+            <property name="toolTip">
+             <string>Enable anti-aliasing</string>
+            </property>
+            <property name="text">
+             <string>Anti-aliasing:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QComboBox" name="studLogoCombo">
+            <property name="toolTip">
+             <string>Select LEGO stud logo version</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>Logo1</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Logo2</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Logo3</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Logo4</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Logo5</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>width</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2" colspan="2">
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </widget>
@@ -1642,8 +1652,6 @@
   <tabstop>studLogoCombo</tabstop>
   <tabstop>edgeLines</tabstop>
   <tabstop>lineWidth</tabstop>
-  <tabstop>axisIcon</tabstop>
-  <tabstop>ShadingMode</tabstop>
   <tabstop>gridStuds</tabstop>
   <tabstop>gridStudColor</tabstop>
   <tabstop>gridLines</tabstop>

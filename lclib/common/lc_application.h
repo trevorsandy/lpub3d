@@ -68,6 +68,9 @@ public:
 /*** LPub3D Mod - Timeline part icons ***/
 	bool mViewPieceIcons;
 /*** LPub3D Mod end ***/
+/*** LPub3D Mod - true fade ***/
+	bool mConditionalLines;
+/*** LPub3D Mod end ***/
 };
 
 /*** LPub3D Mod - change QApplication to QObject ***/

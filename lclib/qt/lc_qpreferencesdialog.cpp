@@ -183,6 +183,10 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	ui->viewColorIconsRadio->setChecked(!preferredIcons);
 /*** LPub3D Mod end ***/
 
+/*** LPub3D Mod - true fade ***/
+	ui->ConditionalLines->setChecked(mOptions->Preferences.mConditionalLines);
+/*** LPub3D Mod end ***/
+
 /*** LPub3D Mod - set preferences dialog properties ***/
 	ui->authorName->setDisabled(true);
 	ui->partsLibrary->setDisabled(true);
@@ -200,7 +204,6 @@ lcQPreferencesDialog::lcQPreferencesDialog(QWidget* Parent, lcPreferencesDialogO
 	ui->lgeoPathBrowse->hide();
 	ui->Language->hide();
 	ui->checkForUpdates->hide();
-//	ui->FadeSteps->hide();
 	ui->RestoreTabLayout->hide();
 	ui->label_6->hide();					//label Language
 	ui->label_10->hide();					//label check for updates
@@ -305,6 +308,10 @@ void lcQPreferencesDialog::accept()
 
 /*** LPub3D Mod - Timeline part icons ***/
 	mOptions->Preferences.mViewPieceIcons = ui->viewPieceIconsRadio->isChecked();
+/*** LPub3D Mod end ***/
+
+/*** LPub3D Mod - true fade ***/
+	mOptions->Preferences.mConditionalLines = ui->ConditionalLines->isChecked();
 /*** LPub3D Mod end ***/
 
 	QDialog::accept();

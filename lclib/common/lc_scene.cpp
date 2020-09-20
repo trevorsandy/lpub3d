@@ -461,10 +461,11 @@ void lcScene::Draw(lcContext* Context) const
 
 	Context->SetViewMatrix(mViewMatrix);
 
-	constexpr bool DrawConditional = true;
-	const lcPreferences& Preferences = lcGetPreferences();
 /*** LPub3D Mod - true fade ***/
-	bool LPubFadeSteps = gApplication->FadePreviousSteps() && !mTranslucentMeshes.IsEmpty();
+	const lcPreferences& Preferences = lcGetPreferences();
+
+	const bool DrawConditional = Preferences.mConditionalLines;
+	const bool LPubFadeSteps   = gApplication->FadePreviousSteps() && !mTranslucentMeshes.IsEmpty();
 /*** LPub3D Mod end ***/
 
 	lcShadingMode ShadingMode = Preferences.mShadingMode;
