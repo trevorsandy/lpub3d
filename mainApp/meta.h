@@ -95,6 +95,9 @@ enum Rc {
          SepRc,
 
          ClearRc,
+         FadeRc,
+         SilhouetteRc,
+         ColourRc,
          BufferStoreRc,
          BufferLoadRc,
          MLCadSkipBeginRc,
@@ -3575,6 +3578,9 @@ public:
   LPubMeta      LPub;
   RcMeta        step;
   RcMeta        clear;
+  RcMeta        fade;
+  RcMeta        silhouette;
+  RcMeta        colour;
   RotStepMeta   rotStep;
   BuffExchgMeta bfx;
   MLCadMeta     MLCad;

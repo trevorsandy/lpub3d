@@ -5094,15 +5094,18 @@ void Meta::init(BranchMeta * /* unused */, QString /* unused */)
 {
   preamble = "0 ";
 
-  LPub   .init(this,"!LPUB");
-  step   .init(this,"STEP",    StepRc);
-  clear  .init(this,"CLEAR",   ClearRc);
-  rotStep.init(this,"ROTSTEP");
-  bfx    .init(this,"BUFEXCHG");
-  MLCad  .init(this,"MLCAD");
-  LDCad  .init(this,"LDCAD");
-  LeoCad .init(this,"LEOCAD");
-  LSynth .init(this,"SYNTH");
+  LPub       .init(this,"!LPUB");
+  step       .init(this,"STEP",        StepRc);
+  clear      .init(this,"CLEAR",       ClearRc);
+  fade       .init(this,"!FADE",       FadeRc);
+  silhouette .init(this,"!SILHOUETTE", SilhouetteRc);
+  colour     .init(this,"!COLOUR",     ColourRc);
+  rotStep    .init(this,"ROTSTEP");
+  bfx        .init(this,"BUFEXCHG");
+  MLCad      .init(this,"MLCAD");
+  LDCad      .init(this,"LDCAD");
+  LeoCad     .init(this,"LEOCAD");
+  LSynth     .init(this,"SYNTH");
 
   /*
    * The token map translates known keywords to values

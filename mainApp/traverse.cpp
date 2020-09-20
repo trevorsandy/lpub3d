@@ -3434,43 +3434,55 @@ void Gui::writeToTmp(const QString &fileName,
                   rc = meta.parse(line,here,false);
 
                   switch (rc) {
-
-                    /* Buffer exchange */
-                    case BufferStoreRc:
+                  case FadeRc:
+                  case SilhouetteRc:
+                  case ColourRc:
+                      csiParts << line;
+                      break;
+                  case LDCadGeneratedRc:
+                      skipLDCadGenerated = true;
+                      break;
+                  case RotStepRc:
+                  case StepRc:
+                  case EndOfFileRc:
+                      skipLDCadGenerated = false;
+                      break;
+                      /* Buffer exchange */
+                  case BufferStoreRc:
                       bfx[meta.bfx.value()] = csiParts;
                       break;
-                    case BufferLoadRc:
+                  case BufferLoadRc:
                       csiParts = bfx[meta.bfx.value()];
                       break;
-                    case MLCadGroupRc:
-                    case LDCadGroupRc:
-                    case LeoCadGroupBeginRc:
-                    case LeoCadGroupEndRc:
+                  case MLCadGroupRc:
+                  case LDCadGroupRc:
+                  case LeoCadGroupBeginRc:
+                  case LeoCadGroupEndRc:
                       csiParts << line;
                       break;
                       /* remove a group or all instances of a part type */
-                    case GroupRemoveRc:
-                    case RemoveGroupRc:
-                    case RemovePartRc:
-                    case RemoveNameRc:
-                      {
-                        QStringList newCSIParts;
-                        if (rc == RemoveGroupRc) {
-                            remove_group(csiParts,meta.LPub.remove.group.value(),newCSIParts);
-                          } else if (rc == RemovePartRc) {
-                            remove_parttype(csiParts, meta.LPub.remove.parttype.value(),newCSIParts);
-                          } else {
-                            remove_partname(csiParts, meta.LPub.remove.partname.value(),newCSIParts);
-                          }
-                        csiParts = newCSIParts;
+                  case GroupRemoveRc:
+                  case RemoveGroupRc:
+                  case RemovePartRc:
+                  case RemoveNameRc:
+                  {
+                      QStringList newCSIParts;
+                      if (rc == RemoveGroupRc) {
+                          remove_group(csiParts,meta.LPub.remove.group.value(),newCSIParts);
+                      } else if (rc == RemovePartRc) {
+                          remove_parttype(csiParts, meta.LPub.remove.parttype.value(),newCSIParts);
+                      } else {
+                          remove_partname(csiParts, meta.LPub.remove.partname.value(),newCSIParts);
                       }
+                      csiParts = newCSIParts;
+                  }
                       break;
-                    default:
+                  default:
                       break;
-                    }
-                }
-            }
-        }
+                  }
+              }
+          }
+      }
 
       QTextStream out(&file);
       for (int i = 0; i < csiParts.size(); i++) {
